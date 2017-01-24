@@ -1,0 +1,62 @@
+#!/usr/bin/env bash
+
+HOST=`hostname`
+
+TARGET=$0
+DIR=`dirname "$TARGET"`
+TARGET=`basename "$TARGET"`
+
+while [ -L "$TARGET" ]
+do
+  TARGET=`readlink "$TARGET"`
+  DIR=`dirname "$TARGET"`
+  TARGET=`basename "$TARGET"` 
+done
+
+SCRIPT=$TARGET
+HERE=$DIR
+PID=$HERE/xinetd.$HOST.pid
+LOG=$HERE/mylog.$HOST
+XINETD=`which xinetd`
+
+if [ -z "$XINETD" ] ; then
+    echo "xinetd not found"
+    exit 1
+fi
+
+case $1 in
+
+    start)
+    if [ ! -f "$PID" ] ; then
+        $XINETD -f $HERE/xinetd.conf -pidfile $PID -filelog $LOG
+    else
+        echo "$SCRIPT: $PID exists, already running?"
+    fi
+    ;;
+
+    stop)
+    if [ -f "$PID" ] ; then
+        kill -9 `cat $PID`
+        rm -f $PID
+    else
+        echo "$SCRIPT: $PID not found, already terminated?"
+    fi
+    ;;
+
+    status)
+    if [ -f "$PID" ] ; then
+        PROG=$(ps -p $(cat $PID) -o 'comm=')
+        PROG=$(basename $PROG)
+        if [ "$PROG" == "xinetd" ] ; then
+            echo "$SCRIPT: server running"
+        else
+            echo "$SCRIPT: $PID found, but incorrect or missing process"
+        fi
+    else
+        echo "$SCRIPT: $PID not found, server not running"
+    fi
+    ;;
+*)
+    echo "USAGE $SCRIPT start|stop|status"
+
+esac

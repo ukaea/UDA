@@ -1,0 +1,43 @@
+#------------------------------------------------------------------------------------------------------
+# Creates the Environment needed by the IDAM Server.
+#------------------------------------------------------------------------------------------------------
+
+#------------------------------------------------------------------------------------------------------
+# IDAM Logging mode
+
+export IDAM_LOG=@CMAKE_INSTALL_PREFIX@/etc
+export IDAM_LOG_MODE=a
+export IDAM_LOG_LEVEL=DEBUG  # Options: INFO, DEBUG, WARN, ERROR, ACCESS
+export IDAM_DEBUG_APPEND=a
+
+#------------------------------------------------------------------------------------------------------
+# IDAM DUMP Program Locations
+
+export IDAM_DUMP_MDSPLUS=`which idl 2>/dev/null`
+export IDAM_DUMP_IDA=`which idadump 2>/dev/null`
+export IDAM_DUMP_NETCDF=`which /usr/bin/ncdump 2>/dev/null`
+export IDAM_DUMP_HDF5=`which h5dump 2>/dev/null`
+
+#------------------------------------------------------------------------------------------------------
+# IDAM Server Host
+#------------------------------------------------------------------------------------------------------
+
+export IDAM_HOST=`hostname`
+export IDAM_PORT=56565
+
+export IDAM_SQLHOST=idam1       # IDAM SQL Server Host
+export IDAM_SQLPORT=56566       # IDAM SQL Server Port
+export IDAM_SQLDBNAME=idam      # IDAM SQL Database Name
+export IDAM_SQLUSER=readonly    # IDAM SQL Database User
+
+#------------------------------------------------------------------------------------------------------
+# Plugin Registration + Structure Passing configuration
+
+export IDAM_PLUGIN_CONFIG=@CMAKE_INSTALL_PREFIX@/bin/plugins/idamPlugins.conf
+export IDAM_SARRAY_CONFIG=@CMAKE_INSTALL_PREFIX@/bin/plugins/idamgenstruct.conf
+
+#------------------------------------------------------------------------------------------------------
+# Setup required dynamic library paths
+
+export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:@CMAKE_INSTALL_PREFIX@/lib:@CMAKE_INSTALL_PREFIX@/bin/plugins"
+export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:@EXTRA_LD_LIBRARY_PATHS@"

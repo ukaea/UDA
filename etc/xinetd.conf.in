@@ -1,0 +1,27 @@
+###############################################################################
+# xinetd setup to start idam server
+###############################################################################
+
+service @USER@idam
+{
+    disable         = no
+    flags           = IPv4 NOLIBWRAP KEEPALIVE NODELAY
+    type            = UNLISTED
+    protocol        = tcp
+    port            = 56565
+    socket_type     = stream
+    wait            = no
+    user            = @USER@
+    server          = @CMAKE_INSTALL_PREFIX@/etc/idamserver.sh
+
+    instances       = 50
+    per_source      = 10
+
+    v6only          = no
+    groups          = yes
+    umask           = 002
+
+    log_type        = FILE @CMAKE_INSTALL_PREFIX@/etc/xinetd.logfile
+    log_on_success  += DURATION USERID
+    log_on_failure  += USERID
+}

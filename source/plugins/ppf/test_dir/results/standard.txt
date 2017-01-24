@@ -1,0 +1,40 @@
+Client version = 7
+IDAM server host = localhost:3090
+HELP Test #: 0  [0] []
+Data Type  17
+Data Count 865
+Data Desc dsa Plugin: help = description of this plugin
+HelpData
+       PPF2 plugin: Functions Names
+
+f=PPFGO,shot=n, seq=n
+f=PDMSEQ,pulse=n,seq=n,owner=s,dda=s
+f=PPFUID,userid=s,rw=s
+f=PPFERR,rname=s,error_code=n
+f=PPFGQI, shot=n
+f=PPFGID, rw=s
+f=PPFPOK
+f=PDAINF
+f=PPFSEQ, shot=d, ndda=n
+f=PPFINF, comlen=n, ndda=n
+f=DDAINF, shot=n, dda=s, nwcom=n, ndt=n
+f=PDLPPF, shot=n, uid=n, dup=n, nseq=n
+f=PDLUSR, shot=n, dda=s, nusers=n
+f=PDMSDT, date=n, time=s
+f=PDMSHT
+f=PDSTAT
+f=PDSRCH, shot=n, dda=s, ndda=n
+f=PDSTD, shot=n
+f=PDTINF, shot=n, dda=s, ndt=n
+f=PPFDAT, shot=n, seq=n, dda=s, dtype=s, nx=d, nt=d
+f=PPFDTI, shot=n, seq=n, dda=s, dtype=s
+f=PPFDDA, shot=n, nseq=n, dda=s
+f=PPFGET, shot=n, dda=s, dtype=s
+f=PPFGSF, shot=n, seq=n, dda=s, dtype=s
+f=PPFGTS, shot=n, dda=s, dtype=s, twant=f
+f=PPFMOD, shot=n
+f=PPFONDISK, shot=n, dda=s
+f=PPFOWNERINFO, shot=n, seq=n, flag=n
+f=PPFSETDEVICE, device=s
+f=PPFSIZ, shot=n, seq=n, dda=s, user=s
+

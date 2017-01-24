@@ -1,0 +1,47 @@
+cmake_minimum_required( VERSION 2.8 )
+
+find_package( LibXml2 QUIET )
+find_package( MDSplus QUIET )
+
+if( NOT MDSPLUS_FOUND )
+  message( WARNING "mdsplus not found - skipping imas plugin" )
+  return()
+elseif( NOT LIBXML2_FOUND )
+  message( WARNING "Libxml2 not found - skipping imas plugin" )
+  return()
+endif()
+
+add_definitions( -Wno-error )
+
+include( plugins )
+
+set( IMAS_SOURCES 
+  ual_low_level_f77.c
+  ual_low_level.c
+  ual_low_level_mdsplus.c
+  ual_low_level_remote.c
+  ual_low_level_meta.cpp
+  ual_low_level_mdsobjects.cpp )
+
+idam_plugin(
+  NAME IMAS
+  ENTRY_FUNC imas_mds
+  DESCRIPTION "ITER IMAS put & get plugin"
+  EXAMPLE "IMAS::put()"
+  LIBNAME imas_plugin
+  SOURCES
+    imas_mds.c
+    extract_indices.c
+    common.c
+    ${IMAS_SOURCES}
+  CONFIG_FILE imas.cfg
+  EXTRA_INCLUDE_DIRS
+    ${LIBXML2_INCLUDE_DIR}
+    ${MDSPLUS_INCLUDES}
+    ${CMAKE_SOURCE_DIR}/client
+  EXTRA_LINK_LIBS
+    ${LIBXML2_LIBRARIES}
+    ${MDSPLUS_LIBRARIES}
+    ${IDC_LIB_NAME}
+    pthread
+)

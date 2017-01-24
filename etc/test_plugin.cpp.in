@@ -1,0 +1,69 @@
+#if 0
+#!/bin/bash
+if [[ -n "@LIBMEMCACHED_LIB_DIR@" ]]
+then
+    g++ test_plugin.cpp -g -O0 -gdwarf-3 -o test_plugin \
+        -I@CMAKE_INSTALL_PREFIX@/include/idam -I@CMAKE_INSTALL_PREFIX@/include/idam/c++ \
+        -I@Boost_INCLUDE_DIR@ \
+        -Wl,-rpath,@LIBMEMCACHED_LIB_DIR@ -L@LIBMEMCACHED_LIB_DIR@ \
+        -Wl,-rpath,@CMAKE_INSTALL_PREFIX@/lib -L@CMAKE_INSTALL_PREFIX@/lib \
+        -l@IDC_LIB_NAME@ -lidamcpp
+else
+    g++ test_plugin.cpp -g -O0 -gdwarf-3 -o test_plugin \
+        -I@CMAKE_INSTALL_PREFIX@/include/idam -I@CMAKE_INSTALL_PREFIX@/include/idam/c++ \
+        -I@Boost_INCLUDE_DIR@ \
+        -Wl,-rpath,@CMAKE_INSTALL_PREFIX@/lib -L@CMAKE_INSTALL_PREFIX@/lib \
+        -l@IDC_LIB_NAME@ -lidamcpp
+fi
+exit 0
+#endif
+
+#include <Idam.hpp>
+#include <typeinfo>
+#include <iostream>
+#include <stdlib.h>
+
+int main() {
+    setenv("IDAM_PLUGIN_DIR", "@CMAKE_INSTALL_PREFIX@/bin/plugins", 1);
+    setenv("IDAM_PLUGIN_CONFIG", "@CMAKE_INSTALL_PREFIX@/bin/plugins/idamPlugins.conf", 1);
+    setenv("IDAM_SARRAY_CONFIG", "@CMAKE_INSTALL_PREFIX@/bin/plugins/idamgenstruct.conf", 1);
+
+    Idam::Client::setProperty(Idam::PROP_DEBUG, true);
+
+    Idam::Client::setServerHostName("localhost");
+    Idam::Client::setServerPort(56565);
+
+    Idam::Client client;
+
+    const Idam::Result& result = client.get("HELP::services()", "");
+
+    const Idam::Data * data = result.data();
+    if (data) {
+        std::cout << data->size() << std::endl;
+        std::cout << data->type().name() << std::endl;
+    } else {
+        std::cerr << "no data returned" << std::endl;
+        return 1;
+    }
+
+    const Idam::String * str = dynamic_cast<const Idam::String*>(data);
+    if (str) {
+        std::cout << str->str() << std::endl;
+    }
+
+    const Idam::Array * arr = dynamic_cast<const Idam::Array*>(data);
+    if (arr) {
+        std::cout << arr->as<float>().size() << std::endl;
+        std::cout << arr->type().name() << std::endl;
+        std::cout << arr->as<float>().at(0) << std::endl;
+    }
+
+    const Idam::Scalar * scalar = dynamic_cast<const Idam::Scalar*>(data);
+    if (scalar) {
+        std::cout << scalar->type().name() << std::endl;
+        std::cout << scalar->as<float>() << std::endl;
+    }
+
+    return 0;
+}
+

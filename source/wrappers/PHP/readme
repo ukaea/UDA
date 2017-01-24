@@ -1,0 +1,16 @@
+PHP Extension: PHP Interface to IDAM
+
+Based on C++:  http://www.php-cpp.com 
+
+Basic extension: http://www.php-cpp.com/documentation/your-first-extension
+
+Requirements:
+
+1> PHP native interaction with the IDAM/Provenance database
+2> PHP native interaction with the Pin Board database
+3> PHP Extension library to IDAM
+4> PHP interaction through the IDAM extension to backend IDAM server plugin
+
+Postgres needs a php extension: pgsql.so
+libpgsql.so also needs to be on the search path
+php.ini needs extension=pgsql.so uncommented 

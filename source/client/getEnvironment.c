@@ -1,0 +1,293 @@
+//! $LastChangedRevision: 353 $
+//! $LastChangedDate: 2013-11-18 15:32:28 +0000 (Mon, 18 Nov 2013) $
+//! $LastChangedBy: dgm $
+//! $HeadURL: https://fussvn.fusion.culham.ukaea.org.uk/svnroot/IDAM/development/source/client/getEnvironment.c $
+
+/*---------------------------------------------------------------
+* Read Client Environment Variables
+*
+* Reads and returns values for a Standard list of IDAM Environment variables
+*
+* Change History
+*
+* v1.0  04Aug06   D.G.Muir	Original Version
+* v1.1  13Nov06   D.G.Muir	Added structure items to manage multiple server connections
+* v1.2  19Mar07   D.G.Muir	API Defaults added
+* v1.3  10Apr07   D.G.Muir	FATCLIENT & GENERIC_ENABLE Compiler Option Added
+* 13Nov2007	dgm	FATCLIENT Compiler Option Commented Out: Require SQL Server details for IDL DLM library
+* 08Jul2009	dgm	initEnvironment = 0 added after initialisation
+* 30Sep2009	dgm	IDAM_PRIVATE_PATH_TARGET and IDAM_PRIVATE_PATH_SUBSTITUTE added to reform the path to private files
+* 10Oct2009	dgm	If FATCLIENT then set environment.external_user if EXTERNAL_USER
+* 05Mar2010	dgm	Add a second host, port for load balancing when a socket connection to the principal host cannot be opened
+* 11Nov2010	dgm	Added clientFlags and altRank to ENVIRONMENT data structure
+* 13Nov2013	dgm	Modified the environment variable for the debug directory - make different to the server's
+// 31Jan2011	dgm	Windows sockets implementation
+*--------------------------------------------------------------*/
+
+#include <idamLog.h>
+#include "getEnvironment.h"
+
+#ifdef FATCLIENT
+#  include "idamserverconfig.h"
+#endif
+
+void printIdamClientEnvironment(ENVIRONMENT* environ)
+{
+    IDAM_LOG(LOG_INFO, "\nClient Environment Variable values\n\n");
+    IDAM_LOGF(LOG_INFO, "Log Location    : %s\n", environ->logdir);
+    IDAM_LOGF(LOG_INFO, "Log Write Mode  : %s\n", environ->logmode);
+    IDAM_LOGF(LOG_INFO, "Log Level       : %d\n", environ->loglevel);
+    IDAM_LOGF(LOG_INFO, "Client Flags    : %u\n", environ->clientFlags);
+    IDAM_LOGF(LOG_INFO, "Alt Rank        : %d\n", environ->altRank);
+#ifdef FATCLIENT
+    IDAM_LOGF(LOG_INFO, "External User?  : %d\n", environ->external_user);
+#  ifdef PROXYSERVER
+    IDAM_LOGF(LOG_INFO, "IDAM Proxy Host : %s\n", environ->server_proxy);
+    IDAM_LOGF(LOG_INFO, "IDAM This Host  : %s\n", environ->server_this);
+#  endif
+#endif
+    IDAM_LOGF(LOG_INFO, "IDAM Server Host: %s\n", environ->server_host);
+    IDAM_LOGF(LOG_INFO, "IDAM Server Port: %d\n", environ->server_port);
+    IDAM_LOGF(LOG_INFO, "IDAM Server Host2: %s\n", environ->server_host2);
+    IDAM_LOGF(LOG_INFO, "IDAM Server Port2: %d\n", environ->server_port2);
+    IDAM_LOGF(LOG_INFO, "Server Reconnect: %d\n", environ->server_reconnect);
+    IDAM_LOGF(LOG_INFO, "Server Change Socket: %d\n", environ->server_change_socket);
+    IDAM_LOGF(LOG_INFO, "Server Socket ID: %d\n", environ->server_socket);
+    IDAM_LOGF(LOG_INFO, "API Delimiter   : %s\n", environ->api_delim);
+    IDAM_LOGF(LOG_INFO, "Default Device  : %s\n", environ->api_device);
+    IDAM_LOGF(LOG_INFO, "Default Archive : %s\n", environ->api_archive);
+    IDAM_LOGF(LOG_INFO, "Default Format  : %s\n", environ->api_format);
+    IDAM_LOGF(LOG_INFO, "Private File Path Target    : %s\n", environ->private_path_target);
+    IDAM_LOGF(LOG_INFO, "Private File Path Substitute: %s\n", environ->private_path_substitute);
+
+#ifndef NOTGENERICENABLED
+    IDAM_LOGF(LOG_INFO, "IDAM SQL Server Host: %s\n", environ->sql_host);
+    IDAM_LOGF(LOG_INFO, "IDAM SQL Server Port: %d\n", environ->sql_port);
+    IDAM_LOGF(LOG_INFO, "IDAM SQL Database   : %s\n", environ->sql_dbname);
+    IDAM_LOGF(LOG_INFO, "IDAM SQL USer       : %s\n", environ->sql_user);
+#endif
+
+}
+
+#ifdef FATCLIENT
+void getIdamClientEnvironmentFat(ENVIRONMENT * environ)
+#else
+
+void getIdamClientEnvironment(ENVIRONMENT* environ)
+#endif
+{
+
+    char* env = NULL;
+
+    if (environ == NULL || environ->initialised) return;
+
+//--- Read Standard Set of Environment Variables ------------------------------------
+
+// Log Output
+
+    if ((env = getenv("IDAM_LOG")) != NULL) {
+        strcpy(environ->logdir, env);
+        strcat(environ->logdir, PATH_SEPARATOR);
+    } else {
+#ifndef _WIN32
+        strcpy(environ->logdir, "./");                    // Client Log is local to pwd
+#else
+        strcpy(environ->logfile,"");
+#endif
+    }
+
+// Log Output Write Mode
+
+    strcpy(environ->logmode, "w");                    // Write & Replace Mode
+    if ((env = getenv("IDAM_LOG_MODE")) != NULL) {
+        if (env[0] == 'a' && strlen(env) == 1) {
+            environ->logmode[0] = 'a';
+        }
+    }    // Append Mode
+
+    environ->loglevel = LOG_NONE;
+    if ((env = getenv("IDAM_LOG_LEVEL")) != NULL) {
+        if (strncmp(env, "ACCESS", 6) == 0)      environ->loglevel = LOG_ACCESS;
+        else if (strncmp(env, "ERROR", 5) == 0)  environ->loglevel = LOG_ERROR;
+        else if (strncmp(env, "WARN", 4) == 0)   environ->loglevel = LOG_WARN;
+        else if (strncmp(env, "DEBUG", 5) == 0)  environ->loglevel = LOG_DEBUG;
+        else if (strncmp(env, "INFO", 4) == 0)   environ->loglevel = LOG_INFO;
+    }
+
+// IDAM Server Host Name
+
+    if (env_host) {                            // Check Not already set by User
+        if ((env = getenv("IDAM_HOST")) != NULL) {
+            strcpy(environ->server_host, env);
+        } else {
+            strcpy(environ->server_host, IDAM_SERVER_HOST);            // Default, e.g. fuslwn
+        }
+        // Check Not already set by User
+        if ((env = getenv("IDAM_HOST2")) != NULL) {
+            strcpy(environ->server_host2, env);
+        } else {
+            strcpy(environ->server_host2, IDAM_SERVER_HOST2);        // Default, e.g. fuslwi
+        }
+        env_host = 0;
+    }
+
+
+// IDAM Server Port name
+
+    if (env_port) {
+        if ((env = getenv("IDAM_PORT")) != NULL) {
+            environ->server_port = atoi(env);
+        } else {
+            environ->server_port = (int) IDAM_SERVER_PORT;
+        }            // Default, e.g. 56565
+        if ((env = getenv("IDAM_PORT2")) != NULL) {
+            environ->server_port2 = atoi(env);
+        } else {
+            environ->server_port2 = (int) IDAM_SERVER_PORT2;
+        }        // Default, e.g. 56565
+        env_port = 0;
+    }
+
+// IDAM Reconnect Status
+
+    environ->server_reconnect = 0;    // No reconnection needed at startup!
+    environ->server_socket = -1;    // No Socket open at startup
+
+//-------------------------------------------------------------------------------------------
+// API Defaults
+
+    if ((env = getenv("IDAM_DEVICE")) != NULL) {
+        strcpy(environ->api_device, env);
+    } else {
+        strcpy(environ->api_device, API_DEVICE);
+    }
+
+    if ((env = getenv("IDAM_ARCHIVE")) != NULL) {
+        strcpy(environ->api_archive, env);
+    } else {
+        strcpy(environ->api_archive, API_ARCHIVE);
+    }
+
+    if ((env = getenv("IDAM_API_DELIM")) != NULL) {
+        strcpy(environ->api_delim, env);
+    } else {
+        strcpy(environ->api_delim, API_PARSE_STRING);
+    }
+
+    if ((env = getenv("IDAM_FILE_FORMAT")) != NULL) {
+        strcpy(environ->api_format, env);
+    } else {
+        strcpy(environ->api_format, API_FILE_FORMAT);
+    }
+
+
+//-------------------------------------------------------------------------------------------
+// Security Defaults
+    /*
+       if(env_cert){
+          if((env = getenv("IDAM_CERTIFICATE")) !=NULL)
+             strcpy(environ->security_cert, env);
+          else
+             strcpy(environ->security_cert, SECURITY_CERT);
+       }
+    */
+
+//-------------------------------------------------------------------------------------------
+// Standard Data Location Path Algorithm ID
+
+#ifdef FATCLIENT
+    environ->data_path_id = 0;
+    if ((env = getenv("IDAM_DATAPATHID")) != NULL) environ->data_path_id = atoi(env);
+#endif
+
+//-------------------------------------------------------------------------------------------
+// External User?
+
+#ifdef FATCLIENT
+#  ifdef EXTERNAL_USER
+    environ->external_user = 1;
+#  else
+    environ->external_user = 0;
+#  endif
+    if ((env = getenv("EXTERNAL_USER")) != NULL) environ->external_user = 1;
+    if ((env = getenv("IDAM_EXTERNAL_USER")) != NULL) environ->external_user = 1;
+#endif
+
+//-------------------------------------------------------------------------------------------
+// IDAM Proxy Host: redirect ALL requests
+
+#ifdef FATCLIENT
+#  ifdef PROXYSERVER
+    if((env = getenv("IDAM_PROXY_TARGETHOST")) != NULL)
+         strcpy(environ->server_proxy, env);
+     else
+         environ->server_proxy[0] = '\0';
+
+    if((env = getenv("IDAM_PROXY_THISHOST")) != NULL)
+         strcpy(environ->server_this, env);
+     else
+         environ->server_this[0] = '\0';
+#  endif
+#endif
+
+//-------------------------------------------------------------------------------------------
+// Private File Path substitution: Enables server to see files if the path contains too many hierarchical elements
+
+    if ((env = getenv("IDAM_PRIVATE_PATH_TARGET")) != NULL) {
+        strcpy(environ->private_path_target, env);
+        if ((env = getenv("IDAM_PRIVATE_PATH_SUBSTITUTE")) != NULL) {
+            strcpy(environ->private_path_substitute, env);
+        } else {
+            environ->private_path_substitute[0] = '\0';
+        }
+    } else {
+        environ->private_path_target[0] = '\0';
+        environ->private_path_substitute[0] = '\0';
+    }
+
+//-------------------------------------------------------------------------------------------
+// Fat Client SQL Database Connection Details
+
+//#ifdef FATCLIENT
+//#ifdef GENERIC_ENABLE
+#ifndef NOTGENERICENABLED
+
+// IDAM SQL Server Host Name
+
+    strcpy(environ->sql_host, SQL_HOST);                // Default, e.g. fuslwn
+    if ((env = getenv("IDAM_SQLHOST")) != NULL) strcpy(environ->sql_host, env);
+
+// IDAM SQL Server Port name
+
+    environ->sql_port = (int) SQL_PORT;                // Default, e.g. 56566
+    if ((env = getenv("IDAM_SQLPORT")) != NULL) environ->sql_port = atoi(env);
+
+// IDAM SQL Database name
+
+    strcpy(environ->sql_dbname, SQL_DBNAME);                // Default, e.g. idam
+    if ((env = getenv("IDAM_SQLDBNAME")) != NULL) strcpy(environ->sql_dbname, env);
+
+// IDAM SQL Access username
+
+    strcpy(environ->sql_user, SQL_USER);                // Default, e.g. mast_db
+    if ((env = getenv("IDAM_SQLUSER")) != NULL) strcpy(environ->sql_user, env);
+
+#endif
+//#endif
+
+//-------------------------------------------------------------------------------------------
+// Client defined Property Flags
+
+    environ->clientFlags = 0;
+    if ((env = getenv("IDAM_FLAGS")) != NULL) environ->clientFlags = atoi(env);
+
+    environ->altRank = 0;
+    if ((env = getenv("IDAM_ALTRANK")) != NULL) environ->altRank = atoi(env);
+
+
+//-------------------------------------------------------------------------------------------
+
+    environ->initialised = 1;        // Initialisation Complete
+
+    return;
+}

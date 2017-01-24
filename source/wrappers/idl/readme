@@ -1,0 +1,11 @@
+dlm libraries are copied to:
+
+	/home/fusion/idlcodes/dgm 
+	
+the IDAM Client library is also copied to this directory	
+
+
+There is a 24 hr delay before upgrades are automatically installed across all
+machines.
+
+IDL's DLM Path = /usr/local/rsi/idl/bin/bin.linux.x86

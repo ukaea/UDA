@@ -1,0 +1,1197 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mapping>
+	<pf_active documentation="Description of the axisymmetric active poloidal field (PF) coils and supplies; includes the limits of these systems; includes the forces on them; does not include non-axisymmetric coil systems" type="IDS">
+		<coil documentation="Active PF coils" data_type="struct_array" dim="9" index="1">
+			<name data_type="STR_0D" documentation="Name of the coil">'A '</name>
+			<identifier data_type="STR_0D" documentation="Alphanumeric identifier of coils used for convenience">'A '</identifier>
+			<resistance data_type="FLT_0D" documentation="Coil resistance">0.022300d0</resistance>
+			<energy_limit_max documentation="Maximum Energy to be dissipated in the coil">89.2d6</energy_limit_max>
+			<element data_type="struct_array" documentation="Each PF coil is comprised of a number of cross-section elements described  individually" dim="1" index="1">
+				<name documentation="Name of this element of this coil">'A '</name>
+				<identifier documentation="Identifier of this element of this coil">'A '</identifier>
+				<turns_with_sign documentation="Number of effective turns in the element for calculating magnetic fields of the coil; includes the sign of the number of turns">195.000d0</turns_with_sign>
+				<area documentation="Cross-sectional areas of the element">1.709d0</area>
+				<geometry documentation="Cross-sectional shape of the element">
+					<geometry_type documentation="Type used to describe the element shape (1:'outline', 2:'rectangle', 3:'oblique')">2</geometry_type>
+					<rectangle documentation="Rectangular description of the element">
+						<r documentation="Geometric centre R">0.738d0</r>
+						<z documentation="Geometric centre Z">0.000d0</z>
+						<width documentation="Horizontal full width">0.135d0</width>
+						<height documentation="Vertical full height">1.750d0</height>
+					</rectangle>
+				</geometry>
+			</element>
+			<current documentation="Current in the coil">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GCOUBOB</name>
+				</data>
+			</current>
+			<voltage documentation="Voltage on the coil terminals">
+				<data>
+					<name documentation="Name of the signal in the local database">GTENGMES</name>
+				</data>
+			</voltage>
+		</coil>
+		<coil documentation="Active PF coils" data_type="struct_array" dim="9" index="2">
+			<name data_type="STR_0D" documentation="Name of the coil"> 'Bh'</name>
+			<identifier data_type="STR_0D" documentation="Alphanumeric identifier of coils used for convenience"> 'Bh'</identifier>
+			<resistance data_type="FLT_0D" documentation="Coil resistance">0.097100d0</resistance>
+			<energy_limit_max documentation="Maximum Energy to be dissipated in the coil">17.0d6</energy_limit_max>
+			<element data_type="struct_array" documentation="Each PF coil is comprised of a number of cross-section elements described  individually" dim="1" index="1">
+				<name documentation="Name of this element of this coil"> 'Bh'</name>
+				<identifier documentation="Identifier of this element of this coil"> 'Bh'</identifier>
+				<turns_with_sign documentation="Number of effective turns in the element for calculating magnetic fields of the coil; includes the sign of the number of turns"> 176.000d0</turns_with_sign>
+				<area documentation="Cross-sectional areas of the element">3.923d0</area>
+				<geometry documentation="Cross-sectional shape of the element">
+					<geometry_type documentation="Type used to describe the element shape (1:'outline', 2:'rectangle', 3:'oblique')">2</geometry_type>
+					<rectangle documentation="Rectangular description of the element">
+						<r documentation="Geometric centre R">1.118d0</r>
+						<z documentation="Geometric centre Z">1.750d0</z>
+						<width documentation="Horizontal full width">0.075d0</width>
+						<height documentation="Vertical full height">1.100d0</height>
+					</rectangle>
+				</geometry>
+			</element>
+			<current documentation="Current in the coil">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GCOUBOB</name>
+				</data>
+			</current>
+			<voltage documentation="Voltage on the coil terminals">
+				<data>
+					<name documentation="Name of the signal in the local database">GTENGMES</name>
+				</data>
+			</voltage>
+		</coil>
+		<coil documentation="Active PF coils" data_type="struct_array" dim="9" index="3">
+			<name data_type="STR_0D" documentation="Name of the coil"> 'Dh'</name>
+			<identifier data_type="STR_0D" documentation="Alphanumeric identifier of coils used for convenience"> 'Dh'</identifier>
+			<resistance data_type="FLT_0D" documentation="Coil resistance">0.105700d0</resistance>
+			<energy_limit_max documentation="Maximum Energy to be dissipated in the coil">163.8d6</energy_limit_max>
+			<element data_type="struct_array" documentation="Each PF coil is comprised of a number of cross-section elements described  individually" dim="1" index="1">
+				<name documentation="Name of this element of this coil"> 'Dh'</name>
+				<identifier documentation="Identifier of this element of this coil"> 'Dh'</identifier>
+				<turns_with_sign documentation="Number of effective turns in the element for calculating magnetic fields of the coil; includes the sign of the number of turns"> 95.000d0</turns_with_sign>
+				<area documentation="Cross-sectional areas of the element">26.148d0</area>
+				<geometry documentation="Cross-sectional shape of the element">
+					<geometry_type documentation="Type used to describe the element shape (1:'outline', 2:'rectangle', 3:'oblique')">2</geometry_type>
+					<rectangle documentation="Rectangular description of the element">
+						<r documentation="Geometric centre R">2.885d0</r>
+						<z documentation="Geometric centre Z">1.920d0</z>
+						<width documentation="Horizontal full width">0.270d0</width>
+						<height documentation="Vertical full height">0.350d0</height>
+					</rectangle>
+				</geometry>
+			</element>
+			<current documentation="Current in the coil">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GCOUBOB</name>
+				</data>
+			</current>
+			<voltage documentation="Voltage on the coil terminals">
+				<data>
+					<name documentation="Name of the signal in the local database">GTENGMES</name>
+				</data>
+			</voltage>
+		</coil>
+		<coil documentation="Active PF coils" data_type="struct_array" dim="9" index="4">
+			<name data_type="STR_0D" documentation="Name of the coil"> 'Eh'</name>
+			<identifier data_type="STR_0D" documentation="Alphanumeric identifier of coils used for convenience"> 'Eh'</identifier>
+			<resistance data_type="FLT_0D" documentation="Coil resistance">0.097500d0</resistance>
+			<energy_limit_max documentation="Maximum Energy to be dissipated in the coil">214.5d6</energy_limit_max>
+			<element data_type="struct_array" documentation="Each PF coil is comprised of a number of cross-section elements described  individually" dim="1" index="1">
+				<name documentation="Name of this element of this coil"> 'Eh'</name>
+				<identifier documentation="Identifier of this element of this coil"> 'Eh'</identifier>
+				<turns_with_sign documentation="Number of effective turns in the element for calculating magnetic fields of the coil; includes the sign of the number of turns"> 96.000d0</turns_with_sign>
+				<area documentation="Cross-sectional areas of the element">44.651d0</area>
+				<geometry documentation="Cross-sectional shape of the element">
+					<geometry_type documentation="Type used to describe the element shape (1:'outline', 2:'rectangle', 3:'oblique')">2</geometry_type>
+					<rectangle documentation="Rectangular description of the element">
+						<r documentation="Geometric centre R">3.770d0</r>
+						<z documentation="Geometric centre Z">1.523d0</z>
+						<width documentation="Horizontal full width">0.290d0</width>
+						<height documentation="Vertical full height">0.375d0</height>
+					</rectangle>
+				</geometry>
+			</element>
+			<current documentation="Current in the coil">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GCOUBOB</name>
+				</data>
+			</current>
+			<voltage documentation="Voltage on the coil terminals">
+				<data>
+					<name documentation="Name of the signal in the local database">GTENGMES</name>
+				</data>
+			</voltage>
+		</coil>
+		<coil documentation="Active PF coils" data_type="struct_array" dim="9" index="5">
+			<name data_type="STR_0D" documentation="Name of the coil"> 'Fh'</name>
+			<identifier data_type="STR_0D" documentation="Alphanumeric identifier of coils used for convenience"> 'Fh'</identifier>
+			<resistance data_type="FLT_0D" documentation="Coil resistance">0.099200d0</resistance>
+			<energy_limit_max documentation="Maximum Energy to be dissipated in the coil">168.6d6</energy_limit_max>
+			<element data_type="struct_array" documentation="Each PF coil is comprised of a number of cross-section elements described  individually" dim="1" index="1">
+				<name documentation="Name of this element of this coil"> 'Fh'</name>
+				<identifier documentation="Identifier of this element of this coil"> 'Fh'</identifier>
+				<turns_with_sign documentation="Number of effective turns in the element for calculating magnetic fields of the coil; includes the sign of the number of turns"> 96.000d0</turns_with_sign>
+				<area documentation="Cross-sectional areas of the element">60.132d0</area>
+				<geometry documentation="Cross-sectional shape of the element">
+					<geometry_type documentation="Type used to describe the element shape (1:'outline', 2:'rectangle', 3:'oblique')">2</geometry_type>
+					<rectangle documentation="Rectangular description of the element">
+						<r documentation="Geometric centre R">4.375d0</r>
+						<z documentation="Geometric centre Z">0.637d0</z>
+						<width documentation="Horizontal full width">0.290d0</width>
+						<height documentation="Vertical full height">0.375d0</height>
+					</rectangle>
+				</geometry>
+			</element>
+			<current documentation="Current in the coil">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GCOUBOB</name>
+				</data>
+			</current>
+			<voltage documentation="Voltage on the coil terminals">
+				<data>
+					<name documentation="Name of the signal in the local database">GTENGMES</name>
+				</data>
+			</voltage>
+		</coil>
+		<coil documentation="Active PF coils" data_type="struct_array" dim="9" index="6">
+			<name data_type="STR_0D" documentation="Name of the coil"> 'Fb'</name>
+			<identifier data_type="STR_0D" documentation="Alphanumeric identifier of coils used for convenience"> 'Fb'</identifier>
+			<resistance data_type="FLT_0D" documentation="Coil resistance">0.099200d0</resistance>
+			<energy_limit_max documentation="Maximum Energy to be dissipated in the coil">168.6d6</energy_limit_max>
+			<element data_type="struct_array" documentation="Each PF coil is comprised of a number of cross-section elements described  individually" dim="1" index="1">
+				<name documentation="Name of this element of this coil"> 'Fb'</name>
+				<identifier documentation="Identifier of this element of this coil"> 'Fb'</identifier>
+				<turns_with_sign documentation="Number of effective turns in the element for calculating magnetic fields of the coil; includes the sign of the number of turns"> 96.000d0</turns_with_sign>
+				<area documentation="Cross-sectional areas of the element">60.132d0</area>
+				<geometry documentation="Cross-sectional shape of the element">
+					<geometry_type documentation="Type used to describe the element shape (1:'outline', 2:'rectangle', 3:'oblique')">2</geometry_type>
+					<rectangle documentation="Rectangular description of the element">
+						<r documentation="Geometric centre R">4.375d0</r>
+						<z documentation="Geometric centre Z">-0.637d0</z>
+						<width documentation="Horizontal full width">0.290d0</width>
+						<height documentation="Vertical full height">0.375d0</height>
+					</rectangle>
+				</geometry>
+			</element>
+			<current documentation="Current in the coil">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GCOUBOB</name>
+				</data>
+			</current>
+			<voltage documentation="Voltage on the coil terminals">
+				<data>
+					<name documentation="Name of the signal in the local database">GTENGMES</name>
+				</data>
+			</voltage>
+		</coil>
+		<coil documentation="Active PF coils" data_type="struct_array" dim="9" index="7">
+			<name data_type="STR_0D" documentation="Name of the coil"> 'Eb'</name>
+			<identifier data_type="STR_0D" documentation="Alphanumeric identifier of coils used for convenience"> 'Eb'</identifier>
+			<resistance data_type="FLT_0D" documentation="Coil resistance">0.097500d0</resistance>
+			<energy_limit_max documentation="Maximum Energy to be dissipated in the coil">214.5d6</energy_limit_max>
+			<element data_type="struct_array" documentation="Each PF coil is comprised of a number of cross-section elements described  individually" dim="1" index="1">
+				<name documentation="Name of this element of this coil"> 'Eb'</name>
+				<identifier documentation="Identifier of this element of this coil"> 'Eb'</identifier>
+				<turns_with_sign documentation="Number of effective turns in the element for calculating magnetic fields of the coil; includes the sign of the number of turns"> 96.000d0</turns_with_sign>
+				<area documentation="Cross-sectional areas of the element">44.651d0</area>
+				<geometry documentation="Cross-sectional shape of the element">
+					<geometry_type documentation="Type used to describe the element shape (1:'outline', 2:'rectangle', 3:'oblique')">2</geometry_type>
+					<rectangle documentation="Rectangular description of the element">
+						<r documentation="Geometric centre R">3.770d0</r>
+						<z documentation="Geometric centre Z">-1.523d0</z>
+						<width documentation="Horizontal full width">0.290d0</width>
+						<height documentation="Vertical full height">0.375d0</height>
+					</rectangle>
+				</geometry>
+			</element>
+			<current documentation="Current in the coil">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GCOUBOB</name>
+				</data>
+			</current>
+			<voltage documentation="Voltage on the coil terminals">
+				<data>
+					<name documentation="Name of the signal in the local database">GTENGMES</name>
+				</data>
+			</voltage>
+		</coil>
+		<coil documentation="Active PF coils" data_type="struct_array" dim="9" index="8">
+			<name data_type="STR_0D" documentation="Name of the coil"> 'Db'</name>
+			<identifier data_type="STR_0D" documentation="Alphanumeric identifier of coils used for convenience"> 'Db'</identifier>
+			<resistance data_type="FLT_0D" documentation="Coil resistance">0.105700d0</resistance>
+			<energy_limit_max documentation="Maximum Energy to be dissipated in the coil">163.8d6</energy_limit_max>
+			<element data_type="struct_array" documentation="Each PF coil is comprised of a number of cross-section elements described  individually" dim="1" index="1">
+				<name documentation="Name of this element of this coil"> 'Db'</name>
+				<identifier documentation="Identifier of this element of this coil"> 'Db'</identifier>
+				<turns_with_sign documentation="Number of effective turns in the element for calculating magnetic fields of the coil; includes the sign of the number of turns"> 95.000d0</turns_with_sign>
+				<area documentation="Cross-sectional areas of the element">26.148d0</area>
+				<geometry documentation="Cross-sectional shape of the element">
+					<geometry_type documentation="Type used to describe the element shape (1:'outline', 2:'rectangle', 3:'oblique')">2</geometry_type>
+					<rectangle documentation="Rectangular description of the element">
+						<r documentation="Geometric centre R">2.885d0</r>
+						<z documentation="Geometric centre Z">-1.920d0</z>
+						<width documentation="Horizontal full width">0.270d0</width>
+						<height documentation="Vertical full height">0.350d0</height>
+					</rectangle>
+				</geometry>
+			</element>
+			<current documentation="Current in the coil">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GCOUBOB</name>
+				</data>
+			</current>
+			<voltage documentation="Voltage on the coil terminals">
+				<data>
+					<name documentation="Name of the signal in the local database">GTENGMES</name>
+				</data>
+			</voltage>
+		</coil>
+		<coil documentation="Active PF coils" data_type="struct_array" dim="9" index="9">
+			<name data_type="STR_0D" documentation="Name of the coil"> 'Bb' </name>
+			<identifier data_type="STR_0D" documentation="Alphanumeric identifier of coils used for convenience"> 'Bb' </identifier>
+			<resistance data_type="FLT_0D" documentation="Coil resistance">0.097100d0</resistance>
+			<energy_limit_max documentation="Maximum Energy to be dissipated in the coil">17.0d6</energy_limit_max>
+			<element data_type="struct_array" documentation="Each PF coil is comprised of a number of cross-section elements described  individually" dim="1" index="1">
+				<name documentation="Name of this element of this coil"> 'Bb' </name>
+				<identifier documentation="Identifier of this element of this coil"> 'Bb' </identifier>
+				<turns_with_sign documentation="Number of effective turns in the element for calculating magnetic fields of the coil; includes the sign of the number of turns"> 176.000d0 </turns_with_sign>
+				<area documentation="Cross-sectional areas of the element">3.923d0</area>
+				<geometry documentation="Cross-sectional shape of the element">
+					<geometry_type documentation="Type used to describe the element shape (1:'outline', 2:'rectangle', 3:'oblique')">2</geometry_type>
+					<rectangle documentation="Rectangular description of the element">
+						<r documentation="Geometric centre R">1.118d0</r>
+						<z documentation="Geometric centre Z">-1.750d0</z>
+						<width documentation="Horizontal full width">0.075d0</width>
+						<height documentation="Vertical full height">1.100d0</height>
+					</rectangle>
+				</geometry>
+			</element>
+			<current documentation="Current in the coil">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GCOUBOB</name>
+				</data>
+			</current>
+			<voltage documentation="Voltage on the coil terminals">
+				<data>
+					<name documentation="Name of the signal in the local database">GTENGMES</name>
+				</data>
+			</voltage>
+		</coil>
+		<circuit documentation="Circuits, connecting multiple PF coils to multiple supplies, defining the current and voltage relationships in the system" data_type="struct_array" dim="1" index="1">
+			<connections data_type="INT_2D" documentation="Description of the supplies and coils connections (nodes) across the circuit. The matrix describing for each node (first dimension) which components are connected to it (1 if connected, 0 otherwise). There are 2 sides to each component, thus 2*ncomponents as the size of the second dimension, listing first all supplies, then all coils (in the same order as listed in SUPPLIES and COILS). An example can be found in the data structure documentation PFconnections.pdf (TBD)" coordinate1="10" coordinate2="36">1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1 </connections>
+		</circuit>
+		<supply documentation="PF power supplies" data_type="struct_array" dim="9" index="1">
+			<name data_type="STR_0D" documentation="Name of the PF supply">'G0 '</name>
+			<identifier data_type="STR_0D" documentation="Identifier of the supply">'G0 '</identifier>
+			<resistance data_type="FLT_0D" documentation="Power supply internal resistance">0.0d0</resistance>
+			<delay data_type="FLT_0D">3.0d-3</delay>
+			<current_limit_max data_type="FLT_0D">40.0d3</current_limit_max>
+			<current_limit_min data_type="FLT_0D">-30.0d3</current_limit_min>
+			<voltage_limit_max data_type="FLT_0D">1500.0d0</voltage_limit_max>
+			<voltage_limit_min data_type="FLT_0D">-1500.0d0</voltage_limit_min>
+			<energy_limit_max data_type="FLT_0D">3.0d6</energy_limit_max>
+			<voltage documentation="Voltage at the supply output">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GTENGEN%1</name>
+				</data>
+			</voltage>
+			<voltage documentation="Voltage at the supply output">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GTENGEN%3</name>
+				</data>
+			</voltage>
+			<voltage documentation="Voltage at the supply output">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GTENGEN%5</name>
+				</data>
+			</voltage>
+			<voltage documentation="Voltage at the supply output">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GTENGEN%7</name>
+				</data>
+			</voltage>
+			<voltage documentation="Voltage at the supply output">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GTENGEN%9</name>
+				</data>
+			</voltage>
+			<voltage documentation="Voltage at the supply output">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GTENGEN%8</name>
+				</data>
+			</voltage>
+			<voltage documentation="Voltage at the supply output">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GTENGEN%6</name>
+				</data>
+			</voltage>
+			<voltage documentation="Voltage at the supply output">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GTENGEN%4</name>
+				</data>
+			</voltage>
+			<voltage documentation="Voltage at the supply output">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GTENGEN%2</name>
+				</data>
+			</voltage>
+			<current documentation="Current at the supply output, defined positive if it flows from point 1 to point 2 of the component in the pfcircuit description">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GIBOBGEN%10</name>
+				</data>
+			</current>
+			<current documentation="Current at the supply output, defined positive if it flows from point 1 to point 2 of the component in the pfcircuit description">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GIBOBGEN%2</name>
+				</data>
+			</current>
+			<current documentation="Current at the supply output, defined positive if it flows from point 1 to point 2 of the component in the pfcircuit description">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GIBOBGEN%4</name>
+				</data>
+			</current>
+			<current documentation="Current at the supply output, defined positive if it flows from point 1 to point 2 of the component in the pfcircuit description">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GIBOBGEN%6</name>
+				</data>
+			</current>
+			<current documentation="Current at the supply output, defined positive if it flows from point 1 to point 2 of the component in the pfcircuit description">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GIBOBGEN%8</name>
+				</data>
+			</current>
+			<current documentation="Current at the supply output, defined positive if it flows from point 1 to point 2 of the component in the pfcircuit description">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GIBOBGEN%7</name>
+				</data>
+			</current>
+			<current documentation="Current at the supply output, defined positive if it flows from point 1 to point 2 of the component in the pfcircuit description">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GIBOBGEN%5</name>
+				</data>
+			</current>
+			<current documentation="Current at the supply output, defined positive if it flows from point 1 to point 2 of the component in the pfcircuit description">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GIBOBGEN%3</name>
+				</data>
+			</current>
+			<current documentation="Current at the supply output, defined positive if it flows from point 1 to point 2 of the component in the pfcircuit description">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GIBOBGEN%1</name>
+				</data>
+			</current>
+		</supply>
+		<supply documentation="PF power supplies" data_type="struct_array" dim="9" index="2">
+			<name data_type="STR_0D" documentation="Name of the PF supply"> 'G1h'</name>
+			<identifier data_type="STR_0D" documentation="Identifier of the supply"> 'G1h'</identifier>
+			<resistance data_type="FLT_0D" documentation="Power supply internal resistance"> 0.0d0</resistance>
+			<delay data_type="FLT_0D"> 3.0d-3</delay>
+			<current_limit_max data_type="FLT_0D"> 6.8d3</current_limit_max>
+			<current_limit_min data_type="FLT_0D"> -5.3d3</current_limit_min>
+			<voltage_limit_max data_type="FLT_0D"> 1500.0d0</voltage_limit_max>
+			<voltage_limit_min data_type="FLT_0D"> -1500.0d0</voltage_limit_min>
+			<energy_limit_max data_type="FLT_0D"> 0.2d6</energy_limit_max>
+			<voltage documentation="Voltage at the supply output">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GTENGEN%1</name>
+				</data>
+			</voltage>
+			<voltage documentation="Voltage at the supply output">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GTENGEN%3</name>
+				</data>
+			</voltage>
+			<voltage documentation="Voltage at the supply output">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GTENGEN%5</name>
+				</data>
+			</voltage>
+			<voltage documentation="Voltage at the supply output">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GTENGEN%7</name>
+				</data>
+			</voltage>
+			<voltage documentation="Voltage at the supply output">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GTENGEN%9</name>
+				</data>
+			</voltage>
+			<voltage documentation="Voltage at the supply output">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GTENGEN%8</name>
+				</data>
+			</voltage>
+			<voltage documentation="Voltage at the supply output">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GTENGEN%6</name>
+				</data>
+			</voltage>
+			<voltage documentation="Voltage at the supply output">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GTENGEN%4</name>
+				</data>
+			</voltage>
+			<voltage documentation="Voltage at the supply output">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GTENGEN%2</name>
+				</data>
+			</voltage>
+			<current documentation="Current at the supply output, defined positive if it flows from point 1 to point 2 of the component in the pfcircuit description">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GIBOBGEN%10</name>
+				</data>
+			</current>
+			<current documentation="Current at the supply output, defined positive if it flows from point 1 to point 2 of the component in the pfcircuit description">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GIBOBGEN%2</name>
+				</data>
+			</current>
+			<current documentation="Current at the supply output, defined positive if it flows from point 1 to point 2 of the component in the pfcircuit description">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GIBOBGEN%4</name>
+				</data>
+			</current>
+			<current documentation="Current at the supply output, defined positive if it flows from point 1 to point 2 of the component in the pfcircuit description">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GIBOBGEN%6</name>
+				</data>
+			</current>
+			<current documentation="Current at the supply output, defined positive if it flows from point 1 to point 2 of the component in the pfcircuit description">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GIBOBGEN%8</name>
+				</data>
+			</current>
+			<current documentation="Current at the supply output, defined positive if it flows from point 1 to point 2 of the component in the pfcircuit description">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GIBOBGEN%7</name>
+				</data>
+			</current>
+			<current documentation="Current at the supply output, defined positive if it flows from point 1 to point 2 of the component in the pfcircuit description">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GIBOBGEN%5</name>
+				</data>
+			</current>
+			<current documentation="Current at the supply output, defined positive if it flows from point 1 to point 2 of the component in the pfcircuit description">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GIBOBGEN%3</name>
+				</data>
+			</current>
+			<current documentation="Current at the supply output, defined positive if it flows from point 1 to point 2 of the component in the pfcircuit description">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GIBOBGEN%1</name>
+				</data>
+			</current>
+		</supply>
+		<supply documentation="PF power supplies" data_type="struct_array" dim="9" index="3">
+			<name data_type="STR_0D" documentation="Name of the PF supply"> 'G2h'</name>
+			<identifier data_type="STR_0D" documentation="Identifier of the supply"> 'G2h'</identifier>
+			<resistance data_type="FLT_0D" documentation="Power supply internal resistance"> 0.0d0</resistance>
+			<delay data_type="FLT_0D"> 3.0d-3</delay>
+			<current_limit_max data_type="FLT_0D"> 2.7d3</current_limit_max>
+			<current_limit_min data_type="FLT_0D"> -2.2d3</current_limit_min>
+			<voltage_limit_max data_type="FLT_0D"> 2500.0d0</voltage_limit_max>
+			<voltage_limit_min data_type="FLT_0D"> -2500.0d0</voltage_limit_min>
+			<energy_limit_max data_type="FLT_0D"> 0.7d6</energy_limit_max>
+			<voltage documentation="Voltage at the supply output">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GTENGEN%1</name>
+				</data>
+			</voltage>
+			<voltage documentation="Voltage at the supply output">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GTENGEN%3</name>
+				</data>
+			</voltage>
+			<voltage documentation="Voltage at the supply output">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GTENGEN%5</name>
+				</data>
+			</voltage>
+			<voltage documentation="Voltage at the supply output">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GTENGEN%7</name>
+				</data>
+			</voltage>
+			<voltage documentation="Voltage at the supply output">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GTENGEN%9</name>
+				</data>
+			</voltage>
+			<voltage documentation="Voltage at the supply output">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GTENGEN%8</name>
+				</data>
+			</voltage>
+			<voltage documentation="Voltage at the supply output">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GTENGEN%6</name>
+				</data>
+			</voltage>
+			<voltage documentation="Voltage at the supply output">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GTENGEN%4</name>
+				</data>
+			</voltage>
+			<voltage documentation="Voltage at the supply output">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GTENGEN%2</name>
+				</data>
+			</voltage>
+			<current documentation="Current at the supply output, defined positive if it flows from point 1 to point 2 of the component in the pfcircuit description">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GIBOBGEN%10</name>
+				</data>
+			</current>
+			<current documentation="Current at the supply output, defined positive if it flows from point 1 to point 2 of the component in the pfcircuit description">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GIBOBGEN%2</name>
+				</data>
+			</current>
+			<current documentation="Current at the supply output, defined positive if it flows from point 1 to point 2 of the component in the pfcircuit description">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GIBOBGEN%4</name>
+				</data>
+			</current>
+			<current documentation="Current at the supply output, defined positive if it flows from point 1 to point 2 of the component in the pfcircuit description">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GIBOBGEN%6</name>
+				</data>
+			</current>
+			<current documentation="Current at the supply output, defined positive if it flows from point 1 to point 2 of the component in the pfcircuit description">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GIBOBGEN%8</name>
+				</data>
+			</current>
+			<current documentation="Current at the supply output, defined positive if it flows from point 1 to point 2 of the component in the pfcircuit description">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GIBOBGEN%7</name>
+				</data>
+			</current>
+			<current documentation="Current at the supply output, defined positive if it flows from point 1 to point 2 of the component in the pfcircuit description">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GIBOBGEN%5</name>
+				</data>
+			</current>
+			<current documentation="Current at the supply output, defined positive if it flows from point 1 to point 2 of the component in the pfcircuit description">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GIBOBGEN%3</name>
+				</data>
+			</current>
+			<current documentation="Current at the supply output, defined positive if it flows from point 1 to point 2 of the component in the pfcircuit description">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GIBOBGEN%1</name>
+				</data>
+			</current>
+		</supply>
+		<supply documentation="PF power supplies" data_type="struct_array" dim="9" index="4">
+			<name data_type="STR_0D" documentation="Name of the PF supply"> 'G3h'</name>
+			<identifier data_type="STR_0D" documentation="Identifier of the supply"> 'G3h'</identifier>
+			<resistance data_type="FLT_0D" documentation="Power supply internal resistance"> 0.0d0</resistance>
+			<delay data_type="FLT_0D"> 3.0d-3</delay>
+			<current_limit_max data_type="FLT_0D"> 1.6d3</current_limit_max>
+			<current_limit_min data_type="FLT_0D"> -4.4d3</current_limit_min>
+			<voltage_limit_max data_type="FLT_0D"> 2500.0d0</voltage_limit_max>
+			<voltage_limit_min data_type="FLT_0D"> -2500.0d0</voltage_limit_min>
+			<energy_limit_max data_type="FLT_0D"> 0.6d6</energy_limit_max>
+			<voltage documentation="Voltage at the supply output">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GTENGEN%1</name>
+				</data>
+			</voltage>
+			<voltage documentation="Voltage at the supply output">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GTENGEN%3</name>
+				</data>
+			</voltage>
+			<voltage documentation="Voltage at the supply output">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GTENGEN%5</name>
+				</data>
+			</voltage>
+			<voltage documentation="Voltage at the supply output">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GTENGEN%7</name>
+				</data>
+			</voltage>
+			<voltage documentation="Voltage at the supply output">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GTENGEN%9</name>
+				</data>
+			</voltage>
+			<voltage documentation="Voltage at the supply output">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GTENGEN%8</name>
+				</data>
+			</voltage>
+			<voltage documentation="Voltage at the supply output">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GTENGEN%6</name>
+				</data>
+			</voltage>
+			<voltage documentation="Voltage at the supply output">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GTENGEN%4</name>
+				</data>
+			</voltage>
+			<voltage documentation="Voltage at the supply output">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GTENGEN%2</name>
+				</data>
+			</voltage>
+			<current documentation="Current at the supply output, defined positive if it flows from point 1 to point 2 of the component in the pfcircuit description">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GIBOBGEN%10</name>
+				</data>
+			</current>
+			<current documentation="Current at the supply output, defined positive if it flows from point 1 to point 2 of the component in the pfcircuit description">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GIBOBGEN%2</name>
+				</data>
+			</current>
+			<current documentation="Current at the supply output, defined positive if it flows from point 1 to point 2 of the component in the pfcircuit description">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GIBOBGEN%4</name>
+				</data>
+			</current>
+			<current documentation="Current at the supply output, defined positive if it flows from point 1 to point 2 of the component in the pfcircuit description">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GIBOBGEN%6</name>
+				</data>
+			</current>
+			<current documentation="Current at the supply output, defined positive if it flows from point 1 to point 2 of the component in the pfcircuit description">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GIBOBGEN%8</name>
+				</data>
+			</current>
+			<current documentation="Current at the supply output, defined positive if it flows from point 1 to point 2 of the component in the pfcircuit description">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GIBOBGEN%7</name>
+				</data>
+			</current>
+			<current documentation="Current at the supply output, defined positive if it flows from point 1 to point 2 of the component in the pfcircuit description">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GIBOBGEN%5</name>
+				</data>
+			</current>
+			<current documentation="Current at the supply output, defined positive if it flows from point 1 to point 2 of the component in the pfcircuit description">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GIBOBGEN%3</name>
+				</data>
+			</current>
+			<current documentation="Current at the supply output, defined positive if it flows from point 1 to point 2 of the component in the pfcircuit description">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GIBOBGEN%1</name>
+				</data>
+			</current>
+		</supply>
+		<supply documentation="PF power supplies" data_type="struct_array" dim="9" index="5">
+			<name data_type="STR_0D" documentation="Name of the PF supply"> 'G4h'</name>
+			<identifier data_type="STR_0D" documentation="Identifier of the supply"> 'G4h'</identifier>
+			<resistance data_type="FLT_0D" documentation="Power supply internal resistance"> 0.0d0</resistance>
+			<delay data_type="FLT_0D"> 3.0d-3</delay>
+			<current_limit_max data_type="FLT_0D"> 1.1d3</current_limit_max>
+			<current_limit_min data_type="FLT_0D"> -4.4d3</current_limit_min>
+			<voltage_limit_max data_type="FLT_0D"> 2500.0d0</voltage_limit_max>
+			<voltage_limit_min data_type="FLT_0D"> -2500.0d0</voltage_limit_min>
+			<energy_limit_max data_type="FLT_0D"> 0.6d6</energy_limit_max>
+			<voltage documentation="Voltage at the supply output">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GTENGEN%1</name>
+				</data>
+			</voltage>
+			<voltage documentation="Voltage at the supply output">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GTENGEN%3</name>
+				</data>
+			</voltage>
+			<voltage documentation="Voltage at the supply output">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GTENGEN%5</name>
+				</data>
+			</voltage>
+			<voltage documentation="Voltage at the supply output">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GTENGEN%7</name>
+				</data>
+			</voltage>
+			<voltage documentation="Voltage at the supply output">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GTENGEN%9</name>
+				</data>
+			</voltage>
+			<voltage documentation="Voltage at the supply output">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GTENGEN%8</name>
+				</data>
+			</voltage>
+			<voltage documentation="Voltage at the supply output">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GTENGEN%6</name>
+				</data>
+			</voltage>
+			<voltage documentation="Voltage at the supply output">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GTENGEN%4</name>
+				</data>
+			</voltage>
+			<voltage documentation="Voltage at the supply output">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GTENGEN%2</name>
+				</data>
+			</voltage>
+			<current documentation="Current at the supply output, defined positive if it flows from point 1 to point 2 of the component in the pfcircuit description">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GIBOBGEN%10</name>
+				</data>
+			</current>
+			<current documentation="Current at the supply output, defined positive if it flows from point 1 to point 2 of the component in the pfcircuit description">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GIBOBGEN%2</name>
+				</data>
+			</current>
+			<current documentation="Current at the supply output, defined positive if it flows from point 1 to point 2 of the component in the pfcircuit description">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GIBOBGEN%4</name>
+				</data>
+			</current>
+			<current documentation="Current at the supply output, defined positive if it flows from point 1 to point 2 of the component in the pfcircuit description">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GIBOBGEN%6</name>
+				</data>
+			</current>
+			<current documentation="Current at the supply output, defined positive if it flows from point 1 to point 2 of the component in the pfcircuit description">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GIBOBGEN%8</name>
+				</data>
+			</current>
+			<current documentation="Current at the supply output, defined positive if it flows from point 1 to point 2 of the component in the pfcircuit description">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GIBOBGEN%7</name>
+				</data>
+			</current>
+			<current documentation="Current at the supply output, defined positive if it flows from point 1 to point 2 of the component in the pfcircuit description">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GIBOBGEN%5</name>
+				</data>
+			</current>
+			<current documentation="Current at the supply output, defined positive if it flows from point 1 to point 2 of the component in the pfcircuit description">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GIBOBGEN%3</name>
+				</data>
+			</current>
+			<current documentation="Current at the supply output, defined positive if it flows from point 1 to point 2 of the component in the pfcircuit description">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GIBOBGEN%1</name>
+				</data>
+			</current>
+		</supply>
+		<supply documentation="PF power supplies" data_type="struct_array" dim="9" index="6">
+			<name data_type="STR_0D" documentation="Name of the PF supply"> 'G4b'</name>
+			<identifier data_type="STR_0D" documentation="Identifier of the supply"> 'G4b'</identifier>
+			<resistance data_type="FLT_0D" documentation="Power supply internal resistance"> 0.0d0</resistance>
+			<delay data_type="FLT_0D"> 3.0d-3</delay>
+			<current_limit_max data_type="FLT_0D"> 1.1d3</current_limit_max>
+			<current_limit_min data_type="FLT_0D"> -4.4d3</current_limit_min>
+			<voltage_limit_max data_type="FLT_0D"> 2500.0d0</voltage_limit_max>
+			<voltage_limit_min data_type="FLT_0D"> -2500.0d0</voltage_limit_min>
+			<energy_limit_max data_type="FLT_0D"> 0.6d6</energy_limit_max>
+			<voltage documentation="Voltage at the supply output">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GTENGEN%1</name>
+				</data>
+			</voltage>
+			<voltage documentation="Voltage at the supply output">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GTENGEN%3</name>
+				</data>
+			</voltage>
+			<voltage documentation="Voltage at the supply output">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GTENGEN%5</name>
+				</data>
+			</voltage>
+			<voltage documentation="Voltage at the supply output">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GTENGEN%7</name>
+				</data>
+			</voltage>
+			<voltage documentation="Voltage at the supply output">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GTENGEN%9</name>
+				</data>
+			</voltage>
+			<voltage documentation="Voltage at the supply output">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GTENGEN%8</name>
+				</data>
+			</voltage>
+			<voltage documentation="Voltage at the supply output">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GTENGEN%6</name>
+				</data>
+			</voltage>
+			<voltage documentation="Voltage at the supply output">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GTENGEN%4</name>
+				</data>
+			</voltage>
+			<voltage documentation="Voltage at the supply output">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GTENGEN%2</name>
+				</data>
+			</voltage>
+			<current documentation="Current at the supply output, defined positive if it flows from point 1 to point 2 of the component in the pfcircuit description">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GIBOBGEN%10</name>
+				</data>
+			</current>
+			<current documentation="Current at the supply output, defined positive if it flows from point 1 to point 2 of the component in the pfcircuit description">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GIBOBGEN%2</name>
+				</data>
+			</current>
+			<current documentation="Current at the supply output, defined positive if it flows from point 1 to point 2 of the component in the pfcircuit description">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GIBOBGEN%4</name>
+				</data>
+			</current>
+			<current documentation="Current at the supply output, defined positive if it flows from point 1 to point 2 of the component in the pfcircuit description">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GIBOBGEN%6</name>
+				</data>
+			</current>
+			<current documentation="Current at the supply output, defined positive if it flows from point 1 to point 2 of the component in the pfcircuit description">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GIBOBGEN%8</name>
+				</data>
+			</current>
+			<current documentation="Current at the supply output, defined positive if it flows from point 1 to point 2 of the component in the pfcircuit description">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GIBOBGEN%7</name>
+				</data>
+			</current>
+			<current documentation="Current at the supply output, defined positive if it flows from point 1 to point 2 of the component in the pfcircuit description">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GIBOBGEN%5</name>
+				</data>
+			</current>
+			<current documentation="Current at the supply output, defined positive if it flows from point 1 to point 2 of the component in the pfcircuit description">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GIBOBGEN%3</name>
+				</data>
+			</current>
+			<current documentation="Current at the supply output, defined positive if it flows from point 1 to point 2 of the component in the pfcircuit description">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GIBOBGEN%1</name>
+				</data>
+			</current>
+		</supply>
+		<supply documentation="PF power supplies" data_type="struct_array" dim="9" index="7">
+			<name data_type="STR_0D" documentation="Name of the PF supply"> 'G3b'</name>
+			<identifier data_type="STR_0D" documentation="Identifier of the supply"> 'G3b'</identifier>
+			<resistance data_type="FLT_0D" documentation="Power supply internal resistance"> 0.0d0</resistance>
+			<delay data_type="FLT_0D"> 3.0d-3</delay>
+			<current_limit_max data_type="FLT_0D"> 1.6d3</current_limit_max>
+			<current_limit_min data_type="FLT_0D"> -4.4d3</current_limit_min>
+			<voltage_limit_max data_type="FLT_0D"> 2500.0d0</voltage_limit_max>
+			<voltage_limit_min data_type="FLT_0D"> -2500.0d0</voltage_limit_min>
+			<energy_limit_max data_type="FLT_0D"> 0.6d6</energy_limit_max>
+			<voltage documentation="Voltage at the supply output">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GTENGEN%1</name>
+				</data>
+			</voltage>
+			<voltage documentation="Voltage at the supply output">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GTENGEN%3</name>
+				</data>
+			</voltage>
+			<voltage documentation="Voltage at the supply output">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GTENGEN%5</name>
+				</data>
+			</voltage>
+			<voltage documentation="Voltage at the supply output">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GTENGEN%7</name>
+				</data>
+			</voltage>
+			<voltage documentation="Voltage at the supply output">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GTENGEN%9</name>
+				</data>
+			</voltage>
+			<voltage documentation="Voltage at the supply output">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GTENGEN%8</name>
+				</data>
+			</voltage>
+			<voltage documentation="Voltage at the supply output">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GTENGEN%6</name>
+				</data>
+			</voltage>
+			<voltage documentation="Voltage at the supply output">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GTENGEN%4</name>
+				</data>
+			</voltage>
+			<voltage documentation="Voltage at the supply output">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GTENGEN%2</name>
+				</data>
+			</voltage>
+			<current documentation="Current at the supply output, defined positive if it flows from point 1 to point 2 of the component in the pfcircuit description">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GIBOBGEN%10</name>
+				</data>
+			</current>
+			<current documentation="Current at the supply output, defined positive if it flows from point 1 to point 2 of the component in the pfcircuit description">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GIBOBGEN%2</name>
+				</data>
+			</current>
+			<current documentation="Current at the supply output, defined positive if it flows from point 1 to point 2 of the component in the pfcircuit description">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GIBOBGEN%4</name>
+				</data>
+			</current>
+			<current documentation="Current at the supply output, defined positive if it flows from point 1 to point 2 of the component in the pfcircuit description">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GIBOBGEN%6</name>
+				</data>
+			</current>
+			<current documentation="Current at the supply output, defined positive if it flows from point 1 to point 2 of the component in the pfcircuit description">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GIBOBGEN%8</name>
+				</data>
+			</current>
+			<current documentation="Current at the supply output, defined positive if it flows from point 1 to point 2 of the component in the pfcircuit description">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GIBOBGEN%7</name>
+				</data>
+			</current>
+			<current documentation="Current at the supply output, defined positive if it flows from point 1 to point 2 of the component in the pfcircuit description">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GIBOBGEN%5</name>
+				</data>
+			</current>
+			<current documentation="Current at the supply output, defined positive if it flows from point 1 to point 2 of the component in the pfcircuit description">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GIBOBGEN%3</name>
+				</data>
+			</current>
+			<current documentation="Current at the supply output, defined positive if it flows from point 1 to point 2 of the component in the pfcircuit description">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GIBOBGEN%1</name>
+				</data>
+			</current>
+		</supply>
+		<supply documentation="PF power supplies" data_type="struct_array" dim="9" index="8">
+			<name data_type="STR_0D" documentation="Name of the PF supply"> 'G2b'</name>
+			<identifier data_type="STR_0D" documentation="Identifier of the supply"> 'G2b'</identifier>
+			<resistance data_type="FLT_0D" documentation="Power supply internal resistance"> 0.0d0</resistance>
+			<delay data_type="FLT_0D"> 3.0d-3</delay>
+			<current_limit_max data_type="FLT_0D"> 2.7d3</current_limit_max>
+			<current_limit_min data_type="FLT_0D"> -2.2d3</current_limit_min>
+			<voltage_limit_max data_type="FLT_0D"> 2500.0d0</voltage_limit_max>
+			<voltage_limit_min data_type="FLT_0D"> -2500.0d0</voltage_limit_min>
+			<energy_limit_max data_type="FLT_0D"> 0.7d6</energy_limit_max>
+			<voltage documentation="Voltage at the supply output">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GTENGEN%1</name>
+				</data>
+			</voltage>
+			<voltage documentation="Voltage at the supply output">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GTENGEN%3</name>
+				</data>
+			</voltage>
+			<voltage documentation="Voltage at the supply output">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GTENGEN%5</name>
+				</data>
+			</voltage>
+			<voltage documentation="Voltage at the supply output">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GTENGEN%7</name>
+				</data>
+			</voltage>
+			<voltage documentation="Voltage at the supply output">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GTENGEN%9</name>
+				</data>
+			</voltage>
+			<voltage documentation="Voltage at the supply output">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GTENGEN%8</name>
+				</data>
+			</voltage>
+			<voltage documentation="Voltage at the supply output">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GTENGEN%6</name>
+				</data>
+			</voltage>
+			<voltage documentation="Voltage at the supply output">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GTENGEN%4</name>
+				</data>
+			</voltage>
+			<voltage documentation="Voltage at the supply output">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GTENGEN%2</name>
+				</data>
+			</voltage>
+			<current documentation="Current at the supply output, defined positive if it flows from point 1 to point 2 of the component in the pfcircuit description">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GIBOBGEN%10</name>
+				</data>
+			</current>
+			<current documentation="Current at the supply output, defined positive if it flows from point 1 to point 2 of the component in the pfcircuit description">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GIBOBGEN%2</name>
+				</data>
+			</current>
+			<current documentation="Current at the supply output, defined positive if it flows from point 1 to point 2 of the component in the pfcircuit description">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GIBOBGEN%4</name>
+				</data>
+			</current>
+			<current documentation="Current at the supply output, defined positive if it flows from point 1 to point 2 of the component in the pfcircuit description">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GIBOBGEN%6</name>
+				</data>
+			</current>
+			<current documentation="Current at the supply output, defined positive if it flows from point 1 to point 2 of the component in the pfcircuit description">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GIBOBGEN%8</name>
+				</data>
+			</current>
+			<current documentation="Current at the supply output, defined positive if it flows from point 1 to point 2 of the component in the pfcircuit description">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GIBOBGEN%7</name>
+				</data>
+			</current>
+			<current documentation="Current at the supply output, defined positive if it flows from point 1 to point 2 of the component in the pfcircuit description">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GIBOBGEN%5</name>
+				</data>
+			</current>
+			<current documentation="Current at the supply output, defined positive if it flows from point 1 to point 2 of the component in the pfcircuit description">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GIBOBGEN%3</name>
+				</data>
+			</current>
+			<current documentation="Current at the supply output, defined positive if it flows from point 1 to point 2 of the component in the pfcircuit description">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GIBOBGEN%1</name>
+				</data>
+			</current>
+		</supply>
+		<supply documentation="PF power supplies" data_type="struct_array" dim="9" index="9">
+			<name data_type="STR_0D" documentation="Name of the PF supply"> 'G1b' </name>
+			<identifier data_type="STR_0D" documentation="Identifier of the supply"> 'G1b' </identifier>
+			<resistance data_type="FLT_0D" documentation="Power supply internal resistance"> 0.0d0 </resistance>
+			<delay data_type="FLT_0D"> 3.0d-3 </delay>
+			<current_limit_max data_type="FLT_0D"> 6.8d3 </current_limit_max>
+			<current_limit_min data_type="FLT_0D"> -5.3d3 </current_limit_min>
+			<voltage_limit_max data_type="FLT_0D"> 1500.0d0 </voltage_limit_max>
+			<voltage_limit_min data_type="FLT_0D"> -1500.0d0 </voltage_limit_min>
+			<energy_limit_max data_type="FLT_0D"> 0.2d6 </energy_limit_max>
+			<voltage documentation="Voltage at the supply output">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GTENGEN%1</name>
+				</data>
+			</voltage>
+			<voltage documentation="Voltage at the supply output">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GTENGEN%3</name>
+				</data>
+			</voltage>
+			<voltage documentation="Voltage at the supply output">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GTENGEN%5</name>
+				</data>
+			</voltage>
+			<voltage documentation="Voltage at the supply output">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GTENGEN%7</name>
+				</data>
+			</voltage>
+			<voltage documentation="Voltage at the supply output">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GTENGEN%9</name>
+				</data>
+			</voltage>
+			<voltage documentation="Voltage at the supply output">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GTENGEN%8</name>
+				</data>
+			</voltage>
+			<voltage documentation="Voltage at the supply output">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GTENGEN%6</name>
+				</data>
+			</voltage>
+			<voltage documentation="Voltage at the supply output">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GTENGEN%4</name>
+				</data>
+			</voltage>
+			<voltage documentation="Voltage at the supply output">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GTENGEN%2</name>
+				</data>
+			</voltage>
+			<current documentation="Current at the supply output, defined positive if it flows from point 1 to point 2 of the component in the pfcircuit description">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GIBOBGEN%10</name>
+				</data>
+			</current>
+			<current documentation="Current at the supply output, defined positive if it flows from point 1 to point 2 of the component in the pfcircuit description">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GIBOBGEN%2</name>
+				</data>
+			</current>
+			<current documentation="Current at the supply output, defined positive if it flows from point 1 to point 2 of the component in the pfcircuit description">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GIBOBGEN%4</name>
+				</data>
+			</current>
+			<current documentation="Current at the supply output, defined positive if it flows from point 1 to point 2 of the component in the pfcircuit description">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GIBOBGEN%6</name>
+				</data>
+			</current>
+			<current documentation="Current at the supply output, defined positive if it flows from point 1 to point 2 of the component in the pfcircuit description">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GIBOBGEN%8</name>
+				</data>
+			</current>
+			<current documentation="Current at the supply output, defined positive if it flows from point 1 to point 2 of the component in the pfcircuit description">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GIBOBGEN%7</name>
+				</data>
+			</current>
+			<current documentation="Current at the supply output, defined positive if it flows from point 1 to point 2 of the component in the pfcircuit description">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GIBOBGEN%5</name>
+				</data>
+			</current>
+			<current documentation="Current at the supply output, defined positive if it flows from point 1 to point 2 of the component in the pfcircuit description">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GIBOBGEN%3</name>
+				</data>
+			</current>
+			<current documentation="Current at the supply output, defined positive if it flows from point 1 to point 2 of the component in the pfcircuit description">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GIBOBGEN%1</name>
+				</data>
+			</current>
+		</supply>
+	</pf_active>
+</mapping>

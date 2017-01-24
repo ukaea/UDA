@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mapping>
+	<antennas documentation="Antenna systems for heating and current drive in the electron cyclotron (EC) and ion cylcotron (IC) frequencies." type="IDS">
+		<ec documentation="Electron Cyclotron antennas" data_type="struct_array" dim="2" index="1">
+			<power documentation="Power">
+				<data data_type="FLT_1D">
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GPHYB%1</name>
+					<dimension documentation="Dimension of the local DB signal : 1 for vector, 2 for matrix, ... s for string, 0 if non-time dependent in the local DB (may need to be repeated at each time slice in ITM format, though)">1</dimension>
+					<time_dim documentation="Specifies which of the above dimension represents time (in the local DB).">1</time_dim>
+				</data>
+			</power>
+		</ec>
+		<ec documentation="Electron Cyclotron antennas" data_type="struct_array" dim="2" index="2">
+			<power documentation="Power">
+				<data data_type="FLT_1D">
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GPHYB%2</name>
+					<dimension documentation="Dimension of the local DB signal : 1 for vector, 2 for matrix, ... s for string, 0 if non-time dependent in the local DB (may need to be repeated at each time slice in ITM format, though)">1</dimension>
+					<time_dim documentation="Specifies which of the above dimension represents time (in the local DB).">1</time_dim>
+				</data>
+			</power>
+		</ec>
+	</antennas>
+</mapping>

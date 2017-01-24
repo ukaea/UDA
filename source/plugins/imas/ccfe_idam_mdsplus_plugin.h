@@ -1,0 +1,13 @@
+//
+// Created by jholloc on 08/03/16.
+//
+
+#ifndef IDAM_PLUGINS_IMAS_CCFE_IDAM_MDSPLUS_PLUGIN_H_H
+#define IDAM_PLUGINS_IMAS_CCFE_IDAM_MDSPLUS_PLUGIN_H_H
+
+#define MAX_STRINGS 20000
+
+extern char ErrMsg[MAX_STRINGS];
+extern char *errmsg;
+
+#endif //IDAM_PLUGINS_IMAS_CCFE_IDAM_MDSPLUS_PLUGIN_H_H

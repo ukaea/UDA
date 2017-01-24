@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mapping>
+	<tf documentation="Toroidal field coils" type="IDS">
+		<coils_n data_type="INT_0D" documentation="Number of coils around the torus, in case is_periodic = 1">18</coils_n>
+		<coil documentation="Set of coils around the tokamak" data_type="struct_array" dim="1" index="1" turns="2028">
+			<current documentation="Current in the conductor">
+				<data>
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">SITOR</name>
+					<dimension documentation="Dimension of the signal : 1 for vector, 2 for matrix, ... s for string, 0 if non-time dependent in the local DB (may need to be repeated at each time slice in ITM format, though)" data_type="INT_0D">1</dimension>
+					<time_dim documentation="Specifies which of the above dimension represents time (in the local DB)." data_type="INT_0D">1</time_dim>
+				</data>
+			</current>
+		</coil>
+		<b_tor_vacuum_r documentation="Vacuum field times major radius in the toroidal field magnet. Positive sign means anti-clockwise when viewed from above">
+			<data>
+				<name documentation="Name of the signal in the local database" data_type="STR_0D">SITOR</name>
+				<dimension documentation="Dimension of the signal : 1 for vector, 2 for matrix, ... s for string, 0 if non-time dependent in the local DB (may need to be repeated at each time slice in ITM format, though)" data_type="INT_0D">1</dimension>
+				<time_dim documentation="Specifies which of the above dimension represents time (in the local DB)." data_type="INT_0D">1</time_dim>
+			</data>
+		</b_tor_vacuum_r>
+	</tf>
+</mapping>

@@ -1,0 +1,15 @@
+IDAM SERVER
+===========
+
+*	Runs private idamserver on port 3090 out of this directory.
+
+	Use
+
+		./rc.idam start
+
+	to get xinetd to use local config etc.
+
+		./rc.idam stop
+
+	kills pid.
+

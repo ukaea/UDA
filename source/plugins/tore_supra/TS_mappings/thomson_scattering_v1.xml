@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mapping>
+	<thomson_scattering documentation="Thomson scattering diagnostic" type="IDS">
+		<channel documentation="Set of channels (lines-of-sight)" data_type="struct_array" dim="1" index="1">
+			<t_e documentation="Electron temperature">
+				<data data_type="FLT_1D">
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GTETHOM</name>
+				</data>
+			</t_e>
+			<n_e documentation="Electron density">
+				<data data_type="FLT_1D">
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">GNETHOM</name>
+				</data>
+			</n_e>
+		</channel>
+	</thomson_scattering>
+</mapping>

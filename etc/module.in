@@ -1,0 +1,27 @@
+#%Module1.0
+##IDAM @PROJECT_VERSION@ Modulefile
+##
+
+module-whatis   "Loads the IDAM version @PROJECT_VERSION@ environment"
+
+# Load prerequisites
+
+if { ! [ is-loaded ida ] } {
+   module load ida
+}
+
+if { ! [ is-loaded idlcodes-rmartin ] } {
+   module load idlcodes-rmartin
+}
+
+conflict            idam
+
+set                 IDAM_DIR            @CMAKE_INSTALL_PREFIX@
+setenv              IDAM_DIR            $IDAM_DIR
+setenv              IDAM_HOST           @IDAM_HOST@
+setenv              IDAM_PORT           56567
+
+prepend-path        PYTHONPATH          $IDAM_DIR/include
+prepend-path        LD_LIBRARY_PATH     $IDAM_DIR/lib:$IDAM_DIR/include/pyidam
+prepend-path        IDL_DLM_PATH        $IDAM_DIR/dlm
+prepend-path        IDL_PATH            $IDAM_DIR/idl

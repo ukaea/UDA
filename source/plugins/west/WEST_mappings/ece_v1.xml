@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mapping>
+	<ece documentation="Electron cyclotron emission diagnostic" type="IDS">
+		<channel documentation="Set of channels (frequency)" data_type="struct_array" dim="1" index="1">
+			<harmonic documentation="Harmonic detected by the channel">
+				<data reminder="Enter in the structure below how to retrieve this variable from the experimental database. Replicate this element if more than one signal needs to be read in the local database">
+					<name documentation="Name of the signal in the local database" data_type="STR_0D">harmonic</name>
+					<dimension documentation="Dimension of the local DB signal : 1 for vector, 2 for matrix, ... s for string, 0 if non-time dependent in the local DB (may need to be repeated at each time slice in ITM format, though)">1</dimension>
+					<size documentation="Size of the local DB signal (number of columns in the data matrix) mandatory only for 2D signals">1</size>
+					<time_dim documentation="Specifies which of the above dimension represents time (in the local DB).">Put value here</time_dim>
+				</data>
+			</harmonic>
+			<position documentation="Position of the measurements">
+				<r documentation="Major radius">
+					<data data_type="FLT_1D">
+						<name documentation="Name of the signal in the local database" data_type="STR_0D">GSHR</name>
+						<dimension documentation="Dimension of the local DB signal : 1 for vector, 2 for matrix, ... s for string, 0 if non-time dependent in the local DB (may need to be repeated at each time slice in ITM format, though)" data_type="INT_0D">2</dimension>
+						<size documentation="Size of the local DB signal (number of columns in the data matrix) mandatory only for 2D signals" data_type="INT_0D">32</size>
+						<time_dim documentation="Specifies which of the above dimension represents time (in the local DB)." data_type="INT_0D">1</time_dim>
+					</data>
+				</r>
+				<z documentation="Height">
+					<data data_type="FLT_1D">
+						<name documentation="Name of the signal in the local database">z_value</name>
+					</data>
+				</z>
+			</position>
+			<t_e documentation="Electron temperature">
+				<data data_type="FLT_1D">
+					<name documentation="Name of the signal in the local database">GSHTE</name>
+					<dimension documentation="Dimension of the local DB signal : 1 for vector, 2 for matrix, ... s for string, 0 if non-time dependent in the local DB (may need to be repeated at each time slice in ITM format, though)">2</dimension>
+					<size documentation="Size of the local DB signal (number of columns in the data matrix) mandatory only for 2D signals">32</size>
+				</data>
+			</t_e>
+		</channel>
+	</ece>
+</mapping>

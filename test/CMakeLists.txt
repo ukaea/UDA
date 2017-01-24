@@ -1,0 +1,160 @@
+cmake_minimum_required( VERSION 2.8 )
+
+enable_testing()
+
+include_directories(
+  ${CMAKE_SOURCE_DIR}
+  ${CMAKE_SOURCE_DIR}/include
+  ${CMAKE_SOURCE_DIR}/client
+)
+
+add_executable( run_test run_test.c )
+target_link_libraries( run_test ${IDC_LIB_NAME} )
+
+#file(
+#  COPY data/16392Z04.CDF data/amc0135.00 data/F06953.cur
+#  DESTINATION /scratch/idamtest
+#)
+
+file(
+  COPY data/16392Z04.CDF data/amc0135.00 data/F06953.cur
+  DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/data
+)
+
+set( TEST_INPUT 
+  "Ip" "24542" false
+  "DUMP::" "NETCDF::$MAST_DATA/18799/LATEST/amc0187.99" false
+  "XNB_SS_BEAM_CURRENT" "8323" false
+  "XNB_SS_BEAM_VOLTAGE" "8323" false
+  "\"\"" "UFILE::./data/F06953.cur" false
+  "no signal known" "13500" true
+  "amc_plasma something" "IDA::/13500" true
+  "ipppppp" "13500" true
+  "Ip" "24542" false
+  "iP" "24542/0" false
+  "iP" "24542/1" false
+  "ip" "MAST::24542" false
+  "MAST::ip" "24542" false
+  "MAST::ip" "MAST::24542" false
+  "MAST::ip" "MAST::24542/0" false
+  "MAST::ip" "MAST::24542/LATEST" false
+  "MAST::ip" "MAST::24542/LATEST-1" false
+  "MAST::ip" "MAST::24542/LATEST-99" true
+  "ppf::ip" "jet::56000" false
+  "jpf::ip" "jet::56000" false
+  "ppf::magn:ipla" "jet::56000" false
+  "jpf::da.kc1d:ipla" "jet::56000" false
+  "\\\\top.inputs:cur" "MDSPLUS::localhost/trmast/159052601" false
+  "\\\\top.inputs:cur" "MDSPLUS::idam0/trmast/159052601" false
+  "\\\\top.inputs:cur" "MDSPLUS::trmast/159052601" false
+  "\\\\top.inputs:cur" "MDSPLUS::/trmast/159052601" false
+  "\\\\top.inputs:cur" "MDSPLUS::localhost/home/dgm/IDAM/test/data/trmastxxx/159052601" false
+  "\\\\top.inputs:cur" "MDSPLUS::localhost.home.dgm.IDAM.test.data/trmastxxx/159052601" false
+  "\\\\top.inputs:cur" "MDSPLUS::localhost/home.dgm.IDAM.test.data/trmastxxx/159052601" false
+  "\\\\top.inputs:cur" "MDSPLUS::idam0/funsrv1/home/dgm/IDAM/test/data/trmastxxx/159052601" false
+  "\\\\top.inputs:cur" "MDSPLUS::funsrv1/home/dgm/IDAM/test/data/trmastxxx/159052601" false
+  "\\\\top.inputs:cur" "MDSPLUS::/funsrv1/home/dgm/IDAM/test/data/trmastxxx/159052601" false
+  "\\\\top.inputs:cur" "MDSPLUS::this.is.not.a.server/trmast/159052601" true
+  "\\\\top.inputs:cur" "MDSPLUS::idam0/badtree/159052601" true
+  "unknown()" "MDSPLUS::idam0" true
+  "build_call(*,*,\"system\",\"ls -l\")" "MDSPLUS::idam0" false
+  "build_call(*,*,\"system\",\"ls -l\")" "MDSPLUS::localhost" false
+  "system(\"ls -l\")" "MDSPLUS::localhost" false
+  "\\\\top.magn:ipla" "MDSPLUS::mdsplus.jet.efda.org/ppf/56000" false
+  "ftu(23154,\"zzzzed.ipl\",0)" "MDSPLUS::efrs08.frascati.enea.it:8100" false
+  "amc_plasma current" "IDA::/24542" false
+  "amc_plasma current" "IDA::/24542/0" false
+  "amc_plasma current" "IDA::/24542/1" false
+  "amc_plasma current" "IDA::/13500/LATEST-1" false
+  "amc_plasma current" "IDA::/net/fuslsa/data/MAST_Data/013/13500/Pass0/amc0135.00" false
+  "atm_te" "IDA::/net/fuslsa/data/MAST_Data/013/13500/Pass0/atm0135.00" false
+  "EFM_PSI(R,Z)" "IDA::/net/fuslsa/data/MAST_Data/013/13500/Pass0/efm0135.00" false
+  "ats_time" "IDA::/net/fuslsa/data/MAST_Data/013/13500/Pass0/ats0135.00" false
+  "MAST::ats_time" "MAST::22819" false
+  "MAST::amc_plasma current" "MAST::22819" false
+  "MAST::atm_te" "MAST::22819" false
+  "MAST::efm_psi(r,z)" "MAST::22819" false
+  "amc_plasma current" "/net/fuslsa/data/MAST_Data/13500/Pass0/amc0135.00" false
+  "amc_plasma current" "data/amc0135.00" false
+  "amc_plasma current" "/scratch/idamtest/amc0135.00" false
+  "PCURC" "NETCDF::data/16392Z04.CDF" false
+  "PCURC" "NETCDF::/scratch/idamtest/16392Z04.CDF" false
+  "/xyc/403/1/data" "NETCDF::/net/fuslsa/data/MAST_zSHOT_arch/2009/08/xycz00401.nc" false
+  "/xyc/403/1/data.scale" "NETCDF::/net/fuslsa/data/MAST_zSHOT_arch/2009/08/xycz00401.nc" false
+  "/devices/11_acq216_41/range" "NETCDF::/net/fuslsa/data/MAST_zSHOT_arch/2009/08/xycz00401.nc" false
+  "/equilibrium/output/fluxFunctionProfiles/elongation" "HDF5::efitOutReference.hdf5" false
+  "/equilibrium/output/fluxFunctionProfiles/elongation" "HDF5::./efitOutReference.hdf5" false
+  "/equilibrium/output/fluxFunctionProfiles/elongation" "HDF5::./efitOutReference.hdf5" false
+  "/equilibrium/output/fluxFunctionProfiles/elongation" "HDF5::../../data/efitOutReference.hdf5" false
+  "/equilibrium/output/fluxFunctionProfiles/elongation" "HDF5::/net/idam1/scratch/idamtest/efitOutReference.hdf5" false
+  "/equilibrium/output/fluxFunctionProfiles/elongation" "HDF5::/scratch/idamtest/efitOutReference.hdf5" false
+  "\"\"" "UFILE::./data/F06953.cur" false
+  "\"\"" "BINARY::./surface.png" false
+  "idamgetapi(\"ip\",\"13500\")" "MDS+::localhost" false
+  "idamgetapi(\"ip\",\"13500\")" "MDS+::" false
+  "idamgetapi(\"ip\",\"13500\")" "MDS::idam0" false
+  "idamgetapi(\"amc_plasma current\",\"/net/fuslsa/data/MAST_Data/13500/Pass0/amc0135.00\")" "MDS::idam0" false
+  "idamgetapi(\"amc_plasma current\",\"IDA::/net/fuslsa/data/MAST_Data/13500/Pass0/amc0135.00\")" "MDS::idam0" false
+  "idamgetapi(\"ip\",13500)" "MDS+::localhost" false
+  "idamgetapi(\"ip\",13500)" "MDS+::" false
+  "idamgetapi(\"ip\",13500)" "MDS::idam0" false
+  "idamgetapi(\"amc_plasma current\",\"IDA::/13500\")" "MDS::idam0" false
+  "idamgetapi(\"PCURC\",\"NETCDF::/funsrv1/home/dgm/IDAM/test/data/16392Z04.CDF\")" "MDS::idam0" false
+  "CMD::base_pressure" "MAST::EPOCH(2007-05-01 2007-05-20)" false
+  "ipla" "IDAM::jac-2:56565/PPF::/magn/56000" false
+  "ipla" "PPF::/magn/56000/120" false
+  "ipla" "PPF::/magn/56000/jetppf" false
+  "ipla" "PPF::/magn/56000/120/jetppf" false
+  "DA/C1-IPLA" "JPF::/56000" false
+  "hdf5_test" "0" false
+  "THOMSON/YAG/TE" "13500" false
+  "AMB_CCBV09" "14597" false
+  "amc_plasma current" "$MAST_DATA/13500/Pass0/amc0135.00" false
+  "amc_plasma current" "data/amc0135.00\;ls -l" false
+  "amc_plasma current\; ls -l" "data/amc0135.00" false
+  "TRANSP::TRANSP/PBE" "MAST::99999/W84" false
+  "TRANSP/PBE" "99999/2384" false
+  "TRANSP/PBE" "MAST::99999/W84" false
+  "xyz::ECME(1)" "/EFIT/61352/499/JETXVA" false
+  "DUMP::" "IDA::./data/amc0135.00" false
+  "DUMP::" "./data/amc0135.00" false
+  "DUMP::" "IDA::./data/amc0135.00" false
+  "DUMP::amc" "IDA::/13500" false
+  "DUMP::amc" "IDA::/13500/0" false
+  "DUMP::" "NETCDF::./data/16392Z04.CDF" false
+  "DUMP::" "HDF5::./efitOutReference.hdf5" false
+  "DUMP::" "HDF5::./efitOutReference.hdf5\;ls -l" false
+  "DUMP::" "MDSPLUS::idam0/trmast/159052601" false
+  "DUMP::" "MDSPLUS::localhost/net/fuslsa/data/MAST_TRANSP/trees/trmast/159052601" false
+  "DUMP::" "MDSPLUS::localhost/home/dgm/IDAM/test/data/trmastxxx/159052601" false
+  "DUMP::" "MDSPLUS::localhost.home.dgm.IDAM.test.data/trmastxxx/159052601" false
+  "DUMP::" "MDSPLUS::idam0/home/dgm/IDAM/test/data/trmastxxx/159052601" false
+  "idamgetapi(\"DUMP::amc\",\"IDA::/13500\")" "MDSPLUS::idam0" false
+  "DUMP::" "NETCDF::/net/fuslsa/data/MAST_zSHOT_arch/2009/08/xycz00401.nc" false
+  "SS::SUBSET(\"ip\",[!~=0.15019999])" "13500" false
+  "SS::SUBSET(\"ip\",[~=0.15019999])" "13500" false
+  "SS::SUBSET(\"ip\",[<0.15019999])" "13500" false
+  "SS::SUBSET(\"ip\",[<=0.15019999])" "13500" false
+  "SS::SUBSET(\"ip\",[>0.15019999])" "13500" false
+  "SS::SUBSET(\"ip\",[>=0.15019999])" "13500" false
+  "SS::SUBSET(\"ip\",[:1500])" "13500" false
+  "SS::SUBSET(\"ip\",[1500:])" "13500" false
+  "SS::SUBSET(\"ip\",[1500:2000])" "13500" false
+  "SS::SUBSET(\"ip\",[1500])" "13500" false
+  "SS::SUBSET(\"ip\",[#])" "13500" false
+)
+
+list( LENGTH TEST_INPUT COUNT )
+set( INDEX 0 )
+set( TEST_NO 1 )
+
+while( INDEX LESS COUNT )
+  math( EXPR INDEX_2 "${INDEX}+1" )
+  math( EXPR INDEX_3 "${INDEX}+2" )
+  list( GET TEST_INPUT ${INDEX}   SIGNAL )
+  list( GET TEST_INPUT ${INDEX_2} SOURCE )
+  list( GET TEST_INPUT ${INDEX_3} SHOULD_FAIL )
+  add_test( api_test_${TEST_NO} run_test ${TEST_NO} ${CMAKE_CURRENT_LIST_DIR}/compare ${SIGNAL} ${SOURCE} ${SHOULD_FAIL} )
+  math( EXPR INDEX "${INDEX}+3" )
+  math( EXPR TEST_NO "${TEST_NO}+1" )
+endwhile()

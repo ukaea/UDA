@@ -1,0 +1,8 @@
+export CC=gcc
+export CXX=g++
+export BOOST_ROOT=$HOME/itmwork/boost_1_62_0
+#export CMAKE_HOME=/u/jholloc
+
+cmake3 -Bbuild -H. -DCMAKE_BUILD_TYPE=Debug -DTARGET_TYPE=OTHER -DSWIG_EXECUTABLE=$HOME/itmwork/bin/swig \
+-DIMAS_ROOT=$HOME/itmwork/installer_hdf5/src/master/3/UAL \
+-DCMAKE_INSTALL_PREFIX=$HOME/itmwork/IdamInstall $*

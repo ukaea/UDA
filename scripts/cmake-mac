@@ -1,0 +1,3 @@
+#/bin/bash
+
+cmake -GNinja -H. -Bbuild -DTARGET_TYPE=MAST -DCMAKE_INSTALL_PREFIX=$HOME $*
