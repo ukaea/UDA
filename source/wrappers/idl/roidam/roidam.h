@@ -1,14 +1,5 @@
-//! $LastChangedRevision: 115 $
-//! $LastChangedDate: 2009-11-09 09:55:16 +0000 (Mon, 09 Nov 2009) $
-//! $LastChangedBy: dgm $
-//! $HeadURL: https://fussvn.fusion.culham.ukaea.org.uk/svnroot/IDAM/development/source/include/roidam.h $
-
-// roidam Header
-//
-// Change History
-//
-// 04Oct2007    D.G.Muir    is_meta_id and meta_id added to Keyword Structure
-//--------------------------------------------------------------------------
+#ifndef IDAM_WRAPPERS_IDL_ROIDAM_H
+#define IDAM_WRAPPERS_IDL_ROIDAM_H
 
 #include "idl_export.h"     // IDL API Header 
 
@@ -244,3 +235,5 @@ int createIdamKWXML(char *signal, KW_RESULT kw, char *xml);
 int createIdamActionXML(ACTIONS actions, char *xml);
 int combineIdamActions(int replace, ACTIONS newactions, ACTIONS *actions);
 */
+
+#endif // IDAM_WRAPPERS_IDL_ROIDAM_H

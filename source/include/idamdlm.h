@@ -1,12 +1,3 @@
-//! $LastChangedRevision: 115 $
-//! $LastChangedDate: 2009-11-09 09:55:16 +0000 (Mon, 09 Nov 2009) $
-//! $LastChangedBy: dgm $
-//! $HeadURL: https://fussvn.fusion.culham.ukaea.org.uk/svnroot/IDAM/development/source/include/idamdlm.h $
-
-// Change History
-//
-// 05Jun2009    DGMuir  Added PGConn extern to allow direct SQL against the IDAM database
-
 #ifndef IdamDlm
 #define IdamDlm
 

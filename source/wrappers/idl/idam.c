@@ -1,8 +1,3 @@
-//! $LastChangedRevision: 338 $
-//! $LastChangedDate: 2012-12-06 16:28:51 +0000 (Thu, 06 Dec 2012) $
-//! $LastChangedBy: dgm $
-//! $HeadURL: https://fussvn.fusion.culham.ukaea.org.uk/svnroot/IDAM/development/source/idl/idam.c $
-
 // idam.c
 //
 // IDL DLM C Code Wrapper for IDAM Universal Data Access Layer
@@ -14,36 +9,6 @@
 // Check for IDA API - lower case 'ida' only: Not Case Insensitive
 // Status: No Accesssor Function; Pass Back?
 //
-// v0.00 D.G.Muir   14 Nov 2005: Development Release
-// v0.01 D.G.Muir   02 Aug 2006: Data Errors added
-// v0.02 D.G.Muir   10 Aug 2006: Error Not returned in main data structure
-// v0.03 D.G.Muir   15 Sep 2006: namespace clash with getdata - changed to getdatadata
-// v0.04 D.G.Muir   16 Jan 2007: Substantial Additions to Accessors
-// v0.04 D.G.Muir   17 Jan 2007: Correction to Validation Check against Dimension id
-// v0.05 D.G.Muir   24 Jan 2007: Properties added to Structures and Keywords
-// v0.06 D.G.Muir   20 Feb 2007: save and restore of properties added
-//                   If get_bad passed by keyword this affects all subsequent accessors
-// v0.07 D.G.Muir   09 Mar 2007: HDF5 Format included
-// v0.08 D.G.Muir   15 Mar 2007: Use the idamGetAPI instead of the various specific APIs
-// v0.09 D.G.Muir   18 Apr 2007: complex.h commented out
-// v0.10 D.G.Muir   22 Jun 2007: getdomains added to return IDA file domain data to the client
-//                   changeover to standard IDAM include files
-// v0.11 D.G.Muir   01 Oct 2007: Removed all references to IDAMDEV compiler option an associated optional code
-// 10Nov2007    dgm Error Message passing improved
-// 30Oct2008    dgm Added remaining data types: unsigned char, unsigned short, unsigned long
-// 05Jun2009    dgm Added the PGConn extern assignment
-// 20Aug2009    dgm All references to legacy named functions changed.
-//          Property get_nodimdata added.
-// 29Oct2009    dgm All functions using the SQL connection moved to roidam
-// 26Feb2010    dgm Added functions enabling access to Hierarchical Data Structure types
-// 31Mar2010    dgm Added additional functions enabling access to Hierarchical Data Structure types
-// 09Nov2010    dgm Added property functions to target legacy mapping to alternative signal name
-// 16May2011    dgm Added getidamnodeatomicdatacount
-// 25Jul2011    DGMuir  Changes required for 64 bit architecture: idl_shape LONG or LONG64 use IDL_MEMINT
-// 08Dec2011    dgm Added regulariseidamvlenstructure to manage VLEN data
-// 07Dec2012    dgm Added getidamnodestructuretype, rank, shape and pointers
-// 18Nov2013    dgm Added idamputapi function
-
 //-------------------------------------------------------------------------------------------------------
 
 #include <stdio.h>

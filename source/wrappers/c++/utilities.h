@@ -1,8 +1,3 @@
-//! $LastChangedRevision: 259 $
-//! $LastChangedDate: 2008-04-23 12:09:59 +0100 (Wed, 23 Apr 2008) $
-//! $LastChangedBy: lappel $
-//! $HeadURL: https://mastweb.fusion.org.uk/svnroot/EFIT++/development/main/EFIT/utilities.h $
-
 #ifndef UtilsClass
 #define UtilsClass
 

@@ -1,14 +1,7 @@
-//! $LastChangedRevision: 87 $
-//! $LastChangedDate: 2008-12-19 15:34:15 +0000 (Fri, 19 Dec 2008) $
-//! $LastChangedBy: dgm $
-//! $HeadURL: https://fussvn.fusion.culham.ukaea.org.uk/svnroot/IDAM/development/source/include/mastCPF.h $
-
-
 #include <ctype.h>
 #include <errno.h>
 
 #include <libpq-fe.h>
-//#include <pg_type.h>
 
 // Useful macro
 

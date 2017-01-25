@@ -1,8 +1,3 @@
-//! $LastChangedRevision: 12 $
-//! $LastChangedDate: 2007-12-14 14:52:30 +0000 (Fri, 14 Dec 2007) $
-//! $LastChangedBy: dgm $
-//! $HeadURL: https://fussvn.fusion.culham.ukaea.org.uk/svnroot/IDAM/development/source/plugins/bytes/readBytesNonOptimally.c $
-
 /*---------------------------------------------------------------
 * Open the Units Reference File for Standard Physics and Engineering units.
 *
@@ -17,9 +12,6 @@
 * Scales can be specified as either a symbol or as a named scale, e.g., G or Giga
 * By default, the scale is unity.
 *
-* Change History
-*
-* 1.0	25Feb2009	D.G.Muir	Original Version
 *-----------------------------------------------------------------------------*/
 
 #include <stdio.h>

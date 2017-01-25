@@ -1,24 +1,5 @@
-//! $LastChangedRevision: 187 $
-//! $LastChangedDate: 2010-03-17 14:00:50 +0000 (Wed, 17 Mar 2010) $
-//! $LastChangedBy: dgm $
-//! $HeadURL: https://fussvn.fusion.culham.ukaea.org.uk/svnroot/IDAM/development/source/include/idamclientserverxml.h $
-
 #ifndef IdamClientServerXmlInclude
 #define IdamClientServerXmlInclude
-
-// Change History
-//
-// 17Jan2006 dgm    No Changes for JET IDAM fat Client Install
-// 07Mar2006 dgm    Changes to Structures to Improve Signal Identification
-// 07Apr2006 dgm    Added Function Prototypes
-// 06Jul2007 dgm    DEBUG commented out
-// 12Jul2007 dgm    Consolidation with Old Jet Fortran EFIT: fturns added to PFCOILS
-//          diamagnetic flux structure and accessors etc added.
-// 14Nov2007 dgm    libxml include commented out
-// 03Dec2007 dgm    Old Function Prototypes from parseItmXML.h added for backwards compatibility
-// 04Dec2007 dgm    Compiler directive XML_ENABLE added to control inclusion of libxml includes for C++ EFIT
-// 02Apr2008 dgm    C++ test added for inclusion of extern "C"
-//----------------------------------------------------------------------------
 
 #ifdef HIERARCHICAL_DATA
 

@@ -1,21 +1,9 @@
-//! $LastChangedRevision: 323 $
-//! $LastChangedDate: 2012-04-20 13:06:32 +0100 (Fri, 20 Apr 2012) $
-//! $LastChangedBy: dgm $
-//! $HeadURL: https://fussvn.fusion.culham.ukaea.org.uk/svnroot/IDAM/development/source/plugins/ida/parseIdaPath.c $
-
 /*---------------------------------------------------------------
 * Identify the IDA File and it's Location
 *
 * Input Arguments:	1) Request_Block
 *
-* Assumes: path has the form /exp_number/pass                      
-*
-* Change History
-
-* 15Mar2007	D.G.Muir	Original Version
-* 01Oct2007	D.G.Muir	If path is of length 0 then return
-* 20Apr2012	D.G.Muir	Bug fix: test assumption that the leading character is a '/'
-*
+* Assumes: path has the form /exp_number/pass
 *--------------------------------------------------------------*/
 
 #include <TrimString.h>

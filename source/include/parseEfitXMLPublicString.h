@@ -1,37 +1,9 @@
-//! $LastChangedRevision: 115 $
-//! $LastChangedDate: 2009-11-09 09:55:16 +0000 (Mon, 09 Nov 2009) $
-//! $LastChangedBy: dgm $
-//! $HeadURL: https://fussvn.fusion.culham.ukaea.org.uk/svnroot/IDAM/development/source/include/parseEfitXMLPublic.h $
-
-// Change History
-//
-// 17Jan2006 dgm    No Changes for JET IDAM fat Client Install
-// 07Mar2006 dgm    Changes to Structures to Improve Signal Identification
-// 07Apr2006 dgm    Added Function Prototypes
-// 06Jul2007 dgm    DEBUG commented out
-// 12Jul2007 dgm    Consolidation with Old Jet Fortran EFIT: fturns added to PFCOILS
-//          diamagnetic flux structure and accessors etc added.
-// 04Feb2008 dgm    getinstance and getfluxloop now have different versions depending on OLDEFITVERSION
-// 21Feb2008 dgm    getnmagprobes and getnmagprobes_ prototypes added
-// 21Feb2008 dgm    extern prefix added to all Fortran accessors function prototypes
-// 20Mar2008 dgm    polarimetry and interferometry flux structures and accessors etc added.
-// 02Apr2008 dgm    C++ test added for inclusion of extern "C"
-// 14May2008 dgm    only 1 version of getinstance now. getfinstance is used by the fortran getinstance_
-// 18Dec2008 dgm    Split the include into a public and private includes. This controls the scope of the
-//          library functions and the internal static EFIT data structure.
-// 07May2009 dgm    Added aerr and rerr to getfluxloop
-// 10Mar2010 dgm    Changed char string array to type STRING
-//----------------------------------------------------------------------------
+#ifndef parseEfitXMLPublicInclude
+#define parseEfitXMLPublicInclude
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#ifndef parseEfitXMLPublicInclude
-#define parseEfitXMLPublicInclude
-
-
-//#define SQL_ENABLE
 
 #include <libxml/xmlmemory.h>
 #include <libxml/parser.h>

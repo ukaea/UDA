@@ -1,8 +1,3 @@
-//! $LastChangedRevision: 261 $
-//! $LastChangedDate: 2011-05-27 16:08:49 +0100 (Fri, 27 May 2011) $
-//! $LastChangedBy: dgm $
-//! $HeadURL: https://fussvn.fusion.culham.ukaea.org.uk/svnroot/IDAM/development/source/idl/mastcpf/mastCPF.c $
-
 // Routines to Query the MAST CPF Database
 //
 // Usage:
@@ -24,9 +19,8 @@
 // Note: The PostgreSQL Library libpg.so must be available to IDL. A soft 
 // link to the standard library is sufficient. 
 //
-// June2006	D.G.Muir	Original Version
-// 13Nov2007	D.G.Muir	Added Environment Variables
 //------------------------------------------------------------------
+#include "mastCPF.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -35,7 +29,6 @@
 #include <string.h>
 
 #include "idl_export.h"		// IDL API Header
-#include "mastCPF.h"   
 
 // Function Prototypes
 

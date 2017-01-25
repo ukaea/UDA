@@ -1,8 +1,3 @@
-//! $LastChangedRevision: 265 $
-//! $LastChangedDate: 2011-06-02 15:28:56 +0100 (Thu, 02 Jun 2011) $
-//! $LastChangedBy: dgm $
-//! $HeadURL: https://fussvn.fusion.culham.ukaea.org.uk/svnroot/IDAM/development/source/plugins/ida/nameIda.c $
-
 /*---------------------------------------------------------------
 * Form the Correct IDA Filename from the 3 character Alias form
 *
@@ -11,11 +6,6 @@
 *	
 * Returns:		char   *filename                        
 *
-* Change History
-
-* 0.0  05-Aug-2004	D.G.Muir
-* 0.1  09Jul2007 D.G.Muir	debugon, verbose enabled
-* 02Jun2011 dgm	Include source only if NOIDAPLUGIN is not defined
 *------------------------------------------------------------------*/
 
 #include <stdio.h>
@@ -23,8 +13,6 @@
 #include <idamLog.h>
 
 #ifndef NOIDAPLUGIN
-
-//#include <ida3.h>
 
 //-------------------------------------------------------------------
 // Form the Filename of the IDA File

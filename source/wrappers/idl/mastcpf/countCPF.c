@@ -1,8 +1,3 @@
-//! $LastChangedRevision: 12 $
-//! $LastChangedDate: 2007-12-14 14:52:30 +0000 (Fri, 14 Dec 2007) $
-//! $LastChangedBy: dgm $
-//! $HeadURL: https://fussvn.fusion.culham.ukaea.org.uk/svnroot/IDAM/development/source/idl/mastcpf/countCPF.c $
-
 // Routines to return Ordered Group Counts from the MAST CPF Database
 //
 // Usage:
@@ -23,10 +18,7 @@
 //		 
 //
 // Note: The PostgreSQL Library libpg.so must be available to IDL. A soft 
-// link to the standard library is sufficient. 
-//
-// V0.01	D.G.Muir	Original Version
-// 13Nov2007	D.G.Muir	Added Environment Variables
+// link to the standard library is sufficient.
 //------------------------------------------------------------------
 
 #include <stdio.h>

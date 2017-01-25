@@ -1,17 +1,5 @@
-//! $LastChangedRevision: 54 $
-//! $LastChangedDate: 2008-06-23 11:26:51 +0100 (Mon, 23 Jun 2008) $
-//! $LastChangedBy: dgm $
-//! $HeadURL: https://fussvn.fusion.culham.ukaea.org.uk/svnroot/IDAM/development/source/include/read_data.h $
-
-/*******************************************************
- *            Header File for read_data                *
- *******************************************************
- * created 10/11/2000 by Hendrik Meyer                 *
- * 20/05/2004 free_data_struct helper routine added    *
- *******************************************************/
-
-// 02Apr2008 dgm    C++ test added for inclusion of extern "C"
-//--------------------------------------------------------------------------------------------------------
+#ifndef IDAM_READ_DATA_H
+#define IDAM_READ_DATA_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -119,3 +107,5 @@ void free_data_struct( DATA); /* Free pointers in data structure */
 #ifdef __cplusplus
 }
 #endif
+
+#endif // IDAM_READ_DATA_H

@@ -1,4 +1,3 @@
-
 #ifndef IDAM_NAMEIDA_H
 #define IDAM_NAMEIDA_H
 

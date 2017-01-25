@@ -1,21 +1,8 @@
-//! $LastChangedRevision: 353 $
-//! $LastChangedDate: 2013-11-18 15:32:28 +0000 (Mon, 18 Nov 2013) $
-//! $LastChangedBy: dgm $
-//! $HeadURL: https://fussvn.fusion.culham.ukaea.org.uk/svnroot/IDAM/development/source/include/idamtypes.h $
-
 #ifndef IdamTypesInclude
 #define IdamTypesInclude
 
 // Client and ServerData Types
 //
-// Change History
-//
-// 01Sep2006 dgm    Original version
-// 02Apr2008 dgm    C++ test added for inclusion of extern "C"
-// 11Aug2008 dgm    Added remaining data types: unsigned char, unsigned short, unsigned long
-// 04Nov2009 dgm    Type String added
-// 09Nov2009 dgm    VLEN, STRING, COMPOUND, OPAQUE and ENUM type added
-// 10Dec2009 dgm    VOID type added
 //----------------------------------------------------------------
 
 #ifdef __cplusplus

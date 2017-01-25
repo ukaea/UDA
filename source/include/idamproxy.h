@@ -1,18 +1,5 @@
-//! $LastChangedRevision: 226 $
-//! $LastChangedDate: 2011-02-15 10:28:26 +0000 (Tue, 15 Feb 2011) $
-//! $LastChangedBy: dgm $
-//! $HeadURL: https://fussvn.fusion.culham.ukaea.org.uk/svnroot/IDAM/development/source/include/idamproxy.h $
-
 #ifndef IdamProxy
 #define IdamProxy
-
-// IDAM Proxy Server Include file
-//
-// Change History:
-//
-// 26Sep2007    D.G.Muir    Original Version
-// 02Sep2009    D.G.Muir    MAXNAME and MAXPATH increased to 1024 consistent with IDAM client and server
-//----------------------------------------------------------------
 
 #include <stdio.h>
 #include <stdlib.h>

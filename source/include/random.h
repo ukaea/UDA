@@ -1,16 +1,3 @@
-//! $LastChangedRevision: 12 $
-//! $LastChangedDate: 2007-12-14 14:52:30 +0000 (Fri, 14 Dec 2007) $
-//! $LastChangedBy: dgm $
-//! $HeadURL: https://fussvn.fusion.culham.ukaea.org.uk/svnroot/IDAM/development/source/include/random.h $
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// Filename:  random.h
-//
-// Purpose:   Header for random.c
-//
-// History:   John Skilling   28 Jan 2002 - 18 Aug 2003
-//-----------------------------------------------------------------------------
-//
 #ifndef RANDOMH
 #define RANDOMH
 

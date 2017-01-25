@@ -1,38 +1,6 @@
-//! $LastChangedRevision: 329 $
-//! $LastChangedDate: 2012-07-03 10:35:15 +0100 (Tue, 03 Jul 2012) $
-//! $LastChangedBy: dgm $
-//! $HeadURL: https://fussvn.fusion.culham.ukaea.org.uk/svnroot/IDAM/development/source/plugins/ida/readIdaItem.c $
-
-// Read a Specific IDA Signal 
+// Read a Specific IDA Signal
 // 
-// Based on HM original 
-//----------------------------------------------------------------------------------------- 
-// Change History: 
-// 
-// 23 Feb 2006	itemType modified to generally return either a Float or a Double unless 
-//		the IDA_VALU bit is set - it can then return an Integer 
-// 23 Feb 2006	readIdaItem: Added a test on the Returned Datatype - return if UNKNOWN 
-// 02 Aug 2006	Read Error Data if available 
-// 06 Nov 2006	Asymmetric Error Changes 
-// 16 Jan 2007	DCVAL: If the time value is Zero then Rank 0 otherwise Rank 1 
-// 22 Jan 2007	DCVAL: Return Data as saved in the IDA File  
-// 23 Jan 2007	Test for DATPCK bit set: IDA_D1 - Cast to CHAR  
-// 31 Jan 2007	Added a compile time Option to Swap X with Y in a Rank 3 Array
-// 27 Mar 2007	Corrected a Bug with Rank 3 DCXY Error data transpose  
-// 25 Jun 2007	Additional Check for Integer DATPCK property: typeno and type added to item/errorType  
-// 09 Jul2007   D.G.Muir	debugon, verbose enabled  
-// 29Oct2007	dgm	ERRORSTACK Components added 
-// 22Sep2008	dgm	Unsigned types char, short and long added
-// 31Oct2008 	dgm 	Access to Raw IDA Data enabled
-// 06Nov2008	dgm	idaclasses function implemented
-// 05Oct2009	dgm	Test for Client set properties: get_datadble, get_timedble, , get_nodimdata
-//			Changed TYPE_LONG to TYPE_LONG64 for 8 byte numeric integer types
-// 09Oct2009	dgm	Test for NULL ints array when casting to DOUBLE
-// 09May2011	dgm	Removed compiler options LONG64_OK & ULONG64_OK
-// 01Jun2011	dgm	Include source only if NOIDAPLUGIN is Not defined
-// 26Jun2012	dgm	Corrected use of get_bytes property. 
-// 
-// RAW: ida_d4+ida_intg+ida_valu+ida_sgnd 
+// Based on HM original
 //----------------------------------------------------------------------------------------- 
 
 #ifndef NOIDAPLUGIN
@@ -64,9 +32,8 @@ int itemType(unsigned short datpck, short typeno, int getbytes, char* type)
                 if ((datpck & IDA_D2) == IDA_D2) data_type = TYPE_SHORT;
                 if ((datpck & IDA_D4) == IDA_D4) data_type = TYPE_INT;
                 if ((datpck & IDA_D8) == IDA_D8) data_type = TYPE_LONG64;
-            } else {                            // Calibration Applied
+            } else { // Calibration Applied
                 if (typeno == 6 && !strcmp(type, "scalar")) {
-// 31Oct08     if((datpck & IDA_D1) == IDA_D1) data_type = TYPE_SHORT;
                     if ((datpck & IDA_D1) == IDA_D1) data_type = TYPE_CHAR;
                     if ((datpck & IDA_D2) == IDA_D2) data_type = TYPE_SHORT;
                     if ((datpck & IDA_D4) == IDA_D4) data_type = TYPE_INT;

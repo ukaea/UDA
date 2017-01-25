@@ -1,37 +1,9 @@
-//! $LastChangedRevision: 237 $
-//! $LastChangedDate: 2011-05-19 11:22:56 +0100 (Thu, 19 May 2011) $
-//! $LastChangedBy: dgm $
-//! $HeadURL: https://fussvn.fusion.culham.ukaea.org.uk/svnroot/IDAM/development/source/idl/roidam/roidam.c $
-
-// roidam.c
-//
-// IDL DLM C Code: RO Meta Data Tool
-//
-// Change History:
-//
-// v0.00 D.G.Muir	21 Nov 2006: Original Development 
-//	
-// 16Jan2007	dgm	rosignalxml pass and shot range checks changed to allow open ended ranges
-// 23Feb2007    dgm     rosignalxml: time_start and time_interval keywords added 
-// 22Mar2007    dgm     signal_name changed to signal_alias in listSignals when the search keyword is passed
-// 03May2007    dgm	Remove ambiguity to TYPE in SQL issed by listSignals
-//			listsources and listshots added 
-// 08Oct2007	dgm	rosinglesignalxml added
-// 13Nov2007	dgm	listSources return structure extended 
-// 30Oct2009	dgm	Database queries added: getidamlastshot, getidamshotdatetime,
-//			getidamlatestsourcepass
-// 02Nov2010	dgm	Checked for existing SQL connection in get... functions to prevent
-//			too many sockets from opening if large scan over shots done.
-// 05May2011	dgm	Added documentation function: roidamhelp  
-//---------------------------------------------------------------------
-
-//#include <complex.h>
+#include "roidam.h"		// DLM Header
 
 #include "idamclientserver.h"	// IDAM Headers
 #include "idamclient.h"		 
 #include "parseXML.h"
-#include <libpq-fe.h>		// SQL Library Header	 
-#include "roidam.h"		// DLM Header
+#include <libpq-fe.h>		// SQL Library Header
 
 #define NDEBUG		0
 

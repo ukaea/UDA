@@ -1,8 +1,3 @@
-//! $LastChangedRevision: 226 $
-//! $LastChangedDate: 2011-02-15 10:28:26 +0000 (Tue, 15 Feb 2011) $
-//! $LastChangedBy: dgm $
-//! $HeadURL: https://fussvn.fusion.culham.ukaea.org.uk/svnroot/IDAM/development/source/idl/mastsql/mastSQL.c $
-
 // Routines to Query a Postgres Database
 //
 // Usage:
@@ -22,10 +17,9 @@
 //		 
 //
 // Note: The PostgreSQL Library libpg.so must be available to IDL. A soft 
-// link to the standard library is sufficient. 
-//
-// 26May2011	D.G.Muir	Original Version
+// link to the standard library is sufficient.
 //------------------------------------------------------------------
+#include "mastSQL.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -34,7 +28,6 @@
 #include <string.h>
 
 #include "export.h"		// IDL API Header
-#include "mastSQL.h"   
 
 // Function Prototypes
 

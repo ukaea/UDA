@@ -1,14 +1,3 @@
-//! $LastChangedRevision: 226 $
-//! $LastChangedDate: 2011-02-15 10:28:26 +0000 (Tue, 15 Feb 2011) $
-//! $LastChangedBy: dgm $
-//! $HeadURL: https://fussvn.fusion.culham.ukaea.org.uk/svnroot/IDAM/development/source/include/parseEfitXMLPrivate.h $
-
-// Change History
-//
-// 18Dec2008    dgm Holds all Private components of the library
-// 21Jub2010    dgm MSE functions controlled using using JETMSEXML
-//----------------------------------------------------------------------------
-
 #ifndef parseEfitXMLPrivateInclude
 #define parseEfitXMLPrivateInclude
 
