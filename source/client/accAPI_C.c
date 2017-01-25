@@ -6,22 +6,26 @@
 #include "accAPI_C.h"
 
 #ifdef __APPLE__  // Add some specific macros for development using xcode IDE
-#  include "mac_memstream.h"
+#  include <clientserver/mac_memstream.h>
 #endif
 
 #include <math.h>
 #include <rpc/rpc.h>
 
-#include <idamLog.h>
+#include <logging/idamLog.h>
 #include <include/idamclientprivate.h>
 #include <include/idamclientpublic.h>
+#include <include/idamgenstruct.h>
+#include <clientserver/initStructs.h>
+#include <include/idammatlab.h>
+#include <clientserver/idamErrorLog.h>
+#include <clientserver/TrimString.h>
+#include <structures/struct.h>
+#include <include/idamclientserver.h>
+#include <clientserver/allocData.h>
+#include <clientserver/protocol2.h>
 
-#include "initStructs.h"
-#include "TrimString.h"
-#include "struct.h"
 #include "generateErrors.h"
-#include "allocData.h"
-#include "protocol2.h"
 #include "getEnvironment.h"
 #include "accAPI_F.h"
 #include "idam_client.h"
@@ -610,7 +614,7 @@ int getIdamProperty(const char* property)
         if (!strcasecmp(property, "altData")) return clientFlags | CLIENTFLAG_ALTDATA;
  
     }
-    return (0);
+    return 0;
 }
 
 //! Reset a specific named data server property to its default value
@@ -1038,7 +1042,7 @@ int getIdamServerErrorStackSize()
 */
 int getIdamServerErrorStackRecordType(int record)
 {
-    if (record < 0 || record >= server_block.idamerrorstack.nerrors) return (0);
+    if (record < 0 || record >= server_block.idamerrorstack.nerrors) return 0;
     return (server_block.idamerrorstack.idamerror[record].type);  // Server Error Stack Record Type
 }
 
@@ -1049,7 +1053,7 @@ int getIdamServerErrorStackRecordType(int record)
 */
 int getIdamServerErrorStackRecordCode(int record)
 {
-    if (record < 0 || record >= server_block.idamerrorstack.nerrors) return (0);
+    if (record < 0 || record >= server_block.idamerrorstack.nerrors) return 0;
     return (server_block.idamerrorstack.idamerror[record].code);  // Server Error Stack Record Code
 }
 
@@ -1060,7 +1064,7 @@ int getIdamServerErrorStackRecordCode(int record)
 */
 char* getIdamServerErrorStackRecordLocation(int record)
 {
-    if (record < 0 || record >= server_block.idamerrorstack.nerrors) return (0);
+    if (record < 0 || record >= server_block.idamerrorstack.nerrors) return 0;
     return (server_block.idamerrorstack.idamerror[record].location); // Server Error Stack Record Location
 }
 
@@ -1073,7 +1077,7 @@ char* getIdamServerErrorStackRecordMsg(int record)
 {
     idamLog(LOG_DEBUG, "getIdamServerErrorStackRecordMsg: record %d\n", record);
     idamLog(LOG_DEBUG, "getIdamServerErrorStackRecordMsg: count  %d\n", server_block.idamerrorstack.nerrors);
-    if (record < 0 || record >= server_block.idamerrorstack.nerrors) return (0);
+    if (record < 0 || record >= server_block.idamerrorstack.nerrors) return 0;
     return (server_block.idamerrorstack.idamerror[record].msg);   // Server Error Stack Record Message
 }
 
@@ -1120,7 +1124,7 @@ char* getIdamErrorMsg(int handle)
 */
 int getIdamSourceStatus(int handle)
 {           // Source Status
-    if (handle < 0 || handle >= Data_Block_Count) return (0);
+    if (handle < 0 || handle >= Data_Block_Count) return 0;
     return Data_Block[handle].source_status;
 }
 
@@ -1131,13 +1135,13 @@ int getIdamSourceStatus(int handle)
 */
 int getIdamSignalStatus(int handle)
 {           // Signal Status
-    if (handle < 0 || handle >= Data_Block_Count) return (0);
+    if (handle < 0 || handle >= Data_Block_Count) return 0;
     return Data_Block[handle].signal_status;
 }
 
 int getIdamDataStatus(int handle)
 {          // Data Status based on Standard Rule
-    if (handle < 0 || handle >= Data_Block_Count) return (0);
+    if (handle < 0 || handle >= Data_Block_Count) return 0;
     if (getIdamSignalStatus(handle) ==
         DEFAULT_STATUS)       // Signal Status Not Changed from Default - use Data Source Value
         return Data_Block[handle].source_status;
@@ -1161,7 +1165,7 @@ int getIdamLastHandle()
 */
 int getIdamDataNum(int handle)
 {             // Data Array Size
-    if (handle < 0 || handle >= Data_Block_Count) return (0);
+    if (handle < 0 || handle >= Data_Block_Count) return 0;
     return Data_Block[handle].data_n;
 }
 
@@ -1172,7 +1176,7 @@ int getIdamDataNum(int handle)
 */
 int getIdamRank(int handle)
 {             // Array Rank
-    if (handle < 0 || handle >= Data_Block_Count) return (0);
+    if (handle < 0 || handle >= Data_Block_Count) return 0;
     return (int) Data_Block[handle].rank;
 }
 
@@ -1360,7 +1364,7 @@ void getIdamErrorModel(int handle, int *model, int *param_n, float *params) {
 
 int getIdamErrorAsymmetry(int handle)
 {
-    if (handle < 0 || handle >= Data_Block_Count) return (0);
+    if (handle < 0 || handle >= Data_Block_Count) return 0;
     return ((int) Data_Block[handle].errasymmetry);
 }
 
@@ -1395,7 +1399,7 @@ int getIdamErrorModelId(const char* model)
                 return (ERROR_MODEL_UNKNOWN);
         }
     }
-    return (0);
+    return 0;
 }
 
 char* acc_getSyntheticData(int handle)
@@ -2351,7 +2355,7 @@ void getIdamDataDescTdi(int handle, char* desc)
 */
 int getIdamDimNum(int handle, int ndim)
 {
-    if (handle < 0 || handle >= Data_Block_Count || ndim < 0 || ndim >= Data_Block[handle].rank) return (0);
+    if (handle < 0 || handle >= Data_Block_Count || ndim < 0 || ndim >= Data_Block[handle].rank) return 0;
     return ((int) Data_Block[handle].dims[ndim].dim_n);
 }
 
@@ -2387,7 +2391,7 @@ int getIdamDimErrorType(int handle, int ndim)
 */
 int getIdamDimErrorAsymmetry(int handle, int ndim)
 {
-    if (handle < 0 || handle >= Data_Block_Count || ndim < 0 || ndim >= Data_Block[handle].rank) return (0);
+    if (handle < 0 || handle >= Data_Block_Count || ndim < 0 || ndim >= Data_Block[handle].rank) return 0;
     return ((int) Data_Block[handle].dims[ndim].errasymmetry);
 }
 
@@ -3349,8 +3353,8 @@ int idamDataCheckSum(void* data, int data_n, int type)
 
 int getIdamDataCheckSum(int handle)
 {
-    if (handle < 0 || handle >= Data_Block_Count) return (0);
-    if (Data_Block[handle].errcode != 0) return (0);
+    if (handle < 0 || handle >= Data_Block_Count) return 0;
+    if (Data_Block[handle].errcode != 0) return 0;
 
     return (idamDataCheckSum((void*) Data_Block[handle].data, Data_Block[handle].data_n,
                              Data_Block[handle].data_type));
@@ -3358,9 +3362,9 @@ int getIdamDataCheckSum(int handle)
 
 int getIdamDimDataCheckSum(int handle, int ndim)
 {
-    if (handle < 0 || handle >= Data_Block_Count) return (0);
-    if (Data_Block[handle].errcode != 0) return (0);
-    if (ndim < 0 || ndim >= Data_Block[handle].rank) return (0);
+    if (handle < 0 || handle >= Data_Block_Count) return 0;
+    if (Data_Block[handle].errcode != 0) return 0;
+    if (ndim < 0 || ndim >= Data_Block[handle].rank) return 0;
 
     return (idamDataCheckSum((void*) Data_Block[handle].dims[ndim].dim, Data_Block[handle].dims[ndim].dim_n,
                              Data_Block[handle].dims[ndim].data_type));

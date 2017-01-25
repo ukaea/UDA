@@ -4,21 +4,21 @@
 * Note: Error Message Passback to Client is via the Server State Structure
 *
 *---------------------------------------------------------------------------------------------------------------------*/
-#include "idamserver.h"
-
-#include <parseIncludeFile.h>
 #include <clientserver/idamErrors.h>
 #include <clientserver/initStructs.h>
 #include <clientserver/manageSockets.h>
 #include <clientserver/protocol2.h>
 #include <clientserver/printStructs.h>
+#include <include/idamgenstruct.h>
+#include <structures/struct.h>
+#include <structures/parseIncludeFile.h>
+#include <logging/idamAccessLog.h>
+#include <clientserver/xdrlib.h>
+#include <clientserver/freeDataBlock.h>
 
-#include "idamserverfiles.h"
 #include "idamServerStartup.h"
-#include "idamErrorLog.h"
 #include "closeServerSockets.h"
 #include "serverProcessing.h"
-#include "idamAccessLog.h"
 #include "idamserverGetData.h"
 #include "freeIdamPut.h"
 #include "idamLegacyServer.h"
@@ -26,13 +26,11 @@
 #include "idamServerLegacyPlugin.h"
 #include "struct.h"
 #include "makeServerRequestBlock.h"
-#include "freeDataBlock.h"
 #include "manageFiles.h"
 #include "sqllib.h"
 #include "CreateXDRStream.h"
 
 #ifndef FATCLIENT
-#  include "xdrlib.h"
 #  ifdef SECURITYENABLED
 #    include "idamsecurity.h"
 #  endif

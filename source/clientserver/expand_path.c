@@ -25,7 +25,7 @@
 #include "idamErrorLog.h"
 
 #ifdef SERVERBUILD
-#  include "idamServerStartup.h"
+#  include <server/idamServerStartup.h>
 #endif
 
 // Identify the current working Host
@@ -504,7 +504,7 @@ int expandFilePath(char* path)
     if (!IsLegalFilePath(path)) {
         err = 999;
         addIdamError(&idamerrorstack, CODEERRORTYPE, "expandFilePath", err, "The Source contains a Syntax Error!");
-        return (err);
+        return err;
     }
 #endif
 
@@ -637,14 +637,14 @@ int expandFilePath(char* path)
                          "Cannot resolve the Current Working Directory!");
             addIdamError(&idamerrorstack, CODEERRORTYPE, "expand_path", err,
                          "Unable to resolve full file names.");
-            return (err);
+            return err;
         }
 
         if (pcwd == NULL) {
             err = 999;
             addIdamError(&idamerrorstack, CODEERRORTYPE, "expand_path", err,
                          "Cannot resolve the Current Working Directory! Unable to resolve full file names.");
-            return (err);
+            return err;
         }
 
         strcpy(ocwd, cwd);
@@ -742,14 +742,14 @@ int expandFilePath(char* path)
                          "Cannot resolve the Current Working Directory!");
             addIdamError(&idamerrorstack, CODEERRORTYPE, "expand_path", err,
                          "Unable to resolve full file names.");
-            return (err);
+            return err;
         }
 
         if (pcwd == NULL) {
             err = 998;
             addIdamError(&idamerrorstack, CODEERRORTYPE, "expand_path", err,
                          "Cannot resolve the Current Working Directory! Unable to resolve full file names.");
-            return (err);
+            return err;
         }
 
         strcpy(work1, cwd);

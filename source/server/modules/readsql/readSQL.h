@@ -1,14 +1,9 @@
-
 #ifndef IDAM_READSQL_H
 #define IDAM_READSQL_H
 
-#include "idamclientserver.h"
-#include "idamserver.h"
-#include "sqllib.h"
+#include <libpq-fe.h>
 
-#ifndef NOXMLPARSER
-#  include "parseEfitXMLPublic.h"
-#endif
+#include <clientserver/idamStructs.h>
 
 #ifdef USEREADSOAP 
 #  include "soapStub.h"

@@ -1,7 +1,7 @@
 #ifndef IDAM_SERVER_FREEIDAMPUT_H
 #define IDAM_SERVER_FREEIDAMPUT_H
 
-#include "idamStructs.h"
+#include <clientserver/idamStructs.h>
 
 void freeIdamServerPutDataBlock(PUTDATA_BLOCK *str);
 void freeIdamServerPutDataBlockList(PUTDATA_BLOCK_LIST *putDataBlockList);

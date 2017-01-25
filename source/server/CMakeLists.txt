@@ -1,126 +1,53 @@
 cmake_minimum_required( VERSION 2.8 )
 
-########################################
-# Names and versions
-
-include( modules )
-
-set( CMAKE_EXE_LINKER_FLAGS "" )
-set( CMAKE_SHARED_LINKER_FLAGS "" )
-set( IDS_MAJOR_VERSION 1 )
-set( IDS_MINOR_VERSION 8 )
-set( IDS "${IDAM_NAME}server" )
-set( IDS_EXE "${IDAM_NAME}serverprg" )
-set( SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/.. )
-
-#######################################
+########################################################################################################################
 # Dependencies
 
 find_package( PostgreSQL REQUIRED )
 find_package( LibXml2 REQUIRED )
 find_package( OpenSSL REQUIRED )
 
+include( modules )
 find_modules()
 
-########################################
-# Compiler flags
+add_subdirectory( modules )
 
-set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC" )
-set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu99" )
+########################################################################################################################
+# Sources
 
-########################################
-# Options
+set( SRC_FILES
+  idamServer.c
+  idamserverGetData.c
+  freeIdamPut.c
+  idamLegacyServer.c
+  idamServerPlugin.c
+  idamServerLegacyPlugin.c
+  makeServerRequestBlock.c
+  idamServer.c
+  sleepServer.c
+  writer.c
+  CreateXDRStream.c
+  mastArchiveFilePath.c
+  closeServerSockets.c
+  dumpFile.c
+  idamserverSubsetData.c
+  applyXML.c
+  manageFiles.c
+  serverProcessing.c
+  sqllib.c
+  managePluginFiles.c
+  )
 
-option( DEBUG "Debug info" ON )
-if( DEBUG )
-  add_definitions( -DDEBUG )
-  set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -O0" )
-endif( DEBUG )
-
-########################################
-# Server
-list( APPEND SRC_FILES idamServer.c )
-list( APPEND SRC_PRG_FILES idamServerMain.c )
-list( APPEND SRC_FILES idamserverGetData.c )
-list( APPEND SRC_FILES freeIdamPut.c )
-list( APPEND SRC_FILES idamLegacyServer.c )
-list( APPEND SRC_FILES idamServerPlugin.c )
-list( APPEND SRC_FILES idamServerLegacyPlugin.c )
-list( APPEND SRC_FILES makeServerRequestBlock.c )
-list( APPEND SRC_FILES idamServer.c )
-list( APPEND SRC_FILES sleepServer.c )
-list( APPEND SRC_FILES writer.c )
-list( APPEND SRC_FILES CreateXDRStream.c )
-list( APPEND SRC_FILES mastArchiveFilePath.c )
-list( APPEND SRC_FILES closeServerSockets.c )
-list( APPEND SRC_FILES dumpFile.c )
-list( APPEND SRC_FILES idamserverSubsetData.c )
-list( APPEND SRC_FILES applyXML.c )
-list( APPEND SRC_FILES manageFiles.c )
-list( APPEND SRC_FILES serverProcessing.c )
-list( APPEND SRC_FILES sqllib.c )
-list( APPEND SRC_FILES managePluginFiles.c )
 if( NOT FAT_BUILD )
-  list( APPEND SRC_FILES idamServerStartup.c )
-  list( APPEND SRC_FILES getServerEnvironment.c )
+  list( APPEND SRC_FILES
+    idamServerStartup.c
+    getServerEnvironment.c
+    )
 endif()
-
-# Structures
-list( APPEND SRC_FILES ${SRC_DIR}/structures/parseIncludeFile.c )
-list( APPEND SRC_FILES ${SRC_DIR}/structures/struct.c )
-list( APPEND SRC_FILES ${SRC_DIR}/structures/accessors.c )
-list( APPEND SRC_FILES ${SRC_DIR}/structures/xdrUserDefinedData.c )
-
-# Security
-list( APPEND SRC_FILES ${SRC_DIR}/security/idamServerAuthentication.c )
-
-# Modules
-list( APPEND SRC_FILES modules/ida/readIda.c )
-list( APPEND SRC_FILES modules/ida/nameIda.c )
-list( APPEND SRC_FILES modules/ida/readIdaItem.c )
-list( APPEND SRC_FILES modules/ida/parseIdaPath.c )
-list( APPEND SRC_FILES modules/bytes/readBytesNonOptimally.c )
-list( APPEND SRC_FILES modules/readNothing/readNothing.c )
-list( APPEND SRC_FILES modules/hdf58/readHDF58.c )
-list( APPEND SRC_FILES modules/jpf/readjpf.c )
-list( APPEND SRC_FILES modules/ufile/readUFile.c )
-list( APPEND SRC_FILES modules/idam/readIdam.c )
-list( APPEND SRC_FILES modules/netcdf4/readCDF4.c )
-if( NETCDF_FOUND )
-  list( APPEND SRC_FILES modules/netcdf4/readCDF4SubTree.c )
-  list( APPEND SRC_FILES modules/netcdf4/readCDFAtts.c )
-  list( APPEND SRC_FILES modules/netcdf4/readCDFMeta.c )
-  list( APPEND SRC_FILES modules/netcdf4/readCDFTypes.c )
-  list( APPEND SRC_FILES modules/netcdf4/readCDFVar.c )
-endif()
-list( APPEND SRC_FILES modules/readsql/readSQL.c )
-list( APPEND SRC_FILES modules/ppf/readppf.c )
-list( APPEND SRC_FILES modules/hdata/readHData.c )
-list( APPEND SRC_FILES modules/mdsplus/readMDS.c )
-list( APPEND SRC_FILES modules/registration/getPluginAddress.c )
 
 include_directories(
-  ${SRC_DIR}
-  ${SRC_DIR}/include
-  ${SRC_DIR}/clientserver
-  ${SRC_DIR}/server
-  ${SRC_DIR}/structures
-  ${SRC_DIR}/logging
-  modules/registration
-  modules/ida
-  modules/bytes
-  modules/mdsplus
-  modules/idam
-  modules/ida
-  modules/netcdf4
-  modules/hdf58
-  modules/ufile
-  modules/ppf
-  modules/jpf
-  modules/hdata
-  modules/readsql
-  modules/readNothing
-  modules/ufile
+  ${CMAKE_SOURCE_DIR}/source
+  ${CMAKE_CURRENT_SOURCE_DIR}
   ${LIBXML2_INCLUDE_DIR}
   ${PostgreSQL_INCLUDE_DIRS}
   ${OPENSSL_INCLUDE_DIR}
@@ -139,83 +66,83 @@ add_definitions( -DDGMJUL14 )
 add_definitions( -DCLEANNAMESPACE25SEP14 )
 add_definitions( -DSERVERBUILD )
 
-########################################
+########################################################################################################################
 # Targets
 
 link_directories( ${PostgreSQL_LIBRARY_DIRS} )
 
 if( NOT FAT_BUILD )
-  add_library( ${IDS_LIB_NAME} SHARED ${SRC_FILES} $<TARGET_OBJECTS:idamserverlog> )
-  add_executable( ${IDS_EXE} ${SRC_PRG_FILES} )
+  add_library( server SHARED
+    ${SRC_FILES}
+    $<TARGET_OBJECTS:clientserver-server>
+    $<TARGET_OBJECTS:serverlogging>
+    $<TARGET_OBJECTS:structures>
+    $<TARGET_OBJECTS:security>
+    )
+  add_executable( server.x idamServerMain.c )
 else()
-  add_library( ${IDS_LIB_NAME} STATIC ${SRC_FILES} )
+  add_library( server OBJECT ${SRC_FILES} )
 endif()
 
-########################################
+########################################################################################################################
 # Add libraries
 
-# Library
-target_link_libraries( ${IDS_LIB_NAME} LINK_PUBLIC
-  idamclientserver
+target_link_libraries( server LINK_PUBLIC
   ${LIBXML2_LIBRARIES}
   ${PostgreSQL_LIBRARY}
 )
 
-set_source_files_properties(
-  modules/idam/readIdam.c
-  PROPERTIES COMPILE_FLAGS "-I${SRC_DIR}/client"
-)
-
 if( NOT FAT_BUILD )
-  target_link_libraries( ${IDS_LIB_NAME} LINK_PUBLIC ${IDC_LIB_NAME} )
-  target_link_libraries( ${IDS_LIB_NAME} LINK_PUBLIC ${OPENSSL_LIBRARIES} )
+  target_link_libraries( server LINK_PUBLIC client-shared ${OPENSSL_LIBRARIES} )
 
   # Executable
-  target_link_libraries( ${IDS_EXE} LINK_PUBLIC ${LIBXML2_LIBRARIES} )
-  target_link_libraries( ${IDS_EXE} LINK_PUBLIC ${PostgreSQL_LIBRARY} )
-  #target_link_libraries( ${IDS_EXE} LINK_PUBLIC curl ) # commented out to make work on ITER
-  target_link_libraries( ${IDS_EXE} LINK_PUBLIC c )
-  target_link_libraries( ${IDS_EXE} LINK_PUBLIC m )
-  target_link_libraries( ${IDS_EXE} LINK_PUBLIC dl )
+  target_link_libraries( server.x LINK_PUBLIC
+    ${LIBXML2_LIBRARIES}
+    ${PostgreSQL_LIBRARY}
+    c
+    m
+    dl
+    server
+    client-shared
+    ${OPENSSL_LIBRARIES}
+    )
   if( NOT APPLE )
-    target_link_libraries( ${IDS_EXE} LINK_PUBLIC gcc_s )
+    target_link_libraries( server.x LINK_PUBLIC gcc_s )
   endif()
-  target_link_libraries( ${IDS_EXE} LINK_PUBLIC ${IDS_LIB_NAME} )
-  target_link_libraries( ${IDS_EXE} LINK_PUBLIC ${IDC_LIB_NAME} )
-  target_link_libraries( ${IDS_EXE} LINK_PUBLIC ${OPENSSL_LIBRARIES} )
 
-  link_modules( ${IDS_LIB_NAME} )
+  link_modules( server )
 endif()
 
-########################################
+########################################################################################################################
 # Set library properties
 
-set_target_properties( ${IDS_LIB_NAME}
+set_target_properties( server
     PROPERTIES
-      VERSION ${IDS_MAJOR_VERSION}.${IDS_MINOR_VERSION}
-      SOVERSION ${IDS_MAJOR_VERSION}
+      OUTPUT_NAME ${PROJECT_NAME}_server
+      VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}
+      SOVERSION ${PROJECT_VERSION_MAJOR}
   )
 
 if( NOT FAT_BUILD )
   install(
-    TARGETS ${IDS_LIB_NAME}
+    TARGETS server
     DESTINATION lib
   )
 
-  ########################################
-  # Set executable properties
+########################################################################################################################
+# Set executable properties
 
-  set_target_properties( ${IDS_EXE}
+  set_target_properties( server.x
     PROPERTIES
-      OUTPUT_NAME ${IDS}
+      OUTPUT_NAME ${PROJECT_NAME}_server
   )
 
-  install( TARGETS ${IDS_EXE}
+  install( TARGETS server.x
     DESTINATION bin
   )
 endif()
 
-########################################
+########################################################################################################################
 # Configure files
 
 string( REPLACE ";" ":" EXTRA_LD_LIBRARY_PATHS "${EXTRA_LD_LIBRARY_PATHS}" )

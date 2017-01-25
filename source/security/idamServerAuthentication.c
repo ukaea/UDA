@@ -60,7 +60,7 @@ int idamServerAuthentication(CLIENT_BLOCK *client_block, SERVER_BLOCK *server_bl
          }	 
       }
       
-      if(err != 0) return(err); 
+      if(err != 0) return err;
       
 // Flush (mark as at EOF) the input socket buffer (not all client state data may have been read - version dependent)
 

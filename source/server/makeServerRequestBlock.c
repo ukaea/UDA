@@ -101,7 +101,7 @@ int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList)
         err = 999;
         addIdamError(&idamerrorstack, CODEERRORTYPE, "makeServerRequestBlock", err,
                      "Neither Data Object nor Source specified!");
-        return (err);
+        return err;
     }
 
 //------------------------------------------------------------------------------
@@ -224,7 +224,7 @@ int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList)
                     err = 999;
                     addIdamError(&idamerrorstack, CODEERRORTYPE, "makeServerRequestBlock", err,
                                  "Source syntax: path with parenthesis () is incorrect!");
-                    return (err);
+                    return err;
                 }
 
 // Regular request: pulse or pulse/pass ==> Generic request
@@ -258,7 +258,7 @@ int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList)
                     err = 999;
                     addIdamError(&idamerrorstack, CODEERRORTYPE, "makeServerRequestBlock", err,
                                  "No File Format identifed: Please specify.");
-                    return (err);
+                    return err;
                 }
 
                 expandEnvironmentVariables(request_block);            // Resolve any Serverside environment variables
@@ -289,7 +289,7 @@ int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList)
                         err = 999;
                         addIdamError(&idamerrorstack, CODEERRORTYPE, "makeServerRequestBlock", err,
                                      "Name Value pair syntax is incorrect!");
-                        return (err);
+                        return err;
                     }
 
 // Test for external library functions using the Archive name as the library name identifier
@@ -312,7 +312,7 @@ int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList)
                     err = 999;
                     addIdamError(&idamerrorstack, CODEERRORTYPE, "makeServerRequestBlock", err,
                                  "No Data Access Plugin Identified!");
-                    return (err);
+                    return err;
                 }
             }
 
@@ -456,7 +456,7 @@ int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList)
                 err = 999;
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "makeServerRequestBlock", err,
                              "Not a function when one is expected! - A Library plugin has been specified.");
-                return (err);
+                return err;
             }
 
 // ToDo: Extract Data subset operations specified within the source argument
@@ -476,7 +476,7 @@ int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList)
                     err = 999;
                     addIdamError(&idamerrorstack, CODEERRORTYPE, "makeServerRequestBlock", err,
                                  "Name Value pair syntax is incorrect!");
-                    return (err);
+                    return err;
                 }
 
 // ToDo: Extract Data subset operations specified as a named value pair, tagged 'subset'
@@ -485,7 +485,7 @@ int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList)
                 err = 999;
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "makeServerRequestBlock", err,
                              "Function syntax error - please correct");
-                return (err);
+                return err;
             }
         }
 
@@ -528,7 +528,7 @@ int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList)
     if ((rc = extractSubset(request_block)) == -1) {
         err = 999;
         addIdamError(&idamerrorstack, CODEERRORTYPE, "makeServerRequestBlock", err, "Subset operation is incorrect!");
-        return (err);
+        return err;
     }
 
 // as at 19Apr2011 no signals recorded in the IDAM database use either [ or { characters
@@ -576,7 +576,7 @@ int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList)
                 err = 999;
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "makeServerRequestBlock", err,
                              "Name Value pair syntax is incorrect!");
-                return (err);
+                return err;
             }
             extractFunctionName(request_block->signal, request_block);
         }
@@ -631,7 +631,7 @@ int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList)
 
         }
 
-        // return(err);
+        // return err;
 
     } else {
 
@@ -751,7 +751,7 @@ int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList)
             err = NO_SERVER_SPECIFIED;
             addIdamError(&idamerrorstack, CODEERRORTYPE, "makeServerRequestBlock", err,
                          "The MDSPlus Data Source does not comply with the naming models: server/tree/number or server/path/to/data/tree/number");
-            return (err);
+            return err;
         }
     }
 
@@ -768,7 +768,7 @@ int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList)
             err = NO_SERVER_SPECIFIED;
             addIdamError(&idamerrorstack, CODEERRORTYPE, "makeServerRequestBlock", err,
                          "The Remote Server Data Source specified does not comply with the naming model: serverHost:port/sourceURL");
-            return (err);
+            return err;
         }
     }
 
@@ -1094,7 +1094,7 @@ int extractArchive(REQUEST_BLOCK* request_block, int reduceSignal)
             if (test - request_block->signal >= STRING_LENGTH - 1 || strlen(test + ldelim) >= MAXMETA - 1) {
                 err = ARCHIVE_NAME_TOO_LONG;
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "extractArchive", err, "The ARCHIVE Name is too long!");
-                return (err);
+                return err;
             }
             strncpy(request_block->archive, request_block->signal, test - request_block->signal);
             request_block->archive[test - request_block->signal] = '\0';

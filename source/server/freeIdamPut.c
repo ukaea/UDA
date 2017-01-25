@@ -2,7 +2,7 @@
 
 #include <stdlib.h>
 
-#include "initStructs.h"
+#include <clientserver/initStructs.h>
 
 void freeIdamServerPutDataBlock(PUTDATA_BLOCK *str) {
     //str->opaque_block  = NULL;
@@ -16,8 +16,6 @@ void freeIdamServerPutDataBlock(PUTDATA_BLOCK *str) {
 
 void freeIdamServerPutDataBlockList(PUTDATA_BLOCK_LIST *putDataBlockList) {
     if(putDataBlockList->putDataBlock != NULL && putDataBlockList->blockListSize > 0) {
-        //for(i=0;i<putDataBlockList->blockCount;i++) if(&(putDataBlockList->putDataBlock[i]) != NULL)
-        //   freeIdamServerPutDataBlock(&(putDataBlockList->putDataBlock[i]));
         free((void *)putDataBlockList->putDataBlock);
     }
     initIdamPutDataBlockList(putDataBlockList);

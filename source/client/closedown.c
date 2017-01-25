@@ -9,7 +9,7 @@
 *--------------------------------------------------------------*/
 #include "closedown.h"
 
-#include <idamLog.h>
+#include <logging/idamLog.h>
 #include <include/idamclientprivate.h>
 
 #ifdef FATCLIENT
@@ -21,11 +21,7 @@ extern PGconn * DBConnect;    // IDAM database Socket Connection
 #  include "closeClientSockets.h"
 #endif
 
-#ifdef FATCLIENT
-int idamClosedownFat(int type)
-#else
 int idamClosedown(int type)
-#endif
 {
     int rc = 0;
 

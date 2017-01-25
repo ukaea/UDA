@@ -1,9 +1,9 @@
 #include "ClientMDS.h"
 
-#include <idamLog.h>
+#include <logging/idamLog.h>
 #include <include/idamclientprivate.h>
+#include <clientserver/initStructs.h>
 
-#include "initStructs.h"
 #include "startup.h"
 #include "idam_client.h"
 
@@ -46,5 +46,5 @@ int idamClientMDS(const char* server, const char* tree, const char* node, int tr
 //-------------------------------------------------------------------------
 // Fetch Data
 
-    return (idamClient(&request_block));
+    return idamClient(&request_block);
 }

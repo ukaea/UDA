@@ -8,9 +8,9 @@
 #include <errno.h>
 
 #include <include/idamclientprivate.h>
+#include <clientserver/idamErrorLog.h>
 
 #include "UpdateSelectParms.h"
-#include "idamErrorLog.h"
 
 int idamClientReadin(void* iohandle, char* buf, int count)
 {

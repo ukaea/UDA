@@ -115,7 +115,7 @@ int efitmagxml(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         addIdamError(&idamerrorstack, CODEERRORTYPE, "efitmagxml", err,
                      "Plugin Interface Version Unknown to this plugin: Unable to execute the request!");
         concatIdamError(idamerrorstack, idamErrorStack);
-        return (err);
+        return err;
     }
 
     idam_plugin_interface->pluginVersion = THISPLUGIN_VERSION;

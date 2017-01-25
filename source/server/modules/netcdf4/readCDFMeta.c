@@ -1,8 +1,12 @@
-#include <idamclientserverpublic.h>
-#include <netcdf.h>
-#include <idamErrorLog.h>
-#include <include/idamclientserverprivate.h>
 #include "readCDFMeta.h"
+
+#include <netcdf.h>
+#include <memory.h>
+#include <stdlib.h>
+#include <stdio.h>
+
+#include <include/idamclientserverprivate.h>
+#include <clientserver/idamErrorLog.h>
 
 void allocMetaXML(METAXML* str)
 {

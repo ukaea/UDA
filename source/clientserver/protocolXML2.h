@@ -2,8 +2,8 @@
 #define IDAM_CLIENTSERVER_PROTOCOLXML2_H
 
 #ifdef GENERALSTRUCTS
-#  include "idamgenstruct.h"
-#  include "idamclientserver.h"
+#  include <include/idamgenstruct.h>
+#  include <include/idamclientserver.h>
 #  ifdef __APPLE__
 #    include <sys/types.h>
 #    include <sys/socket.h>

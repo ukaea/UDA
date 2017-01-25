@@ -110,7 +110,7 @@ int alloc_efit(EFIT* efit)
         efit->limiter = NULL;
     }
 
-    return (0);
+    return 0;
 }
 
 
@@ -125,7 +125,7 @@ int alloc_pfcircuit(PFCIRCUIT* str)
         str->coil = NULL;
     }
 
-    return (0);
+    return 0;
 }
 
 
@@ -148,7 +148,7 @@ int alloc_pfcoils(PFCOILS* str)
         str->dr = NULL;
         str->dz = NULL;
     }
-    return (0);
+    return 0;
 }
 
 
@@ -180,7 +180,7 @@ int alloc_pfpassive(PFPASSIVE* str)
         str->ang2 = NULL;
         str->res = NULL;
     }
-    return (0);
+    return 0;
 }
 
 
@@ -200,7 +200,7 @@ int alloc_fluxloop(FLUXLOOP* str)
         str->z = NULL;
         str->dphi = NULL;
     }
-    return (0);
+    return 0;
 }
 
 
@@ -217,5 +217,5 @@ int alloc_limiter(LIMITER* str)
         str->r = NULL;
         str->z = NULL;
     }
-    return (0);
+    return 0;
 }                    

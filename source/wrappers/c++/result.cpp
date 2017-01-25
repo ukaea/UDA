@@ -5,11 +5,11 @@
 #include "result.hpp"
 
 #include <sstream>
-
-#include <accAPI_C.h>
 #include <complex>
-#include <idam_client.h>
-#include <accAPI_Gen.h>
+
+#include <client/accAPI_C.h>
+#include <client/idam_client.h>
+#include <client/accAPI_Gen.h>
 #include <include/idamtypes.h>
 
 #include "string.hpp"

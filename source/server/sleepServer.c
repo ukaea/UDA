@@ -7,7 +7,7 @@
 *--------------------------------------------------------------*/
 #include "sleepServer.h"
 
-#include <idamLog.h>
+#include <logging/idamLog.h>
 #include <clientserver/idamErrorLog.h>
 #include <include/idamclientserverprivate.h>
 #include <clientserver/protocol.h>

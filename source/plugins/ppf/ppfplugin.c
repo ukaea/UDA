@@ -864,7 +864,7 @@ static int readppf(IDAM_PLUGIN_INTERFACE * idam_plugin_interface)
 
     PPFUID("JETPPF", "R", 7, 1);            // Reset to reading Public PPF's Only
 
-    return (0);
+    return 0;
 }
 
 //#endif

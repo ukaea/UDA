@@ -17,6 +17,6 @@ set( SRC_FILES
 
 include_directories( ${SRC_DIR} )
 
-add_library( idamlog OBJECT idamLog.c )
-add_library( idamserverlog OBJECT ${SRC_FILES} )
+add_library( logging OBJECT idamLog.c )
+add_library( serverlogging OBJECT ${SRC_FILES} )
 

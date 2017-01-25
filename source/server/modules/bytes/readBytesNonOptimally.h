@@ -2,8 +2,8 @@
 #ifndef IDAM_READBYTESNONOPTIMALLY_H
 #define IDAM_READBYTESNONOPTIMALLY_H
 
-#include "idamclientserver.h"
-#include "idamserver.h"
+#include <include/idamclientserver.h>
+#include <include/idamserver.h>
 
 int readBytes(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK *data_block);
 
@@ -12,10 +12,10 @@ int readBytes(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK *data
 #define BYTEFILEDOESNOTEXIST 	100001
 #define BYTEFILEATTRIBUTEERROR 	100002
 #define BYTEFILEISNOTREGULAR 	100003 
-#define BYTEFILEOPENERROR 	100004 
-#define BYTEFILEHEAPERROR 	100005
-#define BYTEFILEMD5ERROR	100006
-#define BYTEFILEMD5DIFF		100007
+#define BYTEFILEOPENERROR 	    100004
+#define BYTEFILEHEAPERROR 	    100005
+#define BYTEFILEMD5ERROR	    100006
+#define BYTEFILEMD5DIFF		    100007
 
 #endif
 

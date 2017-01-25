@@ -8,11 +8,11 @@
 #include <signal.h>
 #include <errno.h>
 
-#include <idamLog.h>
+#include <logging/idamLog.h>
 #include <include/idamclientprivate.h>
+#include <clientserver/idamErrorLog.h>
 
 #include "UpdateSelectParms.h"
-#include "idamErrorLog.h"
 
 int idamClientWriteout(void* iohandle, char* buf, int count)
 {

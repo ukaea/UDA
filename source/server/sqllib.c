@@ -10,15 +10,14 @@
 
 #include <stdlib.h>
 
-#include <idamLog.h>
+#include <logging/idamLog.h>
 #include <include/idamclientserverprivate.h>
 #include <include/idamserver.h>
-
-#include "initStructs.h"
-#include "TrimString.h"
-#include "nameIda.h"
-#include "printStructs.h"
-#include "idamErrorLog.h"
+#include <clientserver/idamErrorLog.h>
+#include <clientserver/initStructs.h>
+#include <clientserver/TrimString.h>
+#include <modules/ida/nameIda.h>
+#include <clientserver/printStructs.h>
 
 // Open the Connection with the PostgreSQL IDAM Database
 

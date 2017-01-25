@@ -1,9 +1,9 @@
 #ifndef IDAM_SERVER_IDAMSERVERGETDATA2_H
 #define IDAM_SERVER_IDAMSERVERGETDATA2_H
 
-#include <postgresql/libpq-fe.h>
+#include <libpq-fe.h>
+
 #include <clientserver/parseXML.h>
-#include "idamStructs.h"
 
 int idamserverGetData(PGconn* DBConnect, int* depth, REQUEST_BLOCK request_block, CLIENT_BLOCK client_block,
                       DATA_BLOCK* data_block, DATA_SOURCE* data_source, SIGNAL* signal_rec, SIGNAL_DESC* signal_desc,

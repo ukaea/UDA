@@ -1,12 +1,14 @@
 // Create the Client Side XDR File Stream
 //
 //----------------------------------------------------------------
-
-#include <idamLog.h>
 #include "createClientXDRStream.h"
 
-#include "idamclientserver.h"
-#include "idamclient.h"
+#include <stdio.h>
+#include <rpc/rpc.h>
+
+#include <logging/idamLog.h>
+#include <clientserver/idamDefines.h>
+
 #include "Readin.h"
 #include "Writeout.h"
 

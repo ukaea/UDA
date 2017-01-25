@@ -13,10 +13,10 @@
 #include <stdlib.h>
 #include <errno.h>
 
-#include <idamLog.h>
+#include <logging/idamLog.h>
 #include <include/idamtypes.h>
+#include <clientserver/TrimString.h>
 
-#include "TrimString.h"
 #include "ClientAPI.h"
 #include "ClientMDS.h"
 #include "IdamAPI.h"

@@ -1,8 +1,3 @@
-//! $LastChangedRevision: 353 $
-//! $LastChangedDate: 2013-11-18 15:32:28 +0000 (Mon, 18 Nov 2013) $
-//! $LastChangedBy: dgm $
-//! $HeadURL: https://fussvn.fusion.culham.ukaea.org.uk/svnroot/IDAM/development/source/plugins/ufile/readUFile.c $
-
 /*---------------------------------------------------------------
 * IDAM Plugin data Reader to Access DATA from TRANSP UFiles
 *
@@ -22,19 +17,18 @@
 *		not and MUST BE FREED by the calling routine.
 *
 * ToDo:
-*
-* Change History
-*
-* 1.0	14Mar2007	D.G.Muir	Original Version
-* 23Oct2007	dgm	ERRORSTACK Components added
-* 23Jun2010	dgm	Corrected bug when reading data beginning - with no space between data items
 *-----------------------------------------------------------------------------*/
-
 #include "readUFile.h"
 
-#include "TrimString.h"
-#include "idamErrorLog.h"
-#include "initStructs.h"
+#include <stdio.h>
+#include <include/idamclientserverprivate.h>
+#include <clientserver/idamErrorLog.h>
+#include <errno.h>
+#include <memory.h>
+#include <stdlib.h>
+#include <clientserver/initStructs.h>
+#include <clientserver/TrimString.h>
+#include <include/idamtypes.h>
 
 //---------------------------------------------------------------------------------------------------------------
 // Stub plugin if disabled
@@ -46,7 +40,7 @@ int readUFile(DATA_SOURCE data_source,
               DATA_BLOCK *data_block) {
     int err = 999;
     addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF", err, "UFILE PLUGIN NOT ENABLED");
-    return(err);
+    return err;
 }
 
 #else
@@ -100,7 +94,6 @@ int readUFile(DATA_SOURCE data_source,
 
         fgets(buff, UFILE_BUFFER - 1, ufile);
 
-//        nshot = atoi(strtok(buff, " "));
         strcpy(tokamak, strtok(NULL, " "));
         data_block->rank = atoi(strtok(NULL, " "));
 
@@ -263,7 +256,7 @@ int readUFile(DATA_SOURCE data_source,
 
     if (ufile != NULL) fclose(ufile);
 
-    return (err);
+    return err;
 }
 
 #endif

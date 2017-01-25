@@ -15,8 +15,9 @@
 #include "applyXML.h"
 
 #include <math.h>
-#include <idamLog.h>
 #include <memory.h>
+
+#include <logging/idamLog.h>
 #include <include/idamtypes.h>
 
 #ifdef NOXMLPARSER
@@ -132,7 +133,7 @@ int idamserverParseSignalXML(DATA_SOURCE data_source, SIGNAL signal, SIGNAL_DESC
         return (-1);
     }
 
-    return (0);
+    return 0;
 }
 
 

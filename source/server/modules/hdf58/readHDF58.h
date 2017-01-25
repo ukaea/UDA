@@ -1,9 +1,8 @@
 #ifndef IDAM_READHDF58_H
 #define IDAM_READHDF58_H
 
-#include "idamclientserver.h"
-#include "idamserver.h"
-#include "idamserverfiles.h"
+#include <hdf5.h>
+#include <clientserver/idamStructs.h>
 
 int readHDF5(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK* data_block);
 

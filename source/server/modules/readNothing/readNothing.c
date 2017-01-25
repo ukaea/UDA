@@ -1,8 +1,3 @@
-//! $LastChangedRevision: 228 $
-//! $LastChangedDate: 2011-02-16 16:32:50 +0000 (Wed, 16 Feb 2011) $
-//! $LastChangedBy: dgm $
-//! $HeadURL: https://fussvn.fusion.culham.ukaea.org.uk/svnroot/IDAM/development/source/plugins/readNothing/readNothing.c $
-
 /*---------------------------------------------------------------
 * IDAM Plugin data Reader to Return Test Data
 *
@@ -17,19 +12,19 @@
 * Notes:
 * ToDo:
 *
-* Change History
-*
-* 1.0	16Oct2006 D.G.Muir	Original Version
-* 1.1   09Jul2007 D.G.Muir	debugon, verbose enabled
-* 23Oct2007	dgm	ERRORSTACK Components added
 *-----------------------------------------------------------------------------*/
-
-#include <idamLog.h>
 #include "readNothing.h"
 
-#include "idamErrorLog.h"
-#include "freeDataBlock.h"
-#include "initStructs.h"
+#include <string.h>
+#include <stdlib.h>
+
+#include <clientserver/idamStructs.h>
+#include <include/idamclientserverprivate.h>
+#include <clientserver/idamErrorLog.h>
+#include <include/idamtypes.h>
+#include <logging/idamLog.h>
+#include <clientserver/freeDataBlock.h>
+#include <clientserver/initStructs.h>
 
 //---------------------------------------------------------------------------------------------------------------
 // Stub plugin if disabled
@@ -41,7 +36,7 @@ int readNothing(DATA_SOURCE data_source,
                 DATA_BLOCK *data_block) {
     int err = 999;
     addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF", err, "PLUGIN NOT ENABLED");
-    return(err);
+    return err;
 }
 
 #else
@@ -73,7 +68,7 @@ int readNothing(DATA_SOURCE data_source,
     if ((fp = (float*) malloc(data_block->data_n * sizeof(float))) == NULL) {
         err = HEAPERROR;
         addIdamError(&idamerrorstack, CODEERRORTYPE, "readNothing", err, "Unable to Allocate Heap Memory for the Test");
-        return (err);
+        return err;
     }
 
     idamLog(LOG_DEBUG, "readNothing Generating %d test Data\n", data_block->data_n);
@@ -90,7 +85,7 @@ int readNothing(DATA_SOURCE data_source,
         addIdamError(&idamerrorstack, CODEERRORTYPE, "readNothing", err,
                      "Problem Allocating Dimension Heap Memory #1 for Test");
         freeDataBlock(data_block);
-        return (err);
+        return err;
     }
 
     if ((fdp = (float*) malloc(data_block->data_n * sizeof(float))) == NULL) {
@@ -98,7 +93,7 @@ int readNothing(DATA_SOURCE data_source,
         addIdamError(&idamerrorstack, CODEERRORTYPE, "readNothing", err,
                      "Problem Allocating Dimension Heap Memory #2 for Test");
         freeDataBlock(data_block);
-        return (err);
+        return err;
     }
 
     initDimBlock(&data_block->dims[0]);

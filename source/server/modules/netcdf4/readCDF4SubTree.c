@@ -8,34 +8,17 @@
 // 4. Remove test code from readCDF
 // 5. Remove test code from idam dlm
 //
-//============================================================================================================================
-// Change history
-
-// 10Dec2010 dgm	test for NULL pointer before adding dim shape string heap allocation (dimShapeLabel) to malloc log
-// 13May2011 dgm	Changed to using the variable name and group name instead of the unique type name
-//			When count = 0 set d = NULL in getCDF4SubTreeVarData (was set to arbitrary previous value)
-// 16Dec2011 dgm	Corrected bug that occurs in 64 bit server: change int to size_t for variable attlength
-// 23Apr2012 dgm	Removed test for rank with variables of type NC_STRING
-// 10May2012 dgm	Added test for rank > 2 with variables of type NC_STRING
-//			Corrected bug with NC_STRING arrays
-//			Corrected heap logging of shape allocated within dimShapeLabel
-// 15Feb2013 dgm	Added missing functionality: enumerated attributes
-// 13Aug2014 dgm	Modified getUniqueTypeName to include structure component types in test for type duplicates
-// 05Mar2015 dgm	Modify the returned structure:
-//				ignore 'hidden' variables, groups and attributes.
-//				ignore dimensions
-//				ignore enumerations
-// 15Apr2015 dgm	Search for the structure definition attribute that defined how the data
-//                      within a groups is to be returned. This is a hidden attribue with the name
-//                      _returnedStructureDefinition and has a type of USERDEFINEDTYPE.
-// 26Jun2015 dgm	Added a null string to empty group derived structures
-//			Modified the behaviour of strings read from IMAS HDF5 files
 //-----------------------------------------------------------------------------------------------------------------
 
-#include <idamLog.h>
 #include <netcdf.h>
-#include <struct.h>
-#include <idamErrorLog.h>
+#include <stdlib.h>
+#include <memory.h>
+
+#include <structures/struct.h>
+#include <logging/idamLog.h>
+#include <include/idamclientserverprivate.h>
+#include <clientserver/idamErrorLog.h>
+
 #include "readCDF4.h"
 
 // Read netCDF4 sub-Tree
@@ -1208,7 +1191,7 @@ int getCDF4SubTreeMeta(int grpid, int parent, USERDEFINEDTYPE* udt, USERDEFINEDT
 
    if((err = nc_inq_var(grpid, varids[j], name, &variable->vartype, &variable->rank, variable->dimids, &numatts)) != NC_NOERR){
       addIdamError(&idamerrorstack, CODEERRORTYPE, "getCDF4SubTreeVar2Meta", err, (char *)nc_strerror(err));
-      return(err);
+      return err;
    }
 
 

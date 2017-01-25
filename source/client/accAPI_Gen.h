@@ -1,7 +1,7 @@
 #ifndef IDAM_CLIENT_ACCAPI_GEN_H
 #define IDAM_CLIENT_ACCAPI_GEN_H
 
-#include <idamgenstructpublic.h>
+#include <include/idamgenstructpublic.h>
 
 #ifdef __cplusplus
 extern "C" {

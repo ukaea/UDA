@@ -746,5 +746,5 @@ int putVariable(int nparams, IDL_VPTR argv[], KW_RESULT* kw, int ncgrpid) {
 
     if (work != NULL)free((void*) work);
 
-    return (err);
+    return err;
 } 

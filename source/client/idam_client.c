@@ -10,17 +10,22 @@
 
 #include <unistd.h>
 
-#include <idamLog.h>
+#include <logging/idamLog.h>
 #include <clientserver/idamErrors.h>
 #include <include/idamclientprivate.h>
 #include <include/idamclientpublic.h>
+#include <include/idamgenstruct.h>
+#include <include/idamclient.h>
+#include <clientserver/idamErrorLog.h>
+#include <clientserver/initStructs.h>
+#include <clientserver/manageSockets.h>
+#include <stdlib.h>
+#include <clientserver/userid.h>
+#include <clientserver/printStructs.h>
+#include <clientserver/protocol2.h>
+#include <include/idamtypes.h>
+#include <clientserver/freeDataBlock.h>
 
-#include "idamErrorLog.h"
-#include "userid.h"
-#include "initStructs.h"
-#include "printStructs.h"
-#include "freeDataBlock.h"
-#include "struct.h"
 #include "closedown.h"
 #include "accAPI_C.h"
 
@@ -32,8 +37,6 @@
 #else
 #  include "idamCreateConnection.h"
 #  include "createClientXDRStream.h"
-#  include "manageSockets.h"
-#  include "protocol2.h"
 #endif
 
 #ifdef MEMCACHE
@@ -176,8 +179,7 @@ int idamClient(REQUEST_BLOCK* request_block)
         closeIdamError(&server_block.idamerrorstack);    // Free Previous Stack Heap
     }
 
-    initServerBlock(&server_block,
-                    0);                       // Reset previous Error Messages from the Server & Free Heap
+    initServerBlock(&server_block, 0); // Reset previous Error Messages from the Server & Free Heap
     initIdamErrorStack(&idamerrorstack);
 
     //-------------------------------------------------------------------------

@@ -14,10 +14,11 @@
 
 #include <logging/idamLog.h>
 #include <include/idamclientprivate.h>
+#include <clientserver/initStructs.h>
+#include <clientserver/idamErrorLog.h>
+#include <clientserver/printStructs.h>
+
 #include "makeClientRequestBlock.h"
-#include "initStructs.h"
-#include "printStructs.h"
-#include "idamErrorLog.h"
 #include "startup.h"
 #include "idam_client.h"
 #include "accAPI_C.h"

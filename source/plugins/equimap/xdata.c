@@ -180,7 +180,7 @@ idamLog(LOG_ERROR,"n     =%d\n", ndata-1);
 
     }
 
-    return (0);
+    return 0;
 }
 
 int xdataintegrate(int ndata, float* rdata, float* data, float minvalue, int* narea, float* area, float* xarea)
@@ -251,7 +251,7 @@ int xdataintegrate(int ndata, float* rdata, float* data, float minvalue, int* na
 
     *narea = k;
 
-    return (0);
+    return 0;
 }
 
 
@@ -301,7 +301,7 @@ int xdatainterval(int rank, int order, int ndata, int* shape, float* dim,
         return (2);
     }
 
-    return (0);
+    return 0;
 }
 
 int xdatand(char* signal, char* source, int* hand, int* rank, int* order, int* ndata, int** shape,
@@ -375,7 +375,7 @@ int xdatand(char* signal, char* source, int* hand, int* rank, int* order, int* n
         free((void*) sp);
     }
 
-    return (0);
+    return 0;
 }
 
 int xdata1d(char* signal, char* source, int* hand, int* ndata, float** data, float** dim)
@@ -420,5 +420,5 @@ int xdata1d(char* signal, char* source, int* hand, int* ndata, float** data, flo
     *dim = fpt;
     *hand = handle;
 
-    return (0);
+    return 0;
 }      	 

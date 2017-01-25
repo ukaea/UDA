@@ -1,28 +1,15 @@
 // Read netCDF4 variable data (both regular and user defined types)
-
-//--------------------------------------------------------------------------
-// Change History
-//
-// 23Mar2011 dgm	Use nc_get_var1 for rank 0 count 1 variables, e.g. single byte variable
-// 13Apr2011 dgm	Use native data subsetting
-// 09May2011 dgm	Removed compiler options LONG64_OK & ULONG64_OK
-// 13May2011 dgm	Changes to manage variables and coordinate variables with zero length!
-// 20Jun2011 dgm	Add string arrays: handle as a compound type rather than an atomic type as structure based
-// 08Nov2011 dgm	Add NC_STRING data to variable and attribute capability
-// 09Dec2011 dgm 	Remove compliance on rank for RAW data when applying scale and offset when not a Coordinate Variable
-// 19Mar2012 dgm	Generalised string attributes by checking the type: NC_CHAR or NC_STRING
-// 11May2012 dgm	Fixed bug with User Defined Type attributes - definition not added to type list
-// 15Feb2013 dgm	Bug fixes: Enumerated attribute Type
-//			User Defined Compound structure dimension coordinate type
 //--------------------------------------------------------------------------
 
 #include <netcdf.h>
-#include <idamgenstructpublic.h>
-#include <idamserver.h>
-#include <struct.h>
-#include <idamErrorLog.h>
-#include <idamLog.h>
-#include <TrimString.h>
+
+#include <include/idamclientserver.h>
+#include <structures/struct.h>
+#include <include/idamserver.h>
+#include <clientserver/idamErrorLog.h>
+#include <logging/idamLog.h>
+#include <clientserver/TrimString.h>
+
 #include "readCDF4.h"
 
 int idamAtomicType(nc_type type);
@@ -1137,7 +1124,7 @@ int readCDF4Err(int grpid, int varid, int isCoordinate, int class, int rank, int
 //----------------------------------------------------------------------
 // Test Attribute 'errors' Exists
 
-    if ((rc = nc_inq_attid(grpid, varid, "errors", &attid)) != NC_NOERR) return (0);
+    if ((rc = nc_inq_attid(grpid, varid, "errors", &attid)) != NC_NOERR) return 0;
 
 //----------------------------------------------------------------------
 // Length of variable Name
@@ -1215,10 +1202,10 @@ int readCDF4Err(int grpid, int varid, int isCoordinate, int class, int rank, int
             return err;
         }
 #else
-        if((err = readCDF4Var(grouplist, grpid, errid, isCoordinate, rank, dimids, extent, nevec, error_type, &isIndex, edata, &udt)) != 0) {
+        if((err = readCDF4Var(grpid, errid, isCoordinate, rank, dimids, extent, nevec, error_type, &isIndex, edata, &udt)) != 0) {
             addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF4Err", err, "Unable to Read Error Values");
             free((void *)extent);
-            return(err);
+            return err;
         }
 #endif
         free((void*) extent);
@@ -1238,7 +1225,7 @@ int readCDF4Err(int grpid, int varid, int isCoordinate, int class, int rank, int
 
     } else {
 
-        if ((err = readCDF4AVar(grouplist, grpid, errid, atttype, "errors", nevec, ndimatt, error_type, edata, &udt)) !=
+        if ((err = readCDF4AVar(grouplist, grpid, errid, atttype, "errors", nevec, ndimatt, error_type, edata, (USERDEFINEDTYPE**)&udt)) !=
             0) {
             addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF4Err", err, "Unable to Read Error Values");
             return err;
@@ -1886,9 +1873,9 @@ int isAtomicNCType(nc_type type)
         case NC_STRING:
             return (1);    // Treated as a byte/char array
         default:
-            return (0);
+            return 0;
     }
-    return (0);
+    return 0;
 }
 
 //----------------------------------------------------------------------

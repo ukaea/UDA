@@ -18,28 +18,11 @@
 *
 * ToDo:
 *
-* Change History
-*
-* 0.0	11Jan2006	D.G.Muir	Development Version
-* 0.1	18Jan2006	D.G.Muir	Added Private PPF (via PATH attribute)
-* 0.2	07Mar2006	D.G.Muir	Signal Subset via Datatype Name
-*					Increase Number of Possible Data Types to 500
-* 0.3	31May2006	D.G.Muir	Correct Bug with data Sub-setting
-* 0.4	09Jun2006	D.G.Muir	Correct Data Type name Matching Error
-* 0.5	15Jun2006	D.G.Muir	Correct return of T-vec info when sub-setting
-* 0.6	27Jun2006	D.G.Muir	PPFPWD not called if build is FAT CLIENT
-* 23Oct2007	dgm	ERRORSTACK Components added
-* 11Jul2008	dgm	Corrected Test of subsetting validity
-* 06Dec2010	dgm	Ensure only a single call to PPFPWD as this opens a new socket to the PPF server
-* 20Dec2016	dgm	Bug Fix for Non-Standard PPF Signal: SL(1) Resulted in message
-*                       "Unable to Identify the PPF DDA Data-Type Requested" as 4 character type name expected
 *-----------------------------------------------------------------------------*/
-
 #include "readppf.h"
 
-#include "TrimString.h"
-#include "idamErrorLog.h"
-#include "initStructs.h"
+#include <clientserver/idamErrorLog.h>
+#include <include/idamclientserverprivate.h>
 
 //---------------------------------------------------------------------------------------------------------------
 // Stub plugin if disabled
@@ -51,7 +34,7 @@ int readPPF(DATA_SOURCE data_source,
             DATA_BLOCK *data_block) {
     int err = 999;
     addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF", err, "PPF PLUGIN NOT ENABLED");
-    return(err);
+    return err;
 }
 
 #else

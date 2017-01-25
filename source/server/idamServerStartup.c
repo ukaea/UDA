@@ -10,7 +10,7 @@
 #include <stdlib.h>
 #include <errno.h>
 
-#include <idamLog.h>
+#include <logging/idamLog.h>
 #include <clientserver/idamErrorLog.h>
 
 #include "getServerEnvironment.h"

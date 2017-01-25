@@ -104,7 +104,7 @@ class GeometryData(Data):
     def _child_loop(self, cal_data, config_data, signal_name, signal_type):
         """
         Recursively loop over children in the cal tree.
-        If an attribute doesn't exist in the config tree
+        If an attribute doesn't exist in the Config tree
         it is added.
         If the user has asked for a variable, or an element
         of a variable then this is calibrated and returned,
@@ -145,14 +145,14 @@ class GeometryData(Data):
             for child in cal_data.children:
                 if (hasattr(child, 'calibration')):
                     if child.calibration == "True" and child.name in children_names_config:
-                        # Found data to be calibrated: find matching config data & calibrate
+                        # Found data to be calibrated: find matching Config data & calibrate
                         child_ind = children_names_config.index(child.name)
                         self._calibrate_data(child["data"], (config_data.children[child_ind])["data"])
                     else:
-                        # This is a group that is not in the config file and/or is not calibration data: add it.
+                        # This is a group that is not in the Config file and/or is not calibration data: add it.
                         config_data.add_child(child)
                 elif child.name in children_names_config:
-                    # Child is in calibration and config data, continue looping to look
+                    # Child is in calibration and Config data, continue looping to look
                     # for variable that needs calibrating
                     child_ind = children_names_config.index(child.name)
                     self._child_loop(child, config_data.children[child_ind], signal_name, signal_type)
@@ -192,7 +192,7 @@ class GeometryData(Data):
             # If there is an attribute in the calibration,
             # but not in the configuration, add it to the configuration.
             if attr[0] in attr_names_config and isinstance(attr[1], (int, float)):
-                # Get config data
+                # Get Config data
                 if replace:
                     setattr(config_data, attr[0], attr[1])
                 else:
@@ -202,7 +202,7 @@ class GeometryData(Data):
             elif attr[0] not in attr_names_config:
                 config_data.add_attr(attr[0], attr[1])
 
-        # Loop over children and check for matching data in config.
+        # Loop over children and check for matching data in Config.
         children_names_config = [child.name for child in config_data.children]
 
         for child in cal_data.children:

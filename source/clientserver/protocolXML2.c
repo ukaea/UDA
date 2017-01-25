@@ -63,9 +63,9 @@
 #endif
 
 #ifdef SERVERBUILD
-#  include "idamserver.h"
-#  include "CreateXDRStream.h"
-#  include "idamServerStartup.h"
+#  include <include/idamserver.h>
+#  include <server/CreateXDRStream.h>
+#  include <server/idamServerStartup.h>
 #  include <include/idamserver.h>
 #elif !defined(FATCLIENT)
 #  include <cache/idamFileCache.h>

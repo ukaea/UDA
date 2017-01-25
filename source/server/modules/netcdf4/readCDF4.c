@@ -63,7 +63,7 @@
 
 #include "readCDF4.h"
 
-#include <idamErrorLog.h>
+#include <clientserver/idamErrorLog.h>
 
 //---------------------------------------------------------------------------------------------------------------
 // Stub plugin if disabled
@@ -83,14 +83,17 @@ int readCDF(DATA_SOURCE data_source,
 
 #else
 
+#include <logging/idamLog.h>
+#include <stdlib.h>
+#include <include/idamclientserverprivate.h>
+#include <include/idamtypes.h>
+#include <clientserver/initStructs.h>
+#include <clientserver/TrimString.h>
+#include <clientserver/printStructs.h>
+
 #include "readCDFMeta.h"
 #include "readCDF4SubTree.h"
 #include "readCDFAtts.h"
-#include <idamLog.h>
-#include <initStructs.h>
-#include "TrimString.h"
-#include "printStructs.h"
-#include "manageFiles.h"
 #include "struct.h"
 
 //---------------------------------------------------------------------------------------------------------------
@@ -115,7 +118,7 @@ int readCDF4AVar(GROUPLIST grouplist, int grpid, int varid, nc_type atttype, cha
                  int* data_type, char** data, USERDEFINEDTYPE** udt);
 
 #else
-int readCDF4Var(GROUPLIST grouplist, int grpid, int varid, int isCoordinate, int rank, int *dimids, unsigned int *extent,
+int readCDF4Var(int grpid, int varid, int isCoordinate, int rank, int *dimids, unsigned int *extent,
                 int *ndvec, int *data_type, int *isIndex, char **data, void **udt);
 int readCDF4AVar(GROUPLIST grouplist, int grpid, int varid, nc_type atttype,  char *name, int *ndvec, int ndims[2],
                  int *data_type, char **data, void **udt);
@@ -149,14 +152,13 @@ int readCDF(DATA_SOURCE data_source,
     int fd, err = 0, rc;
     int fusion_ver = 0;
 
-    int i, ii, j, lstr, lname, rank, drank, varid, coordid, grpid, cgrpid, subtree, attid, error_n, serrno;
+    int i, ii, j, lstr, lname, rank, drank, varid, coordid, grpid, cgrpid, attid, error_n;
     int hierarchical;
     unsigned int fdcompliance = 0;
 
     char* cp = NULL;
     char* group, * work, * token;
     char* conventions = NULL;
-    void* fd_ptr = NULL;
 
     int format, compliance = 0, class, isCoordinate = 0, isIndex = 0;
     size_t attlen, dimlen;
@@ -172,7 +174,6 @@ int readCDF(DATA_SOURCE data_source,
     int* grpids = NULL;
     GROUPLIST grouplist;
     GROUPLIST cgrouplist;
-    HGROUPS hgroups;
 
     int* dimids = NULL;
     unsigned int* extent = NULL;    // Shape of the data array
@@ -1607,7 +1608,7 @@ int readCDF(DATA_SOURCE data_source,
     if (dextent != NULL) free((void*) dextent);
 
 #ifndef FILELISTTEST
-    IDAM_LOGF(LOG_DEBUG,"NC File Closed\n");
+    IDAM_LOG(LOG_DEBUG,"NC File Closed\n");
     ncclose(fd);		// Close netCDF File
 #endif
 

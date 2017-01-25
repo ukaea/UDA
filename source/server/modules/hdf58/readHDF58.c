@@ -1,8 +1,3 @@
-//! $LastChangedRevision: 87 $
-//! $LastChangedDate: 2008-12-19 15:34:15 +0000 (Fri, 19 Dec 2008) $
-//! $LastChangedBy: dgm $
-//! $HeadURL: https://fussvn.fusion.culham.ukaea.org.uk/svnroot/IDAM/development/source/plugins/hdf5/readHDF58.c $
-
 /*---------------------------------------------------------------
 * IDAM Plugin data Reader to Access DATA from HDF5 Files
 *
@@ -22,23 +17,12 @@
 *		not and MUST BE FREED by the calling routine.
 *
 * ToDo:		BUG - seg fault occurs when a signal name without a leading / is passed
-*
-* Change History
-*
-* 1.0	08March2007	D.G.Muir	Original Version
-* 1.1	27March2007	D.G.Muir	File Handle Management added
-* 23Oct2007	dgm	ERRORSTACK Components added
-* 22Sep2008	dgm	Additional unsigned data types added: char, short and long
-* 20Jul2009	dgm	Compliant with HDF5 library version 1.8
-* 01Oct2009	dgm	Return Attribute data
-* 23Feb2010	dgm	Test reason why space allocated is Zero: Calculate if not allocated
 *-----------------------------------------------------------------------------*/
 
 #include "readHDF58.h"
 
-#include "idamErrorLog.h"
-#include "initStructs.h"
-#include "manageFiles.h"
+#include <clientserver/idamErrorLog.h>
+#include <include/idamclientserverprivate.h>
 
 #ifdef NOHDF5PLUGIN
 
@@ -47,7 +31,7 @@ int readHDF5(DATA_SOURCE data_source,
              DATA_BLOCK *data_block) {
     int err = 999;
     addIdamError(&idamerrorstack, CODEERRORTYPE, "readHDF5", err, "Cannot Read HDF5 Files - PLUGIN NOT ENABLED");
-    return(err);
+    return err;
 }
 
 void H5Fclose(int fh) {
@@ -57,6 +41,11 @@ void H5Fclose(int fh) {
 #else
 
 #include <H5LTpublic.h>
+#include <include/idamtypes.h>
+#include <stdlib.h>
+#include <memory.h>
+#include <clientserver/initStructs.h>
+#include <errno.h>
 
 // #define H5TEST
 
@@ -275,7 +264,6 @@ int readHDF5(DATA_SOURCE data_source,
 
     hid_t file_id = -1, dataset_id = -1, space_id = -1, datatype_id = -1, att_id = -1, grp_id = -1;
     hid_t classtype;
-    void* file_id_ptr = NULL;
     herr_t status;
     hsize_t shape[64];
     int err, serrno, natt, i, ndata, size, precision, issigned;

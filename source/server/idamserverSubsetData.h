@@ -9,7 +9,7 @@
 #define IDAM_SERVER_IDAMSERVERSUBSETDATA_H
 
 #include <clientserver/parseXML.h>
-#include "idamStructs.h"
+#include <clientserver/idamStructs.h>
 
 int idamserverSubsetData(DATA_BLOCK *data_block, ACTION action);
 int idamserversubsetindices(char *operation, DIMS *dim, double value, unsigned int *subsetindices);

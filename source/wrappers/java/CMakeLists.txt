@@ -2,10 +2,8 @@ cmake_minimum_required( VERSION 2.8 )
 
 set( SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../.. )
 
-set( JAR_NAME Idam )
-set( LIB_NAME idamjni )
-set( MAJOR_VERSION 1 )
-set( MINOR_VERSION 8 )
+set( JAR_NAME UDA )
+set( LIB_NAME ${PROJECT_NAME}_jni )
 
 find_package( Java REQUIRED )
 find_package( JNI REQUIRED )
@@ -21,14 +19,14 @@ include_directories(
 
 add_library( ${LIB_NAME} SHARED idam_jni.c )
 
-target_link_libraries( ${LIB_NAME} LINK_PUBLIC ${IDC_LIB_NAME} )
+target_link_libraries( ${LIB_NAME} LINK_PUBLIC client-static )
 
 add_jar( ${JAR_NAME} Idam.java )
 
 set_target_properties( ${LIB_NAME}
   PROPERTIES
-    VERSION ${MAJOR_VERSION}.${MINOR_VERSION}
-    SOVERSION ${MAJOR_VERSION}
+    VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}
+    SOVERSION ${PROJECT_VERSION_MAJOR}
 )
 
 install( TARGETS ${LIB_NAME}

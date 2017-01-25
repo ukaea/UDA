@@ -27,17 +27,10 @@ idam_plugin(
 )
 
 if( NOT FAT_BUILD )
-  target_link_libraries( ${LIB_NAME} LINK_PUBLIC ${IDS_LIB_NAME} )
+  target_link_libraries( ${LIB_NAME} LINK_PUBLIC server )
 else()
-  if( CMAKE_SIZEOF_VOID_P EQUAL 8 )
-    target_link_libraries( ${LIB_NAME}
-      ${CMAKE_INSTALL_PREFIX}/lib/libidam64.so
-      ${CMAKE_INSTALL_PREFIX}/lib/libidamserver64.so
+  target_link_libraries( ${LIB_NAME}
+    ${CMAKE_INSTALL_PREFIX}/lib/lib${PROJECT_NAME}.so
+    ${CMAKE_INSTALL_PREFIX}/lib/lib${PROJECT_NAME}_server.so
     )
-  else()
-    target_link_libraries( ${LIB_NAME}
-      ${CMAKE_INSTALL_PREFIX}/lib/libidam.so
-      ${CMAKE_INSTALL_PREFIX}/lib/libidamserver.so
-    )
-  endif()
 endif()

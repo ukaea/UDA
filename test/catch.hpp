@@ -4012,7 +4012,7 @@ namespace Clara {
             IArgFunction()                      = default;
             IArgFunction( IArgFunction const& ) = default;
 #endif
-            virtual void set( ConfigT& config, std::string const& value ) const = 0;
+            virtual void set( ConfigT& Config, std::string const& value ) const = 0;
             virtual bool takesArg() const = 0;
             virtual IArgFunction* clone() const = 0;
         };
@@ -4031,8 +4031,8 @@ namespace Clara {
             }
             ~BoundArgFunction() { delete functionObj; }
 
-            void set( ConfigT& config, std::string const& value ) const {
-                functionObj->set( config, value );
+            void set( ConfigT& Config, std::string const& value ) const {
+                functionObj->set( Config, value );
             }
             bool takesArg() const { return functionObj->takesArg(); }
 
@@ -4509,32 +4509,32 @@ namespace Clara {
         }
 
         ConfigT parse( std::vector<std::string> const& args ) const {
-            ConfigT config;
-            parseInto( args, config );
-            return config;
+            ConfigT Config;
+            parseInto( args, Config );
+            return Config;
         }
 
-        std::vector<Parser::Token> parseInto( std::vector<std::string> const& args, ConfigT& config ) const {
+        std::vector<Parser::Token> parseInto( std::vector<std::string> const& args, ConfigT& Config ) const {
             std::string processName = args[0];
             std::size_t lastSlash = processName.find_last_of( "/\\" );
             if( lastSlash != std::string::npos )
                 processName = processName.substr( lastSlash+1 );
-            m_boundProcessName.set( config, processName );
+            m_boundProcessName.set( Config, processName );
             std::vector<Parser::Token> tokens;
             Parser parser;
             parser.parseIntoTokens( args, tokens );
-            return populate( tokens, config );
+            return populate( tokens, Config );
         }
 
-        std::vector<Parser::Token> populate( std::vector<Parser::Token> const& tokens, ConfigT& config ) const {
+        std::vector<Parser::Token> populate( std::vector<Parser::Token> const& tokens, ConfigT& Config ) const {
             validate();
-            std::vector<Parser::Token> unusedTokens = populateOptions( tokens, config );
-            unusedTokens = populateFixedArgs( unusedTokens, config );
-            unusedTokens = populateFloatingArgs( unusedTokens, config );
+            std::vector<Parser::Token> unusedTokens = populateOptions( tokens, Config );
+            unusedTokens = populateFixedArgs( unusedTokens, Config );
+            unusedTokens = populateFloatingArgs( unusedTokens, Config );
             return unusedTokens;
         }
 
-        std::vector<Parser::Token> populateOptions( std::vector<Parser::Token> const& tokens, ConfigT& config ) const {
+        std::vector<Parser::Token> populateOptions( std::vector<Parser::Token> const& tokens, ConfigT& Config ) const {
             std::vector<Parser::Token> unusedTokens;
             std::vector<std::string> errors;
             for( std::size_t i = 0; i < tokens.size(); ++i ) {
@@ -4550,10 +4550,10 @@ namespace Clara {
                                 if( i == tokens.size()-1 || tokens[i+1].type != Parser::Token::Positional )
                                     errors.push_back( "Expected argument to option: " + token.data );
                                 else
-                                    arg.boundField.set( config, tokens[++i].data );
+                                    arg.boundField.set( Config, tokens[++i].data );
                             }
                             else {
-                                arg.boundField.set( config, "true" );
+                                arg.boundField.set( Config, "true" );
                             }
                             break;
                         }
@@ -4582,14 +4582,14 @@ namespace Clara {
             }
             return unusedTokens;
         }
-        std::vector<Parser::Token> populateFixedArgs( std::vector<Parser::Token> const& tokens, ConfigT& config ) const {
+        std::vector<Parser::Token> populateFixedArgs( std::vector<Parser::Token> const& tokens, ConfigT& Config ) const {
             std::vector<Parser::Token> unusedTokens;
             int position = 1;
             for( std::size_t i = 0; i < tokens.size(); ++i ) {
                 Parser::Token const& token = tokens[i];
                 typename std::map<int, Arg>::const_iterator it = m_positionalArgs.find( position );
                 if( it != m_positionalArgs.end() )
-                    it->second.boundField.set( config, token.data );
+                    it->second.boundField.set( Config, token.data );
                 else
                     unusedTokens.push_back( token );
                 if( token.type == Parser::Token::Positional )
@@ -4597,14 +4597,14 @@ namespace Clara {
             }
             return unusedTokens;
         }
-        std::vector<Parser::Token> populateFloatingArgs( std::vector<Parser::Token> const& tokens, ConfigT& config ) const {
+        std::vector<Parser::Token> populateFloatingArgs( std::vector<Parser::Token> const& tokens, ConfigT& Config ) const {
             if( !m_floatingArg.get() )
                 return tokens;
             std::vector<Parser::Token> unusedTokens;
             for( std::size_t i = 0; i < tokens.size(); ++i ) {
                 Parser::Token const& token = tokens[i];
                 if( token.type == Parser::Token::Positional )
-                    m_floatingArg->boundField.set( config, token.data );
+                    m_floatingArg->boundField.set( Config, token.data );
                 else
                     unusedTokens.push_back( token );
             }
@@ -4650,68 +4650,68 @@ STITCH_CLARA_CLOSE_NAMESPACE
 
 namespace Catch {
 
-    inline void abortAfterFirst( ConfigData& config ) { config.abortAfter = 1; }
-    inline void abortAfterX( ConfigData& config, int x ) {
+    inline void abortAfterFirst( ConfigData& Config ) { Config.abortAfter = 1; }
+    inline void abortAfterX( ConfigData& Config, int x ) {
         if( x < 1 )
             throw std::runtime_error( "Value after -x or --abortAfter must be greater than zero" );
-        config.abortAfter = x;
+        Config.abortAfter = x;
     }
-    inline void addTestOrTags( ConfigData& config, std::string const& _testSpec ) { config.testsOrTags.push_back( _testSpec ); }
-    inline void addReporterName( ConfigData& config, std::string const& _reporterName ) { config.reporterNames.push_back( _reporterName ); }
+    inline void addTestOrTags( ConfigData& Config, std::string const& _testSpec ) { Config.testsOrTags.push_back( _testSpec ); }
+    inline void addReporterName( ConfigData& Config, std::string const& _reporterName ) { Config.reporterNames.push_back( _reporterName ); }
 
-    inline void addWarning( ConfigData& config, std::string const& _warning ) {
+    inline void addWarning( ConfigData& Config, std::string const& _warning ) {
         if( _warning == "NoAssertions" )
-            config.warnings = static_cast<WarnAbout::What>( config.warnings | WarnAbout::NoAssertions );
+            Config.warnings = static_cast<WarnAbout::What>( Config.warnings | WarnAbout::NoAssertions );
         else
             throw std::runtime_error( "Unrecognised warning: '" + _warning + "'" );
     }
-    inline void setOrder( ConfigData& config, std::string const& order ) {
+    inline void setOrder( ConfigData& Config, std::string const& order ) {
         if( startsWith( "declared", order ) )
-            config.runOrder = RunTests::InDeclarationOrder;
+            Config.runOrder = RunTests::InDeclarationOrder;
         else if( startsWith( "lexical", order ) )
-            config.runOrder = RunTests::InLexicographicalOrder;
+            Config.runOrder = RunTests::InLexicographicalOrder;
         else if( startsWith( "random", order ) )
-            config.runOrder = RunTests::InRandomOrder;
+            Config.runOrder = RunTests::InRandomOrder;
         else
             throw std::runtime_error( "Unrecognised ordering: '" + order + "'" );
     }
-    inline void setRngSeed( ConfigData& config, std::string const& seed ) {
+    inline void setRngSeed( ConfigData& Config, std::string const& seed ) {
         if( seed == "time" ) {
-            config.rngSeed = static_cast<unsigned int>( std::time(0) );
+            Config.rngSeed = static_cast<unsigned int>( std::time(0) );
         }
         else {
             std::stringstream ss;
             ss << seed;
-            ss >> config.rngSeed;
+            ss >> Config.rngSeed;
             if( ss.fail() )
                 throw std::runtime_error( "Argment to --rng-seed should be the word 'time' or a number" );
         }
     }
-    inline void setVerbosity( ConfigData& config, int level ) {
+    inline void setVerbosity( ConfigData& Config, int level ) {
         // !TBD: accept strings?
-        config.verbosity = static_cast<Verbosity::Level>( level );
+        Config.verbosity = static_cast<Verbosity::Level>( level );
     }
-    inline void setShowDurations( ConfigData& config, bool _showDurations ) {
-        config.showDurations = _showDurations
+    inline void setShowDurations( ConfigData& Config, bool _showDurations ) {
+        Config.showDurations = _showDurations
             ? ShowDurations::Always
             : ShowDurations::Never;
     }
-    inline void setUseColour( ConfigData& config, std::string const& value ) {
+    inline void setUseColour( ConfigData& Config, std::string const& value ) {
         std::string mode = toLower( value );
 
         if( mode == "yes" )
-            config.useColour = UseColour::Yes;
+            Config.useColour = UseColour::Yes;
         else if( mode == "no" )
-            config.useColour = UseColour::No;
+            Config.useColour = UseColour::No;
         else if( mode == "auto" )
-            config.useColour = UseColour::Auto;
+            Config.useColour = UseColour::Auto;
         else
             throw std::runtime_error( "colour mode must be one of: auto, yes or no" );
     }
-    inline void forceColour( ConfigData& config ) {
-        config.useColour = UseColour::Yes;
+    inline void forceColour( ConfigData& Config ) {
+        Config.useColour = UseColour::Yes;
     }
-    inline void loadTestNamesFromFile( ConfigData& config, std::string const& _filename ) {
+    inline void loadTestNamesFromFile( ConfigData& Config, std::string const& _filename ) {
         std::ifstream f( _filename.c_str() );
         if( !f.is_open() )
             throw std::domain_error( "Unable to load input file: " + _filename );
@@ -4720,7 +4720,7 @@ namespace Catch {
         while( std::getline( f, line ) ) {
             line = trim(line);
             if( !line.empty() && !startsWith( line, "#" ) )
-                addTestOrTags( config, "\"" + line + "\"," );
+                addTestOrTags( Config, "\"" + line + "\"," );
         }
     }
 
@@ -5296,7 +5296,7 @@ namespace Catch
 
     struct IReporterFactory : IShared {
         virtual ~IReporterFactory();
-        virtual IStreamingReporter* create( ReporterConfig const& config ) const = 0;
+        virtual IStreamingReporter* create( ReporterConfig const& Config ) const = 0;
         virtual std::string getDescription() const = 0;
     };
 
@@ -5305,7 +5305,7 @@ namespace Catch
         typedef std::vector<Ptr<IReporterFactory> > Listeners;
 
         virtual ~IReporterRegistry();
-        virtual IStreamingReporter* create( std::string const& name, Ptr<IConfig const> const& config ) const = 0;
+        virtual IStreamingReporter* create( std::string const& name, Ptr<IConfig const> const& Config ) const = 0;
         virtual FactoryMap const& getFactories() const = 0;
         virtual Listeners const& getListeners() const = 0;
     };
@@ -5319,10 +5319,10 @@ namespace Catch
 
 namespace Catch {
 
-    inline std::size_t listTests( Config const& config ) {
+    inline std::size_t listTests( Config const& Config ) {
 
-        TestSpec testSpec = config.testSpec();
-        if( config.testSpec().hasFilters() )
+        TestSpec testSpec = Config.testSpec();
+        if( Config.testSpec().hasFilters() )
             Catch::cout() << "Matching test cases:\n";
         else {
             Catch::cout() << "All available test cases:\n";
@@ -5334,7 +5334,7 @@ namespace Catch {
         nameAttr.setInitialIndent( 2 ).setIndent( 4 );
         tagsAttr.setIndent( 6 );
 
-        std::vector<TestCase> matchedTestCases = filterTests( getAllTestCasesSorted( config ), testSpec, config );
+        std::vector<TestCase> matchedTestCases = filterTests( getAllTestCasesSorted( Config ), testSpec, Config );
         for( std::vector<TestCase>::const_iterator it = matchedTestCases.begin(), itEnd = matchedTestCases.end();
                 it != itEnd;
                 ++it ) {
@@ -5350,19 +5350,19 @@ namespace Catch {
                 Catch::cout() << Text( testCaseInfo.tagsAsString, tagsAttr ) << std::endl;
         }
 
-        if( !config.testSpec().hasFilters() )
+        if( !Config.testSpec().hasFilters() )
             Catch::cout() << pluralise( matchedTests, "test case" ) << "\n" << std::endl;
         else
             Catch::cout() << pluralise( matchedTests, "matching test case" ) << "\n" << std::endl;
         return matchedTests;
     }
 
-    inline std::size_t listTestsNamesOnly( Config const& config ) {
-        TestSpec testSpec = config.testSpec();
-        if( !config.testSpec().hasFilters() )
+    inline std::size_t listTestsNamesOnly( Config const& Config ) {
+        TestSpec testSpec = Config.testSpec();
+        if( !Config.testSpec().hasFilters() )
             testSpec = TestSpecParser( ITagAliasRegistry::get() ).parse( "*" ).testSpec();
         std::size_t matchedTests = 0;
-        std::vector<TestCase> matchedTestCases = filterTests( getAllTestCasesSorted( config ), testSpec, config );
+        std::vector<TestCase> matchedTestCases = filterTests( getAllTestCasesSorted( Config ), testSpec, Config );
         for( std::vector<TestCase>::const_iterator it = matchedTestCases.begin(), itEnd = matchedTestCases.end();
                 it != itEnd;
                 ++it ) {
@@ -5391,9 +5391,9 @@ namespace Catch {
         std::size_t count;
     };
 
-    inline std::size_t listTags( Config const& config ) {
-        TestSpec testSpec = config.testSpec();
-        if( config.testSpec().hasFilters() )
+    inline std::size_t listTags( Config const& Config ) {
+        TestSpec testSpec = Config.testSpec();
+        if( Config.testSpec().hasFilters() )
             Catch::cout() << "Tags for matching test cases:\n";
         else {
             Catch::cout() << "All available tags:\n";
@@ -5402,7 +5402,7 @@ namespace Catch {
 
         std::map<std::string, TagInfo> tagCounts;
 
-        std::vector<TestCase> matchedTestCases = filterTests( getAllTestCasesSorted( config ), testSpec, config );
+        std::vector<TestCase> matchedTestCases = filterTests( getAllTestCasesSorted( Config ), testSpec, Config );
         for( std::vector<TestCase>::const_iterator it = matchedTestCases.begin(), itEnd = matchedTestCases.end();
                 it != itEnd;
                 ++it ) {
@@ -5435,7 +5435,7 @@ namespace Catch {
         return tagCounts.size();
     }
 
-    inline std::size_t listReporters( Config const& /*config*/ ) {
+    inline std::size_t listReporters( Config const& /*Config*/ ) {
         Catch::cout() << "Available reporters:\n";
         IReporterRegistry::FactoryMap const& factories = getRegistryHub().getReporterRegistry().getFactories();
         IReporterRegistry::FactoryMap::const_iterator itBegin = factories.begin(), itEnd = factories.end(), it;
@@ -5458,16 +5458,16 @@ namespace Catch {
         return factories.size();
     }
 
-    inline Option<std::size_t> list( Config const& config ) {
+    inline Option<std::size_t> list( Config const& Config ) {
         Option<std::size_t> listedCount;
-        if( config.listTests() )
-            listedCount = listedCount.valueOr(0) + listTests( config );
-        if( config.listTestNamesOnly() )
-            listedCount = listedCount.valueOr(0) + listTestsNamesOnly( config );
-        if( config.listTags() )
-            listedCount = listedCount.valueOr(0) + listTags( config );
-        if( config.listReporters() )
-            listedCount = listedCount.valueOr(0) + listReporters( config );
+        if( Config.listTests() )
+            listedCount = listedCount.valueOr(0) + listTests( Config );
+        if( Config.listTestNamesOnly() )
+            listedCount = listedCount.valueOr(0) + listTestsNamesOnly( Config );
+        if( Config.listTags() )
+            listedCount = listedCount.valueOr(0) + listTags( Config );
+        if( Config.listReporters() )
+            listedCount = listedCount.valueOr(0) + listReporters( Config );
         return listedCount;
     }
 
@@ -5972,7 +5972,7 @@ namespace Catch {
             return deltaTotals;
         }
 
-        Ptr<IConfig const> config() const {
+        Ptr<IConfig const> Config() const {
             return m_config;
         }
 
@@ -6241,8 +6241,8 @@ namespace Catch {
 
 namespace Catch {
 
-    Ptr<IStreamingReporter> createReporter( std::string const& reporterName, Ptr<Config> const& config ) {
-        Ptr<IStreamingReporter> reporter = getRegistryHub().getReporterRegistry().create( reporterName, config.get() );
+    Ptr<IStreamingReporter> createReporter( std::string const& reporterName, Ptr<Config> const& Config ) {
+        Ptr<IStreamingReporter> reporter = getRegistryHub().getReporterRegistry().create( reporterName, Config.get() );
         if( !reporter ) {
             std::ostringstream oss;
             oss << "No reporter registered with name: '" << reporterName << "'";
@@ -6251,8 +6251,8 @@ namespace Catch {
         return reporter;
     }
 
-    Ptr<IStreamingReporter> makeReporter( Ptr<Config> const& config ) {
-        std::vector<std::string> reporters = config->getReporterNames();
+    Ptr<IStreamingReporter> makeReporter( Ptr<Config> const& Config ) {
+        std::vector<std::string> reporters = Config->getReporterNames();
         if( reporters.empty() )
             reporters.push_back( "console" );
 
@@ -6260,32 +6260,32 @@ namespace Catch {
         for( std::vector<std::string>::const_iterator it = reporters.begin(), itEnd = reporters.end();
                 it != itEnd;
                 ++it )
-            reporter = addReporter( reporter, createReporter( *it, config ) );
+            reporter = addReporter( reporter, createReporter( *it, Config ) );
         return reporter;
     }
-    Ptr<IStreamingReporter> addListeners( Ptr<IConfig const> const& config, Ptr<IStreamingReporter> reporters ) {
+    Ptr<IStreamingReporter> addListeners( Ptr<IConfig const> const& Config, Ptr<IStreamingReporter> reporters ) {
         IReporterRegistry::Listeners listeners = getRegistryHub().getReporterRegistry().getListeners();
         for( IReporterRegistry::Listeners::const_iterator it = listeners.begin(), itEnd = listeners.end();
                 it != itEnd;
                 ++it )
-            reporters = addReporter(reporters, (*it)->create( ReporterConfig( config ) ) );
+            reporters = addReporter(reporters, (*it)->create( ReporterConfig( Config ) ) );
         return reporters;
     }
 
-    Totals runTests( Ptr<Config> const& config ) {
+    Totals runTests( Ptr<Config> const& Config ) {
 
-        Ptr<IConfig const> iconfig = config.get();
+        Ptr<IConfig const> iconfig = Config.get();
 
-        Ptr<IStreamingReporter> reporter = makeReporter( config );
+        Ptr<IStreamingReporter> reporter = makeReporter( Config );
         reporter = addListeners( iconfig, reporter );
 
         RunContext context( iconfig, reporter );
 
         Totals totals;
 
-        context.testGroupStarting( config->name(), 1, 1 );
+        context.testGroupStarting( Config->name(), 1, 1 );
 
-        TestSpec testSpec = config->testSpec();
+        TestSpec testSpec = Config->testSpec();
         if( !testSpec.hasFilters() )
             testSpec = TestSpecParser( ITagAliasRegistry::get() ).parse( "~[.]" ).testSpec(); // All not hidden tests
 
@@ -6303,8 +6303,8 @@ namespace Catch {
         return totals;
     }
 
-    void applyFilenamesAsTags( IConfig const& config ) {
-        std::vector<TestCase> const& tests = getAllTestCasesSorted( config );
+    void applyFilenamesAsTags( IConfig const& Config ) {
+        std::vector<TestCase> const& tests = getAllTestCasesSorted( Config );
         for(std::size_t i = 0; i < tests.size(); ++i ) {
             TestCase& test = const_cast<TestCase&>( tests[i] );
             std::set<std::string> tags = test.tags;
@@ -6391,7 +6391,7 @@ namespace Catch {
 
             try
             {
-                config(); // Force config to be constructed
+                Config(); // Force Config to be constructed
 
                 seedRng( *m_config );
 
@@ -6399,7 +6399,7 @@ namespace Catch {
                     applyFilenamesAsTags( *m_config );
 
                 // Handle list request
-                if( Option<std::size_t> listed = list( config() ) )
+                if( Option<std::size_t> listed = list( Config() ) )
                     return static_cast<int>( *listed );
 
                 return static_cast<int>( runTests( m_config ).assertions.failed );
@@ -6419,7 +6419,7 @@ namespace Catch {
         ConfigData& configData() {
             return m_configData;
         }
-        Config& config() {
+        Config& Config() {
             if( !m_config )
                 m_config = new Config( m_configData );
             return *m_config;
@@ -6474,17 +6474,17 @@ namespace Catch {
         }
     };
 
-    inline std::vector<TestCase> sortTests( IConfig const& config, std::vector<TestCase> const& unsortedTestCases ) {
+    inline std::vector<TestCase> sortTests( IConfig const& Config, std::vector<TestCase> const& unsortedTestCases ) {
 
         std::vector<TestCase> sorted = unsortedTestCases;
 
-        switch( config.runOrder() ) {
+        switch( Config.runOrder() ) {
             case RunTests::InLexicographicalOrder:
                 std::sort( sorted.begin(), sorted.end() );
                 break;
             case RunTests::InRandomOrder:
                 {
-                    seedRng( config );
+                    seedRng( Config );
                     RandomNumberGenerator::shuffle( sorted );
                 }
                 break;
@@ -6494,8 +6494,8 @@ namespace Catch {
         }
         return sorted;
     }
-    bool matchTest( TestCase const& testCase, TestSpec const& testSpec, IConfig const& config ) {
-        return testSpec.matches( testCase ) && ( config.allowThrows() || !testCase.throws() );
+    bool matchTest( TestCase const& testCase, TestSpec const& testSpec, IConfig const& Config ) {
+        return testSpec.matches( testCase ) && ( Config.allowThrows() || !testCase.throws() );
     }
 
     void enforceNoDuplicateTestCases( std::vector<TestCase> const& functions ) {
@@ -6517,18 +6517,18 @@ namespace Catch {
         }
     }
 
-    std::vector<TestCase> filterTests( std::vector<TestCase> const& testCases, TestSpec const& testSpec, IConfig const& config ) {
+    std::vector<TestCase> filterTests( std::vector<TestCase> const& testCases, TestSpec const& testSpec, IConfig const& Config ) {
         std::vector<TestCase> filtered;
         filtered.reserve( testCases.size() );
         for( std::vector<TestCase>::const_iterator it = testCases.begin(), itEnd = testCases.end();
                 it != itEnd;
                 ++it )
-            if( matchTest( *it, testSpec, config ) )
+            if( matchTest( *it, testSpec, Config ) )
                 filtered.push_back( *it );
         return filtered;
     }
-    std::vector<TestCase> const& getAllTestCasesSorted( IConfig const& config ) {
-        return getRegistryHub().getTestCaseRegistry().getAllTestsSorted( config );
+    std::vector<TestCase> const& getAllTestCasesSorted( IConfig const& Config ) {
+        return getRegistryHub().getTestCaseRegistry().getAllTestsSorted( Config );
     }
 
     class TestRegistry : public ITestCaseRegistry {
@@ -6552,13 +6552,13 @@ namespace Catch {
         virtual std::vector<TestCase> const& getAllTests() const {
             return m_functions;
         }
-        virtual std::vector<TestCase> const& getAllTestsSorted( IConfig const& config ) const {
+        virtual std::vector<TestCase> const& getAllTestsSorted( IConfig const& Config ) const {
             if( m_sortedFunctions.empty() )
                 enforceNoDuplicateTestCases( m_functions );
 
-            if(  m_currentSortOrder != config.runOrder() || m_sortedFunctions.empty() ) {
-                m_sortedFunctions = sortTests( config, m_functions );
-                m_currentSortOrder = config.runOrder();
+            if(  m_currentSortOrder != Config.runOrder() || m_sortedFunctions.empty() ) {
+                m_sortedFunctions = sortTests( Config, m_functions );
+                m_currentSortOrder = Config.runOrder();
             }
             return m_sortedFunctions;
         }
@@ -6648,11 +6648,11 @@ namespace Catch {
 
         virtual ~ReporterRegistry() CATCH_OVERRIDE {}
 
-        virtual IStreamingReporter* create( std::string const& name, Ptr<IConfig const> const& config ) const CATCH_OVERRIDE {
+        virtual IStreamingReporter* create( std::string const& name, Ptr<IConfig const> const& Config ) const CATCH_OVERRIDE {
             FactoryMap::const_iterator it =  m_factories.find( name );
             if( it == m_factories.end() )
                 return CATCH_NULL;
-            return it->second->create( ReporterConfig( config ) );
+            return it->second->create( ReporterConfig( Config ) );
         }
 
         void registerReporter( std::string const& name, Ptr<IReporterFactory> const& factory ) {
@@ -6961,8 +6961,8 @@ namespace Catch {
         virtual void setRunner( IRunner* runner ) {
             m_runner = runner;
         }
-        virtual void setConfig( Ptr<IConfig const> const& config ) {
-            m_config = config;
+        virtual void setConfig( Ptr<IConfig const> const& Config ) {
+            m_config = Config;
         }
 
         friend IMutableContext& getCurrentMutableContext();
@@ -7101,9 +7101,9 @@ namespace {
     IColourImpl* platformColourInstance() {
         static Win32ColourImpl s_instance;
 
-        Ptr<IConfig const> config = getCurrentContext().getConfig();
-        UseColour::YesOrNo colourMode = config
-            ? config->useColour()
+        Ptr<IConfig const> Config = getCurrentContext().getConfig();
+        UseColour::YesOrNo colourMode = Config
+            ? Config->useColour()
             : UseColour::Auto;
         if( colourMode == UseColour::Auto )
             colourMode = !isDebuggerActive()
@@ -7161,9 +7161,9 @@ namespace {
     };
 
     IColourImpl* platformColourInstance() {
-        Ptr<IConfig const> config = getCurrentContext().getConfig();
-        UseColour::YesOrNo colourMode = config
-            ? config->useColour()
+        Ptr<IConfig const> Config = getCurrentContext().getConfig();
+        UseColour::YesOrNo colourMode = Config
+            ? Config->useColour()
             : UseColour::Auto;
         if( colourMode == UseColour::Auto )
             colourMode = (!isDebuggerActive() && isatty(STDOUT_FILENO) )
@@ -7863,9 +7863,9 @@ namespace Catch {
         return line < other.line || ( line == other.line  && file < other.file );
     }
 
-    void seedRng( IConfig const& config ) {
-        if( config.rngSeed() != 0 )
-            std::srand( config.rngSeed() );
+    void seedRng( IConfig const& Config ) {
+        if( Config.rngSeed() != 0 )
+            std::srand( Config.rngSeed() );
     }
     unsigned int rngSeed() {
         return getCurrentContext().getConfig()->rngSeed();
@@ -8827,8 +8827,8 @@ namespace Catch {
     class LegacyReporterRegistrar {
 
         class ReporterFactory : public IReporterFactory {
-            virtual IStreamingReporter* create( ReporterConfig const& config ) const {
-                return new LegacyReporterAdapter( new T( config ) );
+            virtual IStreamingReporter* create( ReporterConfig const& Config ) const {
+                return new LegacyReporterAdapter( new T( Config ) );
             }
 
             virtual std::string getDescription() const {
@@ -8859,8 +8859,8 @@ namespace Catch {
             // In fact, ideally, please contact me anyway to let me know you've hit this - as I have
             // no idea who is actually using custom reporters at all (possibly no-one!).
             // The new interface is designed to minimise exposure to interface changes in the future.
-            virtual IStreamingReporter* create( ReporterConfig const& config ) const {
-                return new T( config );
+            virtual IStreamingReporter* create( ReporterConfig const& Config ) const {
+                return new T( Config );
             }
 
             virtual std::string getDescription() const {
@@ -8880,8 +8880,8 @@ namespace Catch {
 
         class ListenerFactory : public SharedImpl<IReporterFactory> {
 
-            virtual IStreamingReporter* create( ReporterConfig const& config ) const {
-                return new T( config );
+            virtual IStreamingReporter* create( ReporterConfig const& Config ) const {
+                return new T( Config );
             }
             virtual std::string getDescription() const {
                 return "";
@@ -10361,7 +10361,7 @@ int main (int argc, char * const argv[]) {
 
 //////
 
-// If this config identifier is defined then all CATCH macros are prefixed with CATCH_
+// If this Config identifier is defined then all CATCH macros are prefixed with CATCH_
 #ifdef CATCH_CONFIG_PREFIX_ALL
 
 #define CATCH_REQUIRE( expr ) INTERNAL_CATCH_TEST( expr, Catch::ResultDisposition::Normal, "CATCH_REQUIRE" )

@@ -400,7 +400,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             }
             continue;
         }
-        if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "config") ||
+        if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "Config") ||
             !strcasecmp(request_block->nameValueList.nameValue[i].name, "configuration")) {
             configDependent = i;
             if (preventSQLInjection(DBConnect, &request_block->nameValueList.nameValue[configDependent].value)) {
@@ -511,7 +511,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                     "what information is available, enabling Data Discovery.\n\n"
 
                     "Function: list(context={meta|data|cpf} [,{cast|align}={row|column}] [,class=class] [,system=system]\n"
-                    "               [,{config|configuration}=configuration] [,device=device]\n"
+                    "               [,{Config|configuration}=configuration] [,device=device]\n"
                     "               [,{shot|pulno|exp_number}=shot]\n"
                     "               [,version=version] [,revision=revision]\n"
                     "               [,{source|alias|source_alias}=source_alias] [,type={A|R|M|P|I|*}] [,pass=pass]\n"

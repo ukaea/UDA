@@ -56,9 +56,9 @@ macro( idam_plugin )
   endforeach()
 
   if( FAT_BUILD )
-    target_link_libraries( ${PLUGIN_LIBNAME} LINK_PUBLIC ${IDC_LIB_NAME} idamclientserver )
+    target_link_libraries( ${PLUGIN_LIBNAME} LINK_PUBLIC client-shared idamclientserver )
   else()
-    target_link_libraries( ${PLUGIN_LIBNAME} LINK_PUBLIC ${IDS_LIB_NAME} )
+    target_link_libraries( ${PLUGIN_LIBNAME} LINK_PUBLIC server )
   endif()
   
   filter_lib_list( "${PLUGIN_EXTRA_LINK_LIBS}" FILTERED_LINK_LIBS debug optimized ) 

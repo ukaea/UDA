@@ -3,13 +3,15 @@
 *
 * No alteration to request_block are necessary - only interpretation.
 *---------------------------------------------------------------------------------------------------------------------*/
-
-#include <idamLog.h>
 #include "idamServerLegacyPlugin.h"
 
-#include "TrimString.h"
-#include "parseIdaPath.h"
-#include "idamErrorLog.h"
+#include <stdlib.h>
+
+#include <logging/idamLog.h>
+#include <include/idamclientserverprivate.h>
+#include <clientserver/idamErrorLog.h>
+#include <modules/ida/parseIdaPath.h>
+#include <clientserver/TrimString.h>
 
 int idamServerLegacyPlugin(REQUEST_BLOCK* request_block, DATA_SOURCE* data_source, SIGNAL_DESC* signal_desc)
 {

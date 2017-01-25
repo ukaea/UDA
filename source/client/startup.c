@@ -13,31 +13,27 @@
 * Returns:
 *
 *--------------------------------------------------------------*/
-
 #include "startup.h"
 
-#include "idamLog.h"
-#include "idamclientserver.h"
-#include "idamclient.h"
-#include "idamErrorLog.h"
+#include <errno.h>
+
+#include <include/idamclient.h>
+#include <logging/idamLog.h>
+#include <clientserver/idamErrorLog.h>
+
 #include "getEnvironment.h"
 
 int reopen_logs = 0;        // No need to Re-Open Logs
 
-#ifdef FATCLIENT
-int idamStartupFat(int reset) {
-#else
-
 int idamStartup(int reset)
 {
-#endif
 
     static int start_status = 0;
 
 //---------------------------------------------------------------
 // Are the Files Already Open?
 
-    if (start_status && !reset && !reopen_logs) return (0);
+    if (start_status && !reset && !reopen_logs) return 0;
 
 //----------------------------------------------------------------
 // Read Environment Variable Values (Held in a Global Structure)

@@ -27,20 +27,13 @@ char source[]
 #include "idamFileCache.h"
 
 #include <fcntl.h>
+
 #include <include/idamclientserver.h>
-
-#include "idamclient.h"
-#include "idamgenstruct.h"
-#include "idamErrorLog.h"
-#include "TrimString.h"
-#include "struct.h"
-#include "createClientXDRStream.h"
-
-#ifndef SERVERBUILD
-#  include "idamclientprivate.h"
-#endif
-
-//unsigned int xcrc32(const unsigned char *buf, int len, unsigned int init);
+#include <clientserver/idamErrorLog.h>
+#include <clientserver/TrimString.h>
+#include <include/idamclientprivate.h>
+#include <structures/struct.h>
+#include <client/createClientXDRStream.h>
 
 // Cache database table lock/unlock
 // NULL File handle returned if there is no cache
@@ -165,7 +158,6 @@ int idamClientGetCacheStats(FILE *db, unsigned long *recordCount, unsigned long 
     rewind(db);
     if(fgets(work, CACHE_FIRSTRECORDLENGTH, db) == NULL) {
         err = 999;
-        //addIdamError(&idamerrorstack, CODEERRORTYPE, "idamClientCache", err, "Unable to Read the Cache Database");
         return err;
     }
     LeftTrimString(TrimString(work));
@@ -703,7 +695,7 @@ int idamClientWriteCache(char *filename) {
 */
 
 //#ifdef HAVE_CONFIG_H
-//#include "config.h"
+//#include "Config.h"
 //#endif
 
 // #include "libiberty.h"

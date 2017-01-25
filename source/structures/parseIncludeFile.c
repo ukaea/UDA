@@ -20,12 +20,17 @@
 // add any required type defs, e.g. xmlChar
 // e.g., gcc -E ./tree.h -I/usr/include/libxml2 > etree.h
 //----------------------------------------------------------------------------------------------------------------------------
-
 #include "parseIncludeFile.h"
 
-#include "idamclientserver.h"
-#include "TrimString.h"
-#include "idamErrorLog.h"
+#include <errno.h>
+#include <string.h>
+#include <stdlib.h>
+
+#include <clientserver/idamDefines.h>
+#include <clientserver/TrimString.h>
+#include <clientserver/idamErrorLog.h>
+#include <include/idamclientserverprivate.h>
+
 #include "struct.h"
 
 #if defined(SERVERBUILD) || !defined(CLEANNAMESPACE25SEP14)
@@ -408,7 +413,7 @@ int parseIncludeFile(char* header)
                                 err = 999;
                                 addIdamError(&idamerrorstack, CODEERRORTYPE, "parseIncludeFile", 999,
                                              "typedef statement does not conform to syntax model!");
-                                return (err);
+                                return err;
                             }
 
                             status = 0;        // Structure Definition Completed
@@ -654,7 +659,7 @@ int parseIncludeFile(char* header)
 
     fclose(fh);
 
-    return (0);
+    return 0;
 }
 
 

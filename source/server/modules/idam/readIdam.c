@@ -21,9 +21,8 @@
 *-----------------------------------------------------------------------------*/
 #include "readIdam.h"
 
-#include <idamLog.h>
-
-#include "idamErrorLog.h"
+#include <logging/idamLog.h>
+#include <clientserver/idamErrorLog.h>
 
 #ifdef NOIDAMPLUGIN
 
@@ -33,7 +32,7 @@ int readIdam(DATA_SOURCE data_source,
              DATA_BLOCK *data_block) {
     int err = 999;
     addIdamError(&idamerrorstack, CODEERRORTYPE, "readIdam", err, "Not Configured to Access the IDAM server Plugin.");
-    return(err);
+    return err;
 }
 
 #else
@@ -42,10 +41,9 @@ int readIdam(DATA_SOURCE data_source,
 
 #include <include/idamclientserverprivate.h>
 #include <client/accAPI_C.h>
+#include <clientserver/TrimString.h>
+#include <clientserver/printStructs.h>
 #include <client/IdamAPI.h>
-
-#include "TrimString.h"
-#include "printStructs.h"
 
 #ifdef FATCLIENT
 
@@ -55,7 +53,7 @@ int readIdam(DATA_SOURCE data_source,
              DATA_BLOCK *data_block) {
     int err = 999;
     addIdamError(&idamerrorstack, CODEERRORTYPE, "readIdam", err, "Not Configured to Access the IDAM server Plugin.");
-    return(err);
+    return err;
 }
 
 #else
@@ -111,7 +109,7 @@ int readIdam(DATA_SOURCE data_source,
                     addIdamError(&idamerrorstack, CODEERRORTYPE, "readIdam", err,
                                  "The Server Port must be an Integer Number passed "
                                          "using the formats 'server:port' or 'server port'");
-                    return (err);
+                    return err;
                 }
             } else {
                 if (strcasecmp(server_host, data_source.server) != 0) putIdamServerHost(data_source.server);
@@ -119,7 +117,7 @@ int readIdam(DATA_SOURCE data_source,
         } else {
             err = 999;
             addIdamError(&idamerrorstack, CODEERRORTYPE, "readIdam", err, "No Server has been specified!");
-            return (err);
+            return err;
         }
     } else {
         if (request_block.server[0] != '\0') {
@@ -137,7 +135,7 @@ int readIdam(DATA_SOURCE data_source,
                     addIdamError(&idamerrorstack, CODEERRORTYPE, "readIdam", err,
                                  "The Server Port must be an Integer Number passed "
                                          "using the format 'server:port'  or 'server port'");
-                    return (err);
+                    return err;
                 }
             } else {
                 if (strcasecmp(server_host, request_block.server) != 0) putIdamServerHost(request_block.server);
@@ -145,7 +143,7 @@ int readIdam(DATA_SOURCE data_source,
         } else {
             err = 999;
             addIdamError(&idamerrorstack, CODEERRORTYPE, "readIdam", err, "No Server has been specified!");
-            return (err);
+            return err;
         }
     }
 
@@ -193,9 +191,6 @@ int readIdam(DATA_SOURCE data_source,
 // Client Flags ...
 
     resetIdamClientFlag(CLIENTFLAG_FULLRESET);
-//dgm 02Oct14   setIdamClientFlag(data_block->client_block.clientFlags);
-
-//dgm 03Aug2015		bug found elsewhere ... renable
     setIdamClientFlag(data_block->client_block.clientFlags);
 
 //----------------------------------------------------------------------

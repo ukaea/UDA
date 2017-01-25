@@ -5,8 +5,10 @@
 #include "closeServerSockets.h"
 
 #include <unistd.h>
+#include <strings.h>
+#include <stdlib.h>
 
-#include "manageSockets.h"
+#include <clientserver/manageSockets.h>
 
 void closeNamedServerSocket(SOCKETLIST *socks, char *host, int port) {
     int i;

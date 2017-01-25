@@ -1,11 +1,7 @@
 #ifndef IDAM_SERVER_CLOSESERVERSOCKETS_H
 #define IDAM_SERVER_CLOSESERVERSOCKETS_H
 
-#include "idamclientserver.h"
-
-#ifndef	NOMDSPLUSPLUGIN
-#  include <mdslib.h>
-#endif
+#include <include/idamclientserverprivate.h>
 
 void closeNamedServerSocket(SOCKETLIST *socks, char *host, int port);
 void closeServerSocket(SOCKETLIST *socks, int fh);

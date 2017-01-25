@@ -8,12 +8,10 @@
 *--------------------------------------------------------------*/
 #include "getEnvironment.h"
 
-#include <idamLog.h>
-#include <include/idamclientprivate.h>
+#include <stdlib.h>
 
-#ifdef FATCLIENT
-#  include "idamserverconfig.h"
-#endif
+#include <logging/idamLog.h>
+#include <include/idamclientprivate.h>
 
 void printIdamClientEnvironment(ENVIRONMENT* environ)
 {

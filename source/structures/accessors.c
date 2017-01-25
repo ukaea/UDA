@@ -46,7 +46,7 @@
 //
 #include "accessors.h"
 
-#include <idamLog.h>
+#include <logging/idamLog.h>
 #include <stdlib.h>
 
 #include "struct.h"

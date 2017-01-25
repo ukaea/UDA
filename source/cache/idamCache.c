@@ -16,10 +16,12 @@ DATA_BLOCK * idamCacheRead(IDAM_CACHE * cache, REQUEST_BLOCK * request_block) { 
 #include <libmemcached/memcached.h>
 #include <logging/idamLog.h>
 #include <include/idamclientserverprivate.h>
-#include <memory.h>
+#include <clientserver/protocol2.h>
+#include <clientserver/initStructs.h>
 
-#include "protocol2.h"
-#include "initStructs.h"
+#ifdef __APPLE__
+#include <clientserver/mac_memstream.h>
+#endif
 
 #define HASHXDR 1
 #ifdef HASHXDR
@@ -159,11 +161,7 @@ int idamCacheWrite(IDAM_CACHE* cache, REQUEST_BLOCK* request_block, DATA_BLOCK* 
     char* buffer;
     size_t bufsize = 0;
 
-#ifdef __APPLE__
-    FILE * memfile = tmpfile();
-#else
     FILE* memfile = open_memstream(&buffer, &bufsize);
-#endif
 
     XDR xdrs;
     xdrstdio_create(&xdrs, memfile, XDR_ENCODE);
@@ -241,14 +239,10 @@ DATA_BLOCK* idamCacheRead(IDAM_CACHE* cache, REQUEST_BLOCK* request_block)
         return NULL;
     }
 
-#ifdef __APPLE__
-    FILE * memfile = tmpfile();
-#else
     char* buffer;
     size_t bufsize = 0;
 
     FILE* memfile = open_memstream(&buffer, &bufsize);
-#endif
 
     fwrite(value, sizeof(char), len, memfile);
     fseek(memfile, 0L, SEEK_SET);

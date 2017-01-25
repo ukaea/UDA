@@ -37,7 +37,7 @@
 #include "idamErrorLog.h"
 
 #ifdef SERVERBUILD
-#  include "idamServerStartup.h"
+#  include <server/idamServerStartup.h>
 #endif
 
 int protocol(XDR* xdrs, int protocol_id, int direction, int* token, void* str)

@@ -1,9 +1,7 @@
-
 #ifndef IDAM_READUFILE_H
 #define IDAM_READUFILE_H
 
-#include "idamclientserver.h"
-#include "idamserver.h"
+#include <clientserver/idamStructs.h>
 
 int readUFile(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK *data_block);
 

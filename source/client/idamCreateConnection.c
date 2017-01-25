@@ -6,11 +6,13 @@
 
 #include <unistd.h>
 #include <netdb.h>
+#include <string.h>
+#include <stdlib.h>
+#include <errno.h>
 
 #include <include/idamclientprivate.h>
-
-#include "idamErrorLog.h"
-#include "manageSockets.h"
+#include <clientserver/idamErrorLog.h>
+#include <clientserver/manageSockets.h>
 
 int idamCreateConnection()
 {

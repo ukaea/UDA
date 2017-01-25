@@ -5,7 +5,7 @@
 #include "managePluginFiles.h"
 
 #include <sys/time.h>
-#include <idamLog.h>
+#include <logging/idamLog.h>
 
 // Initialise the File List and allocate heap for the list
 

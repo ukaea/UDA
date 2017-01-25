@@ -12,7 +12,7 @@
 #include "xdrlib.h"
 
 #ifdef SERVERBUILD
-#  include "idamServerStartup.h"
+#  include <server/idamServerStartup.h>
 #endif
 
 static int recursiveDepthPut = 0;    // Keep count of recursive calls

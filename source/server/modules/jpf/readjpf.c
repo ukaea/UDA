@@ -18,28 +18,14 @@
 
   ToDo:
 
-  Change History
-
-  0.0	17Jan2006	D.G.Muir	Development Version
-  29Oct2007	dgm	ERRORSTACK Components added
-  07Jul2010	dgm	Use GETNWDS to return the array size - avoids repeated calls for data with array size increments
-  			Passed signal name can now be any length
- 			Returned title string should have a maximum length of 128 bytes
-  27May2011	dgm	Test for zero shot number or missing node name
-  23Oct2012	dgm	Return the time vector in double precision
-
-  12Mar2014     ajc     Remove heap corruption, use getdat8_, allow nwds>1 for getsca_ call. Minor tidy up.
-  18Jun2014     ds      Offline/Online data
-
-			LOTS STILL TO DO!
-
 */
 
 #include "readjpf.h"
 
-#include "TrimString.h"
-#include "idamErrorLog.h"
-#include "initStructs.h"
+#include <stdio.h>
+
+#include <clientserver/idamErrorLog.h>
+#include <include/idamclientserverprivate.h>
 
 /*
   Disabled, stub plugin.
@@ -48,10 +34,8 @@
 
 int readJPF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK *data_block) {
     int err = 999;
-    printf( "HELLO NO JPF\n");
-    addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF"
-                 , err, "JPF PLUGIN NOT ENABLED");
-    return(err);
+    addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF", err, "JPF PLUGIN NOT ENABLED");
+    return err;
 }
 
 #else

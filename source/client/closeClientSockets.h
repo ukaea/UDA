@@ -1,7 +1,7 @@
 #ifndef IDAM_CLIENT_CLOSECLIENTSOCKETS_H
 #define IDAM_CLIENT_CLOSECLIENTSOCKETS_H
 
-#include "idamclientserver.h"
+#include <include/idamclientserverprivate.h>
 
 void closeNamedIdamClientSocket(SOCKETLIST *socks, char *host, int port);
 void closeIdamClientSockets(SOCKETLIST *socks);

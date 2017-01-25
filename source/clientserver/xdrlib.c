@@ -430,7 +430,7 @@ bool_t xdr_putdata_block2(XDR* xdrs, PUTDATA_BLOCK* str)
             return rc;    // Nothing to send so retain good return code
 
         default:
-            return (0);
+            return 0;
     }
 }
 
@@ -665,7 +665,7 @@ bool_t xdr_data_block2(XDR* xdrs, DATA_BLOCK* str)
             return (1);    // Nothing to send so retain good return code
 
         default:
-            return (0);
+            return 0;
     }
 }
 
@@ -812,71 +812,71 @@ bool_t xdr_data_dim2(XDR* xdrs, DATA_BLOCK* str)
                 case TYPE_FLOAT :
                     if (!xdr_vector(xdrs, str->dims[i].dim, (u_int)str->dims[i].dim_n,
                                     sizeof(float), (xdrproc_t) xdr_float))
-                        return (0);
+                        return 0;
                     break;
 
                 case TYPE_DOUBLE :
                     if (!xdr_vector(xdrs, str->dims[i].dim, (u_int)str->dims[i].dim_n,
                                     sizeof(double), (xdrproc_t) xdr_double))
-                        return (0);
+                        return 0;
                     break;
 
                 case TYPE_CHAR :
                     if (!xdr_vector(xdrs, str->dims[i].dim, (u_int)str->dims[i].dim_n,
                                     sizeof(char), (xdrproc_t) xdr_char))
-                        return (0);
+                        return 0;
                     break;
 
                 case TYPE_SHORT :
                     if (!xdr_vector(xdrs, str->dims[i].dim, (u_int)str->dims[i].dim_n,
                                     sizeof(short), (xdrproc_t) xdr_short))
-                        return (0);
+                        return 0;
                     break;
 
                 case TYPE_INT :
                     if (!xdr_vector(xdrs, str->dims[i].dim, (u_int)str->dims[i].dim_n,
                                     sizeof(int), (xdrproc_t) xdr_int))
-                        return (0);
+                        return 0;
                     break;
 
                 case TYPE_LONG :
                     if (!xdr_vector(xdrs, str->dims[i].dim, (u_int)str->dims[i].dim_n,
                                     sizeof(long), (xdrproc_t) xdr_long))
-                        return (0);
+                        return 0;
                     break;
                 case TYPE_LONG64 :
                     if (!xdr_vector(xdrs, str->dims[i].dim, (u_int)str->dims[i].dim_n,
                                     sizeof(long long int), (xdrproc_t) xdr_int64_t))
-                        return (0);
+                        return 0;
                     break;
                 case TYPE_UNSIGNED_CHAR :
                     if (!xdr_vector(xdrs, str->dims[i].dim, (u_int)str->dims[i].dim_n,
                                     sizeof(unsigned char), (xdrproc_t) xdr_u_char))
-                        return (0);
+                        return 0;
                     break;
 
                 case TYPE_UNSIGNED_SHORT :
                     if (!xdr_vector(xdrs, str->dims[i].dim, (u_int)str->dims[i].dim_n,
                                     sizeof(unsigned short), (xdrproc_t) xdr_u_short))
-                        return (0);
+                        return 0;
                     break;
 
                 case TYPE_UNSIGNED_INT :
                     if (!xdr_vector(xdrs, str->dims[i].dim, (u_int)str->dims[i].dim_n,
                                     sizeof(unsigned int), (xdrproc_t) xdr_u_int))
-                        return (0);
+                        return 0;
                     break;
 
                 case TYPE_UNSIGNED_LONG :
                     if (!xdr_vector(xdrs, str->dims[i].dim, (u_int)str->dims[i].dim_n,
                                     sizeof(unsigned long), (xdrproc_t) xdr_u_long))
-                        return (0);
+                        return 0;
                     break;
 #ifndef __APPLE__
                 case TYPE_UNSIGNED_LONG64 :
                     if (!xdr_vector(xdrs, str->dims[i].dim, (u_int)str->dims[i].dim_n,
                                     sizeof(unsigned long long int), (xdrproc_t) xdr_uint64_t))
-                        return (0);
+                        return 0;
                     break;
 #endif
 
@@ -885,17 +885,17 @@ bool_t xdr_data_dim2(XDR* xdrs, DATA_BLOCK* str)
                 case TYPE_DCOMPLEX :
                     if (!xdr_vector(xdrs, str->dims[i].dim, 2 * (u_int)str->dims[i].dim_n,
                                     sizeof(double), (xdrproc_t) xdr_double))
-                        return (0);
+                        return 0;
                     break;
 
                 case TYPE_COMPLEX :
                     if (!xdr_vector(xdrs, str->dims[i].dim, 2 * (u_int)str->dims[i].dim_n,
                                     sizeof(float), (xdrproc_t) xdr_float))
-                        return (0);
+                        return 0;
                     break;
 
                 default:
-                    return (0);
+                    return 0;
             }
         } else {
 
@@ -910,19 +910,19 @@ bool_t xdr_data_dim2(XDR* xdrs, DATA_BLOCK* str)
                                                     sizeof(float), (xdrproc_t) xdr_float)
                                       && xdr_vector(xdrs, str->dims[i].ints, (int) str->dims[i].udoms,
                                                     sizeof(float), (xdrproc_t) xdr_float)))
-                                    return (0);
+                                    return 0;
                                 break;
                             case 2:
                                 if (!xdr_vector(xdrs, str->dims[i].offs, (int) str->dims[i].udoms,
                                                 sizeof(float), (xdrproc_t) xdr_float))
-                                    return (0);
+                                    return 0;
                                 break;
                             case 3:
                                 if (!(xdr_vector(xdrs, str->dims[i].offs, (int) 1,
                                                  sizeof(float), (xdrproc_t) xdr_float)
                                       && xdr_vector(xdrs, str->dims[i].ints, (int) 1,
                                                     sizeof(float), (xdrproc_t) xdr_float)))
-                                    return (0);
+                                    return 0;
                                 break;
                         }
                         break;
@@ -936,19 +936,19 @@ bool_t xdr_data_dim2(XDR* xdrs, DATA_BLOCK* str)
                                                     sizeof(double), (xdrproc_t) xdr_double)
                                       && xdr_vector(xdrs, str->dims[i].ints, (int) str->dims[i].udoms,
                                                     sizeof(double), (xdrproc_t) xdr_double)))
-                                    return (0);
+                                    return 0;
                                 break;
                             case 2:
                                 if (!xdr_vector(xdrs, str->dims[i].offs, (int) str->dims[i].udoms,
                                                 sizeof(double), (xdrproc_t) xdr_double))
-                                    return (0);
+                                    return 0;
                                 break;
                             case 3:
                                 if (!(xdr_vector(xdrs, str->dims[i].offs, (int) 1,
                                                  sizeof(double), (xdrproc_t) xdr_double)
                                       && xdr_vector(xdrs, str->dims[i].ints, (int) 1,
                                                     sizeof(double), (xdrproc_t) xdr_double)))
-                                    return (0);
+                                    return 0;
                                 break;
                         }
                         break;
@@ -962,19 +962,19 @@ bool_t xdr_data_dim2(XDR* xdrs, DATA_BLOCK* str)
                                                     sizeof(char), (xdrproc_t) xdr_char)
                                       && xdr_vector(xdrs, str->dims[i].ints, (int) str->dims[i].udoms,
                                                     sizeof(char), (xdrproc_t) xdr_char)))
-                                    return (0);
+                                    return 0;
                                 break;
                             case 2:
                                 if (!xdr_vector(xdrs, str->dims[i].offs, (int) str->dims[i].udoms,
                                                 sizeof(char), (xdrproc_t) xdr_char))
-                                    return (0);
+                                    return 0;
                                 break;
                             case 3:
                                 if (!(xdr_vector(xdrs, str->dims[i].offs, (int) 1,
                                                  sizeof(char), (xdrproc_t) xdr_char)
                                       && xdr_vector(xdrs, str->dims[i].ints, (int) 1,
                                                     sizeof(char), (xdrproc_t) xdr_char)))
-                                    return (0);
+                                    return 0;
                                 break;
                         }
                         break;
@@ -988,19 +988,19 @@ bool_t xdr_data_dim2(XDR* xdrs, DATA_BLOCK* str)
                                                     sizeof(short), (xdrproc_t) xdr_short)
                                       && xdr_vector(xdrs, str->dims[i].ints, (int) str->dims[i].udoms,
                                                     sizeof(short), (xdrproc_t) xdr_short)))
-                                    return (0);
+                                    return 0;
                                 break;
                             case 2:
                                 if (!xdr_vector(xdrs, str->dims[i].offs, (int) str->dims[i].udoms,
                                                 sizeof(short), (xdrproc_t) xdr_short))
-                                    return (0);
+                                    return 0;
                                 break;
                             case 3:
                                 if (!(xdr_vector(xdrs, str->dims[i].offs, (int) 1,
                                                  sizeof(short), (xdrproc_t) xdr_short)
                                       && xdr_vector(xdrs, str->dims[i].ints, (int) 1,
                                                     sizeof(short), (xdrproc_t) xdr_short)))
-                                    return (0);
+                                    return 0;
                                 break;
                         }
                         break;
@@ -1014,19 +1014,19 @@ bool_t xdr_data_dim2(XDR* xdrs, DATA_BLOCK* str)
                                                     sizeof(int), (xdrproc_t) xdr_int)
                                       && xdr_vector(xdrs, str->dims[i].ints, (int) str->dims[i].udoms,
                                                     sizeof(int), (xdrproc_t) xdr_int)))
-                                    return (0);
+                                    return 0;
                                 break;
                             case 2:
                                 if (!xdr_vector(xdrs, str->dims[i].offs, (int) str->dims[i].udoms,
                                                 sizeof(int), (xdrproc_t) xdr_int))
-                                    return (0);
+                                    return 0;
                                 break;
                             case 3:
                                 if (!(xdr_vector(xdrs, str->dims[i].offs, (int) 1,
                                                  sizeof(int), (xdrproc_t) xdr_int)
                                       && xdr_vector(xdrs, str->dims[i].ints, (int) 1,
                                                     sizeof(int), (xdrproc_t) xdr_int)))
-                                    return (0);
+                                    return 0;
                                 break;
                         }
                         break;
@@ -1040,19 +1040,19 @@ bool_t xdr_data_dim2(XDR* xdrs, DATA_BLOCK* str)
                                                     sizeof(long), (xdrproc_t) xdr_long)
                                       && xdr_vector(xdrs, str->dims[i].ints, (int) str->dims[i].udoms,
                                                     sizeof(long), (xdrproc_t) xdr_long)))
-                                    return (0);
+                                    return 0;
                                 break;
                             case 2:
                                 if (!xdr_vector(xdrs, str->dims[i].offs, (int) str->dims[i].udoms,
                                                 sizeof(long), (xdrproc_t) xdr_long))
-                                    return (0);
+                                    return 0;
                                 break;
                             case 3:
                                 if (!(xdr_vector(xdrs, str->dims[i].offs, (int) 1,
                                                  sizeof(long), (xdrproc_t) xdr_long)
                                       && xdr_vector(xdrs, str->dims[i].ints, (int) 1,
                                                     sizeof(long), (xdrproc_t) xdr_long)))
-                                    return (0);
+                                    return 0;
                                 break;
                         }
                         break;
@@ -1065,19 +1065,19 @@ bool_t xdr_data_dim2(XDR* xdrs, DATA_BLOCK* str)
                                                     sizeof(long long int), (xdrproc_t) xdr_int64_t)
                                       && xdr_vector(xdrs, str->dims[i].ints, (int) str->dims[i].udoms,
                                                     sizeof(long long int), (xdrproc_t) xdr_int64_t)))
-                                    return (0);
+                                    return 0;
                                 break;
                             case 2:
                                 if (!xdr_vector(xdrs, str->dims[i].offs, (int) str->dims[i].udoms,
                                                 sizeof(long long int), (xdrproc_t) xdr_int64_t))
-                                    return (0);
+                                    return 0;
                                 break;
                             case 3:
                                 if (!(xdr_vector(xdrs, str->dims[i].offs, (int) 1,
                                                  sizeof(long long int), (xdrproc_t) xdr_int64_t)
                                       && xdr_vector(xdrs, str->dims[i].ints, (int) 1,
                                                     sizeof(long long int), (xdrproc_t) xdr_int64_t)))
-                                    return (0);
+                                    return 0;
                                 break;
                         }
                         break;
@@ -1090,19 +1090,19 @@ bool_t xdr_data_dim2(XDR* xdrs, DATA_BLOCK* str)
                                                     sizeof(unsigned char), (xdrproc_t) xdr_u_char)
                                       && xdr_vector(xdrs, str->dims[i].ints, (int) str->dims[i].udoms,
                                                     sizeof(unsigned char), (xdrproc_t) xdr_u_char)))
-                                    return (0);
+                                    return 0;
                                 break;
                             case 2:
                                 if (!xdr_vector(xdrs, str->dims[i].offs, (int) str->dims[i].udoms,
                                                 sizeof(unsigned char), (xdrproc_t) xdr_u_char))
-                                    return (0);
+                                    return 0;
                                 break;
                             case 3:
                                 if (!(xdr_vector(xdrs, str->dims[i].offs, (int) 1,
                                                  sizeof(unsigned char), (xdrproc_t) xdr_u_char)
                                       && xdr_vector(xdrs, str->dims[i].ints, (int) 1,
                                                     sizeof(unsigned char), (xdrproc_t) xdr_u_char)))
-                                    return (0);
+                                    return 0;
                                 break;
                         }
                         break;
@@ -1116,19 +1116,19 @@ bool_t xdr_data_dim2(XDR* xdrs, DATA_BLOCK* str)
                                                     sizeof(unsigned short), (xdrproc_t) xdr_u_short)
                                       && xdr_vector(xdrs, str->dims[i].ints, (int) str->dims[i].udoms,
                                                     sizeof(unsigned short), (xdrproc_t) xdr_u_short)))
-                                    return (0);
+                                    return 0;
                                 break;
                             case 2:
                                 if (!xdr_vector(xdrs, str->dims[i].offs, (int) str->dims[i].udoms,
                                                 sizeof(unsigned short), (xdrproc_t) xdr_u_short))
-                                    return (0);
+                                    return 0;
                                 break;
                             case 3:
                                 if (!(xdr_vector(xdrs, str->dims[i].offs, (int) 1,
                                                  sizeof(unsigned short), (xdrproc_t) xdr_u_short)
                                       && xdr_vector(xdrs, str->dims[i].ints, (int) 1,
                                                     sizeof(unsigned short), (xdrproc_t) xdr_u_short)))
-                                    return (0);
+                                    return 0;
                                 break;
                         }
                         break;
@@ -1142,19 +1142,19 @@ bool_t xdr_data_dim2(XDR* xdrs, DATA_BLOCK* str)
                                                     sizeof(unsigned int), (xdrproc_t) xdr_u_int)
                                       && xdr_vector(xdrs, str->dims[i].ints, (int) str->dims[i].udoms,
                                                     sizeof(unsigned int), (xdrproc_t) xdr_u_int)))
-                                    return (0);
+                                    return 0;
                                 break;
                             case 2:
                                 if (!xdr_vector(xdrs, str->dims[i].offs, (int) str->dims[i].udoms,
                                                 sizeof(unsigned int), (xdrproc_t) xdr_u_int))
-                                    return (0);
+                                    return 0;
                                 break;
                             case 3:
                                 if (!(xdr_vector(xdrs, str->dims[i].offs, (int) 1,
                                                  sizeof(unsigned int), (xdrproc_t) xdr_u_int)
                                       && xdr_vector(xdrs, str->dims[i].ints, (int) 1,
                                                     sizeof(unsigned int), (xdrproc_t) xdr_u_int)))
-                                    return (0);
+                                    return 0;
                                 break;
                         }
                         break;
@@ -1168,19 +1168,19 @@ bool_t xdr_data_dim2(XDR* xdrs, DATA_BLOCK* str)
                                                     sizeof(unsigned long), (xdrproc_t) xdr_u_long)
                                       && xdr_vector(xdrs, str->dims[i].ints, (int) str->dims[i].udoms,
                                                     sizeof(unsigned long), (xdrproc_t) xdr_u_long)))
-                                    return (0);
+                                    return 0;
                                 break;
                             case 2:
                                 if (!xdr_vector(xdrs, str->dims[i].offs, (int) str->dims[i].udoms,
                                                 sizeof(unsigned long), (xdrproc_t) xdr_u_long))
-                                    return (0);
+                                    return 0;
                                 break;
                             case 3:
                                 if (!(xdr_vector(xdrs, str->dims[i].offs, (int) 1,
                                                  sizeof(unsigned long), (xdrproc_t) xdr_u_long)
                                       && xdr_vector(xdrs, str->dims[i].ints, (int) 1,
                                                     sizeof(unsigned long), (xdrproc_t) xdr_u_long)))
-                                    return (0);
+                                    return 0;
                                 break;
                         }
                         break;
@@ -1194,19 +1194,19 @@ bool_t xdr_data_dim2(XDR* xdrs, DATA_BLOCK* str)
                                                     sizeof(unsigned long long int), (xdrproc_t) xdr_uint64_t)
                                       && xdr_vector(xdrs, str->dims[i].ints, (int) str->dims[i].udoms,
                                                     sizeof(unsigned long long int), (xdrproc_t) xdr_uint64_t)))
-                                    return (0);
+                                    return 0;
                                 break;
                             case 2:
                                 if (!xdr_vector(xdrs, str->dims[i].offs, (int) str->dims[i].udoms,
                                                 sizeof(unsigned long), (xdrproc_t) xdr_uint64_t))
-                                    return (0);
+                                    return 0;
                                 break;
                             case 3:
                                 if (!(xdr_vector(xdrs, str->dims[i].offs, (int) 1,
                                                  sizeof(unsigned long long int), (xdrproc_t) xdr_uint64_t)
                                       && xdr_vector(xdrs, str->dims[i].ints, (int) 1,
                                                     sizeof(unsigned long long int), (xdrproc_t) xdr_uint64_t)))
-                                    return (0);
+                                    return 0;
                                 break;
                         }
                         break;
@@ -1215,7 +1215,7 @@ bool_t xdr_data_dim2(XDR* xdrs, DATA_BLOCK* str)
 // COMPLEX Types are Not Compressed
 
                     default:
-                        return (0);
+                        return 0;
                 }
             }
         }
@@ -1300,7 +1300,7 @@ bool_t xdr_data_dim3(XDR* xdrs, DATA_BLOCK* str)
                 rc = 1;
                 break;
         }
-        if (!(arc = arc && rc)) return (0);
+        if (!(arc = arc && rc)) return 0;
     }
 
     return (1);
@@ -1379,7 +1379,7 @@ bool_t xdr_data_dim4(XDR* xdrs, DATA_BLOCK* str)
                     rc = 1;
                     break;
             }
-            if (!(arc = arc && rc)) return (0);
+            if (!(arc = arc && rc)) return 0;
         }
     }
 

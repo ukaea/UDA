@@ -118,7 +118,7 @@ extern int query(IDAM_PLUGIN_INTERFACE *idam_plugin_interface){
       err = 999;
       addIdamError(&idamerrorstack, CODEERRORTYPE, "MongoDBPlugin", err, "Plugin Interface Version Unknown to this plugin: Unable to execute the request!");
       concatIdamError(idamerrorstack, idamErrorStack);
-      return(err);
+      return err;
    }
       
    idam_plugin_interface->pluginVersion = THISPLUGIN_VERSION;
@@ -235,7 +235,7 @@ readwrite
             concatIdamError(idamerrorstack, idamErrorStack);
             if(verbose) fprintf(errout, "MongoDBPlugin: Insufficient Connection and Authentication details!");
             if(debugon) fprintf(dbgout, "MongoDBPlugin: Insufficient Connection and Authentication details!");
-            return(err);
+            return err;
          }
 
          mongoc_init ();			// Initialize libmongoc's internals
@@ -256,7 +256,7 @@ readwrite
          concatIdamError(idamerrorstack, idamErrorStack);
          if(verbose) fprintf(errout, "MongoDBPlugin: No connection to Database server made!");
          if(debugon) fprintf(dbgout, "MongoDBPlugin: No connection to Database server made!");
-         return(err);
+         return err;
       }
 
       database = mongoc_client_get_database (client, environment->sql_dbname);
@@ -267,7 +267,7 @@ readwrite
          concatIdamError(idamerrorstack, idamErrorStack);
          if(verbose) fprintf(errout, "MongoDBPlugin: No connection to Database cluster made!");
          if(debugon) fprintf(dbgout, "MongoDBPlugin: No connection to Database cluster made!");
-         return(err);
+         return err;
       }
 
       if((env = getenv("IDAM_SQLTABLE")) != NULL)
@@ -281,7 +281,7 @@ readwrite
          concatIdamError(idamerrorstack, idamErrorStack);
          if(verbose) fprintf(errout, "MongoDBPlugin: No handle to Database collection made!");
          if(debugon) fprintf(dbgout, "MongoDBPlugin: No handle to Database collection made!");
-         return(err);
+         return err;
       }
 
 // Reduce logging overhead

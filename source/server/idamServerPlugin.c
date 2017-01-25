@@ -4,18 +4,19 @@
 #include "idamServerPlugin.h"
 
 #include <dlfcn.h>
-#include <idamLog.h>
 
-#include "TrimString.h"
-#include "printStructs.h"
-#include "initStructs.h"
-#include "parseIdaPath.h"
-#include "expand_path.h"
+#include <clientserver/initStructs.h>
+#include <clientserver/TrimString.h>
+#include <clientserver/expand_path.h>
+#include <clientserver/printStructs.h>
+#include <structures/struct.h>
+#include <clientserver/freeDataBlock.h>
+
+#include <modules/ida/parseIdaPath.h>
+#include <modules/registration/getPluginAddress.h>
+
 #include "struct.h"
-#include "idamErrorLog.h"
-#include "getPluginAddress.h"
 #include "makeServerRequestBlock.h"
-#include "freeDataBlock.h"
 
 #define REQUEST_READ_START      1000
 #define REQUEST_PLUGIN_MCOUNT   100    // Maximum initial number of plugins that can be registered

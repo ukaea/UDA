@@ -9,14 +9,19 @@
 
 #include <math.h>
 #include <float.h>
-#include <idamLog.h>
 
-#include "compressDim.h"
-#include "printStructs.h"
-#include "TrimString.h"
-#include "initStructs.h"
-#include "idamErrorLog.h"
-#include "freeDataBlock.h"
+#include <logging/idamLog.h>
+#include <clientserver/printStructs.h>
+#include <include/idamclientserverprivate.h>
+#include <clientserver/idamErrorLog.h>
+#include <include/idamgenstruct.h>
+#include <include/idamtypes.h>
+#include <structures/struct.h>
+#include <clientserver/initStructs.h>
+#include <clientserver/compressDim.h>
+#include <clientserver/TrimString.h>
+#include <clientserver/freeDataBlock.h>
+
 #include "struct.h"
 
 //----------------------------------------------------------------------------------------------------------------------------

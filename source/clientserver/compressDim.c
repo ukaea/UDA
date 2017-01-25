@@ -244,8 +244,8 @@ int uncompressDim(DIMS* ddim)
     unsigned short* usp;
     unsigned char* ucp;
 
-    if (!ddim || ddim->compressed == 0) return (0);    // Nothing to Uncompress!
-    if (ddim->dim_n == 0) return (0);    // Nothing to Uncompress!
+    if (!ddim || ddim->compressed == 0) return 0;    // Nothing to Uncompress!
+    if (ddim->dim_n == 0) return 0;    // Nothing to Uncompress!
 
     ndata = ddim->dim_n;
     d0 = ddim->dim0;        // Default Compression Method

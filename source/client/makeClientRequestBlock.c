@@ -12,15 +12,13 @@ Interprets the API arguments and assembles a Request data structure.
 
 #include "makeClientRequestBlock.h"
 
-#include <idamLog.h>
-#include <memory.h>
-#include <clientserver/idamErrors.h>
-#include <include/idamclientserverprivate.h>
 #include <stdlib.h>
 
-#include "idamclientconfig.h"
-#include "idamErrorLog.h"
-#include "expand_path.h"
+#include <logging/idamLog.h>
+#include <clientserver/idamErrors.h>
+#include <include/idamclientserverprivate.h>
+#include <clientserver/idamErrorLog.h>
+#include <clientserver/expand_path.h>
 
 int makeClientRequestBlock(const char* data_object, const char* data_source, REQUEST_BLOCK* request_block)
 {

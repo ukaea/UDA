@@ -388,7 +388,7 @@ int opennetcdf(int nparams, IDL_VPTR argv[], KW_RESULT* kw) {
         path = NULL;
     }
 
-    return (err);
+    return err;
 }
 
 int closenetcdf(KW_RESULT* kw) {
@@ -424,13 +424,13 @@ int closenetcdf(KW_RESULT* kw) {
     if (ncfilecount == 0) {
         if (kw->verbose) fprintf(stderr, "Error: There are No Open Files to Close! \n");
         err = -1;
-        return (err);
+        return err;
     }
 
     if ((err = nc_close(ncfileid)) != NC_NOERR) {
         if (kw->verbose)
             fprintf(stderr, "Unable to Close the requested netCDF4 File. Error Report: %s\n", nc_strerror(err));
-        return (err);
+        return err;
     }
 
 
@@ -485,5 +485,5 @@ int closenetcdf(KW_RESULT* kw) {
         unitSystem = NULL;
     }
 
-    return (err);
+    return err;
 }

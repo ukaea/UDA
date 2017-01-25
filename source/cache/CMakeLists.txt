@@ -1,17 +1,10 @@
 cmake_minimum_required( VERSION 2.8 )
 
+########################################################################################################################
+# Dependencies
+
 find_package( LibMemcached )
 find_package( OpenSSL REQUIRED )
-
-set( LIB_NAME idamcache )
-set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fpic -std=gnu99" )
-set( SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/.. )
-
-option( DEBUG "Debug info" ON )
-if( DEBUG )
-  add_definitions( -DDEBUG )
-  set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -O0" )
-endif( DEBUG )
 
 set( SRC_FILES
   idamCache.c
@@ -19,13 +12,7 @@ set( SRC_FILES
 )
 
 include_directories(
-  ${SRC_DIR}
-  ${SRC_DIR}/include
-  ${SRC_DIR}/client
-  ${SRC_DIR}/clientserver
-  ${SRC_DIR}/server
-  ${SRC_DIR}/logging
-  ${SRC_DIR}/structures
+  ${CMAKE_SOURCE_DIR}/source
 )
 
 if( LIBMEMCACHED_FOUND )
@@ -45,7 +32,7 @@ add_definitions( -DDGMJUL14 )
 add_definitions( -DCLEANNAMESPACE25SEP14 )
 add_definitions( -DFILECACHE )
 
-add_library( ${LIB_NAME} OBJECT ${SRC_FILES} )
+add_library( cache OBJECT ${SRC_FILES} )
 
 if( LIBMEMCACHED_FOUND )
   set( CACHE_LIBRARIES ${LIBMEMCACHED_LIBRARIES} PARENT_SCOPE )

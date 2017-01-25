@@ -6,33 +6,32 @@
 // Return Codes:	0 => OK, otherwise Error
 //
 //--------------------------------------------------------------------------------------------------------------------
+#include <clientserver/TrimString.h>
+#include <clientserver/initStructs.h>
+#include <clientserver/freeDataBlock.h>
+#include <clientserver/printStructs.h>
+#include <structures/struct.h>
 
-#include <idamLog.h>
+#include <modules/bytes/readBytesNonOptimally.h>
+#include <modules/hdata/readHData.h>
+#include <modules/hdf58/readHDF58.h>
+#include <modules/ida/readIda.h>
+#include <modules/idam/readIdam.h>
+#include <modules/jpf/readjpf.h>
+#include <modules/mdsplus/readMDS.h>
+#include <modules/netcdf4/readCDF4.h>
+#include <modules/ppf/readppf.h>
+#include <modules/readNothing/readNothing.h>
+#include <modules/readsql/readSQL.h>
+#include <modules/ufile/readUFile.h>
+
 #include "idamserverGetData.h"
-
 #include "dumpFile.h"
 #include "applyXML.h"
-#include "readIda.h"
-#include "readBytesNonOptimally.h"
-#include "TrimString.h"
-#include "idamplugin.h"
 #include "idamServerPlugin.h"
-#include "initStructs.h"
-#include "printStructs.h"
 #include "mastArchiveFilePath.h"
-#include "readMDS.h"
-#include "readIdam.h"
-#include "readCDF4.h"
-#include "readHDF58.h"
-#include "readUFile.h"
-#include "readppf.h"
-#include "readjpf.h"
-#include "readNothing.h"
-#include "readSQL.h"
-#include "readHData.h"
 #include "makeServerRequestBlock.h"
-#include "freeDataBlock.h"
-#include "struct.h"
+#include "sqllib.h"
 
 int idamserverSubsetData(DATA_BLOCK* data_block, ACTION action);
 
@@ -291,7 +290,7 @@ int idamserverGetData(PGconn* DBConnect, int* depth, REQUEST_BLOCK request_block
                     if (DBConnect == NULL && (request_block2.request == REQUEST_READ_GENERIC ||
                                               request_block2.request == REQUEST_READ_SQL)) {
                         if ((DBConnect = gDBConnect) == NULL) {
-                            if (!(DBConnect = (PGconn*) startSQL())) {
+                            if (!(DBConnect = startSQL())) {
                                 if (DBConnect != NULL) PQfinish(DBConnect);
                                 err = 777;
                                 addIdamError(&idamerrorstack, CODEERRORTYPE, "idamserverGetData", err,
@@ -385,7 +384,7 @@ int idamserverGetData(PGconn* DBConnect, int* depth, REQUEST_BLOCK request_block
             if (rc == -1) {
                 if (!serverside) {
                     (*depth)--;
-                    return (0);    // No XML to Apply so No More to be Done!
+                    return 0;    // No XML to Apply so No More to be Done!
                 }
             } else {
                 if (rc == 1) {
@@ -830,7 +829,7 @@ int idamserverSwapSignalError(DATA_BLOCK* data_block, DATA_BLOCK* data_block2, i
         err = 7777;
         addIdamError(&idamerrorstack, CODEERRORTYPE, "idamserverSwapSignalError", err,
                      "Error Data Substitution Not Possible - Incompatible Lengths");
-        return (err);
+        return err;
     }
 
     return 0;
@@ -893,7 +892,7 @@ int idamserverSwapSignalDim(DIMCOMPOSITE dimcomposite, DATA_BLOCK* data_block, D
             err = 7777;
             addIdamError(&idamerrorstack, CODEERRORTYPE, "idamserverSwapSignalDim", err,
                          "Dimension Data Substitution Not Possible - Incompatible Lengths");
-            return (err);
+            return err;
         }
 
 // Swap Signal Dimension Data
@@ -949,7 +948,7 @@ int idamserverSwapSignalDim(DIMCOMPOSITE dimcomposite, DATA_BLOCK* data_block, D
                 err = 7777;
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "idamserverSwapSignalDim", err,
                              "Dimension Data Substitution Not Possible - Incompatible Lengths");
-                return (err);
+                return err;
             }
         }
     }
@@ -987,7 +986,7 @@ int idamserverSwapSignalDimError(DIMCOMPOSITE dimcomposite, DATA_BLOCK* data_blo
             err = 7777;
             addIdamError(&idamerrorstack, CODEERRORTYPE, "idamserverSwapSignalDimError", err,
                          "Dimension Error Data Substitution Not Possible - Incompatible Lengths");
-            return (err);
+            return err;
         }
     }
     return 0;
@@ -1426,8 +1425,7 @@ int idamserverReadData(PGconn* DBConnect, REQUEST_BLOCK request_block, CLIENT_BL
 
                 logmalloclist = (LOGMALLOCLIST*) malloc(sizeof(LOGMALLOCLIST));
                 initLogMallocList(logmalloclist);
-                copyUserDefinedTypeList(
-                        &userdefinedtypelist);                // Allocate and Copy the Master User Defined Type Lis
+                copyUserDefinedTypeList( &userdefinedtypelist); // Allocate and Copy the Master User Defined Type Lis
 
 // Call the plugin
 
@@ -1587,7 +1585,7 @@ int idamserverReadData(PGconn* DBConnect, REQUEST_BLOCK request_block, CLIENT_BL
         }
         printDataBlock(*data_block);
 
-        return (err);
+        return err;
     }
 #endif
 

@@ -14,9 +14,9 @@
  *         - signal : The signal to be extracted from the netcdf file.
  *         - file : The file name, for testing with local files. Normally filename is extracted from db.
  *                  If using this argument, don't need any of the following arguments.
- *         - config : If argument is present, then the configuration file will be returned.
+ *         - Config : If argument is present, then the configuration file will be returned.
  *         - cal : If argument is present, then the calibration file will be returned.
- *         - version_config : Version number for config file. If not set then the latest will be returned.
+ *         - version_config : Version number for Config file. If not set then the latest will be returned.
  *         - version_cal : Version number for calibration file. If not set then the latest will be returned.
  *         - three_d : If argument is present, then the 3D geometry is returned, otherwise the 2D geometry is returned.
  *         - tor_angle : If returning the 2D geometry, and the component is toroidal angle - dependent, then the user must 
@@ -235,9 +235,9 @@ int idamGeom(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 	// file : Location of file. If not given, then appropriate file name will be retrieved from the db
 	//        for the given signal.
 	// signal : Signal/Group to be retrieved from the file.
-	// config : If argument is present, then the configuration file will be returned.
+	// Config : If argument is present, then the configuration file will be returned.
 	// cal : If argument is present, then the calibration file will be returned.
-	// version_config : Version number for config file. If not set then the latest will be returned.
+	// version_config : Version number for Config file. If not set then the latest will be returned.
 	// version_cal : Version number for calibration file. If not set then the latest will be returned.
 	// three_d : If argument is present, then the 3D geometry is returned, otherwise the 2D geometry is returned.
 	// tor_angle : If returning the 2D geometry, and the component is toroidal angle - dependent, then the user must 
@@ -277,7 +277,7 @@ int idamGeom(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 	  } else if (!strcasecmp(request_block->nameValueList.nameValue[i_arg].name, "file")) {
 	    file = request_block->nameValueList.nameValue[i_arg].value;
 	    isFile = 1;
-	  } else if (!strcasecmp(request_block->nameValueList.nameValue[i_arg].name, "config")) {
+	  } else if (!strcasecmp(request_block->nameValueList.nameValue[i_arg].name, "Config")) {
 	    isConfig = 1;
 	  } else if (!strcasecmp(request_block->nameValueList.nameValue[i_arg].name, "cal")) {
 	    isCal = 1;
@@ -304,7 +304,7 @@ int idamGeom(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 	  }
 	}
 
-	idamLog(LOG_DEBUG, "config? %d or cal %d \n", isConfig, isCal);
+	idamLog(LOG_DEBUG, "Config? %d or cal %d \n", isConfig, isCal);
 
 	if (isFile == 0 && isCal == 0 && isConfig == 0) {
 	  idamErrorAndLog("Filename wasn't given and didn't request configuration or calibration data.\n", 999, &err);
@@ -312,7 +312,7 @@ int idamGeom(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 	}
 
 	////////////////////////////
-	// If config or cal arguments were given,
+	// If Config or cal arguments were given,
 	// connect to database to retrieve filenames
 	char* signal_type = NULL;
 	if (isConfig == 1 || isCal == 1) {

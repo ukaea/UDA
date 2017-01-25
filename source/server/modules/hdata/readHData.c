@@ -1,8 +1,3 @@
-//! $LastChangedRevision: 121 $
-//! $LastChangedDate: 2009-11-09 10:21:09 +0000 (Mon, 09 Nov 2009) $
-//! $LastChangedBy: dgm $
-//! $HeadURL: https://fussvn.fusion.culham.ukaea.org.uk/svnroot/IDAM/development/source/plugins/hdata/readHData.c $
-
 /*---------------------------------------------------------------
 * IDAM Plugin data Reader to Access Hierarchical DATA
 *
@@ -23,15 +18,10 @@
 *
 * ToDo:
 *
-* Change History
-*
-* 1.0	14Mar2007	D.G.Muir	Original Version
-* 23Oct2007	dgm	ERRORSTACK Components added
 *-----------------------------------------------------------------------------*/
-
 #include "readHData.h"
 
-#include "idamErrorLog.h"
+#include <clientserver/idamErrorLog.h>
 
 #ifdef HIERARCHICAL_DATA
 #include "idamclientserverxml.h"
@@ -110,7 +100,7 @@ int readHData(PGconn *DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_s
               DATA_BLOCK *data_block) {
     int err = 999;
     addIdamError(&idamerrorstack, CODEERRORTYPE, "readHData", err, "Not Configured to Read Hierarchical Data");
-    return(err);
+    return err;
 }
 
 #endif

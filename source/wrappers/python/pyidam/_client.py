@@ -224,7 +224,7 @@ class Client(metaclass = ClientMeta):
         # Loop files to be read in
         for signal_name in signal_names:
             # Get configuration data
-            config_extra = "config=1"
+            config_extra = "Config=1"
             config_call = geom_call.format(signal_name, config_extra, version_config)
 
             self.logger.info("Call is {0}\n".format(config_call))

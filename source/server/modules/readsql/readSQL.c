@@ -1,8 +1,3 @@
-//! $LastChangedRevision: 353 $
-//! $LastChangedDate: 2013-11-18 15:32:28 +0000 (Mon, 18 Nov 2013) $
-//! $LastChangedBy: dgm $
-//! $HeadURL: https://fussvn.fusion.culham.ukaea.org.uk/svnroot/IDAM/development/source/plugins/readsql/readSQL.c $
-
 /*---------------------------------------------------------------
 * IDAM Plugin data Reader to Access Data from SQL Tables
 *
@@ -23,19 +18,18 @@
 **
 * ToDo:
 *
-* Change History
-*
-* 1.0	21May2007	D.G.Muir	Original Version
-* 29Oct2007	dgm	ERRORSTACK Components added
-* 23Nov2009	dgm	Generalised SQL functionality + Generalised Structure passing
 *-----------------------------------------------------------------------------*/
-
 #include "readSQL.h"
 
-#include "TrimString.h"
-#include "idamErrorLog.h"
-#include "initStructs.h"
-#include "freeDataBlock.h"
+#include <stdlib.h>
+#include <memory.h>
+
+#include <include/idamclientserverprivate.h>
+#include <clientserver/idamErrorLog.h>
+#include <server/sqllib.h>
+#include <include/idamtypes.h>
+#include <clientserver/initStructs.h>
+#include <clientserver/freeDataBlock.h>
 
 #ifndef NOXMLPARSER
 #endif
@@ -217,11 +211,9 @@ int readSQL(PGconn* DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_sou
             DATA_BLOCK* data_block)
 {
 
-    int nrows, ncols, i, err = 0;
+    int err = 0;
 
     char sql[MAXSQL];
-    char work[STRING_LENGTH];
-    char udtname[STRING_LENGTH];
 
     PGconn* DBConnect2 = NULL;        // Private connection: Different to the IDAM database connection
     PGresult* DBQuery = NULL;
@@ -238,8 +230,6 @@ int readSQL(PGconn* DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_sou
         SQLTYPETEST,
         SQLDEVELOP
     };
-
-    int ip, exp_number, pass, shotDependent = 0, passDependent = 0, sourceDependent = -1, typeDependent = -1;
 
 //-------------------------------------------------------------
 // Is this a request for Continuously Measured Data?
@@ -599,7 +589,7 @@ int readSQL(PGconn* DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_sou
 
 // Latest Shot Number: getidamlastshot()	Not Hierarchical as only an integer value is returned
 
-    if (queryType == SQLLASTSHOT && (nrows = (int) PQntuples(DBQuery)) == 1) {
+    if (queryType == SQLLASTSHOT && PQntuples(DBQuery) == 1) {
         int* data = (int*) malloc(sizeof(int));
         data_block->data_type = TYPE_INT;
         data_block->rank = 0;
@@ -921,13 +911,13 @@ int enable_malloc_log = 1;
 int readSQL(PGconn *DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_source, DATA_BLOCK *data_block) {
     int err = 999;
     addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF", err, "SQL PLUGIN NOT ENABLED");
-    return(err);
+    return err;
 }
 int readCMDSQL(PGconn *DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_source,
                DATA_BLOCK *data_block) {
     int err = 999;
     addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF", err, "CMD PLUGIN NOT ENABLED");
-    return(err);
+    return err;
 }
 
 #endif

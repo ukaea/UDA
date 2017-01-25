@@ -25,7 +25,7 @@
 #include "idamErrorLog.h"
 
 #ifdef SERVERBUILD
-#  include "idamServerStartup.h"
+#  include <server/idamServerStartup.h>
 #endif
 
 #define MAXDOLOOPLIMIT 500            // ~50MB file

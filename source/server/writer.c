@@ -2,7 +2,7 @@
 
 #include <errno.h>
 
-#include <idamLog.h>
+#include <logging/idamLog.h>
 #include <clientserver/idamDefines.h>
 
 int serverSocket = 0;

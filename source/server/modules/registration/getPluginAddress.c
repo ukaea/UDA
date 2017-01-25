@@ -1,21 +1,16 @@
-// Return the function address for plugin data readers located in external shared libraries
-//
-//@param library the full file path name to the registered plugin shared library
-//@param symbol the name of the library api function to be called
-//@param idamPlugin the address of the library function
-//
-// Change History:
-//
-// 20May2010 dgm	Original version
-//
-//----------------------------------------------------------------------------
-
 #include "getPluginAddress.h"
-
-#include "idamErrorLog.h"
 
 #include <dlfcn.h>
 
+/**
+ * Return the function address for plugin data readers located in external shared libraries
+ *
+ * @param pluginHandle
+ * @param library the full file path name to the registered plugin shared library
+ * @param symbol the name of the library api function to be called
+ * @param idamPlugin the address of the library function
+ * @return
+ */
 int getPluginAddress(void **pluginHandle, char *library, char *symbol, PLUGINFUNP *idamPlugin) {
     int err = 0;
     //void *handle = NULL;
@@ -33,7 +28,7 @@ int getPluginAddress(void **pluginHandle, char *library, char *symbol, PLUGINFUN
         if((*pluginHandle = dlopen(library, RTLD_LOCAL | RTLD_NOW)) == NULL) {
             err = 999;
             addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "getPluginAddress: Cannot open the target shared library", err, dlerror());
-            return(err);
+            return err;
         }
     }
 
@@ -53,7 +48,7 @@ int getPluginAddress(void **pluginHandle, char *library, char *symbol, PLUGINFUN
                      "getPluginAddress: Cannot locate the data reader with the target shared library", err, errstr);
         dlclose(pluginHandle);
         *pluginHandle = NULL;
-        return(err);
+        return err;
     }
 
     return err;

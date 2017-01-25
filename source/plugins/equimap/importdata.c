@@ -615,7 +615,7 @@ int importData(REQUEST_BLOCK* request_block, EQUIMAPDATA* equimapdata)
         free((void*) times);
     }
 
-    return (0);
+    return 0;
 }
 
 int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
@@ -3364,5 +3364,5 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
 
     } while (0);
 
-    return (0);
+    return 0;
 }

@@ -1,8 +1,3 @@
-//! $LastChangedRevision: 70 $
-//! $LastChangedDate: 2008-06-26 10:44:44 +0100 (Thu, 26 Jun 2008) $
-//! $LastChangedBy: dgm $
-//! $HeadURL: https://fussvn.fusion.culham.ukaea.org.uk/svnroot/IDAM/development/source/plugins/netcdf/readCDFTypes.c $
-
 /*---------------------------------------------------------------
 * netCDF4 User Defined Data Types: Create definition data structure
 *
@@ -15,14 +10,16 @@
 * Possible Issue: If there are multiple user defined types with the same name but defined in different locations, does netcdf use a
 * scoping rule to decide which definition is valid? IDAM does not use a scoping rule - each type must be unique.
 *
-* Change History
-*
-* 15Oct2009	D.G.Muir	Original Version
 *-----------------------------------------------------------------------------*/
 
 #include <netcdf.h>
-#include <struct.h>
-#include "idamErrorLog.h"
+#include <stdlib.h>
+#include <memory.h>
+
+#include <structures/struct.h>
+#include <clientserver/idamErrorLog.h>
+#include <include/idamclientserverprivate.h>
+
 #include "readCDF4.h"
 
 int readCDFTypes(int grpid, USERDEFINEDTYPELIST* userdefinedtypelist)
@@ -310,10 +307,10 @@ int readCDFTypes(int grpid, USERDEFINEDTYPELIST* userdefinedtypelist)
         addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF", err, "Unable to Query User Defined Types");
         addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF", err, (char*) nc_strerror(rc));
         err = 999;
-        return (err);
+        return err;
     }
 
-    return (err);
+    return err;
 }
 
 int convertNCType(nc_type type)

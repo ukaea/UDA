@@ -4,8 +4,8 @@
 
 #include "treenode.hpp"
 
-#include <struct.h>
-#include <accessors.h>
+#include <structures/struct.h>
+#include <structures/accessors.h>
 
 Idam::TreeNode Idam::TreeNode::parent()
 {

@@ -3,11 +3,6 @@
 // All declared extern locally: there is No header file
 //--------------------------------------------------------------
 
-#include "idamclientserverpublic.h"
-#include "idamclientserverprivate.h"
-#include "idamclientpublic.h"
-#include "idamclientprivate.h"
-
 #ifdef IDAM_FORTRAN_LEGACY_NAMES
 
 //--------------------------------------------------------------------------------------------------

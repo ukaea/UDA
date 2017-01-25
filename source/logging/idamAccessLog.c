@@ -52,7 +52,7 @@ int idamSizeOf(int data_type)
         case TYPE_DCOMPLEX:
             return (sizeof(DCOMPLEX));
     }
-    return (0);
+    return 0;
 }
 
 unsigned int countDataBlockSize(DATA_BLOCK* data_block, CLIENT_BLOCK* client_block)

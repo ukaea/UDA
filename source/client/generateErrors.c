@@ -14,13 +14,16 @@
 
 #include <math.h>
 
-#include "allocData.h"
+#include <include/idamclientprivate.h>
+#include <include/idamtypes.h>
+#include <clientserver/idamErrorLog.h>
+#include <clientserver/allocData.h>
+
 #include "accAPI_C.h"
 
 #ifndef NO_GSL_LIB
 #  include <gsl/gsl_randist.h>
 #endif
-
 
 //--------------------------------------------------------------------------------------------------------------
 // Generate Error Data
@@ -233,7 +236,7 @@ int generateIdamSyntheticData(int handle)
         addIdamError(&idamerrorstack, CODEERRORTYPE, "generateIdamSyntheticData", err,
                      "Unable to Generate Synthetic Data");
         free((void *) data);
-        return (err);
+        return err;
     }
 
 //--------------------------------------------------------------------------------------------------------------
@@ -243,7 +246,7 @@ int generateIdamSyntheticData(int handle)
         if ((err = allocArray(getIdamDataType(handle), getIdamDataNum(handle), &synthetic))) {
             addIdamError(&idamerrorstack, CODEERRORTYPE, "generateIdamSyntheticData", err,
                          "Problem Allocating Heap Memory for Synthetic Data");
-            return (err);
+            return err;
         }
         acc_setSyntheticData(handle, synthetic);
     }
@@ -318,7 +321,7 @@ int generateIdamSyntheticData(int handle)
 
     free((void *) data);
 
-    return (0);
+    return 0;
 }
 
 int generateIdamSyntheticDimData(int handle, int ndim)
@@ -439,7 +442,7 @@ int generateIdamSyntheticDimData(int handle, int ndim)
         addIdamError(&idamerrorstack, CODEERRORTYPE, "generateIdamSyntheticDimData", err,
                      "Unable to Generate Synthetic Dimensional Data");
         free((void *) data);
-        return (err);
+        return err;
     }
 
 //--------------------------------------------------------------------------------------------------------------
@@ -449,7 +452,7 @@ int generateIdamSyntheticDimData(int handle, int ndim)
         if ((err = allocArray(getIdamDimType(handle, ndim), getIdamDimNum(handle, ndim), &synthetic))) {
             addIdamError(&idamerrorstack, CODEERRORTYPE, "generateIdamSyntheticDimData", err,
                          "Problem Allocating Heap Memory for Synthetic Dimensional Data");
-            return (err);
+            return err;
         }
 
         acc_setSyntheticDimData(handle, ndim, synthetic);
@@ -519,7 +522,7 @@ int generateIdamSyntheticDimData(int handle, int ndim)
 
     free((void *) data);
 
-    return (0);
+    return 0;
 }
 
 int generateIdamDataError(int handle)
@@ -649,7 +652,7 @@ int generateIdamDataError(int handle)
     acc_setIdamDataErrAsymmetry(handle, asymmetry);
 
     if (asymmetry && getIdamDataErrLo(handle) == NULL) {
-        if ((err = allocArray(getIdamDataType(handle), getIdamDataNum(handle), &perrlo))) return (err);
+        if ((err = allocArray(getIdamDataType(handle), getIdamDataNum(handle), &perrlo))) return err;
         acc_setIdamDataErrLo(handle, perrlo);
     }
 
@@ -891,7 +894,7 @@ int generateIdamDimDataError(int handle, int ndim)
         free((void *) data);
         free((void *) errhi);
         free((void *) errlo);
-        return (err);
+        return err;
     }
 
 //--------------------------------------------------------------------------------------------------------------
@@ -901,7 +904,7 @@ int generateIdamDimDataError(int handle, int ndim)
     acc_setIdamDimErrAsymmetry(handle, ndim, asymmetry);
 
     if (getIdamDimErrAsymmetry(handle, ndim) && getIdamDimErrLo(handle, ndim) == NULL) {
-        if ((err = allocArray(getIdamDimType(handle, ndim), getIdamDimNum(handle, ndim), &perrlo))) return (err);
+        if ((err = allocArray(getIdamDimType(handle, ndim), getIdamDimNum(handle, ndim), &perrlo))) return err;
         acc_setIdamDimErrLo(handle, ndim, perrlo);
     }
 
@@ -1019,6 +1022,6 @@ int generateIdamDimDataError(int handle, int ndim)
     free((void *) errhi);
     free((void *) errlo);
 
-    return (0);
+    return 0;
 }
 

@@ -1,9 +1,7 @@
-
 #ifndef IDAM_READJPF_H
 #define IDAM_READJPF_H
 
-#include "idamclientserver.h"
-#include "idamserver.h"
+#include <clientserver/idamStructs.h>
 
 int readJPF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK *data_block);
 

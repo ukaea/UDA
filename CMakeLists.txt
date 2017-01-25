@@ -1,12 +1,20 @@
 cmake_minimum_required( VERSION 3.0 )
 
+########################################################################################################################
+# CMake configuration
+
 cmake_policy( SET CMP0048 NEW )
 
 # Extra cmake modules to find libraries
 set( CMAKE_MODULE_PATH
   ${CMAKE_MODULE_PATH}
   ${CMAKE_SOURCE_DIR}/cmake
-  ${CMAKE_SOURCE_DIR}/cmake/Modules )
+  ${CMAKE_SOURCE_DIR}/cmake/Modules
+  ${CMAKE_SOURCE_DIR}/cmake/Config
+)
+
+########################################################################################################################
+# Version and Machine information
 
 include( GetGitRevisionDescription )
 
@@ -17,32 +25,59 @@ string( REGEX REPLACE "^([0-9]+\\.[0-9]+\\.[0-9]+).*" "\\1" GIT_VERSION "${GIT_T
 
 project( uda VERSION ${GIT_VERSION} )
 
-if( APPLE )
-  set( CMAKE_MACOSX_RPATH ON )
+cmake_host_system_information( RESULT UDA_HOST QUERY FQDN )
+
+########################################################################################################################
+# Target type
+
+set( TARGET_TYPE "NONE" CACHE STRING "Choose target [JET;MAST;OTHER]" )
+
+if( NOT ${TARGET_TYPE} STREQUAL "NONE" )
+  include( "target-${TARGET_TYPE}" )
+else()
+  message( FATAL_ERROR "INVALID TARGET_TYPE: ${TARGET_TYPE}" )
 endif()
 
-# TODO: replace with machine specific configuration input
+########################################################################################################################
+# Compiler configuration
+
+if( CMAKE_SIZEOF_VOID_P EQUAL 8 )
+  message( "64 bit compiler detected" )
+  set( EX_PLATFORM 64 )
+  set( EX_PLATFORM_NAME "x64" )
+  add_definitions( -DA64 )
+else()
+  message( "32 bit compiler detected" )
+  set( EX_PLATFORM 32 )
+  set( EX_PLATFORM_NAME "x86" )
+endif()
+
+if( APPLE )
+  set( CMAKE_MACOSX_RPATH ON )
+  set( CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -undefined dynamic_lookup" )
+endif( APPLE )
+
 add_definitions(
   -Wall
   -Werror
-  -DIDAM_SERVER_HOST="fuslw"
-  -DIDAM_SERVER_HOST2="fuslw"
-  -DIDAM_SERVER_PORT=56565
-  -DIDAM_SERVER_PORT2=56565
-  -DAPI_DEVICE="MAST"
-  -DAPI_ARCHIVE="MAST"
-  -DAPI_PARSE_STRING="::"
-  -DAPI_FILE_FORMAT="IDA3"
-  -DDEFAULT_ARCHIVE_DIR="/net/fuslsa/data/MAST_Data/"
-  -DLOCAL_MDSPLUS_SERVER="idam0"
-  -DIDAM_STARTPULSE=12270
-  -DFORMAT_LEGACY="IDA3"
-  -DFORMAT_MODERN="CDF"
-  -DSQL_PORT=56566
-  -DSQL_DBNAME="idam"
-  -DSQL_USER="readonly"
-  -DSQL_HOST="idam1"
 )
+
+########################################################################################################################
+# Build options
+
+option( FAT_BUILD "Build fat client" OFF )
+if( FAT_BUILD )
+  add_definitions( -DFATCLIENT )
+  set( IDAM_NAME idamfat CACHE STRING "Idam library name" )
+else()
+  set( IDAM_NAME idam CACHE STRING "Idam library name" )
+endif()
+
+option( CLIENT_ONLY "Only build IDAM client" OFF )
+option( NO_WRAPPERS "Don't build any IDAM client wrappers" OFF )
+
+########################################################################################################################
+# Source directories
 
 add_subdirectory( source )
 #add_subdirectory( test )

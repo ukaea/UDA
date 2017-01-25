@@ -24,12 +24,11 @@
 *-----------------------------------------------------------------------------*/
 #include "readCDFAtts.h"
 
-#include <idamErrorLog.h>
-#include <TrimString.h>
 #include <include/idamclientserverprivate.h>
 #include <stdlib.h>
+#include <clientserver/idamErrorLog.h>
+#include <clientserver/TrimString.h>
 
-#include "idamserverfiles.h"
 #include "readCDF4.h"
 
 // Read Standard Variable Attributes
@@ -55,7 +54,7 @@ int readCDF4Atts(int grpid, int varid, char* units, char* title, char* class, ch
     if ((rc = nc_inq_varnatts(grpid, varid, &numatts)) != NC_NOERR) {
         err = NETCDF_ERROR_INQUIRING_ATT_2;
         addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDFAtts", err, (char*) nc_strerror(rc));
-        return (err);
+        return err;
     }
 
     for (i = 0; i < numatts; i++) {
@@ -63,19 +62,19 @@ int readCDF4Atts(int grpid, int varid, char* units, char* title, char* class, ch
         if ((rc = nc_inq_attname(grpid, varid, i, attname)) != NC_NOERR) {
             err = NETCDF_ERROR_INQUIRING_ATT_7;
             addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDFAtts", err, (char*) nc_strerror(rc));
-            return (err);
+            return err;
         }
 
         if ((rc = nc_inq_atttype(grpid, varid, attname, &atttype)) != NC_NOERR) {
             err = NETCDF_ERROR_INQUIRING_ATT_8;
             addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDFAtts", err, (char*) nc_strerror(rc));
-            return (err);
+            return err;
         }
 
         if ((rc = nc_inq_attlen(grpid, varid, attname, (size_t*) &attlength)) != NC_NOERR) {
             err = NETCDF_ERROR_INQUIRING_ATT_9;
             addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDFAtts", err, (char*) nc_strerror(rc));
-            return (err);
+            return err;
         }
 
         if (atttype == NC_CHAR) {
@@ -83,13 +82,13 @@ int readCDF4Atts(int grpid, int varid, char* units, char* title, char* class, ch
                 err = NETCDF_ERROR_ALLOCATING_HEAP_9;
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDFAtts", err,
                              "Unable to Allocate Heap for Attribute Data");
-                return (err);
+                return err;
             }
             if ((rc = nc_get_att_text(grpid, varid, attname, txt)) != NC_NOERR) {
                 err = NETCDF_ERROR_INQUIRING_ATT_10;
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDFAtts", err, (char*) nc_strerror(rc));
                 free((void*) txt);
-                return (err);
+                return err;
             }
             txt[attlength * sizeof(char)] = '\0';        // Add the string Null terminator
             TrimString(txt);
@@ -112,7 +111,7 @@ int readCDF4Atts(int grpid, int varid, char* units, char* title, char* class, ch
                 err = 999;
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF", err, (char*) nc_strerror(rc));
                 free((void*) sarr);
-                return (err);
+                return err;
             }
             if (!strcmp(attname, "units")) {
                 copyString(sarr[0], units, STRING_LENGTH);

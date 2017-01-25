@@ -1,13 +1,12 @@
-
 #include "xdrUserDefinedData.h"
 
-#include <idamLog.h>
-#include <include/idamclientserverprivate.h>
 #include <stdlib.h>
 
-#include "xdrlib.h"
-#include "TrimString.h"
-#include "idamErrorLog.h"
+#include <logging/idamLog.h>
+#include <include/idamclientserverprivate.h>
+#include <clientserver/idamErrorLog.h>
+#include <clientserver/TrimString.h>
+
 #include "struct.h"
 
 #ifdef SERVERBUILD
@@ -16,14 +15,10 @@
 
 static int recursiveDepth = 0;    // Keep count of recursive calls
 
-//#ifdef DEV_08NOV2012
 int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data, int datacount, int structRank,
                        int* structShape,
                        int index, NTREE** NTree)
 {
-//#else
-//int xdrUserDefinedData(XDR *xdrs, USERDEFINEDTYPE *userdefinedtype, void **data, int datacount, int index, NTREE **NTree){
-//#endif
 // Grow the data tree recursively through pointer elements within individual structures
 // Build a linked list tree structure when receiving data.
 
@@ -33,8 +28,6 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
     int rc = 1, i, j, id, loopcount, rank, count, size, passdata = 0, isSOAP;
     int* shape;
     char* p0, * d, * type;
-    //char *stype;
-    //void *heap;
 
     char rudtype[MAXELEMENTNAME];        // Received name of the user defined type
     char* chartype = "char";
@@ -63,7 +56,7 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
 
     if (recursiveDepth++ > MAXRECURSIVEDEPTH) {
         addIdamError(&idamerrorstack, CODEERRORTYPE, "xdrUserDefinedData", 999, "Maximum Recursive Depth reached!");
-        return (0);
+        return 0;
     }
 
     idamLog(LOG_DEBUG, "xdrUserDefinedData Depth: %d\n", recursiveDepth);
@@ -83,19 +76,17 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
         idamLog(LOG_DEBUG, "index: %d   datacount: %d\n", index, datacount);
 
         if (index == 0 && datacount > 0) {
-            *data = (void*) malloc(datacount * userdefinedtype->size);
-//#ifdef DEV_08NOV2012
+            *data = malloc(datacount * userdefinedtype->size);
             if (structRank > 1 && structShape != NULL) {
-                addMalloc2((void*) *data, datacount, userdefinedtype->size, userdefinedtype->name, structRank,
+                addMalloc2(*data, datacount, userdefinedtype->size, userdefinedtype->name, structRank,
                            structShape);
             } else {
-                addMalloc((void*) *data, datacount, userdefinedtype->size, userdefinedtype->name);
+                addMalloc(*data, datacount, userdefinedtype->size, userdefinedtype->name);
             }
             structRank = 0;
         }
 
         newNTree = (NTREE*) malloc(sizeof(NTREE));        // this is the parent node for the received structure
-        // dgm 15Nov2011
         addMalloc((void*) newNTree, 1, sizeof(NTREE), "NTREE");
 
         *NTree = newNTree;                    // Return the new tree node address
@@ -854,8 +845,7 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
                                         size = sizeof(char);
                                         type = userdefinedtype->compoundfield[j].type;
                                     }
-                                    convertNonPrintable2(
-                                            d);        // Remove obvious garbage (bug - non initialised...?)
+                                    convertNonPrintable2(d); // Remove obvious garbage (bug - non initialised...?)
                                 }
                             }
                         }

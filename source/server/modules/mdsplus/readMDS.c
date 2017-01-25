@@ -1,8 +1,3 @@
-//! $LastChangedRevision: 353 $
-//! $LastChangedDate: 2013-11-18 15:32:28 +0000 (Mon, 18 Nov 2013) $
-//! $LastChangedBy: dgm $
-//! $HeadURL: https://fussvn.fusion.culham.ukaea.org.uk/svnroot/IDAM/development/source/plugins/mdsplus/readMDS.c $
-
 /*---------------------------------------------------------------
 * IDAM Plugin data Reader to Access DATA from MDS+ Trees
 *
@@ -27,40 +22,11 @@
 *		investigation if the IDAM Server is to serve multiple client
 *		requests with server checking enabled.
 *
-* Revision 1.0  06Jul2005	D.G.Muir
-* v1.1   12Jan2006	D.G.Muir	call to initDimBlock added
-* v1.2   19Jul2006	D.G.Muir	Free units correctly prior to return
-* v1.3   12Feb2007	D.G.Muir	If the Tree Name is missing then assume a TDI function has been called
-* v1.4   21Mar2007	D.G.Muir	server_socketlist argument added to socket management functions
-* v1.5   09Jul2007	D.G.Muir	debugon, verbose enabled
-* 29Oct2007	dgm	ERRORSTACK Components added
-* 08Jan2008	dgm	Changed local to localhost - avoiding the use of mdsconnect
-* 10Jan2008	dgm	If the first part of the server URL is localhost, then the second part is the path
-*			to the data tree. An environment variable is then set up to identify where MDS+
-*			can find the data.
-* 17Jul2008	dgm	If Unable to Retrieve the Data Units Length then ignore Data Units (Previously error exit)
-* 17Jul2008	dgm	Call MdsClose only if a Tree was opened.
-* 22Sep2008	dgm	All Standard data types added to float only
-* 20Oct2008	dgm	Long node names or TDI Arguments can alternatively be passed in the xml structure member
-*                       'signal' string length changed from STRING_LENGTH to MAXMETA+5
-* 07Nov2008	dgm	Tidy up of Path names attached to Server names
-* 18May2010	dgm	Added initialisation of JET MDS+ Sand-Box with compiler option MDSSANDBOX
-* 08Jul2010	dgm	Given precedence of / over . for usr like path names
-* 25Mar2011	dgm	MDS+ uses printf for error messages so if a problem occurs MDS+ writes to the XDR socket. To
-*			avoid this, create an exception file handle to catch these messages. The SANDBOX prints exceptions to
-*			the MDS+ stderr file descriptor. It is not necessary to initialise MDS+ unless the local client is used
-*			rather than a server.
-* 13Jun2011	dgm	There is a problem with LD_PRELOAD on 64bit architecture: If fails to load 32 bit libraries. To
-*			switch off the sandbox for localhost use the environment variable IDAM_BAD_PRELOAD
-* 22Dec2011	dgm	changed order from 0 to -1 as time dimension is not known.
-* 09Mar2012	dgm	Message output redirection now external to this routine.
-* 09Mar2012	dgm	Disable use of 'localhost' MDS+ if the security sandbox is not operating (if the
-*			environment variable IDAM_BAD_PRELOAD is set).
 *--------------------------------------------------------------*/
-
 #include "readMDS.h"
 
-#include "idamErrorLog.h"
+#include <include/idamclientserverprivate.h>
+#include <clientserver/idamErrorLog.h>
 
 #ifdef NOMDSPLUSPLUGIN
 
@@ -69,7 +35,7 @@ int readMDS(DATA_SOURCE data_source,
             DATA_BLOCK *data_block) {
     int err = 999;
     addIdamError(&idamerrorstack, CODEERRORTYPE, "readMDS", err, "MDSPLUS PLUGIN NOT ENABLED");
-    return(err);
+    return err;
 }
 
 #else
@@ -714,7 +680,7 @@ int readMDS(DATA_SOURCE data_source,
 
     if(strlen(tree) > 0) status = MdsClose(tree, &treenum);
 
-    return(err);
+    return err;
 }
 
 #include "readMDSDim.c"

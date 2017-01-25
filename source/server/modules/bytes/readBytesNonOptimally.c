@@ -1,8 +1,3 @@
-//! $LastChangedRevision: 353 $
-//! $LastChangedDate: 2013-11-18 15:32:28 +0000 (Mon, 18 Nov 2013) $
-//! $LastChangedBy: dgm $
-//! $HeadURL: https://fussvn.fusion.culham.ukaea.org.uk/svnroot/IDAM/development/source/plugins/bytes/readBytesNonOptimally.c $
-
 /*---------------------------------------------------------------
 * IDAM Plugin data Reader to Access Files as a Block of Bytes without Interpretation
 *
@@ -23,21 +18,14 @@
 **
 * ToDo:
 *
-* Change History
-*
-* 1.0	16October2006	D.G.Muir	Original Version
-* 23Oct2007	dgm	ERRORSTACK components added
-* 24Dec2008	dgm	added b for binary stream in the fopen stream type argument
-* 10Oct2009	dgm	Disable this plugin if the user is external
 *-----------------------------------------------------------------------------*/
-
-#include <idamLog.h>
 #include "readBytesNonOptimally.h"
 
-#include "TrimString.h"
-#include "md5Sum.h"
-#include "idamErrorLog.h"
-#include "freeDataBlock.h"
+#include <logging/idamLog.h>
+#include <clientserver/idamErrorLog.h>
+#include <clientserver/TrimString.h>
+#include <clientserver/md5Sum.h>
+#include <clientserver/freeDataBlock.h>
 
 #ifdef NOBINARYPLUGIN
 
@@ -46,7 +34,7 @@ int readBytes(DATA_SOURCE data_source,
               DATA_BLOCK *data_block) {
     int err = 999;
     addIdamError(&idamerrorstack, CODEERRORTYPE, "readBytes", err, "PLUGIN NOT ENABLED");
-    return(err);
+    return err;
 }
 
 #else
@@ -199,7 +187,7 @@ int readBytes(DATA_SOURCE data_source,
         rc = gettimeofday(&tv_start[2], NULL);
 #endif
 
-        md5Sum((char*) bp, data_block->data_n, md5check);
+        md5Sum(bp, data_block->data_n, md5check);
 
         strcpy(data_block->data_desc, md5check);    // Pass back the Checksum to the Client
 

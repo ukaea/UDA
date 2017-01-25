@@ -9,17 +9,17 @@
 
 #include "idamPutAPI.h"
 
-#include <idamLog.h>
+#include <logging/idamLog.h>
 #include <include/idamgenstruct.h>
 #include <include/idamclientserver.h>
 #include <structures/struct.h>
 #include <include/idamclientprivate.h>
+#include <clientserver/initStructs.h>
+#include <clientserver/idamErrorLog.h>
+#include <clientserver/printStructs.h>
+#include <clientserver/allocData.h>
 
-#include "initStructs.h"
 #include "makeClientRequestBlock.h"
-#include "idamErrorLog.h"
-#include "printStructs.h"
-#include "allocData.h"
 #include "IdamAPI.h"
 #include "idam_client.h"
 

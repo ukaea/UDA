@@ -5,18 +5,20 @@
 #include "closeClientSockets.h"
 
 #include <unistd.h>
+#include <strings.h>
+#include <stdlib.h>
 
-#include "manageSockets.h"
+#include <clientserver/manageSockets.h>
 
 void closeNamedIdamClientSocket(SOCKETLIST *socks, char *host, int port) {
     int i;
-    for(i=0; i<socks->nsocks; i++) {
+    for(i=0; i < socks->nsocks; i++) {
         if(!strcasecmp(host, socks->sockets[i].host) && socks->sockets[i].port == port) {
             if(socks->sockets[i].type == TYPE_IDAM_SERVER) {
 #ifndef _WIN32
                 close(socks->sockets[i].fh);		// Only Regular Sockets!
 #else
-                closesocket(socks->sockets[i].fh);		// Windows
+                closesocket(socks->sockets[i].fh);  // Windows
 #endif
             }
             socks->sockets[i].status = 0;
@@ -28,9 +30,9 @@ void closeNamedIdamClientSocket(SOCKETLIST *socks, char *host, int port) {
 
 void closeIdamClientSocket(SOCKETLIST *socks, int fh) {
     int i;
-    for(i=0; i<socks->nsocks; i++) {
-        if(socks->sockets[i].fh == fh && socks->sockets[i].fh >= 0) {
-            if(socks->sockets[i].type == TYPE_IDAM_SERVER) {
+    for (i=0; i < socks->nsocks; i++) {
+        if (socks->sockets[i].fh == fh && socks->sockets[i].fh >= 0) {
+            if (socks->sockets[i].type == TYPE_IDAM_SERVER) {
 #ifndef _WIN32
                 close(fh);					// Only Genuine Sockets!
 #else
@@ -44,11 +46,12 @@ void closeIdamClientSocket(SOCKETLIST *socks, int fh) {
     }
 }
 
-
 void closeIdamClientSockets(SOCKETLIST *socks) {
     int i;
-    for(i=0; i<socks->nsocks; i++) closeIdamClientSocket(socks, socks->sockets[i].fh);
-    if(socks->sockets != NULL) free((void *)socks->sockets);
+    for (i=0; i < socks->nsocks; i++) {
+        closeIdamClientSocket(socks, socks->sockets[i].fh);
+    }
+    free((void *)socks->sockets);
     initSocketList(socks);
     return;
 }

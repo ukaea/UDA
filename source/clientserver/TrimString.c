@@ -111,7 +111,7 @@ int IsNumber(char* a)
 {
     char* wrk = a;
     while (*wrk != '\0') {
-        if (!isdigit (*wrk) && *wrk != '-' && *wrk != '+') return (0);
+        if (!isdigit (*wrk) && *wrk != '-' && *wrk != '+') return 0;
         ++wrk;
     }
     return (1);
@@ -123,7 +123,7 @@ int IsFloat(char* a)
 {
     char* wrk = a;
     while (*wrk != '\0') {
-        if (!isdigit (*wrk) && *wrk != '-' && *wrk != '+' && *wrk != '.') return (0);
+        if (!isdigit (*wrk) && *wrk != '-' && *wrk != '+' && *wrk != '.') return 0;
         ++wrk;
     }
     return (1);
@@ -136,12 +136,12 @@ int IsNumberList(char* a)
 {
     char* wrk = a;
     while (*wrk != '\0') {
-        if (!isdigit (*wrk) || *wrk != ',' || *wrk != ';') return (0);
+        if (!isdigit (*wrk) || *wrk != ',' || *wrk != ';') return 0;
         ++wrk;
     }
     if (a[0] == ',' || a[strlen(a)] == ',' ||
         a[0] == ';' || a[strlen(a)] == ';')
-        return (0);
+        return 0;
 
     return (1);
 }

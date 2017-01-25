@@ -359,7 +359,7 @@ char * convertIdam2StringType(int type)
 
 int findHDF5Type(char * typeName)
 {
-    return (0);
+    return 0;
 //    if (!strcasecmp(typeName, "byte")) return H5T_NATIVE_SCHAR;
 //    if (!strcasecmp(typeName, "char")) return H5T_NATIVE_CHAR;
 //    if (!strcasecmp(typeName, "short")) return H5T_NATIVE_SHORT;
@@ -377,7 +377,7 @@ int findHDF5Type(char * typeName)
 //    //if(!strcasecmp(typeName, "compound")) return NC_COMPOUND;
 //    //if(!strcasecmp(typeName, "opaque"))   return NC_OPAQUE;
 //    //if(!strcasecmp(typeName, "enum"))     return NC_ENUM;
-//    return (0);
+//    return 0;
 }
 
 /*
@@ -413,7 +413,7 @@ int convertIdam2HDF5Type(int type)
         case TYPE_STRING:
             return (H5T_C_S1);
         default:
-            return (0);
+            return 0;
     }
     return 0; //NC_NAT;		What is the HDF5 NAT ?
 }
@@ -445,7 +445,7 @@ int sizeIdamType(int type)
         case TYPE_UNSIGNED_LONG64:
             return (sizeof(unsigned long long));
         default:
-            return (0);
+            return 0;
     }
 }
   	 

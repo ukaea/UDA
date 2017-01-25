@@ -5,26 +5,25 @@
 
 #include "idamLegacyServer.h"
 
-#include <idamLog.h>
+#include <logging/idamLog.h>
 #include <clientserver/idamErrorLog.h>
 #include <clientserver/protocol.h>
+#include <clientserver/initStructs.h>
+#include <include/idamserver.h>
+#include <clientserver/printStructs.h>
+#include <logging/idamAccessLog.h>
+#include <clientserver/xdrlib.h>
+#include <clientserver/freeDataBlock.h>
 
-#include "idamserver.h"
-#include "initStructs.h"
-#include "printStructs.h"
-#include "idamAccessLog.h"
 #include "idamserverGetData.h"
 #include "serverProcessing.h"
 #include "sleepServer.h"
-#include "idamplugin.h"
 #include "idamServerPlugin.h"
 #include "closeServerSockets.h"
 #include "manageFiles.h"
 #include "idamServerLegacyPlugin.h"
 #include "makeServerRequestBlock.h"
 #include "freeIdamPut.h"
-#include "xdrlib.h"
-#include "freeDataBlock.h"
 #include "sqllib.h"
 
 #ifdef LEGACYSERVER

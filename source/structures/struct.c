@@ -40,11 +40,12 @@
 #include "struct.h"
 
 #include <logging/idamLog.h>
-#include "TrimString.h"
-#include "idamclientserver.h"
-#include "xdrlib.h"
+#include <stdlib.h>
+#include <include/idamclientserver.h>
+#include <clientserver/idamErrorLog.h>
+#include <clientserver/TrimString.h>
+
 #include "xdrUserDefinedData.h"
-#include "idamErrorLog.h"
 #include "accessors.h"
 
 #ifdef FATCLIENT
@@ -1762,16 +1763,6 @@ int testUserDefinedType(USERDEFINEDTYPE* udt)
 
 //==============================================================================================================
 // Functions to Send or Receive Definitions of User Defined Structure
-
-#ifndef GENERALSTRUCTS
-int wrap_string(XDR *xdrs, char *sp) {
-    return(xdr_string(xdrs, &sp, MAX_STRING_LENGTH));
-}
-
-int WrapXDRString(XDR *xdrs, char *sp, int maxlen) {
-    return(xdr_string(xdrs, &sp, maxlen));
-}
-#endif
 
 bool_t xdr_compoundfield(XDR* xdrs, COMPOUNDFIELD* str)
 {

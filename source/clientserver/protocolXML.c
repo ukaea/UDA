@@ -67,12 +67,11 @@
 #include "idamErrors.h"
 
 #ifdef SERVERBUILD
-#  include "idamserver.h"
-#  include "CreateXDRStream.h"
-#  include "idamServerStartup.h"
+#  include <include/idamserver.h>
+#  include <server/CreateXDRStream.h>
+#  include <server/idamServerStartup.h>
 #elif !defined(FATCLIENT)
 #  include <client/createClientXDRStream.h>
-#  include <cache/idamFileCache.h>
 #  include <include/idamclientprivate.h>
 #endif
 

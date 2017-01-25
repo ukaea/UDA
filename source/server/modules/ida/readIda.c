@@ -1,8 +1,3 @@
-//! $LastChangedRevision: 312 $
-//! $LastChangedDate: 2012-03-12 15:38:25 +0000 (Mon, 12 Mar 2012) $
-//! $LastChangedBy: dgm $
-//! $HeadURL: https://fussvn.fusion.culham.ukaea.org.uk/svnroot/IDAM/development/source/plugins/ida/readIda2.c $
-
 /*---------------------------------------------------------------
 * IDAM Plugin data Reader to Access DATA from IDA Files
 *
@@ -27,18 +22,12 @@
 *
 * ToDo:
 *
-* Change History
-*
-* 1.0	01Dec2005 D.G.Muir	Simplified Version of H.M's Read_Data
-* 1.1	27Mar2007 D.G.Muir	File Handle Management Added
-* 1.2   09Jul2007 D.G.Muir	debugon, verbose enabled
-* 29Oct2007 dgm	ERRORSTACK Components added
-// 12Mar2012	dgm	Removed TESTCODE compiler option - legacy code deleted.
 *-----------------------------------------------------------------------------*/
-
 #include "readIda.h"
 
-#include "idamErrorLog.h"
+#include <include/idamserverfiles.h>
+#include <clientserver/idamErrorLog.h>
+#include <include/idamclientserverprivate.h>
 
 #ifdef NOIDAPLUGIN
 
@@ -51,7 +40,7 @@ int readIDA2(DATA_SOURCE data_source,
              DATA_BLOCK *data_block) {
     int err = 999;
     addIdamError(&idamerrorstack, CODEERRORTYPE, "readIDA2", err, "Cannot Read IDA Files - PLUGIN NOT ENABLED");
-    return(err);
+    return err;
 }
 
 #else

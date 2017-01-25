@@ -17,7 +17,7 @@
 #include "idamErrors.h"
 
 #ifdef SERVERBUILD
-#  include "idamServerStartup.h"
+#  include <server/idamServerStartup.h>
 #endif
 
 int allocArray(int data_type, int n_data, char** ap)

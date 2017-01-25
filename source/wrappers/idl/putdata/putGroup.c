@@ -130,7 +130,7 @@ int putGroup(KW_RESULT* kw, int* ncgrpid) {
 
     if (work != NULL)free((void*) work);
 
-    return (err);
+    return err;
 }
 
 
@@ -150,7 +150,7 @@ int testgroup(int ncgrpid, char* target, int* status, int* targetid, int debug, 
 
     if ((err = nc_inq_grps(ncgrpid, &numgrps, NULL)) != NC_NOERR) {
         if (verbose) fprintf(stderr, "Unable to Count the Child Groups\n");
-        return (err);
+        return err;
     }
 
     if (debug)fprintf(stdout, "Child Groups Count = %d\n", numgrps);
@@ -164,7 +164,7 @@ int testgroup(int ncgrpid, char* target, int* status, int* targetid, int debug, 
         if ((err = nc_inq_grps(ncgrpid, &numgrps, ncids)) != NC_NOERR) {
             if (verbose) fprintf(stderr, "Unable to List the Group IDs\n");
             free((void*) ncids);
-            return (err);
+            return err;
         }
 
 // Test existing Groups
@@ -177,7 +177,7 @@ int testgroup(int ncgrpid, char* target, int* status, int* targetid, int debug, 
                 if (verbose) fprintf(stderr, "Unable to Obtain Group Name Length\n");
                 if (grpname != NULL) free((void*) grpname);
                 free((void*) ncids);
-                return (err);
+                return err;
             }
 
             grpname = (char*) realloc((void*) grpname, sizeof(char) * (namelength + 1));
@@ -186,7 +186,7 @@ int testgroup(int ncgrpid, char* target, int* status, int* targetid, int debug, 
                 if (verbose) fprintf(stderr, "Unable to Name an existing Group\n");
                 free((void*) grpname);
                 free((void*) ncids);
-                return (err);
+                return err;
             }
 
             if (debug)fprintf(stdout, "Comparing Group Name [%s] with Target Group [%s]\n", grpname, target);
@@ -211,7 +211,7 @@ int testgroup(int ncgrpid, char* target, int* status, int* targetid, int debug, 
 
         if ((err = nc_def_grp(ncgrpid, target, targetid)) != NC_NOERR) {
             if (verbose) fprintf(stderr, "Unable to Create a Named Group [%s]\n", target);
-            return (err);
+            return err;
         }
         *status = 1;
     }

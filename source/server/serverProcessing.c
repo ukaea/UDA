@@ -2,7 +2,7 @@
 
 #include <stdlib.h>
 
-#include <idamLog.h>
+#include <logging/idamLog.h>
 #include <include/idamtypes.h>
 
 /**

@@ -25,16 +25,16 @@
 #include <stdlib.h>
 #include <errno.h>
 
-#include <idamLog.h>
+#include <logging/idamLog.h>
 #include <include/idamclientserverprivate.h>
 #include <include/idamtypes.h>
+#include <clientserver/TrimString.h>
+#include <modules/ida/nameIda.h>
+#include <clientserver/idamErrorLog.h>
+#include <clientserver/printStructs.h>
+#include <clientserver/freeDataBlock.h>
 
-#include "TrimString.h"
 #include "mastArchiveFilePath.h"
-#include "printStructs.h"
-#include "nameIda.h"
-#include "idamErrorLog.h"
-#include "freeDataBlock.h"
 
 int dumpFile(REQUEST_BLOCK request_block, DATA_BLOCK* data_block)
 {
@@ -107,7 +107,6 @@ int dumpFile(REQUEST_BLOCK request_block, DATA_BLOCK* data_block)
         err = 999;
         addIdamError(&idamerrorstack, CODEERRORTYPE, "dumpFile", err, "The directory path has incorrect syntax");
     }
-
 
 //----------------------------------------------------------------------
 // Error Trap Loop
@@ -276,5 +275,5 @@ int dumpFile(REQUEST_BLOCK request_block, DATA_BLOCK* data_block)
     if (err != 0) freeDataBlock(data_block);
     if (ph != NULL) fclose(ph);
 
-    return (err);
+    return err;
 }

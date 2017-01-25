@@ -1,5 +1,7 @@
-#ifndef IdamClientInclude
-#define IdamClientInclude
+#ifndef IDAM_IDAMCLIENT_H
+#define IDAM_IDAMCLIENT_H
+
+#include <include/idamgenstructpublic.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -18,4 +20,4 @@ extern unsigned int * lastMallocIndexValue;
 }
 #endif
 
-#endif
+#endif // IDAM_IDAMCLIENT_H

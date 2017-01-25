@@ -146,5 +146,5 @@ int readCDF4Atts(int grpid, int varid, char *units, char *title, char *class, ch
         }
     }
 
-    return (0);
+    return 0;
 }

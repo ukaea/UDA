@@ -11,13 +11,13 @@
 *--------------------------------------------------------------*/
 #include "ClientAPI.h"
 
-#include <idamLog.h>
+#include <logging/idamLog.h>
 #include <include/idamclientprivate.h>
+#include <clientserver/initStructs.h>
+#include <clientserver/idamErrorLog.h>
+#include <clientserver/expand_path.h>
+#include <clientserver/TrimString.h>
 
-#include "expand_path.h"
-#include "TrimString.h"
-#include "initStructs.h"
-#include "idamErrorLog.h"
 #include "makeClientRequestBlock.h"
 #include "startup.h"
 #include "idam_client.h"
