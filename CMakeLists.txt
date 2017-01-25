@@ -12,7 +12,10 @@ include( GetGitRevisionDescription )
 
 git_describe( GIT_TAG --tags )
 
-project( uda VERSION ${GIT_TAG} )
+# Strip off the SHA1 tag element if it exists
+string( REGEX REPLACE "^([0-9]+\\.[0-9]+\\.[0-9]+).*" "\\1" GIT_VERSION "${GIT_TAG}" )
+
+project( uda VERSION ${GIT_VERSION} )
 
 if( APPLE )
   set( CMAKE_MACOSX_RPATH ON )
