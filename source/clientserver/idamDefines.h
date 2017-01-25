@@ -1,16 +1,10 @@
-//
-// Created by Jonathan Hollocombe on 17/10/2016.
-//
-
-#ifndef IDAM_IDAMDEFINES_H
-#define IDAM_IDAMDEFINES_H
+#ifndef IDAM_CLIENTSERVER_IDAMDEFINES_H
+#define IDAM_CLIENTSERVER_IDAMDEFINES_H
 
 //--------------------------------------------------------
 // Size Definitions
 
 #define WORKDIR        tmp    // Location of the Work Directories
-
-//#define MAXDEVICE    256
 
 #ifdef ROLLBACK
 #  define MAXDATE         56
@@ -112,4 +106,4 @@ extern unsigned int clientFlags;
 #define ERROR_MODEL_POISSON            6
 #define ERROR_MODEL_UNDEFINED          7
 
-#endif //IDAM_IDAMDEFINES_H
+#endif //IDAM_CLIENTSERVER_IDAMDEFINES_H

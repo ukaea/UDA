@@ -4,41 +4,16 @@
 //       Leads to Ambiguity
 //	 Signals contain _ character which is a single character wildcard in SQL syntax.
 //
-// Change History:
-//
-// v1.01 18Oct2006   DGMuir	Additions: sqlComposite, sqlDocument added
-// v1.02 25Jan2007   DGMuir	For low pulse numbers include a test that the signal complies with
-//				the ida naming convention before calling sqlNoIdamSignal
-// v1.03 12Apr2007   DGMuir	GENERIC_ENABLE Compiler Option added: Function Stubs included if Not Enabled
-// v1.04 09Jul2007   dgm	debugon enabled
-// v1.05 26Sep2007   dgm	Shot Number check in sqlGeneric altered for +ve values only
-// v1.06 04Oct2007   dgm	Added DESC to ordering of Generic names in sqlGeneric and sqlNoIdamSignal. This ensures
-//				that when there are several possible records to choose from, records without a
-//				generic name are presented last.
-// 29Oct2007	dgm	ERRORSTACK components added
-// 29Oct2007	dgm	ENVIRONMENT structure added
-// 12NOV2007	dgm	sqlNoIdamSignal MODIFIED to correct a bug: Improved selection of signal when a range is present
-//			All functions with similar range expressions in SQL modified
-// 04DEC2007	dgm	Fix for Bug introduced in change of 12Nov07 to sqlGeneric - Range check ineffective.
-// 29Feb2008	dgm	If a Generic signal name is has zero length then return with an error - All Generic Names have a length!
-// 29Oct2009	dgm	Change generic query to also match against source_alias
-// 17Feb2010	dgm	Added netCDF as default file format for hierarchical data name
-// 10Jun2010	dgm	Deconstructed 3 table join used in sqlGeneric for improved performance
-// 02Nov2010	dgm	Added SQL function sqlAltData to query the Alternative Source table for mapping legacy names to new names
-//			also sqlSignalDesc, sqlDataSourceAlias
-// 22Feb2011	dgm	Added sqlSignalDescMap, sqlDataSourceMap, sqlMapData and modified sqlGeneric
-// 05May2011	dgm	Allow for missing leading '/' character in putdata files
-//			Change signal naming model: alias_branch, alias/branch, /alias/branch
-// 23May2011	dgm	Resurrected sqlDocument
-// 12Mar2012	dgm	Removed TESTCODE compiler option - legacy code deleted.
-// 18Sep2012	dgm	Added function sqlMapPrivateData to use name mapping between legacy and
-//			new names with private data files.
-// 01Nov2013	dgm	Changed to latest String Escape function to additionaly protect against SQL injection
 //-------------------------------------------------------------------------------------------------------------------
 
 #include "sqllib.h"
 
+#include <stdlib.h>
+
 #include <idamLog.h>
+#include <include/idamclientserverprivate.h>
+#include <include/idamserver.h>
+
 #include "initStructs.h"
 #include "TrimString.h"
 #include "nameIda.h"

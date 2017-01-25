@@ -1,11 +1,8 @@
+#ifndef IDAM_SERVER_MAKESERVERREQUESTBLOCK_H
+#define IDAM_SERVER_MAKESERVERREQUESTBLOCK_H
 
-#ifndef IDAM_MAKESERVERREQUESTBLOCK_H
-#define IDAM_MAKESERVERREQUESTBLOCK_H
-
-#include "idamclientserverpublic.h"
-#include "idamclientserverprivate.h"
-#include "idamserver.h"
-#include "idamplugin.h"
+#include <include/idamplugin.h>
+#include <clientserver/idamStructs.h>
 
 #if defined(SERVERBUILD) || defined(FATCLIENT)
 
@@ -24,4 +21,4 @@ void freeNameValueList(NAMEVALUELIST *nameValueList);
 void parseNameValue(char *pair, NAMEVALUE *nameValue,unsigned short strip);
 int nameValuePairs(char *pairList, NAMEVALUELIST *nameValueList, unsigned short strip);
 
-#endif // IDAM_MAKESERVERREQUESTBLOCK_H
+#endif // IDAM_SERVER_MAKESERVERREQUESTBLOCK_H

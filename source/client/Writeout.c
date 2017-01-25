@@ -1,23 +1,15 @@
-//! $LastChangedRevision: 353 $
-//! $LastChangedDate: 2013-11-18 15:32:28 +0000 (Mon, 18 Nov 2013) $
-//! $LastChangedBy: dgm $
-//! $HeadURL: https://fussvn.fusion.culham.ukaea.org.uk/svnroot/IDAM/development/source/client/Writeout.c $
-
 // Create the Client Side XDR File Stream Writer Function
 //
-// Change History
-//
-// 21Mar2007	dgm	DB_Socket renamed clientSocket
-// 24Oct2007	dgm	ERRORSTACK components added
-// 16Dec2008	dgm	Test for ECONNRESET, ENETUNREACH and ECONNREFUSED added
-// 31Jan2011	dgm	Windows sockets implementation
 //----------------------------------------------------------------
 
 #include "Writeout.h"
 
 #include <unistd.h>
-#include <idamLog.h>
 #include <signal.h>
+#include <errno.h>
+
+#include <idamLog.h>
+#include <include/idamclientprivate.h>
 
 #include "UpdateSelectParms.h"
 #include "idamErrorLog.h"

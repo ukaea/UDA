@@ -11,15 +11,14 @@
 * Notes:
 * ToDo:
 *
-* Change History
-*
-* 18Oct2006 D.G.Muir	Generalisation of IDA version
-* 07Jan2008 D.G.Muir	Alternative paths to MAST Data added
-* 26May2010 D.G.Muir	Added DEFAULT_ARCHIVE_DIR replacing inline text
 *-----------------------------------------------------------------------------*/
-
 #include "mastArchiveFilePath.h"
-#include "idamserverconfig.h"
+
+#include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
+
+#include <include/idamclientserverprivate.h>
 
 void mastArchiveFilePath(int pulno, int pass, char *file, char *path) {
     char strint[56];

@@ -5,19 +5,13 @@
 *
 * Change History
 *
-* 08Nov07 dgm	Original Version
-* 07Jan08 dgm	Added IDAM_DATAPATHID
-* 30Sep09 dgm	IDAM_PRIVATE_PATH_TARGET and IDAM_PRIVATE_PATH_SUBSTITUTE added to reform the path to private files
-* 07Oct09 dgm	Added external_user to ENVIRONMENT structure (same effect as compiler option EXTERNAL_USER)
-* 11Feb11 dgm	Added Proxy Host
-// 12Mar2012	dgm	Removed TESTCODE compiler option - legacy code deleted.
-// 09Oct2014	dgm	Rename environment PROXY variables
 *--------------------------------------------------------------*/
 
 #include "getServerEnvironment.h"
 
+#include <stdlib.h>
+
 #include <logging/idamLog.h>
-#include "idamserverconfig.h"
 
 void printIdamServerEnvironment(ENVIRONMENT* environ)
 {
@@ -58,18 +52,21 @@ void getIdamServerEnvironment(ENVIRONMENT* environ)
 
     environ->loglevel = LOG_NONE;
     if ((env = getenv("IDAM_LOG_LEVEL")) != NULL) {
-        if (strncmp(env, "ACCESS", 6) == 0)      environ->loglevel = LOG_ACCESS;
-        else if (strncmp(env, "ERROR", 5) == 0)  environ->loglevel = LOG_ERROR;
-        else if (strncmp(env, "WARN", 4) == 0)   environ->loglevel = LOG_WARN;
-        else if (strncmp(env, "DEBUG", 5) == 0)  environ->loglevel = LOG_DEBUG;
-        else if (strncmp(env, "INFO", 4) == 0)   environ->loglevel = LOG_INFO;
+        if (strncmp(env, "ACCESS", 6) == 0) { environ->loglevel = LOG_ACCESS; }
+        else if (strncmp(env, "ERROR", 5) == 0) { environ->loglevel = LOG_ERROR; }
+        else if (strncmp(env, "WARN", 4) == 0) { environ->loglevel = LOG_WARN; }
+        else if (strncmp(env, "DEBUG", 5) == 0) { environ->loglevel = LOG_DEBUG; }
+        else if (strncmp(env, "INFO", 4) == 0) { environ->loglevel = LOG_INFO; }
     }
 
 // Log Output Write Mode
 
     strcpy(environ->logmode, "w");                    // Write & Replace Mode
-    if ((env = getenv("IDAM_LOG_MODE")) != NULL) if (env[0] == 'a' && strlen(env) == 1)
-        environ->logmode[0] = 'a';    // Append Mode
+    if ((env = getenv("IDAM_LOG_MODE")) != NULL) {
+        if (env[0] == 'a' && strlen(env) == 1) {
+            environ->logmode[0] = 'a';
+        }
+    }    // Append Mode
 
 //-------------------------------------------------------------------------------------------
 // API Defaults
@@ -98,7 +95,7 @@ void getIdamServerEnvironment(ENVIRONMENT* environ)
 // Standard Data Location Path Algorithm ID
 
     environ->data_path_id = 0;
-    if ((env = getenv("IDAM_DATAPATHID")) != NULL) environ->data_path_id = atoi(env);
+    if ((env = getenv("IDAM_DATAPATHID")) != NULL) { environ->data_path_id = atoi(env); }
 
 //-------------------------------------------------------------------------------------------
 // External User?
@@ -109,21 +106,23 @@ void getIdamServerEnvironment(ENVIRONMENT* environ)
     environ->external_user = 0;
 #endif
 
-    if ((env = getenv("EXTERNAL_USER")) != NULL) environ->external_user = 1;
-    if ((env = getenv("IDAM_EXTERNAL_USER")) != NULL) environ->external_user = 1;
+    if ((env = getenv("EXTERNAL_USER")) != NULL) { environ->external_user = 1; }
+    if ((env = getenv("IDAM_EXTERNAL_USER")) != NULL) { environ->external_user = 1; }
 
 //-------------------------------------------------------------------------------------------
 // IDAM Proxy Host: redirect ALL requests
 
-    if ((env = getenv("IDAM_PROXY_TARGETHOST")) != NULL)
+    if ((env = getenv("IDAM_PROXY_TARGETHOST")) != NULL) {
         strcpy(environ->server_proxy, env);
-    else
+    } else {
         environ->server_proxy[0] = '\0';
+    }
 
-    if ((env = getenv("IDAM_PROXY_THISHOST")) != NULL)
+    if ((env = getenv("IDAM_PROXY_THISHOST")) != NULL) {
         strcpy(environ->server_this, env);
-    else
+    } else {
         environ->server_this[0] = '\0';
+    }
 
 //-------------------------------------------------------------------------------------------
 // Private File Path substitution: Enables server to see files if the path contains too many hierarchical elements
@@ -153,7 +152,7 @@ void getIdamServerEnvironment(ENVIRONMENT* environ)
 // IDAM SQL Server Port name
 
     environ->sql_port = (int) SQL_PORT;                // Default, e.g. 56566
-    if ((env = getenv("IDAM_SQLPORT")) != NULL) environ->sql_port = atoi(env);
+    if ((env = getenv("IDAM_SQLPORT")) != NULL) { environ->sql_port = atoi(env); }
 
 // IDAM SQL Database name
 

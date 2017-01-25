@@ -2,7 +2,6 @@
 #define IDAM_NETCDFPLUGIN_READCDF4SUBTREE_H
 
 #include <netcdf.h>
-#include <idamgenstructpublic.h>
 
 #include "readCDF4.h"
 

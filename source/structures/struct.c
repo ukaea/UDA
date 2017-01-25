@@ -1,26 +1,3 @@
-/** @file */
-//
-//
-//Change History
-//
-// 08Jan2010    DGMuir  Original Version 
-// 04May2010    DGMuir  modified getalignmentof for 64 bit architecture
-//                      modified xdr_userdefinedtype to correct final structure packing and structure size
-//                      added function getStructureSize
-// 09May2011    DGMuir  Added tests to freeUserDefinedTypeList to avoid seg faults
-// 19Sep2011    DGMuir  Fix bug where sizeof(char **) used instead of sizeof(char *)
-// 07Feb2012    DGMuir  Changed new to anew as reserved word in c++
-// 10Oct2012    dgm     Corrected bug: removed fullNTree pointer dereference to dataNTree - copy pointer value only
-// 06Nov2012    dgm     Improved Malloc Log searching + start search index now property of the data tree
-// 06Nov2012    dgm     Improved Malloc Log searching + start search index now property of the data tree
-//                      Fixed identical bugs in function: getNodeAtomicRank, getNodeAtomicShape
-//                      wherebye findMalloc was incorrectly called when the
-//                      atomic data item was not a pointer.
-// 07Nov2012    dgm     Added getNodeStructureTypes, getNodeStructurePointers, getNodeStructureRank, getNodeStructureShape
-// 20Nov2013    dgm     DEV_08NOV2012 selections commented out
-// 07Jul2014    dgm     Corrected bug: target replace by lastname in functions marked: //dgm 07Jul14
-// 27Feb2015    dgm     Removed compiler macro options based on XDRSTDIO
-// 29Jun2015	dgm	xdr_compoundfield modified to pass shape only when rank>1
 //==============================================================================================================
 // Example: Send a user defined structure named mystruct of type MYSTRUCT
 //

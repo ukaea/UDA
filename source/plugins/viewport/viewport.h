@@ -1,13 +1,7 @@
-// Plugin Template
-
 #ifndef IDAM_PLUGINS_VIEWPORT_VIEWPORT_H
 #define IDAM_PLUGINS_VIEWPORT_VIEWPORT_H
 
-// Change History:
-//
-// 14Oct2014	dgm	Original Version
-
-#include <idamplugin.h>
+#include <include/idamplugin.h>
 
 #ifdef __cplusplus
 extern "C" {

@@ -9,16 +9,9 @@
 *      
 * Issues:
 *
-* Change History
-*
-* 03Oct2013	dgm	Original Version named issueDOI.c
-* 09May2014	dgm	Renamed with doi changed to uuid
 *---------------------------------------------------------------------------------------------------------------*/
 #include "provenance.h"
 
-#include <idamErrorLog.h>
-#include <idamserver.h>
-#include <idamLog.h>
 #include <structures/struct.h>
 
 char* pghost = NULL;

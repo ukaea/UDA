@@ -1,9 +1,5 @@
-//
-// Created by jholloc on 09/05/16.
-//
-
-#ifndef IDAM_IDAMLOG_H
-#define IDAM_IDAMLOG_H
+#ifndef IDAM_LOGGING_IDAMLOG_H
+#define IDAM_LOGGING_IDAMLOG_H
 
 #include <stdio.h>
 #include <string.h>
@@ -31,4 +27,4 @@ void idamSetLogFile(LOG_MODE mode, FILE* file_name);
 
 void idamLog(LOG_MODE mode, const char* fmt, ...);
 
-#endif //IDAM_IDAMLOG_H
+#endif //IDAM_LOGGING_IDAMLOG_H

@@ -1,8 +1,3 @@
-//! $LastChangedRevision: 87 $
-//! $LastChangedDate: 2008-12-19 15:34:15 +0000 (Fri, 19 Dec 2008) $
-//! $LastChangedBy: dgm $
-//! $HeadURL: https://fussvn.fusion.culham.ukaea.org.uk/svnroot/IDAM/development/source/clientserver/makeRequest.c $
-
 //------------------------------------------------------------------------------------------------------------------
 /*!
 Interprets the API arguments and assembles a Request data structure.
@@ -12,23 +7,6 @@ Interprets the API arguments and assembles a Request data structure.
 @param request_block  Returned data access Request Data Structure
 
 @returns An integer Error Code: If non zero, a problem occured.
-
-Change History
-
-09Jul2009	dgm	Original Version based on idamClient
-23Nov2009	dgm	Added SQL request
-12May2010	dgm	Request_block used to pass both arguments to the server for processing there - minimises
-			effort needed to add new data plugins & client library is simplified. Legacy APIs (version < 6)
-			will continue to use the original structure members. Also pass the api_delim string to the sever.
-14Apr2011	dgm	Extract Archive name (extractArchive) but test for conflict with subsetting operation.
-			Added option to reduce the signal name by removing the Archive field.
-19Apr2011	dgm	Extract subset operation from the signal name without changing the signal name.
-05May2011	dgm	Add extra tests to identify the file format when there is no file extension.
-09May2011	dgm	Add test for device only source
-23May2011	dgm	Add CSV file extension
-05Sep2011	dgm	Add Name-Value pairs to Server Request Block
-21Sep2011	dgm	Extract function name & plugin from signal or source to Server Request Block
-27Sep2011	dgm	New makeServerRequestBlock function - rationalised/simplified version
 */
 //------------------------------------------------------------------------------------------------------------------
 

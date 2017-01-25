@@ -1,6 +1,5 @@
-
-#ifndef IDAM_EXPAND_PATH_H
-#define IDAM_EXPAND_PATH_H
+#ifndef IDAM_CLIENTSERVER_EXPAND_PATH_H
+#define IDAM_CLIENTSERVER_EXPAND_PATH_H
 
 /*! The workstation (client host) name is obtained using the operating system command 'hostname'.
 
@@ -93,4 +92,4 @@ int linkReplacement(char *path);
 
 #endif // NOEXPANDPATH
 
-#endif // IDAM_EXPAND_PATH_H
+#endif // IDAM_CLIENTSERVER_EXPAND_PATH_H

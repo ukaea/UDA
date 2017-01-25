@@ -1,29 +1,6 @@
 
 // Initialise Data Structures
 //
-// Change History:
-//
-// dgm	03Sep2006	Signal type added to Signal_Desc Structure
-//			Status datatype changed from Byte to Int with default 1
-// dgm	06Sep2006	Error data added to Signal_Desc structure
-// dgm	19Oct2006	userid name copied from system function directly
-// dgm	13Dec2006	errparams now fixed length array rather than heap
-// dgm	17Jan2007	Initial Value of the Data_Block order is now -1 (was 0)
-// dgm	28Feb2007	Initialisation of a copy of the client_block was added to the Data_Block initialisation
-// dgm	15Mar2007	tpass and format added to Request_Block initialisation
-// dgm	21Mar2007	initClientBlock and initServerBlock modified to include version and name in args
-// dgm  04Nov2008	opaque_count added to DATA_BLOCK
-// dgm	20AUG2009	CLIENT_BLOCK debug_level changed to get_nodimdata
-// dgm  26Apr2010	privateFlags added to CLIENT_BLOCK
-// dgm	11May2010	signal, source and api_delim from REQUEST_BLOCK initialised.
-// 02Nov2010 dgm 	new bit flags added for passing via properties in CLIENT_BLOCK
-//		 	verbose structure element renamed clientFlags
-//		 	debug structure element renamed altRank
-// 19Apr2011 dgm	Added fields subset and datasubset to initRequestBlock
-// 05Sep2011 dgm	Added initialisation of structure nameValueList in initRequestBlock
-// 21Sep2011 dgm 	Added initialisation of string 'function' in REQUEST_BLOCK
-// 18Nov2013 dgm	PUTDATA functionality included as standard rather than with a compiler option
-// 28Apr2014 dgm 	Added totalDataBlockSize and cachePermission to DATA_BLOCK
 //----------------------------------------------------------------------------------
 
 #include "initStructs.h"

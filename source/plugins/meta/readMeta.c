@@ -24,26 +24,18 @@ Issues:
 	Need Images of the returned data structures - as documentation.
 
         include a database flag to ensure scalar integer attributes are returned as scalars and not pointers.
-*
-*
-* Change History
-*
-* 14Oct2011	D.G.Muir	Original Version
-* 10Jul2014	dgm		Added standard methods: version, builddate, defaultmethod, maxinterfaceversion
 *---------------------------------------------------------------------------------------------------------------*/
-#include <libpq-fe.h>
-#include <idamErrorLog.h>
-#include <sqllib.h>
-#include <TrimString.h>
-#include <struct.h>
-#include <initStructs.h>
-#include <idamLog.h>
-#include <accessors.h>
-
-#include "idamplugin.h"
 #include "readMeta.h"
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <include/idamserver.h>
+#include <clientserver/TrimString.h>
+#include <structures/struct.h>
+#include <structures/accessors.h>
+#include <clientserver/initStructs.h>
+#include <server/sqllib.h>
 
 // Prevent SQL injection malicious intent
 // Not required if the server is Read Only!
@@ -225,7 +217,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
         if (context != CONTEXT_CPF) {
             if (DBConnect == NULL && (DBType == PLUGINSQLPOSTGRES || DBType == PLUGINSQLNOTKNOWN)) {
-                DBConnect = (PGconn*) startSQL();        // No prior connection to IDAM Postgres SQL Database
+                DBConnect = startSQL();        // No prior connection to IDAM Postgres SQL Database
                 if (DBConnect != NULL) {
                     DBType = PLUGINSQLPOSTGRES;
                     sqlPrivate = 1;
@@ -254,7 +246,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             //DBConnect = (PGconn *)startSQL();		// Picking up startSQL from somewhere!
             // preload of liblastshot.so & libidamNotify.so for MDS+ sandbox !!!!
 
-            DBConnect = (PGconn*) startSQL_CPF();        // Ignore prior connection to IDAM Postgres SQL Database
+            DBConnect = startSQL_CPF();        // Ignore prior connection to IDAM Postgres SQL Database
             if (DBConnect != NULL) {
                 DBType = PLUGINSQLPOSTGRES;
                 sqlPrivate = 1;

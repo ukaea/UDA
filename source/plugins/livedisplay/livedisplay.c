@@ -43,35 +43,15 @@ Issues:
 *---------------------------------------------------------------------------------------------------------------*/
 #include "livedisplay.h"
 
-#include <idampluginfiles.h>
-#include <idamserver.h>
-#include <idamErrorLog.h>
-#include <managePluginFiles.h>
-#include <initStructs.h>
-#include <makeServerRequestBlock.h>
 #include <client/accAPI_C.h>
 #include <client/IdamAPI.h>
-#include <freeDataBlock.h>
 #include <structures/struct.h>
 #include <structures/accessors.h>
 #include <clientserver/TrimString.h>
-
-/*
-#ifndef USE_PLUGIN_DIRECTLY
-
-   static LOGMALLOCLIST *logmalloclist = NULL; 			// List of all Heap Allocations for Data
-   static USERDEFINEDTYPELIST *userdefinedtypelist = NULL;	// User Defined Structure Types from Data Files
-
-   //#include "/home/dgm/IDAM/source/clientserver/TrimString.c"
-   //#include "/home/ITER/muird1/IDAM/source/clientserver/initStructs.c"
-   //#include "/home/ITER/muird1/IDAM/source/clientserver/freeDataBlock.c"
-   //#include "/home/dgm/IDAM/source/clientserver/initStructs.c"
-   //#include "/home/dgm/IDAM/source/clientserver/freeDataBlock.c"
-
-   static ENVIRONMENT environment;
-   IDAMERRORSTACK *idamErrorStack;	// Pointer to the Server's Error Stack. Global scope within this plugin library
-#endif
-*/
+#include <client/idam_client.h>
+#include <server/makeServerRequestBlock.h>
+#include <clientserver/initStructs.h>
+#include <clientserver/freeDataBlock.h>
 
 void defineIDSStructures()
 {
@@ -590,21 +570,8 @@ extern int livedisplay(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     IDAMERRORSTACK* idamErrorStack = getIdamServerPluginErrorStack();        // Server library functions
     USERDEFINEDTYPELIST* userdefinedtypelist = getIdamServerUserDefinedTypeList();
-    LOGMALLOCLIST* logmalloclist = getIdamServerLogMallocList();
 
     initIdamErrorStack(&idamerrorstack);
-/*
-#ifndef USE_PLUGIN_DIRECTLY
-    IDAMERRORSTACK idamerrorstack;
-    IDAMERRORSTACK* idamErrorStack = getIdamServerPluginErrorStack();        // Server library functions
-    USERDEFINEDTYPELIST* userdefinedtypelist = getIdamServerUserDefinedTypeList();
-    LOGMALLOCLIST  *logmalloclist            = getIdamServerLogMallocList();
-
-    initIdamErrorStack(&idamerrorstack);
-#else
-    IDAMERRORSTACK *idamErrorStack = &idamerrorstack;
-#endif
-*/
 
     unsigned short housekeeping;
 

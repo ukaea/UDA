@@ -1,10 +1,9 @@
+#ifndef IDAM_SERVER_GETSERVERENVIRONMENT_H
+#define IDAM_SERVER_GETSERVERENVIRONMENT_H
 
-#ifndef IDAM_GETSERVERENVIRONMENT_H
-
-#include "idamclientserver.h"
-#include "idamserver.h"
+#include <include/idamclientserverprivate.h>
 
 void printIdamServerEnvironment(ENVIRONMENT *environ);
 void getIdamServerEnvironment(ENVIRONMENT *environ);
 
-#endif // IDAM_GETSERVERENVIRONMENT_H
+#endif // IDAM_SERVER_GETSERVERENVIRONMENT_H

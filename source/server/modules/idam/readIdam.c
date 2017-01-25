@@ -18,20 +18,10 @@
 *
 * ToDo:
 *
-* Change History
-*
-* 02Jun2006	D.G.Muir	Original Version
-* 18May2010	D.G.Muir	Concatenate IDAM Client Error Message Stack
-* 10Dec2010	D.G.Muir	Corrected a bug setting the host name when the port number is not specified
-* 13Apr2011	D.G.Muir	If the exteral_user environment state is set, pass this to the client so that it will be
-*				passed to the forward IDAM server
-* 01Jun2011	D.G.Muir	Pass fuller set of properties
-* 06Aug2015	D.G.Muir	Assume client and server structures are identical - i.e. same version
 *-----------------------------------------------------------------------------*/
+#include "readIdam.h"
 
 #include <idamLog.h>
-#include <include/idamclientserverprivate.h>
-#include "readIdam.h"
 
 #include "idamErrorLog.h"
 
@@ -47,6 +37,12 @@ int readIdam(DATA_SOURCE data_source,
 }
 
 #else
+
+#include <stdlib.h>
+
+#include <include/idamclientserverprivate.h>
+#include <client/accAPI_C.h>
+#include <client/IdamAPI.h>
 
 #include "TrimString.h"
 #include "printStructs.h"
@@ -93,12 +89,6 @@ int readIdam(DATA_SOURCE data_source,
     resetIdamProperties();
 
     idamLog(LOG_DEBUG, "Plugin readIdam: Handing over Server File Handles to IDAM Client\n");
-
-//    setIdamProperty("verbose");
-//    putIdamErrorFileHandle(errout);
-//    setIdamProperty("debug");
-//    putIdamDebugFileHandle(dbgout);
-
 //----------------------------------------------------------------------
 // Server Host and Port: Change if required
 

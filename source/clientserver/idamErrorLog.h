@@ -1,6 +1,5 @@
-
-#ifndef IDAM_IDAMERRORLOG_H
-#define IDAM_IDAMERRORLOG_H
+#ifndef IDAM_CLIENTSERVER_IDAMERRORLOG_H
+#define IDAM_CLIENTSERVER_IDAMERRORLOG_H
 
 #include <clientserver/idamStructs.h>
 
@@ -18,5 +17,5 @@ void closeIdamError(IDAMERRORSTACK *idamerrorstack);
 
 extern IDAMERRORSTACK idamerrorstack;
 
-#endif // IDAM_IDAMERRORLOG_H
+#endif // IDAM_CLIENTSERVER_IDAMERRORLOG_H
 

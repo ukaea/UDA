@@ -6,14 +6,12 @@
 //	netCDF: int           fd
 //	HDF5:	hid_t         file_id
 //
-//
-// Change History:
-//
-// v0.00	DGMuir 26Mar2007	Original Code
 //----------------------------------------------------------------------------------
+#include "manageFiles.h"
 
 #include <idamLog.h>
-#include "manageFiles.h"
+#include <include/idamclientserverprivate.h>
+#include <include/idamserver.h>
 
 // Initialise the File List
 

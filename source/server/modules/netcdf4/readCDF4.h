@@ -2,14 +2,15 @@
 #define IDAM_READCDF4_H
 
 #include <stddef.h>
-#include <idamclientserverpublic.h>
-#include <idamgenstructpublic.h>
+
 #include <clientserver/idamStructs.h>
 
 int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK request_block, DATA_BLOCK* data_block);
 
 #ifndef NONETCDFPLUGIN
 #  include <netcdf.h>
+#  include <include/idamgenstruct.h>
+#  include <stdio.h>
 
 #define NETCDF_ERROR_OPENING_FILE               200
 #define NETCDF_ERROR_ALLOCATING_HEAP_1          201

@@ -1,8 +1,5 @@
 // Open File State Management
 //
-// Change History:
-//
-// 11Jul2014	D.G.Muir	Original Version (based on server/manageFiles.c)
 //----------------------------------------------------------------------------------
 
 #include "managePluginFiles.h"

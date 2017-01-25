@@ -1,10 +1,7 @@
+#ifndef IDAM_STRUCTURES_ACCESSORS_H
+#define IDAM_STRUCTURES_ACCESSORS_H
 
-#ifndef IDAM_ACCESSORS_H
-#define IDAM_ACCESSORS_H
-
-#include "idamgenstructpublic.h"
-#include "idamgenstructprivate.h"
-#include "idamclientserver.h"
+#include <include/idamgenstruct.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -241,5 +238,5 @@ void defineField(COMPOUNDFIELD *field, char *name, char *desc, int *offset, unsi
 }
 #endif
 
-#endif // IDAM_ACCESSORS_H
+#endif // IDAM_STRUCTURES_ACCESSORS_H
 

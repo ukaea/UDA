@@ -6,9 +6,7 @@ extern "C" {
 #endif
 
 #include <stdio.h>
-#include <idamplugin.h>
-
-#include "scruncher.h"
+#include <include/idamplugin.h>
 
 typedef struct EfitData
 {
@@ -168,6 +166,49 @@ typedef struct EfitData
     float * mapyagphi2B;
 
 } EFITDATA;
+
+typedef struct {
+    int   ncontour;                       // Number of Contour Points
+    float *rcontour;                      // Radial Values
+    float *zcontour;                      // Z Values
+} CONTOURS_OUT;
+
+typedef struct {
+    int   ierr;           // Error Status Code
+    float fsq;            // Error Estimate of Boundary Fit Mismatch
+    int   nmoms;          // Number of Moments
+    float *rcos;          // Radius Cosine Moments [nmoms+1]
+    float *rsin;          // Radius Sine Moments
+    float *zcos;          // Z Cosine Moments
+    float *zsin;          // Z Sine Moments
+} SCRUNCH_OUT;
+
+typedef struct {
+    float **drcosdrho;
+    float **dzcosdrho;
+    float **drsindrho;
+    float **dzsindrho;
+    float **r;
+    float **z;
+    float **drdrho;
+    float **dzdrho;
+    float **drdtheta;
+    float **dzdtheta;
+    float **d2;
+    float **gradrho;
+    float **gradrhoR2;   // Grad (rho/R)
+    float **dvdtheta;
+    float *vprime;       // d/dRho Flux Tube Volume
+    float *xaprime;      // d/dRho x Cross-Sectional Area
+    float *len;          // Flux Tube x Cross-Sectional Circumference
+    float *sur;          // Flux Tube Surface Area
+    float *grho;         // Flux Surface Average of |Grad Rho|
+    float *grho2;        // Flux Surface Average of |Grad Rho|^2
+    float *volume;       // Flux Tube Volume
+    float *xarea;        // Cross-Sectional Area
+    float *gm2;          // Flux Surface Average of R;
+    float *gm3;          // Flux Surface Average of |Grad rho/R|^2;
+} METRIC_OUT;
 
 typedef struct FluxAverages
 {

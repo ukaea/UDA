@@ -1,71 +1,7 @@
 /*---------------------------------------------------------------
 * Accessor Functions
 *
-* Revision 0.0  05-Aug-2004   D.G.Muir
-* v1.0 10Jul2006 dgm changed user_timeout default from 0 to TIMEOUT
-* v1.1 06Sep2006 dgm Error Scale and Offset error model added to Data Error
-*      06Nov2006 dgm Error Asymmetry added
-*      10Nov2006 dgm Checks added on handle and Dimension limits
-*      13Dec2006 dgm errparams now fixed length array rather than heap
-*      21Dec2006 dgm Fortran functions tidied-up
-*      22Jan2007 dgm Properties: get_timedble and get_scalar added
-*      24Jan2007 dgm Properties: get_datadble, get_dimdble and get_bytes added
-*      20Feb2007 dgm Accessors: saveProperties and restoreProperties added
-*      28Feb2007 dgm Property values are now saved with the data and retrievable with the data's handle.
-*        The state of the get_bad property is now taken from this set of values OR the current
-*                       client property value. (If the client had specified get_bad beforehand this should be
-*        respected. If the client specifies it after the data were read then this also should
-*        be respected.)
-*      28Feb2007 dgm getIdamDataProperties accessor added
-*      21Mar2007 dgm DB_Socket renamed clientSocket
-*        version rename clientVersion
-*      23Mar2007 dgm Name changes to clarify Library Namespace
-*      17Apr2007 dgm X.509 Digital Certification Added
-*      09Jul2007 dgm int debug = 0; commented out - not used external!
-*      09Jul2007 dgm Error allocating errhi error data bug corrected.
-*      29Oct2008 dgm Added remaining data types: unsigned char, unsigned short, unsigned long
-*      04Nov2008 dgm Client Version changed from 1 to 3 for consistency with the latest server version.
-* 07Jul2009 dgm   Added compiler option ULONG64_OK to disable unsigned long long int: There is a gcc/ld bug with message
-*        hidden symbol `__fixunssfdi' in /usr/lib/gcc/i386-redhat-linux/4.1.1/libgcc.a(_fixunssfdi.o) is referenced by DSO
-*        /usr/bin/ld: final link failed: Nonrepresentable section on output
-*        This problem is fixed by removing references to unsigned long long int
-//       Also added option LONG64_OK for long long int
-// 07Jul2009   dgm   Rationalised Random Number PDF Error model IDs and association with GSL library
-// 08Jul2009   dgm   initEnvironment tested to initialise environment data structure
-// 09Jul2009   dgm   legacy accessors splitout into accAPI_CL.c
-// 20Jul2009   dgm   Added checksum function to data and coordinates for test comparison
-// 20Aug2009   dgm   Added get_nodimdata to properties
-// 02Oct2009   dgm   Added getIdamDoubleData and getIdamDoubleDimData
-// 06Oct2009   dgm   Added getIdamGenericData and getIdamGenericDimData
-// 25Nov2009   dgm   Added generalised user defined data structures
-// 22Jan2010   dgm   Changing client version number from 3 to 4
-// 28Jan2010   dgm   Added accessors to Tree Structures
-// 08Feb2010   dgm     added compiler option CASTLONG64_OK to switch out bug with __fixunssfdi (fixed using library libgcc.so)
-// 11Feb2010   dgm   freeDataBlock commented out - server side function only.
-// 05Mar2010   dgm   CreateConnection renamed to idamCreateConnection: includes multiple
-//       attempts to make socket connections to principal and secondary hosts.
-// 19Mar2010   dgm   Added 'string *' to getIdamDataTypeId function.
-// 23Apr2010   dgm   Added functions (re)setIdamPrivateFlag and changed version # to 5 from 4
-// 11May2010   dgm   source added to REQUEST_BLOCK => changed version # to 6 from 5 when TESTCODE is defined
-// 20May2010   dgm   Added default behaviour to getIdamDoubleData, getIdamFloatData, getIdamDoubleDimData, getIdamFloatDimData
-// 20May2010   dgm   Use TESTCODE to switch to expand_path2 and makeRequest2
-// 02Nov2010   dgm   clientFlags global added to pass client set properties via bit flags
-//       altRank global added to pass rank of alternative signal/source
-//       Added new functions to set/reset properties: altRank, altData
-// 09May2011   dgm   Removed compiler options LONG64_OK & ULONG64_OK & CASTLONG64_OK
-// 12Mar2012   dgm   Removed TESTCODE compiler option - legacy code deleted.
-// 29May2012   dgm   Added local file cache functionality
-// 02Jul2012   dgm   Added accessor function getIdamFileFormat
-// 11Nov2013   dgm   For __APPLE__ remove references to TYPE_UNSIGNED64
-// 18Nov2013    dgm     PUTDATA functionality included as standard rather than with a compiler option
-// 20Nov2013   dgm   DEV_08NOV2012 selections commented out
-// 24Apr2014   dgm   Added Global unsigned int totalDataBlockSize to hold the amount of data received for the last request
-// 28Apr2014   dgm   Added functions getIdamCachePermission & getIdamTotalDataBlockSize
-// 09Oct2014   dgm   Added functions putIdamClientDOI and putIdamClientOSName
-// 12May2015   dgm   include freeDataBlock.c for all builds rather than just for the FATCLIENT
-// 13Nov2015	dgm	Added a function to return a serialised DATA_BLOCK
-// 29Sep2016	dgm	Added MUTEX lock to main API
-*--------------------------------------------------------------*/
+*/
 
 #include "accAPI_C.h"
 
@@ -74,7 +10,11 @@
 #endif
 
 #include <math.h>
+#include <rpc/rpc.h>
+
 #include <idamLog.h>
+#include <include/idamclientprivate.h>
+#include <include/idamclientpublic.h>
 
 #include "initStructs.h"
 #include "TrimString.h"
@@ -84,6 +24,7 @@
 #include "protocol2.h"
 #include "getEnvironment.h"
 #include "accAPI_F.h"
+#include "idam_client.h"
 
 #include<pthread.h>
 

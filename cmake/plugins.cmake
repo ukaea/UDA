@@ -28,12 +28,7 @@ macro( idam_plugin )
     "${ARGN}" )
 
   include_directories(
-    ${CMAKE_SOURCE_DIR}
-    ${CMAKE_SOURCE_DIR}/include
-    ${CMAKE_SOURCE_DIR}/clientserver
-    ${CMAKE_SOURCE_DIR}/server
-    ${CMAKE_SOURCE_DIR}/structures
-    ${CMAKE_SOURCE_DIR}/logging
+    ${CMAKE_SOURCE_DIR}/source
   )
 
   if( CMAKE_COMPILER_IS_GNUCC )

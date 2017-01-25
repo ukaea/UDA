@@ -5,11 +5,6 @@
 *                   2) the data passed to the plugin
 *
 * Returns:
-*
-* Change History
-* 28Mar2013 DGMuir  Original Version
-*                   modified REQUEST_BLOCK - put and putData added
-// 18Nov2013 dgm PUTDATA functionality included as standard rather than with a compiler option
 *--------------------------------------------------------------*/
 
 #include "idamPutAPI.h"

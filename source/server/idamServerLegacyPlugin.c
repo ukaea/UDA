@@ -2,10 +2,6 @@
 * Legacy Request Data structure from old Client versions
 *
 * No alteration to request_block are necessary - only interpretation.
-*---------------------------------------------------------------------------------------------------------------------
-* Change History:
-*
-* 24May2010	dgm	Original version
 *---------------------------------------------------------------------------------------------------------------------*/
 
 #include <idamLog.h>

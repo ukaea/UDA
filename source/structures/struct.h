@@ -1,5 +1,5 @@
-#ifndef IDAM_STRUCT_H
-#define IDAM_STRUCT_H
+#ifndef IDAM_STRUCTURES_STRUCT_H
+#define IDAM_STRUCTURES_STRUCT_H
 
 #include <stdio.h>
 #include <rpc/rpc.h>
@@ -7,7 +7,7 @@
 #include <include/idamtypes.h>
 
 #ifdef SERVERBUILD
-#  include "idamserver.h"
+#  include <include/idamserver.h>
 #endif
 
 #ifdef __cplusplus
@@ -1101,5 +1101,5 @@ extern struct USERDEFINEDTYPELIST* userdefinedtypelist;
 }
 #endif
 
-#endif // IDAM_STRUCT_H
+#endif // IDAM_STRUCTURES_STRUCT_H
 

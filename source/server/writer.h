@@ -1,8 +1,7 @@
+#ifndef IDAM_SERVER_WRITER_H
+#define IDAM_SERVER_WRITER_H
 
-#ifndef IDAM_WRITER_H
-
-#include "idamclientserver.h"
-#include "idamserver.h"
+#include <unistd.h>
 
 #define MIN_BLOCK_TIME	1000
 #define MAX_BLOCK_TIME	10000
@@ -39,4 +38,4 @@ int Writeout(void *iohandle, char *buf, int count);
 */
 int Readin(void *iohandle, char *buf, int count);
 
-#endif // IDAM_WRITER_H
+#endif // IDAM_SERVER_WRITER_H

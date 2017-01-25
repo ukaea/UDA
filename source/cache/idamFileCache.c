@@ -1,11 +1,5 @@
 /*---------------------------------------------------------------
 * IDAM Client Data Cache
-*
-*----------------------------------------------------------------
-* Change History:
-*
-* 11Jun2012   D.G.Muir	Original Version
-
 *----------------------------------------------------------------
 Contents of DATA_BLOCK structures written to a local cache
 Date/Time Stamp used to build in automatic obsolescence.

@@ -1,5 +1,5 @@
-#ifndef IDAM_ACCAPI_F_H
-#define IDAM_ACCAPI_F_H
+#ifndef IDAM_CLIENT_ACCAPI_F_H
+#define IDAM_CLIENT_ACCAPI_F_H
 
 void idamgetapi_(char* data_object, char* data_source, int* handle, int ldata_object, int ldata_source);
 
@@ -176,4 +176,4 @@ void getidamenv_(char* str, int* rc, char* env, int lstr, int lenv);
 
 void whereidamami_(void* var, char* loc, int lloc);
 
-#endif // IDAM_ACCAPI_F_H
+#endif // IDAM_CLIENT_ACCAPI_F_H

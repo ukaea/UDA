@@ -1,6 +1,5 @@
-
-#ifndef IDAM_ALLOCDATA_H
-#define IDAM_ALLOCDATA_H
+#ifndef IDAM_CLIENTSERVER_ALLOCDATA_H
+#define IDAM_CLIENTSERVER_ALLOCDATA_H
 
 #include "idamStructs.h"
 
@@ -10,4 +9,4 @@ int allocDim(DATA_BLOCK * data_block);
 int allocPutData(PUTDATA_BLOCK *putData);
 void addIdamPutDataBlockList(PUTDATA_BLOCK *putDataBlock, PUTDATA_BLOCK_LIST *putDataBlockList);
 
-#endif // IDAM_ALLOC_DATA_H
+#endif // IDAM_CLIENTSERVER_ALLOCDATA_H

@@ -1,5 +1,5 @@
-#ifndef IDAM_IDAMPUTAPI_H
-#define IDAM_IDAMPUTAPI_H
+#ifndef IDAM_CLIENT_IDAMPUTAPI_H
+#define IDAM_CLIENT_IDAMPUTAPI_H
 
 #include <clientserver/idamStructs.h>
 
@@ -12,4 +12,4 @@ int idamPutListAPI(const char *putInstruction, PUTDATA_BLOCK_LIST *inPutDataBloc
 int idamPutAPI(const char *putInstruction, PUTDATA_BLOCK *inPutData);
 void freeIdamClientPutDataBlockList(PUTDATA_BLOCK_LIST *putDataBlockList);
 
-#endif // IDAM_IDAMPUTAPI_H
+#endif // IDAM_CLIENT_IDAMPUTAPI_H

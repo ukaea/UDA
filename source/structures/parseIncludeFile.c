@@ -3,12 +3,6 @@
 //
 //	Only rank 1 arrays are handled. Higher rank causes a seg fault
 //
-// Change History:
-//
-// 05Jan2010	DGMuir	Original version
-// 04May2010	DGMuir	Corrected bug when type is unsigned
-//			Corrected for final structure packing: alignment is largest of element alignments
-// 06Feb2015	DGMuir  Added test for record beginning */
 //----------------------------------------------------------------------------------------------------------------------------
 // parse a standard include/header file for structure definitions.
 // alternatively, query an SQL database for the structure definition: Always up-to-date!

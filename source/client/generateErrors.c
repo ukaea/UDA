@@ -1,8 +1,3 @@
-//! $LastChangedRevision: 353 $
-//! $LastChangedDate: 2013-11-18 15:32:28 +0000 (Mon, 18 Nov 2013) $
-//! $LastChangedBy: dgm $
-//! $HeadURL: https://fussvn.fusion.culham.ukaea.org.uk/svnroot/IDAM/development/source/client/generateErrors.c $
-
 /*---------------------------------------------------------------
 * IDAM Model Based Symmetric/Asymmetric Error Data Generation
 *
@@ -13,25 +8,14 @@
 *
 * Notes:
 *
-* Change History
-* 0.0  	03Nov2006	D.G.Muir	Original Version
-* 24Oct2007	dgm	ERRORSTACK components added
-* 29Oct2008	dgm	Added unsigned types: short, long and char
-* 06Jun2009	dgm	Added all unsigned types, long64 and complex types
-* 07Jul2009	dgm	Added compiler option ULONG64_OK to disable unsigned long long int: There is a gcc/ld bug with message
-*			hidden symbol `__fixunssfdi' in /usr/lib/gcc/i386-redhat-linux/4.1.1/libgcc.a(_fixunssfdi.o) is referenced by DSO
-*			/usr/bin/ld: final link failed: Nonrepresentable section on output
-*			This problem is fixed by removing references to unsigned long long int
-//			Also added option LONG64_OK for long long int
-// 07Jul2009	dgm	Changed Random number generators etc to GSL library
-// 08Feb2010	dgm	added compiler option CASTLONG64_OK to switch out bug with __fixunssfdi
-// 09May2011	dgm	Removed compiler options LONG64_OK & ULONG64_OK
 *--------------------------------------------------------------*/
 
 #include "generateErrors.h"
 
-#include "allocData.h"
 #include <math.h>
+
+#include "allocData.h"
+#include "accAPI_C.h"
 
 #ifndef NO_GSL_LIB
 #  include <gsl/gsl_randist.h>

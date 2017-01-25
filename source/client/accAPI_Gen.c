@@ -1,23 +1,12 @@
-//! $LastChangedRevision: 107 $
-//! $LastChangedDate: 2009-10-07 15:18:57 +0100 (Wed, 07 Oct 2009) $
-//! $LastChangedBy: dgm $
-//! $HeadURL: https://fussvn.fusion.culham.ukaea.org.uk/svnroot/IDAM/development/source/client/accAPI_Gen.c $
-
 //---------------------------------------------------------------
 // Accessor Functions to General/Arbitrary Data Structures
-//
-// Change History
-//
-// 28Jan2010    dgm Created
-// 25Oct2012    dgm Added findIdamNTreeStructureDefinition
-// 06Nov2012    dgm Added global lastMallocIndex and lastMallocIndexValue to pass and update the
-//                  next search position for findMalloc calls
 //----------------------------------------------------------------
 
 #ifdef GENERALSTRUCTS
 
 #include <accessors.h>
 #include <structures/struct.h>
+#include <include/idamclientserver.h>
 #include "accAPI_Gen.h"
 #include "accAPI_C.h"
 

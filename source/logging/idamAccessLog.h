@@ -1,5 +1,5 @@
-#ifndef IDAM_IDAMACCESSLOG_H
-#define IDAM_IDAMACCESSLOG_H
+#ifndef IDAM_LOGGING_IDAMACCESSLOG_H
+#define IDAM_LOGGING_IDAMACCESSLOG_H
 
 #include <include/idamplugin.h>
 
@@ -13,5 +13,5 @@ unsigned int countDataBlockSize(DATA_BLOCK* data_block, CLIENT_BLOCK* client_blo
 void idamAccessLog(int init, CLIENT_BLOCK client_block, REQUEST_BLOCK request,
                    SERVER_BLOCK server_block, DATA_BLOCK data_block);
 
-#endif // IDAM_IDAMACCESSLOG_H
+#endif // IDAM_LOGGING_IDAMACCESSLOG_H
 

@@ -1,14 +1,9 @@
-//
-// Created by jholloc on 16/02/16.
-//
-
 #ifndef IDAM_IDAMSERVERHELP_H
 #define IDAM_IDAMSERVERHELP_H
 
-#include <stdio.h>
-#include <idamgenstructpublic.h>
-#include <idamclientserverpublic.h>
-#include <idamplugin.h>
+#include <include/idamgenstruct.h>
+#include <clientserver/idamStructs.h>
+#include <include/idamplugin.h>
 
 #define THISPLUGIN_VERSION                  1
 #define THISPLUGIN_MAX_INTERFACE_VERSION    1

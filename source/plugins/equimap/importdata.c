@@ -8,14 +8,11 @@
 
 #include <math.h>
 #include <float.h>
-#include <strings.h>
 
-#include <idamErrorLog.h>
-#include <accAPI_C.h>
-#include <IdamAPI.h>
-#include <TrimString.h>
-#include <initStructs.h>
-#include <idamLog.h>
+#include <client/accAPI_C.h>
+#include <client/IdamAPI.h>
+#include <clientserver/TrimString.h>
+#include <clientserver/initStructs.h>
 
 #ifndef M_PI
 # define M_PI           3.14159265358979323846

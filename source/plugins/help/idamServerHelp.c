@@ -15,28 +15,20 @@
 *		This has the same functionality as setting the housekeeping directive in the plugin interface
 *		data structure to TRUE (1)
 *	init	Initialise the plugin: read all required data and process. Retain staticly for
-*		future reference.	
-
-* Change History
-*
-* 21May2013	D.G.Muir	Original Version
-* 10Jul2014	dgm		Added standard methods: version, builddate, defaultmethod, maxinterfaceversion
+*		future reference.
 *---------------------------------------------------------------------------------------------------------------*/
-
-#include <idamserver.h>
-#include <idamErrorLog.h>
-#include <initStructs.h>
-#include <struct.h>
-#include <idamLog.h>
-#include <accessors.h>
 #include "idamServerHelp.h"
+
+#include <include/idamserver.h>
+#include <clientserver/initStructs.h>
+#include <structures/struct.h>
+#include <structures/accessors.h>
 
 int idamServerHelp(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
     int i, err, offset;
     static short init = 0;
     char* p;
-
 
 //----------------------------------------------------------------------------------------
 // Standard v1 Plugin Interface

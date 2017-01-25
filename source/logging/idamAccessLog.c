@@ -8,16 +8,6 @@
 * plus:		error message, elapsed time, client version, server version
 *		client process id
 *
-* Change History
-*
-* 18Oct2007	dgmuir	Original Version
-* 30Oct2008	dgm	Added remaining data types: unsigned char, unsigned short, unsigned long
-* 13Nov2009	dgm	Added client process id to end of log string: enables DoS type problems to be
-*			associated with a single process
-* 06Feb2014	dgm	Add User DOI if passed
-*			Record log record in the Provenance plugin if present
-* 24Apr2014	dgm	Refactored countDataBlockSize code for use elsewhere
-* 20May2016	dgm	Increased HOSTNAMELENGTH from 15 to 20 - was dropping the final numeral from the IP address
 *--------------------------------------------------------------*/
 
 #include "idamAccessLog.h"

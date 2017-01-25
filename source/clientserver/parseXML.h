@@ -1,26 +1,9 @@
-//! $LastChangedRevision: 353 $
-//! $LastChangedDate: 2013-11-18 15:32:28 +0000 (Mon, 18 Nov 2013) $
-//! $LastChangedBy: dgm $
-//! $HeadURL: https://fussvn.fusion.culham.ukaea.org.uk/svnroot/IDAM/development/source/include/parseXML.h $
-
 // Header file for Server XML Structures
 //
-// Change History
-//
-// 22Feb2007 dgm	TIMEOFFSET structure changed to enable different
-//                      correction methods to be applied.
-// 09Mar2007 dgm	Additional items to COMPOSITE (order, file, format) and DIMCOMPOSITE (file, format) Structures
-//			SXMLMAXSTRING increased from 256 to 1024
-// 26Mar2008 dgm	Added data subsetting and coordinate mapping
-// 02Apr2008 dgm	C++ test added for inclusion of extern "C"
-// 28Jan2010 dgm	Added int invert to CALIBRATION and DIMCALIBRATION data structures
-// 05Nov2010 dgm	Added member to SUBSET data structure
-// 10Nov2010 dgm	Added 'function' to SUBSET data structure
-// 01Feb2011 dgm	Added 'order' to SUBSET data structure
 //------------------------------------------------------------------------------------------
 
-#ifndef IDAM_PARSEXML_H
-#define IDAM_PARSEXML_H
+#ifndef IDAM_CLIENTSERVER_PARSEXML_H
+#define IDAM_CLIENTSERVER_PARSEXML_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -297,5 +280,5 @@ void initMap(MAP * act);
 }
 #endif
 
-#endif // IDAM_PARSEXML_H
+#endif // IDAM_CLIENTSERVER_PARSEXML_H
 

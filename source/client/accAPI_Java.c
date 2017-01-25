@@ -1,12 +1,6 @@
-//! $LastChangedRevision: 330 $
-//! $LastChangedDate: 2012-07-19 12:05:03 +0100 (Thu, 19 Jul 2012) $
-//! $LastChangedBy: dgm $
-//! $HeadURL: https://fussvn.fusion.culham.ukaea.org.uk/svnroot/IDAM/development/source/client/accAPI_Java.c $
-
 //---------------------------------------------------------------
 // Java JNI native Methods
 //
-// 26Jul2012	DGMuir	Original Version
 /*--------------------------------------------------------------*/
 
 #ifdef JAVA_API

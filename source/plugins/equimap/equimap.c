@@ -1,8 +1,3 @@
-//! $LastChangedRevision: 70 $
-//! $LastChangedDate: 2008-06-26 10:44:44 +0100 (Thu, 26 Jun 2008) $
-//! $LastChangedBy: dgm $
-//! $HeadURL:https://fussvn.fusion.culham.ukaea.org.uk/svnroot/IDAM/development/source/plugins/equimap/equimap.c $
-
 /*---------------------------------------------------------------
 * IDAM Plugin data Reader to Access DATA mapped to a common time invarient grid
 
@@ -20,22 +15,16 @@
 *		are freed on exit. However, the blocks reserved for data are
 *		not and MUST BE FREED by the calling routine.
 *
-*
-* Change History
-*
-* 04Oct2011	D.G.Muir	Original Version
 *---------------------------------------------------------------------------------------------------------------*/
 #include "equimap.h"
+
+#include <include/idamserver.h>
+#include <clientserver/initStructs.h>
+#include <client/accAPI_C.h>
+#include <client/idam_client.h>
+
 #include "importdata.h"
 #include "smoothpsi.h"
-
-#include <strings.h>
-#include <idamserver.h>
-#include <idamErrorLog.h>
-#include <initStructs.h>
-#include <accAPI_C.h>
-#include <idam_client.h>
-#include <idamLog.h>
 
 static int handleCount = 0;
 static int handles[MAXHANDLES];

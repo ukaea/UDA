@@ -21,14 +21,12 @@
 *
 * 10Jul2014	D.G.Muir	Original Version
 *---------------------------------------------------------------------------------------------------------------*/
-#include <idamErrorLog.h>
-#include <initStructs.h>
-#include <managePluginFiles.h>
-#include <idamLog.h>
-#include "idamserver.h"
-
-#include "idamplugin.h"
 #include "hdf5plugin.h"
+
+#include <include/idamserver.h>
+#include <server/managePluginFiles.h>
+#include <clientserver/initStructs.h>
+
 #include "readHDF58.h"
 
 IDAMPLUGINFILELIST pluginFileList;    // Private list of open data file handles

@@ -1,27 +1,13 @@
-//! $LastChangedRevision: 12 $
-//! $LastChangedDate: 2007-12-14 14:52:30 +0000 (Fri, 14 Dec 2007) $
-//! $LastChangedBy: dgm $
-//! $HeadURL: https://fussvn.fusion.culham.ukaea.org.uk/svnroot/IDAM/development/source/client/idamCreateConnection.c $
-
 // Create a Socket Connection to the IDAM server with a randomised time delay between connection attempts
 //
-// Change History:
-//
-// 04Aug2006	dgm	Changed to Environment Variable Structure Data.
-// 19Oct2006	dgm	window_size changed to More Optimal Value of 128k from 16k
-// 13Nov2006	dgm	Added the Socket to a List of Open Sockets
-// 21Mar2007	dgm	socketlist changed to client_socketlist
-//			DB_Socket renamed clientSocket
-//			Input, Output renamed clientInput, clientOutput
-// 24Oct2007	dgm	ERRORSTACK components added
-// 05Mar2010	dgm	Renamed from CreateConnection.c and modified to repeat connection attempts with a randomised time delay.
-// 31Jan2011	dgm	Windows sockets implementation
 //----------------------------------------------------------------
 
 #include "idamCreateConnection.h"
 
 #include <unistd.h>
 #include <netdb.h>
+
+#include <include/idamclientprivate.h>
 
 #include "idamErrorLog.h"
 #include "manageSockets.h"

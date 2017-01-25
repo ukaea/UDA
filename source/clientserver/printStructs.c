@@ -1,26 +1,5 @@
-//! $LastChangedRevision: 330 $
-//! $LastChangedDate: 2012-07-19 12:05:03 +0100 (Thu, 19 Jul 2012) $
-//! $LastChangedBy: dgm $
-//! $HeadURL: https://fussvn.fusion.culham.ukaea.org.uk/svnroot/IDAM/development/source/clientserver/printStructs.c $
-
 // Print the Contents of the database Record Structures
 //
-// Change History:
-//
-//dgm	03Sep2006	Signal type added to Signal_Desc Structure
-//			Status datatype changed from Byte to Int
-//dgm	06Sep2006	Error Details added from Signal_Desc record
-//dgm	13Dec2006	errparams now fixed length array rather than heap
-//dgm   24Jan2007	get_dimdble anded and get_dble changed to get_datadble
-//dgm   15Mar2007	tpass and format added to Request_Block
-//dgm	04Nov2008	opaque_count added
-//dgm	20AUG2009	CLIENT_BLOCK debug_level changed to get_nodimdata
-//dgm   26Apr2010	privateFlags added to CLIENT_BLOCK
-// 02Nov2010 dgm 	new bit flags added for passing via properties in CLIENT_BLOCK
-//		 	verbose structure element renamed clientFlags
-//		 	debug structure element renamed altRank
-// 19Apr2011 dgm	Added fields subset and datasubset to initRequestBlock
-// 28Apr2014 dgm 	Added totalDataBlockSize and cachePermission to DATA_BLOCK
 //----------------------------------------------------------------------------------
 
 #include "printStructs.h"

@@ -3,19 +3,17 @@
 *
 * Returns:
 *
-* Revision 0.0  05-Aug-2004	D.G.Muir
-* 0.1	21Mar2007	dgm	accout renamed server_accout
-* 0.2   09Jul2007	dgm	debugon enabled
-* 23Oct207	dgm	ERRORSTACK components enabled
-* 08Nov207	dgm	ENVIRONMENT Structure added
-* 08Jul2009	dgm	FILE changed to static FILE and moved to top of idamServer
 *--------------------------------------------------------------*/
 
 #include "idamServerStartup.h"
 
+#include <stdlib.h>
+#include <errno.h>
+
 #include <idamLog.h>
+#include <clientserver/idamErrorLog.h>
+
 #include "getServerEnvironment.h"
-#include "idamErrorLog.h"
 
 int startup(void)
 {

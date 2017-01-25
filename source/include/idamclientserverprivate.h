@@ -114,17 +114,6 @@ extern "C" {
 //#define HIERARCHICAL_DATA     // Enables ITM-Like Data Structure Passing Protocol
 
 //--------------------------------------------------------
-// SQL Database Connection Defaults
-
-#define SQL_PORT    56566
-#define SQL_DBNAME  "idam"
-
-#ifdef CLIENTBUILD
-#define SQL_USER    "mast_db"
-#define SQL_HOST    "fuslwn"
-#endif
-
-//--------------------------------------------------------
 // Error Management
 
 #define SYSTEMERRORTYPE     1

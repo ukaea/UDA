@@ -11,20 +11,14 @@
   icatRef	ICAT reference Id (foreign key)
   status	UUID status [open, closed, delete | firm | pending]
   creation	Date of registration
-
-*
-* Change History
-*
-* 09May2014	dgm	Original Version 
 *---------------------------------------------------------------------------------------------------------------*/
 #include "status.h"
-#include "provenance.h"
 
-#include <idamErrorLog.h>
-#include <initStructs.h>
-#include <struct.h>
-#include <idamLog.h>
-#include <accessors.h>
+#include <clientserver/initStructs.h>
+#include <structures/struct.h>
+#include <structures/accessors.h>
+
+#include "provenance.h"
 
 int status(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {

@@ -1,6 +1,5 @@
-
-#ifndef IDAM_MANAGESOCKETS_H
-#define IDAM_MANAGESOCKETS_H
+#ifndef IDAM_CLIENTSERVER_MANAGESOCKETS_H
+#define IDAM_CLIENTSERVER_MANAGESOCKETS_H
 
 #include <include/idamclientserverprivate.h>
 
@@ -16,5 +15,5 @@ int getSocket(SOCKETLIST *socks, int type, int *status, char *host, int port, in
 // Search for an Open Socket in the Socket List
 int getSocketRecordId(SOCKETLIST *socks, int fh);
 
-#endif // IDAM_MANAGESOCKETS_H
+#endif // IDAM_CLIENTSERVER_MANAGESOCKETS_H
 

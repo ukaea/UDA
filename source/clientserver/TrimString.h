@@ -1,5 +1,5 @@
-#ifndef IDAM_TRIMSTRING_H
-#define IDAM_TRIMSTRING_H
+#ifndef IDAM_CLIENTSERVER_TRIMSTRING_H
+#define IDAM_CLIENTSERVER_TRIMSTRING_H
 
 #include <string.h>
 #include <ctype.h>
@@ -52,5 +52,5 @@ void FreeSplitStringTokens(char*** tokens);
 #define STR_EQUALS(X, Y) !strncmp(X, Y, strlen(Y))
 #define STR_IEQUALS(X, Y) !strncasecmp(X, Y, strlen(Y))
 
-#endif // IDAM_TRIMSTRING_H
+#endif // IDAM_CLIENTSERVER_TRIMSTRING_H
 

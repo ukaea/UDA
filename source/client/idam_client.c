@@ -2,23 +2,18 @@
 //
 // Input Arguments: 1) Client Request Structure
 //
-// Change History
-//
-// 20Jun2013    D.G.Muir    Original Version based on IdamClient.c
-// 20Nov2013    D.G.Muir    Simplified the protocol to elliminate too frequent TCP packet transmission
-// 28Apr2014    D.G.Muir    Reworked data caching based on memcache
-//                          Receive cache permission and total DATA_BLOCK size ahead of the structure
-// 30Nov2016	D.G.Muir    Reuse allocated new Data_Blocks if CLIENTFLAG_REUSELASTHANDLE or CLIENTFLAG_FREEREUSELASTHANDLE 
 /*--------------------------------------------------------------
 * BUG:  the value of handle returned in the DATA_BLOCK structure is 1 too high: Fortran accessors? - needs investigation!
 *--------------------------------------------------------------*/
 
 #include "idam_client.h"
-#include "accAPI_C.h"
 
 #include <unistd.h>
+
 #include <idamLog.h>
 #include <clientserver/idamErrors.h>
+#include <include/idamclientprivate.h>
+#include <include/idamclientpublic.h>
 
 #include "idamErrorLog.h"
 #include "userid.h"
@@ -27,6 +22,7 @@
 #include "freeDataBlock.h"
 #include "struct.h"
 #include "closedown.h"
+#include "accAPI_C.h"
 
 #ifdef FATCLIENT
 #  include "idamServerPlugin.h"

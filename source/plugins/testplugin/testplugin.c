@@ -23,13 +23,10 @@
 *---------------------------------------------------------------------------------------------------------------*/
 #include "testplugin.h"
 
-#include <idamserver.h>
-#include <idamErrorLog.h>
-#include <struct.h>
-#include <initStructs.h>
-#include <makeServerRequestBlock.h>
-#include <TrimString.h>
-#include <idamLog.h>
+#include <clientserver/initStructs.h>
+#include <structures/struct.h>
+#include <server/makeServerRequestBlock.h>
+#include <clientserver/TrimString.h>
 
 #ifdef PUTDATAENABLED
 #  include <structures/accessors.h>

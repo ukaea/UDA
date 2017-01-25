@@ -213,8 +213,6 @@ int readCMDSQL(PGconn* DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_
 // For each archive:		list of data sources; list of data items.
 // External links:		list of known external devices and how to connect to them (web, idam, mds+).
 
-#include "createSQLTestData.c"
-
 int readSQL(PGconn* DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_source,
             DATA_BLOCK* data_block)
 {
@@ -555,12 +553,6 @@ int readSQL(PGconn* DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_sou
     if (queryType == SQLUNKNOWN && !strncasecmp(request_block.signal, "soapdatatest", 12)) {
         strcpy(udtname, "soapdatatest");
         queryType = SQLSOAPTEST;
-    }
-
-    if (queryType == SQLUNKNOWN && IsNumber(request_block.signal)) {
-        int test = atoi(request_block.signal);
-        err = createSQLTestData(data_block, test);
-        return (err);
     }
 
 #endif

@@ -1,29 +1,21 @@
-//! $LastChangedRevision: 107 $
-//! $LastChangedDate: 2009-10-07 15:18:57 +0100 (Wed, 07 Oct 2009) $
-//! $LastChangedBy: dgm $
-//! $HeadURL: https://fussvn.fusion.culham.ukaea.org.uk/svnroot/IDAM/development/source/client/ClientMDS.c $
-
-/*---------------------------------------------------------------
-* Reads the Requested Data
-*
-* Input Arguments:	1) MDS+ Server Name
-*			3) MDS+ Tree Name   or Generic)
-*			4) MDS+ Node Name
-*			5) MDS+ Tree Number
-*
-* Returns:
-*
-* Revision 0.0  05-Aug-2004	D.G.Muir
-*
-// 09Jul2009	dgm	Legacy APIs moved to accAPI_CL.c
-*--------------------------------------------------------------*/
+#include "ClientMDS.h"
 
 #include <idamLog.h>
-#include "ClientMDS.h"
+#include <include/idamclientprivate.h>
 
 #include "initStructs.h"
 #include "startup.h"
+#include "idam_client.h"
 
+/**
+ * Reads the Requested Data
+ *
+ * @param server MDS+ Server Name
+ * @param tree MDS+ Tree Name or Generic)
+ * @param node MDS+ Node Name
+ * @param treenum MDS+ Tree Number
+ * @return
+ */
 int idamClientMDS(const char* server, const char* tree, const char* node, int treenum)
 {
     REQUEST_BLOCK request_block;

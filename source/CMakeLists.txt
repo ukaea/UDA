@@ -82,7 +82,3 @@ if( FAT_BUILD OR NOT CLIENT_ONLY )
   add_subdirectory( server )
   add_subdirectory( plugins )
 endif()
-
-if( NOT SERVER_ONLY )
-  add_subdirectory( tests )
-endif()

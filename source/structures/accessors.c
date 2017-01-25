@@ -1,10 +1,3 @@
-/** @file */
-
-/*---------------------------------------------------------------------------------------------
-Change History
-
-29Jun2015	dgm	modified findNTreeStructureComponent2 to remove ambiguity and bug 
-*/
 //---------------------------------------------------------------------------------------------
 // User Accessor functions to General Data Structures
 //---------------------------------------------------------------------------------------------
@@ -51,9 +44,10 @@ Change History
 //
 // printImage
 //
+#include "accessors.h"
 
 #include <idamLog.h>
-#include "accessors.h"
+#include <stdlib.h>
 
 #include "struct.h"
 

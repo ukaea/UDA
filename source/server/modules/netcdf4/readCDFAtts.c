@@ -1,8 +1,3 @@
-//! $LastChangedRevision: 70 $
-//! $LastChangedDate: 2008-06-26 10:44:44 +0100 (Thu, 26 Jun 2008) $
-//! $LastChangedBy: dgm $
-//! $HeadURL: https://fussvn.fusion.culham.ukaea.org.uk/svnroot/IDAM/development/source/plugins/netcdf/readCDFAtts.c $
-
 /*---------------------------------------------------------------
 * IDAM Plugin data Reader to Access DATA from netCDF4 Files
 *
@@ -26,23 +21,13 @@
 *		TRANSP data has coordinate dimensions that are of rank > 1: They are time dependent!
 *		Ensure the netCDF3 plugin functionality is enabled.
 *
-* Change History
-*
-* 1.0	13Jun2006	D.G.Muir	Original Version
-* 1.1	05Jul2006	D.G.Muir	Return meaingful time depenedent dimension values
-* 1.2	27Mar2007	D.G.Muir	File Handle Management added
-* 1.3   19Apr2007	D.G.Muir	nc_inq_attlen(,,,&attlength) changed to nc_inq_attlen(,,,(size_t *)&attlength)
-* 23Oct2007 dgm	ERRORSTACK Components added
-* 20Apr2009 dgm	Modified to use the netCDF4 API
-* 07May2010 dgm	Set return strings to null before reading attributes
-* 16Dec2011 dgm	Corrected bug that occurs in 64 bit server: change int to size_t for variable attlength
-* 19Mar2012 dgm	Generalised string attributes by checking the type: NC_CHAR or NC_STRING
-*		removed count check on attributes copied to the output arguments
 *-----------------------------------------------------------------------------*/
+#include "readCDFAtts.h"
+
 #include <idamErrorLog.h>
 #include <TrimString.h>
 #include <include/idamclientserverprivate.h>
-#include "readCDFAtts.h"
+#include <stdlib.h>
 
 #include "idamserverfiles.h"
 #include "readCDF4.h"

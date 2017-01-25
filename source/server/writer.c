@@ -1,27 +1,9 @@
-/*---------------------------------------------------------------
-* Write/Read from the XDR Stream
-*
-* Returns:
-*
-* Revision 0.4  10-Jul-2005	D.G.Muir
-* v1.0 10Jul2006	dgm	Renamed SERVER_TIMEOUT to user_timeout
-*				Max Blocking Time decreased from 100ms to 10ms
-* v1.1 21Mar2007	dgm	user_timeout renamed server_timeout
-*				tot_block_time renamed server_tot_block_time
-*				min_block_time changed to #define MIN_BLOCK_TIME
-				max_block_time changed to #define MAX_BLOCK_TIME
-				DB_Socket renamed serverSocket
-
-* v1.2 09Jul2007	dgm	debugon enabled
-// 08Jul2009	dgm	server_tot_block_time moved to idamServer as static
-*--------------------------------------------------------------*/
-
 #include "writer.h"
 
-#include <unistd.h>
-#include <idamLog.h>
+#include <errno.h>
 
-#include "idamServerStartup.h"
+#include <idamLog.h>
+#include <clientserver/idamDefines.h>
 
 int serverSocket = 0;
 

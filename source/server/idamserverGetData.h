@@ -1,8 +1,9 @@
-#ifndef IDAM_IDAMSERVERGETDATA2_H
-#define IDAM_IDAMSERVERGETDATA2_H
+#ifndef IDAM_SERVER_IDAMSERVERGETDATA2_H
+#define IDAM_SERVER_IDAMSERVERGETDATA2_H
 
+#include <postgresql/libpq-fe.h>
 #include <clientserver/parseXML.h>
-#include "sqllib.h"
+#include "idamStructs.h"
 
 int idamserverGetData(PGconn* DBConnect, int* depth, REQUEST_BLOCK request_block, CLIENT_BLOCK client_block,
                       DATA_BLOCK* data_block, DATA_SOURCE* data_source, SIGNAL* signal_rec, SIGNAL_DESC* signal_desc,
@@ -18,5 +19,5 @@ int idamserverSwapSignalDimError(DIMCOMPOSITE dimcomposite, DATA_BLOCK* data_blo
 int idamserverReadData(PGconn* DBConnect, REQUEST_BLOCK request_block, CLIENT_BLOCK client_block,
                        DATA_BLOCK* data_block, DATA_SOURCE* data_source, SIGNAL* signal_rec, SIGNAL_DESC* signal_desc);
 
-#endif // IDAM_IDAMSERVERGETDATA2_H
+#endif // IDAM_SERVER_IDAMSERVERGETDATA2_H
 

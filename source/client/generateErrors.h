@@ -1,5 +1,5 @@
-#ifndef IDAM_GENERATEERRORS_H
-#define IDAM_GENERATEERRORS_H
+#ifndef IDAM_CLIENT_GENERATEERRORS_H
+#define IDAM_CLIENT_GENERATEERRORS_H
 
 #include "idamclientserver.h"
 #include "idamclient.h"
@@ -12,5 +12,5 @@ int generateIdamSyntheticDimData(int handle, int ndim);
 int generateIdamDataError(int handle);
 int generateIdamDimDataError(int handle, int ndim);
 
-#endif // IDAM_GENERATEERRORS_H
+#endif // IDAM_CLIENT_GENERATEERRORS_H
 

@@ -1,7 +1,7 @@
-#ifndef IDAM_PUTOPENCLOSE_H
-#define IDAM_PUTOPENCLOSE_H
+#ifndef IDAM_PLUGINS_PUTDATA_PUTOPENCLOSE_H
+#define IDAM_PLUGINS_PUTDATA_PUTOPENCLOSE_H
 
-#include <idamplugin.h>
+#include <include/idamplugin.h>
 
 #define PLUGIN_VERSION 1
 
@@ -18,4 +18,4 @@ int do_close(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
 int get_complex_types(int fileid, int* ctype, int* dctype);
 int get_file_id(int fileidx);
 
-#endif //IDAM_PUTOPENCLOSE_H
+#endif //IDAM_PLUGINS_PUTDATA_PUTOPENCLOSE_H

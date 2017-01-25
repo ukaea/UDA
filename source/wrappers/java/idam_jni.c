@@ -1,8 +1,3 @@
-//! $LastChangedRevision: 330 $
-//! $LastChangedDate: 2012-07-19 12:05:03 +0100 (Thu, 19 Jul 2012) $
-//! $LastChangedBy: dgm $
-//! $HeadURL: https://fussvn.fusion.culham.ukaea.org.uk/svnroot/IDAM/development/source/client/accAPI_C.c $
-
 //---------------------------------------------------------------
 // Java JNI native Methods
 //
@@ -10,29 +5,13 @@
 /*--------------------------------------------------------------*/
 
 #include <jni.h>
-#include <stdio.h>
 #include <dlfcn.h>
 
+#include <client/IdamAPI.h>
+#include <client/idam_client.h>
+#include <client/accAPI_C.h>
+
 #include "idamclientserverpublic.h"
-#include "idamclientserverprivate.h"
-#include "idamclientpublic.h"
-#include "idamclientprivate.h"
-
-/*
-#ifdef FATCLIENT
-#include "idamserver.h"
-#endif
-
-#ifdef GENERALSTRUCTS 
-#include "idamgenstruct.h"
-
-#ifdef FATCLIENT
-#include "idamplugin.h"
-#endif
-
-#endif
-*/
-
 
 // Java native methods
 

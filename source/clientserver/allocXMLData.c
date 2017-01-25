@@ -1,16 +1,8 @@
-//! $LastChangedRevision: 109 $
-//! $LastChangedDate: 2009-11-09 09:34:37 +0000 (Mon, 09 Nov 2009) $
-//! $LastChangedBy: dgm $
-//! $HeadURL: https://fussvn.fusion.culham.ukaea.org.uk/svnroot/IDAM/development/source/clientserver/allocXMLData.c $
-
 /*---------------------------------------------------------------
 * Allocate Memory for XML based Hierarchical Data Structures
 *
 * returns 0 if No Heap Allocation Error occurs
 *
-* Change History
-*
-* 1.0	dgm	31May2007	Original Version
 *--------------------------------------------------------------*/
 
 #include "allocXMLData.h"

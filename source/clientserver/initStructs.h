@@ -1,6 +1,5 @@
-
-#ifndef IDAM_INITSTRUCTS_H
-#define IDAM_INITSTRUCTS_H
+#ifndef IDAM_CLIENTSERVER_INITSTRUCTS_H
+#define IDAM_CLIENTSERVER_INITSTRUCTS_H
 
 #include "idamStructs.h"
 
@@ -18,4 +17,4 @@ void initSignalDesc(SIGNAL_DESC *str);
 void initIdamPutDataBlock(PUTDATA_BLOCK *str);
 void initIdamPutDataBlockList(PUTDATA_BLOCK_LIST *putDataBlockList);
 
-#endif // IDAM_INITSTRUCTS_H
+#endif // IDAM_CLIENTSERVER_INITSTRUCTS_H

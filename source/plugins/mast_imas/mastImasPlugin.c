@@ -17,25 +17,17 @@
 *	init	Initialise the plugin: read all required data and process. Retain staticly for
 *		future reference.	
 *
-* Change History
-*
-* 25Oct2011	D.G.Muir	Original Version
-* 05Feb2013	D.G.Muir	Added test calls to other server plugins
-* 01Nov2013	D.G.Muir	Updated from 'tesplugin' plugin
-* 10Jul2014	dgm		Added standard methods: version, builddate, defaultmethod, maxinterfaceversion
 *---------------------------------------------------------------------------------------------------------------*/
 #include "mastImasPlugin.h"
 
-#include <idamErrorLog.h>
-#include <initStructs.h>
-#include <idamLog.h>
-#include <idamServerPlugin.h>
-#include <makeServerRequestBlock.h>
-#include <accAPI_C.h>
-#include <TrimString.h>
-#include <struct.h>
-#include <sqllib.h>
 #include <libpq-fe.h>
+
+#include <clientserver/initStructs.h>
+#include <server/makeServerRequestBlock.h>
+#include <client/accAPI_C.h>
+#include <server/idamServerPlugin.h>
+#include <server/sqllib.h>
+#include <clientserver/TrimString.h>
 
 static int do_help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
 
@@ -48,9 +40,6 @@ static int do_defaultmethod(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
 static int do_maxinterfaceversion(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
 
 static int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
-
-static int idam_signal(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, char* signal, int shot_number, int* shape,
-                       char** imasData);
 
 int mastImasPlugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
@@ -501,111 +490,4 @@ int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     }
 
     return 0;
-}
-
-int idam_signal(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, char* signal, int shot_number, int* shape,
-                char** imasData)
-{
-    char work[MAXMETA];
-
-    IDAM_PLUGIN_INTERFACE next_plugin_interface;
-    REQUEST_BLOCK* request_block = idam_plugin_interface->request_block;
-    REQUEST_BLOCK next_request_block;
-
-    PLUGINLIST* plugin_list = idam_plugin_interface->pluginList; // List of all data reader plugins (internal and external shared libraries)
-
-    if (plugin_list == NULL) {
-        int err = 999;
-        idamLog(LOG_ERROR, "imas source: the specified format is not recognised!\n");
-        addIdamError(&idamerrorstack, CODEERRORTYPE,
-                     "imas source: No plugins are available for this data request", err, "");
-        return err;
-    }
-
-    next_plugin_interface = *idam_plugin_interface; // New plugin interface
-
-    next_plugin_interface.request_block = &next_request_block;
-    initServerRequestBlock(&next_request_block);
-    strcpy(next_request_block.api_delim, request_block->api_delim);
-
-    // Prepare the API arguments
-
-    int is_time = 0;
-    size_t len = strlen(signal);
-    if (len > 5 && strcmp(signal + (len - 5), "/time") == 0) {
-        is_time = 1;
-        strncpy(next_request_block.signal, signal, len - 5);
-        next_request_block.signal[len - 5] = '\0';
-    } else if (len > 5 && strcmp(signal + (len - 5), "/data") == 0) {
-        strncpy(next_request_block.signal, signal, len - 5);
-        next_request_block.signal[len - 5] = '\0';
-    } else {
-        strcpy(next_request_block.signal, signal);
-    }
-
-    char* env = getenv("IDAM_MAST_DEVICE_ALIAS");
-
-    sprintf(next_request_block.source, "%d", shot_number); // Re-Use the original source argument
-
-    // Create the Request data structure
-
-    env = getenv("IDAM_IDAM_PLUGIN");
-
-    if (env != NULL) {
-        sprintf(work, "%s::get(host=%s, port=%d, signal=\"%s\", source=\"%s\")", env, getIdamServerHost(),
-                getIdamServerPort(), next_request_block.signal, next_request_block.source);
-    } else {
-        sprintf(work, "IDAM::get(host=%s, port=%d, signal=\"%s\", source=\"%s\")", getIdamServerHost(),
-                getIdamServerPort(), next_request_block.signal, next_request_block.source);
-    }
-
-    next_request_block.source[0] = '\0';
-    strcpy(next_request_block.signal, work);
-
-    makeServerRequestBlock(&next_request_block, *plugin_list);
-
-    // Call the IDAM client via the IDAM plugin (ignore the request identified)
-
-    if (env != NULL) {
-        next_request_block.request = findPluginRequestByFormat(env, plugin_list);
-    } else {
-        next_request_block.request = findPluginRequestByFormat("IDAM", plugin_list);
-    }
-
-    if (next_request_block.request < 0) {
-        int err = 999;
-        idamLog(LOG_ERROR, "imas source: No IDAM server plugin found!\n");
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "imas delete", err, "No IDAM server plugin found!");
-        return err;
-    }
-
-// Locate and Execute the IDAM plugin
-
-    int err = 0;
-    int id = findPluginIdByRequest(next_request_block.request, plugin_list);
-    PLUGIN_DATA* plugin = &plugin_list->plugin[id];
-    if (id >= 0 && plugin->idamPlugin != NULL) {
-        err = plugin->idamPlugin(&next_plugin_interface);        // Call the data reader
-    } else {
-        err = 999;
-        idamLog(LOG_ERROR, "imas source: Data Access is not available for this data request!\n");
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "Data Access is not available for this data request!", err, "");
-        return err;
-    }
-
-    freeNameValueList(&next_request_block.nameValueList);
-
-    if (is_time) {
-        DATA_BLOCK* data_block = idam_plugin_interface->data_block;
-        shape[0] = data_block->dims[0].dim_n;
-        *imasData = data_block->dims[0].dim;
-    } else {
-        DATA_BLOCK* data_block = idam_plugin_interface->data_block;
-        shape[0] = data_block->data_n;
-        *imasData = data_block->data;
-    }
-
-    // Return data is automatic since both next_request_block and request_block point to the same DATA_BLOCK etc.
-
-    return err;
 }

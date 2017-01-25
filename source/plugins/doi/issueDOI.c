@@ -9,18 +9,14 @@
 *      
 Issues:
 *
-* Change History
-*
-* 03Oct2013	D.G.Muir	Original Version
 *---------------------------------------------------------------------------------------------------------------*/
 #include "issueDOI.h"
 
 #include <libpq-fe.h>
-#include <idamErrorLog.h>
-#include <idamserver.h>
-#include <struct.h>
-#include <idamLog.h>
-#include <accessors.h>
+
+#include <include/idamserver.h>
+#include <structures/struct.h>
+#include <structures/accessors.h>
 
 static char* pghost = NULL;
 static char pgport[56];
@@ -30,21 +26,6 @@ static char* pswrd = NULL;
 
 static PGconn* startSQL_DOI()
 {
-
-/*
-   char *pghost = environment.sql_host;			
-   char pgport[56];
-   char *dbname = environment.sql_dbname;
-   char *user   = environment.sql_user;
-   char *pswrd     = NULL;   
-   sprintf(pgport,"%d", environment.sql_port); 
-   char *env;
-   if((env = getenv("IDAM_DOIDBHOST")) != NULL) pghost = env;
-   if((env = getenv("IDAM_DOIDBPORT")) != NULL) strcpy(pgport,env);
-   if((env = getenv("IDAM_DOIDBNAME")) != NULL) dbname = env;
-   if((env = getenv("IDAM_DOIDBUSER")) != NULL) user   = env;
-   if((env = getenv("IDAM_DOIDBPSWD")) != NULL) pswrd  = env; 
-*/
     char* pgoptions = NULL;    //"connect_timeout=5";
     char* pgtty = NULL;
 
@@ -55,7 +36,6 @@ static PGconn* startSQL_DOI()
 //------------------------------------------------------------- 
 // Debug Trace Queries
 
-//        PQtrace(DBConnect, dbgout);
     idamLog(LOG_DEBUG, "SQL Connection: host %s\n", pghost);
     idamLog(LOG_DEBUG, "                port %s\n", pgport);
     idamLog(LOG_DEBUG, "                db   %s\n", dbname);
@@ -134,7 +114,7 @@ extern int issueDOI(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     IDAMERRORSTACK *idamErrorStack = &idamerrorstack;
 #endif
 
-    unsigned short housekeeping;
+    unsigned short housekeeping = 0;
 
     static unsigned short DBType = PLUGINSQLNOTKNOWN;
     static PGconn* DBConnect = NULL;

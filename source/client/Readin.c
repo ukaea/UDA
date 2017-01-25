@@ -1,19 +1,13 @@
-//! $LastChangedRevision: 353 $
-//! $LastChangedDate: 2013-11-18 15:32:28 +0000 (Mon, 18 Nov 2013) $
-//! $LastChangedBy: dgm $
-//! $HeadURL: https://fussvn.fusion.culham.ukaea.org.uk/svnroot/IDAM/development/source/client/Readin.c $
-
 // Create the Client Side XDR File Stream Reader Function
 //
-// Change History
-//
-// 21Mar2007	dgm	DB_Socket renamed clientSocket
-// 31Jan2011	dgm	Windows sockets implementation
 //----------------------------------------------------------------
 
 #include "Readin.h"
 
 #include <unistd.h>
+#include <errno.h>
+
+#include <include/idamclientprivate.h>
 
 #include "UpdateSelectParms.h"
 #include "idamErrorLog.h"

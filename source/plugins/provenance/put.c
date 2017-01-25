@@ -38,22 +38,17 @@
   clargs
   tags
   status
- 
-*
-* Change History
-*
-* 06May2014	dgm	Original Version
 *---------------------------------------------------------------------------------------------------------------*/
 #include "put.h"
-#include "provenance.h"
 
-#include <idamErrorLog.h>
-#include <TrimString.h>
 #include <sys/stat.h>
 #include <openssl/sha.h>
 #include <utime.h>
-#include <initStructs.h>
-#include <idamLog.h>
+
+#include <clientserver/TrimString.h>
+#include <clientserver/initStructs.h>
+
+#include "provenance.h"
 
 int put(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {

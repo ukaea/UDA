@@ -1,7 +1,7 @@
 #ifndef IDAM_PLUGINS_EQUIMAP_IMPORTDATA_H
 #define IDAM_PLUGINS_EQUIMAP_IMPORTDATA_H
 
-#include <idamclientserverpublic.h>
+#include <clientserver/idamStructs.h>
 #include "equimap.h"
 
 int whichHandle(char *name);

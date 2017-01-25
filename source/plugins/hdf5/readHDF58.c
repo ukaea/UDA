@@ -18,19 +18,14 @@
 *
 * ToDo:		                     
 *
-* Change History
-*
-* 11Jul2014	D.G.Muir	Original Version (based on legacy plugin readHDF58.c)
 *-----------------------------------------------------------------------------*/
-
 #include "readHDF58.h"
 
 #include <hdf5.h>
-#include <idamErrorLog.h>
-#include <initStructs.h>
-#include <H5LTpublic.h>
-#include <managePluginFiles.h>
-#include <idamLog.h>
+#include <errno.h>
+#include <server/managePluginFiles.h>
+#include <clientserver/initStructs.h>
+
 #include "hdf5plugin.h"
 
 #define HDF5_ERROR_OPENING_FILE             200
@@ -94,9 +89,8 @@ int getHDF5(DATA_SOURCE* data_source, SIGNAL_DESC* signal_desc, DATA_BLOCK* data
         static unsigned short isRegistered = 0;
 
         if (!isRegistered) {
-            int (* close)(int);    // Function pointer
-            close = &H5Fclose;
-            registerIdamPluginFileClose(&pluginFileList, (void*) close);
+            void* close = (void*)&H5Fclose;
+            registerIdamPluginFileClose(&pluginFileList, close);
             isRegistered = 1;
         }
 

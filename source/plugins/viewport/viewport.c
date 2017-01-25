@@ -9,18 +9,14 @@
 *
 * Standard functionality:	
 *
-* Change History
-*
-* 14Oct2014	D.G.Muir	Original Version based on specview plugin
 *---------------------------------------------------------------------------------------------------------------*/
-#include <idamserver.h>
-#include <idamErrorLog.h>
-#include <initStructs.h>
-#include <accAPI_C.h>
-#include <idam_client.h>
-#include <idamLog.h>
-#include <client/IdamAPI.h>
 #include "viewport.h"
+
+#include <client/IdamAPI.h>
+#include <include/idamserver.h>
+#include <client/idam_client.h>
+#include <clientserver/initStructs.h>
+#include <client/accAPI_C.h>
 
 #ifndef USE_PLUGIN_DIRECTLY
 IDAMERRORSTACK* idamErrorStack;    // Pointer to the Server's Error Stack. Global scope within this plugin library

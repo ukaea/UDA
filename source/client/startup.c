@@ -1,8 +1,3 @@
-//! $LastChangedRevision: 290 $
-//! $LastChangedDate: 2012-02-06 15:19:02 +0000 (Mon, 06 Feb 2012) $
-//! $LastChangedBy: dgm $
-//! $HeadURL: https://fussvn.fusion.culham.ukaea.org.uk/svnroot/IDAM/development/source/client/startup.c $
-
 /*---------------------------------------------------------------
 *  Open Client Side Log Files
 *
@@ -17,16 +12,6 @@
 *
 * Returns:
 *
-* Change History
-*
-* 05Aug2004	D.G.Muir
-* 04Aug2006	dgm	Client Side version Only: Uses global environment
-*			variable values
-* 17Apr2007	dgm	X.509 Digital Security Cerification added
-* 24Oct2007	dgm	ERRORSTACK components added
-* 08Jan2008	dgm	fflush(NULL) changed to individual files as this can have unexpected side effects
-* 08Jul2009	dgm	dbgout, errout, reopen_logs changed to static class
-* 11Nov2010	dgm	Copy environment values for clientFlags and altRank to global variables as initial values
 *--------------------------------------------------------------*/
 
 #include "startup.h"

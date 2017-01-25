@@ -3,106 +3,19 @@
 *
 * Note: Error Message Passback to Client is via the Server State Structure
 *
-*----------------------------------------------------------------
-* Change History:
-*
-* 0.3  10Feb2005   D.G.Muir
-* 0.4  10Jul2005   D.G.Muir
-*
-* 1.01 15Jun2006  dgmuir	readCDF file added
-* 1.02 29Jun2006  dgmuir	Generic readCDF added
-* 1.03 02Aug2006  dgmuir	Tidy-up
-* 1.04 05Sep2006  dgmuir	Status datatype changed from Byte to Int
-*				Generic Data Reader + XML Composite Signal + XML Actions
-* 1.05 26Oct2006  dgmuir	Performance Optimised by preventing a system call for the userid
-*				on initialising the Client structure: A global is used instead - saves 10ms!!!.
-*				The changeover to a terse client server conversation is slower than the original verbose!!
-* 1.06 22Jan2007  dgmuir	Server-Side Data processing added: get_timedble and get_scalar
-* 1.07 09Mar2007  dgmuir	HDF5 File and XML Signal Composite plugins added
-* 1.08 14Mar2007  dgmuir	UFile plugin added
-* 1.09 15Mar2007  dgmuir	General File Format request added - Server chooses appropriate plugin
-* 1.10 21Mar2007  dgmuir	user_timeout renamed server_timeout
-*				accout renamed server_accout
-*				tot_block_time renamed server_tot_block_time
-* 1.11 21Mar2007  dgm		XDR streams renamed prefixed with server
-* 1.12 22Mar2007  dgm		performance renamed serverPerformance
-* 1.13 27Mar2007  dgm		Data Source File Handle Management added
-* 1.14 10Apr2007  dgm		FATCLIENT and GENERIC_ENABLE Compiler Options Added
-* 1.15 16Apr2007  dgm		Signal_Rec explicitly initialised prior to idamserverGetData
-* 1.16 17Apr2007  dgm		IDA_ENABLE Compiler Options Added
-* 1.17 14May2007  dgm		Extended REQUEST_READ_NOTHING to use idamGetAPI API
-* 1.18 31May2007  dgm		Hierarchical Data Added
-* 1.19 09Jul2007  dgm		globals: debugon and verbose added if NOT a FAT Client
-* 1.20 18Oct2007  dgm		idamAccessLog implemented
-* 1.21 22Oct2007  dgm		idamErrorLog implemented
-* 1.22 12Mar2008  dgm		initDataBlock moved to start of routine rather than immediately prior to idamserverGetData
-*				because it is called by idamAccessLog before this!
-* 1.23 12Mar2008  dgm		initActions moved to start of routine: An early error attempts to free uninitialised structures
-* 1.24 28Mar2008  dgm		Prevented copying of signal names that are too long using the copyString function
-* 04Nov2008	  dgm		protocolVersion added: Assigned using the client version number
-*				Added named Protocol IDs
-*				Modified the Hierarchical Data Structure component
-* 10Dec2008	dgm	Server version set to 3: this avoids problems with protocol configuration for old clients.
-* 08Jul2009	dgm	This function is now included in the shared library: name changed from main to idamServer.
-* 23Sep2009	dgm	Moved the check on data types and client version out of protocol.c. Error message added
-*			to Server_Block before any attempt to transfer data: prevents a HANG.
-* 30SEP2009	dgm	Test the path for a TARGET sub-component and make a substitution if found.
-*			Uses environment.private_path_target and environment.private_path_substitute
-*			e.g target /.automount/funsrv1/root/home and substitute /net/funsrv1/home
-* 07Oct2009	dgm	Added external_user to ENVIRONMENT structure (same effect as compiler option EXTERNAL_USER)
-* 10Oct2009	dgm	external_user functionality moved to readBytes plugin.
-* 23Nov2009	dgm	Added SQL Archive plugin (Not Continuous Measured Data)
-* 25Nov2009	dgm	Added generalised user defined data structure passing
-*			Added additional protocol version test for compound types - all tests consolidated into protocolVersionTypeTest
-*			Changed the server version number from 3 to 4
-* 01Mar2010	dgm	Changes for fatclient to access generalised data structures. XDR streams are replaced with XDR
-*			files written and read from /tmp files. Not efficient - best approach is to gererate data trees
-*			directly without needing XDR.
-* 04mar2010	dgm	Added static SQL socket gDBConnect to pass back from idamServerGetData (passed by value).
-* 23Apr2010	dgm	Increased server version # to 5 from 4
-*			Hierarchical Data passed as an Opaque binary object when requested by the client
-*			Necessary for http and IDAM->IDAM data access
-* 26Apr2010	dgm	XDRstdioFlag added to indicate whether or not the XDR stream is to/from a file
-* 11May2010	dgm	source and api_delim added to REQUEST_BLOCK: decoding client arguments now possible within
-*			server, decoupling server further from client (apart from legacy APIs).
-*			Server version incremented to 6 dependent on TESTCODE
-* 26May2010	dgm	PLUGINLIST pluginList global structure added
-* 02Nov2010	dgm	clientFlags and altRank added - passed via CLIENT_BLOCK
-* 12Apr2011	dgm	Added test for PRIVATEFLAG_EXTERNAL passed from originating server: enable external user access policy
-* 24May2011	dgm	Choose the lower of the client and server version numbers for the protocol version
-* 02Jun2011	dgm	IDA_ENABLE compiler option removed
-* 05Sep2011	dgm	Free heap containing name value pairs using freeNameValueList
-* 19Sep2011	dgm	Fixed bug: idamerrorstack defined twice when SERVERBUILD macro defined
-*			Add accessors to local globals: idamerrorstack, userdefinedtypelist,
-*			logmalloclist, parseduserdefinedtypelist
-// 12Mar2012	dgm	Removed TESTCODE compiler option - legacy code deleted.
-// 10Oct2012	dgm	Corrected bug: removed fullNTree initialisation
-// 06Nov2012	dgm	Added global variables lastMallocIndex and lastMallocIndexValue
-// 20Mar2013	dgm	Changed name: startup.c to idamServerStartup.c
-// 02Oct2013	dgm	idamServerPluginHelp no longer required - functionality delivered via an external plugin
-// 18Nov2013	dgm	PUTDATA functionality included as standard rather than with a compiler option
-// 20Nov2013	dgm	PLUGINTEST, DEV_08NOV2012 selections commented out
-// 28Nov2013	dgm	To preserve backwards compatibility with client and server running protocol versions <= 6
-//			divert all client server communications and data access to a legacy server
-// 24Apr2014	dgm	Added Global unsigned int totalDataBlockSize to hold the amount of data sent for the last request
-//			Added explicit calculation via function countDataBlockSize - Legacy structures only
-//			Added Global unsigned int cachePermission to return True/False - OK for client to cache?
-//			Both totalDataBlockSize and cachePermission are returned to the client via the SERVER_BLOCK
-// 10Jul2014	dgm	Added Test versions of idamServerPlugin and makeServerRequestBlock when compiler macro DGMJUL14 is defined.
-// 18Mar2015	dgm	Added getIdamServerParsedUserDefinedTypeList()
 *---------------------------------------------------------------------------------------------------------------------*/
+#include "idamserver.h"
+
 #include <parseIncludeFile.h>
 #include <clientserver/idamErrors.h>
-#include "idamserver.h"
+#include <clientserver/initStructs.h>
+#include <clientserver/manageSockets.h>
+#include <clientserver/protocol2.h>
+#include <clientserver/printStructs.h>
 
 #include "idamserverfiles.h"
 #include "idamServerStartup.h"
 #include "idamErrorLog.h"
-#include "protocol2.h"
-#include "CreateXDRStream.h"
-#include "initStructs.h"
-#include "manageSockets.h"
-#include "printStructs.h"
 #include "closeServerSockets.h"
 #include "serverProcessing.h"
 #include "idamAccessLog.h"
@@ -115,6 +28,8 @@
 #include "makeServerRequestBlock.h"
 #include "freeDataBlock.h"
 #include "manageFiles.h"
+#include "sqllib.h"
+#include "CreateXDRStream.h"
 
 #ifndef FATCLIENT
 #  include "xdrlib.h"

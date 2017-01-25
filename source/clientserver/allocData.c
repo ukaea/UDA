@@ -1,8 +1,3 @@
-//! $LastChangedRevision: 353 $
-//! $LastChangedDate: 2013-11-18 15:32:28 +0000 (Mon, 18 Nov 2013) $
-//! $LastChangedBy: dgm $
-//! $HeadURL: https://fussvn.fusion.culham.ukaea.org.uk/svnroot/IDAM/development/source/clientserver/allocData.c $
-
 /*---------------------------------------------------------------
 * Allocate Memory for the Data and Dim Blocks and Data Error Block
 *
@@ -11,25 +6,6 @@
 * Returns:	allocData		0 if heap allocation was successful
 *		DATA_BLOCK->data	Pointer to Memory Block
 *
-*
-* Revision 1.0  06Jul2005	D.G.Muir
-* 1.1	dgm	02Aug2006	Add Heap for Data Errors if type is set
-*  	dgm	04Aug2006	Allocate Heap for Error with Same type as Data if type is unknown
-*  	dgm	06Nov2006	Allocate Heap for Asymmetric Errors
-*	dgm	13Dec2006	errparams now fixed length array rather than heap
-* 29Oct2008	dgm	Added unsigned types: short, long and char
-* 09Jun2009	dgm	All data types now added
-* 07Jul2009	dgm	Added compiler option ULONG64_OK to disable unsigned long long int: There is a gcc/ld bug with message
-*			hidden symbol `__fixunssfdi' in /usr/lib/gcc/i386-redhat-linux/4.1.1/libgcc.a(_fixunssfdi.o) is referenced by DSO
-*			/usr/bin/ld: final link failed: Nonrepresentable section on output
-*			This problem is fixed by removing references to unsigned long long int
-//			Also added option LONG64_OK for long long int
-// 08Jul2010	dgm	Initialised DIMS array after allocation
-// 09May2011	dgm	Removed compiler options LONG64_OK & ULONG64_OK
-// 25Oct2011	dgm	Added STRING types
-// 18Nov2013	dgm	PUTDATA functionality included as standard rather than with a compiler option
-// 25Apr2014 	dgm	Add all data allocations and structures size to estimate data size
-//			Assumes DATA_BLOCK.totalDataBlockSize
 *--------------------------------------------------------------*/
 
 #include "allocData.h"

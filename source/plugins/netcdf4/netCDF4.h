@@ -1,19 +1,12 @@
-// Plugin Header
-
 #ifndef IdamNetCDF4PluginInclude
 #define IdamNetCDF4PluginInclude
-
-// Change History:
-//
-// 13Mar2015	dgm	Original Version
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include <netcdf.h>
-#include <idamplugin.h>
-#include <idampluginfiles.h>
+#include <include/idamplugin.h>
+#include <include/idampluginfiles.h>
 
 #define THISPLUGIN_VERSION                  1
 #define THISPLUGIN_MAX_INTERFACE_VERSION    1

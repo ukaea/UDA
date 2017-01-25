@@ -1,40 +1,17 @@
-//! $LastChangedRevision: 283 $
-//! $LastChangedDate: 2011-12-01 11:56:55 +0000 (Thu, 01 Dec 2011) $
-//! $LastChangedBy: dgm $
-//! $HeadURL: https://fussvn.fusion.culham.ukaea.org.uk/svnroot/IDAM/development/source/include/sqllib.h $
-
-//
-// Change History
-//
-// 15Feb2008 dgm	added tpass to sqlGeneric prototype
-//			added sqlLatestPass prototype
-// 02Apr2008 dgm	C++ test added for inclusion of extern "C"
-// 08Jul2009 dgm	All prototypes changed to static class
-//--------------------------------------------------------------------------------------------------------------------
-
-#ifndef IDAM_SQLLIB_H
-#define IDAM_SQLLIB_H
+#ifndef IDAM_IDAMFILESQLLIB_H
+#define IDAM_IDAMFILESQLLIB_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include "idamserverconfig.h"
-
 #if defined GENERIC_ENABLE && !defined NOTGENERICENABLED
 #  include <libpq-fe.h>	// SQL Library Header
-#else
-//typedef int PGconn;
 #endif
 
-//#ifndef OTHERSERVER
 #include <libpq-fe.h> // SQL Library Header
-//#else
-//typedef int PGconn;
-//#endif
 
-#include "idamclientserver.h"
-#include "idamserver.h"
+#include <clientserver/idamStructs.h>
 
 #define NOPREFIXNOCASE  "0"
 #define PREFIXNOCASE    "1"
@@ -92,5 +69,5 @@ int sqlNoIdamSignal(PGconn *DBConnect, char *originalSignal, int exp_number, int
 }
 #endif
 
-#endif // IDAM_SQLLIB_H
+#endif // IDAM_IDAMFILESQLLIB_H
 

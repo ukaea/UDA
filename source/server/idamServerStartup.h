@@ -1,11 +1,7 @@
-
-#ifndef IDAM_IDAMSERVERSTARTUP_H
-#define IDAM_IDAMSERVERSTARTUP_H
-
-#include "idamclientserver.h"
-#include "idamserver.h"
+#ifndef IDAM_SERVER_IDAMSERVERSTARTUP_H
+#define IDAM_SERVER_IDAMSERVERSTARTUP_H
 
 int startup(void);
 
-#endif // IDAM_IDAMSERVERSTARTUP_H
+#endif // IDAM_SERVER_IDAMSERVERSTARTUP_H
 

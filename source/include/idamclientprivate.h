@@ -1,47 +1,5 @@
-//! $LastChangedRevision: 353 $
-//! $LastChangedDate: 2013-11-18 15:32:28 +0000 (Mon, 18 Nov 2013) $
-//! $LastChangedBy: dgm $
-//! $HeadURL: https://fussvn.fusion.culham.ukaea.org.uk/svnroot/IDAM/development/source/include/idamclientprivate.h $
-
-
 #ifndef IdamClientPrivateInclude
 #define IdamClientPrivateInclude
-
-// Client Side Header
-//
-// Change History:
-//
-// 09Jan2007    dgm    Function Prototypes updated
-// 20Feb2007    dgm    Accessors: saveProperties and restoreProperties added
-// 28Feb2007    dgm    Accessors: getIdamDataProperties added
-// 19Mar2007    dgm    ENVIRONMENT Structure extended to include API defaults
-// 21Mar2007    dgm    client_socketlist external added
-//            External clientSocket added (was DB_Socket)
-//            External clientVersion and clientUsername added (were version and clientname)
-//            clientInput and clientOutput externals added
-// 22Mar2007    dgm    External clientPerformance structure added
-//            External I/O fd added
-// 10Apr2007    dgm    FATCLIENT Compiler Option Added
-// 12Apr2007    dgm    GENERIC_ENABLE Compiler Option Added
-// 16Apr2007    dgm    Improved Named Accessor Function Prototypes added
-// 09Jul2007    dgm    Globals debugon and verbose moved to idamclientserver.h
-//              IO FDs: dbgout,errout moved to clientserver.h
-//            DEBUG comment out
-// 10Jul2007    dgm    FATCLIENT commented out & GENERIC_ENABLE moved to idamclientserver.h
-// 23Oct2007    dgm    ERRORSTACK components added
-// 08Nov2007    dgm    ENVIRONMENT structure definition moved to idamclientserver.h
-// 04Feb2008    dgm    NOHOSTPREFIX added to disable the MAST rule that the host name is prefixed to
-//            file paths begining /scratch
-// 02Apr2008    dgm    C++ test added for inclusion of extern "C"
-// 02Jun2008    dgm    putIdamErrorFileHandle and putIdamDebugFileHandle prototypes added
-// 08Dec2008    dgm    Removed external public functions and variables to idamclientpublic.h to manage namespace
-// 07Oct2009    dgm    Changed default Host to idam1
-// 20Oct2009    dgm    Changed default Host back to fuslwn while host problems with connection limits corrected
-// 05Mar2010    dgm    Added second host and port, and repeat socket connection attempt parameters
-// 23Apr2010    dgm    Added a set of macros for private Flags sent from the client to the Server
-// 07Jan2010    dgm    Added macros: SCRATCHDIR and NETPREFIX
-// 17Nov2011    dgm    Added idamclientconfig.h file for local configuration
-//----------------------------------------------------------------
 
 #ifdef __cplusplus
 extern "C" {

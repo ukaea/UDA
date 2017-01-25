@@ -1,9 +1,8 @@
-// Live Display Plugin for Magnetics IDS proxy
+#ifndef IDAM_PLUGINS_LIVEDISPLAY_LIVEDISPLAY_H
+#define IDAM_PLUGINS_LIVEDISPLAY_LIVEDISPLAY_H
 
-#ifndef IdamLiveDisplayInclude
-#define IdamLiveDisplayInclude
-
-#include <idamplugin.h>
+#include <include/idamgenstruct.h>
+#include <include/idamplugin.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -177,4 +176,4 @@ extern int livedisplay(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
 }
 #endif
 
-#endif
+#endif // IDAM_PLUGINS_LIVEDISPLAY_LIVEDISPLAY_H

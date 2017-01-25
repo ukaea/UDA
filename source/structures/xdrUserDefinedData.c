@@ -1,10 +1,3 @@
-// Change History
-//
-// 05Jan2010	DGMuir	Original version
-// 05May2010	DGMuir	A64 architecture differences added
-// 08NOV2012	DGMuir	Rank and Shape of structure arrays passed subjecty to client version >= 7
-// 20Nov2012	DGMuir	DEV_08NOV2012 selections commented out
-//----------------------------------------------------------------------------------------------------------------------------
 
 #include "xdrUserDefinedData.h"
 

@@ -1,8 +1,3 @@
-//! $LastChangedRevision: 353 $
-//! $LastChangedDate: 2013-11-18 15:32:28 +0000 (Mon, 18 Nov 2013) $
-//! $LastChangedBy: dgm $
-//! $HeadURL: https://fussvn.fusion.culham.ukaea.org.uk/svnroot/IDAM/development/source/client/getEnvironment.c $
-
 /*---------------------------------------------------------------
 * Read Client Environment Variables
 *
@@ -10,22 +5,11 @@
 *
 * Change History
 *
-* v1.0  04Aug06   D.G.Muir	Original Version
-* v1.1  13Nov06   D.G.Muir	Added structure items to manage multiple server connections
-* v1.2  19Mar07   D.G.Muir	API Defaults added
-* v1.3  10Apr07   D.G.Muir	FATCLIENT & GENERIC_ENABLE Compiler Option Added
-* 13Nov2007	dgm	FATCLIENT Compiler Option Commented Out: Require SQL Server details for IDL DLM library
-* 08Jul2009	dgm	initEnvironment = 0 added after initialisation
-* 30Sep2009	dgm	IDAM_PRIVATE_PATH_TARGET and IDAM_PRIVATE_PATH_SUBSTITUTE added to reform the path to private files
-* 10Oct2009	dgm	If FATCLIENT then set environment.external_user if EXTERNAL_USER
-* 05Mar2010	dgm	Add a second host, port for load balancing when a socket connection to the principal host cannot be opened
-* 11Nov2010	dgm	Added clientFlags and altRank to ENVIRONMENT data structure
-* 13Nov2013	dgm	Modified the environment variable for the debug directory - make different to the server's
-// 31Jan2011	dgm	Windows sockets implementation
 *--------------------------------------------------------------*/
+#include "getEnvironment.h"
 
 #include <idamLog.h>
-#include "getEnvironment.h"
+#include <include/idamclientprivate.h>
 
 #ifdef FATCLIENT
 #  include "idamserverconfig.h"

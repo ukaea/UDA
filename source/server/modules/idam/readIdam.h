@@ -1,9 +1,7 @@
-
 #ifndef IDAM_READIDAM_H
 #define IDAM_READIDAM_H
 
-#include "idamclientserverpublic.h"
-#include "idamclientpublic.h"
+#include <clientserver/idamStructs.h>
 
 int readIdam(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK request_block, DATA_BLOCK *data_block);
 

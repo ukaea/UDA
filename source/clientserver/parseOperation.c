@@ -44,19 +44,6 @@ int idamParseOperation(SUBSET* sub)
             sub->ubindex[i] = -1;
             sub->lbindex[i] = -1;
 
-            /*
-            	 if((p = strchr(t1,'[')) != NULL){
-            	    p[0] = ' ';
-            	    LeftTrimString(t1);
-            	    TrimString(t1);
-            	 }
-            	 if((p = strchr(t2,']')) != NULL){
-            	    p[0] = ' ';
-            	    LeftTrimString(t2);
-            	    TrimString(t2);
-            	 }
-            */
-
             if (t1[0] == '#') sub->lbindex[i] = -2;        // Reverse the data as # => Final array value
 
             if (strlen(t1) > 0 && t1[0] != '*' && t1[0] != '#') {

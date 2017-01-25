@@ -60,10 +60,7 @@
 
 #include "readMDS.h"
 
-#include <clientserver/idamErrors.h>
-#include "idamServerStartup.h"
 #include "idamErrorLog.h"
-#include "idamserverconfig.h"
 
 #ifdef NOMDSPLUSPLUGIN
 
@@ -82,6 +79,9 @@ int readMDS(DATA_SOURCE data_source,
 #include <mdsdescrip.h>
 #include <mdsshr.h>
 
+#include <clientserver/idamErrors.h>
+
+#include "idamServerStartup.h"
 #include "readMDSDim.h"
 #include "manageSockets.h"
 #include "TrimString.h"

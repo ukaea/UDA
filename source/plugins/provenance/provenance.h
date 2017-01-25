@@ -1,13 +1,9 @@
 #ifndef IDAM_PLUGINS_PROVENANCE_PROVENANCE_H
 #define IDAM_PLUGINS_PROVENANCE_PROVENANCE_H
 
-// Change History:
-//
-// 23Sep2013	dgm	Original Version named issueDOI.h
-// 09May2014	dgm	Renamed with doi changed to uuid
-
-#include <idamplugin.h>
 #include <libpq-fe.h>
+
+#include <include/idamplugin.h>
 
 #ifdef __cplusplus
 extern "C" {

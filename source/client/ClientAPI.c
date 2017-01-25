@@ -1,8 +1,3 @@
-//! $LastChangedRevision: 353 $
-//! $LastChangedDate: 2013-11-18 15:32:28 +0000 (Mon, 18 Nov 2013) $
-//! $LastChangedBy: dgm $
-//! $HeadURL: https://fussvn.fusion.culham.ukaea.org.uk/svnroot/IDAM/development/source/client/ClientAPI.c $
-
 /*---------------------------------------------------------------
 * Reads the Requested Data
 *
@@ -13,14 +8,11 @@
 *
 * Returns:
 *
-* Revision 0.0  05-Aug-2004	D.G.Muir
-* 20Apr2007	D.G.Muir	expandFilePath use modified
-* 08Jul2009	dgm	Legacy APIs moved to accAPI_CL.c
-// 12Mar2012	dgm	Removed TESTCODE compiler option - legacy code deleted.
 *--------------------------------------------------------------*/
+#include "ClientAPI.h"
 
 #include <idamLog.h>
-#include "ClientAPI.h"
+#include <include/idamclientprivate.h>
 
 #include "expand_path.h"
 #include "TrimString.h"
@@ -28,6 +20,7 @@
 #include "idamErrorLog.h"
 #include "makeClientRequestBlock.h"
 #include "startup.h"
+#include "idam_client.h"
 
 int idamClientAPI(const char* file, const char* signal, int pass, int exp_number)
 {

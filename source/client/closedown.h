@@ -1,5 +1,5 @@
-#ifndef IDAM_CLOSEDOWN_H
-#define IDAM_CLOSEDOWN_H
+#ifndef IDAM_CLIENT_CLOSEDOWN_H
+#define IDAM_CLIENT_CLOSEDOWN_H
 
 #ifdef FATCLIENT
 #  define idamClosedown idamClosedownFat
@@ -7,4 +7,4 @@
 
 int idamClosedown(int type);
 
-#endif // IDAM_CLOSEDOWN_H
+#endif // IDAM_CLIENT_CLOSEDOWN_H

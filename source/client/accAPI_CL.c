@@ -1,21 +1,8 @@
-//! $LastChangedRevision: 87 $
-//! $LastChangedDate: 2008-12-19 15:34:15 +0000 (Fri, 19 Dec 2008) $
-//! $LastChangedBy: dgm $
-//! $HeadURL: https://fussvn.fusion.culham.ukaea.org.uk/svnroot/IDAM/development/source/client/accAPI_C.c $
-
 //---------------------------------------------------------------
 // C Legacy Accessor Functions - dependent on compiler option IDAM_LEGACY_NAMES
 // All declared extern in idamclientpublic.h
 //
-// Change History
-//
-// 09Jul2009	dgm	Splitout from accAPI_C.c to isolate legacy extern functions and APIs
 //--------------------------------------------------------------
-
-#include "idamclientserverpublic.h"
-#include "idamclientserverprivate.h"
-#include "idamclientpublic.h"
-#include "idamclientprivate.h"
 
 #ifdef FATCLIENT
 #include "idamserver.h"
@@ -466,7 +453,6 @@ SIGNAL_DESC *getSignalDesc(int handle) {
 SIGNAL_DESC *GetSignalDesc(int handle) {
     return(getIdamSignalDesc(handle));
 }
-
 
 #endif
 

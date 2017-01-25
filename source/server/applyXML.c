@@ -10,21 +10,6 @@
 *
 *	 A specific time_offset correction occurs befor any time dimension rescaling.
 *
-* Change History
-*
-* 27-Jul-2005	D.G.Muir	Original Version
-* 08Aug2006	dgm	Added Exp_Number Range for Timing Offsets
-* 18Oct2006	dgm	Various Changes!
-* 07Nov2006	dgm	Error Models/Asymmetric Errors
-* 13Dec2006	dgm	errparams now fixed length array rather than heap
-* 22Feb2007 	dgm	TIMEOFFSET structure changed to enable different
-*	                correction methods to be applied.
-* 09Jul2007	dgm	debugon enabled
-* 05Oct2007	dgm	All actionable records for Signals are in range (previously incorrectly not)
-*                       Time correction method 2 added: Original offset with new interval
-* 22Sep2008	dgm	Added unsigned types and Char types to calibrations and time offset correction
-* 28Jan2010	dgm	Apply data inversion via calibration tag (function applyCalibration)
-* 09May2011	dgm	Removed compiler options LONG64_OK & ULONG64_OK & CASTLONG64_OK
 *-----------------------------------------------------------------------------------------------*/
 
 #include "applyXML.h"

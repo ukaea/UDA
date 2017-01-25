@@ -1,10 +1,7 @@
+#ifndef IDAM_SERVER_MANAGEFILES_H
+#define IDAM_SERVER_MANAGEFILES_H
 
-#ifndef IDAM_MANAGEFILES_H
-#define IDAM_MANAGEFILES_H
-
-#include "idamclientserver.h"
-#include "idamserver.h"
-#include "idamserverfiles.h"
+#include <include/idamserverfiles.h>
 
 // Initialise the File List
 
@@ -27,5 +24,5 @@ void closeIdamFile(IDAMFILELIST *idamfiles, char *filename);
 void closeIdamFiles(IDAMFILELIST *idamfiles);
 void purgeStalestIdamFile(IDAMFILELIST *idamfiles);
 
-#endif // IDAM_MANAGEFILES_H
+#endif // IDAM_SERVER_MANAGEFILES_H
 

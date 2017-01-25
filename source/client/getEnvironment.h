@@ -1,6 +1,5 @@
-
-#ifndef IDAM_GETENVIRONMENT_H
-#define IDAM_GETENVIRONMENT_H
+#ifndef IDAM_CLIENT_GETENVIRONMENT_H
+#define IDAM_CLIENT_GETENVIRONMENT_H
 
 #include "idamclientserver.h"
 #include "idamclient.h"
@@ -13,5 +12,5 @@
 void printIdamClientEnvironment(ENVIRONMENT * environ);
 void getIdamClientEnvironment(ENVIRONMENT * environ);
 
-#endif // IDAM_GETENVIRONMENT_H
+#endif // IDAM_CLIENT_GETENVIRONMENT_H
 

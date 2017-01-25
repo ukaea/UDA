@@ -1,8 +1,3 @@
-//! $LastChangedRevision: 353 $
-//! $LastChangedDate: 2013-11-18 15:32:28 +0000 (Mon, 18 Nov 2013) $
-//! $LastChangedBy: dgm $
-//! $HeadURL: https://fussvn.fusion.culham.ukaea.org.uk/svnroot/IDAM/development/source/client/accAPI_F.c $
-
 /*---------------------------------------------------------------
 *
 * ToDo:
@@ -12,30 +7,21 @@
 *
 * Fortran APIs and Accessor Functions
 *
-* 16Apr2007 dgm		Fortran specific APIs and Accessors split from C Routines
-* 22Jan2008 dgm		idamGetAPI added
-* 29Oct2008 dgm		Added unsigned types: short, long and char
-* 08Jan2008	dgm	fflush(NULL) changed to individual files as this can have unexpected side effects
-* 06Jun2009	dgm	Added all additional unsigned typoes, long64 and complex types
-* 07Jul2009	dgm	Added compiler option ULONG64_OK to disable unsigned long long int: There is a gcc/ld bug with message
-*			hidden symbol `__fixunssfdi' in /usr/lib/gcc/i386-redhat-linux/4.1.1/libgcc.a(_fixunssfdi.o) is referenced by DSO
-*			/usr/bin/ld: final link failed: Nonrepresentable section on output
-*			This problem is fixed by removing references to unsigned long long int
-//			Also added option LONG64_OK for long long int
-// 09Jul2009	dgm	Legacy accessors splitout to accAPI_FL.c
-// 02Oct2009	dgm	Added prototypes for functions: getIdamDoubleData and getIdamDoubleDimData
-// 09May2011	dgm	Removed compiler options LONG64_OK & ULONG64_OK
-// 02Jul2012	dgm	Added accessor function getidamfileformat
 *--------------------------------------------------------------*/
-
-#include <idamLog.h>
 #include "accAPI_F.h"
 
-#include "idamclientserverpublic.h"
-#include "idamclientpublic.h"
+#include <stdlib.h>
+#include <errno.h>
+
+#include <idamLog.h>
+#include <include/idamtypes.h>
+
 #include "TrimString.h"
 #include "ClientAPI.h"
 #include "ClientMDS.h"
+#include "IdamAPI.h"
+#include "accAPI_C.h"
+#include "idam_client.h"
 
 //--------------------------------------------------------------------------------------------------
 /* Notes:

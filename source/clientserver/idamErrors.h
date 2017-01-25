@@ -1,9 +1,5 @@
-//
-// Created by Jonathan Hollocombe on 17/10/2016.
-//
-
-#ifndef IDAM_IDAMERRORS_H
-#define IDAM_IDAMERRORS_H
+#ifndef IDAM_CLIENTSERVER_IDAMERRORS_H
+#define IDAM_CLIENTSERVER_IDAMERRORS_H
 
 //-------------------------------------------------------
 // Request specific errors
@@ -142,4 +138,4 @@
 #define IDA_ERROR_RETURNING_DIMENSION_UNITS     112
 #define IDA_ERROR_RETURNING_DIMENSION_VALUES    113
 
-#endif //IDAM_IDAMERRORS_H
+#endif //IDAM_CLIENTSERVER_IDAMERRORS_H

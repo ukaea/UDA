@@ -1,14 +1,6 @@
-//! $LastChangedRevision: 87 $
-//! $LastChangedDate: 2008-12-19 15:34:15 +0000 (Fri, 19 Dec 2008) $
-//! $LastChangedBy: dgm $
-//! $HeadURL: https://fussvn.fusion.culham.ukaea.org.uk/svnroot/IDAM/development/source/clientserver/xdrHData.c $
-
 //
 // Library of XDR (de)serialiser routines for passing Hierarchical Data structures
 //
-// Change History:
-//
-// v 1.0 	dgm	31May2007	Original Version
 //-----------------------------------------------------------------------
 
 #include "xdrHData.h"

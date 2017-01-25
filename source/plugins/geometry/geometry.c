@@ -32,23 +32,21 @@
  *         - geomsignal : Group or signal for which to retrieve corresponding signal filename with signal info
  *         - version : file version number. If not set then the latest will be returned. 
  */
+#include "geometry.h"
 
 #include <math.h>
-#include <accessors.h>
 #include <stdlib.h>
 
-#include <modules/netcdf4/readCDF4.h>
-#include "libpq-fe.h"
-
-#include "idamserver.h"
-#include "idamErrorLog.h"
-#include <sqllib.h> 
-#include "geometry.h"
-#include "initStructs.h"
-#include "struct.h"
-#include "TrimString.h"
-#include "idamLog.h"
-
+#include <include/idamclientserverprivate.h>
+#include <clientserver/idamErrorLog.h>
+#include <logging/idamLog.h>
+#include <server/sqllib.h>
+#include <include/idamplugin.h>
+#include <clientserver/initStructs.h>
+#include <clientserver/TrimString.h>
+#include <structures/struct.h>
+#include <structures/accessors.h>
+#include <server/modules/netcdf4/readCDF4.h>
 
 ////////////////////
 // Add error message & send same message to the logs & set error code

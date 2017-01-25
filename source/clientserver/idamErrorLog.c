@@ -1,20 +1,9 @@
-//! $LastChangedRevision: 353 $
-//! $LastChangedDate: 2013-11-18 15:32:28 +0000 (Mon, 18 Nov 2013) $
-//! $LastChangedBy: dgm $
-//! $HeadURL: https://fussvn.fusion.culham.ukaea.org.uk/svnroot/IDAM/development/source/clientserver/idamErrorLog.c $
-
 /*---------------------------------------------------------------
 * Server Error Log Utilities
 *
 * Log Format:	client userid, date, client request,
 *		error class, error code, error message
 *
-*
-* Change History
-*
-* 22Oct2007	dgmuir	Original Version
-* 08Jul2009	dgm	errorstack now static
-* 09Jul2009	dgm	errorstack moved to idamServer.c
 *--------------------------------------------------------------*/
 
 #include "idamErrorLog.h"

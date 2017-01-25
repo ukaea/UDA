@@ -1,11 +1,9 @@
+#ifndef IDAM_IDAMFILESERVERPROCESSING_H
+#define IDAM_IDAMFILESERVERPROCESSING_H
 
-#ifndef IDAM_SERVERPROCESSING_H
-#define IDAM_SERVERPROCESSING_H
-
-#include "idamclientserver.h"
-#include "idamserver.h"
+#include <clientserver/idamStructs.h>
 
 int serverProcessing(CLIENT_BLOCK client_block, DATA_BLOCK *data_block);
 
-#endif // IDAM_SERVERPROCESSING_H
+#endif // IDAM_IDAMFILESERVERPROCESSING_H
 

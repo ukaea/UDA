@@ -17,19 +17,12 @@
 *	init	Initialise the plugin: read all required data and process. Retain staticly for
 *		future reference.	
 *
-* Change History
-*
-* 25Oct2011	D.G.Muir	Original Version
-* 05Feb2013	D.G.Muir	Added test calls to other server plugins
-* 01Nov2013	D.G.Muir	Updated from 'tesplugin' plugin
-* 10Jul2014	dgm		Added standard methods: version, builddate, defaultmethod, maxinterfaceversion
 *---------------------------------------------------------------------------------------------------------------*/
-#include <idamserver.h>
-#include <idamErrorLog.h>
-#include <initStructs.h>
-#include <idamLog.h>
-#include <clientserver/TrimString.h>
 #include "templatePlugin.h"
+
+#include <clientserver/TrimString.h>
+#include <include/idamplugin.h>
+#include <clientserver/initStructs.h>
 
 static int do_help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
 

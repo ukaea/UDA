@@ -1,6 +1,5 @@
-
-#ifndef IDAM_XDRLIB_H
-#define IDAM_XDRLIB_H
+#ifndef IDAM_CLIENTSERVER_XDRLIB_H
+#define IDAM_CLIENTSERVER_XDRLIB_H
 
 #include "idamStructs.h"
 
@@ -59,5 +58,5 @@ bool_t xdr_signal(XDR *xdrs, SIGNAL *str);
 // From SIGNAL_DESC Table
 bool_t xdr_signal_desc(XDR *xdrs, SIGNAL_DESC *str);
 
-#endif // IDAM_XDRLIB_H
+#endif // IDAM_CLIENTSERVER_XDRLIB_H
 

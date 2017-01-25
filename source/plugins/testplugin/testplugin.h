@@ -1,14 +1,7 @@
-
-// Test Plugin Library
-
 #ifndef IDAM_PLUGINS_TESTPLUGIN_TESTPLUGIN_H
 #define IDAM_PLUGINS_TESTPLUGIN_TESTPLUGIN_H
 
-// Change History:
-//
-// 25Oct2011	dgm	Original Version
-
-#include <idamplugin.h>
+#include <include/idamplugin.h>
 
 #ifdef __cplusplus
 extern "C" {

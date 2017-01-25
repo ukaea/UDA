@@ -19,19 +19,15 @@
 *
 * ToDo:
 *
-* Change History
-*
-* 1.0	D.G.Muir		Original Version
-* 1.1	09Jul2007  dgm	 	debugon enabled
-* 1.2	19Oct2007  dgm	 	Protection against embedded command added
-*				Test for return code from utility programs added
-* 21Nov2007	dgm	Error output from the Dump Command is appended to unit 1
-* 30May2008	dgm	MDSPlus added using an IDL program
-* 12Dec2011	dgm	Changed from TYPE_CHAR to TYPE_STRING
 *-----------------------------------------------------------------------------*/
+#include "dumpFile.h"
+
+#include <stdlib.h>
+#include <errno.h>
 
 #include <idamLog.h>
-#include "dumpFile.h"
+#include <include/idamclientserverprivate.h>
+#include <include/idamtypes.h>
 
 #include "TrimString.h"
 #include "mastArchiveFilePath.h"
@@ -264,7 +260,6 @@ int dumpFile(REQUEST_BLOCK request_block, DATA_BLOCK* data_block)
         data_block->order = -1;        // No Time Dimension
 
         data_block->data_type = TYPE_STRING;
-
 
 //----------------------------------------------------------------------
 // End of Error Trap Loop

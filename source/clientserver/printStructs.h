@@ -1,5 +1,5 @@
-#ifndef IDAM_PRINTSTRUCTS_H
-#define IDAM_PRINTSTRUCTS_H
+#ifndef IDAM_CLIENTSERVER_PRINTSTRUCTS_H
+#define IDAM_CLIENTSERVER_PRINTSTRUCTS_H
 
 #include "idamStructs.h"
 
@@ -40,5 +40,5 @@ void printIdamPerformance(FILE *fh, PERFORMANCE str);
 
 #endif
 
-#endif // IDAM_PRINTSTRUCTS_H
+#endif // IDAM_CLIENTSERVER_PRINTSTRUCTS_H
 

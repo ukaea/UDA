@@ -1,9 +1,10 @@
-#ifndef IDAM_ACCAPI_C_H
-#define IDAM_ACCAPI_C_H
+#ifndef IDAM_CLIENT_ACCAPI_C_H
+#define IDAM_CLIENT_ACCAPI_C_H
 
-#include <clientserver/idamStructs.h>
-#include <idamclientserverprivate.h>
 #include <stdio.h>
+
+#include <include/idamclientserverprivate.h>
+#include <clientserver/idamStructs.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -305,5 +306,5 @@ void putIdamThreadClientBlock(CLIENT_BLOCK *str);
 }
 #endif
 
-#endif // IDAM_ACCAPI_C_H
+#endif // IDAM_CLIENT_ACCAPI_C_H
 

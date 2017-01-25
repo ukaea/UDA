@@ -1,13 +1,7 @@
-// DOI
-
 #ifndef IDAM_PLUGINS_DOI_ISSUEDOI_H
 #define IDAM_PLUGINS_DOI_ISSUEDOI_H
 
-// Change History:
-//
-// 23Sep2013	dgm	Original Version
-
-#include <idamplugin.h>
+#include <include/idamplugin.h>
 
 #ifdef __cplusplus
 extern "C" {

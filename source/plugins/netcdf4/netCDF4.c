@@ -17,19 +17,14 @@
 *	init	Initialise the plugin: read all required data and process. Retain staticly for
 *		future reference.	
 *
-* Change History
-*
-* 13Mar2015	D.G.Muir	Original Version
 *---------------------------------------------------------------------------------------------------------------*/
-
 #include "netCDF4.h"
 
-#include <idamErrorLog.h>
-#include <initStructs.h>
-#include <managePluginFiles.h>
-#include <idamLog.h>
+#include <include/idamserver.h>
 #include <structures/struct.h>
-#include "idamserver.h"
+#include <server/managePluginFiles.h>
+#include <clientserver/initStructs.h>
+
 #include "readCDF4.h"
 
 IDAMPLUGINFILELIST pluginFileList;    // Private list of open data file handles

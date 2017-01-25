@@ -1,5 +1,5 @@
-#ifndef IDAM_IDAMSERVERPLUGIN_H
-#define IDAM_IDAMSERVERPLUGIN_H
+#ifndef IDAM_SERVER_IDAMSERVERPLUGIN_H
+#define IDAM_SERVER_IDAMSERVERPLUGIN_H
 
 #include <include/idamplugin.h>
 
@@ -70,5 +70,5 @@ int idamServerMetaDataPluginId(PLUGINLIST* plugin_list);
 int idamServerMetaDataPlugin(PLUGINLIST * plugin_list, int plugin_id, REQUEST_BLOCK * request_block,
                              SIGNAL_DESC * signal_desc, DATA_SOURCE * data_source);
 
-#endif // IDAM_IDAMSERVERPLUGIN_H
+#endif // IDAM_SERVER_IDAMSERVERPLUGIN_H
 

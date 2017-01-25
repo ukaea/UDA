@@ -45,28 +45,21 @@ static IDAM_CACHE* global_cache = NULL;    // scope limited to this code module
 
 IDAM_CACHE* idamOpenCache()
 {
-    char* host = NULL;
-    char* port = NULL;
     IDAM_CACHE* cache = malloc(sizeof(IDAM_CACHE));
     memcached_return_t rc;
     memcached_server_st* servers;
-    host = getenv("IDAM_CACHE_HOST");   // Overrule the default settings
-    port = getenv("IDAM_CACHE_PORT");
+
+    const char* host = getenv("IDAM_CACHE_HOST");   // Overrule the default settings
+    const char* port = getenv("IDAM_CACHE_PORT");
 
     if (host == NULL && port == NULL) {
-        servers = memcached_server_list_append(NULL, (const char*) IDAM_CACHE_HOST, (unsigned int) IDAM_CACHE_PORT,
-                                               &rc);
+        servers = memcached_server_list_append(NULL, IDAM_CACHE_HOST, (in_port_t)IDAM_CACHE_PORT, &rc);
+    } else if (host != NULL && port != NULL) {
+        servers = memcached_server_list_append(NULL, host, (in_port_t)atoi(port), &rc);
+    } else if (host != NULL) {
+        servers = memcached_server_list_append(NULL, host, (in_port_t)IDAM_CACHE_PORT, &rc);
     } else {
-        if (host != NULL && port != NULL) {
-            servers = memcached_server_list_append(NULL, (const char*) host, (unsigned int) atoi(port), &rc);
-        } else {
-            if (host != NULL && port == NULL) {
-                servers = memcached_server_list_append(NULL, (const char*) host, (unsigned int) IDAM_CACHE_PORT, &rc);
-            } else {
-                servers = memcached_server_list_append(NULL, (const char*) IDAM_CACHE_HOST, (unsigned int) atoi(port),
-                                                       &rc);
-            }
-        }
+        servers = memcached_server_list_append(NULL, IDAM_CACHE_HOST, (in_port_t)atoi(port), &rc);
     }
 
     //memcached_create(&cache->memcache);       // Causes a segmentation Violation!

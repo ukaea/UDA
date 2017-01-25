@@ -1,17 +1,7 @@
-//! $LastChangedRevision: 12 $
-//! $LastChangedDate: 2007-12-14 14:52:30 +0000 (Fri, 14 Dec 2007) $
-//! $LastChangedBy: dgm $
-//! $HeadURL: https://fussvn.fusion.culham.ukaea.org.uk/svnroot/IDAM/development/source/clientserver/manageSockets.c $
-
 // Create and Manage a List of Socket Connections to External Data Servers
 //
 // Routines addSocket and getSocket return 0 if successfull otherwise return 1
 //
-// Change History:
-//
-// v0.00	DGMuir 13Aug2005	Original Code
-// v0.01	DGMuir 21Mar2007	socketlist renamed ?_socketlist and moved to client and server
-//					*sock declaration commented out
 //----------------------------------------------------------------------------------
 
 #include <stdlib.h>

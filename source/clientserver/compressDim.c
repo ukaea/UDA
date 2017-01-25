@@ -1,8 +1,3 @@
-//! $LastChangedRevision: 353 $
-//! $LastChangedDate: 2013-11-18 15:32:28 +0000 (Mon, 18 Nov 2013) $
-//! $LastChangedBy: dgm $
-//! $HeadURL: https://fussvn.fusion.culham.ukaea.org.uk/svnroot/IDAM/development/source/clientserver/compressDim.c $
-
 /*---------------------------------------------------------------
 * IDAM Naive Dimensional Data Compressor
 *
@@ -16,21 +11,6 @@
 *		three numbers: A starting value, a step value and the
 *		number of data points. The first two of these are cast as
 *		doubles to preserve the highest level of accuracy.
-*
-* Change History
-* 1.0  	06Jul2005	D.G.Muir
-* 1.1	28Nov2005	D.G.Muir	Correction of Bug relating to returned value
-*					Removal of Heap Free - Done elsewhere
-* 29Oct2008	dgm	Added unsigned types: short, long and char
-* 09Jun2009	dgm	All data types now added: No compression for COMPLEX types
-* 07Jul2009	dgm	Added compiler option ULONG64_OK to disable unsigned long long int: There is a gcc/ld bug with message
-*			hidden symbol `__fixunssfdi' in /usr/lib/gcc/i386-redhat-linux/4.1.1/libgcc.a(_fixunssfdi.o) is referenced by DSO
-*			/usr/bin/ld: final link failed: Nonrepresentable section on output
-*			This problem is fixed by removing references to unsigned long long int
-//			Also added option LONG64_OK for long long int
-// 08Feb2010	dgm	Added compiler option CASTLONG64_OK to switch out __fixunssfdi bug (float cast from long long)
-// 09May2011	dgm	Removed compiler options LONG64_OK & ULONG64_OK
-// 12Dec2012	dgm	Tidied up precision check
 *--------------------------------------------------------------*/
 
 #include "compressDim.h"

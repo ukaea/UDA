@@ -1,12 +1,9 @@
 // Create the Server Side XDR File Stream
 //
-// Change History
-//
-// 21Mar2007	dgm	XDR streams renamed prefixed with server
-// 08Jul2009	dgm	XDR variables moved to top of idamServer function
 //----------------------------------------------------------------
-
 #include "CreateXDRStream.h"
+
+#include <include/idamserver.h>
 #include "writer.h"
 
 void CreateXDRStream() {

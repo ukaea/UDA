@@ -1,8 +1,3 @@
-//! $LastChangedRevision: 121 $
-//! $LastChangedDate: 2009-11-09 10:21:09 +0000 (Mon, 09 Nov 2009) $
-//! $LastChangedBy: dgm $
-//! $HeadURL: https://fussvn.fusion.culham.ukaea.org.uk/svnroot/IDAM/development/source/plugins/idam/readXDRFile.c $
-
 /*---------------------------------------------------------------
 * IDAM XDR File Read/Writer
 *
@@ -18,11 +13,6 @@
 * Notes:
 *
 * ToDo:
-*
-* Change History
-*
-* 26Apr2010	D.G.Muir	Original Version
-
 *-----------------------------------------------------------------------------*/
 
 #include "readXDRFile.h"

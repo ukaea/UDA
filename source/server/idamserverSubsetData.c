@@ -3,12 +3,6 @@
 //
 // Return Codes:	0 => OK, otherwise Error
 //
-// Change History:
-// 28Mar2008 dgm	Original Version
-// 22Sep2008 dgm	Unsigned Types added
-// 07Jul2010 dgm	Added test for error data type. If unknown then don't subset - data allocated for error models only.
-// 03Nov2010 dgm	Corrected bug in idamserverParseServerSide relating to #
-//			Corrected bug relating to reversing data
 //--------------------------------------------------------------------------------------------------------------------
 
 #include "idamserverSubsetData.h"

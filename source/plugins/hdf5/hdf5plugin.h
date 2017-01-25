@@ -1,11 +1,5 @@
-// Plugin Header
-
 #ifndef IdamNewHDF5PluginInclude
 #define IdamNewHDF5PluginInclude
-
-// Change History:
-//
-// 10Jul2014	dgm	Original Version
 
 #ifdef __cplusplus
 extern "C" {
@@ -14,7 +8,9 @@ extern "C" {
 #include <hdf5.h>
 #include <H5LTpublic.h>
 #include <sys/time.h>
-#include "idamplugin.h"
+
+#include <include/idampluginfiles.h>
+#include <include/idamplugin.h>
 
 #define THISPLUGIN_VERSION                  1
 #define THISPLUGIN_MAX_INTERFACE_VERSION    1

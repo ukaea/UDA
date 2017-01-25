@@ -1,5 +1,5 @@
-#ifndef IDAM_IDAMAPI3_H
-#define IDAM_IDAMAPI3_H
+#ifndef IDAM_CLIENT_IDAMAPI3_H
+#define IDAM_CLIENT_IDAMAPI3_H
 
 #ifdef MEMDEBUG
 #include <mcheck.h>
@@ -33,5 +33,5 @@ int idamGenAPI(const char *archive, const char *device, const char *signal, int 
 }
 #endif
 
-#endif // IDAM_IDAMAPI3_H
+#endif // IDAM_CLIENT_IDAMAPI3_H
 

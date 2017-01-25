@@ -1,11 +1,6 @@
-#ifndef IDAM_READIN_H
-#define IDAM_READIN_H
-
-#include "idamclientserver.h"
-#include "idamclient.h"
-
-#define YDEBUG 0
+#ifndef IDAM_CLIENT_READIN_H
+#define IDAM_CLIENT_READIN_H
 
 int idamClientReadin(void *iohandle, char *buf, int count);
 
-#endif // IDAM_READIN_H
+#endif // IDAM_CLIENT_READIN_H

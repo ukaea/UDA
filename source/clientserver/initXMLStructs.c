@@ -1,8 +1,3 @@
-//! $LastChangedRevision: 109 $
-//! $LastChangedDate: 2009-11-09 09:34:37 +0000 (Mon, 09 Nov 2009) $
-//! $LastChangedBy: dgm $
-//! $HeadURL: https://fussvn.fusion.culham.ukaea.org.uk/svnroot/IDAM/development/source/clientserver/initXMLStructs.c $
-
 /*---------------------------------------------------------------
 * Initialise IDAM Hierarchical XML Data Structures
 *
@@ -15,11 +10,6 @@
 * Notes:
 *
 * ToDo:
-*
-* Change History
-*
-* 25Jun2007	D.G.Muir
-* 13May2008	D.G.Muir	Test for NULL structures in Print functions
 *
 *--------------------------------------------------------------*/
 

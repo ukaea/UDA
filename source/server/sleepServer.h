@@ -1,12 +1,7 @@
-
-#ifndef IDAM_SLEEPSERVER_H
-#define IDAM_SLEEPSERVER_H
-
-#include "idamclientserver.h"
-#include "idamserver.h"
-#include "protocol.h"
+#ifndef IDAM_IDAMFILESLEEPSERVER_H
+#define IDAM_IDAMFILESLEEPSERVER_H
 
 int sleepServer(void);
 
-#endif // IDAM_SLEEPSERVER_H
+#endif // IDAM_IDAMFILESLEEPSERVER_H
 

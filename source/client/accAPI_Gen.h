@@ -1,9 +1,5 @@
-//
-// Created by jholloc on 09/05/16.
-//
-
-#ifndef IDAM_ACCAPI_GEN_H
-#define IDAM_ACCAPI_GEN_H
+#ifndef IDAM_CLIENT_ACCAPI_GEN_H
+#define IDAM_CLIENT_ACCAPI_GEN_H
 
 #include <idamgenstructpublic.h>
 
@@ -30,4 +26,4 @@ NTREE* findIdamNTreeStructureDefinition(NTREE* node, const char* target);
 }
 #endif
 
-#endif //IDAM_ACCAPI_GEN_H
+#endif //IDAM_CLIENT_ACCAPI_GEN_H

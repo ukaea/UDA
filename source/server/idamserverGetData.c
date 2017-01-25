@@ -5,49 +5,6 @@
 //
 // Return Codes:	0 => OK, otherwise Error
 //
-// Change History:
-// v0.00   18Oct2006  D.G.Muir   Original Version
-// v0.01   06Nov2006  D.G.Muir   Asymmetric Errors added
-//	   13Dec2006  D.G.Muir   errparams now fixed length array rather than heap
-//	   18Jan2007  D.G.Muir   Don't Parse XML from Regular Signals if the client has specified get_asis
-//	   25Feb2007  D.G.Muir   get_asis return point changed to immediately after regular data obtained
-//	   09Mar2007  D.G.Muir   HDF5 File Reader Plugin added and client specified XML Composite signals
-//	   14Mar2007  D.G.Muir   UFile Plugin added
-//	   22Mar2007  D.G.Muir   dumpFile Plugin added
-//	   28Mar2007  D.G.Muir   Improved Client based XML processing of signals
-//	   16Apr2007  D.G.MUIR	 data_source2, signal_rec2 and signal_desc2 now initialised prior to recursive call to idamserverGetData
-// 	   09Jul2007  dgm	 debugon enabled
-//	   25Jul2007  dgm	 PPF & JPF requests added
-//	   26Sep2007  dgm	 Change to XML request of exp_number = 0, Composite Signal and Generic
-//	   26Sep2007  dgm	 Identify signal format for XML specified Dimension signal
-//	   22Oct2007  dgm	 idamErrorLog implemented
-//	   29Oct2007  dgm	 server_block arguments and components removed
-//	   18Jan2008  dgm	 Bug Fix: If the format is NIDA after a Generic access, the pluging selected
-//				 is readBytes. Instead of the number of time slices returned, the number of
-//		 		 bytes in the IDA file is returned.
-//	   15Feb2008  dgm	 added tpass to sqlGeneric call
-//				 added a specific call for TRANSP data via sqlGeneric when the Archive is TRANSP and the
-//				 device is MAST. The TRANSP run id is converted to a pass number.
-// 28Mar2008 dgm	Added test for signal names beginning <xml? => XML signal composite or signal subset
-//			Added a call to idamserverSubset to apply subsetting to data
-//			Modified test for Generic and XML requests : added Composite types also (after return from idamserverReadData)
-// 30May2008 dgm	Added DUMP for MDS+
-// 06Nov2008 dgm	Corrected Initialisation of signal_desc2
-//			Added frrs of Action Data Structures for Composite types
-// 20Aug2009 dgm	Copied client_block into data_block in function idamserverReadData to pass properties into plugins
-// 01Oct2009 dgm	Changed the default request block format to GENERIC with dimensions swaps
-// 23Nov2009 dgm	Added SQL request
-// 04Mar2010 dgm	Added global gDBConnect to pass back the SQL socket if opened. (Poor design - simple fix needing improvement)
-// 02Nov2010 dgm	Added a call to sqlAltData in idamserverReadData when clientFlag raised: mapping from legacy names to new names
-// 19Apr2011 dgm	Added REQUEST_BLOCK to readCDF interface
-// 28Sep2011 dgm	Added external shared library plugins via macro PLUGINTEST
-// 12Mar2012 dgm	Removed TESTCODE compiler option - legacy code deleted.
-// 28Jun2012 dgm	Corrected bug with Serverside help function execution
-// 18Sep2012 dgm	Added call to sqlMapPrivateData to map signals when the data file is private
-// 05Feb2013 dgm	pluginList added to idam_plugin_interface
-// 02Oct2013 dgm	serverside help function removed - now delivered by an external plugin
-// 20Nov2013 dgm	PLUGINTEST selections commented out
-// 21Jan2016 dgm	Added a specific plugin to query the MetaData Catalog to resolve Generic Name mappings
 //--------------------------------------------------------------------------------------------------------------------
 
 #include <idamLog.h>

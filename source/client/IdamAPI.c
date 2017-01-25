@@ -6,38 +6,21 @@
 *
 * Returns:
 *
-* Revision 0.0  05-Aug-2004	D.G.Muir
-* 17Apr2007	D.G.Muir	_GNU_SOURCE Compiler Option added to ensure the
-*				basename function used conforms to the GNU standard
-* 20Apr2007	D.G.Muir	expandFilePath use modified
-* 12Jul2007	D.G.Muir	Hierarchical Data added to API
-* 10Jan2008	D.G.Muir	MDS+ localhost url path added
-* 20Oct2008	D.G.Muir	The parsing of the signal string is now conditional of the source format.
-*				If it is MDS+ then signals and tdi function arguments may contain the same
-*				two delimiting letters as regular IDAM signals but it is not necessary to parse
-*				the signal string.
-* 06Nov2008	dgm		Added test for a DUMP of an MDS+ Tree - directive is passed using the archive tag
-* 07Nov2008	dgm		Tidy up of MDSPlus source deconstruction
-// 09Jul2009	dgm	Legacy APIs moved to accAPI_CL.c
-// 10Jul2009	dgm	The request data block is now assembled using the function makeRequest.
-// 20May2010	dgm	Use TESTCODE to enable new function makeClientRequestBlock and replace old makeRequestBlock
-// 11Nov2010	dgm	Development of Variable length argument list for general IDAM API
-// 12Mar2012	dgm	Removed TESTCODE compiler option - legacy code deleted.
-// 29Sep2016	dgm	Added MUTEX lock to main API
 *--------------------------------------------------------------*/
 
 #include "IdamAPI.h"
 
 #include <stdarg.h>
+
 #include <logging/idamLog.h>
 #include <include/idamclientprivate.h>
-#include <strings.h>
 #include "makeClientRequestBlock.h"
 #include "initStructs.h"
 #include "printStructs.h"
 #include "idamErrorLog.h"
 #include "startup.h"
 #include "idam_client.h"
+#include "accAPI_C.h"
 
 #ifdef MEMDEBUG
 #include <mcheck.h>

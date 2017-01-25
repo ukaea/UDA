@@ -3,29 +3,6 @@
 Interprets the API arguments and assembles a Request data structure.
 
 returns An integer Error Code: If non zero, a problem occured.
-
-Change History
-
-09Jul2009	dgm	Original Version based on idamClient
-23Nov2009	dgm	Added SQL request
-12May2010	dgm	Request_block used to pass both arguments to the server for processing there - minimises
-			effort needed to add new data plugins & client library is simplified. Legacy APIs (version < 6)
-			will continue to use the original structure members. Also pass the api_delim string to the sever.
-14Apr2011	dgm	Extract Archive name (extractArchive) but test for conflict with subsetting operation.
-			Added option to reduce the signal name by removing the Archive field.
-19Apr2011	dgm	Extract subset operation from the signal name without changing the signal name.
-05May2011	dgm	Add extra tests to identify the file format when there is no file extension.
-09May2011	dgm	Add test for device only source
-23May2011	dgm	Add CSV file extension
-05Sep2011	dgm	Add Name-Value pairs to Server Request Block
-21Sep2011	dgm	Extract function name & plugin from signal or source to Server Request Block
-27Sep2011	dgm	New makeServerRequestBlock function - rationalised/simplified version
-07Nov2011	dgm	makeServerRequestBlock.c created from original RequestBlock2.c
-12Mar2012	dgm	Removed TESTCODE compiler option - legacy code deleted.
-13Mar2012	dgm	Allowed comma separated lists enclosed in quotes in name value pairs.
-26Jul2012	dgm	Always strip off the device name from the source if it's also the default device
-22Jan2013	dgm	Increased size of work arrays from STRING_LENGTH to MAXMETA to handle signal argument
-04Feb2013	dgm	Added initServerRequestBlock
 */
 //------------------------------------------------------------------------------------------------------------------
 
@@ -36,6 +13,8 @@ Change History
 #include <clientserver/idamErrors.h>
 #include <clientserver/TrimString.h>
 #include <clientserver/initStructs.h>
+#include <include/idamserver.h>
+
 #include "idamServerPlugin.h"
 
 #if defined(SERVERBUILD) || defined(FATCLIENT)

@@ -4,18 +4,14 @@
 * Returns: 	1 (True)  if Next Client Request to be Served
 *		0 (False) if No Request within the Time Limit
 *
-* Revision 0.4  10Jul2005  dgmuir
-*		21Mar2007  dgmuir	user_timeout renamed server_timeout
-*					tot_block_time renamed server_tot_block_time
-*		22Mar2007  dgmuir	XDR Streams renamed with server prefix
-* 		09Jul2007  dgm		debugon enabled
-* 		29Oct2007  dgm		ERRORSTACK components added
-*		04Nov2008  dgm		named Protocol IDs added
 *--------------------------------------------------------------*/
+#include "sleepServer.h"
 
 #include <idamLog.h>
 #include <clientserver/idamErrorLog.h>
-#include "sleepServer.h"
+#include <include/idamclientserverprivate.h>
+#include <clientserver/protocol.h>
+#include <include/idamserver.h>
 
 int sleepServer(void)
 {

@@ -1,8 +1,3 @@
-//! $LastChangedRevision: 185 $
-//! $LastChangedDate: 2010-03-05 15:10:56 +0000 (Fri, 05 Mar 2010) $
-//! $LastChangedBy: dgm $
-//! $HeadURL: https://fussvn.fusion.culham.ukaea.org.uk/svnroot/IDAM/development/source/clientserver/expand_path.c $
-
 //------------------------------------------------------------------------------------------------------------------
 /*! Expand/Resolve the Path/File Name to its Full Form, including link resolution.
 
@@ -15,30 +10,6 @@
 				NETPREFIX
 				HOSTNAME
 				NOHOSTPREFIX
-
- Change History
-
- 1.0	dgmuir 08 Nov 2005	Production Version
- 1.1	dgmuir 30 Jan 2007	Test for the local Scratch Directory
- 1.2	dgmuir 20 Apr 2007	Improved resolution of Relative/Absolute paths
- 1.3	dgmuir 16 May 2007	Add Test for Leading Integer in Path
- 1.4	dgmuir 10 Jul 2007	if /tmp directory then use /net/ before the Host name
- 1.5	dgmuir 23 Oct 2007	Check for embedded commands in path string
- 29Oct2007	dgm	ERRORSTACK components added
- 10Dec2007	dgm	Changed from getpwd to command pipw with PWD: Difference is to full path name
-			This avoids .automount and embedded root
- 19Feb2008	dgm	No need to expand if FATCLIENT
- 24Jun2008	dgm	Change from FATCLIENT to NOEXPANDPATH for extra control
- 07Jul2009	dgm	Return a NULL string from hostid if an error occurs.
- 30Sep2009	dgm	Test the path for a TARGET sub-component and make a substitution if found.
-			Uses environment.private_path_target and environment.private_path_substitute
-			target /.automount/funsrv1/root/home and substitute /funsrv1/home
- 03Mar2010	dgm	Changed pathid to test whether the path is valid. If not then change to a 'Bad Path'
- 14May2010	dgm	General tidy up + Return Code
-// 31Jan2011	dgm	Windows sockets implementation
-// 07Mar2012	dgm	Removed legacy references to popen - replace using standard system function calls
-//                      and environment variables.
-
 */
 //------------------------------------------------------------------------------------------------------------------
 

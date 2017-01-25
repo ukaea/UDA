@@ -1,6 +1,3 @@
-#ifndef IdamProtocolXML
-#define IdamProtocolXML        // Cheap fix to Prevent double inclusion in build for FAT clients
-
 /*----------------------------------------------------------------------------------------------
 * Client - Server Conversation Protocol for XML based Hierarchical Data Structures
 *
@@ -26,15 +23,6 @@
 *
 * Returns: error code if failure, otherwise 0
 *
-* Change History:
-
-* 1.0  31May2007 D.G.Muir
-* 25Nov2009	DGMuir	Added generalised stuctures
-* 26Apr2010	DGMuir	Server to Server communication via SENDFILE temporary (cached) xdr files
-* 18May2010	DGMuir	SENDFILE abandoned: use xdr instead. Temporary file deleted after send.
-* 08Jul2010	DGMuir	rc initialised if fatclient before receiving structure definition data
-* 28May2012	DGMuir	Added caching of XDR files to minimise network trafic
-* 06Noc2012	DGMuir	Added lastMallocIndex to GENERAL_BLOCK
 *-----------------------------------------------------return;---------------------------------------------
 * Notes on Generalised Data Structures:
 *
@@ -1425,5 +1413,3 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, void* str
 
     return err;
 }
-
-#endif

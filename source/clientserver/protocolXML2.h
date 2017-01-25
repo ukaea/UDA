@@ -1,6 +1,5 @@
-
-#ifndef IDAM_PROTOCOLXML2_H
-#define IDAM_PROTOCOLXML2_H
+#ifndef IDAM_CLIENTSERVER_PROTOCOLXML2_H
+#define IDAM_CLIENTSERVER_PROTOCOLXML2_H
 
 #ifdef GENERALSTRUCTS
 #  include "idamgenstruct.h"
@@ -23,5 +22,5 @@
 
 int protocolXML2(XDR * xdrs, int protocol_id, int direction, int * token, void * str);
 
-#endif // IDAM_PROTOCOLXML2_H
+#endif // IDAM_CLIENTSERVER_PROTOCOLXML2_H
 

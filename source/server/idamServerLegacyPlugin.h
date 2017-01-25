@@ -1,11 +1,9 @@
+#ifndef IDAM_SERVER_IDAMSERVERLEGACYPLUGIN_H
+#define IDAM_SERVER_IDAMSERVERLEGACYPLUGIN_H
 
-#ifndef IDAM_IDAMSERVERLEGACYPLUGIN_H
-#define IDAM_IDAMSERVERLEGACYPLUGIN_H
-
-#include "idamclientserverpublic.h"
-#include "idamclientserverprivate.h"
+#include "idamStructs.h"
 
 int idamServerLegacyPlugin(REQUEST_BLOCK *request_block, DATA_SOURCE *data_source, SIGNAL_DESC *signal_desc);
 
-#endif // IDAM_IDAMSERVERLEGACYPLUGIN_H
+#endif // IDAM_SERVER_IDAMSERVERLEGACYPLUGIN_H
 

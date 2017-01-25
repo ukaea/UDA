@@ -1,8 +1,3 @@
-//! $LastChangedRevision: 283 $
-//! $LastChangedDate: 2011-12-01 11:56:55 +0000 (Thu, 01 Dec 2011) $
-//! $LastChangedBy: dgm $
-//! $HeadURL: https://fussvn.fusion.culham.ukaea.org.uk/svnroot/IDAM/development/source/client/closedown.c $
-
 /*---------------------------------------------------------------
 * Close the Socket, XDR Streams, Open File Handles
 *
@@ -11,33 +6,19 @@
 *
 * Returns:
 *
-* Revision 0.0  22-July-2005	D.G.Muir
-* 0.1  21Mar2007	D.G.Muir	closeSockets renamed closeClientSockets
-*					DB_Socket renamed clientSocket
-*					Input and Output XDR streams renamed clientInput, clientOutput
-* 10Apr2007	dgm	FATCLIENT and GENERIC_ENABLE Compiler Options Added
-* 24Oct2007	dgm	ERRORSTACK components added
-* 08Jan2008	dgm	fflush(NULL) changed to individual files as this can have unexpected side effects
-* 27Aug2009	dgm	File management from fat client server component modified for static global pointer
 *--------------------------------------------------------------*/
-
-#include <idamLog.h>
 #include "closedown.h"
 
-#include "idamclientserver.h"
-#include "idamclient.h"
+#include <idamLog.h>
+#include <include/idamclientprivate.h>
 
 #ifdef FATCLIENT
-
 #  include "idamserver.h"
 #  include <libpq-fe.h>
 #  include "closeServerSockets.h"
-
 extern PGconn * DBConnect;    // IDAM database Socket Connection
 #else
-
 #  include "closeClientSockets.h"
-
 #endif
 
 #ifdef FATCLIENT

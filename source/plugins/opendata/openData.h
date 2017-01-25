@@ -1,13 +1,7 @@
-// Open Data plugin
+#ifndef IDAM_PLUGINS_OPENDATA_OPENDATA_H
+#define IDAM_PLUGINS_OPENDATA_OPENDATA_H
 
-#ifndef IdamOpenDataInclude
-#define IdamOpenDataInclude
-
-// Change History:
-//
-// 06May2014	dgm	Original Version
-
-#include <idamplugin.h>
+#include <include/idamplugin.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -24,4 +18,4 @@ int copyProvenanceFile(char * oldFile, char * dir, char * newFileName);
 }
 #endif
 
-#endif
+#endif // IDAM_PLUGINS_OPENDATA_OPENDATA_H

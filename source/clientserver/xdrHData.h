@@ -1,6 +1,5 @@
-
-#ifndef IDAM_XDRHDATA_H
-#define IDAM_XDRHDATA_H
+#ifndef IDAM_CLIENTSERVER_XDRHDATA_H
+#define IDAM_CLIENTSERVER_XDRHDATA_H
 
 #ifdef HIERARCHICAL_DATA
 
@@ -62,5 +61,5 @@ bool_t xdr_efit(XDR *xdrs, EFIT *str);
 
 #endif // HIERARCHICAL_DATA
 
-#endif // IDAM_XDRHDATA_H
+#endif // IDAM_CLIENTSERVER_XDRHDATA_H
 

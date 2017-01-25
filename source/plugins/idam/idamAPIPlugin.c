@@ -17,19 +17,14 @@
 *	init	Initialise the plugin: read all required data and process. Retain staticly for
 *		future reference.	
 *
-* Change History
-*
-* 06Oct2014	D.G.Muir	Original Version
 *---------------------------------------------------------------------------------------------------------------*/
 #include "idamAPIPlugin.h"
 
-#include <idamserver.h>
-#include <idamErrorLog.h>
-#include <accAPI_C.h>
-#include <initStructs.h>
-#include <TrimString.h>
-#include <IdamAPI.h>
-#include <idamLog.h>
+#include <client/accAPI_C.h>
+#include <clientserver/initStructs.h>
+#include <clientserver/TrimString.h>
+#include <client/IdamAPI.h>
+#include <include/idamserver.h>
 
 #ifndef USE_PLUGIN_DIRECTLY
 IDAMERRORSTACK* idamErrorStack;    // Pointer to the Server's Error Stack. Global scope within this plugin library

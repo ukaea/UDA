@@ -1,9 +1,5 @@
-//
-// Created by Jonathan Hollocombe on 17/10/2016.
-//
-
-#ifndef IDAM_IDAMSTRUCTS_H
-#define IDAM_IDAMSTRUCTS_H
+#ifndef IDAM_CLIENTSERVER_IDAMSTRUCTS_H
+#define IDAM_CLIENTSERVER_IDAMSTRUCTS_H
 
 #include <sys/time.h>
 #include "idamDefines.h"
@@ -365,4 +361,4 @@ typedef struct Performance {
     struct timeval tv_end[20];      // Stop time
 } PERFORMANCE;
 
-#endif //IDAM_IDAMSTRUCTS_H
+#endif //IDAM_CLIENTSERVER_IDAMSTRUCTS_H

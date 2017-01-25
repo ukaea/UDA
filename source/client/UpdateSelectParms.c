@@ -1,8 +1,3 @@
-//! $LastChangedRevision: 87 $
-//! $LastChangedDate: 2008-12-19 15:34:15 +0000 (Fri, 19 Dec 2008) $
-//! $LastChangedBy: dgm $
-//! $HeadURL: https://fussvn.fusion.culham.ukaea.org.uk/svnroot/IDAM/development/source/client/UpdateSelectParms.c $
-
 // Timing of Socket Read Attempts via Select
 //
 //----------------------------------------------------------------

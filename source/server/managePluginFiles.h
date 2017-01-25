@@ -1,7 +1,7 @@
 #ifndef IDAM_SERVER_MANAGEPLUGINFILES_H
 #define IDAM_SERVER_MANAGEPLUGINFILES_H
 
-#include "idampluginfiles.h"
+#include <include/idampluginfiles.h>
 
 void initIdamPluginFileList(IDAMPLUGINFILELIST * idamfiles);
 

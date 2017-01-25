@@ -4,45 +4,6 @@
 //
 // xdr_longlong is not available - use xdr_int64_t and xdr_uint64_t
 //
-// Change History:
-//
-// v 1.0    dgm 05July2005  Original Version
-// v 1.1    dgm 02Aug2006   xdr_data_block3 added to pass Data Errors
-// v 1.2    dgm 05Sep2006   Signal type passed
-//                          Status datatype changed from Byte to Int
-//          dgm 06Sep2006   Error Data passed via Signal_Desc record
-//          dgm 06Nov2006   Asymmteric Error Data
-//          dgm 22Jan2007   get_timedble and get_scalar properties added
-//          dgm 24Jan2007   get_dimdble anded and get_dble changed to get_datadble
-//                          Update elements of Data_Source, Signal and Signal_Desc
-//          dgm 12Mar2007   request_block.signal string length increased to MAXMETA from STRING_LENGTH
-//          dgm 15Mar2007   request_block items tpass and format added
-//          dgm 31May2007   Hierarchical Opaque Structure type added to Data_Block
-//          dgm 23Oct2007   ERRORSTACK components added and changes to SERVER_BLOCK implemented
-// 29Oct2008    dgm         Added unsigned types: short, long and char
-// 04Nov2008    dgm         Added version dependent protocol: configure data structure elements for read or write
-//                          Added xdr_meta to pass a String containing XML based Meta Data
-// 09Jun2009    dgm         All data types now added
-// 07Jul2009    dgm         Added compiler option ULONG64_OK to disable unsigned long long int: There is a gcc/ld bug with message
-//                          hidden symbol `__fixunssfdi' in /usr/lib/gcc/i386-redhat-linux/4.1.1/libgcc.a(_fixunssfdi.o) is referenced by DSO
-//                          /usr/bin/ld: final link failed: Nonrepresentable section on output
-//                          This problem is fixed by removing references to unsigned long long int
-//                          Also added option LONG64_OK for long long int
-// 20Aug2009    dgm         CLIENT_BLOCK debug_level changed to get_nodimdata
-// 22Jan2010    dgm         Changes made for general structure passing
-// 23Apr2010    dgm         privateFlags added to CLIENT_BLOCK (subject to version change check)
-// 11May2010    dgm         source added to REQUEST_BLOCK and version changed to 6
-// 02Nov2010    dgm         new bit flags added for passing via properties in CLIENT_BLOCK
-//                          verbose structure element renamed clientFlags
-//                          debug structure element renamed altRank
-//                          These changes are version 6 dependent
-// 09May2011    dgm         Removed compiler options LONG64_OK & ULONG64_OK
-// 25Oct2011    dgm         Added STRING types to xdr_data_block2 only. Not Passed as either error or dimension data
-// 25Jun2012    dgm         Corrected passed string length in xdr_meta.
-// 28Mar2013    dgm         Added PUT components
-// 18Nov2013    dgm         PUTDATA functionality included as standard rather than with a compiler option
-// 12Feb2015    dgm         Added xdr_data_object1 and xdr_data_object2 functions
-//-----------------------------------------------------------------------
 
 #include "xdrlib.h"
 

@@ -35,23 +35,14 @@
 // The cost of method 3 ?     ms
 
 // The default is over-ruled in server startup script by IDAM_PROVENANCE_EXEC_METHOD
-// The passed keyword execMethod has highest priority   
-
-*
-* Change History
-*
-* 03Oct2013	dgm	Original Version named issueDOI.c
-* 09May2014	dgm	Renamed with doi changed to uuid
+// The passed keyword execMethod has highest priority
 *---------------------------------------------------------------------------------------------------------------*/
 #include "putSignal.h"
-#include "provenance.h"
 
-#include <idamErrorLog.h>
-#include <idamLog.h>
+#include "provenance.h"
 
 int putSignal(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
-
     int err = 0;
     int i, nrows;
 

@@ -1,5 +1,5 @@
-#ifndef IDAM_APPLYXML_H
-#define IDAM_APPLYXML_H
+#ifndef IDAM_SERVER_APPLYXML_H
+#define IDAM_SERVER_APPLYXML_H
 
 #include <clientserver/parseXML.h>
 #include <clientserver/idamStructs.h>
@@ -11,6 +11,6 @@ void idamserverApplySignalXML(CLIENT_BLOCK client_block, DATA_SOURCE *data_sourc
                               DATA_BLOCK *data_block, ACTIONS actions);
 void idamserverDeselectSignalXML(ACTIONS *actions_desc, ACTIONS *actions_sig);
 
-#endif // IDAM_APPLYXML_H
+#endif // IDAM_SERVER_APPLYXML_H
 
 

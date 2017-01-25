@@ -1,14 +1,5 @@
-//! $LastChangedRevision: 223 $
-//! $LastChangedDate: 2010-06-22 09:59:41 +0100 (Tue, 22 Jun 2010) $
-//! $LastChangedBy: dgm $
-//! $HeadURL: https://fussvn.fusion.culham.ukaea.org.uk/svnroot/IDAM/development/source/clientserver/copyStructs.c $
-
 // Copy Data Structures
 //
-// Change History:
-//
-// dgm	13Apr2007
-// dgm	11May2010	Added source and api_delim to copyRequestBlock
 //----------------------------------------------------------------------------------
 
 #include "copyStructs.h"

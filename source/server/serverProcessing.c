@@ -1,19 +1,17 @@
-/*---------------------------------------------------------------
-* IDAM Server Side Data Processing
-*
-* Return 1 if an error occurred, otherwise 0
-*
-* Change History
-* 0.0  	22Jan2007   D.G.Muir	Original Version
-* 0.1   24Jan2007   D.G.Muir	Cast any dimension to Double if compressed
-* 0.2   11Apr2007   D.G.Muir	Corrected a Bug when get_timedble (multiple time domains) is requested
-* 0.3   09Jul2007   dgm		debugon enabled
-* 31Oct2008	dgm	Additional unsigned integers implemented
-*--------------------------------------------------------------*/
-
-#include <idamLog.h>
 #include "serverProcessing.h"
 
+#include <stdlib.h>
+
+#include <idamLog.h>
+#include <include/idamtypes.h>
+
+/**
+ * IDAM Server Side Data Processing
+ *
+ * @param client_block
+ * @param data_block
+ * @return 1 if an error occurred, otherwise 0
+ */
 int serverProcessing(CLIENT_BLOCK client_block, DATA_BLOCK* data_block)
 {
 

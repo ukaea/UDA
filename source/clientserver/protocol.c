@@ -1,6 +1,3 @@
-#ifndef IdamProtocol
-#define IdamProtocol    // Cheap fix to Prevent double inclusion in build for FAT clients
-
 /*---------------------------------------------------------------
 * Client - Server Conversation Protocol
 *
@@ -22,24 +19,6 @@
 *
 * Returns: error code if failure, otherwise 0
 *
-* Change History:
-
-* 0.3  10Jul2005 D.G.Muir
-* 0.4  27Oct2006 D.G.Muir	Streamlined passing of Data_Block: Only
-*				1 skiprecord or 1 endofrecord issued
-* 0.4  06Nov2006 D.G.Muir	Asymmetric Errors passed
-* 0.5  31May2007 dgm		Call to protocolXML added
-* 0.6  23Oct2007 dgm		ERRORSTACK Components added
-* 04Nov2008 dgm		Installed generic hierarchical & Meta Data Protocols: Version Dependent
-*			added named Protocol IDs
-* 10Dec2008 dgm		Test for data types using protocolVersion: Old clients and servers don't have
-*			unsigned integer types: CHAR, SHORT and LONG. If these tests fail then data
-*			cannot be passed - an error is flagged.
-* 06Jun2009 dgm		All data types now added to version test
-* 08Jul2009	dgm	protocolVersion now static class for the client, extern for the server
-* 09Jul2009	dgm	protocolVersion moved to idamServer.c
-* 22Jan2010	dgm	added version (4) test for TYPE_COMPOUND
-* 18Nov2013	dgm	PUTDATA functionality included as standard rather than with a compiler option
 *--------------------------------------------------------------*/
 
 #include "protocol.h"
@@ -888,5 +867,3 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, void* str)
 
     return err;
 }
-
-#endif

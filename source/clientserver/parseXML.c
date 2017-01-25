@@ -1,8 +1,3 @@
-//! $LastChangedRevision: 353 $
-//! $LastChangedDate: 2013-11-18 15:32:28 +0000 (Mon, 18 Nov 2013) $
-//! $LastChangedBy: dgm $
-//! $HeadURL: https://fussvn.fusion.culham.ukaea.org.uk/svnroot/IDAM/development/source/server/parseXML.c $
-
 /*---------------------------------------------------------------
 * IDAM XML Parser
 *
@@ -17,21 +12,6 @@
 * Notes:
 *
 * ToDo:
-*
-* Change History:
-*
-* 0.1   18Oct2006	D.G.Muir	Significant Changes
-* 	06Nov2006	D.G.Muir	Error Model/Error Asymmetry
-* 	13Dec2006			errparams now fixed length array rather than heap
-* 	22Feb2007 	dgm	TIMEOFFSET structure changed to enable different
-*                      		correction methods to be applied.
-*       09Mar2007 	dgm	Additional items to COMPOSITE (order, file, format) and DIMCOMPOSITE (file, format) Structures
-*	09Jul2007	dgm	debugon enabled
-*	29Feb2008	dgm	xmlCleanupParser added to parser housekeeping
-// 28Jan2010	dgm	Added invert attribute to the CALIBRATION and DIMCALIBRATION tags + integer invert type to calibration structure
-// 05Nov2010	dgm	Added member attribute to SUBSET tag
-// 10Nov2010	dgm	Added function attribute to SUBSET tag
-// 05May2011	dgm	don't include idamserver.h if these functions are used in the ROIDAM DLM toolset
 *-------------------------------------------------------------------------------------------*/
 
 #include "parseXML.h"

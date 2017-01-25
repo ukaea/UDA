@@ -1,15 +1,5 @@
-//! $LastChangedRevision: 353 $
-//! $LastChangedDate: 2013-11-18 15:32:28 +0000 (Mon, 18 Nov 2013) $
-//! $LastChangedBy: dgm $
-//! $HeadURL: https://fussvn.fusion.culham.ukaea.org.uk/svnroot/IDAM/development/source/client/createClientXDRStream.c $
-
 // Create the Client Side XDR File Stream
 //
-// Change History
-//
-// 21Mar2007	dgm	prefix client added to XDR declarations
-// 18Apr2007	dgm	arg 5 of *_create  functions modified: char * changed to void *
-// 08Jul2009	dgm	clientInput,clientOutput changed to static class
 //----------------------------------------------------------------
 
 #include <idamLog.h>

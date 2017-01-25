@@ -1,11 +1,5 @@
 // Server Functions to Close Socket Connections to External Data Servers
 //
-// Change History:
-//
-// v0.00	DGMuir 16Jan2007	Original Code
-// v0.01	DGMuir 21Mar2007	server_socketlist pointer argument added
-//					functions renamed ...ServerSocket
-//					closeServerSocket added
 //----------------------------------------------------------------------------------
 
 #include "closeServerSockets.h"

@@ -1,13 +1,10 @@
-// readJetto shared library
-
 #ifndef IdamReadMetaInclude
 #define IdamReadMetaInclude
 
-// Change History:
-//
-// 14Oct2011	dgm	Original Version
+#include <include/idamplugin.h>
 
-#include "libpq-fe.h"
+#include <libpq-fe.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif

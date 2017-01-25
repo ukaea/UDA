@@ -1,19 +1,13 @@
 /*---------------------------------------------------------------
 // Help: A Description of library functionality
 // Information is returned as a single string containing all required format control characters.
-
-* Change History
-*
-* 03Oct2013	dgm	Original Version named issueDOI.c
-* 09May2014	dgm	Renamed with doi changed to uuid
 *---------------------------------------------------------------------------------------------------------------*/
 #include "help.h"
-#include "provenance.h"
 
-#include <idamErrorLog.h>
-#include <struct.h>
-#include <idamLog.h>
-#include <accessors.h>
+#include <structures/struct.h>
+#include <structures/accessors.h>
+
+#include "provenance.h"
 
 int help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {

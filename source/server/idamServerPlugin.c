@@ -1,18 +1,5 @@
 /*---------------------------------------------------------------
 * Identify the correct IDAM Data Server Plugin
-*----------------------------------------------------------------
-* Change History:
-*
-* 11May2010	dgm	Original version
-* 02Oct2013	dgm	Help plugin moved to external library
-* 03Oct2013	dgm	Corrected bug capturing example text from configuration file
-* 24Apr2014	dgm	Initialised cachePermission in initPluginList()
-* 20May2014	dgm	Changed the method name to putSignal and DOI arg to uid
-* 02Jul2014	dgm	Ignore blank lines in the plugin configuration file
-* 03Jul2014	dgm	Added hd5 file extension for HDF5 ITER IMAS data files
-* 03Aug2015	dgm	Fixed potential bug with Server-Side function properties
-*			Marked the IDAM plugin as public (previous defualt was private) if the user is Not Externally Connected
-* 21Jan2016	dgm	Added test for the Metadata Catalog Plugin to use for Generic Signal name mapping			
 *---------------------------------------------------------------------------------------------------------------------*/
 #include "idamServerPlugin.h"
 

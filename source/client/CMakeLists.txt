@@ -50,16 +50,6 @@ endif()
 ########################################
 # Target type
 
-if( ${TARGET_TYPE} STREQUAL JET )
-  add_definitions( -DJETSERVER )
-elseif( ${TARGET_TYPE} STREQUAL MAST )
-  add_definitions( -DMASTSERVER )
-elseif( ${TARGET_TYPE} STREQUAL OTHER )
-  add_definitions( -DOTHERSERVER )
-else()
-  message( FATAL_ERROR "INVALID TARGET_TYPE: ${TARGET_TYPE}" )
-endif()
-
 add_definitions( -DCLEANNAMESPACE25SEP14 -DOSTYPE=linux )
 if( NOT FAT_BUILD )
   add_definitions( -DCLIENTBUILD )

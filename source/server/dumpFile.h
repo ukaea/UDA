@@ -1,10 +1,8 @@
+#ifndef IDAM_SERVER_DUMPFILE_H
+#define IDAM_SERVER_DUMPFILE_H
 
-#ifndef IDAM_DUMPFILE_H
-
-#include "idamclientserver.h"
-#include "idamserver.h"
-#include "idamserverconfig.h"
+#include "idamStructs.h"
 
 int dumpFile(REQUEST_BLOCK request_block, DATA_BLOCK *data_block);
 
-#endif // IDAM_DUMPFILE_H
+#endif // IDAM_SERVER_DUMPFILE_H

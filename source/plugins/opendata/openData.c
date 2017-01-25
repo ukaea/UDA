@@ -17,19 +17,15 @@
 *	init	Initialise the plugin: read all required data and process. Retain staticly for
 *		future reference.	
 *
-* Change History
-*
-* 06May2014	D.G.Muir	Original Version (based on the template plugin)
 *---------------------------------------------------------------------------------------------------------------*/
 #include "openData.h"
 
-#include <idamserver.h>
-#include <idamErrorLog.h>
-#include <initStructs.h>
 #include <sys/stat.h>
 #include <dirent.h>
 #include <utime.h>
-#include <idamLog.h>
+
+#include <include/idamserver.h>
+#include <clientserver/initStructs.h>
 
 #ifndef USE_PLUGIN_DIRECTLY
 IDAMERRORSTACK* idamErrorStack;    // Pointer to the Server's Error Stack. Global scope within this plugin library

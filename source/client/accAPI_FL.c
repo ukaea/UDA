@@ -1,15 +1,6 @@
-//! $LastChangedRevision: 87 $
-//! $LastChangedDate: 2008-12-19 15:34:15 +0000 (Fri, 19 Dec 2008) $
-//! $LastChangedBy: dgm $
-//! $HeadURL: https://fussvn.fusion.culham.ukaea.org.uk/svnroot/IDAM/development/source/client/accAPI_FL.c $
-
 //---------------------------------------------------------------
 // Fortran Legacy Accessor Functions - dependent on compiler option IDAM_FORTRAN_LEGACY_NAMES
 // All declared extern locally: there is No header file
-//
-// Change History
-//
-// 09Jul2009	dgm	Splitout from accAPI_F.c to isolate legacy extern functions and APIs
 //--------------------------------------------------------------
 
 #include "idamclientserverpublic.h"

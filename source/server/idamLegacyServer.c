@@ -1,13 +1,13 @@
 /*---------------------------------------------------------------
 * IDAM Legacy Data Server (protocol versions <= 6)
 *
-*----------------------------------------------------------------
-* Change History:
-*
-* 28Nov2013   D.G.Muir		Original version taken from idamServer.c
 *---------------------------------------------------------------------------------------------------------------------*/
 
 #include "idamLegacyServer.h"
+
+#include <idamLog.h>
+#include <clientserver/idamErrorLog.h>
+#include <clientserver/protocol.h>
 
 #include "idamserver.h"
 #include "initStructs.h"
@@ -25,8 +25,7 @@
 #include "freeIdamPut.h"
 #include "xdrlib.h"
 #include "freeDataBlock.h"
-#include <idamLog.h>
-#include <clientserver/idamErrorLog.h>
+#include "sqllib.h"
 
 #ifdef LEGACYSERVER
 int idamLegacyServer(CLIENT_BLOCK client_block) {

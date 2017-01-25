@@ -1,18 +1,9 @@
-//! $LastChangedRevision: 173 $
-//! $LastChangedDate: 2010-02-26 15:27:47 +0000 (Fri, 26 Feb 2010) $
-//! $LastChangedBy: dgm $
-//! $HeadURL: https://fussvn.fusion.culham.ukaea.org.uk/svnroot/IDAM/development/source/client/accAPI_XML.c $
-
 //---------------------------------------------------------------
 // Accessor Functions to IDAM XML Parsed Hierarchical Structured Data
 //
 // ToDo:
-//
-// Change History:
-//
-// 03Oct2007 dgm	Original Version based on apiItmParser.c
-// 15Nov2007 dgm	Compliant with IDAM Structure Passing
 //--------------------------------------------------------------
+
 #ifdef HIERARCHICAL_DATA
 
 #include "idamclientserver.h"

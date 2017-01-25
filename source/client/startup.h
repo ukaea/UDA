@@ -1,5 +1,5 @@
-#ifndef IDAM_STARTUP_H
-#define IDAM_STARTUP_H
+#ifndef IDAM_CLIENT_STARTUP_H
+#define IDAM_CLIENT_STARTUP_H
 
 #ifdef FATCLIENT
 #  define idamStartup idamStartupFat
@@ -7,4 +7,4 @@
 
 int idamStartup(int reset);
 
-#endif // IDAM_STARTUP_H
+#endif // IDAM_CLIENT_STARTUP_H

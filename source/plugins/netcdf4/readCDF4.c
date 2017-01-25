@@ -31,44 +31,14 @@
 *			3.2> List all dimensions and coordinates within scope
 *			3.3> Walk the sub-tree and build the full compound structure.
 *			3.4> Complex types: only enquire if required.
-*
-*
-*
-* Change History
-*
-* 1.0	13Jun2006	D.G.Muir	Original Version
-* 1.1	05Jul2006	D.G.Muir	Return meaningful time dependent dimension values
-* 1.2	27Mar2007	D.G.Muir	File Handle Management added
-* 1.3   19Apr2007	D.G.Muir	nc_inq_attlen(,,,&attlength) changed to nc_inq_attlen(,,,(size_t *)&attlength)
-* 23Oct2007	dgm	ERRORSTACK Components added
-* 20Apr2009	dgm	Modified to use the netCDF4 API
-* 11Oct2009	dgm	Test for 'devices' in signal name when the file is compliant and no database entry found.
-* 22Jan2010	dgm	Generalised structure passing added for User Defined data structures
-* 25Jun2010	dgm	Correct test for hierachical netcdf-4 file format
-* 29Jul2010	dgm	Tidied up usage of rc and err.
-* 21Mar2011	dgm	Changed detection of non-hierarchical netcdf-3 files
-			Added extra ad-hoc test for time dimension
-			Forced compliance for efit data
-* 07Apr2011	dgm	Fixed bug when user defined types are tested against complex and dcomples.
-*			Incorrect use of compound type query - fails with enumerated types. Ignore error code.
-* 13Apr2011	dgm	Added native data subsetting using syntax: [a:b:c, d:e:f, ...] meaning start at index
-*			a, end at index b, sample with stride c.
-* 19Apr2011	dgm	Added REQUEST_BLOCK to readCDF argument
-* 13May2011	dgm	Changes to manage variables and coordinate variables with zero length!
-* 09Dec2011	dgm	Remove compliance on rank for RAW data when applying scale and offset when not a Coordinate Variable
-* 16Dec2011	dgm	Corrected getGroupId bug that occurs in 64 bit server: change int to size_t for variable namelength
-* 19Mar2012	dgm	Generalised string attributes by checking the type: NC_CHAR or NC_STRING
-* 13Mar2015	dgm	Added hidden metadata attributes
-			Copied to 'True' plugin directory with private file handle management external to the server
 *---------------------------------------------------------------------------------------------------------------*/
 #include "readCDF4.h"
 
-#include <managePluginFiles.h>
-#include <idamErrorLog.h>
-#include <initStructs.h>
-#include <struct.h>
-#include <TrimString.h>
-#include <idamLog.h>
+#include <server/managePluginFiles.h>
+#include <structures/struct.h>
+#include <clientserver/initStructs.h>
+#include <clientserver/TrimString.h>
+
 #include "netCDF4.h"
 #include "readCDFAtts.h"
 #include "readCDF4SubTree.h"

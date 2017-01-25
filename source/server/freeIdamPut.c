@@ -1,5 +1,6 @@
-
 #include "freeIdamPut.h"
+
+#include <stdlib.h>
 
 #include "initStructs.h"
 
