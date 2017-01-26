@@ -24,53 +24,16 @@
 *---------------------------------------------------------------------------------------------------------------*/
 #include "efitmagxml.h"
 
-#include <idampluginfiles.h>
-#include <idamserver.h>
-#include <idamErrorLog.h>
-#include <managePluginFiles.h>
-#include <initStructs.h>
-#include <makeServerRequestBlock.h>
 #include <client/accAPI_C.h>
-#include <client/IdamAPI.h>
-#include <freeDataBlock.h>
 #include <structures/struct.h>
 #include <structures/accessors.h>
 #include <clientserver/TrimString.h>
-
-/*
-#include "idamclientpublic.h"
-#include "idamclientserver.h"
-#include "idamserver.h"
-#include "idamserverfiles.h"
-#include "idamgenstruct.h"
-#include <mcheck.h>
-#include <time.h>
-#include "efitmagxml.h"
-*/
-
-//#include "allocXMLData.c"
-//#include "initXMLStructs.c"
-//#include "efitmagxmllib.c"
-//#include "parseHData.c"
-
-//#ifndef USE_PLUGIN_DIRECTLY
-//   #include "/home/dgm/IDAM/source/clientserver/TrimString.c"
-//#endif
-
-static FILE* dbgout, * errout;
-
-/*
-#ifndef USE_PLUGIN_DIRECTLY
-   static ENVIRONMENT environment;
-   IDAMERRORSTACK *idamErrorStack;	// Pointer to the Server's Error Stack. Global scope within this plugin library
-#endif
-*/
+#include <include/idamplugin.h>
+#include <clientserver/initStructs.h>
 
 int efitmagxml(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
-    //int i,j,k,err=0,offset;
     int i, err = 0;
-    char* p;
 
     static short init = 0;
     static EFIT efit;
@@ -80,32 +43,11 @@ int efitmagxml(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     DATA_BLOCK* data_block;
     REQUEST_BLOCK* request_block;
-    DATA_SOURCE* data_source;
-    SIGNAL_DESC* signal_desc;
-
-    PLUGINLIST* pluginList;    // List of all data reader plugins (internal and external shared libraries)
-
-    //FILE *old_stdout, *old_stderr;
-
-    USERDEFINEDTYPE usertype;
-    COMPOUNDFIELD field;
 
     IDAMERRORSTACK* idamErrorStack = getIdamServerPluginErrorStack();        // Server library functions
-    USERDEFINEDTYPELIST* userdefinedtypelist = getIdamServerUserDefinedTypeList();
-    LOGMALLOCLIST* logmalloclist = getIdamServerLogMallocList();
 
     initIdamErrorStack(&idamerrorstack);
-/*   
-#ifndef USE_PLUGIN_DIRECTLY
-   idamErrorStack                           = getIdamServerPluginErrorStack(); 		// Server's error stack	 
-   LOGMALLOCLIST  *logmalloclist            = getIdamServerLogMallocList();
-   USERDEFINEDTYPELIST *userdefinedtypelist = getIdamServerUserDefinedTypeList();
 
-   initIdamErrorStack(&idamerrorstack);		// Initialise Local Error Stack (defined in idamclientserver.h)
-#else
-   IDAMERRORSTACK *idamErrorStack = &idamerrorstack;		// local and server are the same!  
-#endif   
-*/
     unsigned short housekeeping;
 
     if (idam_plugin_interface->interfaceVersion > THISPLUGIN_MAX_INTERFACE_VERSION) {
@@ -122,18 +64,8 @@ int efitmagxml(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     data_block = idam_plugin_interface->data_block;
     request_block = idam_plugin_interface->request_block;
-    data_source = idam_plugin_interface->data_source;
-    signal_desc = idam_plugin_interface->signal_desc;
-
-    pluginList = idam_plugin_interface->pluginList;
-
-    dbgout = idam_plugin_interface->dbgout;
-    errout = idam_plugin_interface->errout;
 
     housekeeping = idam_plugin_interface->housekeeping;
-
-    //debugon = (dbgout != NULL);
-    //verbose = (errout != NULL);
 
 #ifndef USE_PLUGIN_DIRECTLY
 // Don't copy the structure if housekeeping is requested - may dereference a NULL or freed pointer!     
@@ -198,7 +130,7 @@ int efitmagxml(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Arguments and keywords 
 
-        char* xmlFile;
+        char* xmlFile = NULL;
         unsigned short int isXmlFile = 0;
         for (i = 0; i < request_block->nameValueList.pairCount; i++) {
             if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "xmlfile")) {
@@ -338,9 +270,7 @@ ToDo:
         if (!strcasecmp(request_block->function, "get")) {
             initDataBlock(data_block);
 
-            int count;
-            //float r,z,phi;
-            char* p;   // *name;
+            int count = 0;
 
             if (isCount) {
                 if (isFluxLoop) {
@@ -366,12 +296,13 @@ ToDo:
                 data_block->data = (char*) data;
                 break;
             } else if (isSignal) {
+                char* p = NULL;
                 if (isFluxLoop) {
                     p = (efit.fluxloop[objectId].instance).signal;
                 } else if (isMagProbe) {
                     p = (efit.magprobe[objectId].instance).signal;
                 }
-                data_block->data_n = strlen(p) + 1;
+                data_block->data_n = (int)(strlen(p) + 1);
                 data_block->rank = 0;
                 data_block->data_type = TYPE_STRING;
                 strcpy(data_block->data_desc, "efitmagxml: object name returned");
@@ -379,12 +310,13 @@ ToDo:
                 strcpy(data_block->data, p);
                 break;
             } else if (isName || isIdentifier) {
+                char* p = NULL;
                 if (isFluxLoop) {
                     p = getidfluxloop(&efit, objectId);
                 } else if (isMagProbe) {
                     p = getidmagprobe(&efit, objectId);
                 }
-                data_block->data_n = strlen(p) + 1;
+                data_block->data_n = (int)(strlen(p) + 1);
                 data_block->rank = 0;
                 data_block->data_type = TYPE_STRING;
                 strcpy(data_block->data_desc, "efitmagxml: object name returned");
@@ -423,8 +355,8 @@ ToDo:
                 data_block->data = (char*) data;
                 break;
             } else if (isDevice) {
-                p = getdevice(&efit);
-                data_block->data_n = strlen(p) + 1;
+                char* p = getdevice(&efit);
+                data_block->data_n = (int)(strlen(p) + 1);
                 data_block->rank = 0;
                 data_block->data_type = TYPE_STRING;
                 strcpy(data_block->data_desc, "efitmagxml: device name returned");
@@ -442,7 +374,7 @@ ToDo:
 
         if (!strcasecmp(request_block->function, "help")) {
 
-            p = (char*) malloc(sizeof(char) * 2 * 1024);
+            char* p = (char*) malloc(sizeof(char) * 2 * 1024);
 
             strcpy(p, "\nefitmagxml: Add Functions Names, Syntax, and Descriptions\n\n");
 
@@ -458,7 +390,7 @@ ToDo:
             data_block->data = (char*) p;
 
             data_block->dims[0].data_type = TYPE_UNSIGNED_INT;
-            data_block->dims[0].dim_n = strlen(p) + 1;
+            data_block->dims[0].dim_n = (int)(strlen(p) + 1);
             data_block->dims[0].compressed = 1;
             data_block->dims[0].dim0 = 0.0;
             data_block->dims[0].diff = 1.0;
@@ -495,7 +427,7 @@ ToDo:
             initDataBlock(data_block);
             data_block->data_type = TYPE_STRING;
             data_block->rank = 0;
-            data_block->data_n = strlen(__DATE__) + 1;
+            data_block->data_n = (int)(strlen(__DATE__) + 1);
             char* data = (char*) malloc(data_block->data_n * sizeof(char));
             strcpy(data, __DATE__);
             data_block->data = (char*) data;
@@ -511,7 +443,7 @@ ToDo:
             initDataBlock(data_block);
             data_block->data_type = TYPE_STRING;
             data_block->rank = 0;
-            data_block->data_n = strlen(THISPLUGIN_DEFAULT_METHOD) + 1;
+            data_block->data_n = (int)(strlen(THISPLUGIN_DEFAULT_METHOD) + 1);
             char* data = (char*) malloc(data_block->data_n * sizeof(char));
             strcpy(data, THISPLUGIN_DEFAULT_METHOD);
             data_block->data = (char*) data;

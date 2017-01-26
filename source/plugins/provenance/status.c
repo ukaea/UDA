@@ -14,6 +14,9 @@
 *---------------------------------------------------------------------------------------------------------------*/
 #include "status.h"
 
+#include <stdlib.h>
+#include <ctype.h>
+
 #include <clientserver/initStructs.h>
 #include <structures/struct.h>
 #include <structures/accessors.h>

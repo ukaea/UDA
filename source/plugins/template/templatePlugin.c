@@ -20,9 +20,11 @@
 *---------------------------------------------------------------------------------------------------------------*/
 #include "templatePlugin.h"
 
+#include <stdlib.h>
+
 #include <clientserver/TrimString.h>
-#include <include/idamplugin.h>
 #include <clientserver/initStructs.h>
+#include <clientserver/idamTypes.h>
 
 static int do_help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
 

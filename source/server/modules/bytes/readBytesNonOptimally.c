@@ -21,11 +21,15 @@
 *-----------------------------------------------------------------------------*/
 #include "readBytesNonOptimally.h"
 
+#include <errno.h>
+#include <stdlib.h>
+
 #include <logging/idamLog.h>
 #include <clientserver/idamErrorLog.h>
 #include <clientserver/TrimString.h>
 #include <clientserver/md5Sum.h>
 #include <clientserver/freeDataBlock.h>
+#include <clientserver/idamTypes.h>
 
 #ifdef NOBINARYPLUGIN
 
@@ -52,12 +56,6 @@ int readBytes(DATA_SOURCE data_source,
     char md5check[2 * MD5_SIZE + 1] = "";
 
     char* bp = NULL;
-
-#ifdef TIMETEST
-    struct timeval tv_start[3];
-    struct timeval tv_end[3];
-    float testtime ;
-#endif
 
 //----------------------------------------------------------------------
 // Block Access to External Users
@@ -91,41 +89,6 @@ int readBytes(DATA_SOURCE data_source,
 
     errno = 0;
 
-// MD5 Checksum
-
-#ifdef TIMETEST
-    rc = gettimeofday(&tv_start[0], NULL);
-#endif
-
-#ifdef MD5TEST
-    strcat(cmd, data_source.path);
-    errno = 0;
-
-    ph = popen(cmd, "r")) ;			// This is EXTREMELY SLOW!!!
-
-    serrno = errno;
-
-    if(ph == NULL || serrno != 0) {
-    err = BYTEFILEMD5ERROR;
-    if(serrno != 0) addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "readBytes", serrno, "");
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "readBytes", err, "Unable to Compute the File's MD5 Checksum");
-        return err;
-    }
-
-    if(!feof(ph)) fgets(md5file,2*MD5_SIZE+1,ph);
-
-        fclose(ph);
-        md5file[2*MD5_SIZE] = '\0';
-#endif
-
-#ifdef TIMETEST
-    rc = gettimeofday(&tv_end[0], NULL);
-#endif
-
-#ifdef MD5TEST
-    idamLog(LOG_DEBUG, "MD5 Checksum       : %s \n", md5file);
-#endif
-
 //----------------------------------------------------------------------
 // Open the File as a Binary Stream
 
@@ -148,10 +111,6 @@ int readBytes(DATA_SOURCE data_source,
     do {
 
 // Read File (Consider using memory mapped I/O & new type to avoid heap free at end if this is too slow!)
-
-#ifdef TIMETEST
-        rc = gettimeofday(&tv_start[1], NULL);
-#endif
 
         nchar = 0;
         offset = 0;
@@ -176,42 +135,18 @@ int readBytes(DATA_SOURCE data_source,
         data_block->data_n = nchar;
         data_block->data = (char*) bp;
 
-#ifdef TIMETEST
-        rc = gettimeofday(&tv_end[1], NULL);
-#endif
-
 //----------------------------------------------------------------------
 // MD5 Checksum
-
-#ifdef TIMETEST
-        rc = gettimeofday(&tv_start[2], NULL);
-#endif
 
         md5Sum(bp, data_block->data_n, md5check);
 
         strcpy(data_block->data_desc, md5check);    // Pass back the Checksum to the Client
 
-#ifdef TIMETEST
-        rc = gettimeofday(&tv_end[2], NULL);
-#endif
-
-            idamLog(LOG_DEBUG, "File Size          : %d \n", (int) nchar);
-            idamLog(LOG_DEBUG, "File Checksum      : %s \n", md5file);
-            idamLog(LOG_DEBUG, "Read Checksum      : %s \n", md5check);
-#ifdef MD5TEST
-            idamLog(LOG_DEBUG, "Difference?        : %d \n", !strcmp(md5file,md5check));
-            idamLog(LOG_DEBUG, "Last Byte == EOF   : %d \n", bp[nchar]==EOF);
-#endif
+        IDAM_LOGF(LOG_DEBUG, "File Size          : %d \n", nchar);
+        IDAM_LOGF(LOG_DEBUG, "File Checksum      : %s \n", md5file);
+        IDAM_LOGF(LOG_DEBUG, "Read Checksum      : %s \n", md5check);
 
 // MD5 Difference?
-
-#ifdef MD5TEST
-        if(strcmp(md5file,md5check)) {
-            err = BYTEFILEMD5DIFF;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readBytes", err, "MD5 Checksum Difference Found on Reading File");
-            break;
-        }
-#endif
 
 //----------------------------------------------------------------------
 // Fetch Dimensional Data
@@ -229,14 +164,6 @@ int readBytes(DATA_SOURCE data_source,
 
     fclose(fh);        // Close the File
 
-#ifdef TIMETEST
-    testtime = (float)(tv_end[0].tv_sec-tv_start[0].tv_sec)*1.0E6 + (float)(tv_end[0].tv_usec - tv_start[0].tv_usec);
-    idamLog(LOG_DEBUG, "Piped MD5 Checksum Timing: %.2f(micros)\n", (float)testtime);
-    testtime = (float)(tv_end[1].tv_sec-tv_start[1].tv_sec)*1.0E6 + (float)(tv_end[1].tv_usec - tv_start[1].tv_usec);
-    idamLog(LOG_DEBUG, "Reading File Timing: %.2f(micros)\n", (float)testtime);
-    testtime = (float)(tv_end[2].tv_sec-tv_start[2].tv_sec)*1.0E6 + (float)(tv_end[2].tv_usec - tv_start[2].tv_usec);
-    idamLog(LOG_DEBUG, "Buffer MD5 Checksum Timing: %.2f(micros)\n", (float)testtime);
-#endif
     return err;
 }
 

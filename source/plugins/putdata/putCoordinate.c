@@ -1,5 +1,9 @@
 #include "putCoordinate.h"
 
+#include <stdlib.h>
+
+#include <clientserver/idamTypes.h>
+
 #include "putVariable.h"
 #include "putUnits.h"
 #include "putGroup.h"

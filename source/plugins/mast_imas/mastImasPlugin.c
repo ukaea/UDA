@@ -21,6 +21,7 @@
 #include "mastImasPlugin.h"
 
 #include <libpq-fe.h>
+#include <stdlib.h>
 
 #include <clientserver/initStructs.h>
 #include <server/makeServerRequestBlock.h>
@@ -28,6 +29,7 @@
 #include <server/idamServerPlugin.h>
 #include <server/sqllib.h>
 #include <clientserver/TrimString.h>
+#include <clientserver/idamTypes.h>
 
 static int do_help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
 

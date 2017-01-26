@@ -19,6 +19,8 @@
 *---------------------------------------------------------------------------------------------------------------*/
 #include "idamServerHelp.h"
 
+#include <stdlib.h>
+
 #include <include/idamserver.h>
 #include <clientserver/initStructs.h>
 #include <structures/struct.h>

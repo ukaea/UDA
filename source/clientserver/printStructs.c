@@ -5,7 +5,7 @@
 #include "printStructs.h"
 
 #include <logging/idamLog.h>
-#include <include/idamtypes.h>
+#include <clientserver/idamTypes.h>
 #include "idamErrorLog.h"
 
 void printRequestBlock(REQUEST_BLOCK str)

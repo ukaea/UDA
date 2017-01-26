@@ -1,6 +1,9 @@
 #include "putVariable.h"
 
+#include <stdlib.h>
+
 #include <clientserver/TrimString.h>
+#include <clientserver/idamTypes.h>
 
 #include "putUnits.h"
 #include "putGroup.h"

@@ -7,11 +7,14 @@
 
 #include "xdrlib.h"
 
+#include <memory.h>
+#include <stdlib.h>
+
 #include <logging/idamLog.h>
 #include <include/idamclientserverprivate.h>
 #include <structures/struct.h>
-#include <memory.h>
 #include <include/idamclientserver.h>
+
 #include "printStructs.h"
 #include "idamErrorLog.h"
 
@@ -516,7 +519,7 @@ bool_t xdr_serialise_object(XDR* xdrs, DATA_BLOCK* str)
         logmalloclist = (LOGMALLOCLIST*) malloc(sizeof(LOGMALLOCLIST));
         initLogMallocList(logmalloclist);
 
-// Data structure definitions	       
+// Data structure definitions
 
         userdefinedtypelist = (USERDEFINEDTYPELIST*) malloc(sizeof(USERDEFINEDTYPELIST));
         initUserDefinedTypeList(userdefinedtypelist);

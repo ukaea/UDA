@@ -16,6 +16,7 @@ extern "C" {
 
 #include <include/idamclientserver.h>
 #include <include/idamgenstruct.h>
+#include <server/idamPluginStructs.h>
 
 #define ACCESSLOG           // Enable Data Access Logging
 
@@ -30,6 +31,7 @@ extern "C" {
 // Static Global variables
 
 extern SOCKETLIST server_socketlist;    // List of Data Server Sockets
+extern PLUGINLIST pluginList;
 
 extern unsigned int totalDataBlockSize;
 extern int serverVersion;

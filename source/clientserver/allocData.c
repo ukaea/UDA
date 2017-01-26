@@ -11,7 +11,7 @@
 #include "allocData.h"
 
 #include <logging/idamLog.h>
-#include <include/idamtypes.h>
+#include <clientserver/idamTypes.h>
 #include <stdlib.h>
 #include "initStructs.h"
 #include "idamErrors.h"

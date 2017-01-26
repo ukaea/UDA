@@ -20,11 +20,14 @@
 *---------------------------------------------------------------------------------------------------------------*/
 #include "idamAPIPlugin.h"
 
+#include <stdlib.h>
+
 #include <client/accAPI_C.h>
 #include <clientserver/initStructs.h>
 #include <clientserver/TrimString.h>
 #include <client/IdamAPI.h>
 #include <include/idamserver.h>
+#include <clientserver/idamTypes.h>
 
 #ifndef USE_PLUGIN_DIRECTLY
 IDAMERRORSTACK* idamErrorStack;    // Pointer to the Server's Error Stack. Global scope within this plugin library

@@ -14,6 +14,7 @@
 #include <logging/idamAccessLog.h>
 #include <clientserver/xdrlib.h>
 #include <clientserver/freeDataBlock.h>
+#include <clientserver/idamTypes.h>
 
 #include "idamserverGetData.h"
 #include "serverProcessing.h"

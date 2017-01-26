@@ -1,25 +1,17 @@
+#ifndef IDAM_PLUGINS_EFITMAGXML_EFITMAGXML_H
+#define IDAM_PLUGINS_EFITMAGXML_EFITMAGXML_H
 
-// Plugin EFITMAGXML
-
-#ifndef IdamEfitMagXMLPluginInclude
-#define IdamEfitMagXMLPluginInclude
-
-// Change History:
-//
-// 06Sept2016	dgm	Original Version
-
-
-#include <idamplugin.h>
+#include <include/idamplugin.h>
 
 #ifdef __cplusplus
 static "C" {
 #endif
 
-#define THISPLUGIN_VERSION            1
+#define THISPLUGIN_VERSION                  1
 #define THISPLUGIN_MAX_INTERFACE_VERSION    1        // Interface versions higher than this will not be understood!
-#define THISPLUGIN_DEFAULT_METHOD        "help"
+#define THISPLUGIN_DEFAULT_METHOD           "help"
 
-extern int efitmagxml(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
+int efitmagxml(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
 
 #include <libxml/xmlmemory.h> 
 #include <libxml/parser.h> 
@@ -42,7 +34,6 @@ typedef struct {
     int seq;                            // Data Sequence or Pass
     int status;                         // Signal Status
     float factor;                       // Scaling Factor
-// int  handle;			                // Clientside IDAM API Data Handle
 } INSTANCE;
 
 typedef struct {
@@ -238,17 +229,17 @@ void initDiamagnetic(DIAMAGNETIC* str);
 void initToroidalField(TOROIDALFIELD* str);
 void initLimiter(LIMITER* str);
 
-void printInstance(FILE* fh, INSTANCE str);
-void printMagProbe(FILE* fh, MAGPROBE str);
-void printPfSupplies(FILE* fh, PFSUPPLIES str);
-void printPfCircuits(FILE* fh, PFCIRCUIT str);
-void printFluxLoop(FILE* fh, FLUXLOOP str);
-void printPfCoils(FILE* fh, PFCOILS str);
-void printPfPassive(FILE* fh, PFPASSIVE str);
-void printPlasmaCurrent(FILE* fh, PLASMACURRENT str);
-void printDiamagnetic(FILE* fh, DIAMAGNETIC str);
-void printToroidalField(FILE* fh, TOROIDALFIELD str);
-void printLimiter(FILE* fh, LIMITER str);
+void printInstance(INSTANCE str);
+void printMagProbe(MAGPROBE str);
+void printPfSupplies(PFSUPPLIES str);
+void printPfCircuits(PFCIRCUIT str);
+void printFluxLoop(FLUXLOOP str);
+void printPfCoils(PFCOILS str);
+void printPfPassive(PFPASSIVE str);
+void printPlasmaCurrent(PLASMACURRENT str);
+void printDiamagnetic(DIAMAGNETIC str);
+void printToroidalField(TOROIDALFIELD str);
+void printLimiter(LIMITER str);
 char* convertNonPrintable(char* str);
 
 int alloc_efit(EFIT* efit);
@@ -330,4 +321,4 @@ char* getidpfcircuit(EFIT* efit, const int index);
 }
 #endif
 
-#endif
+#endif // IDAM_PLUGINS_EFITMAGXML_EFITMAGXML_H

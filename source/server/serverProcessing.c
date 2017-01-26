@@ -3,7 +3,7 @@
 #include <stdlib.h>
 
 #include <logging/idamLog.h>
-#include <include/idamtypes.h>
+#include <clientserver/idamTypes.h>
 
 /**
  * IDAM Server Side Data Processing

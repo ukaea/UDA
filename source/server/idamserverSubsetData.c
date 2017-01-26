@@ -15,7 +15,7 @@
 #include <include/idamclientserverprivate.h>
 #include <clientserver/idamErrorLog.h>
 #include <include/idamgenstruct.h>
-#include <include/idamtypes.h>
+#include <clientserver/idamTypes.h>
 #include <structures/struct.h>
 #include <clientserver/initStructs.h>
 #include <clientserver/compressDim.h>

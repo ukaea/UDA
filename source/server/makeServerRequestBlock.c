@@ -9,6 +9,8 @@ returns An integer Error Code: If non zero, a problem occured.
 #include "makeServerRequestBlock.h"
 
 #include <unistd.h>
+#include <stdlib.h>
+#include <errno.h>
 
 #include <clientserver/idamErrors.h>
 #include <clientserver/TrimString.h>

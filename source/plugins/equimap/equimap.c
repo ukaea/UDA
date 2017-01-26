@@ -18,10 +18,13 @@
 *---------------------------------------------------------------------------------------------------------------*/
 #include "equimap.h"
 
+#include <stdlib.h>
+
 #include <include/idamserver.h>
 #include <clientserver/initStructs.h>
 #include <client/accAPI_C.h>
 #include <client/idam_client.h>
+#include <clientserver/idamTypes.h>
 
 #include "importdata.h"
 #include "smoothpsi.h"

@@ -15,7 +15,7 @@
 #include <math.h>
 
 #include <include/idamclientprivate.h>
-#include <include/idamtypes.h>
+#include <clientserver/idamTypes.h>
 #include <clientserver/idamErrorLog.h>
 #include <clientserver/allocData.h>
 

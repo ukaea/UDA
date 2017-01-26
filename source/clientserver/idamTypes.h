@@ -1,5 +1,5 @@
-#ifndef IdamTypesInclude
-#define IdamTypesInclude
+#ifndef IDAM_CLIENTSERVER_IDAMTYPES_H
+#define IDAM_CLIENTSERVER_IDAMTYPES_H
 
 // Client and ServerData Types
 //
@@ -67,4 +67,4 @@ extern "C" {
 }
 #endif
 
-#endif
+#endif // IDAM_CLIENTSERVER_IDAMTYPES_H

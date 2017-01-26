@@ -51,11 +51,16 @@
 *				(data_block->opaque_block->name). This is registered within the Structure
 *				Type List.
 **--------------------------------------------------------------------------------------------------*/
-
 #include "protocolXML2.h"
+
+#include <stdlib.h>
+#include <errno.h>
 
 #include <structures/struct.h>
 #include <logging/idamLog.h>
+#include <include/idamclientserverprivate.h>
+#include <include/idamclientserver.h>
+
 #include "readXDRFile.h"
 #include "idamErrorLog.h"
 
@@ -95,13 +100,7 @@ int sha1File(char* name, FILE* fh, unsigned char* md);
 
 #define MAXELEMENTSHA1        20
 
-#ifdef FATCLIENT
-#define protocolXML2 protocolXML2Fat
-int protocolXML2Fat(XDR * xdrs, int protocol_id, int direction, int * token, void * str)
-#else
-
 int protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, void* str)
-#endif
 {
 
     DATA_BLOCK* data_block;

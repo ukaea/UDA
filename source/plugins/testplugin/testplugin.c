@@ -23,6 +23,8 @@
 *---------------------------------------------------------------------------------------------------------------*/
 #include "testplugin.h"
 
+#include <stdlib.h>
+
 #include <clientserver/initStructs.h>
 #include <structures/struct.h>
 #include <server/makeServerRequestBlock.h>

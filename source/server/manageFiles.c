@@ -9,6 +9,8 @@
 //----------------------------------------------------------------------------------
 #include "manageFiles.h"
 
+#include <stdlib.h>
+
 #include <logging/idamLog.h>
 #include <include/idamclientserverprivate.h>
 #include <include/idamserver.h>

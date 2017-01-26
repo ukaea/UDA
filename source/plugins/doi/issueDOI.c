@@ -13,6 +13,8 @@ Issues:
 #include "issueDOI.h"
 
 #include <libpq-fe.h>
+#include <stdlib.h>
+#include <errno.h>
 
 #include <include/idamserver.h>
 #include <structures/struct.h>

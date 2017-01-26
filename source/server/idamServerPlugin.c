@@ -3,6 +3,8 @@
 *---------------------------------------------------------------------------------------------------------------------*/
 #include "idamServerPlugin.h"
 
+#include <stdlib.h>
+#include <errno.h>
 #include <dlfcn.h>
 
 #include <clientserver/initStructs.h>

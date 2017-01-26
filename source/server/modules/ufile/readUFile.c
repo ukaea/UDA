@@ -21,14 +21,15 @@
 #include "readUFile.h"
 
 #include <stdio.h>
-#include <include/idamclientserverprivate.h>
-#include <clientserver/idamErrorLog.h>
 #include <errno.h>
 #include <memory.h>
 #include <stdlib.h>
+
+#include <include/idamclientserverprivate.h>
+#include <clientserver/idamErrorLog.h>
 #include <clientserver/initStructs.h>
 #include <clientserver/TrimString.h>
-#include <include/idamtypes.h>
+#include <clientserver/idamTypes.h>
 
 //---------------------------------------------------------------------------------------------------------------
 // Stub plugin if disabled

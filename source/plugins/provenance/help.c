@@ -4,6 +4,8 @@
 *---------------------------------------------------------------------------------------------------------------*/
 #include "help.h"
 
+#include <stdlib.h>
+
 #include <structures/struct.h>
 #include <structures/accessors.h>
 

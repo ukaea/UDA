@@ -27,7 +27,7 @@
 #include <include/idamclientserverprivate.h>
 #include <clientserver/idamErrorLog.h>
 #include <server/sqllib.h>
-#include <include/idamtypes.h>
+#include <clientserver/idamTypes.h>
 #include <clientserver/initStructs.h>
 #include <clientserver/freeDataBlock.h>
 

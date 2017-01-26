@@ -14,14 +14,14 @@
 #include <errno.h>
 
 #include <logging/idamLog.h>
-#include <include/idamtypes.h>
+#include <clientserver/idamTypes.h>
 #include <clientserver/TrimString.h>
 
-#include "ClientAPI.h"
-#include "ClientMDS.h"
-#include "IdamAPI.h"
 #include "accAPI_C.h"
 #include "idam_client.h"
+#include "IdamAPI.h"
+#include "ClientAPI.h"
+#include "ClientMDS.h"
 
 //--------------------------------------------------------------------------------------------------
 /* Notes:

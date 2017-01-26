@@ -1,5 +1,4 @@
-
-/*--------------------------------------------------------------- 
+/*---------------------------------------------------------------
 * Initialise IDAM Hierarchical XML Data Structures 
 * 
 * Input Arguments:	  
@@ -10,38 +9,16 @@
 * 
 * Notes:  	 
 * 
-* ToDo:		                        
-* 
-* Change History 
-* 
-* 25Jun2007	D.G.Muir
-* 13May2008	D.G.Muir	Test for NULL structures in Print functions	 
+* ToDo:
 * 
 *--------------------------------------------------------------*/
 #include "efitmagxml.h"
 
-#include <idampluginfiles.h>
-#include <idamserver.h>
-#include <idamErrorLog.h>
-#include <managePluginFiles.h>
-#include <initStructs.h>
-#include <makeServerRequestBlock.h>
-#include <client/accAPI_C.h>
-#include <client/IdamAPI.h>
-#include <freeDataBlock.h>
-#include <structures/struct.h>
-#include <structures/accessors.h>
-#include <clientserver/TrimString.h>
-#include <clientserver/idamErrors.h> 
-
 void freeEfit(EFIT* efit)
 {
-
     int i, nel;
 
     if (efit->magprobe != NULL) free((void*) efit->magprobe);
-    //if(efit->polarimetry    != NULL) free((void *)efit->polarimetry);
-    //if(efit->interferometry != NULL) free((void *)efit->interferometry);
     if (efit->diamagnetic != NULL) free((void*) efit->diamagnetic);
 
     nel = efit->nfluxloops;
@@ -267,168 +244,157 @@ void initLimiter(LIMITER* str)
 
 // Print Utilities 
 
-void printInstance(FILE* fh, INSTANCE str)
+void printInstance(INSTANCE str)
 {
-    if (&str == NULL) return;
-    fprintf(fh, "archive       : %s\n", str.archive);
-    fprintf(fh, "file          : %s\n", str.file);
-    fprintf(fh, "signal        : %s\n", str.signal);
-    fprintf(fh, "owner         : %s\n", str.owner);
-    fprintf(fh, "format        : %s\n", str.format);
-    fprintf(fh, "sequence/pass : %d\n", str.seq);
-    fprintf(fh, "status        : %d\n", str.status);
-    fprintf(fh, "factor        : %f\n", str.factor);
+    IDAM_LOGF(LOG_DEBUG, "archive       : %s\n", str.archive);
+    IDAM_LOGF(LOG_DEBUG, "file          : %s\n", str.file);
+    IDAM_LOGF(LOG_DEBUG, "signal        : %s\n", str.signal);
+    IDAM_LOGF(LOG_DEBUG, "owner         : %s\n", str.owner);
+    IDAM_LOGF(LOG_DEBUG, "format        : %s\n", str.format);
+    IDAM_LOGF(LOG_DEBUG, "sequence/pass : %d\n", str.seq);
+    IDAM_LOGF(LOG_DEBUG, "status        : %d\n", str.status);
+    IDAM_LOGF(LOG_DEBUG, "factor        : %f\n", str.factor);
     return;
 }
 
-void printMagProbe(FILE* fh, MAGPROBE str)
+void printMagProbe(MAGPROBE str)
 {
-    if (&str == NULL) return;
-    fprintf(fh, "Magnetic Probe\n");
-    fprintf(fh, "id         : %s\n", str.id);
-    printInstance(fh, str.instance);
-    fprintf(fh, "r          : %f\n", str.r);
-    fprintf(fh, "z          : %f\n", str.z);
-    fprintf(fh, "angle      : %f\n", str.angle);
-    fprintf(fh, "aerr       : %f\n", str.aerr);
-    fprintf(fh, "rerr       : %f\n", str.rerr);
+    IDAM_LOG(LOG_DEBUG, "Magnetic Probe\n");
+    IDAM_LOGF(LOG_DEBUG, "id         : %s\n", str.id);
+    printInstance(str.instance);
+    IDAM_LOGF(LOG_DEBUG, "r          : %f\n", str.r);
+    IDAM_LOGF(LOG_DEBUG, "z          : %f\n", str.z);
+    IDAM_LOGF(LOG_DEBUG, "angle      : %f\n", str.angle);
+    IDAM_LOGF(LOG_DEBUG, "aerr       : %f\n", str.aerr);
+    IDAM_LOGF(LOG_DEBUG, "rerr       : %f\n", str.rerr);
     return;
 }
 
-void printPfSupplies(FILE* fh, PFSUPPLIES str)
+void printPfSupplies(PFSUPPLIES str)
 {
-    if (&str == NULL) return;
-    fprintf(fh, "PF Supply\n");
-    fprintf(fh, "id         : %s\n", str.id);
-    printInstance(fh, str.instance);
-    fprintf(fh, "aerr       : %f\n", str.aerr);
-    fprintf(fh, "rerr       : %f\n", str.rerr);
+    IDAM_LOG(LOG_DEBUG, "PF Supply\n");
+    IDAM_LOGF(LOG_DEBUG, "id         : %s\n", str.id);
+    printInstance(str.instance);
+    IDAM_LOGF(LOG_DEBUG, "aerr       : %f\n", str.aerr);
+    IDAM_LOGF(LOG_DEBUG, "rerr       : %f\n", str.rerr);
     return;
 }
 
 
-void printPfCircuits(FILE* fh, PFCIRCUIT str)
+void printPfCircuits(PFCIRCUIT str)
 {
     int i;
-    if (&str == NULL) return;
-    fprintf(fh, "PF Circuit\n");
-    fprintf(fh, "id         : %s\n", str.id);
-    printInstance(fh, str.instance);
-    fprintf(fh, "supply     : %d\n", str.supply);
-    fprintf(fh, "nco        : %d\n", str.nco);
-    for (i = 0; i < str.nco; i++) fprintf(fh, "Coil Connect # %d     : %d\n", i, str.coil[i]);
+    IDAM_LOG(LOG_DEBUG, "PF Circuit\n");
+    IDAM_LOGF(LOG_DEBUG, "id         : %s\n", str.id);
+    printInstance(str.instance);
+    IDAM_LOGF(LOG_DEBUG, "supply     : %d\n", str.supply);
+    IDAM_LOGF(LOG_DEBUG, "nco        : %d\n", str.nco);
+    for (i = 0; i < str.nco; i++) IDAM_LOGF(LOG_DEBUG, "Coil Connect # %d     : %d\n", i, str.coil[i]);
     return;
 }
 
-void printFluxLoop(FILE* fh, FLUXLOOP str)
+void printFluxLoop(FLUXLOOP str)
 {
     int i;
-    if (&str == NULL) return;
-    fprintf(fh, "Flux Loop\n");
-    fprintf(fh, "id         : %s\n", str.id);
-    printInstance(fh, str.instance);
-    fprintf(fh, "aerr       : %f\n", str.aerr);
-    fprintf(fh, "rerr       : %f\n", str.rerr);
-    fprintf(fh, "nco        : %d\n", str.nco);
+    IDAM_LOG(LOG_DEBUG, "Flux Loop\n");
+    IDAM_LOGF(LOG_DEBUG, "id         : %s\n", str.id);
+    printInstance(str.instance);
+    IDAM_LOGF(LOG_DEBUG, "aerr       : %f\n", str.aerr);
+    IDAM_LOGF(LOG_DEBUG, "rerr       : %f\n", str.rerr);
+    IDAM_LOGF(LOG_DEBUG, "nco        : %d\n", str.nco);
     if (str.nco > 0) {
         for (i = 0; i < str.nco; i++)
-            fprintf(fh, "r, z, dphi   # %d     : %f   %f   %f\n", i, str.r[i], str.z[i], str.dphi[i]);
+            IDAM_LOGF(LOG_DEBUG, "r, z, dphi   # %d     : %f   %f   %f\n", i, str.r[i], str.z[i], str.dphi[i]);
     }
     return;
 }
 
-void printPfCoils(FILE* fh, PFCOILS str)
+void printPfCoils(PFCOILS str)
 {
     int i;
-    if (&str == NULL) return;
-    fprintf(fh, "PF Coil\n");
-    fprintf(fh, "id         : %s\n", str.id);
-    printInstance(fh, str.instance);
-    fprintf(fh, "aerr       : %f\n", str.aerr);
-    fprintf(fh, "rerr       : %f\n", str.rerr);
-    fprintf(fh, "turns per  : %d\n", str.turns);
-    fprintf(fh, "turns per  : %f\n", str.fturns);
-    fprintf(fh, "model nr nr: %d  %d\n", str.modelnrnz[0], str.modelnrnz[1]);
-    fprintf(fh, "nco        : %d\n", str.nco);
+    IDAM_LOG(LOG_DEBUG, "PF Coil\n");
+    IDAM_LOGF(LOG_DEBUG, "id         : %s\n", str.id);
+    printInstance(str.instance);
+    IDAM_LOGF(LOG_DEBUG, "aerr       : %f\n", str.aerr);
+    IDAM_LOGF(LOG_DEBUG, "rerr       : %f\n", str.rerr);
+    IDAM_LOGF(LOG_DEBUG, "turns per  : %d\n", str.turns);
+    IDAM_LOGF(LOG_DEBUG, "turns per  : %f\n", str.fturns);
+    IDAM_LOGF(LOG_DEBUG, "model nr nr: %d  %d\n", str.modelnrnz[0], str.modelnrnz[1]);
+    IDAM_LOGF(LOG_DEBUG, "nco        : %d\n", str.nco);
     for (i = 0; i < str.nco; i++)
-        fprintf(fh, "r, z, dr, dz # %d     : %f   %f   %f   %f\n", i, str.r[i], str.z[i], str.dr[i], str.dz[i]);
+        IDAM_LOGF(LOG_DEBUG, "r, z, dr, dz # %d     : %f   %f   %f   %f\n", i, str.r[i], str.z[i], str.dr[i], str.dz[i]);
     return;
 }
 
-void printPfPassive(FILE* fh, PFPASSIVE str)
+void printPfPassive(PFPASSIVE str)
 {
     int i;
-    if (&str == NULL) return;
-    fprintf(fh, "PF Passive\n");
-    fprintf(fh, "id         : %s\n", str.id);
-    printInstance(fh, str.instance);
-    fprintf(fh, "aerr       : %f\n", str.aerr);
-    fprintf(fh, "rerr       : %f\n", str.rerr);
-    fprintf(fh, "model nr nr: %d  %d\n", str.modelnrnz[0], str.modelnrnz[1]);
+    IDAM_LOG(LOG_DEBUG, "PF Passive\n");
+    IDAM_LOGF(LOG_DEBUG, "id         : %s\n", str.id);
+    printInstance(str.instance);
+    IDAM_LOGF(LOG_DEBUG, "aerr       : %f\n", str.aerr);
+    IDAM_LOGF(LOG_DEBUG, "rerr       : %f\n", str.rerr);
+    IDAM_LOGF(LOG_DEBUG, "model nr nr: %d  %d\n", str.modelnrnz[0], str.modelnrnz[1]);
     for (i = 0; i < str.nco; i++)
-        fprintf(fh, "r,z,dr,dz,a1,a2,res   # %d     : %f  %f  %f  %f  %f  %f  %f\n", i, str.r[i], str.z[i],
+        IDAM_LOGF(LOG_DEBUG, "r,z,dr,dz,a1,a2,res   # %d     : %f  %f  %f  %f  %f  %f  %f\n", i, str.r[i], str.z[i],
                 str.dr[i], str.dz[i], str.ang1[i], str.ang2[i], str.res[i]);
     return;
 }
 
-void printPlasmaCurrent(FILE* fh, PLASMACURRENT str)
+void printPlasmaCurrent(PLASMACURRENT str)
 {
-    if (&str == NULL) return;
-    fprintf(fh, "Plasma Current\n");
-    fprintf(fh, "id         : %s\n", str.id);
-    printInstance(fh, str.instance);
-    fprintf(fh, "aerr       : %f\n", str.aerr);
-    fprintf(fh, "rerr       : %f\n", str.rerr);
+    IDAM_LOG(LOG_DEBUG, "Plasma Current\n");
+    IDAM_LOGF(LOG_DEBUG, "id         : %s\n", str.id);
+    printInstance(str.instance);
+    IDAM_LOGF(LOG_DEBUG, "aerr       : %f\n", str.aerr);
+    IDAM_LOGF(LOG_DEBUG, "rerr       : %f\n", str.rerr);
     return;
 }
 
-void printDiaMagnetic(FILE* fh, DIAMAGNETIC str)
+void printDiaMagnetic(DIAMAGNETIC str)
 {
-    if (&str == NULL) return;
-    fprintf(fh, "Diamagnetic Flux\n");
-    fprintf(fh, "id         : %s\n", str.id);
-    printInstance(fh, str.instance);
-    fprintf(fh, "aerr       : %f\n", str.aerr);
-    fprintf(fh, "rerr       : %f\n", str.rerr);
+    IDAM_LOG(LOG_DEBUG, "Diamagnetic Flux\n");
+    IDAM_LOGF(LOG_DEBUG, "id         : %s\n", str.id);
+    printInstance(str.instance);
+    IDAM_LOGF(LOG_DEBUG, "aerr       : %f\n", str.aerr);
+    IDAM_LOGF(LOG_DEBUG, "rerr       : %f\n", str.rerr);
     return;
 }
 
-void printToroidalField(FILE* fh, TOROIDALFIELD str)
+void printToroidalField(TOROIDALFIELD str)
 {
-    if (&str == NULL) return;
-    fprintf(fh, "Toroidal Field\n");
-    fprintf(fh, "id         : %s\n", str.id);
-    printInstance(fh, str.instance);
-    fprintf(fh, "aerr       : %f\n", str.aerr);
-    fprintf(fh, "rerr       : %f\n", str.rerr);
+    IDAM_LOG(LOG_DEBUG, "Toroidal Field\n");
+    IDAM_LOGF(LOG_DEBUG, "id         : %s\n", str.id);
+    printInstance(str.instance);
+    IDAM_LOGF(LOG_DEBUG, "aerr       : %f\n", str.aerr);
+    IDAM_LOGF(LOG_DEBUG, "rerr       : %f\n", str.rerr);
     return;
 }
 
-void printLimiter(FILE* fh, LIMITER str)
+void printLimiter(LIMITER str)
 {
     int i;
-    if (&str == NULL) return;
-    fprintf(fh, "Limiter\n");
-    fprintf(fh, "factor     : %f\n", str.factor);
-    fprintf(fh, "nco        : %d\n", str.nco);
-    for (i = 0; i < str.nco; i++) fprintf(fh, "r, z   # %d     : %f    %f\n", i, str.r[i], str.z[i]);
+    IDAM_LOG(LOG_DEBUG, "Limiter\n");
+    IDAM_LOGF(LOG_DEBUG, "factor     : %f\n", str.factor);
+    IDAM_LOGF(LOG_DEBUG, "nco        : %d\n", str.nco);
+    for (i = 0; i < str.nco; i++) IDAM_LOGF(LOG_DEBUG, "r, z   # %d     : %f    %f\n", i, str.r[i], str.z[i]);
     return;
 }
 
-void printEFIT(FILE* fh, EFIT str)
+void printEFIT(EFIT str)
 {
-    fprintf(fh, "EFIT Hierarchical Structure\n");
-    fprintf(fh, "Device     : %s\n", str.device);
-    fprintf(fh, "Exp. Number: %d\n", str.exp_number);
+    IDAM_LOG(LOG_DEBUG, "EFIT Hierarchical Structure\n");
+    IDAM_LOGF(LOG_DEBUG, "Device     : %s\n", str.device);
+    IDAM_LOGF(LOG_DEBUG, "Exp. Number: %d\n", str.exp_number);
 
-    if (str.fluxloop != NULL) printFluxLoop(fh, *(str.fluxloop));
-    if (str.magprobe != NULL) printMagProbe(fh, *(str.magprobe));
-    if (str.pfcircuit != NULL) printPfCircuits(fh, *(str.pfcircuit));
-    if (str.pfpassive != NULL) printPfPassive(fh, *(str.pfpassive));
-    if (str.plasmacurrent != NULL) printPlasmaCurrent(fh, *(str.plasmacurrent));
-    if (str.toroidalfield != NULL) printToroidalField(fh, *(str.toroidalfield));
-    if (str.pfsupplies != NULL) printPfSupplies(fh, *(str.pfsupplies));
-    if (str.pfcoils != NULL) printPfCoils(fh, *(str.pfcoils));
-    if (str.limiter != NULL) printLimiter(fh, *(str.limiter));
-    if (str.diamagnetic != NULL) printDiaMagnetic(fh, *(str.diamagnetic));
+    if (str.fluxloop != NULL) printFluxLoop(*(str.fluxloop));
+    if (str.magprobe != NULL) printMagProbe(*(str.magprobe));
+    if (str.pfcircuit != NULL) printPfCircuits(*(str.pfcircuit));
+    if (str.pfpassive != NULL) printPfPassive(*(str.pfpassive));
+    if (str.plasmacurrent != NULL) printPlasmaCurrent(*(str.plasmacurrent));
+    if (str.toroidalfield != NULL) printToroidalField(*(str.toroidalfield));
+    if (str.pfsupplies != NULL) printPfSupplies(*(str.pfsupplies));
+    if (str.pfcoils != NULL) printPfCoils(*(str.pfcoils));
+    if (str.limiter != NULL) printLimiter(*(str.limiter));
+    if (str.diamagnetic != NULL) printDiaMagnetic(*(str.diamagnetic));
 } 

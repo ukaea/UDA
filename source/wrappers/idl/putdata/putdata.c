@@ -5,10 +5,10 @@
 #include "putdata.h"		// IDL API Headers
 
 #include <stdlib.h>
-
-#include <include/idamtypes.h>
-#include <logging/idamAccessLog.h>
 #include <hdf5.h>
+
+#include <clientserver/idamTypes.h>
+#include <logging/idamAccessLog.h>
 
 #include "idamclientpublic.h"
 

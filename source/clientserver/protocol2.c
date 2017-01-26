@@ -23,8 +23,12 @@
 
 #include "protocol2.h"
 
+#include <stdlib.h>
+
 #include <include/idamclientserver.h>
 #include <logging/idamLog.h>
+#include <clientserver/idamTypes.h>
+
 #include "allocData.h"
 #include "compressDim.h"
 #include "printStructs.h"

@@ -23,7 +23,7 @@
 #include <clientserver/userid.h>
 #include <clientserver/printStructs.h>
 #include <clientserver/protocol2.h>
-#include <include/idamtypes.h>
+#include <clientserver/idamTypes.h>
 #include <clientserver/freeDataBlock.h>
 
 #include "closedown.h"

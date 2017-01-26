@@ -44,9 +44,12 @@
 #include <sys/stat.h>
 #include <openssl/sha.h>
 #include <utime.h>
+#include <stdlib.h>
+#include <errno.h>
 
 #include <clientserver/TrimString.h>
 #include <clientserver/initStructs.h>
+#include <clientserver/idamTypes.h>
 
 #include "provenance.h"
 

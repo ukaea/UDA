@@ -1,14 +1,11 @@
-// Plugin Open File List
-
 #ifndef IDAM_SERVER_IDAMPLUGINFILES_H
 #define IDAM_SERVER_IDAMPLUGINFILES_H
 
-// Change History:
-//
-// 10Jul2014    dgm Original Version
-
 #include "idamclientserverpublic.h"
+
 #include <time.h>
+#include <sys/time.h>
+
 #include <clientserver/idamDefines.h>
 
 #ifdef __cplusplus

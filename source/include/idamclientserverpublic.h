@@ -1,56 +1,8 @@
 #ifndef IdamClientServerPublicInclude
 #define IdamClientServerPublicInclude
 
-// Public definitions of Data Structures
-//
-// Change History
-//
-// 08Dec2008 dgm derived from original idamclientserver.h
-// 18Aug2009 dgm Increased size definitions for MAXNAME, MAXFILENAME, MAXFORMAT from 56 to 1024,
-//          MAXSERVER, MAXPATH from 256 to 1024, MAXDATE from 56 to 12 (Same as DATE_LENGTH)
-// 20Aug2009 dgm CLIENT_BLOCK element debug_level renamed to get_nodimdata: was redundant as is now used to
-//         minimise network traffic by not sending dimensional data if it has already been received.
-//         SERVER_DEBUG_LEVEL deleted
-// 09Nov2009 dgm VLEN type added
-// 23Apr2010 dgm privateFlags added to CLIENT_BLOCK
-// 11May2010 dgm source and api_delim added to REQUEST_BLOCK (client & server version 6)
-// 02Nov2010 dgm new bit flags added for passing via properties in CLIENT_BLOCK
-//         verbose structure element renamed clientFlags and type changed from int to unsigned int
-//         debug structure element renamed altRank
-// 11Nov2010 dgm <stdarg> added for variable length argument lists to IDAM API
-// 21Feb2011 dgm signal_alias_type, signal_map_id added to SIGNAL_DESC.
-// 18Apr2011 dgm DATASUBSET structure created
-//         subset and datasubset added to REQUEST_BLOCK structure
-//         MAXRANK2 created - similar role to MAXRANK in idamgenstructpublic.h !!!
-// 05Sep2011 dgm Added Name-Value pair data structures: NAMEVALUELIST, NAMEVALUE
-//         Modified REQUEST_BLOCK to include NAMEVALUELIST
-// 21Sep2011 dgm Added string 'function' to REQUEST_BLOCK
-// 28Jun2013 dgm Added SECURITY_BLOCK data structure (enabled via the SECURITYENABLED compiler macro)
-//         Added SECURITY_BLOCK element to both the CLIENT_BLOCK and SERVER_BLOCK data structures
-// 18Nov2013 dgm PUTDATA functionality included as standard rather than with a compiler option
-// 28Apr2014 dgm Added totalDataBlockSize and cachePermission to DATA_BLOCK
-// 09Oct2014 dgm Added PRIVATEFLAG_XDROBJECT
-// 12Feb2015 dgm Added DATA_OBJECT structure definition
-// 30Nov2016 dgm Added client flag properties
-//---------------------------------------------------------------------------------------------
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <ctype.h>
-#include <errno.h>
-#include <stdarg.h>
-
 #ifdef __cplusplus
 extern "C" {
-#endif
-
-//--------------------------------------------------------
-// IDAM Data Types
-
-#ifndef IdamDataTypesInclude
-#  define IdamDataTypesInclude
-#  include "idamtypes.h"
 #endif
 
 //--------------------------------------------------------
@@ -58,8 +10,6 @@ extern "C" {
 // Size Definitions
 
 #define WORKDIR        tmp    // Location of the Work Directories
-
-//#define MAXDEVICE    256
 
 #ifdef ROLLBACK
 #  define MAXDATE         56
@@ -167,7 +117,7 @@ extern unsigned int clientFlags;
 
 // SQL Structures
 
-struct LISTSIGNALS {
+typedef struct ListSignals {
     char * signal_alias;
     char * generic_name;
     char * type;
@@ -175,8 +125,7 @@ struct LISTSIGNALS {
     char * source_alias;
     char * signal_class;
     char * signal_owner;
-};
-typedef struct LISTSIGNALS LISTSIGNALS ;
+} LISTSIGNALS;
 
 #ifdef __cplusplus
 }

@@ -23,9 +23,12 @@
 *---------------------------------------------------------------------------------------------------------------*/
 #include "hdf5plugin.h"
 
+#include <stdlib.h>
+
 #include <include/idamserver.h>
 #include <server/managePluginFiles.h>
 #include <clientserver/initStructs.h>
+#include <clientserver/idamTypes.h>
 
 #include "readHDF58.h"
 

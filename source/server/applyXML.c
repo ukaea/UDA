@@ -18,7 +18,7 @@
 #include <memory.h>
 
 #include <logging/idamLog.h>
-#include <include/idamtypes.h>
+#include <clientserver/idamTypes.h>
 
 #ifdef NOXMLPARSER
 

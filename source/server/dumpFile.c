@@ -27,7 +27,7 @@
 
 #include <logging/idamLog.h>
 #include <include/idamclientserverprivate.h>
-#include <include/idamtypes.h>
+#include <clientserver/idamTypes.h>
 #include <clientserver/TrimString.h>
 #include <modules/ida/nameIda.h>
 #include <clientserver/idamErrorLog.h>

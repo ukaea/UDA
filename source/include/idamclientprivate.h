@@ -5,7 +5,6 @@
 extern "C" {
 #endif
 
-#include "idamclientconfig.h"
 #include "idamclientserverprivate.h"
 #include <clientserver/idamStructs.h>
 

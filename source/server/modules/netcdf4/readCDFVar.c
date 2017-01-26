@@ -2,6 +2,7 @@
 //--------------------------------------------------------------------------
 
 #include <netcdf.h>
+#include <stdlib.h>
 
 #include <include/idamclientserver.h>
 #include <structures/struct.h>

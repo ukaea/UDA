@@ -1,6 +1,7 @@
 #include "putGroup.h"
 
 #include <netcdf.h>
+#include <stdlib.h>
 
 #include <clientserver/TrimString.h>
 

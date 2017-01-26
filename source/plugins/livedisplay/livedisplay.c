@@ -43,6 +43,8 @@ Issues:
 *---------------------------------------------------------------------------------------------------------------*/
 #include "livedisplay.h"
 
+#include <stdlib.h>
+
 #include <client/accAPI_C.h>
 #include <client/IdamAPI.h>
 #include <structures/struct.h>

@@ -12,13 +12,14 @@
 
 #include "idamAccessLog.h"
 
-#include <clientserver/TrimString.h>
+#include <errno.h>
+#include <stdlib.h>
 #include <arpa/inet.h>
-#include <time.h>
+
+#include <clientserver/TrimString.h>
 #include <server/idamServerPlugin.h>
 #include <include/idamserver.h>
-
-#include "idamLog.h"
+#include <clientserver/idamTypes.h>
 
 int idamSizeOf(int data_type)
 {

@@ -41,7 +41,7 @@ void H5Fclose(int fh) {
 #else
 
 #include <H5LTpublic.h>
-#include <include/idamtypes.h>
+#include <clientserver/idamTypes.h>
 #include <stdlib.h>
 #include <memory.h>
 #include <clientserver/initStructs.h>

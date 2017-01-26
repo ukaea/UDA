@@ -21,10 +21,14 @@
 *-----------------------------------------------------------------------------*/
 #include "readHDF58.h"
 
+#include <stdlib.h>
 #include <hdf5.h>
 #include <errno.h>
+#include <stdlib.h>
+
 #include <server/managePluginFiles.h>
 #include <clientserver/initStructs.h>
+#include <clientserver/idamTypes.h>
 
 #include "hdf5plugin.h"
 

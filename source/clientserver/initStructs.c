@@ -6,7 +6,7 @@
 #include "initStructs.h"
 
 #include <unistd.h>
-#include <include/idamtypes.h>
+#include <clientserver/idamTypes.h>
 #include <string.h>
 
 #include "idamErrorLog.h"

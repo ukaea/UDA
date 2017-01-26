@@ -23,9 +23,12 @@
 #include <sys/stat.h>
 #include <dirent.h>
 #include <utime.h>
+#include <stdlib.h>
+#include <errno.h>
 
 #include <include/idamserver.h>
 #include <clientserver/initStructs.h>
+#include <clientserver/idamTypes.h>
 
 #ifndef USE_PLUGIN_DIRECTLY
 IDAMERRORSTACK* idamErrorStack;    // Pointer to the Server's Error Stack. Global scope within this plugin library

@@ -1,8 +1,10 @@
 #include "putOpenClose.h"
 
 #include <netcdf.h>
+#include <stdlib.h>
 
 #include <clientserver/TrimString.h>
+#include <clientserver/idamTypes.h>
 
 typedef struct {
     int count;

@@ -4,6 +4,8 @@
 #include "listSignals.h"
 #include "provenance.h"
 
+#include <stdlib.h>
+
 #include <structures/struct.h>
 #include <structures/accessors.h>
 

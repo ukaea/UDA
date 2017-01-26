@@ -1,7 +1,10 @@
 #include "putdataPlugin.h"
 
+#include <stdlib.h>
+
 #include <clientserver/initStructs.h>
 #include <clientserver/TrimString.h>
+#include <clientserver/idamTypes.h>
 
 #include "putOpenClose.h"
 #include "putGroup.h"

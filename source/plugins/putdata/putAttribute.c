@@ -1,7 +1,9 @@
 #include "putAttribute.h"
 
 #include <netcdf.h>
+
 #include <clientserver/TrimString.h>
+#include <clientserver/idamTypes.h>
 
 #include "putUnits.h"
 #include "putGroup.h"

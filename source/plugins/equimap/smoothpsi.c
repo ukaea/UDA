@@ -6,6 +6,7 @@
 #include "smoothpsi.h"
 
 #include <math.h>
+#include <stdlib.h>
 
 int smoothPsi(EQUIMAPDATA* equimapdata, int invert, int limitPsi, float limitRMaj)
 {

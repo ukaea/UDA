@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <rpc/rpc.h>
 #include <include/idamgenstruct.h>
-#include <include/idamtypes.h>
+#include <clientserver/idamTypes.h>
 
 #ifdef SERVERBUILD
 #  include <include/idamserver.h>

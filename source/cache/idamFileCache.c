@@ -27,6 +27,8 @@ char source[]
 #include "idamFileCache.h"
 
 #include <fcntl.h>
+#include <stdlib.h>
+#include <errno.h>
 
 #include <include/idamclientserver.h>
 #include <clientserver/idamErrorLog.h>

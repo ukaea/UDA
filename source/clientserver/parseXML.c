@@ -17,7 +17,7 @@
 #include "parseXML.h"
 
 #include <logging/idamLog.h>
-#include <include/idamtypes.h>
+#include <clientserver/idamTypes.h>
 #include <include/idamclientserverprivate.h>
 #include "TrimString.h"
 #include "parseOperation.h"

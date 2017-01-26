@@ -1,30 +1,12 @@
-
 /*---------------------------------------------------------------
 * Allocate Memory for XML based Hierarchical Data Structures
 *
 * returns 0 if No Heap Allocation Error occurs
 *
-* Change History
-*
-* 1.0	dgm	31May2007	Original Version
 *--------------------------------------------------------------*/
 #include "efitmagxml.h"
 
-#include <idampluginfiles.h>
-#include <idamserver.h>
-#include <idamErrorLog.h>
-#include <managePluginFiles.h>
-#include <initStructs.h>
-#include <makeServerRequestBlock.h>
-#include <client/accAPI_C.h>
-#include <client/IdamAPI.h>
-#include <freeDataBlock.h>
-#include <structures/struct.h>
-#include <structures/accessors.h>
-#include <clientserver/TrimString.h>
 #include <clientserver/idamErrors.h>
-
-//#include "idamclientserverxml.h"
 
 int alloc_efit(EFIT* efit)
 {

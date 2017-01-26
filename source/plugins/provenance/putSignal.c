@@ -39,6 +39,11 @@
 *---------------------------------------------------------------------------------------------------------------*/
 #include "putSignal.h"
 
+#include <stdlib.h>
+#include <errno.h>
+
+#include <clientserver/idamTypes.h>
+
 #include "provenance.h"
 
 int putSignal(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
@@ -696,7 +701,6 @@ int putSignal(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         break;
 
     } while (0);
-
 
     return err;
 }

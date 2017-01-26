@@ -12,6 +12,8 @@
 *---------------------------------------------------------------------------------------------------------------*/
 #include "provenance.h"
 
+#include <stdlib.h>
+
 #include <structures/struct.h>
 
 char* pghost = NULL;

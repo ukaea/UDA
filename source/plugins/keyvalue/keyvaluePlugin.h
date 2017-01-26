@@ -1,11 +1,7 @@
 #ifndef IDAM_PLUGINS_TEMPLATE_PLUGIN_H
 #define IDAM_PLUGINS_TEMPLATE_PLUGIN_H
 
-// Change History:
-//
-// 25Oct2011	dgm	Original Version
-
-#include <idamplugin.h>
+#include <include/idamplugin.h>
 
 #ifdef __cplusplus
 extern "C" {
