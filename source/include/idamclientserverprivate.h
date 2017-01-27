@@ -44,10 +44,6 @@ extern "C" {
 #define GENERIC_ENABLE          // Generic Signal Name Lookup via SQL Database is Enabled
 #endif
 
-#define ERRORSTACK          // Enables Error Stack Components
-
-//#define HIERARCHICAL_DATA     // Enables ITM-Like Data Structure Passing Protocol
-
 //--------------------------------------------------------
 // Error Management
 

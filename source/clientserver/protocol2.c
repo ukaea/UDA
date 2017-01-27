@@ -340,7 +340,6 @@ int protocol2(XDR* xdrs, int protocol_id, int direction, int* token, void* str)
                             }
                         }
 
-#ifdef CLEANNAMESPACE25SEP14
                         if (putData.data_type == TYPE_COMPOUND &&
                             putData.opaque_type == OPAQUE_TYPE_STRUCTURES) {    // Structured Data
 
@@ -368,7 +367,7 @@ int protocol2(XDR* xdrs, int protocol_id, int direction, int* token, void* str)
                             putData.opaque_block = general_block->userdefinedtype;
 
                         }
-#endif
+
                         addIdamPutDataBlockList(&putData, putDataBlockList);        // Add to the growing list
 
                     }
@@ -406,7 +405,6 @@ int protocol2(XDR* xdrs, int protocol_id, int direction, int* token, void* str)
                             }
                         }
 
-#ifdef CLEANNAMESPACE25SEP14
                         if (putDataBlockList->putDataBlock[i].data_type == TYPE_COMPOUND &&
                             putDataBlockList->putDataBlock[i].opaque_type ==
                             OPAQUE_TYPE_STRUCTURES) {        // Structured Data
@@ -427,7 +425,6 @@ int protocol2(XDR* xdrs, int protocol_id, int direction, int* token, void* str)
                                 break;    // Send Structured data
 
                         }
-#endif
                     }
                     break;
 
@@ -781,9 +778,7 @@ int protocol2(XDR* xdrs, int protocol_id, int direction, int* token, void* str)
 
             switch (direction) {
 
-                case XDR_RECEIVE :
-
-#ifdef ERRORSTACK
+                case XDR_RECEIVE:
                     closeIdamError(&server_block->idamerrorstack);    // Free Heap associated with Previous Data Access
 
                     if (!xdr_server1(xdrs, server_block)) {
@@ -802,16 +797,10 @@ int protocol2(XDR* xdrs, int protocol_id, int direction, int* token, void* str)
                             break;
                         }
                     }
-#else
-                if(!(rc = xdr_server(xdrs, server_block))) {
-                    err = PROTOCOL_ERROR_22;
-                    break;
-                }
-#endif
+
                     break;
 
                 case XDR_SEND:
-#ifdef ERRORSTACK
                     if (!xdr_server1(xdrs, server_block)) {
                         err = PROTOCOL_ERROR_22;
                         break;
@@ -823,12 +812,7 @@ int protocol2(XDR* xdrs, int protocol_id, int direction, int* token, void* str)
                             break;
                         }
                     }
-#else
-                if(!(rc = xdr_server(xdrs, server_block))) {
-                    err = PROTOCOL_ERROR_22;
-                    break;
-                }
-#endif
+
                     break;
 
                 case XDR_FREE_HEAP :

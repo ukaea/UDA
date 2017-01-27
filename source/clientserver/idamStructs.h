@@ -258,10 +258,8 @@ typedef struct DataBlock {
     int   opaque_type;              // Identifies the Data Structure Type;
     int   opaque_count;             // Number of Instances of the Data Structure;
     void * opaque_block;            // Opaque pointer to Hierarchical Data Structures
-#ifdef CACHEDEV
     unsigned int totalDataBlockSize;// The amount of data within this structure.
     unsigned int cachePermission;   // Permission for the Client to cache this structure.
-#endif
 } DATA_BLOCK;
 
 typedef struct DataObject {

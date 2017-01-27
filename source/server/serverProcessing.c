@@ -448,7 +448,7 @@ int serverProcessing(CLIENT_BLOCK client_block, DATA_BLOCK* data_block)
                                     if (newoffs == NULL || newints == NULL) {
                                         if (newoffs != NULL) free((void*) newoffs);
                                         if (newints != NULL) free((void*) newints);
-                                        return (1);
+                                        return 1;
                                     }
                                     for (i = 0; i < ddim->udoms; i++) {
                                         *(newoffs + i) = (double) *((char*) ddim->offs + i);
@@ -490,7 +490,7 @@ int serverProcessing(CLIENT_BLOCK client_block, DATA_BLOCK* data_block)
                                     if (newoffs == NULL || newints == NULL) {
                                         if (newoffs != NULL) free((void*) newoffs);
                                         if (newints != NULL) free((void*) newints);
-                                        return (1);
+                                        return 1;
                                     }
                                     for (i = 0; i < ddim->udoms; i++) {
                                         *(newoffs + i) = (double) *((short*) ddim->offs + i);
@@ -532,7 +532,7 @@ int serverProcessing(CLIENT_BLOCK client_block, DATA_BLOCK* data_block)
                                     if (newoffs == NULL || newints == NULL) {
                                         if (newoffs != NULL) free((void*) newoffs);
                                         if (newints != NULL) free((void*) newints);
-                                        return (1);
+                                        return 1;
                                     }
                                     for (i = 0; i < ddim->udoms; i++) {
                                         *(newoffs + i) = (double) *((int*) ddim->offs + i);
@@ -574,7 +574,7 @@ int serverProcessing(CLIENT_BLOCK client_block, DATA_BLOCK* data_block)
                                     if (newoffs == NULL || newints == NULL) {
                                         if (newoffs != NULL) free((void*) newoffs);
                                         if (newints != NULL) free((void*) newints);
-                                        return (1);
+                                        return 1;
                                     }
                                     for (i = 0; i < ddim->udoms; i++) {
                                         *(newoffs + i) = (double) *((long*) ddim->offs + i);
@@ -616,7 +616,7 @@ int serverProcessing(CLIENT_BLOCK client_block, DATA_BLOCK* data_block)
                                     if (newoffs == NULL || newints == NULL) {
                                         if (newoffs != NULL) free((void*) newoffs);
                                         if (newints != NULL) free((void*) newints);
-                                        return (1);
+                                        return 1;
                                     }
                                     for (i = 0; i < ddim->udoms; i++) {
                                         *(newoffs + i) = (double) *((unsigned char*) ddim->offs + i);
@@ -658,7 +658,7 @@ int serverProcessing(CLIENT_BLOCK client_block, DATA_BLOCK* data_block)
                                     if (newoffs == NULL || newints == NULL) {
                                         if (newoffs != NULL) free((void*) newoffs);
                                         if (newints != NULL) free((void*) newints);
-                                        return (1);
+                                        return 1;
                                     }
                                     for (i = 0; i < ddim->udoms; i++) {
                                         *(newoffs + i) = (double) *((unsigned short*) ddim->offs + i);
@@ -700,7 +700,7 @@ int serverProcessing(CLIENT_BLOCK client_block, DATA_BLOCK* data_block)
                                     if (newoffs == NULL || newints == NULL) {
                                         if (newoffs != NULL) free((void*) newoffs);
                                         if (newints != NULL) free((void*) newints);
-                                        return (1);
+                                        return 1;
                                     }
                                     for (i = 0; i < ddim->udoms; i++) {
                                         *(newoffs + i) = (double) *((unsigned int*) ddim->offs + i);
@@ -742,7 +742,7 @@ int serverProcessing(CLIENT_BLOCK client_block, DATA_BLOCK* data_block)
                                     if (newoffs == NULL || newints == NULL) {
                                         if (newoffs != NULL) free((void*) newoffs);
                                         if (newints != NULL) free((void*) newints);
-                                        return (1);
+                                        return 1;
                                     }
                                     for (i = 0; i < ddim->udoms; i++) {
                                         *(newoffs + i) = (double) *((unsigned long*) ddim->offs + i);
@@ -784,7 +784,7 @@ int serverProcessing(CLIENT_BLOCK client_block, DATA_BLOCK* data_block)
                                     if (newoffs == NULL || newints == NULL) {
                                         if (newoffs != NULL) free((void*) newoffs);
                                         if (newints != NULL) free((void*) newints);
-                                        return (1);
+                                        return 1;
                                     }
 
                                     for (i = 0; i < ddim->udoms; i++) {

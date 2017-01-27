@@ -4,21 +4,6 @@
 #include <stdio.h> // this must be included before rpc.h
 #include <rpc/rpc.h>
 
-#ifdef GENERALSTRUCTS
-#  include <include/idamgenstruct.h>
-#  ifdef __APPLE__
-#    include <sys/types.h>
-#    include <sys/socket.h>
-#    include <sys/uio.h>
-#  else
-#    include <sys/sendfile.h>
-#  endif
-#endif
-
-#ifdef HIERARCHICAL_DATA
-#  include "idamclientserverxml.h"
-#endif
-
 #ifdef FATCLIENT
 #  define protocolXML protocolXMLFat
 #endif

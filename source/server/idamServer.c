@@ -4,6 +4,9 @@
 * Note: Error Message Passback to Client is via the Server State Structure
 *
 *---------------------------------------------------------------------------------------------------------------------*/
+#include <stdio.h>
+#include <rpc/rpc.h>
+
 #include <clientserver/idamErrors.h>
 #include <clientserver/initStructs.h>
 #include <clientserver/manageSockets.h>
@@ -24,7 +27,6 @@
 #include "idamLegacyServer.h"
 #include "idamServerPlugin.h"
 #include "idamServerLegacyPlugin.h"
-#include "struct.h"
 #include "makeServerRequestBlock.h"
 #include "manageFiles.h"
 #include "sqllib.h"
@@ -41,11 +43,9 @@ void ncclose(int fh) {
     return;
 }
 #  endif
-#  ifdef GENERALSTRUCTS
-#  endif
 #else
-#  include "copyStructs.h"
-#  include "protocolXML.h"
+#  include <clientserver/copyStructs.h>
+#  include <clientserver/protocolXML.h>
 #endif
 
 PGconn* gDBConnect = NULL;    // IDAM SQL database Socket Connection pass back fix
@@ -92,30 +92,18 @@ IDAMERRORSTACK idamerrorstack;
 
 int server_timeout = TIMEOUT;        // user specified Server Lifetime
 
-#ifdef PERFORMANCETEST
-static PERFORMANCE serverPerformance;		// Performance Diagnostics
-static PERFORMANCE serverPerformance2;
-#endif
-
 #ifndef FATCLIENT
-#ifdef GENERALSTRUCTS
-USERDEFINEDTYPELIST* userdefinedtypelist = NULL;        // User Defined Structure Types from Data Files & Plugins
-LOGMALLOCLIST* logmalloclist = NULL;            // List of all Heap Allocations for Data: Freed after data is dispatched
+USERDEFINEDTYPELIST* userdefinedtypelist = NULL;            // User Defined Structure Types from Data Files & Plugins
+LOGMALLOCLIST* logmalloclist = NULL;                        // List of all Heap Allocations for Data: Freed after data is dispatched
 int malloc_source = MALLOCSOURCENONE;
-USERDEFINEDTYPELIST parseduserdefinedtypelist;        // Initial set of User Defined Structure Types
-unsigned int lastMallocIndex = 0;            // Malloc Log search index last value
-unsigned int* lastMallocIndexValue = &lastMallocIndex;    // Preserve Malloc Log search index last value in GENERAL_STRUCT
-#endif
-
-unsigned int totalDataBlockSize = 0;            // Total amount sent for the last data request
-//static unsigned int cachePermission = PLUGINNOTOKTOCACHE;	// No Permission for Client to Cache returned data
-
+USERDEFINEDTYPELIST parseduserdefinedtypelist;              // Initial set of User Defined Structure Types
+unsigned int lastMallocIndex = 0;                           // Malloc Log search index last value
+unsigned int* lastMallocIndexValue = &lastMallocIndex;      // Preserve Malloc Log search index last value in GENERAL_STRUCT
+unsigned int totalDataBlockSize = 0;                        // Total amount sent for the last data request
 unsigned int clientFlags = 0;
 int altRank = 0;
-
 unsigned int privateFlags = 0;
-unsigned int XDRstdioFlag = 0;                // Flags the XDR stream is to stdio not a socket
-
+unsigned int XDRstdioFlag = 0;                              // Flags the XDR stream is to stdio not a socket
 #endif
 
 #ifdef SERVERBUILD
@@ -127,7 +115,6 @@ PLUGINLIST pluginList;                // List of all data reader plugins (intern
 ENVIRONMENT environment;                // Holds local environment variable values
 #endif
 
-FILE* server_accout;
 SOCKETLIST server_socketlist;
 
 //--------------------------------------------------------------------------------------
@@ -197,7 +184,6 @@ extern int idamServer(int argc, char** argv)
     int protocol_id;
 
     static int socket_list_initialised = 0;
-    static int file_list_initialised = 0;
     static int plugin_list_initialised = 0;
 
     char* token = NULL;
@@ -230,12 +216,6 @@ extern int idamServer(int argc, char** argv)
 
     ACTIONS actions_desc;
     ACTIONS actions_sig;
-
-#ifdef PERFORMANCETEST
-    serverPerformance.npoints = 1;  	// Max is 10 so set at end!
-    strcpy(serverPerformance.label[0],"#0: Beginning of Server Startup");
-    rc = gettimeofday(&(serverPerformance.tv_start[0]), NULL);
-#endif
 
 //-------------------------------------------------------------------------
 // Initialise the Error Stack & the Server Status Structure
@@ -282,20 +262,8 @@ extern int idamServer(int argc, char** argv)
         socket_list_initialised = 1;
     }
 
-//-------------------------------------------------------------------------
-// Open and Initialise the File Handle List (Once Only)
-
-#ifdef FILELISTTEST
-    if(!file_list_initialised) {
-        initIdamFileList(&idamfilelist);
-        file_list_initialised = 1;
-    }
-#endif
-
 //----------------------------------------------------------------------
 // Initialise General Structure Passing
-
-#ifdef GENERALSTRUCTS
 
 // this step needs doing once only - the first time a generalised user defined structure is encountered.
 // For FAT clients use a static state variable to prevent multiple parsing
@@ -317,8 +285,6 @@ extern int idamServer(int argc, char** argv)
 
     userdefinedtypelist = NULL;                                // Startup State
 
-#endif
-
 //----------------------------------------------------------------------
 // Initialise the Data Reader Plugin list
 
@@ -333,22 +299,22 @@ extern int idamServer(int argc, char** argv)
         }
     }
 
-#ifdef PERFORMANCETEST
-    rc = gettimeofday(&(serverPerformance.tv_end[0]), NULL);
-#endif
-
 //----------------------------------------------------------------------------
 // Server Information: Operating System Name - may limit types of data that can be received by the Client
 
     char* env = NULL;
 
-    if ((env = getenv("OSTYPE")) != NULL)
+    if ((env = getenv("OSTYPE")) != NULL) {
         strcpy(server_block.OSName, env);
-    else if ((env = getenv("IDAM_SERVER_OS")) != NULL) strcpy(server_block.OSName, env);
+    } else if ((env = getenv("IDAM_SERVER_OS")) != NULL) {
+        strcpy(server_block.OSName, env);
+    }
 
 // Server Configuration and Environment DOI
 
-    if ((env = getenv("IDAM_SERVER_DOI")) != NULL) strcpy(server_block.DOI, env);
+    if ((env = getenv("IDAM_SERVER_DOI")) != NULL) {
+        strcpy(server_block.DOI, env);
+    }
 
 //-------------------------------------------------------------------------
 // User Authentication at startup
@@ -505,16 +471,7 @@ extern int idamServer(int argc, char** argv)
     do {
         IDAM_LOG(LOG_DEBUG, "IdamServer: Start of Server Wait Loop\n");
 
-#endif			// <========================== End of Client Server Code 
-
-
-#ifdef PERFORMANCETEST
-        serverPerformance.npoints = 3;
-        strcpy(serverPerformance.label[1],"#1: Beginning of Main Server Loop");
-        rc = gettimeofday(&(serverPerformance.tv_start[1]), NULL);
-        strcpy(serverPerformance.label[2],"#2: Client Request");
-        rc = gettimeofday(&(serverPerformance.tv_start[2]), NULL);
-#endif
+#endif			// <========================== End of Client Server Code
 
 //----------------------------------------------------------------------------
 // Start of Error Trap Loop #1
@@ -595,12 +552,10 @@ extern int idamServer(int argc, char** argv)
             IDAM_LOGF(LOG_DEBUG, "altRank      %d\n", altRank);
             IDAM_LOGF(LOG_DEBUG, "external?    %d\n", environment.external_user);
 
-#ifndef ERRORSTACK
             if(server_block.idamerrorstack.nerrors > 0) {
                 server_block.error = server_block.idamerrorstack.idamerror[0].code;
                 strcpy(server_block.msg,server_block.idamerrorstack.idamerror[0].msg);
             }
-#endif
 
 // Test the client version is compatible with this server version
 
@@ -824,16 +779,7 @@ extern int idamServer(int argc, char** argv)
 //----------------------------------------------------------------------
 // Write to the Access Log
 
-#ifdef ACCESSLOG
             idamAccessLog(TRUE, client_block, request_block, server_block, data_block);
-#endif
-
-#ifdef PERFORMANCETEST
-            serverPerformance.npoints = 4;
-            rc = gettimeofday(&(serverPerformance.tv_end[2]), NULL);
-            strcpy(serverPerformance.label[3],"#3: Decide on Plugin");
-            rc = gettimeofday(&(serverPerformance.tv_start[3]), NULL);
-#endif
 
 //----------------------------------------------------------------------
 // Initialise Data Structures
@@ -890,14 +836,6 @@ extern int idamServer(int argc, char** argv)
                 if ((err = idamServerLegacyPlugin(&request_block, &data_source, &signal_desc)) != 0) break;
             }
 
-#ifdef PERFORMANCETEST
-            rc = gettimeofday(&(serverPerformance.tv_end[3]), NULL);
-
-            serverPerformance2.npoints = 1;
-            strcpy(serverPerformance2.label[0],"#0: Gap - Connect to SQL Database");
-            rc = gettimeofday(&(serverPerformance2.tv_start[0]), NULL);
-#endif
-
 //------------------------------------------------------------------------------------------------
 // Identify the Signal Required from the Database if a Generic Signal Requested
 // or if a name mapping (alternative signal/source) is requested by the client
@@ -920,14 +858,6 @@ extern int idamServer(int argc, char** argv)
                 }
                 IDAM_LOG(LOG_DEBUG, "IdamServer Connected to SQL Database Server\n");
             }
-#endif
-
-#ifdef PERFORMANCETEST
-            serverPerformance.npoints = 5;
-            strcpy(serverPerformance.label[4],"#4: Read Data from Plugin");
-            rc = gettimeofday(&(serverPerformance.tv_start[4]), NULL);
-
-            rc = gettimeofday(&(serverPerformance2.tv_end[0]), NULL);
 #endif
 
 //------------------------------------------------------------------------------------------------
@@ -963,15 +893,8 @@ extern int idamServer(int argc, char** argv)
             printIdamErrorStack(idamerrorstack);
             IDAM_LOG(LOG_DEBUG,
                     "======================== ******************** ==========================================\n");
+
             if (err != 0) break;
-
-
-#ifdef PERFORMANCETEST
-            rc = gettimeofday(&(serverPerformance.tv_end[4]), NULL);
-            serverPerformance.npoints = 6;
-            strcpy(serverPerformance.label[5],"#5: Server Side Processing");
-            rc = gettimeofday(&(serverPerformance.tv_start[5]), NULL);
-#endif
 
 //------------------------------------------------------------------------------------------------
 // Server-Side Data Processing
@@ -983,13 +906,6 @@ extern int idamServer(int argc, char** argv)
                     break;
                 }
             }
-
-#ifdef PERFORMANCETEST
-            rc = gettimeofday(&(serverPerformance.tv_end[5]), NULL);
-            serverPerformance.npoints = 7;
-            strcpy(serverPerformance.label[6],"#6: Read Configuration Data");
-            rc = gettimeofday(&(serverPerformance.tv_start[6]), NULL);
-#endif
 
 //------------------------------------------------------------------------------------------------
 // Read Additional Meta Data
@@ -1016,13 +932,6 @@ extern int idamServer(int argc, char** argv)
                     printDataSystem(data_system);
                 }
             }
-
-#ifdef PERFORMANCETEST
-            rc = gettimeofday(&serverPerformance.tv_end[6], NULL);
-            serverPerformance2.npoints = 2;
-            strcpy(serverPerformance2.label[1],"#1: Gap - Error Trap Transition");
-            rc = gettimeofday(&(serverPerformance2.tv_start[1]), NULL);
-#endif
 
 #endif
 
@@ -1081,15 +990,6 @@ extern int idamServer(int argc, char** argv)
 
             IDAM_LOG(LOG_DEBUG, "Start of Server Error Trap #2 Loop\n");
 
-#ifdef PERFORMANCETEST
-            serverPerformance.npoints = 8;
-            strcpy(serverPerformance.label[7],"#7: Return Status to Client");
-            rc = gettimeofday(&(serverPerformance.tv_start[7]), NULL);
-
-            rc = gettimeofday(&(serverPerformance2.tv_end[1]), NULL);
-#endif
-
-
 //----------------------------------------------------------------------------
 // Gather Server Error State
 
@@ -1100,12 +1000,10 @@ extern int idamServer(int argc, char** argv)
 // <========================== Client Server Code Only
 #ifndef FATCLIENT
 
-#ifndef ERRORSTACK
             if(server_block.idamerrorstack.nerrors > 0) {
                 server_block.error = server_block.idamerrorstack.idamerror[0].code;
-                strcpy(server_block.msg,server_block.idamerrorstack.idamerror[0].msg);
+                strcpy(server_block.msg, server_block.idamerrorstack.idamerror[0].msg);
             }
-#endif
 
 //------------------------------------------------------------------------------------------------
 // How much data to be sent?
@@ -1158,13 +1056,6 @@ extern int idamServer(int argc, char** argv)
 
                 break;
             }
-
-#ifdef PERFORMANCETEST
-            rc = gettimeofday(&(serverPerformance.tv_end[7]), NULL);
-            serverPerformance.npoints = 9;
-            strcpy(serverPerformance.label[8],"#8: Return Meta Data to Client");
-            rc = gettimeofday(&(serverPerformance.tv_start[8]), NULL);
-#endif
 
 //----------------------------------------------------------------------------
 // Return Database Meta Data if User Requests it
@@ -1235,14 +1126,6 @@ extern int idamServer(int argc, char** argv)
 
             } // End of Database Meta Data
 
-
-#ifdef PERFORMANCETEST
-            rc = gettimeofday(&(serverPerformance.tv_end[8]), NULL);
-            serverPerformance.npoints = 10;
-            strcpy(serverPerformance.label[9],"#9: Return Data to Client");
-            rc = gettimeofday(&(serverPerformance.tv_start[9]), NULL);
-#endif
-
 //----------------------------------------------------------------------------
 // Send the Data
 
@@ -1258,13 +1141,6 @@ extern int idamServer(int argc, char** argv)
             }
 
             IDAM_LOG(LOG_DEBUG, "Data Block Sent to Client\n");
-
-#ifdef PERFORMANCETEST
-            rc = gettimeofday(&serverPerformance.tv_end[9], NULL);
-            serverPerformance.npoints = 11;
-            strcpy(serverPerformance.label[10],"#10: Return Hierarchical Data to Client");
-            rc = gettimeofday(&(serverPerformance.tv_start[10]), NULL);
-#endif
 
 //----------------------------------------------------------------------------
 // Send the data in a single full TCP packet
@@ -1307,14 +1183,6 @@ extern int idamServer(int argc, char** argv)
                 IDAM_LOG(LOG_DEBUG, "Hierarchical Data Structure sent to Client\n");
             }
 
-#ifdef PERFORMANCETEST
-            rc = gettimeofday(&serverPerformance.tv_end[10], NULL);
-
-            serverPerformance2.npoints = 3;
-            strcpy(serverPerformance2.label[2],"#2: Gap - Final Protocol");
-            rc = gettimeofday(&(serverPerformance2.tv_start[2]), NULL);
-#endif
-
 #else			// <========================== End of Client Server Code
 
             //------------------------------------------------------------------------------
@@ -1332,7 +1200,6 @@ extern int idamServer(int argc, char** argv)
             // Client deletes stale files automatically on startup.
             //----------------------------------------------------------------------------------
 
-#ifdef GENERALSTRUCTS
 #ifdef FATCLIENT
 
                     if (data_block.opaque_type == OPAQUE_TYPE_STRUCTURES) {
@@ -1412,7 +1279,6 @@ extern int idamServer(int argc, char** argv)
                     }
 
 #endif
-#endif
 
             //------------------------------------------------------------------------------
 
@@ -1459,12 +1325,7 @@ extern int idamServer(int argc, char** argv)
 //----------------------------------------------------------------------
 // Complete & Write the Access Log Record
 
-#ifdef ACCESSLOG
-#ifdef FATCLIENT
-        server_accout = dbgout;
-#endif
         idamAccessLog(FALSE, client_block, request_block, server_block, data_block);
-#endif
 
 //----------------------------------------------------------------------------
 // Server Shutdown ? Next Instruction from Client
@@ -1482,14 +1343,6 @@ extern int idamServer(int argc, char** argv)
         next_protocol = PROTOCOL_SLEEP;
         IDAM_LOGF(LOG_DEBUG, "Next Protocol %d Received\n", next_protocol);
 
-#ifdef PERFORMANCETEST
-        rc = gettimeofday(&serverPerformance2.tv_end[2], NULL);
-
-        serverPerformance2.npoints = 4;
-        strcpy(serverPerformance2.label[3],"#3: Gap - House keeping");
-        rc = gettimeofday(&(serverPerformance2.tv_start[3]), NULL);
-#endif
-
 //----------------------------------------------------------------------------
 // Free Data Block Heap Memory
 
@@ -1501,15 +1354,6 @@ extern int idamServer(int argc, char** argv)
 
         IDAM_LOG(LOG_DEBUG, "freeActions\n");
         freeActions(&actions_sig);
-
-#ifdef PERFORMANCETEST
-        rc = gettimeofday(&serverPerformance.tv_end[1], NULL);
-        rc = gettimeofday(&(serverPerformance2.tv_end[3]), NULL);
-        if(debugon) {
-            printPerformance(dbgout,serverPerformance);
-            printPerformance(dbgout,serverPerformance2);
-        }
-#endif
 
 //----------------------------------------------------------------------------
 // Free Name Value pair
@@ -1571,9 +1415,7 @@ extern int idamServer(int argc, char** argv)
 //----------------------------------------------------------------------------
 // Free Structure Definition List (don't free the structure as stack variable)
 
-#ifdef GENERALSTRUCTS
     freeUserDefinedTypeList(&parseduserdefinedtypelist);
-#endif
 
 //----------------------------------------------------------------------------
 // Free Plugin List and Close all open library entries
@@ -1583,7 +1425,6 @@ extern int idamServer(int argc, char** argv)
 //----------------------------------------------------------------------------
 // Close the Database Connection
 
-//#ifdef GENERIC_ENABLE
 #ifndef NOTGENERICENABLED
     if (DBConnect != NULL) PQfinish(DBConnect);
 #endif
@@ -1592,17 +1433,8 @@ extern int idamServer(int argc, char** argv)
 // Close the Logs
 
     rc = fflush(NULL);
-    if (server_accout != NULL) fclose(server_accout);
 
     idamCloseLogging();
-
-//----------------------------------------------------------------------------
-// Close Open Data Source Files (legacy: not plugin based)
-
-#ifdef FILELISTTEST
-    closeIdamFiles(&idamfilelist);
-#endif
-
 
 //----------------------------------------------------------------------------
 // Close the Socket Connections to Other Data Servers
@@ -1611,8 +1443,6 @@ extern int idamServer(int argc, char** argv)
 
 //----------------------------------------------------------------------------
 // Wait for client to receive returned server state
-
-//sleep(1);		// 1 Sec
 
     return 0;
 

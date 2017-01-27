@@ -9,6 +9,7 @@
 #include "idam_client.h"
 
 #include <unistd.h>
+#include <stdlib.h>
 
 #include <logging/idamLog.h>
 #include <clientserver/idamErrors.h>
@@ -19,21 +20,21 @@
 #include <clientserver/idamErrorLog.h>
 #include <clientserver/initStructs.h>
 #include <clientserver/manageSockets.h>
-#include <stdlib.h>
 #include <clientserver/userid.h>
 #include <clientserver/printStructs.h>
 #include <clientserver/protocol2.h>
 #include <clientserver/idamTypes.h>
 #include <clientserver/freeDataBlock.h>
+#include <structures/struct.h>
 
 #include "closedown.h"
 #include "accAPI_C.h"
 
 #ifdef FATCLIENT
-#  include "idamServerPlugin.h"
-#  include "compressDim.h"
-#  include "idamclient.h"
-#  include "idamserver.h"
+#  include <server/idamServerPlugin.h>
+#  include <clientserver/compressDim.h>
+#  include <include/idamclient.h>
+#  include <include/idamserver.h>
 #else
 #  include "idamCreateConnection.h"
 #  include "createClientXDRStream.h"
@@ -48,10 +49,6 @@
 int idamServer(CLIENT_BLOCK, REQUEST_BLOCK *, SERVER_BLOCK *, DATA_BLOCK *);
 void ncclose(int fh) {}
 
-#endif
-
-#ifdef PERFORMANCETEST
-static PERFORMANCE clientPerformance;
 #endif
 
 REQUEST_BLOCK* request_block_ptr = NULL;
@@ -152,15 +149,6 @@ int idamClient(REQUEST_BLOCK* request_block)
     protocolVersion = clientVersion;
 
     time_t protocol_time;            // Time a Conversation Occured
-
-
-#ifdef PERFORMANCETEST
-    clientPerformance.npoints = 2;
-    strcpy(clientPerformance.label[0],"#0: Total Time");
-    rc = gettimeofday(&(clientPerformance.tv_start[0]), NULL);
-    strcpy(clientPerformance.label[1],"#1: Client Start-up ");
-    rc = gettimeofday(&(clientPerformance.tv_start[1]), NULL);
-#endif
 
     //------------------------------------------------------------------------------
     // Open the Socket if this is the First call for Data or the server is known to be dead
@@ -366,14 +354,6 @@ int idamClient(REQUEST_BLOCK* request_block)
             }
         }
 
-#ifdef PERFORMANCETEST
-        rc = gettimeofday(&(clientPerformance.tv_end[1]), NULL);
-
-        clientPerformance.npoints = 3;
-        strcpy(clientPerformance.label[2],"#2: Open Server Socket");
-        rc = gettimeofday(&(clientPerformance.tv_start[2]), NULL);
-#endif
-
         //-------------------------------------------------------------------------
         // Open a Socket and Connect to the IDAM Data Server (Multiple Servers?)
 
@@ -397,14 +377,6 @@ int idamClient(REQUEST_BLOCK* request_block)
         if (initServer) {
             idamCreateXDRStream();
         }
-
-#ifdef PERFORMANCETEST
-        rc = gettimeofday(&(clientPerformance.tv_end[2]), NULL);
-
-        clientPerformance.npoints = 4;
-        strcpy(clientPerformance.label[3],"#3: Initialise Structures");
-        rc = gettimeofday(&(clientPerformance.tv_start[3]), NULL);
-#endif
 
         //-------------------------------------------------------------------------
 
@@ -452,14 +424,6 @@ int idamClient(REQUEST_BLOCK* request_block)
         }
 
         printClientBlock(client_block);
-
-#ifdef PERFORMANCETEST
-        rc = gettimeofday(&(clientPerformance.tv_end[3]), NULL);
-
-        clientPerformance.npoints = 5;
-        strcpy(clientPerformance.label[4],"#4: Establish Communication with Server");
-        rc = gettimeofday(&(clientPerformance.tv_start[4]), NULL);
-#endif
 
         //------------------------------------------------------------------------------
         // User Authentication at startup
@@ -606,30 +570,10 @@ int idamClient(REQUEST_BLOCK* request_block)
                 protocolVersion = client_block.version;
             }
 
-
-#ifdef ERRORSTACK
-
             if (server_block.idamerrorstack.nerrors > 0) {
                 err = server_block.idamerrorstack.idamerror[0].code;      // Problem on the Server Side!
                 break;
             }
-
-#else
-
-            if (server_block.error > 0) {
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "idamClient", server_block.error, server_block.msg);
-                break;
-            }
-
-#endif
-
-#ifdef PERFORMANCETEST
-            gettimeofday(&(clientPerformance.tv_end[4]), NULL);
-
-            clientPerformance.npoints = 6;
-            strcpy(clientPerformance.label[5],"#5: Send Request and wait for server status");
-            gettimeofday(&(clientPerformance.tv_start[5]), NULL);
-#endif
 
             startupStates = 1;
 
@@ -783,8 +727,6 @@ int idamClient(REQUEST_BLOCK* request_block)
 
         serverside = 0;
 
-#ifdef ERRORSTACK
-
         if (server_block.idamerrorstack.nerrors > 0) {
             IDAM_LOGF(LOG_DEBUG, "idamClient: Server Block passed Server Error State %d\n", err);
 
@@ -795,25 +737,6 @@ int idamClient(REQUEST_BLOCK* request_block)
             serverside = 1;        // Most Server Side errors are benign so don't close the server
             break;
         }
-
-#else
-
-        if (server_block.error > 0) {
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "idamClient", server_block.error, server_block.msg);
-            err        = server_block.error;
-            serverside = 1;
-            break;
-        }
-
-#endif
-
-#ifdef PERFORMANCETEST
-        rc = gettimeofday(&(clientPerformance.tv_end[5]), NULL);
-
-        clientPerformance.npoints = 7;
-        strcpy(clientPerformance.label[6],"#6: Receive Meta Data");
-        rc = gettimeofday(&(clientPerformance.tv_start[6]), NULL);
-#endif
 
 #endif  // not FATCLIENT            // <===== End of Client Server Only Code
 
@@ -910,14 +833,6 @@ int idamClient(REQUEST_BLOCK* request_block)
 
         }  // End of Client/Server Protocol Management
 
-#ifdef PERFORMANCETEST
-        rc = gettimeofday(&(clientPerformance.tv_end[6]), NULL);
-
-        clientPerformance.npoints = 8;
-        strcpy(clientPerformance.label[7],"#7: Receive Data");
-        rc = gettimeofday(&(clientPerformance.tv_start[7]), NULL);
-#endif
-
 #else       // <========================== End of Client Server Code Only (not FATCLIENT)
         }
 
@@ -978,14 +893,6 @@ int idamClient(REQUEST_BLOCK* request_block)
 
         printDataBlock(*data_block);
 
-#ifdef PERFORMANCETEST
-        rc = gettimeofday(&(clientPerformance.tv_end[7]), NULL);
-
-        clientPerformance.npoints = 9;
-        strcpy(clientPerformance.label[8],"#8: Receive Hierarchical Data");
-        rc = gettimeofday(&(clientPerformance.tv_start[8]), NULL);
-#endif
-
         //------------------------------------------------------------------------------
         // Fetch Hierarchical Data Structures
 
@@ -1019,23 +926,9 @@ int idamClient(REQUEST_BLOCK* request_block)
                              "Client Side Protocol Error (Opaque Structure Type)");
                 break;
             }
-
-//#ifdef HIERARCHICAL_DATA
-//            if (Data_Block[acc_getCurrentDataBlockIndex()].opaque_type != OPAQUE_TYPE_EFIT) {
-//                printEFIT(*(EFIT *)Data_Block[acc_getCurrentDataBlockIndex()].opaque_block);
-//            }
-//#endif
         }
 
         IDAM_LOG(LOG_DEBUG, "idamClient: Hierarchical Structure Block Received\n");
-
-#ifdef PERFORMANCETEST
-        rc = gettimeofday(&(clientPerformance.tv_end[8]), NULL);
-
-        clientPerformance.npoints = 10;
-        strcpy(clientPerformance.label[9],"#9: Send Final Protocol");
-        rc = gettimeofday(&(clientPerformance.tv_start[9]), NULL);
-#endif
 
 #else       // <========================== End of Client Server Code Only (not FATCLIENT)
 
@@ -1123,14 +1016,6 @@ int idamClient(REQUEST_BLOCK* request_block)
         IDAM_LOGF(LOG_DEBUG, "idamClient: Sending Next Protocol %d\n", next_protocol);
     }
 
-#ifdef PERFORMANCETEST
-    rc = gettimeofday(&(clientPerformance.tv_end[9]), NULL);
-
-    clientPerformance.npoints = 11;
-    strcpy(clientPerformance.label[10],"#10: House keeping");
-    rc = gettimeofday(&(clientPerformance.tv_start[10]), NULL);
-#endif
-
     //------------------------------------------------------------------------------
     // Close all File Handles, Streams, sockets and Free Heap Memory
 
@@ -1172,13 +1057,6 @@ int idamClient(REQUEST_BLOCK* request_block)
 
         //------------------------------------------------------------------------------
         // Normal Exit: Return to Client
-
-#ifdef PERFORMANCETEST
-        rc = gettimeofday(&clientPerformance.tv_end[0], NULL);
-        rc = gettimeofday(&clientPerformance.tv_end[10], NULL);
-
-        printPerformance(clientPerformance);
-#endif
 
         return data_block_idx;
 
@@ -1224,14 +1102,6 @@ int idamClient(REQUEST_BLOCK* request_block)
         concatIdamError(idamerrorstack, &server_block.idamerrorstack);
         closeIdamError(&idamerrorstack);
         idamErrorLog(client_block, *request_block, server_block.idamerrorstack);
-
-
-#ifdef PERFORMANCETEST
-        rc = gettimeofday(&clientPerformance.tv_end[0], NULL);
-        rc = gettimeofday(&clientPerformance.tv_end[10], NULL);
-
-        printPerformance(clientPerformance);
-#endif
 
         if (err == 0) {
             return (ERROR_CONDITION_UNKNOWN);
@@ -1375,8 +1245,6 @@ void idamFree(int handle)
             }
 
             case (OPAQUE_TYPE_STRUCTURES): {
-#ifdef GENERALSTRUCTS
-
                 if (data_block->opaque_block != NULL) {
                     GENERAL_BLOCK* general_block = (GENERAL_BLOCK*) data_block->opaque_block;
 
@@ -1411,7 +1279,6 @@ void idamFree(int handle)
                     free((void*) general_block);
                 }
 
-#endif
                 data_block->opaque_block = NULL;
                 data_block->data_type = TYPE_UNKNOWN;
                 data_block->opaque_count = 0;
@@ -1422,13 +1289,10 @@ void idamFree(int handle)
             }
 
             case (OPAQUE_TYPE_XDRFILE): {
-#ifdef GENERALSTRUCTS
-
                 if (data_block->opaque_block != NULL) {
                     free(data_block->opaque_block);
                 }
 
-#endif
                 data_block->opaque_block = NULL;
                 data_block->data_type = TYPE_UNKNOWN;
                 data_block->opaque_count = 0;
@@ -1439,13 +1303,10 @@ void idamFree(int handle)
             }
 
             case (OPAQUE_TYPE_XDROBJECT): {
-#ifdef GENERALSTRUCTS
-
                 if (data_block->opaque_block != NULL) {
                     free(data_block->opaque_block);
                 }
 
-#endif
                 data_block->opaque_block = NULL;
                 data_block->data_type = TYPE_UNKNOWN;
                 data_block->opaque_count = 0;
@@ -1577,10 +1438,8 @@ void idamFreeAll()
 
     acc_freeDataBlocks();
 
-#ifdef GENERALSTRUCTS
     userdefinedtypelist = NULL;              // malloc'd within protocolXML
     logmalloclist = NULL;
-#endif
 
     closeIdamError(&server_block.idamerrorstack);
 
@@ -1604,11 +1463,9 @@ void idamFreeAll()
     //----------------------------------------------------------------------------
     // Free List of Structure Definitions
 
-#ifdef GENERALSTRUCTS
     freeUserDefinedTypeList(&parseduserdefinedtypelist);
 
     freeNTree();
-#endif
 
     // Free Plugin List and Close all open library entries
 

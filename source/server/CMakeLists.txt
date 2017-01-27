@@ -53,17 +53,6 @@ include_directories(
   ${OPENSSL_INCLUDE_DIR}
 )
 
-add_definitions( -DCOMPRESSOFF )
-add_definitions( -DOSTYPE=linux )
-#add_definitions( -DMDSSANDBOX )
-add_definitions( -DISCOMPLIANT )
-add_definitions( -D_GNU_SOURCE )
-#add_definitions( -DIDAMPLUGIN )
-add_definitions( -DFILELISTTEST )
-add_definitions( -DSINGLEPACKET )
-add_definitions( -DGENERALSTRUCTS )
-add_definitions( -DDGMJUL14 )
-add_definitions( -DCLEANNAMESPACE25SEP14 )
 add_definitions( -DSERVERBUILD )
 
 ########################################################################################################################
@@ -71,73 +60,99 @@ add_definitions( -DSERVERBUILD )
 
 link_directories( ${PostgreSQL_LIBRARY_DIRS} )
 
+add_library( server-objects OBJECT
+  ${SRC_FILES}
+)
+
+add_library( server-shared SHARED
+  $<TARGET_OBJECTS:server-objects>
+  $<TARGET_OBJECTS:clientserver-server>
+  $<TARGET_OBJECTS:serverlogging>
+  $<TARGET_OBJECTS:structures>
+  $<TARGET_OBJECTS:security>
+  )
+
+add_library( server-static STATIC
+  $<TARGET_OBJECTS:server-objects>
+  $<TARGET_OBJECTS:clientserver-server>
+  $<TARGET_OBJECTS:serverlogging>
+  $<TARGET_OBJECTS:structures>
+  $<TARGET_OBJECTS:security>
+  )
+
 if( NOT FAT_BUILD )
-  add_library( server SHARED
-    ${SRC_FILES}
-    $<TARGET_OBJECTS:clientserver-server>
-    $<TARGET_OBJECTS:serverlogging>
-    $<TARGET_OBJECTS:structures>
-    $<TARGET_OBJECTS:security>
-    )
-  add_executable( server.x idamServerMain.c )
-else()
-  add_library( server OBJECT ${SRC_FILES} )
+  add_executable( server-exe idamServerMain.c )
 endif()
 
 ########################################################################################################################
 # Add libraries
 
-target_link_libraries( server LINK_PUBLIC
+target_link_libraries( server-shared LINK_PUBLIC
+  client-shared
+  ${OPENSSL_LIBRARIES}
   ${LIBXML2_LIBRARIES}
   ${PostgreSQL_LIBRARY}
-)
+  )
+
+link_modules( server-shared )
+
+target_link_libraries( server-static LINK_PUBLIC
+  client-shared
+  ${OPENSSL_LIBRARIES}
+  ${LIBXML2_LIBRARIES}
+  ${PostgreSQL_LIBRARY}
+  )
+
+link_modules( server-static )
 
 if( NOT FAT_BUILD )
-  target_link_libraries( server LINK_PUBLIC client-shared ${OPENSSL_LIBRARIES} )
-
   # Executable
-  target_link_libraries( server.x LINK_PUBLIC
+  target_link_libraries( server-exe LINK_PUBLIC
     ${LIBXML2_LIBRARIES}
     ${PostgreSQL_LIBRARY}
     c
     m
     dl
-    server
+    server-shared
     client-shared
     ${OPENSSL_LIBRARIES}
     )
-  if( NOT APPLE )
-    target_link_libraries( server.x LINK_PUBLIC gcc_s )
-  endif()
 
-  link_modules( server )
+  if( NOT APPLE )
+    target_link_libraries( server-exe LINK_PUBLIC gcc_s )
+  endif()
 endif()
 
 ########################################################################################################################
 # Set library properties
 
-set_target_properties( server
+set_target_properties( server-shared
     PROPERTIES
       OUTPUT_NAME ${PROJECT_NAME}_server
       VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}
       SOVERSION ${PROJECT_VERSION_MAJOR}
   )
 
-if( NOT FAT_BUILD )
-  install(
-    TARGETS server
-    DESTINATION lib
+set_target_properties( server-static
+  PROPERTIES
+  OUTPUT_NAME ${PROJECT_NAME}_server
   )
+
+install(
+  TARGETS server-shared server-static
+  DESTINATION lib
+)
 
 ########################################################################################################################
 # Set executable properties
 
-  set_target_properties( server.x
+if( NOT FAT_BUILD )
+  set_target_properties( server-exe
     PROPERTIES
       OUTPUT_NAME ${PROJECT_NAME}_server
   )
 
-  install( TARGETS server.x
+  install( TARGETS server-exe
     DESTINATION bin
   )
 endif()

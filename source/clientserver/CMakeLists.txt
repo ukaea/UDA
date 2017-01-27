@@ -7,17 +7,6 @@ find_package( PostgreSQL REQUIRED )
 find_package( LibXml2 REQUIRED )
 find_package( OpenSSL REQUIRED )
 
-add_definitions( -D_GNU_SOURCE )
-add_definitions( -DCOMPRESSOFF )
-add_definitions( -DOSTYPE=linux )
-add_definitions( -DISCOMPLIANT )
-add_definitions( -D_GNU_SOURCE )
-add_definitions( -DFILELISTTEST )
-add_definitions( -DSINGLEPACKET )
-add_definitions( -DGENERALSTRUCTS )
-add_definitions( -DDGMJUL14 )
-add_definitions( -DCLEANNAMESPACE25SEP14 )
-
 include_directories(
   ${CMAKE_SOURCE_DIR}/source
 )
@@ -59,6 +48,9 @@ include_directories(
   ${OPENSSL_INCLUDE_DIR}
   ${LIBXML2_INCLUDE_DIR}
 )
+
+add_library( clientserver-static STATIC ${SRC_FILES} )
+target_compile_definitions( clientserver-static PRIVATE -DSERVERBUILD )
 
 add_library( clientserver-server OBJECT ${SRC_FILES} )
 target_compile_definitions( clientserver-server PRIVATE -DSERVERBUILD )

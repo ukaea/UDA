@@ -41,6 +41,8 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/source
 )
 
+add_definitions( -DSERVERBUILD )
+
 ########################################################################################################################
 # Targets
 

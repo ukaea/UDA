@@ -58,6 +58,7 @@ if( APPLE )
 endif( APPLE )
 
 add_definitions(
+  -DOSTYPE=${CMAKE_SYSTEM_NAME}
   -Wall
   -Werror
 )

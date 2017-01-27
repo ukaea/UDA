@@ -44,17 +44,17 @@
 #include <include/idamclientserver.h>
 #include <clientserver/idamErrorLog.h>
 #include <clientserver/TrimString.h>
+#include <clientserver/xdrlib.h>
 
 #include "xdrUserDefinedData.h"
 #include "accessors.h"
 
 #ifdef FATCLIENT
-#  include "idamserver.h"
+#  include <include/idamserver.h>
 #endif
 
 #ifdef SERVERBUILD
 #  include "idamServerStartup.h"
-#else
 #endif
 
 //---------------------------------------------------------------------------------------------------

@@ -97,7 +97,7 @@ int getClosedIdamFile(IDAMFILELIST* idamfiles, int type, char* filename)
             if (!strcasecmp(filename, idamfiles->files[i].filename) && idamfiles->files[i].type == type) return (i);
         }
     }
-    return (-1);    // No Closed File Found
+    return -1;    // No Closed File Found
 }
 
 

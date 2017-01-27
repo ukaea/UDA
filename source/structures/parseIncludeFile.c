@@ -33,13 +33,8 @@
 
 #include "struct.h"
 
-#if defined(SERVERBUILD) || !defined(CLEANNAMESPACE25SEP14)
-
-int parseIncludeFile(char* header)
+int parseIncludeFile(const char* header)
 {
-#else
-    int parseIdamIncludeFile(char *header, USERDEFINEDTYPELIST *userdefinedtypelist){
-#endif
 
     int i, j, lstr, rnk = 0, status = 0, err, model = 0, space, isStruct, isConst, isUnsigned, isLong64, isEnum = 0, maxAlign = 0;
     FILE* fh = NULL;
@@ -206,7 +201,7 @@ int parseIncludeFile(char* header)
                     TrimString(name1);
                     strcpy(typeEnum[typeEnumCount++], name1);        // type name
                     name1[0] = '\0';
-                } else break;
+                } else { break; }
             }
 
             if (!isEnum && !strncmp(buffer, "typedef", 7) &&
@@ -221,7 +216,7 @@ int parseIncludeFile(char* header)
                     if ((p = strchr(name2, '*')) != NULL) {
                         p[0] = ' ';
                         typeDefPtr[typeDefCount] = 1;
-                    } else typeDefPtr[typeDefCount] = 0;
+                    } else { typeDefPtr[typeDefCount] = 0; }
                     LeftTrimString(name2);
                     TrimString(name2);
                     strcpy(typeDefName[typeDefCount], name2);        // type synonym
@@ -248,7 +243,7 @@ int parseIncludeFile(char* header)
                     if ((p = strchr(name2, '*')) != NULL) {
                         p[0] = ' ';
                         typeStrPtr[typeDefCount] = 1;
-                    } else typeStrPtr[typeDefCount] = 0;
+                    } else { typeStrPtr[typeDefCount] = 0; }
                     LeftTrimString(name2);
                     TrimString(name2);
                     strcpy(typeStrName[typeStrCount], name2);        // type synonym
@@ -263,7 +258,6 @@ int parseIncludeFile(char* header)
                 break;
             }
 
-
             if (!status && !strncmp(buffer, "struct", 6)) {
                 model = 1;                            // Start of stucture definition using model 1
             } else {
@@ -277,8 +271,9 @@ int parseIncludeFile(char* header)
 
                 if (status && model == 1 && (!strcmp(buffer, "{\n") || !strncmp(buffer, "#endif", 5) ||
                                              !strncmp(buffer, "#define", 6) || !strncmp(buffer, "#ifdef", 5) ||
-                                             !strncmp(buffer, "#ifndef", 6)))
-                    break;
+                                             !strncmp(buffer, "#ifndef", 6))) {
+                                                 break;
+                }
 
                 if (status || model != 0) {                    // Start of structure definition
                     if (!status) {                        // Structure Name (also Type) follows (model 1 only)
@@ -381,16 +376,18 @@ int parseIncludeFile(char* header)
                                         } else {
                                             userdefinedtype->compoundfield[i].alignment = getalignmentof(type[i]);
                                         }
-                                        if (userdefinedtype->compoundfield[i].alignment > maxAlign)
+                                        if (userdefinedtype->compoundfield[i].alignment > maxAlign) {
                                             maxAlign = userdefinedtype->compoundfield[i].alignment;
+                                        }
                                         userdefinedtype->compoundfield[i].atomictype = gettypeof(type[i]);
                                         userdefinedtype->compoundfield[i].rank = rank[i];
                                         userdefinedtype->compoundfield[i].count = count[i];
-                                        if (rank[i] > 0)
+                                        if (rank[i] > 0) {
                                             userdefinedtype->compoundfield[i].shape = (int*) malloc(
                                                     rank[i] * sizeof(int));
-                                        else
+                                        } else {
                                             userdefinedtype->compoundfield[i].shape = NULL;
+                                        }
                                         for (j = 0; j < rank[i]; j++)
                                             userdefinedtype->compoundfield[i].shape[j] = shape[i][j];
 
@@ -451,7 +448,6 @@ int parseIncludeFile(char* header)
                                         strcpy(buffer, work);
                                     }
                                 }
-
 
                                 if ((p = strchr(buffer, ' ')) != NULL && strncmp(buffer, "//", 2) != 0) {
                                     p[0] = '\0';

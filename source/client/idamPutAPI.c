@@ -93,7 +93,7 @@ int idamPutListAPI(const char* putInstruction, PUTDATA_BLOCK_LIST* inPutDataBloc
         if (server_block.idamerrorstack.nerrors == 0) {
             idamLog(LOG_ERROR, "Error processing the put instruction [%s]\n", putInstruction);
         }
-        return (-err);
+        return -err;
     }
 
     idamLog(LOG_DEBUG, "Routine: idamPutAPI\n");
@@ -175,7 +175,7 @@ int idamPutAPI(const char* putInstruction, PUTDATA_BLOCK* inPutData)
         if (server_block.idamerrorstack.nerrors == 0) {
             idamLog(LOG_ERROR, "Error processing the put instruction [%s]\n", putInstruction);
         }
-        return (-err);
+        return -err;
     }
 
     idamLog(LOG_DEBUG, "Routine: idamPutAPI\n");

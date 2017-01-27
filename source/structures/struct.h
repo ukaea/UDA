@@ -523,11 +523,6 @@ int testUserDefinedType(USERDEFINEDTYPE* udt);
 //==============================================================================================================
 // Functions to Send or Receive Definitions of User Defined Structure
 
-#ifndef GENERALSTRUCTS
-int wrap_string(XDR *xdrs, char *sp);
-int WrapXDRString(XDR *xdrs, char *sp, int maxlen);
-#endif
-
 bool_t xdr_compoundfield(XDR* xdrs, COMPOUNDFIELD* str);
 
 bool_t xdr_userdefinedtype(XDR* xdrs, USERDEFINEDTYPE* str);

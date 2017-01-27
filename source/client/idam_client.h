@@ -7,14 +7,6 @@
 extern "C" {
 #endif
 
-#ifndef SINGLEPACKET
-
-#ifdef FATCLIENT
-int idamServer(CLIENT_BLOCK, REQUEST_BLOCK *, SERVER_BLOCK *, DATA_BLOCK *);
-#endif
-
-#endif	// SINGLEPACKET
-
 #ifdef FATCLIENT
 #  define idamClient idamClientFat
 #  define idamFreeAll idamFreeAllFat

@@ -6,6 +6,7 @@
 #include <include/idamclientserverprivate.h>
 #include <clientserver/idamErrorLog.h>
 #include <clientserver/TrimString.h>
+#include <clientserver/xdrlib.h>
 
 #include "struct.h"
 
@@ -101,8 +102,9 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
 
     p0 = *((char**) data) + index * userdefinedtype->size;
 
-    if (xdrs->x_op == XDR_DECODE)
-        newNTree->data = (void*) p0;    // Each tree node points to a structure or an atomic array
+    if (xdrs->x_op == XDR_DECODE) {
+        newNTree->data = (void*) p0;
+    }    // Each tree node points to a structure or an atomic array
 
 // Loop over all structure elements: Send or Receive
 
@@ -381,7 +383,6 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
                 break;
             }
 
-
             case (TYPE_UNSIGNED_SHORT): {
                 idamLog(LOG_DEBUG, "Type: UNSIGNED_SHORT\n");
 
@@ -461,7 +462,6 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
                 break;
             }
 
-
             case (TYPE_INT): {
                 idamLog(LOG_DEBUG, "Type: INT\n");
 
@@ -539,7 +539,6 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
                 }
                 break;
             }
-
 
             case (TYPE_UNSIGNED_INT): {
                 idamLog(LOG_DEBUG, "Type: UNSIGNED INT\n");
@@ -865,7 +864,7 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
                     }
 
                     rc = rc && xdr_int(xdrs, &isSOAP);    // synchronise XDR function calls
-                    if (!rc)break;
+                    if (!rc) break;
 
                     if (isSOAP) {    // char* is a C String in gSOAP
                         if (xdrs->x_op == XDR_ENCODE) {
@@ -879,7 +878,7 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
                     } else {
                         rc = rc && xdr_vector(xdrs, d, count, sizeof(char), (xdrproc_t) xdr_char);
                     }
-                    if (!rc)break;
+                    if (!rc) break;
 
                 } else {
                     if (userdefinedtype->compoundfield[j].rank == 0) {    // Element is a Scalar
@@ -888,7 +887,7 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
                         rc = rc && xdr_vector(xdrs, (char*) p, userdefinedtype->compoundfield[j].count, sizeof(char),
                                               (xdrproc_t) xdr_char);
                     }
-                    if (!rc)break;
+                    if (!rc) break;
                 }
                 break;
             }

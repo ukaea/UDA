@@ -47,7 +47,7 @@ int idamserverParseSignalXML(DATA_SOURCE data_source, SIGNAL signal, SIGNAL_DESC
 //----------------------------------------------------------------------
 // Anything to Parse?
 
-    if (strlen(signal.xml) == 0 && strlen(signal_desc.xml) == 0) return (-1);    // No XML to parse or switched off!
+    if (strlen(signal.xml) == 0 && strlen(signal_desc.xml) == 0) return -1;    // No XML to parse or switched off!
 
 //----------------------------------------------------------------------
 // Initialise
@@ -61,7 +61,7 @@ int idamserverParseSignalXML(DATA_SOURCE data_source, SIGNAL signal, SIGNAL_DESC
     if (strlen(signal.xml) >
         0) {                    // If this Signal level XML exists then populated components takes priority.
         if ((rc = parseDoc(signal.xml, actions_sig)) != 0) {
-            return (1);
+            return 1;
         }
         IDAM_LOG(LOG_DEBUG, "XML from the Signal Record parsed\n");
         printActions(*actions_sig);
@@ -72,7 +72,7 @@ int idamserverParseSignalXML(DATA_SOURCE data_source, SIGNAL signal, SIGNAL_DESC
 
     if (strlen(signal_desc.xml) > 0) {
         if ((rc = parseDoc(signal_desc.xml, actions_desc)) != 0) {
-            return (1);
+            return 1;
         }
 
         IDAM_LOG(LOG_DEBUG, "XML from the Signal_Desc Record parsed\n");
@@ -130,7 +130,7 @@ int idamserverParseSignalXML(DATA_SOURCE data_source, SIGNAL signal, SIGNAL_DESC
 
     if (actions_sig->nactions == 0 && ndesc == 0) {        // No qualifying XML from either source
         IDAM_LOG(LOG_DEBUG, "No Applicable Actionable XML Found\n");
-        return (-1);
+        return -1;
     }
 
     return 0;

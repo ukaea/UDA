@@ -18,8 +18,6 @@ extern "C" {
 #include <include/idamgenstruct.h>
 #include <server/idamPluginStructs.h>
 
-#define ACCESSLOG           // Enable Data Access Logging
-
 #define MAXOPENFILEDESC 50  // Maximum number of Open File Descriptors
 
 #define MAXMAPDEPTH     10  // Maximum number of chained signal name mappings (Recursive depth)

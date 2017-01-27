@@ -142,7 +142,7 @@ int getOpenIdamPluginFileInt(IDAMPLUGINFILELIST* idamfiles, char* filename)
             }
         }
     }
-    return (-1);    // Not Found => Not open
+    return -1;    // Not Found => Not open
 }
 
 // Search for a Closed File in the List
@@ -155,7 +155,7 @@ int getClosedIdamPluginFile(IDAMPLUGINFILELIST* idamfiles, char* filename)
             if (!strcasecmp(filename, idamfiles->files[i].filename)) return (i);
         }
     }
-    return (-1);    // No Closed File Found
+    return -1;    // No Closed File Found
 }
 
 

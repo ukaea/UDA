@@ -247,7 +247,7 @@ int findUserDefinedTypeIndexReverse(int ref_id)
     for (i = userdefinedtypelist->listCount - 1; i >= 0; i--) {
         if (userdefinedtypelist->userdefinedtype[i].ref_id == ref_id) return (i);
     }
-    return (-1);
+    return -1;
 }
 
 // Target all User Defined Types within the Data Tree starting at the Root Node

@@ -57,7 +57,6 @@ void freeDataBlock(DATA_BLOCK* data_block)
             }
 
             case (OPAQUE_TYPE_STRUCTURES): {
-#ifdef GENERALSTRUCTS
                 if (data_block->opaque_block != NULL) {
 
                     if (userdefinedtypelist != NULL) {
@@ -79,13 +78,10 @@ void freeDataBlock(DATA_BLOCK* data_block)
 
                     data_block->data = NULL;        // Added to Malloc Log List for freeing
                 }
-#endif
                 break;
             }
-
 
             case (OPAQUE_TYPE_XDRFILE): {
-#ifdef GENERALSTRUCTS
                 if (data_block->opaque_block != NULL) {
                     free(data_block->opaque_block);
                 }
@@ -94,11 +90,10 @@ void freeDataBlock(DATA_BLOCK* data_block)
                 data_block->data_type = TYPE_UNKNOWN;
                 data_block->opaque_type = OPAQUE_TYPE_UNKNOWN;
                 data_block->data = NULL;
-#endif
                 break;
             }
+
             case (OPAQUE_TYPE_XDROBJECT): {
-#ifdef GENERALSTRUCTS
                 if (data_block->opaque_block != NULL) {
                     free(data_block->opaque_block);
                 }
@@ -107,7 +102,6 @@ void freeDataBlock(DATA_BLOCK* data_block)
                 data_block->data_type = TYPE_UNKNOWN;
                 data_block->opaque_type = OPAQUE_TYPE_UNKNOWN;
                 data_block->data = NULL;
-#endif
                 break;
             }
 
@@ -192,7 +186,7 @@ void freeReducedDataBlock(DATA_BLOCK* data_block)
 
 // Free Heap Memory & Zero all Integer values
 
-#if !defined(GENERALSTRUCTS) || !defined(FATCLIENT)
+#ifndef FATCLIENT
     if (data_block == NULL) return;
     return;
 #else

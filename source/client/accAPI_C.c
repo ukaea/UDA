@@ -39,11 +39,8 @@
 #endif
 
 #ifdef FATCLIENT
-#  include "idamserver.h"
-#endif
-
-#ifdef FATCLIENT
-#  include "idamplugin.h"
+#  include <include/idamserver.h>
+#  include <include/idamplugin.h>
 #endif
 
 #ifndef FATCLIENT
@@ -54,14 +51,7 @@
 
 //---------------------------- Static Globals -------------------------
 
-#ifdef SINGLEPACKET
-int clientVersion = 7;
-#ifdef SECURITYENABLED
-//static int clientVersion = 18;
-#endif
-#else
 int clientVersion = 7;     // previous version
-#endif
 
 #ifdef ARGSTACK
 FILE *argstack = NULL;     // Log all arguments passed
@@ -120,7 +110,6 @@ int env_port = 1;
 CLIENT_BLOCK client_block;
 SERVER_BLOCK server_block;
 
-#ifdef GENERALSTRUCTS
 USERDEFINEDTYPELIST* userdefinedtypelist = NULL;      // List of all known User Defined Structure Types
 LOGMALLOCLIST* logmalloclist = NULL;         // List of all Heap Allocations for Data
 unsigned int lastMallocIndex = 0;         // Malloc Log search index last value
@@ -140,8 +129,6 @@ static XDR serverXDROutput;
 
 XDR* serverInput = &serverXDRInput;
 XDR* serverOutput = &serverXDROutput;
-#endif
-
 #endif
 
 //---------------------------- Mutex locking for thread safety -------------------------
@@ -1188,30 +1175,30 @@ counted from left to right in c and from right to left in Fortran and IDL.
 */
 int getIdamOrder(int handle)
 {               // Time Dimension Order in Array
-    if (handle < 0 || handle >= Data_Block_Count) return (-1);
+    if (handle < 0 || handle >= Data_Block_Count) return -1;
     return Data_Block[handle].order;
 }
 
-#ifdef CACHEDEV
-                                                                                                                        //!  Returns the Server's Permission to locally Cache data
-/** The permission is either TRUE (1) or FALSE (0).
-\param   handle   The data object handle
-\return  the permission
-*/
+/**
+ * Returns the Server's Permission to locally Cache data
+ * @param handle The data object handle
+ * @return the permission
+ */
 unsigned int getIdamCachePermission(int handle) {     // Permission to cache?
     if(handle < 0 || handle >= Data_Block_Count) return(PLUGINNOTOKTOCACHE);
     return ((unsigned int)Data_Block[handle].cachePermission);
 }
-//!  Returns the total amount of data (bytes)
+
 /**
-\param   handle   The data object handle
-\return  byte count
-*/
+ * Returns the total amount of data (bytes)
+ *
+ * @param handle The data object handle
+ * @return byte count
+ */
 unsigned int getIdamTotalDataBlockSize(int handle) {
     if(handle < 0 || handle >= Data_Block_Count) return 0;
     return ((unsigned int)Data_Block[handle].totalDataBlockSize);
 }
-#endif
 
 //!  returns the atomic or structure type id of the data object
 /**

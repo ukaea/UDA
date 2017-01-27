@@ -13,9 +13,9 @@
 #include <include/idamclientprivate.h>
 
 #ifdef FATCLIENT
-#  include "idamserver.h"
+#  include <include/idamserver.h>
 #  include <libpq-fe.h>
-#  include "closeServerSockets.h"
+#  include <server/closeServerSockets.h>
 extern PGconn * DBConnect;    // IDAM database Socket Connection
 #else
 #  include "closeClientSockets.h"
@@ -63,9 +63,6 @@ int idamClosedown(int type)
         }
 #endif
         closeServerSockets(&server_socketlist);    // Close the Socket Connections to Other Data Servers
-#ifdef FILELISTTEST
-        closeIdamFiles(&idamfilelist);			// Close Open Data Source Files
-#endif
     }
 #endif
 

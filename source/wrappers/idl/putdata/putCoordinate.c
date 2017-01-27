@@ -1407,6 +1407,6 @@ int testUnitsCompliance(KW_RESULT *kw, char *units) {
 
     ut_free(encoded);        // Free Resources
 
-    return (1);
+    return 1;
 } 
 

@@ -299,23 +299,6 @@ int readHDF5(DATA_SOURCE data_source,
 //----------------------------------------------------------------------
 // Is the HDF5 File Already open for Reading? If Not then Open
 
-#ifdef FILELISTTEST
-        if ((file_id_ptr = getOpenIdamFile(&idamfilelist, REQUEST_READ_HDF5, data_source.path)) == NULL) {
-            file_id = H5Fopen(data_source.path, H5F_ACC_RDONLY, H5P_DEFAULT);
-            serrno = errno;
-
-            if ((int) file_id < 0 || serrno != 0) {
-                err = HDF5_ERROR_OPENING_FILE;
-                if (serrno != 0) addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "readHDF5", serrno, "");
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readHDF5", err, "Error Opening HDF5 File");
-                break;
-            }
-            addIdamFile(&idamfilelist, REQUEST_READ_HDF5, data_source.path,
-                        (void*) &file_id);        // Register the File Handle
-        } else {
-            file_id = *(hid_t*) file_id_ptr;
-        }
-#else
         file_id = H5Fopen(data_source.path, H5F_ACC_RDONLY, H5P_DEFAULT);
         serrno = errno;
 
@@ -325,8 +308,6 @@ int readHDF5(DATA_SOURCE data_source,
             addIdamError(&idamerrorstack, CODEERRORTYPE, "readHDF5", err, "Error Opening HDF5 File");
             break;
         }
-
-#endif
 
 //----------------------------------------------------------------------
 // Open the Dataset
@@ -749,9 +730,7 @@ int readHDF5(DATA_SOURCE data_source,
 
     H5garbage_collect();
 
-#ifndef FILELISTTEST
     if(file_id >= 0) H5Fclose(file_id);
-#endif
 
     return err;
 }

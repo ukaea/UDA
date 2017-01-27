@@ -64,16 +64,12 @@
 #include "readXDRFile.h"
 #include "idamErrorLog.h"
 
-#ifdef FILECACHE
-#endif
-
 #ifdef SERVERBUILD
 #  include <include/idamserver.h>
 #  include <server/CreateXDRStream.h>
 #  include <server/idamServerStartup.h>
 #  include <include/idamserver.h>
 #elif !defined(FATCLIENT)
-#  include <cache/idamFileCache.h>
 #  include <include/idamclient.h>
 #endif
 
@@ -108,9 +104,6 @@ int protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, void* st
     int i, rc, err = 0, count = 0;
 
 #ifndef FATCLIENT
-#  ifdef FILECACHE
-    char* p;
-#  endif
     XDR XDRInput;                    // stdio xdr files
     XDR XDROutput;
 #endif
@@ -131,19 +124,10 @@ int protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, void* st
     unsigned char mdr[MAXELEMENTSHA1];        // SHA1 Hash of data received
 
     if ((privateFlags & PRIVATEFLAG_XDRFILE) && protocolVersion >= 5) {        // Intermediate XDR File, not stream
-#ifdef FILECACHE
-        if (privateFlags & PRIVATEFLAG_CACHE)
-            env = getenv("IDAM_CACHE_DIR");    // Use a specific directory to cache XDR files
-        else
-            env = getenv("IDAM_WORK_DIR");        // Use a general work area directory for temporary XDR files
-
-// use MEMCACHE to manage cached and passed files
-
-#else
-        if((env = getenv("IDAM_WORK_DIR")) != NULL)
-#endif
-
-        if (env != NULL) sprintf(tempFile, "%s/idamXDRXXXXXX", env);        // File to record XDR encoded data
+        if ((env = getenv("IDAM_WORK_DIR")) != NULL) {
+            // File to record XDR encoded data
+            sprintf(tempFile, "%s/idamXDRXXXXXX", env);
+        }
     }
 
 //----------------------------------------------------------------------------
@@ -155,7 +139,6 @@ int protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, void* st
 // xdrs->x_op == XDR_ENCODE && protocolVersion == 3 Means Server sending data to a Version 3 Client
 
 #ifndef FATCLIENT
-
     if ((xdrs->x_op == XDR_DECODE && protocolVersion < 3) || (xdrs->x_op == XDR_ENCODE && protocolVersion < 3))
         return 0;
 
@@ -168,7 +151,6 @@ int protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, void* st
 //----------------------------------------------------------------------------
 // Generalised User Defined Data Structures
 
-#ifdef GENERALSTRUCTS
         if (protocol_id == PROTOCOL_STRUCTURES) {
 
             void* data = NULL;
@@ -373,32 +355,7 @@ int protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, void* st
                         err = sendXDRFile(xdrs, tempFile);        // Read and send
 #endif
 
-#ifdef FILECACHE
-
-// Write cache file metadata
-//
-// client request details	: signal+source arguments
-// MEMCACHE key			: Created for each new request not available from cache
-// MEMCACHE value
-//    type			: XDR file or XDR data block
-//    file location and name	: tempFile
-//    SHA1 hash			: md
-//    Log Entry			: provenance
-//    Amount			: the amount of data
-//    Data Block		: XDR stream
-// Date & Time			: internal to MEMCACHE - needed to purge old records
-// MEMCACHE connection object	: Created at server/client startup
-
-                        char* p = strrchr(tempFile, '/');
-                        if (err == 0) rc = idamClientWriteCache(&p[1]);
-
-                        if (err != 0 || rc != 0) remove(tempFile);    // bad file!
-#else
-
-                        // Remove the Temporary File (regardless of success or otherwise of the send)
-
-                                                remove(tempFile);
-#endif
+                        remove(tempFile);
 
                         if (err != 0) break;
 
@@ -660,16 +617,6 @@ int protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, void* st
                             err = receiveXDRFile(xdrs, tempFile);        // Receive and write the file
 #endif
 
-#ifdef FILECACHE
-
-// Write cache file metadata
-
-                            p = strrchr(tempFile, '/');
-                            if (err == 0) rc = idamClientWriteCache(&p[1]);
-
-                            if (err != 0 || rc != 0) break;
-#endif
-
 // Create input xdr file stream
 
                             if ((xdrfile = fopen(tempFile, "rb")) == NULL) {    // Read temporary file
@@ -773,18 +720,9 @@ int protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, void* st
                             XDRstdioFlag = 0;
 
                             fclose(xdrfile);
+                            remove(tempFile);
 
-#ifndef FILECACHE
-
-                            // Remove the Temporary File
-
-                                                        remove(tempFile);
-
-#endif
-
-                        } else
-
-                        if (option == 5) {
+                        } else if (option == 5) {
 
 // Switch back to the normal xdr record stream
 
@@ -858,14 +796,14 @@ int protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, void* st
                              && xdrrec_endofrecord(xdrs, 1);
                         // Check the hash
 
-#ifdef HASHXDR
+#  ifdef HASHXDR
                         sha1Block(object, objectSize, mdr);
                         rc = 1;
                         for (i = 0; i < MAXELEMENTSHA1; i++) rc = rc && (md[i] == mdr[i]);
                         if (!rc) {
                             // ERROR
                         }
-#endif
+#  endif
 
 
                     } else {
@@ -886,14 +824,14 @@ int protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, void* st
 
                         // Check the hash
 
-#ifdef HASHXDR
+#  ifdef HASHXDR
                         sha1Block(object, objectSize, mdr);
                         rc = 1;
                         for (i = 0; i < MAXELEMENTSHA1; i++) rc = rc && (md[i] == mdr[i]);
                         if (!rc) {
                             // ERROR
                         }
-#endif
+#  endif
 
 
                         if (privateFlags & PRIVATEFLAG_XDROBJECT) {        // Forward the object again
@@ -998,11 +936,11 @@ int protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, void* st
                     if (xdrs->x_op == XDR_ENCODE) {
                         IDAM_LOGF(LOG_DEBUG, "protocolXML: Forwarding XDR File %s\n", (char*) data_block->opaque_block);
 
-#ifdef HASHXDRFILE
+#  ifdef HASHXDRFILE
                         err = sendXDRFile(xdrs, (char *)data_block->opaque_block, md);	// Forward the xdr file
-#else
+#  else
                         err = sendXDRFile(xdrs, (char*) data_block->opaque_block);        // Forward the xdr file
-#endif
+#  endif
                     } else {
                         IDAM_LOG(LOG_DEBUG, "protocolXML: Receiving forwarded XDR File\n");
 
@@ -1019,11 +957,11 @@ int protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, void* st
                             IDAM_LOGF(LOG_DEBUG, "Unable to Obtain a Temporary File Name, tempFile=[%s]\n", tempFile);
                             break;
                         }
-#ifdef HASHXDRFILE
+#  ifdef HASHXDRFILE
                         err = receiveXDRFile(xdrs, tempFile, md);	// Receive and write the file
-#else
+#  else
                         err = receiveXDRFile(xdrs, tempFile);        // Receive and write the file
-#endif
+#  endif
                         if (privateFlags & PRIVATEFLAG_XDRFILE) {    // Forward the file (option 3) again
 
                             // If this is an intermediate client then read the file without unpacking the structures
@@ -1100,18 +1038,8 @@ int protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, void* st
 
                             fclose(xdrfile);
 
-#ifdef FILECACHE
-
-                            // Write cache file metadata
-
-                            p = strrchr(tempFile, '/');
-                            rc = idamClientWriteCache(&p[1]);
-
-                            if (rc != 0) remove(tempFile);    // bad file!
-#else
                             // Remove the Temporary File
                             remove(tempFile);
-#endif
 
                             // Regular client or server
 
@@ -1149,7 +1077,6 @@ int protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, void* st
                 }
             }
         }
-#endif
 #endif
 
 //----------------------------------------------------------------------------

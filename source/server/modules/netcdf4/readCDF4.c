@@ -63,17 +63,14 @@ int readCDF(DATA_SOURCE data_source,
 #include <clientserver/initStructs.h>
 #include <clientserver/TrimString.h>
 #include <clientserver/printStructs.h>
+#include <include/idamclientserver.h>
+#include <structures/struct.h>
 
 #include "readCDFMeta.h"
 #include "readCDF4SubTree.h"
 #include "readCDFAtts.h"
-#include "struct.h"
 
 //---------------------------------------------------------------------------------------------------------------
-
-#ifdef GENERALSTRUCTS
-//#include <mcheck.h>
-#endif
 
 nc_type ctype = NC_NAT;            // User defined Complex types
 nc_type dctype = NC_NAT;
@@ -83,19 +80,11 @@ int IMAS_HDF_READER = 0;            // Modify behaviour when reading strings fro
 
 CDFSUBSET cdfsubset;
 
-#ifdef GENERALSTRUCTS
 int readCDF4Var(GROUPLIST grouplist, int varid, int isCoordinate, int rank, int* dimids, unsigned int* extent,
                 int* ndvec, int* data_type, int* isIndex, char** data, USERDEFINEDTYPE** udt);
 
 int readCDF4AVar(GROUPLIST grouplist, int grpid, int varid, nc_type atttype, char* name, int* ndvec, int ndims[2],
                  int* data_type, char** data, USERDEFINEDTYPE** udt);
-
-#else
-int readCDF4Var(int grpid, int varid, int isCoordinate, int rank, int *dimids, unsigned int *extent,
-                int *ndvec, int *data_type, int *isIndex, char **data, void **udt);
-int readCDF4AVar(GROUPLIST grouplist, int grpid, int varid, nc_type atttype,  char *name, int *ndvec, int ndims[2],
-                 int *data_type, char **data, void **udt);
-#endif
 
 unsigned int readCDF4Properties()
 {
@@ -157,11 +146,7 @@ int readCDF(DATA_SOURCE data_source,
 
     int ndimatt[2];            // NC_STRING attribute shape
 
-#ifdef GENERALSTRUCTS
     USERDEFINEDTYPE* udt = NULL, * dudt = NULL;        // User defined structure type definition
-#else
-    void *udt = NULL, *dudt = NULL;
-#endif
 
     struct timeval tv_start0;    // Start time
     struct timeval tv_end0;    // Stop time
@@ -201,25 +186,6 @@ int readCDF(DATA_SOURCE data_source,
 
         errno = 0;
 
-#ifdef FILELISTTEST
-        if ((fd_ptr = getOpenIdamFile(&idamfilelist, REQUEST_READ_CDF, data_source.path)) == NULL) {
-            if ((rc = nc_open((const char*) data_source.path, NC_NOWRITE, &fd)) != NC_NOERR) {
-                serrno = errno;
-                err = NETCDF_ERROR_OPENING_FILE;
-                if (serrno != 0) addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "readCDF", serrno, "");
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF", err, (char*) nc_strerror(rc));
-                IDAM_LOGF(LOG_DEBUG, "Error opening file - %s\n", nc_strerror(rc));
-                break;
-            }
-            addIdamFile(&idamfilelist, REQUEST_READ_CDF, data_source.path,
-                        (void*) &fd);        // Register the File Handle
-            ctype = NC_NAT;
-            dctype = NC_NAT;
-        } else {
-            fd = *(int*) fd_ptr;
-            IDAM_LOG(LOG_DEBUG, "Reusing existing open file handle\n");
-        }
-#else
         err = nc_open((const char *)data_source.path, NC_NOWRITE, &fd);
 
         ctype  = NC_NAT;
@@ -229,7 +195,6 @@ int readCDF(DATA_SOURCE data_source,
             addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "readCDF", err, (char *) nc_strerror(err));
             break;
         }
-#endif
 
         IDAM_LOGF(LOG_DEBUG, "netCDF filename %s\n", data_source.path);
 
@@ -347,13 +312,6 @@ int readCDF(DATA_SOURCE data_source,
 
                 free((void*) conventions);
             }
-
-
-//#ifdef TESTCODE
-#ifdef ISCOMPLIANT
-            compliance = 1;        // Switch on compliance for testing with non-compliant efit++ data
-#endif
-//#endif
 
 // FUDGE for efit++ data
 
@@ -855,13 +813,11 @@ int readCDF(DATA_SOURCE data_source,
                 }
             }
 
-
-#ifdef GENERALSTRUCTS
-
 // If it's a group name or the Root then return the whole sub-tree (without modification)
 // No subsetting operation
 
-            subtree = 0;
+            int subtree = 0;
+            HGROUPS hgroups;
 
             if (hierarchical && cdfsubset.subsetCount == 0 && ((numgrp == 1 && !strcmp(signal_desc.signal_name, "/")) ||
                                                                ((rc = getGroupId(grpid, variable, &subtree)) ==
@@ -870,8 +826,7 @@ int readCDF(DATA_SOURCE data_source,
                 USERDEFINEDTYPE usertype;
                 logmalloclist = (LOGMALLOCLIST*) malloc(sizeof(LOGMALLOCLIST));
                 initLogMallocList(logmalloclist);
-                copyUserDefinedTypeList(
-                        &userdefinedtypelist);                // Allocate and Copy the Master User Defined Type List
+                copyUserDefinedTypeList(&userdefinedtypelist); // Allocate and Copy the Master User Defined Type List
                 initHGroup(&hgroups);
 
                 IDAM_LOG(LOG_DEBUG, "Tree or sub-tree found.\n");
@@ -923,7 +878,6 @@ int readCDF(DATA_SOURCE data_source,
 
                 break;
             }
-#endif
 
 // Can't identify the data object
 
@@ -1043,14 +997,9 @@ int readCDF(DATA_SOURCE data_source,
 // Read the Data Array first
 
         isCoordinate = 0;
-#ifdef GENERALSTRUCTS
         err = readCDF4Var(grouplist, varid, isCoordinate, rank, dimids, extent, &data_block->data_n,
                           &data_block->data_type,
                           &isIndex, &data_block->data, &udt);
-#else
-        err = readCDF4Var(grpid, varid, isCoordinate, rank, dimids, extent, &data_block->data_n, &data_block->data_type,
-                          &isIndex, &data_block->data, &udt);
-#endif
 
         if (err != 0) {
             addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF", err, "Unable to Read Data Values");
@@ -1069,9 +1018,7 @@ int readCDF(DATA_SOURCE data_source,
 // A User Defined Data Structure Type?
 
         if (udt != NULL) {
-#ifdef GENERALSTRUCTS
             malloc_source = MALLOCSOURCENETCDF;
-#endif
             data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
             data_block->opaque_count = 1;
             data_block->opaque_block = (void*) udt;
@@ -1248,28 +1195,21 @@ int readCDF(DATA_SOURCE data_source,
                     dextent[i] = extent[i];
                 }
 
-            } else drank = 1;
+            } else {
+                drank = 1;
+            }
 
-
-
-// Disable until efit++ compliant
-#ifndef ISCOMPLIANT
-            if(compliance && drank > 1) {		// Only accept this if non-compliant file
+            if (compliance && drank > 1) {		// Only accept this if non-compliant file
                 err = 999;
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF", err, "Coordinate Array has Rank > 1!");
                 break;
             }
-#endif
+
             isCoordinate = 1;
-#ifdef GENERALSTRUCTS
             cgrouplist.grpid = cgrpid;
             err = readCDF4Var(cgrouplist, coordid, isCoordinate, drank, &dimids[i], &dextent[i],
                               &data_block->dims[ii].dim_n,
                               &data_block->dims[ii].data_type, &isIndex, &data_block->dims[ii].dim, &dudt);
-#else
-            err = readCDF4Var(cgrpid, coordid, isCoordinate, drank, &dimids[i], &dextent[i], &data_block->dims[ii].dim_n,
-                              &data_block->dims[ii].data_type, &isIndex, &data_block->dims[ii].dim, &dudt);
-#endif
             if (err != 0) {
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF", err, "Unable to Read Coordinate Values");
                 break;
@@ -1580,10 +1520,8 @@ int readCDF(DATA_SOURCE data_source,
     if (extent != NULL) free((void*) extent);
     if (dextent != NULL) free((void*) dextent);
 
-#ifndef FILELISTTEST
     IDAM_LOG(LOG_DEBUG,"NC File Closed\n");
     ncclose(fd);		// Close netCDF File
-#endif
 
     gettimeofday(&tv_end0, NULL);
     IDAM_LOGF(LOG_DEBUG, "\n\nTotal Time: %.2f (ms)\n\n", (float) (tv_end0.tv_sec - tv_start0.tv_sec) * 1.0E3 +

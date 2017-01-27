@@ -78,10 +78,9 @@ int idamClientLockCache(FILE **db, short type) {
 
         *db = fh;				// Returned database table file handle
 
-    } else
-
+    } else {
         fh = *db;
-
+    }
 
     int fd = fileno(fh);
 
@@ -216,7 +215,7 @@ int idamClientPurgeCache(FILE *db, unsigned long recordCount, unsigned long *end
     timestamplist = (unsigned long long *)malloc(recordCount*sizeof(unsigned long long));
 
     count = 0;
-    while(count++ < recordCount && !feof(db) && fgets(buffer, STRING_LENGTH, db) != NULL) {	// Read each record
+    while (count++ < recordCount && !feof(db) && fgets(buffer, STRING_LENGTH, db) != NULL) {	// Read each record
 
         LeftTrimString(TrimString(buffer));
         dbkey = 0;
@@ -287,20 +286,15 @@ int idamClientPurgeCache(FILE *db, unsigned long recordCount, unsigned long *end
         count = fwrite(table[i], sizeof(char), lstr, db);	// Write all valid records
         if(count != lstr || errno != 0) {
             int err = 999;
-            //if(errno != 0) addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "idamClientCache", errno, "");
-            //addIdamError(&idamerrorstack, CODEERRORTYPE, "idamClientCache", err, "Unable to Open the Cache Database");
             return -err;
         }
 
         free(table[i]);
     }
-    //free(table);
-    //free(timestamplist);
 
     *endOffset = ftell(db);			// Append or overwrite new records from this location (End of active records)
 
     fwrite("\n", sizeof(char), 1, db);		// Insert a new line at the end of the valid set of records
-
 
     // Update statistics
 
@@ -319,7 +313,9 @@ int idamClientReadCache(REQUEST_BLOCK *request_block, DATA_BLOCK *data_block, ch
 
     err = 0;
 
-    if(filename == NULL || filename[0] == '\0') return 0;
+    if (filename == NULL || filename[0] == '\0') {
+        return 0;
+    }
 
     do {		// Error Trap
 

@@ -156,18 +156,11 @@ void replaceEmbeddedStrings(USERDEFINEDTYPE* udt, int ndata, char* dvec)
     }
 }
 
-
-#ifdef GENERALSTRUCTS
-
 int readCDF4Var(GROUPLIST grouplist, int varid, int isCoordinate, int rank, int* dimids,
                 unsigned int* extent, int* ndvec, int* data_type, int* isIndex, char** data,
                 USERDEFINEDTYPE** udt)
 {
     int grpid;
-#else
-    int readCDF4Var(int grpid, int varid, int isCoordinate, int rank, int *dimids,
-                    unsigned int *extent, int *ndvec, int *data_type, int *isIndex, char **data, void **udt) {
-#endif
 
     int i, rc, err = 0, ndata, isextent = 0, createIndex = 0, coordSubsetId = -1;
 
@@ -186,9 +179,7 @@ int readCDF4Var(GROUPLIST grouplist, int varid, int isCoordinate, int rank, int*
 //----------------------------------------------------------------------
 // Default Group ID
 
-#ifdef GENERALSTRUCTS
     grpid = grouplist.grpid;
-#endif
 
 //----------------------------------------------------------------------
 // Test for Extent Attribute (which means 1 or more dimensions are unlimited)
@@ -495,8 +486,6 @@ int readCDF4Var(GROUPLIST grouplist, int varid, int isCoordinate, int rank, int*
                         dvec = (char*) malloc((size_t) ndata * sizeof(DCOMPLEX));
                     } else {
 
-#ifdef GENERALSTRUCTS
-
 // Create User defined data structure definitions: descriptions of the internal composition (Global Structure)
 
                         if ((err = scopedUserDefinedTypes(grpid)) != 0) break;
@@ -537,10 +526,6 @@ int readCDF4Var(GROUPLIST grouplist, int varid, int isCoordinate, int rank, int*
                         } else {
                             dvec = (char*) malloc(ndata * (*udt)->size);        // Create heap for the data
                         }
-#else
-                        err = 999;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDFVar", err, "Data Type not known!");
-#endif
 
                         break;
                     }
@@ -646,8 +631,6 @@ int readCDF4Var(GROUPLIST grouplist, int varid, int isCoordinate, int rank, int*
                     break;
                 }
 
-#ifdef GENERALSTRUCTS
-
                 if (*udt != NULL) {
 
                     if ((*udt)->idamclass == TYPE_COMPOUND) {            // Compound Types
@@ -737,8 +720,6 @@ int readCDF4Var(GROUPLIST grouplist, int varid, int isCoordinate, int rank, int*
                         //addNonMalloc((void *) enumlist, 1, sizeof(ENUMLIST), "ENUMLIST");
                     }
                 }
-#endif
-
 
             } else {
                 *isIndex = 1;
@@ -911,8 +892,6 @@ int readCDF4AVar(GROUPLIST grouplist, int grpid, int varid, nc_type atttype, cha
 
 // Attribute is a User Defined type
 
-#ifdef GENERALSTRUCTS
-
 // Create User defined data structure definitions: descriptions of the internal composition (Global Structure)
 
                         if ((err = scopedUserDefinedTypes(grpid)) != 0) break;
@@ -953,10 +932,6 @@ int readCDF4AVar(GROUPLIST grouplist, int grpid, int varid, nc_type atttype, cha
                         } else {
                             dvec = (char*) malloc(ndata * (*udt)->size);        // Create heap for the data
                         }
-#else
-                        err = 999;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDFAVar", err, "Data Type not known!");
-#endif
 
                         break;
                     }
@@ -1114,13 +1089,7 @@ int readCDF4Err(int grpid, int varid, int isCoordinate, int class, int rank, int
     char* errors = NULL;
     unsigned int* extent = NULL;
     int ndimatt[2];            // NC_STRING attribute shape
-
-
-#ifdef GENERALSTRUCTS
     USERDEFINEDTYPE* udt = NULL;
-#else
-    void *udt = NULL;
-#endif
 
 //----------------------------------------------------------------------
 // Test Attribute 'errors' Exists
@@ -1195,20 +1164,13 @@ int readCDF4Err(int grpid, int varid, int isCoordinate, int class, int rank, int
             return err;
         }
         for (i = 0; i < rank; i++) extent[i] = 0;
-#ifdef GENERALSTRUCTS
         if ((err = readCDF4Var(grouplist, errid, isCoordinate, rank, dimids, extent, nevec, error_type, &isIndex, edata,
                                &udt)) != 0) {
             addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF4Err", err, "Unable to Read Error Values");
             free((void*) extent);
             return err;
         }
-#else
-        if((err = readCDF4Var(grpid, errid, isCoordinate, rank, dimids, extent, nevec, error_type, &isIndex, edata, &udt)) != 0) {
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF4Err", err, "Unable to Read Error Values");
-            free((void *)extent);
-            return err;
-        }
-#endif
+
         free((void*) extent);
 
 // Apply Data Conversion
@@ -1561,12 +1523,8 @@ int readCDFCheckCoordinate(int grpid, int varid, int rank, int ncoords, char* co
     unsigned int* extent = NULL;    // Shape of the data array
     char* data = NULL;
 
-#ifdef GENERALSTRUCTS
     USERDEFINEDTYPE* udt = NULL;
     GROUPLIST grouplist;
-#else
-    void *udt = NULL;
-#endif
 
 //----------------------------------------------------------------------
 // Error Trap Loop
@@ -1602,17 +1560,12 @@ int readCDFCheckCoordinate(int grpid, int varid, int rank, int ncoords, char* co
 //----------------------------------------------------------------------
 // Read the Data Array
 
-#ifdef GENERALSTRUCTS
         grouplist.count = 1;
         grouplist.grpid = grpid;
         grouplist.grpids = NULL;
 
         err = readCDF4Var(grouplist, varid, isCoordinate, rank, dimids, extent,
                           &data_n, &data_type, &isIndex, &data, &udt);
-#else
-        err = readCDF4Var(grpid, varid, isCoordinate, rank, dimids, extent,
-                          &data_n, &data_type, &isIndex, &data, &udt);
-#endif
 
         if (err != 0) {
             addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDFCheckCoordinate", err, "Unable to Read Data Values");
@@ -1850,29 +1803,29 @@ int isAtomicNCType(nc_type type)
 {
     switch (type) {
         case NC_BYTE:
-            return (1);
+            return 1;
         case NC_CHAR:
-            return (1);
+            return 1;
         case NC_SHORT:
-            return (1);
+            return 1;
         case NC_INT:
-            return (1);
+            return 1;
         case NC_INT64:
-            return (1);
+            return 1;
         case NC_FLOAT:
-            return (1);
+            return 1;
         case NC_DOUBLE:
-            return (1);
+            return 1;
         case NC_UBYTE:
-            return (1);
+            return 1;
         case NC_USHORT:
-            return (1);
+            return 1;
         case NC_UINT:
-            return (1);
+            return 1;
         case NC_UINT64:
-            return (1);
+            return 1;
         case NC_STRING:
-            return (1);    // Treated as a byte/char array
+            return 1;    // Treated as a byte/char array
         default:
             return 0;
     }

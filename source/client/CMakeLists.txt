@@ -9,7 +9,6 @@ if( FAT_BUILD )
   find_package( PostgreSQL REQUIRED )
 endif()
 
-add_definitions( -DCLEANNAMESPACE25SEP14 -DOSTYPE=linux )
 if( NOT FAT_BUILD )
   add_definitions( -DCLIENTBUILD )
 endif()
@@ -59,13 +58,15 @@ if( NOT FAT_BUILD )
     $<TARGET_OBJECTS:logging>
   )
 else()
+  include_directories( ${PostgreSQL_INCLUDE_DIRS} )
+
   set( CLIENT_SRCS
-    $<TARGET_OBJECTS:server>
-    $<TARGET_OBJECTS:modules>
+    $<TARGET_OBJECTS:server-objects>
     $<TARGET_OBJECTS:clientserver-server>
     $<TARGET_OBJECTS:serverlogging>
     $<TARGET_OBJECTS:structures>
     $<TARGET_OBJECTS:security>
+    $<TARGET_OBJECTS:modules>
     $<TARGET_OBJECTS:client>
     $<TARGET_OBJECTS:cache>
     $<TARGET_OBJECTS:serverlogging>

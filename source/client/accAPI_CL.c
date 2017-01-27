@@ -4,11 +4,11 @@
 //
 //--------------------------------------------------------------
 
-#ifdef FATCLIENT
-#include "idamserver.h"
-#endif
-
 #ifdef IDAM_LEGACY_NAMES
+
+#ifdef FATCLIENT
+#  include "idamserver.h"
+#endif
 
 //--------------------------------------------------------------
 // Legacy APIs

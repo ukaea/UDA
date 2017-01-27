@@ -13,11 +13,9 @@
 #include "idamserver.h"
 #endif
 
-#ifdef GENERALSTRUCTS 
 #include "idamgenstruct.h"
 #ifdef FATCLIENT
 #include "idamplugin.h"
-#endif
 #endif
 
 // C Accessor Routines
@@ -78,15 +76,12 @@ static int env_port = 1;
 static CLIENT_BLOCK client_block;  
 static SERVER_BLOCK server_block; 
 
-#ifdef GENERALSTRUCTS
 static USERDEFINEDTYPELIST *userdefinedtypelist = NULL;		// List of all known User Defined Structure Types
 static LOGMALLOCLIST *logmalloclist = NULL;			// List of all Heap Allocations for Data 
 
 #ifdef FATCLIENT
 static PLUGINLIST pluginList;
 static USERDEFINEDTYPELIST parseduserdefinedtypelist;		// Input User Defined Structure Types
-#endif
-
 #endif
 
 //--------------------------------------------------------------  
@@ -2746,74 +2741,5 @@ int getIdamDimDataCheckSum(int handle, int ndim){
    if(ndim < 0 || ndim >= Data_Block[handle].rank) return 0;
 
    return( idamDataCheckSum((void *)Data_Block[handle].dims[ndim].dim, Data_Block[handle].dims[ndim].dim_n, Data_Block[handle].dims[ndim].data_type));
-} 
-   
-  
-//===========================================================================================================
-// Include all other client source codes to enable access to static (private) globals
-
- #include "generateErrors.c"
- #include "IdamClient.c" 
- #include "IdamAPI.c"
- #include "ClientAPI.c"
- #include "ClientMDS.c"
- #include "accAPI_CL.c"				// legacy C accessors
- #include "accAPI_F.c"
- #include "accAPI_FL.c"				// legacy Fortran Accessors
- #include "accAPI_XML.c"			// EFIT data structures
- #include "accAPI_Gen.c"			// General Hierarchical data Structures
- #include "startup.c"
- #include "closedown.c"
- #include "getEnvironment.c"
- #include "TrimString.c"
- #include "compressDim.c"
- #include "printStructs.c"
- #include "allocData.c"
- #include "initStructs.c"
- #include "userid.c"
- 
- #include "expand_path.c"
- #include "makeClientRequestBlock.c" 
-    
- #include "manageSockets.c"
- #include "allocXMLData.c"
- #include "initXMLStructs.c"
- #include "idamErrorLog.c"
- #include "xdrlib.c"
- #include "protocolXML.c"
- #include "readXDRFile.c"
- 
-#ifdef FILECACHE
-#include "idamClientCache.c"
-#endif 
- 
-#ifdef GENERALSTRUCTS
-   #include "struct.c"
-   #include "accessors.c"
-   #include "xdrUserDefinedData.c"
-#endif  
-
-#ifndef FATCLIENT
-
-#include "idamCreateConnection.c"
-#include "CreateXDRStream.c"
-#include "UpdateSelectParms.c"
-#include "Writeout.c"
-#include "Readin.c"
-#include "closeClientSockets.c"
-//#include "xdrlib.c"
-#include "protocol.c"
-//#include "protocolXML.c"
-#include "xdrHData.c"
-
-
-#else
-
-#include "copyStructs.c"
-#include "mastArchiveFilePath.c"
-#include "md5Sum.c"
-#include "freeDataBlock.c"
-#include "makeServerRequestBlock.c"
-
-#endif
+}
 

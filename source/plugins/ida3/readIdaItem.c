@@ -1074,7 +1074,7 @@ int readIdaItem(char* itemname, ida_file_ptr* ida_file, short* context, DATA_BLO
 //-------------------------------------------------------------------------
 // Check there is an IDA File pointer
 
-    if (ida_file == NULL) return (-1);
+    if (ida_file == NULL) return -1;
 
 //-------------------------------------------------------------------------
 // Start of Error Trap Loop

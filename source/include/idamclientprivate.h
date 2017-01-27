@@ -52,10 +52,7 @@ extern XDR * clientOutput;          // XDR Output Stream handle
 extern unsigned int XDRstdioFlag;
 
 // File Cache
-
-#ifdef FILECACHE
 extern REQUEST_BLOCK * request_block_ptr;   // Pointer to the User REQUEST_BLOCK
-#endif
 
 // Data
 
@@ -90,10 +87,6 @@ extern time_t tv_server_end;    // Current Time & Server Age
 
 extern int env_host;            // Flags to Read Environment variable at startup time
 extern int env_port;
-
-#ifdef PERFORMANCETEST
-static PERFORMANCE clientPerformance;
-#endif
 
 //--------------------------------------------------------------
 // Client Side API Error Codes

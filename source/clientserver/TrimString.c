@@ -114,7 +114,7 @@ int IsNumber(char* a)
         if (!isdigit (*wrk) && *wrk != '-' && *wrk != '+') return 0;
         ++wrk;
     }
-    return (1);
+    return 1;
 }
 
 // Is the String a Simple Float Number?
@@ -126,7 +126,7 @@ int IsFloat(char* a)
         if (!isdigit (*wrk) && *wrk != '-' && *wrk != '+' && *wrk != '.') return 0;
         ++wrk;
     }
-    return (1);
+    return 1;
 }
 
 
@@ -143,7 +143,7 @@ int IsNumberList(char* a)
         a[0] == ';' || a[strlen(a)] == ';')
         return 0;
 
-    return (1);
+    return 1;
 }
 
 char* convertNonPrintable(char* str)
@@ -208,7 +208,7 @@ int IsLegalFilePath(char* str)
     return 1;
 }
 
-#ifndef _GNU_SOURCE
+#if !defined(asprintf)
 /*
  * Allocating sprintf
  */

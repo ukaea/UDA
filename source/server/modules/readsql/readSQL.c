@@ -30,9 +30,10 @@
 #include <clientserver/idamTypes.h>
 #include <clientserver/initStructs.h>
 #include <clientserver/freeDataBlock.h>
-
-#ifndef NOXMLPARSER
-#endif
+#include <clientserver/TrimString.h>
+#include <include/idamgenstruct.h>
+#include <include/idamclientserver.h>
+#include <structures/struct.h>
 
 #ifdef USEREADSOAP
 #include "soapStub.h"
@@ -41,8 +42,6 @@ void freeSOAP();
 #endif
 
 #ifndef NOTGENERICENABLED
-
-#include "struct.h"
 
 #ifdef TESTCODEX
 PGconn *gDBConnect = NULL;
@@ -234,8 +233,9 @@ int readSQL(PGconn* DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_sou
 //-------------------------------------------------------------
 // Is this a request for Continuously Measured Data?
 
-    if (!strcasecmp(request_block.archive, "CMD"))
+    if (!strcasecmp(request_block.archive, "CMD")) {
         return (readCMDSQL(DBConnect, request_block, data_source, data_block));
+    }
 
 //-------------------------------------------------------------
 // Standard functions
@@ -248,7 +248,17 @@ int readSQL(PGconn* DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_sou
         queryType = SQLLASTSHOT;
     }
 
-#ifdef GENERALSTRUCTS
+    char work[MAX_STRING_LENGTH];
+    char udtname[MAX_STRING_LENGTH];
+
+    short shotDependent = 0;
+    short sourceDependent = 0;
+    short typeDependent = 0;
+    short passDependent = 0;
+
+    int pass = 0;
+    int exp_number = 0;
+
     if (queryType == SQLUNKNOWN && !strncasecmp(request_block.signal, "getidamshotdatetime(", 20)) {
         char* p = strchr(request_block.signal, '(');
         strcpy(work, &p[1]);
@@ -275,6 +285,7 @@ int readSQL(PGconn* DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_sou
 // exp_number, shot, pulno	single scalar integer
                     exp_number = -1;
 
+                    int ip;
                     for (ip = 0; ip < request_block.nameValueList.pairCount; ip++) {
                         if (!strcasecmp(request_block.nameValueList.nameValue[ip].name, "exp_number") ||
                             !strcasecmp(request_block.nameValueList.nameValue[ip].name, "shot") ||
@@ -322,7 +333,7 @@ int readSQL(PGconn* DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_sou
 // source, source_alias		string  (3 characters)
 // type				single character
 
-
+                    short ip;
                     for (ip = 0; ip < request_block.nameValueList.pairCount; ip++) {
                         if (!strcasecmp(request_block.nameValueList.nameValue[ip].name, "exp_number") ||
                             !strcasecmp(request_block.nameValueList.nameValue[ip].name, "shot") ||
@@ -452,6 +463,7 @@ int readSQL(PGconn* DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_sou
 // source, source_alias		string (3 characters)
 // type				single character
 
+                    short ip;
                     for (ip = 0; ip < request_block.nameValueList.pairCount; ip++) {
                         if (!strcasecmp(request_block.nameValueList.nameValue[ip].name, "exp_number") ||
                             !strcasecmp(request_block.nameValueList.nameValue[ip].name, "shot") ||
@@ -545,8 +557,6 @@ int readSQL(PGconn* DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_sou
         queryType = SQLSOAPTEST;
     }
 
-#endif
-
     if (queryType == SQLUNKNOWN) {
         err = 999;
         addIdamError(&idamerrorstack, CODEERRORTYPE, "readSQL", err,
@@ -604,8 +614,6 @@ int readSQL(PGconn* DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_sou
         return 0;
     }
 
-#ifdef GENERALSTRUCTS
-
 //-------------------------------------------------------------
 // List Data: Increase Rank of string arrays and reduce rank of passed structure for improved performance
 //
@@ -627,11 +635,10 @@ int readSQL(PGconn* DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_sou
         logmalloclist = (LOGMALLOCLIST*) malloc(sizeof(LOGMALLOCLIST));        // Create a MALLOC Log List
         initLogMallocList(logmalloclist);
 
-        copyUserDefinedTypeList(
-                &userdefinedtypelist);                // Allocate and Copy the Master User Defined Type List
+        copyUserDefinedTypeList(&userdefinedtypelist); // Allocate and Copy the Master User Defined Type List
 
-        nrows = PQntuples(DBQuery);
-        ncols = PQnfields(DBQuery);
+        int nrows = PQntuples(DBQuery);
+        int ncols = PQnfields(DBQuery);
 
         if (nrows == 0) {
             err = 999;
@@ -663,6 +670,7 @@ int readSQL(PGconn* DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_sou
             rank = 1;
             shape = NULL;
             addMalloc2((void*) field, nrows, sizeof(char*), "STRING", rank, shape);
+            int i;
             for (i = 0; i < nrows; i++) {
                 len = strlen(PQgetvalue(DBQuery, i, j)) + 1;
                 field[i] = (char*) malloc(len * sizeof(char));
@@ -836,7 +844,6 @@ int readSQL(PGconn* DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_sou
         if(DBConnect2 != DBConnect) PQfinish(DBConnect2);
         return 0;
     }
-#endif
 #endif
 
 //-------------------------------------------------------------

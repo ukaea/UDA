@@ -19,6 +19,7 @@
 #include <math.h>
 #include <stdlib.h>
 #include <clientserver/idamTypes.h>
+
 #include "idamErrors.h"
 
 int compressDim(DIMS* ddim)
@@ -43,16 +44,14 @@ int compressDim(DIMS* ddim)
     unsigned short* usp;
     unsigned char* ucp;
 
-#ifdef COMPRESSOFF
-    return(1);
-#endif
+    if (!ddim || !ddim->dim || ddim->compressed) {
+        // No Data or Already Compressed or Functionality disabled!
+        return 1;
+    }
 
-    if (!ddim || !ddim->dim || ddim->compressed)
-        return (1);   // No Data or Already Compressed or Functionality disabled!
+    ndata = ddim->dim_n;
 
-    ndata = (int) ddim->dim_n;
-
-    if (ndata == 1) return (1);   // Insufficient Data to Compress!
+    if (ndata == 1) return 1;   // Insufficient Data to Compress!
 
     switch (ddim->data_type) {
         case TYPE_CHAR :
@@ -144,7 +143,7 @@ int compressDim(DIMS* ddim)
 #endif
         default:
             ddim->compressed = 0;
-            return (1);
+            return 1;
     }
 
     for (i = 1; i < ndata; i++) {
@@ -196,7 +195,7 @@ int compressDim(DIMS* ddim)
 
     if (ndif != ndata) {
         ddim->compressed = 0;
-        return (1);        // Data not regular
+        return 1;        // Data not regular
     }
 
     ddim->compressed = 1;
@@ -221,9 +220,6 @@ int compressDim(DIMS* ddim)
 *
 * Note: XML based data correction also uses the compression models: New models
 * must also have corrections applied.
-*
-* Revision 1.0  06Jul2005	D.G.Muir
-* 13May2011 dgm		return if zero length dimension
 *--------------------------------------------------------------*/
 
 int uncompressDim(DIMS* ddim)

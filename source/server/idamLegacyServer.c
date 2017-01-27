@@ -75,14 +75,6 @@ int idamLegacyServer(CLIENT_BLOCK client_block)
     do {
         IDAM_LOG(LOG_DEBUG, "IdamLegacyServer: Start of Server Wait Loop\n");
 
-#ifdef PERFORMANCETEST
-        serverPerformance.npoints = 3;
-        strcpy(serverPerformance.label[1],"#1: Beginning of Main Server Loop");
-        rc = gettimeofday(&(serverPerformance.tv_start[1]), NULL);
-        strcpy(serverPerformance.label[2],"#2: Client Request");
-        rc = gettimeofday(&(serverPerformance.tv_start[2]), NULL);
-#endif
-
 //----------------------------------------------------------------------------
 // Start of Error Trap Loop #1
 
@@ -281,16 +273,7 @@ int idamLegacyServer(CLIENT_BLOCK client_block)
 //----------------------------------------------------------------------
 // Write to the Access Log
 
-#ifdef ACCESSLOG
             idamAccessLog(TRUE, client_block, request_block, server_block, data_block);
-#endif
-
-#ifdef PERFORMANCETEST
-            serverPerformance.npoints = 4;
-            rc = gettimeofday(&(serverPerformance.tv_end[2]), NULL);
-            strcpy(serverPerformance.label[3],"#3: Decide on Plugin");
-            rc = gettimeofday(&(serverPerformance.tv_start[3]), NULL);
-#endif
 
 //----------------------------------------------------------------------
 // Initialise Data Structures
@@ -300,7 +283,6 @@ int idamLegacyServer(CLIENT_BLOCK client_block)
             initSignal(&signal_rec);
 
             err = 0;
-
 
 //----------------------------------------------------------------------------------------------
 // If this is a PUT request then receive the putData structure
@@ -336,14 +318,6 @@ int idamLegacyServer(CLIENT_BLOCK client_block)
                 if ((err = idamServerLegacyPlugin(&request_block, &data_source, &signal_desc)) != 0) break;
             }
 
-#ifdef PERFORMANCETEST
-            rc = gettimeofday(&(serverPerformance.tv_end[3]), NULL);
-
-            serverPerformance2.npoints = 1;
-            strcpy(serverPerformance2.label[0],"#0: Gap - Connect to SQL Database");
-            rc = gettimeofday(&(serverPerformance2.tv_start[0]), NULL);
-#endif
-
 //------------------------------------------------------------------------------------------------
 // Identify the Signal Required from the Database if a Generic Signal Requested
 // or if a name mapping (alternative signal/source) is requested by the client
@@ -365,14 +339,6 @@ int idamLegacyServer(CLIENT_BLOCK client_block)
                 }
                 IDAM_LOG(LOG_DEBUG, "IdamServer Connected to SQL Database Server\n");
             }
-#endif
-
-#ifdef PERFORMANCETEST
-            serverPerformance.npoints = 5;
-            strcpy(serverPerformance.label[4],"#4: Read Data from Plugin");
-            rc = gettimeofday(&(serverPerformance.tv_start[4]), NULL);
-
-            rc = gettimeofday(&(serverPerformance2.tv_end[0]), NULL);
 #endif
 
 //------------------------------------------------------------------------------------------------
@@ -411,14 +377,6 @@ int idamLegacyServer(CLIENT_BLOCK client_block)
 
             if (err != 0) break;
 
-
-#ifdef PERFORMANCETEST
-            rc = gettimeofday(&(serverPerformance.tv_end[4]), NULL);
-            serverPerformance.npoints = 6;
-            strcpy(serverPerformance.label[5],"#5: Server Side Processing");
-            rc = gettimeofday(&(serverPerformance.tv_start[5]), NULL);
-#endif
-
 //------------------------------------------------------------------------------------------------
 // Server-Side Data Processing
 
@@ -429,13 +387,6 @@ int idamLegacyServer(CLIENT_BLOCK client_block)
                     break;
                 }
             }
-
-#ifdef PERFORMANCETEST
-            rc = gettimeofday(&(serverPerformance.tv_end[5]), NULL);
-            serverPerformance.npoints = 7;
-            strcpy(serverPerformance.label[6],"#6: Read Configuration Data");
-            rc = gettimeofday(&(serverPerformance.tv_start[6]), NULL);
-#endif
 
 //------------------------------------------------------------------------------------------------
 // Read Additional Meta Data
@@ -462,14 +413,6 @@ int idamLegacyServer(CLIENT_BLOCK client_block)
                 }
             }
 #endif
-
-#ifdef PERFORMANCETEST
-            rc = gettimeofday(&serverPerformance.tv_end[6], NULL);
-            serverPerformance2.npoints = 2;
-            strcpy(serverPerformance2.label[1],"#1: Gap - Error Trap Transition");
-            rc = gettimeofday(&(serverPerformance2.tv_start[1]), NULL);
-#endif
-
 
 //----------------------------------------------------------------------------
 // Check the Client can receive the data type: Version dependent
@@ -514,30 +457,18 @@ int idamLegacyServer(CLIENT_BLOCK client_block)
         do {
             IDAM_LOG(LOG_DEBUG, "Start of Server Error Trap #2 Loop\n");
 
-#ifdef PERFORMANCETEST
-            serverPerformance.npoints = 8;
-            strcpy(serverPerformance.label[7],"#7: Return Status to Client");
-            rc = gettimeofday(&(serverPerformance.tv_start[7]), NULL);
-
-            rc = gettimeofday(&(serverPerformance2.tv_end[1]), NULL);
-#endif
-
-
 //----------------------------------------------------------------------------
 // Send Server Error State
 
-            concatIdamError(idamerrorstack,
-                            &server_block.idamerrorstack);        // Update Server State with Error Stack
+            concatIdamError(idamerrorstack, &server_block.idamerrorstack); // Update Server State with Error Stack
             closeIdamError(&idamerrorstack);
 
             printServerBlock(server_block);
 
-#ifndef ERRORSTACK
             if(server_block.idamerrorstack.nerrors > 0) {
                 server_block.error = server_block.idamerrorstack.idamerror[0].code;
-                strcpy(server_block.msg,server_block.idamerrorstack.idamerror[0].msg);
+                strcpy(server_block.msg, server_block.idamerrorstack.idamerror[0].msg);
             }
-#endif
 
             protocol_id = PROTOCOL_SERVER_BLOCK;
 
@@ -559,13 +490,6 @@ int idamLegacyServer(CLIENT_BLOCK client_block)
             }
 
             IDAM_LOG(LOG_DEBUG, "Server Block Sent to Client\n");
-
-#ifdef PERFORMANCETEST
-            rc = gettimeofday(&(serverPerformance.tv_end[7]), NULL);
-            serverPerformance.npoints = 9;
-            strcpy(serverPerformance.label[8],"#8: Return Meta Data to Client");
-            rc = gettimeofday(&(serverPerformance.tv_start[8]), NULL);
-#endif
 
 //----------------------------------------------------------------------------
 // Return Database Meta Data if User Requests it
@@ -663,16 +587,9 @@ int idamLegacyServer(CLIENT_BLOCK client_block)
                 break;
             }
 
-            rc = (int) xdrrec_eof(serverInput);
+            rc = xdrrec_eof(serverInput);
             IDAM_LOGF(LOG_DEBUG, "Next Protocol %d Received\n", next_protocol);
             IDAM_LOGF(LOG_DEBUG, "XDR #E xdrrec_eof ? %d\n", rc);
-
-#ifdef PERFORMANCETEST
-            rc = gettimeofday(&(serverPerformance.tv_end[8]), NULL);
-            serverPerformance.npoints = 10;
-            strcpy(serverPerformance.label[9],"#9: Return Data to Client");
-            rc = gettimeofday(&(serverPerformance.tv_start[9]), NULL);
-#endif
 
 //----------------------------------------------------------------------------
 // Send the Data
@@ -695,13 +612,6 @@ int idamLegacyServer(CLIENT_BLOCK client_block)
             }
 
             IDAM_LOG(LOG_DEBUG, "Data Block Sent to Client\n");
-
-#ifdef PERFORMANCETEST
-            rc = gettimeofday(&serverPerformance.tv_end[9], NULL);
-            serverPerformance.npoints = 11;
-            strcpy(serverPerformance.label[10],"#10: Return Hierarchical Data to Client");
-            rc = gettimeofday(&(serverPerformance.tv_start[10]), NULL);
-#endif
 
 //------------------------------------------------------------------------------
 // Clear Output Buffer (check - it should be empty!) and receive Next Protocol
@@ -751,14 +661,6 @@ int idamLegacyServer(CLIENT_BLOCK client_block)
                 IDAM_LOG(LOG_DEBUG, "Hierarchical Data Structure sent to Client\n");
             }
 
-#ifdef PERFORMANCETEST
-            rc = gettimeofday(&serverPerformance.tv_end[10], NULL);
-
-            serverPerformance2.npoints = 3;
-            strcpy(serverPerformance2.label[2],"#2: Gap - Final Protocol");
-            rc = gettimeofday(&(serverPerformance2.tv_start[2]), NULL);
-#endif
-
 //----------------------------------------------------------------------------
 // End of Error Trap #2
 
@@ -769,9 +671,7 @@ int idamLegacyServer(CLIENT_BLOCK client_block)
 //----------------------------------------------------------------------
 // Complete & Write the Access Log Record
 
-#ifdef ACCESSLOG
         idamAccessLog(0, client_block, request_block, server_block, data_block);
-#endif
 
 //----------------------------------------------------------------------------
 // Server Shutdown ? Next Instruction from Client
@@ -802,14 +702,6 @@ int idamLegacyServer(CLIENT_BLOCK client_block)
         if (next_protocol == PROTOCOL_SLEEP) IDAM_LOG(LOG_DEBUG, "Client Requests Server Sleep\n");
         if (next_protocol == PROTOCOL_WAKE_UP) IDAM_LOG(LOG_DEBUG, "Client Requests Server Wake-up\n");
 
-#ifdef PERFORMANCETEST
-        rc = gettimeofday(&serverPerformance2.tv_end[2], NULL);
-
-        serverPerformance2.npoints = 4;
-        strcpy(serverPerformance2.label[3],"#3: Gap - House keeping");
-        rc = gettimeofday(&(serverPerformance2.tv_start[3]), NULL);
-#endif
-
 //----------------------------------------------------------------------------
 // Free Data Block Heap Memory
 
@@ -821,15 +713,6 @@ int idamLegacyServer(CLIENT_BLOCK client_block)
 
         IDAM_LOG(LOG_DEBUG, "freeActions\n");
         freeActions(&actions_sig);
-
-#ifdef PERFORMANCETEST
-        rc = gettimeofday(&serverPerformance.tv_end[1], NULL);
-        rc = gettimeofday(&(serverPerformance2.tv_end[3]), NULL);
-        if(debugon) {
-            printPerformance(dbgout,serverPerformance);
-            printPerformance(dbgout,serverPerformance2);
-        }
-#endif
 
 //----------------------------------------------------------------------------
 // Free Name Value pair
@@ -881,9 +764,7 @@ int idamLegacyServer(CLIENT_BLOCK client_block)
 //----------------------------------------------------------------------------
 // Free Structure Definition List (don't free the structure as stack variable)
 
-#ifdef GENERALSTRUCTS
     freeUserDefinedTypeList(&parseduserdefinedtypelist);
-#endif
 
 //----------------------------------------------------------------------------
 // Free Plugin List and Close all open library entries
@@ -901,13 +782,6 @@ int idamLegacyServer(CLIENT_BLOCK client_block)
 // Close the Socket Connections to Other Data Servers
 
     closeServerSockets(&server_socketlist);
-
-//----------------------------------------------------------------------------
-// Close Open Data Source Files
-
-#ifdef FILELISTTEST
-    closeIdamFiles(&idamfilelist);
-#endif
 
 //----------------------------------------------------------------------------
 // Write the Error Log Record & Free Error Stack Heap

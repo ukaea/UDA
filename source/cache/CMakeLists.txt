@@ -22,16 +22,6 @@ else()
   add_definitions( -DNOLIBMEMCACHED )
 endif()
 
-add_definitions( -DCOMPRESSOFF )
-add_definitions( -DOSTYPE=linux )
-add_definitions( -DISCOMPLIANT )
-add_definitions( -D_GNU_SOURCE )
-add_definitions( -DSINGLEPACKET )
-add_definitions( -DGENERALSTRUCTS )
-add_definitions( -DDGMJUL14 )
-add_definitions( -DCLEANNAMESPACE25SEP14 )
-add_definitions( -DFILECACHE )
-
 add_library( cache OBJECT ${SRC_FILES} )
 
 if( LIBMEMCACHED_FOUND )

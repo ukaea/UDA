@@ -106,7 +106,7 @@ int execute_xpath_expression(const char* filename, const xmlChar* xpathExpr, DAT
         fprintf(stderr, "Error: unable to evaluate xpath expression \"%s\"\n", xpathExpr);
         xmlXPathFreeContext(xpathCtx);
         xmlFreeDoc(doc);
-        return (-1);
+        return -1;
     }
 
     xmlNodeSetPtr nodes = xpathObj->nodesetval;
@@ -119,7 +119,7 @@ int execute_xpath_expression(const char* filename, const xmlChar* xpathExpr, DAT
         fprintf(stderr, "ts_xml plugin : error in XPath request  \n");
         xmlXPathFreeContext(xpathCtx);
         xmlFreeDoc(doc);
-        return (-1);
+        return -1;
     }
 
     nodes = xpathObj->nodesetval;
@@ -130,7 +130,7 @@ int execute_xpath_expression(const char* filename, const xmlChar* xpathExpr, DAT
         fprintf(stderr, "Error: null pointer (nodes->nodeTab[nodeindex]->name) \n");
         xmlXPathFreeContext(xpathCtx);
         xmlFreeDoc(doc);
-        return (-1);
+        return -1;
     }
 
     data_block->rank = 1;

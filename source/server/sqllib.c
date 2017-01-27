@@ -1751,7 +1751,7 @@ int sqlComposite(PGconn* DBConnect, char* originalSignal, int exp_number, SIGNAL
     PQclear(DBQuery);
     if (signal != NULL) free((void*) signal);
 
-    return (1);
+    return 1;
 }
 
 
@@ -1884,7 +1884,7 @@ int sqlArchive(PGconn* DBConnect, char* archive, DATA_SOURCE* data_source_str)
     strcpy(data_source_str->format, "SQL");
     strcpy(data_source_str->filename, "CMData");
 
-    return (1);
+    return 1;
 }
 
 //-------------------------------------------------------------------------------------------------------------
@@ -2544,7 +2544,7 @@ int sqlLatestPass(PGconn* DBConnect, char* source_alias, char type, int exp_numb
 
     PQclear(DBQuery);
 
-    return (1);
+    return 1;
 }
 
 
@@ -2609,7 +2609,7 @@ int sqlLatestPassx(PGconn* DBConnect, char* signal, int exp_number, char* maxpas
 
     PQclear(DBQuery);
 
-    return (1);
+    return 1;
 }
 
 
@@ -2972,7 +2972,7 @@ int sqlAltData(PGconn* DBConnect, REQUEST_BLOCK request_block, int rank, SIGNAL_
             strcpy(signal_desc->signal_name,
                    request_block.signal);    // Alias or Generic have no context wrt private files
             if (signal != NULL) free((void*) signal);
-            return (1);
+            return 1;
         }
 
 // Identify the Data Source Alias
@@ -3019,7 +3019,7 @@ int sqlAltData(PGconn* DBConnect, REQUEST_BLOCK request_block, int rank, SIGNAL_
         if (signal != NULL) free((void*) signal);
     }
 
-    return (1);
+    return 1;
 }
 
 //int sqlMapData(PGconn *DBConnect, int signal_map_id, int exp_number, SIGNAL_DESC *signal_desc){

@@ -157,21 +157,6 @@ int readIda3Plugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
         errno = 0;
 
-#ifdef FILELISTTEST
-        if((ida_file_id=(ida_file_ptr *)getOpenIdamFile(&idamfilelist, REQUEST_READ_IDA, ida_path)) == NULL){
-
-           if ((ida_file_id = ida_open(ida_path, IDA_READ, NULL)) == NULL || errno != 0) {
-          serrno = errno;
-          err = IDA_ERROR_OPENING_FILE;
-          if(serrno != 0) addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "readIDA2", serrno, "");
-              ida_error_mess(ida_error(ida_file_id), ida_errmsg);
-          addIdamError(&idamerrorstack, CODEERRORTYPE, "readIDA2", err, ida_errmsg);
-              //int sys_err = ida_system_error(ida_file_id);
-              break;
-           }
-       addIdamFile(&idamfilelist, REQUEST_READ_IDA, ida_path, (void *)ida_file_id);		// Register the File Handle
-        }
-#else
         ida_file_id = ida_open(ida_path, IDA_READ, NULL);
         serrno = errno;
         if (ida_file_id == NULL || errno != 0) {
@@ -181,7 +166,6 @@ int readIda3Plugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             addIdamError(&idamerrorstack, CODEERRORTYPE, "readIDA2", err, ida_errmsg);
             break;
         }
-#endif
 
 //----------------------------------------------------------------------
 // Fetch the Data
@@ -211,7 +195,6 @@ int readIda3Plugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Close IDA File
 
-#ifndef FILELISTTEST
     rc = ida_close(ida_file_id);
 
     if (rc != 0) {
@@ -219,7 +202,6 @@ int readIda3Plugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         addIdamError(&idamerrorstack, CODEERRORTYPE, "readIDA2", 1, "Problem Closing IDA File");
         addIdamError(&idamerrorstack, CODEERRORTYPE, "readIDA2", 1, ida_errmsg);
     }
-#endif
 
     return err;
 }

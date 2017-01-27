@@ -783,7 +783,7 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, void* str)
                         err = PROTOCOL_ERROR_5;
                         break;
                     }
-#ifdef ERRORSTACK
+
                     closeIdamError(&server_block->idamerrorstack);    // Free Heap associated with Previous Data Access
 
                     if (!xdr_server1(xdrs, server_block)) {
@@ -803,16 +803,9 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, void* str)
                         }
                     }
 
-#else
-                if(!(rc = xdr_server(xdrs, server_block))) {
-                    err = PROTOCOL_ERROR_22;
-                    break;
-                }
-#endif
                     break;
 
                 case XDR_SEND:
-#ifdef ERRORSTACK
                     if (!xdr_server1(xdrs, server_block)) {
                         err = PROTOCOL_ERROR_22;
                         break;
@@ -824,12 +817,7 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, void* str)
                             break;
                         }
                     }
-#else
-                if(!(rc = xdr_server(xdrs, server_block))) {
-                    err = PROTOCOL_ERROR_22;
-                    break;
-                }
-#endif
+
                     if (!xdrrec_endofrecord(xdrs, 1)) {
                         err = PROTOCOL_ERROR_7;
                         break;

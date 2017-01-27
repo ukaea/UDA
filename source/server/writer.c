@@ -49,7 +49,7 @@ int Writeout(void* iohandle, char* buf, int count)
         if (server_tot_block_time / 1000 > server_timeout) {
             IDAM_LOGF(LOG_DEBUG, "Writeout: Total Blocking Time: %d (ms)\n", server_tot_block_time);
         }
-        if (server_tot_block_time / 1000 > server_timeout) return (-1);
+        if (server_tot_block_time / 1000 > server_timeout) return -1;
         updateSelectParms(serverSocket, &wfds, &tv);
     }
 
@@ -106,7 +106,7 @@ int Readin(void* iohandle, char* buf, int count)
             IDAM_LOGF(LOG_DEBUG, "Readin: Total Wait Time Exceeds Lifetime Limit = %d (ms)\n", server_timeout * 1000);
         }
 
-        if (server_tot_block_time > 1000 * server_timeout) return (-1);
+        if (server_tot_block_time > 1000 * server_timeout) return -1;
 
         updateSelectParms(serverSocket, &rfds, &tv);        // Keep trying ...
         tvc = tv;

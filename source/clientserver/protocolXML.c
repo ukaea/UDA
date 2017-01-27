@@ -106,16 +106,10 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, void* str
     char* env = NULL;
 
     if ((privateFlags & PRIVATEFLAG_XDRFILE) && protocolVersion >= 5) {
-#ifdef FILECACHE
-        if (privateFlags & PRIVATEFLAG_CACHE)
-            env = getenv("IDAM_CACHE_DIR");    // Use a specific directory to cache XDR files
-        else
-            env = getenv("IDAM_WORK_DIR");        // Use a general work area directory for temporary XDR files
-#else
-        if((env = getenv("IDAM_WORK_DIR")) != NULL)
-#endif
-
-        if (env != NULL) sprintf(tempFile, "%s/idamXDRXXXXXX", env);    // File to record XDR encoded data
+        if((env = getenv("IDAM_WORK_DIR")) != NULL) {
+            // File to record XDR encoded data
+            sprintf(tempFile, "%s/idamXDRXXXXXX", env);
+        }
     }
 
 //----------------------------------------------------------------------------
@@ -140,7 +134,6 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, void* str
 //----------------------------------------------------------------------------
 // Generalised User Defined Data Structures
 
-#ifdef GENERALSTRUCTS
         if (protocol_id == PROTOCOL_STRUCTURES) {
 
             void* data = NULL;
@@ -186,7 +179,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, void* str
 
                     rc = 1;
 
-#  ifndef FATCLIENT
+#ifndef FATCLIENT
 
                     // If access is server to server then avoid multiple write/reads of structure components over xdr by creating a
                     // temporary xdr file and passing the file. Structures need only be created in the originating client, not the
@@ -239,7 +232,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, void* str
                         rc = rc && xdrrec_endofrecord(xdrs, 1);
 
                     }
-#  endif
+#endif
 
                     rc = rc && xdr_userdefinedtypelist(xdrs,
                                                        userdefinedtypelist);        // send the full set of known named structures
@@ -257,7 +250,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, void* str
                         break;
                     }
 
-#  ifndef FATCLIENT
+#ifndef FATCLIENT
 
                     if ((privateFlags & PRIVATEFLAG_XDRFILE) &&
                         protocolVersion >= 5) {        // Server calling another server
@@ -270,13 +263,13 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, void* str
 // Create the XDR Record Streams
 
 
-#    ifdef SERVERBUILD
+#  ifdef SERVERBUILD
                         CreateXDRStream();
                         xdrs = serverOutput;
-#    else
+#  else
                         idamCreateXDRStream();
                         xdrs = clientOutput;
-#    endif
+#  endif
                         XDRstdioFlag = 0;
 
 // Send the Temporary File
@@ -284,25 +277,11 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, void* str
                         idamLog(LOG_DEBUG, "protocolXML: sending temporary XDR file\n");
 
                         err = sendXDRFile(xdrs, tempFile);        // Read and send
-
-#    ifdef FILECACHE
-
-// Write cache file metadata
-
-                        char* p = strrchr(tempFile, '/');
-                        if (err == 0) rc = idamClientWriteCache(&p[1]);
-
-                        if (err != 0 || rc != 0) remove(tempFile);    // bad file!
-#    else
-
-                        // Remove the Temporary File (regardless of success or otherwise of the send)
-                        
-                                                remove(tempFile);
-#    endif
+                        remove(tempFile);
 
                         if (err != 0) break;
                     }
-#  endif // !FATCLIENT
+#endif // !FATCLIENT
 
 //======================================================================================================================
 
@@ -321,19 +300,19 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, void* str
 
                     int option = 4;
 
-#  ifndef FATCLIENT
+#ifndef FATCLIENT
                     idamLog(LOG_DEBUG, "protocolXML: Receiving Package Type\n");
 
                     rc = xdrrec_skiprecord(xdrs);
                     rc = rc && xdr_int(xdrs, &packageType);        // Receive data package type
-#  else
+#else
                     rc = 1;
 
                     if (privateFlags & PRIVATEFLAG_XDRFILE)
                         packageType = PACKAGE_XDRFILE;
                     else
                         packageType = PACKAGE_STRUCTDATA;
-#  endif
+#endif
 
                     if ((privateFlags & PRIVATEFLAG_XDRFILE) == 0 && packageType == PACKAGE_STRUCTDATA) option = 1;
                     if ((privateFlags & PRIVATEFLAG_XDRFILE) == 0 && packageType == PACKAGE_XDRFILE &&
@@ -398,7 +377,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, void* str
 
                         idamLog(LOG_DEBUG, "protocolXML: xdr_userdefinedtypelist #A\n");
 
-#  ifndef FATCLIENT
+#ifndef FATCLIENT
                         idamLog(LOG_DEBUG, "protocolXML: privateFlags   : %d \n", privateFlags);
                         idamLog(LOG_DEBUG, "protocolXML: protocolVersion: %d \n", protocolVersion);
 
@@ -423,14 +402,6 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, void* str
 
                             err = receiveXDRFile(xdrs, tempFile);        // Receive and write
 
-#    ifdef FILECACHE
-
-// Write cache file metadata
-
-                            char * p = strrchr(tempFile, '/');
-                            if (err == 0) rc = idamClientWriteCache(&p[1]);
-#    endif
-
 // Create input xdr file stream
 
                             if ((xdrfile = fopen(tempFile, "rb")) == NULL) {    // Read temporary file
@@ -446,7 +417,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, void* str
                             xdrs = &XDRInput;                        // Switch from stream to file
 
                         }
-#  endif // !FATCLIENT
+#endif // !FATCLIENT
 
                         rc = rc && xdr_userdefinedtypelist(xdrs,
                                                            userdefinedtypelist);        // receive the full set of known named structures
@@ -472,7 +443,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, void* str
                             break;
                         }
 
-#  ifndef FATCLIENT
+#ifndef FATCLIENT
 
                         if (option == 2) {
 
@@ -485,24 +456,18 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, void* str
 
                             //xdrs = priorxdrs;
 
-#    ifdef SERVERBUILD
+#  ifdef SERVERBUILD
                             CreateXDRStream();
                             xdrs = serverInput;
-#    else
+#  else
                             idamCreateXDRStream();
                             xdrs = clientInput;
-#    endif
+#  endif
                             XDRstdioFlag = 0;
-
-#    ifndef FILECACHE
-
-                            // Remove the Temporary File
-                            
-                                                        remove(tempFile);
-#    endif
+                            remove(tempFile);
 
                         }
-#  endif // !FATCLIENT
+#endif // !FATCLIENT
 
                         if (!strcmp(udt_received->name, "SARRAY")) {            // expecting this carrier structure
 
@@ -531,7 +496,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, void* str
                     }
                 }
 
-#  ifdef FATCLIENT
+#ifdef FATCLIENT
 
                 } else {
                     err = 999;
@@ -540,7 +505,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, void* str
                 }
             }
 
-#  else
+#else
 
                 //====================================================================================================================
                 // Passing temporary XDR files: server to server (protocolVersion >= 5 is TRUE && packageType == PACKAGE_XDRFILE)
@@ -635,27 +600,15 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, void* str
                             fflush(xdrfile);
                             fclose(xdrfile);
 
-#    ifdef SERVERBUILD
+#  ifdef SERVERBUILD
                             CreateXDRStream();
                             xdrs = serverInput;
-#    else
+#  else
                             idamCreateXDRStream();
                             xdrs = clientInput;
-#    endif
+#  endif
                             XDRstdioFlag = 0;
-
-#    ifdef FILECACHE
-
-                            // Write cache file metadata
-                            char * p = strrchr(tempFile, '/');
-                            rc = idamClientWriteCache(&p[1]);
-                            if (rc != 0) remove(tempFile);    // bad file!
-#    else
-
-                            // Remove the Temporary File
-                    
-                                                        remove(tempFile);
-#    endif
+                            remove(tempFile);
 
                             // Regular client or server
 
@@ -693,8 +646,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, void* str
                 }
             }
         }
-#  endif // !FATCLIENT
-#endif // GENERALSTRUCTS
+#endif // !FATCLIENT
 
 //----------------------------------------------------------------------------
 // Meta Data XML

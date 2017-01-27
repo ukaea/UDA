@@ -1109,18 +1109,16 @@ int readerCDF4(DATA_SOURCE* data_source, SIGNAL_DESC* signal_desc, REQUEST_BLOCK
                     dextent[i] = extent[i];
                 }
 
-            } else drank = 1;
+            } else {
+                drank = 1;
+            }
 
-
-
-// Disable until efit++ compliant
-#ifndef ISCOMPLIANT
             if (compliance && drank > 1) {        // Only accept this if non-compliant file
                 err = 999;
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF", err, "Coordinate Array has Rank > 1!");
                 break;
             }
-#endif
+
             isCoordinate = 1;
 
             cgrouplist.grpid = cgrpid;

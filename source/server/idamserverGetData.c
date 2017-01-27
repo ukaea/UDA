@@ -1024,7 +1024,7 @@ int idamserverReadData(PGconn* DBConnect, REQUEST_BLOCK request_block, CLIENT_BL
             strcpy(data_source->format, request_block.format);
             strcpy(data_source->path, request_block.path);
             strcpy(data_source->filename, request_block.file);
-            return (-1);
+            return -1;
         }
     }
 #endif
@@ -1258,7 +1258,7 @@ int idamserverReadData(PGconn* DBConnect, REQUEST_BLOCK request_block, CLIENT_BL
 
 // Composite or Derived? - Need to Parse XML to Identify the True Signal before re-reading data
 
-        if (signal_desc->type == 'C') return (-1);
+        if (signal_desc->type == 'C') return -1;
 
 // Plugin? Create a new Request Block to identify the request_id
 
@@ -1342,7 +1342,7 @@ int idamserverReadData(PGconn* DBConnect, REQUEST_BLOCK request_block, CLIENT_BL
             return err;
         }
         signal_desc->type = 'C';
-        return (-1);
+        return -1;
     }
 
 

@@ -266,7 +266,7 @@ int xdatainterval(int rank, int order, int ndata, int* shape, float* dim,
 
     if (order < 0) {
         idamLog(LOG_ERROR, "Error: Unable to locate a time interval - there is no time vector for this data!\n");
-        return (1);
+        return 1;
     }
 
     if (order == 0) {

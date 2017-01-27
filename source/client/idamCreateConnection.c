@@ -54,7 +54,7 @@ int idamCreateConnection()
         } else {
             addIdamError(&idamerrorstack, CODEERRORTYPE, "idamCreateConnection", -1, "Problem Opening Socket");
         }
-        return (-1);
+        return -1;
     }
 
 // IDAM server host
@@ -80,7 +80,7 @@ int idamCreateConnection()
         if (clientSocket != -1) closesocket(clientSocket);
 #endif
         clientSocket = -1;
-        return (-1);
+        return -1;
     }
 
     memcpy(&server.sin_addr, host->h_addr, host->h_length);
@@ -130,7 +130,7 @@ int idamCreateConnection()
                 }
                 if (clientSocket != -1) close(clientSocket);
                 clientSocket = -1;
-                return (-1);
+                return -1;
             }
             memcpy(&server.sin_addr, host->h_addr, host->h_length);
             server.sin_port = htons(environment.server_port2);
@@ -165,7 +165,7 @@ int idamCreateConnection()
             }
             if (clientSocket != -1) close(clientSocket);
             clientSocket = -1;
-            return (-1);
+            return -1;
         }
     }
 
@@ -184,14 +184,14 @@ int idamCreateConnection()
         addIdamError(&idamerrorstack, CODEERRORTYPE, "idamCreateConnection", -1, "Error Setting KEEPALIVE on Socket");
         close(clientSocket);
         clientSocket = -1;
-        return (-1);
+        return -1;
     }
     on = 1;
     if (setsockopt(clientSocket, IPPROTO_TCP, TCP_NODELAY, (char*) &on, sizeof(on)) < 0) {
         addIdamError(&idamerrorstack, CODEERRORTYPE, "idamCreateConnection", -1, "Error Setting NODELAY on Socket");
         close(clientSocket);
         clientSocket = -1;
-        return (-1);
+        return -1;
     }
 
 // Add New Socket to the Socket's List

@@ -665,7 +665,7 @@ bool_t xdr_data_block2(XDR* xdrs, DATA_BLOCK* str)
 // General Data structures are passed using a specialised set of xdr components
 
         case TYPE_COMPOUND :
-            return (1);    // Nothing to send so retain good return code
+            return 1;    // Nothing to send so retain good return code
 
         default:
             return 0;
@@ -723,14 +723,14 @@ bool_t xdr_data_block3(XDR* xdrs, DATA_BLOCK* str)
             return (xdr_vector(xdrs, str->errhi, 2 * (u_int)str->data_n, sizeof(float), (xdrproc_t) xdr_float));
 
         default:
-            return (1);
+            return 1;
     }
 }
 
 bool_t xdr_data_block4(XDR* xdrs, DATA_BLOCK* str)
 {
 
-    if (!str->errasymmetry) return (1);    // Nothing New to Pass or Receive (same as errhi!)
+    if (!str->errasymmetry) return 1;    // Nothing New to Pass or Receive (same as errhi!)
 
 // Asymmetric Data Errors
 
@@ -1224,7 +1224,7 @@ bool_t xdr_data_dim2(XDR* xdrs, DATA_BLOCK* str)
         }
     }
 
-    return (1);
+    return 1;
 }
 
 bool_t xdr_data_dim3(XDR* xdrs, DATA_BLOCK* str)
@@ -1306,7 +1306,7 @@ bool_t xdr_data_dim3(XDR* xdrs, DATA_BLOCK* str)
         if (!(arc = arc && rc)) return 0;
     }
 
-    return (1);
+    return 1;
 }
 
 
@@ -1386,7 +1386,7 @@ bool_t xdr_data_dim4(XDR* xdrs, DATA_BLOCK* str)
         }
     }
 
-    return (1);
+    return 1;
 }
 
 

@@ -2,16 +2,15 @@
 // Accessor Functions to General/Arbitrary Data Structures
 //----------------------------------------------------------------
 
-#ifdef GENERALSTRUCTS
-
-#include <accessors.h>
 #include <structures/struct.h>
 #include <include/idamclientserver.h>
+#include <structures/accessors.h>
+
 #include "accAPI_Gen.h"
 #include "accAPI_C.h"
 
 #ifdef FATCLIENT
-#  include "idamserver.h"
+#  include <include/idamserver.h>
 #endif
 
 // Set the Data Tree Global Pointer to a specific data tree
@@ -58,5 +57,3 @@ NTREE * findIdamNTreeStructureDefinition(NTREE * node, const char * target)
 {
     return findNTreeStructureDefinition(node, target);
 }
-
-#endif
