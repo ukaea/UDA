@@ -82,3 +82,34 @@ option( NO_WRAPPERS "Don't build any IDAM client wrappers" OFF )
 
 add_subdirectory( source )
 #add_subdirectory( test )
+
+########################################################################################################################
+# Package creations
+
+include( InstallRequiredSystemLibraries )
+
+set( CPACK_PACKAGE_DESCRIPTION_SUMMARY "Universal Data Access library" )
+set( CPACK_PACKAGE_VENDOR "ITER" )
+set( CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/README.md" )
+set( CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/Copyright.txt" )
+set( CPACK_PACKAGE_VERSION_MAJOR "${PROJECT_VERSION_MAJOR}" )
+set( CPACK_PACKAGE_VERSION_MINOR "${PROJECT_VERSION_MINOR}" )
+set( CPACK_PACKAGE_VERSION_PATCH "${PROJECT_VERSION_PATCH}" )
+set( CPACK_PACKAGE_INSTALL_DIRECTORY "CMake ${CMAKE_VERSION_MAJOR}.${CMAKE_VERSION_MINOR}" )
+if( WIN32 AND NOT UNIX )
+  # There is a bug in NSI that does not handle full unix paths properly. Make
+  # sure there is at least one set of four (4) backlasshes.
+  set( CPACK_PACKAGE_ICON "${CMAKE_SOURCE_DIR}/Utilities/Release\\\\InstallIcon.bmp" )
+  set( CPACK_NSIS_INSTALLED_ICON_NAME "bin\\\\uda_server.exe" )
+  set( CPACK_NSIS_DISPLAY_NAME "${CPACK_PACKAGE_INSTALL_DIRECTORY} Universal Data Access" )
+  set( CPACK_NSIS_HELP_LINK "http:\\\\\\\\www.iter.org/uda.html" )
+  set( CPACK_NSIS_URL_INFO_ABOUT "http:\\\\\\\\www.iter.org/uda.html" )
+  set( CPACK_NSIS_CONTACT "Jonathan.Hollocombe@iter.org" )
+  set( CPACK_NSIS_MODIFY_PATH ON )
+else( WIN32 AND NOT UNIX )
+  set( CPACK_STRIP_FILES "bin/uda_server" )
+  set( CPACK_SOURCE_STRIP_FILES "" )
+endif( WIN32 AND NOT UNIX )
+set( CPACK_PACKAGE_EXECUTABLES "uda_server" "UDA Server" )
+
+include( CPack )

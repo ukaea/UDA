@@ -222,12 +222,12 @@ install(
 
 install(
   DIRECTORY
-    ${CMAKE_CURRENT_BINARY_DIR}/plugins.d
+    ${CMAKE_BINARY_DIR}/plugins.d
   DESTINATION etc
 )
 
 install(
   FILES
   ${CMAKE_CURRENT_BINARY_DIR}/idamgenstruct.conf
-  DESTINATION bin/plugins
+  DESTINATION lib/plugins
 )

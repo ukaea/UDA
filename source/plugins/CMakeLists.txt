@@ -17,7 +17,7 @@ install(
     ${CMAKE_CURRENT_BINARY_DIR}/idamPlugins.conf
     ${CMAKE_CURRENT_BINARY_DIR}/test_plugin.cpp
   DESTINATION
-    bin/plugins
+    etc/plugins
 )
 
 file( MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/server/plugins.d" )
