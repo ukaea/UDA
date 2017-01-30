@@ -58,7 +58,7 @@ macro( idam_plugin )
   if( FAT_BUILD )
     target_link_libraries( ${PLUGIN_LIBNAME} LINK_PUBLIC client-static server-static clientserver-static )
   else()
-    target_link_libraries( ${PLUGIN_LIBNAME} LINK_PUBLIC server-static )
+    target_link_libraries( ${PLUGIN_LIBNAME} LINK_PUBLIC server-static dl )
   endif()
   
   filter_lib_list( "${PLUGIN_EXTRA_LINK_LIBS}" FILTERED_LINK_LIBS debug optimized ) 

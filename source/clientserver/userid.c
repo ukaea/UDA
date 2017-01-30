@@ -24,7 +24,7 @@ void userid(char* uid)
         copyString(user, uid, STRING_LENGTH);
         return;
     } else
-#ifndef __APPLE__
+#if defined(cuserid)
         if((user = cuserid(NULL)) != NULL) {
             copyString(user, uid, STRING_LENGTH);
             return;

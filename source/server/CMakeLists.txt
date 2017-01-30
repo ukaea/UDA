@@ -68,16 +68,18 @@ add_library( server-shared SHARED
   $<TARGET_OBJECTS:server-objects>
   $<TARGET_OBJECTS:clientserver-server>
   $<TARGET_OBJECTS:serverlogging>
-  $<TARGET_OBJECTS:structures>
+  $<TARGET_OBJECTS:structures-server>
   $<TARGET_OBJECTS:security>
+  $<TARGET_OBJECTS:modules>
   )
 
 add_library( server-static STATIC
   $<TARGET_OBJECTS:server-objects>
   $<TARGET_OBJECTS:clientserver-server>
   $<TARGET_OBJECTS:serverlogging>
-  $<TARGET_OBJECTS:structures>
+  $<TARGET_OBJECTS:structures-server>
   $<TARGET_OBJECTS:security>
+  $<TARGET_OBJECTS:modules>
   )
 
 if( NOT FAT_BUILD )

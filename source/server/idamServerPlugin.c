@@ -17,7 +17,6 @@
 #include <modules/ida/parseIdaPath.h>
 #include <modules/registration/getPluginAddress.h>
 
-#include "struct.h"
 #include "makeServerRequestBlock.h"
 
 #define REQUEST_READ_START      1000

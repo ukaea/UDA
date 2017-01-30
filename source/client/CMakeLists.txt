@@ -13,6 +13,8 @@ if( NOT FAT_BUILD )
   add_definitions( -DCLIENTBUILD )
 endif()
 
+add_definitions( -DNO_GSL_LIB )
+
 ########################################################################################################################
 # Sources
 
@@ -64,7 +66,7 @@ else()
     $<TARGET_OBJECTS:server-objects>
     $<TARGET_OBJECTS:clientserver-server>
     $<TARGET_OBJECTS:serverlogging>
-    $<TARGET_OBJECTS:structures>
+    $<TARGET_OBJECTS:structures-client>
     $<TARGET_OBJECTS:security>
     $<TARGET_OBJECTS:modules>
     $<TARGET_OBJECTS:client>

@@ -10,10 +10,6 @@
 
 #include "struct.h"
 
-#ifdef SERVERBUILD
-#  include "idamServerStartup.h"
-#endif
-
 static int recursiveDepth = 0;    // Keep count of recursive calls
 
 int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data, int datacount, int structRank,

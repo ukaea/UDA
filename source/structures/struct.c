@@ -54,7 +54,7 @@
 #endif
 
 #ifdef SERVERBUILD
-#  include "idamServerStartup.h"
+#  include <include/idamserver.h>
 #endif
 
 //---------------------------------------------------------------------------------------------------
@@ -1090,7 +1090,6 @@ void copyUserDefinedType(USERDEFINEDTYPE* old, USERDEFINEDTYPE* anew)
 }
 
 #if defined(SERVERBUILD) || defined(FATCLIENT)
-
 /** Copy the Master User Defined Structure Definition List.
 *
 * @param anew The copy of the type definition list.

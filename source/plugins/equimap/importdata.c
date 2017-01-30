@@ -9,6 +9,7 @@
 #include <math.h>
 #include <float.h>
 #include <stdlib.h>
+#include <strings.h>
 
 #include <client/accAPI_C.h>
 #include <client/IdamAPI.h>

@@ -4,6 +4,8 @@
 #include <string.h>
 #include <ctype.h>
 
+#define strcasestr strstr
+
 // Reverse a String
 void reverseString(const char* in, char* out);
 

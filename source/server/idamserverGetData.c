@@ -6,6 +6,8 @@
 // Return Codes:	0 => OK, otherwise Error
 //
 //--------------------------------------------------------------------------------------------------------------------
+#include <errno.h>
+
 #include <clientserver/TrimString.h>
 #include <clientserver/initStructs.h>
 #include <clientserver/freeDataBlock.h>

@@ -1,7 +1,6 @@
 #ifndef IDAM_READHDF58_H
 #define IDAM_READHDF58_H
 
-#include <hdf5.h>
 #include <clientserver/idamStructs.h>
 
 int readHDF5(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK* data_block);
@@ -11,6 +10,8 @@ int readHDF5(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK* data_
 void H5Fclose(int fh);
 
 #else
+
+#include <hdf5.h>
 
 #define HDF5_ERROR_OPENING_FILE             200
 #define HDF5_ERROR_IDENTIFYING_DATA_ITEM    201

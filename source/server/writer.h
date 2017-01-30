@@ -2,6 +2,7 @@
 #define IDAM_SERVER_WRITER_H
 
 #include <unistd.h>
+#include <sys/select.h>
 
 #define MIN_BLOCK_TIME	1000
 #define MAX_BLOCK_TIME	10000

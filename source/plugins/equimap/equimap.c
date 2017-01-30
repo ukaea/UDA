@@ -19,6 +19,7 @@
 #include "equimap.h"
 
 #include <stdlib.h>
+#include <strings.h>
 
 #include <include/idamserver.h>
 #include <clientserver/initStructs.h>

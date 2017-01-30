@@ -9,6 +9,7 @@
 
 #include <math.h>
 #include <float.h>
+#include <errno.h>
 
 #include <logging/idamLog.h>
 #include <clientserver/printStructs.h>
@@ -21,8 +22,6 @@
 #include <clientserver/compressDim.h>
 #include <clientserver/TrimString.h>
 #include <clientserver/freeDataBlock.h>
-
-#include "struct.h"
 
 //----------------------------------------------------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------------------------------------------------

@@ -326,10 +326,9 @@ ToDo:
             } else if (isPosition) {
                 double* data = (double*) malloc(sizeof(double));
                 *data = 0.0;
-                int rc;
                 if (isFluxLoop) {
                     float* r = NULL, * z = NULL, * phi = NULL, aerr, rerr;
-                    rc = getfluxloop(&efit, objectId, &r, &z, &phi, &aerr, &rerr);
+                    getfluxloop(&efit, objectId, &r, &z, &phi, &aerr, &rerr);
                     if (isR) {
                         *data = (double) r[index];
                     } else if (isZ) {
@@ -339,7 +338,7 @@ ToDo:
                     }
                 } else if (isMagProbe) {
                     float r, z, phi, aerr, rerr;
-                    rc = getmagprobe(&efit, objectId, &r, &z, &phi, &aerr, &rerr);
+                    getmagprobe(&efit, objectId, &r, &z, &phi, &aerr, &rerr);
                     if (isR) {
                         *data = (double) r;
                     } else if (isZ) {

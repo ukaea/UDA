@@ -15,4 +15,7 @@ include_directories(
 ########################################################################################################################
 # Targets
 
-add_library( structures OBJECT ${SRC_FILES} )
+add_library( structures-server OBJECT ${SRC_FILES} )
+target_compile_definitions( structures-server PRIVATE -DSERVERBUILD )
+
+add_library( structures-client OBJECT ${SRC_FILES} )
