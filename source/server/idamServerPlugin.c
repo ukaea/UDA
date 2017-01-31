@@ -8,7 +8,7 @@
 #include <dlfcn.h>
 
 #include <clientserver/initStructs.h>
-#include <clientserver/TrimString.h>
+#include <clientserver/stringUtils.h>
 #include <clientserver/expand_path.h>
 #include <clientserver/printStructs.h>
 #include <structures/struct.h>

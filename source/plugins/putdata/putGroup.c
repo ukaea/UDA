@@ -3,7 +3,7 @@
 #include <netcdf.h>
 #include <stdlib.h>
 
-#include <clientserver/TrimString.h>
+#include <clientserver/stringUtils.h>
 
 #include "putOpenClose.h"
 

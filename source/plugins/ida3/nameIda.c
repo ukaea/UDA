@@ -10,7 +10,7 @@
 
 #include <stdio.h>
 
-#include <clientserver/TrimString.h>
+#include <clientserver/stringUtils.h>
 #include <logging/idamLog.h>
 
 #ifndef NOIDAPLUGIN

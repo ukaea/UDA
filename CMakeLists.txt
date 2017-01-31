@@ -63,6 +63,7 @@ set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC" )
 add_definitions(
   -DOSTYPE=${CMAKE_SYSTEM_NAME}
   -Wall
+  #-Wextra
   -Werror
 )
 

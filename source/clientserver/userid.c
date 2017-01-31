@@ -6,7 +6,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 
-#include "TrimString.h"
+#include "stringUtils.h"
 #include "idamDefines.h"
 
 void userid(char* uid)

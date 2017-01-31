@@ -9,7 +9,7 @@
 #include <include/idamserver.h>
 #include <clientserver/idamErrorLog.h>
 #include <logging/idamLog.h>
-#include <clientserver/TrimString.h>
+#include <clientserver/stringUtils.h>
 
 #include "readCDF4.h"
 

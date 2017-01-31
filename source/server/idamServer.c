@@ -779,7 +779,7 @@ extern int idamServer(int argc, char** argv)
 //----------------------------------------------------------------------
 // Write to the Access Log
 
-            idamAccessLog(TRUE, client_block, request_block, server_block, data_block);
+            idamAccessLog(TRUE, client_block, request_block, server_block);
 
 //----------------------------------------------------------------------
 // Initialise Data Structures
@@ -1325,7 +1325,7 @@ extern int idamServer(int argc, char** argv)
 //----------------------------------------------------------------------
 // Complete & Write the Access Log Record
 
-        idamAccessLog(FALSE, client_block, request_block, server_block, data_block);
+        idamAccessLog(FALSE, client_block, request_block, server_block);
 
 //----------------------------------------------------------------------------
 // Server Shutdown ? Next Instruction from Client

@@ -27,7 +27,7 @@
 #include <client/accAPI_C.h>
 #include <structures/struct.h>
 #include <structures/accessors.h>
-#include <clientserver/TrimString.h>
+#include <clientserver/stringUtils.h>
 #include <include/idamplugin.h>
 #include <clientserver/initStructs.h>
 

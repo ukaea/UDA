@@ -28,7 +28,7 @@
 #include <client/accAPI_C.h>
 #include <server/idamServerPlugin.h>
 #include <server/sqllib.h>
-#include <clientserver/TrimString.h>
+#include <clientserver/stringUtils.h>
 #include <clientserver/idamTypes.h>
 
 static int do_help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);

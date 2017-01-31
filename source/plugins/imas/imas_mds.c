@@ -32,7 +32,7 @@
 #include <include/idampluginfiles.h>
 #include <include/idamplugin.h>
 #include <clientserver/initStructs.h>
-#include <clientserver/TrimString.h>
+#include <clientserver/stringUtils.h>
 #include <clientserver/idamTypes.h>
 #include <clientserver/printStructs.h>
 #include <clientserver/copyStructs.h>

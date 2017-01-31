@@ -25,7 +25,7 @@
 int idamClientLockCache(FILE **db, short type);
 int idamClientCacheTimeValid(unsigned long long timestamp);
 int idamClientCacheLockedTimeValid(unsigned long long timestamp);
-int idamClientCacheFileValid(char *filename);
+int idamClientCacheFileValid(const char *filename);
 int idamClientGetCacheStats(FILE *db, unsigned long *recordCount, unsigned long *deadCount, unsigned long *endOffset, char csvChar);
 void idamClientUpdateCacheStats(FILE *db, unsigned long recordCount, unsigned long deadCount, unsigned long endOffset, char csvChar);
 int idamClientPurgeCache(FILE *db, unsigned long recordCount, unsigned long *endOffset);

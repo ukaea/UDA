@@ -28,7 +28,7 @@
 #include <include/idamclientserverprivate.h>
 #include <clientserver/idamErrorLog.h>
 #include <clientserver/initStructs.h>
-#include <clientserver/TrimString.h>
+#include <clientserver/stringUtils.h>
 #include <clientserver/idamTypes.h>
 
 //---------------------------------------------------------------------------------------------------------------

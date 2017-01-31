@@ -3,7 +3,7 @@
 #include <errno.h>
 #include <stdlib.h>
 #include <include/idamclientserverprivate.h>
-#include "TrimString.h"
+#include "stringUtils.h"
 #include "idamErrorLog.h"
 
 int idamParseOperation(SUBSET* sub)

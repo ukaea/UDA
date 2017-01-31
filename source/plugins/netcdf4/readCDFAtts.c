@@ -29,7 +29,7 @@
 
 #include "readCDF4.h"
 #include "idamErrorLog.h"
-#include "TrimString.h"
+#include "stringUtils.h"
 
 // Read Standard Variable Attributes
 

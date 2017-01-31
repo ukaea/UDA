@@ -19,7 +19,7 @@
 #include <clientserver/initStructs.h>
 #include <include/idammatlab.h>
 #include <clientserver/idamErrorLog.h>
-#include <clientserver/TrimString.h>
+#include <clientserver/stringUtils.h>
 #include <structures/struct.h>
 #include <include/idamclientserver.h>
 #include <clientserver/allocData.h>

@@ -142,7 +142,7 @@ Change History
 
 #include <time.h>
 #include <openssl/sha.h>
-#include <TrimString.h>
+#include <stringUtils.h>
 #include <managePluginFiles.h>
 #include <unistd.h>
 

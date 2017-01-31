@@ -32,7 +32,7 @@
 
 #include <idamErrorLog.h>
 #include <initStructs.h>
-#include <TrimString.h>
+#include <stringUtils.h>
 #include <managePluginFiles.h>
 #include <makeServerRequestBlock.h>
 #include <accAPI_C.h>

@@ -37,7 +37,7 @@
 #include <server/managePluginFiles.h>
 #include <structures/struct.h>
 #include <clientserver/initStructs.h>
-#include <clientserver/TrimString.h>
+#include <clientserver/stringUtils.h>
 
 #include "netCDF4.h"
 #include "readCDFAtts.h"

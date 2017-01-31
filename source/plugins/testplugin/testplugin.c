@@ -28,7 +28,7 @@
 #include <clientserver/initStructs.h>
 #include <structures/struct.h>
 #include <server/makeServerRequestBlock.h>
-#include <clientserver/TrimString.h>
+#include <clientserver/stringUtils.h>
 
 #ifdef PUTDATAENABLED
 #  include <structures/accessors.h>

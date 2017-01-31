@@ -19,7 +19,7 @@
 #include <logging/idamLog.h>
 #include <clientserver/idamTypes.h>
 #include <include/idamclientserverprivate.h>
-#include "TrimString.h"
+#include "stringUtils.h"
 #include "parseOperation.h"
 #include "idamErrorLog.h"
 

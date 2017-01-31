@@ -11,7 +11,7 @@
 #include <logging/idamLog.h>
 #include <stdlib.h>
 #include <include/idamclientserverprivate.h>
-#include "TrimString.h"
+#include "stringUtils.h"
 
 IDAMERRORSTACK idamerrorstack;
 

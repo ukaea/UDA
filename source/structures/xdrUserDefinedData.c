@@ -5,7 +5,7 @@
 #include <logging/idamLog.h>
 #include <include/idamclientserverprivate.h>
 #include <clientserver/idamErrorLog.h>
-#include <clientserver/TrimString.h>
+#include <clientserver/stringUtils.h>
 #include <clientserver/xdrlib.h>
 
 #include "struct.h"

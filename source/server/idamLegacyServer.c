@@ -273,7 +273,7 @@ int idamLegacyServer(CLIENT_BLOCK client_block)
 //----------------------------------------------------------------------
 // Write to the Access Log
 
-            idamAccessLog(TRUE, client_block, request_block, server_block, data_block);
+            idamAccessLog(TRUE, client_block, request_block, server_block);
 
 //----------------------------------------------------------------------
 // Initialise Data Structures
@@ -671,7 +671,7 @@ int idamLegacyServer(CLIENT_BLOCK client_block)
 //----------------------------------------------------------------------
 // Complete & Write the Access Log Record
 
-        idamAccessLog(0, client_block, request_block, server_block, data_block);
+        idamAccessLog(0, client_block, request_block, server_block);
 
 //----------------------------------------------------------------------------
 // Server Shutdown ? Next Instruction from Client

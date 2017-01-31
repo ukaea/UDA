@@ -47,7 +47,7 @@
 #include <stdlib.h>
 #include <errno.h>
 
-#include <clientserver/TrimString.h>
+#include <clientserver/stringUtils.h>
 #include <clientserver/initStructs.h>
 #include <clientserver/idamTypes.h>
 

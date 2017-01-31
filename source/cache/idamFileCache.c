@@ -32,7 +32,7 @@ char source[]
 
 #include <include/idamclientserver.h>
 #include <clientserver/idamErrorLog.h>
-#include <clientserver/TrimString.h>
+#include <clientserver/stringUtils.h>
 #include <include/idamclientprivate.h>
 #include <structures/struct.h>
 #include <client/createClientXDRStream.h>
@@ -146,8 +146,9 @@ int idamClientCacheLockedTimeValid(unsigned long long timestamp) {
 
 // Test the File exists
 
-int idamClientCacheFileValid(char *filename) {
-    return 1;
+int idamClientCacheFileValid(const char *filename) {
+    // TODO: add proper check
+    return filename != NULL;
 }
 
 // Current table statistics
@@ -191,7 +192,7 @@ void idamClientUpdateCacheStats(FILE *db, unsigned long recordCount, unsigned lo
 }
 
 int idamClientPurgeCache(FILE *db, unsigned long recordCount, unsigned long *endOffset) {
-    int i, lstr, count;
+    int lstr;
     unsigned short status;
     unsigned long dbkey, validRecordCount = 0;
 
@@ -214,7 +215,7 @@ int idamClientPurgeCache(FILE *db, unsigned long recordCount, unsigned long *end
     table = (char **)malloc(recordCount*sizeof(char *));
     timestamplist = (unsigned long long *)malloc(recordCount*sizeof(unsigned long long));
 
-    count = 0;
+    unsigned long count = 0;
     while (count++ < recordCount && !feof(db) && fgets(buffer, STRING_LENGTH, db) != NULL) {	// Read each record
 
         LeftTrimString(TrimString(buffer));
@@ -233,6 +234,7 @@ int idamClientPurgeCache(FILE *db, unsigned long recordCount, unsigned long *end
         strcpy(work, buffer);
         next = work;
 
+        int i;
         for(i=0; i<4; i++) {
             if((csv = strchr(next,csvChar)) != NULL) csv[0] = '\0';
             TrimString(next);
@@ -281,6 +283,7 @@ int idamClientPurgeCache(FILE *db, unsigned long recordCount, unsigned long *end
     fseek(db, CACHE_FIRSTRECORDLENGTH, SEEK_SET);	// Position at the start of record 2
 
     errno = 0;
+    int i;
     for(i=0; i<validRecordCount; i++) {
         lstr = (int)strlen(table[i]);
         count = fwrite(table[i], sizeof(char), lstr, db);	// Write all valid records

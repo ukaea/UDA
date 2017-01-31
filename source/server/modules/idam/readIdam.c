@@ -41,7 +41,7 @@ int readIdam(DATA_SOURCE data_source,
 
 #include <include/idamclientserverprivate.h>
 #include <client/accAPI_C.h>
-#include <clientserver/TrimString.h>
+#include <clientserver/stringUtils.h>
 #include <clientserver/printStructs.h>
 #include <client/IdamAPI.h>
 

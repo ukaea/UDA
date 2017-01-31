@@ -16,7 +16,7 @@
 #include <clientserver/initStructs.h>
 #include <clientserver/idamErrorLog.h>
 #include <clientserver/expand_path.h>
-#include <clientserver/TrimString.h>
+#include <clientserver/stringUtils.h>
 
 #include "makeClientRequestBlock.h"
 #include "startup.h"

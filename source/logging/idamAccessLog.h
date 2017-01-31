@@ -10,8 +10,7 @@ int idamSizeOf(int data_type);
 
 unsigned int countDataBlockSize(DATA_BLOCK* data_block, CLIENT_BLOCK* client_block);
 
-void idamAccessLog(int init, CLIENT_BLOCK client_block, REQUEST_BLOCK request,
-                   SERVER_BLOCK server_block, DATA_BLOCK data_block);
+void idamAccessLog(int init, CLIENT_BLOCK client_block, REQUEST_BLOCK request, SERVER_BLOCK server_block);
 
 #endif // IDAM_LOGGING_IDAMACCESSLOG_H
 

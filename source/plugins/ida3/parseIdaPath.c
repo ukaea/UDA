@@ -6,7 +6,7 @@
 * Assumes: path has the form /exp_number/pass
 *--------------------------------------------------------------*/
 
-#include <TrimString.h>
+#include <stringUtils.h>
 #include <idamclientserverpublic.h>
 
 void parseIDAPath(REQUEST_BLOCK* request_block)

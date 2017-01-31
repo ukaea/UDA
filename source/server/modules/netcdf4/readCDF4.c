@@ -61,7 +61,7 @@ int readCDF(DATA_SOURCE data_source,
 #include <include/idamclientserverprivate.h>
 #include <clientserver/idamTypes.h>
 #include <clientserver/initStructs.h>
-#include <clientserver/TrimString.h>
+#include <clientserver/stringUtils.h>
 #include <clientserver/printStructs.h>
 #include <include/idamclientserver.h>
 #include <structures/struct.h>

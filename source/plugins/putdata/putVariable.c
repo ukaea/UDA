@@ -2,7 +2,7 @@
 
 #include <stdlib.h>
 
-#include <clientserver/TrimString.h>
+#include <clientserver/stringUtils.h>
 #include <clientserver/idamTypes.h>
 
 #include "putUnits.h"

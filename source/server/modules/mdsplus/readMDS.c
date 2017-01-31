@@ -46,7 +46,7 @@ int readMDS(DATA_SOURCE data_source,
 #include <clientserver/idamErrors.h>
 #include <clientserver/idamTypes.h>
 #include <clientserver/manageSockets.h>
-#include <clientserver/TrimString.h>
+#include <clientserver/stringUtils.h>
 #include <clientserver/freeDataBlock.h>
 #include <clientserver/initStructs.h>
 #include <logging/idamLog.h>

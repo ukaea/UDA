@@ -26,7 +26,7 @@
 
 #include <logging/idamLog.h>
 #include <clientserver/idamErrorLog.h>
-#include <clientserver/TrimString.h>
+#include <clientserver/stringUtils.h>
 #include <clientserver/md5Sum.h>
 #include <clientserver/freeDataBlock.h>
 #include <clientserver/idamTypes.h>

@@ -13,7 +13,7 @@ returns An integer Error Code: If non zero, a problem occured.
 #include <errno.h>
 
 #include <clientserver/idamErrors.h>
-#include <clientserver/TrimString.h>
+#include <clientserver/stringUtils.h>
 #include <clientserver/initStructs.h>
 #include <include/idamserver.h>
 

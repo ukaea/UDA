@@ -20,7 +20,7 @@
 #include <structures/struct.h>
 #include <clientserver/initStructs.h>
 #include <clientserver/compressDim.h>
-#include <clientserver/TrimString.h>
+#include <clientserver/stringUtils.h>
 #include <clientserver/freeDataBlock.h>
 
 //----------------------------------------------------------------------------------------------------------------------------

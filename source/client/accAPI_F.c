@@ -15,7 +15,7 @@
 
 #include <logging/idamLog.h>
 #include <clientserver/idamTypes.h>
-#include <clientserver/TrimString.h>
+#include <clientserver/stringUtils.h>
 
 #include "accAPI_C.h"
 #include "idam_client.h"

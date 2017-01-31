@@ -23,9 +23,6 @@
 
 #include <clientserver/idamErrorLog.h>
 #include <include/idamclientserverprivate.h>
-#include <clientserver/TrimString.h>
-#include <clientserver/idamTypes.h>
-#include <clientserver/initStructs.h>
 
 //---------------------------------------------------------------------------------------------------------------
 // Stub plugin if disabled
@@ -45,6 +42,10 @@ int readPPF(DATA_SOURCE data_source,
 //---------------------------------------------------------------------------------------------------------------
 
 #include <ppf.h>
+
+#include <clientserver/stringUtils.h>
+#include <clientserver/idamTypes.h>
+#include <clientserver/initStructs.h>
 
 #define NWCOM     20        // 80 Byte DDA Comment
 #define NDTNAMS   500        // Overkill?

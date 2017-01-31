@@ -32,7 +32,7 @@ set( SRC_FILES
   allocXMLData.c
   initXMLStructs.c
   expand_path.c
-  TrimString.c
+  stringUtils.c
   parseOperation.c
   parseXML.c
   copyStructs.c

@@ -49,7 +49,7 @@ Issues:
 #include <client/IdamAPI.h>
 #include <structures/struct.h>
 #include <structures/accessors.h>
-#include <clientserver/TrimString.h>
+#include <clientserver/stringUtils.h>
 #include <client/idam_client.h>
 #include <server/makeServerRequestBlock.h>
 #include <clientserver/initStructs.h>

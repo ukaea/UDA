@@ -11,7 +11,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include <clientserver/TrimString.h>
+#include <clientserver/stringUtils.h>
 
 void parseIDAPath(REQUEST_BLOCK *request_block) {
     char *token=NULL;

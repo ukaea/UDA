@@ -16,7 +16,7 @@
 #include <stdlib.h>
 #include <arpa/inet.h>
 
-#include <clientserver/TrimString.h>
+#include <clientserver/stringUtils.h>
 #include <server/idamServerPlugin.h>
 #include <include/idamserver.h>
 #include <clientserver/idamTypes.h>
@@ -59,7 +59,7 @@ int idamSizeOf(int data_type)
 unsigned int countDataBlockSize(DATA_BLOCK* data_block, CLIENT_BLOCK* client_block)
 {
 
-    int i, k, factor;
+    int factor;
     DIMS dim;
     unsigned int count = sizeof(DATA_BLOCK);
 
@@ -70,6 +70,7 @@ unsigned int countDataBlockSize(DATA_BLOCK* data_block, CLIENT_BLOCK* client_blo
     }
     if (data_block->errasymmetry) count += (unsigned int) (idamSizeOf(data_block->error_type) * data_block->data_n);
 
+    unsigned int k;
     if (data_block->rank > 0) {
         for (k = 0; k < data_block->rank; k++) {
             count += sizeof(DIMS);
@@ -82,6 +83,7 @@ unsigned int countDataBlockSize(DATA_BLOCK* data_block, CLIENT_BLOCK* client_blo
                     count += (unsigned int) (factor * idamSizeOf(dim.error_type) * dim.dim_n);
                 }
             } else {
+                unsigned int i;
                 switch (dim.method) {
                     case 0:
                         count += +2 * sizeof(double);
@@ -111,8 +113,7 @@ unsigned int countDataBlockSize(DATA_BLOCK* data_block, CLIENT_BLOCK* client_blo
 }
 
 
-void idamAccessLog(int init, CLIENT_BLOCK client_block, REQUEST_BLOCK request,
-                   SERVER_BLOCK server_block, DATA_BLOCK data_block)
+void idamAccessLog(int init, CLIENT_BLOCK client_block, REQUEST_BLOCK request, SERVER_BLOCK server_block)
 {
 
     int err = 0;

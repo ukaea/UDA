@@ -6,7 +6,7 @@
 #include <string.h>
 #include <malloc.h>
 
-#include <clientserver/TrimString.h>
+#include <clientserver/stringUtils.h>
 #include <clientserver/idamTypes.h>
 #include <clientserver/idamErrorLog.h>
 #include <include/idamclientserverprivate.h>

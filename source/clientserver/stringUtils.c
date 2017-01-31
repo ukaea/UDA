@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <stdio.h>
-#include "TrimString.h"
+#include "stringUtils.h"
 
 #ifndef strcasestr
 char *strcasestr(const char *haystack, const char *needle)
@@ -90,7 +90,7 @@ char* strupr(char* a)
 
     while (*a != '\0') {
         if (islower (*a))
-            *a = toupper(*a);
+            *a = (char)toupper(*a);
         ++a;
     }
 
@@ -106,7 +106,7 @@ char* strlwr(char* a)
 
     while (*a != '\0') {
         if (isupper (*a))
-            *a = tolower(*a);
+            *a = (char)tolower(*a);
         ++a;
     }
 

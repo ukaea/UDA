@@ -21,7 +21,7 @@
 #include <include/idamclientserverprivate.h>
 #include <errno.h>
 
-#include "TrimString.h"
+#include "stringUtils.h"
 #include "idamErrorLog.h"
 
 #ifdef SERVERBUILD

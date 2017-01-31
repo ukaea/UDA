@@ -22,7 +22,7 @@
 
 #include <stdlib.h>
 
-#include <clientserver/TrimString.h>
+#include <clientserver/stringUtils.h>
 #include <clientserver/initStructs.h>
 #include <clientserver/idamTypes.h>
 

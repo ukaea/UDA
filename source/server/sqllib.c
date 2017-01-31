@@ -15,7 +15,7 @@
 #include <include/idamserver.h>
 #include <clientserver/idamErrorLog.h>
 #include <clientserver/initStructs.h>
-#include <clientserver/TrimString.h>
+#include <clientserver/stringUtils.h>
 #include <modules/ida/nameIda.h>
 #include <clientserver/printStructs.h>
 

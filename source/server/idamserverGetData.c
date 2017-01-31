@@ -8,7 +8,7 @@
 //--------------------------------------------------------------------------------------------------------------------
 #include <errno.h>
 
-#include <clientserver/TrimString.h>
+#include <clientserver/stringUtils.h>
 #include <clientserver/initStructs.h>
 #include <clientserver/freeDataBlock.h>
 #include <clientserver/printStructs.h>

@@ -6,7 +6,7 @@
 
 #include <client/getEnvironment.h>
 #include <clientserver/userid.h>
-#include <clientserver/TrimString.h>
+#include <clientserver/stringUtils.h>
 
 #include "roidamlib.h"
 #include "getExpDateTime.h"

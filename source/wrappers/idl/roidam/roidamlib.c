@@ -8,7 +8,7 @@
 #include <stdlib.h>
 #include <libpq-fe.h>
 
-#include <clientserver/TrimString.h>
+#include <clientserver/stringUtils.h>
 
 PGconn* DBConnect = NULL;
 

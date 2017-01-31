@@ -6,7 +6,7 @@
 #include <logging/idamLog.h>
 #include <include/idamgenstruct.h>
 #include <structures/struct.h>
-#include "TrimString.h"
+#include "stringUtils.h"
 #include <structures/xdrUserDefinedData.h>
 #include "idamErrorLog.h"
 #include "xdrlib.h"

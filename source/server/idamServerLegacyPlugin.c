@@ -11,7 +11,7 @@
 #include <include/idamclientserverprivate.h>
 #include <clientserver/idamErrorLog.h>
 #include <modules/ida/parseIdaPath.h>
-#include <clientserver/TrimString.h>
+#include <clientserver/stringUtils.h>
 
 int idamServerLegacyPlugin(REQUEST_BLOCK* request_block, DATA_SOURCE* data_source, SIGNAL_DESC* signal_desc)
 {

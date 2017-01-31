@@ -11,7 +11,7 @@
 #include "putdata.h"		// IDL DLM API Header
 
 #include <stdlib.h>
-#include <TrimString.h>
+#include <stringUtils.h>
 
 int putVariable(int nparams, IDL_VPTR argv[], KW_RESULT* kw, int ncgrpid) {
 

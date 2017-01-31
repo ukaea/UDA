@@ -32,7 +32,7 @@
 #include <clientserver/initStructs.h>
 #include <clientserver/idamTypes.h>
 #include <clientserver/idamErrorLog.h>
-#include <clientserver/TrimString.h>
+#include <clientserver/stringUtils.h>
 #include <logging/idamLog.h>
 
 #define PLUGIN_NAME "ppf2plugin"

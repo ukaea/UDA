@@ -49,7 +49,7 @@ int readIDA2(DATA_SOURCE data_source,
 
 #include <logging/idamLog.h>
 #include <clientserver/idamErrors.h>
-#include <clientserver/TrimString.h>
+#include <clientserver/stringUtils.h>
 #include <clientserver/printStructs.h>
 #include <server/mastArchiveFilePath.h>
 

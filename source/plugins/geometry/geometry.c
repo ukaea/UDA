@@ -43,7 +43,7 @@
 #include <server/sqllib.h>
 #include <include/idamplugin.h>
 #include <clientserver/initStructs.h>
-#include <clientserver/TrimString.h>
+#include <clientserver/stringUtils.h>
 #include <structures/struct.h>
 #include <structures/accessors.h>
 #include <server/modules/netcdf4/readCDF4.h>

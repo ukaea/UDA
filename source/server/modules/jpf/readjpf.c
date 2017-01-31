@@ -44,7 +44,7 @@ int readJPF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK *data_b
 
 #include <clientserver/initStructs.h>
 #include <clientserver/idamTypes.h>
-#include <clientserver/TrimString.h>
+#include <clientserver/stringUtils.h>
 
 /*
   JPF plugin.

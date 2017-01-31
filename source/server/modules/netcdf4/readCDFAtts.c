@@ -27,7 +27,7 @@
 #include <include/idamclientserverprivate.h>
 #include <stdlib.h>
 #include <clientserver/idamErrorLog.h>
-#include <clientserver/TrimString.h>
+#include <clientserver/stringUtils.h>
 
 #include "readCDF4.h"
 

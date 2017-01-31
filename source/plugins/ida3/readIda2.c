@@ -28,7 +28,7 @@
 #include <ida3.h>
 
 #include <clientserver/idamErrors.h>
-#include <clientserver/TrimString.h>
+#include <clientserver/stringUtils.h>
 #include <clientserver/idamErrorLog.h>
 #include <clientserver/printStructs.h>
 #include <server/mastArchiveFilePath.h>
