@@ -36,7 +36,7 @@ macro( idam_plugin )
   endif()
 
   foreach( INCLUDE_DIR ${PLUGIN_EXTRA_INCLUDE_DIRS} )
-    include_directories( ${INCLUDE_DIR} )
+    include_directories( SYSTEM ${INCLUDE_DIR} )
   endforeach()
 
   foreach( LINK_DIR ${PLUGIN_EXTRA_LINK_DIRS} )

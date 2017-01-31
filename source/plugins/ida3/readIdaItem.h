@@ -7,8 +7,9 @@ extern "C" {
 
 #ifndef NOIDAPLUGIN
 
-#include <idamclientserverpublic.h>
 #include <ida3.h>
+
+#include <clientserver/idamStructs.h>
 
 #define SWAPXY
 

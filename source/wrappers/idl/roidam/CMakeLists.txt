@@ -4,20 +4,12 @@ find_package( PostgreSQL REQUIRED )
 find_package( IDL REQUIRED )
 find_package( LibXml2 REQUIRED )
 
-set( SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../.. )
-
 set( LIB_NAME roidam )
-set( MAJOR_VERSION 1 )
-set( MINOR_VERSION 8 )
 
-set( SRC_FILES roidam.c )
+set( SRC_FILES roidam.c roidamlib.c getExpDateTime.c getLastShot.c getLatestSourcePass.c getSourcePath.c )
 
 include_directories(
-  ${SRC_DIR}
-  ${SRC_DIR}/include
-  ${SRC_DIR}/clientserver
-  ${SRC_DIR}/structures
-  ${SRC_DIR}/client
+  ${CMAKE_SOURCE_DIR}/source
   ${LIBXML2_INCLUDE_DIR}
   ${IDL_INCLUDES}
   ${PostgreSQL_INCLUDE_DIRS}
@@ -25,7 +17,6 @@ include_directories(
 
 add_library( ${LIB_NAME} SHARED ${SRC_FILES} )
 
-link_directories( ${LIB_DIR} )
 target_link_libraries( ${LIB_NAME} LINK_PUBLIC ${IDC_LIB_NAME} 
  ${IDL_LIBRARIES} ${LIBXML2_LIBRARIES} ${PostgreSQL_LIBRARIES} )
 
@@ -33,8 +24,8 @@ set_target_properties( ${LIB_NAME}
   PROPERTIES
     PREFIX ""
     OUTPUT_NAME roidam
-    VERSION ${MAJOR_VERSION}.${MINOR_VERSION}
-    SOVERSION ${MAJOR_VERSION}
+    VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}
+    SOVERSION ${PROJECT_VERSION_MAJOR}
 )
 
 install( TARGETS ${LIB_NAME}

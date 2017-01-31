@@ -1,8 +1,11 @@
 #include "ts_xml.h"
 
-#include <idamserver.h>
-#include <idamErrorLog.h>
 #include <assert.h>
+
+#include <clientserver/initStructs.h>
+#include <clientserver/idamTypes.h>
+#include <clientserver/idamErrorLog.h>
+#include <include/idamclientserverprivate.h>
 #include <logging/idamLog.h>
 
 static int convertToInt(char* value);
@@ -58,7 +61,7 @@ int execute_xpath_expression(const char* filename, const xmlChar* xpathExpr, DAT
     char* typeStr = "/@data_type";
     size_t len = 1 + xmlStrlen(xpathExpr) + strlen(typeStr);
     xmlChar* typeXpathExpr = (xmlChar*) malloc(len * sizeof(xmlChar));
-    xmlStrPrintf(typeXpathExpr, (int)len, (const xmlChar*)"%s%s", xpathExpr, typeStr);
+    xmlStrPrintf(typeXpathExpr, (int)len, "%s%s", xpathExpr, typeStr);
 
     /* Evaluate xpath expression for the type */
     xpathObj = xmlXPathEvalExpression(typeXpathExpr, xpathCtx);
@@ -82,7 +85,7 @@ int execute_xpath_expression(const char* filename, const xmlChar* xpathExpr, DAT
 
     len = 1 + xmlStrlen(xpathExpr) + strlen(typeStr);
     typeXpathExpr = (xmlChar*) malloc(len * sizeof(xmlChar));
-    xmlStrPrintf(typeXpathExpr, (int)len, (const xmlChar*) "%s%s", xpathExpr, typeStr);
+    xmlStrPrintf(typeXpathExpr, (int)len, "%s%s", xpathExpr, typeStr);
 
     /* Evaluate xpath expression for the type */
     xpathObj = xmlXPathEvalExpression(typeXpathExpr, xpathCtx);
@@ -240,7 +243,7 @@ char** getContent(xmlNode* node, int dim)
 
 int convertToInt(char* value)
 {
-    int i;
+    int i = TYPE_UNKNOWN;
     int err = 0;
 
     if (strcmp(value, "vecstring_type") == 0 || strcmp(value, "xs:string") == 0 || strcmp(value, "STR_0D") == 0) {
@@ -270,16 +273,16 @@ xmlChar* insertNodeIndices(const xmlChar* xpathExpr, int* nodeIndices)
     size_t n = 0;
     
     while ((p = xmlStrchr(indexedXpathExpr, '#')) != NULL) {
-        size_t len = snprintf(NULL, 0, "%d", nodeIndices[n]);
+        int len = snprintf(NULL, 0, "%d", nodeIndices[n]);
         xmlChar num_str[len+1];
-        xmlStrPrintf(num_str, len+1, (const xmlChar*)"%d", nodeIndices[n]);
+        xmlStrPrintf(num_str, len+1, "%d", nodeIndices[n]);
         ++n;
 
         xmlChar* pre = xmlStrndup(indexedXpathExpr, p - indexedXpathExpr);
 
         len = xmlStrlen(pre) + xmlStrlen(num_str) + xmlStrlen(p+1) + 1;
         xmlChar* temp = malloc((len + 1) * sizeof(xmlChar));
-        xmlStrPrintf(temp, len, (const xmlChar*)"%s%s%s", pre, num_str, p+1);
+        xmlStrPrintf(temp, len, "%s%s%s", pre, num_str, p+1);
         free(indexedXpathExpr);
         indexedXpathExpr = temp;
 

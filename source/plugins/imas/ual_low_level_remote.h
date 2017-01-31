@@ -34,3 +34,6 @@ int mdsimasOpenEnvRemote(int connId, char *name, int shot, int run, int *retIdx,
 int mdsimasCreateEnvRemote(int connId, char *name, int shot, int run, int *retIdx, char *user, char *tokamak, char *version);
 int mdsimasCreateRemote(int connId, char *name, int shot, int run, int *retIdx);
 int mdsimasCloseRemote(int connId, int idx, char *name, int shot, int run);
+
+int replaceLastSliceRemote(int connId, int expIdx, char *cpoPath, char *path, struct descriptor *dataDsc);
+int mdsimasOpenRemote(int connId, char *name, int shot, int run, int *retIdx);

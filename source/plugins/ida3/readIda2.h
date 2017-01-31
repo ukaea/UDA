@@ -1,7 +1,7 @@
 #ifndef IDAM_PLUGINS_IDA3_READIDA2_H
 #define IDAM_PLUGINS_IDA3_READIDA2_H
 
-#include <idamplugin.h>
+#include <server/idamPluginStructs.h>
 
 #ifdef __cplusplus
 extern "C" {

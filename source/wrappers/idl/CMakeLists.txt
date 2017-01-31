@@ -5,20 +5,12 @@ find_package( PostgreSQL )
 find_package( LibXml2 )
 find_package( NetCDF )
 
-set( SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../.. )
+set( LIB_NAME ${PROJECT_NAME}_idl )
 
-set( LIB_NAME idamidl )
-set( MAJOR_VERSION 1 )
-set( MINOR_VERSION 8 )
-
-set( SRC_FILES idam.c idamStructs.c )
+set( SRC_FILES idam_dlm.c idamStructs.c )
 
 include_directories(
-  ${SRC_DIR}
-  ${SRC_DIR}/include
-  ${SRC_DIR}/clientserver
-  ${SRC_DIR}/structures
-  ${SRC_DIR}/client
+  ${CMAKE_SOURCE_DIR}/source
   ${IDL_INCLUDES}
 )
 
@@ -42,15 +34,14 @@ else()
   message( WARNING "NetCDF4 or LibXml2 not found - IDL netcdf4 library not building" )
 endif()
 
-link_directories( ${LIB_DIR} )
 target_link_libraries( ${LIB_NAME} LINK_PUBLIC ${IDC_LIB_NAME} ${IDL_LIBRARIES} )
 
 set_target_properties( ${LIB_NAME}
   PROPERTIES
     PREFIX ""
-    OUTPUT_NAME idam
-    VERSION ${MAJOR_VERSION}.${MINOR_VERSION}
-    SOVERSION ${MAJOR_VERSION}
+    OUTPUT_NAME ${PROJECT_NAME}
+    VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}
+    SOVERSION ${PROJECT_VERSION_MAJOR}
 )
 
 install( TARGETS ${LIB_NAME}
@@ -58,7 +49,7 @@ install( TARGETS ${LIB_NAME}
 )
 
 set( INSTALL_FILES
-  idam.dlm
+  ${PROJECT_NAME}.dlm
 )
 
 install( FILES ${INSTALL_FILES}

@@ -9,8 +9,9 @@
 *------------------------------------------------------------------*/
 
 #include <stdio.h>
-#include <TrimString.h>
-#include <idamLog.h>
+
+#include <clientserver/TrimString.h>
+#include <logging/idamLog.h>
 
 #ifndef NOIDAPLUGIN
 

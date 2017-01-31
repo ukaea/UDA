@@ -1,23 +1,13 @@
 #include "tore_supra_plugin.h"
 
-#include <sys/types.h>
-#include <regex.h>
-#include <stdlib.h>
-#include <stdio.h>
 #include <string.h>
 #include <assert.h>
 #include <libxml/tree.h>
-#include <libxml/parser.h>
 #include <libxml/xpath.h>
-#include <libxml/xpathInternals.h>
 
-#include <idamserver.h>
-#include <idamErrorLog.h>
-#include <initStructs.h>
-#include <idamtypes.h>
-#include <makeServerRequestBlock.h>
-#include <idamServerPlugin.h>
-#include <idamLog.h>
+#include <include/idamplugin.h>
+#include <clientserver/initStructs.h>
+#include <clientserver/idamTypes.h>
 
 #include "ts_mds.h"
 #include "ts_xml.h"
@@ -30,12 +20,10 @@ static int do_help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
 static int do_version(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
 static int do_builddate(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
 static int do_defaultmethod(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
-static int do_maxinterfaceversion(IDAM_PLUGIN_INTERFACE*
-idam_plugin_interface);
+static int do_maxinterfaceversion(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
 static int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
-static char* getTSToIDSMappingFileName(char* IDSRequest, int shotNumber);
-static char* getMappingValue(const char* mappingFileName,
-                             const char* IDSRequest, int* IDSRequestType);
+static char* getTSToIDSMappingFileName(const char* IDSRequest, int shotNumber);
+static char* getMappingValue(const char* mappingFileName, const char* IDSRequest, int* IDSRequestType);
 static char* deblank(char* token);
 
 int tsPlugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
@@ -465,7 +453,7 @@ int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     return 0;
 }
 
-char* getTSToIDSMappingFileName(char* IDSRequest, int shot)
+char* getTSToIDSMappingFileName(const char* IDSRequest, int shot)
 {
     char* p = strchr(IDSRequest, '/');
     char* IDSName = strndup(IDSRequest, p - IDSRequest);
@@ -527,8 +515,7 @@ char* getMappingValue(const char* mappingFileName, const char* IDSRequest,
 
     int len = strlen(IDSRequest) + 26;
     xmlChar* xPathExpr = malloc(len + sizeof(xmlChar));
-    xmlStrPrintf(xPathExpr, len, (xmlChar*) "//mapping[@key='%s']/@value",
-                 IDSRequest);
+    xmlStrPrintf(xPathExpr, len, "//mapping[@key='%s']/@value", IDSRequest);
 
     /*
      * Evaluate xpath expression for the type
@@ -561,8 +548,7 @@ char* getMappingValue(const char* mappingFileName, const char* IDSRequest,
                      "no result on XPath request, no key attribute defined?");
     }
 
-    xmlStrPrintf(xPathExpr, len, (xmlChar*) "//mapping[@key='%s']/@type",
-                 IDSRequest);
+    xmlStrPrintf(xPathExpr, len, "//mapping[@key='%s']/@type", IDSRequest);
 
     /*
      * Evaluate xpath expression for the type

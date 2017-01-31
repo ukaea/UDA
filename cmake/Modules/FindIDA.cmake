@@ -23,7 +23,7 @@ endif( IDA_INCLUDE_DIR AND IDA_LIBRARIES )
 find_path( IDA_INCLUDE_DIR ida3.h
   HINTS ${IDA_ROOT}
   ENV IDA_DIR
-  PATH_SUFFIXES include )
+  PATH_SUFFIXES include include/ida3 )
 
 find_library( IDA_LIBRARIES_LIB NAMES ida3
   HINTS ${IDA_ROOT}

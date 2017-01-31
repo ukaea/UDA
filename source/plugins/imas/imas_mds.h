@@ -1,13 +1,7 @@
-// Plugin Template
-
 #ifndef IdamIMASMDSPluginInclude
 #define IdamIMASMDSPluginInclude
 
-// Change History:
-//
-// 26Aug2015	dgm	Original imas.h Version with additions for imas_mds mdsplus components
-
-#include <idamplugin.h>
+#include <server/idamPluginStructs.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -40,15 +34,16 @@ extern "C" {
 #define FLOAT           3
 #define DOUBLE          4
 
-#define STRING_VECTOR   5
-//#define DIMENSION       -1    // if we need to read the dimensions only
-
 #define TIMEBASEPATHLENGTH      256
 
 #define ERROR_RETURN_VALUE      1
 #define OK_RETURN_VALUE         0
 
 extern int imas_mds(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
+
+char* imas_reset_errmsg();
+
+int mdsGetDimension(int expIdx, char *cpoPath, char *path, int *numDims, int *dim1, int *dim2, int *dim3, int *dim4, int *dim5, int *dim6, int *dim7);
 
 typedef struct PluginArgs {
     unsigned short isCPOPath;

@@ -3,6 +3,27 @@
 #include <stdio.h>
 #include "TrimString.h"
 
+#ifndef strcasestr
+char *strcasestr(const char *haystack, const char *needle)
+{
+    char c, sc;
+    size_t len;
+
+    if ((c = *needle++) != 0) {
+        c = (char)tolower(c);
+        len = strlen(needle);
+        do {
+            do {
+                if ((sc = *haystack++) == 0)
+                    return (NULL);
+            } while ((char)tolower((unsigned char)sc) != c);
+        } while (strncasecmp(haystack, needle, len) != 0);
+        haystack--;
+    }
+    return ((char *)haystack);
+}
+#endif
+
 // Reverse a String
 
 void reverseString(const char* in, char* out)

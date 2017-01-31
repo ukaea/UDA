@@ -5,7 +5,7 @@ macro( find_modules )
 
   find_package( IDA )
   if( IDA_FOUND )
-    include_directories( ${IDA_INCLUDE_DIR} )
+    include_directories( SYSTEM ${IDA_INCLUDE_DIR} )
   else()
     add_definitions( -DNOIDAPLUGIN )
   endif()

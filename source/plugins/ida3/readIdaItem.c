@@ -9,10 +9,12 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include <idamtypes.h>
-#include <idamLog.h>
-#include <idamErrorLog.h>
-#include <initStructs.h>
+
+#include <clientserver/idamTypes.h>
+#include <clientserver/idamErrorLog.h>
+#include <clientserver/initStructs.h>
+#include <logging/idamLog.h>
+#include <include/idamclientserverprivate.h>
 
 #define SWAPXY
 

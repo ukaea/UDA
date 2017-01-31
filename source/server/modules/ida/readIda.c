@@ -45,13 +45,13 @@ int readIDA2(DATA_SOURCE data_source,
 
 #else
 
-#include "TrimString.h"
 #include "nameIda.h"
-#include "printStructs.h"
-#include "mastArchiveFilePath.h"
-#include "manageFiles.h"
+
 #include <logging/idamLog.h>
 #include <clientserver/idamErrors.h>
+#include <clientserver/TrimString.h>
+#include <clientserver/printStructs.h>
+#include <server/mastArchiveFilePath.h>
 
 int readIdaItem(char* itemname, ida_file_ptr* ida_file, short* context, DATA_BLOCK* data_block);
 

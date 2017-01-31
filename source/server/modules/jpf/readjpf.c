@@ -40,16 +40,11 @@ int readJPF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK *data_b
 
 #else
 
-#include 	"idamclientserver.h"
-#include 	"idamserver.h"
+#include <stdarg.h>
 
-#include	"getfix/getfix.h"
-
-#if	(0)
-#include	"netcsl7.h"
-#endif
-
-#include	"getfix/getfix.h"
+#include <clientserver/initStructs.h>
+#include <clientserver/idamTypes.h>
+#include <clientserver/TrimString.h>
 
 /*
   JPF plugin.

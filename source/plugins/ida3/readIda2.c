@@ -25,14 +25,14 @@
 *-----------------------------------------------------------------------------*/
 #include "readIda2.h"
 
-#include <TrimString.h>
 #include <ida3.h>
-#include <idamclientserverpublic.h>
-#include <idamLog.h>
-#include <mastArchiveFilePath.h>
-#include <idamErrorLog.h>
-#include <printStructs.h>
+
 #include <clientserver/idamErrors.h>
+#include <clientserver/TrimString.h>
+#include <clientserver/idamErrorLog.h>
+#include <clientserver/printStructs.h>
+#include <server/mastArchiveFilePath.h>
+#include <logging/idamLog.h>
 
 #include "nameIda.h"
 #include "readIdaItem.h"

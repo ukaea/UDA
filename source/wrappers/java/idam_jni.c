@@ -12,8 +12,6 @@
 #include <client/accAPI_C.h>
 #include <clientserver/idamTypes.h>
 
-#include "idamclientserverpublic.h"
-
 // Java native methods
 
 //--------------------------------------------------------------

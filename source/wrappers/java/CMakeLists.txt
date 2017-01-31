@@ -12,8 +12,7 @@ include( UseJava )
 set( CMAKE_JAVA_COMPILE_FLAGS "-source" "1.6" "-target" "1.6" )
 
 include_directories(
-  ${SRC_DIR}
-  ${SRC_DIR}/include
+  ${CMAKE_SOURCE_DIR}/source
   ${JNI_INCLUDE_DIRS}
 )
 

@@ -5,12 +5,12 @@
 #include <stddef.h>
 #include <string.h>
 #include <malloc.h>
-#include <TrimString.h>
-#include <idamclientserverpublic.h>
-#include <idamclientserverprivate.h>
-#include <idamErrorLog.h>
-#include <idamLog.h>
-//#include <H5Tpublic.h>
+
+#include <clientserver/TrimString.h>
+#include <clientserver/idamTypes.h>
+#include <clientserver/idamErrorLog.h>
+#include <include/idamclientserverprivate.h>
+#include <logging/idamLog.h>
 
 // Extract list
 // Patterns:  comma separated substrings - sub-strings defined by matching quotes pair
@@ -18,9 +18,8 @@
 // item, item, item
 // 'item', 'item', 'it,em', 'it "e", m', 'ite e m' 
 
-void getIdamNameValuePairItemList(char * list, char *** itemList, unsigned short * count, char quote,
-                                         char delimiter)
-{
+void getIdamNameValuePairItemList(char* list, char*** itemList, unsigned short* count, char quote,
+                                  char delimiter) {
 
     unsigned int i, length;
     *count = 0;
@@ -31,11 +30,11 @@ void getIdamNameValuePairItemList(char * list, char *** itemList, unsigned short
 // Copy the original and replace delimiter characters within sub-strings to avoid parse error
 // Sub-strings defined by matching quote pair
 
-    char * work = NULL;
+    char* work = NULL;
     unsigned short state = 0;
 
     length = strlen(list);
-    work = (char *) malloc((length + 1) * sizeof(char));
+    work = (char*) malloc((length + 1) * sizeof(char));
     strcpy(work, list);
 
     if (quote != ' ') {                // No quotes used to group list members so skip
@@ -55,7 +54,7 @@ void getIdamNameValuePairItemList(char * list, char *** itemList, unsigned short
 
 // How many items? Scan the list and count
 
-    char * p = NULL, * p0 = NULL;
+    char* p = NULL, * p0 = NULL;
 
     *count = 1;
     p0 = work;
@@ -67,7 +66,7 @@ void getIdamNameValuePairItemList(char * list, char *** itemList, unsigned short
 
 // String Splits
 
-    unsigned short * splits = (unsigned short *) malloc((*count + 1) * sizeof(unsigned short));
+    unsigned short* splits = (unsigned short*) malloc((*count + 1) * sizeof(unsigned short));
 
     p0 = work;
     i = 0;
@@ -84,7 +83,7 @@ void getIdamNameValuePairItemList(char * list, char *** itemList, unsigned short
 
 // Allocate sub-string array
 
-    *itemList = (char **) malloc(*count * sizeof(char *));
+    *itemList = (char**) malloc(*count * sizeof(char*));
 
 // Construct the list  
 
@@ -92,14 +91,14 @@ void getIdamNameValuePairItemList(char * list, char *** itemList, unsigned short
     for (i = 1; i < *count; i++) {
         work[splits[i - 1]] = '\0';                // Split the string
 
-        (*itemList)[i - 1] = (char *) malloc((strlen(p) + 1) * sizeof(char));
+        (*itemList)[i - 1] = (char*) malloc((strlen(p) + 1) * sizeof(char));
         strcpy((*itemList)[i - 1], p);
 
 //fprintf(stdout,"[%d] %s\n", i-1, p);  
 
         p = &work[splits[i - 1] + 1];
     }
-    (*itemList)[*count - 1] = (char *) malloc((strlen(p) + 1) * sizeof(char));
+    (*itemList)[*count - 1] = (char*) malloc((strlen(p) + 1) * sizeof(char));
     strcpy((*itemList)[*count - 1], p);
 
 //fprintf(stdout,"[%d] %s\n", *count-1, p);
@@ -119,26 +118,24 @@ void getIdamNameValuePairItemList(char * list, char *** itemList, unsigned short
         }
     }
 
-    if (splits != NULL) free((void *) splits);
-    if (work != NULL) free((void *) work);
+    if (splits != NULL) free((void*) splits);
+    if (work != NULL) free((void*) work);
 
     return;
 }
 
 // Free file list
 
-void freeIdamNameValuePairItemList(char *** list, unsigned short count)
-{
+void freeIdamNameValuePairItemList(char*** list, unsigned short count) {
     unsigned int i;
-    for (i = 0; i < count; i++) if ((*list)[i] != NULL) free((void *) (*list)[i]);
-    free((void *) *list);
+    for (i = 0; i < count; i++) if ((*list)[i] != NULL) free((void*) (*list)[i]);
+    free((void*) *list);
     *list = NULL;
 }
 
 
-int getIdamNameValuePairVarArray(char * values, char quote, char delimiter, unsigned short varSize, int varType,
-                                        void ** varData)
-{
+int getIdamNameValuePairVarArray(char* values, char quote, char delimiter, unsigned short varSize, int varType,
+                                 void** varData) {
 
 // Unpack 'values' sent via a name-value pair string using quote and delimiter to parse the string  
 // Build and return a 'data' array ('varData') from the passed string list of 'values'
@@ -151,8 +148,8 @@ int getIdamNameValuePairVarArray(char * values, char quote, char delimiter, unsi
 
     int err = 0, i;
     unsigned short dataCount = 0;
-    char ** dataList = NULL;
-    void * data = NULL;
+    char** dataList = NULL;
+    void* data = NULL;
 
 // Parse the string into a list
 
@@ -187,86 +184,86 @@ int getIdamNameValuePairVarArray(char * values, char quote, char delimiter, unsi
 */
         case (TYPE_UNSIGNED_CHAR): {
 
-            unsigned char * d = (unsigned char *) malloc(dataCount * sizeof(unsigned char));
-            unsigned int * id = (unsigned int *) malloc(dataCount * sizeof(unsigned int));
+            unsigned char* d = (unsigned char*) malloc(dataCount * sizeof(unsigned char));
+            unsigned int* id = (unsigned int*) malloc(dataCount * sizeof(unsigned int));
             for (i = 0; i < dataCount; i++) {
                 id[i] = (int) atoi(dataList[i]);
                 d[i] = (unsigned char) id[i];
             }
-            data = (void *) d;
-            free((void *) id);
+            data = (void*) d;
+            free((void*) id);
             break;
         }
 
         case (TYPE_CHAR): {
 
-            char * d = (char *) malloc(dataCount * sizeof(char));
+            char* d = (char*) malloc(dataCount * sizeof(char));
             for (i = 0; i < dataCount; i++) d[i] = (char) (dataList[i])[0];
-            data = (void *) d;
+            data = (void*) d;
             break;
         }
 
         case (TYPE_SHORT): {
 
-            short * d = (short *) malloc(dataCount * sizeof(short));
+            short* d = (short*) malloc(dataCount * sizeof(short));
             for (i = 0; i < dataCount; i++) d[i] = (short) atoi(dataList[i]);
-            data = (void *) d;
+            data = (void*) d;
             break;
         }
 
         case (TYPE_UNSIGNED_SHORT): {
 
-            unsigned short * d = (unsigned short *) malloc(dataCount * sizeof(unsigned short));
+            unsigned short* d = (unsigned short*) malloc(dataCount * sizeof(unsigned short));
             for (i = 0; i < dataCount; i++) d[i] = (unsigned short) atoi(dataList[i]);
-            data = (void *) d;
+            data = (void*) d;
             break;
         }
 
         case (TYPE_INT): {
 
-            int * d = (int *) malloc(dataCount * sizeof(int));
+            int* d = (int*) malloc(dataCount * sizeof(int));
             for (i = 0; i < dataCount; i++) d[i] = (int) atoi(dataList[i]);
-            data = (void *) d;
+            data = (void*) d;
             break;
         }
 
         case (TYPE_UNSIGNED_INT): {
 
-            unsigned int * d = (unsigned int *) malloc(dataCount * sizeof(int));
+            unsigned int* d = (unsigned int*) malloc(dataCount * sizeof(int));
             for (i = 0; i < dataCount; i++) d[i] = (unsigned int) atoi(dataList[i]);
-            data = (void *) d;
+            data = (void*) d;
             break;
         }
 
         case (TYPE_LONG64): {
 
-            long long * d = (long long *) malloc(dataCount * sizeof(long long));
+            long long* d = (long long*) malloc(dataCount * sizeof(long long));
             for (i = 0; i < dataCount; i++) d[i] = (long long) atoi(dataList[i]);
-            data = (void *) d;
+            data = (void*) d;
             break;
         }
 
         case (TYPE_UNSIGNED_LONG64): {
 
-            unsigned long long * d = (unsigned long long *) malloc(dataCount * sizeof(unsigned long long));
+            unsigned long long* d = (unsigned long long*) malloc(dataCount * sizeof(unsigned long long));
             for (i = 0; i < dataCount; i++) d[i] = (unsigned long long) atoi(dataList[i]);
-            data = (void *) d;
+            data = (void*) d;
             break;
         }
 
         case (TYPE_FLOAT): {
 
-            float * d = (float *) malloc(dataCount * sizeof(float));
+            float* d = (float*) malloc(dataCount * sizeof(float));
             for (i = 0; i < dataCount; i++) d[i] = (float) atof(dataList[i]);
-            data = (void *) d;
+            data = (void*) d;
             break;
         }
 
         case (TYPE_DOUBLE): {
 
-            double * d = (double *) malloc(dataCount * sizeof(double));
+            double* d = (double*) malloc(dataCount * sizeof(double));
             for (i = 0; i < dataCount; i++) d[i] = (double) atof(dataList[i]);
-            data = (void *) d;
+            data = (void*) d;
             break;
         }
         default:
@@ -294,13 +291,12 @@ int getIdamNameValuePairVarArray(char * values, char quote, char delimiter, unsi
         return -err;
     }
 
-    *varData = (void *) data;
+    *varData = (void*) data;
 
     return dataCount;
 }
 
-int findIdamType(char * typeName)
-{
+int findIdamType(char* typeName) {
     if (typeName == NULL) return (TYPE_UNDEFINED);
     if (!strcasecmp(typeName, "byte")) return TYPE_CHAR;
     if (!strcasecmp(typeName, "char")) return TYPE_CHAR;
@@ -322,8 +318,7 @@ int findIdamType(char * typeName)
     return (TYPE_UNDEFINED);
 }
 
-char * convertIdam2StringType(int type)
-{
+char* convertIdam2StringType(int type) {
     switch (type) {
         case TYPE_CHAR:
             return ("char");
@@ -357,8 +352,7 @@ char * convertIdam2StringType(int type)
     return "unknown";
 }
 
-int findHDF5Type(char * typeName)
-{
+int findHDF5Type(char* typeName) {
     return 0;
 //    if (!strcasecmp(typeName, "byte")) return H5T_NATIVE_SCHAR;
 //    if (!strcasecmp(typeName, "char")) return H5T_NATIVE_CHAR;
@@ -421,8 +415,7 @@ int convertIdam2HDF5Type(int type)
 #endif
 */
 
-int sizeIdamType(int type)
-{
+int sizeIdamType(int type) {
     switch (type) {
         case TYPE_CHAR:
             return (sizeof(char));

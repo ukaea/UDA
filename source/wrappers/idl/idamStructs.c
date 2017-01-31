@@ -1,22 +1,16 @@
 //---------------------------------------------------------------------------------------------
 // IDL User Accessor functions to General Data Structures
 //---------------------------------------------------------------------------------------------
-//
-// Change History
-//
-// 16Mar2010    DGMuir  Original Version
-// 25Jul2011    DGMuir  Changes required for 64 bit architecture: idl_shape LONG or LONG64 use IDL_MEMINT
-//===============================================================================================
-// IDAM Accessors
 
 // Keyword Structure
 #include <stdio.h>
-#include <accAPI_Gen.h>
-#include <accessors.h>
 
 #include "idl_export.h"
-#include "struct.h"
-#include "accAPI_C.h"
+
+#include <client/accAPI_Gen.h>
+#include <client/accAPI_C.h>
+#include <structures/struct.h>
+#include <structures/accessors.h>
 
 typedef struct {
     IDL_KW_RESULT_FIRST_FIELD;
@@ -27,8 +21,7 @@ typedef struct {
 } KW_RESULT;
 
 
-IDL_VPTR IDL_CDECL setidamdatatree(int argc, IDL_VPTR argv[], char* argk)
-{
+IDL_VPTR IDL_CDECL setidamdatatree(int argc, IDL_VPTR argv[], char* argk) {
     //
     // 1 Args: IDAM handle (long32 int)
 
@@ -38,11 +31,11 @@ IDL_VPTR IDL_CDECL setidamdatatree(int argc, IDL_VPTR argv[], char* argk)
 
     // Maintain an Alphabetical Order of Keywords
 
-    static IDL_KW_PAR kw_pars[] = { IDL_KW_FAST_SCAN,
-            { "DEBUG", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(debug) },
-            { "HELP", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(help) },
-            { "VERBOSE", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(verbose) },
-            { NULL }
+    static IDL_KW_PAR kw_pars[] = {IDL_KW_FAST_SCAN,
+                                   {"DEBUG", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(debug)},
+                                   {"HELP", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(help)},
+                                   {"VERBOSE", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(verbose)},
+                                   {NULL}
     };
 
     KW_RESULT kw;
@@ -98,8 +91,7 @@ IDL_VPTR IDL_CDECL setidamdatatree(int argc, IDL_VPTR argv[], char* argk)
 //===============================================================================================
 // Accessors with the whole (sub) tree in scope
 
-IDL_VPTR IDL_CDECL findidamtreestructurecomponent(int argc, IDL_VPTR argv[], char* argk)
-{
+IDL_VPTR IDL_CDECL findidamtreestructurecomponent(int argc, IDL_VPTR argv[], char* argk) {
     //
     // 3 Args: IDAM handle (long32 int), Node address or null (0) (long64 int) and the
     // target structure component name (string)
@@ -115,12 +107,12 @@ IDL_VPTR IDL_CDECL findidamtreestructurecomponent(int argc, IDL_VPTR argv[], cha
 
     // Maintain an Alphabetical Order of Keywords
 
-    static IDL_KW_PAR kw_pars[] = { IDL_KW_FAST_SCAN,
-            { "CHILDREN", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(children) },
-            { "DEBUG", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(debug) },
-            { "HELP", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(help) },
-            { "VERBOSE", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(verbose) },
-            { NULL }
+    static IDL_KW_PAR kw_pars[] = {IDL_KW_FAST_SCAN,
+                                   {"CHILDREN", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(children)},
+                                   {"DEBUG", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(debug)},
+                                   {"HELP", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(help)},
+                                   {"VERBOSE", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(verbose)},
+                                   {NULL}
     };
 
     KW_RESULT kw;
@@ -217,8 +209,7 @@ IDL_VPTR IDL_CDECL findidamtreestructurecomponent(int argc, IDL_VPTR argv[], cha
 }
 
 
-IDL_VPTR IDL_CDECL findidamtreestructuredefinition(int argc, IDL_VPTR argv[], char* argk)
-{
+IDL_VPTR IDL_CDECL findidamtreestructuredefinition(int argc, IDL_VPTR argv[], char* argk) {
     //
     // 3 Args: IDAM handle (long32 int), Node address or null (0) (long64 int) and the
     // target structure component definition name (string)
@@ -233,11 +224,11 @@ IDL_VPTR IDL_CDECL findidamtreestructuredefinition(int argc, IDL_VPTR argv[], ch
 
     // Maintain an Alphabetical Order of Keywords
 
-    static IDL_KW_PAR kw_pars[] = { IDL_KW_FAST_SCAN,
-            { "DEBUG", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(debug) },
-            { "HELP", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(help) },
-            { "VERBOSE", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(verbose) },
-            { NULL }
+    static IDL_KW_PAR kw_pars[] = {IDL_KW_FAST_SCAN,
+                                   {"DEBUG", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(debug)},
+                                   {"HELP", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(help)},
+                                   {"VERBOSE", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(verbose)},
+                                   {NULL}
     };
 
     KW_RESULT kw;
@@ -326,8 +317,7 @@ IDL_VPTR IDL_CDECL findidamtreestructuredefinition(int argc, IDL_VPTR argv[], ch
 }
 
 
-IDL_VPTR IDL_CDECL findidamtreestructure(int argc, IDL_VPTR argv[], char* argk)
-{
+IDL_VPTR IDL_CDECL findidamtreestructure(int argc, IDL_VPTR argv[], char* argk) {
     //
     // 3 Args: IDAM handle (long32 int), Node address or null (0) (long64 int) and the
     // target structure component name (string)
@@ -343,12 +333,12 @@ IDL_VPTR IDL_CDECL findidamtreestructure(int argc, IDL_VPTR argv[], char* argk)
 
     // Maintain an Alphabetical Order of Keywords
 
-    static IDL_KW_PAR kw_pars[] = { IDL_KW_FAST_SCAN,
-            { "CHILDREN", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(children) },
-            { "DEBUG", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(debug) },
-            { "HELP", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(help) },
-            { "VERBOSE", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(verbose) },
-            { NULL }
+    static IDL_KW_PAR kw_pars[] = {IDL_KW_FAST_SCAN,
+                                   {"CHILDREN", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(children)},
+                                   {"DEBUG", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(debug)},
+                                   {"HELP", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(help)},
+                                   {"VERBOSE", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(verbose)},
+                                   {NULL}
     };
 
     KW_RESULT kw;
@@ -447,8 +437,7 @@ IDL_VPTR IDL_CDECL findidamtreestructure(int argc, IDL_VPTR argv[], char* argk)
 //===============================================================================================
 // Accessors with a single tree node in scope
 
-IDL_VPTR IDL_CDECL getidamnodestructurecount(int argc, IDL_VPTR argv[], char* argk)
-{
+IDL_VPTR IDL_CDECL getidamnodestructurecount(int argc, IDL_VPTR argv[], char* argk) {
     //
     // 2 Args: IDAM handle (long32 int), Node address or null (0) (long64 int)
 
@@ -459,11 +448,11 @@ IDL_VPTR IDL_CDECL getidamnodestructurecount(int argc, IDL_VPTR argv[], char* ar
 
     // Maintain an Alphabetical Order of Keywords
 
-    static IDL_KW_PAR kw_pars[] = { IDL_KW_FAST_SCAN,
-            { "DEBUG", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(debug) },
-            { "HELP", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(help) },
-            { "VERBOSE", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(verbose) },
-            { NULL }
+    static IDL_KW_PAR kw_pars[] = {IDL_KW_FAST_SCAN,
+                                   {"DEBUG", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(debug)},
+                                   {"HELP", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(help)},
+                                   {"VERBOSE", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(verbose)},
+                                   {NULL}
     };
 
     KW_RESULT kw;
@@ -542,8 +531,7 @@ IDL_VPTR IDL_CDECL getidamnodestructurecount(int argc, IDL_VPTR argv[], char* ar
 }
 
 
-IDL_VPTR IDL_CDECL getidamnodestructurenames(int argc, IDL_VPTR argv[], char* argk)
-{
+IDL_VPTR IDL_CDECL getidamnodestructurenames(int argc, IDL_VPTR argv[], char* argk) {
     //
     // 2 Args: IDAM handle (long32 int), Node address or null (0) (long64 int)
 
@@ -561,11 +549,11 @@ IDL_VPTR IDL_CDECL getidamnodestructurenames(int argc, IDL_VPTR argv[], char* ar
 
     // Maintain an Alphabetical Order of Keywords
 
-    static IDL_KW_PAR kw_pars[] = { IDL_KW_FAST_SCAN,
-            { "DEBUG", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(debug) },
-            { "HELP", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(help) },
-            { "VERBOSE", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(verbose) },
-            { NULL }
+    static IDL_KW_PAR kw_pars[] = {IDL_KW_FAST_SCAN,
+                                   {"DEBUG", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(debug)},
+                                   {"HELP", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(help)},
+                                   {"VERBOSE", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(verbose)},
+                                   {NULL}
     };
 
     KW_RESULT kw;
@@ -671,8 +659,7 @@ IDL_VPTR IDL_CDECL getidamnodestructurenames(int argc, IDL_VPTR argv[], char* ar
     return (vReturn);
 }
 
-IDL_VPTR IDL_CDECL getidamnodestructuretypes(int argc, IDL_VPTR argv[], char* argk)
-{
+IDL_VPTR IDL_CDECL getidamnodestructuretypes(int argc, IDL_VPTR argv[], char* argk) {
     //
     // 2 Args: IDAM handle (long32 int), Node address or null (0) (long64 int)
 
@@ -689,11 +676,11 @@ IDL_VPTR IDL_CDECL getidamnodestructuretypes(int argc, IDL_VPTR argv[], char* ar
 
     // Maintain an Alphabetical Order of Keywords
 
-    static IDL_KW_PAR kw_pars[] = { IDL_KW_FAST_SCAN,
-            { "DEBUG", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(debug) },
-            { "HELP", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(help) },
-            { "VERBOSE", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(verbose) },
-            { NULL }
+    static IDL_KW_PAR kw_pars[] = {IDL_KW_FAST_SCAN,
+                                   {"DEBUG", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(debug)},
+                                   {"HELP", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(help)},
+                                   {"VERBOSE", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(verbose)},
+                                   {NULL}
     };
 
     KW_RESULT kw;
@@ -798,8 +785,7 @@ IDL_VPTR IDL_CDECL getidamnodestructuretypes(int argc, IDL_VPTR argv[], char* ar
 }
 
 
-IDL_VPTR IDL_CDECL getidamnodestructurepointers(int argc, IDL_VPTR argv[], char* argk)
-{
+IDL_VPTR IDL_CDECL getidamnodestructurepointers(int argc, IDL_VPTR argv[], char* argk) {
     //
     // 2 Args: IDAM handle (long32 int), Node address or null (0) (long64 int)
 
@@ -816,11 +802,11 @@ IDL_VPTR IDL_CDECL getidamnodestructurepointers(int argc, IDL_VPTR argv[], char*
 
     // Maintain an Alphabetical Order of Keywords
 
-    static IDL_KW_PAR kw_pars[] = { IDL_KW_FAST_SCAN,
-            { "DEBUG", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(debug) },
-            { "HELP", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(help) },
-            { "VERBOSE", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(verbose) },
-            { NULL }
+    static IDL_KW_PAR kw_pars[] = {IDL_KW_FAST_SCAN,
+                                   {"DEBUG", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(debug)},
+                                   {"HELP", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(help)},
+                                   {"VERBOSE", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(verbose)},
+                                   {NULL}
     };
 
     KW_RESULT kw;
@@ -919,8 +905,7 @@ IDL_VPTR IDL_CDECL getidamnodestructurepointers(int argc, IDL_VPTR argv[], char*
     return (vReturn);
 }
 
-IDL_VPTR IDL_CDECL getidamnodestructurerank(int argc, IDL_VPTR argv[], char* argk)
-{
+IDL_VPTR IDL_CDECL getidamnodestructurerank(int argc, IDL_VPTR argv[], char* argk) {
     //
     // 2 Args: IDAM handle (long32 int), Node address or null (0) (long64 int)
 
@@ -937,11 +922,11 @@ IDL_VPTR IDL_CDECL getidamnodestructurerank(int argc, IDL_VPTR argv[], char* arg
 
     // Maintain an Alphabetical Order of Keywords
 
-    static IDL_KW_PAR kw_pars[] = { IDL_KW_FAST_SCAN,
-            { "DEBUG", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(debug) },
-            { "HELP", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(help) },
-            { "VERBOSE", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(verbose) },
-            { NULL }
+    static IDL_KW_PAR kw_pars[] = {IDL_KW_FAST_SCAN,
+                                   {"DEBUG", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(debug)},
+                                   {"HELP", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(help)},
+                                   {"VERBOSE", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(verbose)},
+                                   {NULL}
     };
 
     KW_RESULT kw;
@@ -1040,8 +1025,7 @@ IDL_VPTR IDL_CDECL getidamnodestructurerank(int argc, IDL_VPTR argv[], char* arg
     return (vReturn);
 }
 
-IDL_VPTR IDL_CDECL getidamnodestructureshape(int argc, IDL_VPTR argv[], char* argk)
-{
+IDL_VPTR IDL_CDECL getidamnodestructureshape(int argc, IDL_VPTR argv[], char* argk) {
     //
     // 2 Args: IDAM handle (long32 int), Node address or null (0) (long64 int)
 
@@ -1060,11 +1044,11 @@ IDL_VPTR IDL_CDECL getidamnodestructureshape(int argc, IDL_VPTR argv[], char* ar
 
     // Maintain an Alphabetical Order of Keywords
 
-    static IDL_KW_PAR kw_pars[] = { IDL_KW_FAST_SCAN,
-            { "DEBUG", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(debug) },
-            { "HELP", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(help) },
-            { "VERBOSE", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(verbose) },
-            { NULL }
+    static IDL_KW_PAR kw_pars[] = {IDL_KW_FAST_SCAN,
+                                   {"DEBUG", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(debug)},
+                                   {"HELP", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(help)},
+                                   {"VERBOSE", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(verbose)},
+                                   {NULL}
     };
 
     KW_RESULT kw;
@@ -1214,8 +1198,7 @@ IDL_VPTR IDL_CDECL getidamnodestructureshape(int argc, IDL_VPTR argv[], char* ar
 }
 
 
-IDL_VPTR IDL_CDECL getidamnodeatomiccount(int argc, IDL_VPTR argv[], char* argk)
-{
+IDL_VPTR IDL_CDECL getidamnodeatomiccount(int argc, IDL_VPTR argv[], char* argk) {
     //
     // 2 Args: IDAM handle (long32 int), Node address or null (0) (long64 int)
 
@@ -1226,11 +1209,11 @@ IDL_VPTR IDL_CDECL getidamnodeatomiccount(int argc, IDL_VPTR argv[], char* argk)
 
     // Maintain an Alphabetical Order of Keywords
 
-    static IDL_KW_PAR kw_pars[] = { IDL_KW_FAST_SCAN,
-            { "DEBUG", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(debug) },
-            { "HELP", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(help) },
-            { "VERBOSE", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(verbose) },
-            { NULL }
+    static IDL_KW_PAR kw_pars[] = {IDL_KW_FAST_SCAN,
+                                   {"DEBUG", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(debug)},
+                                   {"HELP", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(help)},
+                                   {"VERBOSE", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(verbose)},
+                                   {NULL}
     };
 
     KW_RESULT kw;
@@ -1305,8 +1288,7 @@ IDL_VPTR IDL_CDECL getidamnodeatomiccount(int argc, IDL_VPTR argv[], char* argk)
 }
 
 
-IDL_VPTR IDL_CDECL getidamnodeatomicnames(int argc, IDL_VPTR argv[], char* argk)
-{
+IDL_VPTR IDL_CDECL getidamnodeatomicnames(int argc, IDL_VPTR argv[], char* argk) {
     //
     // 2 Args: IDAM handle (long32 int), Node address or null (0) (long64 int)
 
@@ -1323,11 +1305,11 @@ IDL_VPTR IDL_CDECL getidamnodeatomicnames(int argc, IDL_VPTR argv[], char* argk)
 
     // Maintain an Alphabetical Order of Keywords
 
-    static IDL_KW_PAR kw_pars[] = { IDL_KW_FAST_SCAN,
-            { "DEBUG", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(debug) },
-            { "HELP", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(help) },
-            { "VERBOSE", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(verbose) },
-            { NULL }
+    static IDL_KW_PAR kw_pars[] = {IDL_KW_FAST_SCAN,
+                                   {"DEBUG", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(debug)},
+                                   {"HELP", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(help)},
+                                   {"VERBOSE", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(verbose)},
+                                   {NULL}
     };
 
     KW_RESULT kw;
@@ -1432,8 +1414,7 @@ IDL_VPTR IDL_CDECL getidamnodeatomicnames(int argc, IDL_VPTR argv[], char* argk)
 }
 
 
-IDL_VPTR IDL_CDECL getidamnodeatomictypes(int argc, IDL_VPTR argv[], char* argk)
-{
+IDL_VPTR IDL_CDECL getidamnodeatomictypes(int argc, IDL_VPTR argv[], char* argk) {
     //
     // 2 Args: IDAM handle (long32 int), Node address or null (0) (long64 int)
 
@@ -1450,11 +1431,11 @@ IDL_VPTR IDL_CDECL getidamnodeatomictypes(int argc, IDL_VPTR argv[], char* argk)
 
     // Maintain an Alphabetical Order of Keywords
 
-    static IDL_KW_PAR kw_pars[] = { IDL_KW_FAST_SCAN,
-            { "DEBUG", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(debug) },
-            { "HELP", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(help) },
-            { "VERBOSE", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(verbose) },
-            { NULL }
+    static IDL_KW_PAR kw_pars[] = {IDL_KW_FAST_SCAN,
+                                   {"DEBUG", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(debug)},
+                                   {"HELP", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(help)},
+                                   {"VERBOSE", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(verbose)},
+                                   {NULL}
     };
 
     KW_RESULT kw;
@@ -1559,8 +1540,7 @@ IDL_VPTR IDL_CDECL getidamnodeatomictypes(int argc, IDL_VPTR argv[], char* argk)
 }
 
 
-IDL_VPTR IDL_CDECL getidamnodeatomicpointers(int argc, IDL_VPTR argv[], char* argk)
-{
+IDL_VPTR IDL_CDECL getidamnodeatomicpointers(int argc, IDL_VPTR argv[], char* argk) {
     //
     // 2 Args: IDAM handle (long32 int), Node address or null (0) (long64 int)
 
@@ -1577,11 +1557,11 @@ IDL_VPTR IDL_CDECL getidamnodeatomicpointers(int argc, IDL_VPTR argv[], char* ar
 
     // Maintain an Alphabetical Order of Keywords
 
-    static IDL_KW_PAR kw_pars[] = { IDL_KW_FAST_SCAN,
-            { "DEBUG", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(debug) },
-            { "HELP", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(help) },
-            { "VERBOSE", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(verbose) },
-            { NULL }
+    static IDL_KW_PAR kw_pars[] = {IDL_KW_FAST_SCAN,
+                                   {"DEBUG", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(debug)},
+                                   {"HELP", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(help)},
+                                   {"VERBOSE", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(verbose)},
+                                   {NULL}
     };
 
     KW_RESULT kw;
@@ -1681,8 +1661,7 @@ IDL_VPTR IDL_CDECL getidamnodeatomicpointers(int argc, IDL_VPTR argv[], char* ar
 }
 
 
-IDL_VPTR IDL_CDECL getidamnodeatomicrank(int argc, IDL_VPTR argv[], char* argk)
-{
+IDL_VPTR IDL_CDECL getidamnodeatomicrank(int argc, IDL_VPTR argv[], char* argk) {
     //
     // 2 Args: IDAM handle (long32 int), Node address or null (0) (long64 int)
 
@@ -1699,11 +1678,11 @@ IDL_VPTR IDL_CDECL getidamnodeatomicrank(int argc, IDL_VPTR argv[], char* argk)
 
     // Maintain an Alphabetical Order of Keywords
 
-    static IDL_KW_PAR kw_pars[] = { IDL_KW_FAST_SCAN,
-            { "DEBUG", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(debug) },
-            { "HELP", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(help) },
-            { "VERBOSE", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(verbose) },
-            { NULL }
+    static IDL_KW_PAR kw_pars[] = {IDL_KW_FAST_SCAN,
+                                   {"DEBUG", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(debug)},
+                                   {"HELP", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(help)},
+                                   {"VERBOSE", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(verbose)},
+                                   {NULL}
     };
 
     KW_RESULT kw;
@@ -1803,8 +1782,7 @@ IDL_VPTR IDL_CDECL getidamnodeatomicrank(int argc, IDL_VPTR argv[], char* argk)
 }
 
 
-IDL_VPTR IDL_CDECL getidamnodeatomicshape(int argc, IDL_VPTR argv[], char* argk)
-{
+IDL_VPTR IDL_CDECL getidamnodeatomicshape(int argc, IDL_VPTR argv[], char* argk) {
     //
     // 2 Args: IDAM handle (long32 int), Node address or null (0) (long64 int)
 
@@ -1823,11 +1801,11 @@ IDL_VPTR IDL_CDECL getidamnodeatomicshape(int argc, IDL_VPTR argv[], char* argk)
 
     // Maintain an Alphabetical Order of Keywords
 
-    static IDL_KW_PAR kw_pars[] = { IDL_KW_FAST_SCAN,
-            { "DEBUG", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(debug) },
-            { "HELP", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(help) },
-            { "VERBOSE", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(verbose) },
-            { NULL }
+    static IDL_KW_PAR kw_pars[] = {IDL_KW_FAST_SCAN,
+                                   {"DEBUG", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(debug)},
+                                   {"HELP", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(help)},
+                                   {"VERBOSE", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(verbose)},
+                                   {NULL}
     };
 
     KW_RESULT kw;
@@ -1977,8 +1955,7 @@ IDL_VPTR IDL_CDECL getidamnodeatomicshape(int argc, IDL_VPTR argv[], char* argk)
 }
 
 
-IDL_VPTR IDL_CDECL getidamnodeatomicdatacount(int argc, IDL_VPTR argv[], char* argk)
-{
+IDL_VPTR IDL_CDECL getidamnodeatomicdatacount(int argc, IDL_VPTR argv[], char* argk) {
     //
     // Returns the number of array elements
     //
@@ -1993,11 +1970,11 @@ IDL_VPTR IDL_CDECL getidamnodeatomicdatacount(int argc, IDL_VPTR argv[], char* a
 
     // Maintain an Alphabetical Order of Keywords
 
-    static IDL_KW_PAR kw_pars[] = { IDL_KW_FAST_SCAN,
-            { "DEBUG", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(debug) },
-            { "HELP", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(help) },
-            { "VERBOSE", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(verbose) },
-            { NULL }
+    static IDL_KW_PAR kw_pars[] = {IDL_KW_FAST_SCAN,
+                                   {"DEBUG", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(debug)},
+                                   {"HELP", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(help)},
+                                   {"VERBOSE", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(verbose)},
+                                   {NULL}
     };
 
     KW_RESULT kw;
@@ -2073,8 +2050,7 @@ IDL_VPTR IDL_CDECL getidamnodeatomicdatacount(int argc, IDL_VPTR argv[], char* a
 }
 
 
-IDL_VPTR IDL_CDECL getidamnodeatomicdata(int argc, IDL_VPTR argv[], char* argk)
-{
+IDL_VPTR IDL_CDECL getidamnodeatomicdata(int argc, IDL_VPTR argv[], char* argk) {
     //
     // 3 Args:  IDAM handle (long32 int), Node address or null (0) (long64 int),
     //      Component Name (IDL String)
@@ -2097,11 +2073,11 @@ IDL_VPTR IDL_CDECL getidamnodeatomicdata(int argc, IDL_VPTR argv[], char* argk)
 
     // Maintain an Alphabetical Order of Keywords
 
-    static IDL_KW_PAR kw_pars[] = { IDL_KW_FAST_SCAN,
-            { "DEBUG", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(debug) },
-            { "HELP", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(help) },
-            { "VERBOSE", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(verbose) },
-            { NULL }
+    static IDL_KW_PAR kw_pars[] = {IDL_KW_FAST_SCAN,
+                                   {"DEBUG", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(debug)},
+                                   {"HELP", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(help)},
+                                   {"VERBOSE", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(verbose)},
+                                   {NULL}
     };
 
     KW_RESULT kw;
@@ -2782,8 +2758,7 @@ IDL_VPTR IDL_CDECL getidamnodeatomicdata(int argc, IDL_VPTR argv[], char* argk)
     return (IDL_GettmpLong(0));
 }
 
-IDL_VPTR IDL_CDECL getidamnodestructuredatacount(int argc, IDL_VPTR argv[], char* argk)
-{
+IDL_VPTR IDL_CDECL getidamnodestructuredatacount(int argc, IDL_VPTR argv[], char* argk) {
     //
     // 2 Args: IDAM handle (long32 int), Node address or null (0) (long64 int)
 
@@ -2794,11 +2769,11 @@ IDL_VPTR IDL_CDECL getidamnodestructuredatacount(int argc, IDL_VPTR argv[], char
 
     // Maintain an Alphabetical Order of Keywords
 
-    static IDL_KW_PAR kw_pars[] = { IDL_KW_FAST_SCAN,
-            { "DEBUG", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(debug) },
-            { "HELP", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(help) },
-            { "VERBOSE", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(verbose) },
-            { NULL }
+    static IDL_KW_PAR kw_pars[] = {IDL_KW_FAST_SCAN,
+                                   {"DEBUG", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(debug)},
+                                   {"HELP", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(help)},
+                                   {"VERBOSE", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(verbose)},
+                                   {NULL}
     };
 
     KW_RESULT kw;
@@ -2872,8 +2847,7 @@ IDL_VPTR IDL_CDECL getidamnodestructuredatacount(int argc, IDL_VPTR argv[], char
     return (IDL_GettmpLong(count));
 }
 
-IDL_VPTR IDL_CDECL getidamnodestructuredatarank(int argc, IDL_VPTR argv[], char* argk)
-{
+IDL_VPTR IDL_CDECL getidamnodestructuredatarank(int argc, IDL_VPTR argv[], char* argk) {
     //
     // 2 Args: IDAM handle (long32 int), Node address or null (0) (long64 int)
 
@@ -2884,11 +2858,11 @@ IDL_VPTR IDL_CDECL getidamnodestructuredatarank(int argc, IDL_VPTR argv[], char*
 
     // Maintain an Alphabetical Order of Keywords
 
-    static IDL_KW_PAR kw_pars[] = { IDL_KW_FAST_SCAN,
-            { "DEBUG", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(debug) },
-            { "HELP", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(help) },
-            { "VERBOSE", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(verbose) },
-            { NULL }
+    static IDL_KW_PAR kw_pars[] = {IDL_KW_FAST_SCAN,
+                                   {"DEBUG", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(debug)},
+                                   {"HELP", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(help)},
+                                   {"VERBOSE", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(verbose)},
+                                   {NULL}
     };
 
     KW_RESULT kw;
@@ -2962,8 +2936,7 @@ IDL_VPTR IDL_CDECL getidamnodestructuredatarank(int argc, IDL_VPTR argv[], char*
     return (IDL_GettmpLong(rank));
 }
 
-IDL_VPTR IDL_CDECL getidamnodestructuredatashape(int argc, IDL_VPTR argv[], char* argk)
-{
+IDL_VPTR IDL_CDECL getidamnodestructuredatashape(int argc, IDL_VPTR argv[], char* argk) {
     //
     // 2 Args: IDAM handle (long32 int), Node address or null (0) (long64 int)
 
@@ -2979,11 +2952,11 @@ IDL_VPTR IDL_CDECL getidamnodestructuredatashape(int argc, IDL_VPTR argv[], char
 
     // Maintain an Alphabetical Order of Keywords
 
-    static IDL_KW_PAR kw_pars[] = { IDL_KW_FAST_SCAN,
-            { "DEBUG", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(debug) },
-            { "HELP", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(help) },
-            { "VERBOSE", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(verbose) },
-            { NULL }
+    static IDL_KW_PAR kw_pars[] = {IDL_KW_FAST_SCAN,
+                                   {"DEBUG", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(debug)},
+                                   {"HELP", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(help)},
+                                   {"VERBOSE", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(verbose)},
+                                   {NULL}
     };
 
     KW_RESULT kw;
@@ -3097,8 +3070,7 @@ IDL_VPTR IDL_CDECL getidamnodestructuredatashape(int argc, IDL_VPTR argv[], char
 }
 
 
-IDL_VPTR IDL_CDECL getidamnodeparent(int argc, IDL_VPTR argv[], char* argk)
-{
+IDL_VPTR IDL_CDECL getidamnodeparent(int argc, IDL_VPTR argv[], char* argk) {
     //
     // 2 Args: IDAM handle (long32 int), Node address or null (0) (long64 int)
 
@@ -3111,11 +3083,11 @@ IDL_VPTR IDL_CDECL getidamnodeparent(int argc, IDL_VPTR argv[], char* argk)
 
     // Maintain an Alphabetical Order of Keywords
 
-    static IDL_KW_PAR kw_pars[] = { IDL_KW_FAST_SCAN,
-            { "DEBUG", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(debug) },
-            { "HELP", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(help) },
-            { "VERBOSE", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(verbose) },
-            { NULL }
+    static IDL_KW_PAR kw_pars[] = {IDL_KW_FAST_SCAN,
+                                   {"DEBUG", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(debug)},
+                                   {"HELP", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(help)},
+                                   {"VERBOSE", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(verbose)},
+                                   {NULL}
     };
 
     KW_RESULT kw;
@@ -3196,8 +3168,7 @@ IDL_VPTR IDL_CDECL getidamnodeparent(int argc, IDL_VPTR argv[], char* argk)
 }
 
 
-IDL_VPTR IDL_CDECL getidamnodechild(int argc, IDL_VPTR argv[], char* argk)
-{
+IDL_VPTR IDL_CDECL getidamnodechild(int argc, IDL_VPTR argv[], char* argk) {
     //
     // 3 Args: IDAM handle (long32 int), Node address or null (0) (long64 int) and the
     // child branch number (long32 int)
@@ -3211,11 +3182,11 @@ IDL_VPTR IDL_CDECL getidamnodechild(int argc, IDL_VPTR argv[], char* argk)
 
     // Maintain an Alphabetical Order of Keywords
 
-    static IDL_KW_PAR kw_pars[] = { IDL_KW_FAST_SCAN,
-            { "DEBUG", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(debug) },
-            { "HELP", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(help) },
-            { "VERBOSE", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(verbose) },
-            { NULL }
+    static IDL_KW_PAR kw_pars[] = {IDL_KW_FAST_SCAN,
+                                   {"DEBUG", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(debug)},
+                                   {"HELP", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(help)},
+                                   {"VERBOSE", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(verbose)},
+                                   {NULL}
     };
 
     KW_RESULT kw;
@@ -3302,8 +3273,7 @@ IDL_VPTR IDL_CDECL getidamnodechild(int argc, IDL_VPTR argv[], char* argk)
     return (IDL_GettmpMEMINT(ntreeFound));
 }
 
-IDL_VPTR IDL_CDECL getidamnodechildrencount(int argc, IDL_VPTR argv[], char* argk)
-{
+IDL_VPTR IDL_CDECL getidamnodechildrencount(int argc, IDL_VPTR argv[], char* argk) {
     //
     // 2 Args: IDAM handle (long32 int), Node address or null (0) (long64 int)
 
@@ -3316,11 +3286,11 @@ IDL_VPTR IDL_CDECL getidamnodechildrencount(int argc, IDL_VPTR argv[], char* arg
 
     // Maintain an Alphabetical Order of Keywords
 
-    static IDL_KW_PAR kw_pars[] = { IDL_KW_FAST_SCAN,
-            { "DEBUG", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(debug) },
-            { "HELP", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(help) },
-            { "VERBOSE", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(verbose) },
-            { NULL }
+    static IDL_KW_PAR kw_pars[] = {IDL_KW_FAST_SCAN,
+                                   {"DEBUG", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(debug)},
+                                   {"HELP", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(help)},
+                                   {"VERBOSE", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(verbose)},
+                                   {NULL}
     };
 
     KW_RESULT kw;
@@ -3391,8 +3361,7 @@ IDL_VPTR IDL_CDECL getidamnodechildrencount(int argc, IDL_VPTR argv[], char* arg
 }
 
 
-IDL_VPTR IDL_CDECL getidamnodechildid(int argc, IDL_VPTR argv[], char* argk)
-{
+IDL_VPTR IDL_CDECL getidamnodechildid(int argc, IDL_VPTR argv[], char* argk) {
     //
     // 3 Args: IDAM handle (long32 int), Parent Node address or null (0) (long64 int) and the
     // child Node address (long64 int)
@@ -3404,11 +3373,11 @@ IDL_VPTR IDL_CDECL getidamnodechildid(int argc, IDL_VPTR argv[], char* argk)
 
     // Maintain an Alphabetical Order of Keywords
 
-    static IDL_KW_PAR kw_pars[] = { IDL_KW_FAST_SCAN,
-            { "DEBUG", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(debug) },
-            { "HELP", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(help) },
-            { "VERBOSE", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(verbose) },
-            { NULL }
+    static IDL_KW_PAR kw_pars[] = {IDL_KW_FAST_SCAN,
+                                   {"DEBUG", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(debug)},
+                                   {"HELP", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(help)},
+                                   {"VERBOSE", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(verbose)},
+                                   {NULL}
     };
 
     KW_RESULT kw;
@@ -3492,8 +3461,7 @@ IDL_VPTR IDL_CDECL getidamnodechildid(int argc, IDL_VPTR argv[], char* argk)
 //===============================================================================================
 // Print
 
-IDL_VPTR IDL_CDECL printidamtree(int argc, IDL_VPTR argv[], char* argk)
-{
+IDL_VPTR IDL_CDECL printidamtree(int argc, IDL_VPTR argv[], char* argk) {
     //
     // 2 Args: IDAM handle (long32 int), Node address or null (0) (long64 int)
 
@@ -3505,11 +3473,11 @@ IDL_VPTR IDL_CDECL printidamtree(int argc, IDL_VPTR argv[], char* argk)
 
     // Maintain an Alphabetical Order of Keywords
 
-    static IDL_KW_PAR kw_pars[] = { IDL_KW_FAST_SCAN,
-            { "DEBUG", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(debug) },
-            { "HELP", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(help) },
-            { "VERBOSE", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(verbose) },
-            { NULL }
+    static IDL_KW_PAR kw_pars[] = {IDL_KW_FAST_SCAN,
+                                   {"DEBUG", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(debug)},
+                                   {"HELP", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(help)},
+                                   {"VERBOSE", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(verbose)},
+                                   {NULL}
     };
 
     KW_RESULT kw;
@@ -3585,8 +3553,7 @@ IDL_VPTR IDL_CDECL printidamtree(int argc, IDL_VPTR argv[], char* argk)
 }
 
 
-IDL_VPTR IDL_CDECL printidamtreestructurenames(int argc, IDL_VPTR argv[], char* argk)
-{
+IDL_VPTR IDL_CDECL printidamtreestructurenames(int argc, IDL_VPTR argv[], char* argk) {
     //
     // 2 Args: IDAM handle (long32 int), Node address or null (0) (long64 int)
 
@@ -3597,11 +3564,11 @@ IDL_VPTR IDL_CDECL printidamtreestructurenames(int argc, IDL_VPTR argv[], char* 
 
     // Maintain an Alphabetical Order of Keywords
 
-    static IDL_KW_PAR kw_pars[] = { IDL_KW_FAST_SCAN,
-            { "DEBUG", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(debug) },
-            { "HELP", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(help) },
-            { "VERBOSE", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(verbose) },
-            { NULL }
+    static IDL_KW_PAR kw_pars[] = {IDL_KW_FAST_SCAN,
+                                   {"DEBUG", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(debug)},
+                                   {"HELP", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(help)},
+                                   {"VERBOSE", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(verbose)},
+                                   {NULL}
     };
 
     KW_RESULT kw;
@@ -3674,8 +3641,7 @@ IDL_VPTR IDL_CDECL printidamtreestructurenames(int argc, IDL_VPTR argv[], char* 
 }
 
 
-IDL_VPTR IDL_CDECL printidamtreestructurecomponentnames(int argc, IDL_VPTR argv[], char* argk)
-{
+IDL_VPTR IDL_CDECL printidamtreestructurecomponentnames(int argc, IDL_VPTR argv[], char* argk) {
     //
     // 2 Args: IDAM handle (long32 int), Node address or null (0) (long64 int)
 
@@ -3686,11 +3652,11 @@ IDL_VPTR IDL_CDECL printidamtreestructurecomponentnames(int argc, IDL_VPTR argv[
 
     // Maintain an Alphabetical Order of Keywords
 
-    static IDL_KW_PAR kw_pars[] = { IDL_KW_FAST_SCAN,
-            { "DEBUG", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(debug) },
-            { "HELP", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(help) },
-            { "VERBOSE", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(verbose) },
-            { NULL }
+    static IDL_KW_PAR kw_pars[] = {IDL_KW_FAST_SCAN,
+                                   {"DEBUG", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(debug)},
+                                   {"HELP", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(help)},
+                                   {"VERBOSE", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(verbose)},
+                                   {NULL}
     };
 
     KW_RESULT kw;
@@ -3763,8 +3729,7 @@ IDL_VPTR IDL_CDECL printidamtreestructurecomponentnames(int argc, IDL_VPTR argv[
 }
 
 
-IDL_VPTR IDL_CDECL printidamnodestructure(int argc, IDL_VPTR argv[], char* argk)
-{
+IDL_VPTR IDL_CDECL printidamnodestructure(int argc, IDL_VPTR argv[], char* argk) {
     //
     // 2 Args: IDAM handle (long32 int), Node address or null (0) (long64 int)
 
@@ -3775,11 +3740,11 @@ IDL_VPTR IDL_CDECL printidamnodestructure(int argc, IDL_VPTR argv[], char* argk)
 
     // Maintain an Alphabetical Order of Keywords
 
-    static IDL_KW_PAR kw_pars[] = { IDL_KW_FAST_SCAN,
-            { "DEBUG", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(debug) },
-            { "HELP", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(help) },
-            { "VERBOSE", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(verbose) },
-            { NULL }
+    static IDL_KW_PAR kw_pars[] = {IDL_KW_FAST_SCAN,
+                                   {"DEBUG", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(debug)},
+                                   {"HELP", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(help)},
+                                   {"VERBOSE", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(verbose)},
+                                   {NULL}
     };
 
     KW_RESULT kw;
@@ -3852,8 +3817,7 @@ IDL_VPTR IDL_CDECL printidamnodestructure(int argc, IDL_VPTR argv[], char* argk)
 }
 
 
-IDL_VPTR IDL_CDECL regulariseidamvlenstructures(int argc, IDL_VPTR argv[], char* argk)
-{
+IDL_VPTR IDL_CDECL regulariseidamvlenstructures(int argc, IDL_VPTR argv[], char* argk) {
     //
     // 2 Args: IDAM handle (long32 int), Node address or null (0) (long64 int)
 
@@ -3864,11 +3828,11 @@ IDL_VPTR IDL_CDECL regulariseidamvlenstructures(int argc, IDL_VPTR argv[], char*
 
     // Maintain an Alphabetical Order of Keywords
 
-    static IDL_KW_PAR kw_pars[] = { IDL_KW_FAST_SCAN,
-            { "DEBUG", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(debug) },
-            { "HELP", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(help) },
-            { "VERBOSE", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(verbose) },
-            { NULL }
+    static IDL_KW_PAR kw_pars[] = {IDL_KW_FAST_SCAN,
+                                   {"DEBUG", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(debug)},
+                                   {"HELP", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(help)},
+                                   {"VERBOSE", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(verbose)},
+                                   {NULL}
     };
 
     KW_RESULT kw;
@@ -3941,8 +3905,7 @@ IDL_VPTR IDL_CDECL regulariseidamvlenstructures(int argc, IDL_VPTR argv[], char*
 //=============================================================================================
 //=============================================================================================
 
-IDL_VPTR IDL_CDECL makeidamstructure(int argc, IDL_VPTR argv[], char* argk)
-{
+IDL_VPTR IDL_CDECL makeidamstructure(int argc, IDL_VPTR argv[], char* argk) {
     //
     // 2 Args: IDAM handle (long32 int), Node address or null (0) (long64 int)
 
@@ -3953,11 +3916,11 @@ IDL_VPTR IDL_CDECL makeidamstructure(int argc, IDL_VPTR argv[], char* argk)
 
     // Maintain an Alphabetical Order of Keywords
 
-    static IDL_KW_PAR kw_pars[] = { IDL_KW_FAST_SCAN,
-            { "DEBUG", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(debug) },
-            { "HELP", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(help) },
-            { "VERBOSE", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(verbose) },
-            { NULL }
+    static IDL_KW_PAR kw_pars[] = {IDL_KW_FAST_SCAN,
+                                   {"DEBUG", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(debug)},
+                                   {"HELP", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(help)},
+                                   {"VERBOSE", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(verbose)},
+                                   {NULL}
     };
 
     KW_RESULT kw;
@@ -4024,20 +3987,17 @@ IDL_VPTR IDL_CDECL makeidamstructure(int argc, IDL_VPTR argv[], char* argk)
 }
 
 
-IDL_VPTR IDL_CDECL getidamstructuredatasize(int argc, IDL_VPTR argv[], char* argk)
-{
+IDL_VPTR IDL_CDECL getidamstructuredatasize(int argc, IDL_VPTR argv[], char* argk) {
     //int getNodeStructureDataSize(NTREE *ntree)
     return (IDL_GettmpLong(0));
 }
 
-IDL_VPTR IDL_CDECL getidamstructuredatadatatype(int argc, IDL_VPTR argv[], char* argk)
-{
+IDL_VPTR IDL_CDECL getidamstructuredatadatatype(int argc, IDL_VPTR argv[], char* argk) {
     //char *getNodeStructureDataDataType(NTREE *ntree)
     return (IDL_GettmpLong(0));
 }
 
-IDL_VPTR IDL_CDECL getidamstructuredata(int argc, IDL_VPTR argv[], char* argk)
-{
+IDL_VPTR IDL_CDECL getidamstructuredata(int argc, IDL_VPTR argv[], char* argk) {
     //void *getNodeStructureData(NTREE *ntree)
     return (IDL_GettmpLong(0));
 }

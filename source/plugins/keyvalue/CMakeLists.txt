@@ -1,8 +1,12 @@
 cmake_minimum_required( VERSION 2.8 )
 
 find_package( LibXml2 QUIET )
+find_package( LevelDB QUIET )
 
-if( NOT LIBXML2_FOUND )
+if( NOT LEVELDB_FOUND )
+  message( WARNING "LevelDB not found - skipping keyvalue plugin" )
+  return()
+elseif( NOT LIBXML2_FOUND )
   message( WARNING "Libxml2 not found - skipping template plugin" )
   return()
 endif()
@@ -20,7 +24,9 @@ idam_plugin(
   EXTRA_INCLUDE_DIRS
     /opt/local/include
     ${LIBXML2_INCLUDE_DIR}
+    ${LEVELDB_INCLUDE_DIR}
   EXTRA_LINK_LIBS
     /opt/local/lib/libleveldb.a
     ${LIBXML2_LIBRARIES}
+    ${LEVELDB_LIBRARIES}
 )

@@ -1,10 +1,15 @@
 #ifndef NOIDAPLUGIN
 
 #include "readIdaItem.h"
+
+#include <stdlib.h>
 #include <ida3.h>
-#include <idamLog.h>
-#include "initStructs.h"
-#include "idamErrorLog.h"
+
+#include <logging/idamLog.h>
+#include <clientserver/idamTypes.h>
+#include <clientserver/idamErrorLog.h>
+#include <clientserver/initStructs.h>
+#include <include/idamclientserverprivate.h>
 
 #define SWAPXY
 

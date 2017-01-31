@@ -40,20 +40,18 @@ int readMDS(DATA_SOURCE data_source,
 
 #else
 
-#include <mdslib.h>
-#include <mdstypes.h>
-#include <mdsdescrip.h>
-#include <mdsshr.h>
+#include <errno.h>
 
+#include <include/idamserver.h>
 #include <clientserver/idamErrors.h>
+#include <clientserver/idamTypes.h>
+#include <clientserver/manageSockets.h>
+#include <clientserver/TrimString.h>
+#include <clientserver/freeDataBlock.h>
+#include <clientserver/initStructs.h>
+#include <logging/idamLog.h>
 
-#include "idamServerStartup.h"
 #include "readMDSDim.h"
-#include "manageSockets.h"
-#include "TrimString.h"
-#include "freeDataBlock.h"
-#include "initStructs.h"
-#include "idamLog.h"
 
 #define status_ok(status) (((status) & 1) == 1)
 
@@ -71,34 +69,24 @@ int readMDSType(int type) {
         return TYPE_FLOAT;			// float
     case(DTYPE_DOUBLE):
         return TYPE_DOUBLE;			// double
-//	case(DTYPE_F):			return TYPE_FLOAT;			// 4 byte float
-//	case(DTYPE_D):			return TYPE_DOUBLE;			// 8 byte float
     case(DTYPE_G):
         return TYPE_DOUBLE;			// 8 byte float
     case(DTYPE_UCHAR):
         return TYPE_UNSIGNED_CHAR;		// unsigned char
-//	case(DTYPE_BU):			return TYPE_UNSIGNED_CHAR;		// unsigned byte
     case(DTYPE_CHAR):
         return TYPE_CHAR;			// char
-//	case(DTYPE_B):			return TYPE_CHAR;			// signed byte
     case(DTYPE_USHORT):
         return TYPE_UNSIGNED_SHORT;		// unsigned short
-//	case(DTYPE_WU):			return TYPE_UNSIGNED_SHORT;		// unsigned 2 byte word
     case(DTYPE_SHORT):
         return TYPE_SHORT;			// signed short
-//	case(DTYPE_W):			return TYPE_SHORT;			// signed 2 byte word
     case(DTYPE_ULONG):
         return TYPE_UNSIGNED ;			// unsigned integer
-//	case(DTYPE_LU):			return TYPE_UNSIGNED ;			// unsigned 4 byte word
     case(DTYPE_LONG):
         return TYPE_INT;			// signed integer
-//	case(DTYPE_L):			return TYPE_INT;			// signed 4 byte word
     case(DTYPE_ULONGLONG):
         return TYPE_UNSIGNED_LONG64 ;		// unsigned long long integer
-//	case(DTYPE_QU):			return TYPE_UNSIGNED_LONG64 ;		// unsigned 8 byte word
     case(DTYPE_LONGLONG):
         return TYPE_LONG64;			// signed long long byte word
-//	case(DTYPE_Q):			return TYPE_LONG64;			// signed 8 byte word
     default:
         return TYPE_UNKNOWN;
     }
@@ -123,15 +111,12 @@ int readMDS(DATA_SOURCE data_source,
 
     int dtype_str    = DTYPE_CSTRING;
 
-    //struct descrip tdiarg;
-
-    int i, err, rc=0, status, type, lpath=0;
+    int i, err, rc=0, status, type;
+    size_t lpath=0;
     int socket = 0;
-    //int treeno;
     int rank, size, null, desc, lunits;
     long lint = 1;
     int  len  = 0;
-
 
     char  *sdim = NULL;
     char  *units= NULL;
@@ -151,13 +136,7 @@ int readMDS(DATA_SOURCE data_source,
 
     SOCKET mdssocket = -1;
 
-    int server_called = 0;
-
-    //float test;
     float *ptest;
-
-    static int sand_box = 0;		// Flags sand-box initialisation called - Once only
-
 //----------------------------------------------------------------------
 // Client Identifies the MDS Server (Lower case) and Tree
 
@@ -275,9 +254,7 @@ int readMDS(DATA_SOURCE data_source,
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "readMDS", err, "Unable to Connect to MDSPlus Server");
                 break;
             } else
-                rc = addSocket(&server_socketlist, type, status, server, mdsport, socket);
-
-            server_called = 1;
+                addSocket(&server_socketlist, type, status, server, mdsport, socket);
 
             idamLog(LOG_DEBUG, "readMDS: Socket fd: %d \n", socket);
 
@@ -623,10 +600,7 @@ int readMDS(DATA_SOURCE data_source,
         for (i = 0; i< rank; i++) {
             initDimBlock(&ddim[i]);
             if((err = readMDSDim( node, i, &ddim[i])) == 0) {
-
-                idamLog(LOG_DEBUG,"readMDS: Dimension %d, Size %d, Units %s \n", i,
-                                       ddim[i].dim_n, ddim[i].dim_units);
-
+                idamLog(LOG_DEBUG,"readMDS: Dimension %d, Size %d, Units %s \n", i, ddim[i].dim_n, ddim[i].dim_units);
             } else {
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "readMDS", err, "Unable to Retrieve the Dimensional Data");
                 break;
@@ -682,8 +656,6 @@ int readMDS(DATA_SOURCE data_source,
 
     return err;
 }
-
-#include "readMDSDim.c"
 
 #endif
 

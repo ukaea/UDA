@@ -17,12 +17,6 @@
 *	init	Initialise the plugin: read all required data and process. Retain staticly for
 *		future reference.
 *
-* Change History
-*
-* 20Aug2015	D.G.Muir	Original Version based on imas.c
-				pluginFileList disabled as all tree management is within the mdsplus system
-				getImasIdsVersion & getImasIdsDevice commented out
-				All object related code commented out
 *---------------------------------------------------------------------------------------------------------------*/
 
 #include "imas_mds.h"
@@ -34,15 +28,19 @@
 #include "extract_indices.h"
 
 #include <mdslib.h>
-#include <idamserver.h>
-#include <idamErrorLog.h>
-#include <initStructs.h>
-#include <TrimString.h>
-#include <managePluginFiles.h>
-#include <makeServerRequestBlock.h>
-#include <accAPI_C.h>
-#include <idamServerPlugin.h>
-#include <idamLog.h>
+
+#include <include/idampluginfiles.h>
+#include <include/idamplugin.h>
+#include <clientserver/initStructs.h>
+#include <clientserver/TrimString.h>
+#include <clientserver/idamTypes.h>
+#include <clientserver/printStructs.h>
+#include <clientserver/copyStructs.h>
+#include <server/idamServerPlugin.h>
+#include <server/makeServerRequestBlock.h>
+#include <server/managePluginFiles.h>
+#include <client/accAPI_C.h>
+#include <logging/idamLog.h>
 #include <regex.h>
 
 IDAMPLUGINFILELIST pluginFileList_mds;
@@ -55,8 +53,6 @@ static unsigned int lastObjectId = 0;
 static unsigned int initLocalObjs = 1;
 
 static int process_arguments(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARGS* plugin_args);
-static int idam_signal(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, char* signal, int shot_number, int* shape,
-                       char** imasData);
 static int do_putIdsVersion(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARGS plugin_args);
 static int do_delete(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARGS plugin_args);
 static int do_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARGS plugin_args, int idx);
@@ -262,8 +258,6 @@ extern int imas_mds(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 //----------------------------------------------------------------------------------------
 // Standard v1 Plugin Interface
-
-    unsigned short housekeeping;
 
     if (idam_plugin_interface->interfaceVersion > THISPLUGIN_MAX_INTERFACE_VERSION) {
         err = 999;
@@ -1914,6 +1908,8 @@ static int process_arguments(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGI
     plugin_args->isEndIDSTimed = findValue(&request_block->nameValueList, "endIDSTimed");
     plugin_args->isBeginIDSNonTimed = findValue(&request_block->nameValueList, "beginIDSNonTimed");
     plugin_args->isEndIDSNonTimed = findValue(&request_block->nameValueList, "endIDSNonTimed");
+
+    return 0;
 }
 
 //----------------------------------------------------------------------------------------
@@ -2163,7 +2159,6 @@ static int do_putIdsVersion(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN
 static int do_delete(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARGS plugin_args)
 {
     int err = 0;
-    int i;
     int rc;
 
     if (plugin_args.isClientIdx && plugin_args.isCPOPath && plugin_args.isPath) {

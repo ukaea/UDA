@@ -14,49 +14,10 @@
 // Simple Tags with Delimited List of Floating Point Values  
 // Assume No Attributes
 
-float* parseFloatArray(xmlDocPtr doc, xmlNodePtr cur, char* target, int* n)
-{
-    float* value = NULL;
-    *n = 0;
-    const char* delim = " ";
-    int nco = 0;
-
-    cur = cur->xmlChildrenNode;
-    while (cur != NULL) {
-        if ((!xmlStrcmp(cur->name, (const xmlChar*) target))) {
-            xmlChar* key = xmlNodeListGetString(doc, cur->xmlChildrenNode, 1);
-            convertNonPrintable((char*)key);
-            if (xmlStrlen(key) > 0) {
-                IDAM_LOGF(LOG_DEBUG, "parseFloatArray: %s %s \n", target, key);
-                char* item = strtok((char*)key, delim);
-                if (item != NULL) {
-                    nco++;
-                    IDAM_LOGF(LOG_DEBUG, "parseFloatArray: [%d] %s \n", nco, item);
-                    value = (float*) realloc((void*) value, nco * sizeof(float));
-                    value[nco - 1] = (float)atof(item);
-                    IDAM_LOGF(LOG_DEBUG, "parseFloatArray: [%d] %s %f\n", nco, item, value[nco - 1]);
-                    while ((item = strtok(NULL, delim)) != NULL && nco <= XMLMAXLOOP) {
-                        nco++;
-                        value = (float*) realloc((void*) value, nco * sizeof(float));
-                        value[nco - 1] = (float)atof(item);
-                        IDAM_LOGF(LOG_DEBUG, "parseFloatArray: [%d] %s %f\n", nco, item, value[nco - 1]);
-                    }
-                }
-            }
-            *n = nco;
-            xmlFree(key);
-            break;
-        }
-        cur = cur->next;
-    }
-    return value;
-}
-
 // Simple Tags with Floating Point Values 
 // Assume No Attributes 
 
-void parseFloat(xmlDocPtr doc, xmlNodePtr cur, char* target, float* value)
-{
+void parseFloat(xmlDocPtr doc, xmlNodePtr cur, char* target, float* value) {
     xmlChar* key;
     *value = 0.0;
 
@@ -65,7 +26,7 @@ void parseFloat(xmlDocPtr doc, xmlNodePtr cur, char* target, float* value)
         if ((!xmlStrcmp(cur->name, (const xmlChar*) target))) {
             key = xmlNodeListGetString(doc, cur->xmlChildrenNode, 1);
             if (strlen((char*) key) > 0) {
-                *value = (float)atof((char*) key);
+                *value = (float) atof((char*) key);
             }
             IDAM_LOGF(LOG_DEBUG, "parseFloat: %s  %s\n", target, (char*) key);
             xmlFree(key);
@@ -79,8 +40,7 @@ void parseFloat(xmlDocPtr doc, xmlNodePtr cur, char* target, float* value)
 // Simple Tags with Integer Values 
 // Assume No Attributes 
 
-void parseInt(xmlDocPtr doc, xmlNodePtr cur, char* target, int* value)
-{
+void parseInt(xmlDocPtr doc, xmlNodePtr cur, char* target, int* value) {
     *value = 0;
 
     cur = cur->xmlChildrenNode;
@@ -97,8 +57,7 @@ void parseInt(xmlDocPtr doc, xmlNodePtr cur, char* target, int* value)
     return;
 }
 
-int* parseIntArray(xmlDocPtr doc, xmlNodePtr cur, char* target, int* n)
-{
+int* parseIntArray(xmlDocPtr doc, xmlNodePtr cur, char* target, int* n) {
     int* value = NULL;
     *n = 0;
     const char* delim = " ";
@@ -140,8 +99,7 @@ int* parseIntArray(xmlDocPtr doc, xmlNodePtr cur, char* target, int* n)
 // Simple Tags with Delimited List of Floating Point Values  
 // Assume No Attributes 
 
-float* parseFloatAngleArray(xmlDocPtr doc, xmlNodePtr cur, char* target, int* n)
-{
+float* parseFloatAngleArray(xmlDocPtr doc, xmlNodePtr cur, char* target, int* n) {
     xmlChar* key, * att;
     float* value = NULL;
     *n = 0;
@@ -197,8 +155,7 @@ float* parseFloatAngleArray(xmlDocPtr doc, xmlNodePtr cur, char* target, int* n)
 // Simple Tags with Floating Point Values 
 // Assume No Attributes 
 
-void parseFloatAngle(xmlDocPtr doc, xmlNodePtr cur, char* target, float* value)
-{
+void parseFloatAngle(xmlDocPtr doc, xmlNodePtr cur, char* target, float* value) {
     xmlChar* key, * att;
     float factor = 1.0;
     *value = 0.0;
@@ -241,63 +198,62 @@ void parseFloatAngle(xmlDocPtr doc, xmlNodePtr cur, char* target, float* value)
 //========================================================================================================================================== 
 // Instance Attributes (Signal Identification) 
 
-void parseInstance(xmlNodePtr cur, INSTANCE* str)
-{
+void parseInstance(xmlNodePtr cur, INSTANCE* str) {
     xmlChar* att;
 
-    if ((att = xmlGetProp(cur, (xmlChar*)"archive")) != NULL) {
+    if ((att = xmlGetProp(cur, (xmlChar*) "archive")) != NULL) {
         if (xmlStrlen(att) > 0) {
-            strcpy(str->archive, (char*)att);
+            strcpy(str->archive, (char*) att);
         }
         IDAM_LOGF(LOG_DEBUG, "Archive: %s\n", str->archive);
         xmlFree(att);
     }
-    if ((att = xmlGetProp(cur, (xmlChar*)"file")) != NULL) {
+    if ((att = xmlGetProp(cur, (xmlChar*) "file")) != NULL) {
         if (xmlStrlen(att) > 0) {
-            strcpy(str->file, (char*)att);
+            strcpy(str->file, (char*) att);
         }
         IDAM_LOGF(LOG_DEBUG, "File: %s\n", str->file);
         xmlFree(att);
     }
-    if ((att = xmlGetProp(cur, (xmlChar*)"signal")) != NULL) {
+    if ((att = xmlGetProp(cur, (xmlChar*) "signal")) != NULL) {
         if (xmlStrlen(att) > 0) {
-            strcpy(str->signal, (char*)att);
+            strcpy(str->signal, (char*) att);
         }
         IDAM_LOGF(LOG_DEBUG, "Signal: %s\n", str->signal);
         xmlFree(att);
     }
-    if ((att = xmlGetProp(cur, (xmlChar*)"owner")) != NULL) {
+    if ((att = xmlGetProp(cur, (xmlChar*) "owner")) != NULL) {
         if (xmlStrlen(att) > 0) {
-            strcpy(str->owner, (char*)att);
+            strcpy(str->owner, (char*) att);
         }
         IDAM_LOGF(LOG_DEBUG, "Owner: %s\n", str->owner);
         xmlFree(att);
     }
-    if ((att = xmlGetProp(cur, (xmlChar*)"format")) != NULL) {
+    if ((att = xmlGetProp(cur, (xmlChar*) "format")) != NULL) {
         if (xmlStrlen(att) > 0) {
-            strcpy(str->format, (char*)att);
+            strcpy(str->format, (char*) att);
         }
         IDAM_LOGF(LOG_DEBUG, "Format: %s\n", str->format);
         xmlFree(att);
     }
 
-    if ((att = xmlGetProp(cur, (xmlChar*)"seq")) != NULL) {
+    if ((att = xmlGetProp(cur, (xmlChar*) "seq")) != NULL) {
         if (xmlStrlen(att) > 0) {
-            str->seq = atoi((char*)att);
+            str->seq = atoi((char*) att);
         }
         IDAM_LOGF(LOG_DEBUG, "Seq: %d\n", str->seq);
         xmlFree(att);
     }
-    if ((att = xmlGetProp(cur, (xmlChar*)"status")) != NULL) {
+    if ((att = xmlGetProp(cur, (xmlChar*) "status")) != NULL) {
         if (xmlStrlen(att) > 0) {
-            str->status = atoi((char*)att);
+            str->status = atoi((char*) att);
         }
         IDAM_LOGF(LOG_DEBUG, "Status: %d\n", str->status);
         xmlFree(att);
     }
-    if ((att = xmlGetProp(cur, (xmlChar*)"factor")) != NULL) {
+    if ((att = xmlGetProp(cur, (xmlChar*) "factor")) != NULL) {
         if (xmlStrlen(att) > 0) {
-            str->factor = (float)atof((char*)att);
+            str->factor = (float) atof((char*) att);
         }
         IDAM_LOGF(LOG_DEBUG, "Factor: %f\n", str->factor);
         xmlFree(att);
@@ -310,8 +266,7 @@ void parseInstance(xmlNodePtr cur, INSTANCE* str)
 // Magnetic Probe Data 
 // Assume multiple tags per document 
 
-MAGPROBE* parseMagProbe(xmlDocPtr doc, xmlNodePtr cur, MAGPROBE* str, int* np)
-{
+MAGPROBE* parseMagProbe(xmlDocPtr doc, xmlNodePtr cur, MAGPROBE* str, int* np) {
 
     int n = 0;
     xmlChar* att;    // General Input of tag attribute values
@@ -329,8 +284,8 @@ MAGPROBE* parseMagProbe(xmlDocPtr doc, xmlNodePtr cur, MAGPROBE* str, int* np)
 
 // Instance Attributes 
 
-            if ((att = xmlGetProp(cur, (xmlChar*)"id")) != NULL) {
-                if (xmlStrlen(att) > 0) strcpy(str[n - 1].id, (char*)att);
+            if ((att = xmlGetProp(cur, (xmlChar*) "id")) != NULL) {
+                if (xmlStrlen(att) > 0) strcpy(str[n - 1].id, (char*) att);
                 IDAM_LOGF(LOG_DEBUG, "Mag Probe ID: %s\n", str[n - 1].id);
                 xmlFree(att);
             }
@@ -359,8 +314,7 @@ MAGPROBE* parseMagProbe(xmlDocPtr doc, xmlNodePtr cur, MAGPROBE* str, int* np)
 // Flux Loop Data 
 // Assume multiple tags per document 
 
-FLUXLOOP* parseFluxLoop(xmlDocPtr doc, xmlNodePtr cur, FLUXLOOP* str, int* np)
-{
+FLUXLOOP* parseFluxLoop(xmlDocPtr doc, xmlNodePtr cur, FLUXLOOP* str, int* np) {
 
     int n = 0;
     int nco;
@@ -379,8 +333,8 @@ FLUXLOOP* parseFluxLoop(xmlDocPtr doc, xmlNodePtr cur, FLUXLOOP* str, int* np)
 
 // Attributes 
 
-            if ((att = xmlGetProp(cur, (xmlChar*)"id")) != NULL) {
-                if (xmlStrlen(att) > 0) strcpy(str[n - 1].id, (char*)att);
+            if ((att = xmlGetProp(cur, (xmlChar*) "id")) != NULL) {
+                if (xmlStrlen(att) > 0) strcpy(str[n - 1].id, (char*) att);
                 IDAM_LOGF(LOG_DEBUG, "Flux Loop ID: %s\n", str[n - 1].id);
                 xmlFree(att);
             }
@@ -407,8 +361,7 @@ FLUXLOOP* parseFluxLoop(xmlDocPtr doc, xmlNodePtr cur, FLUXLOOP* str, int* np)
 // PF Coil Data 
 // Assume multiple tags per document 
 
-PFCOILS* parsePfCoils(xmlDocPtr doc, xmlNodePtr cur, PFCOILS* str, int* np)
-{
+PFCOILS* parsePfCoils(xmlDocPtr doc, xmlNodePtr cur, PFCOILS* str, int* np) {
 
     int i, n = 0;
     int nco;
@@ -428,8 +381,8 @@ PFCOILS* parsePfCoils(xmlDocPtr doc, xmlNodePtr cur, PFCOILS* str, int* np)
 
 // Attributes 
 
-            if ((att = xmlGetProp(cur, (xmlChar*)"id")) != NULL) {
-                if (xmlStrlen(att) > 0) strcpy(str[n - 1].id, (char*)att);
+            if ((att = xmlGetProp(cur, (xmlChar*) "id")) != NULL) {
+                if (xmlStrlen(att) > 0) strcpy(str[n - 1].id, (char*) att);
                 IDAM_LOGF(LOG_DEBUG, "PF Coil ID: %s\n", str[n - 1].id);
                 xmlFree(att);
             }
@@ -466,8 +419,7 @@ PFCOILS* parsePfCoils(xmlDocPtr doc, xmlNodePtr cur, PFCOILS* str, int* np)
 // PF Passive Circuit Elements 
 // Assume multiple tags per document 
 
-PFPASSIVE* parsePfPassive(xmlDocPtr doc, xmlNodePtr cur, PFPASSIVE* str, int* np)
-{
+PFPASSIVE* parsePfPassive(xmlDocPtr doc, xmlNodePtr cur, PFPASSIVE* str, int* np) {
 
     int i, n = 0;
     int nco;
@@ -487,8 +439,8 @@ PFPASSIVE* parsePfPassive(xmlDocPtr doc, xmlNodePtr cur, PFPASSIVE* str, int* np
 
 // Attributes 
 
-            if ((att = xmlGetProp(cur, (xmlChar*)"id")) != NULL) {
-                if (xmlStrlen(att) > 0) strcpy(str[n - 1].id, (char*)att);
+            if ((att = xmlGetProp(cur, (xmlChar*) "id")) != NULL) {
+                if (xmlStrlen(att) > 0) strcpy(str[n - 1].id, (char*) att);
                 IDAM_LOGF(LOG_DEBUG, "Pf Passive ID: %s\n", str[n - 1].id);
                 xmlFree(att);
             }
@@ -528,8 +480,7 @@ PFPASSIVE* parsePfPassive(xmlDocPtr doc, xmlNodePtr cur, PFPASSIVE* str, int* np
 // PF Supplies 
 // Assume multiple tags per document 
 
-PFSUPPLIES* parsePfSupplies(xmlDocPtr doc, xmlNodePtr cur, PFSUPPLIES* str, int* np)
-{
+PFSUPPLIES* parsePfSupplies(xmlDocPtr doc, xmlNodePtr cur, PFSUPPLIES* str, int* np) {
 
     int n = 0;
     xmlChar* att;    // General Input of tag attribute values
@@ -547,8 +498,8 @@ PFSUPPLIES* parsePfSupplies(xmlDocPtr doc, xmlNodePtr cur, PFSUPPLIES* str, int*
 
 // Attributes 
 
-            if ((att = xmlGetProp(cur, (xmlChar*)"id")) != NULL) {
-                if (xmlStrlen(att) > 0) strcpy(str[n - 1].id, (char*)att);
+            if ((att = xmlGetProp(cur, (xmlChar*) "id")) != NULL) {
+                if (xmlStrlen(att) > 0) strcpy(str[n - 1].id, (char*) att);
                 IDAM_LOGF(LOG_DEBUG, "Pf Supplies ID: %s\n", str[n - 1].id);
                 xmlFree(att);
             }
@@ -573,8 +524,7 @@ PFSUPPLIES* parsePfSupplies(xmlDocPtr doc, xmlNodePtr cur, PFSUPPLIES* str, int*
 // PF Circuits 
 // Assume multiple tags per document 
 
-PFCIRCUIT* parsePfCircuits(xmlDocPtr doc, xmlNodePtr cur, PFCIRCUIT* str, int* np)
-{
+PFCIRCUIT* parsePfCircuits(xmlDocPtr doc, xmlNodePtr cur, PFCIRCUIT* str, int* np) {
 
     int n = 0;
     xmlChar* att;    // General Input of tag attribute values
@@ -592,8 +542,8 @@ PFCIRCUIT* parsePfCircuits(xmlDocPtr doc, xmlNodePtr cur, PFCIRCUIT* str, int* n
 
 // Attributes 
 
-            if ((att = xmlGetProp(cur, (xmlChar*)"id")) != NULL) {
-                if (xmlStrlen(att) > 0) strcpy(str[n - 1].id, (char*)att);
+            if ((att = xmlGetProp(cur, (xmlChar*) "id")) != NULL) {
+                if (xmlStrlen(att) > 0) strcpy(str[n - 1].id, (char*) att);
                 IDAM_LOGF(LOG_DEBUG, "Pf Circuits ID: %s\n", str[n - 1].id);
                 xmlFree(att);
             }
@@ -618,8 +568,7 @@ PFCIRCUIT* parsePfCircuits(xmlDocPtr doc, xmlNodePtr cur, PFCIRCUIT* str, int* n
 // Plasma Current  
 // Assume Single tag per document 
 
-PLASMACURRENT* parsePlasmaCurrent(xmlDocPtr doc, xmlNodePtr cur, PLASMACURRENT* str)
-{
+PLASMACURRENT* parsePlasmaCurrent(xmlDocPtr doc, xmlNodePtr cur, PLASMACURRENT* str) {
     cur = cur->xmlChildrenNode;
     while (cur != NULL) {
         IDAM_LOGF(LOG_DEBUG, "parsePlasmaCurrent: %s\n", (char*) cur->name);
@@ -648,8 +597,7 @@ PLASMACURRENT* parsePlasmaCurrent(xmlDocPtr doc, xmlNodePtr cur, PLASMACURRENT* 
 // Diamagnetic Flux  
 // Assume Single tag per document 
 
-DIAMAGNETIC* parseDiaMagnetic(xmlDocPtr doc, xmlNodePtr cur, DIAMAGNETIC* str)
-{
+DIAMAGNETIC* parseDiaMagnetic(xmlDocPtr doc, xmlNodePtr cur, DIAMAGNETIC* str) {
     cur = cur->xmlChildrenNode;
     while (cur != NULL) {
         IDAM_LOGF(LOG_DEBUG, "parseDiaMagnetic: %s\n", (char*) cur->name);
@@ -678,8 +626,7 @@ DIAMAGNETIC* parseDiaMagnetic(xmlDocPtr doc, xmlNodePtr cur, DIAMAGNETIC* str)
 // Toroidal Field 
 // Assume Single tag per document 
 
-TOROIDALFIELD* parseToroidalField(xmlDocPtr doc, xmlNodePtr cur, TOROIDALFIELD* str)
-{
+TOROIDALFIELD* parseToroidalField(xmlDocPtr doc, xmlNodePtr cur, TOROIDALFIELD* str) {
     cur = cur->xmlChildrenNode;
     while (cur != NULL) {
         IDAM_LOGF(LOG_DEBUG, "parseToroidalField: %s\n", (char*) cur->name);
@@ -709,8 +656,7 @@ TOROIDALFIELD* parseToroidalField(xmlDocPtr doc, xmlNodePtr cur, TOROIDALFIELD* 
 // Limiter Data 
 // Assume Single tag per document 
 
-LIMITER* parseLimiter(xmlDocPtr doc, xmlNodePtr cur, LIMITER* str)
-{
+LIMITER* parseLimiter(xmlDocPtr doc, xmlNodePtr cur, LIMITER* str) {
 
     int nco = 0;
     xmlChar* att;    // General Input of tag attribute values
@@ -726,9 +672,9 @@ LIMITER* parseLimiter(xmlDocPtr doc, xmlNodePtr cur, LIMITER* str)
 
 // Attributes  
 
-            if ((att = xmlGetProp(cur, (xmlChar*)"factor")) != NULL) {
+            if ((att = xmlGetProp(cur, (xmlChar*) "factor")) != NULL) {
                 if (xmlStrlen(att) > 0) {
-                    str->factor = (float)atof((char*)att);
+                    str->factor = (float) atof((char*) att);
                 }
                 IDAM_LOGF(LOG_DEBUG, "Limiter Coordinates Factor: %f\n", str->factor);
                 xmlFree(att);
@@ -747,8 +693,7 @@ LIMITER* parseLimiter(xmlDocPtr doc, xmlNodePtr cur, LIMITER* str)
 }
 
 
-int parseEfitXML(char* xmlfile, EFIT* efit)
-{
+int parseEfitXML(char* xmlfile, EFIT* efit) {
 
     int ninst;
 
@@ -777,13 +722,13 @@ int parseEfitXML(char* xmlfile, EFIT* efit)
             xmlFreeDoc(doc);
             return 1;
         } else {
-            if ((att = xmlGetProp(cur, (xmlChar*)"name")) != NULL) {
-                if (xmlStrlen(att) > 0) strcpy(efit->device, (char*)att);
+            if ((att = xmlGetProp(cur, (xmlChar*) "name")) != NULL) {
+                if (xmlStrlen(att) > 0) strcpy(efit->device, (char*) att);
                 IDAM_LOGF(LOG_DEBUG, "Device Name: %s\n", efit->device);
                 xmlFree(att);
             }
-            if ((att = xmlGetProp(cur, (xmlChar*)"pulse")) != NULL) {
-                if (xmlStrlen(att) > 0) efit->exp_number = atoi((char*)att);
+            if ((att = xmlGetProp(cur, (xmlChar*) "pulse")) != NULL) {
+                if (xmlStrlen(att) > 0) efit->exp_number = atoi((char*) att);
                 IDAM_LOGF(LOG_DEBUG, "Pulse Number: %d\n", efit->exp_number);
                 xmlFree(att);
             }
@@ -797,8 +742,8 @@ int parseEfitXML(char* xmlfile, EFIT* efit)
 
         if ((!xmlStrcmp(cur->name, (const xmlChar*) "magprobes"))) {
 
-            if ((att = xmlGetProp(cur, (xmlChar*)"number")) != NULL) {
-                if (xmlStrlen(att) > 0) efit->nmagprobes = atoi((char*)att);
+            if ((att = xmlGetProp(cur, (xmlChar*) "number")) != NULL) {
+                if (xmlStrlen(att) > 0) efit->nmagprobes = atoi((char*) att);
                 IDAM_LOGF(LOG_DEBUG, "No. Mag Probes: %d\n", efit->nmagprobes);
                 xmlFree(att);
             }
@@ -815,8 +760,8 @@ int parseEfitXML(char* xmlfile, EFIT* efit)
 
         if ((!xmlStrcmp(cur->name, (const xmlChar*) "flux"))) {
 
-            if ((att = xmlGetProp(cur, (xmlChar*)"number")) != NULL) {
-                if (xmlStrlen(att) > 0) efit->nfluxloops = atoi((char*)att);
+            if ((att = xmlGetProp(cur, (xmlChar*) "number")) != NULL) {
+                if (xmlStrlen(att) > 0) efit->nfluxloops = atoi((char*) att);
                 IDAM_LOGF(LOG_DEBUG, "No. Flux Loops: %d\n", efit->nfluxloops);
                 xmlFree(att);
             }
@@ -833,8 +778,8 @@ int parseEfitXML(char* xmlfile, EFIT* efit)
 
         if ((!xmlStrcmp(cur->name, (const xmlChar*) "pfpassive"))) {
 
-            if ((att = xmlGetProp(cur, (xmlChar*)"number")) != NULL) {
-                if (xmlStrlen(att) > 0) efit->npfpassive = atoi((char*)att);
+            if ((att = xmlGetProp(cur, (xmlChar*) "number")) != NULL) {
+                if (xmlStrlen(att) > 0) efit->npfpassive = atoi((char*) att);
                 IDAM_LOGF(LOG_DEBUG, "No. PF Passive Elements: %d\n", efit->npfpassive);
                 xmlFree(att);
             }
@@ -852,8 +797,8 @@ int parseEfitXML(char* xmlfile, EFIT* efit)
 
         if ((!xmlStrcmp(cur->name, (const xmlChar*) "pfsupplies"))) {
 
-            if ((att = xmlGetProp(cur, (xmlChar*)"number")) != NULL) {
-                if (xmlStrlen(att) > 0) efit->npfsupplies = atoi((char*)att);
+            if ((att = xmlGetProp(cur, (xmlChar*) "number")) != NULL) {
+                if (xmlStrlen(att) > 0) efit->npfsupplies = atoi((char*) att);
                 IDAM_LOGF(LOG_DEBUG, "No. PF Supplies: %d\n", efit->npfsupplies);
                 xmlFree(att);
             }
@@ -870,8 +815,8 @@ int parseEfitXML(char* xmlfile, EFIT* efit)
 
         if ((!xmlStrcmp(cur->name, (const xmlChar*) "pfcoils"))) {
 
-            if ((att = xmlGetProp(cur, (xmlChar*)"number")) != NULL) {
-                if (xmlStrlen(att) > 0) efit->npfcoils = atoi((char*)att);
+            if ((att = xmlGetProp(cur, (xmlChar*) "number")) != NULL) {
+                if (xmlStrlen(att) > 0) efit->npfcoils = atoi((char*) att);
                 IDAM_LOGF(LOG_DEBUG, "No. PF Coils: %d\n", efit->npfcoils);
                 xmlFree(att);
             }
@@ -903,8 +848,8 @@ int parseEfitXML(char* xmlfile, EFIT* efit)
 
         if ((!xmlStrcmp(cur->name, (const xmlChar*) "pfcircuits"))) {
 
-            if ((att = xmlGetProp(cur, (xmlChar*)"number")) != NULL) {
-                if (xmlStrlen(att) > 0) efit->npfcircuits = atoi((char*)att);
+            if ((att = xmlGetProp(cur, (xmlChar*) "number")) != NULL) {
+                if (xmlStrlen(att) > 0) efit->npfcircuits = atoi((char*) att);
                 IDAM_LOGF(LOG_DEBUG, "No. PF Circuits: %d\n", efit->npfcircuits);
                 xmlFree(att);
             }

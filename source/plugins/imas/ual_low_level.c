@@ -11,6 +11,7 @@
 #  include "ual_low_level_idam.h"
 #endif
 #include "ual_low_level_mdsplus.h"
+#include "imas_mds.h"
 
 #define EXPORT
 

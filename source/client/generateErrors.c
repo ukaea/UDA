@@ -13,6 +13,7 @@
 #include "generateErrors.h"
 
 #include <math.h>
+#include <stdlib.h>
 
 #include <include/idamclientprivate.h>
 #include <clientserver/idamTypes.h>

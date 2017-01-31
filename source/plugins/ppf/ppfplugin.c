@@ -21,34 +21,24 @@
  Retain staticly for future reference.
  *      api     Call the PPF API
  *
- * Change History
- *
- * 03Jul2014    dsand           Initial version
  *---------------------------------------------------------------------*/
-//#include<signal.h>
 
 #include "ppf.h"
 #include "ppf_vars.h"
 
-//#pragma GCC diagnosic push
-//#pragma GCC diagnostic ignored "-Wall"
+#include <string.h>
 
-#include "idamclientserver.h"
-#include "idamplugin.h"
-#include "idamserver.h"
-
-#include "initStructs.h"
-#include "TrimString.h"
-#include "idamErrorLog.h"
-#include "idamLog.h"
-
-//#pragma GCC diagnosic pop
+#include <include/idamserver.h>
+#include <clientserver/initStructs.h>
+#include <clientserver/idamTypes.h>
+#include <clientserver/idamErrorLog.h>
+#include <clientserver/TrimString.h>
+#include <logging/idamLog.h>
 
 #define PLUGIN_NAME "ppf2plugin"
 #define PLUGIN_CURRENT_VERSION 1
 
 FILE * g_dbgout;
-//static FILE* g_errout;
 
 IDAMERRORSTACK * idamErrorStack;
 
@@ -441,7 +431,7 @@ static int readppf(IDAM_PLUGIN_INTERFACE * idam_plugin_interface)
 {
 
     int nwcom = NWCOM, ndt = NDTNAMS, lxtv[2 * NDTNAMS], err = 0, err2 = 0, lowner = 0, xsubset = 0;
-    int pulno, pass, rank, order, nx, nt, lun = 0, ndmax, dtid, i, ldtype;
+    int pulno, pass, rank, order, nx, nt, lun = 0, ndmax, dtid, i;
     int irdat[13], iwdat[13];
     int swap[] = { 0, 1, 0 };            // Finding the Correct Dimension Index
 
@@ -468,7 +458,6 @@ static int readppf(IDAM_PLUGIN_INTERFACE * idam_plugin_interface)
     // Reduce Rank by 1 and subset the X-Dimension as requested
 
     TrimString(signal_desc->signal_name);
-    ldtype = strlen(signal_desc->signal_name);
 
     char *p2 = strrchr(signal_desc->signal_name, ')');
     if (p2 != NULL) {

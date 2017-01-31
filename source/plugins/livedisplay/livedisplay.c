@@ -55,8 +55,7 @@ Issues:
 #include <clientserver/initStructs.h>
 #include <clientserver/freeDataBlock.h>
 
-void defineIDSStructures()
-{
+void defineIDSStructures() {
     int offset = 0; //, stringLength;
 
     USERDEFINEDTYPE usertype;
@@ -424,8 +423,7 @@ typedef struct{
 }
 
 
-void initRB(TF_PROXY* str)
-{
+void initRB(TF_PROXY* str) {
     str->data_count = 0;
     str->r0 = NULL;
     str->b0 = NULL;
@@ -433,15 +431,13 @@ void initRB(TF_PROXY* str)
     str->time = NULL;
 }
 
-void initStaticLimiter(STATIC_LIMITER* str)
-{
+void initStaticLimiter(STATIC_LIMITER* str) {
     str->count = 0;
     str->r = NULL;
     str->z = NULL;
 }
 
-void initFluxLoop(FLUX_LOOP* floop)
-{
+void initFluxLoop(FLUX_LOOP* floop) {
     floop->identifier = NULL;
     floop->name = NULL;
     floop->position_count = 0;
@@ -453,8 +449,7 @@ void initFluxLoop(FLUX_LOOP* floop)
     floop->time = NULL;
 }
 
-void freeFluxLoop(FLUX_LOOP* floop)
-{
+void freeFluxLoop(FLUX_LOOP* floop) {
     if (floop->identifier != NULL) free((void*) floop->identifier);
     if (floop->name != NULL) free((void*) floop->name);
     if (floop->r != NULL) free((void*) floop->r);
@@ -465,8 +460,7 @@ void freeFluxLoop(FLUX_LOOP* floop)
     initFluxLoop(floop);
 }
 
-void initBpolProbe(BPOL_PROBE* str)
-{
+void initBpolProbe(BPOL_PROBE* str) {
     str->identifier = NULL;
     str->name = NULL;
     str->r = 0.0;
@@ -477,8 +471,7 @@ void initBpolProbe(BPOL_PROBE* str)
     str->time = NULL;
 }
 
-void freeBpolProbe(BPOL_PROBE* str)
-{
+void freeBpolProbe(BPOL_PROBE* str) {
     if (str->identifier != NULL) free((void*) str->identifier);
     if (str->name != NULL) free((void*) str->name);
     if (str->data != NULL) free((void*) str->data);
@@ -486,8 +479,7 @@ void freeBpolProbe(BPOL_PROBE* str)
     initBpolProbe(str);
 }
 
-void initMethodData(METHOD_DATA* str)
-{
+void initMethodData(METHOD_DATA* str) {
     str->identifier = NULL;
     str->name = NULL;
     str->count = 0;
@@ -495,8 +487,7 @@ void initMethodData(METHOD_DATA* str)
     str->time = NULL;
 }
 
-void freeMethodData(METHOD_DATA* str)
-{
+void freeMethodData(METHOD_DATA* str) {
     if (str->identifier != NULL) free((void*) str->identifier);
     if (str->name != NULL) free((void*) str->name);
     if (str->data != NULL) free((void*) str->data);
@@ -504,15 +495,13 @@ void freeMethodData(METHOD_DATA* str)
     initMethodData(str);
 }
 
-void initMethod(METHOD* str)
-{
+void initMethod(METHOD* str) {
     str->name = NULL;
     str->ip = NULL;
     str->diamagnetic_flux = NULL;
 }
 
-void initBpolProbe2(BPOL_PROBE_TEST2* str)
-{
+void initBpolProbe2(BPOL_PROBE_TEST2* str) {
     str->identifier = NULL;
     str->name = NULL;
     str->r = 0.0;
@@ -520,8 +509,7 @@ void initBpolProbe2(BPOL_PROBE_TEST2* str)
     str->phi = 0.0;
 }
 
-void freeBpolProbe2(BPOL_PROBE_TEST2* str)
-{
+void freeBpolProbe2(BPOL_PROBE_TEST2* str) {
     if (str->identifier != NULL) free((void*) str->identifier);
     if (str->name != NULL) free((void*) str->name);
     initBpolProbe2(str);
@@ -529,8 +517,7 @@ void freeBpolProbe2(BPOL_PROBE_TEST2* str)
 
 // Return Count Data
 
-int returnCount(int count, DATA_BLOCK* data_block)
-{
+int returnCount(int count, DATA_BLOCK* data_block) {
     data_block->data_type = TYPE_INT;
     data_block->rank = 0;
     data_block->data_n = 1;
@@ -541,8 +528,7 @@ int returnCount(int count, DATA_BLOCK* data_block)
 }
 
 
-extern int livedisplay(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
-{
+extern int livedisplay(IDAM_PLUGIN_INTERFACE* idam_plugin_interface) {
     int err = 0;
     static short init = 0;
 
@@ -562,8 +548,6 @@ extern int livedisplay(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     DATA_BLOCK* data_block;
     REQUEST_BLOCK* request_block;
-    DATA_SOURCE* data_source;
-    SIGNAL_DESC* signal_desc;
 
     PLUGINLIST* pluginList;    // List of all data reader plugins (internal and external shared libraries)
 
@@ -591,8 +575,6 @@ extern int livedisplay(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     data_block = idam_plugin_interface->data_block;
     request_block = idam_plugin_interface->request_block;
-    data_source = idam_plugin_interface->data_source;
-    signal_desc = idam_plugin_interface->signal_desc;
 
     pluginList = idam_plugin_interface->pluginList;
 
@@ -660,14 +642,12 @@ extern int livedisplay(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 //----------------------------------------------------------------------------------------
 // Name Value pairs and Keywords
 
-    unsigned short isExp_number = 0, isPass = 0, isDevice = 0, isStartTime = 0, isEndTime = 0, isCache = 0, isStructureVersion = 0;
+    unsigned short isStartTime = 0, isEndTime = 0, isCache = 0;
     unsigned short isAverage = 0, isNearest = 0, isFirst = 0, isLast = 0, isCount = 0;
-    int exp_number, pass, structureVersion = 1;
+    int exp_number;
     double startTime, endTime;
-    char* device = NULL;
 
     exp_number = request_block->exp_number;
-    pass = request_block->pass;                // 'Pass' as a text string (tpass) is not used
 
 // Keyword have higher priority
 
@@ -680,28 +660,12 @@ extern int livedisplay(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             !strcasecmp(request_block->nameValueList.nameValue[i].name, "shot") ||
             !strcasecmp(request_block->nameValueList.nameValue[i].name, "pulno")) {
             if (IsNumber(request_block->nameValueList.nameValue[i].value)) {
-                isExp_number = 1;
                 exp_number = atoi(request_block->nameValueList.nameValue[i].value);
                 continue;
             } else {
                 err = 888;
                 break;
             }
-        }
-        if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "pass")) {
-            if (IsNumber(request_block->nameValueList.nameValue[i].value)) {
-                isPass = 1;
-                pass = atoi(request_block->nameValueList.nameValue[i].value);
-                continue;
-            } else {
-                err = 888;
-                break;
-            }
-        }
-        if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "device")) {
-            isDevice = 1;
-            device = request_block->nameValueList.nameValue[i].value;
-            continue;
         }
         if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "startTime")) {
             isStartTime = 1;
@@ -712,17 +676,6 @@ extern int livedisplay(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             isEndTime = 1;
             endTime = atof(request_block->nameValueList.nameValue[i].value);
             continue;
-        }
-
-        if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "structureVersion")) {
-            if (IsNumber(request_block->nameValueList.nameValue[i].value)) {
-                isStructureVersion = 1;
-                structureVersion = atoi(request_block->nameValueList.nameValue[i].value);
-                continue;
-            } else {
-                err = 888;
-                break;
-            }
         }
 
 // Keywords
@@ -3721,7 +3674,7 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
         if (!strcasecmp(request_block->function, "magnetics") ||
             !strcasecmp(request_block->function, "test11")) {    // MAGNETICS data structure with MAST data
             char* p = NULL;
-            int rc, size = 0;
+            int size = 0;
             char* type = NULL;
             char signal[256], source[256];
             DATA_BLOCK plugin_data_block;
@@ -3761,7 +3714,7 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
 
             makeServerRequestBlock(&plugin_request_block, *pluginList);
 
-            rc = livedisplay(&idam_plugin_interface2);
+            livedisplay(&idam_plugin_interface2);
 
             magnetics->flux_loop = (FLUX_LOOP*) (plugin_data_block.data);
 
@@ -3792,7 +3745,7 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
 
             makeServerRequestBlock(&plugin_request_block, *pluginList);
 
-            rc = livedisplay(&idam_plugin_interface2);
+            livedisplay(&idam_plugin_interface2);
 
             magnetics->flux_loop_count = *((int*) plugin_data_block.data);
 
@@ -3818,7 +3771,7 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
 
             makeServerRequestBlock(&plugin_request_block, *pluginList);
 
-            rc = livedisplay(&idam_plugin_interface2);
+            livedisplay(&idam_plugin_interface2);
 
             magnetics->bpol_probe = (BPOL_PROBE*) (plugin_data_block.data);
 
@@ -3845,7 +3798,7 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
 
             makeServerRequestBlock(&plugin_request_block, *pluginList);
 
-            rc = livedisplay(&idam_plugin_interface2);
+            livedisplay(&idam_plugin_interface2);
 
             magnetics->bpol_probe_count = *((int*) plugin_data_block.data);
 
@@ -4159,19 +4112,19 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
             addMalloc((void*) limiter->r, limiter->count, sizeof(double), "double");
             addMalloc((void*) limiter->z, limiter->count, sizeof(double), "double");
 
-            double rr[] = { 1.9000000, 1.5551043, 1.5551043, 1.4079306, 1.4079306, 1.0399311,
-                            1.0399311, 1.9000000, 1.9000000, 0.56493068, 0.56493068, 0.78350002, 0.78350002,
-                            0.58259028, 0.41650000, 0.28000000, 0.28000000, 0.19524440, 0.19524440, 0.28000000,
-                            0.28000000, 0.41650000, 0.58259028, 0.78350002, 0.78350002, 0.56493068, 0.56493068,
-                            1.9000000, 1.9000000, 1.0399311, 1.0399311, 1.4079306, 1.4079306, 1.5551043, 1.5551043,
-                            1.9000000, 1.9000000 };
+            double rr[] = {1.9000000, 1.5551043, 1.5551043, 1.4079306, 1.4079306, 1.0399311,
+                           1.0399311, 1.9000000, 1.9000000, 0.56493068, 0.56493068, 0.78350002, 0.78350002,
+                           0.58259028, 0.41650000, 0.28000000, 0.28000000, 0.19524440, 0.19524440, 0.28000000,
+                           0.28000000, 0.41650000, 0.58259028, 0.78350002, 0.78350002, 0.56493068, 0.56493068,
+                           1.9000000, 1.9000000, 1.0399311, 1.0399311, 1.4079306, 1.4079306, 1.5551043, 1.5551043,
+                           1.9000000, 1.9000000};
 
-            double zz[] = { 0.40500000, 0.40500000, 0.82250023, 0.82250023, 1.0330003, 1.0330003,
-                            1.1950001, 1.1950001, 1.8250000, 1.8250000, 1.7280816, 1.7280816, 1.7155817, 1.5470001,
-                            1.5470001, 1.6835001, 1.2290885, 1.0835000, -1.0835000, -1.2290885, -1.6835001,
-                            -1.5470001, -1.5470001, -1.7155817, -1.7280816, -1.7280816, -1.8250000, -1.8250000,
-                            -1.1950001, -1.1950001, -1.0330003, -1.0330003, -0.82250023, -0.82250023, -0.40500000,
-                            -0.40500000, 0.40500000 };
+            double zz[] = {0.40500000, 0.40500000, 0.82250023, 0.82250023, 1.0330003, 1.0330003,
+                           1.1950001, 1.1950001, 1.8250000, 1.8250000, 1.7280816, 1.7280816, 1.7155817, 1.5470001,
+                           1.5470001, 1.6835001, 1.2290885, 1.0835000, -1.0835000, -1.2290885, -1.6835001,
+                           -1.5470001, -1.5470001, -1.7155817, -1.7280816, -1.7280816, -1.8250000, -1.8250000,
+                           -1.1950001, -1.1950001, -1.0330003, -1.0330003, -0.82250023, -0.82250023, -0.40500000,
+                           -0.40500000, 0.40500000};
 
             for (i = 0; i < limiter->count; i++) {
                 limiter->r[i] = rr[i];

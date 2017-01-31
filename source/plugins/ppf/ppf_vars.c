@@ -1,8 +1,12 @@
 #include "ppf_vars.h"
 
-#include "ppf.h"
+#include <string.h>
+#include <stdarg.h>
 
-#include "initStructs.h"
+#include <clientserver/initStructs.h>
+#include <clientserver/idamTypes.h>
+
+#include "ppf.h"
 
 extern FILE * g_dbgout;
 

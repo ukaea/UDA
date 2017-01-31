@@ -1,7 +1,8 @@
 #ifndef IDAM_PLUGINS_PPF_PPF_VARS_H
 #define IDAM_PLUGINS_PPF_PPF_VARS_H
 
-#include "idamplugin.h"
+#include <clientserver/idamStructs.h>
+#include <server/idamPluginStructs.h>
 
 #ifdef __cplusplus
 extern "C"
@@ -70,7 +71,6 @@ enum ERRORS
 };
 
 extern const char * pszErrorStrings[];
-
 
 int nvl_count(const NAMEVALUELIST * nvl);
 

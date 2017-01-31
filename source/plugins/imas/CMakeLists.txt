@@ -11,7 +11,7 @@ elseif( NOT LIBXML2_FOUND )
   return()
 endif()
 
-add_definitions( -Wno-error )
+add_definitions( -Wno-error -Wno-all )
 
 include( plugins )
 

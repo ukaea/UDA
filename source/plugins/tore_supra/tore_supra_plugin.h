@@ -1,11 +1,7 @@
-#ifndef IDAM_PLUGINS_TEMPLATE_PLUGIN_H
-#define IDAM_PLUGINS_TEMPLATE_PLUGIN_H
+#ifndef IDAM_PLUGINS_TORE_SUPRA_PLUGIN_H
+#define IDAM_PLUGINS_TORE_SUPRA_PLUGIN_H
 
-// Change History:
-//
-// 25Oct2011	dgm	Original Version
-
-#include <idamplugin.h>
+#include <server/idamPluginStructs.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -21,4 +17,4 @@ int tsPlugin(IDAM_PLUGIN_INTERFACE * idam_plugin_interface);
 }
 #endif
 
-#endif // IDAM_PLUGINS_TEMPLATE_PLUGIN_H
+#endif // IDAM_PLUGINS_TORE_SUPRA_PLUGIN_H

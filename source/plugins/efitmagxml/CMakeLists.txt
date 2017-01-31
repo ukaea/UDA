@@ -19,7 +19,7 @@ idam_plugin(
     initXMLStructs.c    
     allocXMLData.c
     efitmagxmllib.c
-    #parseHData.c
+    parseHData.c
     efitmagxml.c
   EXTRA_INCLUDE_DIRS
     ${LIBXML2_INCLUDE_DIR}

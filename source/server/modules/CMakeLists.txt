@@ -24,6 +24,7 @@ set( SRC_FILES
   ppf/readppf.c
   hdata/readHData.c
   mdsplus/readMDS.c
+  mdsplus/readMDSDim.c
   registration/getPluginAddress.c
   )
 

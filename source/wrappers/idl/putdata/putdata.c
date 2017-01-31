@@ -9,8 +9,8 @@
 
 #include <clientserver/idamTypes.h>
 #include <logging/idamAccessLog.h>
-
-#include "idamclientpublic.h"
+#include <client/accAPI_C.h>
+#include <client/idamPutAPI.h>
 
 // Function Prototypes
 
@@ -183,8 +183,7 @@ void printKW(FILE* fd, KW_RESULT kw) {
 //-----------------------------------------------------------------------------------------------------
 // API Function
 
-IDL_VPTR IDL_CDECL putdata(int argc, IDL_VPTR argv[], char* argk)
-{
+IDL_VPTR IDL_CDECL putdata(int argc, IDL_VPTR argv[], char* argk) {
     //---------------------------------------------------------------------------
     // Maintain Alphabetical Order of Keywords
     // Keywords are IDL LONG, IDL DOUBLE and IDL_STRING types only.
@@ -192,58 +191,68 @@ IDL_VPTR IDL_CDECL putdata(int argc, IDL_VPTR argv[], char* argk)
     static IDL_KW_ARR_DESC_R rangeDesc = {IDL_KW_OFFSETOF(range), 2, 2, IDL_KW_OFFSETOF(rangeCount)};
 
     static IDL_KW_PAR kw_pars[] =
-    {
-        IDL_KW_FAST_SCAN,
-        {"DATA", IDL_TYP_UNDEF, 1, IDL_KW_ZERO, IDL_KW_OFFSETOF(is_data), IDL_KW_OFFSETOF(data)},
-        {"CHANNELS", IDL_TYP_LONG, 1, IDL_KW_ZERO, IDL_KW_OFFSETOF(is_channels), IDL_KW_OFFSETOF(channels)},
-        {"CHUNKSIZE", IDL_TYP_LONG, 1, IDL_KW_ZERO, IDL_KW_OFFSETOF(is_chunksize), IDL_KW_OFFSETOF(chunksize)},
-        {"CLASS", IDL_TYP_STRING, 1, IDL_KW_ZERO, IDL_KW_OFFSETOF(is_class), IDL_KW_OFFSETOF(class)},
-        {"CLOSE", IDL_TYP_LONG, 0, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(close)},
-        {"CODE", IDL_TYP_STRING, 1, IDL_KW_ZERO, IDL_KW_OFFSETOF(is_code), IDL_KW_OFFSETOF(code)},
-        {"COMMENT", IDL_TYP_STRING, 1, IDL_KW_ZERO, IDL_KW_OFFSETOF(is_comment), IDL_KW_OFFSETOF(comment)},
-        {"COMPRESSION", IDL_TYP_LONG, 1, IDL_KW_ZERO, IDL_KW_OFFSETOF(is_compression), IDL_KW_OFFSETOF(compression)},
-        {"CONVENTIONS", IDL_TYP_STRING, 1, IDL_KW_ZERO, IDL_KW_OFFSETOF(is_conventions), IDL_KW_OFFSETOF(conventions)},
-        {"CREATE", IDL_TYP_LONG, 0, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(create)},
-        {"DATE", IDL_TYP_STRING, 1, IDL_KW_ZERO, IDL_KW_OFFSETOF(is_date), IDL_KW_OFFSETOF(date)},
-        {"DEBUG", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(debug)},
-        {"DELETE", IDL_TYP_LONG, 0, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(delete)},
-        {"DEVICE", IDL_TYP_STRING, 1, IDL_KW_ZERO, IDL_KW_OFFSETOF(is_device), IDL_KW_OFFSETOF(device)},
-        {"TYPE", IDL_TYP_STRING, 1, IDL_KW_ZERO, IDL_KW_OFFSETOF(is_type), IDL_KW_OFFSETOF(type)},
-        {"DIMENSIONS", IDL_TYP_STRING, 1, IDL_KW_ZERO, IDL_KW_OFFSETOF(is_dimensions), IDL_KW_OFFSETOF(dimensions)},
-        {"DIRECTORY", IDL_TYP_STRING, 1, IDL_KW_ZERO, IDL_KW_OFFSETOF(is_directory), IDL_KW_OFFSETOF(directory)},
-        {"ERRORS", IDL_TYP_STRING, 1, IDL_KW_ZERO, IDL_KW_OFFSETOF(is_errors), IDL_KW_OFFSETOF(errors)},
-        {"EXP_NUMBER", IDL_TYP_LONG, 1, IDL_KW_ZERO, IDL_KW_OFFSETOF(is_exp_number), IDL_KW_OFFSETOF(exp_number)},
-        {"FILEID", IDL_TYP_UNDEF, 1, IDL_KW_OUT | IDL_KW_ZERO, IDL_KW_OFFSETOF(is_fileid), IDL_KW_OFFSETOF(fileid)},
-        {"FORMAT", IDL_TYP_STRING, 1, IDL_KW_ZERO, IDL_KW_OFFSETOF(is_format), IDL_KW_OFFSETOF(format)},
-        {"GROUP", IDL_TYP_STRING, 1, IDL_KW_ZERO, IDL_KW_OFFSETOF(is_group), IDL_KW_OFFSETOF(group)},
-        {"ID", IDL_TYP_STRING, 1, IDL_KW_ZERO, IDL_KW_OFFSETOF(is_id), IDL_KW_OFFSETOF(id)},
-        {"LABEL", IDL_TYP_STRING, 1, IDL_KW_ZERO, IDL_KW_OFFSETOF(is_label), IDL_KW_OFFSETOF(label)},
-        {"LENGTH", IDL_TYP_LONG, 1, IDL_KW_ZERO, IDL_KW_OFFSETOF(is_length), IDL_KW_OFFSETOF(length)},
-        {"FILENAME", IDL_TYP_STRING, 1, IDL_KW_ZERO, IDL_KW_OFFSETOF(is_filename), IDL_KW_OFFSETOF(filename)},
-        {"NOCOMPLIANCE", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(nocompliance)},
-        {"NOTSTRICT", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(notstrict)},
-        {"OFFSET", IDL_TYP_DOUBLE, 1, IDL_KW_ZERO, IDL_KW_OFFSETOF(is_offset), IDL_KW_OFFSETOF(offset)},
-        {"PASS", IDL_TYP_LONG, 1, IDL_KW_ZERO, IDL_KW_OFFSETOF(is_pass), IDL_KW_OFFSETOF(pass)},
-        {"PULSE", IDL_TYP_LONG, 1, IDL_KW_ZERO, IDL_KW_OFFSETOF(is_exp_number), IDL_KW_OFFSETOF(exp_number)},
-        {"RANGE", IDL_TYP_DOUBLE, 1, IDL_KW_ARRAY, IDL_KW_OFFSETOF(is_range), IDL_CHARA(rangeDesc)},
-        {"RESOLUTION", IDL_TYP_LONG, 1, IDL_KW_ZERO, IDL_KW_OFFSETOF(is_resolution), IDL_KW_OFFSETOF(resolution)},
-        {"SCALE", IDL_TYP_DOUBLE, 1, IDL_KW_ZERO, IDL_KW_OFFSETOF(is_scale), IDL_KW_OFFSETOF(scale)},
-        {"SERIAL", IDL_TYP_STRING, 1, IDL_KW_ZERO, IDL_KW_OFFSETOF(is_serial), IDL_KW_OFFSETOF(serial)},
-        {"SHOT", IDL_TYP_LONG, 1, IDL_KW_ZERO, IDL_KW_OFFSETOF(is_exp_number), IDL_KW_OFFSETOF(exp_number)},
-        {"STATUS", IDL_TYP_LONG, 1, IDL_KW_ZERO, IDL_KW_OFFSETOF(is_status), IDL_KW_OFFSETOF(status)},
-        {"STEPID", IDL_TYP_STRING, 1, IDL_KW_ZERO, IDL_KW_OFFSETOF(is_stepId), IDL_KW_OFFSETOF(stepId)},
-        {"TIME", IDL_TYP_STRING, 1, IDL_KW_ZERO, IDL_KW_OFFSETOF(is_time), IDL_KW_OFFSETOF(time)},
-        {"TITLE", IDL_TYP_STRING, 1, IDL_KW_ZERO, IDL_KW_OFFSETOF(is_title), IDL_KW_OFFSETOF(title)},
-        {"UNITS", IDL_TYP_STRING, 1, IDL_KW_ZERO, IDL_KW_OFFSETOF(is_units), IDL_KW_OFFSETOF(units)},
-        {"UNLIMITED", IDL_TYP_STRING, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(unlimited)},
-        {"UPDATE", IDL_TYP_LONG, 0, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(update)},
-        {"VARNAME", IDL_TYP_STRING, 1, IDL_KW_ZERO, IDL_KW_OFFSETOF(is_name), IDL_KW_OFFSETOF(name)},
-        {"VERBOSE", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(verbose)},
-        {"VERSION", IDL_TYP_LONG, 1, IDL_KW_ZERO, IDL_KW_OFFSETOF(is_version), IDL_KW_OFFSETOF(version)},
-        {"XML", IDL_TYP_STRING, 1, IDL_KW_ZERO, IDL_KW_OFFSETOF(is_xml), IDL_KW_OFFSETOF(xml)},
-        {"STARTS", IDL_TYP_DOUBLE, 1, IDL_KW_ARRAY, IDL_KW_OFFSETOF(is_starts), IDL_KW_OFFSETOF(xml)},
-        {NULL}
-    };
+            {
+                    IDL_KW_FAST_SCAN,
+                    {"DATA", IDL_TYP_UNDEF, 1, IDL_KW_ZERO, IDL_KW_OFFSETOF(is_data), IDL_KW_OFFSETOF(data)},
+                    {"CHANNELS", IDL_TYP_LONG, 1, IDL_KW_ZERO, IDL_KW_OFFSETOF(is_channels), IDL_KW_OFFSETOF(channels)},
+                    {"CHUNKSIZE", IDL_TYP_LONG, 1, IDL_KW_ZERO, IDL_KW_OFFSETOF(is_chunksize),
+                     IDL_KW_OFFSETOF(chunksize)},
+                    {"CLASS", IDL_TYP_STRING, 1, IDL_KW_ZERO, IDL_KW_OFFSETOF(is_class), IDL_KW_OFFSETOF(class)},
+                    {"CLOSE", IDL_TYP_LONG, 0, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(close)},
+                    {"CODE", IDL_TYP_STRING, 1, IDL_KW_ZERO, IDL_KW_OFFSETOF(is_code), IDL_KW_OFFSETOF(code)},
+                    {"COMMENT", IDL_TYP_STRING, 1, IDL_KW_ZERO, IDL_KW_OFFSETOF(is_comment), IDL_KW_OFFSETOF(comment)},
+                    {"COMPRESSION", IDL_TYP_LONG, 1, IDL_KW_ZERO, IDL_KW_OFFSETOF(is_compression),
+                     IDL_KW_OFFSETOF(compression)},
+                    {"CONVENTIONS", IDL_TYP_STRING, 1, IDL_KW_ZERO, IDL_KW_OFFSETOF(is_conventions),
+                     IDL_KW_OFFSETOF(conventions)},
+                    {"CREATE", IDL_TYP_LONG, 0, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(create)},
+                    {"DATE", IDL_TYP_STRING, 1, IDL_KW_ZERO, IDL_KW_OFFSETOF(is_date), IDL_KW_OFFSETOF(date)},
+                    {"DEBUG", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(debug)},
+                    {"DELETE", IDL_TYP_LONG, 0, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(delete)},
+                    {"DEVICE", IDL_TYP_STRING, 1, IDL_KW_ZERO, IDL_KW_OFFSETOF(is_device), IDL_KW_OFFSETOF(device)},
+                    {"TYPE", IDL_TYP_STRING, 1, IDL_KW_ZERO, IDL_KW_OFFSETOF(is_type), IDL_KW_OFFSETOF(type)},
+                    {"DIMENSIONS", IDL_TYP_STRING, 1, IDL_KW_ZERO, IDL_KW_OFFSETOF(is_dimensions),
+                     IDL_KW_OFFSETOF(dimensions)},
+                    {"DIRECTORY", IDL_TYP_STRING, 1, IDL_KW_ZERO, IDL_KW_OFFSETOF(is_directory),
+                     IDL_KW_OFFSETOF(directory)},
+                    {"ERRORS", IDL_TYP_STRING, 1, IDL_KW_ZERO, IDL_KW_OFFSETOF(is_errors), IDL_KW_OFFSETOF(errors)},
+                    {"EXP_NUMBER", IDL_TYP_LONG, 1, IDL_KW_ZERO, IDL_KW_OFFSETOF(is_exp_number),
+                     IDL_KW_OFFSETOF(exp_number)},
+                    {"FILEID", IDL_TYP_UNDEF, 1, IDL_KW_OUT | IDL_KW_ZERO, IDL_KW_OFFSETOF(is_fileid),
+                     IDL_KW_OFFSETOF(fileid)},
+                    {"FORMAT", IDL_TYP_STRING, 1, IDL_KW_ZERO, IDL_KW_OFFSETOF(is_format), IDL_KW_OFFSETOF(format)},
+                    {"GROUP", IDL_TYP_STRING, 1, IDL_KW_ZERO, IDL_KW_OFFSETOF(is_group), IDL_KW_OFFSETOF(group)},
+                    {"ID", IDL_TYP_STRING, 1, IDL_KW_ZERO, IDL_KW_OFFSETOF(is_id), IDL_KW_OFFSETOF(id)},
+                    {"LABEL", IDL_TYP_STRING, 1, IDL_KW_ZERO, IDL_KW_OFFSETOF(is_label), IDL_KW_OFFSETOF(label)},
+                    {"LENGTH", IDL_TYP_LONG, 1, IDL_KW_ZERO, IDL_KW_OFFSETOF(is_length), IDL_KW_OFFSETOF(length)},
+                    {"FILENAME", IDL_TYP_STRING, 1, IDL_KW_ZERO, IDL_KW_OFFSETOF(is_filename),
+                     IDL_KW_OFFSETOF(filename)},
+                    {"NOCOMPLIANCE", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(nocompliance)},
+                    {"NOTSTRICT", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(notstrict)},
+                    {"OFFSET", IDL_TYP_DOUBLE, 1, IDL_KW_ZERO, IDL_KW_OFFSETOF(is_offset), IDL_KW_OFFSETOF(offset)},
+                    {"PASS", IDL_TYP_LONG, 1, IDL_KW_ZERO, IDL_KW_OFFSETOF(is_pass), IDL_KW_OFFSETOF(pass)},
+                    {"PULSE", IDL_TYP_LONG, 1, IDL_KW_ZERO, IDL_KW_OFFSETOF(is_exp_number),
+                     IDL_KW_OFFSETOF(exp_number)},
+                    {"RANGE", IDL_TYP_DOUBLE, 1, IDL_KW_ARRAY, IDL_KW_OFFSETOF(is_range), IDL_CHARA(rangeDesc)},
+                    {"RESOLUTION", IDL_TYP_LONG, 1, IDL_KW_ZERO, IDL_KW_OFFSETOF(is_resolution),
+                     IDL_KW_OFFSETOF(resolution)},
+                    {"SCALE", IDL_TYP_DOUBLE, 1, IDL_KW_ZERO, IDL_KW_OFFSETOF(is_scale), IDL_KW_OFFSETOF(scale)},
+                    {"SERIAL", IDL_TYP_STRING, 1, IDL_KW_ZERO, IDL_KW_OFFSETOF(is_serial), IDL_KW_OFFSETOF(serial)},
+                    {"SHOT", IDL_TYP_LONG, 1, IDL_KW_ZERO, IDL_KW_OFFSETOF(is_exp_number), IDL_KW_OFFSETOF(exp_number)},
+                    {"STATUS", IDL_TYP_LONG, 1, IDL_KW_ZERO, IDL_KW_OFFSETOF(is_status), IDL_KW_OFFSETOF(status)},
+                    {"STEPID", IDL_TYP_STRING, 1, IDL_KW_ZERO, IDL_KW_OFFSETOF(is_stepId), IDL_KW_OFFSETOF(stepId)},
+                    {"TIME", IDL_TYP_STRING, 1, IDL_KW_ZERO, IDL_KW_OFFSETOF(is_time), IDL_KW_OFFSETOF(time)},
+                    {"TITLE", IDL_TYP_STRING, 1, IDL_KW_ZERO, IDL_KW_OFFSETOF(is_title), IDL_KW_OFFSETOF(title)},
+                    {"UNITS", IDL_TYP_STRING, 1, IDL_KW_ZERO, IDL_KW_OFFSETOF(is_units), IDL_KW_OFFSETOF(units)},
+                    {"UNLIMITED", IDL_TYP_STRING, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(unlimited)},
+                    {"UPDATE", IDL_TYP_LONG, 0, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(update)},
+                    {"VARNAME", IDL_TYP_STRING, 1, IDL_KW_ZERO, IDL_KW_OFFSETOF(is_name), IDL_KW_OFFSETOF(name)},
+                    {"VERBOSE", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(verbose)},
+                    {"VERSION", IDL_TYP_LONG, 1, IDL_KW_ZERO, IDL_KW_OFFSETOF(is_version), IDL_KW_OFFSETOF(version)},
+                    {"XML", IDL_TYP_STRING, 1, IDL_KW_ZERO, IDL_KW_OFFSETOF(is_xml), IDL_KW_OFFSETOF(xml)},
+                    {"STARTS", IDL_TYP_DOUBLE, 1, IDL_KW_ARRAY, IDL_KW_OFFSETOF(is_starts), IDL_KW_OFFSETOF(xml)},
+                    {NULL}
+            };
 
     KW_RESULT kw;
 
@@ -294,9 +303,10 @@ IDL_VPTR IDL_CDECL putdata(int argc, IDL_VPTR argv[], char* argk)
 
     if (!kw.create && !kw.update) {
         if (kw.is_fileid) {
-            fileid = (int)IDL_LongScalar(kw.fileid);
+            fileid = (int) IDL_LongScalar(kw.fileid);
         } else {
-            if (kw.verbose) fprintf(stderr, "FileId must be provided for all steps other than create, update and delete\n");
+            if (kw.verbose)
+                fprintf(stderr, "FileId must be provided for all steps other than create, update and delete\n");
             IDL_KW_FREE;
             return IDL_GettmpLong(-1);
         }
@@ -318,7 +328,7 @@ IDL_VPTR IDL_CDECL putdata(int argc, IDL_VPTR argv[], char* argk)
                 // Return the fileid if a keyword was passed
 
                 if (kw.is_fileid && fileid != INT_MAX) {
-                    IDL_StoreScalar(kw.fileid, IDL_TYP_LONG, (IDL_ALLTYPES*)&fileid);
+                    IDL_StoreScalar(kw.fileid, IDL_TYP_LONG, (IDL_ALLTYPES*) &fileid);
                 }
             } else {
                 err = closenetcdf(&kw);        // Close the File
@@ -373,8 +383,8 @@ IDL_VPTR IDL_CDECL putdata(int argc, IDL_VPTR argv[], char* argk)
             err = putAttribute(&kw);
             break;
         }
-    //--------------------------------------------------------------------------
-    // End of Error Trap
+        //--------------------------------------------------------------------------
+        // End of Error Trap
 
     } while (0);
 
@@ -394,8 +404,7 @@ static const char* plugin = "putdata";
 #define ADD_FLT_ARG(ARGS, ARG) if (kw->CONCAT(is_,ARG)) { sprintf(ARGS, "%s, ARG=%g", ARGS, (double)kw->ARG); }
 #define ADD_OPT_ARG(ARGS, ARG) if (kw->ARG) { sprintf(ARGS, "%s, ARG", ARGS); }
 
-int opennetcdf(KW_RESULT* kw, int* fileid)
-{
+int opennetcdf(KW_RESULT* kw, int* fileid) {
     char args[2000];
 
     if (kw->create) {
@@ -437,15 +446,14 @@ int opennetcdf(KW_RESULT* kw, int* fileid)
     DATA_BLOCK* data_block = getIdamDataBlock(handle);
     // TODO: Error checking
 
-    *fileid = ((int*)data_block->data)[0];
+    *fileid = ((int*) data_block->data)[0];
 
     return 0;
 }
 
-int closenetcdf(KW_RESULT* kw)
-{
+int closenetcdf(KW_RESULT* kw) {
     char args[2000];
-    sprintf(args, "fileid=%d", (int)IDL_LongScalar(kw->fileid));
+    sprintf(args, "fileid=%d", (int) IDL_LongScalar(kw->fileid));
 
     ADD_OPT_ARG(args, nocompliance)
 
@@ -466,10 +474,9 @@ int closenetcdf(KW_RESULT* kw)
     return 0;
 }
 
-int putDevice(KW_RESULT* kw)
-{
+int putDevice(KW_RESULT* kw) {
     char args[2000];
-    sprintf(args, "fileid=%d", (int)IDL_LongScalar(kw->fileid));
+    sprintf(args, "fileid=%d", (int) IDL_LongScalar(kw->fileid));
 
     ADD_STR_ARG(args, type)
     ADD_STR_ARG(args, id)
@@ -497,10 +504,9 @@ int putDevice(KW_RESULT* kw)
     return 0;
 }
 
-int putGroup(KW_RESULT* kw)
-{
+int putGroup(KW_RESULT* kw) {
     char args[2000];
-    sprintf(args, "fileid=%d", (int)IDL_LongScalar(kw->fileid));
+    sprintf(args, "fileid=%d", (int) IDL_LongScalar(kw->fileid));
 
     ADD_STR_ARG(args, name)
 
@@ -521,10 +527,9 @@ int putGroup(KW_RESULT* kw)
     return 0;
 }
 
-int putAttribute(KW_RESULT* kw)
-{
+int putAttribute(KW_RESULT* kw) {
     char args[2000];
-    sprintf(args, "fileid=%d", (int)IDL_LongScalar(kw->fileid));
+    sprintf(args, "fileid=%d", (int) IDL_LongScalar(kw->fileid));
 
     ADD_STR_ARG(args, group)
     ADD_STR_ARG(args, name)
@@ -549,10 +554,9 @@ int putAttribute(KW_RESULT* kw)
     return 0;
 }
 
-int putVariable(KW_RESULT* kw)
-{
+int putVariable(KW_RESULT* kw) {
     char args[2000];
-    sprintf(args, "fileid=%d", (int)IDL_LongScalar(kw->fileid));
+    sprintf(args, "fileid=%d", (int) IDL_LongScalar(kw->fileid));
 
     ADD_STR_ARG(args, group)
     ADD_STR_ARG(args, name)
@@ -590,10 +594,9 @@ int putVariable(KW_RESULT* kw)
     return 0;
 }
 
-int putDimension(KW_RESULT* kw)
-{
+int putDimension(KW_RESULT* kw) {
     char args[2000];
-    sprintf(args, "fileid=%d", (int)IDL_LongScalar(kw->fileid));
+    sprintf(args, "fileid=%d", (int) IDL_LongScalar(kw->fileid));
 
     ADD_STR_ARG(args, group)
     ADD_STR_ARG(args, name)
@@ -618,10 +621,9 @@ int putDimension(KW_RESULT* kw)
     return 0;
 }
 
-int putCoordinate(KW_RESULT* kw)
-{
+int putCoordinate(KW_RESULT* kw) {
     char args[2000];
-    sprintf(args, "fileid=%d", (int)IDL_LongScalar(kw->fileid));
+    sprintf(args, "fileid=%d", (int) IDL_LongScalar(kw->fileid));
 
     ADD_STR_ARG(args, group)
     ADD_STR_ARG(args, name)
@@ -656,42 +658,52 @@ int putCoordinate(KW_RESULT* kw)
     return 0;
 }
 
-int idamType(UCHAR idl_type)
-{
+int idamType(UCHAR idl_type) {
     // Translate IDL to IDAM Type
 
-    switch(idl_type) {
-        case IDL_TYP_FLOAT: return TYPE_FLOAT;
-        case IDL_TYP_DOUBLE: return TYPE_DOUBLE;
-        case IDL_TYP_LONG64: return TYPE_LONG64;
-        case IDL_TYP_LONG: return TYPE_LONG;
-        case IDL_TYP_INT: return TYPE_INT;
-        case IDL_TYP_ULONG64: return TYPE_UNSIGNED_LONG64;
-        case IDL_TYP_ULONG: return TYPE_UNSIGNED_LONG;
-        case IDL_TYP_UINT: return TYPE_UNSIGNED_INT;
-        case IDL_TYP_COMPLEX: return TYPE_COMPLEX;
-        case IDL_TYP_DCOMPLEX: return TYPE_DCOMPLEX;
-        case IDL_TYP_BYTE: return TYPE_UNSIGNED_CHAR;
-        default: return TYPE_UNKNOWN;
+    switch (idl_type) {
+        case IDL_TYP_FLOAT:
+            return TYPE_FLOAT;
+        case IDL_TYP_DOUBLE:
+            return TYPE_DOUBLE;
+        case IDL_TYP_LONG64:
+            return TYPE_LONG64;
+        case IDL_TYP_LONG:
+            return TYPE_LONG;
+        case IDL_TYP_INT:
+            return TYPE_INT;
+        case IDL_TYP_ULONG64:
+            return TYPE_UNSIGNED_LONG64;
+        case IDL_TYP_ULONG:
+            return TYPE_UNSIGNED_LONG;
+        case IDL_TYP_UINT:
+            return TYPE_UNSIGNED_INT;
+        case IDL_TYP_COMPLEX:
+            return TYPE_COMPLEX;
+        case IDL_TYP_DCOMPLEX:
+            return TYPE_DCOMPLEX;
+        case IDL_TYP_BYTE:
+            return TYPE_UNSIGNED_CHAR;
+        default:
+            return TYPE_UNKNOWN;
     }
 }
 
-PUTDATA_BLOCK toPutData(IDL_VPTR data)
-{
+PUTDATA_BLOCK toPutData(IDL_VPTR data) {
     PUTDATA_BLOCK putdata;
 
     if (data->flags & IDL_V_ARR) {
-        putdata.data = (char*)data->value.arr->data;
-        putdata.count = (unsigned int)data->value.arr->n_elts;
+        putdata.data = (char*) data->value.arr->data;
+        putdata.count = (unsigned int) data->value.arr->n_elts;
         putdata.data_type = idamType(data->type);
         putdata.rank = data->value.arr->n_dim;
         putdata.shape = malloc(putdata.rank * sizeof(int));
         int i;
         for (i = 0; i < putdata.rank; ++i) {
-            putdata.shape[i] = (int)data->value.arr->dim[i];
+            putdata.shape[i] = (int) data->value.arr->dim[i];
         }
     } else {
-        size_t sz = (size_t)idamSizeOf(idamType(data->type));
+        size_t sz = (size_t) idamSizeOf(idamType(data->type));
         putdata.data = malloc(sz);
         memcpy(putdata.data, &data->value, sz);
         putdata.count = 1;

@@ -4,7 +4,9 @@
 #include <string.h>
 #include <ctype.h>
 
-#define strcasestr strstr
+#ifndef strcasestr
+char *strcasestr(const char *haystack, const char *needle);
+#endif
 
 // Reverse a String
 void reverseString(const char* in, char* out);
