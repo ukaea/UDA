@@ -25,6 +25,10 @@
 #include <stdlib.h>
 #include <ctype.h>
 
+#if !defined(A64)
+#  define IDL_LONG64 IDL_LONG
+#endif
+
 // Function Prototypes
 
 void freeMem(UCHAR* memPtr);
@@ -339,7 +343,7 @@ IDL_VPTR IDL_CDECL queryCPF(int argc, IDL_VPTR argv[], char* argk) {
         if (kw.debug) fprintf(stdout, "Debug Keyword Passed\n");
         if (kw.verbose)fprintf(stdout, "Verbose Keyword Passed\n");
         if (kw.help) fprintf(stdout, "Help Keyword Passed\n");
-        if (kw.islimit)fprintf(stdout, "Limit Keyword Passed: limit = %d\n", kw.limit);
+        if (kw.islimit)fprintf(stdout, "Limit Keyword Passed: limit = %ld\n", (long)kw.limit);
     }
 
 //--------------------------------------------------------------------------
@@ -385,7 +389,7 @@ IDL_VPTR IDL_CDECL queryCPF(int argc, IDL_VPTR argv[], char* argk) {
     }
 
     if (kw.islimit) {
-        sprintf(slimit, " limit %d;", kw.limit);
+        sprintf(slimit, " limit %ld;", (long)kw.limit);
         strcat(sql, slimit);
     }
 
@@ -586,9 +590,9 @@ IDL_VPTR IDL_CDECL queryStrCPF(int argc, IDL_VPTR argv[], char* argk) {
 
     if (kw.debug) {
         if (kw.debug) fprintf(stdout, "Debug Keyword Passed\n");
-        if (kw.verbose)fprintf(stdout, "Verbose Keyword Passed\n");
+        if (kw.verbose) fprintf(stdout, "Verbose Keyword Passed\n");
         if (kw.help) fprintf(stdout, "Help Keyword Passed\n");
-        if (kw.islimit)fprintf(stdout, "Limit Keyword Passed: limit = %d\n", kw.limit);
+        if (kw.islimit) fprintf(stdout, "Limit Keyword Passed: limit = %ld\n", (long)kw.limit);
     }
 
 //--------------------------------------------------------------------------
@@ -631,7 +635,7 @@ IDL_VPTR IDL_CDECL queryStrCPF(int argc, IDL_VPTR argv[], char* argk) {
     }
 
     if (kw.islimit) {
-        sprintf(slimit, " limit %d;", kw.limit);
+        sprintf(slimit, " limit %ld;", (long)kw.limit);
         strcat(sql, slimit);
     }
 
@@ -865,7 +869,7 @@ IDL_VPTR IDL_CDECL groupCountCPF(int argc, IDL_VPTR argv[], char* argk) {
     }
 
     if (kw.islimit) {
-        sprintf(slimit, " limit %d;", kw.limit);
+        sprintf(slimit, " limit %ld;", (long)kw.limit);
         strcat(sql, slimit);
     }
 
@@ -1182,9 +1186,9 @@ IDL_VPTR IDL_CDECL queryArrayCPF(int argc, IDL_VPTR argv[], char* argk) {
 
     if (kw.debug) {
         if (kw.debug) fprintf(stdout, "Debug Keyword Passed\n");
-        if (kw.verbose)fprintf(stdout, "Verbose Keyword Passed\n");
+        if (kw.verbose) fprintf(stdout, "Verbose Keyword Passed\n");
         if (kw.help) fprintf(stdout, "Help Keyword Passed\n");
-        if (kw.islimit)fprintf(stdout, "Limit Keyword Passed: limit = %d\n", kw.limit);
+        if (kw.islimit) fprintf(stdout, "Limit Keyword Passed: limit = %ld\n", (long)kw.limit);
     }
 
 //--------------------------------------------------------------------------
@@ -1230,7 +1234,7 @@ IDL_VPTR IDL_CDECL queryArrayCPF(int argc, IDL_VPTR argv[], char* argk) {
     }
 
     if (kw.islimit) {
-        sprintf(slimit, " limit %d;", kw.limit);
+        sprintf(slimit, " limit %ld;", (long)kw.limit);
         strcat(sql, slimit);
     }
 
@@ -1614,9 +1618,9 @@ IDL_VPTR IDL_CDECL querySingleArrayCPF(int argc, IDL_VPTR argv[], char* argk) {
 
     if (kw.debug) {
         if (kw.debug) fprintf(stdout, "Debug Keyword Passed\n");
-        if (kw.verbose)fprintf(stdout, "Verbose Keyword Passed\n");
+        if (kw.verbose) fprintf(stdout, "Verbose Keyword Passed\n");
         if (kw.help) fprintf(stdout, "Help Keyword Passed\n");
-        if (kw.islimit)fprintf(stdout, "Limit Keyword Passed: limit = %d\n", kw.limit);
+        if (kw.islimit) fprintf(stdout, "Limit Keyword Passed: limit = %ld\n", (long)kw.limit);
     }
 
 //--------------------------------------------------------------------------
@@ -1650,7 +1654,7 @@ IDL_VPTR IDL_CDECL querySingleArrayCPF(int argc, IDL_VPTR argv[], char* argk) {
     }
 
     if (kw.islimit) {
-        sprintf(slimit, " limit %d;", kw.limit);
+        sprintf(slimit, " limit %ld;", (long)kw.limit);
         strcat(sql, slimit);
     }
 
@@ -2697,7 +2701,7 @@ IDL_VPTR IDL_CDECL countCPF(int argc, IDL_VPTR argv[], char* argk) {
     }
 
     if (kw.islimit) {
-        sprintf(slimit, " limit %d;", kw.limit);
+        sprintf(slimit, " limit %ld;", (long)kw.limit);
         strcat(sql, slimit);
     }
 

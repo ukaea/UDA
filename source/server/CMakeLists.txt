@@ -94,6 +94,7 @@ target_link_libraries( server-shared LINK_PUBLIC
   ${OPENSSL_LIBRARIES}
   ${LIBXML2_LIBRARIES}
   ${PostgreSQL_LIBRARY}
+  ${CACHE_LIBRARIES}
   )
 
 link_modules( server-shared )
@@ -103,6 +104,7 @@ target_link_libraries( server-static LINK_PUBLIC
   ${OPENSSL_LIBRARIES}
   ${LIBXML2_LIBRARIES}
   ${PostgreSQL_LIBRARY}
+  ${CACHE_LIBRARIES}
   )
 
 link_modules( server-static )

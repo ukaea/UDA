@@ -491,8 +491,8 @@ IDL_VPTR IDL_CDECL rosinglesignalxml(int argc, IDL_VPTR argv[], char* argk) {
         if (kw.is_source) {
             if (kw.is_pass) {
                 sprintf(sql,
-                        "SELECT source_id FROM data_Source WHERE source_alias ilike '%s' and type = '%s' and exp_number = %d and pass = %d ",
-                        source, signal_type, shotlist[i], kw.pass);
+                        "SELECT source_id FROM data_Source WHERE source_alias ilike '%s' and type = '%s' and exp_number = %d and pass = %ld ",
+                        source, signal_type, shotlist[i], (long)kw.pass);
             } else {
                 sprintf(sql,
                         "SELECT source_id, pass FROM data_Source WHERE source_alias ilike '%s' and type = '%s' and exp_number = %d "
@@ -500,8 +500,8 @@ IDL_VPTR IDL_CDECL rosinglesignalxml(int argc, IDL_VPTR argv[], char* argk) {
             }
         } else {
             if (kw.is_pass) {
-                sprintf(sql, "SELECT source_id FROM data_Source WHERE type = '%s' and exp_number = %d and pass = %d ",
-                        signal_type, shotlist[i], kw.pass);
+                sprintf(sql, "SELECT source_id FROM data_Source WHERE type = '%s' and exp_number = %d and pass = %ld ",
+                        signal_type, shotlist[i], (long)kw.pass);
             } else {
                 sprintf(sql, "SELECT source_id, pass FROM data_Source WHERE type = '%s' and exp_number = %d "
                         "ORDER by pass DESC", signal_type, shotlist[i]);
@@ -557,10 +557,10 @@ IDL_VPTR IDL_CDECL rosinglesignalxml(int argc, IDL_VPTR argv[], char* argk) {
                 fprintf(stdout,
                         "Too Many Data Source Records were Identified when only one was expected ... Please check your Specification\n");
                 if (kw.is_source)
-                    fprintf(stdout, "Signal %s, Source %s, Shot %d, Pass %d, Type %s\n", signal, source, shotlist[i],
-                            kw.pass, signal_type);
+                    fprintf(stdout, "Signal %s, Source %s, Shot %d, Pass %ld, Type %s\n", signal, source, shotlist[i],
+                            (long)kw.pass, signal_type);
                 else
-                    fprintf(stdout, "Signal %s, Shot %d, Pass %d, Type %s\n", signal, shotlist[i], kw.pass,
+                    fprintf(stdout, "Signal %s, Shot %d, Pass %ld, Type %s\n", signal, shotlist[i], (long)kw.pass,
                             signal_type);
             }
             IDL_KW_FREE;
@@ -617,10 +617,10 @@ IDL_VPTR IDL_CDECL rosinglesignalxml(int argc, IDL_VPTR argv[], char* argk) {
                 fprintf(stdout, "Database Error: Too Many Signal Records were Identified when only one was expected "
                         "... Please inform the System Administrator.\n");
                 if (kw.is_source)
-                    fprintf(stdout, "Signal %s, Source %s, Shot %d, Pass %d, Type %s\n", signal, source, shotlist[i],
-                            kw.pass, signal_type);
+                    fprintf(stdout, "Signal %s, Source %s, Shot %d, Pass %ld, Type %s\n", signal, source, shotlist[i],
+                            (long)kw.pass, signal_type);
                 else
-                    fprintf(stdout, "Signal %s, Shot %d, Pass %d, Type %s\n", signal, shotlist[i], kw.pass,
+                    fprintf(stdout, "Signal %s, Shot %d, Pass %ld, Type %s\n", signal, shotlist[i], (long)kw.pass,
                             signal_type);
             }
             IDL_KW_FREE;
@@ -631,10 +631,10 @@ IDL_VPTR IDL_CDECL rosinglesignalxml(int argc, IDL_VPTR argv[], char* argk) {
         if (nrows == 0) {
             if (kw.verbose)fprintf(stdout, "No Signal Record was Identified ... Processing the Next Listed Shot.\n");
             if (kw.is_source)
-                fprintf(stdout, "Signal %s, Source %s, Shot %d, Pass %d, Type %s\n", signal, source, shotlist[i],
-                        kw.pass, signal_type);
+                fprintf(stdout, "Signal %s, Source %s, Shot %d, Pass %ld, Type %s\n", signal, source, shotlist[i],
+                        (long)kw.pass, signal_type);
             else
-                fprintf(stdout, "Signal %s, Shot %d, Pass %d, Type %s\n", signal, shotlist[i], kw.pass, signal_type);
+                fprintf(stdout, "Signal %s, Shot %d, Pass %ld, Type %s\n", signal, shotlist[i], (long)kw.pass, signal_type);
             continue;
         }
 
@@ -7114,8 +7114,8 @@ IDL_VPTR IDL_CDECL getidampath(int argc, IDL_VPTR argv[], char* argk) {
 
     if (kw.debug) {
         fprintf(stdout, "getidampath: Shot %d, Source %s\n", pulno, source);
-        fprintf(stdout, "isPass %d\n", kw.is_pass);
-        fprintf(stdout, "Pass %d\n", kw.pass);
+        fprintf(stdout, "isPass %ld\n", (long)kw.is_pass);
+        fprintf(stdout, "Pass %ld\n", (long)kw.pass);
         fprintf(stdout, "Type %s\n", type);
     }
 
