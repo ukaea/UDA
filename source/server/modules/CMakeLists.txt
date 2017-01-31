@@ -24,9 +24,12 @@ set( SRC_FILES
   ppf/readppf.c
   hdata/readHData.c
   mdsplus/readMDS.c
-  mdsplus/readMDSDim.c
   registration/getPluginAddress.c
   )
+
+if( MDSplus_FOUND )
+  list( APPEND SRC_FILES mdsplus/readMDSDim.c )
+endif()
 
 if( NETCDF_FOUND )
   list( APPEND SRC_FILES
