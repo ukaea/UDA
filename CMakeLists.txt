@@ -20,6 +20,10 @@ include( GetGitRevisionDescription )
 
 git_describe( GIT_TAG --tags )
 
+if( "${GIT_TAG}" MATCHES "^.*NOTFOUND$" )
+  message( FATAL_ERROR "Failed to get git revision: ${GIT_TAG}" )
+endif()
+
 # Strip off the SHA1 tag element if it exists
 string( REGEX REPLACE "^([0-9]+\\.[0-9]+\\.[0-9]+).*" "\\1" GIT_VERSION "${GIT_TAG}" )
 
