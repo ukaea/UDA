@@ -16,6 +16,7 @@
 
 #include <stdlib.h>
 #include <ctype.h>
+#include <strings.h>
 
 #include <clientserver/initStructs.h>
 #include <structures/struct.h>

@@ -18,10 +18,7 @@ DATA_BLOCK * idamCacheRead(IDAM_CACHE * cache, REQUEST_BLOCK * request_block) { 
 #include <include/idamclientserverprivate.h>
 #include <clientserver/protocol2.h>
 #include <clientserver/initStructs.h>
-
-#ifdef __APPLE__
-#include <clientserver/mac_memstream.h>
-#endif
+#include <clientserver/memstream.h>
 
 #define HASHXDR 1
 #ifdef HASHXDR

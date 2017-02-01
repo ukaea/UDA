@@ -15,6 +15,7 @@
 #include "get.h"
 
 #include <stdlib.h>
+#include <strings.h>
 
 #include <structures/struct.h>
 #include <structures/accessors.h>

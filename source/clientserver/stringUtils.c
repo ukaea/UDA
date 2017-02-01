@@ -1,7 +1,9 @@
+#include "stringUtils.h"
+
 #include <stdlib.h>
 #include <stdarg.h>
 #include <stdio.h>
-#include "stringUtils.h"
+#include <strings.h>
 
 #ifndef strcasestr
 char *strcasestr(const char *haystack, const char *needle)

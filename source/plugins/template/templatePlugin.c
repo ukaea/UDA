@@ -21,6 +21,7 @@
 #include "templatePlugin.h"
 
 #include <stdlib.h>
+#include <strings.h>
 
 #include <clientserver/stringUtils.h>
 #include <clientserver/initStructs.h>

@@ -6,6 +6,8 @@
 
 #include <stdlib.h>
 #include <memory.h>
+#include <strings.h>
+
 #include "manageSockets.h"
 
 // Initialise

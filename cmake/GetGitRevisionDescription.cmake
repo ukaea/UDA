@@ -109,10 +109,6 @@ function(git_describe _var)
     err
     OUTPUT_STRIP_TRAILING_WHITESPACE)
 
-  message( WARNING ">>> EXECUTABLE: ${GIT_EXECUTABLE}" )
-  message( WARNING ">>> RESULT: ${out}" )
-  message( WARNING ">>> ERROR: ${err}" )
-
   if(NOT res EQUAL 0)
     set(out "${out}-${res}-NOTFOUND")
   endif()

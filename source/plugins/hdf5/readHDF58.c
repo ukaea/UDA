@@ -25,6 +25,7 @@
 #include <hdf5.h>
 #include <errno.h>
 #include <stdlib.h>
+#include <strings.h>
 
 #include <server/managePluginFiles.h>
 #include <clientserver/initStructs.h>

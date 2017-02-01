@@ -57,12 +57,14 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <memory.h>
+
 #include <logging/idamLog.h>
 #include <include/idamclientserverprivate.h>
 #include <include/idamclientserver.h>
+#include <structures/struct.h>
+
 #include "readXDRFile.h"
 #include "idamErrorLog.h"
-#include <structures/struct.h>
 #include "xdrlib.h"
 #include "idamErrors.h"
 

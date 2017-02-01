@@ -23,6 +23,7 @@
 
 #include <stdlib.h>
 #include <memory.h>
+#include <strings.h>
 
 #include <include/idamclientserverprivate.h>
 #include <clientserver/idamErrorLog.h>

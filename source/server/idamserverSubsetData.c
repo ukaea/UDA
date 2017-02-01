@@ -10,6 +10,7 @@
 #include <math.h>
 #include <float.h>
 #include <errno.h>
+#include <strings.h>
 
 #include <logging/idamLog.h>
 #include <clientserver/printStructs.h>

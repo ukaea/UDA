@@ -40,7 +40,7 @@ set( SRC_FILES
 
 if( APPLE )
   list( APPEND SRC_FILES
-    mac_memstream.c )
+    memstream.c )
 endif()
 
 include_directories(

@@ -19,7 +19,6 @@ add_definitions( -DNO_GSL_LIB )
 # Sources
 
 set( SRC_FILES
-  accAPI_C.c
   IdamAPI.c
   ClientAPI.c
   ClientMDS.c
@@ -43,7 +42,7 @@ set( SRC_FILES
   makeClientRequestBlock.c
   idamPutAPI.c
   idam_client.c
-  )
+)
 
 include_directories(
   ${CMAKE_SOURCE_DIR}/source

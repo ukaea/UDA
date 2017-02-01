@@ -24,6 +24,7 @@
 #include "testplugin.h"
 
 #include <stdlib.h>
+#include <strings.h>
 
 #include <clientserver/initStructs.h>
 #include <structures/struct.h>

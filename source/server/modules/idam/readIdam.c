@@ -21,6 +21,8 @@
 *-----------------------------------------------------------------------------*/
 #include "readIdam.h"
 
+#include <strings.h>
+
 #include <logging/idamLog.h>
 #include <clientserver/idamErrorLog.h>
 

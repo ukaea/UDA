@@ -2,7 +2,7 @@
 
 #ifdef __APPLE__
 
-#include "mac_memstream.h"
+#include "memstream.h"
 
 #include <stdlib.h>
 #include <string.h>

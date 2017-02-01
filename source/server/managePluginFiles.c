@@ -5,6 +5,7 @@
 #include "managePluginFiles.h"
 
 #include <stdlib.h>
+#include <strings.h>
 
 #include <logging/idamLog.h>
 

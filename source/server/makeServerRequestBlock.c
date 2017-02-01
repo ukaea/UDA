@@ -11,6 +11,7 @@ returns An integer Error Code: If non zero, a problem occured.
 #include <unistd.h>
 #include <stdlib.h>
 #include <errno.h>
+#include <strings.h>
 
 #include <clientserver/idamErrors.h>
 #include <clientserver/stringUtils.h>

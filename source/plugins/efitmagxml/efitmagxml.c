@@ -24,6 +24,8 @@
 *---------------------------------------------------------------------------------------------------------------*/
 #include "efitmagxml.h"
 
+#include <strings.h>
+
 #include <client/accAPI_C.h>
 #include <structures/struct.h>
 #include <structures/accessors.h>

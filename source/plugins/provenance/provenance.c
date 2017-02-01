@@ -13,6 +13,7 @@
 #include "provenance.h"
 
 #include <stdlib.h>
+#include <strings.h>
 
 #include <structures/struct.h>
 

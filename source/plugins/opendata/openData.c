@@ -25,6 +25,7 @@
 #include <utime.h>
 #include <stdlib.h>
 #include <errno.h>
+#include <strings.h>
 
 #include <include/idamserver.h>
 #include <clientserver/initStructs.h>

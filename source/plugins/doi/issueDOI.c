@@ -15,6 +15,7 @@ Issues:
 #include <libpq-fe.h>
 #include <stdlib.h>
 #include <errno.h>
+#include <strings.h>
 
 #include <include/idamserver.h>
 #include <structures/struct.h>

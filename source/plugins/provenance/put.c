@@ -46,6 +46,7 @@
 #include <utime.h>
 #include <stdlib.h>
 #include <errno.h>
+#include <strings.h>
 
 #include <clientserver/stringUtils.h>
 #include <clientserver/initStructs.h>

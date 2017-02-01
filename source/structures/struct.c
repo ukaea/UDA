@@ -39,8 +39,10 @@
 
 #include "struct.h"
 
-#include <logging/idamLog.h>
 #include <stdlib.h>
+#include <strings.h>
+
+#include <logging/idamLog.h>
 #include <include/idamclientserver.h>
 #include <clientserver/idamErrorLog.h>
 #include <clientserver/stringUtils.h>

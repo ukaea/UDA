@@ -11,6 +11,7 @@
 #include "IdamAPI.h"
 
 #include <stdarg.h>
+#include <strings.h>
 
 #include <logging/idamLog.h>
 #include <include/idamclientprivate.h>

@@ -60,6 +60,7 @@
 #include <logging/idamLog.h>
 #include <include/idamclientserverprivate.h>
 #include <include/idamclientserver.h>
+#include <clientserver/memstream.h>
 
 #include "readXDRFile.h"
 #include "idamErrorLog.h"
@@ -254,11 +255,7 @@ int protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, void* st
                         object = NULL;    // the data object
                         objectSize = 0;    // the size of the data object
 
-#ifdef __APPLE__
-                        if((xdrfile = tmpfile()) == NULL || errno != 0) {
-#else
                         if ((xdrfile = open_memstream((char**) &object, &objectSize)) == NULL || errno != 0) {
-#endif
                             err = 999;
                             if (errno != 0) addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "protocolXML", errno, "");
                             addIdamError(&idamerrorstack, CODEERRORTYPE, "protocolXML2", err,
@@ -1404,11 +1401,7 @@ int packXDRDataBlockObject(unsigned char* object, size_t objectSize, DATA_BLOCK*
 
         errno = 0;
 
-#ifdef __APPLE__
-        if((xdrfile = tmpfile()) == NULL || errno != 0) {
-#else
         if ((xdrfile = open_memstream((char**) &object, &objectSize)) == NULL || errno != 0) {
-#endif
             err = 999;
             if (errno != 0) addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "packXDRDataBlockObject", errno, "");
             addIdamError(&idamerrorstack, CODEERRORTYPE, "packXDRDataBlockObject", err,

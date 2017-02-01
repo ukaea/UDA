@@ -13,6 +13,7 @@ Interprets the API arguments and assembles a Request data structure.
 #include "makeClientRequestBlock.h"
 
 #include <stdlib.h>
+#include <strings.h>
 
 #include <logging/idamLog.h>
 #include <clientserver/idamErrors.h>

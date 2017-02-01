@@ -22,6 +22,7 @@
 
 #include <libpq-fe.h>
 #include <stdlib.h>
+#include <strings.h>
 
 #include <clientserver/initStructs.h>
 #include <server/makeServerRequestBlock.h>

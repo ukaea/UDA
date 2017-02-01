@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <dlfcn.h>
+#include <strings.h>
 
 #include <clientserver/initStructs.h>
 #include <clientserver/stringUtils.h>

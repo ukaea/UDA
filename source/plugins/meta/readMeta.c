@@ -30,6 +30,8 @@ Issues:
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <strings.h>
+
 #include <include/idamserver.h>
 #include <clientserver/stringUtils.h>
 #include <structures/struct.h>

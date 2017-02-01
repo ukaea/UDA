@@ -24,6 +24,7 @@
 #include <errno.h>
 #include <memory.h>
 #include <stdlib.h>
+#include <strings.h>
 
 #include <include/idamclientserverprivate.h>
 #include <clientserver/idamErrorLog.h>

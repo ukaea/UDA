@@ -21,6 +21,8 @@
 
 #include "readHDF58.h"
 
+#include <strings.h>
+
 #include <clientserver/idamErrorLog.h>
 #include <include/idamclientserverprivate.h>
 

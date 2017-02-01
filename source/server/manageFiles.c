@@ -10,6 +10,7 @@
 #include "manageFiles.h"
 
 #include <stdlib.h>
+#include <strings.h>
 
 #include <logging/idamLog.h>
 #include <include/idamclientserverprivate.h>

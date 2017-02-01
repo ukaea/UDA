@@ -13,6 +13,7 @@
 #include "viewport.h"
 
 #include <stdlib.h>
+#include <strings.h>
 
 #include <client/IdamAPI.h>
 #include <include/idamserver.h>

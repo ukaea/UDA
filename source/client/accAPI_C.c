@@ -5,12 +5,9 @@
 
 #include "accAPI_C.h"
 
-#ifdef __APPLE__  // Add some specific macros for development using xcode IDE
-#  include <clientserver/mac_memstream.h>
-#endif
-
 #include <math.h>
 #include <rpc/rpc.h>
+#include <strings.h>
 
 #include <logging/idamLog.h>
 #include <include/idamclientprivate.h>
@@ -24,6 +21,7 @@
 #include <include/idamclientserver.h>
 #include <clientserver/allocData.h>
 #include <clientserver/protocol2.h>
+#include <clientserver/memstream.h>
 
 #include "generateErrors.h"
 #include "getEnvironment.h"

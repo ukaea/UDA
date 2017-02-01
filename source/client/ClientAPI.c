@@ -11,6 +11,8 @@
 *--------------------------------------------------------------*/
 #include "ClientAPI.h"
 
+#include <strings.h>
+
 #include <logging/idamLog.h>
 #include <include/idamclientprivate.h>
 #include <clientserver/initStructs.h>
