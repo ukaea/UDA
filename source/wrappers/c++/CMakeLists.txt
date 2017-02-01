@@ -24,7 +24,7 @@ include_directories(
   ${Boost_INCLUDE_DIR}
 )
 
-add_definitions( -D_GNU_SOURCE -D__USE_GNU -D__USE_XOPEN2K8 )
+add_definitions( -D__USE_XOPEN2K8 )
 
 add_library( ${LIB_NAME} SHARED ${SRC_FILES} )
 
