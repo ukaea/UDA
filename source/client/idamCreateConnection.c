@@ -83,7 +83,7 @@ int idamCreateConnection()
         return -1;
     }
 
-    memcpy(&server.sin_addr, host->h_addr, host->h_length);
+    memcpy(&server.sin_addr, host->h_addr_list[0], host->h_length);
 
 
 // IDAM server Port
@@ -132,7 +132,7 @@ int idamCreateConnection()
                 clientSocket = -1;
                 return -1;
             }
-            memcpy(&server.sin_addr, host->h_addr, host->h_length);
+            memcpy(&server.sin_addr, host->h_addr_list[0], host->h_length);
             server.sin_port = htons(environment.server_port2);
             for (i = 0; i < MAX_SOCKET_ATTEMPTS; i++) {
                 errno = 0;
