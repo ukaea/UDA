@@ -1,8 +1,8 @@
 cmake_minimum_required( VERSION 2.8 )
 
 configure_file(
-  "${CMAKE_SOURCE_DIR}/etc/idamPlugins.conf.in"
-  "${CMAKE_CURRENT_BINARY_DIR}/idamPlugins.conf"
+  "${CMAKE_SOURCE_DIR}/etc/udaPlugins.conf.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/udaPlugins.conf"
   COPYONLY
 )
 
@@ -14,7 +14,7 @@ configure_file(
 
 install(
   FILES
-    ${CMAKE_CURRENT_BINARY_DIR}/idamPlugins.conf
+    ${CMAKE_CURRENT_BINARY_DIR}/udaPlugins.conf
     ${CMAKE_CURRENT_BINARY_DIR}/test_plugin.cpp
   DESTINATION
     etc/plugins

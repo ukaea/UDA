@@ -666,13 +666,13 @@ void initPluginList(PLUGINLIST* plugin_list)
         char* root;
         char* config = getenv("IDAM_PLUGIN_CONFIG");            // Server plugin configuration file
         FILE* conf = NULL;
-        char* filename = "idamPlugins.conf.in";                // Default name
+        char* filename = "udaPlugins.conf";                // Default name
         char* work = NULL, * csv, * next, * p;
 
 // Locate the plugin registration file
 
         if (config == NULL) {
-            root = getenv("IDAM_SERVERROOT");                // Where idamPlugins.conf.in is located by default
+            root = getenv("IDAM_SERVERROOT");                // Where udaPlugins.conf is located by default
             if (root == NULL) {
                 lstr = (int) strlen(filename) + 3;
                 work = (char*) malloc(lstr * sizeof(char));

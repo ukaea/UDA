@@ -165,48 +165,37 @@ endif()
 # Configure files
 
 string( REPLACE ";" ":" EXTRA_LD_LIBRARY_PATHS "${EXTRA_LD_LIBRARY_PATHS}" )
-configure_file(
-  "${CMAKE_SOURCE_DIR}/etc/idamserver.sh.in"
-  "${CMAKE_CURRENT_BINARY_DIR}/idamserver.sh"
-  @ONLY
+
+set( ETC_FILES
+  udaserver.sh
+  udaserver.cfg
+  xinetd.conf
+  rc.uda
+  uda-client.pc
+  uda-fat-client.pc
+  uda-cpp.pc
+  uda-fat-cpp.pc
+  README.md
 )
 
-configure_file(
-  "${CMAKE_SOURCE_DIR}/etc/idamserver.cfg.in"
-  "${CMAKE_CURRENT_BINARY_DIR}/idamserver.cfg"
-  @ONLY
-)
-
-set( USER $ENV{USER} )
-configure_file(
-  "${CMAKE_SOURCE_DIR}/etc/xinetd.conf.in"
-  "${CMAKE_CURRENT_BINARY_DIR}/xinetd.conf"
-  @ONLY
-)
+foreach( ETC_FILE ${ETC_FILES} )
+  configure_file(
+    "${CMAKE_SOURCE_DIR}/etc/${ETC_FILE}.in"
+    "${CMAKE_BINARY_DIR}/etc/${ETC_FILE}"
+    @ONLY
+  )
+  list( APPEND GEN_ETC_FILES ${CMAKE_BINARY_DIR}/etc/${ETC_FILE} )
+endforeach()
 
 configure_file(
-  "${CMAKE_SOURCE_DIR}/etc/rc.idam.in"
-  "${CMAKE_CURRENT_BINARY_DIR}/rc.idam"
-  @ONLY
-)
-
-configure_file(
-  "${CMAKE_SOURCE_DIR}/etc/README.md.in"
-  "${CMAKE_CURRENT_BINARY_DIR}/README.md"
-  @ONLY
-)
-
-configure_file(
-  "${CMAKE_SOURCE_DIR}/etc/idamgenstruct.conf"
-  "${CMAKE_CURRENT_BINARY_DIR}/idamgenstruct.conf"
+  "${CMAKE_SOURCE_DIR}/etc/udagenstruct.conf"
+  "${CMAKE_BINARY_DIR}/etc/udagenstruct.conf"
   COPYONLY
 )
 
 install(
   FILES
-    ${CMAKE_CURRENT_BINARY_DIR}/xinetd.conf
-    ${CMAKE_CURRENT_BINARY_DIR}/README.md
-    ${CMAKE_CURRENT_BINARY_DIR}/idamserver.cfg
+    ${GEN_ETC_FILES}
   DESTINATION etc
 )
 
@@ -218,20 +207,20 @@ install(
 
 install(
   FILES
-    ${CMAKE_CURRENT_BINARY_DIR}/idamserver.sh
-    ${CMAKE_CURRENT_BINARY_DIR}/rc.idam
+    ${CMAKE_BINARY_DIR}/udaserver.sh
+    ${CMAKE_BINARY_DIR}/rc.uda
   DESTINATION etc
   PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ WORLD_READ
 )
 
 install(
   DIRECTORY
-    ${CMAKE_BINARY_DIR}/plugins.d
+    ${CMAKE_BINARY_DIR}/etc/plugins.d
   DESTINATION etc
 )
 
 install(
   FILES
-  ${CMAKE_CURRENT_BINARY_DIR}/idamgenstruct.conf
+    ${CMAKE_BINARY_DIR}/etc/udagenstruct.conf
   DESTINATION lib/plugins
 )

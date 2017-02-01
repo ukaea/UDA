@@ -6,7 +6,7 @@
 #include "accAPI_C.h"
 
 #include <math.h>
-#include <rpc/rpc.h>
+#include <pthread.h>
 #include <strings.h>
 
 #include <logging/idamLog.h>
@@ -18,7 +18,6 @@
 #include <clientserver/idamErrorLog.h>
 #include <clientserver/stringUtils.h>
 #include <structures/struct.h>
-#include <include/idamclientserver.h>
 #include <clientserver/allocData.h>
 #include <clientserver/protocol2.h>
 #include <clientserver/memstream.h>
@@ -27,8 +26,6 @@
 #include "getEnvironment.h"
 #include "accAPI_F.h"
 #include "idam_client.h"
-
-#include<pthread.h>
 
 #ifdef __APPLE__
 #  include <stdlib.h>

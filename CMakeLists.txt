@@ -27,7 +27,13 @@ endif()
 # Strip off the SHA1 tag element if it exists
 string( REGEX REPLACE "^([0-9]+\\.[0-9]+\\.[0-9]+).*" "\\1" GIT_VERSION "${GIT_TAG}" )
 
-project( uda VERSION ${GIT_VERSION} )
+option( FAT_BUILD "Build fat client" OFF )
+
+if( FAT_BUILD )
+  project( udafat VERSION ${GIT_VERSION} )
+else()
+  project( uda VERSION ${GIT_VERSION} )
+endif()
 
 cmake_host_system_information( RESULT UDA_HOST QUERY FQDN )
 
@@ -65,18 +71,21 @@ set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC" )
 set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC" )
 
 add_definitions(
-  -D_POSIX_C_SOURCE=200809L
-  -D_XOPEN_SOURCE=700
   -DOSTYPE=${CMAKE_SYSTEM_NAME}
   -Wall
-  #-Wextra
   -Werror
 )
+
+if( NOT APPLE )
+  add_definitions(
+    -D_XOPEN_SOURCE=700
+    -D_POSIX_C_SOURCE=200809L
+  )
+endif()
 
 ########################################################################################################################
 # Build options
 
-option( FAT_BUILD "Build fat client" OFF )
 if( FAT_BUILD )
   add_definitions( -DFATCLIENT )
   set( IDAM_NAME idamfat CACHE STRING "Idam library name" )

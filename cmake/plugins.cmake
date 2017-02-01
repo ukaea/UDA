@@ -89,14 +89,14 @@ macro( idam_plugin )
   file( APPEND "${CMAKE_CURRENT_BINARY_DIR}/../idamPlugins.conf"
     "${PLUGIN_NAME}, function, ${PLUGIN_ENTRY_FUNC}, lib${PLUGIN_LIBNAME}.${EXT_NAME}, *, 1, 1, 1, ${PLUGIN_DESCRIPTION}, ${PLUGIN_EXAMPLE}\n" )
 
-  if( NOT EXISTS "${CMAKE_BINARY_DIR}/plugins.d" )
-    file( MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/plugins.d" )
+  if( NOT EXISTS "${CMAKE_BINARY_DIR}/etc/plugins.d" )
+    file( MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/etc/plugins.d" )
   endif()
 
   if( NOT "${PLUGIN_CONFIG_FILE}" STREQUAL "" )
     configure_file(
       "${CMAKE_CURRENT_LIST_DIR}/${PLUGIN_CONFIG_FILE}.in"
-      "${CMAKE_BINARY_DIR}/plugins.d/${PLUGIN_CONFIG_FILE}"
+      "${CMAKE_BINARY_DIR}/etc/plugins.d/${PLUGIN_CONFIG_FILE}"
       @ONLY
     )
   endif()

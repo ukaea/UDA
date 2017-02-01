@@ -79,14 +79,14 @@ add_library( client-static STATIC ${CLIENT_SRCS} )
 
 set_target_properties( client-shared
   PROPERTIES
-    OUTPUT_NAME uda_client
+    OUTPUT_NAME ${PROJECT_NAME}_client
     VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}
     SOVERSION ${PROJECT_VERSION_MAJOR}
 )
 
 set_target_properties( client-static
   PROPERTIES
-    OUTPUT_NAME uda_client
+    OUTPUT_NAME ${PROJECT_NAME}_client
 )
 
 install( TARGETS client-shared
