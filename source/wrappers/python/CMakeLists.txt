@@ -40,7 +40,7 @@ set_target_properties( ${SWIG_MODULE_${LIB_NAME}_REAL_NAME}
 install( TARGETS ${SWIG_MODULE_${LIB_NAME}_REAL_NAME}
   DESTINATION include/pyidam )
 
-install( FILES ${CMAKE_CURRENT_BINARY_DIR}/cidam.py
+install( FILES ${CMAKE_CURRENT_BINARY_DIR}/${LIB_NAME}.py
   DESTINATION include/pyidam )
 
 file( GLOB INSTALL_FILES pyidam/*.py )
