@@ -207,8 +207,8 @@ install(
 
 install(
   FILES
-    ${CMAKE_BINARY_DIR}/udaserver.sh
-    ${CMAKE_BINARY_DIR}/rc.uda
+    ${CMAKE_BINARY_DIR}/etc/udaserver.sh
+    ${CMAKE_BINARY_DIR}/etc/rc.uda
   DESTINATION etc
   PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ WORLD_READ
 )
