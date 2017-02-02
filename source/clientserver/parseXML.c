@@ -16,14 +16,17 @@
 
 #include "parseXML.h"
 
+#include <stdlib.h>
+
 #include <logging/idamLog.h>
+
+#ifndef NOXMLPARSER
+
 #include <clientserver/idamTypes.h>
 #include <include/idamclientserverprivate.h>
 #include "stringUtils.h"
 #include "parseOperation.h"
 #include "idamErrorLog.h"
-
-#ifndef NOXMLPARSER
 
 // Simple Tags with Delimited List of Floating Point Values
 // Assume No Attributes
@@ -1216,7 +1219,6 @@ int parseDoc(char* docname, ACTIONS* actions)
 
     return 0;
 }
-
 
 #endif
 //==================================================================================================

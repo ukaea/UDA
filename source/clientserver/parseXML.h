@@ -12,8 +12,9 @@ extern "C" {
 #ifndef NOXMLPARSER
 #  include <libxml/xmlmemory.h>
 #  include <libxml/parser.h>
-#include "idamDefines.h"
 #endif
+
+#include "idamDefines.h"
 
 #define SXMLMAXSTRING   1024
 #define MAXDATARANK     8

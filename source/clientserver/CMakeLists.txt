@@ -3,9 +3,11 @@ cmake_minimum_required( VERSION 2.8 )
 ########################################################################################################################
 # Dependencies
 
-find_package( PostgreSQL REQUIRED )
-find_package( LibXml2 REQUIRED )
 find_package( OpenSSL REQUIRED )
+if( NOT CLIENT_ONLY )
+  find_package( PostgreSQL REQUIRED )
+  find_package( LibXml2 REQUIRED )
+endif()
 
 include_directories(
   ${CMAKE_SOURCE_DIR}/source
@@ -41,6 +43,10 @@ set( SRC_FILES
 if( APPLE )
   list( APPEND SRC_FILES
     memstream.c )
+endif()
+
+if( CLIENT_ONLY )
+  add_definitions( -DNOXMLPARSER )
 endif()
 
 include_directories(
