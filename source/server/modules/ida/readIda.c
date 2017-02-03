@@ -25,6 +25,8 @@
 *-----------------------------------------------------------------------------*/
 #include "readIda.h"
 
+#include <strings.h>
+
 #include <include/idamserverfiles.h>
 #include <clientserver/idamErrorLog.h>
 #include <include/idamclientserverprivate.h>

@@ -5,6 +5,7 @@
 #include "getSourcePath.h"
 
 #include <stdlib.h>
+#include <strings.h>
 
 #include <logging/idamLog.h>
 #include <clientserver/idamDefines.h>

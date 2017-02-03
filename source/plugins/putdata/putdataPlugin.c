@@ -1,6 +1,7 @@
 #include "putdataPlugin.h"
 
 #include <stdlib.h>
+#include <strings.h>
 
 #include <clientserver/initStructs.h>
 #include <clientserver/stringUtils.h>

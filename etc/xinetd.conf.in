@@ -2,7 +2,7 @@
 # xinetd setup to start idam server
 ###############################################################################
 
-service @USER@idam
+service @USER@uda
 {
     disable         = no
     flags           = IPv4 NOLIBWRAP KEEPALIVE NODELAY
@@ -12,7 +12,7 @@ service @USER@idam
     socket_type     = stream
     wait            = no
     user            = @USER@
-    server          = @CMAKE_INSTALL_PREFIX@/etc/idamserver.sh
+    server          = @CMAKE_INSTALL_PREFIX@/etc/udaserver.sh
 
     instances       = 50
     per_source      = 10

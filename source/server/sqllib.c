@@ -23,6 +23,45 @@
 
 #ifndef NOTGENERICENABLED
 
+PGconn* openDatabase(const char* host, int port, const char* dbname, const char* user) 
+{
+    char pgport[56];
+    sprintf(pgport, "%d", port);
+
+//-------------------------------------------------------------
+// Debug Trace Queries
+
+//        PQtrace(DBConnect, dbgout);
+    IDAM_LOGF(LOG_DEBUG, "SQL Connection: host %s\n", host);
+    IDAM_LOGF(LOG_DEBUG, "                port %s\n", pgport);
+    IDAM_LOGF(LOG_DEBUG, "                db   %s\n", dbname);
+    IDAM_LOGF(LOG_DEBUG, "                user %s\n", user);
+
+//-------------------------------------------------------------
+// Connect to the Database Server
+
+    PGconn* DBConnect = NULL;
+
+    if ((DBConnect = PQsetdbLogin(host, pgport, NULL, NULL, dbname, user, NULL)) == NULL) {
+      IDAM_LOG(LOG_DEBUG, "SQL Server Connect Error");
+        addIdamError(&idamerrorstack, CODEERRORTYPE, "startSQL", 1, "SQL Server Connect Error");
+        PQfinish(DBConnect);
+        return NULL;
+    }
+
+    if (PQstatus(DBConnect) == CONNECTION_BAD) {
+      IDAM_LOG(LOG_DEBUG, "Bad SQL Server Connect Status");
+        addIdamError(&idamerrorstack, CODEERRORTYPE, "startSQL", 1, "Bad SQL Server Connect Status");
+        PQfinish(DBConnect);
+        return NULL;
+    }
+
+    IDAM_LOGF(LOG_DEBUG, "SQL Connection Options: %s\n", PQoptions(DBConnect));
+
+    return DBConnect;
+
+}
+
 PGconn* startSQL()
 {
 

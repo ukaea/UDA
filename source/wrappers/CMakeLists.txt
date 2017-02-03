@@ -7,7 +7,7 @@ find_package( PythonLibs 3.3 )
 find_package( SWIG 3.0 )
 find_package( Boost )
 
-if( BOOST_FOUND )
+if( Boost_FOUND )
   add_subdirectory( c++ )
 
   # Python wrapper can only be build if c++ wrapper is also being built

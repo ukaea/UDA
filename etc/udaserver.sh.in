@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------------------------------
 # Load core IDAM configuration
 
-source @CMAKE_INSTALL_PREFIX@/etc/idamserver.cfg >>@CMAKE_INSTALL_PREFIX@/etc/startup.log 2>&1
+source @CMAKE_INSTALL_PREFIX@/etc/udaserver.cfg >>@CMAKE_INSTALL_PREFIX@/etc/startup.log 2>&1
 
 #------------------------------------------------------------------------------------------------------
 # Load machine specific configuration if it exists
@@ -30,6 +30,6 @@ done
 #------------------------------------------------------------------------------------------------------
 # Run the Server Program
 
-@CMAKE_INSTALL_PREFIX@/bin/@IDS@ >>@CMAKE_INSTALL_PREFIX@/etc/server.log 2>&1
+@CMAKE_INSTALL_PREFIX@/bin/@PROJECT_NAME@_server >>@CMAKE_INSTALL_PREFIX@/etc/server.log 2>&1
 
 exit $?

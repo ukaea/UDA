@@ -20,6 +20,8 @@
 *---------------------------------------------------------------------------------------------------------------*/
 #include "netCDF4.h"
 
+#include <strings.h>
+
 #include <include/idamserver.h>
 #include <structures/struct.h>
 #include <server/managePluginFiles.h>

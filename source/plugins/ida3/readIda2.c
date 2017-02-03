@@ -27,6 +27,8 @@
 
 #include <ida3.h>
 
+#include <strings.h>
+
 #include <clientserver/idamErrors.h>
 #include <clientserver/stringUtils.h>
 #include <clientserver/idamErrorLog.h>

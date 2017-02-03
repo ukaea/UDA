@@ -34,6 +34,8 @@
 *---------------------------------------------------------------------------------------------------------------*/
 #include "readCDF4.h"
 
+#include <strings.h>
+
 #include <server/managePluginFiles.h>
 #include <structures/struct.h>
 #include <clientserver/initStructs.h>

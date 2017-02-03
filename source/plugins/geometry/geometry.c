@@ -36,6 +36,7 @@
 
 #include <math.h>
 #include <stdlib.h>
+#include <strings.h>
 
 #include <include/idamclientserverprivate.h>
 #include <clientserver/idamErrorLog.h>

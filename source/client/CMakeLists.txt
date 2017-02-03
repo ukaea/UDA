@@ -57,6 +57,7 @@ if( NOT FAT_BUILD )
     $<TARGET_OBJECTS:client>
     $<TARGET_OBJECTS:cache>
     $<TARGET_OBJECTS:logging>
+    $<TARGET_OBJECTS:structures-client>
   )
 else()
   include_directories( ${PostgreSQL_INCLUDE_DIRS} )

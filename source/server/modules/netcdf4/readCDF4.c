@@ -34,6 +34,7 @@
 *---------------------------------------------------------------------------------------------------------------*/
 
 #include "readCDF4.h"
+#include <strings.h>
 
 #include <clientserver/idamErrorLog.h>
 

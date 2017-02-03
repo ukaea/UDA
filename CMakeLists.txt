@@ -37,6 +37,8 @@ endif()
 
 cmake_host_system_information( RESULT UDA_HOST QUERY FQDN )
 
+set( USER $ENV{USER} )
+
 ########################################################################################################################
 # Target type
 

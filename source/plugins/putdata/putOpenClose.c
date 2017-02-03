@@ -2,6 +2,7 @@
 
 #include <netcdf.h>
 #include <stdlib.h>
+#include <strings.h>
 
 #include <clientserver/stringUtils.h>
 #include <clientserver/idamTypes.h>

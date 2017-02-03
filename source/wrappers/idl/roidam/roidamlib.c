@@ -7,6 +7,7 @@
 
 #include <stdlib.h>
 #include <libpq-fe.h>
+#include <strings.h>
 
 #include <clientserver/stringUtils.h>
 

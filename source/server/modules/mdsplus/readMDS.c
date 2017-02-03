@@ -28,6 +28,8 @@
 #include <include/idamclientserverprivate.h>
 #include <clientserver/idamErrorLog.h>
 
+#include <strings.h>
+
 #ifdef NOMDSPLUSPLUGIN
 
 int readMDS(DATA_SOURCE data_source,

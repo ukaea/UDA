@@ -33,11 +33,11 @@ export IDAM_SQLUSER=readonly    # IDAM SQL Database User
 #------------------------------------------------------------------------------------------------------
 # Plugin Registration + Structure Passing configuration
 
-export IDAM_PLUGIN_CONFIG=@CMAKE_INSTALL_PREFIX@/bin/plugins/idamPlugins.conf
-export IDAM_SARRAY_CONFIG=@CMAKE_INSTALL_PREFIX@/bin/plugins/idamgenstruct.conf
+export IDAM_PLUGIN_CONFIG=@CMAKE_INSTALL_PREFIX@/etc/plugins/udaPlugins.conf
+export IDAM_SARRAY_CONFIG=@CMAKE_INSTALL_PREFIX@/lib/plugins/udagenstruct.conf
 
 #------------------------------------------------------------------------------------------------------
 # Setup required dynamic library paths
 
-export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:@CMAKE_INSTALL_PREFIX@/lib:@CMAKE_INSTALL_PREFIX@/bin/plugins"
+export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:@CMAKE_INSTALL_PREFIX@/lib:@CMAKE_INSTALL_PREFIX@/lib/plugins"
 export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:@EXTRA_LD_LIBRARY_PATHS@"

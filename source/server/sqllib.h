@@ -21,6 +21,7 @@ extern "C" {
 extern PGconn *gDBConnect;
 
 PGconn *startSQL();
+PGconn* openDatabase(const char* host, int port, const char* dbname, const char* user);
 PGconn *startSQL_CPF();
 void sqlReason(PGconn *DBConnect, char *reason_id, char *reason);
 void sqlMeta(PGconn *DBConnect, char *table, char *meta_id, char *xml, char *creation);
