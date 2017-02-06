@@ -9,6 +9,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <errno.h>
+#include <netinet/tcp.h>
 
 #include <include/idamclientprivate.h>
 #include <clientserver/idamErrorLog.h>

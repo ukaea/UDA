@@ -19,10 +19,7 @@ extern "C" {
 #include <clientserver/idamDefines.h>
 #include <clientserver/idamStructs.h>
 
-#include <netinet/tcp.h>
-
 #ifdef __APPLE__
-
 #  include <rpc/types.h>
 #endif
 

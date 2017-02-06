@@ -180,7 +180,7 @@ set( ETC_FILES
 
 foreach( ETC_FILE ${ETC_FILES} )
   configure_file(
-    "${CMAKE_SOURCE_DIR}/etc/${ETC_FILE}.in"
+    "${CMAKE_SOURCE_DIR}/source/etc/${ETC_FILE}.in"
     "${CMAKE_BINARY_DIR}/etc/${ETC_FILE}"
     @ONLY
   )
@@ -188,7 +188,7 @@ foreach( ETC_FILE ${ETC_FILES} )
 endforeach()
 
 configure_file(
-  "${CMAKE_SOURCE_DIR}/etc/udagenstruct.conf"
+  "${CMAKE_SOURCE_DIR}/source/etc/udagenstruct.conf"
   "${CMAKE_BINARY_DIR}/etc/udagenstruct.conf"
   COPYONLY
 )
@@ -201,7 +201,7 @@ install(
 
 install(
   DIRECTORY
-    ${CMAKE_SOURCE_DIR}/etc/machine.d
+    ${CMAKE_SOURCE_DIR}/source/etc/machine.d
   DESTINATION etc
 )
 
@@ -222,5 +222,5 @@ install(
 install(
   FILES
     ${CMAKE_BINARY_DIR}/etc/udagenstruct.conf
-  DESTINATION lib/plugins
+  DESTINATION etc/plugins
 )

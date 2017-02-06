@@ -1,13 +1,13 @@
 cmake_minimum_required( VERSION 2.8 )
 
 configure_file(
-  "${CMAKE_SOURCE_DIR}/etc/udaPlugins.conf.in"
+  "${CMAKE_SOURCE_DIR}/source/etc/udaPlugins.conf.in"
   "${CMAKE_CURRENT_BINARY_DIR}/udaPlugins.conf"
   COPYONLY
 )
 
 configure_file(
-  "${CMAKE_SOURCE_DIR}/etc/test_plugin.cpp.in"
+  "${CMAKE_SOURCE_DIR}/source/etc/test_plugin.cpp.in"
   "${CMAKE_CURRENT_BINARY_DIR}/test_plugin.cpp"
   @ONLY
 )

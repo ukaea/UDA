@@ -73,8 +73,8 @@ macro( idam_plugin )
   )
 
   install(
-    FILES ${CMAKE_CURRENT_BINARY_DIR}/idamPlugins_${PLUGIN_NAME}.conf
-    DESTINATION lib/plugins
+    FILES ${CMAKE_CURRENT_BINARY_DIR}/udaPlugins_${PLUGIN_NAME}.conf
+    DESTINATION etc/plugins
   )
 
   #targetFormat, formatClass="function", librarySymbol, libraryName, methodName, interface, cachePermission, publicUse, description, example
@@ -84,9 +84,9 @@ macro( idam_plugin )
     set( EXT_NAME "so" )
   endif()
 
-  file( WRITE "${CMAKE_CURRENT_BINARY_DIR}/idamPlugins_${PLUGIN_NAME}.conf"
+  file( WRITE "${CMAKE_CURRENT_BINARY_DIR}/udaPlugins_${PLUGIN_NAME}.conf"
     "${PLUGIN_NAME}, function, ${PLUGIN_ENTRY_FUNC}, lib${PLUGIN_LIBNAME}.${EXT_NAME}, *, 1, 1, 1, ${PLUGIN_DESCRIPTION}, ${PLUGIN_EXAMPLE}\n" )
-  file( APPEND "${CMAKE_CURRENT_BINARY_DIR}/../idamPlugins.conf"
+  file( APPEND "${CMAKE_CURRENT_BINARY_DIR}/../udaPlugins.conf"
     "${PLUGIN_NAME}, function, ${PLUGIN_ENTRY_FUNC}, lib${PLUGIN_LIBNAME}.${EXT_NAME}, *, 1, 1, 1, ${PLUGIN_DESCRIPTION}, ${PLUGIN_EXAMPLE}\n" )
 
   if( NOT EXISTS "${CMAKE_BINARY_DIR}/etc/plugins.d" )
