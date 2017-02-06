@@ -114,7 +114,7 @@ int idamXpadTree(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 	if (foundType == 1) {
 	  char* signaltype_for_query = (char*) malloc((2 * strlen(signalType) + 1) * sizeof(char));
 	  PQescapeStringConn(DBConnect, signaltype_for_query, signalType, strlen(signalType), &err);
-	  sprintf(query, "SELECT signal_desc_id, signal_alias, description, category FROM signal_desc WHERE signal_type='%s';", signaltype_for_query);
+	  sprintf(query, "SELECT signal_desc_id, signal_alias, description, category FROM signal_desc WHERE type='%s';", signaltype_for_query);
 	  free(signaltype_for_query);
 	} else {
 	  sprintf(query, "SELECT signal_desc_id, signal_alias, description, category FROM signal_desc;");
