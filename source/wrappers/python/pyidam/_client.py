@@ -1,7 +1,7 @@
 import re
 import logging
 
-from . import cidam
+from . import c_uda
 from ._signal import Signal
 from ._string import String
 from ._structured import StructuredData
@@ -17,7 +17,7 @@ class ClientMeta(type):
     """
     def __init__(cls, what, bases=None, dict=None):
         type.__init__(cls, what, bases, dict)
-        cls.C_Client = cidam.Client
+        cls.C_Client = c_uda.Client
 
     @property
     def port(cls):
@@ -40,12 +40,12 @@ class Client(metaclass = ClientMeta):
     """
     A class representing the IDAM client.
 
-    This is a pythonic wrapper around the low level cidam.Client class which contains the wrapped C++ calls to
+    This is a pythonic wrapper around the low level c_uda.Client class which contains the wrapped C++ calls to
     IDAM.
     """
 
     def __init__(self, debug_level=logging.ERROR):
-        self._cclient = cidam.Client()
+        self._cclient = c_uda.Client()
 
         logging.basicConfig(level = debug_level)
 
@@ -95,7 +95,7 @@ class Client(metaclass = ClientMeta):
 
             return filenames, geom_alias, signal_alias, var_name
 
-        except cidam.IdamException:
+        except c_uda.IdamException:
             return None, None, None, None
 
     def _find_matching_group(self, signal_aliases):
@@ -151,7 +151,7 @@ class Client(metaclass = ClientMeta):
         try:
             self.logger.info("Call is {}".format(sig_call))
             sig_struct = StructuredWritable(self._cclient.get(str(sig_call), str(source_call)).tree())
-        except cidam.IdamException:
+        except c_uda.IdamException:
             self.logger.error("Could not retrieve signal geometry data for signal {} and source {}".format(signal,
                                                                                                            source))
             return
@@ -230,7 +230,7 @@ class Client(metaclass = ClientMeta):
             self.logger.info("Call is {0}\n".format(config_call))
             try:
                 config_struct = StructuredWritable((self._cclient.get(str(config_call), str(source_call))).tree())
-            except cidam.IdamException:
+            except c_uda.IdamException:
                 self.logger.error("ERROR: Could not retrieve geometry data for signal {0} and source {1}".format(signal,
                                                                                                          source))
                 return
@@ -242,7 +242,7 @@ class Client(metaclass = ClientMeta):
             try:
                 cal_struct = StructuredWritable((self._cclient.get(str(cal_call), str(source_call))).tree())
                 self.logger.debug("Calibration data was found")
-            except cidam.IdamException:
+            except c_uda.IdamException:
                 cal_struct = None
                 self.logger.debug("No calibration data was found")
 
@@ -284,7 +284,7 @@ class Client(metaclass = ClientMeta):
                     else:
                         signal_data._add_struct(StructuredWritable((self._cclient.get(global_signal_group,
                                                                                       signal_file)).tree()))
-                except cidam.IdamException:
+                except c_uda.IdamException:
                     self.logger.warning("Something went wrong retrieving signal data")
                     continue
 

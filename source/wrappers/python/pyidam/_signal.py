@@ -2,6 +2,49 @@ from ._dim import Dim
 from ._utils import cdata_to_numpy_array, cdata_scalar_to_value
 from ._data import Data
 
+import json
+
+
+class DimEncoder(json.JSONEncoder):
+
+    def default(self, obj):
+        if isinstance(obj, pyidam.Dim):
+            dim = obj
+            obj = {
+                '_type': 'pyidam.Dim',
+                'label': dim.label,
+                'units': dim.units,
+                'data': {
+                    '_type': 'base64',
+                    '_dtype': dim.data.dtype.name,
+                    'value': base64.urlsafe_b64encode(dim.data.tostring()).decode()
+                },
+            }
+            return obj
+        return super().default(obj)
+
+
+class SignalEncoder(json.JSONEncoder):
+
+    def default(self, obj):
+        if isinstance(obj, pyidam.Signal):
+            signal = obj
+            dim_enc = DimEncoder()
+            obj = {
+                '_type': 'pyidam.Signal',
+                'label': signal.label,
+                'units': signal.units,
+                'dims': [dim_enc.default(dim) for dim in signal.dims],
+                'data': {
+                    '_type': 'base64',
+                    '_dtype': signal.data.dtype.name,
+                    'value': base64.urlsafe_b64encode(signal.data.tostring()).decode()
+                },
+                'meta': signal.meta,
+            }
+            return obj
+        return super().default(obj)
+
 
 class Signal(Data):
 
@@ -83,6 +126,9 @@ class Signal(Data):
 
     def widget(self):
         raise NotImplementedError("widget function not implemented for Signal objects")
+
+    def jsonify(self):
+        return json.dumps(self, cls=SignalEncoder)
 
     def __repr__(self):
         return "<Signal: {0}>".format(self.label) if self.label else "<Signal>"

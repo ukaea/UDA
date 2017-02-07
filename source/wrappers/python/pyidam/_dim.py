@@ -33,5 +33,3 @@ class Dim(object):
 
     def __repr__(self):
         return "<Dim: {0}>".format(self.label) if self.label else "<Dim>"
-
-

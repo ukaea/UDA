@@ -2,6 +2,7 @@ from ._dim import Dim
 from ._utils import cdata_to_numpy_array
 from ._data import Data
 
+import json
 
 class String(Data):
 
@@ -23,3 +24,12 @@ class String(Data):
 
     def widget(self):
         raise NotImplementedError("widget function not implemented for String objects")
+
+    def jsonify(self):
+        obj = {
+            'data': {
+                '_type': 'string',
+                'value': self.str
+            },
+        }
+        return json.dumps(obj)

@@ -11,7 +11,7 @@ if( Boost_FOUND )
   add_subdirectory( c++ )
 
   # Python wrapper can only be build if c++ wrapper is also being built
-  if( SWIG_FOUND AND PYTHONLIBS_FOUND AND NOT APPLE )
+  if( SWIG_FOUND AND PYTHONLIBS_FOUND )
     add_subdirectory( python )
   else()
     message( WARNING "SWIG or PythonLibs not found - not building Python wrapper" )

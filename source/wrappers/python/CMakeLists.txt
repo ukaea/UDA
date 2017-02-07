@@ -31,12 +31,6 @@ set_source_files_properties( Idam.i PROPERTIES SWIG_MODULE_NAME ${LIB_NAME} )
 swig_add_module( ${LIB_NAME} python Idam.i )
 swig_link_libraries( ${LIB_NAME} ${PROJECT_NAME}_cpp ssl ${PYTHON_LIBRARIES} )
 
-set_target_properties( ${SWIG_MODULE_${LIB_NAME}_REAL_NAME}
-  PROPERTIES
-    VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}
-    SOVERSION ${PROJECT_VERSION_MAJOR}
-)
-
 install( TARGETS ${SWIG_MODULE_${LIB_NAME}_REAL_NAME}
   DESTINATION include/pyidam )
 

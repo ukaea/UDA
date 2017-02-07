@@ -1,12 +1,12 @@
 import numpy as np
-from .cidam import IdamException
+from .c_uda import IdamException
 
 
 def cdata_scalar_to_value(scalar):
     """
     Convert an IDAM C++ Scalar object to an equivalent python type.
 
-    :param scalar: an IDAM C++ scalar as wrapped by the low level cidam library
+    :param scalar: an IDAM C++ scalar as wrapped by the low level c_uda library
     :return: a number or string
     """
     if scalar.type() == 'float32':
@@ -39,7 +39,7 @@ def cdata_vector_to_value(vector):
     """
     Convert an IDAM C++ Vector object to an equivalent python type.
 
-    :param vector: an IDAM C++ vector as wrapped by the low level cidam library
+    :param vector: an IDAM C++ vector as wrapped by the low level c_uda library
     :return: a list of numbers or strings
     """
     if vector.type() == 'float32':

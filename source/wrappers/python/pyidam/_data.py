@@ -15,3 +15,6 @@ class Data():
     @abc.abstractmethod
     def widget(self):
         pass
+
+    def jsonify(self):
+        raise NotImplementedError("jsonify has not been implement for this data class")

@@ -8,7 +8,13 @@ source @CMAKE_INSTALL_PREFIX@/etc/udaserver.cfg >>@CMAKE_INSTALL_PREFIX@/etc/sta
 #------------------------------------------------------------------------------------------------------
 # Load machine specific configuration if it exists
 
-HOSTNAME=$(dnsdomainname)
+if [ -n "$(which dnsdomainname)" ]
+then
+    HOSTNAME=$(dnsdomainname)
+else
+    HOSTNAME=$(hostname)
+fi
+
 if [ -z "$HOSTNAME" ]
 then
     HOSTNAME=$(dnsdomainname -a | cut -d'.' -f2-)

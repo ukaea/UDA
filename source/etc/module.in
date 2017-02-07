@@ -1,8 +1,8 @@
 #%Module1.0
-##IDAM @PROJECT_VERSION@ Modulefile
+##UDA @PROJECT_VERSION@ Modulefile
 ##
 
-module-whatis   "Loads the IDAM version @PROJECT_VERSION@ environment"
+module-whatis   "Loads the UDA version @PROJECT_VERSION@ environment"
 
 # Load prerequisites
 

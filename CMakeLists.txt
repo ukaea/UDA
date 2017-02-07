@@ -106,6 +106,20 @@ add_subdirectory( source )
 #add_subdirectory( test )
 
 ########################################################################################################################
+# Create module
+
+configure_file(
+  ${CMAKE_SOURCE_DIR}/source/etc/module.in
+  ${CMAKE_BINARY_DIR}/etc/uda/${PROJECT_VERSION}
+  @ONLY
+)
+
+install(
+  FILES ${CMAKE_BINARY_DIR}/etc/uda/${PROJECT_VERSION}
+  DESTINATION modulefiles/uda
+)
+
+########################################################################################################################
 # Package creations
 
 include( InstallRequiredSystemLibraries )
