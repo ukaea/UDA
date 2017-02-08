@@ -48,8 +48,8 @@ IDAM_CACHE* idamOpenCache()
     memcached_return_t rc;
     memcached_server_st* servers;
 
-    const char* host = getenv("IDAM_CACHE_HOST");   // Overrule the default settings
-    const char* port = getenv("IDAM_CACHE_PORT");
+    const char* host = getenv("UDA_CACHE_HOST");   // Overrule the default settings
+    const char* port = getenv("UDA_CACHE_PORT");
 
     if (host == NULL && port == NULL) {
         servers = memcached_server_list_append(NULL, IDAM_CACHE_HOST, (in_port_t)IDAM_CACHE_PORT, &rc);
@@ -174,7 +174,7 @@ int idamCacheWrite(IDAM_CACHE* cache, REQUEST_BLOCK* request_block, DATA_BLOCK* 
     static int init = 1;
 
     if (init) {
-        char* env = getenv("IDAM_CACHE_EXPIRY");
+        char* env = getenv("UDA_CACHE_EXPIRY");
 
         if (env != NULL) {
             age_max = (unsigned int) atoi(env);

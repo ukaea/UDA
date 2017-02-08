@@ -12,7 +12,7 @@ int main(int argc, char ** argv)
 {
     // Optional sleep at startup
 
-    char * env = getenv("IDAM_SLEEP");
+    char * env = getenv("UDA_SLEEP");
     if (env != NULL) sleep(atoi(env));
 
     // Run server

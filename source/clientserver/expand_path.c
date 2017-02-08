@@ -552,7 +552,7 @@ int expandFilePath(char* path)
 
 // Override compiler options
 
-    if ((env = getenv("IDAM_SCRATCHNAME")) != NULL) {    // Check for Environment Variable
+    if ((env = getenv("UDA_SCRATCHNAME")) != NULL) {    // Check for Environment Variable
 #ifndef _WIN32
         sprintf(scratch, "/%s/", env);
 #else
@@ -561,7 +561,7 @@ int expandFilePath(char* path)
         lscratch = (int) strlen(scratch);
     }
 
-    if ((env = getenv("IDAM_NETWORKNAME")) != NULL) {
+    if ((env = getenv("UDA_NETWORKNAME")) != NULL) {
         strcpy(netname, env);
     }
 

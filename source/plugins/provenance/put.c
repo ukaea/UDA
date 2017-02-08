@@ -101,7 +101,7 @@ int put(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 // Provenance Data Archive location
 
     if (root[0] == '\0') {
-        char* env = getenv("IDAM_PROVENANCEROOT");
+        char* env = getenv("UDA_PROVENANCEROOT");
         if (env != NULL) {
             strncpy(root, env, MAXROOT - 1);
             root[MAXROOT - 1] = '\0';
@@ -580,9 +580,9 @@ int copyProvenanceWebFile(char* oldFile, char* dir, char* newFileName, FILE* log
 
 // Has the file been copied to the web server?
 
-    char* webSCP = getenv("IDAM_PROVWEBSCP");
-    char* webURL = getenv("IDAM_PROVWEBURL");
-    char* webDir = getenv("IDAM_PROVWEBDIR");
+    char* webSCP = getenv("UDA_PROVWEBSCP");
+    char* webURL = getenv("UDA_PROVWEBURL");
+    char* webDir = getenv("UDA_PROVWEBDIR");
     unsigned int isWebCopy = (webURL != NULL && webDir != NULL) && !strncmp(webURL, oldFile, strlen(webURL));
 
     do {        // Error Trap
@@ -671,8 +671,8 @@ int copyProvenanceFile(char* oldFile, char* dir, char* newFileName)
 
 // Has the file been copied to the web server?
 
-    char* webURL = getenv("IDAM_PROVWEBURL");
-    char* webDir = getenv("IDAM_PROVWEBDIR");
+    char* webURL = getenv("UDA_PROVWEBURL");
+    char* webDir = getenv("UDA_PROVWEBDIR");
     unsigned int isWebCopy = (webURL != NULL && webDir != NULL) && !strncmp(webURL, oldFile, strlen(webURL));
 
     do {        // Error Trap

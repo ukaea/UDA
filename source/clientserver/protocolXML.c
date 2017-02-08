@@ -108,7 +108,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, void* str
     char* env = NULL;
 
     if ((privateFlags & PRIVATEFLAG_XDRFILE) && protocolVersion >= 5) {
-        if((env = getenv("IDAM_WORK_DIR")) != NULL) {
+        if((env = getenv("UDA_WORK_DIR")) != NULL) {
             // File to record XDR encoded data
             sprintf(tempFile, "%s/idamXDRXXXXXX", env);
         }

@@ -860,7 +860,7 @@ int sourceFileFormatTest(const char* source, REQUEST_BLOCK* request_block, PLUGI
             test = nc;
         } else {
             if (!strncmp(cmd, "HDF", 3)) {    // Either a netCDF or a HDF5 file: use utility programs to reveal!
-                char* env = getenv("IDAM_DUMP_NETCDF");
+                char* env = getenv("UDA_DUMP_NETCDF");
                 if (env != NULL) {
                     sprintf(cmd, "%s -h %s 2>/dev/null | head -c10 2>/dev/null", env, source);
                     errno = 0;
@@ -887,7 +887,7 @@ int sourceFileFormatTest(const char* source, REQUEST_BLOCK* request_block, PLUGI
                     }
                 }
             } else {                    // an IDA File?
-                char* env = getenv("IDAM_DUMP_IDA");
+                char* env = getenv("UDA_DUMP_IDA");
                 if (env != NULL) {
                     sprintf(cmd, "%s -h %s 2>/dev/null 2>/dev/null", env, source);
                     errno = 0;

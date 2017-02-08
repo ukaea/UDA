@@ -404,7 +404,7 @@ int idamClient(REQUEST_BLOCK* request_block)
 
         char* env = NULL;
 
-        if ((env = getenv("IDAM_PRIVATEFLAGS")) != NULL) {
+        if ((env = getenv("UDA_PRIVATEFLAGS")) != NULL) {
             setIdamPrivateFlag(atoi(env));
         }
 
@@ -419,7 +419,7 @@ int idamClient(REQUEST_BLOCK* request_block)
 
         // Client's study DOI
 
-        if ((env = getenv("IDAM_CLIENT_DOI")) != NULL) {
+        if ((env = getenv("UDA_CLIENT_DOI")) != NULL) {
             strcpy(client_block.DOI, env);
         }
 

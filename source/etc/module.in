@@ -16,12 +16,12 @@ if { ! [ is-loaded idlcodes-rmartin ] } {
 
 conflict            idam
 
-set                 IDAM_DIR            @CMAKE_INSTALL_PREFIX@
-setenv              IDAM_DIR            $IDAM_DIR
-setenv              IDAM_HOST           @IDAM_HOST@
-setenv              IDAM_PORT           56567
+set                 UDA_DIR             @CMAKE_INSTALL_PREFIX@
+setenv              UDA_DIR             $UDA_DIR
+setenv              UDA_HOST            @UDA_HOST@
+setenv              UDA_PORT            56567
 
-prepend-path        PYTHONPATH          $IDAM_DIR/include
-prepend-path        LD_LIBRARY_PATH     $IDAM_DIR/lib:$IDAM_DIR/include/pyidam
-prepend-path        IDL_DLM_PATH        $IDAM_DIR/dlm
-prepend-path        IDL_PATH            $IDAM_DIR/idl
+prepend-path        PYTHONPATH          $UDA_DIR/include
+prepend-path        LD_LIBRARY_PATH     $UDA_DIR/lib:$UDA_DIR/include/pyidam
+prepend-path        IDL_DLM_PATH        $UDA_DIR/dlm
+prepend-path        IDL_PATH            $UDA_DIR/idl

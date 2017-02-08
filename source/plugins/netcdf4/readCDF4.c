@@ -104,7 +104,7 @@ unsigned int readCDF4Properties()
 {
     static unsigned int readProperty = 1, cdfProperties = 0;
     if (readProperty) {
-        char* env = getenv("IDAM_CDFPROPERTIES");    // Assign behaviour via the server's environment
+        char* env = getenv("UDA_CDFPROPERTIES");    // Assign behaviour via the server's environment
         if (env != NULL) cdfProperties = (unsigned int) atoi(env);
         readProperty = 0;
     }

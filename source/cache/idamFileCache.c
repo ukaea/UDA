@@ -53,8 +53,8 @@ int idamClientLockCache(FILE **db, short type) {
     // Open the Cache database table on locking and close on unlocking
 
     if(type == F_WRLCK) {					// Open the Database Table and apply an Exclusive lock
-        char *dir   = getenv("IDAM_CACHE_DIR");		// Where the files are located
-        char *table = getenv("IDAM_CACHE_TABLE");		// List of cached files
+        char *dir   = getenv("UDA_CACHE_DIR");		// Where the files are located
+        char *table = getenv("UDA_CACHE_TABLE");		// List of cached files
 
         *db = NULL;
         if(dir == NULL || table == NULL) return 0;	// No Cache? This is Not an Error!
@@ -206,7 +206,7 @@ int idamClientPurgeCache(FILE *db, unsigned long recordCount, unsigned long *end
     char **table;
     unsigned long long *timestamplist;
 
-    char *dir = getenv("IDAM_CACHE_DIR");		// Where the files are located
+    char *dir = getenv("UDA_CACHE_DIR");		// Where the files are located
 
     // Remove dead records to compact the database table
 
@@ -539,7 +539,7 @@ int idamClientGetCacheFilename(REQUEST_BLOCK *request_block, char **cacheFilenam
                 recordCount = idamClientPurgeCache(db, recordCount, &endOffset);
                 deadCount = 0;
             } else {
-                char *dir   = getenv("IDAM_CACHE_DIR");		// Where the files are located
+                char *dir   = getenv("UDA_CACHE_DIR");		// Where the files are located
                 char *dbfile = (char *)malloc((strlen(dir)+strlen(filename)+2)*sizeof(char));	// Erase cache file
                 sprintf(dbfile, "%s/%s", dir, filename);
                 remove(dbfile);

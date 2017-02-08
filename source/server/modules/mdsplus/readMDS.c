@@ -178,7 +178,7 @@ int readMDS(DATA_SOURCE data_source,
                 lpath = strlen(path);
 
 #ifdef FATCLIENT
-                if(getenv("IDAM_EXTERNAL_USER") != NULL) {		// Used for Testing purposes only
+                if(getenv("UDA_EXTERNAL_USER") != NULL) {		// Used for Testing purposes only
 #else
                 if(environment.external_user) {
 #endif
@@ -225,7 +225,7 @@ int readMDS(DATA_SOURCE data_source,
         if(strlen(server) == 0) {
             strcpy(server, LOCAL_MDSPLUS_SERVER);		// Need a Server!!! - Use the Default
 
-            char *p = getenv("IDAM_MDSPLUSHOST");
+            char *p = getenv("UDA_MDSPLUSHOST");
             if(p != NULL) strcpy(server, p);		// Over-ruled by the server script
         }
 
@@ -266,7 +266,7 @@ int readMDS(DATA_SOURCE data_source,
 
 #ifdef MDSSANDBOX
             if(!sand_box) {
-                if(getenv("IDAM_BAD_PRELOAD") == NULL) {	// LD_PRELOAD of 32bit libraries doesn't work on 64bit host!
+                if(getenv("UDA_BAD_PRELOAD") == NULL) {	// LD_PRELOAD of 32bit libraries doesn't work on 64bit host!
                     // initialise the MDS+ sand-box for the local MDS+ client
                     __mdscall_init();		// Ensure libmdscall sand-box is called before any MDS+ function
                     // The MDS+ server has its own private sand-box!

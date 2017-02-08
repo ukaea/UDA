@@ -8,7 +8,6 @@ pyidam.Client.port = 56565
 
 app = Flask(__name__)
 
-
 @app.route("/", methods=['GET'])
 def get():
     client = pyidam.Client()

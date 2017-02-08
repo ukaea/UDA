@@ -241,7 +241,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             strcpy(old_dbname, environment.sql_dbname);
 
             strcpy(environment.sql_dbname, "cpf");        // Case Sensitive!!!
-            if ((env = getenv("IDAM_CPFDBNAME")) != NULL) strcpy(environment.sql_dbname, env);
+            if ((env = getenv("UDA_CPFDBNAME")) != NULL) strcpy(environment.sql_dbname, env);
             if ((env = getenv("CPF_SQLDBNAME")) != NULL) strcpy(environment.sql_dbname, env);
             putIdamServerEnvironment(environment);        // Copy the change to the server library
 

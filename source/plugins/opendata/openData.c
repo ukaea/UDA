@@ -109,7 +109,7 @@ extern int openData(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     if (!init || !strcasecmp(request_block->function, "init")
         || !strcasecmp(request_block->function, "initialise")) {
 
-        char* env = getenv("IDAM_PROVENANCEROOT");
+        char* env = getenv("UDA_PROVENANCEROOT");
         if (env != NULL) {
             strncpy(root, env, MAXROOT - 1);
             root[MAXROOT - 1] = '\0';

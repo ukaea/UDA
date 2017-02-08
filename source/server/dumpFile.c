@@ -121,7 +121,7 @@ int dumpFile(REQUEST_BLOCK request_block, DATA_BLOCK* data_block)
 
         switch (request_block.request) {
             case REQUEST_READ_IDA :
-                if ((env = getenv("IDAM_DUMP_IDA")) != NULL) {
+                if ((env = getenv("UDA_DUMP_IDA")) != NULL) {
                     strcpy(cmd, env);
                     strcat(cmd, " ");
                 } else {
@@ -129,7 +129,7 @@ int dumpFile(REQUEST_BLOCK request_block, DATA_BLOCK* data_block)
                 }
                 break;
             case REQUEST_READ_CDF :
-                if ((env = getenv("IDAM_DUMP_NETCDF")) != NULL) {
+                if ((env = getenv("UDA_DUMP_NETCDF")) != NULL) {
                     strcpy(cmd, env);
                     strcat(cmd, " -h ");
                 } else {
@@ -137,7 +137,7 @@ int dumpFile(REQUEST_BLOCK request_block, DATA_BLOCK* data_block)
                 }
                 break;
             case REQUEST_READ_HDF5 :
-                if ((env = getenv("IDAM_DUMP_HDF5")) != NULL) {
+                if ((env = getenv("UDA_DUMP_HDF5")) != NULL) {
                     strcpy(cmd, env);
                     strcat(cmd, " -n ");
                 } else {
@@ -195,7 +195,7 @@ int dumpFile(REQUEST_BLOCK request_block, DATA_BLOCK* data_block)
                 IDAM_LOGF(LOG_DEBUG, "IDAM_SERVER_TREESERVER: %s\n", server);
                 IDAM_LOGF(LOG_DEBUG, "IDAM_SERVER_TREEPATH:   %s\n", path);
 
-                if ((env = getenv("IDAM_DUMP_MDSPLUS")) != NULL) {
+                if ((env = getenv("UDA_DUMP_MDSPLUS")) != NULL) {
                     strcpy(cmd, env);
                     strcat(cmd, " mdsdump ");
                 } else {

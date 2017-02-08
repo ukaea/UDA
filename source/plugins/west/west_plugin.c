@@ -304,7 +304,7 @@ int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 	idamLog(LOG_DEBUG, "Calling do_read1 from WEST plugin\n");
 
-	char* mappingFileName = getenv("IDAM_WEST_MAPPING_FILE");
+	char* mappingFileName = getenv("UDA_WEST_MAPPING_FILE");
 
 	idamLog(LOG_DEBUG, "IDAM mapping file :");
 	idamLog(LOG_DEBUG, mappingFileName);

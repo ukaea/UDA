@@ -343,7 +343,7 @@ static int get_signal(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, const char* 
 
     // Create the Request data structure
 
-    char* env = getenv("IDAM_IDAM_PLUGIN");
+    char* env = getenv("UDA_IDAM_PLUGIN");
 
     if (env != NULL) {
         sprintf(work, "%s::get(host=%s, port=%d, signal=\"%s\", source=\"%s\")", env, getIdamServerHost(),

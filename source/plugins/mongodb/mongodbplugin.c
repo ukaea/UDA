@@ -221,11 +221,11 @@ readwrite
 
          static char uri[MAXURILENGTH+1];
        
-         if(environment->sql_user[0] == '\0' && (env = getenv("IDAM_SQLUSER")) != NULL) strcpy(environment->sql_user, env);
-         if(environment->sql_host[0] == '\0' && (env = getenv("IDAM_SQLHOST")) != NULL) strcpy(environment->sql_host, env);
-         if(environment->sql_dbname[0] == '\0' && (env = getenv("IDAM_SQLDBNAME")) != NULL) strcpy(environment->sql_dbname, env);
-         if(environment->sql_port == 0 && (env = getenv("IDAM_SQLPORT")) != NULL) environment->sql_port = atoi(env);
-         char *password = getenv("IDAM_SQLPASSWORD");
+         if(environment->sql_user[0] == '\0' && (env = getenv("UDA_SQLUSER")) != NULL) strcpy(environment->sql_user, env);
+         if(environment->sql_host[0] == '\0' && (env = getenv("UDA_SQLHOST")) != NULL) strcpy(environment->sql_host, env);
+         if(environment->sql_dbname[0] == '\0' && (env = getenv("UDA_SQLDBNAME")) != NULL) strcpy(environment->sql_dbname, env);
+         if(environment->sql_port == 0 && (env = getenv("UDA_SQLPORT")) != NULL) environment->sql_port = atoi(env);
+         char *password = getenv("UDA_SQLPASSWORD");
          
          if(environment->sql_user[0] != '\0' && environment->sql_host[0] != '\0' && environment->sql_dbname[0] != '\0' && environment->sql_port > 0  && password != NULL)
              sprintf(uri, "mongodb://%s:%s@%s:%d/%s", environment->sql_user, password, environment->sql_host, environment->sql_port, environment->sql_dbname);
@@ -270,7 +270,7 @@ readwrite
          return err;
       }
 
-      if((env = getenv("IDAM_SQLTABLE")) != NULL)
+      if((env = getenv("UDA_SQLTABLE")) != NULL)
          collection = mongoc_client_get_collection (client, environment->sql_dbname, env);
       else      
          collection = mongoc_client_get_collection (client, environment->sql_dbname, "maps");	// Get a handle on the database and collection

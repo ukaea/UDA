@@ -190,11 +190,11 @@ extern int issueDOI(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
         sprintf(pgport, "%d", environment.sql_port);
 
-        if ((env = getenv("IDAM_DOIDBHOST")) != NULL) pghost = env;
-        if ((env = getenv("IDAM_DOIDBPORT")) != NULL) strcpy(pgport, env);
-        if ((env = getenv("IDAM_DOIDBNAME")) != NULL) dbname = env;
-        if ((env = getenv("IDAM_DOIDBUSER")) != NULL) user = env;
-        if ((env = getenv("IDAM_DOIDBPSWD")) != NULL) pswrd = env;
+        if ((env = getenv("UDA_DOIDBHOST")) != NULL) pghost = env;
+        if ((env = getenv("UDA_DOIDBPORT")) != NULL) strcpy(pgport, env);
+        if ((env = getenv("UDA_DOIDBNAME")) != NULL) dbname = env;
+        if ((env = getenv("UDA_DOIDBUSER")) != NULL) user = env;
+        if ((env = getenv("UDA_DOIDBPSWD")) != NULL) pswrd = env;
 
 // Is there an Open SQL Connection? If not then open a private connection
 
@@ -391,7 +391,7 @@ extern int issueDOI(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             strftime(day, sizeof(day), "%j", uid_time);        // 3 digit day of year
             strftime(hms, sizeof(hms), "%H/%M/%S", uid_time);    // Hour/Minute/Second
 
-            if ((env = getenv("IDAM_DOIPREFIX")) != NULL)
+            if ((env = getenv("UDA_DOIPREFIX")) != NULL)
                 sprintf(work, "%s/%s/%s/%s/%06d", env, year, day, hms, microsecs);
             else
                 sprintf(work, "%s/%s/%s/%06d", year, day, hms, microsecs);
@@ -620,7 +620,7 @@ extern int issueDOI(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "execMethod")) {
                     execMethod = (short) atoi(request_block->nameValueList.nameValue[i].value);
 
-                    if ((env = getenv("IDAM_PROVENANCE_EXEC_METHOD")) != NULL)
+                    if ((env = getenv("UDA_PROVENANCE_EXEC_METHOD")) != NULL)
                         execMethod = (short) atoi(env);        // server environment has priority
 
                     execMethodOK = 1;
@@ -629,7 +629,7 @@ extern int issueDOI(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             }
 
-            if (!execMethodOK && (env = getenv("IDAM_PROVENANCE_EXEC_METHOD")) != NULL) {
+            if (!execMethodOK && (env = getenv("UDA_PROVENANCE_EXEC_METHOD")) != NULL) {
                 execMethod = (short) atoi(env);        // server environment sets an alternative default value
                 execMethodOK = 1;
             }
@@ -697,7 +697,7 @@ extern int issueDOI(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Login password is stored in .pgpass for POSTGRESQL database so no need to set	       
 
-                            if ((env = getenv("IDAM_CLI_SQL")) != NULL)
+                            if ((env = getenv("UDA_CLI_SQL")) != NULL)
                                 strcpy(cmd, env);                    // Command line sql utility
                             else
                                 strcpy(cmd, "psql");
@@ -741,7 +741,7 @@ extern int issueDOI(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // File directory 
 
-                            char* tmpdir = getenv("IDAM_WORK_DIR");
+                            char* tmpdir = getenv("UDA_WORK_DIR");
 
 // Create a temporary file to collect the SQL commands
 
@@ -895,7 +895,7 @@ extern int issueDOI(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                     if (execMethodOK) {
                         if (execMethod == 1) {
 
-                            if ((env = getenv("IDAM_CLI_SQL")) != NULL)
+                            if ((env = getenv("UDA_CLI_SQL")) != NULL)
                                 strcpy(cmd, env);
                             else
                                 strcpy(cmd, "psql");
@@ -945,7 +945,7 @@ extern int issueDOI(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                                     msecs, usecs);
                             tv_start = tv_stop;
 
-                            if ((env = getenv("IDAM_CLI_SQL")) != NULL)
+                            if ((env = getenv("UDA_CLI_SQL")) != NULL)
                                 strcpy(work, env);
                             else
                                 strcpy(work, "psql");
@@ -982,7 +982,7 @@ extern int issueDOI(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
                             gettimeofday(&tv_start, NULL);
 
-                            if ((env = getenv("IDAM_CLI_SQL")) != NULL)
+                            if ((env = getenv("UDA_CLI_SQL")) != NULL)
                                 strcpy(work, env);
                             else
                                 strcpy(work, "psql");

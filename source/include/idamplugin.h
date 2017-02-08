@@ -83,6 +83,12 @@ IDAM_LOGF(LOG_ERROR, "%s\n", MSG); \
 addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, UNIQUE_VAR(err), MSG); \
 return UNIQUE_VAR(err); }
 
+#define RAISE_PLUGIN_ERROR_F(MSG, FMT, ...) \
+{ int UNIQUE_VAR(err) = 999; \
+IDAM_LOGF(LOG_ERROR, "%s\n", FMT, __VA_ARGS__); \
+addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, UNIQUE_VAR(err), MSG); \
+return UNIQUE_VAR(err); }
+
 #define RAISE_PLUGIN_ERROR_EX(MSG, CODE) \
 int UNIQUE_VAR(err) = 999; \
 IDAM_LOGF(LOG_ERROR, "%s", MSG); \

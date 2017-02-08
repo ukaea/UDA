@@ -364,7 +364,7 @@ int acc_getIdamNewDataHandle()
     if (growHandleList == 0) {		// Increase the list of Data Blocks by this ammount each time
         char* env = NULL;
 
-        if ((env = getenv("IDAM_GROWHANDLELIST")) != NULL) {
+        if ((env = getenv("UDA_GROWHANDLELIST")) != NULL) {
             growHandleList = atoi(env);
         } else {
             growHandleList = GROWHANDLELIST;

@@ -5,36 +5,36 @@
 #------------------------------------------------------------------------------------------------------
 # IDAM Logging mode
 
-export IDAM_LOG=@CMAKE_INSTALL_PREFIX@/etc
-export IDAM_LOG_MODE=a
-export IDAM_LOG_LEVEL=DEBUG  # Options: INFO, DEBUG, WARN, ERROR, ACCESS
-export IDAM_DEBUG_APPEND=a
+export UDA_LOG=@CMAKE_INSTALL_PREFIX@/etc
+export UDA_LOG_MODE=a
+export UDA_LOG_LEVEL=DEBUG  # Options: INFO, DEBUG, WARN, ERROR, ACCESS
+export UDA_DEBUG_APPEND=a
 
 #------------------------------------------------------------------------------------------------------
 # IDAM DUMP Program Locations
 
-export IDAM_DUMP_MDSPLUS=`which idl 2>/dev/null`
-export IDAM_DUMP_IDA=`which idadump 2>/dev/null`
-export IDAM_DUMP_NETCDF=`which /usr/bin/ncdump 2>/dev/null`
-export IDAM_DUMP_HDF5=`which h5dump 2>/dev/null`
+export UDA_DUMP_MDSPLUS=`which idl 2>/dev/null`
+export UDA_DUMP_IDA=`which idadump 2>/dev/null`
+export UDA_DUMP_NETCDF=`which /usr/bin/ncdump 2>/dev/null`
+export UDA_DUMP_HDF5=`which h5dump 2>/dev/null`
 
 #------------------------------------------------------------------------------------------------------
 # IDAM Server Host
 #------------------------------------------------------------------------------------------------------
 
-export IDAM_HOST=`hostname`
-export IDAM_PORT=56565
+export UDA_HOST=`hostname`
+export UDA_PORT=56565
 
-export IDAM_SQLHOST=idam1       # IDAM SQL Server Host
-export IDAM_SQLPORT=56566       # IDAM SQL Server Port
-export IDAM_SQLDBNAME=idam      # IDAM SQL Database Name
-export IDAM_SQLUSER=readonly    # IDAM SQL Database User
+export UDA_SQLHOST=idam1       # IDAM SQL Server Host
+export UDA_SQLPORT=56566       # IDAM SQL Server Port
+export UDA_SQLDBNAME=idam      # IDAM SQL Database Name
+export UDA_SQLUSER=readonly    # IDAM SQL Database User
 
 #------------------------------------------------------------------------------------------------------
 # Plugin Registration + Structure Passing configuration
 
-export IDAM_PLUGIN_CONFIG=@CMAKE_INSTALL_PREFIX@/etc/plugins/udaPlugins.conf
-export IDAM_SARRAY_CONFIG=@CMAKE_INSTALL_PREFIX@/etc/plugins/udagenstruct.conf
+export UDA_PLUGIN_CONFIG=@CMAKE_INSTALL_PREFIX@/etc/plugins/udaPlugins.conf
+export UDA_SARRAY_CONFIG=@CMAKE_INSTALL_PREFIX@/etc/plugins/udagenstruct.conf
 
 #------------------------------------------------------------------------------------------------------
 # Setup required dynamic library paths

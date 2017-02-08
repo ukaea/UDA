@@ -172,7 +172,7 @@ int putSignal(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "execMethod")) {
                 execMethod = (short) atoi(request_block->nameValueList.nameValue[i].value);
 
-                if ((env = getenv("IDAM_PROVENANCE_EXEC_METHOD")) != NULL)
+                if ((env = getenv("UDA_PROVENANCE_EXEC_METHOD")) != NULL)
                     execMethod = (short) atoi(env);        // server environment has priority
 
                 execMethodOK = 1;
@@ -181,7 +181,7 @@ int putSignal(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
         }
 
-        if (!execMethodOK && (env = getenv("IDAM_PROVENANCE_EXEC_METHOD")) != NULL) {
+        if (!execMethodOK && (env = getenv("UDA_PROVENANCE_EXEC_METHOD")) != NULL) {
             execMethod = (short) atoi(env);        // server environment sets an alternative default value
             execMethodOK = 1;
         }
@@ -248,7 +248,7 @@ int putSignal(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Login password is stored in .pgpass for POSTGRESQL database so no need to set	       
 
-                        if ((env = getenv("IDAM_CLI_SQL")) != NULL)
+                        if ((env = getenv("UDA_CLI_SQL")) != NULL)
                             strcpy(cmd, env);                    // Command line sql utility
                         else
                             strcpy(cmd, "psql");
@@ -291,7 +291,7 @@ int putSignal(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // File directory 
 
-                        char* tmpdir = getenv("IDAM_WORK_DIR");
+                        char* tmpdir = getenv("UDA_WORK_DIR");
 
 // Create a temporary file to collect the SQL commands
 
@@ -448,7 +448,7 @@ int putSignal(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 if (execMethodOK) {
                     if (execMethod == 1) {
 
-                        if ((env = getenv("IDAM_CLI_SQL")) != NULL)
+                        if ((env = getenv("UDA_CLI_SQL")) != NULL)
                             strcpy(cmd, env);
                         else
                             strcpy(cmd, "psql");
@@ -503,7 +503,7 @@ int putSignal(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                                 msecs, usecs);
                         tv_start = tv_stop;
 
-                        if ((env = getenv("IDAM_CLI_SQL")) != NULL)
+                        if ((env = getenv("UDA_CLI_SQL")) != NULL)
                             strcpy(work, env);
                         else
                             strcpy(work, "psql");
@@ -553,7 +553,7 @@ int putSignal(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
                         gettimeofday(&tv_start, NULL);
 
-                        if ((env = getenv("IDAM_CLI_SQL")) != NULL)
+                        if ((env = getenv("UDA_CLI_SQL")) != NULL)
                             strcpy(work, env);
                         else
                             strcpy(work, "psql");

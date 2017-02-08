@@ -261,7 +261,7 @@ extern int imas(IDAM_PLUGIN_INTERFACE * idam_plugin_interface)
 // Forced redirection
 
 #ifndef MDSSKIP
-    if (getenv("IDAM_NOHDF5_IMAS_PLUGIN") != NULL) return imas_mds(idam_plugin_interface);
+    if (getenv("UDA_NOHDF5_IMAS_PLUGIN") != NULL) return imas_mds(idam_plugin_interface);
 #endif
 
 //----------------------------------------------------------------------------------------
@@ -592,7 +592,7 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
                     break;
                 }
 
-                env = getenv("IDAM_JET_DEVICE_ALIAS");
+                env = getenv("UDA_JET_DEVICE_ALIAS");
 
                 if (!isShotNumber && !isRunNumber && !isOwner) if (env == NULL)
                     sprintf(next_request_block.source, "JET%sPPF%s/%s/%s", request_block->api_delim,
@@ -617,7 +617,7 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
 
             if (isFormat && !strcasecmp(format, "jpf")) {        // JET JPF source naming pattern
 
-                env = getenv("IDAM_JET_DEVICE_ALIAS");
+                env = getenv("UDA_JET_DEVICE_ALIAS");
 
                 if (env == NULL)
                     sprintf(next_request_block.source, "JET%sJPF%s%d", request_block->api_delim,
@@ -630,7 +630,7 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
 
             if (isFormat && !strcasecmp(format, "MAST")) {        // MAST source naming pattern
 
-                env = getenv("IDAM_MAST_DEVICE_ALIAS");
+                env = getenv("UDA_MAST_DEVICE_ALIAS");
 
                 if (!isShotNumber && !isRunNumber)
                     strcpy(next_request_block.source,
@@ -656,7 +656,7 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
                     break;
                 }
 
-                env = getenv("IDAM_MDSPLUS_ALIAS");
+                env = getenv("UDA_MDSPLUS_ALIAS");
 
                 if (isSource) {    // TDI function or tree?
                     if (env == NULL)
@@ -687,7 +687,7 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
 
 // Create the Request data structure
 
-            env = getenv("IDAM_IDAM_PLUGIN");
+            env = getenv("UDA_IDAM_PLUGIN");
 
             if (env != NULL)
                 sprintf(work, "%s::get(host=%s, port=%d, signal=\"%s\", source=\"%s\")", env, getIdamServerHost(),

@@ -1970,7 +1970,7 @@ static int do_source(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARGS p
             return err;
         }
 
-        env = getenv("IDAM_JET_DEVICE_ALIAS");
+        env = getenv("UDA_JET_DEVICE_ALIAS");
 
         if (!plugin_args.isShotNumber && !plugin_args.isRunNumber && !plugin_args.isOwner) {
             if (env == NULL) {
@@ -1999,7 +1999,7 @@ static int do_source(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARGS p
         }
     } else if (plugin_args.isFormat && !strcasecmp(plugin_args.format, "jpf")) {        // JET JPF source naming pattern
 
-        env = getenv("IDAM_JET_DEVICE_ALIAS");
+        env = getenv("UDA_JET_DEVICE_ALIAS");
 
         if (env == NULL) {
             sprintf(next_request_block.source, "JET%sJPF%s%d", request_block->api_delim,
@@ -2010,7 +2010,7 @@ static int do_source(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARGS p
         }
     } else if (plugin_args.isFormat && !strcasecmp(plugin_args.format, "MAST")) {        // MAST source naming pattern
 
-        env = getenv("IDAM_MAST_DEVICE_ALIAS");
+        env = getenv("UDA_MAST_DEVICE_ALIAS");
 
         if (!plugin_args.isShotNumber && !plugin_args.isRunNumber) {
             strcpy(next_request_block.source, request_block->source);        // Re-Use the original source argument
@@ -2037,7 +2037,7 @@ static int do_source(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARGS p
             return err;
         }
 
-        env = getenv("IDAM_MDSPLUS_ALIAS");
+        env = getenv("UDA_MDSPLUS_ALIAS");
 
         if (plugin_args.isSource) {    // TDI function or tree?
             if (env == NULL) {
@@ -2069,7 +2069,7 @@ static int do_source(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARGS p
 
 // Create the Request data structure
 
-    env = getenv("IDAM_IDAM_PLUGIN");
+    env = getenv("UDA_IDAM_PLUGIN");
 
     if (env != NULL) {
         sprintf(work, "%s::get(host=%s, port=%d, signal=\"%s\", source=\"%s\")", env, getIdamServerHost(),

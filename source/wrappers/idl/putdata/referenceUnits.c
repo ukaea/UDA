@@ -441,7 +441,7 @@ int referenceUnitsRead(int verbose, int debug){
 //----------------------------------------------------------------------
 // Location and Name of Reference Units File if changed by Environment Variable
 
-   if((env = getenv("IDAM_UNITS")) != NULL){
+   if((env = getenv("UDA_UNITS")) != NULL){
       strcpy(file, env);
    } else {
       strcpy(file, IDAM_UNITS);

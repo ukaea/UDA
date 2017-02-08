@@ -3,19 +3,21 @@ from ._utils import cdata_to_numpy_array, cdata_scalar_to_value
 from ._data import Data
 
 import json
+import base64
+import numpy as np
 
 
 class DimEncoder(json.JSONEncoder):
 
     def default(self, obj):
-        if isinstance(obj, pyidam.Dim):
+        if isinstance(obj, Dim):
             dim = obj
             obj = {
                 '_type': 'pyidam.Dim',
                 'label': dim.label,
                 'units': dim.units,
                 'data': {
-                    '_type': 'base64',
+                    '_encoding': 'base64',
                     '_dtype': dim.data.dtype.name,
                     'value': base64.urlsafe_b64encode(dim.data.tostring()).decode()
                 },
@@ -27,18 +29,22 @@ class DimEncoder(json.JSONEncoder):
 class SignalEncoder(json.JSONEncoder):
 
     def default(self, obj):
-        if isinstance(obj, pyidam.Signal):
+        if isinstance(obj, Signal):
             signal = obj
             dim_enc = DimEncoder()
+            if len(signal.dims) == 0:
+                data = np.array(signal.data)
+            else:
+                data = signal.data
             obj = {
                 '_type': 'pyidam.Signal',
                 'label': signal.label,
                 'units': signal.units,
                 'dims': [dim_enc.default(dim) for dim in signal.dims],
                 'data': {
-                    '_type': 'base64',
-                    '_dtype': signal.data.dtype.name,
-                    'value': base64.urlsafe_b64encode(signal.data.tostring()).decode()
+                    '_encoding': 'base64',
+                    '_dtype': data.dtype.name,
+                    'value': base64.urlsafe_b64encode(data.tostring()).decode()
                 },
                 'meta': signal.meta,
             }

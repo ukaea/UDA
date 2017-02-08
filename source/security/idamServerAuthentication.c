@@ -102,7 +102,7 @@ int idamServerAuthentication(CLIENT_BLOCK *client_block, SERVER_BLOCK *server_bl
       unsigned char *CACertificate        = NULL;  
       unsigned short CACertificateLength  = 0;    
       
-      if((env = getenv("IDAM_SERVER_CERTIFICATE")) != NULL){	// Directory with certificates and key files
+      if((env = getenv("UDA_SERVER_CERTIFICATE")) != NULL){	// Directory with certificates and key files
          len = strlen(env)+56;
 	 serverPrivateKeyFile = (unsigned char *)malloc(len*sizeof(unsigned char));
 	 CACertFile           = (unsigned char *)malloc(len*sizeof(unsigned char));

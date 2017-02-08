@@ -32,11 +32,11 @@ PGconn* startSQL_Provenance()
     sprintf(pgport, "%d", environment.sql_port);
 
     char* env;
-    if ((env = getenv("IDAM_PROVDBHOST")) != NULL) pghost = env;
-    if ((env = getenv("IDAM_PROVDBPORT")) != NULL) strcpy(pgport, env);
-    if ((env = getenv("IDAM_PROVDBNAME")) != NULL) dbname = env;
-    if ((env = getenv("IDAM_PROVDBUSER")) != NULL) user = env;
-    if ((env = getenv("IDAM_PROVDBPSWD")) != NULL) pswrd = env;
+    if ((env = getenv("UDA_PROVDBHOST")) != NULL) pghost = env;
+    if ((env = getenv("UDA_PROVDBPORT")) != NULL) strcpy(pgport, env);
+    if ((env = getenv("UDA_PROVDBNAME")) != NULL) dbname = env;
+    if ((env = getenv("UDA_PROVDBUSER")) != NULL) user = env;
+    if ((env = getenv("UDA_PROVDBPSWD")) != NULL) pswrd = env;
 
     char* pgoptions = NULL;    //"connect_timeout=5";
     char* pgtty = NULL;

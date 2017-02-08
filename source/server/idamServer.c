@@ -273,10 +273,10 @@ extern int idamServer(int argc, char** argv)
         initUserDefinedTypeList(&parseduserdefinedtypelist);
         userdefinedtypelist = &parseduserdefinedtypelist;                    // Switch before Parsing input file
 
-        if ((token = getenv("IDAM_SARRAY_CONFIG")) == NULL) {
+        if ((token = getenv("UDA_SARRAY_CONFIG")) == NULL) {
             // ERROR !!!
             addIdamError(&idamerrorstack, CODEERRORTYPE, "idamServer", err,
-                         "No Environment variable IDAM_SARRAY_CONFIG");
+                         "No Environment variable UDA_SARRAY_CONFIG");
         } else {
             rc = parseIncludeFile(token);                // file containing the SARRAY structure definition
             parseduserdefinedtypelist = *userdefinedtypelist;                    // Switch back
@@ -306,13 +306,13 @@ extern int idamServer(int argc, char** argv)
 
     if ((env = getenv("OSTYPE")) != NULL) {
         strcpy(server_block.OSName, env);
-    } else if ((env = getenv("IDAM_SERVER_OS")) != NULL) {
+    } else if ((env = getenv("UDA_SERVER_OS")) != NULL) {
         strcpy(server_block.OSName, env);
     }
 
 // Server Configuration and Environment DOI
 
-    if ((env = getenv("IDAM_SERVER_DOI")) != NULL) {
+    if ((env = getenv("UDA_SERVER_DOI")) != NULL) {
         strcpy(server_block.DOI, env);
     }
 
@@ -632,7 +632,7 @@ extern int idamServer(int argc, char** argv)
 
                         char work[STRING_LENGTH];
 
-                        if((proxyName = getenv("IDAM_PROXYPLUGINNAME")) == NULL) proxyName = proxyNameDefault;
+                        if((proxyName = getenv("UDA_PROXYPLUGINNAME")) == NULL) proxyName = proxyNameDefault;
 
             // Check string length compatibility
 
@@ -1209,7 +1209,7 @@ extern int idamServer(int argc, char** argv)
                         FILE * xdrfile;
                         char tempFile[MAXPATH];
                         char * env;
-                        if ((env = getenv("IDAM_WORK_DIR")) != NULL) {
+                        if ((env = getenv("UDA_WORK_DIR")) != NULL) {
                             sprintf(tempFile, "%s/idamXDRXXXXXX", env);
                         } else {
                             strcpy(tempFile, "/tmp/idamXDRXXXXXX");

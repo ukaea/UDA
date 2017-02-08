@@ -159,7 +159,7 @@ int get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         strftime(year, sizeof(year), "%Y", uid_time);        // 4 digit year
         strftime(day, sizeof(day), "%j", uid_time);        // 3 digit day of year
 
-        if ((env = getenv("IDAM_PROVPREFIX")) != NULL)
+        if ((env = getenv("UDA_PROVPREFIX")) != NULL)
             sprintf(work, "%s/%s/%s/", env, year, day);
         else
             sprintf(work, "%s/%s/", year, day);
@@ -212,7 +212,7 @@ int get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Prepare UUID
 
-        if ((env = getenv("IDAM_PROVPREFIX")) != NULL)
+        if ((env = getenv("UDA_PROVPREFIX")) != NULL)
             sprintf(work, "%s/%s/%s/%d", env, year, day, seq);
         else
             sprintf(work, "%s/%s/%d", year, day, seq);

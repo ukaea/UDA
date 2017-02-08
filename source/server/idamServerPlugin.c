@@ -664,7 +664,7 @@ void initPluginList(PLUGINLIST* plugin_list)
         char csvChar = ',';
         char buffer[STRING_LENGTH];
         char* root;
-        char* config = getenv("IDAM_PLUGIN_CONFIG");            // Server plugin configuration file
+        char* config = getenv("UDA_PLUGIN_CONFIG");            // Server plugin configuration file
         FILE* conf = NULL;
         char* filename = "udaPlugins.conf";                // Default name
         char* work = NULL, * csv, * next, * p;
@@ -672,7 +672,7 @@ void initPluginList(PLUGINLIST* plugin_list)
 // Locate the plugin registration file
 
         if (config == NULL) {
-            root = getenv("IDAM_SERVERROOT");                // Where udaPlugins.conf is located by default
+            root = getenv("UDA_SERVERROOT");                // Where udaPlugins.conf is located by default
             if (root == NULL) {
                 lstr = (int) strlen(filename) + 3;
                 work = (char*) malloc(lstr * sizeof(char));
@@ -956,7 +956,7 @@ int idamServerRedirectStdStreams(int reset)
 
     if (!reset) {
         if (!singleFile) {
-            env = getenv("IDAM_PLUGIN_DEBUG_SINGLEFILE");    // Use a single file for all plugin data requests
+            env = getenv("UDA_PLUGIN_DEBUG_SINGLEFILE");    // Use a single file for all plugin data requests
             if (env != NULL) singleFile = 1;                        // Define IDAM_PLUGIN_DEBUG to retain the file
         }
 
@@ -972,10 +972,10 @@ int idamServerRedirectStdStreams(int reset)
 
         IDAM_LOG(LOG_DEBUG, "Redirect standard output to temporary file\n");
 
-        env = getenv("IDAM_PLUGIN_REDIVERT");
+        env = getenv("UDA_PLUGIN_REDIVERT");
 
         if (env == NULL) {
-            if ((env = getenv("IDAM_WORK_DIR")) != NULL) {
+            if ((env = getenv("UDA_WORK_DIR")) != NULL) {
                 sprintf(tempFile, "%s/idamPLUGINXXXXXX", env);
             } else {
                 strcpy(tempFile, "/tmp/idamPLUGINXXXXXX");
@@ -1016,7 +1016,7 @@ int idamServerRedirectStdStreams(int reset)
             if (!singleFile) {
                 if (mdsmsgFH != NULL) fclose(mdsmsgFH);
                 mdsmsgFH = NULL;
-                if ((env = getenv("IDAM_PLUGIN_DEBUG")) == NULL) {
+                if ((env = getenv("UDA_PLUGIN_DEBUG")) == NULL) {
                     remove(tempFile);    // Delete the temporary file
                     tempFile[0] = '\0';
                 }
@@ -1204,7 +1204,7 @@ int idamProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_BLOCK* original_req
 
     if (plugin_id == -2) {        // On initialisation
         plugin_id = -1;
-        if ((env = getenv("IDAM_PROVENANCE_PLUGIN")) !=
+        if ((env = getenv("UDA_PROVENANCE_PLUGIN")) !=
             NULL) {                // Must be set in the server startup script
             IDAM_LOGF(LOG_DEBUG, "Plugin name: %s\n", env);
             int id = findPluginIdByFormat(env, plugin_list); // Must be defined in the server plugin configuration file
@@ -1229,7 +1229,7 @@ int idamProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_BLOCK* original_req
                 plugin_list->plugin[id].idamPlugin != NULL)
                 plugin_id = id;
         }
-        if ((env = getenv("IDAM_PROVENANCE_EXEC_METHOD")) != NULL) execMethod = atoi(env);
+        if ((env = getenv("UDA_PROVENANCE_EXEC_METHOD")) != NULL) execMethod = atoi(env);
     }
 
     IDAM_LOGF(LOG_DEBUG, "Plugin id: %d\n", plugin_id);
@@ -1386,7 +1386,7 @@ int idamServerMetaDataPluginId(PLUGINLIST* plugin_list)
 // Identify the MetaData Catalog plugin (must be a function library type plugin)
 
     char* env = NULL;
-    if ((env = getenv("IDAM_METADATA_PLUGIN")) != NULL) {        // Must be set in the server startup script
+    if ((env = getenv("UDA_METADATA_PLUGIN")) != NULL) {        // Must be set in the server startup script
         int id = findPluginIdByFormat(env,
                                       plugin_list);        // Must be defined in the server plugin configuration file
         if (id >= 0 &&

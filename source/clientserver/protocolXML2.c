@@ -125,7 +125,7 @@ int protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, void* st
     unsigned char mdr[MAXELEMENTSHA1];        // SHA1 Hash of data received
 
     if ((privateFlags & PRIVATEFLAG_XDRFILE) && protocolVersion >= 5) {        // Intermediate XDR File, not stream
-        if ((env = getenv("IDAM_WORK_DIR")) != NULL) {
+        if ((env = getenv("UDA_WORK_DIR")) != NULL) {
             // File to record XDR encoded data
             sprintf(tempFile, "%s/idamXDRXXXXXX", env);
         }

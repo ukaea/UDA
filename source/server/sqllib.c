@@ -1066,7 +1066,7 @@ int sqlGeneric(PGconn* DBConnect, char* originalSignal, int exp_number, int pass
 // If no record was found and the signal complies with netcdf naming convention but missing a leading '/' character, then
 // prepend and try again.
 
-    if (!rc1 && signal[0] != '/' && signal[3] == '/' && exp_number >= IDAM_STARTPULSE) {
+    if (!rc1 && signal[0] != '/' && signal[3] == '/' && exp_number >= MAST_STARTPULSE) {
         char* p = (char*) malloc((strlen(signal) + 2) * sizeof(char));
         sprintf(p, "/%s", signal);
         rc1 = sqlSignalDescMap(DBConnect, p, exp_number, pass, tpass, &source_id, signal_desc);
@@ -1112,7 +1112,7 @@ int sqlGeneric(PGconn* DBConnect, char* originalSignal, int exp_number, int pass
 
 // Ignore OLD Shots as NOT IN Database: Use shot, pass and alias information to identify the source
 
-    if (!rc && exp_number > 0 && exp_number < IDAM_STARTPULSE) {
+    if (!rc && exp_number > 0 && exp_number < MAST_STARTPULSE) {
         if (!rc1) {            // Scenario 1
             rc = sqlNoIdamSignal(DBConnect, signal, exp_number, pass, tpass, signal_str, signal_desc, data_source);
         } else {

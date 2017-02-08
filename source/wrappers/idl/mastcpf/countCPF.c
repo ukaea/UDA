@@ -101,23 +101,23 @@ PGconn *StartDbSQL(char *dbName, int verbose){
    
 // CPF SQL Server Host Name
 
-   if((env = getenv("IDAM_SQLHOST")) !=NULL) strcpy(pghost, env);
+   if((env = getenv("UDA_SQLHOST")) !=NULL) strcpy(pghost, env);
    if((env = getenv("CPF_SQLHOST")) !=NULL) strcpy(pghost, env);     
 
 // CPF SQL Server Port name 
 
-   if((env = getenv("IDAM_SQLPORT")) !=NULL) strcpy(pgport, env); 
+   if((env = getenv("UDA_SQLPORT")) !=NULL) strcpy(pgport, env);
    if((env = getenv("CPF_SQLPORT")) !=NULL) strcpy(pgport, env); 
       
 // IDAM SQL Database name 
 
-   if((env = getenv("IDAM_SQLDBNAME")) !=NULL) strcpy(dbname, env); 
+   if((env = getenv("UDA_SQLDBNAME")) !=NULL) strcpy(dbname, env);
    if((env = getenv("CPF_SQLDBNAME")) !=NULL) strcpy(dbname, env); 
    if(dbName != NULL) strcpy(dbname, dbName);        
 
 // IDAM SQL Access username 
 
-   if((env = getenv("IDAM_SQLUSER")) !=NULL) strcpy(user, env);
+   if((env = getenv("UDA_SQLUSER")) !=NULL) strcpy(user, env);
    if((env = getenv("CPF_SQLUSER")) !=NULL) strcpy(user, env); 
    
 /*

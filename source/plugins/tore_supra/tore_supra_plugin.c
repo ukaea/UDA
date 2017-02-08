@@ -327,7 +327,7 @@ int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     // Search mapping value and request type (static or dynamic)
     char* fullTSMappingFileName =
             getTSToIDSMappingFileName(IDSRequest, shot);
-    char* mappingFileName = getenv("IDAM_TS_MAPPING_FILE");
+    char* mappingFileName = getenv("UDA_TS_MAPPING_FILE");
 
     int IDSRequestType;
     const xmlChar* xPath =
@@ -493,7 +493,7 @@ char* getTSToIDSMappingFileName(const char* IDSRequest, int shot)
                      err, "");
     }
 
-    char* dir = getenv("IDAM_TS_MAPPING_FILE_DIRECTORY");
+    char* dir = getenv("UDA_TS_MAPPING_FILE_DIRECTORY");
 
     const char* fmt = "%s/%s_v%d.xml";
     size_t len = snprintf(NULL, 0, fmt, dir, IDSName, mappingVersion);

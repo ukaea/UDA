@@ -256,7 +256,7 @@ int do_write(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, leveldb_t* db, leveld
     FIND_REQUIRED_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, key);
     FIND_REQUIRED_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, value);
 
-    char* env = getenv("IDAM_PLUGIN_KEYVALUE_STORE");
+    char* env = getenv("UDA_PLUGIN_KEYVALUE_STORE");
     if (env == NULL) {
         RAISE_PLUGIN_ERROR("Environmental variable IDAM_PLUGIN_KEYVALUE_STORE not found");
     }
@@ -283,7 +283,7 @@ int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, leveldb_t* db, leveldb
 
     FIND_REQUIRED_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, key);
 
-    char* env = getenv("IDAM_PLUGIN_KEYVALUE_STORE");
+    char* env = getenv("UDA_PLUGIN_KEYVALUE_STORE");
     if (env == NULL) {
         RAISE_PLUGIN_ERROR("Environmental variable IDAM_PLUGIN_KEYVALUE_STORE not found");
     }
@@ -315,7 +315,7 @@ int do_delete(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, leveldb_t* db, level
 
     FIND_REQUIRED_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, key);
 
-    char* env = getenv("IDAM_PLUGIN_KEYVALUE_STORE");
+    char* env = getenv("UDA_PLUGIN_KEYVALUE_STORE");
     if (env == NULL) {
         RAISE_PLUGIN_ERROR("Environmental variable IDAM_PLUGIN_KEYVALUE_STORE not found");
     }
