@@ -25,7 +25,6 @@ void printIdamServerEnvironment(ENVIRONMENT* environ)
     IDAM_LOGF(LOG_INFO, "Private File Path Target    : %s\n", environ->private_path_target);
     IDAM_LOGF(LOG_INFO, "Private File Path Substitute: %s\n", environ->private_path_substitute);
 
-//#ifdef GENERIC_ENABLE
 #ifndef NOTGENERICENABLED
     IDAM_LOGF(LOG_INFO, "IDAM SQL Server Host: %s\n", environ->sql_host);
     IDAM_LOGF(LOG_INFO, "IDAM SQL Server Port: %d\n", environ->sql_port);
@@ -71,25 +70,29 @@ void getIdamServerEnvironment(ENVIRONMENT* environ)
 //-------------------------------------------------------------------------------------------
 // API Defaults
 
-    if ((env = getenv("UDA_DEVICE")) != NULL)
+    if ((env = getenv("UDA_DEVICE")) != NULL) {
         strcpy(environ->api_device, env);
-    else
+    } else {
         strcpy(environ->api_device, API_DEVICE);
+    }
 
-    if ((env = getenv("UDA_ARCHIVE")) != NULL)
+    if ((env = getenv("UDA_ARCHIVE")) != NULL) {
         strcpy(environ->api_archive, env);
-    else
+    } else {
         strcpy(environ->api_archive, API_ARCHIVE);
+    }
 
-    if ((env = getenv("UDA_API_DELIM")) != NULL)
+    if ((env = getenv("UDA_API_DELIM")) != NULL) {
         strcpy(environ->api_delim, env);
-    else
+    } else {
         strcpy(environ->api_delim, API_PARSE_STRING);
+    }
 
-    if ((env = getenv("UDA_FILE_FORMAT")) != NULL)
+    if ((env = getenv("UDA_FILE_FORMAT")) != NULL) {
         strcpy(environ->api_format, env);
-    else
+    } else {
         strcpy(environ->api_format, API_FILE_FORMAT);
+    }
 
 //-------------------------------------------------------------------------------------------
 // Standard Data Location Path Algorithm ID

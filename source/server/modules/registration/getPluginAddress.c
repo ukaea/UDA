@@ -2,7 +2,7 @@
 
 #include <dlfcn.h>
 
-#include <include/idamclientserverprivate.h>
+#include <clientserver/idamErrors.h>
 
 /**
  * Return the function address for plugin data readers located in external shared libraries

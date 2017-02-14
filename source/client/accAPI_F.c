@@ -19,7 +19,7 @@
 
 #include "accAPI_C.h"
 #include "idamClient.h"
-#include "IdamAPI.h"
+#include "idamAPI.h"
 #include "clientAPI.h"
 #include "clientMDS.h"
 

@@ -40,7 +40,6 @@
 #include <structures/struct.h>
 #include <clientserver/initStructs.h>
 #include <clientserver/stringUtils.h>
-#include <include/idamgenstructprivate.h>
 
 #include "netCDF4.h"
 #include "readCDFAtts.h"

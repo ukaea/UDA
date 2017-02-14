@@ -14,7 +14,6 @@
 
 #include <logging/idamLog.h>
 #include <clientserver/printStructs.h>
-#include <include/idamclientserverprivate.h>
 #include <clientserver/idamErrorLog.h>
 #include <clientserver/idamTypes.h>
 #include <structures/struct.h>

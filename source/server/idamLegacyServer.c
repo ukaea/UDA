@@ -14,8 +14,8 @@
 #include <clientserver/xdrlib.h>
 #include <clientserver/freeDataBlock.h>
 #include <clientserver/idamTypes.h>
+#include <clientserver/idamErrors.h>
 #include <structures/struct.h>
-#include <include/idamclientserverprivate.h>
 
 #include "idamServer.h"
 #include "idamserverGetData.h"

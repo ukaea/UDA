@@ -4,12 +4,12 @@
 #include <netcdf.h>
 #include <stdlib.h>
 
-#include <include/idamclientserverprivate.h>
 #include <structures/struct.h>
 #include <server/idamServer.h>
 #include <clientserver/idamErrorLog.h>
 #include <logging/idamLog.h>
 #include <clientserver/stringUtils.h>
+#include <clientserver/idamErrors.h>
 
 #include "readCDF4.h"
 

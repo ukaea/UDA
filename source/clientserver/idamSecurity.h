@@ -1,13 +1,5 @@
-
-// IDAM Client Server User Authentication
-
-// Change History
-
-// 25June2013   dgm Original Version
-//--------------------------------------------------------------------------------------------------------------------
-
-#ifndef IdamSecurityInclude
-#define IdamSecurityInclude
+#ifndef UDA_SECURITY_H
+#define UDA_SECURITY_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -50,4 +42,4 @@ extern "C" {
 }
 #endif
 
-#endif
+#endif // UDA_SECURITY_H

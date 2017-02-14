@@ -9,8 +9,8 @@
 #include <logging/idamLog.h>
 #include <clientserver/idamDefines.h>
 
-#include "Readin.h"
-#include "Writeout.h"
+#include "readin.h"
+#include "writeout.h"
 
 static XDR clientXDRinput;
 static XDR clientXDRoutput;

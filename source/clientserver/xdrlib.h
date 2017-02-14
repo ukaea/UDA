@@ -6,6 +6,13 @@
 #include <rpc/types.h>
 #include <rpc/xdr.h>
 
+//-------------------------------------------------------
+// XDR Stream Directions
+
+#define XDR_SEND        0
+#define XDR_RECEIVE     1
+#define XDR_FREE_HEAP   2
+
 //-----------------------------------------------------------------------
 // Test version's type passing capability
 

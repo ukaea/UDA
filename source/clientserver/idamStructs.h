@@ -393,4 +393,6 @@ typedef struct Environment {
     char _padding[1];
 } ENVIRONMENT;
 
+extern ENVIRONMENT environment; // Environment Variables
+
 #endif //IDAM_CLIENTSERVER_IDAMSTRUCTS_H

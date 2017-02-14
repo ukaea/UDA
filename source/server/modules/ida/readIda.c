@@ -28,7 +28,7 @@
 #include <strings.h>
 
 #include <clientserver/idamErrorLog.h>
-#include <include/idamclientserverprivate.h>
+#include <clientserver/idamErrors.h>
 
 #ifdef NOIDAPLUGIN
 

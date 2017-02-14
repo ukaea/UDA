@@ -22,6 +22,9 @@
 #define CACHE_LIVERECORD	1
 #define CACHE_LOCKEDRECORD	2		// Do Not purge this file - possibly in use
 
+// File Cache
+extern REQUEST_BLOCK* request_block_ptr;   // Pointer to the User REQUEST_BLOCK
+
 int idamClientLockCache(FILE **db, short type);
 int idamClientCacheTimeValid(unsigned long long timestamp);
 int idamClientCacheLockedTimeValid(unsigned long long timestamp);

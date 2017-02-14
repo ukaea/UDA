@@ -10,7 +10,7 @@
 #include "closedown.h"
 
 #include <logging/idamLog.h>
-#include <include/idamclientprivate.h>
+#include <client/idamClient.h>
 
 #ifdef FATCLIENT
 #  include <server/idamServer.h>
@@ -19,6 +19,8 @@
 extern PGconn * DBConnect;    // IDAM database Socket Connection
 #else
 #  include "closeClientSockets.h"
+#  include "getEnvironment.h"
+#  include "idamCreateConnection.h"
 #endif
 
 int idamClosedown(int type)
@@ -43,17 +45,17 @@ int idamClosedown(int type)
     clientOutput->x_ops = NULL;
     clientInput->x_ops = NULL;
 
-    if (clientSocket >= 0 && type != 1)
+    if (clientSocket >= 0 && type != 1) {
         closeIdamClientSocket(&client_socketlist, clientSocket);
-    else
+    } else {
         closeIdamClientSockets(&client_socketlist);
+    }
 
     clientSocket = -1;
     env_host = 1;            // Initialise at Startup
     env_port = 1;
 
 #else			// <========================== Fat Client Code Only
-
     if (type == 1) {
 
 #ifndef NOTGENERICENABLED

@@ -25,7 +25,7 @@
 #include <stdio.h>
 
 #include <clientserver/idamErrorLog.h>
-#include <include/idamclientserverprivate.h>
+#include <clientserver/idamErrors.h>
 
 /*
   Disabled, stub plugin.

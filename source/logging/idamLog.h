@@ -8,6 +8,8 @@
 #define IDAM_LOG(MODE, MSG) idamLog(MODE, "%s:%d >> " MSG, basename(__FILE__), __LINE__)
 #define IDAM_LOGF(MODE, FMT, ...) idamLog(MODE, "%s:%d >> " FMT, basename(__FILE__), __LINE__, __VA_ARGS__)
 
+extern int reopen_logs;         // Flags whether or Not Logs need to be Re-Opened
+
 typedef enum LogMode {
     LOG_DEBUG   = 1,
     LOG_INFO    = 2,

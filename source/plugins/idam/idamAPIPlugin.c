@@ -25,7 +25,7 @@
 #include <client/accAPI_C.h>
 #include <clientserver/initStructs.h>
 #include <clientserver/stringUtils.h>
-#include <client/IdamAPI.h>
+#include <client/idamAPI.h>
 #include <include/idamserver.h>
 #include <clientserver/idamTypes.h>
 

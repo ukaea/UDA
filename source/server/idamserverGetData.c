@@ -13,6 +13,8 @@
 #include <clientserver/initStructs.h>
 #include <clientserver/freeDataBlock.h>
 #include <clientserver/printStructs.h>
+#include <clientserver/protocol.h>
+#include <clientserver/idamErrors.h>
 #include <structures/struct.h>
 
 #include <modules/bytes/readBytesNonOptimally.h>
@@ -288,7 +290,6 @@ int idamserverGetData(PGconn* DBConnect, int* depth, REQUEST_BLOCK request_block
 // This is not passed back via the argument as only a 'by value' pointer is specified.
 // Assign to a global to pass back - poor design that needs correcting at a later date!
 
-//#ifdef GENERIC_ENABLE
 #ifndef NOTGENERICENABLED
                     if (DBConnect == NULL && (request_block2.request == REQUEST_READ_GENERIC ||
                                               request_block2.request == REQUEST_READ_SQL)) {

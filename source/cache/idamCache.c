@@ -15,17 +15,16 @@ DATA_BLOCK * idamCacheRead(IDAM_CACHE * cache, REQUEST_BLOCK * request_block) { 
 
 #include <libmemcached/memcached.h>
 #include <logging/idamLog.h>
-#include <include/idamclientserverprivate.h>
 #include <clientserver/protocol.h>
 #include <clientserver/initStructs.h>
 #include <clientserver/memstream.h>
+#include <clientserver/xdrlib.h>
 
 #define HASHXDR 1
 #ifdef HASHXDR
-
-#define PARTBLOCKINIT        1
-#define PARTBLOCKUPDATE      2
-#define PARTBLOCKOUTPUT      3
+#  define PARTBLOCKINIT        1
+#  define PARTBLOCKUPDATE      2
+#  define PARTBLOCKOUTPUT      3
 
 void sha1Block(unsigned char* block, size_t blockSize, unsigned char* md);
 
@@ -33,7 +32,8 @@ void sha1PartBlock(unsigned char* partBlock, size_t partBlockSize, unsigned char
 
 int sha1File(char* name, FILE* fh, unsigned char* md);
 
-#endif
+#endif // HASHXDR
+
 #define MAXELEMENTSHA1 20
 
 struct IdamCache {

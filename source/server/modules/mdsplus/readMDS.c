@@ -25,7 +25,7 @@
 *--------------------------------------------------------------*/
 #include "readMDS.h"
 
-#include <include/idamclientserverprivate.h>
+#include <clientserver/idamErrors.h>
 #include <clientserver/idamErrorLog.h>
 
 #include <strings.h>

@@ -30,7 +30,6 @@
 #include <server/managePluginFiles.h>
 #include <clientserver/initStructs.h>
 #include <clientserver/idamTypes.h>
-#include <include/idamclientserverprivate.h>
 
 #include "readHDF58.h"
 

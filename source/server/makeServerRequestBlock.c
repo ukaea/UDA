@@ -16,8 +16,8 @@ returns An integer Error Code: If non zero, a problem occured.
 #include <clientserver/idamErrors.h>
 #include <clientserver/stringUtils.h>
 #include <clientserver/initStructs.h>
+#include <clientserver/protocol.h>
 #include <server/idamServer.h>
-#include <include/idamclientserverprivate.h>
 
 #include "idamServerPlugin.h"
 

@@ -11,7 +11,6 @@
 #include <stdlib.h>
 
 #include <logging/idamLog.h>
-#include <include/idamclientprivate.h>
 
 void printIdamClientEnvironment(ENVIRONMENT* environ)
 {
@@ -51,12 +50,7 @@ void printIdamClientEnvironment(ENVIRONMENT* environ)
 
 }
 
-#ifdef FATCLIENT
-void getIdamClientEnvironmentFat(ENVIRONMENT * environ)
-#else
-
 void getIdamClientEnvironment(ENVIRONMENT* environ)
-#endif
 {
 
     char* env = NULL;
@@ -74,7 +68,7 @@ void getIdamClientEnvironment(ENVIRONMENT* environ)
 #ifndef _WIN32
         strcpy(environ->logdir, "./");                    // Client Log is local to pwd
 #else
-        strcpy(environ->logfile,"");
+        strcpy(environ->logfile, "");
 #endif
     }
 
@@ -162,7 +156,6 @@ void getIdamClientEnvironment(ENVIRONMENT* environ)
         strcpy(environ->api_format, API_FILE_FORMAT);
     }
 
-
 //-------------------------------------------------------------------------------------------
 // Security Defaults
     /*
@@ -230,8 +223,6 @@ void getIdamClientEnvironment(ENVIRONMENT* environ)
 //-------------------------------------------------------------------------------------------
 // Fat Client SQL Database Connection Details
 
-//#ifdef FATCLIENT
-//#ifdef GENERIC_ENABLE
 #ifndef NOTGENERICENABLED
 
 // IDAM SQL Server Host Name
@@ -255,7 +246,6 @@ void getIdamClientEnvironment(ENVIRONMENT* environ)
     if ((env = getenv("UDA_SQLUSER")) != NULL) strcpy(environ->sql_user, env);
 
 #endif
-//#endif
 
 //-------------------------------------------------------------------------------------------
 // Client defined Property Flags

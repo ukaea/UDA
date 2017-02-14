@@ -27,13 +27,14 @@
 #include <strings.h>
 
 #include <logging/idamLog.h>
-#include <include/idamclientserverprivate.h>
 #include <clientserver/idamTypes.h>
 #include <clientserver/stringUtils.h>
 #include <modules/ida/nameIda.h>
 #include <clientserver/idamErrorLog.h>
 #include <clientserver/printStructs.h>
 #include <clientserver/freeDataBlock.h>
+#include <clientserver/protocol.h>
+#include <clientserver/idamErrors.h>
 
 #include "mastArchiveFilePath.h"
 

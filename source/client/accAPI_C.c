@@ -10,7 +10,6 @@
 #include <strings.h>
 
 #include <logging/idamLog.h>
-#include <include/idamclientprivate.h>
 #include <clientserver/initStructs.h>
 #include <clientserver/idamErrorLog.h>
 #include <clientserver/stringUtils.h>
@@ -18,6 +17,9 @@
 #include <clientserver/allocData.h>
 #include <clientserver/protocol.h>
 #include <clientserver/memstream.h>
+#include <clientserver/xdrlib.h>
+#include <clientserver/socketStructs.h>
+#include <cache/idamCache.h>
 
 #include "generateErrors.h"
 #include "getEnvironment.h"
@@ -1173,8 +1175,8 @@ int getIdamOrder(int handle)
  * @return the permission
  */
 unsigned int getIdamCachePermission(int handle) {     // Permission to cache?
-    if(handle < 0 || handle >= Data_Block_Count) return(PLUGINNOTOKTOCACHE);
-    return ((unsigned int)Data_Block[handle].cachePermission);
+    if(handle < 0 || handle >= Data_Block_Count) return PLUGINNOTOKTOCACHE;
+    return Data_Block[handle].cachePermission;
 }
 
 /**
@@ -1185,7 +1187,7 @@ unsigned int getIdamCachePermission(int handle) {     // Permission to cache?
  */
 unsigned int getIdamTotalDataBlockSize(int handle) {
     if(handle < 0 || handle >= Data_Block_Count) return 0;
-    return ((unsigned int)Data_Block[handle].totalDataBlockSize);
+    return Data_Block[handle].totalDataBlockSize;
 }
 
 //!  returns the atomic or structure type id of the data object

@@ -7,6 +7,13 @@
 
 #define DATELENGTH	27
 
+//--------------------------------------------------------
+// Error Management
+
+#define SYSTEMERRORTYPE     1
+#define CODEERRORTYPE       2
+#define PLUGINERRORTYPE     3
+
 void idamErrorLog(CLIENT_BLOCK client_block, REQUEST_BLOCK request, IDAMERRORSTACK idamerrorstack);
 void initIdamErrorStack(IDAMERRORSTACK *idamerrorstack);
 void initIdamErrorRecords(IDAMERRORSTACK *idamerrorstack);

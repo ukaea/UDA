@@ -49,9 +49,6 @@
 #include <logging/idamLog.h>
 #include <stdlib.h>
 
-#include <include/idamgenstructprivate.h>
-#include <include/idamgenstructpublic.h>
-
 #include "struct.h"
 
 /** Find (search type A) the first Tree Node with a data structure type containing a named element/member.

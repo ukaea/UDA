@@ -59,8 +59,6 @@
 #include <memory.h>
 
 #include <logging/idamLog.h>
-#include <include/idamclientserverprivate.h>
-#include <include/idamgenstructprivate.h>
 #include <structures/struct.h>
 
 #include "readXDRFile.h"
@@ -75,7 +73,7 @@
 #  include <server/idamServerStartup.h>
 #elif !defined(FATCLIENT)
 #  include <client/createClientXDRStream.h>
-#  include <include/idamclientprivate.h>
+#  include <client/idamClient.h>
 #endif
 
 int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, void* str)

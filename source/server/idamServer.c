@@ -17,8 +17,6 @@
 #include <logging/idamAccessLog.h>
 #include <clientserver/xdrlib.h>
 #include <clientserver/freeDataBlock.h>
-#include <include/idamgenstructprivate.h>
-#include <include/idamclientserverprivate.h>
 
 #include "idamServerStartup.h"
 #include "closeServerSockets.h"
@@ -841,7 +839,6 @@ int idamServer(CLIENT_BLOCK client_block, REQUEST_BLOCK * request_block0, SERVER
 //------------------------------------------------------------------------------------------------
 // Connect to the Database
 
-//#ifdef GENERIC_ENABLE	// <========================== Generic Signal Name Lookup via SQL Database is Enabled
 #ifndef NOTGENERICENABLED
             if (request_block.request == REQUEST_READ_GENERIC || (client_block.clientFlags & CLIENTFLAG_ALTDATA)) {
                 if (DBConnect == NULL) {
@@ -907,7 +904,6 @@ int idamServer(CLIENT_BLOCK client_block, REQUEST_BLOCK * request_block0, SERVER
 //------------------------------------------------------------------------------------------------
 // Read Additional Meta Data
 
-//#ifdef GENERIC_ENABLE
 #ifndef NOTGENERICENABLED
             if (client_block.get_meta && request_block.request == REQUEST_READ_GENERIC) {
 

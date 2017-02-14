@@ -2,16 +2,15 @@
 //
 //----------------------------------------------------------------
 
-#include "Readin.h"
+#include "readin.h"
 
 #include <unistd.h>
 #include <errno.h>
 
-#include <include/idamclientprivate.h>
-#include <include/idamclientserverprivate.h>
 #include <clientserver/idamErrorLog.h>
 
 #include "updateSelectParms.h"
+#include "idamCreateConnection.h"
 
 int idamClientReadin(void* iohandle, char* buf, int count)
 {

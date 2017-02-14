@@ -14,12 +14,11 @@
 #include <strings.h>
 
 #include <logging/idamLog.h>
-#include <include/idamclientprivate.h>
-#include <include/idamclientserverprivate.h>
 #include <clientserver/initStructs.h>
 #include <clientserver/idamErrorLog.h>
 #include <clientserver/expand_path.h>
 #include <clientserver/stringUtils.h>
+#include <clientserver/protocol.h>
 
 #include "makeClientRequestBlock.h"
 #include "startup.h"

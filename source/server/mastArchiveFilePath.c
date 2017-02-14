@@ -18,7 +18,7 @@
 #include <string.h>
 #include <stdio.h>
 
-#include <include/idamclientserverprivate.h>
+#include <clientserver/idamStructs.h>
 
 void mastArchiveFilePath(int pulno, int pass, char *file, char *path) {
     char strint[56];
@@ -35,7 +35,7 @@ void mastArchiveFilePath(int pulno, int pass, char *file, char *path) {
 
 // Alternative Paths
 
-    if(environment.data_path_id == 0) {
+    if (environment.data_path_id == 0) {
         sprintf(strint, "%d", pulno);
         strcat(path, strint);			// Original naming convention
     } else {

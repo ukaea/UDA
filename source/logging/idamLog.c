@@ -2,6 +2,8 @@
 
 #include <stdarg.h>
 
+int reopen_logs = 0;        // No need to Re-Open Logs
+
 static FILE* error_log  = NULL;
 static FILE* warn_log   = NULL;
 static FILE* debug_log  = NULL;

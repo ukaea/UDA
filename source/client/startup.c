@@ -19,11 +19,10 @@
 
 #include <logging/idamLog.h>
 #include <clientserver/idamErrorLog.h>
+#include <clientserver/idamErrors.h>
 
 #include "idamClient.h"
 #include "getEnvironment.h"
-
-int reopen_logs = 0;        // No need to Re-Open Logs
 
 int idamStartup(int reset)
 {

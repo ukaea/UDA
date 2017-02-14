@@ -25,7 +25,6 @@
 
 #include <stdlib.h>
 
-#include <include/idamclientserverprivate.h>
 #include <logging/idamLog.h>
 #include <clientserver/idamTypes.h>
 

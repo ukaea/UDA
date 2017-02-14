@@ -9,10 +9,11 @@
 #include <strings.h>
 
 #include <logging/idamLog.h>
-#include <include/idamclientserverprivate.h>
 #include <clientserver/idamErrorLog.h>
 #include <modules/ida/parseIdaPath.h>
 #include <clientserver/stringUtils.h>
+#include <clientserver/protocol.h>
+#include <clientserver/idamErrors.h>
 
 int idamServerLegacyPlugin(REQUEST_BLOCK* request_block, DATA_SOURCE* data_source, SIGNAL_DESC* signal_desc)
 {
@@ -282,7 +283,6 @@ int idamServerLegacyPlugin(REQUEST_BLOCK* request_block, DATA_SOURCE* data_sourc
                 IDAM_LOG(LOG_DEBUG, "Request: Read Nothing! (Returns Test Data)\n");
                 break;
 
-//#ifdef GENERIC_ENABLE	// <========================== Generic Signal Name Lookup via SQL Database is Enabled
 #ifndef NOTGENERICENABLED
             case REQUEST_READ_GENERIC :
 

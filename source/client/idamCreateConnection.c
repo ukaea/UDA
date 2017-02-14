@@ -11,24 +11,19 @@
 #include <errno.h>
 #include <netinet/tcp.h>
 
-#include <include/idamclientprivate.h>
-#include <include/idamclientserverprivate.h>
 #include <clientserver/idamErrorLog.h>
 #include <clientserver/manageSockets.h>
+#include <client/idamClient.h>
 
 int idamCreateConnection()
 {
-
     int window_size = DB_READ_BLOCK_SIZE;        // 128K
     int on = 1;
     int rc, serrno;
-    //long sockflags;
     char* hostname;
-    //char *strptr;
 
     struct sockaddr_in server;
 
-    //struct servent *service;
     struct hostent* host;
 
     if (clientSocket >= 0) {

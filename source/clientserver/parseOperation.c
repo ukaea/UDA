@@ -2,7 +2,9 @@
 
 #include <errno.h>
 #include <stdlib.h>
-#include <include/idamclientserverprivate.h>
+
+#include <clientserver/idamErrors.h>
+
 #include "stringUtils.h"
 #include "idamErrorLog.h"
 

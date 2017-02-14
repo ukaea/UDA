@@ -25,6 +25,8 @@
 
 #include <logging/idamLog.h>
 #include <clientserver/idamErrorLog.h>
+#include <clientserver/protocol.h>
+#include <clientserver/idamErrors.h>
 
 #ifdef NOIDAMPLUGIN
 
@@ -41,11 +43,10 @@ int readIdam(DATA_SOURCE data_source,
 
 #include <stdlib.h>
 
-#include <include/idamclientserverprivate.h>
 #include <client/accAPI_C.h>
 #include <clientserver/stringUtils.h>
 #include <clientserver/printStructs.h>
-#include <client/IdamAPI.h>
+#include <client/idamAPI.h>
 
 #ifdef FATCLIENT
 

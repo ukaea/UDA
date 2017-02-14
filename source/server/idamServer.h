@@ -45,8 +45,6 @@ extern XDR* serverOutput;
 extern int server_tot_block_time;
 extern int server_timeout;
 
-extern unsigned int XDRstdioFlag;
-
 extern USERDEFINEDTYPELIST parseduserdefinedtypelist;
 
 #endif // UDA_SERVER_IDAMSERVER_H

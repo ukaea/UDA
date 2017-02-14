@@ -3,12 +3,11 @@
 #include <stdlib.h>
 
 #include <logging/idamLog.h>
-#include <include/idamclientserverprivate.h>
-#include <include/idamgenstructprivate.h>
-#include <include/idamgenstructpublic.h>
+#include <clientserver/protocol.h>
 #include <clientserver/idamErrorLog.h>
 #include <clientserver/stringUtils.h>
 #include <clientserver/xdrlib.h>
+#include <clientserver/idamErrors.h>
 
 #include "struct.h"
 

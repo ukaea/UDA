@@ -29,7 +29,6 @@
 #include <clientserver/idamErrorLog.h>
 #include <logging/idamLog.h>
 #include <plugins/idamPlugin.h>
-#include <include/idamgenstructpublic.h>
 
 int idamServerHelp(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {

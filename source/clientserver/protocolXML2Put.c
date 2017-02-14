@@ -2,12 +2,10 @@
 
 #include <stdlib.h>
 
-#include <include/idamclientserverprivate.h>
-#include <include/idamgenstructprivate.h>
-#include <include/idamgenstructpublic.h>
 #include <logging/idamLog.h>
 #include <structures/struct.h>
 #include <structures/xdrUserDefinedData.h>
+#include <clientserver/idamErrors.h>
 
 #include "idamErrorLog.h"
 #include "xdrlib.h"

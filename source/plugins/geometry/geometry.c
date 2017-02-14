@@ -38,14 +38,12 @@
 #include <stdlib.h>
 #include <strings.h>
 
-#include <include/idamgenstructpublic.h>
 #include <server/sqllib.h>
 #include <clientserver/initStructs.h>
 #include <clientserver/stringUtils.h>
 #include <structures/struct.h>
 #include <structures/accessors.h>
 #include <server/modules/netcdf4/readCDF4.h>
-#include <include/idamclientserverprivate.h>
 
 ////////////////////
 // Add error message & send same message to the logs & set error code

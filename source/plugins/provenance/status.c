@@ -21,7 +21,6 @@
 #include <clientserver/initStructs.h>
 #include <structures/struct.h>
 #include <structures/accessors.h>
-#include <include/idamgenstructpublic.h>
 
 #include "provenance.h"
 

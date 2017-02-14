@@ -47,7 +47,7 @@ Issues:
 #include <strings.h>
 
 #include <client/accAPI_C.h>
-#include <client/IdamAPI.h>
+#include <client/idamAPI.h>
 #include <structures/struct.h>
 #include <structures/accessors.h>
 #include <clientserver/stringUtils.h>
@@ -55,7 +55,6 @@ Issues:
 #include <server/makeServerRequestBlock.h>
 #include <clientserver/initStructs.h>
 #include <clientserver/freeDataBlock.h>
-#include <include/idamgenstructpublic.h>
 
 void defineIDSStructures() {
     int offset = 0; //, stringLength;

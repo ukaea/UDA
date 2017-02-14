@@ -11,14 +11,13 @@
 
 #include <logging/idamLog.h>
 #include <structures/struct.h>
-#include <include/idamclientprivate.h>
 #include <clientserver/initStructs.h>
 #include <clientserver/idamErrorLog.h>
 #include <clientserver/printStructs.h>
 #include <clientserver/allocData.h>
 
 #include "makeClientRequestBlock.h"
-#include "IdamAPI.h"
+#include "idamAPI.h"
 #include "idamClient.h"
 
 // Create a list of data blocks to be sent to the server

@@ -5,7 +5,7 @@
 extern "C" {
 #endif
 
-#if defined GENERIC_ENABLE && !defined NOTGENERICENABLED
+#ifndef NOTGENERICENABLED
 #  include <libpq-fe.h>	// SQL Library Header
 #endif
 

@@ -109,4 +109,19 @@ extern unsigned int clientFlags;
 #define ERROR_MODEL_POISSON            6
 #define ERROR_MODEL_UNDEFINED          7
 
+//--------------------------------------------------------
+// Character used to separate directory file path elements
+
+#ifndef _WIN32
+#define PATH_SEPARATOR  "/"
+#else
+#define PATH_SEPARATOR  "\\"
+#endif
+
+//--------------------------------------------------------
+// QA Status
+
+#define DEFAULT_STATUS 1   // Default Signal and Data_Source Status value
+
+
 #endif //IDAM_CLIENTSERVER_IDAMDEFINES_H

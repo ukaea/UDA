@@ -20,7 +20,7 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <logging/idamLog.h>
-#include <include/idamclientserverprivate.h>
+#include <clientserver/idamErrors.h>
 
 #include "idamErrorLog.h"
 

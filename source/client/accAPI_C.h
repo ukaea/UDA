@@ -3,7 +3,6 @@
 
 #include <stdio.h>
 
-#include <include/idamclientserverprivate.h>
 #include <clientserver/idamStructs.h>
 
 #ifdef __cplusplus

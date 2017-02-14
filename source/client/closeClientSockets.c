@@ -9,7 +9,6 @@
 #include <stdlib.h>
 
 #include <clientserver/manageSockets.h>
-#include <include/idamclientserverprivate.h>
 
 void closeNamedIdamClientSocket(SOCKETLIST *socks, char *host, int port) {
     int i;

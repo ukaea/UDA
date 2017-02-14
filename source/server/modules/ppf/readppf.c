@@ -22,7 +22,7 @@
 #include "readppf.h"
 
 #include <clientserver/idamErrorLog.h>
-#include <include/idamclientserverprivate.h>
+#include <clientserver/idamErrors.h>
 
 //---------------------------------------------------------------------------------------------------------------
 // Stub plugin if disabled

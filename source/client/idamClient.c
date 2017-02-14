@@ -13,8 +13,6 @@
 
 #include <logging/idamLog.h>
 #include <clientserver/idamErrors.h>
-#include <include/idamclientprivate.h>
-#include <include/idamgenstructprivate.h>
 #include <clientserver/idamErrorLog.h>
 #include <clientserver/initStructs.h>
 #include <clientserver/manageSockets.h>
@@ -24,6 +22,8 @@
 #include <clientserver/idamTypes.h>
 #include <clientserver/freeDataBlock.h>
 #include <structures/struct.h>
+#include <clientserver/xdrlib.h>
+#include <client/idamCreateConnection.h>
 
 #include "closedown.h"
 #include "accAPI_C.h"
@@ -33,7 +33,6 @@
 #  include <clientserver/compressDim.h>
 #  include <server/idamServer.h>
 #else
-#  include "idamCreateConnection.h"
 #  include "createClientXDRStream.h"
 #endif
 
@@ -42,13 +41,10 @@
 #endif
 
 #ifdef FATCLIENT
-
 int idamServer(CLIENT_BLOCK, REQUEST_BLOCK *, SERVER_BLOCK *, DATA_BLOCK *);
 void ncclose(int fh) {}
-
 #endif
 
-REQUEST_BLOCK* request_block_ptr = NULL;
 SOCKETLIST server_socketlist;
 #ifndef FATCLIENT
 int protocolVersion = 7;
@@ -128,7 +124,7 @@ int idamClient(REQUEST_BLOCK* request_block)
 
 #ifdef MEMCACHE
     static IDAM_CACHE * cache;
-    //    request_block_ptr = request_block;    // Passed down to middleware player via global pointer
+    request_block_ptr = request_block;    // Passed down to middleware player via global pointer
 #endif
 
 #ifndef FATCLIENT
@@ -858,7 +854,6 @@ int idamClient(REQUEST_BLOCK* request_block)
         //------------------------------------------------------------------------------
         // Assign Meta Data to Data Block
 
-        //#ifdef GENERIC_ENABLE
 #ifndef NOTGENERICENABLED
 
         if (client_block.get_meta && allocMetaHeap) {
@@ -1161,7 +1156,6 @@ int idamClient(REQUEST_BLOCK* request_block)
 
     } else {
 
-        //#ifdef GENERIC_ENABLE
 #ifndef NOTGENERICENABLED
         if (allocMetaHeap) {
             if (data_system != NULL) {

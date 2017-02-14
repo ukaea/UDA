@@ -17,7 +17,6 @@ Interprets the API arguments and assembles a Request data structure.
 
 #include <logging/idamLog.h>
 #include <clientserver/idamErrors.h>
-#include <include/idamclientserverprivate.h>
 #include <clientserver/idamErrorLog.h>
 #include <clientserver/expand_path.h>
 

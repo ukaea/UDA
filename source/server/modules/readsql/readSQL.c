@@ -25,13 +25,13 @@
 #include <memory.h>
 #include <strings.h>
 
-#include <include/idamclientserverprivate.h>
 #include <clientserver/idamErrorLog.h>
 #include <server/sqllib.h>
 #include <clientserver/idamTypes.h>
 #include <clientserver/initStructs.h>
 #include <clientserver/freeDataBlock.h>
 #include <clientserver/stringUtils.h>
+#include <clientserver/idamErrors.h>
 #include <structures/struct.h>
 
 #ifdef USEREADSOAP

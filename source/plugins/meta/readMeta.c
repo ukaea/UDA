@@ -38,8 +38,6 @@ Issues:
 #include <structures/accessors.h>
 #include <clientserver/initStructs.h>
 #include <server/sqllib.h>
-#include <include/idamgenstructpublic.h>
-#include <include/idamclientserverprivate.h>
 
 // Prevent SQL injection malicious intent
 // Not required if the server is Read Only!

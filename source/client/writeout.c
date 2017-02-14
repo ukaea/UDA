@@ -2,18 +2,17 @@
 //
 //----------------------------------------------------------------
 
-#include "Writeout.h"
+#include "writeout.h"
 
 #include <unistd.h>
 #include <signal.h>
 #include <errno.h>
 
 #include <logging/idamLog.h>
-#include <include/idamclientprivate.h>
-#include <include/idamclientserverprivate.h>
 #include <clientserver/idamErrorLog.h>
 
 #include "updateSelectParms.h"
+#include "idamCreateConnection.h"
 
 int idamClientWriteout(void* iohandle, char* buf, int count)
 {

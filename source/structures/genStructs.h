@@ -168,8 +168,24 @@ typedef struct GeneralBlock {                          // Generalised Data Struc
     unsigned int lastMallocIndex;               // Associate last search entry position found in the Malloc Log
 } GENERAL_BLOCK;
 
+extern int enable_malloc_log;
+
+#define MALLOCSOURCENONE    0
+#define MALLOCSOURCESOAP    1
+#define MALLOCSOURCEDOM     2
+#define MALLOCSOURCENETCDF  3
+
+extern int malloc_source;
+
+#define PACKAGE_XDRFILE     1
+#define PACKAGE_STRUCTDATA  2
+#define PACKAGE_XDROBJECT   3
+
 extern LOGMALLOCLIST* logmalloclist;
 extern NTREE* fullNTree;
+extern NTREELIST NTreeList;
+extern LOGSTRUCTLIST logstructlist;
+
 extern unsigned int lastMallocIndex;
 extern unsigned int* lastMallocIndexValue;
 

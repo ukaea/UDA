@@ -12,7 +12,7 @@
 #include <strings.h>
 
 #include <client/accAPI_C.h>
-#include <client/IdamAPI.h>
+#include <client/idamAPI.h>
 #include <clientserver/stringUtils.h>
 #include <clientserver/initStructs.h>
 #include <clientserver/idamTypes.h>

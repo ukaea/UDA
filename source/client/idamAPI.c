@@ -8,13 +8,12 @@
 *
 *--------------------------------------------------------------*/
 
-#include "IdamAPI.h"
+#include "idamAPI.h"
 
 #include <stdarg.h>
 #include <strings.h>
 
 #include <logging/idamLog.h>
-#include <include/idamclientprivate.h>
 #include <clientserver/initStructs.h>
 #include <clientserver/idamErrorLog.h>
 #include <clientserver/printStructs.h>

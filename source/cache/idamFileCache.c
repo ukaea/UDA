@@ -30,12 +30,14 @@ char source[]
 #include <stdlib.h>
 #include <errno.h>
 
-#include <include/idamclientserverprivate.h>
 #include <clientserver/idamErrorLog.h>
 #include <clientserver/stringUtils.h>
-#include <include/idamclientprivate.h>
 #include <structures/struct.h>
 #include <client/createClientXDRStream.h>
+#include <clientserver/xdrlib.h>
+#include <client/idamClient.h>
+
+REQUEST_BLOCK* request_block_ptr = NULL;
 
 // Cache database table lock/unlock
 // NULL File handle returned if there is no cache
@@ -578,8 +580,8 @@ int idamClientWriteCache(char *filename) {
 // Generate a Hash Key (not guaranteed unique)
 
     key = -1;
-    key = xcrc32((const unsigned char *)request_block->signal,(int)strlen(request_block->signal),key);	// combine CRC has keys
-    key = xcrc32((const unsigned char *)request_block->source,(int)strlen(request_block->source),key);
+    key = xcrc32((const unsigned char *)request_block->signal, (int)strlen(request_block->signal), key);	// combine CRC has keys
+    key = xcrc32((const unsigned char *)request_block->source, (int)strlen(request_block->source), key);
 
 // Generate a timestamp
 

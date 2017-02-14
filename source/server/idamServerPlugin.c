@@ -14,6 +14,9 @@
 #include <clientserver/printStructs.h>
 #include <structures/struct.h>
 #include <clientserver/freeDataBlock.h>
+#include <clientserver/protocol.h>
+#include <clientserver/idamErrors.h>
+#include <cache/idamCache.h>
 
 #include <modules/ida/parseIdaPath.h>
 #include <modules/registration/getPluginAddress.h>

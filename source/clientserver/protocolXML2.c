@@ -58,8 +58,6 @@
 
 #include <structures/struct.h>
 #include <logging/idamLog.h>
-#include <include/idamclientserverprivate.h>
-#include <include/idamgenstructprivate.h>
 #include <clientserver/memstream.h>
 
 #include "readXDRFile.h"

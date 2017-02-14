@@ -8,10 +8,11 @@
 
 #include "idamErrorLog.h"
 
-#include <logging/idamLog.h>
 #include <stdlib.h>
-#include <include/idamclientserverprivate.h>
-#include "stringUtils.h"
+
+#include <logging/idamLog.h>
+#include <clientserver/idamErrors.h>
+#include <clientserver/stringUtils.h>
 
 IDAMERRORSTACK idamerrorstack;
 

@@ -9,7 +9,6 @@
 
 #include <structures/struct.h>
 #include <structures/accessors.h>
-#include <include/idamgenstructpublic.h>
 
 int listSignals(IDAM_PLUGIN_INTERFACE * idam_plugin_interface)
 {

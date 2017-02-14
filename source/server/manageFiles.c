@@ -13,7 +13,7 @@
 #include <strings.h>
 
 #include <logging/idamLog.h>
-#include <include/idamclientserverprivate.h>
+#include <clientserver/protocol.h>
 #include <server/idamServer.h>
 
 // Initialise the File List

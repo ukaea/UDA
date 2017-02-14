@@ -24,10 +24,11 @@
 *-----------------------------------------------------------------------------*/
 #include "readCDFAtts.h"
 
-#include <include/idamclientserverprivate.h>
 #include <stdlib.h>
+
 #include <clientserver/idamErrorLog.h>
 #include <clientserver/stringUtils.h>
+#include <clientserver/idamErrors.h>
 
 #include "readCDF4.h"
 

@@ -13,6 +13,17 @@
 #define IDAM_CACHE_PORT     11211
 #define IDAM_CACHE_EXPIRY   86400           //24*3600       // Lifetime of the object in Secs
 
+// Cache permissions
+
+#define PLUGINNOTOKTOCACHE  0   // Plugin state management incompatible with client side cacheing
+#define PLUGINOKTOCACHE     1   // Data are OK for the Client to Cache
+
+#define PLUGINCACHEDEFAULT  PLUGINOKTOCACHE // The cache permission to use as the default
+
+#define PLUGINNOCACHETYPE   0
+#define PLUGINMEMCACHETYPE  1
+#define PLUGINFILECACHETYPE 2
+
 typedef struct IdamCache IDAM_CACHE;
 
 IDAM_CACHE* idamOpenCache();

@@ -23,7 +23,7 @@
 
 #include <clientserver/idamErrorLog.h>
 #include <server/idamServer.h>
-#include <include/idamclientserverprivate.h>
+#include <clientserver/idamErrors.h>
 
 #ifdef HIERARCHICAL_DATA
 #include "idamclientserverxml.h"

@@ -29,7 +29,7 @@
 #include <clientserver/idamDefines.h>
 #include <clientserver/stringUtils.h>
 #include <clientserver/idamErrorLog.h>
-#include <include/idamclientserverprivate.h>
+#include <clientserver/idamErrors.h>
 
 #include "struct.h"
 

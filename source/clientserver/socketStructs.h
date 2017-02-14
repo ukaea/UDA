@@ -6,6 +6,13 @@
 #include <time.h>
 #include <rpc/rpc.h>
 
+//-------------------------------------------------------
+// Socket Types
+
+#define TYPE_UNKNOWN_SERVER 0
+#define TYPE_IDAM_SERVER    1
+#define TYPE_MDSPLUS_SERVER 2
+
 //--------------------------------------------------------
 // Socket Management
 

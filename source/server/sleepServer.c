@@ -9,9 +9,10 @@
 
 #include <logging/idamLog.h>
 #include <clientserver/idamErrorLog.h>
-#include <include/idamclientserverprivate.h>
 #include <clientserver/protocol.h>
 #include <server/idamServer.h>
+#include <clientserver/xdrlib.h>
+#include <clientserver/idamErrors.h>
 
 int sleepServer(void)
 {

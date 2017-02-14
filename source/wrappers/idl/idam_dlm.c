@@ -21,7 +21,7 @@
 #include <include/idamclientpublic.h>
 #include <client/idamClient.h>
 #include <client/accAPI_C.h>
-#include <client/IdamAPI.h>
+#include <client/idamAPI.h>
 #include <client/idamPutAPI.h>
 #include <client/clientAPI.h>
 #include <client/clientMDS.h>

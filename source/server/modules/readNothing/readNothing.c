@@ -19,12 +19,12 @@
 #include <stdlib.h>
 
 #include <clientserver/idamStructs.h>
-#include <include/idamclientserverprivate.h>
 #include <clientserver/idamErrorLog.h>
 #include <clientserver/idamTypes.h>
 #include <logging/idamLog.h>
 #include <clientserver/freeDataBlock.h>
 #include <clientserver/initStructs.h>
+#include <clientserver/idamErrors.h>
 
 //---------------------------------------------------------------------------------------------------------------
 // Stub plugin if disabled

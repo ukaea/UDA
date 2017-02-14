@@ -19,11 +19,11 @@
 #include <stdlib.h>
 
 #include <logging/idamLog.h>
+#include <clientserver/idamErrors.h>
 
 #ifndef NOXMLPARSER
 
 #include <clientserver/idamTypes.h>
-#include <include/idamclientserverprivate.h>
 #include "stringUtils.h"
 #include "parseOperation.h"
 #include "idamErrorLog.h"
