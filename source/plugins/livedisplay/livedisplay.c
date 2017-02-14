@@ -51,10 +51,11 @@ Issues:
 #include <structures/struct.h>
 #include <structures/accessors.h>
 #include <clientserver/stringUtils.h>
-#include <client/idam_client.h>
+#include <client/idamClient.h>
 #include <server/makeServerRequestBlock.h>
 #include <clientserver/initStructs.h>
 #include <clientserver/freeDataBlock.h>
+#include <include/idamgenstructpublic.h>
 
 void defineIDSStructures() {
     int offset = 0; //, stringLength;

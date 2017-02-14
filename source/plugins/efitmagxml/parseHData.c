@@ -9,7 +9,7 @@
 *-------------------------------------------------------------------------*/
 #include "efitmagxml.h"
 
-#include <include/parseEfitXMLPrivate.h>
+#include <clientserver/initXMLStructs.h>
 
 // Simple Tags with Delimited List of Floating Point Values  
 // Assume No Attributes

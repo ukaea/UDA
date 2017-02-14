@@ -27,11 +27,12 @@
 
 #include <strings.h>
 
-#include <include/idamserverfiles.h>
 #include <clientserver/idamErrorLog.h>
 #include <include/idamclientserverprivate.h>
 
 #ifdef NOIDAPLUGIN
+
+typedef int ida_file_ptr;
 
 void ida_close(ida_file_ptr* ida) {
     return;

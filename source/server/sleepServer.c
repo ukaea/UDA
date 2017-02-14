@@ -11,7 +11,7 @@
 #include <clientserver/idamErrorLog.h>
 #include <include/idamclientserverprivate.h>
 #include <clientserver/protocol.h>
-#include <include/idamserver.h>
+#include <server/idamServer.h>
 
 int sleepServer(void)
 {

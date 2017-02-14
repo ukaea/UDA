@@ -4,17 +4,11 @@
 #include "freeDataBlock.h"
 
 #include <stdlib.h>
+
 #include <logging/idamLog.h>
-#include "initStructs.h"
 #include <structures/struct.h>
 
-#ifdef SERVERBUILD
-#  include <include/idamserver.h>
-#  include <include/idamgenstructprivate.h>
-#  include <server/idamServerStartup.h>
-#else
-#  include <include/idamclient.h>
-#endif
+#include "initStructs.h"
 
 // It is assumed that data pointers within each putDataBlock are private to the client application
 // and must be freed by the application.  

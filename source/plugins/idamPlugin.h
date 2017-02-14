@@ -5,6 +5,7 @@
 #include <logging/idamLog.h>
 #include <clientserver/idamErrorLog.h>
 #include <server/idamPluginStructs.h>
+#include <include/idamclientserverprivate.h>
 
 #ifdef __cplusplus
 extern "C" {

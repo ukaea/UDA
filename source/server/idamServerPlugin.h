@@ -1,7 +1,7 @@
 #ifndef IDAM_SERVER_IDAMSERVERPLUGIN_H
 #define IDAM_SERVER_IDAMSERVERPLUGIN_H
 
-#include <include/idamplugin.h>
+#include <plugins/idamPlugin.h>
 
 #define REQUEST_READ_START      1000
 #define REQUEST_PLUGIN_MCOUNT   100    // Maximum initial number of plugins that can be registered

@@ -21,10 +21,10 @@
 #include <stdlib.h>
 #include <strings.h>
 
-#include <include/idamserver.h>
+#include <server/idamServer.h>
 #include <clientserver/initStructs.h>
 #include <client/accAPI_C.h>
-#include <client/idam_client.h>
+#include <client/idamClient.h>
 #include <clientserver/idamTypes.h>
 
 #include "importdata.h"

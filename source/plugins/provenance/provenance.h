@@ -3,7 +3,7 @@
 
 #include <libpq-fe.h>
 
-#include <include/idamplugin.h>
+#include <plugins/idamPlugin.h>
 
 #ifdef __cplusplus
 extern "C" {

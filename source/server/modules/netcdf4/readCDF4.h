@@ -9,8 +9,9 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
 
 #ifndef NONETCDFPLUGIN
 #  include <netcdf.h>
-#  include <include/idamgenstruct.h>
 #  include <stdio.h>
+
+#  include <structures/genStructs.h>
 
 #define NETCDF_ERROR_OPENING_FILE               200
 #define NETCDF_ERROR_ALLOCATING_HEAP_1          201

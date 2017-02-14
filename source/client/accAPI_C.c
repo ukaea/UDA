@@ -11,31 +11,23 @@
 
 #include <logging/idamLog.h>
 #include <include/idamclientprivate.h>
-#include <include/idamclientpublic.h>
-#include <include/idamgenstruct.h>
 #include <clientserver/initStructs.h>
-#include <include/idammatlab.h>
 #include <clientserver/idamErrorLog.h>
 #include <clientserver/stringUtils.h>
 #include <structures/struct.h>
 #include <clientserver/allocData.h>
-#include <clientserver/protocol2.h>
+#include <clientserver/protocol.h>
 #include <clientserver/memstream.h>
 
 #include "generateErrors.h"
 #include "getEnvironment.h"
 #include "accAPI_F.h"
-#include "idam_client.h"
+#include "idamClient.h"
 
 #ifdef __APPLE__
 #  include <stdlib.h>
 #elif !defined(A64)
 #  include <malloc.h>
-#endif
-
-#ifdef FATCLIENT
-#  include <include/idamserver.h>
-#  include <include/idamplugin.h>
 #endif
 
 #ifndef FATCLIENT
@@ -111,6 +103,7 @@ unsigned int lastMallocIndex = 0;         // Malloc Log search index last value
 unsigned int* lastMallocIndexValue = &lastMallocIndex;;  // Preserve Malloc Log search index last value in GENERAL_STRUCT
 
 #ifdef FATCLIENT
+#  include <server/idamPluginStructs.h>
 unsigned int totalDataBlockSize = 0;        // Total amount sent for the last data request
 PLUGINLIST pluginList;
 #endif

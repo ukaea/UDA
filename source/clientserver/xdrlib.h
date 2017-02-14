@@ -58,5 +58,7 @@ bool_t xdr_signal(XDR *xdrs, SIGNAL *str);
 // From SIGNAL_DESC Table
 bool_t xdr_signal_desc(XDR *xdrs, SIGNAL_DESC *str);
 
+extern unsigned int XDRstdioFlag;
+
 #endif // IDAM_CLIENTSERVER_XDRLIB_H
 

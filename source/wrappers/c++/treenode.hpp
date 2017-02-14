@@ -8,7 +8,7 @@
 #include <string>
 #include <vector>
 
-#include <include/idamgenstructpublic.h>
+#include <structures/genStructs.h>
 
 #include "scalar.hpp"
 #include "vector.hpp"

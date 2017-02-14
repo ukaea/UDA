@@ -59,24 +59,21 @@
 #include <structures/struct.h>
 #include <logging/idamLog.h>
 #include <include/idamclientserverprivate.h>
-#include <include/idamclientserver.h>
+#include <include/idamgenstructprivate.h>
 #include <clientserver/memstream.h>
 
 #include "readXDRFile.h"
 #include "idamErrorLog.h"
+#include "protocol.h"
+#include "xdrlib.h"
 
 #ifdef SERVERBUILD
-#  include <include/idamserver.h>
+#  include <server/idamServer.h>
 #  include <server/CreateXDRStream.h>
 #  include <server/idamServerStartup.h>
-#  include <include/idamserver.h>
-#elif !defined(FATCLIENT)
-#  include <include/idamclient.h>
 #endif
 
 #ifndef FATCLIENT
-#  include "xdrlib.h"
-#  include "protocol2.h"
 #  include "idamErrors.h"
 #endif
 

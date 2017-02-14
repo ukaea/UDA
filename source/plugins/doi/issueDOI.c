@@ -17,9 +17,10 @@ Issues:
 #include <errno.h>
 #include <strings.h>
 
-#include <include/idamserver.h>
+#include <server/idamServer.h>
 #include <structures/struct.h>
 #include <structures/accessors.h>
+#include <include/idamgenstructpublic.h>
 
 static char* pghost = NULL;
 static char pgport[56];

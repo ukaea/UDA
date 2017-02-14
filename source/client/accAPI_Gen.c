@@ -3,14 +3,13 @@
 //----------------------------------------------------------------
 
 #include <structures/struct.h>
-#include <include/idamclientserver.h>
 #include <structures/accessors.h>
 
 #include "accAPI_Gen.h"
 #include "accAPI_C.h"
 
 #ifdef FATCLIENT
-#  include <include/idamserver.h>
+#  include <server/idamServer.h>
 #endif
 
 // Set the Data Tree Global Pointer to a specific data tree

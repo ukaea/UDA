@@ -26,8 +26,8 @@ FILE* idamGetLogFile(LOG_MODE mode)
         case LOG_ACCESS: return access_log;
         case LOG_ERROR:  return error_log;
         case LOG_WARN:   return warn_log;
-        case LOG_DEBUG:  return debug_log;
         case LOG_INFO:   return info_log;
+        case LOG_DEBUG:  return debug_log;
         default:         return NULL;
     }
 }
@@ -38,8 +38,8 @@ void idamSetLogFile(LOG_MODE mode, FILE* file)
         case LOG_ACCESS: access_log = file; break;
         case LOG_ERROR:  error_log  = file; break;
         case LOG_WARN:   warn_log   = file; break;
-        case LOG_DEBUG:  debug_log  = file; break;
         case LOG_INFO:   info_log   = file; break;
+        case LOG_DEBUG:  debug_log  = file; break;
         default: return; // do nothing
     }
 }

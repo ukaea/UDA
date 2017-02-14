@@ -1,11 +1,12 @@
-#include "ClientMDS.h"
+#include "clientMDS.h"
 
 #include <logging/idamLog.h>
 #include <include/idamclientprivate.h>
+#include <include/idamclientserverprivate.h>
 #include <clientserver/initStructs.h>
 
 #include "startup.h"
-#include "idam_client.h"
+#include "idamClient.h"
 
 /**
  * Reads the Requested Data

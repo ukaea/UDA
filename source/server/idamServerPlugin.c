@@ -80,9 +80,9 @@ void initPlugin(PLUGIN_DATA* plugin)
     plugin->class = PLUGINUNKNOWN;
     plugin->external = PLUGINNOTEXTERNAL;
     plugin->status = PLUGINNOTOPERATIONAL;
-    plugin->private = PLUGINPRIVATE;        // All services are private: Not accessible to external users
-    plugin->cachePermission = PLUGINCACHEDEFAULT;    // Data are OK or Not for the Client to Cache
-    plugin->interfaceVersion = 1;            // Maximum Interface Version
+    plugin->private = PLUGINPRIVATE;                    // All services are private: Not accessible to external users
+    plugin->cachePermission = PLUGINCACHEDEFAULT;       // Data are OK or Not for the Client to Cache
+    plugin->interfaceVersion = 1;                       // Maximum Interface Version
     plugin->pluginHandle = NULL;
     plugin->idamPlugin = NULL;
 }
@@ -111,11 +111,14 @@ void printPluginList(FILE* fd, PLUGINLIST* plugin_list)
     }
 }
 
+/**
+ * Find the Plugin identity: return the reference id or -1 if not found.
+ * @param request
+ * @param plugin_list
+ * @return
+ */
 int findPluginIdByRequest(int request, PLUGINLIST* plugin_list)
 {
-
-// Find the Plugin identity: return the reference id or -1 if not found.
-
     int i;
     for (i = 0; i < plugin_list->count; i++) {
         if (plugin_list->plugin[i].request == request) return i;
@@ -123,11 +126,14 @@ int findPluginIdByRequest(int request, PLUGINLIST* plugin_list)
     return -1;
 }
 
+/**
+ * Find the Plugin identity: return the reference id or -1 if not found.
+ * @param format
+ * @param plugin_list
+ * @return
+ */
 int findPluginIdByFormat(const char* format, PLUGINLIST* plugin_list)
 {
-
-// Find the Plugin identity: return the reference id or -1 if not found.
-
     int i;
     for (i = 0; i < plugin_list->count; i++) {
         if (!strcasecmp(plugin_list->plugin[i].format, format)) return i;
@@ -135,11 +141,14 @@ int findPluginIdByFormat(const char* format, PLUGINLIST* plugin_list)
     return -1;
 }
 
+/**
+ * Find the Plugin identity: return the reference id or -1 if not found.
+ * @param device
+ * @param plugin_list
+ * @return
+ */
 int findPluginIdByDevice(const char* device, PLUGINLIST* plugin_list)
 {
-
-// Find the Plugin identity: return the reference id or -1 if not found.
-
     int i;
     for (i = 0; i < plugin_list->count; i++) {
         if (plugin_list->plugin[i].class == PLUGINDEVICE && !strcasecmp(plugin_list->plugin[i].format, device))
@@ -148,11 +157,14 @@ int findPluginIdByDevice(const char* device, PLUGINLIST* plugin_list)
     return -1;
 }
 
+/**
+ * Find the Plugin Request: return the request or REQUEST_READ_UNKNOWN if not found.
+ * @param format
+ * @param plugin_list
+ * @return
+ */
 int findPluginRequestByFormat(const char* format, PLUGINLIST* plugin_list)
 {
-
-// Find the Plugin Request: return the request or REQUEST_READ_UNKNOWN if not found.
-
     int i;
     for (i = 0; i < plugin_list->count; i++) {
         if (!strcasecmp(plugin_list->plugin[i].format, format)) return plugin_list->plugin[i].request;
@@ -160,11 +172,14 @@ int findPluginRequestByFormat(const char* format, PLUGINLIST* plugin_list)
     return REQUEST_READ_UNKNOWN;
 }
 
+/**
+ * Find the Plugin Request: return the request or REQUEST_READ_UNKNOWN if not found.
+ * @param extension
+ * @param plugin_list
+ * @return
+ */
 int findPluginRequestByExtension(const char* extension, PLUGINLIST* plugin_list)
 {
-
-// Find the Plugin Request: return the request or REQUEST_READ_UNKNOWN if not found.
-
     int i;
     for (i = 0; i < plugin_list->count; i++) {
         if (!strcasecmp(plugin_list->plugin[i].extension, extension)) return plugin_list->plugin[i].request;
@@ -183,7 +198,9 @@ void initPluginList(PLUGINLIST* plugin_list)
     plugin_list->plugin = (PLUGIN_DATA*) malloc(REQUEST_PLUGIN_MCOUNT * sizeof(PLUGIN_DATA));
     plugin_list->mcount = REQUEST_PLUGIN_MCOUNT;
 
-    for (i = 0; i < plugin_list->mcount; i++)initPlugin(&plugin_list->plugin[i]);
+    for (i = 0; i < plugin_list->mcount; i++) {
+        initPlugin(&plugin_list->plugin[i]);
+    }
 
 //----------------------------------------------------------------------------------------------------------------------
 // Data Access Server Protocols
@@ -270,7 +287,6 @@ void initPluginList(PLUGINLIST* plugin_list)
 #endif
 
 #ifndef NOMDSPLUSPLUGIN
-
     /*!
     Data via a MDSPlus Server can be accessed using either of three protocol names: MDS or MDS+ or MDSPLUS.
     These access services are identical.
@@ -583,20 +599,6 @@ void initPluginList(PLUGINLIST* plugin_list)
     allocPluginList(plugin_list->count++, plugin_list);
 #endif
 
-//----------------------------------------------------------------------------------------------------------------------
-// Data Discovery
-    /*
-    #ifndef NOHELPPLUGIN
-       strcpy(plugin_list->plugin[plugin_list->count].format,  "HELP");
-       plugin_list->plugin[plugin_list->count].request = REQUEST_READ_HELP;
-       plugin_list->plugin[plugin_list->count].class   = PLUGINOTHER;
-       plugin_list->plugin[plugin_list->count].private = PLUGINPUBLIC;
-       strcpy(plugin_list->plugin[plugin_list->count].desc,  "IDAM Help. A description of data formats, servers and function libraries");
-       strcpy(plugin_list->plugin[plugin_list->count].example, "idamGetAPI(\"HELP::help()\", \"\")");
-       allocPluginList(plugin_list->count++, plugin_list);
-    #endif
-    */
-//----------------------------------------------------------------------------------------------------------------------
 // Testing
 
 #ifndef NOTESTPLUGIN
@@ -934,19 +936,17 @@ void initPluginList(PLUGINLIST* plugin_list)
         }
 
         fclose(conf);
-
-        //if(debugon)printPluginList(dbgout, plugin_list);
     }
 }
 
 int idamServerRedirectStdStreams(int reset)
 {
-    // Any OS messages will corrupt xdr streams so redivert IO from plugin libraries to a temporary file
+    // Any OS messages will corrupt xdr streams so re-divert IO from plugin libraries to a temporary file
 
     int err;
 
-    static FILE* originalStdFH;
-    static FILE* originalErrFH;
+    static FILE* originalStdFH = NULL;
+    static FILE* originalErrFH = NULL;
     static FILE* mdsmsgFH = NULL;
 
     char* env;
@@ -956,17 +956,17 @@ int idamServerRedirectStdStreams(int reset)
 
     if (!reset) {
         if (!singleFile) {
-            env = getenv("UDA_PLUGIN_DEBUG_SINGLEFILE");    // Use a single file for all plugin data requests
-            if (env != NULL) singleFile = 1;                        // Define IDAM_PLUGIN_DEBUG to retain the file
+            env = getenv("UDA_PLUGIN_DEBUG_SINGLEFILE");        // Use a single file for all plugin data requests
+            if (env != NULL) singleFile = 1;                    // Define IDAM_PLUGIN_DEBUG to retain the file
         }
 
         if (mdsmsgFH != NULL && singleFile) {
-            stdout = mdsmsgFH;            // Redirect all IO to a temporary file
+            stdout = mdsmsgFH;                                  // Redirect all IO to a temporary file
             stderr = mdsmsgFH;
             return 0;
         }
 
-        originalStdFH = stdout;    // Retain current values
+        originalStdFH = stdout;                                 // Retain current values
         originalErrFH = stderr;
         mdsmsgFH = NULL;
 
@@ -1016,7 +1016,7 @@ int idamServerRedirectStdStreams(int reset)
             if (!singleFile) {
                 if (mdsmsgFH != NULL) fclose(mdsmsgFH);
                 mdsmsgFH = NULL;
-                if ((env = getenv("UDA_PLUGIN_DEBUG")) == NULL) {
+                if (getenv("UDA_PLUGIN_DEBUG") == NULL) {
                     remove(tempFile);    // Delete the temporary file
                     tempFile[0] = '\0';
                 }
@@ -1051,15 +1051,7 @@ int idamServerRedirectStdStreams(int reset)
 int idamServerPlugin(REQUEST_BLOCK* request_block, DATA_SOURCE* data_source, SIGNAL_DESC* signal_desc,
                      PLUGINLIST* plugin_list)
 {
-
     int err = 0;
-    //int exp_number, pass;
-
-    //char file[STRING_LENGTH]        = "" ;
-    //char signal[STRING_LENGTH]      = "" ;
-    //char archive[STRING_LENGTH]     = "" ;
-    //char device_name[STRING_LENGTH] = "" ;
-
     char* token = NULL;
     char work[STRING_LENGTH];
 
@@ -1221,13 +1213,13 @@ int idamProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_BLOCK* original_req
                         plugin_list->plugin[id].idamPlugin != NULL);
             }
             if (id >= 0 &&
-                plugin_list->plugin[id].class == PLUGINFUNCTION &&
-                !environment.external_user &&
-                //plugin_list->plugin[id].private == PLUGINPRIVATE && environment.external_user &&
-                plugin_list->plugin[id].status == PLUGINOPERATIONAL &&
-                plugin_list->plugin[id].pluginHandle != NULL &&
-                plugin_list->plugin[id].idamPlugin != NULL)
+                    plugin_list->plugin[id].class == PLUGINFUNCTION &&
+                    !environment.external_user &&
+                    plugin_list->plugin[id].status == PLUGINOPERATIONAL &&
+                    plugin_list->plugin[id].pluginHandle != NULL &&
+                    plugin_list->plugin[id].idamPlugin != NULL) {
                 plugin_id = id;
+            }
         }
         if ((env = getenv("UDA_PROVENANCE_EXEC_METHOD")) != NULL) execMethod = atoi(env);
     }
@@ -1409,7 +1401,6 @@ int idamServerMetaDataPluginId(PLUGINLIST* plugin_list)
 int idamServerMetaDataPlugin(PLUGINLIST* plugin_list, int plugin_id, REQUEST_BLOCK* request_block,
                              SIGNAL_DESC* signal_desc, DATA_SOURCE* data_source)
 {
-
     int err, reset, rc;
     IDAM_PLUGIN_INTERFACE idam_plugin_interface;
 
@@ -1463,9 +1454,20 @@ int idamServerMetaDataPlugin(PLUGINLIST* plugin_list, int plugin_id, REQUEST_BLO
     return err;
 }
 
+/**
+ * Look for an argument with the given name in the provided NAMEVALUELIST and return it's associated value.
+ *
+ * If the argument is found the value associated with the argument is provided via the value parameter and the function
+ * returns 1. Otherwise value is set to NULL and the function returns 0.
+ * @param namevaluelist
+ * @param value
+ * @param name
+ * @return
+ */
 unsigned short findStringValue(NAMEVALUELIST* namevaluelist, char** value, const char* name)
 {
     char** names = SplitString(name, "|");
+    *value = NULL;
 
     unsigned short found = 0;
     int i;
@@ -1484,6 +1486,16 @@ unsigned short findStringValue(NAMEVALUELIST* namevaluelist, char** value, const
     return found;
 }
 
+/**
+ * Look for an argument with the given name in the provided NAMEVALUELIST and return it's associate value as an integer.
+ *
+ * If the argument is found the value associated with the argument is provided via the value parameter and the function
+ * returns 1. Otherwise value is not set and the function returns 0.
+ * @param namevaluelist
+ * @param value
+ * @param name
+ * @return
+ */
 unsigned short findIntValue(NAMEVALUELIST* namevaluelist, int* value, const char* name)
 {
     char* str;
@@ -1494,6 +1506,16 @@ unsigned short findIntValue(NAMEVALUELIST* namevaluelist, int* value, const char
     return found;
 }
 
+/**
+ * Look for an argument with the given name in the provided NAMEVALUELIST and return it's associate value as a short.
+ *
+ * If the argument is found the value associated with the argument is provided via the value parameter and the function
+ * returns 1. Otherwise value is not set and the function returns 0.
+ * @param namevaluelist
+ * @param value
+ * @param name
+ * @return
+ */
 unsigned short findShortValue(NAMEVALUELIST* namevaluelist, short* value, const char* name)
 {
     char* str;
@@ -1504,6 +1526,16 @@ unsigned short findShortValue(NAMEVALUELIST* namevaluelist, short* value, const 
     return found;
 }
 
+/**
+ * Look for an argument with the given name in the provided NAMEVALUELIST and return it's associate value as a float.
+ *
+ * If the argument is found the value associated with the argument is provided via the value parameter and the function
+ * returns 1. Otherwise value is not set and the function returns 0.
+ * @param namevaluelist
+ * @param value
+ * @param name
+ * @return
+ */
 unsigned short findFloatValue(NAMEVALUELIST* namevaluelist, float* value, const char* name)
 {
     char* str;
@@ -1590,8 +1622,6 @@ int callPlugin(PLUGINLIST* pluginlist, const char* request, const IDAM_PLUGIN_IN
     } else {
         RAISE_PLUGIN_ERROR("Data Access is not available for this data request!");
     }
-
-    //freeNameValueList(&request_block.nameValueList);
 
     return err;
 }

@@ -22,7 +22,7 @@
 
 #include <strings.h>
 
-#include <include/idamserver.h>
+#include <server/idamServer.h>
 #include <structures/struct.h>
 #include <server/managePluginFiles.h>
 #include <clientserver/initStructs.h>
@@ -46,17 +46,6 @@ extern int idamCDF4(IDAM_PLUGIN_INTERFACE * idam_plugin_interface)
     DATA_SOURCE * data_source;
     SIGNAL_DESC * signal_desc;
 
-#ifndef USE_PLUGIN_DIRECTLY
-    IDAMERRORSTACK * idamErrorStack = getIdamServerPluginErrorStack();        // Server's error stack
-    logmalloclist = getIdamServerLogMallocList();
-    userdefinedtypelist = getIdamServerUserDefinedTypeList();
-    parseduserdefinedtypelist = *getIdamServerParsedUserDefinedTypeList();
-
-    initIdamErrorStack(&idamerrorstack);        // Initialise Local Error Stack (defined in idamclientserver.h)
-#else
-    IDAMERRORSTACK *idamErrorStack = &idamerrorstack;		// local and server are the same!
-#endif
-
     unsigned short housekeeping;
 
     if (idam_plugin_interface->interfaceVersion > THISPLUGIN_MAX_INTERFACE_VERSION) {
@@ -65,7 +54,6 @@ extern int idamCDF4(IDAM_PLUGIN_INTERFACE * idam_plugin_interface)
                     "ERROR newCDF4: Plugin Interface Version Unknown to this plugin: Unable to execute the request!\n");
         addIdamError(&idamerrorstack, CODEERRORTYPE, "newCDF4", err,
                      "Plugin Interface Version Unknown to this plugin: Unable to execute the request!");
-        concatIdamError(idamerrorstack, idamErrorStack);
         return err;
     }
 
@@ -312,12 +300,6 @@ extern int idamCDF4(IDAM_PLUGIN_INTERFACE * idam_plugin_interface)
 
 //--------------------------------------------------------------------------------------
 // Housekeeping
-
-    concatIdamError(idamerrorstack, idamErrorStack);    // Combine local errors with the Server's error stack
-
-#ifndef USE_PLUGIN_DIRECTLY
-    closeIdamError(&idamerrorstack);            // Free local plugin error stack
-#endif
 
     return err;
 }

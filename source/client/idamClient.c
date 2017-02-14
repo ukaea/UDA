@@ -6,7 +6,7 @@
 * BUG:  the value of handle returned in the DATA_BLOCK structure is 1 too high: Fortran accessors? - needs investigation!
 *--------------------------------------------------------------*/
 
-#include "idam_client.h"
+#include "idamClient.h"
 
 #include <unistd.h>
 #include <stdlib.h>
@@ -14,15 +14,13 @@
 #include <logging/idamLog.h>
 #include <clientserver/idamErrors.h>
 #include <include/idamclientprivate.h>
-#include <include/idamclientpublic.h>
-#include <include/idamgenstruct.h>
-#include <include/idamclient.h>
+#include <include/idamgenstructprivate.h>
 #include <clientserver/idamErrorLog.h>
 #include <clientserver/initStructs.h>
 #include <clientserver/manageSockets.h>
 #include <clientserver/userid.h>
 #include <clientserver/printStructs.h>
-#include <clientserver/protocol2.h>
+#include <clientserver/protocol.h>
 #include <clientserver/idamTypes.h>
 #include <clientserver/freeDataBlock.h>
 #include <structures/struct.h>
@@ -33,8 +31,7 @@
 #ifdef FATCLIENT
 #  include <server/idamServerPlugin.h>
 #  include <clientserver/compressDim.h>
-#  include <include/idamclient.h>
-#  include <include/idamserver.h>
+#  include <server/idamServer.h>
 #else
 #  include "idamCreateConnection.h"
 #  include "createClientXDRStream.h"

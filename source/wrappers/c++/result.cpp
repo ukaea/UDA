@@ -8,7 +8,7 @@
 #include <complex>
 
 #include <client/accAPI_C.h>
-#include <client/idam_client.h>
+#include <client/idamClient.h>
 #include <client/accAPI_Gen.h>
 #include <clientserver/idamTypes.h>
 

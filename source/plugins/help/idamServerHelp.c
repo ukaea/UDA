@@ -22,10 +22,14 @@
 #include <stdlib.h>
 #include <strings.h>
 
-#include <include/idamserver.h>
+#include <server/idamServer.h>
 #include <clientserver/initStructs.h>
 #include <structures/struct.h>
 #include <structures/accessors.h>
+#include <clientserver/idamErrorLog.h>
+#include <logging/idamLog.h>
+#include <plugins/idamPlugin.h>
+#include <include/idamgenstructpublic.h>
 
 int idamServerHelp(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
@@ -44,15 +48,6 @@ int idamServerHelp(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     USERDEFINEDTYPE usertype;
     COMPOUNDFIELD field;
 
-#ifndef USE_PLUGIN_DIRECTLY
-    idamErrorStack = getIdamServerPluginErrorStack();        // Server's error stack
-    USERDEFINEDTYPELIST* userdefinedtypelist = getIdamServerUserDefinedTypeList();
-
-    initIdamErrorStack(&idamerrorstack);        // Initialise Local Error Stack (defined in idamclientserver.h)
-#else
-    IDAMERRORSTACK *idamErrorStack = &idamerrorstack;		// local and server are the same!
-#endif
-
     unsigned short housekeeping;
 
     if (idam_plugin_interface->interfaceVersion > THISPLUGIN_MAX_INTERFACE_VERSION) {
@@ -61,7 +56,6 @@ int idamServerHelp(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 "ERROR Help: Plugin Interface Version Unknown to this plugin: Unable to execute the request!\n");
         addIdamError(&idamerrorstack, CODEERRORTYPE, "Help", err,
                      "Plugin Interface Version Unknown to this plugin: Unable to execute the request!");
-        concatIdamError(idamerrorstack, idamErrorStack);
         return err;
     }
 
@@ -481,12 +475,6 @@ int idamServerHelp(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 //--------------------------------------------------------------------------------------
 // Housekeeping
-
-    concatIdamError(idamerrorstack, idamErrorStack);    // Combine local errors with the Server's error stack
-
-#ifndef USE_PLUGIN_DIRECTLY
-    closeIdamError(&idamerrorstack);            // Free local plugin error stack
-#endif
 
     return err;
 }

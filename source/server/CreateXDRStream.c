@@ -3,7 +3,8 @@
 //----------------------------------------------------------------
 #include "CreateXDRStream.h"
 
-#include <include/idamserver.h>
+#include <server/idamServer.h>
+
 #include "writer.h"
 
 void CreateXDRStream() {

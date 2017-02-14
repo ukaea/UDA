@@ -1,7 +1,7 @@
 #ifndef IDAM_SERVER_MAKESERVERREQUESTBLOCK_H
 #define IDAM_SERVER_MAKESERVERREQUESTBLOCK_H
 
-#include <include/idamplugin.h>
+#include <plugins/idamPlugin.h>
 #include <clientserver/idamStructs.h>
 
 #if defined(SERVERBUILD) || defined(FATCLIENT)

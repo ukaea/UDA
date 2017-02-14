@@ -9,19 +9,20 @@
 #include <clientserver/idamErrorLog.h>
 #include <clientserver/protocol.h>
 #include <clientserver/initStructs.h>
-#include <include/idamserver.h>
 #include <clientserver/printStructs.h>
 #include <logging/idamAccessLog.h>
 #include <clientserver/xdrlib.h>
 #include <clientserver/freeDataBlock.h>
 #include <clientserver/idamTypes.h>
+#include <structures/struct.h>
+#include <include/idamclientserverprivate.h>
 
+#include "idamServer.h"
 #include "idamserverGetData.h"
 #include "serverProcessing.h"
 #include "sleepServer.h"
 #include "idamServerPlugin.h"
 #include "closeServerSockets.h"
-#include "manageFiles.h"
 #include "idamServerLegacyPlugin.h"
 #include "makeServerRequestBlock.h"
 #include "freeIdamPut.h"
@@ -100,7 +101,7 @@ int idamLegacyServer(CLIENT_BLOCK client_block)
 //	   Pass Back Server Block and Await Client Instruction
 
             if (normalLegacyWait) {
-                rc = (int) xdrrec_eof(serverInput);
+                rc = xdrrec_eof(serverInput);
                 IDAM_LOG(LOG_DEBUG, "Receiving Client Block\n");
                 IDAM_LOGF(LOG_DEBUG, "XDR #AB xdrrec_eof ? %d\n", rc);
 
@@ -186,7 +187,7 @@ int idamLegacyServer(CLIENT_BLOCK client_block)
                 break;
             }
 
-            rc = (int) xdrrec_eof(serverInput);
+            rc = xdrrec_eof(serverInput);
             IDAM_LOG(LOG_DEBUG, "Request Block Received\n");
             IDAM_LOGF(LOG_DEBUG, "XDR #C xdrrec_eof ? %d\n", rc);
 
@@ -282,8 +283,6 @@ int idamLegacyServer(CLIENT_BLOCK client_block)
             initSignalDesc(&signal_desc);
             initSignal(&signal_rec);
 
-            err = 0;
-
 //----------------------------------------------------------------------------------------------
 // If this is a PUT request then receive the putData structure
 
@@ -329,8 +328,7 @@ int idamLegacyServer(CLIENT_BLOCK client_block)
 #ifndef NOTGENERICENABLED
             if (request_block.request == REQUEST_READ_GENERIC || (client_block.clientFlags & CLIENTFLAG_ALTDATA)) {
                 if (DBConnect == NULL) {
-                    if (!(DBConnect = (PGconn*) startSQL())) {
-                        if (DBConnect != NULL) PQfinish(DBConnect);
+                    if (!(DBConnect = startSQL())) {
                         err = 777;
                         addIdamError(&idamerrorstack, CODEERRORTYPE, "idamServer", err,
                                      "Unable to Connect to the SQL Database Server");
@@ -381,7 +379,7 @@ int idamLegacyServer(CLIENT_BLOCK client_block)
 // Server-Side Data Processing
 
             if (client_block.get_dimdble || client_block.get_timedble || client_block.get_scalar) {
-                if ((rc = serverProcessing(client_block, &data_block)) != 0) {
+                if (serverProcessing(client_block, &data_block) != 0) {
                     err = 779;
                     addIdamError(&idamerrorstack, CODEERRORTYPE, "idamServer", err, "Server-Side Processing Error");
                     break;
@@ -394,7 +392,7 @@ int idamLegacyServer(CLIENT_BLOCK client_block)
 #ifndef NOTGENERICENABLED
             if (client_block.get_meta && request_block.request == REQUEST_READ_GENERIC) {
 
-                if ((rc = sqlSystemConfig(DBConnect, data_source.config_id, &system_config)) != 1) {
+                if (sqlSystemConfig(DBConnect, data_source.config_id, &system_config) != 1) {
                     err = 780;
                     addIdamError(&idamerrorstack, CODEERRORTYPE, "idamServer", err,
                                  "Error Retrieving System Configuration Data");
@@ -403,7 +401,7 @@ int idamLegacyServer(CLIENT_BLOCK client_block)
                     printSystemConfig(system_config);
                 }
 
-                if ((rc = sqlDataSystem(DBConnect, system_config.system_id, &data_system)) != 1) {
+                if (sqlDataSystem(DBConnect, system_config.system_id, &data_system) != 1) {
                     err = 781;
                     addIdamError(&idamerrorstack, CODEERRORTYPE, "idamServer", err,
                                  "Error Retrieving Data System Information");
@@ -508,7 +506,7 @@ int idamLegacyServer(CLIENT_BLOCK client_block)
                     break;
                 }
 
-                rc = (int) xdrrec_eof(serverInput);
+                rc = xdrrec_eof(serverInput);
                 IDAM_LOGF(LOG_DEBUG, "Next Protocol %d Received\n", next_protocol);
                 IDAM_LOGF(LOG_DEBUG, "XDR #D xdrrec_eof ? %d\n", rc);
 
@@ -682,7 +680,6 @@ int idamLegacyServer(CLIENT_BLOCK client_block)
 
 // <========================== Client Server Code Only
 
-        err = 0;
         protocol_id = PROTOCOL_NEXT_PROTOCOL;
         next_protocol = 0;
 
@@ -692,7 +689,7 @@ int idamLegacyServer(CLIENT_BLOCK client_block)
             break;
         }
 
-        rc = (int) xdrrec_eof(serverInput);
+        rc = xdrrec_eof(serverInput);
         IDAM_LOGF(LOG_DEBUG, "Next Protocol %d Received\n", next_protocol);
         IDAM_LOGF(LOG_DEBUG, "XDR #F xdrrec_eof ? %d\n", rc);
         IDAM_LOGF(LOG_DEBUG, "Current Error Value %d\n", err);
@@ -753,8 +750,10 @@ int idamLegacyServer(CLIENT_BLOCK client_block)
 // Server Destruct.....
 
     IDAM_LOG(LOG_DEBUG, "Server Shuting Down\n");
-    if (server_tot_block_time > 1000 * server_timeout)
+
+    if (server_tot_block_time > 1000 * server_timeout) {
         IDAM_LOGF(LOG_DEBUG, "Server Timeout after %d secs\n", server_timeout);
+    }
 
 //----------------------------------------------------------------------------
 // Free Data Block Heap Memory in case by-passed
@@ -792,7 +791,7 @@ int idamLegacyServer(CLIENT_BLOCK client_block)
 //----------------------------------------------------------------------------
 // Close the Logs
 
-    rc = fflush(NULL);
+    fflush(NULL);
 
     idamCloseLogging();
 

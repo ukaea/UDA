@@ -1,7 +1,7 @@
 #ifndef IDAM_PLUGINS_PUTDATA_PUTDATAPLUGIN_H
 #define IDAM_PLUGINS_PUTDATA_PUTDATAPLUGIN_H
 
-#include <include/idamplugin.h>
+#include <plugins/idamPlugin.h>
 
 #ifdef __cplusplus
 extern "C" {

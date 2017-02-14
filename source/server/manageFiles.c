@@ -14,7 +14,7 @@
 
 #include <logging/idamLog.h>
 #include <include/idamclientserverprivate.h>
-#include <include/idamserver.h>
+#include <server/idamServer.h>
 
 // Initialise the File List
 

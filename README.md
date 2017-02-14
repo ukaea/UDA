@@ -1,16 +1,100 @@
-IDAM installation on linux (CentOS) and OSX
-==============
+# Universal Data Access (UDA)
 
-Clone the repository
+The UDA API provides plugin driven data abstraction.
 
-    $ git clone ssh://git@git.iter.org/imas/idam.git -b ccfe/build
+The UDA can be either run as a client-server API, running as thin client with all functionality being handled on a
+remote server, or as fat-client API where both the client access and plugin functionality is run on the local machine.
 
-Packages needed for CentOS 
+## Getting UDA
+
+UDA binaries can be downloaded from:
+
+    <url>
+    
+The source code can be download from:
+
+    <url>
+    
+The UDA git repository can be cloned:
+
+    $ git clone ssh://git@git.iter.org/imas/uda.git -b develop
+    
+## Building from source
+
+### Dependencies
+
+UDA requires the following to avail in order to build:
+
+| Name | Version | Required For |
+| --- | --- | --- |
+| cmake | \> 3.0 | |
+| OpenSSL | | |
+| PostgreSQL | | |
+| LibXml2 | | |
+| LibMemcached | | to enable caching |
+| swig  | 3.0.0 | Python & HTTP wrappers |
+| python | \> 3.0 | Python & HTTP wrappers |
+| boost | | C++, Python & HTTP wrappers |
+| java | | Java wrapper |
+| hdf5 |  | hdf5 plugin |
+| netcdf | | netcdf plugin |
+| MDSplus | | MDS+ plugin |
+
+#### CentOS
+
+Packages needed for CentOS
 
     $ LANG=C sudo yum -y groupinstall 'Development Tools'
     $ sudo yum -y install openssl-devel boost-devel swig-devel python-devel \
-      postgresql-devel libxml2-devel gsl-devel   libgcrypt-devel bzip2-devel \
-        java-1.8.0-openjdk-devel
+      postgresql-devel libxml2-devel gsl-devel libgcrypt-devel bzip2-devel \
+      java-1.8.0-openjdk-devel
+        
+#### Ubuntu
+
+    $ sudo apt-get install git python3-dev libssl-dev libboost-dev python3-numpy python3-matplotlib
+
+#### OSX
+
+### Running cmake configuration
+
+To configure the UDA build you first need to run cmake:
+
+    cmake -B<build_dir> -H. -DTARGET_TYPE:STRING=<target>
+
+Where `<build_dir>` is the build directory to create and `<target>` is the target specific configuration to use. The
+different targets available are `MAST`, `ITER` and `OTHER`. These are available in the `cmake/Config` directory with
+the file name `target-<target>.cmake`. To add a new target simply copy one of these files and rename to the desired target name.
+
+An example configuration command is:
+
+    cmake -Bbuild -H. -DTARGET_TYPE:STRING=OTHER
+    
+By default UDA will configure to build in client-server mode with both the client and server being built.
+
+To only build the client use:
+
+    cmake -DCLIENT_ONLY:BOOL=TRUE ...
+    
+To build UDA in fat-client mode use:
+
+    cmake -DFAT_BUILD:BOOL=TRUE ...
+
+
+### Building
+
+    make -C <build_dir>
+
+### Installing
+
+    make -C <build_dir> install
+
+### Packaging
+
+On Linux system 
+
+    make -C <build_dir> package
+
+## Other Notes
 
 Ninja installation for CentOS
 
@@ -20,50 +104,7 @@ Ninja installation for CentOS
     $ ./configure.py --bootstrap
     $ export PATH="${HOME}/ninja:${PATH}"
 
-Clone the repository from the ccfe/build branch
-
-    $ git clone ssh://git@git.iter.org/imas/idam.git -b ccfe/build
-    $ cd idam
-
-## Installing client on LINUX
-
-    $ cmake -Bbuild_linux -Hlatest/source -DTARGET_TYPE=MAST \
-      -DCMAKE_MAKE_PROGRAM=${HOME}/ninja/ninja -GNinja \
-        -DCMAKE_INSTALL_PREFIX=idam_linux
-    $ ninja -C build_linux install
-
-## Installing server on LINUX
-
-    $ cmake -Bbuild_linux -Hlatest/source -DTARGET_TYPE=MAST -GNinja \
-      -DCMAKE_MAKE_PROGRAM=${HOME}/ninja/ninja \
-        -DCMAKE_INSTALL_PREFIX=idam_linux  -DCLIENT_ONLY=OFF
-    $ ninja -C build_linux install
-    $ export LD_LIBRARY_PATH={HOME}/idam/idam_linux/lib:$LD_LIBRARY_PATH
-
-
-## Installing client on OSX
-
-    $ cmake -Bbuild_osx -Hlatest/source -DTARGET_TYPE=MAST -GNinja \
-    -DCMAKE_INSTALL_PREFIX=idam_osx  && ninja -C build_osx install
-
-## Installing server on OSX
-
-    $ cmake -Bbuild_osx -Hlatest/source -DTARGET_TYPE=MAST -GNinja \
-      -DCMAKE_INSTALL_PREFIX=idam_osx  -DCLIENT_ONLY=OFF
-    $ ninja -C build_osx install
-    $ install_name_tool -change libidamcpp.1.dylib ${HOME}/idam/idam_osx/lib/libidamcpp.1.dylib _cidam.so
-    $ install_name_tool -change libidam64.1.dylib ${HOME}/idam/idam_osx/lib/libidam64.1.dylib _cidam.so
-    $ install_name_tool -change libidam64.1.dylib ${HOME}/idam/idam_osx/lib/libidam64.1.dylib libidamcpp.1.dylib
-    
- 
-## Installing client on Ubuntu 16.04.1 LTS
-
-    $ sudo apt-get install git python3-dev libssl-dev libboost-dev python3-numpy python3-matplotlib
-    $ git clone git@git.ccfe.ac.uk:data-and-codeing/idam.git
-    $ cd idam/latest/source
-    $ cmake -Bbuild -DTARGET_TYPE=OTHER -DCLIENT_ONLY=ON -H.
-    $ sudo make -C build install
-
 Add the following to your .bashrc file:
 
     $ export PYTHONPATH=/usr/local/include
+    

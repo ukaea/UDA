@@ -1,7 +1,7 @@
 #ifndef IDAM_PLUGINS_OPENDATA_OPENDATA_H
 #define IDAM_PLUGINS_OPENDATA_OPENDATA_H
 
-#include <include/idamplugin.h>
+#include <plugins/idamPlugin.h>
 
 #ifdef __cplusplus
 extern "C" {

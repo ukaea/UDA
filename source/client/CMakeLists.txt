@@ -20,8 +20,8 @@ add_definitions( -DNO_GSL_LIB )
 
 set( SRC_FILES
   IdamAPI.c
-  ClientAPI.c
-  ClientMDS.c
+  clientAPI.c
+  clientMDS.c
   accAPI_C.c
   accAPI_CL.c
   accAPI_F.c
@@ -33,7 +33,7 @@ set( SRC_FILES
   closedown.c
   idamCreateConnection.c
   createClientXDRStream.c
-  UpdateSelectParms.c
+  updateSelectParms.c
   Writeout.c
   Readin.c
   getEnvironment.c
@@ -41,7 +41,7 @@ set( SRC_FILES
   closeClientSockets.c
   makeClientRequestBlock.c
   idamPutAPI.c
-  idam_client.c
+  idamClient.c
 )
 
 include_directories(

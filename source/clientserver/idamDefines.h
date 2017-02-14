@@ -92,6 +92,9 @@ extern unsigned int privateFlags;
 
 #define CLIENTFLAG_XDROBJECT    16  // 10000        Use a XDR object in memory
 
+#define CLIENTFLAG_REUSELASTHANDLE     32      // 100000       Reuse the last issued handle value (for this thread) - assume application has freed heap
+#define CLIENTFLAG_FREEREUSELASTHANDLE 64      // 1000000      Free the heap associated with the last issued handle and reuse the handle value
+
 extern unsigned int clientFlags;
 
 //--------------------------------------------------------

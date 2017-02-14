@@ -68,60 +68,6 @@ extern "C" {
 
 #define MAXCACHEDATABLOCKSIZE   100*1024
 
-//--------------------------------------------------------
-// Socket Management
-
-typedef struct Sockets {
-    int type;               // Type Code (e.g.,1=>IDAM;2=>MDS+);
-    char host[MAXSERVER];   // Server's Host Name or IP Address
-    int port;
-    int status;             // Open (1) or Closed (0)
-    int fh;                 // Socket to Server File Handle
-    int user_timeout;       // Server's timeout value (self-destruct)
-    time_t tv_server_start; // Server Startup Clock Time
-    XDR* Input;             // Client Only XDR input Stream;
-    XDR* Output;            // Client Only XDR Output Stream;
-} SOCKETS;
-
-typedef struct SocketList {
-    int nsocks;             // Number of Sockets
-    SOCKETS* sockets;      // Array of Socket Management Data
-} SOCKETLIST;
-
-//---------------------------------------------------------------------------------------------------
-// System Environment Variables
-
-typedef struct Environment {
-    int server_port;                            // Principal IDAM server port
-    int server_port2;                           // Backup IDAM server port
-    int sql_port;
-    int server_reconnect;                       // If the client changes to a different IDAM server then open a new socket
-    int server_change_socket;                   // Connect to a Running Server
-    int server_socket;                          // Clients must keep track of the sockets they open
-    int data_path_id;                           // Identifies the algorithm that defines the default path to the standard data source.
-    int external_user;                          // Flags this service as accessible by external users: Disable some access formats for security.
-    unsigned int clientFlags;                   // Use legacy Name substitution
-    int altRank;                                // Use specific set of legacy name substitutes
-    char logdir[MAXPATH];
-    char logmode[2];
-    int loglevel;
-    char server_host[MAXNAME];                   // Principal IDAM server host
-    char server_host2[MAXNAME];                  // Backup IDAM server host
-    char server_proxy[MAXNAME];                  // host:port - Running as a Proxy IDAM server: Prefix 'IDAM::host:port/' to redirect request
-    char server_this[MAXNAME];                   // host:port - The current server. Used to trap potential infinite redirects
-    char sql_host[MAXNAME];
-    char sql_dbname[MAXNAME];
-    char sql_user[MAXNAME];
-    char api_delim[MAXNAME];                     // Default API Signal and Source Delimiter Sub-String
-    char api_device[STRING_LENGTH];              // API Default Device name
-    char api_archive[STRING_LENGTH];             // API Default Archive name
-    char api_format[STRING_LENGTH];              // API Default Client File Format
-    char private_path_target[STRING_LENGTH];     // Target this path to private files
-    char private_path_substitute[STRING_LENGTH]; // and substitute with this path (so the server can locate them!)
-    char initialised; // Environment already initialised.
-    char _padding[1];
-} ENVIRONMENT;
-
 //---------------------------------------------------------------------------------------------------
 // Variables with Static Scope (None should be extern on the client side: Seen only by functions within the same file)
 
@@ -195,50 +141,6 @@ enum REQUEST {
 #define TYPE_UNKNOWN_SERVER 0
 #define TYPE_IDAM_SERVER    1
 #define TYPE_MDSPLUS_SERVER 2
-
-//-------------------------------------------------------
-// Client Server Conversaton Protocols
-
-#define PROTOCOL_REGULAR_START      0       // Identifies Regular Data Protocol Group
-#define PROTOCOL_REQUEST_BLOCK      1
-#define PROTOCOL_DATA_BLOCK         2
-#define PROTOCOL_NEXT_PROTOCOL      3
-#define PROTOCOL_DATA_SYSTEM        4
-#define PROTOCOL_SYSTEM_CONFIG      5
-#define PROTOCOL_DATA_SOURCE        6
-#define PROTOCOL_SIGNAL             7
-#define PROTOCOL_SIGNAL_DESC        8
-#define PROTOCOL_SPARE1             9
-#define PROTOCOL_CLIENT_BLOCK       10
-#define PROTOCOL_SERVER_BLOCK       11
-#define PROTOCOL_SPARE2             12
-#define PROTOCOL_CLOSEDOWN          13
-#define PROTOCOL_SLEEP              14
-#define PROTOCOL_WAKE_UP            15
-#define PROTOCOL_PUTDATA_BLOCK_LIST 16
-#define PROTOCOL_SECURITY_BLOCK     17
-#define PROTOCOL_OBJECT             18
-#define PROTOCOL_SERIALISE_OBJECT   19
-#define PROTOCOL_SERIALISE_FILE     20
-#define PROTOCOL_DATAOBJECT         21
-#define PROTOCOL_DATAOBJECT_FILE    22
-#define PROTOCOL_REGULAR_STOP       99
-
-#define PROTOCOL_OPAQUE_START       100         // Identifies Legacy Hierarchical Data Protocol Group
-#define PROTOCOL_STRUCTURES         101
-#define PROTOCOL_META               102
-#define PROTOCOL_EFIT               103
-#define PROTOCOL_PFCOILS            104
-#define PROTOCOL_PFPASSIVE          105
-#define PROTOCOL_PFSUPPLIES         106
-#define PROTOCOL_FLUXLOOP           107
-#define PROTOCOL_MAGPROBE           108
-#define PROTOCOL_PFCIRCUIT          109
-#define PROTOCOL_PLASMACURRENT      110
-#define PROTOCOL_DIAMAGNETIC        111
-#define PROTOCOL_TOROIDALFIELD      112
-#define PROTOCOL_LIMITER            113
-#define PROTOCOL_OPAQUE_STOP        200
 
 #ifdef __cplusplus
 }

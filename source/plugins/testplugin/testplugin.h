@@ -1,7 +1,7 @@
 #ifndef IDAM_PLUGINS_TESTPLUGIN_TESTPLUGIN_H
 #define IDAM_PLUGINS_TESTPLUGIN_TESTPLUGIN_H
 
-#include <include/idamplugin.h>
+#include <plugins/idamPlugin.h>
 
 #ifdef __cplusplus
 extern "C" {

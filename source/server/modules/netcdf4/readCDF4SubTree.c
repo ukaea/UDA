@@ -16,8 +16,9 @@
 
 #include <structures/struct.h>
 #include <logging/idamLog.h>
-#include <include/idamclientserverprivate.h>
+#include <include/idamgenstructpublic.h>
 #include <clientserver/idamErrorLog.h>
+#include <include/idamclientserverprivate.h>
 
 #include "readCDF4.h"
 

@@ -16,8 +16,8 @@
 #include <strings.h>
 
 #include <client/IdamAPI.h>
-#include <include/idamserver.h>
-#include <client/idam_client.h>
+#include <server/idamServer.h>
+#include <client/idamClient.h>
 #include <clientserver/initStructs.h>
 #include <client/accAPI_C.h>
 #include <clientserver/idamTypes.h>

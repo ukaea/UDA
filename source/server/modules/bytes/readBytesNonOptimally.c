@@ -30,6 +30,7 @@
 #include <clientserver/md5Sum.h>
 #include <clientserver/freeDataBlock.h>
 #include <clientserver/idamTypes.h>
+#include <include/idamclientserverprivate.h>
 
 #ifdef NOBINARYPLUGIN
 

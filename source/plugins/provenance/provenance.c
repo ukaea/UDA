@@ -49,10 +49,10 @@ PGconn* startSQL_Provenance()
 // Debug Trace Queries
 
 //        PQtrace(DBConnect, dbgout);
-        idamLog(LOG_DEBUG, "Provenance SQL Connection: host %s\n", pghost);
-        idamLog(LOG_DEBUG, "                           port %s\n", pgport);
-        idamLog(LOG_DEBUG, "                           db   %s\n", dbname);
-        idamLog(LOG_DEBUG, "                           user %s\n", user);
+        IDAM_LOGF(LOG_DEBUG, "Provenance SQL Connection: host %s\n", pghost);
+        IDAM_LOGF(LOG_DEBUG, "                           port %s\n", pgport);
+        IDAM_LOGF(LOG_DEBUG, "                           db   %s\n", dbname);
+        IDAM_LOGF(LOG_DEBUG, "                           user %s\n", user);
 
 //-------------------------------------------------------------
 // Connect to the Database Server
@@ -69,7 +69,7 @@ PGconn* startSQL_Provenance()
         return NULL;
     }
 
-        idamLog(LOG_DEBUG, "Provenance SQL Connection Options: %s\n", PQoptions(DBConnect));
+        IDAM_LOGF(LOG_DEBUG, "Provenance SQL Connection Options: %s\n", PQoptions(DBConnect));
 
     return (DBConnect);
 }
@@ -107,20 +107,6 @@ int admin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     REQUEST_BLOCK* request_block;
 
-#ifndef USE_PLUGIN_DIRECTLY
-    IDAMERRORSTACK idamerrorstack;
-    IDAMERRORSTACK* idamErrorStack = getIdamServerPluginErrorStack();        // Server library functions
-
-    logmalloclist = getIdamServerLogMallocList();
-    userdefinedtypelist = getIdamServerUserDefinedTypeList();
-
-    initIdamErrorStack(&idamerrorstack);
-#else
-    IDAMERRORSTACK *idamErrorStack = &idamerrorstack;
-    //LOGMALLOCLIST  *logmalloclist            = getIdamServerLogMallocList();
-    //USERDEFINEDTYPELIST *userdefinedtypelist = getIdamServerUserDefinedTypeList();
-#endif
-
     unsigned short housekeeping;
 
     static unsigned short DBType = PLUGINSQLNOTKNOWN;
@@ -142,15 +128,14 @@ int admin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     } else {
         err = 999;
-        idamLog(LOG_ERROR, "ERROR Provenance: Plugin Interface Version Unknown\n");
+        IDAM_LOG(LOG_ERROR, "ERROR Provenance: Plugin Interface Version Unknown\n");
 
         addIdamError(&idamerrorstack, CODEERRORTYPE, "Provenance", err,
                      "Plugin Interface Version is Not Known: Unable to execute the request!");
-        concatIdamError(idamerrorstack, idamErrorStack);
         return err;
     }
 
-    idamLog(LOG_DEBUG, "Provenance: Plugin Interface transferred\n");
+    IDAM_LOG(LOG_DEBUG, "Provenance: Plugin Interface transferred\n");
 
 
 //----------------------------------------------------------------------------------------
@@ -158,19 +143,19 @@ int admin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     if (housekeeping || !strcasecmp(request_block->function, "reset")) {
 
-        idamLog(LOG_DEBUG, "Provenance: reset function called.\n");
+        IDAM_LOG(LOG_DEBUG, "Provenance: reset function called.\n");
 
         if (!init) return 0;        // Not previously initialised: Nothing to do!
 
         if (DBConnect != NULL && DBType == PLUGINSQLPOSTGRES && sqlPrivate) {
-            idamLog(LOG_DEBUG, "Provenance: Closing SQL connection\n");
+            IDAM_LOG(LOG_DEBUG, "Provenance: Closing SQL connection\n");
             PQfinish(DBConnect);
             sqlPrivate = 1;        // Remains Private
             DBConnect = NULL;
             DBType = PLUGINSQLNOTKNOWN;
         }
         init = 0;        // Ready to re-initialise
-        idamLog(LOG_DEBUG, "Provenance: reset executed\n");
+        IDAM_LOG(LOG_DEBUG, "Provenance: reset executed\n");
         return 0;
     }
 
@@ -180,7 +165,7 @@ int admin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     if (!init || !strcasecmp(request_block->function, "init")
         || !strcasecmp(request_block->function, "initialise")) {
 
-        idamLog(LOG_DEBUG, "Provenance: init function called.\n");
+        IDAM_LOG(LOG_DEBUG, "Provenance: init function called.\n");
 
 // Is there an Open SQL Connection? If not then open a private connection
 
@@ -189,15 +174,14 @@ int admin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             if (DBConnect != NULL) {
                 DBType = PLUGINSQLPOSTGRES;
                 sqlPrivate = 1;
-                idamLog(LOG_DEBUG, "Provenance: Private regular database connection made.\n");
+                IDAM_LOG(LOG_DEBUG, "Provenance: Private regular database connection made.\n");
             }
         }
 
         if (DBConnect == NULL) {        // No connection!
-            idamLog(LOG_ERROR, "ERROR Provenance: SQL Database Server Connect Error\n");
+            IDAM_LOG(LOG_ERROR, "ERROR Provenance: SQL Database Server Connect Error\n");
             err = 777;
             addIdamError(&idamerrorstack, CODEERRORTYPE, "Provenance", err, "SQL Database Server Connect Error");
-            concatIdamError(idamerrorstack, idamErrorStack);
             return err;
         }
 
@@ -206,7 +190,7 @@ int admin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         initTime = (int) time(NULL);
         init = 1;
 
-        idamLog(LOG_DEBUG, "Provenance: Plugin initialised and SQL connection made\n");
+        IDAM_LOG(LOG_DEBUG, "Provenance: Plugin initialised and SQL connection made\n");
 
         if (!strcasecmp(request_block->function, "init") || !strcasecmp(request_block->function, "initialise"))
             return 0;
@@ -294,18 +278,13 @@ int admin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 //----------------------------------------------------------------------------------------
 // Not a Known Function!
 
-        idamLog(LOG_ERROR, "ERROR Provenance: Function %s Not Known.!\n", request_block->function);
+        IDAM_LOGF(LOG_ERROR, "ERROR Provenance: Function %s Not Known.!\n", request_block->function);
         err = 999;
         addIdamError(&idamerrorstack, CODEERRORTYPE, "Provenance", err, "Unknown Function requested");
         addIdamError(&idamerrorstack, CODEERRORTYPE, "Provenance", err, request_block->function);
         break;
 
     } while (0);
-
-#ifndef USE_PLUGIN_DIRECTLY    // Same structure if local unit test
-    concatIdamError(idamerrorstack, idamErrorStack);
-    closeIdamError(&idamerrorstack);
-#endif
 
     return err;
 }

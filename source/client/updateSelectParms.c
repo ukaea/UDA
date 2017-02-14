@@ -2,7 +2,7 @@
 //
 //----------------------------------------------------------------
 
-#include "UpdateSelectParms.h"
+#include "updateSelectParms.h"
 
 void idamUpdateSelectParms(int fd, fd_set *rfds, struct timeval *tv) {
     FD_ZERO(rfds);

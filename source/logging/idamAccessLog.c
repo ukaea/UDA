@@ -18,7 +18,7 @@
 
 #include <clientserver/stringUtils.h>
 #include <server/idamServerPlugin.h>
-#include <include/idamserver.h>
+#include <server/idamServer.h>
 #include <clientserver/idamTypes.h>
 
 int idamSizeOf(int data_type)

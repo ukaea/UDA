@@ -10,14 +10,15 @@
 #include <clientserver/idamErrors.h>
 #include <clientserver/initStructs.h>
 #include <clientserver/manageSockets.h>
-#include <clientserver/protocol2.h>
+#include <clientserver/protocol.h>
 #include <clientserver/printStructs.h>
-#include <include/idamgenstruct.h>
 #include <structures/struct.h>
 #include <structures/parseIncludeFile.h>
 #include <logging/idamAccessLog.h>
 #include <clientserver/xdrlib.h>
 #include <clientserver/freeDataBlock.h>
+#include <include/idamgenstructprivate.h>
+#include <include/idamclientserverprivate.h>
 
 #include "idamServerStartup.h"
 #include "closeServerSockets.h"
@@ -169,15 +170,14 @@ extern void copyIdamServerEnvironment(ENVIRONMENT* environ)
 // Server Entry point
 
 #ifndef FATCLIENT
-
-extern int idamServer(int argc, char** argv)
+int idamServer(int argc, char** argv)
 {
 #else
 #include <assert.h>
-    int idamServer(CLIENT_BLOCK client_block, REQUEST_BLOCK * request_block0, SERVER_BLOCK * server_block0,
+int idamServer(CLIENT_BLOCK client_block, REQUEST_BLOCK * request_block0, SERVER_BLOCK * server_block0,
                           DATA_BLOCK * data_block0)
-    {
-        assert(data_block0 != NULL);
+{
+    assert(data_block0 != NULL);
 #endif
 
     int i, rc, err = 0, depth, fatal = 0;
@@ -542,9 +542,7 @@ extern int idamServer(int argc, char** argv)
 // The client request may originate from a server.
 // Is the Originating server an externally facing server? If so then switch to this mode: preserve local access policy
 
-//#ifndef FATCLIENT
             if (!environment.external_user && (privateFlags & PRIVATEFLAG_EXTERNAL)) environment.external_user = 1;
-//#endif
 
             IDAM_LOGF(LOG_DEBUG, "client protocolVersion %d\n", protocolVersion);
             IDAM_LOGF(LOG_DEBUG, "privateFlags %d\n", privateFlags);
@@ -789,7 +787,6 @@ extern int idamServer(int argc, char** argv)
             initSignal(&signal_rec);
 
             err = 0;
-
 
 //----------------------------------------------------------------------------------------------
 // If this is a PUT request then receive the putData structure

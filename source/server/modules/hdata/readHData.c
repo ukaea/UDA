@@ -22,6 +22,8 @@
 #include "readHData.h"
 
 #include <clientserver/idamErrorLog.h>
+#include <server/idamServer.h>
+#include <include/idamclientserverprivate.h>
 
 #ifdef HIERARCHICAL_DATA
 #include "idamclientserverxml.h"

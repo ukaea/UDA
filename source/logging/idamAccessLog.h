@@ -1,7 +1,7 @@
 #ifndef IDAM_LOGGING_IDAMACCESSLOG_H
 #define IDAM_LOGGING_IDAMACCESSLOG_H
 
-#include <include/idamplugin.h>
+#include <plugins/idamPlugin.h>
 
 #define HOSTNAMELENGTH    20
 #define DATELENGTH    27

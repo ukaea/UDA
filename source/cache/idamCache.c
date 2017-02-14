@@ -16,7 +16,7 @@ DATA_BLOCK * idamCacheRead(IDAM_CACHE * cache, REQUEST_BLOCK * request_block) { 
 #include <libmemcached/memcached.h>
 #include <logging/idamLog.h>
 #include <include/idamclientserverprivate.h>
-#include <clientserver/protocol2.h>
+#include <clientserver/protocol.h>
 #include <clientserver/initStructs.h>
 #include <clientserver/memstream.h>
 

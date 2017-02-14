@@ -60,11 +60,11 @@ int readCDF(DATA_SOURCE data_source,
 
 #include <logging/idamLog.h>
 #include <include/idamclientserverprivate.h>
+#include <include/idamgenstructprivate.h>
 #include <clientserver/idamTypes.h>
 #include <clientserver/initStructs.h>
 #include <clientserver/stringUtils.h>
 #include <clientserver/printStructs.h>
-#include <include/idamclientserver.h>
 #include <structures/struct.h>
 
 #include "readCDFMeta.h"

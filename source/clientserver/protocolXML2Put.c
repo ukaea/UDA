@@ -1,15 +1,18 @@
 #include "protocolXML2Put.h"
 
-#include <include/idamclientserverprivate.h>
 #include <stdlib.h>
-#include <include/idamclientserver.h>
+
+#include <include/idamclientserverprivate.h>
+#include <include/idamgenstructprivate.h>
+#include <include/idamgenstructpublic.h>
 #include <logging/idamLog.h>
-#include <include/idamgenstruct.h>
 #include <structures/struct.h>
-#include "stringUtils.h"
 #include <structures/xdrUserDefinedData.h>
+
 #include "idamErrorLog.h"
 #include "xdrlib.h"
+#include "stringUtils.h"
+#include "protocol.h"
 
 #ifdef SERVERBUILD
 #  include <server/idamServerStartup.h>
@@ -30,8 +33,6 @@ int xdrUserDefinedDataPut(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** da
     int rc = 1, i, j, id, loopcount, rank, count, size, passdata = 0, isSOAP;
     int* shape;
     char* p0, * d, * type;
-    //char *stype;
-    //void *heap;
 
     char rudtype[MAXELEMENTNAME];        // Received name of the user defined type
     char* chartype = "char";

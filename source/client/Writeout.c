@@ -10,9 +10,10 @@
 
 #include <logging/idamLog.h>
 #include <include/idamclientprivate.h>
+#include <include/idamclientserverprivate.h>
 #include <clientserver/idamErrorLog.h>
 
-#include "UpdateSelectParms.h"
+#include "updateSelectParms.h"
 
 int idamClientWriteout(void* iohandle, char* buf, int count)
 {
@@ -31,18 +32,18 @@ int idamClientWriteout(void* iohandle, char* buf, int count)
 
         if (errno == ECONNRESET || errno == ENETUNREACH || errno == ECONNREFUSED) {
             if (errno == ECONNRESET) {
-                idamLog(LOG_DEBUG, "idamClientWriteout: ECONNRESET error!\n");
+                IDAM_LOG(LOG_DEBUG, "idamClientWriteout: ECONNRESET error!\n");
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "idamClientWriteout", -2,
                              "ECONNRESET: The server program has crashed or closed the socket unexpectedly");
                 return -2;
             } else {
                 if (errno == ENETUNREACH) {
-                    idamLog(LOG_DEBUG, "idamClientWriteout: ENETUNREACH error!\n");
+                    IDAM_LOG(LOG_DEBUG, "idamClientWriteout: ENETUNREACH error!\n");
                     addIdamError(&idamerrorstack, CODEERRORTYPE, "idamClientWriteout", -3,
                                  "Server Unavailable: ENETUNREACH");
                     return -3;
                 } else {
-                    idamLog(LOG_DEBUG, "idamClientWriteout: ECONNREFUSED error!\n");
+                    IDAM_LOG(LOG_DEBUG, "idamClientWriteout: ECONNREFUSED error!\n");
                     addIdamError(&idamerrorstack, CODEERRORTYPE, "idamClientWriteout", -4,
                                  "Server Unavailable: ECONNREFUSED");
                     return -4;

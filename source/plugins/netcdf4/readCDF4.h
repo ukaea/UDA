@@ -3,9 +3,10 @@
 
 #include <netcdf.h>
 #include <stdlib.h>
-#include <clientserver/idamStructs.h>
-#include <include/idamgenstruct.h>
 #include <stdio.h>
+
+#include <clientserver/idamStructs.h>
+#include <structures/genStructs.h>
 
 #define NETCDF_ERROR_OPENING_FILE           200
 #define NETCDF_ERROR_ALLOCATING_HEAP_1      201

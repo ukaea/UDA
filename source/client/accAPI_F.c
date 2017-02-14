@@ -18,10 +18,10 @@
 #include <clientserver/stringUtils.h>
 
 #include "accAPI_C.h"
-#include "idam_client.h"
+#include "idamClient.h"
 #include "IdamAPI.h"
-#include "ClientAPI.h"
-#include "ClientMDS.h"
+#include "clientAPI.h"
+#include "clientMDS.h"
 
 //--------------------------------------------------------------------------------------------------
 /* Notes:

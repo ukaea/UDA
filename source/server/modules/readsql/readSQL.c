@@ -32,8 +32,6 @@
 #include <clientserver/initStructs.h>
 #include <clientserver/freeDataBlock.h>
 #include <clientserver/stringUtils.h>
-#include <include/idamgenstruct.h>
-#include <include/idamclientserver.h>
 #include <structures/struct.h>
 
 #ifdef USEREADSOAP

@@ -17,10 +17,10 @@
 
 #include <errno.h>
 
-#include <include/idamclient.h>
 #include <logging/idamLog.h>
 #include <clientserver/idamErrorLog.h>
 
+#include "idamClient.h"
 #include "getEnvironment.h"
 
 int reopen_logs = 0;        // No need to Re-Open Logs

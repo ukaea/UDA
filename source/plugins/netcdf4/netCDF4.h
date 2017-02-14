@@ -5,8 +5,8 @@
 extern "C" {
 #endif
 
-#include <include/idamplugin.h>
-#include <include/idampluginfiles.h>
+#include <plugins/idamPlugin.h>
+#include <plugins/idamPluginFiles.h>
 
 #define THISPLUGIN_VERSION                  1
 #define THISPLUGIN_MAX_INTERFACE_VERSION    1

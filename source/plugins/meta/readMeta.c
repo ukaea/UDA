@@ -32,12 +32,14 @@ Issues:
 #include <string.h>
 #include <strings.h>
 
-#include <include/idamserver.h>
+#include <server/idamServer.h>
 #include <clientserver/stringUtils.h>
 #include <structures/struct.h>
 #include <structures/accessors.h>
 #include <clientserver/initStructs.h>
 #include <server/sqllib.h>
+#include <include/idamgenstructpublic.h>
+#include <include/idamclientserverprivate.h>
 
 // Prevent SQL injection malicious intent
 // Not required if the server is Read Only!

@@ -9,8 +9,8 @@ extern "C" {
 #include <H5LTpublic.h>
 #include <sys/time.h>
 
-#include <include/idampluginfiles.h>
-#include <include/idamplugin.h>
+#include <plugins/idamPluginFiles.h>
+#include <plugins/idamPlugin.h>
 
 #define THISPLUGIN_VERSION                  1
 #define THISPLUGIN_MAX_INTERFACE_VERSION    1

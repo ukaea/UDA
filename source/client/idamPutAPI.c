@@ -10,8 +10,6 @@
 #include "idamPutAPI.h"
 
 #include <logging/idamLog.h>
-#include <include/idamgenstruct.h>
-#include <include/idamclientserver.h>
 #include <structures/struct.h>
 #include <include/idamclientprivate.h>
 #include <clientserver/initStructs.h>
@@ -21,7 +19,7 @@
 
 #include "makeClientRequestBlock.h"
 #include "IdamAPI.h"
-#include "idam_client.h"
+#include "idamClient.h"
 
 // Create a list of data blocks to be sent to the server
 // Each block has a private name

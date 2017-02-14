@@ -4,6 +4,8 @@
 
 #include <logging/idamLog.h>
 #include <include/idamclientserverprivate.h>
+#include <include/idamgenstructprivate.h>
+#include <include/idamgenstructpublic.h>
 #include <clientserver/idamErrorLog.h>
 #include <clientserver/stringUtils.h>
 #include <clientserver/xdrlib.h>

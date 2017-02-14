@@ -5,7 +5,7 @@
 extern "C" {
 #endif
 
-#include "idamclientserverprivate.h"
+#include <clientserver/socketStructs.h>
 #include <clientserver/idamStructs.h>
 
 #define XDEBUG                  0       // Socket Streams Only
@@ -22,18 +22,6 @@ extern "C" {
 // Error Models (This order must be preserved to align it with the getModelId function)
 
 #define ERROR_MODEL_SEED            12345
-
-//#define ERROR_MODEL_UNKNOWN               0    // Defined in idamclientserver.h
-
-// commented out dgm 07Nov2013 - moved to idamclientserverpublic.h
-
-//#define ERROR_MODEL_DEFAULT               1
-//#define ERROR_MODEL_DEFAULT_ASYMMETRIC    2
-//#define ERROR_MODEL_GAUSSIAN              3
-//#define ERROR_MODEL_RESEED                4
-//#define ERROR_MODEL_GAUSSIAN_SHIFT        5
-//#define ERROR_MODEL_POISSON               6
-//#define ERROR_MODEL_UNDEFINED             7
 
 //--------------------------------------------------------------
 // Varaibles with Internal Scope Only
@@ -91,16 +79,16 @@ extern int env_port;
 //--------------------------------------------------------------
 // Client Side API Error Codes
 
-#define    NO_SOCKET_CONNECTION             -10000
-#define PROBLEM_OPENING_LOGS                -11000
-#define FILE_FORMAT_NOT_SUPPORTED           -12000
-#define    ERROR_ALLOCATING_DATA_BOCK_HEAP  -13000
-#define    SERVER_BLOCK_ERROR               -14000
-#define    SERVER_SIDE_ERROR                -14001
-#define    DATA_BLOCK_RECEIPT_ERROR         -15000
-#define    ERROR_CONDITION_UNKNOWN          -16000
+#define NO_SOCKET_CONNECTION            -10000
+#define PROBLEM_OPENING_LOGS            -11000
+#define FILE_FORMAT_NOT_SUPPORTED       -12000
+#define ERROR_ALLOCATING_DATA_BOCK_HEAP -13000
+#define SERVER_BLOCK_ERROR              -14000
+#define SERVER_SIDE_ERROR               -14001
+#define DATA_BLOCK_RECEIPT_ERROR        -15000
+#define ERROR_CONDITION_UNKNOWN         -16000
 
-#define NO_EXP_NUMBER_SPECIFIED             -18005
+#define NO_EXP_NUMBER_SPECIFIED         -18005
 
 #ifdef __cplusplus
 }

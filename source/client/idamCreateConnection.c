@@ -12,6 +12,7 @@
 #include <netinet/tcp.h>
 
 #include <include/idamclientprivate.h>
+#include <include/idamclientserverprivate.h>
 #include <clientserver/idamErrorLog.h>
 #include <clientserver/manageSockets.h>
 

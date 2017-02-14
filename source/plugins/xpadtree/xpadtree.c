@@ -19,6 +19,8 @@
 #include <clientserver/initStructs.h>
 #include <logging/idamLog.h>
 #include <structures/accessors.h>
+#include <include/idamgenstructpublic.h>
+#include <include/idamclientserverprivate.h>
 
 #include "xpadtree.h"
 

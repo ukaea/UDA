@@ -1,7 +1,7 @@
 #ifndef IDAM_CLIENTSERVER_MANAGESOCKETS_H
 #define IDAM_CLIENTSERVER_MANAGESOCKETS_H
 
-#include <include/idamclientserverprivate.h>
+#include <clientserver/socketStructs.h>
 
 // Initialise
 void initSocketList(SOCKETLIST *socks);

@@ -3,11 +3,13 @@
 
 #include <stdio.h>
 #include <rpc/rpc.h>
-#include <include/idamgenstruct.h>
+
 #include <clientserver/idamTypes.h>
+#include <structures/genStructs.h>
+
 
 #ifdef SERVERBUILD
-#  include <include/idamserver.h>
+#  include <server/idamServer.h>
 #endif
 
 #ifdef __cplusplus
@@ -1090,7 +1092,7 @@ void castNodeStructureComponentDatatoShort_f(NTREE* node, const char* target, sh
 
 void castNodeStructureComponentDatatoFloat_f(NTREE* node, const char* target, float* data_f);
 
-extern struct USERDEFINEDTYPELIST* userdefinedtypelist;
+extern USERDEFINEDTYPELIST* userdefinedtypelist;
 
 #ifdef __cplusplus
 }

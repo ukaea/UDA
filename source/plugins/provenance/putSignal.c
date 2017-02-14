@@ -78,14 +78,14 @@ int putSignal(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     } else {
         err = 999;
-        idamLog(LOG_ERROR, "ERROR Provenance: Plugin Interface Version Unknown\n");
+        IDAM_LOG(LOG_ERROR, "ERROR Provenance: Plugin Interface Version Unknown\n");
 
         addIdamError(&idamerrorstack, CODEERRORTYPE, "Provenance", err,
                      "Plugin Interface Version is Not Known: Unable to execute the request!");
         return err;
     }
 
-    idamLog(LOG_DEBUG, "Provenance: Plugin Interface transferred\n");
+    IDAM_LOG(LOG_DEBUG, "Provenance: Plugin Interface transferred\n");
 
 //----------------------------------------------------------------------------------------
 // Common Name Value pairs
@@ -102,7 +102,7 @@ int putSignal(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         static struct timeval tv_start, tv_stop;    // Performance
         int msecs, usecs;
 
-        idamLog(LOG_DEBUG, "Provenance: entering function record\n");
+        IDAM_LOG(LOG_DEBUG, "Provenance: entering function record\n");
 
         char empty[1] = "";
         char* uuid = empty, * requestedSignal = empty, * requestedSource = empty,
@@ -116,7 +116,7 @@ int putSignal(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 // Name Value pairs (Keywords have higher priority)
 
         for (i = 0; i < request_block->nameValueList.pairCount; i++) {
-            idamLog(LOG_DEBUG, "[%d] %s = %s\n", i, request_block->nameValueList.nameValue[i].name,
+            IDAM_LOGF(LOG_DEBUG, "[%d] %s = %s\n", i, request_block->nameValueList.nameValue[i].name,
                     request_block->nameValueList.nameValue[i].value);
 
             if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "uuid") ||
@@ -188,7 +188,7 @@ int putSignal(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
         if (!uuidOK || strlen(uuid) == 0) {
             err = 999;
-            idamLog(LOG_ERROR, "ERROR Provenance add: The client provenance UUID must be specified!\n");
+            IDAM_LOG(LOG_ERROR, "ERROR Provenance add: The client provenance UUID must be specified!\n");
             addIdamError(&idamerrorstack, CODEERRORTYPE, "Provenance add", err,
                          "The client provenance UUID must be specified!");
             break;
@@ -196,22 +196,22 @@ int putSignal(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
         if (!statusOK) {
             err = 999;
-            idamLog(LOG_ERROR, "ERROR Provenance add: The record status must be specified!\n");
+            IDAM_LOG(LOG_ERROR, "ERROR Provenance add: The record status must be specified!\n");
             addIdamError(&idamerrorstack, CODEERRORTYPE, "Provenance add", err,
                          "The record status must be specified!");
             break;
         }
 
-        idamLog(LOG_DEBUG, "Provenance: passed parameters\n");
-        if (uuidOK) idamLog(LOG_DEBUG, "uuid = %s\n", uuid);
-        if (requestedSignalOK) idamLog(LOG_DEBUG, "requestedSignal = %s\n", requestedSignal);
-        if (requestedSourceOK) idamLog(LOG_DEBUG, " requestedSource = %s\n", requestedSource);
-        if (trueSignalOK) idamLog(LOG_DEBUG, "trueSignal = %s\n", trueSignal);
-        if (trueSourceOK) idamLog(LOG_DEBUG, "trueSource = %s\n", trueSource);
-        if (trueSourceUUIDOK) idamLog(LOG_DEBUG, "trueSourceUUID = %s\n", trueSourceUUID);
-        if (logRecordOK) idamLog(LOG_DEBUG, "logRecord = %s\n", logRecord);
-        if (statusOK) idamLog(LOG_DEBUG, "Status = %c\n", status);
-        if (execMethodOK) idamLog(LOG_DEBUG, "execMethod = %d\n", execMethod);
+        IDAM_LOG(LOG_DEBUG, "Provenance: passed parameters\n");
+        if (uuidOK) IDAM_LOGF(LOG_DEBUG, "uuid = %s\n", uuid);
+        if (requestedSignalOK) IDAM_LOGF(LOG_DEBUG, "requestedSignal = %s\n", requestedSignal);
+        if (requestedSourceOK) IDAM_LOGF(LOG_DEBUG, " requestedSource = %s\n", requestedSource);
+        if (trueSignalOK) IDAM_LOGF(LOG_DEBUG, "trueSignal = %s\n", trueSignal);
+        if (trueSourceOK) IDAM_LOGF(LOG_DEBUG, "trueSource = %s\n", trueSource);
+        if (trueSourceUUIDOK) IDAM_LOGF(LOG_DEBUG, "trueSourceUUID = %s\n", trueSourceUUID);
+        if (logRecordOK) IDAM_LOGF(LOG_DEBUG, "logRecord = %s\n", logRecord);
+        if (statusOK) IDAM_LOGF(LOG_DEBUG, "Status = %c\n", status);
+        if (execMethodOK) IDAM_LOGF(LOG_DEBUG, "execMethod = %d\n", execMethod);
 
 // 1> Create a new record if status == new 
 // 2> add log data to an existing record if status == update 
@@ -229,7 +229,7 @@ int putSignal(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         do {            // Transaction Block Error Trap
 
             if (status == 'n') {    // Create a new record and reset the current primary key in scope
-                idamLog(LOG_DEBUG, "Provenance: record() Create a new record\n");
+                IDAM_LOG(LOG_DEBUG, "Provenance: record() Create a new record\n");
 
                 if (key != NULL) {    // Always renewed for each new record
                     free((void*) key);
@@ -263,7 +263,7 @@ int putSignal(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                                 uuid, requestedSignal, requestedSource, trueSignal, trueSource,
                                 trueSourceUUID, key);
 
-                        idamLog(LOG_DEBUG, "Provenance: record() SQL\n%s\n", cmd);
+                        IDAM_LOGF(LOG_DEBUG, "Provenance: record() SQL\n%s\n", cmd);
 
                         gettimeofday(&tv_start, NULL);
 
@@ -284,7 +284,7 @@ int putSignal(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                                 (int) (tv_stop.tv_usec - tv_start.tv_usec) / 1000;
                         usecs = (int) (tv_stop.tv_sec - tv_start.tv_sec) * 1000000 +
                                 (int) (tv_stop.tv_usec - tv_start.tv_usec);
-                        idamLog(LOG_DEBUG, "Provenance: update() execMethod 1 Cost A = %d (ms), %d (microsecs)\n",
+                        IDAM_LOGF(LOG_DEBUG, "Provenance: update() execMethod 1 Cost A = %d (ms), %d (microsecs)\n",
                                 msecs, usecs);
                         tv_start = tv_stop;
                     } else if (execMethod == 2) {
@@ -312,7 +312,7 @@ int putSignal(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                             if (errno != 0) err = errno;
                             addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "Provenance", err,
                                          "Unable to Obtain a Temporary File Name");
-                            idamLog(LOG_ERROR, "ERROR Provenance: Unable to Obtain a Temporary File Name\n");
+                            IDAM_LOG(LOG_ERROR, "ERROR Provenance: Unable to Obtain a Temporary File Name\n");
                             addIdamError(&idamerrorstack, CODEERRORTYPE, "Provenance", err, tmpdir);
                             break;
                         }
@@ -323,7 +323,7 @@ int putSignal(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                             if (errno != 0) err = errno;
                             addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "Provenance", err,
                                          "Unable to Open a Temporary File");
-                            idamLog(LOG_ERROR, "ERROR Provenance: Unable to Open a Temporary File\n");
+                            IDAM_LOG(LOG_ERROR, "ERROR Provenance: Unable to Open a Temporary File\n");
                             addIdamError(&idamerrorstack, CODEERRORTYPE, "Provenance", err, tmpfile);
                             break;
                         }
@@ -339,7 +339,7 @@ int putSignal(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                                 (int) (tv_stop.tv_usec - tv_start.tv_usec) / 1000;
                         usecs = (int) (tv_stop.tv_sec - tv_start.tv_sec) * 1000000 +
                                 (int) (tv_stop.tv_usec - tv_start.tv_usec);
-                        idamLog(LOG_DEBUG, "Provenance: update() execMethod 2 Cost A = %d (ms), %d (microsecs)\n",
+                        IDAM_LOGF(LOG_DEBUG, "Provenance: update() execMethod 2 Cost A = %d (ms), %d (microsecs)\n",
                                 msecs, usecs);
                         tv_start = tv_stop;
                     } else if (execMethod == 3) {
@@ -357,12 +357,12 @@ int putSignal(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                                 (int) (tv_stop.tv_usec - tv_start.tv_usec) / 1000;
                         usecs = (int) (tv_stop.tv_sec - tv_start.tv_sec) * 1000000 +
                                 (int) (tv_stop.tv_usec - tv_start.tv_usec);
-                        idamLog(LOG_DEBUG, "Provenance: update() execMethod 3 Cost A = %d (ms), %d (microsecs)\n",
+                        IDAM_LOGF(LOG_DEBUG, "Provenance: update() execMethod 3 Cost A = %d (ms), %d (microsecs)\n",
                                 msecs, usecs);
                         tv_start = tv_stop;
                     } else {
                         err = 999;
-                        idamLog(LOG_ERROR, "ERROR Provenance add: Incorrect execMethod argument {1|2|3}\n");
+                        IDAM_LOG(LOG_ERROR, "ERROR Provenance add: Incorrect execMethod argument {1|2|3}\n");
                         addIdamError(&idamerrorstack, CODEERRORTYPE, "Provenance add", err,
                                      "Incorrect execMethod argument {1|2|3}");
                         break;
@@ -376,7 +376,7 @@ int putSignal(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                                     "(uuid, requestedSignal, requestedSource, trueSignal, trueSource, trueSourceUUID) "
                                     "VALUES ('%s','%s','%s','%s','%s','%s');",
                             uuid, requestedSignal, requestedSource, trueSignal, trueSource, trueSourceUUID);
-                    idamLog(LOG_DEBUG, "Provenance: record() SQL\n%s\n", sql);
+                    IDAM_LOGF(LOG_DEBUG, "Provenance: record() SQL\n%s\n", sql);
 
 // Execute the SQL
 
@@ -392,7 +392,7 @@ int putSignal(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                     strcpy(sql, "SELECT signals_log_id FROM signals_log WHERE "
                             "signals_log_id=currval('signals_log_id_seq');");
 
-                    idamLog(LOG_DEBUG, "%s\n", sql);
+                    IDAM_LOGF(LOG_DEBUG, "%s\n", sql);
 
                     if ((DBQuery = PQexec(DBConnect, sql)) == NULL || PQresultStatus(DBQuery) != PGRES_TUPLES_OK) {
                         err = 1;        // Roll Back transaction
@@ -402,7 +402,7 @@ int putSignal(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                     nrows = PQntuples(DBQuery);
 
                     if (nrows != 1) {
-                        idamLog(LOG_ERROR, "ERROR Provenance new: New signals_log record not found!\n");
+                        IDAM_LOG(LOG_ERROR, "ERROR Provenance new: New signals_log record not found!\n");
                         err = 999;
                         addIdamError(&idamerrorstack, CODEERRORTYPE, "Provenance new", err,
                                      "New signals_log record not found!");
@@ -416,7 +416,7 @@ int putSignal(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                     strcpy(key, PQgetvalue(DBQuery, 0, 0));
                     PQclear(DBQuery);
 
-                    idamLog(LOG_DEBUG, "Provenance key: %s\n", key);
+                    IDAM_LOGF(LOG_DEBUG, "Provenance key: %s\n", key);
 
 // Complete the transaction
 
@@ -436,11 +436,11 @@ int putSignal(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             if (status == 'u') {    // update an existing record using the key from the ADD step
 
-                idamLog(LOG_DEBUG, "Provenance: record() update an existing record with the Server Log record\n");
+                IDAM_LOG(LOG_DEBUG, "Provenance: record() update an existing record with the Server Log record\n");
 
                 if (!logRecordOK) {
                     err = 999;
-                    idamLog(LOG_ERROR, "ERROR Provenance add: No Log record!\n");
+                    IDAM_LOG(LOG_ERROR, "ERROR Provenance add: No Log record!\n");
                     addIdamError(&idamerrorstack, CODEERRORTYPE, "Provenance add", err, "No Log record!");
                     break;
                 }
@@ -458,7 +458,7 @@ int putSignal(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                                         "UPDATE signals_log SET logRecord = '%s' WHERE tmpKey = '%s';\" > /dev/null 2>&1 &",
                                 dbname, user, pghost, pgport, logRecord, key);
 
-                        idamLog(LOG_DEBUG, "Provenance: update() SQL\n%s\n", cmd);
+                        IDAM_LOGF(LOG_DEBUG, "Provenance: update() SQL\n%s\n", cmd);
 
                         gettimeofday(&tv_start, NULL);
 
@@ -479,7 +479,7 @@ int putSignal(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                                 (int) (tv_stop.tv_usec - tv_start.tv_usec) / 1000;
                         usecs = (int) (tv_stop.tv_sec - tv_start.tv_sec) * 1000000 +
                                 (int) (tv_stop.tv_usec - tv_start.tv_usec);
-                        idamLog(LOG_DEBUG, "Provenance: update() execMethod 1 Cost B = %d (ms), %d (microsecs)\n",
+                        IDAM_LOGF(LOG_DEBUG, "Provenance: update() execMethod 1 Cost B = %d (ms), %d (microsecs)\n",
                                 msecs, usecs);
                         tv_start = tv_stop;
 
@@ -499,7 +499,7 @@ int putSignal(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                                 (int) (tv_stop.tv_usec - tv_start.tv_usec) / 1000;
                         usecs = (int) (tv_stop.tv_sec - tv_start.tv_sec) * 1000000 +
                                 (int) (tv_stop.tv_usec - tv_start.tv_usec);
-                        idamLog(LOG_DEBUG, "Provenance: update() execMethod 2 Cost B = %d (ms), %d (microsecs)\n",
+                        IDAM_LOGF(LOG_DEBUG, "Provenance: update() execMethod 2 Cost B = %d (ms), %d (microsecs)\n",
                                 msecs, usecs);
                         tv_start = tv_stop;
 
@@ -508,19 +508,19 @@ int putSignal(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                         else
                             strcpy(work, "psql");
 
-                        idamLog(LOG_DEBUG, "Provenance: database parameters\n");
-                        idamLog(LOG_DEBUG, "CLI     : %s\n", work);
-                        idamLog(LOG_DEBUG, "db name : %s\n", dbname);
-                        idamLog(LOG_DEBUG, "db user : %s\n", user);
-                        idamLog(LOG_DEBUG, "db host : %s\n", pghost);
-                        idamLog(LOG_DEBUG, "db port : %s\n", pgport);
-                        idamLog(LOG_DEBUG, "cmd file: %s\n", tmpfile);
+                        IDAM_LOG(LOG_DEBUG, "Provenance: database parameters\n");
+                        IDAM_LOGF(LOG_DEBUG, "CLI     : %s\n", work);
+                        IDAM_LOGF(LOG_DEBUG, "db name : %s\n", dbname);
+                        IDAM_LOGF(LOG_DEBUG, "db user : %s\n", user);
+                        IDAM_LOGF(LOG_DEBUG, "db host : %s\n", pghost);
+                        IDAM_LOGF(LOG_DEBUG, "db port : %s\n", pgport);
+                        IDAM_LOGF(LOG_DEBUG, "cmd file: %s\n", tmpfile);
 
                         sprintf(cmd,
                                 "%s -d %s -U %s -h %s -p %s -f %s > /dev/null 2>&1 &",
                                 work, dbname, user, pghost, pgport, tmpfile);
 
-                        idamLog(LOG_DEBUG, "Provenance: update() SQL\n%s\n", cmd);
+                        IDAM_LOGF(LOG_DEBUG, "Provenance: update() SQL\n%s\n", cmd);
 
                         gettimeofday(&tv_start, NULL);
 
@@ -541,7 +541,7 @@ int putSignal(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                                 (int) (tv_stop.tv_usec - tv_start.tv_usec) / 1000;
                         usecs = (int) (tv_stop.tv_sec - tv_start.tv_sec) * 1000000 +
                                 (int) (tv_stop.tv_usec - tv_start.tv_usec);
-                        idamLog(LOG_DEBUG, "Provenance: update() execMethod 2 Cost C = %d (ms), %d (microsecs)\n",
+                        IDAM_LOGF(LOG_DEBUG, "Provenance: update() execMethod 2 Cost C = %d (ms), %d (microsecs)\n",
                                 msecs, usecs);
                         tv_start = tv_stop;
 
@@ -563,14 +563,14 @@ int putSignal(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                                         "> /dev/null 2>&1 &",
                                 sqlBuffer, logRecord);
 
-                        idamLog(LOG_DEBUG, "Provenance: update() SQL\n%s\n", cmd);
+                        IDAM_LOGF(LOG_DEBUG, "Provenance: update() SQL\n%s\n", cmd);
 
                         gettimeofday(&tv_stop, NULL);
                         msecs = (int) (tv_stop.tv_sec - tv_start.tv_sec) * 1000 +
                                 (int) (tv_stop.tv_usec - tv_start.tv_usec) / 1000;
                         usecs = (int) (tv_stop.tv_sec - tv_start.tv_sec) * 1000000 +
                                 (int) (tv_stop.tv_usec - tv_start.tv_usec);
-                        idamLog(LOG_DEBUG, "Provenance: update() execMethod 3 Cost B = %d (ms), %d (microsecs)\n",
+                        IDAM_LOGF(LOG_DEBUG, "Provenance: update() execMethod 3 Cost B = %d (ms), %d (microsecs)\n",
                                 msecs, usecs);
                         tv_start = tv_stop;
 
@@ -591,7 +591,7 @@ int putSignal(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                                 (int) (tv_stop.tv_usec - tv_start.tv_usec) / 1000;
                         usecs = (int) (tv_stop.tv_sec - tv_start.tv_sec) * 1000000 +
                                 (int) (tv_stop.tv_usec - tv_start.tv_usec);
-                        idamLog(LOG_DEBUG, "Provenance: update() execMethod 3 Cost C = %d (ms), %d (microsecs)\n",
+                        IDAM_LOGF(LOG_DEBUG, "Provenance: update() execMethod 3 Cost C = %d (ms), %d (microsecs)\n",
                                 msecs, usecs);
                         tv_start = tv_stop;
                     }
@@ -602,13 +602,13 @@ int putSignal(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                             "UPDATE signals_log SET logRecord = '%s' WHERE signals_log_id = %s;"
                             "END;", logRecord, key);
 
-                    idamLog(LOG_DEBUG, "Provenance: record() SQL\n%s\n", sql);
+                    IDAM_LOGF(LOG_DEBUG, "Provenance: record() SQL\n%s\n", sql);
 
 // Execute the SQL
 
                     if ((DBQuery = PQexec(DBConnect, sql)) == NULL || PQresultStatus(DBQuery) != PGRES_COMMAND_OK) {
                         PQclear(DBQuery);
-                        idamLog(LOG_ERROR, "ERROR Provenance add: signals_log table update failed!\n");
+                        IDAM_LOG(LOG_ERROR, "ERROR Provenance add: signals_log table update failed!\n");
                         err = 999;
                         addIdamError(&idamerrorstack, CODEERRORTYPE, "Provenance new", err,
                                      "signals_log table update failed!");
@@ -618,19 +618,19 @@ int putSignal(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             } else if (status == 'c') {    // close all records for future deletion and execute collected SQL statements
 
-                idamLog(LOG_DEBUG, "Provenance: record() Close all records\n");
+                IDAM_LOG(LOG_DEBUG, "Provenance: record() Close all records\n");
 
                 sprintf(sql, "BEGIN; "
                         "UPDATE signals_log SET status = 1 WHERE uuid = '%s';"
                         "END;", uuid);
 
-                idamLog(LOG_DEBUG, "Provenance: record() SQL\n%s\n", sql);
+                IDAM_LOGF(LOG_DEBUG, "Provenance: record() SQL\n%s\n", sql);
 
 // Execute the SQL
 
                 if ((DBQuery = PQexec(DBConnect, sql)) == NULL || PQresultStatus(DBQuery) != PGRES_COMMAND_OK) {
                     PQclear(DBQuery);
-                    idamLog(LOG_ERROR, "ERROR Provenance add: signals_log status update failed!\n");
+                    IDAM_LOG(LOG_ERROR, "ERROR Provenance add: signals_log status update failed!\n");
                     err = 999;
                     addIdamError(&idamerrorstack, CODEERRORTYPE, "Provenance new", err,
                                  "signals_log status update failed!");
@@ -638,19 +638,19 @@ int putSignal(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 }
 
             } else if (status == 'd') {    // Delete closed records (Protection against malicious intent? user field?)
-                idamLog(LOG_DEBUG, "Provenance: record() Delete closed records\n");
+                IDAM_LOG(LOG_DEBUG, "Provenance: record() Delete closed records\n");
 
                 sprintf(sql, "BEGIN; "
                         "DELETE FROM signals_log WHERE status = 1 AND uuid = '%s';" // and user='%s'
                         "END;", uuid);
 
-                idamLog(LOG_DEBUG, "Provenance: record() SQL\n%s\n", sql);
+                IDAM_LOGF(LOG_DEBUG, "Provenance: record() SQL\n%s\n", sql);
 
 // Execute the SQL
 
                 if ((DBQuery = PQexec(DBConnect, sql)) == NULL || PQresultStatus(DBQuery) != PGRES_COMMAND_OK) {
                     PQclear(DBQuery);
-                    idamLog(LOG_ERROR, "ERROR Provenance add: signals_log deletion failed!\n");
+                    IDAM_LOG(LOG_ERROR, "ERROR Provenance add: signals_log deletion failed!\n");
                     err = 999;
                     addIdamError(&idamerrorstack, CODEERRORTYPE, "Provenance new", err, "signals_log deletion failed!");
                     break;
@@ -665,10 +665,10 @@ int putSignal(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             if (err == 1) {
                 err = 999;
                 if (DBQuery == NULL) {
-                    idamLog(LOG_ERROR, "ERROR Provenance add: Database Query Failed!\n");
+                    IDAM_LOG(LOG_ERROR, "ERROR Provenance add: Database Query Failed!\n");
                     addIdamError(&idamerrorstack, CODEERRORTYPE, "Provenance add", err, "Database Query Failed!");
                 } else if (PQresultStatus(DBQuery) != PGRES_COMMAND_OK) {
-                    idamLog(LOG_ERROR, "ERROR Provenance add: %s\n", PQresultErrorMessage(DBQuery));
+                    IDAM_LOGF(LOG_ERROR, "ERROR Provenance add: %s\n", PQresultErrorMessage(DBQuery));
                     addIdamError(&idamerrorstack, CODEERRORTYPE, "Provenance add", err, PQresultErrorMessage(DBQuery));
                 }
             }
@@ -676,7 +676,7 @@ int putSignal(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             PQclear(DBQuery);
 
             sprintf(sql, "ROLLBACK; END;");
-            idamLog(LOG_DEBUG, "%s\n", sql);
+            IDAM_LOGF(LOG_DEBUG, "%s\n", sql);
 
             DBQuery = PQexec(DBConnect, sql);
             PQclear(DBQuery);
@@ -697,7 +697,7 @@ int putSignal(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         strcpy(data_block->data_label, "");
         strcpy(data_block->data_units, "");
 
-        idamLog(LOG_DEBUG, "Provenance: exiting function record\n");
+        IDAM_LOG(LOG_DEBUG, "Provenance: exiting function record\n");
 
         break;
 

@@ -12,7 +12,7 @@
 
 #include <logging/idamLog.h>
 #include <include/idamclientserverprivate.h>
-#include <include/idamserver.h>
+#include <server/idamServer.h>
 #include <clientserver/idamErrorLog.h>
 #include <clientserver/initStructs.h>
 #include <clientserver/stringUtils.h>

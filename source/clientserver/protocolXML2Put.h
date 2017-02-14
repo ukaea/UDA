@@ -3,10 +3,11 @@
 
 #include <stdio.h>
 #include <rpc/rpc.h>
-#include <include/idamgenstruct.h>
 
-int xdrUserDefinedDataPut(XDR *xdrs, USERDEFINEDTYPE *userdefinedtype, void **data, int datacount, int structRank, int* structShape,
-                          int index, NTREE **NTree);
+#include <structures/genStructs.h>
+
+int xdrUserDefinedDataPut(XDR *xdrs, USERDEFINEDTYPE *userdefinedtype, void **data, int datacount, int structRank,
+                          int* structShape, int index, NTREE **NTree);
 
 // Send/Receive Array of Structures
 

@@ -21,7 +21,7 @@
 
 #include "makeClientRequestBlock.h"
 #include "startup.h"
-#include "idam_client.h"
+#include "idamClient.h"
 #include "accAPI_C.h"
 
 #ifdef MEMDEBUG
@@ -250,8 +250,8 @@ int idamGetAPI(const char* data_object, const char* data_source)
         return -err;
     }
 
-        idamLog(LOG_DEBUG, "Routine: idamGetAPI\n");
-        printRequestBlock(request_block);
+    idamLog(LOG_DEBUG, "Routine: idamGetAPI\n");
+    printRequestBlock(request_block);
 
 //-------------------------------------------------------------------------
 // Fetch Data

@@ -3,7 +3,7 @@
 
 #include <stdio.h>
 
-#include <include/idamclientserverprivate.h>
+#include <clientserver/idamStructs.h>
 
 struct PluginList;              // Forward declaration
 typedef struct PluginList PLUGINLIST;

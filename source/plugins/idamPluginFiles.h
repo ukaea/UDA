@@ -1,8 +1,6 @@
 #ifndef IDAM_SERVER_IDAMPLUGINFILES_H
 #define IDAM_SERVER_IDAMPLUGINFILES_H
 
-#include "idamclientserverpublic.h"
-
 #include <time.h>
 #include <sys/time.h>
 
@@ -22,22 +20,20 @@ extern "C" {
 // A function pointer to the Close function needs to be registerd the first time the plugin is called.
 //------------------------------------------------------------------------------------------------------------------------
 
-struct IDAMPLUGINFILE {
-    int status;             // Open (1) or Closed (0)
+typedef struct IDAMPluginFile {
+    int status;                     // Open (1) or Closed (0)
     char filename[STRING_LENGTH];   // Full Data Source Filename
-    int handleInt;          // Integer File Handle
-    void* handlePtr;           // Pointer file handle
+    int handleInt;                  // Integer File Handle
+    void* handlePtr;                // Pointer file handle
     struct timeval file_open;       // File Open Clock Time
-};
-typedef struct IDAMPLUGINFILE IDAMPLUGINFILE;
+} IDAMPLUGINFILE;
 
-struct IDAMPLUGINFILELIST {
-    int count;              // Number of Files
-    int mcount;             // malloc count allocated
-    IDAMPLUGINFILE* files;     // Array of File Handles
-    void* close;               // Function pointer to the File Close API function
-};
-typedef struct IDAMPLUGINFILELIST IDAMPLUGINFILELIST;
+typedef struct IDAMPluginFileList {
+    int count;                      // Number of Files
+    int mcount;                     // malloc count allocated
+    IDAMPLUGINFILE* files;          // Array of File Handles
+    void* close;                    // Function pointer to the File Close API function
+} IDAMPLUGINFILELIST;
 
 #ifdef __cplusplus
 }

@@ -13,7 +13,7 @@
 #include <include/idamclientprivate.h>
 
 #ifdef FATCLIENT
-#  include <include/idamserver.h>
+#  include <server/idamServer.h>
 #  include <libpq-fe.h>
 #  include <server/closeServerSockets.h>
 extern PGconn * DBConnect;    // IDAM database Socket Connection

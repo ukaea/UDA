@@ -27,7 +27,7 @@
 #include <errno.h>
 #include <strings.h>
 
-#include <include/idamserver.h>
+#include <server/idamServer.h>
 #include <clientserver/initStructs.h>
 #include <clientserver/idamTypes.h>
 

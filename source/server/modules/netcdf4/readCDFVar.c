@@ -4,9 +4,9 @@
 #include <netcdf.h>
 #include <stdlib.h>
 
-#include <include/idamclientserver.h>
+#include <include/idamclientserverprivate.h>
 #include <structures/struct.h>
-#include <include/idamserver.h>
+#include <server/idamServer.h>
 #include <clientserver/idamErrorLog.h>
 #include <logging/idamLog.h>
 #include <clientserver/stringUtils.h>

@@ -87,22 +87,22 @@ int itemType(unsigned short datpck, short typeno, int getbytes, char* type)
         }
     }
 
-    idamLog(LOG_DEBUG, "DATPCK Tests:\n");
-    idamLog(LOG_DEBUG, "Data Aquistition Device Type = %d %s\n", typeno, type);
-    idamLog(LOG_DEBUG, "getbytes property = %d\n", getbytes);
-    idamLog(LOG_DEBUG, "IDA_D1?   %d\n", ((datpck & IDA_D1) == IDA_D1));
-    idamLog(LOG_DEBUG, "IDA_D2?   %d\n", ((datpck & IDA_D2) == IDA_D2));
-    idamLog(LOG_DEBUG, "IDA_D4?   %d\n", ((datpck & IDA_D4) == IDA_D4));
-    idamLog(LOG_DEBUG, "IDA_D8?   %d\n", ((datpck & IDA_D8) == IDA_D8));
-    idamLog(LOG_DEBUG, "IDA_INTG? %d\n", ((datpck & IDA_INTG) == IDA_INTG));
-    idamLog(LOG_DEBUG, "IDA_REAL? %d\n", ((datpck & IDA_REAL) == IDA_REAL));
-    idamLog(LOG_DEBUG, "IDA_CHAR? %d\n", ((datpck & IDA_CHAR) == IDA_CHAR));
-    idamLog(LOG_DEBUG, "IDA_VALU? %d\n", ((datpck & IDA_VALU) == IDA_VALU));
-    idamLog(LOG_DEBUG, "IDA_SGND? %d\n", ((datpck & IDA_SGND) == IDA_SGND));
-    idamLog(LOG_DEBUG, "IDA_ERRB? %d\n", ((datpck & IDA_ERRB) == IDA_ERRB));
-    idamLog(LOG_DEBUG, "IDA_ENCD? %d\n", ((datpck & IDA_ENCD) == IDA_ENCD));
-    idamLog(LOG_DEBUG, "IDA_COMP? %d\n", ((datpck & IDA_COMP) == IDA_COMP));
-    idamLog(LOG_DEBUG, "ItemType? %d\n", data_type);
+    IDAM_LOG(LOG_DEBUG, "DATPCK Tests:\n");
+    IDAM_LOGF(LOG_DEBUG, "Data Aquistition Device Type = %d %s\n", typeno, type);
+    IDAM_LOGF(LOG_DEBUG, "getbytes property = %d\n", getbytes);
+    IDAM_LOGF(LOG_DEBUG, "IDA_D1?   %d\n", ((datpck & IDA_D1) == IDA_D1));
+    IDAM_LOGF(LOG_DEBUG, "IDA_D2?   %d\n", ((datpck & IDA_D2) == IDA_D2));
+    IDAM_LOGF(LOG_DEBUG, "IDA_D4?   %d\n", ((datpck & IDA_D4) == IDA_D4));
+    IDAM_LOGF(LOG_DEBUG, "IDA_D8?   %d\n", ((datpck & IDA_D8) == IDA_D8));
+    IDAM_LOGF(LOG_DEBUG, "IDA_INTG? %d\n", ((datpck & IDA_INTG) == IDA_INTG));
+    IDAM_LOGF(LOG_DEBUG, "IDA_REAL? %d\n", ((datpck & IDA_REAL) == IDA_REAL));
+    IDAM_LOGF(LOG_DEBUG, "IDA_CHAR? %d\n", ((datpck & IDA_CHAR) == IDA_CHAR));
+    IDAM_LOGF(LOG_DEBUG, "IDA_VALU? %d\n", ((datpck & IDA_VALU) == IDA_VALU));
+    IDAM_LOGF(LOG_DEBUG, "IDA_SGND? %d\n", ((datpck & IDA_SGND) == IDA_SGND));
+    IDAM_LOGF(LOG_DEBUG, "IDA_ERRB? %d\n", ((datpck & IDA_ERRB) == IDA_ERRB));
+    IDAM_LOGF(LOG_DEBUG, "IDA_ENCD? %d\n", ((datpck & IDA_ENCD) == IDA_ENCD));
+    IDAM_LOGF(LOG_DEBUG, "IDA_COMP? %d\n", ((datpck & IDA_COMP) == IDA_COMP));
+    IDAM_LOGF(LOG_DEBUG, "ItemType? %d\n", data_type);
 
     return data_type;
 }
@@ -178,22 +178,22 @@ int errorType(unsigned short datpck, short typeno, int getbytes, char* type)
         }
     }
 
-    idamLog(LOG_DEBUG, "DATPCK Tests:\n");
-    idamLog(LOG_DEBUG, "Data Aquistition Device Type = %d %s\n", typeno, type);
-    idamLog(LOG_DEBUG, "getbytes property = %d\n", getbytes);
-    idamLog(LOG_DEBUG, "IDA_E1?   %d\n", ((datpck & IDA_E1) == IDA_E1));
-    idamLog(LOG_DEBUG, "IDA_E2?   %d\n", ((datpck & IDA_E2) == IDA_E2));
-    idamLog(LOG_DEBUG, "IDA_E4?   %d\n", ((datpck & IDA_E4) == IDA_E4));
-    idamLog(LOG_DEBUG, "IDA_E8?   %d\n", ((datpck & IDA_E8) == IDA_E8));
-    idamLog(LOG_DEBUG, "IDA_INTG? %d\n", ((datpck & IDA_INTG) == IDA_INTG));
-    idamLog(LOG_DEBUG, "IDA_REAL? %d\n", ((datpck & IDA_REAL) == IDA_REAL));
-    idamLog(LOG_DEBUG, "IDA_CHAR? %d\n", ((datpck & IDA_CHAR) == IDA_CHAR));
-    idamLog(LOG_DEBUG, "IDA_VALU? %d\n", ((datpck & IDA_VALU) == IDA_VALU));
-    idamLog(LOG_DEBUG, "IDA_SGND? %d\n", ((datpck & IDA_SGND) == IDA_SGND));
-    idamLog(LOG_DEBUG, "IDA_ERRB? %d\n", ((datpck & IDA_ERRB) == IDA_ERRB));
-    idamLog(LOG_DEBUG, "IDA_ENCD? %d\n", ((datpck & IDA_ENCD) == IDA_ENCD));
-    idamLog(LOG_DEBUG, "IDA_COMP? %d\n", ((datpck & IDA_COMP) == IDA_COMP));
-    idamLog(LOG_DEBUG, "ItemType? %d\n", data_type);
+    IDAM_LOG(LOG_DEBUG, "DATPCK Tests:\n");
+    IDAM_LOGF(LOG_DEBUG, "Data Aquistition Device Type = %d %s\n", typeno, type);
+    IDAM_LOGF(LOG_DEBUG, "getbytes property = %d\n", getbytes);
+    IDAM_LOGF(LOG_DEBUG, "IDA_E1?   %d\n", ((datpck & IDA_E1) == IDA_E1));
+    IDAM_LOGF(LOG_DEBUG, "IDA_E2?   %d\n", ((datpck & IDA_E2) == IDA_E2));
+    IDAM_LOGF(LOG_DEBUG, "IDA_E4?   %d\n", ((datpck & IDA_E4) == IDA_E4));
+    IDAM_LOGF(LOG_DEBUG, "IDA_E8?   %d\n", ((datpck & IDA_E8) == IDA_E8));
+    IDAM_LOGF(LOG_DEBUG, "IDA_INTG? %d\n", ((datpck & IDA_INTG) == IDA_INTG));
+    IDAM_LOGF(LOG_DEBUG, "IDA_REAL? %d\n", ((datpck & IDA_REAL) == IDA_REAL));
+    IDAM_LOGF(LOG_DEBUG, "IDA_CHAR? %d\n", ((datpck & IDA_CHAR) == IDA_CHAR));
+    IDAM_LOGF(LOG_DEBUG, "IDA_VALU? %d\n", ((datpck & IDA_VALU) == IDA_VALU));
+    IDAM_LOGF(LOG_DEBUG, "IDA_SGND? %d\n", ((datpck & IDA_SGND) == IDA_SGND));
+    IDAM_LOGF(LOG_DEBUG, "IDA_ERRB? %d\n", ((datpck & IDA_ERRB) == IDA_ERRB));
+    IDAM_LOGF(LOG_DEBUG, "IDA_ENCD? %d\n", ((datpck & IDA_ENCD) == IDA_ENCD));
+    IDAM_LOGF(LOG_DEBUG, "IDA_COMP? %d\n", ((datpck & IDA_COMP) == IDA_COMP));
+    IDAM_LOGF(LOG_DEBUG, "ItemType? %d\n", data_type);
 
     return data_type;
 }
@@ -1108,9 +1108,9 @@ int readIdaItem(char* itemname, ida_file_ptr* ida_file, short* context, DATA_BLO
             break;
         }
 
-        idamLog(LOG_DEBUG, "\n\tItem Info:\n");
-        idamLog(LOG_DEBUG, "\t\tName:\t%s\n", retitemname);
-        idamLog(LOG_DEBUG, "\t\tShot:\t%d\n", (int) retshotnr);
+        IDAM_LOG(LOG_DEBUG, "\n\tItem Info:\n");
+        IDAM_LOGF(LOG_DEBUG, "\t\tName:\t%s\n", retitemname);
+        IDAM_LOGF(LOG_DEBUG, "\t\tShot:\t%d\n", (int) retshotnr);
 
 //--------------------------------------------------------------------------------------------
 // Create XML Meta Data Tag
@@ -1155,7 +1155,7 @@ int readIdaItem(char* itemname, ida_file_ptr* ida_file, short* context, DATA_BLO
             break;
         }
 
-        idamLog(LOG_DEBUG, "readIdaItem #1\n");
+        IDAM_LOG(LOG_DEBUG, "readIdaItem #1\n");
 
 //--------------------------------------------------------------------------------------------
 // Update the XML Meta Data
@@ -1189,7 +1189,7 @@ int readIdaItem(char* itemname, ida_file_ptr* ida_file, short* context, DATA_BLO
         free(dxtsam1);
         free(xtsams);
 
-        idamLog(LOG_DEBUG, "readIdaItem #2\n");
+        IDAM_LOG(LOG_DEBUG, "readIdaItem #2\n");
 
 //-------------------------------------------------------------------------
 // Get the Data Aquisition Device Type
@@ -1203,10 +1203,10 @@ int readIdaItem(char* itemname, ida_file_ptr* ida_file, short* context, DATA_BLO
             break;
         }
 
-        idamLog(LOG_DEBUG, "Device Type details:\n");
-        idamLog(LOG_DEBUG, "Location %d\n", locn);
-        idamLog(LOG_DEBUG, "Channel  %d\n", chan);
-        idamLog(LOG_DEBUG, "Type     %d  %s\n", typeno, type);
+        IDAM_LOG(LOG_DEBUG, "Device Type details:\n");
+        IDAM_LOGF(LOG_DEBUG, "Location %d\n", locn);
+        IDAM_LOGF(LOG_DEBUG, "Channel  %d\n", chan);
+        IDAM_LOGF(LOG_DEBUG, "Type     %d  %s\n", typeno, type);
 
 //--------------------------------------------------------------------------------------------
 // Update the XML Meta Data
@@ -1235,21 +1235,21 @@ int readIdaItem(char* itemname, ida_file_ptr* ida_file, short* context, DATA_BLO
 
         if (err != 0) {
             ida_error_mess(err, msg);
-            idamLog(LOG_DEBUG, "\nida_get_tinfo message: %s\n", msg);
+            IDAM_LOGF(LOG_DEBUG, "\nida_get_tinfo message: %s\n", msg);
         }
 
         tunits[IDA_USIZE] = '\0';
         tlabel[IDA_LSIZE] = '\0';
 
         if (tsams[0] > 0) {
-            idamLog(LOG_DEBUG, "\n\tTime axis:\n");
-            idamLog(LOG_DEBUG, "\t\tNo of samples:");
-            for (i = 0; i < udoms; i++) idamLog(LOG_DEBUG, "\t%d", (int) tsams[i]);
-            idamLog(LOG_DEBUG, "\n");
-            idamLog(LOG_DEBUG, "\t\tUnits:\t%s\n", tunits);
-            idamLog(LOG_DEBUG, "\t\tLabel:\t%s\n", tlabel);
+            IDAM_LOG(LOG_DEBUG, "\n\tTime axis:\n");
+            IDAM_LOG(LOG_DEBUG, "\t\tNo of samples:");
+            for (i = 0; i < udoms; i++) IDAM_LOGF(LOG_DEBUG, "\t%d", (int) tsams[i]);
+            IDAM_LOG(LOG_DEBUG, "\n");
+            IDAM_LOGF(LOG_DEBUG, "\t\tUnits:\t%s\n", tunits);
+            IDAM_LOGF(LOG_DEBUG, "\t\tLabel:\t%s\n", tlabel);
         }
-        idamLog(LOG_DEBUG, "readIdaItem #3\n");
+        IDAM_LOG(LOG_DEBUG, "readIdaItem #3\n");
 
 //--------------------------------------------------------------------------------------------
 // Update the XML Meta Data
@@ -1285,15 +1285,15 @@ int readIdaItem(char* itemname, ida_file_ptr* ida_file, short* context, DATA_BLO
         xlabel[IDA_LSIZE] = '\0';
 
         if (xsams[0] > 0) {
-            idamLog(LOG_DEBUG, "\n\tX axis:\n");
-            idamLog(LOG_DEBUG, "\t\tNo of samples:");
-            for (i = 0; i < udoms; i++) idamLog(LOG_DEBUG, "\t%d", (int) xsams[i]);
-            idamLog(LOG_DEBUG, "\n");
-            idamLog(LOG_DEBUG, "\t\tUnits:\t%s\n", xunits);
-            idamLog(LOG_DEBUG, "\t\tLabel:\t%s\n", xlabel);
+            IDAM_LOG(LOG_DEBUG, "\n\tX axis:\n");
+            IDAM_LOG(LOG_DEBUG, "\t\tNo of samples:");
+            for (i = 0; i < udoms; i++) IDAM_LOGF(LOG_DEBUG, "\t%d", (int) xsams[i]);
+            IDAM_LOG(LOG_DEBUG, "\n");
+            IDAM_LOGF(LOG_DEBUG, "\t\tUnits:\t%s\n", xunits);
+            IDAM_LOGF(LOG_DEBUG, "\t\tLabel:\t%s\n", xlabel);
         }
 
-        idamLog(LOG_DEBUG, "readIdaItem #4\n");
+        IDAM_LOG(LOG_DEBUG, "readIdaItem #4\n");
 
 //--------------------------------------------------------------------------------------------
 // Update the XML Meta Data
@@ -1322,12 +1322,12 @@ int readIdaItem(char* itemname, ida_file_ptr* ida_file, short* context, DATA_BLO
         ylabel[IDA_LSIZE] = '\0';
 
         if (ysams > 0) {
-            idamLog(LOG_DEBUG, "\n\tY axis:\n");
-            idamLog(LOG_DEBUG, "\t\tNo of samples:\t%d\n", ysams);
-            idamLog(LOG_DEBUG, "\t\tUnits:\t%s\n", yunits);
-            idamLog(LOG_DEBUG, "\t\tLabel:\t%s\n", ylabel);
+            IDAM_LOG(LOG_DEBUG, "\n\tY axis:\n");
+            IDAM_LOGF(LOG_DEBUG, "\t\tNo of samples:\t%d\n", ysams);
+            IDAM_LOGF(LOG_DEBUG, "\t\tUnits:\t%s\n", yunits);
+            IDAM_LOGF(LOG_DEBUG, "\t\tLabel:\t%s\n", ylabel);
         }
-        idamLog(LOG_DEBUG, "readIdaItem #5\n");
+        IDAM_LOG(LOG_DEBUG, "readIdaItem #5\n");
 
 //--------------------------------------------------------------------------------------------
 // Update the XML Meta Data
@@ -1352,7 +1352,7 @@ int readIdaItem(char* itemname, ida_file_ptr* ida_file, short* context, DATA_BLO
         if ((dclass == IDA_DCZ) || (dclass == IDA_DCTZ) || (dclass == IDA_DCZT) ||
             (dclass == IDA_DCXZ) || (dclass == IDA_DCZX)) {
 
-            idamLog(LOG_DEBUG, "A Z Type Data Class Found\n");
+            IDAM_LOG(LOG_DEBUG, "A Z Type Data Class Found\n");
 
             err = ida_get_zsams(item, &z0, &nz, &flags, &calib);
 
@@ -1384,14 +1384,14 @@ int readIdaItem(char* itemname, ida_file_ptr* ida_file, short* context, DATA_BLO
             zunits[IDA_USIZE] = '\0';
             zlabel[IDA_LSIZE] = '\0';
 
-            idamLog(LOG_DEBUG, "\n\tZ axis:\n");
-            idamLog(LOG_DEBUG, "\t\tNo of samples:\t%d\n", nz);
-            idamLog(LOG_DEBUG, "\t\tUnits:\t%s\n", zunits);
-            idamLog(LOG_DEBUG, "\t\tLabel:\t%s\n", zlabel);
+            IDAM_LOG(LOG_DEBUG, "\n\tZ axis:\n");
+            IDAM_LOGF(LOG_DEBUG, "\t\tNo of samples:\t%d\n", nz);
+            IDAM_LOGF(LOG_DEBUG, "\t\tUnits:\t%s\n", zunits);
+            IDAM_LOGF(LOG_DEBUG, "\t\tLabel:\t%s\n", zlabel);
         }
 
-        idamLog(LOG_DEBUG, "Marker #0\n");
-        idamLog(LOG_DEBUG, "readIdaItem #6\n");
+        IDAM_LOG(LOG_DEBUG, "Marker #0\n");
+        IDAM_LOG(LOG_DEBUG, "readIdaItem #6\n");
 
 //--------------------------------------------------------------------------------------------
 // Update the XML Meta Data
@@ -1414,7 +1414,7 @@ int readIdaItem(char* itemname, ida_file_ptr* ida_file, short* context, DATA_BLO
 
         if (data_block->client_block.get_datadble) {
             data_block->data_type = TYPE_DOUBLE;            // Request Data as DOUBLEs
-            idamLog(LOG_DEBUG, "Changing Data type to DOUBLE\n");
+            IDAM_LOG(LOG_DEBUG, "Changing Data type to DOUBLE\n");
         } else {
             data_block->data_type = itemType(datpck, typeno, getbytes, type);
         }
@@ -1435,13 +1435,13 @@ int readIdaItem(char* itemname, ida_file_ptr* ida_file, short* context, DATA_BLO
             break;
         }
 
-        idamLog(LOG_DEBUG, "readIdaItem #7: %d\n", (int) totsams);
+        IDAM_LOGF(LOG_DEBUG, "readIdaItem #7: %d\n", (int) totsams);
 
         data = itemData(data_block->data_type, totsams);
 
         if (data == NULL) {
-            idamLog(LOG_DEBUG, "Error Allocating Heap for Data, # = %d\n", (int) totsams);
-            idamLog(LOG_DEBUG, "Type = %d\n", data_block->data_type);
+            IDAM_LOGF(LOG_DEBUG, "Error Allocating Heap for Data, # = %d\n", (int) totsams);
+            IDAM_LOGF(LOG_DEBUG, "Type = %d\n", data_block->data_type);
             if (tsams != NULL) free(tsams);
             if (tint != NULL) free(tint);
             if (toff != NULL) free(toff);
@@ -1456,9 +1456,9 @@ int readIdaItem(char* itemname, ida_file_ptr* ida_file, short* context, DATA_BLO
             break;
         }
 
-        idamLog(LOG_DEBUG, "Marker #1\n");
+        IDAM_LOG(LOG_DEBUG, "Marker #1\n");
 
-        idamLog(LOG_DEBUG, "readIdaItem #8\n");
+        IDAM_LOG(LOG_DEBUG, "readIdaItem #8\n");
 
 //---------------------------------------------------------------------------
 // The 3D allocation is a bit more complicated...
@@ -1545,7 +1545,7 @@ int readIdaItem(char* itemname, ida_file_ptr* ida_file, short* context, DATA_BLO
                 break;
         }
 
-        idamLog(LOG_DEBUG, "ida_get_data #9  %d\n", (int) err);
+        IDAM_LOGF(LOG_DEBUG, "ida_get_data #9  %d\n", (int) err);
 
         if (CDAS_ERROR(err)) {
             ida_error_mess(err, msg);
@@ -1567,7 +1567,7 @@ int readIdaItem(char* itemname, ida_file_ptr* ida_file, short* context, DATA_BLO
 
         err = ida_get_dinfo(item, &devoff, &devrng, &devres, &calfac, &caloff, dunits, dlabel);
 
-        idamLog(LOG_DEBUG, "ida_get_dinfo #10\n");
+        IDAM_LOG(LOG_DEBUG, "ida_get_dinfo #10\n");
 
         if (CDAS_ERROR(err)) {
             ida_error_mess(err, msg);
@@ -1612,8 +1612,8 @@ int readIdaItem(char* itemname, ida_file_ptr* ida_file, short* context, DATA_BLO
             error = itemData(data_block->error_type, totsams);        // Allocate Heap (NULL if TYPE_UNKNOWN)
 
             if (error == NULL && data_block->error_type != TYPE_UNKNOWN) {
-                idamLog(LOG_DEBUG, "Error Allocating Heap for Error Data, # = %d\n", (int) totsams);
-                idamLog(LOG_DEBUG, "Type = %d\n", data_block->error_type);
+                IDAM_LOGF(LOG_DEBUG, "Error Allocating Heap for Error Data, # = %d\n", (int) totsams);
+                IDAM_LOGF(LOG_DEBUG, "Type = %d\n", data_block->error_type);
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "readIdaItem", 998,
                              "Unable to Allocate Heap for Error Data");
                 if (tsams != NULL) free(tsams);
@@ -1690,7 +1690,7 @@ int readIdaItem(char* itemname, ida_file_ptr* ida_file, short* context, DATA_BLO
                     break;
             }
 
-            idamLog(LOG_DEBUG, "ida_get_errors #11\n");
+            IDAM_LOG(LOG_DEBUG, "ida_get_errors #11\n");
 
             if (CDAS_ERROR(err)) {
                 ida_error_mess(err, msg);
@@ -1724,7 +1724,7 @@ int readIdaItem(char* itemname, ida_file_ptr* ida_file, short* context, DATA_BLO
         data_block->errhi = error;
         data_block->errasymmetry = 0;
 
-        idamLog(LOG_DEBUG, "Data Class? %d\n", dclass);
+        IDAM_LOGF(LOG_DEBUG, "Data Class? %d\n", dclass);
 
         switch (dclass) {
             case IDA_DCT: // Multiple time points per domain
@@ -1756,7 +1756,7 @@ int readIdaItem(char* itemname, ida_file_ptr* ida_file, short* context, DATA_BLO
                 if (yoff != NULL) free(yoff);
                 if (zval != NULL) free(zval);
 
-                idamLog(LOG_DEBUG, "\n\tRead f(t) data from IDA_DCT:\n");
+                IDAM_LOG(LOG_DEBUG, "\n\tRead f(t) data from IDA_DCT:\n");
 
                 break;
             }
@@ -1791,7 +1791,7 @@ int readIdaItem(char* itemname, ida_file_ptr* ida_file, short* context, DATA_BLO
                 if (yoff != NULL) free(yoff);
                 if (zval != NULL) free(zval);
 
-                idamLog(LOG_DEBUG, "\n\tRead f(t)data from IDA_DCVAL:\n");
+                IDAM_LOG(LOG_DEBUG, "\n\tRead f(t)data from IDA_DCVAL:\n");
 
                 break;
             }
@@ -1844,8 +1844,8 @@ int readIdaItem(char* itemname, ida_file_ptr* ida_file, short* context, DATA_BLO
                 if (yoff != NULL) free(yoff);
                 if (zval != NULL) free(zval);
 
-                idamLog(LOG_DEBUG, "\n\tRead f(x,t) data from IDA_DCX:\n");
-                idamLog(LOG_DEBUG, "\n\tWARNING: assuming same X-axis for each domain!\n");
+                IDAM_LOG(LOG_DEBUG, "\n\tRead f(x,t) data from IDA_DCX:\n");
+                IDAM_LOG(LOG_DEBUG, "\n\tWARNING: assuming same X-axis for each domain!\n");
 
                 break;
             }
@@ -1894,7 +1894,7 @@ int readIdaItem(char* itemname, ida_file_ptr* ida_file, short* context, DATA_BLO
                 if (xoff != NULL) free(xoff);
                 if (zval != NULL) free(zval);
 
-                idamLog(LOG_DEBUG, "\n\tRead f(x,t) data from IDA_DCY:\n");
+                IDAM_LOG(LOG_DEBUG, "\n\tRead f(x,t) data from IDA_DCY:\n");
                 break;
             }
 
@@ -1943,7 +1943,7 @@ int readIdaItem(char* itemname, ida_file_ptr* ida_file, short* context, DATA_BLO
                 if (yint != NULL) free(yint);
                 if (yoff != NULL) free(yoff);
 
-                idamLog(LOG_DEBUG, "\n\tRead f(x,t) data from IDA_DCZ:\n");
+                IDAM_LOG(LOG_DEBUG, "\n\tRead f(x,t) data from IDA_DCZ:\n");
                 break;
             }
 
@@ -1990,7 +1990,7 @@ int readIdaItem(char* itemname, ida_file_ptr* ida_file, short* context, DATA_BLO
                 if (xoff != NULL) free(xoff);
                 if (zval != NULL) free(zval);
 
-                idamLog(LOG_DEBUG, "\n\tRead f(y,t) data from IDA_DCTY:\n");
+                IDAM_LOG(LOG_DEBUG, "\n\tRead f(y,t) data from IDA_DCTY:\n");
                 break;
             }
 
@@ -2038,7 +2038,7 @@ int readIdaItem(char* itemname, ida_file_ptr* ida_file, short* context, DATA_BLO
                 if (xoff != NULL) free(xoff);
                 if (zval != NULL) free(zval);
 
-                idamLog(LOG_DEBUG, "\n\tRead f(y,t) data from IDA_DCYT:\n");
+                IDAM_LOG(LOG_DEBUG, "\n\tRead f(y,t) data from IDA_DCYT:\n");
                 break;
             }
 
@@ -2086,7 +2086,7 @@ int readIdaItem(char* itemname, ida_file_ptr* ida_file, short* context, DATA_BLO
                 if (yint != NULL) free(yint);
                 if (yoff != NULL) free(yoff);
 
-                idamLog(LOG_DEBUG, "\n\tRead f(y,t) data from IDA_DCTZ:\n");
+                IDAM_LOG(LOG_DEBUG, "\n\tRead f(y,t) data from IDA_DCTZ:\n");
                 break;
             }
 
@@ -2136,7 +2136,7 @@ int readIdaItem(char* itemname, ida_file_ptr* ida_file, short* context, DATA_BLO
                 if (yint != NULL) free(yint);
                 if (yoff != NULL) free(yoff);
 
-                idamLog(LOG_DEBUG, "\n\tRead f(x,t) data from IDA_DCTZ:\n");
+                IDAM_LOG(LOG_DEBUG, "\n\tRead f(x,t) data from IDA_DCTZ:\n");
                 break;
             }
 
@@ -2170,35 +2170,35 @@ int readIdaItem(char* itemname, ida_file_ptr* ida_file, short* context, DATA_BLO
 
 #ifdef SWAPXY
 
-                // X-axis
+// X-axis
 
-                                data_block->dims[0].dim_n = maxnx;
-                                data_block->dims[0].compressed = 1;
-                                data_block->dims[0].method = 3;
-                                data_block->dims[0].udoms = (int) maxnx;
-                                data_block->dims[0].sams = NULL;
-                                data_block->dims[0].offs = (char*) xoff;
-                                data_block->dims[0].ints = (char*) xint;
+                data_block->dims[0].dim_n = maxnx;
+                data_block->dims[0].compressed = 1;
+                data_block->dims[0].method = 3;
+                data_block->dims[0].udoms = (int) maxnx;
+                data_block->dims[0].sams = NULL;
+                data_block->dims[0].offs = (char*) xoff;
+                data_block->dims[0].ints = (char*) xint;
 
-                                strcpy(data_block->dims[0].dim_units, xunits);
-                                strcpy(data_block->dims[0].dim_label, xlabel);
+                strcpy(data_block->dims[0].dim_units, xunits);
+                strcpy(data_block->dims[0].dim_label, xlabel);
 
-                // Y axis
+// Y axis
 
-                                data_block->dims[1].dim_n = ny;
-                                data_block->dims[1].compressed = 1;
-                                data_block->dims[1].method = 3;
-                                data_block->dims[1].udoms = (int) ny;
-                                data_block->dims[1].sams = NULL;
-                                data_block->dims[1].offs = (char*) yoff;
-                                data_block->dims[1].ints = (char*) yint;
+                data_block->dims[1].dim_n = ny;
+                data_block->dims[1].compressed = 1;
+                data_block->dims[1].method = 3;
+                data_block->dims[1].udoms = (int) ny;
+                data_block->dims[1].sams = NULL;
+                data_block->dims[1].offs = (char*) yoff;
+                data_block->dims[1].ints = (char*) yint;
 
-                                strcpy(data_block->dims[1].dim_units, yunits);
-                                strcpy(data_block->dims[1].dim_label, ylabel);
+                strcpy(data_block->dims[1].dim_units, yunits);
+                strcpy(data_block->dims[1].dim_label, ylabel);
 
-                // Swap X and Y Data reshaping with pattern 1
+// Swap X and Y Data reshaping with pattern 1
 
-                                swapRank3(data_block, 1);
+                swapRank3(data_block, 1);
 
 #else
 
@@ -2233,8 +2233,8 @@ int readIdaItem(char* itemname, ida_file_ptr* ida_file, short* context, DATA_BLO
                 if (xsams != NULL) free(xsams);
                 if (zval != NULL) free(zval);
 
-                idamLog(LOG_DEBUG, "\n\tRead f(x,y,t) data from IDA_DCXY:\n");
-                idamLog(LOG_DEBUG, "\n\tWARNING: assuming same X-axis for each domain!\n");
+                IDAM_LOG(LOG_DEBUG, "\n\tRead f(x,y,t) data from IDA_DCXY:\n");
+                IDAM_LOG(LOG_DEBUG, "\n\tWARNING: assuming same X-axis for each domain!\n");
                 break;
             }
 
@@ -2298,14 +2298,14 @@ int readIdaItem(char* itemname, ida_file_ptr* ida_file, short* context, DATA_BLO
 
 #ifdef SWAPXY
 
-                // Swap X and Y Data reshaping with pattern 2
+// Swap X and Y Data reshaping with pattern 2
 
-                                swapRank3(data_block, 2);
+                swapRank3(data_block, 2);
 
 #endif
 
-                idamLog(LOG_DEBUG, "\n\tRead f(x,y,t) data from IDA_DCYX:\n");
-                idamLog(LOG_DEBUG, "\n\tWARNING: assuming same X-axis for each domain!\n");
+                IDAM_LOG(LOG_DEBUG, "\n\tRead f(x,y,t) data from IDA_DCYX:\n");
+                IDAM_LOG(LOG_DEBUG, "\n\tWARNING: assuming same X-axis for each domain!\n");
                 break;
             }
 
@@ -2338,36 +2338,36 @@ int readIdaItem(char* itemname, ida_file_ptr* ida_file, short* context, DATA_BLO
 
 #ifdef SWAPXY
 
-                // X-axis
+// X-axis
 
-                                data_block->dims[0].dim_n = maxnx;
-                                data_block->dims[0].compressed = 1;
-                                data_block->dims[0].method = 3;
-                                data_block->dims[0].udoms = (int) maxnx;
-                                data_block->dims[0].sams = NULL;
-                                data_block->dims[0].offs = (char*) xoff;
-                                data_block->dims[0].ints = (char*) xint;
+                data_block->dims[0].dim_n = maxnx;
+                data_block->dims[0].compressed = 1;
+                data_block->dims[0].method = 3;
+                data_block->dims[0].udoms = (int) maxnx;
+                data_block->dims[0].sams = NULL;
+                data_block->dims[0].offs = (char*) xoff;
+                data_block->dims[0].ints = (char*) xint;
 
-                                strcpy(data_block->dims[0].dim_units, xunits);
-                                strcpy(data_block->dims[0].dim_label, xlabel);
+                strcpy(data_block->dims[0].dim_units, xunits);
+                strcpy(data_block->dims[0].dim_label, xlabel);
 
 
-                // Z axis
+// Z axis
 
-                                data_block->dims[1].dim_n = nz;
-                                data_block->dims[1].compressed = 1;
-                                data_block->dims[1].method = 2;
-                                data_block->dims[1].udoms = (int) nz;
-                                data_block->dims[1].sams = NULL;
-                                data_block->dims[1].offs = (char*) zval;
-                                data_block->dims[1].ints = NULL;
+                data_block->dims[1].dim_n = nz;
+                data_block->dims[1].compressed = 1;
+                data_block->dims[1].method = 2;
+                data_block->dims[1].udoms = (int) nz;
+                data_block->dims[1].sams = NULL;
+                data_block->dims[1].offs = (char*) zval;
+                data_block->dims[1].ints = NULL;
 
-                                strcpy(data_block->dims[1].dim_units, zunits);
-                                strcpy(data_block->dims[1].dim_label, zlabel);
+                strcpy(data_block->dims[1].dim_units, zunits);
+                strcpy(data_block->dims[1].dim_label, zlabel);
 
-                // Swap X and Y Data reshaping with pattern 1
+// Swap X and Y Data reshaping with pattern 1
 
-                                swapRank3(data_block, 1);
+                swapRank3(data_block, 1);
 
 #else
 
@@ -2404,8 +2404,8 @@ int readIdaItem(char* itemname, ida_file_ptr* ida_file, short* context, DATA_BLO
                 if (yint != NULL) free(yint);
                 if (yoff != NULL) free(yoff);
 
-                idamLog(LOG_DEBUG, "\n\tRead f(x,y,t) data from IDA_DCXZ:\n");
-                idamLog(LOG_DEBUG, "\n\tWARNING: assuming same X-axis for each domain!\n");
+                IDAM_LOG(LOG_DEBUG, "\n\tRead f(x,y,t) data from IDA_DCXZ:\n");
+                IDAM_LOG(LOG_DEBUG, "\n\tWARNING: assuming same X-axis for each domain!\n");
                 break;
             }
 
@@ -2471,14 +2471,14 @@ int readIdaItem(char* itemname, ida_file_ptr* ida_file, short* context, DATA_BLO
 
 #ifdef SWAPXY
 
-                // Swap X and Y Data reshaping with pattern 2
+// Swap X and Y Data reshaping with pattern 2
 
-                                swapRank3(data_block, 2);
+                swapRank3(data_block, 2);
 
 #endif
 
-                idamLog(LOG_DEBUG, "\n\tRead f(x,y,t) data from IDA_DCZX:\n");
-                idamLog(LOG_DEBUG, "\n\tWARNING: assuming same X-axis for each domain!\n");
+                IDAM_LOG(LOG_DEBUG, "\n\tRead f(x,y,t) data from IDA_DCZX:\n");
+                IDAM_LOG(LOG_DEBUG, "\n\tWARNING: assuming same X-axis for each domain!\n");
                 break;
             }
 
@@ -2543,13 +2543,13 @@ int readIdaItem(char* itemname, ida_file_ptr* ida_file, short* context, DATA_BLO
 
 #ifdef SWAPXY
 
-                // Swap X and Y Data reshaping with pattern 2
+// Swap X and Y Data reshaping with pattern 2
 
-                                swapRank3(data_block, 2);
+                swapRank3(data_block, 2);
 
 #endif
 
-                idamLog(LOG_DEBUG, "\n\tRead f(x,y,t) data from IDA_DCYTX:\n");
+                IDAM_LOG(LOG_DEBUG, "\n\tRead f(x,y,t) data from IDA_DCYTX:\n");
                 break;
             }
 
@@ -2582,35 +2582,35 @@ int readIdaItem(char* itemname, ida_file_ptr* ida_file, short* context, DATA_BLO
 
 #ifdef SWAPXY
 
-                // X-axis
+// X-axis
 
-                                data_block->dims[0].dim_n = maxnx;
-                                data_block->dims[0].compressed = 1;
-                                data_block->dims[0].method = 3;
-                                data_block->dims[0].udoms = (int) maxnx;
-                                data_block->dims[0].sams = NULL;
-                                data_block->dims[0].offs = (char*) xoff;
-                                data_block->dims[0].ints = (char*) xint;
+                data_block->dims[0].dim_n = maxnx;
+                data_block->dims[0].compressed = 1;
+                data_block->dims[0].method = 3;
+                data_block->dims[0].udoms = (int) maxnx;
+                data_block->dims[0].sams = NULL;
+                data_block->dims[0].offs = (char*) xoff;
+                data_block->dims[0].ints = (char*) xint;
 
-                                strcpy(data_block->dims[0].dim_units, xunits);
-                                strcpy(data_block->dims[0].dim_label, xlabel);
+                strcpy(data_block->dims[0].dim_units, xunits);
+                strcpy(data_block->dims[0].dim_label, xlabel);
 
-                // Y axis
+// Y axis
 
-                                data_block->dims[1].dim_n = ny;
-                                data_block->dims[1].compressed = 1;
-                                data_block->dims[1].method = 3;
-                                data_block->dims[1].udoms = (int) ny;
-                                data_block->dims[1].sams = NULL;
-                                data_block->dims[1].offs = (char*) yoff;
-                                data_block->dims[1].ints = (char*) yint;
+                data_block->dims[1].dim_n = ny;
+                data_block->dims[1].compressed = 1;
+                data_block->dims[1].method = 3;
+                data_block->dims[1].udoms = (int) ny;
+                data_block->dims[1].sams = NULL;
+                data_block->dims[1].offs = (char*) yoff;
+                data_block->dims[1].ints = (char*) yint;
 
-                                strcpy(data_block->dims[1].dim_units, yunits);
-                                strcpy(data_block->dims[1].dim_label, ylabel);
+                strcpy(data_block->dims[1].dim_units, yunits);
+                strcpy(data_block->dims[1].dim_label, ylabel);
 
-                // Swap X and Y Data reshaping with pattern 1
+// Swap X and Y Data reshaping with pattern 1
 
-                                swapRank3(data_block, 1);
+                swapRank3(data_block, 1);
 
 #else
 
@@ -2645,7 +2645,7 @@ int readIdaItem(char* itemname, ida_file_ptr* ida_file, short* context, DATA_BLO
                 if (xsams != NULL) free(xsams);
                 if (zval != NULL) free(zval);
 
-                idamLog(LOG_DEBUG, "\n\tRead f(x,y,t) data from IDA_DCTXY:\n");
+                IDAM_LOG(LOG_DEBUG, "\n\tRead f(x,y,t) data from IDA_DCTXY:\n");
                 break;
             }
 
@@ -2697,13 +2697,13 @@ int readIdaItem(char* itemname, ida_file_ptr* ida_file, short* context, DATA_BLO
                 if (yoff != NULL) free(yoff);
                 if (zval != NULL) free(zval);
 
-                idamLog(LOG_DEBUG, "\n\tRead f(x,t) data from IDA_DCX:\n");
-                idamLog(LOG_DEBUG, "\n\tWARNING: assuming same X-axis for each domain!\n");
+                IDAM_LOG(LOG_DEBUG, "\n\tRead f(x,t) data from IDA_DCX:\n");
+                IDAM_LOG(LOG_DEBUG, "\n\tWARNING: assuming same X-axis for each domain!\n");
                 break;
             }
 
             default: {
-                idamLog(LOG_DEBUG, "ERROR: Data class %d is not supported!", dclass);
+                IDAM_LOGF(LOG_DEBUG, "ERROR: Data class %d is not supported!", dclass);
                 rerr = -16;
                 break;
             }
@@ -2719,9 +2719,9 @@ int readIdaItem(char* itemname, ida_file_ptr* ida_file, short* context, DATA_BLO
 //-------------------------------------------------------------------------------------------
 // Use requested Cast of Dimensions to DOUBLE?
 
-    idamLog(LOG_DEBUG, "Properties: get_datadble = %d", data_block->client_block.get_datadble);
-    idamLog(LOG_DEBUG, "            get_dimdble  = %d", data_block->client_block.get_dimdble);
-    idamLog(LOG_DEBUG, "            get_timedble = %d", data_block->client_block.get_timedble);
+    IDAM_LOGF(LOG_DEBUG, "Properties: get_datadble = %d", data_block->client_block.get_datadble);
+    IDAM_LOGF(LOG_DEBUG, "            get_dimdble  = %d", data_block->client_block.get_dimdble);
+    IDAM_LOGF(LOG_DEBUG, "            get_timedble = %d", data_block->client_block.get_timedble);
 
     if (data_block->client_block.get_dimdble || data_block->client_block.get_timedble) {
         float* foffs, * fints;
@@ -2742,7 +2742,7 @@ int readIdaItem(char* itemname, ida_file_ptr* ida_file, short* context, DATA_BLO
                     free((void*) data_block->dims[i].ints);
                     data_block->dims[i].ints = (char*) dints;
                 }
-                idamLog(LOG_DEBUG, "Changing Dimension %d type to DOUBLE\n", i);
+                IDAM_LOGF(LOG_DEBUG, "Changing Dimension %d type to DOUBLE\n", i);
             }
         }
     }
@@ -2767,7 +2767,7 @@ int readIdaItem(char* itemname, ida_file_ptr* ida_file, short* context, DATA_BLO
             data_block->opaque_block = metaxml;
             data_block->opaque_count = nxml;
 
-            idamLog(LOG_DEBUG, "%s\n", metaxml);
+            IDAM_LOGF(LOG_DEBUG, "%s\n", metaxml);
         }
     }
 

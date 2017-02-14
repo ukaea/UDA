@@ -1,7 +1,7 @@
 #ifndef IDAM_CLIENTSERVER_COPYSTRUCTS_H
 #define IDAM_CLIENTSERVER_COPYSTRUCTS_H
 
-#include <include/idamplugin.h>
+#include <plugins/idamPlugin.h>
 #include "idamStructs.h"
 
 void copyServerBlock(SERVER_BLOCK * out, SERVER_BLOCK in);

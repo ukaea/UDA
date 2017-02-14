@@ -21,11 +21,11 @@
 *
 *--------------------------------------------------------------*/
 
-#include "protocol2.h"
+#include "protocol.h"
 
 #include <stdlib.h>
 
-#include <include/idamclientserver.h>
+#include <include/idamclientserverprivate.h>
 #include <logging/idamLog.h>
 #include <clientserver/idamTypes.h>
 
@@ -204,17 +204,17 @@ int protocol2(XDR* xdrs, int protocol_id, int direction, int* token, void* str)
 
 // direction == XDR_SEND && protocolVersion == 3 Means Server sending data to a Version 3 Client (Type is known)
 
-                    idamLog(LOG_DEBUG, "#1 PROTOCOL: Send/Receive Data Block\n");
+                    IDAM_LOG(LOG_DEBUG, "#1 PROTOCOL: Send/Receive Data Block\n");
                     printDataBlock(*data_block);
 
                     if (protocolVersionTypeTest(protocolVersion, data_block->data_type) ||
                         protocolVersionTypeTest(protocolVersion, data_block->error_type)) {
                         err = PROTOCOL_ERROR_9999;
-                        idamLog(LOG_DEBUG, "PROTOCOL: protocolVersionTypeTest Failed\n");
+                        IDAM_LOG(LOG_DEBUG, "PROTOCOL: protocolVersionTypeTest Failed\n");
 
                         break;
                     }
-                    idamLog(LOG_DEBUG, "#2 PROTOCOL: Send/Receive Data Block\n");
+                    IDAM_LOG(LOG_DEBUG, "#2 PROTOCOL: Send/Receive Data Block\n");
                     if (!xdr_data_block1(xdrs, data_block)) {
                         err = PROTOCOL_ERROR_61;
                         break;
@@ -312,7 +312,7 @@ int protocol2(XDR* xdrs, int protocol_id, int direction, int* token, void* str)
                         break;
                     }
 
-                    idamLog(LOG_DEBUG, "receive: putDataBlockList Count: %d\n", blockCount);
+                    IDAM_LOGF(LOG_DEBUG, "receive: putDataBlockList Count: %d\n", blockCount);
 
                     int i;
                     for (i = 0; i < blockCount; i++) {        // Fetch multiple put blocks
@@ -321,7 +321,7 @@ int protocol2(XDR* xdrs, int protocol_id, int direction, int* token, void* str)
 
                         if (!xdr_putdata_block1(xdrs, &putData)) {
                             err = PROTOCOL_ERROR_61;
-                            idamLog(LOG_DEBUG, "xdr_putdata_block1 Error (61)\n");
+                            IDAM_LOG(LOG_DEBUG, "xdr_putdata_block1 Error (61)\n");
                             break;
                         }
 
@@ -376,7 +376,7 @@ int protocol2(XDR* xdrs, int protocol_id, int direction, int* token, void* str)
 
                 case XDR_SEND:
 
-                    idamLog(LOG_DEBUG, "send: putDataBlockList Count: %d\n", putDataBlockList->blockCount);
+                    IDAM_LOGF(LOG_DEBUG, "send: putDataBlockList Count: %d\n", putDataBlockList->blockCount);
 
                     if (!xdr_u_int(xdrs, &(putDataBlockList->blockCount))) {
                         err = PROTOCOL_ERROR_61;

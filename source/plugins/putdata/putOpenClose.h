@@ -1,7 +1,7 @@
 #ifndef IDAM_PLUGINS_PUTDATA_PUTOPENCLOSE_H
 #define IDAM_PLUGINS_PUTDATA_PUTOPENCLOSE_H
 
-#include <include/idamplugin.h>
+#include <plugins/idamPlugin.h>
 
 #define PLUGIN_VERSION 1
 

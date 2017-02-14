@@ -43,7 +43,9 @@
 #include <strings.h>
 
 #include <logging/idamLog.h>
-#include <include/idamclientserver.h>
+#include <include/idamclientserverprivate.h>
+#include <include/idamgenstructprivate.h>
+#include <include/idamgenstructpublic.h>
 #include <clientserver/idamErrorLog.h>
 #include <clientserver/stringUtils.h>
 #include <clientserver/xdrlib.h>
@@ -51,12 +53,8 @@
 #include "xdrUserDefinedData.h"
 #include "accessors.h"
 
-#ifdef FATCLIENT
-#  include <include/idamserver.h>
-#endif
-
-#ifdef SERVERBUILD
-#  include <include/idamserver.h>
+#if defined(SERVERBUILD) || defined(FATCLIENT)
+#  include <server/idamServer.h>
 #endif
 
 //---------------------------------------------------------------------------------------------------

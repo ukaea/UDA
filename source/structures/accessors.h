@@ -1,7 +1,7 @@
 #ifndef IDAM_STRUCTURES_ACCESSORS_H
 #define IDAM_STRUCTURES_ACCESSORS_H
 
-#include <include/idamgenstruct.h>
+#include <structures/genStructs.h>
 
 #ifdef __cplusplus
 extern "C" {

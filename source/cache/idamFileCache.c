@@ -30,7 +30,7 @@ char source[]
 #include <stdlib.h>
 #include <errno.h>
 
-#include <include/idamclientserver.h>
+#include <include/idamclientserverprivate.h>
 #include <clientserver/idamErrorLog.h>
 #include <clientserver/stringUtils.h>
 #include <include/idamclientprivate.h>

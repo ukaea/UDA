@@ -1,8 +1,9 @@
 #ifndef IDAM_PLUGINS_LIVEDISPLAY_LIVEDISPLAY_H
 #define IDAM_PLUGINS_LIVEDISPLAY_LIVEDISPLAY_H
 
-#include <include/idamgenstruct.h>
-#include <include/idamplugin.h>
+#include <server/idamPluginStructs.h>
+#include <structures/genStructs.h>
+
 
 #ifdef __cplusplus
 extern "C" {

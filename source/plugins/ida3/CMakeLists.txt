@@ -19,7 +19,7 @@ idam_plugin(
   DESCRIPTION "IDA Data plugin"
   EXAMPLE ""
   LIBNAME ida3_plugin
-  SOURCES readIda2.c nameIda.c readIdaItem.c
+  SOURCES readIda.c nameIda.c readIdaItem.c
   EXTRA_INCLUDE_DIRS
     ${LIBXML2_INCLUDE_DIR}
     SYSTEM ${IDA_INCLUDE_DIR}

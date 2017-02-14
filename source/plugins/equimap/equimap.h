@@ -6,7 +6,7 @@ extern "C" {
 #endif
 
 #include <stdio.h>
-#include <include/idamplugin.h>
+#include <plugins/idamPlugin.h>
 
 typedef struct EfitData
 {

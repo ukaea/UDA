@@ -8,7 +8,7 @@
 #include <dlfcn.h>
 
 #include <client/IdamAPI.h>
-#include <client/idam_client.h>
+#include <client/idamClient.h>
 #include <client/accAPI_C.h>
 #include <clientserver/idamTypes.h>
 

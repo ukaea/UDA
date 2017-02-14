@@ -13,6 +13,7 @@
 #endif
 
 #include <clientserver/manageSockets.h>
+#include <include/idamclientserverprivate.h>
 
 void closeNamedServerSocket(SOCKETLIST* socks, char* host, int port) {
     int i;
