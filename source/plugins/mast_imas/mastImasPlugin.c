@@ -26,7 +26,7 @@
 
 #include <clientserver/initStructs.h>
 #include <server/makeServerRequestBlock.h>
-#include <client/accAPI_C.h>
+#include <client/accAPI.h>
 #include <server/idamServerPlugin.h>
 #include <server/sqllib.h>
 #include <clientserver/stringUtils.h>

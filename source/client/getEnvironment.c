@@ -12,6 +12,9 @@
 
 #include <logging/idamLog.h>
 
+int env_host = 1;    // User can change these before startup so flag to the getEnvironment function
+int env_port = 1;
+
 void printIdamClientEnvironment(ENVIRONMENT* environ)
 {
     IDAM_LOG(LOG_INFO, "\nClient Environment Variable values\n\n");

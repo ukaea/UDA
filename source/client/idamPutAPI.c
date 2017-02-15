@@ -17,7 +17,7 @@
 #include <clientserver/allocData.h>
 
 #include "makeClientRequestBlock.h"
-#include "idamAPI.h"
+#include "idamGetAPI.h"
 #include "idamClient.h"
 
 // Create a list of data blocks to be sent to the server

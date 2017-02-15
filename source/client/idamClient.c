@@ -26,7 +26,7 @@
 #include <client/idamCreateConnection.h>
 
 #include "closedown.h"
-#include "accAPI_C.h"
+#include "accAPI.h"
 
 #ifdef FATCLIENT
 #  include <server/idamServerPlugin.h>
@@ -45,7 +45,55 @@ int idamServer(CLIENT_BLOCK, REQUEST_BLOCK *, SERVER_BLOCK *, DATA_BLOCK *);
 void ncclose(int fh) {}
 #endif
 
-SOCKETLIST server_socketlist;
+//---------------------------- Static Globals -------------------------
+
+int clientVersion = 7;          // previous version
+
+int get_nodimdata = 0;          // Don't send dimensional data: Send a simple Index
+int get_datadble = 0;           // Cast the Time Dimension to Double Precision
+int get_dimdble = 0;
+int get_timedble = 0;
+int get_bad = 0;
+int get_meta = 0;
+int get_asis = 0;
+int get_uncal = 0;
+int get_notoff = 0;
+int get_scalar = 0;             // return scalar (Rank 0) data if the rank is 1 and the dim data has (have) zero value(s)
+int get_bytes = 0;
+int get_synthetic = 0;          // return synthetic Data instead of original data
+
+int user_timeout = TIMEOUT;     // user specified Server Lifetime
+
+unsigned int clientFlags = 0;   // Send properties via bit flags
+int altRank = 0;                // Rank of alternative Signal/source (name mapping)
+
+unsigned int privateFlags = 0;
+unsigned int XDRstdioFlag = 0;
+
+USERDEFINEDTYPELIST* userdefinedtypelist = NULL;            // List of all known User Defined Structure Types
+LOGMALLOCLIST* logmalloclist = NULL;                        // List of all Heap Allocations for Data
+unsigned int lastMallocIndex = 0;                           // Malloc Log search index last value
+unsigned int* lastMallocIndexValue = &lastMallocIndex;;     // Preserve Malloc Log search index last value in GENERAL_STRUCT
+
+CLIENT_BLOCK client_block;
+SERVER_BLOCK server_block;
+
+int clientSocket = -1;
+
+time_t tv_server_start = 0;
+time_t tv_server_end = 0;
+
+int initEnvironment = 1;        // Flag initilisation
+ENVIRONMENT environment;        // Holds local environment variable values
+
+SOCKETLIST client_socketlist;   // List of open sockets
+
+NTREELIST NTreeList;
+#ifndef FATCLIENT
+NTREE* fullNTree = NULL;
+#endif
+LOGSTRUCTLIST logstructlist;
+
 #ifndef FATCLIENT
 int protocolVersion = 7;
 #endif

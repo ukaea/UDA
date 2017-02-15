@@ -6,14 +6,16 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-extern int idamServer(int argc, char ** argv);
+#include "idamServer.h"
 
 int main(int argc, char ** argv)
 {
     // Optional sleep at startup
 
     char * env = getenv("UDA_SLEEP");
-    if (env != NULL) sleep(atoi(env));
+    if (env != NULL) {
+        sleep((unsigned int)atoi(env));
+    }
 
     // Run server
 

@@ -90,9 +90,6 @@ endif()
 
 if( FAT_BUILD )
   add_definitions( -DFATCLIENT )
-  set( IDAM_NAME idamfat CACHE STRING "Idam library name" )
-else()
-  set( IDAM_NAME idam CACHE STRING "Idam library name" )
 endif()
 
 option( CLIENT_ONLY "Only build IDAM client" OFF )

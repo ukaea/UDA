@@ -39,7 +39,7 @@
 #include <server/idamServerPlugin.h>
 #include <server/makeServerRequestBlock.h>
 #include <server/managePluginFiles.h>
-#include <client/accAPI_C.h>
+#include <client/accAPI.h>
 #include <logging/idamLog.h>
 #include <regex.h>
 

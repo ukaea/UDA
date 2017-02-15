@@ -8,8 +8,8 @@
 #include <float.h>
 #include <stdlib.h>
 
-#include <client/accAPI_C.h>
-#include <client/idamAPI.h>
+#include <client/accAPI.h>
+#include <client/idamGetAPI.h>
 
 int xdatamapx(int rGridCount, float* rGrid, int ndata, float* rdata, float* data, float* mapped)
 {

@@ -8,7 +8,7 @@
 #include "idl_export.h"
 
 #include <client/accAPI_Gen.h>
-#include <client/accAPI_C.h>
+#include <client/accAPI.h>
 #include <structures/struct.h>
 #include <structures/accessors.h>
 

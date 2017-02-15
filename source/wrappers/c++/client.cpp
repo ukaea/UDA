@@ -6,8 +6,8 @@
 
 #include <boost/format.hpp>
 
-#include <client/accAPI_C.h>
-#include <client/idamAPI.h>
+#include <client/accAPI.h>
+#include <client/idamGetAPI.h>
 
 #include "data.hpp"
 #include "result.hpp"

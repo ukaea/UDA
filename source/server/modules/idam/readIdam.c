@@ -43,10 +43,10 @@ int readIdam(DATA_SOURCE data_source,
 
 #include <stdlib.h>
 
-#include <client/accAPI_C.h>
+#include <client/accAPI.h>
 #include <clientserver/stringUtils.h>
 #include <clientserver/printStructs.h>
-#include <client/idamAPI.h>
+#include <client/idamGetAPI.h>
 
 #ifdef FATCLIENT
 

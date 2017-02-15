@@ -4,6 +4,7 @@
 #include <stdio.h>
 
 #include <clientserver/idamStructs.h>
+#include <structures/genStructs.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -300,6 +301,18 @@ void putIdamThreadEnvironment(ENVIRONMENT *str);
 void putIdamThreadServerBlock(SERVER_BLOCK *str);
 
 void putIdamThreadClientBlock(CLIENT_BLOCK *str);
+
+int setIdamDataTree(int handle);
+
+// Return a specific data tree
+
+NTREE* getIdamDataTree(int handle);
+
+// Return a user defined data structure definition
+
+USERDEFINEDTYPE* getIdamUserDefinedType(int handle);
+
+NTREE* findIdamNTreeStructureDefinition(NTREE* node, const char* target);
 
 #ifdef __cplusplus
 }

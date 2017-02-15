@@ -7,9 +7,8 @@
 #include <sstream>
 #include <complex>
 
-#include <client/accAPI_C.h>
+#include <client/accAPI.h>
 #include <client/idamClient.h>
-#include <client/accAPI_Gen.h>
 #include <clientserver/idamTypes.h>
 
 #include "string.hpp"
@@ -208,7 +207,7 @@ Idam::Data* Idam::Result::data() const
 
 Idam::TreeNode Idam::Result::tree() const
 {
-    return TreeNode(getIdamTreeData(handle_));
+    return TreeNode(getIdamDataTree(handle_));
 }
 
 

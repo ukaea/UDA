@@ -3,7 +3,7 @@
 *
 */
 
-#include "accAPI_C.h"
+#include "accAPI.h"
 
 #include <math.h>
 #include <pthread.h>
@@ -23,11 +23,12 @@
 
 #include "generateErrors.h"
 #include "getEnvironment.h"
-#include "accAPI_F.h"
 #include "idamClient.h"
 
 #ifdef __APPLE__
+
 #  include <stdlib.h>
+#include <structures/accessors.h>
 #elif !defined(A64)
 #  include <malloc.h>
 #endif
@@ -38,88 +39,8 @@
 #  endif
 #endif
 
-//---------------------------- Static Globals -------------------------
-
-int clientVersion = 7;     // previous version
-
-#ifdef ARGSTACK
-FILE *argstack = NULL;     // Log all arguments passed
-#endif
-
-NTREELIST NTreeList;
-#ifndef FATCLIENT
-NTREE* fullNTree = NULL;
-#endif
-LOGSTRUCTLIST logstructlist;
-
-FILE* old_errout = NULL;
-FILE* old_dbgout = NULL;
-int erroutpassed = 0;
-int dbgoutpassed = 0;
-
-int user_timeout = TIMEOUT;   // user specified Server Lifetime
-
-unsigned int clientFlags = 0; // Send properties via bit flags
-int altRank = 0;   // Rank of alternative Signal/source (name mapping)
-
-int get_nodimdata = 0;     // Don't send dimensional data: Send a simple Index
-int get_datadble = 0;     // Cast the Time Dimension to Double Precision
-int get_dimdble = 0;
-int get_timedble = 0;
-int get_bad = 0;
-int get_meta = 0;
-int get_asis = 0;
-int get_uncal = 0;
-int get_notoff = 0;
-int get_scalar = 0;     // return scalar (Rank 0) data if the rank is 1 and the dim data has (have) zero value(s)
-int get_bytes = 0;
-int get_synthetic = 0;     // return synthetic Data instead of original data
-
-//static unsigned int totalDataBlockSize = 0;   // Total amount received for the last data request
-
-unsigned int privateFlags = 0;
-unsigned int XDRstdioFlag = 0;
-
-SOCKETLIST client_socketlist; // List of open sockets
-
-static int Data_Block_Count = 0;   // Count of Blocks recorded
+static int Data_Block_Count = 0;        // Count of Blocks recorded
 static DATA_BLOCK* Data_Block = NULL;   // All Data are recorded here!
-
-int clientSocket = -1;
-
-time_t tv_server_start = 0;
-time_t tv_server_end = 0;
-
-int initEnvironment = 1;      // Flag initilisation
-ENVIRONMENT environment;      // Holds local environment variable values
-
-int env_host = 1;    // User can change these before startup so flag to the getEnvironment function
-int env_port = 1;
-
-CLIENT_BLOCK client_block;
-SERVER_BLOCK server_block;
-
-USERDEFINEDTYPELIST* userdefinedtypelist = NULL;      // List of all known User Defined Structure Types
-LOGMALLOCLIST* logmalloclist = NULL;         // List of all Heap Allocations for Data
-unsigned int lastMallocIndex = 0;         // Malloc Log search index last value
-unsigned int* lastMallocIndexValue = &lastMallocIndex;;  // Preserve Malloc Log search index last value in GENERAL_STRUCT
-
-#ifdef FATCLIENT
-#  include <server/idamPluginStructs.h>
-unsigned int totalDataBlockSize = 0;        // Total amount sent for the last data request
-PLUGINLIST pluginList;
-#endif
-
-USERDEFINEDTYPELIST parseduserdefinedtypelist;     // Input User Defined Structure Types
-IDAMERRORSTACK idamerrorstack;
-
-#ifndef FATCLIENT
-static XDR serverXDRInput;
-static XDR serverXDROutput;
-
-XDR* serverInput = &serverXDRInput;
-XDR* serverOutput = &serverXDROutput;
-#endif
 
 //---------------------------- Mutex locking for thread safety -------------------------
 // State variable sets should be collected and managed for each individual thread!
@@ -128,167 +49,176 @@ static int idamThreadLastHandle = -1;
 
 #ifndef NOPTHREADS
 
-typedef struct{
-   int id;				// Thread identifier assigned by the application
-   int socket;				// Either a shared or private server socket connection
-   int lastHandle;
-   ENVIRONMENT  environment;		// State
-   CLIENT_BLOCK client_block;
-   SERVER_BLOCK server_block;
+typedef struct {
+    int id;                         // Thread identifier assigned by the application
+    int socket;                     // Either a shared or private server socket connection
+    int lastHandle;
+    ENVIRONMENT environment;        // State
+    CLIENT_BLOCK client_block;
+    SERVER_BLOCK server_block;
 } IDAMSTATE;
-
 
 static pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
 
 // STATE management
 
-static IDAMSTATE idamState[NUMIDAMCLIENTTHREADS];	// Threads are managed by the application, not IDAM
+static IDAMSTATE idamState[NUMIDAMCLIENTTHREADS];    // Threads are managed by the application, not IDAM
 static pthread_t threadList[NUMIDAMCLIENTTHREADS];
 static int threadCount = 0;
 
 int getIdamMaxThreadCount()
 {
-   return NUMIDAMCLIENTTHREADS;
-}   
+    return NUMIDAMCLIENTTHREADS;
+}
 
-int getThreadId(pthread_t id){			// Search the set of registered threads for the State ID
-   int i;
-   for(i=0;i<threadCount;i++) if(pthread_equal(id, threadList[i])) return i;
-   return -1;
+int getThreadId(pthread_t id)
+{            // Search the set of registered threads for the State ID
+    int i;
+    for (i = 0; i < threadCount; i++) if (pthread_equal(id, threadList[i])) return i;
+    return -1;
 }
 
 // Lock the thread and set the previous STATE  
-void lockIdamThread(){   
-   pthread_mutex_lock(&lock);			// Apply the lock first
+void lockIdamThread()
+{
+    pthread_mutex_lock(&lock);            // Apply the lock first
 
-   static unsigned int mutex_initialised=0;
+    static unsigned int mutex_initialised = 0;
 
 // Identify the Current Thread   
 
-   pthread_t threadId = pthread_self();
+    pthread_t threadId = pthread_self();
 
 // Initialise the thread's state
-   
-   if(!mutex_initialised){
-      mutex_initialised = 1;
-      int i;
-      for(i=0;i<NUMIDAMCLIENTTHREADS;i++){		// Initialise the STATE array
-         idamState[i].id = i;
-	 idamState[i].socket = -1;
-	 idamState[i].lastHandle = -1;
-	 //initEnvironment(&(idamState[i].environment));
-	 initClientBlock(&(idamState[i].client_block), 0, "");
-	 initServerBlock(&(idamState[i].server_block), 0);
-	 threadList[i] = 0;			// and the thread identifiers
-      } 
-   }
-   
+
+    if (!mutex_initialised) {
+        mutex_initialised = 1;
+        int i;
+        for (i = 0; i < NUMIDAMCLIENTTHREADS; i++) {        // Initialise the STATE array
+            idamState[i].id = i;
+            idamState[i].socket = -1;
+            idamState[i].lastHandle = -1;
+            //initEnvironment(&(idamState[i].environment));
+            initClientBlock(&(idamState[i].client_block), 0, "");
+            initServerBlock(&(idamState[i].server_block), 0);
+            threadList[i] = 0;            // and the thread identifiers
+        }
+    }
+
 // Retain unique thread IDs 
 
-   int id = getThreadId(threadId); 
-   
-   if(threadCount < NUMIDAMCLIENTTHREADS && id == -1) threadList[++threadCount -1] = threadId; 		// Preserve the thread ID if not registered 
+    int id = getThreadId(threadId);
+
+    if (threadCount < NUMIDAMCLIENTTHREADS && id == -1) {
+        threadList[++threadCount - 1] = threadId;
+    }        // Preserve the thread ID if not registered
 
 // Assign State for the current thread if previously registered 
-   
-   if(id >= 0){
-      putIdamServerSocket(idamState[id].socket);
-      putIdamThreadEnvironment(&idamState[id].environment);
-      putIdamThreadClientBlock(&idamState[id].client_block);	
-      putIdamThreadServerBlock(&idamState[id].server_block);
-      clientFlags = idamState[id].client_block.clientFlags;
-      putIdamThreadLastHandle(idamState[id].lastHandle);
-   } else 
-      putIdamThreadLastHandle(-1); 
+
+    if (id >= 0) {
+        putIdamServerSocket(idamState[id].socket);
+        putIdamThreadEnvironment(&idamState[id].environment);
+        putIdamThreadClientBlock(&idamState[id].client_block);
+        putIdamThreadServerBlock(&idamState[id].server_block);
+        clientFlags = idamState[id].client_block.clientFlags;
+        putIdamThreadLastHandle(idamState[id].lastHandle);
+    } else {
+        putIdamThreadLastHandle(-1);
+    }
 }
 
 // Unlock the thread and save the current STATE
-void unlockIdamThread(){
-   pthread_t threadId = pthread_self();
-   int id = getThreadId(threadId);		// Must be registered  
-   if(id >= 0){
-      idamState[id].socket       = getIdamServerSocket();
-      idamState[id].environment  = getIdamThreadEnvironment();
-      idamState[id].client_block = getIdamThreadClientBlock();
-      idamState[id].server_block = getIdamThreadServerBlock();
-      idamState[id].client_block.clientFlags = clientFlags;
-      idamState[id].lastHandle = getIdamThreadLastHandle(); 
-   }
-   pthread_mutex_unlock(&lock);	 
+void unlockIdamThread()
+{
+    pthread_t threadId = pthread_self();
+    int id = getThreadId(threadId);        // Must be registered
+    if (id >= 0) {
+        idamState[id].socket = getIdamServerSocket();
+        idamState[id].environment = getIdamThreadEnvironment();
+        idamState[id].client_block = getIdamThreadClientBlock();
+        idamState[id].server_block = getIdamThreadServerBlock();
+        idamState[id].client_block.clientFlags = clientFlags;
+        idamState[id].lastHandle = getIdamThreadLastHandle();
+    }
+    pthread_mutex_unlock(&lock);
 }
 
 // Free thread resources
-void freeIdamThread(){		 
-   lockIdamThread();
-   pthread_t threadId = pthread_self();
-   int i, id = getThreadId(threadId);
-   threadCount--;
-   if(id >= 0){
-      for(i=id;i<threadCount;i++){
-         threadList[i] = threadList[i+1];		// Shuffle state 
-         idamState[i]  = idamState[i+1];
-         idamState[i].id = i; 
-      }
-      idamState[threadCount].id = threadCount;
-      idamState[threadCount].socket = -1;
-      idamState[threadCount].lastHandle = -1;
-      //initEnvironment(&(idamState[threadCount].environment));
-      initClientBlock(&(idamState[threadCount].client_block), 0, "");
-      initServerBlock(&(idamState[threadCount].server_block), 0);
-      threadList[threadCount] = 0;			       
-   }        
-   unlockIdamThread();
+void freeIdamThread()
+{
+    lockIdamThread();
+    pthread_t threadId = pthread_self();
+    int i, id = getThreadId(threadId);
+    threadCount--;
+    if (id >= 0) {
+        for (i = id; i < threadCount; i++) {
+            threadList[i] = threadList[i + 1];        // Shuffle state
+            idamState[i] = idamState[i + 1];
+            idamState[i].id = i;
+        }
+        idamState[threadCount].id = threadCount;
+        idamState[threadCount].socket = -1;
+        idamState[threadCount].lastHandle = -1;
+        //initEnvironment(&(idamState[threadCount].environment));
+        initClientBlock(&(idamState[threadCount].client_block), 0, "");
+        initServerBlock(&(idamState[threadCount].server_block), 0);
+        threadList[threadCount] = 0;
+    }
+    unlockIdamThread();
 }
 
 #else
-void lockIdamThread(){}
-void unlockIdamThread(){}
-void freeIdamThread(){}
-#endif		// NOPTHREADS
+void lockIdamThread() {}
+void unlockIdamThread() {}
+void freeIdamThread() {}
+#endif // NOPTHREADS
 
 int getIdamThreadLastHandle()
 {
-   return idamThreadLastHandle;
+    return idamThreadLastHandle;
 }
+
 void putIdamThreadLastHandle(int handle)
 {
-   idamThreadLastHandle = handle;
+    idamThreadLastHandle = handle;
 }
 
-ENVIRONMENT getIdamThreadEnvironment(){
-   return environment;
+ENVIRONMENT getIdamThreadEnvironment()
+{
+    return environment;
 }
-SERVER_BLOCK getIdamThreadServerBlock(){
-   return server_block;
-}
-CLIENT_BLOCK getIdamThreadClientBlock(){
-   return client_block;
-}
-void putIdamThreadEnvironment(ENVIRONMENT *str){
-   environment = *str;
-}
-void putIdamThreadServerBlock(SERVER_BLOCK *str){
-   server_block = *str;
-}
-void putIdamThreadClientBlock(CLIENT_BLOCK *str){
-   client_block = *str;
-} 
 
-/*
-int idam_get(char *signal, char *source){
-   static pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
-   pthread_mutex_lock(&lock);
-   int h = idamGetAPI(signal, source);
-   pthread_mutex_unlock(&lock);
-   return h;
+SERVER_BLOCK getIdamThreadServerBlock()
+{
+    return server_block;
 }
-*/      
+
+CLIENT_BLOCK getIdamThreadClientBlock()
+{
+    return client_block;
+}
+
+void putIdamThreadEnvironment(ENVIRONMENT* str)
+{
+    environment = *str;
+}
+
+void putIdamThreadServerBlock(SERVER_BLOCK* str)
+{
+    server_block = *str;
+}
+
+void putIdamThreadClientBlock(CLIENT_BLOCK* str)
+{
+    client_block = *str;
+}
+
 //--------------------------------------------------------------------------------------
 // C Accessor Routines
 
 void acc_freeDataBlocks()
 {
-    free((void*) Data_Block);
+    free((void*)Data_Block);
     Data_Block = NULL;
     Data_Block_Count = 0;
     putIdamThreadLastHandle(-1);
@@ -296,23 +226,32 @@ void acc_freeDataBlocks()
 
 DATA_BLOCK* acc_getCurrentDataBlock()
 {
-    if((clientFlags & CLIENTFLAG_REUSELASTHANDLE || clientFlags & CLIENTFLAG_FREEREUSELASTHANDLE) && getIdamThreadLastHandle() >= 0 ) return &Data_Block[getIdamThreadLastHandle()];
+    if ((clientFlags & CLIENTFLAG_REUSELASTHANDLE || clientFlags & CLIENTFLAG_FREEREUSELASTHANDLE) &&
+        getIdamThreadLastHandle() >= 0) {
+        return &Data_Block[getIdamThreadLastHandle()];
+    }
     return &Data_Block[Data_Block_Count - 1];
 }
 
 int acc_getCurrentDataBlockIndex()
 {
-    if((clientFlags & CLIENTFLAG_REUSELASTHANDLE || clientFlags & CLIENTFLAG_FREEREUSELASTHANDLE) && getIdamThreadLastHandle() >= 0 ) return getIdamThreadLastHandle();
+    if ((clientFlags & CLIENTFLAG_REUSELASTHANDLE || clientFlags & CLIENTFLAG_FREEREUSELASTHANDLE) &&
+        getIdamThreadLastHandle() >= 0) {
+        return getIdamThreadLastHandle();
+    }
     return Data_Block_Count - 1;
 }
 
 int acc_growIdamDataBlocks()
 {
 
-    if((clientFlags & CLIENTFLAG_REUSELASTHANDLE || clientFlags & CLIENTFLAG_FREEREUSELASTHANDLE) && getIdamThreadLastHandle() >= 0) return 0; 
+    if ((clientFlags & CLIENTFLAG_REUSELASTHANDLE || clientFlags & CLIENTFLAG_FREEREUSELASTHANDLE) &&
+        getIdamThreadLastHandle() >= 0) {
+        return 0;
+    }
 
     ++Data_Block_Count;
-    Data_Block = (DATA_BLOCK*) realloc(Data_Block, Data_Block_Count * sizeof(DATA_BLOCK));
+    Data_Block = (DATA_BLOCK*)realloc(Data_Block, Data_Block_Count * sizeof(DATA_BLOCK));
 
     if (!Data_Block) {
         int err = ERROR_ALLOCATING_DATA_BOCK_HEAP;
@@ -321,9 +260,9 @@ int acc_growIdamDataBlocks()
     }
 
     initDataBlock(&Data_Block[Data_Block_Count - 1]);
-    Data_Block[Data_Block_Count - 1].handle = Data_Block_Count-1;
-    
-    putIdamThreadLastHandle(Data_Block_Count - 1); 
+    Data_Block[Data_Block_Count - 1].handle = Data_Block_Count - 1;
+
+    putIdamThreadLastHandle(Data_Block_Count - 1);
 
     return 0;
 }
@@ -346,17 +285,20 @@ int acc_getIdamNewDataHandle()
     int newHandleIndex = -1;
     static unsigned int handleListSize = 0;
     static unsigned int growHandleList = 0;
-    
-    if((clientFlags & CLIENTFLAG_REUSELASTHANDLE || clientFlags & CLIENTFLAG_FREEREUSELASTHANDLE) && (newHandleIndex = getIdamThreadLastHandle()) >= 0 ){
-       if(clientFlags & CLIENTFLAG_FREEREUSELASTHANDLE)
-          idamFree(newHandleIndex);
-       else
-          initDataBlock(&Data_Block[newHandleIndex]);		// Application has responsibility for freeing heap in the Data Block
-       Data_Block[newHandleIndex].handle = newHandleIndex;
-       return newHandleIndex;      
-    }    
 
-    if (growHandleList == 0) {		// Increase the list of Data Blocks by this ammount each time
+    if ((clientFlags & CLIENTFLAG_REUSELASTHANDLE || clientFlags & CLIENTFLAG_FREEREUSELASTHANDLE) &&
+        (newHandleIndex = getIdamThreadLastHandle()) >= 0) {
+        if (clientFlags & CLIENTFLAG_FREEREUSELASTHANDLE) {
+            idamFree(newHandleIndex);
+        } else {
+            initDataBlock(
+                    &Data_Block[newHandleIndex]);
+        }        // Application has responsibility for freeing heap in the Data Block
+        Data_Block[newHandleIndex].handle = newHandleIndex;
+        return newHandleIndex;
+    }
+
+    if (growHandleList == 0) {        // Increase the list of Data Blocks by this ammount each time
         char* env = NULL;
 
         if ((env = getenv("UDA_GROWHANDLELIST")) != NULL) {
@@ -365,16 +307,16 @@ int acc_getIdamNewDataHandle()
             growHandleList = GROWHANDLELIST;
         }
     }
-    
-    if (Data_Block_Count == 0) handleListSize = 0;	// Reset after an idamFreeAll
+
+    if (Data_Block_Count == 0) handleListSize = 0;    // Reset after an idamFreeAll
 
     if ((newHandleIndex = findNewHandleIndex()) < 0) { // Search for an unused handle or issue a new one
-        
-	newHandleIndex = Data_Block_Count;
+
+        newHandleIndex = Data_Block_Count;
 
         if (newHandleIndex >= handleListSize) {   // Allocate new multiple DATA_BLOCKS
             handleListSize += growHandleList;
-            Data_Block = (DATA_BLOCK*) realloc(Data_Block, handleListSize * sizeof(DATA_BLOCK));
+            Data_Block = (DATA_BLOCK*)realloc(Data_Block, handleListSize * sizeof(DATA_BLOCK));
 
             if (!Data_Block) {
                 int err = ERROR_ALLOCATING_DATA_BOCK_HEAP;
@@ -396,8 +338,8 @@ int acc_getIdamNewDataHandle()
         initDataBlock(&Data_Block[newHandleIndex]);
         Data_Block[newHandleIndex].handle = newHandleIndex;
     }
-    
-    putIdamThreadLastHandle(newHandleIndex); 
+
+    putIdamThreadLastHandle(newHandleIndex);
     return newHandleIndex;
 }
 
@@ -552,8 +494,8 @@ void setIdamProperty(const char* property)
                 }
             }
         }
-        if(!strcasecmp(property, "reuseLastHandle"))         clientFlags = clientFlags | CLIENTFLAG_REUSELASTHANDLE;
-        if(!strcasecmp(property, "freeAndReuseLastHandle"))  clientFlags = clientFlags | CLIENTFLAG_FREEREUSELASTHANDLE;	 
+        if (!strcasecmp(property, "reuseLastHandle")) clientFlags = clientFlags | CLIENTFLAG_REUSELASTHANDLE;
+        if (!strcasecmp(property, "freeAndReuseLastHandle")) clientFlags = clientFlags | CLIENTFLAG_FREEREUSELASTHANDLE;
     }
     return;
 }
@@ -583,13 +525,13 @@ int getIdamProperty(const char* property)
         if (!strcasecmp(property, "get_nodimdata")) return get_nodimdata;
     } else {
         if (!strcasecmp(property, "timeout")) return user_timeout;
-        if (!strcasecmp(property, "altRank")) return(altRank);
-        if (!strcasecmp(property, "reuseLastHandle"))         return(clientFlags | CLIENTFLAG_REUSELASTHANDLE);
-        if (!strcasecmp(property, "freeAndReuseLastHandle"))  return(clientFlags | CLIENTFLAG_FREEREUSELASTHANDLE);	 
+        if (!strcasecmp(property, "altRank")) return altRank;
+        if (!strcasecmp(property, "reuseLastHandle")) return clientFlags | CLIENTFLAG_REUSELASTHANDLE;
+        if (!strcasecmp(property, "freeAndReuseLastHandle")) return clientFlags | CLIENTFLAG_FREEREUSELASTHANDLE;
         if (!strcasecmp(property, "verbose")) return idamGetLogLevel() == LOG_INFO;
         if (!strcasecmp(property, "debug")) return idamGetLogLevel() == LOG_DEBUG;
         if (!strcasecmp(property, "altData")) return clientFlags | CLIENTFLAG_ALTDATA;
- 
+
     }
     return 0;
 }
@@ -623,8 +565,10 @@ void resetIdamProperty(const char* property)
         if (!strcasecmp(property, "debug")) idamSetLogLevel(LOG_NONE);
         if (!strcasecmp(property, "altData")) clientFlags = clientFlags & !CLIENTFLAG_ALTDATA;
         if (!strcasecmp(property, "altRank")) altRank = 0;
-	if (!strcasecmp(property, "reuseLastHandle"))         clientFlags = clientFlags & !CLIENTFLAG_REUSELASTHANDLE;
-        if (!strcasecmp(property, "freeAndReuseLastHandle"))  clientFlags = clientFlags & !CLIENTFLAG_FREEREUSELASTHANDLE;	      
+        if (!strcasecmp(property, "reuseLastHandle")) clientFlags = clientFlags & !CLIENTFLAG_REUSELASTHANDLE;
+        if (!strcasecmp(property, "freeAndReuseLastHandle")) {
+            clientFlags = clientFlags & !CLIENTFLAG_FREEREUSELASTHANDLE;
+        }
     }
     return;
 }
@@ -673,7 +617,7 @@ CLIENT_BLOCK saveIdamProperties()
     cb.get_nodimdata = get_nodimdata;
     cb.clientFlags = clientFlags;
     cb.altRank = altRank;
-    return (cb);
+    return cb;
 }
 
 void restoreIdamProperties(CLIENT_BLOCK cb)
@@ -713,7 +657,7 @@ void restoreIdamProperties(CLIENT_BLOCK cb)
 CLIENT_BLOCK* getIdamProperties(int handle)
 {
     if (handle < 0 || handle >= Data_Block_Count) return NULL;
-    return (&Data_Block[handle].client_block);
+    return &Data_Block[handle].client_block;
 }
 
 //! Return the client state associated with a specific data item
@@ -722,7 +666,7 @@ CLIENT_BLOCK* getIdamProperties(int handle)
 */
 CLIENT_BLOCK* getIdamDataProperties(int handle)
 {
-    return (getIdamProperties(handle));
+    return getIdamProperties(handle);
 }
 
 //--------------------------------------------------------------
@@ -911,7 +855,6 @@ int getIdamServerSocket()
     return environment.server_socket;           // Active IDAM server service socket number
 }
 
-
 //! get the IDAM client study DOI
 /**
 * @return the DOI
@@ -936,7 +879,7 @@ void putIdamClientDOI(char* doi)
 */
 char* getIdamServerDOI()
 {
-    return (server_block.DOI);
+    return server_block.DOI;
 }
 
 //! get the IDAM client OS Name
@@ -963,9 +906,8 @@ void putIdamClientOSName(char* os)
 */
 char* getIdamServerOSName()
 {
-    return (server_block.OSName);
+    return server_block.OSName;
 }
-
 
 //! the IDAM client library verion number
 /**
@@ -982,7 +924,7 @@ int getIdamClientVersion()
 */
 int getIdamServerVersion()
 {
-    return (server_block.version);           // Server Version
+    return server_block.version;           // Server Version
 }
 
 //! the IDAM server error code returned
@@ -991,7 +933,7 @@ int getIdamServerVersion()
 */
 int getIdamServerErrorCode()
 {
-    return (server_block.error);             // Server Error Code
+    return server_block.error;             // Server Error Code
 }
 
 //! the IDAM server error message returned
@@ -1000,7 +942,7 @@ int getIdamServerErrorCode()
 */
 char* getIdamServerErrorMsg()
 {
-    return (server_block.msg);               // Server Error Message
+    return server_block.msg;               // Server Error Message
 }
 
 //! the number of IDAM server error message records returned in the error stack
@@ -1009,7 +951,7 @@ char* getIdamServerErrorMsg()
 */
 int getIdamServerErrorStackSize()
 {
-    return (server_block.idamerrorstack.nerrors);     // Server Error Stack Size (No.Records)
+    return server_block.idamerrorstack.nerrors;     // Server Error Stack Size (No.Records)
 }
 
 //! the Type of server error of a specific server error record
@@ -1020,7 +962,7 @@ int getIdamServerErrorStackSize()
 int getIdamServerErrorStackRecordType(int record)
 {
     if (record < 0 || record >= server_block.idamerrorstack.nerrors) return 0;
-    return (server_block.idamerrorstack.idamerror[record].type);  // Server Error Stack Record Type
+    return server_block.idamerrorstack.idamerror[record].type;  // Server Error Stack Record Type
 }
 
 //! the Error code of a specific server error record
@@ -1031,7 +973,7 @@ int getIdamServerErrorStackRecordType(int record)
 int getIdamServerErrorStackRecordCode(int record)
 {
     if (record < 0 || record >= server_block.idamerrorstack.nerrors) return 0;
-    return (server_block.idamerrorstack.idamerror[record].code);  // Server Error Stack Record Code
+    return server_block.idamerrorstack.idamerror[record].code;  // Server Error Stack Record Code
 }
 
 //! the Server error Location name of a specific error record
@@ -1042,7 +984,7 @@ int getIdamServerErrorStackRecordCode(int record)
 char* getIdamServerErrorStackRecordLocation(int record)
 {
     if (record < 0 || record >= server_block.idamerrorstack.nerrors) return 0;
-    return (server_block.idamerrorstack.idamerror[record].location); // Server Error Stack Record Location
+    return server_block.idamerrorstack.idamerror[record].location; // Server Error Stack Record Location
 }
 
 //! the Server error message of a specific error record
@@ -1055,7 +997,7 @@ char* getIdamServerErrorStackRecordMsg(int record)
     idamLog(LOG_DEBUG, "getIdamServerErrorStackRecordMsg: record %d\n", record);
     idamLog(LOG_DEBUG, "getIdamServerErrorStackRecordMsg: count  %d\n", server_block.idamerrorstack.nerrors);
     if (record < 0 || record >= server_block.idamerrorstack.nerrors) return 0;
-    return (server_block.idamerrorstack.idamerror[record].msg);   // Server Error Stack Record Message
+    return server_block.idamerrorstack.idamerror[record].msg;   // Server Error Stack Record Message
 }
 
 //! Return the Server error message stack data structure
@@ -1064,7 +1006,7 @@ char* getIdamServerErrorStackRecordMsg(int record)
 */
 IDAMERRORSTACK* getIdamServerErrorStack()
 {
-    return (&server_block.idamerrorstack);         // Server Error Stack Structure
+    return &server_block.idamerrorstack;         // Server Error Stack Structure
 }
 
 //!  returns the data access error code
@@ -1074,10 +1016,11 @@ IDAMERRORSTACK* getIdamServerErrorStack()
 */
 int getIdamErrorCode(int handle)
 {              // Error Code Returned from Server
-    if (handle < 0 || handle >= Data_Block_Count)
-        return (getIdamServerErrorStackRecordCode(0));
-    else
-        return ((int) Data_Block[handle].errcode);
+    if (handle < 0 || handle >= Data_Block_Count) {
+        return getIdamServerErrorStackRecordCode(0);
+    } else {
+        return (int)Data_Block[handle].errcode;
+    }
 }
 
 //!  returns the data access error message
@@ -1120,10 +1063,11 @@ int getIdamDataStatus(int handle)
 {          // Data Status based on Standard Rule
     if (handle < 0 || handle >= Data_Block_Count) return 0;
     if (getIdamSignalStatus(handle) ==
-        DEFAULT_STATUS)       // Signal Status Not Changed from Default - use Data Source Value
+        DEFAULT_STATUS) {       // Signal Status Not Changed from Default - use Data Source Value
         return Data_Block[handle].source_status;
-    else
+    } else {
         return Data_Block[handle].signal_status;
+    }
 }
 
 //!  returns the last data object handle issued
@@ -1154,7 +1098,7 @@ int getIdamDataNum(int handle)
 int getIdamRank(int handle)
 {             // Array Rank
     if (handle < 0 || handle >= Data_Block_Count) return 0;
-    return (int) Data_Block[handle].rank;
+    return (int)Data_Block[handle].rank;
 }
 
 //!  Returns the position of the time coordinate dimension in the data object
@@ -1174,8 +1118,9 @@ int getIdamOrder(int handle)
  * @param handle The data object handle
  * @return the permission
  */
-unsigned int getIdamCachePermission(int handle) {     // Permission to cache?
-    if(handle < 0 || handle >= Data_Block_Count) return PLUGINNOTOKTOCACHE;
+unsigned int getIdamCachePermission(int handle)
+{     // Permission to cache?
+    if (handle < 0 || handle >= Data_Block_Count) return PLUGINNOTOKTOCACHE;
     return Data_Block[handle].cachePermission;
 }
 
@@ -1185,8 +1130,9 @@ unsigned int getIdamCachePermission(int handle) {     // Permission to cache?
  * @param handle The data object handle
  * @return byte count
  */
-unsigned int getIdamTotalDataBlockSize(int handle) {
-    if(handle < 0 || handle >= Data_Block_Count) return 0;
+unsigned int getIdamTotalDataBlockSize(int handle)
+{
+    if (handle < 0 || handle >= Data_Block_Count) return 0;
     return Data_Block[handle].totalDataBlockSize;
 }
 
@@ -1276,58 +1222,59 @@ int getIdamDataTypeId(const char* type)
 
 int getIdamDataTypeSize(int type)
 {   // Return the size of the Data Type
-	
-	switch(type) {
-    	case TYPE_DCOMPLEX:
-			return 0;
-    	case TYPE_COMPLEX:
-			return 0;
-    	case TYPE_DOUBLE:
-			return 8;
-    	case TYPE_FLOAT:
-			return 4;
-    	case TYPE_LONG64:
-			return 8;
-    	case TYPE_UNSIGNED_LONG64:
-			return 8;
-    	case TYPE_LONG:
-			return 8;
-    	case TYPE_UNSIGNED_LONG:
-			return 8;
-    	case TYPE_INT:
-			return 4;
-    	case TYPE_UNSIGNED_INT:
-			return 4;
-    	case TYPE_SHORT:
-			return 2;
-    	case TYPE_UNSIGNED_SHORT:
-			return 2;
-    	case TYPE_CHAR:
-			return 1;
-    	case TYPE_UNSIGNED_CHAR:
-			return 1;
-    	case TYPE_UNKNOWN:
-			return 0;
-    	case TYPE_UNDEFINED:
-			return 0;
-    	case TYPE_VLEN:
-			return 0;
-    	case TYPE_COMPOUND:
-			return 0;
-    	case TYPE_OPAQUE:
-			return 0;
-    	case TYPE_ENUM:
-			return 4;
-    	case TYPE_STRING:
-			return 0;
-    	case TYPE_VOID:
-			return 8;
-		default:
-			return -1;
-	}
+
+    switch (type) {
+        case TYPE_DCOMPLEX:
+            return 0;
+        case TYPE_COMPLEX:
+            return 0;
+        case TYPE_DOUBLE:
+            return 8;
+        case TYPE_FLOAT:
+            return 4;
+        case TYPE_LONG64:
+            return 8;
+        case TYPE_UNSIGNED_LONG64:
+            return 8;
+        case TYPE_LONG:
+            return 8;
+        case TYPE_UNSIGNED_LONG:
+            return 8;
+        case TYPE_INT:
+            return 4;
+        case TYPE_UNSIGNED_INT:
+            return 4;
+        case TYPE_SHORT:
+            return 2;
+        case TYPE_UNSIGNED_SHORT:
+            return 2;
+        case TYPE_CHAR:
+            return 1;
+        case TYPE_UNSIGNED_CHAR:
+            return 1;
+        case TYPE_UNKNOWN:
+            return 0;
+        case TYPE_UNDEFINED:
+            return 0;
+        case TYPE_VLEN:
+            return 0;
+        case TYPE_COMPOUND:
+            return 0;
+        case TYPE_OPAQUE:
+            return 0;
+        case TYPE_ENUM:
+            return 4;
+        case TYPE_STRING:
+            return 0;
+        case TYPE_VOID:
+            return 8;
+        default:
+            return -1;
+    }
 }
 
-void getIdamErrorModel(int handle, int *model, int *param_n, float *params) {
+void getIdamErrorModel(int handle, int* model, int* param_n, float* params)
+{
     int i;
     if (handle < 0 || handle >= Data_Block_Count) {
         *model = ERROR_MODEL_UNKNOWN;
@@ -1342,7 +1289,7 @@ void getIdamErrorModel(int handle, int *model, int *param_n, float *params) {
 int getIdamErrorAsymmetry(int handle)
 {
     if (handle < 0 || handle >= Data_Block_Count) return 0;
-    return ((int) Data_Block[handle].errasymmetry);
+    return (int)Data_Block[handle].errasymmetry;
 }
 
 // Return the Internal Code for a named Error Model
@@ -1353,27 +1300,27 @@ int getIdamErrorModelId(const char* model)
     for (i = 1; i < ERROR_MODEL_UNDEFINED; i++) {
         switch (i) {
             case 1:
-                if (!strcasecmp(model, "default"))return (ERROR_MODEL_DEFAULT);
+                if (!strcasecmp(model, "default"))return ERROR_MODEL_DEFAULT;
                 break;
             case 2:
-                if (!strcasecmp(model, "default_asymmetric"))return (ERROR_MODEL_DEFAULT_ASYMMETRIC);
+                if (!strcasecmp(model, "default_asymmetric"))return ERROR_MODEL_DEFAULT_ASYMMETRIC;
                 break;
 #ifdef NO_GSL_LIB
             case 3:
-                if (!strcasecmp(model, "gaussian"))return (ERROR_MODEL_GAUSSIAN);
+                if (!strcasecmp(model, "gaussian"))return ERROR_MODEL_GAUSSIAN;
                 break;
             case 4:
-                if (!strcasecmp(model, "reseed"))return (ERROR_MODEL_RESEED);
+                if (!strcasecmp(model, "reseed"))return ERROR_MODEL_RESEED;
                 break;
             case 5:
-                if (!strcasecmp(model, "gaussian_shift"))return (ERROR_MODEL_GAUSSIAN_SHIFT);
+                if (!strcasecmp(model, "gaussian_shift"))return ERROR_MODEL_GAUSSIAN_SHIFT;
                 break;
             case 6:
-                if (!strcasecmp(model, "poisson"))return (ERROR_MODEL_POISSON);
+                if (!strcasecmp(model, "poisson"))return ERROR_MODEL_POISSON;
                 break;
 #endif
             default:
-                return (ERROR_MODEL_UNKNOWN);
+                return ERROR_MODEL_UNKNOWN;
         }
     }
     return 0;
@@ -1409,10 +1356,11 @@ char* getIdamSyntheticData(int handle)
     if (handle < 0 || handle >= Data_Block_Count) return NULL;
     if (status == MIN_STATUS && !Data_Block[handle].client_block.get_bad && !get_bad) return NULL;
     if (status != MIN_STATUS && (Data_Block[handle].client_block.get_bad || get_bad)) return NULL;
-    if (!get_synthetic || Data_Block[handle].error_model == ERROR_MODEL_UNKNOWN)
-        return (Data_Block[handle].data);
+    if (!get_synthetic || Data_Block[handle].error_model == ERROR_MODEL_UNKNOWN) {
+        return Data_Block[handle].data;
+    }
     generateIdamSyntheticData(handle);
-    return (Data_Block[handle].synthetic);
+    return Data_Block[handle].synthetic;
 }
 
 //!  Returns a pointer to the requested data
@@ -1426,10 +1374,11 @@ char* getIdamData(int handle)
     if (handle < 0 || handle >= Data_Block_Count) return NULL;
     if (status == MIN_STATUS && !Data_Block[handle].client_block.get_bad && !get_bad) return NULL;
     if (status != MIN_STATUS && (Data_Block[handle].client_block.get_bad || get_bad)) return NULL;
-    if (!get_synthetic)
-        return (Data_Block[handle].data);
-    else
-        return (getIdamSyntheticData(handle));
+    if (!get_synthetic) {
+        return Data_Block[handle].data;
+    } else {
+        return getIdamSyntheticData(handle);
+    }
 }
 
 //! Copy the requested data block to a data buffer for use in MDS+ TDI functions
@@ -1441,7 +1390,7 @@ char* getIdamData(int handle)
 void getIdamDataTdi(int handle, char* data)
 {
     if (handle < 0 || handle >= Data_Block_Count) return;
-    memcpy(data, (void*) Data_Block[handle].data, (int) Data_Block[handle].data_n);
+    memcpy(data, (void*)Data_Block[handle].data, (int)Data_Block[handle].data_n);
 }
 
 char* getIdamDataErrLo(int handle)
@@ -1521,22 +1470,24 @@ char* getIdamAsymmetricError(int handle, int above)
     if (handle < 0 || handle >= Data_Block_Count) return NULL;
     if (Data_Block[handle].error_type != TYPE_UNKNOWN) {
         if (above) {
-            return (Data_Block[handle].errhi);      // return the default error array
+            return Data_Block[handle].errhi;      // return the default error array
         } else {
-            if (!Data_Block[handle].errasymmetry)
-                return (Data_Block[handle].errhi);     // return the default error array if symmetric errors
-            else
-                return (Data_Block[handle].errlo);     // otherwise the data array must have been returned by the server or generated
+            if (!Data_Block[handle].errasymmetry) {
+                return Data_Block[handle].errhi;     // return the default error array if symmetric errors
+            } else {
+                return Data_Block[handle].errlo;
+            }     // otherwise the data array must have been returned by the server or generated
         }
     } else {
         if (Data_Block[handle].error_model != ERROR_MODEL_UNKNOWN) {
             generateIdamDataError(handle);            // Create the errors from a model if the model exits
-            if (above)
-                return (Data_Block[handle].errhi);
-            else if (!Data_Block[handle].errasymmetry)
-                return (Data_Block[handle].errhi);
-            else
-                return (Data_Block[handle].errlo);
+            if (above) {
+                return Data_Block[handle].errhi;
+            } else if (!Data_Block[handle].errasymmetry) {
+                return Data_Block[handle].errhi;
+            } else {
+                return Data_Block[handle].errlo;
+            }
         } else {
 
             char* errhi = NULL;    // Regular Error Component
@@ -1550,8 +1501,9 @@ char* getIdamAsymmetricError(int handle, int above)
                 // Allocate Heap for Regular Error Data
                 idamLog(LOG_ERROR, "Heap Allocation Problem with Data Errors\n");
                 Data_Block[handle].errhi = NULL;
-            } else
+            } else {
                 Data_Block[handle].errhi = errhi;
+            }
 
             if (Data_Block[handle].errasymmetry) {           // Allocate Heap for the Asymmetric Error Data
                 if (allocArray(Data_Block[handle].error_type, ndata, &errlo) != 0) {
@@ -1559,8 +1511,9 @@ char* getIdamAsymmetricError(int handle, int above)
                     idamLog(LOG_ERROR, "Switching Asymmetry Off!\n");
                     Data_Block[handle].errlo = NULL;
                     Data_Block[handle].errasymmetry = 0;
-                } else
+                } else {
                     Data_Block[handle].errlo = errlo;
+                }
             }
 
 // Generate and return Zeros if this data is requested unless Error is Modelled
@@ -1568,91 +1521,91 @@ char* getIdamAsymmetricError(int handle, int above)
             switch (Data_Block[handle].data_type) {
                 case TYPE_FLOAT: {
                     float* fh, * fl;
-                    fh = (float*) Data_Block[handle].errhi;
-                    if (Data_Block[handle].errasymmetry) fl = (float*) Data_Block[handle].errlo;
+                    fh = (float*)Data_Block[handle].errhi;
+                    if (Data_Block[handle].errasymmetry) fl = (float*)Data_Block[handle].errlo;
                     for (i = 0; i < ndata; i++) {
-                        *(fh + i) = (float) 0.0;
-                        if (Data_Block[handle].errasymmetry) *(fl + i) = (float) 0.0;
+                        *(fh + i) = (float)0.0;
+                        if (Data_Block[handle].errasymmetry) *(fl + i) = (float)0.0;
                     }
                     break;
                 }
                 case TYPE_DOUBLE: {
                     double* dh, * dl;
-                    dh = (double*) Data_Block[handle].errhi;
-                    if (Data_Block[handle].errasymmetry) dl = (double*) Data_Block[handle].errlo;
+                    dh = (double*)Data_Block[handle].errhi;
+                    if (Data_Block[handle].errasymmetry) dl = (double*)Data_Block[handle].errlo;
                     for (i = 0; i < ndata; i++) {
-                        *(dh + i) = (double) 0.0;
-                        if (Data_Block[handle].errasymmetry) *(dl + i) = (double) 0.0;
+                        *(dh + i) = (double)0.0;
+                        if (Data_Block[handle].errasymmetry) *(dl + i) = (double)0.0;
                     }
                     break;
                 }
                 case TYPE_SHORT: {
                     short* sh, * sl;
-                    sh = (short*) Data_Block[handle].errhi;
-                    if (Data_Block[handle].errasymmetry) sl = (short*) Data_Block[handle].errlo;
+                    sh = (short*)Data_Block[handle].errhi;
+                    if (Data_Block[handle].errasymmetry) sl = (short*)Data_Block[handle].errlo;
                     for (i = 0; i < ndata; i++) {
-                        *(sh + i) = (short) 0;
-                        if (Data_Block[handle].errasymmetry) *(sl + i) = (short) 0;
+                        *(sh + i) = (short)0;
+                        if (Data_Block[handle].errasymmetry) *(sl + i) = (short)0;
                     }
                     break;
                 }
                 case TYPE_UNSIGNED_SHORT: {
                     unsigned short* sh, * sl;
-                    sh = (unsigned short*) Data_Block[handle].errhi;
-                    if (Data_Block[handle].errasymmetry) sl = (unsigned short*) Data_Block[handle].errlo;
+                    sh = (unsigned short*)Data_Block[handle].errhi;
+                    if (Data_Block[handle].errasymmetry) sl = (unsigned short*)Data_Block[handle].errlo;
                     for (i = 0; i < ndata; i++) {
-                        sh[i] = (unsigned short) 0;
-                        if (Data_Block[handle].errasymmetry) sl[i] = (unsigned short) 0;
+                        sh[i] = (unsigned short)0;
+                        if (Data_Block[handle].errasymmetry) sl[i] = (unsigned short)0;
                     }
                     break;
                 }
                 case TYPE_INT: {
                     int* ih, * il;
-                    ih = (int*) Data_Block[handle].errhi;
-                    if (Data_Block[handle].errasymmetry) il = (int*) Data_Block[handle].errlo;
+                    ih = (int*)Data_Block[handle].errhi;
+                    if (Data_Block[handle].errasymmetry) il = (int*)Data_Block[handle].errlo;
                     for (i = 0; i < ndata; i++) {
-                        *(ih + i) = (int) 0;
-                        if (Data_Block[handle].errasymmetry) *(il + i) = (int) 0;
+                        *(ih + i) = (int)0;
+                        if (Data_Block[handle].errasymmetry) *(il + i) = (int)0;
                     }
                     break;
                 }
                 case TYPE_UNSIGNED_INT: {
                     unsigned int* uh, * ul;
-                    uh = (unsigned int*) Data_Block[handle].errhi;
-                    if (Data_Block[handle].errasymmetry) ul = (unsigned int*) Data_Block[handle].errlo;
+                    uh = (unsigned int*)Data_Block[handle].errhi;
+                    if (Data_Block[handle].errasymmetry) ul = (unsigned int*)Data_Block[handle].errlo;
                     for (i = 0; i < ndata; i++) {
-                        *(uh + i) = (unsigned int) 0;
-                        if (Data_Block[handle].errasymmetry) *(ul + i) = (unsigned int) 0;
+                        *(uh + i) = (unsigned int)0;
+                        if (Data_Block[handle].errasymmetry) *(ul + i) = (unsigned int)0;
                     }
                     break;
                 }
                 case TYPE_LONG: {
                     long* lh, * ll;
-                    lh = (long*) Data_Block[handle].errhi;
-                    if (Data_Block[handle].errasymmetry) ll = (long*) Data_Block[handle].errlo;
+                    lh = (long*)Data_Block[handle].errhi;
+                    if (Data_Block[handle].errasymmetry) ll = (long*)Data_Block[handle].errlo;
                     for (i = 0; i < ndata; i++) {
-                        *(lh + i) = (long) 0;
-                        if (Data_Block[handle].errasymmetry) *(ll + i) = (long) 0;
+                        *(lh + i) = (long)0;
+                        if (Data_Block[handle].errasymmetry) *(ll + i) = (long)0;
                     }
                     break;
                 }
                 case TYPE_UNSIGNED_LONG: {
                     unsigned long* lh, * ll;
-                    lh = (unsigned long*) Data_Block[handle].errhi;
-                    if (Data_Block[handle].errasymmetry) ll = (unsigned long*) Data_Block[handle].errlo;
+                    lh = (unsigned long*)Data_Block[handle].errhi;
+                    if (Data_Block[handle].errasymmetry) ll = (unsigned long*)Data_Block[handle].errlo;
                     for (i = 0; i < ndata; i++) {
-                        lh[i] = (unsigned long) 0;
-                        if (Data_Block[handle].errasymmetry) ll[i] = (unsigned long) 0;
+                        lh[i] = (unsigned long)0;
+                        if (Data_Block[handle].errasymmetry) ll[i] = (unsigned long)0;
                     }
                     break;
                 }
                 case TYPE_LONG64: {
                     long long int* lh, * ll;
-                    lh = (long long int*) Data_Block[handle].errhi;
-                    if (Data_Block[handle].errasymmetry) ll = (long long int*) Data_Block[handle].errlo;
+                    lh = (long long int*)Data_Block[handle].errhi;
+                    if (Data_Block[handle].errasymmetry) ll = (long long int*)Data_Block[handle].errlo;
                     for (i = 0; i < ndata; i++) {
-                        *(lh + i) = (long long int) 0;
-                        if (Data_Block[handle].errasymmetry) *(ll + i) = (long long int) 0;
+                        *(lh + i) = (long long int)0;
+                        if (Data_Block[handle].errasymmetry) *(ll + i) = (long long int)0;
                     }
                     break;
                 }
@@ -1673,57 +1626,58 @@ char* getIdamAsymmetricError(int handle, int above)
                     ch = Data_Block[handle].errhi;
                     if (Data_Block[handle].errasymmetry) cl = Data_Block[handle].errlo;
                     for (i = 0; i < ndata; i++) {
-                        ch[i] = (char) 0;
-                        if (Data_Block[handle].errasymmetry) cl[i] = (char) 0;
+                        ch[i] = (char)0;
+                        if (Data_Block[handle].errasymmetry) cl[i] = (char)0;
                     }
                     break;
                 }
                 case TYPE_UNSIGNED_CHAR: {
                     unsigned char* ch, * cl;
-                    ch = (unsigned char*) Data_Block[handle].errhi;
-                    if (Data_Block[handle].errasymmetry) cl = (unsigned char*) Data_Block[handle].errlo;
+                    ch = (unsigned char*)Data_Block[handle].errhi;
+                    if (Data_Block[handle].errasymmetry) cl = (unsigned char*)Data_Block[handle].errlo;
                     for (i = 0; i < ndata; i++) {
-                        ch[i] = (unsigned char) 0;
-                        if (Data_Block[handle].errasymmetry) cl[i] = (unsigned char) 0;
+                        ch[i] = (unsigned char)0;
+                        if (Data_Block[handle].errasymmetry) cl[i] = (unsigned char)0;
                     }
                     break;
                 }
                 case TYPE_DCOMPLEX: {
                     DCOMPLEX* ch, * cl;
-                    ch = (DCOMPLEX*) Data_Block[handle].errhi;
-                    if (Data_Block[handle].errasymmetry) cl = (DCOMPLEX*) Data_Block[handle].errlo;
+                    ch = (DCOMPLEX*)Data_Block[handle].errhi;
+                    if (Data_Block[handle].errasymmetry) cl = (DCOMPLEX*)Data_Block[handle].errlo;
                     for (i = 0; i < ndata; i++) {
-                        ch[i].real = (double) 0.0;
-                        ch[i].imaginary = (double) 0.0;
+                        ch[i].real = (double)0.0;
+                        ch[i].imaginary = (double)0.0;
                         if (Data_Block[handle].errasymmetry) {
-                            cl[i].real = (double) 0.0;
-                            cl[i].imaginary = (double) 0.0;
+                            cl[i].real = (double)0.0;
+                            cl[i].imaginary = (double)0.0;
                         }
                     }
                     break;
                 }
                 case TYPE_COMPLEX: {
                     COMPLEX* ch, * cl;
-                    ch = (COMPLEX*) Data_Block[handle].errhi;
-                    if (Data_Block[handle].errasymmetry) cl = (COMPLEX*) Data_Block[handle].errlo;
+                    ch = (COMPLEX*)Data_Block[handle].errhi;
+                    if (Data_Block[handle].errasymmetry) cl = (COMPLEX*)Data_Block[handle].errlo;
                     for (i = 0; i < ndata; i++) {
-                        ch[i].real = (float) 0.0;
-                        ch[i].imaginary = (float) 0.0;
+                        ch[i].real = (float)0.0;
+                        ch[i].imaginary = (float)0.0;
                         if (Data_Block[handle].errasymmetry) {
-                            cl[i].real = (float) 0.0;
-                            cl[i].imaginary = (float) 0.0;
+                            cl[i].real = (float)0.0;
+                            cl[i].imaginary = (float)0.0;
                         }
                     }
                     break;
                 }
             }
 
-            if (above)
-                return (Data_Block[handle].errhi);
-            else if (!Data_Block[handle].errasymmetry)
-                return (Data_Block[handle].errhi);
-            else
-                return (Data_Block[handle].errlo);
+            if (above) {
+                return Data_Block[handle].errhi;
+            } else if (!Data_Block[handle].errasymmetry) {
+                return Data_Block[handle].errhi;
+            } else {
+                return Data_Block[handle].errlo;
+            }
         }
     }
 }
@@ -1737,7 +1691,7 @@ char* getIdamError(int handle)
 {
     int above = 1;
     if (handle < 0 || handle >= Data_Block_Count) return NULL;
-    return (getIdamAsymmetricError(handle, above));
+    return getIdamAsymmetricError(handle, above);
 }
 
 //!  Returns data cast to double precision
@@ -1759,15 +1713,15 @@ void getIdamDoubleData(int handle, double* fp)
 
     if (Data_Block[handle].data_type == TYPE_DOUBLE) {
         if (!get_synthetic)
-            memcpy((void*) fp, (void*) Data_Block[handle].data, (size_t) Data_Block[handle].data_n * sizeof(double));
+            memcpy((void*)fp, (void*)Data_Block[handle].data, (size_t)Data_Block[handle].data_n * sizeof(double));
         else {
             generateIdamSyntheticData(handle);
             if (Data_Block[handle].synthetic != NULL)
-                memcpy((void*) fp, (void*) Data_Block[handle].synthetic,
-                       (size_t) Data_Block[handle].data_n * sizeof(double));
+                memcpy((void*)fp, (void*)Data_Block[handle].synthetic,
+                       (size_t)Data_Block[handle].data_n * sizeof(double));
             else
-                memcpy((void*) fp, (void*) Data_Block[handle].data,
-                       (size_t) Data_Block[handle].data_n * sizeof(double));
+                memcpy((void*)fp, (void*)Data_Block[handle].data,
+                       (size_t)Data_Block[handle].data_n * sizeof(double));
             return;
         }
     } else {
@@ -1777,55 +1731,56 @@ void getIdamDoubleData(int handle, double* fp)
 
         ndata = getIdamDataNum(handle);
 
-        if (!get_synthetic)
+        if (!get_synthetic) {
             array = Data_Block[handle].data;
-        else {
+        } else {
             generateIdamSyntheticData(handle);
-            if (Data_Block[handle].synthetic != NULL)
+            if (Data_Block[handle].synthetic != NULL) {
                 array = Data_Block[handle].synthetic;
-            else
+            } else {
                 array = Data_Block[handle].data;
+            }
         }
 
         switch (Data_Block[handle].data_type) {
             case TYPE_FLOAT: {
-                float* dp = (float*) array;
-                for (i = 0; i < ndata; i++) fp[i] = (double) dp[i];
+                float* dp = (float*)array;
+                for (i = 0; i < ndata; i++) fp[i] = (double)dp[i];
                 break;
             }
             case TYPE_SHORT: {
-                short* sp = (short*) array;
-                for (i = 0; i < ndata; i++) fp[i] = (double) sp[i];
+                short* sp = (short*)array;
+                for (i = 0; i < ndata; i++) fp[i] = (double)sp[i];
                 break;
             }
             case TYPE_UNSIGNED_SHORT: {
-                unsigned short* sp = (unsigned short*) array;
-                for (i = 0; i < ndata; i++) fp[i] = (double) sp[i];
+                unsigned short* sp = (unsigned short*)array;
+                for (i = 0; i < ndata; i++) fp[i] = (double)sp[i];
                 break;
             }
             case TYPE_INT: {
-                int* ip = (int*) array;
-                for (i = 0; i < ndata; i++) fp[i] = (double) ip[i];
+                int* ip = (int*)array;
+                for (i = 0; i < ndata; i++) fp[i] = (double)ip[i];
                 break;
             }
             case TYPE_UNSIGNED_INT: {
-                unsigned int* up = (unsigned int*) array;
-                for (i = 0; i < ndata; i++) fp[i] = (double) up[i];
+                unsigned int* up = (unsigned int*)array;
+                for (i = 0; i < ndata; i++) fp[i] = (double)up[i];
                 break;
             }
             case TYPE_LONG: {
-                long* lp = (long*) array;
-                for (i = 0; i < ndata; i++) fp[i] = (double) lp[i];
+                long* lp = (long*)array;
+                for (i = 0; i < ndata; i++) fp[i] = (double)lp[i];
                 break;
             }
             case TYPE_UNSIGNED_LONG: {
-                unsigned long* lp = (unsigned long*) array;
-                for (i = 0; i < ndata; i++) fp[i] = (double) lp[i];
+                unsigned long* lp = (unsigned long*)array;
+                for (i = 0; i < ndata; i++) fp[i] = (double)lp[i];
                 break;
             }
             case TYPE_LONG64: {
-                long long int* lp = (long long int*) array;
-                for (i = 0; i < ndata; i++) fp[i] = (double) lp[i];
+                long long int* lp = (long long int*)array;
+                for (i = 0; i < ndata; i++) fp[i] = (double)lp[i];
                 break;
             }
 #ifndef __APPLE__
@@ -1836,39 +1791,39 @@ void getIdamDoubleData(int handle, double* fp)
             }
 #endif
             case TYPE_CHAR: {
-                char* cp = (char*) array;
-                for (i = 0; i < ndata; i++) fp[i] = (double) cp[i];
+                char* cp = (char*)array;
+                for (i = 0; i < ndata; i++) fp[i] = (double)cp[i];
                 break;
             }
             case TYPE_UNSIGNED_CHAR: {
-                unsigned char* cp = (unsigned char*) array;
-                for (i = 0; i < ndata; i++) fp[i] = (double) cp[i];
+                unsigned char* cp = (unsigned char*)array;
+                for (i = 0; i < ndata; i++) fp[i] = (double)cp[i];
                 break;
             }
             case TYPE_UNKNOWN: {
-                for (i = 0; i < ndata; i++) fp[i] = (double) 0.0;  // No Data !
+                for (i = 0; i < ndata; i++) fp[i] = (double)0.0;  // No Data !
                 break;
             }
             case TYPE_DCOMPLEX: {
                 int j = 0;
-                DCOMPLEX* dp = (DCOMPLEX*) array;
+                DCOMPLEX* dp = (DCOMPLEX*)array;
                 for (i = 0; i < ndata; i++) {
-                    fp[j++] = (double) dp[i].real;
-                    fp[j++] = (double) dp[i].imaginary;
+                    fp[j++] = (double)dp[i].real;
+                    fp[j++] = (double)dp[i].imaginary;
                 }
                 break;
             }
             case TYPE_COMPLEX: {
                 int j = 0;
-                COMPLEX* dp = (COMPLEX*) array;
+                COMPLEX* dp = (COMPLEX*)array;
                 for (i = 0; i < ndata; i++) {
-                    fp[j++] = (double) dp[i].real;
-                    fp[j++] = (double) dp[i].imaginary;
+                    fp[j++] = (double)dp[i].real;
+                    fp[j++] = (double)dp[i].imaginary;
                 }
                 break;
             }
             default:
-                for (i = 0; i < ndata; i++) fp[i] = (double) 0.0;
+                for (i = 0; i < ndata; i++) fp[i] = (double)0.0;
                 break;
 
         }
@@ -1891,22 +1846,20 @@ void getIdamFloatData(int handle, float* fp)
 
     int status = getIdamDataStatus(handle);
     if (handle < 0 || handle >= Data_Block_Count) return;
-//   if(status == MIN_STATUS && !get_bad) return;
-//   if(status != MIN_STATUS && get_bad) return;
     if (status == MIN_STATUS && !Data_Block[handle].client_block.get_bad && !get_bad) return;
     if (status != MIN_STATUS && (Data_Block[handle].client_block.get_bad || get_bad)) return;
 
     if (Data_Block[handle].data_type == TYPE_FLOAT) {
         if (!get_synthetic)
-            memcpy((void*) fp, (void*) Data_Block[handle].data, (size_t) Data_Block[handle].data_n * sizeof(float));
+            memcpy((void*)fp, (void*)Data_Block[handle].data, (size_t)Data_Block[handle].data_n * sizeof(float));
         else {
             generateIdamSyntheticData(handle);
             if (Data_Block[handle].synthetic != NULL)
-                memcpy((void*) fp, (void*) Data_Block[handle].synthetic,
-                       (size_t) Data_Block[handle].data_n * sizeof(float));
+                memcpy((void*)fp, (void*)Data_Block[handle].synthetic,
+                       (size_t)Data_Block[handle].data_n * sizeof(float));
             else
-                memcpy((void*) fp, (void*) Data_Block[handle].data,
-                       (size_t) Data_Block[handle].data_n * sizeof(float));
+                memcpy((void*)fp, (void*)Data_Block[handle].data,
+                       (size_t)Data_Block[handle].data_n * sizeof(float));
             return;
         }
     } else {
@@ -1916,55 +1869,56 @@ void getIdamFloatData(int handle, float* fp)
 
         ndata = getIdamDataNum(handle);
 
-        if (!get_synthetic)
+        if (!get_synthetic) {
             array = Data_Block[handle].data;
-        else {
+        } else {
             generateIdamSyntheticData(handle);
-            if (Data_Block[handle].synthetic != NULL)
+            if (Data_Block[handle].synthetic != NULL) {
                 array = Data_Block[handle].synthetic;
-            else
+            } else {
                 array = Data_Block[handle].data;
+            }
         }
 
         switch (Data_Block[handle].data_type) {
             case TYPE_DOUBLE: {
-                double* dp = (double*) array;
-                for (i = 0; i < ndata; i++) fp[i] = (float) dp[i];
+                double* dp = (double*)array;
+                for (i = 0; i < ndata; i++) fp[i] = (float)dp[i];
                 break;
             }
             case TYPE_SHORT: {
-                short* sp = (short*) array;
-                for (i = 0; i < ndata; i++) fp[i] = (float) sp[i];
+                short* sp = (short*)array;
+                for (i = 0; i < ndata; i++) fp[i] = (float)sp[i];
                 break;
             }
             case TYPE_UNSIGNED_SHORT: {
-                unsigned short* sp = (unsigned short*) array;
-                for (i = 0; i < ndata; i++) fp[i] = (float) sp[i];
+                unsigned short* sp = (unsigned short*)array;
+                for (i = 0; i < ndata; i++) fp[i] = (float)sp[i];
                 break;
             }
             case TYPE_INT: {
-                int* ip = (int*) array;
-                for (i = 0; i < ndata; i++) fp[i] = (float) ip[i];
+                int* ip = (int*)array;
+                for (i = 0; i < ndata; i++) fp[i] = (float)ip[i];
                 break;
             }
             case TYPE_UNSIGNED_INT: {
-                unsigned int* up = (unsigned int*) array;
-                for (i = 0; i < ndata; i++) fp[i] = (float) up[i];
+                unsigned int* up = (unsigned int*)array;
+                for (i = 0; i < ndata; i++) fp[i] = (float)up[i];
                 break;
             }
             case TYPE_LONG: {
-                long* lp = (long*) array;
-                for (i = 0; i < ndata; i++) fp[i] = (float) lp[i];
+                long* lp = (long*)array;
+                for (i = 0; i < ndata; i++) fp[i] = (float)lp[i];
                 break;
             }
             case TYPE_UNSIGNED_LONG: {
-                unsigned long* lp = (unsigned long*) array;
-                for (i = 0; i < ndata; i++) fp[i] = (float) lp[i];
+                unsigned long* lp = (unsigned long*)array;
+                for (i = 0; i < ndata; i++) fp[i] = (float)lp[i];
                 break;
             }
             case TYPE_LONG64: {
-                long long int* lp = (long long int*) array;
-                for (i = 0; i < ndata; i++) fp[i] = (float) lp[i];
+                long long int* lp = (long long int*)array;
+                for (i = 0; i < ndata; i++) fp[i] = (float)lp[i];
                 break;
             }
 #ifndef __APPLE__
@@ -1975,39 +1929,39 @@ void getIdamFloatData(int handle, float* fp)
             }
 #endif
             case TYPE_CHAR: {
-                char* cp = (char*) array;
-                for (i = 0; i < ndata; i++) fp[i] = (float) cp[i];
+                char* cp = (char*)array;
+                for (i = 0; i < ndata; i++) fp[i] = (float)cp[i];
                 break;
             }
             case TYPE_UNSIGNED_CHAR: {
-                unsigned char* cp = (unsigned char*) array;
-                for (i = 0; i < ndata; i++) fp[i] = (float) cp[i];
+                unsigned char* cp = (unsigned char*)array;
+                for (i = 0; i < ndata; i++) fp[i] = (float)cp[i];
                 break;
             }
             case TYPE_UNKNOWN: {
-                for (i = 0; i < ndata; i++) fp[i] = (float) 0.0;   // No Data !
+                for (i = 0; i < ndata; i++) fp[i] = (float)0.0;   // No Data !
                 break;
             }
             case TYPE_DCOMPLEX: {
                 int j = 0;
-                DCOMPLEX* dp = (DCOMPLEX*) array;
+                DCOMPLEX* dp = (DCOMPLEX*)array;
                 for (i = 0; i < ndata; i++) {
-                    fp[j++] = (float) dp[i].real;
-                    fp[j++] = (float) dp[i].imaginary;
+                    fp[j++] = (float)dp[i].real;
+                    fp[j++] = (float)dp[i].imaginary;
                 }
                 break;
             }
             case TYPE_COMPLEX: {
                 int j = 0;
-                COMPLEX* dp = (COMPLEX*) array;
+                COMPLEX* dp = (COMPLEX*)array;
                 for (i = 0; i < ndata; i++) {
-                    fp[j++] = (float) dp[i].real;
-                    fp[j++] = (float) dp[i].imaginary;
+                    fp[j++] = (float)dp[i].real;
+                    fp[j++] = (float)dp[i].imaginary;
                 }
                 break;
             }
             default:
-                for (i = 0; i < ndata; i++) fp[i] = (float) 0.0;
+                for (i = 0; i < ndata; i++) fp[i] = (float)0.0;
                 break;
 
         }
@@ -2023,7 +1977,51 @@ void getIdamFloatData(int handle, float* fp)
 */
 void getIdamGenericData(int handle, void* data)
 {
-    getidamdatablock_(&handle, data);
+    switch (getIdamDataType(handle)) {
+        case TYPE_FLOAT:
+            memcpy(data, (void*)getIdamData(handle), (size_t)getIdamDataNum(handle) * sizeof(float));
+            break;
+        case TYPE_DOUBLE:
+            memcpy(data, (void*)getIdamData(handle), (size_t)getIdamDataNum(handle) * sizeof(double));
+            break;
+        case TYPE_INT:
+            memcpy(data, (void*)getIdamData(handle), (size_t)getIdamDataNum(handle) * sizeof(int));
+            break;
+        case TYPE_UNSIGNED_INT:
+            memcpy(data, (void*)getIdamData(handle), (size_t)getIdamDataNum(handle) * sizeof(unsigned int));
+            break;
+        case TYPE_LONG:
+            memcpy(data, (void*)getIdamData(handle), (size_t)getIdamDataNum(handle) * sizeof(long));
+            break;
+        case TYPE_UNSIGNED_LONG:
+            memcpy(data, (void*)getIdamData(handle), (size_t)getIdamDataNum(handle) * sizeof(unsigned long));
+            break;
+        case TYPE_LONG64:
+            memcpy(data, (void*)getIdamData(handle), (size_t)getIdamDataNum(handle) * sizeof(long long int));
+            break;
+        case TYPE_UNSIGNED_LONG64:
+            memcpy(data, (void*)getIdamData(handle), (size_t)getIdamDataNum(handle) * sizeof(unsigned long long int));
+            break;
+        case TYPE_SHORT:
+            memcpy(data, (void*)getIdamData(handle), (size_t)getIdamDataNum(handle) * sizeof(short));
+            break;
+        case TYPE_UNSIGNED_SHORT:
+            memcpy(data, (void*)getIdamData(handle), (size_t)getIdamDataNum(handle) * sizeof(unsigned short));
+            break;
+        case TYPE_CHAR:
+            memcpy(data, (void*)getIdamData(handle), (size_t)getIdamDataNum(handle) * sizeof(char));
+            break;
+        case TYPE_UNSIGNED_CHAR:
+            memcpy(data, (void*)getIdamData(handle), (size_t)getIdamDataNum(handle) * sizeof(unsigned char));
+            break;
+        case TYPE_DCOMPLEX:
+            memcpy(data, (void*)getIdamData(handle), (size_t)getIdamDataNum(handle) * sizeof(DCOMPLEX));
+            break;
+        case TYPE_COMPLEX:
+            memcpy(data, (void*)getIdamData(handle), (size_t)getIdamDataNum(handle) * sizeof(COMPLEX));
+            break;
+    }
+    return;
 }
 
 
@@ -2038,110 +2036,119 @@ void getIdamFloatAsymmetricError(int handle, int above, float* fp)
 
     ndata = Data_Block[handle].data_n;
 
-    if (Data_Block[handle].error_type == TYPE_UNKNOWN)
-        getIdamAsymmetricError(handle, above); // Create the Error Data prior to Casting
+    if (Data_Block[handle].error_type == TYPE_UNKNOWN) {
+        getIdamAsymmetricError(handle, above);
+    } // Create the Error Data prior to Casting
 
     switch (Data_Block[handle].error_type) {
         case TYPE_UNKNOWN:
-            for (i = 0; i < ndata; i++) fp[i] = (float) 0.0; // No Error Data
+            for (i = 0; i < ndata; i++) fp[i] = (float)0.0; // No Error Data
             break;
         case TYPE_FLOAT:
             if (above)
-                memcpy((void*) fp, (void*) Data_Block[handle].errhi,
-                       (size_t) Data_Block[handle].data_n * sizeof(float));
+                memcpy((void*)fp, (void*)Data_Block[handle].errhi,
+                       (size_t)Data_Block[handle].data_n * sizeof(float));
             else if (!Data_Block[handle].errasymmetry)
-                memcpy((void*) fp, (void*) Data_Block[handle].errhi,
-                       (size_t) Data_Block[handle].data_n * sizeof(float));
+                memcpy((void*)fp, (void*)Data_Block[handle].errhi,
+                       (size_t)Data_Block[handle].data_n * sizeof(float));
             else
-                memcpy((void*) fp, (void*) Data_Block[handle].errlo,
-                       (size_t) Data_Block[handle].data_n * sizeof(float));
+                memcpy((void*)fp, (void*)Data_Block[handle].errlo,
+                       (size_t)Data_Block[handle].data_n * sizeof(float));
             break;
         case TYPE_DOUBLE: {
             double* dp;
-            if (above)
-                dp = (double*) Data_Block[handle].errhi;
-            else if (!Data_Block[handle].errasymmetry)
-                dp = (double*) Data_Block[handle].errhi;
-            else
-                dp = (double*) Data_Block[handle].errlo;
-            for (i = 0; i < ndata; i++) fp[i] = (float) dp[i];
+            if (above) {
+                dp = (double*)Data_Block[handle].errhi;
+            } else if (!Data_Block[handle].errasymmetry) {
+                dp = (double*)Data_Block[handle].errhi;
+            } else {
+                dp = (double*)Data_Block[handle].errlo;
+            }
+            for (i = 0; i < ndata; i++) fp[i] = (float)dp[i];
             break;
         }
         case TYPE_SHORT: {
             short* sp;
-            if (above)
-                sp = (short*) Data_Block[handle].errhi;
-            else if (!Data_Block[handle].errasymmetry)
-                sp = (short*) Data_Block[handle].errhi;
-            else
-                sp = (short*) Data_Block[handle].errlo;
-            for (i = 0; i < ndata; i++) fp[i] = (float) sp[i];
+            if (above) {
+                sp = (short*)Data_Block[handle].errhi;
+            } else if (!Data_Block[handle].errasymmetry) {
+                sp = (short*)Data_Block[handle].errhi;
+            } else {
+                sp = (short*)Data_Block[handle].errlo;
+            }
+            for (i = 0; i < ndata; i++) fp[i] = (float)sp[i];
             break;
         }
         case TYPE_UNSIGNED_SHORT: {
             unsigned short* sp;
-            if (above)
-                sp = (unsigned short*) Data_Block[handle].errhi;
-            else if (!Data_Block[handle].errasymmetry)
-                sp = (unsigned short*) Data_Block[handle].errhi;
-            else
-                sp = (unsigned short*) Data_Block[handle].errlo;
-            for (i = 0; i < ndata; i++) fp[i] = (float) sp[i];
+            if (above) {
+                sp = (unsigned short*)Data_Block[handle].errhi;
+            } else if (!Data_Block[handle].errasymmetry) {
+                sp = (unsigned short*)Data_Block[handle].errhi;
+            } else {
+                sp = (unsigned short*)Data_Block[handle].errlo;
+            }
+            for (i = 0; i < ndata; i++) fp[i] = (float)sp[i];
             break;
         }
         case TYPE_INT: {
             int* ip;
-            if (above)
-                ip = (int*) Data_Block[handle].errhi;
-            else if (!Data_Block[handle].errasymmetry)
-                ip = (int*) Data_Block[handle].errhi;
-            else
-                ip = (int*) Data_Block[handle].errlo;
-            for (i = 0; i < ndata; i++) fp[i] = (float) ip[i];
+            if (above) {
+                ip = (int*)Data_Block[handle].errhi;
+            } else if (!Data_Block[handle].errasymmetry) {
+                ip = (int*)Data_Block[handle].errhi;
+            } else {
+                ip = (int*)Data_Block[handle].errlo;
+            }
+            for (i = 0; i < ndata; i++) fp[i] = (float)ip[i];
             break;
         }
         case TYPE_UNSIGNED_INT: {
             unsigned int* up;
-            if (above)
-                up = (unsigned int*) Data_Block[handle].errhi;
-            else if (!Data_Block[handle].errasymmetry)
-                up = (unsigned int*) Data_Block[handle].errhi;
-            else
-                up = (unsigned int*) Data_Block[handle].errlo;
-            for (i = 0; i < ndata; i++) fp[i] = (float) up[i];
+            if (above) {
+                up = (unsigned int*)Data_Block[handle].errhi;
+            } else if (!Data_Block[handle].errasymmetry) {
+                up = (unsigned int*)Data_Block[handle].errhi;
+            } else {
+                up = (unsigned int*)Data_Block[handle].errlo;
+            }
+            for (i = 0; i < ndata; i++) fp[i] = (float)up[i];
             break;
         }
         case TYPE_LONG: {
             long* lp;
-            if (above)
-                lp = (long*) Data_Block[handle].errhi;
-            else if (!Data_Block[handle].errasymmetry)
-                lp = (long*) Data_Block[handle].errhi;
-            else
-                lp = (long*) Data_Block[handle].errlo;
-            for (i = 0; i < ndata; i++) fp[i] = (float) lp[i];
+            if (above) {
+                lp = (long*)Data_Block[handle].errhi;
+            } else if (!Data_Block[handle].errasymmetry) {
+                lp = (long*)Data_Block[handle].errhi;
+            } else {
+                lp = (long*)Data_Block[handle].errlo;
+            }
+            for (i = 0; i < ndata; i++) fp[i] = (float)lp[i];
             break;
         }
         case TYPE_UNSIGNED_LONG: {
             unsigned long* lp;
-            if (above)
-                lp = (unsigned long*) Data_Block[handle].errhi;
-            else if (!Data_Block[handle].errasymmetry)
-                lp = (unsigned long*) Data_Block[handle].errhi;
-            else
-                lp = (unsigned long*) Data_Block[handle].errlo;
-            for (i = 0; i < ndata; i++) fp[i] = (float) lp[i];
+            if (above) {
+                lp = (unsigned long*)Data_Block[handle].errhi;
+            } else if (!Data_Block[handle].errasymmetry) {
+                lp = (unsigned long*)Data_Block[handle].errhi;
+            } else {
+                lp = (unsigned long*)Data_Block[handle].errlo;
+            }
+            for (i = 0; i < ndata; i++) fp[i] = (float)lp[i];
             break;
         }
         case TYPE_LONG64: {
             long long int* lp;
-            if (above)
-                lp = (long long int*) Data_Block[handle].errhi;
-            else if (!Data_Block[handle].errasymmetry)
-                lp = (long long int*) Data_Block[handle].errhi;
-            else
-                lp = (long long int*) Data_Block[handle].errlo;
-            for (i = 0; i < ndata; i++) fp[i] = (float) lp[i];
+            if (above) {
+                lp = (long long int*)Data_Block[handle].errhi;
+            } else if (!Data_Block[handle].errasymmetry) {
+                lp = (long long int*)Data_Block[handle].errhi;
+            } else {
+                lp = (long long int*)Data_Block[handle].errlo;
+            }
+            for (i = 0; i < ndata; i++) fp[i] = (float)lp[i];
             break;
         }
 #ifndef __APPLE__
@@ -2159,58 +2166,62 @@ void getIdamFloatAsymmetricError(int handle, int above, float* fp)
 #endif
         case TYPE_CHAR: {
             char* cp;
-            if (above)
+            if (above) {
                 cp = Data_Block[handle].errhi;
-            else if (!Data_Block[handle].errasymmetry)
+            } else if (!Data_Block[handle].errasymmetry) {
                 cp = Data_Block[handle].errhi;
-            else
+            } else {
                 cp = Data_Block[handle].errlo;
-            for (i = 0; i < ndata; i++) fp[i] = (float) cp[i];
+            }
+            for (i = 0; i < ndata; i++) fp[i] = (float)cp[i];
             break;
         }
         case TYPE_UNSIGNED_CHAR: {
             unsigned char* cp;
-            if (above)
-                cp = (unsigned char*) Data_Block[handle].errhi;
-            else if (!Data_Block[handle].errasymmetry)
-                cp = (unsigned char*) Data_Block[handle].errhi;
-            else
-                cp = (unsigned char*) Data_Block[handle].errlo;
-            for (i = 0; i < ndata; i++) fp[i] = (float) cp[i];
+            if (above) {
+                cp = (unsigned char*)Data_Block[handle].errhi;
+            } else if (!Data_Block[handle].errasymmetry) {
+                cp = (unsigned char*)Data_Block[handle].errhi;
+            } else {
+                cp = (unsigned char*)Data_Block[handle].errlo;
+            }
+            for (i = 0; i < ndata; i++) fp[i] = (float)cp[i];
             break;
         }
         case TYPE_DCOMPLEX: {
             int j = 0;
             DCOMPLEX* cp;
-            if (above)
-                cp = (DCOMPLEX*) Data_Block[handle].errhi;
-            else if (!Data_Block[handle].errasymmetry)
-                cp = (DCOMPLEX*) Data_Block[handle].errhi;
-            else
-                cp = (DCOMPLEX*) Data_Block[handle].errlo;
+            if (above) {
+                cp = (DCOMPLEX*)Data_Block[handle].errhi;
+            } else if (!Data_Block[handle].errasymmetry) {
+                cp = (DCOMPLEX*)Data_Block[handle].errhi;
+            } else {
+                cp = (DCOMPLEX*)Data_Block[handle].errlo;
+            }
             for (i = 0; i < ndata; i++) {
-                fp[j++] = (float) cp[i].real;
-                fp[j++] = (float) cp[i].imaginary;
+                fp[j++] = (float)cp[i].real;
+                fp[j++] = (float)cp[i].imaginary;
             }
             break;
         }
         case TYPE_COMPLEX: {
             int j = 0;
             COMPLEX* cp;
-            if (above)
-                cp = (COMPLEX*) Data_Block[handle].errhi;
-            else if (!Data_Block[handle].errasymmetry)
-                cp = (COMPLEX*) Data_Block[handle].errhi;
-            else
-                cp = (COMPLEX*) Data_Block[handle].errlo;
+            if (above) {
+                cp = (COMPLEX*)Data_Block[handle].errhi;
+            } else if (!Data_Block[handle].errasymmetry) {
+                cp = (COMPLEX*)Data_Block[handle].errhi;
+            } else {
+                cp = (COMPLEX*)Data_Block[handle].errlo;
+            }
             for (i = 0; i < ndata; i++) {
-                fp[j++] = (float) cp[i].real;
-                fp[j++] = (float) cp[i].imaginary;
+                fp[j++] = (float)cp[i].real;
+                fp[j++] = (float)cp[i].imaginary;
             }
             break;
         }
         default:
-            for (i = 0; i < ndata; i++) fp[i] = (float) 0.0;
+            for (i = 0; i < ndata; i++) fp[i] = (float)0.0;
             break;
 
     }
@@ -2249,7 +2260,7 @@ void getIdamDBlock(int handle, DATA_BLOCK* db)
 DATA_BLOCK* getIdamDataBlock(int handle)
 {
     if (handle < 0 || handle >= Data_Block_Count) return NULL;
-    return (&Data_Block[handle]);
+    return &Data_Block[handle];
 }
 
 //!  Returns the data label of a data object
@@ -2260,7 +2271,7 @@ DATA_BLOCK* getIdamDataBlock(int handle)
 char* getIdamDataLabel(int handle)
 {
     if (handle < 0 || handle >= Data_Block_Count) return NULL;
-    return (Data_Block[handle].data_label);
+    return Data_Block[handle].data_label;
 }
 
 //!  Returns the data label of a data object for use in MDS+ TDI functions
@@ -2283,7 +2294,7 @@ void getIdamDataLabelTdi(int handle, char* label)
 char* getIdamDataUnits(int handle)
 {
     if (handle < 0 || handle >= Data_Block_Count) return NULL;
-    return (Data_Block[handle].data_units);
+    return Data_Block[handle].data_units;
 }
 
 //!  Returns the data units of a data object for use in MDS+ TDI functions
@@ -2306,7 +2317,7 @@ void getIdamDataUnitsTdi(int handle, char* units)
 char* getIdamDataDesc(int handle)
 {
     if (handle < 0 || handle >= Data_Block_Count) return NULL;
-    return (Data_Block[handle].data_desc);
+    return Data_Block[handle].data_desc;
 }
 
 //!  Returns the description of a data object for use in MDS+ TDI functions
@@ -2323,7 +2334,6 @@ void getIdamDataDescTdi(int handle, char* desc)
 
 // Dimension Coordinates
 
-
 //! Returns the coordinate dimension size
 /** the number of elements in the coordinate array
 \param   handle   The data object handle
@@ -2333,7 +2343,7 @@ void getIdamDataDescTdi(int handle, char* desc)
 int getIdamDimNum(int handle, int ndim)
 {
     if (handle < 0 || handle >= Data_Block_Count || ndim < 0 || ndim >= Data_Block[handle].rank) return 0;
-    return ((int) Data_Block[handle].dims[ndim].dim_n);
+    return (int)Data_Block[handle].dims[ndim].dim_n;
 }
 
 //! Returns the coordinate dimension data type
@@ -2345,7 +2355,7 @@ int getIdamDimNum(int handle, int ndim)
 int getIdamDimType(int handle, int ndim)
 {
     if (handle < 0 || handle >= Data_Block_Count || ndim < 0 || ndim >= Data_Block[handle].rank) return TYPE_UNKNOWN;
-    return ((int) Data_Block[handle].dims[ndim].data_type);
+    return (int)Data_Block[handle].dims[ndim].data_type;
 }
 
 //! Returns the coordinate dimension error data type
@@ -2357,7 +2367,7 @@ int getIdamDimType(int handle, int ndim)
 int getIdamDimErrorType(int handle, int ndim)
 {
     if (handle < 0 || handle >= Data_Block_Count || ndim < 0 || ndim >= Data_Block[handle].rank) return TYPE_UNKNOWN;
-    return ((int) Data_Block[handle].dims[ndim].error_type);
+    return (int)Data_Block[handle].dims[ndim].error_type;
 }
 
 //! Returns whether or not coordinate error data are asymmetric.
@@ -2369,22 +2379,8 @@ int getIdamDimErrorType(int handle, int ndim)
 int getIdamDimErrorAsymmetry(int handle, int ndim)
 {
     if (handle < 0 || handle >= Data_Block_Count || ndim < 0 || ndim >= Data_Block[handle].rank) return 0;
-    return ((int) Data_Block[handle].dims[ndim].errasymmetry);
+    return (int)Data_Block[handle].dims[ndim].errasymmetry;
 }
-
-/*
-void getIdamDimErrorModel(int handle, int ndim, int *model, int *param_n, float **params){
-   if(handle < 0 || handle >= Data_Block_Count || ndim < 0 || ndim >= Data_Block[handle].rank){
-      *model   = ERROR_MODEL_UNKNOWN;
-      *param_n = 0;
-      *params  = NULL;
-       return;
-   }
-   *model   = Data_Block[handle].dims[ndim].error_model;    // Model ID
-   *param_n = Data_Block[handle].dims[ndim].error_param_n;     // Number of parameters
-   *params  = Data_Block[handle].dims[ndim].errparams;         // Array of Model Parameters
-}
-*/
 
 void getIdamDimErrorModel(int handle, int ndim, int* model, int* param_n, float* params)
 {
@@ -2406,12 +2402,12 @@ void getIdamDimErrorModel(int handle, int ndim, int* model, int* param_n, float*
 char* getIdamSyntheticDimData(int handle, int ndim)
 {
     if (handle < 0 || handle >= Data_Block_Count || ndim < 0 || ndim >= Data_Block[handle].rank) return NULL;
-    if (!get_synthetic || Data_Block[handle].dims[ndim].error_model == ERROR_MODEL_UNKNOWN)
-        return (Data_Block[handle].dims[ndim].dim);
+    if (!get_synthetic || Data_Block[handle].dims[ndim].error_model == ERROR_MODEL_UNKNOWN) {
+        return Data_Block[handle].dims[ndim].dim;
+    }
     generateIdamSyntheticDimData(handle, ndim);
-    return (Data_Block[handle].dims[ndim].synthetic);
+    return Data_Block[handle].dims[ndim].synthetic;
 }
-
 
 ///!  Returns a pointer to the requested coordinate data
 /** The data may be synthetically generated.
@@ -2422,8 +2418,8 @@ char* getIdamSyntheticDimData(int handle, int ndim)
 char* getIdamDimData(int handle, int ndim)
 {
     if (handle < 0 || handle >= Data_Block_Count || ndim < 0 || ndim >= Data_Block[handle].rank) return NULL;
-    if (!get_synthetic) return (Data_Block[handle].dims[ndim].dim);
-    return (getIdamSyntheticDimData(handle, ndim));
+    if (!get_synthetic) return Data_Block[handle].dims[ndim].dim;
+    return getIdamSyntheticDimData(handle, ndim);
 }
 
 //! Returns the data label of a coordinate dimension
@@ -2435,7 +2431,7 @@ char* getIdamDimData(int handle, int ndim)
 char* getIdamDimLabel(int handle, int ndim)
 {
     if (handle < 0 || handle >= Data_Block_Count || ndim < 0 || ndim >= Data_Block[handle].rank) return NULL;
-    return (Data_Block[handle].dims[ndim].dim_label);
+    return Data_Block[handle].dims[ndim].dim_label;
 }
 //! Returns the data units of a coordinate dimension
 /**
@@ -2446,7 +2442,7 @@ char* getIdamDimLabel(int handle, int ndim)
 char* getIdamDimUnits(int handle, int ndim)
 {
     if (handle < 0 || handle >= Data_Block_Count || ndim < 0 || ndim >= Data_Block[handle].rank) return NULL;
-    return (Data_Block[handle].dims[ndim].dim_units);
+    return Data_Block[handle].dims[ndim].dim_units;
 }
 
 //!  Returns the data label of a coordinate dimension for use in MDS+ TDI functions
@@ -2475,7 +2471,6 @@ void getIdamDimUnitsTdi(int handle, int ndim, char* units)
     strcpy(units, Data_Block[handle].dims[ndim].dim_units);
 }
 
-
 //!  Returns coordinate data cast to double precision
 /** The copy buffer must be preallocated and sized for the data type.
 \param   handle   The data object handle
@@ -2491,16 +2486,16 @@ void getIdamDoubleDimData(int handle, int ndim, double* fp)
     if (handle < 0 || handle >= Data_Block_Count || ndim < 0 || ndim >= Data_Block[handle].rank) return;
     if (Data_Block[handle].dims[ndim].data_type == TYPE_DOUBLE) {
         if (!get_synthetic)
-            memcpy((void*) fp, (void*) Data_Block[handle].dims[ndim].dim,
-                   (size_t) Data_Block[handle].dims[ndim].dim_n * sizeof(double));
+            memcpy((void*)fp, (void*)Data_Block[handle].dims[ndim].dim,
+                   (size_t)Data_Block[handle].dims[ndim].dim_n * sizeof(double));
         else {
             generateIdamSyntheticDimData(handle, ndim);
             if (Data_Block[handle].dims[ndim].synthetic != NULL)
-                memcpy((void*) fp, (void*) Data_Block[handle].dims[ndim].synthetic,
-                       (size_t) Data_Block[handle].dims[ndim].dim_n * sizeof(double));
+                memcpy((void*)fp, (void*)Data_Block[handle].dims[ndim].synthetic,
+                       (size_t)Data_Block[handle].dims[ndim].dim_n * sizeof(double));
             else
-                memcpy((void*) fp, (void*) Data_Block[handle].dims[ndim].dim,
-                       (size_t) Data_Block[handle].dims[ndim].dim_n * sizeof(double));
+                memcpy((void*)fp, (void*)Data_Block[handle].dims[ndim].dim,
+                       (size_t)Data_Block[handle].dims[ndim].dim_n * sizeof(double));
             return;
         }
     } else {
@@ -2508,55 +2503,56 @@ void getIdamDoubleDimData(int handle, int ndim, double* fp)
         int i, ndata;
 
         ndata = Data_Block[handle].dims[ndim].dim_n;
-        if (!get_synthetic)
+        if (!get_synthetic) {
             array = Data_Block[handle].dims[ndim].dim;
-        else {
+        } else {
             generateIdamSyntheticDimData(handle, ndim);
-            if (Data_Block[handle].dims[ndim].synthetic != NULL)
+            if (Data_Block[handle].dims[ndim].synthetic != NULL) {
                 array = Data_Block[handle].dims[ndim].synthetic;
-            else
+            } else {
                 array = Data_Block[handle].dims[ndim].dim;
+            }
         }
 
         switch (Data_Block[handle].dims[ndim].data_type) {
             case TYPE_FLOAT: {
-                float* dp = (float*) array;
-                for (i = 0; i < ndata; i++) fp[i] = (double) dp[i];
+                float* dp = (float*)array;
+                for (i = 0; i < ndata; i++) fp[i] = (double)dp[i];
                 break;
             }
             case TYPE_SHORT: {
-                short* sp = (short*) array;
-                for (i = 0; i < ndata; i++) fp[i] = (double) sp[i];
+                short* sp = (short*)array;
+                for (i = 0; i < ndata; i++) fp[i] = (double)sp[i];
                 break;
             }
             case TYPE_UNSIGNED_SHORT: {
-                unsigned short* sp = (unsigned short*) array;
-                for (i = 0; i < ndata; i++) fp[i] = (double) sp[i];
+                unsigned short* sp = (unsigned short*)array;
+                for (i = 0; i < ndata; i++) fp[i] = (double)sp[i];
                 break;
             }
             case TYPE_INT: {
-                int* ip = (int*) array;
-                for (i = 0; i < ndata; i++) fp[i] = (double) ip[i];
+                int* ip = (int*)array;
+                for (i = 0; i < ndata; i++) fp[i] = (double)ip[i];
                 break;
             }
             case TYPE_UNSIGNED_INT: {
-                unsigned int* up = (unsigned int*) array;
-                for (i = 0; i < ndata; i++) fp[i] = (double) up[i];
+                unsigned int* up = (unsigned int*)array;
+                for (i = 0; i < ndata; i++) fp[i] = (double)up[i];
                 break;
             }
             case TYPE_LONG: {
-                long* lp = (long*) array;
-                for (i = 0; i < ndata; i++) fp[i] = (double) lp[i];
+                long* lp = (long*)array;
+                for (i = 0; i < ndata; i++) fp[i] = (double)lp[i];
                 break;
             }
             case TYPE_UNSIGNED_LONG: {
-                unsigned long* lp = (unsigned long*) array;
-                for (i = 0; i < ndata; i++) fp[i] = (double) lp[i];
+                unsigned long* lp = (unsigned long*)array;
+                for (i = 0; i < ndata; i++) fp[i] = (double)lp[i];
                 break;
             }
             case TYPE_LONG64: {
-                long long int* lp = (long long int*) array;
-                for (i = 0; i < ndata; i++) fp[i] = (double) lp[i];
+                long long int* lp = (long long int*)array;
+                for (i = 0; i < ndata; i++) fp[i] = (double)lp[i];
                 break;
             }
 #ifndef __APPLE__
@@ -2567,45 +2563,44 @@ void getIdamDoubleDimData(int handle, int ndim, double* fp)
             }
 #endif
             case TYPE_CHAR: {
-                char* cp = (char*) array;
-                for (i = 0; i < ndata; i++) fp[i] = (double) cp[i];
+                char* cp = (char*)array;
+                for (i = 0; i < ndata; i++) fp[i] = (double)cp[i];
                 break;
             }
             case TYPE_UNSIGNED_CHAR: {
-                unsigned char* cp = (unsigned char*) array;
-                for (i = 0; i < ndata; i++) fp[i] = (double) cp[i];
+                unsigned char* cp = (unsigned char*)array;
+                for (i = 0; i < ndata; i++) fp[i] = (double)cp[i];
                 break;
             }
             case TYPE_DCOMPLEX: {
                 int j = 0;
-                DCOMPLEX* cp = (DCOMPLEX*) array;
+                DCOMPLEX* cp = (DCOMPLEX*)array;
                 for (i = 0; i < ndata; i++) {
-                    fp[j++] = (double) cp[i].real;
-                    fp[j++] = (double) cp[i].imaginary;
+                    fp[j++] = (double)cp[i].real;
+                    fp[j++] = (double)cp[i].imaginary;
                 }
                 break;
             }
             case TYPE_COMPLEX: {
                 int j = 0;
-                COMPLEX* cp = (COMPLEX*) array;
+                COMPLEX* cp = (COMPLEX*)array;
                 for (i = 0; i < ndata; i++) {
-                    fp[j++] = (double) cp[i].real;
-                    fp[j++] = (double) cp[i].imaginary;
+                    fp[j++] = (double)cp[i].real;
+                    fp[j++] = (double)cp[i].imaginary;
                 }
                 break;
             }
             case TYPE_UNKNOWN:
-                for (i = 0; i < ndata; i++) fp[i] = (double) 0.0;
+                for (i = 0; i < ndata; i++) fp[i] = (double)0.0;
                 break;
             default:
-                for (i = 0; i < ndata; i++) fp[i] = (double) 0.0;
+                for (i = 0; i < ndata; i++) fp[i] = (double)0.0;
                 break;
 
         }
         return;
     }
 }
-
 
 //!  Returns coordinate data cast to single precision
 /** The copy buffer must be preallocated and sized for the data type.
@@ -2622,16 +2617,16 @@ void getIdamFloatDimData(int handle, int ndim, float* fp)
     if (handle < 0 || handle >= Data_Block_Count || ndim < 0 || ndim >= Data_Block[handle].rank) return;
     if (Data_Block[handle].dims[ndim].data_type == TYPE_FLOAT) {
         if (!get_synthetic)
-            memcpy((void*) fp, (void*) Data_Block[handle].dims[ndim].dim,
-                   (size_t) Data_Block[handle].dims[ndim].dim_n * sizeof(float));
+            memcpy((void*)fp, (void*)Data_Block[handle].dims[ndim].dim,
+                   (size_t)Data_Block[handle].dims[ndim].dim_n * sizeof(float));
         else {
             generateIdamSyntheticDimData(handle, ndim);
             if (Data_Block[handle].dims[ndim].synthetic != NULL)
-                memcpy((void*) fp, (void*) Data_Block[handle].dims[ndim].synthetic,
-                       (size_t) Data_Block[handle].dims[ndim].dim_n * sizeof(float));
+                memcpy((void*)fp, (void*)Data_Block[handle].dims[ndim].synthetic,
+                       (size_t)Data_Block[handle].dims[ndim].dim_n * sizeof(float));
             else
-                memcpy((void*) fp, (void*) Data_Block[handle].dims[ndim].dim,
-                       (size_t) Data_Block[handle].dims[ndim].dim_n * sizeof(float));
+                memcpy((void*)fp, (void*)Data_Block[handle].dims[ndim].dim,
+                       (size_t)Data_Block[handle].dims[ndim].dim_n * sizeof(float));
             return;
         }
     } else {
@@ -2639,55 +2634,56 @@ void getIdamFloatDimData(int handle, int ndim, float* fp)
         int i, ndata;
 
         ndata = Data_Block[handle].dims[ndim].dim_n;
-        if (!get_synthetic)
+        if (!get_synthetic) {
             array = Data_Block[handle].dims[ndim].dim;
-        else {
+        } else {
             generateIdamSyntheticDimData(handle, ndim);
-            if (Data_Block[handle].dims[ndim].synthetic != NULL)
+            if (Data_Block[handle].dims[ndim].synthetic != NULL) {
                 array = Data_Block[handle].dims[ndim].synthetic;
-            else
+            } else {
                 array = Data_Block[handle].dims[ndim].dim;
+            }
         }
 
         switch (Data_Block[handle].dims[ndim].data_type) {
             case TYPE_DOUBLE: {
-                double* dp = (double*) array;
-                for (i = 0; i < ndata; i++) fp[i] = (float) dp[i];
+                double* dp = (double*)array;
+                for (i = 0; i < ndata; i++) fp[i] = (float)dp[i];
                 break;
             }
             case TYPE_SHORT: {
-                short* sp = (short*) array;
-                for (i = 0; i < ndata; i++) fp[i] = (float) sp[i];
+                short* sp = (short*)array;
+                for (i = 0; i < ndata; i++) fp[i] = (float)sp[i];
                 break;
             }
             case TYPE_UNSIGNED_SHORT: {
-                unsigned short* sp = (unsigned short*) array;
-                for (i = 0; i < ndata; i++) fp[i] = (float) sp[i];
+                unsigned short* sp = (unsigned short*)array;
+                for (i = 0; i < ndata; i++) fp[i] = (float)sp[i];
                 break;
             }
             case TYPE_INT: {
-                int* ip = (int*) array;
-                for (i = 0; i < ndata; i++) fp[i] = (float) ip[i];
+                int* ip = (int*)array;
+                for (i = 0; i < ndata; i++) fp[i] = (float)ip[i];
                 break;
             }
             case TYPE_UNSIGNED_INT: {
-                unsigned int* up = (unsigned int*) array;
-                for (i = 0; i < ndata; i++) fp[i] = (float) up[i];
+                unsigned int* up = (unsigned int*)array;
+                for (i = 0; i < ndata; i++) fp[i] = (float)up[i];
                 break;
             }
             case TYPE_LONG: {
-                long* lp = (long*) array;
-                for (i = 0; i < ndata; i++) fp[i] = (float) lp[i];
+                long* lp = (long*)array;
+                for (i = 0; i < ndata; i++) fp[i] = (float)lp[i];
                 break;
             }
             case TYPE_UNSIGNED_LONG: {
-                unsigned long* lp = (unsigned long*) array;
-                for (i = 0; i < ndata; i++) fp[i] = (float) lp[i];
+                unsigned long* lp = (unsigned long*)array;
+                for (i = 0; i < ndata; i++) fp[i] = (float)lp[i];
                 break;
             }
             case TYPE_LONG64: {
-                long long int* lp = (long long int*) array;
-                for (i = 0; i < ndata; i++) fp[i] = (float) lp[i];
+                long long int* lp = (long long int*)array;
+                for (i = 0; i < ndata; i++) fp[i] = (float)lp[i];
                 break;
             }
 #ifndef __APPLE__
@@ -2698,38 +2694,38 @@ void getIdamFloatDimData(int handle, int ndim, float* fp)
             }
 #endif
             case TYPE_CHAR: {
-                char* cp = (char*) array;
-                for (i = 0; i < ndata; i++) fp[i] = (float) cp[i];
+                char* cp = (char*)array;
+                for (i = 0; i < ndata; i++) fp[i] = (float)cp[i];
                 break;
             }
             case TYPE_UNSIGNED_CHAR: {
-                unsigned char* cp = (unsigned char*) array;
-                for (i = 0; i < ndata; i++) fp[i] = (float) cp[i];
+                unsigned char* cp = (unsigned char*)array;
+                for (i = 0; i < ndata; i++) fp[i] = (float)cp[i];
                 break;
             }
             case TYPE_DCOMPLEX: {
                 int j = 0;
-                DCOMPLEX* cp = (DCOMPLEX*) array;
+                DCOMPLEX* cp = (DCOMPLEX*)array;
                 for (i = 0; i < ndata; i++) {
-                    fp[j++] = (float) cp[i].real;
-                    fp[j++] = (float) cp[i].imaginary;
+                    fp[j++] = (float)cp[i].real;
+                    fp[j++] = (float)cp[i].imaginary;
                 }
                 break;
             }
             case TYPE_COMPLEX: {
                 int j = 0;
-                COMPLEX* cp = (COMPLEX*) array;
+                COMPLEX* cp = (COMPLEX*)array;
                 for (i = 0; i < ndata; i++) {
-                    fp[j++] = (float) cp[i].real;
-                    fp[j++] = (float) cp[i].imaginary;
+                    fp[j++] = (float)cp[i].real;
+                    fp[j++] = (float)cp[i].imaginary;
                 }
                 break;
             }
             case TYPE_UNKNOWN:
-                for (i = 0; i < ndata; i++) fp[i] = (float) 0.0;
+                for (i = 0; i < ndata; i++) fp[i] = (float)0.0;
                 break;
             default:
-                for (i = 0; i < ndata; i++) fp[i] = (float) 0.0;
+                for (i = 0; i < ndata; i++) fp[i] = (float)0.0;
                 break;
         }
         return;
@@ -2745,7 +2741,56 @@ void getIdamFloatDimData(int handle, int ndim, float* fp)
 */
 void getIdamGenericDimData(int handle, int ndim, void* data)
 {
-    getidamdimdata_(&handle, &ndim, data);
+    switch (getIdamDimType(handle, ndim)) {
+        case TYPE_FLOAT:
+            memcpy(data, (void*)getIdamDimData(handle, ndim), (size_t)getIdamDimNum(handle, ndim) * sizeof(float));
+            break;
+        case TYPE_DOUBLE:
+            memcpy(data, (void*)getIdamDimData(handle, ndim), (size_t)getIdamDimNum(handle, ndim) * sizeof(double));
+            break;
+        case TYPE_INT:
+            memcpy(data, (void*)getIdamDimData(handle, ndim), (size_t)getIdamDimNum(handle, ndim) * sizeof(int));
+            break;
+        case TYPE_LONG:
+            memcpy(data, (void*)getIdamDimData(handle, ndim), (size_t)getIdamDimNum(handle, ndim) * sizeof(long));
+            break;
+        case TYPE_LONG64:
+            memcpy(data, (void*)getIdamDimData(handle, ndim),
+                   (size_t)getIdamDimNum(handle, ndim) * sizeof(long long int));
+            break;
+        case TYPE_SHORT:
+            memcpy(data, (void*)getIdamDimData(handle, ndim), (size_t)getIdamDimNum(handle, ndim) * sizeof(short));
+            break;
+        case TYPE_CHAR:
+            memcpy(data, (void*)getIdamDimData(handle, ndim), (size_t)getIdamDimNum(handle, ndim) * sizeof(char));
+            break;
+        case TYPE_UNSIGNED_INT:
+            memcpy(data, (void*)getIdamDimData(handle, ndim),
+                   (size_t)getIdamDimNum(handle, ndim) * sizeof(unsigned int));
+            break;
+        case TYPE_UNSIGNED_LONG:
+            memcpy(data, (void*)getIdamDimData(handle, ndim),
+                   (size_t)getIdamDimNum(handle, ndim) * sizeof(unsigned long));
+            break;
+        case TYPE_UNSIGNED_LONG64:
+            memcpy(data, (void*)getIdamDimData(handle, ndim),
+                   (size_t)getIdamDimNum(handle, ndim) * sizeof(unsigned long long int));
+            break;
+        case TYPE_UNSIGNED_SHORT:
+            memcpy(data, (void*)getIdamDimData(handle, ndim),
+                   (size_t)getIdamDimNum(handle, ndim) * sizeof(unsigned short));
+            break;
+        case TYPE_UNSIGNED_CHAR:
+            memcpy(data, (void*)getIdamDimData(handle, ndim),
+                   (size_t)getIdamDimNum(handle, ndim) * sizeof(unsigned char));
+            break;
+        case TYPE_DCOMPLEX:
+            memcpy(data, (void*)getIdamDimData(handle, ndim), (size_t)getIdamDimNum(handle, ndim) * sizeof(DCOMPLEX));
+            break;
+        case TYPE_COMPLEX:
+            memcpy(data, (void*)getIdamDimData(handle, ndim), (size_t)getIdamDimNum(handle, ndim) * sizeof(COMPLEX));
+            break;
+    }
 }
 
 //!  Returns the coordinate dimension's DIMS data structure - the coordinate data and associated meta data.
@@ -2757,30 +2802,33 @@ void getIdamGenericDimData(int handle, int ndim, void* data)
 DIMS* getIdamDimBlock(int handle, int ndim)
 {
     if (handle < 0 || handle >= Data_Block_Count || ndim < 0 || ndim >= Data_Block[handle].rank) return NULL;
-    return (Data_Block[handle].dims + ndim);
+    return Data_Block[handle].dims + ndim;
 }
 
 
 char* getIdamDimAsymmetricError(int handle, int ndim, int above)
 {
     if (handle < 0 || handle >= Data_Block_Count || ndim < 0 || ndim >= Data_Block[handle].rank) return NULL;
-    if (Data_Block[handle].dims[ndim].error_type != TYPE_UNKNOWN) if (above) {
-        return (Data_Block[handle].dims[ndim].errhi);    // return the default error array
+    if (Data_Block[handle].dims[ndim].error_type != TYPE_UNKNOWN) {
+        if (above) {
+            return Data_Block[handle].dims[ndim].errhi;    // return the default error array
+        } else {
+            if (!Data_Block[handle].dims[ndim].errasymmetry) {
+                return Data_Block[handle].dims[ndim].errhi;   // return the default error array if symmetric errors
+            } else {
+                return Data_Block[handle].dims[ndim].errlo;
+            }   // otherwise the data array must have been returned by the server
+        }                           // or generated in a previous call
     } else {
-        if (!Data_Block[handle].dims[ndim].errasymmetry)
-            return (Data_Block[handle].dims[ndim].errhi);   // return the default error array if symmetric errors
-        else
-            return (Data_Block[handle].dims[ndim].errlo);   // otherwise the data array must have been returned by the server
-    }                           // or generated in a previous call
-    else {
         if (Data_Block[handle].dims[ndim].error_model != ERROR_MODEL_UNKNOWN) {
             generateIdamDimDataError(handle, ndim);
-            if (above)
-                return (Data_Block[handle].dims[ndim].errhi);
-            else if (!Data_Block[handle].dims[ndim].errasymmetry)
-                return (Data_Block[handle].dims[ndim].errhi);
-            else
-                return (Data_Block[handle].dims[ndim].errlo);
+            if (above) {
+                return Data_Block[handle].dims[ndim].errhi;
+            } else if (!Data_Block[handle].dims[ndim].errasymmetry) {
+                return Data_Block[handle].dims[ndim].errhi;
+            } else {
+                return Data_Block[handle].dims[ndim].errlo;
+            }
         } else {
             char* errhi = NULL;
             char* errlo = NULL;
@@ -2793,8 +2841,9 @@ char* getIdamDimAsymmetricError(int handle, int ndim, int above)
             if (allocArray(Data_Block[handle].dims[ndim].error_type, ndata, &errhi) != 0) {
                 idamLog(LOG_ERROR, "Heap Allocation Problem with Dimensional Data Errors\n");
                 Data_Block[handle].dims[ndim].errhi = NULL;
-            } else
+            } else {
                 Data_Block[handle].dims[ndim].errhi = errhi;
+            }
 
             if (Data_Block[handle].dims[ndim].errasymmetry) {               // Allocate Heap for the Asymmetric Error Data
                 if (allocArray(Data_Block[handle].dims[ndim].error_type, ndata, &errlo) != 0) {
@@ -2802,98 +2851,99 @@ char* getIdamDimAsymmetricError(int handle, int ndim, int above)
                     idamLog(LOG_ERROR, "Switching Asymmetry Off!\n");
                     Data_Block[handle].dims[ndim].errlo = errlo;
                     Data_Block[handle].dims[ndim].errasymmetry = 0;
-                } else
+                } else {
                     Data_Block[handle].dims[ndim].errlo = errlo;
+                }
             }
 
             switch (Data_Block[handle].dims[ndim].data_type) {
                 case TYPE_FLOAT: {
                     float* fh, * fl;
-                    fh = (float*) Data_Block[handle].dims[ndim].errhi;
-                    if (Data_Block[handle].dims[ndim].errasymmetry) fl = (float*) Data_Block[handle].dims[ndim].errlo;
+                    fh = (float*)Data_Block[handle].dims[ndim].errhi;
+                    if (Data_Block[handle].dims[ndim].errasymmetry) fl = (float*)Data_Block[handle].dims[ndim].errlo;
                     for (i = 0; i < ndata; i++) {
-                        fh[i] = (float) 0.0;
-                        if (Data_Block[handle].dims[ndim].errasymmetry) fl[i] = (float) 0.0;
+                        fh[i] = (float)0.0;
+                        if (Data_Block[handle].dims[ndim].errasymmetry) fl[i] = (float)0.0;
                     }
                     break;
                 }
                 case TYPE_DOUBLE: {
                     double* dh, * dl;
-                    dh = (double*) Data_Block[handle].dims[ndim].errhi;
-                    if (Data_Block[handle].dims[ndim].errasymmetry) dl = (double*) Data_Block[handle].dims[ndim].errlo;
+                    dh = (double*)Data_Block[handle].dims[ndim].errhi;
+                    if (Data_Block[handle].dims[ndim].errasymmetry) dl = (double*)Data_Block[handle].dims[ndim].errlo;
                     for (i = 0; i < ndata; i++) {
-                        dh[i] = (double) 0.0;
-                        if (Data_Block[handle].dims[ndim].errasymmetry) dl[i] = (double) 0.0;
+                        dh[i] = (double)0.0;
+                        if (Data_Block[handle].dims[ndim].errasymmetry) dl[i] = (double)0.0;
                     }
                     break;
                 }
                 case TYPE_SHORT: {
                     short* sh, * sl;
-                    sh = (short*) Data_Block[handle].dims[ndim].errhi;
-                    if (Data_Block[handle].dims[ndim].errasymmetry) sl = (short*) Data_Block[handle].dims[ndim].errlo;
+                    sh = (short*)Data_Block[handle].dims[ndim].errhi;
+                    if (Data_Block[handle].dims[ndim].errasymmetry) sl = (short*)Data_Block[handle].dims[ndim].errlo;
                     for (i = 0; i < ndata; i++) {
-                        sh[i] = (short) 0;
-                        if (Data_Block[handle].dims[ndim].errasymmetry) sl[i] = (short) 0;
+                        sh[i] = (short)0;
+                        if (Data_Block[handle].dims[ndim].errasymmetry) sl[i] = (short)0;
                     }
                     break;
                 }
                 case TYPE_UNSIGNED_SHORT: {
                     unsigned short* sh, * sl;
-                    sh = (unsigned short*) Data_Block[handle].dims[ndim].errhi;
-                    if (Data_Block[handle].dims[ndim].errasymmetry) sl = (unsigned short*) Data_Block[handle].dims[ndim].errlo;
+                    sh = (unsigned short*)Data_Block[handle].dims[ndim].errhi;
+                    if (Data_Block[handle].dims[ndim].errasymmetry) sl = (unsigned short*)Data_Block[handle].dims[ndim].errlo;
                     for (i = 0; i < ndata; i++) {
-                        sh[i] = (unsigned short) 0;
-                        if (Data_Block[handle].dims[ndim].errasymmetry) sl[i] = (unsigned short) 0;
+                        sh[i] = (unsigned short)0;
+                        if (Data_Block[handle].dims[ndim].errasymmetry) sl[i] = (unsigned short)0;
                     }
                     break;
                 }
                 case TYPE_INT: {
                     int* ih, * il;
-                    ih = (int*) Data_Block[handle].dims[ndim].errhi;
-                    if (Data_Block[handle].dims[ndim].errasymmetry) il = (int*) Data_Block[handle].dims[ndim].errlo;
+                    ih = (int*)Data_Block[handle].dims[ndim].errhi;
+                    if (Data_Block[handle].dims[ndim].errasymmetry) il = (int*)Data_Block[handle].dims[ndim].errlo;
                     for (i = 0; i < ndata; i++) {
-                        ih[i] = (int) 0;
-                        if (Data_Block[handle].dims[ndim].errasymmetry) il[i] = (int) 0;
+                        ih[i] = (int)0;
+                        if (Data_Block[handle].dims[ndim].errasymmetry) il[i] = (int)0;
                     }
                     break;
                 }
                 case TYPE_UNSIGNED_INT: {
                     unsigned int* uh, * ul;
-                    uh = (unsigned int*) Data_Block[handle].dims[ndim].errhi;
-                    if (Data_Block[handle].dims[ndim].errasymmetry) ul = (unsigned int*) Data_Block[handle].dims[ndim].errlo;
+                    uh = (unsigned int*)Data_Block[handle].dims[ndim].errhi;
+                    if (Data_Block[handle].dims[ndim].errasymmetry) ul = (unsigned int*)Data_Block[handle].dims[ndim].errlo;
                     for (i = 0; i < ndata; i++) {
-                        uh[i] = (unsigned int) 0;
-                        if (Data_Block[handle].dims[ndim].errasymmetry) ul[i] = (unsigned int) 0;
+                        uh[i] = (unsigned int)0;
+                        if (Data_Block[handle].dims[ndim].errasymmetry) ul[i] = (unsigned int)0;
                     }
                     break;
                 }
                 case TYPE_LONG: {
                     long* lh, * ll;
-                    lh = (long*) Data_Block[handle].dims[ndim].errhi;
-                    if (Data_Block[handle].dims[ndim].errasymmetry) ll = (long*) Data_Block[handle].dims[ndim].errlo;
+                    lh = (long*)Data_Block[handle].dims[ndim].errhi;
+                    if (Data_Block[handle].dims[ndim].errasymmetry) ll = (long*)Data_Block[handle].dims[ndim].errlo;
                     for (i = 0; i < ndata; i++) {
-                        lh[i] = (long) 0;
-                        if (Data_Block[handle].dims[ndim].errasymmetry) ll[i] = (long) 0;
+                        lh[i] = (long)0;
+                        if (Data_Block[handle].dims[ndim].errasymmetry) ll[i] = (long)0;
                     }
                     break;
                 }
                 case TYPE_UNSIGNED_LONG: {
                     unsigned long* lh, * ll;
-                    lh = (unsigned long*) Data_Block[handle].dims[ndim].errhi;
-                    if (Data_Block[handle].dims[ndim].errasymmetry) ll = (unsigned long*) Data_Block[handle].dims[ndim].errlo;
+                    lh = (unsigned long*)Data_Block[handle].dims[ndim].errhi;
+                    if (Data_Block[handle].dims[ndim].errasymmetry) ll = (unsigned long*)Data_Block[handle].dims[ndim].errlo;
                     for (i = 0; i < ndata; i++) {
-                        lh[i] = (unsigned long) 0;
-                        if (Data_Block[handle].dims[ndim].errasymmetry) ll[i] = (unsigned long) 0;
+                        lh[i] = (unsigned long)0;
+                        if (Data_Block[handle].dims[ndim].errasymmetry) ll[i] = (unsigned long)0;
                     }
                     break;
                 }
                 case TYPE_LONG64: {
                     long long int* lh, * ll;
-                    lh = (long long int*) Data_Block[handle].dims[ndim].errhi;
-                    if (Data_Block[handle].dims[ndim].errasymmetry) ll = (long long int*) Data_Block[handle].dims[ndim].errlo;
+                    lh = (long long int*)Data_Block[handle].dims[ndim].errhi;
+                    if (Data_Block[handle].dims[ndim].errasymmetry) ll = (long long int*)Data_Block[handle].dims[ndim].errlo;
                     for (i = 0; i < ndata; i++) {
-                        lh[i] = (long long int) 0;
-                        if (Data_Block[handle].dims[ndim].errasymmetry) ll[i] = (long long int) 0;
+                        lh[i] = (long long int)0;
+                        if (Data_Block[handle].dims[ndim].errasymmetry) ll[i] = (long long int)0;
                     }
                     break;
                 }
@@ -2921,44 +2971,44 @@ char* getIdamDimAsymmetricError(int handle, int ndim, int above)
                 }
                 case TYPE_UNSIGNED_CHAR: {
                     unsigned char* ch, * cl;
-                    ch = (unsigned char*) Data_Block[handle].dims[ndim].errhi;
-                    if (Data_Block[handle].dims[ndim].errasymmetry) cl = (unsigned char*) Data_Block[handle].dims[ndim].errlo;
+                    ch = (unsigned char*)Data_Block[handle].dims[ndim].errhi;
+                    if (Data_Block[handle].dims[ndim].errasymmetry) cl = (unsigned char*)Data_Block[handle].dims[ndim].errlo;
                     for (i = 0; i < ndata; i++) {
-                        ch[i] = (unsigned char) 0;
-                        if (Data_Block[handle].dims[ndim].errasymmetry) cl[i] = (unsigned char) 0;
+                        ch[i] = (unsigned char)0;
+                        if (Data_Block[handle].dims[ndim].errasymmetry) cl[i] = (unsigned char)0;
                     }
                     break;
                 }
                 case TYPE_DCOMPLEX: {
                     DCOMPLEX* ch, * cl;
-                    ch = (DCOMPLEX*) Data_Block[handle].dims[ndim].errhi;
-                    if (Data_Block[handle].dims[ndim].errasymmetry) cl = (DCOMPLEX*) Data_Block[handle].dims[ndim].errlo;
+                    ch = (DCOMPLEX*)Data_Block[handle].dims[ndim].errhi;
+                    if (Data_Block[handle].dims[ndim].errasymmetry) cl = (DCOMPLEX*)Data_Block[handle].dims[ndim].errlo;
                     for (i = 0; i < ndata; i++) {
-                        ch[i].real = (double) 0.0;
-                        ch[i].imaginary = (double) 0.0;
+                        ch[i].real = (double)0.0;
+                        ch[i].imaginary = (double)0.0;
                         if (Data_Block[handle].dims[ndim].errasymmetry) {
-                            cl[i].real = (double) 0.0;
-                            cl[i].imaginary = (double) 0.0;
+                            cl[i].real = (double)0.0;
+                            cl[i].imaginary = (double)0.0;
                         }
                     }
                     break;
                 }
                 case TYPE_COMPLEX: {
                     COMPLEX* ch, * cl;
-                    ch = (COMPLEX*) Data_Block[handle].dims[ndim].errhi;
-                    if (Data_Block[handle].dims[ndim].errasymmetry) cl = (COMPLEX*) Data_Block[handle].dims[ndim].errlo;
+                    ch = (COMPLEX*)Data_Block[handle].dims[ndim].errhi;
+                    if (Data_Block[handle].dims[ndim].errasymmetry) cl = (COMPLEX*)Data_Block[handle].dims[ndim].errlo;
                     for (i = 0; i < ndata; i++) {
-                        ch[i].real = (float) 0.0;
-                        ch[i].imaginary = (float) 0.0;
+                        ch[i].real = (float)0.0;
+                        ch[i].imaginary = (float)0.0;
                         if (Data_Block[handle].dims[ndim].errasymmetry) {
-                            cl[i].real = (float) 0.0;
-                            cl[i].imaginary = (float) 0.0;
+                            cl[i].real = (float)0.0;
+                            cl[i].imaginary = (float)0.0;
                         }
                     }
                     break;
                 }
             }
-            return (Data_Block[handle].dims[ndim].errhi);    // Errors are Symmetric at this point
+            return Data_Block[handle].dims[ndim].errhi;    // Errors are Symmetric at this point
         }
     }
 }
@@ -2973,7 +3023,7 @@ char* getIdamDimError(int handle, int ndim)
 {
     int above = 1;
     if (handle < 0 || handle >= Data_Block_Count || ndim < 0 || ndim >= Data_Block[handle].rank) return NULL;
-    return (getIdamDimAsymmetricError(handle, ndim, above));
+    return getIdamDimAsymmetricError(handle, ndim, above);
 }
 
 void getIdamFloatDimAsymmetricError(int handle, int ndim, int above, float* fp)
@@ -2984,150 +3034,162 @@ void getIdamFloatDimAsymmetricError(int handle, int ndim, int above, float* fp)
 
     ndata = Data_Block[handle].dims[ndim].dim_n;
 
-    if (Data_Block[handle].dims[ndim].error_type == TYPE_UNKNOWN)
-        getIdamDimAsymmetricError(handle, ndim, above);     // Create the Error Data prior to Casting
+    if (Data_Block[handle].dims[ndim].error_type == TYPE_UNKNOWN) {
+        getIdamDimAsymmetricError(handle, ndim, above);
+    }     // Create the Error Data prior to Casting
 
     switch (Data_Block[handle].dims[ndim].error_type) {
         case TYPE_UNKNOWN:
-            for (i = 0; i < ndata; i++) fp[i] = (float) 0.0; // No Error Data
+            for (i = 0; i < ndata; i++) fp[i] = (float)0.0; // No Error Data
             break;
         case TYPE_FLOAT:
             if (above)
-                memcpy((void*) fp, (void*) Data_Block[handle].dims[ndim].errhi,
-                       (size_t) Data_Block[handle].dims[ndim].dim_n * sizeof(float));
+                memcpy((void*)fp, (void*)Data_Block[handle].dims[ndim].errhi,
+                       (size_t)Data_Block[handle].dims[ndim].dim_n * sizeof(float));
             else if (!Data_Block[handle].dims[ndim].errasymmetry)
-                memcpy((void*) fp, (void*) Data_Block[handle].dims[ndim].errhi,
-                       (size_t) Data_Block[handle].dims[ndim].dim_n * sizeof(float));
+                memcpy((void*)fp, (void*)Data_Block[handle].dims[ndim].errhi,
+                       (size_t)Data_Block[handle].dims[ndim].dim_n * sizeof(float));
             else
-                memcpy((void*) fp, (void*) Data_Block[handle].dims[ndim].errlo,
-                       (size_t) Data_Block[handle].dims[ndim].dim_n * sizeof(float));
+                memcpy((void*)fp, (void*)Data_Block[handle].dims[ndim].errlo,
+                       (size_t)Data_Block[handle].dims[ndim].dim_n * sizeof(float));
             break;
         case TYPE_DOUBLE: {
             double* dp;                          // Return Zeros if this data is requested unless Error is Modelled
-            if (above)
-                dp = (double*) Data_Block[handle].dims[ndim].errhi;
-            else if (!Data_Block[handle].dims[ndim].errasymmetry)
-                dp = (double*) Data_Block[handle].dims[ndim].errhi;
-            else
-                dp = (double*) Data_Block[handle].dims[ndim].errlo;
-            for (i = 0; i < ndata; i++) fp[i] = (float) dp[i];
+            if (above) {
+                dp = (double*)Data_Block[handle].dims[ndim].errhi;
+            } else if (!Data_Block[handle].dims[ndim].errasymmetry) {
+                dp = (double*)Data_Block[handle].dims[ndim].errhi;
+            } else {
+                dp = (double*)Data_Block[handle].dims[ndim].errlo;
+            }
+            for (i = 0; i < ndata; i++) fp[i] = (float)dp[i];
             break;
         }
         case TYPE_SHORT: {
             short* sp;
-            if (above)
-                sp = (short*) Data_Block[handle].dims[ndim].errhi;
-            else if (!Data_Block[handle].dims[ndim].errasymmetry)
-                sp = (short*) Data_Block[handle].dims[ndim].errhi;
-            else
-                sp = (short*) Data_Block[handle].dims[ndim].errlo;
-            for (i = 0; i < ndata; i++) fp[i] = (float) sp[i];
+            if (above) {
+                sp = (short*)Data_Block[handle].dims[ndim].errhi;
+            } else if (!Data_Block[handle].dims[ndim].errasymmetry) {
+                sp = (short*)Data_Block[handle].dims[ndim].errhi;
+            } else {
+                sp = (short*)Data_Block[handle].dims[ndim].errlo;
+            }
+            for (i = 0; i < ndata; i++) fp[i] = (float)sp[i];
             break;
         }
         case TYPE_UNSIGNED_SHORT: {
             unsigned short* sp;
-            if (above)
-                sp = (unsigned short*) Data_Block[handle].dims[ndim].errhi;
-            else if (!Data_Block[handle].dims[ndim].errasymmetry)
-                sp = (unsigned short*) Data_Block[handle].dims[ndim].errhi;
-            else
-                sp = (unsigned short*) Data_Block[handle].dims[ndim].errlo;
-            for (i = 0; i < ndata; i++) fp[i] = (float) sp[i];
+            if (above) {
+                sp = (unsigned short*)Data_Block[handle].dims[ndim].errhi;
+            } else if (!Data_Block[handle].dims[ndim].errasymmetry) {
+                sp = (unsigned short*)Data_Block[handle].dims[ndim].errhi;
+            } else {
+                sp = (unsigned short*)Data_Block[handle].dims[ndim].errlo;
+            }
+            for (i = 0; i < ndata; i++) fp[i] = (float)sp[i];
             break;
         }
         case TYPE_INT: {
             int* ip;
-            if (above)
-                ip = (int*) Data_Block[handle].dims[ndim].errhi;
-            else if (!Data_Block[handle].dims[ndim].errasymmetry)
-                ip = (int*) Data_Block[handle].dims[ndim].errhi;
-            else
-                ip = (int*) Data_Block[handle].dims[ndim].errlo;
-            for (i = 0; i < ndata; i++) fp[i] = (float) ip[i];
+            if (above) {
+                ip = (int*)Data_Block[handle].dims[ndim].errhi;
+            } else if (!Data_Block[handle].dims[ndim].errasymmetry) {
+                ip = (int*)Data_Block[handle].dims[ndim].errhi;
+            } else {
+                ip = (int*)Data_Block[handle].dims[ndim].errlo;
+            }
+            for (i = 0; i < ndata; i++) fp[i] = (float)ip[i];
             break;
         }
         case TYPE_UNSIGNED_INT: {
             unsigned int* up;
-            if (above)
-                up = (unsigned int*) Data_Block[handle].dims[ndim].errhi;
-            else if (!Data_Block[handle].dims[ndim].errasymmetry)
-                up = (unsigned int*) Data_Block[handle].dims[ndim].errhi;
-            else
-                up = (unsigned int*) Data_Block[handle].dims[ndim].errlo;
-            for (i = 0; i < ndata; i++) fp[i] = (float) up[i];
+            if (above) {
+                up = (unsigned int*)Data_Block[handle].dims[ndim].errhi;
+            } else if (!Data_Block[handle].dims[ndim].errasymmetry) {
+                up = (unsigned int*)Data_Block[handle].dims[ndim].errhi;
+            } else {
+                up = (unsigned int*)Data_Block[handle].dims[ndim].errlo;
+            }
+            for (i = 0; i < ndata; i++) fp[i] = (float)up[i];
             break;
         }
         case TYPE_LONG: {
             long* lp;
-            if (above)
-                lp = (long*) Data_Block[handle].dims[ndim].errhi;
-            else if (!Data_Block[handle].dims[ndim].errasymmetry)
-                lp = (long*) Data_Block[handle].dims[ndim].errhi;
-            else
-                lp = (long*) Data_Block[handle].dims[ndim].errlo;
-            for (i = 0; i < ndata; i++) fp[i] = (float) lp[i];
+            if (above) {
+                lp = (long*)Data_Block[handle].dims[ndim].errhi;
+            } else if (!Data_Block[handle].dims[ndim].errasymmetry) {
+                lp = (long*)Data_Block[handle].dims[ndim].errhi;
+            } else {
+                lp = (long*)Data_Block[handle].dims[ndim].errlo;
+            }
+            for (i = 0; i < ndata; i++) fp[i] = (float)lp[i];
             break;
         }
         case TYPE_UNSIGNED_LONG: {
             unsigned long* lp;
-            if (above)
-                lp = (unsigned long*) Data_Block[handle].dims[ndim].errhi;
-            else if (!Data_Block[handle].dims[ndim].errasymmetry)
-                lp = (unsigned long*) Data_Block[handle].dims[ndim].errhi;
-            else
-                lp = (unsigned long*) Data_Block[handle].dims[ndim].errlo;
-            for (i = 0; i < ndata; i++) fp[i] = (float) lp[i];
+            if (above) {
+                lp = (unsigned long*)Data_Block[handle].dims[ndim].errhi;
+            } else if (!Data_Block[handle].dims[ndim].errasymmetry) {
+                lp = (unsigned long*)Data_Block[handle].dims[ndim].errhi;
+            } else {
+                lp = (unsigned long*)Data_Block[handle].dims[ndim].errlo;
+            }
+            for (i = 0; i < ndata; i++) fp[i] = (float)lp[i];
             break;
         }
         case TYPE_CHAR: {
             char* cp;
-            if (above)
+            if (above) {
                 cp = Data_Block[handle].dims[ndim].errhi;
-            else if (!Data_Block[handle].dims[ndim].errasymmetry)
+            } else if (!Data_Block[handle].dims[ndim].errasymmetry) {
                 cp = Data_Block[handle].dims[ndim].errhi;
-            else
+            } else {
                 cp = Data_Block[handle].dims[ndim].errlo;
-            for (i = 0; i < ndata; i++) fp[i] = (float) cp[i];
+            }
+            for (i = 0; i < ndata; i++) fp[i] = (float)cp[i];
             break;
         }
         case TYPE_UNSIGNED_CHAR: {
             unsigned char* cp;
-            if (above)
-                cp = (unsigned char*) Data_Block[handle].dims[ndim].errhi;
-            else if (!Data_Block[handle].dims[ndim].errasymmetry)
-                cp = (unsigned char*) Data_Block[handle].dims[ndim].errhi;
-            else
-                cp = (unsigned char*) Data_Block[handle].dims[ndim].errlo;
-            for (i = 0; i < ndata; i++) fp[i] = (float) cp[i];
+            if (above) {
+                cp = (unsigned char*)Data_Block[handle].dims[ndim].errhi;
+            } else if (!Data_Block[handle].dims[ndim].errasymmetry) {
+                cp = (unsigned char*)Data_Block[handle].dims[ndim].errhi;
+            } else {
+                cp = (unsigned char*)Data_Block[handle].dims[ndim].errlo;
+            }
+            for (i = 0; i < ndata; i++) fp[i] = (float)cp[i];
             break;
         }
         case TYPE_DCOMPLEX: {
             int j = 0;
             DCOMPLEX* cp;
-            if (above)
-                cp = (DCOMPLEX*) Data_Block[handle].dims[ndim].errhi;
-            else if (!Data_Block[handle].dims[ndim].errasymmetry)
-                cp = (DCOMPLEX*) Data_Block[handle].dims[ndim].errhi;
-            else
-                cp = (DCOMPLEX*) Data_Block[handle].dims[ndim].errlo;
+            if (above) {
+                cp = (DCOMPLEX*)Data_Block[handle].dims[ndim].errhi;
+            } else if (!Data_Block[handle].dims[ndim].errasymmetry) {
+                cp = (DCOMPLEX*)Data_Block[handle].dims[ndim].errhi;
+            } else {
+                cp = (DCOMPLEX*)Data_Block[handle].dims[ndim].errlo;
+            }
             for (i = 0; i < ndata; i++) {
-                fp[j++] = (float) cp[i].real;
-                fp[j++] = (float) cp[i].imaginary;
+                fp[j++] = (float)cp[i].real;
+                fp[j++] = (float)cp[i].imaginary;
             }
             break;
         }
         case TYPE_COMPLEX: {
             int j = 0;
             COMPLEX* cp;
-            if (above)
-                cp = (COMPLEX*) Data_Block[handle].dims[ndim].errhi;
-            else if (!Data_Block[handle].dims[ndim].errasymmetry)
-                cp = (COMPLEX*) Data_Block[handle].dims[ndim].errhi;
-            else
-                cp = (COMPLEX*) Data_Block[handle].dims[ndim].errlo;
+            if (above) {
+                cp = (COMPLEX*)Data_Block[handle].dims[ndim].errhi;
+            } else if (!Data_Block[handle].dims[ndim].errasymmetry) {
+                cp = (COMPLEX*)Data_Block[handle].dims[ndim].errhi;
+            } else {
+                cp = (COMPLEX*)Data_Block[handle].dims[ndim].errlo;
+            }
             for (i = 0; i < ndata; i++) {
-                fp[j++] = (float) cp[i].real;
-                fp[j++] = (float) cp[i].imaginary;
+                fp[j++] = (float)cp[i].real;
+                fp[j++] = (float)cp[i].imaginary;
             }
             break;
         }
@@ -3156,7 +3218,7 @@ void getIdamFloatDimError(int handle, int ndim, float* fp)
 DATA_SYSTEM* getIdamDataSystem(int handle)
 {
     if (handle < 0 || handle >= Data_Block_Count) return NULL;
-    return ((DATA_SYSTEM*) Data_Block[handle].data_system);
+    return (DATA_SYSTEM*)Data_Block[handle].data_system;
 }
 //!  Returns a pointer to the SYSTEM_CONFIG Meta Data structure
 /** A copy of the \b system_config database table record
@@ -3166,7 +3228,7 @@ DATA_SYSTEM* getIdamDataSystem(int handle)
 SYSTEM_CONFIG* getIdamSystemConfig(int handle)
 {
     if (handle < 0 || handle >= Data_Block_Count) return NULL;
-    return ((SYSTEM_CONFIG*) Data_Block[handle].system_config);
+    return (SYSTEM_CONFIG*)Data_Block[handle].system_config;
 }
 //!  Returns a pointer to the DATA_SOURCE Meta Data structure
 /** A copy of the \b data_source database table record - the location of data
@@ -3176,7 +3238,7 @@ SYSTEM_CONFIG* getIdamSystemConfig(int handle)
 DATA_SOURCE* getIdamDataSource(int handle)
 {
     if (handle < 0 || handle >= Data_Block_Count) return NULL;
-    return ((DATA_SOURCE*) Data_Block[handle].data_source);
+    return (DATA_SOURCE*)Data_Block[handle].data_source;
 }
 //!  Returns a pointer to the SIGNAL Meta Data structure
 /** A copy of the \b signal database table record
@@ -3186,7 +3248,7 @@ DATA_SOURCE* getIdamDataSource(int handle)
 SIGNAL* getIdamSignal(int handle)
 {
     if (handle < 0 || handle >= Data_Block_Count) return NULL;
-    return ((SIGNAL*) Data_Block[handle].signal_rec);
+    return (SIGNAL*)Data_Block[handle].signal_rec;
 }
 //!  Returns a pointer to the SIGNAL_DESC Meta Data structure
 /** A copy of the \b signal_desc database table record - a description of the data signal/object
@@ -3196,7 +3258,7 @@ SIGNAL* getIdamSignal(int handle)
 SIGNAL_DESC* getIdamSignalDesc(int handle)
 {
     if (handle < 0 || handle >= Data_Block_Count) return NULL;
-    return ((SIGNAL_DESC*) Data_Block[handle].signal_desc);
+    return (SIGNAL_DESC*)Data_Block[handle].signal_desc;
 }
 
 //!  Returns a pointer to the File Format string returned in the DATA_SOURCE metadata record
@@ -3209,7 +3271,7 @@ char* getIdamFileFormat(int handle)
     if (handle < 0 || handle >= Data_Block_Count) return NULL;
     DATA_SOURCE* data_source = getIdamDataSource(handle);
     if (data_source == NULL) return NULL;
-    return (data_source->format);
+    return data_source->format;
 }
 
 
@@ -3235,84 +3297,86 @@ int idamDataCheckSum(void* data, int data_n, int type)
     switch (type) {
         case TYPE_FLOAT: {
             float fsum = 0.0;
-            float* dp = (float*) data;
+            float* dp = (float*)data;
             for (i = 0; i < data_n; i++) if (isfinite(dp[i])) fsum = fsum + dp[i];
-            sum = (int) fsum;
-            if (sum == 0) sum = (int) (1000000.0 * fsum);      // Rescale
+            sum = (int)fsum;
+            if (sum == 0) sum = (int)(1000000.0 * fsum);      // Rescale
             break;
         }
         case TYPE_DOUBLE: {
             double fsum = 0.0;
-            double* dp = (double*) data;
+            double* dp = (double*)data;
             for (i = 0; i < data_n; i++) if (isfinite(dp[i])) fsum = fsum + dp[i];
-            sum = (int) fsum;
-            if (sum == 0) sum = (int) (1000000.0 * fsum);      // Rescale
+            sum = (int)fsum;
+            if (sum == 0) sum = (int)(1000000.0 * fsum);      // Rescale
             break;
         }
         case TYPE_COMPLEX: {
             float fsum = 0.0;
-            COMPLEX* dp = (COMPLEX*) data;
+            COMPLEX* dp = (COMPLEX*)data;
             for (i = 0; i < data_n; i++)
-                if (isfinite(dp[i].real) && isfinite(dp[i].imaginary))
+                if (isfinite(dp[i].real) && isfinite(dp[i].imaginary)) {
                     fsum = fsum + dp[i].real + dp[i].imaginary;
-            sum = (int) fsum;
-            if (sum == 0) sum = (int) (1000000.0 * fsum);      // Rescale
+                }
+            sum = (int)fsum;
+            if (sum == 0) sum = (int)(1000000.0 * fsum);      // Rescale
             break;
         }
         case TYPE_DCOMPLEX: {
             double fsum = 0.0;
-            DCOMPLEX* dp = (DCOMPLEX*) data;
+            DCOMPLEX* dp = (DCOMPLEX*)data;
             for (i = 0; i < data_n; i++)
-                if (isfinite(dp[i].real) && isfinite(dp[i].imaginary))
+                if (isfinite(dp[i].real) && isfinite(dp[i].imaginary)) {
                     fsum = fsum + dp[i].real + dp[i].imaginary;
-            sum = (int) fsum;
-            if (sum == 0) sum = (int) (1000000.0 * fsum);      // Rescale
+                }
+            sum = (int)fsum;
+            if (sum == 0) sum = (int)(1000000.0 * fsum);      // Rescale
             break;
         }
 
         case TYPE_CHAR: {
-            char* dp = (char*) data;
-            for (i = 0; i < data_n; i++) sum = sum + (int) dp[i];
+            char* dp = (char*)data;
+            for (i = 0; i < data_n; i++) sum = sum + (int)dp[i];
             break;
         }
         case TYPE_SHORT: {
-            short int* dp = (short int*) data;
-            for (i = 0; i < data_n; i++) sum = sum + (int) dp[i];
+            short int* dp = (short int*)data;
+            for (i = 0; i < data_n; i++) sum = sum + (int)dp[i];
             break;
         }
         case TYPE_INT: {
-            int* dp = (int*) data;
-            for (i = 0; i < data_n; i++) sum = sum + (int) dp[i];
+            int* dp = (int*)data;
+            for (i = 0; i < data_n; i++) sum = sum + (int)dp[i];
             break;
         }
         case TYPE_LONG: {
-            long* dp = (long*) data;
-            for (i = 0; i < data_n; i++) sum = sum + (int) dp[i];
+            long* dp = (long*)data;
+            for (i = 0; i < data_n; i++) sum = sum + (int)dp[i];
             break;
         }
         case TYPE_LONG64: {
-            long long int* dp = (long long int*) data;
-            for (i = 0; i < data_n; i++) sum = sum + (int) dp[i];
+            long long int* dp = (long long int*)data;
+            for (i = 0; i < data_n; i++) sum = sum + (int)dp[i];
             break;
         }
         case TYPE_UNSIGNED_CHAR: {
-            unsigned char* dp = (unsigned char*) data;
-            for (i = 0; i < data_n; i++) sum = sum + (int) dp[i];
+            unsigned char* dp = (unsigned char*)data;
+            for (i = 0; i < data_n; i++) sum = sum + (int)dp[i];
             break;
         }
         case TYPE_UNSIGNED_SHORT: {
-            unsigned short int* dp = (unsigned short int*) data;
-            for (i = 0; i < data_n; i++) sum = sum + (int) dp[i];
+            unsigned short int* dp = (unsigned short int*)data;
+            for (i = 0; i < data_n; i++) sum = sum + (int)dp[i];
             break;
         }
         case TYPE_UNSIGNED_INT: {
-            unsigned int* dp = (unsigned int*) data;
-            for (i = 0; i < data_n; i++) sum = sum + (int) dp[i];
+            unsigned int* dp = (unsigned int*)data;
+            for (i = 0; i < data_n; i++) sum = sum + (int)dp[i];
             break;
         }
         case TYPE_UNSIGNED_LONG: {
-            unsigned long* dp = (unsigned long*) data;
-            for (i = 0; i < data_n; i++) sum = sum + (int) dp[i];
+            unsigned long* dp = (unsigned long*)data;
+            for (i = 0; i < data_n; i++) sum = sum + (int)dp[i];
             break;
         }
 #ifndef __APPLE__
@@ -3333,7 +3397,7 @@ int getIdamDataCheckSum(int handle)
     if (handle < 0 || handle >= Data_Block_Count) return 0;
     if (Data_Block[handle].errcode != 0) return 0;
 
-    return (idamDataCheckSum((void*) Data_Block[handle].data, Data_Block[handle].data_n,
+    return (idamDataCheckSum((void*)Data_Block[handle].data, Data_Block[handle].data_n,
                              Data_Block[handle].data_type));
 }
 
@@ -3343,7 +3407,7 @@ int getIdamDimDataCheckSum(int handle, int ndim)
     if (Data_Block[handle].errcode != 0) return 0;
     if (ndim < 0 || ndim >= Data_Block[handle].rank) return 0;
 
-    return (idamDataCheckSum((void*) Data_Block[handle].dims[ndim].dim, Data_Block[handle].dims[ndim].dim_n,
+    return (idamDataCheckSum((void*)Data_Block[handle].dims[ndim].dim, Data_Block[handle].dims[ndim].dim_n,
                              Data_Block[handle].dims[ndim].data_type));
 }
 
@@ -3374,7 +3438,7 @@ TODO
 
     int token;
 
-    protocol2(&xdrs, PROTOCOL_DATA_BLOCK, XDR_SEND, &token, (void*) getIdamDataBlock(handle));
+    protocol2(&xdrs, PROTOCOL_DATA_BLOCK, XDR_SEND, &token, (void*)getIdamDataBlock(handle));
 
     xdr_destroy(&xdrs);     // Destroy before the  file otherwise a segmentation error occurs
     fclose(memfile);
@@ -3388,4 +3452,43 @@ TODO
 
     return;
 }
- 
+
+//---------------------------------------------------------------
+// Accessor Functions to General/Arbitrary Data Structures
+//----------------------------------------------------------------
+
+int setIdamDataTree(int handle)
+{
+    if (getIdamDataOpaqueType(handle) != OPAQUE_TYPE_STRUCTURES) return 0;    // Return FALSE
+    if (getIdamData(handle) == NULL) return 0;
+
+    fullNTree = (NTREE*)getIdamData(handle); // Global pointer
+    void* opaque_block = getIdamDataOpaqueBlock(handle);
+    userdefinedtypelist = ((GENERAL_BLOCK*)opaque_block)->userdefinedtypelist;
+    logmalloclist = ((GENERAL_BLOCK*)opaque_block)->logmalloclist;
+    lastMallocIndexValue = &(((GENERAL_BLOCK*)opaque_block)->lastMallocIndex);
+    lastMallocIndex = *lastMallocIndexValue;
+    return 1; // Return TRUE
+}
+
+// Return a specific data tree
+
+NTREE* getIdamDataTree(int handle)
+{
+    if (getIdamDataOpaqueType(handle) != OPAQUE_TYPE_STRUCTURES) return 0;
+    return (NTREE *)getIdamData(handle);
+}
+
+// Return a user defined data structure definition
+
+USERDEFINEDTYPE* getIdamUserDefinedType(int handle)
+{
+    if (getIdamDataOpaqueType(handle) != OPAQUE_TYPE_STRUCTURES) return 0;
+    void* opaque_block = getIdamDataOpaqueBlock(handle);
+    return ((GENERAL_BLOCK*)opaque_block)->userdefinedtype;
+}
+
+NTREE* findIdamNTreeStructureDefinition(NTREE* node, const char* target)
+{
+    return findNTreeStructureDefinition(node, target);
+}

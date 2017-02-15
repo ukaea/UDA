@@ -23,7 +23,7 @@
 
 #include <server/idamServer.h>
 #include <clientserver/initStructs.h>
-#include <client/accAPI_C.h>
+#include <client/accAPI.h>
 #include <client/idamClient.h>
 #include <clientserver/idamTypes.h>
 

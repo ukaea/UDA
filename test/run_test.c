@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <strings.h>
 
-#include <client/accAPI_C.h>
+#include <client/accAPI.h>
 
 int strdiff(const char* s1, const char* s2)
 {

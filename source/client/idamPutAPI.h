@@ -10,6 +10,7 @@
 
 int idamPutListAPI(const char *putInstruction, PUTDATA_BLOCK_LIST *inPutDataBlockList);
 int idamPutAPI(const char *putInstruction, PUTDATA_BLOCK *inPutData);
+
 void freeIdamClientPutDataBlockList(PUTDATA_BLOCK_LIST *putDataBlockList);
 
 #endif // IDAM_CLIENT_IDAMPUTAPI_H

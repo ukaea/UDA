@@ -35,22 +35,6 @@ int idamClientAPI(const char* file, const char* signal, int pass, int exp_number
     if (idamStartup(0) != 0) return PROBLEM_OPENING_LOGS;
 
 //-------------------------------------------------------------------------
-// Log all Arguments passed from Application
-
-#ifdef ARGSTACK
-    if(argstack == NULL) {
-        char tempFile[] = "/tmp/idamStackXXXXXX";
-        mkstemp(tempFile);
-        argstack = fopen(tempFile, environment.logmode);
-        if(argstack != NULL) fprintf(argstack,"idamClientAPI\n");
-    }
-    if(argstack != NULL) {
-        fprintf(argstack,"[%s][%s][%d][%d]\n", file, signal, exp_number, pass);
-        fflush(argstack);
-    }
-#endif
-
-//-------------------------------------------------------------------------
 // Initialise the Client Data Request Structure
 
     initRequestBlock(&request_block);
@@ -117,22 +101,6 @@ int idamClientFileAPI(const char* file, const char* signal, const char* format)
 // Open the Logs
 
     if (idamStartup(0) != 0) return PROBLEM_OPENING_LOGS;
-
-//-------------------------------------------------------------------------
-// Log all Arguments passed from Application
-
-#ifdef ARGSTACK
-    if(argstack == NULL) {
-        char tempFile[] = "/tmp/idamStackXXXXXX";
-        mkstemp(tempFile);
-        argstack = fopen(tempFile, environment.logmode);
-        if(argstack != NULL) fprintf(argstack,"idamClientFileAPI\n");
-    }
-    if(argstack != NULL) {
-        fprintf(argstack,"[%s][%s][%d][%d]\n", file, signal, format);
-        fflush(argstack);
-    }
-#endif
 
 //-------------------------------------------------------------------------
 // Initialise the Client Data Request Structure

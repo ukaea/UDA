@@ -22,12 +22,14 @@
 
 #include <stdlib.h>
 
-#include <client/accAPI_C.h>
+#include <client/accAPI.h>
 #include <clientserver/initStructs.h>
 #include <clientserver/stringUtils.h>
-#include <client/idamAPI.h>
-#include <include/idamserver.h>
+#include <client/idamGetAPI.h>
 #include <clientserver/idamTypes.h>
+#include <clientserver/idamErrorLog.h>
+#include <logging/idamLog.h>
+#include <plugins/idamPlugin.h>
 
 #ifndef USE_PLUGIN_DIRECTLY
 IDAMERRORSTACK* idamErrorStack;    // Pointer to the Server's Error Stack. Global scope within this plugin library
@@ -35,8 +37,7 @@ IDAMERRORSTACK* idamErrorStack;    // Pointer to the Server's Error Stack. Globa
 
 extern int idamAPIPlugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
-    int i, err = 0;
-    char* p;
+    int err = 0;
 
     static short init = 0;
     static char oldServerHost[STRING_LENGTH] = "";
@@ -44,20 +45,6 @@ extern int idamAPIPlugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 //----------------------------------------------------------------------------------------
 // Standard v1 Plugin Interface
-
-    DATA_BLOCK* data_block;
-    CLIENT_BLOCK* client_block;
-    REQUEST_BLOCK* request_block;
-    DATA_SOURCE* data_source;
-    SIGNAL_DESC* signal_desc;
-
-#ifndef USE_PLUGIN_DIRECTLY
-    idamErrorStack = getIdamServerPluginErrorStack();        // Server's error stack
-
-    initIdamErrorStack(&idamerrorstack);        // Initialise Local Error Stack (defined in idamclientserver.h)
-#else
-    IDAMERRORSTACK *idamErrorStack = &idamerrorstack;		// local and server are the same!
-#endif
 
     unsigned short housekeeping;
 
@@ -67,45 +54,18 @@ extern int idamAPIPlugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 "ERROR idamAPIPlugin: Plugin Interface Version Unknown to this plugin: Unable to execute the request!\n");
         addIdamError(&idamerrorstack, CODEERRORTYPE, "idamAPIPlugin", err,
                      "Plugin Interface Version Unknown to this plugin: Unable to execute the request!");
-        concatIdamError(idamerrorstack, idamErrorStack);
         return err;
     }
 
     idam_plugin_interface->pluginVersion = THISPLUGIN_VERSION;
 
-    data_block = idam_plugin_interface->data_block;
-    client_block = idam_plugin_interface->client_block;
-    request_block = idam_plugin_interface->request_block;
-    data_source = idam_plugin_interface->data_source;
-    signal_desc = idam_plugin_interface->signal_desc;
+    DATA_BLOCK* data_block = idam_plugin_interface->data_block;
+    CLIENT_BLOCK* client_block = idam_plugin_interface->client_block;
+    REQUEST_BLOCK* request_block = idam_plugin_interface->request_block;
+    DATA_SOURCE* data_source = idam_plugin_interface->data_source;
+    SIGNAL_DESC* signal_desc = idam_plugin_interface->signal_desc;
 
     housekeeping = idam_plugin_interface->housekeeping;
-
-#ifndef USE_PLUGIN_DIRECTLY
-// Don't copy the structure if housekeeping is requested - may dereference a NULL or freed pointer!     
-    if (!housekeeping && idam_plugin_interface->environment != NULL) environment = *idam_plugin_interface->environment;
-#endif
-
-// Additional interface components (must be defined at the bottom of the standard data structure)
-// Versioning must be consistent with the macro THISPLUGIN_MAX_INTERFACE_VERSION and the plugin registration with the server
-
-    //if(idam_plugin_interface->interfaceVersion >= 2){
-    // NEW COMPONENTS
-    //}
-
-//----------------------------------------------------------------------------------------
-// Heap Housekeeping 
-
-// Plugin must maintain a list of open file handles and sockets: loop over and close all files and sockets
-// Plugin must maintain a list of plugin functions called: loop over and reset state and free heap.
-// Plugin must maintain a list of calls to other plugins: loop over and call each plugin with the housekeeping request
-// Plugin must destroy lists at end of housekeeping
-
-// A plugin only has a single instance on a server. For multiple instances, multiple servers are needed.
-// Plugins can maintain state so recursive calls (on the same server) must respect this.
-// If the housekeeping action is requested, this must be also applied to all plugins called.
-// A list must be maintained to register these plugin calls to manage housekeeping.
-// Calls to plugins must also respect access policy and user authentication policy
 
     if (housekeeping || !strcasecmp(request_block->function, "reset")) {
 
@@ -144,11 +104,6 @@ extern int idamAPIPlugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
         idamLog(LOG_DEBUG, "Plugin readIdam: Handing over Server File Handles to IDAM Client\n");
 
-//        setIdamProperty("verbose");
-//        putIdamErrorFileHandle(errout);
-//        setIdamProperty("debug");
-//        putIdamDebugFileHandle(dbgout);
-
         init = 1;
         if (!strcasecmp(request_block->function, "init") || !strcasecmp(request_block->function, "initialise"))
             return 0;
@@ -163,8 +118,7 @@ extern int idamAPIPlugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 // Help: A Description of library functionality
 
         if (!strcasecmp(request_block->function, "help")) {
-
-            p = (char*) malloc(sizeof(char) * 2 * 1024);
+            char* p = (char*) malloc(sizeof(char) * 2 * 1024);
 
             strcpy(p, "\nidamAPIPlugin: Add Functions Names, Syntax, and Descriptions\n\n");
 
@@ -172,7 +126,11 @@ extern int idamAPIPlugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             data_block->rank = 1;
             data_block->dims = (DIMS*) malloc(data_block->rank * sizeof(DIMS));
-            for (i = 0; i < data_block->rank; i++) initDimBlock(&data_block->dims[i]);
+
+            int i;
+            for (i = 0; i < data_block->rank; i++) {
+                initDimBlock(&data_block->dims[i]);
+            }
 
             data_block->data_type = TYPE_STRING;
             strcpy(data_block->data_desc, "idamAPIPlugin: help = description of this plugin");
@@ -786,12 +744,6 @@ Notes: there are three pathways depending on the request pattern
 
 //--------------------------------------------------------------------------------------
 // Housekeeping
-
-    concatIdamError(idamerrorstack, idamErrorStack);    // Combine local errors with the Server's error stack
-
-#ifndef USE_PLUGIN_DIRECTLY
-    closeIdamError(&idamerrorstack);            // Free local plugin error stack
-#endif
 
     return err;
 }

@@ -9,7 +9,7 @@
 
 #include <clientserver/idamTypes.h>
 #include <logging/idamAccessLog.h>
-#include <client/accAPI_C.h>
+#include <client/accAPI.h>
 #include <client/idamPutAPI.h>
 
 // Function Prototypes

@@ -15,11 +15,11 @@
 #include <stdlib.h>
 #include <strings.h>
 
-#include <client/idamAPI.h>
+#include <client/idamGetAPI.h>
 #include <server/idamServer.h>
 #include <client/idamClient.h>
 #include <clientserver/initStructs.h>
-#include <client/accAPI_C.h>
+#include <client/accAPI.h>
 #include <clientserver/idamTypes.h>
 
 #ifndef USE_PLUGIN_DIRECTLY

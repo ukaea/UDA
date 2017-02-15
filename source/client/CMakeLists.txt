@@ -19,16 +19,10 @@ add_definitions( -DNO_GSL_LIB )
 # Sources
 
 set( SRC_FILES
-  idamAPI.c
+  idamGetAPI.c
   clientAPI.c
   clientMDS.c
-  accAPI_C.c
-  accAPI_CL.c
-  accAPI_F.c
-  accAPI_FL.c
-  accAPI_Java.c
-  accAPI_XML.c
-  accAPI_Gen.c
+  accAPI.c
   startup.c
   closedown.c
   idamCreateConnection.c

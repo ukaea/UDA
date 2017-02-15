@@ -145,9 +145,7 @@ public class Idam {
 
      static {
         try {
-    	   //System.loadLibrary("idam64");
-	   		//System.load("/opt/codac/lib/libjIdam.so");
-	   		System.load("/opt/codac/lib/libidam64.so");
+	   		System.loadLibrary("uda_jni");
         } catch (UnsatisfiedLinkError e) {
            System.err.println("Native code library failed to load.\n" + e);
            System.exit(1);

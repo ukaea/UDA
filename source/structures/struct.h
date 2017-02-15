@@ -7,7 +7,6 @@
 #include <clientserver/idamTypes.h>
 #include <structures/genStructs.h>
 
-
 #ifdef SERVERBUILD
 #  include <server/idamServer.h>
 #endif
@@ -282,7 +281,6 @@ void changeMalloc(void* old, void* anew, int count, int size, char* type);
 * @return void.
 */
 void changeNonMalloc(void* old, void* anew, int count, int size, char* type);
-
 
 int dupCountMallocLog(LOGMALLOCLIST* str);
 

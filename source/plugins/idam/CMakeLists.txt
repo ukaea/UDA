@@ -27,7 +27,7 @@ idam_plugin(
 )
 
 if( NOT FAT_BUILD )
-  target_link_libraries( ${LIB_NAME} LINK_PUBLIC server )
+  target_link_libraries( ${LIB_NAME} LINK_PUBLIC server-shared )
 else()
   target_link_libraries( ${LIB_NAME}
     ${CMAKE_INSTALL_PREFIX}/lib/lib${PROJECT_NAME}.so

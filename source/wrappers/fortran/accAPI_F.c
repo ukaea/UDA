@@ -17,9 +17,9 @@
 #include <clientserver/idamTypes.h>
 #include <clientserver/stringUtils.h>
 
-#include "accAPI_C.h"
+#include "accAPI.h"
 #include "idamClient.h"
-#include "idamAPI.h"
+#include "idamGetAPI.h"
 #include "clientAPI.h"
 #include "clientMDS.h"
 
@@ -66,16 +66,17 @@ extern void idamgetapi_(char* data_object, char* data_source, int* handle, int l
 
 extern void idamapi_(char* signal, int* pulno, int* handle, int lsignal)
 {
-    int pno = *pulno;
+    char source[1024];
+    sprintf(source, "%d", *pulno);
 
-    char* s = (char*) malloc((size_t) (lsignal + 1));
+    char* sig = (char*) malloc((size_t) (lsignal + 1));
 
     *handle = -1;
 
-    strncpy(s, signal, lsignal);
-    s[lsignal] = '\0';
+    strncpy(sig, signal, lsignal);
+    sig[lsignal] = '\0';
 
-    s = TrimString(s);
+    sig = TrimString(sig);
 
     if (idamGetLogLevel() == LOG_DEBUG) {
         errno = 0;
@@ -84,19 +85,19 @@ extern void idamapi_(char* signal, int* pulno, int* handle, int lsignal)
             if (ftnout != NULL) {
                 fclose(ftnout);
             }
-            free((void*) s);
+            free((void*) sig);
             return;
         }
         fprintf(ftnout, "Routine: idamAPI\n");
-        fprintf(ftnout, "Signal    	  %s\n", s);
-        fprintf(ftnout, "Pulno    	  %d\n", pno);
-        fprintf(ftnout, "Length Signal %d (%d)\n", (int) strlen(s), lsignal);
+        fprintf(ftnout, "Signal        %s\n", sig);
+        fprintf(ftnout, "Source        %s\n", source);
+        fprintf(ftnout, "Length Signal %d (%d)\n", (int) strlen(sig), lsignal);
         fclose(ftnout);
     }
 
-    *handle = idamAPI(s, pno);
+    *handle = idamGetAPI(sig, source);
 
-    free((void*) s);
+    free((void*) sig);
 
     return;
 }
@@ -105,19 +106,19 @@ extern void idamapi_(char* signal, int* pulno, int* handle, int lsignal)
 
 extern void idampassapi_(char* signal, int* pulno, int* pass, int* handle, int lsignal)
 {
-    int ps = *pass;
-    int pno = *pulno;
+    char source[1024];
+    sprintf(source, "%d/%d", *pulno, *pass);
 
-    char* s = (char*) malloc((size_t) (lsignal + 1));
+    char* sig = (char*) malloc((size_t) (lsignal + 1));
 
     FILE* ftnout;
 
     *handle = -1;
 
-    strncpy(s, signal, lsignal);
-    s[lsignal] = '\0';
+    strncpy(sig, signal, lsignal);
+    sig[lsignal] = '\0';
 
-    s = TrimString(s);
+    sig = TrimString(sig);
 
     if (idamGetLogLevel() == LOG_DEBUG) {
         errno = 0;
@@ -126,20 +127,19 @@ extern void idampassapi_(char* signal, int* pulno, int* pass, int* handle, int l
             if (ftnout != NULL) {
                 fclose(ftnout);
             }
-            free((void*) s);
+            free((void*) sig);
             return;
         }
         fprintf(ftnout, "Routine: idamPassAPI\n");
-        fprintf(ftnout, "Signal    	  %s\n", s);
-        fprintf(ftnout, "Pass    	  %d\n", ps);
-        fprintf(ftnout, "Pulno    	  %d\n", pno);
-        fprintf(ftnout, "Length Signal %d (%d)\n", (int) strlen(s), lsignal);
+        fprintf(ftnout, "Signal        %s\n", sig);
+        fprintf(ftnout, "Source        %s\n", source);
+        fprintf(ftnout, "Length Signal %d (%d)\n", (int) strlen(sig), lsignal);
         fclose(ftnout);
     }
 
-    *handle = idamPassAPI(s, pno, ps);
+    *handle = idamGetAPI(sig, source);
 
-    free((void*) s);
+    free((void*) sig);
 
     return;
 }
@@ -149,27 +149,19 @@ extern void idampassapi_(char* signal, int* pulno, int* pass, int* handle, int l
 extern void idamgenapi_(char* archive, char* device, char* signal, int* pulno, int* pass,
                         int* handle, int larchive, int ldevice, int lsignal)
 {
-    int ps = *pass;
-    int pno = *pulno;
+    char source[1024];
+    sprintf(source, "%s::%d/%d", archive, *pulno, *pass);
 
-    char* a = (char*) malloc((size_t) (larchive + 1));
-    char* d = (char*) malloc((size_t) (ldevice + 1));
-    char* s = (char*) malloc((size_t) (lsignal + 1));
+    char* sig = (char*) malloc((size_t) (lsignal + 1));
 
     FILE* ftnout;
 
     *handle = -1;
 
-    strncpy(a, archive, larchive);
-    strncpy(d, device, ldevice);
-    strncpy(s, signal, lsignal);
-    a[larchive] = '\0';
-    d[ldevice] = '\0';
-    s[lsignal] = '\0';
+    strncpy(sig, signal, lsignal);
+    sig[lsignal] = '\0';
 
-    a = TrimString(a);
-    d = TrimString(d);
-    s = TrimString(s);
+    sig = TrimString(sig);
 
     if (idamGetLogLevel() == LOG_DEBUG) {
         errno = 0;
@@ -178,28 +170,18 @@ extern void idamgenapi_(char* archive, char* device, char* signal, int* pulno, i
             if (ftnout != NULL) {
                 fclose(ftnout);
             }
-            free((void*) a);
-            free((void*) d);
-            free((void*) s);
+            free((void*) sig);
             return;
         }
         fprintf(ftnout, "Routine: idamGenAPI\n");
-        fprintf(ftnout, "Archive    	  %s\n", a);
-        fprintf(ftnout, "Device    	  %s\n", s);
-        fprintf(ftnout, "Signal    	  %s\n", s);
-        fprintf(ftnout, "Pass    	  %d\n", ps);
-        fprintf(ftnout, "Pulno    	  %d\n", pno);
-        fprintf(ftnout, "Length Archive %d (%d)\n", (int) strlen(a), larchive);
-        fprintf(ftnout, "Length Device  %d (%d)\n", (int) strlen(d), ldevice);
-        fprintf(ftnout, "Length Signal  %d (%d)\n", (int) strlen(s), lsignal);
+        fprintf(ftnout, "Signal         %s\n", sig);
+        fprintf(ftnout, "Source         %s\n", source);
         fclose(ftnout);
     }
 
-    *handle = idamGenAPI(a, d, s, pno, ps);
+    *handle = idamGetAPI(sig, source);
 
-    free((void*) a);
-    free((void*) d);
-    free((void*) s);
+    free((void*) sig);
 
     return;
 }
@@ -761,66 +743,7 @@ extern void getidamfloatdatablock_(int* handle, float* data)
 
 extern void getidamdatablock_(int* hd, void* data)
 {                    // Return the Data Array
-    switch (getIdamDataType(*hd)) {
-        case TYPE_FLOAT:
-            memcpy((void*) data, (void*) getIdamData(*hd),
-                   (size_t) getIdamDataNum(*hd) * sizeof(float));
-            break;
-
-        case TYPE_DOUBLE:
-            memcpy((void*) data, (void*) getIdamData(*hd),
-                   (size_t) getIdamDataNum(*hd) * sizeof(double));
-            break;
-        case TYPE_INT:
-            memcpy((void*) data, (void*) getIdamData(*hd),
-                   (size_t) getIdamDataNum(*hd) * sizeof(int));
-            break;
-        case TYPE_UNSIGNED_INT:
-            memcpy((void*) data, (void*) getIdamData(*hd),
-                   (size_t) getIdamDataNum(*hd) * sizeof(unsigned int));
-            break;
-        case TYPE_LONG:
-            memcpy((void*) data, (void*) getIdamData(*hd),
-                   (size_t) getIdamDataNum(*hd) * sizeof(long));
-            break;
-        case TYPE_UNSIGNED_LONG:
-            memcpy((void*) data, (void*) getIdamData(*hd),
-                   (size_t) getIdamDataNum(*hd) * sizeof(unsigned long));
-            break;
-        case TYPE_LONG64:
-            memcpy((void*) data, (void*) getIdamData(*hd),
-                   (size_t) getIdamDataNum(*hd) * sizeof(long long int));
-            break;
-        case TYPE_UNSIGNED_LONG64:
-            memcpy((void*) data, (void*) getIdamData(*hd),
-                   (size_t) getIdamDataNum(*hd) * sizeof(unsigned long long int));
-            break;
-        case TYPE_SHORT:
-            memcpy((void*) data, (void*) getIdamData(*hd),
-                   (size_t) getIdamDataNum(*hd) * sizeof(short));
-            break;
-        case TYPE_UNSIGNED_SHORT:
-            memcpy((void*) data, (void*) getIdamData(*hd),
-                   (size_t) getIdamDataNum(*hd) * sizeof(unsigned short));
-            break;
-        case TYPE_CHAR:
-            memcpy((void*) data, (void*) getIdamData(*hd),
-                   (size_t) getIdamDataNum(*hd) * sizeof(char));
-            break;
-        case TYPE_UNSIGNED_CHAR:
-            memcpy((void*) data, (void*) getIdamData(*hd),
-                   (size_t) getIdamDataNum(*hd) * sizeof(unsigned char));
-            break;
-        case TYPE_DCOMPLEX:
-            memcpy((void*) data, (void*) getIdamData(*hd),
-                   (size_t) getIdamDataNum(*hd) * sizeof(DCOMPLEX));
-            break;
-        case TYPE_COMPLEX:
-            memcpy((void*) data, (void*) getIdamData(*hd),
-                   (size_t) getIdamDataNum(*hd) * sizeof(COMPLEX));
-            break;
-    }
-    return;
+    getIdamGenericData(*hd, data);
 }
 
 extern void getidamerrorblock_(int* handle, void* errdata)
@@ -1075,51 +998,7 @@ extern void getidamfloatdimdata_(int* handle, int* ndim, float* data)
 
 extern void getidamdimdata_(int* hd, int* nd, void* data)
 {                // Dimension nd Data Array
-    switch (getIdamDimType(*hd, *nd)) {
-        case TYPE_FLOAT:
-            memcpy(data, (void*) getIdamDimData(*hd, *nd), (size_t) getIdamDimNum(*hd, *nd) * sizeof(float));
-            break;
-        case TYPE_DOUBLE:
-            memcpy(data, (void*) getIdamDimData(*hd, *nd), (size_t) getIdamDimNum(*hd, *nd) * sizeof(double));
-            break;
-        case TYPE_INT:
-            memcpy(data, (void*) getIdamDimData(*hd, *nd), (size_t) getIdamDimNum(*hd, *nd) * sizeof(int));
-            break;
-        case TYPE_LONG:
-            memcpy(data, (void*) getIdamDimData(*hd, *nd), (size_t) getIdamDimNum(*hd, *nd) * sizeof(long));
-            break;
-        case TYPE_LONG64:
-            memcpy(data, (void*) getIdamDimData(*hd, *nd), (size_t) getIdamDimNum(*hd, *nd) * sizeof(long long int));
-            break;
-        case TYPE_SHORT:
-            memcpy(data, (void*) getIdamDimData(*hd, *nd), (size_t) getIdamDimNum(*hd, *nd) * sizeof(short));
-            break;
-        case TYPE_CHAR:
-            memcpy(data, (void*) getIdamDimData(*hd, *nd), (size_t) getIdamDimNum(*hd, *nd) * sizeof(char));
-            break;
-        case TYPE_UNSIGNED_INT:
-            memcpy(data, (void*) getIdamDimData(*hd, *nd), (size_t) getIdamDimNum(*hd, *nd) * sizeof(unsigned int));
-            break;
-        case TYPE_UNSIGNED_LONG:
-            memcpy(data, (void*) getIdamDimData(*hd, *nd), (size_t) getIdamDimNum(*hd, *nd) * sizeof(unsigned long));
-            break;
-        case TYPE_UNSIGNED_LONG64:
-            memcpy(data, (void*) getIdamDimData(*hd, *nd),
-                   (size_t) getIdamDimNum(*hd, *nd) * sizeof(unsigned long long int));
-            break;
-        case TYPE_UNSIGNED_SHORT:
-            memcpy(data, (void*) getIdamDimData(*hd, *nd), (size_t) getIdamDimNum(*hd, *nd) * sizeof(unsigned short));
-            break;
-        case TYPE_UNSIGNED_CHAR:
-            memcpy(data, (void*) getIdamDimData(*hd, *nd), (size_t) getIdamDimNum(*hd, *nd) * sizeof(unsigned char));
-            break;
-        case TYPE_DCOMPLEX:
-            memcpy(data, (void*) getIdamDimData(*hd, *nd), (size_t) getIdamDimNum(*hd, *nd) * sizeof(DCOMPLEX));
-            break;
-        case TYPE_COMPLEX:
-            memcpy(data, (void*) getIdamDimData(*hd, *nd), (size_t) getIdamDimNum(*hd, *nd) * sizeof(COMPLEX));
-            break;
-    }
+    getIdamGenericDimData(*hd, *nd, data);
 }
 
 extern void getidamdimdatablock_(int* hd, int* nd, void* data)

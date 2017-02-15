@@ -69,6 +69,8 @@ extern int get_synthetic;       // (Client Side) Return Synthetic Data if availa
 extern XDR * clientInput;           // XDR Input Stream handle
 extern XDR * clientOutput;          // XDR Output Stream handle
 
+extern int clientVersion;
+
 int idamClient(REQUEST_BLOCK * request_block);
 void updateClientBlock(CLIENT_BLOCK* str);
 void idamFree(int handle);

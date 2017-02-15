@@ -19,7 +19,7 @@
 #include <clientserver/idamErrorLog.h>
 #include <clientserver/allocData.h>
 
-#include "accAPI_C.h"
+#include "accAPI.h"
 
 #ifndef NO_GSL_LIB
 #  include <gsl/gsl_randist.h>

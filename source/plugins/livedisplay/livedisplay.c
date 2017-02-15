@@ -46,8 +46,8 @@ Issues:
 #include <stdlib.h>
 #include <strings.h>
 
-#include <client/accAPI_C.h>
-#include <client/idamAPI.h>
+#include <client/accAPI.h>
+#include <client/idamGetAPI.h>
 #include <structures/struct.h>
 #include <structures/accessors.h>
 #include <clientserver/stringUtils.h>

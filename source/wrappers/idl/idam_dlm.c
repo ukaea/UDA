@@ -20,8 +20,8 @@
 
 #include <include/idamclientpublic.h>
 #include <client/idamClient.h>
-#include <client/accAPI_C.h>
-#include <client/idamAPI.h>
+#include <client/accAPI.h>
+#include <client/idamGetAPI.h>
 #include <client/idamPutAPI.h>
 #include <client/clientAPI.h>
 #include <client/clientMDS.h>
@@ -4193,11 +4193,6 @@ IDL_VPTR IDL_CDECL geterrormsg(int argc, IDL_VPTR argv[], char* argk) {
     IDL_EXCLUDE_EXPR(argv[1]);
     handle = IDL_LongScalar(argv[0]);
     IDL_StoreScalarZero(argv[1], IDL_TYP_STRING);
-    //char *p = getIdamErrorMsg(handle);
-    //fprintf(stdout,"sizeof: %d\n", sizeof(char *));
-    //fprintf(stdout,"MSG address: %p [%llu]\n", p, (unsigned long long)p);
-    //fprintf(stdout,"Returning to IDL Error MSG: %s\n", p);
-    //IDL_StrStore(&argv[1]->value.str, p);
     IDL_StrStore(&argv[1]->value.str, (char*) getIdamErrorMsg(handle));
     return (IDL_GettmpLong(getIdamErrorCode(handle)));
 }
