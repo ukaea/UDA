@@ -7,8 +7,6 @@ if( NOT LIBXML2_FOUND )
   return()
 endif()
 
-set( LIB_NAME idam_plugin )
-
 include( plugins )
 
 idam_plugin(
@@ -16,7 +14,7 @@ idam_plugin(
   ENTRY_FUNC idamAPIPlugin
   DESCRIPTION "use the idamAPIPlugin plugin with the idamAPI method"
   EXAMPLE "XDAM::get(host=idam0, port=56565, signal=ip, source=12345)"
-  LIBNAME ${LIB_NAME}
+  LIBNAME uda_plugin
   SOURCES idamAPIPlugin.c
   EXTRA_INCLUDE_DIRS
     ${LIBXML2_INCLUDE_DIR}
@@ -26,4 +24,4 @@ idam_plugin(
     ${OPENSSL_LIBRARIES}
 )
 
-target_link_libraries( ${LIB_NAME} LINK_PUBLIC server-shared )
+target_link_libraries( uda_plugin LINK_PUBLIC client-static )

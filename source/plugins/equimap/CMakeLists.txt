@@ -11,8 +11,6 @@ elseif( NOT LIBXML2_FOUND )
   return()
 endif()
 
-set( CMAKE_C_FLAGS "-std=c99" )
-
 include( plugins )
 
 idam_plugin(
@@ -32,3 +30,5 @@ idam_plugin(
     m
     ${PostgreSQL_LIBRARY}
 )
+
+target_link_libraries( equimap_plugin LINK_PUBLIC client-static )

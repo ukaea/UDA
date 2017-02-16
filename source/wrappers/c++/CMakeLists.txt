@@ -31,11 +31,13 @@ include_directories( SYSTEM "${Boost_INCLUDE_DIR}" )
 add_library( cpp-objects OBJECT ${SRC_FILES} )
 
 add_library( ${LIB_NAME} SHARED $<TARGET_OBJECTS:cpp-objects> )
-target_link_libraries( ${LIB_NAME} LINK_PUBLIC client-static ${Boost_LIBRARIES} )
+target_link_libraries( ${LIB_NAME} LINK_PUBLIC client-shared ${Boost_LIBRARIES} )
 
 if( NOT CLIENT_ONLY )
-  add_library( fat${LIB_NAME} SHARED $<TARGET_OBJECTS:cpp-objects> )
-  target_link_libraries( fat${LIB_NAME} LINK_PUBLIC client-static ${Boost_LIBRARIES} )
+  add_library( fatcpp-objects OBJECT ${SRC_FILES} )
+  target_compile_definitions( fatcpp-objects PRIVATE -DFATCLIENT )
+  add_library( fat${LIB_NAME} SHARED $<TARGET_OBJECTS:fatcpp-objects> )
+  target_link_libraries( fat${LIB_NAME} LINK_PUBLIC fatclient-shared ${Boost_LIBRARIES} )
 endif()
 
 set_target_properties( ${LIB_NAME}

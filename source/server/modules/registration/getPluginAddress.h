@@ -3,6 +3,6 @@
 
 #include <plugins/idamPlugin.h>
 
-int getPluginAddress(void **pluginHandle, char *library, char *symbol, PLUGINFUNP *idamPlugin);
+int getPluginAddress(void **pluginHandle, const char *library, const char *symbol, PLUGINFUNP *idamPlugin);
 
 #endif // IDAM_GETPLUGIN_ADDRESS_H

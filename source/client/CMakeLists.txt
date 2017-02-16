@@ -61,7 +61,7 @@ set( FATCLIENT_SRCS
   $<TARGET_OBJECTS:fatserver-objects>
   $<TARGET_OBJECTS:fatclientserver-objects>
   $<TARGET_OBJECTS:serverlogging>
-  $<TARGET_OBJECTS:structures-client>
+  $<TARGET_OBJECTS:structures-server>
   $<TARGET_OBJECTS:security>
   $<TARGET_OBJECTS:modules>
   $<TARGET_OBJECTS:cache>
@@ -93,7 +93,19 @@ install( TARGETS client-shared client-static
 )
 
 if( NOT CLIENT_ONLY )
-install( TARGETS fatclient-shared fatclient-static
-  DESTINATION lib
-  )
+  set_target_properties( fatclient-shared
+    PROPERTIES
+    OUTPUT_NAME fat${PROJECT_NAME}_client
+    VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}
+    SOVERSION ${PROJECT_VERSION_MAJOR}
+    )
+
+  set_target_properties( fatclient-static
+    PROPERTIES
+    OUTPUT_NAME fat${PROJECT_NAME}_client
+    )
+
+  install( TARGETS fatclient-shared fatclient-static
+    DESTINATION lib
+    )
 endif()

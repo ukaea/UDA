@@ -1,6 +1,7 @@
 #include "getPluginAddress.h"
 
 #include <dlfcn.h>
+#include <stdlib.h>
 
 #include <clientserver/idamErrors.h>
 
@@ -13,7 +14,7 @@
  * @param idamPlugin the address of the library function
  * @return
  */
-int getPluginAddress(void** pluginHandle, char* library, char* symbol, PLUGINFUNP* idamPlugin)
+int getPluginAddress(void** pluginHandle, const char* library, const char* symbol, PLUGINFUNP* idamPlugin)
 {
     int err = 0;
     int (* fptr)(IDAM_PLUGIN_INTERFACE*);               // Pointer to a Plugin function with standard interface
@@ -24,16 +25,27 @@ int getPluginAddress(void** pluginHandle, char* library, char* symbol, PLUGINFUN
         return err;
     }
 
+    const char* plugin_dir = getenv("UDA_PLUGIN_DIR");
+    char* full_path;
+    if (plugin_dir != NULL) {
+        full_path = malloc(strlen(plugin_dir) + strlen(library) + 2);
+        sprintf(full_path, "%s/%s", plugin_dir, library);
+    } else {
+        full_path = strdup(library);
+    }
+
 // Open the named library
 
     if (*pluginHandle == NULL) {
-        if ((*pluginHandle = dlopen(library, RTLD_LOCAL | RTLD_NOW)) == NULL) {
+        if ((*pluginHandle = dlopen(full_path, RTLD_LOCAL | RTLD_NOW)) == NULL) {
             err = 999;
             addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "getPluginAddress: Cannot open the target shared library",
                          err, dlerror());
             return err;
         }
     }
+
+    free(full_path);
 
 // Register the handle with the plugin manager: Close at server shut down only
 

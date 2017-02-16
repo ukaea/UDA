@@ -28,3 +28,5 @@ idam_plugin(
     ${LIBXML2_LIBRARIES}
     ${PostgreSQL_LIBRARY}
 )
+
+target_link_libraries( viewport_plugin LINK_PUBLIC client-static )

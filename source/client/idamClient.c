@@ -233,7 +233,7 @@ int idamClient(REQUEST_BLOCK* request_block)
         //-------------------------------------------------------------------------
         // Check the local cache for the data (GET methods only - Note: some GET methods may disguise PUT methods!)
 
-#ifdef MEMCACHE
+#  ifdef MEMCACHE
 
         static unsigned int cacheStatus = CACHE_NOT_OPENED;
 
@@ -286,7 +286,7 @@ int idamClient(REQUEST_BLOCK* request_block)
             }
         } while (0);
 
-#endif // MEMCACHE
+#  endif // MEMCACHE
 
 
         //-------------------------------------------------------------------------

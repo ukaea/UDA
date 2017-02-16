@@ -51,7 +51,7 @@
 #include "xdrUserDefinedData.h"
 #include "accessors.h"
 
-#if defined(SERVERBUILD) || defined(FATCLIENT)
+#if defined(SERVERBUILD)
 #  include <server/idamServer.h>
 #endif
 
@@ -1087,7 +1087,7 @@ void copyUserDefinedType(USERDEFINEDTYPE* old, USERDEFINEDTYPE* anew)
     *anew = udt;
 }
 
-#if defined(SERVERBUILD) || defined(FATCLIENT)
+#if defined(SERVERBUILD)
 /** Copy the Master User Defined Structure Definition List.
 *
 * @param anew The copy of the type definition list.

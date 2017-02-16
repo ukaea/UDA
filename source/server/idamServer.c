@@ -47,12 +47,8 @@ void ncclose(int fh) {
 #  include <clientserver/protocolXML.h>
 #endif
 
-PGconn* gDBConnect = NULL;    // IDAM SQL database Socket Connection pass back fix
-
-#ifdef FATCLIENT
-extern PGconn * DBConnect;        // IDAM SQL database Socket Connection
-PGconn * DBConnect = NULL;
-#endif
+PGconn* gDBConnect = NULL;  // IDAM SQL database Socket Connection pass back fix
+PGconn* DBConnect = NULL;   // IDAM SQL database Socket Connection
 
 //--------------------------------------------------------------------------------------
 // static globals
@@ -268,11 +264,9 @@ int idamServer(CLIENT_BLOCK client_block, REQUEST_BLOCK * request_block0, SERVER
         userdefinedtypelist = &parseduserdefinedtypelist;                    // Switch before Parsing input file
 
         if ((token = getenv("UDA_SARRAY_CONFIG")) == NULL) {
-            // ERROR !!!
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "idamServer", err,
-                         "No Environment variable UDA_SARRAY_CONFIG");
+            addIdamError(&idamerrorstack, CODEERRORTYPE, "idamServer", err, "No Environment variable UDA_SARRAY_CONFIG");
         } else {
-            rc = parseIncludeFile(token);                // file containing the SARRAY structure definition
+            parseIncludeFile(token);                // file containing the SARRAY structure definition
             parseduserdefinedtypelist = *userdefinedtypelist;                    // Switch back
         }
     }

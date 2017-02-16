@@ -55,7 +55,7 @@ macro( idam_plugin )
     add_definitions( ${DEF} )
   endforeach()
 
-  target_link_libraries( ${PLUGIN_LIBNAME} LINK_PUBLIC server-static dl )
+  target_link_libraries( ${PLUGIN_LIBNAME} LINK_PUBLIC dl )
   
   filter_lib_list( "${PLUGIN_EXTRA_LINK_LIBS}" FILTERED_LINK_LIBS debug optimized ) 
 

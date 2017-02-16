@@ -14,7 +14,7 @@ idam_plugin(
   ENTRY_FUNC livedisplay
   DESCRIPTION "Live Display IMAS MAGNETICS IDS plugin"
   EXAMPLE "LIVEDISPLAY::get()"
-  LIBNAME livedisplay
+  LIBNAME livedisplay_plugin
   SOURCES livedisplay.c
   EXTRA_INCLUDE_DIRS
     ${LIBXML2_INCLUDE_DIR}
@@ -23,3 +23,5 @@ idam_plugin(
   EXTRA_LINK_LIBS
     ${LIBXML2_LIBRARIES}
 )
+
+target_link_libraries( livedisplay_plugin LINK_PUBLIC client-static )

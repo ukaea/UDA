@@ -90,7 +90,7 @@ option( NO_WRAPPERS "Don't build any IDAM client wrappers" OFF )
 
 #add_subdirectory( extlib )
 add_subdirectory( source )
-#add_subdirectory( test )
+add_subdirectory( test )
 
 ########################################################################################################################
 # Create module

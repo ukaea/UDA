@@ -17,16 +17,12 @@
 *	init	Initialise the plugin: read all required data and process. Retain staticly for
 *		future reference.	
 *
-* Change History
-*
-* 10Jul2014	D.G.Muir	Original Version
 *---------------------------------------------------------------------------------------------------------------*/
 #include "hdf5plugin.h"
 
 #include <stdlib.h>
 #include <strings.h>
 
-#include <server/idamServer.h>
 #include <server/managePluginFiles.h>
 #include <clientserver/initStructs.h>
 #include <clientserver/idamTypes.h>
@@ -38,7 +34,6 @@ IDAMPLUGINFILELIST pluginFileList;    // Private list of open data file handles
 extern int idamHDF5(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
     int err = 0;
-    char* p;
 
     static short init = 0;
 
@@ -50,14 +45,6 @@ extern int idamHDF5(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     DATA_SOURCE* data_source;
     SIGNAL_DESC* signal_desc;
 
-#ifndef USE_PLUGIN_DIRECTLY
-    IDAMERRORSTACK* idamErrorStack = getIdamServerPluginErrorStack();        // Server's error stack
-
-    initIdamErrorStack(&idamerrorstack);        // Initialise Local Error Stack (defined in idamclientserver.h)
-#else
-    IDAMERRORSTACK *idamErrorStack = &idamerrorstack;		// local and server are the same!
-#endif
-
     unsigned short housekeeping;
 
     if (idam_plugin_interface->interfaceVersion > THISPLUGIN_MAX_INTERFACE_VERSION) {
@@ -66,7 +53,6 @@ extern int idamHDF5(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 "ERROR newHDF5: Plugin Interface Version Unknown to this plugin: Unable to execute the request!\n");
         addIdamError(&idamerrorstack, CODEERRORTYPE, "newHDF5", err,
                      "Plugin Interface Version Unknown to this plugin: Unable to execute the request!");
-        concatIdamError(idamerrorstack, idamErrorStack);
         return err;
     }
 
@@ -78,32 +64,6 @@ extern int idamHDF5(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     signal_desc = idam_plugin_interface->signal_desc;
 
     housekeeping = idam_plugin_interface->housekeeping;
-
-#ifndef USE_PLUGIN_DIRECTLY
-// Don't copy the structure if housekeeping is requested - may dereference a NULL or freed pointer!     
-    if (!housekeeping && idam_plugin_interface->environment != NULL) environment = *idam_plugin_interface->environment;
-#endif
-
-// Additional interface components (must be defined at the bottom of the standard data structure)
-// Versioning must be consistent with the macro THISPLUGIN_MAX_INTERFACE_VERSION and the plugin registration with the server
-
-    //if(idam_plugin_interface->interfaceVersion >= 2){
-    // NEW COMPONENTS
-    //}
-
-//----------------------------------------------------------------------------------------
-// Heap Housekeeping 
-
-// Plugin must maintain a list of open file handles and sockets: loop over and close all files and sockets
-// Plugin must maintain a list of plugin functions called: loop over and reset state and free heap.
-// Plugin must maintain a list of calls to other plugins: loop over and call each plugin with the housekeeping request
-// Plugin must destroy lists at end of housekeeping
-
-// A plugin only has a single instance on a server. For multiple instances, multiple servers are needed.
-// Plugins can maintain state so recursive calls (on the same server) must respect this.
-// If the housekeeping action is requested, this must be also applied to all plugins called.
-// A list must be maintained to register these plugin calls to manage housekeeping.
-// Calls to plugins must also respect access policy and user authentication policy
 
     if (housekeeping || !strcasecmp(request_block->function, "reset")) {
 
@@ -141,7 +101,7 @@ extern int idamHDF5(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
         if (!strcasecmp(request_block->function, "help")) {
 
-            p = (char*) malloc(sizeof(char) * 2 * 1024);
+            char* p = (char*) malloc(sizeof(char) * 2 * 1024);
 
             strcpy(p, "\nnewHDF5: get - Read data from a HDF5 file\n\n");
 
@@ -170,12 +130,11 @@ extern int idamHDF5(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             strcpy(data_block->data_units, "");
 
             break;
-        } else
+        } else if (!strcasecmp(request_block->function, "version")) {
 
-//----------------------------------------------------------------------------------------    
-// Standard methods: version, builddate, defaultmethod, maxinterfaceversion 
+            //----------------------------------------------------------------------------------------
+            // Standard methods: version, builddate, defaultmethod, maxinterfaceversion
 
-        if (!strcasecmp(request_block->function, "version")) {
             initDataBlock(data_block);
             data_block->data_type = TYPE_INT;
             data_block->rank = 0;
@@ -187,11 +146,10 @@ extern int idamHDF5(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             strcpy(data_block->data_label, "version");
             strcpy(data_block->data_units, "");
             break;
-        } else
+        } else if (!strcasecmp(request_block->function, "builddate")) {
 
-// Plugin Build Date
+            // Plugin Build Date
 
-        if (!strcasecmp(request_block->function, "builddate")) {
             initDataBlock(data_block);
             data_block->data_type = TYPE_STRING;
             data_block->rank = 0;
@@ -203,11 +161,10 @@ extern int idamHDF5(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             strcpy(data_block->data_label, "date");
             strcpy(data_block->data_units, "");
             break;
-        } else
+        } else if (!strcasecmp(request_block->function, "defaultmethod")) {
 
-// Plugin Default Method
+            // Plugin Default Method
 
-        if (!strcasecmp(request_block->function, "defaultmethod")) {
             initDataBlock(data_block);
             data_block->data_type = TYPE_STRING;
             data_block->rank = 0;
@@ -219,11 +176,10 @@ extern int idamHDF5(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             strcpy(data_block->data_label, "method");
             strcpy(data_block->data_units, "");
             break;
-        } else
+        } else if (!strcasecmp(request_block->function, "maxinterfaceversion")) {
 
-// Plugin Maximum Interface Version
+            // Plugin Maximum Interface Version
 
-        if (!strcasecmp(request_block->function, "maxinterfaceversion")) {
             initDataBlock(data_block);
             data_block->data_type = TYPE_INT;
             data_block->rank = 0;
@@ -235,15 +191,13 @@ extern int idamHDF5(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             strcpy(data_block->data_label, "version");
             strcpy(data_block->data_units, "");
             break;
-        } else
+        } else if (!strcasecmp(request_block->function, "get")) {
 
-//---------------------------------------------------------------------------------------- 
-// Read data from a HDF5 File
+            //----------------------------------------------------------------------------------------
+            // Read data from a HDF5 File
 
-        if (!strcasecmp(request_block->function, "get")) {
-
-// If the client has specified a specific file, the path will be found at request_block->path
-// otherwise the path is determined by a query against the metadata catalog
+            // If the client has specified a specific file, the path will be found at request_block->path
+            // otherwise the path is determined by a query against the metadata catalog
 
             if (data_source->path[0] == '\0') strcpy(data_source->path, request_block->path);
             if (signal_desc->signal_name[0] == '\0') strcpy(signal_desc->signal_name, request_block->signal);
@@ -251,72 +205,29 @@ extern int idamHDF5(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             err = getHDF5(data_source, signal_desc, data_block);    // Legacy data reader!
 
             break;
-        } else
+        } else if (!strcasecmp(request_block->function, "put")) {
 
-//---------------------------------------------------------------------------------------- 
-// Put data into a HDF5 File
-
-        if (!strcasecmp(request_block->function, "put")) {
+            //----------------------------------------------------------------------------------------
+            // Put data into a HDF5 File
 
             err = 999;
             addIdamError(&idamerrorstack, CODEERRORTYPE, "newHDF5", err, "The PUT method has not yet been implemented");
             break;
 
-        } else
+        } else {
 
-//---------------------------------------------------------------------------------------- 
-// Add additional functionality here ....
-
-        if (!strcasecmp(request_block->function, "test")) {
-
-            p = (char*) malloc(sizeof(char) * 30);
-
-            strcpy(p, "Hello World!");
-
-            initDataBlock(data_block);
-
-            data_block->rank = 1;
-            data_block->dims = (DIMS*) malloc(data_block->rank * sizeof(DIMS));
-            int i;
-            for (i = 0; i < data_block->rank; i++) initDimBlock(&data_block->dims[i]);
-
-            data_block->data_type = TYPE_STRING;
-            strcpy(data_block->data_desc, "templatePlugin: 'Hello World' single string returned");
-
-            data_block->data = p;
-
-            data_block->dims[0].data_type = TYPE_UNSIGNED_INT;
-            data_block->dims[0].dim_n = strlen(p) + 1;
-            data_block->dims[0].compressed = 1;
-            data_block->dims[0].dim0 = 0.0;
-            data_block->dims[0].diff = 1.0;
-            data_block->dims[0].method = 0;
-
-            data_block->data_n = data_block->dims[0].dim_n;
-
-            strcpy(data_block->data_label, "");
-            strcpy(data_block->data_units, "");
-
-            break;
-        } else
-
-//======================================================================================
-// Error ...
+            //======================================================================================
+            // Error ...
 
             err = 999;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "newHDF5", err, "Unknown function requested!");
-        break;
+            addIdamError(&idamerrorstack, CODEERRORTYPE, "newHDF5", err, "Unknown function requested!");
+            break;
+        }
 
     } while (0);
 
 //--------------------------------------------------------------------------------------
 // Housekeeping
-
-    concatIdamError(idamerrorstack, idamErrorStack);    // Combine local errors with the Server's error stack
-
-#ifndef USE_PLUGIN_DIRECTLY
-    closeIdamError(&idamerrorstack);            // Free local plugin error stack
-#endif
 
     return err;
 }

@@ -217,5 +217,5 @@ install(
 install(
   FILES
     ${CMAKE_BINARY_DIR}/etc/udagenstruct.conf
-  DESTINATION etc/plugins
+  DESTINATION etc
 )
