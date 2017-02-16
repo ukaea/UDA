@@ -9,7 +9,7 @@ endif()
 
 include( plugins )
 
-idam_plugin(
+uda_plugin(
   NAME EFITMAGXML
   ENTRY_FUNC efitmagxml
   DESCRIPTION "Legacy EFIT++ Magnetics XML reader"

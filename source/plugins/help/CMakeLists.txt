@@ -9,7 +9,7 @@ endif()
 
 include( plugins )
 
-idam_plugin(
+uda_plugin(
   NAME HELP
   ENTRY_FUNC idamServerHelp
   DESCRIPTION "Service Discovery: list the details on all registered services"

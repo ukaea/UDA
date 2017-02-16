@@ -13,7 +13,7 @@ endif()
 
 include( plugins )
 
-idam_plugin(
+uda_plugin(
   NAME VALUE
   ENTRY_FUNC keyValue
   DESCRIPTION "Plugin for saving and loading from a key value store"

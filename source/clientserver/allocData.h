@@ -1,7 +1,7 @@
 #ifndef IDAM_CLIENTSERVER_ALLOCDATA_H
 #define IDAM_CLIENTSERVER_ALLOCDATA_H
 
-#include "idamStructs.h"
+#include "udaStructs.h"
 
 int allocArray(int data_type, int ndata, char **ap);
 int allocData(DATA_BLOCK *data_block);

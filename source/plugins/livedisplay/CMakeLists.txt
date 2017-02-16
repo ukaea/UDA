@@ -9,7 +9,7 @@ endif()
 
 include( plugins )
 
-idam_plugin(
+uda_plugin(
   NAME LIVEDISPLAY
   ENTRY_FUNC livedisplay
   DESCRIPTION "Live Display IMAS MAGNETICS IDS plugin"

@@ -1,7 +1,7 @@
 #ifndef IDAM_READMDS_H
 #define IDAM_READMDS_H
 
-#include <clientserver/idamStructs.h>
+#include <clientserver/udaStructs.h>
 
 int readMDS(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK *data_block);
 

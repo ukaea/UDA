@@ -7,12 +7,12 @@
 *--------------------------------------------------------------*/
 #include "sleepServer.h"
 
-#include <logging/idamLog.h>
-#include <clientserver/idamErrorLog.h>
+#include <logging/logging.h>
+#include <clientserver/errorLog.h>
 #include <clientserver/protocol.h>
-#include <server/idamServer.h>
+#include <server/udaServer.h>
 #include <clientserver/xdrlib.h>
-#include <clientserver/idamErrors.h>
+#include <clientserver/udaErrors.h>
 
 int sleepServer(void)
 {

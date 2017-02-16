@@ -2,8 +2,8 @@
 
 #include <errno.h>
 
-#include <logging/idamLog.h>
-#include <clientserver/idamDefines.h>
+#include <logging/logging.h>
+#include <clientserver/udaDefines.h>
 
 int serverSocket = 0;
 

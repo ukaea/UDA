@@ -3,7 +3,7 @@
 
 #include <libpq-fe.h>
 
-#include <clientserver/idamStructs.h>
+#include <clientserver/udaStructs.h>
 
 int readHData(PGconn *DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_source,
 	      DATA_BLOCK *data_block);

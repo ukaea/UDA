@@ -18,7 +18,7 @@
 #include <string.h>
 #include <stdio.h>
 
-#include <clientserver/idamStructs.h>
+#include <clientserver/udaStructs.h>
 
 void mastArchiveFilePath(int pulno, int pass, char *file, char *path) {
     char strint[56];

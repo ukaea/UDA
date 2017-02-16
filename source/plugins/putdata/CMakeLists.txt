@@ -17,7 +17,7 @@ endif()
 
 include( plugins )
 
-idam_plugin(
+uda_plugin(
   NAME PUTDATA
   ENTRY_FUNC putdataPlugin
   DESCRIPTION "Save MAST data to NetCDF4 files"

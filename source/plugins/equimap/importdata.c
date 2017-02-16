@@ -12,10 +12,10 @@
 #include <strings.h>
 
 #include <client/accAPI.h>
-#include <client/idamGetAPI.h>
+#include <client/udaGetAPI.h>
 #include <clientserver/stringUtils.h>
 #include <clientserver/initStructs.h>
-#include <clientserver/idamTypes.h>
+#include <clientserver/udaTypes.h>
 
 #ifndef M_PI
 # define M_PI           3.14159265358979323846

@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include <clientserver/idamStructs.h>
+#include <clientserver/udaStructs.h>
 #include <structures/genStructs.h>
 
 #define NETCDF_ERROR_OPENING_FILE           200

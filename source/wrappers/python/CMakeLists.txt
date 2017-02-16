@@ -21,23 +21,23 @@ include_directories( SYSTEM "${Boost_INCLUDE_DIR}" )
 
 add_definitions( -D__USE_XOPEN2K8 )
 
-set_source_files_properties( Idam.i PROPERTIES CPLUSPLUS ON )
+set_source_files_properties( UDA.i PROPERTIES CPLUSPLUS ON )
 if( CMAKE_SIZEOF_VOID_P EQUAL 8 )
-  set_source_files_properties( Idam.i PROPERTIES SWIG_FLAGS "-c++;-py3;-DA64" )
+  set_source_files_properties( UDA.i PROPERTIES SWIG_FLAGS "-c++;-py3;-DA64" )
 else()
-  set_source_files_properties( Idam.i PROPERTIES SWIG_FLAGS "-c++;-py3" )
+  set_source_files_properties( UDA.i PROPERTIES SWIG_FLAGS "-c++;-py3" )
 endif()
-set_source_files_properties( Idam.i PROPERTIES SWIG_MODULE_NAME ${LIB_NAME} )
-swig_add_module( ${LIB_NAME} python Idam.i )
+set_source_files_properties( UDA.i PROPERTIES SWIG_MODULE_NAME ${LIB_NAME} )
+swig_add_module( ${LIB_NAME} python UDA.i )
 swig_link_libraries( ${LIB_NAME} ${PROJECT_NAME}_cpp ssl ${PYTHON_LIBRARIES} )
 
 install( TARGETS ${SWIG_MODULE_${LIB_NAME}_REAL_NAME}
-  DESTINATION include/pyidam )
+  DESTINATION include/pyuda )
 
 install( FILES ${CMAKE_CURRENT_BINARY_DIR}/${LIB_NAME}.py
-  DESTINATION include/pyidam )
+  DESTINATION include/pyuda )
 
-file( GLOB INSTALL_FILES pyidam/*.py )
+file( GLOB INSTALL_FILES pyuda/*.py )
 
 install( FILES ${INSTALL_FILES}
-  DESTINATION include/pyidam )
+  DESTINATION include/pyuda )

@@ -15,9 +15,9 @@
 #include <memory.h>
 
 #include <structures/struct.h>
-#include <logging/idamLog.h>
-#include <clientserver/idamErrorLog.h>
-#include <clientserver/idamErrors.h>
+#include <logging/logging.h>
+#include <clientserver/errorLog.h>
+#include <clientserver/udaErrors.h>
 
 #include "readCDF4.h"
 

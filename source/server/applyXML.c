@@ -17,8 +17,8 @@
 #include <math.h>
 #include <memory.h>
 
-#include <logging/idamLog.h>
-#include <clientserver/idamTypes.h>
+#include <logging/logging.h>
+#include <clientserver/udaTypes.h>
 
 #ifdef NOXMLPARSER
 

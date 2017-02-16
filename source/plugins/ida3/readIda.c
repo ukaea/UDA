@@ -29,12 +29,12 @@
 
 #include <strings.h>
 
-#include <clientserver/idamErrors.h>
+#include <clientserver/udaErrors.h>
 #include <clientserver/stringUtils.h>
-#include <clientserver/idamErrorLog.h>
+#include <clientserver/errorLog.h>
 #include <clientserver/printStructs.h>
 #include <server/mastArchiveFilePath.h>
-#include <logging/idamLog.h>
+#include <logging/logging.h>
 
 #include "nameIda.h"
 #include "readIdaItem.h"

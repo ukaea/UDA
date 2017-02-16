@@ -8,8 +8,8 @@
 #include <complex>
 
 #include <client/accAPI.h>
-#include <client/idamClient.h>
-#include <clientserver/idamTypes.h>
+#include <client/udaClient.h>
+#include <clientserver/udaTypes.h>
 
 #include "string.hpp"
 #include "array.hpp"

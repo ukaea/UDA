@@ -13,13 +13,13 @@ returns An integer Error Code: If non zero, a problem occured.
 #include <errno.h>
 #include <strings.h>
 
-#include <clientserver/idamErrors.h>
+#include <clientserver/udaErrors.h>
 #include <clientserver/stringUtils.h>
 #include <clientserver/initStructs.h>
 #include <clientserver/protocol.h>
-#include <server/idamServer.h>
+#include <server/udaServer.h>
 
-#include "idamServerPlugin.h"
+#include "serverPlugin.h"
 
 #if defined(SERVERBUILD) || defined(FATCLIENT)
 

@@ -2,18 +2,18 @@
 
 #include <stdlib.h>
 
-#include <logging/idamLog.h>
+#include <logging/logging.h>
 #include <structures/struct.h>
 #include <structures/xdrUserDefinedData.h>
-#include <clientserver/idamErrors.h>
+#include <clientserver/udaErrors.h>
 
-#include "idamErrorLog.h"
+#include "errorLog.h"
 #include "xdrlib.h"
 #include "stringUtils.h"
 #include "protocol.h"
 
 #ifdef SERVERBUILD
-#  include <server/idamServerStartup.h>
+#  include <server/serverStartup.h>
 #endif
 
 static int recursiveDepthPut = 0;    // Keep count of recursive calls

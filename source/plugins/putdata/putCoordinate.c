@@ -2,7 +2,7 @@
 
 #include <stdlib.h>
 
-#include <clientserver/idamTypes.h>
+#include <clientserver/udaTypes.h>
 
 #include "putVariable.h"
 #include "putUnits.h"

@@ -9,7 +9,7 @@
 #include <stdlib.h>
 
 #include <client/accAPI.h>
-#include <client/idamGetAPI.h>
+#include <client/udaGetAPI.h>
 
 int xdatamapx(int rGridCount, float* rGrid, int ndata, float* rdata, float* data, float* mapped)
 {

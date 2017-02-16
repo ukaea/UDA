@@ -3,7 +3,7 @@
 
 #include <libxml/xpath.h>
 
-#include <clientserver/idamStructs.h>
+#include <clientserver/udaStructs.h>
 
 int execute_xpath_expression(const char* filename, const xmlChar* xpathExpr, DATA_BLOCK* data_block, int* nodeIndices);
 

@@ -3,7 +3,7 @@
 #include <netcdf.h>
 
 #include <clientserver/stringUtils.h>
-#include <clientserver/idamTypes.h>
+#include <clientserver/udaTypes.h>
 
 #include "putUnits.h"
 #include "putGroup.h"

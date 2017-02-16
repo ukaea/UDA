@@ -1,7 +1,7 @@
 #ifndef IdamReadMetaInclude
 #define IdamReadMetaInclude
 
-#include <plugins/idamPlugin.h>
+#include <plugins/udaPlugin.h>
 
 #include <libpq-fe.h>
 

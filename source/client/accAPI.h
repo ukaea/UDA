@@ -3,7 +3,7 @@
 
 #include <stdio.h>
 
-#include <clientserver/idamStructs.h>
+#include <clientserver/udaStructs.h>
 #include <structures/genStructs.h>
 
 #ifdef __cplusplus

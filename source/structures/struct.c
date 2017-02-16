@@ -42,17 +42,17 @@
 #include <stdlib.h>
 #include <strings.h>
 
-#include <logging/idamLog.h>
-#include <clientserver/idamErrorLog.h>
+#include <logging/logging.h>
+#include <clientserver/errorLog.h>
 #include <clientserver/stringUtils.h>
 #include <clientserver/xdrlib.h>
-#include <clientserver/idamErrors.h>
+#include <clientserver/udaErrors.h>
 
 #include "xdrUserDefinedData.h"
 #include "accessors.h"
 
 #if defined(SERVERBUILD)
-#  include <server/idamServer.h>
+#  include <server/udaServer.h>
 #endif
 
 //---------------------------------------------------------------------------------------------------

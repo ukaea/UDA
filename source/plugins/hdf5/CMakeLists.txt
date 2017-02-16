@@ -17,9 +17,7 @@ endif()
 
 include( plugins )
 
-#message( FATAL_ERROR ">>>> ${HDF5_LIBRARIES}" )
-
-idam_plugin(
+uda_plugin(
   NAME NEWHDF5
   ENTRY_FUNC idamHDF5
   DESCRIPTION "HDF5 Data Reader"

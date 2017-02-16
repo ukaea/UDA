@@ -2,12 +2,12 @@
 
 #include <stdlib.h>
 
-#include <logging/idamLog.h>
+#include <logging/logging.h>
 #include <clientserver/protocol.h>
-#include <clientserver/idamErrorLog.h>
+#include <clientserver/errorLog.h>
 #include <clientserver/stringUtils.h>
 #include <clientserver/xdrlib.h>
-#include <clientserver/idamErrors.h>
+#include <clientserver/udaErrors.h>
 
 #include "struct.h"
 

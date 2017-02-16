@@ -9,7 +9,7 @@ endif()
 
 include( plugins )
 
-idam_plugin(
+uda_plugin(
   NAME XPADTREE
   ENTRY_FUNC idamXpadTree
   DESCRIPTION "Reads xpad tree and tag information, for use in XPAD."

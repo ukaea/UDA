@@ -50,7 +50,7 @@
 
 #include <clientserver/stringUtils.h>
 #include <clientserver/initStructs.h>
-#include <clientserver/idamTypes.h>
+#include <clientserver/udaTypes.h>
 
 #include "provenance.h"
 

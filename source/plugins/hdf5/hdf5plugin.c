@@ -25,7 +25,7 @@
 
 #include <server/managePluginFiles.h>
 #include <clientserver/initStructs.h>
-#include <clientserver/idamTypes.h>
+#include <clientserver/udaTypes.h>
 
 #include "readHDF58.h"
 

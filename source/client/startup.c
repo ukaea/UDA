@@ -17,11 +17,11 @@
 
 #include <errno.h>
 
-#include <logging/idamLog.h>
-#include <clientserver/idamErrorLog.h>
-#include <clientserver/idamErrors.h>
+#include <logging/logging.h>
+#include <clientserver/errorLog.h>
+#include <clientserver/udaErrors.h>
 
-#include "idamClient.h"
+#include "udaClient.h"
 #include "getEnvironment.h"
 
 int idamStartup(int reset)

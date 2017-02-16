@@ -15,7 +15,7 @@ endif()
 
 include( plugins )
 
-idam_plugin(
+uda_plugin(
   NAME WEST
   ENTRY_FUNC westPlugin
   DESCRIPTION "Read WEST data"

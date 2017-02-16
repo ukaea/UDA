@@ -17,7 +17,7 @@ endif()
 
 include( plugins )
 
-idam_plugin(
+uda_plugin(
   NAME GEOM
   ENTRY_FUNC idamGeom
   DESCRIPTION "Reads in geometry db netcdf files"

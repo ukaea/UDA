@@ -7,8 +7,8 @@ find_package( LibMemcached )
 find_package( OpenSSL REQUIRED )
 
 set( SRC_FILES
-  idamCache.c
-  idamFileCache.c
+  cache.c
+  fileCache.c
 )
 
 include_directories(

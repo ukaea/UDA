@@ -26,15 +26,15 @@
 #include <errno.h>
 #include <strings.h>
 
-#include <logging/idamLog.h>
-#include <clientserver/idamTypes.h>
+#include <logging/logging.h>
+#include <clientserver/udaTypes.h>
 #include <clientserver/stringUtils.h>
 #include <modules/ida/nameIda.h>
-#include <clientserver/idamErrorLog.h>
+#include <clientserver/errorLog.h>
 #include <clientserver/printStructs.h>
 #include <clientserver/freeDataBlock.h>
 #include <clientserver/protocol.h>
-#include <clientserver/idamErrors.h>
+#include <clientserver/udaErrors.h>
 
 #include "mastArchiveFilePath.h"
 

@@ -4,11 +4,11 @@
 #include <stdio.h>
 #include <rpc/rpc.h>
 
-#include <clientserver/idamTypes.h>
+#include <clientserver/udaTypes.h>
 #include <structures/genStructs.h>
 
 #ifdef SERVERBUILD
-#  include <server/idamServer.h>
+#  include <server/udaServer.h>
 #endif
 
 #ifdef __cplusplus

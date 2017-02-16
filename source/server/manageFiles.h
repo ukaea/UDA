@@ -26,7 +26,7 @@ typedef int ida_file_ptr;
 void ida_close(ida_file_ptr*);
 #endif
 
-#include <clientserver/idamDefines.h>
+#include <clientserver/udaDefines.h>
 
 typedef struct IdamFile {
     int type;                       // File Type Code

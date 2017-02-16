@@ -27,10 +27,10 @@
 #include <clientserver/initStructs.h>
 #include <server/makeServerRequestBlock.h>
 #include <client/accAPI.h>
-#include <server/idamServerPlugin.h>
+#include <server/serverPlugin.h>
 #include <server/sqllib.h>
 #include <clientserver/stringUtils.h>
-#include <clientserver/idamTypes.h>
+#include <clientserver/udaTypes.h>
 
 static int do_help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
 

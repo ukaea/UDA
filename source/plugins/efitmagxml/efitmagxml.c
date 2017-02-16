@@ -30,7 +30,7 @@
 #include <structures/struct.h>
 #include <structures/accessors.h>
 #include <clientserver/stringUtils.h>
-#include <plugins/idamPlugin.h>
+#include <plugins/udaPlugin.h>
 #include <clientserver/initStructs.h>
 
 int efitmagxml(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)

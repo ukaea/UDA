@@ -16,28 +16,29 @@ add_subdirectory( modules )
 # Sources
 
 set( SRC_FILES
-  idamServer.c
-  idamserverGetData.c
+  udaServer.c
+  serverGetData.c
   freeIdamPut.c
-  idamLegacyServer.c
-  idamServerPlugin.c
-  idamServerLegacyPlugin.c
+  udaLegacyServer.c
+  serverPlugin.c
+  serverLegacyPlugin.c
   makeServerRequestBlock.c
-  idamServer.c
+  udaServer.c
   sleepServer.c
   writer.c
-  CreateXDRStream.c
+  createXDRStream.c
   mastArchiveFilePath.c
   closeServerSockets.c
   dumpFile.c
-  idamserverSubsetData.c
+  serverSubsetData.c
   applyXML.c
   manageFiles.c
   serverProcessing.c
   sqllib.c
   managePluginFiles.c
-  idamServerStartup.c
+  serverStartup.c
   getServerEnvironment.c
+  getPluginAddress.c
   )
 
 include_directories(
@@ -83,7 +84,7 @@ add_library( server-static STATIC
   $<TARGET_OBJECTS:modules>
   )
 
-add_executable( server-exe idamServerMain.c )
+add_executable( server-exe serverMain.c )
 
 ########################################################################################################################
 # Add libraries

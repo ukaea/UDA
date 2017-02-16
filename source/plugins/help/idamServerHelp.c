@@ -22,13 +22,13 @@
 #include <stdlib.h>
 #include <strings.h>
 
-#include <server/idamServer.h>
+#include <server/udaServer.h>
 #include <clientserver/initStructs.h>
 #include <structures/struct.h>
 #include <structures/accessors.h>
-#include <clientserver/idamErrorLog.h>
-#include <logging/idamLog.h>
-#include <plugins/idamPlugin.h>
+#include <clientserver/errorLog.h>
+#include <logging/logging.h>
+#include <plugins/udaPlugin.h>
 
 int idamServerHelp(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {

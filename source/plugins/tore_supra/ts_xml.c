@@ -3,10 +3,10 @@
 #include <assert.h>
 
 #include <clientserver/initStructs.h>
-#include <clientserver/idamTypes.h>
-#include <clientserver/idamErrorLog.h>
+#include <clientserver/udaTypes.h>
+#include <clientserver/errorLog.h>
 #include <include/idamclientserverprivate.h>
-#include <logging/idamLog.h>
+#include <logging/logging.h>
 
 static int convertToInt(char* value);
 static char** getContent(xmlNode* node, int dim);

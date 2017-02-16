@@ -13,8 +13,8 @@
 #include <stdlib.h>
 #include <errno.h>
 
-#include <logging/idamLog.h>
-#include <clientserver/idamTypes.h>
+#include <logging/logging.h>
+#include <clientserver/udaTypes.h>
 #include <clientserver/stringUtils.h>
 
 #include "accAPI.h"

@@ -15,12 +15,12 @@
 #include <stdlib.h>
 #include <strings.h>
 
-#include <client/idamGetAPI.h>
-#include <server/idamServer.h>
-#include <client/idamClient.h>
+#include <client/udaGetAPI.h>
+#include <server/udaServer.h>
+#include <client/udaClient.h>
 #include <clientserver/initStructs.h>
 #include <client/accAPI.h>
-#include <clientserver/idamTypes.h>
+#include <clientserver/udaTypes.h>
 
 #ifndef USE_PLUGIN_DIRECTLY
 IDAMERRORSTACK* idamErrorStack;    // Pointer to the Server's Error Stack. Global scope within this plugin library

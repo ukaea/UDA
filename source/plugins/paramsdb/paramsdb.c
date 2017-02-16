@@ -6,7 +6,7 @@
 
 #include <clientserver/stringUtils.h>
 #include <clientserver/initStructs.h>
-#include <clientserver/idamTypes.h>
+#include <clientserver/udaTypes.h>
 
 static int do_help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
 

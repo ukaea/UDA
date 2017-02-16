@@ -18,9 +18,9 @@
 #include <float.h>
 #include <math.h>
 #include <stdlib.h>
-#include <clientserver/idamTypes.h>
+#include <clientserver/udaTypes.h>
 
-#include "idamErrors.h"
+#include "udaErrors.h"
 
 int compressDim(DIMS* ddim)
 {

@@ -15,9 +15,9 @@ Interprets the API arguments and assembles a Request data structure.
 #include <stdlib.h>
 #include <strings.h>
 
-#include <logging/idamLog.h>
-#include <clientserver/idamErrors.h>
-#include <clientserver/idamErrorLog.h>
+#include <logging/logging.h>
+#include <clientserver/udaErrors.h>
+#include <clientserver/errorLog.h>
 #include <clientserver/expand_path.h>
 
 int makeClientRequestBlock(const char* data_object, const char* data_source, REQUEST_BLOCK* request_block)

@@ -11,7 +11,7 @@
 
 #include <stdlib.h>
 
-#include <logging/idamLog.h>
+#include <logging/logging.h>
 
 void printIdamServerEnvironment(ENVIRONMENT* environ)
 {

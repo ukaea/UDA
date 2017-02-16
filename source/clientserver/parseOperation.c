@@ -3,10 +3,10 @@
 #include <errno.h>
 #include <stdlib.h>
 
-#include <clientserver/idamErrors.h>
+#include <clientserver/udaErrors.h>
 
 #include "stringUtils.h"
-#include "idamErrorLog.h"
+#include "errorLog.h"
 
 int idamParseOperation(SUBSET* sub)
 {

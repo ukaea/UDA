@@ -6,10 +6,10 @@
 #include "initStructs.h"
 
 #include <unistd.h>
-#include <clientserver/idamTypes.h>
+#include <clientserver/udaTypes.h>
 #include <string.h>
 
-#include "idamErrorLog.h"
+#include "errorLog.h"
 
 void initNameValueList(NAMEVALUELIST *nameValueList) {
     nameValueList->pairCount = 0;

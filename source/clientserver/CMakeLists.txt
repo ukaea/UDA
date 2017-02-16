@@ -15,7 +15,7 @@ include_directories(
 
 set( SRC_FILES
   freeDataBlock.c
-  idamErrorLog.c
+  errorLog.c
   allocData.c
   protocol.c
   protocol2.c

@@ -5,7 +5,7 @@
 #include <strings.h>
 
 #include <clientserver/stringUtils.h>
-#include <clientserver/idamTypes.h>
+#include <clientserver/udaTypes.h>
 
 typedef struct {
     int count;

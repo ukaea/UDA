@@ -10,14 +10,14 @@
 
 #include "allocData.h"
 
-#include <logging/idamLog.h>
-#include <clientserver/idamTypes.h>
+#include <logging/logging.h>
+#include <clientserver/udaTypes.h>
 #include <stdlib.h>
 #include "initStructs.h"
-#include "idamErrors.h"
+#include "udaErrors.h"
 
 #ifdef SERVERBUILD
-#  include <server/idamServerStartup.h>
+#  include <server/serverStartup.h>
 #endif
 
 int allocArray(int data_type, int n_data, char** ap)

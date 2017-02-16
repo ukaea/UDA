@@ -24,13 +24,13 @@
 #include <errno.h>
 #include <stdlib.h>
 
-#include <logging/idamLog.h>
-#include <clientserver/idamErrorLog.h>
+#include <logging/logging.h>
+#include <clientserver/errorLog.h>
 #include <clientserver/stringUtils.h>
 #include <clientserver/md5Sum.h>
 #include <clientserver/freeDataBlock.h>
-#include <clientserver/idamTypes.h>
-#include <clientserver/idamErrors.h>
+#include <clientserver/udaTypes.h>
+#include <clientserver/udaErrors.h>
 
 #ifdef NOBINARYPLUGIN
 

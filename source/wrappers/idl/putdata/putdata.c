@@ -7,10 +7,10 @@
 #include <stdlib.h>
 #include <hdf5.h>
 
-#include <clientserver/idamTypes.h>
-#include <logging/idamAccessLog.h>
+#include <clientserver/udaTypes.h>
+#include <logging/accessLog.h>
 #include <client/accAPI.h>
-#include <client/idamPutAPI.h>
+#include <client/udaPutAPI.h>
 
 // Function Prototypes
 

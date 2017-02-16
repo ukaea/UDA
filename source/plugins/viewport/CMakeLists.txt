@@ -13,7 +13,7 @@ endif()
 
 include( plugins )
 
-idam_plugin(
+uda_plugin(
   NAME VIEWPORT
   ENTRY_FUNC viewport
   DESCRIPTION "Reduce data to viewport pixel size"

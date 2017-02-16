@@ -21,8 +21,8 @@
 *-----------------------------------------------------------------------------*/
 #include "readppf.h"
 
-#include <clientserver/idamErrorLog.h>
-#include <clientserver/idamErrors.h>
+#include <clientserver/errorLog.h>
+#include <clientserver/udaErrors.h>
 
 //---------------------------------------------------------------------------------------------------------------
 // Stub plugin if disabled

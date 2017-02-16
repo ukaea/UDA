@@ -1,7 +1,7 @@
 #ifndef UDA_CLIENTSERVER_SOCKETSTRUCTS_H
 #define UDA_CLIENTSERVER_SOCKETSTRUCTS_H
 
-#include "idamDefines.h"
+#include "udaDefines.h"
 
 #include <time.h>
 #include <rpc/rpc.h>

@@ -1,7 +1,7 @@
 #ifndef IDAM_PLUGINS_PROVENANCE_LISTSIGNALS_H
 #define IDAM_PLUGINS_PROVENANCE_LISTSIGNALS_H
 
-#include <plugins/idamPlugin.h>
+#include <plugins/udaPlugin.h>
 
 int listSignals(IDAM_PLUGIN_INTERFACE * idam_plugin_interface);
 

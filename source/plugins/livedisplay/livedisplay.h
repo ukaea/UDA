@@ -1,7 +1,7 @@
 #ifndef IDAM_PLUGINS_LIVEDISPLAY_LIVEDISPLAY_H
 #define IDAM_PLUGINS_LIVEDISPLAY_LIVEDISPLAY_H
 
-#include <server/idamPluginStructs.h>
+#include <server/pluginStructs.h>
 #include <structures/genStructs.h>
 
 

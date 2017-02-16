@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <udunits2.h>
 
-#include <logging/idamLog.h>
+#include <logging/logging.h>
 
 static ut_system* unitSystem = NULL;
 

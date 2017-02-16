@@ -10,7 +10,7 @@
 
 #include <stdlib.h>
 
-#include <logging/idamLog.h>
+#include <logging/logging.h>
 
 int env_host = 1;    // User can change these before startup so flag to the getEnvironment function
 int env_port = 1;

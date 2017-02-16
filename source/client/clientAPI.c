@@ -13,16 +13,16 @@
 
 #include <strings.h>
 
-#include <logging/idamLog.h>
+#include <logging/logging.h>
 #include <clientserver/initStructs.h>
-#include <clientserver/idamErrorLog.h>
+#include <clientserver/errorLog.h>
 #include <clientserver/expand_path.h>
 #include <clientserver/stringUtils.h>
 #include <clientserver/protocol.h>
 
 #include "makeClientRequestBlock.h"
 #include "startup.h"
-#include "idamClient.h"
+#include "udaClient.h"
 
 int idamClientAPI(const char* file, const char* signal, int pass, int exp_number)
 {

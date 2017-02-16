@@ -1,7 +1,7 @@
 #ifndef IDAM_READMDSDIM_H
 #define IDAM_READMDSDIM_H
 
-#include <clientserver/idamStructs.h>
+#include <clientserver/udaStructs.h>
 
 #define status_ok(status) (((status) & 1) == 1)
 

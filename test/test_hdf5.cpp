@@ -1,7 +1,7 @@
 #define CATCH_CONFIG_MAIN
 #include "catch.hpp"
 
-#include <c++/Idam.hpp>
+#include <c++/UDA.hpp>
 
 TEST_CASE( "Test hdf5::test() function", "[hdf5]" ) {
 

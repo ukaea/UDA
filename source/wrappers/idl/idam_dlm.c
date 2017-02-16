@@ -19,13 +19,13 @@
 #include "idl_export.h"                 // IDL API Header
 
 #include <include/idamclientpublic.h>
-#include <client/idamClient.h>
+#include <client/udaClient.h>
 #include <client/accAPI.h>
-#include <client/idamGetAPI.h>
-#include <client/idamPutAPI.h>
+#include <client/udaGetAPI.h>
+#include <client/udaPutAPI.h>
 #include <client/clientAPI.h>
 #include <client/clientMDS.h>
-#include <clientserver/idamTypes.h>
+#include <clientserver/udaTypes.h>
 #include <clientserver/initStructs.h>
 #include <clientserver/printStructs.h>
 

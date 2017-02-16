@@ -19,14 +19,14 @@
 #include <unistd.h>
 #include <stdlib.h>
 
-#include <logging/idamLog.h>
-#include <clientserver/idamErrors.h>
+#include <logging/logging.h>
+#include <clientserver/udaErrors.h>
 
 #include "stringUtils.h"
-#include "idamErrorLog.h"
+#include "errorLog.h"
 
 #ifdef SERVERBUILD
-#  include <server/idamServerStartup.h>
+#  include <server/serverStartup.h>
 #endif
 
 // Identify the current working Host

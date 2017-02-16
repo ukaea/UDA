@@ -33,14 +33,14 @@
 #include <include/idamplugin.h>
 #include <clientserver/initStructs.h>
 #include <clientserver/stringUtils.h>
-#include <clientserver/idamTypes.h>
+#include <clientserver/udaTypes.h>
 #include <clientserver/printStructs.h>
 #include <clientserver/copyStructs.h>
-#include <server/idamServerPlugin.h>
+#include <server/serverPlugin.h>
 #include <server/makeServerRequestBlock.h>
 #include <server/managePluginFiles.h>
 #include <client/accAPI.h>
-#include <logging/idamLog.h>
+#include <logging/logging.h>
 #include <regex.h>
 
 IDAMPLUGINFILELIST pluginFileList_mds;

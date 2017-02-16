@@ -57,22 +57,22 @@
 #include <errno.h>
 
 #include <structures/struct.h>
-#include <logging/idamLog.h>
+#include <logging/logging.h>
 #include <clientserver/memstream.h>
 
 #include "readXDRFile.h"
-#include "idamErrorLog.h"
+#include "errorLog.h"
 #include "protocol.h"
 #include "xdrlib.h"
 
 #ifdef SERVERBUILD
-#  include <server/idamServer.h>
-#  include <server/CreateXDRStream.h>
-#  include <server/idamServerStartup.h>
+#  include <server/udaServer.h>
+#  include <server/createXDRStream.h>
+#  include <server/serverStartup.h>
 #endif
 
 #ifndef FATCLIENT
-#  include "idamErrors.h"
+#  include "udaErrors.h"
 #endif
 
 #define HASHXDR 1

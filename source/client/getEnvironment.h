@@ -1,7 +1,7 @@
 #ifndef IDAM_CLIENT_GETENVIRONMENT_H
 #define IDAM_CLIENT_GETENVIRONMENT_H
 
-#include <clientserver/idamStructs.h>
+#include <clientserver/udaStructs.h>
 
 #ifdef FATCLIENT
 #  define printIdamClientEnvironment printIdamClientEnvironmentFat

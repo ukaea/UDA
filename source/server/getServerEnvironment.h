@@ -1,7 +1,7 @@
 #ifndef IDAM_SERVER_GETSERVERENVIRONMENT_H
 #define IDAM_SERVER_GETSERVERENVIRONMENT_H
 
-#include <clientserver/idamStructs.h>
+#include <clientserver/udaStructs.h>
 
 void printIdamServerEnvironment(ENVIRONMENT* environ);
 void getIdamServerEnvironment(ENVIRONMENT* environ);

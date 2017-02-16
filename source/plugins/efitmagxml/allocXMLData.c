@@ -6,7 +6,7 @@
 *--------------------------------------------------------------*/
 #include "efitmagxml.h"
 
-#include <clientserver/idamErrors.h>
+#include <clientserver/udaErrors.h>
 
 int alloc_efit(EFIT* efit)
 {

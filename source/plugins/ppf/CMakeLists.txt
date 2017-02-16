@@ -13,7 +13,7 @@ endif()
 
 include( plugins )
 
-idam_plugin(
+uda_plugin(
   NAME PPF2
   ENTRY_FUNC plugin_entry
   DESCRIPTION "PPF Data"

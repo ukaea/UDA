@@ -11,7 +11,7 @@ extern "C" {
 
 #include <libpq-fe.h> // SQL Library Header
 
-#include <clientserver/idamStructs.h>
+#include <clientserver/udaStructs.h>
 
 #define NOPREFIXNOCASE  "0"
 #define PREFIXNOCASE    "1"

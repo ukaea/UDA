@@ -1,7 +1,7 @@
 #ifndef IDAM_PLUGINS_MAST_IMAS_PLUGIN_H
 #define IDAM_PLUGINS_MAST_IMAS_PLUGIN_H
 
-#include <plugins/idamPlugin.h>
+#include <plugins/udaPlugin.h>
 
 #ifdef __cplusplus
 extern "C" {

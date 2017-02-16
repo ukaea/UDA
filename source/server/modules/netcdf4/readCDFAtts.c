@@ -26,9 +26,9 @@
 
 #include <stdlib.h>
 
-#include <clientserver/idamErrorLog.h>
+#include <clientserver/errorLog.h>
 #include <clientserver/stringUtils.h>
-#include <clientserver/idamErrors.h>
+#include <clientserver/udaErrors.h>
 
 #include "readCDF4.h"
 

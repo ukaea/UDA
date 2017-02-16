@@ -5,7 +5,7 @@
 #ifndef IDAM_CLIENTSERVER_FREEDATABLOCK_H
 #define IDAM_CLIENTSERVER_FREEDATABLOCK_H
 
-#include "idamStructs.h"
+#include "udaStructs.h"
 
 // Forward declarations
 struct LOGMALLOCLIST;

@@ -9,7 +9,7 @@ endif()
 
 include( plugins )
 
-idam_plugin(
+uda_plugin(
   NAME TEMPLATEPLUGIN
   ENTRY_FUNC templatePlugin
   DESCRIPTION "Standardised Plugin Template"

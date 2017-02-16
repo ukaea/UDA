@@ -21,11 +21,11 @@
 #include <stdlib.h>
 #include <strings.h>
 
-#include <server/idamServer.h>
+#include <server/udaServer.h>
 #include <clientserver/initStructs.h>
 #include <client/accAPI.h>
-#include <client/idamClient.h>
-#include <clientserver/idamTypes.h>
+#include <client/udaClient.h>
+#include <clientserver/udaTypes.h>
 
 #include "importdata.h"
 #include "smoothpsi.h"

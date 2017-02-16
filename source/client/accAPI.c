@@ -9,9 +9,9 @@
 #include <pthread.h>
 #include <strings.h>
 
-#include <logging/idamLog.h>
+#include <logging/logging.h>
 #include <clientserver/initStructs.h>
-#include <clientserver/idamErrorLog.h>
+#include <clientserver/errorLog.h>
 #include <clientserver/stringUtils.h>
 #include <structures/struct.h>
 #include <clientserver/allocData.h>
@@ -19,11 +19,11 @@
 #include <clientserver/memstream.h>
 #include <clientserver/xdrlib.h>
 #include <clientserver/socketStructs.h>
-#include <cache/idamCache.h>
+#include <cache/cache.h>
 
 #include "generateErrors.h"
 #include "getEnvironment.h"
-#include "idamClient.h"
+#include "udaClient.h"
 
 #ifdef __APPLE__
 

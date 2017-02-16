@@ -2,7 +2,7 @@
 #define IDAM_SERVER_APPLYXML_H
 
 #include <clientserver/parseXML.h>
-#include <clientserver/idamStructs.h>
+#include <clientserver/udaStructs.h>
 
 int idamserverParseSignalXML(DATA_SOURCE data_source, SIGNAL signal, SIGNAL_DESC signal_desc,
                              ACTIONS *actions_desc, ACTIONS *actions_sig);

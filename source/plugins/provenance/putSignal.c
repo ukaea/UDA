@@ -43,7 +43,7 @@
 #include <errno.h>
 #include <strings.h>
 
-#include <clientserver/idamTypes.h>
+#include <clientserver/udaTypes.h>
 
 #include "provenance.h"
 

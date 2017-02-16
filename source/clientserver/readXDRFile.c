@@ -19,13 +19,13 @@
 
 #include <stdlib.h>
 #include <errno.h>
-#include <logging/idamLog.h>
-#include <clientserver/idamErrors.h>
+#include <logging/logging.h>
+#include <clientserver/udaErrors.h>
 
-#include "idamErrorLog.h"
+#include "errorLog.h"
 
 #ifdef SERVERBUILD
-#  include <server/idamServerStartup.h>
+#  include <server/serverStartup.h>
 #endif
 
 #define MAXDOLOOPLIMIT 500            // ~50MB file

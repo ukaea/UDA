@@ -15,13 +15,13 @@ add_definitions( -DNO_GSL_LIB )
 # Sources
 
 set( SRC_FILES
-  idamGetAPI.c
+  udaGetAPI.c
   clientAPI.c
   clientMDS.c
   accAPI.c
   startup.c
   closedown.c
-  idamCreateConnection.c
+  createConnection.c
   createClientXDRStream.c
   updateSelectParms.c
   writeout.c
@@ -30,8 +30,8 @@ set( SRC_FILES
   generateErrors.c
   closeClientSockets.c
   makeClientRequestBlock.c
-  idamPutAPI.c
-  idamClient.c
+  udaPutAPI.c
+  udaClient.c
 )
 
 include_directories(

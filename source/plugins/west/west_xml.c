@@ -3,7 +3,7 @@
 #include <idamserver.h>
 #include <idamErrorLog.h>
 #include <assert.h>
-#include <logging/idamLog.h>
+#include <logging/logging.h>
 #include "ts_rqparam.h"
 #include <string.h>
 #include <stdio.h>

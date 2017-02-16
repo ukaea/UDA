@@ -11,7 +11,7 @@
 #include "def.h"
 #include "tsbamat.h"
 #include "tserreur.h"
-#include <logging/idamLog.h>
+#include <logging/logging.h>
 
 struct sigaction  newact, oldact;
 sigset_t   newmask, oldmask;

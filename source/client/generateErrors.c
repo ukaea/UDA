@@ -15,8 +15,8 @@
 #include <math.h>
 #include <stdlib.h>
 
-#include <clientserver/idamTypes.h>
-#include <clientserver/idamErrorLog.h>
+#include <clientserver/udaTypes.h>
+#include <clientserver/errorLog.h>
 #include <clientserver/allocData.h>
 
 #include "accAPI.h"

@@ -9,7 +9,7 @@
 
 #include <include/idamplugin.h>
 #include <clientserver/initStructs.h>
-#include <clientserver/idamTypes.h>
+#include <clientserver/udaTypes.h>
 
 #include "ts_mds.h"
 #include "ts_xml.h"

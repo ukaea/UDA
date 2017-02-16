@@ -1,7 +1,7 @@
 #ifndef IDAM_READBYTESNONOPTIMALLY_H
 #define IDAM_READBYTESNONOPTIMALLY_H
 
-#include <clientserver/idamStructs.h>
+#include <clientserver/udaStructs.h>
 
 int readBytes(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK *data_block);
 

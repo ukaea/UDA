@@ -13,7 +13,7 @@ endif()
 
 include( plugins )
 
-idam_plugin(
+uda_plugin(
   NAME EQUIMAP
   ENTRY_FUNC equiMap
   DESCRIPTION "Map Profile Data"

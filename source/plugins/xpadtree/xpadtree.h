@@ -8,7 +8,7 @@
 #ifndef XPADTREE_H_
 #define XPADTREE_H_
 
-#include <server/idamPluginStructs.h>
+#include <server/pluginStructs.h>
 
 int idamXpadTree(IDAM_PLUGIN_INTERFACE *idam_plugin_interface);
 

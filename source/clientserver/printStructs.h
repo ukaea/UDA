@@ -1,7 +1,7 @@
 #ifndef IDAM_CLIENTSERVER_PRINTSTRUCTS_H
 #define IDAM_CLIENTSERVER_PRINTSTRUCTS_H
 
-#include "idamStructs.h"
+#include "udaStructs.h"
 
 void printRequestBlock(REQUEST_BLOCK str);
 

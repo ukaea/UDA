@@ -23,7 +23,7 @@ set( IMAS_SOURCES
   ual_low_level_meta.cpp
   ual_low_level_mdsobjects.cpp )
 
-idam_plugin(
+uda_plugin(
   NAME IMAS
   ENTRY_FUNC imas_mds
   DESCRIPTION "ITER IMAS put & get plugin"

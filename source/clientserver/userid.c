@@ -7,7 +7,7 @@
 #include <stdlib.h>
 
 #include "stringUtils.h"
-#include "idamDefines.h"
+#include "udaDefines.h"
 
 void userid(char* uid)
 {

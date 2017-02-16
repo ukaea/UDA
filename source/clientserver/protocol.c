@@ -23,8 +23,8 @@
 
 #include "protocol.h"
 
-#include <logging/idamLog.h>
-#include <clientserver/idamTypes.h>
+#include <logging/logging.h>
+#include <clientserver/udaTypes.h>
 #include <stdlib.h>
 
 #include "allocData.h"
@@ -32,11 +32,11 @@
 #include "xdrlib.h"
 #include "initStructs.h"
 #include "protocolXML.h"
-#include "idamErrors.h"
-#include "idamErrorLog.h"
+#include "udaErrors.h"
+#include "errorLog.h"
 
 #ifdef SERVERBUILD
-#  include <server/idamServerStartup.h>
+#  include <server/serverStartup.h>
 #endif
 
 int protocol(XDR* xdrs, int protocol_id, int direction, int* token, void* str)

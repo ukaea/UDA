@@ -7,8 +7,8 @@
 #include <stdlib.h>
 #include <strings.h>
 
-#include <logging/idamLog.h>
-#include <clientserver/idamDefines.h>
+#include <logging/logging.h>
+#include <clientserver/udaDefines.h>
 #include <clientserver/stringUtils.h>
 
 int getSourcePath(PGconn* DBConnect, int exp_number, int pass, char* alias, char* type, int iscase, int verbose,

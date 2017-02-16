@@ -10,13 +10,13 @@
 #include <memory.h>
 #include <stdlib.h>
 
-#include <logging/idamLog.h>
+#include <logging/logging.h>
 #include <structures/struct.h>
 #include <clientserver/protocol.h>
-#include <clientserver/idamErrors.h>
+#include <clientserver/udaErrors.h>
 
 #include "printStructs.h"
-#include "idamErrorLog.h"
+#include "errorLog.h"
 
 //-----------------------------------------------------------------------
 // Test version's type passing capability

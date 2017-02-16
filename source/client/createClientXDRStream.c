@@ -6,8 +6,8 @@
 #include <stdio.h>
 #include <rpc/rpc.h>
 
-#include <logging/idamLog.h>
-#include <clientserver/idamDefines.h>
+#include <logging/logging.h>
+#include <clientserver/udaDefines.h>
 
 #include "readin.h"
 #include "writeout.h"

@@ -2,7 +2,7 @@
 #define IDAM_PLUGINS_PUTDATA_PUTVARIABLE_H
 
 #include <netcdf.h>
-#include <plugins/idamPlugin.h>
+#include <plugins/udaPlugin.h>
 
 int do_variable(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
 

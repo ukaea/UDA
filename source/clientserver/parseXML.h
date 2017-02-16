@@ -14,7 +14,7 @@ extern "C" {
 #  include <libxml/parser.h>
 #endif
 
-#include "idamDefines.h"
+#include "udaDefines.h"
 
 #define SXMLMAXSTRING   1024
 #define MAXDATARANK     8

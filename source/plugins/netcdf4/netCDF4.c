@@ -22,7 +22,7 @@
 
 #include <strings.h>
 
-#include <server/idamServer.h>
+#include <server/udaServer.h>
 #include <structures/struct.h>
 #include <server/managePluginFiles.h>
 #include <clientserver/initStructs.h>

@@ -47,11 +47,11 @@ Issues:
 #include <strings.h>
 
 #include <client/accAPI.h>
-#include <client/idamGetAPI.h>
+#include <client/udaGetAPI.h>
 #include <structures/struct.h>
 #include <structures/accessors.h>
 #include <clientserver/stringUtils.h>
-#include <client/idamClient.h>
+#include <client/udaClient.h>
 #include <server/makeServerRequestBlock.h>
 #include <clientserver/initStructs.h>
 #include <clientserver/freeDataBlock.h>

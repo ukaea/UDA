@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include <strings.h>
 
-#include <logging/idamLog.h>
+#include <logging/logging.h>
 
 // Initialise the File List and allocate heap for the list
 

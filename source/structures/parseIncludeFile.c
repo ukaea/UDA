@@ -26,10 +26,10 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include <clientserver/idamDefines.h>
+#include <clientserver/udaDefines.h>
 #include <clientserver/stringUtils.h>
-#include <clientserver/idamErrorLog.h>
-#include <clientserver/idamErrors.h>
+#include <clientserver/errorLog.h>
+#include <clientserver/udaErrors.h>
 
 #include "struct.h"
 

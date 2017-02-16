@@ -12,7 +12,7 @@ macro( filter_lib_list INPUT OUTPUT GOOD BAD )
   endforeach()
 endmacro( filter_lib_list )
 
-macro( idam_plugin )
+macro( uda_plugin )
 
   include( CMakeParseArguments )
 
@@ -97,4 +97,4 @@ macro( idam_plugin )
     )
   endif()
 
-endmacro( idam_plugin )
+endmacro( uda_plugin )

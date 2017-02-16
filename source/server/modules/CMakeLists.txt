@@ -24,7 +24,6 @@ set( SRC_FILES
   ppf/readppf.c
   hdata/readHData.c
   mdsplus/readMDS.c
-  registration/getPluginAddress.c
   )
 
 if( MDSplus_FOUND )

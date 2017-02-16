@@ -12,9 +12,9 @@
 #include <stdlib.h>
 #include <strings.h>
 
-#include <logging/idamLog.h>
+#include <logging/logging.h>
 #include <clientserver/protocol.h>
-#include <server/idamServer.h>
+#include <server/udaServer.h>
 
 // Initialise the File List
 

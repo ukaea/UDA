@@ -13,7 +13,7 @@ endif()
 
 include( plugins )
 
-idam_plugin(
+uda_plugin(
   NAME MONGODBPLUGIN
   ENTRY_FUNC query
   DESCRIPTION "Query the MongoDB database"

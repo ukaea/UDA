@@ -3,7 +3,7 @@
 
 #include <stdio.h>
 
-#include <clientserver/idamStructs.h>
+#include <clientserver/udaStructs.h>
 
 int readJPF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK *data_block);
 

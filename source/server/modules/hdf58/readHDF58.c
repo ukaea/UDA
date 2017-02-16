@@ -23,8 +23,8 @@
 
 #include <strings.h>
 
-#include <clientserver/idamErrorLog.h>
-#include <clientserver/idamErrors.h>
+#include <clientserver/errorLog.h>
+#include <clientserver/udaErrors.h>
 
 #ifdef NOHDF5PLUGIN
 
@@ -43,7 +43,7 @@ void H5Fclose(int fh) {
 #else
 
 #include <H5LTpublic.h>
-#include <clientserver/idamTypes.h>
+#include <clientserver/udaTypes.h>
 #include <stdlib.h>
 #include <memory.h>
 #include <clientserver/initStructs.h>

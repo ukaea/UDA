@@ -17,7 +17,7 @@ Issues:
 #include <errno.h>
 #include <strings.h>
 
-#include <server/idamServer.h>
+#include <server/udaServer.h>
 #include <structures/struct.h>
 #include <structures/accessors.h>
 

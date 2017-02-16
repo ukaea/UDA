@@ -13,7 +13,7 @@ endif()
 
 include( plugins )
 
-idam_plugin(
+uda_plugin(
   NAME NEWCDF4
   ENTRY_FUNC idamCDF4
   DESCRIPTION "netCDF4 Data Reader"

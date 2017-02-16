@@ -13,7 +13,7 @@ endif()
 
 include( plugins )
 
-idam_plugin(
+uda_plugin(
   NAME MAST_IMAS
   ENTRY_FUNC mastImasPlugin
   DESCRIPTION "plugin to handle IMAS requests by returning MAST data"

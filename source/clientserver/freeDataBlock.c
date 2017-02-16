@@ -5,7 +5,7 @@
 
 #include <stdlib.h>
 
-#include <logging/idamLog.h>
+#include <logging/logging.h>
 #include <structures/struct.h>
 
 #include "initStructs.h"

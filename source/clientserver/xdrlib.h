@@ -1,7 +1,7 @@
 #ifndef IDAM_CLIENTSERVER_XDRLIB_H
 #define IDAM_CLIENTSERVER_XDRLIB_H
 
-#include "idamStructs.h"
+#include "udaStructs.h"
 
 #include <rpc/types.h>
 #include <rpc/xdr.h>

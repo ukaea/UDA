@@ -4,7 +4,7 @@
 #include <stdarg.h>
 
 #include <clientserver/initStructs.h>
-#include <clientserver/idamTypes.h>
+#include <clientserver/udaTypes.h>
 
 #include "ppf.h"
 

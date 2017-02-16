@@ -26,11 +26,11 @@
 #include <stdlib.h>
 #include <strings.h>
 
-#include <clientserver/idamErrorLog.h>
+#include <clientserver/errorLog.h>
 #include <clientserver/initStructs.h>
 #include <clientserver/stringUtils.h>
-#include <clientserver/idamTypes.h>
-#include <clientserver/idamErrors.h>
+#include <clientserver/udaTypes.h>
+#include <clientserver/udaErrors.h>
 
 //---------------------------------------------------------------------------------------------------------------
 // Stub plugin if disabled

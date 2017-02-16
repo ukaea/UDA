@@ -2,7 +2,7 @@
 # Sources
 
 set( SRC_FILES
-  idamServerAuthentication.c
+  serverAuthentication.c
   )
 
 ########################################################################################################################

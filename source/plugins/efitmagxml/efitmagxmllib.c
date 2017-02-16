@@ -7,7 +7,7 @@
 //-------------------------------------------------------------- 
 #include "efitmagxml.h"
 
-#include <clientserver/idamErrors.h> 
+#include <clientserver/udaErrors.h>
 
 INSTANCE* getinstmagprobe(EFIT* efit, const int index)
 {

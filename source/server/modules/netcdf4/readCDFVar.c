@@ -5,11 +5,11 @@
 #include <stdlib.h>
 
 #include <structures/struct.h>
-#include <server/idamServer.h>
-#include <clientserver/idamErrorLog.h>
-#include <logging/idamLog.h>
+#include <server/udaServer.h>
+#include <clientserver/errorLog.h>
+#include <logging/logging.h>
 #include <clientserver/stringUtils.h>
-#include <clientserver/idamErrors.h>
+#include <clientserver/udaErrors.h>
 
 #include "readCDF4.h"
 

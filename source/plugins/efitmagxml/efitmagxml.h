@@ -1,7 +1,7 @@
 #ifndef IDAM_PLUGINS_EFITMAGXML_EFITMAGXML_H
 #define IDAM_PLUGINS_EFITMAGXML_EFITMAGXML_H
 
-#include <plugins/idamPlugin.h>
+#include <plugins/udaPlugin.h>
 
 #ifdef __cplusplus
 static "C" {

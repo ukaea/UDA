@@ -17,7 +17,7 @@ endif()
 
 include( plugins )
 
-idam_plugin(
+uda_plugin(
   NAME PROVENANCE
   ENTRY_FUNC admin
   DESCRIPTION "Issue and Register Unique Identifiers"

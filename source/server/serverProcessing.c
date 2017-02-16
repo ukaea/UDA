@@ -2,8 +2,8 @@
 
 #include <stdlib.h>
 
-#include <logging/idamLog.h>
-#include <clientserver/idamTypes.h>
+#include <logging/logging.h>
+#include <clientserver/udaTypes.h>
 
 /**
  * IDAM Server Side Data Processing

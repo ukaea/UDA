@@ -1,7 +1,7 @@
 #ifndef IdamIMASMDSPluginInclude
 #define IdamIMASMDSPluginInclude
 
-#include <server/idamPluginStructs.h>
+#include <server/pluginStructs.h>
 
 #ifdef __cplusplus
 extern "C" {

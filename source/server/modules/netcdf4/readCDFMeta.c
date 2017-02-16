@@ -5,8 +5,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include <clientserver/idamErrorLog.h>
-#include <clientserver/idamErrors.h>
+#include <clientserver/errorLog.h>
+#include <clientserver/udaErrors.h>
 
 void allocMetaXML(METAXML* str)
 {

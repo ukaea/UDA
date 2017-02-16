@@ -3,7 +3,7 @@
 
 #include <stddef.h>
 
-#include <clientserver/idamStructs.h>
+#include <clientserver/udaStructs.h>
 
 int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK request_block, DATA_BLOCK* data_block);
 

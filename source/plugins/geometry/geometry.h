@@ -8,7 +8,7 @@
 #ifndef GEOMETRY_H_
 #define GEOMETRY_H_
 
-#include <plugins/idamPlugin.h>
+#include <plugins/udaPlugin.h>
 
 int idamGeom(IDAM_PLUGIN_INTERFACE *idam_plugin_interface);
 

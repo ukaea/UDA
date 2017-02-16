@@ -1,7 +1,7 @@
 #ifndef IDAM_PLUGINS_IDAMSERVERHELP_H
 #define IDAM_PLUGINS_IDAMSERVERHELP_H
 
-#include <server/idamPluginStructs.h>
+#include <server/pluginStructs.h>
 
 #define THISPLUGIN_VERSION                  1
 #define THISPLUGIN_MAX_INTERFACE_VERSION    1

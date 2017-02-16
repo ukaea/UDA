@@ -1,7 +1,7 @@
 #ifndef IDAM_CLIENTSERVER_COMPRESSDIM_H
 #define IDAM_CLIENTSERVER_COMPRESSDIM_H
 
-#include "idamStructs.h"
+#include "udaStructs.h"
 
 int compressDim(DIMS * ddim);
 

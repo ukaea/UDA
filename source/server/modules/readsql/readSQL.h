@@ -3,7 +3,7 @@
 
 #include <libpq-fe.h>
 
-#include <clientserver/idamStructs.h>
+#include <clientserver/udaStructs.h>
 
 #ifdef USEREADSOAP 
 #  include "soapStub.h"

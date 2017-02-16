@@ -9,18 +9,18 @@
 *--------------------------------------------------------------*/
 #include "closedown.h"
 
-#include <logging/idamLog.h>
-#include <client/idamClient.h>
+#include <logging/logging.h>
+#include <client/udaClient.h>
 
 #ifdef FATCLIENT
-#  include <server/idamServer.h>
+#  include <server/udaServer.h>
 #  include <libpq-fe.h>
 #  include <server/closeServerSockets.h>
 extern PGconn * DBConnect;    // IDAM database Socket Connection
 #else
 #  include "closeClientSockets.h"
 #  include "getEnvironment.h"
-#  include "idamCreateConnection.h"
+#  include "createConnection.h"
 #endif
 
 int idamClosedown(int type)

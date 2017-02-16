@@ -13,11 +13,11 @@
 #include <strings.h>
 #include <stdlib.h>
 
-#include <clientserver/idamErrorLog.h>
+#include <clientserver/errorLog.h>
 #include <server/sqllib.h>
 #include <structures/struct.h>
 #include <clientserver/initStructs.h>
-#include <logging/idamLog.h>
+#include <logging/logging.h>
 #include <structures/accessors.h>
 
 #include "xpadtree.h"

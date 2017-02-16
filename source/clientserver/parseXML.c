@@ -18,15 +18,15 @@
 
 #include <stdlib.h>
 
-#include <logging/idamLog.h>
-#include <clientserver/idamErrors.h>
+#include <logging/logging.h>
+#include <clientserver/udaErrors.h>
 
 #ifndef NOXMLPARSER
 
-#include <clientserver/idamTypes.h>
+#include <clientserver/udaTypes.h>
 #include "stringUtils.h"
 #include "parseOperation.h"
-#include "idamErrorLog.h"
+#include "errorLog.h"
 
 // Simple Tags with Delimited List of Floating Point Values
 // Assume No Attributes

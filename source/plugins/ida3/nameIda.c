@@ -11,7 +11,7 @@
 #include <stdio.h>
 
 #include <clientserver/stringUtils.h>
-#include <logging/idamLog.h>
+#include <logging/logging.h>
 
 #ifndef NOIDAPLUGIN
 

@@ -7,10 +7,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <client/idamGetAPI.h>
-#include <client/idamClient.h>
+#include <client/udaGetAPI.h>
+#include <client/udaClient.h>
 #include <client/accAPI.h>
-#include <clientserver/idamTypes.h>
+#include <clientserver/udaTypes.h>
 
 // Java native methods
 

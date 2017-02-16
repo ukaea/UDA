@@ -13,7 +13,7 @@ endif()
 
 include( plugins )
 
-idam_plugin(
+uda_plugin(
   NAME TORE
   ENTRY_FUNC tsPlugin
   DESCRIPTION "Read Tore Supra data"

@@ -7,10 +7,10 @@
 #include <malloc.h>
 
 #include <clientserver/stringUtils.h>
-#include <clientserver/idamTypes.h>
-#include <clientserver/idamErrorLog.h>
+#include <clientserver/udaTypes.h>
+#include <clientserver/errorLog.h>
 #include <include/idamclientserverprivate.h>
-#include <logging/idamLog.h>
+#include <logging/logging.h>
 
 // Extract list
 // Patterns:  comma separated substrings - sub-strings defined by matching quotes pair

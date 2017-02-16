@@ -15,12 +15,12 @@
 
 #include <mdslib.h>
 
-#include <clientserver/idamErrors.h>
-#include <clientserver/idamErrorLog.h>
-#include <clientserver/idamTypes.h>
+#include <clientserver/udaErrors.h>
+#include <clientserver/errorLog.h>
+#include <clientserver/udaTypes.h>
 #include <clientserver/stringUtils.h>
 #include <include/idamclientserverprivate.h>
-#include <logging/idamLog.h>
+#include <logging/logging.h>
 
 #define status_ok(status) (((status) & 1) == 1)
 

@@ -1,7 +1,7 @@
 #ifndef IDAM_CLIENTSERVER_INITSTRUCTS_H
 #define IDAM_CLIENTSERVER_INITSTRUCTS_H
 
-#include "idamStructs.h"
+#include "udaStructs.h"
 
 void initNameValueList(NAMEVALUELIST *nameValueList);
 void initRequestBlock(REQUEST_BLOCK *str);

@@ -6,8 +6,8 @@
 
 #include <stdlib.h>
 
-#include <logging/idamLog.h>
-#include <clientserver/idamDefines.h>
+#include <logging/logging.h>
+#include <clientserver/udaDefines.h>
 
 int getLastShot(PGconn* DBConnect, int* exp_number, int verbose, int debug) {
 

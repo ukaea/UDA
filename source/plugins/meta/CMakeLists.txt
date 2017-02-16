@@ -13,7 +13,7 @@ endif()
 
 include( plugins )
 
-idam_plugin(
+uda_plugin(
   NAME META
   ENTRY_FUNC readMeta
   DESCRIPTION "Meta Data Plugin"

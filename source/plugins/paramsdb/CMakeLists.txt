@@ -13,7 +13,7 @@ endif()
 
 include( plugins )
 
-idam_plugin(
+uda_plugin(
   NAME PARAMSDB
   ENTRY_FUNC paramsdb
   DESCRIPTION "Plugin for accessing MAST real time controls parameters database"

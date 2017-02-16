@@ -25,8 +25,8 @@
 
 #include <stdlib.h>
 
-#include <logging/idamLog.h>
-#include <clientserver/idamTypes.h>
+#include <logging/logging.h>
+#include <clientserver/udaTypes.h>
 
 #include "allocData.h"
 #include "compressDim.h"
@@ -40,8 +40,8 @@
 #endif
 
 #include "protocolXML2Put.h"
-#include "idamErrors.h"
-#include "idamErrorLog.h"
+#include "udaErrors.h"
+#include "errorLog.h"
 
 int protocol2(XDR* xdrs, int protocol_id, int direction, int* token, void* str)
 {

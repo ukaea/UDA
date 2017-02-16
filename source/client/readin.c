@@ -7,10 +7,10 @@
 #include <unistd.h>
 #include <errno.h>
 
-#include <clientserver/idamErrorLog.h>
+#include <clientserver/errorLog.h>
 
 #include "updateSelectParms.h"
-#include "idamCreateConnection.h"
+#include "createConnection.h"
 
 int idamClientReadin(void* iohandle, char* buf, int count)
 {

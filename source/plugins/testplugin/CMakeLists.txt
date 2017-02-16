@@ -9,7 +9,7 @@ endif()
 
 include( plugins )
 
-idam_plugin(
+uda_plugin(
   NAME TESTPLUGIN
   ENTRY_FUNC testplugin
   DESCRIPTION "Generate Test Data"

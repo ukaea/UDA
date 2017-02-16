@@ -4,8 +4,8 @@
 
 #include "getExpDateTime.h"
 
-#include <logging/idamLog.h>
-#include <clientserver/idamDefines.h>
+#include <logging/logging.h>
+#include <clientserver/udaDefines.h>
 
 int getExpDateTime(PGconn* DBConnect, int exp_number, char* shotdate, char* shottime, int verbose) {
 

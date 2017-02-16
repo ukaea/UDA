@@ -18,13 +18,13 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include <clientserver/idamStructs.h>
-#include <clientserver/idamErrorLog.h>
-#include <clientserver/idamTypes.h>
-#include <logging/idamLog.h>
+#include <clientserver/udaStructs.h>
+#include <clientserver/errorLog.h>
+#include <clientserver/udaTypes.h>
+#include <logging/logging.h>
 #include <clientserver/freeDataBlock.h>
 #include <clientserver/initStructs.h>
-#include <clientserver/idamErrors.h>
+#include <clientserver/udaErrors.h>
 
 //---------------------------------------------------------------------------------------------------------------
 // Stub plugin if disabled

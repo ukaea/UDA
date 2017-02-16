@@ -13,7 +13,7 @@ endif()
 
 include( plugins )
 
-idam_plugin(
+uda_plugin(
   NAME DOI
   ENTRY_FUNC issueDOI
   DESCRIPTION "Digital Object Identifiers"
