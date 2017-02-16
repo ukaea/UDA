@@ -12,7 +12,7 @@ if( NOT NO_WRAPPERS )
   add_subdirectory( wrappers )
 endif()
 
-if( FAT_BUILD OR NOT CLIENT_ONLY )
+if( NOT CLIENT_ONLY )
   add_subdirectory( server )
   add_subdirectory( plugins )
 endif()

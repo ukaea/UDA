@@ -27,13 +27,7 @@ endif()
 # Strip off the SHA1 tag element if it exists
 string( REGEX REPLACE "^([0-9]+\\.[0-9]+\\.[0-9]+).*" "\\1" GIT_VERSION "${GIT_TAG}" )
 
-option( FAT_BUILD "Build fat client" OFF )
-
-if( FAT_BUILD )
-  project( udafat VERSION ${GIT_VERSION} )
-else()
-  project( uda VERSION ${GIT_VERSION} )
-endif()
+project( uda VERSION ${GIT_VERSION} )
 
 cmake_host_system_information( RESULT UDA_HOST QUERY FQDN )
 
@@ -87,10 +81,6 @@ endif()
 
 ########################################################################################################################
 # Build options
-
-if( FAT_BUILD )
-  add_definitions( -DFATCLIENT )
-endif()
 
 option( CLIENT_ONLY "Only build IDAM client" OFF )
 option( NO_WRAPPERS "Don't build any IDAM client wrappers" OFF )

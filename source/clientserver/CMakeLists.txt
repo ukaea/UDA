@@ -55,11 +55,12 @@ include_directories(
   ${LIBXML2_INCLUDE_DIR}
 )
 
-add_library( clientserver-static STATIC ${SRC_FILES} )
-target_compile_definitions( clientserver-static PRIVATE -DSERVERBUILD )
+add_library( clientserver-client-objects OBJECT ${SRC_FILES} )
 
-add_library( clientserver-server OBJECT ${SRC_FILES} )
-target_compile_definitions( clientserver-server PRIVATE -DSERVERBUILD )
+if( NOT CLIENT_ONLY )
+  add_library( clientserver-server-objects OBJECT ${SRC_FILES} )
+  target_compile_definitions( clientserver-server-objects PRIVATE -DSERVERBUILD )
 
-add_library( clientserver-client OBJECT ${SRC_FILES} )
-target_compile_definitions( clientserver-client PRIVATE -DCLIENTBUILD )
+  add_library( fatclientserver-objects OBJECT ${SRC_FILES} )
+  target_compile_definitions( fatclientserver-objects PRIVATE -DFATCLIENT )
+endif()

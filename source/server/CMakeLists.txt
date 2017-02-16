@@ -36,14 +36,9 @@ set( SRC_FILES
   serverProcessing.c
   sqllib.c
   managePluginFiles.c
+  idamServerStartup.c
+  getServerEnvironment.c
   )
-
-if( NOT FAT_BUILD )
-  list( APPEND SRC_FILES
-    idamServerStartup.c
-    getServerEnvironment.c
-    )
-endif()
 
 include_directories(
   ${CMAKE_SOURCE_DIR}/source
@@ -62,11 +57,17 @@ link_directories( ${PostgreSQL_LIBRARY_DIRS} )
 
 add_library( server-objects OBJECT
   ${SRC_FILES}
-)
+  )
+
+add_library( fatserver-objects OBJECT
+  ${SRC_FILES}
+  )
+
+target_compile_definitions( fatserver-objects PRIVATE -DFATCLIENT )
 
 add_library( server-shared SHARED
   $<TARGET_OBJECTS:server-objects>
-  $<TARGET_OBJECTS:clientserver-server>
+  $<TARGET_OBJECTS:clientserver-server-objects>
   $<TARGET_OBJECTS:serverlogging>
   $<TARGET_OBJECTS:structures-server>
   $<TARGET_OBJECTS:security>
@@ -75,16 +76,14 @@ add_library( server-shared SHARED
 
 add_library( server-static STATIC
   $<TARGET_OBJECTS:server-objects>
-  $<TARGET_OBJECTS:clientserver-server>
+  $<TARGET_OBJECTS:clientserver-server-objects>
   $<TARGET_OBJECTS:serverlogging>
   $<TARGET_OBJECTS:structures-server>
   $<TARGET_OBJECTS:security>
   $<TARGET_OBJECTS:modules>
   )
 
-if( NOT FAT_BUILD )
-  add_executable( server-exe idamServerMain.c )
-endif()
+add_executable( server-exe idamServerMain.c )
 
 ########################################################################################################################
 # Add libraries
@@ -109,22 +108,20 @@ target_link_libraries( server-static LINK_PUBLIC
 
 link_modules( server-static )
 
-if( NOT FAT_BUILD )
-  # Executable
-  target_link_libraries( server-exe LINK_PUBLIC
-    ${LIBXML2_LIBRARIES}
-    ${PostgreSQL_LIBRARY}
-    c
-    m
-    dl
-    server-shared
-    client-shared
-    ${OPENSSL_LIBRARIES}
-    )
+# Executable
+target_link_libraries( server-exe LINK_PUBLIC
+  ${LIBXML2_LIBRARIES}
+  ${PostgreSQL_LIBRARY}
+  c
+  m
+  dl
+  server-shared
+  client-shared
+  ${OPENSSL_LIBRARIES}
+  )
 
-  if( NOT APPLE )
-    target_link_libraries( server-exe LINK_PUBLIC gcc_s )
-  endif()
+if( NOT APPLE )
+  target_link_libraries( server-exe LINK_PUBLIC gcc_s )
 endif()
 
 ########################################################################################################################
@@ -150,16 +147,14 @@ install(
 ########################################################################################################################
 # Set executable properties
 
-if( NOT FAT_BUILD )
-  set_target_properties( server-exe
-    PROPERTIES
-      OUTPUT_NAME ${PROJECT_NAME}_server
-  )
+set_target_properties( server-exe
+  PROPERTIES
+    OUTPUT_NAME ${PROJECT_NAME}_server
+)
 
-  install( TARGETS server-exe
-    DESTINATION bin
-  )
-endif()
+install( TARGETS server-exe
+  DESTINATION bin
+)
 
 ########################################################################################################################
 # Configure files

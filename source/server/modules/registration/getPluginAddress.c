@@ -13,23 +13,24 @@
  * @param idamPlugin the address of the library function
  * @return
  */
-int getPluginAddress(void **pluginHandle, char *library, char *symbol, PLUGINFUNP *idamPlugin) {
+int getPluginAddress(void** pluginHandle, char* library, char* symbol, PLUGINFUNP* idamPlugin)
+{
     int err = 0;
-    //void *handle = NULL;
-    int (*fptr)(IDAM_PLUGIN_INTERFACE *);		// Pointer to a Plugin function with standard interface
+    int (* fptr)(IDAM_PLUGIN_INTERFACE*);               // Pointer to a Plugin function with standard interface
 
-    *idamPlugin = (PLUGINFUNP) NULL;			// Default
+    *idamPlugin = (PLUGINFUNP)NULL;                     // Default
 
-    if(library[0] == '\0' || symbol[0] == '\0') {		// Nothing to 'point' to! Is this an Error?
+    if (library[0] == '\0' || symbol[0] == '\0') {      // Nothing to 'point' to! Is this an Error?
         return err;
     }
 
 // Open the named library
 
-    if(*pluginHandle == (void *)NULL) {
-        if((*pluginHandle = dlopen(library, RTLD_LOCAL | RTLD_NOW)) == NULL) {
+    if (*pluginHandle == NULL) {
+        if ((*pluginHandle = dlopen(library, RTLD_LOCAL | RTLD_NOW)) == NULL) {
             err = 999;
-            addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "getPluginAddress: Cannot open the target shared library", err, dlerror());
+            addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "getPluginAddress: Cannot open the target shared library",
+                         err, dlerror());
             return err;
         }
     }
@@ -38,11 +39,11 @@ int getPluginAddress(void **pluginHandle, char *library, char *symbol, PLUGINFUN
 
 // Find the address of the required plugin function
 
-    *(void **)(&fptr) = dlsym(*pluginHandle, symbol);
+    *(void**)(&fptr) = dlsym(*pluginHandle, symbol);
 
-    char * errstr = dlerror();
+    char* errstr = dlerror();
 
-    if(errstr == NULL) {
+    if (errstr == NULL) {
         *idamPlugin = (PLUGINFUNP)fptr;
     } else {
         err = 999;

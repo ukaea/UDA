@@ -37,15 +37,10 @@
 #endif
 
 #ifdef MEMCACHE
-#include "idamCache.h"
+#  include "idamCache.h"
 #endif
 
-#ifdef FATCLIENT
-int idamServer(CLIENT_BLOCK, REQUEST_BLOCK *, SERVER_BLOCK *, DATA_BLOCK *);
-void ncclose(int fh) {}
-#endif
-
-//---------------------------- Static Globals -------------------------
+//------------------------------------------------ Static Globals ------------------------------------------------------
 
 int clientVersion = 7;          // previous version
 
@@ -64,6 +59,10 @@ int get_synthetic = 0;          // return synthetic Data instead of original dat
 
 int user_timeout = TIMEOUT;     // user specified Server Lifetime
 
+//----------------------------------------------------------------------------------------------------------------------
+// FATCLIENT object shared with server code
+
+#ifndef FATCLIENT
 unsigned int clientFlags = 0;   // Send properties via bit flags
 int altRank = 0;                // Rank of alternative Signal/source (name mapping)
 
@@ -74,6 +73,14 @@ USERDEFINEDTYPELIST* userdefinedtypelist = NULL;            // List of all known
 LOGMALLOCLIST* logmalloclist = NULL;                        // List of all Heap Allocations for Data
 unsigned int lastMallocIndex = 0;                           // Malloc Log search index last value
 unsigned int* lastMallocIndexValue = &lastMallocIndex;;     // Preserve Malloc Log search index last value in GENERAL_STRUCT
+
+int protocolVersion = 7;
+int malloc_source = MALLOCSOURCENONE;
+
+NTREE* fullNTree = NULL;
+#endif // FATCLIENT
+
+//----------------------------------------------------------------------------------------------------------------------
 
 CLIENT_BLOCK client_block;
 SERVER_BLOCK server_block;
@@ -89,16 +96,8 @@ ENVIRONMENT environment;        // Holds local environment variable values
 SOCKETLIST client_socketlist;   // List of open sockets
 
 NTREELIST NTreeList;
-#ifndef FATCLIENT
-NTREE* fullNTree = NULL;
-#endif
 LOGSTRUCTLIST logstructlist;
 
-#ifndef FATCLIENT
-int protocolVersion = 7;
-#endif
-
-int malloc_source = MALLOCSOURCENONE;
 char clientUsername[STRING_LENGTH] = "client";
 
 int authenticationNeeded = 1; // Enable the mutual authentication conversation at startup

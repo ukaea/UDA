@@ -91,7 +91,6 @@ IDAMERRORSTACK idamerrorstack;
 
 int server_timeout = TIMEOUT;        // user specified Server Lifetime
 
-#ifndef FATCLIENT
 USERDEFINEDTYPELIST* userdefinedtypelist = NULL;            // User Defined Structure Types from Data Files & Plugins
 LOGMALLOCLIST* logmalloclist = NULL;                        // List of all Heap Allocations for Data: Freed after data is dispatched
 int malloc_source = MALLOCSOURCENONE;
@@ -103,16 +102,13 @@ unsigned int clientFlags = 0;
 int altRank = 0;
 unsigned int privateFlags = 0;
 unsigned int XDRstdioFlag = 0;                              // Flags the XDR stream is to stdio not a socket
-#endif
 
 #ifdef SERVERBUILD
 PLUGINLIST pluginList;					// List of all data reader plugins (internal and external shared libraries)
 #endif
 
-#ifndef FATCLIENT
 PLUGINLIST pluginList;                // List of all data reader plugins (internal and external shared libraries)
 ENVIRONMENT environment;                // Holds local environment variable values
-#endif
 
 SOCKETLIST server_socketlist;
 
@@ -233,7 +229,7 @@ int idamServer(CLIENT_BLOCK client_block, REQUEST_BLOCK * request_block0, SERVER
 
 #ifndef FATCLIENT    // <========================== Client Server Code Only
 
-    if ((rc = startup()) != 0) {
+    if (startup() != 0) {
         fatal = 1;
         err = FATAL_ERROR_LOGS;
         addIdamError(&idamerrorstack, CODEERRORTYPE, "idamServer", err, "Fatal Error Opening the Server Logs");

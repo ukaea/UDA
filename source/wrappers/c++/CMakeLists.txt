@@ -26,21 +26,39 @@ include_directories(
 
 add_definitions( -D__USE_XOPEN2K8 )
 
-add_library( ${LIB_NAME} SHARED ${SRC_FILES} )
-
 include_directories( SYSTEM "${Boost_INCLUDE_DIR}" )
 
+add_library( cpp-objects OBJECT ${SRC_FILES} )
+
+add_library( ${LIB_NAME} SHARED $<TARGET_OBJECTS:cpp-objects> )
 target_link_libraries( ${LIB_NAME} LINK_PUBLIC client-static ${Boost_LIBRARIES} )
+
+if( NOT CLIENT_ONLY )
+  add_library( fat${LIB_NAME} SHARED $<TARGET_OBJECTS:cpp-objects> )
+  target_link_libraries( fat${LIB_NAME} LINK_PUBLIC client-static ${Boost_LIBRARIES} )
+endif()
 
 set_target_properties( ${LIB_NAME}
   PROPERTIES
     VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}
     SOVERSION ${PROJECT_VERSION_MAJOR}
-)
+  )
 
 install( TARGETS ${LIB_NAME}
   DESTINATION lib
-)
+  )
+
+if( NOT CLIENT_ONLY )
+  set_target_properties( fat${LIB_NAME}
+    PROPERTIES
+    VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}
+    SOVERSION ${PROJECT_VERSION_MAJOR}
+    )
+
+  install( TARGETS fat${LIB_NAME}
+    DESTINATION lib
+    )
+endif()
 
 set( INSTALL_FILES
   array.hpp
@@ -56,4 +74,4 @@ set( INSTALL_FILES
 )
 
 install( FILES ${INSTALL_FILES}
-  DESTINATION include/idam/c++ )
+  DESTINATION include/uda/c++ )

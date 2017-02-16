@@ -26,11 +26,4 @@ idam_plugin(
     ${OPENSSL_LIBRARIES}
 )
 
-if( NOT FAT_BUILD )
-  target_link_libraries( ${LIB_NAME} LINK_PUBLIC server-shared )
-else()
-  target_link_libraries( ${LIB_NAME}
-    ${CMAKE_INSTALL_PREFIX}/lib/lib${PROJECT_NAME}.so
-    ${CMAKE_INSTALL_PREFIX}/lib/lib${PROJECT_NAME}_server.so
-    )
-endif()
+target_link_libraries( ${LIB_NAME} LINK_PUBLIC server-shared )

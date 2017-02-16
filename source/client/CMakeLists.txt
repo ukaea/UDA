@@ -4,13 +4,9 @@ cmake_minimum_required( VERSION 2.8 )
 # Dependencies
 
 find_package( OpenSSL REQUIRED )
-if( FAT_BUILD )
+if( NOT CLIENT_ONLY )
   find_package( LibXml2 REQUIRED )
   find_package( PostgreSQL REQUIRED )
-endif()
-
-if( NOT FAT_BUILD )
-  add_definitions( -DCLIENTBUILD )
 endif()
 
 add_definitions( -DNO_GSL_LIB )
@@ -43,34 +39,42 @@ include_directories(
   ${OPENSSL_INCLUDE_DIR}
 )
 
-add_library( client OBJECT ${SRC_FILES} )
+add_library( client-objects OBJECT ${SRC_FILES} )
 
-if( NOT FAT_BUILD )
-  set( CLIENT_SRCS
-    $<TARGET_OBJECTS:clientserver-client>
-    $<TARGET_OBJECTS:client>
-    $<TARGET_OBJECTS:cache>
-    $<TARGET_OBJECTS:logging>
-    $<TARGET_OBJECTS:structures-client>
-  )
-else()
-  include_directories( ${PostgreSQL_INCLUDE_DIRS} )
+if( NOT CLIENT_ONLY )
+  add_library( fatclient-objects OBJECT ${SRC_FILES} )
 
-  set( CLIENT_SRCS
-    $<TARGET_OBJECTS:server-objects>
-    $<TARGET_OBJECTS:clientserver-server>
-    $<TARGET_OBJECTS:serverlogging>
-    $<TARGET_OBJECTS:structures-client>
-    $<TARGET_OBJECTS:security>
-    $<TARGET_OBJECTS:modules>
-    $<TARGET_OBJECTS:client>
-    $<TARGET_OBJECTS:cache>
-    $<TARGET_OBJECTS:serverlogging>
-  )
+  target_compile_definitions( fatclient-objects PRIVATE -DFATCLIENT )
+  target_include_directories( fatclient-objects PRIVATE ${PostgreSQL_INCLUDE_DIRS} )
 endif()
+
+set( CLIENT_SRCS
+  $<TARGET_OBJECTS:client-objects>
+  $<TARGET_OBJECTS:clientserver-client-objects>
+  $<TARGET_OBJECTS:cache>
+  $<TARGET_OBJECTS:logging>
+  $<TARGET_OBJECTS:structures-client>
+  )
+
+set( FATCLIENT_SRCS
+  $<TARGET_OBJECTS:fatclient-objects>
+  $<TARGET_OBJECTS:fatserver-objects>
+  $<TARGET_OBJECTS:fatclientserver-objects>
+  $<TARGET_OBJECTS:serverlogging>
+  $<TARGET_OBJECTS:structures-client>
+  $<TARGET_OBJECTS:security>
+  $<TARGET_OBJECTS:modules>
+  $<TARGET_OBJECTS:cache>
+  $<TARGET_OBJECTS:serverlogging>
+  )
 
 add_library( client-shared SHARED ${CLIENT_SRCS} )
 add_library( client-static STATIC ${CLIENT_SRCS} )
+
+if( NOT CLIENT_ONLY )
+  add_library( fatclient-shared SHARED ${FATCLIENT_SRCS} )
+  add_library( fatclient-static STATIC ${FATCLIENT_SRCS} )
+endif()
 
 set_target_properties( client-shared
   PROPERTIES
@@ -84,10 +88,12 @@ set_target_properties( client-static
     OUTPUT_NAME ${PROJECT_NAME}_client
 )
 
-install( TARGETS client-shared
+install( TARGETS client-shared client-static
   DESTINATION lib
 )
 
-install( TARGETS client-static
+if( NOT CLIENT_ONLY )
+install( TARGETS fatclient-shared fatclient-static
   DESTINATION lib
-)
+  )
+endif()
