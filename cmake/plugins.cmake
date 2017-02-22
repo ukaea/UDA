@@ -55,7 +55,7 @@ macro( uda_plugin )
     add_definitions( ${DEF} )
   endforeach()
 
-  target_link_libraries( ${PLUGIN_LIBNAME} LINK_PUBLIC dl )
+  target_link_libraries( ${PLUGIN_LIBNAME} LINK_PUBLIC dl server-shared client-shared )
   
   filter_lib_list( "${PLUGIN_EXTRA_LINK_LIBS}" FILTERED_LINK_LIBS debug optimized ) 
 

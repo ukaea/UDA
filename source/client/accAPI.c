@@ -19,6 +19,7 @@
 #include <clientserver/memstream.h>
 #include <clientserver/xdrlib.h>
 #include <clientserver/socketStructs.h>
+#include <structures/accessors.h>
 #include <cache/cache.h>
 
 #include "generateErrors.h"
@@ -26,9 +27,7 @@
 #include "udaClient.h"
 
 #ifdef __APPLE__
-
 #  include <stdlib.h>
-#include <structures/accessors.h>
 #elif !defined(A64)
 #  include <malloc.h>
 #endif

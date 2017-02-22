@@ -2,7 +2,19 @@ cmake_minimum_required( VERSION 2.8 )
 
 enable_testing()
 
-find_package( Boost REQUIRED )
+find_package( Boost )
+find_package( OpenSSL )
+find_package( LibXml2 )
+find_package( LibMemcached )
+
+if( NOT Boost_FOUND OR NOT OPENSSL_FOUND OR NOT LIBXML2_FOUND )
+  message( WARNING "Not building tests" )
+  return()
+endif()
+
+if( LIBMEMCACHED_FOUND )
+  set( CACHE_LIBRARIES ${LIBMEMCACHED_LIBRARIES} )
+endif()
 
 include_directories(
   ${CMAKE_SOURCE_DIR}/source
@@ -24,17 +36,22 @@ include_directories( ${CMAKE_CURRENT_BINARY_DIR} )
 
 foreach( TEST ${TESTS} )
   add_executable( ${TEST} ${TEST}.cpp )
-  target_link_libraries( ${TEST} PRIVATE ${Boost_LIBRARIES} fat${PROJECT_NAME}_cpp )
+  target_link_libraries( ${TEST} PRIVATE
+    ${Boost_LIBRARIES} 
+    fat${PROJECT_NAME}_cpp 
+    client-shared
+    ${OPENSSL_LIBRARIES}
+    ${LIBXML2_LIBRARIES}
+    ${CACHE_LIBRARIES} )
   target_compile_definitions( ${TEST} PRIVATE -DFATCLIENT )
   link_modules( ${TEST} )
   add_test( ${TEST} ${TEST} )
 endforeach()
 
-find_package( GCrypt REQUIRED )
-find_package( KSBA REQUIRED )
-find_package( OpenSSL REQUIRED )
-find_package( LibXml2 REQUIRED )
+find_package( GCrypt )
+find_package( KSBA )
 
+if( GCRYPT_FOUND AND KSBA_FOUND AND OPENSSL_FOUND AND LIBXML2_FOUND )
 add_executable( testSecurity testSecurity.c $<TARGET_OBJECTS:security> )
 target_link_libraries( testSecurity PRIVATE
   ${GCRYPT_LIBRARIES}
@@ -45,3 +62,4 @@ target_link_libraries( testSecurity PRIVATE
   ${LIBXML2_LIBRARIES} )
 link_modules( testSecurity )
 add_test( testSecurity testSecurity )
+endif()
