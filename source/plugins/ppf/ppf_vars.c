@@ -54,7 +54,7 @@ const NAMEVALUE * nvl_name_find(const NAMEVALUELIST * nvl, const char * name)
     for (i = 0; !the_nv && i < n; ++i) {
         const NAMEVALUE * nv = nvl_pair(nvl, i);
 
-        if (!strcmp(name, nv_name(nv)))
+        if (STR_EQUALS(name, nv_name(nv)))
             the_nv = nv;
     }
 
@@ -84,12 +84,12 @@ int PPFGO_setup(VAR_PPFGO * var, IDAM_PLUGIN_INTERFACE * ipi)
         const char * name = nv_name(nv);
         //const char* val = nv_value( nv );
 
-        if (!strcmp(STR_FUNCTION_TAG, name)) {
+        if (STR_EQUALS(STR_FUNCTION_TAG, name)) {
         }
-        else if (!strcmp(STR_SHOT, name)) {
+        else if (STR_EQUALS(STR_SHOT, name)) {
             var->shot = atoi(name);
         }
-        else if (!strcmp(STR_SEQ, name)) {
+        else if (STR_EQUALS(STR_SEQ, name)) {
             var->seq = atoi(name);
         }
         else
@@ -153,15 +153,15 @@ int PDMSEQ_setup(VAR_PDMSEQ * f, IDAM_PLUGIN_INTERFACE * ipi)
         const char * name = nv_name(nv);
         const char * val = nv_value(nv);
 
-        if (!strcmp(STR_FUNCTION_TAG, name)) {
+        if (STR_EQUALS(STR_FUNCTION_TAG, name)) {
         }
-        else if (!strcmp(STR_PULSE, name))
+        else if (STR_EQUALS(STR_PULSE, name))
             f->pulse = atoi(val);
-        else if (!strcmp(STR_SEQ, name))
+        else if (STR_EQUALS(STR_SEQ, name))
             f->seq = atoi(val);
-        else if (!strcmp(STR_OWNER, name))
+        else if (STR_EQUALS(STR_OWNER, name))
             strcpy(f->szOwner, val);
-        else if (!strcmp(STR_DDA, name))
+        else if (STR_EQUALS(STR_DDA, name))
             strcpy(f->szDDA, val);
         else {
             err = ERR_PDMSEQ_SETUP;
@@ -229,11 +229,11 @@ int PPFUID_setup(VAR_PPFUID * var, IDAM_PLUGIN_INTERFACE * ipi)
         const char * name = nv_name(nv);
         const char * val = nv_value(nv);
 
-        if (!strcmp(STR_FUNCTION_TAG, name)) {
+        if (STR_EQUALS(STR_FUNCTION_TAG, name)) {
         }
-        else if (!strcmp(STR_USERID, name))
+        else if (STR_EQUALS(STR_USERID, name))
             strcpy(var->szUID, val);
-        else if (!strcmp(STR_RW_FLAG, name))
+        else if (STR_EQUALS(STR_RW_FLAG, name))
             strcpy(var->rw, val);
         else
             err = ERR_PPFUID_SETUP;
@@ -291,15 +291,15 @@ int PPFCLO_setup(VAR_PPFCLO * var, IDAM_PLUGIN_INTERFACE * ipi)
         const char * name = nv_name(nv);
         const char * val = nv_value(nv);
 
-        if (!strcmp(STR_FUNCTION_TAG, name)) {
+        if (STR_EQUALS(STR_FUNCTION_TAG, name)) {
         }
-        else if (!strcmp(STR_SHOT, name))
+        else if (STR_EQUALS(STR_SHOT, name))
             var->shot = atoi(val);
-        else if (!strcmp(STR_SEQ, name))
+        else if (STR_EQUALS(STR_SEQ, name))
             var->seq = atoi(val);
-        else if (!strcmp(STR_PRGNAME, name))
+        else if (STR_EQUALS(STR_PRGNAME, name))
             strcpy(var->prgname, val);
-        else if (!strcmp(STR_PVERS, name))
+        else if (STR_EQUALS(STR_PVERS, name))
             var->pvers = atoi(val);
         else {
             err = ERR_PPFCLO_SETUP;
@@ -364,11 +364,11 @@ int PPFERR_setup(VAR_PPFERR * var, IDAM_PLUGIN_INTERFACE * ipi)
         const char * name = nv_name(nv);
         const char * val = nv_value(nv);
 
-        if (!strcmp(STR_FUNCTION_TAG, name)) {
+        if (STR_EQUALS(STR_FUNCTION_TAG, name)) {
         }
-        else if (!strcmp(STR_RNAME, name))
+        else if (STR_EQUALS(STR_RNAME, name))
             strcpy(var->rname, val);
-        else if (!strcmp(STR_ERRCODE, name))
+        else if (STR_EQUALS(STR_ERRCODE, name))
             var->err_code = atoi(val);
         else {
             err = ERR_PPFERR_SETUP;
@@ -428,11 +428,11 @@ int PPFSQI_setup(VAR_PPFSQI * var, IDAM_PLUGIN_INTERFACE * ipi)
         const char * name = nv_name(nv);
         const char * val = nv_value(nv);
 
-        if (!strcmp(STR_FUNCTION_TAG, name)) {
+        if (STR_EQUALS(STR_FUNCTION_TAG, name)) {
         }
-        else if (!strcmp(STR_SHOT, name))
+        else if (STR_EQUALS(STR_SHOT, name))
             var->shot = atoi(val);
-        else if (!strcmp(STR_PQI, name))
+        else if (STR_EQUALS(STR_PQI, name))
             var->pqi = atoi(val);
 
         else {
@@ -494,9 +494,9 @@ int PPFGQI_setup(VAR_PPFGQI * var, IDAM_PLUGIN_INTERFACE * ipi)
         const char * name = nv_name(nv);
         const char * val = nv_value(nv);
 
-        if (!strcmp(STR_FUNCTION_TAG, name)) {
+        if (STR_EQUALS(STR_FUNCTION_TAG, name)) {
         }
-        else if (!strcmp(STR_SHOT, name))
+        else if (STR_EQUALS(STR_SHOT, name))
             var->shot = atoi(val);
         else {
             err = ERR_PPFGQI_SETUP;
@@ -554,9 +554,9 @@ int PPFGID_setup(VAR_PPFGID * var, IDAM_PLUGIN_INTERFACE * ipi)
         const char * name = nv_name(nv);
         const char * val = nv_value(nv);
 
-        if (!strcmp(STR_FUNCTION_TAG, name)) {
+        if (STR_EQUALS(STR_FUNCTION_TAG, name)) {
         }
-        else if (!strcmp(STR_RW_FLAG, name))
+        else if (STR_EQUALS(STR_RW_FLAG, name))
             strcpy(var->userid, val);
         else {
             err = ERR_PPFGID_SETUP;
@@ -609,7 +609,7 @@ int PPFPOK_setup(VAR_PPFPOK * var, IDAM_PLUGIN_INTERFACE * ipi)
         const NAMEVALUE * nv = nvl_pair(nvl, i);
         const char * name = nv_name(nv);
 
-        if (!strcmp(STR_FUNCTION_TAG, name)) {
+        if (STR_EQUALS(STR_FUNCTION_TAG, name)) {
         }
         else {
             err = ERR_PPFPOK_SETUP;
@@ -670,7 +670,7 @@ int PDAINF_setup(VAR_PDAINF * var, IDAM_PLUGIN_INTERFACE * ipi)
         const char * name = nv_name(nv);
         //const char* val = nv_value( nv );
 
-        if (!strcmp(STR_FUNCTION_TAG, name)) {
+        if (STR_EQUALS(STR_FUNCTION_TAG, name)) {
         }
         else {
             err = ERR_PDAINF_SETUP;
@@ -751,12 +751,12 @@ int PPFSEQ_setup(VAR_PPFSEQ * var, IDAM_PLUGIN_INTERFACE * ipi)
         const char * name = nv_name(nv);
         const char * val = nv_value(nv);
 
-        if (!strcmp(STR_FUNCTION_TAG, name)) {
+        if (STR_EQUALS(STR_FUNCTION_TAG, name)) {
         }
-        else if (!strcmp("ndda", name)) {
+        else if (STR_EQUALS("ndda", name)) {
             var->ndda = atoi(val);
         }
-        else if (!strcmp("shot", name)) {
+        else if (STR_EQUALS("shot", name)) {
             var->shot = atoi(val);
         }
         else {
@@ -926,15 +926,15 @@ int PPFINF_setup(VAR_PPFINF * v, IDAM_PLUGIN_INTERFACE * ipi)
         const char * name = nv_name(nv);
         const char * val = nv_value(nv);
 
-        if (!strcmp(STR_FUNCTION_TAG, name)) {
+        if (STR_EQUALS(STR_FUNCTION_TAG, name)) {
         }
-        else if (!strcmp("comlen", name)) {
+        else if (STR_EQUALS("comlen", name)) {
             //assert( comlen >=0 );
             v->comlen = atoi(val);
             v->pszComment = malloc((v->comlen * 4) + 1);
             memset(v->pszComment, 0, (v->comlen * 4));
         }
-        else if (!strcmp("ndda", name)) {
+        else if (STR_EQUALS("ndda", name)) {
             v->ndda = atoi(val);
             v->pszDDAs = malloc((v->ndda * 4) + 1);
         }
@@ -1048,21 +1048,21 @@ int DDAINF_setup(VAR_DDAINF * v, IDAM_PLUGIN_INTERFACE * ipi)
         const char * name = nv_name(nv);
         const char * val = nv_value(nv);
 
-        if (!strcmp(STR_FUNCTION_TAG, name)) {
+        if (STR_EQUALS(STR_FUNCTION_TAG, name)) {
         }
-        else if (!strcmp("shot", name)) {
+        else if (STR_EQUALS("shot", name)) {
             v->shot = atoi(val);
         }
-        else if (!strcmp("dda", name)) {
+        else if (STR_EQUALS("dda", name)) {
             strcpy(v->szDDA, val);
         }
-        else if (!strcmp("nwcom", name)) {
+        else if (STR_EQUALS("nwcom", name)) {
             v->nwcom = atoi(val);
 
             if (v->nwcom > 0)
                 v->pszDDACom = malloc((4 * v->nwcom) + 1);
         }
-        else if (!strcmp("ndt", name)) {
+        else if (STR_EQUALS("ndt", name)) {
             v->ndt = atoi(val);
             if (v->ndt > 0)
                 v->pszDTNAMS = malloc((4 * v->ndt) + 1);
@@ -1205,12 +1205,12 @@ int PPFDEL_setup(VAR_PPFDEL * v, IDAM_PLUGIN_INTERFACE * ipi)
         const char * name = nv_name(nv);
         const char * val = nv_value(nv);
 
-        if (!strcmp(STR_FUNCTION_TAG, name)) {
+        if (STR_EQUALS(STR_FUNCTION_TAG, name)) {
         }
-        else if (!strcmp(STR_SHOT, name)) {
+        else if (STR_EQUALS(STR_SHOT, name)) {
             v->shot = atoi(val);
         }
-        else if (!strcmp(STR_SEQ, name)) {
+        else if (STR_EQUALS(STR_SEQ, name)) {
             v->seq = atoi(val);
         }
         else
@@ -1277,11 +1277,11 @@ int PPFWRI_setup( VAR_PPFWRI* v, IDAM_PLUGIN_INTERFACE* ipi )
       const PUTDATA_BLOCK* pd = pdl->putDataBlock+i;
       const char* pszBlockName = pd->blockName;
 
-      if( !strcmp( pszBlockName, "ihdat") )
+      if( STR_EQUALS( pszBlockName, "ihdat") )
 	memcpy( v->ihdat, pd->data, 60 );
-      else if( !strcmp( pszBlockName, "irdat") )
+      else if( STR_EQUALS( pszBlockName, "irdat") )
        memcpy( v->irdat, pd->data, 13 * sizeof( int ) );
-      else if( !strcmp( pszBlockName, "data" ) )
+      else if( STR_EQUALS( pszBlockName, "data" ) )
 	v->data = (float*)(pd->data);
 
     }
@@ -1292,14 +1292,14 @@ int PPFWRI_setup( VAR_PPFWRI* v, IDAM_PLUGIN_INTERFACE* ipi )
       const char* name = nv_name( nv );
       const char* val = nv_value( nv );
 
-      if( !strcmp( STR_FUNCTION_TAG, name ) )
+      if( STR_EQUALS( STR_FUNCTION_TAG, name ) )
 	{
 	}
-      else if( !strcmp( "shot", name ) )
+      else if( STR_EQUALS( "shot", name ) )
 	v->shot = atoi( val );
-      else if ( !strcmp( "dda", name ) )
+      else if ( STR_EQUALS( "dda", name ) )
 	strcpy( v->szDDA, val );
-      else if ( !strcmp( "dtype", name ) )
+      else if ( STR_EQUALS( "dtype", name ) )
 	strcpy( v->szDTYPE, val );
       else
 	err = ERR_PPFWRI_SETUP;
@@ -1336,18 +1336,18 @@ int PDLPPF_setup(VAR_PDLPPF * v, IDAM_PLUGIN_INTERFACE * ipi)
         const char * name = nv_name(nv);
         const char * val = nv_value(nv);
 
-        if (!strcmp(STR_FUNCTION_TAG, name)) {
+        if (STR_EQUALS(STR_FUNCTION_TAG, name)) {
         }
-        else if (!strcmp("shot", name))
+        else if (STR_EQUALS("shot", name))
             v->shot = atoi(val);
-        else if (!strcmp("uid", name))
+        else if (STR_EQUALS("uid", name))
             v->uid = atoi(val);
-        else if (!strcmp("dup", name))
+        else if (STR_EQUALS("dup", name))
             v->dup = atoi(val);
-        else if (!strcmp("nseq", name)) {
+        else if (STR_EQUALS("nseq", name)) {
             v->nseq = atoi(val);
         }
-            //else if( !strcmp( "ndda", name ) )
+            //else if( STR_EQUALS( "ndda", name ) )
             //	{
             //	  v->ndda = atoi( val );
             //	}
@@ -1468,15 +1468,15 @@ int PDLUSR_setup(VAR_PDLUSR * v, IDAM_PLUGIN_INTERFACE * ipi)
         const char * name = nv_name(nv);
         const char * val = nv_value(nv);
 
-        if (!strcmp(STR_FUNCTION_TAG, name)) {
+        if (STR_EQUALS(STR_FUNCTION_TAG, name)) {
         }
-        else if (!strcmp("shot", name)) {
+        else if (STR_EQUALS("shot", name)) {
             v->shot = atoi(val);
         }
-        else if (!strcmp("dda", name)) {
+        else if (STR_EQUALS("dda", name)) {
             strcpy(v->szDDA, val);
         }
-        else if (!strcmp("nusers", name)) {
+        else if (STR_EQUALS("nusers", name)) {
             v->nusers = atoi(val);
         }
         else
@@ -1563,11 +1563,11 @@ int PDMSDT_setup(VAR_PDMSDT * v, IDAM_PLUGIN_INTERFACE * ipi)
         const char * name = nv_name(nv);
         const char * val = nv_value(nv);
 
-        if (!strcmp(STR_FUNCTION_TAG, name)) {
+        if (STR_EQUALS(STR_FUNCTION_TAG, name)) {
         }
-        else if (!strcmp("date", name))
+        else if (STR_EQUALS("date", name))
             v->idate = atoi(val);
-        else if (!strcmp("time", name))
+        else if (STR_EQUALS("time", name))
             strcpy(v->szTime, val);
         else
             err = ERR_PDMSDT_SETUP;
@@ -1674,7 +1674,7 @@ int PDSTAT_setup(VAR_PDSTAT * v, IDAM_PLUGIN_INTERFACE * ipi)
         const char * name = nv_name(nv);
         //const char* val = nv_value( nv );
 
-        if (!strcmp(STR_FUNCTION_TAG, name)) {
+        if (STR_EQUALS(STR_FUNCTION_TAG, name)) {
         }
         else
             err = ERR_PDSTAT_SETUP;
@@ -1750,9 +1750,9 @@ int PDSTD_setup(VAR_PDSTD * v, IDAM_PLUGIN_INTERFACE * ipi)
         const char * name = nv_name(nv);
         const char * val = nv_value(nv);
 
-        if (!strcmp(STR_FUNCTION_TAG, name)) {
+        if (STR_EQUALS(STR_FUNCTION_TAG, name)) {
         }
-        else if (!strcmp("shot", name)) {
+        else if (STR_EQUALS("shot", name)) {
             v->shot = atoi(val);
         }
         else
@@ -1828,17 +1828,17 @@ int PDSRCH_setup(VAR_PDSRCH * v, IDAM_PLUGIN_INTERFACE * ipi)
         const char * name = nv_name(nv);
         const char * val = nv_value(nv);
 
-        if (!strcmp(STR_FUNCTION_TAG, name)) {
+        if (STR_EQUALS(STR_FUNCTION_TAG, name)) {
         }
-        else if (!strcmp("shot", name)) {
+        else if (STR_EQUALS("shot", name)) {
             v->shot = atoi(val);
         }
-        else if (!strcmp("ndda", name)) {
+        else if (STR_EQUALS("ndda", name)) {
             v->ndda = atoi(val);
             v->pszDDAs = malloc((4 * v->ndda) + 1);
             v->pszDDAs[0] = '\0';
         }
-        else if (!strcmp("dda", name)) {
+        else if (STR_EQUALS("dda", name)) {
             strcpy(v->szDDA, val);
         }
         else
@@ -1932,12 +1932,12 @@ int PDTINF_setup(VAR_PDTINF * v, IDAM_PLUGIN_INTERFACE * ipi)
         const char * name = nv_name(nv);
         const char * val = nv_value(nv);
 
-        if (!strcmp(STR_FUNCTION_TAG, name)) {
+        if (STR_EQUALS(STR_FUNCTION_TAG, name)) {
         }
-        else if (!strcmp("shot", name)) {
+        else if (STR_EQUALS("shot", name)) {
             v->shot = atoi(val);
         }
-        else if (!strcmp("ndt", name)) {
+        else if (STR_EQUALS("ndt", name)) {
             v->ndt = atoi(val);
             v->pszDTNAMS = malloc((4 * v->ndt) + 1);
             v->pszDTNAMS[0] = '\0';
@@ -1945,7 +1945,7 @@ int PDTINF_setup(VAR_PDTINF * v, IDAM_PLUGIN_INTERFACE * ipi)
             v->pszDTComms = malloc((v->ndt * 24) + 1);
             v->lxtv = (int *) malloc(v->ndt * 2 * sizeof(int));
         }
-        else if (!strcmp("dda", name)) {
+        else if (STR_EQUALS("dda", name)) {
             strcpy(v->szDDA, val);
         }
         else
@@ -2057,25 +2057,25 @@ int PPFDAT_setup(VAR_PPFDAT * v, IDAM_PLUGIN_INTERFACE * ipi)
         const char * name = nv_name(nv);
         const char * val = nv_value(nv);
 
-        if (!strcmp(STR_FUNCTION_TAG, name)) {
+        if (STR_EQUALS(STR_FUNCTION_TAG, name)) {
         }
-        else if (!strcmp("shot", name)) {
+        else if (STR_EQUALS("shot", name)) {
             v->shot = atoi(val);
         }
-        else if (!strcmp("seq", name)) {
+        else if (STR_EQUALS("seq", name)) {
             v->seq = atoi(val);
         }
-        else if (!strcmp("nx", name)) {
+        else if (STR_EQUALS("nx", name)) {
             v->nx = atoi(val);
             v->x = (float *) malloc(v->nx * sizeof(float));
         }
-        else if (!strcmp("nt", name)) {
+        else if (STR_EQUALS("nt", name)) {
             v->nt = atoi(val);
             v->t = (float *) malloc(v->nx * sizeof(float));
         }
-        else if (!strcmp("dda", name))
+        else if (STR_EQUALS("dda", name))
             strcpy(v->szDDA, val);
-        else if (!strcmp("dtype", name))
+        else if (STR_EQUALS("dtype", name))
             strcpy(v->szDTYPE, val);
         else
             err = ERR_PPFDAT_SETUP;
@@ -2195,17 +2195,17 @@ int PPFDTI_setup(VAR_PPFDTI * v, IDAM_PLUGIN_INTERFACE * ipi)
         const char * name = nv_name(nv);
         const char * val = nv_value(nv);
 
-        if (!strcmp(STR_FUNCTION_TAG, name)) {
+        if (STR_EQUALS(STR_FUNCTION_TAG, name)) {
         }
-        else if (!strcmp("shot", name)) {
+        else if (STR_EQUALS("shot", name)) {
             v->shot = atoi(val);
         }
-        else if (!strcmp("seq", name)) {
+        else if (STR_EQUALS("seq", name)) {
             v->seq = atoi(val);
         }
-        else if (!strcmp("dda", name))
+        else if (STR_EQUALS("dda", name))
             strcpy(v->szDDA, val);
-        else if (!strcmp("dtype", name))
+        else if (STR_EQUALS("dtype", name))
             strcpy(v->szDTYPE, val);
         else
             err = ERR_PPFDTI_SETUP;
@@ -2304,13 +2304,13 @@ int PPFDDA_setup(VAR_PPFDDA * v, IDAM_PLUGIN_INTERFACE * ipi)
         const char * name = nv_name(nv);
         const char * val = nv_value(nv);
 
-        if (!strcmp(STR_FUNCTION_TAG, name)) {
+        if (STR_EQUALS(STR_FUNCTION_TAG, name)) {
         }
-        else if (!strcmp("shot", name))
+        else if (STR_EQUALS("shot", name))
             v->shot = atoi(val);
-        else if (!strcmp("dda", name))
+        else if (STR_EQUALS("dda", name))
             strcpy(v->szDDA, val);
-        else if (!strcmp("nseq", name)) {
+        else if (STR_EQUALS("nseq", name)) {
             v->nseq = atoi(val);
             v->pseqs = (int *) malloc(v->nseq * sizeof(int));
         }
@@ -2410,17 +2410,17 @@ int PPFGET_setup(VAR_PPFGET * v, IDAM_PLUGIN_INTERFACE * ipi)
         const char * name = nv_name(nv);
         const char * val = nv_value(nv);
 
-        if (!strcmp(STR_FUNCTION_TAG, name)) {
+        if (STR_EQUALS(STR_FUNCTION_TAG, name)) {
         }
-        else if (!strcmp("shot", name)) {
+        else if (STR_EQUALS("shot", name)) {
             v->shot = atoi(val);
             flag |= f_shot;
         }
-        else if (!strcmp("dda", name)) {
+        else if (STR_EQUALS("dda", name)) {
             strcpy(v->szDDA, val);
             flag |= f_dda;
         }
-        else if (!strcmp("dtype", name)) {
+        else if (STR_EQUALS("dtype", name)) {
             strcpy(v->szDTYPE, val);
             flag |= f_dtype;
         }
@@ -2432,7 +2432,7 @@ int PPFGET_setup(VAR_PPFGET * v, IDAM_PLUGIN_INTERFACE * ipi)
     for (i = 0; i < pdl->blockCount; ++i) {
         PUTDATA_BLOCK * pd = pdl->putDataBlock + i;
 
-        if (!strcmp("irdat", pd->blockName)) {
+        if (STR_EQUALS("irdat", pd->blockName)) {
             memcpy(v->irdat, pd->data, 13 * sizeof(int));
 
             v->x = (float *) malloc(v->irdat[5] * sizeof(float));
@@ -2559,21 +2559,21 @@ int PPFGSF_setup(VAR_PPFGSF * v, IDAM_PLUGIN_INTERFACE * ipi)
         const char * name = nv_name(nv);
         const char * val = nv_value(nv);
 
-        if (!strcmp(STR_FUNCTION_TAG, name)) {
+        if (STR_EQUALS(STR_FUNCTION_TAG, name)) {
         }
-        else if (!strcmp("shot", name)) {
+        else if (STR_EQUALS("shot", name)) {
             v->shot = atoi(val);
             flag |= f_shot;
         }
-        else if (!strcmp("seq", name)) {
+        else if (STR_EQUALS("seq", name)) {
             v->seq = atoi(val);
             flag |= f_seq;
         }
-        else if (!strcmp("dda", name)) {
+        else if (STR_EQUALS("dda", name)) {
             strcpy(v->szDDA, val);
             flag |= f_dda;
         }
-        else if (!strcmp("dtype", name)) {
+        else if (STR_EQUALS("dtype", name)) {
             strcpy(v->szDTYPE, val);
             flag |= f_dtype;
         }
@@ -2657,21 +2657,21 @@ int PPFGTS_setup(VAR_PPFGTS * v, IDAM_PLUGIN_INTERFACE * ipi)
         const char * name = nv_name(nv);
         const char * val = nv_value(nv);
 
-        if (!strcmp(STR_FUNCTION_TAG, name)) {
+        if (STR_EQUALS(STR_FUNCTION_TAG, name)) {
         }
-        else if (!strcmp("shot", name)) {
+        else if (STR_EQUALS("shot", name)) {
             v->shot = atoi(val);
             flag |= f_shot;
         }
-        else if (!strcmp("dda", name)) {
+        else if (STR_EQUALS("dda", name)) {
             strcpy(v->szDDA, val);
             flag |= f_dda;
         }
-        else if (!strcmp("dtype", name)) {
+        else if (STR_EQUALS("dtype", name)) {
             strcpy(v->szDTYPE, val);
             flag |= f_dtype;
         }
-        else if (!strcmp("twant", name)) {
+        else if (STR_EQUALS("twant", name)) {
             v->shot = atof(val);
             flag |= f_twant;
         }
@@ -2683,7 +2683,7 @@ int PPFGTS_setup(VAR_PPFGTS * v, IDAM_PLUGIN_INTERFACE * ipi)
     for (i = 0; i < pdl->blockCount; ++i) {
         PUTDATA_BLOCK * pd = pdl->putDataBlock + i;
 
-        if (!strcmp("irdat", pd->blockName)) {
+        if (STR_EQUALS("irdat", pd->blockName)) {
             memcpy(v->irdat, pd->data, 13 * sizeof(int));
 
             flag |= f_irdat;
@@ -2808,9 +2808,9 @@ int PPFMOD_setup(VAR_PPFMOD * v, IDAM_PLUGIN_INTERFACE * ipi)
         const char * name = nv_name(nv);
         const char * val = nv_value(nv);
 
-        if (!strcmp(STR_FUNCTION_TAG, name)) {
+        if (STR_EQUALS(STR_FUNCTION_TAG, name)) {
         }
-        else if (!strcmp("shot", name)) {
+        else if (STR_EQUALS("shot", name)) {
             v->shot = atoi(val);
             flag |= f_shot;
         }
@@ -2909,13 +2909,13 @@ int PPFONDISK_setup(VAR_PPFONDISK * v, IDAM_PLUGIN_INTERFACE * ipi)
         const char * name = nv_name(nv);
         const char * val = nv_value(nv);
 
-        if (!strcmp(STR_FUNCTION_TAG, name)) {
+        if (STR_EQUALS(STR_FUNCTION_TAG, name)) {
         }
-        else if (!strcmp("shot", name)) {
+        else if (STR_EQUALS("shot", name)) {
             v->shot = atoi(val);
             flag |= f_shot;
         }
-        else if (!strcmp("dda", name)) {
+        else if (STR_EQUALS("dda", name)) {
             strcpy(v->szDDA, val);
             flag |= f_dda;
         }
@@ -2998,17 +2998,17 @@ int PPFOWNERINFO_setup(VAR_PPFOWNERINFO * v, IDAM_PLUGIN_INTERFACE * ipi)
         const char * name = nv_name(nv);
         const char * val = nv_value(nv);
 
-        if (!strcmp(STR_FUNCTION_TAG, name)) {
+        if (STR_EQUALS(STR_FUNCTION_TAG, name)) {
         }
-        else if (!strcmp("shot", name)) {
+        else if (STR_EQUALS("shot", name)) {
             v->shot = atoi(val);
             flag |= f_shot;
         }
-        else if (!strcmp("seq", name)) {
+        else if (STR_EQUALS("seq", name)) {
             v->seq = atoi(val);
             flag |= f_seq;
         }
-        else if (!strcmp("flag", name)) {
+        else if (STR_EQUALS("flag", name)) {
             v->ownerflag = atoi(val);
             flag |= f_ownerflag;
         }
@@ -3092,9 +3092,9 @@ int PPFSETDEVICE_setup(VAR_PPFSETDEVICE * v, IDAM_PLUGIN_INTERFACE * ipi)
         const char * name = nv_name(nv);
         const char * val = nv_value(nv);
 
-        if (!strcmp(STR_FUNCTION_TAG, name)) {
+        if (STR_EQUALS(STR_FUNCTION_TAG, name)) {
         }
-        else if (!strcmp("device", name)) {
+        else if (STR_EQUALS("device", name)) {
             strcpy(v->szDevice, val);
             flag |= f_device;
         }
@@ -3168,21 +3168,21 @@ int PPFSIZ_setup(VAR_PPFSIZ * var, IDAM_PLUGIN_INTERFACE * ipi)
         const char * name = nv_name(nv);
         const char * val = nv_value(nv);
 
-        if (!strcmp(STR_FUNCTION_TAG, name)) {
+        if (STR_EQUALS(STR_FUNCTION_TAG, name)) {
         }
-        else if (!strcmp(STR_SHOT, name)) {
+        else if (STR_EQUALS(STR_SHOT, name)) {
             flag |= f_shot;
             var->shot = atoi(name);
         }
-        else if (!strcmp(STR_SEQ, name)) {
+        else if (STR_EQUALS(STR_SEQ, name)) {
             flag |= f_seq;
             var->seq = atoi(val);
         }
-        else if (!strcmp("dda", name)) {
+        else if (STR_EQUALS("dda", name)) {
             flag |= f_dda;
             strcpy(var->szDDA, val);
         }
-        else if (!strcmp("user", name)) {
+        else if (STR_EQUALS("user", name)) {
             flag |= f_user;
             strcpy(var->szUser, val);
         }

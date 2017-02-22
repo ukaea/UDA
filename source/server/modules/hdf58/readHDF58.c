@@ -48,6 +48,7 @@ void H5Fclose(int fh) {
 #include <memory.h>
 #include <clientserver/initStructs.h>
 #include <errno.h>
+#include <clientserver/stringUtils.h>
 
 // #define H5TEST
 
@@ -569,9 +570,9 @@ int readHDF5(DATA_SOURCE data_source,
             fprintf(stdout,"H5T_C_S1       ?   %d\n", H5T_C_S1  == att_type);
 #endif
 
-            if (!strcasecmp(att_name, "units")) strcpy(data_block->data_units, att_buff);
-            if (!strcasecmp(att_name, "label")) strcpy(data_block->data_label, att_buff);
-            if (!strcasecmp(att_name, "description")) strcpy(data_block->data_desc, att_buff);
+            if (STR_IEQUALS(att_name, "units")) strcpy(data_block->data_units, att_buff);
+            if (STR_IEQUALS(att_name, "label")) strcpy(data_block->data_label, att_buff);
+            if (STR_IEQUALS(att_name, "description")) strcpy(data_block->data_desc, att_buff);
 
             if (strlen(data_block->data_label) == 0 && strlen(data_block->data_desc) > 0) {
                 strcpy(data_block->data_label, data_block->data_desc);

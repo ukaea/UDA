@@ -16,6 +16,7 @@
 #include <strings.h>
 
 #include <structures/struct.h>
+#include <clientserver/stringUtils.h>
 
 char* pghost = NULL;
 char pgport[56];
@@ -113,19 +114,9 @@ int admin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     static PGconn* DBConnect = NULL;
 
     if (idam_plugin_interface->interfaceVersion == 1) {
-
         idam_plugin_interface->pluginVersion = 1;
-
         request_block = idam_plugin_interface->request_block;
-
         housekeeping = idam_plugin_interface->housekeeping;
-
-#ifndef USE_PLUGIN_DIRECTLY
-// Don't copy the structure if housekeeping is requested - may dereference a NULL  or freed pointer!     
-        if (!housekeeping && idam_plugin_interface->environment != NULL)
-            environment = *idam_plugin_interface->environment;
-#endif
-
     } else {
         err = 999;
         IDAM_LOG(LOG_ERROR, "ERROR Provenance: Plugin Interface Version Unknown\n");
@@ -141,7 +132,7 @@ int admin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 //----------------------------------------------------------------------------------------
 // Heap Housekeeping 
 
-    if (housekeeping || !strcasecmp(request_block->function, "reset")) {
+    if (housekeeping || STR_IEQUALS(request_block->function, "reset")) {
 
         IDAM_LOG(LOG_DEBUG, "Provenance: reset function called.\n");
 
@@ -162,8 +153,8 @@ int admin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 //----------------------------------------------------------------------------------------
 // Initialise if requested (the previous private SQL connection must be closed) 
 
-    if (!init || !strcasecmp(request_block->function, "init")
-        || !strcasecmp(request_block->function, "initialise")) {
+    if (!init || STR_IEQUALS(request_block->function, "init")
+        || STR_IEQUALS(request_block->function, "initialise")) {
 
         IDAM_LOG(LOG_DEBUG, "Provenance: init function called.\n");
 
@@ -192,7 +183,7 @@ int admin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
         IDAM_LOG(LOG_DEBUG, "Provenance: Plugin initialised and SQL connection made\n");
 
-        if (!strcasecmp(request_block->function, "init") || !strcasecmp(request_block->function, "initialise"))
+        if (STR_IEQUALS(request_block->function, "init") || STR_IEQUALS(request_block->function, "initialise"))
             return 0;
     }
 
@@ -210,80 +201,50 @@ int admin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     err = 0;
 
-    do {        // Error Trap
-
-//----------------------------------------------------------------------------------------
-// HELP
-
-        if (!strcasecmp(request_block->function, "help")) {
-
+    // Error Trap
+    do {
+        if (STR_IEQUALS(request_block->function, "help")) {
+            //----------------------------------------------------------------------------------------
+            // HELP
             err = help(&local_idam_plugin_interface);
             break;
-
-        } else
-
-//----------------------------------------------------------------------------------------
-// GET a new Registered UUID
-
-        if (!strcasecmp(request_block->function, "get") || !strcasecmp(request_block->function, "new")) {
-
+        } else if (STR_IEQUALS(request_block->function, "get") || STR_IEQUALS(request_block->function, "new")) {
+            //----------------------------------------------------------------------------------------
+            // GET a new Registered UUID
             err = get(&local_idam_plugin_interface);
             break;
 
-        } else
-
-//----------------------------------------------------------------------------------------
-// STATUS of a UUID
-
-        if (!strcasecmp(request_block->function, "status")) {
-
+        } else if (STR_IEQUALS(request_block->function, "status")) {
+            //----------------------------------------------------------------------------------------
+            // STATUS of a UUID
             err = status(&local_idam_plugin_interface);
             break;
-
-        } else
-
-//----------------------------------------------------------------------------------------
-// PUT Provenance metadata
-
-        if (!strcasecmp(request_block->function, "put")) {
-
+        } else if (STR_IEQUALS(request_block->function, "put")) {
+            //----------------------------------------------------------------------------------------
+            // PUT Provenance metadata
             err = put(&local_idam_plugin_interface);
             break;
-
-
-        } else
-
-
-//----------------------------------------------------------------------------------------
-// putSignal
-
-        if (!strcasecmp(request_block->function, "putSignal") ||
-            !strcasecmp(request_block->function, "recordSignal") || !strcasecmp(request_block->function, "addSignal")) {
-
+        } else if (STR_IEQUALS(request_block->function, "putSignal") ||
+            STR_IEQUALS(request_block->function, "recordSignal") || STR_IEQUALS(request_block->function, "addSignal")) {
+            //----------------------------------------------------------------------------------------
+            // putSignal
             err = putSignal(&local_idam_plugin_interface);
             break;
-
-        } else
-
-//----------------------------------------------------------------------------------------
-// listSignals
-
-        if (!strcasecmp(request_block->function, "listSignals") || !strcasecmp(request_block->function, "list")) {
+        } else if (STR_IEQUALS(request_block->function, "listSignals") || STR_IEQUALS(request_block->function, "list")) {
+            //----------------------------------------------------------------------------------------
+            // listSignals
 
             err = listSignals(&local_idam_plugin_interface);
             break;
-
-        } else
-
-//----------------------------------------------------------------------------------------
-// Not a Known Function!
-
-        IDAM_LOGF(LOG_ERROR, "ERROR Provenance: Function %s Not Known.!\n", request_block->function);
-        err = 999;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "Provenance", err, "Unknown Function requested");
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "Provenance", err, request_block->function);
-        break;
-
+        } else {
+            //----------------------------------------------------------------------------------------
+            // Not a Known Function!
+            IDAM_LOGF(LOG_ERROR, "ERROR Provenance: Function %s Not Known.!\n", request_block->function);
+            err = 999;
+            addIdamError(&idamerrorstack, CODEERRORTYPE, "Provenance", err, "Unknown Function requested");
+            addIdamError(&idamerrorstack, CODEERRORTYPE, "Provenance", err, request_block->function);
+            break;
+        }
     } while (0);
 
     return err;

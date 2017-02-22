@@ -17,6 +17,7 @@
 
 #include "printStructs.h"
 #include "errorLog.h"
+#include "stringUtils.h"
 
 //-----------------------------------------------------------------------
 // Test version's type passing capability
@@ -550,7 +551,7 @@ bool_t xdr_serialise_object(XDR* xdrs, DATA_BLOCK* str)
 
 // Prepare returned data structure containing the data
 
-        if (!strcmp(udt_received->name, "SARRAY")) {            // expecting this carrier structure
+        if (STR_EQUALS(udt_received->name, "SARRAY")) {            // expecting this carrier structure
 
             GENERAL_BLOCK* general_block = (GENERAL_BLOCK*) malloc(sizeof(GENERAL_BLOCK));
 

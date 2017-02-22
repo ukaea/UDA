@@ -41,7 +41,7 @@ int checkNameinList(char* user, char* list, char* delim) {
         return (1);
     }
 
-    if (!strcasecmp(user, test)) {            // match Found on First attempt
+    if (STR_IEQUALS(user, test)) {            // match Found on First attempt
         free((void*) hlist);
         return 0;
     }
@@ -49,7 +49,7 @@ int checkNameinList(char* user, char* list, char* delim) {
     while ((test = strtok(NULL, delim)) != NULL &&
            ntest-- < 0) {    // If the name from the list agrees with then is In List
 //fprintf(stdout,"%d: %s \n", ntest, test);
-        if (!strcasecmp(user, test)) {
+        if (STR_IEQUALS(user, test)) {
             free((void*) hlist);
             return 0;
         }
@@ -109,7 +109,7 @@ int checkSignalAuthorisation(int isKey, char* whr, char* user, int verbose, FILE
     }
 
     if (strlen(PQgetvalue(DBQuery, 0, 3)) > 0) {
-        if (!strcasecmp(user, PQgetvalue(DBQuery, 0, 3)) != 1) {
+        if (STR_IEQUALS(user, PQgetvalue(DBQuery, 0, 3)) != 1) {
             if (verbose)
                 fprintf(fh, "User %s does NOT have permission to update the Signal %s \n", user,
                         PQgetvalue(DBQuery, 0, 1));
@@ -119,8 +119,8 @@ int checkSignalAuthorisation(int isKey, char* whr, char* user, int verbose, FILE
         rc = 0;
     } else {
         rc = 1;
-        if (!strcasecmp("R", PQgetvalue(DBQuery, 0, 2)) ||
-            !strcasecmp("A", PQgetvalue(DBQuery, 0, 2))) {    // Is it an IDA File Signal?
+        if (STR_IEQUALS("R", PQgetvalue(DBQuery, 0, 2)) ||
+            STR_IEQUALS("A", PQgetvalue(DBQuery, 0, 2))) {    // Is it an IDA File Signal?
             strncpy(source, PQgetvalue(DBQuery, 0, 1), 3);
             source[3] = '\0';
             rc = checkSourceAuthorisation(source, user, verbose, fh);

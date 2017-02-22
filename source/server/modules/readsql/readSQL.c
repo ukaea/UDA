@@ -92,7 +92,7 @@ int readCMDSQL(PGconn* DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_
 // Open SQL Connection
 
     if ((DBConnect = gDBConnect) == NULL) {        // No connection to IDAM SQL Database
-        if (!(DBConnect = (PGconn*) startSQL())) {
+        if (!(DBConnect = (PGconn*)startSQL())) {
             if (DBConnect != NULL) PQfinish(DBConnect);
             err = 777;
             addIdamError(&idamerrorstack, CODEERRORTYPE, "readSQL", err, "SQL Database Server Connect Error");
@@ -137,7 +137,7 @@ int readCMDSQL(PGconn* DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_
 
 // Allocate Heap
 
-        data_block->data_n = (int) PQntuples(DBQuery);        // Number of Rows
+        data_block->data_n = (int)PQntuples(DBQuery);        // Number of Rows
         data_block->rank = 1;
         data_block->order = 0;
         data_block->data_type = TYPE_DOUBLE;
@@ -145,21 +145,21 @@ int readCMDSQL(PGconn* DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_
         strcpy(data_block->data_label, request_block.signal);
         strcpy(data_block->data_units, "");
 
-        if ((dp = (double*) malloc(sizeof(double) * data_block->data_n)) == NULL) {
+        if ((dp = (double*)malloc(sizeof(double) * data_block->data_n)) == NULL) {
             err = 999;
             addIdamError(&idamerrorstack, CODEERRORTYPE, "readSQL", err,
                          "Unable to Allocate Heap Memory for the SQL Data");
             break;
         }
 
-        data_block->data = (char*) dp;
+        data_block->data = (char*)dp;
 
         for (i = 0; i < data_block->data_n; i++) dp[i] = strtod(PQgetvalue(DBQuery, i, 1), NULL);
 
 //----------------------------------------------------------------------
 // Allocate & Initialise Dimensional Structures
 
-        if ((data_block->dims = (DIMS*) malloc(data_block->rank * sizeof(DIMS))) == NULL) {
+        if ((data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS))) == NULL) {
             err = 999;
             addIdamError(&idamerrorstack, CODEERRORTYPE, "readSQL", err, "Problem Allocating Dimension Heap Memory");
             break;
@@ -174,13 +174,13 @@ int readCMDSQL(PGconn* DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_
         strcpy(data_block->dims[0].dim_label, "Epoch Time");
         strcpy(data_block->dims[0].dim_units, "sec");
 
-        if ((data_block->dims[0].dim = (char*) malloc(sizeof(double) * data_block->dims[0].dim_n)) == NULL) {
+        if ((data_block->dims[0].dim = (char*)malloc(sizeof(double) * data_block->dims[0].dim_n)) == NULL) {
             err = 999;
             addIdamError(&idamerrorstack, CODEERRORTYPE, "readSQL", err, "Problem Allocating Dimensional Heap Memory");
             break;
         }
 
-        dp = (double*) data_block->dims[0].dim;
+        dp = (double*)data_block->dims[0].dim;
 
         for (i = 0; i < data_block->dims[0].dim_n; i++) dp[i] = strtod(PQgetvalue(DBQuery, i, 0), NULL);
 
@@ -232,7 +232,7 @@ int readSQL(PGconn* DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_sou
 //-------------------------------------------------------------
 // Is this a request for Continuously Measured Data?
 
-    if (!strcasecmp(request_block.archive, "CMD")) {
+    if (STR_IEQUALS(request_block.archive, "CMD")) {
         return (readCMDSQL(DBConnect, request_block, data_source, data_block));
     }
 
@@ -242,7 +242,7 @@ int readSQL(PGconn* DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_sou
     sql[0] = '\0';
     queryType = SQLUNKNOWN;
 
-    if (!strcasecmp(request_block.signal, "getidamlastshot()")) {
+    if (STR_IEQUALS(request_block.signal, "getidamlastshot()")) {
         strcpy(sql, "SELECT max(exp_number) FROM ExpDateTime;");
         queryType = SQLLASTSHOT;
     }
@@ -286,9 +286,9 @@ int readSQL(PGconn* DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_sou
 
                     int ip;
                     for (ip = 0; ip < request_block.nameValueList.pairCount; ip++) {
-                        if (!strcasecmp(request_block.nameValueList.nameValue[ip].name, "exp_number") ||
-                            !strcasecmp(request_block.nameValueList.nameValue[ip].name, "shot") ||
-                            !strcasecmp(request_block.nameValueList.nameValue[ip].name, "pulno")) {
+                        if (STR_IEQUALS(request_block.nameValueList.nameValue[ip].name, "exp_number") ||
+                            STR_IEQUALS(request_block.nameValueList.nameValue[ip].name, "shot") ||
+                            STR_IEQUALS(request_block.nameValueList.nameValue[ip].name, "pulno")) {
                             if (IsNumber(request_block.nameValueList.nameValue[ip].value)) {
                                 exp_number = atoi(request_block.nameValueList.nameValue[ip].value);
                                 shotDependent = 1;
@@ -334,9 +334,9 @@ int readSQL(PGconn* DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_sou
 
                     short ip;
                     for (ip = 0; ip < request_block.nameValueList.pairCount; ip++) {
-                        if (!strcasecmp(request_block.nameValueList.nameValue[ip].name, "exp_number") ||
-                            !strcasecmp(request_block.nameValueList.nameValue[ip].name, "shot") ||
-                            !strcasecmp(request_block.nameValueList.nameValue[ip].name, "pulno")) {
+                        if (STR_IEQUALS(request_block.nameValueList.nameValue[ip].name, "exp_number") ||
+                            STR_IEQUALS(request_block.nameValueList.nameValue[ip].name, "shot") ||
+                            STR_IEQUALS(request_block.nameValueList.nameValue[ip].name, "pulno")) {
                             if (IsNumber(request_block.nameValueList.nameValue[ip].value)) {
                                 exp_number = atoi(request_block.nameValueList.nameValue[ip].value);
                                 shotDependent = 1;
@@ -345,7 +345,7 @@ int readSQL(PGconn* DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_sou
                         }
                     }
                     for (ip = 0; ip < request_block.nameValueList.pairCount; ip++) {
-                        if (!strcasecmp(request_block.nameValueList.nameValue[ip].name, "pass")) {
+                        if (STR_IEQUALS(request_block.nameValueList.nameValue[ip].name, "pass")) {
                             if (IsNumber(request_block.nameValueList.nameValue[ip].value)) {
                                 pass = atoi(request_block.nameValueList.nameValue[ip].value);
                                 passDependent = 1;
@@ -354,11 +354,11 @@ int readSQL(PGconn* DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_sou
                         }
                     }
                     for (ip = 0; ip < request_block.nameValueList.pairCount; ip++) {
-                        if (!strcasecmp(request_block.nameValueList.nameValue[ip].name, "type")) {
+                        if (STR_IEQUALS(request_block.nameValueList.nameValue[ip].name, "type")) {
                             if (strlen(request_block.nameValueList.nameValue[ip].value) == 1) typeDependent = ip;
                         }
-                        if (!strcasecmp(request_block.nameValueList.nameValue[ip].name, "source") ||
-                            !strcasecmp(request_block.nameValueList.nameValue[ip].name, "source_alias")) {
+                        if (STR_IEQUALS(request_block.nameValueList.nameValue[ip].name, "source") ||
+                            STR_IEQUALS(request_block.nameValueList.nameValue[ip].name, "source_alias")) {
                             if (strlen(request_block.nameValueList.nameValue[ip].value) == 3) sourceDependent = ip;
                         }
                     }
@@ -464,9 +464,9 @@ int readSQL(PGconn* DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_sou
 
                     short ip;
                     for (ip = 0; ip < request_block.nameValueList.pairCount; ip++) {
-                        if (!strcasecmp(request_block.nameValueList.nameValue[ip].name, "exp_number") ||
-                            !strcasecmp(request_block.nameValueList.nameValue[ip].name, "shot") ||
-                            !strcasecmp(request_block.nameValueList.nameValue[ip].name, "pulno")) {
+                        if (STR_IEQUALS(request_block.nameValueList.nameValue[ip].name, "exp_number") ||
+                            STR_IEQUALS(request_block.nameValueList.nameValue[ip].name, "shot") ||
+                            STR_IEQUALS(request_block.nameValueList.nameValue[ip].name, "pulno")) {
                             if (IsNumber(request_block.nameValueList.nameValue[ip].value)) {
                                 exp_number = atoi(request_block.nameValueList.nameValue[ip].value);
                                 shotDependent = 1;
@@ -475,7 +475,7 @@ int readSQL(PGconn* DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_sou
                         }
                     }
                     for (ip = 0; ip < request_block.nameValueList.pairCount; ip++) {
-                        if (!strcasecmp(request_block.nameValueList.nameValue[ip].name, "pass")) {
+                        if (STR_IEQUALS(request_block.nameValueList.nameValue[ip].name, "pass")) {
                             if (IsNumber(request_block.nameValueList.nameValue[ip].value)) {
                                 pass = atoi(request_block.nameValueList.nameValue[ip].value);
                                 passDependent = 1;
@@ -484,11 +484,11 @@ int readSQL(PGconn* DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_sou
                         }
                     }
                     for (ip = 0; ip < request_block.nameValueList.pairCount; ip++) {
-                        if (!strcasecmp(request_block.nameValueList.nameValue[ip].name, "type")) {
+                        if (STR_IEQUALS(request_block.nameValueList.nameValue[ip].name, "type")) {
                             if (strlen(request_block.nameValueList.nameValue[ip].value) == 1) typeDependent = ip;
                         }
-                        if (!strcasecmp(request_block.nameValueList.nameValue[ip].name, "source") ||
-                            !strcasecmp(request_block.nameValueList.nameValue[ip].name, "source_alias")) {
+                        if (STR_IEQUALS(request_block.nameValueList.nameValue[ip].name, "source") ||
+                            STR_IEQUALS(request_block.nameValueList.nameValue[ip].name, "source_alias")) {
                             if (strlen(request_block.nameValueList.nameValue[ip].value) == 3) sourceDependent = ip;
                         }
                     }
@@ -545,7 +545,6 @@ int readSQL(PGconn* DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_sou
         }
     }
 
-
     if (queryType == SQLUNKNOWN && !strncasecmp(request_block.signal, "efitdatatest", 12)) {
         strcpy(udtname, "efitdatatest");
         queryType = SQLEFITTEST;
@@ -570,7 +569,7 @@ int readSQL(PGconn* DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_sou
     DBConnect2 = DBConnect;        // Use IDAM database connection if passed
 
     if (DBConnect2 == NULL) {
-        if (!(DBConnect2 = (PGconn*) startSQL())) {
+        if (!(DBConnect2 = (PGconn*)startSQL())) {
             if (DBConnect2 != NULL) PQfinish(DBConnect2);
             err = 777;
             addIdamError(&idamerrorstack, CODEERRORTYPE, "readSQL", err, "SQL Database Server Connect Error");
@@ -599,12 +598,12 @@ int readSQL(PGconn* DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_sou
 // Latest Shot Number: getidamlastshot()	Not Hierarchical as only an integer value is returned
 
     if (queryType == SQLLASTSHOT && PQntuples(DBQuery) == 1) {
-        int* data = (int*) malloc(sizeof(int));
+        int* data = (int*)malloc(sizeof(int));
         data_block->data_type = TYPE_INT;
         data_block->rank = 0;
         data_block->data_n = 1;
         data[0] = atoi(PQgetvalue(DBQuery, 0, 0));
-        data_block->data = (void*) data;
+        data_block->data = (void*)data;
         strcpy(data_block->data_desc, request_block.signal);
         strcpy(data_block->data_label, "Latest Shot Number");
         strcpy(data_block->data_units, "");
@@ -631,7 +630,7 @@ int readSQL(PGconn* DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_sou
         char*** data;        // Array of String Arrays
         char* p;
 
-        logmalloclist = (LOGMALLOCLIST*) malloc(sizeof(LOGMALLOCLIST));        // Create a MALLOC Log List
+        logmalloclist = (LOGMALLOCLIST*)malloc(sizeof(LOGMALLOCLIST));        // Create a MALLOC Log List
         initLogMallocList(logmalloclist);
 
         copyUserDefinedTypeList(&userdefinedtypelist); // Allocate and Copy the Master User Defined Type List
@@ -658,22 +657,22 @@ int readSQL(PGconn* DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_sou
 
 // The packed data structure is identical to an array of string arrays
 
-        data = (char***) malloc(
+        data = (char***)malloc(
                 ncols * sizeof(char**));            // Single Structure with multiple (ncols) Arrays of Strings
-        addMalloc((void*) data, 1, ncols * sizeof(char**), udtname);
+        addMalloc((void*)data, 1, ncols * sizeof(char**), udtname);
 
 // Contiguous data block with multiple string arrays
 
         for (j = 0; j < ncols; j++) {
-            char** field = (char**) malloc(nrows * sizeof(char*));        // Table fields: each array of size nrows
+            char** field = (char**)malloc(nrows * sizeof(char*));        // Table fields: each array of size nrows
             rank = 1;
             shape = NULL;
-            addMalloc2((void*) field, nrows, sizeof(char*), "STRING", rank, shape);
+            addMalloc2((void*)field, nrows, sizeof(char*), "STRING", rank, shape);
             int i;
             for (i = 0; i < nrows; i++) {
                 len = strlen(PQgetvalue(DBQuery, i, j)) + 1;
-                field[i] = (char*) malloc(len * sizeof(char));
-                addMalloc((void*) field[i], len, sizeof(char), "STRING");    // Individual scalar strings
+                field[i] = (char*)malloc(len * sizeof(char));
+                addMalloc((void*)field[i], len, sizeof(char), "STRING");    // Individual scalar strings
                 strcpy(field[i], PQgetvalue(DBQuery, i, j));
             }
             data[j] = field;
@@ -745,14 +744,14 @@ int readSQL(PGconn* DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_sou
         data_block->data_type = TYPE_COMPOUND;
         data_block->rank = 0;
         data_block->data_n = 1;
-        data_block->data = (char*) data;
+        data_block->data = (char*)data;
         strcpy(data_block->data_desc, request_block.signal);
         strcpy(data_block->data_label, "Database Query Result Set");
         strcpy(data_block->data_units, "");
 
         data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
         data_block->opaque_count = 1;
-        data_block->opaque_block = (void*) udt;
+        data_block->opaque_block = (void*)udt;
 
         PQclear(DBQuery);
         if (DBConnect2 != DBConnect) PQfinish(DBConnect2);
@@ -892,7 +891,7 @@ int readSQL(PGconn* DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_sou
     err = 999;
     addIdamError(&idamerrorstack, CODEERRORTYPE, "readSQL", err, "No results returned by SQL Query!");
     PQclear(DBQuery);
-    if(DBConnect2 != DBConnect) PQfinish(DBConnect2);
+    if (DBConnect2 != DBConnect) PQfinish(DBConnect2);
     return err;
 #endif
 

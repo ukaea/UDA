@@ -42,19 +42,22 @@ int readIDA2(DATA_SOURCE data_source,
              SIGNAL_DESC signal_desc,
              DATA_BLOCK *data_block) {
     int err = 999;
-    addIdamError(&idamerrorstack, CODEERRORTYPE, "readIDA2", err, "Cannot Read IDA Files - PLUGIN NOT ENABLED");
+    addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, err, "Cannot Read IDA Files - PLUGIN NOT ENABLED");
     return err;
 }
 
 #else
 
+#include <ida3.h>
+
 #include "nameIda.h"
 
-#include <logging/idamLog.h>
-#include <clientserver/idamErrors.h>
+
+
 #include <clientserver/stringUtils.h>
 #include <clientserver/printStructs.h>
 #include <server/mastArchiveFilePath.h>
+#include <logging/logging.h>
 
 int readIdaItem(char* itemname, ida_file_ptr* ida_file, short* context, DATA_BLOCK* data_block);
 
@@ -68,9 +71,7 @@ int readIDA2(DATA_SOURCE data_source,
     char ida_signal[IDA_LSIZE + 1] = "";
     char ida_errmsg[256] = "";
 
-    long pulno, pass;
-
-    ida_file_ptr* ida_file_id;
+    ida_file_ptr* ida_file_id = NULL;
 
     short context;
 
@@ -81,8 +82,8 @@ int readIDA2(DATA_SOURCE data_source,
 
     err = 0;
 
-    pulno = (long) data_source.exp_number;
-    pass = (long) data_source.pass;
+    int pulno = data_source.exp_number;
+    int pass = data_source.pass;
 
     if (pulno > 0) {
 
@@ -96,17 +97,16 @@ int readIDA2(DATA_SOURCE data_source,
         strlwr(data_source.source_alias);
         strlwr(data_source.filename);
 
-        idamLog(LOG_DEBUG, "readIDA: alias          : %s \n", data_source.source_alias);
-        idamLog(LOG_DEBUG, "readIDA: filename       : %s \n", data_source.filename);
-        idamLog(LOG_DEBUG, "readIDA: length         : %d \n", strlen(data_source.source_alias));
-        idamLog(LOG_DEBUG, "readIDA: alias == file? : %d \n",
-                strcasecmp(data_source.filename, data_source.source_alias));
+        IDAM_LOGF(LOG_DEBUG, "alias          : %s \n", data_source.source_alias);
+        IDAM_LOGF(LOG_DEBUG, "filename       : %s \n", data_source.filename);
+        IDAM_LOGF(LOG_DEBUG, "length         : %d \n", strlen(data_source.source_alias));
+        IDAM_LOGF(LOG_DEBUG, "alias == file? : %d \n", strcasecmp(data_source.filename, data_source.source_alias));
 
 // Check whether or not the filename is the alias name
 // If is it then form the correct filename
 
         if (strcasecmp(data_source.filename, data_source.source_alias) == 0) {
-            nameIDA(data_source.source_alias, (int) pulno, ida_file);
+            nameIDA(data_source.source_alias, pulno, ida_file);
         } else {
             strcpy(ida_file, data_source.filename);
         }
@@ -123,26 +123,26 @@ int readIDA2(DATA_SOURCE data_source,
             strcpy(ida_path, data_source.path);
         }
 
-        idamLog(LOG_DEBUG, "readIDA: Signal Name  : %s \n", signal_desc.signal_name);
-        idamLog(LOG_DEBUG, "readIDA: File Alias   : %s \n", data_source.source_alias);
-        idamLog(LOG_DEBUG, "readIDA: File Name    : %s \n", ida_file);
-        idamLog(LOG_DEBUG, "readIDA: File Path    : %s \n", ida_path);
-        idamLog(LOG_DEBUG, "readIDA: Pulse Number : %d \n", (int) pulno);
-        idamLog(LOG_DEBUG, "readIDA: Pass Number  : %d \n", (int) pass);
+        IDAM_LOGF(LOG_DEBUG, "Signal Name  : %s \n", signal_desc.signal_name);
+        IDAM_LOGF(LOG_DEBUG, "File Alias   : %s \n", data_source.source_alias);
+        IDAM_LOGF(LOG_DEBUG, "File Name    : %s \n", ida_file);
+        IDAM_LOGF(LOG_DEBUG, "File Path    : %s \n", ida_path);
+        IDAM_LOGF(LOG_DEBUG, "Pulse Number : %d \n", pulno);
+        IDAM_LOGF(LOG_DEBUG, "Pass Number  : %d \n", pass);
 
     } else {
         strcpy(ida_path, data_source.path);        //Fully Specified
 
-        idamLog(LOG_DEBUG, "readIDA: Signal Name  : %s \n", signal_desc.signal_name);
-        idamLog(LOG_DEBUG, "readIDA: File Name    : %s \n", ida_path);
+        IDAM_LOGF(LOG_DEBUG, "Signal Name  : %s \n", signal_desc.signal_name);
+        IDAM_LOGF(LOG_DEBUG, "File Name    : %s \n", ida_path);
     }
 
-    idamLog(LOG_DEBUG, "readIDA: Signal Name  : %s \n", signal_desc.signal_name);
-    idamLog(LOG_DEBUG, "readIDA: File Alias   : %s \n", data_source.source_alias);
-    idamLog(LOG_DEBUG, "readIDA: File Name    : %s \n", ida_file);
-    idamLog(LOG_DEBUG, "readIDA: File Path    : %s \n", ida_path);
-    idamLog(LOG_DEBUG, "readIDA: Pulse Number : %d \n", (int) pulno);
-    idamLog(LOG_DEBUG, "readIDA: Pass Number  : %d \n", (int) pass);
+    IDAM_LOGF(LOG_DEBUG, "Signal Name  : %s \n", signal_desc.signal_name);
+    IDAM_LOGF(LOG_DEBUG, "File Alias   : %s \n", data_source.source_alias);
+    IDAM_LOGF(LOG_DEBUG, "File Name    : %s \n", ida_file);
+    IDAM_LOGF(LOG_DEBUG, "File Path    : %s \n", ida_path);
+    IDAM_LOGF(LOG_DEBUG, "Pulse Number : %d \n", pulno);
+    IDAM_LOGF(LOG_DEBUG, "Pass Number  : %d \n", pass);
 
 //----------------------------------------------------------------------
 // Error Trap Loop
@@ -156,7 +156,7 @@ int readIDA2(DATA_SOURCE data_source,
             strcpy(ida_file, data_source.filename);
         } else {
             err = IDA_CLIENT_FILE_NAME_TOO_LONG;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readIDA2", err, "IDA Filename Length is too Long");
+            addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, err, "IDA Filename Length is too Long");
             break;
         }
 
@@ -164,14 +164,14 @@ int readIDA2(DATA_SOURCE data_source,
             strcpy(ida_signal, signal_desc.signal_name);
         } else {
             err = IDA_CLIENT_SIGNAL_NAME_TOO_LONG;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readIDA2", err, "IDA Signalname Length is too Long");
+            addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, err, "IDA Signalname Length is too Long");
             break;
         }
 
 //----------------------------------------------------------------------
 // Is the IDA File Already open for Reading? If Not then Open
 
-        idamLog(LOG_DEBUG, "readIDA: IDA file: (%s)\n", ida_path);
+        IDAM_LOGF(LOG_DEBUG, "IDA file: (%s)\n", ida_path);
 
         errno = 0;
 
@@ -179,33 +179,33 @@ int readIDA2(DATA_SOURCE data_source,
         serrno = errno;
         if (ida_file_id == NULL || errno != 0) {
             err = IDA_ERROR_OPENING_FILE;
-            if(serrno != 0) addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "readIDA2", serrno, "");
+            if(serrno != 0) addIdamError(&idamerrorstack, SYSTEMERRORTYPE, __func__, serrno, "");
             ida_error_mess(ida_error(ida_file_id), ida_errmsg);
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readIDA2", err, ida_errmsg);
+            addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, err, ida_errmsg);
             break;
         }
 
 //----------------------------------------------------------------------
 // Fetch the Data
 
-        idamLog(LOG_DEBUG, "Calling readIdaItem\n");
+        IDAM_LOG(LOG_DEBUG, "Calling readIdaItem\n");
 
         context = (short) 0;
 
         if ((err = readIdaItem(ida_signal, ida_file_id, &context, data_block)) != 0) {
             err = IDA_ERROR_READING_DATA;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readIDA2", err, "Unable to Read IDA Data Item");
+            addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, err, "Unable to Read IDA Data Item");
             break;
         }
 
-        idamLog(LOG_DEBUG, "Returned from readIdaItem\n");
+        IDAM_LOG(LOG_DEBUG, "Returned from readIdaItem\n");
 
 //----------------------------------------------------------------------
 // End of Error Trap Loop
 
     } while (0);
 
-    idamLog(LOG_DEBUG, "readIDA: Final Error Status = %d\n", err);
+    IDAM_LOGF(LOG_DEBUG, "Final Error Status = %d\n", err);
     printDataBlock(*data_block);
 
 //----------------------------------------------------------------------
@@ -213,12 +213,12 @@ int readIDA2(DATA_SOURCE data_source,
 
 // Close IDA File
 
-    int rc = ida_close(ida_file_id);
+    int rc = (int)ida_close(ida_file_id);
 
     if(rc != 0) {
         ida_error_mess(ida_error(ida_file_id), ida_errmsg);
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "readIDA2", 1, "Problem Closing IDA File");
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "readIDA2", 1, ida_errmsg);
+        addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, 1, "Problem Closing IDA File");
+        addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, 1, ida_errmsg);
     }
 
     return err;

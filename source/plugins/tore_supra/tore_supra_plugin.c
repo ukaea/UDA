@@ -2,14 +2,15 @@
 
 #include <string.h>
 #include <assert.h>
-#include <string.h>
-#include <strings.h>
 #include <libxml/tree.h>
 #include <libxml/xpath.h>
 
-#include <include/idamplugin.h>
 #include <clientserver/initStructs.h>
 #include <clientserver/udaTypes.h>
+#include <logging/logging.h>
+#include <clientserver/errorLog.h>
+#include <clientserver/stringUtils.h>
+#include <plugins/udaPlugin.h>
 
 #include "ts_mds.h"
 #include "ts_xml.h"
@@ -115,7 +116,7 @@ int tsPlugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     // Calls to plugins must also respect access policy and user
     // authentication policy
 
-    if (housekeeping || !strcasecmp(request_block->function, "reset")) {
+    if (housekeeping || STR_IEQUALS(request_block->function, "reset")) {
 
         if (!init) {
             return 0;
@@ -131,12 +132,12 @@ int tsPlugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     // ----------------------------------------------------------------------------------------
     // Initialise
 
-    if (!init || !strcasecmp(request_block->function, "init")
-        || !strcasecmp(request_block->function, "initialise")) {
+    if (!init || STR_IEQUALS(request_block->function, "init")
+        || STR_IEQUALS(request_block->function, "initialise")) {
 
         init = 1;
-        if (!strcasecmp(request_block->function, "init")
-            || !strcasecmp(request_block->function, "initialise")) {
+        if (STR_IEQUALS(request_block->function, "init")
+            || STR_IEQUALS(request_block->function, "initialise")) {
                 return 0;
         }
     }
@@ -148,17 +149,17 @@ int tsPlugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     // Standard methods: version, builddate, defaultmethod,
     // maxinterfaceversion
 
-    if (!strcasecmp(request_block->function, "help")) {
+    if (STR_IEQUALS(request_block->function, "help")) {
         err = do_help(idam_plugin_interface);
-    } else if (!strcasecmp(request_block->function, "version")) {
+    } else if (STR_IEQUALS(request_block->function, "version")) {
         err = do_version(idam_plugin_interface);
-    } else if (!strcasecmp(request_block->function, "builddate")) {
+    } else if (STR_IEQUALS(request_block->function, "builddate")) {
         err = do_builddate(idam_plugin_interface);
-    } else if (!strcasecmp(request_block->function, "defaultmethod")) {
+    } else if (STR_IEQUALS(request_block->function, "defaultmethod")) {
         err = do_defaultmethod(idam_plugin_interface);
-    } else if (!strcasecmp(request_block->function, "maxinterfaceversion")) {
+    } else if (STR_IEQUALS(request_block->function, "maxinterfaceversion")) {
         err = do_maxinterfaceversion(idam_plugin_interface);
-    } else if (!strcasecmp(request_block->function, "read")) {
+    } else if (STR_IEQUALS(request_block->function, "read")) {
         err = do_read(idam_plugin_interface);
     } else {
         // ======================================================================================
@@ -536,7 +537,7 @@ char* getMappingValue(const char* mappingFileName, const char* IDSRequest,
 
     int len = strlen(IDSRequest) + 26;
     xmlChar* xPathExpr = malloc(len + sizeof(xmlChar));
-    xmlStrPrintf(xPathExpr, len, (xmlChar*)"//mapping[@key='%s']/@value", IDSRequest);
+    xmlStrPrintf(xPathExpr, len, (FMT_TYPE)"//mapping[@key='%s']/@value", IDSRequest);
 
     /*
      * Evaluate xpath expression for the type
@@ -569,7 +570,7 @@ char* getMappingValue(const char* mappingFileName, const char* IDSRequest,
                      "no result on XPath request, no key attribute defined?");
     }
 
-    xmlStrPrintf(xPathExpr, len, (xmlChar*)"//mapping[@key='%s']/@type", IDSRequest);
+    xmlStrPrintf(xPathExpr, len, (FMT_TYPE)"//mapping[@key='%s']/@type", IDSRequest);
 
     /*
      * Evaluate xpath expression for the type
@@ -603,7 +604,7 @@ char* getMappingValue(const char* mappingFileName, const char* IDSRequest,
 
     if (typeStr == NULL) {
         *IDSRequestType = NONE;
-    } else if (!strcasecmp(typeStr, "dynamic")) {
+    } else if (STR_IEQUALS(typeStr, "dynamic")) {
         *IDSRequestType = DYNAMIC;
     } else {
         *IDSRequestType = STATIC;

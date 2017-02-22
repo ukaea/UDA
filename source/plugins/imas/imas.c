@@ -206,7 +206,7 @@ extern int imas(IDAM_PLUGIN_INTERFACE * idam_plugin_interface)
 // A list must be maintained to register these plugin calls to manage housekeeping.
 // Calls to plugins must also respect access policy and user authentication policy
 
-    if (housekeeping || !strcasecmp(request_block->function, "reset")) {
+    if (housekeeping || STR_IEQUALS(request_block->function, "reset")) {
 
         if (!init) return 0;        // Not previously initialised: Nothing to do!
 
@@ -225,8 +225,8 @@ extern int imas(IDAM_PLUGIN_INTERFACE * idam_plugin_interface)
 //----------------------------------------------------------------------------------------
 // Initialise
 
-    if (!init || !strcasecmp(request_block->function, "init")
-        || !strcasecmp(request_block->function, "initialise")) {
+    if (!init || STR_IEQUALS(request_block->function, "init")
+        || STR_IEQUALS(request_block->function, "initialise")) {
 
         pluginFileList = getImasPluginFileList();        // From the libualidamhdf5.so library
         initIdamPluginFileList(pluginFileList);
@@ -246,7 +246,7 @@ extern int imas(IDAM_PLUGIN_INTERFACE * idam_plugin_interface)
         //initHdf5File(); // Initialise the File Index array (done automatically the first time low level IMAS create or open called)
 
         init = 1;
-        if (!strcasecmp(request_block->function, "init") || !strcasecmp(request_block->function, "initialise"))
+        if (STR_IEQUALS(request_block->function, "init") || STR_IEQUALS(request_block->function, "initialise"))
             return 0;
 
 //printf("IDAM_PLUGIN_INTERFACE Structure Size = %d\n", sizeof(IDAM_PLUGIN_INTERFACE));
@@ -290,199 +290,199 @@ extern int imas(IDAM_PLUGIN_INTERFACE * idam_plugin_interface)
 
     for (i = 0; i < request_block->nameValueList.pairCount; i++) {
 #ifndef MDSSKIP
-        if (!strcasecmp(request_block->nameValueList.nameValue[i].name,
+        if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name,
                         "imas_mds")) {    // *** redirect to the mdsplus imas plugin
             return imas_mds(idam_plugin_interface);
             continue;
         }
 #endif
-        if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "group") ||
-            !strcasecmp(request_block->nameValueList.nameValue[i].name, "cpoPath") ||
-            !strcasecmp(request_block->nameValueList.nameValue[i].name, "cpo")) {
+        if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "group") ||
+            STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "cpoPath") ||
+            STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "cpo")) {
             isCPOPath = 1;
             CPOPath = request_block->nameValueList.nameValue[i].value;
             continue;
         }
-        if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "variable") ||
-            !strcasecmp(request_block->nameValueList.nameValue[i].name, "path")) {
+        if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "variable") ||
+            STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "path")) {
             isPath = 1;
             path = request_block->nameValueList.nameValue[i].value;
             continue;
         }
-        if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "type")) {
+        if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "type")) {
             isTypeName = 1;
             typeName = request_block->nameValueList.nameValue[i].value;
             continue;
         }
-        if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "idx")) {
+        if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "idx")) {
             isClientIdx = 1;
             clientIdx = atoi(request_block->nameValueList.nameValue[i].value);
             continue;
         }
-        if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "clientObjectId") ||
-            !strcasecmp(request_block->nameValueList.nameValue[i].name, "ObjectId")) {
+        if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "clientObjectId") ||
+            STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "ObjectId")) {
             isClientObjectId = 1;
             clientObjectId = atoi(request_block->nameValueList.nameValue[i].value);
             continue;
         }
-        if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "rank") ||
-            !strcasecmp(request_block->nameValueList.nameValue[i].name, "ndims")) {
+        if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "rank") ||
+            STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "ndims")) {
             isRank = 1;
             rank = atoi(request_block->nameValueList.nameValue[i].value);
             continue;
         }
-        if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "index") ||
-            !strcasecmp(request_block->nameValueList.nameValue[i].name, "index1")) {
+        if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "index") ||
+            STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "index1")) {
             isIndex = 1;
             index = atoi(request_block->nameValueList.nameValue[i].value);
             continue;
         }
-        if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "index2")) {
+        if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "index2")) {
             isIndex2 = 1;
             index2 = atoi(request_block->nameValueList.nameValue[i].value);
             continue;
         }
-        if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "interpolMode")) {
+        if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "interpolMode")) {
             isInterpolMode = 1;
             interpolMode = atoi(request_block->nameValueList.nameValue[i].value);
             continue;
         }
-        if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "count")) {
+        if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "count")) {
             continue;
         }
-        if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "shape") ||
-            !strcasecmp(request_block->nameValueList.nameValue[i].name, "dims")) {
+        if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "shape") ||
+            STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "dims")) {
             isShapeString = 1;
             shapeString = request_block->nameValueList.nameValue[i].value;
             continue;
         }
-        if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "data")) {
+        if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "data")) {
             isDataString = 1;
             dataString = request_block->nameValueList.nameValue[i].value;
             continue;
         }
-        if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "singlequote")) {
+        if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "singlequote")) {
             quote = '\'';
             continue;
         }
-        if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "doublequote")) {        // default value
+        if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "doublequote")) {        // default value
             quote = '"';
             continue;
         }
-        if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "delimiter")) {        // default value is ','
+        if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "delimiter")) {        // default value is ','
             delimiter = request_block->nameValueList.nameValue[i].value[0];
             continue;
         }
 
-        if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "filename") ||
-            !strcasecmp(request_block->nameValueList.nameValue[i].name, "file") ||
-            !strcasecmp(request_block->nameValueList.nameValue[i].name, "name")) {
+        if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "filename") ||
+            STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "file") ||
+            STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "name")) {
             isFileName = 1;
             filename = request_block->nameValueList.nameValue[i].value;
             continue;
         }
-        if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "shotNumber") ||
-            !strcasecmp(request_block->nameValueList.nameValue[i].name, "shot") ||
-            !strcasecmp(request_block->nameValueList.nameValue[i].name, "pulse") ||
-            !strcasecmp(request_block->nameValueList.nameValue[i].name, "exp_number")) {
+        if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "shotNumber") ||
+            STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "shot") ||
+            STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "pulse") ||
+            STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "exp_number")) {
             isShotNumber = 1;
             shotNumber = atoi(request_block->nameValueList.nameValue[i].value);
             continue;
         }
-        if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "runNumber") ||
-            !strcasecmp(request_block->nameValueList.nameValue[i].name, "run") ||
-            !strcasecmp(request_block->nameValueList.nameValue[i].name, "pass") ||
-            !strcasecmp(request_block->nameValueList.nameValue[i].name, "sequence")) {
+        if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "runNumber") ||
+            STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "run") ||
+            STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "pass") ||
+            STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "sequence")) {
             isRunNumber = 1;
             runNumber = atoi(request_block->nameValueList.nameValue[i].value);
             continue;
         }
-        if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "refShotNumber") ||
-            !strcasecmp(request_block->nameValueList.nameValue[i].name, "refShot")) {
+        if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "refShotNumber") ||
+            STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "refShot")) {
             refShotNumber = atoi(request_block->nameValueList.nameValue[i].value);
             continue;
         }
-        if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "refRunNumber") ||
-            !strcasecmp(request_block->nameValueList.nameValue[i].name, "refRun")) {
+        if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "refRunNumber") ||
+            STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "refRun")) {
             refRunNumber = atoi(request_block->nameValueList.nameValue[i].value);
             continue;
         }
-        if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "hdf5Path")) {
+        if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "hdf5Path")) {
             isHdf5Path = 1;
             hdf5Path = request_block->nameValueList.nameValue[i].value;
             continue;
         }
-        if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "relPath")) {
+        if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "relPath")) {
             isRelPath = 1;
             relPath = request_block->nameValueList.nameValue[i].value;
             continue;
         }
-        if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "isTimed")) {
+        if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "isTimed")) {
             isTimedArg = 1;
             isTimed = atoi(request_block->nameValueList.nameValue[i].value);
             continue;
         }
 
-        if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "signal")) {
+        if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "signal")) {
             isSignal = 1;
             signal = request_block->nameValueList.nameValue[i].value;
             continue;
         }
-        if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "source")) {
+        if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "source")) {
             isSource = 1;
             source = request_block->nameValueList.nameValue[i].value;
             continue;
         }
-        if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "format") ||
-            !strcasecmp(request_block->nameValueList.nameValue[i].name, "pattern")) {
+        if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "format") ||
+            STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "pattern")) {
             isFormat = 1;
             format = request_block->nameValueList.nameValue[i].value;
             continue;
         }
-        if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "owner")) {
+        if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "owner")) {
             isOwner = 1;
             owner = request_block->nameValueList.nameValue[i].value;
             continue;
         }
-        if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "server")) {
+        if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "server")) {
             isServer = 1;
             server = request_block->nameValueList.nameValue[i].value;
             continue;
         }
 
-        if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "imasIdsVersion") ||
-            !strcasecmp(request_block->nameValueList.nameValue[i].name, "idsVersion")) {
+        if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "imasIdsVersion") ||
+            STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "idsVersion")) {
             isImasIdsVersion = 1;
             putImasIdsVersion(request_block->nameValueList.nameValue[i].value);
             continue;
         }
-        if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "imasIdsDevice") ||
-            !strcasecmp(request_block->nameValueList.nameValue[i].name, "idsDevice") ||
-            !strcasecmp(request_block->nameValueList.nameValue[i].name, "device")) {
+        if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "imasIdsDevice") ||
+            STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "idsDevice") ||
+            STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "device")) {
             isImasIdsDevice = 1;
             putImasIdsDevice(request_block->nameValueList.nameValue[i].value);
             continue;
         }
 
 // Keywords
-        if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "putSlice")) {
+        if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "putSlice")) {
             isPutDataSlice = 1;
             continue;
         }
-        if (!strcasecmp(request_block->nameValueList.nameValue[i].name,
+        if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name,
                         "replaceLastSlice")) {    // Replace the last written slice (scalar, array)
             isReplaceLastDataSlice = 1;
             continue;
         }
-        if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "getSlice")) {
+        if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "getSlice")) {
             isGetDataSlice = 1;
             continue;
         }
-        if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "getDimension")) {
+        if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "getDimension")) {
             isGetDimension = 1;
             continue;
         }
-        if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "CreateFromModel")) {
+        if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "CreateFromModel")) {
             isCreateFromModel = 1;
             continue;
         }
@@ -510,7 +510,7 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
 //----------------------------------------------------------------------------------------
 // IDS Version
 
-        if (!strcasecmp(request_block->function, "putIdsVersion")) {
+        if (STR_IEQUALS(request_block->function, "putIdsVersion")) {
             if (!isImasIdsVersion && !isImasIdsDevice) {
                 err = 999;
                 idamLog(LOG_ERROR, "imas version: An IDS Version number or a Device name is required!\n");
@@ -543,7 +543,7 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
 
 // IMAS::source(signal=signal, format=[ppf|jpf|mast|mds] [,source=source] [,shotNumber=shotNumber] [,pass=pass] [,owner=owner])
 
-        if (!strcasecmp(request_block->function, "source")) {
+        if (STR_IEQUALS(request_block->function, "source")) {
 
             if (!isSignal) {
                 err = 999;
@@ -582,7 +582,7 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
 
 // JET PPF sources: PPF::/$ppfname/$pulseNumber/$sequence/$owner
 
-            if (isFormat && !strcasecmp(format, "ppf")) {            // JET PPF source naming pattern
+            if (isFormat && STR_IEQUALS(format, "ppf")) {            // JET PPF source naming pattern
 
                 if (!isSource) {
                     err = 999;
@@ -615,7 +615,7 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
                 }
             } else
 
-            if (isFormat && !strcasecmp(format, "jpf")) {        // JET JPF source naming pattern
+            if (isFormat && STR_IEQUALS(format, "jpf")) {        // JET JPF source naming pattern
 
                 env = getenv("UDA_JET_DEVICE_ALIAS");
 
@@ -628,7 +628,7 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
             } else
 
 
-            if (isFormat && !strcasecmp(format, "MAST")) {        // MAST source naming pattern
+            if (isFormat && STR_IEQUALS(format, "MAST")) {        // MAST source naming pattern
 
                 env = getenv("UDA_MAST_DEVICE_ALIAS");
 
@@ -645,8 +645,8 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
 
             } else
 
-            if (isFormat && (!strcasecmp(format, "mds") || !strcasecmp(format, "mdsplus") ||
-                             !strcasecmp(format, "mds+"))) {    // MDS+ source naming pattern
+            if (isFormat && (STR_IEQUALS(format, "mds") || STR_IEQUALS(format, "mdsplus") ||
+                             STR_IEQUALS(format, "mds+"))) {    // MDS+ source naming pattern
 
                 if (!isServer) {
                     err = 999;
@@ -739,7 +739,7 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
 //----------------------------------------------------------------------------------------
 // DELETE Data from an IDS file
 
-        if (!strcasecmp(request_block->function, "delete")) {
+        if (STR_IEQUALS(request_block->function, "delete")) {
             int rc = 0, fid = -1;
             int isOpen = 0;
             char * file = NULL;
@@ -859,7 +859,7 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
 //----------------------------------------------------------------------------------------
 // IMAS get some data - assumes the file exists
 
-        if (!strcasecmp(request_block->function, "get")) {
+        if (STR_IEQUALS(request_block->function, "get")) {
             int i, rc = 0, fid = -1;
             int * shape = NULL;
             int isOpen = 0;
@@ -1316,7 +1316,7 @@ Notes
 //----------------------------------------------------------------------------------------
 // IMAS put some data - assumes the file exists
 
-        if (!strcasecmp(request_block->function, "put")) {
+        if (STR_IEQUALS(request_block->function, "put")) {
             int rc = 0, fid = -1, fileStatus = 0;
             int dataRank;
             int * shape = NULL;
@@ -1458,9 +1458,9 @@ time	- the time slice to be written - from a PUTDATA block (putSlice keyword)
 //                        varData = (char *) putDataBlockList->putDataBlock[i].data;    // Only 1 unnamed block
                         varDataIndex = i;
                         break;
-                    } else if (!strcasecmp(putDataBlockList->putDataBlock[i].blockName, "variable") ||
-                               !strcasecmp(putDataBlockList->putDataBlock[i].blockName, "data") ||
-                               (isPath && !strcasecmp(putDataBlockList->putDataBlock[i].blockName, path))) {
+                    } else if (STR_IEQUALS(putDataBlockList->putDataBlock[i].blockName, "variable") ||
+                               STR_IEQUALS(putDataBlockList->putDataBlock[i].blockName, "data") ||
+                               (isPath && STR_IEQUALS(putDataBlockList->putDataBlock[i].blockName, path))) {
 //                        varData = (char *) putDataBlockList->putDataBlock[i].data;
                         varDataIndex = i;
                         break;
@@ -1468,8 +1468,8 @@ time	- the time slice to be written - from a PUTDATA block (putSlice keyword)
                 }
                 for (i = 0; i < putDataBlockList->blockCount; i++) {
                     if (putDataBlockList->putDataBlock[i].blockName != NULL && (
-                            !strcasecmp(putDataBlockList->putDataBlock[i].blockName, "putDataTime") ||
-                            !strcasecmp(putDataBlockList->putDataBlock[i].blockName, "time"))) {
+                            STR_IEQUALS(putDataBlockList->putDataBlock[i].blockName, "putDataTime") ||
+                            STR_IEQUALS(putDataBlockList->putDataBlock[i].blockName, "time"))) {
 //                        putDataSliceTime = ((double *) putDataBlockList->putDataBlock[i].data)[0];
 //                        isTime = 1;
 //                        isPutDataSliceTime = 1;
@@ -1677,8 +1677,8 @@ time	- the time slice to be written - from a PUTDATA block (putSlice keyword)
                     if (dataOperation == PUTSLICE_OPERATION) {
                         PUTDATA_BLOCK * putTimeBlock = NULL;
                         for (i = 0; i < putDataBlockList->blockCount; i++) {
-                            if (!strcasecmp(putDataBlockList->putDataBlock[i].blockName, "time") ||
-                                !strcasecmp(putDataBlockList->putDataBlock[i].blockName, "putDataTime")) {
+                            if (STR_IEQUALS(putDataBlockList->putDataBlock[i].blockName, "time") ||
+                                STR_IEQUALS(putDataBlockList->putDataBlock[i].blockName, "putDataTime")) {
                                 putTimeBlock = &putDataBlockList->putDataBlock[i];
                                 break;
                             }
@@ -1738,7 +1738,7 @@ time	- the time slice to be written - from a PUTDATA block (putSlice keyword)
 //----------------------------------------------------------------------------------------
 // IMAS open an existing file and update the global idx
 
-        if (!strcasecmp(request_block->function, "open")) {
+        if (STR_IEQUALS(request_block->function, "open")) {
             int rc = 0;
 /*
 name	- filename
@@ -1783,7 +1783,7 @@ retIdx	- returned data file index number
 //----------------------------------------------------------------------------------------
 // IMAS create a new file instance - using a Versioned Device specific IDS model file (the version is stored as header meta data)
 
-        if (!strcasecmp(request_block->function, "create")) {
+        if (STR_IEQUALS(request_block->function, "create")) {
             int rc = 0;
 /*
 name	- filename
@@ -1841,7 +1841,7 @@ retIdx	- returned data file index number
 //----------------------------------------------------------------------------------------
 // IMAS close a file
 
-        if (!strcasecmp(request_block->function, "close")) {
+        if (STR_IEQUALS(request_block->function, "close")) {
             int rc = 0;
 
             if (!isClientIdx && !(isFileName && isShotNumber && isRunNumber)) {
@@ -1878,7 +1878,7 @@ retIdx	- returned data file index number
 //----------------------------------------------------------------------------------------
 // IMAS create a MODEL file - groups only, no data
 
-        if (!strcasecmp(request_block->function, "createModel")) {
+        if (STR_IEQUALS(request_block->function, "createModel")) {
             int rc = 0;
             int version = 0;
 
@@ -1915,10 +1915,10 @@ retIdx	- returned data file index number
 //----------------------------------------------------------------------------------------
 // Put a Data Slice into an Object
 
-        if (!strcasecmp(request_block->function, "releaseObject") ||
-            !strcasecmp(request_block->function, "putObjectGroup") ||
-            !strcasecmp(request_block->function, "putObjectSlice") ||
-            !strcasecmp(request_block->function, "replaceLastObjectSlice")) {
+        if (STR_IEQUALS(request_block->function, "releaseObject") ||
+            STR_IEQUALS(request_block->function, "putObjectGroup") ||
+            STR_IEQUALS(request_block->function, "putObjectSlice") ||
+            STR_IEQUALS(request_block->function, "replaceLastObjectSlice")) {
 
 // void imas_hdf5ReleaseObject(void *obj)
 
@@ -1956,7 +1956,7 @@ retIdx	- returned data file index number
 //----------------------------------------------------------------------------------------
 // Get a Data Slice from an Object
 
-        if (!strcasecmp(request_block->function, "getObjectObject")) {
+        if (STR_IEQUALS(request_block->function, "getObjectObject")) {
             int rc = 0;
 
 // int imas_hdf5GetObjectFromObject(void *obj, char *hdf5Path, int idx, void **dataObj)
@@ -2009,7 +2009,7 @@ retIdx	- returned data file index number
 //----------------------------------------------------------------------------------------
 // Put a Data Slice into an Object
 
-        if (!strcasecmp(request_block->function, "getObjectSlice")) {
+        if (STR_IEQUALS(request_block->function, "getObjectSlice")) {
             int rc = 0;
 
 // int imas_hdf5GetObjectSlice(int expIdx, char *hdf5Path, char *cpoPath, double time, void **obj)
@@ -2064,7 +2064,7 @@ retIdx	- returned data file index number
 //----------------------------------------------------------------------------------------
 // Put a Data Slice into an Object
 
-        if (!strcasecmp(request_block->function, "getObjectGroup")) {
+        if (STR_IEQUALS(request_block->function, "getObjectGroup")) {
             int rc = 0;
 
 // int imas_hdf5GetObject(int expIdx, char *hdf5Path, char *cpoPath, void **obj, int isTimed)
@@ -2115,7 +2115,7 @@ retIdx	- returned data file index number
 //----------------------------------------------------------------------------------------
 // Object Dimension
 
-        if (!strcasecmp(request_block->function, "getObjectDim")) {
+        if (STR_IEQUALS(request_block->function, "getObjectDim")) {
 // Object? The data is the local object reference
 
             if (putDataBlockList->putDataBlock[0].data == NULL) {
@@ -2156,7 +2156,7 @@ retIdx	- returned data file index number
 //----------------------------------------------------------------------------------------
 // Put a Data Slice into an Object
 
-        if (!strcasecmp(request_block->function, "beginObject")) {
+        if (STR_IEQUALS(request_block->function, "beginObject")) {
 
 // void *imas_hdf5BeginObject(int expIdx, void *obj, int index, const char *relPath, int isTimed)
 
@@ -2221,7 +2221,7 @@ retIdx	- returned data file index number
 //----------------------------------------------------------------------------------------
 // Put a Data Slice into an Object
 
-        if (!strcasecmp(request_block->function, "getObject")) {
+        if (STR_IEQUALS(request_block->function, "getObject")) {
             int rc = 0;
 
 //       rc = imas_getDataSliceFromObject(void *obj, char *path, int index, int type, int nDims, int *dims, void **data)
@@ -2290,7 +2290,7 @@ retIdx	- returned data file index number
 
 /*
 
-      if(!strcasecmp(request_block->function, "getObject")){
+      if(STR_IEQUALS(request_block->function, "getObject")){
          int rc = 0, fid = -1, fileStatus = 0;
 	 int idamType;
 
@@ -2377,7 +2377,7 @@ retIdx	- returned data file index number
 //----------------------------------------------------------------------------------------
 // Put a Data Slice into an Object
 
-        if (!strcasecmp(request_block->function, "putObject")) {
+        if (STR_IEQUALS(request_block->function, "putObject")) {
             int rc = 0;
             int type;
 
@@ -2468,7 +2468,7 @@ retIdx	- returned data file index number
 //----------------------------------------------------------------------------------------
 // Put an Object into an Object
 
-        if (!strcasecmp(request_block->function, "putObjectInObject")) {
+        if (STR_IEQUALS(request_block->function, "putObjectInObject")) {
 
 // No HDF5 function in UAL
 
@@ -2504,7 +2504,7 @@ retIdx	- returned data file index number
 //----------------------------------------------------------------------------------------
 // Begin/End IDS operations
 
-        if (!strcasecmp(request_block->function, "beginIdsPut")) {
+        if (STR_IEQUALS(request_block->function, "beginIdsPut")) {
 
 // Return Success
 
@@ -2518,7 +2518,7 @@ retIdx	- returned data file index number
 
             break;
 
-        } else if (!strcasecmp(request_block->function, "endIdsPut")) {
+        } else if (STR_IEQUALS(request_block->function, "endIdsPut")) {
 
 // Return Success
 
@@ -2540,7 +2540,7 @@ retIdx	- returned data file index number
 
 // Help: A Description of library functionality
 
-        if (!strcasecmp(request_block->function, "help")) {
+        if (STR_IEQUALS(request_block->function, "help")) {
 
             p = (char *) malloc(sizeof(char) * 2 * 1024);
 
@@ -2575,7 +2575,7 @@ retIdx	- returned data file index number
 //----------------------------------------------------------------------------------------
 // Standard methods: version, builddate, defaultmethod, maxinterfaceversion
 
-        if (!strcasecmp(request_block->function, "version")) {
+        if (STR_IEQUALS(request_block->function, "version")) {
             initDataBlock(data_block);
             data_block->data_type = TYPE_INT;
             data_block->rank = 0;
@@ -2591,7 +2591,7 @@ retIdx	- returned data file index number
 
 // Plugin Build Date
 
-        if (!strcasecmp(request_block->function, "builddate")) {
+        if (STR_IEQUALS(request_block->function, "builddate")) {
             initDataBlock(data_block);
             data_block->data_type = TYPE_STRING;
             data_block->rank = 0;
@@ -2607,7 +2607,7 @@ retIdx	- returned data file index number
 
 // Plugin Default Method
 
-        if (!strcasecmp(request_block->function, "defaultmethod")) {
+        if (STR_IEQUALS(request_block->function, "defaultmethod")) {
             initDataBlock(data_block);
             data_block->data_type = TYPE_STRING;
             data_block->rank = 0;
@@ -2623,7 +2623,7 @@ retIdx	- returned data file index number
 
 // Plugin Maximum Interface Version
 
-        if (!strcasecmp(request_block->function, "maxinterfaceversion")) {
+        if (STR_IEQUALS(request_block->function, "maxinterfaceversion")) {
             initDataBlock(data_block);
             data_block->data_type = TYPE_INT;
             data_block->rank = 0;

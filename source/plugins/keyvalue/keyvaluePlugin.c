@@ -25,6 +25,7 @@
 #include <clientserver/stringUtils.h>
 #include <clientserver/initStructs.h>
 #include <clientserver/udaTypes.h>
+#include <plugins/udaPlugin.h>
 
 static int do_help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
 
@@ -85,8 +86,8 @@ int templatePlugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     //----------------------------------------------------------------------------------------
     // Initialise
 
-    if (!init || !strcasecmp(request_block->function, "init")
-        || !strcasecmp(request_block->function, "initialise")) {
+    if (!init || STR_IEQUALS(request_block->function, "init")
+        || STR_IEQUALS(request_block->function, "initialise")) {
 
         options = leveldb_options_create();
         leveldb_options_set_create_if_missing(options, 1);
@@ -101,7 +102,7 @@ int templatePlugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         roptions = leveldb_readoptions_create();
 
         init = 1;
-        if (!strcasecmp(request_block->function, "init") || !strcasecmp(request_block->function, "initialise"))
+        if (STR_IEQUALS(request_block->function, "init") || STR_IEQUALS(request_block->function, "initialise"))
             return 0;
     }
 
@@ -111,21 +112,21 @@ int templatePlugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     int err;
 
-    if (!strcasecmp(request_block->function, "help")) {
+    if (STR_IEQUALS(request_block->function, "help")) {
         err = do_help(idam_plugin_interface);
-    } else if (!strcasecmp(request_block->function, "version")) {
+    } else if (STR_IEQUALS(request_block->function, "version")) {
         err = do_version(idam_plugin_interface);
-    } else if (!strcasecmp(request_block->function, "builddate")) {
+    } else if (STR_IEQUALS(request_block->function, "builddate")) {
         err = do_builddate(idam_plugin_interface);
-    } else if (!strcasecmp(request_block->function, "defaultmethod")) {
+    } else if (STR_IEQUALS(request_block->function, "defaultmethod")) {
         err = do_defaultmethod(idam_plugin_interface);
-    } else if (!strcasecmp(request_block->function, "maxinterfaceversion")) {
+    } else if (STR_IEQUALS(request_block->function, "maxinterfaceversion")) {
         err = do_maxinterfaceversion(idam_plugin_interface);
-    } else if (!strcasecmp(request_block->function, "write")) {
+    } else if (STR_IEQUALS(request_block->function, "write")) {
         err = do_write(idam_plugin_interface, db, woptions);
-    } else if (!strcasecmp(request_block->function, "read")) {
+    } else if (STR_IEQUALS(request_block->function, "read")) {
         err = do_read(idam_plugin_interface, db, roptions);
-    } else if (!strcasecmp(request_block->function, "delete")) {
+    } else if (STR_IEQUALS(request_block->function, "delete")) {
         err = do_delete(idam_plugin_interface, db, woptions);
     } else {
         RAISE_PLUGIN_ERROR("Unknown function requested!");

@@ -139,7 +139,7 @@ int findPluginIdByFormat(const char* format, PLUGINLIST* plugin_list)
 {
     int i;
     for (i = 0; i < plugin_list->count; i++) {
-        if (!strcasecmp(plugin_list->plugin[i].format, format)) return i;
+        if (STR_IEQUALS(plugin_list->plugin[i].format, format)) return i;
     }
     return -1;
 }
@@ -154,7 +154,7 @@ int findPluginIdByDevice(const char* device, PLUGINLIST* plugin_list)
 {
     int i;
     for (i = 0; i < plugin_list->count; i++) {
-        if (plugin_list->plugin[i].class == PLUGINDEVICE && !strcasecmp(plugin_list->plugin[i].format, device))
+        if (plugin_list->plugin[i].class == PLUGINDEVICE && STR_IEQUALS(plugin_list->plugin[i].format, device))
             return i;
     }
     return -1;
@@ -170,7 +170,7 @@ int findPluginRequestByFormat(const char* format, PLUGINLIST* plugin_list)
 {
     int i;
     for (i = 0; i < plugin_list->count; i++) {
-        if (!strcasecmp(plugin_list->plugin[i].format, format)) return plugin_list->plugin[i].request;
+        if (STR_IEQUALS(plugin_list->plugin[i].format, format)) return plugin_list->plugin[i].request;
     }
     return REQUEST_READ_UNKNOWN;
 }
@@ -185,7 +185,7 @@ int findPluginRequestByExtension(const char* extension, PLUGINLIST* plugin_list)
 {
     int i;
     for (i = 0; i < plugin_list->count; i++) {
-        if (!strcasecmp(plugin_list->plugin[i].extension, extension)) return plugin_list->plugin[i].request;
+        if (STR_IEQUALS(plugin_list->plugin[i].extension, extension)) return plugin_list->plugin[i].request;
     }
     return REQUEST_READ_UNKNOWN;
 }
@@ -753,13 +753,13 @@ void initPluginList(PLUGINLIST* plugin_list)
 
                         case 1:    // Plugin class: File, Server, Function or Device
                             plugin_list->plugin[plugin_list->count].class = PLUGINFILE;
-                            if (!strcasecmp(LeftTrimString(next), "server"))
+                            if (STR_IEQUALS(LeftTrimString(next), "server"))
                                 plugin_list->plugin[plugin_list->count].class = PLUGINSERVER;
-                            if (!strcasecmp(LeftTrimString(next), "function"))
+                            if (STR_IEQUALS(LeftTrimString(next), "function"))
                                 plugin_list->plugin[plugin_list->count].class = PLUGINFUNCTION;
-                            if (!strcasecmp(LeftTrimString(next), "file"))
+                            if (STR_IEQUALS(LeftTrimString(next), "file"))
                                 plugin_list->plugin[plugin_list->count].class = PLUGINFILE;
-                            if (!strcasecmp(LeftTrimString(next), "device"))
+                            if (STR_IEQUALS(LeftTrimString(next), "device"))
                                 plugin_list->plugin[plugin_list->count].class = PLUGINDEVICE;
                             break;
 
@@ -873,7 +873,7 @@ void initPluginList(PLUGINLIST* plugin_list)
 // Internal Serverside function ?
 
                 if (plugin_list->plugin[plugin_list->count].class == PLUGINFUNCTION &&
-                    !strcasecmp(plugin_list->plugin[plugin_list->count].symbol, "serverside") &&
+                    STR_IEQUALS(plugin_list->plugin[plugin_list->count].symbol, "serverside") &&
                     plugin_list->plugin[plugin_list->count].library[0] == '\0') {
                     strcpy(plugin_list->plugin[plugin_list->count].symbol, "SERVERSIDE");
                     plugin_list->plugin[plugin_list->count].request = REQUEST_READ_GENERIC;
@@ -894,11 +894,11 @@ void initPluginList(PLUGINLIST* plugin_list)
                     if (plugin_list->plugin[j].external == PLUGINEXTERNAL &&
                         plugin_list->plugin[j].status == PLUGINOPERATIONAL &&
                         plugin_list->plugin[j].pluginHandle != NULL &&
-                        !strcasecmp(plugin_list->plugin[j].library, plugin_list->plugin[plugin_list->count].library)) {
+                        STR_IEQUALS(plugin_list->plugin[j].library, plugin_list->plugin[plugin_list->count].library)) {
 
 // Library may contain different symbols
 
-                        if (!strcasecmp(plugin_list->plugin[j].symbol,
+                        if (STR_IEQUALS(plugin_list->plugin[j].symbol,
                                         plugin_list->plugin[plugin_list->count].symbol) &&
                             plugin_list->plugin[j].idamPlugin != NULL) {
                             rc = 0;
@@ -1477,7 +1477,7 @@ unsigned short findStringValue(NAMEVALUELIST* namevaluelist, char** value, const
     for (i = 0; i < namevaluelist->pairCount; i++) {
         size_t n;
         for (n = 0; names[n] != NULL; ++n) {
-            if (!strcasecmp(namevaluelist->nameValue[i].name, names[n])) {
+            if (STR_IEQUALS(namevaluelist->nameValue[i].name, names[n])) {
                 *value = namevaluelist->nameValue[i].value;
                 found = 1;
                 break;
@@ -1590,7 +1590,7 @@ unsigned short findValue(NAMEVALUELIST* namevaluelist, const char* name)
     for (i = 0; i < namevaluelist->pairCount; i++) {
         size_t n = 0;
         while (names[n] != NULL) {
-            if (!strcasecmp(namevaluelist->nameValue[i].name, names[n])) {
+            if (STR_IEQUALS(namevaluelist->nameValue[i].name, names[n])) {
                 found = 1;
                 break;
             }

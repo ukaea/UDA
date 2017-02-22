@@ -155,14 +155,14 @@ int parseIncludeFile(const char* header)
 
         do {
 
-            if (!strncmp(buffer, "# ", 2)) break;
-            if (!strncmp(buffer, "//", 2)) break;
-            if (!strncmp(buffer, "/*", 2)) break;
-            if (!strncmp(buffer, "*/", 2)) break;
+            if (STR_EQUALS(buffer, "# ")) break;
+            if (STR_EQUALS(buffer, "//")) break;
+            if (STR_EQUALS(buffer, "/*")) break;
+            if (STR_EQUALS(buffer, "*/")) break;
             if (buffer[0] == '\n') break;
             if (buffer[0] == '\0') break;
 
-            if (!strncmp(buffer, "#define ", 8)) {
+            if (STR_EQUALS(buffer, "#define ")) {
                 strcpy(defnames[defCount], &buffer[8]);
                 if ((p = strstr(defnames[defCount], "//")) != NULL) p[0] = '\0';        // drop Comments
                 convertNonPrintable2(defnames[defCount]);
@@ -187,7 +187,7 @@ int parseIncludeFile(const char* header)
 // *** Scan for free standing typedef statements
 
 
-            if (!isEnum && !strncmp(buffer, "typedef enum", 12)) {
+            if (!isEnum && STR_EQUALS(buffer, "typedef enum")) {
                 isEnum = 1;    // Enumerated Type Definition
                 break;
             }
@@ -204,7 +204,7 @@ int parseIncludeFile(const char* header)
                 } else { break; }
             }
 
-            if (!isEnum && !strncmp(buffer, "typedef", 7) &&
+            if (!isEnum && STR_EQUALS(buffer, "typedef") &&
                 (strncmp(buffer, "typedef struct", 14) != 0)) { // Regular Type Definition
                 strcpy(name1, &buffer[7]);
                 LeftTrimString(name1);
@@ -231,7 +231,7 @@ int parseIncludeFile(const char* header)
                 break;
             }
 
-            if (!isEnum && !strncmp(buffer, "typedef struct", 14) &&
+            if (!isEnum && STR_EQUALS(buffer, "typedef struct") &&
                 (p = strchr(buffer, '{')) == NULL) { // Type Definition
                 strcpy(name1, &buffer[14]);
                 LeftTrimString(name1);
@@ -258,20 +258,20 @@ int parseIncludeFile(const char* header)
                 break;
             }
 
-            if (!status && !strncmp(buffer, "struct", 6)) {
+            if (!status && STR_EQUALS(buffer, "struct")) {
                 model = 1;                            // Start of stucture definition using model 1
             } else {
                 if (!status &&
-                    !strncmp(buffer, "typedef struct", 14)) {        // Start of stucture definition using model 2
+                    STR_EQUALS(buffer, "typedef struct")) {        // Start of stucture definition using model 2
                     model = 2;
                 }
             }
 
             do {
 
-                if (status && model == 1 && (!strcmp(buffer, "{\n") || !strncmp(buffer, "#endif", 5) ||
-                                             !strncmp(buffer, "#define", 6) || !strncmp(buffer, "#ifdef", 5) ||
-                                             !strncmp(buffer, "#ifndef", 6))) {
+                if (status && model == 1 && (STR_EQUALS(buffer, "{\n") || STR_EQUALS(buffer, "#endif") ||
+                                             STR_EQUALS(buffer, "#define") || STR_EQUALS(buffer, "#ifdef") ||
+                                             STR_EQUALS(buffer, "#ifndef"))) {
                                                  break;
                 }
 
@@ -298,7 +298,7 @@ int parseIncludeFile(const char* header)
 
                     } else {
                         // End of the Structure definition?
-                        if (model != 0 && !strncmp(buffer, "}", 1)) {
+                        if (model != 0 && STR_EQUALS(buffer, "}")) {
 
                             addImage(&image, &imagecount, "};\n");
                             addImage(&image, &imagecount, buffer);
@@ -313,7 +313,7 @@ int parseIncludeFile(const char* header)
                                     strcpy(name2, name1);
                                     strcpy(name3, name1);
                                 } else {                            // typedef statement
-                                    //if(!strncmp(buffer, "typedef struct ", 15)){
+                                    //if(STR_EQUALS(buffer, "typedef struct ")){
                                     //   p = &buffer[15];
                                     if ((p = strchr(&buffer[14], ' ')) != NULL) {
                                         strcpy(name2, &p[1]);
@@ -344,7 +344,7 @@ int parseIncludeFile(const char* header)
                                 }
                             }
 
-                            if (!strcmp(name, name1) && !strcmp(name, name2)) {    // Create Meta data on structure
+                            if (STR_EQUALS(name, name1) && STR_EQUALS(name, name2)) {    // Create Meta data on structure
                                 if (itemCount > 0) {
                                     userdefinedtypelist->userdefinedtype = (USERDEFINEDTYPE*) realloc(
                                             (void*) userdefinedtypelist->userdefinedtype,
@@ -431,19 +431,19 @@ int parseIncludeFile(const char* header)
                                 isUnsigned = 0;
                                 isLong64 = 0;
 
-                                if ((isStruct = !strncmp(buffer, "struct", 6))) {
+                                if ((isStruct = STR_EQUALS(buffer, "struct"))) {
                                     strcpy(work, &buffer[7]);
                                     strcpy(buffer, work);
                                 } else {
-                                    if ((isConst = !strncmp(buffer, "const", 5))) {
+                                    if ((isConst = STR_EQUALS(buffer, "const"))) {
                                         strcpy(work, &buffer[6]);
                                         strcpy(buffer, work);
                                     }
-                                    if ((isUnsigned = !strncmp(buffer, "unsigned", 8))) {
+                                    if ((isUnsigned = STR_EQUALS(buffer, "unsigned"))) {
                                         strcpy(work, &buffer[9]);
                                         strcpy(buffer, work);
                                     }
-                                    if ((isLong64 = !strncmp(buffer, "long long", 9))) {
+                                    if ((isLong64 = STR_EQUALS(buffer, "long long"))) {
                                         strcpy(work, &buffer[9]);
                                         strcpy(buffer, work);
                                     }
@@ -517,13 +517,13 @@ int parseIncludeFile(const char* header)
 // Substitute type defs and enum types
 
                                     for (j = 0; j < typeEnumCount; j++) {
-                                        if (!strcmp(typeEnum[j], type[itemCount])) {
+                                        if (STR_EQUALS(typeEnum[j], type[itemCount])) {
                                             strcpy(type[itemCount], "unsigned int");
                                             break;
                                         }
                                     }
                                     for (j = 0; j < typeDefCount; j++) {
-                                        if (!strcmp(typeDefName[j], type[itemCount]) &&
+                                        if (STR_EQUALS(typeDefName[j], type[itemCount]) &&
                                             strcmp(type[itemCount], "STRING") != 0) {
                                             strcpy(type[itemCount], typeDef[j]);
                                             if (typeDefPtr[j]) pointer[itemCount] = 1;
@@ -531,7 +531,7 @@ int parseIncludeFile(const char* header)
                                         }
                                     }
                                     for (j = 0; j < typeStrCount; j++) {
-                                        if (!strcmp(typeStrName[j], type[itemCount])) {
+                                        if (STR_EQUALS(typeStrName[j], type[itemCount])) {
                                             strcpy(type[itemCount], typeStruct[j]);
                                             if (typeStrPtr[j]) pointer[itemCount] = 1;
                                             break;
@@ -541,13 +541,13 @@ int parseIncludeFile(const char* header)
 // repeat for nested type defs
 
                                     for (j = 0; j < typeEnumCount; j++) {
-                                        if (!strcmp(typeEnum[j], type[itemCount])) {
+                                        if (STR_EQUALS(typeEnum[j], type[itemCount])) {
                                             strcpy(type[itemCount], "unsigned int");
                                             break;
                                         }
                                     }
                                     for (j = 0; j < typeDefCount; j++) {
-                                        if (!strcmp(typeDefName[j], type[itemCount]) &&
+                                        if (STR_EQUALS(typeDefName[j], type[itemCount]) &&
                                             strcmp(type[itemCount], "STRING") != 0) {
                                             strcpy(type[itemCount], typeDef[j]);
                                             if (typeDefPtr[j]) pointer[itemCount] = 1;
@@ -555,7 +555,7 @@ int parseIncludeFile(const char* header)
                                         }
                                     }
                                     for (j = 0; j < typeStrCount; j++) {
-                                        if (!strcmp(typeStrName[j], type[itemCount])) {
+                                        if (STR_EQUALS(typeStrName[j], type[itemCount])) {
                                             strcpy(type[itemCount], typeStruct[j]);
                                             if (typeStrPtr[j]) pointer[itemCount] = 1;
                                             break;
@@ -565,7 +565,7 @@ int parseIncludeFile(const char* header)
 // Size of this type (Not pointer size)
 
                                     if (!pointer[itemCount]) {
-                                        if (!strcmp(type[itemCount], "STRING")) {
+                                        if (STR_EQUALS(type[itemCount], "STRING")) {
                                             size[itemCount] = getsizeof("char");
                                         } else {
                                             size[itemCount] = getsizeof(type[itemCount]);
@@ -594,7 +594,7 @@ int parseIncludeFile(const char* header)
                                                 } else {
 
                                                     for (j = 0; j < defCount; j++) {
-                                                        if (!strcmp(defnames[j], buffer)) {
+                                                        if (STR_EQUALS(defnames[j], buffer)) {
                                                             shape[itemCount][rnk++] = defvalues[j];            // Array Shape
                                                             count[itemCount] = count[itemCount] +
                                                                                defvalues[j];    // Total Count of Array elements

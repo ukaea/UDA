@@ -31,7 +31,7 @@ int main(int argc, char* argv[])
     char* compare_dir = argv[2];
     char* signal = argv[3];
     char* source = argv[4];
-    int should_fail = !strcasecmp(argv[5], "true");
+    int should_fail = STR_IEQUALS(argv[5], "true");
 
     fprintf(stdout, "running: idamGetAPI(%s, %s)\n", signal, source);
 

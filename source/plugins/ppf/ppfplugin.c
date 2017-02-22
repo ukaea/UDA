@@ -236,78 +236,78 @@ static int api_call(IDAM_PLUGIN_INTERFACE * ipi)
         if (nv) {
             const char * val = nv_value(nv);
 
-            if (!strcmp("PDMSEQ", val))
+            if (STR_EQUALS("PDMSEQ", val))
                 err = call_pdmseq(ipi);
-            else if (!strcmp("PPFUID", val))
+            else if (STR_EQUALS("PPFUID", val))
                 err = call_ppfuid(ipi);
-            else if (!strcmp("PPFGO", val))
+            else if (STR_EQUALS("PPFGO", val))
                 err = call_ppfgo(ipi);
-            else if (!strcmp("PPFCLO", val))
+            else if (STR_EQUALS("PPFCLO", val))
                 err = call_ppfclo(ipi);
                 //err = ERR_FUNCTION_NOT_SUPPORTED;
-            else if (!strcmp("PPFERR", val))
+            else if (STR_EQUALS("PPFERR", val))
                 err = call_ppferr(ipi);
-            else if (!strcmp("PPFSQI", val))
+            else if (STR_EQUALS("PPFSQI", val))
                 err = call_ppfsqi(ipi);
-            else if (!strcmp("PPFGQI", val))
+            else if (STR_EQUALS("PPFGQI", val))
                 err = call_ppfgqi(ipi);
-            else if (!strcmp("PPFGID", val))
+            else if (STR_EQUALS("PPFGID", val))
                 err = call_ppfgid(ipi);
-            else if (!strcmp("PPFPOK", val))
+            else if (STR_EQUALS("PPFPOK", val))
                 err = call_ppfok(ipi);
-            else if (!strcmp("PDAINF", val))
+            else if (STR_EQUALS("PDAINF", val))
                 err = call_pdainf(ipi);
-            else if (!strcmp("PPFSEQ", val))
+            else if (STR_EQUALS("PPFSEQ", val))
                 err = call_ppfseq(ipi);
-            else if (!strcmp("PPFINF", val))
+            else if (STR_EQUALS("PPFINF", val))
                 err = call_ppfinf(ipi);
-            else if (!strcmp("DDAINF", val))
+            else if (STR_EQUALS("DDAINF", val))
                 err = call_ddainf(ipi);
-            else if (!strcmp("PPFDEL", val))
+            else if (STR_EQUALS("PPFDEL", val))
                 err = call_ppfdel(ipi);
-            else if (!strcmp("PPFWRI", val))
+            else if (STR_EQUALS("PPFWRI", val))
                 err = call_ppfwri(ipi);
-            else if (!strcmp("PDLPPF", val))
+            else if (STR_EQUALS("PDLPPF", val))
                 err = call_pdlppf(ipi);
-            else if (!strcmp("PDLUSR", val))
+            else if (STR_EQUALS("PDLUSR", val))
                 err = call_pdlusr(ipi);
-            else if (!strcmp("PDMSDT", val))
+            else if (STR_EQUALS("PDMSDT", val))
                 err = call_pdmsdt(ipi);
-            else if (!strcmp("PDMSHT", val))
+            else if (STR_EQUALS("PDMSHT", val))
                 err = call_pdmsht(ipi);
-            else if (!strcmp("PDSTAT", val))
+            else if (STR_EQUALS("PDSTAT", val))
                 err = call_pdstat(ipi);
-            else if (!strcmp("PDSTD", val))
+            else if (STR_EQUALS("PDSTD", val))
                 err = call_pdstd(ipi);
-            else if (!strcmp("PDSRCH", val))
+            else if (STR_EQUALS("PDSRCH", val))
                 err = call_pdsrch(ipi);
-            else if (!strcmp("PDTINF", val))
+            else if (STR_EQUALS("PDTINF", val))
                 err = call_pdtinf(ipi);
-            else if (!strcmp("PPFDAT", val))
+            else if (STR_EQUALS("PPFDAT", val))
                 err = call_ppfdat(ipi);
-            else if (!strcmp("PPFDTI", val))
+            else if (STR_EQUALS("PPFDTI", val))
                 err = call_ppfdti(ipi);
-            else if (!strcmp("PPFDDA", val))
+            else if (STR_EQUALS("PPFDDA", val))
                 err = call_ppfdda(ipi);
-            else if (!strcmp("PPFGET", val))
+            else if (STR_EQUALS("PPFGET", val))
                 err = call_ppfget(ipi);
-            else if (!strcmp("PPFGMD", val))
+            else if (STR_EQUALS("PPFGMD", val))
                 err = call_ppfgmd(ipi);
-            else if (!strcmp("PPFGSF", val))
+            else if (STR_EQUALS("PPFGSF", val))
                 err = call_ppfgsf(ipi);
-            else if (!strcmp("PPFGTS", val))
+            else if (STR_EQUALS("PPFGTS", val))
                 err = call_ppfgts(ipi);
-            else if (!strcmp("PPFMOD", val))
+            else if (STR_EQUALS("PPFMOD", val))
                 err = call_ppfmod(ipi);
-            else if (!strcmp("PPFOPN", val))
+            else if (STR_EQUALS("PPFOPN", val))
                 err = call_ppfopn(ipi);
-            else if (!strcmp("PPFONDISK", val))
+            else if (STR_EQUALS("PPFONDISK", val))
                 err = call_ppfondisk(ipi);
-            else if (!strcmp("PPFOWNERINFO", val))
+            else if (STR_EQUALS("PPFOWNERINFO", val))
                 err = call_ppfownerinfo(ipi);
-            else if (!strcmp("PPFSETDEVICE", val))
+            else if (STR_EQUALS("PPFSETDEVICE", val))
                 err = call_ppfsetdevice(ipi);
-            else if (!strcmp("PPFSIZ", val))
+            else if (STR_EQUALS("PPFSIZ", val))
                 err = call_ppfsiz(ipi);
             else
                 err = ERR_UNKNOWN_FUNCTION;
@@ -385,23 +385,23 @@ int plugin_entry(IDAM_PLUGIN_INTERFACE * idam_plugin_interface)
     //---------------------------------------------------------------------------
     //  raise( SIGSTOP );
     const char * pszFunction = request_block->function;
-    if (housekeeping || !strcasecmp(pszFunction, "reset")) {
+    if (housekeeping || STR_IEQUALS(pszFunction, "reset")) {
         return reset(idam_plugin_interface);
     }
-    else if (!strcasecmp(pszFunction, "init")
-             || !strcasecmp(pszFunction, "initialise")) {
+    else if (STR_IEQUALS(pszFunction, "init")
+             || STR_IEQUALS(pszFunction, "initialise")) {
 
         return init(idam_plugin_interface);
     }
 
 
-    if (!strcasecmp(pszFunction, "help")) {
+    if (STR_IEQUALS(pszFunction, "help")) {
         help(idam_plugin_interface);
     }
-    else if (!strcasecmp(pszFunction, "read")) {
+    else if (STR_IEQUALS(pszFunction, "read")) {
         readppf(idam_plugin_interface);
     }
-    else if (!strcasecmp(pszFunction, "api")) {
+    else if (STR_IEQUALS(pszFunction, "api")) {
         api_call(idam_plugin_interface);
     }
     else {
@@ -611,7 +611,7 @@ static int readppf(IDAM_PLUGIN_INTERFACE * idam_plugin_interface)
         test[4] = '\0';
         strncpy(test, dtnams + i * 4, 4);    // Choose a data type name for testing
         TrimString(test);
-        if (!strcmp(dtype, test)) {
+        if (STR_EQUALS(dtype, test)) {
             dtid = i;            // Found a Match
             if (TEST) {
                 fprintf(stdout, "Signal Located: %d\n", dtid);

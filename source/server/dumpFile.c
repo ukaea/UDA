@@ -43,8 +43,7 @@ int dumpFile(REQUEST_BLOCK request_block, DATA_BLOCK* data_block)
 
     int err = 0, serrno;
 
-    FILE* ph = NULL;
-    char cmd[MAXRECLENGTH]; //= "#!/bin/bash \n";
+    char cmd[MAXRECLENGTH];
     int offset, bufsize, nread, nchar;
     char* bp = NULL;
     char alias[4] = "";
@@ -77,7 +76,7 @@ int dumpFile(REQUEST_BLOCK request_block, DATA_BLOCK* data_block)
 // Check whether or not the filename is the alias name
 // If is it then form the correct filename
 
-        if (!strcasecmp(request_block.file, alias)) {
+        if (STR_IEQUALS(request_block.file, alias)) {
             nameIDA(alias, request_block.exp_number, file);
         } else {
             strcpy(file, request_block.file);
@@ -112,6 +111,8 @@ int dumpFile(REQUEST_BLOCK request_block, DATA_BLOCK* data_block)
 
 //----------------------------------------------------------------------
 // Error Trap Loop
+
+    FILE* ph = NULL;
 
     do {
 
@@ -159,7 +160,7 @@ int dumpFile(REQUEST_BLOCK request_block, DATA_BLOCK* data_block)
                 if ((token = strstr(server, "/")) != NULL) {                // The Server contains the path to the data
                     strcpy(path, token);                        // Extract the Path
                     server[token - server] = '\0';                    // Extract the Server Name
-                    if (!strcasecmp(server, "localhost")) {
+                    if (STR_IEQUALS(server, "localhost")) {
                         lpath = (int) strlen(path);
                         if (!IsLegalFilePath(path)) {                    // Check the file path is regular
                             err = 999;

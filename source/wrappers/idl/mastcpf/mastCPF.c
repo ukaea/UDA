@@ -2492,10 +2492,10 @@ int checkSecurity(PGconn* DBConnect, char* table, char permission, int verbose) 
                     strcpy(dbperm, PQgetvalue(DBQuery, 0, 0));
                     dbperm[0] = tolower(dbperm[0]);
 
-                    if (!strcmp(dbperm, "u"))    // Can Do Anything!
+                    if (STR_EQUALS(dbperm, "u"))    // Can Do Anything!
                         rc = 1;
                     else                // Create New Records Only
-                    if (!strcmp(dbperm, "n") && (permission == 'n' || permission == 'N')) rc = 1;
+                    if (STR_EQUALS(dbperm, "n") && (permission == 'n' || permission == 'N')) rc = 1;
                 }
             }
         }

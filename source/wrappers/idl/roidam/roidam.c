@@ -642,7 +642,7 @@ IDL_VPTR IDL_CDECL rosinglesignalxml(int argc, IDL_VPTR argv[], char* argk) {
 
         strcpy(old_meta_id, PQgetvalue(DBQuery, 0, 0));
         TrimString(old_meta_id);
-        if (!strcmp(old_meta_id, "")) strcpy(old_meta_id, "null");
+        if (STR_EQUALS(old_meta_id, "")) strcpy(old_meta_id, "null");
         if (kw.debug) fprintf(stdout, "Old META ID: %s\n", old_meta_id);
 
 //-------------------------------------------------------------
@@ -1968,7 +1968,7 @@ int createIdamKWXML(char* signal, KW_RESULT kw, char* xml) {
     strcat(xml, lfcr);
     strcat(xml, "</action>");
 
-    if (!strcmp(xml, xml_tst)) xml[0] = '\0';            // TEST: No XML from Keywords
+    if (STR_EQUALS(xml, xml_tst)) xml[0] = '\0';            // TEST: No XML from Keywords
 
     return 0;
 }
@@ -2467,17 +2467,17 @@ IDL_VPTR IDL_CDECL rosourcestatus(int argc, IDL_VPTR argv[], char* argk) {
         }
     }
 
-    if (!strcasecmp(type, "A")) {
+    if (STR_IEQUALS(type, "A")) {
         if (wherenum > 0) strcat(whr, " AND ");
         strcat(whr, "type= 'A'");
         wherenum++;
     } else {
-        if (!strcasecmp(type, "R")) {
+        if (STR_IEQUALS(type, "R")) {
             if (wherenum > 0) strcat(whr, " AND ");
             strcat(whr, "type= 'R'");
             wherenum++;
         } else {
-            if (!strcasecmp(type, "M")) {
+            if (STR_IEQUALS(type, "M")) {
                 if (wherenum > 0) strcat(whr, " AND ");
                 strcat(whr, "type= 'M'");
                 wherenum++;
@@ -3466,17 +3466,17 @@ IDL_VPTR IDL_CDECL rosignalstatus(int argc, IDL_VPTR argv[], char* argk) {
         }
     }
 
-    if (!strcasecmp(type, "A")) {
+    if (STR_IEQUALS(type, "A")) {
         if (wherenum > 0) strcat(whr, " AND ");
         strcat(whr, "type= 'A'");
         wherenum++;
     } else {
-        if (!strcasecmp(type, "R")) {
+        if (STR_IEQUALS(type, "R")) {
             if (wherenum > 0) strcat(whr, " AND ");
             strcat(whr, "type= 'R'");
             wherenum++;
         } else {
-            if (!strcasecmp(type, "M")) {
+            if (STR_IEQUALS(type, "M")) {
                 if (wherenum > 0) strcat(whr, " AND ");
                 strcat(whr, "type= 'M'");
                 wherenum++;
@@ -3514,17 +3514,17 @@ IDL_VPTR IDL_CDECL rosignalstatus(int argc, IDL_VPTR argv[], char* argk) {
         wherenum++;
     }
 
-    if (!strcasecmp(type, "A")) {
+    if (STR_IEQUALS(type, "A")) {
         if (wherenum > 0) strcat(whr_sig, " AND ");
         strcat(whr_sig, "type= 'A'");
         wherenum++;
     } else {
-        if (!strcasecmp(type, "R")) {
+        if (STR_IEQUALS(type, "R")) {
             if (wherenum > 0) strcat(whr_sig, " AND ");
             strcat(whr_sig, "type= 'R'");
             wherenum++;
         } else {
-            if (!strcasecmp(type, "M")) {
+            if (STR_IEQUALS(type, "M")) {
                 if (wherenum > 0) strcat(whr_sig, " AND ");
                 strcat(whr_sig, "type= 'M'");
                 wherenum++;

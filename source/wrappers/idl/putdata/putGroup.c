@@ -191,7 +191,7 @@ int testgroup(int ncgrpid, char* target, int* status, int* targetid, int debug, 
 
             if (debug)fprintf(stdout, "Comparing Group Name [%s] with Target Group [%s]\n", grpname, target);
 
-            if (!strcmp(grpname, target)) {
+            if (STR_EQUALS(grpname, target)) {
                 if (debug)fprintf(stdout, "Group Found %d\n", ncids[i]);
 
                 *targetid = ncids[i];            // Found - it exists!

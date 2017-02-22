@@ -13,11 +13,12 @@
 #endif
 
 #include <clientserver/manageSockets.h>
+#include <clientserver/stringUtils.h>
 
 void closeNamedServerSocket(SOCKETLIST* socks, char* host, int port) {
     int i;
     for (i = 0; i < socks->nsocks; i++) {
-        if (!strcasecmp(host, socks->sockets[i].host) && socks->sockets[i].port == port) {
+        if (STR_IEQUALS(host, socks->sockets[i].host) && socks->sockets[i].port == port) {
             if (socks->sockets[i].type == TYPE_IDAM_SERVER) close(socks->sockets[i].fh);        // Only Genuine Sockets!
 #ifndef NOMDSPLUSPLUGIN
             if (socks->sockets[i].type == TYPE_MDSPLUS_SERVER) {

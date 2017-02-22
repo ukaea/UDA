@@ -90,13 +90,13 @@ int getSourcePath(PGconn* DBConnect, int exp_number, int pass, char* alias, char
     if (nrows > 0) {
         strncpy(type, PQgetvalue(DBQuery, 0, 4), 1);
         type[1] = '\0';
-        if (!strcasecmp(type, "A") || !strcasecmp(type, "R")) {
+        if (STR_IEQUALS(type, "A") || STR_IEQUALS(type, "R")) {
             if (strlen(PQgetvalue(DBQuery, 0, 0)) == 0) {
 
                 sprintf(path, "%s/%03d/%d/", getenv("MAST_DATA"), exp_number / 1000,
                         exp_number);// IDA Data File High Level Directory
 
-                if (!strcasecmp(type, "A")) {
+                if (STR_IEQUALS(type, "A")) {
                     strcat(path, "Pass");
                     strcat(path, PQgetvalue(DBQuery, 0, 3));
                 } else {
@@ -107,7 +107,7 @@ int getSourcePath(PGconn* DBConnect, int exp_number, int pass, char* alias, char
                 strcpy(path, PQgetvalue(DBQuery, 0, 0));
             }
         } else {
-            if (!strcasecmp(type, "I")) {
+            if (STR_IEQUALS(type, "I")) {
                 strcpy(path, PQgetvalue(DBQuery, 0, 0));
                 TrimString(path);
                 if (strlen(path) == 0)
@@ -120,8 +120,8 @@ int getSourcePath(PGconn* DBConnect, int exp_number, int pass, char* alias, char
 
         if (nrows > 0) {
             nrows = 1;
-            if (!strcmp(PQgetvalue(DBQuery, 0, 2), "A")) nrows = -2;    // Offline: Not Available
-            if (!strcmp(PQgetvalue(DBQuery, 0, 2), "L")) nrows = -3;    // Linked: Not Available
+            if (STR_EQUALS(PQgetvalue(DBQuery, 0, 2), "A")) nrows = -2;    // Offline: Not Available
+            if (STR_EQUALS(PQgetvalue(DBQuery, 0, 2), "L")) nrows = -3;    // Linked: Not Available
             strcat(path, "/");
             strcat(path, PQgetvalue(DBQuery, 0, 1));            // Filename
         }

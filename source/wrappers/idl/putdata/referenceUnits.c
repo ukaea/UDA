@@ -156,11 +156,11 @@ void swapUnitSymbol(char *token){
    for(i=0; i<nunits; i++){						// Scan Units for a Full Match
       lunit = strlen(unit[i]);
       if(lunit != ltoken) continue;
-      if(!strcmp(token, unit[i])){ 		 
+      if(STR_EQUALS(token, unit[i])){
          fprintf(stderr,"%s contains the standard unit: %s. Consider changing this to %s\n", token, unit[i], symbol[i]);
          return;
       } 
-      if(!strcasecmp(token, unit[i])){ 		 
+      if(STR_IEQUALS(token, unit[i])){
          fprintf(stderr,"%s has the wrong case. Please change to the standard unit %s.\n", token, symbol[i]);
          return;
       } 	 
@@ -191,7 +191,7 @@ void swapScaleSymbol(char *token){
       for(i=0; i<nscales; i++){						// Scan Scales for a Full Match
          lunit = strlen(scalevalue[i]);
          if(lunit != ltoken) continue;
-         if(!strcasecmp(work, scalevalue[i])){ 		 
+         if(STR_IEQUALS(work, scalevalue[i])){
             fprintf(stderr,"%s has the standard scale Value : %s. Consider changing this to %s or %s\n", token, scalevalue[i], 
 	                   scaleunit[i], scalesymbol[i]);
             return;
@@ -205,12 +205,12 @@ void swapScaleSymbol(char *token){
    for(i=0; i<nscales; i++){						// Scan Scales for a Full Match
       lunit = strlen(scaleunit[i]);
       if(lunit != ltoken) continue;
-      if(!strcmp(work, scaleunit[i])){ 		 
+      if(STR_EQUALS(work, scaleunit[i])){
          fprintf(stderr,"%s contains the standard scale label: %s. Consider changing this to %s or %s\n", token, scaleunit[i],
 	                 scaleunit[i], scalesymbol[i]);
          return;
       }
-      if(!strcasecmp(work, scaleunit[i])){ 		 
+      if(STR_IEQUALS(work, scaleunit[i])){
          fprintf(stderr,"%s has the wrong case. Please change to the standard scale %s or %s\n", token, scaleunit[i], scalesymbol[i]);
          return;
       }       	 
@@ -228,11 +228,11 @@ void swapScaleSymbol(char *token){
    for(i=0; i<nscales; i++){						// Scan Scales for a Full Match
       lunit = strlen(scalesymbol[i]);
       if(lunit != ltoken) continue;
-      if(!strcmp(work, scalesymbol[i])){ 		 
+      if(STR_EQUALS(work, scalesymbol[i])){
          fprintf(stderr,"%s contains the standard scale: %s. Consider changing this to %s or %s\n", token, scaleunit[i], scaleunit[i], scalesymbol[i]);
          return;
       }
-      if(!strcasecmp(work, scalesymbol[i])){ 		 
+      if(STR_IEQUALS(work, scalesymbol[i])){
          fprintf(stderr,"%s has the wrong case. Please change to the standard scale %s or %s\n", token, scaleunit[i], scalesymbol[i]);
          return;
       }       	 
@@ -468,7 +468,7 @@ int referenceUnitsRead(int verbose, int debug){
    while(fgets(rec, MAXRECORDLENGTH, fh) != NULL && nunits < MAXRECORDCOUNT){
       if(rec[0] == '#' || rec[0] == ' ') continue;	// Ignore lines beginning with # or space
       
-      if(!strncmp(rec,"-----", 5)){
+      if(STR_EQUALS(rec,"-----")){
           isScales = 1;
           continue;					// Identifies the Scales group 
       }

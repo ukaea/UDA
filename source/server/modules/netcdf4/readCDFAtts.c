@@ -95,13 +95,13 @@ int readCDF4Atts(int grpid, int varid, char* units, char* title, char* class, ch
             TrimString(txt);
             LeftTrimString(txt);
 
-            if (!strcmp(attname, "units")) {
+            if (STR_EQUALS(attname, "units")) {
                 copyString(txt, units, STRING_LENGTH);
-            } else if (!strcmp(attname, "title") || !strcmp(attname, "label") || !strcmp(attname, "long_name")) {
+            } else if (STR_EQUALS(attname, "title") || STR_EQUALS(attname, "label") || STR_EQUALS(attname, "long_name")) {
                 copyString(txt, title, STRING_LENGTH);
-            } else if (!strcmp(attname, "comment")) {
+            } else if (STR_EQUALS(attname, "comment")) {
                 copyString(txt, comment, STRING_LENGTH);
-            } else if (!strcmp(attname, "class")) {
+            } else if (STR_EQUALS(attname, "class")) {
                 copyString(txt, class, STRING_LENGTH);
             }
             free((void*) txt);
@@ -114,13 +114,13 @@ int readCDF4Atts(int grpid, int varid, char* units, char* title, char* class, ch
                 free((void*) sarr);
                 return err;
             }
-            if (!strcmp(attname, "units")) {
+            if (STR_EQUALS(attname, "units")) {
                 copyString(sarr[0], units, STRING_LENGTH);
-            } else if (!strcmp(attname, "title") || !strcmp(attname, "label") || !strcmp(attname, "long_name")) {
+            } else if (STR_EQUALS(attname, "title") || STR_EQUALS(attname, "label") || STR_EQUALS(attname, "long_name")) {
                 copyString(sarr[0], title, STRING_LENGTH);
-            } else if (!strcmp(attname, "comment")) {
+            } else if (STR_EQUALS(attname, "comment")) {
                 copyString(sarr[0], comment, STRING_LENGTH);
-            } else if (!strcmp(attname, "class")) {
+            } else if (STR_EQUALS(attname, "class")) {
                 copyString(sarr[0], class, STRING_LENGTH);
             }
             nc_free_string(attlength, sarr);

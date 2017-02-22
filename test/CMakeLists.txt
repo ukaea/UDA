@@ -29,3 +29,19 @@ foreach( TEST ${TESTS} )
   link_modules( ${TEST} )
   add_test( ${TEST} ${TEST} )
 endforeach()
+
+find_package( GCrypt REQUIRED )
+find_package( KSBA REQUIRED )
+find_package( OpenSSL REQUIRED )
+find_package( LibXml2 REQUIRED )
+
+add_executable( testSecurity testSecurity.c $<TARGET_OBJECTS:security> )
+target_link_libraries( testSecurity PRIVATE
+  ${GCRYPT_LIBRARIES}
+  ${KSBA_LIBRARIES}
+  fatclient-static
+  client-shared
+  ${OPENSSL_LIBRARIES}
+  ${LIBXML2_LIBRARIES} )
+link_modules( testSecurity )
+add_test( testSecurity testSecurity )

@@ -77,7 +77,7 @@ int idamserverGetData(PGconn* DBConnect, int* depth, REQUEST_BLOCK request_block
     if (original_request == 0 || *depth == 0) {
         original_request = request_block.request;
         if (request_block.request != REQUEST_READ_XML) {
-            if (!strncmp(request_block.signal, "<?xml", 5)) original_xml = 1;
+            if (STR_EQUALS(request_block.signal, "<?xml")) original_xml = 1;
         }
     }
 
@@ -103,7 +103,7 @@ int idamserverGetData(PGconn* DBConnect, int* depth, REQUEST_BLOCK request_block
 // Can't use REQUEST_READ_SERVERSIDE because data must be read first using a 'real' data reader or REQUEST_READ_GENERIC
 
     if (protocolVersion < 6) {
-        if (!strcasecmp(request_block.archive, "SS") || !strcasecmp(request_block.archive, "SERVERSIDE")) {
+        if (STR_IEQUALS(request_block.archive, "SS") || STR_IEQUALS(request_block.archive, "SERVERSIDE")) {
             if (!strncasecmp(request_block.signal, "SUBSET(", 7)) {
                 serverside = 1;
                 initActions(&actions_serverside);
@@ -116,10 +116,10 @@ int idamserverGetData(PGconn* DBConnect, int* depth, REQUEST_BLOCK request_block
         }
     } else
 
-    if (!strcasecmp(request_block.function, "subset")) {
+    if (STR_IEQUALS(request_block.function, "subset")) {
         int id;
         if ((id = findPluginIdByFormat(request_block.archive, &pluginList)) >= 0) {
-            if (!strcasecmp(pluginList.plugin[id].symbol, "serverside")) {
+            if (STR_IEQUALS(pluginList.plugin[id].symbol, "serverside")) {
                 serverside = 1;
                 initActions(&actions_serverside);
                 if ((rc = idamserverParseServerSide(&request_block, &actions_serverside)) != 0) return rc;
@@ -310,7 +310,7 @@ int idamserverGetData(PGconn* DBConnect, int* depth, REQUEST_BLOCK request_block
 #endif
 // If the Archive is XML and the signal contains a ServerSide SUBSET function then parse and replace
 
-                    if (!strcasecmp(request_block2.archive, "XML") &&
+                    if (STR_IEQUALS(request_block2.archive, "XML") &&
                         ((p = strstr(request_block2.signal, "SS::SUBSET")) != NULL ||
                          (p = strstr(request_block2.signal, "SERVERSIDE::SUBSET")) != NULL)) {
                         strcpy(request_block2.archive, "SS");
@@ -1018,7 +1018,7 @@ int idamserverReadData(PGconn* DBConnect, REQUEST_BLOCK request_block, CLIENT_BL
 //------------------------------------------------------------------------------
 #ifndef PROXYSERVER
     if (request_block.request != REQUEST_READ_XML) {
-        if (!strncmp(request_block.signal, "<?xml", 5)) {
+        if (STR_EQUALS(request_block.signal, "<?xml")) {
 
             signal_desc->type = 'C';            // Composite/Derived Type
             signal_desc->signal_name[0] = '\0';            // The true signal is contained in the XML
@@ -1096,11 +1096,11 @@ int idamserverReadData(PGconn* DBConnect, REQUEST_BLOCK request_block, CLIENT_BL
 // Query the Database: Internal or External Data Sources; Specified Archive or Hierarchical
 
         if ((strlen(request_block.archive) == 0 && strlen(request_block.device_name) == 0) ||
-            (!strcasecmp(request_block.device_name, "MAST") &&
-             (strlen(request_block.archive) == 0 || !strcasecmp(request_block.archive, request_block.device_name))) ||
-            (!strcasecmp(request_block.archive, "MAST") &&
+            (STR_IEQUALS(request_block.device_name, "MAST") &&
+             (strlen(request_block.archive) == 0 || STR_IEQUALS(request_block.archive, request_block.device_name))) ||
+            (STR_IEQUALS(request_block.archive, "MAST") &&
              (strlen(request_block.device_name) == 0 ||
-              !strcasecmp(request_block.archive, request_block.device_name)))) {
+              STR_IEQUALS(request_block.archive, request_block.device_name)))) {
 
             if ((rc = sqlGeneric(DBConnect, request_block.signal, request_block.exp_number, request_block.pass,
                                  request_block.tpass,
@@ -1169,7 +1169,7 @@ int idamserverReadData(PGconn* DBConnect, REQUEST_BLOCK request_block, CLIENT_BL
 
             if (strlen(request_block.archive) != 0 && strcasecmp(request_block.archive, "MAST") != 0 &&
                 strcasecmp(request_block.archive, "TRANSP") != 0 &&
-                (strlen(request_block.device_name) == 0 || !strcasecmp(request_block.device_name, "MAST"))) {
+                (strlen(request_block.device_name) == 0 || STR_IEQUALS(request_block.device_name, "MAST"))) {
 
                 if ((rc = sqlArchive(DBConnect, request_block.archive, data_source)) != 1) {
                     err = 779;
@@ -1182,8 +1182,8 @@ int idamserverReadData(PGconn* DBConnect, REQUEST_BLOCK request_block, CLIENT_BL
 
 // TRANSP Specific MAST Archive
 
-                if ((strlen(request_block.device_name) == 0 || !strcasecmp(request_block.device_name, "MAST")) &&
-                    !strcasecmp(request_block.archive, "TRANSP")) {
+                if ((strlen(request_block.device_name) == 0 || STR_IEQUALS(request_block.device_name, "MAST")) &&
+                    STR_IEQUALS(request_block.archive, "TRANSP")) {
                     int transp_pass;
 
 // Convert the Run ID to a Pass Number
@@ -1491,7 +1491,7 @@ int idamserverReadData(PGconn* DBConnect, REQUEST_BLOCK request_block, CLIENT_BL
 
         id = -1;
         for (i = 0; i < pluginList.count; i++) {
-            if (!strcasecmp(data_source->format, pluginList.plugin[i].format)) {
+            if (STR_IEQUALS(data_source->format, pluginList.plugin[i].format)) {
                 plugin_id = pluginList.plugin[i].request;                // Found
                 id = i;
                 IDAM_LOGF(LOG_DEBUG, "[%d] %s Plugin Selected\n", plugin_id, data_source->format);
@@ -1579,7 +1579,7 @@ int idamserverReadData(PGconn* DBConnect, REQUEST_BLOCK request_block, CLIENT_BL
     err = 0;
 
 #ifndef PROXYSERVER
-    if (!strcasecmp(request_block.archive, "DUMP") && environment.server_proxy[0] == '\0') {
+    if (STR_IEQUALS(request_block.archive, "DUMP") && environment.server_proxy[0] == '\0') {
 
         IDAM_LOG(LOG_DEBUG, "Requested: DUMP File Contents.\n");
 

@@ -179,13 +179,13 @@ int readerCDF4(DATA_SOURCE* data_source, SIGNAL_DESC* signal_desc, REQUEST_BLOCK
                 err = NETCDF_ERROR_OPENING_FILE;
                 if (errno != 0) addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "readCDF", errno, "");
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF", err, (char*) nc_strerror(rc));
-                idamLog(LOG_DEBUG, "netCDF: Error opening file - %s\n", nc_strerror(rc));
+                IDAM_LOGF(LOG_DEBUG, "Error opening file - %s\n", nc_strerror(rc));
                 break;
             }
             addIdamPluginFileInt(&pluginFileList, data_source->path, fd);        // Register the File Handle
         }
 
-        idamLog(LOG_DEBUG, "netCDF filename %s\n", data_source->path);
+        IDAM_LOGF(LOG_DEBUG, "filename %s\n", data_source->path);
 
 //----------------------------------------------------------------------
 // Register the API function needed to close the file: int nc_close(int ncid)
@@ -209,12 +209,12 @@ int readerCDF4(DATA_SOURCE* data_source, SIGNAL_DESC* signal_desc, REQUEST_BLOCK
             hierarchical = (format == NC_FORMAT_NETCDF4) || (format == NC_FORMAT_NETCDF4_CLASSIC);
         }
 
-        idamLog(LOG_DEBUG, "netCDF hierarchical organisation ? %d\n", hierarchical);
+        IDAM_LOGF(LOG_DEBUG, "hierarchical organisation ? %d\n", hierarchical);
 
 //----------------------------------------------------------------------
 // FUDGE for netcdf-3 TRANSP data (This won't work if the source alias is unknown, e.g. when private file)
 
-        //if(hierarchical && !strcmp(signal_desc->source_alias, "transp")) hierarchical = 0;
+        //if(hierarchical && STR_EQUALS(signal_desc->source_alias, "transp")) hierarchical = 0;
 
 //----------------------------------------------------------------------
 // Global Meta Data: What convention has been adopted? Data Class?
@@ -274,7 +274,7 @@ int readerCDF4(DATA_SOURCE* data_source, SIGNAL_DESC* signal_desc, REQUEST_BLOCK
                     }
                     conventions[attlen] = '\0';        // Ensure Null terminated
                 }
-                idamLog(LOG_DEBUG, "netCDF file Conventions?  %s\n", conventions);
+                IDAM_LOGF(LOG_DEBUG, "file Conventions?  %s\n", conventions);
 
                 if (conventions[0] != '\0') {
 
@@ -296,7 +296,7 @@ int readerCDF4(DATA_SOURCE* data_source, SIGNAL_DESC* signal_desc, REQUEST_BLOCK
                 free((void*) conventions);
             }
 
-            idamLog(LOG_DEBUG, "netCDF file compliance?  %d\n", compliance);
+            IDAM_LOGF(LOG_DEBUG, "file compliance?  %d\n", compliance);
 
             if (compliance) {
                 attlen = 0;
@@ -340,13 +340,13 @@ int readerCDF4(DATA_SOURCE* data_source, SIGNAL_DESC* signal_desc, REQUEST_BLOCK
                         classification[attlen] = '\0';        // Ensure Null terminated
                     }
 
-                    if (!strcasecmp(classification, "raw data")) {
+                    if (STR_IEQUALS(classification, "raw data")) {
                         class = RAW_DATA;
                     } else {
-                        if (!strcasecmp(classification, "analysed data")) {
+                        if (STR_IEQUALS(classification, "analysed data")) {
                             class = ANALYSED_DATA;
                         } else {
-                            if (!strcasecmp(classification, "modelled data")) {
+                            if (STR_IEQUALS(classification, "modelled data")) {
                                 class = MODELLED_DATA;
                             }
                         }
@@ -357,7 +357,7 @@ int readerCDF4(DATA_SOURCE* data_source, SIGNAL_DESC* signal_desc, REQUEST_BLOCK
             }
         }
 
-        idamLog(LOG_DEBUG, "netCDF file class?  %d\n", class);
+        IDAM_LOGF(LOG_DEBUG, "file class?  %d\n", class);
 
 //----------------------------------------------------------------------
 // Complex Data Types (Done once per file if the Conventions are for FUSION and MAST)
@@ -373,8 +373,8 @@ int readerCDF4(DATA_SOURCE* data_source, SIGNAL_DESC* signal_desc, REQUEST_BLOCK
                     //if ((err = nc_inq_compound_name(fd, (nc_type)typeids[i], typename)) != NC_NOERR) break;
                     typename[0] = '\0';
                     nc_inq_compound_name(fd, typeids[i], typename);        // ignore non-compound types
-                    if (!strcmp(typename, "complex")) ctype = typeids[i];
-                    if (!strcmp(typename, "dcomplex")) dctype = typeids[i];
+                    if (STR_EQUALS(typename, "complex")) ctype = typeids[i];
+                    if (STR_EQUALS(typename, "dcomplex")) dctype = typeids[i];
                 }
             } while (0);
             if (typeids != NULL) free((void*) typeids);
@@ -393,17 +393,17 @@ int readerCDF4(DATA_SOURCE* data_source, SIGNAL_DESC* signal_desc, REQUEST_BLOCK
 // ***** This assumes a 3 letter source_alias name prefix !!!!!
 
         if (compliance) {
-            if (!strncmp(&signal_desc->signal_name[4], "/devices/", 9)) {        //   /xyc/devices/...
+            if (STR_EQUALS(&signal_desc->signal_name[4], "/devices/")) {        //   /xyc/devices/...
                 strncpy(variable, &signal_desc->signal_name[1], 3);
                 variable[3] = '\0';
-                idamLog(LOG_DEBUG, "devices signal requested\n");
-                idamLog(LOG_DEBUG, "source alias: [%s]\n", variable);
-                idamLog(LOG_DEBUG, "source alias: [%s]\n", signal_desc->signal_alias);
-                if (!strcmp(signal_desc->signal_alias, variable)) {
+                IDAM_LOG(LOG_DEBUG, "devices signal requested\n");
+                IDAM_LOGF(LOG_DEBUG, "source alias: [%s]\n", variable);
+                IDAM_LOGF(LOG_DEBUG, "source alias: [%s]\n", signal_desc->signal_alias);
+                if (STR_EQUALS(signal_desc->signal_alias, variable)) {
                     strcpy(variable, &signal_desc->signal_name[4]);
                     strcpy(signal_desc->signal_name, variable);
-                    idamLog(LOG_DEBUG, "Not recorded in Database: Removing source alias prefix\n");
-                    idamLog(LOG_DEBUG, "Target signal: %s\n", signal_desc->signal_name);
+                    IDAM_LOG(LOG_DEBUG, "Not recorded in Database: Removing source alias prefix\n");
+                    IDAM_LOGF(LOG_DEBUG, "Target signal: %s\n", signal_desc->signal_name);
                 }
             }
         }
@@ -419,7 +419,7 @@ int readerCDF4(DATA_SOURCE* data_source, SIGNAL_DESC* signal_desc, REQUEST_BLOCK
 
         strcpy(variable, signal_desc->signal_name);
 
-        idamLog(LOG_DEBUG, "netCDF signal name?  %s\n", variable);
+        IDAM_LOGF(LOG_DEBUG, "signal name?  %s\n", variable);
 
         if (hierarchical) {
             char* p = NULL;
@@ -444,7 +444,7 @@ int readerCDF4(DATA_SOURCE* data_source, SIGNAL_DESC* signal_desc, REQUEST_BLOCK
             grpids = (int*) malloc(sizeof(int) * numgrps);
             grpids[0] = fd;
 
-            if (strcmp(group, "/") != 0) {                // Not required if Top Level Group
+            if (!STR_EQUALS(group, "/")) {                // Not required if Top Level Group
 
                 work = (char*) malloc((strlen(group) + 1) * sizeof(char));
                 strcpy(work, &group[1]);                // Skip the leading '/' character
@@ -518,7 +518,7 @@ int readerCDF4(DATA_SOURCE* data_source, SIGNAL_DESC* signal_desc, REQUEST_BLOCK
             if (cdfsubset.subsetCount > NC_MAX_VAR_DIMS) {
                 err = 999;
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF", err,
-                             "Too many subset dimensions for netCDF: limit exceeded.");
+                             "Too many subset dimensions for limit exceeded.");
                 break;
             }
 
@@ -565,7 +565,7 @@ int readerCDF4(DATA_SOURCE* data_source, SIGNAL_DESC* signal_desc, REQUEST_BLOCK
             nc_type atttype;
             char* attname = NULL;
 
-            idamLog(LOG_DEBUG, "netCDF: variable not found ... trying other options ...\n");
+            IDAM_LOG(LOG_DEBUG, "variable not found ... trying other options ...\n");
 
 // Check it's not an unwritten Coordinate dataset (with the same name as the variable). If so then create an index array
 
@@ -579,7 +579,7 @@ int readerCDF4(DATA_SOURCE* data_source, SIGNAL_DESC* signal_desc, REQUEST_BLOCK
                     break;
                 }
                 data_block->data_n = (int) data_n;
-                idamLog(LOG_DEBUG, "netCDF: unwritten Coordinate dataset found.\n");
+                IDAM_LOG(LOG_DEBUG, "unwritten Coordinate dataset found.\n");
 
                 data_block->rank = 1;
                 data_block->order = -1;
@@ -655,7 +655,7 @@ int readerCDF4(DATA_SOURCE* data_source, SIGNAL_DESC* signal_desc, REQUEST_BLOCK
                                  "Unable to read Group Level Attribute data");
                     break;
                 }
-                idamLog(LOG_DEBUG, "netCDF: attribute attached to a group found.\n");
+                IDAM_LOG(LOG_DEBUG, "attribute attached to a group found.\n");
 
                 if (udt != NULL) {                // A User Defined Data Structure Type?
                     malloc_source = MALLOCSOURCENETCDF;
@@ -707,7 +707,7 @@ int readerCDF4(DATA_SOURCE* data_source, SIGNAL_DESC* signal_desc, REQUEST_BLOCK
                                          "Unable to read Group Level Attribute data");
                             break;
                         }
-                        idamLog(LOG_DEBUG, "netCDF: attribute attached to a variable found.\n");
+                        IDAM_LOG(LOG_DEBUG, "attribute attached to a variable found.\n");
 
                         if (udt != NULL) {                // A User Defined Data Structure Type?
                             malloc_source = MALLOCSOURCENETCDF;
@@ -753,7 +753,7 @@ int readerCDF4(DATA_SOURCE* data_source, SIGNAL_DESC* signal_desc, REQUEST_BLOCK
             subtree = 0;
 
             if (hierarchical && cdfsubset.subsetCount == 0 &&
-                ((numgrp == 1 && !strcmp(signal_desc->signal_name, "/")) ||
+                ((numgrp == 1 && STR_EQUALS(signal_desc->signal_name, "/")) ||
                  ((rc = getGroupId(grpid, variable, &subtree)) == NC_NOERR))) {
 
                 USERDEFINEDTYPE usertype;
@@ -763,11 +763,11 @@ int readerCDF4(DATA_SOURCE* data_source, SIGNAL_DESC* signal_desc, REQUEST_BLOCK
                         &userdefinedtypelist);                // Allocate and Copy the Master User Defined Type List
                 initHGroup(&hgroups);
 
-                idamLog(LOG_DEBUG, "netCDF: Tree or sub-tree found.\n");
+                IDAM_LOG(LOG_DEBUG, "Tree or sub-tree found.\n");
 
 // Target all User Defined types within the scope of this sub-tree Root node (unless root node is also sub-tree node: Prevents duplicate definitions)
 
-                if (subtree == 0 && numgrp == 1 && !strcmp(signal_desc->signal_name, "/")) {
+                if (subtree == 0 && numgrp == 1 && STR_EQUALS(signal_desc->signal_name, "/")) {
                     subtree = grpid;        // getCDF4SubTreeMeta  will call getCDF4SubTreeUserDefinedTypes for the root group
                 } else {
                     err = getCDF4SubTreeUserDefinedTypes(grpid, &grouplist, userdefinedtypelist);
@@ -781,16 +781,16 @@ int readerCDF4(DATA_SOURCE* data_source, SIGNAL_DESC* signal_desc, REQUEST_BLOCK
                     break;
                 }
 
-                idamLog(LOG_DEBUG, "\nreadCDF4: updating User Defined Type table\n");
+                IDAM_LOG(LOG_DEBUG, "\nupdating User Defined Type table\n");
 
                 updateUdt(&hgroups, userdefinedtypelist);        // Locate udt pointers using list array index values
 
-                idamLog(LOG_DEBUG, "\nreadCDF4: printing User Defined Type table\n");
+                IDAM_LOG(LOG_DEBUG, "\nprinting User Defined Type table\n");
                 printUserDefinedTypeListTable(*userdefinedtypelist);
 
 // Read all Data and Create the Sub-Tree structure
 
-                idamLog(LOG_DEBUG, "\nreadCDF4: Creating sub-tree data structure\n");
+                IDAM_LOG(LOG_DEBUG, "\nCreating sub-tree data structure\n");
 
                 err = getCDF4SubTreeData((void**) &data_block->data, &hgroups.group[0], &hgroups);
 
@@ -805,7 +805,7 @@ int readerCDF4(DATA_SOURCE* data_source, SIGNAL_DESC* signal_desc, REQUEST_BLOCK
                     data_block->opaque_block = (void*) hgroups.group[0].udt;
                 }
 
-                idamLog(LOG_DEBUG, "\nreadCDF4: Freeing HGroups\n");
+                IDAM_LOG(LOG_DEBUG, "\nFreeing HGroups\n");
 
                 freeHGroups(&hgroups);
 
@@ -1330,10 +1330,10 @@ int readerCDF4(DATA_SOURCE* data_source, SIGNAL_DESC* signal_desc, REQUEST_BLOCK
 // Is this the TIME dimension?
 
             if (compliance) {
-                if (!strcmp(classtxt, "time")) data_block->order = ii;    // Yes it is!
+                if (STR_EQUALS(classtxt, "time")) data_block->order = ii;    // Yes it is!
             } else {
-                if (!strcasecmp(data_block->dims[ii].dim_label, "time") ||
-                    !strcasecmp(data_block->dims[ii].dim_label, "time3"))
+                if (STR_IEQUALS(data_block->dims[ii].dim_label, "time") ||
+                    STR_IEQUALS(data_block->dims[ii].dim_label, "time3"))
                     data_block->order = ii;    // Simple (& very poor) test for Time Dimension!
 
                 if (!isIndex) {
@@ -1403,7 +1403,7 @@ int readerCDF4(DATA_SOURCE* data_source, SIGNAL_DESC* signal_desc, REQUEST_BLOCK
     if (dextent != NULL) free((void*) dextent);
 
     rc = gettimeofday(&tv_end0, NULL);
-    idamLog(LOG_DEBUG, "\n\nreadCDF4 Total Time: %.2f (ms)\n\n",
+    IDAM_LOGF(LOG_DEBUG, "\n\nTotal Time: %.2f (ms)\n\n",
             (float) (tv_end0.tv_sec - tv_start0.tv_sec) * 1.0E3 +
             (float) (tv_end0.tv_usec - tv_start0.tv_usec) *
             1.0E-3);
@@ -1453,7 +1453,7 @@ int getGroupId(int ncgrpid, char* target, int* targetid)
             return err;
         }
 
-        if (!strcmp(grpname, target)) {
+        if (STR_EQUALS(grpname, target)) {
             *targetid = ncids[i];            // Found - it exists!
             free((void*) grpname);
             free((void*) ncids);

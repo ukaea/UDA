@@ -223,7 +223,7 @@ void printMallocLogList();
 * @param type The name of the type allocated.  
 * @return void.
 */
-void addNonMalloc(void* stack, int count, int size, char* type);
+void addNonMalloc(void* stack, int count, size_t size, char* type);
 
 /** Add a stack memory location to the LOGMALLOCLIST data structure. These are not freed.  
 *
@@ -236,7 +236,7 @@ void addNonMalloc(void* stack, int count, int size, char* type);
  
 * @return void.
 */
-void addNonMalloc2(void* stack, int count, int size, char* type, int rank, int* shape);
+void addNonMalloc2(void* stack, int count, size_t size, char* type, int rank, int* shape);
 
 /** Add a heap memory location to the LOGMALLOCLIST data structure. These are freed.  
 *
@@ -246,7 +246,7 @@ void addNonMalloc2(void* stack, int count, int size, char* type, int rank, int* 
 * @param type The name of the type allocated. 
 * @return void.
 */
-void addMalloc(void* heap, int count, int size, char* type);
+void addMalloc(void* heap, int count, size_t size, char* type);
 
 /** Add a heap memory location to the LOGMALLOCLIST data structure. These are freed.  
 *
@@ -258,7 +258,7 @@ void addMalloc(void* heap, int count, int size, char* type);
 * @param shape The shape of the allocated array. Only required when rank > 1.
 * @return void.
 */
-void addMalloc2(void* heap, int count, int size, char* type, int rank, int* shape);
+void addMalloc2(void* heap, int count, size_t size, char* type, int rank, int* shape);
 
 /** Change the logged memory location to a new location (necessary with realloc).  
 *
@@ -269,7 +269,7 @@ void addMalloc2(void* heap, int count, int size, char* type, int rank, int* shap
 * @param type The name of the type allocated.  
 * @return void.
 */
-void changeMalloc(void* old, void* anew, int count, int size, char* type);
+void changeMalloc(void* old, void* anew, int count, size_t size, char* type);
 
 /** Change the logged memory location to a new location (necessary with realloc).  
 *
@@ -280,7 +280,7 @@ void changeMalloc(void* old, void* anew, int count, int size, char* type);
 * @param type The name of the type allocated.  
 * @return void.
 */
-void changeNonMalloc(void* old, void* anew, int count, int size, char* type);
+void changeNonMalloc(void* old, void* anew, int count, size_t size, char* type);
 
 int dupCountMallocLog(LOGMALLOCLIST* str);
 

@@ -13,8 +13,6 @@
 #include "ual_low_level_mdsplus.h"
 #include "imas_mds.h"
 
-#define EXPORT
-
 #define MAX_OPEN_EXP 10000
 #define IS_MDS 1
 #define IS_HDF5 2

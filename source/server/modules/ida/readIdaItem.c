@@ -5,11 +5,11 @@
 #include <stdlib.h>
 #include <ida3.h>
 
-#include <logging/idamLog.h>
-#include <clientserver/idamTypes.h>
-#include <clientserver/idamErrorLog.h>
 #include <clientserver/initStructs.h>
-#include <include/idamclientserverprivate.h>
+#include <clientserver/udaTypes.h>
+#include <clientserver/stringUtils.h>
+#include <logging/logging.h>
+#include <clientserver/errorLog.h>
 
 #define SWAPXY
 
@@ -18,7 +18,6 @@ void addxmlmetastring(char** metaxml, int* lheap, char* xml, int* nxml);
 void addxmlmetaarray(char** metaxml, int* lheap, char* tag, void* data, int ndata, int type, int* nxml);
 
 void idaclasses(int class, char* label, char* axes, int* datarank, int* timeorder);
-
 
 int itemType(unsigned short datpck, short typeno, int getbytes, char* type)
 {
@@ -37,8 +36,7 @@ int itemType(unsigned short datpck, short typeno, int getbytes, char* type)
                 if ((datpck & IDA_D4) == IDA_D4) data_type = TYPE_INT;
                 if ((datpck & IDA_D8) == IDA_D8) data_type = TYPE_LONG64;
             } else {                            // Calibration Applied
-                if (typeno == 6 && !strcmp(type, "scalar")) {
-// 31Oct08     if((datpck & IDA_D1) == IDA_D1) data_type = TYPE_SHORT;
+                if (typeno == 6 && STR_EQUALS(type, "scalar")) {
                     if ((datpck & IDA_D1) == IDA_D1) data_type = TYPE_CHAR;
                     if ((datpck & IDA_D2) == IDA_D2) data_type = TYPE_SHORT;
                     if ((datpck & IDA_D4) == IDA_D4) data_type = TYPE_INT;
@@ -60,20 +58,15 @@ int itemType(unsigned short datpck, short typeno, int getbytes, char* type)
         } else {
             if ((datpck & IDA_INTG) == IDA_INTG) {                // Unsigned Integer types
                 if ((datpck & IDA_VALU) == IDA_VALU) {
-// 22Sep08     if((datpck & IDA_D1) == IDA_D1) data_type = TYPE_CHAR;	// Calibration Not applied
-// 22Sep08     if((datpck & IDA_D2) == IDA_D2) data_type = TYPE_UNSIGNED;
                     if ((datpck & IDA_D1) == IDA_D1) data_type = TYPE_UNSIGNED_CHAR;
                     if ((datpck & IDA_D2) == IDA_D2) data_type = TYPE_UNSIGNED_SHORT;
                     if ((datpck & IDA_D4) == IDA_D4) data_type = TYPE_UNSIGNED;
                     if ((datpck & IDA_D8) == IDA_D8) data_type = TYPE_UNSIGNED_LONG64;
                 } else {
-                    if (typeno == 6 && !strcmp(type, "scalar")) {
-// 22Sep08        if((datpck & IDA_D1) == IDA_D1) data_type = TYPE_UNSIGNED;
-// 22Sep08        if((datpck & IDA_D2) == IDA_D2) data_type = TYPE_UNSIGNED;
+                    if (typeno == 6 && STR_EQUALS(type, "scalar")) {
                         if ((datpck & IDA_D1) == IDA_D1) data_type = TYPE_UNSIGNED_CHAR;
                         if ((datpck & IDA_D2) == IDA_D2) data_type = TYPE_UNSIGNED_SHORT;
                         if ((datpck & IDA_D4) == IDA_D4) data_type = TYPE_UNSIGNED;
-// 22Sep08        if((datpck & IDA_D8) == IDA_D8) data_type = TYPE_LONG;
                         if ((datpck & IDA_D8) == IDA_D8) data_type = TYPE_UNSIGNED_LONG64;
                     } else {
                         if (!getbytes) {
@@ -133,7 +126,7 @@ int errorType(unsigned short datpck, short typeno, int getbytes, char* type)
                 if ((datpck & IDA_E4) == IDA_E4) data_type = TYPE_INT;
                 if ((datpck & IDA_E8) == IDA_E8) data_type = TYPE_LONG64;
             } else {
-                if (typeno == 6 && !strcmp(type, "scalar")) {
+                if (typeno == 6 && STR_EQUALS(type, "scalar")) {
 // 31Oct08     if((datpck & IDA_E1) == IDA_E1) data_type = TYPE_SHORT;
                     if ((datpck & IDA_E1) == IDA_E1) data_type = TYPE_CHAR;
                     if ((datpck & IDA_E2) == IDA_E2) data_type = TYPE_SHORT;
@@ -156,21 +149,16 @@ int errorType(unsigned short datpck, short typeno, int getbytes, char* type)
         } else {
             if ((datpck & IDA_INTG) == IDA_INTG) {
                 if ((datpck & IDA_VALU) == IDA_VALU) {
-// 22Sep08     if((datpck & IDA_E1) == IDA_E1) data_type = TYPE_CHAR;	// Calibration Not applied => Genuine Unsigned Integer types
-// 22Sep08     if((datpck & IDA_E2) == IDA_E2) data_type = TYPE_UNSIGNED;
                     if ((datpck & IDA_E1) == IDA_E1)
                         data_type = TYPE_UNSIGNED_CHAR;    // Calibration Not applied => Genuine Unsigned Integer types
                     if ((datpck & IDA_E2) == IDA_E2) data_type = TYPE_UNSIGNED_SHORT;
                     if ((datpck & IDA_E4) == IDA_E4) data_type = TYPE_UNSIGNED;
                     if ((datpck & IDA_E8) == IDA_E8) data_type = TYPE_UNSIGNED_LONG64;
                 } else {
-                    if (typeno == 6 && !strcmp(type, "scalar")) {
-// 22Sep08        if((datpck & IDA_E1) == IDA_E1) data_type = TYPE_UNSIGNED;
-// 22Sep08        if((datpck & IDA_E2) == IDA_E2) data_type = TYPE_UNSIGNED;
+                    if (typeno == 6 && STR_EQUALS(type, "scalar")) {
                         if ((datpck & IDA_E1) == IDA_E1) data_type = TYPE_UNSIGNED_CHAR;
                         if ((datpck & IDA_E2) == IDA_E2) data_type = TYPE_UNSIGNED_SHORT;
                         if ((datpck & IDA_E4) == IDA_E4) data_type = TYPE_UNSIGNED;
-// 22Sep08        if((datpck & IDA_E8) == IDA_E8) data_type = TYPE_LONG;
                         if ((datpck & IDA_E8) == IDA_E8) data_type = TYPE_UNSIGNED_LONG64;
                     } else {
                         if (!getbytes) {
@@ -1043,8 +1031,6 @@ int readIdaItem(char* itemname, ida_file_ptr* ida_file, short* context, DATA_BLO
     char dunits[IDA_USIZE + 1], dlabel[IDA_LSIZE + 1];
     char zunits[IDA_USIZE + 1], zlabel[IDA_LSIZE + 1];
 
-//  int count,i,j,k, countt,nchar;
-
     int i, j, rerr;
 
     long retshotnr, spaceused;
@@ -1064,10 +1050,10 @@ int readIdaItem(char* itemname, ida_file_ptr* ida_file, short* context, DATA_BLO
 
     char* data = NULL, * error = NULL;
 
-    short locn;            // Data Aquisition Device Location
-    short chan;            // Data Aquisition Device Channel Number
-    short typeno;            // Data Aquisition Device Type
-    char type[IDA_DSIZE];    // Data Aquisition Device Type
+    short locn;             // Data Aquisition Device Location
+    short chan;             // Data Aquisition Device Channel Number
+    short typeno;           // Data Aquisition Device Type
+    char type[IDA_DSIZE];   // Data Aquisition Device Type
 
 // IDA3 specific variables
 
@@ -1286,14 +1272,7 @@ int readIdaItem(char* itemname, ida_file_ptr* ida_file, short* context, DATA_BLO
         xmax = (float*) calloc(udoms, sizeof(float));
 
         err = ida_get_xinfo(item, udoms, xoff, xint, xmax, xsams, xunits, xlabel);
-        /*
-              if(CDAS_ERROR(err)){
-                 ida_error_mess(err, msg);
-                 addIdamError(&idamerrorstack, CODEERRORTYPE, "readIdaItem", 10, msg);
-                 rerr = -10;
-        	 break;
-              }
-        */
+
         xunits[IDA_USIZE] = '\0';
         xlabel[IDA_LSIZE] = '\0';
 

@@ -2170,7 +2170,7 @@ IDL_VPTR IDL_CDECL callidam(int argc, IDL_VPTR argv[], char* argk) {
                 handle = idamGenAPI(archive, device, signal, (int) exp_number, (int) pass);
             } else {
                 if (kw.isfile && kw.isformat) {
-                    if (exp_number > 0 && !strcasecmp(format, "ida") && strlen(file) == 3) {
+                    if (exp_number > 0 && STR_IEQUALS(format, "ida") && strlen(file) == 3) {
                         if (kw.debug) {
                             fprintf(stdout, "IDAM IDA API args: ('%s','%s',%ld,%ld)\n", file, signal,
                                     (long) pass, (long) exp_number);
@@ -4154,17 +4154,17 @@ void userhelp(FILE* fh, char* name) {
 
     fprintf(fh, "\nIDAM: MAST Universal Data Access\n\n");
 
-    if (!strcmp(name, "getida"))
+    if (STR_EQUALS(name, "getida"))
         for (i = 0; i < ngetidam - 1; i++) {
             fprintf(fh, "%s\n", help_getidam[i]);
         }
 
-    if (!strcmp(name, "getdata"))
+    if (STR_EQUALS(name, "getdata"))
         for (i = 0; i < ngetdata - 1; i++) {
             fprintf(fh, "%s\n", help_getdata[i]);
         }
 
-    if (!strcmp(name, "getdimdata"))
+    if (STR_EQUALS(name, "getdimdata"))
         for (i = 0; i < ngetdimdata - 1; i++) {
             fprintf(fh, "%s\n", help_getdimdata[i]);
         }

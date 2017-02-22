@@ -26,6 +26,7 @@
 #include <structures/struct.h>
 #include <server/managePluginFiles.h>
 #include <clientserver/initStructs.h>
+#include <clientserver/stringUtils.h>
 
 #include "readCDF4.h"
 
@@ -92,7 +93,7 @@ extern int idamCDF4(IDAM_PLUGIN_INTERFACE * idam_plugin_interface)
 // A list must be maintained to register these plugin calls to manage housekeeping.
 // Calls to plugins must also respect access policy and user authentication policy
 
-    if (housekeeping || !strcasecmp(request_block->function, "reset")) {
+    if (housekeeping || STR_IEQUALS(request_block->function, "reset")) {
 
         if (!init) return 0;        // Not previously initialised: Nothing to do!
 
@@ -108,15 +109,15 @@ extern int idamCDF4(IDAM_PLUGIN_INTERFACE * idam_plugin_interface)
 //----------------------------------------------------------------------------------------
 // Initialise 
 
-    if (!init || !strcasecmp(request_block->function, "init")
-        || !strcasecmp(request_block->function, "initialise")) {
+    if (!init || STR_IEQUALS(request_block->function, "init")
+        || STR_IEQUALS(request_block->function, "initialise")) {
 
         //cdfProperties = 0;
 
         initIdamPluginFileList(&pluginFileList);
 
         init = 1;
-        if (!strcasecmp(request_block->function, "init") || !strcasecmp(request_block->function, "initialise"))
+        if (STR_IEQUALS(request_block->function, "init") || STR_IEQUALS(request_block->function, "initialise"))
             return 0;
     }
 
@@ -128,7 +129,7 @@ extern int idamCDF4(IDAM_PLUGIN_INTERFACE * idam_plugin_interface)
 
 // Help: A Description of library functionality
 
-        if (!strcasecmp(request_block->function, "help")) {
+        if (STR_IEQUALS(request_block->function, "help")) {
 
             p = (char *) malloc(sizeof(char) * 2 * 1024);
 
@@ -163,7 +164,7 @@ extern int idamCDF4(IDAM_PLUGIN_INTERFACE * idam_plugin_interface)
 //----------------------------------------------------------------------------------------    
 // Standard methods: version, builddate, defaultmethod, maxinterfaceversion 
 
-        if (!strcasecmp(request_block->function, "version")) {
+        if (STR_IEQUALS(request_block->function, "version")) {
             initDataBlock(data_block);
             data_block->data_type = TYPE_INT;
             data_block->rank = 0;
@@ -179,7 +180,7 @@ extern int idamCDF4(IDAM_PLUGIN_INTERFACE * idam_plugin_interface)
 
 // Plugin Build Date
 
-        if (!strcasecmp(request_block->function, "builddate")) {
+        if (STR_IEQUALS(request_block->function, "builddate")) {
             initDataBlock(data_block);
             data_block->data_type = TYPE_STRING;
             data_block->rank = 0;
@@ -195,7 +196,7 @@ extern int idamCDF4(IDAM_PLUGIN_INTERFACE * idam_plugin_interface)
 
 // Plugin Default Method
 
-        if (!strcasecmp(request_block->function, "defaultmethod")) {
+        if (STR_IEQUALS(request_block->function, "defaultmethod")) {
             initDataBlock(data_block);
             data_block->data_type = TYPE_STRING;
             data_block->rank = 0;
@@ -211,7 +212,7 @@ extern int idamCDF4(IDAM_PLUGIN_INTERFACE * idam_plugin_interface)
 
 // Plugin Maximum Interface Version
 
-        if (!strcasecmp(request_block->function, "maxinterfaceversion")) {
+        if (STR_IEQUALS(request_block->function, "maxinterfaceversion")) {
             initDataBlock(data_block);
             data_block->data_type = TYPE_INT;
             data_block->rank = 0;
@@ -228,7 +229,7 @@ extern int idamCDF4(IDAM_PLUGIN_INTERFACE * idam_plugin_interface)
 //---------------------------------------------------------------------------------------- 
 // Read data from a netCDF4 File
 
-        if (!strcasecmp(request_block->function, "get")) {
+        if (STR_IEQUALS(request_block->function, "get")) {
 
 // If the client has specified a specific file, the path will be found at request_block->path
 // otherwise the path is determined by a query against the metadata catalog
@@ -246,7 +247,7 @@ extern int idamCDF4(IDAM_PLUGIN_INTERFACE * idam_plugin_interface)
 //---------------------------------------------------------------------------------------- 
 // Put data into a netCDF4 File
 
-        if (!strcasecmp(request_block->function, "put")) {
+        if (STR_IEQUALS(request_block->function, "put")) {
 
             err = 999;
             addIdamError(&idamerrorstack, CODEERRORTYPE, "newCDF4", err, "The PUT method has not yet been implemented");
@@ -257,7 +258,7 @@ extern int idamCDF4(IDAM_PLUGIN_INTERFACE * idam_plugin_interface)
 //---------------------------------------------------------------------------------------- 
 // Add additional functionality here ....
 
-        if (!strcasecmp(request_block->function, "test")) {
+        if (STR_IEQUALS(request_block->function, "test")) {
 
             p = (char *) malloc(sizeof(char) * 30);
 

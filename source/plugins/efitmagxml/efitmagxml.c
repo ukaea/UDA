@@ -86,8 +86,8 @@ int efitmagxml(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     unsigned short int isReset = 0;
     for (i = 0; i < request_block->nameValueList.pairCount; i++) {
-        if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "reset") ||
-            !strcasecmp(request_block->nameValueList.nameValue[i].name, "initialise")) {
+        if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "reset") ||
+            STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "initialise")) {
             isReset = 1;
             break;
         }
@@ -107,7 +107,7 @@ int efitmagxml(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 // A list must be maintained to register these plugin calls to manage housekeeping.
 // Calls to plugins must also respect access policy and user authentication policy
 
-    if (isReset || housekeeping || !strcasecmp(request_block->function, "reset")) {
+    if (isReset || housekeeping || STR_IEQUALS(request_block->function, "reset")) {
 
         if (!init) return 0;        // Not previously initialised: Nothing to do!
 
@@ -123,8 +123,8 @@ int efitmagxml(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 //----------------------------------------------------------------------------------------
 // Initialise 
 
-    if (!init || !strcasecmp(request_block->function, "init")
-        || !strcasecmp(request_block->function, "initialise")) {
+    if (!init || STR_IEQUALS(request_block->function, "init")
+        || STR_IEQUALS(request_block->function, "initialise")) {
 
 // EFIT Data Structures
 
@@ -135,7 +135,7 @@ int efitmagxml(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         char* xmlFile = NULL;
         unsigned short int isXmlFile = 0;
         for (i = 0; i < request_block->nameValueList.pairCount; i++) {
-            if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "xmlfile")) {
+            if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "xmlfile")) {
                 isXmlFile = 1;
                 xmlFile = request_block->nameValueList.nameValue[i].value;
                 break;
@@ -151,7 +151,7 @@ int efitmagxml(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         }
 
         init = 1;
-        if (!strcasecmp(request_block->function, "init") || !strcasecmp(request_block->function, "initialise")) {
+        if (STR_IEQUALS(request_block->function, "init") || STR_IEQUALS(request_block->function, "initialise")) {
             return 0;
         }
     }
@@ -173,61 +173,61 @@ int efitmagxml(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
         for (i = 0; i < request_block->nameValueList.pairCount; i++) {
 
-            if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "id")) {
+            if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "id")) {
                 isObjectId = 1;
                 objectId = atoi(request_block->nameValueList.nameValue[i].value);
                 continue;
             }
-            if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "FluxLoop")) {
+            if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "FluxLoop")) {
                 isFluxLoop = 1;
                 continue;
             }
-            if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "MagProbe")) {
+            if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "MagProbe")) {
                 isMagProbe = 1;
                 continue;
             }
-            if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "Position")) {
+            if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "Position")) {
                 isPosition = 1;
                 continue;
             }
-            if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "Count")) {
+            if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "Count")) {
                 isCount = 1;
                 continue;
             }
-            if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "index")) {
+            if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "index")) {
                 isIndex = 1;
                 index = atoi(request_block->nameValueList.nameValue[i].value);
                 continue;
             }
-            if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "R")) {
+            if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "R")) {
                 isR = 1;
                 continue;
             }
-            if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "Z")) {
+            if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "Z")) {
                 isZ = 1;
                 continue;
             }
-            if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "Phi")) {
+            if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "Phi")) {
                 isPhi = 1;
                 continue;
             }
-            if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "Signal")) {
+            if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "Signal")) {
                 isSignal = 1;
                 continue;
             }
-            if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "Name")) {
+            if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "Name")) {
                 isName = 1;
                 continue;
             }
-            if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "Identifier")) {
+            if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "Identifier")) {
                 isIdentifier = 1;
                 continue;
             }
-            if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "UnitStartIndex")) {
+            if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "UnitStartIndex")) {
                 isUnitStartIndex = 1;
                 continue;
             }
-            if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "Device")) {
+            if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "Device")) {
                 isDevice = 1;
                 continue;
             }
@@ -269,7 +269,7 @@ ToDo:
 
 */
 
-        if (!strcasecmp(request_block->function, "get")) {
+        if (STR_IEQUALS(request_block->function, "get")) {
             initDataBlock(data_block);
 
             int count = 0;
@@ -373,7 +373,7 @@ ToDo:
 
 // Help: A Description of library functionality
 
-        if (!strcasecmp(request_block->function, "help")) {
+        if (STR_IEQUALS(request_block->function, "help")) {
 
             char* p = (char*) malloc(sizeof(char) * 2 * 1024);
 
@@ -408,7 +408,7 @@ ToDo:
 //----------------------------------------------------------------------------------------    
 // Standard methods: version, builddate, defaultmethod, maxinterfaceversion 
 
-        if (!strcasecmp(request_block->function, "version")) {
+        if (STR_IEQUALS(request_block->function, "version")) {
             initDataBlock(data_block);
             data_block->data_type = TYPE_INT;
             data_block->rank = 0;
@@ -424,7 +424,7 @@ ToDo:
 
 // Plugin Build Date
 
-        if (!strcasecmp(request_block->function, "builddate")) {
+        if (STR_IEQUALS(request_block->function, "builddate")) {
             initDataBlock(data_block);
             data_block->data_type = TYPE_STRING;
             data_block->rank = 0;
@@ -440,7 +440,7 @@ ToDo:
 
 // Plugin Default Method
 
-        if (!strcasecmp(request_block->function, "defaultmethod")) {
+        if (STR_IEQUALS(request_block->function, "defaultmethod")) {
             initDataBlock(data_block);
             data_block->data_type = TYPE_STRING;
             data_block->rank = 0;
@@ -456,7 +456,7 @@ ToDo:
 
 // Plugin Maximum Interface Version
 
-        if (!strcasecmp(request_block->function, "maxinterfaceversion")) {
+        if (STR_IEQUALS(request_block->function, "maxinterfaceversion")) {
             initDataBlock(data_block);
             data_block->data_type = TYPE_INT;
             data_block->rank = 0;

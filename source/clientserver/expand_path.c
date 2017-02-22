@@ -314,7 +314,7 @@ int pathReplacement(char* path)
                 lpath = 0;
                 match = 1;                    // Test path tokens against target tokens
                 for (j = 0; j < targetCount; j++) {
-                    match = match && (!strcmp(targetList[j], pathList[j]) || targetList[j][0] == '*');
+                    match = match && (STR_EQUALS(targetList[j], pathList[j]) || targetList[j][0] == '*');
                     lpath = lpath + (int) strlen(pathList[j]) + 1;    // Find the split point
                     if (!match) break;
                 }

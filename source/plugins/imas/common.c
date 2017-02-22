@@ -4,12 +4,11 @@
 
 #include <stddef.h>
 #include <string.h>
-#include <malloc.h>
+#include <stdlib.h>
 
 #include <clientserver/stringUtils.h>
 #include <clientserver/udaTypes.h>
 #include <clientserver/errorLog.h>
-#include <include/idamclientserverprivate.h>
 #include <logging/logging.h>
 
 // Extract list
@@ -298,23 +297,23 @@ int getIdamNameValuePairVarArray(char* values, char quote, char delimiter, unsig
 
 int findIdamType(char* typeName) {
     if (typeName == NULL) return (TYPE_UNDEFINED);
-    if (!strcasecmp(typeName, "byte")) return TYPE_CHAR;
-    if (!strcasecmp(typeName, "char")) return TYPE_CHAR;
-    if (!strcasecmp(typeName, "short")) return TYPE_SHORT;
-    if (!strcasecmp(typeName, "int")) return TYPE_INT;
-    if (!strcasecmp(typeName, "int64")) return TYPE_LONG64;
-    if (!strcasecmp(typeName, "float")) return TYPE_FLOAT;
-    if (!strcasecmp(typeName, "double")) return TYPE_DOUBLE;
-    if (!strcasecmp(typeName, "ubyte")) return TYPE_UNSIGNED_CHAR;
-    if (!strcasecmp(typeName, "ushort")) return TYPE_UNSIGNED_SHORT;
-    if (!strcasecmp(typeName, "uint")) return TYPE_UNSIGNED_INT;
-    if (!strcasecmp(typeName, "uint64")) return TYPE_UNSIGNED_LONG64;
-    if (!strcasecmp(typeName, "text")) return TYPE_STRING;
-    if (!strcasecmp(typeName, "string")) return TYPE_STRING;
-    if (!strcasecmp(typeName, "vlen")) return TYPE_VLEN;
-    if (!strcasecmp(typeName, "compound")) return TYPE_COMPOUND;
-    if (!strcasecmp(typeName, "opaque")) return TYPE_OPAQUE;
-    if (!strcasecmp(typeName, "enum")) return TYPE_ENUM;
+    if (STR_IEQUALS(typeName, "byte")) return TYPE_CHAR;
+    if (STR_IEQUALS(typeName, "char")) return TYPE_CHAR;
+    if (STR_IEQUALS(typeName, "short")) return TYPE_SHORT;
+    if (STR_IEQUALS(typeName, "int")) return TYPE_INT;
+    if (STR_IEQUALS(typeName, "int64")) return TYPE_LONG64;
+    if (STR_IEQUALS(typeName, "float")) return TYPE_FLOAT;
+    if (STR_IEQUALS(typeName, "double")) return TYPE_DOUBLE;
+    if (STR_IEQUALS(typeName, "ubyte")) return TYPE_UNSIGNED_CHAR;
+    if (STR_IEQUALS(typeName, "ushort")) return TYPE_UNSIGNED_SHORT;
+    if (STR_IEQUALS(typeName, "uint")) return TYPE_UNSIGNED_INT;
+    if (STR_IEQUALS(typeName, "uint64")) return TYPE_UNSIGNED_LONG64;
+    if (STR_IEQUALS(typeName, "text")) return TYPE_STRING;
+    if (STR_IEQUALS(typeName, "string")) return TYPE_STRING;
+    if (STR_IEQUALS(typeName, "vlen")) return TYPE_VLEN;
+    if (STR_IEQUALS(typeName, "compound")) return TYPE_COMPOUND;
+    if (STR_IEQUALS(typeName, "opaque")) return TYPE_OPAQUE;
+    if (STR_IEQUALS(typeName, "enum")) return TYPE_ENUM;
     return (TYPE_UNDEFINED);
 }
 
@@ -354,23 +353,23 @@ char* convertIdam2StringType(int type) {
 
 int findHDF5Type(char* typeName) {
     return 0;
-//    if (!strcasecmp(typeName, "byte")) return H5T_NATIVE_SCHAR;
-//    if (!strcasecmp(typeName, "char")) return H5T_NATIVE_CHAR;
-//    if (!strcasecmp(typeName, "short")) return H5T_NATIVE_SHORT;
-//    if (!strcasecmp(typeName, "int")) return H5T_NATIVE_INT;
-//    if (!strcasecmp(typeName, "int64")) return H5T_NATIVE_LLONG;
-//    if (!strcasecmp(typeName, "float")) return H5T_NATIVE_FLOAT;
-//    if (!strcasecmp(typeName, "double")) return H5T_NATIVE_DOUBLE;
-//    if (!strcasecmp(typeName, "ubyte")) return H5T_NATIVE_UCHAR;
-//    if (!strcasecmp(typeName, "ushort")) return H5T_NATIVE_USHORT;
-//    if (!strcasecmp(typeName, "uint")) return H5T_NATIVE_UINT;
-//    if (!strcasecmp(typeName, "uint64")) return H5T_NATIVE_ULLONG;
-//    if (!strcasecmp(typeName, "text")) return H5T_C_S1;
-//    if (!strcasecmp(typeName, "string")) return H5T_C_S1;
-//    //if(!strcasecmp(typeName, "vlen"))     return NC_VLEN;
-//    //if(!strcasecmp(typeName, "compound")) return NC_COMPOUND;
-//    //if(!strcasecmp(typeName, "opaque"))   return NC_OPAQUE;
-//    //if(!strcasecmp(typeName, "enum"))     return NC_ENUM;
+//    if (STR_IEQUALS(typeName, "byte")) return H5T_NATIVE_SCHAR;
+//    if (STR_IEQUALS(typeName, "char")) return H5T_NATIVE_CHAR;
+//    if (STR_IEQUALS(typeName, "short")) return H5T_NATIVE_SHORT;
+//    if (STR_IEQUALS(typeName, "int")) return H5T_NATIVE_INT;
+//    if (STR_IEQUALS(typeName, "int64")) return H5T_NATIVE_LLONG;
+//    if (STR_IEQUALS(typeName, "float")) return H5T_NATIVE_FLOAT;
+//    if (STR_IEQUALS(typeName, "double")) return H5T_NATIVE_DOUBLE;
+//    if (STR_IEQUALS(typeName, "ubyte")) return H5T_NATIVE_UCHAR;
+//    if (STR_IEQUALS(typeName, "ushort")) return H5T_NATIVE_USHORT;
+//    if (STR_IEQUALS(typeName, "uint")) return H5T_NATIVE_UINT;
+//    if (STR_IEQUALS(typeName, "uint64")) return H5T_NATIVE_ULLONG;
+//    if (STR_IEQUALS(typeName, "text")) return H5T_C_S1;
+//    if (STR_IEQUALS(typeName, "string")) return H5T_C_S1;
+//    //if(STR_IEQUALS(typeName, "vlen"))     return NC_VLEN;
+//    //if(STR_IEQUALS(typeName, "compound")) return NC_COMPOUND;
+//    //if(STR_IEQUALS(typeName, "opaque"))   return NC_OPAQUE;
+//    //if(STR_IEQUALS(typeName, "enum"))     return NC_ENUM;
 //    return 0;
 }
 

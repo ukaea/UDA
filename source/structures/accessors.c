@@ -48,6 +48,7 @@
 
 #include <logging/logging.h>
 #include <stdlib.h>
+#include <clientserver/stringUtils.h>
 
 #include "struct.h"
 
@@ -75,7 +76,7 @@ NTREE * findNTreeStructureComponent1(NTREE * ntree, const char * target)
 
 // Is it the name of the current tree node?
 
-    if (!strcmp(ntree->name, target)) return (ntree);
+    if (STR_EQUALS(ntree->name, target)) return (ntree);
 
 // Recursively Search Child nodes for structured type data
 
@@ -86,7 +87,7 @@ NTREE * findNTreeStructureComponent1(NTREE * ntree, const char * target)
 // Search the components of this node for atomic types
 
     for (i = 0; i < ntree->userdefinedtype->fieldcount; i++) {
-        if (!strcmp(ntree->userdefinedtype->compoundfield[i].name, target) &&
+        if (STR_EQUALS(ntree->userdefinedtype->compoundfield[i].name, target) &&
             ntree->userdefinedtype->compoundfield[i].atomictype != TYPE_UNKNOWN)
             return (ntree);
     }
@@ -142,7 +143,7 @@ NTREE * findNTreeStructureComponent2(NTREE * ntree, const char * target, const c
         for (i = 1; i < ntargets - 1; i++) {
             found = NULL;
             for (j = 0; j < child->branches; j++) {
-                if (!strcmp(child->children[j]->name, targetlist[i])) {
+                if (STR_EQUALS(child->children[j]->name, targetlist[i])) {
                     found = child->children[j];
                     break;
                 }
@@ -158,7 +159,7 @@ NTREE * findNTreeStructureComponent2(NTREE * ntree, const char * target, const c
 // Search the user defined type definition for the last name - return if an atomic type
 
         for (i = 0; i < child->userdefinedtype->fieldcount; i++) {
-            if (!strcmp(child->userdefinedtype->compoundfield[i].name, targetlist[ntargets - 1]) &&
+            if (STR_EQUALS(child->userdefinedtype->compoundfield[i].name, targetlist[ntargets - 1]) &&
                 child->userdefinedtype->compoundfield[i].atomictype != TYPE_UNKNOWN)
                 return (child);  // Atomic type found
         }
@@ -166,7 +167,7 @@ NTREE * findNTreeStructureComponent2(NTREE * ntree, const char * target, const c
 // Search child nodes for structured types
 
         for (j = 0; j < child->branches; j++) {
-            if (!strcmp(child->children[j]->name, targetlist[ntargets - 1])) return child->children[j];
+            if (STR_EQUALS(child->children[j]->name, targetlist[ntargets - 1])) return child->children[j];
         }
 
         return NULL;    // Not Found
@@ -226,7 +227,7 @@ NTREE * findNTreeStructureComponent2Legacy(NTREE * ntree, const char * target, c
     *lastname = target;
 
     for (i = 0; i < ntree->userdefinedtype->fieldcount; i++) {
-        if (!strcmp(ntree->userdefinedtype->compoundfield[i].name, target)) {
+        if (STR_EQUALS(ntree->userdefinedtype->compoundfield[i].name, target)) {
             return ntree;  // Test all structure components
         }
     }
@@ -300,12 +301,12 @@ NTREE * findNTreeStructure2(NTREE * ntree, const char * target, const char ** la
 
     *lastname = target;
 
-    if (!strcmp(ntree->name, target)) return ntree;  // Test the current Tree Node
+    if (STR_EQUALS(ntree->name, target)) return ntree;  // Test the current Tree Node
 
     // Search Child nodes
 
     for (i = 0; i < ntree->branches; i++) {
-        if (!strcmp(ntree->children[i]->name, target)) return ntree->children[i];
+        if (STR_EQUALS(ntree->children[i]->name, target)) return ntree->children[i];
     }
 
     return NULL;
@@ -444,7 +445,7 @@ NTREE * findNTreeStructureDefinition(NTREE * ntree, const char * target)
         return child;
     }
 
-    if (!strcmp(ntree->userdefinedtype->name, target)) return ntree;
+    if (STR_EQUALS(ntree->userdefinedtype->name, target)) return ntree;
     for (i = 0; i < ntree->branches; i++)
         if ((child = findNTreeStructureDefinition(ntree->children[i], target)) != NULL)return child;
     return NULL;
@@ -455,7 +456,7 @@ NTREE * xfindNTreeStructureDefinition(NTREE * tree, const char * target)
     int i;
     NTREE * next;
     if (tree == NULL) tree = fullNTree;
-    if (!strcmp(tree->userdefinedtype->name, target)) return tree;
+    if (STR_EQUALS(tree->userdefinedtype->name, target)) return tree;
     for (i = 0; i < tree->branches; i++)
         if ((next = findNTreeStructureDefinition(tree->children[i], target)) != NULL)return next;
     return NULL;
@@ -476,7 +477,7 @@ NTREE * findNTreeStructureComponentDefinition(NTREE * tree, const char * target)
     if (tree == NULL) tree = fullNTree;
     for (i = 0; i < tree->userdefinedtype->fieldcount; i++) {
         if (tree->userdefinedtype->compoundfield[i].atomictype == TYPE_UNKNOWN &&
-            !strcmp(tree->userdefinedtype->compoundfield[i].type, target)) {
+            STR_EQUALS(tree->userdefinedtype->compoundfield[i].type, target)) {
             return tree;
         }
     }
@@ -535,7 +536,7 @@ int idam_maxCountVlenStructureArray(NTREE * tree, const char * target, int reset
     static int count = 0;
     if (reset) count = 0;
     if (tree == NULL) tree = fullNTree;
-    if (tree->userdefinedtype->idamclass == TYPE_VLEN && !strcmp(tree->userdefinedtype->name, target)) {
+    if (tree->userdefinedtype->idamclass == TYPE_VLEN && STR_EQUALS(tree->userdefinedtype->name, target)) {
         VLENTYPE * vlen = (VLENTYPE *) tree->data;
         if (vlen->len > count) count = vlen->len;
     }
@@ -565,7 +566,7 @@ int idam_regulariseVlenStructures(NTREE * tree, const char * target, int count)
     int i, rc = 0, size = 0, resetBranches = 0;
     void * old = NULL, * newnew = NULL;
     if (tree == NULL) tree = fullNTree;
-    if (tree->userdefinedtype->idamclass == TYPE_VLEN && !strcmp(tree->userdefinedtype->name, target)) {
+    if (tree->userdefinedtype->idamclass == TYPE_VLEN && STR_EQUALS(tree->userdefinedtype->name, target)) {
         VLENTYPE * vlen = (VLENTYPE *) tree->data;
 
         // VLEN stuctures have only two fields: len and data

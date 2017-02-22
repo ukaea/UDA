@@ -2283,7 +2283,7 @@ IDL_VPTR IDL_CDECL getidamnodeatomicdata(int argc, IDL_VPTR argv[], char* argk) 
                     fflush(stdout);
                 }
             } else {
-                if (!strcmp(type, "STRING *")) {            // Array of Strings from Pointer
+                if (STR_EQUALS(type, "STRING *")) {            // Array of Strings from Pointer
                     if (kw.debug) {
                         fprintf(stdout, "String #2a\n");
                         fprintf(stdout, "[%s]   Rank: %d\tCount: %d\tType: %s\tPointer: %d\n", name, rank, count, type,

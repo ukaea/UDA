@@ -96,7 +96,7 @@ int mastImasPlugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     // A list must be maintained to register these plugin calls to manage housekeeping.
     // Calls to plugins must also respect access policy and user authentication policy
 
-    if (housekeeping || !strcasecmp(request_block->function, "reset")) {
+    if (housekeeping || STR_IEQUALS(request_block->function, "reset")) {
 
         if (!init) return 0;        // Not previously initialised: Nothing to do!
 
@@ -110,11 +110,11 @@ int mastImasPlugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     //----------------------------------------------------------------------------------------
     // Initialise
 
-    if (!init || !strcasecmp(request_block->function, "init")
-        || !strcasecmp(request_block->function, "initialise")) {
+    if (!init || STR_IEQUALS(request_block->function, "init")
+        || STR_IEQUALS(request_block->function, "initialise")) {
 
         init = 1;
-        if (!strcasecmp(request_block->function, "init") || !strcasecmp(request_block->function, "initialise"))
+        if (STR_IEQUALS(request_block->function, "init") || STR_IEQUALS(request_block->function, "initialise"))
             return 0;
     }
 
@@ -125,17 +125,17 @@ int mastImasPlugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     //----------------------------------------------------------------------------------------
     // Standard methods: version, builddate, defaultmethod, maxinterfaceversion
 
-    if (!strcasecmp(request_block->function, "help")) {
+    if (STR_IEQUALS(request_block->function, "help")) {
         err = do_help(idam_plugin_interface);
-    } else if (!strcasecmp(request_block->function, "version")) {
+    } else if (STR_IEQUALS(request_block->function, "version")) {
         err = do_version(idam_plugin_interface);
-    } else if (!strcasecmp(request_block->function, "builddate")) {
+    } else if (STR_IEQUALS(request_block->function, "builddate")) {
         err = do_builddate(idam_plugin_interface);
-    } else if (!strcasecmp(request_block->function, "defaultmethod")) {
+    } else if (STR_IEQUALS(request_block->function, "defaultmethod")) {
         err = do_defaultmethod(idam_plugin_interface);
-    } else if (!strcasecmp(request_block->function, "maxinterfaceversion")) {
+    } else if (STR_IEQUALS(request_block->function, "maxinterfaceversion")) {
         err = do_maxinterfaceversion(idam_plugin_interface);
-    } else if (!strcasecmp(request_block->function, "read")) {
+    } else if (STR_IEQUALS(request_block->function, "read")) {
         err = do_read(idam_plugin_interface);
     } else {
         //======================================================================================
@@ -422,52 +422,52 @@ int do_read_magnetics(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     int err = 0;
 
-    if (!strcmp(element, "magnetics/method/Size_of")) {
+    if (STR_EQUALS(element, "magnetics/method/Size_of")) {
         int* d = (int*)malloc(sizeof(int));
         d[0] = 1;
         data_block->data = (void*)d;
         data_block->data_n = 1;
         data_block->data_type = TYPE_INT;
-    } else if (!strcmp(element, "magnetics/flux_loop/Size_of")) {
+    } else if (STR_EQUALS(element, "magnetics/flux_loop/Size_of")) {
         flux_loops = get_names(db, "amb_fl%", shot, &num_flux_loops);
         data_block->data = malloc(sizeof(int));
         *((int*)data_block->data) = num_flux_loops;
         data_block->data_n = 1;
         data_block->data_type = TYPE_INT;
-    } else if (!strcmp(element, "magnetics/bpol_probe/Size_of")) {
+    } else if (STR_EQUALS(element, "magnetics/bpol_probe/Size_of")) {
         bpol_probes = get_names(db, "amb_cc%", shot, &num_bpol_probes);
         data_block->data = malloc(sizeof(int));
         *((int*)data_block->data) = num_bpol_probes;
         data_block->data_n = 1;
         data_block->data_type = TYPE_INT;
-    } else if (!strcmp(element, "magnetics/flux_loop/#/name")) {
+    } else if (STR_EQUALS(element, "magnetics/flux_loop/#/name")) {
         data_block->data = flux_loops[index];
         data_block->data_n = 1;
         data_block->data_type = TYPE_STRING;
-    } else if (!strcmp(element, "magnetics/flux_loop/#/identifier")) {
-    } else if (!strcmp(element, "magnetics/flux_loop/#/position/r")) {
-    } else if (!strcmp(element, "magnetics/flux_loop/#/position/z")) {
-    } else if (!strcmp(element, "magnetics/flux_loop/#/position/phi")) {
-    } else if (!strcmp(element, "magnetics/bpol_probe/#/name")) {
+    } else if (STR_EQUALS(element, "magnetics/flux_loop/#/identifier")) {
+    } else if (STR_EQUALS(element, "magnetics/flux_loop/#/position/r")) {
+    } else if (STR_EQUALS(element, "magnetics/flux_loop/#/position/z")) {
+    } else if (STR_EQUALS(element, "magnetics/flux_loop/#/position/phi")) {
+    } else if (STR_EQUALS(element, "magnetics/bpol_probe/#/name")) {
         data_block->data = bpol_probes[index];
         data_block->data_n = 1;
         data_block->data_type = TYPE_STRING;
-    } else if (!strcmp(element, "magnetics/bpol_probe/#/identifier")) {
-    } else if (!strcmp(element, "magnetics/bpol_probe/#/position/r")) {
-    } else if (!strcmp(element, "magnetics/bpol_probe/#/position/z")) {
-    } else if (!strcmp(element, "magnetics/bpol_probe/#/position/phi")) {
-    } else if (!strcmp(element, "magnetics/bpol_probe/#/poloidal_angle")) {
-    } else if (!strcmp(element, "magnetics/bpol_probe/#/toroidal_angle")) {
-    } else if (!strcmp(element, "magnetics/bpol_probe/#/area")) {
-    } else if (!strcmp(element, "magnetics/bpol_probe/#/length")) {
-    } else if (!strcmp(element, "magnetics/bpol_probe/#/turns")) {
-    } else if (!strcmp(element, "magnetics/flux_loop/#/flux")) {
+    } else if (STR_EQUALS(element, "magnetics/bpol_probe/#/identifier")) {
+    } else if (STR_EQUALS(element, "magnetics/bpol_probe/#/position/r")) {
+    } else if (STR_EQUALS(element, "magnetics/bpol_probe/#/position/z")) {
+    } else if (STR_EQUALS(element, "magnetics/bpol_probe/#/position/phi")) {
+    } else if (STR_EQUALS(element, "magnetics/bpol_probe/#/poloidal_angle")) {
+    } else if (STR_EQUALS(element, "magnetics/bpol_probe/#/toroidal_angle")) {
+    } else if (STR_EQUALS(element, "magnetics/bpol_probe/#/area")) {
+    } else if (STR_EQUALS(element, "magnetics/bpol_probe/#/length")) {
+    } else if (STR_EQUALS(element, "magnetics/bpol_probe/#/turns")) {
+    } else if (STR_EQUALS(element, "magnetics/flux_loop/#/flux")) {
         err = get_signal(idam_plugin_interface, flux_loops[index], shot);
-    } else if (!strcmp(element, "magnetics/bpol_probe/#/field")) {
+    } else if (STR_EQUALS(element, "magnetics/bpol_probe/#/field")) {
         err = get_signal(idam_plugin_interface, bpol_probes[index], shot);
-    } else if (!strcmp(element, "magnetics/method/#/ip")) {
+    } else if (STR_EQUALS(element, "magnetics/method/#/ip")) {
         err = get_signal(idam_plugin_interface, "AMC_PLASMA CURRENT", shot);
-    } else if (!strcmp(element, "magnetics/method/#/diamagnetic_flux")) {
+    } else if (STR_EQUALS(element, "magnetics/method/#/diamagnetic_flux")) {
         err = get_signal(idam_plugin_interface, "AMD_DIA FLUX", shot);
     }
 

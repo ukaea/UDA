@@ -21,6 +21,7 @@
 #include <clientserver/initStructs.h>
 #include <client/accAPI.h>
 #include <clientserver/udaTypes.h>
+#include <clientserver/stringUtils.h>
 
 #ifndef USE_PLUGIN_DIRECTLY
 IDAMERRORSTACK* idamErrorStack;    // Pointer to the Server's Error Stack. Global scope within this plugin library
@@ -35,7 +36,7 @@ int whichHandle(char* signal, char* source)
 {
     int i;
     for (i = 0; i < handleCount; i++)
-        if (!strcasecmp(signals[i], signal) && !strcasecmp(sources[i], source))
+        if (STR_IEQUALS(signals[i], signal) && STR_IEQUALS(sources[i], source))
             return handles[i];
     return -1;        // Not found
 }
@@ -53,14 +54,6 @@ extern int viewport(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     DATA_BLOCK* data_block;
     REQUEST_BLOCK* request_block;
-
-#ifndef USE_PLUGIN_DIRECTLY
-    idamErrorStack = getIdamServerPluginErrorStack();        // Server's error stack
-
-    initIdamErrorStack(&idamerrorstack);        // Initialise Local Error Stack (defined in idamclientserver.h)
-#else
-    IDAMERRORSTACK *idamErrorStack = &idamerrorstack;		// local and server are the same!
-#endif
 
     unsigned short housekeeping;
 
@@ -81,19 +74,6 @@ extern int viewport(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     housekeeping = idam_plugin_interface->housekeeping;
 
-#ifndef USE_PLUGIN_DIRECTLY
-// Don't copy the structure if housekeeping is requested - may dereference a NULL or freed pointer!     
-    if (!housekeeping && idam_plugin_interface->environment != NULL) environment = *idam_plugin_interface->environment;
-#endif
-
-// Additional interface components (must be defined at the bottom of the standard data structure)
-// Versioning must be consistent with the macro THISPLUGIN_MAX_INTERFACE_VERSION and the plugin registration with the server
-
-    //if(idam_plugin_interface->interfaceVersion >= 2){
-    // NEW COMPONENTS
-    //}
-
-
 //---------------------------------------------------------------------------------------- 
 // Context relevent Name-Value pairs and keywords
 
@@ -105,73 +85,65 @@ extern int viewport(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     float startValueY = 0.0, endValueY = 0.0;
 
     for (i = 0; i < request_block->nameValueList.pairCount; i++) {
-        if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "signal")) {
+        if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "signal")) {
             signal = request_block->nameValueList.nameValue[i].value;
             continue;
         }
-        if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "source")) {
+        if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "source")) {
             source = request_block->nameValueList.nameValue[i].value;
             continue;
         }
-
-        if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "startValueX")) {
+        if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "startValueX")) {
             isStartValueX = 1;
             startValueX = (float) atof(request_block->nameValueList.nameValue[i].value);
         }
-        if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "endValueX")) {
+        if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "endValueX")) {
             isEndValueX = 1;
             endValueX = (float) atof(request_block->nameValueList.nameValue[i].value);
         }
-        if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "startValueY")) {
+        if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "startValueY")) {
             isStartValueY = 1;
             startValueY = (float) atof(request_block->nameValueList.nameValue[i].value);
         }
-        if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "endValueY")) {
+        if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "endValueY")) {
             isEndValueY = 1;
             endValueY = (float) atof(request_block->nameValueList.nameValue[i].value);
         }
-
-
-        if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "pixelHeight")) {
+        if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "pixelHeight")) {
             isPixelHeight = 1;
             pixelHeight = atoi(request_block->nameValueList.nameValue[i].value);
             continue;
         }
-        if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "pixelWidth")) {
+        if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "pixelWidth")) {
             isPixelWidth = 1;
             pixelWidth = atoi(request_block->nameValueList.nameValue[i].value);
             continue;
         }
-
-        if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "clearCache")) {
+        if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "clearCache")) {
             isClearCache = 1;
             continue;
         }
-
-        if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "test")) {
+        if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "test")) {
             isTest = 1;
             test = atoi(request_block->nameValueList.nameValue[i].value);
             continue;
         }
-
-        if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "mean")) {
+        if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "mean")) {
             isMean = 1;
             continue;
         }
-        if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "mode")) {
+        if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "mode")) {
             isMode = 1;
             continue;
         }
-        if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "median")) {
+        if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "median")) {
             isMedian = 1;
             continue;
         }
-        if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "range")) {
+        if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "range")) {
             isRange = 1;
             continue;
         }
-
-
     }
 
 //----------------------------------------------------------------------------------------
@@ -188,7 +160,7 @@ extern int viewport(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 // A list must be maintained to register these plugin calls to manage housekeeping.
 // Calls to plugins must also respect access policy and user authentication policy
 
-    if (housekeeping || !strcasecmp(request_block->function, "reset")) {
+    if (housekeeping || STR_IEQUALS(request_block->function, "reset")) {
 
         if (!init) return 0;        // Not previously initialised: Nothing to do!
 
@@ -206,7 +178,7 @@ extern int viewport(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     }
 
 
-    if (!strcasecmp(request_block->function, "clearCache") || isClearCache) {
+    if (STR_IEQUALS(request_block->function, "clearCache") || isClearCache) {
 
 // Free Cached data if requested or filled
 
@@ -240,8 +212,8 @@ extern int viewport(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 //----------------------------------------------------------------------------------------
 // Initialise 
 
-    if (!init || !strcasecmp(request_block->function, "init")
-        || !strcasecmp(request_block->function, "initialise")) {
+    if (!init || STR_IEQUALS(request_block->function, "init")
+        || STR_IEQUALS(request_block->function, "initialise")) {
 
 // Free Heap Cache & reset counters
 
@@ -253,7 +225,7 @@ extern int viewport(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         handleCount = 0;
 
         init = 1;
-        if (!strcasecmp(request_block->function, "init") || !strcasecmp(request_block->function, "initialise"))
+        if (STR_IEQUALS(request_block->function, "init") || STR_IEQUALS(request_block->function, "initialise"))
             return 0;
     }
 
@@ -266,7 +238,7 @@ extern int viewport(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Help: A Description of library functionality
 
-        if (!strcasecmp(request_block->function, "help")) {
+        if (STR_IEQUALS(request_block->function, "help")) {
 
             p = (char*) malloc(sizeof(char) * 2 * 1024);
 
@@ -301,7 +273,7 @@ extern int viewport(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 //----------------------------------------------------------------------------------------    
 // Standard methods: version, builddate, defaultmethod, maxinterfaceversion 
 
-        if (!strcasecmp(request_block->function, "version")) {
+        if (STR_IEQUALS(request_block->function, "version")) {
             initDataBlock(data_block);
             data_block->data_type = TYPE_INT;
             data_block->rank = 0;
@@ -317,7 +289,7 @@ extern int viewport(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Plugin Build Date
 
-        if (!strcasecmp(request_block->function, "builddate")) {
+        if (STR_IEQUALS(request_block->function, "builddate")) {
             initDataBlock(data_block);
             data_block->data_type = TYPE_STRING;
             data_block->rank = 0;
@@ -333,7 +305,7 @@ extern int viewport(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Plugin Default Method
 
-        if (!strcasecmp(request_block->function, "defaultmethod")) {
+        if (STR_IEQUALS(request_block->function, "defaultmethod")) {
             initDataBlock(data_block);
             data_block->data_type = TYPE_STRING;
             data_block->rank = 0;
@@ -349,7 +321,7 @@ extern int viewport(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Plugin Maximum Interface Version
 
-        if (!strcasecmp(request_block->function, "maxinterfaceversion")) {
+        if (STR_IEQUALS(request_block->function, "maxinterfaceversion")) {
             initDataBlock(data_block);
             data_block->data_type = TYPE_INT;
             data_block->rank = 0;
@@ -371,7 +343,7 @@ extern int viewport(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 // Real world coordinates: startValueX, endValueX, startValueY, endValueY       
 // Device coordinates (relative) pixelWidth, pixelHeight
 
-        if (!strcasecmp(request_block->function, "get")) {
+        if (STR_IEQUALS(request_block->function, "get")) {
 
 // Context based Tests: required - pixelWidth, pixelHeight, Signal, Source                  
 
@@ -492,8 +464,10 @@ extern int viewport(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 // Reduce data to fit the value ranges specified
 // Assume X data (coordinates) are ordered in increasing value
 
-                float maxValueY = values[0], minValueY = values[0], maxValueX = coords[count -
-                                                                                       1], minValueX = values[0];
+                float maxValueY = values[0];
+                float minValueY = values[0];
+                float maxValueX = coords[count - 1];
+                float minValueX = values[0];
 
                 // Reduce the ordered X data's width
 
@@ -511,13 +485,16 @@ extern int viewport(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 if (!isStartValueY) {
                     minValueY = 9.999E99;
                     for (j = 0; j < count; j++) if (values[j] < minValueY) minValueY = values[j];
-                } else
+                } else {
                     minValueY = startValueY;
+                }
+
                 if (!isEndValueY) {
                     maxValueY = -9.999E99;
                     for (j = 0; j < count; j++) if (values[j] > maxValueY) maxValueY = values[j];
-                } else
+                } else {
                     maxValueY = endValueY;
+                }
 
 // Reduce unordered Y data: remove points outside the range
 
@@ -568,8 +545,8 @@ extern int viewport(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 int pixelWidth2 = 0;
                 float* horizontalPixelValues = NULL;        // Value at the pixel center
 
-                if (isPixelWidth &&
-                    isPixelHeight) {            // Map to pixels if the device coordinate viewport is defined
+                if (isPixelWidth && isPixelHeight) {
+                    // Map to pixels if the device coordinate viewport is defined
 
                     idamLog(LOG_DEBUG,
                             "Viewport: Mapping data to device pixel coordinate range (width, height) = %d, %d\n",
@@ -626,11 +603,8 @@ extern int viewport(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                     for (j = 0; j < count; j++) {
                         row[j] = -1;
                         for (i = 0; i < pixelHeight + 1; i++) {        // Search within pixel boundaries
-//printf("[%d][%d]   %f   %f   %f   %d\n", j, i, values[j], verticalPixelBoundaries[i], verticalPixelBoundaries[i+1], 
-//values[j] >= verticalPixelBoundaries[i] && values[j] < verticalPixelBoundaries[i+1]); 
                             if (values[j] >= verticalPixelBoundaries[i] && values[j] < verticalPixelBoundaries[i + 1]) {
                                 row[j] = i;
-//printf("bin[%d] = %d\n", j, i);
                                 break;
                             }
                         }
@@ -706,9 +680,6 @@ extern int viewport(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                             for (j = 1; j < pixelHeight; j++)integral[j] = integral[j - 1] + freq[i][j];
                             int target = integral[pixelHeight - 1] / 2;
 
-//for(j=0;j<pixelHeight;j++)printf("%2d ", integral[j]);
-//printf("\nmedian target = %d   [%d]   ", target, integral[pixelHeight-1]); 
-
                             for (j = 0; j < pixelHeight; j++) {
                                 if (integral[j] >= target) {
                                     if (1 && (j > 0 && integral[j - 1] > 0 && integral[j] != target)) {
@@ -717,22 +688,16 @@ extern int viewport(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                                             float m = (verticalPixelValues[j] - verticalPixelValues[j - 1]) / dx;
                                             data[i] = m * (target - integral[j]) +
                                                       verticalPixelValues[j];            // Linear Interpolate
-//printf("{Grad:   %d   %d   %f}   ", target - integral[j-1], integral[j]-target, m);			   			   
-//printf("%f   [%d]\n", data[i], target);	
                                         } else {
                                             data[i] = verticalPixelValues[j];
-//printf("%f   [%d]\n", data[i], integral[j]);				 
                                         }
 
                                     } else {
-//printf("{Diff:   %d   %d   %d}   ", target - integral[j-1], integral[j]-target, (target - integral[j-1]) <= (integral[j]-target));			   			   
                                         if (j > 0 && integral[j - 1] > 0 &&
                                             (target - integral[j - 1]) <= (integral[j] - target)) {
                                             data[i] = verticalPixelValues[j - 1];
-//printf("%f   [%d]\n", data[i], integral[j-1]);
                                         } else {
                                             data[i] = verticalPixelValues[j];
-//printf("%f   [%d]\n", data[i], integral[j]);
                                         }
                                     }
                                     good[i] = 1;

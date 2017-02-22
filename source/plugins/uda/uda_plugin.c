@@ -50,8 +50,7 @@ extern int UDAPlugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     if (idam_plugin_interface->interfaceVersion > THISPLUGIN_MAX_INTERFACE_VERSION) {
         err = 999;
-        idamLog(LOG_ERROR,
-                "ERROR idamAPIPlugin: Plugin Interface Version Unknown to this plugin: Unable to execute the request!\n");
+        IDAM_LOG(LOG_ERROR, "Plugin Interface Version Unknown to this plugin: Unable to execute the request!\n");
         addIdamError(&idamerrorstack, CODEERRORTYPE, "idamAPIPlugin", err,
                      "Plugin Interface Version Unknown to this plugin: Unable to execute the request!");
         return err;
@@ -67,7 +66,7 @@ extern int UDAPlugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     housekeeping = idam_plugin_interface->housekeeping;
 
-    if (housekeeping || !strcasecmp(request_block->function, "reset")) {
+    if (housekeeping || STR_IEQUALS(request_block->function, "reset")) {
 
         if (!init) return 0;        // Not previously initialised: Nothing to do!
 
@@ -88,8 +87,8 @@ extern int UDAPlugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 //----------------------------------------------------------------------------------------
 // Initialise 
 
-    if (!init || !strcasecmp(request_block->function, "init")
-        || !strcasecmp(request_block->function, "initialise")) {
+    if (!init || STR_IEQUALS(request_block->function, "init")
+        || STR_IEQUALS(request_block->function, "initialise")) {
 
 // Default Server Host and Port 
 
@@ -102,10 +101,10 @@ extern int UDAPlugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Hand over Server IO File Handles to IDAM Client library 
 
-        idamLog(LOG_DEBUG, "Plugin readIdam: Handing over Server File Handles to IDAM Client\n");
+        IDAM_LOG(LOG_DEBUG, "Handing over Server File Handles to IDAM Client\n");
 
         init = 1;
-        if (!strcasecmp(request_block->function, "init") || !strcasecmp(request_block->function, "initialise"))
+        if (STR_IEQUALS(request_block->function, "init") || STR_IEQUALS(request_block->function, "initialise"))
             return 0;
     }
 
@@ -117,10 +116,10 @@ extern int UDAPlugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Help: A Description of library functionality
 
-        if (!strcasecmp(request_block->function, "help")) {
+        if (STR_IEQUALS(request_block->function, "help")) {
             char* p = (char*) malloc(sizeof(char) * 2 * 1024);
 
-            strcpy(p, "\nidamAPIPlugin: Add Functions Names, Syntax, and Descriptions\n\n");
+            strcpy(p, "\nAdd Functions Names, Syntax, and Descriptions\n\n");
 
             initDataBlock(data_block);
 
@@ -133,7 +132,7 @@ extern int UDAPlugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             }
 
             data_block->data_type = TYPE_STRING;
-            strcpy(data_block->data_desc, "idamAPIPlugin: help = description of this plugin");
+            strcpy(data_block->data_desc, "help = description of this plugin");
 
             data_block->data = (char*) p;
 
@@ -155,7 +154,7 @@ extern int UDAPlugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 //----------------------------------------------------------------------------------------    
 // Standard methods: version, builddate, defaultmethod, maxinterfaceversion 
 
-        if (!strcasecmp(request_block->function, "version")) {
+        if (STR_IEQUALS(request_block->function, "version")) {
             initDataBlock(data_block);
             data_block->data_type = TYPE_INT;
             data_block->rank = 0;
@@ -171,7 +170,7 @@ extern int UDAPlugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Plugin Build Date
 
-        if (!strcasecmp(request_block->function, "builddate")) {
+        if (STR_IEQUALS(request_block->function, "builddate")) {
             initDataBlock(data_block);
             data_block->data_type = TYPE_STRING;
             data_block->rank = 0;
@@ -187,7 +186,7 @@ extern int UDAPlugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Plugin Default Method
 
-        if (!strcasecmp(request_block->function, "defaultmethod")) {
+        if (STR_IEQUALS(request_block->function, "defaultmethod")) {
             initDataBlock(data_block);
             data_block->data_type = TYPE_STRING;
             data_block->rank = 0;
@@ -203,7 +202,7 @@ extern int UDAPlugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Plugin Maximum Interface Version
 
-        if (!strcasecmp(request_block->function, "maxinterfaceversion")) {
+        if (STR_IEQUALS(request_block->function, "maxinterfaceversion")) {
             initDataBlock(data_block);
             data_block->data_type = TYPE_INT;
             data_block->rank = 0;
@@ -222,7 +221,7 @@ extern int UDAPlugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 //---------------------------------------------------------------------------------------- 
 // API
 
-        if (!strcasecmp(request_block->function, "get")) {
+        if (STR_IEQUALS(request_block->function, "get")) {
 
 // Version 6 structures
 
@@ -338,8 +337,8 @@ Notes: there are three pathways depending on the request pattern
                 pathway = 4;
             } else {
                 err = 999;
-                idamLog(LOG_ERROR,
-                        "ERROR idamAPIPlugin: Execution pathway not recognised: Unable to execute the request!\n");
+                IDAM_LOG(LOG_ERROR,
+                        "ERROR Execution pathway not recognised: Unable to execute the request!\n");
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "idamAPIPlugin", err,
                              "Execution pathway not recognised: Unable to execute the request!");
                 break;
@@ -437,11 +436,11 @@ Notes: there are three pathways depending on the request pattern
                     return err;
                 }
 
-                idamLog(LOG_DEBUG, "idamAPIPlugin: Idam Server Host for Idam Plugin %s\n", data_source->server);
-                idamLog(LOG_DEBUG, "idamAPIPlugin: Idam Server Port for Idam Plugin %d\n", newPort);
-                idamLog(LOG_DEBUG, "idamAPIPlugin: Calling idamGetAPI API (Database based Request)\n");
-                idamLog(LOG_DEBUG, "idamAPIPlugin: Signal: %s\n", signal);
-                idamLog(LOG_DEBUG, "idamAPIPlugin: Source: %s\n", source);
+                IDAM_LOGF(LOG_DEBUG, "Idam Server Host for Idam Plugin %s\n", data_source->server);
+                IDAM_LOGF(LOG_DEBUG, "Idam Server Port for Idam Plugin %d\n", newPort);
+                IDAM_LOG(LOG_DEBUG, "Calling idamGetAPI API (Database based Request)\n");
+                IDAM_LOGF(LOG_DEBUG, "Signal: %s\n", signal);
+                IDAM_LOGF(LOG_DEBUG, "Source: %s\n", source);
 
                 handle = idamGetAPI(signal, source);
 
@@ -493,12 +492,11 @@ Notes: there are three pathways depending on the request pattern
                     }
                 }
 
-                idamLog(LOG_DEBUG, "idamAPIPlugin: Idam Server Host for Idam Plugin %s\n", request_block->server);
-                idamLog(LOG_DEBUG, "idamAPIPlugin: Idam Server Port for Idam Plugin %d\n", newPort);
-                idamLog(LOG_DEBUG,
-                        "idamAPIPlugin: Calling idamGetAPI API (Device redirect or server protocol based Request)\n");
-                idamLog(LOG_DEBUG, "idamAPIPlugin: Signal: %s\n", request_block->signal);
-                idamLog(LOG_DEBUG, "idamAPIPlugin: Source: %s\n", source);
+                IDAM_LOGF(LOG_DEBUG, "Idam Server Host for Idam Plugin %s\n", request_block->server);
+                IDAM_LOGF(LOG_DEBUG, "Idam Server Port for Idam Plugin %d\n", newPort);
+                IDAM_LOG(LOG_DEBUG, "Calling idamGetAPI API (Device redirect or server protocol based Request)\n");
+                IDAM_LOGF(LOG_DEBUG, "Signal: %s\n", request_block->signal);
+                IDAM_LOGF(LOG_DEBUG, "Source: %s\n", source);
 
                 handle = idamGetAPI(request_block->signal, source);
 
@@ -531,17 +529,17 @@ Notes: there are three pathways depending on the request pattern
                     putIdamServerPort(newPort);
                 }
 
-                idamLog(LOG_DEBUG, "idamAPIPlugin: Idam Server Host for Idam Plugin %s\n", host);
-                idamLog(LOG_DEBUG, "idamAPIPlugin: Idam Server Port for Idam Plugin %d\n", newPort);
-                idamLog(LOG_DEBUG, "idamAPIPlugin: Calling idamGetAPI API (plugin library method based Request)\n");
+                IDAM_LOGF(LOG_DEBUG, "Idam Server Host for Idam Plugin %s\n", host);
+                IDAM_LOGF(LOG_DEBUG, "Idam Server Port for Idam Plugin %d\n", newPort);
+                IDAM_LOG(LOG_DEBUG, "Calling idamGetAPI API (plugin library method based Request)\n");
 
                 if (isSignal && isSource) {
-                    idamLog(LOG_DEBUG, "idamAPIPlugin: Signal: %s\n", signal);
-                    idamLog(LOG_DEBUG, "idamAPIPlugin; Source: %s\n", source);
+                    IDAM_LOGF(LOG_DEBUG, "Signal: %s\n", signal);
+                    IDAM_LOGF(LOG_DEBUG, "idamAPIPlugin; Source: %s\n", source);
                     handle = idamGetAPI(signal, source);
                 } else if (isSignal && !isSource) {
-                    idamLog(LOG_DEBUG, "idamAPIPlugin: Signal: %s\n", signal);
-                    idamLog(LOG_DEBUG, "idamAPIPlugin; Source: %s\n", request_block->source);
+                    IDAM_LOGF(LOG_DEBUG, "Signal: %s\n", signal);
+                    IDAM_LOGF(LOG_DEBUG, "idamAPIPlugin; Source: %s\n", request_block->source);
                     handle = idamGetAPI(signal, request_block->source);
                 } else {
                     err = 999;
@@ -589,11 +587,11 @@ Notes: there are three pathways depending on the request pattern
                     }
                 }
 
-                idamLog(LOG_DEBUG, "idamAPIPlugin: Idam Server Host for Idam Plugin %s\n", request_block->server);
-                idamLog(LOG_DEBUG, "idamAPIPlugin: Idam Server Port for Idam Plugin %d\n", newPort);
-                idamLog(LOG_DEBUG, "idamAPIPlugin: Calling idamGetAPI API (Server protocol based Request)\n");
-                idamLog(LOG_DEBUG, "idamAPIPlugin: Signal: %s\n", request_block->signal);
-                idamLog(LOG_DEBUG, "idamAPIPlugin: Source: %s\n", source);
+                IDAM_LOGF(LOG_DEBUG, "Idam Server Host for Idam Plugin %s\n", request_block->server);
+                IDAM_LOGF(LOG_DEBUG, "Idam Server Port for Idam Plugin %d\n", newPort);
+                IDAM_LOG(LOG_DEBUG, "Calling idamGetAPI API (Server protocol based Request)\n");
+                IDAM_LOGF(LOG_DEBUG, "Signal: %s\n", request_block->signal);
+                IDAM_LOGF(LOG_DEBUG, "Source: %s\n", source);
 
                 handle = idamGetAPI(request_block->signal, source);
 
@@ -606,7 +604,7 @@ Notes: there are three pathways depending on the request pattern
 //---------------------------------------------------------------------- 
 // Test for Errors: Close Socket and Free heap
 
-            idamLog(LOG_DEBUG, "idamAPIPlugin:Returned from idamGetAPI API: handle = %d, error code = %d\n", handle,
+            IDAM_LOGF(LOG_DEBUG, "idamAPIPlugin:Returned from idamGetAPI API: handle = %d, error code = %d\n", handle,
                     getIdamErrorCode(handle));
 
             if (handle < 0) {
@@ -699,7 +697,7 @@ Notes: there are three pathways depending on the request pattern
                 *signal_desc = *(data_block->signal_desc);
             }
 
-            idamLog(LOG_DEBUG, "idamAPIPlugin: Exit\n");
+            IDAM_LOG(LOG_DEBUG, "Exit\n");
 
 //----------------------------------------------------------------------
 // If the Data are Hierarchical, then necessary to forward the xdr file

@@ -8,6 +8,7 @@
 #include <strings.h>
 
 #include <logging/logging.h>
+#include <clientserver/stringUtils.h>
 
 // Initialise the File List and allocate heap for the list
 
@@ -119,7 +120,7 @@ void* getOpenIdamPluginFilePtr(IDAMPLUGINFILELIST* idamfiles, char* filename)
                 idamfiles->files[i].status, idamfiles->files[i].filename, filename);
 
         if (idamfiles->files[i].status == 1) {
-            if (!strcasecmp(filename, idamfiles->files[i].filename)) {
+            if (STR_IEQUALS(filename, idamfiles->files[i].filename)) {
                 gettimeofday(&idamfiles->files[i].file_open, NULL);        // Refresh Time of Last use
                 return ((void*) idamfiles->files[i].handlePtr);
             }
@@ -137,7 +138,7 @@ int getOpenIdamPluginFileInt(IDAMPLUGINFILELIST* idamfiles, char* filename)
                 idamfiles->files[i].status, idamfiles->files[i].filename, filename);
 
         if (idamfiles->files[i].status == 1) {
-            if (!strcasecmp(filename, idamfiles->files[i].filename)) {
+            if (STR_IEQUALS(filename, idamfiles->files[i].filename)) {
                 gettimeofday(&idamfiles->files[i].file_open, NULL);        // Refresh Time of Last use
                 return (idamfiles->files[i].handleInt);
             }
@@ -153,7 +154,7 @@ int getClosedIdamPluginFile(IDAMPLUGINFILELIST* idamfiles, char* filename)
     int i;
     for (i = 0; i < idamfiles->count; i++) {
         if (idamfiles->files[i].status == 0) {    // Only check Close handle records
-            if (!strcasecmp(filename, idamfiles->files[i].filename)) return (i);
+            if (STR_IEQUALS(filename, idamfiles->files[i].filename)) return (i);
         }
     }
     return -1;    // No Closed File Found
@@ -167,7 +168,7 @@ void closeIdamPluginFile(IDAMPLUGINFILELIST* idamfiles, char* filename)
     int i;
     for (i = 0; i < idamfiles->count; i++) {
         if (idamfiles->files[i].status == 1) {    // Only check Open handle records
-            if (!strcasecmp(filename, idamfiles->files[i].filename)) {
+            if (STR_IEQUALS(filename, idamfiles->files[i].filename)) {
                 if (idamfiles->files[i].handlePtr != NULL) {
                     void (* close)(void*);
                     close = idamfiles->close;
@@ -250,7 +251,7 @@ int findIdamPluginFileByName(IDAMPLUGINFILELIST* idamfiles, char* filename)
 {
     int i;
     if (!filename || filename[0] == '\0' || idamfiles->count == 0) return -1;
-    for (i = 0; i < idamfiles->count; i++) if (!strcmp(idamfiles->files[i].filename, filename)) return i;
+    for (i = 0; i < idamfiles->count; i++) if (STR_EQUALS(idamfiles->files[i].filename, filename)) return i;
     return -1;
 }
 

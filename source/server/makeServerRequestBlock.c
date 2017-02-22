@@ -98,10 +98,10 @@ int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList)
     sprintf(work2, "%s%s", environment.api_device, environment.api_delim);    // default device
 
     noSource = (request_block->source[0] == '\0' ||                // no source
-                !strcasecmp(request_block->source, environment.api_device) ||    // default device name
-                !strcasecmp(request_block->source, work2));            // default device name + delimiting string
+                STR_IEQUALS(request_block->source, environment.api_device) ||    // default device name
+                STR_IEQUALS(request_block->source, work2));            // default device name + delimiting string
 
-    if ((request_block->signal[0] == '\0' || !strcasecmp(request_block->signal, work)) && noSource) {
+    if ((request_block->signal[0] == '\0' || STR_IEQUALS(request_block->signal, work)) && noSource) {
         err = 999;
         addIdamError(&idamerrorstack, CODEERRORTYPE, "makeServerRequestBlock", err,
                      "Neither Data Object nor Source specified!");
@@ -190,7 +190,7 @@ int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList)
 
 // Test for DEVICE::LIBRARY::function(argument)	 - More delimiter characters present?
 
-    if (test != NULL && !strcasecmp(work2, environment.api_device) &&
+    if (test != NULL && STR_IEQUALS(work2, environment.api_device) &&
         (p = strstr(work, request_block->api_delim)) != NULL) {
         lstr = (int) (p - work);
         strncpy(work2, work, lstr);        // Ignore the default device name - force a pass to Scenario 2
@@ -208,7 +208,7 @@ int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList)
             break;
         }
 
-        if (test == NULL || !strcasecmp(work2, environment.api_device)) {    // No delimiter present or default device?
+        if (test == NULL || STR_IEQUALS(work2, environment.api_device)) {    // No delimiter present or default device?
 
             IDAM_LOG(LOG_DEBUG, "No device name or format or protocol or library is present\n");
 
@@ -245,7 +245,7 @@ int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList)
                 if(rc < 0) {
                     strcpy(request_block->format, "PPF");		// Assume the Default Format (PPF?)
                     for(i=0; i<pluginList.count; i++) {
-                        if(!strcasecmp(request_block->format, pluginList.plugin[i].format)) {
+                        if(STR_IEQUALS(request_block->format, pluginList.plugin[i].format)) {
                             request_block->request = pluginList.plugin[i].request;
                             break;
                         }
@@ -302,7 +302,7 @@ int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList)
                     extractArchive(request_block, reduceSignal);
 
                     for (i = 0; i < pluginList.count; i++) {
-                        if (!strcasecmp(request_block->archive, pluginList.plugin[i].format)) {
+                        if (STR_IEQUALS(request_block->archive, pluginList.plugin[i].format)) {
                             request_block->request = pluginList.plugin[i].request;                // Found!
                             strcpy(request_block->format, pluginList.plugin[i].format);
                             isFunction = pluginList.plugin[i].class == PLUGINFUNCTION;
@@ -330,7 +330,7 @@ int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList)
 // Test for known File formats, Server protocols or Libraries or Devices
 
             for (i = 0; i < pluginList.count; i++) {
-                if (!strcasecmp(work2, pluginList.plugin[i].format)) {
+                if (STR_IEQUALS(work2, pluginList.plugin[i].format)) {
                     if (pluginList.plugin[i].class != PLUGINDEVICE) {
                         request_block->request = pluginList.plugin[i].request;        // Found
                         strcpy(request_block->format, pluginList.plugin[i].format);
@@ -405,12 +405,12 @@ int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList)
 
                 // Legacy Exceptions: JET Device and PPF or JPF archives
 
-                	    if(!strcasecmp(request_block->device_name, "JET")){
+                	    if(STR_IEQUALS(request_block->device_name, "JET")){
                 	       reduceSignal = 0;
                                extractArchive(request_block, reduceSignal);
                                if(request_block->archive[0] != '\0'){
                 	          for(i=0;i<pluginList.count;i++){
-                                     if(!strcasecmp(request_block->archive, pluginList.plugin[i].format)){
+                                     if(STR_IEQUALS(request_block->archive, pluginList.plugin[i].format)){
                 	                if(pluginList.plugin[i].request == REQUEST_READ_PPF || pluginList.plugin[i].request == REQUEST_READ_JPF){
                 			   isForeign = 0;
                 			   isServer  = 1;
@@ -598,7 +598,7 @@ int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList)
         if (isFunction && err == 0) {        // Test for known Function Libraries
             isFunction = 0;
             for (i = 0; i < pluginList.count; i++) {
-                if (!strcasecmp(request_block->archive, pluginList.plugin[i].format)) {
+                if (STR_IEQUALS(request_block->archive, pluginList.plugin[i].format)) {
                     request_block->request = pluginList.plugin[i].request;            // Found
                     strcpy(request_block->format, pluginList.plugin[i].format);
                     isFunction = (pluginList.plugin[i].class == PLUGINFUNCTION);        // Must be a known Library
@@ -612,7 +612,7 @@ int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList)
             if (!isFunction) {                // Must be a default server-side function
 
                 for (i = 0; i < pluginList.count; i++) {
-                    if (!strcasecmp(pluginList.plugin[i].symbol, "SERVERSIDE") &&
+                    if (STR_IEQUALS(pluginList.plugin[i].symbol, "SERVERSIDE") &&
                         pluginList.plugin[i].library[0] == '\0') {
                         request_block->request = REQUEST_READ_SERVERSIDE;            // Found
                         strcpy(request_block->format, pluginList.plugin[i].format);
@@ -857,10 +857,10 @@ int sourceFileFormatTest(const char* source, REQUEST_BLOCK* request_block, PLUGI
         LeftTrimString(cmd);
         TrimString(cmd);
 
-        if (!strncmp(cmd, "CDF", 3)) {    // Legacy netCDF file
+        if (STR_EQUALS(cmd, "CDF")) {    // Legacy netCDF file
             test = nc;
         } else {
-            if (!strncmp(cmd, "HDF", 3)) {    // Either a netCDF or a HDF5 file: use utility programs to reveal!
+            if (STR_EQUALS(cmd, "HDF")) {    // Either a netCDF or a HDF5 file: use utility programs to reveal!
                 char* env = getenv("UDA_DUMP_NETCDF");
                 if (env != NULL) {
                     sprintf(cmd, "%s -h %s 2>/dev/null | head -c10 2>/dev/null", env, source);
@@ -881,7 +881,7 @@ int sourceFileFormatTest(const char* source, REQUEST_BLOCK* request_block, PLUGI
                     LeftTrimString(cmd);
                     TrimString(cmd);
 
-                    if (!strncmp(cmd, "netcdf", 6)) {        // netCDF file written to an HDF5 file
+                    if (STR_EQUALS(cmd, "netcdf")) {        // netCDF file written to an HDF5 file
                         test = nc;
                     } else {
                         if (cmd[0] == '\0') test = hf;        // HDF5 file
@@ -933,7 +933,7 @@ int sourceFileFormatTest(const char* source, REQUEST_BLOCK* request_block, PLUGI
 
         int breakAgain = 0;
         for (i = 0; i < pluginList.count; i++) {
-            if (!strcasecmp(&test[1], pluginList.plugin[i].extension)) {
+            if (STR_IEQUALS(&test[1], pluginList.plugin[i].extension)) {
                 strcpy(request_block->format, pluginList.plugin[i].format);
                 breakAgain = 1;
                 break;
@@ -947,31 +947,31 @@ int sourceFileFormatTest(const char* source, REQUEST_BLOCK* request_block, PLUGI
             strcpy(request_block->format, "IDA3");
             break;
         }
-        if (!strcasecmp(&test[1], "nc")) {
+        if (STR_IEQUALS(&test[1], "nc")) {
             strcpy(request_block->format, "netcdf");
             break;
         }
-        if (!strcasecmp(&test[1], "cdf")) {
+        if (STR_IEQUALS(&test[1], "cdf")) {
             strcpy(request_block->format, "netcdf");
             break;
         }
-        if (!strcasecmp(&test[1], "hf")) {
+        if (STR_IEQUALS(&test[1], "hf")) {
             strcpy(request_block->format, "hdf5");
             break;
         }
-        if (!strcasecmp(&test[1], "h5")) {
+        if (STR_IEQUALS(&test[1], "h5")) {
             strcpy(request_block->format, "hdf5");
             break;
         }
-        if (!strcasecmp(&test[1], "hdf5")) {
+        if (STR_IEQUALS(&test[1], "hdf5")) {
             strcpy(request_block->format, "hdf5");
             break;
         }
-        if (!strcasecmp(&test[1], "xml")) {
+        if (STR_IEQUALS(&test[1], "xml")) {
             strcpy(request_block->format, "xml");
             break;
         }
-        if (!strcasecmp(&test[1], "csv")) {
+        if (STR_IEQUALS(&test[1], "csv")) {
             strcpy(request_block->format, "csv");
             break;
         }
@@ -997,7 +997,7 @@ int sourceFileFormatTest(const char* source, REQUEST_BLOCK* request_block, PLUGI
 // Test for known registered plugins for the File's format
 
     for (i = 0; i < pluginList.count; i++) {
-        if (!strcasecmp(request_block->format, pluginList.plugin[i].format)) {
+        if (STR_IEQUALS(request_block->format, pluginList.plugin[i].format)) {
             rc = 1;
             IDAM_LOGF(LOG_DEBUG, "Format identified, selecting specific plugin for %s\n", request_block->format);
             request_block->request = pluginList.plugin[i].request;            // Found
@@ -1719,7 +1719,7 @@ int nameValuePairs(char* pairList, NAMEVALUELIST* nameValueList, unsigned short 
     free((void*) copy);
 
     for (i = 0; i < nameValueList->pairCount; i++) {
-        if (!strcasecmp(nameValueList->nameValue[i].name, "delimiter")) {        // replace with correct delimiter value
+        if (STR_IEQUALS(nameValueList->nameValue[i].name, "delimiter")) {        // replace with correct delimiter value
             p = strchr(nameValueList->nameValue[i].value, '#');
             *p = delimiter;
             p = strrchr(nameValueList->nameValue[i].pair, '#');

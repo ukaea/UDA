@@ -148,7 +148,7 @@ int idamserverSubsetData(DATA_BLOCK* data_block, ACTION action)
 // Extract an atomic type data element from the data structure
 
                 for (i = 0; i < udt->fieldcount; i++) {
-                    if (!strcmp(udt->compoundfield[i].name, subset.member)) {        // Locate target member by name
+                    if (STR_EQUALS(udt->compoundfield[i].name, subset.member)) {        // Locate target member by name
 
                         data_n = data_block->data_n;
 
@@ -394,7 +394,7 @@ int idamserverSubsetData(DATA_BLOCK* data_block, ACTION action)
 //----------------------------------------------------------------------------------------------------------------------------
 // Subset this Dimension ?
 
-            if (!strcmp(operation, "*"))
+            if (STR_EQUALS(operation, "*"))
                 continue;                // This means No subset - Part of an array Reshape Operation
 
             if (operation[0] == ':' && subset.lbindex[j] == 0 &&
@@ -480,10 +480,10 @@ int idamserverSubsetData(DATA_BLOCK* data_block, ACTION action)
 
                 unsigned int* subsetindices = (unsigned int*) malloc(dim->dim_n * sizeof(unsigned int));
 
-                if (!strcmp(operation, "!<")) strcpy(operation, ">=");
-                if (!strcmp(operation, "!>")) strcpy(operation, "<=");
-                if (!strcmp(operation, "!<=")) strcpy(operation, ">");
-                if (!strcmp(operation, "!>=")) strcpy(operation, "<");
+                if (STR_EQUALS(operation, "!<")) strcpy(operation, ">=");
+                if (STR_EQUALS(operation, "!>")) strcpy(operation, "<=");
+                if (STR_EQUALS(operation, "!<=")) strcpy(operation, ">");
+                if (STR_EQUALS(operation, "!>=")) strcpy(operation, "<");
 
                 if ((dim_n = idamserversubsetindices(operation, dim, value, subsetindices)) == 0) {
                     ierr = 9999;
@@ -840,7 +840,7 @@ int idamserverSubsetData(DATA_BLOCK* data_block, ACTION action)
         }
 
 
-        if (!strcasecmp(subset.function, "maximum")) {        // Single scalar result
+        if (STR_IEQUALS(subset.function, "maximum")) {        // Single scalar result
         }
 
         if (!strncasecmp(subset.function, "count", 5)) {        // Single scalar result
@@ -1487,9 +1487,9 @@ int idamserversubsetindices(char* operation, DIMS* dim, double value, unsigned i
 
         case (TYPE_DOUBLE): {
             double* p = (double*) dim->dim;
-            if (!strcasecmp(operation, "eq") || operation[0] == '=' || !strncmp(operation, "~=", 2)) {
+            if (STR_IEQUALS(operation, "eq") || operation[0] == '=' || STR_EQUALS(operation, "~=")) {
                 for (k = 0; k < dim->dim_n; k++) if (p[k] == (double) value) subsetindices[count++] = k;
-                if (count == 0 && !strcmp(operation, "~=")) {
+                if (count == 0 && STR_EQUALS(operation, "~=")) {
                     for (k = 0; k < dim->dim_n; k++)
                         if (fabs(p[k] - (double) value) <= DBL_EPSILON)
                             subsetindices[count++] = k;
@@ -1521,20 +1521,20 @@ int idamserversubsetindices(char* operation, DIMS* dim, double value, unsigned i
                     }
                 }
             } else {
-                if (!strcasecmp(operation, "lt") || !strcmp(operation, "<")) {
+                if (STR_IEQUALS(operation, "lt") || STR_EQUALS(operation, "<")) {
                     for (k = 0; k < dim->dim_n; k++) if (p[k] < (double) value) subsetindices[count++] = k;
                 } else {
-                    if (!strcasecmp(operation, "gt") || !strcmp(operation, ">")) {
+                    if (STR_IEQUALS(operation, "gt") || STR_EQUALS(operation, ">")) {
                         for (k = 0; k < dim->dim_n; k++) if (p[k] > (double) value) subsetindices[count++] = k;
                     } else {
-                        if (!strcasecmp(operation, "le") || !strcmp(operation, "<=")) {
+                        if (STR_IEQUALS(operation, "le") || STR_EQUALS(operation, "<=")) {
                             for (k = 0; k < dim->dim_n; k++) if (p[k] <= (double) value) subsetindices[count++] = k;
                         } else {
-                            if (!strcasecmp(operation, "ge") || !strcmp(operation, ">=")) {
+                            if (STR_IEQUALS(operation, "ge") || STR_EQUALS(operation, ">=")) {
                                 for (k = 0; k < dim->dim_n; k++) if (p[k] >= (double) value) subsetindices[count++] = k;
                             } else {
-                                if (!strcasecmp(operation, "ne") || !strncmp(operation, "!=", 2) ||
-                                    !strncmp(operation, "!~=", 3)) {
+                                if (STR_IEQUALS(operation, "ne") || STR_EQUALS(operation, "!=") ||
+                                    STR_EQUALS(operation, "!~=")) {
                                     if (strncmp(operation, "!~=", 3) != 0) {
                                         for (k = 0; k < dim->dim_n; k++)
                                             if (p[k] != (double) value)
@@ -1580,9 +1580,9 @@ int idamserversubsetindices(char* operation, DIMS* dim, double value, unsigned i
 
         case (TYPE_FLOAT): {
             float* p = (float*) dim->dim;
-            if (!strcasecmp(operation, "eq") || operation[0] == '=' || !strncmp(operation, "~=", 2)) {
+            if (STR_IEQUALS(operation, "eq") || operation[0] == '=' || STR_EQUALS(operation, "~=")) {
                 for (k = 0; k < dim->dim_n; k++) if (p[k] == (float) value) subsetindices[count++] = k;
-                if (count == 0 && !strcmp(operation, "~=")) {
+                if (count == 0 && STR_EQUALS(operation, "~=")) {
                     for (k = 0; k < dim->dim_n; k++)
                         if (fabsf(p[k] - (float) value) <= FLT_EPSILON)
                             subsetindices[count++] = k;
@@ -1614,20 +1614,20 @@ int idamserversubsetindices(char* operation, DIMS* dim, double value, unsigned i
                     }
                 }
             } else {
-                if (!strcasecmp(operation, "lt") || !strcmp(operation, "<")) {
+                if (STR_IEQUALS(operation, "lt") || STR_EQUALS(operation, "<")) {
                     for (k = 0; k < dim->dim_n; k++) if (p[k] < (float) value) subsetindices[count++] = k;
                 } else {
-                    if (!strcasecmp(operation, "gt") || !strcmp(operation, ">")) {
+                    if (STR_IEQUALS(operation, "gt") || STR_EQUALS(operation, ">")) {
                         for (k = 0; k < dim->dim_n; k++) if (p[k] > (float) value) subsetindices[count++] = k;
                     } else {
-                        if (!strcasecmp(operation, "le") || !strcmp(operation, "<=")) {
+                        if (STR_IEQUALS(operation, "le") || STR_EQUALS(operation, "<=")) {
                             for (k = 0; k < dim->dim_n; k++) if (p[k] <= (float) value) subsetindices[count++] = k;
                         } else {
-                            if (!strcasecmp(operation, "ge") || !strcmp(operation, ">=")) {
+                            if (STR_IEQUALS(operation, "ge") || STR_EQUALS(operation, ">=")) {
                                 for (k = 0; k < dim->dim_n; k++) if (p[k] >= (float) value) subsetindices[count++] = k;
                             } else {
-                                if (!strcasecmp(operation, "ne") || !strncmp(operation, "!=", 2) ||
-                                    !strncmp(operation, "!~=", 3)) {
+                                if (STR_IEQUALS(operation, "ne") || STR_EQUALS(operation, "!=") ||
+                                    STR_EQUALS(operation, "!~=")) {
                                     if (strncmp(operation, "!~=", 3) != 0) {
                                         for (k = 0; k < dim->dim_n; k++)
                                             if (p[k] != (float) value)
@@ -1673,23 +1673,23 @@ int idamserversubsetindices(char* operation, DIMS* dim, double value, unsigned i
 
         case (TYPE_INT): {
             int* p = (int*) dim->dim;
-            if (!strcasecmp(operation, "eq") || operation[0] == '=' || !strncmp(operation, "~=", 2)) {
+            if (STR_IEQUALS(operation, "eq") || operation[0] == '=' || STR_EQUALS(operation, "~=")) {
                 for (k = 0; k < dim->dim_n; k++) if (p[k] == (int) value) subsetindices[count++] = k;
             } else {
-                if (!strcasecmp(operation, "lt") || !strcmp(operation, "<")) {
+                if (STR_IEQUALS(operation, "lt") || STR_EQUALS(operation, "<")) {
                     for (k = 0; k < dim->dim_n; k++) if (p[k] < (int) value) subsetindices[count++] = k;
                 } else {
-                    if (!strcasecmp(operation, "gt") || !strcmp(operation, ">")) {
+                    if (STR_IEQUALS(operation, "gt") || STR_EQUALS(operation, ">")) {
                         for (k = 0; k < dim->dim_n; k++) if (p[k] > (int) value) subsetindices[count++] = k;
                     } else {
-                        if (!strcasecmp(operation, "le") || !strcmp(operation, "<=")) {
+                        if (STR_IEQUALS(operation, "le") || STR_EQUALS(operation, "<=")) {
                             for (k = 0; k < dim->dim_n; k++) if (p[k] <= (int) value) subsetindices[count++] = k;
                         } else {
-                            if (!strcasecmp(operation, "ge") || !strcmp(operation, ">=")) {
+                            if (STR_IEQUALS(operation, "ge") || STR_EQUALS(operation, ">=")) {
                                 for (k = 0; k < dim->dim_n; k++) if (p[k] >= (int) value) subsetindices[count++] = k;
                             } else {
-                                if (!strcasecmp(operation, "ne") || !strncmp(operation, "!=", 2) ||
-                                    !strncmp(operation, "!~=", 3)) {
+                                if (STR_IEQUALS(operation, "ne") || STR_EQUALS(operation, "!=") ||
+                                    STR_EQUALS(operation, "!~=")) {
                                     for (k = 0; k < dim->dim_n; k++)
                                         if (p[k] != (int) value)
                                             subsetindices[count++] = k;

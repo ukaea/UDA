@@ -5,9 +5,9 @@
 extern "C" {
 #endif
 
-void parseIDAPath(REQUEST_BLOCK * request_block);
+void parseIDAPath(REQUEST_BLOCK* request_block);
 
-void parseXMLPath(REQUEST_BLOCK * request_block);
+void parseXMLPath(REQUEST_BLOCK* request_block);
 
 #ifdef __cplusplus
 }

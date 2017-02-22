@@ -1,7 +1,7 @@
 #ifndef IDAM_PLUGINS_TEMPLATE_PLUGIN_H
 #define IDAM_PLUGINS_TEMPLATE_PLUGIN_H
 
-#include <include/idamplugin.h>
+#include <server/pluginStructs.h>
 
 #ifdef __cplusplus
 extern "C" {

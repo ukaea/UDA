@@ -5,8 +5,8 @@
 #include <clientserver/initStructs.h>
 #include <clientserver/udaTypes.h>
 #include <clientserver/errorLog.h>
-#include <include/idamclientserverprivate.h>
 #include <logging/logging.h>
+#include <clientserver/stringUtils.h>
 
 static int convertToInt(char* value);
 static char** getContent(xmlNode* node, int dim);
@@ -60,8 +60,8 @@ int execute_xpath_expression(const char* filename, const xmlChar* xpathExpr, DAT
     //Creating the Xpath request for the type which does not exist necessarly (it depends on the XML element which is requested)
     char* typeStr = "/@data_type";
     size_t len = 1 + xmlStrlen(xpathExpr) + strlen(typeStr);
-    xmlChar* typeXpathExpr = (xmlChar*) malloc(len * sizeof(xmlChar));
-    xmlStrPrintf(typeXpathExpr, (int)len, (xmlChar*)"%s%s", xpathExpr, typeStr);
+    xmlChar* typeXpathExpr = (xmlChar*)malloc(len * sizeof(xmlChar));
+    xmlStrPrintf(typeXpathExpr, (int)len, (FMT_TYPE)"%s%s", xpathExpr, typeStr);
 
     /* Evaluate xpath expression for the type */
     xpathObj = xmlXPathEvalExpression(typeXpathExpr, xpathCtx);
@@ -75,7 +75,7 @@ int execute_xpath_expression(const char* filename, const xmlChar* xpathExpr, DAT
         if (size != 0) {
             cur = nodes->nodeTab[0];
             cur = cur->children;
-            type = (char*) cur->content;
+            type = (char*)cur->content;
         }
     }
 
@@ -84,8 +84,8 @@ int execute_xpath_expression(const char* filename, const xmlChar* xpathExpr, DAT
     typeStr = "/@dim";
 
     len = 1 + xmlStrlen(xpathExpr) + strlen(typeStr);
-    typeXpathExpr = (xmlChar*) malloc(len * sizeof(xmlChar));
-    xmlStrPrintf(typeXpathExpr, (int)len, (xmlChar*)"%s%s", xpathExpr, typeStr);
+    typeXpathExpr = (xmlChar*)malloc(len * sizeof(xmlChar));
+    xmlStrPrintf(typeXpathExpr, (int)len, (FMT_TYPE)"%s%s", xpathExpr, typeStr);
 
     /* Evaluate xpath expression for the type */
     xpathObj = xmlXPathEvalExpression(typeXpathExpr, xpathCtx);
@@ -98,7 +98,7 @@ int execute_xpath_expression(const char* filename, const xmlChar* xpathExpr, DAT
         if (size != 0) {
             cur = nodes->nodeTab[0];    //Getting the dim of the data to request
             cur = cur->children;
-            dim = atoi((char*) cur->content);
+            dim = atoi((char*)cur->content);
         }
     }
 
@@ -137,7 +137,7 @@ int execute_xpath_expression(const char* filename, const xmlChar* xpathExpr, DAT
     }
 
     data_block->rank = 1;
-    data_block->dims = (DIMS*) malloc(data_block->rank * sizeof(DIMS));
+    data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
 
     int i;
     for (i = 0; i < data_block->rank; i++) {
@@ -151,35 +151,35 @@ int execute_xpath_expression(const char* filename, const xmlChar* xpathExpr, DAT
         data_block->data = malloc(dim * sizeof(double));
         char** data = getContent(cur, dim);
         for (i = 0; i < dim; i++) {
-            ((double*) data_block->data)[i] = atof(data[i]);
+            ((double*)data_block->data)[i] = atof(data[i]);
         }
     } else if (data_type == TYPE_FLOAT) {
         data_block->data_type = TYPE_FLOAT;
         data_block->data = malloc(dim * sizeof(float));
         char** data = getContent(cur, dim);
         for (i = 0; i < dim; i++) {
-            ((float*) data_block->data)[i] = (float) atof(data[i]);
+            ((float*)data_block->data)[i] = (float)atof(data[i]);
         }
     } else if (data_type == TYPE_LONG) {
         data_block->data_type = TYPE_LONG;
         data_block->data = malloc(dim * sizeof(long));
         char** data = getContent(cur, dim);
         for (i = 0; i < dim; i++) {
-            ((long*) data_block->data)[i] = atol(data[i]);
+            ((long*)data_block->data)[i] = atol(data[i]);
         }
     } else if (data_type == TYPE_INT) {
         data_block->data_type = TYPE_INT;
         data_block->data = malloc(dim * sizeof(int));
         char** data = getContent(cur, dim);
         for (i = 0; i < dim; i++) {
-            ((int*) data_block->data)[i] = atoi(data[i]);
+            ((int*)data_block->data)[i] = atoi(data[i]);
         }
     } else if (data_type == TYPE_SHORT) {
         data_block->data_type = TYPE_SHORT;
         data_block->data = malloc(dim * sizeof(short));
         char** data = getContent(cur, dim);
         for (i = 0; i < dim; i++) {
-            ((short*) data_block->data)[i] = (short) atoi(data[i]);
+            ((short*)data_block->data)[i] = (short)atoi(data[i]);
         }
     } else if (data_type == TYPE_STRING) {
         data_block->data_type = TYPE_STRING;
@@ -219,18 +219,20 @@ char** getContent(xmlNode* node, int dim)
     int i = 0;
     int dim_i = 0;
     int n = 0;
-    for (; ; ++i) {
+    for (;; ++i) {
         char c = content[i];
 
-        if (c == ' ')
+        if (c == ' ') {
             continue;
+        }
         if (c == ',' || c == '\0') {
             temp[n] = '\0';
             assert(dim_i < dim);
             data[dim_i++] = strdup(temp);
             n = 0;
-            if (c == '\0')
+            if (c == '\0') {
                 break;
+            }
             continue;
         }
         assert(n < 128);
@@ -246,15 +248,13 @@ int convertToInt(char* value)
     int i = TYPE_UNKNOWN;
     int err = 0;
 
-    if (strcmp(value, "vecstring_type") == 0 || strcmp(value, "xs:string") == 0 || strcmp(value, "STR_0D") == 0) {
+    if (STR_EQUALS(value, "vecstring_type") || STR_EQUALS(value, "xs:string") || STR_EQUALS(value, "STR_0D")) {
         i = TYPE_STRING;
-    } else if (strcmp(value, "vecflt_type") == 0 || strcmp(value, "xs:float") == 0 || strcmp(value, "FLT_0D") == 0) {
+    } else if (STR_EQUALS(value, "vecflt_type") || STR_EQUALS(value, "xs:float") || STR_EQUALS(value, "FLT_0D")) {
         i = TYPE_FLOAT;
-    } else if (strcmp(value, "vecint_type") == 0 || strcmp(value, "xs:integer") == 0 || strcmp(value, "INT_0D") == 0) {
+    } else if (STR_EQUALS(value, "vecint_type") || STR_EQUALS(value, "xs:integer") || STR_EQUALS(value, "INT_0D")) {
         i = TYPE_INT;
-    }
-
-    else {
+    } else {
         err = 999;
         addIdamError(&idamerrorstack, CODEERRORTYPE, "tore_supra convertToInt() : Unsupported data type", err, "");
     }
@@ -271,18 +271,18 @@ xmlChar* insertNodeIndices(const xmlChar* xpathExpr, int* nodeIndices)
 
     const xmlChar* p;
     size_t n = 0;
-    
+
     while ((p = xmlStrchr(indexedXpathExpr, '#')) != NULL) {
         int len = snprintf(NULL, 0, "%d", nodeIndices[n]);
-        xmlChar num_str[len+1];
-        xmlStrPrintf(num_str, len+1, (xmlChar*)"%d", nodeIndices[n]);
+        xmlChar num_str[len + 1];
+        xmlStrPrintf(num_str, len + 1, (FMT_TYPE)"%d", nodeIndices[n]);
         ++n;
 
         xmlChar* pre = xmlStrndup(indexedXpathExpr, p - indexedXpathExpr);
 
-        len = xmlStrlen(pre) + xmlStrlen(num_str) + xmlStrlen(p+1) + 1;
+        len = xmlStrlen(pre) + xmlStrlen(num_str) + xmlStrlen(p + 1) + 1;
         xmlChar* temp = malloc((len + 1) * sizeof(xmlChar));
-        xmlStrPrintf(temp, len, (xmlChar*)"%s%s%s", pre, num_str, p+1);
+        xmlStrPrintf(temp, len, (FMT_TYPE)"%s%s%s", pre, num_str, p + 1);
         free(indexedXpathExpr);
         indexedXpathExpr = temp;
 

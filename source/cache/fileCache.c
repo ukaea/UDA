@@ -377,7 +377,7 @@ int idamClientReadCache(REQUEST_BLOCK *request_block, DATA_BLOCK *data_block, ch
         xdrs = clientInput;
         XDRstdioFlag = 0;
 
-        if(!strcmp(udt_received->name,"SARRAY")) {			// expecting this carrier structure
+        if(STR_EQUALS(udt_received->name,"SARRAY")) {			// expecting this carrier structure
 
             GENERAL_BLOCK *general_block = (GENERAL_BLOCK *)malloc(sizeof(GENERAL_BLOCK));
 

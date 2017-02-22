@@ -453,18 +453,18 @@ void setIdamProperty(const char* property)
     char* value;
 
     if (property[0] == 'g') {
-        if (!strcasecmp(property, "get_datadble")) get_datadble = 1;
-        if (!strcasecmp(property, "get_dimdble")) get_dimdble = 1;
-        if (!strcasecmp(property, "get_timedble")) get_timedble = 1;
-        if (!strcasecmp(property, "get_bytes")) get_bytes = 1;
-        if (!strcasecmp(property, "get_bad")) get_bad = 1;
-        if (!strcasecmp(property, "get_meta")) get_meta = 1;
-        if (!strcasecmp(property, "get_asis")) get_asis = 1;
-        if (!strcasecmp(property, "get_uncal")) get_uncal = 1;
-        if (!strcasecmp(property, "get_notoff")) get_notoff = 1;
-        if (!strcasecmp(property, "get_synthetic")) get_synthetic = 1;
-        if (!strcasecmp(property, "get_scalar")) get_scalar = 1;
-        if (!strcasecmp(property, "get_nodimdata")) get_nodimdata = 1;
+        if (STR_IEQUALS(property, "get_datadble")) get_datadble = 1;
+        if (STR_IEQUALS(property, "get_dimdble")) get_dimdble = 1;
+        if (STR_IEQUALS(property, "get_timedble")) get_timedble = 1;
+        if (STR_IEQUALS(property, "get_bytes")) get_bytes = 1;
+        if (STR_IEQUALS(property, "get_bad")) get_bad = 1;
+        if (STR_IEQUALS(property, "get_meta")) get_meta = 1;
+        if (STR_IEQUALS(property, "get_asis")) get_asis = 1;
+        if (STR_IEQUALS(property, "get_uncal")) get_uncal = 1;
+        if (STR_IEQUALS(property, "get_notoff")) get_notoff = 1;
+        if (STR_IEQUALS(property, "get_synthetic")) get_synthetic = 1;
+        if (STR_IEQUALS(property, "get_scalar")) get_scalar = 1;
+        if (STR_IEQUALS(property, "get_nodimdata")) get_nodimdata = 1;
     } else {
         if (property[0] == 't') {
             strncpy(name, property, 55);
@@ -478,9 +478,9 @@ void setIdamProperty(const char* property)
                 if (IsNumber(value)) user_timeout = atoi(value);
             }
         } else {
-            if (!strcasecmp(property, "verbose")) idamSetLogLevel(LOG_INFO);
-            if (!strcasecmp(property, "debug")) idamSetLogLevel(LOG_DEBUG);
-            if (!strcasecmp(property, "altData")) clientFlags = clientFlags | CLIENTFLAG_ALTDATA;
+            if (STR_IEQUALS(property, "verbose")) idamSetLogLevel(LOG_INFO);
+            if (STR_IEQUALS(property, "debug")) idamSetLogLevel(LOG_DEBUG);
+            if (STR_IEQUALS(property, "altData")) clientFlags = clientFlags | CLIENTFLAG_ALTDATA;
             if (!strncasecmp(property, "altRank", 7)) {
                 strncpy(name, property, 55);
                 name[55] = '\0';
@@ -494,8 +494,8 @@ void setIdamProperty(const char* property)
                 }
             }
         }
-        if (!strcasecmp(property, "reuseLastHandle")) clientFlags = clientFlags | CLIENTFLAG_REUSELASTHANDLE;
-        if (!strcasecmp(property, "freeAndReuseLastHandle")) clientFlags = clientFlags | CLIENTFLAG_FREEREUSELASTHANDLE;
+        if (STR_IEQUALS(property, "reuseLastHandle")) clientFlags = clientFlags | CLIENTFLAG_REUSELASTHANDLE;
+        if (STR_IEQUALS(property, "freeAndReuseLastHandle")) clientFlags = clientFlags | CLIENTFLAG_FREEREUSELASTHANDLE;
     }
     return;
 }
@@ -511,26 +511,26 @@ int getIdamProperty(const char* property)
 // User settings for Client and Server behaviour
 
     if (property[0] == 'g') {
-        if (!strcasecmp(property, "get_datadble")) return get_datadble;
-        if (!strcasecmp(property, "get_dimdble")) return get_dimdble;
-        if (!strcasecmp(property, "get_timedble")) return get_timedble;
-        if (!strcasecmp(property, "get_bytes")) return get_bytes;
-        if (!strcasecmp(property, "get_bad")) return get_bad;
-        if (!strcasecmp(property, "get_meta")) return get_meta;
-        if (!strcasecmp(property, "get_asis")) return get_asis;
-        if (!strcasecmp(property, "get_uncal")) return get_uncal;
-        if (!strcasecmp(property, "get_notoff")) return get_notoff;
-        if (!strcasecmp(property, "get_synthetic")) return get_synthetic;
-        if (!strcasecmp(property, "get_scalar")) return get_scalar;
-        if (!strcasecmp(property, "get_nodimdata")) return get_nodimdata;
+        if (STR_IEQUALS(property, "get_datadble")) return get_datadble;
+        if (STR_IEQUALS(property, "get_dimdble")) return get_dimdble;
+        if (STR_IEQUALS(property, "get_timedble")) return get_timedble;
+        if (STR_IEQUALS(property, "get_bytes")) return get_bytes;
+        if (STR_IEQUALS(property, "get_bad")) return get_bad;
+        if (STR_IEQUALS(property, "get_meta")) return get_meta;
+        if (STR_IEQUALS(property, "get_asis")) return get_asis;
+        if (STR_IEQUALS(property, "get_uncal")) return get_uncal;
+        if (STR_IEQUALS(property, "get_notoff")) return get_notoff;
+        if (STR_IEQUALS(property, "get_synthetic")) return get_synthetic;
+        if (STR_IEQUALS(property, "get_scalar")) return get_scalar;
+        if (STR_IEQUALS(property, "get_nodimdata")) return get_nodimdata;
     } else {
-        if (!strcasecmp(property, "timeout")) return user_timeout;
-        if (!strcasecmp(property, "altRank")) return altRank;
-        if (!strcasecmp(property, "reuseLastHandle")) return clientFlags | CLIENTFLAG_REUSELASTHANDLE;
-        if (!strcasecmp(property, "freeAndReuseLastHandle")) return clientFlags | CLIENTFLAG_FREEREUSELASTHANDLE;
-        if (!strcasecmp(property, "verbose")) return idamGetLogLevel() == LOG_INFO;
-        if (!strcasecmp(property, "debug")) return idamGetLogLevel() == LOG_DEBUG;
-        if (!strcasecmp(property, "altData")) return clientFlags | CLIENTFLAG_ALTDATA;
+        if (STR_IEQUALS(property, "timeout")) return user_timeout;
+        if (STR_IEQUALS(property, "altRank")) return altRank;
+        if (STR_IEQUALS(property, "reuseLastHandle")) return clientFlags | CLIENTFLAG_REUSELASTHANDLE;
+        if (STR_IEQUALS(property, "freeAndReuseLastHandle")) return clientFlags | CLIENTFLAG_FREEREUSELASTHANDLE;
+        if (STR_IEQUALS(property, "verbose")) return idamGetLogLevel() == LOG_INFO;
+        if (STR_IEQUALS(property, "debug")) return idamGetLogLevel() == LOG_DEBUG;
+        if (STR_IEQUALS(property, "altData")) return clientFlags | CLIENTFLAG_ALTDATA;
 
     }
     return 0;
@@ -548,25 +548,25 @@ void resetIdamProperty(const char* property)
 // User settings for Client and Server behaviour
 
     if (property[0] == 'g') {
-        if (!strcasecmp(property, "get_datadble")) get_datadble = 0;
-        if (!strcasecmp(property, "get_dimdble")) get_dimdble = 0;
-        if (!strcasecmp(property, "get_timedble")) get_timedble = 0;
-        if (!strcasecmp(property, "get_bytes")) get_bytes = 0;
-        if (!strcasecmp(property, "get_bad")) get_bad = 0;
-        if (!strcasecmp(property, "get_meta")) get_meta = 0;
-        if (!strcasecmp(property, "get_asis")) get_asis = 0;
-        if (!strcasecmp(property, "get_uncal")) get_uncal = 0;
-        if (!strcasecmp(property, "get_notoff")) get_notoff = 0;
-        if (!strcasecmp(property, "get_synthetic")) get_synthetic = 0;
-        if (!strcasecmp(property, "get_scalar")) get_scalar = 0;
-        if (!strcasecmp(property, "get_nodimdata")) get_nodimdata = 0;
+        if (STR_IEQUALS(property, "get_datadble")) get_datadble = 0;
+        if (STR_IEQUALS(property, "get_dimdble")) get_dimdble = 0;
+        if (STR_IEQUALS(property, "get_timedble")) get_timedble = 0;
+        if (STR_IEQUALS(property, "get_bytes")) get_bytes = 0;
+        if (STR_IEQUALS(property, "get_bad")) get_bad = 0;
+        if (STR_IEQUALS(property, "get_meta")) get_meta = 0;
+        if (STR_IEQUALS(property, "get_asis")) get_asis = 0;
+        if (STR_IEQUALS(property, "get_uncal")) get_uncal = 0;
+        if (STR_IEQUALS(property, "get_notoff")) get_notoff = 0;
+        if (STR_IEQUALS(property, "get_synthetic")) get_synthetic = 0;
+        if (STR_IEQUALS(property, "get_scalar")) get_scalar = 0;
+        if (STR_IEQUALS(property, "get_nodimdata")) get_nodimdata = 0;
     } else {
-        if (!strcasecmp(property, "verbose")) idamSetLogLevel(LOG_NONE);
-        if (!strcasecmp(property, "debug")) idamSetLogLevel(LOG_NONE);
-        if (!strcasecmp(property, "altData")) clientFlags = clientFlags & !CLIENTFLAG_ALTDATA;
-        if (!strcasecmp(property, "altRank")) altRank = 0;
-        if (!strcasecmp(property, "reuseLastHandle")) clientFlags = clientFlags & !CLIENTFLAG_REUSELASTHANDLE;
-        if (!strcasecmp(property, "freeAndReuseLastHandle")) {
+        if (STR_IEQUALS(property, "verbose")) idamSetLogLevel(LOG_NONE);
+        if (STR_IEQUALS(property, "debug")) idamSetLogLevel(LOG_NONE);
+        if (STR_IEQUALS(property, "altData")) clientFlags = clientFlags & !CLIENTFLAG_ALTDATA;
+        if (STR_IEQUALS(property, "altRank")) altRank = 0;
+        if (STR_IEQUALS(property, "reuseLastHandle")) clientFlags = clientFlags & !CLIENTFLAG_REUSELASTHANDLE;
+        if (STR_IEQUALS(property, "freeAndReuseLastHandle")) {
             clientFlags = clientFlags & !CLIENTFLAG_FREEREUSELASTHANDLE;
         }
     }
@@ -1183,39 +1183,39 @@ int getIdamErrorType(int handle)
 */
 int getIdamDataTypeId(const char* type)
 { // Return the Internal Code for Data Types
-    if (!strcasecmp(type, "dcomplex")) return TYPE_DCOMPLEX;
-    if (!strcasecmp(type, "complex")) return TYPE_COMPLEX;
-    if (!strcasecmp(type, "double")) return TYPE_DOUBLE;
-    if (!strcasecmp(type, "float")) return TYPE_FLOAT;
-    if (!strcasecmp(type, "long64")) return TYPE_LONG64;
-    if (!strcasecmp(type, "long long")) return TYPE_LONG64;
+    if (STR_IEQUALS(type, "dcomplex")) return TYPE_DCOMPLEX;
+    if (STR_IEQUALS(type, "complex")) return TYPE_COMPLEX;
+    if (STR_IEQUALS(type, "double")) return TYPE_DOUBLE;
+    if (STR_IEQUALS(type, "float")) return TYPE_FLOAT;
+    if (STR_IEQUALS(type, "long64")) return TYPE_LONG64;
+    if (STR_IEQUALS(type, "long long")) return TYPE_LONG64;
 #ifndef __APPLE__
-    if (!strcasecmp(type, "ulong64")) return TYPE_UNSIGNED_LONG64;
-    if (!strcasecmp(type, "unsigned long64")) return TYPE_UNSIGNED_LONG64;
-    if (!strcasecmp(type, "unsigned long long")) return TYPE_UNSIGNED_LONG64;
+    if (STR_IEQUALS(type, "ulong64")) return TYPE_UNSIGNED_LONG64;
+    if (STR_IEQUALS(type, "unsigned long64")) return TYPE_UNSIGNED_LONG64;
+    if (STR_IEQUALS(type, "unsigned long long")) return TYPE_UNSIGNED_LONG64;
 #endif
-    if (!strcasecmp(type, "long")) return TYPE_LONG;
-    if (!strcasecmp(type, "unsigned long")) return TYPE_UNSIGNED_LONG;
-    if (!strcasecmp(type, "int")) return TYPE_INT;
-    if (!strcasecmp(type, "integer")) return TYPE_INT;
-    if (!strcasecmp(type, "unsigned")) return TYPE_UNSIGNED_INT;
-    if (!strcasecmp(type, "unsigned int")) return TYPE_UNSIGNED_INT;
-    if (!strcasecmp(type, "unsigned integer"))return TYPE_UNSIGNED_INT;
-    if (!strcasecmp(type, "short")) return TYPE_SHORT;
-    if (!strcasecmp(type, "unsigned short")) return TYPE_UNSIGNED_SHORT;
-    if (!strcasecmp(type, "char")) return TYPE_CHAR;
-    if (!strcasecmp(type, "unsigned char")) return TYPE_UNSIGNED_CHAR;
-    if (!strcasecmp(type, "unknown")) return TYPE_UNKNOWN;
-    if (!strcasecmp(type, "undefined")) return TYPE_UNDEFINED;
+    if (STR_IEQUALS(type, "long")) return TYPE_LONG;
+    if (STR_IEQUALS(type, "unsigned long")) return TYPE_UNSIGNED_LONG;
+    if (STR_IEQUALS(type, "int")) return TYPE_INT;
+    if (STR_IEQUALS(type, "integer")) return TYPE_INT;
+    if (STR_IEQUALS(type, "unsigned")) return TYPE_UNSIGNED_INT;
+    if (STR_IEQUALS(type, "unsigned int")) return TYPE_UNSIGNED_INT;
+    if (STR_IEQUALS(type, "unsigned integer")) return TYPE_UNSIGNED_INT;
+    if (STR_IEQUALS(type, "short")) return TYPE_SHORT;
+    if (STR_IEQUALS(type, "unsigned short")) return TYPE_UNSIGNED_SHORT;
+    if (STR_IEQUALS(type, "char")) return TYPE_CHAR;
+    if (STR_IEQUALS(type, "unsigned char")) return TYPE_UNSIGNED_CHAR;
+    if (STR_IEQUALS(type, "unknown")) return TYPE_UNKNOWN;
+    if (STR_IEQUALS(type, "undefined")) return TYPE_UNDEFINED;
 
-    if (!strcasecmp(type, "vlen")) return TYPE_VLEN;
-    if (!strcasecmp(type, "compound")) return TYPE_COMPOUND;
-    if (!strcasecmp(type, "opaque")) return TYPE_OPAQUE;
-    if (!strcasecmp(type, "enum")) return TYPE_ENUM;
-    if (!strcasecmp(type, "string")) return TYPE_STRING;
-    if (!strcasecmp(type, "void")) return TYPE_VOID;
+    if (STR_IEQUALS(type, "vlen")) return TYPE_VLEN;
+    if (STR_IEQUALS(type, "compound")) return TYPE_COMPOUND;
+    if (STR_IEQUALS(type, "opaque")) return TYPE_OPAQUE;
+    if (STR_IEQUALS(type, "enum")) return TYPE_ENUM;
+    if (STR_IEQUALS(type, "string")) return TYPE_STRING;
+    if (STR_IEQUALS(type, "void")) return TYPE_VOID;
 
-    if (!strcasecmp(type, "string *")) return TYPE_STRING;
+    if (STR_IEQUALS(type, "string *")) return TYPE_STRING;
 
     return TYPE_UNKNOWN;
 }
@@ -1300,23 +1300,23 @@ int getIdamErrorModelId(const char* model)
     for (i = 1; i < ERROR_MODEL_UNDEFINED; i++) {
         switch (i) {
             case 1:
-                if (!strcasecmp(model, "default"))return ERROR_MODEL_DEFAULT;
+                if (STR_IEQUALS(model, "default")) return ERROR_MODEL_DEFAULT;
                 break;
             case 2:
-                if (!strcasecmp(model, "default_asymmetric"))return ERROR_MODEL_DEFAULT_ASYMMETRIC;
+                if (STR_IEQUALS(model, "default_asymmetric")) return ERROR_MODEL_DEFAULT_ASYMMETRIC;
                 break;
 #ifdef NO_GSL_LIB
             case 3:
-                if (!strcasecmp(model, "gaussian"))return ERROR_MODEL_GAUSSIAN;
+                if (STR_IEQUALS(model, "gaussian")) return ERROR_MODEL_GAUSSIAN;
                 break;
             case 4:
-                if (!strcasecmp(model, "reseed"))return ERROR_MODEL_RESEED;
+                if (STR_IEQUALS(model, "reseed")) return ERROR_MODEL_RESEED;
                 break;
             case 5:
-                if (!strcasecmp(model, "gaussian_shift"))return ERROR_MODEL_GAUSSIAN_SHIFT;
+                if (STR_IEQUALS(model, "gaussian_shift")) return ERROR_MODEL_GAUSSIAN_SHIFT;
                 break;
             case 6:
-                if (!strcasecmp(model, "poisson"))return ERROR_MODEL_POISSON;
+                if (STR_IEQUALS(model, "poisson")) return ERROR_MODEL_POISSON;
                 break;
 #endif
             default:
@@ -3476,7 +3476,7 @@ int setIdamDataTree(int handle)
 NTREE* getIdamDataTree(int handle)
 {
     if (getIdamDataOpaqueType(handle) != OPAQUE_TYPE_STRUCTURES) return 0;
-    return (NTREE *)getIdamData(handle);
+    return (NTREE*)getIdamData(handle);
 }
 
 // Return a user defined data structure definition

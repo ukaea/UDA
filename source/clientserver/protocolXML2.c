@@ -64,6 +64,7 @@
 #include "errorLog.h"
 #include "protocol.h"
 #include "xdrlib.h"
+#include "stringUtils.h"
 
 #ifdef SERVERBUILD
 #  include <server/udaServer.h>
@@ -731,7 +732,7 @@ int protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, void* st
 
 #endif	// !FATCLIENT	       
 
-                        if (!strcmp(udt_received->name, "SARRAY")) {            // expecting this carrier structure
+                        if (STR_EQUALS(udt_received->name, "SARRAY")) {            // expecting this carrier structure
 
                             GENERAL_BLOCK* general_block = (GENERAL_BLOCK*) malloc(sizeof(GENERAL_BLOCK));
 
@@ -894,7 +895,7 @@ int protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, void* st
 
                             // Regular client or server
 
-                            if (!strcmp(udt_received->name, "SARRAY")) {            // expecting this carrier structure
+                            if (STR_EQUALS(udt_received->name, "SARRAY")) {            // expecting this carrier structure
 
                                 GENERAL_BLOCK* general_block = (GENERAL_BLOCK*) malloc(sizeof(GENERAL_BLOCK));
 
@@ -1035,7 +1036,7 @@ int protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, void* st
 
                             // Regular client or server
 
-                            if (!strcmp(udt_received->name, "SARRAY")) {            // expecting this carrier structure
+                            if (STR_EQUALS(udt_received->name, "SARRAY")) {            // expecting this carrier structure
 
                                 GENERAL_BLOCK* general_block = (GENERAL_BLOCK*) malloc(sizeof(GENERAL_BLOCK));
 
@@ -1245,7 +1246,7 @@ int unpackXDRFile(XDR* xdrs, unsigned char* filename, DATA_BLOCK* data_block)
 
 // Return data tree
 
-    if (!strcmp(udt_received->name, "SARRAY")) {            // expecting this carrier structure
+    if (STR_EQUALS(udt_received->name, "SARRAY")) {            // expecting this carrier structure
 
         GENERAL_BLOCK* general_block = (GENERAL_BLOCK*) malloc(sizeof(GENERAL_BLOCK));
 
@@ -1348,7 +1349,7 @@ int unpackXDRObject(XDR* xdrs, unsigned char* object, size_t objectSize, DATA_BL
 
 // Return data tree
 
-    if (!strcmp(udt_received->name, "SARRAY")) {            // expecting this carrier structure
+    if (STR_EQUALS(udt_received->name, "SARRAY")) {            // expecting this carrier structure
 
         GENERAL_BLOCK* general_block = (GENERAL_BLOCK*) malloc(sizeof(GENERAL_BLOCK));
 

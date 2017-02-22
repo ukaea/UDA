@@ -13,15 +13,17 @@ extern "C" {
 #define THISPLUGIN_MAX_INTERFACE_VERSION    1
 #define THISPLUGIN_DEFAULT_METHOD        "get"
 
+#define STRING char
+
 typedef struct {
     STRING* identifier;
     STRING* name;
-    int position_count;            // Number of Coordinates
-    double* r;                // Radial Position
+    int position_count;         // Number of Coordinates
+    double* r;                  // Radial Position
     //double *r_error_upper;
     //double *r_error_lower;
     //double *r_error_index;
-    double* z;                // Z Position
+    double* z;                  // Z Position
     //double *z_error_upper;
     //double *z_error_lower;
     //double *z_error_index;
@@ -29,12 +31,12 @@ typedef struct {
     //double *phi_error_upper;
     //double *phi_error_lower;
     //double *phi_error_index;
-    int data_count;            // Number of data
-    double* data;            // Measurement data
+    int data_count;             // Number of data
+    double* data;               // Measurement data
     //double *data_error_upper;
     //double *data_error_lower;
     //double *data_error_index;
-    double* time;            // Measurement time
+    double* time;               // Measurement time
 } FLUX_LOOP;
 
 typedef struct {

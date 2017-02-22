@@ -14,7 +14,21 @@ find_library( LIBMONGOC_LIBRARY
   NAMES mongoc-1.0
   HINTS ${MONGOC_ROOT}
     ENV MONGOC_ROOT
-  PATHS /usr /usr/local
+  PATHS
+    /usr
+    /usr/local
+    /opt/local
+  PATH_SUFFIXES lib lib64
+  )
+
+find_library( LIBBSON_LIBRARY
+  NAMES bson-1.0
+  HINTS ${MONGOC_ROOT}
+    ENV MONGOC_ROOT
+  PATHS
+    /usr
+    /usr/local
+    /opt/local
   PATH_SUFFIXES lib lib64
   )
 
@@ -22,7 +36,10 @@ find_path( LIBMONGOC_INCLUDE_DIR
   mongoc.h
   HINTS ${MONGOC_ROOT}
     ENV MONGOC_ROOT
-  PATHS /usr /usr/local
+  PATHS
+    /usr
+    /usr/local
+    /opt/local
   PATH_SUFFIXES include/libmongoc-1.0
   )
 
@@ -30,17 +47,15 @@ find_path( LIBBSON_INCLUDE_DIR
   bson.h
   HINTS ${MONGOC_ROOT}
     ENV MONGOC_ROOT
-  PATH /usr/ /usr/local
+  PATH
+    /usr/
+    /usr/local
+    /opt/local
   PATH_SUFFIXES include/libbson-1.0
   )
 
-set( LIBMONGOC_LIBRARIES ${LIBMONGOC_LIBRARY} )
+set( LIBMONGOC_LIBRARIES ${LIBMONGOC_LIBRARY} ${LIBBSON_LIBRARY} )
 set( LIBMONGOC_INCLUDE_DIRS ${LIBMONGOC_INCLUDE_DIR} ${LIBBSON_INCLUDE_DIR} )
 
 include( FindPackageHandleStandardArgs )
-find_package_handle_standard_args(
-  mongoc DEFAULT_MSG
-  LIBMONGOC_LIBRARY
-  LIBMONGOC_INCLUDE_DIR
-  LIBBSON_INCLUDE_DIR
-)
+find_package_handle_standard_args( LIBMONGOC DEFAULT_MSG LIBMONGOC_LIBRARY LIBMONGOC_INCLUDE_DIR LIBBSON_INCLUDE_DIR )

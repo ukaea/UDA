@@ -72,10 +72,10 @@
 //--------------------------------------------------------
 // Private Flags: Properties passed to IDAM clients called by servers (32 bits)
 
-#define PRIVATEFLAG_FULLRESET -1    // ffff - 0010    Reset flags except EXTERNAL
-#define PRIVATEFLAG_XDRFILE    1    // 0001        Use an intermediate file containing the XDR data rather than a data stream
-#define PRIVATEFLAG_EXTERNAL   2    // 0010        The originating server is an External Facing server
-#define PRIVATEFLAG_CACHE      4    // 0100        Cache all data
+#define PRIVATEFLAG_FULLRESET   (unsigned int)-1    // ffff - 0010    Reset flags except EXTERNAL
+#define PRIVATEFLAG_XDRFILE     (unsigned int)1     // 0001        Use an intermediate file containing the XDR data rather than a data stream
+#define PRIVATEFLAG_EXTERNAL    (unsigned int)2     // 0010        The originating server is an External Facing server
+#define PRIVATEFLAG_CACHE       (unsigned int)4     // 0100        Cache all data
 
 #define PRIVATEFLAG_XDROBJECT   8   //  1000        Use an intermediate XDR data object rather than a data stream
 

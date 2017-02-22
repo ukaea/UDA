@@ -20,22 +20,25 @@ if( LEVELDB_INCLUDE_DIR AND LEVELDB_LIBRARIES )
   set( LEVELDB_FIND_QUIETLY TRUE )
 endif( LEVELDB_INCLUDE_DIR AND LEVELDB_LIBRARIES )
 
-find_path( LEVELDB_INCLUDE_DIR LEVELDB3.h
+find_path( LEVELDB_INCLUDE_DIR db.h
   HINTS ${LEVELDB_ROOT}
-  ENV LEVELDB_DIR
-  PATH_SUFFIXES include )
+    ENV LEVELDB_DIR
+  PATHS
+    /usr/local
+    /opt/local
+    /sw
+    /usr/lib/sfw
+  PATH_SUFFIXES include/leveldb )
 
-find_library( LEVELDB_LIBRARIES_LIB NAMES LEVELDB3
+find_library( LEVELDB_LIBRARIES NAMES leveldb
   HINTS ${LEVELDB_ROOT}
-  ENV LEVELDB_DIR
+    ENV LEVELDB_DIR
+  PATHS
+    /opt/local
+    /sw
+    /usr
+    /usr/local
   PATH_SUFFIXES lib lib64 )
-
-find_library( LEVELDB_C_LIBRARIES_LIB NAMES LEVELDB3c
-  HINTS ${LEVELDB_ROOT}
-  ENV LEVELDB_DIR
-  PATH_SUFFIXES lib lib64 )
-
-set( LEVELDB_LIBRARIES ${LEVELDB_LIBRARIES_LIB} ${LEVELDB_C_LIBRARIES_LIB} )
 
 include( FindPackageHandleStandardArgs )
 find_package_handle_standard_args( LEVELDB DEFAULT_MSG LEVELDB_LIBRARIES LEVELDB_INCLUDE_DIR )

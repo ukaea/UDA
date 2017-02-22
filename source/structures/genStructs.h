@@ -1,6 +1,8 @@
 #ifndef UDA_STRUCTURES_GENSTRUCTS_H
 #define UDA_STRUCTURES_GENSTRUCTS_H
 
+#include <stdlib.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -50,8 +52,6 @@ typedef unsigned int        UVOIDTYPE;
 #define ALIGNMENT           1               // Default Byte Boundary used for Structure Packing
 #endif
 
-typedef char STRING;
-
 //-------------------------------------------------------------------------------------------------------
 // Structure types
 
@@ -62,16 +62,16 @@ typedef struct SArray {                     // This structure must be parsed to 
     int rank;                       // Rank of the data array
     int* shape;                     // Shape of the data array
     void* data;                     // Location of the Structure Array
-    STRING type[MAXELEMENTNAME];    // The Structure Array Element's type name (Must be Unique)
+    char type[MAXELEMENTNAME];      // The Structure Array Element's type name (Must be Unique)
 } SARRAY;
 
 typedef struct EnumMember {
-    STRING name[MAXELEMENTNAME];    // The Enumeration member name
+    char name[MAXELEMENTNAME];      // The Enumeration member name
     long long value;                // The value of the member
 } ENUMMEMBER;
 
 typedef struct EnumList {
-    STRING name[MAXELEMENTNAME];    // The Enumeration name
+    char name[MAXELEMENTNAME];    // The Enumeration name
     int type;                       // The integer base type
     int count;                      // The number of members of this enumeration class
     ENUMMEMBER* enummember;         // Array of enum members
@@ -86,7 +86,7 @@ typedef struct VLenType {                   // Variable length (ragged) arrays
 typedef struct LogMalloc {
     int count;                      // Number of elements allocated
     int rank;                       // Dimensionality
-    int size;                       // Size of each element allocated
+    size_t size;                    // Size of each element allocated
     int freed;                      // Freed flag
     char type[MAXELEMENTNAME];      // The type name (Atomic or User Defined)
     void* heap;                     // Heap address of the allocated memory

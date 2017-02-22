@@ -15,6 +15,7 @@
 #include <logging/logging.h>
 #include <clientserver/protocol.h>
 #include <server/udaServer.h>
+#include <clientserver/stringUtils.h>
 
 // Initialise the File List
 
@@ -77,7 +78,7 @@ void* getOpenIdamFile(IDAMFILELIST* idamfiles, int type, char* filename)
                 idamfiles->files[i].status, idamfiles->files[i].type, idamfiles->files[i].filename, filename);
 
         if (idamfiles->files[i].status == 1 && idamfiles->files[i].type == type) {
-            if (!strcasecmp(filename, idamfiles->files[i].filename)) {
+            if (STR_IEQUALS(filename, idamfiles->files[i].filename)) {
                 gettimeofday(&idamfiles->files[i].file_open, NULL);        // Refresh Time of Last use
                 if (idamfiles->files[i].type == REQUEST_READ_IDA) return ((void*) idamfiles->files[i].ida);
                 if (idamfiles->files[i].type == REQUEST_READ_CDF) return ((void*) &idamfiles->files[i].netcdf);
@@ -95,7 +96,7 @@ int getClosedIdamFile(IDAMFILELIST* idamfiles, int type, char* filename)
     int i;
     for (i = 0; i < idamfiles->nfiles; i++) {
         if (idamfiles->files[i].status == 0) {    // Only check Close handle records
-            if (!strcasecmp(filename, idamfiles->files[i].filename) && idamfiles->files[i].type == type) return (i);
+            if (STR_IEQUALS(filename, idamfiles->files[i].filename) && idamfiles->files[i].type == type) return (i);
         }
     }
     return -1;    // No Closed File Found
@@ -107,7 +108,7 @@ void closeIdamFile(IDAMFILELIST* idamfiles, char* filename)
     int i;
     for (i = 0; i < idamfiles->nfiles; i++) {
         if (idamfiles->files[i].status == 1) {    // Only check Open handle records
-            if (!strcasecmp(filename, idamfiles->files[i].filename)) {
+            if (STR_IEQUALS(filename, idamfiles->files[i].filename)) {
                 if (idamfiles->files[i].type == REQUEST_READ_IDA) ida_close((ida_file_ptr*) idamfiles->files[i].ida);
                 if (idamfiles->files[i].type == REQUEST_READ_CDF) ncclose((int) idamfiles->files[i].netcdf);
                 if (idamfiles->files[i].type == REQUEST_READ_HDF5) H5Fclose((hid_t) idamfiles->files[i].hdf5);

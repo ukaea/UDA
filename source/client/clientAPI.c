@@ -65,7 +65,7 @@ int idamClientAPI(const char* file, const char* signal, int pass, int exp_number
         concatIdamError(idamerrorstack, &server_block.idamerrorstack);
         closeIdamError(&idamerrorstack);
         if (server_block.idamerrorstack.nerrors == 0) {
-            idamLog(LOG_ERROR, "Error identifying the Data Source [%s]\n", data_source);
+            IDAM_LOGF(LOG_ERROR, "Error identifying the Data Source [%s]\n", data_source);
         }
         return -err;
     }
@@ -129,18 +129,18 @@ int idamClientFileAPI(const char* file, const char* signal, const char* format)
         concatIdamError(idamerrorstack, &server_block.idamerrorstack);
         closeIdamError(&idamerrorstack);
         if (server_block.idamerrorstack.nerrors == 0) {
-            idamLog(LOG_ERROR, "Error identifying the Data Source [%s]\n", data_source);
+            IDAM_LOGF(LOG_ERROR, "Error identifying the Data Source [%s]\n", data_source);
         }
         return -err;
     }
 
 //-------------------------------------------------------------------------
 
-    idamLog(LOG_DEBUG, "Routine: ClientFileAPI\n");
-    idamLog(LOG_DEBUG, "Routine: ClientFileAPI\n");
-    idamLog(LOG_DEBUG, "Request 		 %d\n", request_block.request);
-    idamLog(LOG_DEBUG, "File            %s\n", request_block.path);
-    idamLog(LOG_DEBUG, "Signal  		 %s\n", request_block.signal);
+    IDAM_LOG(LOG_DEBUG, "Routine: ClientFileAPI\n");
+    IDAM_LOG(LOG_DEBUG, "Routine: ClientFileAPI\n");
+    IDAM_LOGF(LOG_DEBUG, "Request 		 %d\n", request_block.request);
+    IDAM_LOGF(LOG_DEBUG, "File            %s\n", request_block.path);
+    IDAM_LOGF(LOG_DEBUG, "Signal  		 %s\n", request_block.signal);
 
 //-------------------------------------------------------------------------
 // Fetch Data
@@ -179,14 +179,14 @@ int idamClientFileAPI2(const char* file, const char* format, const char* owner,
 
     initRequestBlock(&request_block);
 
-    if (!strcasecmp(format, "ida")) {
+    if (STR_IEQUALS(format, "ida")) {
         request_block.request = REQUEST_READ_IDA;
-    } else if (!strcasecmp(format, "ppf")) {
+    } else if (STR_IEQUALS(format, "ppf")) {
         request_block.request = REQUEST_READ_PPF;
-    } else if (!strcasecmp(format, "jpf")) {
+    } else if (STR_IEQUALS(format, "jpf")) {
         request_block.request = REQUEST_READ_JPF;
     } else {
-        idamLog(LOG_ERROR, "The Specifed File Format [%s] is Not Supported\n", format);
+        IDAM_LOGF(LOG_ERROR, "The Specifed File Format [%s] is Not Supported\n", format);
         return FILE_FORMAT_NOT_SUPPORTED;
     }
 
@@ -196,10 +196,11 @@ int idamClientFileAPI2(const char* file, const char* format, const char* owner,
     switch (request_block.request) {
 
         case REQUEST_READ_IDA:
-            if (exp_number > 0)
+            if (exp_number > 0) {
                 request_block.exp_number = exp_number;
-            else
-                request_block.exp_number = -1;    // Has No Meaning in this Context
+            } else {
+                request_block.exp_number = -1;
+            }    // Has No Meaning in this Context
 
             if (pass > -1)
                 request_block.pass = pass;
@@ -258,12 +259,12 @@ int idamClientTestAPI(const char* file, const char* signal, int pass, int exp_nu
     strcpy(request_block.file, file);
     strcpy(request_block.signal, signal);
 
-    idamLog(LOG_DEBUG, "Routine: ClientTestAPI\n");
-    idamLog(LOG_DEBUG, "Request           %d\n", request_block.request);
-    idamLog(LOG_DEBUG, "File              %s\n", request_block.file);
-    idamLog(LOG_DEBUG, "Signal            %s\n", request_block.signal);
-    idamLog(LOG_DEBUG, "Pass              %d\n", request_block.pass);
-    idamLog(LOG_DEBUG, "Experiment Number %d\n", request_block.exp_number);
+    IDAM_LOG(LOG_DEBUG, "Routine: ClientTestAPI\n");
+    IDAM_LOGF(LOG_DEBUG, "Request           %d\n", request_block.request);
+    IDAM_LOGF(LOG_DEBUG, "File              %s\n", request_block.file);
+    IDAM_LOGF(LOG_DEBUG, "Signal            %s\n", request_block.signal);
+    IDAM_LOGF(LOG_DEBUG, "Pass              %d\n", request_block.pass);
+    IDAM_LOGF(LOG_DEBUG, "Experiment Number %d\n", request_block.exp_number);
 
 //-------------------------------------------------------------------------
 // Fetch Data

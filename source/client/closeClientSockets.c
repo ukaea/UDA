@@ -9,11 +9,12 @@
 #include <stdlib.h>
 
 #include <clientserver/manageSockets.h>
+#include <clientserver/stringUtils.h>
 
 void closeNamedIdamClientSocket(SOCKETLIST *socks, char *host, int port) {
     int i;
     for(i=0; i < socks->nsocks; i++) {
-        if(!strcasecmp(host, socks->sockets[i].host) && socks->sockets[i].port == port) {
+        if(STR_IEQUALS(host, socks->sockets[i].host) && socks->sockets[i].port == port) {
             if(socks->sockets[i].type == TYPE_IDAM_SERVER) {
 #ifndef _WIN32
                 close(socks->sockets[i].fh);		// Only Regular Sockets!

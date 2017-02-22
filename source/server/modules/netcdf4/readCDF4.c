@@ -177,7 +177,7 @@ int readCDF(DATA_SOURCE data_source,
 //----------------------------------------------------------------------
 // Modify behaviour when reading strings from an HDF5 file
 
-        if (((token = strrchr(data_source.path, '.')) != NULL) && !strcmp(token, ".hd5")) {    // Test File extension
+        if (((token = strrchr(data_source.path, '.')) != NULL) && STR_EQUALS(token, ".hd5")) {    // Test File extension
             if ((token = getenv("IMAS_HDF_READER")) != NULL) IMAS_HDF_READER = 1;
         }
 
@@ -224,7 +224,7 @@ int readCDF(DATA_SOURCE data_source,
 //----------------------------------------------------------------------
 // FUDGE for netcdf-3 TRANSP data (This won't work if the source alias is unknown, e.g. when private file)
 
-        //if(hierarchical && !strcmp(signal_desc.source_alias, "transp")) hierarchical = 0;
+        //if(hierarchical && STR_EQUALS(signal_desc.source_alias, "transp")) hierarchical = 0;
 
 //----------------------------------------------------------------------
 // Global Meta Data: What convention has been adopted? Data Class? Build XML if Meta data requested
@@ -315,7 +315,7 @@ int readCDF(DATA_SOURCE data_source,
 
 // FUDGE for efit++ data
 
-            //if(!compliance && !strcmp(signal_desc.source_alias, "efit")) compliance = 1;
+            //if(!compliance && STR_EQUALS(signal_desc.source_alias, "efit")) compliance = 1;
 
 
             IDAM_LOGF(LOG_DEBUG, "netCDF file compliance?  %d\n", compliance);
@@ -367,13 +367,13 @@ int readCDF(DATA_SOURCE data_source,
                         addMetaXML(&metaxml, "\"</class>\n");
                     }
 
-                    if (!strcasecmp(classification, "raw data")) {
+                    if (STR_IEQUALS(classification, "raw data")) {
                         class = RAW_DATA;
                     } else {
-                        if (!strcasecmp(classification, "analysed data")) {
+                        if (STR_IEQUALS(classification, "analysed data")) {
                             class = ANALYSED_DATA;
                         } else {
-                            if (!strcasecmp(classification, "modelled data")) {
+                            if (STR_IEQUALS(classification, "modelled data")) {
                                 class = MODELLED_DATA;
                             }
                         }
@@ -400,8 +400,8 @@ int readCDF(DATA_SOURCE data_source,
                     //if ((err = nc_inq_compound_name(fd, (nc_type)typeids[i], typename)) != NC_NOERR) break;
                     typename[0] = '\0';
                     nc_inq_compound_name(fd, typeids[i], typename);        // ignore non-compound types
-                    if (!strcmp(typename, "complex")) ctype = typeids[i];
-                    if (!strcmp(typename, "dcomplex")) dctype = typeids[i];
+                    if (STR_EQUALS(typename, "complex")) ctype = typeids[i];
+                    if (STR_EQUALS(typename, "dcomplex")) dctype = typeids[i];
                 }
             } while (0);
             if (typeids != NULL) free((void*) typeids);
@@ -438,13 +438,13 @@ int readCDF(DATA_SOURCE data_source,
 // ***** This assumes a 3 letter source_alias name prefix !!!!!
 
         if (compliance) {
-            if (!strncmp(&signal_desc.signal_name[4], "/devices/", 9)) {        //   /xyc/devices/...
+            if (STR_EQUALS(&signal_desc.signal_name[4], "/devices/")) {        //   /xyc/devices/...
                 strncpy(variable, &signal_desc.signal_name[1], 3);
                 variable[3] = '\0';
                 IDAM_LOG(LOG_DEBUG, "devices signal requested\n");
                 IDAM_LOGF(LOG_DEBUG, "source alias: [%s]\n", variable);
                 IDAM_LOGF(LOG_DEBUG, "source alias: [%s]\n", signal_desc.signal_alias);
-                if (!strcmp(signal_desc.signal_alias, variable)) {
+                if (STR_EQUALS(signal_desc.signal_alias, variable)) {
                     strcpy(variable, &signal_desc.signal_name[4]);
                     strcpy(signal_desc.signal_name, variable);
                     IDAM_LOG(LOG_DEBUG, "Not recorded in Database: Removing source alias prefix\n");
@@ -819,7 +819,7 @@ int readCDF(DATA_SOURCE data_source,
             int subtree = 0;
             HGROUPS hgroups;
 
-            if (hierarchical && cdfsubset.subsetCount == 0 && ((numgrp == 1 && !strcmp(signal_desc.signal_name, "/")) ||
+            if (hierarchical && cdfsubset.subsetCount == 0 && ((numgrp == 1 && STR_EQUALS(signal_desc.signal_name, "/")) ||
                                                                ((rc = getGroupId(grpid, variable, &subtree)) ==
                                                                 NC_NOERR))) {
 
@@ -833,7 +833,7 @@ int readCDF(DATA_SOURCE data_source,
 
 // Target all User Defined types within the scope of this sub-tree Root node (unless root node is also sub-tree node: Prevents duplicate definitions)
 
-                if (subtree == 0 && numgrp == 1 && !strcmp(signal_desc.signal_name, "/")) {
+                if (subtree == 0 && numgrp == 1 && STR_EQUALS(signal_desc.signal_name, "/")) {
                     subtree = grpid;        // getCDF4SubTreeMeta  will call getCDF4SubTreeUserDefinedTypes for the root group
                 } else {
                     err = getCDF4SubTreeUserDefinedTypes(grpid, &grouplist, userdefinedtypelist);
@@ -1425,10 +1425,10 @@ int readCDF(DATA_SOURCE data_source,
 // Is this the TIME dimension?
 
             if (compliance) {
-                if (!strcmp(classtxt, "time")) data_block->order = ii;    // Yes it is!
+                if (STR_EQUALS(classtxt, "time")) data_block->order = ii;    // Yes it is!
             } else {
-                if (!strcasecmp(data_block->dims[ii].dim_label, "time") ||
-                    !strcasecmp(data_block->dims[ii].dim_label, "time3"))
+                if (STR_IEQUALS(data_block->dims[ii].dim_label, "time") ||
+                    STR_IEQUALS(data_block->dims[ii].dim_label, "time3"))
                     data_block->order = ii;    // Simple (& very poor) test for Time Dimension!
 
                 if (!isIndex) {
@@ -1574,7 +1574,7 @@ int getGroupId(int ncgrpid, char* target, int* targetid)
             return err;
         }
 
-        if (!strcmp(grpname, target)) {
+        if (STR_EQUALS(grpname, target)) {
             *targetid = ncids[i];            // Found - it exists!
             free((void*) grpname);
             free((void*) ncids);

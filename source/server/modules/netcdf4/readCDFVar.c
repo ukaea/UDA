@@ -122,7 +122,7 @@ void replaceEmbeddedStrings(USERDEFINEDTYPE* udt, int ndata, char* dvec)
             continue;
         }
 
-        if (!strcmp(udt->compoundfield[j].type, "STRING *")) {
+        if (STR_EQUALS(udt->compoundfield[j].type, "STRING *")) {
 
 // String arrays within data structures are defined (readCDFTypes) as char *str[int] => rank=1, pointer=0 and type=STRING*
 

@@ -26,6 +26,7 @@
 #include <server/managePluginFiles.h>
 #include <clientserver/initStructs.h>
 #include <clientserver/udaTypes.h>
+#include <clientserver/stringUtils.h>
 
 #include "readHDF58.h"
 
@@ -65,7 +66,7 @@ extern int idamHDF5(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     housekeeping = idam_plugin_interface->housekeeping;
 
-    if (housekeeping || !strcasecmp(request_block->function, "reset")) {
+    if (housekeeping || STR_IEQUALS(request_block->function, "reset")) {
 
         if (!init) return 0;        // Not previously initialised: Nothing to do!
 
@@ -81,13 +82,13 @@ extern int idamHDF5(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 //----------------------------------------------------------------------------------------
 // Initialise 
 
-    if (!init || !strcasecmp(request_block->function, "init")
-        || !strcasecmp(request_block->function, "initialise")) {
+    if (!init || STR_IEQUALS(request_block->function, "init")
+        || STR_IEQUALS(request_block->function, "initialise")) {
 
         initIdamPluginFileList(&pluginFileList);
 
         init = 1;
-        if (!strcasecmp(request_block->function, "init") || !strcasecmp(request_block->function, "initialise"))
+        if (STR_IEQUALS(request_block->function, "init") || STR_IEQUALS(request_block->function, "initialise"))
             return 0;
     }
 
@@ -99,7 +100,7 @@ extern int idamHDF5(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Help: A Description of library functionality
 
-        if (!strcasecmp(request_block->function, "help")) {
+        if (STR_IEQUALS(request_block->function, "help")) {
 
             char* p = (char*) malloc(sizeof(char) * 2 * 1024);
 
@@ -130,7 +131,7 @@ extern int idamHDF5(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             strcpy(data_block->data_units, "");
 
             break;
-        } else if (!strcasecmp(request_block->function, "version")) {
+        } else if (STR_IEQUALS(request_block->function, "version")) {
 
             //----------------------------------------------------------------------------------------
             // Standard methods: version, builddate, defaultmethod, maxinterfaceversion
@@ -146,7 +147,7 @@ extern int idamHDF5(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             strcpy(data_block->data_label, "version");
             strcpy(data_block->data_units, "");
             break;
-        } else if (!strcasecmp(request_block->function, "builddate")) {
+        } else if (STR_IEQUALS(request_block->function, "builddate")) {
 
             // Plugin Build Date
 
@@ -161,7 +162,7 @@ extern int idamHDF5(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             strcpy(data_block->data_label, "date");
             strcpy(data_block->data_units, "");
             break;
-        } else if (!strcasecmp(request_block->function, "defaultmethod")) {
+        } else if (STR_IEQUALS(request_block->function, "defaultmethod")) {
 
             // Plugin Default Method
 
@@ -176,7 +177,7 @@ extern int idamHDF5(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             strcpy(data_block->data_label, "method");
             strcpy(data_block->data_units, "");
             break;
-        } else if (!strcasecmp(request_block->function, "maxinterfaceversion")) {
+        } else if (STR_IEQUALS(request_block->function, "maxinterfaceversion")) {
 
             // Plugin Maximum Interface Version
 
@@ -191,7 +192,7 @@ extern int idamHDF5(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             strcpy(data_block->data_label, "version");
             strcpy(data_block->data_units, "");
             break;
-        } else if (!strcasecmp(request_block->function, "get")) {
+        } else if (STR_IEQUALS(request_block->function, "get")) {
 
             //----------------------------------------------------------------------------------------
             // Read data from a HDF5 File
@@ -205,7 +206,7 @@ extern int idamHDF5(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             err = getHDF5(data_source, signal_desc, data_block);    // Legacy data reader!
 
             break;
-        } else if (!strcasecmp(request_block->function, "put")) {
+        } else if (STR_IEQUALS(request_block->function, "put")) {
 
             //----------------------------------------------------------------------------------------
             // Put data into a HDF5 File

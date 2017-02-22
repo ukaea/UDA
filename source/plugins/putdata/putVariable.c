@@ -670,7 +670,7 @@ int testDimension(int grpid, char* dimension, int parents, int* ncdimid)
 
         IDAM_LOGF(LOG_DEBUG, "Comparing Dimension Name [%s] with Target [%s]\n", dimname, dimension);
 
-        if (!strcmp(dimension, dimname)) {
+        if (STR_EQUALS(dimension, dimname)) {
             // Dimension Found
             IDAM_LOGF(LOG_DEBUG, "Dimension [%s] Found: ID %d\n", dimension, dimids[i]);
             *ncdimid = dimids[i];

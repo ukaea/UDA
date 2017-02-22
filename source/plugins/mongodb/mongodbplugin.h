@@ -1,13 +1,7 @@
-// MongoDB Query Plugin
+#ifndef IDAM_PLUGINS_MONGODB_MONGODBPLUGIN_H
+#define IDAM_PLUGINS_MONGODB_MONGODBPLUGIN_H
 
-#ifndef IDAM_PLUGINS_MONGODB_MONGODB_H
-#define IDAM_PLUGINS_MONGODB_MONGODB_H
-
-// Change History:
-//
-// 18Jan2016	dgm	Original Version
-
-#include <idamplugin.h>
+#include <server/pluginStructs.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -23,4 +17,4 @@ int query(IDAM_PLUGIN_INTERFACE * idam_plugin_interface);
 }
 #endif
 
-#endif // IDAM_PLUGINS_MONGODB_MONGODB_H
+#endif // IDAM_PLUGINS_MONGODB_MONGODBPLUGIN_H

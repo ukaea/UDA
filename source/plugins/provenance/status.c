@@ -21,6 +21,7 @@
 #include <clientserver/initStructs.h>
 #include <structures/struct.h>
 #include <structures/accessors.h>
+#include <clientserver/stringUtils.h>
 
 #include "provenance.h"
 
@@ -90,20 +91,20 @@ int status(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             IDAM_LOGF(LOG_DEBUG, "[%d] %s = %s\n", i, request_block->nameValueList.nameValue[i].name,
                     request_block->nameValueList.nameValue[i].value);
 
-            if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "uuid") ||
-                !strcasecmp(request_block->nameValueList.nameValue[i].name, "uid") ||
-                !strcasecmp(request_block->nameValueList.nameValue[i].name, "doi")) {
+            if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "uuid") ||
+                STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "uid") ||
+                STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "doi")) {
                 uuid = request_block->nameValueList.nameValue[i].value;
                 isUUID = 1;
                 continue;
             }
-            if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "status")) {
+            if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "status")) {
                 preventSQLInjection(DBConnect, &request_block->nameValueList.nameValue[i].value, 1);
                 status = toupper(request_block->nameValueList.nameValue[i].value[0]);
                 isStatus = 1;
                 continue;
             }
-            if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "returnStatus")) {
+            if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "returnStatus")) {
                 isReturnStatus = 1;
                 continue;
             }

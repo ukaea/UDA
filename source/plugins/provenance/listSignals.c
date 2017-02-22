@@ -9,8 +9,9 @@
 
 #include <structures/struct.h>
 #include <structures/accessors.h>
+#include <clientserver/stringUtils.h>
 
-int listSignals(IDAM_PLUGIN_INTERFACE * idam_plugin_interface)
+int listSignals(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
 
     int err = 0;
@@ -22,15 +23,15 @@ int listSignals(IDAM_PLUGIN_INTERFACE * idam_plugin_interface)
 //----------------------------------------------------------------------------------------
 // Standard v1 Plugin Interface
 
-    DATA_BLOCK * data_block;
-    REQUEST_BLOCK * request_block;
+    DATA_BLOCK* data_block;
+    REQUEST_BLOCK* request_block;
 
     USERDEFINEDTYPE usertype;
     COMPOUNDFIELD field;
 
-    static PGconn * DBConnect = NULL;
+    static PGconn* DBConnect = NULL;
 
-    PGresult * DBQuery = NULL;
+    PGresult* DBQuery = NULL;
 
     if (idam_plugin_interface->interfaceVersion == 1) {
 
@@ -39,18 +40,18 @@ int listSignals(IDAM_PLUGIN_INTERFACE * idam_plugin_interface)
         data_block = idam_plugin_interface->data_block;
         request_block = idam_plugin_interface->request_block;
 
-        DBConnect = (PGconn *) idam_plugin_interface->sqlConnection;
+        DBConnect = (PGconn*)idam_plugin_interface->sqlConnection;
 
     } else {
         err = 999;
-        idamLog(LOG_ERROR, "ERROR Provenance: Plugin Interface Version Unknown\n");
+        IDAM_LOG(LOG_ERROR, "Plugin Interface Version Unknown\n");
 
         addIdamError(&idamerrorstack, CODEERRORTYPE, "Provenance", err,
                      "Plugin Interface Version is Not Known: Unable to execute the request!");
         return err;
     }
 
-    idamLog(LOG_DEBUG, "Provenance: Plugin Interface transferred\n");
+    IDAM_LOG(LOG_DEBUG, "Plugin Interface transferred\n");
 
 //----------------------------------------------------------------------------------------
 // Common Name Value pairs
@@ -64,20 +65,20 @@ int listSignals(IDAM_PLUGIN_INTERFACE * idam_plugin_interface)
 
     do {
 
-            idamLog(LOG_DEBUG, "Provenance: entering function list\n");
+        IDAM_LOG(LOG_DEBUG, "entering function list\n");
 
-        char * uuid;
+        char* uuid;
         unsigned short uuidOK = 0;
 
 // Name Value pairs (Keywords have higher priority) + Protect against SQL Injection
 
         for (i = 0; i < request_block->nameValueList.pairCount; i++) {
-                idamLog(LOG_DEBUG, "[%d] %s = %s\n", i, request_block->nameValueList.nameValue[i].name,
-                        request_block->nameValueList.nameValue[i].value);
+            IDAM_LOGF(LOG_DEBUG, "[%d] %s = %s\n", i, request_block->nameValueList.nameValue[i].name,
+                      request_block->nameValueList.nameValue[i].value);
 
-            if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "uuid") ||
-                !strcasecmp(request_block->nameValueList.nameValue[i].name, "uid") ||
-                !strcasecmp(request_block->nameValueList.nameValue[i].name, "doi")) {
+            if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "uuid") ||
+                STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "uid") ||
+                STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "doi")) {
                 preventSQLInjection(DBConnect, &request_block->nameValueList.nameValue[i].value, 1);
                 uuid = request_block->nameValueList.nameValue[i].value;
                 uuidOK = 1;
@@ -87,7 +88,7 @@ int listSignals(IDAM_PLUGIN_INTERFACE * idam_plugin_interface)
 
         if (!uuidOK) {
             err = 999;
-            idamLog(LOG_ERROR, "ERROR Provenance list: The client provenance UUID must be specified!\n");
+            IDAM_LOG(LOG_ERROR, "ERROR Provenance list: The client provenance UUID must be specified!\n");
             addIdamError(&idamerrorstack, CODEERRORTYPE, "Provenance add", err,
                          "The client provenance UUID must be specified!");
             break;
@@ -96,13 +97,13 @@ int listSignals(IDAM_PLUGIN_INTERFACE * idam_plugin_interface)
         sprintf(sql, "SELECT uuid, requestedSignal, requestedSource, trueSignal, trueSource, trueSourceUUID, "
                 "logRecord, creation FROM signals_log WHERE uuid='%s';", uuid);
 
-        idamLog(LOG_DEBUG, "Provenance: list() SQL\n%s\n", sql);
+        IDAM_LOGF(LOG_DEBUG, "list() SQL\n%s\n", sql);
 
 // Execute the SQL
 
         if ((DBQuery = PQexec(DBConnect, sql)) == NULL || PQresultStatus(DBQuery) != PGRES_TUPLES_OK) {
             err = 999;
-            idamLog(LOG_ERROR, "ERROR Provenance list: SQL Failed\n");
+            IDAM_LOG(LOG_ERROR, "ERROR Provenance list: SQL Failed\n");
             addIdamError(&idamerrorstack, CODEERRORTYPE, "Provenance list", err, "SQL Failed!");
             break;
         }
@@ -110,7 +111,7 @@ int listSignals(IDAM_PLUGIN_INTERFACE * idam_plugin_interface)
         nrows = PQntuples(DBQuery);
 
         if (nrows == 0) {
-            idamLog(LOG_ERROR, "ERROR Provenance list: No signals_log records found!\n");
+            IDAM_LOG(LOG_ERROR, "ERROR Provenance list: No signals_log records found!\n");
             err = 999;
             addIdamError(&idamerrorstack, CODEERRORTYPE, "Provenance new", err, "No signals_log records found");
             break;
@@ -118,73 +119,73 @@ int listSignals(IDAM_PLUGIN_INTERFACE * idam_plugin_interface)
 
 // Create the Data Structures to be returned	 
 
-        PROVENANCESIGNAL * data = (PROVENANCESIGNAL *) malloc(nrows * sizeof(PROVENANCESIGNAL));
+        PROVENANCESIGNAL* data = (PROVENANCESIGNAL*)malloc(nrows * sizeof(PROVENANCESIGNAL));
 
-        addMalloc((void *) data, nrows, sizeof(PROVENANCESIGNAL), "PROVENANCESIGNAL");
+        addMalloc((void*)data, nrows, sizeof(PROVENANCESIGNAL), "PROVENANCESIGNAL");
 
-        PROVENANCESIGNALLIST * list = (PROVENANCESIGNALLIST *) malloc(1 * sizeof(PROVENANCESIGNALLIST));
+        PROVENANCESIGNALLIST* list = (PROVENANCESIGNALLIST*)malloc(1 * sizeof(PROVENANCESIGNALLIST));
 
         list->structVersion = 1;
         list->count = nrows;
-        list->uuid = (char *) malloc((strlen(uuid) + 1) * sizeof(char));
+        list->uuid = (char*)malloc((strlen(uuid) + 1) * sizeof(char));
         strcpy(list->uuid, uuid);
         list->list = data;
 
-        addMalloc((void *) list, 1, sizeof(PROVENANCESIGNALLIST), "PROVENANCESIGNALLIST");
-        addMalloc((void *) list->uuid, 1, (strlen(uuid) + 1) * sizeof(char), "char");
+        addMalloc((void*)list, 1, sizeof(PROVENANCESIGNALLIST), "PROVENANCESIGNALLIST");
+        addMalloc((void*)list->uuid, 1, (strlen(uuid) + 1) * sizeof(char), "char");
 
 // Extract the SQL data
 
         for (i = 0; i < nrows; i++) {
 
             stringLength = strlen(PQgetvalue(DBQuery, i, 0)) + 1;
-            data[i].uuid = (char *) malloc(stringLength * sizeof(char));
+            data[i].uuid = (char*)malloc(stringLength * sizeof(char));
             strcpy(data[i].uuid, PQgetvalue(DBQuery, i, 0));
-            addMalloc((void *) data[i].uuid, 1, stringLength * sizeof(char), "char");
+            addMalloc((void*)data[i].uuid, 1, stringLength * sizeof(char), "char");
 
             stringLength = strlen(PQgetvalue(DBQuery, i, 1)) + 1;
-            data[i].requestedSignal = (char *) malloc(stringLength * sizeof(char));
+            data[i].requestedSignal = (char*)malloc(stringLength * sizeof(char));
             strcpy(data[i].requestedSignal, PQgetvalue(DBQuery, i, 1));
-            addMalloc((void *) data[i].requestedSignal, 1, stringLength * sizeof(char), "char");
+            addMalloc((void*)data[i].requestedSignal, 1, stringLength * sizeof(char), "char");
 
             stringLength = strlen(PQgetvalue(DBQuery, i, 2)) + 1;
-            data[i].requestedSource = (char *) malloc(stringLength * sizeof(char));
+            data[i].requestedSource = (char*)malloc(stringLength * sizeof(char));
             strcpy(data[i].requestedSource, PQgetvalue(DBQuery, i, 2));
-            addMalloc((void *) data[i].requestedSource, 1, stringLength * sizeof(char), "char");
+            addMalloc((void*)data[i].requestedSource, 1, stringLength * sizeof(char), "char");
 
             stringLength = strlen(PQgetvalue(DBQuery, i, 3)) + 1;
-            data[i].trueSignal = (char *) malloc(stringLength * sizeof(char));
+            data[i].trueSignal = (char*)malloc(stringLength * sizeof(char));
             strcpy(data[i].trueSignal, PQgetvalue(DBQuery, i, 3));
-            addMalloc((void *) data[i].trueSignal, 1, stringLength * sizeof(char), "char");
+            addMalloc((void*)data[i].trueSignal, 1, stringLength * sizeof(char), "char");
 
             stringLength = strlen(PQgetvalue(DBQuery, i, 4)) + 1;
-            data[i].trueSource = (char *) malloc(stringLength * sizeof(char));
+            data[i].trueSource = (char*)malloc(stringLength * sizeof(char));
             strcpy(data[i].trueSource, PQgetvalue(DBQuery, i, 4));
-            addMalloc((void *) data[i].trueSource, 1, stringLength * sizeof(char), "char");
+            addMalloc((void*)data[i].trueSource, 1, stringLength * sizeof(char), "char");
 
             stringLength = strlen(PQgetvalue(DBQuery, i, 5)) + 1;
-            data[i].trueSourceUUID = (char *) malloc(stringLength * sizeof(char));
+            data[i].trueSourceUUID = (char*)malloc(stringLength * sizeof(char));
             strcpy(data[i].trueSourceUUID, PQgetvalue(DBQuery, i, 5));
-            addMalloc((void *) data[i].trueSourceUUID, 1, stringLength * sizeof(char), "char");
+            addMalloc((void*)data[i].trueSourceUUID, 1, stringLength * sizeof(char), "char");
 
             stringLength = strlen(PQgetvalue(DBQuery, i, 6)) + 1;
-            data[i].logRecord = (char *) malloc(stringLength * sizeof(char));
+            data[i].logRecord = (char*)malloc(stringLength * sizeof(char));
             strcpy(data[i].logRecord, PQgetvalue(DBQuery, i, 6));
-            addMalloc((void *) data[i].logRecord, 1, stringLength * sizeof(char), "char");
+            addMalloc((void*)data[i].logRecord, 1, stringLength * sizeof(char), "char");
 
             stringLength = strlen(PQgetvalue(DBQuery, i, 7)) + 1;
-            data[i].creation = (char *) malloc(stringLength * sizeof(char));
+            data[i].creation = (char*)malloc(stringLength * sizeof(char));
             strcpy(data[i].creation, PQgetvalue(DBQuery, i, 7));
-            addMalloc((void *) data[i].creation, 1, stringLength * sizeof(char), "char");
+            addMalloc((void*)data[i].creation, 1, stringLength * sizeof(char), "char");
 
-                idamLog(LOG_DEBUG, "uuid           : %s\n\n", data[i].uuid);
-                idamLog(LOG_DEBUG, "requestedSignal: %s\n", data[i].requestedSignal);
-                idamLog(LOG_DEBUG, "requestedSource: %s\n", data[i].requestedSource);
-                idamLog(LOG_DEBUG, "trueSignal     : %s\n", data[i].trueSignal);
-                idamLog(LOG_DEBUG, "trueSource     : %s\n", data[i].trueSource);
-                idamLog(LOG_DEBUG, "trueSourceUUID : %s\n", data[i].trueSourceUUID);
-                idamLog(LOG_DEBUG, "logRecord      : %s\n", data[i].logRecord);
-                idamLog(LOG_DEBUG, "creation date  : %s\n", data[i].creation);
+            IDAM_LOGF(LOG_DEBUG, "uuid           : %s\n\n", data[i].uuid);
+            IDAM_LOGF(LOG_DEBUG, "requestedSignal: %s\n", data[i].requestedSignal);
+            IDAM_LOGF(LOG_DEBUG, "requestedSource: %s\n", data[i].requestedSource);
+            IDAM_LOGF(LOG_DEBUG, "trueSignal     : %s\n", data[i].trueSignal);
+            IDAM_LOGF(LOG_DEBUG, "trueSource     : %s\n", data[i].trueSource);
+            IDAM_LOGF(LOG_DEBUG, "trueSourceUUID : %s\n", data[i].trueSourceUUID);
+            IDAM_LOGF(LOG_DEBUG, "logRecord      : %s\n", data[i].logRecord);
+            IDAM_LOGF(LOG_DEBUG, "creation date  : %s\n", data[i].creation);
         }
         PQclear(DBQuery);
 
@@ -229,7 +230,6 @@ int listSignals(IDAM_PLUGIN_INTERFACE * idam_plugin_interface)
 
         addUserDefinedType(userdefinedtypelist, usertype);
 
-
         initUserDefinedType(&usertype);            // New structure definition
 
         strcpy(usertype.name, "PROVENANCESIGNALLIST");
@@ -251,7 +251,6 @@ int listSignals(IDAM_PLUGIN_INTERFACE * idam_plugin_interface)
 
         defineField(&field, "uuid", "Unique Identifier", &offset, SCALARSTRING);
         addCompoundField(&usertype, field);
-
 
         initCompoundField(&field);
         strcpy(field.name, "list");
@@ -278,7 +277,7 @@ int listSignals(IDAM_PLUGIN_INTERFACE * idam_plugin_interface)
         data_block->data_type = TYPE_COMPOUND;
         data_block->rank = 0;
         data_block->data_n = 1;
-        data_block->data = (char *) list;
+        data_block->data = (char*)list;
 
         strcpy(data_block->data_desc, "List of Signals accessed with a UUID");
         strcpy(data_block->data_label, "");
@@ -286,9 +285,9 @@ int listSignals(IDAM_PLUGIN_INTERFACE * idam_plugin_interface)
 
         data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
         data_block->opaque_count = 1;
-        data_block->opaque_block = (void *) findUserDefinedType("PROVENANCESIGNALLIST", 0);
+        data_block->opaque_block = (void*)findUserDefinedType("PROVENANCESIGNALLIST", 0);
 
-            idamLog(LOG_DEBUG, "Provenance: Function list called\n");
+        IDAM_LOG(LOG_DEBUG, "Function list called\n");
 
         if (data_block->opaque_block == NULL) {
             err = 999;

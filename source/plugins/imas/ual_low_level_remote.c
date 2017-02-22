@@ -2,13 +2,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <mdsdescrip.h>
-#include <usagedef.h>
 #include <ipdesc.h>
-#include <treeshr.h>
-#include <ncidef.h>
 #include <mdsshr.h>
 #include <ctype.h>
-#include <mds_stdarg.h>
+#include <pthread.h>
+
+#include <clientserver/stringUtils.h>
 
 #include "ual_low_level_mdsplus.h"
 #include "ual_low_level_remote.h"
@@ -27,14 +26,12 @@ int mdsgetSlicedData(int expIdx, char* cpoPath, char* path, char* timeBasePath, 
 
 #define MAX_DATA_INFO  64
 
-
 static struct {
     int expIdx;
     int refCount;
     char path[16];
     struct descriptor_xd xd;
 } getDataInfo[MAX_DATA_INFO];
-
 
 #define MAX_CPO_FIELDS 100000
 static struct {
@@ -61,15 +58,18 @@ void UnlockMdsShrMutex(pthread_mutex_t*);
 
 int TdiDecompile(struct descriptor*, struct descriptor_xd*, void*);
 
-static void lock() {
+static void lock()
+{
     LockMdsShrMutex(&mutex, &initialized);
 }
 
-static void unlock() {
+static void unlock()
+{
     UnlockMdsShrMutex(&mutex);
 }
 
-static char* toUpperString(char* inStr) {
+static char* toUpperString(char* inStr)
+{
     int i;
     int len = strlen(inStr);
     char* outStr = malloc(len + 1);
@@ -79,7 +79,8 @@ static char* toUpperString(char* inStr) {
     return outStr;
 }
 
-static int beginPutDataInfo(int expIdx, char* path) {
+static int beginPutDataInfo(int expIdx, char* path)
+{
     int i;
     lock();
     for (i = 0; i < MAX_DATA_INFO; i++) {
@@ -96,16 +97,18 @@ static int beginPutDataInfo(int expIdx, char* path) {
     return -1;
 }
 
-static int insertPutDataInfo(int expIdx, char* cpoPath, char* path, char* timeBasePath, struct descriptor* dataDsc) {
+static int insertPutDataInfo(int expIdx, char* cpoPath, char* path, char* timeBasePath, struct descriptor* dataDsc)
+{
     int i;
     static EMPTYXD(emptyXd);
-    struct descriptor pathDsc = {0, DTYPE_T, CLASS_S, 0};
-    if (dataDsc->class == CLASS_XD && !dataDsc->pointer)
+    struct descriptor pathDsc = { 0, DTYPE_T, CLASS_S, 0 };
+    if (dataDsc->class == CLASS_XD && !dataDsc->pointer) {
         return 0;
+    }
     lock();
 //  printf("insertPutDataInfo. cpoPath: %s, path: %s, timeBasePath: %s \n",cpoPath, path, timeBasePath);
     for (i = 0; i < MAX_DATA_INFO; i++) {
-        if (putDataInfo[i].expIdx == expIdx && !strcmp(putDataInfo[i].path, cpoPath)) {
+        if (putDataInfo[i].expIdx == expIdx && STR_EQUALS(putDataInfo[i].path, cpoPath)) {
             if (putDataInfo[i].numDataFields == MAX_CPO_FIELDS) {
                 printf("INTERNAL ERROR: naximum number of CPO fields in putDataInfo reached!!!\n");
                 unlock();
@@ -117,7 +120,7 @@ static int insertPutDataInfo(int expIdx, char* cpoPath, char* path, char* timeBa
             pathDsc.length = strlen(path);
             pathDsc.pointer = path;
             putDataInfo[i].dataPathXds[putDataInfo[i].numDataFields] = emptyXd;
-            MdsCopyDxXd((struct descriptor*) &pathDsc, &putDataInfo[i].dataPathXds[putDataInfo[i].numDataFields]);
+            MdsCopyDxXd((struct descriptor*)&pathDsc, &putDataInfo[i].dataPathXds[putDataInfo[i].numDataFields]);
             putDataInfo[i].numDataFields++;
             unlock();
             return 0;
@@ -133,13 +136,14 @@ static int insertPutSegmentInfo(int expIdx, char* cpoPath, char* path, char* tim
 {
     int i;
     static EMPTYXD(emptyXd);
-    struct descriptor pathDsc = {0, DTYPE_T, CLASS_S, 0};
+    struct descriptor pathDsc = { 0, DTYPE_T, CLASS_S, 0 };
 
-    if (dataDsc->class == CLASS_XD && !dataDsc->pointer)
+    if (dataDsc->class == CLASS_XD && !dataDsc->pointer) {
         return 0;
+    }
     lock();
     for (i = 0; i < MAX_DATA_INFO; i++) {
-        if (putDataInfo[i].expIdx == expIdx && !strcmp(putDataInfo[i].path, cpoPath)) {
+        if (putDataInfo[i].expIdx == expIdx && STR_EQUALS(putDataInfo[i].path, cpoPath)) {
             if (putDataInfo[i].numSegmentFields == MAX_CPO_FIELDS) {
                 printf("INTERNAL ERROR: naximum number of CPO fields in putSegmentInfo reached!!!\n");
                 unlock();
@@ -151,7 +155,7 @@ static int insertPutSegmentInfo(int expIdx, char* cpoPath, char* path, char* tim
             pathDsc.length = strlen(path);
             pathDsc.pointer = path;
             putDataInfo[i].segmentPathXds[putDataInfo[i].numSegmentFields] = emptyXd;
-            MdsCopyDxXd((struct descriptor*) &pathDsc, &putDataInfo[i].segmentPathXds[putDataInfo[i].numSegmentFields]);
+            MdsCopyDxXd((struct descriptor*)&pathDsc, &putDataInfo[i].segmentPathXds[putDataInfo[i].numSegmentFields]);
             putDataInfo[i].numSegmentFields++;
             unlock();
             return 0;
@@ -162,15 +166,17 @@ static int insertPutSegmentInfo(int expIdx, char* cpoPath, char* path, char* tim
     return -1;
 }
 
-static int insertPutObjectSegmentInfo(int expIdx, char* cpoPath, char* path, struct descriptor* dataDsc, int segIdx) {
+static int insertPutObjectSegmentInfo(int expIdx, char* cpoPath, char* path, struct descriptor* dataDsc, int segIdx)
+{
     int i;
     static EMPTYXD(emptyXd);
-    struct descriptor pathDsc = {0, DTYPE_T, CLASS_S, 0};
-    if (dataDsc->class == CLASS_XD && !dataDsc->pointer)
+    struct descriptor pathDsc = { 0, DTYPE_T, CLASS_S, 0 };
+    if (dataDsc->class == CLASS_XD && !dataDsc->pointer) {
         return 0;
+    }
     lock();
     for (i = 0; i < MAX_DATA_INFO; i++) {
-        if (putDataInfo[i].expIdx == expIdx && !strcmp(putDataInfo[i].path, cpoPath)) {
+        if (putDataInfo[i].expIdx == expIdx && STR_EQUALS(putDataInfo[i].path, cpoPath)) {
             if (putDataInfo[i].numObjSegmentFields == MAX_CPO_FIELDS) {
                 printf("INTERNAL ERROR: maximum number of CPO fields in putObjSegmentInfo reached!!!\n");
                 unlock();
@@ -181,8 +187,7 @@ static int insertPutObjectSegmentInfo(int expIdx, char* cpoPath, char* path, str
             pathDsc.length = strlen(path);
             pathDsc.pointer = path;
             putDataInfo[i].objSegmentPathXds[putDataInfo[i].numObjSegmentFields] = emptyXd;
-            MdsCopyDxXd((struct descriptor*) &pathDsc,
-                        &putDataInfo[i].objSegmentPathXds[putDataInfo[i].numObjSegmentFields]);
+            MdsCopyDxXd(&pathDsc, &putDataInfo[i].objSegmentPathXds[putDataInfo[i].numObjSegmentFields]);
             putDataInfo[i].numObjSegmentFields++;
             unlock();
             return 0;
@@ -196,7 +201,8 @@ static int insertPutObjectSegmentInfo(int expIdx, char* cpoPath, char* path, str
 // User for passing path to MDSplus which are limited to 12 char
 // Keep the integrity of the first 8 characters
 // Then sum the ASCII codes of the other characters and store them in the name
-static char* path2MDS(char* path) {
+static char* path2MDS(char* path)
+{
     static char MDSpath[13];
     char SUM[10];
     int i, sum;
@@ -220,7 +226,8 @@ static char* path2MDS(char* path) {
 
 #define SEPARATORS "/."  /* separators for cpoPath */
 
-static char* convertPath(char* inputpath) {
+static char* convertPath(char* inputpath)
+{
     static char mdsCpoPath[2048];
     char path[2048];;
     char* ptr;
@@ -249,35 +256,37 @@ static char* convertPath(char* inputpath) {
 
 //Build APD Composed of pairs (name, data) and free structures
 static void terminatePutDataInfo(int expIdx, char* cpoPath, char* timeBasePath, struct descriptor_xd* retDataXd,
-                                 struct descriptor_xd* retSegmentXd, struct descriptor_xd* retObjSegmentXd) {
+                                 struct descriptor_xd* retSegmentXd, struct descriptor_xd* retObjSegmentXd)
+{
     struct descriptor** dscs;
     DESCRIPTOR_APD(retApd, DTYPE_DSC, 0, 0);
     int i, j;
     lock();
     for (i = 0; i < MAX_DATA_INFO; i++) {
-        if (putDataInfo[i].expIdx == expIdx && !strcmp(putDataInfo[i].path, cpoPath)) {
+        if (putDataInfo[i].expIdx == expIdx && STR_EQUALS(putDataInfo[i].path, cpoPath)) {
             //Non segmented stuff
-            dscs = (struct descriptor**) malloc(2 * putDataInfo[i].numDataFields * sizeof(struct descriptor*));
+            dscs = (struct descriptor**)malloc(2 * putDataInfo[i].numDataFields * sizeof(struct descriptor*));
             for (j = 0; j < putDataInfo[i].numDataFields; j++) {
                 dscs[2 * j] = putDataInfo[i].dataPathXds[j].pointer;
-                if (putDataInfo[i].dataXds[j].pointer)
+                if (putDataInfo[i].dataXds[j].pointer) {
                     dscs[2 * j + 1] = putDataInfo[i].dataXds[j].pointer;
-                else
-                    dscs[2 * j + 1] = (struct descriptor*) &putDataInfo[i].dataXds[j];
+                } else {
+                    dscs[2 * j + 1] = (struct descriptor*)&putDataInfo[i].dataXds[j];
+                }
 
                 //printDecompiled(dscs[2*j]);
                 //printDecompiled(dscs[2*j+1]);
             }
             retApd.arsize = 2 * putDataInfo[i].numDataFields * sizeof(struct descriptor*);
 //          printf("terminatePutDataInfo1. j: %d, retApd.arsize: %d\n",j,retApd.arsize);
-            retApd.pointer = (void*) dscs;
-            MdsCopyDxXd((struct descriptor*) &retApd, retDataXd);
+            retApd.pointer = (void*)dscs;
+            MdsCopyDxXd((struct descriptor*)&retApd, retDataXd);
             //Free structures
             for (j = 0; j < putDataInfo[i].numDataFields; j++) {
                 MdsFree1Dx(&putDataInfo[i].dataPathXds[j], 0);
                 MdsFree1Dx(&putDataInfo[i].dataXds[j], 0);
             }
-            free((char*) dscs);
+            free((char*)dscs);
 
             //Segmented stuff
             if (putDataInfo[i].numSegmentFields > 0) {
@@ -286,48 +295,49 @@ static void terminatePutDataInfo(int expIdx, char* cpoPath, char* timeBasePath, 
                 strcpy(timeBasePath, putDataInfo[i].timeBasePath);
 //                strcpy(timeBasePath, "time");
             }
-            dscs = (struct descriptor**) malloc(2 * putDataInfo[i].numSegmentFields * sizeof(struct descriptor*));
+            dscs = (struct descriptor**)malloc(2 * putDataInfo[i].numSegmentFields * sizeof(struct descriptor*));
             for (j = 0; j < putDataInfo[i].numSegmentFields; j++) {
                 dscs[2 * j] = putDataInfo[i].segmentPathXds[j].pointer;
 
-                if (putDataInfo[i].segmentXds[j].pointer)
+                if (putDataInfo[i].segmentXds[j].pointer) {
                     dscs[2 * j + 1] = putDataInfo[i].segmentXds[j].pointer;
-                else
-                    dscs[2 * j + 1] = (struct descriptor*) &putDataInfo[i].segmentXds[j];
+                } else {
+                    dscs[2 * j + 1] = (struct descriptor*)&putDataInfo[i].segmentXds[j];
+                }
 
             }
             retApd.arsize = 2 * putDataInfo[i].numSegmentFields * sizeof(struct descriptor*);
 //          printf("terminatePutDataInfo2. j: %d, retApd.arsize: %d\n",j,retApd.arsize);
-            retApd.pointer = (void*) dscs;
-            MdsCopyDxXd((struct descriptor*) &retApd, retSegmentXd);
+            retApd.pointer = (void*)dscs;
+            MdsCopyDxXd((struct descriptor*)&retApd, retSegmentXd);
             //Free structures
             for (j = 0; j < putDataInfo[i].numSegmentFields; j++) {
                 MdsFree1Dx(&putDataInfo[i].segmentPathXds[j], 0);
                 MdsFree1Dx(&putDataInfo[i].segmentXds[j], 0);
             }
-            free((char*) dscs);
+            free((char*)dscs);
             //Object Segmented stuff
-            dscs = (struct descriptor**) malloc(2 * putDataInfo[i].numObjSegmentFields * sizeof(struct descriptor*));
+            dscs = (struct descriptor**)malloc(2 * putDataInfo[i].numObjSegmentFields * sizeof(struct descriptor*));
             for (j = 0; j < putDataInfo[i].numObjSegmentFields; j++) {
                 dscs[2 * j] = putDataInfo[i].objSegmentPathXds[j].pointer;
 
-                if (putDataInfo[i].objSegmentXds[j].pointer)
+                if (putDataInfo[i].objSegmentXds[j].pointer) {
                     dscs[2 * j + 1] = putDataInfo[i].objSegmentXds[j].pointer;
-                else
-                    dscs[2 * j + 1] = (struct descriptor*) &putDataInfo[i].objSegmentXds[j];
+                } else {
+                    dscs[2 * j + 1] = (struct descriptor*)&putDataInfo[i].objSegmentXds[j];
+                }
 
             }
             retApd.arsize = 2 * putDataInfo[i].numObjSegmentFields * sizeof(struct descriptor*);
 //          printf("terminatePutDataInfo3. j: %d, retApd.arsize: %d\n",j,retApd.arsize);
-            retApd.pointer = (void*) dscs;
-            MdsCopyDxXd((struct descriptor*) &retApd, retObjSegmentXd);
+            retApd.pointer = (void*)dscs;
+            MdsCopyDxXd((struct descriptor*)&retApd, retObjSegmentXd);
             //Free structures
             for (j = 0; j < putDataInfo[i].numObjSegmentFields; j++) {
                 MdsFree1Dx(&putDataInfo[i].objSegmentPathXds[j], 0);
                 MdsFree1Dx(&putDataInfo[i].objSegmentXds[j], 0);
             }
-            free((char*) dscs);
-
+            free((char*)dscs);
 
             putDataInfo[i].path[0] = 0;
             unlock();
@@ -339,7 +349,8 @@ static void terminatePutDataInfo(int expIdx, char* cpoPath, char* timeBasePath, 
 }
 
 
-static void setDataInfo(int expIdx, char* path, struct descriptor_a* serialized) {
+static void setDataInfo(int expIdx, char* path, struct descriptor_a* serialized)
+{
     int i, status;
     static EMPTYXD(emptyXd);
 
@@ -347,7 +358,7 @@ static void setDataInfo(int expIdx, char* path, struct descriptor_a* serialized)
 //printf("SET DATA INFO %d %s\n", expIdx, path);
 
     for (i = 0; i < MAX_DATA_INFO; i++) {
-        if (getDataInfo[i].expIdx == expIdx && !strcmp(path, getDataInfo[i].path)) {
+        if (getDataInfo[i].expIdx == expIdx && STR_EQUALS(path, getDataInfo[i].path)) {
             printf("IDS Data already cached!!!!\n");
             getDataInfo[i].refCount++;
             return;
@@ -367,11 +378,12 @@ static void setDataInfo(int expIdx, char* path, struct descriptor_a* serialized)
     printf("INTERNAL ERROR: No DataInfo slots left!!!\n");
 }
 
-static void releaseDataInfo(int expIdx, char* path) {
+static void releaseDataInfo(int expIdx, char* path)
+{
     int i;
 
     for (i = 0; i < MAX_DATA_INFO; i++) {
-        if (getDataInfo[i].expIdx == expIdx && !strcmp(path, getDataInfo[i].path)) {
+        if (getDataInfo[i].expIdx == expIdx && STR_EQUALS(path, getDataInfo[i].path)) {
             getDataInfo[i].refCount--;
             if (getDataInfo[i].refCount == 0) {
                 MdsFree1Dx(&getDataInfo[i].xd, 0);
@@ -384,7 +396,8 @@ static void releaseDataInfo(int expIdx, char* path) {
 }
 
 
-static int collectDataInfo(int expIdx, char* path, char* cpoPath, struct descriptor_xd* retXd) {
+static int collectDataInfo(int expIdx, char* path, char* cpoPath, struct descriptor_xd* retXd)
+{
     int i, j, numItems;
     struct descriptor* currDsc;
     char* currPath;
@@ -392,8 +405,8 @@ static int collectDataInfo(int expIdx, char* path, char* cpoPath, struct descrip
     currPath = toUpperString(convertPath(cpoPath));
     for (i = 0; i < MAX_DATA_INFO; i++) {
 /*printf("collectDataInfo. i: %d path: %s, cpoPath: %s, getDataInfo[i].path: %s\n",i, path, cpoPath, getDataInfo[i].path);*/
-        if (getDataInfo[i].expIdx == expIdx && !strcmp(path, getDataInfo[i].path)) {
-            struct descriptor_a* arrDsc = (struct descriptor_a*) getDataInfo[i].xd.pointer;
+        if (getDataInfo[i].expIdx == expIdx && STR_EQUALS(path, getDataInfo[i].path)) {
+            struct descriptor_a* arrDsc = (struct descriptor_a*)getDataInfo[i].xd.pointer;
             if (!arrDsc || arrDsc->class != CLASS_APD) {
                 printf("INTERNAL ERROR: cannot get cached remote data!!!\n");
                 return -1;
@@ -401,7 +414,7 @@ static int collectDataInfo(int expIdx, char* path, char* cpoPath, struct descrip
             numItems = arrDsc->arsize / arrDsc->length;
             numItems /= 2;
             for (j = 0; j < numItems; j++) {
-                currDsc = ((struct descriptor**) arrDsc->pointer)[2 * j];
+                currDsc = ((struct descriptor**)arrDsc->pointer)[2 * j];
                 if (currDsc->dtype != DTYPE_T) {
                     printf("INTERNAL ERROR: Wrong type in cached remote data!!!\n");
                     return -1;
@@ -410,7 +423,7 @@ static int collectDataInfo(int expIdx, char* path, char* cpoPath, struct descrip
                 if (currDsc->length == strlen(currPath) &&
                     !strncmp(currDsc->pointer, currPath, currDsc->length)) //Found item
                 {
-                    MdsCopyDxXd(((struct descriptor**) arrDsc->pointer)[2 * j + 1], retXd);
+                    MdsCopyDxXd(((struct descriptor**)arrDsc->pointer)[2 * j + 1], retXd);
                     return 0;
                 }
             }
@@ -423,10 +436,11 @@ static int collectDataInfo(int expIdx, char* path, char* cpoPath, struct descrip
 }
 
 
-struct descriptor_xd* getCpoDataServer(int* expIdx, char* path) {
+struct descriptor_xd* getCpoDataServer(int* expIdx, char* path)
+{
     static EMPTYXD(retXd);
     static EMPTYXD(emptyXd);
-    struct descriptor messageD = {0, DTYPE_T, CLASS_S, 0};
+    struct descriptor messageD = { 0, DTYPE_T, CLASS_S, 0 };
     int status;
     char* msg;
     char** cpoFields;
@@ -441,12 +455,12 @@ struct descriptor_xd* getCpoDataServer(int* expIdx, char* path) {
         msg = mdsLastErrmsg();
         messageD.length = strlen(msg);
         messageD.pointer = msg;
-        MdsCopyDxXd((struct descriptor*) &messageD, &retXd);
+        MdsCopyDxXd((struct descriptor*)&messageD, &retXd);
         return &retXd;
     }
 
-    xds = (struct descriptor_xd*) malloc(numCpoFields * sizeof(struct descriptor_xd));
-    nameDscs = (struct descriptor*) malloc(numCpoFields * sizeof(struct descriptor));
+    xds = (struct descriptor_xd*)malloc(numCpoFields * sizeof(struct descriptor_xd));
+    nameDscs = (struct descriptor*)malloc(numCpoFields * sizeof(struct descriptor));
     for (i = 0; i < numCpoFields; i++) {
         xds[i] = emptyXd;
         nameDscs[i].dtype = DTYPE_T;
@@ -455,14 +469,14 @@ struct descriptor_xd* getCpoDataServer(int* expIdx, char* path) {
         nameDscs[i].pointer = cpoFields[i];
     }
 
-    dscs = (struct descriptor**) malloc(numCpoFields * 2 * sizeof(struct descriptor*));
+    dscs = (struct descriptor**)malloc(numCpoFields * 2 * sizeof(struct descriptor*));
     for (i = 0; i < numCpoFields; i++) {
         status = mdsgetData(*expIdx, path, cpoFields[i], &xds[i], 1); // cpoFields[i] is already converted
         if (status || !xds[i].pointer) {
             msg = mdsLastErrmsg();
             messageD.length = strlen(msg);
             messageD.pointer = msg;
-            MdsCopyDxXd((struct descriptor*) &messageD, &retXd);
+            MdsCopyDxXd((struct descriptor*)&messageD, &retXd);
             return &retXd;
         }
         dscs[2 * i] = &nameDscs[i];
@@ -470,34 +484,36 @@ struct descriptor_xd* getCpoDataServer(int* expIdx, char* path) {
     }
 
     retApd.arsize = 2 * numCpoFields * sizeof(struct descriptor*);
-    retApd.pointer = (void*) dscs;
+    retApd.pointer = (void*)dscs;
 
-    status = MdsSerializeDscOut((struct descriptor*) &retApd, &retXd);
-    if (!(status & 1) || !retXd.pointer)
+    status = MdsSerializeDscOut((struct descriptor*)&retApd, &retXd);
+    if (!(status & 1) || !retXd.pointer) {
         printf("INTERNAL ERROR: Cannot serialize result\n");
+    }
     for (i = 0; i < numCpoFields; i++)
         MdsFree1Dx(&xds[i], 0);
-    free((char*) dscs);
-    free((char*) xds);
-    free((char*) nameDscs);
+    free((char*)dscs);
+    free((char*)xds);
+    free((char*)nameDscs);
 
     for (i = 0; i < numCpoFields; i++)
         free(cpoFields[i]);
-    free((char*) cpoFields);
-
+    free((char*)cpoFields);
 
     return &retXd;
 }
 
 
-int getDataRemote(int connId, int expIdx, char* cpoPath, char* path, struct descriptor_xd* retXd, int evaluate) {
+int getDataRemote(int connId, int expIdx, char* cpoPath, char* path, struct descriptor_xd* retXd, int evaluate)
+{
     char* upPath = toUpperString(path);
     int status = collectDataInfo(expIdx, cpoPath, upPath, retXd);
     free(upPath);
     return status;
 }
 
-int getObjectRemote(int connId, int expIdx, char* cpoPath, char* path, void** obj, int isTimed) {
+int getObjectRemote(int connId, int expIdx, char* cpoPath, char* path, void** obj, int isTimed)
+{
     char* upPath = toUpperString(path);
     EMPTYXD(retXd);
     char* fullPath = malloc(strlen(upPath) + 16);
@@ -509,16 +525,17 @@ int getObjectRemote(int connId, int expIdx, char* cpoPath, char* path, void** ob
 
     int status = collectDataInfo(expIdx, cpoPath, fullPath, &retXd);
     if (!status) {
-        struct descriptor_xd* xdPtr = (struct descriptor_xd*) malloc(sizeof(struct descriptor_xd));
+        struct descriptor_xd* xdPtr = (struct descriptor_xd*)malloc(sizeof(struct descriptor_xd));
         *xdPtr = retXd;
-        *obj = (void*) xdPtr;
+        *obj = (void*)xdPtr;
     }
     free(upPath);
     free(fullPath);
     return status;
 }
 
-int mdsbeginIdsGetRemote(int connId, int remoteExpIdx, char* path, int isTimed, int* retSamples) {
+int mdsbeginIdsGetRemote(int connId, int remoteExpIdx, char* path, int isTimed, int* retSamples)
+{
     EMPTYXD(timeXd);
     char expr[512];
     int errLen;
@@ -531,8 +548,8 @@ int mdsbeginIdsGetRemote(int connId, int remoteExpIdx, char* path, int isTimed, 
 
     sprintf(expr, "imas->getCpoDataServer:DSC($1, $2)");
     memset(&ansarg, 0, sizeof(ansarg));
-    MakeDescrip((struct descrip*) &pathDsc, DTYPE_CSTRING, 0, 0, path);
-    MakeDescrip((struct descrip*) &remoteExpIdxDsc, DTYPE_LONG, 0, 0, &remoteExpIdx);
+    MakeDescrip((struct descrip*)&pathDsc, DTYPE_CSTRING, 0, 0, path);
+    MakeDescrip((struct descrip*)&remoteExpIdxDsc, DTYPE_LONG, 0, 0, &remoteExpIdx);
 
     status = MdsValue(connId, expr, &remoteExpIdxDsc, &pathDsc, &ansarg, NULL);
     if (!(status & 1)) {
@@ -558,34 +575,36 @@ int mdsbeginIdsGetRemote(int connId, int remoteExpIdx, char* path, int isTimed, 
     serializedDsc.arsize = ansarg.length;
     serializedDsc.pointer = ansarg.ptr;
 
-    setDataInfo(remoteExpIdx, path, (struct descriptor_a*) &serializedDsc);
+    setDataInfo(remoteExpIdx, path, (struct descriptor_a*)&serializedDsc);
     free(ansarg.ptr);
-    if (!isTimed)
+    if (!isTimed) {
         *retSamples = 1;
-    else {
+    } else {
         status = collectDataInfo(remoteExpIdx, path, "time", &timeXd);
         if (status || !timeXd.pointer || timeXd.pointer->class != CLASS_A) {
             printf("INTERNAL ERROR: unknown times in serialized remote data!!\n");
             return -1;
         }
-        arrDsc = (struct descriptor_a*) timeXd.pointer;
+        arrDsc = (struct descriptor_a*)timeXd.pointer;
         *retSamples = arrDsc->arsize / arrDsc->length;
         MdsFree1Dx(&timeXd, 0);
     }
     return 0;
 }
 
-int mdsendIdsGetRemote(int connId, int expIdx, char* path) {
+int mdsendIdsGetRemote(int connId, int expIdx, char* path)
+{
     releaseDataInfo(expIdx, path);
     return 0;
 }
 
 
-struct descriptor_xd* getCpoSlicedDataServer(int* expIdx, char* path, double* time) {
+struct descriptor_xd* getCpoSlicedDataServer(int* expIdx, char* path, double* time)
+{
     static EMPTYXD(retXd);
     static EMPTYXD(emptyXd);
     EMPTYXD(timeXd);
-    struct descriptor messageD = {0, DTYPE_T, CLASS_S, 0};
+    struct descriptor messageD = { 0, DTYPE_T, CLASS_S, 0 };
     int status;
     char* msg;
     char** cpoFields;
@@ -602,12 +621,12 @@ struct descriptor_xd* getCpoSlicedDataServer(int* expIdx, char* path, double* ti
         msg = mdsLastErrmsg();
         messageD.length = strlen(msg);
         messageD.pointer = msg;
-        MdsCopyDxXd((struct descriptor*) &messageD, &retXd);
+        MdsCopyDxXd((struct descriptor*)&messageD, &retXd);
         return &retXd;
     }
 
-    xds = (struct descriptor_xd*) malloc(numFields * sizeof(struct descriptor_xd));
-    nameDscs = (struct descriptor*) malloc(numFields * sizeof(struct descriptor));
+    xds = (struct descriptor_xd*)malloc(numFields * sizeof(struct descriptor_xd));
+    nameDscs = (struct descriptor*)malloc(numFields * sizeof(struct descriptor));
     for (i = 0; i < numFields; i++) {
         xds[i] = emptyXd;
         nameDscs[i].dtype = DTYPE_T;
@@ -616,7 +635,7 @@ struct descriptor_xd* getCpoSlicedDataServer(int* expIdx, char* path, double* ti
         nameDscs[i].pointer = cpoFields[i];
     }
 
-    dscs = (struct descriptor**) malloc(numFields * 2 * sizeof(struct descriptor*));
+    dscs = (struct descriptor**)malloc(numFields * 2 * sizeof(struct descriptor*));
     numSlicedFields = 0;
     for (i = 0; i < numFields; i++) {
         if (mdsIsSliced(*expIdx, path, cpoFields[i])) {
@@ -633,27 +652,29 @@ struct descriptor_xd* getCpoSlicedDataServer(int* expIdx, char* path, double* ti
     }
 
     retApd.arsize = 2 * numSlicedFields * sizeof(struct descriptor*);
-    retApd.pointer = (void*) dscs;
+    retApd.pointer = (void*)dscs;
 
-    status = MdsSerializeDscOut((struct descriptor*) &retApd, &retXd);
-    if (!(status & 1) || !retXd.pointer)
+    status = MdsSerializeDscOut((struct descriptor*)&retApd, &retXd);
+    if (!(status & 1) || !retXd.pointer) {
         printf("INTERNAL ERROR: Cannot serialize result\n");
+    }
     for (i = 0; i < numSlicedFields; i++)
         MdsFree1Dx(&xds[i], 0);
-    free((char*) dscs);
-    free((char*) xds);
-    free((char*) nameDscs);
+    free((char*)dscs);
+    free((char*)xds);
+    free((char*)nameDscs);
 
     for (i = 0; i < numFields; i++)
         free(cpoFields[i]);
-    free((char*) cpoFields);
+    free((char*)cpoFields);
 
     return &retXd;
 }
 
 
 int getSlicedDataRemote(int connId, int expIdx, char* cpoPath, char* path, double time, struct descriptor_xd* retDataXd,
-                        struct descriptor_xd* retTimesXd) {
+                        struct descriptor_xd* retTimesXd)
+{
     char* upPath = toUpperString(path);
     int status = collectDataInfo(expIdx, cpoPath, upPath, retDataXd);
     if (!status) status = collectDataInfo(expIdx, cpoPath, "time", retTimesXd);
@@ -661,23 +682,25 @@ int getSlicedDataRemote(int connId, int expIdx, char* cpoPath, char* path, doubl
     return status;
 }
 
-int getObjectSliceRemote(int connId, int expIdx, char* cpoPath, char* path, double time, void** obj) {
+int getObjectSliceRemote(int connId, int expIdx, char* cpoPath, char* path, double time, void** obj)
+{
     char* upPath = toUpperString(path);
     EMPTYXD(retXd);
     char* fullPath = malloc(strlen(upPath) + 7);
     sprintf(fullPath, "%s/TIMED", upPath);
     int status = collectDataInfo(expIdx, cpoPath, fullPath, &retXd);
     if (!status) {
-        struct descriptor_xd* xdPtr = (struct descriptor_xd*) malloc(sizeof(struct descriptor_xd));
+        struct descriptor_xd* xdPtr = (struct descriptor_xd*)malloc(sizeof(struct descriptor_xd));
         *xdPtr = retXd;
-        *obj = (void*) xdPtr;
+        *obj = (void*)xdPtr;
     }
     free(upPath);
     free(fullPath);
     return status;
 }
 
-int mdsbeginIdsGetSliceRemote(int connId, int remoteExpIdx, char* path, double time) {
+int mdsbeginIdsGetSliceRemote(int connId, int remoteExpIdx, char* path, double time)
+{
     char expr[512];
     int errLen;
     int status;
@@ -687,9 +710,9 @@ int mdsbeginIdsGetSliceRemote(int connId, int remoteExpIdx, char* path, double t
     struct descrip ansarg;
     DESCRIPTOR_A(serializedDsc, 1, DTYPE_BU, 0, 0);
 
-    MakeDescrip((struct descrip*) &pathDsc, DTYPE_CSTRING, 0, 0, path);
-    MakeDescrip((struct descrip*) &remoteExpIdxDsc, DTYPE_LONG, 0, 0, &remoteExpIdx);
-    MakeDescrip((struct descrip*) &timeDsc, DTYPE_DOUBLE, 0, 0, &time);
+    MakeDescrip((struct descrip*)&pathDsc, DTYPE_CSTRING, 0, 0, path);
+    MakeDescrip((struct descrip*)&remoteExpIdxDsc, DTYPE_LONG, 0, 0, &remoteExpIdx);
+    MakeDescrip((struct descrip*)&timeDsc, DTYPE_DOUBLE, 0, 0, &time);
 
     sprintf(expr, "imas->getCpoDataServer:DSC($1, $2)");
     memset(&ansarg, 0, sizeof(ansarg));
@@ -718,12 +741,13 @@ int mdsbeginIdsGetSliceRemote(int connId, int remoteExpIdx, char* path, double t
     serializedDsc.arsize = ansarg.length;
     serializedDsc.pointer = ansarg.ptr;
 
-    setDataInfo(remoteExpIdx, path, (struct descriptor_a*) &serializedDsc);
+    setDataInfo(remoteExpIdx, path, (struct descriptor_a*)&serializedDsc);
     free(ansarg.ptr);
     return 0;
 }
 
-int mdsendIdsGetSliceRemote(int connId, int expIdx, char* path) {
+int mdsendIdsGetSliceRemote(int connId, int expIdx, char* path)
+{
     releaseDataInfo(expIdx, path);
     return 0;
 }
@@ -764,10 +788,9 @@ int putDataServer(int* expIdx, char* cpoPath, char* timeBasePath, char* serData,
         printf("INTERNAL ERROR: Cannot deserialize data!!\n");
         return -1;
     }
-    dataApd = (struct descriptor_a*) dataXd.pointer;
-    segmentApd = (struct descriptor_a*) segmentXd.pointer;
-    objSegmentApd = (struct descriptor_a*) objSegmentXd.pointer;
-
+    dataApd = (struct descriptor_a*)dataXd.pointer;
+    segmentApd = (struct descriptor_a*)segmentXd.pointer;
+    objSegmentApd = (struct descriptor_a*)objSegmentXd.pointer;
 
     if (dataApd->class != CLASS_APD) {
         printf("INTERNAL ERROR: Expected APD, got class %d\n", dataApd->class);
@@ -789,15 +812,16 @@ int putDataServer(int* expIdx, char* cpoPath, char* timeBasePath, char* serData,
     numFields /= 2;
     //printf("putDataServer 4. cpoPath: %s, numFields: %d\n",cpoPath, numFields);
     for (i = 0; i < numFields; i++) {
-        currPathDsc = ((struct descriptor**) segmentApd->pointer)[2 * i];
-        currDataDsc = ((struct descriptor**) segmentApd->pointer)[2 * i + 1];
+        currPathDsc = ((struct descriptor**)segmentApd->pointer)[2 * i];
+        currDataDsc = ((struct descriptor**)segmentApd->pointer)[2 * i + 1];
         path = malloc(currPathDsc->length + 1);
         memcpy(path, currPathDsc->pointer, currPathDsc->length);
         path[currPathDsc->length] = 0;
         //printf("putDataServer 4a. cpoPath: %s, path: %s\n",cpoPath, path);
-        status = putSegment(*expIdx, cpoPath, path, timeBasePath, (struct descriptor_a*) currDataDsc, times, nTimes);
-        if (status)
+        status = putSegment(*expIdx, cpoPath, path, timeBasePath, (struct descriptor_a*)currDataDsc, times, nTimes);
+        if (status) {
             printf("Internal error in putDataServer %s. %s\n", path, mdsLastErrmsg());
+        }
         free(path);
     }
 
@@ -806,14 +830,15 @@ int putDataServer(int* expIdx, char* cpoPath, char* timeBasePath, char* serData,
     numFields /= 2;
     //printf("putDataServer 5. cpoPath: %s, numFields: %d\n",cpoPath, numFields);
     for (i = 0; i < numFields; i++) {
-        currPathDsc = ((struct descriptor**) objSegmentApd->pointer)[2 * i];
-        currDataDsc = ((struct descriptor**) objSegmentApd->pointer)[2 * i + 1];
+        currPathDsc = ((struct descriptor**)objSegmentApd->pointer)[2 * i];
+        currDataDsc = ((struct descriptor**)objSegmentApd->pointer)[2 * i + 1];
         path = malloc(currPathDsc->length + 1);
         memcpy(path, currPathDsc->pointer, currPathDsc->length);
         path[currPathDsc->length] = 0;
-        status = putObjectSegment(*expIdx, cpoPath, path, (void*) currDataDsc, -1);
-        if (status)
+        status = putObjectSegment(*expIdx, cpoPath, path, (void*)currDataDsc, -1);
+        if (status) {
             printf("Internal error in putDataServer %s. %s\n", path, mdsLastErrmsg());
+        }
         free(path);
     }
 
@@ -822,14 +847,15 @@ int putDataServer(int* expIdx, char* cpoPath, char* timeBasePath, char* serData,
     numFields /= 2;
     //printf("putDataServer 6. cpoPath: %s, numFields: %d\n",cpoPath, numFields);
     for (i = 0; i < numFields; i++) {
-        currPathDsc = ((struct descriptor**) dataApd->pointer)[2 * i];
-        currDataDsc = ((struct descriptor**) dataApd->pointer)[2 * i + 1];
+        currPathDsc = ((struct descriptor**)dataApd->pointer)[2 * i];
+        currDataDsc = ((struct descriptor**)dataApd->pointer)[2 * i + 1];
         path = malloc(currPathDsc->length + 1);
         memcpy(path, currPathDsc->pointer, currPathDsc->length);
         path[currPathDsc->length] = 0;
         status = putData(*expIdx, cpoPath, path, currDataDsc);
-        if (status)
+        if (status) {
             printf("Internal error in putDataServer %s. %s\n", path, mdsLastErrmsg());
+        }
         free(path);
     }
     MdsFree1Dx(&dataXd, 0);
@@ -841,7 +867,8 @@ int putDataServer(int* expIdx, char* cpoPath, char* timeBasePath, char* serData,
 /*
 int putSliceServer(int *expIdx, char *cpoPath, char *serData, char *serObjSegment, double *time)
 */
-int putSliceServer(int* expIdx, char* cpoPath, char* timeBasePath, char* serData, char* serObjSegment, double* time) {
+int putSliceServer(int* expIdx, char* cpoPath, char* timeBasePath, char* serData, char* serObjSegment, double* time)
+{
     int i, numFields, status;
     char* path;
     struct descriptor* currPathDsc, * currDataDsc;
@@ -863,9 +890,8 @@ int putSliceServer(int* expIdx, char* cpoPath, char* timeBasePath, char* serData
         return -1;
     }
 
-    dataApd = (struct descriptor_a*) dataXd.pointer;
-    objSegmentApd = (struct descriptor_a*) objSegmentXd.pointer;
-
+    dataApd = (struct descriptor_a*)dataXd.pointer;
+    objSegmentApd = (struct descriptor_a*)objSegmentXd.pointer;
 
     if (dataApd->class != CLASS_APD) {
         printf("INTERNAL ERROR: Expected APD, got class %d\n", dataApd->class);
@@ -881,8 +907,8 @@ int putSliceServer(int* expIdx, char* cpoPath, char* timeBasePath, char* serData
     numFields /= 2;
     //printf("*******putSliceServer. data, numFields: %d\n",numFields);
     for (i = 0; i < numFields; i++) {
-        currPathDsc = ((struct descriptor**) dataApd->pointer)[2 * i];
-        currDataDsc = ((struct descriptor**) dataApd->pointer)[2 * i + 1];
+        currPathDsc = ((struct descriptor**)dataApd->pointer)[2 * i];
+        currDataDsc = ((struct descriptor**)dataApd->pointer)[2 * i + 1];
         path = malloc(currPathDsc->length + 1);
         memcpy(path, currPathDsc->pointer, currPathDsc->length);
         path[currPathDsc->length] = 0;
@@ -895,8 +921,9 @@ int putSliceServer(int* expIdx, char* cpoPath, char* timeBasePath, char* serData
             //printf("*******putSliceServer. timeBasePath: %s\n",timeBasePath);
             status = putSlice(*expIdx, cpoPath, path, timeBasePath, currDataDsc, *time);
         }
-        if (status)
+        if (status) {
             printf("Internal error in putSliceServer %s. %s\n", path, mdsLastErrmsg());
+        }
         free(path);
     }
 //Obj Segment stuff
@@ -904,17 +931,18 @@ int putSliceServer(int* expIdx, char* cpoPath, char* timeBasePath, char* serData
     numFields /= 2;
     //printf("*******putSliceServer. objsegment, numFields: %d\n",numFields);
     for (i = 0; i < numFields; i++) {
-        currPathDsc = ((struct descriptor**) objSegmentApd->pointer)[2 * i];
-        currDataDsc = ((struct descriptor**) objSegmentApd->pointer)[2 * i + 1];
+        currPathDsc = ((struct descriptor**)objSegmentApd->pointer)[2 * i];
+        currDataDsc = ((struct descriptor**)objSegmentApd->pointer)[2 * i + 1];
         path = malloc(currPathDsc->length + 1);
         memcpy(path, currPathDsc->pointer, currPathDsc->length);
         path[currPathDsc->length] = 0;
         //printf("%s\t%d\n", path, i);
-        status = putObjectSegment(*expIdx, cpoPath, path, (void*) currDataDsc, -1);
+        status = putObjectSegment(*expIdx, cpoPath, path, (void*)currDataDsc, -1);
 //ATTENZIONE!!!!!!! NON VIENE COMUNICATO L'INDICE QUI SEMPRE MESSO A -1 MA PER IL REPLACE DOVREBBE ESSERE 0!!!!!
         //status = putSlice(*expIdx, cpoPath, path, currDataDsc, *time);
-        if (status)
+        if (status) {
             printf("Internal error in putSliceServer %s. %s\n", path, mdsLastErrmsg());
+        }
         free(path);
     }
     MdsFree1Dx(&dataXd, 0);
@@ -922,7 +950,8 @@ int putSliceServer(int* expIdx, char* cpoPath, char* timeBasePath, char* serData
     return 0;
 }
 
-int replaceLastSliceServer(int* expIdx, char* cpoPath, char* serData, char* serObjSegment) {
+int replaceLastSliceServer(int* expIdx, char* cpoPath, char* serData, char* serObjSegment)
+{
     int i, numFields, status;
     char* path;
     struct descriptor* currPathDsc, * currDataDsc;
@@ -946,8 +975,8 @@ int replaceLastSliceServer(int* expIdx, char* cpoPath, char* serData, char* serO
         return -1;
     }
 
-    dataApd = (struct descriptor_a*) dataXd.pointer;
-    objSegmentApd = (struct descriptor_a*) objSegmentXd.pointer;
+    dataApd = (struct descriptor_a*)dataXd.pointer;
+    objSegmentApd = (struct descriptor_a*)objSegmentXd.pointer;
 
     if (dataApd->class != CLASS_APD) {
         printf("INTERNAL ERROR: Expected APD, got class %d\n", dataApd->class);
@@ -956,42 +985,46 @@ int replaceLastSliceServer(int* expIdx, char* cpoPath, char* serData, char* serO
     numFields = dataApd->arsize / dataApd->length;
     numFields /= 2;
     for (i = 0; i < numFields; i++) {
-        currPathDsc = ((struct descriptor**) dataApd->pointer)[2 * i];
-        currDataDsc = ((struct descriptor**) dataApd->pointer)[2 * i + 1];
+        currPathDsc = ((struct descriptor**)dataApd->pointer)[2 * i];
+        currDataDsc = ((struct descriptor**)dataApd->pointer)[2 * i + 1];
         path = malloc(currPathDsc->length + 1);
         memcpy(path, currPathDsc->pointer, currPathDsc->length);
         path[currPathDsc->length] = 0;
         status = replaceLastSlice(*expIdx, cpoPath, path, currDataDsc);
-        if (status)
+        if (status) {
             printf("Internal error in putDataServer %s. %s\n", path, mdsLastErrmsg());
+        }
         free(path);
     }
     MdsFree1Dx(&dataXd, 0);
     numFields = objSegmentApd->arsize / objSegmentApd->length;
     numFields /= 2;
     for (i = 0; i < numFields; i++) {
-        currPathDsc = ((struct descriptor**) objSegmentApd->pointer)[2 * i];
-        currDataDsc = ((struct descriptor**) objSegmentApd->pointer)[2 * i + 1];
+        currPathDsc = ((struct descriptor**)objSegmentApd->pointer)[2 * i];
+        currDataDsc = ((struct descriptor**)objSegmentApd->pointer)[2 * i + 1];
         path = malloc(currPathDsc->length + 1);
         memcpy(path, currPathDsc->pointer, currPathDsc->length);
         path[currPathDsc->length] = 0;
-        status = putObjectSegment(*expIdx, cpoPath, path, (void*) currDataDsc, 0);
-        if (status)
+        status = putObjectSegment(*expIdx, cpoPath, path, (void*)currDataDsc, 0);
+        if (status) {
             printf("Internal error in putDataServer %s. %s\n", path, mdsLastErrmsg());
+        }
         free(path);
     }
     MdsFree1Dx(&objSegmentXd, 0);
     return 0;
 }
 
-int mdsbeginIdsPutRemote(int connId, int expIdx, char* path) {
+int mdsbeginIdsPutRemote(int connId, int expIdx, char* path)
+{
     return beginPutDataInfo(expIdx, path);
 }
 
 static double* segmentTimes;
 static int nSegmentTimes;
 
-int mdsendIdsPutRemote(int connId, int remoteExpIdx, char* path) {
+int mdsendIdsPutRemote(int connId, int remoteExpIdx, char* path)
+{
     char expr[512];
     struct descrip remoteExpIdxDsc;
     struct descrip ansarg;
@@ -1020,11 +1053,11 @@ int mdsendIdsPutRemote(int connId, int remoteExpIdx, char* path) {
     terminatePutDataInfo(remoteExpIdx, path, timeBasePath, &dataXd, &segmentXd, &objSegmentXd);
     //printf("mdsendIdsPutRemote 2. timeBasePath: %s\n",timeBasePath);
 
-    MakeDescrip((struct descrip*) &pathDsc, DTYPE_CSTRING, 0, 0, path);
-    MakeDescrip((struct descrip*) &remoteExpIdxDsc, DTYPE_LONG, 0, 0, &remoteExpIdx);
-    MakeDescrip((struct descrip*) &timesDsc, DTYPE_DOUBLE, 1, &nSegmentTimes, segmentTimes);
-    MakeDescrip((struct descrip*) &nTimesDsc, DTYPE_LONG, 0, 0, &nSegmentTimes);
-    MakeDescrip((struct descrip*) &timeBasePathDsc, DTYPE_CSTRING, 0, 0, timeBasePath);
+    MakeDescrip((struct descrip*)&pathDsc, DTYPE_CSTRING, 0, 0, path);
+    MakeDescrip((struct descrip*)&remoteExpIdxDsc, DTYPE_LONG, 0, 0, &remoteExpIdx);
+    MakeDescrip((struct descrip*)&timesDsc, DTYPE_DOUBLE, 1, &nSegmentTimes, segmentTimes);
+    MakeDescrip((struct descrip*)&nTimesDsc, DTYPE_LONG, 0, 0, &nSegmentTimes);
+    MakeDescrip((struct descrip*)&timeBasePathDsc, DTYPE_CSTRING, 0, 0, timeBasePath);
 
     status = MdsSerializeDscOut(dataXd.pointer, &serDataXd);
     if (!(status & 1) || !serDataXd.pointer) {
@@ -1042,17 +1075,17 @@ int mdsendIdsPutRemote(int connId, int remoteExpIdx, char* path) {
         printf("INTERNAL ERROR: Cannot serialize Object Segment\n");
         return -1;
     }
-    currLen = ((struct descriptor_a*) serDataXd.pointer)->arsize;
-    MakeDescrip((struct descrip*) &dataDsc, DTYPE_UCHAR, 1, &currLen,
-                ((struct descriptor_a*) serDataXd.pointer)->pointer);
+    currLen = ((struct descriptor_a*)serDataXd.pointer)->arsize;
+    MakeDescrip((struct descrip*)&dataDsc, DTYPE_UCHAR, 1, &currLen,
+                ((struct descriptor_a*)serDataXd.pointer)->pointer);
 
-    currLen = ((struct descriptor_a*) serSegmentXd.pointer)->arsize;
-    MakeDescrip((struct descrip*) &segmentDsc, DTYPE_UCHAR, 1, &currLen,
-                ((struct descriptor_a*) serSegmentXd.pointer)->pointer);
+    currLen = ((struct descriptor_a*)serSegmentXd.pointer)->arsize;
+    MakeDescrip((struct descrip*)&segmentDsc, DTYPE_UCHAR, 1, &currLen,
+                ((struct descriptor_a*)serSegmentXd.pointer)->pointer);
 
-    currLen = ((struct descriptor_a*) serObjSegmentXd.pointer)->arsize;
-    MakeDescrip((struct descrip*) &objSegmentDsc, DTYPE_UCHAR, 1, &currLen,
-                ((struct descriptor_a*) serObjSegmentXd.pointer)->pointer);
+    currLen = ((struct descriptor_a*)serObjSegmentXd.pointer)->arsize;
+    MakeDescrip((struct descrip*)&objSegmentDsc, DTYPE_UCHAR, 1, &currLen,
+                ((struct descriptor_a*)serObjSegmentXd.pointer)->pointer);
 
 //   status = MdsValue(connId, expr, &remoteExpIdxDsc, &pathDsc, &dataDsc, &segmentDsc, &objSegmentDsc, &timesDsc, &nTimesDsc, &ansarg, NULL);
     status = MdsValue(connId, expr, &remoteExpIdxDsc, &pathDsc, &timeBasePathDsc, &dataDsc, &segmentDsc, &objSegmentDsc,
@@ -1073,12 +1106,14 @@ int mdsendIdsPutRemote(int connId, int remoteExpIdx, char* path) {
         sprintf(errmsg, "Remote Access Failed: %s", MdsGetMsg(status));
         return -1;
     }
-    if (ansarg.length > 0)
+    if (ansarg.length > 0) {
         free(ansarg.ptr);
+    }
     return 0;
 }
 
-int mdsbeginIdsPutTimedRemote(int connId, int expIdx, char* path, int samples, double* inTimes) {
+int mdsbeginIdsPutTimedRemote(int connId, int expIdx, char* path, int samples, double* inTimes)
+{
     segmentTimes = malloc(sizeof(double) * samples);
     memcpy(segmentTimes, inTimes, sizeof(double) * samples);
     nSegmentTimes = samples;
@@ -1091,21 +1126,24 @@ int mdsendIdsPutTimedRemote(int connId, int expIdx, char* path) // , char *timeB
 
 //    status = mdsendIdsPutRemote(connId, expIdx, path); // , timeBasePath
     if (nSegmentTimes > 0) {
-        free((char*) segmentTimes);
+        free((char*)segmentTimes);
         nSegmentTimes = 0;
     }
     return status;
 }
 
-int mdsbeginIdsPutNonTimedRemote(int connId, int expIdx, char* path) {
+int mdsbeginIdsPutNonTimedRemote(int connId, int expIdx, char* path)
+{
     return beginPutDataInfo(expIdx, path);
 }
 
-int mdsendIdsPutNonTimedRemote(int connId, int expIdx, char* path) {
+int mdsendIdsPutNonTimedRemote(int connId, int expIdx, char* path)
+{
     return mdsendIdsPutRemote(connId, expIdx, path);
 }
 
-int putDataRemote(int connId, int expIdx, char* cpoPath, char* path, struct descriptor* dataDsc) {
+int putDataRemote(int connId, int expIdx, char* cpoPath, char* path, struct descriptor* dataDsc)
+{
     return insertPutDataInfo(expIdx, cpoPath, path, " ", dataDsc);
 }
 
@@ -1114,22 +1152,25 @@ putSegmentRemote(int connId, int expIdx, char* cpoPath, char* path, char* timeBa
                  double* times, int nTimes)
 //int putSegmentRemote(int connId, int expIdx, char *cpoPath, char *path, struct descriptor_a *dataDsc, double *times, int nTimes)
 {
-    return insertPutSegmentInfo(expIdx, cpoPath, path, timeBasePath, (struct descriptor*) dataDsc);
+    return insertPutSegmentInfo(expIdx, cpoPath, path, timeBasePath, (struct descriptor*)dataDsc);
 //    return insertPutSegmentInfo(expIdx, cpoPath, path, (struct descriptor *)dataDsc);
 }
 
 //ATTENZIONE!!! si perde segIdx!!!
-int putObjectSegmentRemote(int connId, int expIdx, char* cpoPath, char* path, void* objSegment, int segIdx) {
+int putObjectSegmentRemote(int connId, int expIdx, char* cpoPath, char* path, void* objSegment, int segIdx)
+{
     return insertPutObjectSegmentInfo(expIdx, cpoPath, path, objSegment, segIdx);
 }
 
-int mdsbeginIdsPutSliceRemote(int connId, int expIdx, char* path) {
+int mdsbeginIdsPutSliceRemote(int connId, int expIdx, char* path)
+{
     return beginPutDataInfo(expIdx, path);
 }
 
 static double sliceTime;
 
-int mdsendIdsPutSliceRemote(int connId, int remoteExpIdx, char* path) {
+int mdsendIdsPutSliceRemote(int connId, int remoteExpIdx, char* path)
+{
     char expr[512];
     struct descrip remoteExpIdxDsc;
     struct descrip ansarg;
@@ -1151,28 +1192,28 @@ int mdsendIdsPutSliceRemote(int connId, int remoteExpIdx, char* path) {
 
     terminatePutDataInfo(remoteExpIdx, path, timeBasePath, &dataXd, &segmentXd, &objSegmentXd);
     //printf("mdsendIdsPutSliceRemote 2. timeBasePath: %s\n",timeBasePath);
-    MakeDescrip((struct descrip*) &pathDsc, DTYPE_CSTRING, 0, 0, path);
-    MakeDescrip((struct descrip*) &remoteExpIdxDsc, DTYPE_LONG, 0, 0, &remoteExpIdx);
-    MakeDescrip((struct descrip*) &timeDsc, DTYPE_DOUBLE, 0, 0, &sliceTime);
-    MakeDescrip((struct descrip*) &timeBasePathDsc, DTYPE_CSTRING, 0, 0, timeBasePath);
+    MakeDescrip((struct descrip*)&pathDsc, DTYPE_CSTRING, 0, 0, path);
+    MakeDescrip((struct descrip*)&remoteExpIdxDsc, DTYPE_LONG, 0, 0, &remoteExpIdx);
+    MakeDescrip((struct descrip*)&timeDsc, DTYPE_DOUBLE, 0, 0, &sliceTime);
+    MakeDescrip((struct descrip*)&timeBasePathDsc, DTYPE_CSTRING, 0, 0, timeBasePath);
 
     status = MdsSerializeDscOut(dataXd.pointer, &serDataXd);
     if (!(status & 1) || !serDataXd.pointer) {
         printf("INTERNAL ERROR: Cannot serialize Data\n");
         return -1;
     }
-    currLen = ((struct descriptor_a*) serDataXd.pointer)->arsize;
-    MakeDescrip((struct descrip*) &dataDsc, DTYPE_UCHAR, 1, &currLen,
-                ((struct descriptor_a*) serDataXd.pointer)->pointer);
+    currLen = ((struct descriptor_a*)serDataXd.pointer)->arsize;
+    MakeDescrip((struct descrip*)&dataDsc, DTYPE_UCHAR, 1, &currLen,
+                ((struct descriptor_a*)serDataXd.pointer)->pointer);
 
     status = MdsSerializeDscOut(objSegmentXd.pointer, &serObjSegmentXd);
     if (!(status & 1) || !serObjSegmentXd.pointer) {
         printf("INTERNAL ERROR: Cannot serialize Object segment\n");
         return -1;
     }
-    currLen = ((struct descriptor_a*) serObjSegmentXd.pointer)->arsize;
-    MakeDescrip((struct descrip*) &objSegmentDsc, DTYPE_UCHAR, 1, &currLen,
-                ((struct descriptor_a*) serObjSegmentXd.pointer)->pointer);
+    currLen = ((struct descriptor_a*)serObjSegmentXd.pointer)->arsize;
+    MakeDescrip((struct descrip*)&objSegmentDsc, DTYPE_UCHAR, 1, &currLen,
+                ((struct descriptor_a*)serObjSegmentXd.pointer)->pointer);
 
 //    status = MdsValue(connId, expr, &remoteExpIdxDsc, &pathDsc, &dataDsc, &objSegmentDsc, &timeDsc, &ansarg, NULL);
     status = MdsValue(connId, expr, &remoteExpIdxDsc, &pathDsc, &timeBasePathDsc, &dataDsc, &objSegmentDsc, &timeDsc,
@@ -1189,23 +1230,27 @@ int mdsendIdsPutSliceRemote(int connId, int remoteExpIdx, char* path) {
         sprintf(errmsg, "Remote Access Failed: %s", MdsGetMsg(status));
         return -1;
     }
-    if (ansarg.length > 0)
+    if (ansarg.length > 0) {
         free(ansarg.ptr);
+    }
     return 0;
 }
 
 int putSliceRemote(int connId, int expIdx, char* cpoPath, char* path, char* timeBasePath, struct descriptor* dataDsc,
-                   double time) {
+                   double time)
+{
     sliceTime = time;
     return insertPutDataInfo(expIdx, cpoPath, path, timeBasePath, dataDsc);
 }
 
 
-int mdsbeginIdsReplaceLastSliceRemote(int connId, int expIdx, char* path) {
+int mdsbeginIdsReplaceLastSliceRemote(int connId, int expIdx, char* path)
+{
     return beginPutDataInfo(expIdx, path);
 }
 
-int mdsendIdsReplaceLastSliceRemote(int connId, int remoteExpIdx, char* path) {
+int mdsendIdsReplaceLastSliceRemote(int connId, int remoteExpIdx, char* path)
+{
     char expr[512];
     struct descrip remoteExpIdxDsc;
     struct descrip ansarg;
@@ -1220,8 +1265,8 @@ int mdsendIdsReplaceLastSliceRemote(int connId, int remoteExpIdx, char* path) {
     EMPTYXD(objSegmentXd);
     int status, currLen;
 
-    MakeDescrip((struct descrip*) &pathDsc, DTYPE_CSTRING, 0, 0, path);
-    MakeDescrip((struct descrip*) &remoteExpIdxDsc, DTYPE_LONG, 0, 0, &remoteExpIdx);
+    MakeDescrip((struct descrip*)&pathDsc, DTYPE_CSTRING, 0, 0, path);
+    MakeDescrip((struct descrip*)&remoteExpIdxDsc, DTYPE_LONG, 0, 0, &remoteExpIdx);
     sprintf(expr, "imas->replaceLastSliceServer($1, $2, $3, $4)");
     memset(&ansarg, 0, sizeof(ansarg));
 
@@ -1231,18 +1276,18 @@ int mdsendIdsReplaceLastSliceRemote(int connId, int remoteExpIdx, char* path) {
         printf("INTERNAL ERROR: Cannot serialize Data\n");
         return -1;
     }
-    currLen = ((struct descriptor_a*) serDataXd.pointer)->arsize;
-    MakeDescrip((struct descrip*) &dataDsc, DTYPE_UCHAR, 1, &currLen,
-                ((struct descriptor_a*) serDataXd.pointer)->pointer);
+    currLen = ((struct descriptor_a*)serDataXd.pointer)->arsize;
+    MakeDescrip((struct descrip*)&dataDsc, DTYPE_UCHAR, 1, &currLen,
+                ((struct descriptor_a*)serDataXd.pointer)->pointer);
 
     status = MdsSerializeDscOut(objSegmentXd.pointer, &serObjSegmentXd);
     if (!(status & 1) || !serObjSegmentXd.pointer) {
         printf("INTERNAL ERROR: Cannot serialize Object segment\n");
         return -1;
     }
-    currLen = ((struct descriptor_a*) serObjSegmentXd.pointer)->arsize;
-    MakeDescrip((struct descrip*) &objSegmentDsc, DTYPE_UCHAR, 1, &currLen,
-                ((struct descriptor_a*) serObjSegmentXd.pointer)->pointer);
+    currLen = ((struct descriptor_a*)serObjSegmentXd.pointer)->arsize;
+    MakeDescrip((struct descrip*)&objSegmentDsc, DTYPE_UCHAR, 1, &currLen,
+                ((struct descriptor_a*)serObjSegmentXd.pointer)->pointer);
 
     status = MdsValue(connId, expr, &remoteExpIdxDsc, &pathDsc, &dataDsc, &objSegmentDsc, &ansarg, NULL);
 
@@ -1258,61 +1303,71 @@ int mdsendIdsReplaceLastSliceRemote(int connId, int remoteExpIdx, char* path) {
         sprintf(errmsg, "Remote Access Failed: %s", MdsGetMsg(status));
         return -1;
     }
-    if (ansarg.length > 0)
+    if (ansarg.length > 0) {
         free(ansarg.ptr);
+    }
     return 0;
 }
 
-int replaceLastSliceRemote(int connId, int expIdx, char* cpoPath, char* path, struct descriptor* dataDsc) {
+int replaceLastSliceRemote(int connId, int expIdx, char* cpoPath, char* path, struct descriptor* dataDsc)
+{
     return insertPutDataInfo(expIdx, cpoPath, path, " ", dataDsc);
 }
 
 
-int mdsimasOpenEnvServer(char* name, int* shot, int* run, char* user, char* tokamak, char* version) {
+int mdsimasOpenEnvServer(char* name, int* shot, int* run, char* user, char* tokamak, char* version)
+{
     int expIdx, status;
 
     status = mdsimasOpenEnv(name, *shot, *run, &expIdx, user, tokamak, version);
-    if (!status)
+    if (!status) {
         return expIdx;
-    else
+    } else {
         return -1;
+    }
 }
 
-int mdsimasOpenServer(char* name, int* shot, int* run) {
+int mdsimasOpenServer(char* name, int* shot, int* run)
+{
     int expIdx, status;
-
 
     refreshExpCtx(name, *shot, *run);
     status = mdsimasOpen(name, *shot, *run, &expIdx);
-    if (!status)
+    if (!status) {
         return expIdx;
-    else
+    } else {
         return -1;
+    }
 }
 
-int mdsimasCreateEnvServer(char* name, int* shot, int* run, char* user, char* tokamak, char* version) {
+int mdsimasCreateEnvServer(char* name, int* shot, int* run, char* user, char* tokamak, char* version)
+{
     int expIdx, status;
 
     status = mdsimasCreateEnv(name, *shot, *run, 0, 0, &expIdx, user, tokamak, version);
-    if (!status)
+    if (!status) {
         return expIdx;
-    else
+    } else {
         return -1;
+    }
 }
 
-int mdsimasCreateServer(char* name, int* shot, int* run) {
+int mdsimasCreateServer(char* name, int* shot, int* run)
+{
     int expIdx, status;
 
     status = mdsimasCreate(name, *shot, *run, 0, 0, &expIdx);
-    if (!status)
+    if (!status) {
         return expIdx;
-    else
+    } else {
         return -1;
+    }
 }
 
 
 int
-mdsimasOpenEnvRemote(int connId, char* name, int shot, int run, int* retIdx, char* user, char* tokamak, char* version) {
+mdsimasOpenEnvRemote(int connId, char* name, int shot, int run, int* retIdx, char* user, char* tokamak, char* version)
+{
     char expr[512];
     int errLen;
     struct descrip ansarg;
@@ -1324,16 +1379,14 @@ mdsimasOpenEnvRemote(int connId, char* name, int shot, int run, int* retIdx, cha
     struct descrip versionDsc;
 
     sprintf(expr, "imas->mdsimasOpenEnvServer($1, $2, $3, $4, $5, $6)");
-    MakeDescrip((struct descrip*) &nameDsc, DTYPE_CSTRING, 0, 0, name);
-    MakeDescrip((struct descrip*) &shotDsc, DTYPE_LONG, 0, 0, &shot);
-    MakeDescrip((struct descrip*) &runDsc, DTYPE_LONG, 0, 0, &run);
-    MakeDescrip((struct descrip*) &userDsc, DTYPE_CSTRING, 0, 0, user);
-    MakeDescrip((struct descrip*) &tokamakDsc, DTYPE_CSTRING, 0, 0, tokamak);
-    MakeDescrip((struct descrip*) &versionDsc, DTYPE_CSTRING, 0, 0, version);
-
+    MakeDescrip((struct descrip*)&nameDsc, DTYPE_CSTRING, 0, 0, name);
+    MakeDescrip((struct descrip*)&shotDsc, DTYPE_LONG, 0, 0, &shot);
+    MakeDescrip((struct descrip*)&runDsc, DTYPE_LONG, 0, 0, &run);
+    MakeDescrip((struct descrip*)&userDsc, DTYPE_CSTRING, 0, 0, user);
+    MakeDescrip((struct descrip*)&tokamakDsc, DTYPE_CSTRING, 0, 0, tokamak);
+    MakeDescrip((struct descrip*)&versionDsc, DTYPE_CSTRING, 0, 0, version);
 
     MdsValue(connId, expr, &nameDsc, &shotDsc, &runDsc, &userDsc, &tokamakDsc, &versionDsc, &ansarg, NULL);
-
 
     if (ansarg.dtype == DTYPE_CSTRING) {
         errLen = ansarg.length;
@@ -1348,16 +1401,19 @@ mdsimasOpenEnvRemote(int connId, char* name, int shot, int run, int* retIdx, cha
         printf("Internal Error in remote OpenEnv\n");
         return -1;
     }
-    *retIdx = *((int*) ansarg.ptr);
-    if (ansarg.length > 0)
+    *retIdx = *((int*)ansarg.ptr);
+    if (ansarg.length > 0) {
         free(ansarg.ptr);
-    if (*retIdx == -1)
+    }
+    if (*retIdx == -1) {
         return -1;
-    else
+    } else {
         return 0;
+    }
 }
 
-int mdsimasOpenRemote(int connId, char* name, int shot, int run, int* retIdx) {
+int mdsimasOpenRemote(int connId, char* name, int shot, int run, int* retIdx)
+{
     char expr[512];
     int errLen;
     struct descrip ansarg;
@@ -1366,11 +1422,10 @@ int mdsimasOpenRemote(int connId, char* name, int shot, int run, int* retIdx) {
     struct descrip runDsc;
 
     sprintf(expr, "imas->mdsimasOpenServer($1, $2, $3)");
-    MakeDescrip((struct descrip*) &nameDsc, DTYPE_CSTRING, 0, 0, name);
-    MakeDescrip((struct descrip*) &shotDsc, DTYPE_LONG, 0, 0, &shot);
-    MakeDescrip((struct descrip*) &runDsc, DTYPE_LONG, 0, 0, &run);
+    MakeDescrip((struct descrip*)&nameDsc, DTYPE_CSTRING, 0, 0, name);
+    MakeDescrip((struct descrip*)&shotDsc, DTYPE_LONG, 0, 0, &shot);
+    MakeDescrip((struct descrip*)&runDsc, DTYPE_LONG, 0, 0, &run);
     MdsValue(connId, expr, &nameDsc, &shotDsc, &runDsc, &ansarg, NULL);
-
 
     if (ansarg.dtype == DTYPE_CSTRING) {
         errLen = ansarg.length;
@@ -1385,18 +1440,21 @@ int mdsimasOpenRemote(int connId, char* name, int shot, int run, int* retIdx) {
         printf("Internal Error in remote OpenEnv\n");
         return -1;
     }
-    *retIdx = *((int*) ansarg.ptr);
-    if (ansarg.length > 0)
+    *retIdx = *((int*)ansarg.ptr);
+    if (ansarg.length > 0) {
         free(ansarg.ptr);
+    }
     if (*retIdx == -1) {
         sprintf(errmsg, "Remote OpenEnv failed");
         return -1;
-    } else
+    } else {
         return 0;
+    }
 }
 
 int mdsimasCreateEnvRemote(int connId, char* name, int shot, int run, int* retIdx, char* user, char* tokamak,
-                           char* version) {
+                           char* version)
+{
     char expr[512];
     int errLen;
     struct descrip ansarg;
@@ -1408,14 +1466,13 @@ int mdsimasCreateEnvRemote(int connId, char* name, int shot, int run, int* retId
     struct descrip versionDsc;
 
     sprintf(expr, "imas->mdsimasCreateEnvServer($1, $2, $3, $4, $5, $6)");
-    MakeDescrip((struct descrip*) &nameDsc, DTYPE_CSTRING, 0, 0, name);
-    MakeDescrip((struct descrip*) &shotDsc, DTYPE_LONG, 0, 0, &shot);
-    MakeDescrip((struct descrip*) &runDsc, DTYPE_LONG, 0, 0, &run);
-    MakeDescrip((struct descrip*) &userDsc, DTYPE_CSTRING, 0, 0, user);
-    MakeDescrip((struct descrip*) &tokamakDsc, DTYPE_CSTRING, 0, 0, tokamak);
-    MakeDescrip((struct descrip*) &versionDsc, DTYPE_CSTRING, 0, 0, version);
+    MakeDescrip((struct descrip*)&nameDsc, DTYPE_CSTRING, 0, 0, name);
+    MakeDescrip((struct descrip*)&shotDsc, DTYPE_LONG, 0, 0, &shot);
+    MakeDescrip((struct descrip*)&runDsc, DTYPE_LONG, 0, 0, &run);
+    MakeDescrip((struct descrip*)&userDsc, DTYPE_CSTRING, 0, 0, user);
+    MakeDescrip((struct descrip*)&tokamakDsc, DTYPE_CSTRING, 0, 0, tokamak);
+    MakeDescrip((struct descrip*)&versionDsc, DTYPE_CSTRING, 0, 0, version);
     MdsValue(connId, expr, &nameDsc, &shotDsc, &runDsc, &userDsc, &tokamakDsc, &versionDsc, &ansarg, NULL);
-
 
     if (ansarg.dtype == DTYPE_CSTRING) {
         errLen = ansarg.length;
@@ -1430,16 +1487,19 @@ int mdsimasCreateEnvRemote(int connId, char* name, int shot, int run, int* retId
         printf("Internal Error in remote OpenEnv\n");
         return -1;
     }
-    *retIdx = *((int*) ansarg.ptr);
-    if (ansarg.length > 0)
+    *retIdx = *((int*)ansarg.ptr);
+    if (ansarg.length > 0) {
         free(ansarg.ptr);
-    if (*retIdx == -1)
+    }
+    if (*retIdx == -1) {
         return -1;
-    else
+    } else {
         return 0;
+    }
 }
 
-int mdsimasCreateRemote(int connId, char* name, int shot, int run, int* retIdx) {
+int mdsimasCreateRemote(int connId, char* name, int shot, int run, int* retIdx)
+{
     char expr[512];
     int errLen;
     struct descrip ansarg;
@@ -1448,9 +1508,9 @@ int mdsimasCreateRemote(int connId, char* name, int shot, int run, int* retIdx) 
     struct descrip runDsc;
 
     sprintf(expr, "imas->mdsimasCreateServer($1, $2, $3)");
-    MakeDescrip((struct descrip*) &nameDsc, DTYPE_CSTRING, 0, 0, name);
-    MakeDescrip((struct descrip*) &shotDsc, DTYPE_LONG, 0, 0, &shot);
-    MakeDescrip((struct descrip*) &runDsc, DTYPE_LONG, 0, 0, &run);
+    MakeDescrip((struct descrip*)&nameDsc, DTYPE_CSTRING, 0, 0, name);
+    MakeDescrip((struct descrip*)&shotDsc, DTYPE_LONG, 0, 0, &shot);
+    MakeDescrip((struct descrip*)&runDsc, DTYPE_LONG, 0, 0, &run);
     MdsValue(connId, expr, &nameDsc, &shotDsc, &runDsc, &ansarg, NULL);
 
     if (ansarg.dtype == DTYPE_CSTRING) {
@@ -1466,16 +1526,19 @@ int mdsimasCreateRemote(int connId, char* name, int shot, int run, int* retIdx) 
         printf("Internal Error in remote OpenEnv\n");
         return -1;
     }
-    *retIdx = *((int*) ansarg.ptr);
-    if (ansarg.length > 0)
+    *retIdx = *((int*)ansarg.ptr);
+    if (ansarg.length > 0) {
         free(ansarg.ptr);
-    if (*retIdx == -1)
+    }
+    if (*retIdx == -1) {
         return -1;
-    else
+    } else {
         return 0;
+    }
 }
 
-int mdsimasCloseRemote(int connId, int idx, char* name, int shot, int run) {
+int mdsimasCloseRemote(int connId, int idx, char* name, int shot, int run)
+{
     char expr[512];
     int errLen;
     struct descrip ansarg;
@@ -1485,10 +1548,10 @@ int mdsimasCloseRemote(int connId, int idx, char* name, int shot, int run) {
     struct descrip idxDsc;
 
     sprintf(expr, "imas->mdsimasClose(val($1), $2, $3, $4)");
-    MakeDescrip((struct descrip*) &nameDsc, DTYPE_CSTRING, 0, 0, name);
-    MakeDescrip((struct descrip*) &shotDsc, DTYPE_LONG, 0, 0, &shot);
-    MakeDescrip((struct descrip*) &runDsc, DTYPE_LONG, 0, 0, &run);
-    MakeDescrip((struct descrip*) &idxDsc, DTYPE_LONG, 0, 0, &idx);
+    MakeDescrip((struct descrip*)&nameDsc, DTYPE_CSTRING, 0, 0, name);
+    MakeDescrip((struct descrip*)&shotDsc, DTYPE_LONG, 0, 0, &shot);
+    MakeDescrip((struct descrip*)&runDsc, DTYPE_LONG, 0, 0, &run);
+    MakeDescrip((struct descrip*)&idxDsc, DTYPE_LONG, 0, 0, &idx);
     MdsValue(connId, expr, &idxDsc, &nameDsc, &shotDsc, &runDsc, &ansarg, NULL);
 
     if (ansarg.dtype == DTYPE_CSTRING) {
@@ -1504,8 +1567,9 @@ int mdsimasCloseRemote(int connId, int idx, char* name, int shot, int run) {
         printf("Internal Error in remote OpenEnv\n");
         return -1;
     }
-    if (ansarg.length > 0)
+    if (ansarg.length > 0) {
         free(ansarg.ptr);
+    }
     return 0;
 }
 

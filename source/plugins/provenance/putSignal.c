@@ -44,6 +44,7 @@
 #include <strings.h>
 
 #include <clientserver/udaTypes.h>
+#include <clientserver/stringUtils.h>
 
 #include "provenance.h"
 
@@ -119,57 +120,57 @@ int putSignal(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             IDAM_LOGF(LOG_DEBUG, "[%d] %s = %s\n", i, request_block->nameValueList.nameValue[i].name,
                     request_block->nameValueList.nameValue[i].value);
 
-            if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "uuid") ||
-                !strcasecmp(request_block->nameValueList.nameValue[i].name, "uid") ||
-                !strcasecmp(request_block->nameValueList.nameValue[i].name, "DOI")) {
+            if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "uuid") ||
+                STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "uid") ||
+                STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "DOI")) {
                 preventSQLInjection(DBConnect, &request_block->nameValueList.nameValue[i].value, 1);
                 uuid = request_block->nameValueList.nameValue[i].value;
                 uuidOK = 1;
                 continue;
             }
-            if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "requestedSignal")) {
+            if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "requestedSignal")) {
                 preventSQLInjection(DBConnect, &request_block->nameValueList.nameValue[i].value, 1);
                 requestedSignal = request_block->nameValueList.nameValue[i].value;
                 requestedSignalOK = 1;
                 continue;
             }
-            if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "requestedSource")) {
+            if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "requestedSource")) {
                 preventSQLInjection(DBConnect, &request_block->nameValueList.nameValue[i].value, 1);
                 requestedSource = request_block->nameValueList.nameValue[i].value;
                 requestedSourceOK = 1;
                 continue;
             }
-            if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "trueSignal")) {
+            if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "trueSignal")) {
                 preventSQLInjection(DBConnect, &request_block->nameValueList.nameValue[i].value, 1);
                 trueSignal = request_block->nameValueList.nameValue[i].value;
                 trueSignalOK = 1;
                 continue;
             }
-            if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "trueSource")) {
+            if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "trueSource")) {
                 preventSQLInjection(DBConnect, &request_block->nameValueList.nameValue[i].value, 1);
                 trueSource = request_block->nameValueList.nameValue[i].value;
                 trueSourceOK = 1;
                 continue;
             }
-            if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "trueSourceUUID")) {
+            if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "trueSourceUUID")) {
                 preventSQLInjection(DBConnect, &request_block->nameValueList.nameValue[i].value, 1);
                 trueSourceUUID = request_block->nameValueList.nameValue[i].value;
                 trueSourceUUIDOK = 1;
                 continue;
             }
-            if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "logRecord")) {
+            if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "logRecord")) {
                 preventSQLInjection(DBConnect, &request_block->nameValueList.nameValue[i].value, 1);
                 logRecord = request_block->nameValueList.nameValue[i].value;
                 logRecordOK = 1;
                 continue;
             }
-            if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "status")) {
+            if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "status")) {
                 preventSQLInjection(DBConnect, &request_block->nameValueList.nameValue[i].value, 1);
                 status = request_block->nameValueList.nameValue[i].value[0];
                 statusOK = 1;
                 continue;
             }
-            if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "execMethod")) {
+            if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "execMethod")) {
                 execMethod = (short) atoi(request_block->nameValueList.nameValue[i].value);
 
                 if ((env = getenv("UDA_PROVENANCE_EXEC_METHOD")) != NULL)

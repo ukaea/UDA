@@ -19,6 +19,7 @@
 #include <clientserver/initStructs.h>
 #include <logging/logging.h>
 #include <structures/accessors.h>
+#include <clientserver/stringUtils.h>
 
 #include "xpadtree.h"
 
@@ -34,7 +35,7 @@ int idamXpadTree(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     do {
 
         //Help function
-        if (!strcmp(request_block->function, "help")) {
+        if (STR_EQUALS(request_block->function, "help")) {
             char* help = "xpadtree::gettree() - Read in tree.\n";
 
             initDataBlock(data_block);
@@ -61,7 +62,7 @@ int idamXpadTree(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             strcpy(data_block->data_label, "");
             strcpy(data_block->data_units, "");
             break;
-        } else if (!strcmp(request_block->function, "getsignals")) {
+        } else if (STR_EQUALS(request_block->function, "getsignals")) {
 
             // Return the following information about all signals available in IDAM:
             //  - signal alias
@@ -85,7 +86,7 @@ int idamXpadTree(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             int i_arg;
 
             for (i_arg = 0; i_arg < n_args; i_arg++) {
-                if (!strcasecmp(request_block->nameValueList.nameValue[i_arg].name, "signaltype")) {
+                if (STR_IEQUALS(request_block->nameValueList.nameValue[i_arg].name, "signaltype")) {
                     signalType = request_block->nameValueList.nameValue[i_arg].value;
                     IDAM_LOGF(LOG_DEBUG, "Retrieving signals of type %s\n", signalType);
                     foundType = 1;
@@ -302,7 +303,7 @@ int idamXpadTree(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             IDAM_LOG(LOG_DEBUG, "everything done\n");
 
             break;
-        } else if (!strcmp(request_block->function, "getsignaltags")) {
+        } else if (STR_EQUALS(request_block->function, "getsignaltags")) {
 
             // Return the mapping information between the tree tags and the signals
             //  - tag id
@@ -319,7 +320,7 @@ int idamXpadTree(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             int i_arg;
 
             for (i_arg = 0; i_arg < n_args; i_arg++) {
-                if (!strcasecmp(request_block->nameValueList.nameValue[i_arg].name, "treename")) {
+                if (STR_IEQUALS(request_block->nameValueList.nameValue[i_arg].name, "treename")) {
                     treename = request_block->nameValueList.nameValue[i_arg].value;
                     IDAM_LOGF(LOG_DEBUG, "xpadtree : retrieving tags for tree %s\n", treename);
                     foundTreename = 1;
@@ -492,7 +493,7 @@ int idamXpadTree(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             break;
 
-        } else if (!strcmp(request_block->function, "gettree")) {
+        } else if (STR_EQUALS(request_block->function, "gettree")) {
 
             // Return the tree structure for a tree of a given name
             //  - tag id
@@ -512,7 +513,7 @@ int idamXpadTree(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             IDAM_LOG(LOG_DEBUG, "TEST SIGTREE");
 
             for (i_arg = 0; i_arg < n_args; i_arg++) {
-                if (!strcasecmp(request_block->nameValueList.nameValue[i_arg].name, "treename")) {
+                if (STR_IEQUALS(request_block->nameValueList.nameValue[i_arg].name, "treename")) {
                     treename = request_block->nameValueList.nameValue[i_arg].value;
                     IDAM_LOGF(LOG_DEBUG, "xpadtree : retrieving tags for tree %s\n", treename);
                     foundTreename = 1;

@@ -254,13 +254,13 @@ void parseFixedLengthStrArray(xmlNodePtr cur, char* target, char array[MAXDATARA
 double deScale(char* scale)
 {
     if (strlen(scale) == 0) return (1.0E0);
-    if (!strncmp(scale, "milli", 5)) {
+    if (STR_EQUALS(scale, "milli")) {
         return (1.0E-3);
     } else {
-        if (!strncmp(scale, "micro", 5)) {
+        if (STR_EQUALS(scale, "micro")) {
             return (1.0E-6);
         } else {
-            if (!strncmp(scale, "nano", 4)) {
+            if (STR_EQUALS(scale, "nano")) {
                 return (1.0E-9);
             }
         }

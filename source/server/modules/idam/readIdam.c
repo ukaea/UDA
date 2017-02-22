@@ -89,7 +89,7 @@ int readIdam(DATA_SOURCE data_source,
 
     resetIdamProperties();
 
-    idamLog(LOG_DEBUG, "Plugin readIdam: Handing over Server File Handles to IDAM Client\n");
+    IDAM_LOG(LOG_DEBUG, "Plugin Handing over Server File Handles to IDAM Client\n");
 //----------------------------------------------------------------------
 // Server Host and Port: Change if required
 
@@ -150,8 +150,8 @@ int readIdam(DATA_SOURCE data_source,
         }
     }
 
-    idamLog(LOG_DEBUG, "Idam Server Host for Idam Plugin %s\n", getIdamServerHost());
-    idamLog(LOG_DEBUG, "Idam Server Port for Idam Plugin %d\n", getIdamServerPort());
+    IDAM_LOGF(LOG_DEBUG, "Idam Server Host for Idam Plugin %s\n", getIdamServerHost());
+    IDAM_LOGF(LOG_DEBUG, "Idam Server Port for Idam Plugin %d\n", getIdamServerPort());
 
 //----------------------------------------------------------------------
 // Private Flags for the Server
@@ -200,17 +200,17 @@ int readIdam(DATA_SOURCE data_source,
 // Call for Data
 
     if (request_block.request != REQUEST_READ_IDAM) {
-        idamLog(LOG_DEBUG, "readIdam: Calling idamGetAPI API (Database based Request)\n");
-        idamLog(LOG_DEBUG, "readIdam Signal: %s\n", signal);
-        idamLog(LOG_DEBUG, "readIdam Source: %s\n", source);
+        IDAM_LOG(LOG_DEBUG, "Calling idamGetAPI API (Database based Request)\n");
+        IDAM_LOGF(LOG_DEBUG, "readIdam Signal: %s\n", signal);
+        IDAM_LOGF(LOG_DEBUG, "readIdam Source: %s\n", source);
 
         handle = idamGetAPI(signal, source);
 
     } else {
         printRequestBlock(request_block);
-        idamLog(LOG_DEBUG, "readIdam: Calling idamGetAPI API (Client based Request)\n");
-        idamLog(LOG_DEBUG, "readIdam Signal: %s\n", request_block.signal);
-        idamLog(LOG_DEBUG, "readIdam Source: %s\n", request_block.file);
+        IDAM_LOG(LOG_DEBUG, "Calling idamGetAPI API (Client based Request)\n");
+        IDAM_LOGF(LOG_DEBUG, "readIdam Signal: %s\n", request_block.signal);
+        IDAM_LOGF(LOG_DEBUG, "readIdam Source: %s\n", request_block.file);
 
 // Re-attach Archive name to signal	**** better if the client didn't tokenise the input when calling an IDAM server
 
@@ -228,7 +228,7 @@ int readIdam(DATA_SOURCE data_source,
 
     }
 
-    idamLog(LOG_DEBUG, "readIdam:Returned from idamGetAPI API: handle = %d, error code = %d\n", handle,
+    IDAM_LOGF(LOG_DEBUG, "Returned from idamGetAPI API: handle = %d, error code = %d\n", handle,
             getIdamErrorCode(handle));
 
 //------------------------------------------------------------------------------
@@ -254,9 +254,9 @@ int readIdam(DATA_SOURCE data_source,
 
     *data_block = *getIdamDataBlock(handle);
 
-    idamLog(LOG_DEBUG, "readIdam:\n");
+    IDAM_LOG(LOG_DEBUG, "\n");
     printDataBlock(*data_block);
-    idamLog(LOG_DEBUG, "plugin readIdam: Exit\n");
+    IDAM_LOG(LOG_DEBUG, "plugin Exit\n");
 
 //----------------------------------------------------------------------
 // If the Data are Hierarchical, then necessary to forward the xdr file

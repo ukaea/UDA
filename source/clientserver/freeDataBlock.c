@@ -15,8 +15,9 @@
 
 void freeIdamClientPutDataBlockList(PUTDATA_BLOCK_LIST* putDataBlockList)
 {
-    if (putDataBlockList->putDataBlock != NULL && putDataBlockList->blockListSize > 0)
+    if (putDataBlockList->putDataBlock != NULL && putDataBlockList->blockListSize > 0) {
         free(putDataBlockList->putDataBlock);
+    }
     initIdamPutDataBlockList(putDataBlockList);
 }
 
@@ -36,11 +37,11 @@ void freeDataBlock(DATA_BLOCK* data_block)
     unsigned int i;
     unsigned int rank;
 
-    idamLog(LOG_DEBUG, "freeDataBlock: Enter\n");
+    IDAM_LOG(LOG_DEBUG, "Enter\n");
 
     if (data_block != NULL) {
 
-        idamLog(LOG_DEBUG, "freeDataBlock: Opaque Data\n");
+        IDAM_LOG(LOG_DEBUG, "Opaque Data\n");
 
         switch (data_block->opaque_type) {
             case (OPAQUE_TYPE_XML_DOCUMENT): {
@@ -103,49 +104,49 @@ void freeDataBlock(DATA_BLOCK* data_block)
                 break;
         }
 
-        idamLog(LOG_DEBUG, "freeDataBlock: freeing Data\n");
+        IDAM_LOG(LOG_DEBUG, "freeing Data\n");
 
         rank = data_block->rank;
         ddims = data_block->dims;
 
-        if ((cptr = (void*) data_block->data) != NULL) free(cptr);
-        if ((cptr = (void*) data_block->errhi) != NULL) free(cptr);
-        if ((cptr = (void*) data_block->errlo) != NULL) free(cptr);
+        if ((cptr = (void*)data_block->data) != NULL) free(cptr);
+        if ((cptr = (void*)data_block->errhi) != NULL) free(cptr);
+        if ((cptr = (void*)data_block->errlo) != NULL) free(cptr);
 
         data_block->data = NULL;
         data_block->errhi = NULL;
         data_block->errlo = NULL;
 
-        idamLog(LOG_DEBUG, "freeDataBlock: freeing Dimensions - Rank = %d \n", rank);
-        idamLog(LOG_DEBUG, "freeDataBlock: Dim Structure Location %p \n", ddims);
+        IDAM_LOGF(LOG_DEBUG, "freeing Dimensions - Rank = %d \n", rank);
+        IDAM_LOGF(LOG_DEBUG, "Dim Structure Location %p \n", ddims);
 
         if (ddims != NULL) {
             for (i = 0; i < rank; i++) {
 
-                idamLog(LOG_DEBUG, "freeDataBlock: Dimension[%d] \n", i);
-                idamLog(LOG_DEBUG, "freeDataBlock: Dimension Data \n");
+                IDAM_LOGF(LOG_DEBUG, "Dimension[%d] \n", i);
+                IDAM_LOG(LOG_DEBUG, "Dimension Data \n");
 
-                if ((cptr = (void*) ddims[i].dim) != NULL) free(cptr);
+                if ((cptr = (void*)ddims[i].dim) != NULL) free(cptr);
 
-                idamLog(LOG_DEBUG, "freeDataBlock: Dimension Error Hi \n");
+                IDAM_LOG(LOG_DEBUG, "Dimension Error Hi \n");
 
-                if ((cptr = (void*) ddims[i].errhi) != NULL) free(cptr);
+                if ((cptr = (void*)ddims[i].errhi) != NULL) free(cptr);
 
-                idamLog(LOG_DEBUG, "freeDataBlock: Dimension Error Lo \n");
+                IDAM_LOG(LOG_DEBUG, "Dimension Error Lo \n");
 
-                if ((cptr = (void*) ddims[i].errlo) != NULL) free(cptr);
+                if ((cptr = (void*)ddims[i].errlo) != NULL) free(cptr);
 
-                idamLog(LOG_DEBUG, "freeDataBlock: Dimension Sams \n");
+                IDAM_LOG(LOG_DEBUG, "Dimension Sams \n");
 
-                if ((cptr = (void*) ddims[i].sams) != NULL) free(cptr);
+                if ((cptr = (void*)ddims[i].sams) != NULL) free(cptr);
 
-                idamLog(LOG_DEBUG, "freeDataBlock: Dimension offs \n");
+                IDAM_LOG(LOG_DEBUG, "Dimension offs \n");
 
-                if ((cptr = (void*) ddims[i].offs) != NULL) free(cptr);
+                if ((cptr = (void*)ddims[i].offs) != NULL) free(cptr);
 
-                idamLog(LOG_DEBUG, "freeDataBlock: Dimension ints \n");
+                IDAM_LOG(LOG_DEBUG, "Dimension ints \n");
 
-                if ((cptr = (void*) ddims[i].ints) != NULL) free(cptr);
+                if ((cptr = (void*)ddims[i].ints) != NULL) free(cptr);
 
                 data_block->dims[i].dim = NULL;
                 data_block->dims[i].errhi = NULL;
@@ -155,7 +156,7 @@ void freeDataBlock(DATA_BLOCK* data_block)
                 data_block->dims[i].ints = NULL;
             }
 
-            idamLog(LOG_DEBUG, "freeDataBlock: Dimension Array \n");
+            IDAM_LOG(LOG_DEBUG, "Dimension Array \n");
 
             free(ddims);
             data_block->dims = NULL;
@@ -172,7 +173,7 @@ void freeDataBlock(DATA_BLOCK* data_block)
 
     }
 
-    idamLog(LOG_DEBUG, "freeDataBlock: Exit\n");
+    IDAM_LOG(LOG_DEBUG, "Exit\n");
 }
 
 void freeReducedDataBlock(DATA_BLOCK* data_block)

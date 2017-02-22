@@ -25,7 +25,7 @@ extern "C" {
 
 #define NONCEBYTELENGTH     30  //512   //800
 
-#define NONCETEST       0
+#define NONCETEST           0
 #define NONCEWEAKRANDOM     1
 #define NONCESTRONGRANDOM   2
 #define NONCESTRINGRANDOM   3

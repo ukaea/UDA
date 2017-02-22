@@ -13,8 +13,9 @@
 #ifndef NOIDAPLUGIN
 
 #include <stdio.h>
+
 #include <clientserver/stringUtils.h>
-#include <logging/idamLog.h>
+#include <logging/logging.h>
 
 //-------------------------------------------------------------------
 // Form the Filename of the IDA File
@@ -64,7 +65,7 @@ void nameIDA(char* alias, int pulno, char* filename) {
     }
     strcat(filename, strint);
 
-    idamLog(LOG_DEBUG, "IDA_Filename: %s\n", filename);
+    IDAM_LOGF(LOG_DEBUG, "IDA_Filename: %s\n", filename);
 
     return;
 }

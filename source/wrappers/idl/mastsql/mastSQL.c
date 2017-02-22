@@ -2508,10 +2508,10 @@ int checkSecurity(PGconn *DBConnect, char *table, char permission, int verbose){
 	       
 	       //if(DEBUG) fprintf(stdout,"checkSecurity: Query Result = [%s]\n", dbperm);
 	       
-	       if (!strcmp(dbperm, "u"))	// Can Do Anything! 
+	       if (STR_EQUALS(dbperm, "u"))	// Can Do Anything!
 	          rc = 1;
 	       else 				// Create New Records Only
-	          if (!strcmp(dbperm, "n") && (permission=='n' || permission== 'N')) rc = 1;	
+	          if (STR_EQUALS(dbperm, "n") && (permission=='n' || permission== 'N')) rc = 1;
 	
 		  
 	       //if(DEBUG)fprintf(stdout,"Allowed:[%s] Requested:[%c] Granted:[%d]\n",dbperm,permission,rc) ;

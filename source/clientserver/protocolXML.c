@@ -66,6 +66,7 @@
 #include "xdrlib.h"
 #include "udaErrors.h"
 #include "protocol.h"
+#include "stringUtils.h"
 
 #ifdef SERVERBUILD
 #  include <server/udaServer.h>
@@ -470,7 +471,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, void* str
                         }
 #endif // !FATCLIENT
 
-                        if (!strcmp(udt_received->name, "SARRAY")) {            // expecting this carrier structure
+                        if (STR_EQUALS(udt_received->name, "SARRAY")) {            // expecting this carrier structure
 
                             GENERAL_BLOCK* general_block = (GENERAL_BLOCK*) malloc(sizeof(GENERAL_BLOCK));
 
@@ -613,7 +614,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, void* str
 
                             // Regular client or server
 
-                            if (!strcmp(udt_received->name, "SARRAY")) {            // expecting this carrier structure
+                            if (STR_EQUALS(udt_received->name, "SARRAY")) {            // expecting this carrier structure
 
                                 GENERAL_BLOCK* general_block = (GENERAL_BLOCK*) malloc(sizeof(GENERAL_BLOCK));
 

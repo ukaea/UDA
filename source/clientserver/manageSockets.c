@@ -9,6 +9,7 @@
 #include <strings.h>
 
 #include "manageSockets.h"
+#include "stringUtils.h"
 
 // Initialise
 
@@ -44,7 +45,7 @@ int addSocket(SOCKETLIST *socks, int type, int status, char *host, int port, int
 int getSocket(SOCKETLIST *socks, int type, int *status, char *host, int port, int *fh) {
     int i;
     for(i=0; i<socks->nsocks; i++) {
-        if(!strcasecmp(host, socks->sockets[i].host) && socks->sockets[i].type == type && socks->sockets[i].port == port) {
+        if(STR_IEQUALS(host, socks->sockets[i].host) && socks->sockets[i].type == type && socks->sockets[i].port == port) {
             if((*status = socks->sockets[i].status) == 1) {
                 *fh = socks->sockets[i].fh;
             } else {

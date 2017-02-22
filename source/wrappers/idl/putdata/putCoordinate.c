@@ -112,7 +112,7 @@ int testDimension(int ncgrpid, KW_RESULT *kw, char *dimension, int parents, int 
 
         if (kw->debug)fprintf(stdout, "Comparing Dimension Name [%s] with Target [%s]\n", dimname, dimension);
 
-        if (!strcmp(dimension, dimname)) {        // Dimension Found
+        if (STR_EQUALS(dimension, dimname)) {        // Dimension Found
             if (kw->debug)fprintf(stdout, "Dimension [%s] Found: ID %d\n", dimension, dimids[i]);
 
             *ncdimid = dimids[i];
@@ -433,7 +433,7 @@ int putCoordinate(int nparams, IDL_VPTR argv[], KW_RESULT *kw, int ncgrpid) {
             }
         }
 /*	 
-	 if(!strcmp(class, "time")){
+	 if(STR_EQUALS(class, "time")){
             if ((err = nc_put_att_text(ncgrpid, ncvarid, "class", strlen(class), class)) != NC_NOERR){
                if(kw->verbose) fprintf(stderr,"Unable to Write the Class Attribute of variable: %s\n", name);
                break;      
@@ -956,7 +956,7 @@ int writeCoordinateAttribute(IDL_VPTR argv, KW_RESULT *kw, int ncgrpid, char *gr
 
     if (xtype != atype) {
         if (kw->verbose) {
-            if (!strcasecmp(attribute, "count")) {
+            if (STR_IEQUALS(attribute, "count")) {
                 fprintf(stderr, "The IDL Data type for the Coordinate %s Domain Attribute %s must be "
                         "an Unsigned Integer scalar or array\n", name, attribute);
             } else {

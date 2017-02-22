@@ -20,6 +20,7 @@ Issues:
 #include <server/udaServer.h>
 #include <structures/struct.h>
 #include <structures/accessors.h>
+#include <clientserver/stringUtils.h>
 
 static char* pghost = NULL;
 static char pgport[56];
@@ -158,7 +159,7 @@ extern int issueDOI(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 //----------------------------------------------------------------------------------------
 // Heap Housekeeping 
 
-    if (housekeeping || !strcasecmp(request_block->function, "reset")) {
+    if (housekeeping || STR_IEQUALS(request_block->function, "reset")) {
 
         idamLog(LOG_DEBUG, "issueDOI: reset function called.\n");
 
@@ -179,8 +180,8 @@ extern int issueDOI(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 //----------------------------------------------------------------------------------------
 // Initialise if requested (the previous private SQL connection must be closed) 
 
-    if (!init || !strcasecmp(request_block->function, "init")
-        || !strcasecmp(request_block->function, "initialise")) {
+    if (!init || STR_IEQUALS(request_block->function, "init")
+        || STR_IEQUALS(request_block->function, "initialise")) {
 
         idamLog(LOG_DEBUG, "issueDOI: init function called.\n");
 
@@ -221,7 +222,7 @@ extern int issueDOI(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
         idamLog(LOG_DEBUG, "issueDOI: Plugin initialised and SQL connection made\n");
 
-        if (!strcasecmp(request_block->function, "init") || !strcasecmp(request_block->function, "initialise"))
+        if (STR_IEQUALS(request_block->function, "init") || STR_IEQUALS(request_block->function, "initialise"))
             return 0;
     }
 
@@ -243,7 +244,7 @@ extern int issueDOI(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // issueDOI::help()		
 
-        if (!strcasecmp(request_block->function, "help")) {
+        if (STR_IEQUALS(request_block->function, "help")) {
 
             idamLog(LOG_DEBUG, "issueDOI: entering function help\n");
 
@@ -325,7 +326,7 @@ extern int issueDOI(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 // icatRef	ICAT reference Id (foreign key)
 // status	DOI status [delete | firm | pending]
 
-        if (!strcasecmp(request_block->function, "get") || !strcasecmp(request_block->function, "new")) {
+        if (STR_IEQUALS(request_block->function, "get") || STR_IEQUALS(request_block->function, "new")) {
 
             idamLog(LOG_DEBUG, "issueDOI: entering function new\n");
 
@@ -339,14 +340,14 @@ extern int issueDOI(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 idamLog(LOG_DEBUG, "[%d] %s = %s\n", i, request_block->nameValueList.nameValue[i].name,
                         request_block->nameValueList.nameValue[i].value);
 
-                if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "owner")) {
+                if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "owner")) {
                     preventSQLInjection(DBConnect, &request_block->nameValueList.nameValue[i].value, 1);
                     owner = request_block->nameValueList.nameValue[i].value;
                     ownerOK = 1;
                     continue;
                 }
 
-                if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "icatRef")) {
+                if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "icatRef")) {
                     preventSQLInjection(DBConnect, &request_block->nameValueList.nameValue[i].value, 1);
                     icatRef = request_block->nameValueList.nameValue[i].value;
                     icatRefOK = 1;
@@ -510,8 +511,8 @@ extern int issueDOI(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             break;
 
-        } else if (!strcasecmp(request_block->function, "put") ||
-                   !strcasecmp(request_block->function, "record") || !strcasecmp(request_block->function, "add")) {
+        } else if (STR_IEQUALS(request_block->function, "put") ||
+                   STR_IEQUALS(request_block->function, "record") || STR_IEQUALS(request_block->function, "add")) {
 
 //----------------------------------------------------------------------------------------
 // Record data access requets in a temporary database and manage the status of the records: 
@@ -569,55 +570,55 @@ extern int issueDOI(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 idamLog(LOG_DEBUG, "[%d] %s = %s\n", i, request_block->nameValueList.nameValue[i].name,
                         request_block->nameValueList.nameValue[i].value);
 
-                if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "doi")) {
+                if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "doi")) {
                     preventSQLInjection(DBConnect, &request_block->nameValueList.nameValue[i].value, 1);
                     doi = request_block->nameValueList.nameValue[i].value;
                     doiOK = 1;
                     continue;
                 }
-                if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "requestedSignal")) {
+                if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "requestedSignal")) {
                     preventSQLInjection(DBConnect, &request_block->nameValueList.nameValue[i].value, 1);
                     requestedSignal = request_block->nameValueList.nameValue[i].value;
                     requestedSignalOK = 1;
                     continue;
                 }
-                if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "requestedSource")) {
+                if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "requestedSource")) {
                     preventSQLInjection(DBConnect, &request_block->nameValueList.nameValue[i].value, 1);
                     requestedSource = request_block->nameValueList.nameValue[i].value;
                     requestedSourceOK = 1;
                     continue;
                 }
-                if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "trueSignal")) {
+                if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "trueSignal")) {
                     preventSQLInjection(DBConnect, &request_block->nameValueList.nameValue[i].value, 1);
                     trueSignal = request_block->nameValueList.nameValue[i].value;
                     trueSignalOK = 1;
                     continue;
                 }
-                if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "trueSource")) {
+                if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "trueSource")) {
                     preventSQLInjection(DBConnect, &request_block->nameValueList.nameValue[i].value, 1);
                     trueSource = request_block->nameValueList.nameValue[i].value;
                     trueSourceOK = 1;
                     continue;
                 }
-                if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "trueSourceDOI")) {
+                if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "trueSourceDOI")) {
                     preventSQLInjection(DBConnect, &request_block->nameValueList.nameValue[i].value, 1);
                     trueSourceDOI = request_block->nameValueList.nameValue[i].value;
                     trueSourceDOIOK = 1;
                     continue;
                 }
-                if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "logRecord")) {
+                if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "logRecord")) {
                     preventSQLInjection(DBConnect, &request_block->nameValueList.nameValue[i].value, 1);
                     logRecord = request_block->nameValueList.nameValue[i].value;
                     logRecordOK = 1;
                     continue;
                 }
-                if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "status")) {
+                if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "status")) {
                     preventSQLInjection(DBConnect, &request_block->nameValueList.nameValue[i].value, 1);
                     status = request_block->nameValueList.nameValue[i].value[0];
                     statusOK = 1;
                     continue;
                 }
-                if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "execMethod")) {
+                if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "execMethod")) {
                     execMethod = (short) atoi(request_block->nameValueList.nameValue[i].value);
 
                     if ((env = getenv("UDA_PROVENANCE_EXEC_METHOD")) != NULL)
@@ -1132,7 +1133,7 @@ extern int issueDOI(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             break;
 
-        } else if (!strcasecmp(request_block->function, "list")) {
+        } else if (STR_IEQUALS(request_block->function, "list")) {
 //----------------------------------------------------------------------------------------
 // LIST all data access records from the DOI_Log table
 
@@ -1147,7 +1148,7 @@ extern int issueDOI(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 idamLog(LOG_DEBUG, "[%d] %s = %s\n", i, request_block->nameValueList.nameValue[i].name,
                         request_block->nameValueList.nameValue[i].value);
 
-                if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "doi")) {
+                if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "doi")) {
                     preventSQLInjection(DBConnect, &request_block->nameValueList.nameValue[i].value, 1);
                     doi = request_block->nameValueList.nameValue[i].value;
                     doiOK = 1;

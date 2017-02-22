@@ -154,82 +154,82 @@ int put(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Pairs
 
-        if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "UUID") ||
-            !strcasecmp(request_block->nameValueList.nameValue[i].name, "UID") ||
-            !strcasecmp(request_block->nameValueList.nameValue[i].name, "DOI")) {
+        if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "UUID") ||
+            STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "UID") ||
+            STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "DOI")) {
             isUID = 1;
             UID = request_block->nameValueList.nameValue[i].value;
             continue;
         }
 
-        if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "fileLocation")) {
+        if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "fileLocation")) {
             fileLocation = request_block->nameValueList.nameValue[i].value;
             isFileLocation = (strlen(fileLocation) > 0);
             if (isFileLocation && (p = strrchr(fileLocation, '/')) != NULL) fileLocationName = &p[1];
             continue;
         }
-        if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "inputDataFile")) {
+        if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "inputDataFile")) {
             inputDataFile = request_block->nameValueList.nameValue[i].value;
             isInputDataFile = (strlen(inputDataFile) > 0);
             if (isInputDataFile && (p = strrchr(inputDataFile, '/')) != NULL) inputDataFileName = &p[1];
             continue;
         }
-        if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "outputDataFile")) {
+        if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "outputDataFile")) {
             outputDataFile = request_block->nameValueList.nameValue[i].value;
             isOutputDataFile = (strlen(outputDataFile) > 0);
             if (isOutputDataFile && (p = strrchr(outputDataFile, '/')) != NULL) outputDataFileName = &p[1];
             continue;
         }
 
-        if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "modules")) {
+        if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "modules")) {
             modulesListFile = request_block->nameValueList.nameValue[i].value;
             isModulesListFile = (strlen(modulesListFile) > 0);
             if (isModulesListFile && (p = strrchr(modulesListFile, '/')) != NULL) modulesListFileName = &p[1];
             continue;
         }
-        if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "libraries")) {
+        if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "libraries")) {
             lddLibraryFile = request_block->nameValueList.nameValue[i].value;
             isLddLibraryFile = (strlen(lddLibraryFile) > 0);
             if (isLddLibraryFile && (p = strrchr(lddLibraryFile, '/')) != NULL) lddLibraryFileName = &p[1];
             continue;
         }
-        if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "environment")) {
+        if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "environment")) {
             envFile = request_block->nameValueList.nameValue[i].value;
             isEnvFile = (strlen(envFile) > 0);
             if (isEnvFile && (p = strrchr(envFile, '/')) != NULL) envFileName = &p[1];
             continue;
         }
 
-        if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "idamSignals")) {
+        if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "idamSignals")) {
             idamSignalsFile = request_block->nameValueList.nameValue[i].value;
             isIdamSignalsFile = (strlen(idamSignalsFile) > 0);
             if (isIdamSignalsFile && (p = strrchr(idamSignalsFile, '/')) != NULL) idamSignalsFile = &p[1];
             continue;
         }
-        if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "exeBinary")) {
+        if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "exeBinary")) {
             exeBinaryFile = request_block->nameValueList.nameValue[i].value;
             isExeBinaryFile = (strlen(exeBinaryFile) > 0);
             if (isExeBinaryFile && (p = strrchr(exeBinaryFile, '/')) != NULL) exeBinaryFileName = &p[1];
             continue;
         }
-        if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "runScript")) {
+        if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "runScript")) {
             runScriptFile = request_block->nameValueList.nameValue[i].value;
             isRunScriptFile = (strlen(runScriptFile) > 0);
             if (isRunScriptFile && (p = strrchr(runScriptFile, '/')) != NULL) runScriptFileName = &p[1];
             continue;
         }
-        if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "user")) {
+        if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "user")) {
             user = request_block->nameValueList.nameValue[i].value;
             continue;
         }
 // keywords
 
-        if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "returnPath")) {
+        if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "returnPath")) {
             isReturnPath = 1;
             continue;
         }
 
-        if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "Replace")) {
+        if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "Replace")) {
             isReplace = 1;
             continue;
         }

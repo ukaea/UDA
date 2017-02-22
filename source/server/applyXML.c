@@ -19,6 +19,7 @@
 
 #include <logging/logging.h>
 #include <clientserver/udaTypes.h>
+#include <clientserver/stringUtils.h>
 
 #ifdef NOXMLPARSER
 
@@ -703,8 +704,8 @@ void idamserverApplySignalXML(CLIENT_BLOCK client_block, DATA_SOURCE* data_sourc
 
 // Data Corrections
 
-                    if (!strcmp("data", actions.action[i].calibration.target) ||
-                        !strcmp("all", actions.action[i].calibration.target)) {
+                    if (STR_EQUALS("data", actions.action[i].calibration.target) ||
+                        STR_EQUALS("all", actions.action[i].calibration.target)) {
 
                         if (strlen(actions.action[i].calibration.units) > 0)
                             strcpy(data_block->data_units, actions.action[i].calibration.units);
@@ -715,15 +716,15 @@ void idamserverApplySignalXML(CLIENT_BLOCK client_block, DATA_SOURCE* data_sourc
                                          data_block->data);
                     }
 
-                    if (!strcmp("error", actions.action[i].calibration.target) ||
-                        !strcmp("all", actions.action[i].calibration.target))
+                    if (STR_EQUALS("error", actions.action[i].calibration.target) ||
+                        STR_EQUALS("all", actions.action[i].calibration.target))
                         applyCalibration(data_block->error_type, data_block->data_n,
                                          actions.action[i].calibration.factor,
                                          actions.action[i].calibration.offset, actions.action[i].calibration.invert,
                                          data_block->errhi);
 
-                    if (!strcmp("aserror", actions.action[i].calibration.target) ||
-                        !strcmp("all", actions.action[i].calibration.target))
+                    if (STR_EQUALS("aserror", actions.action[i].calibration.target) ||
+                        STR_EQUALS("all", actions.action[i].calibration.target))
                         applyCalibration(data_block->error_type, data_block->data_n,
                                          actions.action[i].calibration.factor,
                                          actions.action[i].calibration.offset, actions.action[i].calibration.invert,
@@ -745,8 +746,8 @@ void idamserverApplySignalXML(CLIENT_BLOCK client_block, DATA_SOURCE* data_sourc
                             if (actions.action[i].calibration.dimensions[j].dimcalibration.factor != (double) 1.0E0 ||
                                 actions.action[i].calibration.dimensions[j].dimcalibration.offset != (double) 0.0E0) {
 
-                                if (!strcmp("data", actions.action[i].calibration.target) ||
-                                    !strcmp("all", actions.action[i].calibration.target)) {
+                                if (STR_EQUALS("data", actions.action[i].calibration.target) ||
+                                    STR_EQUALS("all", actions.action[i].calibration.target)) {
                                     if (data_block->dims[dimid].compressed) {
                                         IDAM_LOGF(LOG_DEBUG, "Dimension %d Compressed\n", i);
                                         IDAM_LOGF(LOG_DEBUG, "Method = %d\n", data_block->dims[dimid].method);
@@ -1247,16 +1248,16 @@ void idamserverApplySignalXML(CLIENT_BLOCK client_block, DATA_SOURCE* data_sourc
                                     }
                                 }
 
-                                if (!strcmp("error", actions.action[i].calibration.target) ||
-                                    !strcmp("all", actions.action[i].calibration.target))
+                                if (STR_EQUALS("error", actions.action[i].calibration.target) ||
+                                    STR_EQUALS("all", actions.action[i].calibration.target))
                                     applyCalibration(data_block->dims[dimid].error_type, data_block->dims[dimid].dim_n,
                                                      actions.action[i].calibration.dimensions[j].dimcalibration.factor,
                                                      actions.action[i].calibration.dimensions[j].dimcalibration.offset,
                                                      actions.action[i].calibration.dimensions[j].dimcalibration.invert,
                                                      data_block->dims[dimid].errhi);
 
-                                if (!strcmp("aserror", actions.action[i].calibration.target) ||
-                                    !strcmp("all", actions.action[i].calibration.target))
+                                if (STR_EQUALS("aserror", actions.action[i].calibration.target) ||
+                                    STR_EQUALS("all", actions.action[i].calibration.target))
                                     applyCalibration(data_block->dims[dimid].error_type, data_block->dims[dimid].dim_n,
                                                      actions.action[i].calibration.dimensions[j].dimcalibration.factor,
                                                      actions.action[i].calibration.dimensions[j].dimcalibration.offset,

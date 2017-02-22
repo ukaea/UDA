@@ -317,23 +317,23 @@ void setSliceTime(double time1, double time2)
 int findIMASType(char * typeName)
 {
     if (typeName == NULL) return (UNKNOWN_TYPE);
-    //if(!strcasecmp(typeName, "byte"))     return TYPE_CHAR;
-    //if(!strcasecmp(typeName, "char"))     return TYPE_CHAR;
-    //if(!strcasecmp(typeName, "short"))    return TYPE_SHORT;
-    if (!strcasecmp(typeName, "int")) return INT;
-    //if(!strcasecmp(typeName, "int64"))    return TYPE_LONG64;
-    if (!strcasecmp(typeName, "float")) return FLOAT;
-    if (!strcasecmp(typeName, "double")) return DOUBLE;
-    //if(!strcasecmp(typeName, "ubyte"))    return TYPE_UNSIGNED_CHAR;
-    //if(!strcasecmp(typeName, "ushort"))   return TYPE_UNSIGNED_SHORT;
-    //if(!strcasecmp(typeName, "uint"))     return TYPE_UNSIGNED_INT;
-    //if(!strcasecmp(typeName, "uint64"))   return TYPE_UNSIGNED_LONG64;
-    //if(!strcasecmp(typeName, "text"))     return TYPE_STRING;
-    if (!strcasecmp(typeName, "string")) return STRING;
-    //if(!strcasecmp(typeName, "vlen"))     return TYPE_VLEN;
-    //if(!strcasecmp(typeName, "compound")) return TYPE_COMPOUND;
-    //if(!strcasecmp(typeName, "opaque"))   return TYPE_OPAQUE;
-    //if(!strcasecmp(typeName, "enum"))     return TYPE_ENUM;
+    //if(STR_IEQUALS(typeName, "byte"))     return TYPE_CHAR;
+    //if(STR_IEQUALS(typeName, "char"))     return TYPE_CHAR;
+    //if(STR_IEQUALS(typeName, "short"))    return TYPE_SHORT;
+    if (STR_IEQUALS(typeName, "int")) return INT;
+    //if(STR_IEQUALS(typeName, "int64"))    return TYPE_LONG64;
+    if (STR_IEQUALS(typeName, "float")) return FLOAT;
+    if (STR_IEQUALS(typeName, "double")) return DOUBLE;
+    //if(STR_IEQUALS(typeName, "ubyte"))    return TYPE_UNSIGNED_CHAR;
+    //if(STR_IEQUALS(typeName, "ushort"))   return TYPE_UNSIGNED_SHORT;
+    //if(STR_IEQUALS(typeName, "uint"))     return TYPE_UNSIGNED_INT;
+    //if(STR_IEQUALS(typeName, "uint64"))   return TYPE_UNSIGNED_LONG64;
+    //if(STR_IEQUALS(typeName, "text"))     return TYPE_STRING;
+    if (STR_IEQUALS(typeName, "string")) return STRING;
+    //if(STR_IEQUALS(typeName, "vlen"))     return TYPE_VLEN;
+    //if(STR_IEQUALS(typeName, "compound")) return TYPE_COMPOUND;
+    //if(STR_IEQUALS(typeName, "opaque"))   return TYPE_OPAQUE;
+    //if(STR_IEQUALS(typeName, "enum"))     return TYPE_ENUM;
     return (UNKNOWN_TYPE);
 }
 
@@ -2552,7 +2552,7 @@ void * imas_hdf5BeginObject(int expIdx, void * obj, int index, const char * relP
         // was already opened and initialized by the containing object (that contains all the times).
         // We recognize this case because the field name is, by convention, "ALLTIMES"
 
-        if (!strcmp(relPath, "ALLTIMES")) {
+        if (STR_EQUALS(relPath, "ALLTIMES")) {
             output->handle = object->handle;
             output->dim = -99;       // not used for output objects
             output->nextObj = NULL;  // this is the last object for now
@@ -2744,7 +2744,7 @@ int imas_hdf5GetObjectFromObject(void * obj, char * hdf5Path, int idx, void ** d
     // We recognize this case because the field name is, by convention, "ALLTIMES"
     //------------------------------------------------------------------------------
 
-    if (!strcmp(hdf5Path, "ALLTIMES")) {
+    if (STR_EQUALS(hdf5Path, "ALLTIMES")) {
 
         // we have already opened the HDF5 group when opening the containing object,
         // so just copy the handle

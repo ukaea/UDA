@@ -19,10 +19,11 @@ void parseIDAPath(REQUEST_BLOCK* request_block)
 //------------------------------------------------------------------------------
 // Extract Exp_Number or Source Name
 
-    if (request_block->path[0] == '/')
+    if (request_block->path[0] == '/') {
         strcpy(work, request_block->path + 1);    // the leading character is a / so ignore
-    else
+    } else {
         strcpy(work, request_block->path);
+    }
 
     token = strtok(work, "/");
 
@@ -62,10 +63,11 @@ void parseXMLPath(REQUEST_BLOCK* request_block)
 //------------------------------------------------------------------------------
 // Extract Exp_Number and Pass Number
 
-    if (request_block->path[0] == '/')
+    if (request_block->path[0] == '/') {
         strcpy(work, request_block->path + 1);    // the leading character is a / so ignore
-    else
+    } else {
         strcpy(work, request_block->path);
+    }
 
     token = strtok(work, "/");
 

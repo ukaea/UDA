@@ -8,37 +8,15 @@
 // 4. Remove test code from readCDF
 // 5. Remove test code from idam dlm
 //
-//============================================================================================================================
-// Change history
-
-// 10Dec2010 dgm test for NULL pointer before adding dim shape string heap allocation (dimShapeLabel) to malloc log
-// 13May2011 dgm Changed to using the variable name and group name instead of the unique type name
-//   When count = 0 set d = NULL in getCDF4SubTreeVarData (was set to arbitrary previous value)
-// 16Dec2011 dgm Corrected bug that occurs in 64 bit server: change int to size_t for variable attlength
-// 23Apr2012 dgm Removed test for rank with variables of type NC_STRING
-// 10May2012 dgm Added test for rank > 2 with variables of type NC_STRING
-//   Corrected bug with NC_STRING arrays
-//   Corrected heap logging of shape allocated within dimShapeLabel
-// 15Feb2013 dgm Added missing functionality: enumerated attributes
-// 13Aug2014 dgm Modified getUniqueTypeName to include structure component types in test for type duplicates
-// 05Mar2015 dgm Modify the returned structure:
-//    ignore 'hidden' variables, groups and attributes.
-//    ignore dimensions
-//    ignore enumerations
-// 15Apr2015 dgm Search for the structure definition attribute that defined how the data
-//                      within a groups is to be returned. This is a hidden attribue with the name
-//                      _returnedStructureDefinition and has a type of USERDEFINEDTYPE.
-// 26Jun2015 dgm Added a null string to empty group derived structures
-//   Modified the behaviour of strings read from IMAS HDF5 files
 //-----------------------------------------------------------------------------------------------------------------
-
-// Read netCDF4 sub-Tree
-
-#include <idamLog.h>
 #include "readCDF4SubTree.h"
 
-#include "struct.h"
-#include "idamErrorLog.h"
+#include <string.h>
+
+#include <structures/struct.h>
+#include <clientserver/stringUtils.h>
+#include <logging/logging.h>
+#include <clientserver/errorLog.h>
 
 static int nameKey = 0; // Create unique names by appending an incrementing integer
 int IMAS_HDF_READER = 1; // Modify behaviour when reading strings from an HDF5 file
@@ -163,7 +141,7 @@ char* getUniqueTypeName(char* proposed, int ref_id, USERDEFINEDTYPELIST* userdef
 
     for (i = 0; i < userdefinedtypelist->listCount; i++) {
         // Check the user defined type name
-        if (!strcmp(proposed, userdefinedtypelist->userdefinedtype[i].name)) {
+        if (STR_EQUALS(proposed, userdefinedtypelist->userdefinedtype[i].name)) {
             ndigits = 1 + ref_id / 10 + (int) strlen(proposed) + 1 + 1;
             unique = (char*) malloc(ndigits * sizeof(char));
             sprintf(unique, "%s_%d", proposed, ref_id);
@@ -177,7 +155,7 @@ char* getUniqueTypeName(char* proposed, int ref_id, USERDEFINEDTYPELIST* userdef
 
     for (i = 0; i < userdefinedtypelist->listCount; i++) {
         for (j = 0; j < userdefinedtypelist->userdefinedtype[i].fieldcount; j++) {
-            if (!strcmp(proposed, userdefinedtypelist->userdefinedtype[i].compoundfield[j].type)) {
+            if (STR_EQUALS(proposed, userdefinedtypelist->userdefinedtype[i].compoundfield[j].type)) {
                 ndigits = 1 + ref_id / 10 + (int) strlen(proposed) + 1 + 1;
                 unique = (char*) malloc(ndigits * sizeof(char));
                 sprintf(unique, "%s_%d", proposed, ref_id);
@@ -221,7 +199,7 @@ void updateUdt(HGROUPS* hgroups, USERDEFINEDTYPELIST* userdefinedtypelist)
 
 // Identify UDT that are identical in all detail except for name
 // Consolidate type names to the first registered name
-//      !strcmp(userdefinedtypelist->userdefinedtype[j].name, proposed_name)){
+//      STR_EQUALS(userdefinedtypelist->userdefinedtype[j].name, proposed_name)){
 
 void repeatUdt(USERDEFINEDTYPELIST* userdefinedtypelist)
 {
@@ -251,9 +229,9 @@ void repeatUdt(USERDEFINEDTYPELIST* userdefinedtypelist)
                            proposed_field->rank == field->rank &&
                            proposed_field->count == field->count &&
                            (field->atomictype == 1 ||
-                            (field->atomictype > 0 && !strcmp(proposed_field->type, field->type))) &&
-                           !strcmp(proposed_field->name, field->name) &&
-                           !strcmp(proposed_field->desc, field->desc);
+                            (field->atomictype > 0 && STR_EQUALS(proposed_field->type, field->type))) &&
+                           STR_EQUALS(proposed_field->name, field->name) &&
+                           STR_EQUALS(proposed_field->desc, field->desc);
 
                     if (!test) {
                         break;
@@ -284,7 +262,7 @@ void repeatUdt(USERDEFINEDTYPELIST* userdefinedtypelist)
                     for (kk = 0; kk < userdefinedtypelist->userdefinedtype[jj].fieldcount; kk++) { // Check all items
                         COMPOUNDFIELD* field = &userdefinedtypelist->userdefinedtype[jj].compoundfield[kk];
 
-                        if (field->atomictype == 0 && !strcmp(field->type, proposed_name)) {
+                        if (field->atomictype == 0 && STR_EQUALS(field->type, proposed_name)) {
                             strcpy(field->type, proposed_name);
                         }
                     }
@@ -345,10 +323,10 @@ void replaceSubTreeEmbeddedStrings(USERDEFINEDTYPE* udt, int ndata, char* dvec)
     }
 
     for (j = 0; j < udt->fieldcount; j++) {
-        idamLog(LOG_DEBUG, "\nreplaceSubTreeEmbeddedStrings: fieldcount %d\n", udt->fieldcount);
+        IDAM_LOGF(LOG_DEBUG, "\nfieldcount %d\n", udt->fieldcount);
 
         if (udt->compoundfield[j].atomictype == TYPE_UNKNOWN) { // Child User Defined type?
-            idamLog(LOG_DEBUG, "\nreplaceSubTreeEmbeddedStrings: UDT\n");
+            IDAM_LOG(LOG_DEBUG, "\nUDT\n");
 
             char* data;
             USERDEFINEDTYPE* child = findUserDefinedType(udt->compoundfield[j].type, 0);
@@ -381,8 +359,8 @@ void replaceSubTreeEmbeddedStrings(USERDEFINEDTYPE* udt, int ndata, char* dvec)
             continue;
         }
 
-        if (!strcmp(udt->compoundfield[j].type, "STRING *")) {
-            idamLog(LOG_DEBUG, "\nreplaceSubTreeEmbeddedStrings: STRING *, ndata %d\n", ndata);
+        if (STR_EQUALS(udt->compoundfield[j].type, "STRING *")) {
+            IDAM_LOGF(LOG_DEBUG, "\nSTRING *, ndata %d\n", ndata);
 
             // String arrays within data structures are defined (readCDFTypes) as char *str[int] => rank=1, pointer=0 and type=STRING*
             int lstr;
@@ -403,7 +381,7 @@ void replaceSubTreeEmbeddedStrings(USERDEFINEDTYPE* udt, int ndata, char* dvec)
                     strcpy(ssvec[i], svec[i]);
                 }
 
-                idamLog(LOG_DEBUG, "\nreplaceSubTreeEmbeddedStrings: string count %d\n", nstr);
+                IDAM_LOGF(LOG_DEBUG, "\nstring count %d\n", nstr);
 
                 // *** BUG ? when calling for the same sub-tree from the same file twice !!!
                 nc_free_string(nstr, svec);   // Free netCDF/HDF5 heap
@@ -418,7 +396,7 @@ void replaceSubTreeEmbeddedStrings(USERDEFINEDTYPE* udt, int ndata, char* dvec)
         }
     }
 
-    idamLog(LOG_DEBUG, "\nreplaceSubTreeEmbeddedStrings: exiting\n");
+    IDAM_LOG(LOG_DEBUG, "\nexiting\n");
 }
 
 int getCDF4SubTreeVarMeta(int grpid, int varid, VARIABLE* variable, USERDEFINEDTYPE* udt,
@@ -449,18 +427,18 @@ int getCDF4SubTreeVarMeta(int grpid, int varid, VARIABLE* variable, USERDEFINEDT
     unsigned short noGrpAttributeData = readCDF4Properties() & NC_NOGROUPATTRIBUTEDATA;
     unsigned short regularVarData = (noVarAttributeData || noAttributeData) && noDimensionData;
 
-    idamLog(LOG_DEBUG, "getCDF4SubTreeVarMeta: Properties \n");
-    idamLog(LOG_DEBUG, "readCDF4Properties: %d\n", (int) readCDF4Properties());
-    idamLog(LOG_DEBUG, "ignoreHiddenAtts  : %d\n", (int) ignoreHiddenAtts);
-    idamLog(LOG_DEBUG, "ignoreHiddenVars  : %d\n", (int) ignoreHiddenVars);
-    idamLog(LOG_DEBUG, "ignoreHiddenGroups: %d\n", (int) ignoreHiddenGroups);
-    idamLog(LOG_DEBUG, "ignoreHiddenDims  : %d\n", (int) ignoreHiddenDims);
-    idamLog(LOG_DEBUG, "notPointerType    : %d\n", (int) notPointerType);
-    idamLog(LOG_DEBUG, "noDimensionData   : %d\n", (int) noDimensionData);
-    idamLog(LOG_DEBUG, "noAttributeData   : %d\n", (int) noAttributeData);
-    idamLog(LOG_DEBUG, "noVarAttributeData: %d\n", (int) noVarAttributeData);
-    idamLog(LOG_DEBUG, "noGrpAttributeData: %d\n", (int) noGrpAttributeData);
-    idamLog(LOG_DEBUG, "regularVarData    : %d\n", (int) regularVarData);
+    IDAM_LOG(LOG_DEBUG, "getCDF4SubTreeVarMeta: Properties \n");
+    IDAM_LOGF(LOG_DEBUG, "readCDF4Properties: %d\n", (int) readCDF4Properties());
+    IDAM_LOGF(LOG_DEBUG, "ignoreHiddenAtts  : %d\n", (int) ignoreHiddenAtts);
+    IDAM_LOGF(LOG_DEBUG, "ignoreHiddenVars  : %d\n", (int) ignoreHiddenVars);
+    IDAM_LOGF(LOG_DEBUG, "ignoreHiddenGroups: %d\n", (int) ignoreHiddenGroups);
+    IDAM_LOGF(LOG_DEBUG, "ignoreHiddenDims  : %d\n", (int) ignoreHiddenDims);
+    IDAM_LOGF(LOG_DEBUG, "notPointerType    : %d\n", (int) notPointerType);
+    IDAM_LOGF(LOG_DEBUG, "noDimensionData   : %d\n", (int) noDimensionData);
+    IDAM_LOGF(LOG_DEBUG, "noAttributeData   : %d\n", (int) noAttributeData);
+    IDAM_LOGF(LOG_DEBUG, "noVarAttributeData: %d\n", (int) noVarAttributeData);
+    IDAM_LOGF(LOG_DEBUG, "noGrpAttributeData: %d\n", (int) noGrpAttributeData);
+    IDAM_LOGF(LOG_DEBUG, "regularVarData    : %d\n", (int) regularVarData);
 
     //----------------------------------------------------------------------
     // Initialise
@@ -777,9 +755,9 @@ int getCDF4SubTreeVar2Meta(int grpid, int varid, VARIABLE* variable, int* offset
     unsigned short ignoreHiddenVars = readCDF4Properties() & NC_IGNOREHIDDENVARS;
     unsigned short notPointerType = readCDF4Properties() & NC_NOTPOINTERTYPE;
 
-    idamLog(LOG_DEBUG, "getCDF4SubTreeVar2Meta: Properties \n");
-    idamLog(LOG_DEBUG, "ignoreHiddenVars  : %d\n", (int) ignoreHiddenVars);
-    idamLog(LOG_DEBUG, "notPointerType    : %d\n", (int) notPointerType);
+    IDAM_LOG(LOG_DEBUG, "getCDF4SubTreeVar2Meta: Properties \n");
+    IDAM_LOGF(LOG_DEBUG, "ignoreHiddenVars  : %d\n", (int) ignoreHiddenVars);
+    IDAM_LOGF(LOG_DEBUG, "notPointerType    : %d\n", (int) notPointerType);
 
     //----------------------------------------------------------------------
     // Initialise
@@ -968,11 +946,11 @@ int getCDF4SubTreeMeta(int grpid, int parent, USERDEFINEDTYPE* udt, USERDEFINEDT
             }
 
             int i;
-            idamLog(LOG_DEBUG, "getCDF4SubTreeMeta: Group List\n");
+            IDAM_LOG(LOG_DEBUG, "getCDF4SubTreeMeta: Group List\n");
 
             for (i = 0; i < numgrps; i++) {
                 if ((err = nc_inq_grpname(grpids[i], name)) != NC_NOERR) {
-                    idamLog(LOG_DEBUG, "[%d]: %s\n", i, name);
+                    IDAM_LOGF(LOG_DEBUG, "[%d]: %s\n", i, name);
                 }
             }
 
@@ -989,7 +967,7 @@ int getCDF4SubTreeMeta(int grpid, int parent, USERDEFINEDTYPE* udt, USERDEFINEDT
             return err;
         }
 
-        if (!strcmp(name, "/")) {
+        if (STR_EQUALS(name, "/")) {
             strcpy(name, "root");
         }
     }
@@ -1796,7 +1774,7 @@ int getCDF4SubTreeVarData(int grpid, void** data, VARIABLE* variable)
                 countIndex[0] = count;
             }
 
-            if (!strcmp(variable->udt->compoundfield[fieldid].type, "ENUMLIST")) {
+            if (STR_EQUALS(variable->udt->compoundfield[fieldid].type, "ENUMLIST")) {
                 ENUMLIST* enumlist = getCDF4EnumList(grpid, variable->vartype);
                 size = getsizeof(idamNameType(enumlist->type));
                 d = (char*) malloc(count * size);         // Enumerated Array
@@ -2085,7 +2063,8 @@ int readCDF4SubTreeVar3Data(GROUPLIST grouplist, int varid, int rank, int* dimid
                             int* ndvec, int* data_type, char** data, USERDEFINEDTYPE** udt)
 {
     int grpid;
-    int i, rc, err = 0, ndata;
+    int i, rc, err = 0;
+    int ndata = 1;
     nc_type vartype;                 // NC types
     char dimname[NC_MAX_NAME + 1];
     char* dvec = NULL;
@@ -2765,7 +2744,7 @@ int getCDF4SubTreeData(void** data, GROUP* group, HGROUPS* hgroups)
         // Empty Groups
 
         if (group->numgrps == 0 && group->numvars == 0 && group->numatts == 0 &&
-            group->udt->fieldcount == 1 && !strcmp(group->udt->compoundfield[0].name, NC_EMPTY_GROUP_VAR_NAME)) {
+            group->udt->fieldcount == 1 && STR_EQUALS(group->udt->compoundfield[0].name, NC_EMPTY_GROUP_VAR_NAME)) {
             d = (char*) malloc(sizeof(char));
             addMalloc(d, 1, sizeof(char), "char");
             d[0] = '\0';    // Ensure NULL terminated

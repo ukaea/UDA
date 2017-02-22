@@ -28,9 +28,8 @@
 #include "extract_indices.h"
 
 #include <mdslib.h>
+#include <regex.h>
 
-#include <include/idampluginfiles.h>
-#include <include/idamplugin.h>
 #include <clientserver/initStructs.h>
 #include <clientserver/stringUtils.h>
 #include <clientserver/udaTypes.h>
@@ -41,7 +40,6 @@
 #include <server/managePluginFiles.h>
 #include <client/accAPI.h>
 #include <logging/logging.h>
-#include <regex.h>
 
 IDAMPLUGINFILELIST pluginFileList_mds;
 
@@ -118,15 +116,15 @@ void initLocalObj()
 
 void* initLocalObject()
 {
-    struct descriptor* obj = (struct descriptor*) malloc(sizeof(struct descriptor));
-    *obj = (struct descriptor) { 0, 0, CLASS_S, NULL };
+    struct descriptor* obj = (struct descriptor*)malloc(sizeof(struct descriptor));
+    *obj = (struct descriptor){ 0, 0, CLASS_S, NULL };
     return obj;
 }
 
 void initLocalObjectXXX(struct descriptor** dataObj)
 {
-    struct descriptor* obj = (struct descriptor*) malloc(sizeof(struct descriptor));
-    *obj = (struct descriptor) { 0, 0, CLASS_S, NULL };
+    struct descriptor* obj = (struct descriptor*)malloc(sizeof(struct descriptor));
+    *obj = (struct descriptor){ 0, 0, CLASS_S, NULL };
     *dataObj = obj;
 }
 
@@ -194,23 +192,23 @@ char* getTimeBasePath()
 int findIMASType(char* typeName)
 {
     if (typeName == NULL) return (UNKNOWN_TYPE);
-    //if(!strcasecmp(typeName, "byte"))     return TYPE_CHAR;
-    //if(!strcasecmp(typeName, "char"))     return TYPE_CHAR;
-    //if(!strcasecmp(typeName, "short"))    return TYPE_SHORT;
-    if (!strcasecmp(typeName, "int")) return INT;
-    //if(!strcasecmp(typeName, "int64"))    return TYPE_LONG64;
-    if (!strcasecmp(typeName, "float")) return FLOAT;
-    if (!strcasecmp(typeName, "double")) return DOUBLE;
-    //if(!strcasecmp(typeName, "ubyte"))    return TYPE_UNSIGNED_CHAR;
-    //if(!strcasecmp(typeName, "ushort"))   return TYPE_UNSIGNED_SHORT;
-    //if(!strcasecmp(typeName, "uint"))     return TYPE_UNSIGNED_INT;
-    //if(!strcasecmp(typeName, "uint64"))   return TYPE_UNSIGNED_LONG64;
-    //if(!strcasecmp(typeName, "text"))     return TYPE_STRING;
-    if (!strcasecmp(typeName, "string")) return STRING;
-    //if(!strcasecmp(typeName, "vlen"))     return TYPE_VLEN;
-    //if(!strcasecmp(typeName, "compound")) return TYPE_COMPOUND;
-    //if(!strcasecmp(typeName, "opaque"))   return TYPE_OPAQUE;
-    //if(!strcasecmp(typeName, "enum"))     return TYPE_ENUM;
+    //if(STR_IEQUALS(typeName, "byte"))     return TYPE_CHAR;
+    //if(STR_IEQUALS(typeName, "char"))     return TYPE_CHAR;
+    //if(STR_IEQUALS(typeName, "short"))    return TYPE_SHORT;
+    if (STR_IEQUALS(typeName, "int")) return INT;
+    //if(STR_IEQUALS(typeName, "int64"))    return TYPE_LONG64;
+    if (STR_IEQUALS(typeName, "float")) return FLOAT;
+    if (STR_IEQUALS(typeName, "double")) return DOUBLE;
+    //if(STR_IEQUALS(typeName, "ubyte"))    return TYPE_UNSIGNED_CHAR;
+    //if(STR_IEQUALS(typeName, "ushort"))   return TYPE_UNSIGNED_SHORT;
+    //if(STR_IEQUALS(typeName, "uint"))     return TYPE_UNSIGNED_INT;
+    //if(STR_IEQUALS(typeName, "uint64"))   return TYPE_UNSIGNED_LONG64;
+    //if(STR_IEQUALS(typeName, "text"))     return TYPE_STRING;
+    if (STR_IEQUALS(typeName, "string")) return STRING;
+    //if(STR_IEQUALS(typeName, "vlen"))     return TYPE_VLEN;
+    //if(STR_IEQUALS(typeName, "compound")) return TYPE_COMPOUND;
+    //if(STR_IEQUALS(typeName, "opaque"))   return TYPE_OPAQUE;
+    //if(STR_IEQUALS(typeName, "enum"))     return TYPE_ENUM;
     return (UNKNOWN_TYPE);
 }
 
@@ -261,8 +259,7 @@ extern int imas_mds(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     if (idam_plugin_interface->interfaceVersion > THISPLUGIN_MAX_INTERFACE_VERSION) {
         err = 999;
-        idamLog(LOG_ERROR,
-                "ERRO imas: Plugin Interface Version Unknown to this plugin: Unable to execute the request!\n");
+        IDAM_LOG(LOG_ERROR, "Plugin Interface Version Unknown to this plugin: Unable to execute the request!\n");
         addIdamError(&idamerrorstack, CODEERRORTYPE, "imas", err,
                      "Plugin Interface Version Unknown to this plugin: Unable to execute the request!");
         return err;
@@ -272,7 +269,7 @@ extern int imas_mds(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     REQUEST_BLOCK* request_block = idam_plugin_interface->request_block;
 
-    if (idam_plugin_interface->housekeeping || !strcasecmp(request_block->function, "reset")) {
+    if (idam_plugin_interface->housekeeping || STR_IEQUALS(request_block->function, "reset")) {
 
         if (!init) return 0;        // Not previously initialised: Nothing to do!
 
@@ -292,13 +289,13 @@ extern int imas_mds(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 //----------------------------------------------------------------------------------------
 // Initialise
 
-    if (!init || !strcasecmp(request_block->function, "init") || !strcasecmp(request_block->function, "initialise")) {
+    if (!init || STR_IEQUALS(request_block->function, "init") || STR_IEQUALS(request_block->function, "initialise")) {
         initIdamPluginFileList(&pluginFileList_mds);
         initLocalObj();
         putTimeBasePath("");
 
         init = 1;
-        if (!strcasecmp(request_block->function, "init") || !strcasecmp(request_block->function, "initialise")) {
+        if (STR_IEQUALS(request_block->function, "init") || STR_IEQUALS(request_block->function, "initialise")) {
             return 0;
         }
     }
@@ -320,96 +317,96 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
 
     imas_reset_errmsg();     // Clear previous error message
 
-    if (!strcasecmp(request_block->function, "putIdsVersion")) {
+    if (STR_IEQUALS(request_block->function, "putIdsVersion")) {
         err = do_putIdsVersion(idam_plugin_interface, plugin_args);
-    } else if (!strcasecmp(request_block->function, "source")) {
+    } else if (STR_IEQUALS(request_block->function, "source")) {
         err = do_source(idam_plugin_interface, plugin_args);
-    } else if (!strcasecmp(request_block->function, "delete")) {
+    } else if (STR_IEQUALS(request_block->function, "delete")) {
         err = do_delete(idam_plugin_interface, plugin_args);
-    } else if (!strcasecmp(request_block->function, "get")) {
+    } else if (STR_IEQUALS(request_block->function, "get")) {
         err = do_get(idam_plugin_interface, plugin_args, idx);
-    } else if (!strcasecmp(request_block->function, "put")) {
+    } else if (STR_IEQUALS(request_block->function, "put")) {
         err = do_put(idam_plugin_interface, plugin_args, idx);
-    } else if (!strcasecmp(request_block->function, "open")) {
+    } else if (STR_IEQUALS(request_block->function, "open")) {
         err = do_open(idam_plugin_interface, plugin_args, idx);
-    } else if (!strcasecmp(request_block->function, "create")) {
+    } else if (STR_IEQUALS(request_block->function, "create")) {
         err = do_create(idam_plugin_interface, plugin_args, idx);
-    } else if (!strcasecmp(request_block->function, "close")) {
+    } else if (STR_IEQUALS(request_block->function, "close")) {
         err = do_close(idam_plugin_interface, plugin_args);
-    } else if (!strcasecmp(request_block->function, "createModel")) {
+    } else if (STR_IEQUALS(request_block->function, "createModel")) {
         err = do_createModel(idam_plugin_interface, plugin_args);
-    } else if (!strcasecmp(request_block->function, "setTimeBasePath")
-               || !strcasecmp(request_block->function, "putTimeBasePath")) {
+    } else if (STR_IEQUALS(request_block->function, "setTimeBasePath")
+               || STR_IEQUALS(request_block->function, "putTimeBasePath")) {
         err = do_setTimeBasePath(idam_plugin_interface, plugin_args);
-    } else if (!strcasecmp(request_block->function, "releaseObject")) {
+    } else if (STR_IEQUALS(request_block->function, "releaseObject")) {
         err = do_releaseObject(idam_plugin_interface, plugin_args);
-    } else if (!strcasecmp(request_block->function, "getObjectObject")) {
+    } else if (STR_IEQUALS(request_block->function, "getObjectObject")) {
         err = do_getObjectObject(idam_plugin_interface, plugin_args);
-    } else if (!strcasecmp(request_block->function, "getObjectSlice")) {
+    } else if (STR_IEQUALS(request_block->function, "getObjectSlice")) {
         err = do_getObjectSlice(idam_plugin_interface, plugin_args);
-    } else if (!strcasecmp(request_block->function, "getObjectGroup")) {
+    } else if (STR_IEQUALS(request_block->function, "getObjectGroup")) {
         err = do_getObjectGroup(idam_plugin_interface, plugin_args);
-    } else if (!strcasecmp(request_block->function, "getObjectDim")) {
+    } else if (STR_IEQUALS(request_block->function, "getObjectDim")) {
         err = do_getObjectDim(idam_plugin_interface, plugin_args);
-    } else if (!strcasecmp(request_block->function, "beginObject")) {
+    } else if (STR_IEQUALS(request_block->function, "beginObject")) {
         err = do_beginObject(idam_plugin_interface, plugin_args);
-    } else if (!strcasecmp(request_block->function, "getObject")) {
+    } else if (STR_IEQUALS(request_block->function, "getObject")) {
         err = do_getObject(idam_plugin_interface, plugin_args);
-    } else if (!strcasecmp(request_block->function, "putObject")) {
+    } else if (STR_IEQUALS(request_block->function, "putObject")) {
         err = do_putObject(idam_plugin_interface, plugin_args);
-    } else if (!strcasecmp(request_block->function, "putObjectInObject")) {
+    } else if (STR_IEQUALS(request_block->function, "putObjectInObject")) {
         err = do_putObjectInObject(idam_plugin_interface, plugin_args);
-    } else if (!strcasecmp(request_block->function, "putObjectGroup")) {
+    } else if (STR_IEQUALS(request_block->function, "putObjectGroup")) {
         err = do_putObjectGroup(idam_plugin_interface, plugin_args);
-    } else if (!strcasecmp(request_block->function, "putObjectSlice")) {
+    } else if (STR_IEQUALS(request_block->function, "putObjectSlice")) {
         err = do_putObjectSlice(idam_plugin_interface, plugin_args);
-    } else if (!strcasecmp(request_block->function, "replaceLastObjectSlice")) {
+    } else if (STR_IEQUALS(request_block->function, "replaceLastObjectSlice")) {
         err = do_replaceLastObjectSlice(idam_plugin_interface, plugin_args);
-    } else if (!strcasecmp(request_block->function, "cache")) {
+    } else if (STR_IEQUALS(request_block->function, "cache")) {
         err = do_cache(idam_plugin_interface, plugin_args);
-    } else if (!strcasecmp(request_block->function, "getUniqueRun")) {
+    } else if (STR_IEQUALS(request_block->function, "getUniqueRun")) {
         err = do_getUniqueRun(idam_plugin_interface, plugin_args);
-    } else if (!strcasecmp(request_block->function, "spawnCommand")) {
+    } else if (STR_IEQUALS(request_block->function, "spawnCommand")) {
         err = do_spawnCommand(idam_plugin_interface, plugin_args);
-    } else if (!strcasecmp(request_block->function, "putIDS")) {
+    } else if (STR_IEQUALS(request_block->function, "putIDS")) {
         err = do_putIDS(idam_plugin_interface, plugin_args);
-    } else if (!strcasecmp(request_block->function, "beginIdsPut")) {
+    } else if (STR_IEQUALS(request_block->function, "beginIdsPut")) {
         err = do_beginIdsPut(idam_plugin_interface, plugin_args);
-    } else if (!strcasecmp(request_block->function, "endIdsPut")) {
+    } else if (STR_IEQUALS(request_block->function, "endIdsPut")) {
         err = do_endIdsPut(idam_plugin_interface, plugin_args);
-    } else if (!strcasecmp(request_block->function, "beginIdsGet")) {
+    } else if (STR_IEQUALS(request_block->function, "beginIdsGet")) {
         err = do_beginIdsGet(idam_plugin_interface, plugin_args);
-    } else if (!strcasecmp(request_block->function, "endIdsGet")) {
+    } else if (STR_IEQUALS(request_block->function, "endIdsGet")) {
         err = do_endIdsGet(idam_plugin_interface, plugin_args);
-    } else if (!strcasecmp(request_block->function, "beginIdsGetSlice")) {
+    } else if (STR_IEQUALS(request_block->function, "beginIdsGetSlice")) {
         err = do_beginIdsGetSlice(idam_plugin_interface, plugin_args);
-    } else if (!strcasecmp(request_block->function, "endIdsGetSlice")) {
+    } else if (STR_IEQUALS(request_block->function, "endIdsGetSlice")) {
         err = do_endIdsGetSlice(idam_plugin_interface, plugin_args);
-    } else if (!strcasecmp(request_block->function, "beginIdsPutSlice")) {
+    } else if (STR_IEQUALS(request_block->function, "beginIdsPutSlice")) {
         err = do_beginIdsPutSlice(idam_plugin_interface, plugin_args);
-    } else if (!strcasecmp(request_block->function, "endIdsPutSlice")) {
+    } else if (STR_IEQUALS(request_block->function, "endIdsPutSlice")) {
         err = do_endIdsPutSlice(idam_plugin_interface, plugin_args);
-    } else if (!strcasecmp(request_block->function, "beginIdsPutNonTimed")) {
+    } else if (STR_IEQUALS(request_block->function, "beginIdsPutNonTimed")) {
         err = do_beginIdsPutNonTimed(idam_plugin_interface, plugin_args);
-    } else if (!strcasecmp(request_block->function, "endIdsPutNonTimed")) {
+    } else if (STR_IEQUALS(request_block->function, "endIdsPutNonTimed")) {
         err = do_endIdsPutNonTimed(idam_plugin_interface, plugin_args);
-    } else if (!strcasecmp(request_block->function, "beginIdsReplaceLastSlice")) {
+    } else if (STR_IEQUALS(request_block->function, "beginIdsReplaceLastSlice")) {
         err = do_beginIdsReplaceLastSlice(idam_plugin_interface, plugin_args);
-    } else if (!strcasecmp(request_block->function, "endIdsReplaceLastSlice")) {
+    } else if (STR_IEQUALS(request_block->function, "endIdsReplaceLastSlice")) {
         err = do_endIdsReplaceLastSlice(idam_plugin_interface, plugin_args);
-    } else if (!strcasecmp(request_block->function, "beginIdsPutTimed")) {
+    } else if (STR_IEQUALS(request_block->function, "beginIdsPutTimed")) {
         err = do_beginIdsPutTimed(idam_plugin_interface, plugin_args);
-    } else if (!strcasecmp(request_block->function, "endIdsPutTimed")) {
+    } else if (STR_IEQUALS(request_block->function, "endIdsPutTimed")) {
         err = do_endIdsPutTimed(idam_plugin_interface, plugin_args);
-    } else if (!strcasecmp(request_block->function, "help")) {
+    } else if (STR_IEQUALS(request_block->function, "help")) {
         err = do_help(idam_plugin_interface, plugin_args);
-    } else if (!strcasecmp(request_block->function, "version")) {
+    } else if (STR_IEQUALS(request_block->function, "version")) {
         err = do_version(idam_plugin_interface, plugin_args);
-    } else if (!strcasecmp(request_block->function, "builddate")) {
+    } else if (STR_IEQUALS(request_block->function, "builddate")) {
         err = do_builddate(idam_plugin_interface, plugin_args);
-    } else if (!strcasecmp(request_block->function, "defaultmethod")) {
+    } else if (STR_IEQUALS(request_block->function, "defaultmethod")) {
         err = do_defaultmethod(idam_plugin_interface, plugin_args);
-    } else if (!strcasecmp(request_block->function, "maxinterfaceversion")) {
+    } else if (STR_IEQUALS(request_block->function, "maxinterfaceversion")) {
         err = do_maxinterfaceversion(idam_plugin_interface, plugin_args);
     } else {
         err = 999;
@@ -439,36 +436,36 @@ int imas_mds_putDataSlice(int idx, char* cpoPath, char* path, char* timeBasePath
         case 0: {
             switch (type) {
                 case INT:
-                    return mdsPutIntSlice(idx, cpoPath, path, timeBasePath, ((int*) data)[0], time);
+                    return mdsPutIntSlice(idx, cpoPath, path, timeBasePath, ((int*)data)[0], time);
                 case FLOAT:
-                    return mdsPutFloatSlice(idx, cpoPath, path, timeBasePath, ((float*) data)[0], time);
+                    return mdsPutFloatSlice(idx, cpoPath, path, timeBasePath, ((float*)data)[0], time);
                 case DOUBLE:
-                    return mdsPutDoubleSlice(idx, cpoPath, path, timeBasePath, ((double*) data)[0], time);
+                    return mdsPutDoubleSlice(idx, cpoPath, path, timeBasePath, ((double*)data)[0], time);
                 case STRING:
-                    return mdsPutStringSlice(idx, cpoPath, path, timeBasePath, (char*) data, time);
+                    return mdsPutStringSlice(idx, cpoPath, path, timeBasePath, (char*)data, time);
             }
             break;
         }
         case 1: {
             switch (type) {
                 case INT:
-                    return mdsPutVect1DIntSlice(idx, cpoPath, path, timeBasePath, (int*) data, dims[0], time);
+                    return mdsPutVect1DIntSlice(idx, cpoPath, path, timeBasePath, (int*)data, dims[0], time);
                 case FLOAT:
-                    return mdsPutVect1DFloatSlice(idx, cpoPath, path, timeBasePath, (float*) data, dims[0], time);
+                    return mdsPutVect1DFloatSlice(idx, cpoPath, path, timeBasePath, (float*)data, dims[0], time);
                 case DOUBLE:
-                    return mdsPutVect1DDoubleSlice(idx, cpoPath, path, timeBasePath, (double*) data, dims[0], time);
+                    return mdsPutVect1DDoubleSlice(idx, cpoPath, path, timeBasePath, (double*)data, dims[0], time);
             }
             break;
         }
         case 2: {
             switch (type) {
                 case INT:
-                    return mdsPutVect2DIntSlice(idx, cpoPath, path, timeBasePath, (int*) data, dims[0], dims[1], time);
+                    return mdsPutVect2DIntSlice(idx, cpoPath, path, timeBasePath, (int*)data, dims[0], dims[1], time);
                 case FLOAT:
-                    return mdsPutVect2DFloatSlice(idx, cpoPath, path, timeBasePath, (float*) data, dims[0], dims[1],
+                    return mdsPutVect2DFloatSlice(idx, cpoPath, path, timeBasePath, (float*)data, dims[0], dims[1],
                                                   time);
                 case DOUBLE:
-                    return mdsPutVect2DDoubleSlice(idx, cpoPath, path, timeBasePath, (double*) data, dims[0], dims[1],
+                    return mdsPutVect2DDoubleSlice(idx, cpoPath, path, timeBasePath, (double*)data, dims[0], dims[1],
                                                    time);
             }
             break;
@@ -476,13 +473,13 @@ int imas_mds_putDataSlice(int idx, char* cpoPath, char* path, char* timeBasePath
         case 3: {
             switch (type) {
                 case INT:
-                    return mdsPutVect3DIntSlice(idx, cpoPath, path, timeBasePath, (int*) data, dims[0], dims[1],
+                    return mdsPutVect3DIntSlice(idx, cpoPath, path, timeBasePath, (int*)data, dims[0], dims[1],
                                                 dims[2], time);
                 case FLOAT:
-                    return mdsPutVect3DFloatSlice(idx, cpoPath, path, timeBasePath, (float*) data, dims[0], dims[1],
+                    return mdsPutVect3DFloatSlice(idx, cpoPath, path, timeBasePath, (float*)data, dims[0], dims[1],
                                                   dims[2], time);
                 case DOUBLE:
-                    return mdsPutVect3DDoubleSlice(idx, cpoPath, path, timeBasePath, (double*) data, dims[0], dims[1],
+                    return mdsPutVect3DDoubleSlice(idx, cpoPath, path, timeBasePath, (double*)data, dims[0], dims[1],
                                                    dims[2], time);
             }
             break;
@@ -490,13 +487,13 @@ int imas_mds_putDataSlice(int idx, char* cpoPath, char* path, char* timeBasePath
         case 4: {
             switch (type) {
                 case INT:
-                    return mdsPutVect4DIntSlice(idx, cpoPath, path, timeBasePath, (int*) data, dims[0], dims[1],
+                    return mdsPutVect4DIntSlice(idx, cpoPath, path, timeBasePath, (int*)data, dims[0], dims[1],
                                                 dims[2], dims[3], time);
                 case FLOAT:
-                    return mdsPutVect4DFloatSlice(idx, cpoPath, path, timeBasePath, (float*) data, dims[0], dims[1],
+                    return mdsPutVect4DFloatSlice(idx, cpoPath, path, timeBasePath, (float*)data, dims[0], dims[1],
                                                   dims[2], dims[3], time);
                 case DOUBLE:
-                    return mdsPutVect4DDoubleSlice(idx, cpoPath, path, timeBasePath, (double*) data, dims[0], dims[1],
+                    return mdsPutVect4DDoubleSlice(idx, cpoPath, path, timeBasePath, (double*)data, dims[0], dims[1],
                                                    dims[2], dims[3], time);
             }
             break;
@@ -504,13 +501,13 @@ int imas_mds_putDataSlice(int idx, char* cpoPath, char* path, char* timeBasePath
         case 5: {
             switch (type) {
                 case INT:
-                    return mdsPutVect5DIntSlice(idx, cpoPath, path, timeBasePath, (int*) data, dims[0], dims[1],
+                    return mdsPutVect5DIntSlice(idx, cpoPath, path, timeBasePath, (int*)data, dims[0], dims[1],
                                                 dims[2], dims[3], dims[4], time);
                 case FLOAT:
-                    return mdsPutVect5DFloatSlice(idx, cpoPath, path, timeBasePath, (float*) data, dims[0], dims[1],
+                    return mdsPutVect5DFloatSlice(idx, cpoPath, path, timeBasePath, (float*)data, dims[0], dims[1],
                                                   dims[2], dims[3], dims[4], time);
                 case DOUBLE:
-                    return mdsPutVect5DDoubleSlice(idx, cpoPath, path, timeBasePath, (double*) data, dims[0], dims[1],
+                    return mdsPutVect5DDoubleSlice(idx, cpoPath, path, timeBasePath, (double*)data, dims[0], dims[1],
                                                    dims[2], dims[3], dims[4], time);
             }
             break;
@@ -518,13 +515,13 @@ int imas_mds_putDataSlice(int idx, char* cpoPath, char* path, char* timeBasePath
         case 6: {
             switch (type) {
                 case INT:
-                    return mdsPutVect6DIntSlice(idx, cpoPath, path, timeBasePath, (int*) data, dims[0], dims[1],
+                    return mdsPutVect6DIntSlice(idx, cpoPath, path, timeBasePath, (int*)data, dims[0], dims[1],
                                                 dims[2], dims[3], dims[4], dims[5], time);
                 case FLOAT:
-                    return mdsPutVect6DFloatSlice(idx, cpoPath, path, timeBasePath, (float*) data, dims[0], dims[1],
+                    return mdsPutVect6DFloatSlice(idx, cpoPath, path, timeBasePath, (float*)data, dims[0], dims[1],
                                                   dims[2], dims[3], dims[4], dims[5], time);
                 case DOUBLE:
-                    return mdsPutVect6DDoubleSlice(idx, cpoPath, path, timeBasePath, (double*) data, dims[0], dims[1],
+                    return mdsPutVect6DDoubleSlice(idx, cpoPath, path, timeBasePath, (double*)data, dims[0], dims[1],
                                                    dims[2], dims[3], dims[4], dims[5], time);
             }
             break;
@@ -540,47 +537,47 @@ int imas_mds_replaceLastDataSlice(int idx, char* cpoPath, char* path, int type, 
         case 0: {
             switch (type) {
                 case INT:
-                    return mdsReplaceLastIntSlice(idx, cpoPath, path, ((int*) data)[0]);
+                    return mdsReplaceLastIntSlice(idx, cpoPath, path, ((int*)data)[0]);
                 case FLOAT:
-                    return mdsReplaceLastFloatSlice(idx, cpoPath, path, ((float*) data)[0]);
+                    return mdsReplaceLastFloatSlice(idx, cpoPath, path, ((float*)data)[0]);
                 case DOUBLE:
-                    return mdsReplaceLastDoubleSlice(idx, cpoPath, path, ((double*) data)[0]);
+                    return mdsReplaceLastDoubleSlice(idx, cpoPath, path, ((double*)data)[0]);
                 case STRING:
-                    return mdsReplaceLastStringSlice(idx, cpoPath, path, (char*) data);
+                    return mdsReplaceLastStringSlice(idx, cpoPath, path, (char*)data);
             }
             break;
         }
         case 1: {
             switch (type) {
                 case INT:
-                    return mdsReplaceLastVect1DIntSlice(idx, cpoPath, path, (int*) data, dims[0]);
+                    return mdsReplaceLastVect1DIntSlice(idx, cpoPath, path, (int*)data, dims[0]);
                 case FLOAT:
-                    return mdsReplaceLastVect1DFloatSlice(idx, cpoPath, path, (float*) data, dims[0]);
+                    return mdsReplaceLastVect1DFloatSlice(idx, cpoPath, path, (float*)data, dims[0]);
                 case DOUBLE:
-                    return mdsReplaceLastVect1DDoubleSlice(idx, cpoPath, path, (double*) data, dims[0]);
+                    return mdsReplaceLastVect1DDoubleSlice(idx, cpoPath, path, (double*)data, dims[0]);
             }
             break;
         }
         case 2: {
             switch (type) {
                 case INT:
-                    return mdsReplaceLastVect2DIntSlice(idx, cpoPath, path, (int*) data, dims[0], dims[1]);
+                    return mdsReplaceLastVect2DIntSlice(idx, cpoPath, path, (int*)data, dims[0], dims[1]);
                 case FLOAT:
-                    return mdsReplaceLastVect2DFloatSlice(idx, cpoPath, path, (float*) data, dims[0], dims[1]);
+                    return mdsReplaceLastVect2DFloatSlice(idx, cpoPath, path, (float*)data, dims[0], dims[1]);
                 case DOUBLE:
-                    return mdsReplaceLastVect2DDoubleSlice(idx, cpoPath, path, (double*) data, dims[0], dims[1]);
+                    return mdsReplaceLastVect2DDoubleSlice(idx, cpoPath, path, (double*)data, dims[0], dims[1]);
             }
             break;
         }
         case 3: {
             switch (type) {
                 case INT:
-                    return mdsReplaceLastVect3DIntSlice(idx, cpoPath, path, (int*) data, dims[0], dims[1], dims[2]);
+                    return mdsReplaceLastVect3DIntSlice(idx, cpoPath, path, (int*)data, dims[0], dims[1], dims[2]);
                 case FLOAT:
-                    return mdsReplaceLastVect3DFloatSlice(idx, cpoPath, path, (float*) data, dims[0], dims[1],
+                    return mdsReplaceLastVect3DFloatSlice(idx, cpoPath, path, (float*)data, dims[0], dims[1],
                                                           dims[2]);
                 case DOUBLE:
-                    return mdsReplaceLastVect3DDoubleSlice(idx, cpoPath, path, (double*) data, dims[0], dims[1],
+                    return mdsReplaceLastVect3DDoubleSlice(idx, cpoPath, path, (double*)data, dims[0], dims[1],
                                                            dims[2]);
             }
             break;
@@ -588,13 +585,13 @@ int imas_mds_replaceLastDataSlice(int idx, char* cpoPath, char* path, int type, 
         case 4: {
             switch (type) {
                 case INT:
-                    return mdsReplaceLastVect4DIntSlice(idx, cpoPath, path, (int*) data, dims[0], dims[1], dims[2],
+                    return mdsReplaceLastVect4DIntSlice(idx, cpoPath, path, (int*)data, dims[0], dims[1], dims[2],
                                                         dims[3]);
                 case FLOAT:
-                    return mdsReplaceLastVect4DFloatSlice(idx, cpoPath, path, (float*) data, dims[0], dims[1], dims[2],
+                    return mdsReplaceLastVect4DFloatSlice(idx, cpoPath, path, (float*)data, dims[0], dims[1], dims[2],
                                                           dims[3]);
                 case DOUBLE:
-                    return mdsReplaceLastVect4DDoubleSlice(idx, cpoPath, path, (double*) data, dims[0], dims[1],
+                    return mdsReplaceLastVect4DDoubleSlice(idx, cpoPath, path, (double*)data, dims[0], dims[1],
                                                            dims[2], dims[3]);
             }
             break;
@@ -602,13 +599,13 @@ int imas_mds_replaceLastDataSlice(int idx, char* cpoPath, char* path, int type, 
         case 5: {
             switch (type) {
                 case INT:
-                    return mdsReplaceLastVect5DIntSlice(idx, cpoPath, path, (int*) data, dims[0], dims[1], dims[2],
+                    return mdsReplaceLastVect5DIntSlice(idx, cpoPath, path, (int*)data, dims[0], dims[1], dims[2],
                                                         dims[3], dims[4]);
                 case FLOAT:
-                    return mdsReplaceLastVect5DFloatSlice(idx, cpoPath, path, (float*) data, dims[0], dims[1], dims[2],
+                    return mdsReplaceLastVect5DFloatSlice(idx, cpoPath, path, (float*)data, dims[0], dims[1], dims[2],
                                                           dims[3], dims[4]);
                 case DOUBLE:
-                    return mdsReplaceLastVect5DDoubleSlice(idx, cpoPath, path, (double*) data, dims[0], dims[1],
+                    return mdsReplaceLastVect5DDoubleSlice(idx, cpoPath, path, (double*)data, dims[0], dims[1],
                                                            dims[2], dims[3], dims[4]);
             }
             break;
@@ -616,13 +613,13 @@ int imas_mds_replaceLastDataSlice(int idx, char* cpoPath, char* path, int type, 
         case 6: {
             switch (type) {
                 case INT:
-                    return mdsReplaceLastVect6DIntSlice(idx, cpoPath, path, (int*) data, dims[0], dims[1], dims[2],
+                    return mdsReplaceLastVect6DIntSlice(idx, cpoPath, path, (int*)data, dims[0], dims[1], dims[2],
                                                         dims[3], dims[4], dims[5]);
                 case FLOAT:
-                    return mdsReplaceLastVect6DFloatSlice(idx, cpoPath, path, (float*) data, dims[0], dims[1], dims[2],
+                    return mdsReplaceLastVect6DFloatSlice(idx, cpoPath, path, (float*)data, dims[0], dims[1], dims[2],
                                                           dims[3], dims[4], dims[5]);
                 case DOUBLE:
-                    return mdsReplaceLastVect6DDoubleSlice(idx, cpoPath, path, (double*) data, dims[0], dims[1],
+                    return mdsReplaceLastVect6DDoubleSlice(idx, cpoPath, path, (double*)data, dims[0], dims[1],
                                                            dims[2], dims[3], dims[4], dims[5]);
             }
             break;
@@ -651,38 +648,38 @@ int imas_mds_putData(int idx, char* cpoPath, char* path, int type, int nDims, in
         case 0: {
             switch (type) {
                 case INT:
-                    return mdsPutInt(idx, cpoPath, path, ((int*) data)[0]);
+                    return mdsPutInt(idx, cpoPath, path, ((int*)data)[0]);
                 case FLOAT:
-                    return mdsPutFloat(idx, cpoPath, path, ((float*) data)[0]);
+                    return mdsPutFloat(idx, cpoPath, path, ((float*)data)[0]);
                 case DOUBLE:
-                    return mdsPutDouble(idx, cpoPath, path, ((double*) data)[0]);
+                    return mdsPutDouble(idx, cpoPath, path, ((double*)data)[0]);
                 case STRING:
-                    return mdsPutString(idx, cpoPath, path, (char*) data);
+                    return mdsPutString(idx, cpoPath, path, (char*)data);
             }
             break;
         }
         case 1: {
             switch (type) {
                 case INT:
-                    return mdsPutVect1DInt(idx, cpoPath, path, timeBasePath, (int*) data, dims[0], isTimed);
+                    return mdsPutVect1DInt(idx, cpoPath, path, timeBasePath, (int*)data, dims[0], isTimed);
                 case FLOAT:
-                    return mdsPutVect1DFloat(idx, cpoPath, path, timeBasePath, (float*) data, dims[0], isTimed);
+                    return mdsPutVect1DFloat(idx, cpoPath, path, timeBasePath, (float*)data, dims[0], isTimed);
                 case DOUBLE:
-                    return mdsPutVect1DDouble(idx, cpoPath, path, timeBasePath, (double*) data, dims[0], isTimed);
+                    return mdsPutVect1DDouble(idx, cpoPath, path, timeBasePath, (double*)data, dims[0], isTimed);
                 case STRING:
-                    return mdsPutVect1DString(idx, cpoPath, path, timeBasePath, (char**) data, dims[0], isTimed);
+                    return mdsPutVect1DString(idx, cpoPath, path, timeBasePath, (char**)data, dims[0], isTimed);
             }
             break;
         }
         case 2: {
             switch (type) {
                 case INT:
-                    return mdsPutVect2DInt(idx, cpoPath, path, timeBasePath, (int*) data, dims[0], dims[1], isTimed);
+                    return mdsPutVect2DInt(idx, cpoPath, path, timeBasePath, (int*)data, dims[0], dims[1], isTimed);
                 case FLOAT:
-                    return mdsPutVect2DFloat(idx, cpoPath, path, timeBasePath, (float*) data, dims[0], dims[1],
+                    return mdsPutVect2DFloat(idx, cpoPath, path, timeBasePath, (float*)data, dims[0], dims[1],
                                              isTimed);
                 case DOUBLE:
-                    return mdsPutVect2DDouble(idx, cpoPath, path, timeBasePath, (double*) data, dims[0], dims[1],
+                    return mdsPutVect2DDouble(idx, cpoPath, path, timeBasePath, (double*)data, dims[0], dims[1],
                                               isTimed);
             }
             break;
@@ -690,13 +687,13 @@ int imas_mds_putData(int idx, char* cpoPath, char* path, int type, int nDims, in
         case 3: {
             switch (type) {
                 case INT:
-                    return mdsPutVect3DInt(idx, cpoPath, path, timeBasePath, (int*) data, dims[0], dims[1], dims[2],
+                    return mdsPutVect3DInt(idx, cpoPath, path, timeBasePath, (int*)data, dims[0], dims[1], dims[2],
                                            isTimed);
                 case FLOAT:
-                    return mdsPutVect3DFloat(idx, cpoPath, path, timeBasePath, (float*) data, dims[0], dims[1],
+                    return mdsPutVect3DFloat(idx, cpoPath, path, timeBasePath, (float*)data, dims[0], dims[1],
                                              dims[2], isTimed);
                 case DOUBLE:
-                    return mdsPutVect3DDouble(idx, cpoPath, path, timeBasePath, (double*) data, dims[0], dims[1],
+                    return mdsPutVect3DDouble(idx, cpoPath, path, timeBasePath, (double*)data, dims[0], dims[1],
                                               dims[2], isTimed);
             }
             break;
@@ -704,13 +701,13 @@ int imas_mds_putData(int idx, char* cpoPath, char* path, int type, int nDims, in
         case 4: {
             switch (type) {
                 case INT:
-                    return mdsPutVect4DInt(idx, cpoPath, path, timeBasePath, (int*) data, dims[0], dims[1], dims[2],
+                    return mdsPutVect4DInt(idx, cpoPath, path, timeBasePath, (int*)data, dims[0], dims[1], dims[2],
                                            dims[3], isTimed);
                 case FLOAT:
-                    return mdsPutVect4DFloat(idx, cpoPath, path, timeBasePath, (float*) data, dims[0], dims[1],
+                    return mdsPutVect4DFloat(idx, cpoPath, path, timeBasePath, (float*)data, dims[0], dims[1],
                                              dims[2], dims[3], isTimed);
                 case DOUBLE:
-                    return mdsPutVect4DDouble(idx, cpoPath, path, timeBasePath, (double*) data, dims[0], dims[1],
+                    return mdsPutVect4DDouble(idx, cpoPath, path, timeBasePath, (double*)data, dims[0], dims[1],
                                               dims[2], dims[3], isTimed);
             }
             break;
@@ -718,13 +715,13 @@ int imas_mds_putData(int idx, char* cpoPath, char* path, int type, int nDims, in
         case 5: {
             switch (type) {
                 case INT:
-                    return mdsPutVect5DInt(idx, cpoPath, path, timeBasePath, (int*) data, dims[0], dims[1], dims[2],
+                    return mdsPutVect5DInt(idx, cpoPath, path, timeBasePath, (int*)data, dims[0], dims[1], dims[2],
                                            dims[3], dims[4], isTimed);
                 case FLOAT:
-                    return mdsPutVect5DFloat(idx, cpoPath, path, timeBasePath, (float*) data, dims[0], dims[1],
+                    return mdsPutVect5DFloat(idx, cpoPath, path, timeBasePath, (float*)data, dims[0], dims[1],
                                              dims[2], dims[3], dims[4], isTimed);
                 case DOUBLE:
-                    return mdsPutVect5DDouble(idx, cpoPath, path, timeBasePath, (double*) data, dims[0], dims[1],
+                    return mdsPutVect5DDouble(idx, cpoPath, path, timeBasePath, (double*)data, dims[0], dims[1],
                                               dims[2], dims[3], dims[4], isTimed);
             }
             break;
@@ -732,13 +729,13 @@ int imas_mds_putData(int idx, char* cpoPath, char* path, int type, int nDims, in
         case 6: {
             switch (type) {
                 case INT:
-                    return mdsPutVect6DInt(idx, cpoPath, path, timeBasePath, (int*) data, dims[0], dims[1], dims[2],
+                    return mdsPutVect6DInt(idx, cpoPath, path, timeBasePath, (int*)data, dims[0], dims[1], dims[2],
                                            dims[3], dims[4], dims[5], isTimed);
                 case FLOAT:
-                    return mdsPutVect6DFloat(idx, cpoPath, path, timeBasePath, (float*) data, dims[0], dims[1],
+                    return mdsPutVect6DFloat(idx, cpoPath, path, timeBasePath, (float*)data, dims[0], dims[1],
                                              dims[2], dims[3], dims[4], dims[5], isTimed);
                 case DOUBLE:
-                    return mdsPutVect6DDouble(idx, cpoPath, path, timeBasePath, (double*) data, dims[0], dims[1],
+                    return mdsPutVect6DDouble(idx, cpoPath, path, timeBasePath, (double*)data, dims[0], dims[1],
                                               dims[2], dims[3], dims[4], dims[5], isTimed);
             }
             break;
@@ -746,13 +743,13 @@ int imas_mds_putData(int idx, char* cpoPath, char* path, int type, int nDims, in
         case 7: {
             switch (type) {
                 case INT:
-                    return mdsPutVect7DInt(idx, cpoPath, path, timeBasePath, (int*) data, dims[0], dims[1], dims[2],
+                    return mdsPutVect7DInt(idx, cpoPath, path, timeBasePath, (int*)data, dims[0], dims[1], dims[2],
                                            dims[3], dims[4], dims[5], dims[6], isTimed);
                 case FLOAT:
-                    return mdsPutVect7DFloat(idx, cpoPath, path, timeBasePath, (float*) data, dims[0], dims[1],
+                    return mdsPutVect7DFloat(idx, cpoPath, path, timeBasePath, (float*)data, dims[0], dims[1],
                                              dims[2], dims[3], dims[4], dims[5], dims[6], isTimed);
                 case DOUBLE:
-                    return mdsPutVect7DDouble(idx, cpoPath, path, timeBasePath, (double*) data, dims[0], dims[1],
+                    return mdsPutVect7DDouble(idx, cpoPath, path, timeBasePath, (double*)data, dims[0], dims[1],
                                               dims[2], dims[3], dims[4], dims[5], dims[6], isTimed);
             }
             break;
@@ -780,38 +777,38 @@ int imas_mds_getDataXXX(int idx, char* cpoPath, char* path, int type, int nDims,
         case 0: {
             switch (type) {
                 case INT: {
-                    int* data = (int*) malloc(sizeof(int));
+                    int* data = (int*)malloc(sizeof(int));
                     data[0] = 0;
                     *dataOut = data;
                     return mdsGetInt(idx, cpoPath, path, data);
                 }
                 case FLOAT: {
-                    float* data = (float*) malloc(sizeof(float));
+                    float* data = (float*)malloc(sizeof(float));
                     data[0] = 0.0;
                     *dataOut = data;
                     return mdsGetFloat(idx, cpoPath, path, data);
                 }
                 case DOUBLE: {
-                    double* data = (double*) malloc(sizeof(double));
+                    double* data = (double*)malloc(sizeof(double));
                     data[0] = 0.0;
                     *dataOut = data;
                     return mdsGetDouble(idx, cpoPath, path, data);
                 }
                 case STRING:
-                    return mdsGetString(idx, cpoPath, path, (char**) dataOut);
+                    return mdsGetString(idx, cpoPath, path, (char**)dataOut);
             }
             break;
         }
         case 1: {
             switch (type) {
                 case INT:
-                    return mdsGetVect1DInt(idx, cpoPath, path, (int**) dataOut, &dims[0]);
+                    return mdsGetVect1DInt(idx, cpoPath, path, (int**)dataOut, &dims[0]);
                 case FLOAT:
-                    return mdsGetVect1DFloat(idx, cpoPath, path, (float**) dataOut, &dims[0]);
+                    return mdsGetVect1DFloat(idx, cpoPath, path, (float**)dataOut, &dims[0]);
                 case DOUBLE:
-                    return mdsGetVect1DDouble(idx, cpoPath, path, (double**) dataOut, &dims[0]);
+                    return mdsGetVect1DDouble(idx, cpoPath, path, (double**)dataOut, &dims[0]);
                 case STRING:
-                    return mdsGetVect1DString(idx, cpoPath, path, (char***) dataOut, &dims[0]);
+                    return mdsGetVect1DString(idx, cpoPath, path, (char***)dataOut, &dims[0]);
             }
             break;
         }
@@ -827,73 +824,73 @@ int imas_mds_getData(int idx, char* cpoPath, char* path, int type, int nDims, in
         case 0: {
             switch (type) {
                 case INT: {
-                    int* data = (int*) malloc(sizeof(int));
+                    int* data = (int*)malloc(sizeof(int));
                     data[0] = 0;
                     *dataOut = data;
                     return mdsGetInt(idx, cpoPath, path, data);
                 }
                 case FLOAT: {
-                    float* data = (float*) malloc(sizeof(float));
+                    float* data = (float*)malloc(sizeof(float));
                     data[0] = 0.0;
                     *dataOut = data;
                     return mdsGetFloat(idx, cpoPath, path, data);
                 }
                 case DOUBLE: {
-                    double* data = (double*) malloc(sizeof(double));
+                    double* data = (double*)malloc(sizeof(double));
                     data[0] = 0.0;
                     *dataOut = data;
                     return mdsGetDouble(idx, cpoPath, path, data);
                 }
                 case STRING:
-                    return mdsGetString(idx, cpoPath, path, (char**) dataOut);
+                    return mdsGetString(idx, cpoPath, path, (char**)dataOut);
             }
             break;
         }
         case 1: {
             switch (type) {
                 case INT:
-                    return mdsGetVect1DInt(idx, cpoPath, path, (int**) dataOut, &dims[0]);
+                    return mdsGetVect1DInt(idx, cpoPath, path, (int**)dataOut, &dims[0]);
                 case FLOAT:
-                    return mdsGetVect1DFloat(idx, cpoPath, path, (float**) dataOut, &dims[0]);
+                    return mdsGetVect1DFloat(idx, cpoPath, path, (float**)dataOut, &dims[0]);
                 case DOUBLE:
-                    return mdsGetVect1DDouble(idx, cpoPath, path, (double**) dataOut, &dims[0]);
+                    return mdsGetVect1DDouble(idx, cpoPath, path, (double**)dataOut, &dims[0]);
                 case STRING:
-                    return mdsGetVect1DString(idx, cpoPath, path, (char***) dataOut, &dims[0]);
+                    return mdsGetVect1DString(idx, cpoPath, path, (char***)dataOut, &dims[0]);
             }
             break;
         }
         case 2: {
             switch (type) {
                 case INT:
-                    return mdsGetVect2DInt(idx, cpoPath, path, (int**) dataOut, &dims[0], &dims[1]);
+                    return mdsGetVect2DInt(idx, cpoPath, path, (int**)dataOut, &dims[0], &dims[1]);
                 case FLOAT:
-                    return mdsGetVect2DFloat(idx, cpoPath, path, (float**) dataOut, &dims[0], &dims[1]);
+                    return mdsGetVect2DFloat(idx, cpoPath, path, (float**)dataOut, &dims[0], &dims[1]);
                 case DOUBLE:
-                    return mdsGetVect2DDouble(idx, cpoPath, path, (double**) dataOut, &dims[0], &dims[1]);
+                    return mdsGetVect2DDouble(idx, cpoPath, path, (double**)dataOut, &dims[0], &dims[1]);
             }
             break;
         }
         case 3: {
             switch (type) {
                 case INT:
-                    return mdsGetVect3DInt(idx, cpoPath, path, (int**) dataOut, &dims[0], &dims[1], &dims[2]);
+                    return mdsGetVect3DInt(idx, cpoPath, path, (int**)dataOut, &dims[0], &dims[1], &dims[2]);
                 case FLOAT:
-                    return mdsGetVect3DFloat(idx, cpoPath, path, (float**) dataOut, &dims[0], &dims[1], &dims[2]);
+                    return mdsGetVect3DFloat(idx, cpoPath, path, (float**)dataOut, &dims[0], &dims[1], &dims[2]);
                 case DOUBLE:
-                    return mdsGetVect3DDouble(idx, cpoPath, path, (double**) dataOut, &dims[0], &dims[1], &dims[2]);
+                    return mdsGetVect3DDouble(idx, cpoPath, path, (double**)dataOut, &dims[0], &dims[1], &dims[2]);
             }
             break;
         }
         case 4: {
             switch (type) {
                 case INT:
-                    return mdsGetVect4DInt(idx, cpoPath, path, (int**) dataOut, &dims[0], &dims[1], &dims[2],
+                    return mdsGetVect4DInt(idx, cpoPath, path, (int**)dataOut, &dims[0], &dims[1], &dims[2],
                                            &dims[3]);
                 case FLOAT:
-                    return mdsGetVect4DFloat(idx, cpoPath, path, (float**) dataOut, &dims[0], &dims[1], &dims[2],
+                    return mdsGetVect4DFloat(idx, cpoPath, path, (float**)dataOut, &dims[0], &dims[1], &dims[2],
                                              &dims[3]);
                 case DOUBLE:
-                    return mdsGetVect4DDouble(idx, cpoPath, path, (double**) dataOut, &dims[0], &dims[1], &dims[2],
+                    return mdsGetVect4DDouble(idx, cpoPath, path, (double**)dataOut, &dims[0], &dims[1], &dims[2],
                                               &dims[3]);
             }
             break;
@@ -901,13 +898,13 @@ int imas_mds_getData(int idx, char* cpoPath, char* path, int type, int nDims, in
         case 5: {
             switch (type) {
                 case INT:
-                    return mdsGetVect5DInt(idx, cpoPath, path, (int**) dataOut, &dims[0], &dims[1], &dims[2], &dims[3],
+                    return mdsGetVect5DInt(idx, cpoPath, path, (int**)dataOut, &dims[0], &dims[1], &dims[2], &dims[3],
                                            &dims[4]);
                 case FLOAT:
-                    return mdsGetVect5DFloat(idx, cpoPath, path, (float**) dataOut, &dims[0], &dims[1], &dims[2],
+                    return mdsGetVect5DFloat(idx, cpoPath, path, (float**)dataOut, &dims[0], &dims[1], &dims[2],
                                              &dims[3], &dims[4]);
                 case DOUBLE:
-                    return mdsGetVect5DDouble(idx, cpoPath, path, (double**) dataOut, &dims[0], &dims[1], &dims[2],
+                    return mdsGetVect5DDouble(idx, cpoPath, path, (double**)dataOut, &dims[0], &dims[1], &dims[2],
                                               &dims[3], &dims[4]);
             }
             break;
@@ -915,13 +912,13 @@ int imas_mds_getData(int idx, char* cpoPath, char* path, int type, int nDims, in
         case 6: {
             switch (type) {
                 case INT:
-                    return mdsGetVect6DInt(idx, cpoPath, path, (int**) dataOut, &dims[0], &dims[1], &dims[2], &dims[3],
+                    return mdsGetVect6DInt(idx, cpoPath, path, (int**)dataOut, &dims[0], &dims[1], &dims[2], &dims[3],
                                            &dims[4], &dims[5]);
                 case FLOAT:
-                    return mdsGetVect6DFloat(idx, cpoPath, path, (float**) dataOut, &dims[0], &dims[1], &dims[2],
+                    return mdsGetVect6DFloat(idx, cpoPath, path, (float**)dataOut, &dims[0], &dims[1], &dims[2],
                                              &dims[3], &dims[4], &dims[5]);
                 case DOUBLE:
-                    return mdsGetVect6DDouble(idx, cpoPath, path, (double**) dataOut, &dims[0], &dims[1], &dims[2],
+                    return mdsGetVect6DDouble(idx, cpoPath, path, (double**)dataOut, &dims[0], &dims[1], &dims[2],
                                               &dims[3], &dims[4], &dims[5]);
             }
             break;
@@ -929,13 +926,13 @@ int imas_mds_getData(int idx, char* cpoPath, char* path, int type, int nDims, in
         case 7: {
             switch (type) {
                 case INT:
-                    return mdsGetVect7DInt(idx, cpoPath, path, (int**) dataOut, &dims[0], &dims[1], &dims[2], &dims[3],
+                    return mdsGetVect7DInt(idx, cpoPath, path, (int**)dataOut, &dims[0], &dims[1], &dims[2], &dims[3],
                                            &dims[4], &dims[5], &dims[6]);
                 case FLOAT:
-                    return mdsGetVect7DFloat(idx, cpoPath, path, (float**) dataOut, &dims[0], &dims[1], &dims[2],
+                    return mdsGetVect7DFloat(idx, cpoPath, path, (float**)dataOut, &dims[0], &dims[1], &dims[2],
                                              &dims[3], &dims[4], &dims[5], &dims[6]);
                 case DOUBLE:
-                    return mdsGetVect7DDouble(idx, cpoPath, path, (double**) dataOut, &dims[0], &dims[1], &dims[2],
+                    return mdsGetVect7DDouble(idx, cpoPath, path, (double**)dataOut, &dims[0], &dims[1], &dims[2],
                                               &dims[3], &dims[4], &dims[5], &dims[6]);
             }
             break;
@@ -952,25 +949,25 @@ int imas_mds_getDataSlices(int idx, char* cpoPath, char* path, int type, int ran
         case 0: {
             switch (type) {
                 case INT: {
-                    int* dataSlice = (int*) malloc(sizeof(int));
+                    int* dataSlice = (int*)malloc(sizeof(int));
                     dataSlice[0] = 0;
                     *data = dataSlice;
                     return mdsGetIntSlice(idx, cpoPath, path, timeBasePath, dataSlice, time, retTime, interpolMode);
                 }
                 case FLOAT: {
-                    float* dataSlice = (float*) malloc(sizeof(float));
+                    float* dataSlice = (float*)malloc(sizeof(float));
                     dataSlice[0] = 0.0;
                     *data = dataSlice;
                     return mdsGetFloatSlice(idx, cpoPath, path, timeBasePath, dataSlice, time, retTime, interpolMode);
                 }
                 case DOUBLE: {
-                    double* dataSlice = (double*) malloc(sizeof(double));
+                    double* dataSlice = (double*)malloc(sizeof(double));
                     dataSlice[0] = 0;
                     *data = dataSlice;
                     return mdsGetDoubleSlice(idx, cpoPath, path, timeBasePath, dataSlice, time, retTime, interpolMode);
                 }
                 case STRING: {
-                    return mdsGetStringSlice(idx, cpoPath, path, timeBasePath, (char**) data, time, retTime,
+                    return mdsGetStringSlice(idx, cpoPath, path, timeBasePath, (char**)data, time, retTime,
                                              interpolMode);
                 }
             }
@@ -979,13 +976,13 @@ int imas_mds_getDataSlices(int idx, char* cpoPath, char* path, int type, int ran
         case 1: {
             switch (type) {
                 case INT:
-                    return mdsGetVect1DIntSlice(idx, cpoPath, path, timeBasePath, (int**) data, &shape[0], time,
+                    return mdsGetVect1DIntSlice(idx, cpoPath, path, timeBasePath, (int**)data, &shape[0], time,
                                                 retTime, interpolMode);
                 case FLOAT:
-                    return mdsGetVect1DFloatSlice(idx, cpoPath, path, timeBasePath, (float**) data, &shape[0], time,
+                    return mdsGetVect1DFloatSlice(idx, cpoPath, path, timeBasePath, (float**)data, &shape[0], time,
                                                   retTime, interpolMode);
                 case DOUBLE:
-                    return mdsGetVect1DDoubleSlice(idx, cpoPath, path, timeBasePath, (double**) data, &shape[0], time,
+                    return mdsGetVect1DDoubleSlice(idx, cpoPath, path, timeBasePath, (double**)data, &shape[0], time,
                                                    retTime, interpolMode);
             }
             break;
@@ -993,13 +990,13 @@ int imas_mds_getDataSlices(int idx, char* cpoPath, char* path, int type, int ran
         case 2: {
             switch (type) {
                 case INT:
-                    return mdsGetVect2DIntSlice(idx, cpoPath, path, timeBasePath, (int**) data, &shape[0], &shape[1],
+                    return mdsGetVect2DIntSlice(idx, cpoPath, path, timeBasePath, (int**)data, &shape[0], &shape[1],
                                                 time, retTime, interpolMode);
                 case FLOAT:
-                    return mdsGetVect2DFloatSlice(idx, cpoPath, path, timeBasePath, (float**) data, &shape[0],
+                    return mdsGetVect2DFloatSlice(idx, cpoPath, path, timeBasePath, (float**)data, &shape[0],
                                                   &shape[1], time, retTime, interpolMode);
                 case DOUBLE:
-                    return mdsGetVect2DDoubleSlice(idx, cpoPath, path, timeBasePath, (double**) data, &shape[0],
+                    return mdsGetVect2DDoubleSlice(idx, cpoPath, path, timeBasePath, (double**)data, &shape[0],
                                                    &shape[1], time, retTime, interpolMode);
             }
             break;
@@ -1007,13 +1004,13 @@ int imas_mds_getDataSlices(int idx, char* cpoPath, char* path, int type, int ran
         case 3: {
             switch (type) {
                 case INT:
-                    return mdsGetVect3DIntSlice(idx, cpoPath, path, timeBasePath, (int**) data, &shape[0], &shape[1],
+                    return mdsGetVect3DIntSlice(idx, cpoPath, path, timeBasePath, (int**)data, &shape[0], &shape[1],
                                                 &shape[2], time, retTime, interpolMode);
                 case FLOAT:
-                    return mdsGetVect3DFloatSlice(idx, cpoPath, path, timeBasePath, (float**) data, &shape[0],
+                    return mdsGetVect3DFloatSlice(idx, cpoPath, path, timeBasePath, (float**)data, &shape[0],
                                                   &shape[1], &shape[2], time, retTime, interpolMode);
                 case DOUBLE:
-                    return mdsGetVect3DDoubleSlice(idx, cpoPath, path, timeBasePath, (double**) data, &shape[0],
+                    return mdsGetVect3DDoubleSlice(idx, cpoPath, path, timeBasePath, (double**)data, &shape[0],
                                                    &shape[1], &shape[2], time, retTime, interpolMode);
             }
             break;
@@ -1021,13 +1018,13 @@ int imas_mds_getDataSlices(int idx, char* cpoPath, char* path, int type, int ran
         case 4: {
             switch (type) {
                 case INT:
-                    return mdsGetVect4DIntSlice(idx, cpoPath, path, timeBasePath, (int**) data, &shape[0], &shape[1],
+                    return mdsGetVect4DIntSlice(idx, cpoPath, path, timeBasePath, (int**)data, &shape[0], &shape[1],
                                                 &shape[2], &shape[3], time, retTime, interpolMode);
                 case FLOAT:
-                    return mdsGetVect4DFloatSlice(idx, cpoPath, path, timeBasePath, (float**) data, &shape[0],
+                    return mdsGetVect4DFloatSlice(idx, cpoPath, path, timeBasePath, (float**)data, &shape[0],
                                                   &shape[1], &shape[2], &shape[3], time, retTime, interpolMode);
                 case DOUBLE:
-                    return mdsGetVect4DDoubleSlice(idx, cpoPath, path, timeBasePath, (double**) data, &shape[0],
+                    return mdsGetVect4DDoubleSlice(idx, cpoPath, path, timeBasePath, (double**)data, &shape[0],
                                                    &shape[1], &shape[2], &shape[3], time, retTime, interpolMode);
             }
             break;
@@ -1035,14 +1032,14 @@ int imas_mds_getDataSlices(int idx, char* cpoPath, char* path, int type, int ran
         case 5: {
             switch (type) {
                 case INT:
-                    return mdsGetVect5DIntSlice(idx, cpoPath, path, timeBasePath, (int**) data, &shape[0], &shape[1],
+                    return mdsGetVect5DIntSlice(idx, cpoPath, path, timeBasePath, (int**)data, &shape[0], &shape[1],
                                                 &shape[2], &shape[3], &shape[4], time, retTime, interpolMode);
                 case FLOAT:
-                    return mdsGetVect5DFloatSlice(idx, cpoPath, path, timeBasePath, (float**) data, &shape[0],
+                    return mdsGetVect5DFloatSlice(idx, cpoPath, path, timeBasePath, (float**)data, &shape[0],
                                                   &shape[1], &shape[2], &shape[3], &shape[4], time, retTime,
                                                   interpolMode);
                 case DOUBLE:
-                    return mdsGetVect5DDoubleSlice(idx, cpoPath, path, timeBasePath, (double**) data, &shape[0],
+                    return mdsGetVect5DDoubleSlice(idx, cpoPath, path, timeBasePath, (double**)data, &shape[0],
                                                    &shape[1], &shape[2], &shape[3], &shape[4], time, retTime,
                                                    interpolMode);
             }
@@ -1051,15 +1048,15 @@ int imas_mds_getDataSlices(int idx, char* cpoPath, char* path, int type, int ran
         case 6: {
             switch (type) {
                 case INT:
-                    return mdsGetVect6DIntSlice(idx, cpoPath, path, timeBasePath, (int**) data, &shape[0], &shape[1],
+                    return mdsGetVect6DIntSlice(idx, cpoPath, path, timeBasePath, (int**)data, &shape[0], &shape[1],
                                                 &shape[2], &shape[3], &shape[4], &shape[5], time, retTime,
                                                 interpolMode);
                 case FLOAT:
-                    return mdsGetVect6DFloatSlice(idx, cpoPath, path, timeBasePath, (float**) data, &shape[0],
+                    return mdsGetVect6DFloatSlice(idx, cpoPath, path, timeBasePath, (float**)data, &shape[0],
                                                   &shape[1], &shape[2], &shape[3], &shape[4], &shape[5], time, retTime,
                                                   interpolMode);
                 case DOUBLE:
-                    return mdsGetVect6DDoubleSlice(idx, cpoPath, path, timeBasePath, (double**) data, &shape[0],
+                    return mdsGetVect6DDoubleSlice(idx, cpoPath, path, timeBasePath, (double**)data, &shape[0],
                                                    &shape[1], &shape[2], &shape[3], &shape[4], &shape[5], time, retTime,
                                                    interpolMode);
             }
@@ -1082,60 +1079,60 @@ void* imas_mds_putDataSliceInObject(void* obj, char* path, int index, int type, 
         case 0: {
             switch (type) {
                 case INT:
-                    return mdsPutIntInObject(obj, path, index, ((int*) data)[0]);
+                    return mdsPutIntInObject(obj, path, index, ((int*)data)[0]);
                 case FLOAT:
-                    return mdsPutFloatInObject(obj, path, index, ((float*) data)[0]);
+                    return mdsPutFloatInObject(obj, path, index, ((float*)data)[0]);
                 case DOUBLE:
-                    return mdsPutDoubleInObject(obj, path, index, ((double*) data)[0]);
+                    return mdsPutDoubleInObject(obj, path, index, ((double*)data)[0]);
                 case STRING:
-                    return mdsPutStringInObject(obj, path, index, (char*) data);
+                    return mdsPutStringInObject(obj, path, index, (char*)data);
             }
             break;
         }
         case 1: {
             switch (type) {
                 case INT:
-                    return mdsPutVect1DIntInObject(obj, path, index, (int*) data, dims[0]);
+                    return mdsPutVect1DIntInObject(obj, path, index, (int*)data, dims[0]);
                 case FLOAT:
-                    return mdsPutVect1DFloatInObject(obj, path, index, (float*) data, dims[0]);
+                    return mdsPutVect1DFloatInObject(obj, path, index, (float*)data, dims[0]);
                 case DOUBLE:
-                    return mdsPutVect1DDoubleInObject(obj, path, index, (double*) data, dims[0]);
+                    return mdsPutVect1DDoubleInObject(obj, path, index, (double*)data, dims[0]);
                 case STRING:
-                    return mdsPutVect1DStringInObject(obj, path, index, (char**) data, dims[0]);
+                    return mdsPutVect1DStringInObject(obj, path, index, (char**)data, dims[0]);
             }
             break;
         }
         case 2: {
             switch (type) {
                 case INT:
-                    return mdsPutVect2DIntInObject(obj, path, index, (int*) data, dims[0], dims[1]);
+                    return mdsPutVect2DIntInObject(obj, path, index, (int*)data, dims[0], dims[1]);
                 case FLOAT:
-                    return mdsPutVect2DFloatInObject(obj, path, index, (float*) data, dims[0], dims[1]);
+                    return mdsPutVect2DFloatInObject(obj, path, index, (float*)data, dims[0], dims[1]);
                 case DOUBLE:
-                    return mdsPutVect2DDoubleInObject(obj, path, index, (double*) data, dims[0], dims[1]);
+                    return mdsPutVect2DDoubleInObject(obj, path, index, (double*)data, dims[0], dims[1]);
             }
             break;
         }
         case 3: {
             switch (type) {
                 case INT:
-                    return mdsPutVect3DIntInObject(obj, path, index, (int*) data, dims[0], dims[1], dims[2]);
+                    return mdsPutVect3DIntInObject(obj, path, index, (int*)data, dims[0], dims[1], dims[2]);
                 case FLOAT:
-                    return mdsPutVect3DFloatInObject(obj, path, index, (float*) data, dims[0], dims[1], dims[2]);
+                    return mdsPutVect3DFloatInObject(obj, path, index, (float*)data, dims[0], dims[1], dims[2]);
                 case DOUBLE:
-                    return mdsPutVect3DDoubleInObject(obj, path, index, (double*) data, dims[0], dims[1], dims[2]);
+                    return mdsPutVect3DDoubleInObject(obj, path, index, (double*)data, dims[0], dims[1], dims[2]);
             }
             break;
         }
         case 4: {
             switch (type) {
                 case INT:
-                    return mdsPutVect4DIntInObject(obj, path, index, (int*) data, dims[0], dims[1], dims[2], dims[3]);
+                    return mdsPutVect4DIntInObject(obj, path, index, (int*)data, dims[0], dims[1], dims[2], dims[3]);
                 case FLOAT:
-                    return mdsPutVect4DFloatInObject(obj, path, index, (float*) data, dims[0], dims[1], dims[2],
+                    return mdsPutVect4DFloatInObject(obj, path, index, (float*)data, dims[0], dims[1], dims[2],
                                                      dims[3]);
                 case DOUBLE:
-                    return mdsPutVect4DDoubleInObject(obj, path, index, (double*) data, dims[0], dims[1], dims[2],
+                    return mdsPutVect4DDoubleInObject(obj, path, index, (double*)data, dims[0], dims[1], dims[2],
                                                       dims[3]);
             }
             break;
@@ -1143,13 +1140,13 @@ void* imas_mds_putDataSliceInObject(void* obj, char* path, int index, int type, 
         case 5: {
             switch (type) {
                 case INT:
-                    return mdsPutVect5DIntInObject(obj, path, index, (int*) data, dims[0], dims[1], dims[2], dims[3],
+                    return mdsPutVect5DIntInObject(obj, path, index, (int*)data, dims[0], dims[1], dims[2], dims[3],
                                                    dims[4]);
                 case FLOAT:
-                    return mdsPutVect5DFloatInObject(obj, path, index, (float*) data, dims[0], dims[1], dims[2],
+                    return mdsPutVect5DFloatInObject(obj, path, index, (float*)data, dims[0], dims[1], dims[2],
                                                      dims[3], dims[4]);
                 case DOUBLE:
-                    return mdsPutVect5DDoubleInObject(obj, path, index, (double*) data, dims[0], dims[1], dims[2],
+                    return mdsPutVect5DDoubleInObject(obj, path, index, (double*)data, dims[0], dims[1], dims[2],
                                                       dims[3], dims[4]);
             }
             break;
@@ -1157,13 +1154,13 @@ void* imas_mds_putDataSliceInObject(void* obj, char* path, int index, int type, 
         case 6: {
             switch (type) {
                 case INT:
-                    return mdsPutVect6DIntInObject(obj, path, index, (int*) data, dims[0], dims[1], dims[2], dims[3],
+                    return mdsPutVect6DIntInObject(obj, path, index, (int*)data, dims[0], dims[1], dims[2], dims[3],
                                                    dims[4], dims[5]);
                 case FLOAT:
-                    return mdsPutVect6DFloatInObject(obj, path, index, (float*) data, dims[0], dims[1], dims[2],
+                    return mdsPutVect6DFloatInObject(obj, path, index, (float*)data, dims[0], dims[1], dims[2],
                                                      dims[3], dims[4], dims[5]);
                 case DOUBLE:
-                    return mdsPutVect6DDoubleInObject(obj, path, index, (double*) data, dims[0], dims[1], dims[2],
+                    return mdsPutVect6DDoubleInObject(obj, path, index, (double*)data, dims[0], dims[1], dims[2],
                                                       dims[3], dims[4], dims[5]);
             }
             break;
@@ -1171,13 +1168,13 @@ void* imas_mds_putDataSliceInObject(void* obj, char* path, int index, int type, 
         case 7: {
             switch (type) {
                 case INT:
-                    return mdsPutVect7DIntInObject(obj, path, index, (int*) data, dims[0], dims[1], dims[2], dims[3],
+                    return mdsPutVect7DIntInObject(obj, path, index, (int*)data, dims[0], dims[1], dims[2], dims[3],
                                                    dims[4], dims[5], dims[6]);
                 case FLOAT:
-                    return mdsPutVect7DFloatInObject(obj, path, index, (float*) data, dims[0], dims[1], dims[2],
+                    return mdsPutVect7DFloatInObject(obj, path, index, (float*)data, dims[0], dims[1], dims[2],
                                                      dims[3], dims[4], dims[5], dims[6]);
                 case DOUBLE:
-                    return mdsPutVect7DDoubleInObject(obj, path, index, (double*) data, dims[0], dims[1], dims[2],
+                    return mdsPutVect7DDoubleInObject(obj, path, index, (double*)data, dims[0], dims[1], dims[2],
                                                       dims[3], dims[4], dims[5], dims[6]);
             }
             break;
@@ -1194,60 +1191,60 @@ int imas_mds_getDataSliceInObject(void* obj, char* path, int index, int type, in
         case 0: {
             switch (type) {
                 case INT: {
-                    int* dataSlice = (int*) malloc(sizeof(int));
+                    int* dataSlice = (int*)malloc(sizeof(int));
                     dataSlice[0] = 0;
                     *data = dataSlice;
                     return mdsGetIntFromObject(obj, path, index, dataSlice);
                 }
                 case FLOAT: {
-                    float* dataSlice = (float*) malloc(sizeof(float));
+                    float* dataSlice = (float*)malloc(sizeof(float));
                     dataSlice[0] = 0.0;
                     *data = dataSlice;
                     return mdsGetFloatFromObject(obj, path, index, dataSlice);
                 }
                 case DOUBLE: {
-                    double* dataSlice = (double*) malloc(sizeof(double));
+                    double* dataSlice = (double*)malloc(sizeof(double));
                     dataSlice[0] = 0;
                     *data = dataSlice;
                     return mdsGetDoubleFromObject(obj, path, index, dataSlice);
                 }
                 case STRING:
-                    return mdsGetStringFromObject(obj, path, index, (char**) data);
+                    return mdsGetStringFromObject(obj, path, index, (char**)data);
             }
             break;
         }
         case 1: {
             switch (type) {
                 case INT:
-                    return mdsGetVect1DIntFromObject(obj, path, index, (int**) data, &dims[0]);
+                    return mdsGetVect1DIntFromObject(obj, path, index, (int**)data, &dims[0]);
                 case FLOAT:
-                    return mdsGetVect1DFloatFromObject(obj, path, index, (float**) data, &dims[0]);
+                    return mdsGetVect1DFloatFromObject(obj, path, index, (float**)data, &dims[0]);
                 case DOUBLE:
-                    return mdsGetVect1DDoubleFromObject(obj, path, index, (double**) data, &dims[0]);
+                    return mdsGetVect1DDoubleFromObject(obj, path, index, (double**)data, &dims[0]);
                 case STRING:
-                    return mdsGetVect1DStringFromObject(obj, path, index, (char***) data, &dims[0]);
+                    return mdsGetVect1DStringFromObject(obj, path, index, (char***)data, &dims[0]);
             }
             break;
         }
         case 2: {
             switch (type) {
                 case INT:
-                    return mdsGetVect2DIntFromObject(obj, path, index, (int**) data, &dims[0], &dims[1]);
+                    return mdsGetVect2DIntFromObject(obj, path, index, (int**)data, &dims[0], &dims[1]);
                 case FLOAT:
-                    return mdsGetVect2DFloatFromObject(obj, path, index, (float**) data, &dims[0], &dims[1]);
+                    return mdsGetVect2DFloatFromObject(obj, path, index, (float**)data, &dims[0], &dims[1]);
                 case DOUBLE:
-                    return mdsGetVect2DDoubleFromObject(obj, path, index, (double**) data, &dims[0], &dims[1]);
+                    return mdsGetVect2DDoubleFromObject(obj, path, index, (double**)data, &dims[0], &dims[1]);
             }
             break;
         }
         case 3: {
             switch (type) {
                 case INT:
-                    return mdsGetVect3DIntFromObject(obj, path, index, (int**) data, &dims[0], &dims[1], &dims[2]);
+                    return mdsGetVect3DIntFromObject(obj, path, index, (int**)data, &dims[0], &dims[1], &dims[2]);
                 case FLOAT:
-                    return mdsGetVect3DFloatFromObject(obj, path, index, (float**) data, &dims[0], &dims[1], &dims[2]);
+                    return mdsGetVect3DFloatFromObject(obj, path, index, (float**)data, &dims[0], &dims[1], &dims[2]);
                 case DOUBLE:
-                    return mdsGetVect3DDoubleFromObject(obj, path, index, (double**) data, &dims[0], &dims[1],
+                    return mdsGetVect3DDoubleFromObject(obj, path, index, (double**)data, &dims[0], &dims[1],
                                                         &dims[2]);
             }
             break;
@@ -1255,13 +1252,13 @@ int imas_mds_getDataSliceInObject(void* obj, char* path, int index, int type, in
         case 4: {
             switch (type) {
                 case INT:
-                    return mdsGetVect4DIntFromObject(obj, path, index, (int**) data, &dims[0], &dims[1], &dims[2],
+                    return mdsGetVect4DIntFromObject(obj, path, index, (int**)data, &dims[0], &dims[1], &dims[2],
                                                      &dims[3]);
                 case FLOAT:
-                    return mdsGetVect4DFloatFromObject(obj, path, index, (float**) data, &dims[0], &dims[1], &dims[2],
+                    return mdsGetVect4DFloatFromObject(obj, path, index, (float**)data, &dims[0], &dims[1], &dims[2],
                                                        &dims[3]);
                 case DOUBLE:
-                    return mdsGetVect4DDoubleFromObject(obj, path, index, (double**) data, &dims[0], &dims[1],
+                    return mdsGetVect4DDoubleFromObject(obj, path, index, (double**)data, &dims[0], &dims[1],
                                                         &dims[2], &dims[3]);
             }
             break;
@@ -1269,13 +1266,13 @@ int imas_mds_getDataSliceInObject(void* obj, char* path, int index, int type, in
         case 5: {
             switch (type) {
                 case INT:
-                    return mdsGetVect5DIntFromObject(obj, path, index, (int**) data, &dims[0], &dims[1], &dims[2],
+                    return mdsGetVect5DIntFromObject(obj, path, index, (int**)data, &dims[0], &dims[1], &dims[2],
                                                      &dims[3], &dims[4]);
                 case FLOAT:
-                    return mdsGetVect5DFloatFromObject(obj, path, index, (float**) data, &dims[0], &dims[1], &dims[2],
+                    return mdsGetVect5DFloatFromObject(obj, path, index, (float**)data, &dims[0], &dims[1], &dims[2],
                                                        &dims[3], &dims[4]);
                 case DOUBLE:
-                    return mdsGetVect5DDoubleFromObject(obj, path, index, (double**) data, &dims[0], &dims[1],
+                    return mdsGetVect5DDoubleFromObject(obj, path, index, (double**)data, &dims[0], &dims[1],
                                                         &dims[2], &dims[3], &dims[4]);
             }
             break;
@@ -1283,13 +1280,13 @@ int imas_mds_getDataSliceInObject(void* obj, char* path, int index, int type, in
         case 6: {
             switch (type) {
                 case INT:
-                    return mdsGetVect6DIntFromObject(obj, path, index, (int**) data, &dims[0], &dims[1], &dims[2],
+                    return mdsGetVect6DIntFromObject(obj, path, index, (int**)data, &dims[0], &dims[1], &dims[2],
                                                      &dims[3], &dims[4], &dims[5]);
                 case FLOAT:
-                    return mdsGetVect6DFloatFromObject(obj, path, index, (float**) data, &dims[0], &dims[1], &dims[2],
+                    return mdsGetVect6DFloatFromObject(obj, path, index, (float**)data, &dims[0], &dims[1], &dims[2],
                                                        &dims[3], &dims[4], &dims[5]);
                 case DOUBLE:
-                    return mdsGetVect6DDoubleFromObject(obj, path, index, (double**) data, &dims[0], &dims[1],
+                    return mdsGetVect6DDoubleFromObject(obj, path, index, (double**)data, &dims[0], &dims[1],
                                                         &dims[2], &dims[3], &dims[4], &dims[5]);
             }
             break;
@@ -1297,13 +1294,13 @@ int imas_mds_getDataSliceInObject(void* obj, char* path, int index, int type, in
         case 7: {
             switch (type) {
                 case INT:
-                    return mdsGetVect7DIntFromObject(obj, path, index, (int**) data, &dims[0], &dims[1], &dims[2],
+                    return mdsGetVect7DIntFromObject(obj, path, index, (int**)data, &dims[0], &dims[1], &dims[2],
                                                      &dims[3], &dims[4], &dims[5], &dims[6]);
                 case FLOAT:
-                    return mdsGetVect7DFloatFromObject(obj, path, index, (float**) data, &dims[0], &dims[1], &dims[2],
+                    return mdsGetVect7DFloatFromObject(obj, path, index, (float**)data, &dims[0], &dims[1], &dims[2],
                                                        &dims[3], &dims[4], &dims[5], &dims[6]);
                 case DOUBLE:
-                    return mdsGetVect7DDoubleFromObject(obj, path, index, (double**) data, &dims[0], &dims[1],
+                    return mdsGetVect7DDoubleFromObject(obj, path, index, (double**)data, &dims[0], &dims[1],
                                                         &dims[2], &dims[3], &dims[4], &dims[5], &dims[6]);
             }
             break;
@@ -1924,7 +1921,7 @@ static int do_source(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARGS p
 
     if (!plugin_args.isSignal) {
         err = 999;
-        idamLog(LOG_ERROR, "imas source: No data object name (signal) has been specified!\n");
+        IDAM_LOG(LOG_ERROR, "imas source: No data object name (signal) has been specified!\n");
         addIdamError(&idamerrorstack, CODEERRORTYPE,
                      "imas source: No data object name (signal) has been specified!", err, "");
         return err;
@@ -1939,7 +1936,7 @@ static int do_source(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARGS p
 
     if (plugin_list == NULL) {
         err = 999;
-        idamLog(LOG_ERROR, "imas source: the specified format is not recognised!\n");
+        IDAM_LOG(LOG_ERROR, "imas source: the specified format is not recognised!\n");
         addIdamError(&idamerrorstack, CODEERRORTYPE,
                      "imas source: No plugins are available for this data request", err, "");
         return err;
@@ -1960,11 +1957,11 @@ static int do_source(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARGS p
 
 // JET PPF sources: PPF::/$ppfname/$pulseNumber/$sequence/$owner
 
-    if (plugin_args.isFormat && !strcasecmp(plugin_args.format, "ppf")) {            // JET PPF source naming pattern
+    if (plugin_args.isFormat && STR_IEQUALS(plugin_args.format, "ppf")) {            // JET PPF source naming pattern
 
         if (!plugin_args.isSource) {
             err = 999;
-            idamLog(LOG_ERROR, "imas source: No data source has been specified!\n");
+            IDAM_LOG(LOG_ERROR, "imas source: No data source has been specified!\n");
             addIdamError(&idamerrorstack, CODEERRORTYPE, "imas source: No data source has been specified!", err,
                          "");
             return err;
@@ -1997,7 +1994,7 @@ static int do_source(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARGS p
                 sprintf(next_request_block.source, "%s/%s", next_request_block.source, plugin_args.owner);
             }
         }
-    } else if (plugin_args.isFormat && !strcasecmp(plugin_args.format, "jpf")) {        // JET JPF source naming pattern
+    } else if (plugin_args.isFormat && STR_IEQUALS(plugin_args.format, "jpf")) {        // JET JPF source naming pattern
 
         env = getenv("UDA_JET_DEVICE_ALIAS");
 
@@ -2008,7 +2005,7 @@ static int do_source(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARGS p
             sprintf(next_request_block.source, "%s%sJPF%s%d", env, request_block->api_delim,
                     request_block->api_delim, plugin_args.shotNumber);
         }
-    } else if (plugin_args.isFormat && !strcasecmp(plugin_args.format, "MAST")) {        // MAST source naming pattern
+    } else if (plugin_args.isFormat && STR_IEQUALS(plugin_args.format, "MAST")) {        // MAST source naming pattern
 
         env = getenv("UDA_MAST_DEVICE_ALIAS");
 
@@ -2026,12 +2023,12 @@ static int do_source(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARGS p
         }
 
     } else if (plugin_args.isFormat &&
-               (!strcasecmp(plugin_args.format, "mds") || !strcasecmp(plugin_args.format, "mdsplus") ||
-                !strcasecmp(plugin_args.format, "mds+"))) {    // MDS+ source naming pattern
+               (STR_IEQUALS(plugin_args.format, "mds") || STR_IEQUALS(plugin_args.format, "mdsplus") ||
+                STR_IEQUALS(plugin_args.format, "mds+"))) {    // MDS+ source naming pattern
 
         if (!plugin_args.isServer) {
             err = 999;
-            idamLog(LOG_ERROR, "imas source: No data server has been specified!\n");
+            IDAM_LOG(LOG_ERROR, "imas source: No data server has been specified!\n");
             addIdamError(&idamerrorstack, CODEERRORTYPE, "imas source: No data server has been specified!", err,
                          "");
             return err;
@@ -2061,7 +2058,7 @@ static int do_source(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARGS p
         }
     } else {
         err = 999;
-        idamLog(LOG_ERROR, "imas source: the specified format is not recognised!\n");
+        IDAM_LOG(LOG_ERROR, "imas source: the specified format is not recognised!\n");
         addIdamError(&idamerrorstack, CODEERRORTYPE, "imas delete", err,
                      "the specified format is not recognised!");
         return err;
@@ -2094,7 +2091,7 @@ static int do_source(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARGS p
 
     if (next_request_block.request < 0) {
         err = 999;
-        idamLog(LOG_ERROR, "imas source: No IDAM server plugin found!\n");
+        IDAM_LOG(LOG_ERROR, "imas source: No IDAM server plugin found!\n");
         addIdamError(&idamerrorstack, CODEERRORTYPE, "imas delete", err, "No IDAM server plugin found!");
         return err;
     }
@@ -2106,7 +2103,7 @@ static int do_source(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARGS p
         err = plugin_list->plugin[id].idamPlugin(&next_plugin_interface);        // Call the data reader
     } else {
         err = 999;
-        idamLog(LOG_ERROR, "imas source: Data Access is not available for this data request!\n");
+        IDAM_LOG(LOG_ERROR, "imas source: Data Access is not available for this data request!\n");
         addIdamError(&idamerrorstack, CODEERRORTYPE, "Data Access is not available for this data request!", err,
                      "");
         return err;
@@ -2127,7 +2124,7 @@ static int do_putIdsVersion(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN
 
     if (!plugin_args.isImasIdsVersion && !plugin_args.isImasIdsDevice) {
         err = 999;
-        idamLog(LOG_ERROR, "imas version: An IDS Version number or a Device name is required!\n");
+        IDAM_LOG(LOG_ERROR, "imas version: An IDS Version number or a Device name is required!\n");
         addIdamError(&idamerrorstack, CODEERRORTYPE, "putCDF4", err,
                      "An IDS Version number or a Device name is required!");
         return err;
@@ -2138,7 +2135,7 @@ static int do_putIdsVersion(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN
 
 // Return the Status OK
 
-    int* data = (int*) malloc(sizeof(int));
+    int* data = (int*)malloc(sizeof(int));
     data[0] = 1;
 
     DATA_BLOCK* data_block = idam_plugin_interface->data_block;
@@ -2147,7 +2144,7 @@ static int do_putIdsVersion(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN
     data_block->rank = 0;
     data_block->dims = NULL;
     data_block->data_type = TYPE_INT;
-    data_block->data = (char*) data;
+    data_block->data = (char*)data;
     data_block->data_n = 1;
 
     return err;
@@ -2177,7 +2174,7 @@ static int do_delete(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARGS p
 
 // Return the data
 
-    int* data = (int*) malloc(sizeof(int));
+    int* data = (int*)malloc(sizeof(int));
     data[0] = rc;
 
     DATA_BLOCK* data_block = idam_plugin_interface->data_block;
@@ -2185,7 +2182,7 @@ static int do_delete(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARGS p
     initDataBlock(data_block);
     data_block->rank = 0;
     data_block->data_type = TYPE_INT;
-    data_block->data = (char*) data;
+    data_block->data = (char*)data;
     data_block->data_n = 1;
 
     return err;
@@ -2212,7 +2209,7 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
     if (!plugin_args.isGetDimension) {
         if (!plugin_args.isTypeName && !plugin_args.isPutData) {
             err = 999;
-            idamLog(LOG_ERROR, "imas get: The data's Type has not been specified!\n");
+            IDAM_LOG(LOG_ERROR, "imas get: The data's Type has not been specified!\n");
             addIdamError(&idamerrorstack, CODEERRORTYPE, "imas get", err,
                          "The data's Type has not been specified!");
             return err;
@@ -2220,7 +2217,7 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
 
         if ((type = findIMASType(plugin_args.typeName)) == 0) {
             err = 999;
-            idamLog(LOG_ERROR, "imas get: The data's Type name cannot be converted!\n");
+            IDAM_LOG(LOG_ERROR, "imas get: The data's Type name cannot be converted!\n");
             addIdamError(&idamerrorstack, CODEERRORTYPE, "imas get", err,
                          "The data's Type name cannot be converted!");
             return err;
@@ -2229,7 +2226,7 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
 
     if (!plugin_args.isPutData && !plugin_args.isRank && !plugin_args.isGetDimension) {
         err = 999;
-        idamLog(LOG_ERROR, "imas get: The data's Rank has not been specified!\n");
+        IDAM_LOG(LOG_ERROR, "imas get: The data's Rank has not been specified!\n");
         addIdamError(&idamerrorstack, CODEERRORTYPE, "imas get", err,
                      "The data's Rank has not been specified!");
         return err;
@@ -2237,7 +2234,7 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
 
     if (plugin_args.isGetDimension) plugin_args.rank = 7;
 
-    shape = (int*) malloc((plugin_args.rank + 1) * sizeof(int));
+    shape = (int*)malloc((plugin_args.rank + 1) * sizeof(int));
     shape[0] = 1;
 
     int i;
@@ -2285,12 +2282,12 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
         strcpy(plugin_args.path, tmp_path);
         free(tmp_path);
 
-        idamLog(LOG_ERROR, "CPOPath: %s, path: %s, type: %d, rank: %d, shape[0]: %d\n", plugin_args.CPOPath,
+        IDAM_LOGF(LOG_ERROR, "CPOPath: %s, path: %s, type: %d, rank: %d, shape[0]: %d\n", plugin_args.CPOPath,
                 plugin_args.path, type,
                 plugin_args.rank,
                 plugin_args.rank > 0 ? shape[0] : 0);
         rc = imas_mds_getData(idx, plugin_args.CPOPath, plugin_args.path, type, plugin_args.rank, shape,
-                              (void**) &imasData);
+                              (void**)&imasData);
 
         if (rc != 0) {
             // data not in IDS - go to other plugins to try and get it
@@ -2299,11 +2296,11 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
             FIND_REQUIRED_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, expName);
 
             if (expName == NULL) {
-                idamLog(LOG_ERROR, "No IDAM data plugin specified\n");
+                IDAM_LOG(LOG_ERROR, "No IDAM data plugin specified\n");
             } else {
                 int id = findPluginIdByFormat(expName, idam_plugin_interface->pluginList);
                 if (id < 0) {
-                    idamLog(LOG_ERROR, "Specified IDAM data plugin not found\n");
+                    IDAM_LOG(LOG_ERROR, "Specified IDAM data plugin not found\n");
                 } else {
                     PLUGIN_DATA* plugin = &idam_plugin_interface->pluginList->plugin[id];
 
@@ -2315,7 +2312,7 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
                     int get_shape = 0;
 
                     size_t len = strlen(path);
-                    if (len > 5 && (!strcmp(path + (len - 5), "/time") || !strcmp(path + (len - 5), "/data"))) {
+                    if (len > 5 && (STR_EQUALS(path + (len - 5), "/time") || STR_EQUALS(path + (len - 5), "/data"))) {
                         //path[len - 5] = '\0';
                     }
 
@@ -2333,7 +2330,7 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
                     sprintf(new_request.signal, fmt, expName, new_request.api_delim, plugin_args.CPOPath, path,
                             indices_string, shot, get_shape ? ", get_shape" : "");
 
-                    idamLog(LOG_DEBUG, "imas: %s", new_request.signal);
+                    IDAM_LOGF(LOG_DEBUG, "imas: %s", new_request.signal);
 
                     makeServerRequestBlock(&new_request, *idam_plugin_interface->pluginList);
                     printRequestBlock(new_request);
@@ -2352,13 +2349,13 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
                             if (idam_type == TYPE_DOUBLE && data_block->data_type == TYPE_FLOAT) {
                                 imasData = malloc(data_block->data_n * sizeof(double));
                                 for (i = 0; i < data_block->data_n; ++i) {
-                                    ((double*) imasData)[i] = ((float*) data_block->data)[i];
+                                    ((double*)imasData)[i] = ((float*)data_block->data)[i];
                                 }
                                 free(data_block->data);
                                 data_block->data = imasData;
                             } else {
                                 err = 999;
-                                idamLog(LOG_ERROR, "imas get: wrong data type returned\n");
+                                IDAM_LOG(LOG_ERROR, "imas get: wrong data type returned\n");
                                 addIdamError(&idamerrorstack, CODEERRORTYPE, "imas get", err,
                                              "wrong data type returned");
                                 return err;
@@ -2367,7 +2364,7 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
                             imasData = data_block->data;
                         }
                         imas_mds_putData(idx, plugin_args.CPOPath, plugin_args.path, type, plugin_args.rank, shape,
-                                         PUT_OPERATION, (void*) imasData, 0.0);
+                                         PUT_OPERATION, (void*)imasData, 0.0);
                     }
                 }
             }
@@ -2376,7 +2373,7 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
 
         if (!plugin_args.isInterpolMode) {
             err = 999;
-            idamLog(LOG_ERROR, "imas get: No Interpolation Mode has been specified!\n");
+            IDAM_LOG(LOG_ERROR, "imas get: No Interpolation Mode has been specified!\n");
             addIdamError(&idamerrorstack, CODEERRORTYPE, "imas get", err,
                          "No Interpolation Mode has been specified!");
             return err;
@@ -2384,16 +2381,16 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
 
         if (!plugin_args.isPutData || putDataBlock->data_type != TYPE_DOUBLE || putDataBlock->count != 3) {
             err = 999;
-            idamLog(LOG_ERROR, "imas get: No Time Values have been specified!\n");
+            IDAM_LOG(LOG_ERROR, "imas get: No Time Values have been specified!\n");
             addIdamError(&idamerrorstack, CODEERRORTYPE, "imas get", err,
                          "No Time Values have been specified!");
             return err;
         }
 
-        double time = ((double*) putDataBlock->data)[0];
+        double time = ((double*)putDataBlock->data)[0];
 
         rc = imas_mds_getDataSlices(idx, plugin_args.CPOPath, plugin_args.path, type, plugin_args.rank, shape,
-                                    (void**) &imasData, time, &retTime,
+                                    (void**)&imasData, time, &retTime,
                                     plugin_args.interpolMode);
 
     } else if (dataOperation == GETDIMENSION_OPERATION) {
@@ -2415,16 +2412,16 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
         case GETDIMENSION_OPERATION: {
             data_block->rank = 1;
             data_block->data_type = TYPE_INT;
-            data_block->data = (char*) shape;
+            data_block->data = (char*)shape;
             data_block->data_n = plugin_args.rank;
             break;
         }
         case GET_OPERATION: {
             data_block->rank = plugin_args.rank;
             data_block->data_type = findIMASIDAMType(type);
-            data_block->data = (char*) imasData;
+            data_block->data = (char*)imasData;
             if (data_block->data_type == TYPE_STRING && plugin_args.rank <= 1) {
-                data_block->data_n = strlen((char*) imasData) + 1;
+                data_block->data_n = strlen((char*)imasData) + 1;
                 shape[0] = data_block->data_n;
             } else {
                 data_block->data_n = shape[0];
@@ -2438,7 +2435,7 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
             // coordinate array of length 1
             data_block->rank = plugin_args.rank;
             data_block->data_type = findIMASIDAMType(type);
-            data_block->data = (char*) imasData;
+            data_block->data = (char*)imasData;
             data_block->data_n = shape[0];
             for (i = 1; i < plugin_args.rank; i++)data_block->data_n *= shape[i];
             break;
@@ -2448,7 +2445,7 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
 // Return dimensions
 
     if (data_block->rank > 0 || dataOperation == GETSLICE_OPERATION) {
-        data_block->dims = (DIMS*) malloc((data_block->rank + 1) * sizeof(DIMS));
+        data_block->dims = (DIMS*)malloc((data_block->rank + 1) * sizeof(DIMS));
         for (i = 0; i < data_block->rank; i++) {
             initDimBlock(&data_block->dims[i]);
             data_block->dims[i].dim_n = shape[i];
@@ -2465,9 +2462,9 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
             data_block->dims[plugin_args.rank].dim_n = 1;
             data_block->dims[plugin_args.rank].data_type = TYPE_DOUBLE;
             data_block->dims[plugin_args.rank].compressed = 0;
-            double* sliceTime = (double*) malloc(sizeof(double));
+            double* sliceTime = (double*)malloc(sizeof(double));
             *sliceTime = retTime;
-            data_block->dims[plugin_args.rank].dim = (char*) sliceTime;
+            data_block->dims[plugin_args.rank].dim = (char*)sliceTime;
         }
     }
 
@@ -2528,26 +2525,26 @@ time	- the time slice to be written - from a PUTDATA block (putSlice keyword)
             if (putDataBlockList->putDataBlock[i].blockName == NULL) {
                 if (putDataBlockList->blockCount > 1) {
                     err = 999;
-                    idamLog(LOG_ERROR, "imas: Multiple un-named data items - ambiguous!\n");
+                    IDAM_LOG(LOG_ERROR, "imas: Multiple un-named data items - ambiguous!\n");
                     addIdamError(&idamerrorstack, CODEERRORTYPE, "imas", err,
                                  "Multiple un-named data items - ambiguous!");
                     return err;
                 }
                 varDataIndex = i;
                 break;
-            } else if (!strcasecmp(putDataBlockList->putDataBlock[i].blockName, "variable") ||
-                       !strcasecmp(putDataBlockList->putDataBlock[i].blockName, "data") ||
+            } else if (STR_IEQUALS(putDataBlockList->putDataBlock[i].blockName, "variable") ||
+                       STR_IEQUALS(putDataBlockList->putDataBlock[i].blockName, "data") ||
                        (plugin_args.isPath &&
-                        !strcasecmp(putDataBlockList->putDataBlock[i].blockName, plugin_args.path))) {
+                        STR_IEQUALS(putDataBlockList->putDataBlock[i].blockName, plugin_args.path))) {
                 varDataIndex = i;
                 break;
             }
         }
         for (i = 0; i < putDataBlockList->blockCount; i++) {
             if (putDataBlockList->putDataBlock[i].blockName != NULL && (
-                    !strcasecmp(putDataBlockList->putDataBlock[i].blockName, "putDataTime") ||
-                    !strcasecmp(putDataBlockList->putDataBlock[i].blockName, "time"))) {
-                putDataSliceTime = ((double*) putDataBlockList->putDataBlock[i].data)[0];
+                    STR_IEQUALS(putDataBlockList->putDataBlock[i].blockName, "putDataTime") ||
+                    STR_IEQUALS(putDataBlockList->putDataBlock[i].blockName, "time"))) {
+                putDataSliceTime = ((double*)putDataBlockList->putDataBlock[i].data)[0];
                 isTime = 1;
                 break;
             }
@@ -2560,17 +2557,17 @@ time	- the time slice to be written - from a PUTDATA block (putSlice keyword)
 
         if (varDataIndex < 0 && plugin_args.isShapeString) {
             if ((dataRank = getIdamNameValuePairVarArray(plugin_args.shapeString, plugin_args.quote,
-                                                         plugin_args.delimiter, (unsigned short) plugin_args.rank,
-                                                         TYPE_INT, (void**) &shape)) < 0) {
+                                                         plugin_args.delimiter, (unsigned short)plugin_args.rank,
+                                                         TYPE_INT, (void**)&shape)) < 0) {
                 err = -dataRank;
-                idamLog(LOG_ERROR, "imas put: Unable to convert the passed shape values!\n");
+                IDAM_LOG(LOG_ERROR, "imas put: Unable to convert the passed shape values!\n");
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "imas put", err,
                              "Unable to convert the passed shape value!");
                 return err;
             }
             if (plugin_args.isRank && plugin_args.rank != dataRank) {
                 err = 999;
-                idamLog(LOG_ERROR, "imas put: The passed rank is inconsistent with the passed shape data!\n");
+                IDAM_LOG(LOG_ERROR, "imas put: The passed rank is inconsistent with the passed shape data!\n");
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "imas put", err,
                              "The passed rank is inconsistent with the passed shape data!");
                 return err;
@@ -2589,7 +2586,7 @@ time	- the time slice to be written - from a PUTDATA block (putSlice keyword)
 
             if ((idamType = findIdamType(plugin_args.typeName)) == TYPE_UNDEFINED) {
                 err = 999;
-                idamLog(LOG_ERROR, "imas put: The data's Type name cannot be converted!\n");
+                IDAM_LOG(LOG_ERROR, "imas put: The data's Type name cannot be converted!\n");
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "imas put", err,
                              "The data's Type name cannot be converted!");
                 return err;
@@ -2597,17 +2594,17 @@ time	- the time slice to be written - from a PUTDATA block (putSlice keyword)
 
             if ((dataCount = getIdamNameValuePairVarArray(plugin_args.dataString, plugin_args.quote,
                                                           plugin_args.delimiter,
-                                                          (unsigned short) shapeCount, idamType,
-                                                          (void**) &data)) < 0) {
+                                                          (unsigned short)shapeCount, idamType,
+                                                          (void**)&data)) < 0) {
                 err = -dataCount;
-                idamLog(LOG_ERROR, "imas put: Unable to convert the passed data values!\n");
+                IDAM_LOG(LOG_ERROR, "imas put: Unable to convert the passed data values!\n");
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "imas put", err,
                              "Unable to convert the passed data value!");
                 return err;
             }
             if (plugin_args.isShapeString && shapeCount != dataCount) {
                 err = 999;
-                idamLog(LOG_ERROR, "imas put: Inconsistent count of Data items!\n");
+                IDAM_LOG(LOG_ERROR, "imas put: Inconsistent count of Data items!\n");
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "imas put", err,
                              "Inconsistent count of Data items!");
                 return err;
@@ -2634,7 +2631,7 @@ time	- the time slice to be written - from a PUTDATA block (putSlice keyword)
 
         if (varDataIndex < 0 && !plugin_args.isDataString) {
             err = 999;
-            idamLog(LOG_ERROR, "imas put: Unable to Identify the data to PUT!\n");
+            IDAM_LOG(LOG_ERROR, "imas put: Unable to Identify the data to PUT!\n");
             addIdamError(&idamerrorstack, CODEERRORTYPE, "imas put", err,
                          "Unable to Identify the data to PUT!");
             return err;
@@ -2646,7 +2643,7 @@ time	- the time slice to be written - from a PUTDATA block (putSlice keyword)
             if ((type = findIMASType(convertIdam2StringType(putDataBlock->data_type))) ==
                 0) {        // Convert an IDAM type to an IMAS type
                 err = 999;
-                idamLog(LOG_ERROR, "imas put: The data's Type cannot be converted!\n");
+                IDAM_LOG(LOG_ERROR, "imas put: The data's Type cannot be converted!\n");
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "imas put", err,
                              "The data's Type cannot be converted!");
                 return err;
@@ -2659,7 +2656,7 @@ time	- the time slice to be written - from a PUTDATA block (putSlice keyword)
 
         if (!plugin_args.isTypeName) {
             err = 999;
-            idamLog(LOG_ERROR, "imas put: The data's Type has not been specified!\n");
+            IDAM_LOG(LOG_ERROR, "imas put: The data's Type has not been specified!\n");
             addIdamError(&idamerrorstack, CODEERRORTYPE, "imas put", err,
                          "The data's Type has not been specified!");
             return err;
@@ -2667,7 +2664,7 @@ time	- the time slice to be written - from a PUTDATA block (putSlice keyword)
 
         if ((type = findIMASType(plugin_args.typeName)) == 0) {
             err = 999;
-            idamLog(LOG_ERROR, "imas put: The data's Type name cannot be converted!\n");
+            IDAM_LOG(LOG_ERROR, "imas put: The data's Type name cannot be converted!\n");
             addIdamError(&idamerrorstack, CODEERRORTYPE, "imas put", err,
                          "The data's Type name cannot be converted!");
             return err;
@@ -2680,14 +2677,14 @@ time	- the time slice to be written - from a PUTDATA block (putSlice keyword)
 
     if (!plugin_args.isDataString && !isVarData) {
         err = 999;
-        idamLog(LOG_ERROR, "imas put: No data has been specified!\n");
+        IDAM_LOG(LOG_ERROR, "imas put: No data has been specified!\n");
         addIdamError(&idamerrorstack, CODEERRORTYPE, "imas put", err, "No data has been specified!");
         return err;
     }
 
     if (plugin_args.isPutDataSlice && !isTime) {
         err = 999;
-        idamLog(LOG_ERROR, "imas put: No specific time has been specified!\n");
+        IDAM_LOG(LOG_ERROR, "imas put: No specific time has been specified!\n");
         addIdamError(&idamerrorstack, CODEERRORTYPE, "imas put", err, "No specific time has been specified!");
         return err;
     }
@@ -2708,24 +2705,24 @@ time	- the time slice to be written - from a PUTDATA block (putSlice keyword)
             plugin_args.isRank = 1;
             isShape = 1;
             plugin_args.rank = 0;
-            shape = (int*) malloc(sizeof(int));
+            shape = (int*)malloc(sizeof(int));
             shape[0] = 1;
             shapeCount = 1;
         }
 
         if (plugin_args.isShapeString) {
             if ((dataRank = getIdamNameValuePairVarArray(plugin_args.shapeString, plugin_args.quote,
-                                                         plugin_args.delimiter, (unsigned short) plugin_args.rank,
-                                                         TYPE_INT, (void**) &shape)) < 0) {
+                                                         plugin_args.delimiter, (unsigned short)plugin_args.rank,
+                                                         TYPE_INT, (void**)&shape)) < 0) {
                 err = -dataRank;
-                idamLog(LOG_ERROR, "imas put: Unable to convert the passed shape values!\n");
+                IDAM_LOG(LOG_ERROR, "imas put: Unable to convert the passed shape values!\n");
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "imas put", err,
                              "Unable to convert the passed shape value!");
                 return err;
             }
             if (plugin_args.isRank && plugin_args.rank != dataRank) {
                 err = 999;
-                idamLog(LOG_ERROR, "imas put: The passed rank is inconsistent with the passed shape data!\n");
+                IDAM_LOG(LOG_ERROR, "imas put: The passed rank is inconsistent with the passed shape data!\n");
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "imas put", err,
                              "The passed rank is inconsistent with the passed shape data!");
                 return err;
@@ -2745,7 +2742,7 @@ time	- the time slice to be written - from a PUTDATA block (putSlice keyword)
 
             if ((idamType = findIdamType(plugin_args.typeName)) == TYPE_UNDEFINED) {
                 err = 999;
-                idamLog(LOG_ERROR, "imas put: The data's Type name cannot be converted!\n");
+                IDAM_LOG(LOG_ERROR, "imas put: The data's Type name cannot be converted!\n");
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "imas put", err,
                              "The data's Type name cannot be converted!");
                 return err;
@@ -2753,17 +2750,17 @@ time	- the time slice to be written - from a PUTDATA block (putSlice keyword)
 
             if ((dataCount = getIdamNameValuePairVarArray(plugin_args.dataString, plugin_args.quote,
                                                           plugin_args.delimiter,
-                                                          (unsigned short) shapeCount, idamType,
-                                                          (void**) &data)) < 0) {
+                                                          (unsigned short)shapeCount, idamType,
+                                                          (void**)&data)) < 0) {
                 err = -dataCount;
-                idamLog(LOG_ERROR, "imas put: Unable to convert the passed data values!\n");
+                IDAM_LOG(LOG_ERROR, "imas put: Unable to convert the passed data values!\n");
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "imas put", err,
                              "Unable to convert the passed data value!");
                 return err;
             }
             if (shapeCount != dataCount) {
                 err = 999;
-                idamLog(LOG_ERROR, "imas put: Inconsistent count of Data items!\n");
+                IDAM_LOG(LOG_ERROR, "imas put: Inconsistent count of Data items!\n");
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "imas put", err,
                              "Inconsistent count of Data items!");
                 return err;
@@ -2775,7 +2772,7 @@ time	- the time slice to be written - from a PUTDATA block (putSlice keyword)
 
         if (!plugin_args.isCPOPath || !plugin_args.isPath || !isType || !plugin_args.isRank || !isShape || !isData) {
             err = 999;
-            idamLog(LOG_ERROR, "imas put: Insufficient data parameters passed - put not possible!\n");
+            IDAM_LOG(LOG_ERROR, "imas put: Insufficient data parameters passed - put not possible!\n");
             addIdamError(&idamerrorstack, CODEERRORTYPE, "imas put", err,
                          "Insufficient data parameters passed - put not possible!");
             return err;
@@ -2785,17 +2782,17 @@ time	- the time slice to be written - from a PUTDATA block (putSlice keyword)
 
         if (dataOperation == PUT_OPERATION) {
             rc = imas_mds_putData(idx, plugin_args.CPOPath, plugin_args.path, type, plugin_args.rank, shape,
-                                  plugin_args.isTimed, (void*) data,
+                                  plugin_args.isTimed, (void*)data,
                                   putDataSliceTime);
         } else {
             if (dataOperation == PUTSLICE_OPERATION) {
                 err = 999;
-                idamLog(LOG_ERROR, "imas put: Slice Time not passed!\n");
+                IDAM_LOG(LOG_ERROR, "imas put: Slice Time not passed!\n");
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "imas put", err, "Slice Time not passed!");
                 return err;
             } else {
                 rc = imas_mds_putDataX(idx, plugin_args.CPOPath, plugin_args.path, type, plugin_args.rank, shape,
-                                       dataOperation, (void*) data,
+                                       dataOperation, (void*)data,
                                        0.0);    // Replace Last Slice
             }
         }
@@ -2804,15 +2801,15 @@ time	- the time slice to be written - from a PUTDATA block (putSlice keyword)
 
 // Housekeeping heap
 
-        if (shape != NULL) free((void*) shape);
-        if (data != NULL) free((void*) data);
+        if (shape != NULL) free((void*)shape);
+        if (data != NULL) free((void*)data);
 
     } else {        // !isPutData
 
 // dgm 30Jul2015         if(!isCPOPath || !isPath || (dataOperation == PUT_OPERATION && !isTimedArg))
         if (!plugin_args.isCPOPath || !plugin_args.isPath) {
             err = 999;
-            idamLog(LOG_ERROR, "imas put: Insufficient data parameters passed - put not possible!\n");
+            IDAM_LOG(LOG_ERROR, "imas put: Insufficient data parameters passed - put not possible!\n");
             addIdamError(&idamerrorstack, CODEERRORTYPE, "imas put", err,
                          "Insufficient data parameters passed - put not possible!");
             return err;
@@ -2822,12 +2819,12 @@ time	- the time slice to be written - from a PUTDATA block (putSlice keyword)
         if (putDataBlock->shape == NULL) {
             if (putDataBlock->rank > 1) {
                 err = 999;
-                idamLog(LOG_ERROR, "imas put: No shape information passed!\n");
+                IDAM_LOG(LOG_ERROR, "imas put: No shape information passed!\n");
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "imas put", err, "No shape information passed!");
                 return err;
             }
 
-            putDataBlock->shape = (int*) malloc(sizeof(int));
+            putDataBlock->shape = (int*)malloc(sizeof(int));
             putDataBlock->shape[0] = putDataBlock->count;
             freeShape = 1;
         }
@@ -2836,38 +2833,38 @@ time	- the time slice to be written - from a PUTDATA block (putSlice keyword)
         if (dataOperation == PUT_OPERATION) {
             rc = imas_mds_putData(idx, plugin_args.CPOPath, plugin_args.path, type, putDataBlock->rank,
                                   putDataBlock->shape, plugin_args.isTimed,
-                                  (void*) putDataBlock->data, putDataSliceTime);
+                                  (void*)putDataBlock->data, putDataSliceTime);
         } else {
             if (dataOperation == PUTSLICE_OPERATION) {
                 PUTDATA_BLOCK* putTimeBlock = NULL;
                 int i;
                 for (i = 0; i < putDataBlockList->blockCount; i++) {
-                    if (!strcasecmp(putDataBlockList->putDataBlock[i].blockName, "time") ||
-                        !strcasecmp(putDataBlockList->putDataBlock[i].blockName, "putDataTime")) {
+                    if (STR_IEQUALS(putDataBlockList->putDataBlock[i].blockName, "time") ||
+                        STR_IEQUALS(putDataBlockList->putDataBlock[i].blockName, "putDataTime")) {
                         putTimeBlock = &putDataBlockList->putDataBlock[i];
                         break;
                     }
                 }
                 if (putTimeBlock == NULL) {
                     err = 999;
-                    idamLog(LOG_ERROR, "imas put: No Slice Time!\n");
+                    IDAM_LOG(LOG_ERROR, "imas put: No Slice Time!\n");
                     addIdamError(&idamerrorstack, CODEERRORTYPE, "imas put", err, "No Slice Time!");
                     return err;
                 }
                 if (putTimeBlock->data_type != TYPE_DOUBLE || putTimeBlock->count != 1) {
                     err = 999;
-                    idamLog(LOG_ERROR, "imas put: Slice Time type and count are incorrect!\n");
+                    IDAM_LOG(LOG_ERROR, "imas put: Slice Time type and count are incorrect!\n");
                     addIdamError(&idamerrorstack, CODEERRORTYPE, "imas put", err,
                                  "Slice Time type and count are incorrect!");
                     return err;
                 }
                 rc = imas_mds_putDataX(idx, plugin_args.CPOPath, plugin_args.path, type, putDataBlock->rank,
                                        putDataBlock->shape,
-                                       dataOperation, (void*) putDataBlock->data, putDataSliceTime);
+                                       dataOperation, (void*)putDataBlock->data, putDataSliceTime);
             } else {
                 rc = imas_mds_putDataX(idx, plugin_args.CPOPath, plugin_args.path, type, putDataBlock->rank,
                                        putDataBlock->shape,
-                                       dataOperation, (void*) putDataBlock->data,
+                                       dataOperation, (void*)putDataBlock->data,
                                        0.0);    // Replace Last Slice
             }
         }
@@ -2875,7 +2872,7 @@ time	- the time slice to be written - from a PUTDATA block (putSlice keyword)
         if (rc < 0) err = 999;
 
         if (freeShape && putDataBlock->shape) {
-            free((void*) putDataBlock->shape);
+            free((void*)putDataBlock->shape);
             putDataBlock->shape = NULL;
             freeShape = 0;
         }
@@ -2893,12 +2890,12 @@ time	- the time slice to be written - from a PUTDATA block (putSlice keyword)
     {
         DATA_BLOCK* data_block = idam_plugin_interface->data_block;
 
-        int* data = (int*) malloc(sizeof(int));
+        int* data = (int*)malloc(sizeof(int));
         data[0] = OK_RETURN_VALUE;
         initDataBlock(data_block);
         data_block->rank = 0;
         data_block->data_type = TYPE_INT;
-        data_block->data = (char*) data;
+        data_block->data = (char*)data;
         data_block->data_n = 1;
     }
 
@@ -2922,7 +2919,7 @@ retIdx	- returned data file index number
 
     if (!plugin_args.isFileName || !plugin_args.isShotNumber || !plugin_args.isRunNumber) {
         err = 999;
-        idamLog(LOG_ERROR, "imas_mds: A Filename, Shot number and Run number are required!\n");
+        IDAM_LOG(LOG_ERROR, "imas_mds: A Filename, Shot number and Run number are required!\n");
         addIdamError(&idamerrorstack, CODEERRORTYPE, "imas_mds", err,
                      "A Filename, Shot number and Run number are required!");
         return err;
@@ -2936,7 +2933,7 @@ retIdx	- returned data file index number
 
 // Return the Index Number
 
-    int* data = (int*) malloc(sizeof(int));
+    int* data = (int*)malloc(sizeof(int));
     data[0] = idx;
 
     DATA_BLOCK* data_block = idam_plugin_interface->data_block;
@@ -2945,7 +2942,7 @@ retIdx	- returned data file index number
     data_block->rank = 0;
     data_block->dims = NULL;
     data_block->data_type = TYPE_INT;
-    data_block->data = (char*) data;
+    data_block->data = (char*)data;
     data_block->data_n = 1;
 
 // Register the file
@@ -2982,7 +2979,7 @@ retIdx	- returned data file index number
 
     if (!plugin_args.isFileName || !plugin_args.isShotNumber || !plugin_args.isRunNumber) {
         err = 999;
-        idamLog(LOG_ERROR, "imas: A Filename, Shot number and Run number are required!\n");
+        IDAM_LOG(LOG_ERROR, "imas: A Filename, Shot number and Run number are required!\n");
         addIdamError(&idamerrorstack, CODEERRORTYPE, "imas", err,
                      "A Filename, Shot number and Run number are required!");
         return err;
@@ -3007,7 +3004,7 @@ retIdx	- returned data file index number
 
 // Return the Index Number
 
-    int* data = (int*) malloc(sizeof(int));
+    int* data = (int*)malloc(sizeof(int));
     data[0] = idx;
 
     DATA_BLOCK* data_block = idam_plugin_interface->data_block;
@@ -3016,7 +3013,7 @@ retIdx	- returned data file index number
     data_block->rank = 0;
     data_block->dims = NULL;
     data_block->data_type = TYPE_INT;
-    data_block->data = (char*) data;
+    data_block->data = (char*)data;
     data_block->data_n = 1;
 
 // Register the file
@@ -3040,7 +3037,7 @@ static int do_close(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARGS pl
 
     if (!plugin_args.isClientIdx && !(plugin_args.isFileName && plugin_args.isShotNumber && plugin_args.isRunNumber)) {
         err = 999;
-        idamLog(LOG_ERROR,
+        IDAM_LOG(LOG_ERROR,
                 "imas: The file IDX or the Filename with Shot number and Run number are required!\n");
         addIdamError(&idamerrorstack, CODEERRORTYPE, "imas", err,
                      "The file IDX or the Filename with Shot number and Run number are required!");
@@ -3085,7 +3082,7 @@ static int do_close(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARGS pl
 
 // Return Success
 
-    int* data = (int*) malloc(sizeof(int));
+    int* data = (int*)malloc(sizeof(int));
     data[0] = OK_RETURN_VALUE;
 
     DATA_BLOCK* data_block = idam_plugin_interface->data_block;
@@ -3094,7 +3091,7 @@ static int do_close(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARGS pl
     data_block->rank = 0;
     data_block->dims = NULL;
     data_block->data_type = TYPE_INT;
-    data_block->data = (char*) data;
+    data_block->data = (char*)data;
     data_block->data_n = 1;
 
     return err;
@@ -3107,14 +3104,14 @@ static int do_close(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARGS pl
 static int do_createModel(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARGS plugin_args)
 {
     int err = 999;
-    idamLog(LOG_ERROR, "imas createModel: Not Implemented for mdsplus!\n");
+    IDAM_LOG(LOG_ERROR, "imas createModel: Not Implemented for mdsplus!\n");
     addIdamError(&idamerrorstack, CODEERRORTYPE, "imas", err, "Not Implemented for mdsplus!");
     return err;
 
 /*
          if(!isFileName){
             err = 999;
-            idamLog(LOG_ERROR, "imas createModel: A Filename is required!\n");
+            IDAM_LOG(LOG_ERROR, "imas createModel: A Filename is required!\n");
             addIdamError(&idamerrorstack, CODEERRORTYPE, "imas", err, "A Filename is required!");
 	    break;
 	 }
@@ -3152,7 +3149,7 @@ static int do_setTimeBasePath(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUG
 
     if (!plugin_args.isPath) {
         err = 999;
-        idamLog(LOG_ERROR, "imas putTimeBasePath: No path has been specified!\n");
+        IDAM_LOG(LOG_ERROR, "imas putTimeBasePath: No path has been specified!\n");
         addIdamError(&idamerrorstack, CODEERRORTYPE, "imas putTimeBasePath", err,
                      "No path has been specified!");
         return err;
@@ -3164,13 +3161,13 @@ static int do_setTimeBasePath(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUG
 
 // Return the Status OK
 
-    int* data = (int*) malloc(sizeof(int));
+    int* data = (int*)malloc(sizeof(int));
     data[0] = OK_RETURN_VALUE;
     initDataBlock(data_block);
     data_block->rank = 0;
     data_block->dims = NULL;
     data_block->data_type = TYPE_INT;
-    data_block->data = (char*) data;
+    data_block->data = (char*)data;
     data_block->data_n = 1;
 
     return err;
@@ -3189,7 +3186,7 @@ static int do_releaseObject(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN
 
     if (!plugin_args.isPutData) {
         err = 999;
-        idamLog(LOG_ERROR, "imas releaseObject: Insufficient data parameters passed - begin not possible!\n");
+        IDAM_LOG(LOG_ERROR, "imas releaseObject: Insufficient data parameters passed - begin not possible!\n");
         addIdamError(&idamerrorstack, CODEERRORTYPE, "imas releaseObject", err,
                      "Insufficient data parameters passed - begin not possible!");
         return err;
@@ -3204,7 +3201,7 @@ static int do_releaseObject(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN
 
 // Identify the local object
 
-    void* obj = findLocalObj(*((int*) putDataBlock->data));
+    void* obj = findLocalObj(*((int*)putDataBlock->data));
 
     if (obj == NULL) obj = mdsBeginObject();
 
@@ -3220,8 +3217,8 @@ static int do_releaseObject(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN
     data_block->rank = 0;
     data_block->data_n = 1;
     data_block->data_type = TYPE_INT;
-    data_block->data = (char*) malloc(sizeof(int));
-    *((int*) data_block->data) = OK_RETURN_VALUE;
+    data_block->data = (char*)malloc(sizeof(int));
+    *((int*)data_block->data) = OK_RETURN_VALUE;
 
     return err;
 }
@@ -3241,7 +3238,7 @@ static int do_getObjectObject(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUG
 
     if (!plugin_args.isPutData || !plugin_args.isIndex || !plugin_args.isPath) {
         err = 999;
-        idamLog(LOG_ERROR,
+        IDAM_LOG(LOG_ERROR,
                 "imas getObjectObject: Insufficient data parameters passed - begin not possible!\n");
         addIdamError(&idamerrorstack, CODEERRORTYPE, "imas getObjectObject", err,
                      "Insufficient data parameters passed - begin not possible!");
@@ -3257,7 +3254,7 @@ static int do_getObjectObject(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUG
 
 // Identify the local object
 
-    void* obj = findLocalObj(*((int*) putDataBlock->data));
+    void* obj = findLocalObj(*((int*)putDataBlock->data));
 
     if (obj == NULL) obj = mdsBeginObject();
 
@@ -3274,7 +3271,7 @@ static int do_getObjectObject(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUG
 
 // Save the object reference
 
-    int* refId = (int*) malloc(sizeof(int));
+    int* refId = (int*)malloc(sizeof(int));
     refId[0] = putLocalObj(dataObj);
 
     DATA_BLOCK* data_block = idam_plugin_interface->data_block;
@@ -3284,7 +3281,7 @@ static int do_getObjectObject(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUG
     initDataBlock(data_block);
     data_block->rank = 0;
     data_block->data_type = TYPE_INT;
-    data_block->data = (char*) refId;
+    data_block->data = (char*)refId;
     data_block->data_n = 1;
 
     return err;
@@ -3311,7 +3308,7 @@ static int do_getObjectSlice(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGI
     if (!plugin_args.isPutData || !plugin_args.isClientIdx || !plugin_args.isPath || !plugin_args.isCPOPath ||
         putDataBlockList->blockCount != 3) {
         err = 999;
-        idamLog(LOG_ERROR, "imas getObjectSlice: Insufficient data parameters passed - begin not possible!\n");
+        IDAM_LOG(LOG_ERROR, "imas getObjectSlice: Insufficient data parameters passed - begin not possible!\n");
         addIdamError(&idamerrorstack, CODEERRORTYPE, "imas getObjectSlice", err,
                      "Insufficient data parameters passed - begin not possible!");
         return err;
@@ -3319,8 +3316,8 @@ static int do_getObjectSlice(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGI
 
 // Set global variables
 
-    setSliceIdx(((int*) putDataBlock[1].data)[0], ((int*) putDataBlock[1].data)[1]);
-    setSliceTime(((double*) putDataBlock[2].data)[0], ((double*) putDataBlock[2].data)[1]);
+    setSliceIdx(((int*)putDataBlock[1].data)[0], ((int*)putDataBlock[1].data)[1]);
+    setSliceTime(((double*)putDataBlock[2].data)[0], ((double*)putDataBlock[2].data)[1]);
 
 // Identify the local object
 
@@ -3332,7 +3329,7 @@ static int do_getObjectSlice(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGI
 
     void* dataObj = NULL;
     rc = mdsGetObjectSlice(plugin_args.clientIdx, plugin_args.CPOPath, plugin_args.path,
-                           *((double*) putDataBlock[0].data), &dataObj);
+                           *((double*)putDataBlock[0].data), &dataObj);
 
     if (rc < 0) {
         err = 999;
@@ -3342,7 +3339,7 @@ static int do_getObjectSlice(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGI
 
 // Save the object reference
 
-    int* refId = (int*) malloc(sizeof(int));
+    int* refId = (int*)malloc(sizeof(int));
     refId[0] = putLocalObj(dataObj);
 
     DATA_BLOCK* data_block = idam_plugin_interface->data_block;
@@ -3352,7 +3349,7 @@ static int do_getObjectSlice(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGI
     initDataBlock(data_block);
     data_block->rank = 0;
     data_block->data_type = TYPE_INT;
-    data_block->data = (char*) refId;
+    data_block->data = (char*)refId;
     data_block->data_n = 1;
 
     return err;
@@ -3375,7 +3372,7 @@ static int do_getObjectGroup(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGI
 
     if (!plugin_args.isClientIdx || !plugin_args.isCPOPath || !plugin_args.isPath || !plugin_args.isTimedArg) {
         err = 999;
-        idamLog(LOG_ERROR, "imas getObjectGroup: Insufficient data parameters passed - begin not possible!\n");
+        IDAM_LOG(LOG_ERROR, "imas getObjectGroup: Insufficient data parameters passed - begin not possible!\n");
         addIdamError(&idamerrorstack, CODEERRORTYPE, "imas getObjectGroup", err,
                      "Insufficient data parameters passed - begin not possible!");
         return err;
@@ -3394,7 +3391,7 @@ static int do_getObjectGroup(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGI
 
 // Save the object reference
 
-    int* refId = (int*) malloc(sizeof(int));
+    int* refId = (int*)malloc(sizeof(int));
     refId[0] = putLocalObj(dataObj);
 
     DATA_BLOCK* data_block = idam_plugin_interface->data_block;
@@ -3404,7 +3401,7 @@ static int do_getObjectGroup(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGI
     initDataBlock(data_block);
     data_block->rank = 0;
     data_block->data_type = TYPE_INT;
-    data_block->data = (char*) refId;
+    data_block->data = (char*)refId;
     data_block->data_n = 1;
 
     return err;
@@ -3429,7 +3426,7 @@ static int do_getObjectDim(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_
 
     if (!plugin_args.isPutData || putDataBlockList->putDataBlock[0].data == NULL) {
         err = 999;
-        idamLog(LOG_ERROR, "imas getObjectDim: No data object has been specified!\n");
+        IDAM_LOG(LOG_ERROR, "imas getObjectDim: No data object has been specified!\n");
         addIdamError(&idamerrorstack, CODEERRORTYPE, "imas getObjectDim", err,
                      "No data object has been specified!");
         return err;
@@ -3437,13 +3434,13 @@ static int do_getObjectDim(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_
 
 // Identify the local object
 
-    void* obj = findLocalObj(*((int*) putDataBlock[0].data));
+    void* obj = findLocalObj(*((int*)putDataBlock[0].data));
 
     if (obj == NULL) obj = mdsBeginObject();
 
     if (obj == NULL) {
         err = 999;
-        idamLog(LOG_ERROR, "imas getObjectDim: No data object has been found!\n");
+        IDAM_LOG(LOG_ERROR, "imas getObjectDim: No data object has been found!\n");
         addIdamError(&idamerrorstack, CODEERRORTYPE, "imas getObjectDim", err,
                      "No data object has been found!");
         return err;
@@ -3451,7 +3448,7 @@ static int do_getObjectDim(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_
 
     int dim = mdsGetObjectDim(obj);
 
-    int* data = (int*) malloc(sizeof(int));
+    int* data = (int*)malloc(sizeof(int));
     data[0] = dim;
 
     DATA_BLOCK* data_block = idam_plugin_interface->data_block;
@@ -3461,7 +3458,7 @@ static int do_getObjectDim(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_
     initDataBlock(data_block);
     data_block->rank = 0;
     data_block->data_type = TYPE_INT;
-    data_block->data = (char*) data;
+    data_block->data = (char*)data;
     data_block->data_n = 1;
 
     return err;
@@ -3484,7 +3481,7 @@ static int do_beginObject(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_A
 
 // Save the object reference
 
-    int* refId = (int*) malloc(sizeof(int));
+    int* refId = (int*)malloc(sizeof(int));
     refId[0] = putLocalObj(data);
 
     DATA_BLOCK* data_block = idam_plugin_interface->data_block;
@@ -3494,7 +3491,7 @@ static int do_beginObject(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_A
     initDataBlock(data_block);
     data_block->rank = 0;
     data_block->data_type = TYPE_INT;
-    data_block->data = (char*) refId;
+    data_block->data = (char*)refId;
     data_block->data_n = 1;
 
     return err;
@@ -3515,7 +3512,7 @@ static int do_getObject(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARG
         if (!plugin_args.isPath || !plugin_args.isIndex || !plugin_args.isTypeName || !plugin_args.isClientObjectId ||
             !plugin_args.isRank) {
             err = 999;
-            idamLog(LOG_ERROR, "imas getObject: Insufficient data parameters passed - put not possible!\n");
+            IDAM_LOG(LOG_ERROR, "imas getObject: Insufficient data parameters passed - put not possible!\n");
             addIdamError(&idamerrorstack, CODEERRORTYPE, "imas getObject", err,
                          "Insufficient data parameters passed - put not possible!");
             return err;
@@ -3551,10 +3548,10 @@ static int do_getObject(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARG
         initDataBlock(data_block);
         data_block->rank = plugin_args.rank;
         data_block->data_type = findIMASIDAMType(type);
-        data_block->data = (char*) data;
+        data_block->data = (char*)data;
         data_block->data_n = shape[0];
         if (data_block->rank > 0) {
-            data_block->dims = (DIMS*) malloc(data_block->rank * sizeof(DIMS));
+            data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
             int i;
             for (i = 0; i < data_block->rank; i++) {
                 initDimBlock(&data_block->dims[i]);
@@ -3575,7 +3572,7 @@ static int do_getObject(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARG
 
     if (!plugin_args.isPath || !plugin_args.isIndex || !plugin_args.isClientObjectId) {
         err = 999;
-        idamLog(LOG_ERROR, "imas getObject: Insufficient data parameters passed - put not possible!\n");
+        IDAM_LOG(LOG_ERROR, "imas getObject: Insufficient data parameters passed - put not possible!\n");
         addIdamError(&idamerrorstack, CODEERRORTYPE, "imas getObject", err,
                      "Insufficient data parameters passed - put not possible!");
         return err;
@@ -3589,7 +3586,7 @@ static int do_getObject(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARG
 
 // The type passed here is the IMAS type enumeration
 
-    int* shape = (int*) malloc(7 * sizeof(int));
+    int* shape = (int*)malloc(7 * sizeof(int));
     int numDims = 0;
 
     rc = mdsGetDimensionFromObject(-1, obj, plugin_args.path, plugin_args.index, &numDims, &(shape[0]), &(shape[1]),
@@ -3609,10 +3606,10 @@ static int do_getObject(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARG
     initDataBlock(data_block);
     data_block->rank = 1;
     data_block->data_type = TYPE_INT;
-    data_block->data = (char*) shape;
+    data_block->data = (char*)shape;
     data_block->data_n = numDims;
 
-    data_block->dims = (DIMS*) malloc(data_block->rank * sizeof(DIMS));
+    data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
     initDimBlock(&data_block->dims[0]);
     data_block->dims[0].dim_n = numDims;
     data_block->dims[0].data_type = TYPE_UNSIGNED_INT;
@@ -3639,7 +3636,7 @@ static int do_putObject(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARG
 
     if (!plugin_args.isPath || !plugin_args.isIndex || !plugin_args.isPutData || putDataBlockList->blockCount != 2) {
         err = 999;
-        idamLog(LOG_ERROR, "imas putObject: Insufficient data parameters passed - put not possible!\n");
+        IDAM_LOG(LOG_ERROR, "imas putObject: Insufficient data parameters passed - put not possible!\n");
         addIdamError(&idamerrorstack, CODEERRORTYPE, "imas putObject", err,
                      "Insufficient data parameters passed - put not possible!");
         return err;
@@ -3648,7 +3645,7 @@ static int do_putObject(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARG
     // Convert an IDAM type to an IMAS type
     if ((type = findIMASType(convertIdam2StringType(putDataBlockList->putDataBlock[1].data_type))) == 0) {
         err = 999;
-        idamLog(LOG_ERROR, "imas putObject: The data's Type cannot be converted!\n");
+        IDAM_LOG(LOG_ERROR, "imas putObject: The data's Type cannot be converted!\n");
         addIdamError(&idamerrorstack, CODEERRORTYPE, "imas putObject", err,
                      "The data's Type cannot be converted!");
         return err;
@@ -3658,7 +3655,7 @@ static int do_putObject(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARG
 
     if (putDataBlockList->putDataBlock[1].data == NULL) {
         err = 999;
-        idamLog(LOG_ERROR, "imas putObject: No data has been specified!\n");
+        IDAM_LOG(LOG_ERROR, "imas putObject: No data has been specified!\n");
         addIdamError(&idamerrorstack, CODEERRORTYPE, "imas putObject", err, "No data has been specified!");
         return err;
     }
@@ -3667,7 +3664,7 @@ static int do_putObject(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARG
 
     if (putDataBlockList->putDataBlock[0].data == NULL) {
         err = 999;
-        idamLog(LOG_ERROR, "imas putObject: No data object has been specified!\n");
+        IDAM_LOG(LOG_ERROR, "imas putObject: No data object has been specified!\n");
         addIdamError(&idamerrorstack, CODEERRORTYPE, "imas putObject", err,
                      "No data object has been specified!");
         return err;
@@ -3675,7 +3672,7 @@ static int do_putObject(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARG
 
 // Identify the local object
 
-    void* obj = findLocalObj(((int*) putDataBlockList->putDataBlock[0].data)[0]);
+    void* obj = findLocalObj(((int*)putDataBlockList->putDataBlock[0].data)[0]);
 
     if (obj == NULL) obj = mdsBeginObject();
 
@@ -3710,14 +3707,14 @@ static int do_putObject(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARG
 
 // Return the Object Reference
 
-    int* data = (int*) malloc(sizeof(int));
+    int* data = (int*)malloc(sizeof(int));
     data[0] = refId;
 
     initDataBlock(data_block);
     data_block->rank = 0;
     data_block->dims = NULL;
     data_block->data_type = TYPE_INT;
-    data_block->data = (char*) data;
+    data_block->data = (char*)data;
     data_block->data_n = 1;
 
     return err;
@@ -3742,7 +3739,7 @@ static int do_putObjectInObject(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PL
 
     if (!plugin_args.isPath || !plugin_args.isIndex || !plugin_args.isPutData || putDataBlock->count != 2) {
         err = 999;
-        idamLog(LOG_ERROR,
+        IDAM_LOG(LOG_ERROR,
                 "imas putObjectInObject: Insufficient data parameters passed - put not possible!\n");
         addIdamError(&idamerrorstack, CODEERRORTYPE, "imas putObjectInObject", err,
                      "Insufficient data parameters passed - put not possible!");
@@ -3753,7 +3750,7 @@ static int do_putObjectInObject(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PL
 
     if (putDataBlock->data == NULL || putDataBlock->data_type != TYPE_INT) {
         err = 999;
-        idamLog(LOG_ERROR, "imas putObjectInObject: No data has been specified!\n");
+        IDAM_LOG(LOG_ERROR, "imas putObjectInObject: No data has been specified!\n");
         addIdamError(&idamerrorstack, CODEERRORTYPE, "imas putObjectInObject", err,
                      "No data has been specified!");
         return err;
@@ -3761,8 +3758,8 @@ static int do_putObjectInObject(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PL
 
 // Identify the local object and object to be inserted
 
-    void* obj = findLocalObj(((int*) putDataBlock->data)[0]);
-    void* dataObj = findLocalObj(((int*) putDataBlock->data)[1]);
+    void* obj = findLocalObj(((int*)putDataBlock->data)[0]);
+    void* dataObj = findLocalObj(((int*)putDataBlock->data)[1]);
 
     if (obj == NULL) obj = mdsBeginObject();
     if (dataObj == NULL) dataObj = mdsBeginObject();
@@ -3785,14 +3782,14 @@ static int do_putObjectInObject(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PL
 
 // Return the Object Reference
 
-    int* data = (int*) malloc(sizeof(int));
+    int* data = (int*)malloc(sizeof(int));
     data[0] = refId;
 
     initDataBlock(data_block);
     data_block->rank = 0;
     data_block->dims = NULL;
     data_block->data_type = TYPE_INT;
-    data_block->data = (char*) data;
+    data_block->data = (char*)data;
     data_block->data_n = 1;
 
     return err;
@@ -3812,7 +3809,7 @@ static int do_putObjectGroup(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGI
     if (!plugin_args.isClientIdx || !plugin_args.isCPOPath || !plugin_args.isPath || !plugin_args.isClientObjectId ||
         !plugin_args.isTimedArg) {
         err = 999;
-        idamLog(LOG_ERROR,
+        IDAM_LOG(LOG_ERROR,
                 "imas putObjectGroup: Insufficient data parameters passed - putObject not possible!\n");
         addIdamError(&idamerrorstack, CODEERRORTYPE, "imas putObjectGroup", err,
                      "Insufficient data parameters passed - putObject not possible!");
@@ -3837,7 +3834,7 @@ static int do_putObjectGroup(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGI
         return err;
     }
 
-    int* data = (int*) malloc(sizeof(int));
+    int* data = (int*)malloc(sizeof(int));
     data[0] = rc;
 
     DATA_BLOCK* data_block = idam_plugin_interface->data_block;
@@ -3846,7 +3843,7 @@ static int do_putObjectGroup(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGI
     data_block->rank = 0;
     data_block->dims = NULL;
     data_block->data_type = TYPE_INT;
-    data_block->data = (char*) data;
+    data_block->data = (char*)data;
     data_block->data_n = 1;
 
     return err;
@@ -3873,7 +3870,7 @@ static int do_putObjectSlice(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGI
     if (!plugin_args.isClientIdx || !plugin_args.isCPOPath || !plugin_args.isPath || !plugin_args.isPutData ||
         !plugin_args.isClientObjectId) {
         err = 999;
-        idamLog(LOG_ERROR,
+        IDAM_LOG(LOG_ERROR,
                 "imas putObjectSlice: Insufficient data parameters passed - putObjectSlice not possible!\n");
         addIdamError(&idamerrorstack, CODEERRORTYPE, "imas putObjectSlice", err,
                      "Insufficient data parameters passed - putObjectSlice not possible!");
@@ -3882,7 +3879,7 @@ static int do_putObjectSlice(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGI
 
 // Required Time
 
-    double time = ((double*) putDataBlock->data)[0];
+    double time = ((double*)putDataBlock->data)[0];
 
 // Identify the local object
 
@@ -3900,7 +3897,7 @@ static int do_putObjectSlice(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGI
         return err;
     }
 
-    int* data = (int*) malloc(sizeof(int));
+    int* data = (int*)malloc(sizeof(int));
     data[0] = rc;
 
     DATA_BLOCK* data_block = idam_plugin_interface->data_block;
@@ -3909,7 +3906,7 @@ static int do_putObjectSlice(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGI
     data_block->rank = 0;
     data_block->dims = NULL;
     data_block->data_type = TYPE_INT;
-    data_block->data = (char*) data;
+    data_block->data = (char*)data;
     data_block->data_n = 1;
 
     return err;
@@ -3931,7 +3928,7 @@ static int do_replaceLastObjectSlice(IDAM_PLUGIN_INTERFACE* idam_plugin_interfac
     if (!plugin_args.isClientIdx || !plugin_args.isCPOPath || !plugin_args.isPath ||
         !plugin_args.isClientObjectId) {
         err = 999;
-        idamLog(LOG_ERROR,
+        IDAM_LOG(LOG_ERROR,
                 "imas replaceLastObjectSlice: Insufficient data parameters passed - replaceLastObjectSlice not possible!\n");
         addIdamError(&idamerrorstack, CODEERRORTYPE, "imas replaceLastObjectSlice", err,
                      "Insufficient data parameters passed - replaceLastObjectSlice not possible!");
@@ -3955,7 +3952,7 @@ static int do_replaceLastObjectSlice(IDAM_PLUGIN_INTERFACE* idam_plugin_interfac
         return err;
     }
 
-    int* data = (int*) malloc(sizeof(int));
+    int* data = (int*)malloc(sizeof(int));
     data[0] = rc;
 
     DATA_BLOCK* data_block = idam_plugin_interface->data_block;
@@ -3964,7 +3961,7 @@ static int do_replaceLastObjectSlice(IDAM_PLUGIN_INTERFACE* idam_plugin_interfac
     data_block->rank = 0;
     data_block->dims = NULL;
     data_block->data_type = TYPE_INT;
-    data_block->data = (char*) data;
+    data_block->data = (char*)data;
     data_block->data_n = 1;
 
     return err;
@@ -4008,7 +4005,7 @@ static int do_cache(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARGS pl
         rc = OK_RETURN_VALUE;
     } else {
         err = 999;
-        idamLog(LOG_ERROR, "imas: Insufficient parameters passed!\n");
+        IDAM_LOG(LOG_ERROR, "imas: Insufficient parameters passed!\n");
         addIdamError(&idamerrorstack, CODEERRORTYPE, "imas", err, "Insufficient parameters passed!");
         return err;
     }
@@ -4017,14 +4014,14 @@ static int do_cache(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARGS pl
 
 // Return value
 
-    int* data = (int*) malloc(sizeof(int));
+    int* data = (int*)malloc(sizeof(int));
     data[0] = rc;
 
     initDataBlock(data_block);
     data_block->rank = 0;
     data_block->dims = NULL;
     data_block->data_type = TYPE_INT;
-    data_block->data = (char*) data;
+    data_block->data = (char*)data;
     data_block->data_n = 1;
 
     return err;
@@ -4044,7 +4041,7 @@ static int do_getUniqueRun(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_
         rc = getUniqueRun(plugin_args.shotNumber);
     } else {
         err = 999;
-        idamLog(LOG_ERROR, "imas: Insufficient parameters passed!\n");
+        IDAM_LOG(LOG_ERROR, "imas: Insufficient parameters passed!\n");
         addIdamError(&idamerrorstack, CODEERRORTYPE, "imas", err, "Insufficient parameters passed!");
         return err;
     }
@@ -4053,14 +4050,14 @@ static int do_getUniqueRun(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_
 
 // Return value
 
-    int* data = (int*) malloc(sizeof(int));
+    int* data = (int*)malloc(sizeof(int));
     data[0] = rc;
 
     initDataBlock(data_block);
     data_block->rank = 0;
     data_block->dims = NULL;
     data_block->data_type = TYPE_INT;
-    data_block->data = (char*) data;
+    data_block->data = (char*)data;
     data_block->data_n = 1;
 
     return err;
@@ -4079,7 +4076,7 @@ static int do_spawnCommand(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_
         result = spawnCommand(plugin_args.command, plugin_args.IPAddress);        // from mdsObject library
     } else {
         err = 999;
-        idamLog(LOG_ERROR, "imas: Insufficient parameters passed!\n");
+        IDAM_LOG(LOG_ERROR, "imas: Insufficient parameters passed!\n");
         addIdamError(&idamerrorstack, CODEERRORTYPE, "imas", err, "Insufficient parameters passed!");
         return err;
     }
@@ -4088,14 +4085,14 @@ static int do_spawnCommand(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_
 
 // Return value
 
-    char* data = (char*) malloc((strlen(result) + 1) * sizeof(char));
+    char* data = (char*)malloc((strlen(result) + 1) * sizeof(char));
     strcpy(data, result);
 
     initDataBlock(data_block);
     data_block->rank = 0;
     data_block->dims = NULL;
     data_block->data_type = TYPE_STRING;
-    data_block->data = (char*) data;
+    data_block->data = (char*)data;
     data_block->data_n = strlen(data) + 1;
 
     return err;
@@ -4139,13 +4136,13 @@ static int do_putIDS(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARGS p
             rc = mdsendIdsPutNonTimed(plugin_args.clientIdx, plugin_args.path);
         } else {
             err = 999;
-            idamLog(LOG_ERROR, "imas: Insufficient parameters passed!\n");
+            IDAM_LOG(LOG_ERROR, "imas: Insufficient parameters passed!\n");
             addIdamError(&idamerrorstack, CODEERRORTYPE, "imas", err, "Insufficient parameters passed!");
             return err;
         }
     } else {
         err = 999;
-        idamLog(LOG_ERROR, "imas: Insufficient parameters passed!\n");
+        IDAM_LOG(LOG_ERROR, "imas: Insufficient parameters passed!\n");
         addIdamError(&idamerrorstack, CODEERRORTYPE, "imas", err, "Insufficient parameters passed!");
         return err;
     }
@@ -4154,14 +4151,14 @@ static int do_putIDS(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARGS p
 
 // Return value
 
-    int* data = (int*) malloc(sizeof(int));
+    int* data = (int*)malloc(sizeof(int));
     data[0] = rc;
 
     initDataBlock(data_block);
     data_block->rank = 0;
     data_block->dims = NULL;
     data_block->data_type = TYPE_INT;
-    data_block->data = (char*) data;
+    data_block->data = (char*)data;
     data_block->data_n = 1;
 
     return err;
@@ -4178,7 +4175,7 @@ static int do_beginIdsPut(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_A
 
     if (!plugin_args.isClientIdx || !plugin_args.isPath) {
         err = 999;
-        idamLog(LOG_ERROR, "imas beginIdsPut: The function parameters have not been specified!\n");
+        IDAM_LOG(LOG_ERROR, "imas beginIdsPut: The function parameters have not been specified!\n");
         addIdamError(&idamerrorstack, CODEERRORTYPE, "imas endIdsPut", err,
                      "The function parameters have not been specified!");
         return err;
@@ -4186,7 +4183,7 @@ static int do_beginIdsPut(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_A
 
     if ((status = mdsbeginIdsPut(plugin_args.clientIdx, plugin_args.path)) < 0) {
         err = 999;
-        idamLog(LOG_ERROR, "imas beginIdsPut: %s\n", errmsg);
+        IDAM_LOGF(LOG_ERROR, "imas beginIdsPut: %s\n", errmsg);
         addIdamError(&idamerrorstack, CODEERRORTYPE, "imas beginIdsPut", err, errmsg);
         return err;
     }
@@ -4195,12 +4192,12 @@ static int do_beginIdsPut(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_A
 
 // Return Success
 
-    int* data = (int*) malloc(sizeof(int));
+    int* data = (int*)malloc(sizeof(int));
     data[0] = OK_RETURN_VALUE;
 
     initDataBlock(data_block);
     data_block->data_type = TYPE_INT;
-    data_block->data = (char*) data;
+    data_block->data = (char*)data;
     data_block->data_n = 1;
 
     return err;
@@ -4213,15 +4210,15 @@ static int do_endIdsPut(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARG
 
     if (!plugin_args.isClientIdx || !plugin_args.isPath) {
         err = 999;
-        idamLog(LOG_ERROR, "imas endIdsPut: The function parameters have not been specified!\n");
+        IDAM_LOG(LOG_ERROR, "imas endIdsPut: The function parameters have not been specified!\n");
         addIdamError(&idamerrorstack, CODEERRORTYPE, "imas endIdsPut", err,
                      "The function parameters have not been specified!");
         return err;
     }
 
-    if ((status = mdsendIdsPut(plugin_args.clientIdx, plugin_args.path)) < 0) {
+    if (mdsendIdsPut(plugin_args.clientIdx, plugin_args.path) < 0) {
         err = 999;
-        idamLog(LOG_ERROR, "imas endIdsPut: %s\n", errmsg);
+        IDAM_LOGF(LOG_ERROR, "imas endIdsPut: %s\n", errmsg);
         addIdamError(&idamerrorstack, CODEERRORTYPE, "imas endIdsPut", err, errmsg);
         return err;
     }
@@ -4230,12 +4227,12 @@ static int do_endIdsPut(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARG
 
 // Return Success
 
-    int* data = (int*) malloc(sizeof(int));
+    int* data = (int*)malloc(sizeof(int));
     data[0] = OK_RETURN_VALUE;
 
     initDataBlock(data_block);
     data_block->data_type = TYPE_INT;
-    data_block->data = (char*) data;
+    data_block->data = (char*)data;
     data_block->data_n = 1;
 
     return err;
@@ -4249,7 +4246,7 @@ static int do_beginIdsGet(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_A
 
     if (!plugin_args.isClientIdx || !plugin_args.isPath || !plugin_args.isTimedArg) {
         err = 999;
-        idamLog(LOG_ERROR, "imas beginIdsGet: The function parameters have not been specified!\n");
+        IDAM_LOG(LOG_ERROR, "imas beginIdsGet: The function parameters have not been specified!\n");
         addIdamError(&idamerrorstack, CODEERRORTYPE, "imas beginIdsGet", err,
                      "The function parameters have not been specified!");
         return err;
@@ -4258,7 +4255,7 @@ static int do_beginIdsGet(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_A
     if ((status = mdsbeginIdsGet(plugin_args.clientIdx, plugin_args.path, plugin_args.isTimed, &retSamples)) <
         0) {
         err = 999;
-        idamLog(LOG_ERROR, "imas beginIdsGet: %s\n", errmsg);
+        IDAM_LOGF(LOG_ERROR, "imas beginIdsGet: %s\n", errmsg);
         addIdamError(&idamerrorstack, CODEERRORTYPE, "imas beginIdsGet", err, errmsg);
         return err;
     }
@@ -4267,12 +4264,12 @@ static int do_beginIdsGet(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_A
 
 // Return Success
 
-    int* data = (int*) malloc(sizeof(int));
+    int* data = (int*)malloc(sizeof(int));
     data[0] = retSamples;
 
     initDataBlock(data_block);
     data_block->data_type = TYPE_INT;
-    data_block->data = (char*) data;
+    data_block->data = (char*)data;
     data_block->data_n = 1;
 
     return err;
@@ -4285,7 +4282,7 @@ static int do_endIdsGet(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARG
 
     if (!plugin_args.isClientIdx || !plugin_args.isPath) {
         err = 999;
-        idamLog(LOG_ERROR, "imas endIdsGet: The function parameters have not been specified!\n");
+        IDAM_LOG(LOG_ERROR, "imas endIdsGet: The function parameters have not been specified!\n");
         addIdamError(&idamerrorstack, CODEERRORTYPE, "imas endIdsGet", err,
                      "The function parameters have not been specified!");
         return err;
@@ -4293,7 +4290,7 @@ static int do_endIdsGet(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARG
 
     if ((status = mdsendIdsGet(plugin_args.clientIdx, plugin_args.path)) < 0) {
         err = 999;
-        idamLog(LOG_ERROR, "imas endIdsGet: %s\n", errmsg);
+        IDAM_LOGF(LOG_ERROR, "imas endIdsGet: %s\n", errmsg);
         addIdamError(&idamerrorstack, CODEERRORTYPE, "imas endIdsGet", err, errmsg);
         return err;
     }
@@ -4302,12 +4299,12 @@ static int do_endIdsGet(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARG
 
 // Return Success
 
-    int* data = (int*) malloc(sizeof(int));
+    int* data = (int*)malloc(sizeof(int));
     data[0] = OK_RETURN_VALUE;
 
     initDataBlock(data_block);
     data_block->data_type = TYPE_INT;
-    data_block->data = (char*) data;
+    data_block->data = (char*)data;
     data_block->data_n = 1;
 
     return err;
@@ -4320,7 +4317,7 @@ static int do_beginIdsGetSlice(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLU
 
     if (!plugin_args.isClientIdx || !plugin_args.isPath || !plugin_args.isPutData) {
         err = 999;
-        idamLog(LOG_ERROR, "imas beginIdsGetSlice: The function parameters have not been specified!\n");
+        IDAM_LOG(LOG_ERROR, "imas beginIdsGetSlice: The function parameters have not been specified!\n");
         addIdamError(&idamerrorstack, CODEERRORTYPE, "imas beginIdsGetSlice", err,
                      "The function parameters have not been specified!");
         return err;
@@ -4337,17 +4334,17 @@ static int do_beginIdsGetSlice(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLU
 
     if (putDataBlock->data_type != TYPE_DOUBLE || putDataBlock->count != 1) {
         err = 999;
-        idamLog(LOG_ERROR, "imas beginIdsGetSlice: No Valid Time Value have been specified!\n");
+        IDAM_LOG(LOG_ERROR, "imas beginIdsGetSlice: No Valid Time Value have been specified!\n");
         addIdamError(&idamerrorstack, CODEERRORTYPE, "imas beginIdsGetSlice", err,
                      "No Valid Time Value have been specified!");
         return err;
     }
 
-    double time = ((double*) putDataBlock->data)[0];
+    double time = ((double*)putDataBlock->data)[0];
 
     if ((status = mdsbeginIdsGetSlice(plugin_args.clientIdx, plugin_args.path, time)) < 0) {
         err = 999;
-        idamLog(LOG_ERROR, "imas beginIdsGetSlice: %s\n", errmsg);
+        IDAM_LOGF(LOG_ERROR, "imas beginIdsGetSlice: %s\n", errmsg);
         addIdamError(&idamerrorstack, CODEERRORTYPE, "imas beginIdsGetSlice", err, errmsg);
         return err;
     }
@@ -4356,12 +4353,12 @@ static int do_beginIdsGetSlice(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLU
 
 // Return Success
 
-    int* data = (int*) malloc(sizeof(int));
+    int* data = (int*)malloc(sizeof(int));
     data[0] = OK_RETURN_VALUE;
 
     initDataBlock(data_block);
     data_block->data_type = TYPE_INT;
-    data_block->data = (char*) data;
+    data_block->data = (char*)data;
     data_block->data_n = 1;
 
     return err;
@@ -4374,15 +4371,15 @@ static int do_endIdsGetSlice(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGI
 
     if (!plugin_args.isClientIdx || !plugin_args.isPath) {
         err = 999;
-        idamLog(LOG_ERROR, "imas endIdsGetSlice: The function parameters have not been specified!\n");
+        IDAM_LOG(LOG_ERROR, "imas endIdsGetSlice: The function parameters have not been specified!\n");
         addIdamError(&idamerrorstack, CODEERRORTYPE, "imas endIdsGetSlice", err,
                      "The function parameters have not been specified!");
         return err;
     }
 
-    if ((status = mdsendIdsGetSlice(plugin_args.clientIdx, plugin_args.path)) < 0) {
+    if (mdsendIdsGetSlice(plugin_args.clientIdx, plugin_args.path) < 0) {
         err = 999;
-        idamLog(LOG_ERROR, "imas endIdsGetSlice: %s\n", errmsg);
+        IDAM_LOGF(LOG_ERROR, "imas endIdsGetSlice: %s\n", errmsg);
         addIdamError(&idamerrorstack, CODEERRORTYPE, "imas endIdsGetSlice", err, errmsg);
         return err;
     }
@@ -4391,12 +4388,12 @@ static int do_endIdsGetSlice(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGI
 
 // Return Success
 
-    int* data = (int*) malloc(sizeof(int));
+    int* data = (int*)malloc(sizeof(int));
     data[0] = OK_RETURN_VALUE;
 
     initDataBlock(data_block);
     data_block->data_type = TYPE_INT;
-    data_block->data = (char*) data;
+    data_block->data = (char*)data;
     data_block->data_n = 1;
 
     return err;
@@ -4409,15 +4406,15 @@ static int do_beginIdsPutSlice(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLU
 
     if (!plugin_args.isClientIdx || !plugin_args.isPath) {
         err = 999;
-        idamLog(LOG_ERROR, "imas beginIdsPutSlice: The function parameters have not been specified!\n");
+        IDAM_LOG(LOG_ERROR, "imas beginIdsPutSlice: The function parameters have not been specified!\n");
         addIdamError(&idamerrorstack, CODEERRORTYPE, "imas beginIdsPutSlice", err,
                      "The function parameters have not been specified!");
         return err;
     }
 
-    if ((status = mdsbeginIdsPutSlice(plugin_args.clientIdx, plugin_args.path)) < 0) {
+    if (mdsbeginIdsPutSlice(plugin_args.clientIdx, plugin_args.path) < 0) {
         err = 999;
-        idamLog(LOG_ERROR, "imas beginIdsPutSlice: %s\n", errmsg);
+        IDAM_LOGF(LOG_ERROR, "imas beginIdsPutSlice: %s\n", errmsg);
         addIdamError(&idamerrorstack, CODEERRORTYPE, "imas beginIdsPutSlice", err, errmsg);
         return err;
     }
@@ -4426,12 +4423,12 @@ static int do_beginIdsPutSlice(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLU
 
 // Return Success
 
-    int* data = (int*) malloc(sizeof(int));
+    int* data = (int*)malloc(sizeof(int));
     data[0] = OK_RETURN_VALUE;
 
     initDataBlock(data_block);
     data_block->data_type = TYPE_INT;
-    data_block->data = (char*) data;
+    data_block->data = (char*)data;
     data_block->data_n = 1;
 
     return err;
@@ -4444,15 +4441,15 @@ static int do_endIdsPutSlice(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGI
 
     if (!plugin_args.isClientIdx || !plugin_args.isPath) {
         err = 999;
-        idamLog(LOG_ERROR, "imas endIdsPutSlice: The function parameters have not been specified!\n");
+        IDAM_LOG(LOG_ERROR, "imas endIdsPutSlice: The function parameters have not been specified!\n");
         addIdamError(&idamerrorstack, CODEERRORTYPE, "imas endIdsPutSlice", err,
                      "The function parameters have not been specified!");
         return err;
     }
 
-    if ((status = mdsendIdsPutSlice(plugin_args.clientIdx, plugin_args.path)) < 0) {
+    if (mdsendIdsPutSlice(plugin_args.clientIdx, plugin_args.path) < 0) {
         err = 999;
-        idamLog(LOG_ERROR, "imas endIdsPutSlice: %s\n", errmsg);
+        IDAM_LOGF(LOG_ERROR, "imas endIdsPutSlice: %s\n", errmsg);
         addIdamError(&idamerrorstack, CODEERRORTYPE, "imas endIdsPutSlice", err, errmsg);
         return err;
     }
@@ -4461,12 +4458,12 @@ static int do_endIdsPutSlice(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGI
 
 // Return Success
 
-    int* data = (int*) malloc(sizeof(int));
+    int* data = (int*)malloc(sizeof(int));
     data[0] = OK_RETURN_VALUE;
 
     initDataBlock(data_block);
     data_block->data_type = TYPE_INT;
-    data_block->data = (char*) data;
+    data_block->data = (char*)data;
     data_block->data_n = 1;
 
     return err;
@@ -4479,15 +4476,15 @@ static int do_beginIdsPutNonTimed(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, 
 
     if (!plugin_args.isClientIdx || !plugin_args.isPath) {
         err = 999;
-        idamLog(LOG_ERROR, "imas beginIdsPutNonTimed: The function parameters have not been specified!\n");
+        IDAM_LOG(LOG_ERROR, "imas beginIdsPutNonTimed: The function parameters have not been specified!\n");
         addIdamError(&idamerrorstack, CODEERRORTYPE, "imas beginIdsPutNonTimed", err,
                      "The function parameters have not been specified!");
         return err;
     }
 
-    if ((status = mdsbeginIdsPutNonTimed(plugin_args.clientIdx, plugin_args.path)) < 0) {
+    if (mdsbeginIdsPutNonTimed(plugin_args.clientIdx, plugin_args.path) < 0) {
         err = 999;
-        idamLog(LOG_ERROR, "imas beginIdsPutNonTimed: %s\n", errmsg);
+        IDAM_LOGF(LOG_ERROR, "imas beginIdsPutNonTimed: %s\n", errmsg);
         addIdamError(&idamerrorstack, CODEERRORTYPE, "imas beginIdsPutNonTimed", err, errmsg);
         return err;
     }
@@ -4496,12 +4493,12 @@ static int do_beginIdsPutNonTimed(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, 
 
 // Return Success
 
-    int* data = (int*) malloc(sizeof(int));
+    int* data = (int*)malloc(sizeof(int));
     data[0] = OK_RETURN_VALUE;
 
     initDataBlock(data_block);
     data_block->data_type = TYPE_INT;
-    data_block->data = (char*) data;
+    data_block->data = (char*)data;
     data_block->data_n = 1;
 
     return err;
@@ -4514,15 +4511,15 @@ static int do_endIdsPutNonTimed(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PL
 
     if (!plugin_args.isClientIdx || !plugin_args.isPath) {
         err = 999;
-        idamLog(LOG_ERROR, "imas endIdsPutNonTimed: The function parameters have not been specified!\n");
+        IDAM_LOG(LOG_ERROR, "imas endIdsPutNonTimed: The function parameters have not been specified!\n");
         addIdamError(&idamerrorstack, CODEERRORTYPE, "imas endIdsPutNonTimed", err,
                      "The function parameters have not been specified!");
         return err;
     }
 
-    if ((status = mdsendIdsPutNonTimed(plugin_args.clientIdx, plugin_args.path)) < 0) {
+    if (mdsendIdsPutNonTimed(plugin_args.clientIdx, plugin_args.path) < 0) {
         err = 999;
-        idamLog(LOG_ERROR, "imas endIdsPutNonTimed: %s\n", errmsg);
+        IDAM_LOGF(LOG_ERROR, "imas endIdsPutNonTimed: %s\n", errmsg);
         addIdamError(&idamerrorstack, CODEERRORTYPE, "imas endIdsPutNonTimed", err, errmsg);
         return err;
     }
@@ -4531,12 +4528,12 @@ static int do_endIdsPutNonTimed(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PL
 
 // Return Success
 
-    int* data = (int*) malloc(sizeof(int));
+    int* data = (int*)malloc(sizeof(int));
     data[0] = OK_RETURN_VALUE;
 
     initDataBlock(data_block);
     data_block->data_type = TYPE_INT;
-    data_block->data = (char*) data;
+    data_block->data = (char*)data;
     data_block->data_n = 1;
 
     return err;
@@ -4549,16 +4546,16 @@ static int do_beginIdsReplaceLastSlice(IDAM_PLUGIN_INTERFACE* idam_plugin_interf
 
     if (!plugin_args.isClientIdx || !plugin_args.isPath) {
         err = 999;
-        idamLog(LOG_ERROR,
+        IDAM_LOG(LOG_ERROR,
                 "imas beginIdsReplaceLastSlice: The function parameters have not been specified!\n");
         addIdamError(&idamerrorstack, CODEERRORTYPE, "imas beginIdsReplaceLastSlice", err,
                      "The function parameters have not been specified!");
         return err;
     }
 
-    if ((status = mdsbeginIdsReplaceLastSlice(plugin_args.clientIdx, plugin_args.path)) < 0) {
+    if (mdsbeginIdsReplaceLastSlice(plugin_args.clientIdx, plugin_args.path) < 0) {
         err = 999;
-        idamLog(LOG_ERROR, "imas beginIdsReplaceLastSlice: %s\n", errmsg);
+        IDAM_LOGF(LOG_ERROR, "imas beginIdsReplaceLastSlice: %s\n", errmsg);
         addIdamError(&idamerrorstack, CODEERRORTYPE, "imas beginIdsReplaceLastSlice", err, errmsg);
         return err;
     }
@@ -4567,12 +4564,12 @@ static int do_beginIdsReplaceLastSlice(IDAM_PLUGIN_INTERFACE* idam_plugin_interf
 
 // Return Success
 
-    int* data = (int*) malloc(sizeof(int));
+    int* data = (int*)malloc(sizeof(int));
     data[0] = OK_RETURN_VALUE;
 
     initDataBlock(data_block);
     data_block->data_type = TYPE_INT;
-    data_block->data = (char*) data;
+    data_block->data = (char*)data;
     data_block->data_n = 1;
 
     return err;
@@ -4585,15 +4582,15 @@ static int do_endIdsReplaceLastSlice(IDAM_PLUGIN_INTERFACE* idam_plugin_interfac
 
     if (!plugin_args.isClientIdx || !plugin_args.isPath) {
         err = 999;
-        idamLog(LOG_ERROR, "imas endIdsReplaceLastSlice: The function parameters have not been specified!\n");
+        IDAM_LOG(LOG_ERROR, "imas endIdsReplaceLastSlice: The function parameters have not been specified!\n");
         addIdamError(&idamerrorstack, CODEERRORTYPE, "imas endIdsReplaceLastSlice", err,
                      "The function parameters have not been specified!");
         return err;
     }
 
-    if ((status = mdsendIdsReplaceLastSlice(plugin_args.clientIdx, plugin_args.path)) < 0) {
+    if (mdsendIdsReplaceLastSlice(plugin_args.clientIdx, plugin_args.path) < 0) {
         err = 999;
-        idamLog(LOG_ERROR, "imas endIdsReplaceLastSlice: %s\n", errmsg);
+        IDAM_LOGF(LOG_ERROR, "imas endIdsReplaceLastSlice: %s\n", errmsg);
         addIdamError(&idamerrorstack, CODEERRORTYPE, "imas endIdsReplaceLastSlice", err, errmsg);
         return err;
     }
@@ -4602,12 +4599,12 @@ static int do_endIdsReplaceLastSlice(IDAM_PLUGIN_INTERFACE* idam_plugin_interfac
 
 // Return Success
 
-    int* data = (int*) malloc(sizeof(int));
+    int* data = (int*)malloc(sizeof(int));
     data[0] = OK_RETURN_VALUE;
 
     initDataBlock(data_block);
     data_block->data_type = TYPE_INT;
-    data_block->data = (char*) data;
+    data_block->data = (char*)data;
     data_block->data_n = 1;
 
     return err;
@@ -4620,7 +4617,7 @@ static int do_beginIdsPutTimed(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLU
 
     if (!plugin_args.isClientIdx || !plugin_args.isPath || !plugin_args.isPutData) {
         err = 999;
-        idamLog(LOG_ERROR, "imas beginIdsPutTimed: The function parameters have not been specified!\n");
+        IDAM_LOG(LOG_ERROR, "imas beginIdsPutTimed: The function parameters have not been specified!\n");
         addIdamError(&idamerrorstack, CODEERRORTYPE, "imas beginIdsPutTimed", err,
                      "The function parameters have not been specified!");
         return err;
@@ -4637,18 +4634,17 @@ static int do_beginIdsPutTimed(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLU
 
     if (putDataBlock->data_type != TYPE_DOUBLE || putDataBlock->data == NULL) {
         err = 999;
-        idamLog(LOG_ERROR, "imas beginIdsPutTimed: No Valid Time Value have been specified!\n");
+        IDAM_LOG(LOG_ERROR, "imas beginIdsPutTimed: No Valid Time Value have been specified!\n");
         addIdamError(&idamerrorstack, CODEERRORTYPE, "imas beginIdsPutTimed", err,
                      "No Valid Time Value have been specified!");
         return err;
     }
 
-    double* inTimes = (double*) putDataBlock->data;
+    double* inTimes = (double*)putDataBlock->data;
 
-    if ((status = mdsbeginIdsPutTimed(plugin_args.clientIdx, plugin_args.path, putDataBlock->count, inTimes)) <
-        0) {
+    if (mdsbeginIdsPutTimed(plugin_args.clientIdx, plugin_args.path, putDataBlock->count, inTimes) < 0) {
         err = 999;
-        idamLog(LOG_ERROR, "imas beginIdsPutTimed: %s\n", errmsg);
+        IDAM_LOGF(LOG_ERROR, "imas beginIdsPutTimed: %s\n", errmsg);
         addIdamError(&idamerrorstack, CODEERRORTYPE, "imas beginIdsPutTimed", err, errmsg);
         return err;
     }
@@ -4657,12 +4653,12 @@ static int do_beginIdsPutTimed(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLU
 
 // Return Success
 
-    int* data = (int*) malloc(sizeof(int));
+    int* data = (int*)malloc(sizeof(int));
     data[0] = OK_RETURN_VALUE;
 
     initDataBlock(data_block);
     data_block->data_type = TYPE_INT;
-    data_block->data = (char*) data;
+    data_block->data = (char*)data;
     data_block->data_n = 1;
 
     return err;
@@ -4675,15 +4671,15 @@ static int do_endIdsPutTimed(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGI
 
     if (!plugin_args.isClientIdx || !plugin_args.isPath) {
         err = 999;
-        idamLog(LOG_ERROR, "imas endIdsPutTimed: The function parameters have not been specified!\n");
+        IDAM_LOG(LOG_ERROR, "imas endIdsPutTimed: The function parameters have not been specified!\n");
         addIdamError(&idamerrorstack, CODEERRORTYPE, "imas endIdsPutTimed", err,
                      "The function parameters have not been specified!");
         return err;
     }
 
-    if ((status = mdsendIdsPutTimed(plugin_args.clientIdx, plugin_args.path)) < 0) {
+    if (mdsendIdsPutTimed(plugin_args.clientIdx, plugin_args.path) < 0) {
         err = 999;
-        idamLog(LOG_ERROR, "imas endIdsPutTimed: %s\n", errmsg);
+        IDAM_LOGF(LOG_ERROR, "imas endIdsPutTimed: %s\n", errmsg);
         addIdamError(&idamerrorstack, CODEERRORTYPE, "imas endIdsPutTimed", err, errmsg);
         return err;
     }
@@ -4692,12 +4688,12 @@ static int do_endIdsPutTimed(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGI
 
 // Return Success
 
-    int* data = (int*) malloc(sizeof(int));
+    int* data = (int*)malloc(sizeof(int));
     data[0] = OK_RETURN_VALUE;
 
     initDataBlock(data_block);
     data_block->data_type = TYPE_INT;
-    data_block->data = (char*) data;
+    data_block->data = (char*)data;
     data_block->data_n = 1;
 
     return err;
@@ -4712,14 +4708,14 @@ static int do_help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARGS plu
     int err = 0;
     DATA_BLOCK* data_block = idam_plugin_interface->data_block;
 
-    char* p = (char*) malloc(sizeof(char) * 2 * 1024);
+    char* p = (char*)malloc(sizeof(char) * 2 * 1024);
 
     strcpy(p, "\nimas_mds: Add Functions Names, Syntax, and Descriptions\n\n");
 
     initDataBlock(data_block);
 
     data_block->rank = 1;
-    data_block->dims = (DIMS*) malloc(data_block->rank * sizeof(DIMS));
+    data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
 
     int i;
     for (i = 0; i < data_block->rank; i++) initDimBlock(&data_block->dims[i]);
@@ -4727,7 +4723,7 @@ static int do_help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARGS plu
     data_block->data_type = TYPE_STRING;
     strcpy(data_block->data_desc, "imas_mds: help = description of this plugin");
 
-    data_block->data = (char*) p;
+    data_block->data = (char*)p;
 
     data_block->dims[0].data_type = TYPE_UNSIGNED_INT;
     data_block->dims[0].dim_n = strlen(p) + 1;
@@ -4757,9 +4753,9 @@ static int do_version(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARGS 
     data_block->data_type = TYPE_INT;
     data_block->rank = 0;
     data_block->data_n = 1;
-    int* data = (int*) malloc(sizeof(int));
+    int* data = (int*)malloc(sizeof(int));
     data[0] = THISPLUGIN_VERSION;
-    data_block->data = (char*) data;
+    data_block->data = (char*)data;
     strcpy(data_block->data_desc, "Plugin version number");
     strcpy(data_block->data_label, "version");
     strcpy(data_block->data_units, "");
@@ -4780,9 +4776,9 @@ static int do_builddate(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARG
     data_block->data_type = TYPE_STRING;
     data_block->rank = 0;
     data_block->data_n = strlen(__DATE__) + 1;
-    char* data = (char*) malloc(data_block->data_n * sizeof(char));
+    char* data = (char*)malloc(data_block->data_n * sizeof(char));
     strcpy(data, __DATE__);
-    data_block->data = (char*) data;
+    data_block->data = (char*)data;
     strcpy(data_block->data_desc, "Plugin build date");
     strcpy(data_block->data_label, "date");
     strcpy(data_block->data_units, "");
@@ -4803,9 +4799,9 @@ static int do_defaultmethod(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN
     data_block->data_type = TYPE_STRING;
     data_block->rank = 0;
     data_block->data_n = strlen(THISPLUGIN_DEFAULT_METHOD) + 1;
-    char* data = (char*) malloc(data_block->data_n * sizeof(char));
+    char* data = (char*)malloc(data_block->data_n * sizeof(char));
     strcpy(data, THISPLUGIN_DEFAULT_METHOD);
-    data_block->data = (char*) data;
+    data_block->data = (char*)data;
     strcpy(data_block->data_desc, "Plugin default method");
     strcpy(data_block->data_label, "method");
     strcpy(data_block->data_units, "");
@@ -4826,9 +4822,9 @@ static int do_maxinterfaceversion(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, 
     data_block->data_type = TYPE_INT;
     data_block->rank = 0;
     data_block->data_n = 1;
-    int* data = (int*) malloc(sizeof(int));
+    int* data = (int*)malloc(sizeof(int));
     data[0] = THISPLUGIN_MAX_INTERFACE_VERSION;
-    data_block->data = (char*) data;
+    data_block->data = (char*)data;
     strcpy(data_block->data_desc, "Maximum Interface Version");
     strcpy(data_block->data_label, "version");
     strcpy(data_block->data_units, "");

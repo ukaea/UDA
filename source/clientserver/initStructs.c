@@ -42,7 +42,6 @@ void initRequestBlock(REQUEST_BLOCK *str) {
 }
 
 void initClientBlock(CLIENT_BLOCK *str, int version, char *clientname) {
-// char *uid=NULL;
     str->version = version;
     str->timeout = TIMEOUT;
     str->pid     = (int) getpid();

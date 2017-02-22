@@ -30,6 +30,7 @@
 #include <server/udaServer.h>
 #include <clientserver/initStructs.h>
 #include <clientserver/udaTypes.h>
+#include <clientserver/stringUtils.h>
 
 #ifndef USE_PLUGIN_DIRECTLY
 IDAMERRORSTACK* idamErrorStack;    // Pointer to the Server's Error Stack. Global scope within this plugin library
@@ -37,8 +38,7 @@ IDAMERRORSTACK* idamErrorStack;    // Pointer to the Server's Error Stack. Globa
 
 extern int openData(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
-    int i, err = 0;
-    char* p;
+    int err = 0;
 
     static short init = 0;
 
@@ -49,14 +49,6 @@ extern int openData(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     DATA_BLOCK* data_block;
     REQUEST_BLOCK* request_block;
-
-#ifndef USE_PLUGIN_DIRECTLY
-    idamErrorStack = getIdamServerPluginErrorStack();        // Server's error stack
-
-    initIdamErrorStack(&idamerrorstack);        // Initialise Local Error Stack (defined in idamclientserver.h)
-#else
-    IDAMERRORSTACK *idamErrorStack = &idamerrorstack;		// local and server are the same!
-#endif
 
     unsigned short housekeeping;
 
@@ -92,7 +84,7 @@ extern int openData(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 // A list must be maintained to register these plugin calls to manage housekeeping.
 // Calls to plugins must also respect access policy and user authentication policy
 
-    if (housekeeping || !strcasecmp(request_block->function, "reset")) {
+    if (housekeeping || STR_IEQUALS(request_block->function, "reset")) {
 
         if (!init) return 0;        // Not previously initialised: Nothing to do!
 
@@ -106,8 +98,8 @@ extern int openData(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 //----------------------------------------------------------------------------------------
 // Initialise 
 
-    if (!init || !strcasecmp(request_block->function, "init")
-        || !strcasecmp(request_block->function, "initialise")) {
+    if (!init || STR_IEQUALS(request_block->function, "init")
+        || STR_IEQUALS(request_block->function, "initialise")) {
 
         char* env = getenv("UDA_PROVENANCEROOT");
         if (env != NULL) {
@@ -120,7 +112,7 @@ extern int openData(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         }
 
         init = 1;
-        if (!strcasecmp(request_block->function, "init") || !strcasecmp(request_block->function, "initialise"))
+        if (STR_IEQUALS(request_block->function, "init") || STR_IEQUALS(request_block->function, "initialise"))
             return 0;
     }
 
@@ -156,70 +148,76 @@ extern int openData(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             isModulesListFile = 0, isLddLibraryFile = 0, isEnvFile = 0, isIdamSignalsFile = 0,
             isExeBinaryFile = 0, isRunScriptFile = 0;
 
+    int i;
     for (i = 0; i < request_block->nameValueList.pairCount; i++) {
-        if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "UID")) {
+        if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "UID")) {
             UID = request_block->nameValueList.nameValue[i].value;
             continue;
         }
-
-        if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "Replace")) {
+        if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "Replace")) {
             isReplace = 1;
             continue;
         }
-
-        if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "fileLocation")) {
+        if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "fileLocation")) {
             isFileLocation = 1;
             fileLocation = request_block->nameValueList.nameValue[i].value;
+            char* p;
             if ((p = strrchr(fileLocation, '/')) != NULL) fileLocationName = &p[1];
             continue;
         }
-        if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "inputDataFile")) {
+        if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "inputDataFile")) {
             isInputDataFile = 1;
             inputDataFile = request_block->nameValueList.nameValue[i].value;
+            char* p;
             if ((p = strrchr(inputDataFile, '/')) != NULL) inputDataFileName = &p[1];
             continue;
         }
-        if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "outputDataFile")) {
+        if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "outputDataFile")) {
             isOutputDataFile = 1;
             outputDataFile = request_block->nameValueList.nameValue[i].value;
+            char* p;
             if ((p = strrchr(outputDataFile, '/')) != NULL) outputDataFileName = &p[1];
             continue;
         }
-
-        if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "modulesListFile")) {
+        if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "modulesListFile")) {
             isModulesListFile = 1;
             modulesListFile = request_block->nameValueList.nameValue[i].value;
+            char* p;
             if ((p = strrchr(modulesListFile, '/')) != NULL) modulesListFileName = &p[1];
             continue;
         }
-        if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "lddLibraryFile")) {
+        if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "lddLibraryFile")) {
             isLddLibraryFile = 1;
             lddLibraryFile = request_block->nameValueList.nameValue[i].value;
+            char* p;
             if ((p = strrchr(lddLibraryFile, '/')) != NULL) lddLibraryFileName = &p[1];
             continue;
         }
-        if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "envFile")) {
+        if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "envFile")) {
             isEnvFile = 1;
             envFile = request_block->nameValueList.nameValue[i].value;
+            char* p;
             if ((p = strrchr(envFile, '/')) != NULL) envFileName = &p[1];
             continue;
         }
-
-        if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "idamSignalsFile")) {
+        if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "idamSignalsFile")) {
             isIdamSignalsFile = 1;
             idamSignalsFile = request_block->nameValueList.nameValue[i].value;
+            char* p;
             if ((p = strrchr(idamSignalsFile, '/')) != NULL) idamSignalsFile = &p[1];
             continue;
         }
-        if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "exeBinaryFile")) {
+        if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "exeBinaryFile")) {
             isExeBinaryFile = 1;
             exeBinaryFile = request_block->nameValueList.nameValue[i].value;
+            char* p;
             if ((p = strrchr(exeBinaryFile, '/')) != NULL) exeBinaryFileName = &p[1];
             continue;
         }
-        if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "runScriptFile")) {
+        if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "runScriptFile")) {
             isRunScriptFile = 1;
             runScriptFile = request_block->nameValueList.nameValue[i].value;
+            char* p;
             if ((p = strrchr(runScriptFile, '/')) != NULL) runScriptFileName = &p[1];
             continue;
         }
@@ -233,9 +231,9 @@ extern int openData(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Help: A Description of library functionality
 
-        if (!strcasecmp(request_block->function, "help")) {
+        if (STR_IEQUALS(request_block->function, "help")) {
 
-            p = (char*) malloc(sizeof(char) * 2 * 1024);
+            char* p = (char*) malloc(sizeof(char) * 2 * 1024);
 
             strcpy(p, "\nopenData: Add Functions Names, Syntax, and Descriptions\n\n");
 
@@ -263,13 +261,11 @@ extern int openData(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             strcpy(data_block->data_units, "");
 
             break;
-        } else
+        } else if (STR_IEQUALS(request_block->function, "put")) {
 
-//---------------------------------------------------------------------------------------- 
-// Required functions
-// put()	pass metadata about figures and data used in publications: use information to snapshot code and data
-
-        if (!strcasecmp(request_block->function, "put")) {
+            //----------------------------------------------------------------------------------------
+            // Required functions
+            // put()	pass metadata about figures and data used in publications: use information to snapshot code and data
 
             unsigned short priorDir = 0;
             char* newDir = NULL;
@@ -311,15 +307,15 @@ extern int openData(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                     while ((ep = readdir(dp))) {
                         name = ep->d_name;
 
-                        if ((isFileLocation && !strcasecmp(name, fileLocationName)) ||
-                            (isInputDataFile && !strcasecmp(name, inputDataFileName)) ||
-                            (isOutputDataFile && !strcasecmp(name, outputDataFileName)) ||
-                            (isModulesListFile && !strcasecmp(name, modulesListFileName)) ||
-                            (isLddLibraryFile && !strcasecmp(name, lddLibraryFileName)) ||
-                            (isEnvFile && !strcasecmp(name, envFileName)) ||
-                            (isIdamSignalsFile && !strcasecmp(name, idamSignalsFileName)) ||
-                            (isExeBinaryFile && !strcasecmp(name, exeBinaryFileName)) ||
-                            (isRunScriptFile && !strcasecmp(name, runScriptFileName))) {
+                        if ((isFileLocation && STR_IEQUALS(name, fileLocationName)) ||
+                            (isInputDataFile && STR_IEQUALS(name, inputDataFileName)) ||
+                            (isOutputDataFile && STR_IEQUALS(name, outputDataFileName)) ||
+                            (isModulesListFile && STR_IEQUALS(name, modulesListFileName)) ||
+                            (isLddLibraryFile && STR_IEQUALS(name, lddLibraryFileName)) ||
+                            (isEnvFile && STR_IEQUALS(name, envFileName)) ||
+                            (isIdamSignalsFile && STR_IEQUALS(name, idamSignalsFileName)) ||
+                            (isExeBinaryFile && STR_IEQUALS(name, exeBinaryFileName)) ||
+                            (isRunScriptFile && STR_IEQUALS(name, runScriptFileName))) {
                             err = 999;
                             addIdamError(&idamerrorstack, CODEERRORTYPE, "openData", err,
                                          "A previous file exists in the Provenance Archive!");
@@ -366,25 +362,20 @@ extern int openData(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             initDataBlock(data_block);
             break;
 
-        } else
+        } else {
 
-//======================================================================================
-// Error ...
+            //======================================================================================
+            // Error ...
 
             err = 999;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "openData", err, "Unknown function requested!");
-        break;
+            addIdamError(&idamerrorstack, CODEERRORTYPE, "openData", err, "Unknown function requested!");
+            break;
+        }
 
     } while (0);
 
 //--------------------------------------------------------------------------------------
 // Housekeeping
-
-    concatIdamError(idamerrorstack, idamErrorStack);    // Combine local errors with the Server's error stack
-
-#ifndef USE_PLUGIN_DIRECTLY
-    closeIdamError(&idamerrorstack);            // Free local plugin error stack
-#endif
 
     return err;
 }
@@ -395,7 +386,7 @@ int copyProvenanceFile(char* oldFile, char* dir, char* newFileName)
 {
     int err = 0;
     char buffer[BUFFERSIZE];
-    size_t rc, count, n;
+    size_t count, n;
     FILE* in = NULL, * out = NULL;
     struct stat attributes;
     char* newFile = NULL;
@@ -408,7 +399,7 @@ int copyProvenanceFile(char* oldFile, char* dir, char* newFileName)
 // Read file attributes
 
         errno = 0;
-        if ((rc = stat(oldFile, &attributes)) != 0 || errno != 0) {
+        if (stat(oldFile, &attributes) != 0 || errno != 0) {
             err = 999;
             if (errno != 0) addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "openData", errno, "");
             addIdamError(&idamerrorstack, CODEERRORTYPE, "openData", err, "Unknown function requested!");
@@ -473,7 +464,7 @@ int copyProvenanceFile(char* oldFile, char* dir, char* newFileName)
     mtime.actime = attributes.st_atime;    // Access time
     mtime.modtime = attributes.st_mtime;    // Modification time
 
-    if ((rc = utime(newFile, &mtime)) != 0 || errno != 0) {
+    if (utime(newFile, &mtime) != 0 || errno != 0) {
         err = 999;
         if (errno != 0) addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "openData", errno, "");
         addIdamError(&idamerrorstack, CODEERRORTYPE, "openData", err, "Unable to Set the file copy's time stamp!");

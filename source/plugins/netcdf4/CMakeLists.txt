@@ -22,8 +22,8 @@ uda_plugin(
   SOURCES
     netCDF4.c
     readCDF4.c
-    #readCDFAtts.c
-    #readCDF4SubTree.c
+    readCDFAtts.c
+    readCDF4SubTree.c
   EXTRA_INCLUDE_DIRS
     ${LIBXML2_INCLUDE_DIR}
     ${NETCDF_INCLUDES}

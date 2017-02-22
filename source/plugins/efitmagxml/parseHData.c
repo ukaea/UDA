@@ -10,6 +10,7 @@
 #include "efitmagxml.h"
 
 #include <clientserver/initXMLStructs.h>
+#include <clientserver/stringUtils.h>
 
 // Simple Tags with Delimited List of Floating Point Values  
 // Assume No Attributes
@@ -137,8 +138,8 @@ float* parseFloatAngleArray(xmlDocPtr doc, xmlNodePtr cur, char* target, int* n)
 
             if ((att = xmlGetProp(cur, (xmlChar*) "units")) != NULL) {
                 if (strlen((char*) att) > 0) {
-                    if (!strcmp((char*) att, "pi")) factor = 3.1415927;
-                    if (!strcmp((char*) att, "radians")) factor = 1.0;
+                    if (STR_EQUALS((char*) att, "pi")) factor = 3.1415927;
+                    if (STR_EQUALS((char*) att, "radians")) factor = 1.0;
                     xmlFree(att);
                 }
             }
@@ -170,8 +171,8 @@ void parseFloatAngle(xmlDocPtr doc, xmlNodePtr cur, char* target, float* value) 
 
             if ((att = xmlGetProp(cur, (xmlChar*) "units")) != NULL) {
                 if (strlen((char*) att) > 0) {
-                    if (!strcmp((char*) att, "pi")) *value = *value * 3.1415927;
-                    if (!strcmp((char*) att, "degrees")) *value = *value * 3.1415927 / 180.0;
+                    if (STR_EQUALS((char*) att, "pi")) *value = *value * 3.1415927;
+                    if (STR_EQUALS((char*) att, "degrees")) *value = *value * 3.1415927 / 180.0;
                     xmlFree(att);
                 }
             }
@@ -180,8 +181,8 @@ void parseFloatAngle(xmlDocPtr doc, xmlNodePtr cur, char* target, float* value) 
 
             if ((att = xmlGetProp(cur, (xmlChar*) "units")) != NULL) {
                 if (strlen((char*) att) > 0) {
-                    if (!strcmp((char*) att, "pi")) factor = 3.1415927;
-                    if (!strcmp((char*) att, "radians")) factor = 1.0;
+                    if (STR_EQUALS((char*) att, "pi")) factor = 3.1415927;
+                    if (STR_EQUALS((char*) att, "radians")) factor = 1.0;
                     xmlFree(att);
                 }
             }

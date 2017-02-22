@@ -57,7 +57,7 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
         return 0;
     }
 
-    idamLog(LOG_DEBUG, "xdrUserDefinedData Depth: %d\n", recursiveDepth);
+    IDAM_LOGF(LOG_DEBUG, "Depth: %d\n", recursiveDepth);
 
 
 // Allocate HEAP if receiving Data:
@@ -71,7 +71,7 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
 // Child nodes of the same type are branched consequentially
 
     if (xdrs->x_op == XDR_DECODE) {
-        idamLog(LOG_DEBUG, "index: %d   datacount: %d\n", index, datacount);
+        IDAM_LOGF(LOG_DEBUG, "index: %d   datacount: %d\n", index, datacount);
 
         if (index == 0 && datacount > 0) {
             *data = malloc(datacount * userdefinedtype->size);
@@ -130,7 +130,7 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
         switch (userdefinedtype->compoundfield[j].atomictype) {
 
             case (TYPE_FLOAT): {
-                idamLog(LOG_DEBUG, "Type: FLOAT\n");
+                IDAM_LOG(LOG_DEBUG, "Type: FLOAT\n");
 
                 if (userdefinedtype->compoundfield[j].pointer) {        // Pointer to Float Data array
                     if (xdrs->x_op == XDR_DECODE) {                // Allocate Heap for Data Received
@@ -169,10 +169,10 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
 // Other data creators, e.g., XML DOM, also have types "unknown"
 // In these cases, a best guess is made to the type and count based on expectations and the heap allocated - very unsatisfactory!
 
-                        if (type != NULL && !strcmp(type, "unknown")) {
+                        if (type != NULL && STR_EQUALS(type, "unknown")) {
                             if (malloc_source == MALLOCSOURCESOAP && j > 0 &&
-                                !strncmp(userdefinedtype->compoundfield[j - 1].name, "__size", 6) &&
-                                !strcmp(userdefinedtype->compoundfield[j].name,
+                                STR_EQUALS(userdefinedtype->compoundfield[j - 1].name, "__size") &&
+                                STR_EQUALS(userdefinedtype->compoundfield[j].name,
                                         &userdefinedtype->compoundfield[j - 1].name[6])) {
 
                                 count = (int) *prev;        // the value of __size...
@@ -221,7 +221,7 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
             }
 
             case (TYPE_DOUBLE): {
-                idamLog(LOG_DEBUG, "Type: DOUBLE\n");
+                IDAM_LOG(LOG_DEBUG, "Type: DOUBLE\n");
 
                 if (userdefinedtype->compoundfield[j].pointer) {        // Pointer to Double Data array
                     if (xdrs->x_op == XDR_DECODE) {                // Allocate Heap for Data Received
@@ -250,10 +250,10 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
                         findMalloc2((void*) p, &count, &size, &type, &rank,
                                     &shape);    // Assume count of 0 means No Pointer data to send!
 
-                        if (type != NULL && !strcmp(type, "unknown")) {
+                        if (type != NULL && STR_EQUALS(type, "unknown")) {
                             if (malloc_source == MALLOCSOURCESOAP && j > 0 &&
-                                !strncmp(userdefinedtype->compoundfield[j - 1].name, "__size", 6) &&
-                                !strcmp(userdefinedtype->compoundfield[j].name,
+                                STR_EQUALS(userdefinedtype->compoundfield[j - 1].name, "__size") &&
+                                STR_EQUALS(userdefinedtype->compoundfield[j].name,
                                         &userdefinedtype->compoundfield[j - 1].name[6])) {
 
                                 count = (int) *prev;        // the value of __size...
@@ -302,7 +302,7 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
             }
 
             case (TYPE_SHORT): {
-                idamLog(LOG_DEBUG, "Type: SHORT\n");
+                IDAM_LOG(LOG_DEBUG, "Type: SHORT\n");
 
                 if (userdefinedtype->compoundfield[j].pointer) {        // Pointer to Short Data array
                     if (xdrs->x_op == XDR_DECODE) {                // Allocate Heap for Data
@@ -330,10 +330,10 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
                         findMalloc2((void*) p, &count, &size, &type, &rank,
                                     &shape);    // Assume count of 0 means No Pointer data to send!
 
-                        if (type != NULL && !strcmp(type, "unknown")) {
+                        if (type != NULL && STR_EQUALS(type, "unknown")) {
                             if (malloc_source == MALLOCSOURCESOAP && j > 0 &&
-                                !strncmp(userdefinedtype->compoundfield[j - 1].name, "__size", 6) &&
-                                !strcmp(userdefinedtype->compoundfield[j].name,
+                                STR_EQUALS(userdefinedtype->compoundfield[j - 1].name, "__size") &&
+                                STR_EQUALS(userdefinedtype->compoundfield[j].name,
                                         &userdefinedtype->compoundfield[j - 1].name[6])) {
 
                                 count = (int) *prev;        // the value of __size...
@@ -381,7 +381,7 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
             }
 
             case (TYPE_UNSIGNED_SHORT): {
-                idamLog(LOG_DEBUG, "Type: UNSIGNED_SHORT\n");
+                IDAM_LOG(LOG_DEBUG, "Type: UNSIGNED_SHORT\n");
 
                 if (userdefinedtype->compoundfield[j].pointer) {        // Pointer to Data array
                     if (xdrs->x_op == XDR_DECODE) {                // Allocate Heap for Data
@@ -409,10 +409,10 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
                         findMalloc2((void*) p, &count, &size, &type, &rank,
                                     &shape);    // Assume count of 0 means No Pointer data to send!
 
-                        if (type != NULL && !strcmp(type, "unknown")) {
+                        if (type != NULL && STR_EQUALS(type, "unknown")) {
                             if (malloc_source == MALLOCSOURCESOAP && j > 0 &&
-                                !strncmp(userdefinedtype->compoundfield[j - 1].name, "__size", 6) &&
-                                !strcmp(userdefinedtype->compoundfield[j].name,
+                                STR_EQUALS(userdefinedtype->compoundfield[j - 1].name, "__size") &&
+                                STR_EQUALS(userdefinedtype->compoundfield[j].name,
                                         &userdefinedtype->compoundfield[j - 1].name[6])) {
 
                                 count = (int) *prev;        // the value of __size...
@@ -460,7 +460,7 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
             }
 
             case (TYPE_INT): {
-                idamLog(LOG_DEBUG, "Type: INT\n");
+                IDAM_LOG(LOG_DEBUG, "Type: INT\n");
 
                 if (userdefinedtype->compoundfield[j].pointer) {        // Pointer to Integer Data array
                     if (xdrs->x_op == XDR_DECODE) {                // Allocate Heap for Data
@@ -488,10 +488,10 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
                         findMalloc2((void*) p, &count, &size, &type, &rank,
                                     &shape);    // Assume count of 0 means No Pointer data to send!
 
-                        if (type != NULL && !strcmp(type, "unknown")) {
+                        if (type != NULL && STR_EQUALS(type, "unknown")) {
                             if (malloc_source == MALLOCSOURCESOAP && j > 0 &&
-                                !strncmp(userdefinedtype->compoundfield[j - 1].name, "__size", 6) &&
-                                !strcmp(userdefinedtype->compoundfield[j].name,
+                                STR_EQUALS(userdefinedtype->compoundfield[j - 1].name, "__size") &&
+                                STR_EQUALS(userdefinedtype->compoundfield[j].name,
                                         &userdefinedtype->compoundfield[j - 1].name[6])) {
 
                                 count = (int) *prev;        // the value of __size...
@@ -538,7 +538,7 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
             }
 
             case (TYPE_UNSIGNED_INT): {
-                idamLog(LOG_DEBUG, "Type: UNSIGNED INT\n");
+                IDAM_LOG(LOG_DEBUG, "Type: UNSIGNED INT\n");
 
                 if (userdefinedtype->compoundfield[j].pointer) {        // Pointer to Data array
                     if (xdrs->x_op == XDR_DECODE) {                // Allocate Heap for Data
@@ -566,10 +566,10 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
                         findMalloc2((void*) p, &count, &size, &type, &rank,
                                     &shape);    // Assume count of 0 means No Pointer data to send!
 
-                        if (type != NULL && !strcmp(type, "unknown")) {
+                        if (type != NULL && STR_EQUALS(type, "unknown")) {
                             if (malloc_source == MALLOCSOURCESOAP && j > 0 &&
-                                !strncmp(userdefinedtype->compoundfield[j - 1].name, "__size", 6) &&
-                                !strcmp(userdefinedtype->compoundfield[j].name,
+                                STR_EQUALS(userdefinedtype->compoundfield[j - 1].name, "__size") &&
+                                STR_EQUALS(userdefinedtype->compoundfield[j].name,
                                         &userdefinedtype->compoundfield[j - 1].name[6])) {
 
                                 count = (int) *prev;        // the value of __size...
@@ -614,7 +614,7 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
             }
 
             case (TYPE_LONG64): {
-                idamLog(LOG_DEBUG, "Type: LONG LONG\n");
+                IDAM_LOG(LOG_DEBUG, "Type: LONG LONG\n");
 
                 if (userdefinedtype->compoundfield[j].pointer) {        // Pointer to long long Data array
                     if (xdrs->x_op == XDR_DECODE) {                // Allocate Heap for Data
@@ -642,10 +642,10 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
                         findMalloc2((void*) p, &count, &size, &type, &rank,
                                     &shape);    // Assume count of 0 means No Pointer data to send!
 
-                        if (type != NULL && !strcmp(type, "unknown")) {
+                        if (type != NULL && STR_EQUALS(type, "unknown")) {
                             if (malloc_source == MALLOCSOURCESOAP && j > 0 &&
-                                !strncmp(userdefinedtype->compoundfield[j - 1].name, "__size", 6) &&
-                                !strcmp(userdefinedtype->compoundfield[j].name,
+                                STR_EQUALS(userdefinedtype->compoundfield[j - 1].name, "__size") &&
+                                STR_EQUALS(userdefinedtype->compoundfield[j].name,
                                         &userdefinedtype->compoundfield[j - 1].name[6])) {
 
                                 count = (int) *prev;        // the value of __size...
@@ -697,7 +697,7 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
 
 #ifndef __APPLE__
             case (TYPE_UNSIGNED_LONG64): {
-                idamLog(LOG_DEBUG, "Type: UNSIGNED LONG LONG\n");
+                IDAM_LOG(LOG_DEBUG, "Type: UNSIGNED LONG LONG\n");
 
                 if (userdefinedtype->compoundfield[j].pointer) {        // Pointer to Data array
                     if (xdrs->x_op == XDR_DECODE) {                // Allocate Heap for Data
@@ -725,10 +725,10 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
                         findMalloc2((void*) p, &count, &size, &type, &rank,
                                     &shape);    // Assume count of 0 means No Pointer data to send!
 
-                        if (type != NULL && !strcmp(type, "unknown")) {
+                        if (type != NULL && STR_EQUALS(type, "unknown")) {
                             if (malloc_source == MALLOCSOURCESOAP && j > 0 &&
-                                !strncmp(userdefinedtype->compoundfield[j - 1].name, "__size", 6) &&
-                                !strcmp(userdefinedtype->compoundfield[j].name,
+                                STR_EQUALS(userdefinedtype->compoundfield[j - 1].name, "__size") &&
+                                STR_EQUALS(userdefinedtype->compoundfield[j].name,
                                         &userdefinedtype->compoundfield[j - 1].name[6])) {
 
                                 count = (int) *prev;            // the value of __size...
@@ -779,7 +779,7 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
 #endif
 
             case (TYPE_CHAR): {
-                idamLog(LOG_DEBUG, "Type: CHAR\n");
+                IDAM_LOG(LOG_DEBUG, "Type: CHAR\n");
                 if (userdefinedtype->compoundfield[j].pointer) {        // Pointer to Float Data array
                     if (xdrs->x_op == XDR_DECODE) {                // Allocate Heap for Data
                         rc = rc && xdr_int(xdrs,
@@ -807,10 +807,10 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
                         findMalloc2((void*) p, &count, &size, &type, &rank,
                                     &shape);    // Assume count of 0 means No Pointer data to send!
 
-                        if (type != NULL && !strcmp(type, "unknown")) {
+                        if (type != NULL && STR_EQUALS(type, "unknown")) {
                             if (malloc_source == MALLOCSOURCESOAP && j > 0 &&
-                                !strncmp(userdefinedtype->compoundfield[j - 1].name, "__size", 6) &&
-                                !strcmp(userdefinedtype->compoundfield[j].name,
+                                STR_EQUALS(userdefinedtype->compoundfield[j - 1].name, "__size") &&
+                                STR_EQUALS(userdefinedtype->compoundfield[j].name,
                                         &userdefinedtype->compoundfield[j - 1].name[6])) {
 
                                 isSOAP = 1;
@@ -924,7 +924,7 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
                             }
                         }
 
-                        if (count == 1 && !strcmp(type, "unknown")) {
+                        if (count == 1 && STR_EQUALS(type, "unknown")) {
                             int lstr = (int) strlen(d);
                             count = size;
                             size = sizeof(char);
@@ -966,14 +966,14 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
 //	char p[int][int] fixed number array of strings of fixed length 		=> rank = 2, pointer = 0, type STRING
 
             case (TYPE_STRING): {                    // Array of char terminated by \0
-                idamLog(LOG_DEBUG, "Type: STRING\n");
+                IDAM_LOG(LOG_DEBUG, "Type: STRING\n");
 
                 char** strarr;
                 int nstr = 0, istr;
                 if (userdefinedtype->compoundfield[j].pointer) {        // Pointer to string array
                     if (xdrs->x_op == XDR_DECODE) {                // Allocate Heap for Data
 
-                        if (!strcmp(userdefinedtype->compoundfield[j].type, "STRING *")) {
+                        if (STR_EQUALS(userdefinedtype->compoundfield[j].type, "STRING *")) {
                             rc = rc && xdr_int(xdrs, &nstr);        // Number of strings
                             if (nstr > 0) {
                                 char** str = (char**) malloc(nstr * sizeof(char*));
@@ -1018,7 +1018,7 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
                         } else break;
                     } else {
 
-                        if (!strcmp(userdefinedtype->compoundfield[j].type, "STRING *")) {
+                        if (STR_EQUALS(userdefinedtype->compoundfield[j].type, "STRING *")) {
                             char** str = (char**) *p;
                             findMalloc((void*) &str, &nstr, &size, &type);
                             rc = rc && xdr_int(xdrs, &nstr);        // Number of strings
@@ -1092,7 +1092,7 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
                             rc = rc && WrapXDRString(xdrs, (char*) p, userdefinedtype->compoundfield[j].count);
                         } else {                        // Element is a String Array: Treat as Rank 1 array
                             if (userdefinedtype->compoundfield[j].rank == 1 &&
-                                !strcmp(userdefinedtype->compoundfield[j].type, "STRING *")) {
+                                STR_EQUALS(userdefinedtype->compoundfield[j].type, "STRING *")) {
                                 char** str = (char**) p;
                                 nstr = userdefinedtype->compoundfield[j].count;        // Number of strings
                                 for (istr = 0; istr < nstr; istr++) {
@@ -1146,7 +1146,7 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
                             }
                             findMalloc((void*) p, &count, &size, &type);        // Assume 0 means No string to send!
                             if (count == 1 &&
-                                !strcmp(type, "unknown")) {        // ***** Fix for SOAP sources incomplete!
+                                STR_EQUALS(type, "unknown")) {        // ***** Fix for SOAP sources incomplete!
                                 count = size;
                                 size = sizeof(char);
                             }
@@ -1173,7 +1173,7 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
 
 // Send or Receive the Count, Size and Type of the sub-structure (All atomic types except void are trapped before this point)
 
-                idamLog(LOG_DEBUG, "Type: OTHER - Void Type or Structure\n");
+                IDAM_LOG(LOG_DEBUG, "Type: OTHER - Void Type or Structure\n");
 
                 if (userdefinedtype->compoundfield[j].pointer) {
                     if (xdrs->x_op != XDR_DECODE) {
@@ -1181,10 +1181,10 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
 
 // Interpret an 'unknown' void data type using knowledge of the gSOAP or DOM systems
 
-                        if (type != NULL && !strcmp(type, "unknown")) {        // arises from a malloc redirection
+                        if (type != NULL && STR_EQUALS(type, "unknown")) {        // arises from a malloc redirection
                             if (malloc_source == MALLOCSOURCESOAP && j > 0 &&
-                                !strncmp(userdefinedtype->compoundfield[j - 1].name, "__size", 6) &&
-                                !strcmp(userdefinedtype->compoundfield[j].name,
+                                STR_EQUALS(userdefinedtype->compoundfield[j - 1].name, "__size") &&
+                                STR_EQUALS(userdefinedtype->compoundfield[j].name,
                                         &userdefinedtype->compoundfield[j - 1].name[6])) {
 
                                 count = (int) *prev;        // the value of __size...
@@ -1195,7 +1195,7 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
                                     int totalsize, ssize, rcount;
                                     totalsize = count * size;
                                     if (malloc_source == MALLOCSOURCEDOM &&
-                                        !strcmp(userdefinedtype->compoundfield[j].type, "void")) {
+                                        STR_EQUALS(userdefinedtype->compoundfield[j].type, "void")) {
                                         ssize = sizeof(char);    // Assume xml void pointer type is to char
                                         type = chartype;
                                     } else {
@@ -1251,7 +1251,7 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
                             structShape = NULL;
                     }
 
-                    idamLog(LOG_DEBUG, "Pointer: Send or Receive Count: %d, Size: %d, Type: %s\n", count, size, type);
+                    IDAM_LOGF(LOG_DEBUG, "Pointer: Send or Receive Count: %d, Size: %d, Type: %s\n", count, size, type);
 
                 } else {
 
@@ -1265,7 +1265,7 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
                     count = 0;
                     type = userdefinedtype->compoundfield[j].type;
 
-                    idamLog(LOG_DEBUG, "Pointer: Send or Receive Count: %d, Size: %d, Type: %s\n",
+                    IDAM_LOGF(LOG_DEBUG, "Pointer: Send or Receive Count: %d, Size: %d, Type: %s\n",
                             userdefinedtype->compoundfield[j].count, userdefinedtype->compoundfield[j].size,
                             userdefinedtype->compoundfield[j].type);
                 }
@@ -1275,13 +1275,13 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
                 if ((utype = findUserDefinedType(type, 0)) == NULL &&
                     strcmp(userdefinedtype->compoundfield[j].type, "void") != 0) {
 
-                    idamLog(LOG_DEBUG, "**** Error #1: User Defined Type %s not known!\n",
+                    IDAM_LOGF(LOG_DEBUG, "**** Error #1: User Defined Type %s not known!\n",
                             userdefinedtype->compoundfield[j].type);
-                    idamLog(LOG_DEBUG, "structure Name: %s\n", userdefinedtype->name);
-                    idamLog(LOG_DEBUG, "Element Type  : %s\n", userdefinedtype->compoundfield[j].type);
-                    idamLog(LOG_DEBUG, "        Offset: %d\n", userdefinedtype->compoundfield[j].offset);
-                    idamLog(LOG_DEBUG, "        Count : %d\n", userdefinedtype->compoundfield[j].count);
-                    idamLog(LOG_DEBUG, "        Size  : %d\n", userdefinedtype->compoundfield[j].size);
+                    IDAM_LOGF(LOG_DEBUG, "structure Name: %s\n", userdefinedtype->name);
+                    IDAM_LOGF(LOG_DEBUG, "Element Type  : %s\n", userdefinedtype->compoundfield[j].type);
+                    IDAM_LOGF(LOG_DEBUG, "        Offset: %d\n", userdefinedtype->compoundfield[j].offset);
+                    IDAM_LOGF(LOG_DEBUG, "        Count : %d\n", userdefinedtype->compoundfield[j].count);
+                    IDAM_LOGF(LOG_DEBUG, "        Size  : %d\n", userdefinedtype->compoundfield[j].size);
 
                     break;
                 }

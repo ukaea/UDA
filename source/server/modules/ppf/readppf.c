@@ -227,7 +227,7 @@ int readPPF(DATA_SOURCE data_source,
         test[4] = '\0';
         strncpy(test, dtnams + i * 4, 4);    // Choose a data type name for testing
         TrimString(test);
-        if (!strcmp(dtype, test)) {
+        if (STR_EQUALS(dtype, test)) {
             dtid = i;            // Found a Match
             if (TEST) {
                 fprintf(stdout, "Signal Located: %d\n", dtid);

@@ -26,6 +26,7 @@
 #include <client/accAPI.h>
 #include <client/udaClient.h>
 #include <clientserver/udaTypes.h>
+#include <clientserver/stringUtils.h>
 
 #include "importdata.h"
 #include "smoothpsi.h"
@@ -83,7 +84,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 //----------------------------------------------------------------------------------------
 // Ping - am I here?
 
-    if (!strcasecmp(request_block->function, "ping")) {
+    if (STR_IEQUALS(request_block->function, "ping")) {
         initDataBlock(data_block);
         data_block->rank = 0;
         data_block->data_n = strlen("equimap pinged!") + 1;
@@ -96,7 +97,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 //----------------------------------------------------------------------------------------
 // Help: A Description of library functionality
 
-    if (!strcasecmp(request_block->function, "help")) {
+    if (STR_IEQUALS(request_block->function, "help")) {
         initDataBlock(data_block);
         data_block->rank = 0;
         data_block->data_n = strlen("psiRZBox Enabled!") + 1;
@@ -109,7 +110,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 //----------------------------------------------------------------------------------------
 // Heap Housekeeping
 
-    if (housekeeping || !strcasecmp(request_block->function, "reset")) {
+    if (housekeeping || STR_IEQUALS(request_block->function, "reset")) {
 
         if (!init) return 0;        // Not previously initialised: Nothing to do!
 
@@ -147,15 +148,15 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // The user has a choice of flux surface label: One must be selected
 
-    if (!init || !strcasecmp(request_block->function, "init")
-        || !strcasecmp(request_block->function, "initialise")) {
+    if (!init || STR_IEQUALS(request_block->function, "init")
+        || STR_IEQUALS(request_block->function, "initialise")) {
 
         initEquiMapData();    // initialise the data structure
 
 // Read the ITM Data set ?
 
         for (i = 0; i < request_block->nameValueList.pairCount; i++) {
-            if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "readITMData")) {
+            if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "readITMData")) {
                 equimapdata.readITMData = 1;
                 equimapdata.rhoType = NORMALISEDITMFLUXRADIUS;    // ITM Default type
                 break;
@@ -165,7 +166,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 // Number of Flux Surfaces
 
         for (i = 0; i < request_block->nameValueList.pairCount; i++) {
-            if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "fluxSurfaceCount")) {
+            if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "fluxSurfaceCount")) {
                 equimapdata.rhoBCount = atoi(request_block->nameValueList.nameValue[i].value);
                 equimapdata.rhoCount = equimapdata.rhoBCount - 1;
                 break;
@@ -175,14 +176,14 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 // Identify Flux Surface label type: Mandatory requirement
 
         for (i = 0; i < request_block->nameValueList.pairCount; i++) {
-            if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "fluxSurfaceLabel")) {
-                if (!strcasecmp(request_block->nameValueList.nameValue[i].value, "SQRTNORMALISEDTOROIDALFLUX")) {
+            if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "fluxSurfaceLabel")) {
+                if (STR_IEQUALS(request_block->nameValueList.nameValue[i].value, "SQRTNORMALISEDTOROIDALFLUX")) {
                     equimapdata.rhoType = SQRTNORMALISEDTOROIDALFLUX;
                     break;
-                } else if (!strcasecmp(request_block->nameValueList.nameValue[i].value, "NORMALISEDPOLOIDALFLUX")) {
+                } else if (STR_IEQUALS(request_block->nameValueList.nameValue[i].value, "NORMALISEDPOLOIDALFLUX")) {
                     equimapdata.rhoType = NORMALISEDPOLOIDALFLUX;
                     break;
-                } else if (!strcasecmp(request_block->nameValueList.nameValue[i].value, "NORMALISEDITMFLUXRADIUS")) {
+                } else if (STR_IEQUALS(request_block->nameValueList.nameValue[i].value, "NORMALISEDITMFLUXRADIUS")) {
                     equimapdata.rhoType = NORMALISEDITMFLUXRADIUS;
                     break;
                 }
@@ -207,7 +208,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
         if (request_block->exp_number == 0) {
             for (i = 0; i < request_block->nameValueList.pairCount; i++) {
-                if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "shot")) {
+                if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "shot")) {
                     request_block->exp_number = atoi(request_block->nameValueList.nameValue[i].value);
                     break;
                 }
@@ -254,7 +255,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         prior_exp_number = request_block->exp_number;        // Retain previous analysis shot to automatically re-initialise when different
         strcpy(prior_file, request_block->file);
 
-        if (!strcasecmp(request_block->function, "init") || !strcasecmp(request_block->function, "initialise")) {
+        if (STR_IEQUALS(request_block->function, "init") || STR_IEQUALS(request_block->function, "initialise")) {
             initDataBlock(data_block);
             data_block->rank = 0;
             data_block->data_n = strlen("Initialisation Completed") + 1;
@@ -277,7 +278,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 // Fixed grid so need to test all time points to establish the spatial range
 // Data is processed once only - smoothing is not reversible!
 
-        if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "smoothPsi")) {
+        if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "smoothPsi")) {
 
             idamLog(LOG_DEBUG, "EQUIMAP: processing time domain option 'smoothPsi'\n");
 
@@ -285,9 +286,9 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             int limitPsi = 0;
             float limitRMaj = -1.0;
             for (j = 0; j < request_block->nameValueList.pairCount; j++) {
-                if (!strcasecmp(request_block->nameValueList.nameValue[j].name, "invert")) invert = 1;
-                if (!strcasecmp(request_block->nameValueList.nameValue[j].name, "limitPsi")) limitPsi = 1;
-                if (!strcasecmp(request_block->nameValueList.nameValue[j].name, "limitRMaj"))
+                if (STR_IEQUALS(request_block->nameValueList.nameValue[j].name, "invert")) invert = 1;
+                if (STR_IEQUALS(request_block->nameValueList.nameValue[j].name, "limitPsi")) limitPsi = 1;
+                if (STR_IEQUALS(request_block->nameValueList.nameValue[j].name, "limitRMaj"))
                     limitRMaj = (float) atof(request_block->nameValueList.nameValue[j].value);
             }
 
@@ -317,20 +318,20 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Set the required Times via an ASCII Name value pair or subset
 
-        if (!strcasecmp(request_block->function, "setTimes")) {    // User specifies a set of times
+        if (STR_IEQUALS(request_block->function, "setTimes")) {    // User specifies a set of times
             if ((err = subsetTimes(request_block)) != 0) break;    // Subset
         } else
 
 // Return the list of available times
 
-        if (!strcasecmp(request_block->function, "listTimes")) {
+        if (STR_IEQUALS(request_block->function, "listTimes")) {
             break;
         } else
 
 // Limiter Coordinates (Not time dependent)
 
-        if (!strcasecmp(request_block->function, "Rlim") ||
-            !strcasecmp(request_block->function, "Zlim")) {
+        if (STR_IEQUALS(request_block->function, "Rlim") ||
+            STR_IEQUALS(request_block->function, "Zlim")) {
 
             initDataBlock(data_block);
             data_block->rank = 1;
@@ -354,15 +355,15 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             data_block->data = malloc(data_block->data_n * sizeof(float));
             arr = (float*) data_block->data;
 
-            if (!strcasecmp(request_block->function, "Rlim")) {
+            if (STR_IEQUALS(request_block->function, "Rlim")) {
                 for (i = 0; i < data_block->data_n; i++) arr[i] = equimapdata.efitdata[0].rlim[i];
-            } else if (!strcasecmp(request_block->function, "Zlim")) {
+            } else if (STR_IEQUALS(request_block->function, "Zlim")) {
                 for (i = 0; i < data_block->data_n; i++) arr[i] = equimapdata.efitdata[0].zlim[i];
             }
 
-            if (!strcasecmp(request_block->function, "Rlim")) {
+            if (STR_IEQUALS(request_block->function, "Rlim")) {
                 handle = whichHandle("Rlim");
-            } else if (!strcasecmp(request_block->function, "Zlim")) {
+            } else if (STR_IEQUALS(request_block->function, "Zlim")) {
                 handle = whichHandle("Zlim");
             }
             if (handle >= 0) {
@@ -376,26 +377,26 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Rank 1 Time Series Data?
 
-        if (!strcasecmp(request_block->function, "Rmin") ||
-            !strcasecmp(request_block->function, "Rmax") ||
-            !strcasecmp(request_block->function, "Rmag") ||
-            !strcasecmp(request_block->function, "Zmag") ||
-            !strcasecmp(request_block->function, "Bphi") ||
-            !strcasecmp(request_block->function, "Bvac") ||
-            !strcasecmp(request_block->function, "Rvac") ||
-            !strcasecmp(request_block->function, "Ip") ||
-            !strcasecmp(request_block->function, "psiBoundary") ||
-            !strcasecmp(request_block->function, "psiMag") ||
-            !strcasecmp(request_block->function, "Nlcfs") ||
-            !strcasecmp(request_block->function, "Npsiz0") ||
-            !strcasecmp(request_block->function, "rhotorb") ||
+        if (STR_IEQUALS(request_block->function, "Rmin") ||
+            STR_IEQUALS(request_block->function, "Rmax") ||
+            STR_IEQUALS(request_block->function, "Rmag") ||
+            STR_IEQUALS(request_block->function, "Zmag") ||
+            STR_IEQUALS(request_block->function, "Bphi") ||
+            STR_IEQUALS(request_block->function, "Bvac") ||
+            STR_IEQUALS(request_block->function, "Rvac") ||
+            STR_IEQUALS(request_block->function, "Ip") ||
+            STR_IEQUALS(request_block->function, "psiBoundary") ||
+            STR_IEQUALS(request_block->function, "psiMag") ||
+            STR_IEQUALS(request_block->function, "Nlcfs") ||
+            STR_IEQUALS(request_block->function, "Npsiz0") ||
+            STR_IEQUALS(request_block->function, "rhotorb") ||
 
-            (equimapdata.readITMData && !strcasecmp(request_block->function, "Rgeom")) ||
-            (equimapdata.readITMData && !strcasecmp(request_block->function, "Zgeom")) ||
-            (equimapdata.readITMData && !strcasecmp(request_block->function, "Aminor")) ||
-            (equimapdata.readITMData && !strcasecmp(request_block->function, "TriangL")) ||
-            (equimapdata.readITMData && !strcasecmp(request_block->function, "TriangU")) ||
-            (equimapdata.readITMData && !strcasecmp(request_block->function, "Elong"))) {
+            (equimapdata.readITMData && STR_IEQUALS(request_block->function, "Rgeom")) ||
+            (equimapdata.readITMData && STR_IEQUALS(request_block->function, "Zgeom")) ||
+            (equimapdata.readITMData && STR_IEQUALS(request_block->function, "Aminor")) ||
+            (equimapdata.readITMData && STR_IEQUALS(request_block->function, "TriangL")) ||
+            (equimapdata.readITMData && STR_IEQUALS(request_block->function, "TriangU")) ||
+            (equimapdata.readITMData && STR_IEQUALS(request_block->function, "Elong"))) {
 
             handle = whichHandle("Rmag");        // Provides Timing Labels only - not data
 
@@ -433,123 +434,123 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             data_block->data = malloc(data_block->data_n * sizeof(float));
             arr = (float*) data_block->data;
 
-            if (!strcasecmp(request_block->function, "Rmin")) {
+            if (STR_IEQUALS(request_block->function, "Rmin")) {
                 for (i = 0; i < equimapdata.timeCount; i++) arr[i] = equimapdata.efitdata[i].Rmin;
-            } else if (!strcasecmp(request_block->function, "Rmax")) {
+            } else if (STR_IEQUALS(request_block->function, "Rmax")) {
                 for (i = 0; i < equimapdata.timeCount; i++) arr[i] = equimapdata.efitdata[i].Rmax;
-            } else if (!strcasecmp(request_block->function, "Rmag")) {
+            } else if (STR_IEQUALS(request_block->function, "Rmag")) {
                 for (i = 0; i < equimapdata.timeCount; i++) arr[i] = equimapdata.efitdata[i].rmag;
-            } else if (!strcasecmp(request_block->function, "Zmag")) {
+            } else if (STR_IEQUALS(request_block->function, "Zmag")) {
                 for (i = 0; i < equimapdata.timeCount; i++) arr[i] = equimapdata.efitdata[i].zmag;
-            } else if (!strcasecmp(request_block->function, "Bphi")) {
+            } else if (STR_IEQUALS(request_block->function, "Bphi")) {
                 for (i = 0; i < equimapdata.timeCount; i++) arr[i] = equimapdata.efitdata[i].bphi;
-            } else if (!strcasecmp(request_block->function, "Bvac")) {
+            } else if (STR_IEQUALS(request_block->function, "Bvac")) {
                 for (i = 0; i < equimapdata.timeCount; i++) arr[i] = equimapdata.efitdata[i].bvac;
-            } else if (!strcasecmp(request_block->function, "Rvac")) {
+            } else if (STR_IEQUALS(request_block->function, "Rvac")) {
                 for (i = 0; i < equimapdata.timeCount; i++) arr[i] = equimapdata.efitdata[i].rvac;
-            } else if (!strcasecmp(request_block->function, "Ip")) {
+            } else if (STR_IEQUALS(request_block->function, "Ip")) {
                 for (i = 0; i < equimapdata.timeCount; i++) arr[i] = equimapdata.efitdata[i].ip;
-            } else if (!strcasecmp(request_block->function, "psiBoundary")) {
+            } else if (STR_IEQUALS(request_block->function, "psiBoundary")) {
                 for (i = 0; i < equimapdata.timeCount; i++) arr[i] = equimapdata.efitdata[i].psi_bnd;
-            } else if (!strcasecmp(request_block->function, "psiMag")) {
+            } else if (STR_IEQUALS(request_block->function, "psiMag")) {
                 for (i = 0; i < equimapdata.timeCount; i++) arr[i] = equimapdata.efitdata[i].psi_mag;
-            } else if (!strcasecmp(request_block->function, "Nlcfs")) {
+            } else if (STR_IEQUALS(request_block->function, "Nlcfs")) {
                 data_block->data_type = TYPE_INT;
                 int* iarr = (int*) data_block->data;
                 for (i = 0; i < equimapdata.timeCount; i++) iarr[i] = equimapdata.efitdata[i].nlcfs;
-            } else if (!strcasecmp(request_block->function, "Npsiz0")) {
+            } else if (STR_IEQUALS(request_block->function, "Npsiz0")) {
                 for (i = 0; i < equimapdata.timeCount; i++) arr[i] = equimapdata.efitdata[i].rz0Count;
-            } else if (!strcasecmp(request_block->function, "rhotorb")) {
+            } else if (STR_IEQUALS(request_block->function, "rhotorb")) {
                 for (i = 0; i < equimapdata.timeCount; i++) arr[i] = equimapdata.efitdata[i].rho_torb;
-            } else if (!strcasecmp(request_block->function, "Rgeom")) {
+            } else if (STR_IEQUALS(request_block->function, "Rgeom")) {
                 for (i = 0; i < equimapdata.timeCount; i++) arr[i] = equimapdata.efitdata[i].rgeom;
-            } else if (!strcasecmp(request_block->function, "Zgeom")) {
+            } else if (STR_IEQUALS(request_block->function, "Zgeom")) {
                 for (i = 0; i < equimapdata.timeCount; i++) arr[i] = equimapdata.efitdata[i].zgeom;
-            } else if (!strcasecmp(request_block->function, "Aminor")) {
+            } else if (STR_IEQUALS(request_block->function, "Aminor")) {
                 for (i = 0; i < equimapdata.timeCount; i++) arr[i] = equimapdata.efitdata[i].aminor;
-            } else if (!strcasecmp(request_block->function, "TriangL")) {
+            } else if (STR_IEQUALS(request_block->function, "TriangL")) {
                 for (i = 0; i < equimapdata.timeCount; i++) arr[i] = equimapdata.efitdata[i].triangL;
-            } else if (!strcasecmp(request_block->function, "TriangU")) {
+            } else if (STR_IEQUALS(request_block->function, "TriangU")) {
                 for (i = 0; i < equimapdata.timeCount; i++) arr[i] = equimapdata.efitdata[i].triangU;
-            } else if (!strcasecmp(request_block->function, "Elong")) {
+            } else if (STR_IEQUALS(request_block->function, "Elong")) {
                 for (i = 0; i < equimapdata.timeCount; i++) arr[i] = equimapdata.efitdata[i].elong;
             } else
 
-            if (!strcasecmp(request_block->function, "Rmin")) {
+            if (STR_IEQUALS(request_block->function, "Rmin")) {
                 strcpy(data_block->data_units, "m");
                 strcpy(data_block->data_label, "Rmin");
                 strcpy(data_block->data_desc, "Inner Boundary Radius");
-            } else if (!strcasecmp(request_block->function, "Rmax")) {
+            } else if (STR_IEQUALS(request_block->function, "Rmax")) {
                 strcpy(data_block->data_units, "m");
                 strcpy(data_block->data_label, "Rmax");
                 strcpy(data_block->data_desc, "Outer Boundary Radius");
-            } else if (!strcasecmp(request_block->function, "Rmag")) {
+            } else if (STR_IEQUALS(request_block->function, "Rmag")) {
                 strcpy(data_block->data_units, "m");
                 strcpy(data_block->data_label, "Rmag");
                 strcpy(data_block->data_desc, "Magentic Axis Radius");
-            } else if (!strcasecmp(request_block->function, "Zmag")) {
+            } else if (STR_IEQUALS(request_block->function, "Zmag")) {
                 strcpy(data_block->data_units, "m");
                 strcpy(data_block->data_label, "Zmag");
                 strcpy(data_block->data_desc, "Magentic Axis Height");
-            } else if (!strcasecmp(request_block->function, "Bphi")) {
+            } else if (STR_IEQUALS(request_block->function, "Bphi")) {
                 strcpy(data_block->data_units, "T");
                 strcpy(data_block->data_label, "Bphi");
                 strcpy(data_block->data_desc, "Toroidal Magnetic Field");
-            } else if (!strcasecmp(request_block->function, "Bvac")) {
+            } else if (STR_IEQUALS(request_block->function, "Bvac")) {
                 strcpy(data_block->data_units, "T");
                 strcpy(data_block->data_label, "Bvac");
                 strcpy(data_block->data_desc, "Vacuum Toroidal Magnetic Field at reference radius");
-            } else if (!strcasecmp(request_block->function, "Rvac")) {
+            } else if (STR_IEQUALS(request_block->function, "Rvac")) {
                 strcpy(data_block->data_units, "m");
                 strcpy(data_block->data_label, "Rvac");
                 strcpy(data_block->data_desc, "Reference Major Radius of Bvac");
-            } else if (!strcasecmp(request_block->function, "Ip")) {
+            } else if (STR_IEQUALS(request_block->function, "Ip")) {
                 strcpy(data_block->data_units, "A");
                 strcpy(data_block->data_label, "Ip");
                 strcpy(data_block->data_desc, "Toroidal Plasma Current");
-            } else if (!strcasecmp(request_block->function, "psiBoundary")) {
+            } else if (STR_IEQUALS(request_block->function, "psiBoundary")) {
                 strcpy(data_block->data_units, "Wb");
                 strcpy(data_block->data_label, "psiB");
                 strcpy(data_block->data_desc, "Boundary Poloidal Magnetic Flux");
-            } else if (!strcasecmp(request_block->function, "psiMag")) {
+            } else if (STR_IEQUALS(request_block->function, "psiMag")) {
                 strcpy(data_block->data_units, "Wb");
                 strcpy(data_block->data_label, "psiMag");
                 strcpy(data_block->data_desc, "Axial Poloidal Magnetic Flux");
-            } else if (!strcasecmp(request_block->function, "Nlcfs")) {
+            } else if (STR_IEQUALS(request_block->function, "Nlcfs")) {
                 strcpy(data_block->data_units, "");
                 strcpy(data_block->data_label, "Nlcfs");
                 strcpy(data_block->data_desc, "Number of Coordinates in the LCFS Boundary");
-            } else if (!strcasecmp(request_block->function, "Npsiz0")) {
+            } else if (STR_IEQUALS(request_block->function, "Npsiz0")) {
                 strcpy(data_block->data_units, "");
                 strcpy(data_block->data_label, "Npsiz0");
                 strcpy(data_block->data_desc, "Number of Coordinates in the Mid-Plane poloidal flux grid");
-            } else if (!strcasecmp(request_block->function, "rhotorb")) {
+            } else if (STR_IEQUALS(request_block->function, "rhotorb")) {
                 strcpy(data_block->data_units, "m");
                 strcpy(data_block->data_label, "rho_torb");
                 strcpy(data_block->data_desc, "ITM Toroidal Flux Radius at Boundary");
             } else
 
-            if (!strcasecmp(request_block->function, "Rgeom")) {
+            if (STR_IEQUALS(request_block->function, "Rgeom")) {
                 strcpy(data_block->data_units, "m");
                 strcpy(data_block->data_label, "Rgeom");
                 strcpy(data_block->data_desc, "Geometrical Axis of boundary (R)");
-            } else if (!strcasecmp(request_block->function, "Zgeom")) {
+            } else if (STR_IEQUALS(request_block->function, "Zgeom")) {
                 strcpy(data_block->data_units, "m");
                 strcpy(data_block->data_label, "Zgeom");
                 strcpy(data_block->data_desc, "Geometrical Axis of boundary (Z)");
-            } else if (!strcasecmp(request_block->function, "Aminor")) {
+            } else if (STR_IEQUALS(request_block->function, "Aminor")) {
                 strcpy(data_block->data_units, "m");
                 strcpy(data_block->data_label, "Aminor");
                 strcpy(data_block->data_desc, "Minor Radius");
-            } else if (!strcasecmp(request_block->function, "TriangL")) {
+            } else if (STR_IEQUALS(request_block->function, "TriangL")) {
                 strcpy(data_block->data_units, "");
                 strcpy(data_block->data_label, "TriangL");
                 strcpy(data_block->data_desc, "Lower Triagularity");
-            } else if (!strcasecmp(request_block->function, "TriangU")) {
+            } else if (STR_IEQUALS(request_block->function, "TriangU")) {
                 strcpy(data_block->data_units, "");
                 strcpy(data_block->data_label, "TriangU");
                 strcpy(data_block->data_desc, "Upper Triagularity");
-            } else if (!strcasecmp(request_block->function, "Elong")) {
+            } else if (STR_IEQUALS(request_block->function, "Elong")) {
                 strcpy(data_block->data_units, "");
                 strcpy(data_block->data_label, "Elong");
                 strcpy(data_block->data_desc, "Elongation");
@@ -565,23 +566,23 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Rank 2 Equilibrium Profile Data  [time][rho]
 
-        if (!strcasecmp(request_block->function, "psiCoord") ||
-            !strcasecmp(request_block->function, "Phi") ||
-            !strcasecmp(request_block->function, "Q") ||
-            !strcasecmp(request_block->function, "PRho") ||
-            !strcasecmp(request_block->function, "TRho") ||
-            !strcasecmp(request_block->function, "RhoTor") ||
-            !strcasecmp(request_block->function, "Rlcfs") ||
-            !strcasecmp(request_block->function, "Zlcfs") ||
-            (!strcasecmp(request_block->function, "P")) ||
-            (!strcasecmp(request_block->function, "F")) ||
-            (equimapdata.readITMData && !strcasecmp(request_block->function, "PPrime")) ||
-            (equimapdata.readITMData && !strcasecmp(request_block->function, "FFPrime")) ||
-            (equimapdata.readITMData && !strcasecmp(request_block->function, "ElongPsi")) ||
-            (equimapdata.readITMData && !strcasecmp(request_block->function, "TriangLPsi")) ||
-            (equimapdata.readITMData && !strcasecmp(request_block->function, "TriangUPsi")) ||
-            (equimapdata.readITMData && !strcasecmp(request_block->function, "VolPsi")) ||
-            (equimapdata.readITMData && !strcasecmp(request_block->function, "AreaPsi"))) {
+        if (STR_IEQUALS(request_block->function, "psiCoord") ||
+            STR_IEQUALS(request_block->function, "Phi") ||
+            STR_IEQUALS(request_block->function, "Q") ||
+            STR_IEQUALS(request_block->function, "PRho") ||
+            STR_IEQUALS(request_block->function, "TRho") ||
+            STR_IEQUALS(request_block->function, "RhoTor") ||
+            STR_IEQUALS(request_block->function, "Rlcfs") ||
+            STR_IEQUALS(request_block->function, "Zlcfs") ||
+            (STR_IEQUALS(request_block->function, "P")) ||
+            (STR_IEQUALS(request_block->function, "F")) ||
+            (equimapdata.readITMData && STR_IEQUALS(request_block->function, "PPrime")) ||
+            (equimapdata.readITMData && STR_IEQUALS(request_block->function, "FFPrime")) ||
+            (equimapdata.readITMData && STR_IEQUALS(request_block->function, "ElongPsi")) ||
+            (equimapdata.readITMData && STR_IEQUALS(request_block->function, "TriangLPsi")) ||
+            (equimapdata.readITMData && STR_IEQUALS(request_block->function, "TriangUPsi")) ||
+            (equimapdata.readITMData && STR_IEQUALS(request_block->function, "VolPsi")) ||
+            (equimapdata.readITMData && STR_IEQUALS(request_block->function, "AreaPsi"))) {
 
             unsigned short lcfsData = 0;
 
@@ -614,36 +615,36 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 // Flux Surface Label: Normalised poloidal flux
 
             handle = -1;
-            if (!strcasecmp(request_block->function, "Q")) {
+            if (STR_IEQUALS(request_block->function, "Q")) {
                 handle = whichHandle("Q");
-            } else if (!strcasecmp(request_block->function, "P")) {
+            } else if (STR_IEQUALS(request_block->function, "P")) {
                 handle = whichHandle("P");
-            } else if (!strcasecmp(request_block->function, "F")) {
+            } else if (STR_IEQUALS(request_block->function, "F")) {
                 handle = whichHandle("F");
-            } else if (!strcasecmp(request_block->function, "PPrime")) {
+            } else if (STR_IEQUALS(request_block->function, "PPrime")) {
                 handle = whichHandle("PPrime");
-            } else if (!strcasecmp(request_block->function, "FFPrime")) {
+            } else if (STR_IEQUALS(request_block->function, "FFPrime")) {
                 handle = whichHandle("FFPrime");
-            } else if (!strcasecmp(request_block->function, "ElongPsi")) {
+            } else if (STR_IEQUALS(request_block->function, "ElongPsi")) {
                 handle = whichHandle("ElongPsi");
-            } else if (!strcasecmp(request_block->function, "TriangLPsi")) {
+            } else if (STR_IEQUALS(request_block->function, "TriangLPsi")) {
                 handle = whichHandle("TriangLPsi");
-            } else if (!strcasecmp(request_block->function, "TriangUPsi")) {
+            } else if (STR_IEQUALS(request_block->function, "TriangUPsi")) {
                 handle = whichHandle("TriangUPsi");
-            } else if (!strcasecmp(request_block->function, "VolPsi")) {
+            } else if (STR_IEQUALS(request_block->function, "VolPsi")) {
                 handle = whichHandle("VolPsi");
-            } else if (!strcasecmp(request_block->function, "AreaPsi")) {
+            } else if (STR_IEQUALS(request_block->function, "AreaPsi")) {
                 handle = whichHandle("AreaPsi");
-            } else if (!strcasecmp(request_block->function, "psiCoord") ||
-                       !strcasecmp(request_block->function, "phi") ||
-                       !strcasecmp(request_block->function, "PRho") ||        // poloidal Flux Label
-                       !strcasecmp(request_block->function, "TRho") ||        // toroidal Flux Label
-                       !strcasecmp(request_block->function, "RhoTor")) {        // ITM Normalised Flux Radius
+            } else if (STR_IEQUALS(request_block->function, "psiCoord") ||
+                       STR_IEQUALS(request_block->function, "phi") ||
+                       STR_IEQUALS(request_block->function, "PRho") ||        // poloidal Flux Label
+                       STR_IEQUALS(request_block->function, "TRho") ||        // toroidal Flux Label
+                       STR_IEQUALS(request_block->function, "RhoTor")) {        // ITM Normalised Flux Radius
                 handle = whichHandle("Q");                    // Use dimension coordinate labels from Q
-            } else if (!strcasecmp(request_block->function, "Rlcfs")) {
+            } else if (STR_IEQUALS(request_block->function, "Rlcfs")) {
                 lcfsData = 1;
                 handle = whichHandle("Rlcfs");
-            } else if (!strcasecmp(request_block->function, "Zlcfs")) {
+            } else if (STR_IEQUALS(request_block->function, "Zlcfs")) {
                 lcfsData = 1;
                 handle = whichHandle("Zlcfs");
             }
@@ -686,77 +687,77 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             data_block->data = malloc(data_block->data_n * sizeof(float));
 
             arr = (float*) data_block->data;
-            if (!strcasecmp(request_block->function, "Q")) {
+            if (STR_IEQUALS(request_block->function, "Q")) {
                 for (i = 0; i < equimapdata.timeCount; i++) {
                     for (j = 0; j < data_block->dims[0].dim_n; j++) {
                         offset = i * data_block->dims[0].dim_n + j;
                         arr[offset] = equimapdata.efitdata[i].q[j];
                     }
                 }
-            } else if (!strcasecmp(request_block->function, "P")) {
+            } else if (STR_IEQUALS(request_block->function, "P")) {
                 for (i = 0; i < equimapdata.timeCount; i++) {
                     for (j = 0; j < data_block->dims[0].dim_n; j++) {
                         offset = i * data_block->dims[0].dim_n + j;
                         arr[offset] = equimapdata.efitdata[i].p[j];
                     }
                 }
-            } else if (!strcasecmp(request_block->function, "F")) {
+            } else if (STR_IEQUALS(request_block->function, "F")) {
                 for (i = 0; i < equimapdata.timeCount; i++) {
                     for (j = 0; j < data_block->dims[0].dim_n; j++) {
                         offset = i * data_block->dims[0].dim_n + j;
                         arr[offset] = equimapdata.efitdata[i].f[j];
                     }
                 }
-            } else if (!strcasecmp(request_block->function, "PPrime")) {
+            } else if (STR_IEQUALS(request_block->function, "PPrime")) {
                 for (i = 0; i < equimapdata.timeCount; i++) {
                     for (j = 0; j < data_block->dims[0].dim_n; j++) {
                         offset = i * data_block->dims[0].dim_n + j;
                         arr[offset] = equimapdata.efitdata[i].pprime[j];
                     }
                 }
-            } else if (!strcasecmp(request_block->function, "FFPrime")) {
+            } else if (STR_IEQUALS(request_block->function, "FFPrime")) {
                 for (i = 0; i < equimapdata.timeCount; i++) {
                     for (j = 0; j < data_block->dims[0].dim_n; j++) {
                         offset = i * data_block->dims[0].dim_n + j;
                         arr[offset] = equimapdata.efitdata[i].ffprime[j];
                     }
                 }
-            } else if (!strcasecmp(request_block->function, "ElongPsi")) {
+            } else if (STR_IEQUALS(request_block->function, "ElongPsi")) {
                 for (i = 0; i < equimapdata.timeCount; i++) {
                     for (j = 0; j < data_block->dims[0].dim_n; j++) {
                         offset = i * data_block->dims[0].dim_n + j;
                         arr[offset] = equimapdata.efitdata[i].elongp[j];
                     }
                 }
-            } else if (!strcasecmp(request_block->function, "TriangLPsi")) {
+            } else if (STR_IEQUALS(request_block->function, "TriangLPsi")) {
                 for (i = 0; i < equimapdata.timeCount; i++) {
                     for (j = 0; j < data_block->dims[0].dim_n; j++) {
                         offset = i * data_block->dims[0].dim_n + j;
                         arr[offset] = equimapdata.efitdata[i].trianglp[j];
                     }
                 }
-            } else if (!strcasecmp(request_block->function, "TriangUPsi")) {
+            } else if (STR_IEQUALS(request_block->function, "TriangUPsi")) {
                 for (i = 0; i < equimapdata.timeCount; i++) {
                     for (j = 0; j < data_block->dims[0].dim_n; j++) {
                         offset = i * data_block->dims[0].dim_n + j;
                         arr[offset] = equimapdata.efitdata[i].triangup[j];
                     }
                 }
-            } else if (!strcasecmp(request_block->function, "VolPsi")) {
+            } else if (STR_IEQUALS(request_block->function, "VolPsi")) {
                 for (i = 0; i < equimapdata.timeCount; i++) {
                     for (j = 0; j < data_block->dims[0].dim_n; j++) {
                         offset = i * data_block->dims[0].dim_n + j;
                         arr[offset] = equimapdata.efitdata[i].volp[j];
                     }
                 }
-            } else if (!strcasecmp(request_block->function, "AreaPsi")) {
+            } else if (STR_IEQUALS(request_block->function, "AreaPsi")) {
                 for (i = 0; i < equimapdata.timeCount; i++) {
                     for (j = 0; j < data_block->dims[0].dim_n; j++) {
                         offset = i * data_block->dims[0].dim_n + j;
                         arr[offset] = equimapdata.efitdata[i].areap[j];
                     }
                 }
-            } else if (!strcasecmp(request_block->function, "RhoTor")) {
+            } else if (STR_IEQUALS(request_block->function, "RhoTor")) {
                 handle = -1;
                 for (i = 0; i < equimapdata.timeCount; i++) {
                     for (j = 0; j < data_block->dims[0].dim_n; j++) {
@@ -764,7 +765,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                         arr[offset] = equimapdata.efitdata[i].rho_tor[j];
                     }
                 }
-            } else if (!strcasecmp(request_block->function, "PRho")) {
+            } else if (STR_IEQUALS(request_block->function, "PRho")) {
                 handle = -1;
                 for (i = 0; i < equimapdata.timeCount; i++) {
                     for (j = 0; j < data_block->dims[0].dim_n; j++) {
@@ -772,7 +773,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                         arr[offset] = equimapdata.efitdata[i].rho[j];
                     }
                 }
-            } else if (!strcasecmp(request_block->function, "TRho")) {
+            } else if (STR_IEQUALS(request_block->function, "TRho")) {
                 handle = -1;
                 for (i = 0; i < equimapdata.timeCount; i++) {
                     for (j = 0; j < data_block->dims[0].dim_n; j++) {
@@ -780,7 +781,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                         arr[offset] = equimapdata.efitdata[i].trho[j];
                     }
                 }
-            } else if (!strcasecmp(request_block->function, "PsiCoord")) {
+            } else if (STR_IEQUALS(request_block->function, "PsiCoord")) {
                 handle = -1;
                 for (i = 0; i < equimapdata.timeCount; i++) {
                     for (j = 0; j < data_block->dims[0].dim_n; j++) {
@@ -788,7 +789,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                         arr[offset] = equimapdata.efitdata[i].psi[j];
                     }
                 }
-            } else if (!strcasecmp(request_block->function, "Phi")) {
+            } else if (STR_IEQUALS(request_block->function, "Phi")) {
                 handle = -1;
                 for (i = 0; i < equimapdata.timeCount; i++) {
                     for (j = 0; j < data_block->dims[0].dim_n; j++) {
@@ -796,7 +797,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                         arr[offset] = equimapdata.efitdata[i].phi[j];
                     }
                 }
-            } else if (!strcasecmp(request_block->function, "Rlcfs")) {
+            } else if (STR_IEQUALS(request_block->function, "Rlcfs")) {
                 int maxn = data_block->dims[0].dim_n;
                 for (i = 0; i < equimapdata.timeCount; i++) {
                     for (j = 0; j < equimapdata.efitdata[i].nlcfs; j++) {
@@ -808,7 +809,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                         arr[offset] = 0.0;
                     }
                 }
-            } else if (!strcasecmp(request_block->function, "Zlcfs")) {
+            } else if (STR_IEQUALS(request_block->function, "Zlcfs")) {
                 int maxn = data_block->dims[0].dim_n;
                 for (i = 0; i < equimapdata.timeCount; i++) {
                     for (j = 0; j < equimapdata.efitdata[i].nlcfs; j++) {
@@ -827,31 +828,31 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 strcpy(data_block->data_label, getIdamDataLabel(handle));
                 strcpy(data_block->data_desc, getIdamDataDesc(handle));
             } else {
-                if (!strcasecmp(request_block->function, "PsiCoord")) {
+                if (STR_IEQUALS(request_block->function, "PsiCoord")) {
                     strcpy(data_block->data_units, "Wb");
                     strcpy(data_block->data_label, "Psi");
                     strcpy(data_block->data_desc, "Poloidal Flux Coordinate");
-                } else if (!strcasecmp(request_block->function, "Phi")) {
+                } else if (STR_IEQUALS(request_block->function, "Phi")) {
                     strcpy(data_block->data_units, "Wb");
                     strcpy(data_block->data_label, "Phi");
                     strcpy(data_block->data_desc, "Toroidal Flux Coordinate");
-                } else if (!strcasecmp(request_block->function, "PRho")) {
+                } else if (STR_IEQUALS(request_block->function, "PRho")) {
                     strcpy(data_block->data_units, "");
                     strcpy(data_block->data_label, "Rho");
                     strcpy(data_block->data_desc, "Normalised Poloidal Flux");
-                } else if (!strcasecmp(request_block->function, "TRho")) {
+                } else if (STR_IEQUALS(request_block->function, "TRho")) {
                     strcpy(data_block->data_units, "");
                     strcpy(data_block->data_label, "TRho");
                     strcpy(data_block->data_desc, "SQRT Normalised Toroidal Flux");
-                } else if (!strcasecmp(request_block->function, "RhoTor")) {
+                } else if (STR_IEQUALS(request_block->function, "RhoTor")) {
                     strcpy(data_block->data_units, "");
                     strcpy(data_block->data_label, "Rho_Tor");
                     strcpy(data_block->data_desc, "Normalised ITM Toroidal Flux Radius");
-                } else if (!strcasecmp(request_block->function, "Rlcfs")) {
+                } else if (STR_IEQUALS(request_block->function, "Rlcfs")) {
                     strcpy(data_block->data_units, "m");
                     strcpy(data_block->data_label, "Rlcfs");
                     strcpy(data_block->data_desc, "Major Radius of LCFS Boundary points");
-                } else if (!strcasecmp(request_block->function, "Zlcfs")) {
+                } else if (STR_IEQUALS(request_block->function, "Zlcfs")) {
                     strcpy(data_block->data_units, "m");
                     strcpy(data_block->data_label, "Zlcfs");
                     strcpy(data_block->data_desc, "Height above mid-plane of LCFS Boundary points");
@@ -863,8 +864,8 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         }
 
 
-        if (!strcasecmp(request_block->function, "PsiZ0") ||
-            !strcasecmp(request_block->function, "RPsiZ0")) {    // Generally ragged arrays !
+        if (STR_IEQUALS(request_block->function, "PsiZ0") ||
+            STR_IEQUALS(request_block->function, "RPsiZ0")) {    // Generally ragged arrays !
 
             handle = whichHandle("psi");                // Provides Timing Labels only - not data
 
@@ -920,7 +921,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             arr = (float*) data_block->data;
 
-            if (!strcasecmp(request_block->function, "PsiZ0")) {
+            if (STR_IEQUALS(request_block->function, "PsiZ0")) {
                 for (i = 0; i < equimapdata.timeCount; i++) {
                     for (j = 0; j < equimapdata.efitdata[i].rz0Count; j++) {
                         offset = i * data_block->dims[0].dim_n + j;
@@ -948,7 +949,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 }
             }
 
-            if (!strcasecmp(request_block->function, "PsiZ0")) {
+            if (STR_IEQUALS(request_block->function, "PsiZ0")) {
                 if (handle >= 0) {
                     strcpy(data_block->data_units, getIdamDataUnits(handle));
                 } else {
@@ -968,11 +969,11 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Rank 3 Equilibrium Profile Data
 
-        if (!strcasecmp(request_block->function, "Psi") ||
-            !strcasecmp(request_block->function, "Br") ||
-            !strcasecmp(request_block->function, "Bz") ||
-            !strcasecmp(request_block->function, "Bt") ||
-            !strcasecmp(request_block->function, "Jphi")) {
+        if (STR_IEQUALS(request_block->function, "Psi") ||
+            STR_IEQUALS(request_block->function, "Br") ||
+            STR_IEQUALS(request_block->function, "Bz") ||
+            STR_IEQUALS(request_block->function, "Bt") ||
+            STR_IEQUALS(request_block->function, "Jphi")) {
 
             handle = whichHandle("Rmag");        // Provides Timing Labels only - not data
 
@@ -1041,7 +1042,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             arr = (float*) data_block->data;
 
-            if (!strcasecmp(request_block->function, "Psi")) {
+            if (STR_IEQUALS(request_block->function, "Psi")) {
                 for (i = 0; i < equimapdata.timeCount; i++) {
                     for (j = 0; j < data_block->dims[1].dim_n; j++) {
                         for (k = 0; k < data_block->dims[0].dim_n; k++) {
@@ -1051,7 +1052,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                         }
                     }
                 }
-            } else if (!strcasecmp(request_block->function, "Br")) {
+            } else if (STR_IEQUALS(request_block->function, "Br")) {
                 for (i = 0; i < equimapdata.timeCount; i++) {
                     for (j = 0; j < data_block->dims[1].dim_n; j++) {
                         for (k = 0; k < data_block->dims[0].dim_n; k++) {
@@ -1061,7 +1062,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                         }
                     }
                 }
-            } else if (!strcasecmp(request_block->function, "Bz")) {
+            } else if (STR_IEQUALS(request_block->function, "Bz")) {
                 for (i = 0; i < equimapdata.timeCount; i++) {
                     for (j = 0; j < data_block->dims[1].dim_n; j++) {
                         for (k = 0; k < data_block->dims[0].dim_n; k++) {
@@ -1071,7 +1072,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                         }
                     }
                 }
-            } else if (!strcasecmp(request_block->function, "Bt")) {
+            } else if (STR_IEQUALS(request_block->function, "Bt")) {
                 for (i = 0; i < equimapdata.timeCount; i++) {
                     for (j = 0; j < data_block->dims[1].dim_n; j++) {
                         for (k = 0; k < data_block->dims[0].dim_n; k++) {
@@ -1081,7 +1082,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                         }
                     }
                 }
-            } else if (!strcasecmp(request_block->function, "Jphi")) {
+            } else if (STR_IEQUALS(request_block->function, "Jphi")) {
                 for (i = 0; i < equimapdata.timeCount; i++) {
                     for (j = 0; j < data_block->dims[1].dim_n; j++) {
                         for (k = 0; k < data_block->dims[0].dim_n; k++) {
@@ -1093,7 +1094,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 }
             }
 
-            if (!strcasecmp(request_block->function, "Psi")) {
+            if (STR_IEQUALS(request_block->function, "Psi")) {
                 if (handle >= 0) {
                     strcpy(data_block->data_units, getIdamDataUnits(handle));
                     strcpy(data_block->data_label, getIdamDataLabel(handle));
@@ -1103,19 +1104,19 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                     strcpy(data_block->data_label, "Psi");
                     strcpy(data_block->data_desc, "Psi Surface");
                 }
-            } else if (!strcasecmp(request_block->function, "Br")) {
+            } else if (STR_IEQUALS(request_block->function, "Br")) {
                 strcpy(data_block->data_units, "T");
                 strcpy(data_block->data_label, "Br");
                 strcpy(data_block->data_desc, "Radial Magnetic Field");
-            } else if (!strcasecmp(request_block->function, "Bz")) {
+            } else if (STR_IEQUALS(request_block->function, "Bz")) {
                 strcpy(data_block->data_units, "T");
                 strcpy(data_block->data_label, "Bz");
                 strcpy(data_block->data_desc, "Vertical Magnetic Field");
-            } else if (!strcasecmp(request_block->function, "Bt")) {
+            } else if (STR_IEQUALS(request_block->function, "Bt")) {
                 strcpy(data_block->data_units, "T");
                 strcpy(data_block->data_label, "Bphi");
                 strcpy(data_block->data_desc, "Toroidal Magnetic Field");
-            } else if (!strcasecmp(request_block->function, "Jphi")) {
+            } else if (STR_IEQUALS(request_block->function, "Jphi")) {
                 strcpy(data_block->data_units, "Am-2");
                 strcpy(data_block->data_label, "Jphi");
                 strcpy(data_block->data_desc, "Toroidal Current Density");
@@ -1124,7 +1125,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             break;
         }
 
-        if (!strcasecmp(request_block->function, "PsiSR") || !strcasecmp(request_block->function, "PsiRZBox")) {
+        if (STR_IEQUALS(request_block->function, "PsiSR") || STR_IEQUALS(request_block->function, "PsiRZBox")) {
 
             handle = whichHandle("Rmag");        // Provides Timing Labels only - not data
 
@@ -1158,14 +1159,14 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             if (handle >= 0) {
                 DIMS* xdim = getIdamDimBlock(handle, 0);
-                if (!strcasecmp(request_block->function, "PsiSR")) {
+                if (STR_IEQUALS(request_block->function, "PsiSR")) {
                     data_block->dims[0].dim_n = equimapdata.efitdata[0].psiCountSR[0];
                 } else {
                     data_block->dims[0].dim_n = equimapdata.efitdata[0].psiCountRZBox[0];
                 }
                 data_block->dims[0].data_type = TYPE_FLOAT;
                 data_block->dims[0].dim = malloc(data_block->dims[0].dim_n * sizeof(float));
-                if (!strcasecmp(request_block->function, "PsiSR")) {
+                if (STR_IEQUALS(request_block->function, "PsiSR")) {
                     memcpy(data_block->dims[0].dim, equimapdata.efitdata[0].rgridSR,
                            data_block->dims[0].dim_n * sizeof(float));
                 } else {
@@ -1177,14 +1178,14 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 strcpy(data_block->dims[0].dim_label, xdim->dim_label);
 
                 xdim = getIdamDimBlock(handle, 1);
-                if (!strcasecmp(request_block->function, "PsiSR")) {
+                if (STR_IEQUALS(request_block->function, "PsiSR")) {
                     data_block->dims[1].dim_n = equimapdata.efitdata[0].psiCountSR[1];
                 } else {
                     data_block->dims[1].dim_n = equimapdata.efitdata[0].psiCountRZBox[1];
                 }
                 data_block->dims[1].data_type = TYPE_FLOAT;
                 data_block->dims[1].dim = malloc(data_block->dims[1].dim_n * sizeof(float));
-                if (!strcasecmp(request_block->function, "PsiSR")) {
+                if (STR_IEQUALS(request_block->function, "PsiSR")) {
                     memcpy(data_block->dims[1].dim, equimapdata.efitdata[0].zgridSR,
                            data_block->dims[1].dim_n * sizeof(float));
                 } else {
@@ -1223,7 +1224,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             arr = (float*) data_block->data;
 
-            if (!strcasecmp(request_block->function, "PsiSR")) {
+            if (STR_IEQUALS(request_block->function, "PsiSR")) {
                 for (i = 0; i < equimapdata.timeCount; i++) {
                     for (j = 0; j < data_block->dims[1].dim_n; j++) {
                         for (k = 0; k < data_block->dims[0].dim_n; k++) {
@@ -1252,7 +1253,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             } else {
                 strcpy(data_block->data_units, "");
                 strcpy(data_block->data_label, "Psi");
-                if (!strcasecmp(request_block->function, "PsiSR")) {
+                if (STR_IEQUALS(request_block->function, "PsiSR")) {
                     strcpy(data_block->data_desc, "Smoothed/Reduced Psi Surface");
                 } else {
                     strcpy(data_block->data_desc, "R-Z Box constrained Psi Surface");
@@ -1264,14 +1265,14 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Experimental Data?
 
-        if (!strcasecmp(request_block->function, "yag_psi") ||
-            !strcasecmp(request_block->function, "yag_phi") ||
-            !strcasecmp(request_block->function, "yag_prho") ||
-            !strcasecmp(request_block->function, "yag_trho") ||
-            !strcasecmp(request_block->function, "yag_rhotor") ||
-            !strcasecmp(request_block->function, "yag_R") ||
-            !strcasecmp(request_block->function, "yag_ne") ||
-            !strcasecmp(request_block->function, "yag_Te")) {
+        if (STR_IEQUALS(request_block->function, "yag_psi") ||
+            STR_IEQUALS(request_block->function, "yag_phi") ||
+            STR_IEQUALS(request_block->function, "yag_prho") ||
+            STR_IEQUALS(request_block->function, "yag_trho") ||
+            STR_IEQUALS(request_block->function, "yag_rhotor") ||
+            STR_IEQUALS(request_block->function, "yag_R") ||
+            STR_IEQUALS(request_block->function, "yag_ne") ||
+            STR_IEQUALS(request_block->function, "yag_Te")) {
 
             handle = whichHandle("EFM_MAGNETIC_AXIS_R");        // Provides Timing Labels only - not data
 
@@ -1318,11 +1319,11 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             handle = -1;
 
-            if (!strcasecmp(request_block->function, "yag_R")) {
+            if (STR_IEQUALS(request_block->function, "yag_R")) {
                 handle = whichHandle("ayc_r");
-            } else if (!strcasecmp(request_block->function, "yag_ne")) {
+            } else if (STR_IEQUALS(request_block->function, "yag_ne")) {
                 handle = whichHandle("ayc_ne");
-            } else if (!strcasecmp(request_block->function, "yag_Te")) {
+            } else if (STR_IEQUALS(request_block->function, "yag_Te")) {
                 handle = whichHandle("ayc_Te");
             }
 
@@ -1332,49 +1333,49 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             data_block->data = malloc(data_block->data_n * sizeof(float));
 
             for (i = 0; i < equimapdata.timeCount; i++) {
-                if (!strcasecmp(request_block->function, "yag_R")) {
+                if (STR_IEQUALS(request_block->function, "yag_R")) {
                     arr = (float*) data_block->data;
                     for (j = 0; j < data_block->dims[0].dim_n; j++) {
                         offset = i * data_block->dims[0].dim_n + j;
                         arr[offset] = equimapdata.efitdata[i].rne[j];
                     }
-                } else if (!strcasecmp(request_block->function, "yag_ne")) {
+                } else if (STR_IEQUALS(request_block->function, "yag_ne")) {
                     arr = (float*) data_block->data;
                     for (j = 0; j < data_block->dims[0].dim_n; j++) {
                         offset = i * data_block->dims[0].dim_n + j;
                         arr[offset] = equimapdata.efitdata[i].ne[j];
                     }
-                } else if (!strcasecmp(request_block->function, "yag_Te")) {
+                } else if (STR_IEQUALS(request_block->function, "yag_Te")) {
                     arr = (float*) data_block->data;
                     for (j = 0; j < data_block->dims[0].dim_n; j++) {
                         offset = i * data_block->dims[0].dim_n + j;
                         arr[offset] = equimapdata.efitdata[i].te[j];
                     }
-                } else if (!strcasecmp(request_block->function, "yag_psi")) {
+                } else if (STR_IEQUALS(request_block->function, "yag_psi")) {
                     arr = (float*) data_block->data;
                     for (j = 0; j < data_block->dims[0].dim_n; j++) {
                         offset = i * data_block->dims[0].dim_n + j;
                         arr[offset] = equimapdata.efitdata[i].yagpsi[j];
                     }
-                } else if (!strcasecmp(request_block->function, "yag_phi")) {
+                } else if (STR_IEQUALS(request_block->function, "yag_phi")) {
                     arr = (float*) data_block->data;
                     for (j = 0; j < data_block->dims[0].dim_n; j++) {
                         offset = i * data_block->dims[0].dim_n + j;
                         arr[offset] = equimapdata.efitdata[i].yagphi[j];
                     }
-                } else if (!strcasecmp(request_block->function, "yag_trho")) {
+                } else if (STR_IEQUALS(request_block->function, "yag_trho")) {
                     arr = (float*) data_block->data;
                     for (j = 0; j < data_block->dims[0].dim_n; j++) {
                         offset = i * data_block->dims[0].dim_n + j;
                         arr[offset] = equimapdata.efitdata[i].yagtrho[j];
                     }
-                } else if (!strcasecmp(request_block->function, "yag_prho")) {
+                } else if (STR_IEQUALS(request_block->function, "yag_prho")) {
                     arr = (float*) data_block->data;
                     for (j = 0; j < data_block->dims[0].dim_n; j++) {
                         offset = i * data_block->dims[0].dim_n + j;
                         arr[offset] = equimapdata.efitdata[i].yagprho[j];
                     }
-                } else if (!strcasecmp(request_block->function, "yag_rhotor")) {
+                } else if (STR_IEQUALS(request_block->function, "yag_rhotor")) {
                     arr = (float*) data_block->data;
                     for (j = 0; j < data_block->dims[0].dim_n; j++) {
                         offset = i * data_block->dims[0].dim_n + j;
@@ -1388,23 +1389,23 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 strcpy(data_block->data_label, getIdamDataLabel(handle));
                 strcpy(data_block->data_desc, getIdamDataDesc(handle));
             } else {
-                if (!strcasecmp(request_block->function, "yag_psi")) {
+                if (STR_IEQUALS(request_block->function, "yag_psi")) {
                     strcpy(data_block->data_units, "Wb");
                     strcpy(data_block->data_label, "psi");
                     strcpy(data_block->data_desc, "Poloidal Flux");
-                } else if (!strcasecmp(request_block->function, "yag_phi")) {
+                } else if (STR_IEQUALS(request_block->function, "yag_phi")) {
                     strcpy(data_block->data_units, "Wb");
                     strcpy(data_block->data_label, "phi");
                     strcpy(data_block->data_desc, "Toroidal Flux");
-                } else if (!strcasecmp(request_block->function, "yag_trho")) {
+                } else if (STR_IEQUALS(request_block->function, "yag_trho")) {
                     strcpy(data_block->data_units, "");
                     strcpy(data_block->data_label, "trho");
                     strcpy(data_block->data_desc, "SQRT Normalised Toroidal Flux");
-                } else if (!strcasecmp(request_block->function, "yag_prho")) {
+                } else if (STR_IEQUALS(request_block->function, "yag_prho")) {
                     strcpy(data_block->data_units, "");
                     strcpy(data_block->data_label, "rho");
                     strcpy(data_block->data_desc, "Normalised Poloidal Flux");
-                } else if (!strcasecmp(request_block->function, "yag_rhotor")) {
+                } else if (STR_IEQUALS(request_block->function, "yag_rhotor")) {
                     strcpy(data_block->data_units, "");
                     strcpy(data_block->data_label, "rho_tor");
                     strcpy(data_block->data_desc, "Normalised ITM Toroidal Flux Radius");
@@ -1416,31 +1417,31 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Experimental Data Mapped to Fixed Grid? (Volume or Mid-Points)
 
-        if (!strcasecmp(request_block->function, "MPsi") ||
-            !strcasecmp(request_block->function, "MQ") ||
-            !strcasecmp(request_block->function, "MYPsi") ||
-            !strcasecmp(request_block->function, "MYPsi_inner") ||
-            !strcasecmp(request_block->function, "MYPsi_outer") ||
-            !strcasecmp(request_block->function, "MYPhi") ||
-            !strcasecmp(request_block->function, "MYPhi_inner") ||
-            !strcasecmp(request_block->function, "MYPhi_outer") ||
-            !strcasecmp(request_block->function, "R_inner") ||
-            !strcasecmp(request_block->function, "R_outer") ||
-            !strcasecmp(request_block->function, "ne") ||
-            !strcasecmp(request_block->function, "ne_inner") ||
-            !strcasecmp(request_block->function, "ne_outer") ||
-            !strcasecmp(request_block->function, "Te") ||
-            !strcasecmp(request_block->function, "Te_inner") ||
-            !strcasecmp(request_block->function, "Te_outer") ||
-            (!strcasecmp(request_block->function, "MP")) ||
-            (!strcasecmp(request_block->function, "MF")) ||
-            (equimapdata.readITMData && !strcasecmp(request_block->function, "MPPrime")) ||
-            (equimapdata.readITMData && !strcasecmp(request_block->function, "MFFPrime")) ||
-            (equimapdata.readITMData && !strcasecmp(request_block->function, "MElong")) ||
-            (equimapdata.readITMData && !strcasecmp(request_block->function, "MTriangL")) ||
-            (equimapdata.readITMData && !strcasecmp(request_block->function, "MTriangU")) ||
-            (equimapdata.readITMData && !strcasecmp(request_block->function, "MVol")) ||
-            (equimapdata.readITMData && !strcasecmp(request_block->function, "MArea"))) {
+        if (STR_IEQUALS(request_block->function, "MPsi") ||
+            STR_IEQUALS(request_block->function, "MQ") ||
+            STR_IEQUALS(request_block->function, "MYPsi") ||
+            STR_IEQUALS(request_block->function, "MYPsi_inner") ||
+            STR_IEQUALS(request_block->function, "MYPsi_outer") ||
+            STR_IEQUALS(request_block->function, "MYPhi") ||
+            STR_IEQUALS(request_block->function, "MYPhi_inner") ||
+            STR_IEQUALS(request_block->function, "MYPhi_outer") ||
+            STR_IEQUALS(request_block->function, "R_inner") ||
+            STR_IEQUALS(request_block->function, "R_outer") ||
+            STR_IEQUALS(request_block->function, "ne") ||
+            STR_IEQUALS(request_block->function, "ne_inner") ||
+            STR_IEQUALS(request_block->function, "ne_outer") ||
+            STR_IEQUALS(request_block->function, "Te") ||
+            STR_IEQUALS(request_block->function, "Te_inner") ||
+            STR_IEQUALS(request_block->function, "Te_outer") ||
+            (STR_IEQUALS(request_block->function, "MP")) ||
+            (STR_IEQUALS(request_block->function, "MF")) ||
+            (equimapdata.readITMData && STR_IEQUALS(request_block->function, "MPPrime")) ||
+            (equimapdata.readITMData && STR_IEQUALS(request_block->function, "MFFPrime")) ||
+            (equimapdata.readITMData && STR_IEQUALS(request_block->function, "MElong")) ||
+            (equimapdata.readITMData && STR_IEQUALS(request_block->function, "MTriangL")) ||
+            (equimapdata.readITMData && STR_IEQUALS(request_block->function, "MTriangU")) ||
+            (equimapdata.readITMData && STR_IEQUALS(request_block->function, "MVol")) ||
+            (equimapdata.readITMData && STR_IEQUALS(request_block->function, "MArea"))) {
 
             handle = whichHandle("Rmag");
 
@@ -1496,38 +1497,38 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Collect data traces
 
-            if (!strcasecmp(request_block->function, "R_inner") ||
-                !strcasecmp(request_block->function, "R_outer")) {
+            if (STR_IEQUALS(request_block->function, "R_inner") ||
+                STR_IEQUALS(request_block->function, "R_outer")) {
                 handle = whichHandle("ayc_r");
-            } else if (!strcasecmp(request_block->function, "ne") ||
-                       !strcasecmp(request_block->function, "ne_inner") ||
-                       !strcasecmp(request_block->function, "ne_outer")) {
+            } else if (STR_IEQUALS(request_block->function, "ne") ||
+                       STR_IEQUALS(request_block->function, "ne_inner") ||
+                       STR_IEQUALS(request_block->function, "ne_outer")) {
                 handle = whichHandle("ayc_ne");
-            } else if (!strcasecmp(request_block->function, "Te") ||
-                       !strcasecmp(request_block->function, "Te_inner") ||
-                       !strcasecmp(request_block->function, "Te_outer")) {
+            } else if (STR_IEQUALS(request_block->function, "Te") ||
+                       STR_IEQUALS(request_block->function, "Te_inner") ||
+                       STR_IEQUALS(request_block->function, "Te_outer")) {
                 handle = whichHandle("ayc_Te");
-            } else if (!strcasecmp(request_block->function, "MPsi")) {
+            } else if (STR_IEQUALS(request_block->function, "MPsi")) {
                 handle = -1;
-            } else if (!strcasecmp(request_block->function, "MQ")) {
+            } else if (STR_IEQUALS(request_block->function, "MQ")) {
                 handle = whichHandle("Q");
-            } else if (!strcasecmp(request_block->function, "MP")) {
+            } else if (STR_IEQUALS(request_block->function, "MP")) {
                 handle = whichHandle("P");
-            } else if (!strcasecmp(request_block->function, "MF")) {
+            } else if (STR_IEQUALS(request_block->function, "MF")) {
                 handle = whichHandle("F");
-            } else if (!strcasecmp(request_block->function, "MPPrime")) {
+            } else if (STR_IEQUALS(request_block->function, "MPPrime")) {
                 handle = whichHandle("PPrime");
-            } else if (!strcasecmp(request_block->function, "MFFPrime")) {
+            } else if (STR_IEQUALS(request_block->function, "MFFPrime")) {
                 handle = whichHandle("FFPrime");
-            } else if (!strcasecmp(request_block->function, "MElong")) {
+            } else if (STR_IEQUALS(request_block->function, "MElong")) {
                 handle = whichHandle("ElongPsi");
-            } else if (!strcasecmp(request_block->function, "MTriangL")) {
+            } else if (STR_IEQUALS(request_block->function, "MTriangL")) {
                 handle = whichHandle("TriangLPsi");
-            } else if (!strcasecmp(request_block->function, "MTriangU")) {
+            } else if (STR_IEQUALS(request_block->function, "MTriangU")) {
                 handle = whichHandle("TriangUPsi");
-            } else if (!strcasecmp(request_block->function, "MVol")) {
+            } else if (STR_IEQUALS(request_block->function, "MVol")) {
                 handle = whichHandle("VolPsi");
-            } else if (!strcasecmp(request_block->function, "MArea")) {
+            } else if (STR_IEQUALS(request_block->function, "MArea")) {
                 handle = whichHandle("AreaPsi");
             }
 
@@ -1541,55 +1542,55 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             for (i = 0; i < equimapdata.timeCount; i++) {
                 for (j = 0; j < data_block->dims[0].dim_n; j++) {
                     offset = i * data_block->dims[0].dim_n + j;
-                    if (!strcasecmp(request_block->function, "R_inner")) {
+                    if (STR_IEQUALS(request_block->function, "R_inner")) {
                         arr[offset] = equimapdata.efitdata[i].mapyagr1[j];
-                    } else if (!strcasecmp(request_block->function, "R_outer")) {
+                    } else if (STR_IEQUALS(request_block->function, "R_outer")) {
                         arr[offset] = equimapdata.efitdata[i].mapyagr2[j];
-                    } else if (!strcasecmp(request_block->function, "ne")) {
+                    } else if (STR_IEQUALS(request_block->function, "ne")) {
                         arr[offset] = equimapdata.efitdata[i].mapyagne[j];
-                    } else if (!strcasecmp(request_block->function, "ne_inner")) {
+                    } else if (STR_IEQUALS(request_block->function, "ne_inner")) {
                         arr[offset] = equimapdata.efitdata[i].mapyagne1[j];
-                    } else if (!strcasecmp(request_block->function, "ne_outer")) {
+                    } else if (STR_IEQUALS(request_block->function, "ne_outer")) {
                         arr[offset] = equimapdata.efitdata[i].mapyagne2[j];
-                    } else if (!strcasecmp(request_block->function, "Te")) {
+                    } else if (STR_IEQUALS(request_block->function, "Te")) {
                         arr[offset] = equimapdata.efitdata[i].mapyagte[j];
-                    } else if (!strcasecmp(request_block->function, "Te_inner")) {
+                    } else if (STR_IEQUALS(request_block->function, "Te_inner")) {
                         arr[offset] = equimapdata.efitdata[i].mapyagte1[j];
-                    } else if (!strcasecmp(request_block->function, "Te_outer")) {
+                    } else if (STR_IEQUALS(request_block->function, "Te_outer")) {
                         arr[offset] = equimapdata.efitdata[i].mapyagte2[j];
-                    } else if (!strcasecmp(request_block->function, "MYPsi")) {
+                    } else if (STR_IEQUALS(request_block->function, "MYPsi")) {
                         arr[offset] = equimapdata.efitdata[i].mapyagpsi[j];
-                    } else if (!strcasecmp(request_block->function, "MYPsi_inner")) {
+                    } else if (STR_IEQUALS(request_block->function, "MYPsi_inner")) {
                         arr[offset] = equimapdata.efitdata[i].mapyagpsi1[j];
-                    } else if (!strcasecmp(request_block->function, "MYPsi_outer")) {
+                    } else if (STR_IEQUALS(request_block->function, "MYPsi_outer")) {
                         arr[offset] = equimapdata.efitdata[i].mapyagpsi2[j];
-                    } else if (!strcasecmp(request_block->function, "MYPhi")) {
+                    } else if (STR_IEQUALS(request_block->function, "MYPhi")) {
                         arr[offset] = equimapdata.efitdata[i].mapyagphi[j];
-                    } else if (!strcasecmp(request_block->function, "MYPhi_inner")) {
+                    } else if (STR_IEQUALS(request_block->function, "MYPhi_inner")) {
                         arr[offset] = equimapdata.efitdata[i].mapyagphi1[j];
-                    } else if (!strcasecmp(request_block->function, "MYPhi_outer")) {
+                    } else if (STR_IEQUALS(request_block->function, "MYPhi_outer")) {
                         arr[offset] = equimapdata.efitdata[i].mapyagphi2[j];
-                    } else if (!strcasecmp(request_block->function, "MPsi")) {
+                    } else if (STR_IEQUALS(request_block->function, "MPsi")) {
                         arr[offset] = equimapdata.efitdata[i].mappsi[j];
-                    } else if (!strcasecmp(request_block->function, "MQ")) {
+                    } else if (STR_IEQUALS(request_block->function, "MQ")) {
                         arr[offset] = equimapdata.efitdata[i].mapq[j];
-                    } else if (!strcasecmp(request_block->function, "MP")) {
+                    } else if (STR_IEQUALS(request_block->function, "MP")) {
                         arr[offset] = equimapdata.efitdata[i].mapp[j];
-                    } else if (!strcasecmp(request_block->function, "MF")) {
+                    } else if (STR_IEQUALS(request_block->function, "MF")) {
                         arr[offset] = equimapdata.efitdata[i].mapf[j];
-                    } else if (!strcasecmp(request_block->function, "MPPrime")) {
+                    } else if (STR_IEQUALS(request_block->function, "MPPrime")) {
                         arr[offset] = equimapdata.efitdata[i].mappprime[j];
-                    } else if (!strcasecmp(request_block->function, "MFFPrime")) {
+                    } else if (STR_IEQUALS(request_block->function, "MFFPrime")) {
                         arr[offset] = equimapdata.efitdata[i].mapffprime[j];
-                    } else if (!strcasecmp(request_block->function, "MElong")) {
+                    } else if (STR_IEQUALS(request_block->function, "MElong")) {
                         arr[offset] = equimapdata.efitdata[i].mapelongp[j];
-                    } else if (!strcasecmp(request_block->function, "MTriangL")) {
+                    } else if (STR_IEQUALS(request_block->function, "MTriangL")) {
                         arr[offset] = equimapdata.efitdata[i].maptrianglp[j];
-                    } else if (!strcasecmp(request_block->function, "MTriangU")) {
+                    } else if (STR_IEQUALS(request_block->function, "MTriangU")) {
                         arr[offset] = equimapdata.efitdata[i].maptriangup[j];
-                    } else if (!strcasecmp(request_block->function, "MVol")) {
+                    } else if (STR_IEQUALS(request_block->function, "MVol")) {
                         arr[offset] = equimapdata.efitdata[i].mapvolp[j];
-                    } else if (!strcasecmp(request_block->function, "MArea")) {
+                    } else if (STR_IEQUALS(request_block->function, "MArea")) {
                         arr[offset] = equimapdata.efitdata[i].mapareap[j];
                     }
                 }
@@ -1600,16 +1601,16 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 strcpy(data_block->data_label, getIdamDataLabel(handle));
                 strcpy(data_block->data_desc, getIdamDataDesc(handle));
             } else {
-                if (!strcasecmp(request_block->function, "MPsi") ||
-                    !strcasecmp(request_block->function, "MYPsi") ||
-                    !strcasecmp(request_block->function, "MYPsi_inner") ||
-                    !strcasecmp(request_block->function, "MYPsi_outer")) {
+                if (STR_IEQUALS(request_block->function, "MPsi") ||
+                    STR_IEQUALS(request_block->function, "MYPsi") ||
+                    STR_IEQUALS(request_block->function, "MYPsi_inner") ||
+                    STR_IEQUALS(request_block->function, "MYPsi_outer")) {
                     strcpy(data_block->data_units, "Wb");
                     strcpy(data_block->data_label, "psi");
                     strcpy(data_block->data_desc, "Poloidal Flux");
-                } else if (!strcasecmp(request_block->function, "MYPhi") ||
-                           !strcasecmp(request_block->function, "MYPhi_inner") ||
-                           !strcasecmp(request_block->function, "MYPhi_outer")) {
+                } else if (STR_IEQUALS(request_block->function, "MYPhi") ||
+                           STR_IEQUALS(request_block->function, "MYPhi_inner") ||
+                           STR_IEQUALS(request_block->function, "MYPhi_outer")) {
                     strcpy(data_block->data_units, "Wb");
                     strcpy(data_block->data_label, "phi");
                     strcpy(data_block->data_desc, "Toroidal Flux");
@@ -1625,31 +1626,31 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Experimental Data Mapped to Fixed Grid? (Surface-Points)
 
-        if (!strcasecmp(request_block->function, "MPsib") ||
-            !strcasecmp(request_block->function, "MQb") ||
-            !strcasecmp(request_block->function, "MYPsib") ||
-            !strcasecmp(request_block->function, "MYPsib_inner") ||
-            !strcasecmp(request_block->function, "MYPsib_outer") ||
-            !strcasecmp(request_block->function, "MYPhib") ||
-            !strcasecmp(request_block->function, "MYPhib_inner") ||
-            !strcasecmp(request_block->function, "MYPhib_outer") ||
-            !strcasecmp(request_block->function, "Rb_inner") ||
-            !strcasecmp(request_block->function, "Rb_outer") ||
-            !strcasecmp(request_block->function, "neb") ||
-            !strcasecmp(request_block->function, "neb_inner") ||
-            !strcasecmp(request_block->function, "neb_outer") ||
-            !strcasecmp(request_block->function, "Teb") ||
-            !strcasecmp(request_block->function, "Teb_inner") ||
-            !strcasecmp(request_block->function, "Teb_outer") ||
-            (!strcasecmp(request_block->function, "MPB")) ||
-            (!strcasecmp(request_block->function, "MFB")) ||
-            (equimapdata.readITMData && !strcasecmp(request_block->function, "MPPrimeB")) ||
-            (equimapdata.readITMData && !strcasecmp(request_block->function, "MFFPrimeB")) ||
-            (equimapdata.readITMData && !strcasecmp(request_block->function, "MElongB")) ||
-            (equimapdata.readITMData && !strcasecmp(request_block->function, "MTriangLB")) ||
-            (equimapdata.readITMData && !strcasecmp(request_block->function, "MTriangUB")) ||
-            (equimapdata.readITMData && !strcasecmp(request_block->function, "MVolB")) ||
-            (equimapdata.readITMData && !strcasecmp(request_block->function, "MAreaB"))) {
+        if (STR_IEQUALS(request_block->function, "MPsib") ||
+            STR_IEQUALS(request_block->function, "MQb") ||
+            STR_IEQUALS(request_block->function, "MYPsib") ||
+            STR_IEQUALS(request_block->function, "MYPsib_inner") ||
+            STR_IEQUALS(request_block->function, "MYPsib_outer") ||
+            STR_IEQUALS(request_block->function, "MYPhib") ||
+            STR_IEQUALS(request_block->function, "MYPhib_inner") ||
+            STR_IEQUALS(request_block->function, "MYPhib_outer") ||
+            STR_IEQUALS(request_block->function, "Rb_inner") ||
+            STR_IEQUALS(request_block->function, "Rb_outer") ||
+            STR_IEQUALS(request_block->function, "neb") ||
+            STR_IEQUALS(request_block->function, "neb_inner") ||
+            STR_IEQUALS(request_block->function, "neb_outer") ||
+            STR_IEQUALS(request_block->function, "Teb") ||
+            STR_IEQUALS(request_block->function, "Teb_inner") ||
+            STR_IEQUALS(request_block->function, "Teb_outer") ||
+            (STR_IEQUALS(request_block->function, "MPB")) ||
+            (STR_IEQUALS(request_block->function, "MFB")) ||
+            (equimapdata.readITMData && STR_IEQUALS(request_block->function, "MPPrimeB")) ||
+            (equimapdata.readITMData && STR_IEQUALS(request_block->function, "MFFPrimeB")) ||
+            (equimapdata.readITMData && STR_IEQUALS(request_block->function, "MElongB")) ||
+            (equimapdata.readITMData && STR_IEQUALS(request_block->function, "MTriangLB")) ||
+            (equimapdata.readITMData && STR_IEQUALS(request_block->function, "MTriangUB")) ||
+            (equimapdata.readITMData && STR_IEQUALS(request_block->function, "MVolB")) ||
+            (equimapdata.readITMData && STR_IEQUALS(request_block->function, "MAreaB"))) {
 
 
             handle = whichHandle("Rmag");
@@ -1692,38 +1693,38 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Collect data traces
 
-            if (!strcasecmp(request_block->function, "Rb_inner") ||
-                !strcasecmp(request_block->function, "Rb_outer")) {
+            if (STR_IEQUALS(request_block->function, "Rb_inner") ||
+                STR_IEQUALS(request_block->function, "Rb_outer")) {
                 handle = whichHandle("ayc_r");
-            } else if (!strcasecmp(request_block->function, "neb") ||
-                       !strcasecmp(request_block->function, "neb_inner") ||
-                       !strcasecmp(request_block->function, "neb_outer")) {
+            } else if (STR_IEQUALS(request_block->function, "neb") ||
+                       STR_IEQUALS(request_block->function, "neb_inner") ||
+                       STR_IEQUALS(request_block->function, "neb_outer")) {
                 handle = whichHandle("ayc_ne");
-            } else if (!strcasecmp(request_block->function, "Teb") ||
-                       !strcasecmp(request_block->function, "Teb_inner") ||
-                       !strcasecmp(request_block->function, "Teb_outer")) {
+            } else if (STR_IEQUALS(request_block->function, "Teb") ||
+                       STR_IEQUALS(request_block->function, "Teb_inner") ||
+                       STR_IEQUALS(request_block->function, "Teb_outer")) {
                 handle = whichHandle("ayc_Te");
-            } else if (!strcasecmp(request_block->function, "MPsiB")) {
+            } else if (STR_IEQUALS(request_block->function, "MPsiB")) {
                 handle = -1;
-            } else if (!strcasecmp(request_block->function, "MQB")) {
+            } else if (STR_IEQUALS(request_block->function, "MQB")) {
                 handle = whichHandle("Q");
-            } else if (!strcasecmp(request_block->function, "MPB")) {
+            } else if (STR_IEQUALS(request_block->function, "MPB")) {
                 handle = whichHandle("P");
-            } else if (!strcasecmp(request_block->function, "MFB")) {
+            } else if (STR_IEQUALS(request_block->function, "MFB")) {
                 handle = whichHandle("B");
-            } else if (!strcasecmp(request_block->function, "MPPrimeB")) {
+            } else if (STR_IEQUALS(request_block->function, "MPPrimeB")) {
                 handle = whichHandle("PPrime");
-            } else if (!strcasecmp(request_block->function, "MFFPrimeB")) {
+            } else if (STR_IEQUALS(request_block->function, "MFFPrimeB")) {
                 handle = whichHandle("FFPrime");
-            } else if (!strcasecmp(request_block->function, "MElongB")) {
+            } else if (STR_IEQUALS(request_block->function, "MElongB")) {
                 handle = whichHandle("ElongPsi");
-            } else if (!strcasecmp(request_block->function, "MTriangLB")) {
+            } else if (STR_IEQUALS(request_block->function, "MTriangLB")) {
                 handle = whichHandle("TriangLPsi");
-            } else if (!strcasecmp(request_block->function, "MTriangUB")) {
+            } else if (STR_IEQUALS(request_block->function, "MTriangUB")) {
                 handle = whichHandle("TriangUPsi");
-            } else if (!strcasecmp(request_block->function, "MVolB")) {
+            } else if (STR_IEQUALS(request_block->function, "MVolB")) {
                 handle = whichHandle("VolPsi");
-            } else if (!strcasecmp(request_block->function, "MAreaB")) {
+            } else if (STR_IEQUALS(request_block->function, "MAreaB")) {
                 handle = whichHandle("AreaPsi");
             }
 
@@ -1737,55 +1738,55 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             for (i = 0; i < equimapdata.timeCount; i++) {
                 for (j = 0; j < data_block->dims[0].dim_n; j++) {
                     offset = i * data_block->dims[0].dim_n + j;
-                    if (!strcasecmp(request_block->function, "Rb_inner")) {
+                    if (STR_IEQUALS(request_block->function, "Rb_inner")) {
                         arr[offset] = equimapdata.efitdata[i].mapyagr1B[j];
-                    } else if (!strcasecmp(request_block->function, "Rb_outer")) {
+                    } else if (STR_IEQUALS(request_block->function, "Rb_outer")) {
                         arr[offset] = equimapdata.efitdata[i].mapyagr2B[j];
-                    } else if (!strcasecmp(request_block->function, "neb")) {
+                    } else if (STR_IEQUALS(request_block->function, "neb")) {
                         arr[offset] = equimapdata.efitdata[i].mapyagneB[j];
-                    } else if (!strcasecmp(request_block->function, "neb_inner")) {
+                    } else if (STR_IEQUALS(request_block->function, "neb_inner")) {
                         arr[offset] = equimapdata.efitdata[i].mapyagne1B[j];
-                    } else if (!strcasecmp(request_block->function, "neb_outer")) {
+                    } else if (STR_IEQUALS(request_block->function, "neb_outer")) {
                         arr[offset] = equimapdata.efitdata[i].mapyagne2B[j];
-                    } else if (!strcasecmp(request_block->function, "Teb")) {
+                    } else if (STR_IEQUALS(request_block->function, "Teb")) {
                         arr[offset] = equimapdata.efitdata[i].mapyagteB[j];
-                    } else if (!strcasecmp(request_block->function, "Teb_inner")) {
+                    } else if (STR_IEQUALS(request_block->function, "Teb_inner")) {
                         arr[offset] = equimapdata.efitdata[i].mapyagte1B[j];
-                    } else if (!strcasecmp(request_block->function, "Teb_outer")) {
+                    } else if (STR_IEQUALS(request_block->function, "Teb_outer")) {
                         arr[offset] = equimapdata.efitdata[i].mapyagte2B[j];
-                    } else if (!strcasecmp(request_block->function, "MYPsib")) {
+                    } else if (STR_IEQUALS(request_block->function, "MYPsib")) {
                         arr[offset] = equimapdata.efitdata[i].mapyagpsiB[j];
-                    } else if (!strcasecmp(request_block->function, "MYPsib_inner")) {
+                    } else if (STR_IEQUALS(request_block->function, "MYPsib_inner")) {
                         arr[offset] = equimapdata.efitdata[i].mapyagpsi1B[j];
-                    } else if (!strcasecmp(request_block->function, "MYPsib_outer")) {
+                    } else if (STR_IEQUALS(request_block->function, "MYPsib_outer")) {
                         arr[offset] = equimapdata.efitdata[i].mapyagpsi2B[j];
-                    } else if (!strcasecmp(request_block->function, "MYPhib")) {
+                    } else if (STR_IEQUALS(request_block->function, "MYPhib")) {
                         arr[offset] = equimapdata.efitdata[i].mapyagphiB[j];
-                    } else if (!strcasecmp(request_block->function, "MYPhib_inner")) {
+                    } else if (STR_IEQUALS(request_block->function, "MYPhib_inner")) {
                         arr[offset] = equimapdata.efitdata[i].mapyagphi1B[j];
-                    } else if (!strcasecmp(request_block->function, "MYPhib_outer")) {
+                    } else if (STR_IEQUALS(request_block->function, "MYPhib_outer")) {
                         arr[offset] = equimapdata.efitdata[i].mapyagphi2B[j];
-                    } else if (!strcasecmp(request_block->function, "MPsib")) {
+                    } else if (STR_IEQUALS(request_block->function, "MPsib")) {
                         arr[offset] = equimapdata.efitdata[i].mappsiB[j];
-                    } else if (!strcasecmp(request_block->function, "MQB")) {
+                    } else if (STR_IEQUALS(request_block->function, "MQB")) {
                         arr[offset] = equimapdata.efitdata[i].mapqB[j];
-                    } else if (!strcasecmp(request_block->function, "MPB")) {
+                    } else if (STR_IEQUALS(request_block->function, "MPB")) {
                         arr[offset] = equimapdata.efitdata[i].mappB[j];
-                    } else if (!strcasecmp(request_block->function, "MFB")) {
+                    } else if (STR_IEQUALS(request_block->function, "MFB")) {
                         arr[offset] = equimapdata.efitdata[i].mapfB[j];
-                    } else if (!strcasecmp(request_block->function, "MPPrimeB")) {
+                    } else if (STR_IEQUALS(request_block->function, "MPPrimeB")) {
                         arr[offset] = equimapdata.efitdata[i].mappprimeB[j];
-                    } else if (!strcasecmp(request_block->function, "MFFPrimeB")) {
+                    } else if (STR_IEQUALS(request_block->function, "MFFPrimeB")) {
                         arr[offset] = equimapdata.efitdata[i].mapffprimeB[j];
-                    } else if (!strcasecmp(request_block->function, "MElongB")) {
+                    } else if (STR_IEQUALS(request_block->function, "MElongB")) {
                         arr[offset] = equimapdata.efitdata[i].mapelongpB[j];
-                    } else if (!strcasecmp(request_block->function, "MTriangLB")) {
+                    } else if (STR_IEQUALS(request_block->function, "MTriangLB")) {
                         arr[offset] = equimapdata.efitdata[i].maptrianglpB[j];
-                    } else if (!strcasecmp(request_block->function, "MTriangUB")) {
+                    } else if (STR_IEQUALS(request_block->function, "MTriangUB")) {
                         arr[offset] = equimapdata.efitdata[i].maptriangupB[j];
-                    } else if (!strcasecmp(request_block->function, "MVolB")) {
+                    } else if (STR_IEQUALS(request_block->function, "MVolB")) {
                         arr[offset] = equimapdata.efitdata[i].mapvolpB[j];
-                    } else if (!strcasecmp(request_block->function, "MAreaB")) {
+                    } else if (STR_IEQUALS(request_block->function, "MAreaB")) {
                         arr[offset] = equimapdata.efitdata[i].mapareapB[j];
                     }
                 }
@@ -1796,16 +1797,16 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 strcpy(data_block->data_label, getIdamDataLabel(handle));
                 strcpy(data_block->data_desc, getIdamDataDesc(handle));
             } else {
-                if (!strcasecmp(request_block->function, "MPsiB") ||
-                    !strcasecmp(request_block->function, "MYPsiB") ||
-                    !strcasecmp(request_block->function, "MYPsiB_inner") ||
-                    !strcasecmp(request_block->function, "MYPsiB_outer")) {
+                if (STR_IEQUALS(request_block->function, "MPsiB") ||
+                    STR_IEQUALS(request_block->function, "MYPsiB") ||
+                    STR_IEQUALS(request_block->function, "MYPsiB_inner") ||
+                    STR_IEQUALS(request_block->function, "MYPsiB_outer")) {
                     strcpy(data_block->data_units, "Wb");
                     strcpy(data_block->data_label, "psi");
                     strcpy(data_block->data_desc, "Poloidal Flux");
-                } else if (!strcasecmp(request_block->function, "MYPhiB") ||
-                           !strcasecmp(request_block->function, "MYPhiB_inner") ||
-                           !strcasecmp(request_block->function, "MYPhiB_outer")) {
+                } else if (STR_IEQUALS(request_block->function, "MYPhiB") ||
+                           STR_IEQUALS(request_block->function, "MYPhiB_inner") ||
+                           STR_IEQUALS(request_block->function, "MYPhiB_outer")) {
                     strcpy(data_block->data_units, "Wb");
                     strcpy(data_block->data_label, "phi");
                     strcpy(data_block->data_desc, "Toroidal Flux");
@@ -1821,7 +1822,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Fixed Grids
 
-        if (!strcasecmp(request_block->function, "FRho") || !strcasecmp(request_block->function, "FRhoB")) {
+        if (STR_IEQUALS(request_block->function, "FRho") || STR_IEQUALS(request_block->function, "FRhoB")) {
 
             initDataBlock(data_block);
             data_block->rank = 1;
@@ -1832,7 +1833,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Array Index
 
-            if (!strcasecmp(request_block->function, "FRho"))
+            if (STR_IEQUALS(request_block->function, "FRho"))
                 data_block->dims[0].dim_n = equimapdata.rhoCount;
             else
                 data_block->dims[0].dim_n = equimapdata.rhoBCount;
@@ -1852,7 +1853,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             data_block->data_type = TYPE_FLOAT;
             data_block->data = malloc(data_block->data_n * sizeof(float));
-            if (!strcasecmp(request_block->function, "FRho"))
+            if (STR_IEQUALS(request_block->function, "FRho"))
                 memcpy((void*) data_block->data, (void*) equimapdata.rho, equimapdata.rhoCount * sizeof(float));
             else
                 memcpy((void*) data_block->data, (void*) equimapdata.rhoB, equimapdata.rhoBCount * sizeof(float));
@@ -1874,7 +1875,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 }
             }
 
-            if (!strcasecmp(request_block->function, "FRho")) {
+            if (STR_IEQUALS(request_block->function, "FRho")) {
                 strcpy(data_block->data_label, "Rho");
                 strcat(data_block->data_desc, "Mid-Points");
             } else {
@@ -1887,7 +1888,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Fixed Grids: Create rank 2 array rho[t][x]	// Array Shape: data[2][1][0]
 
-        if (!strcasecmp(request_block->function, "Rho") || !strcasecmp(request_block->function, "RhoB")) {
+        if (STR_IEQUALS(request_block->function, "Rho") || STR_IEQUALS(request_block->function, "RhoB")) {
 
             initDataBlock(data_block);
             data_block->rank = 2;
@@ -1917,7 +1918,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Array Index
 
-            if (!strcasecmp(request_block->function, "Rho"))
+            if (STR_IEQUALS(request_block->function, "Rho"))
                 data_block->dims[0].dim_n = equimapdata.rhoCount;
             else
                 data_block->dims[0].dim_n = equimapdata.rhoBCount;
@@ -1941,7 +1942,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             data_block->data = malloc(data_block->data_n * sizeof(float));
             arr = (float*) data_block->data;
 
-            if (!strcasecmp(request_block->function, "Rho")) {
+            if (STR_IEQUALS(request_block->function, "Rho")) {
                 for (i = 0; i < equimapdata.timeCount; i++) {
                     for (j = 0; j < equimapdata.rhoCount; j++) {
                         offset = i * equimapdata.rhoCount + j;
@@ -1973,7 +1974,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             }
 
             strcpy(data_block->data_units, "");
-            if (!strcasecmp(request_block->function, "Rho")) {
+            if (STR_IEQUALS(request_block->function, "Rho")) {
                 strcpy(data_block->data_label, "Rho");
                 strcat(data_block->data_desc, "Mid-Points");
             } else {
@@ -1987,11 +1988,11 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Rank 2 Flux Surface Average Data  [time][rho]
 
-        if (!strcasecmp(request_block->function, "mapgm0") ||
-            !strcasecmp(request_block->function, "mapgm1") ||
-            !strcasecmp(request_block->function, "mapgm2") ||
-            !strcasecmp(request_block->function, "mapgm99") ||
-            !strcasecmp(request_block->function, "mapgm3")) {
+        if (STR_IEQUALS(request_block->function, "mapgm0") ||
+            STR_IEQUALS(request_block->function, "mapgm1") ||
+            STR_IEQUALS(request_block->function, "mapgm2") ||
+            STR_IEQUALS(request_block->function, "mapgm99") ||
+            STR_IEQUALS(request_block->function, "mapgm3")) {
 
 // ************ //fluxSurfaceAverage();
 
@@ -2057,34 +2058,34 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             for (i = 0; i < equimapdata.timeCount; i++) {
                 for (j = 0; j < data_block->dims[0].dim_n; j++) {
                     offset = i * data_block->dims[0].dim_n + j;
-                    if (!strcasecmp(request_block->function, "mapgm0")) {
+                    if (STR_IEQUALS(request_block->function, "mapgm0")) {
                         arr[offset] = equimapdata.fluxAverages[i].metrics.grho[j];
-                    } else if (!strcasecmp(request_block->function, "mapgm1")) {
+                    } else if (STR_IEQUALS(request_block->function, "mapgm1")) {
                         arr[offset] = equimapdata.fluxAverages[i].metrics.grho2[j];
-                    } else if (!strcasecmp(request_block->function, "mapgm2")) {
+                    } else if (STR_IEQUALS(request_block->function, "mapgm2")) {
                         arr[offset] = equimapdata.fluxAverages[i].metrics.gm2[j];
-                    } else if (!strcasecmp(request_block->function, "mapgm3")) {
+                    } else if (STR_IEQUALS(request_block->function, "mapgm3")) {
                         arr[offset] = equimapdata.fluxAverages[i].metrics.gm3[j];
                     }
                 }
             }
 
-            if (!strcasecmp(request_block->function, "mapgm0")) {
+            if (STR_IEQUALS(request_block->function, "mapgm0")) {
                 strcpy(data_block->data_units, "m^-1");
                 strcpy(data_block->data_label, "<|Grad Rho|>");
                 strcpy(data_block->data_desc, "Flux Surface Average <|Grad Rho|>");
 
-            } else if (!strcasecmp(request_block->function, "mapgm1")) {
+            } else if (STR_IEQUALS(request_block->function, "mapgm1")) {
                 strcpy(data_block->data_units, "m^-2");
                 strcpy(data_block->data_label, "<|Grad Rho|^2>");
                 strcpy(data_block->data_desc, "Flux Surface Average <|Grad Rho|^2>");
 
-            } else if (!strcasecmp(request_block->function, "mapgm2")) {
+            } else if (STR_IEQUALS(request_block->function, "mapgm2")) {
                 strcpy(data_block->data_units, "m");
                 strcpy(data_block->data_label, "<R>");
                 strcpy(data_block->data_desc, "Flux Surface Average <R>");
             }
-            else if (!strcasecmp(request_block->function, "mapgm3")) {
+            else if (STR_IEQUALS(request_block->function, "mapgm3")) {
                 strcpy(data_block->data_units, "m");
                 strcpy(data_block->data_label, "<|Grad(Rho/R)|^2>");
                 strcpy(data_block->data_desc, "Flux Surface Average <|Grad(Rho/R)|^2>");

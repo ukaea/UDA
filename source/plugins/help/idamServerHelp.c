@@ -29,6 +29,7 @@
 #include <clientserver/errorLog.h>
 #include <logging/logging.h>
 #include <plugins/udaPlugin.h>
+#include <clientserver/stringUtils.h>
 
 int idamServerHelp(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
@@ -82,7 +83,7 @@ int idamServerHelp(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 // Plugin must maintain a list of calls to other plugins: loop over and call each plugin with the housekeeping request
 // Plugin must destroy lists at end of housekeeping
 
-    if (housekeeping || !strcasecmp(request_block->function, "reset")) {
+    if (housekeeping || STR_IEQUALS(request_block->function, "reset")) {
 
         if (!init) return 0;        // Not previously initialised: Nothing to do!
         init = 0;
@@ -92,11 +93,11 @@ int idamServerHelp(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 //----------------------------------------------------------------------------------------
 // Initialise 
 
-    if (!init || !strcasecmp(request_block->function, "init")
-        || !strcasecmp(request_block->function, "initialise")) {
+    if (!init || STR_IEQUALS(request_block->function, "init")
+        || STR_IEQUALS(request_block->function, "initialise")) {
 
         init = 1;
-        if (!strcasecmp(request_block->function, "init") || !strcasecmp(request_block->function, "initialise"))
+        if (STR_IEQUALS(request_block->function, "init") || STR_IEQUALS(request_block->function, "initialise"))
             return 0;
     }
 
@@ -119,7 +120,7 @@ int idamServerHelp(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Help: A Description of library functionality
 
-        if (!strcasecmp(request_block->function, "help") || request_block->function[0] == '\0') {
+        if (STR_IEQUALS(request_block->function, "help") || request_block->function[0] == '\0') {
 
             p = (char*) malloc(sizeof(char) * 2 * 1024);
 
@@ -157,7 +158,7 @@ int idamServerHelp(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 //----------------------------------------------------------------------------------------   
 // Standard methods: version, builddate, defaultmethod, maxinterfaceversion 
 
-        if (!strcasecmp(request_block->function, "version")) {
+        if (STR_IEQUALS(request_block->function, "version")) {
             initDataBlock(data_block);
             data_block->data_type = TYPE_INT;
             data_block->rank = 0;
@@ -173,7 +174,7 @@ int idamServerHelp(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Plugin Build Date
 
-        if (!strcasecmp(request_block->function, "builddate")) {
+        if (STR_IEQUALS(request_block->function, "builddate")) {
             initDataBlock(data_block);
             data_block->data_type = TYPE_STRING;
             data_block->rank = 0;
@@ -189,7 +190,7 @@ int idamServerHelp(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Plugin Default Method
 
-        if (!strcasecmp(request_block->function, "defaultmethod")) {
+        if (STR_IEQUALS(request_block->function, "defaultmethod")) {
             initDataBlock(data_block);
             data_block->data_type = TYPE_STRING;
             data_block->rank = 0;
@@ -205,7 +206,7 @@ int idamServerHelp(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Plugin Maximum Interface Version
 
-        if (!strcasecmp(request_block->function, "maxinterfaceversion")) {
+        if (STR_IEQUALS(request_block->function, "maxinterfaceversion")) {
             initDataBlock(data_block);
             data_block->data_type = TYPE_INT;
             data_block->rank = 0;
@@ -223,8 +224,8 @@ int idamServerHelp(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Ping: Timing
 
-        if (!strcasecmp(request_block->function, "ping") ||
-            !strcasecmp(request_block->function, "servertime")) {
+        if (STR_IEQUALS(request_block->function, "ping") ||
+            STR_IEQUALS(request_block->function, "servertime")) {
 
             struct timeval serverTime;        // Local time in microseconds
             gettimeofday(&serverTime, NULL);
@@ -287,7 +288,7 @@ int idamServerHelp(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 //====================================================================================== 
 // Plugin functionality 
 
-        if (!strcasecmp(request_block->function, "services")) {
+        if (STR_IEQUALS(request_block->function, "services")) {
 
             int i, j, count;
             unsigned short target;

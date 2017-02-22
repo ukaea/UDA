@@ -282,7 +282,7 @@ void sqlMeta(PGconn* DBConnect, char* table, char* meta_id, char* xml, char* cre
     xml[0] = '\0';
     creation[0] = '\0';
 
-    if (strcmp(meta_id, "0") == 0) return;
+    if (STR_EQUALS(meta_id, "0")) return;
 
 //-------------------------------------------------------------
 // Build SQL
@@ -487,7 +487,7 @@ int sqlSignalDescMap(PGconn* DBConnect, char* originalSignal, int exp_number, in
 // Beginning '/' or 'transp/' ?
 
     pus = NULL;
-    if (signal[0] != '/' && !strncmp(us, "TRANSP/", 7)) {
+    if (signal[0] != '/' && STR_EQUALS(us, "TRANSP/")) {
         prefixAdded = 1;
         pus = (char*) malloc(lstr + 1);
         sprintf(pus, "/%s", us);
@@ -1203,7 +1203,7 @@ int sqlNoIdamSignal(PGconn* DBConnect, char* originalSignal, int exp_number, int
 
         if (strlen(signal) > 4 && signal[3] == '_') {
             strcpy(data_source->format, FORMAT_LEGACY);        // Default Legacy file format
-            if (!strcmp(data_source->format, "IDA3")) {
+            if (STR_EQUALS(data_source->format, "IDA3")) {
                 nameIDA(signal_desc->source_alias, exp_number, data_source->filename);
                 strlwr(data_source->filename);            // Ensure lower case
                 strcat(data_source->path, "/");
@@ -1213,7 +1213,7 @@ int sqlNoIdamSignal(PGconn* DBConnect, char* originalSignal, int exp_number, int
             }
         } else {
             strcpy(data_source->format, FORMAT_MODERN);        // Default Modern file format
-            if (!strcmp(data_source->format, "CDF")) {
+            if (STR_EQUALS(data_source->format, "CDF")) {
                 sprintf(data_source->filename, "%s%06d.nc", signal_desc->source_alias, exp_number);
                 strlwr(data_source->filename);            // Ensure lower case
                 strcat(data_source->path, "/");
@@ -1386,7 +1386,7 @@ int sqlNoIdamSignal(PGconn* DBConnect, char* originalSignal, int exp_number, int
 
                 if (netcdf) {
                     strcpy(data_source->format, FORMAT_MODERN);
-                    if (!strcmp(data_source->format, "CDF")) {
+                    if (STR_EQUALS(data_source->format, "CDF")) {
                         sprintf(data_source->filename, "%s%06d.nc", prefix, exp_number);
                         strcat(data_source->path, "/");
                         strcat(data_source->path, data_source->filename);    // Add the filename to the Path
@@ -1395,7 +1395,7 @@ int sqlNoIdamSignal(PGconn* DBConnect, char* originalSignal, int exp_number, int
                     }
                 } else {
                     strcpy(data_source->format, FORMAT_LEGACY);
-                    if (!strcmp(data_source->format, "IDA3")) {
+                    if (STR_EQUALS(data_source->format, "IDA3")) {
                         nameIDA(prefix, exp_number, data_source->filename);
                         strcat(data_source->path, "/");
                         strcat(data_source->path, data_source->filename);    // Add the filename to the Path
@@ -1570,7 +1570,7 @@ int sqlNoIdamSignalxxx(PGconn* DBConnect, char* originalSignal, int exp_number, 
 
         if (strlen(signal) > 4 && signal[3] == '_') {
             strcpy(data_source->format, FORMAT_LEGACY);        // Default Legacy file format
-            if (!strcmp(data_source->format, "IDA3")) {
+            if (STR_EQUALS(data_source->format, "IDA3")) {
                 nameIDA(signal_desc->source_alias, exp_number, data_source->filename);
                 strlwr(data_source->filename);                // Ensure lower case
                 strcat(data_source->path, "/");
@@ -1580,7 +1580,7 @@ int sqlNoIdamSignalxxx(PGconn* DBConnect, char* originalSignal, int exp_number, 
             }
         } else {
             strcpy(data_source->format, FORMAT_MODERN);        // Default Modern file format
-            if (!strcmp(data_source->format, "CDF")) {
+            if (STR_EQUALS(data_source->format, "CDF")) {
                 sprintf(data_source->filename, "%s%06d.nc", prefix, exp_number);
                 strlwr(data_source->filename);                // Ensure lower case
                 strcat(data_source->path, "/");
@@ -1678,7 +1678,7 @@ int sqlNoIdamSignalxxx(PGconn* DBConnect, char* originalSignal, int exp_number, 
 
             if (netcdf) {
                 strcpy(data_source->format, FORMAT_MODERN);
-                if (!strcmp(data_source->format, "CDF")) {
+                if (STR_EQUALS(data_source->format, "CDF")) {
                     sprintf(data_source->filename, "%s%06d.nc", prefix, exp_number);
                     strcat(data_source->path, "/");
                     strcat(data_source->path, data_source->filename);    // Add the filename to the Path
@@ -1687,7 +1687,7 @@ int sqlNoIdamSignalxxx(PGconn* DBConnect, char* originalSignal, int exp_number, 
                 }
             } else {
                 strcpy(data_source->format, FORMAT_LEGACY);
-                if (!strcmp(data_source->format, "IDA3")) {
+                if (STR_EQUALS(data_source->format, "IDA3")) {
                     nameIDA(prefix, exp_number, data_source->filename);
                     strcat(data_source->path, "/");
                     strcat(data_source->path, data_source->filename);    // Add the filename to the Path

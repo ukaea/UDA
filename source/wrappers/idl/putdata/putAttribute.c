@@ -257,7 +257,7 @@ int putAttribute(int nparams, IDL_VPTR argv[], KW_RESULT* kw, int ncgrpid) {
                 if (kw->debug) fprintf(stdout, "Text Attribute to be added ... %s\n", text);
 
 
-                if (!kw->notstrict && kw->is_varname && !strcmp(name, "units")) {    // Test for SI Compliance
+                if (!kw->notstrict && kw->is_varname && STR_EQUALS(name, "units")) {    // Test for SI Compliance
                     if (!testUnitsCompliance(kw, text)) {
                         if (kw->verbose)
                             fprintf(stderr, "Unable to Write a Units Attribute for Variable/Coordinate %s\n", varname);

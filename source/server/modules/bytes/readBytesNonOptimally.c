@@ -64,7 +64,7 @@ int readBytes(DATA_SOURCE data_source,
     if (environment.external_user) {
         err = 999;
         addIdamError(&idamerrorstack, CODEERRORTYPE, "readBytes", err, "This Service is Disabled");
-        idamLog(LOG_DEBUG, "readByte: Disabled Service - Requested File: %s \n", data_source.path);
+        IDAM_LOGF(LOG_DEBUG, "Disabled Service - Requested File: %s \n", data_source.path);
         return err;
     }
 
@@ -74,7 +74,7 @@ int readBytes(DATA_SOURCE data_source,
     if (!IsLegalFilePath(data_source.path)) {
         err = 999;
         addIdamError(&idamerrorstack, CODEERRORTYPE, "readBytes", err, "The directory path has incorrect syntax");
-        idamLog(LOG_DEBUG, "readByte: The directory path has incorrect syntax [%s] \n", data_source.path);
+        IDAM_LOGF(LOG_DEBUG, "The directory path has incorrect syntax [%s] \n", data_source.path);
         return err;
     }
 
@@ -83,7 +83,7 @@ int readBytes(DATA_SOURCE data_source,
 
     err = 0;
 
-    idamLog(LOG_DEBUG, "readByte: File Name  : %s \n", data_source.path);
+    IDAM_LOGF(LOG_DEBUG, "File Name  : %s \n", data_source.path);
 
 //----------------------------------------------------------------------
 // File Attributes

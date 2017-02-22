@@ -272,19 +272,19 @@ IDL_VPTR IDL_CDECL putdata(int argc, IDL_VPTR argv[], char* argk) {
         stepId = IDL_STRING_STR(&kw.stepId);
 
         do {
-            if (!strcasecmp(stepId, "create")) {
+            if (STR_IEQUALS(stepId, "create")) {
                 kw.create = 1;
                 break;
             }
-            if (!strcasecmp(stepId, "close")) {
+            if (STR_IEQUALS(stepId, "close")) {
                 kw.close = 1;
                 break;
             }
-            if (!strcasecmp(stepId, "update")) {
+            if (STR_IEQUALS(stepId, "update")) {
                 kw.update = 1;
                 break;
             }
-            if (!strcasecmp(stepId, "delete")) {
+            if (STR_IEQUALS(stepId, "delete")) {
                 kw.delete = 1;
                 break;
             }
@@ -340,7 +340,7 @@ IDL_VPTR IDL_CDECL putdata(int argc, IDL_VPTR argv[], char* argk) {
         //--------------------------------------------------------------------------
         // Devices: A Group Named after a Device
 
-        if (!strcasecmp(stepId, "device")) {
+        if (STR_IEQUALS(stepId, "device")) {
             err = putDevice(&kw);
             break;
         }
@@ -355,7 +355,7 @@ IDL_VPTR IDL_CDECL putdata(int argc, IDL_VPTR argv[], char* argk) {
         //--------------------------------------------------------------------------
         // Dimensions
 
-        if (!strcasecmp(stepId, "dimension")) {
+        if (STR_IEQUALS(stepId, "dimension")) {
             err = putDimension(&kw);
             break;
         }
@@ -363,7 +363,7 @@ IDL_VPTR IDL_CDECL putdata(int argc, IDL_VPTR argv[], char* argk) {
         //--------------------------------------------------------------------------
         // Coordinate Variables
 
-        if (!strcasecmp(stepId, "coordinate")) {
+        if (STR_IEQUALS(stepId, "coordinate")) {
             err = putCoordinate(&kw);
             break;
         }
@@ -371,7 +371,7 @@ IDL_VPTR IDL_CDECL putdata(int argc, IDL_VPTR argv[], char* argk) {
         //--------------------------------------------------------------------------
         // Data Variables
 
-        if (!strcasecmp(stepId, "variable")) {
+        if (STR_IEQUALS(stepId, "variable")) {
             err = putVariable(&kw);
             break;
         }
@@ -379,7 +379,7 @@ IDL_VPTR IDL_CDECL putdata(int argc, IDL_VPTR argv[], char* argk) {
         //--------------------------------------------------------------------------
         // Attributes: Additional attributes can be placed within any group level
 
-        if (!strcasecmp(stepId, "attribute")) {
+        if (STR_IEQUALS(stepId, "attribute")) {
             err = putAttribute(&kw);
             break;
         }

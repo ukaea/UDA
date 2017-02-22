@@ -90,23 +90,23 @@ int idamServerLegacyPlugin(REQUEST_BLOCK* request_block, DATA_SOURCE* data_sourc
             IDAM_LOG(LOG_DEBUG, "Request: REQUEST_READ_FORMAT \n");
             IDAM_LOGF(LOG_DEBUG, "Format : %s \n", request_block->format);
 
-            if (!strcasecmp(request_block->format, "IDA") || !strcasecmp(request_block->format, "IDA3")) {
+            if (STR_IEQUALS(request_block->format, "IDA") || STR_IEQUALS(request_block->format, "IDA3")) {
                 request_block->request = REQUEST_READ_IDA;
                 parseIDAPath(request_block);        // Check Path for file details
-            } else if (!strcasecmp(request_block->format, "NETCDF")) request_block->request = REQUEST_READ_CDF;
-            else if (!strcasecmp(request_block->format, "HDF5")) request_block->request = REQUEST_READ_HDF5;
-            else if (!strcasecmp(request_block->format, "XML")) {
+            } else if (STR_IEQUALS(request_block->format, "NETCDF")) request_block->request = REQUEST_READ_CDF;
+            else if (STR_IEQUALS(request_block->format, "HDF5")) request_block->request = REQUEST_READ_HDF5;
+            else if (STR_IEQUALS(request_block->format, "XML")) {
                 request_block->request = REQUEST_READ_XML;
                 parseXMLPath(request_block);        // Check Path for details
-            } else if (!strcasecmp(request_block->format, "UFILE")) request_block->request = REQUEST_READ_UFILE;
-            else if (!strcasecmp(request_block->format, "BIN") || !strcasecmp(request_block->format, "BINARY"))
+            } else if (STR_IEQUALS(request_block->format, "UFILE")) request_block->request = REQUEST_READ_UFILE;
+            else if (STR_IEQUALS(request_block->format, "BIN") || STR_IEQUALS(request_block->format, "BINARY"))
                 request_block->request = REQUEST_READ_FILE;
-            else if (!strcasecmp(request_block->format, "PPF")) request_block->request = REQUEST_READ_PPF;
-            else if (!strcasecmp(request_block->format, "JPF")) request_block->request = REQUEST_READ_JPF;
-            else if (!strcasecmp(request_block->format, "TEST")) request_block->request = REQUEST_READ_NEW_PLUGIN;
-            else if (!strcasecmp(request_block->format, "NOTHING")) request_block->request = REQUEST_READ_NOTHING;
-            else if (!strcasecmp(request_block->format, "HDATA")) request_block->request = REQUEST_READ_HDATA;
-            else if (!strcasecmp(request_block->format, "SQL")) request_block->request = REQUEST_READ_SQL;
+            else if (STR_IEQUALS(request_block->format, "PPF")) request_block->request = REQUEST_READ_PPF;
+            else if (STR_IEQUALS(request_block->format, "JPF")) request_block->request = REQUEST_READ_JPF;
+            else if (STR_IEQUALS(request_block->format, "TEST")) request_block->request = REQUEST_READ_NEW_PLUGIN;
+            else if (STR_IEQUALS(request_block->format, "NOTHING")) request_block->request = REQUEST_READ_NOTHING;
+            else if (STR_IEQUALS(request_block->format, "HDATA")) request_block->request = REQUEST_READ_HDATA;
+            else if (STR_IEQUALS(request_block->format, "SQL")) request_block->request = REQUEST_READ_SQL;
 
             IDAM_LOGF(LOG_DEBUG, "Request Selected: %d\n", request_block->request);
             IDAM_LOGF(LOG_DEBUG, "File: %s\n", request_block->file);

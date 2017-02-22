@@ -591,7 +591,7 @@ extern int livedisplay(IDAM_PLUGIN_INTERFACE* idam_plugin_interface) {
 //----------------------------------------------------------------------------------------
 // Heap Housekeeping
 
-    if (housekeeping || !strcasecmp(request_block->function, "reset")) {
+    if (housekeeping || STR_IEQUALS(request_block->function, "reset")) {
 
         idamLog(LOG_DEBUG, "LiveDisplay: reset function called.\n");
 
@@ -620,8 +620,8 @@ extern int livedisplay(IDAM_PLUGIN_INTERFACE* idam_plugin_interface) {
 //----------------------------------------------------------------------------------------
 // Initialise if requested
 
-    if (!init || !strcasecmp(request_block->function, "init")
-        || !strcasecmp(request_block->function, "initialise")) {
+    if (!init || STR_IEQUALS(request_block->function, "init")
+        || STR_IEQUALS(request_block->function, "initialise")) {
 
         idamLog(LOG_DEBUG, "LiveDisplay: init function called.\n");
 
@@ -635,7 +635,7 @@ extern int livedisplay(IDAM_PLUGIN_INTERFACE* idam_plugin_interface) {
 
         init = 1;
 
-        if (!strcasecmp(request_block->function, "init") || !strcasecmp(request_block->function, "initialise")) {
+        if (STR_IEQUALS(request_block->function, "init") || STR_IEQUALS(request_block->function, "initialise")) {
             return 0;
         }
     }
@@ -657,9 +657,9 @@ extern int livedisplay(IDAM_PLUGIN_INTERFACE* idam_plugin_interface) {
         idamLog(LOG_DEBUG, "[%d] %s = %s\n", i, request_block->nameValueList.nameValue[i].name,
                 request_block->nameValueList.nameValue[i].value);
 
-        if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "exp_number") ||
-            !strcasecmp(request_block->nameValueList.nameValue[i].name, "shot") ||
-            !strcasecmp(request_block->nameValueList.nameValue[i].name, "pulno")) {
+        if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "exp_number") ||
+            STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "shot") ||
+            STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "pulno")) {
             if (IsNumber(request_block->nameValueList.nameValue[i].value)) {
                 exp_number = atoi(request_block->nameValueList.nameValue[i].value);
                 continue;
@@ -668,12 +668,12 @@ extern int livedisplay(IDAM_PLUGIN_INTERFACE* idam_plugin_interface) {
                 break;
             }
         }
-        if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "startTime")) {
+        if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "startTime")) {
             isStartTime = 1;
             startTime = atof(request_block->nameValueList.nameValue[i].value);
             continue;
         }
-        if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "endTime")) {
+        if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "endTime")) {
             isEndTime = 1;
             endTime = atof(request_block->nameValueList.nameValue[i].value);
             continue;
@@ -681,32 +681,32 @@ extern int livedisplay(IDAM_PLUGIN_INTERFACE* idam_plugin_interface) {
 
 // Keywords
 
-        if (!strcasecmp(request_block->nameValueList.nameValue[i].name,
+        if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name,
                         "average")) {        // Average data within the time window (startTime and endTime must be specified)
             isAverage = 1;
             continue;
         }
-        if (!strcasecmp(request_block->nameValueList.nameValue[i].name,
+        if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name,
                         "nearest")) {        // The data measurement nearest startTime.  endTime is ignored.
             isNearest = 1;
             continue;
         }
-        if (!strcasecmp(request_block->nameValueList.nameValue[i].name,
+        if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name,
                         "first")) {        // The first data measurement within the time window (startTime and endTime must be specified)
             isFirst = 1;
             continue;
         }
-        if (!strcasecmp(request_block->nameValueList.nameValue[i].name,
+        if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name,
                         "last")) {        // The last data measurement within the time window (startTime and endTime must be specified)
             isLast = 1;
             continue;
         }
-        if (!strcasecmp(request_block->nameValueList.nameValue[i].name,
+        if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name,
                         "cache")) {        // Cache the machine description data
             isCache = 1;
             continue;
         }
-        if (!strcasecmp(request_block->nameValueList.nameValue[i].name,
+        if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name,
                         "count")) {        // Cache the Count of the coil or probe
             isCount = 1;
             continue;
@@ -724,7 +724,7 @@ extern int livedisplay(IDAM_PLUGIN_INTERFACE* idam_plugin_interface) {
 // Test Methods
 //----------------------------------------------------------------------------------------
 
-        if (!strcasecmp(request_block->function, "test1")) {    // CODE data structure
+        if (STR_IEQUALS(request_block->function, "test1")) {    // CODE data structure
 
 // Create the Returned Structure Definitions
 
@@ -775,7 +775,7 @@ extern int livedisplay(IDAM_PLUGIN_INTERFACE* idam_plugin_interface) {
 
             break;
 
-        } else if (!strcasecmp(request_block->function, "test2")) {
+        } else if (STR_IEQUALS(request_block->function, "test2")) {
 
 // Create the Returned Structure Definitions
 
@@ -880,7 +880,7 @@ extern int livedisplay(IDAM_PLUGIN_INTERFACE* idam_plugin_interface) {
 
             break;
 
-        } else if (!strcasecmp(request_block->function, "test3")) {    // FLUX_LOOP data structure
+        } else if (STR_IEQUALS(request_block->function, "test3")) {    // FLUX_LOOP data structure
 
 // Create the Returned Structure Definitions
 
@@ -941,7 +941,7 @@ extern int livedisplay(IDAM_PLUGIN_INTERFACE* idam_plugin_interface) {
 
             break;
 
-        } else if (!strcasecmp(request_block->function, "test4")) {    // FLUX_LOOP data structure
+        } else if (STR_IEQUALS(request_block->function, "test4")) {    // FLUX_LOOP data structure
 
 // Create the Returned Structure Definitions
 
@@ -1006,7 +1006,7 @@ extern int livedisplay(IDAM_PLUGIN_INTERFACE* idam_plugin_interface) {
 
             break;
 
-        } else if (!strcasecmp(request_block->function, "test5")) {    // FLUX_LOOP data structure
+        } else if (STR_IEQUALS(request_block->function, "test5")) {    // FLUX_LOOP data structure
 
             char signal[256], source[256];
             int stringLength;
@@ -1120,7 +1120,7 @@ extern int livedisplay(IDAM_PLUGIN_INTERFACE* idam_plugin_interface) {
 
             break;
 
-        } else if (!strcasecmp(request_block->function, "test6")) {    // FLUX_LOOP data structure with MAST data
+        } else if (STR_IEQUALS(request_block->function, "test6")) {    // FLUX_LOOP data structure with MAST data
 
             char signal[256], source[256];
             int stringLength;
@@ -1330,7 +1330,7 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
 
             break;
 
-        } else if (!strcasecmp(request_block->function, "test7")) {    // FLUX_LOOP data structure with MAST data
+        } else if (STR_IEQUALS(request_block->function, "test7")) {    // FLUX_LOOP data structure with MAST data
 
             char signal[256], source[256];
             int stringLength;
@@ -1575,7 +1575,7 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
 
             break;
 
-        } else if (!strcasecmp(request_block->function, "test8")) {    // FLUX_LOOP data structure with MAST data
+        } else if (STR_IEQUALS(request_block->function, "test8")) {    // FLUX_LOOP data structure with MAST data
 
             char signal[256], source[256];
             int stringLength;
@@ -1948,7 +1948,7 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
 
             break;
 
-        } else if (!strcasecmp(request_block->function, "test9")) {    // FLUX_LOOP data structure with MAST data
+        } else if (STR_IEQUALS(request_block->function, "test9")) {    // FLUX_LOOP data structure with MAST data
 
             char signal[256], source[256];
             int stringLength;
@@ -2442,7 +2442,7 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
 
             break;
 
-        } else if (!strcasecmp(request_block->function, "test9x")) {    // FLUX_LOOP Measurement Data Only
+        } else if (STR_IEQUALS(request_block->function, "test9x")) {    // FLUX_LOOP Measurement Data Only
             char signal[256], source[256];
             //int stringLength;
             int cacheData = 0, cacheRetrieve = 0;
@@ -2674,7 +2674,7 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
 
             break;
 
-        } else if (!strcasecmp(request_block->function, "test10")) {    // BPOL_PROBE data structure with MAST data
+        } else if (STR_IEQUALS(request_block->function, "test10")) {    // BPOL_PROBE data structure with MAST data
 
             char signal[256], source[256];
             int stringLength;
@@ -3100,7 +3100,7 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
 
             break;
 
-        } else if (!strcasecmp(request_block->function, "test10x")) {    // BPOL_PROBE data structure with MAST data
+        } else if (STR_IEQUALS(request_block->function, "test10x")) {    // BPOL_PROBE data structure with MAST data
 
             char signal[256], source[256];
             //int stringLength;
@@ -3347,7 +3347,7 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
 
             break;
 
-        } else if (!strcasecmp(request_block->function, "test10y")) {    // BPOL_PROBE data structure with MAST data
+        } else if (STR_IEQUALS(request_block->function, "test10y")) {    // BPOL_PROBE data structure with MAST data
 
             static BPOL_PROBE_TEST2* bpol_probe_cache = NULL;
             static unsigned short bpol_probe_cache_count = 0;
@@ -3672,8 +3672,8 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
 
 // -------------------------------------------------------------------------------------------------------------------------------------------------
 
-        if (!strcasecmp(request_block->function, "magnetics") ||
-            !strcasecmp(request_block->function, "test11")) {    // MAGNETICS data structure with MAST data
+        if (STR_IEQUALS(request_block->function, "magnetics") ||
+            STR_IEQUALS(request_block->function, "test11")) {    // MAGNETICS data structure with MAST data
             char* p = NULL;
             int size = 0;
             char* type = NULL;
@@ -4092,7 +4092,7 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
 
             break;
 
-        } else if (!strcasecmp(request_block->function, "limiter")) {    // STATIC_LIMITER data structure
+        } else if (STR_IEQUALS(request_block->function, "limiter")) {    // STATIC_LIMITER data structure
 
 // Create the Returned Structure Definitions
 
@@ -4161,7 +4161,7 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
 // Vacuum R*Bphi
 // -ve sign means clockwise when viewed from above
 
-        if (!strcasecmp(request_block->function, "RB")) {
+        if (STR_IEQUALS(request_block->function, "RB")) {
             char signal[256], source[256];
 
 // Create the Returned Structure Definitions
@@ -4386,7 +4386,7 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
 //----------------------------------------------------------------------------------------
 // GET
 /*
-        if (!strcasecmp(request_block->function, "get")) {
+        if (STR_IEQUALS(request_block->function, "get")) {
 
             idamLog(LOG_DEBUG, "LiveDisplay: GET entered\n");
 
@@ -4532,7 +4532,7 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
 // livedisplay::help()
 // Information is returned as a single string containing all required format control characters.
 
-        if (!strcasecmp(request_block->function, "help")) {
+        if (STR_IEQUALS(request_block->function, "help")) {
 
 // Create Data
 
@@ -4562,7 +4562,7 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
 //----------------------------------------------------------------------------------------
 // Standard methods: version, builddate, defaultmethod, maxinterfaceversion
 
-        if (!strcasecmp(request_block->function, "version")) {
+        if (STR_IEQUALS(request_block->function, "version")) {
             initDataBlock(data_block);
             data_block->data_type = TYPE_INT;
             data_block->rank = 0;
@@ -4578,7 +4578,7 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
 
 // Plugin Build Date
 
-        if (!strcasecmp(request_block->function, "builddate")) {
+        if (STR_IEQUALS(request_block->function, "builddate")) {
             initDataBlock(data_block);
             data_block->data_type = TYPE_STRING;
             data_block->rank = 0;
@@ -4594,7 +4594,7 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
 
 // Plugin Default Method
 
-        if (!strcasecmp(request_block->function, "defaultmethod")) {
+        if (STR_IEQUALS(request_block->function, "defaultmethod")) {
             initDataBlock(data_block);
             data_block->data_type = TYPE_STRING;
             data_block->rank = 0;
@@ -4610,7 +4610,7 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
 
 // Plugin Maximum Interface Version
 
-        if (!strcasecmp(request_block->function, "maxinterfaceversion")) {
+        if (STR_IEQUALS(request_block->function, "maxinterfaceversion")) {
             initDataBlock(data_block);
             data_block->data_type = TYPE_INT;
             data_block->rank = 0;

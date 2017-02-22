@@ -137,7 +137,7 @@ int readUFile(DATA_SOURCE data_source,
 // Allocate & Initialise Dimensional Structures
 
         if (data_block->rank > 0) {
-            if ((data_block->dims = (DIMS*) malloc(data_block->rank * sizeof(DIMS))) == NULL) {
+            if ((data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS))) == NULL) {
                 err = UFILE_ERROR_ALLOCATING_DIM_HEAP;
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "readUFile", err,
                              "Problem Allocating Dimension Heap Memory");
@@ -155,7 +155,7 @@ int readUFile(DATA_SOURCE data_source,
             fgets(data_block->dims[i].dim_units, 11, ufile);
             TrimString(data_block->dims[i].dim_label);
             TrimString(data_block->dims[i].dim_units);
-            if (!strcasecmp(data_block->dims[i].dim_label, "TIME")) data_block->order = i;
+            if (STR_IEQUALS(data_block->dims[i].dim_label, "TIME")) data_block->order = i;
             fgets(buff, UFILE_BUFFER - 1, ufile);
         }
 
@@ -184,11 +184,12 @@ int readUFile(DATA_SOURCE data_source,
         for (i = 0; i < data_block->rank; i++) {
             data_block->dims[i].data_type = TYPE_FLOAT;
             data_block->dims[i].dim_n = atoi(fgets(buff, 12, ufile));  // Formated as (1x,i10)
-            if (i == 0)
+            if (i == 0) {
                 data_block->data_n = data_block->dims[i].dim_n;
-            else
+            } else {
                 data_block->data_n = data_block->data_n * data_block->dims[i].dim_n;
-            if ((data_block->dims[i].dim = (char*) malloc(sizeof(float) * data_block->dims[i].dim_n)) == NULL) {
+            }
+            if ((data_block->dims[i].dim = (char*)malloc(sizeof(float) * data_block->dims[i].dim_n)) == NULL) {
                 err = UFILE_ERROR_ALLOCATING_DIM_HEAP;
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "readUFile", err,
                              "Problem Allocating Dimensional Heap Memory");
@@ -201,7 +202,7 @@ int readUFile(DATA_SOURCE data_source,
 //--------------------------------------------------------------------------------------------
 // Allocate Heap for the Data and Read the Data
 
-        if ((data_block->data = (char*) malloc(sizeof(float) * data_block->data_n)) == NULL) {
+        if ((data_block->data = (char*)malloc(sizeof(float) * data_block->data_n)) == NULL) {
             err = UFILE_ERROR_ALLOCATING_DATA_HEAP;
             addIdamError(&idamerrorstack, CODEERRORTYPE, "readUFile", err, "Problem Allocating Data Heap Memory");
             break;
@@ -213,7 +214,7 @@ int readUFile(DATA_SOURCE data_source,
         value[13] = '\0';
 
         for (i = 0; i < data_block->rank; i++) {
-            data = (float*) data_block->dims[i].dim;
+            data = (float*)data_block->dims[i].dim;
             nrec = data_block->dims[i].dim_n / 6;        // No. of Records to read
             remain = data_block->dims[i].dim_n - 6 * nrec;        // No. of Data Items in Last Record
             ncheck = 0;                        // Check Count of Items
@@ -231,7 +232,7 @@ int readUFile(DATA_SOURCE data_source,
 //--------------------------------------------------------------------------------------------
 // Read the Data
 
-        data = (float*) data_block->data;
+        data = (float*)data_block->data;
         nrec = data_block->data_n / 6;                // No. of Records to read
         remain = data_block->data_n - 6 * nrec;            // No. of Data Items in Last Record
         ncheck = 0;                        // Check Count of Items
@@ -243,7 +244,7 @@ int readUFile(DATA_SOURCE data_source,
                 strncpy(value, &buff[1 + 13 * k], 13);
                 *(data + ncheck++) = atof(value);
 
-                if (TEST)fprintf(stdout, "[%d] %12.4e\n", ncheck - 1, (double) *(data + ncheck - 1));
+                if (TEST)fprintf(stdout, "[%d] %12.4e\n", ncheck - 1, (double)*(data + ncheck - 1));
             }
         }
 

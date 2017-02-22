@@ -232,7 +232,7 @@ int do_getActive(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     PQsetNoticeProcessor(conn, loggingNoticeProcessor, NULL);
 
-    FILE* log = fopen("/Users/jhollocombe/Projects/uda/etc/paramsdb.log", "w");
+    FILE* log = fopen("./paramsdb.log", "w");
     idamSetLogLevel(LOG_DEBUG);
     idamSetLogFile(LOG_DEBUG, log);
     idamSetLogFile(LOG_INFO, log);

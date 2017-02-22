@@ -137,10 +137,10 @@ char* getTimeBasePath()
 int findIMASType(char* typeName)
 {
     if (typeName == NULL) return (UNKNOWN_TYPE);
-    if (!strcasecmp(typeName, "int")) return INT;
-    if (!strcasecmp(typeName, "float")) return FLOAT;
-    if (!strcasecmp(typeName, "double")) return DOUBLE;
-    if (!strcasecmp(typeName, "string")) return STRING;
+    if (STR_IEQUALS(typeName, "int")) return INT;
+    if (STR_IEQUALS(typeName, "float")) return FLOAT;
+    if (STR_IEQUALS(typeName, "double")) return DOUBLE;
+    if (STR_IEQUALS(typeName, "string")) return STRING;
     return (UNKNOWN_TYPE);
 }
 
@@ -204,7 +204,7 @@ extern int imas_mds(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     REQUEST_BLOCK* request_block = idam_plugin_interface->request_block;
 
-    if (idam_plugin_interface->housekeeping || !strcasecmp(request_block->function, "reset")) {
+    if (idam_plugin_interface->housekeeping || STR_IEQUALS(request_block->function, "reset")) {
 
         if (!init) return 0;        // Not previously initialised: Nothing to do!
 
@@ -224,13 +224,13 @@ extern int imas_mds(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 //----------------------------------------------------------------------------------------
 // Initialise
 
-    if (!init || !strcasecmp(request_block->function, "init") || !strcasecmp(request_block->function, "initialise")) {
+    if (!init || STR_IEQUALS(request_block->function, "init") || STR_IEQUALS(request_block->function, "initialise")) {
         initIdamPluginFileList(&pluginFileList_mds);
         initLocalObj();
         putTimeBasePath("");
 
         init = 1;
-        if (!strcasecmp(request_block->function, "init") || !strcasecmp(request_block->function, "initialise")) {
+        if (STR_IEQUALS(request_block->function, "init") || STR_IEQUALS(request_block->function, "initialise")) {
             return 0;
         }
     }
@@ -250,19 +250,19 @@ cpoPath	- the root group where the CPO/IDS is written
 path	- the path relative to the root (cpoPath) where the data are written (must include the variable name!)
 */
 
-    if (!strcasecmp(request_block->function, "putIdsVersion")) {
+    if (STR_IEQUALS(request_block->function, "putIdsVersion")) {
         err = do_putIdsVersion(idam_plugin_interface, plugin_args);
-    } else if (!strcasecmp(request_block->function, "delete")) {
+    } else if (STR_IEQUALS(request_block->function, "delete")) {
         err = do_delete(idam_plugin_interface, plugin_args);
-    } else if (!strcasecmp(request_block->function, "get")) {
+    } else if (STR_IEQUALS(request_block->function, "get")) {
         err = do_get(idam_plugin_interface, plugin_args, idx);
-    } else if (!strcasecmp(request_block->function, "put")) {
+    } else if (STR_IEQUALS(request_block->function, "put")) {
         err = do_put(idam_plugin_interface, plugin_args, idx);
-    } else if (!strcasecmp(request_block->function, "open")) {
+    } else if (STR_IEQUALS(request_block->function, "open")) {
         err = do_open(idam_plugin_interface, plugin_args, idx);
-    } else if (!strcasecmp(request_block->function, "create")) {
+    } else if (STR_IEQUALS(request_block->function, "create")) {
         err = do_create(idam_plugin_interface, plugin_args, idx);
-    } else if (!strcasecmp(request_block->function, "close")) {
+    } else if (STR_IEQUALS(request_block->function, "close")) {
         err = do_close(idam_plugin_interface, plugin_args, int);
     } else {
         err = 999;
@@ -445,7 +445,7 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
             int get_shape = 0;
 
             size_t len = strlen(path);
-            if (len > 5 && (!strcmp(path + (len - 5), "/time") || !strcmp(path + (len - 5), "/data"))) {
+            if (len > 5 && (STR_EQUALS(path + (len - 5), "/time") || STR_EQUALS(path + (len - 5), "/data"))) {
                 path[len - 5] = '\0';
             }
 

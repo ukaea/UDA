@@ -1306,7 +1306,7 @@ static void setDataEnv(char* user, char* tokamak, char* version) {
     char treeBase8[1024];
     char treeBase9[1024];
 
-    if (!strcmp(user, "public")) {
+    if (STR_EQUALS(user, "public")) {
         //MERGE
         sprintf(treeBase0,
                 "/pfs/imasdb/imas_trees/public/%s/%s/mdsplus/0;/pfs/imasdb/imas_trees/public/models/%s/mdsplus",
@@ -1526,7 +1526,7 @@ void refreshExpCtx(char* name, int shot, int run) {
     lock("refreshExpCtx");
     for (i = 0; i < MAX_EXPERIMENTS; i++) {
         if (openExperimentInfo[i].name && openExperimentInfo[i].shot == currShot &&
-            !strcmp(openExperimentInfo[i].name, name)) {
+            STR_EQUALS(openExperimentInfo[i].name, name)) {
             int status = _TreeOpen(&openExperimentInfo[i].ctx, name, currShot, 0);
             printf("REFRESHED %s Shot: %d Run: %d status: %d\n", name, shot, run, status);
         }
@@ -1539,7 +1539,7 @@ static void* getExpCtx(char* name, int shot) {
     int i;
     for (i = 0; i < MAX_EXPERIMENTS; i++)
         if (openExperimentInfo[i].name && openExperimentInfo[i].shot == shot &&
-            !strcmp(openExperimentInfo[i].name, name))
+            STR_EQUALS(openExperimentInfo[i].name, name))
             return openExperimentInfo[i].ctx;
     return 0;
 }
@@ -1614,7 +1614,7 @@ static int deleteExpIndex(int idx, char* name, int shot, void** ctx) {
         currExperimentIdx = -1;
 //Check for other open experiments
     for (idx = 0; idx < MAX_EXPERIMENTS; idx++)
-        if (openExperimentInfo[idx].name && !strcmp(openExperimentInfo[idx].name, name) &&
+        if (openExperimentInfo[idx].name && STR_EQUALS(openExperimentInfo[idx].name, name) &&
             openExperimentInfo[idx].shot == shot)
             break;
     if (idx == MAX_EXPERIMENTS)
@@ -9439,7 +9439,7 @@ static void putInApd(struct descriptor_a* apd, char* prevName, struct descriptor
                 exit(0);
             }
             currName = getApdName(currApd);
-            if (!strcmp(currName, name)) {
+            if (STR_EQUALS(currName, name)) {
                 free(currName);
                 break;
             }
@@ -10165,7 +10165,7 @@ static struct descriptor* getDataFromApd(struct descriptor_a* apd, char* prevNam
         for (i = 0; i < numChildren; i++) {
             if (((struct descriptor**) apd->pointer)[i + 1]) {
                 currName = getApdName(((struct descriptor_a**) apd->pointer)[i + 1]);
-                if (!strcmp(name, currName)) {
+                if (STR_EQUALS(name, currName)) {
                     free(currName);
                     break;
                 }
