@@ -254,7 +254,7 @@ int do_getActive(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             " WHERE coil_id = (SELECT id FROM Coil WHERE name = $1)"
             "   AND system_id = (SELECT id FROM System WHERE name = $2)"
             "   AND limit_id = (SELECT id FROM Limits WHERE type = $3)",
-        3, NULL, params, NULL, NULL, 1
+        3, NULL, params, NULL, NULL, 0
     );
 
     if (PQresultStatus(res) != PGRES_TUPLES_OK) {
@@ -269,11 +269,14 @@ int do_getActive(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         RAISE_PLUGIN_ERROR("DB query returned multiple rows");
     }
 
-    if (PQfsize(res, 0) != sizeof(double)) {
-        RAISE_PLUGIN_ERROR("DB query returned column with unexpected data size");
-    }
+    //if (PQfsize(res, 0) != sizeof(double)) {
+    //    RAISE_PLUGIN_ERROR("DB query returned column with unexpected data size");
+    //}
 
     const char* buf = PQgetvalue(res, 0, 0);
+    double val = atof(buf);
+
+    IDAM_LOGF(LOG_DEBUG, ">>>>>> %f\n", val);
 
     PQclear(res);
     PQfinish(conn);
@@ -285,7 +288,7 @@ int do_getActive(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     strcpy(data_block->data_desc, "Active coil limit");
 
     data_block->data = malloc(sizeof(double));
-    memcpy(data_block->data, buf, sizeof(double));
+    memcpy(data_block->data, &val, sizeof(double));
     data_block->data_n = 1;
 
     strcpy(data_block->data_label, limit);

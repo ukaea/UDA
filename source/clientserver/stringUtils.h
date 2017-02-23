@@ -2,6 +2,7 @@
 #define IDAM_CLIENTSERVER_TRIMSTRING_H
 
 #include <string.h>
+#include <strings.h>
 #include <ctype.h>
 
 #ifndef strcasestr

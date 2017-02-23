@@ -21,5 +21,5 @@ uda_plugin(
     ${PostgreSQL_INCLUDE_DIRS}
   EXTRA_LINK_LIBS
     ${LIBXML2_LIBRARIES}
-    ${PostgreSQL_LIBRARIES}
+    ${PostgreSQL_LIBRARY}
 )

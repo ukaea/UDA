@@ -540,6 +540,7 @@ Best Query time (micro secs) [load]
 
             uint32_t limit = 2;
 
+#if MONGOC_CHECK_VERSION(1, 6, 0)
             bson_t* opts = BCON_NEW("limit", BCON_INT64(limit));
 
             if (!(cursor = mongoc_collection_find_with_opts(collection, query, opts, NULL))) {
@@ -548,6 +549,14 @@ Best Query time (micro secs) [load]
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "MongoDBPlugin", err, "Data Object not found!");
                 break;
             }
+#else
+            if(!(cursor = mongoc_collection_find(collection, MONGOC_QUERY_NONE, 0, limit, 0, query, NULL, NULL))){
+                IDAM_LOG(LOG_ERROR, "MongoDBPlugin: Data Object not found!\n");
+                err =  999;
+                addIdamError(&idamerrorstack, CODEERRORTYPE, "MongoDBPlugin", err, "Data Object not found!");
+                break;
+            }
+#endif
 
 /*
 // Count is very slow - > 40ms ! so do not use

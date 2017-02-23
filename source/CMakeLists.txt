@@ -1,5 +1,10 @@
 cmake_minimum_required( VERSION 3.0 )
 
+add_definitions(
+  -Wall
+  -Werror
+)
+
 add_subdirectory( cache )
 add_subdirectory( logging )
 add_subdirectory( security )
