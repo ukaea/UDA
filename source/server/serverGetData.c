@@ -37,14 +37,15 @@
 #include "mastArchiveFilePath.h"
 #include "makeServerRequestBlock.h"
 #include "sqllib.h"
+#include "getServerEnvironment.h"
 
 int idamserverSubsetData(DATA_BLOCK* data_block, ACTION action);
 
 int idamserverParseServerSide(REQUEST_BLOCK* request_block, ACTIONS* actions_serverside);
 
 int idamserverGetData(PGconn* DBConnect, int* depth, REQUEST_BLOCK request_block, CLIENT_BLOCK client_block,
-                      DATA_BLOCK* data_block, DATA_SOURCE* data_source,
-                      SIGNAL* signal_rec, SIGNAL_DESC* signal_desc, ACTIONS* actions_desc, ACTIONS* actions_sig)
+                      DATA_BLOCK* data_block, DATA_SOURCE* data_source, SIGNAL* signal_rec, SIGNAL_DESC* signal_desc,
+                      ACTIONS* actions_desc, ACTIONS* actions_sig, const PLUGINLIST* pluginlist)
 {
 
     int i, j, rc, err, isDerived = 0, compId = -1, serverside = 0;
@@ -73,7 +74,6 @@ int idamserverGetData(PGconn* DBConnect, int* depth, REQUEST_BLOCK request_block
 // Retain the original request (Needed to flag that signal/file details are in the Request or Action structures)
 
 #ifndef PROXYSERVER
-
     if (original_request == 0 || *depth == 0) {
         original_request = request_block.request;
         if (request_block.request != REQUEST_READ_XML) {
@@ -110,21 +110,19 @@ int idamserverGetData(PGconn* DBConnect, int* depth, REQUEST_BLOCK request_block
                 if ((rc = idamserverParseServerSide(&request_block, &actions_serverside)) != 0) {
                     return rc;
                 }
-                copyString(TrimString(request_block.signal), signal_desc->signal_name,
-                           MAXNAME);    // Erase original SUBSET request
+                copyString(TrimString(request_block.signal), signal_desc->signal_name, MAXNAME);    // Erase original SUBSET request
             }
         }
     } else
 
     if (STR_IEQUALS(request_block.function, "subset")) {
         int id;
-        if ((id = findPluginIdByFormat(request_block.archive, &pluginList)) >= 0) {
-            if (STR_IEQUALS(pluginList.plugin[id].symbol, "serverside")) {
+        if ((id = findPluginIdByFormat(request_block.archive, pluginlist)) >= 0) {
+            if (STR_IEQUALS(pluginlist->plugin[id].symbol, "serverside")) {
                 serverside = 1;
                 initActions(&actions_serverside);
                 if ((rc = idamserverParseServerSide(&request_block, &actions_serverside)) != 0) return rc;
-                copyString(TrimString(request_block.signal), signal_desc->signal_name,
-                           MAXNAME);    // Erase original SUBSET request
+                copyString(TrimString(request_block.signal), signal_desc->signal_name, MAXNAME);    // Erase original SUBSET request
             }
         }
     }
@@ -132,7 +130,7 @@ int idamserverGetData(PGconn* DBConnect, int* depth, REQUEST_BLOCK request_block
 //--------------------------------------------------------------------------------------------------------------------------
 // Read the Data (Returns rc < 0 if the signal is a derived type or is defined in an XML document)
 
-    rc = idamserverReadData(DBConnect, request_block, client_block, data_block, data_source, signal_rec, signal_desc);
+    rc = idamserverReadData(DBConnect, request_block, client_block, data_block, data_source, signal_rec, signal_desc, pluginlist);
 
     IDAM_LOGF(LOG_DEBUG, "After idamserverReadData rc = %d\n", rc);
     IDAM_LOGF(LOG_DEBUG, "Is the Signal a Composite? %d\n", signal_desc->type == 'C');
@@ -262,7 +260,7 @@ int idamserverGetData(PGconn* DBConnect, int* depth, REQUEST_BLOCK request_block
 
 //#ifdef PLUGINTEST
                         request_block2.request = findPluginRequestByFormat(
-                                actions_comp_desc.action[compId].composite.format, &pluginList);
+                                actions_comp_desc.action[compId].composite.format, pluginlist);
 
                         if (request_block2.request == REQUEST_READ_UNKNOWN) {
                             if (actions_comp_desc.action[compId].composite.format[0] == '\0' &&
@@ -325,7 +323,7 @@ int idamserverGetData(PGconn* DBConnect, int* depth, REQUEST_BLOCK request_block
                     IDAM_LOG(LOG_DEBUG, "Reading Composite Signal DATA\n");
 
                     rc = idamserverGetData(DBConnect, depth, request_block2, client_block, data_block, data_source,
-                                           signal_rec, signal_desc, actions_desc, actions_sig);
+                                           signal_rec, signal_desc, actions_desc, actions_sig, pluginlist);
 
                     if (DBConnect == NULL && gDBConnect != NULL)
                         DBConnect = gDBConnect;    // Pass back SQL Socket from idamserverGetData
@@ -439,7 +437,7 @@ int idamserverGetData(PGconn* DBConnect, int* depth, REQUEST_BLOCK request_block
             }
 
             rc = idamserverGetData(DBConnect, depth, request_block2, client_block, &data_block2, &data_source2,
-                                   &signal_rec2, &signal_desc2, &actions_comp_desc2, &actions_comp_sig2);
+                                   &signal_rec2, &signal_desc2, &actions_comp_desc2, &actions_comp_sig2, pluginlist);
 
             if (DBConnect == NULL && gDBConnect != NULL)
                 DBConnect = gDBConnect;    // Pass back SQL Socket from idamserverGetData
@@ -487,7 +485,7 @@ int idamserverGetData(PGconn* DBConnect, int* depth, REQUEST_BLOCK request_block
             }
 
             rc = idamserverGetData(DBConnect, depth, request_block2, client_block, &data_block2, &data_source2,
-                                   &signal_rec2, &signal_desc2, &actions_comp_desc2, &actions_comp_sig2);
+                                   &signal_rec2, &signal_desc2, &actions_comp_desc2, &actions_comp_sig2, pluginlist);
 
             if (DBConnect == NULL && gDBConnect != NULL)
                 DBConnect = gDBConnect;    // Pass back SQL Socket from idamserverGetData
@@ -565,7 +563,7 @@ int idamserverGetData(PGconn* DBConnect, int* depth, REQUEST_BLOCK request_block
                     strcpy(data_source2.path, request_block2.path);
                     strcpy(signal_desc2.signal_name, TrimString(request_block2.signal));
 
-                    request_block2.request = findPluginRequestByFormat(request_block2.format, &pluginList);
+                    request_block2.request = findPluginRequestByFormat(request_block2.format, pluginlist);
 
                     if (request_block2.request == REQUEST_READ_UNKNOWN) {
                         err = 9999;
@@ -589,7 +587,7 @@ int idamserverGetData(PGconn* DBConnect, int* depth, REQUEST_BLOCK request_block
 // Recursive call
 
                     rc = idamserverGetData(DBConnect, depth, request_block2, client_block, &data_block2, &data_source2,
-                                           &signal_rec2, &signal_desc2, &actions_comp_desc2, &actions_comp_sig2);
+                                           &signal_rec2, &signal_desc2, &actions_comp_desc2, &actions_comp_sig2, pluginlist);
 
                     if (DBConnect == NULL && gDBConnect != NULL)
                         DBConnect = gDBConnect;    // Pass back SQL Socket from idamserverGetData
@@ -640,7 +638,7 @@ int idamserverGetData(PGconn* DBConnect, int* depth, REQUEST_BLOCK request_block
 
 
                     rc = idamserverGetData(DBConnect, depth, request_block2, client_block, &data_block2, &data_source2,
-                                           &signal_rec2, &signal_desc2, &actions_comp_desc2, &actions_comp_sig2);
+                                           &signal_rec2, &signal_desc2, &actions_comp_desc2, &actions_comp_sig2, pluginlist);
 
                     if (DBConnect == NULL && gDBConnect != NULL)
                         DBConnect = gDBConnect;    // Pass back SQL Socket from idamserverGetData
@@ -690,7 +688,7 @@ int idamserverGetData(PGconn* DBConnect, int* depth, REQUEST_BLOCK request_block
                     }
 
                     rc = idamserverGetData(DBConnect, depth, request_block2, client_block, &data_block2, &data_source2,
-                                           &signal_rec2, &signal_desc2, &actions_comp_desc2, &actions_comp_sig2);
+                                           &signal_rec2, &signal_desc2, &actions_comp_desc2, &actions_comp_sig2, pluginlist);
 
                     if (DBConnect == NULL && gDBConnect != NULL)
                         DBConnect = gDBConnect;    // Pass back SQL Socket from idamserverGetData
@@ -998,7 +996,8 @@ int idamserverSwapSignalDimError(DIMCOMPOSITE dimcomposite, DATA_BLOCK* data_blo
 
 
 int idamserverReadData(PGconn* DBConnect, REQUEST_BLOCK request_block, CLIENT_BLOCK client_block,
-                       DATA_BLOCK* data_block, DATA_SOURCE* data_source, SIGNAL* signal_rec, SIGNAL_DESC* signal_desc)
+                       DATA_BLOCK* data_block, DATA_SOURCE* data_source, SIGNAL* signal_rec, SIGNAL_DESC* signal_desc,
+                       const PLUGINLIST* pluginlist)
 {
 
 // If err = 0 then standard signal data read
@@ -1268,14 +1267,14 @@ int idamserverReadData(PGconn* DBConnect, REQUEST_BLOCK request_block, CLIENT_BL
 
         if (signal_desc->type == 'P') {
             strcpy(request_block.signal, signal_desc->signal_name);
-            makeServerRequestBlock(&request_block, pluginList);
+            makeServerRequestBlock(&request_block, *pluginlist);
         }
 
 #else		// Plugin for Database Queries
 
         // Identify the required Plugin
 
-              plugin_id = idamServerMetaDataPluginId(&pluginList);
+              plugin_id = idamServerMetaDataPluginId(pluginlist);
               if(plugin_id < 0){	// No plugin so not possible to identify the requested data item
                  err = 778;
                  addIdamError(&idamerrorstack, CODEERRORTYPE, "idamserverReadData", err, "No Metadata Catalog Implemented! "
@@ -1288,11 +1287,11 @@ int idamserverReadData(PGconn* DBConnect, REQUEST_BLOCK request_block, CLIENT_BL
 
         // If the plugin is registered as a FILE or LIBRARY type then call the default method as no method will have been specified
 
-              strcpy(request_block.function, pluginList.plugin[plugin_id].method);
+              strcpy(request_block.function, pluginlist->plugin[plugin_id].method);
 
         // Execute the plugin to resolve the identity of the data requested
 
-              err = idamServerMetaDataPlugin(&pluginList, plugin_id, &request_block, signal_desc, data_source);
+              err = idamServerMetaDataPlugin(pluginlist, plugin_id, &request_block, signal_desc, data_source);
 
               if(err != 0){
                  addIdamError(&idamerrorstack, CODEERRORTYPE, "idamserverReadData", err, "No Record Found for this Generic Signal");
@@ -1335,7 +1334,9 @@ int idamserverReadData(PGconn* DBConnect, REQUEST_BLOCK request_block, CLIENT_BL
                 return err;
             }
             nchar = 0;
-            while (!feof(xmlfile) && nchar < MAXMETA) request_block.signal[nchar++] = getc(xmlfile);
+            while (!feof(xmlfile) && nchar < MAXMETA) {
+                request_block.signal[nchar++] = (char)getc(xmlfile);
+            }
             request_block.signal[nchar - 2] = '\0';    // Remove EOF Character and replace with String Terminator
             strcpy(signal_desc->xml, request_block.signal);
             fclose(xmlfile);
@@ -1349,6 +1350,7 @@ int idamserverReadData(PGconn* DBConnect, REQUEST_BLOCK request_block, CLIENT_BL
         return -1;
     }
 
+    ENVIRONMENT* environment = getIdamServerEnvironment();
 
 //------------------------------------------------------------------------------
 // Read Data via a Suitable Registered Plugin using a standard interface
@@ -1374,18 +1376,18 @@ int idamserverReadData(PGconn* DBConnect, REQUEST_BLOCK request_block, CLIENT_BL
         idam_plugin_interface.request_block = &request_block;
         idam_plugin_interface.data_source = data_source;
         idam_plugin_interface.signal_desc = signal_desc;
-        idam_plugin_interface.environment = &environment;
+        idam_plugin_interface.environment = environment;
         idam_plugin_interface.sqlConnection = NULL;
         idam_plugin_interface.verbose = 0;
         idam_plugin_interface.housekeeping = 0;
         idam_plugin_interface.changePlugin = 0;
-        idam_plugin_interface.pluginList = &pluginList;
+        idam_plugin_interface.pluginList = pluginlist;
 
         if (request_block.request != REQUEST_READ_GENERIC && request_block.request != REQUEST_READ_UNKNOWN) {
             plugin_id = request_block.request;            // User has Specified a Plugin
             IDAM_LOGF(LOG_DEBUG, "Plugin Request ID %d\n", plugin_id);
         } else {
-            plugin_id = findPluginRequestByFormat(data_source->format, &pluginList);    // via Generic database query
+            plugin_id = findPluginRequestByFormat(data_source->format, pluginlist);    // via Generic database query
             IDAM_LOGF(LOG_DEBUG, "findPluginRequestByFormat Plugin Request ID %d\n", plugin_id);
         }
 
@@ -1394,7 +1396,7 @@ int idamserverReadData(PGconn* DBConnect, REQUEST_BLOCK request_block, CLIENT_BL
 
         if (request_block.request != REQUEST_READ_GENERIC && request_block.request != REQUEST_READ_UNKNOWN) {
 
-            if ((id = findPluginIdByRequest(plugin_id, &pluginList)) == -1) {
+            if ((id = findPluginIdByRequest(plugin_id, pluginlist)) == -1) {
                 IDAM_LOGF(LOG_DEBUG, "Error locating data plugin %d\n", plugin_id);
                 err = 999;
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "idamserverReadData", err, "Error locating data plugin");
@@ -1402,17 +1404,17 @@ int idamserverReadData(PGconn* DBConnect, REQUEST_BLOCK request_block, CLIENT_BL
             }
 
 #ifndef ITERSERVER
-            if (pluginList.plugin[id].private == PLUGINPRIVATE && environment.external_user) {
+            if (pluginlist->plugin[id].private == PLUGINPRIVATE && environment->external_user) {
                 err = 999;
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "idamserverReadData", err,
                              "Access to this data class is not available.");
                 return err;
             }
 #endif
-            if (pluginList.plugin[id].external == PLUGINEXTERNAL &&
-                pluginList.plugin[id].status == PLUGINOPERATIONAL &&
-                pluginList.plugin[id].pluginHandle != NULL &&
-                pluginList.plugin[id].idamPlugin != NULL) {
+            if (pluginlist->plugin[id].external == PLUGINEXTERNAL &&
+                pluginlist->plugin[id].status == PLUGINOPERATIONAL &&
+                pluginlist->plugin[id].pluginHandle != NULL &&
+                pluginlist->plugin[id].idamPlugin != NULL) {
 
                 IDAM_LOGF(LOG_DEBUG, "[%d] %s Plugin Selected\n", plugin_id, data_source->format);
 
@@ -1433,7 +1435,7 @@ int idamserverReadData(PGconn* DBConnect, REQUEST_BLOCK request_block, CLIENT_BL
 
 // Call the plugin
 
-                err = pluginList.plugin[id].idamPlugin(&idam_plugin_interface);
+                err = pluginlist->plugin[id].idamPlugin(&idam_plugin_interface);
 
 // Reset Redirected Output
 
@@ -1451,7 +1453,7 @@ int idamserverReadData(PGconn* DBConnect, REQUEST_BLOCK request_block, CLIENT_BL
 // Save Provenance with socket stream protection
 
                 idamServerRedirectStdStreams(0);
-                idamProvenancePlugin(&client_block, &request_block, data_source, signal_desc, &pluginList, NULL);
+                idamProvenancePlugin(&client_block, &request_block, data_source, signal_desc, pluginlist, NULL);
                 idamServerRedirectStdStreams(1);
 
 // If no structures to pass back (only regular data) then free the user defined type list
@@ -1490,16 +1492,16 @@ int idamserverReadData(PGconn* DBConnect, REQUEST_BLOCK request_block, CLIENT_BL
 // Test for known File formats and Server protocols
 
         id = -1;
-        for (i = 0; i < pluginList.count; i++) {
-            if (STR_IEQUALS(data_source->format, pluginList.plugin[i].format)) {
-                plugin_id = pluginList.plugin[i].request;                // Found
+        for (i = 0; i < pluginlist->count; i++) {
+            if (STR_IEQUALS(data_source->format, pluginlist->plugin[i].format)) {
+                plugin_id = pluginlist->plugin[i].request;                // Found
                 id = i;
                 IDAM_LOGF(LOG_DEBUG, "[%d] %s Plugin Selected\n", plugin_id, data_source->format);
                 break;
             }
         }
 
-        if (id >= 0 && pluginList.plugin[id].private == PLUGINPRIVATE && environment.external_user) {
+        if (id >= 0 && pluginlist->plugin[id].private == PLUGINPRIVATE && environment->external_user) {
             err = 999;
             addIdamError(&idamerrorstack, CODEERRORTYPE, "idamserverReadData", err,
                          "Access to this data class is not available.");
@@ -1570,7 +1572,7 @@ int idamserverReadData(PGconn* DBConnect, REQUEST_BLOCK request_block, CLIENT_BL
 // Save Provenance with socket stream protection
 
     idamServerRedirectStdStreams(0);
-    idamProvenancePlugin(&client_block, &request_block, data_source, signal_desc, &pluginList, NULL);
+    idamProvenancePlugin(&client_block, &request_block, data_source, signal_desc, pluginlist, NULL);
     idamServerRedirectStdStreams(1);
 
 //----------------------------------------------------------------------------
@@ -1579,7 +1581,7 @@ int idamserverReadData(PGconn* DBConnect, REQUEST_BLOCK request_block, CLIENT_BL
     err = 0;
 
 #ifndef PROXYSERVER
-    if (STR_IEQUALS(request_block.archive, "DUMP") && environment.server_proxy[0] == '\0') {
+    if (STR_IEQUALS(request_block.archive, "DUMP") && environment->server_proxy[0] == '\0') {
 
         IDAM_LOG(LOG_DEBUG, "Requested: DUMP File Contents.\n");
 

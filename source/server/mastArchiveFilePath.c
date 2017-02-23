@@ -13,6 +13,7 @@
 *
 *-----------------------------------------------------------------------------*/
 #include "mastArchiveFilePath.h"
+#include "getServerEnvironment.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -36,7 +37,7 @@ void mastArchiveFilePath(int pulno, int pass, char* file, char* path)
 
 // Alternative Paths
 
-    if (environment.data_path_id == 0) {
+    if (getIdamServerEnvironment()->data_path_id == 0) {
         sprintf(strint, "%d", pulno);
         strcat(path, strint);            // Original naming convention
     } else {

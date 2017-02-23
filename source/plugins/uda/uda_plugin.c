@@ -30,6 +30,7 @@
 #include <clientserver/errorLog.h>
 #include <logging/logging.h>
 #include <plugins/udaPlugin.h>
+#include <client/udaClient.h>
 
 #ifndef USE_PLUGIN_DIRECTLY
 IDAMERRORSTACK* idamErrorStack;    // Pointer to the Server's Error Stack. Global scope within this plugin library

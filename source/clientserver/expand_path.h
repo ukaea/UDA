@@ -1,6 +1,7 @@
 #ifndef IDAM_CLIENTSERVER_EXPAND_PATH_H
 #define IDAM_CLIENTSERVER_EXPAND_PATH_H
 
+#include "udaStructs.h"
 /*! The workstation (client host) name is obtained using the operating system command 'hostname'.
 
 @param host The name of the client host workstation. The string is pre-allocated with length STRING_LENGTH
@@ -35,7 +36,7 @@ char *pathid(char *path);
 @param path The file path to be resolved and expanded.
 @returns An integer Error Code: If non zero, a problem occured.
 */
-int expandFilePath(char *path);
+int expandFilePath(char *path, const ENVIRONMENT* environment);
 
 #ifndef NOEXPANDPATH
 
@@ -86,7 +87,7 @@ If there are more wildcards in the substitute string than in the target string, 
 @param path The path to be tested for targeted name element replacement.
 @returns An integer Error Code: If non zero, a problem occured.
 */
-int pathReplacement(char *path);
+int pathReplacement(char *path, const ENVIRONMENT* environment);
 
 int linkReplacement(char *path);
 

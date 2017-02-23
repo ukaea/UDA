@@ -47,6 +47,8 @@ int readIdam(DATA_SOURCE data_source,
 #include <clientserver/stringUtils.h>
 #include <clientserver/printStructs.h>
 #include <client/udaGetAPI.h>
+#include <server/getServerEnvironment.h>
+#include <client/udaClient.h>
 
 #ifdef FATCLIENT
 
@@ -163,7 +165,9 @@ int readIdam(DATA_SOURCE data_source,
 //dgm 03Aug2015		bug found elsewhere ... renable
     setIdamPrivateFlag(PRIVATEFLAG_XDRFILE);                // Ensure Hierarchical Data are passed as an opaque file
 
-    if (environment.external_user) setIdamPrivateFlag(PRIVATEFLAG_EXTERNAL);    // Maintain external user status
+    if (getIdamServerEnvironment()->external_user) {
+        setIdamPrivateFlag(PRIVATEFLAG_EXTERNAL);
+    }    // Maintain external user status
 
 //----------------------------------------------------------------------
 // User Specified Flags and Properties for the Server

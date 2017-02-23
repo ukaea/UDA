@@ -7,27 +7,27 @@
 #define REQUEST_PLUGIN_MCOUNT   100    // Maximum initial number of plugins that can be registered
 #define REQUEST_PLUGIN_MSTEP    10    // Increase heap by 10 records once the maximum is exceeded
 
-void allocPluginList(int count, PLUGINLIST * plugin_list);
+void allocPluginList(int count, PLUGINLIST* plugin_list);
 
-void closePluginList(PLUGINLIST * plugin_list);
+void closePluginList(const PLUGINLIST* plugin_list);
 
-void freePluginList(PLUGINLIST * plugin_list);
+void freePluginList(PLUGINLIST* plugin_list);
 
-void initPlugin(PLUGIN_DATA * plugin);
+void initPluginData(PLUGIN_DATA* plugin);
 
-void printPluginList(FILE * fd, PLUGINLIST * plugin_list);
+void printPluginList(FILE* fd, const PLUGINLIST* plugin_list);
 
-int findPluginIdByRequest(int request, PLUGINLIST * plugin_list);
+int findPluginIdByRequest(int request, const PLUGINLIST* plugin_list);
 
-int findPluginIdByFormat(const char * format, PLUGINLIST * plugin_list);
+int findPluginIdByFormat(const char* format, const PLUGINLIST* plugin_list);
 
-int findPluginIdByDevice(const char * device, PLUGINLIST * plugin_list);
+int findPluginIdByDevice(const char* device, const PLUGINLIST* plugin_list);
 
-int findPluginRequestByFormat(const char * format, PLUGINLIST * plugin_list);
+int findPluginRequestByFormat(const char* format, const PLUGINLIST* plugin_list);
 
-int findPluginRequestByExtension(const char * extension, PLUGINLIST * plugin_list);
+int findPluginRequestByExtension(const char* extension, const PLUGINLIST* plugin_list);
 
-void initPluginList(PLUGINLIST * plugin_list);
+void initPluginList(PLUGINLIST* plugin_list);
 
 int idamServerRedirectStdStreams(int reset);
 
@@ -43,7 +43,8 @@ int idamServerRedirectStdStreams(int reset);
 // 6. get plugin function address
 // 7. close the file
 
-int idamServerPlugin(REQUEST_BLOCK * request_block, DATA_SOURCE * data_source, SIGNAL_DESC * signal_desc, PLUGINLIST * plugin_list);
+int idamServerPlugin(REQUEST_BLOCK* request_block, DATA_SOURCE* data_source, SIGNAL_DESC* signal_desc,
+                     const PLUGINLIST* plugin_list);
 
 //------------------------------------------------------------------------------------------------
 // Provenance gathering plugin with a separate database.
@@ -61,14 +62,14 @@ int idamServerPlugin(REQUEST_BLOCK * request_block, DATA_SOURCE * data_source, S
 // changePlugin option disabled in this context
 // private malloc log and userdefinedtypelist
 
-int idamProvenancePlugin(CLIENT_BLOCK * client_block, REQUEST_BLOCK * original_request_block,
-                         DATA_SOURCE * data_source, SIGNAL_DESC * signal_desc, PLUGINLIST * plugin_list,
-                         char * logRecord);
+int idamProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_BLOCK* original_request_block,
+                         DATA_SOURCE* data_source, SIGNAL_DESC* signal_desc, const PLUGINLIST* plugin_list,
+                         char* logRecord);
 
-int idamServerMetaDataPluginId(PLUGINLIST* plugin_list);
+int idamServerMetaDataPluginId(const PLUGINLIST* plugin_list);
 
-int idamServerMetaDataPlugin(PLUGINLIST * plugin_list, int plugin_id, REQUEST_BLOCK * request_block,
-                             SIGNAL_DESC * signal_desc, DATA_SOURCE * data_source);
+int idamServerMetaDataPlugin(const PLUGINLIST* plugin_list, int plugin_id, REQUEST_BLOCK* request_block,
+                             SIGNAL_DESC* signal_desc, DATA_SOURCE* data_source);
 
 #endif // IDAM_SERVER_IDAMSERVERPLUGIN_H
 

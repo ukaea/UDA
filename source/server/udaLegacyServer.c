@@ -27,6 +27,7 @@
 #include "makeServerRequestBlock.h"
 #include "freeIdamPut.h"
 #include "sqllib.h"
+#include "getServerEnvironment.h"
 
 #ifdef LEGACYSERVER
 int idamLegacyServer(CLIENT_BLOCK client_block) {
@@ -36,7 +37,7 @@ int idamLegacyServer(CLIENT_BLOCK client_block) {
 
 // Legacy Server Entry point
 
-int idamLegacyServer(CLIENT_BLOCK client_block)
+int idamLegacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist)
 {
 
     int rc, err = 0, depth, fatal = 0;
@@ -136,13 +137,15 @@ int idamLegacyServer(CLIENT_BLOCK client_block)
 // The client request may originate from a server.
 // Is the Originating server an externally facing server? If so then switch to this mode: preserve local access policy
 
-            if (!environment.external_user && (privateFlags & PRIVATEFLAG_EXTERNAL)) environment.external_user = 1;
+            ENVIRONMENT* environment = getIdamServerEnvironment();
+
+            if (!environment->external_user && (privateFlags & PRIVATEFLAG_EXTERNAL)) environment->external_user = 1;
 
             IDAM_LOGF(LOG_DEBUG, "client protocolVersion %d\n", protocolVersion);
             IDAM_LOGF(LOG_DEBUG, "privateFlags %d\n", privateFlags);
             IDAM_LOGF(LOG_DEBUG, "clientFlags  %d\n", clientFlags);
             IDAM_LOGF(LOG_DEBUG, "altRank      %d\n", altRank);
-            IDAM_LOGF(LOG_DEBUG, "external?    %d\n", environment.external_user);
+            IDAM_LOGF(LOG_DEBUG, "external?    %d\n", environment->external_user);
 
             if (normalLegacyWait) {
 
@@ -214,9 +217,9 @@ int idamLegacyServer(CLIENT_BLOCK client_block)
             if(request_block.api_delim[0] != '\0')
                 sprintf(work, "IDAM%s", request_block.api_delim);
             else
-                sprintf(work, "IDAM%s", environment.api_delim);
+                sprintf(work, "IDAM%s", environment->api_delim);
 
-            if(environment.server_proxy[0] != '\0' && strncasecmp(request_block.source, work, strlen(work)) != 0) {
+            if(environment->server_proxy[0] != '\0' && strncasecmp(request_block.source, work, strlen(work)) != 0) {
 
 // Check the Server Version is Compatible with the Originating client version ?
 
@@ -231,9 +234,9 @@ int idamLegacyServer(CLIENT_BLOCK client_block)
 // The IDAM Plugin strips out the host and port data from the source so the originating server details are never passed.
 
                 if(request_block.api_delim[0] != '\0')
-                    sprintf(work, "IDAM%s%s", request_block.api_delim, environment.server_this);
+                    sprintf(work, "IDAM%s%s", request_block.api_delim, environment->server_this);
                 else
-                    sprintf(work, "IDAM%s%s", environment.api_delim, environment.server_this);
+                    sprintf(work, "IDAM%s%s", environment->api_delim, environment->server_this);
 
                 if(strstr(request_block.source, work) != NULL) {
                     err = 999;
@@ -244,7 +247,7 @@ int idamLegacyServer(CLIENT_BLOCK client_block)
 
 // Check string length compatibility
 
-                if(strlen(request_block.source) >= (STRING_LENGTH-1 - strlen(environment.server_proxy) - 4+strlen(request_block.api_delim))) {
+                if(strlen(request_block.source) >= (STRING_LENGTH-1 - strlen(environment->server_proxy) - 4+strlen(request_block.api_delim))) {
                     err = 999;
                     addIdamError(&idamerrorstack, CODEERRORTYPE, "idamServer", err,
                                  "PROXY redirection: The source argument string is too long!");
@@ -254,15 +257,15 @@ int idamLegacyServer(CLIENT_BLOCK client_block)
 // Prepend the redirection IDAM server details
 
                 if(request_block.api_delim[0] != '\0')
-                    sprintf(work, "IDAM%s%s/%s", request_block.api_delim, environment.server_proxy, request_block.source);
+                    sprintf(work, "IDAM%s%s/%s", request_block.api_delim, environment->server_proxy, request_block.source);
                 else
-                    sprintf(work, "IDAM%s%s/%s", environment.api_delim, environment.server_proxy, request_block.source);
+                    sprintf(work, "IDAM%s%s/%s", environment->api_delim, environment->server_proxy, request_block.source);
 
                 strcpy(request_block.source, work);
-                //strcpy(request_block.server, environment.server_proxy);
+                //strcpy(request_block.server, environment->server_proxy);
 
                 if(debugon) {
-                    IDAM_LOG(LOG_DEBUG, "PROXY Redirection to %s\n", environment.server_proxy);
+                    IDAM_LOG(LOG_DEBUG, "PROXY Redirection to %s\n", environment->server_proxy);
                     IDAM_LOG(LOG_DEBUG, "source: %s\n", request_block.source);
                     //IDAM_LOG(LOG_DEBUG, "server: %s\n", request_block.server);
                 }
@@ -274,7 +277,7 @@ int idamLegacyServer(CLIENT_BLOCK client_block)
 //----------------------------------------------------------------------
 // Write to the Access Log
 
-            idamAccessLog(TRUE, client_block, request_block, server_block);
+            idamAccessLog(TRUE, client_block, request_block, server_block, pluginlist);
 
 //----------------------------------------------------------------------
 // Initialise Data Structures
@@ -312,7 +315,7 @@ int idamLegacyServer(CLIENT_BLOCK client_block)
 // Decide on Authentication procedure
 
             if (protocolVersion >= 6) {
-                if ((err = idamServerPlugin(&request_block, &data_source, &signal_desc, &pluginList)) != 0) break;
+                if ((err = idamServerPlugin(&request_block, &data_source, &signal_desc, pluginlist)) != 0) break;
             } else {
                 if ((err = idamServerLegacyPlugin(&request_block, &data_source, &signal_desc)) != 0) break;
             }
@@ -347,7 +350,7 @@ int idamLegacyServer(CLIENT_BLOCK client_block)
             depth = 0;
 
             err = idamserverGetData(DBConnect, &depth, request_block, client_block, &data_block, &data_source,
-                                    &signal_rec, &signal_desc, &actions_desc, &actions_sig);
+                                    &signal_rec, &signal_desc, &actions_desc, &actions_sig, pluginlist);
 
             if (DBConnect == NULL && gDBConnect != NULL) {
                 DBConnect = gDBConnect;    // Pass back SQL Socket from idamserverGetData
@@ -669,7 +672,7 @@ int idamLegacyServer(CLIENT_BLOCK client_block)
 //----------------------------------------------------------------------
 // Complete & Write the Access Log Record
 
-        idamAccessLog(0, client_block, request_block, server_block);
+        idamAccessLog(0, client_block, request_block, server_block, pluginlist);
 
 //----------------------------------------------------------------------------
 // Server Shutdown ? Next Instruction from Client
@@ -764,11 +767,6 @@ int idamLegacyServer(CLIENT_BLOCK client_block)
 // Free Structure Definition List (don't free the structure as stack variable)
 
     freeUserDefinedTypeList(&parseduserdefinedtypelist);
-
-//----------------------------------------------------------------------------
-// Free Plugin List and Close all open library entries
-
-    freePluginList(&pluginList);
 
 //----------------------------------------------------------------------------
 // Close the Database Connection

@@ -189,7 +189,7 @@ If there are more wildcards in the substitute string than in the target string, 
 #define MAXPATHSUBS        10
 #define MAXPATHSUBSLENGTH    256
 
-int pathReplacement(char* path)
+int pathReplacement(char* path, const ENVIRONMENT* environment)
 {
 
 //----------------------------------------------------------------------------------------------
@@ -220,14 +220,14 @@ int pathReplacement(char* path)
     int targetCount = 0, pathCount = 0, subCount = 0;
 
     if (path[0] == '\0') return 0;                // No replacement
-    if (environment.private_path_target[0] == '\0') return 0;    // No replacement
+    if (environment->private_path_target[0] == '\0') return 0;    // No replacement
 
-    idamLog(LOG_DEBUG, "pathReplacement: Testing for File Path Replacement\n");
-    idamLog(LOG_DEBUG, "%s\n", path);
+    IDAM_LOG(LOG_DEBUG, "pathReplacement: Testing for File Path Replacement\n");
+    IDAM_LOGF(LOG_DEBUG, "%s\n", path);
 
 // Parse targets
 
-    strcpy(work, environment.private_path_target);
+    strcpy(work, environment->private_path_target);
     token = strtok(work, delimiters);
 
     if (strlen(token) < MAXPATHSUBSLENGTH) {
@@ -252,7 +252,7 @@ int pathReplacement(char* path)
 
 // Parse substitutes
 
-    strcpy(work, environment.private_path_substitute);
+    strcpy(work, environment->private_path_substitute);
     token = strtok(work, delimiters);
 
     if (strlen(token) < MAXPATHSUBSLENGTH) {
@@ -378,8 +378,8 @@ int pathReplacement(char* path)
         return err;
     }
 
-    idamLog(LOG_DEBUG, "%s\n", path);
-    idamLog(LOG_DEBUG, "pathReplacement: End\n");
+    IDAM_LOGF(LOG_DEBUG, "%s\n", path);
+    IDAM_LOG(LOG_DEBUG, "pathReplacement: End\n");
 
     return err;
 }
@@ -468,7 +468,7 @@ int linkReplacement(char *path) { // Links are resolved client side only
 @returns An integer Error Code: If non zero, a problem occured.
 */
 
-int expandFilePath(char* path)
+int expandFilePath(char* path, const ENVIRONMENT* environment)
 {
 
 //
@@ -601,7 +601,7 @@ int expandFilePath(char* path)
 
 #ifdef SERVERELEMENTCHECK
     int t7,t8,t9;
-    t7 = strstr(path,environment.api_delim) != NULL;		// Pass request forward to another server
+    t7 = strstr(path,environment->api_delim) != NULL;		// Pass request forward to another server
     t8 = strchr(path,':') != NULL;				// Port number => Server
     t9 = strchr(path,'(') != NULL && strchr(path,')') != NULL;	// Server Side Function
 
@@ -656,7 +656,7 @@ int expandFilePath(char* path)
             strcpy(work1, path);
             sprintf(path, "%s/%s", cwd, work1);        // prepend the CWD and return
             if ((err = linkReplacement(path)) != 0) return err;
-            if ((err = pathReplacement(path)) != 0) return err;
+            if ((err = pathReplacement(path, environment)) != 0) return err;
 
             if ((t6 = (strncmp(path, scratch, lscratch) != 0))) return 0;    // Not the Scratch directory ?
             fp = strrchr(path, '/');                    // extract filename
@@ -726,7 +726,7 @@ int expandFilePath(char* path)
         if (chdir(path) != 0) {
             chdir(ocwd);            // Ensure the Original WD
             strcpy(path, opath);        // Return to the Original path name
-            idamLog(LOG_DEBUG, "Unable to identify the Directory of the file: %s\n"
+            IDAM_LOGF(LOG_DEBUG, "Unable to identify the Directory of the file: %s\n"
                     "The server will know if a true error exists: Plugin & Environment dependent", path);
             return 0;
         }
@@ -821,7 +821,7 @@ int expandFilePath(char* path)
     /*! Does the Path to a user's Private Files contain network components not seen by the server?
     If so, target these and make a suitable substitution to resolve path problems.
     */
-    err = pathReplacement(path);
+    err = pathReplacement(path, environment);
 
     return err;
 }

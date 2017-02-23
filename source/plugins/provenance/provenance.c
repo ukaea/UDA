@@ -17,8 +17,9 @@
 
 #include <structures/struct.h>
 #include <clientserver/stringUtils.h>
+#include <server/getServerEnvironment.h>
 
-char* pghost = NULL;
+const char* pghost = NULL;
 char pgport[56];
 char* dbname = NULL;
 char* user = NULL;
@@ -27,10 +28,11 @@ int initTime = 0;
 
 PGconn* startSQL_Provenance()
 {
+    const ENVIRONMENT* environment = getIdamServerEnvironment();
 
-    pghost = environment.sql_host;
+    pghost = environment->sql_host;
     pswrd = NULL;
-    sprintf(pgport, "%d", environment.sql_port);
+    sprintf(pgport, "%d", environment->sql_port);
 
     char* env;
     if ((env = getenv("UDA_PROVDBHOST")) != NULL) pghost = env;

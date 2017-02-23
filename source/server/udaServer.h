@@ -14,23 +14,20 @@
 
 IDAMERRORSTACK* getIdamServerPluginErrorStack();
 USERDEFINEDTYPELIST* getIdamServerUserDefinedTypeList();
-extern void copyIdamServerEnvironment(ENVIRONMENT* environ);
-void putIdamServerEnvironment(ENVIRONMENT environ);
+
 LOGMALLOCLIST* getIdamServerLogMallocList();
 USERDEFINEDTYPELIST* getIdamServerParsedUserDefinedTypeList();
 
 #ifndef FATCLIENT
 int idamServer(int argc, char** argv);
 #else
-int idamServer(CLIENT_BLOCK client_block, REQUEST_BLOCK * request_block0, SERVER_BLOCK * server_block0,
-                          DATA_BLOCK * data_block0);
+int idamServer(CLIENT_BLOCK client_block, REQUEST_BLOCK * request_block, SERVER_BLOCK * server_block, DATA_BLOCK * data_block);
 #endif
 
 //--------------------------------------------------------------
 // Static Global variables
 
 extern SOCKETLIST server_socketlist;    // List of Data Server Sockets
-extern PLUGINLIST pluginList;
 
 extern unsigned int totalDataBlockSize;
 extern int serverVersion;

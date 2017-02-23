@@ -162,14 +162,14 @@ int idamGetAPI(const char* data_object, const char* data_source)
 //-------------------------------------------------------------------------
 // Open the Logs
 
-    idamLog(LOG_DEBUG, "Calling idamStartup\n");
+    IDAM_LOG(LOG_DEBUG, "Calling idamStartup\n");
 
     if (idamStartup(0) != 0) {
         unlockIdamThread();
         return PROBLEM_OPENING_LOGS;
     }
 
-    idamLog(LOG_DEBUG, "Returned from idamStartup\n");
+    IDAM_LOG(LOG_DEBUG, "Returned from idamStartup\n");
 
 //-------------------------------------------------------------------------
 // Log all Arguments passed from Application
@@ -179,7 +179,7 @@ int idamGetAPI(const char* data_object, const char* data_source)
         char tempFile[] = "/tmp/idamStackXXXXXX";
         mkstemp(tempFile);
         argstack = fopen(tempFile, environment.logmode);
-        if(argstack != NULL) fprintf(argstack,"idamGetAPI\n");
+        if(argstack != NULL) fprintf(argstack, "idamGetAPI\n");
     }
     if(argstack != NULL) {
         fprintf(argstack,"[%s][%s]\n", data_object, data_source);
@@ -196,21 +196,20 @@ int idamGetAPI(const char* data_object, const char* data_source)
 // Build the Request Data Block (Version and API dependent)
 
     if (startup) {
-        initServerBlock(&server_block, 0);
         initIdamErrorStack(&idamerrorstack);
         startup = 0;
     }
 
     if ((err = makeClientRequestBlock(data_object, data_source, &request_block)) != 0) {
-        concatIdamError(idamerrorstack, &server_block.idamerrorstack);
-        closeIdamError(&idamerrorstack);
-        if (server_block.idamerrorstack.nerrors == 0)
-            idamLog(LOG_ERROR, "Error identifying the Data Source [%s]\n", data_source);
+        if (idamerrorstack.nerrors == 0) {
+            IDAM_LOGF(LOG_ERROR, "Error identifying the Data Source [%s]\n", data_source);
+            addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, 999, "Error identifying the Data Source");
+        }
         unlockIdamThread();
         return -err;
     }
 
-    idamLog(LOG_DEBUG, "Routine: idamGetAPI\n");
+    IDAM_LOG(LOG_DEBUG, "Routine: idamGetAPI\n");
     printRequestBlock(request_block);
 
 //-------------------------------------------------------------------------
@@ -218,7 +217,7 @@ int idamGetAPI(const char* data_object, const char* data_source)
 
 #ifdef TESTSERVERCLIENT
     unlockIdamThread();    
-    return(-1);
+    return -1;
 #endif
 
     err = idamClient(&request_block);
@@ -233,5 +232,4 @@ int idamGetAPI(const char* data_object, const char* data_source)
 // Unlock the thread
     unlockIdamThread();
     return err;
-
 }

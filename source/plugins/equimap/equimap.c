@@ -73,7 +73,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         housekeeping = idam_plugin_interface->housekeeping;
     } else {
         err = 999;
-        idamLog(LOG_ERROR, "ERROR equimap: Plugin Interface Version Unknown\n");
+        IDAM_LOG(LOG_ERROR, "ERROR equimap: Plugin Interface Version Unknown\n");
 
         addIdamError(&idamerrorstack, CODEERRORTYPE, "equimap", err,
                      "Plugin Interface Version is Not Known: Unable to execute the request!");
@@ -125,7 +125,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         prior_file[0] = '\0';
         smoothedPsi = 0;
 
-        if (equimapdata.efitdata != NULL) free((void*) equimapdata.efitdata);
+        if (equimapdata.efitdata != NULL) free((void*)equimapdata.efitdata);
 
         return 0;
     }
@@ -195,7 +195,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
         if (equimapdata.rhoType == UNKNOWNCOORDINATETYPE) {
             err = 999;
-            idamLog(LOG_ERROR, "ERROR equimap: No Flux Surface label type has been selected. "
+            IDAM_LOG(LOG_ERROR, "ERROR equimap: No Flux Surface label type has been selected. "
                     "Use the fluxSurfaceLabel name-value pair argument to set it.\n");
             addIdamError(&idamerrorstack, CODEERRORTYPE, "equimap", err,
                          "No Flux Surface label type has been selected. "
@@ -219,17 +219,17 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Create a normalised flux surface grid - no particular definition assumed - rhoType is used for Mapping
 
-        equimapdata.rhoB = (float*) malloc(equimapdata.rhoBCount * sizeof(float));
+        equimapdata.rhoB = (float*)malloc(equimapdata.rhoBCount * sizeof(float));
         for (i = 0; i < equimapdata.rhoBCount; i++)
-            equimapdata.rhoB[i] = (float) i / ((float) equimapdata.rhoBCount - 1);
+            equimapdata.rhoB[i] = (float)i / ((float)equimapdata.rhoBCount - 1);
 
-        equimapdata.rho = (float*) malloc(equimapdata.rhoCount * sizeof(float));
+        equimapdata.rho = (float*)malloc(equimapdata.rhoCount * sizeof(float));
         for (i = 0; i < equimapdata.rhoCount; i++)
             equimapdata.rho[i] = 0.5 * (equimapdata.rhoB[i] + equimapdata.rhoB[i + 1]);
 
         if (request_block->exp_number == 0 && request_block->file[0] == '\0') {
             err = 999;
-            idamLog(LOG_ERROR, "ERROR equimap: No Shot Number or Private File!\n");
+            IDAM_LOG(LOG_ERROR, "ERROR equimap: No Shot Number or Private File!\n");
             addIdamError(&idamerrorstack, CODEERRORTYPE, "equimap", err, "No Shot Number or Private File!");
             concatIdamError(idamerrorstack, idamErrorStack);
             return err;
@@ -237,7 +237,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
         if ((err = importData(request_block, &equimapdata)) != 0) {
             //err = 999;
-            idamLog(LOG_ERROR, "ERROR equimap: Problem importing data\n");
+            IDAM_LOG(LOG_ERROR, "ERROR equimap: Problem importing data\n");
             addIdamError(&idamerrorstack, CODEERRORTYPE, "equimap", err, "Problem importing data");
             concatIdamError(idamerrorstack, idamErrorStack);
             return err;
@@ -245,7 +245,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
         if ((err = selectTimes(&equimapdata)) != 0) return err;        // Universal/Default set of times
 
-        equimapdata.efitdata = (EFITDATA*) malloc(equimapdata.timeCount * sizeof(EFITDATA));
+        equimapdata.efitdata = (EFITDATA*)malloc(equimapdata.timeCount * sizeof(EFITDATA));
         for (i = 0; i < equimapdata.timeCount; i++) {
             initEfitData(&equimapdata.efitdata[i]);
             if ((err = extractData(equimapdata.times[i], &equimapdata.efitdata[i], &equimapdata)) != 0) return err;
@@ -280,7 +280,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
         if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "smoothPsi")) {
 
-            idamLog(LOG_DEBUG, "EQUIMAP: processing time domain option 'smoothPsi'\n");
+            IDAM_LOG(LOG_DEBUG, "EQUIMAP: processing time domain option 'smoothPsi'\n");
 
             int invert = 0;
             int limitPsi = 0;
@@ -288,12 +288,13 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             for (j = 0; j < request_block->nameValueList.pairCount; j++) {
                 if (STR_IEQUALS(request_block->nameValueList.nameValue[j].name, "invert")) invert = 1;
                 if (STR_IEQUALS(request_block->nameValueList.nameValue[j].name, "limitPsi")) limitPsi = 1;
-                if (STR_IEQUALS(request_block->nameValueList.nameValue[j].name, "limitRMaj"))
-                    limitRMaj = (float) atof(request_block->nameValueList.nameValue[j].value);
+                if (STR_IEQUALS(request_block->nameValueList.nameValue[j].name, "limitRMaj")) {
+                    limitRMaj = (float)atof(request_block->nameValueList.nameValue[j].value);
+                }
             }
 
-            idamLog(LOG_DEBUG, "EQUIMAP: smoothPsi(invert=%d, limitPsi=%d, limitRMaj=%f)\n", invert, limitPsi,
-                    limitRMaj);
+            IDAM_LOGF(LOG_DEBUG, "EQUIMAP: smoothPsi(invert=%d, limitPsi=%d, limitRMaj=%f)\n", invert, limitPsi,
+                      limitRMaj);
 
             if (!smoothedPsi) {
                 smoothPsi(&equimapdata, invert, limitPsi, -1.0);        // Constrain by LCFS
@@ -303,8 +304,8 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 smoothPsi(&equimapdata, invert, limitPsi, limitRMaj);        // Constrain by upper RMajor
                 priorLimitRMaj = limitRMaj;
             }
-            idamLog(LOG_DEBUG, "EQUIMAP: psiRZBox nr=%d, nz=%d)\n", equimapdata.efitdata[0].psiCountRZBox[0],
-                    equimapdata.efitdata[0].psiCountRZBox[1]);
+            IDAM_LOGF(LOG_DEBUG, "EQUIMAP: psiRZBox nr=%d, nz=%d)\n", equimapdata.efitdata[0].psiCountRZBox[0],
+                      equimapdata.efitdata[0].psiCountRZBox[1]);
         }
     }
 
@@ -337,7 +338,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             data_block->rank = 1;
             data_block->order = -1;
 
-            data_block->dims = (DIMS*) malloc(data_block->rank * sizeof(DIMS));
+            data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
             initDimBlock(&data_block->dims[0]);
 
             data_block->dims[0].dim_n = equimapdata.efitdata[0].nlim;
@@ -353,7 +354,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             data_block->data_n = data_block->dims[0].dim_n;
             data_block->data_type = TYPE_FLOAT;
             data_block->data = malloc(data_block->data_n * sizeof(float));
-            arr = (float*) data_block->data;
+            arr = (float*)data_block->data;
 
             if (STR_IEQUALS(request_block->function, "Rlim")) {
                 for (i = 0; i < data_block->data_n; i++) arr[i] = equimapdata.efitdata[0].rlim[i];
@@ -404,7 +405,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             data_block->rank = 1;
             data_block->order = 0;
 
-            data_block->dims = (DIMS*) malloc(data_block->rank * sizeof(DIMS));
+            data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
             initDimBlock(&data_block->dims[0]);
 
 // Time Dimension
@@ -432,7 +433,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             data_block->data_type = TYPE_FLOAT;
             data_block->data = malloc(data_block->data_n * sizeof(float));
-            arr = (float*) data_block->data;
+            arr = (float*)data_block->data;
 
             if (STR_IEQUALS(request_block->function, "Rmin")) {
                 for (i = 0; i < equimapdata.timeCount; i++) arr[i] = equimapdata.efitdata[i].Rmin;
@@ -456,7 +457,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 for (i = 0; i < equimapdata.timeCount; i++) arr[i] = equimapdata.efitdata[i].psi_mag;
             } else if (STR_IEQUALS(request_block->function, "Nlcfs")) {
                 data_block->data_type = TYPE_INT;
-                int* iarr = (int*) data_block->data;
+                int* iarr = (int*)data_block->data;
                 for (i = 0; i < equimapdata.timeCount; i++) iarr[i] = equimapdata.efitdata[i].nlcfs;
             } else if (STR_IEQUALS(request_block->function, "Npsiz0")) {
                 for (i = 0; i < equimapdata.timeCount; i++) arr[i] = equimapdata.efitdata[i].rz0Count;
@@ -474,9 +475,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 for (i = 0; i < equimapdata.timeCount; i++) arr[i] = equimapdata.efitdata[i].triangU;
             } else if (STR_IEQUALS(request_block->function, "Elong")) {
                 for (i = 0; i < equimapdata.timeCount; i++) arr[i] = equimapdata.efitdata[i].elong;
-            } else
-
-            if (STR_IEQUALS(request_block->function, "Rmin")) {
+            } else if (STR_IEQUALS(request_block->function, "Rmin")) {
                 strcpy(data_block->data_units, "m");
                 strcpy(data_block->data_label, "Rmin");
                 strcpy(data_block->data_desc, "Inner Boundary Radius");
@@ -528,9 +527,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 strcpy(data_block->data_units, "m");
                 strcpy(data_block->data_label, "rho_torb");
                 strcpy(data_block->data_desc, "ITM Toroidal Flux Radius at Boundary");
-            } else
-
-            if (STR_IEQUALS(request_block->function, "Rgeom")) {
+            } else if (STR_IEQUALS(request_block->function, "Rgeom")) {
                 strcpy(data_block->data_units, "m");
                 strcpy(data_block->data_label, "Rgeom");
                 strcpy(data_block->data_desc, "Geometrical Axis of boundary (R)");
@@ -592,7 +589,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             data_block->rank = 2;
             data_block->order = 1;
 
-            data_block->dims = (DIMS*) malloc(data_block->rank * sizeof(DIMS));
+            data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
             for (i = 0; i < data_block->rank; i++) initDimBlock(&data_block->dims[i]);
 
 // Time Dimension
@@ -657,7 +654,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                     strcpy(data_block->dims[0].dim_label, xdim->dim_label);
                     data_block->dims[0].dim_n = xdim->dim_n;
                     data_block->dims[0].dim = malloc(data_block->dims[0].dim_n * sizeof(float));
-                    getIdamFloatDimData(handle, 0, (float*) data_block->dims[0].dim);
+                    getIdamFloatDimData(handle, 0, (float*)data_block->dims[0].dim);
 
                     //memcpy(data_block->dims[0].dim, xdim->dim, data_block->dims[0].dim_n*sizeof(float));  // *** BUG - assumes FLOAT !
 
@@ -665,8 +662,9 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 } else {
                     int maxn = 0;
                     for (i = 0; i < equimapdata.timeCount; i++)
-                        if (maxn < equimapdata.efitdata[i].nlcfs)
+                        if (maxn < equimapdata.efitdata[i].nlcfs) {
                             maxn = equimapdata.efitdata[i].nlcfs;
+                        }
                     data_block->dims[0].dim_n = maxn;
                     data_block->dims[0].dim = NULL;
                     data_block->dims[0].compressed = 1;
@@ -686,7 +684,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             data_block->data_type = TYPE_FLOAT;
             data_block->data = malloc(data_block->data_n * sizeof(float));
 
-            arr = (float*) data_block->data;
+            arr = (float*)data_block->data;
             if (STR_IEQUALS(request_block->function, "Q")) {
                 for (i = 0; i < equimapdata.timeCount; i++) {
                     for (j = 0; j < data_block->dims[0].dim_n; j++) {
@@ -863,7 +861,6 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             break;
         }
 
-
         if (STR_IEQUALS(request_block->function, "PsiZ0") ||
             STR_IEQUALS(request_block->function, "RPsiZ0")) {    // Generally ragged arrays !
 
@@ -873,7 +870,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             data_block->rank = 2;
             data_block->order = 1;
 
-            data_block->dims = (DIMS*) malloc(data_block->rank * sizeof(DIMS));
+            data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
             for (i = 0; i < data_block->rank; i++) initDimBlock(&data_block->dims[i]);
 
 // Time Dimension
@@ -919,7 +916,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             data_block->data_type = TYPE_FLOAT;
             data_block->data = malloc(data_block->data_n * sizeof(float));
 
-            arr = (float*) data_block->data;
+            arr = (float*)data_block->data;
 
             if (STR_IEQUALS(request_block->function, "PsiZ0")) {
                 for (i = 0; i < equimapdata.timeCount; i++) {
@@ -981,7 +978,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             data_block->rank = 3;
             data_block->order = 2;
 
-            data_block->dims = (DIMS*) malloc(data_block->rank * sizeof(DIMS));
+            data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
             for (i = 0; i < data_block->rank; i++) initDimBlock(&data_block->dims[i]);
 
 // Time Dimension
@@ -1027,7 +1024,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 strcpy(data_block->dims[1].dim_label, xdim->dim_label);
             } else {
                 err = 999;
-                idamLog(LOG_ERROR, "ERROR equimap: Corrupted Psi Data\n");
+                IDAM_LOG(LOG_ERROR, "ERROR equimap: Corrupted Psi Data\n");
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "equimap", err, "Corrupted Psi Data!");
                 concatIdamError(idamerrorstack, idamErrorStack);
                 return err;
@@ -1040,7 +1037,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             data_block->data_type = TYPE_FLOAT;
             data_block->data = malloc(data_block->data_n * sizeof(float));
 
-            arr = (float*) data_block->data;
+            arr = (float*)data_block->data;
 
             if (STR_IEQUALS(request_block->function, "Psi")) {
                 for (i = 0; i < equimapdata.timeCount; i++) {
@@ -1133,7 +1130,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             data_block->rank = 3;
             data_block->order = 2;
 
-            data_block->dims = (DIMS*) malloc(data_block->rank * sizeof(DIMS));
+            data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
             for (i = 0; i < data_block->rank; i++) initDimBlock(&data_block->dims[i]);
 
 // Time Dimension
@@ -1197,7 +1194,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 strcpy(data_block->dims[1].dim_label, xdim->dim_label);
             } else {
                 err = 999;
-                idamLog(LOG_ERROR, "ERROR equimap: Corrupted PsiSR Data\n");
+                IDAM_LOG(LOG_ERROR, "ERROR equimap: Corrupted PsiSR Data\n");
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "equimap", err, "Corrupted PsiSR Data!");
                 concatIdamError(idamerrorstack, idamErrorStack);
                 return err;
@@ -1209,20 +1206,19 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             if (data_block->data_n == 0) {
                 err = 999;
-                idamLog(LOG_ERROR, "ERROR equimap: No Data Values selected!\n");
+                IDAM_LOG(LOG_ERROR, "ERROR equimap: No Data Values selected!\n");
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "equimap", err, "No Data Values selected!");
                 concatIdamError(idamerrorstack, idamErrorStack);
-                idamLog(LOG_DEBUG, "equimap: dims[0].dim_n = %d\n", data_block->dims[0].dim_n);
-                idamLog(LOG_DEBUG, "equimap: dims[1].dim_n = %d\n", data_block->dims[1].dim_n);
-                idamLog(LOG_DEBUG, "equimap: dims[2].dim_n = %d\n", data_block->dims[2].dim_n);
+                IDAM_LOGF(LOG_DEBUG, "equimap: dims[0].dim_n = %d\n", data_block->dims[0].dim_n);
+                IDAM_LOGF(LOG_DEBUG, "equimap: dims[1].dim_n = %d\n", data_block->dims[1].dim_n);
+                IDAM_LOGF(LOG_DEBUG, "equimap: dims[2].dim_n = %d\n", data_block->dims[2].dim_n);
                 return err;
             }
-
 
             data_block->data_type = TYPE_FLOAT;
             data_block->data = malloc(data_block->data_n * sizeof(float));
 
-            arr = (float*) data_block->data;
+            arr = (float*)data_block->data;
 
             if (STR_IEQUALS(request_block->function, "PsiSR")) {
                 for (i = 0; i < equimapdata.timeCount; i++) {
@@ -1280,7 +1276,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             data_block->rank = 2;
             data_block->order = 1;
 
-            data_block->dims = (DIMS*) malloc(data_block->rank * sizeof(DIMS));
+            data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
             for (i = 0; i < data_block->rank; i++) initDimBlock(&data_block->dims[i]);
 
 // Time Dimension
@@ -1334,49 +1330,49 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             for (i = 0; i < equimapdata.timeCount; i++) {
                 if (STR_IEQUALS(request_block->function, "yag_R")) {
-                    arr = (float*) data_block->data;
+                    arr = (float*)data_block->data;
                     for (j = 0; j < data_block->dims[0].dim_n; j++) {
                         offset = i * data_block->dims[0].dim_n + j;
                         arr[offset] = equimapdata.efitdata[i].rne[j];
                     }
                 } else if (STR_IEQUALS(request_block->function, "yag_ne")) {
-                    arr = (float*) data_block->data;
+                    arr = (float*)data_block->data;
                     for (j = 0; j < data_block->dims[0].dim_n; j++) {
                         offset = i * data_block->dims[0].dim_n + j;
                         arr[offset] = equimapdata.efitdata[i].ne[j];
                     }
                 } else if (STR_IEQUALS(request_block->function, "yag_Te")) {
-                    arr = (float*) data_block->data;
+                    arr = (float*)data_block->data;
                     for (j = 0; j < data_block->dims[0].dim_n; j++) {
                         offset = i * data_block->dims[0].dim_n + j;
                         arr[offset] = equimapdata.efitdata[i].te[j];
                     }
                 } else if (STR_IEQUALS(request_block->function, "yag_psi")) {
-                    arr = (float*) data_block->data;
+                    arr = (float*)data_block->data;
                     for (j = 0; j < data_block->dims[0].dim_n; j++) {
                         offset = i * data_block->dims[0].dim_n + j;
                         arr[offset] = equimapdata.efitdata[i].yagpsi[j];
                     }
                 } else if (STR_IEQUALS(request_block->function, "yag_phi")) {
-                    arr = (float*) data_block->data;
+                    arr = (float*)data_block->data;
                     for (j = 0; j < data_block->dims[0].dim_n; j++) {
                         offset = i * data_block->dims[0].dim_n + j;
                         arr[offset] = equimapdata.efitdata[i].yagphi[j];
                     }
                 } else if (STR_IEQUALS(request_block->function, "yag_trho")) {
-                    arr = (float*) data_block->data;
+                    arr = (float*)data_block->data;
                     for (j = 0; j < data_block->dims[0].dim_n; j++) {
                         offset = i * data_block->dims[0].dim_n + j;
                         arr[offset] = equimapdata.efitdata[i].yagtrho[j];
                     }
                 } else if (STR_IEQUALS(request_block->function, "yag_prho")) {
-                    arr = (float*) data_block->data;
+                    arr = (float*)data_block->data;
                     for (j = 0; j < data_block->dims[0].dim_n; j++) {
                         offset = i * data_block->dims[0].dim_n + j;
                         arr[offset] = equimapdata.efitdata[i].yagprho[j];
                     }
                 } else if (STR_IEQUALS(request_block->function, "yag_rhotor")) {
-                    arr = (float*) data_block->data;
+                    arr = (float*)data_block->data;
                     for (j = 0; j < data_block->dims[0].dim_n; j++) {
                         offset = i * data_block->dims[0].dim_n + j;
                         arr[offset] = equimapdata.efitdata[i].yagrhotor[j];
@@ -1449,7 +1445,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             data_block->rank = 2;
             data_block->order = 1;
 
-            data_block->dims = (DIMS*) malloc(data_block->rank * sizeof(DIMS));
+            data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
             for (i = 0; i < data_block->rank; i++) initDimBlock(&data_block->dims[i]);
 
 // Time Dimension
@@ -1537,7 +1533,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             data_block->data_type = TYPE_FLOAT;
             data_block->data = malloc(data_block->data_n * sizeof(float));
 
-            arr = (float*) data_block->data;
+            arr = (float*)data_block->data;
 
             for (i = 0; i < equimapdata.timeCount; i++) {
                 for (j = 0; j < data_block->dims[0].dim_n; j++) {
@@ -1652,14 +1648,13 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             (equimapdata.readITMData && STR_IEQUALS(request_block->function, "MVolB")) ||
             (equimapdata.readITMData && STR_IEQUALS(request_block->function, "MAreaB"))) {
 
-
             handle = whichHandle("Rmag");
 
             initDataBlock(data_block);
             data_block->rank = 2;
             data_block->order = 1;
 
-            data_block->dims = (DIMS*) malloc(data_block->rank * sizeof(DIMS));
+            data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
             for (i = 0; i < data_block->rank; i++) initDimBlock(&data_block->dims[i]);
 
 // Time Dimension
@@ -1733,7 +1728,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             data_block->data_type = TYPE_FLOAT;
             data_block->data = malloc(data_block->data_n * sizeof(float));
 
-            arr = (float*) data_block->data;
+            arr = (float*)data_block->data;
 
             for (i = 0; i < equimapdata.timeCount; i++) {
                 for (j = 0; j < data_block->dims[0].dim_n; j++) {
@@ -1828,15 +1823,16 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             data_block->rank = 1;
             data_block->order = -1;
 
-            data_block->dims = (DIMS*) malloc(data_block->rank * sizeof(DIMS));
+            data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
             for (i = 0; i < data_block->rank; i++) initDimBlock(&data_block->dims[i]);
 
 // Array Index
 
-            if (STR_IEQUALS(request_block->function, "FRho"))
+            if (STR_IEQUALS(request_block->function, "FRho")) {
                 data_block->dims[0].dim_n = equimapdata.rhoCount;
-            else
+            } else {
                 data_block->dims[0].dim_n = equimapdata.rhoBCount;
+            }
             data_block->dims[0].data_type = TYPE_FLOAT;
 
             data_block->dims[0].dim = NULL;
@@ -1854,9 +1850,9 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             data_block->data_type = TYPE_FLOAT;
             data_block->data = malloc(data_block->data_n * sizeof(float));
             if (STR_IEQUALS(request_block->function, "FRho"))
-                memcpy((void*) data_block->data, (void*) equimapdata.rho, equimapdata.rhoCount * sizeof(float));
+                memcpy((void*)data_block->data, (void*)equimapdata.rho, equimapdata.rhoCount * sizeof(float));
             else
-                memcpy((void*) data_block->data, (void*) equimapdata.rhoB, equimapdata.rhoBCount * sizeof(float));
+                memcpy((void*)data_block->data, (void*)equimapdata.rhoB, equimapdata.rhoBCount * sizeof(float));
 
             strcpy(data_block->data_units, "");
 
@@ -1894,7 +1890,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             data_block->rank = 2;
             data_block->order = 1;
 
-            data_block->dims = (DIMS*) malloc(data_block->rank * sizeof(DIMS));
+            data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
             for (i = 0; i < data_block->rank; i++) initDimBlock(&data_block->dims[i]);
 
 // Time Dimension
@@ -1918,10 +1914,11 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Array Index
 
-            if (STR_IEQUALS(request_block->function, "Rho"))
+            if (STR_IEQUALS(request_block->function, "Rho")) {
                 data_block->dims[0].dim_n = equimapdata.rhoCount;
-            else
+            } else {
                 data_block->dims[0].dim_n = equimapdata.rhoBCount;
+            }
             data_block->dims[0].data_type = TYPE_FLOAT;
 
             data_block->dims[0].dim = NULL;
@@ -1940,7 +1937,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             data_block->data_type = TYPE_FLOAT;
             data_block->data = malloc(data_block->data_n * sizeof(float));
-            arr = (float*) data_block->data;
+            arr = (float*)data_block->data;
 
             if (STR_IEQUALS(request_block->function, "Rho")) {
                 for (i = 0; i < equimapdata.timeCount; i++) {
@@ -2002,7 +1999,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             data_block->rank = 2;
             data_block->order = 1;
 
-            data_block->dims = (DIMS*) malloc(data_block->rank * sizeof(DIMS));
+            data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
             for (i = 0; i < data_block->rank; i++) initDimBlock(&data_block->dims[i]);
 
 // Time Dimension
@@ -2053,7 +2050,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             data_block->data_type = TYPE_FLOAT;
             data_block->data = malloc(data_block->data_n * sizeof(float));
-            arr = (float*) data_block->data;
+            arr = (float*)data_block->data;
 
             for (i = 0; i < equimapdata.timeCount; i++) {
                 for (j = 0; j < data_block->dims[0].dim_n; j++) {
@@ -2084,8 +2081,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 strcpy(data_block->data_units, "m");
                 strcpy(data_block->data_label, "<R>");
                 strcpy(data_block->data_desc, "Flux Surface Average <R>");
-            }
-            else if (STR_IEQUALS(request_block->function, "mapgm3")) {
+            } else if (STR_IEQUALS(request_block->function, "mapgm3")) {
                 strcpy(data_block->data_units, "m");
                 strcpy(data_block->data_label, "<|Grad(Rho/R)|^2>");
                 strcpy(data_block->data_desc, "Flux Surface Average <|Grad(Rho/R)|^2>");
@@ -2288,132 +2284,131 @@ void freeEquiMapData()
     int i, j;
 
     for (i = 0; i < equimapdata.timeCount; i++) {
-        if (equimapdata.efitdata[i].rlim != NULL) free((void*) equimapdata.efitdata[i].rlim);
-        if (equimapdata.efitdata[i].zlim != NULL) free((void*) equimapdata.efitdata[i].zlim);
-        if (equimapdata.efitdata[i].rlcfs != NULL) free((void*) equimapdata.efitdata[i].rlcfs);
-        if (equimapdata.efitdata[i].zlcfs != NULL) free((void*) equimapdata.efitdata[i].zlcfs);
-        if (equimapdata.efitdata[i].rgrid != NULL) free((void*) equimapdata.efitdata[i].rgrid);
-        if (equimapdata.efitdata[i].zgrid != NULL) free((void*) equimapdata.efitdata[i].zgrid);
-        if (equimapdata.efitdata[i].rgridSR != NULL) free((void*) equimapdata.efitdata[i].rgridSR);
-        if (equimapdata.efitdata[i].zgridSR != NULL) free((void*) equimapdata.efitdata[i].zgridSR);
-        if (equimapdata.efitdata[i].rgridRZBox != NULL) free((void*) equimapdata.efitdata[i].rgridRZBox);
-        if (equimapdata.efitdata[i].zgridRZBox != NULL) free((void*) equimapdata.efitdata[i].zgridRZBox);
+        if (equimapdata.efitdata[i].rlim != NULL) free((void*)equimapdata.efitdata[i].rlim);
+        if (equimapdata.efitdata[i].zlim != NULL) free((void*)equimapdata.efitdata[i].zlim);
+        if (equimapdata.efitdata[i].rlcfs != NULL) free((void*)equimapdata.efitdata[i].rlcfs);
+        if (equimapdata.efitdata[i].zlcfs != NULL) free((void*)equimapdata.efitdata[i].zlcfs);
+        if (equimapdata.efitdata[i].rgrid != NULL) free((void*)equimapdata.efitdata[i].rgrid);
+        if (equimapdata.efitdata[i].zgrid != NULL) free((void*)equimapdata.efitdata[i].zgrid);
+        if (equimapdata.efitdata[i].rgridSR != NULL) free((void*)equimapdata.efitdata[i].rgridSR);
+        if (equimapdata.efitdata[i].zgridSR != NULL) free((void*)equimapdata.efitdata[i].zgridSR);
+        if (equimapdata.efitdata[i].rgridRZBox != NULL) free((void*)equimapdata.efitdata[i].rgridRZBox);
+        if (equimapdata.efitdata[i].zgridRZBox != NULL) free((void*)equimapdata.efitdata[i].zgridRZBox);
 
-        if (equimapdata.efitdata[i].psiz0 != NULL) free((void*) equimapdata.efitdata[i].psiz0);
-        if (equimapdata.efitdata[i].rz0 != NULL) free((void*) equimapdata.efitdata[i].rz0);
-        if (equimapdata.efitdata[i].q != NULL) free((void*) equimapdata.efitdata[i].q);
-        if (equimapdata.efitdata[i].p != NULL) free((void*) equimapdata.efitdata[i].p);
-        if (equimapdata.efitdata[i].f != NULL) free((void*) equimapdata.efitdata[i].f);
-        if (equimapdata.efitdata[i].rho != NULL) free((void*) equimapdata.efitdata[i].rho);
-        if (equimapdata.efitdata[i].psi != NULL) free((void*) equimapdata.efitdata[i].psi);
-        if (equimapdata.efitdata[i].phi != NULL) free((void*) equimapdata.efitdata[i].phi);
-        if (equimapdata.efitdata[i].trho != NULL) free((void*) equimapdata.efitdata[i].trho);
-        if (equimapdata.efitdata[i].rho_tor != NULL) free((void*) equimapdata.efitdata[i].rho_tor);
+        if (equimapdata.efitdata[i].psiz0 != NULL) free((void*)equimapdata.efitdata[i].psiz0);
+        if (equimapdata.efitdata[i].rz0 != NULL) free((void*)equimapdata.efitdata[i].rz0);
+        if (equimapdata.efitdata[i].q != NULL) free((void*)equimapdata.efitdata[i].q);
+        if (equimapdata.efitdata[i].p != NULL) free((void*)equimapdata.efitdata[i].p);
+        if (equimapdata.efitdata[i].f != NULL) free((void*)equimapdata.efitdata[i].f);
+        if (equimapdata.efitdata[i].rho != NULL) free((void*)equimapdata.efitdata[i].rho);
+        if (equimapdata.efitdata[i].psi != NULL) free((void*)equimapdata.efitdata[i].psi);
+        if (equimapdata.efitdata[i].phi != NULL) free((void*)equimapdata.efitdata[i].phi);
+        if (equimapdata.efitdata[i].trho != NULL) free((void*)equimapdata.efitdata[i].trho);
+        if (equimapdata.efitdata[i].rho_tor != NULL) free((void*)equimapdata.efitdata[i].rho_tor);
 
-        if (equimapdata.efitdata[i].pprime != NULL) free((void*) equimapdata.efitdata[i].pprime);
-        if (equimapdata.efitdata[i].ffprime != NULL) free((void*) equimapdata.efitdata[i].ffprime);
-        if (equimapdata.efitdata[i].elongp != NULL) free((void*) equimapdata.efitdata[i].elongp);
-        if (equimapdata.efitdata[i].trianglp != NULL) free((void*) equimapdata.efitdata[i].trianglp);
-        if (equimapdata.efitdata[i].triangup != NULL) free((void*) equimapdata.efitdata[i].triangup);
-        if (equimapdata.efitdata[i].volp != NULL) free((void*) equimapdata.efitdata[i].volp);
-        if (equimapdata.efitdata[i].areap != NULL) free((void*) equimapdata.efitdata[i].areap);
+        if (equimapdata.efitdata[i].pprime != NULL) free((void*)equimapdata.efitdata[i].pprime);
+        if (equimapdata.efitdata[i].ffprime != NULL) free((void*)equimapdata.efitdata[i].ffprime);
+        if (equimapdata.efitdata[i].elongp != NULL) free((void*)equimapdata.efitdata[i].elongp);
+        if (equimapdata.efitdata[i].trianglp != NULL) free((void*)equimapdata.efitdata[i].trianglp);
+        if (equimapdata.efitdata[i].triangup != NULL) free((void*)equimapdata.efitdata[i].triangup);
+        if (equimapdata.efitdata[i].volp != NULL) free((void*)equimapdata.efitdata[i].volp);
+        if (equimapdata.efitdata[i].areap != NULL) free((void*)equimapdata.efitdata[i].areap);
 
-        if (equimapdata.efitdata[i].ne != NULL) free((void*) equimapdata.efitdata[i].ne);
-        if (equimapdata.efitdata[i].te != NULL) free((void*) equimapdata.efitdata[i].te);
-        if (equimapdata.efitdata[i].rne != NULL) free((void*) equimapdata.efitdata[i].rne);
-        if (equimapdata.efitdata[i].yagpsi != NULL) free((void*) equimapdata.efitdata[i].yagpsi);
-        if (equimapdata.efitdata[i].yagphi != NULL) free((void*) equimapdata.efitdata[i].yagphi);
-        if (equimapdata.efitdata[i].yagtrho != NULL) free((void*) equimapdata.efitdata[i].yagtrho);
-        if (equimapdata.efitdata[i].yagprho != NULL) free((void*) equimapdata.efitdata[i].yagprho);
-        if (equimapdata.efitdata[i].yagrhotor != NULL) free((void*) equimapdata.efitdata[i].yagrhotor);
-        if (equimapdata.efitdata[i].mappsi != NULL) free((void*) equimapdata.efitdata[i].mappsi);
-        if (equimapdata.efitdata[i].mappsiB != NULL) free((void*) equimapdata.efitdata[i].mappsiB);
-        if (equimapdata.efitdata[i].mapq != NULL) free((void*) equimapdata.efitdata[i].mapq);
-        if (equimapdata.efitdata[i].mapqB != NULL) free((void*) equimapdata.efitdata[i].mapqB);
-        if (equimapdata.efitdata[i].mapp != NULL) free((void*) equimapdata.efitdata[i].mapp);
-        if (equimapdata.efitdata[i].mappB != NULL) free((void*) equimapdata.efitdata[i].mappB);
-        if (equimapdata.efitdata[i].mapf != NULL) free((void*) equimapdata.efitdata[i].mapf);
-        if (equimapdata.efitdata[i].mapfB != NULL) free((void*) equimapdata.efitdata[i].mapfB);
-        if (equimapdata.efitdata[i].mappprime != NULL) free((void*) equimapdata.efitdata[i].mappprime);
-        if (equimapdata.efitdata[i].mappprimeB != NULL) free((void*) equimapdata.efitdata[i].mappprimeB);
-        if (equimapdata.efitdata[i].mapffprime != NULL) free((void*) equimapdata.efitdata[i].mapffprime);
-        if (equimapdata.efitdata[i].mapffprimeB != NULL) free((void*) equimapdata.efitdata[i].mapffprimeB);
-        if (equimapdata.efitdata[i].mapelongp != NULL) free((void*) equimapdata.efitdata[i].mapelongp);
-        if (equimapdata.efitdata[i].mapelongpB != NULL) free((void*) equimapdata.efitdata[i].mapelongpB);
-        if (equimapdata.efitdata[i].maptrianglp != NULL) free((void*) equimapdata.efitdata[i].maptrianglp);
-        if (equimapdata.efitdata[i].maptrianglpB != NULL) free((void*) equimapdata.efitdata[i].maptrianglpB);
-        if (equimapdata.efitdata[i].maptriangup != NULL) free((void*) equimapdata.efitdata[i].maptriangup);
-        if (equimapdata.efitdata[i].maptriangupB != NULL) free((void*) equimapdata.efitdata[i].maptriangupB);
-        if (equimapdata.efitdata[i].mapvolp != NULL) free((void*) equimapdata.efitdata[i].mapvolp);
-        if (equimapdata.efitdata[i].mapvolpB != NULL) free((void*) equimapdata.efitdata[i].mapvolpB);
-        if (equimapdata.efitdata[i].mapareap != NULL) free((void*) equimapdata.efitdata[i].mapareap);
-        if (equimapdata.efitdata[i].mapareapB != NULL) free((void*) equimapdata.efitdata[i].mapareapB);
-        if (equimapdata.efitdata[i].mapgm0 != NULL) free((void*) equimapdata.efitdata[i].mapgm0);
-        if (equimapdata.efitdata[i].mapgm1 != NULL) free((void*) equimapdata.efitdata[i].mapgm1);
-        if (equimapdata.efitdata[i].mapgm2 != NULL) free((void*) equimapdata.efitdata[i].mapgm2);
-        if (equimapdata.efitdata[i].mapgm3 != NULL) free((void*) equimapdata.efitdata[i].mapgm3);
+        if (equimapdata.efitdata[i].ne != NULL) free((void*)equimapdata.efitdata[i].ne);
+        if (equimapdata.efitdata[i].te != NULL) free((void*)equimapdata.efitdata[i].te);
+        if (equimapdata.efitdata[i].rne != NULL) free((void*)equimapdata.efitdata[i].rne);
+        if (equimapdata.efitdata[i].yagpsi != NULL) free((void*)equimapdata.efitdata[i].yagpsi);
+        if (equimapdata.efitdata[i].yagphi != NULL) free((void*)equimapdata.efitdata[i].yagphi);
+        if (equimapdata.efitdata[i].yagtrho != NULL) free((void*)equimapdata.efitdata[i].yagtrho);
+        if (equimapdata.efitdata[i].yagprho != NULL) free((void*)equimapdata.efitdata[i].yagprho);
+        if (equimapdata.efitdata[i].yagrhotor != NULL) free((void*)equimapdata.efitdata[i].yagrhotor);
+        if (equimapdata.efitdata[i].mappsi != NULL) free((void*)equimapdata.efitdata[i].mappsi);
+        if (equimapdata.efitdata[i].mappsiB != NULL) free((void*)equimapdata.efitdata[i].mappsiB);
+        if (equimapdata.efitdata[i].mapq != NULL) free((void*)equimapdata.efitdata[i].mapq);
+        if (equimapdata.efitdata[i].mapqB != NULL) free((void*)equimapdata.efitdata[i].mapqB);
+        if (equimapdata.efitdata[i].mapp != NULL) free((void*)equimapdata.efitdata[i].mapp);
+        if (equimapdata.efitdata[i].mappB != NULL) free((void*)equimapdata.efitdata[i].mappB);
+        if (equimapdata.efitdata[i].mapf != NULL) free((void*)equimapdata.efitdata[i].mapf);
+        if (equimapdata.efitdata[i].mapfB != NULL) free((void*)equimapdata.efitdata[i].mapfB);
+        if (equimapdata.efitdata[i].mappprime != NULL) free((void*)equimapdata.efitdata[i].mappprime);
+        if (equimapdata.efitdata[i].mappprimeB != NULL) free((void*)equimapdata.efitdata[i].mappprimeB);
+        if (equimapdata.efitdata[i].mapffprime != NULL) free((void*)equimapdata.efitdata[i].mapffprime);
+        if (equimapdata.efitdata[i].mapffprimeB != NULL) free((void*)equimapdata.efitdata[i].mapffprimeB);
+        if (equimapdata.efitdata[i].mapelongp != NULL) free((void*)equimapdata.efitdata[i].mapelongp);
+        if (equimapdata.efitdata[i].mapelongpB != NULL) free((void*)equimapdata.efitdata[i].mapelongpB);
+        if (equimapdata.efitdata[i].maptrianglp != NULL) free((void*)equimapdata.efitdata[i].maptrianglp);
+        if (equimapdata.efitdata[i].maptrianglpB != NULL) free((void*)equimapdata.efitdata[i].maptrianglpB);
+        if (equimapdata.efitdata[i].maptriangup != NULL) free((void*)equimapdata.efitdata[i].maptriangup);
+        if (equimapdata.efitdata[i].maptriangupB != NULL) free((void*)equimapdata.efitdata[i].maptriangupB);
+        if (equimapdata.efitdata[i].mapvolp != NULL) free((void*)equimapdata.efitdata[i].mapvolp);
+        if (equimapdata.efitdata[i].mapvolpB != NULL) free((void*)equimapdata.efitdata[i].mapvolpB);
+        if (equimapdata.efitdata[i].mapareap != NULL) free((void*)equimapdata.efitdata[i].mapareap);
+        if (equimapdata.efitdata[i].mapareapB != NULL) free((void*)equimapdata.efitdata[i].mapareapB);
+        if (equimapdata.efitdata[i].mapgm0 != NULL) free((void*)equimapdata.efitdata[i].mapgm0);
+        if (equimapdata.efitdata[i].mapgm1 != NULL) free((void*)equimapdata.efitdata[i].mapgm1);
+        if (equimapdata.efitdata[i].mapgm2 != NULL) free((void*)equimapdata.efitdata[i].mapgm2);
+        if (equimapdata.efitdata[i].mapgm3 != NULL) free((void*)equimapdata.efitdata[i].mapgm3);
 
-        if (equimapdata.efitdata[i].mapyagne != NULL) free((void*) equimapdata.efitdata[i].mapyagne);
-        if (equimapdata.efitdata[i].mapyagte != NULL) free((void*) equimapdata.efitdata[i].mapyagte);
-        if (equimapdata.efitdata[i].mapyagpsi != NULL) free((void*) equimapdata.efitdata[i].mapyagpsi);
-        if (equimapdata.efitdata[i].mapyagphi != NULL) free((void*) equimapdata.efitdata[i].mapyagphi);
-        if (equimapdata.efitdata[i].mapyagr1 != NULL) free((void*) equimapdata.efitdata[i].mapyagr1);
-        if (equimapdata.efitdata[i].mapyagne1 != NULL) free((void*) equimapdata.efitdata[i].mapyagne1);
-        if (equimapdata.efitdata[i].mapyagte1 != NULL) free((void*) equimapdata.efitdata[i].mapyagte1);
-        if (equimapdata.efitdata[i].mapyagpsi1 != NULL) free((void*) equimapdata.efitdata[i].mapyagpsi1);
-        if (equimapdata.efitdata[i].mapyagphi1 != NULL) free((void*) equimapdata.efitdata[i].mapyagphi1);
-        if (equimapdata.efitdata[i].mapyagr2 != NULL) free((void*) equimapdata.efitdata[i].mapyagr2);
-        if (equimapdata.efitdata[i].mapyagne2 != NULL) free((void*) equimapdata.efitdata[i].mapyagne2);
-        if (equimapdata.efitdata[i].mapyagte2 != NULL) free((void*) equimapdata.efitdata[i].mapyagte2);
-        if (equimapdata.efitdata[i].mapyagpsi2 != NULL) free((void*) equimapdata.efitdata[i].mapyagpsi2);
-        if (equimapdata.efitdata[i].mapyagphi2 != NULL) free((void*) equimapdata.efitdata[i].mapyagphi2);
-        if (equimapdata.efitdata[i].mapyagneB != NULL) free((void*) equimapdata.efitdata[i].mapyagneB);
-        if (equimapdata.efitdata[i].mapyagteB != NULL) free((void*) equimapdata.efitdata[i].mapyagteB);
-        if (equimapdata.efitdata[i].mapyagpsiB != NULL) free((void*) equimapdata.efitdata[i].mapyagpsiB);
-        if (equimapdata.efitdata[i].mapyagphiB != NULL) free((void*) equimapdata.efitdata[i].mapyagphiB);
-        if (equimapdata.efitdata[i].mapyagr1B != NULL) free((void*) equimapdata.efitdata[i].mapyagr1B);
-        if (equimapdata.efitdata[i].mapyagne1B != NULL) free((void*) equimapdata.efitdata[i].mapyagne1B);
-        if (equimapdata.efitdata[i].mapyagte1B != NULL) free((void*) equimapdata.efitdata[i].mapyagte1B);
-        if (equimapdata.efitdata[i].mapyagpsi1B != NULL) free((void*) equimapdata.efitdata[i].mapyagpsi1B);
-        if (equimapdata.efitdata[i].mapyagphi1B != NULL) free((void*) equimapdata.efitdata[i].mapyagphi1B);
-        if (equimapdata.efitdata[i].mapyagr2B != NULL) free((void*) equimapdata.efitdata[i].mapyagr2B);
-        if (equimapdata.efitdata[i].mapyagne2B != NULL) free((void*) equimapdata.efitdata[i].mapyagne2B);
-        if (equimapdata.efitdata[i].mapyagte2B != NULL) free((void*) equimapdata.efitdata[i].mapyagte2B);
-        if (equimapdata.efitdata[i].mapyagpsi2B != NULL) free((void*) equimapdata.efitdata[i].mapyagpsi2B);
-        if (equimapdata.efitdata[i].mapyagphi2B != NULL) free((void*) equimapdata.efitdata[i].mapyagphi2B);
+        if (equimapdata.efitdata[i].mapyagne != NULL) free((void*)equimapdata.efitdata[i].mapyagne);
+        if (equimapdata.efitdata[i].mapyagte != NULL) free((void*)equimapdata.efitdata[i].mapyagte);
+        if (equimapdata.efitdata[i].mapyagpsi != NULL) free((void*)equimapdata.efitdata[i].mapyagpsi);
+        if (equimapdata.efitdata[i].mapyagphi != NULL) free((void*)equimapdata.efitdata[i].mapyagphi);
+        if (equimapdata.efitdata[i].mapyagr1 != NULL) free((void*)equimapdata.efitdata[i].mapyagr1);
+        if (equimapdata.efitdata[i].mapyagne1 != NULL) free((void*)equimapdata.efitdata[i].mapyagne1);
+        if (equimapdata.efitdata[i].mapyagte1 != NULL) free((void*)equimapdata.efitdata[i].mapyagte1);
+        if (equimapdata.efitdata[i].mapyagpsi1 != NULL) free((void*)equimapdata.efitdata[i].mapyagpsi1);
+        if (equimapdata.efitdata[i].mapyagphi1 != NULL) free((void*)equimapdata.efitdata[i].mapyagphi1);
+        if (equimapdata.efitdata[i].mapyagr2 != NULL) free((void*)equimapdata.efitdata[i].mapyagr2);
+        if (equimapdata.efitdata[i].mapyagne2 != NULL) free((void*)equimapdata.efitdata[i].mapyagne2);
+        if (equimapdata.efitdata[i].mapyagte2 != NULL) free((void*)equimapdata.efitdata[i].mapyagte2);
+        if (equimapdata.efitdata[i].mapyagpsi2 != NULL) free((void*)equimapdata.efitdata[i].mapyagpsi2);
+        if (equimapdata.efitdata[i].mapyagphi2 != NULL) free((void*)equimapdata.efitdata[i].mapyagphi2);
+        if (equimapdata.efitdata[i].mapyagneB != NULL) free((void*)equimapdata.efitdata[i].mapyagneB);
+        if (equimapdata.efitdata[i].mapyagteB != NULL) free((void*)equimapdata.efitdata[i].mapyagteB);
+        if (equimapdata.efitdata[i].mapyagpsiB != NULL) free((void*)equimapdata.efitdata[i].mapyagpsiB);
+        if (equimapdata.efitdata[i].mapyagphiB != NULL) free((void*)equimapdata.efitdata[i].mapyagphiB);
+        if (equimapdata.efitdata[i].mapyagr1B != NULL) free((void*)equimapdata.efitdata[i].mapyagr1B);
+        if (equimapdata.efitdata[i].mapyagne1B != NULL) free((void*)equimapdata.efitdata[i].mapyagne1B);
+        if (equimapdata.efitdata[i].mapyagte1B != NULL) free((void*)equimapdata.efitdata[i].mapyagte1B);
+        if (equimapdata.efitdata[i].mapyagpsi1B != NULL) free((void*)equimapdata.efitdata[i].mapyagpsi1B);
+        if (equimapdata.efitdata[i].mapyagphi1B != NULL) free((void*)equimapdata.efitdata[i].mapyagphi1B);
+        if (equimapdata.efitdata[i].mapyagr2B != NULL) free((void*)equimapdata.efitdata[i].mapyagr2B);
+        if (equimapdata.efitdata[i].mapyagne2B != NULL) free((void*)equimapdata.efitdata[i].mapyagne2B);
+        if (equimapdata.efitdata[i].mapyagte2B != NULL) free((void*)equimapdata.efitdata[i].mapyagte2B);
+        if (equimapdata.efitdata[i].mapyagpsi2B != NULL) free((void*)equimapdata.efitdata[i].mapyagpsi2B);
+        if (equimapdata.efitdata[i].mapyagphi2B != NULL) free((void*)equimapdata.efitdata[i].mapyagphi2B);
 
         for (j = 0; j < equimapdata.efitdata[i].psiCount[1]; j++)
-            if (equimapdata.efitdata[i].psig[j] != NULL) free((void*) equimapdata.efitdata[i].psig[j]);
-        if (equimapdata.efitdata[i].psig != NULL) free((void*) equimapdata.efitdata[i].psig);
+            if (equimapdata.efitdata[i].psig[j] != NULL) free((void*)equimapdata.efitdata[i].psig[j]);
+        if (equimapdata.efitdata[i].psig != NULL) free((void*)equimapdata.efitdata[i].psig);
 
         for (j = 0; j < equimapdata.efitdata[i].psiCountSR[1]; j++)
-            if (equimapdata.efitdata[i].psigSR[j] != NULL) free((void*) equimapdata.efitdata[i].psigSR[j]);
-        if (equimapdata.efitdata[i].psigSR != NULL) free((void*) equimapdata.efitdata[i].psigSR);
+            if (equimapdata.efitdata[i].psigSR[j] != NULL) free((void*)equimapdata.efitdata[i].psigSR[j]);
+        if (equimapdata.efitdata[i].psigSR != NULL) free((void*)equimapdata.efitdata[i].psigSR);
 
         for (j = 0; j < equimapdata.efitdata[i].psiCountRZBox[1]; j++)
-            if (equimapdata.efitdata[i].psigRZBox[j] != NULL) free((void*) equimapdata.efitdata[i].psigRZBox[j]);
-        if (equimapdata.efitdata[i].psigRZBox != NULL) free((void*) equimapdata.efitdata[i].psigRZBox);
+            if (equimapdata.efitdata[i].psigRZBox[j] != NULL) free((void*)equimapdata.efitdata[i].psigRZBox[j]);
+        if (equimapdata.efitdata[i].psigRZBox != NULL) free((void*)equimapdata.efitdata[i].psigRZBox);
 
         for (j = 0; j < equimapdata.efitdata[i].psiCount[1]; j++)
-            if (equimapdata.efitdata[i].Jphi[j] != NULL) free((void*) equimapdata.efitdata[i].Jphi[j]);
-        if (equimapdata.efitdata[i].Jphi != NULL) free((void*) equimapdata.efitdata[i].Jphi);
+            if (equimapdata.efitdata[i].Jphi[j] != NULL) free((void*)equimapdata.efitdata[i].Jphi[j]);
+        if (equimapdata.efitdata[i].Jphi != NULL) free((void*)equimapdata.efitdata[i].Jphi);
 
         if (equimapdata.readITMData) {
 
             for (j = 0; j < equimapdata.efitdata[i].psiCount[1]; j++) {
                 //if(equimapdata.efitdata[i].dpsidr[j] != NULL) free((void *)equimapdata.efitdata[i].dpsidr[j]);
                 //if(equimapdata.efitdata[i].dpsidz[j] != NULL) free((void *)equimapdata.efitdata[i].dpsidz[j]);
-                if (equimapdata.efitdata[i].Br[j] != NULL) free((void*) equimapdata.efitdata[i].Br[j]);
-                if (equimapdata.efitdata[i].Bz[j] != NULL) free((void*) equimapdata.efitdata[i].Bz[j]);
-                if (equimapdata.efitdata[i].Bphi[j] != NULL) free((void*) equimapdata.efitdata[i].Bphi[j]);
+                if (equimapdata.efitdata[i].Br[j] != NULL) free((void*)equimapdata.efitdata[i].Br[j]);
+                if (equimapdata.efitdata[i].Bz[j] != NULL) free((void*)equimapdata.efitdata[i].Bz[j]);
+                if (equimapdata.efitdata[i].Bphi[j] != NULL) free((void*)equimapdata.efitdata[i].Bphi[j]);
             }
             //if(equimapdata.efitdata[i].dpsidr != NULL) free((void *)equimapdata.efitdata[i].dpsidr);
             //if(equimapdata.efitdata[i].dpsidz != NULL) free((void *)equimapdata.efitdata[i].dpsidz);
-            if (equimapdata.efitdata[i].Br != NULL) free((void*) equimapdata.efitdata[i].Br);
-            if (equimapdata.efitdata[i].Bz != NULL) free((void*) equimapdata.efitdata[i].Bz);
-            if (equimapdata.efitdata[i].Bphi != NULL) free((void*) equimapdata.efitdata[i].Bphi);
+            if (equimapdata.efitdata[i].Br != NULL) free((void*)equimapdata.efitdata[i].Br);
+            if (equimapdata.efitdata[i].Bz != NULL) free((void*)equimapdata.efitdata[i].Bz);
+            if (equimapdata.efitdata[i].Bphi != NULL) free((void*)equimapdata.efitdata[i].Bphi);
         }
-
 
         initEfitData(&equimapdata.efitdata[i]);
 
@@ -2423,109 +2418,146 @@ void freeEquiMapData()
 
             if (equimapdata.fluxAverages[i].contours != NULL) {
                 for (j = 0; j < equimapdata.rhoCount; j++) {
-                    if (equimapdata.fluxAverages[i].contours[j].rcontour != NULL)
-                        free((void*) equimapdata.fluxAverages[i].contours[j].rcontour);
-                    if (equimapdata.fluxAverages[i].contours[j].zcontour != NULL)
-                        free((void*) equimapdata.fluxAverages[i].contours[j].zcontour);
+                    if (equimapdata.fluxAverages[i].contours[j].rcontour != NULL) {
+                        free((void*)equimapdata.fluxAverages[i].contours[j].rcontour);
+                    }
+                    if (equimapdata.fluxAverages[i].contours[j].zcontour != NULL) {
+                        free((void*)equimapdata.fluxAverages[i].contours[j].zcontour);
+                    }
                 }
-                free((void*) equimapdata.fluxAverages[i].contours);
+                free((void*)equimapdata.fluxAverages[i].contours);
             }
 
             if (equimapdata.fluxAverages[i].scrunch != NULL) {
                 for (j = 0; j < equimapdata.rhoCount; j++) {
-                    if (equimapdata.fluxAverages[i].scrunch[j].rcos != NULL)
-                        free((void*) equimapdata.fluxAverages[i].scrunch[j].rcos);
-                    if (equimapdata.fluxAverages[i].scrunch[j].rsin != NULL)
-                        free((void*) equimapdata.fluxAverages[i].scrunch[j].rsin);
-                    if (equimapdata.fluxAverages[i].scrunch[j].zcos != NULL)
-                        free((void*) equimapdata.fluxAverages[i].scrunch[j].zcos);
-                    if (equimapdata.fluxAverages[i].scrunch[j].zsin != NULL)
-                        free((void*) equimapdata.fluxAverages[i].scrunch[j].zsin);
+                    if (equimapdata.fluxAverages[i].scrunch[j].rcos != NULL) {
+                        free((void*)equimapdata.fluxAverages[i].scrunch[j].rcos);
+                    }
+                    if (equimapdata.fluxAverages[i].scrunch[j].rsin != NULL) {
+                        free((void*)equimapdata.fluxAverages[i].scrunch[j].rsin);
+                    }
+                    if (equimapdata.fluxAverages[i].scrunch[j].zcos != NULL) {
+                        free((void*)equimapdata.fluxAverages[i].scrunch[j].zcos);
+                    }
+                    if (equimapdata.fluxAverages[i].scrunch[j].zsin != NULL) {
+                        free((void*)equimapdata.fluxAverages[i].scrunch[j].zsin);
+                    }
                 }
-                free((void*) equimapdata.fluxAverages[i].scrunch);
+                free((void*)equimapdata.fluxAverages[i].scrunch);
             }
 
             for (j = 0; j < equimapdata.rhoCount; j++) {
-                if (equimapdata.fluxAverages[i].metrics.drcosdrho[j] != NULL)
-                    free((void*) equimapdata.fluxAverages[i].metrics.drcosdrho[j]);
-                if (equimapdata.fluxAverages[i].metrics.dzcosdrho[j] != NULL)
-                    free((void*) equimapdata.fluxAverages[i].metrics.dzcosdrho[j]);
-                if (equimapdata.fluxAverages[i].metrics.drsindrho[j] != NULL)
-                    free((void*) equimapdata.fluxAverages[i].metrics.drsindrho[j]);
-                if (equimapdata.fluxAverages[i].metrics.dzsindrho[j] != NULL)
-                    free((void*) equimapdata.fluxAverages[i].metrics.dzsindrho[j]);
-                if (equimapdata.fluxAverages[i].metrics.r[j] != NULL)
-                    free((void*) equimapdata.fluxAverages[i].metrics.r[j]);
-                if (equimapdata.fluxAverages[i].metrics.z[j] != NULL)
-                    free((void*) equimapdata.fluxAverages[i].metrics.z[j]);
-                if (equimapdata.fluxAverages[i].metrics.drdrho[j] != NULL)
-                    free((void*) equimapdata.fluxAverages[i].metrics.drdrho[j]);
-                if (equimapdata.fluxAverages[i].metrics.dzdrho[j] != NULL)
-                    free((void*) equimapdata.fluxAverages[i].metrics.dzdrho[j]);
-                if (equimapdata.fluxAverages[i].metrics.drdtheta[j] != NULL)
-                    free((void*) equimapdata.fluxAverages[i].metrics.drdtheta[j]);
-                if (equimapdata.fluxAverages[i].metrics.dzdtheta[j] != NULL)
-                    free((void*) equimapdata.fluxAverages[i].metrics.dzdtheta[j]);
-                if (equimapdata.fluxAverages[i].metrics.d2[j] != NULL)
-                    free((void*) equimapdata.fluxAverages[i].metrics.d2[j]);
-                if (equimapdata.fluxAverages[i].metrics.gradrho[j] != NULL)
-                    free((void*) equimapdata.fluxAverages[i].metrics.gradrho[j]);
-                if (equimapdata.fluxAverages[i].metrics.gradrhoR2[j] != NULL)
-                    free((void*) equimapdata.fluxAverages[i].metrics.gradrhoR2[j]);
-                if (equimapdata.fluxAverages[i].metrics.dvdtheta[j] != NULL)
-                    free((void*) equimapdata.fluxAverages[i].metrics.dvdtheta[j]);
+                if (equimapdata.fluxAverages[i].metrics.drcosdrho[j] != NULL) {
+                    free((void*)equimapdata.fluxAverages[i].metrics.drcosdrho[j]);
+                }
+                if (equimapdata.fluxAverages[i].metrics.dzcosdrho[j] != NULL) {
+                    free((void*)equimapdata.fluxAverages[i].metrics.dzcosdrho[j]);
+                }
+                if (equimapdata.fluxAverages[i].metrics.drsindrho[j] != NULL) {
+                    free((void*)equimapdata.fluxAverages[i].metrics.drsindrho[j]);
+                }
+                if (equimapdata.fluxAverages[i].metrics.dzsindrho[j] != NULL) {
+                    free((void*)equimapdata.fluxAverages[i].metrics.dzsindrho[j]);
+                }
+                if (equimapdata.fluxAverages[i].metrics.r[j] != NULL) {
+                    free((void*)equimapdata.fluxAverages[i].metrics.r[j]);
+                }
+                if (equimapdata.fluxAverages[i].metrics.z[j] != NULL) {
+                    free((void*)equimapdata.fluxAverages[i].metrics.z[j]);
+                }
+                if (equimapdata.fluxAverages[i].metrics.drdrho[j] != NULL) {
+                    free((void*)equimapdata.fluxAverages[i].metrics.drdrho[j]);
+                }
+                if (equimapdata.fluxAverages[i].metrics.dzdrho[j] != NULL) {
+                    free((void*)equimapdata.fluxAverages[i].metrics.dzdrho[j]);
+                }
+                if (equimapdata.fluxAverages[i].metrics.drdtheta[j] != NULL) {
+                    free((void*)equimapdata.fluxAverages[i].metrics.drdtheta[j]);
+                }
+                if (equimapdata.fluxAverages[i].metrics.dzdtheta[j] != NULL) {
+                    free((void*)equimapdata.fluxAverages[i].metrics.dzdtheta[j]);
+                }
+                if (equimapdata.fluxAverages[i].metrics.d2[j] != NULL) {
+                    free((void*)equimapdata.fluxAverages[i].metrics.d2[j]);
+                }
+                if (equimapdata.fluxAverages[i].metrics.gradrho[j] != NULL) {
+                    free((void*)equimapdata.fluxAverages[i].metrics.gradrho[j]);
+                }
+                if (equimapdata.fluxAverages[i].metrics.gradrhoR2[j] != NULL) {
+                    free((void*)equimapdata.fluxAverages[i].metrics.gradrhoR2[j]);
+                }
+                if (equimapdata.fluxAverages[i].metrics.dvdtheta[j] != NULL) {
+                    free((void*)equimapdata.fluxAverages[i].metrics.dvdtheta[j]);
+                }
             }
 
-            if (equimapdata.fluxAverages[i].metrics.drcosdrho != NULL)
-                free((void*) equimapdata.fluxAverages[i].metrics.drcosdrho);
-            if (equimapdata.fluxAverages[i].metrics.dzcosdrho != NULL)
-                free((void*) equimapdata.fluxAverages[i].metrics.dzcosdrho);
-            if (equimapdata.fluxAverages[i].metrics.drsindrho != NULL)
-                free((void*) equimapdata.fluxAverages[i].metrics.drsindrho);
-            if (equimapdata.fluxAverages[i].metrics.dzsindrho != NULL)
-                free((void*) equimapdata.fluxAverages[i].metrics.dzsindrho);
-            if (equimapdata.fluxAverages[i].metrics.r != NULL)free((void*) equimapdata.fluxAverages[i].metrics.r);
-            if (equimapdata.fluxAverages[i].metrics.z != NULL)free((void*) equimapdata.fluxAverages[i].metrics.z);
-            if (equimapdata.fluxAverages[i].metrics.drdrho != NULL)
-                free((void*) equimapdata.fluxAverages[i].metrics.drdrho);
-            if (equimapdata.fluxAverages[i].metrics.dzdrho != NULL)
-                free((void*) equimapdata.fluxAverages[i].metrics.dzdrho);
-            if (equimapdata.fluxAverages[i].metrics.drdtheta != NULL)
-                free((void*) equimapdata.fluxAverages[i].metrics.drdtheta);
-            if (equimapdata.fluxAverages[i].metrics.dzdtheta != NULL)
-                free((void*) equimapdata.fluxAverages[i].metrics.dzdtheta);
-            if (equimapdata.fluxAverages[i].metrics.d2 != NULL)free((void*) equimapdata.fluxAverages[i].metrics.d2);
-            if (equimapdata.fluxAverages[i].metrics.gradrho != NULL)
-                free((void*) equimapdata.fluxAverages[i].metrics.gradrho);
-            if (equimapdata.fluxAverages[i].metrics.gradrhoR2 != NULL)
-                free((void*) equimapdata.fluxAverages[i].metrics.gradrhoR2);
-            if (equimapdata.fluxAverages[i].metrics.dvdtheta != NULL)
-                free((void*) equimapdata.fluxAverages[i].metrics.dvdtheta);
+            if (equimapdata.fluxAverages[i].metrics.drcosdrho != NULL) {
+                free((void*)equimapdata.fluxAverages[i].metrics.drcosdrho);
+            }
+            if (equimapdata.fluxAverages[i].metrics.dzcosdrho != NULL) {
+                free((void*)equimapdata.fluxAverages[i].metrics.dzcosdrho);
+            }
+            if (equimapdata.fluxAverages[i].metrics.drsindrho != NULL) {
+                free((void*)equimapdata.fluxAverages[i].metrics.drsindrho);
+            }
+            if (equimapdata.fluxAverages[i].metrics.dzsindrho != NULL) {
+                free((void*)equimapdata.fluxAverages[i].metrics.dzsindrho);
+            }
+            if (equimapdata.fluxAverages[i].metrics.r != NULL)free((void*)equimapdata.fluxAverages[i].metrics.r);
+            if (equimapdata.fluxAverages[i].metrics.z != NULL)free((void*)equimapdata.fluxAverages[i].metrics.z);
+            if (equimapdata.fluxAverages[i].metrics.drdrho != NULL) {
+                free((void*)equimapdata.fluxAverages[i].metrics.drdrho);
+            }
+            if (equimapdata.fluxAverages[i].metrics.dzdrho != NULL) {
+                free((void*)equimapdata.fluxAverages[i].metrics.dzdrho);
+            }
+            if (equimapdata.fluxAverages[i].metrics.drdtheta != NULL) {
+                free((void*)equimapdata.fluxAverages[i].metrics.drdtheta);
+            }
+            if (equimapdata.fluxAverages[i].metrics.dzdtheta != NULL) {
+                free((void*)equimapdata.fluxAverages[i].metrics.dzdtheta);
+            }
+            if (equimapdata.fluxAverages[i].metrics.d2 != NULL)free((void*)equimapdata.fluxAverages[i].metrics.d2);
+            if (equimapdata.fluxAverages[i].metrics.gradrho != NULL) {
+                free((void*)equimapdata.fluxAverages[i].metrics.gradrho);
+            }
+            if (equimapdata.fluxAverages[i].metrics.gradrhoR2 != NULL) {
+                free((void*)equimapdata.fluxAverages[i].metrics.gradrhoR2);
+            }
+            if (equimapdata.fluxAverages[i].metrics.dvdtheta != NULL) {
+                free((void*)equimapdata.fluxAverages[i].metrics.dvdtheta);
+            }
 
-            if (equimapdata.fluxAverages[i].metrics.vprime != NULL)
-                free((void*) equimapdata.fluxAverages[i].metrics.vprime);
-            if (equimapdata.fluxAverages[i].metrics.xaprime != NULL)
-                free((void*) equimapdata.fluxAverages[i].metrics.xaprime);
-            if (equimapdata.fluxAverages[i].metrics.len != NULL) free((void*) equimapdata.fluxAverages[i].metrics.len);
-            if (equimapdata.fluxAverages[i].metrics.sur != NULL) free((void*) equimapdata.fluxAverages[i].metrics.sur);
-            if (equimapdata.fluxAverages[i].metrics.grho != NULL)
-                free((void*) equimapdata.fluxAverages[i].metrics.grho);
-            if (equimapdata.fluxAverages[i].metrics.grho2 != NULL)
-                free((void*) equimapdata.fluxAverages[i].metrics.grho2);
-            if (equimapdata.fluxAverages[i].metrics.volume != NULL)
-                free((void*) equimapdata.fluxAverages[i].metrics.volume);
-            if (equimapdata.fluxAverages[i].metrics.xarea != NULL)
-                free((void*) equimapdata.fluxAverages[i].metrics.xarea);
-            if (equimapdata.fluxAverages[i].metrics.gm2 != NULL) free((void*) equimapdata.fluxAverages[i].metrics.gm2);
-            if (equimapdata.fluxAverages[i].metrics.gm3 != NULL) free((void*) equimapdata.fluxAverages[i].metrics.gm3);
+            if (equimapdata.fluxAverages[i].metrics.vprime != NULL) {
+                free((void*)equimapdata.fluxAverages[i].metrics.vprime);
+            }
+            if (equimapdata.fluxAverages[i].metrics.xaprime != NULL) {
+                free((void*)equimapdata.fluxAverages[i].metrics.xaprime);
+            }
+            if (equimapdata.fluxAverages[i].metrics.len != NULL) free((void*)equimapdata.fluxAverages[i].metrics.len);
+            if (equimapdata.fluxAverages[i].metrics.sur != NULL) free((void*)equimapdata.fluxAverages[i].metrics.sur);
+            if (equimapdata.fluxAverages[i].metrics.grho != NULL) {
+                free((void*)equimapdata.fluxAverages[i].metrics.grho);
+            }
+            if (equimapdata.fluxAverages[i].metrics.grho2 != NULL) {
+                free((void*)equimapdata.fluxAverages[i].metrics.grho2);
+            }
+            if (equimapdata.fluxAverages[i].metrics.volume != NULL) {
+                free((void*)equimapdata.fluxAverages[i].metrics.volume);
+            }
+            if (equimapdata.fluxAverages[i].metrics.xarea != NULL) {
+                free((void*)equimapdata.fluxAverages[i].metrics.xarea);
+            }
+            if (equimapdata.fluxAverages[i].metrics.gm2 != NULL) free((void*)equimapdata.fluxAverages[i].metrics.gm2);
+            if (equimapdata.fluxAverages[i].metrics.gm3 != NULL) free((void*)equimapdata.fluxAverages[i].metrics.gm3);
         }
     }
 
-    if (equimapdata.times != NULL) free((void*) equimapdata.times);
-    if (equimapdata.rho != NULL) free((void*) equimapdata.rho);
-    if (equimapdata.rhoB != NULL) free((void*) equimapdata.rhoB);
-    if (equimapdata.efitdata != NULL) free((void*) equimapdata.efitdata);
-    if (equimapdata.fluxAverages != NULL) free((void*) equimapdata.fluxAverages);
+    if (equimapdata.times != NULL) free((void*)equimapdata.times);
+    if (equimapdata.rho != NULL) free((void*)equimapdata.rho);
+    if (equimapdata.rhoB != NULL) free((void*)equimapdata.rhoB);
+    if (equimapdata.efitdata != NULL) free((void*)equimapdata.efitdata);
+    if (equimapdata.fluxAverages != NULL) free((void*)equimapdata.fluxAverages);
 
     for (i = 0; i < handleCount; i++) {
         idamFree(handles[i]);        // Free IDAM Heap

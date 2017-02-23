@@ -51,7 +51,7 @@
 void idamErrorAndLog(char* message, int err, int* err_set)
 {
     *err_set = err;
-    idamLog(LOG_ERROR, message);
+    IDAM_LOGF(LOG_ERROR, "%s\n", message);
     addIdamError(&idamerrorstack, CODEERRORTYPE, "geom", err, message);
 
     return;
@@ -65,7 +65,7 @@ void idamErrorAndLog(char* message, int err, int* err_set)
 int checkAvailableSignals(int shot, int n_all, int** signal_ids, int** is_available)
 {
 
-    idamLog(LOG_DEBUG, "geom: Checking for signal ids in IDAM\n");
+    IDAM_LOG(LOG_DEBUG, "Checking for signal ids in IDAM\n");
 
     int n_signals_available = 0;
 
@@ -73,7 +73,7 @@ int checkAvailableSignals(int shot, int n_all, int** signal_ids, int** is_availa
     PGresult* DBQuery_IDAM = NULL;
 
     if (DBConnect == NULL) {
-        idamLog(LOG_ERROR, "geom: Connection to IDAM database failed.\n");
+        IDAM_LOG(LOG_ERROR, "Connection to IDAM database failed.\n");
         return 0;
     }
 
@@ -82,17 +82,21 @@ int checkAvailableSignals(int shot, int n_all, int** signal_ids, int** is_availa
         char query_idam[MAXSQL];
 
         sprintf(query_idam,
-                "SELECT ds.exp_number FROM data_source ds, signal s, signal_desc sd WHERE ds.exp_number=%d AND ds.source_id=s.source_id AND s.signal_desc_id=sd.signal_desc_id AND sd.signal_desc_id=%d;",
+                "SELECT ds.exp_number FROM data_source ds, signal s, signal_desc sd"
+                        " WHERE ds.exp_number=%d"
+                        "   AND ds.source_id=s.source_id"
+                        "   AND s.signal_desc_id=sd.signal_desc_id"
+                        "   AND sd.signal_desc_id=%d;",
                 shot, (*signal_ids)[i]);
 
         if ((DBQuery_IDAM = PQexec(DBConnect, query_idam)) == NULL) {
-            idamLog(LOG_ERROR, "geom: IDAM database query failed.\n");
+            IDAM_LOG(LOG_ERROR, "IDAM database query failed.\n");
             continue;
         }
 
         if (PQresultStatus(DBQuery_IDAM) != PGRES_TUPLES_OK && PQresultStatus(DBQuery_IDAM) != PGRES_COMMAND_OK) {
             PQclear(DBQuery_IDAM);
-            idamLog(LOG_ERROR, "geom: Database query failed.\n");
+            IDAM_LOG(LOG_ERROR, "Database query failed.\n");
             continue;
         }
 
@@ -112,7 +116,7 @@ int checkAvailableSignals(int shot, int n_all, int** signal_ids, int** is_availa
     PQfinish(DBConnect);
 
     if (n_signals_available == 0) {
-        idamLog(LOG_DEBUG, "geom: None of the signals for this geometry component are available for this shot\n");
+        IDAM_LOG(LOG_DEBUG, "None of the signals for this geometry component are available for this shot\n");
     }
 
     return n_signals_available;
@@ -134,37 +138,39 @@ int checkAvailableSignals(int shot, int n_all, int** signal_ids, int** is_availa
 int generateGeom(char* signal, float tor_angle, PGconn* DBConnect, PGresult* DBQuery)
 {
     char* pythonpath = getenv("PYTHONPATH");
-    idamLog(LOG_DEBUG, "geom: python path: %s\n", pythonpath);
+    IDAM_LOGF(LOG_DEBUG, "python path: %s\n", pythonpath);
 
     char* path = getenv("PATH");
-    idamLog(LOG_DEBUG, "geom: path: %s\n", path);
+    IDAM_LOGF(LOG_DEBUG, "path: %s\n", path);
 
-    idamLog(LOG_DEBUG, "geom: Trying to generate geometry.\n");
+    IDAM_LOG(LOG_DEBUG, "Trying to generate geometry.\n");
 
     int err = 0;
 
     // Check if the signal exists
     char query_signal[MAXSQL];
     sprintf(query_signal,
-            "SELECT g.name FROM geomgroup g, geomgroup_geomsignal_map ggm WHERE lower(ggm.geomsignal_alias)=lower('%s') AND g.geomgroup_id=ggm.geomgroup_id;",
+            "SELECT g.name FROM geomgroup g, geomgroup_geomsignal_map ggm"
+                    " WHERE lower(ggm.geomsignal_alias)=lower('%s')"
+                    "   AND g.geomgroup_id=ggm.geomgroup_id;",
             signal);
 
-    idamLog(LOG_DEBUG, "geom: Query is %s.\n", query_signal);
+    IDAM_LOGF(LOG_DEBUG, "Query is %s.\n", query_signal);
 
     if ((DBQuery = PQexec(DBConnect, query_signal)) == NULL) {
-        idamErrorAndLog("geom: Database query failed.\n", 999, &err);
+        idamErrorAndLog("Database query failed.\n", 999, &err);
         return err;
     }
 
     if (PQresultStatus(DBQuery) != PGRES_TUPLES_OK && PQresultStatus(DBQuery) != PGRES_COMMAND_OK) {
-        idamErrorAndLog("geom: Database query failed.\n", 999, &err);
+        idamErrorAndLog("Database query failed.\n", 999, &err);
         return err;
     }
 
     int nRows_signal = PQntuples(DBQuery);
 
     if (nRows_signal == 0) {
-        idamErrorAndLog("geom: No rows were found in database matching query\n", 999, &err);
+        idamErrorAndLog("No rows were found in database matching query\n", 999, &err);
         return err;
     }
 
@@ -178,11 +184,11 @@ int generateGeom(char* signal, float tor_angle, PGconn* DBConnect, PGresult* DBQ
         char system_call[MAXSQL];
         sprintf(system_call, "run_make_file_from_cad.sh %s %f", geom_group, tor_angle);
 
-        idamLog(LOG_DEBUG, "geom: Run command %s\n", system_call);
+        IDAM_LOGF(LOG_DEBUG, "Run command %s\n", system_call);
 
         int ret = system(system_call);
 
-        idamLog(LOG_DEBUG, "geom: Return code from geometry making code %d\n", ret);
+        IDAM_LOGF(LOG_DEBUG, "Return code from geometry making code %d\n", ret);
 
         if (ret != 0) return 999;
     } else { return 999; }
@@ -192,7 +198,6 @@ int generateGeom(char* signal, float tor_angle, PGconn* DBConnect, PGresult* DBQ
 
 int idamGeom(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
-
     REQUEST_BLOCK* request_block = idam_plugin_interface->request_block;
     DATA_BLOCK* data_block = idam_plugin_interface->data_block;
     DATA_SOURCE* data_source = idam_plugin_interface->data_source;
@@ -212,7 +217,7 @@ int idamGeom(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             initDimBlock(&data_block->dims[0]);
 
             data_block->data_type = TYPE_STRING;
-            strcpy(data_block->data_desc, "geom: help = description of this plugin");
+            strcpy(data_block->data_desc, "help = description of this plugin");
 
             data_block->data = (char*)malloc(sizeof(char) * (strlen(help) + 1));
             strcpy(data_block->data, help);
@@ -244,7 +249,7 @@ int idamGeom(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             // tor_angle : If returning the 2D geometry, and the component is toroidal angle - dependent, then the user must
             //             give a toroidal angle at which to slice the model.
 
-            idamLog(LOG_DEBUG, "geom: get file and signal names.\n");
+            IDAM_LOG(LOG_DEBUG, "get file and signal names.\n");
 
             ////////////////////////////
             // Get parameters passed by user.
@@ -265,7 +270,7 @@ int idamGeom(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             float tor_angle = -1;
 
             int shot = request_block->exp_number;
-            idamLog(LOG_DEBUG, "geom: Exp number %d\n", shot);
+            IDAM_LOGF(LOG_DEBUG, "Exp number %d\n", shot);
 
             // User must specify which shot number they are interested in
             int n_args = request_block->nameValueList.pairCount;
@@ -274,7 +279,7 @@ int idamGeom(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             for (i_arg = 0; i_arg < n_args; i_arg++) {
                 if (STR_IEQUALS(request_block->nameValueList.nameValue[i_arg].name, "signal")) {
                     signal = request_block->nameValueList.nameValue[i_arg].value;
-                    idamLog(LOG_DEBUG, "configPlugin: Using signal name: %s\n", signal);
+                    IDAM_LOGF(LOG_DEBUG, "Using signal name: %s\n", signal);
                 } else if (STR_IEQUALS(request_block->nameValueList.nameValue[i_arg].name, "file")) {
                     file = request_block->nameValueList.nameValue[i_arg].value;
                     isFile = 1;
@@ -293,21 +298,21 @@ int idamGeom(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 } else if (STR_IEQUALS(request_block->nameValueList.nameValue[i_arg].name, "three_d")) {
                     three_d = 1;
                 } else if (STR_IEQUALS(request_block->nameValueList.nameValue[i_arg].name, "tor_angle")) {
-                    idamLog(LOG_DEBUG, "geom : Found tor_angle %s\n",
-                            request_block->nameValueList.nameValue[i_arg].value);
+                    IDAM_LOGF(LOG_DEBUG, "Found tor_angle %s\n",
+                              request_block->nameValueList.nameValue[i_arg].value);
                     if (IsFloat(request_block->nameValueList.nameValue[i_arg].value)) {
                         tor_angle = (float)atof(request_block->nameValueList.nameValue[i_arg].value);
                         if (tor_angle < 0 || tor_angle > 2 * M_PI) {
-                            idamLog(LOG_DEBUG,
-                                    "geom plugin: If providing a toroidal angle, it must be in the range 0 - 2 pi. Angle given will be ignored.\n");
+                            IDAM_LOG(LOG_DEBUG,
+                                     "If providing a toroidal angle, it must be in the range 0 - 2 pi. Angle given will be ignored.\n");
                             tor_angle = -1;
                         }
-                        idamLog(LOG_DEBUG, "geom : Tor_angle is set to %f\n", tor_angle);
+                        IDAM_LOGF(LOG_DEBUG, "Tor_angle is set to %f\n", tor_angle);
                     }
                 }
             }
 
-            idamLog(LOG_DEBUG, "Config? %d or cal %d \n", isConfig, isCal);
+            IDAM_LOGF(LOG_DEBUG, "Config? %d or cal %d \n", isConfig, isCal);
 
             if (isFile == 0 && isCal == 0 && isConfig == 0) {
                 idamErrorAndLog("Filename wasn't given and didn't request configuration or calibration data.\n", 999,
@@ -325,7 +330,7 @@ int idamGeom(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 // Open the connection
                 // CURRENTLY HARDCODED IN WHILE I'M TESTING
                 // .... Once this is actually in the new MAST-U db, will need to use idam functions as in readMeta to open connection.
-                idamLog(LOG_DEBUG, "geom: trying to get connection\n");
+                IDAM_LOG(LOG_DEBUG, "trying to get connection\n");
                 //	  PGconn* DBConnect = PQconnectdb("dbname=mastgeom user=mastgeom password=mastgeom"); // Local db for testing
                 PGconn* DBConnect = PQconnectdb(
                         "dbname=idam user=idam password=idam@idam3 host=idam3.mast.ccfe.ac.uk port=60000"); // Idam3 for testing
@@ -333,7 +338,7 @@ int idamGeom(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
                 if (PQstatus(DBConnect) != CONNECTION_OK) {
                     PQfinish(DBConnect);
-                    idamErrorAndLog("geom: Connection to mastgeom database failed. %s\n", 999, &err);
+                    idamErrorAndLog("Connection to mastgeom database failed. %s\n", 999, &err);
                     break;
                 }
 
@@ -409,19 +414,19 @@ int idamGeom(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                     strcat(query, " ORDER BY cds.version DESC LIMIT 1;");
                 }
 
-                idamLog(LOG_DEBUG, "geom: query is %s\n", query);
+                IDAM_LOGF(LOG_DEBUG, "query is %s\n", query);
 
                 /////////////////////////////
                 // Query database
                 if ((DBQuery = PQexec(DBConnect, query)) == NULL) {
-                    idamErrorAndLog("geom: Database query failed.\n", 999, &err);
+                    idamErrorAndLog("Database query failed.\n", 999, &err);
                     break;
                 }
 
                 if (PQresultStatus(DBQuery) != PGRES_TUPLES_OK && PQresultStatus(DBQuery) != PGRES_COMMAND_OK) {
                     PQclear(DBQuery);
                     PQfinish(DBConnect);
-                    idamErrorAndLog("geom: Database query failed.\n", 999, &err);
+                    idamErrorAndLog("Database query failed.\n", 999, &err);
                     break;
                 }
 
@@ -432,8 +437,8 @@ int idamGeom(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 // No rows found?
                 // If they've asked for a specific toroidal angle then try to generate geom from the CAD.
                 if (nRows == 0) {
-                    idamLog(LOG_DEBUG, "geom: no rows. isConfig %d, three_d %d, tor_angle %f\n", isConfig, three_d,
-                            tor_angle);
+                    IDAM_LOGF(LOG_DEBUG, "no rows. isConfig %d, three_d %d, tor_angle %f\n", isConfig, three_d,
+                              tor_angle);
                     // If 2D configuration was asked for, and a toroidal angle was specified, then try to generate the geometry
                     // file for this toroidal angle from the CAD (this is just a dummy script for now).
                     if (isConfig == 1 && three_d != 1 && tor_angle >= 0) {
@@ -449,14 +454,14 @@ int idamGeom(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                         // For the moment this doesn't actually make anything... need to query again
                         // to check signals & file are now in db
                         if ((DBQuery = PQexec(DBConnect, query)) == NULL) {
-                            idamErrorAndLog("geom: Database query failed.\n", 999, &err);
+                            idamErrorAndLog("Database query failed.\n", 999, &err);
                             break;
                         }
 
                         if (PQresultStatus(DBQuery) != PGRES_TUPLES_OK && PQresultStatus(DBQuery) != PGRES_COMMAND_OK) {
                             PQclear(DBQuery);
                             PQfinish(DBConnect);
-                            idamErrorAndLog("geom: Database query failed.\n", 999, &err);
+                            idamErrorAndLog("Database query failed.\n", 999, &err);
                             break;
                         }
 
@@ -465,7 +470,7 @@ int idamGeom(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                         if (nRows_check == 0) {
                             PQclear(DBQuery);
                             PQfinish(DBConnect);
-                            idamErrorAndLog("geom: No rows were found in database matching query\n", 999, &err);
+                            idamErrorAndLog("No rows were found in database matching query\n", 999, &err);
                             break;
                         }
 
@@ -474,7 +479,7 @@ int idamGeom(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                     } else {
                         PQclear(DBQuery);
                         PQfinish(DBConnect);
-                        idamErrorAndLog("geom: No rows were found in database matching query\n", 999, &err);
+                        idamErrorAndLog("No rows were found in database matching query\n", 999, &err);
                         break;
                     }
                 }
@@ -488,13 +493,13 @@ int idamGeom(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 if (!PQgetisnull(DBQuery, 0, s_file)) {
                     file_db = PQgetvalue(DBQuery, 0, s_file);
 
-                    idamLog(LOG_DEBUG, "geom: file from db %s\n", file_db);
+                    IDAM_LOGF(LOG_DEBUG, "file from db %s\n", file_db);
 
                     //Add on the location
                     char* file_path = getenv("MAST_GEOM_DATA");
 
                     if (file_path == NULL) {
-                        idamErrorAndLog("geom: Could not retrieve MAST_GEOM_DATA environment variable\n", 999, &err);
+                        idamErrorAndLog("Could not retrieve MAST_GEOM_DATA environment variable\n", 999, &err);
                         break;
                     }
 
@@ -505,7 +510,7 @@ int idamGeom(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                         strcat(file, file_db);
                     }
 
-                    idamLog(LOG_DEBUG, "geom: file_path %s\n", file);
+                    IDAM_LOGF(LOG_DEBUG, "file_path %s\n", file);
                 }
 
                 // If the signal matches that asked for by the user, then this means that this
@@ -524,7 +529,7 @@ int idamGeom(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                     }
                 }
 
-                idamLog(LOG_DEBUG, "geom: Close connection\n");
+                IDAM_LOG(LOG_DEBUG, "Close connection\n");
 
                 //Close db connection
                 PQclear(DBQuery);
@@ -534,7 +539,7 @@ int idamGeom(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 signal_type = "a";
             }
 
-            idamLog(LOG_DEBUG, "geom: signal_type %s\n", signal_type);
+            IDAM_LOGF(LOG_DEBUG, "signal_type %s\n", signal_type);
 
             ///////////////////////////
             // Setup signal and file path in signal_desc
@@ -543,13 +548,13 @@ int idamGeom(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             /////////////////////////////
             // Read in the file
-            idamLog(LOG_DEBUG, "geom: Calling readCDF to retrieve file %s with signal %s\n", file, signal);
+            IDAM_LOGF(LOG_DEBUG, "Calling readCDF to retrieve file %s with signal %s\n", file, signal);
             DATA_BLOCK data_block_file;
             initDataBlock(&data_block_file);
 
             int errConfig = readCDF(*data_source, *signal_desc, *request_block, &data_block_file);
 
-            idamLog(LOG_DEBUG, "geom: Read in file\n");
+            IDAM_LOG(LOG_DEBUG, "Read in file\n");
 
             if (errConfig != 0) {
                 idamErrorAndLog("Error reading geometry data!", 999, &err);
@@ -660,7 +665,7 @@ int idamGeom(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             for (i_arg = 0; i_arg < n_args; i_arg++) {
                 if (STR_IEQUALS(request_block->nameValueList.nameValue[i_arg].name, "signal")) {
                     signal = request_block->nameValueList.nameValue[i_arg].value;
-                    idamLog(LOG_DEBUG, "configPlugin: Using signal name: %s\n", signal);
+                    IDAM_LOGF(LOG_DEBUG, "Using signal name: %s\n", signal);
                 } else if (STR_IEQUALS(request_block->nameValueList.nameValue[i_arg].name, "version")) {
                     if (IsNumber(request_block->nameValueList.nameValue[i_arg].value)) {
                         version = atoi(request_block->nameValueList.nameValue[i_arg].value);
@@ -674,7 +679,7 @@ int idamGeom(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             // Open the connection
             // CURRENTLY HARDCODED IN WHILE I'M TESTING
             // .... Once this is actually in the new MAST-U db, will need to use idam functions as in readMeta to open connection.
-            idamLog(LOG_DEBUG, "geom: trying to get connection\n");
+            IDAM_LOG(LOG_DEBUG, "trying to get connection\n");
             //	PGconn* DBConnect = PQconnectdb("dbname=mastgeom user=mastgeom password=mastgeom"); // local repo for testing
             PGconn* DBConnect = PQconnectdb(
                     "dbname=idam user=idam password=idam@idam3 host=idam3.mast.ccfe.ac.uk port=60000"); // idam3 for testing/dev version
@@ -682,14 +687,14 @@ int idamGeom(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             if (PQstatus(DBConnect) != CONNECTION_OK) {
                 PQfinish(DBConnect);
-                idamErrorAndLog("geom: Connection to mastgeom database failed. %s\n", 999, &err);
+                idamErrorAndLog("Connection to mastgeom database failed. %s\n", 999, &err);
                 break;
             }
 
             char* signal_for_query = (char*)malloc((2 * strlen(signal) + 1) * sizeof(char));
             PQescapeStringConn(DBConnect, signal_for_query, signal, strlen(signal), &err);
 
-            idamLog(LOG_DEBUG, "signal_for_query %s\n", signal_for_query);
+            IDAM_LOGF(LOG_DEBUG, "signal_for_query %s\n", signal_for_query);
 
             /////////////////////
             // Query to find filename containing the data signal asked for
@@ -697,35 +702,53 @@ int idamGeom(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             if (version < 0) {
                 sprintf(query,
-                        "SELECT dgs.file_name, dgs.version, dgsm.signal_alias, dgsm.signal_desc_id FROM datasignal_geomdata_source dgs, datasignal_geomdata_source_map dgsm WHERE dgsm.signal_alias LIKE lower('%s/%%') OR dgsm.var_name LIKE lower('%s/%%') AND dgs.start_shot<=%d AND dgs.end_shot>%d AND dgsm.datasignal_geomdata_source_id=dgs.datasignal_geomdata_source_id AND dgs.version=(SELECT max(datasignal_geomdata_source.version) FROM datasignal_geomdata_source, datasignal_geomdata_source_map WHERE datasignal_geomdata_source_map.signal_alias LIKE lower('%s/%%') OR datasignal_geomdata_source_map.var_name LIKE lower('%s/%%') AND datasignal_geomdata_source.start_shot<=%d AND datasignal_geomdata_source.end_shot>%d AND datasignal_geomdata_source.datasignal_geomdata_source_id=datasignal_geomdata_source_map.datasignal_geomdata_source_id);",
+                        "SELECT dgs.file_name, dgs.version, dgsm.signal_alias, dgsm.signal_desc_id FROM datasignal_geomdata_source dgs, datasignal_geomdata_source_map dgsm"
+                                " WHERE dgsm.signal_alias LIKE lower('%s/%%')"
+                                "   OR dgsm.var_name LIKE lower('%s/%%')"
+                                "   AND dgs.start_shot<=%d AND dgs.end_shot>%d"
+                                "   AND dgsm.datasignal_geomdata_source_id=dgs.datasignal_geomdata_source_id"
+                                "   AND dgs.version=(SELECT max(datasignal_geomdata_source.version)"
+                                "     FROM datasignal_geomdata_source, datasignal_geomdata_source_map"
+                                "     WHERE datasignal_geomdata_source_map.signal_alias LIKE lower('%s/%%')"
+                                "       OR datasignal_geomdata_source_map.var_name LIKE lower('%s/%%')"
+                                "       AND datasignal_geomdata_source.start_shot<=%d"
+                                "       AND datasignal_geomdata_source.end_shot>%d"
+                                "       AND datasignal_geomdata_source.datasignal_geomdata_source_id=datasignal_geomdata_source_map.datasignal_geomdata_source_id);",
                         signal_for_query, signal_for_query, shot, shot, signal_for_query, signal_for_query, shot, shot);
             } else {
                 sprintf(query,
-                        "SELECT dgs.file_name, dgs.version, dgsm.signal_alias, dgsm.signal_desc_id FROM datasignal_geomdata_source dgs, datasignal_geomdata_source_map dgsm WHERE dgsm.signal_alias LIKE lower('%s/%%') OR dgsm.var_name LIKE lower('%s/%%') AND dgs.start_shot<=%d AND dgs.end_shot>%d AND dgsm.datasignal_geomdata_source_id=dgs.datasignal_geomdata_source_id AND dgs.version=%d;",
+                        "SELECT dgs.file_name, dgs.version, dgsm.signal_alias, dgsm.signal_desc_id"
+                                " FROM datasignal_geomdata_source dgs, datasignal_geomdata_source_map dgsm"
+                                " WHERE dgsm.signal_alias LIKE lower('%s/%%')"
+                                "   OR dgsm.var_name LIKE lower('%s/%%')"
+                                "   AND dgs.start_shot<=%d"
+                                "   AND dgs.end_shot>%d"
+                                "   AND dgsm.datasignal_geomdata_source_id=dgs.datasignal_geomdata_source_id"
+                                "   AND dgs.version=%d;",
                         signal_for_query, signal_for_query, shot, shot, version);
             }
 
-            idamLog(LOG_DEBUG, "geom: query is %s\n", query);
+            IDAM_LOGF(LOG_DEBUG, "query is %s\n", query);
 
             if ((DBQuery = PQexec(DBConnect, query)) == NULL) {
-                idamErrorAndLog("geom: Database query failed.\n", 999, &err);
+                idamErrorAndLog("Database query failed.\n", 999, &err);
                 break;
             }
 
             if (PQresultStatus(DBQuery) != PGRES_TUPLES_OK && PQresultStatus(DBQuery) != PGRES_COMMAND_OK) {
                 PQclear(DBQuery);
                 PQfinish(DBConnect);
-                idamErrorAndLog("geom: Database query failed.\n", 999, &err);
+                idamErrorAndLog("Database query failed.\n", 999, &err);
                 break;
             }
 
             int nRows = PQntuples(DBQuery);
-            idamLog(LOG_DEBUG, "geom: nRows returned from db : %d\n", nRows);
+            IDAM_LOGF(LOG_DEBUG, "nRows returned from db : %d\n", nRows);
 
             if (nRows == 0) {
                 PQclear(DBQuery);
                 PQfinish(DBConnect);
-                idamErrorAndLog("geom: No rows were found in database matching query\n", 999, &err);
+                idamErrorAndLog("No rows were found in database matching query\n", 999, &err);
                 break;
             }
 
@@ -793,10 +816,10 @@ int idamGeom(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             // Check which signal aliases are actually available for this shot, in the IDAM db
             int n_signals_available = checkAvailableSignals(shot, nRows, &all_sig_id, &is_available);
 
-            idamLog(LOG_DEBUG, "geom: n sig available %d\n", n_signals_available);
+            IDAM_LOGF(LOG_DEBUG, "n sig available %d\n", n_signals_available);
 
             if (n_signals_available == 0 && keep_all == 0) {
-                idamErrorAndLog("geom: None of the signals in this file are available for this shot.\n", 999, &err);
+                idamErrorAndLog("None of the signals in this file are available for this shot.\n", 999, &err);
                 break;
             }
 
@@ -810,7 +833,7 @@ int idamGeom(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             err = readCDF(*data_source, *signal_desc, *request_block, &data_block_file);
 
-            idamLog(LOG_DEBUG, "geom: Read in file signal %s\n", signal_desc->signal_name);
+            IDAM_LOGF(LOG_DEBUG, "Read in file signal %s\n", signal_desc->signal_name);
 
             if (err != 0) {
                 idamErrorAndLog("Error reading geometry data!", 999, &err);
@@ -961,7 +984,7 @@ int idamGeom(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             for (i_arg = 0; i_arg < n_args; i_arg++) {
                 if (STR_IEQUALS(request_block->nameValueList.nameValue[i_arg].name, "geomsignal")) {
                     signal = request_block->nameValueList.nameValue[i_arg].value;
-                    idamLog(LOG_DEBUG, "configPlugin: Using signal name: %s\n", signal);
+                    IDAM_LOGF(LOG_DEBUG, "Using signal name: %s\n", signal);
                 } else if (STR_IEQUALS(request_block->nameValueList.nameValue[i_arg].name, "version")) {
                     if (IsNumber(request_block->nameValueList.nameValue[i_arg].value)) {
                         versionDependent = i_arg;
@@ -970,15 +993,14 @@ int idamGeom(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             }
 
             // Struct to put geom aliases and signal aliases, signal ids into
-            struct DATASTRUCTFULL {
+            typedef struct DataStructFull {
                 char** file_name;
                 char** geom_alias;
                 char** signal_alias;
                 char** var_name;
                 int* signal_id;
                 int* is_available;
-            };
-            typedef struct DATASTRUCTFULL DATASTRUCTFULL;
+            } DATASTRUCTFULL;
 
             DATASTRUCTFULL* data;
             data = (DATASTRUCTFULL*)malloc(sizeof(DATASTRUCTFULL));
@@ -987,14 +1009,14 @@ int idamGeom(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             ////////////////////
             // Query to find data signals and filename associated with given geom group
-            idamLog(LOG_DEBUG, "geom: trying to get connection\n");
+            IDAM_LOG(LOG_DEBUG, "trying to get connection\n");
             PGconn* DBConnect = PQconnectdb(
                     "dbname=idam user=idam password=idam@idam3 host=idam3.mast.ccfe.ac.uk port=60000");
             //	PGconn* DBConnect = PQconnectdb("dbname=mastgeom user=mastgeom password=mastgeom");
             PGresult* DBQuery = NULL;
 
             if (PQstatus(DBConnect) != CONNECTION_OK) {
-                idamLog(LOG_DEBUG, "geom: Connection to mastgeom database failed. %s\n", PQerrorMessage(DBConnect));
+                IDAM_LOGF(LOG_DEBUG, "Connection to mastgeom database failed. %s\n", PQerrorMessage(DBConnect));
                 PQfinish(DBConnect);
                 idamErrorAndLog("Error connecting to geomtry db!", 999, &err);
                 break;
@@ -1003,12 +1025,33 @@ int idamGeom(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             char* signal_for_query = (char*)malloc((2 * strlen(signal) + 1) * sizeof(char));
             PQescapeStringConn(DBConnect, signal_for_query, signal, strlen(signal), &err);
 
-            idamLog(LOG_DEBUG, "signal_for_query %s\n", signal_for_query);
+            IDAM_LOGF(LOG_DEBUG, "signal_for_query %s\n", signal_for_query);
 
             char query[MAXSQL];
 
             sprintf(query,
-                    "SELECT geomgroup_geomsignal_map.geomsignal_alias, datasignal_geomdata_source.file_name, datasignal_geomdata_source_map.signal_alias, datasignal_geomdata_source_map.var_name, datasignal_geomdata_source_map.signal_desc_id, datasignal_geomdata_source.version FROM datasignal_geomdata_source INNER JOIN datasignal_geomdata_source_map ON datasignal_geomdata_source.datasignal_geomdata_source_id=datasignal_geomdata_source_map.datasignal_geomdata_source_id INNER JOIN datasignal_geomsignal_map ON datasignal_geomsignal_map.signal_desc_id=datasignal_geomdata_source_map.signal_desc_id INNER JOIN geomgroup_geomsignal_map ON geomgroup_geomsignal_map.geomgroup_geomsignal_map_id=datasignal_geomsignal_map.geomgroup_geomsignal_map_id INNER JOIN config_data_source ON config_data_source.config_data_source_id=geomgroup_geomsignal_map.config_data_source_id WHERE config_data_source.start_shot<=%d AND config_data_source.end_shot>%d AND datasignal_geomdata_source.start_shot<=%d AND datasignal_geomdata_source.end_shot>%d AND geomgroup_geomsignal_map.geomsignal_alias LIKE lower('%s/%%') AND config_data_source.version=(SELECT max(config_data_source.version) FROM config_data_source WHERE config_data_source.start_shot<=%d AND config_data_source.end_shot>%d)",
+                    "SELECT geomgroup_geomsignal_map.geomsignal_alias, datasignal_geomdata_source.file_name,"
+                            " datasignal_geomdata_source_map.signal_alias, datasignal_geomdata_source_map.var_name,"
+                            " datasignal_geomdata_source_map.signal_desc_id, datasignal_geomdata_source.version"
+                            " FROM datasignal_geomdata_source"
+                            "   INNER JOIN datasignal_geomdata_source_map"
+                            "     ON datasignal_geomdata_source.datasignal_geomdata_source_id=datasignal_geomdata_source_map.datasignal_geomdata_source_id"
+                            "   INNER JOIN datasignal_geomsignal_map"
+                            "     ON datasignal_geomsignal_map.signal_desc_id=datasignal_geomdata_source_map.signal_desc_id"
+                            "   INNER JOIN geomgroup_geomsignal_map"
+                            "     ON geomgroup_geomsignal_map.geomgroup_geomsignal_map_id=datasignal_geomsignal_map.geomgroup_geomsignal_map_id"
+                            "   INNER JOIN config_data_source"
+                            "     ON config_data_source.config_data_source_id=geomgroup_geomsignal_map.config_data_source_id"
+                            " WHERE config_data_source.start_shot<=%d"
+                            "   AND config_data_source.end_shot>%d"
+                            "   AND datasignal_geomdata_source.start_shot<=%d"
+                            "   AND datasignal_geomdata_source.end_shot>%d"
+                            "   AND geomgroup_geomsignal_map.geomsignal_alias LIKE lower('%s/%%')"
+                            "   AND config_data_source.version=("
+                            "       SELECT max(config_data_source.version)"
+                            "       FROM config_data_source"
+                            "       WHERE config_data_source.start_shot<=%d"
+                            "         AND config_data_source.end_shot>%d)",
                     shot, shot, shot, shot, signal_for_query, shot, shot);
 
             if (versionDependent >= 0) {
@@ -1017,23 +1060,27 @@ int idamGeom(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             } else {
                 char version_statement[MAXSQL];
                 sprintf(version_statement,
-                        " AND datasignal_geomdata_source.version=(SELECT max(datasignal_geomdata_source.version) FROM datasignal_geomdata_source WHERE datasignal_geomdata_source.start_shot<=%d AND datasignal_geomdata_source.end_shot>%d)",
+                        " AND datasignal_geomdata_source.version=("
+                                " SELECT max(datasignal_geomdata_source.version)"
+                                "   FROM datasignal_geomdata_source"
+                                "   WHERE datasignal_geomdata_source.start_shot<=%d"
+                                "     AND datasignal_geomdata_source.end_shot>%d)",
                         shot, shot);
                 strcat(query, version_statement);
             }
             strcat(query, ";");
 
-            idamLog(LOG_DEBUG, "geom: query is %s\n", query);
+            IDAM_LOGF(LOG_DEBUG, "query is %s\n", query);
 
             if ((DBQuery = PQexec(DBConnect, query)) == NULL) {
-                idamErrorAndLog("geom: Database query failed.\n", 999, &err);
+                idamErrorAndLog("Database query failed.\n", 999, &err);
                 break;
             }
 
             if (PQresultStatus(DBQuery) != PGRES_TUPLES_OK && PQresultStatus(DBQuery) != PGRES_COMMAND_OK) {
                 PQclear(DBQuery);
                 PQfinish(DBConnect);
-                idamErrorAndLog("geom: Database query failed.\n", 999, &err);
+                idamErrorAndLog("Database query failed.\n", 999, &err);
                 break;
             }
 
@@ -1042,7 +1089,7 @@ int idamGeom(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             if (nRows == 0) {
                 PQclear(DBQuery);
                 PQfinish(DBConnect);
-                idamErrorAndLog("geom: No rows were found in database matching query\n", 999, &err);
+                idamErrorAndLog("No rows were found in database matching query\n", 999, &err);
                 break;
             }
 
@@ -1113,7 +1160,7 @@ int idamGeom(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             int n_signals_available = checkAvailableSignals(shot, nRows, &data->signal_id, &data->is_available);
 
             if (n_signals_available == 0) {
-                idamErrorAndLog("geom: None of the signals for this geometry component are available for this shot\n",
+                idamErrorAndLog("None of the signals for this geometry component are available for this shot\n",
                                 999, &err);
                 break;
             }
@@ -1121,13 +1168,12 @@ int idamGeom(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             /////////////////////
             // Only keep filenames and other info for those data signals that are available for the requested shot.
             // Copy info into struct that will be returned to user
-            struct DATASTRUCT {
+            typedef struct DataStruct {
                 char** filenames;
                 char** geom_alias;
                 char** signal_alias;
                 char** var_name;
-            };
-            typedef struct DATASTRUCT DATASTRUCT;
+            } DATASTRUCT;
 
             DATASTRUCT* data_out;
             data_out = (DATASTRUCT*)malloc(sizeof(DATASTRUCT));

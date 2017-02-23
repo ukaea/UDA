@@ -54,7 +54,7 @@ int efitmagxml(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     if (idam_plugin_interface->interfaceVersion > THISPLUGIN_MAX_INTERFACE_VERSION) {
         err = 999;
-        idamLog(LOG_ERROR,
+        IDAM_LOG(LOG_ERROR,
                 "ERROR efitmagxml: Plugin Interface Version Unknown to this plugin: Unable to execute the request!\n");
         addIdamError(&idamerrorstack, CODEERRORTYPE, "efitmagxml", err,
                      "Plugin Interface Version Unknown to this plugin: Unable to execute the request!");
@@ -68,18 +68,6 @@ int efitmagxml(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     request_block = idam_plugin_interface->request_block;
 
     housekeeping = idam_plugin_interface->housekeeping;
-
-#ifndef USE_PLUGIN_DIRECTLY
-// Don't copy the structure if housekeeping is requested - may dereference a NULL or freed pointer!     
-    if (!housekeeping && idam_plugin_interface->environment != NULL) environment = *idam_plugin_interface->environment;
-#endif
-
-// Additional interface components (must be defined at the bottom of the standard data structure)
-// Versioning must be consistent with the macro THISPLUGIN_MAX_INTERFACE_VERSION and the plugin registration with the server
-
-    //if(idam_plugin_interface->interfaceVersion >= 2){
-    // NEW COMPONENTS
-    //}
 
 //----------------------------------------------------------------------------------------
 // Arguments and keywords 

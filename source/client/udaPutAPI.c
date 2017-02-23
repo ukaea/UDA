@@ -85,15 +85,15 @@ int idamPutListAPI(const char* putInstruction, PUTDATA_BLOCK_LIST* inPutDataBloc
 // Build the Request Data Block (Version and API dependent)
 
     if ((err = makeClientRequestBlock(putInstruction, "", &request_block)) != 0) {
-        concatIdamError(idamerrorstack, &server_block.idamerrorstack);
         closeIdamError(&idamerrorstack);
-        if (server_block.idamerrorstack.nerrors == 0) {
-            idamLog(LOG_ERROR, "Error processing the put instruction [%s]\n", putInstruction);
+        if (idamerrorstack.nerrors == 0) {
+            IDAM_LOGF(LOG_ERROR, "Error processing the put instruction [%s]\n", putInstruction);
+            addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, 999, "Error processing the put instruction");
         }
         return -err;
     }
 
-    idamLog(LOG_DEBUG, "Routine: idamPutAPI\n");
+    IDAM_LOG(LOG_DEBUG, "Routine: idamPutAPI\n");
     printRequestBlock(request_block);
 
 //-------------------------------------------------------------------------
@@ -167,15 +167,15 @@ int idamPutAPI(const char* putInstruction, PUTDATA_BLOCK* inPutData)
 // Build the Request Data Block (Version and API dependent)
 
     if ((err = makeClientRequestBlock(putInstruction, "", &request_block)) != 0) {
-        concatIdamError(idamerrorstack, &server_block.idamerrorstack);
         closeIdamError(&idamerrorstack);
-        if (server_block.idamerrorstack.nerrors == 0) {
-            idamLog(LOG_ERROR, "Error processing the put instruction [%s]\n", putInstruction);
+        if (idamerrorstack.nerrors == 0) {
+            IDAM_LOGF(LOG_ERROR, "Error processing the put instruction [%s]\n", putInstruction);
+            addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, 999, "Error processing the put instruction");
         }
         return -err;
     }
 
-    idamLog(LOG_DEBUG, "Routine: idamPutAPI\n");
+    IDAM_LOG(LOG_DEBUG, "Routine: idamPutAPI\n");
     printRequestBlock(request_block);
 
 //-------------------------------------------------------------------------

@@ -32,10 +32,6 @@
 #include <clientserver/udaTypes.h>
 #include <clientserver/stringUtils.h>
 
-#ifndef USE_PLUGIN_DIRECTLY
-IDAMERRORSTACK* idamErrorStack;    // Pointer to the Server's Error Stack. Global scope within this plugin library
-#endif
-
 extern int openData(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
     int err = 0;
@@ -62,11 +58,10 @@ extern int openData(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         housekeeping = idam_plugin_interface->housekeeping;
     } else {
         err = 999;
-        idamLog(LOG_ERROR, "ERROR openData: Plugin Interface Version Unknown\n");
+        IDAM_LOG(LOG_ERROR, "ERROR openData: Plugin Interface Version Unknown\n");
 
         addIdamError(&idamerrorstack, CODEERRORTYPE, "openData", err,
                      "Plugin Interface Version is Not Known: Unable to execute the request!");
-        concatIdamError(idamerrorstack, idamErrorStack);
         return err;
     }
 

@@ -54,12 +54,6 @@ int get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         data_block = idam_plugin_interface->data_block;
         request_block = idam_plugin_interface->request_block;
 
-#ifndef USE_PLUGIN_DIRECTLY
-// Don't copy the structure if housekeeping is requested - may dereference a NULL or freed pointer!     
-        //if (!housekeeping && idam_plugin_interface->environment != NULL) environment = *idam_plugin_interface->environment;
-        if (idam_plugin_interface->environment != NULL) environment = *idam_plugin_interface->environment;
-#endif
-
         DBConnect = (PGconn*) idam_plugin_interface->sqlConnection;
 
     } else {

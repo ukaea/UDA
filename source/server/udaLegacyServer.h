@@ -8,7 +8,9 @@
 
 #include <clientserver/udaStructs.h>
 
-int idamLegacyServer(CLIENT_BLOCK client_block);
+#include "pluginStructs.h"
+
+int idamLegacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist);
 
 #endif // IDAM_SERVER_IDAMLEGACYSERVER_H
 

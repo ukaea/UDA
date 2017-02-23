@@ -15,6 +15,10 @@
 #include <clientserver/protocol.h>
 #include <clientserver/udaErrors.h>
 
+#ifndef FATCLIENT
+#  include <server/getServerEnvironment.h>
+#endif
+
 int idamServerLegacyPlugin(REQUEST_BLOCK* request_block, DATA_SOURCE* data_source, SIGNAL_DESC* signal_desc)
 {
 
@@ -42,20 +46,22 @@ int idamServerLegacyPlugin(REQUEST_BLOCK* request_block, DATA_SOURCE* data_sourc
 
 #ifndef FATCLIENT
 
+        ENVIRONMENT* environment = getIdamServerEnvironment();
+
         if (request_block->request == REQUEST_READ_FORMAT) {
-            if (environment.private_path_target[0] != '\0') {
+            if (environment->private_path_target[0] != '\0') {
 
                 char* delimiters = ",:";
                 char targets[10][256];
                 char substitutes[10][256];
                 int lpath, i, tcount = 0, scount = 0;
 
-                strcpy(work, environment.private_path_target);
+                strcpy(work, environment->private_path_target);
                 token = strtok(work, delimiters);
                 strcpy(targets[tcount++], token);
                 while ((token = strtok(NULL, delimiters)) != NULL) strcpy(targets[tcount++], token);
 
-                strcpy(work, environment.private_path_substitute);
+                strcpy(work, environment->private_path_substitute);
                 token = strtok(work, delimiters);
                 strcpy(substitutes[scount++], token);
                 while ((token = strtok(NULL, delimiters)) != NULL) strcpy(substitutes[scount++], token);

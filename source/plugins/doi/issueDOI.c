@@ -21,11 +21,12 @@ Issues:
 #include <structures/struct.h>
 #include <structures/accessors.h>
 #include <clientserver/stringUtils.h>
+#include <server/getServerEnvironment.h>
 
-static char* pghost = NULL;
+static const char* pghost = NULL;
 static char pgport[56];
-static char* dbname = NULL;
-static char* user = NULL;
+static const char* dbname = NULL;
+static const char* user = NULL;
 static char* pswrd = NULL;
 
 static PGconn* startSQL_DOI()
@@ -40,10 +41,10 @@ static PGconn* startSQL_DOI()
 //------------------------------------------------------------- 
 // Debug Trace Queries
 
-    idamLog(LOG_DEBUG, "SQL Connection: host %s\n", pghost);
-    idamLog(LOG_DEBUG, "                port %s\n", pgport);
-    idamLog(LOG_DEBUG, "                db   %s\n", dbname);
-    idamLog(LOG_DEBUG, "                user %s\n", user);
+    IDAM_LOGF(LOG_DEBUG, "SQL Connection: host %s\n", pghost);
+    IDAM_LOGF(LOG_DEBUG, "                port %s\n", pgport);
+    IDAM_LOGF(LOG_DEBUG, "                db   %s\n", dbname);
+    IDAM_LOGF(LOG_DEBUG, "                user %s\n", user);
 
 //-------------------------------------------------------------
 // Connect to the Database Server
@@ -60,7 +61,7 @@ static PGconn* startSQL_DOI()
         return NULL;
     }
 
-    idamLog(LOG_DEBUG, "SQL Connection Options: %s\n", PQoptions(DBConnect));
+    IDAM_LOGF(LOG_DEBUG, "SQL Connection Options: %s\n", PQoptions(DBConnect));
 
     return (DBConnect);
 }
@@ -133,11 +134,6 @@ extern int issueDOI(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         data_block = idam_plugin_interface->data_block;
         request_block = idam_plugin_interface->request_block;
 
-#ifndef USE_PLUGIN_DIRECTLY
-// Don't copy the structure if housekeeping is requested - may dereference a NULL or freed pointer!     
-    if (!housekeeping && idam_plugin_interface->environment != NULL) environment = *idam_plugin_interface->environment;
-#endif
-
         housekeeping = idam_plugin_interface->housekeeping;
 
         DBType = PLUGINSQLNOTKNOWN;
@@ -145,7 +141,7 @@ extern int issueDOI(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     } else {
         err = 999;
-        idamLog(LOG_ERROR, "ERROR issueDOI: Plugin Interface Version Unknown\n");
+        IDAM_LOG(LOG_ERROR, "ERROR Plugin Interface Version Unknown\n");
 
         addIdamError(&idamerrorstack, CODEERRORTYPE, "issueDOI", err,
                      "Plugin Interface Version is Not Known: Unable to execute the request!");
@@ -153,7 +149,7 @@ extern int issueDOI(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         return err;
     }
 
-    idamLog(LOG_DEBUG, "issueDOI: Plugin Interface transferred\n");
+    IDAM_LOG(LOG_DEBUG, "Plugin Interface transferred\n");
 
 
 //----------------------------------------------------------------------------------------
@@ -161,19 +157,19 @@ extern int issueDOI(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     if (housekeeping || STR_IEQUALS(request_block->function, "reset")) {
 
-        idamLog(LOG_DEBUG, "issueDOI: reset function called.\n");
+        IDAM_LOG(LOG_DEBUG, "reset function called.\n");
 
         if (!init) return 0;        // Not previously initialised: Nothing to do!
 
         if (DBConnect != NULL && DBType == PLUGINSQLPOSTGRES && sqlPrivate) {
-            idamLog(LOG_DEBUG, "issueDOI: Closing SQL connection\n");
+            IDAM_LOG(LOG_DEBUG, "Closing SQL connection\n");
             PQfinish(DBConnect);
             sqlPrivate = 1;        // Remains Private
             DBConnect = NULL;
             DBType = PLUGINSQLNOTKNOWN;
         }
         init = 0;        // Ready to re-initialise
-        idamLog(LOG_DEBUG, "issueDOI: reset executed\n");
+        IDAM_LOG(LOG_DEBUG, "reset executed\n");
         return 0;
     }
 
@@ -183,13 +179,15 @@ extern int issueDOI(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     if (!init || STR_IEQUALS(request_block->function, "init")
         || STR_IEQUALS(request_block->function, "initialise")) {
 
-        idamLog(LOG_DEBUG, "issueDOI: init function called.\n");
+        IDAM_LOG(LOG_DEBUG, "init function called.\n");
 
-        pghost = environment.sql_host;
-        dbname = environment.sql_dbname;
-        user = environment.sql_user;
+        const ENVIRONMENT* environment = getIdamServerEnvironment();
+        
+        pghost = environment->sql_host;
+        dbname = environment->sql_dbname;
+        user = environment->sql_user;
 
-        sprintf(pgport, "%d", environment.sql_port);
+        sprintf(pgport, "%d", environment->sql_port);
 
         if ((env = getenv("UDA_DOIDBHOST")) != NULL) pghost = env;
         if ((env = getenv("UDA_DOIDBPORT")) != NULL) strcpy(pgport, env);
@@ -204,12 +202,12 @@ extern int issueDOI(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             if (DBConnect != NULL) {
                 DBType = PLUGINSQLPOSTGRES;
                 sqlPrivate = 1;
-                idamLog(LOG_DEBUG, "issueDOI: Private regular database connection made.\n");
+                IDAM_LOG(LOG_DEBUG, "Private regular database connection made.\n");
             }
         }
 
         if (DBConnect == NULL) {        // No connection!
-            idamLog(LOG_ERROR, "ERROR issueDOI: SQL Database Server Connect Error\n");
+            IDAM_LOG(LOG_ERROR, "ERROR SQL Database Server Connect Error\n");
             err = 777;
             addIdamError(&idamerrorstack, CODEERRORTYPE, "issueDOI", err, "SQL Database Server Connect Error");
             concatIdamError(idamerrorstack, idamErrorStack);
@@ -220,7 +218,7 @@ extern int issueDOI(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
         init = 1;
 
-        idamLog(LOG_DEBUG, "issueDOI: Plugin initialised and SQL connection made\n");
+        IDAM_LOG(LOG_DEBUG, "Plugin initialised and SQL connection made\n");
 
         if (STR_IEQUALS(request_block->function, "init") || STR_IEQUALS(request_block->function, "initialise"))
             return 0;
@@ -246,9 +244,9 @@ extern int issueDOI(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
         if (STR_IEQUALS(request_block->function, "help")) {
 
-            idamLog(LOG_DEBUG, "issueDOI: entering function help\n");
+            IDAM_LOG(LOG_DEBUG, "entering function help\n");
 
-            strcpy(work, "\nissueDOI: Issue a new DOI for a specific scientific study.\n\n"
+            strcpy(work, "\nIssue a new DOI for a specific scientific study.\n\n"
 
                     "get(owner=owner, icatRef=icatRef)\n\n"
                     "Issue a new DOI with a pending status\n\n"
@@ -263,7 +261,7 @@ extern int issueDOI(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                     "logRecord=logRecord, created=created, status=[New|Update|Close|Delete])\n\n"
             );
 
-            idamLog(LOG_DEBUG, "issueDOI:\n%s\n", work);
+            IDAM_LOGF(LOG_DEBUG, "issueDOI:\n%s\n", work);
 
 // Create the Returned Structure Definition
 
@@ -309,8 +307,10 @@ extern int issueDOI(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             data_block->opaque_count = 1;
             data_block->opaque_block = (void*) findUserDefinedType("DOIHELP", 0);
 
-            idamLog(LOG_DEBUG, "issueDOI: exiting function help\n");
-            if (data_block->opaque_block == NULL) idamLog(LOG_DEBUG, "issueDOI: DOIHELP type not found\n");
+            IDAM_LOG(LOG_DEBUG, "exiting function help\n");
+            if (data_block->opaque_block == NULL) {
+                IDAM_LOG(LOG_DEBUG, "DOIHELP type not found\n");
+            }
 
             break;
 
@@ -328,7 +328,7 @@ extern int issueDOI(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
         if (STR_IEQUALS(request_block->function, "get") || STR_IEQUALS(request_block->function, "new")) {
 
-            idamLog(LOG_DEBUG, "issueDOI: entering function new\n");
+            IDAM_LOG(LOG_DEBUG, "entering function new\n");
 
             char* owner, * icatRef;
             unsigned short ownerOK = 0, icatRefOK = 0;
@@ -337,7 +337,7 @@ extern int issueDOI(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             for (i = 0; i < request_block->nameValueList.pairCount; i++) {
 
-                idamLog(LOG_DEBUG, "[%d] %s = %s\n", i, request_block->nameValueList.nameValue[i].name,
+                IDAM_LOGF(LOG_DEBUG, "[%d] %s = %s\n", i, request_block->nameValueList.nameValue[i].name,
                         request_block->nameValueList.nameValue[i].value);
 
                 if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "owner")) {
@@ -357,7 +357,7 @@ extern int issueDOI(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             if (!ownerOK && !icatRefOK) {
                 err = 999;
-                idamLog(LOG_ERROR,
+                IDAM_LOG(LOG_ERROR,
                         "ERROR issueDOI new: Insufficient Meta Data not passed - need DOI owner and ICAT Reference ID!\n");
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "issueDOI new", err,
                              "Insufficient Meta Data not passed - need DOI owner and ICAT Reference ID!");
@@ -398,11 +398,11 @@ extern int issueDOI(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 sprintf(work, "%s/%s/%s/%06d", year, day, hms, microsecs);
 
             gettimeofday(&tv_stop, NULL);
-            idamLog(LOG_DEBUG, "issueDOI: new() Unique ID = '%s'\n", work);
+            IDAM_LOGF(LOG_DEBUG, "new() Unique ID = '%s'\n", work);
             msecs = (int) (tv_stop.tv_sec - tv_start.tv_sec) * 1000 +
                     (int) (tv_stop.tv_usec - tv_start.tv_usec) / 1000;
             usecs = (int) (tv_stop.tv_sec - tv_start.tv_sec) * 1000000 + (int) (tv_stop.tv_usec - tv_start.tv_usec);
-            idamLog(LOG_DEBUG, "issueDOI: new() Unique ID Cost = %d (ms), %d (microsecs)\n", msecs, usecs);
+            IDAM_LOGF(LOG_DEBUG, "new() Unique ID Cost = %d (ms), %d (microsecs)\n", msecs, usecs);
             tv_start = tv_stop;
 
 // Create Transaction Block SQL
@@ -410,14 +410,14 @@ extern int issueDOI(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             sprintf(sql, "BEGIN; INSERT INTO doi_table (doi, owner, icatref) VALUES ('%s', '%s','%s'); END;",
                     work, owner, icatRef);
 
-            idamLog(LOG_DEBUG, "%s\n", sql);
+            IDAM_LOGF(LOG_DEBUG, "%s\n", sql);
 
 // execute
 
             if ((DBQuery = PQexec(DBConnect, sql)) == NULL || PQresultStatus(DBQuery) != PGRES_COMMAND_OK) {
                 err = 999;
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "issueDOI", err, "SQL Execution Failed!");
-                idamLog(LOG_ERROR, "ERROR issueDOI new: SQL Execution Failed\n");
+                IDAM_LOG(LOG_ERROR, "ERROR issueDOI new: SQL Execution Failed\n");
                 PQclear(DBQuery);
                 break;
             }
@@ -428,7 +428,7 @@ extern int issueDOI(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             msecs = (int) (tv_stop.tv_sec - tv_start.tv_sec) * 1000 +
                     (int) (tv_stop.tv_usec - tv_start.tv_usec) / 1000;
             usecs = (int) (tv_stop.tv_sec - tv_start.tv_sec) * 1000000 + (int) (tv_stop.tv_usec - tv_start.tv_usec);
-            idamLog(LOG_DEBUG, "issueDOI: new() SQL Cost = %d (ms), %d (microsecs)\n", msecs, usecs);
+            IDAM_LOGF(LOG_DEBUG, "new() SQL Cost = %d (ms), %d (microsecs)\n", msecs, usecs);
 
 // Write Return Structure
 
@@ -449,10 +449,10 @@ extern int issueDOI(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             data->status = ' ';
 
-            idamLog(LOG_DEBUG, "issueDOI doi: %s\n", data->doi);
-            idamLog(LOG_DEBUG, "owner       : %s\n", data->owner);
-            idamLog(LOG_DEBUG, "icatRefId   : %s\n", data->icatRef);
-            idamLog(LOG_DEBUG, "Status      : %c\n", data->status);
+            IDAM_LOGF(LOG_DEBUG, "issueDOI doi: %s\n", data->doi);
+            IDAM_LOGF(LOG_DEBUG, "owner       : %s\n", data->owner);
+            IDAM_LOGF(LOG_DEBUG, "icatRefId   : %s\n", data->icatRef);
+            IDAM_LOGF(LOG_DEBUG, "Status      : %c\n", data->status);
 
             // the Returned Structure Definition
 
@@ -507,7 +507,7 @@ extern int issueDOI(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             data_block->opaque_count = 1;
             data_block->opaque_block = (void*) findUserDefinedType("ISSUEDOI", 0);
 
-            idamLog(LOG_DEBUG, "issueDOI: exiting function new\n");
+            IDAM_LOG(LOG_DEBUG, "exiting function new\n");
 
             break;
 
@@ -556,7 +556,7 @@ extern int issueDOI(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             static struct timeval tv_start, tv_stop;    // Performance
             int msecs, usecs;
 
-            idamLog(LOG_DEBUG, "issueDOI: entering function record\n");
+            IDAM_LOG(LOG_DEBUG, "entering function record\n");
 
             char* doi, * requestedSignal, * requestedSource, * trueSignal, * trueSource, * trueSourceDOI, * logRecord;
             char status = '?';
@@ -567,7 +567,7 @@ extern int issueDOI(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 // Name Value pairs (Keywords have higher priority)
 
             for (i = 0; i < request_block->nameValueList.pairCount; i++) {
-                idamLog(LOG_DEBUG, "[%d] %s = %s\n", i, request_block->nameValueList.nameValue[i].name,
+                IDAM_LOGF(LOG_DEBUG, "[%d] %s = %s\n", i, request_block->nameValueList.nameValue[i].name,
                         request_block->nameValueList.nameValue[i].value);
 
                 if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "doi")) {
@@ -637,7 +637,7 @@ extern int issueDOI(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             if (!doiOK || strlen(doi) == 0) {
                 err = 999;
-                idamLog(LOG_ERROR, "ERROR issueDOI add: The client provenance DOI must be specified!\n");
+                IDAM_LOG(LOG_ERROR, "ERROR issueDOI add: The client provenance DOI must be specified!\n");
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "issueDOI add", err,
                              "The client provenance DOI must be specified!");
                 break;
@@ -645,22 +645,22 @@ extern int issueDOI(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             if (!statusOK) {
                 err = 999;
-                idamLog(LOG_ERROR, "ERROR issueDOI add: The record status must be specified!\n");
+                IDAM_LOG(LOG_ERROR, "ERROR issueDOI add: The record status must be specified!\n");
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "issueDOI add", err,
                              "The record status must be specified!");
                 break;
             }
 
-            idamLog(LOG_DEBUG, "issueDOI: passed parameters\n");
-            if (doiOK) idamLog(LOG_DEBUG, "issueDOI: DOI = %s\n", doi);
-            if (requestedSignalOK) idamLog(LOG_DEBUG, "issueDOI: requestedSignal = %s\n", requestedSignal);
-            if (requestedSourceOK) idamLog(LOG_DEBUG, "issueDOI: requestedSource = %s\n", requestedSource);
-            if (trueSignalOK) idamLog(LOG_DEBUG, "issueDOI: trueSignal = %s\n", trueSignal);
-            if (trueSourceOK) idamLog(LOG_DEBUG, "issueDOI: trueSource = %s\n", trueSource);
-            if (trueSourceDOIOK) idamLog(LOG_DEBUG, "issueDOI: trueSourceDOI = %s\n", trueSourceDOI);
-            if (logRecordOK) idamLog(LOG_DEBUG, "issueDOI: logRecord = %s\n", logRecord);
-            if (statusOK) idamLog(LOG_DEBUG, "issueDOI: Status = %c\n", status);
-            if (execMethodOK) idamLog(LOG_DEBUG, "issueDOI: execMethod = %d\n", execMethod);
+            IDAM_LOG(LOG_DEBUG, "passed parameters\n");
+            if (doiOK) IDAM_LOGF(LOG_DEBUG, "DOI = %s\n", doi);
+            if (requestedSignalOK) IDAM_LOGF(LOG_DEBUG, "requestedSignal = %s\n", requestedSignal);
+            if (requestedSourceOK) IDAM_LOGF(LOG_DEBUG, "requestedSource = %s\n", requestedSource);
+            if (trueSignalOK) IDAM_LOGF(LOG_DEBUG, "trueSignal = %s\n", trueSignal);
+            if (trueSourceOK) IDAM_LOGF(LOG_DEBUG, "trueSource = %s\n", trueSource);
+            if (trueSourceDOIOK) IDAM_LOGF(LOG_DEBUG, "trueSourceDOI = %s\n", trueSourceDOI);
+            if (logRecordOK) IDAM_LOGF(LOG_DEBUG, "logRecord = %s\n", logRecord);
+            if (statusOK) IDAM_LOGF(LOG_DEBUG, "Status = %c\n", status);
+            if (execMethodOK) IDAM_LOGF(LOG_DEBUG, "execMethod = %d\n", execMethod);
 
 // 1> Create a new record if status == new 
 // 2> add log data to an existing record if status == update 
@@ -679,7 +679,7 @@ extern int issueDOI(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             do {            // Transaction Block Error Trap
 
                 if (status == 'n') {    // Create a new record and reset the current primary key in scope
-                    idamLog(LOG_DEBUG, "issueDOI: record() Create a new record\n");
+                    IDAM_LOG(LOG_DEBUG, "record() Create a new record\n");
 
                     if (key != NULL) {    // Always renewed for each new record
                         free((void*) key);
@@ -713,7 +713,7 @@ extern int issueDOI(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                                     doi, requestedSignal, requestedSource, trueSignal, trueSource,
                                     trueSourceDOI, key);
 
-                            idamLog(LOG_DEBUG, "issueDOI: record() SQL\n%s\n", cmd);
+                            IDAM_LOGF(LOG_DEBUG, "record() SQL\n%s\n", cmd);
 
                             gettimeofday(&tv_start, NULL);
 
@@ -735,7 +735,7 @@ extern int issueDOI(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                                     (int) (tv_stop.tv_usec - tv_start.tv_usec) / 1000;
                             usecs = (int) (tv_stop.tv_sec - tv_start.tv_sec) * 1000000 +
                                     (int) (tv_stop.tv_usec - tv_start.tv_usec);
-                            idamLog(LOG_DEBUG, "issueDOI: update() execMethod 1 Cost A = %d (ms), %d (microsecs)\n",
+                            IDAM_LOGF(LOG_DEBUG, "update() execMethod 1 Cost A = %d (ms), %d (microsecs)\n",
                                     msecs, usecs);
                             tv_start = tv_stop;
                         } else if (execMethod == 2) {
@@ -763,7 +763,7 @@ extern int issueDOI(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                                 if (errno != 0) err = errno;
                                 addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "issueDOI", err,
                                              "Unable to Obtain a Temporary File Name");
-                                idamLog(LOG_ERROR, "ERROR issueDOI: Unable to Obtain a Temporary File Name\n");
+                                IDAM_LOG(LOG_ERROR, "ERROR Unable to Obtain a Temporary File Name\n");
                                 addIdamError(&idamerrorstack, CODEERRORTYPE, "issueDOI", err, tmpdir);
                                 break;
                             }
@@ -774,7 +774,7 @@ extern int issueDOI(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                                 if (errno != 0) err = errno;
                                 addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "issueDOI", err,
                                              "Unable to Open a Temporary File");
-                                idamLog(LOG_ERROR, "ERROR workflow start: Unable to Open a Temporary File\n");
+                                IDAM_LOG(LOG_ERROR, "ERROR workflow start: Unable to Open a Temporary File\n");
                                 addIdamError(&idamerrorstack, CODEERRORTYPE, "issueDOI", err, tmpfile);
                                 break;
                             }
@@ -790,7 +790,7 @@ extern int issueDOI(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                                     (int) (tv_stop.tv_usec - tv_start.tv_usec) / 1000;
                             usecs = (int) (tv_stop.tv_sec - tv_start.tv_sec) * 1000000 +
                                     (int) (tv_stop.tv_usec - tv_start.tv_usec);
-                            idamLog(LOG_DEBUG, "issueDOI: update() execMethod 2 Cost A = %d (ms), %d (microsecs)\n",
+                            IDAM_LOGF(LOG_DEBUG, "update() execMethod 2 Cost A = %d (ms), %d (microsecs)\n",
                                     msecs, usecs);
                             tv_start = tv_stop;
                         } else if (execMethod == 3) {
@@ -808,12 +808,12 @@ extern int issueDOI(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                                     (int) (tv_stop.tv_usec - tv_start.tv_usec) / 1000;
                             usecs = (int) (tv_stop.tv_sec - tv_start.tv_sec) * 1000000 +
                                     (int) (tv_stop.tv_usec - tv_start.tv_usec);
-                            idamLog(LOG_DEBUG, "issueDOI: update() execMethod 3 Cost A = %d (ms), %d (microsecs)\n",
+                            IDAM_LOGF(LOG_DEBUG, "update() execMethod 3 Cost A = %d (ms), %d (microsecs)\n",
                                     msecs, usecs);
                             tv_start = tv_stop;
                         } else {
                             err = 999;
-                            idamLog(LOG_ERROR, "ERROR issueDOI add: Incorrect execMethod argument {1|2|3}\n");
+                            IDAM_LOG(LOG_ERROR, "ERROR issueDOI add: Incorrect execMethod argument {1|2|3}\n");
                             addIdamError(&idamerrorstack, CODEERRORTYPE, "issueDOI add", err,
                                          "Incorrect execMethod argument {1|2|3}");
                             break;
@@ -826,7 +826,7 @@ extern int issueDOI(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                                         "VALUES ('%s','%s','%s','%s','%s','%s');",
                                 doi, requestedSignal, requestedSource, trueSignal, trueSource, trueSourceDOI);
 
-                        idamLog(LOG_DEBUG, "issueDOI: record() SQL\n%s\n", sql);
+                        IDAM_LOGF(LOG_DEBUG, "record() SQL\n%s\n", sql);
 // Execute the SQL
 
                         if ((DBQuery = PQexec(DBConnect, sql)) == NULL || PQresultStatus(DBQuery) != PGRES_COMMAND_OK) {
@@ -841,7 +841,7 @@ extern int issueDOI(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                         strcpy(sql, "SELECT doi_log_id FROM doi_log WHERE "
                                 "doi_log_id=currval('doi_log_id_seq');");
 
-                        idamLog(LOG_DEBUG, "%s\n", sql);
+                        IDAM_LOGF(LOG_DEBUG, "%s\n", sql);
 
                         if ((DBQuery = PQexec(DBConnect, sql)) == NULL || PQresultStatus(DBQuery) != PGRES_TUPLES_OK) {
                             err = 1;        // Roll Back transaction
@@ -851,7 +851,7 @@ extern int issueDOI(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                         nrows = PQntuples(DBQuery);
 
                         if (nrows != 1) {
-                            idamLog(LOG_ERROR, "ERROR issueDOI new: New doi_log record not found!\n");
+                            IDAM_LOG(LOG_ERROR, "ERROR issueDOI new: New doi_log record not found!\n");
                             err = 999;
                             addIdamError(&idamerrorstack, CODEERRORTYPE, "issueDOI new", err,
                                          "New doi_log record not found!");
@@ -865,7 +865,7 @@ extern int issueDOI(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                         strcpy(key, PQgetvalue(DBQuery, 0, 0));
                         PQclear(DBQuery);
 
-                        idamLog(LOG_DEBUG, "issueDOI key: %s\n", key);
+                        IDAM_LOGF(LOG_DEBUG, "issueDOI key: %s\n", key);
 
 // Complete the transaction
 
@@ -884,11 +884,11 @@ extern int issueDOI(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 } else
 
                 if (status == 'u') {    // update an existing record using the key from the ADD step
-                    idamLog(LOG_DEBUG, "issueDOI: record() update an existing record with the Server Log record\n");
+                    IDAM_LOG(LOG_DEBUG, "record() update an existing record with the Server Log record\n");
 
                     if (!logRecordOK) {
                         err = 999;
-                        idamLog(LOG_ERROR, "ERROR issueDOI add: No Log record!\n");
+                        IDAM_LOG(LOG_ERROR, "ERROR issueDOI add: No Log record!\n");
                         addIdamError(&idamerrorstack, CODEERRORTYPE, "issueDOI add", err, "No Log record!");
                         break;
                     }
@@ -906,7 +906,7 @@ extern int issueDOI(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                                             "UPDATE doi_log SET logRecord = '%s' WHERE tmpKey = '%s';\" > /dev/null 2>&1 &",
                                     dbname, user, pghost, pgport, logRecord, key);
 
-                            idamLog(LOG_DEBUG, "issueDOI: update() SQL\n%s\n", cmd);
+                            IDAM_LOGF(LOG_DEBUG, "update() SQL\n%s\n", cmd);
 
                             gettimeofday(&tv_start, NULL);
 
@@ -927,7 +927,7 @@ extern int issueDOI(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                                     (int) (tv_stop.tv_usec - tv_start.tv_usec) / 1000;
                             usecs = (int) (tv_stop.tv_sec - tv_start.tv_sec) * 1000000 +
                                     (int) (tv_stop.tv_usec - tv_start.tv_usec);
-                            idamLog(LOG_DEBUG, "issueDOI: update() execMethod 1 Cost B = %d (ms), %d (microsecs)\n",
+                            IDAM_LOGF(LOG_DEBUG, "update() execMethod 1 Cost B = %d (ms), %d (microsecs)\n",
                                     msecs, usecs);
                             tv_start = tv_stop;
                         } else if (execMethod == 2) {
@@ -942,7 +942,7 @@ extern int issueDOI(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                                     (int) (tv_stop.tv_usec - tv_start.tv_usec) / 1000;
                             usecs = (int) (tv_stop.tv_sec - tv_start.tv_sec) * 1000000 +
                                     (int) (tv_stop.tv_usec - tv_start.tv_usec);
-                            idamLog(LOG_DEBUG, "issueDOI: update() execMethod 2 Cost B = %d (ms), %d (microsecs)\n",
+                            IDAM_LOGF(LOG_DEBUG, "update() execMethod 2 Cost B = %d (ms), %d (microsecs)\n",
                                     msecs, usecs);
                             tv_start = tv_stop;
 
@@ -955,7 +955,7 @@ extern int issueDOI(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                                     "%s -d %s -U %s -h %s -p %s -f %s > /dev/null 2>&1 &",
                                     work, dbname, user, pghost, pgport, tmpfile);
 
-                            idamLog(LOG_DEBUG, "issueDOI: update() SQL\n%s\n", cmd);
+                            IDAM_LOGF(LOG_DEBUG, "update() SQL\n%s\n", cmd);
 
                             gettimeofday(&tv_start, NULL);
 
@@ -976,7 +976,7 @@ extern int issueDOI(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                                     (int) (tv_stop.tv_usec - tv_start.tv_usec) / 1000;
                             usecs = (int) (tv_stop.tv_sec - tv_start.tv_sec) * 1000000 +
                                     (int) (tv_stop.tv_usec - tv_start.tv_usec);
-                            idamLog(LOG_DEBUG, "issueDOI: update() execMethod 2 Cost C = %d (ms), %d (microsecs)\n",
+                            IDAM_LOGF(LOG_DEBUG, "update() execMethod 2 Cost C = %d (ms), %d (microsecs)\n",
                                     msecs, usecs);
                             tv_start = tv_stop;
                         } else if (execMethod == 3) {
@@ -993,14 +993,14 @@ extern int issueDOI(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                                             "> /dev/null 2>&1 &",
                                     sqlBuffer, logRecord);
 
-                            idamLog(LOG_DEBUG, "issueDOI: update() SQL\n%s\n", cmd);
+                            IDAM_LOGF(LOG_DEBUG, "update() SQL\n%s\n", cmd);
 
                             gettimeofday(&tv_stop, NULL);
                             msecs = (int) (tv_stop.tv_sec - tv_start.tv_sec) * 1000 +
                                     (int) (tv_stop.tv_usec - tv_start.tv_usec) / 1000;
                             usecs = (int) (tv_stop.tv_sec - tv_start.tv_sec) * 1000000 +
                                     (int) (tv_stop.tv_usec - tv_start.tv_usec);
-                            idamLog(LOG_DEBUG, "issueDOI: update() execMethod 3 Cost B = %d (ms), %d (microsecs)\n",
+                            IDAM_LOGF(LOG_DEBUG, "update() execMethod 3 Cost B = %d (ms), %d (microsecs)\n",
                                     msecs, usecs);
                             tv_start = tv_stop;
 
@@ -1021,7 +1021,7 @@ extern int issueDOI(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                                     (int) (tv_stop.tv_usec - tv_start.tv_usec) / 1000;
                             usecs = (int) (tv_stop.tv_sec - tv_start.tv_sec) * 1000000 +
                                     (int) (tv_stop.tv_usec - tv_start.tv_usec);
-                            idamLog(LOG_DEBUG, "issueDOI: update() execMethod 3 Cost C = %d (ms), %d (microsecs)\n",
+                            IDAM_LOGF(LOG_DEBUG, "update() execMethod 3 Cost C = %d (ms), %d (microsecs)\n",
                                     msecs, usecs);
                             tv_start = tv_stop;
                         }
@@ -1031,13 +1031,13 @@ extern int issueDOI(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                                 "UPDATE doi_log SET logRecord = '%s' WHERE doi_log_id = %s;"
                                 "END;", logRecord, key);
 
-                        idamLog(LOG_DEBUG, "issueDOI: record() SQL\n%s\n", sql);
+                        IDAM_LOGF(LOG_DEBUG, "record() SQL\n%s\n", sql);
 
 // Execute the SQL
 
                         if ((DBQuery = PQexec(DBConnect, sql)) == NULL || PQresultStatus(DBQuery) != PGRES_COMMAND_OK) {
                             PQclear(DBQuery);
-                            idamLog(LOG_ERROR, "ERROR issueDOI add: doi_log table update failed!\n");
+                            IDAM_LOG(LOG_ERROR, "ERROR issueDOI add: doi_log table update failed!\n");
                             err = 999;
                             addIdamError(&idamerrorstack, CODEERRORTYPE, "issueDOI new", err,
                                          "doi_log table update failed!");
@@ -1047,19 +1047,19 @@ extern int issueDOI(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
                 } else if (status ==
                            'c') {    // close all records for future deletion and execute collected SQL statements
-                    idamLog(LOG_DEBUG, "issueDOI: record() Close all records\n");
+                    IDAM_LOG(LOG_DEBUG, "record() Close all records\n");
 
                     sprintf(sql, "BEGIN; "
                             "UPDATE doi_log SET status = 1 WHERE doi = '%s';"
                             "END;", doi);
 
-                    idamLog(LOG_DEBUG, "issueDOI: record() SQL\n%s\n", sql);
+                    IDAM_LOGF(LOG_DEBUG, "record() SQL\n%s\n", sql);
 
 // Execute the SQL
 
                     if ((DBQuery = PQexec(DBConnect, sql)) == NULL || PQresultStatus(DBQuery) != PGRES_COMMAND_OK) {
                         PQclear(DBQuery);
-                        idamLog(LOG_ERROR, "ERROR issueDOI add: doi_log status update failed!\n");
+                        IDAM_LOG(LOG_ERROR, "ERROR issueDOI add: doi_log status update failed!\n");
                         err = 999;
                         addIdamError(&idamerrorstack, CODEERRORTYPE, "issueDOI new", err,
                                      "doi_log status update failed!");
@@ -1069,19 +1069,19 @@ extern int issueDOI(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 } else
 
                 if (status == 'd') {    // Delete closed records (Protection against malicious intent? user field?)
-                    idamLog(LOG_DEBUG, "issueDOI: record() Delete closed records\n");
+                    IDAM_LOG(LOG_DEBUG, "record() Delete closed records\n");
 
                     sprintf(sql, "BEGIN; "
                             "DELETE FROM doi_log WHERE status = 1 AND doi = '%s';" // and user='%s'
                             "END;", doi);
 
-                    idamLog(LOG_DEBUG, "issueDOI: record() SQL\n%s\n", sql);
+                    IDAM_LOGF(LOG_DEBUG, "record() SQL\n%s\n", sql);
 
 // Execute the SQL
 
                     if ((DBQuery = PQexec(DBConnect, sql)) == NULL || PQresultStatus(DBQuery) != PGRES_COMMAND_OK) {
                         PQclear(DBQuery);
-                        idamLog(LOG_ERROR, "ERROR issueDOI add: doi_log deletion failed!\n");
+                        IDAM_LOG(LOG_ERROR, "ERROR issueDOI add: doi_log deletion failed!\n");
                         err = 999;
                         addIdamError(&idamerrorstack, CODEERRORTYPE, "issueDOI new", err, "doi_log deletion failed!");
                         break;
@@ -1096,10 +1096,10 @@ extern int issueDOI(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 if (err == 1) {
                     err = 999;
                     if (DBQuery == NULL) {
-                        idamLog(LOG_ERROR, "ERROR issueDOI add: Database Query Failed!\n");
+                        IDAM_LOG(LOG_ERROR, "ERROR issueDOI add: Database Query Failed!\n");
                         addIdamError(&idamerrorstack, CODEERRORTYPE, "issueDOI add", err, "Database Query Failed!");
                     } else if (PQresultStatus(DBQuery) != PGRES_COMMAND_OK) {
-                        idamLog(LOG_ERROR, "ERROR issueDOI add: %s\n", PQresultErrorMessage(DBQuery));
+                        IDAM_LOGF(LOG_ERROR, "ERROR issueDOI add: %s\n", PQresultErrorMessage(DBQuery));
                         addIdamError(&idamerrorstack, CODEERRORTYPE, "issueDOI add", err,
                                      PQresultErrorMessage(DBQuery));
                     }
@@ -1108,7 +1108,7 @@ extern int issueDOI(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 PQclear(DBQuery);
 
                 sprintf(sql, "ROLLBACK; END;");
-                idamLog(LOG_DEBUG, "%s\n", sql);
+                IDAM_LOGF(LOG_DEBUG, "%s\n", sql);
 
                 DBQuery = PQexec(DBConnect, sql);
                 PQclear(DBQuery);
@@ -1129,7 +1129,7 @@ extern int issueDOI(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             strcpy(data_block->data_label, "");
             strcpy(data_block->data_units, "");
 
-            idamLog(LOG_DEBUG, "issueDOI: exiting function record\n");
+            IDAM_LOG(LOG_DEBUG, "exiting function record\n");
 
             break;
 
@@ -1137,7 +1137,7 @@ extern int issueDOI(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 //----------------------------------------------------------------------------------------
 // LIST all data access records from the DOI_Log table
 
-            idamLog(LOG_DEBUG, "issueDOI: entering function list\n");
+            IDAM_LOG(LOG_DEBUG, "entering function list\n");
 
             char* doi;
             unsigned short doiOK = 0;
@@ -1145,7 +1145,7 @@ extern int issueDOI(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 // Name Value pairs (Keywords have higher priority) + Protect against SQL Injection
 
             for (i = 0; i < request_block->nameValueList.pairCount; i++) {
-                idamLog(LOG_DEBUG, "[%d] %s = %s\n", i, request_block->nameValueList.nameValue[i].name,
+                IDAM_LOGF(LOG_DEBUG, "[%d] %s = %s\n", i, request_block->nameValueList.nameValue[i].name,
                         request_block->nameValueList.nameValue[i].value);
 
                 if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "doi")) {
@@ -1158,7 +1158,7 @@ extern int issueDOI(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             if (!doiOK) {
                 err = 999;
-                idamLog(LOG_ERROR, "ERROR issueDOI list: The client provenance DOI must be specified!\n");
+                IDAM_LOG(LOG_ERROR, "ERROR issueDOI list: The client provenance DOI must be specified!\n");
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "issueDOI add", err,
                              "The client provenance DOI must be specified!");
                 break;
@@ -1167,13 +1167,13 @@ extern int issueDOI(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             sprintf(sql, "SELECT doi, requestedSignal, requestedSource, trueSignal, trueSource, trueSourceDOI, "
                     "logRecord, creation FROM doi_log WHERE doi='%s';", doi);
 
-            idamLog(LOG_DEBUG, "issueDOI: list() SQL\n%s\n", sql);
+            IDAM_LOGF(LOG_DEBUG, "list() SQL\n%s\n", sql);
 
 // Execute the SQL
 
             if ((DBQuery = PQexec(DBConnect, sql)) == NULL || PQresultStatus(DBQuery) != PGRES_TUPLES_OK) {
                 err = 999;
-                idamLog(LOG_ERROR, "ERROR issueDOI list: SQL Failed\n");
+                IDAM_LOG(LOG_ERROR, "ERROR issueDOI list: SQL Failed\n");
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "issueDOI list", err, "SQL Failed!");
                 break;
             }
@@ -1181,7 +1181,7 @@ extern int issueDOI(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             nrows = PQntuples(DBQuery);
 
             if (nrows == 0) {
-                idamLog(LOG_ERROR, "ERROR issueDOI list: No doi_log records found!\n");
+                IDAM_LOG(LOG_ERROR, "ERROR issueDOI list: No doi_log records found!\n");
                 err = 999;
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "issueDOI new", err, "No doi_log records found");
                 break;
@@ -1248,14 +1248,14 @@ extern int issueDOI(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 strcpy(data[i].creation, PQgetvalue(DBQuery, i, 7));
                 addMalloc((void*) data[i].creation, 1, stringLength * sizeof(char), "char");
 
-                idamLog(LOG_DEBUG, "doi            : %s\n\n", data[i].doi);
-                idamLog(LOG_DEBUG, "requestedSignal: %s\n", data[i].requestedSignal);
-                idamLog(LOG_DEBUG, "requestedSource: %s\n", data[i].requestedSource);
-                idamLog(LOG_DEBUG, "trueSignal     : %s\n", data[i].trueSignal);
-                idamLog(LOG_DEBUG, "trueSource     : %s\n", data[i].trueSource);
-                idamLog(LOG_DEBUG, "trueSourceDOI  : %s\n", data[i].trueSourceDOI);
-                idamLog(LOG_DEBUG, "logRecord      : %s\n", data[i].logRecord);
-                idamLog(LOG_DEBUG, "creation date  : %s\n", data[i].creation);
+                IDAM_LOGF(LOG_DEBUG, "doi            : %s\n\n", data[i].doi);
+                IDAM_LOGF(LOG_DEBUG, "requestedSignal: %s\n", data[i].requestedSignal);
+                IDAM_LOGF(LOG_DEBUG, "requestedSource: %s\n", data[i].requestedSource);
+                IDAM_LOGF(LOG_DEBUG, "trueSignal     : %s\n", data[i].trueSignal);
+                IDAM_LOGF(LOG_DEBUG, "trueSource     : %s\n", data[i].trueSource);
+                IDAM_LOGF(LOG_DEBUG, "trueSourceDOI  : %s\n", data[i].trueSourceDOI);
+                IDAM_LOGF(LOG_DEBUG, "logRecord      : %s\n", data[i].logRecord);
+                IDAM_LOGF(LOG_DEBUG, "creation date  : %s\n", data[i].creation);
             }
             PQclear(DBQuery);
 
@@ -1356,7 +1356,7 @@ extern int issueDOI(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             data_block->opaque_count = 1;
             data_block->opaque_block = (void*) findUserDefinedType("LISTDOI", 0);
 
-            idamLog(LOG_DEBUG, "issueDOI: Function list called\n");
+            IDAM_LOG(LOG_DEBUG, "Function list called\n");
 
             if (data_block->opaque_block == NULL) {
                 err = 999;
@@ -1371,7 +1371,7 @@ extern int issueDOI(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 //----------------------------------------------------------------------------------------
 // Not a Known Function!
 
-            idamLog(LOG_ERROR, "ERROR issueDOI: Function %s Not Known.!\n", request_block->function);
+            IDAM_LOGF(LOG_ERROR, "ERROR Function %s Not Known.!\n", request_block->function);
             err = 999;
             addIdamError(&idamerrorstack, CODEERRORTYPE, "issueDOI", err, "Unknown Function requested");
             addIdamError(&idamerrorstack, CODEERRORTYPE, "issueDOI", err, request_block->function);

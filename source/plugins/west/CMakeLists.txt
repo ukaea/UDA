@@ -4,12 +4,16 @@ link_directories(/Home/devarc/PortageMatlab7/tslib_client2013)
 
 find_package( LibXml2 QUIET )
 find_package( MDSplus QUIET )
+find_package( LibTS QUIET )
 
 if( NOT MDSPLUS_FOUND )
   message( WARNING "mdsplus not found - skipping west plugin" )
   return()
 elseif( NOT LIBXML2_FOUND )
   message( WARNING "Libxml2 not found - skipping west plugin" )
+  return()
+elseif( NOT LIBTS_FOUND )
+  message( WARNING "LibTS not found - skipping west plugin" )
   return()
 endif()
 

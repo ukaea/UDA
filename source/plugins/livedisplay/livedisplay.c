@@ -550,8 +550,6 @@ extern int livedisplay(IDAM_PLUGIN_INTERFACE* idam_plugin_interface) {
     DATA_BLOCK* data_block;
     REQUEST_BLOCK* request_block;
 
-    PLUGINLIST* pluginList;    // List of all data reader plugins (internal and external shared libraries)
-
     USERDEFINEDTYPE usertype;
     COMPOUNDFIELD field;
 
@@ -564,7 +562,7 @@ extern int livedisplay(IDAM_PLUGIN_INTERFACE* idam_plugin_interface) {
 
     if (idam_plugin_interface->interfaceVersion > THISPLUGIN_MAX_INTERFACE_VERSION) {
         err = 999;
-        idamLog(LOG_ERROR,
+        IDAM_LOG(LOG_ERROR,
                 "ERROR LiveDisplay: Plugin Interface Version Unknown to this plugin: Unable to execute the request!\n");
         addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err,
                      "Plugin Interface Version Unknown to this plugin: Unable to execute the request!");
@@ -577,23 +575,16 @@ extern int livedisplay(IDAM_PLUGIN_INTERFACE* idam_plugin_interface) {
     data_block = idam_plugin_interface->data_block;
     request_block = idam_plugin_interface->request_block;
 
-    pluginList = idam_plugin_interface->pluginList;
+    const PLUGINLIST* pluginList = idam_plugin_interface->pluginList;
 
     housekeeping = idam_plugin_interface->housekeeping;
-
-// Additional interface components (must be defined at the bottom of the standard data structure)
-// Versioning must be consistent with the macro THISPLUGIN_MAX_INTERFACE_VERSION and the plugin registration with the server
-
-    //if(idam_plugin_interface->interfaceVersion >= 2){
-    // NEW COMPONENTS
-    //}
 
 //----------------------------------------------------------------------------------------
 // Heap Housekeeping
 
     if (housekeeping || STR_IEQUALS(request_block->function, "reset")) {
 
-        idamLog(LOG_DEBUG, "LiveDisplay: reset function called.\n");
+        IDAM_LOG(LOG_DEBUG, "LiveDisplay: reset function called.\n");
 
         if (flux_loop_cache != NULL) {
             for (i = 0; i < flux_loop_cache_count; i++) freeFluxLoop(&flux_loop_cache[i]);
@@ -623,7 +614,7 @@ extern int livedisplay(IDAM_PLUGIN_INTERFACE* idam_plugin_interface) {
     if (!init || STR_IEQUALS(request_block->function, "init")
         || STR_IEQUALS(request_block->function, "initialise")) {
 
-        idamLog(LOG_DEBUG, "LiveDisplay: init function called.\n");
+        IDAM_LOG(LOG_DEBUG, "LiveDisplay: init function called.\n");
 
         flux_loop_cache = NULL;
         flux_loop_cache_count = 0;
@@ -654,7 +645,7 @@ extern int livedisplay(IDAM_PLUGIN_INTERFACE* idam_plugin_interface) {
 
     for (i = 0; i < request_block->nameValueList.pairCount; i++) {
 
-        idamLog(LOG_DEBUG, "[%d] %s = %s\n", i, request_block->nameValueList.nameValue[i].name,
+        IDAM_LOGF(LOG_DEBUG, "[%d] %s = %s\n", i, request_block->nameValueList.nameValue[i].name,
                 request_block->nameValueList.nameValue[i].value);
 
         if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "exp_number") ||
@@ -1886,8 +1877,6 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
                         sum2 = sum2 / (double) data_count;
                         data_count = 1;
                     }
-//double x1 = ft[index1];
-//double x2 = ft[index2];
 
                     floop[i].data_count = data_count;
                     floop[i].data = (double*) malloc(floop[i].data_count * sizeof(double));
@@ -2233,9 +2222,7 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
                     }
                 } // Loop over all Flux Loops
 
-            } else // cacheData
-
-            if (cacheRetrieve) {        // Retrieve Machine Description Data from Cache
+            } else if (cacheRetrieve) {        // Retrieve Machine Description Data from Cache
 
 // 1. Number of Flux Loops
 
@@ -2513,9 +2500,7 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
 
                 flux_loop_cache_count = flux_loop_count;
 
-            } else // cacheData
-
-            if (cacheRetrieve) {        // Retrieve Machine Description Data from Cache
+            } else if (cacheRetrieve) {        // Retrieve Machine Description Data from Cache
 
 // 1. Number of Flux Loops
 
@@ -2910,9 +2895,7 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
                     bpol_probe_cache[i].phi = bprobe[i].phi;
                 } // Loop over all Bpol Probes
 
-            } else // cacheData
-
-            if (cacheRetrieve) {        // Retrieve Machine Description Data from Cache
+            } else if (cacheRetrieve) {        // Retrieve Machine Description Data from Cache
 
 // 1. Number of Flux Loops
 
@@ -3605,9 +3588,7 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
                     bpol_probe_cache[i].phi = bprobe[i].phi;
                 } // Loop over all Bpol Probes
 
-            } else // cacheData
-
-            if (cacheRetrieve) {        // Retrieve Machine Description Data from Cache
+            } else if (cacheRetrieve) {        // Retrieve Machine Description Data from Cache
 
 // 1. Number of Flux Loops
 
@@ -3667,12 +3648,7 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
 
             break;
 
-        } else
-
-
-// -------------------------------------------------------------------------------------------------------------------------------------------------
-
-        if (STR_IEQUALS(request_block->function, "magnetics") ||
+        } else if (STR_IEQUALS(request_block->function, "magnetics") ||
             STR_IEQUALS(request_block->function, "test11")) {    // MAGNETICS data structure with MAST data
             char* p = NULL;
             int size = 0;
@@ -4149,7 +4125,7 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
 
             break;
 
-        } else
+        } else if (STR_IEQUALS(request_block->function, "RB")) {
 
 // -------------------------------------------------------------------------------------------------------------------------------------------------
 // To Do
@@ -4161,7 +4137,6 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
 // Vacuum R*Bphi
 // -ve sign means clockwise when viewed from above
 
-        if (STR_IEQUALS(request_block->function, "RB")) {
             char signal[256], source[256];
 
 // Create the Returned Structure Definitions
@@ -4388,7 +4363,7 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
 /*
         if (STR_IEQUALS(request_block->function, "get")) {
 
-            idamLog(LOG_DEBUG, "LiveDisplay: GET entered\n");
+            IDAM_LOG(LOG_DEBUG, "LiveDisplay: GET entered\n");
 
 // Create the Returned Structure Definitions
 
@@ -4520,7 +4495,7 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
             data_block->opaque_count = 1;
             data_block->opaque_block = (void*) findUserDefinedType("MAGNETICS_TEST", 0);
 
-            idamLog(LOG_DEBUG, "LiveDisplay: GET exited\n");
+            IDAM_LOG(LOG_DEBUG, "LiveDisplay: GET exited\n");
 
             break;
 
@@ -4540,7 +4515,7 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
             char* data = (char*) malloc(stringLength * sizeof(char));
             strcpy(data, "\nLIVEDISPLAY: description and examples\n");
 
-            idamLog(LOG_DEBUG, "LiveDisplay:\n%s\n", data);
+            IDAM_LOGF(LOG_DEBUG, "LiveDisplay:\n%s\n", data);
 
 // Pass Data
 
@@ -4553,16 +4528,13 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
             strcpy(data_block->data_label, "");
             strcpy(data_block->data_units, "");
 
-            idamLog(LOG_DEBUG, "LiveDisplay: Function help called\n");
+            IDAM_LOG(LOG_DEBUG, "LiveDisplay: Function help called\n");
 
             break;
 
-        } else
-
-//----------------------------------------------------------------------------------------
-// Standard methods: version, builddate, defaultmethod, maxinterfaceversion
-
-        if (STR_IEQUALS(request_block->function, "version")) {
+        } else if (STR_IEQUALS(request_block->function, "version")) {
+            //----------------------------------------------------------------------------------------
+            // Standard methods: version, builddate, defaultmethod, maxinterfaceversion
             initDataBlock(data_block);
             data_block->data_type = TYPE_INT;
             data_block->rank = 0;
@@ -4574,11 +4546,8 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
             strcpy(data_block->data_label, "version");
             strcpy(data_block->data_units, "");
             break;
-        } else
-
-// Plugin Build Date
-
-        if (STR_IEQUALS(request_block->function, "builddate")) {
+        } else if (STR_IEQUALS(request_block->function, "builddate")) {
+            // Plugin Build Date
             initDataBlock(data_block);
             data_block->data_type = TYPE_STRING;
             data_block->rank = 0;
@@ -4590,11 +4559,8 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
             strcpy(data_block->data_label, "date");
             strcpy(data_block->data_units, "");
             break;
-        } else
-
-// Plugin Default Method
-
-        if (STR_IEQUALS(request_block->function, "defaultmethod")) {
+        } else if (STR_IEQUALS(request_block->function, "defaultmethod")) {
+            // Plugin Default Method
             initDataBlock(data_block);
             data_block->data_type = TYPE_STRING;
             data_block->rank = 0;
@@ -4606,11 +4572,8 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
             strcpy(data_block->data_label, "method");
             strcpy(data_block->data_units, "");
             break;
-        } else
-
-// Plugin Maximum Interface Version
-
-        if (STR_IEQUALS(request_block->function, "maxinterfaceversion")) {
+        } else if (STR_IEQUALS(request_block->function, "maxinterfaceversion")) {
+            // Plugin Maximum Interface Version
             initDataBlock(data_block);
             data_block->data_type = TYPE_INT;
             data_block->rank = 0;
@@ -4628,12 +4591,13 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
 // Not a Known Function!
 
             err = 999;
+
+            IDAM_LOGF(LOG_ERROR, "ERROR LiveDisplay: Function %s Not Known.!\n", request_block->function);
+            addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Unknown Function requested");
+            addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, request_block->function);
+            concatIdamError(idamerrorstack, idamErrorStack);
+            break;
         }
-        idamLog(LOG_ERROR, "ERROR LiveDisplay: Function %s Not Known.!\n", request_block->function);
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Unknown Function requested");
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, request_block->function);
-        concatIdamError(idamerrorstack, idamErrorStack);
-        break;
 
     } while (0);
 

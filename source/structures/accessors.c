@@ -62,11 +62,11 @@
 * @return the Tree Node containing the named element.
 */
 
-NTREE * findNTreeStructureComponent1(NTREE * ntree, const char * target)
+NTREE* findNTreeStructureComponent1(NTREE* ntree, const char* target)
 {
     int i;
-    NTREE * child = NULL;
-    char * p;
+    NTREE* child = NULL;
+    char* p;
 
     if (ntree == NULL) ntree = fullNTree;
 
@@ -88,8 +88,9 @@ NTREE * findNTreeStructureComponent1(NTREE * ntree, const char * target)
 
     for (i = 0; i < ntree->userdefinedtype->fieldcount; i++) {
         if (STR_EQUALS(ntree->userdefinedtype->compoundfield[i].name, target) &&
-            ntree->userdefinedtype->compoundfield[i].atomictype != TYPE_UNKNOWN)
-            return (ntree);
+            ntree->userdefinedtype->compoundfield[i].atomictype != TYPE_UNKNOWN) {
+                return (ntree);
+        }
     }
 
     return NULL;    // Not found
@@ -115,11 +116,11 @@ Search all but the last on the child tree nodes.
 The first name must be searched for down the tree from the root or starting node
 All subsequent names must be within child nodes unless the last name
 */
-NTREE * findNTreeStructureComponent2(NTREE * ntree, const char * target, const char ** lastname)
+NTREE* findNTreeStructureComponent2(NTREE* ntree, const char* target, const char** lastname)
 {
     int i, j;
-    NTREE * child = NULL, * found = NULL;
-    char * p;
+    NTREE* child = NULL, * found = NULL;
+    char* p;
 
     if (ntree == NULL) ntree = fullNTree;
 
@@ -127,7 +128,7 @@ NTREE * findNTreeStructureComponent2(NTREE * ntree, const char * target, const c
 
     if (((p = strchr(target, '.')) != NULL) || (p = strchr(target, '/')) != NULL) {
         int ntargets;
-        char ** targetlist = NULL;
+        char** targetlist = NULL;
         child = ntree;
 
         targetlist = parseTarget(target, &ntargets);    // Deconstruct the Name and search for each hierarchy group
@@ -152,16 +153,17 @@ NTREE * findNTreeStructureComponent2(NTREE * ntree, const char * target, const c
             child = found;
         }
 
-        addMalloc((void *) targetlist[ntargets - 1], (int) strlen(targetlist[ntargets - 1]) + 1, sizeof(char), "char");
-        for (i = 0; i < ntargets - 1; i++) free((void *) targetlist[i]);    // Free all others
-        free((void *) targetlist);                    // Free the list
+        addMalloc((void*)targetlist[ntargets - 1], (int)strlen(targetlist[ntargets - 1]) + 1, sizeof(char), "char");
+        for (i = 0; i < ntargets - 1; i++) free((void*)targetlist[i]);    // Free all others
+        free((void*)targetlist);                    // Free the list
 
 // Search the user defined type definition for the last name - return if an atomic type
 
         for (i = 0; i < child->userdefinedtype->fieldcount; i++) {
             if (STR_EQUALS(child->userdefinedtype->compoundfield[i].name, targetlist[ntargets - 1]) &&
-                child->userdefinedtype->compoundfield[i].atomictype != TYPE_UNKNOWN)
-                return (child);  // Atomic type found
+                child->userdefinedtype->compoundfield[i].atomictype != TYPE_UNKNOWN) {
+                    return (child);
+            }  // Atomic type found
         }
 
 // Search child nodes for structured types
@@ -183,12 +185,12 @@ NTREE * findNTreeStructureComponent2(NTREE * ntree, const char * target, const c
 
 }
 
-NTREE * findNTreeStructureComponent2Legacy(NTREE * ntree, const char * target, const char ** lastname)
+NTREE* findNTreeStructureComponent2Legacy(NTREE* ntree, const char* target, const char** lastname)
 {
 
     int i;
-    NTREE * child = NULL;
-    char * p;
+    NTREE* child = NULL;
+    char* p;
 
     if (ntree == NULL) ntree = fullNTree;
 
@@ -196,7 +198,7 @@ NTREE * findNTreeStructureComponent2Legacy(NTREE * ntree, const char * target, c
 
     if (((p = strchr(target, '.')) != NULL) || (p = strchr(target, '/')) != NULL) {
         int ntargets;
-        char ** targetlist = NULL;
+        char** targetlist = NULL;
         child = ntree;
 
         targetlist = parseTarget(target, &ntargets); // Deconstruct the Name and search for each hierarchy group
@@ -215,9 +217,9 @@ NTREE * findNTreeStructureComponent2Legacy(NTREE * ntree, const char * target, c
 
         *lastname = targetlist[ntargets - 1];   // Preserve the last element name
 
-        addMalloc((void *) targetlist[ntargets - 1], (int) strlen(targetlist[ntargets - 1]) + 1, sizeof(char), "char");
-        for (i = 0; i < ntargets - 1; i++) free((void *) targetlist[i]); // Free all others
-        free((void *) targetlist);     // Free the list
+        addMalloc((void*)targetlist[ntargets - 1], (int)strlen(targetlist[ntargets - 1]) + 1, sizeof(char), "char");
+        for (i = 0; i < ntargets - 1; i++) free((void*)targetlist[i]); // Free all others
+        free((void*)targetlist);     // Free the list
 
         return child; // Always the last node you look in !
     }
@@ -253,19 +255,19 @@ NTREE * findNTreeStructureComponent2Legacy(NTREE * ntree, const char * target, c
 * @param lastname Returns the name of the Structure, i.e., the name of the last node in the name hierarchy.
 * @return the Data Tree Node with the structure name.
 */
-NTREE * findNTreeStructure2(NTREE * ntree, const char * target, const char ** lastname)
+NTREE* findNTreeStructure2(NTREE* ntree, const char* target, const char** lastname)
 {
     int i;
-    NTREE * child = NULL;
-    NTREE * test = NULL;
-    char * p;
+    NTREE* child = NULL;
+    NTREE* test = NULL;
+    char* p;
     if (ntree == NULL) ntree = fullNTree;
 
     // Is the hierarchical name of the form: a.b.c or a/b/c
 
     if (((p = strchr(target, '.')) != NULL) || (p = strchr(target, '/')) != NULL) {
         int ntargets;
-        char ** targetlist = NULL;
+        char** targetlist = NULL;
         child = ntree;
 
         targetlist = parseTarget(target, &ntargets); // Deconstruct Name and search for each hierarchy group
@@ -290,9 +292,9 @@ NTREE * findNTreeStructure2(NTREE * ntree, const char * target, const char ** la
 
         *lastname = targetlist[ntargets - 1];   // Preserve the last element name
 
-        addMalloc((void *) targetlist[ntargets - 1], (int) strlen(targetlist[ntargets - 1]) + 1, sizeof(char), "char");
-        for (i = 0; i < ntargets - 1; i++) free((void *) targetlist[i]); // Free all others
-        free((void *) targetlist);     // Free the list
+        addMalloc((void*)targetlist[ntargets - 1], (int)strlen(targetlist[ntargets - 1]) + 1, sizeof(char), "char");
+        for (i = 0; i < ntargets - 1; i++) free((void*)targetlist[i]); // Free all others
+        free((void*)targetlist);     // Free the list
 
         return child; // Always the last node you look in !
     }
@@ -321,9 +323,9 @@ NTREE * findNTreeStructure2(NTREE * ntree, const char * target, const char ** la
 * This element may be either a structure itself or an atomic typed element.
 * @return the Data Tree Node.
 */
-NTREE * findNTreeStructureComponent(NTREE * ntree, const char * target)
+NTREE* findNTreeStructureComponent(NTREE* ntree, const char* target)
 {
-    const char * lastname;
+    const char* lastname;
     return findNTreeStructureComponent2(ntree, target, &lastname);
 }
 
@@ -336,10 +338,10 @@ NTREE * findNTreeStructureComponent(NTREE * ntree, const char * target)
 * This element may be either a structure itself or an atomic typed element.
 * @return the Data Tree Node.
 */
-NTREE * findNTreeChildStructureComponent(NTREE * ntree, const char * target)
+NTREE* findNTreeChildStructureComponent(NTREE* ntree, const char* target)
 {
     int i;
-    NTREE * child = NULL;
+    NTREE* child = NULL;
 
     if (ntree == NULL) ntree = fullNTree;
 
@@ -360,9 +362,9 @@ NTREE * findNTreeChildStructureComponent(NTREE * ntree, const char * target)
 * @param target The name of the Structure (case sensitive) using a hierachical naming syntax a.b.c or a/b/c.
 * @return the Data Tree Node.
 */
-NTREE * findNTreeStructure(NTREE * ntree, const char * target)
+NTREE* findNTreeStructure(NTREE* ntree, const char* target)
 {
-    const char * lastname;
+    const char* lastname;
     return findNTreeStructure2(ntree, target, &lastname);
 }
 
@@ -374,10 +376,10 @@ NTREE * findNTreeStructure(NTREE * ntree, const char * target)
 * @param target The name of the Structure (case sensitive) using a hierachical naming syntax a.b.c or a/b/c.
 * @return the child Data Tree Node.
 */
-NTREE * findNTreeChildStructure(NTREE * ntree, const char * target)
+NTREE* findNTreeChildStructure(NTREE* ntree, const char* target)
 {
     int i;
-    NTREE * child = NULL;
+    NTREE* child = NULL;
 
     if (ntree == NULL) ntree = fullNTree;
 
@@ -398,10 +400,10 @@ NTREE * findNTreeChildStructure(NTREE * ntree, const char * target)
 * @param data The heap address of the data.
 * @return the Data Tree Node.
 */
-NTREE * findNTreeStructureMalloc(NTREE * ntree, void * data)
+NTREE* findNTreeStructureMalloc(NTREE* ntree, void* data)
 {
     int i;
-    NTREE * next;
+    NTREE* next;
     if (ntree == NULL) ntree = fullNTree;
     if (data == ntree->data) return ntree;
     for (i = 0; i < ntree->branches; i++)
@@ -419,18 +421,18 @@ NTREE * findNTreeStructureMalloc(NTREE * ntree, void * data)
 * @param target The name of the Structure Definition.
 * @return A pointer to the First tree node found with the targeted structure definition.
 */
-NTREE * findNTreeStructureDefinition(NTREE * ntree, const char * target)
+NTREE* findNTreeStructureDefinition(NTREE* ntree, const char* target)
 {
     int i;
-    NTREE * child = NULL;
+    NTREE* child = NULL;
     if (ntree == NULL) ntree = fullNTree;
 
     // Is the hierarchical name of the form: a.b.c or a/b/c
 
-    char * p;
+    char* p;
     if (((p = strchr(target, '.')) != NULL) || (p = strchr(target, '/')) != NULL) {
         int ntargets;
-        char ** targetlist = NULL;
+        char** targetlist = NULL;
         child = ntree;
 
         targetlist = parseTarget(target, &ntargets); // Deconstruct the Name and search for each hierarchy group
@@ -439,8 +441,8 @@ NTREE * findNTreeStructureDefinition(NTREE * ntree, const char * target)
             if ((child = findNTreeStructureDefinition(child, targetlist[i])) == NULL) break;
         }
 
-        for (i = 0; i < ntargets; i++) free((void *) targetlist[i]);    // Free all entries
-        free((void *) targetlist);                    // Free the list
+        for (i = 0; i < ntargets; i++) free((void*)targetlist[i]);    // Free all entries
+        free((void*)targetlist);                    // Free the list
 
         return child;
     }
@@ -451,10 +453,10 @@ NTREE * findNTreeStructureDefinition(NTREE * ntree, const char * target)
     return NULL;
 }
 
-NTREE * xfindNTreeStructureDefinition(NTREE * tree, const char * target)
+NTREE* xfindNTreeStructureDefinition(NTREE* tree, const char* target)
 {
     int i;
-    NTREE * next;
+    NTREE* next;
     if (tree == NULL) tree = fullNTree;
     if (STR_EQUALS(tree->userdefinedtype->name, target)) return tree;
     for (i = 0; i < tree->branches; i++)
@@ -470,10 +472,10 @@ NTREE * xfindNTreeStructureDefinition(NTREE * tree, const char * target)
 * @param target The name of the Structure Definition.
 * @return A pointer to the First tree node found with the targeted structure definition.
 */
-NTREE * findNTreeStructureComponentDefinition(NTREE * tree, const char * target)
+NTREE* findNTreeStructureComponentDefinition(NTREE* tree, const char* target)
 {
     int i;
-    NTREE * next;
+    NTREE* next;
     if (tree == NULL) tree = fullNTree;
     for (i = 0; i < tree->userdefinedtype->fieldcount; i++) {
         if (tree->userdefinedtype->compoundfield[i].atomictype == TYPE_UNKNOWN &&
@@ -497,10 +499,10 @@ NTREE * findNTreeStructureComponentDefinition(NTREE * tree, const char * target)
 * @param class The Structure Class, e.g., TYPE_VLEN.
 * @return A pointer to the First tree node found with the targeted structure class.
 */
-NTREE * idam_findNTreeStructureClass(NTREE * tree, int class)
+NTREE* idam_findNTreeStructureClass(NTREE* tree, int class)
 {
     int i;
-    NTREE * next;
+    NTREE* next;
     if (tree == NULL) tree = fullNTree;
     if (tree->userdefinedtype->idamclass == class) {
         return tree;
@@ -522,13 +524,12 @@ NTREE * idam_findNTreeStructureClass(NTREE * tree, int class)
 * @param reset Reset the counbter to zero.
 * @return An integer returning the maximum count value.
 */
-int idam_maxCountVlenStructureArray(NTREE * tree, const char * target, int reset)
+int idam_maxCountVlenStructureArray(NTREE* tree, const char* target, int reset)
 {
 
-    struct VLENTYPE
-    {
+    struct VLENTYPE {
         unsigned int len;
-        void * data;
+        void* data;
     };
     typedef struct VLENTYPE VLENTYPE;
 
@@ -537,7 +538,7 @@ int idam_maxCountVlenStructureArray(NTREE * tree, const char * target, int reset
     if (reset) count = 0;
     if (tree == NULL) tree = fullNTree;
     if (tree->userdefinedtype->idamclass == TYPE_VLEN && STR_EQUALS(tree->userdefinedtype->name, target)) {
-        VLENTYPE * vlen = (VLENTYPE *) tree->data;
+        VLENTYPE* vlen = (VLENTYPE*)tree->data;
         if (vlen->len > count) count = vlen->len;
     }
     for (i = 0; i < tree->branches; i++) count = idam_maxCountVlenStructureArray(tree->children[i], target, 0);
@@ -553,21 +554,20 @@ int idam_maxCountVlenStructureArray(NTREE * tree, const char * target, int reset
 * @param count The maximum count size for the VLEN data arrays.
 * @return An integer returning an error code: 0 => OK.
 */
-int idam_regulariseVlenStructures(NTREE * tree, const char * target, int count)
+int idam_regulariseVlenStructures(NTREE* tree, const char* target, int count)
 {
 
-    struct VLENTYPE
-    {
+    struct VLENTYPE {
         unsigned int len;
-        void * data;
+        void* data;
     };
     typedef struct VLENTYPE VLENTYPE;
 
     int i, rc = 0, size = 0, resetBranches = 0;
-    void * old = NULL, * newnew = NULL;
+    void* old = NULL, * newnew = NULL;
     if (tree == NULL) tree = fullNTree;
     if (tree->userdefinedtype->idamclass == TYPE_VLEN && STR_EQUALS(tree->userdefinedtype->name, target)) {
-        VLENTYPE * vlen = (VLENTYPE *) tree->data;
+        VLENTYPE* vlen = (VLENTYPE*)tree->data;
 
         // VLEN stuctures have only two fields: len and data
         // Need the size of the data component
@@ -577,13 +577,13 @@ int idam_regulariseVlenStructures(NTREE * tree, const char * target, int count)
 
         // VLEN Memory is contiguous so re-allocate: regularise by expanding to a consistent array size (No longer a VLEN!)
 
-        old = (void *) vlen->data;
-        USERDEFINEDTYPE * child = findUserDefinedType(tree->userdefinedtype->compoundfield[1].type, 0);
-        vlen->data = (void *) realloc((void *) vlen->data, count * child->size);    // Expand Heap to regularise
-        newnew = (void *) vlen->data;
+        old = (void*)vlen->data;
+        USERDEFINEDTYPE* child = findUserDefinedType(tree->userdefinedtype->compoundfield[1].type, 0);
+        vlen->data = (void*)realloc((void*)vlen->data, count * child->size);    // Expand Heap to regularise
+        newnew = (void*)vlen->data;
         size = child->size;
         changeMalloc(old, vlen->data, count, child->size, child->name);
-        tree->data = (void *) vlen;
+        tree->data = (void*)vlen;
 
         // Write new data array to Original Tree Nodes
 
@@ -599,14 +599,14 @@ int idam_regulariseVlenStructures(NTREE * tree, const char * target, int count)
 
     if (resetBranches > 0) {
         tree->branches = count;   // Only update once all True children have been regularised
-        old = (void *) tree->children;
-        tree->children = (NTREE **) realloc((void *) tree->children, count * sizeof(void *));
+        old = (void*)tree->children;
+        tree->children = (NTREE**)realloc((void*)tree->children, count * sizeof(void*));
         for (i = resetBranches; i < count; i++) {
-            tree->children[i] = (NTREE *) malloc(sizeof(NTREE));
-            addMalloc((void *) tree->children[i], 1, sizeof(NTREE), "NTREE");
+            tree->children[i] = (NTREE*)malloc(sizeof(NTREE));
+            addMalloc((void*)tree->children[i], 1, sizeof(NTREE), "NTREE");
             memcpy(tree->children[i], tree->children[0], sizeof(NTREE));
         }
-        changeMalloc(old, (void *) tree->children, count, sizeof(NTREE), "NTREE");
+        changeMalloc(old, (void*)tree->children, count, sizeof(NTREE), "NTREE");
 
         // Update All new Child Nodes with array element addresses
 
@@ -615,7 +615,6 @@ int idam_regulariseVlenStructures(NTREE * tree, const char * target, int count)
         for (i = resetBranches; i < count; i++) tree->children[i]->data = newnew + i * size;
 
     }
-
 
     return rc;
 }
@@ -628,10 +627,10 @@ int idam_regulariseVlenStructures(NTREE * tree, const char * target, int count)
 * @param tree A pointer to a parent tree node. If NULL the root node is assumed.
 * @return An integer returning an error code: 0 => OK.
 */
-int idam_regulariseVlenData(NTREE * tree)
+int idam_regulariseVlenData(NTREE* tree)
 {
     int rc = 0, count = 0;
-    NTREE * nt = NULL;
+    NTREE* nt = NULL;
     if (tree == NULL) tree = fullNTree;
     do {
         if ((nt = idam_findNTreeStructureClass(tree, TYPE_VLEN)) != NULL) {
@@ -655,12 +654,12 @@ int idam_regulariseVlenData(NTREE * tree)
 * @param ntree A pointer to a tree node. If NULL the root node is assumed.
 * @return the Count of structured data array elements.
 */
-int getNodeStructureDataCount(NTREE * ntree)
+int getNodeStructureDataCount(NTREE* ntree)
 {
     int count, size;
-    char * type;
+    char* type;
     if (ntree == NULL) ntree = fullNTree;
-    findMalloc((void *) &ntree->data, &count, &size, &type);
+    findMalloc((void*)&ntree->data, &count, &size, &type);
     return count;
 }
 
@@ -671,12 +670,12 @@ int getNodeStructureDataCount(NTREE * ntree)
 * @param ntree A pointer to a tree node. If NULL the root node is assumed.
 * @return the Size (bytes) of the structured data array.
 */
-int getNodeStructureDataSize(NTREE * ntree)
+int getNodeStructureDataSize(NTREE* ntree)
 {
     int count, size;
-    char * type;
+    char* type;
     if (ntree == NULL) ntree = fullNTree;
-    findMalloc((void *) &ntree->data, &count, &size, &type);
+    findMalloc((void*)&ntree->data, &count, &size, &type);
     return size;
 }
 
@@ -687,13 +686,13 @@ int getNodeStructureDataSize(NTREE * ntree)
 * @param ntree A pointer to a tree node. If NULL the root node is assumed.
 * @return The rank of the structured data array.
 */
-int getNodeStructureDataRank(NTREE * ntree)
+int getNodeStructureDataRank(NTREE* ntree)
 {
     int count, size, rank;
-    int * shape;
-    char * type;
+    int* shape;
+    char* type;
     if (ntree == NULL) ntree = fullNTree;
-    findMalloc2((void *) &ntree->data, &count, &size, &type, &rank, &shape);
+    findMalloc2((void*)&ntree->data, &count, &size, &type, &rank, &shape);
     return rank;
 }
 
@@ -704,11 +703,11 @@ int getNodeStructureDataRank(NTREE * ntree)
 * @param ntree A pointer to a tree node. If NULL the root node is assumed.
 * @return A pointer to the integer shape array of the structured data array.
 */
-int * getNodeStructureDataShape(NTREE * ntree)
+int* getNodeStructureDataShape(NTREE* ntree)
 {
     int count, size, rank;
-    int * shape;
-    char * type;
+    int* shape;
+    char* type;
     if (ntree == NULL) ntree = fullNTree;
 
     if (ntree->parent != NULL) {
@@ -729,7 +728,7 @@ int * getNodeStructureDataShape(NTREE * ntree)
         fflush(stdout);
     }
 
-    findMalloc2((void *) &ntree->data, &count, &size, &type, &rank, &shape);
+    findMalloc2((void*)&ntree->data, &count, &size, &type, &rank, &shape);
     return shape;
 }
 
@@ -740,12 +739,12 @@ int * getNodeStructureDataShape(NTREE * ntree)
 * @param ntree A pointer to a tree node. If NULL the root node is assumed.
 * @return the data type name of the structured data array.
 */
-char * getNodeStructureDataDataType(NTREE * ntree)
+char* getNodeStructureDataDataType(NTREE* ntree)
 {
     int count, size;
-    char * type = NULL;
+    char* type = NULL;
     if (ntree == NULL) ntree = fullNTree;
-    findMalloc((void *) &ntree->data, &count, &size, &type);
+    findMalloc((void*)&ntree->data, &count, &size, &type);
     return type;
 }
 
@@ -756,10 +755,10 @@ char * getNodeStructureDataDataType(NTREE * ntree)
 * @param ntree A pointer to a tree node. If NULL the root node is assumed.
 * @return A void pointer to the data .
 */
-void * getNodeStructureData(NTREE * ntree)
+void* getNodeStructureData(NTREE* ntree)
 {
     if (ntree == NULL) ntree = fullNTree;
-    return (void *) ntree->data;
+    return (void*)ntree->data;
 }
 
 //----------------------------------------------------------------------------------------------------------
@@ -775,13 +774,13 @@ void * getNodeStructureData(NTREE * ntree)
 * @param imagecount The number of bytes in the image text block.
 * @return Void
 */
-void printImage(char * image, int imagecount)
+void printImage(char* image, int imagecount)
 {
     int next = 0;
     if (image == NULL || imagecount == '\0') return;
     while (next < imagecount) {
-        idamLog(LOG_DEBUG, "%s", &image[next]);
-        next = next + (int) strlen(&image[next]) + 1;
+        IDAM_LOGF(LOG_DEBUG, "%s", &image[next]);
+        next = next + (int)strlen(&image[next]) + 1;
     }
 }
 
@@ -797,7 +796,7 @@ void printImage(char * image, int imagecount)
 * @param TypeId Enumerated key indicating the type of data field, e.g. float array
 * @return Void
 */
-void defineField(COMPOUNDFIELD * field, char * name, char * desc, int * offset, unsigned short TypeId)
+void defineField(COMPOUNDFIELD* field, char* name, char* desc, int* offset, unsigned short TypeId)
 {
     initCompoundField(field);
     strcpy(field->name, name);
@@ -815,7 +814,7 @@ void defineField(COMPOUNDFIELD * field, char * name, char * desc, int * offset, 
         strcpy(field->type, "double *");
         sprintf(field->desc, "[double *%s] %s", name, desc);
         field->pointer = 1;
-        field->size = field->count * sizeof(double *);
+        field->size = field->count * sizeof(double*);
     } else if (TypeId == SCALARFLOAT) {  // Single scalar float
         field->atomictype = TYPE_FLOAT;
         strcpy(field->type, "float");
@@ -826,7 +825,7 @@ void defineField(COMPOUNDFIELD * field, char * name, char * desc, int * offset, 
         strcpy(field->type, "float *");
         sprintf(field->desc, "[float *%s] %s", name, desc);
         field->pointer = 1;
-        field->size = field->count * sizeof(float *);
+        field->size = field->count * sizeof(float*);
     } else if (TypeId == SCALARLONG64) {  // Single scalar 8 byte integer
         field->atomictype = TYPE_LONG64;
         strcpy(field->type, "long long");
@@ -837,7 +836,7 @@ void defineField(COMPOUNDFIELD * field, char * name, char * desc, int * offset, 
         strcpy(field->type, "long long *");
         sprintf(field->desc, "[long long *%s] %s", name, desc);
         field->pointer = 1;
-        field->size = field->count * sizeof(long long *);
+        field->size = field->count * sizeof(long long*);
     } else if (TypeId == SCALARULONG64) {  // Single scalar unsigned 8 byteinteger
         field->atomictype = TYPE_UNSIGNED_LONG64;
         strcpy(field->type, "unsigned long long");
@@ -848,7 +847,7 @@ void defineField(COMPOUNDFIELD * field, char * name, char * desc, int * offset, 
         strcpy(field->type, "unsigned long long *");
         sprintf(field->desc, "[unsigned long long *%s] %s", name, desc);
         field->pointer = 1;
-        field->size = field->count * sizeof(unsigned long long *);
+        field->size = field->count * sizeof(unsigned long long*);
     } else if (TypeId == SCALARINT) {  // Single scalar integer
         field->atomictype = TYPE_INT;
         strcpy(field->type, "int");
@@ -859,7 +858,7 @@ void defineField(COMPOUNDFIELD * field, char * name, char * desc, int * offset, 
         strcpy(field->type, "int *");
         sprintf(field->desc, "[int *%s] %s", name, desc);
         field->pointer = 1;
-        field->size = field->count * sizeof(int *);
+        field->size = field->count * sizeof(int*);
     } else if (TypeId == SCALARUINT) {  // Single scalar unsigned integer
         field->atomictype = TYPE_UNSIGNED_INT;
         strcpy(field->type, "unsigned int");
@@ -870,7 +869,7 @@ void defineField(COMPOUNDFIELD * field, char * name, char * desc, int * offset, 
         strcpy(field->type, "unsigned int *");
         sprintf(field->desc, "[unsigned int *%s] %s", name, desc);
         field->pointer = 1;
-        field->size = field->count * sizeof(unsigned int *);
+        field->size = field->count * sizeof(unsigned int*);
     } else if (TypeId == SCALARSHORT) {  // Single scalar short integer
         field->atomictype = TYPE_SHORT;
         strcpy(field->type, "short");
@@ -881,7 +880,7 @@ void defineField(COMPOUNDFIELD * field, char * name, char * desc, int * offset, 
         strcpy(field->type, "short *");
         sprintf(field->desc, "[short *%s] %s", name, desc);
         field->pointer = 1;
-        field->size = field->count * sizeof(short *);
+        field->size = field->count * sizeof(short*);
     } else if (TypeId == SCALARUSHORT) {  // Single scalar unsigned short integer
         field->atomictype = TYPE_UNSIGNED_SHORT;
         strcpy(field->type, "unsigned short");
@@ -892,7 +891,7 @@ void defineField(COMPOUNDFIELD * field, char * name, char * desc, int * offset, 
         strcpy(field->type, "unsigned short *");
         sprintf(field->desc, "[unsigned short *%s] %s", name, desc);
         field->pointer = 1;
-        field->size = field->count * sizeof(unsigned short *);
+        field->size = field->count * sizeof(unsigned short*);
     } else if (TypeId == SCALARCHAR) {  // Single scalar byte integer
         field->atomictype = TYPE_CHAR;
         strcpy(field->type, "char");
@@ -903,13 +902,13 @@ void defineField(COMPOUNDFIELD * field, char * name, char * desc, int * offset, 
         strcpy(field->type, "char *");
         sprintf(field->desc, "[char *%s] %s", name, desc);
         field->pointer = 1;
-        field->size = field->count * sizeof(char *);
+        field->size = field->count * sizeof(char*);
     } else if (TypeId == SCALARSTRING) {  // Single scalar string of arbitrary length
         field->atomictype = TYPE_STRING;
         strcpy(field->type, "STRING");
         sprintf(field->desc, "[char *%s] %s", name, desc);
         field->pointer = 1;
-        field->size = field->count * sizeof(char *);
+        field->size = field->count * sizeof(char*);
         field->offset = newoffset(*offset, "char *"); // must be an explicit char pointer (STRING Convention!)
         field->offpad = padding(*offset, "char *");
         field->alignment = getalignmentof("char *");
@@ -919,7 +918,7 @@ void defineField(COMPOUNDFIELD * field, char * name, char * desc, int * offset, 
         strcpy(field->type, "STRING *");
         sprintf(field->desc, "[char **%s] %s", name, desc);
         field->pointer = 1;
-        field->size = field->count * sizeof(char **);
+        field->size = field->count * sizeof(char**);
     }
 
     field->rank = 0;

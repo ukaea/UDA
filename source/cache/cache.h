@@ -30,10 +30,10 @@ IDAM_CACHE* idamOpenCache();
 
 void idamFreeCache();
 
-char* idamCacheKey(REQUEST_BLOCK* request_block);
+char* idamCacheKey(REQUEST_BLOCK* request_block, ENVIRONMENT environment);
 
-int idamCacheWrite(IDAM_CACHE* cache, REQUEST_BLOCK* request_block, DATA_BLOCK* data_block);
+int idamCacheWrite(IDAM_CACHE* cache, REQUEST_BLOCK* request_block, DATA_BLOCK* data_block, ENVIRONMENT environment);
 
-DATA_BLOCK* idamCacheRead(IDAM_CACHE* cache, REQUEST_BLOCK* request_block);
+DATA_BLOCK* idamCacheRead(IDAM_CACHE* cache, REQUEST_BLOCK* request_block, ENVIRONMENT environment);
 
 #endif // IDAM_CACHE_IDAMCACHE_H

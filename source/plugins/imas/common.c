@@ -156,7 +156,7 @@ int getIdamNameValuePairVarArray(char* values, char quote, char delimiter, unsig
 
     if (varSize > 0 && dataCount != varSize) {        // Check counts for consistency if known in advance
         err = 999;
-        idamLog(LOG_ERROR,
+        IDAM_LOG(LOG_ERROR,
                 "getNameValuePairVarArray: The number of values passed by argument is inconsistent with the specified Size value!\n");
         addIdamError(&idamerrorstack, CODEERRORTYPE, "getNameValuePairVarArray", err,
                      "The number of values passed by argument is inconsistent with the specified Size value!");
@@ -267,7 +267,7 @@ int getIdamNameValuePairVarArray(char* values, char quote, char delimiter, unsig
         }
         default:
             err = 999;
-            idamLog(LOG_ERROR,
+            IDAM_LOG(LOG_ERROR,
                     "getNameValuePairVarArray: The data type of the values passed by argument is not recognised!\n");
             addIdamError(&idamerrorstack, CODEERRORTYPE, "getNameValuePairVarArray", err,
                          "The data type of the values passed by argument is not recognised!");
@@ -278,7 +278,7 @@ int getIdamNameValuePairVarArray(char* values, char quote, char delimiter, unsig
 
     if (err == 0 && data == NULL) {
         err = 999;
-        idamLog(LOG_ERROR,
+        IDAM_LOG(LOG_ERROR,
                 "getNameValuePairVarArray: Processing of the specified type of data passed by argument has not been implemented!\n");
         addIdamError(&idamerrorstack, CODEERRORTYPE, "getNameValuePairVarArray", err,
                      "Processing of the specified type of data passed by argument has not been implemented!");

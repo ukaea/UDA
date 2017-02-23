@@ -20,6 +20,7 @@ returns An integer Error Code: If non zero, a problem occured.
 #include <server/udaServer.h>
 
 #include "serverPlugin.h"
+#include "getServerEnvironment.h"
 
 #if defined(SERVERBUILD) || defined(FATCLIENT)
 
@@ -78,11 +79,13 @@ int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList)
 
     IDAM_LOG(LOG_DEBUG, "Source Argument\n");
 
+    ENVIRONMENT* environment = getIdamServerEnvironment();
+
 //------------------------------------------------------------------------------
 // Always use the client's delimiting string if provided, otherwise use the default delimiter
 
     if ((ldelim = (int) strlen(request_block->api_delim)) == 0) {
-        strcpy(request_block->api_delim, environment.api_delim);
+        strcpy(request_block->api_delim, environment->api_delim);
         ldelim = (int) strlen(request_block->api_delim);
     }
 
@@ -94,11 +97,11 @@ int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList)
 //------------------------------------------------------------------------------
 // Check there is something to work with!
 
-    sprintf(work, "%s%s", environment.api_archive, environment.api_delim);    // default archive
-    sprintf(work2, "%s%s", environment.api_device, environment.api_delim);    // default device
+    sprintf(work, "%s%s", environment->api_archive, environment->api_delim);    // default archive
+    sprintf(work2, "%s%s", environment->api_device, environment->api_delim);    // default device
 
     noSource = (request_block->source[0] == '\0' ||                // no source
-                STR_IEQUALS(request_block->source, environment.api_device) ||    // default device name
+                STR_IEQUALS(request_block->source, environment->api_device) ||    // default device name
                 STR_IEQUALS(request_block->source, work2));            // default device name + delimiting string
 
     if ((request_block->signal[0] == '\0' || STR_IEQUALS(request_block->signal, work)) && noSource) {
@@ -121,7 +124,7 @@ int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList)
 // Is this server acting as an IDAM Proxy? If all access requests are being re-directed then do nothing to the arguments.
 // They are just passed onwards without interpretation.
 
-    isProxy = environment.server_proxy[0] != '\0';
+    isProxy = environment->server_proxy[0] != '\0';
 
     if (isProxy) {
         request_block->request = REQUEST_READ_IDAM;
@@ -190,7 +193,7 @@ int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList)
 
 // Test for DEVICE::LIBRARY::function(argument)	 - More delimiter characters present?
 
-    if (test != NULL && STR_IEQUALS(work2, environment.api_device) &&
+    if (test != NULL && STR_IEQUALS(work2, environment->api_device) &&
         (p = strstr(work, request_block->api_delim)) != NULL) {
         lstr = (int) (p - work);
         strncpy(work2, work, lstr);        // Ignore the default device name - force a pass to Scenario 2
@@ -204,15 +207,15 @@ int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList)
     do {
 
         if (noSource) {                            // No Source
-            strcpy(request_block->device_name, environment.api_device);    // Default Device Name
+            strcpy(request_block->device_name, environment->api_device);    // Default Device Name
             break;
         }
 
-        if (test == NULL || STR_IEQUALS(work2, environment.api_device)) {    // No delimiter present or default device?
+        if (test == NULL || STR_IEQUALS(work2, environment->api_device)) {    // No delimiter present or default device?
 
             IDAM_LOG(LOG_DEBUG, "No device name or format or protocol or library is present\n");
 
-            strcpy(request_block->device_name, environment.api_device);            // Default Device Name
+            strcpy(request_block->device_name, environment->api_device);            // Default Device Name
 
 // Not a Server Side Function? 		Note: /a/b/fun(aaa) is a (bad!)file path and fun(a/b/c) is a function
 
@@ -434,7 +437,7 @@ int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList)
 
 // A match was found: The Source must be a format or a protocol or a library
 
-            strcpy(request_block->device_name, environment.api_device);            // Default Device Name
+            strcpy(request_block->device_name, environment->api_device);            // Default Device Name
 
             if (isFile) {                                    // Resolve any Serverside environment variables
                 IDAM_LOG(LOG_DEBUG, "File Format has been specified.\n");
@@ -557,7 +560,7 @@ int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList)
         reduceSignal = !isForeign;                // Don't detach if a foreign device
         err = extractArchive(request_block, reduceSignal);
     }
-    if (request_block->archive[0] == '\0') strcpy(request_block->archive, environment.api_archive);
+    if (request_block->archive[0] == '\0') strcpy(request_block->archive, environment->api_archive);
 
 //------------------------------------------------------------------------------
 // Extract Name Value Pairs from the data object (signal) without modifying
@@ -569,7 +572,7 @@ int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList)
     isFunction = 0;
 
     if (!isServer && (p = strchr(request_block->signal, '(')) != NULL && strchr(p, ')') != NULL &&
-        strcasecmp(request_block->archive, environment.api_archive) != 0) {
+        strcasecmp(request_block->archive, environment->api_archive) != 0) {
         strcpy(work, &p[1]);
         if ((p = strrchr(work, ')')) != NULL) {
             p[0] = '\0';
@@ -642,7 +645,7 @@ int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList)
 // Does the data object (Signal) have the form: LIBRARY::function?
 // Exception is Serverside function
 
-        if (isFunction && strcasecmp(request_block->archive, environment.api_archive) != 0) {
+        if (isFunction && strcasecmp(request_block->archive, environment->api_archive) != 0) {
             int id = findPluginIdByFormat(request_block->archive, &pluginList);
             if (id >= 0 && pluginList.plugin[id].class == PLUGINFUNCTION &&
                 strcasecmp(pluginList.plugin[id].symbol, "serverside") != 0) {
@@ -698,7 +701,7 @@ int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList)
             request_block->exp_number = atoi(work);
         } else if((token = strrchr(work, '/')) != NULL && IsNumber(token+1)) {
             request_block->exp_number = atoi(token+1);
-        } else if((token = strstr(work, environment.api_delim)) != NULL && IsNumber(token+ldelim)) {
+        } else if((token = strstr(work, environment->api_delim)) != NULL && IsNumber(token+ldelim)) {
             request_block->exp_number = atoi(token+ldelim);
         }
     }
@@ -979,7 +982,7 @@ int sourceFileFormatTest(const char* source, REQUEST_BLOCK* request_block, PLUGI
         if (source[0] == '/' && source[1] != '\0' && isdigit(source[1])) {        // Default File Format?
             if (genericRequestTest(&source[1], request_block, pluginList)) {        // Matches 99999/999
                 request_block->request = REQUEST_READ_UNKNOWN;
-                strcpy(request_block->format, environment.api_format);        // the default Server File Format
+                strcpy(request_block->format, getIdamServerEnvironment()->api_format);        // the default Server File Format
                 break;
             }
         }
@@ -1089,7 +1092,7 @@ int extractArchive(REQUEST_BLOCK* request_block, int reduceSignal)
 
     TrimString(request_block->signal);
 
-    if (request_block->signal[0] != '\0' && environment.server_proxy[0] == '\0') {
+    if (request_block->signal[0] != '\0' && getIdamServerEnvironment()->server_proxy[0] == '\0') {
 
         IDAM_LOG(LOG_DEBUG, "Testing for ARCHIVE::Signal\n");
 

@@ -155,17 +155,9 @@ int readStaticParameters(char** pt_char, int* nb_val, int num_choc, char* nom_pr
 {
     int format;
 
-    idamLog(LOG_DEBUG, "nom_prod : ");
-    idamLog(LOG_DEBUG, nom_prod);
-    idamLog(LOG_DEBUG, "\n");
-
-    idamLog(LOG_DEBUG, "nom_objet : ");
-    idamLog(LOG_DEBUG, nom_objet);
-    idamLog(LOG_DEBUG, "\n");
-
-    idamLog(LOG_DEBUG, "nom_param : ");
-    idamLog(LOG_DEBUG, nom_param);
-    idamLog(LOG_DEBUG, "\n");
+    IDAM_LOGF(LOG_DEBUG, "nom_prod : %s\n", nom_prod);
+    IDAM_LOGF(LOG_DEBUG, "nom_objet : %s\n", nom_objet);
+    IDAM_LOGF(LOG_DEBUG, "nom_param : %s\n", nom_param);
 
     cr = TSRqParm(num_choc, nom_prod, nom_objet, nom_param, val_nb, pt_char, nb_val, &format);
     return cr;
@@ -174,9 +166,8 @@ int readStaticParameters(char** pt_char, int* nb_val, int num_choc, char* nom_pr
 int readSignal(char* nomsigp, int numchoc, int occ,
                int rang[], float** X, float** Y, int* len)
 {
-    idamLog(LOG_DEBUG, "Reading signal : ");
-    idamLog(LOG_DEBUG, nomsigp);
-    idamLog(LOG_DEBUG, "\n");
+    IDAM_LOG(LOG_DEBUG, "Reading signal : %s\n", nomsigp);
+
     cr = lit_traite(nomsigp, numchoc, occ, rang, (float**)X, (float**)Y, (int*)len);
     int i;
     for (i = 0; i < *len; i++)
@@ -289,7 +280,7 @@ lit_traite(char* nomsigp, int numchoc, int occ,
                                nomsig, cr1);
                 }
                 free(ptEntree);
-                idamLog(LOG_DEBUG, "Returning from 1 ");
+                IDAM_LOG(LOG_DEBUG, "Returning from 1\n");
                 return (cr);
             }
         }
@@ -319,14 +310,14 @@ lit_traite(char* nomsigp, int numchoc, int occ,
                 case extgType:
                     if (nout < 4) {
                         printf("Il faut 4 arguments de sortie\n");
-                        idamLog(LOG_DEBUG, "Returning from 2 ");
+                        IDAM_LOG(LOG_DEBUG, "Returning from 2\n");
                         return (cr);
                     }
                     break;
                 default:
                     if (nout < 3) {
                         printf("Il faut 3 arguments de sortie\n");
-                        idamLog(LOG_DEBUG, "Returning from 3 ");
+                        IDAM_LOG(LOG_DEBUG, "Returning from 3\n");
                         return (cr);
                     }
                     break;
@@ -388,29 +379,24 @@ lit_traite(char* nomsigp, int numchoc, int occ,
                 pr[2 + nb_certif + i] = cmisc[i];*/
             /* Fin  Unites , date , heure , certifs ...   */
         }
-        idamLog(LOG_DEBUG, "Signal name at line 393 : \n");
-        idamLog(LOG_DEBUG, nomsig);
-        idamLog(LOG_DEBUG, "\n");
+        IDAM_LOGF(LOG_DEBUG, "Signal name at line 393 : %s\n", nomsig);
+
         meser("TSExist - ", nomsig, ((cr != 0) ? cr : 9), NONFATAL);
         if (cr != 0) {
-            idamLog(LOG_DEBUG, "TSExist return false \n");
+            IDAM_LOG(LOG_DEBUG, "TSExist return false \n");
         } else {
-            idamLog(LOG_DEBUG, "no comprendo ! \n");
+            IDAM_LOG(LOG_DEBUG, "no comprendo ! \n");
         }
         if (occur) {
             printf
                     ("En fait c'est l'occurrence %d du choc %d qui n'exite pas :-)\n",
                      occur, numchoc);
-            idamLog(LOG_DEBUG, "Occurrence : \n");
-            char str[10];
-            sprintf(str, "%d", occur);
-            idamLog(LOG_DEBUG, str);
-            idamLog(LOG_DEBUG, "\n");
+            IDAM_LOGF(LOG_DEBUG, "Occurrence : %d\n", occur);
 
-            idamLog(LOG_DEBUG, "En fait c'est l'occurrence du choc qui n'exite pas");
+            IDAM_LOG(LOG_DEBUG, "En fait c'est l'occurrence du choc qui n'exite pas\n");
         }
         free(ptEntree);
-        idamLog(LOG_DEBUG, "Returning from 4 ");
+        IDAM_LOG(LOG_DEBUG, "Returning from 4\n");
         return (((cr != 0) ? cr : 199));
     }
 
@@ -533,7 +519,7 @@ lit_traite(char* nomsigp, int numchoc, int occ,
             free(ptEntree);
             //free (X);
             //free (Y);
-            idamLog(LOG_DEBUG, "Returning from 5 ");
+            IDAM_LOG(LOG_DEBUG, "Returning from 5\n");
             return (cr);
         }
         lind[0] = nbmesgr[0];
@@ -575,7 +561,7 @@ lit_traite(char* nomsigp, int numchoc, int occ,
                 free(ptEntree);
                 free(Xc);
                 free(Yc);
-                idamLog(LOG_DEBUG, "Returning from 6 ");
+                IDAM_LOG(LOG_DEBUG, "Returning from 6\n");
                 return (cr);
             }
             lind[0] = 1;
@@ -617,7 +603,7 @@ lit_traite(char* nomsigp, int numchoc, int occ,
                 free(ptEntree);
                 //free (X);
                 //free (Y);
-                idamLog(LOG_DEBUG, "Returning from 7 ");
+                IDAM_LOG(LOG_DEBUG, "Returning from 7\n");
                 return (cr);
             }
             lind[0] = nbmes;
@@ -674,7 +660,7 @@ lit_traite(char* nomsigp, int numchoc, int occ,
             free(ptEntree);
             //free (X);
             //free (Y);
-            idamLog(LOG_DEBUG, "Returning from 8 ");
+            IDAM_LOG(LOG_DEBUG, "Returning from 8\n");
             return (cr);
         }
         lind[0] = nbmes;
@@ -942,7 +928,7 @@ lit_traite(char* nomsigp, int numchoc, int occ,
 #endif
     }
     free(ptEntree);
-    idamLog(LOG_DEBUG, "Returning from 9 ");
+    IDAM_LOG(LOG_DEBUG, "Returning from 9\n");
     return (cr);
 
 }
@@ -985,13 +971,13 @@ void getSignalType(char* nomsig, int numchoc, int* signalType)
         meser("TSDescDon_choc - ", nomsig, cr, FATAL);
     }
     if ((ptDescDon->type_donnee >> S_SIMPLE) & 1) {/* signal simple */
-        idamLog(LOG_DEBUG, "--> single signal\n");
+        IDAM_LOG(LOG_DEBUG, "--> single signal\n");
         *signalType = 1;
     } else if ((ptDescDon->type_donnee >> D_GHOMO) & 1) { /* groupe */
-        idamLog(LOG_DEBUG, "--> group of  signals\n");
+        IDAM_LOG(LOG_DEBUG, "--> group of  signals\n");
         *signalType = 2;
     } else {
-        idamLog(LOG_DEBUG, "--> Who are you ?\n");
+        IDAM_LOG(LOG_DEBUG, "--> Who are you ?\n");
         meser("Who are you ?", nomsig, 1002, FATAL);
     }
 }

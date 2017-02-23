@@ -19,13 +19,22 @@
 #include <cache/cache.h>
 
 #include <modules/ida/parseIdaPath.h>
+#include <client/udaClient.h>
 
 #include "getPluginAddress.h"
 #include "makeServerRequestBlock.h"
+#include "getServerEnvironment.h"
 
 #define REQUEST_READ_START      1000
 #define REQUEST_PLUGIN_MCOUNT   100    // Maximum initial number of plugins that can be registered
 #define REQUEST_PLUGIN_MSTEP    10    // Increase heap by 10 records once the maximum is exceeded
+
+int initPlugin(const IDAM_PLUGIN_INTERFACE* plugin_interface)
+{
+    idamSetLogLevel((LOG_MODE)plugin_interface->environment->loglevel);
+
+    return 0;
+}
 
 void allocPluginList(int count, PLUGINLIST* plugin_list)
 {
@@ -36,7 +45,7 @@ void allocPluginList(int count, PLUGINLIST* plugin_list)
     }
 }
 
-void closePluginList(PLUGINLIST* plugin_list)
+void closePluginList(const PLUGINLIST* plugin_list)
 {
     int i;
     REQUEST_BLOCK request_block;
@@ -67,7 +76,7 @@ void freePluginList(PLUGINLIST* plugin_list)
     plugin_list->plugin = NULL;
 }
 
-void initPlugin(PLUGIN_DATA* plugin)
+void initPluginData(PLUGIN_DATA* plugin)
 {
     plugin->format[0] = '\0';
     plugin->library[0] = '\0';
@@ -90,7 +99,7 @@ void initPlugin(PLUGIN_DATA* plugin)
     plugin->idamPlugin = NULL;
 }
 
-void printPluginList(FILE* fd, PLUGINLIST* plugin_list)
+void printPluginList(FILE* fd, const PLUGINLIST* plugin_list)
 {
     int i;
     for (i = 0; i < plugin_list->count; i++) {
@@ -120,7 +129,7 @@ void printPluginList(FILE* fd, PLUGINLIST* plugin_list)
  * @param plugin_list
  * @return
  */
-int findPluginIdByRequest(int request, PLUGINLIST* plugin_list)
+int findPluginIdByRequest(int request, const PLUGINLIST* plugin_list)
 {
     int i;
     for (i = 0; i < plugin_list->count; i++) {
@@ -135,7 +144,7 @@ int findPluginIdByRequest(int request, PLUGINLIST* plugin_list)
  * @param plugin_list
  * @return
  */
-int findPluginIdByFormat(const char* format, PLUGINLIST* plugin_list)
+int findPluginIdByFormat(const char* format, const PLUGINLIST* plugin_list)
 {
     int i;
     for (i = 0; i < plugin_list->count; i++) {
@@ -150,7 +159,7 @@ int findPluginIdByFormat(const char* format, PLUGINLIST* plugin_list)
  * @param plugin_list
  * @return
  */
-int findPluginIdByDevice(const char* device, PLUGINLIST* plugin_list)
+int findPluginIdByDevice(const char* device, const PLUGINLIST* plugin_list)
 {
     int i;
     for (i = 0; i < plugin_list->count; i++) {
@@ -166,7 +175,7 @@ int findPluginIdByDevice(const char* device, PLUGINLIST* plugin_list)
  * @param plugin_list
  * @return
  */
-int findPluginRequestByFormat(const char* format, PLUGINLIST* plugin_list)
+int findPluginRequestByFormat(const char* format, const PLUGINLIST* plugin_list)
 {
     int i;
     for (i = 0; i < plugin_list->count; i++) {
@@ -181,7 +190,7 @@ int findPluginRequestByFormat(const char* format, PLUGINLIST* plugin_list)
  * @param plugin_list
  * @return
  */
-int findPluginRequestByExtension(const char* extension, PLUGINLIST* plugin_list)
+int findPluginRequestByExtension(const char* extension, const PLUGINLIST* plugin_list)
 {
     int i;
     for (i = 0; i < plugin_list->count; i++) {
@@ -202,7 +211,7 @@ void initPluginList(PLUGINLIST* plugin_list)
     plugin_list->mcount = REQUEST_PLUGIN_MCOUNT;
 
     for (i = 0; i < plugin_list->mcount; i++) {
-        initPlugin(&plugin_list->plugin[i]);
+        initPluginData(&plugin_list->plugin[i]);
     }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -226,15 +235,17 @@ void initPluginList(PLUGINLIST* plugin_list)
     Data via an IDAM client plugin can be accessed using either of two protocol names: IDAM or SERVER.
     These access services are identical.
     */
-    initPlugin(&plugin_list->plugin[plugin_list->count]);
+    initPluginData(&plugin_list->plugin[plugin_list->count]);
     strcpy(plugin_list->plugin[plugin_list->count].format, "IDAM");
     plugin_list->plugin[plugin_list->count].request = REQUEST_READ_IDAM;
     plugin_list->plugin[plugin_list->count].class = PLUGINSERVER;
 
-    if (environment.server_proxy[0] != '\0')
+    ENVIRONMENT* environment = getIdamServerEnvironment();
+    
+    if (environment->server_proxy[0] != '\0')
         plugin_list->plugin[plugin_list->count].private = PLUGINPUBLIC;        // Public service if running as a PROXY
 
-    if (!environment.external_user)
+    if (!environment->external_user)
         plugin_list->plugin[plugin_list->count].private = PLUGINPUBLIC;        // Public service for internal requests only
 
     strcpy(plugin_list->plugin[plugin_list->count].desc,
@@ -247,9 +258,9 @@ void initPluginList(PLUGINLIST* plugin_list)
     strcpy(plugin_list->plugin[plugin_list->count].format, "SERVER");
     plugin_list->plugin[plugin_list->count].request = REQUEST_READ_IDAM;
     plugin_list->plugin[plugin_list->count].class = PLUGINSERVER;
-    if (environment.server_proxy[0] != '\0')
+    if (environment->server_proxy[0] != '\0')
         plugin_list->plugin[plugin_list->count].private = PLUGINPUBLIC;        // Public service if running as a PROXY
-    if (!environment.external_user)
+    if (!environment->external_user)
         plugin_list->plugin[plugin_list->count].private = PLUGINPUBLIC;        // Public service for internal requests only
     strcpy(plugin_list->plugin[plugin_list->count].desc,
            "Data is accessed from an internal or external IDAM server. The server the client is connected to "
@@ -736,7 +747,7 @@ void initPluginList(PLUGINLIST* plugin_list)
                 if (buffer[0] == '#') break;
                 if (strlen(buffer) == 0) break;
                 next = buffer;
-                initPlugin(&plugin_list->plugin[plugin_list->count]);
+                initPluginData(&plugin_list->plugin[plugin_list->count]);
                 for (i = 0; i < 10; i++) {
                     csv = strchr(next, csvChar);                // Split the string
                     if (csv != NULL && i <= 8)
@@ -1052,7 +1063,7 @@ int idamServerRedirectStdStreams(int reset)
 // 6. get plugin function address
 // 7. close the file
 int idamServerPlugin(REQUEST_BLOCK* request_block, DATA_SOURCE* data_source, SIGNAL_DESC* signal_desc,
-                     PLUGINLIST* plugin_list)
+                     const PLUGINLIST* plugin_list)
 {
     int err = 0;
     char* token = NULL;
@@ -1079,7 +1090,7 @@ int idamServerPlugin(REQUEST_BLOCK* request_block, DATA_SOURCE* data_source, SIG
 
         if (strlen(request_block->server) == 0 &&
             request_block->request != REQUEST_READ_SERVERSIDE) {                // Must be a File plugin
-            if ((err = pathReplacement(request_block->path)) != 0) break;
+            if ((err = pathReplacement(request_block->path, getIdamServerEnvironment())) != 0) break;
         }
 
 //----------------------------------------------------------------------
@@ -1181,7 +1192,7 @@ int idamServerPlugin(REQUEST_BLOCK* request_block, DATA_SOURCE* data_source, SIG
 // private malloc log and userdefinedtypelist
 
 int idamProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_BLOCK* original_request_block,
-                         DATA_SOURCE* data_source, SIGNAL_DESC* signal_desc, PLUGINLIST* plugin_list,
+                         DATA_SOURCE* data_source, SIGNAL_DESC* signal_desc, const PLUGINLIST* plugin_list,
                          char* logRecord)
 {
 
@@ -1197,6 +1208,8 @@ int idamProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_BLOCK* original_req
 
     gettimeofday(&tv_start, NULL);
 
+    ENVIRONMENT* environment = getIdamServerEnvironment();
+
     if (plugin_id == -2) {        // On initialisation
         plugin_id = -1;
         if ((env = getenv("UDA_PROVENANCE_PLUGIN")) !=
@@ -1207,7 +1220,7 @@ int idamProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_BLOCK* original_req
             if (id >= 0) {
                 IDAM_LOGF(LOG_DEBUG, "plugin_list->plugin[id].class == PLUGINFUNCTION = %d\n",
                         plugin_list->plugin[id].class == PLUGINFUNCTION);
-                IDAM_LOGF(LOG_DEBUG, "!environment.external_user = %d\n", !environment.external_user);
+                IDAM_LOGF(LOG_DEBUG, "!environment->external_user = %d\n", !environment->external_user);
                 IDAM_LOGF(LOG_DEBUG, "plugin_list->plugin[id].status == PLUGINOPERATIONAL = %d\n",
                         plugin_list->plugin[id].status == PLUGINOPERATIONAL);
                 IDAM_LOGF(LOG_DEBUG, "plugin_list->plugin[id].pluginHandle != NULL = %d\n",
@@ -1217,7 +1230,7 @@ int idamProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_BLOCK* original_req
             }
             if (id >= 0 &&
                     plugin_list->plugin[id].class == PLUGINFUNCTION &&
-                    !environment.external_user &&
+                    !environment->external_user &&
                     plugin_list->plugin[id].status == PLUGINOPERATIONAL &&
                     plugin_list->plugin[id].pluginHandle != NULL &&
                     plugin_list->plugin[id].idamPlugin != NULL) {
@@ -1286,7 +1299,7 @@ int idamProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_BLOCK* original_req
     idam_plugin_interface.request_block = &request_block;
     idam_plugin_interface.data_source = data_source;
     idam_plugin_interface.signal_desc = signal_desc;
-    idam_plugin_interface.environment = &environment;
+    idam_plugin_interface.environment = environment;
     idam_plugin_interface.sqlConnection = NULL;        // Private to the plugin
     idam_plugin_interface.housekeeping = 0;
     idam_plugin_interface.changePlugin = 0;
@@ -1370,7 +1383,7 @@ int idamProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_BLOCK* original_req
 //------------------------------------------------------------------------------------------------
 // Identify the Plugin to use to resolve Generic Name mappings and return its ID 
 
-int idamServerMetaDataPluginId(PLUGINLIST* plugin_list)
+int idamServerMetaDataPluginId(const PLUGINLIST* plugin_list)
 {
     static unsigned short noPluginRegistered = 0;
     static int plugin_id = -1;
@@ -1386,7 +1399,7 @@ int idamServerMetaDataPluginId(PLUGINLIST* plugin_list)
                                       plugin_list);        // Must be defined in the server plugin configuration file
         if (id >= 0 &&
             plugin_list->plugin[id].class == PLUGINFUNCTION &&
-            plugin_list->plugin[id].private == PLUGINPRIVATE && environment.external_user &&
+            plugin_list->plugin[id].private == PLUGINPRIVATE && getIdamServerEnvironment()->external_user &&
             plugin_list->plugin[id].status == PLUGINOPERATIONAL &&
             plugin_list->plugin[id].pluginHandle != NULL &&
             plugin_list->plugin[id].idamPlugin != NULL)
@@ -1401,7 +1414,7 @@ int idamServerMetaDataPluginId(PLUGINLIST* plugin_list)
 //------------------------------------------------------------------------------------------------
 // Execute the Generic Name mapping Plugin
 
-int idamServerMetaDataPlugin(PLUGINLIST* plugin_list, int plugin_id, REQUEST_BLOCK* request_block,
+int idamServerMetaDataPlugin(const PLUGINLIST* plugin_list, int plugin_id, REQUEST_BLOCK* request_block,
                              SIGNAL_DESC* signal_desc, DATA_SOURCE* data_source)
 {
     int err, reset, rc;
@@ -1424,7 +1437,7 @@ int idamServerMetaDataPlugin(PLUGINLIST* plugin_list, int plugin_id, REQUEST_BLO
     idam_plugin_interface.request_block = request_block;
     idam_plugin_interface.data_source = data_source;
     idam_plugin_interface.signal_desc = signal_desc;
-    idam_plugin_interface.environment = &environment;    // Legacy Global variable
+    idam_plugin_interface.environment = getIdamServerEnvironment();    // Legacy Global variable
     idam_plugin_interface.sqlConnection = NULL;        // Private to the plugin
     idam_plugin_interface.housekeeping = 0;
     idam_plugin_interface.changePlugin = 0;
@@ -1618,8 +1631,8 @@ int callPlugin(PLUGINLIST* pluginlist, const char* request, const IDAM_PLUGIN_IN
     }
 
     int err = 0;
-    int id = findPluginIdByRequest(request_block.request, &pluginList);
-    PLUGIN_DATA* plugin = &pluginList.plugin[id];
+    int id = findPluginIdByRequest(request_block.request, pluginlist);
+    PLUGIN_DATA* plugin = &(pluginlist->plugin[id]);
     if (id >= 0 && plugin->idamPlugin != NULL) {
         err = plugin->idamPlugin(&idam_plugin_interface);    // Call the data reader
     } else {

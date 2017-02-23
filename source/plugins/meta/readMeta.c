@@ -38,6 +38,7 @@ Issues:
 #include <structures/accessors.h>
 #include <clientserver/initStructs.h>
 #include <server/sqllib.h>
+#include <server/getServerEnvironment.h>
 
 // Prevent SQL injection malicious intent
 // Not required if the server is Read Only!
@@ -214,17 +215,17 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             IDAM_LOG(LOG_DEBUG, "Meta: Connecting to the CPF database\n");
 
-            ENVIRONMENT environment;
-            copyIdamServerEnvironment(&environment);    // Copy the server's environment structure
+            ENVIRONMENT* environment = getIdamServerEnvironment();
+            ENVIRONMENT oldenviron = *environment;
 
-            int lstr = strlen(environment.sql_dbname) + 1;
+            int lstr = strlen(environment->sql_dbname) + 1;
             char* env;
             char* old_dbname = (char*) malloc(lstr * sizeof(char));
-            strcpy(old_dbname, environment.sql_dbname);
+            strcpy(old_dbname, environment->sql_dbname);
 
-            strcpy(environment.sql_dbname, "cpf");        // Case Sensitive!!!
-            if ((env = getenv("UDA_CPFDBNAME")) != NULL) strcpy(environment.sql_dbname, env);
-            if ((env = getenv("CPF_SQLDBNAME")) != NULL) strcpy(environment.sql_dbname, env);
+            strcpy(environment->sql_dbname, "cpf");        // Case Sensitive!!!
+            if ((env = getenv("UDA_CPFDBNAME")) != NULL) strcpy(environment->sql_dbname, env);
+            if ((env = getenv("CPF_SQLDBNAME")) != NULL) strcpy(environment->sql_dbname, env);
             putIdamServerEnvironment(environment);        // Copy the change to the server library
 
             //DBConnect = (PGconn *)startSQL();		// Picking up startSQL from somewhere!
@@ -236,9 +237,9 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 sqlPrivate = 1;
                 IDAM_LOG(LOG_DEBUG, "Meta: Private CPF database connection made.\n");
             }
-            strcpy(environment.sql_dbname, old_dbname);
+            strcpy(environment->sql_dbname, old_dbname);
             free((void*) old_dbname);
-            putIdamServerEnvironment(environment);    // Return the original
+            putIdamServerEnvironment(&oldenviron);    // Return the original
         }
         if (DBConnect == NULL) {        // No connection!
             IDAM_LOG(LOG_ERROR, "ERROR Meta: SQL Database Server Connect Error\n");

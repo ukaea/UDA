@@ -38,11 +38,9 @@ int westPlugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     if (idam_plugin_interface->interfaceVersion >
         THISPLUGIN_MAX_INTERFACE_VERSION) {
         err = 999;
-        idamLog(LOG_ERROR,
-                "ERROR templatePlugin: Plugin Interface Version Unknown to this plugin: Unable to execute the request!\n");
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "templatePlugin",
-                     err,
-                     "Plugin Interface Version Unknown to this plugin: Unable to execute the request!");
+        IDAM_LOG(LOG_ERROR, "Plugin Interface Version Unknown to this plugin: Unable to execute the request!\n");
+        addIdamError(&idamerrorstack, CODEERRORTYPE, __func__,
+                     err, "Plugin Interface Version Unknown to this plugin: Unable to execute the request!");
         return err;
     }
 
@@ -51,14 +49,6 @@ int westPlugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     REQUEST_BLOCK* request_block = idam_plugin_interface->request_block;
 
     housekeeping = idam_plugin_interface->housekeeping;
-
-#ifndef USE_PLUGIN_DIRECTLY
-    // Don't copy the structure if housekeeping is requested - may
-    // dereference a NULL or freed pointer!
-    if (!housekeeping && idam_plugin_interface->environment != NULL) {
-        environment = *idam_plugin_interface->environment;
-    }
-#endif
 
     if (housekeeping || STR_IEQUALS(request_block->function, "reset")) {
 
@@ -109,8 +99,7 @@ int westPlugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         // ======================================================================================
         // Error ...
         err = 999;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "templatePlugin",
-                     err, "Unknown function requested!");
+        addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, err, "Unknown function requested!");
     }
 
     // --------------------------------------------------------------------------------------
@@ -240,7 +229,7 @@ int do_maxinterfaceversion(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 // Add functionality here ....
 int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
-    idamLog(LOG_DEBUG, "Calling do_read from WEST plugin\n");
+    IDAM_LOG(LOG_DEBUG, "Calling do_read from WEST plugin\n");
 
     int err = 0;
 
@@ -269,36 +258,33 @@ int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     char* IDAM_MappingKey = element;
 
-    idamLog(LOG_DEBUG, "Calling do_read1 from WEST plugin\n");
+    IDAM_LOG(LOG_DEBUG, "Calling do_read1 from WEST plugin\n");
 
     char* mappingFileName = getenv("UDA_WEST_MAPPING_FILE");
 
-    idamLog(LOG_DEBUG, "IDAM mapping file :");
-    idamLog(LOG_DEBUG, mappingFileName);
-    idamLog(LOG_DEBUG, "\n");
-    idamLog(LOG_DEBUG, "IDAM mapping key :");
-    idamLog(LOG_DEBUG, IDAM_MappingKey);
-    idamLog(LOG_DEBUG, "\n");
+    IDAM_LOGF(LOG_DEBUG, "IDAM mapping file: %s\n", mappingFileName);
+    IDAM_LOGF(LOG_DEBUG, "IDAM mapping key: %s\n", IDAM_MappingKey);
+
     //Get the mapping function from the value found in the IDAM mapping file for the given IDAM_MappingKey
     //Get also the IDS type ('static' or 'dynamic')
     int IDS_DataType;
     const char* mapfun = getMappingValue(mappingFileName, IDAM_MappingKey, &IDS_DataType);
 
-    idamLog(LOG_DEBUG, "Calling do_read2 from WEST plugin\n");
+    IDAM_LOG(LOG_DEBUG, "Calling do_read2 from WEST plugin\n");
 
     //The path requested has not been found
     if (mapfun == NULL) {
-        idamLog(LOG_DEBUG, "The requested mapping function has not been found. Check the IDAM mapping file.\n");
+        IDAM_LOG(LOG_DEBUG, "The requested mapping function has not been found. Check the IDAM mapping file.\n");
         fprintf(stderr, "The requested mapping function has not been found. Check the IDAM mapping file.");
         return -1;
     }
 
-    idamLog(LOG_DEBUG, "Calling do_read3 from WEST plugin\n");
+    IDAM_LOG(LOG_DEBUG, "Calling do_read3 from WEST plugin\n");
 
     //STATIC DATA CASE
     if (IDS_DataType == STATIC) {
 
-        idamLog(LOG_DEBUG, "Fetching static data from WEST plugin\n");
+        IDAM_LOG(LOG_DEBUG, "Fetching static data from WEST plugin\n");
 
         // Executing TSLib for getting static data
         int status =
@@ -316,10 +302,7 @@ int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             data_type != TYPE_INT &&
             data_type != TYPE_SHORT) {
             err = 999;
-            addIdamError(&idamerrorstack, CODEERRORTYPE,
-                         "west : Unsupported data type", err,
-                         "");
-
+            addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, err, "west : Unsupported data type");
         }
 
         free(data_block->dims);
@@ -337,7 +320,7 @@ int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     } else if (IDS_DataType == DYNAMIC) {
 
         // DYNAMIC DATA CASE
-        idamLog(LOG_DEBUG, "Fetching dynamic data from WEST plugin\n");
+        IDAM_LOG(LOG_DEBUG, "Fetching dynamic data from WEST plugin\n");
 
         int status = GetDynamicData(shot, mapfun, data_block, indices);
 
@@ -370,7 +353,7 @@ char* getMappingValue(const char* mappingFileName, const char* IDAM_MappingKey,
      */
     doc = xmlParseFile(mappingFileName);
     if (doc == NULL) {
-        idamLog(LOG_DEBUG, "Error: unable to parse IDAM mapping file\n");
+        IDAM_LOG(LOG_DEBUG, "Error: unable to parse IDAM mapping file\n");
         fprintf(stderr, "Error: unable to parse file \"%s\"\n",
                 mappingFileName);
         return NULL;
@@ -381,13 +364,13 @@ char* getMappingValue(const char* mappingFileName, const char* IDAM_MappingKey,
      */
     xpathCtx = xmlXPathNewContext(doc);
     if (xpathCtx == NULL) {
-        idamLog(LOG_DEBUG, "Error: unable to create new XPath context\n");
+        IDAM_LOG(LOG_DEBUG, "Error: unable to create new XPath context\n");
         fprintf(stderr, "Error: unable to create new XPath context\n");
         xmlFreeDoc(doc);
         return NULL;
     }
     // Creating the Xpath request
-    idamLog(LOG_DEBUG, "Creating the Xpath request\n");
+    IDAM_LOG(LOG_DEBUG, "Creating the Xpath request\n");
     int len = strlen(IDAM_MappingKey) + 26;
     xmlChar* xPathExpr = malloc(len + sizeof(xmlChar));
     xmlStrPrintf(xPathExpr, len, "//mapping[@key='%s']/@value",
@@ -398,7 +381,7 @@ char* getMappingValue(const char* mappingFileName, const char* IDAM_MappingKey,
      */
     xpathObj = xmlXPathEvalExpression(xPathExpr, xpathCtx);
     if (xpathObj == NULL) {
-        idamLog(LOG_DEBUG, "Error: unable to evaluate xpath expression\n");
+        IDAM_LOG(LOG_DEBUG, "Error: unable to evaluate xpath expression\n");
         fprintf(stderr,
                 "Error: unable to evaluate xpath expression \"%s\"\n",
                 xPathExpr);
@@ -415,16 +398,14 @@ char* getMappingValue(const char* mappingFileName, const char* IDAM_MappingKey,
     int err = 0;
 
     if (size != 0) {
-        idamLog(LOG_DEBUG, "size different of 0\n");
+        IDAM_LOG(LOG_DEBUG, "size different of 0\n");
         cur = nodes->nodeTab[0];
         cur = cur->children;
         value = strdup((char*)cur->content);
     } else {
-        idamLog(LOG_DEBUG, "Error : size equals 0\n");
+        IDAM_LOG(LOG_DEBUG, "Error : size equals 0\n");
         err = 998;
-        addIdamError(&idamerrorstack, CODEERRORTYPE,
-                     "west plugin", err,
-                     "no result on XPath request");
+        addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, err, "no result on XPath request");
     }
 
     xmlStrPrintf(xPathExpr, len, "//mapping[@key='%s']/@type",
@@ -435,7 +416,7 @@ char* getMappingValue(const char* mappingFileName, const char* IDAM_MappingKey,
      */
     xpathObj = xmlXPathEvalExpression(xPathExpr, xpathCtx);
     if (xpathObj == NULL) {
-        idamLog(LOG_DEBUG, "Error: unable to evaluate xpath expression for getting the type (static or dynamic)\n");
+        IDAM_LOG(LOG_DEBUG, "Error: unable to evaluate xpath expression for getting the type (static or dynamic)\n");
         fprintf(stderr,
                 "Error: unable to evaluate xpath expression \"%s\"\n",
                 xPathExpr);
@@ -456,12 +437,10 @@ char* getMappingValue(const char* mappingFileName, const char* IDAM_MappingKey,
         typeStr = strdup((char*)cur->content);
     } else {
         err = 998;
-        addIdamError(&idamerrorstack, CODEERRORTYPE,
-                     "west plugin : no result on XPath request",
-                     err, "");
+        addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, err, "no result on XPath request");
     }
 
-    idamLog(LOG_DEBUG, "Setting IDS_DataType\n");
+    IDAM_LOG(LOG_DEBUG, "Setting IDS_DataType\n");
 
     if (typeStr == NULL) {
         *IDS_DataType = NONE;

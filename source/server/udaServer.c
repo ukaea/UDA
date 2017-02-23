@@ -79,8 +79,8 @@ LOGSTRUCTLIST logstructlist;
 char serverUsername[STRING_LENGTH] = "server";
 
 #ifdef SERVERBUILD
-FILE *dbgout = NULL;		// Debug Log
-FILE *errout = NULL;		// Error Log
+FILE* dbgout = NULL;        // Debug Log
+FILE* errout = NULL;        // Error Log
 
 IDAMERRORSTACK idamerrorstack;
 #endif
@@ -100,7 +100,7 @@ unsigned int privateFlags = 0;
 unsigned int XDRstdioFlag = 0;                              // Flags the XDR stream is to stdio not a socket
 
 #ifdef SERVERBUILD
-PLUGINLIST pluginList;					// List of all data reader plugins (internal and external shared libraries)
+PLUGINLIST pluginList;                    // List of all data reader plugins (internal and external shared libraries)
 #endif
 
 PLUGINLIST pluginList;                // List of all data reader plugins (internal and external shared libraries)
@@ -146,28 +146,21 @@ void putIdamServerLogMallocList(LOGMALLOCLIST* malloclist)
     logmalloclist = malloclist;
 }
 
-void putIdamServerEnvironment(ENVIRONMENT environ)
-{
-    environment = environ;    // Replace the server's environment
-}
-
-extern void copyIdamServerEnvironment(ENVIRONMENT* environ)
-{
-    *environ = environment;    // Copy the server's environment structure
-}
-
 //--------------------------------------------------------------------------------------
 // Server Entry point
 
 #ifndef FATCLIENT
+
 int idamServer(int argc, char** argv)
 {
 #else
+
 #include <assert.h>
-int idamServer(CLIENT_BLOCK client_block, REQUEST_BLOCK * request_block0, SERVER_BLOCK * server_block0,
-                          DATA_BLOCK * data_block0)
-{
-    assert(data_block0 != NULL);
+
+    int idamServer(CLIENT_BLOCK client_block, REQUEST_BLOCK* request_block0, SERVER_BLOCK* server_block0,
+                   DATA_BLOCK* data_block0)
+    {
+        assert(data_block0 != NULL);
 #endif
 
     int i, rc, err = 0, depth, fatal = 0;
@@ -264,7 +257,8 @@ int idamServer(CLIENT_BLOCK client_block, REQUEST_BLOCK * request_block0, SERVER
         userdefinedtypelist = &parseduserdefinedtypelist;                    // Switch before Parsing input file
 
         if ((token = getenv("UDA_SARRAY_CONFIG")) == NULL) {
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "idamServer", err, "No Environment variable UDA_SARRAY_CONFIG");
+            addIdamError(&idamerrorstack, CODEERRORTYPE, "idamServer", err,
+                         "No Environment variable UDA_SARRAY_CONFIG");
         } else {
             parseIncludeFile(token);                // file containing the SARRAY structure definition
             parseduserdefinedtypelist = *userdefinedtypelist;                    // Switch back
@@ -447,9 +441,8 @@ int idamServer(CLIENT_BLOCK client_block, REQUEST_BLOCK * request_block0, SERVER
     if (client_block.version <= legacyServerVersion) {
         IDAM_LOG(LOG_DEBUG, "Diverting to the Legacy Server\n");
         IDAM_LOGF(LOG_DEBUG, "Client protocol %d\n", client_block.version);
-        return idamLegacyServer(client_block);
+        return idamLegacyServer(client_block, &pluginList);
     }
-
 
 #endif // not SECURITYENABLED
 
@@ -538,16 +531,16 @@ int idamServer(CLIENT_BLOCK client_block, REQUEST_BLOCK * request_block0, SERVER
             IDAM_LOGF(LOG_DEBUG, "altRank      %d\n", altRank);
             IDAM_LOGF(LOG_DEBUG, "external?    %d\n", environment.external_user);
 
-            if(server_block.idamerrorstack.nerrors > 0) {
+            if (server_block.idamerrorstack.nerrors > 0) {
                 server_block.error = server_block.idamerrorstack.idamerror[0].code;
-                strcpy(server_block.msg,server_block.idamerrorstack.idamerror[0].msg);
+                strcpy(server_block.msg, server_block.idamerrorstack.idamerror[0].msg);
             }
 
 // Test the client version is compatible with this server version
 
             if (protocolVersion > serverVersion) {
                 IDAM_LOG(LOG_DEBUG,
-                        "Client API Version is Newer than the Server Version: Update this Server!!!\n");
+                         "Client API Version is Newer than the Server Version: Update this Server!!!\n");
                 err = 999;
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "idamServer", err,
                              "Protocol Error: Client API Version is Newer than the Server Version");
@@ -555,10 +548,11 @@ int idamServer(CLIENT_BLOCK client_block, REQUEST_BLOCK * request_block0, SERVER
             }
 
             if (fatal) {
-                if (server_block.idamerrorstack.nerrors > 0)
+                if (server_block.idamerrorstack.nerrors > 0) {
                     err = server_block.idamerrorstack.idamerror[0].code;
-                else
+                } else {
                     err = 1;
+                }
                 break;                // Manage the Fatal Server State
             }
 
@@ -765,7 +759,7 @@ int idamServer(CLIENT_BLOCK client_block, REQUEST_BLOCK * request_block0, SERVER
 //----------------------------------------------------------------------
 // Write to the Access Log
 
-            idamAccessLog(TRUE, client_block, request_block, server_block);
+            idamAccessLog(TRUE, client_block, request_block, server_block, &pluginList);
 
 //----------------------------------------------------------------------
 // Initialise Data Structures
@@ -781,7 +775,7 @@ int idamServer(CLIENT_BLOCK client_block, REQUEST_BLOCK * request_block0, SERVER
 
 #ifndef FATCLIENT    // <========================== Client Server Code Only
 
-            initIdamPutDataBlockList((PUTDATA_BLOCK_LIST*) &(request_block.putDataBlockList));
+            initIdamPutDataBlockList((PUTDATA_BLOCK_LIST*)&(request_block.putDataBlockList));
 
             if (request_block.put) {
 
@@ -832,7 +826,7 @@ int idamServer(CLIENT_BLOCK client_block, REQUEST_BLOCK * request_block0, SERVER
 #ifndef NOTGENERICENABLED
             if (request_block.request == REQUEST_READ_GENERIC || (client_block.clientFlags & CLIENTFLAG_ALTDATA)) {
                 if (DBConnect == NULL) {
-                    if (!(DBConnect = (PGconn*) startSQL())) {
+                    if (!(DBConnect = (PGconn*)startSQL())) {
                         if (DBConnect != NULL) PQfinish(DBConnect);
                         err = 777;
                         addIdamError(&idamerrorstack, CODEERRORTYPE, "idamServer", err,
@@ -852,7 +846,7 @@ int idamServer(CLIENT_BLOCK client_block, REQUEST_BLOCK * request_block0, SERVER
             depth = 0;
 
             err = idamserverGetData(DBConnect, &depth, request_block, client_block, &data_block, &data_source,
-                                    &signal_rec, &signal_desc, &actions_desc, &actions_sig);
+                                    &signal_rec, &signal_desc, &actions_desc, &actions_sig, &pluginList);
 
             if (DBConnect == NULL && gDBConnect != NULL) {
                 DBConnect = gDBConnect;    // Pass back SQL Socket from idamserverGetData
@@ -860,7 +854,7 @@ int idamServer(CLIENT_BLOCK client_block, REQUEST_BLOCK * request_block0, SERVER
             }
 
             IDAM_LOG(LOG_DEBUG,
-                    "======================== ******************** ==========================================\n");
+                     "======================== ******************** ==========================================\n");
             IDAM_LOGF(LOG_DEBUG, "Archive      : %s \n", data_source.archive);
             IDAM_LOGF(LOG_DEBUG, "Device Name  : %s \n", data_source.device_name);
             IDAM_LOGF(LOG_DEBUG, "Signal Name  : %s \n", signal_desc.signal_name);
@@ -876,7 +870,7 @@ int idamServer(CLIENT_BLOCK client_block, REQUEST_BLOCK * request_block0, SERVER
             printDataBlock(data_block);
             printIdamErrorStack(idamerrorstack);
             IDAM_LOG(LOG_DEBUG,
-                    "======================== ******************** ==========================================\n");
+                     "======================== ******************** ==========================================\n");
 
             if (err != 0) break;
 
@@ -935,7 +929,6 @@ int idamServer(CLIENT_BLOCK client_block, REQUEST_BLOCK * request_block0, SERVER
                 break;
             }
 
-
             if (data_block.rank > 0) {
                 int i;
                 DIMS dim;
@@ -983,7 +976,7 @@ int idamServer(CLIENT_BLOCK client_block, REQUEST_BLOCK * request_block0, SERVER
 // <========================== Client Server Code Only
 #ifndef FATCLIENT
 
-            if(server_block.idamerrorstack.nerrors > 0) {
+            if (server_block.idamerrorstack.nerrors > 0) {
                 server_block.error = server_block.idamerrorstack.idamerror[0].code;
                 strcpy(server_block.msg, server_block.idamerrorstack.idamerror[0].msg);
             }
@@ -1017,10 +1010,11 @@ int idamServer(CLIENT_BLOCK client_block, REQUEST_BLOCK * request_block0, SERVER
 
 #endif			// <========================== End of Client Server Code      
 
-            if (server_block.idamerrorstack.nerrors > 0)
+            if (server_block.idamerrorstack.nerrors > 0) {
                 err = server_block.idamerrorstack.idamerror[0].code;
-            else
+            } else {
                 err = trap1Err;
+            }
 
             if (err != 0) {
                 IDAM_LOG(LOG_DEBUG, "Error Forces Exiting of Server Error Trap #2 Loop\n");
@@ -1185,115 +1179,115 @@ int idamServer(CLIENT_BLOCK client_block, REQUEST_BLOCK * request_block0, SERVER
 
 #ifdef FATCLIENT
 
-                    if (data_block.opaque_type == OPAQUE_TYPE_STRUCTURES) {
+            if (data_block.opaque_type == OPAQUE_TYPE_STRUCTURES) {
 
-            // Create an output XDR stream
+                // Create an output XDR stream
 
-                        FILE * xdrfile;
-                        char tempFile[MAXPATH];
-                        char * env;
-                        if ((env = getenv("UDA_WORK_DIR")) != NULL) {
-                            sprintf(tempFile, "%s/idamXDRXXXXXX", env);
-                        } else {
-                            strcpy(tempFile, "/tmp/idamXDRXXXXXX");
-                        }
+                FILE* xdrfile;
+                char tempFile[MAXPATH];
+                char* env;
+                if ((env = getenv("UDA_WORK_DIR")) != NULL) {
+                    sprintf(tempFile, "%s/idamXDRXXXXXX", env);
+                } else {
+                    strcpy(tempFile, "/tmp/idamXDRXXXXXX");
+                }
 
-                        DATA_BLOCK DBlockCopy = data_block;        // Risk: Potential double free of heap
+                DATA_BLOCK DBlockCopy = data_block;        // Risk: Potential double free of heap
 
-                        errno = 0;
-                        if (mkstemp(tempFile) < 0 || errno != 0) {
-                            err = 995;
-                            if (errno != 0) err = errno;
-                            addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "idamServer", err,
-                                         " Unable to Obtain a Temporary File Name");
-                            err = 995;
-                            addIdamError(&idamerrorstack, CODEERRORTYPE, "idamServer", err, tempFile);
-                            break;
-                        }
-                        if ((xdrfile = fopen(tempFile, "w")) == NULL) {
-                            err = 999;
-                            if (errno != 0) err = errno;
-                            addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "idamServer", err,
-                                         " Unable to Open a Temporary XDR File for Writing");
-                            break;
-                        }
+                errno = 0;
+                if (mkstemp(tempFile) < 0 || errno != 0) {
+                    err = 995;
+                    if (errno != 0) err = errno;
+                    addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "idamServer", err,
+                                 " Unable to Obtain a Temporary File Name");
+                    err = 995;
+                    addIdamError(&idamerrorstack, CODEERRORTYPE, "idamServer", err, tempFile);
+                    break;
+                }
+                if ((xdrfile = fopen(tempFile, "w")) == NULL) {
+                    err = 999;
+                    if (errno != 0) err = errno;
+                    addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "idamServer", err,
+                                 " Unable to Open a Temporary XDR File for Writing");
+                    break;
+                }
 
-                        xdrstdio_create(serverOutput, xdrfile, XDR_ENCODE);
+                xdrstdio_create(serverOutput, xdrfile, XDR_ENCODE);
 
-            // Write data to the temporary file
+                // Write data to the temporary file
 
-                        protocol_id = PROTOCOL_STRUCTURES;
-                        err = protocolXML(serverOutput, protocol_id, XDR_SEND, NULL, &data_block);
+                protocol_id = PROTOCOL_STRUCTURES;
+                err = protocolXML(serverOutput, protocol_id, XDR_SEND, NULL, &data_block);
 
-            // Close the stream and file
+                // Close the stream and file
 
-                        fflush(xdrfile);
-                        fclose(xdrfile);
+                fflush(xdrfile);
+                fclose(xdrfile);
 
-            // Free Heap
+                // Free Heap
 
-                        freeReducedDataBlock(&data_block);        // Avoid double free in fatclient
-                        data_block = DBlockCopy;
+                freeReducedDataBlock(&data_block);        // Avoid double free in fatclient
+                data_block = DBlockCopy;
 
-            // Create an input XDR stream
+                // Create an input XDR stream
 
-                        if ((xdrfile = fopen(tempFile, "r")) == NULL) {
-                            err = 999;
-                            addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "idamServer", err,
-                                         " Unable to Open a Temporary XDR File for Reading");
-                            break;
-                        }
+                if ((xdrfile = fopen(tempFile, "r")) == NULL) {
+                    err = 999;
+                    addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "idamServer", err,
+                                 " Unable to Open a Temporary XDR File for Reading");
+                    break;
+                }
 
-                        xdrstdio_create(serverInput, xdrfile, XDR_DECODE);
+                xdrstdio_create(serverInput, xdrfile, XDR_DECODE);
 
-            // Read data from the temporary file
+                // Read data from the temporary file
 
-                        protocol_id = PROTOCOL_STRUCTURES;
-                        err = protocolXML(serverInput, protocol_id, XDR_RECEIVE, NULL, &data_block);
+                protocol_id = PROTOCOL_STRUCTURES;
+                err = protocolXML(serverInput, protocol_id, XDR_RECEIVE, NULL, &data_block);
 
-            // Close the stream and file
+                // Close the stream and file
 
-                        fclose(xdrfile);
+                fclose(xdrfile);
 
-            // Remove the Temporary File
+                // Remove the Temporary File
 
-                        remove(tempFile);
+                remove(tempFile);
 
-                    }
+            }
 
 #endif
 
             //------------------------------------------------------------------------------
 
 #ifndef NOTGENERICENABLED
-                    if (client_block.get_meta && request_block.request == REQUEST_READ_GENERIC) {
+            if (client_block.get_meta && request_block.request == REQUEST_READ_GENERIC) {
 
-                        data_block.data_system = data_block0->data_system;    // Allocations made in Client API when FAT
-                        data_block.system_config = data_block0->system_config;
-                        data_block.data_source = data_block0->data_source;
-                        data_block.signal_rec = data_block0->signal_rec;
-                        data_block.signal_desc = data_block0->signal_desc;
+                data_block.data_system = data_block0->data_system;    // Allocations made in Client API when FAT
+                data_block.system_config = data_block0->system_config;
+                data_block.data_source = data_block0->data_source;
+                data_block.signal_rec = data_block0->signal_rec;
+                data_block.signal_desc = data_block0->signal_desc;
 
-                        initDataSystem(data_block.data_system);
-                        initSystemConfig(data_block.system_config);
-                        initDataSource(data_block.data_source);
-                        initSignal(data_block.signal_rec);
-                        initSignalDesc(data_block.signal_desc);
+                initDataSystem(data_block.data_system);
+                initSystemConfig(data_block.system_config);
+                initDataSource(data_block.data_source);
+                initSignal(data_block.signal_rec);
+                initSignalDesc(data_block.signal_desc);
 
-                        *data_block.data_system = data_system;
-                        *data_block.system_config = system_config;
-                        *data_block.data_source = data_source;
-                        *data_block.signal_rec = signal_rec;
-                        *data_block.signal_desc = signal_desc;
+                *data_block.data_system = data_system;
+                *data_block.system_config = system_config;
+                *data_block.data_source = data_source;
+                *data_block.signal_rec = signal_rec;
+                *data_block.signal_desc = signal_desc;
 
-                    }
+            }
 
 #endif
 
             //----------------------------------------------------------------------------
             // Free Name Value pair
 
-                    freeNameValueList(&request_block.nameValueList);
+            freeNameValueList(&request_block.nameValueList);
 
 #endif			// <========================== End of Fat Client Code  
 
@@ -1308,7 +1302,7 @@ int idamServer(CLIENT_BLOCK client_block, REQUEST_BLOCK * request_block0, SERVER
 //----------------------------------------------------------------------
 // Complete & Write the Access Log Record
 
-        idamAccessLog(FALSE, client_block, request_block, server_block);
+        idamAccessLog(FALSE, client_block, request_block, server_block, &pluginList);
 
 //----------------------------------------------------------------------------
 // Server Shutdown ? Next Instruction from Client
@@ -1326,8 +1320,8 @@ int idamServer(CLIENT_BLOCK client_block, REQUEST_BLOCK * request_block0, SERVER
         next_protocol = PROTOCOL_SLEEP;
         IDAM_LOGF(LOG_DEBUG, "Next Protocol %d Received\n", next_protocol);
 
-//----------------------------------------------------------------------------
-// Free Data Block Heap Memory
+        //----------------------------------------------------------------------------
+        // Free Data Block Heap Memory
 
         IDAM_LOG(LOG_DEBUG, "freeDataBlock\n");
         freeDataBlock(&data_block);
@@ -1338,18 +1332,18 @@ int idamServer(CLIENT_BLOCK client_block, REQUEST_BLOCK * request_block0, SERVER
         IDAM_LOG(LOG_DEBUG, "freeActions\n");
         freeActions(&actions_sig);
 
-//----------------------------------------------------------------------------
-// Free Name Value pair
+        //----------------------------------------------------------------------------
+        // Free Name Value pair
 
         freeNameValueList(&request_block.nameValueList);
 
-//----------------------------------------------------------------------------
-// Free PutData Blocks
+        //----------------------------------------------------------------------------
+        // Free PutData Blocks
 
         freeIdamServerPutDataBlockList(&request_block.putDataBlockList);
 
-//----------------------------------------------------------------------------
-// Write the Error Log Record & Free Error Stack Heap
+        //----------------------------------------------------------------------------
+        // Write the Error Log Record & Free Error Stack Heap
 
         IDAM_LOG(LOG_DEBUG, "concatIdamError\n");
         concatIdamError(idamerrorstack, &server_block.idamerrorstack);        // Update Server State with Error Stack
@@ -1368,10 +1362,8 @@ int idamServer(CLIENT_BLOCK client_block, REQUEST_BLOCK * request_block0, SERVER
 
         IDAM_LOG(LOG_DEBUG, "At End of Error Trap\n");
 
-//----------------------------------------------------------------------------
-// Server Wait Loop
-
-        //} while(err == 0 && next_protocol == PROTOCOL_SLEEP && sleepServer() );
+        //----------------------------------------------------------------------------
+        // Server Wait Loop
 
     } while (err == 0 && next_protocol == PROTOCOL_SLEEP && !fatal);
 
@@ -1384,71 +1376,92 @@ int idamServer(CLIENT_BLOCK client_block, REQUEST_BLOCK * request_block0, SERVER
     if (server_tot_block_time > 1000 * server_timeout)
         IDAM_LOGF(LOG_DEBUG, "Server Timeout after %d secs\n", server_timeout);
 
-//----------------------------------------------------------------------------
-// Write the Error Log Record & Free Error Stack Heap
+    //----------------------------------------------------------------------------
+    // Write the Error Log Record & Free Error Stack Heap
 
     idamErrorLog(client_block, request_block, idamerrorstack);
     closeIdamError(&idamerrorstack);
 
-//----------------------------------------------------------------------------
-// Free Data Block Heap Memory in case by-passed
+    //----------------------------------------------------------------------------
+    // Free Data Block Heap Memory in case by-passed
 
     freeDataBlock(&data_block);
 
-//----------------------------------------------------------------------------
-// Free Structure Definition List (don't free the structure as stack variable)
+    //----------------------------------------------------------------------------
+    // Free Structure Definition List (don't free the structure as stack variable)
 
     freeUserDefinedTypeList(&parseduserdefinedtypelist);
 
-//----------------------------------------------------------------------------
-// Free Plugin List and Close all open library entries
+    //----------------------------------------------------------------------------
+    // Free Plugin List and Close all open library entries
 
     freePluginList(&pluginList);
 
-//----------------------------------------------------------------------------
-// Close the Database Connection
+    //----------------------------------------------------------------------------
+    // Close the Database Connection
 
 #ifndef NOTGENERICENABLED
     if (DBConnect != NULL) PQfinish(DBConnect);
 #endif
 
-//----------------------------------------------------------------------------
-// Close the Logs
+    //----------------------------------------------------------------------------
+    // Close the Logs
 
     rc = fflush(NULL);
 
     idamCloseLogging();
 
-//----------------------------------------------------------------------------
-// Close the Socket Connections to Other Data Servers
+    //----------------------------------------------------------------------------
+    // Close the Socket Connections to Other Data Servers
 
     closeServerSockets(&server_socketlist);
 
-//----------------------------------------------------------------------------
-// Wait for client to receive returned server state
+    //----------------------------------------------------------------------------
+    // Wait for client to receive returned server state
 
     return 0;
 
 #else			// <========================== End of Client Server Code
 
+    //----------------------------------------------------------------------------
+    // Write the Error Log Record & Free Error Stack Heap
+
+    idamErrorLog(client_block, request_block, idamerrorstack);
+    closeIdamError(&idamerrorstack);
+
+    //----------------------------------------------------------------------------
+    // Free Data Block Heap Memory in case by-passed
+
+    freeDataBlock(&data_block);
+
+    //----------------------------------------------------------------------------
+    // Free Structure Definition List (don't free the structure as stack variable)
+
+    freeUserDefinedTypeList(&parseduserdefinedtypelist);
+    freeNTree();
+
+    //----------------------------------------------------------------------------
+    // Free Plugin List and Close all open library entries
+
+    freePluginList(&pluginList);
 
     //----------------------------------------------------------------------------
     // Free Actions Heap
 
-        freeActions(&actions_desc);
-        freeActions(&actions_sig);
+    freeActions(&actions_desc);
+    freeActions(&actions_sig);
 
     //----------------------------------------------------------------------------
 
-        concatIdamError(idamerrorstack, &server_block.idamerrorstack);        // Update Server State with Global Error Stack
-        closeIdamError(&idamerrorstack);
+    concatIdamError(idamerrorstack, &server_block.idamerrorstack);        // Update Server State with Global Error Stack
+    closeIdamError(&idamerrorstack);
 
-        *server_block0 = server_block;
-        *data_block0 = data_block;
+    *server_block0 = server_block;
+    *data_block0 = data_block;
 
-        printDataBlock(*data_block0);
+    printDataBlock(*data_block0);
 
-        return 0;
+    return 0;
 
 #endif			// <========================== End of Fat Client Code         
 

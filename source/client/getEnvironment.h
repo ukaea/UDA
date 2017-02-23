@@ -8,8 +8,8 @@
 #  define getIdamClientEnvironment getIdamClientEnvironmentFat
 #endif
 
-void printIdamClientEnvironment(ENVIRONMENT* environ);
-void getIdamClientEnvironment(ENVIRONMENT* environ);
+void printIdamClientEnvironment(const ENVIRONMENT* environ);
+ENVIRONMENT* getIdamClientEnvironment();
 
 extern int env_host;            // Flags to Read Environment variable at startup time
 extern int env_port;

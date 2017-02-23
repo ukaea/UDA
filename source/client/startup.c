@@ -37,26 +37,30 @@ int idamStartup(int reset)
 //----------------------------------------------------------------
 // Read Environment Variable Values (Held in a Global Structure)
 
-    if (!start_status) getIdamClientEnvironment(&environment);
+    const ENVIRONMENT* environment = NULL;
 
-    printIdamClientEnvironment(&environment);
+    if (!start_status) {
+        environment = getIdamClientEnvironment();
+    }
+
+    printIdamClientEnvironment(environment);
 
 //----------------------------------------------------------------
 // Client set Property Flags (can be changed via property accessor functions)
 // Coded user properties changes have priority
 
-    if (environment.clientFlags != 0) {
-        clientFlags = clientFlags | environment.clientFlags;
+    if (environment->clientFlags != 0) {
+        clientFlags = clientFlags | environment->clientFlags;
     }
 
-    if (environment.altRank != 0 && altRank == 0) {
-        altRank = environment.altRank;
+    if (environment->altRank != 0 && altRank == 0) {
+        altRank = environment->altRank;
     }
 
 //----------------------------------------------------------------
 // X.509 Security Certification
 
-    //if((rc = readIdamSecurityCert(environment.security_cert)) != 0){
+    //if((rc = readIdamSecurityCert(environment->security_cert)) != 0){
     //   if(verbose) fprintf(stderr, "Idam: Problem Locating the Security Certificate [%d]\n",  rc);
     //   return(-1);
     //}
@@ -64,9 +68,9 @@ int idamStartup(int reset)
 //----------------------------------------------------------------
 // Check if Output Requested
 
-    idamSetLogLevel((LOG_MODE)environment.loglevel);
+    idamSetLogLevel((LOG_MODE)environment->loglevel);
 
-    if (environment.loglevel == LOG_NONE) return 0;
+    if (environment->loglevel == LOG_NONE) return 0;
 
 //---------------------------------------------------------------
 // Open the Log File
@@ -78,9 +82,9 @@ int idamStartup(int reset)
 
     char idamFile[STRING_LENGTH];
 
-    strcpy(idamFile, environment.logdir);
+    strcpy(idamFile, environment->logdir);
     strcat(idamFile, "Debug.dbg");
-    file = fopen(idamFile, environment.logmode);
+    file = fopen(idamFile, environment->logmode);
     idamSetLogFile(LOG_WARN, file);
     idamSetLogFile(LOG_DEBUG, file);
     idamSetLogFile(LOG_INFO, file);
@@ -92,9 +96,9 @@ int idamStartup(int reset)
     }
 
     if (idamGetLogLevel() == LOG_ERROR) {
-        strcpy(idamFile, environment.logdir);
+        strcpy(idamFile, environment->logdir);
         strcat(idamFile, "Error.err");
-        file = fopen(idamFile, environment.logmode);
+        file = fopen(idamFile, environment->logmode);
         idamSetLogFile(LOG_ERROR, file);
     }
 

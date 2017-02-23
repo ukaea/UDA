@@ -11,6 +11,7 @@ Interprets the API arguments and assembles a Request data structure.
 //------------------------------------------------------------------------------------------------------------------
 
 #include "makeClientRequestBlock.h"
+#include "getEnvironment.h"
 
 #include <stdlib.h>
 #include <strings.h>
@@ -22,7 +23,6 @@ Interprets the API arguments and assembles a Request data structure.
 
 int makeClientRequestBlock(const char* data_object, const char* data_source, REQUEST_BLOCK* request_block)
 {
-
     int lstr, ldelim, err = 0;
     char* test = NULL;
 
@@ -31,21 +31,23 @@ int makeClientRequestBlock(const char* data_object, const char* data_source, REQ
 
     if (strlen(data_object) >= MAXMETA) {
         err = SIGNAL_ARG_TOO_LONG;
-        idamLog(LOG_ERROR, "The Signal/Data Object Argument string is too long!\n");
+        IDAM_LOG(LOG_ERROR, "The Signal/Data Object Argument string is too long!\n");
         addIdamError(&idamerrorstack, CODEERRORTYPE, "makeClientRequestBlock", err,
                      "The Signal/Data Object Argument string is too long!");
         return err;
-    } else
+    } else {
         strcpy(request_block->signal, data_object);    // Passed to the server without modification
+    }
 
     if (strlen(data_source) >= STRING_LENGTH) {
         err = SOURCE_ARG_TOO_LONG;
-        idamLog(LOG_ERROR, "The Data Source Argument string is too long!\n");
+        IDAM_LOG(LOG_ERROR, "The Data Source Argument string is too long!\n");
         addIdamError(&idamerrorstack, CODEERRORTYPE, "makeClientRequestBlock", err,
                      "The Data Source Argument string is too long!");
         return err;
-    } else
+    } else {
         strcpy(request_block->source, data_source);    // Passed to the server without modification
+    }
 
 //------------------------------------------------------------------------------------------------------------------
     /*! Signal and source arguments use a prefix to identify archive or device names, file formats or server protocols.
@@ -54,8 +56,10 @@ int makeClientRequestBlock(const char* data_object, const char* data_source, REQ
     This must be passed to the server as it needs to separate the prefix from the main component in order to interpret the
     data access request.
     */
+    
+    ENVIRONMENT* environment = getIdamClientEnvironment();
 
-    strcpy(request_block->api_delim, environment.api_delim);        // Server needs to know how to parse the arguments
+    strcpy(request_block->api_delim, environment->api_delim);        // Server needs to know how to parse the arguments
 
 //------------------------------------------------------------------------------------------------------------------
     /*! If the default ARCHIVE and/or DEVICE is overridden by local environment variables and the arguments do not contain
@@ -64,38 +68,38 @@ int makeClientRequestBlock(const char* data_object, const char* data_source, REQ
     // These environment variables are legacy and not used by the server
     */
 
-    if (strcasecmp(environment.api_device, API_DEVICE) != 0 &&
+    if (strcasecmp(environment->api_device, API_DEVICE) != 0 &&
         strstr(request_block->source, request_block->api_delim) == NULL) {
-        lstr = (int) strlen(request_block->source) + (int) strlen(environment.api_device) +
+        lstr = (int) strlen(request_block->source) + (int) strlen(environment->api_device) +
                (int) strlen(request_block->api_delim);
         if (lstr >= STRING_LENGTH) {
             err = SOURCE_ARG_TOO_LONG;
-            idamLog(LOG_ERROR,
+            IDAM_LOG(LOG_ERROR,
                     "The Data Source Argument, prefixed with the Device Name, is too long!\n");
             addIdamError(&idamerrorstack, CODEERRORTYPE, "makeClientRequestBlock", err,
                          "The Data Source Argument, prefixed with the Device Name, is too long!");
             return err;
         }
         test = (char*) malloc((lstr + 1) * sizeof(char));
-        sprintf(test, "%s%s%s", environment.api_device, request_block->api_delim, request_block->source);
+        sprintf(test, "%s%s%s", environment->api_device, request_block->api_delim, request_block->source);
         strcpy(request_block->source, test);
         free(test);
     }
 
-    if (strcasecmp(environment.api_archive, API_ARCHIVE) != 0 &&
+    if (strcasecmp(environment->api_archive, API_ARCHIVE) != 0 &&
         strstr(request_block->signal, request_block->api_delim) == NULL) {
-        lstr = (int) strlen(request_block->signal) + (int) strlen(environment.api_archive) +
+        lstr = (int) strlen(request_block->signal) + (int) strlen(environment->api_archive) +
                (int) strlen(request_block->api_delim);
         if (lstr >= STRING_LENGTH) {
             err = SIGNAL_ARG_TOO_LONG;
-            idamLog(LOG_ERROR,
+            IDAM_LOG(LOG_ERROR,
                     "The Signal/Data Object Argument, prefixed with the Archive Name, is too long!\n");
             addIdamError(&idamerrorstack, CODEERRORTYPE, "makeClientRequestBlock", err,
                          "The Signal/Data Object Argument, prefixed with the Archive Name, is too long!");
             return err;
         }
         test = (char*) malloc((lstr + 1) * sizeof(char));
-        sprintf(test, "%s%s%s", environment.api_archive, request_block->api_delim, request_block->signal);
+        sprintf(test, "%s%s%s", environment->api_archive, request_block->api_delim, request_block->signal);
         strcpy(request_block->signal, test);
         free(test);
     }
@@ -123,13 +127,13 @@ int makeClientRequestBlock(const char* data_object, const char* data_source, REQ
         if (strchr(request_block->source, '(') == NULL &&
             strchr(request_block->source, ')') == NULL) {        // source is not a function call
             strcpy(request_block->path, request_block->source);
-            err = expandFilePath(request_block->path);
+            err = expandFilePath(request_block->path, environment);
         }
     } else {
         if (strchr(test, '(') == NULL && strchr(test, ')') == NULL) {        // source is not a function call
             ldelim = (int) strlen(request_block->api_delim);
             strcpy(request_block->path, &test[ldelim]);
-            err = expandFilePath(request_block->path);
+            err = expandFilePath(request_block->path, environment);
         }
     }
 

@@ -33,6 +33,7 @@
 #  include <clientserver/compressDim.h>
 #  include <server/udaServer.h>
 #else
+
 #  include "createClientXDRStream.h"
 #endif
 
@@ -60,7 +61,7 @@ int get_synthetic = 0;          // return synthetic Data instead of original dat
 int user_timeout = TIMEOUT;     // user specified Server Lifetime
 
 //----------------------------------------------------------------------------------------------------------------------
-// FATCLIENT object shared with server code
+// FATCLIENT objects shared with server code
 
 #ifndef FATCLIENT
 unsigned int clientFlags = 0;   // Send properties via bit flags
@@ -259,11 +260,11 @@ int idamClient(REQUEST_BLOCK* request_block)
                 // Query the cache for the Data
 
                 data = idamCacheRead(cache, request_block);
-		
+
                 if (data != NULL) {	// Success
-		   
-		   int lastHandle = -1;
-	           if((clientFlags & CLIENTFLAG_REUSELASTHANDLE || clientFlags & CLIENTFLAG_FREEREUSELASTHANDLE) && (lastHandle = getIdamThreadLastHandle()) >= 0){
+
+           int lastHandle = -1;
+               if((clientFlags & CLIENTFLAG_REUSELASTHANDLE || clientFlags & CLIENTFLAG_FREEREUSELASTHANDLE) && (lastHandle = getIdamThreadLastHandle()) >= 0){
                       if(clientFlags & CLIENTFLAG_FREEREUSELASTHANDLE)
                          idamFree(lastHandle);
                       else
@@ -272,15 +273,15 @@ int idamClient(REQUEST_BLOCK* request_block)
                       memcpy(&Data_Block[lastHandle], data, sizeof(DATA_BLOCK));
                       free(data);
                       return lastHandle;
-		      
+
                    } else {		// re-use or create a new Data Block
-		   
-		      lastHandle = acc_getIdamNewDataHandle();
-		                         
-		      memcpy(&Data_Block[lastHandle], data, sizeof(DATA_BLOCK));
+
+              lastHandle = acc_getIdamNewDataHandle();
+
+              memcpy(&Data_Block[lastHandle], data, sizeof(DATA_BLOCK));
                       free(data);
                       return lastHandle;
-	           }	   
+               }
                 }	 	 
 
             }
@@ -358,10 +359,10 @@ int idamClient(REQUEST_BLOCK* request_block)
         // Server Age (secs) = Time since the Server was last called
 
         time(&tv_server_end);
-        long age = (long) tv_server_end - (long) tv_server_start;
+        long age = (long)tv_server_end - (long)tv_server_start;
 
-        IDAM_LOGF(LOG_DEBUG, "Start: %ld    End: %ld\n", (long) tv_server_start, (long) tv_server_end);
-        IDAM_LOGF(LOG_DEBUG, "Server Age: %ld\n", (long) age);
+        IDAM_LOGF(LOG_DEBUG, "Start: %ld    End: %ld\n", (long)tv_server_start, (long)tv_server_end);
+        IDAM_LOGF(LOG_DEBUG, "Server Age: %ld\n", (long)age);
 
         //-------------------------------------------------------------------------
         // Server State: Is the Server Dead? (Age Dependent)
@@ -370,7 +371,7 @@ int idamClient(REQUEST_BLOCK* request_block)
 
         if (age >= user_timeout - 2) {  // Assume the Server has Self-Destructed so Instanciate a New Server
 
-            IDAM_LOGF(LOG_DEBUG, "idamClient: Server Age Limit Reached %ld\n", (long) age);
+            IDAM_LOGF(LOG_DEBUG, "idamClient: Server Age Limit Reached %ld\n", (long)age);
             IDAM_LOG(LOG_DEBUG, "idamClient: Server Closed and New Instance Started\n");
 
             idamClosedown(0);  // Close the Existing Socket and XDR Stream: Reopening will Instance a New Server
@@ -791,11 +792,11 @@ int idamClient(REQUEST_BLOCK* request_block)
 
             // Allocate memory for the Meta Data
 
-            data_system = (DATA_SYSTEM*) malloc(sizeof(DATA_SYSTEM));
-            system_config = (SYSTEM_CONFIG*) malloc(sizeof(SYSTEM_CONFIG));
-            data_source = (DATA_SOURCE*) malloc(sizeof(DATA_SOURCE));
-            signal_rec = (SIGNAL*) malloc(sizeof(SIGNAL));
-            signal_desc = (SIGNAL_DESC*) malloc(sizeof(SIGNAL_DESC));
+            data_system = (DATA_SYSTEM*)malloc(sizeof(DATA_SYSTEM));
+            system_config = (SYSTEM_CONFIG*)malloc(sizeof(SYSTEM_CONFIG));
+            data_source = (DATA_SOURCE*)malloc(sizeof(DATA_SOURCE));
+            signal_rec = (SIGNAL*)malloc(sizeof(SIGNAL));
+            signal_desc = (SIGNAL_DESC*)malloc(sizeof(SIGNAL_DESC));
 
             if (data_system == NULL || system_config == NULL || data_source == NULL ||
                 signal_rec == NULL || signal_desc == NULL) {
@@ -880,17 +881,17 @@ int idamClient(REQUEST_BLOCK* request_block)
 
         //------------------------------------------------------------------------------
         // Allocate memory for the Data Block Structure 
-	// Re-use existing stale Data Blocks 
+        // Re-use existing stale Data Blocks
 
-        
-	data_block_idx = acc_getIdamNewDataHandle();
-	
-	if(data_block_idx < 0){			// Error 
-	   err = -data_block_idx;
-	   break;		
-	}   
-	
-        newHandle = 1;        			// Flags Heap has been allocated	
+
+        data_block_idx = acc_getIdamNewDataHandle();
+
+        if (data_block_idx < 0) {            // Error
+            err = -data_block_idx;
+            break;
+        }
+
+        newHandle = 1;                    // Flags Heap has been allocated
         data_block = getIdamDataBlock(data_block_idx);
 
         //------------------------------------------------------------------------------
@@ -1106,23 +1107,23 @@ int idamClient(REQUEST_BLOCK* request_block)
 
         if (allocMetaHeap) {
             if (data_system != NULL) {
-                free((void*) data_system);    // Free Unwanted Meta Data
+                free((void*)data_system);    // Free Unwanted Meta Data
             }
 
             if (system_config != NULL) {
-                free((void*) system_config);
+                free((void*)system_config);
             }
 
             if (data_source != NULL) {
-                free((void*) data_source);
+                free((void*)data_source);
             }
 
             if (signal_rec != NULL) {
-                free((void*) signal_rec);
+                free((void*)signal_rec);
             }
 
             if (signal_desc != NULL) {
-                free((void*) signal_desc);
+                free((void*)signal_desc);
             }
 
             data_system = NULL;
@@ -1254,7 +1255,6 @@ int idamClient(REQUEST_BLOCK* request_block)
 
 #endif      // <========================== End of FatClient Code Only
 
-
 void idamFree(int handle)
 {
 
@@ -1266,194 +1266,194 @@ void idamFree(int handle)
 
     DATA_BLOCK* data_block = getIdamDataBlock(handle);
 
-    if (data_block == NULL)  return;
+    if (data_block == NULL) return;
 
-        // Free Hierarchical structured data first
+    // Free Hierarchical structured data first
 
-        switch (data_block->opaque_type) {
-            case (OPAQUE_TYPE_XML_DOCUMENT): {
-                if (data_block->opaque_block != NULL) {
-                    free((void*) data_block->opaque_block);
-                }
-
-                data_block->opaque_count = 0;
-                data_block->opaque_block = NULL;
-                data_block->opaque_type = OPAQUE_TYPE_UNKNOWN;
-                break;
+    switch (data_block->opaque_type) {
+        case (OPAQUE_TYPE_XML_DOCUMENT): {
+            if (data_block->opaque_block != NULL) {
+                free((void*)data_block->opaque_block);
             }
 
-            case (OPAQUE_TYPE_STRUCTURES): {
-                if (data_block->opaque_block != NULL) {
-                    GENERAL_BLOCK* general_block = (GENERAL_BLOCK*) data_block->opaque_block;
+            data_block->opaque_count = 0;
+            data_block->opaque_block = NULL;
+            data_block->opaque_type = OPAQUE_TYPE_UNKNOWN;
+            break;
+        }
 
-                    if (general_block->userdefinedtypelist != NULL) {
-                        if (userdefinedtypelist ==
-                            general_block->userdefinedtypelist) {  // Is this the current setting?
-                            freeUserDefinedTypeList(userdefinedtypelist);
-                            free((void*) userdefinedtypelist);
-                            userdefinedtypelist = NULL;
-                        } else {
-                            freeUserDefinedTypeList(general_block->userdefinedtypelist);
-                            free((void*) general_block->userdefinedtypelist);
-                        }
+        case (OPAQUE_TYPE_STRUCTURES): {
+            if (data_block->opaque_block != NULL) {
+                GENERAL_BLOCK* general_block = (GENERAL_BLOCK*)data_block->opaque_block;
+
+                if (general_block->userdefinedtypelist != NULL) {
+                    if (userdefinedtypelist ==
+                        general_block->userdefinedtypelist) {  // Is this the current setting?
+                        freeUserDefinedTypeList(userdefinedtypelist);
+                        free((void*)userdefinedtypelist);
+                        userdefinedtypelist = NULL;
+                    } else {
+                        freeUserDefinedTypeList(general_block->userdefinedtypelist);
+                        free((void*)general_block->userdefinedtypelist);
                     }
+                }
 
-                    if (general_block->logmalloclist != NULL) {
-                        if (logmalloclist == general_block->logmalloclist) {
-                            freeMallocLogList(logmalloclist);
-                            free((void*) logmalloclist);
-                            logmalloclist = NULL;
-                        } else {
-                            freeMallocLogList(general_block->logmalloclist);
-                            free((void*) general_block->logmalloclist);
-                        }
+                if (general_block->logmalloclist != NULL) {
+                    if (logmalloclist == general_block->logmalloclist) {
+                        freeMallocLogList(logmalloclist);
+                        free((void*)logmalloclist);
+                        logmalloclist = NULL;
+                    } else {
+                        freeMallocLogList(general_block->logmalloclist);
+                        free((void*)general_block->logmalloclist);
                     }
-
-                    if (general_block->userdefinedtype != NULL) {
-                        freeUserDefinedType(general_block->userdefinedtype);
-                        free((void*) general_block->userdefinedtype);
-                    }
-
-                    free((void*) general_block);
                 }
 
-                data_block->opaque_block = NULL;
-                data_block->data_type = TYPE_UNKNOWN;
-                data_block->opaque_count = 0;
-                data_block->opaque_type = OPAQUE_TYPE_UNKNOWN;
-                data_block->data = NULL;
+                if (general_block->userdefinedtype != NULL) {
+                    freeUserDefinedType(general_block->userdefinedtype);
+                    free((void*)general_block->userdefinedtype);
+                }
 
-                break;
+                free((void*)general_block);
             }
 
-            case (OPAQUE_TYPE_XDRFILE): {
-                if (data_block->opaque_block != NULL) {
-                    free(data_block->opaque_block);
-                }
+            data_block->opaque_block = NULL;
+            data_block->data_type = TYPE_UNKNOWN;
+            data_block->opaque_count = 0;
+            data_block->opaque_type = OPAQUE_TYPE_UNKNOWN;
+            data_block->data = NULL;
 
-                data_block->opaque_block = NULL;
-                data_block->data_type = TYPE_UNKNOWN;
-                data_block->opaque_count = 0;
-                data_block->opaque_type = OPAQUE_TYPE_UNKNOWN;
-                data_block->data = NULL;
+            break;
+        }
 
-                break;
+        case (OPAQUE_TYPE_XDRFILE): {
+            if (data_block->opaque_block != NULL) {
+                free(data_block->opaque_block);
             }
 
-            case (OPAQUE_TYPE_XDROBJECT): {
-                if (data_block->opaque_block != NULL) {
-                    free(data_block->opaque_block);
-                }
+            data_block->opaque_block = NULL;
+            data_block->data_type = TYPE_UNKNOWN;
+            data_block->opaque_count = 0;
+            data_block->opaque_type = OPAQUE_TYPE_UNKNOWN;
+            data_block->data = NULL;
 
-                data_block->opaque_block = NULL;
-                data_block->data_type = TYPE_UNKNOWN;
-                data_block->opaque_count = 0;
-                data_block->opaque_type = OPAQUE_TYPE_UNKNOWN;
-                data_block->data = NULL;
+            break;
+        }
 
-                break;
+        case (OPAQUE_TYPE_XDROBJECT): {
+            if (data_block->opaque_block != NULL) {
+                free(data_block->opaque_block);
             }
 
-            default:
-                break;
+            data_block->opaque_block = NULL;
+            data_block->data_type = TYPE_UNKNOWN;
+            data_block->opaque_count = 0;
+            data_block->opaque_type = OPAQUE_TYPE_UNKNOWN;
+            data_block->data = NULL;
+
+            break;
         }
 
-        rank = data_block->rank;
-        ddims = data_block->dims;
+        default:
+            break;
+    }
 
-        if ((cptr = data_block->data) != NULL) {
-            free((void*) cptr);
-            data_block->data = NULL;    // Prevent another Free
-        }
+    rank = data_block->rank;
+    ddims = data_block->dims;
 
-        if ((cptr = data_block->errhi) != NULL) {
-            free((void*) cptr);
-            data_block->errhi = NULL;
-        }
+    if ((cptr = data_block->data) != NULL) {
+        free((void*)cptr);
+        data_block->data = NULL;    // Prevent another Free
+    }
 
-        if ((cptr = data_block->errlo) != NULL) {
-            free((void*) cptr);
-            data_block->errlo = NULL;
-        }
+    if ((cptr = data_block->errhi) != NULL) {
+        free((void*)cptr);
+        data_block->errhi = NULL;
+    }
 
-        if ((cptr = data_block->synthetic) != NULL) {
-            free((void*) cptr);
-            data_block->synthetic = NULL;
-        }
+    if ((cptr = data_block->errlo) != NULL) {
+        free((void*)cptr);
+        data_block->errlo = NULL;
+    }
 
-        if (data_block->data_system != NULL) {
-            free((void*) data_block->data_system);
-            data_block->data_system = NULL;
-        }
+    if ((cptr = data_block->synthetic) != NULL) {
+        free((void*)cptr);
+        data_block->synthetic = NULL;
+    }
 
-        if (data_block->system_config != NULL) {
-            free((void*) data_block->system_config);
-            data_block->system_config = NULL;
-        }
+    if (data_block->data_system != NULL) {
+        free((void*)data_block->data_system);
+        data_block->data_system = NULL;
+    }
 
-        if (data_block->data_source != NULL) {
-            free((void*) data_block->data_source);
-            data_block->data_source = NULL;
-        }
+    if (data_block->system_config != NULL) {
+        free((void*)data_block->system_config);
+        data_block->system_config = NULL;
+    }
 
-        if (data_block->signal_rec != NULL) {
-            free((void*) data_block->signal_rec);
-            data_block->signal_rec = NULL;
-        }
+    if (data_block->data_source != NULL) {
+        free((void*)data_block->data_source);
+        data_block->data_source = NULL;
+    }
 
-        if (data_block->signal_desc != NULL) {
-            free((void*) data_block->signal_desc);
-            data_block->signal_desc = NULL;
-        }
+    if (data_block->signal_rec != NULL) {
+        free((void*)data_block->signal_rec);
+        data_block->signal_rec = NULL;
+    }
 
-        if (ddims != NULL && rank > 0) {
-            for (i = 0; i < rank; i++) {
-                if ((cptr = data_block->dims[i].dim) != NULL) {
-                    free((void*) cptr);
-                }
+    if (data_block->signal_desc != NULL) {
+        free((void*)data_block->signal_desc);
+        data_block->signal_desc = NULL;
+    }
 
-                if ((cptr = data_block->dims[i].synthetic) != NULL) {
-                    free((void*) cptr);
-                }
-
-                if ((cptr = data_block->dims[i].errhi) != NULL) {
-                    free((void*) cptr);
-                }
-
-                if ((cptr = data_block->dims[i].errlo) != NULL) {
-                    free((void*) cptr);
-                }
-
-                data_block->dims[i].dim = NULL;    // Prevent another Free
-                data_block->dims[i].synthetic = NULL;
-                data_block->dims[i].errhi = NULL;
-                data_block->dims[i].errlo = NULL;
-
-                if ((cptr = (char*) data_block->dims[i].sams) != NULL) {
-                    free((void*) cptr);
-                }
-
-                if ((cptr = data_block->dims[i].offs) != NULL) {
-                    free((void*) cptr);
-                }
-
-                if ((cptr = data_block->dims[i].ints) != NULL) {
-                    free((void*) cptr);
-                }
-
-                data_block->dims[i].sams = NULL;
-                data_block->dims[i].offs = NULL;
-                data_block->dims[i].ints = NULL;
+    if (ddims != NULL && rank > 0) {
+        for (i = 0; i < rank; i++) {
+            if ((cptr = data_block->dims[i].dim) != NULL) {
+                free((void*)cptr);
             }
 
-            free((void*) ddims);
-            data_block->dims = NULL;    // Prevent another Free
+            if ((cptr = data_block->dims[i].synthetic) != NULL) {
+                free((void*)cptr);
+            }
+
+            if ((cptr = data_block->dims[i].errhi) != NULL) {
+                free((void*)cptr);
+            }
+
+            if ((cptr = data_block->dims[i].errlo) != NULL) {
+                free((void*)cptr);
+            }
+
+            data_block->dims[i].dim = NULL;    // Prevent another Free
+            data_block->dims[i].synthetic = NULL;
+            data_block->dims[i].errhi = NULL;
+            data_block->dims[i].errlo = NULL;
+
+            if ((cptr = (char*)data_block->dims[i].sams) != NULL) {
+                free((void*)cptr);
+            }
+
+            if ((cptr = data_block->dims[i].offs) != NULL) {
+                free((void*)cptr);
+            }
+
+            if ((cptr = data_block->dims[i].ints) != NULL) {
+                free((void*)cptr);
+            }
+
+            data_block->dims[i].sams = NULL;
+            data_block->dims[i].offs = NULL;
+            data_block->dims[i].ints = NULL;
         }
+
+        free((void*)ddims);
+        data_block->dims = NULL;    // Prevent another Free
+    }
 
     // closeIdamError(&server_block.idamerrorstack);
-    
+
     initDataBlock(data_block);
-    data_block->handle = -1;		// Flag this as ready for re-use 
+    data_block->handle = -1;        // Flag this as ready for re-use
 }
 
 void idamFreeAll()
@@ -1481,7 +1481,7 @@ void idamFreeAll()
 
     closeIdamError(&server_block.idamerrorstack);
 
-#ifndef FATCLIENT   // <========================== Client Server Code Only
+#ifndef FATCLIENT // <========================== Client Server Code Only
 
     // After each data request, the server waits for the CLIENT_BLOCK to be sent.
     // When the client application closes, the socket is closed and the server terminates with a Protocol Error
@@ -1496,21 +1496,233 @@ void idamFreeAll()
         xdrrec_endofrecord(clientOutput, 1);
     }
 
-#else       // <========================== End of Client Server Code Only 
-
-    //----------------------------------------------------------------------------
-    // Free List of Structure Definitions
-
-    freeUserDefinedTypeList(&parseduserdefinedtypelist);
-
-    freeNTree();
-
-    // Free Plugin List and Close all open library entries
-
-    freePluginList(&pluginList);
-
-#endif
+#endif // <========================== End of Client Server Code Only
 
     idamClosedown(1);        // Close the Socket, XDR Streams and All Files
 
+}
+
+SERVER_BLOCK getIdamThreadServerBlock()
+{
+    return server_block;
+}
+
+CLIENT_BLOCK getIdamThreadClientBlock()
+{
+    return client_block;
+}
+
+void putIdamThreadServerBlock(SERVER_BLOCK* str)
+{
+    server_block = *str;
+}
+
+void putIdamThreadClientBlock(CLIENT_BLOCK* str)
+{
+    client_block = *str;
+}
+
+CLIENT_BLOCK saveIdamProperties()
+{    // save current state of properties for future rollback
+    CLIENT_BLOCK cb = client_block;      // Copy of Global Structure (maybe not initialised! i.e. idam API not called)
+    cb.get_datadble = get_datadble;      // Copy individual properties only
+    cb.get_dimdble = get_dimdble;
+    cb.get_timedble = get_timedble;
+    cb.get_bad = get_bad;
+    cb.get_meta = get_meta;
+    cb.get_asis = get_asis;
+    cb.get_uncal = get_uncal;
+    cb.get_notoff = get_notoff;
+    cb.get_scalar = get_scalar;
+    cb.get_bytes = get_bytes;
+    cb.get_nodimdata = get_nodimdata;
+    cb.clientFlags = clientFlags;
+    cb.altRank = altRank;
+    return cb;
+}
+
+void restoreIdamProperties(CLIENT_BLOCK cb)
+{         // Restore Properties to a prior saved state
+    client_block.get_datadble = cb.get_datadble;     // Overwrite Individual Global Structure Components
+    client_block.get_dimdble = cb.get_dimdble;
+    client_block.get_timedble = cb.get_timedble;
+    client_block.get_bad = cb.get_bad;
+    client_block.get_meta = cb.get_meta;
+    client_block.get_asis = cb.get_asis;
+    client_block.get_uncal = cb.get_uncal;
+    client_block.get_notoff = cb.get_notoff;
+    client_block.get_scalar = cb.get_scalar;
+    client_block.get_bytes = cb.get_bytes;
+    client_block.clientFlags = cb.clientFlags;
+    client_block.altRank = cb.altRank;
+
+    get_datadble = client_block.get_datadble;
+    get_dimdble = client_block.get_dimdble;
+    get_timedble = client_block.get_timedble;
+    get_bad = client_block.get_bad;
+    get_meta = client_block.get_meta;
+    get_asis = client_block.get_asis;
+    get_uncal = client_block.get_uncal;
+    get_notoff = client_block.get_notoff;
+    get_scalar = client_block.get_scalar;
+    get_bytes = client_block.get_bytes;
+    get_nodimdata = client_block.get_nodimdata;
+    clientFlags = client_block.clientFlags;
+    altRank = client_block.altRank;
+}
+
+//! get the IDAM client study DOI
+/**
+* @return the DOI
+*/
+char* getIdamClientDOI()
+{
+    return client_block.DOI;
+}
+
+//! put the IDAM client study DOI
+/**
+* @assign the DOI
+*/
+void putIdamClientDOI(char* doi)
+{
+    strcpy(client_block.DOI, doi);
+}
+
+//! get the IDAM server configuration DOI
+/**
+* @return the DOI
+*/
+char* getIdamServerDOI()
+{
+    return server_block.DOI;
+}
+
+//! get the IDAM client OS Name
+/**
+* @return the OS name
+*/
+char* getIdamClientOSName()
+{
+    return client_block.OSName;
+}
+
+//! put the IDAM client OS Name
+/**
+* @assign the OS name
+*/
+void putIdamClientOSName(char* os)
+{
+    strcpy(client_block.OSName, os);
+}
+
+//! get the IDAM server environment OS Name
+/**
+* @return the OS name
+*/
+char* getIdamServerOSName()
+{
+    return server_block.OSName;
+}
+
+//! the IDAM client library verion number
+/**
+* @return the verion number
+*/
+int getIdamClientVersion()
+{
+    return clientVersion;              // Client Library Version
+}
+
+//! the IDAM server verion number
+/**
+* @return the verion number
+*/
+int getIdamServerVersion()
+{
+    return server_block.version;           // Server Version
+}
+
+//! the IDAM server error code returned
+/**
+* @return the error code
+*/
+int getIdamServerErrorCode()
+{
+    return server_block.error;             // Server Error Code
+}
+
+//! the IDAM server error message returned
+/**
+* @return the error message
+*/
+char* getIdamServerErrorMsg()
+{
+    return server_block.msg;               // Server Error Message
+}
+
+//! the number of IDAM server error message records returned in the error stack
+/**
+* @return the number of records
+*/
+int getIdamServerErrorStackSize()
+{
+    return server_block.idamerrorstack.nerrors;     // Server Error Stack Size (No.Records)
+}
+
+//! the Type of server error of a specific server error record
+/**
+* @param record the error stack record number
+* @return the type id
+*/
+int getIdamServerErrorStackRecordType(int record)
+{
+    if (record < 0 || record >= server_block.idamerrorstack.nerrors) return 0;
+    return server_block.idamerrorstack.idamerror[record].type;  // Server Error Stack Record Type
+}
+
+//! the Error code of a specific server error record
+/**
+* @param record the error stack record number
+* @return the error code
+*/
+int getIdamServerErrorStackRecordCode(int record)
+{
+    if (record < 0 || record >= server_block.idamerrorstack.nerrors) return 0;
+    return server_block.idamerrorstack.idamerror[record].code;  // Server Error Stack Record Code
+}
+
+//! the Server error Location name of a specific error record
+/**
+* @param record the error stack record number
+* @return the location name
+*/
+char* getIdamServerErrorStackRecordLocation(int record)
+{
+    if (record < 0 || record >= server_block.idamerrorstack.nerrors) return 0;
+    return server_block.idamerrorstack.idamerror[record].location; // Server Error Stack Record Location
+}
+
+//! the Server error message of a specific error record
+/**
+* @param record the error stack record number
+* @return the error message
+*/
+char* getIdamServerErrorStackRecordMsg(int record)
+{
+    IDAM_LOGF(LOG_DEBUG, "getIdamServerErrorStackRecordMsg: record %d\n", record);
+    IDAM_LOGF(LOG_DEBUG, "getIdamServerErrorStackRecordMsg: count  %d\n", server_block.idamerrorstack.nerrors);
+    if (record < 0 || record >= server_block.idamerrorstack.nerrors) {
+        return 0;
+    }
+    return server_block.idamerrorstack.idamerror[record].msg;   // Server Error Stack Record Message
+}
+
+//! Return the Server error message stack data structure
+/**
+@return  the error message stack data structure
+*/
+IDAMERRORSTACK* getIdamServerErrorStack()
+{
+    return &server_block.idamerrorstack;         // Server Error Stack Structure
 }

@@ -8,6 +8,7 @@
 
 #include <client/accAPI.h>
 #include <client/udaGetAPI.h>
+#include <client/udaClient.h>
 
 #include "data.hpp"
 #include "result.hpp"

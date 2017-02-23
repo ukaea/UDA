@@ -24,7 +24,7 @@ typedef struct IdamPluginInterface {    // Standard Plugin interface
     SIGNAL_DESC* signal_desc;
     ENVIRONMENT* environment;           // Server environment
     void* sqlConnection;                // Opaque structure
-    PLUGINLIST* pluginList;             // List of data readers, filters, models, and servers
+    const PLUGINLIST* pluginList;             // List of data readers, filters, models, and servers
 } IDAM_PLUGIN_INTERFACE;
 
 typedef int (* PLUGINFUNP)(IDAM_PLUGIN_INTERFACE*);             // Plugin function type

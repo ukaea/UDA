@@ -7,7 +7,7 @@
 
 int idamserverGetData(PGconn* DBConnect, int* depth, REQUEST_BLOCK request_block, CLIENT_BLOCK client_block,
                       DATA_BLOCK* data_block, DATA_SOURCE* data_source, SIGNAL* signal_rec, SIGNAL_DESC* signal_desc,
-                      ACTIONS* actions_desc, ACTIONS* actions_sig);
+                      ACTIONS* actions_desc, ACTIONS* actions_sig, const PLUGINLIST* pluginlist);
 
 int idamserverSwapSignalError(DATA_BLOCK* data_block, DATA_BLOCK* data_block2, int asymmetry);
 
@@ -17,7 +17,8 @@ int idamserverSwapSignalDimError(DIMCOMPOSITE dimcomposite, DATA_BLOCK* data_blo
                                  int asymmetry);
 
 int idamserverReadData(PGconn* DBConnect, REQUEST_BLOCK request_block, CLIENT_BLOCK client_block,
-                       DATA_BLOCK* data_block, DATA_SOURCE* data_source, SIGNAL* signal_rec, SIGNAL_DESC* signal_desc);
+                       DATA_BLOCK* data_block, DATA_SOURCE* data_source, SIGNAL* signal_rec, SIGNAL_DESC* signal_desc,
+                       const PLUGINLIST* pluginlist);
 
 #endif // IDAM_SERVER_IDAMSERVERGETDATA2_H
 

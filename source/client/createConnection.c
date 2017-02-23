@@ -14,6 +14,7 @@
 #include <clientserver/errorLog.h>
 #include <clientserver/manageSockets.h>
 #include <client/udaClient.h>
+#include <server/getServerEnvironment.h>
 
 int createConnection()
 {
@@ -23,8 +24,9 @@ int createConnection()
     char* hostname;
 
     struct sockaddr_in server;
-
     struct hostent* host;
+
+    ENVIRONMENT* environment = getIdamServerEnvironment();
 
     if (clientSocket >= 0) {
         return 0;                // Check Already Opened?
@@ -55,9 +57,9 @@ int createConnection()
     }
 
 // IDAM server host
-
+    
     server.sin_family = AF_INET;
-    hostname = environment.server_host;
+    hostname = environment->server_host;
 
 // Resolve host
 
@@ -85,7 +87,7 @@ int createConnection()
 
 // IDAM server Port
 
-    server.sin_port = htons(environment.server_port);
+    server.sin_port = htons(environment->server_port);
 
 // Connect to server
 
@@ -114,9 +116,9 @@ int createConnection()
             sleep(delay);
         }
 
-        if (rc < 0 && strcmp(environment.server_host, environment.server_host2) !=
+        if (rc < 0 && strcmp(environment->server_host, environment->server_host2) !=
                       0) {        // Abandon principal Host - attempt secondary host
-            hostname = environment.server_host2;
+            hostname = environment->server_host2;
             errno = 0;
             host = gethostbyname(hostname);
             if (host == NULL || errno != 0) {
@@ -130,7 +132,7 @@ int createConnection()
                 return -1;
             }
             memcpy(&server.sin_addr, host->h_addr_list[0], host->h_length);
-            server.sin_port = htons(environment.server_port2);
+            server.sin_port = htons(environment->server_port2);
             for (i = 0; i < MAX_SOCKET_ATTEMPTS; i++) {
                 errno = 0;
                 while ((rc = connect(clientSocket, (struct sockaddr*) &server, sizeof(server))) && errno == EINTR) {}
@@ -138,13 +140,13 @@ int createConnection()
                 if (rc == 0) {
                     char* name;
                     int port;
-                    port = environment.server_port2;                // Swap data so that accessor function reports correctly
-                    environment.server_port2 = environment.server_port;
-                    environment.server_port = port;
-                    name = (char*) malloc((strlen(environment.server_host) + 1) * sizeof(char));
-                    strcpy(name, environment.server_host2);
-                    strcpy(environment.server_host2, environment.server_host);
-                    strcpy(environment.server_host, name);
+                    port = environment->server_port2;                // Swap data so that accessor function reports correctly
+                    environment->server_port2 = environment->server_port;
+                    environment->server_port = port;
+                    name = (char*) malloc((strlen(environment->server_host) + 1) * sizeof(char));
+                    strcpy(name, environment->server_host2);
+                    strcpy(environment->server_host2, environment->server_host);
+                    strcpy(environment->server_host, name);
                     free((void*) name);
                     break;
                 }
@@ -193,12 +195,12 @@ int createConnection()
 
 // Add New Socket to the Socket's List
 
-    addSocket(&client_socketlist, TYPE_IDAM_SERVER, 1, environment.server_host, environment.server_port, clientSocket);
+    addSocket(&client_socketlist, TYPE_IDAM_SERVER, 1, environment->server_host, environment->server_port, clientSocket);
     client_socketlist.sockets[getSocketRecordId(&client_socketlist, clientSocket)].Input = clientInput;
     client_socketlist.sockets[getSocketRecordId(&client_socketlist, clientSocket)].Output = clientOutput;
-    environment.server_reconnect = 0;
-    environment.server_change_socket = 0;
-    environment.server_socket = clientSocket;
+    environment->server_reconnect = 0;
+    environment->server_change_socket = 0;
+    environment->server_socket = clientSocket;
 
     return 0;
 }

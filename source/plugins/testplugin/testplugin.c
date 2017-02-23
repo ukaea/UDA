@@ -3113,11 +3113,10 @@ static int do_plugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     int err = 0;
 
-    PLUGINLIST* pluginList;    // List of all data reader plugins (internal and external shared libraries)
     IDAM_PLUGIN_INTERFACE next_plugin_interface;
     REQUEST_BLOCK next_request_block;
 
-    pluginList = idam_plugin_interface->pluginList;
+    const PLUGINLIST* pluginList = idam_plugin_interface->pluginList;
 
     if (pluginList == NULL) {
         err = 999;

@@ -36,14 +36,14 @@ int help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     } else {
         err = 999;
-        idamLog(LOG_ERROR, "ERROR Provenance: Plugin Interface Version Unknown\n");
+        IDAM_LOG(LOG_ERROR, "ERROR Provenance: Plugin Interface Version Unknown\n");
 
         addIdamError(&idamerrorstack, CODEERRORTYPE, "Provenance", err,
                      "Plugin Interface Version is Not Known: Unable to execute the request!");
         return err;
     }
 
-    idamLog(LOG_DEBUG, "Provenance: Plugin Interface transferred\n");
+    IDAM_LOG(LOG_DEBUG, "Provenance: Plugin Interface transferred\n");
 
 //----------------------------------------------------------------------------------------
 // Common Name Value pairs
@@ -57,7 +57,7 @@ int help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     do {
 
-        idamLog(LOG_DEBUG, "Provenance: entering function help\n");
+        IDAM_LOG(LOG_DEBUG, "Provenance: entering function help\n");
 
         strcpy(work, "\nProvenance: Issue and register a new UUID for a specific scientific study.\n\n"
 
@@ -82,7 +82,7 @@ int help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 "\tlogRecord=logRecord, created=created, status=[New|Update|Close|Delete])\n\n"
         );
 
-        idamLog(LOG_DEBUG, "Provenance:\n%s\n", work);
+        IDAM_LOGF(LOG_DEBUG, "Provenance:\n%s\n", work);
 
 // Create the Returned Structure Definition
 
@@ -107,18 +107,18 @@ int help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
         PROVENANCEHELP* data;
         stringLength = strlen(work) + 1;
-        data = (PROVENANCEHELP*) malloc(sizeof(PROVENANCEHELP));
-        data->value = (char*) malloc(stringLength * sizeof(char));
+        data = (PROVENANCEHELP*)malloc(sizeof(PROVENANCEHELP));
+        data->value = (char*)malloc(stringLength * sizeof(char));
         strcpy(data->value, work);
-        addMalloc((void*) data, 1, sizeof(PROVENANCEHELP), "PROVENANCEHELP");
-        addMalloc((void*) data->value, 1, stringLength * sizeof(char), "char");
+        addMalloc((void*)data, 1, sizeof(PROVENANCEHELP), "PROVENANCEHELP");
+        addMalloc((void*)data->value, 1, stringLength * sizeof(char), "char");
 
 // Pass Data	 
 
         data_block->data_type = TYPE_COMPOUND;
         data_block->rank = 0;
         data_block->data_n = 1;
-        data_block->data = (char*) data;
+        data_block->data = (char*)data;
 
         strcpy(data_block->data_desc, "Provenance Plugin help");
         strcpy(data_block->data_label, "");
@@ -126,10 +126,10 @@ int help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
         data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
         data_block->opaque_count = 1;
-        data_block->opaque_block = (void*) findUserDefinedType("PROVENANCEHELP", 0);
+        data_block->opaque_block = (void*)findUserDefinedType("PROVENANCEHELP", 0);
 
-        idamLog(LOG_DEBUG, "Provenance: exiting function help\n");
-        if (data_block->opaque_block == NULL) idamLog(LOG_DEBUG, "Provenance: PROVENANCEHELP type not found\n");
+        IDAM_LOG(LOG_DEBUG, "Provenance: exiting function help\n");
+        if (data_block->opaque_block == NULL) IDAM_LOG(LOG_DEBUG, "Provenance: PROVENANCEHELP type not found\n");
 
         break;
 

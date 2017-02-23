@@ -6,6 +6,7 @@
 //--------------------------------------------------------------------------------------------------------------------
 
 #include "serverSubsetData.h"
+#include "getServerEnvironment.h"
 
 #include <math.h>
 #include <float.h>
@@ -1203,7 +1204,7 @@ int idamserverParseServerSide(REQUEST_BLOCK* request_block, ACTIONS* actions_ser
 // Overwrite the Request Block to enable the correct access to signal data before the subset operations are applied
 
     strcpy(request_block->archive, archive);
-    if (request_block->archive[0] == '\0') strcpy(request_block->archive, environment.api_archive);
+    if (request_block->archive[0] == '\0') strcpy(request_block->archive, getIdamServerEnvironment()->api_archive);
 
     strcpy(request_block->signal, signal);
 

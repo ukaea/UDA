@@ -24,7 +24,6 @@
 #include "common.h"
 #include "ual_low_level_mdsplus.h"
 #include "ual_low_level.h"
-#include "ccfe_idam_mdsplus_plugin.h"
 #include "extract_indices.h"
 
 #include <mdslib.h>
@@ -40,8 +39,11 @@
 #include <server/managePluginFiles.h>
 #include <client/accAPI.h>
 #include <logging/logging.h>
+#include <client/udaClient.h>
 
 IDAMPLUGINFILELIST pluginFileList_mds;
+
+extern char* errmsg;
 
 char* spawnCommand(char* command, char* ipAddress);
 
@@ -1932,7 +1934,7 @@ static int do_source(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARGS p
     char* env = NULL;
     char work[MAXMETA];
 
-    PLUGINLIST* plugin_list = idam_plugin_interface->pluginList;    // List of all data reader plugins (internal and external shared libraries)
+    const PLUGINLIST* plugin_list = idam_plugin_interface->pluginList;    // List of all data reader plugins (internal and external shared libraries)
 
     if (plugin_list == NULL) {
         err = 999;

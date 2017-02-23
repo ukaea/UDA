@@ -55,6 +55,8 @@ typedef void (* ADDIDAMERRORFUNP)(IDAMERRORSTACK*, int, char*, int, char*);   //
 
 // Prototypes
 
+int initPlugin(const IDAM_PLUGIN_INTERFACE* plugin_interface);
+
 unsigned short findStringValue(NAMEVALUELIST* namevaluelist, char** value, const char* name);
 
 unsigned short findValue(NAMEVALUELIST* namevaluelist, const char* name);

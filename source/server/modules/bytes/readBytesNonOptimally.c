@@ -31,6 +31,7 @@
 #include <clientserver/freeDataBlock.h>
 #include <clientserver/udaTypes.h>
 #include <clientserver/udaErrors.h>
+#include <server/getServerEnvironment.h>
 
 #ifdef NOBINARYPLUGIN
 
@@ -61,7 +62,9 @@ int readBytes(DATA_SOURCE data_source,
 //----------------------------------------------------------------------
 // Block Access to External Users
 
-    if (environment.external_user) {
+    const ENVIRONMENT* environment = getIdamServerEnvironment();
+
+    if (environment->external_user) {
         err = 999;
         addIdamError(&idamerrorstack, CODEERRORTYPE, "readBytes", err, "This Service is Disabled");
         IDAM_LOGF(LOG_DEBUG, "Disabled Service - Requested File: %s \n", data_source.path);

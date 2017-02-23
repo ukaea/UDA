@@ -26,41 +26,41 @@ int allocArray(int data_type, int n_data, char** ap)
 // Generic function to (Re)Allocate Memory for a typed Array
 
     if (n_data <= 0) return 0; // Insufficient Data to Allocate!
-    size_t ndata = (size_t) n_data;
+    size_t ndata = (size_t)n_data;
 
     switch (data_type) {
         case TYPE_CHAR :
-            *ap = (char*) realloc((void*) *ap, ndata * sizeof(char));
+            *ap = (char*)realloc((void*)*ap, ndata * sizeof(char));
             break;
         case TYPE_SHORT :
-            *ap = (char*) realloc((void*) *ap, ndata * sizeof(short));
+            *ap = (char*)realloc((void*)*ap, ndata * sizeof(short));
             break;
         case TYPE_INT :
-            *ap = (char*) realloc((void*) *ap, ndata * sizeof(int));
+            *ap = (char*)realloc((void*)*ap, ndata * sizeof(int));
             break;
         case TYPE_LONG :
-            *ap = (char*) realloc((void*) *ap, ndata * sizeof(long));
+            *ap = (char*)realloc((void*)*ap, ndata * sizeof(long));
             break;
         case TYPE_LONG64 :
-            *ap = (char*) realloc((void*) *ap, ndata * sizeof(long long int));
+            *ap = (char*)realloc((void*)*ap, ndata * sizeof(long long int));
             break;
         case TYPE_FLOAT :
-            *ap = (char*) realloc((void*) *ap, ndata * sizeof(float));
+            *ap = (char*)realloc((void*)*ap, ndata * sizeof(float));
             break;
         case TYPE_DOUBLE :
-            *ap = (char*) realloc((void*) *ap, ndata * sizeof(double));
+            *ap = (char*)realloc((void*)*ap, ndata * sizeof(double));
             break;
         case TYPE_UNSIGNED_CHAR :
-            *ap = (char*) realloc((void*) *ap, ndata * sizeof(unsigned char));
+            *ap = (char*)realloc((void*)*ap, ndata * sizeof(unsigned char));
             break;
         case TYPE_UNSIGNED_SHORT :
-            *ap = (char*) realloc((void*) *ap, ndata * sizeof(unsigned short));
+            *ap = (char*)realloc((void*)*ap, ndata * sizeof(unsigned short));
             break;
         case TYPE_UNSIGNED_INT :
-            *ap = (char*) realloc((void*) *ap, ndata * sizeof(unsigned int));
+            *ap = (char*)realloc((void*)*ap, ndata * sizeof(unsigned int));
             break;
         case TYPE_UNSIGNED_LONG :
-            *ap = (char*) realloc((void*) *ap, ndata * sizeof(unsigned long));
+            *ap = (char*)realloc((void*)*ap, ndata * sizeof(unsigned long));
             break;
 #ifndef __APPLE__
         case TYPE_UNSIGNED_LONG64 :
@@ -68,13 +68,13 @@ int allocArray(int data_type, int n_data, char** ap)
             break;
 #endif
         case TYPE_STRING :
-            *ap = (char*) realloc((void*) *ap, ndata * sizeof(char));
+            *ap = (char*)realloc((void*)*ap, ndata * sizeof(char));
             break;
         case TYPE_DCOMPLEX :
-            *ap = (char*) realloc((void*) *ap, ndata * sizeof(DCOMPLEX));
+            *ap = (char*)realloc((void*)*ap, ndata * sizeof(DCOMPLEX));
             break;
         case TYPE_COMPLEX :
-            *ap = (char*) realloc((void*) *ap, ndata * sizeof(COMPLEX));
+            *ap = (char*)realloc((void*)*ap, ndata * sizeof(COMPLEX));
             break;
         case TYPE_COMPOUND :
             *ap = NULL;
@@ -105,7 +105,7 @@ int allocData(DATA_BLOCK* data_block)
 // Allocate Memory for data Dimensions
 
     if (data_block->rank > 0) {
-        data_block->dims = (DIMS*) malloc(data_block->rank * sizeof(DIMS));
+        data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
         if (data_block->dims == NULL) return (ERROR_ALLOCATING_HEAP);
         for (i = 0; i < data_block->rank; i++) initDimBlock(&data_block->dims[i]);
     }
@@ -113,84 +113,84 @@ int allocData(DATA_BLOCK* data_block)
 //------------------------------------------------------------------------
 // Allocate Memory for data and errors
 
-    if ((ndata = (unsigned int) data_block->data_n) == 0) return 1;   // Insufficient Data to Allocate!
+    if ((ndata = (unsigned int)data_block->data_n) == 0) return 1;   // Insufficient Data to Allocate!
 
     switch (data_block->data_type) {
         case TYPE_CHAR :
-            db = (char*) malloc(ndata * sizeof(char));
+            db = (char*)malloc(ndata * sizeof(char));
             if (data_block->error_type == TYPE_UNKNOWN) {
-                ebh = (char*) malloc(ndata * sizeof(char));        // Will be same type as Data if Accessed
-                if (data_block->errasymmetry) ebl = (char*) malloc(ndata * sizeof(char));
+                ebh = (char*)malloc(ndata * sizeof(char));        // Will be same type as Data if Accessed
+                if (data_block->errasymmetry) ebl = (char*)malloc(ndata * sizeof(char));
             }
             break;
         case TYPE_SHORT :
-            db = (char*) malloc(ndata * sizeof(short));
+            db = (char*)malloc(ndata * sizeof(short));
             if (data_block->error_type == TYPE_UNKNOWN) {
-                ebh = (char*) malloc(ndata * sizeof(short));
-                if (data_block->errasymmetry) ebl = (char*) malloc(ndata * sizeof(short));
+                ebh = (char*)malloc(ndata * sizeof(short));
+                if (data_block->errasymmetry) ebl = (char*)malloc(ndata * sizeof(short));
             }
             break;
         case TYPE_INT :
-            db = (char*) malloc(ndata * sizeof(int));
+            db = (char*)malloc(ndata * sizeof(int));
             if (data_block->error_type == TYPE_UNKNOWN) {
-                ebh = (char*) malloc(ndata * sizeof(int));
-                if (data_block->errasymmetry) ebl = (char*) malloc(ndata * sizeof(int));
+                ebh = (char*)malloc(ndata * sizeof(int));
+                if (data_block->errasymmetry) ebl = (char*)malloc(ndata * sizeof(int));
             }
             break;
         case TYPE_LONG :
-            db = (char*) malloc(ndata * sizeof(int));
+            db = (char*)malloc(ndata * sizeof(int));
             if (data_block->error_type == TYPE_UNKNOWN) {
-                ebh = (char*) malloc(ndata * sizeof(long));
-                if (data_block->errasymmetry) ebl = (char*) malloc(ndata * sizeof(long));
+                ebh = (char*)malloc(ndata * sizeof(long));
+                if (data_block->errasymmetry) ebl = (char*)malloc(ndata * sizeof(long));
             }
             break;
         case TYPE_LONG64 :
-            db = (char*) malloc(ndata * sizeof(long long int));
+            db = (char*)malloc(ndata * sizeof(long long int));
             if (data_block->error_type == TYPE_UNKNOWN) {
-                ebh = (char*) malloc(ndata * sizeof(long long int));
-                if (data_block->errasymmetry) ebl = (char*) malloc(ndata * sizeof(long long int));
+                ebh = (char*)malloc(ndata * sizeof(long long int));
+                if (data_block->errasymmetry) ebl = (char*)malloc(ndata * sizeof(long long int));
             }
             break;
         case TYPE_FLOAT :
-            db = (char*) malloc(ndata * sizeof(float));
+            db = (char*)malloc(ndata * sizeof(float));
             if (data_block->error_type == TYPE_UNKNOWN) {
-                ebh = (char*) malloc(ndata * sizeof(float));
-                if (data_block->errasymmetry) ebl = (char*) malloc(ndata * sizeof(float));
+                ebh = (char*)malloc(ndata * sizeof(float));
+                if (data_block->errasymmetry) ebl = (char*)malloc(ndata * sizeof(float));
             }
             break;
         case TYPE_DOUBLE :
-            db = (char*) malloc(ndata * sizeof(double));
+            db = (char*)malloc(ndata * sizeof(double));
             if (data_block->error_type == TYPE_UNKNOWN) {
-                ebh = (char*) malloc(ndata * sizeof(double));
-                if (data_block->errasymmetry) ebl = (char*) malloc(ndata * sizeof(double));
+                ebh = (char*)malloc(ndata * sizeof(double));
+                if (data_block->errasymmetry) ebl = (char*)malloc(ndata * sizeof(double));
             }
             break;
         case TYPE_UNSIGNED_CHAR :
-            db = (char*) malloc(ndata * sizeof(unsigned char));
+            db = (char*)malloc(ndata * sizeof(unsigned char));
             if (data_block->error_type == TYPE_UNKNOWN) {
-                ebh = (char*) malloc(ndata * sizeof(unsigned char));        // Will be same type as Data if Accessed
-                if (data_block->errasymmetry) ebl = (char*) malloc(ndata * sizeof(unsigned char));
+                ebh = (char*)malloc(ndata * sizeof(unsigned char));        // Will be same type as Data if Accessed
+                if (data_block->errasymmetry) ebl = (char*)malloc(ndata * sizeof(unsigned char));
             }
             break;
         case TYPE_UNSIGNED_SHORT :
-            db = (char*) malloc(ndata * sizeof(unsigned short));
+            db = (char*)malloc(ndata * sizeof(unsigned short));
             if (data_block->error_type == TYPE_UNKNOWN) {
-                ebh = (char*) malloc(ndata * sizeof(unsigned short));
-                if (data_block->errasymmetry) ebl = (char*) malloc(ndata * sizeof(unsigned short));
+                ebh = (char*)malloc(ndata * sizeof(unsigned short));
+                if (data_block->errasymmetry) ebl = (char*)malloc(ndata * sizeof(unsigned short));
             }
             break;
         case TYPE_UNSIGNED_INT :
-            db = (char*) malloc(ndata * sizeof(unsigned int));
+            db = (char*)malloc(ndata * sizeof(unsigned int));
             if (data_block->error_type == TYPE_UNKNOWN) {
-                ebh = (char*) malloc(ndata * sizeof(unsigned int));
-                if (data_block->errasymmetry) ebl = (char*) malloc(ndata * sizeof(unsigned int));
+                ebh = (char*)malloc(ndata * sizeof(unsigned int));
+                if (data_block->errasymmetry) ebl = (char*)malloc(ndata * sizeof(unsigned int));
             }
             break;
         case TYPE_UNSIGNED_LONG :
-            db = (char*) malloc(ndata * sizeof(unsigned long));
+            db = (char*)malloc(ndata * sizeof(unsigned long));
             if (data_block->error_type == TYPE_UNKNOWN) {
-                ebh = (char*) malloc(ndata * sizeof(unsigned long));
-                if (data_block->errasymmetry) ebl = (char*) malloc(ndata * sizeof(unsigned long));
+                ebh = (char*)malloc(ndata * sizeof(unsigned long));
+                if (data_block->errasymmetry) ebl = (char*)malloc(ndata * sizeof(unsigned long));
             }
             break;
 #ifndef __APPLE__
@@ -203,24 +203,24 @@ int allocData(DATA_BLOCK* data_block)
             break;
 #endif
         case TYPE_STRING :
-            db = (char*) malloc(ndata * sizeof(char));
+            db = (char*)malloc(ndata * sizeof(char));
             if (data_block->error_type == TYPE_UNKNOWN) {
-                ebh = (char*) malloc(ndata * sizeof(char));        // Will be same type as Data if Accessed
-                if (data_block->errasymmetry) ebl = (char*) malloc(ndata * sizeof(char));
+                ebh = (char*)malloc(ndata * sizeof(char));        // Will be same type as Data if Accessed
+                if (data_block->errasymmetry) ebl = (char*)malloc(ndata * sizeof(char));
             }
             break;
         case TYPE_DCOMPLEX :
-            db = (char*) malloc(ndata * sizeof(DCOMPLEX));
+            db = (char*)malloc(ndata * sizeof(DCOMPLEX));
             if (data_block->error_type == TYPE_UNKNOWN) {
-                ebh = (char*) malloc(ndata * sizeof(DCOMPLEX));
-                if (data_block->errasymmetry) ebl = (char*) malloc(ndata * sizeof(DCOMPLEX));
+                ebh = (char*)malloc(ndata * sizeof(DCOMPLEX));
+                if (data_block->errasymmetry) ebl = (char*)malloc(ndata * sizeof(DCOMPLEX));
             }
             break;
         case TYPE_COMPLEX :
-            db = (char*) malloc(ndata * sizeof(COMPLEX));
+            db = (char*)malloc(ndata * sizeof(COMPLEX));
             if (data_block->error_type == TYPE_UNKNOWN) {
-                ebh = (char*) malloc(ndata * sizeof(COMPLEX));
-                if (data_block->errasymmetry) ebl = (char*) malloc(ndata * sizeof(COMPLEX));
+                ebh = (char*)malloc(ndata * sizeof(COMPLEX));
+                if (data_block->errasymmetry) ebl = (char*)malloc(ndata * sizeof(COMPLEX));
             }
             break;
         case TYPE_COMPOUND:
@@ -232,64 +232,64 @@ int allocData(DATA_BLOCK* data_block)
             return (UNKNOWN_DATA_TYPE);
     }
 
-    idamLog(LOG_DEBUG, "allocData :\n");
-    idamLog(LOG_DEBUG, "rank      : %d\n", data_block->rank);
-    idamLog(LOG_DEBUG, "count     : %d\n", data_block->data_n);
-    idamLog(LOG_DEBUG, "data_type : %d\n", data_block->data_type);
-    idamLog(LOG_DEBUG, "error_type: %d\n", data_block->error_type);
-    idamLog(LOG_DEBUG, "data  != NULL: %d\n", db != NULL);
-    idamLog(LOG_DEBUG, "errhi != NULL: %d\n", ebh != NULL);
-    idamLog(LOG_DEBUG, "errlo != NULL: %d\n", ebl != NULL);
+    IDAM_LOG(LOG_DEBUG, "allocData :\n");
+    IDAM_LOGF(LOG_DEBUG, "rank      : %d\n", data_block->rank);
+    IDAM_LOGF(LOG_DEBUG, "count     : %d\n", data_block->data_n);
+    IDAM_LOGF(LOG_DEBUG, "data_type : %d\n", data_block->data_type);
+    IDAM_LOGF(LOG_DEBUG, "error_type: %d\n", data_block->error_type);
+    IDAM_LOGF(LOG_DEBUG, "data  != NULL: %d\n", db != NULL);
+    IDAM_LOGF(LOG_DEBUG, "errhi != NULL: %d\n", ebh != NULL);
+    IDAM_LOGF(LOG_DEBUG, "errlo != NULL: %d\n", ebl != NULL);
 
     if (db == NULL && data_block->data_type != TYPE_COMPOUND) {
-        idamLog(LOG_DEBUG, "allocData: Unable to Allocate Heap Memory for Data \n");
+        IDAM_LOG(LOG_DEBUG, "allocData: Unable to Allocate Heap Memory for Data \n");
         return (ERROR_ALLOCATING_HEAP);
     }
 
     switch (data_block->error_type) {    // maybe of lower precision
         case TYPE_CHAR :
-            ebh = (char*) malloc(ndata * sizeof(char));
-            if (data_block->errasymmetry) ebl = (char*) malloc(ndata * sizeof(char));
+            ebh = (char*)malloc(ndata * sizeof(char));
+            if (data_block->errasymmetry) ebl = (char*)malloc(ndata * sizeof(char));
             break;
         case TYPE_SHORT :
-            ebh = (char*) malloc(ndata * sizeof(short));
-            if (data_block->errasymmetry) ebl = (char*) malloc(ndata * sizeof(short));
+            ebh = (char*)malloc(ndata * sizeof(short));
+            if (data_block->errasymmetry) ebl = (char*)malloc(ndata * sizeof(short));
             break;
         case TYPE_INT :
-            ebh = (char*) malloc(ndata * sizeof(int));
-            if (data_block->errasymmetry) ebl = (char*) malloc(ndata * sizeof(int));
+            ebh = (char*)malloc(ndata * sizeof(int));
+            if (data_block->errasymmetry) ebl = (char*)malloc(ndata * sizeof(int));
             break;
         case TYPE_LONG :
-            ebh = (char*) malloc(ndata * sizeof(long));
-            if (data_block->errasymmetry) ebl = (char*) malloc(ndata * sizeof(long));
+            ebh = (char*)malloc(ndata * sizeof(long));
+            if (data_block->errasymmetry) ebl = (char*)malloc(ndata * sizeof(long));
             break;
         case TYPE_LONG64 :
-            ebh = (char*) malloc(ndata * sizeof(long long int));
-            if (data_block->errasymmetry) ebl = (char*) malloc(ndata * sizeof(long long int));
+            ebh = (char*)malloc(ndata * sizeof(long long int));
+            if (data_block->errasymmetry) ebl = (char*)malloc(ndata * sizeof(long long int));
             break;
         case TYPE_FLOAT :
-            ebh = (char*) malloc(ndata * sizeof(float));
-            if (data_block->errasymmetry) ebl = (char*) malloc(ndata * sizeof(float));
+            ebh = (char*)malloc(ndata * sizeof(float));
+            if (data_block->errasymmetry) ebl = (char*)malloc(ndata * sizeof(float));
             break;
         case TYPE_DOUBLE :
-            ebh = (char*) malloc(ndata * sizeof(double));
-            if (data_block->errasymmetry) ebl = (char*) malloc(ndata * sizeof(double));
+            ebh = (char*)malloc(ndata * sizeof(double));
+            if (data_block->errasymmetry) ebl = (char*)malloc(ndata * sizeof(double));
             break;
         case TYPE_UNSIGNED_CHAR :
-            ebh = (char*) malloc(ndata * sizeof(unsigned char));
-            if (data_block->errasymmetry) ebl = (char*) malloc(ndata * sizeof(unsigned char));
+            ebh = (char*)malloc(ndata * sizeof(unsigned char));
+            if (data_block->errasymmetry) ebl = (char*)malloc(ndata * sizeof(unsigned char));
             break;
         case TYPE_UNSIGNED_SHORT :
-            ebh = (char*) malloc(ndata * sizeof(unsigned short));
-            if (data_block->errasymmetry) ebl = (char*) malloc(ndata * sizeof(unsigned short));
+            ebh = (char*)malloc(ndata * sizeof(unsigned short));
+            if (data_block->errasymmetry) ebl = (char*)malloc(ndata * sizeof(unsigned short));
             break;
         case TYPE_UNSIGNED_INT :
-            ebh = (char*) malloc(ndata * sizeof(unsigned int));
-            if (data_block->errasymmetry) ebl = (char*) malloc(ndata * sizeof(unsigned int));
+            ebh = (char*)malloc(ndata * sizeof(unsigned int));
+            if (data_block->errasymmetry) ebl = (char*)malloc(ndata * sizeof(unsigned int));
             break;
         case TYPE_UNSIGNED_LONG :
-            ebh = (char*) malloc(ndata * sizeof(unsigned long));
-            if (data_block->errasymmetry) ebl = (char*) malloc(ndata * sizeof(unsigned long));
+            ebh = (char*)malloc(ndata * sizeof(unsigned long));
+            if (data_block->errasymmetry) ebl = (char*)malloc(ndata * sizeof(unsigned long));
             break;
 #ifndef __APPLE__
         case TYPE_UNSIGNED_LONG64 :
@@ -298,16 +298,16 @@ int allocData(DATA_BLOCK* data_block)
             break;
 #endif
         case TYPE_STRING :
-            ebh = (char*) malloc(ndata * sizeof(char));
-            if (data_block->errasymmetry) ebl = (char*) malloc(ndata * sizeof(char));
+            ebh = (char*)malloc(ndata * sizeof(char));
+            if (data_block->errasymmetry) ebl = (char*)malloc(ndata * sizeof(char));
             break;
         case TYPE_DCOMPLEX :
-            ebh = (char*) malloc(ndata * sizeof(DCOMPLEX));
-            if (data_block->errasymmetry) ebl = (char*) malloc(ndata * sizeof(DCOMPLEX));
+            ebh = (char*)malloc(ndata * sizeof(DCOMPLEX));
+            if (data_block->errasymmetry) ebl = (char*)malloc(ndata * sizeof(DCOMPLEX));
             break;
         case TYPE_COMPLEX :
-            ebh = (char*) malloc(ndata * sizeof(COMPLEX));
-            if (data_block->errasymmetry) ebl = (char*) malloc(ndata * sizeof(COMPLEX));
+            ebh = (char*)malloc(ndata * sizeof(COMPLEX));
+            if (data_block->errasymmetry) ebl = (char*)malloc(ndata * sizeof(COMPLEX));
             break;
         case TYPE_COMPOUND :
             ebh = NULL;
@@ -319,8 +319,9 @@ int allocData(DATA_BLOCK* data_block)
     }
 
     if ((ebh == NULL || (ebl == NULL && data_block->errasymmetry)) &&
-        (data_block->error_type != TYPE_COMPOUND && data_block->error_type != TYPE_UNKNOWN))
-        return (ERROR_ALLOCATING_HEAP);
+        (data_block->error_type != TYPE_COMPOUND && data_block->error_type != TYPE_UNKNOWN)) {
+            return (ERROR_ALLOCATING_HEAP);
+    }
 
     data_block->data = db;
     data_block->errhi = ebh;
@@ -346,81 +347,81 @@ int allocDim(DATA_BLOCK* data_block)
 
     for (i = 0; i < data_block->rank; i++) {
 
-        ndata = (unsigned int) data_block->dims[i].dim_n;
+        ndata = (unsigned int)data_block->dims[i].dim_n;
 
         if (ndata == 0) return 1;   // Insufficient Data to Allocate!
 
         switch (data_block->dims[i].data_type) {
             case TYPE_FLOAT :
                 //allocCount = ndata * sizeof(float);
-                db = (char*) malloc(ndata * sizeof(float));
+                db = (char*)malloc(ndata * sizeof(float));
                 if (data_block->dims[i].error_type == TYPE_UNKNOWN) {
-                    ebh = (char*) malloc(ndata * sizeof(float));
-                    if (data_block->dims[i].errasymmetry) ebl = (char*) malloc(ndata * sizeof(float));
+                    ebh = (char*)malloc(ndata * sizeof(float));
+                    if (data_block->dims[i].errasymmetry) ebl = (char*)malloc(ndata * sizeof(float));
                 }
                 break;
             case TYPE_DOUBLE :
                 //allocCount = ndata * sizeof(double);
-                db = (char*) malloc(ndata * sizeof(double));
+                db = (char*)malloc(ndata * sizeof(double));
                 if (data_block->dims[i].error_type == TYPE_UNKNOWN) {
-                    ebh = (char*) malloc(ndata * sizeof(double));
-                    if (data_block->dims[i].errasymmetry) ebl = (char*) malloc(ndata * sizeof(double));
+                    ebh = (char*)malloc(ndata * sizeof(double));
+                    if (data_block->dims[i].errasymmetry) ebl = (char*)malloc(ndata * sizeof(double));
                 }
                 break;
             case TYPE_INT :
                 //allocCount = ndata * sizeof(int);
-                db = (char*) malloc(ndata * sizeof(int));
+                db = (char*)malloc(ndata * sizeof(int));
                 if (data_block->dims[i].error_type == TYPE_UNKNOWN) {
-                    ebh = (char*) malloc(ndata * sizeof(int));
-                    if (data_block->dims[i].errasymmetry) ebl = (char*) malloc(ndata * sizeof(int));
+                    ebh = (char*)malloc(ndata * sizeof(int));
+                    if (data_block->dims[i].errasymmetry) ebl = (char*)malloc(ndata * sizeof(int));
                 }
                 break;
             case TYPE_UNSIGNED_INT :
                 //allocCount = ndata * sizeof(unsigned int);
-                db = (char*) malloc(ndata * sizeof(unsigned int));
+                db = (char*)malloc(ndata * sizeof(unsigned int));
                 if (data_block->dims[i].error_type == TYPE_UNKNOWN) {
-                    ebh = (char*) malloc(ndata * sizeof(unsigned int));
-                    if (data_block->dims[i].errasymmetry) ebl = (char*) malloc(ndata * sizeof(unsigned int));
+                    ebh = (char*)malloc(ndata * sizeof(unsigned int));
+                    if (data_block->dims[i].errasymmetry) ebl = (char*)malloc(ndata * sizeof(unsigned int));
                 }
                 break;
             case TYPE_LONG :
                 //allocCount = ndata * sizeof(long);
-                db = (char*) malloc(ndata * sizeof(long));
+                db = (char*)malloc(ndata * sizeof(long));
                 if (data_block->dims[i].error_type == TYPE_UNKNOWN) {
-                    ebh = (char*) malloc(ndata * sizeof(long));
-                    if (data_block->dims[i].errasymmetry) ebl = (char*) malloc(ndata * sizeof(long));
+                    ebh = (char*)malloc(ndata * sizeof(long));
+                    if (data_block->dims[i].errasymmetry) ebl = (char*)malloc(ndata * sizeof(long));
                 }
                 break;
             case TYPE_LONG64 :
                 //allocCount = ndata * sizeof(long long int);
-                db = (char*) malloc(ndata * sizeof(long long int));
+                db = (char*)malloc(ndata * sizeof(long long int));
                 if (data_block->dims[i].error_type == TYPE_UNKNOWN) {
-                    ebh = (char*) malloc(ndata * sizeof(long long int));
-                    if (data_block->dims[i].errasymmetry) ebl = (char*) malloc(ndata * sizeof(long long int));
+                    ebh = (char*)malloc(ndata * sizeof(long long int));
+                    if (data_block->dims[i].errasymmetry) ebl = (char*)malloc(ndata * sizeof(long long int));
                 }
                 break;
             case TYPE_SHORT :
                 //allocCount = ndata * sizeof(short);
-                db = (char*) malloc(ndata * sizeof(short));
+                db = (char*)malloc(ndata * sizeof(short));
                 if (data_block->dims[i].error_type == TYPE_UNKNOWN) {
-                    ebh = (char*) malloc(ndata * sizeof(short));
-                    if (data_block->dims[i].errasymmetry) ebl = (char*) malloc(ndata * sizeof(short));
+                    ebh = (char*)malloc(ndata * sizeof(short));
+                    if (data_block->dims[i].errasymmetry) ebl = (char*)malloc(ndata * sizeof(short));
                 }
                 break;
             case TYPE_CHAR :
                 //allocCount = ndata * sizeof(char);
-                db = (char*) malloc(ndata * sizeof(char));
+                db = (char*)malloc(ndata * sizeof(char));
                 if (data_block->dims[i].error_type == TYPE_UNKNOWN) {
-                    ebh = (char*) malloc(ndata * sizeof(char));
-                    if (data_block->dims[i].errasymmetry) ebl = (char*) malloc(ndata * sizeof(char));
+                    ebh = (char*)malloc(ndata * sizeof(char));
+                    if (data_block->dims[i].errasymmetry) ebl = (char*)malloc(ndata * sizeof(char));
                 }
                 break;
             case TYPE_UNSIGNED_LONG :
                 //allocCount = ndata * sizeof(unsigned long);
-                db = (char*) malloc(ndata * sizeof(unsigned long));
+                db = (char*)malloc(ndata * sizeof(unsigned long));
                 if (data_block->dims[i].error_type == TYPE_UNKNOWN) {
-                    ebh = (char*) malloc(ndata * sizeof(unsigned long));
-                    if (data_block->dims[i].errasymmetry) ebl = (char*) malloc(ndata * sizeof(unsigned long));
+                    ebh = (char*)malloc(ndata * sizeof(unsigned long));
+                    if (data_block->dims[i].errasymmetry) ebl = (char*)malloc(ndata * sizeof(unsigned long));
                 }
                 break;
 #ifndef __APPLE__
@@ -435,34 +436,34 @@ int allocDim(DATA_BLOCK* data_block)
 #endif
             case TYPE_UNSIGNED_SHORT :
                 //allocCount = ndata * sizeof(unsigned short);
-                db = (char*) malloc(ndata * sizeof(unsigned short));
+                db = (char*)malloc(ndata * sizeof(unsigned short));
                 if (data_block->dims[i].error_type == TYPE_UNKNOWN) {
-                    ebh = (char*) malloc(ndata * sizeof(unsigned short));
-                    if (data_block->dims[i].errasymmetry) ebl = (char*) malloc(ndata * sizeof(unsigned short));
+                    ebh = (char*)malloc(ndata * sizeof(unsigned short));
+                    if (data_block->dims[i].errasymmetry) ebl = (char*)malloc(ndata * sizeof(unsigned short));
                 }
                 break;
             case TYPE_UNSIGNED_CHAR :
                 //allocCount = ndata * sizeof(unsigned char);
-                db = (char*) malloc(ndata * sizeof(unsigned char));
+                db = (char*)malloc(ndata * sizeof(unsigned char));
                 if (data_block->dims[i].error_type == TYPE_UNKNOWN) {
-                    ebh = (char*) malloc(ndata * sizeof(unsigned char));
-                    if (data_block->dims[i].errasymmetry) ebl = (char*) malloc(ndata * sizeof(unsigned char));
+                    ebh = (char*)malloc(ndata * sizeof(unsigned char));
+                    if (data_block->dims[i].errasymmetry) ebl = (char*)malloc(ndata * sizeof(unsigned char));
                 }
                 break;
             case TYPE_DCOMPLEX :
                 //allocCount = ndata * sizeof(DCOMPLEX);
-                db = (char*) malloc(ndata * sizeof(DCOMPLEX));
+                db = (char*)malloc(ndata * sizeof(DCOMPLEX));
                 if (data_block->dims[i].error_type == TYPE_UNKNOWN) {
-                    ebh = (char*) malloc(ndata * sizeof(DCOMPLEX));
-                    if (data_block->dims[i].errasymmetry) ebl = (char*) malloc(ndata * sizeof(DCOMPLEX));
+                    ebh = (char*)malloc(ndata * sizeof(DCOMPLEX));
+                    if (data_block->dims[i].errasymmetry) ebl = (char*)malloc(ndata * sizeof(DCOMPLEX));
                 }
                 break;
             case TYPE_COMPLEX :
                 //allocCount = ndata * sizeof(COMPLEX);
-                db = (char*) malloc(ndata * sizeof(COMPLEX));
+                db = (char*)malloc(ndata * sizeof(COMPLEX));
                 if (data_block->dims[i].error_type == TYPE_UNKNOWN) {
-                    ebh = (char*) malloc(ndata * sizeof(COMPLEX));
-                    if (data_block->dims[i].errasymmetry) ebl = (char*) malloc(ndata * sizeof(COMPLEX));
+                    ebh = (char*)malloc(ndata * sizeof(COMPLEX));
+                    if (data_block->dims[i].errasymmetry) ebl = (char*)malloc(ndata * sizeof(COMPLEX));
                 }
                 break;
             default:
@@ -471,48 +472,48 @@ int allocDim(DATA_BLOCK* data_block)
         switch (data_block->dims[i].error_type) {
             case TYPE_FLOAT :
                 //allocCount = ndata * sizeof(float);
-                ebh = (char*) malloc(ndata * sizeof(float));
-                if (data_block->dims[i].errasymmetry) ebl = (char*) malloc(ndata * sizeof(float));
+                ebh = (char*)malloc(ndata * sizeof(float));
+                if (data_block->dims[i].errasymmetry) ebl = (char*)malloc(ndata * sizeof(float));
                 break;
             case TYPE_DOUBLE :
                 //allocCount = ndata * sizeof(double);
-                ebh = (char*) malloc(ndata * sizeof(double));
-                if (data_block->dims[i].errasymmetry) ebl = (char*) malloc(ndata * sizeof(double));
+                ebh = (char*)malloc(ndata * sizeof(double));
+                if (data_block->dims[i].errasymmetry) ebl = (char*)malloc(ndata * sizeof(double));
                 break;
             case TYPE_INT :
                 //allocCount = ndata * sizeof(int);
-                ebh = (char*) malloc(ndata * sizeof(int));
-                if (data_block->dims[i].errasymmetry) ebl = (char*) malloc(ndata * sizeof(int));
+                ebh = (char*)malloc(ndata * sizeof(int));
+                if (data_block->dims[i].errasymmetry) ebl = (char*)malloc(ndata * sizeof(int));
                 break;
             case TYPE_UNSIGNED_INT :
                 //allocCount = ndata * sizeof(unsigned int);
-                ebh = (char*) malloc(ndata * sizeof(unsigned int));
-                if (data_block->dims[i].errasymmetry) ebl = (char*) malloc(ndata * sizeof(unsigned int));
+                ebh = (char*)malloc(ndata * sizeof(unsigned int));
+                if (data_block->dims[i].errasymmetry) ebl = (char*)malloc(ndata * sizeof(unsigned int));
                 break;
             case TYPE_LONG :
                 //allocCount = ndata * sizeof(long);
-                ebh = (char*) malloc(ndata * sizeof(long));
-                if (data_block->dims[i].errasymmetry) ebl = (char*) malloc(ndata * sizeof(long));
+                ebh = (char*)malloc(ndata * sizeof(long));
+                if (data_block->dims[i].errasymmetry) ebl = (char*)malloc(ndata * sizeof(long));
                 break;
             case TYPE_LONG64 :
                 //allocCount = ndata * sizeof(long long int);
-                ebh = (char*) malloc(ndata * sizeof(long long int));
-                if (data_block->dims[i].errasymmetry) ebl = (char*) malloc(ndata * sizeof(long long int));
+                ebh = (char*)malloc(ndata * sizeof(long long int));
+                if (data_block->dims[i].errasymmetry) ebl = (char*)malloc(ndata * sizeof(long long int));
                 break;
             case TYPE_SHORT :
                 //allocCount = ndata * sizeof(short);
-                ebh = (char*) malloc(ndata * sizeof(short));
-                if (data_block->dims[i].errasymmetry) ebl = (char*) malloc(ndata * sizeof(short));
+                ebh = (char*)malloc(ndata * sizeof(short));
+                if (data_block->dims[i].errasymmetry) ebl = (char*)malloc(ndata * sizeof(short));
                 break;
             case TYPE_CHAR :
                 //allocCount = ndata * sizeof(char);
-                ebh = (char*) malloc(ndata * sizeof(char));
-                if (data_block->dims[i].errasymmetry) ebl = (char*) malloc(ndata * sizeof(char));
+                ebh = (char*)malloc(ndata * sizeof(char));
+                if (data_block->dims[i].errasymmetry) ebl = (char*)malloc(ndata * sizeof(char));
                 break;
             case TYPE_UNSIGNED_LONG :
                 //allocCount = ndata * sizeof(unsigned long);
-                ebh = (char*) malloc(ndata * sizeof(unsigned long));
-                if (data_block->dims[i].errasymmetry) ebl = (char*) malloc(ndata * sizeof(unsigned long));
+                ebh = (char*)malloc(ndata * sizeof(unsigned long));
+                if (data_block->dims[i].errasymmetry) ebl = (char*)malloc(ndata * sizeof(unsigned long));
                 break;
 #ifndef __APPLE__
             case TYPE_UNSIGNED_LONG64 :
@@ -523,23 +524,23 @@ int allocDim(DATA_BLOCK* data_block)
 #endif
             case TYPE_UNSIGNED_SHORT :
                 //allocCount = ndata * sizeof(unsigned short);
-                ebh = (char*) malloc(ndata * sizeof(unsigned short));
-                if (data_block->dims[i].errasymmetry) ebl = (char*) malloc(ndata * sizeof(unsigned short));
+                ebh = (char*)malloc(ndata * sizeof(unsigned short));
+                if (data_block->dims[i].errasymmetry) ebl = (char*)malloc(ndata * sizeof(unsigned short));
                 break;
             case TYPE_UNSIGNED_CHAR :
                 //allocCount = ndata * sizeof(unsigned char);
-                ebh = (char*) malloc(ndata * sizeof(unsigned char));
-                if (data_block->dims[i].errasymmetry) ebl = (char*) malloc(ndata * sizeof(unsigned char));
+                ebh = (char*)malloc(ndata * sizeof(unsigned char));
+                if (data_block->dims[i].errasymmetry) ebl = (char*)malloc(ndata * sizeof(unsigned char));
                 break;
             case TYPE_DCOMPLEX :
                 //allocCount = ndata * sizeof(DCOMPLEX);
-                ebh = (char*) malloc(ndata * sizeof(DCOMPLEX));
-                if (data_block->dims[i].errasymmetry) ebl = (char*) malloc(ndata * sizeof(DCOMPLEX));
+                ebh = (char*)malloc(ndata * sizeof(DCOMPLEX));
+                if (data_block->dims[i].errasymmetry) ebl = (char*)malloc(ndata * sizeof(DCOMPLEX));
                 break;
             case TYPE_COMPLEX :
                 //allocCount = ndata * sizeof(COMPLEX);
-                ebh = (char*) malloc(ndata * sizeof(COMPLEX));
-                if (data_block->dims[i].errasymmetry) ebl = (char*) malloc(ndata * sizeof(COMPLEX));
+                ebh = (char*)malloc(ndata * sizeof(COMPLEX));
+                if (data_block->dims[i].errasymmetry) ebl = (char*)malloc(ndata * sizeof(COMPLEX));
                 break;
             default:
                 break;
@@ -565,16 +566,16 @@ int allocDim(DATA_BLOCK* data_block)
                     //allocCount = sizeof(char);
                     switch (data_block->dims[i].method) {
                         case 1 :
-                            data_block->dims[i].sams = (long*) malloc(data_block->dims[i].udoms * sizeof(long));
-                            data_block->dims[i].offs = (char*) malloc(data_block->dims[i].udoms * sizeof(char));
-                            data_block->dims[i].ints = (char*) malloc(data_block->dims[i].udoms * sizeof(char));
+                            data_block->dims[i].sams = (long*)malloc(data_block->dims[i].udoms * sizeof(long));
+                            data_block->dims[i].offs = (char*)malloc(data_block->dims[i].udoms * sizeof(char));
+                            data_block->dims[i].ints = (char*)malloc(data_block->dims[i].udoms * sizeof(char));
                             break;
                         case 2 :
-                            data_block->dims[i].offs = (char*) malloc(data_block->dims[i].udoms * sizeof(char));
+                            data_block->dims[i].offs = (char*)malloc(data_block->dims[i].udoms * sizeof(char));
                             break;
                         case 3 :
-                            data_block->dims[i].offs = (char*) malloc(sizeof(char));
-                            data_block->dims[i].ints = (char*) malloc(sizeof(char));
+                            data_block->dims[i].offs = (char*)malloc(sizeof(char));
+                            data_block->dims[i].ints = (char*)malloc(sizeof(char));
                             break;
                     }
                     break;
@@ -582,16 +583,16 @@ int allocDim(DATA_BLOCK* data_block)
                     //allocCount = sizeof(short);
                     switch (data_block->dims[i].method) {
                         case 1 :
-                            data_block->dims[i].sams = (long*) malloc(data_block->dims[i].udoms * sizeof(long));
-                            data_block->dims[i].offs = (char*) malloc(data_block->dims[i].udoms * sizeof(short));
-                            data_block->dims[i].ints = (char*) malloc(data_block->dims[i].udoms * sizeof(short));
+                            data_block->dims[i].sams = (long*)malloc(data_block->dims[i].udoms * sizeof(long));
+                            data_block->dims[i].offs = (char*)malloc(data_block->dims[i].udoms * sizeof(short));
+                            data_block->dims[i].ints = (char*)malloc(data_block->dims[i].udoms * sizeof(short));
                             break;
                         case 2 :
-                            data_block->dims[i].offs = (char*) malloc(data_block->dims[i].udoms * sizeof(short));
+                            data_block->dims[i].offs = (char*)malloc(data_block->dims[i].udoms * sizeof(short));
                             break;
                         case 3 :
-                            data_block->dims[i].offs = (char*) malloc(sizeof(short));
-                            data_block->dims[i].ints = (char*) malloc(sizeof(short));
+                            data_block->dims[i].offs = (char*)malloc(sizeof(short));
+                            data_block->dims[i].ints = (char*)malloc(sizeof(short));
                             break;
                     }
                     break;
@@ -599,16 +600,16 @@ int allocDim(DATA_BLOCK* data_block)
                     //allocCount = sizeof(int);
                     switch (data_block->dims[i].method) {
                         case 1 :
-                            data_block->dims[i].sams = (long*) malloc(data_block->dims[i].udoms * sizeof(long));
-                            data_block->dims[i].offs = (char*) malloc(data_block->dims[i].udoms * sizeof(int));
-                            data_block->dims[i].ints = (char*) malloc(data_block->dims[i].udoms * sizeof(int));
+                            data_block->dims[i].sams = (long*)malloc(data_block->dims[i].udoms * sizeof(long));
+                            data_block->dims[i].offs = (char*)malloc(data_block->dims[i].udoms * sizeof(int));
+                            data_block->dims[i].ints = (char*)malloc(data_block->dims[i].udoms * sizeof(int));
                             break;
                         case 2 :
-                            data_block->dims[i].offs = (char*) malloc(data_block->dims[i].udoms * sizeof(int));
+                            data_block->dims[i].offs = (char*)malloc(data_block->dims[i].udoms * sizeof(int));
                             break;
                         case 3 :
-                            data_block->dims[i].offs = (char*) malloc(sizeof(int));
-                            data_block->dims[i].ints = (char*) malloc(sizeof(int));
+                            data_block->dims[i].offs = (char*)malloc(sizeof(int));
+                            data_block->dims[i].ints = (char*)malloc(sizeof(int));
                             break;
                     }
                     break;
@@ -616,16 +617,16 @@ int allocDim(DATA_BLOCK* data_block)
                     //allocCount = sizeof(long);
                     switch (data_block->dims[i].method) {
                         case 1 :
-                            data_block->dims[i].sams = (long*) malloc(data_block->dims[i].udoms * sizeof(long));
-                            data_block->dims[i].offs = (char*) malloc(data_block->dims[i].udoms * sizeof(long));
-                            data_block->dims[i].ints = (char*) malloc(data_block->dims[i].udoms * sizeof(long));
+                            data_block->dims[i].sams = (long*)malloc(data_block->dims[i].udoms * sizeof(long));
+                            data_block->dims[i].offs = (char*)malloc(data_block->dims[i].udoms * sizeof(long));
+                            data_block->dims[i].ints = (char*)malloc(data_block->dims[i].udoms * sizeof(long));
                             break;
                         case 2 :
-                            data_block->dims[i].offs = (char*) malloc(data_block->dims[i].udoms * sizeof(long));
+                            data_block->dims[i].offs = (char*)malloc(data_block->dims[i].udoms * sizeof(long));
                             break;
                         case 3 :
-                            data_block->dims[i].offs = (char*) malloc(sizeof(long));
-                            data_block->dims[i].ints = (char*) malloc(sizeof(long));
+                            data_block->dims[i].offs = (char*)malloc(sizeof(long));
+                            data_block->dims[i].ints = (char*)malloc(sizeof(long));
                             break;
                     }
                     break;
@@ -633,20 +634,20 @@ int allocDim(DATA_BLOCK* data_block)
                     //allocCount = sizeof(long long int);
                     switch (data_block->dims[i].method) {
                         case 1 :
-                            data_block->dims[i].sams = (long*) malloc(
+                            data_block->dims[i].sams = (long*)malloc(
                                     data_block->dims[i].udoms * sizeof(long long int));
-                            data_block->dims[i].offs = (char*) malloc(
+                            data_block->dims[i].offs = (char*)malloc(
                                     data_block->dims[i].udoms * sizeof(long long int));
-                            data_block->dims[i].ints = (char*) malloc(
+                            data_block->dims[i].ints = (char*)malloc(
                                     data_block->dims[i].udoms * sizeof(long long int));
                             break;
                         case 2 :
-                            data_block->dims[i].offs = (char*) malloc(
+                            data_block->dims[i].offs = (char*)malloc(
                                     data_block->dims[i].udoms * sizeof(long long int));
                             break;
                         case 3 :
-                            data_block->dims[i].offs = (char*) malloc(sizeof(long long int));
-                            data_block->dims[i].ints = (char*) malloc(sizeof(long long int));
+                            data_block->dims[i].offs = (char*)malloc(sizeof(long long int));
+                            data_block->dims[i].ints = (char*)malloc(sizeof(long long int));
                             break;
                     }
                     break;
@@ -654,16 +655,16 @@ int allocDim(DATA_BLOCK* data_block)
                     //allocCount = sizeof(float);
                     switch (data_block->dims[i].method) {
                         case 1 :
-                            data_block->dims[i].sams = (long*) malloc(data_block->dims[i].udoms * sizeof(long));
-                            data_block->dims[i].offs = (char*) malloc(data_block->dims[i].udoms * sizeof(float));
-                            data_block->dims[i].ints = (char*) malloc(data_block->dims[i].udoms * sizeof(float));
+                            data_block->dims[i].sams = (long*)malloc(data_block->dims[i].udoms * sizeof(long));
+                            data_block->dims[i].offs = (char*)malloc(data_block->dims[i].udoms * sizeof(float));
+                            data_block->dims[i].ints = (char*)malloc(data_block->dims[i].udoms * sizeof(float));
                             break;
                         case 2 :
-                            data_block->dims[i].offs = (char*) malloc(data_block->dims[i].udoms * sizeof(float));
+                            data_block->dims[i].offs = (char*)malloc(data_block->dims[i].udoms * sizeof(float));
                             break;
                         case 3 :
-                            data_block->dims[i].offs = (char*) malloc(sizeof(float));
-                            data_block->dims[i].ints = (char*) malloc(sizeof(float));
+                            data_block->dims[i].offs = (char*)malloc(sizeof(float));
+                            data_block->dims[i].ints = (char*)malloc(sizeof(float));
                             break;
                     }
                     break;
@@ -672,16 +673,16 @@ int allocDim(DATA_BLOCK* data_block)
                     //allocCount = sizeof(double);
                     switch (data_block->dims[i].method) {
                         case 1 :
-                            data_block->dims[i].sams = (long*) malloc(data_block->dims[i].udoms * sizeof(long));
-                            data_block->dims[i].offs = (char*) malloc(data_block->dims[i].udoms * sizeof(double));
-                            data_block->dims[i].ints = (char*) malloc(data_block->dims[i].udoms * sizeof(double));
+                            data_block->dims[i].sams = (long*)malloc(data_block->dims[i].udoms * sizeof(long));
+                            data_block->dims[i].offs = (char*)malloc(data_block->dims[i].udoms * sizeof(double));
+                            data_block->dims[i].ints = (char*)malloc(data_block->dims[i].udoms * sizeof(double));
                             break;
                         case 2 :
-                            data_block->dims[i].offs = (char*) malloc(data_block->dims[i].udoms * sizeof(double));
+                            data_block->dims[i].offs = (char*)malloc(data_block->dims[i].udoms * sizeof(double));
                             break;
                         case 3 :
-                            data_block->dims[i].offs = (char*) malloc(sizeof(double));
-                            data_block->dims[i].ints = (char*) malloc(sizeof(double));
+                            data_block->dims[i].offs = (char*)malloc(sizeof(double));
+                            data_block->dims[i].ints = (char*)malloc(sizeof(double));
                             break;
                     }
                     break;
@@ -689,19 +690,19 @@ int allocDim(DATA_BLOCK* data_block)
                     //allocCount = sizeof(unsigned char);
                     switch (data_block->dims[i].method) {
                         case 1 :
-                            data_block->dims[i].sams = (long*) malloc(data_block->dims[i].udoms * sizeof(long));
-                            data_block->dims[i].offs = (char*) malloc(
+                            data_block->dims[i].sams = (long*)malloc(data_block->dims[i].udoms * sizeof(long));
+                            data_block->dims[i].offs = (char*)malloc(
                                     data_block->dims[i].udoms * sizeof(unsigned char));
-                            data_block->dims[i].ints = (char*) malloc(
+                            data_block->dims[i].ints = (char*)malloc(
                                     data_block->dims[i].udoms * sizeof(unsigned char));
                             break;
                         case 2 :
-                            data_block->dims[i].offs = (char*) malloc(
+                            data_block->dims[i].offs = (char*)malloc(
                                     data_block->dims[i].udoms * sizeof(unsigned char));
                             break;
                         case 3 :
-                            data_block->dims[i].offs = (char*) malloc(sizeof(unsigned char));
-                            data_block->dims[i].ints = (char*) malloc(sizeof(unsigned char));
+                            data_block->dims[i].offs = (char*)malloc(sizeof(unsigned char));
+                            data_block->dims[i].ints = (char*)malloc(sizeof(unsigned char));
                             break;
                     }
                     break;
@@ -709,19 +710,19 @@ int allocDim(DATA_BLOCK* data_block)
                     //allocCount = sizeof(unsigned short);
                     switch (data_block->dims[i].method) {
                         case 1 :
-                            data_block->dims[i].sams = (long*) malloc(data_block->dims[i].udoms * sizeof(long));
-                            data_block->dims[i].offs = (char*) malloc(
+                            data_block->dims[i].sams = (long*)malloc(data_block->dims[i].udoms * sizeof(long));
+                            data_block->dims[i].offs = (char*)malloc(
                                     data_block->dims[i].udoms * sizeof(unsigned short));
-                            data_block->dims[i].ints = (char*) malloc(
+                            data_block->dims[i].ints = (char*)malloc(
                                     data_block->dims[i].udoms * sizeof(unsigned short));
                             break;
                         case 2 :
-                            data_block->dims[i].offs = (char*) malloc(
+                            data_block->dims[i].offs = (char*)malloc(
                                     data_block->dims[i].udoms * sizeof(unsigned short));
                             break;
                         case 3 :
-                            data_block->dims[i].offs = (char*) malloc(sizeof(unsigned short));
-                            data_block->dims[i].ints = (char*) malloc(sizeof(unsigned short));
+                            data_block->dims[i].offs = (char*)malloc(sizeof(unsigned short));
+                            data_block->dims[i].ints = (char*)malloc(sizeof(unsigned short));
                             break;
                     }
                     break;
@@ -729,16 +730,16 @@ int allocDim(DATA_BLOCK* data_block)
                     //allocCount = sizeof(unsigned int);
                     switch (data_block->dims[i].method) {
                         case 1 :
-                            data_block->dims[i].sams = (long*) malloc(data_block->dims[i].udoms * sizeof(long));
-                            data_block->dims[i].offs = (char*) malloc(data_block->dims[i].udoms * sizeof(unsigned int));
-                            data_block->dims[i].ints = (char*) malloc(data_block->dims[i].udoms * sizeof(unsigned int));
+                            data_block->dims[i].sams = (long*)malloc(data_block->dims[i].udoms * sizeof(long));
+                            data_block->dims[i].offs = (char*)malloc(data_block->dims[i].udoms * sizeof(unsigned int));
+                            data_block->dims[i].ints = (char*)malloc(data_block->dims[i].udoms * sizeof(unsigned int));
                             break;
                         case 2 :
-                            data_block->dims[i].offs = (char*) malloc(data_block->dims[i].udoms * sizeof(unsigned int));
+                            data_block->dims[i].offs = (char*)malloc(data_block->dims[i].udoms * sizeof(unsigned int));
                             break;
                         case 3 :
-                            data_block->dims[i].offs = (char*) malloc(sizeof(unsigned int));
-                            data_block->dims[i].ints = (char*) malloc(sizeof(unsigned int));
+                            data_block->dims[i].offs = (char*)malloc(sizeof(unsigned int));
+                            data_block->dims[i].ints = (char*)malloc(sizeof(unsigned int));
                             break;
                     }
                     break;
@@ -746,19 +747,19 @@ int allocDim(DATA_BLOCK* data_block)
                     //allocCount = sizeof(unsigned long);
                     switch (data_block->dims[i].method) {
                         case 1 :
-                            data_block->dims[i].sams = (long*) malloc(data_block->dims[i].udoms * sizeof(long));
-                            data_block->dims[i].offs = (char*) malloc(
+                            data_block->dims[i].sams = (long*)malloc(data_block->dims[i].udoms * sizeof(long));
+                            data_block->dims[i].offs = (char*)malloc(
                                     data_block->dims[i].udoms * sizeof(unsigned long));
-                            data_block->dims[i].ints = (char*) malloc(
+                            data_block->dims[i].ints = (char*)malloc(
                                     data_block->dims[i].udoms * sizeof(unsigned long));
                             break;
                         case 2 :
-                            data_block->dims[i].offs = (char*) malloc(
+                            data_block->dims[i].offs = (char*)malloc(
                                     data_block->dims[i].udoms * sizeof(unsigned long));
                             break;
                         case 3 :
-                            data_block->dims[i].offs = (char*) malloc(sizeof(unsigned long));
-                            data_block->dims[i].ints = (char*) malloc(sizeof(unsigned long));
+                            data_block->dims[i].offs = (char*)malloc(sizeof(unsigned long));
+                            data_block->dims[i].ints = (char*)malloc(sizeof(unsigned long));
                             break;
                     }
                     break;
@@ -788,16 +789,16 @@ int allocDim(DATA_BLOCK* data_block)
                     //allocCount = sizeof(DCOMPLEX);
                     switch (data_block->dims[i].method) {
                         case 1 :
-                            data_block->dims[i].sams = (long*) malloc(data_block->dims[i].udoms * sizeof(long));
-                            data_block->dims[i].offs = (char*) malloc(data_block->dims[i].udoms * sizeof(DCOMPLEX));
-                            data_block->dims[i].ints = (char*) malloc(data_block->dims[i].udoms * sizeof(DCOMPLEX));
+                            data_block->dims[i].sams = (long*)malloc(data_block->dims[i].udoms * sizeof(long));
+                            data_block->dims[i].offs = (char*)malloc(data_block->dims[i].udoms * sizeof(DCOMPLEX));
+                            data_block->dims[i].ints = (char*)malloc(data_block->dims[i].udoms * sizeof(DCOMPLEX));
                             break;
                         case 2 :
-                            data_block->dims[i].offs = (char*) malloc(data_block->dims[i].udoms * sizeof(DCOMPLEX));
+                            data_block->dims[i].offs = (char*)malloc(data_block->dims[i].udoms * sizeof(DCOMPLEX));
                             break;
                         case 3 :
-                            data_block->dims[i].offs = (char*) malloc(sizeof(DCOMPLEX));
-                            data_block->dims[i].ints = (char*) malloc(sizeof(DCOMPLEX));
+                            data_block->dims[i].offs = (char*)malloc(sizeof(DCOMPLEX));
+                            data_block->dims[i].ints = (char*)malloc(sizeof(DCOMPLEX));
                             break;
                     }
                     break;
@@ -805,16 +806,16 @@ int allocDim(DATA_BLOCK* data_block)
                     //allocCount = sizeof(COMPLEX);
                     switch (data_block->dims[i].method) {
                         case 1 :
-                            data_block->dims[i].sams = (long*) malloc(data_block->dims[i].udoms * sizeof(long));
-                            data_block->dims[i].offs = (char*) malloc(data_block->dims[i].udoms * sizeof(COMPLEX));
-                            data_block->dims[i].ints = (char*) malloc(data_block->dims[i].udoms * sizeof(COMPLEX));
+                            data_block->dims[i].sams = (long*)malloc(data_block->dims[i].udoms * sizeof(long));
+                            data_block->dims[i].offs = (char*)malloc(data_block->dims[i].udoms * sizeof(COMPLEX));
+                            data_block->dims[i].ints = (char*)malloc(data_block->dims[i].udoms * sizeof(COMPLEX));
                             break;
                         case 2 :
-                            data_block->dims[i].offs = (char*) malloc(data_block->dims[i].udoms * sizeof(COMPLEX));
+                            data_block->dims[i].offs = (char*)malloc(data_block->dims[i].udoms * sizeof(COMPLEX));
                             break;
                         case 3 :
-                            data_block->dims[i].offs = (char*) malloc(sizeof(COMPLEX));
-                            data_block->dims[i].ints = (char*) malloc(sizeof(COMPLEX));
+                            data_block->dims[i].offs = (char*)malloc(sizeof(COMPLEX));
+                            data_block->dims[i].ints = (char*)malloc(sizeof(COMPLEX));
                             break;
                     }
                     break;
@@ -841,37 +842,37 @@ int allocPutData(PUTDATA_BLOCK* putData)
 
     switch (putData->data_type) {
         case TYPE_CHAR :
-            db = (char*) malloc(count * sizeof(char));
+            db = (char*)malloc(count * sizeof(char));
             break;
         case TYPE_SHORT :
-            db = (char*) malloc(count * sizeof(short));
+            db = (char*)malloc(count * sizeof(short));
             break;
         case TYPE_INT :
-            db = (char*) malloc(count * sizeof(int));
+            db = (char*)malloc(count * sizeof(int));
             break;
         case TYPE_LONG :
-            db = (char*) malloc(count * sizeof(long));
+            db = (char*)malloc(count * sizeof(long));
             break;
         case TYPE_LONG64 :
-            db = (char*) malloc(count * sizeof(long long int));
+            db = (char*)malloc(count * sizeof(long long int));
             break;
         case TYPE_FLOAT :
-            db = (char*) malloc(count * sizeof(float));
+            db = (char*)malloc(count * sizeof(float));
             break;
         case TYPE_DOUBLE :
-            db = (char*) malloc(count * sizeof(double));
+            db = (char*)malloc(count * sizeof(double));
             break;
         case TYPE_UNSIGNED_CHAR :
-            db = (char*) malloc(count * sizeof(unsigned char));
+            db = (char*)malloc(count * sizeof(unsigned char));
             break;
         case TYPE_UNSIGNED_SHORT :
-            db = (char*) malloc(count * sizeof(unsigned short));
+            db = (char*)malloc(count * sizeof(unsigned short));
             break;
         case TYPE_UNSIGNED_INT :
-            db = (char*) malloc(count * sizeof(unsigned int));
+            db = (char*)malloc(count * sizeof(unsigned int));
             break;
         case TYPE_UNSIGNED_LONG :
-            db = (char*) malloc(count * sizeof(unsigned long));
+            db = (char*)malloc(count * sizeof(unsigned long));
             break;
 #ifndef __APPLE__
         case TYPE_UNSIGNED_LONG64 :
@@ -879,13 +880,13 @@ int allocPutData(PUTDATA_BLOCK* putData)
             break;
 #endif
         case TYPE_STRING :
-            db = (char*) malloc(count * sizeof(char));
+            db = (char*)malloc(count * sizeof(char));
             break;
         case TYPE_DCOMPLEX :
-            db = (char*) malloc(count * sizeof(DCOMPLEX));
+            db = (char*)malloc(count * sizeof(DCOMPLEX));
             break;
         case TYPE_COMPLEX :
-            db = (char*) malloc(count * sizeof(COMPLEX));
+            db = (char*)malloc(count * sizeof(COMPLEX));
             break;
         case TYPE_COMPOUND:
             db = NULL;
@@ -894,14 +895,14 @@ int allocPutData(PUTDATA_BLOCK* putData)
             return (UNKNOWN_DATA_TYPE);
     }
 
-    idamLog(LOG_DEBUG, "allocPutData :\n");
-    idamLog(LOG_DEBUG, "rank      : %d\n", putData->rank);
-    idamLog(LOG_DEBUG, "count     : %d\n", putData->count);
-    idamLog(LOG_DEBUG, "data_type : %d\n", putData->data_type);
-    idamLog(LOG_DEBUG, "data  != NULL: %d\n", db != NULL);
+    IDAM_LOG(LOG_DEBUG, "allocPutData :\n");
+    IDAM_LOGF(LOG_DEBUG, "rank      : %d\n", putData->rank);
+    IDAM_LOGF(LOG_DEBUG, "count     : %d\n", putData->count);
+    IDAM_LOGF(LOG_DEBUG, "data_type : %d\n", putData->data_type);
+    IDAM_LOGF(LOG_DEBUG, "data  != NULL: %d\n", db != NULL);
 
     if (db == NULL && putData->data_type != TYPE_COMPOUND) {
-        idamLog(LOG_DEBUG, "allocPutData: Unable to Allocate Heap Memory for Data \n");
+        IDAM_LOG(LOG_DEBUG, "allocPutData: Unable to Allocate Heap Memory for Data \n");
         return (ERROR_ALLOCATING_HEAP);
     }
 
@@ -909,14 +910,15 @@ int allocPutData(PUTDATA_BLOCK* putData)
 
 // Shape of data
 
-    if (putData->rank > 1) putData->shape = (int*) malloc(putData->rank * sizeof(int));
+    if (putData->rank > 1) putData->shape = (int*)malloc(putData->rank * sizeof(int));
 
 // Name of data
 
-    if (putData->blockNameLength > 0)
-        putData->blockName = (char*) malloc((putData->blockNameLength + 1) * sizeof(char));
-    else
+    if (putData->blockNameLength > 0) {
+        putData->blockName = (char*)malloc((putData->blockNameLength + 1) * sizeof(char));
+    } else {
         putData->blockName = NULL;
+    }
 
     return 0;
 }
@@ -925,9 +927,9 @@ void addIdamPutDataBlockList(PUTDATA_BLOCK* putDataBlock, PUTDATA_BLOCK_LIST* pu
 {
     if (putDataBlockList->putDataBlock == NULL ||
         putDataBlockList->blockCount + 1 >= putDataBlockList->blockListSize) {
-        putDataBlockList->putDataBlock = (PUTDATA_BLOCK*) realloc((void*) putDataBlockList->putDataBlock,
-                                                                  (putDataBlockList->blockListSize +
-                                                                   GROWPUTDATABLOCKLIST) * sizeof(PUTDATA_BLOCK));
+        putDataBlockList->putDataBlock = (PUTDATA_BLOCK*)realloc((void*)putDataBlockList->putDataBlock,
+                                                                 (putDataBlockList->blockListSize +
+                                                                  GROWPUTDATABLOCKLIST) * sizeof(PUTDATA_BLOCK));
         putDataBlockList->blockListSize = putDataBlockList->blockListSize + GROWPUTDATABLOCKLIST;
     }
     putDataBlockList->putDataBlock[putDataBlockList->blockCount++] = *putDataBlock;

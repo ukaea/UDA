@@ -13,12 +13,14 @@
 #include <clientserver/initStructs.h>
 #include <clientserver/errorLog.h>
 #include <clientserver/stringUtils.h>
-#include <structures/struct.h>
 #include <clientserver/allocData.h>
 #include <clientserver/protocol.h>
 #include <clientserver/memstream.h>
 #include <clientserver/xdrlib.h>
 #include <clientserver/socketStructs.h>
+#include <server/getServerEnvironment.h>
+#include <structures/struct.h>
+#include <structures/accessors.h>
 #include <cache/cache.h>
 
 #include "generateErrors.h"
@@ -26,9 +28,7 @@
 #include "udaClient.h"
 
 #ifdef __APPLE__
-
 #  include <stdlib.h>
-#include <structures/accessors.h>
 #elif !defined(A64)
 #  include <malloc.h>
 #endif
@@ -117,7 +117,7 @@ void lockIdamThread()
 
     if (id >= 0) {
         putIdamServerSocket(idamState[id].socket);
-        putIdamThreadEnvironment(&idamState[id].environment);
+        putIdamServerEnvironment(&idamState[id].environment);
         putIdamThreadClientBlock(&idamState[id].client_block);
         putIdamThreadServerBlock(&idamState[id].server_block);
         clientFlags = idamState[id].client_block.clientFlags;
@@ -134,7 +134,7 @@ void unlockIdamThread()
     int id = getThreadId(threadId);        // Must be registered
     if (id >= 0) {
         idamState[id].socket = getIdamServerSocket();
-        idamState[id].environment = getIdamThreadEnvironment();
+        idamState[id].environment = *getIdamServerEnvironment();
         idamState[id].client_block = getIdamThreadClientBlock();
         idamState[id].server_block = getIdamThreadServerBlock();
         idamState[id].client_block.clientFlags = clientFlags;
@@ -181,36 +181,6 @@ int getIdamThreadLastHandle()
 void putIdamThreadLastHandle(int handle)
 {
     idamThreadLastHandle = handle;
-}
-
-ENVIRONMENT getIdamThreadEnvironment()
-{
-    return environment;
-}
-
-SERVER_BLOCK getIdamThreadServerBlock()
-{
-    return server_block;
-}
-
-CLIENT_BLOCK getIdamThreadClientBlock()
-{
-    return client_block;
-}
-
-void putIdamThreadEnvironment(ENVIRONMENT* str)
-{
-    environment = *str;
-}
-
-void putIdamThreadServerBlock(SERVER_BLOCK* str)
-{
-    server_block = *str;
-}
-
-void putIdamThreadClientBlock(CLIENT_BLOCK* str)
-{
-    client_block = *str;
 }
 
 //--------------------------------------------------------------------------------------
@@ -601,55 +571,6 @@ void resetIdamProperties()
     return;
 }
 
-CLIENT_BLOCK saveIdamProperties()
-{    // save current state of properties for future rollback
-    CLIENT_BLOCK cb = client_block;      // Copy of Global Structure (maybe not initialised! i.e. idam API not called)
-    cb.get_datadble = get_datadble;      // Copy individual properties only
-    cb.get_dimdble = get_dimdble;
-    cb.get_timedble = get_timedble;
-    cb.get_bad = get_bad;
-    cb.get_meta = get_meta;
-    cb.get_asis = get_asis;
-    cb.get_uncal = get_uncal;
-    cb.get_notoff = get_notoff;
-    cb.get_scalar = get_scalar;
-    cb.get_bytes = get_bytes;
-    cb.get_nodimdata = get_nodimdata;
-    cb.clientFlags = clientFlags;
-    cb.altRank = altRank;
-    return cb;
-}
-
-void restoreIdamProperties(CLIENT_BLOCK cb)
-{         // Restore Properties to a prior saved state
-    client_block.get_datadble = cb.get_datadble;     // Overwrite Individual Global Structure Components
-    client_block.get_dimdble = cb.get_dimdble;
-    client_block.get_timedble = cb.get_timedble;
-    client_block.get_bad = cb.get_bad;
-    client_block.get_meta = cb.get_meta;
-    client_block.get_asis = cb.get_asis;
-    client_block.get_uncal = cb.get_uncal;
-    client_block.get_notoff = cb.get_notoff;
-    client_block.get_scalar = cb.get_scalar;
-    client_block.get_bytes = cb.get_bytes;
-    client_block.clientFlags = cb.clientFlags;
-    client_block.altRank = cb.altRank;
-
-    get_datadble = client_block.get_datadble;
-    get_dimdble = client_block.get_dimdble;
-    get_timedble = client_block.get_timedble;
-    get_bad = client_block.get_bad;
-    get_meta = client_block.get_meta;
-    get_asis = client_block.get_asis;
-    get_uncal = client_block.get_uncal;
-    get_notoff = client_block.get_notoff;
-    get_scalar = client_block.get_scalar;
-    get_bytes = client_block.get_bytes;
-    get_nodimdata = client_block.get_nodimdata;
-    clientFlags = client_block.clientFlags;
-    altRank = client_block.altRank;
-}
-
 //! Return the client state associated with a specific data item
 /** The client state information is at the time the data was accessed.
 * @return CLIENT_BLOCK pointer to the data structure.
@@ -673,7 +594,7 @@ CLIENT_BLOCK* getIdamDataProperties(int handle)
 // Pass an application's Private Structure Definitions into the Client environment prior to PUTing structured data to the server
 
 //! Pass an application's Private Structure Definitions into the Client environment
-/** Prior to PUTing structured data to the server, the application needs to define the structures contents. These must be passed to the client environment.
+/** Prior to PUTing structured data to the server, the application needs to define the structures contents. These must be passed to the client environment->
 * @param definedtypelist the list of USERDEFINEDTYPE structures with structure definitions.
 * @return void
 */
@@ -683,7 +604,7 @@ void putIdamUserDefinedTypeList(USERDEFINEDTYPELIST* definedtypelist)
 }
 
 //! Pass an application's Private Malloc Log into the Client environment
-/** Prior to PUTing structured data to the server, the application needs to log all relevant heap allocations. This log must be passed to the client environment.
+/** Prior to PUTing structured data to the server, the application needs to log all relevant heap allocations. This log must be passed to the client environment->
 * @param definedtypelist the list of USERDEFINEDTYPE structures with structure definitions.
 * @return void
 */
@@ -760,10 +681,10 @@ void putIdamDimErrorModel(int handle, int ndim, int model, int param_n, float* p
 */
 void putIdamServer(const char* host, int port)
 {
-    if (initEnvironment) getIdamClientEnvironment(&environment);   // Initialise
-    environment.server_port = port;                             // IDAM server service port number
-    strcpy(environment.server_host, host);                      // IDAM server's host name or IP address
-    environment.server_reconnect = 1;                           // Create a new Server instance
+    ENVIRONMENT* environment = getIdamClientEnvironment();
+    environment->server_port = port;                             // IDAM server service port number
+    strcpy(environment->server_host, host);                      // IDAM server's host name or IP address
+    environment->server_reconnect = 1;                           // Create a new Server instance
     env_host = 0;                                               // Skip initialsisation at Startup if these are called first
     env_port = 0;
 }
@@ -775,9 +696,9 @@ void putIdamServer(const char* host, int port)
 */
 void putIdamServerHost(const char* host)
 {
-    if (initEnvironment) getIdamClientEnvironment(&environment);   // Initialise
-    strcpy(environment.server_host, host);                      // IDAM server's host name or IP address
-    environment.server_reconnect = 1;                           // Create a new Server instance
+    ENVIRONMENT* environment = getIdamClientEnvironment();
+    strcpy(environment->server_host, host);                      // IDAM server's host name or IP address
+    environment->server_reconnect = 1;                           // Create a new Server instance
     env_host = 0;
 }
 
@@ -788,9 +709,9 @@ void putIdamServerHost(const char* host)
 */
 void putIdamServerPort(int port)
 {
-    if (initEnvironment) getIdamClientEnvironment(&environment);   // Initialise
-    environment.server_port = port;                             // IDAM server service port number
-    environment.server_reconnect = 1;                           // Create a new Server instance
+    ENVIRONMENT* environment = getIdamClientEnvironment();
+    environment->server_port = port;                             // IDAM server service port number
+    environment->server_reconnect = 1;                           // Create a new Server instance
     env_port = 0;
 }
 
@@ -802,9 +723,9 @@ Select the server connection required.
 */
 void putIdamServerSocket(int socket)
 {
-    if (initEnvironment) getIdamClientEnvironment(&environment);   // Initialise
-    environment.server_socket = socket;                         // IDAM server service socket number (Must be Open)
-    environment.server_change_socket = 1;                       // Connect to an Existing Server
+    ENVIRONMENT* environment = getIdamClientEnvironment();
+    environment->server_socket = socket;                         // IDAM server service socket number (Must be Open)
+    environment->server_change_socket = 1;                       // Connect to an Existing Server
 }
 
 //--------------------------------------------------------------
@@ -819,10 +740,10 @@ void putIdamServerSocket(int socket)
 */
 void getIdamServer(char** host, int* port, int* socket)
 {      // Active ...
-    if (initEnvironment) getIdamClientEnvironment(&environment);   // Initialise
-    *socket = environment.server_socket;                        // IDAM server service socket number
-    *port = environment.server_port;                          // IDAM server service port number
-    *host = environment.server_host;                          // IDAM server's host name or IP address
+    ENVIRONMENT* environment = getIdamClientEnvironment();
+    *socket = environment->server_socket;                        // IDAM server service socket number
+    *port = environment->server_port;                          // IDAM server service port number
+    *host = environment->server_host;                          // IDAM server's host name or IP address
 }
 
 //! the IDAM server connection host name
@@ -831,8 +752,8 @@ void getIdamServer(char** host, int* port, int* socket)
 */
 char* getIdamServerHost()
 {
-    if (initEnvironment) getIdamClientEnvironment(&environment);   // Initialise
-    return environment.server_host;                             // Active IDAM server's host name or IP address
+    ENVIRONMENT* environment = getIdamClientEnvironment();
+    return environment->server_host;                             // Active IDAM server's host name or IP address
 }
 
 //! the IDAM server connection port number
@@ -841,8 +762,8 @@ char* getIdamServerHost()
 */
 int getIdamServerPort()
 {
-    if (initEnvironment) getIdamClientEnvironment(&environment);   // Initialise
-    return environment.server_port;                             // Active IDAM server service port number
+    ENVIRONMENT* environment = getIdamClientEnvironment();
+    return environment->server_port;                             // Active IDAM server service port number
 }
 
 //! the IDAM server connection socket ID
@@ -851,162 +772,8 @@ int getIdamServerPort()
 */
 int getIdamServerSocket()
 {
-    if (initEnvironment) getIdamClientEnvironment(&environment);   // Initialise
-    return environment.server_socket;           // Active IDAM server service socket number
-}
-
-//! get the IDAM client study DOI
-/**
-* @return the DOI
-*/
-char* getIdamClientDOI()
-{
-    return client_block.DOI;
-}
-
-//! put the IDAM client study DOI
-/**
-* @assign the DOI
-*/
-void putIdamClientDOI(char* doi)
-{
-    strcpy(client_block.DOI, doi);
-}
-
-//! get the IDAM server configuration DOI
-/**
-* @return the DOI
-*/
-char* getIdamServerDOI()
-{
-    return server_block.DOI;
-}
-
-//! get the IDAM client OS Name
-/**
-* @return the OS name
-*/
-char* getIdamClientOSName()
-{
-    return client_block.OSName;
-}
-
-//! put the IDAM client OS Name
-/**
-* @assign the OS name
-*/
-void putIdamClientOSName(char* os)
-{
-    strcpy(client_block.OSName, os);
-}
-
-//! get the IDAM server environment OS Name
-/**
-* @return the OS name
-*/
-char* getIdamServerOSName()
-{
-    return server_block.OSName;
-}
-
-//! the IDAM client library verion number
-/**
-* @return the verion number
-*/
-int getIdamClientVersion()
-{
-    return clientVersion;              // Client Library Version
-}
-
-//! the IDAM server verion number
-/**
-* @return the verion number
-*/
-int getIdamServerVersion()
-{
-    return server_block.version;           // Server Version
-}
-
-//! the IDAM server error code returned
-/**
-* @return the error code
-*/
-int getIdamServerErrorCode()
-{
-    return server_block.error;             // Server Error Code
-}
-
-//! the IDAM server error message returned
-/**
-* @return the error message
-*/
-char* getIdamServerErrorMsg()
-{
-    return server_block.msg;               // Server Error Message
-}
-
-//! the number of IDAM server error message records returned in the error stack
-/**
-* @return the number of records
-*/
-int getIdamServerErrorStackSize()
-{
-    return server_block.idamerrorstack.nerrors;     // Server Error Stack Size (No.Records)
-}
-
-//! the Type of server error of a specific server error record
-/**
-* @param record the error stack record number
-* @return the type id
-*/
-int getIdamServerErrorStackRecordType(int record)
-{
-    if (record < 0 || record >= server_block.idamerrorstack.nerrors) return 0;
-    return server_block.idamerrorstack.idamerror[record].type;  // Server Error Stack Record Type
-}
-
-//! the Error code of a specific server error record
-/**
-* @param record the error stack record number
-* @return the error code
-*/
-int getIdamServerErrorStackRecordCode(int record)
-{
-    if (record < 0 || record >= server_block.idamerrorstack.nerrors) return 0;
-    return server_block.idamerrorstack.idamerror[record].code;  // Server Error Stack Record Code
-}
-
-//! the Server error Location name of a specific error record
-/**
-* @param record the error stack record number
-* @return the location name
-*/
-char* getIdamServerErrorStackRecordLocation(int record)
-{
-    if (record < 0 || record >= server_block.idamerrorstack.nerrors) return 0;
-    return server_block.idamerrorstack.idamerror[record].location; // Server Error Stack Record Location
-}
-
-//! the Server error message of a specific error record
-/**
-* @param record the error stack record number
-* @return the error message
-*/
-char* getIdamServerErrorStackRecordMsg(int record)
-{
-    idamLog(LOG_DEBUG, "getIdamServerErrorStackRecordMsg: record %d\n", record);
-    idamLog(LOG_DEBUG, "getIdamServerErrorStackRecordMsg: count  %d\n", server_block.idamerrorstack.nerrors);
-    if (record < 0 || record >= server_block.idamerrorstack.nerrors) return 0;
-    return server_block.idamerrorstack.idamerror[record].msg;   // Server Error Stack Record Message
-}
-
-//! Return the Server error message stack data structure
-/**
-@return  the error message stack data structure
-*/
-IDAMERRORSTACK* getIdamServerErrorStack()
-{
-    return &server_block.idamerrorstack;         // Server Error Stack Structure
+    ENVIRONMENT* environment = getIdamClientEnvironment();
+    return environment->server_socket;           // Active IDAM server service socket number
 }
 
 //!  returns the data access error code
@@ -1499,7 +1266,7 @@ char* getIdamAsymmetricError(int handle, int above)
 
             if (allocArray(Data_Block[handle].error_type, ndata, &errhi) != 0) {
                 // Allocate Heap for Regular Error Data
-                idamLog(LOG_ERROR, "Heap Allocation Problem with Data Errors\n");
+                IDAM_LOG(LOG_ERROR, "Heap Allocation Problem with Data Errors\n");
                 Data_Block[handle].errhi = NULL;
             } else {
                 Data_Block[handle].errhi = errhi;
@@ -1507,8 +1274,8 @@ char* getIdamAsymmetricError(int handle, int above)
 
             if (Data_Block[handle].errasymmetry) {           // Allocate Heap for the Asymmetric Error Data
                 if (allocArray(Data_Block[handle].error_type, ndata, &errlo) != 0) {
-                    idamLog(LOG_ERROR, "Heap Allocation Problem with Asymmetric Errors\n");
-                    idamLog(LOG_ERROR, "Switching Asymmetry Off!\n");
+                    IDAM_LOG(LOG_ERROR, "Heap Allocation Problem with Asymmetric Errors\n");
+                    IDAM_LOG(LOG_ERROR, "Switching Asymmetry Off!\n");
                     Data_Block[handle].errlo = NULL;
                     Data_Block[handle].errasymmetry = 0;
                 } else {
@@ -2839,7 +2606,7 @@ char* getIdamDimAsymmetricError(int handle, int ndim, int above)
 
 
             if (allocArray(Data_Block[handle].dims[ndim].error_type, ndata, &errhi) != 0) {
-                idamLog(LOG_ERROR, "Heap Allocation Problem with Dimensional Data Errors\n");
+                IDAM_LOG(LOG_ERROR, "Heap Allocation Problem with Dimensional Data Errors\n");
                 Data_Block[handle].dims[ndim].errhi = NULL;
             } else {
                 Data_Block[handle].dims[ndim].errhi = errhi;
@@ -2847,8 +2614,8 @@ char* getIdamDimAsymmetricError(int handle, int ndim, int above)
 
             if (Data_Block[handle].dims[ndim].errasymmetry) {               // Allocate Heap for the Asymmetric Error Data
                 if (allocArray(Data_Block[handle].dims[ndim].error_type, ndata, &errlo) != 0) {
-                    idamLog(LOG_ERROR, "Heap Allocation Problem with Dimensional Asymmetric Errors\n");
-                    idamLog(LOG_ERROR, "Switching Asymmetry Off!\n");
+                    IDAM_LOG(LOG_ERROR, "Heap Allocation Problem with Dimensional Asymmetric Errors\n");
+                    IDAM_LOG(LOG_ERROR, "Switching Asymmetry Off!\n");
                     Data_Block[handle].dims[ndim].errlo = errlo;
                     Data_Block[handle].dims[ndim].errasymmetry = 0;
                 } else {

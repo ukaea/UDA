@@ -22,22 +22,22 @@ int startup(void)
 //----------------------------------------------------------------
 // Read Environment Variable Values (Held in a Global Structure)
 
-    getIdamServerEnvironment(&environment);
+    const ENVIRONMENT* environment = getIdamServerEnvironment();
 
 //---------------------------------------------------------------
 // Open the Log Files
 
-    idamSetLogLevel(environment.loglevel);
+    idamSetLogLevel((LOG_MODE)environment->loglevel);
 
-    if (environment.loglevel <= LOG_ACCESS) {
+    if (environment->loglevel <= LOG_ACCESS) {
         char cmd[STRING_LENGTH];
-        sprintf(cmd, "mkdir -p %s 2>/dev/null", environment.logdir);
+        sprintf(cmd, "mkdir -p %s 2>/dev/null", environment->logdir);
         system(cmd);
 
         errno = 0;
-        strcpy(idamFile, environment.logdir);
+        strcpy(idamFile, environment->logdir);
         strcat(idamFile, "Access.log");
-        FILE* accout = fopen(idamFile, environment.logmode);
+        FILE* accout = fopen(idamFile, environment->logmode);
 
         if (errno != 0) {
             addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "startup", errno, "Access Log: ");
@@ -47,11 +47,11 @@ int startup(void)
         }
     }
 
-    if (environment.loglevel <= LOG_ERROR) {
+    if (environment->loglevel <= LOG_ERROR) {
         errno = 0;
-        strcpy(idamFile, environment.logdir);
+        strcpy(idamFile, environment->logdir);
         strcat(idamFile, "Error.log");
-        FILE* errout = fopen(idamFile, environment.logmode);
+        FILE* errout = fopen(idamFile, environment->logmode);
 
         if (errno != 0) {
             addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "startup", errno, "Error Log: ");
@@ -61,11 +61,11 @@ int startup(void)
         }
     }
 
-    if (environment.loglevel <= LOG_WARN) {
+    if (environment->loglevel <= LOG_WARN) {
         errno = 0;
-        strcpy(idamFile, environment.logdir);
+        strcpy(idamFile, environment->logdir);
         strcat(idamFile, "DebugServer.log");
-        FILE* dbgout = fopen(idamFile, environment.logmode);
+        FILE* dbgout = fopen(idamFile, environment->logmode);
 
         if (errno != 0) {
             addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "startup", errno, "Debug Log: ");
@@ -77,7 +77,7 @@ int startup(void)
         }
     }
 
-    printIdamServerEnvironment(&environment);
+    printIdamServerEnvironment(environment);
 
     return 0;
 }

@@ -72,38 +72,6 @@ void putIdamServerSocket(int socket);
 
 void getIdamServer(char** host, int* port, int* socket);
 
-char* getIdamServerHost();
-
-int getIdamServerPort();
-
-int getIdamServerSocket();
-
-char* getIdamClientDOI();
-
-char* getIdamServerDOI();
-
-char* getIdamClientOSName();
-
-char* getIdamServerOSName();
-
-int getIdamClientVersion();
-
-int getIdamServerVersion();
-
-int getIdamServerErrorCode();
-
-char* getIdamServerErrorMsg();
-
-int getIdamServerErrorStackSize();
-
-int getIdamServerErrorStackRecordType(int record);
-
-int getIdamServerErrorStackRecordCode(int record);
-
-char* getIdamServerErrorStackRecordLocation(int record);
-
-char* getIdamServerErrorStackRecordMsg(int record);
-
 IDAMERRORSTACK* getIdamServerErrorStack();
 
 int getIdamErrorCode(int handle);
@@ -290,13 +258,9 @@ void putIdamThreadLastHandle(int handle);
 
 int getIdamMaxThreadCount();
 
-ENVIRONMENT getIdamThreadEnvironment();
-
 SERVER_BLOCK getIdamThreadServerBlock();
 
 CLIENT_BLOCK getIdamThreadClientBlock();
-
-void putIdamThreadEnvironment(ENVIRONMENT *str);
 
 void putIdamThreadServerBlock(SERVER_BLOCK *str);
 

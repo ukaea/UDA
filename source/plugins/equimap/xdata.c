@@ -25,8 +25,9 @@ int xdatamapx(int rGridCount, float* rGrid, int ndata, float* rdata, float* data
         mapped[i] = 0.0;
         if (!isfinite(rGrid[i])) return 1;
         for (j = 0; j < ndata - 1; j++) {
-            if (!isfinite(rdata[j]) || !isfinite(rdata[j + 1]) || !isfinite(data[j]) || !isfinite(data[j + 1]))
+            if (!isfinite(rdata[j]) || !isfinite(rdata[j + 1]) || !isfinite(data[j]) || !isfinite(data[j + 1])) {
                 return 1;
+            }
 
             if (rGrid[i] >= rdata[j + 1] && rGrid[i] < rdata[j]) {
                 gradient = (data[j + 1] - data[j]) / (rdata[j + 1] - rdata[j]);
@@ -103,7 +104,7 @@ int xdatamap(int rGridCount, float* rGrid, int ndata, float* rdata, float* data,
     }
 
     if (j0 == ndata - 1) {
-        idamLog(LOG_ERROR, "All data are either NaN or Infinite!\n");
+        IDAM_LOG(LOG_ERROR, "All data are either NaN or Infinite!\n");
         return 1;
     }
 
@@ -118,10 +119,9 @@ int xdatamap(int rGridCount, float* rGrid, int ndata, float* rdata, float* data,
     }
 
     if (j0 == jn) {
-        idamLog(LOG_ERROR, "Only 1 good data point - No points to interpolate between!\n");
+        IDAM_LOG(LOG_ERROR, "Only 1 good data point - No points to interpolate between!\n");
         return 2;
     }
-
 
 // Does the first data point start inside the target grid? If so linearly interpolate for a value.
 
@@ -134,11 +134,8 @@ int xdatamap(int rGridCount, float* rGrid, int ndata, float* rdata, float* data,
                 break;
             }
             mapped[i] = gradient * (rGrid[i] - rGrid[0]) + minvalue;
-
-//idamLog(LOG_ERROR,"A[%2d] %12.4e   %12.4e   %12.4e   %12.4e   %12.4e \n", i, gradient, rGrid[i], rGrid[0], minvalue, mapped[i]);
         }
     }
-
 
 // Highest value interval
 // Is the last data point inside the target grid? If so linearly interpolate for a value.
@@ -151,22 +148,9 @@ int xdatamap(int rGridCount, float* rGrid, int ndata, float* rdata, float* data,
                 istop = i;
             } else {
                 mapped[i] = gradient * (rGrid[i] - rGrid[rGridCount - 1]) + minvalue;
-
-//idamLog(LOG_ERROR,"B[%2d] %12.4e   %12.4e   %12.4e   %12.4e   %12.4e \n", i, gradient, rGrid[i], rGrid[rGridCount-1], minvalue, mapped[i]);
             }
         }
     }
-
-// Remaining data interval
-
-/*
-idamLog(LOG_ERROR,"istart=%d\n", istart);
-idamLog(LOG_ERROR,"istop =%d\n", istop);
-idamLog(LOG_ERROR,"n     =%d\n", rGridCount-1);
-idamLog(LOG_ERROR,"j0    =%d\n", j0);
-idamLog(LOG_ERROR,"jn    =%d\n", jn);
-idamLog(LOG_ERROR,"n     =%d\n", ndata-1);
-*/
     for (i = istart; i <= istop; i++) {
 
         for (j = j0; j <= jn - 1; j++) {
@@ -174,8 +158,6 @@ idamLog(LOG_ERROR,"n     =%d\n", ndata-1);
                 rdata[j] <= rGrid[i] && rdata[j + 1] > rGrid[i]) {
                 gradient = (data[j + 1] - data[j]) / (rdata[j + 1] - rdata[j]);
                 mapped[i] = gradient * (rGrid[i] - rdata[j]) + data[j];
-//idamLog(LOG_ERROR,"C[%2d] %12.4e   %12.4e   %12.4e   %12.4e   %12.4e \n",
-//i, gradient, rGrid[i], rdata[j], data[j], mapped[i]); 
             }
         }
 
@@ -206,7 +188,7 @@ int xdataintegrate(int ndata, float* rdata, float* data, float minvalue, int* na
     }
 
     if (j0 == ndata - 1) {
-        idamLog(LOG_ERROR, "All data are either NaN or Infinite!\n");
+        IDAM_LOG(LOG_ERROR, "All data are either NaN or Infinite!\n");
         return 1;
     }
 
@@ -221,7 +203,7 @@ int xdataintegrate(int ndata, float* rdata, float* data, float minvalue, int* na
     }
 
     if (j0 == jn) {
-        idamLog(LOG_ERROR, "Only 1 good data point - No points to interpolate between!\n");
+        IDAM_LOG(LOG_ERROR, "Only 1 good data point - No points to interpolate between!\n");
         return 2;
     }
 
@@ -237,15 +219,10 @@ int xdataintegrate(int ndata, float* rdata, float* data, float minvalue, int* na
         area[0] = 0.0;
     }
 
-//idamLog(LOG_ERROR,"area[0] %12.4e   %12.4e \n",area[0],xarea[0]);
-
     for (j = j0; j <= jn - 1; j++) {
         if (isfinite(rdata[j]) && isfinite(rdata[j + 1]) && isfinite(data[j]) && isfinite(data[j + 1])) {
             xarea[k] = rdata[j + 1];
             area[k] = area[k - 1] + 0.5 * (data[j] + data[j + 1]) * (rdata[j + 1] - rdata[j]);
-
-//idamLog(LOG_ERROR,"[%2d] area[%2d] %12.4e   %12.4e \n",j, k, area[k],xarea[k]);
-
             k++;
         }
     }
@@ -265,7 +242,7 @@ int xdatainterval(int rank, int order, int ndata, int* shape, float* dim,
     float epsilon = 2.0 * FLT_EPSILON;
 
     if (order < 0) {
-        idamLog(LOG_ERROR, "Error: Unable to locate a time interval - there is no time vector for this data!\n");
+        IDAM_LOG(LOG_ERROR, "Error: Unable to locate a time interval - there is no time vector for this data!\n");
         return 1;
     }
 
@@ -298,7 +275,7 @@ int xdatainterval(int rank, int order, int ndata, int* shape, float* dim,
     }
 
     if (*target1 == -1 || *target2 == -1) {
-        idamLog(LOG_ERROR, "The requested Time %e could not be located in the coordinate data array!\n", tslice);
+        IDAM_LOGF(LOG_ERROR, "The requested Time %e could not be located in the coordinate data array!\n", tslice);
         return (2);
     }
 
@@ -322,17 +299,17 @@ int xdatand(char* signal, char* source, int* hand, int* rank, int* order, int* n
 
     if (*hand < 0) {
         if ((handle = idamGetAPI(signal, source)) < 0 || getIdamErrorCode(handle) != 0) {
-            idamLog(LOG_ERROR, "Error: No %s Data from %s!\n %s\n", signal, source, (char*) getIdamErrorMsg(handle));
+            IDAM_LOGF(LOG_ERROR, "Error: No %s Data from %s!\n %s\n", signal, source, (char*)getIdamErrorMsg(handle));
             err = 1;
             return err;
         }
-    } else handle = *hand;
+    } else { handle = *hand; }
 
     *ndata = getIdamDataNum(handle);
     *rank = getIdamRank(handle);
     *order = getIdamOrder(handle);
 
-    sp = (int*) malloc(*rank * sizeof(int));
+    sp = (int*)malloc(*rank * sizeof(int));
 
     ldim = 0;
     ndim = 1;
@@ -344,19 +321,19 @@ int xdatand(char* signal, char* source, int* hand, int* rank, int* order, int* n
     }
 
     if (*ndata != ndim) {
-        idamLog(LOG_ERROR, "Error: %s Coordinate Data from %s has an Inconsistent Shape (%d) %d!\n",
-                signal, source, ndim, *ndata);
-        free((void*) sp);
+        IDAM_LOGF(LOG_ERROR, "Error: %s Coordinate Data from %s has an Inconsistent Shape (%d) %d!\n",
+                  signal, source, ndim, *ndata);
+        free((void*)sp);
         err = 3;
         return err;
     }
 
-    fpd = (float*) malloc(*ndata * sizeof(float));        // Measurement Array
+    fpd = (float*)malloc(*ndata * sizeof(float));        // Measurement Array
 
     getIdamFloatData(handle, fpd);            // Extract Measurement Data as floats regardless of original type
 
     if (dim != NULL) {
-        fpt = (float*) malloc(ldim * sizeof(float));    // Concatenated Coordinate Arrays
+        fpt = (float*)malloc(ldim * sizeof(float));    // Concatenated Coordinate Arrays
 
         getIdamFloatDimData(handle, 0, fpt);        // First Dimension
         offset = sp[0];
@@ -373,7 +350,7 @@ int xdatand(char* signal, char* source, int* hand, int* rank, int* order, int* n
     if (shape != NULL) {
         *shape = sp;
     } else {
-        free((void*) sp);
+        free((void*)sp);
     }
 
     return 0;
@@ -390,14 +367,14 @@ int xdata1d(char* signal, char* source, int* hand, int* ndata, float** data, flo
 
     if (*hand < 0) {
         if ((handle = idamGetAPI(signal, source)) < 0 || getIdamErrorCode(handle) != 0) {
-            idamLog(LOG_ERROR, "Error: No %s Data from %s!\n %s\n", signal, source, (char*) getIdamErrorMsg(handle));
+            IDAM_LOGF(LOG_ERROR, "Error: No %s Data from %s!\n %s\n", signal, source, (char*)getIdamErrorMsg(handle));
             err = 1;
             return err;
         }
-    } else handle = *hand;
+    } else { handle = *hand; }
 
     if (getIdamRank(handle) != 1) {
-        idamLog(LOG_ERROR, "Error: %s Data from %s is not Rank 1 [%d]\n", signal, source, getIdamRank(handle));
+        IDAM_LOGF(LOG_ERROR, "Error: %s Data from %s is not Rank 1 [%d]\n", signal, source, getIdamRank(handle));
         err = 2;
         return err;
     }
@@ -405,14 +382,14 @@ int xdata1d(char* signal, char* source, int* hand, int* ndata, float** data, flo
     *ndata = getIdamDataNum(handle);
 
     if (*ndata != getIdamDimNum(handle, 0)) {
-        idamLog(LOG_ERROR, "Error: %s Coordinate Data from %s has an Inconsistent Length (%d) %d!\n",
-                signal, source, getIdamDimNum(handle, 0), *ndata);
+        IDAM_LOGF(LOG_ERROR, "Error: %s Coordinate Data from %s has an Inconsistent Length (%d) %d!\n",
+                  signal, source, getIdamDimNum(handle, 0), *ndata);
         err = 3;
         return err;
     }
 
-    fpd = (float*) malloc(*ndata * sizeof(float));
-    fpt = (float*) malloc(*ndata * sizeof(float));
+    fpd = (float*)malloc(*ndata * sizeof(float));
+    fpt = (float*)malloc(*ndata * sizeof(float));
 
     getIdamFloatData(handle, fpd);
     getIdamFloatDimData(handle, 0, fpt);

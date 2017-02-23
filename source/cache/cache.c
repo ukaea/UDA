@@ -66,9 +66,9 @@ IDAM_CACHE* idamOpenCache()
     rc = memcached_server_push(&cache->memcache, servers);
 
     if (rc == MEMCACHED_SUCCESS) {
-        idamLog(LOG_DEBUG, "%s\n", "Added server successfully");
+        IDAM_LOGF(LOG_DEBUG, "%s\n", "Added server successfully");
     } else {
-        idamLog(LOG_DEBUG, "Couldn't add server: %s\n", memcached_strerror(&cache->memcache, rc));
+        IDAM_LOGF(LOG_DEBUG, "Couldn't add server: %s\n", memcached_strerror(&cache->memcache, rc));
         free(cache);
         return NULL;
     }
@@ -88,7 +88,7 @@ void idamFreeCache() // Will be called by the idamFreeAll function
 // The local cache should only be used to record data returned from a server after a GET method - Note: Put methods may be disguised in a GET call!
 // How to validate the cached data?
 
-char* idamCacheKey(REQUEST_BLOCK* request_block)
+char* idamCacheKey(REQUEST_BLOCK* request_block, ENVIRONMENT environment)
 {
     // Check Client Properties for permission and requested method
     if (!(clientFlags & CLIENTFLAG_CACHE)) {
@@ -99,7 +99,7 @@ char* idamCacheKey(REQUEST_BLOCK* request_block)
     char* delimiter = "&&";
     size_t len = strlen(request_block->source) + strlen(request_block->signal) +
                  strlen(environment.server_host) + 128;
-    char* key = (char*) malloc(len * sizeof(char));
+    char* key = (char*)malloc(len * sizeof(char));
     sprintf(key, "%s%s%s%s%s%s%d%s%d%s%d", request_block->signal, delimiter, request_block->source, delimiter,
             environment.server_host, delimiter, environment.server_port, delimiter, environment.clientFlags, delimiter,
             privateFlags);
@@ -120,8 +120,8 @@ char* idamCacheKey(REQUEST_BLOCK* request_block)
     // Need a compact hash - use SHA1 as always 20 bytes (40 bytes when printable)
     unsigned char md[MAXELEMENTSHA1 + 1];      // SHA1 Hash
     md[MAXELEMENTSHA1] = '\0';
-    strcpy((char*) md, "                    ");
-    sha1Block((unsigned char*) key, len, md);
+    strcpy((char*)md, "                    ");
+    sha1Block((unsigned char*)key, len, md);
     // Convert to a printable string (40 characters) for the key (is this necessary?)
     int j;
     key[40] = '\0';
@@ -139,7 +139,7 @@ char* idamCacheKey(REQUEST_BLOCK* request_block)
 // All data services should indicate whether or not the data returned is suitable for client side caching (all server plugin get methods must decide!)
 // The server should also set a recommmended expiration time (lifetime of the stored object) - overridden by the client if necessary
 
-int idamCacheWrite(IDAM_CACHE* cache, REQUEST_BLOCK* request_block, DATA_BLOCK* data_block)
+int idamCacheWrite(IDAM_CACHE* cache, REQUEST_BLOCK* request_block, DATA_BLOCK* data_block, ENVIRONMENT environment)
 {
 #ifdef CACHEDEV
 
@@ -148,8 +148,8 @@ int idamCacheWrite(IDAM_CACHE* cache, REQUEST_BLOCK* request_block, DATA_BLOCK* 
     }
 
 #endif
-    char* key = idamCacheKey(request_block);
-    idamLog(LOG_DEBUG, "Caching value for key: %s\n", key);
+    char* key = idamCacheKey(request_block, environment);
+    IDAM_LOGF(LOG_DEBUG, "Caching value for key: %s\n", key);
 
     if (key == NULL) {
         return -1;
@@ -165,7 +165,7 @@ int idamCacheWrite(IDAM_CACHE* cache, REQUEST_BLOCK* request_block, DATA_BLOCK* 
 
     int token;
 
-    protocol2(&xdrs, PROTOCOL_DATA_BLOCK, XDR_SEND, &token, (void*) data_block);
+    protocol2(&xdrs, PROTOCOL_DATA_BLOCK, XDR_SEND, &token, (void*)data_block);
     xdr_destroy(&xdrs);     // Destroy before the  file otherwise a segmentation error occurs
     fclose(memfile);
 
@@ -177,7 +177,7 @@ int idamCacheWrite(IDAM_CACHE* cache, REQUEST_BLOCK* request_block, DATA_BLOCK* 
         char* env = getenv("UDA_CACHE_EXPIRY");
 
         if (env != NULL) {
-            age_max = (unsigned int) atoi(env);
+            age_max = (unsigned int)atoi(env);
         }
 
         init = 0;
@@ -195,10 +195,10 @@ int idamCacheWrite(IDAM_CACHE* cache, REQUEST_BLOCK* request_block, DATA_BLOCK* 
 #else
     life += age_max;                // Add the default or client overridden lifetime for the object to the current time
 #endif
-    memcached_return_t rc = memcached_set(&cache->memcache, key, strlen(key), buffer, bufsize, life, (uint32_t) 0);
+    memcached_return_t rc = memcached_set(&cache->memcache, key, strlen(key), buffer, bufsize, life, (uint32_t)0);
 
     if (rc != MEMCACHED_SUCCESS) {
-        idamLog(LOG_DEBUG, "Couldn't store key: %s\n", memcached_strerror(&cache->memcache, rc));
+        IDAM_LOGF(LOG_DEBUG, "Couldn't store key: %s\n", memcached_strerror(&cache->memcache, rc));
         free(key);
         return -1;
     }
@@ -206,7 +206,7 @@ int idamCacheWrite(IDAM_CACHE* cache, REQUEST_BLOCK* request_block, DATA_BLOCK* 
     rc = memcached_flush_buffers(&cache->memcache);
 
     if (rc != MEMCACHED_SUCCESS) {
-        idamLog(LOG_DEBUG, "Couldn't flush buffers: %s\n", memcached_strerror(&cache->memcache, rc));
+        IDAM_LOGF(LOG_DEBUG, "Couldn't flush buffers: %s\n", memcached_strerror(&cache->memcache, rc));
         free(key);
         return -1;
     }
@@ -215,10 +215,10 @@ int idamCacheWrite(IDAM_CACHE* cache, REQUEST_BLOCK* request_block, DATA_BLOCK* 
     return 0;
 }
 
-DATA_BLOCK* idamCacheRead(IDAM_CACHE* cache, REQUEST_BLOCK* request_block)
+DATA_BLOCK* idamCacheRead(IDAM_CACHE* cache, REQUEST_BLOCK* request_block, ENVIRONMENT environment)
 {
-    char* key = idamCacheKey(request_block);
-    idamLog(LOG_DEBUG, "Retrieving value for key: %s\n", key);
+    char* key = idamCacheKey(request_block, environment);
+    IDAM_LOGF(LOG_DEBUG, "Retrieving value for key: %s\n", key);
 
     if (key == NULL) {
         return NULL;
@@ -228,10 +228,10 @@ DATA_BLOCK* idamCacheRead(IDAM_CACHE* cache, REQUEST_BLOCK* request_block)
     size_t len = 0;
     u_int32_t flags = 0;
     char* value = NULL;
-    value = (char*) memcached_get(&cache->memcache, key, strlen(key), &len, &flags, &rc);
+    value = (char*)memcached_get(&cache->memcache, key, strlen(key), &len, &flags, &rc);
 
     if (rc != MEMCACHED_SUCCESS) {
-        idamLog(LOG_DEBUG, "Couldn't retrieve key: %s\n", memcached_strerror(&cache->memcache, rc));
+        IDAM_LOGF(LOG_DEBUG, "Couldn't retrieve key: %s\n", memcached_strerror(&cache->memcache, rc));
         free(key);
         return NULL;
     }
@@ -247,11 +247,11 @@ DATA_BLOCK* idamCacheRead(IDAM_CACHE* cache, REQUEST_BLOCK* request_block)
     XDR xdrs;
     xdrstdio_create(&xdrs, memfile, XDR_DECODE);
 
-    DATA_BLOCK* data_block = (DATA_BLOCK*) malloc(sizeof(DATA_BLOCK));
+    DATA_BLOCK* data_block = (DATA_BLOCK*)malloc(sizeof(DATA_BLOCK));
     initDataBlock(data_block);
 
     int token;
-    protocol2(&xdrs, PROTOCOL_DATA_BLOCK, XDR_RECEIVE, &token, (void*) data_block);
+    protocol2(&xdrs, PROTOCOL_DATA_BLOCK, XDR_RECEIVE, &token, (void*)data_block);
 
     xdr_destroy(&xdrs);     // Destroy before the  file otherwise a segmentation error occurs
     fclose(memfile);

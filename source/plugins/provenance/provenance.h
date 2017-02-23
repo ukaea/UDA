@@ -63,7 +63,7 @@ struct PROVENANCESIGNALLIST
 };
 typedef struct PROVENANCESIGNALLIST PROVENANCESIGNALLIST;
 
-extern char * pghost;
+extern const char * pghost;
 extern char pgport[56];
 extern char * dbname;
 extern char * user;

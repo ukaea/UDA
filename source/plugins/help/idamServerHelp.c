@@ -30,6 +30,7 @@
 #include <logging/logging.h>
 #include <plugins/udaPlugin.h>
 #include <clientserver/stringUtils.h>
+#include <server/getServerEnvironment.h>
 
 int idamServerHelp(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
@@ -43,8 +44,6 @@ int idamServerHelp(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     DATA_BLOCK* data_block;
     REQUEST_BLOCK* request_block;
 
-    PLUGINLIST* pluginList;    // List of all data reader plugins (internal and external shared libraries)
-
     USERDEFINEDTYPE usertype;
     COMPOUNDFIELD field;
 
@@ -52,7 +51,7 @@ int idamServerHelp(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     if (idam_plugin_interface->interfaceVersion > THISPLUGIN_MAX_INTERFACE_VERSION) {
         err = 999;
-        idamLog(LOG_ERROR,
+        IDAM_LOG(LOG_ERROR,
                 "ERROR Help: Plugin Interface Version Unknown to this plugin: Unable to execute the request!\n");
         addIdamError(&idamerrorstack, CODEERRORTYPE, "Help", err,
                      "Plugin Interface Version Unknown to this plugin: Unable to execute the request!");
@@ -64,16 +63,9 @@ int idamServerHelp(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     data_block = idam_plugin_interface->data_block;
     request_block = idam_plugin_interface->request_block;
 
-    pluginList = idam_plugin_interface->pluginList;
+    const PLUGINLIST* pluginList = idam_plugin_interface->pluginList;
 
     housekeeping = idam_plugin_interface->housekeeping;
-
-// Additional interface components (must be defined at the bottom of the standard data structure)
-// Versioning must be consistent with the macro THISPLUGIN_MAX_INTERFACE_VERSION and the plugin registration with the server
-
-    //if(idam_plugin_interface->interfaceVersion >= 2){
-    // NEW COMPONENTS
-    //}
 
 //----------------------------------------------------------------------------------------
 // Heap Housekeeping 
@@ -153,12 +145,9 @@ int idamServerHelp(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             strcpy(data_block->data_units, "");
 
             break;
-        } else
-
-//----------------------------------------------------------------------------------------   
-// Standard methods: version, builddate, defaultmethod, maxinterfaceversion 
-
-        if (STR_IEQUALS(request_block->function, "version")) {
+        } else if (STR_IEQUALS(request_block->function, "version")) {
+//----------------------------------------------------------------------------------------
+// Standard methods: version, builddate, defaultmethod, maxinterfaceversion
             initDataBlock(data_block);
             data_block->data_type = TYPE_INT;
             data_block->rank = 0;
@@ -170,11 +159,8 @@ int idamServerHelp(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             strcpy(data_block->data_label, "version");
             strcpy(data_block->data_units, "");
             break;
-        } else
-
+        } else if (STR_IEQUALS(request_block->function, "builddate")) {
 // Plugin Build Date
-
-        if (STR_IEQUALS(request_block->function, "builddate")) {
             initDataBlock(data_block);
             data_block->data_type = TYPE_STRING;
             data_block->rank = 0;
@@ -186,11 +172,8 @@ int idamServerHelp(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             strcpy(data_block->data_label, "date");
             strcpy(data_block->data_units, "");
             break;
-        } else
-
+        } else if (STR_IEQUALS(request_block->function, "defaultmethod")) {
 // Plugin Default Method
-
-        if (STR_IEQUALS(request_block->function, "defaultmethod")) {
             initDataBlock(data_block);
             data_block->data_type = TYPE_STRING;
             data_block->rank = 0;
@@ -202,11 +185,8 @@ int idamServerHelp(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             strcpy(data_block->data_label, "method");
             strcpy(data_block->data_units, "");
             break;
-        } else
-
+        } else if (STR_IEQUALS(request_block->function, "maxinterfaceversion")) {
 // Plugin Maximum Interface Version
-
-        if (STR_IEQUALS(request_block->function, "maxinterfaceversion")) {
             initDataBlock(data_block);
             data_block->data_type = TYPE_INT;
             data_block->rank = 0;
@@ -218,15 +198,10 @@ int idamServerHelp(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             strcpy(data_block->data_label, "version");
             strcpy(data_block->data_units, "");
             break;
-        } else
-
-//---------------------------------------------------------------------------------------- 
+        } else if (STR_IEQUALS(request_block->function, "ping") || STR_IEQUALS(request_block->function, "servertime")) {
+//----------------------------------------------------------------------------------------
 
 // Ping: Timing
-
-        if (STR_IEQUALS(request_block->function, "ping") ||
-            STR_IEQUALS(request_block->function, "servertime")) {
-
             struct timeval serverTime;        // Local time in microseconds
             gettimeofday(&serverTime, NULL);
 
@@ -283,13 +258,9 @@ int idamServerHelp(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             data_block->opaque_block = (void*) findUserDefinedType("HELP_PING", 0);
 
             break;
-        } else
-
-//====================================================================================== 
-// Plugin functionality 
-
-        if (STR_IEQUALS(request_block->function, "services")) {
-
+        } else if (STR_IEQUALS(request_block->function, "services")) {
+//======================================================================================
+// Plugin functionality
             int i, j, count;
             unsigned short target;
 
@@ -303,11 +274,13 @@ int idamServerHelp(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Total Number of registered plugins available
 
+            const ENVIRONMENT* environment = getIdamServerEnvironment();
+
             count = 0;
             for (i = 0; i < pluginList->count; i++)
                 if (pluginList->plugin[i].status == PLUGINOPERATIONAL &&
                     (pluginList->plugin[i].private == PLUGINPUBLIC ||
-                     (pluginList->plugin[i].private == PLUGINPRIVATE && !environment.external_user)))
+                     (pluginList->plugin[i].private == PLUGINPRIVATE && !environment->external_user)))
                     count++;
 
             sprintf(rec, "\nTotal number of registered plugins available: %d\n", count);
@@ -324,7 +297,7 @@ int idamServerHelp(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                             if (pluginList->plugin[i].class == target &&
                                 pluginList->plugin[i].status == PLUGINOPERATIONAL &&
                                 (pluginList->plugin[i].private == PLUGINPUBLIC ||
-                                 (pluginList->plugin[i].private == PLUGINPRIVATE && !environment.external_user)) &&
+                                 (pluginList->plugin[i].private == PLUGINPRIVATE && !environment->external_user)) &&
                                 pluginList->plugin[i].format[0] != '\0' && pluginList->plugin[i].extension[0] != '\0')
                                 count++;
 
@@ -335,7 +308,7 @@ int idamServerHelp(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                             if (pluginList->plugin[i].class == target &&
                                 pluginList->plugin[i].status == PLUGINOPERATIONAL &&
                                 (pluginList->plugin[i].private == PLUGINPUBLIC ||
-                                 (pluginList->plugin[i].private == PLUGINPRIVATE && !environment.external_user)) &&
+                                 (pluginList->plugin[i].private == PLUGINPRIVATE && !environment->external_user)) &&
                                 pluginList->plugin[i].format[0] != '\0' && pluginList->plugin[i].extension[0] != '\0') {
                                 sprintf(rec, "File format:\t\t%s\n", pluginList->plugin[i].format);
                                 strcat(doc, rec);
@@ -354,7 +327,7 @@ int idamServerHelp(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                             if (pluginList->plugin[i].class == target &&
                                 pluginList->plugin[i].status == PLUGINOPERATIONAL &&
                                 (pluginList->plugin[i].private == PLUGINPUBLIC ||
-                                 (pluginList->plugin[i].private == PLUGINPRIVATE && !environment.external_user)))
+                                 (pluginList->plugin[i].private == PLUGINPRIVATE && !environment->external_user)))
                                 count++;
                         sprintf(rec, "\nNumber of plugins for Libraries: %d\n\n", count);
                         strcat(doc, rec);
@@ -362,7 +335,7 @@ int idamServerHelp(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                             if (pluginList->plugin[i].class == target &&
                                 pluginList->plugin[i].status == PLUGINOPERATIONAL &&
                                 (pluginList->plugin[i].private == PLUGINPUBLIC ||
-                                 (pluginList->plugin[i].private == PLUGINPRIVATE && !environment.external_user))) {
+                                 (pluginList->plugin[i].private == PLUGINPRIVATE && !environment->external_user))) {
                                 sprintf(rec, "Library name:\t\t%s\n", pluginList->plugin[i].format);
                                 strcat(doc, rec);
                                 sprintf(rec, "Description:\t\t%s\n", pluginList->plugin[i].desc);
@@ -378,7 +351,7 @@ int idamServerHelp(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                             if (pluginList->plugin[i].class == target &&
                                 pluginList->plugin[i].status == PLUGINOPERATIONAL &&
                                 (pluginList->plugin[i].private == PLUGINPUBLIC ||
-                                 (pluginList->plugin[i].private == PLUGINPRIVATE && !environment.external_user)))
+                                 (pluginList->plugin[i].private == PLUGINPRIVATE && !environment->external_user)))
                                 count++;
                         sprintf(rec, "\nNumber of plugins for Data Servers: %d\n\n", count);
                         strcat(doc, rec);
@@ -386,7 +359,7 @@ int idamServerHelp(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                             if (pluginList->plugin[i].class == target &&
                                 pluginList->plugin[i].status == PLUGINOPERATIONAL &&
                                 (pluginList->plugin[i].private == PLUGINPUBLIC ||
-                                 (pluginList->plugin[i].private == PLUGINPRIVATE && !environment.external_user))) {
+                                 (pluginList->plugin[i].private == PLUGINPRIVATE && !environment->external_user))) {
                                 sprintf(rec, "Server name:\t\t%s\n", pluginList->plugin[i].format);
                                 strcat(doc, rec);
                                 sprintf(rec, "Description:\t\t%s\n", pluginList->plugin[i].desc);
@@ -402,7 +375,7 @@ int idamServerHelp(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                             if (pluginList->plugin[i].class == target &&
                                 pluginList->plugin[i].status == PLUGINOPERATIONAL &&
                                 (pluginList->plugin[i].private == PLUGINPUBLIC ||
-                                 (pluginList->plugin[i].private == PLUGINPRIVATE && !environment.external_user)))
+                                 (pluginList->plugin[i].private == PLUGINPRIVATE && !environment->external_user)))
                                 count++;
                         sprintf(rec, "\nNumber of plugins for External Devices: %d\n\n", count);
                         strcat(doc, rec);
@@ -410,7 +383,7 @@ int idamServerHelp(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                             if (pluginList->plugin[i].class == target &&
                                 pluginList->plugin[i].status == PLUGINOPERATIONAL &&
                                 (pluginList->plugin[i].private == PLUGINPUBLIC ||
-                                 (pluginList->plugin[i].private == PLUGINPRIVATE && !environment.external_user))) {
+                                 (pluginList->plugin[i].private == PLUGINPRIVATE && !environment->external_user))) {
                                 sprintf(rec, "External device name:\t%s\n", pluginList->plugin[i].format);
                                 strcat(doc, rec);
                                 sprintf(rec, "Description:\t\t%s\n", pluginList->plugin[i].desc);
@@ -426,7 +399,7 @@ int idamServerHelp(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                             if (pluginList->plugin[i].class == target &&
                                 pluginList->plugin[i].status == PLUGINOPERATIONAL &&
                                 (pluginList->plugin[i].private == PLUGINPUBLIC ||
-                                 (pluginList->plugin[i].private == PLUGINPRIVATE && !environment.external_user)))
+                                 (pluginList->plugin[i].private == PLUGINPRIVATE && !environment->external_user)))
                                 count++;
                         sprintf(rec, "\nNumber of plugins for Other data services: %d\n\n", count);
                         strcat(doc, rec);
@@ -434,7 +407,7 @@ int idamServerHelp(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                             if (pluginList->plugin[i].class == target &&
                                 pluginList->plugin[i].status == PLUGINOPERATIONAL &&
                                 (pluginList->plugin[i].private == PLUGINPUBLIC ||
-                                 (pluginList->plugin[i].private == PLUGINPRIVATE && !environment.external_user))) {
+                                 (pluginList->plugin[i].private == PLUGINPRIVATE && !environment->external_user))) {
                                 sprintf(rec, "Data service name:\t%s\n", pluginList->plugin[i].format);
                                 strcat(doc, rec);
                                 sprintf(rec, "Description:\t\t%s\n", pluginList->plugin[i].desc);

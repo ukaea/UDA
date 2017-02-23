@@ -3,7 +3,9 @@
 
 #include <clientserver/udaStructs.h>
 
-void printIdamServerEnvironment(ENVIRONMENT* environ);
-void getIdamServerEnvironment(ENVIRONMENT* environ);
+void printIdamServerEnvironment(const ENVIRONMENT* environ);
+ENVIRONMENT* getIdamServerEnvironment();
+
+void putIdamServerEnvironment(const ENVIRONMENT* environ);
 
 #endif // IDAM_SERVER_GETSERVERENVIRONMENT_H

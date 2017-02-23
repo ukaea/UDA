@@ -77,11 +77,11 @@ void printIdamErrorStack(IDAMERRORSTACK errorstack)
 {
     unsigned int i;
     if (errorstack.nerrors == 0) {
-        idamLog(LOG_DEBUG, "Empty Error Stack\n");
+        IDAM_LOG(LOG_DEBUG, "Empty Error Stack\n");
         return;
     }
     for (i = 0; i < errorstack.nerrors; i++) {
-        idamLog(LOG_DEBUG, "%d %d %d %s %s\n", i, errorstack.idamerror[i].type,
+        IDAM_LOGF(LOG_DEBUG, "%d %d %d %s %s\n", i, errorstack.idamerror[i].type,
                 errorstack.idamerror[i].code, errorstack.idamerror[i].location, errorstack.idamerror[i].msg);
     }
 }

@@ -34,11 +34,7 @@ extern "C" {
 #define MIN_STATUS          -1      // Deny Access to Data if this Status Value
 #define DATA_STATUS_BAD     -17000  // Error Code if Status is Bad
 
-extern int initEnvironment;
 extern int altRank;
-
-extern CLIENT_BLOCK client_block;   // Client Properties
-extern SERVER_BLOCK server_block;   // Server Status Block
 
 extern time_t tv_server_start;  // Server Startup Time
 extern time_t tv_server_end;    // Current Time & Server Age
@@ -69,12 +65,45 @@ extern int get_synthetic;       // (Client Side) Return Synthetic Data if availa
 extern XDR * clientInput;           // XDR Input Stream handle
 extern XDR * clientOutput;          // XDR Output Stream handle
 
-extern int clientVersion;
-
 int idamClient(REQUEST_BLOCK * request_block);
+
 void updateClientBlock(CLIENT_BLOCK* str);
+
 void idamFree(int handle);
+
 void idamFreeAll();
+
+char* getIdamServerHost();
+
+int getIdamServerPort();
+
+int getIdamServerSocket();
+
+char* getIdamClientDOI();
+
+char* getIdamServerDOI();
+
+char* getIdamClientOSName();
+
+char* getIdamServerOSName();
+
+int getIdamClientVersion();
+
+int getIdamServerVersion();
+
+int getIdamServerErrorCode();
+
+char* getIdamServerErrorMsg();
+
+int getIdamServerErrorStackSize();
+
+int getIdamServerErrorStackRecordType(int record);
+
+int getIdamServerErrorStackRecordCode(int record);
+
+char* getIdamServerErrorStackRecordLocation(int record);
+
+char* getIdamServerErrorStackRecordMsg(int record);
 
 #ifdef __cplusplus
 }

@@ -23,6 +23,7 @@
 #include "makeClientRequestBlock.h"
 #include "startup.h"
 #include "udaClient.h"
+#include "getEnvironment.h"
 
 int idamClientAPI(const char* file, const char* signal, int pass, int exp_number)
 {
@@ -43,7 +44,6 @@ int idamClientAPI(const char* file, const char* signal, int pass, int exp_number
 // Build the Request Data Block (Version and API dependent)
 
     if (startup) {
-        initServerBlock(&server_block, 0);
         initIdamErrorStack(&idamerrorstack);
         startup = 0;
     }
@@ -62,10 +62,10 @@ int idamClientAPI(const char* file, const char* signal, int pass, int exp_number
     }
 
     if ((err = makeClientRequestBlock(signal, data_source, &request_block)) != 0) {
-        concatIdamError(idamerrorstack, &server_block.idamerrorstack);
         closeIdamError(&idamerrorstack);
-        if (server_block.idamerrorstack.nerrors == 0) {
+        if (idamerrorstack.nerrors == 0) {
             IDAM_LOGF(LOG_ERROR, "Error identifying the Data Source [%s]\n", data_source);
+            addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, 999, "Error identifying the Data Source");
         }
         return -err;
     }
@@ -86,10 +86,6 @@ int idamClientAPI(const char* file, const char* signal, int pass, int exp_number
 *
 * Returns:
 *
-* Revision 0.0  05-Aug-2004	D.G.Muir
-* 0.01  15Jun2006   D.G.Muir	netCDF Added
-* 0.02  30Jan2007   D.G.Muir	Check for /scratch/ or /tmp/ directory files
-* 0.03  09Mar2007   D.G.Muir	REQUEST_READ_HDF5 and REQUEST_READ_XML added
 *--------------------------------------------------------------*/
 
 int idamClientFileAPI(const char* file, const char* signal, const char* format)
@@ -111,7 +107,6 @@ int idamClientFileAPI(const char* file, const char* signal, const char* format)
 // Build the Request Data Block (Version and API dependent)
 
     if (startup) {
-        initServerBlock(&server_block, 0);
         initIdamErrorStack(&idamerrorstack);
         startup = 0;
     }
@@ -126,10 +121,10 @@ int idamClientFileAPI(const char* file, const char* signal, const char* format)
         sprintf(data_source, "%s::%s", format, file);
 
     if ((err = makeClientRequestBlock(signal, data_source, &request_block)) != 0) {
-        concatIdamError(idamerrorstack, &server_block.idamerrorstack);
         closeIdamError(&idamerrorstack);
-        if (server_block.idamerrorstack.nerrors == 0) {
+        if (idamerrorstack.nerrors == 0) {
             IDAM_LOGF(LOG_ERROR, "Error identifying the Data Source [%s]\n", data_source);
+            addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, 999, "Error identifying the Data Source");
         }
         return -err;
     }
@@ -211,7 +206,7 @@ int idamClientFileAPI2(const char* file, const char* format, const char* owner,
             strcpy(request_block.signal, signal);
 
             TrimString(request_block.path);
-            expandFilePath(request_block.path);    // Expand Local Directory
+            expandFilePath(request_block.path, getIdamClientEnvironment());    // Expand Local Directory
 
             break;
 

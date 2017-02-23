@@ -51,6 +51,7 @@ int readMDS(DATA_SOURCE data_source,
 #include <clientserver/udaTypes.h>
 #include <logging/logging.h>
 #include <server/udaServer.h>
+#include <server/getServerEnvironment.h>
 
 #include "readMDSDim.h"
 
@@ -180,7 +181,7 @@ int readMDS(DATA_SOURCE data_source,
 #ifdef FATCLIENT
                 if(getenv("UDA_EXTERNAL_USER") != NULL) {		// Used for Testing purposes only
 #else
-                if (environment.external_user) {
+                if (getIdamServerEnvironment()->external_user) {
 #endif
                     err = 999;
                     addIdamError(&idamerrorstack, CODEERRORTYPE, "readMDS", err,

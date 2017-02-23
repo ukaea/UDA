@@ -37,11 +37,11 @@ int idamClientMDS(const char* server, const char* tree, const char* node, int tr
     strcpy(request_block.signal, node);
     strcpy(request_block.server, server);
 
-    idamLog(LOG_DEBUG, "Routine: ClientMDS\n");
-    idamLog(LOG_DEBUG, "Server 		 %s\n", request_block.server);
-    idamLog(LOG_DEBUG, "Tree  		 %s\n", request_block.file);
-    idamLog(LOG_DEBUG, "Node  		 %s\n", request_block.signal);
-    idamLog(LOG_DEBUG, "Tree Number       %d\n", request_block.exp_number);
+    IDAM_LOG(LOG_DEBUG, "Routine: ClientMDS\n");
+    IDAM_LOGF(LOG_DEBUG, "Server 		 %s\n", request_block.server);
+    IDAM_LOGF(LOG_DEBUG, "Tree  		 %s\n", request_block.file);
+    IDAM_LOGF(LOG_DEBUG, "Node  		 %s\n", request_block.signal);
+    IDAM_LOGF(LOG_DEBUG, "Tree Number       %d\n", request_block.exp_number);
 
 //-------------------------------------------------------------------------
 // Fetch Data
