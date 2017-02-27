@@ -1,11 +1,11 @@
 #if 0
 #!/bin/bash
-g++ test_imas2.cpp -g -O0 -gdwarf-3 -o test -DHOME=$HOME -I$HOME/iter/idam/latest/source/include -I$HOME/iter/idam/latest/source/wrappers \
--L$HOME/iter/idam/lib -Wl,-rpath,$HOME/iter/idam/lib  -lidamcpp
+g++ test_imas2.cpp -g -O0 -gdwarf-3 -o test -DHOME=$HOME -I$HOME/iter/uda/source -I$HOME/iter/uda/source/wrappers \
+-L$HOME/iter/uda/lib -Wl,-rpath,$HOME/iter/uda/lib  -luda_cpp -lssl -lcrypto
 exit 0
 #endif
 
-#include <c++/Idam.hpp>
+#include <c++/UDA.hpp>
 #include <typeinfo>
 #include <iostream>
 #include <sstream>
@@ -17,16 +17,15 @@ exit 0
 #define SHOT_NUM "50080" // WEST
 
 int main() {
-	setenv("IDAM_PLUGIN_DIR", QUOTE(HOME) "/iter/idam/bin/plugins", 1);
-	setenv("IDAM_PLUGIN_CONFIG", QUOTE(HOME) "/iter/idam/idamTest.conf", 1);
-	setenv("IDAM_SARRAY_CONFIG", QUOTE(HOME) "/iter/idam/bin/plugins/idamgenstruct.conf", 1);
-	setenv("IDAM_WEST_MAPPING_FILE", QUOTE(HOME) "/iter/idam/latest/source/plugins/west/WEST_mappings/IDAM_mapping.xml", 1);
-	setenv("IDAM_WEST_MAPPING_FILE_DIRECTORY", QUOTE(HOME) "/iter/idam/latest/source/plugins/west/WEST_mappings", 1);
-	setenv("IDAM_IMAS_DATA_PLUGIN", "WEST", 1);
-	setenv("IDAM_LOG", QUOTE(HOME) "/iter/idam/", 1);
-	setenv("IDAM_LOG_MODE", "a", 1);
-	setenv("IDAM_LOG_LEVEL", "DEBUG", 1);
-	setenv("IDAM_DEBUG_APPEND", "a", 1);
+	setenv("UDA_PLUGIN_DIR", QUOTE(HOME) "/iter/uda/etc/plugins", 1);
+	setenv("UDA_PLUGIN_CONFIG", QUOTE(HOME) "/iter/uda/test/idamTest.conf", 1);
+	setenv("UDA_SARRAY_CONFIG", QUOTE(HOME) "/iter/uda/bin/plugins/idamgenstruct.conf", 1);
+	setenv("UDA_WEST_MAPPING_FILE", QUOTE(HOME) "/iter/uda/source/plugins/west/WEST_mappings/IDAM_mapping.xml", 1);
+	setenv("UDA_WEST_MAPPING_FILE_DIRECTORY", QUOTE(HOME) "/iter/uda/source/plugins/west/WEST_mappings", 1);
+	setenv("UDA_LOG", QUOTE(HOME) "/iter/uda/", 1);
+	setenv("UDA_LOG_MODE", "a", 1);
+	setenv("UDA_LOG_LEVEL", "DEBUG", 1);
+	setenv("UDA_DEBUG_APPEND", "a", 1);
 
 	Idam::Client::setProperty(Idam::PROP_DEBUG, true);
 	Idam::Client::setProperty(Idam::PROP_VERBOSE, true);
@@ -191,16 +190,23 @@ int main() {
 	}
 	std::cout << "..." << std::endl;*/
 	
-	
-	const Idam::Result& ip = client.get("imas::get(idx=0, group='magnetics', variable='method/1/ip/data', expName='WEST', type=double, rank=1, shot=" SHOT_NUM ", )", "");
-	const Idam::Data * data_ip = ip.data();
-	const Idam::Array* arr_data_ip = dynamic_cast<const Idam::Array*>(data_ip);
 
-	std::cout << "first values for method/1/ip : ";
+        const Idam::Result& shof_method_magnetics = client.get("imas::get(idx=0, group='magnetics', variable='method/Shape_of', expName='WEST', type=int, rank=0, shot=" SHOT_NUM ", )", "");
+        const Idam::Data * data_shof_method_magnetics = shof_method_magnetics.data();
+        const Idam::Scalar* scalar_data_shof_method_magnetics = dynamic_cast<const Idam::Scalar*>(data_shof_method_magnetics);
+        int shof_method = scalar_data_shof_method_magnetics->as<int>();
+        std::cout << "method/Shape_of : " << shof_method << std::endl;
+
+	const Idam::Result& ip0 = client.get("imas::get(idx=0, group='magnetics', variable='method/0/ip/data', expName='WEST', type=double, rank=1, shot=" SHOT_NUM ", )", "");
+	const Idam::Data * data_ip0 = ip0.data();
+	const Idam::Array* arr_data_ip0 = dynamic_cast<const Idam::Array*>(data_ip0);
+
+	std::cout << "first values for method/0/ip : ";
 	for (int j = 0; j < 10; ++j) {
-		std::cout << arr_data_ip->as<double>().at(j) << " ";
+		std::cout << arr_data_ip0->as<double>().at(j) << " ";
 	}
 	std::cout << "..." << std::endl;
+	
 	
 	const Idam::Result& dmf = client.get("imas::get(idx=0, group='magnetics', variable='method/1/diamagnetic_flux/data', expName='WEST', type=double, rank=1, shot=" SHOT_NUM ", )", "");
 	const Idam::Data * data_dmf = dmf.data();

@@ -833,29 +833,25 @@ void multiplyInt(int* p, float factor, int val_nb)
     }
 }
 
-int getNumIDAMIndex(char* attributes, int* nodeIndices)
-{
+int getNumIDAMIndex(char *attributes, int* nodeIndices) {
 
-    char* s_copy = strdup(attributes);
-    const char delim[] = ":";
-    char* charIDAMIndex = NULL;
-    char* symbol;
-    symbol = (char*)malloc(2 * sizeof(char));
-    strtok(s_copy, delim); //rank
-    strtok(NULL, delim); //type
-    charIDAMIndex = strdup(strtok(NULL, delim));
-    symbol[0] = charIDAMIndex[0];
-    symbol[1] = '\0';
+	char* s_copy = strdup(attributes);
+	const char delim[] = ":";
+	char* charIDAMIndex = NULL;
+	strtok(s_copy, delim); //rank
+	strtok(NULL, delim); //type
+	charIDAMIndex = strdup(strtok(NULL, delim));
+	char firstChar;
+	firstChar = charIDAMIndex[0];
 
-    char* firstChar = &charIDAMIndex[0];
-
-    if (STR_EQUALS(symbol, "#")) {
-        IDAM_LOG(LOG_DEBUG, "index specified in IDAM request\n");
-        return nodeIndices[atoi(&charIDAMIndex[1])] - 1;
-    } else {
-        IDAM_LOG(LOG_DEBUG, "idam index hard coded in mapping file\n");
-        return atoi(firstChar) - 1;
-    }
+	if (firstChar == '#') {
+		IDAM_LOG(LOG_DEBUG, "index specified in IDAM request\n");
+		return nodeIndices[atoi(&charIDAMIndex[1])] - 1;
+	}
+	else {
+		IDAM_LOG(LOG_DEBUG, "idam index hard coded in mapping file\n");
+		return atoi(&firstChar) - 1;
+	}
 
 }
 

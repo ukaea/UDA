@@ -1,13 +1,3 @@
-cmake-build-*
-build
-etc
-bin
-include
-lib
-modulefiles
-/.cproject
-/.project
-/Debug.dbg
 /asymmetry
 /data_label
 /data_number
@@ -18,4 +8,8 @@ modulefiles
 /error
 /error_type
 /method
-/run_test.sh
+/run_test2.sh
+/test
+/test_imas2.cpp~
+/test_imas3.cpp
+/test_imas3.cpp~
