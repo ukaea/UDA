@@ -37,14 +37,16 @@
 #  endif
 #  ifndef NOTGENERICENABLED
 #  endif
-#  ifdef NONETCDFPLUGIN
+#else
+#  include <errno.h>
+#  include <clientserver/copyStructs.h>
+#  include <clientserver/protocolXML.h>
+#endif
+
+#ifdef NONETCDFPLUGIN
 void ncclose(int fh) {
     return;
 }
-#  endif
-#else
-#  include <clientserver/copyStructs.h>
-#  include <clientserver/protocolXML.h>
 #endif
 
 PGconn* gDBConnect = NULL;  // IDAM SQL database Socket Connection pass back fix

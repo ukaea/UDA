@@ -5,7 +5,7 @@
 #include <strings.h>
 #include <ctype.h>
 
-#ifndef strcasestr
+#if !defined(_GNU_SOURCE) && !defined(strcasestr)
 char *strcasestr(const char *haystack, const char *needle);
 #endif
 

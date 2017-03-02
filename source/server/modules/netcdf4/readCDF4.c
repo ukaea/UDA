@@ -44,8 +44,6 @@
 
 #ifdef NONETCDFPLUGIN
 
-#include <include/idamclientserverprivate.h>
-
 int readCDF(DATA_SOURCE data_source,
             SIGNAL_DESC signal_desc,
             REQUEST_BLOCK request_block,
