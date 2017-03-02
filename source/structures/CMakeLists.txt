@@ -21,3 +21,9 @@ if( NOT CLIENT_ONLY )
 endif()
 
 add_library( structures-client OBJECT ${SRC_FILES} )
+
+file( GLOB HEADER_FILES "*.h" )
+
+install( FILES ${HEADER_FILES}
+  DESTINATION include/uda/structures
+)

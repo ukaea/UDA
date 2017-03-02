@@ -92,6 +92,12 @@ install( TARGETS client-shared client-static
   DESTINATION lib
 )
 
+file( GLOB HEADER_FILES "*.h" )
+
+install( FILES ${HEADER_FILES}
+  DESTINATION include/uda/client
+)
+
 if( NOT CLIENT_ONLY )
   set_target_properties( fatclient-shared
     PROPERTIES
