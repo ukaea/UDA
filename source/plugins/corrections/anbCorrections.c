@@ -374,13 +374,23 @@ extern int anbCorrections(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 h2 = -1;
                 h3 = -1;
 
+                const char* host = getenv("CORRECTIONS_UDA_HOST");
+                const char* port = getenv("CORRECTIONS_UDA_PORT");
+
+                if (host) {
+                    sprintf(idam_plugin_interface->environment->server_host, "%s", host);
+                }
+
+                if (port) {
+                    idam_plugin_interface->environment->server_port = atoi(port);
+                }
+
                 h1 = idamGetAPI("xnb_sw_beam_current", source);        // current (Amps assumed)
 
                 if (h1 < 0 || getIdamErrorCode(h1) != 0) {
                     noSWBeam = 1;
                     idamFree(h1);
                     h1 = -1;
-
                 }
 
                 if (!noSWBeam) {

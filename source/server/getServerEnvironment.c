@@ -159,22 +159,22 @@ ENVIRONMENT* getIdamServerEnvironment()
 
 // IDAM SQL Server Host Name
 
-    strcpy(environ.sql_host, SQL_HOST);                // Default, e.g. fuslwn
+    strcpy(environ.sql_host, SQL_HOST);             // Default, e.g. fuslwn
     if ((env = getenv("UDA_SQLHOST")) != NULL) strcpy(environ.sql_host, env);
 
 // IDAM SQL Server Port name
 
-    environ.sql_port = (int) SQL_PORT;                // Default, e.g. 56566
+    environ.sql_port = (int) SQL_PORT;              // Default, e.g. 56566
     if ((env = getenv("UDA_SQLPORT")) != NULL) { environ.sql_port = atoi(env); }
 
 // IDAM SQL Database name
 
-    strcpy(environ.sql_dbname, SQL_DBNAME);                // Default, e.g. idam
+    strcpy(environ.sql_dbname, SQL_DBNAME);         // Default, e.g. idam
     if ((env = getenv("UDA_SQLDBNAME")) != NULL) strcpy(environ.sql_dbname, env);
 
 // IDAM SQL Access username
 
-    strcpy(environ.sql_user, SQL_USER);                // Default, e.g. mast_db
+    strcpy(environ.sql_user, SQL_USER);             // Default, e.g. mast_db
     if ((env = getenv("UDA_SQLUSER")) != NULL) strcpy(environ.sql_user, env);
 
 #endif

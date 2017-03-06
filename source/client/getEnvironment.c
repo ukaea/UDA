@@ -113,7 +113,6 @@ ENVIRONMENT* getIdamClientEnvironment()
         env_host = 0;
     }
 
-
 // IDAM Server Port name
 
     if (env_port) {

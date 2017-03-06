@@ -16,6 +16,7 @@ uda_plugin(
   EXAMPLE "ANBCORRECTIONS::chequerBoardPower(signal=ANB_SW_FULL_POWER)"
   LIBNAME corrections_plugin
   SOURCES anbCorrections.c
+  CONFIG_FILE anbCorrections.cfg
   EXTRA_INCLUDE_DIRS
     ${LIBXML2_INCLUDE_DIR}
     ${CMAKE_SOURCE_DIR}/client
