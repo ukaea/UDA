@@ -4,12 +4,16 @@
 
 #include "connection.h"
 
-#include <unistd.h>
 #include <netdb.h>
 #include <string.h>
 #include <stdlib.h>
 #include <errno.h>
 #include <netinet/tcp.h>
+
+#ifndef _WIN32
+#  include <unistd.h>
+#  include <signal.h>
+#endif
 
 #include <clientserver/errorLog.h>
 #include <clientserver/manageSockets.h>
