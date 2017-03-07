@@ -1,7 +1,7 @@
 # pkg-config file for the Universal Data Access library
 prefix=@CMAKE_INSTALL_PREFIX@
 exec_prefix=${prefix}
-includedir=${prefix}/include
+includedir=${prefix}/include/uda
 libdir=${exec_prefix}/lib
 
 Name: UDA
@@ -9,4 +9,4 @@ Description: The Universal Data Access library
 URL: http://www.iter.org/UDA
 Version: @PROJECT_VERSION@
 Cflags: -I${includedir}
-Libs: -L${libdir} -luda_client
+Libs: -L${libdir} -luda_client -lpthread

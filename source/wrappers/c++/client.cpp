@@ -197,8 +197,7 @@ static int typeIDToUDAType(const std::type_info& type)
 
 void uda::Client::put(const uda::Signal& signal)
 {
-    std::stringstream filename;
-    filename << boost::format("%s%06d.nc") % signal.alias() % signal.shot();
+    std::string filename = (boost::format("%s%06d.nc") % signal.alias() % signal.shot()).str();
 
     std::string signal_class;
     switch (signal.signalClass()) {
@@ -213,8 +212,7 @@ void uda::Client::put(const uda::Signal& signal)
             break;
     }
 
-    std::stringstream ss;
-    ss << boost::format("putdata::open(/create,"
+    std::string request = (boost::format("putdata::open(/create,"
                                 " filename='%s',"
                                 " conventions='Fusion-1.0',"
                                 " class='%s',"
@@ -225,9 +223,8 @@ void uda::Client::put(const uda::Signal& signal)
                                 " code=%s,"
                                 " version=1)")
             % filename % signal_class % signal.title() % signal.shot() % signal.pass()
-            % signal.comment() % signal.code();
+            % signal.comment() % signal.code()).str();
 
-    std::string request = ss.str();
     idamPutAPI(request.c_str(), NULL);
 
     PUTDATA_BLOCK pdblock;
