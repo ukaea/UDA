@@ -18,6 +18,8 @@ static int do_help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
 
 int putdataPlugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
+    idamSetLogLevel(LOG_DEBUG);
+
     static int init = 0;
 
     if (idam_plugin_interface->interfaceVersion > THISPLUGIN_MAX_INTERFACE_VERSION) {

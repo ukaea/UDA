@@ -7,10 +7,10 @@
 
 #include "idl_export.h"
 
-#include <client/accAPI_Gen.h>
 #include <client/accAPI.h>
 #include <structures/struct.h>
 #include <structures/accessors.h>
+#include <clientserver/stringUtils.h>
 
 typedef struct {
     IDL_KW_RESULT_FIRST_FIELD;
@@ -170,7 +170,7 @@ IDL_VPTR IDL_CDECL findidamtreestructurecomponent(int argc, IDL_VPTR argv[], cha
             return (IDL_GettmpMEMINT(0));      // Return a Null address
         }
 
-        ntree = getIdamTreeData(handle);      // the Root Node of the Data tree required
+        ntree = getIdamDataTree(handle);      // the Root Node of the Data tree required
     }
 
     //---------------------------------------------------------------------------------------------
@@ -284,7 +284,7 @@ IDL_VPTR IDL_CDECL findidamtreestructuredefinition(int argc, IDL_VPTR argv[], ch
             return (IDL_GettmpMEMINT(0));      // Return a Null address
         }
 
-        ntree = getIdamTreeData(handle);      // the Root Node of the Data tree required
+        ntree = getIdamDataTree(handle);      // the Root Node of the Data tree required
     }
 
     //---------------------------------------------------------------------------------------------
@@ -396,7 +396,7 @@ IDL_VPTR IDL_CDECL findidamtreestructure(int argc, IDL_VPTR argv[], char* argk) 
             return (IDL_GettmpMEMINT(0));      // Return a Null address
         }
 
-        ntree = getIdamTreeData(handle);      // the Root Node of the Data tree required
+        ntree = getIdamDataTree(handle);      // the Root Node of the Data tree required
     }
 
     //---------------------------------------------------------------------------------------------
@@ -505,7 +505,7 @@ IDL_VPTR IDL_CDECL getidamnodestructurecount(int argc, IDL_VPTR argv[], char* ar
             return (IDL_GettmpMEMINT(0));      // Return a Null address
         }
 
-        ntree = getIdamTreeData(handle);      // the Root Node of the Data tree required
+        ntree = getIdamDataTree(handle);      // the Root Node of the Data tree required
     }
 
     //---------------------------------------------------------------------------------------------
@@ -602,7 +602,7 @@ IDL_VPTR IDL_CDECL getidamnodestructurenames(int argc, IDL_VPTR argv[], char* ar
             return (IDL_GettmpMEMINT(0));      // Return a Null address
         }
 
-        ntree = getIdamTreeData(handle);      // the Root Node of the Data tree required
+        ntree = getIdamDataTree(handle);      // the Root Node of the Data tree required
     }
 
     //---------------------------------------------------------------------------------------------
@@ -729,7 +729,7 @@ IDL_VPTR IDL_CDECL getidamnodestructuretypes(int argc, IDL_VPTR argv[], char* ar
             return (IDL_GettmpMEMINT(0));      // Return a Null address
         }
 
-        ntree = getIdamTreeData(handle);      // the Root Node of the Data tree required
+        ntree = getIdamDataTree(handle);      // the Root Node of the Data tree required
     }
 
     //---------------------------------------------------------------------------------------------
@@ -855,7 +855,7 @@ IDL_VPTR IDL_CDECL getidamnodestructurepointers(int argc, IDL_VPTR argv[], char*
             return (IDL_GettmpMEMINT(0));      // Return a Null address
         }
 
-        ntree = getIdamTreeData(handle);      // the Root Node of the Data tree required
+        ntree = getIdamDataTree(handle);      // the Root Node of the Data tree required
     }
 
     //---------------------------------------------------------------------------------------------
@@ -975,7 +975,7 @@ IDL_VPTR IDL_CDECL getidamnodestructurerank(int argc, IDL_VPTR argv[], char* arg
             return (IDL_GettmpMEMINT(0));      // Return a Null address
         }
 
-        ntree = getIdamTreeData(handle);      // the Root Node of the Data tree required
+        ntree = getIdamDataTree(handle);      // the Root Node of the Data tree required
     }
 
     //---------------------------------------------------------------------------------------------
@@ -1098,7 +1098,7 @@ IDL_VPTR IDL_CDECL getidamnodestructureshape(int argc, IDL_VPTR argv[], char* ar
             return (IDL_GettmpMEMINT(0));      // Return a Null address
         }
 
-        ntree = getIdamTreeData(handle);      // the Root Node of the Data tree required
+        ntree = getIdamDataTree(handle);      // the Root Node of the Data tree required
     }
 
     //---------------------------------------------------------------------------------------------
@@ -1262,7 +1262,7 @@ IDL_VPTR IDL_CDECL getidamnodeatomiccount(int argc, IDL_VPTR argv[], char* argk)
             return (IDL_GettmpMEMINT(0));      // Return a Null address
         }
 
-        ntree = getIdamTreeData(handle);      // the Root Node of the Data tree required
+        ntree = getIdamDataTree(handle);      // the Root Node of the Data tree required
     }
 
     //---------------------------------------------------------------------------------------------
@@ -1358,7 +1358,7 @@ IDL_VPTR IDL_CDECL getidamnodeatomicnames(int argc, IDL_VPTR argv[], char* argk)
             return (IDL_GettmpMEMINT(0));      // Return a Null address
         }
 
-        ntree = getIdamTreeData(handle);      // the Root Node of the Data tree required
+        ntree = getIdamDataTree(handle);      // the Root Node of the Data tree required
     }
 
     //---------------------------------------------------------------------------------------------
@@ -1484,7 +1484,7 @@ IDL_VPTR IDL_CDECL getidamnodeatomictypes(int argc, IDL_VPTR argv[], char* argk)
             return (IDL_GettmpMEMINT(0));      // Return a Null address
         }
 
-        ntree = getIdamTreeData(handle);      // the Root Node of the Data tree required
+        ntree = getIdamDataTree(handle);      // the Root Node of the Data tree required
     }
 
     //---------------------------------------------------------------------------------------------
@@ -1610,7 +1610,7 @@ IDL_VPTR IDL_CDECL getidamnodeatomicpointers(int argc, IDL_VPTR argv[], char* ar
             return (IDL_GettmpMEMINT(0));      // Return a Null address
         }
 
-        ntree = getIdamTreeData(handle);      // the Root Node of the Data tree required
+        ntree = getIdamDataTree(handle);      // the Root Node of the Data tree required
     }
 
     //---------------------------------------------------------------------------------------------
@@ -1731,7 +1731,7 @@ IDL_VPTR IDL_CDECL getidamnodeatomicrank(int argc, IDL_VPTR argv[], char* argk) 
             return (IDL_GettmpMEMINT(0));      // Return a Null address
         }
 
-        ntree = getIdamTreeData(handle);      // the Root Node of the Data tree required
+        ntree = getIdamDataTree(handle);      // the Root Node of the Data tree required
     }
 
     //---------------------------------------------------------------------------------------------
@@ -1855,7 +1855,7 @@ IDL_VPTR IDL_CDECL getidamnodeatomicshape(int argc, IDL_VPTR argv[], char* argk)
             return (IDL_GettmpMEMINT(0));      // Return a Null address
         }
 
-        ntree = getIdamTreeData(handle);      // the Root Node of the Data tree required
+        ntree = getIdamDataTree(handle);      // the Root Node of the Data tree required
     }
 
     //---------------------------------------------------------------------------------------------
@@ -2027,7 +2027,7 @@ IDL_VPTR IDL_CDECL getidamnodeatomicdatacount(int argc, IDL_VPTR argv[], char* a
             return (IDL_GettmpMEMINT(0));      // Return a Null address
         }
 
-        ntree = getIdamTreeData(handle);      // the Root Node of the Data tree required
+        ntree = getIdamDataTree(handle);      // the Root Node of the Data tree required
     }
 
     //---------------------------------------------------------------------------------------------
@@ -2130,7 +2130,7 @@ IDL_VPTR IDL_CDECL getidamnodeatomicdata(int argc, IDL_VPTR argv[], char* argk) 
             return (IDL_GettmpMEMINT(0));      // Return a Null address
         }
 
-        ntree = getIdamTreeData(handle);      // the Root Node of the Data tree required
+        ntree = getIdamDataTree(handle);      // the Root Node of the Data tree required
     }
 
     //---------------------------------------------------------------------------------------------
@@ -2822,7 +2822,7 @@ IDL_VPTR IDL_CDECL getidamnodestructuredatacount(int argc, IDL_VPTR argv[], char
             return (IDL_GettmpMEMINT(0));      // Return a Null address
         }
 
-        ntree = getIdamTreeData(handle);      // the Root Node of the Data tree required
+        ntree = getIdamDataTree(handle);      // the Root Node of the Data tree required
     }
 
     //---------------------------------------------------------------------------------------------
@@ -2911,7 +2911,7 @@ IDL_VPTR IDL_CDECL getidamnodestructuredatarank(int argc, IDL_VPTR argv[], char*
             return (IDL_GettmpMEMINT(0));      // Return a Null address
         }
 
-        ntree = getIdamTreeData(handle);      // the Root Node of the Data tree required
+        ntree = getIdamDataTree(handle);      // the Root Node of the Data tree required
     }
 
     //---------------------------------------------------------------------------------------------
@@ -3005,7 +3005,7 @@ IDL_VPTR IDL_CDECL getidamnodestructuredatashape(int argc, IDL_VPTR argv[], char
             return (IDL_GettmpMEMINT(0));      // Return a Null address
         }
 
-        ntree = getIdamTreeData(handle);      // the Root Node of the Data tree required
+        ntree = getIdamDataTree(handle);      // the Root Node of the Data tree required
     }
 
     //---------------------------------------------------------------------------------------------
@@ -3136,7 +3136,7 @@ IDL_VPTR IDL_CDECL getidamnodeparent(int argc, IDL_VPTR argv[], char* argk) {
             return (IDL_GettmpMEMINT(0));      // Return a Null address
         }
 
-        ntree = getIdamTreeData(handle);      // the Root Node of the Data tree required
+        ntree = getIdamDataTree(handle);      // the Root Node of the Data tree required
     }
 
     //---------------------------------------------------------------------------------------------
@@ -3241,7 +3241,7 @@ IDL_VPTR IDL_CDECL getidamnodechild(int argc, IDL_VPTR argv[], char* argk) {
             return (IDL_GettmpMEMINT(0));      // Return a Null address
         }
 
-        ntree = getIdamTreeData(handle);      // the Root Node of the Data tree required
+        ntree = getIdamDataTree(handle);      // the Root Node of the Data tree required
     }
 
     //---------------------------------------------------------------------------------------------
@@ -3338,7 +3338,7 @@ IDL_VPTR IDL_CDECL getidamnodechildrencount(int argc, IDL_VPTR argv[], char* arg
             return (IDL_GettmpMEMINT(0));      // Return a Null address
         }
 
-        ntree = getIdamTreeData(handle);      // the Root Node of the Data tree required
+        ntree = getIdamDataTree(handle);      // the Root Node of the Data tree required
     }
 
     //---------------------------------------------------------------------------------------------
@@ -3431,7 +3431,7 @@ IDL_VPTR IDL_CDECL getidamnodechildid(int argc, IDL_VPTR argv[], char* argk) {
             return (IDL_GettmpLong(-1));       // Return a Null address
         }
 
-        ntree = getIdamTreeData(handle);      // the Root Node of the Data tree required
+        ntree = getIdamDataTree(handle);      // the Root Node of the Data tree required
     }
 
     //---------------------------------------------------------------------------------------------
@@ -3526,7 +3526,7 @@ IDL_VPTR IDL_CDECL printidamtree(int argc, IDL_VPTR argv[], char* argk) {
             return (IDL_GettmpLong(0));    // Return a Null address
         }
 
-        ntree = getIdamTreeData(handle);      // the Root Node of the Data tree required
+        ntree = getIdamDataTree(handle);      // the Root Node of the Data tree required
     }
 
     if (kw.debug) {
@@ -3616,7 +3616,7 @@ IDL_VPTR IDL_CDECL printidamtreestructurenames(int argc, IDL_VPTR argv[], char* 
             return (IDL_GettmpLong(0));    // Return a Null address
         }
 
-        ntree = getIdamTreeData(handle);      // the Root Node of the Data tree required
+        ntree = getIdamDataTree(handle);      // the Root Node of the Data tree required
     }
 
     if (kw.debug) {
@@ -3704,7 +3704,7 @@ IDL_VPTR IDL_CDECL printidamtreestructurecomponentnames(int argc, IDL_VPTR argv[
             return (IDL_GettmpLong(0));    // Return a Null address
         }
 
-        ntree = getIdamTreeData(handle);      // the Root Node of the Data tree required
+        ntree = getIdamDataTree(handle);      // the Root Node of the Data tree required
     }
 
     if (kw.debug) {
@@ -3792,7 +3792,7 @@ IDL_VPTR IDL_CDECL printidamnodestructure(int argc, IDL_VPTR argv[], char* argk)
             return (IDL_GettmpLong(0));    // Return a Null address
         }
 
-        ntree = getIdamTreeData(handle);      // the Root Node of the Data tree required
+        ntree = getIdamDataTree(handle);      // the Root Node of the Data tree required
     }
 
     if (kw.debug) {
@@ -3880,7 +3880,7 @@ IDL_VPTR IDL_CDECL regulariseidamvlenstructures(int argc, IDL_VPTR argv[], char*
             return (IDL_GettmpLong(0));    // Return a Null address
         }
 
-        ntree = getIdamTreeData(handle);      // the Root Node of the Data tree required
+        ntree = getIdamDataTree(handle);      // the Root Node of the Data tree required
     }
 
     if (kw.debug) {
@@ -3972,7 +3972,7 @@ IDL_VPTR IDL_CDECL makeidamstructure(int argc, IDL_VPTR argv[], char* argk) {
             return (IDL_GettmpLong(0));    // Return a Null address
         }
 
-        ntree = getIdamTreeData(handle);      // the Root Node of the Data tree required
+        ntree = getIdamDataTree(handle);      // the Root Node of the Data tree required
     }
 
     //---------------------------------------------------------------------------------------------

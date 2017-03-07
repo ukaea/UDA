@@ -6,7 +6,7 @@ Also returns the appropriate manipulation classes for the signals requested.
 
 import numpy as np
 from ._geomPickup import GeomPickup
-
+from ._geomFluxloops import GeomFluxloops
 
 class GeometryFiles:
     def __init__(self):
@@ -14,7 +14,6 @@ class GeometryFiles:
         Init function
         :return:
         """
-        self._signal_groups_map = {}
         self._signal_manip_map = {}
         self._build_map()
 
@@ -24,43 +23,28 @@ class GeometryFiles:
         Defines maps
         :return:
         """
-        # Map from top-level groups to level of files
-        self._signal_groups_map = {'/magnetics': ['/magnetics/pickup']}  # , '/magnetics/fluxloops']}
-
         # Map from top-level groups in each file to the appropriate manipulator
-        self._signal_manip_map = { '/magnetics/pickup': GeomPickup() }#,
-                                   # '/magnetics/fluxloops': None }
+        self._signal_manip_map = { '/magnetics/pickup': GeomPickup(),
+                                   '/magnetics/fluxloops': GeomFluxloops()}
 
     # --------------------------
-    def get_signals(self, signal):
+    def get_signals(self, signals):
         """
         From overall signal that was asked for, retrieve
-        file-level signals that should be read in.
-        Also, return appropriate manipulation classes
+        appropriate manipulation classes
         :param signal: Signal user asked for
         :return:
         """
-        signal = signal.rstrip('/')
-        if signal[0] != '/':
-            signal = '/' + signal
-
-        # First, check if signal needs more than one file
-        # (needed since at the moment can't combine files in idam server code)
-        try:
-            all_signals = self._signal_groups_map[signal]
-        except KeyError:
-            all_signals = [signal]
-
         # Find manipulators for those files
         keys = self._signal_manip_map.keys()
-        manip = [None]*len(all_signals)
-        for index, sig in enumerate(all_signals):
+        manip = [None] * len(signals)
+        for index, sig in enumerate(signals):
 
-            if sig in keys:
-                manip[index] = self._signal_manip_map[sig]
-            else:
-                for key in keys:
-                    if sig.startswith(key):
-                        manip[index] = self._signal_manip_map[key]
+            signal = sig.rstrip('/')
+            if signal[0] != '/':
+                signal = '/' + signal
 
-        return all_signals, manip
+            if signal in keys:
+                manip[index] = self._signal_manip_map[signal]
+
+        return manip

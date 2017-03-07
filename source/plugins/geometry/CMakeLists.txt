@@ -15,6 +15,8 @@ elseif( NOT NETCDF_FOUND )
   return()
 endif()
 
+set( CMAKE_C_FLAGS "-lm" )
+
 include( plugins )
 
 uda_plugin(

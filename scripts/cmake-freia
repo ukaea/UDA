@@ -10,8 +10,8 @@ export BOOST_ROOT=/usr/local/depot/boost-1.53
 
 /home/jholloc/freia/bin/cmake -Bbuild_freia -H. -DCMAKE_BUILD_TYPE=Debug -DTARGET_TYPE=MAST \
     -DCMAKE_INSTALL_PREFIX=$HOME/freia \
-    -DSWIG_DIR=${HOME}/freia/bin \
-    -DUDUNITS_ROOT=${HOME}/freia \
+    -DSWIG_DIR=/home/jholloc/freia/bin \
+    -DUDUNITS_ROOT=/home/jholloc/freia \
     -DCLIENT_ONLY=TRUE \
     -DPYTHON_INCLUDE_DIR=/usr/local/depot/Python-3.3.5/include/python3.3m/ -DPYTHON_LIBRARY=/usr/local/depot/Python-3.3.5/lib/libpython3.3m.so \
     $*

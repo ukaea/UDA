@@ -18,7 +18,6 @@
 #include <clientserver/memstream.h>
 #include <clientserver/xdrlib.h>
 #include <clientserver/socketStructs.h>
-#include <server/getServerEnvironment.h>
 #include <structures/struct.h>
 #include <structures/accessors.h>
 #include <cache/cache.h>
@@ -117,7 +116,7 @@ void lockIdamThread()
 
     if (id >= 0) {
         putIdamServerSocket(idamState[id].socket);
-        putIdamServerEnvironment(&idamState[id].environment);
+        putIdamClientEnvironment(&idamState[id].environment);
         putIdamThreadClientBlock(&idamState[id].client_block);
         putIdamThreadServerBlock(&idamState[id].server_block);
         clientFlags = idamState[id].client_block.clientFlags;
@@ -134,7 +133,7 @@ void unlockIdamThread()
     int id = getThreadId(threadId);        // Must be registered
     if (id >= 0) {
         idamState[id].socket = getIdamServerSocket();
-        idamState[id].environment = *getIdamServerEnvironment();
+        idamState[id].environment = *getIdamClientEnvironment();
         idamState[id].client_block = getIdamThreadClientBlock();
         idamState[id].server_block = getIdamThreadServerBlock();
         idamState[id].client_block.clientFlags = clientFlags;

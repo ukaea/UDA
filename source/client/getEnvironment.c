@@ -15,6 +15,13 @@
 int env_host = 1;    // User can change these before startup so flag to the getEnvironment function
 int env_port = 1;
 
+static ENVIRONMENT environ = {};
+
+void putIdamClientEnvironment(const ENVIRONMENT* environment)
+{
+    environ = *environment;
+}
+
 void printIdamClientEnvironment(const ENVIRONMENT* environ)
 {
     IDAM_LOG(LOG_INFO, "\nClient Environment Variable values\n\n");
@@ -55,8 +62,6 @@ void printIdamClientEnvironment(const ENVIRONMENT* environ)
 
 ENVIRONMENT* getIdamClientEnvironment()
 {
-    static ENVIRONMENT environ = {};
-
     char* env = NULL;
 
     if (environ.initialised) {

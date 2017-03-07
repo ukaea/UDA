@@ -18,13 +18,13 @@
 
 #include "idl_export.h"                 // IDL API Header
 
-#include <include/idamclientpublic.h>
 #include <client/udaClient.h>
 #include <client/accAPI.h>
 #include <client/udaGetAPI.h>
 #include <client/udaPutAPI.h>
 #include <client/clientAPI.h>
 #include <client/clientMDS.h>
+#include <clientserver/stringUtils.h>
 #include <clientserver/udaTypes.h>
 #include <clientserver/initStructs.h>
 #include <clientserver/printStructs.h>
@@ -2142,7 +2142,9 @@ IDL_VPTR IDL_CDECL callidam(int argc, IDL_VPTR argv[], char* argk) {
             }
 
             if (!kw.istest) {
-                handle = idamAPI(signal, (int) exp_number);
+     	      char exp_str[1000]; 
+	      sprintf(exp_str, "%d", (int) exp_number);
+                handle = idamGetAPI(signal, exp_str);
             } else {
                 strncpy(testfile, signal, 3);
                 testfile[3] = '\0';
@@ -2152,7 +2154,6 @@ IDL_VPTR IDL_CDECL callidam(int argc, IDL_VPTR argv[], char* argk) {
         } else {
 
             // Generic API or Targeted File or MDS+ ?
-
             if (!kw.isserver && !kw.ismdstree && !kw.isfile) {
                 if (!kw.isarchive) {
                     archive = defArchive;
@@ -2167,7 +2168,15 @@ IDL_VPTR IDL_CDECL callidam(int argc, IDL_VPTR argv[], char* argk) {
                             (long) exp_number, (long) pass);
                 }
 
-                handle = idamGenAPI(archive, device, signal, (int) exp_number, (int) pass);
+		char data_source[1000];
+
+		if (pass < 0) {
+		  sprintf(data_source, "%s::%d", device, (int) exp_number);
+		} else {
+		  sprintf(data_source, "%s::%d/%d", device, (int) exp_number, (int) pass);
+		}
+
+                handle = idamGetAPI(signal, data_source);
             } else {
                 if (kw.isfile && kw.isformat) {
                     if (exp_number > 0 && STR_IEQUALS(format, "ida") && strlen(file) == 3) {
@@ -6901,7 +6910,7 @@ IDL_VPTR IDL_CDECL getdomains(int argc, IDL_VPTR argv[], char* argk) {
         if (kw.debug) {
             fprintf(stdout, "Handle: %d\n", handle);
             fprintf(stdout, "Dim id: %d\n", dimid);
-            printIdamDataBlock(stdout, *getIdamDataBlock(handle));
+            printDataBlock(*getIdamDataBlock(handle));
         }
 
         IDL_KW_FREE;
@@ -6909,7 +6918,7 @@ IDL_VPTR IDL_CDECL getdomains(int argc, IDL_VPTR argv[], char* argk) {
     }
 
     if (kw.debug) {
-        printIdamDataBlock(stdout, *getIdamDataBlock(handle));
+        printDataBlock(*getIdamDataBlock(handle));
     }
 
     //--------------------------------------------------------------------------

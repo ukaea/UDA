@@ -6,10 +6,12 @@
 #ifdef FATCLIENT
 #  define printIdamClientEnvironment printIdamClientEnvironmentFat
 #  define getIdamClientEnvironment getIdamClientEnvironmentFat
+#  define putIdamClientEnvironment putIdamClientEnvironmentFat
 #endif
 
 void printIdamClientEnvironment(const ENVIRONMENT* environ);
 ENVIRONMENT* getIdamClientEnvironment();
+void putIdamClientEnvironment(const ENVIRONMENT* environ);
 
 extern int env_host;            // Flags to Read Environment variable at startup time
 extern int env_port;

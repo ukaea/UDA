@@ -8,6 +8,7 @@
 #include <hdf5.h>
 
 #include <clientserver/udaTypes.h>
+#include <clientserver/stringUtils.h>
 #include <logging/accessLog.h>
 #include <client/accAPI.h>
 #include <client/udaPutAPI.h>

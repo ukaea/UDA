@@ -14,7 +14,7 @@
 #include <clientserver/errorLog.h>
 #include <clientserver/manageSockets.h>
 #include <client/udaClient.h>
-#include <server/getServerEnvironment.h>
+#include <client/getEnvironment.h>
 
 int createConnection()
 {
@@ -26,7 +26,7 @@ int createConnection()
     struct sockaddr_in server;
     struct hostent* host;
 
-    ENVIRONMENT* environment = getIdamServerEnvironment();
+    ENVIRONMENT* environment = getIdamClientEnvironment();
 
     if (clientSocket >= 0) {
         return 0;                // Check Already Opened?

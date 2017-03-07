@@ -2,4 +2,4 @@
 # Creates the Environment needed by the geometry plugin
 #------------------------------------------------------------------------------------------------------
 
-export MAST_GEOM_DATA="/net/fuslw112/scratch/"
+export MAST_GEOM_DATA="/home/lkogan/MAST-U_Machine_Description/Netcdf_Files/"

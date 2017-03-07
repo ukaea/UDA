@@ -91,7 +91,7 @@ class GeomPickup():
         # loop over nodes and find pickup coil node to manipulate
         self._pickup_loop(data)
 
-    def plot(self, data, ax_2d=None, ax_3d=None):
+    def plot(self, data, ax_2d=None, ax_3d=None, show=True):
         """
         Plot the pickup coils.
         :param data: data tree (instance of StructuredWritable, with pickup coil tree structure)
@@ -137,7 +137,8 @@ class GeomPickup():
             ax_3d.set_ylabel('y [m]')
             ax_3d.set_zlabel('z [m]')
 
-        plt.show()
+        if show:
+            plt.show()
 
     def _get_all_coords(self, data, r_z_coord, x_y_z_coord, unit_r, unit_z, colours):
         """
