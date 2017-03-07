@@ -27,7 +27,7 @@ configure_file(
   @ONLY
 )
 
-set( TESTS test_help test_hdf5 )
+set( TESTS test_help test_hdf5 test_putcpp test_putdata )
 
 include( modules )
 
@@ -38,8 +38,8 @@ foreach( TEST ${TESTS} )
   add_executable( ${TEST} ${TEST}.cpp )
   target_link_libraries( ${TEST} PRIVATE
     ${Boost_LIBRARIES} 
-    fat${PROJECT_NAME}_cpp 
-    client-shared
+    fat${PROJECT_NAME}_cpp
+    fatclient-shared
     ${OPENSSL_LIBRARIES}
     ${LIBXML2_LIBRARIES}
     ${CACHE_LIBRARIES} )

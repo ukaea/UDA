@@ -8,9 +8,17 @@
 #  define idamPutAPI idamPutAPIFat
 #endif
 
-int idamPutListAPI(const char *putInstruction, PUTDATA_BLOCK_LIST *inPutDataBlockList);
-int idamPutAPI(const char *putInstruction, PUTDATA_BLOCK *inPutData);
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-void freeIdamClientPutDataBlockList(PUTDATA_BLOCK_LIST *putDataBlockList);
+int idamPutListAPI(const char* putInstruction, PUTDATA_BLOCK_LIST* inPutDataBlockList);
+int idamPutAPI(const char* putInstruction, PUTDATA_BLOCK* inPutData);
+
+void freeIdamClientPutDataBlockList(PUTDATA_BLOCK_LIST* putDataBlockList);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // IDAM_CLIENT_IDAMPUTAPI_H

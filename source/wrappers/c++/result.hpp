@@ -13,7 +13,7 @@
 #include "dim.hpp"
 #include "treenode.hpp"
 
-namespace Idam
+namespace uda
 {
 
 class Data;

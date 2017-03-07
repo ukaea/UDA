@@ -14,7 +14,7 @@
 #include "vector.hpp"
 #include "structdata.hpp"
 
-namespace Idam {
+namespace uda {
 
 class TreeNode
 {
@@ -23,8 +23,8 @@ public:
     TreeNode findStructureComponent(const std::string& name);
     TreeNode parent();
     size_t numChildren();
-    std::vector<Idam::TreeNode> children();
-    Idam::TreeNode child(int num);
+    std::vector<uda::TreeNode> children();
+    uda::TreeNode child(int num);
     void print();
     void printStructureNames();
     void printUserDefinedTypeTable();

@@ -33,4 +33,5 @@ uda_plugin(
     ${LIBXML2_LIBRARIES}
     ${PostgreSQL_LIBRARY}
     ${NETCDF_LIBRARIES}
+    m
 )

@@ -25,7 +25,7 @@
 
 int idamXpadTree(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
-    idamSetLogLevel(LOG_DEBUG);
+  //  idamSetLogLevel(LOG_DEBUG);
 
     REQUEST_BLOCK* request_block = idam_plugin_interface->request_block;
     DATA_BLOCK* data_block = idam_plugin_interface->data_block;

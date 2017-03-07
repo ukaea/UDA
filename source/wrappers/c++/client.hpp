@@ -8,14 +8,15 @@
 #include <string>
 #include <vector>
 #include <exception>
+#include "UDA.hpp"
 
-namespace Idam {
+namespace uda {
 
-class IdamException : public std::exception
+class UDAException : public std::exception
 {
 public:
-    IdamException(const std::string& what) : what_(what) {}
-    ~IdamException() throw() {};
+    UDAException(const std::string& what) : what_(what) {}
+    ~UDAException() throw() {};
     const char * what() const throw() { return what_.c_str(); }
 private:
     const std::string what_;
@@ -49,6 +50,7 @@ enum ErrorCodes
 
 class Result;
 class IdamException;
+class Signal;
 
 class Client
 {
@@ -56,18 +58,18 @@ public:
     ~Client();
     Client() : data_() {}
 
-    static void setProperty(Property prop, bool value) throw(IdamException);
-    static void setProperty(Property prop, int value) throw(IdamException);
-    static int property(Property prop) throw(IdamException);
+    static void setProperty(Property prop, bool value) throw(UDAException);
+    static void setProperty(Property prop, int value) throw(UDAException);
+    static int property(Property prop) throw(UDAException);
 
     static void setServerHostName(const std::string& hostName);
     static void setServerPort(int portNumber);
     
-    
     static std::string serverHostName();
     static int serverPort();
 
-    const Idam::Result& get(const std::string& signalName, const std::string& dataSource) throw(IdamException);
+    const uda::Result& get(const std::string& signalName, const std::string& dataSource) throw(UDAException);
+    void put(const uda::Signal& putdata);
 
 private:
     std::vector<Result *> data_;

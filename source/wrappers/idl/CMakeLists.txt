@@ -58,13 +58,14 @@ install( FILES ${INSTALL_FILES}
 set( INSTALL_FILES
   getstruct.pro
   getdata.pro
-  addsignaldata.pro
-  applygeommanipulation.pro
-  cylindrical_cartesian.pro
-  getgeomdata.pro
-  getgeomsignaldata.pro
-  pickupmanipulation.pro
-  strnumber.pro
+  callplugin.pro
+  geometry/addsignaldata.pro
+  geometry/applygeommanipulation.pro
+  geometry/cylindrical_cartesian.pro
+  geometry/getgeomdata.pro
+  geometry/getgeomsignaldata.pro
+  geometry/pickupmanipulation.pro
+  geometry/strnumber.pro
 )
 
 install( FILES ${INSTALL_FILES}

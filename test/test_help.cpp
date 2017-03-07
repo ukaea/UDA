@@ -9,20 +9,20 @@ TEST_CASE( "Test help::help() function", "[help]" ) {
 #  include "setupEnvironment.inc"
 #endif
 
-    Idam::Client client;
+    uda::Client client;
 
-    const Idam::Result& result = client.get("help::help()", "");
+    const uda::Result& result = client.get("help::help()", "");
 
     REQUIRE( result.errorCode() == 0 );
     REQUIRE( result.error() == "" );
 
-    Idam::Data* data = result.data();
+    uda::Data* data = result.data();
 
     REQUIRE( data != NULL );
     REQUIRE( !data->isNull() );
     REQUIRE( data->type().name() == typeid(char*).name() );
 
-    Idam::String* str = dynamic_cast<Idam::String*>(data);
+    uda::String* str = dynamic_cast<uda::String*>(data);
 
     REQUIRE( str != NULL );
 

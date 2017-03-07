@@ -4,5 +4,5 @@
 
 #include "structdata.hpp"
 
-Idam::StructData Idam::StructData::Null = Idam::StructData(true);
+uda::StructData uda::StructData::Null = uda::StructData(true);
 

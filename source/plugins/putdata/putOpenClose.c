@@ -111,6 +111,9 @@ int do_open(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     int update = 0;
 
     int err;
+
+    IDAM_LOGF(LOG_DEBUG, "The path is %s\n", path);
+
     if ((err = nc_open(path, NC_WRITE, &fileid)) != NC_NOERR) {
         if (create) {
             if ((err = nc_create(path, NC_CLOBBER | NC_NETCDF4, &fileid)) != NC_NOERR) {
@@ -435,6 +438,15 @@ int do_close(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 //        ut_free_system(unitSystem);
 //        unitSystem = NULL;
 //    }
+
+    DATA_BLOCK* data_block = idam_plugin_interface->data_block;
+
+    data_block->data = malloc(sizeof(int));
+    memset(data_block->data, 0, sizeof(int));
+    data_block->data_type = TYPE_INT;
+    data_block->data_n = 1;
+    data_block->rank = 0;
+    data_block->dims = NULL;
 
     return err;
 }

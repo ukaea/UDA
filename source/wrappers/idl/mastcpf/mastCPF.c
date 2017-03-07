@@ -25,6 +25,8 @@
 #include <stdlib.h>
 #include <ctype.h>
 
+#include <clientserver/stringUtils.h>
+
 #if !defined(A64)
 #  define IDL_LONG64 IDL_LONG
 #endif

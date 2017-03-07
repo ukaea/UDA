@@ -17,6 +17,7 @@ set( SRC_FILES
   structdata.cpp
   treenode.cpp
   vector.cpp
+  signal.cpp
   )
 
 include_directories(

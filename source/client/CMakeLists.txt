@@ -21,14 +21,11 @@ set( SRC_FILES
   accAPI.c
   startup.c
   closedown.c
-  createConnection.c
-  createClientXDRStream.c
+  connection.c
+  clientXDRStream.c
   updateSelectParms.c
-  writeout.c
-  readin.c
   getEnvironment.c
   generateErrors.c
-  closeClientSockets.c
   makeClientRequestBlock.c
   udaPutAPI.c
   udaClient.c
@@ -63,7 +60,7 @@ set( FATCLIENT_SRCS
   $<TARGET_OBJECTS:serverlogging>
   $<TARGET_OBJECTS:structures-server>
   $<TARGET_OBJECTS:security>
-  $<TARGET_OBJECTS:modules>
+  $<TARGET_OBJECTS:fatmodules-objects>
   $<TARGET_OBJECTS:cache>
   $<TARGET_OBJECTS:serverlogging>
   )

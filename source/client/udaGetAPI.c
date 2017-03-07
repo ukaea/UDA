@@ -137,13 +137,8 @@ Legacy exception: treat PPF and JPF formats as server protocols => no file path 
 * @param data_source identifies the location of data.
 * @return a reference ID handle used to identify the accessed data in subsequent API accessor function calls.
 */
-#ifdef FATCLIENT
-int idamGetAPIFat(const char *data_object, const char *data_source) {
-#else
-
 int idamGetAPI(const char* data_object, const char* data_source)
 {
-#endif
 
 // Lock the thread
     lockIdamThread();

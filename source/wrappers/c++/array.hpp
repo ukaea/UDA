@@ -1,9 +1,5 @@
-//
-// Created by jholloc on 08/03/16.
-//
-
-#ifndef IDAM_WRAPPERS_CPP_ARRAY_H
-#define IDAM_WRAPPERS_CPP_ARRAY_H
+#ifndef UDA_WRAPPERS_CPP_ARRAY_H
+#define UDA_WRAPPERS_CPP_ARRAY_H
 
 #include <vector>
 #include <boost/any.hpp>
@@ -11,14 +7,16 @@
 #include "dim.hpp"
 #include "data.hpp"
 
-namespace Idam {
+namespace uda {
+
+class Client;
 
 class Array : public Data
 {
 public:
     template<typename T>
-    Array(T * data, std::vector <Dim> dims)
-            : Data(false), data_(data), dims_(dims), type_(&typeid(T))
+    Array(T* data, std::vector <Dim> dims)
+            : Data(false), data_(data), dims_(dims), type_(&typeid(T)), raw_data_(reinterpret_cast<char*>(data))
     { }
 
     size_t size() const;
@@ -38,14 +36,19 @@ public:
 
     static Array Null;
 private:
+    friend class uda::Client;
+
     Array() : Data(true), dims_(), type_(&typeid(void))
     { }
 
     boost::any data_;
-    std::vector <Dim> dims_;
-    const std::type_info * type_;
+    std::vector<Dim> dims_;
+    const std::type_info* type_;
+    const char* raw_data_;
+
+    const char* data() const { return raw_data_; };
 };
 
 }
 
-#endif //IDAM_WRAPPERS_CPP_ARRAY_H
+#endif // UDA_WRAPPERS_CPP_ARRAY_H

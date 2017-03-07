@@ -18,9 +18,8 @@
 #  include <server/closeServerSockets.h>
 extern PGconn * DBConnect;    // IDAM database Socket Connection
 #else
-#  include "closeClientSockets.h"
 #  include "getEnvironment.h"
-#  include "createConnection.h"
+#  include "connection.h"
 #endif
 
 int idamClosedown(int type)
@@ -45,13 +44,8 @@ int idamClosedown(int type)
     clientOutput->x_ops = NULL;
     clientInput->x_ops = NULL;
 
-    if (clientSocket >= 0 && type != 1) {
-        closeIdamClientSocket(&client_socketlist, clientSocket);
-    } else {
-        closeIdamClientSockets(&client_socketlist);
-    }
+    closeConnection(type);
 
-    clientSocket = -1;
     env_host = 1;            // Initialise at Startup
     env_port = 1;
 

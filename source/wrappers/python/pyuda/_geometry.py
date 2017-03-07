@@ -48,6 +48,9 @@ class GeometryData(Data):
         :return:
         """
         for main_node, signal_name, manipulator in zip(self._sdata, self._signal_config, self._manip):
+            if signal_name[-1] == '/':
+                signal_name = signal_name[:-1]
+
             self._logger.debug("Applying geometry calibration for signal_name {0}".format(signal_name))
             config_data = main_node[0]
             signal_type = config_data["data"].signal_type
@@ -220,6 +223,7 @@ class GeometryData(Data):
         :return:
         """
         for child in data.children:
+            print("_add_struct: add child {}".format(child.name))
             self.data.add_child(child)
 
         self.data.count += len(data.children)
@@ -309,17 +313,17 @@ class GeometryData(Data):
         """
         self._manip
         if len(self._manip) > 1:
+            fig = plt.figure()
+            ax_2d = fig.add_subplot(121)
+            ax_3d = fig.add_subplot(122, projection='3d')
+
             for index, manipulator in enumerate(self._manip):
                 if manipulator is None:
                     continue
 
-                if ax_2d is None and ax_3d is None:
-                    plt.close()
-                    fig = plt.figure()
-                    ax_2d = fig.add_subplot(121)
-                    ax_3d = fig.add_subplot(122, projection='3d')
+                manipulator.plot(self.data.children[index], ax_2d=ax_2d, ax_3d=ax_3d, show=False)
 
-                manipulator.plot(self.data.children[index], ax_2d=ax_2d, ax_3d=ax_3d)
+            plt.show()
         else:
             if ax_2d is None and ax_3d is None:
                 plt.close()

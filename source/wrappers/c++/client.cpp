@@ -9,11 +9,16 @@
 #include <client/accAPI.h>
 #include <client/udaGetAPI.h>
 #include <client/udaClient.h>
+#include <client/udaPutAPI.h>
+#include <clientserver/udaTypes.h>
+#include <complex>
+#include <clientserver/initStructs.h>
 
 #include "data.hpp"
 #include "result.hpp"
+#include "signal.hpp"
 
-void Idam::Client::setProperty(Property prop, bool value) throw(IdamException)
+void uda::Client::setProperty(Property prop, bool value) throw(UDAException)
 {
     std::string name;
 
@@ -36,16 +41,16 @@ void Idam::Client::setProperty(Property prop, bool value) throw(IdamException)
 
         case PROP_TIMEOUT:
         case PROP_ALTRANK:
-            throw IdamException("Cannot set boolean value for non-boolean property");
+            throw UDAException("Cannot set boolean value for non-boolean property");
 
         default:
-            throw IdamException("Unknown property");
+            throw UDAException("Unknown property");
     }
 
     value ? setIdamProperty(name.c_str()) : resetIdamProperty(name.c_str());
 }
 
-void Idam::Client::setProperty(Property prop, int value) throw(IdamException)
+void uda::Client::setProperty(Property prop, int value) throw(UDAException)
 {
     std::string name;
 
@@ -65,7 +70,7 @@ void Idam::Client::setProperty(Property prop, int value) throw(IdamException)
         case PROP_VERBOSE:
         case PROP_DEBUG:
         case PROP_ALTDATA:
-            throw IdamException("Cannot set integer value for boolean property");
+            throw UDAException("Cannot set integer value for boolean property");
 
         case PROP_TIMEOUT:
             name = (boost::format("timeout=%1%") % value).str();
@@ -77,11 +82,11 @@ void Idam::Client::setProperty(Property prop, int value) throw(IdamException)
             break;
 
         default:
-            throw IdamException("Unknown property");
+            throw UDAException("Unknown property");
     }
 }
 
-int Idam::Client::property(Property prop) throw(IdamException)
+int uda::Client::property(Property prop) throw(UDAException)
 {
     switch (prop) {
         case PROP_DATADBLE:  return getIdamProperty("get_datadble");
@@ -103,45 +108,146 @@ int Idam::Client::property(Property prop) throw(IdamException)
         case PROP_ALTRANK:   return getIdamProperty("altrank");
 
         default:
-            throw IdamException("Unknown property");
+            throw UDAException("Unknown property");
     }
 }
 
-void Idam::Client::setServerHostName(const std::string& hostName)
+void uda::Client::setServerHostName(const std::string& hostName)
 {
     putIdamServerHost(hostName.c_str());
 }
 
-void Idam::Client::setServerPort(int portNumber)
+void uda::Client::setServerPort(int portNumber)
 {
     putIdamServerPort(portNumber);
 }
 
-std::string Idam::Client::serverHostName()
+std::string uda::Client::serverHostName()
 {
     return getIdamServerHost();
 }
 
-int Idam::Client::serverPort()
+int uda::Client::serverPort()
 {
     return getIdamServerPort();
 }
 
-const Idam::Result& Idam::Client::get(const std::string& signalName, const std::string& dataSource) throw(IdamException)
+const uda::Result& uda::Client::get(const std::string& signalName, const std::string& dataSource) throw(UDAException)
 {
     Result * data = new Result(idamGetAPI(signalName.c_str(), dataSource.c_str()));
 
     if (data->errorCode() != OK) {
         std::string error = data->error();
         delete data;
-        throw IdamException(error);
+        throw UDAException(error);
     }
 
     data_.push_back(data);
     return *data;
 }
 
-Idam::Client::~Client()
+static int typeIDToUDAType(const std::type_info& type)
+{
+    if (type == typeid(char))
+        return TYPE_CHAR;
+    else if (type == typeid(short))
+        return TYPE_SHORT;
+    else if (type == typeid(int))
+        return TYPE_INT;
+    else if (type == typeid(unsigned int))
+        return TYPE_UNSIGNED_INT;
+    else if (type == typeid(long))
+        return TYPE_LONG;
+    else if (type == typeid(float))
+        return TYPE_FLOAT;
+    else if (type == typeid(double))
+        return TYPE_DOUBLE;
+    else if (type == typeid(unsigned char))
+        return TYPE_UNSIGNED_CHAR;
+    else if (type == typeid(unsigned short))
+        return TYPE_UNSIGNED_SHORT;
+    else if (type == typeid(unsigned long))
+        return TYPE_UNSIGNED_LONG;
+    else if (type == typeid(long long))
+        return TYPE_LONG64;
+    else if (type == typeid(unsigned long long))
+        return TYPE_UNSIGNED_LONG64;
+    else if (type == typeid(std::complex<float>))
+        return TYPE_COMPLEX;
+    else if (type == typeid(std::complex<double>))
+        return TYPE_DCOMPLEX;
+    else if (type == typeid(char*))
+        return TYPE_STRING;
+    else
+        return TYPE_UNKNOWN;
+}
+
+//typedef struct PutDataBlock {
+//    int data_type;
+//    unsigned int rank;
+//    unsigned int count;
+//    int* shape;
+//    const char* data;
+//    int opaque_type;                // Identifies the Data Structure Type;
+//    int opaque_count;               // Number of Instances of the Data Structure;
+//    void* opaque_block;             // Opaque pointer to Hierarchical Data Structures
+//    unsigned int blockNameLength;   // Size of the Name character string
+//    char* blockName;                // Name of the Data Block
+//} PUTDATA_BLOCK;
+
+void uda::Client::put(const uda::Signal& signal)
+{
+    std::stringstream filename;
+    filename << boost::format("%s%06d.nc") % signal.alias() % signal.shot();
+
+    std::string signal_class;
+    switch (signal.signalClass()) {
+        case uda::ANALYSED:
+            signal_class = "Analysed";
+            break;
+        case uda::RAW:
+            signal_class = "Raw";
+            break;
+        case uda::MODELLED:
+            signal_class = "Modelled";
+            break;
+    }
+
+    std::stringstream ss;
+    ss << boost::format("putdata::open(/create,"
+                                " filename='%s',"
+                                " conventions='Fusion-1.0',"
+                                " class='%s',"
+                                " title='%s',"
+                                " shot=%d,"
+                                " pass=%d,"
+                                " comment='%s',"
+                                " code=%s,"
+                                " version=1)")
+            % filename % signal_class % signal.title() % signal.shot() % signal.pass()
+            % signal.comment() % signal.code();
+
+    std::string request = ss.str();
+    idamPutAPI(request.c_str(), NULL);
+
+    PUTDATA_BLOCK pdblock;
+    initIdamPutDataBlock(&pdblock);
+
+    const uda::Array& array = signal.array();
+
+    pdblock.data_type = typeIDToUDAType(array.type());
+    pdblock.rank = (unsigned int)array.dims().size();
+    pdblock.count = (unsigned int)array.size();
+
+    std::vector<int> shape(pdblock.rank);
+    pdblock.shape = shape.data();
+
+    pdblock.data = array.data();
+
+    idamPutAPI("", &pdblock);
+}
+
+uda::Client::~Client()
 {
     for (std::vector<Result *>::iterator iter = data_.begin(); iter != data_.end(); ++iter) {
         delete(*iter);

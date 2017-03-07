@@ -1,3 +1,5 @@
+#!/bin/bash
+
 export CC=gcc
 export CXX=g++
 export BOOST_ROOT=$HOME/itmwork/boost_1_62_0

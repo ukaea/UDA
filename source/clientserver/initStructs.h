@@ -3,6 +3,10 @@
 
 #include "udaStructs.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 void initNameValueList(NAMEVALUELIST *nameValueList);
 void initRequestBlock(REQUEST_BLOCK *str);
 void initClientBlock(CLIENT_BLOCK *str, int version, char *clientname);
@@ -16,5 +20,9 @@ void initSignal(SIGNAL *str);
 void initSignalDesc(SIGNAL_DESC *str);
 void initIdamPutDataBlock(PUTDATA_BLOCK *str);
 void initIdamPutDataBlockList(PUTDATA_BLOCK_LIST *putDataBlockList);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // IDAM_CLIENTSERVER_INITSTRUCTS_H

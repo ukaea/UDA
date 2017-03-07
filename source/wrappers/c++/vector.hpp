@@ -9,7 +9,7 @@
 #include <vector>
 #include <boost/any.hpp>
 
-namespace Idam {
+namespace uda {
 
 class Vector
 {

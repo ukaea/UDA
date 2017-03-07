@@ -175,7 +175,7 @@ int testgroup(int locid, const char* target, int* status, int* targetid)
 
     if (*targetid == -1) {
         // Doesn't exist so create it
-        IDAM_LOGF(LOG_DEBUG, "Creating the Group [%s]", target);
+        IDAM_LOGF(LOG_DEBUG, "Creating the Group [%s]\n", target);
 
         if (nc_def_grp(locid, target, targetid) != NC_NOERR) {
             RAISE_PLUGIN_ERROR("Unable to Create a Named Group");

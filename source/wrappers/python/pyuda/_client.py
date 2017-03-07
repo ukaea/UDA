@@ -189,10 +189,23 @@ class Client(metaclass = ClientMeta):
         :return:
         """
 
+        # Get rid of trailing slash...
+        if signal[-1] == '/':
+            signal = signal[:-1]
+
         # Retrieve signal names and modules to be used for
         # manipulating the data
+        filenames_call = "GEOM::getConfigFilenames(signal={})".format(signal.lower())
+        multiple_names = self.get(filenames_call, source)
+
         signal_map = GeometryFiles()
-        signal_names, manip = signal_map.get_signals(signal.lower())
+        signal_groups = multiple_names["data"].geomgroups
+        manip = signal_map.get_signals(signal_groups)
+
+        if len(signal_groups) > 1:
+            signal_names = signal_groups
+        else:
+            signal_names = [signal.lower()]
 
         if signal_names is None:
             return
@@ -223,12 +236,16 @@ class Client(metaclass = ClientMeta):
 
         # Loop files to be read in
         for signal_name in signal_names:
+            if signal_name[-1] == '/':
+                signal_name = signal_name[:-1]
+
             # Get configuration data
             config_extra = "Config=1"
             config_call = geom_call.format(signal_name, config_extra, version_config)
 
             self.logger.info("Call is {0}\n".format(config_call))
-            try:
+            try:                
+                print(config_call)
                 config_struct = StructuredWritable((self._cclient.get(str(config_call), str(source_call))).tree())
             except c_uda.IdamException:
                 self.logger.error("ERROR: Could not retrieve geometry data for signal {0} and source {1}".format(signal,
@@ -258,7 +275,8 @@ class Client(metaclass = ClientMeta):
                     signal_aliases.extend(s_aliases)
                     signal_var_names.extend(s_var_names)
 
-
+        print(results)
+        print(signal_names)
         # Calibrate geometry data
         geom_data = GeometryData(results, signal_names, manip, **kwargs)
 

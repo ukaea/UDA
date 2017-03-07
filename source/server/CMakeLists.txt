@@ -72,7 +72,7 @@ add_library( server-shared SHARED
   $<TARGET_OBJECTS:serverlogging>
   $<TARGET_OBJECTS:structures-server>
   $<TARGET_OBJECTS:security>
-  $<TARGET_OBJECTS:modules>
+  $<TARGET_OBJECTS:modules-objects>
   )
 
 add_library( server-static STATIC
@@ -81,7 +81,7 @@ add_library( server-static STATIC
   $<TARGET_OBJECTS:serverlogging>
   $<TARGET_OBJECTS:structures-server>
   $<TARGET_OBJECTS:security>
-  $<TARGET_OBJECTS:modules>
+  $<TARGET_OBJECTS:modules-objects>
   )
 
 add_executable( server-exe serverMain.c )

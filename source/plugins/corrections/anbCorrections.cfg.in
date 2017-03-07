@@ -1,0 +1,6 @@
+#------------------------------------------------------------------------------------------------------
+# Creates the Environment needed by the ANB Corrections plugin
+#------------------------------------------------------------------------------------------------------
+
+export CORRECTIONS_UDA_HOST="localhost"
+export CORRECTIONS_UDA_PORT=56565

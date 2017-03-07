@@ -38,6 +38,7 @@ set( SRC_FILES
   parseOperation.c
   parseXML.c
   copyStructs.c
+  udaTypes.c
   )
 
 if( APPLE )

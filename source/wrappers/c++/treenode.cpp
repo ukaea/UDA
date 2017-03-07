@@ -7,17 +7,17 @@
 #include <structures/struct.h>
 #include <structures/accessors.h>
 
-Idam::TreeNode Idam::TreeNode::parent()
+uda::TreeNode uda::TreeNode::parent()
 {
     return TreeNode(node_->parent);
 }
 
-size_t Idam::TreeNode::numChildren()
+size_t uda::TreeNode::numChildren()
 {
     return getNodeChildrenCount(node_);
 }
 
-std::vector<Idam::TreeNode> Idam::TreeNode::children()
+std::vector<uda::TreeNode> uda::TreeNode::children()
 {
     int numChildren = getNodeChildrenCount(node_);
 
@@ -29,55 +29,55 @@ std::vector<Idam::TreeNode> Idam::TreeNode::children()
     return vec;
 }
 
-Idam::TreeNode Idam::TreeNode::child(int num)
+uda::TreeNode uda::TreeNode::child(int num)
 {
     return TreeNode(getNodeChild(node_, num));
 }
 
-void Idam::TreeNode::print()
+void uda::TreeNode::print()
 {
     printNode(node_);
 }
 
-std::string Idam::TreeNode::name()
+std::string uda::TreeNode::name()
 {
     char* name = getNodeStructureName(node_);
     return name == NULL ? "" : name;
 }
 
-void Idam::TreeNode::printStructureNames()
+void uda::TreeNode::printStructureNames()
 {
     printNTreeStructureNames(node_);
 }
 
-Idam::TreeNode Idam::TreeNode::findStructureDefinition(const std::string& name)
+uda::TreeNode uda::TreeNode::findStructureDefinition(const std::string& name)
 {
     return TreeNode(findNTreeStructureDefinition(node_, (char*) name.c_str()));
 }
 
-Idam::TreeNode Idam::TreeNode::findStructureComponent(const std::string& name)
+uda::TreeNode uda::TreeNode::findStructureComponent(const std::string& name)
 {
     return TreeNode(findNTreeStructureComponent(node_, (char*) name.c_str()));
 }
 
-void Idam::TreeNode::printUserDefinedTypeTable(const std::string& name)
+void uda::TreeNode::printUserDefinedTypeTable(const std::string& name)
 {
     USERDEFINEDTYPE* type = findUserDefinedType((char*) name.c_str(), 0);
     ::printUserDefinedTypeTable(*type);
 }
 
-void Idam::TreeNode::printUserDefinedTypeTable()
+void uda::TreeNode::printUserDefinedTypeTable()
 {
     USERDEFINEDTYPE* type = getNodeUserDefinedType(node_);
     ::printUserDefinedTypeTable(*type);
 }
 
-int Idam::TreeNode::structureCount()
+int uda::TreeNode::structureCount()
 {
     return getNodeStructureCount(node_);
 }
 
-std::vector<std::string> Idam::TreeNode::structureNames()
+std::vector<std::string> uda::TreeNode::structureNames()
 {
     char** names = getNodeStructureNames(node_);
     int size = getNodeStructureCount(node_);
@@ -85,7 +85,7 @@ std::vector<std::string> Idam::TreeNode::structureNames()
     return vec;
 }
 
-std::vector<std::string> Idam::TreeNode::structureTypes()
+std::vector<std::string> uda::TreeNode::structureTypes()
 {
     char** names = getNodeStructureTypes(node_);
     int size = getNodeStructureCount(node_);
@@ -93,12 +93,12 @@ std::vector<std::string> Idam::TreeNode::structureTypes()
     return vec;
 }
 
-int Idam::TreeNode::atomicCount()
+int uda::TreeNode::atomicCount()
 {
     return getNodeAtomicCount(node_);
 }
 
-std::vector<std::string> Idam::TreeNode::atomicNames()
+std::vector<std::string> uda::TreeNode::atomicNames()
 {
     char** names = getNodeAtomicNames(node_);
     int size = getNodeAtomicCount(node_);
@@ -106,7 +106,7 @@ std::vector<std::string> Idam::TreeNode::atomicNames()
     return vec;
 }
 
-std::vector<std::string> Idam::TreeNode::atomicTypes()
+std::vector<std::string> uda::TreeNode::atomicTypes()
 {
     char** types = getNodeAtomicTypes(node_);
     int size = getNodeAtomicCount(node_);
@@ -114,7 +114,7 @@ std::vector<std::string> Idam::TreeNode::atomicTypes()
     return vec;
 }
 
-std::vector<bool> Idam::TreeNode::atomicPointers()
+std::vector<bool> uda::TreeNode::atomicPointers()
 {
     int* isptr = getNodeAtomicPointers(node_);
     int size = getNodeAtomicCount(node_);
@@ -122,7 +122,7 @@ std::vector<bool> Idam::TreeNode::atomicPointers()
     return vec;
 }
 
-std::vector<std::size_t> Idam::TreeNode::atomicRank()
+std::vector<std::size_t> uda::TreeNode::atomicRank()
 {
     int* ranks = getNodeAtomicRank(node_);
     int size = getNodeAtomicCount(node_);
@@ -130,7 +130,7 @@ std::vector<std::size_t> Idam::TreeNode::atomicRank()
     return vec;
 }
 
-std::vector<std::vector<std::size_t> > Idam::TreeNode::atomicShape()
+std::vector<std::vector<std::size_t> > uda::TreeNode::atomicShape()
 {
     int** shapes = getNodeAtomicShape(node_);
     int* ranks = getNodeAtomicRank(node_);
@@ -149,33 +149,33 @@ std::vector<std::vector<std::size_t> > Idam::TreeNode::atomicShape()
     return vec;
 }
 
-void* Idam::TreeNode::structureComponentData(const std::string& name)
+void* uda::TreeNode::structureComponentData(const std::string& name)
 {
     return getNodeStructureComponentData(node_, (char*) name.c_str());
 }
 
 template<typename T>
-static Idam::Scalar getScalar(NTREE* node, const char* name)
+static uda::Scalar getScalar(NTREE* node, const char* name)
 {
     T* val = reinterpret_cast<T*>(getNodeStructureComponentData(node, (char*) name));
-    return Idam::Scalar(*val);
+    return uda::Scalar(*val);
 }
 
 template<>
-Idam::Scalar getScalar<char*>(NTREE* node, const char* name)
+uda::Scalar getScalar<char*>(NTREE* node, const char* name)
 {
     char* val = reinterpret_cast<char*>(getNodeStructureComponentData(node, (char*) name));
-    return Idam::Scalar(val);
+    return uda::Scalar(val);
 }
 
 template<>
-Idam::Scalar getScalar<char**>(NTREE* node, const char* name)
+uda::Scalar getScalar<char**>(NTREE* node, const char* name)
 {
     char** val = reinterpret_cast<char**>(getNodeStructureComponentData(node, (char*) name));
-    return Idam::Scalar(val[0]);
+    return uda::Scalar(val[0]);
 }
 
-Idam::Scalar Idam::TreeNode::atomicScalar(const std::string& target)
+uda::Scalar uda::TreeNode::atomicScalar(const std::string& target)
 {
     NTREE* node = findNTreeStructureComponent(node_, (char*) target.c_str()); // Locate the named variable target
     //NTREE * node = findNTreeStructureComponent(node_, target.c_str()); // Locate the named variable target
@@ -218,38 +218,38 @@ Idam::Scalar Idam::TreeNode::atomicScalar(const std::string& target)
 }
 
 template<typename T>
-static Idam::Vector getVector(NTREE* node, const std::string& target)
+static uda::Vector getVector(NTREE* node, const std::string& target)
 {
     int count = getNodeChildrenCount(node->parent);
     T* data = static_cast<T*>(malloc(count * sizeof(T)));
     if (data == NULL) {
-        return Idam::Vector::Null;
+        return uda::Vector::Null;
     }
     for (int j = 0; j < count; j++) {
         data[j] = *reinterpret_cast<T*>(getNodeStructureComponentData(node->parent->children[j],
                                                                       (char*) target.c_str()));
     }
-    return Idam::Vector(data, count);
+    return uda::Vector(data, count);
 }
 
 template<>
-Idam::Vector getVector<char*>(NTREE* node, const std::string& target)
+uda::Vector getVector<char*>(NTREE* node, const std::string& target)
 {
     // Scalar String in an array of data structures
     int count = getNodeChildrenCount(node->parent);
     char** data = static_cast<char**>(malloc(count * sizeof(char*))); // Managed by IDAM
     if (data == NULL) {
-        return Idam::Vector::Null;
+        return uda::Vector::Null;
     }
     addMalloc(data, count, sizeof(char*), (char*) "char *");
     for (int j = 0; j < count; j++) {
         data[j] = reinterpret_cast<char*>(getNodeStructureComponentData(node->parent->children[j],
                                                                         (char*) target.c_str()));
     }
-    return Idam::Vector(data, count);
+    return uda::Vector(data, count);
 }
 
-Idam::Vector Idam::TreeNode::atomicVector(const std::string& target)
+uda::Vector uda::TreeNode::atomicVector(const std::string& target)
 {
     NTREE* node = findNTreeStructureComponent(node_, (char*) target.c_str());
     //NTREE * node = findNTreeStructureComponent(node_, (char *)target.c_str()); // Locate the named variable target
@@ -275,7 +275,7 @@ Idam::Vector Idam::TreeNode::atomicVector(const std::string& target)
                 && apoint[i] == 1) {
                 // String array in a single data structure
                 char** val = reinterpret_cast<char**>(getNodeStructureComponentData(node, (char*) target.c_str()));
-                return Idam::Vector(val, ashape[i][0]);
+                return uda::Vector(val, ashape[i][0]);
             } else if (arank[i] == 0 || arank[i] == 1) {
                 if (std::string("STRING") == atypes[i]) return getVector<char*>(node, target);
                 if (std::string("short") == atypes[i]) return getVector<short>(node, target);
@@ -291,7 +291,7 @@ Idam::Vector Idam::TreeNode::atomicVector(const std::string& target)
     return Vector::Null;
 }
 
-Idam::StructData Idam::TreeNode::structData(const std::string& target)
+uda::StructData uda::TreeNode::structData(const std::string& target)
 {
     NTREE* node = findNTreeStructureComponent(node_, (char*) target.c_str());
     if (node == NULL) return StructData::Null;
@@ -299,7 +299,7 @@ Idam::StructData Idam::TreeNode::structData(const std::string& target)
     int count = getNodeChildrenCount(node->parent);
     //void ** data = static_cast<void **>(malloc(count * sizeof(void *)));
 
-    Idam::StructData data;
+    uda::StructData data;
 
     //addMalloc(data, count, sizeof(void *), (char *)"void *");
     for (int j = 0; j < count; j++) {
@@ -312,7 +312,7 @@ Idam::StructData Idam::TreeNode::structData(const std::string& target)
     return data;
 }
 
-void* Idam::TreeNode::data()
+void* uda::TreeNode::data()
 {
     return getNodeData(node_);
 }
