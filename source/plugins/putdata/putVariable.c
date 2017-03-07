@@ -78,7 +78,7 @@ int do_variable(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     int length = putdata.count;
     int rank = putdata.rank;
     int* shape = putdata.shape;
-    char* data = putdata.data;
+    const char* data = putdata.data;
 
     IDAM_LOGF(LOG_DEBUG, "Variable %s:\n", name);
     IDAM_LOGF(LOG_DEBUG, "Rank     %d:\n", rank);

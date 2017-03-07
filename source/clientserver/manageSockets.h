@@ -15,5 +15,9 @@ int getSocket(SOCKETLIST *socks, int type, int *status, char *host, int port, in
 // Search for an Open Socket in the Socket List
 int getSocketRecordId(SOCKETLIST *socks, int fh);
 
+void closeClientSockets(SOCKETLIST* socks);
+
+void closeClientSocket(SOCKETLIST* socks, int fh);
+
 #endif // IDAM_CLIENTSERVER_MANAGESOCKETS_H
 

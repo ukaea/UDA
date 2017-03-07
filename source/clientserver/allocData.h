@@ -3,7 +3,7 @@
 
 #include "udaStructs.h"
 
-int allocArray(int data_type, int ndata, char **ap);
+int allocArray(int data_type, size_t ndata, char **ap);
 int allocData(DATA_BLOCK *data_block);
 int allocDim(DATA_BLOCK * data_block);
 int allocPutData(PUTDATA_BLOCK *putData);

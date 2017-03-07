@@ -32,13 +32,8 @@
 static unsigned short idamGetAPICalledOnce = 0;
 #endif
 
-#ifdef FATCLIENT
-int idamPutListAPIFat(const char *putInstruction, PUTDATA_BLOCK_LIST *inPutDataBlockList) {
-#else
-
 int idamPutListAPI(const char* putInstruction, PUTDATA_BLOCK_LIST* inPutDataBlockList)
 {
-#endif
 
     int err = 0;
     REQUEST_BLOCK request_block;
@@ -114,14 +109,8 @@ int idamPutListAPI(const char* putInstruction, PUTDATA_BLOCK_LIST* inPutDataBloc
 
 // Send a single data block to the server
 
-#ifdef FATCLIENT
-int idamPutAPIFat(const char *putInstruction, PUTDATA_BLOCK *inPutData) {
-#else
-
 int idamPutAPI(const char* putInstruction, PUTDATA_BLOCK* inPutData)
 {
-#endif
-
     int err = 0;
     REQUEST_BLOCK request_block;
     PUTDATA_BLOCK emptyPutDataBlock;

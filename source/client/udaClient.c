@@ -23,7 +23,7 @@
 #include <clientserver/freeDataBlock.h>
 #include <structures/struct.h>
 #include <clientserver/xdrlib.h>
-#include <client/createConnection.h>
+#include <client/connection.h>
 
 #include "closedown.h"
 #include "accAPI.h"
@@ -33,8 +33,7 @@
 #  include <clientserver/compressDim.h>
 #  include <server/udaServer.h>
 #else
-
-#  include "createClientXDRStream.h"
+#  include "clientXDRStream.h"
 #endif
 
 #ifdef MEMCACHE
@@ -86,15 +85,11 @@ NTREE* fullNTree = NULL;
 CLIENT_BLOCK client_block;
 SERVER_BLOCK server_block;
 
-int clientSocket = -1;
-
 time_t tv_server_start = 0;
 time_t tv_server_end = 0;
 
 int initEnvironment = 1;        // Flag initilisation
 ENVIRONMENT environment;        // Holds local environment variable values
-
-SOCKETLIST client_socketlist;   // List of open sockets
 
 NTREELIST NTreeList;
 LOGSTRUCTLIST logstructlist;
@@ -296,63 +291,8 @@ int idamClient(REQUEST_BLOCK* request_block)
         // Instance a new server on the same Host/Port or on a different Host/port
 
         if (environment.server_reconnect || environment.server_change_socket) {
-            int socketId = -1, clientSocket0 = -1, user_timeout0 = TIMEOUT;
-            time_t tv_server_start0;
-            XDR* clientInput0, * clientOutput0;
-
-            // Save current client and server timer settings, Socket and XDR handles
-
-            tv_server_start0 = tv_server_start;
-            user_timeout0 = user_timeout;
-            clientSocket0 = clientSocket;
-            clientInput0 = clientInput;
-            clientOutput0 = clientOutput;
-
-            // Identify the current Socket connection in the Socket List
-
-            socketId = getSocketRecordId(&client_socketlist, clientSocket);
-
-            // Instance a new server if the Client has changed the host and/or port number
-
-            if (environment.server_reconnect) {
-                time(&tv_server_start);         // Start a New Server AGE timer
-                clientSocket = -1;              // Flags no Socket is open
-                environment.server_change_socket = 0;   // Client doesn't know the Socket ID so disable
-            }
-
-            // Client manages connections through the Socket id and specifies which running server to connect to
-
-            if (environment.server_change_socket) {
-                if ((socketId = getSocketRecordId(&client_socketlist, environment.server_socket)) < 0) {
-                    err = NO_SOCKET_CONNECTION;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "idamClient", err,
-                                 "The User Specified Socket Connection does not exist");
-                    break;
-                }
-
-                // replace with previous timer settings and XDR handles
-
-                tv_server_start = client_socketlist.sockets[socketId].tv_server_start;
-                user_timeout = client_socketlist.sockets[socketId].user_timeout;
-                clientSocket = client_socketlist.sockets[socketId].fh;
-                clientInput = client_socketlist.sockets[socketId].Input;
-                clientOutput = client_socketlist.sockets[socketId].Output;
-
-                environment.server_change_socket = 0;
-                environment.server_socket = client_socketlist.sockets[socketId].fh;
-                environment.server_port = client_socketlist.sockets[socketId].port;
-                strcpy(environment.server_host, client_socketlist.sockets[socketId].host);
-            }
-
-            // save Previous data if a previous socket existed
-
-            if (socketId >= 0) {
-                client_socketlist.sockets[socketId].tv_server_start = tv_server_start0;
-                client_socketlist.sockets[socketId].user_timeout = user_timeout0;
-                client_socketlist.sockets[socketId].fh = clientSocket0;
-                client_socketlist.sockets[socketId].Input = clientInput0;
-                client_socketlist.sockets[socketId].Output = clientOutput0;
-            }
+            err = reconnect(&environment);
+            if (err) break;
         }
 
         //-------------------------------------------------------------------------
@@ -362,7 +302,7 @@ int idamClient(REQUEST_BLOCK* request_block)
         long age = (long)tv_server_end - (long)tv_server_start;
 
         IDAM_LOGF(LOG_DEBUG, "Start: %ld    End: %ld\n", (long)tv_server_start, (long)tv_server_end);
-        IDAM_LOGF(LOG_DEBUG, "Server Age: %ld\n", (long)age);
+        IDAM_LOGF(LOG_DEBUG, "Server Age: %ld\n", age);
 
         //-------------------------------------------------------------------------
         // Server State: Is the Server Dead? (Age Dependent)
@@ -370,16 +310,12 @@ int idamClient(REQUEST_BLOCK* request_block)
         initServer = 1;
 
         if (age >= user_timeout - 2) {  // Assume the Server has Self-Destructed so Instanciate a New Server
-
             IDAM_LOGF(LOG_DEBUG, "idamClient: Server Age Limit Reached %ld\n", (long)age);
             IDAM_LOG(LOG_DEBUG, "idamClient: Server Closed and New Instance Started\n");
 
             idamClosedown(0);  // Close the Existing Socket and XDR Stream: Reopening will Instance a New Server
-
         } else {
-
-            if (clientSocket != -1) {          // Assume the Server is Still Alive
-
+            if (connectionOpen()) {          // Assume the Server is Still Alive
                 if (clientOutput->x_ops == NULL || clientInput->x_ops == NULL) {
                     addIdamError(&idamerrorstack, CODEERRORTYPE, "idamClient", 999, "XDR Streams are Closed!");
 
@@ -388,7 +324,6 @@ int idamClient(REQUEST_BLOCK* request_block)
                     idamClosedown(0);
                     initServer = 1;
                 } else {
-
                     initServer = 0;
                     xdrrec_eof(clientInput); // Flush input socket
                 }
@@ -399,7 +334,6 @@ int idamClient(REQUEST_BLOCK* request_block)
         // Open a Socket and Connect to the IDAM Data Server (Multiple Servers?)
 
         if (initServer) {
-
             authenticationNeeded = 1;
             startupStates = 0;
 
@@ -1037,15 +971,13 @@ int idamClient(REQUEST_BLOCK* request_block)
     IDAM_LOGF(LOG_DEBUG, "idamClient: Error Code at end of Error Trap: %d\n", err);
     IDAM_LOGF(LOG_DEBUG, "idamClient: newHandle                      : %d\n", newHandle);
     IDAM_LOGF(LOG_DEBUG, "idamClient: serverside                     : %d\n", serverside);
-    IDAM_LOGF(LOG_DEBUG, "idamClient: clientSocket                   : %d\n", clientSocket);
 
     //------------------------------------------------------------------------------
     // Server Sleeps: If error then assume Server has Closed Down
 
 #ifndef FATCLIENT   // <========================== Client Server Code Only
 
-    if (clientSocket >= 0) {
-
+    if (connectionOpen()) {
         int next_protocol = PROTOCOL_CLOSEDOWN;       // Closedown (Die) is the default
 
         if ((err == 0 && newHandle) || serverside) {
@@ -1488,7 +1420,7 @@ void idamFreeAll()
     // meaning the expected data structure was not received. This error is written to the server log.
     // To avoid this, we can send a CLIENT_BLOCK with a CLOSEDOWN instruction.
 
-    if (clientSocket >= 0) {
+    if (connectionOpen()) {
         client_block.timeout = 0;                             // Surrogate CLOSEDOWN instruction
         client_block.clientFlags = client_block.clientFlags | CLIENTFLAG_CLOSEDOWN;   // Direct CLOSEDOWN instruction
         protocol_id = PROTOCOL_CLIENT_BLOCK;

@@ -280,9 +280,6 @@ extern int anbCorrections(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 //====================================================================================== 
 // SW NBI Power Correction 
 
-// getdata('anbCorrections::chequerBoardPower(signal=ANB_SW_FULL_POWER, exp_number=29000)','')
-// getdata('anbCorrections::chequerBoardPower(signal=ANB_SW_FULL_POWER)','29000')	; best for correction stored in database
-
         if (!strcasecmp(request_block->function, "chequerBoardPower")) {
 
 // correction coefficients

@@ -9,7 +9,7 @@
 #include <string>
 #include <cxxabi.h>
 
-namespace Idam {
+namespace uda {
 
 class StructData
 {

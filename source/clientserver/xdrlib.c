@@ -384,36 +384,36 @@ bool_t xdr_putdata_block2(XDR* xdrs, PUTDATA_BLOCK* str)
         rc = rc && xdr_vector(xdrs, (char*)str->shape, (int)str->rank, sizeof(int), (xdrproc_t)xdr_int);
     }
 
-    if (str->blockNameLength > 0) rc = rc && WrapXDRString(xdrs, str->blockName, str->blockNameLength + 1);
+    if (str->blockNameLength > 0) rc = rc && WrapXDRString(xdrs, (char*)str->blockName, str->blockNameLength + 1);
 
     switch (str->data_type) {
         case TYPE_FLOAT :
-            return (rc && xdr_vector(xdrs, str->data, (int)str->count, sizeof(float), (xdrproc_t)xdr_float));
+            return (rc && xdr_vector(xdrs, (char*)str->data, (int)str->count, sizeof(float), (xdrproc_t)xdr_float));
         case TYPE_DOUBLE :
             return (rc &&
-                    xdr_vector(xdrs, str->data, (int)str->count, sizeof(double), (xdrproc_t)xdr_double));
+                    xdr_vector(xdrs, (char*)str->data, (int)str->count, sizeof(double), (xdrproc_t)xdr_double));
         case TYPE_CHAR :
-            return (rc && xdr_vector(xdrs, str->data, (int)str->count, sizeof(char), (xdrproc_t)xdr_char));
+            return (rc && xdr_vector(xdrs, (char*)str->data, (int)str->count, sizeof(char), (xdrproc_t)xdr_char));
         case TYPE_SHORT :
-            return (rc && xdr_vector(xdrs, str->data, (int)str->count, sizeof(short), (xdrproc_t)xdr_short));
+            return (rc && xdr_vector(xdrs, (char*)str->data, (int)str->count, sizeof(short), (xdrproc_t)xdr_short));
         case TYPE_INT :
-            return (rc && xdr_vector(xdrs, str->data, (int)str->count, sizeof(int), (xdrproc_t)xdr_int));
+            return (rc && xdr_vector(xdrs, (char*)str->data, (int)str->count, sizeof(int), (xdrproc_t)xdr_int));
         case TYPE_LONG :
-            return (rc && xdr_vector(xdrs, str->data, (int)str->count, sizeof(long), (xdrproc_t)xdr_long));
+            return (rc && xdr_vector(xdrs, (char*)str->data, (int)str->count, sizeof(long), (xdrproc_t)xdr_long));
         case TYPE_LONG64 :
-            return (rc && xdr_vector(xdrs, str->data, (int)str->count, sizeof(long long int),
+            return (rc && xdr_vector(xdrs, (char*)str->data, (int)str->count, sizeof(long long int),
                                      (xdrproc_t)xdr_int64_t));
         case TYPE_UNSIGNED_CHAR :
-            return (rc && xdr_vector(xdrs, str->data, (int)str->count, sizeof(unsigned char),
+            return (rc && xdr_vector(xdrs, (char*)str->data, (int)str->count, sizeof(unsigned char),
                                      (xdrproc_t)xdr_u_char));
         case TYPE_UNSIGNED_SHORT :
-            return (rc && xdr_vector(xdrs, str->data, (int)str->count, sizeof(unsigned short),
+            return (rc && xdr_vector(xdrs, (char*)str->data, (int)str->count, sizeof(unsigned short),
                                      (xdrproc_t)xdr_u_short));
         case TYPE_UNSIGNED_INT :
             return (rc &&
-                    xdr_vector(xdrs, str->data, (int)str->count, sizeof(unsigned int), (xdrproc_t)xdr_u_int));
+                    xdr_vector(xdrs, (char*)str->data, (int)str->count, sizeof(unsigned int), (xdrproc_t)xdr_u_int));
         case TYPE_UNSIGNED_LONG :
-            return (rc && xdr_vector(xdrs, str->data, (int)str->count, sizeof(unsigned long),
+            return (rc && xdr_vector(xdrs, (char*)str->data, (int)str->count, sizeof(unsigned long),
                                      (xdrproc_t)xdr_u_long));
 #ifndef __APPLE__
         case TYPE_UNSIGNED_LONG64 :
@@ -423,16 +423,16 @@ bool_t xdr_putdata_block2(XDR* xdrs, PUTDATA_BLOCK* str)
 // Strings are passed as a regular array of CHARs
 
         case TYPE_STRING :
-            return (rc && xdr_vector(xdrs, str->data, (int)str->count, sizeof(char), (xdrproc_t)xdr_char));
+            return (rc && xdr_vector(xdrs, (char*)str->data, (int)str->count, sizeof(char), (xdrproc_t)xdr_char));
 
 // Complex structure is a simple two float combination: => twice the number of element transmitted
 
         case TYPE_DCOMPLEX :
             return (rc &&
-                    xdr_vector(xdrs, str->data, 2 * (int)str->count, sizeof(double), (xdrproc_t)xdr_double));
+                    xdr_vector(xdrs, (char*)str->data, 2 * (int)str->count, sizeof(double), (xdrproc_t)xdr_double));
         case TYPE_COMPLEX :
             return (rc &&
-                    xdr_vector(xdrs, str->data, 2 * (int)str->count, sizeof(float), (xdrproc_t)xdr_float));
+                    xdr_vector(xdrs, (char*)str->data, 2 * (int)str->count, sizeof(float), (xdrproc_t)xdr_float));
 
 // General Data structures are passed using a specialised set of xdr components
 

@@ -10,7 +10,7 @@
 
 #include "data.hpp"
 
-namespace Idam {
+namespace uda {
 
 class Scalar : public Data {
 public:

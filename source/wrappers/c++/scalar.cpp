@@ -4,5 +4,5 @@
 
 #include "scalar.hpp"
 
-Idam::Scalar Idam::Scalar::Null = Idam::Scalar();
+uda::Scalar uda::Scalar::Null = uda::Scalar();
 

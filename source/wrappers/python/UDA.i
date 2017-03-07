@@ -42,9 +42,9 @@
 %include "vector.hpp"
 %include "dim.hpp"
 
-%apply unsigned int { Idam::dim_type }
+%apply unsigned int { uda::dim_type }
 
-%template(DimVector) std::vector<Idam::Dim>;
+%template(DimVector) std::vector<uda::Dim>;
 %template(FloatVector) std::vector<float>;
 %template(DoubleVector) std::vector<double>;
 %template(StringVector) std::vector<std::string>;
@@ -65,19 +65,19 @@
 #endif
 %template(StringStringMap) std::map<std::string, std::string>;
 
-%typemap(out) Idam::Data * {
-    if (Idam::Array * array = dynamic_cast<Idam::Array*>($1)) {
-        $result = SWIG_NewPointerObj(SWIG_as_voidptr(array), SWIGTYPE_p_Idam__Array, 0);
-    } else if (Idam::String * string = dynamic_cast<Idam::String*>($1)) {
-        $result = SWIG_NewPointerObj(SWIG_as_voidptr(string), SWIGTYPE_p_Idam__String, 0);
-    } else if (Idam::Scalar * scalar = dynamic_cast<Idam::Scalar*>($1)) {
-        $result = SWIG_NewPointerObj(SWIG_as_voidptr(scalar), SWIGTYPE_p_Idam__Scalar, 0);
+%typemap(out) uda::Data * {
+    if (uda::Array * array = dynamic_cast<uda::Array*>($1)) {
+        $result = SWIG_NewPointerObj(SWIG_as_voidptr(array), SWIGTYPE_p_uda__Array, 0);
+    } else if (uda::String * string = dynamic_cast<uda::String*>($1)) {
+        $result = SWIG_NewPointerObj(SWIG_as_voidptr(string), SWIGTYPE_p_uda__String, 0);
+    } else if (uda::Scalar * scalar = dynamic_cast<uda::Scalar*>($1)) {
+        $result = SWIG_NewPointerObj(SWIG_as_voidptr(scalar), SWIGTYPE_p_uda__Scalar, 0);
     }
 }
 
 %include "client.hpp"
 
-%extend Idam::IdamException {
+%extend uda::UDAException {
     char * __str__() {
         return const_cast<char *>(self->what());
     }
@@ -91,50 +91,50 @@
 %include "string.hpp"
 %include "result.hpp"
 
-%template(fdata) Idam::Array::as<float>;
-%template(ddata) Idam::Array::as<double>;
-%template(cdata) Idam::Array::as<char>;
-%template(ucdata) Idam::Array::as<unsigned char>;
-%template(sdata) Idam::Array::as<short>;
-%template(usdata) Idam::Array::as<unsigned short>;
-%template(idata) Idam::Array::as<int>;
-%template(uidata) Idam::Array::as<unsigned int>;
-%template(ldata) Idam::Array::as<long>;
-%template(uldata) Idam::Array::as<unsigned long>;
-%template(string) Idam::Array::as<char *>;
+%template(fdata) uda::Array::as<float>;
+%template(ddata) uda::Array::as<double>;
+%template(cdata) uda::Array::as<char>;
+%template(ucdata) uda::Array::as<unsigned char>;
+%template(sdata) uda::Array::as<short>;
+%template(usdata) uda::Array::as<unsigned short>;
+%template(idata) uda::Array::as<int>;
+%template(uidata) uda::Array::as<unsigned int>;
+%template(ldata) uda::Array::as<long>;
+%template(uldata) uda::Array::as<unsigned long>;
+%template(string) uda::Array::as<char *>;
 
-%template(fdata) Idam::Vector::as<float>;
-%template(ddata) Idam::Vector::as<double>;
-%template(cdata) Idam::Vector::as<char>;
-%template(ucdata) Idam::Vector::as<unsigned char>;
-%template(sdata) Idam::Vector::as<short>;
-%template(usdata) Idam::Vector::as<unsigned short>;
-%template(idata) Idam::Vector::as<int>;
-%template(uidata) Idam::Vector::as<unsigned int>;
-%template(ldata) Idam::Vector::as<long>;
-%template(uldata) Idam::Vector::as<unsigned long>;
-%template(string) Idam::Vector::as<char *>;
+%template(fdata) uda::Vector::as<float>;
+%template(ddata) uda::Vector::as<double>;
+%template(cdata) uda::Vector::as<char>;
+%template(ucdata) uda::Vector::as<unsigned char>;
+%template(sdata) uda::Vector::as<short>;
+%template(usdata) uda::Vector::as<unsigned short>;
+%template(idata) uda::Vector::as<int>;
+%template(uidata) uda::Vector::as<unsigned int>;
+%template(ldata) uda::Vector::as<long>;
+%template(uldata) uda::Vector::as<unsigned long>;
+%template(string) uda::Vector::as<char *>;
 
-%template(fdata) Idam::Scalar::as<float>;
-%template(ddata) Idam::Scalar::as<double>;
-%template(cdata) Idam::Scalar::as<char>;
-%template(ucdata) Idam::Scalar::as<unsigned char>;
-%template(sdata) Idam::Scalar::as<short>;
-%template(usdata) Idam::Scalar::as<unsigned short>;
-%template(idata) Idam::Scalar::as<int>;
-%template(uidata) Idam::Scalar::as<unsigned int>;
-%template(ldata) Idam::Scalar::as<long>;
-%template(uldata) Idam::Scalar::as<unsigned long>;
-%template(string) Idam::Scalar::as<char *>;
+%template(fdata) uda::Scalar::as<float>;
+%template(ddata) uda::Scalar::as<double>;
+%template(cdata) uda::Scalar::as<char>;
+%template(ucdata) uda::Scalar::as<unsigned char>;
+%template(sdata) uda::Scalar::as<short>;
+%template(usdata) uda::Scalar::as<unsigned short>;
+%template(idata) uda::Scalar::as<int>;
+%template(uidata) uda::Scalar::as<unsigned int>;
+%template(ldata) uda::Scalar::as<long>;
+%template(uldata) uda::Scalar::as<unsigned long>;
+%template(string) uda::Scalar::as<char *>;
 
-%template(fdata) Idam::StructData::as<float>;
-%template(ddata) Idam::StructData::as<double>;
-%template(cdata) Idam::StructData::as<char>;
-%template(ucdata) Idam::StructData::as<unsigned char>;
-%template(sdata) Idam::StructData::as<short>;
-%template(usdata) Idam::StructData::as<unsigned short>;
-%template(idata) Idam::StructData::as<int>;
-%template(uidata) Idam::StructData::as<unsigned int>;
-%template(ldata) Idam::StructData::as<long>;
-%template(uldata) Idam::StructData::as<unsigned long>;
-%template(string) Idam::StructData::as<char *>;
+%template(fdata) uda::StructData::as<float>;
+%template(ddata) uda::StructData::as<double>;
+%template(cdata) uda::StructData::as<char>;
+%template(ucdata) uda::StructData::as<unsigned char>;
+%template(sdata) uda::StructData::as<short>;
+%template(usdata) uda::StructData::as<unsigned short>;
+%template(idata) uda::StructData::as<int>;
+%template(uidata) uda::StructData::as<unsigned int>;
+%template(ldata) uda::StructData::as<long>;
+%template(uldata) uda::StructData::as<unsigned long>;
+%template(string) uda::StructData::as<char *>;

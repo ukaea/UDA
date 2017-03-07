@@ -52,13 +52,13 @@ static const std::type_info* idamTypeToTypeID(int type)
     }
 }
 
-const std::string Idam::Result::error() const
+const std::string uda::Result::error() const
 {
     char* error = getIdamErrorMsg(handle_);
     return error == NULL ? "" : error;
 }
 
-int Idam::Result::errorCode() const
+int uda::Result::errorCode() const
 {
     return getIdamErrorCode(handle_);
 }
@@ -72,7 +72,7 @@ std::string to_string(int num)
 }
 }
 
-Idam::Result::Result(int handle)
+uda::Result::Result(int handle)
         : handle_(handle), label_(handle >= 0 ? getIdamDataLabel(handle) : ""),
           units_(handle >= 0 ? getIdamDataUnits(handle) : ""),
           desc_(handle >= 0 ? getIdamDataDesc(handle) : ""),
@@ -93,22 +93,22 @@ Idam::Result::Result(int handle)
     istree_ = (setIdamDataTree(handle) != 0);
 }
 
-Idam::Result::~Result()
+uda::Result::~Result()
 {
     idamFree(handle_);
 }
 
 template<typename T>
-static Idam::Dim getDim(int handle, Idam::dim_type num)
+static uda::Dim getDim(int handle, uda::dim_type num)
 {
     std::string label = getIdamDimLabel(handle, num);
     std::string units = getIdamDimUnits(handle, num);
     int size = getIdamDimNum(handle, num);
     T* data = reinterpret_cast<T*>(getIdamDimData(handle, num));
-    return Idam::Dim(num, data, size, label, units);
+    return uda::Dim(num, data, size, label, units);
 }
 
-Idam::Dim Idam::Result::dim(Idam::dim_type num) const
+uda::Dim uda::Result::dim(uda::dim_type num) const
 {
     int type = getIdamDimType(handle_, num);
 
@@ -145,25 +145,25 @@ Idam::Dim Idam::Result::dim(Idam::dim_type num) const
 }
 
 template<typename T>
-Idam::Data* getDataAs(int handle, std::vector<Idam::Dim>& dims)
+uda::Data* getDataAs(int handle, std::vector<uda::Dim>& dims)
 {
     T* data = reinterpret_cast<T*>(getIdamData(handle));
 
     if (getIdamRank(handle) == 0) {
-        return new Idam::Scalar(data[0]);
+        return new uda::Scalar(data[0]);
     } else {
-        return new Idam::Array(data, dims);
+        return new uda::Array(data, dims);
     }
 }
 
-Idam::String* getDataAsString(int handle)
+uda::String* getDataAsString(int handle)
 {
     char* data = getIdamData(handle);
 
-    return new Idam::String(data);
+    return new uda::String(data);
 }
 
-Idam::Data* Idam::Result::data() const
+uda::Data* uda::Result::data() const
 {
     std::vector<Dim> dims;
     dim_type rank = static_cast<dim_type>(getIdamRank(handle_));
@@ -205,7 +205,7 @@ Idam::Data* Idam::Result::data() const
     }
 }
 
-Idam::TreeNode Idam::Result::tree() const
+uda::TreeNode uda::Result::tree() const
 {
     return TreeNode(getIdamDataTree(handle_));
 }

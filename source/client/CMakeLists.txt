@@ -21,14 +21,11 @@ set( SRC_FILES
   accAPI.c
   startup.c
   closedown.c
-  createConnection.c
-  createClientXDRStream.c
+  connection.c
+  clientXDRStream.c
   updateSelectParms.c
-  writeout.c
-  readin.c
   getEnvironment.c
   generateErrors.c
-  closeClientSockets.c
   makeClientRequestBlock.c
   udaPutAPI.c
   udaClient.c

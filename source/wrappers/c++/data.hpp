@@ -8,7 +8,7 @@
 #include <typeinfo>
 #include <cstddef>
 
-namespace Idam {
+namespace uda {
 
 class Data
 {

@@ -179,36 +179,36 @@ typedef struct SecurityBlock {
 
 typedef struct ClientBlock {
     int version;
-    int pid;                      // Client Application process id
-    char uid[STRING_LENGTH];       // Who the Client is (claim of identity to the first server)
+    int pid;                        // Client Application process id
+    char uid[STRING_LENGTH];        // Who the Client is (claim of identity to the first server)
 
     // Server properties set by the client
 
-    int timeout;                  // Server Shutdown after this time (minutes) if no data request
-    int compressDim;              // Enable Compression of the Dimensional Data?
+    int timeout;                    // Server Shutdown after this time (minutes) if no data request
+    int compressDim;                // Enable Compression of the Dimensional Data?
 
-    unsigned int clientFlags;     // client defined properties passed via bit flags
-    int altRank;                  // Specify the rank of the alternative signal/source to be used
+    unsigned int clientFlags;       // client defined properties passed via bit flags
+    int altRank;                    // Specify the rank of the alternative signal/source to be used
 
-    int get_nodimdata;            // Don't send Dimensional Data: Send an index only.
-    int get_timedble;             // Return Time Dimension Data in Double Precision if originally compressed
-    int get_dimdble;              // Return all Dimensional Data in Double Precision
-    int get_datadble;             // Return Data in Double Precision
+    int get_nodimdata;              // Don't send Dimensional Data: Send an index only.
+    int get_timedble;               // Return Time Dimension Data in Double Precision if originally compressed
+    int get_dimdble;                // Return all Dimensional Data in Double Precision
+    int get_datadble;               // Return Data in Double Precision
 
-    int get_bad;                  // Return Only Data with Bad Status value
-    int get_meta;                 // Return Meta Data associated with Signal
-    int get_asis;                 // Return data as Stored in data Archive
-    int get_uncal;                // Disable Calibration Correction
-    int get_notoff;               // Disable Timing Offset Correction
-    int get_scalar;               // Reduce rank from 1 to 0 (Scalar) if dimensional data are all zero
-    int get_bytes;                // Return Data as Bytes or Integers without applying the signal's ADC Calibration Data
+    int get_bad;                    // Return Only Data with Bad Status value
+    int get_meta;                   // Return Meta Data associated with Signal
+    int get_asis;                   // Return data as Stored in data Archive
+    int get_uncal;                  // Disable Calibration Correction
+    int get_notoff;                 // Disable Timing Offset Correction
+    int get_scalar;                 // Reduce rank from 1 to 0 (Scalar) if dimensional data are all zero
+    int get_bytes;                  // Return Data as Bytes or Integers without applying the signal's ADC Calibration Data
 
     unsigned int privateFlags;      // set of private flags used to communicate server to server
 
-    char OSName[STRING_LENGTH];    // Name of the Client side Operating System, e.g. OSX
-    char DOI[STRING_LENGTH];       // User's research DOI - to be logged with all data access requests
+    char OSName[STRING_LENGTH];     // Name of the Client side Operating System, e.g. OSX
+    char DOI[STRING_LENGTH];        // User's research DOI - to be logged with all data access requests
 
-    char uid2[STRING_LENGTH];      // Who the Client is (claim of identity to the last server)
+    char uid2[STRING_LENGTH];       // Who the Client is (claim of identity to the last server)
     SECURITY_BLOCK securityBlock;   // Contains encrypted tokens exchanged between client and server for mutual authentication
 
 } CLIENT_BLOCK;
@@ -223,17 +223,17 @@ typedef struct DataBlock {
     int data_type;
 
     int error_type;
-    int error_model;             // Identify the Error Model
-    int errasymmetry;            // Flags whether or not error data are asymmetrical
-    int error_param_n;           // the Number of Model Parameters
+    int error_model;                // Identify the Error Model
+    int errasymmetry;               // Flags whether or not error data are asymmetrical
+    int error_param_n;              // the Number of Model Parameters
 
     int data_n;
     char* data;
-    char* synthetic;              // Synthetic Data Array used in Client Side Error/Monte-Carlo Modelling
+    char* synthetic;                // Synthetic Data Array used in Client Side Error/Monte-Carlo Modelling
 
-    char* errhi;                  // Error Array (Errors above the line: data + error)
-    char* errlo;                  // Error Array (Errors below the line: data - error)
-    float errparams[MAXERRPARAMS]; // the array of model parameters
+    char* errhi;                    // Error Array (Errors above the line: data + error)
+    char* errlo;                    // Error Array (Errors below the line: data - error)
+    float errparams[MAXERRPARAMS];  // the array of model parameters
 
     char data_units[STRING_LENGTH];
     char data_label[STRING_LENGTH];
@@ -248,17 +248,17 @@ typedef struct DataBlock {
     SIGNAL* signal_rec;
     SIGNAL_DESC* signal_desc;
 
-    CLIENT_BLOCK client_block;     // Used to pass properties into data reader plugins
+    CLIENT_BLOCK client_block;      // Used to pass properties into data reader plugins
 
-    int opaque_type;              // Identifies the Data Structure Type;
-    int opaque_count;             // Number of Instances of the Data Structure;
-    void* opaque_block;            // Opaque pointer to Hierarchical Data Structures
+    int opaque_type;                // Identifies the Data Structure Type;
+    int opaque_count;               // Number of Instances of the Data Structure;
+    void* opaque_block;             // Opaque pointer to Hierarchical Data Structures
     unsigned int totalDataBlockSize;// The amount of data within this structure.
     unsigned int cachePermission;   // Permission for the Client to cache this structure.
 } DATA_BLOCK;
 
 typedef struct DataObject {
-    unsigned short objectType;  // File or regular object
+    unsigned short objectType;      // File or regular object
     unsigned int objectSize;
     unsigned short hashType;
     unsigned short hashLength;
@@ -271,18 +271,18 @@ typedef struct PutDataBlock {
     unsigned int rank;
     unsigned int count;
     int* shape;
-    char* data;
-    int opaque_type;              // Identifies the Data Structure Type;
-    int opaque_count;             // Number of Instances of the Data Structure;
-    void* opaque_block;            // Opaque pointer to Hierarchical Data Structures
+    const char* data;
+    int opaque_type;                // Identifies the Data Structure Type;
+    int opaque_count;               // Number of Instances of the Data Structure;
+    void* opaque_block;             // Opaque pointer to Hierarchical Data Structures
     unsigned int blockNameLength;   // Size of the Name character string
-    char* blockName;         // Name of the Data Block
+    const char* blockName;          // Name of the Data Block
 } PUTDATA_BLOCK;
 
 typedef struct PutDataBlockList {
     unsigned int blockCount;        // Number of data blocks
     unsigned int blockListSize;     // Number of data blocks allocated
-    PUTDATA_BLOCK* putDataBlock;   // Array of data blocks
+    PUTDATA_BLOCK* putDataBlock;    // Array of data blocks
 } PUTDATA_BLOCK_LIST;
 
 typedef struct IdamError {
@@ -293,15 +293,15 @@ typedef struct IdamError {
 } IDAMERROR;
 
 typedef struct IdamErrorStack {
-    unsigned int nerrors;       // Number of Errors
-    IDAMERROR* idamerror;    // Array of Errors
+    unsigned int nerrors;           // Number of Errors
+    IDAMERROR* idamerror;           // Array of Errors
 } IDAMERRORSTACK;
 
 typedef struct ServerBlock {
     int version;
     int error;
     char msg[STRING_LENGTH];
-    int pid;                      // Server Application process id
+    int pid;                        // Server Application process id
     IDAMERRORSTACK idamerrorstack;
     char OSName[STRING_LENGTH];     // Name of the Server's Operating System, e.g. OSX
     char DOI[STRING_LENGTH];        // Server version/implementation DOI - to be logged with all data consumers
