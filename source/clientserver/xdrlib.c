@@ -417,7 +417,7 @@ bool_t xdr_putdata_block2(XDR* xdrs, PUTDATA_BLOCK* str)
                                      (xdrproc_t)xdr_u_long));
 #ifndef __APPLE__
         case TYPE_UNSIGNED_LONG64 :
-            return (rc && xdr_vector(xdrs, str->data, (int) str->count, sizeof(unsigned long long int),
+            return (rc && xdr_vector(xdrs, (char*)str->data, (int) str->count, sizeof(unsigned long long int),
                                      (xdrproc_t) xdr_uint64_t));
 #endif
 // Strings are passed as a regular array of CHARs

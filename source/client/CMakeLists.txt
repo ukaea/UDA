@@ -60,7 +60,7 @@ set( FATCLIENT_SRCS
   $<TARGET_OBJECTS:serverlogging>
   $<TARGET_OBJECTS:structures-server>
   $<TARGET_OBJECTS:security>
-  $<TARGET_OBJECTS:modules>
+  $<TARGET_OBJECTS:fatmodules-objects>
   $<TARGET_OBJECTS:cache>
   $<TARGET_OBJECTS:serverlogging>
   )

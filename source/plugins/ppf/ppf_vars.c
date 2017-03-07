@@ -5,6 +5,7 @@
 
 #include <clientserver/initStructs.h>
 #include <clientserver/udaTypes.h>
+#include <clientserver/stringUtils.h>
 
 #include "ppf.h"
 

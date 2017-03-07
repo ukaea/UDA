@@ -704,9 +704,9 @@ PUTDATA_BLOCK toPutData(IDL_VPTR data) {
             putdata.shape[i] = (int) data->value.arr->dim[i];
         }
     } else {
-        size_t sz = (size_t) idamSizeOf(idamType(data->type));
+        size_t sz = (size_t) getSizeOf(idamType(data->type));
         putdata.data = malloc(sz);
-        memcpy(putdata.data, &data->value, sz);
+        memcpy((char*)putdata.data, &data->value, sz);
         putdata.count = 1;
         putdata.data_type = idamType(data->type);
         putdata.rank = 0;
