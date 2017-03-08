@@ -30,6 +30,17 @@
 
 #define UDA_MAXKEY 4096
 
+enum AuthenticationStep {
+    CLIENT_ISSUE_TOKEN = 1,
+    SERVER_DECRYPT_CLIENT_TOKEN = 2,
+    SERVER_ENCRYPT_CLIENT_TOKEN = 3,
+    SERVER_ISSUE_TOKEN = 4,
+    CLIENT_DECRYPT_SERVER_TOKEN = 5,
+    CLIENT_ENCRYPT_SERVER_TOKEN = 6,
+    SERVER_VERIFY_TOKEN = 7,
+    HOUSEKEEPING = 9,
+};
+
 int makeX509CertObject(unsigned char* doc, unsigned short docLength, ksba_cert_t* cert);
 int testX509Dates(ksba_cert_t certificate);
 int extractX509SExpKey(ksba_cert_t cert, gcry_sexp_t* key_sexp);
@@ -41,9 +52,8 @@ int udaAuthentication(unsigned short authenticationStep, unsigned short encrypti
                       unsigned short tokenType, unsigned short tokenByteLength,
                       gcry_sexp_t publickey, gcry_sexp_t privatekey,
                       gcry_mpi_t* client_mpiToken, gcry_mpi_t* server_mpiToken,
-                      unsigned char** client_ciphertext, unsigned short* client_ciphertextLength,
-                      unsigned char** server_ciphertext, unsigned short* server_ciphertextLength);
-void initSecurityBlock(SECURITY_BLOCK* str);
+                      unsigned char** client_ciphertext, size_t* client_ciphertextLength,
+                      unsigned char** server_ciphertext, size_t* server_ciphertextLength);
 
 int importSecurityDoc(const char* file, unsigned char** contents, unsigned short* length);
 int importPEMPublicKey(char* keyFile, gcry_sexp_t* key_sexp);

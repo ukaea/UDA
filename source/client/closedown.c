@@ -27,14 +27,15 @@ int idamClosedown(int type)
     int rc = 0;
 
     IDAM_LOGF(LOG_DEBUG, "IdamAPI: idamCloseDown called (%d)\n", type);
-    if (type == 1)
+    if (type == CLOSE_ALL) {
         IDAM_LOG(LOG_DEBUG, "IdamAPI: Closing Log Files, Streams and Sockets\n");
-    else
+    } else {
         IDAM_LOG(LOG_DEBUG, "IdamAPI: Closing Streams and Sockets\n");
+    }
 
-    if (type == 1) {
+    if (type == CLOSE_ALL) {
         idamCloseLogging();
-        reopen_logs = 1;        // In case the User calls the IDAM API again!
+        reopen_logs = TRUE;        // In case the User calls the IDAM API again!
     }
 
 #ifndef FATCLIENT    // <========================== Client Server Code Only

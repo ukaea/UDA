@@ -13,8 +13,11 @@ set( SRC_FILES
   serverAuthentication.c
   clientAuthentication.c
   security.c
+  authenticationUtils.c
   )
 
 include_directories( ${CMAKE_SOURCE_DIR}/source ${GCRYPT_INCLUDE_DIRS} ${KSBA_INCLUDE_DIRS} )
+
+add_definitions( -DTESTIDAMSECURITY )
 
 add_library( security OBJECT ${SRC_FILES} )

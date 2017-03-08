@@ -13,7 +13,7 @@ typedef struct {
     unsigned int* compliance;
 } FileIds;
 
-FileIds fileIds;
+static FileIds fileIds;
 
 int get_complex_types(int fileid, int* ctype, int* dctype)
 {

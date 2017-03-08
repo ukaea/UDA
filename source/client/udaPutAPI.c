@@ -88,7 +88,6 @@ int idamPutListAPI(const char* putInstruction, PUTDATA_BLOCK_LIST* inPutDataBloc
         return -err;
     }
 
-    IDAM_LOG(LOG_DEBUG, "Routine: idamPutAPI\n");
     printRequestBlock(request_block);
 
 //-------------------------------------------------------------------------
@@ -164,7 +163,6 @@ int idamPutAPI(const char* putInstruction, PUTDATA_BLOCK* inPutData)
         return -err;
     }
 
-    IDAM_LOG(LOG_DEBUG, "Routine: idamPutAPI\n");
     printRequestBlock(request_block);
 
 //-------------------------------------------------------------------------

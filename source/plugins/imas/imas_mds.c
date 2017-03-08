@@ -3691,7 +3691,7 @@ static int do_putObject(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARG
     void* newObj = imas_mds_putDataSliceInObject(obj, plugin_args.path, plugin_args.index, type,
                                                  putDataBlockList->putDataBlock[1].rank,
                                                  putDataBlockList->putDataBlock[1].shape,
-                                                 putDataBlockList->putDataBlock[1].data);
+                                                 (void*)putDataBlockList->putDataBlock[1].data);
 
     if (putDataBlockList->putDataBlock[1].rank == 1 && putDataBlockList->putDataBlock[1].shape == shape) {
         putDataBlockList->putDataBlock[1].shape = NULL;

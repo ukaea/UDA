@@ -51,15 +51,17 @@ endforeach()
 find_package( GCrypt )
 find_package( KSBA )
 
+add_definitions( -g -O0 )
+
 if( GCRYPT_FOUND AND KSBA_FOUND AND OPENSSL_FOUND AND LIBXML2_FOUND )
-add_executable( testSecurity testSecurity.c $<TARGET_OBJECTS:security> )
-target_link_libraries( testSecurity PRIVATE
-  ${GCRYPT_LIBRARIES}
-  ${KSBA_LIBRARIES}
-  fatclient-static
-  client-shared
-  ${OPENSSL_LIBRARIES}
-  ${LIBXML2_LIBRARIES} )
-link_modules( testSecurity )
-add_test( testSecurity testSecurity )
+  add_executable( testSecurity testSecurity.c $<TARGET_OBJECTS:security> )
+  target_link_libraries( testSecurity PRIVATE
+    ${GCRYPT_LIBRARIES}
+    ${KSBA_LIBRARIES}
+    #fatclient-static
+    client-shared
+    ${OPENSSL_LIBRARIES}
+    ${LIBXML2_LIBRARIES} )
+  #link_modules( testSecurity )
+  add_test( testSecurity testSecurity )
 endif()

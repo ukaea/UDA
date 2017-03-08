@@ -313,7 +313,7 @@ int idamClient(REQUEST_BLOCK* request_block)
             IDAM_LOGF(LOG_DEBUG, "idamClient: Server Age Limit Reached %ld\n", (long)age);
             IDAM_LOG(LOG_DEBUG, "idamClient: Server Closed and New Instance Started\n");
 
-            idamClosedown(0);  // Close the Existing Socket and XDR Stream: Reopening will Instance a New Server
+            idamClosedown(CLOSE_SOCKETS);  // Close the Existing Socket and XDR Stream: Reopening will Instance a New Server
         } else {
             if (connectionOpen()) {          // Assume the Server is Still Alive
                 if (clientOutput->x_ops == NULL || clientInput->x_ops == NULL) {
@@ -321,7 +321,7 @@ int idamClient(REQUEST_BLOCK* request_block)
 
                     IDAM_LOG(LOG_DEBUG, "idamClient: XDR Streams are Closed!\n");
 
-                    idamClosedown(0);
+                    idamClosedown(CLOSE_SOCKETS);
                     initServer = 1;
                 } else {
                     initServer = 0;
@@ -363,14 +363,7 @@ int idamClient(REQUEST_BLOCK* request_block)
         // Initialise the Client/Server Structures
 
         if (initServer && system_startup) {
-            char* uid = NULL;
-
-            if ((uid = getlogin()) != NULL) {  // Very Slow!! ... so do once only
-                strcpy(clientUsername, uid);
-            } else {
-                userid(clientUsername);    // Use an even Slower method!
-            }
-
+            userid(clientUsername);
             initClientBlock(&client_block, clientVersion, clientUsername);
             system_startup = 0;            // Don't call again!
         }
@@ -997,7 +990,7 @@ int idamClient(REQUEST_BLOCK* request_block)
         IDAM_LOGF(LOG_DEBUG, "idamClient: Handle %d\n", data_block_idx);
 
         if (err != 0 && !serverside) {
-            idamClosedown(0);    // Close Socket & XDR Streams but Not Files
+            idamClosedown(CLOSE_SOCKETS);    // Close Socket & XDR Streams but Not Files
         }
 
         if (err == 0 && (getIdamDataStatus(data_block_idx)) == MIN_STATUS && !get_bad) {
@@ -1068,7 +1061,7 @@ int idamClient(REQUEST_BLOCK* request_block)
         IDAM_LOGF(LOG_DEBUG, "idamClient: Returning Error %d\n", err);
 
         if (err != 0 && !serverside) {
-            idamClosedown(0);
+            idamClosedown(CLOSE_SOCKETS);
         }
 
         concatIdamError(idamerrorstack, &server_block.idamerrorstack);
@@ -1076,7 +1069,7 @@ int idamClient(REQUEST_BLOCK* request_block)
         idamErrorLog(client_block, *request_block, server_block.idamerrorstack);
 
         if (err == 0) {
-            return (ERROR_CONDITION_UNKNOWN);
+            return ERROR_CONDITION_UNKNOWN;
         }
 
         return -abs(err);                       // Abnormal Exit
@@ -1430,7 +1423,7 @@ void idamFreeAll()
 
 #endif // <========================== End of Client Server Code Only
 
-    idamClosedown(1);        // Close the Socket, XDR Streams and All Files
+    idamClosedown(CLOSE_ALL);        // Close the Socket, XDR Streams and All Files
 
 }
 

@@ -10,6 +10,8 @@
 #include <security/serverAuthentication.h>
 #include <security/security.h>
 #include <clientserver/initStructs.h>
+#include <logging/logging.h>
+#include <security/authenticationUtils.h>
 
 IDAMERRORSTACK idamerrorstack;		// Local Error Stack
 
@@ -89,13 +91,21 @@ int main()
     SERVER_BLOCK server_block;
 
     int clientVersion = 7;
-    char* clientUsername = "dgm";
+    char* clientUsername = "jholloc";
+
+    idamSetLogFile(LOG_DEBUG, stdout);
+    idamSetLogFile(LOG_INFO, stdout);
+    idamSetLogFile(LOG_WARN, stdout);
+    idamSetLogFile(LOG_ERROR, stderr);
+    idamSetLogLevel(LOG_DEBUG);
 
     initClientBlock(&client_block, clientVersion, clientUsername);
     initServerBlock(&server_block, 0);
 
     initSecurityBlock(&client_block.securityBlock);
     initSecurityBlock(&server_block.securityBlock);
+
+    initIdamErrorStack(&idamerrorstack);
 
     do {        // Start of Error Trap
 
@@ -104,7 +114,7 @@ int main()
 // generate token A and encrypt with the server public key
 // Send: client certificate, encrypted token A      
 
-        unsigned short authenticationStep = 1;   // Client Authentication
+        unsigned short authenticationStep = CLIENT_ISSUE_TOKEN;   // Client Authentication
 
         if ((err = clientAuthentication(&client_block, &server_block, authenticationStep)) != 0) {
             addIdamError(&idamerrorstack, CODEERRORTYPE, "idamClient", err,
@@ -125,7 +135,7 @@ int main()
 // Generate new token B (fixed or nonce) and encrypt with the client's public key
 // Send encrypted tokens A, B					=> mutual proof each has valid private keys to match public keys
 
-        authenticationStep = 2;
+        authenticationStep = SERVER_DECRYPT_CLIENT_TOKEN;
 
         if ((err = serverAuthentication(&client_block, &server_block, authenticationStep)) != 0) {
             addIdamError(&idamerrorstack, CODEERRORTYPE, "idamServer", err,
@@ -133,7 +143,7 @@ int main()
             break;
         }
 
-        authenticationStep = 3;
+        authenticationStep = SERVER_ENCRYPT_CLIENT_TOKEN;
 
         if ((err = serverAuthentication(&client_block, &server_block, authenticationStep)) != 0) {
             addIdamError(&idamerrorstack, CODEERRORTYPE, "idamServer", err,
@@ -141,7 +151,7 @@ int main()
             break;
         }
 
-        authenticationStep = 4;
+        authenticationStep = SERVER_ISSUE_TOKEN;
 
         if ((err = serverAuthentication(&client_block, &server_block, authenticationStep)) != 0) {
             addIdamError(&idamerrorstack, CODEERRORTYPE, "idamServer", err,
@@ -154,7 +164,7 @@ int main()
 // Decrypt tokens A, B
 // Test token A is identical to that sent in step 1		=> proof server has a valid private key
 
-        authenticationStep = 5;    // Server Authentication Completed
+        authenticationStep = CLIENT_DECRYPT_SERVER_TOKEN;    // Server Authentication Completed
 
         if ((err = clientAuthentication(&client_block, &server_block, authenticationStep)) != 0) {
             addIdamError(&idamerrorstack, CODEERRORTYPE, "idamClient", err,
@@ -168,7 +178,7 @@ int main()
 // Client step:
 // Encrypt token B with the server public key
 
-        authenticationStep = 6;    // Client Authentication Completed
+        authenticationStep = CLIENT_ENCRYPT_SERVER_TOKEN;    // Client Authentication Completed
 
         if ((err = clientAuthentication(&client_block, &server_block, authenticationStep)) != 0) {
             addIdamError(&idamerrorstack, CODEERRORTYPE, "idamClient", err,
@@ -182,7 +192,7 @@ int main()
 // Test token B is identical to that sent in step 4		=> maintain mutual authentication
 // Generate a new nonce token B and encrypt with the client public key
 
-        authenticationStep = 7;
+        authenticationStep = SERVER_VERIFY_TOKEN;
 
         if ((err = serverAuthentication(&client_block, &server_block, authenticationStep)) != 0) {
             addIdamError(&idamerrorstack, CODEERRORTYPE, "idamServer", err,
@@ -195,21 +205,23 @@ int main()
 // Decrypt token B with the clients's private key
 // Encrypt with the server's public key
 
-        authenticationStep = 8;            // Paired with Server step #7
-
-        if ((err = clientAuthentication(&client_block, &server_block, authenticationStep)) != 0) {
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "idamClient", err,
-                         "Client or Server Authentication Failed #8");
-            break;
-        }
+//        authenticationStep = 8;            // Paired with Server step #7
+//
+//        if ((err = clientAuthentication(&client_block, &server_block, authenticationStep)) != 0) {
+//            addIdamError(&idamerrorstack, CODEERRORTYPE, "idamClient", err,
+//                         "Client or Server Authentication Failed #8");
+//            break;
+//        }
 
         fprintf(stdout, "\n\n****  Mutual Authentication completed  ****\n\n");
 
-        if (client_block.securityBlock.server_ciphertext != NULL)free(client_block.securityBlock.server_ciphertext);
-        client_block.securityBlock.server_ciphertextLength = 0;
-        client_block.securityBlock.server_ciphertext = NULL;
+//        if (client_block.securityBlock.server_ciphertext != NULL)free(client_block.securityBlock.server_ciphertext);
+//        client_block.securityBlock.server_ciphertextLength = 0;
+//        client_block.securityBlock.server_ciphertext = NULL;
 
     } while (0);        // End of Error trap
+
+    printIdamErrorStack(idamerrorstack);
 
     return 0;
 }
