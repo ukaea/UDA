@@ -16,11 +16,11 @@ include_directories(
 # Targets
 
 if( NOT CLIENT_ONLY )
-  add_library( structures-server OBJECT ${SRC_FILES} )
-  target_compile_definitions( structures-server PRIVATE -DSERVERBUILD )
+  add_library( structures-server-objects OBJECT ${SRC_FILES} )
+  target_compile_definitions( structures-server-objects PRIVATE -DSERVERBUILD )
 endif()
 
-add_library( structures-client OBJECT ${SRC_FILES} )
+add_library( structures-client-objects OBJECT ${SRC_FILES} )
 
 file( GLOB HEADER_FILES "*.h" )
 

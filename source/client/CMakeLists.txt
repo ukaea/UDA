@@ -45,32 +45,31 @@ if( NOT CLIENT_ONLY )
   target_include_directories( fatclient-objects PRIVATE ${PostgreSQL_INCLUDE_DIRS} )
 endif()
 
-set( CLIENT_SRCS
+set( CLIENT_OBJS
   $<TARGET_OBJECTS:client-objects>
   $<TARGET_OBJECTS:clientserver-client-objects>
-  $<TARGET_OBJECTS:cache>
-  $<TARGET_OBJECTS:logging>
-  $<TARGET_OBJECTS:structures-client>
-  )
+  $<TARGET_OBJECTS:cache-objects>
+  $<TARGET_OBJECTS:logging-client-objects>
+  $<TARGET_OBJECTS:structures-client-objects>
+)
 
-set( FATCLIENT_SRCS
+set( FATCLIENT_OBJS
   $<TARGET_OBJECTS:fatclient-objects>
   $<TARGET_OBJECTS:fatserver-objects>
   $<TARGET_OBJECTS:fatclientserver-objects>
-  $<TARGET_OBJECTS:serverlogging>
-  $<TARGET_OBJECTS:structures-server>
-  $<TARGET_OBJECTS:security>
+  $<TARGET_OBJECTS:structures-server-objects>
+  $<TARGET_OBJECTS:security-objects>
   $<TARGET_OBJECTS:fatmodules-objects>
-  $<TARGET_OBJECTS:cache>
-  $<TARGET_OBJECTS:serverlogging>
-  )
+  $<TARGET_OBJECTS:cache-objects>
+  $<TARGET_OBJECTS:logging-server-objects>
+)
 
-add_library( client-shared SHARED ${CLIENT_SRCS} )
-add_library( client-static STATIC ${CLIENT_SRCS} )
+add_library( client-shared SHARED ${CLIENT_OBJS} )
+add_library( client-static STATIC ${CLIENT_OBJS} )
 
 if( NOT CLIENT_ONLY )
-  add_library( fatclient-shared SHARED ${FATCLIENT_SRCS} )
-  add_library( fatclient-static STATIC ${FATCLIENT_SRCS} )
+  add_library( fatclient-shared SHARED ${FATCLIENT_OBJS} )
+  add_library( fatclient-static STATIC ${FATCLIENT_OBJS} )
 endif()
 
 set_target_properties( client-shared

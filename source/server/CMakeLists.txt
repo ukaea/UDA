@@ -66,23 +66,17 @@ add_library( fatserver-objects OBJECT
 
 target_compile_definitions( fatserver-objects PRIVATE -DFATCLIENT )
 
-add_library( server-shared SHARED
+set( SERVER_OBJ
   $<TARGET_OBJECTS:server-objects>
   $<TARGET_OBJECTS:clientserver-server-objects>
-  $<TARGET_OBJECTS:serverlogging>
-  $<TARGET_OBJECTS:structures-server>
-  $<TARGET_OBJECTS:security>
+  $<TARGET_OBJECTS:logging-server-objects>
+  $<TARGET_OBJECTS:structures-server-objects>
+  $<TARGET_OBJECTS:security-objects>
   $<TARGET_OBJECTS:modules-objects>
-  )
+)
 
-add_library( server-static STATIC
-  $<TARGET_OBJECTS:server-objects>
-  $<TARGET_OBJECTS:clientserver-server-objects>
-  $<TARGET_OBJECTS:serverlogging>
-  $<TARGET_OBJECTS:structures-server>
-  $<TARGET_OBJECTS:security>
-  $<TARGET_OBJECTS:modules-objects>
-  )
+add_library( server-shared SHARED ${SERVER_OBJ} )
+add_library( server-static STATIC ${SERVER_OBJ} )
 
 add_executable( server-exe serverMain.c )
 

@@ -22,7 +22,7 @@ else()
   add_definitions( -DNOLIBMEMCACHED )
 endif()
 
-add_library( cache OBJECT ${SRC_FILES} )
+add_library( cache-objects OBJECT ${SRC_FILES} )
 
 if( LIBMEMCACHED_FOUND )
   set( CACHE_LIBRARIES ${LIBMEMCACHED_LIBRARIES} PARENT_SCOPE )

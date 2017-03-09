@@ -1,24 +1,21 @@
 #include "serverAuthentication.h"
 
-#include <stdlib.h>
-#include <string.h>
-#include <gcrypt.h>
-#include <ksba.h>
-
 #include <server/udaServer.h>
-#include <clientserver/printStructs.h>
 #include <clientserver/errorLog.h>
-#include <clientserver/xdrlib.h>
-#include <clientserver/protocol.h>
-#include <clientserver/udaErrors.h>
 #include <logging/logging.h>
+#ifndef TESTIDAMSECURITY
+#  include <clientserver/udaErrors.h>
+#  include <clientserver/protocol.h>
+#  include <clientserver/xdrlib.h>
+#  include <clientserver/printStructs.h>
+#endif
 
-#include "security.h"
 #include "authenticationUtils.h"
+#include "x509Utils.h"
 
-static const unsigned short encryptionMethod = ASYMMETRICKEY;
+static const ENCRYPTION_METHOD encryptionMethod = ASYMMETRICKEY;
 static const unsigned short tokenByteLength = NONCEBYTELENGTH;        // System problem when >~ 110 !
-static const unsigned short tokenType = NONCESTRONGRANDOM; // NONCESTRONGRANDOM NONCESTRINGRANDOM NONCEWEAKRANDOM NONCETEST //
+static const TOKEN_TYPE tokenType = NONCESTRONGRANDOM; // NONCESTRONGRANDOM NONCESTRINGRANDOM NONCEWEAKRANDOM NONCETEST //
 
 /**
  * Read the Server's Private Key (from a PEM file) and the User's Public Key (from the passed x509 cert)
@@ -155,16 +152,15 @@ static SECURITY_BLOCK* receiveSecurityBlock(CLIENT_BLOCK* client_block)
     IDAM_LOG(LOG_DEBUG, "Waiting for Initial Client Block\n");
 
 #ifndef TESTIDAMSECURITY
-    if (!(rc = xdrrec_skiprecord(serverInput))) {
-        err = PROTOCOL_ERROR_5;
+    if (!xdrrec_skiprecord(serverInput)) {
         IDAM_LOG(LOG_DEBUG, "xdrrec_skiprecord error!\n");
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "idamServer", err, "Protocol 5 Error (Client Block #2)");
+        addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, PROTOCOL_ERROR_5, "Protocol 5 Error (Client Block #2)");
     } else {
+        int protocol_id = PROTOCOL_CLIENT_BLOCK;        // Recieve Client Block
 
-        protocol_id = PROTOCOL_CLIENT_BLOCK;        // Recieve Client Block
-
+        int err = 0;
         if ((err = protocol2(serverInput, protocol_id, XDR_RECEIVE, NULL, client_block)) != 0) {
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "idamServer", err, "Protocol 10 Error (Client Block #2)");
+            addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, err, "Protocol 10 Error (Client Block #2)");
             IDAM_LOG(LOG_DEBUG, "protocol error! Client Block not received!\n");
         }
 
@@ -173,8 +169,6 @@ static SECURITY_BLOCK* receiveSecurityBlock(CLIENT_BLOCK* client_block)
             printClientBlock(*client_block);
         }
     }
-
-    if (err != 0) return err;
 
 // Flush (mark as at EOF) the input socket buffer (not all client state data may have been read - version dependent)
 
@@ -296,28 +290,18 @@ static int issueToken(SERVER_BLOCK* server_block, gcry_sexp_t publickey, gcry_se
 
     securityBlock->authenticationStep = SERVER_ISSUE_TOKEN;
     securityBlock->server_ciphertext = server_ciphertext;
-    securityBlock->server_ciphertextLength = server_ciphertextLength;
+    securityBlock->server_ciphertextLength = (unsigned short)server_ciphertextLength;
 
 #ifndef TESTIDAMSECURITY
-    protocol_id = PROTOCOL_SERVER_BLOCK;
+    int protocol_id = PROTOCOL_SERVER_BLOCK;
 
     if ((err = protocol2(serverOutput, protocol_id, XDR_SEND, NULL, server_block)) != 0) {
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "idamServerAuthentication", err,
-                     "Protocol 10 Error (securityBlock #4)");
-        break;
+        addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, err, "Protocol 10 Error (securityBlock #4)");
     }
 
-    if (!(rc = xdrrec_endofrecord(serverOutput, 1))) {
-        err = PROTOCOL_ERROR_7;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "idamServerAuthentication", err,
-                     "Protocol 7 Error (Server Block)");
-        break;
+    if (!xdrrec_endofrecord(serverOutput, 1)) {
+        addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, PROTOCOL_ERROR_7, "Protocol 7 Error (Server Block)");
     }
-
-    client_ciphertext = NULL;
-    client_ciphertextLength = 0;
-    server_ciphertext = NULL;
-    server_ciphertextLength = 0;
 #endif
 
     return err;
@@ -334,23 +318,18 @@ static int verifyToken(SERVER_BLOCK* server_block, CLIENT_BLOCK* client_block, g
     // Receive the encrypted token (B) from the client
 
 #ifndef TESTIDAMSECURITY
-    protocol_id = PROTOCOL_CLIENT_BLOCK;
+    int protocol_id = PROTOCOL_CLIENT_BLOCK;
 
-    if (!(rc = xdrrec_skiprecord(serverInput))) {
-        err = PROTOCOL_ERROR_5;
+    if (!xdrrec_skiprecord(serverInput)) {
         IDAM_LOG(LOG_DEBUG, "xdrrec_skiprecord error!\n");
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "idamServer", err, "Protocol 5 Error (Client Block #7)");
-        break;
+        THROW_ERROR(PROTOCOL_ERROR_5, "Protocol 5 Error (Client Block #7)");
     }
 
     if ((err = protocol2(serverInput, protocol_id, XDR_RECEIVE, NULL, client_block)) != 0) {
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "idamServerAuthentication", err,
-                     "Protocol 11 Error (securityBlock #7)");
-        break;
+        THROW_ERROR(err, "Protocol 11 Error (securityBlock #7)");
     }
 
     // Flush (mark as at EOF) the input socket buffer (not all client state data may have been read - version dependent)
-
     xdrrec_eof(serverInput);
 #endif
 
@@ -384,36 +363,26 @@ static int verifyToken(SERVER_BLOCK* server_block, CLIENT_BLOCK* client_block, g
 
     securityBlock->authenticationStep = SERVER_VERIFY_TOKEN;
     securityBlock->server_ciphertext = server_ciphertext;
-    securityBlock->server_ciphertextLength = server_ciphertextLength;
+    securityBlock->server_ciphertextLength = (unsigned short)server_ciphertextLength;
     securityBlock->client_ciphertext = client_ciphertext;
-    securityBlock->client_ciphertextLength = client_ciphertextLength;
+    securityBlock->client_ciphertextLength = (unsigned short)client_ciphertextLength;
 
 #ifndef TESTIDAMSECURITY
     protocol_id = PROTOCOL_SERVER_BLOCK;
 
     if ((err = protocol2(serverOutput, protocol_id, XDR_SEND, NULL, server_block)) != 0) {
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "idamServerAuthentication", err,
-                     "Protocol 10 Error (securityBlock #7)");
-        break;
+        THROW_ERROR(err, "Protocol 10 Error (securityBlock #7)");
     }
 
-    if (!(rc = xdrrec_endofrecord(serverOutput, 1))) {
-        err = PROTOCOL_ERROR_7;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "idamServerAuthentication", err,
-                     "Protocol 7 Error (Server Block #7)");
-        break;
+    if (!xdrrec_endofrecord(serverOutput, 1)) {
+        THROW_ERROR(PROTOCOL_ERROR_7, "Protocol 7 Error (Server Block #7)");
     }
-
-    client_ciphertext = NULL;
-    client_ciphertextLength = 0;
-    server_ciphertext = NULL;
-    server_ciphertextLength = 0;
 #endif
 
     return err;
 }
 
-int serverAuthentication(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block, unsigned short authenticationStep)
+int serverAuthentication(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block, AUTHENTICATION_STEP authenticationStep)
 {
     gcry_sexp_t privatekey = NULL;
     gcry_sexp_t publickey = NULL;

@@ -7,5 +7,5 @@ set( SRC_FILES
 
 include_directories( ${CMAKE_SOURCE_DIR}/source )
 
-add_library( logging OBJECT logging.c )
-add_library( serverlogging OBJECT ${SRC_FILES} )
+add_library( logging-client-objects OBJECT logging.c )
+add_library( logging-server-objects OBJECT ${SRC_FILES} )
