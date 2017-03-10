@@ -1,5 +1,5 @@
 import numpy as np
-from .c_uda import IdamException
+from .c_uda import UDAException
 
 
 def cdata_scalar_to_value(scalar):
@@ -32,7 +32,7 @@ def cdata_scalar_to_value(scalar):
     elif scalar.type() == 'string':
         return scalar.string()
     else:
-        raise IdamException("Unknown data type " + scalar.type())
+        raise UDAException("Unknown data type " + scalar.type())
 
 
 def cdata_vector_to_value(vector):
@@ -66,7 +66,7 @@ def cdata_vector_to_value(vector):
         vec = vector.string()
         return [vec[i] for i in range(len(vec))] # converting SWIG vector<char*> to list of strings
     else:
-        raise IdamException("Unknown data type " + vector.type())
+        raise UDAException("Unknown data type " + vector.type())
 
 
 def cdata_to_numpy_array(cdata):
@@ -93,4 +93,4 @@ def cdata_to_numpy_array(cdata):
     elif cdata.type() == 'string':
         return (''.join(cdata.cdata()))[:-1]
     else:
-        raise IdamException("Unknown data type " + cdata.type())
+        raise UDAException("Unknown data type " + cdata.type())

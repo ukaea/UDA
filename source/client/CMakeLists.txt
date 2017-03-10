@@ -58,7 +58,7 @@ set( FATCLIENT_OBJS
   $<TARGET_OBJECTS:fatserver-objects>
   $<TARGET_OBJECTS:fatclientserver-objects>
   $<TARGET_OBJECTS:structures-server-objects>
-  $<TARGET_OBJECTS:security-objects>
+#  $<TARGET_OBJECTS:security-objects>
   $<TARGET_OBJECTS:fatmodules-objects>
   $<TARGET_OBJECTS:cache-objects>
   $<TARGET_OBJECTS:logging-server-objects>

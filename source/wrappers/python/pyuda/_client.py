@@ -95,7 +95,7 @@ class Client(metaclass = ClientMeta):
 
             return filenames, geom_alias, signal_alias, var_name
 
-        except c_uda.IdamException:
+        except c_uda.UDAException:
             return None, None, None, None
 
     def _find_matching_group(self, signal_aliases):
@@ -151,7 +151,7 @@ class Client(metaclass = ClientMeta):
         try:
             self.logger.info("Call is {}".format(sig_call))
             sig_struct = StructuredWritable(self._cclient.get(str(sig_call), str(source_call)).tree())
-        except c_uda.IdamException:
+        except c_uda.UDAException:
             self.logger.error("Could not retrieve signal geometry data for signal {} and source {}".format(signal,
                                                                                                            source))
             return
@@ -247,7 +247,7 @@ class Client(metaclass = ClientMeta):
             try:                
                 print(config_call)
                 config_struct = StructuredWritable((self._cclient.get(str(config_call), str(source_call))).tree())
-            except c_uda.IdamException:
+            except c_uda.UDAException:
                 self.logger.error("ERROR: Could not retrieve geometry data for signal {0} and source {1}".format(signal,
                                                                                                          source))
                 return
@@ -259,7 +259,7 @@ class Client(metaclass = ClientMeta):
             try:
                 cal_struct = StructuredWritable((self._cclient.get(str(cal_call), str(source_call))).tree())
                 self.logger.debug("Calibration data was found")
-            except c_uda.IdamException:
+            except c_uda.UDAException:
                 cal_struct = None
                 self.logger.debug("No calibration data was found")
 
@@ -302,7 +302,7 @@ class Client(metaclass = ClientMeta):
                     else:
                         signal_data._add_struct(StructuredWritable((self._cclient.get(global_signal_group,
                                                                                       signal_file)).tree()))
-                except c_uda.IdamException:
+                except c_uda.UDAException:
                     self.logger.warning("Something went wrong retrieving signal data")
                     continue
 

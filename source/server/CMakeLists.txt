@@ -115,6 +115,8 @@ target_link_libraries( server-exe LINK_PRIVATE
   ${OPENSSL_LIBRARIES}
   )
 
+link_modules( server-exe )
+
 if( NOT APPLE )
   target_link_libraries( server-exe LINK_PRIVATE gcc_s )
 endif()
