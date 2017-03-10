@@ -17,7 +17,7 @@ include_directories(
 
 add_library( ${LIB_NAME} SHARED ${SRC_FILES} )
 
-target_link_libraries( ${LIB_NAME} LINK_PUBLIC
+target_link_libraries( ${LIB_NAME} LINK_PRIVATE
   ${IDC_LIB_NAME}
   ${IDL_LIBRARIES}
   ${LIBXML2_LIBRARIES} )

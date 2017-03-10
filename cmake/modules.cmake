@@ -52,32 +52,32 @@ macro( link_modules TARGET_NAME )
 
   find_package( IDA )
   if( IDA_FOUND )
-    target_link_libraries( ${TARGET_NAME} LINK_PUBLIC ${IDA_LIBRARIES} )
+    target_link_libraries( ${TARGET_NAME} LINK_PRIVATE ${IDA_LIBRARIES} )
   endif()
 
   find_package( PPF )
   if( PPF_FOUND )
-    target_link_libraries( ${TARGET_NAME} LINK_PUBLIC ${LIBPPF_LIBRARIES} )
+    target_link_libraries( ${TARGET_NAME} LINK_PRIVATE ${LIBPPF_LIBRARIES} )
   endif()
 
   find_package( HDF5 COMPONENTS C HL )
   if( HDF5_FOUND )
-    target_link_libraries( ${TARGET_NAME} LINK_PUBLIC ${HDF5_C_LIBRARIES} ${HDF5_HL_LIBRARIES} )
+    target_link_libraries( ${TARGET_NAME} LINK_PRIVATE ${HDF5_C_LIBRARIES} ${HDF5_HL_LIBRARIES} )
   endif()
 
   find_package( NetCDF )
   if( NETCDF_FOUND )
-    target_link_libraries( ${TARGET_NAME} LINK_PUBLIC ${NETCDF_LIBRARIES} )
+    target_link_libraries( ${TARGET_NAME} LINK_PRIVATE ${NETCDF_LIBRARIES} )
   endif()
 
   find_package( MDSplus )
   if( MDSplus_FOUND )
-    target_link_libraries( ${TARGET_NAME} LINK_PUBLIC ${MDSPLUS_LIBRARIES} )
+    target_link_libraries( ${TARGET_NAME} LINK_PRIVATE ${MDSPLUS_LIBRARIES} )
   endif()
 
   find_package( PostgreSQL )
   if( PostgreSQL_FOUND )
-    target_link_libraries( ${TARGET_NAME} LINK_PUBLIC ${PostgreSQL_LIBRARY} )
+    target_link_libraries( ${TARGET_NAME} LINK_PRIVATE ${PostgreSQL_LIBRARY} )
   endif()
 
 endmacro( link_modules )

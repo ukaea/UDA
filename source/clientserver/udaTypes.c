@@ -1,3 +1,4 @@
+#include <logging/logging.h>
 #include "udaTypes.h"
 
 #include "udaStructs.h"
@@ -29,6 +30,8 @@ size_t getSizeOf(int data_type)
             return sizeof(unsigned long);
         case TYPE_UNSIGNED_LONG64:
             return sizeof(unsigned long long);
+        case TYPE_STRING :
+            return sizeof(char);
         case TYPE_COMPLEX:
             return sizeof(COMPLEX);
         case TYPE_DCOMPLEX:

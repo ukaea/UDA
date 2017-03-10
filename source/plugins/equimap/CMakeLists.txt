@@ -29,6 +29,5 @@ uda_plugin(
     ${LIBXML2_LIBRARIES}
     m
     ${PostgreSQL_LIBRARY}
+    client-static
 )
-
-target_link_libraries( equimap_plugin LINK_PUBLIC client-static )

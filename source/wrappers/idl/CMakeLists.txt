@@ -34,7 +34,7 @@ else()
   message( WARNING "NetCDF4 or LibXml2 not found - IDL netcdf4 library not building" )
 endif()
 
-target_link_libraries( ${LIB_NAME} LINK_PUBLIC client-static ${IDL_LIBRARIES} )
+target_link_libraries( ${LIB_NAME} LINK_PRIVATE client-static ${IDL_LIBRARIES} )
 
 set_target_properties( ${LIB_NAME}
   PROPERTIES

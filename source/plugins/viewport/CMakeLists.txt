@@ -27,6 +27,5 @@ uda_plugin(
   EXTRA_LINK_LIBS
     ${LIBXML2_LIBRARIES}
     ${PostgreSQL_LIBRARY}
+    client-static
 )
-
-target_link_libraries( viewport_plugin LINK_PUBLIC client-static )

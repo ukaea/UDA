@@ -55,12 +55,12 @@ macro( uda_plugin )
     add_definitions( ${DEF} )
   endforeach()
 
-  target_link_libraries( ${PLUGIN_LIBNAME} LINK_PUBLIC dl server-shared client-shared )
+  target_link_libraries( ${PLUGIN_LIBNAME} LINK_PRIVATE dl server-shared client-shared )
   
   filter_lib_list( "${PLUGIN_EXTRA_LINK_LIBS}" FILTERED_LINK_LIBS debug optimized ) 
 
   foreach( LINK_LIB ${FILTERED_LINK_LIBS} )
-    target_link_libraries( ${PLUGIN_LIBNAME} LINK_PUBLIC ${LINK_LIB} )
+    target_link_libraries( ${PLUGIN_LIBNAME} LINK_PRIVATE ${LINK_LIB} )
   endforeach()
 
   install(

@@ -71,7 +71,7 @@ set( SERVER_OBJ
   $<TARGET_OBJECTS:clientserver-server-objects>
   $<TARGET_OBJECTS:logging-server-objects>
   $<TARGET_OBJECTS:structures-server-objects>
-  $<TARGET_OBJECTS:security-objects>
+  #$<TARGET_OBJECTS:security-objects>
   $<TARGET_OBJECTS:modules-objects>
 )
 
@@ -83,7 +83,7 @@ add_executable( server-exe serverMain.c )
 ########################################################################################################################
 # Add libraries
 
-target_link_libraries( server-shared LINK_PUBLIC
+target_link_libraries( server-shared LINK_PRIVATE
   client-shared
   ${OPENSSL_LIBRARIES}
   ${LIBXML2_LIBRARIES}
@@ -93,7 +93,7 @@ target_link_libraries( server-shared LINK_PUBLIC
 
 link_modules( server-shared )
 
-target_link_libraries( server-static LINK_PUBLIC
+target_link_libraries( server-static LINK_PRIVATE
   client-shared
   ${OPENSSL_LIBRARIES}
   ${LIBXML2_LIBRARIES}
@@ -104,7 +104,7 @@ target_link_libraries( server-static LINK_PUBLIC
 link_modules( server-static )
 
 # Executable
-target_link_libraries( server-exe LINK_PUBLIC
+target_link_libraries( server-exe LINK_PRIVATE
   ${LIBXML2_LIBRARIES}
   ${PostgreSQL_LIBRARY}
   c
@@ -116,7 +116,7 @@ target_link_libraries( server-exe LINK_PUBLIC
   )
 
 if( NOT APPLE )
-  target_link_libraries( server-exe LINK_PUBLIC gcc_s )
+  target_link_libraries( server-exe LINK_PRIVATE gcc_s )
 endif()
 
 ########################################################################################################################
@@ -167,6 +167,8 @@ set( ETC_FILES
   uda-fat-cpp.pc
   README.md
 )
+
+set( GEN_ETC_FILES ${CMAKE_BINARY_DIR}/etc/udagenstruct.conf )
 
 foreach( ETC_FILE ${ETC_FILES} )
   configure_file(
