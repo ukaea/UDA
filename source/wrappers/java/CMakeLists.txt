@@ -18,7 +18,7 @@ include_directories(
 
 add_library( ${LIB_NAME} SHARED idam_jni.c )
 
-target_link_libraries( ${LIB_NAME} LINK_PUBLIC client-shared )
+target_link_libraries( ${LIB_NAME} LINK_PRIVATE client-shared )
 
 add_jar( ${JAR_NAME} jIdam/Idam.java )
 

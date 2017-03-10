@@ -66,7 +66,6 @@ default_crl_days    = 30
 # SHA-1 is deprecated, so use SHA-2 instead.
 default_md      = sha256
 
-
 x509_extensions = usr_cert                  # The extentions to add to the cert
 
 # Comment out the following two lines for the "traditional"

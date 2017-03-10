@@ -38,9 +38,12 @@ int getPluginAddress(void** pluginHandle, const char* library, const char* symbo
 
     if (*pluginHandle == NULL) {
         if ((*pluginHandle = dlopen(full_path, RTLD_LOCAL | RTLD_NOW)) == NULL) {
+            free(full_path);
             err = 999;
-            addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "getPluginAddress: Cannot open the target shared library",
-                         err, dlerror());
+            char msg[1024];
+            sprintf(msg, "Cannot open the target shared library %s", library);
+            addIdamError(&idamerrorstack, SYSTEMERRORTYPE, __func__, err, msg);
+            addIdamError(&idamerrorstack, SYSTEMERRORTYPE, __func__, err, dlerror());
             return err;
         }
     }
@@ -59,8 +62,10 @@ int getPluginAddress(void** pluginHandle, const char* library, const char* symbo
         *idamPlugin = (PLUGINFUNP)fptr;
     } else {
         err = 999;
-        addIdamError(&idamerrorstack, CODEERRORTYPE,
-                     "getPluginAddress: Cannot locate the data reader with the target shared library", err, errstr);
+        char msg[1024];
+        sprintf(msg, "Cannot locate the function %s within the target shared library %s", symbol, library);
+        addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, err, msg);
+        addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, err, errstr);
         dlclose(pluginHandle);
         *pluginHandle = NULL;
         return err;

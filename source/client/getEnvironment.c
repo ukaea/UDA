@@ -11,6 +11,7 @@
 #include <stdlib.h>
 
 #include <logging/logging.h>
+#include <clientserver/stringUtils.h>
 
 int env_host = 1;    // User can change these before startup so flag to the getEnvironment function
 int env_port = 1;
@@ -94,11 +95,11 @@ ENVIRONMENT* getIdamClientEnvironment()
 
     environ.loglevel = LOG_NONE;
     if ((env = getenv("UDA_LOG_LEVEL")) != NULL) {
-        if (strncmp(env, "ACCESS", 6) == 0)      environ.loglevel = LOG_ACCESS;
-        else if (strncmp(env, "ERROR", 5) == 0)  environ.loglevel = LOG_ERROR;
-        else if (strncmp(env, "WARN", 4) == 0)   environ.loglevel = LOG_WARN;
-        else if (strncmp(env, "DEBUG", 5) == 0)  environ.loglevel = LOG_DEBUG;
-        else if (strncmp(env, "INFO", 4) == 0)   environ.loglevel = LOG_INFO;
+        if (STR_EQUALS(env, "ACCESS"))      environ.loglevel = LOG_ACCESS;
+        else if (STR_EQUALS(env, "ERROR"))  environ.loglevel = LOG_ERROR;
+        else if (STR_EQUALS(env, "WARN"))   environ.loglevel = LOG_WARN;
+        else if (STR_EQUALS(env, "DEBUG"))  environ.loglevel = LOG_DEBUG;
+        else if (STR_EQUALS(env, "INFO"))   environ.loglevel = LOG_INFO;
     }
 
 // IDAM Server Host Name
@@ -261,11 +262,10 @@ ENVIRONMENT* getIdamClientEnvironment()
 // Client defined Property Flags
 
     environ.clientFlags = 0;
-    if ((env = getenv("UDA_FLAGS")) != NULL) environ.clientFlags = atoi(env);
+    if ((env = getenv("UDA_FLAGS")) != NULL) environ.clientFlags = (unsigned int)atoi(env);
 
     environ.altRank = 0;
     if ((env = getenv("UDA_ALTRANK")) != NULL) environ.altRank = atoi(env);
-
 
 //-------------------------------------------------------------------------------------------
 

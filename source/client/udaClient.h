@@ -67,8 +67,6 @@ extern XDR * clientOutput;          // XDR Output Stream handle
 
 int idamClient(REQUEST_BLOCK * request_block);
 
-void updateClientBlock(CLIENT_BLOCK* str);
-
 void idamFree(int handle);
 
 void idamFreeAll();

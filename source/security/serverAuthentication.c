@@ -149,9 +149,9 @@ static int initialiseKeys(CLIENT_BLOCK* client_block, gcry_sexp_t* publickey_out
  */
 static SECURITY_BLOCK* receiveSecurityBlock(CLIENT_BLOCK* client_block)
 {
+#ifndef TESTIDAMSECURITY
     IDAM_LOG(LOG_DEBUG, "Waiting for Initial Client Block\n");
 
-#ifndef TESTIDAMSECURITY
     if (!xdrrec_skiprecord(serverInput)) {
         IDAM_LOG(LOG_DEBUG, "xdrrec_skiprecord error!\n");
         addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, PROTOCOL_ERROR_5, "Protocol 5 Error (Client Block #2)");
@@ -185,6 +185,11 @@ static int decryptClientToken(CLIENT_BLOCK* client_block, gcry_sexp_t publickey,
     //---------------------------------------------------------------------------------------------------------------
     // Read the CLIENT_BLOCK and client x509 certificate
     SECURITY_BLOCK* securityBlock = receiveSecurityBlock(client_block);
+
+    err = initialiseKeys(client_block, &publickey, &privatekey);
+    if (err != 0) {
+        return err;
+    }
 
     //---------------------------------------------------------------------------------------------------------------
     // Step 2: Receive the Client's token cipher (EASP) and decrypt with the server's private key (->A)
@@ -387,10 +392,11 @@ int serverAuthentication(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block,
     gcry_sexp_t privatekey = NULL;
     gcry_sexp_t publickey = NULL;
 
-    int err = initialiseKeys(client_block, &publickey, &privatekey);
-    if (err != 0) {
-        return err;
-    }
+    int err = 0;
+//    int err = initialiseKeys(client_block, &publickey, &privatekey);
+//    if (err != 0) {
+//        return err;
+//    }
 
     //---------------------------------------------------------------------------------------------------------------
     // Authenticate both Client and Server

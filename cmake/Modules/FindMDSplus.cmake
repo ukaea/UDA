@@ -21,10 +21,9 @@ endif( MDSPLUS_INCLUDES AND MDSPLUS_LIBRARIES )
 
 find_path( MDSPLUS_INCLUDES mdslib.h
   HINTS
+    /usr/local/mdsplus
     ${MDSPLUS_DIR}
     ENV MDSPLUS_DIR
-  PATHS
-    /usr/local/mdsplus
   PATH_SUFFIXES include )
 
 set( MDS_LIBS
@@ -42,10 +41,9 @@ foreach( MDS_LIB ${MDS_LIBS} )
 
   find_library( ${MDS_LIB}-FIND NAMES "${MDS_LIB}"
     HINTS
+      /usr/local/mdsplus
       ${MDSPLUS_DIR}
       ENV MDSPLUS_DIR
-    PATHS
-      /usr/local/mdsplus
     PATH_SUFFIXES lib lib64 )
 
   if( ${MDS_LIB}-FIND )

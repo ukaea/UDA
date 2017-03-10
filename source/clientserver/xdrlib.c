@@ -167,22 +167,14 @@ bool_t xdr_client(XDR* xdrs, CLIENT_BLOCK* str)
              && xdr_int(xdrs, &str->timeout)
              && WrapXDRString(xdrs, (char*)str->uid, STRING_LENGTH);
 
-// if(xdrs->x_op == XDR_DECODE && str->version < protocolVersion) protocolVersion = str->version;
-
     if (str->version < protocolVersion) protocolVersion = str->version;
-
-// clientFlags and altRank do not exist in the CLIENT_BLOCK structure prior to version 6
-
-    //if((xdrs->x_op == XDR_DECODE && protocolVersion >= 6) ||
-    //   (xdrs->x_op == XDR_ENCODE && str->version >= 6)){
 
     if (protocolVersion >= 6) {
         rc = rc && xdr_u_int(xdrs, &str->clientFlags)
              && xdr_int(xdrs, &str->altRank);
     } else {
-        int temp = 0;                                   // retain Legacy!
-        rc = rc && xdr_int(xdrs, &temp)        // Changed type		(was verbose & not used)
-             && xdr_int(xdrs, &str->altRank);           //                      (was debug)
+        int temp = 0; // retain Legacy!
+        rc = rc && xdr_int(xdrs, &temp) && xdr_int(xdrs, &str->altRank);
         str->clientFlags = (unsigned int)temp;
     }
 
@@ -198,17 +190,6 @@ bool_t xdr_client(XDR* xdrs, CLIENT_BLOCK* str)
          && xdr_int(xdrs, &str->get_uncal)
          && xdr_int(xdrs, &str->get_notoff);
 
-// output (ENCODE) means written by the client
-// input (DECODE) means read by the server
-
-// xdrs->x_op == XDR_DECODE && protocolVersion == 2 Means Client receiving data from a Version 2 Server
-// xdrs->x_op == XDR_ENCODE && protocolVersion == 3 Means Server sending data to a Version 3 Client
-
-// privateFlags does not exist in the CLIENT_BLOCK structure prior to version 5
-
-    //if((xdrs->x_op == XDR_DECODE && protocolVersion >= 5) ||
-    //   (xdrs->x_op == XDR_ENCODE && str->version >= 5))
-
     if (protocolVersion >= 5) rc = rc && xdr_u_int(xdrs, &str->privateFlags);
 
     if (xdrs->x_op == XDR_DECODE && protocolVersion < 6) {
@@ -219,11 +200,9 @@ bool_t xdr_client(XDR* xdrs, CLIENT_BLOCK* str)
     if (protocolVersion >= 7) {
         rc = rc && WrapXDRString(xdrs, (char*)str->OSName, STRING_LENGTH)
              && WrapXDRString(xdrs, (char*)str->DOI, STRING_LENGTH);
-
 #ifdef SECURITYENABLED
         rc = rc && WrapXDRString(xdrs, (char *)str->uid2, STRING_LENGTH);
 #endif
-
     }
 
     IDAM_LOGF(LOG_DEBUG, "protocolVersion %d\n", protocolVersion);

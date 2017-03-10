@@ -261,6 +261,9 @@ static int issueToken(CLIENT_BLOCK* client_block, gcry_sexp_t publickey, gcry_se
     securityBlock->server_ciphertextLength = 0;
 
 #ifndef TESTIDAMSECURITY
+    IDAM_LOG(LOG_DEBUG, "Sending initial ClientBlock\n");
+    printClientBlock(*client_block);
+
     int protocol_id = PROTOCOL_CLIENT_BLOCK;
 
     if ((err = protocol2(clientOutput, protocol_id, XDR_SEND, NULL, &client_block)) != 0) {
@@ -278,13 +281,13 @@ static int issueToken(CLIENT_BLOCK* client_block, gcry_sexp_t publickey, gcry_se
     securityBlock->client_ciphertext = NULL;
     securityBlock->client_ciphertextLength = 0;
 
-    free((void*)securityBlock->client_X509);
-    free((void*)securityBlock->client2_X509);
-
-    securityBlock->client_X509 = NULL;
-    securityBlock->client2_X509 = NULL;
-    securityBlock->client_X509Length = 0;
-    securityBlock->client2_X509Length = 0;
+//    free((void*)securityBlock->client_X509);
+//    free((void*)securityBlock->client2_X509);
+//
+//    securityBlock->client_X509 = NULL;
+//    securityBlock->client2_X509 = NULL;
+//    securityBlock->client_X509Length = 0;
+//    securityBlock->client2_X509Length = 0;
 #endif
 
     return err;

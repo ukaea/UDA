@@ -203,17 +203,17 @@ int protocol2(XDR* xdrs, int protocol_id, int direction, int* token, void* str)
 
 // direction == XDR_SEND && protocolVersion == 3 Means Server sending data to a Version 3 Client (Type is known)
 
-                    IDAM_LOG(LOG_DEBUG, "#1 PROTOCOL: Send/Receive Data Block\n");
+                    IDAM_LOG(LOG_DEBUG, "#1 Send/Receive Data Block\n");
                     printDataBlock(*data_block);
 
                     if (protocolVersionTypeTest(protocolVersion, data_block->data_type) ||
                         protocolVersionTypeTest(protocolVersion, data_block->error_type)) {
                         err = PROTOCOL_ERROR_9999;
-                        IDAM_LOG(LOG_DEBUG, "PROTOCOL: protocolVersionTypeTest Failed\n");
+                        IDAM_LOG(LOG_DEBUG, "protocolVersionTypeTest Failed\n");
 
                         break;
                     }
-                    IDAM_LOG(LOG_DEBUG, "#2 PROTOCOL: Send/Receive Data Block\n");
+                    IDAM_LOG(LOG_DEBUG, "#2 Send/Receive Data Block\n");
                     if (!xdr_data_block1(xdrs, data_block)) {
                         err = PROTOCOL_ERROR_61;
                         break;
@@ -661,34 +661,32 @@ int protocol2(XDR* xdrs, int protocol_id, int direction, int* token, void* str)
 // SECURITY
 
 #ifdef SECURITYENABLED
-
         if(protocol_id == PROTOCOL_SECURITY_BLOCK) {
 
             client_block = (CLIENT_BLOCK *)str;
             SECURITY_BLOCK* security_block = &(client_block->securityBlock);
 
             switch (direction) {
-
-            case XDR_RECEIVE :
-                if(!(rc = xdr_securityBlock1(xdrs, security_block))) {
-                    err = PROTOCOL_ERROR_23;
+                case XDR_RECEIVE:
+                    if(!xdr_securityBlock1(xdrs, security_block)) {
+                        err = PROTOCOL_ERROR_23;
+                        break;
+                    }
                     break;
-                }
-                break;
 
-            case XDR_SEND:
-                if(!(rc = xdr_securityBlock1(xdrs, security_block))) {
-                    err = PROTOCOL_ERROR_23;
+                case XDR_SEND:
+                    if(!xdr_securityBlock1(xdrs, security_block)) {
+                        err = PROTOCOL_ERROR_23;
+                        break;
+                    }
                     break;
-                }
-                break;
 
-            case XDR_FREE_HEAP :
-                break;
+                case XDR_FREE_HEAP:
+                    break;
 
-            default:
-                err = PROTOCOL_ERROR_4;
-                break;
+                default:
+                    err = PROTOCOL_ERROR_4;
+                    break;
             }
 
 // Allocate heap
@@ -705,29 +703,27 @@ int protocol2(XDR* xdrs, int protocol_id, int direction, int* token, void* str)
                 security_block->client2_X509       = (unsigned char *)malloc(security_block->client2_X509Length*sizeof(unsigned char));
 
             switch (direction) {
-
-            case XDR_RECEIVE :
-                if(!(rc = xdr_securityBlock2(xdrs, security_block))) {
-                    err = PROTOCOL_ERROR_24;
+                case XDR_RECEIVE :
+                    if(!xdr_securityBlock2(xdrs, security_block)) {
+                        err = PROTOCOL_ERROR_24;
+                        break;
+                    }
                     break;
-                }
-                break;
 
-            case XDR_SEND:
-                if(!(rc = xdr_securityBlock2(xdrs, security_block))) {
-                    err = PROTOCOL_ERROR_24;
+                case XDR_SEND:
+                    if(!xdr_securityBlock2(xdrs, security_block)) {
+                        err = PROTOCOL_ERROR_24;
+                        break;
+                    }
                     break;
-                }
-                break;
 
-            case XDR_FREE_HEAP :
-                break;
+                case XDR_FREE_HEAP :
+                    break;
 
-            default:
-                err = PROTOCOL_ERROR_4;
-                break;
+                default:
+                    err = PROTOCOL_ERROR_4;
+                    break;
             }
-
 
             break;
         }

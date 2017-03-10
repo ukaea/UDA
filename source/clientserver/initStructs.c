@@ -6,8 +6,12 @@
 #include "initStructs.h"
 
 #include <unistd.h>
-#include <clientserver/udaTypes.h>
 #include <string.h>
+
+#include <clientserver/udaTypes.h>
+#ifdef SECURITYENABLED
+#  include <security/authenticationUtils.h>
+#endif
 
 #include "errorLog.h"
 

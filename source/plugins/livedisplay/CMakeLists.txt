@@ -22,6 +22,5 @@ uda_plugin(
     ${CMAKE_SOURCE_DIR}/structures
   EXTRA_LINK_LIBS
     ${LIBXML2_LIBRARIES}
+    client-static
 )
-
-target_link_libraries( livedisplay_plugin LINK_PUBLIC client-static )

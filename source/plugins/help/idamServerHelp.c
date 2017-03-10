@@ -130,7 +130,7 @@ int idamServerHelp(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             data_block->data_type = TYPE_STRING;
             strcpy(data_block->data_desc, "Help help = description of this plugin");
 
-            data_block->data = (char*) p;
+            data_block->data = p;
 
             data_block->dims[0].data_type = TYPE_UNSIGNED;
             data_block->dims[0].dim_n = strlen(p) + 1;
@@ -167,7 +167,7 @@ int idamServerHelp(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             data_block->data_n = strlen(__DATE__) + 1;
             char* data = (char*) malloc(data_block->data_n * sizeof(char));
             strcpy(data, __DATE__);
-            data_block->data = (char*) data;
+            data_block->data = data;
             strcpy(data_block->data_desc, "Plugin build date");
             strcpy(data_block->data_label, "date");
             strcpy(data_block->data_units, "");
@@ -180,7 +180,7 @@ int idamServerHelp(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             data_block->data_n = strlen(THISPLUGIN_DEFAULT_METHOD) + 1;
             char* data = (char*) malloc(data_block->data_n * sizeof(char));
             strcpy(data, THISPLUGIN_DEFAULT_METHOD);
-            data_block->data = (char*) data;
+            data_block->data = data;
             strcpy(data_block->data_desc, "Plugin default method");
             strcpy(data_block->data_label, "method");
             strcpy(data_block->data_units, "");

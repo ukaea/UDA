@@ -83,7 +83,7 @@ int idamStartup(int reset)
     char idamFile[STRING_LENGTH];
 
     strcpy(idamFile, environment->logdir);
-    strcat(idamFile, "Debug.dbg");
+    strcat(idamFile, "Debug.log");
     file = fopen(idamFile, environment->logmode);
     idamSetLogFile(LOG_WARN, file);
     idamSetLogFile(LOG_DEBUG, file);
@@ -95,9 +95,9 @@ int idamStartup(int reset)
         return -1;
     }
 
-    if (idamGetLogLevel() == LOG_ERROR) {
+    if (idamGetLogLevel() <= LOG_ERROR) {
         strcpy(idamFile, environment->logdir);
-        strcat(idamFile, "Error.err");
+        strcat(idamFile, "Error.log");
         file = fopen(idamFile, environment->logmode);
         idamSetLogFile(LOG_ERROR, file);
     }

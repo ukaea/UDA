@@ -43,7 +43,7 @@ static int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, leveldb_t* db, 
 
 static int do_delete(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, leveldb_t* db, leveldb_writeoptions_t* woptions);
 
-int templatePlugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
+int keyValue(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
     static short init = 0;
 

@@ -32,10 +32,8 @@
 #  include <malloc.h>
 #endif
 
-#ifndef FATCLIENT
-#  ifdef SECURITYENABLED
-#    include "idamsecurity.h"
-#  endif
+#if !defined(FATCLIENT) && defined(SECURITYENABLED)
+#  include <security/security.h>
 #endif
 
 static int Data_Block_Count = 0;        // Count of Blocks recorded

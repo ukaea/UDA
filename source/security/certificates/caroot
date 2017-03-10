@@ -8,22 +8,18 @@
 # These are used to sign and validate other X.509 certificates for user authentication over UDA.
 #
 # Inputs: 	1 key length (4096 bits is default)
-#		2 Duration of Certificate (365 days is default)
+#		    2 Duration of Certificate (365 days is default)
 #
 # Defaults:	Directory of the CA root certificate and private key ~/.UDA/caroot
-#		Directory of the openssl configuration files ~/.UDA/caroot/openssl.cnf
+#		    Directory of the openssl configuration files ~/.UDA/caroot/openssl.cnf
 #
 # Outputs:	certs/carootX509.pem	self-signed certificate
-#		certs/carootX509.der	self-signed certificate in der format
-#		private/carootskey.pem	CA key pair (secret key)  
-#		certs/carootpkey.pem	CA public key 
+#		    certs/carootX509.der	self-signed certificate in der format
+#		    private/carootskey.pem	CA key pair (secret key)
+#		    certs/carootpkey.pem	CA public key
 #
 # openssl commands: genrsa, req, x509, rsa 
 # commands with input configuration file: req
-#
-# Change History
-#
-# 14Dec2016 D.G.Muir	Original Version
 #--------------------------------------------------------------------------
 
 LENGTH=${1:-4096}
@@ -68,9 +64,7 @@ cp -r $CADIR/* $CADIR/rollback/. >/dev/null 2>&1
 
 openssl genpkey -algorithm RSA -out $CADIR/private/carootskey.pem $LENGTH -batch >/dev/null 2>&1
 
-#openssl genrsa -out $CADIR/private/carootskey.pem $LENGTH -batch ###>/dev/null 2>&1
-
-if [ $? != 0 ]; then   
+if [ $? != 0 ]; then
    echo "Unable to Generate a new key pair!"
    exit 1  
 fi   

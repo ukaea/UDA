@@ -16,9 +16,6 @@ if [ ${TYPE} = SERVER ]; then
    TARGET=${ROOT}/server/serverX509.pem
 fi
 
-#openssl x509 -in $TARGET -noout -text
-#exit
-
 openssl x509 -in $TARGET -noout -subject_hash
 openssl x509 -in $TARGET -noout -issuer_hash
 
@@ -41,8 +38,6 @@ openssl x509 -in $TARGET -noout -modulus
 openssl x509 -in $TARGET -noout -startdate
 openssl x509 -in $TARGET -noout -enddate
 openssl x509 -in $TARGET -noout -dates
-
-#openssl x509 -in $TARGET -noout -C
 
 exit
 

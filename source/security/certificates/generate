@@ -6,13 +6,13 @@
 # These are used to authenticate the client with a server
 #
 # Inputs: 	1 userid (nobody)
-#		2 type of certificate: CLIENT or SERVER (CLIENT)
-#		3 key length (2048 bits is default)
-#		4 Duration of Certificate (31 days is default)
-#		5 Directory of the CA root certificate and private key
+#		    2 type of certificate: CLIENT or SERVER (CLIENT)
+#		    3 key length (2048 bits is default)
+#		    4 Duration of Certificate (31 days is default)
+#		    5 Directory of the CA root certificate and private key
 #
-# Defaults: 	Directory of the openssl configuration files ./openssl.cnf
-#		Directory where outputs are saved to ~/.UDA/
+# Defaults: Directory of the openssl configuration files ./openssl.cnf
+#		    Directory where outputs are saved to ~/.UDA/
 #
 # Outputs: 	x509.cert	signed certificate
 #
@@ -29,10 +29,6 @@
 #		clientpkey.der	public key in der format
 #		serverX509.der	copy of the server's signed certificate in der format
 #		serverpkey.der	copy of the server's public key in der format
-#
-# Change History
-#
-# 14Dec2016 D.G.Muir	Original Version
 #-----------------------------------------------------------------------------------------------
 
 USER=${1:-nobody}
@@ -117,17 +113,6 @@ fi
 
 # Convert keys to DER format
 
-#openssl rsa -in $WORK/keys.pem -inform PEM -out $WORK/clientskey.der -outform DER >/dev/null 2>&1
-
-#if [ $? != 0 ]; then   
-#   echo "Unable to Convert Keys to DER Format!"
-#   exit 1  
-#fi
-
-# public key
-
-#openssl rsa -in $WORK/keys.pem -inform PEM -pubout -outform DER -out $WORK/clientpkey.der >/dev/null 2>&1
-
 openssl rsa -in $WORK/keys.pem -inform PEM -pubout -out $WORK/clientpkey.pem >/dev/null 2>&1
 
 # Move and rename the certificate and Public key
@@ -157,7 +142,6 @@ if [ ${TYPE} = SERVER ]; then
 else
    openssl x509 -noout -text -in $WORK/clientX509.pem 
 fi
-
 
 ./properties ${TYPE}
 

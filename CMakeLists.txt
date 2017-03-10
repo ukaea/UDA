@@ -13,6 +13,10 @@ set( CMAKE_MODULE_PATH
   ${CMAKE_SOURCE_DIR}/cmake/Config
 )
 
+if( APPLE )
+  set( CMAKE_MACOSX_RPATH ON )
+endif()
+
 ########################################################################################################################
 # Version and Machine information
 
@@ -59,7 +63,6 @@ else()
 endif()
 
 if( APPLE )
-  set( CMAKE_MACOSX_RPATH ON )
   set( CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -undefined dynamic_lookup" )
 endif( APPLE )
 

@@ -582,14 +582,14 @@ int protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, void* st
 
 #ifndef FATCLIENT
 
-                        IDAM_LOGF(LOG_DEBUG, "protocolXML: privateFlags   : %d \n", privateFlags);
-                        IDAM_LOGF(LOG_DEBUG, "protocolXML: protocolVersion: %d \n", protocolVersion);
+                        IDAM_LOGF(LOG_DEBUG, "privateFlags   : %d \n", privateFlags);
+                        IDAM_LOGF(LOG_DEBUG, "protocolVersion: %d \n", protocolVersion);
 
                         if (option == 2) {
 
 // Create a temporary XDR file and receive data
 
-                            IDAM_LOG(LOG_DEBUG, "protocolXML: creating temporary/cached XDR file\n");
+                            IDAM_LOG(LOG_DEBUG, "creating temporary/cached XDR file\n");
 
                             errno = 0;
                             if (mkstemp(tempFile) < 0 || errno != 0) {
@@ -664,7 +664,7 @@ int protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, void* st
                         // receive the full set of known named structures
                         rc = rc && xdr_userdefinedtypelist(xdrs, userdefinedtypelist);
 
-                        IDAM_LOG(LOG_DEBUG, "protocolXML: xdr_userdefinedtypelist #B\n");
+                        IDAM_LOG(LOG_DEBUG, "xdr_userdefinedtypelist #B\n");
 
                         if (!rc) {
                             err = 999;
@@ -679,12 +679,12 @@ int protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, void* st
                             break;
                         }
 
-                        IDAM_LOG(LOG_DEBUG, "protocolXML: xdrUserDefinedTypeData #A\n");
+                        IDAM_LOG(LOG_DEBUG, "xdrUserDefinedTypeData #A\n");
                         initUserDefinedType(udt_received);
 
                         rc = rc && xdrUserDefinedTypeData(xdrs, udt_received, &data);        // receive the Data
 
-                        IDAM_LOG(LOG_DEBUG, "protocolXML: xdrUserDefinedTypeData #B\n");
+                        IDAM_LOG(LOG_DEBUG, "xdrUserDefinedTypeData #B\n");
                         if (!rc) {
                             err = 999;
                             addIdamError(&idamerrorstack, CODEERRORTYPE, "protocolXML", err,
@@ -779,7 +779,7 @@ int protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, void* st
                 if (data_block->opaque_type == OPAQUE_TYPE_XDROBJECT) {
 
                     if (xdrs->x_op == XDR_ENCODE) {
-                        IDAM_LOG(LOG_DEBUG, "protocolXML: Forwarding XDR Objects\n");
+                        IDAM_LOG(LOG_DEBUG, "Forwarding XDR Objects\n");
 
                         // Send size, bytes, hash
 
@@ -800,7 +800,7 @@ int protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, void* st
 
 
                     } else {
-                        IDAM_LOG(LOG_DEBUG, "protocolXML: Receiving forwarded XDR File\n");
+                        IDAM_LOG(LOG_DEBUG, "Receiving forwarded XDR File\n");
 
                         // Receive size, bytes, hash
 
@@ -834,9 +834,9 @@ int protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, void* st
                             data_block->opaque_count = objectSize;
                             data_block->opaque_type = OPAQUE_TYPE_XDROBJECT;
 
-                            IDAM_LOG(LOG_DEBUG, "protocolXML: Forwarding Received forwarded XDR Object\n");
+                            IDAM_LOG(LOG_DEBUG, "Forwarding Received forwarded XDR Object\n");
                         } else {
-                            IDAM_LOG(LOG_DEBUG, "protocolXML: Unpacking forwarded XDR Object\n");
+                            IDAM_LOG(LOG_DEBUG, "Unpacking forwarded XDR Object\n");
 
                             // Unpack the data Structures
 
@@ -927,7 +927,7 @@ int protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, void* st
 
                 if (data_block->opaque_type == OPAQUE_TYPE_XDRFILE) {
                     if (xdrs->x_op == XDR_ENCODE) {
-                        IDAM_LOGF(LOG_DEBUG, "protocolXML: Forwarding XDR File %s\n", (char*) data_block->opaque_block);
+                        IDAM_LOGF(LOG_DEBUG, "Forwarding XDR File %s\n", (char*) data_block->opaque_block);
 
 #  ifdef HASHXDRFILE
                         err = sendXDRFile(xdrs, (char *)data_block->opaque_block, md);	// Forward the xdr file
@@ -935,7 +935,7 @@ int protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, void* st
                         err = sendXDRFile(xdrs, (char*) data_block->opaque_block);        // Forward the xdr file
 #  endif
                     } else {
-                        IDAM_LOG(LOG_DEBUG, "protocolXML: Receiving forwarded XDR File\n");
+                        IDAM_LOG(LOG_DEBUG, "Receiving forwarded XDR File\n");
 
                         // Create a temporary XDR file, receive and write data to the file
 
@@ -965,9 +965,9 @@ int protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, void* st
                             data_block->opaque_block = (void*) fname;            // File name
                             data_block->opaque_type = OPAQUE_TYPE_XDRFILE;        // The data block is carrying the filename only
 
-                            IDAM_LOG(LOG_DEBUG, "protocolXML: Forwarding Received forwarded XDR File\n");
+                            IDAM_LOG(LOG_DEBUG, "Forwarding Received forwarded XDR File\n");
                         } else {
-                            IDAM_LOG(LOG_DEBUG, "protocolXML: Unpacking forwarded XDR File\n");
+                            IDAM_LOG(LOG_DEBUG, "Unpacking forwarded XDR File\n");
 
                             // Unpack the data Structures
 

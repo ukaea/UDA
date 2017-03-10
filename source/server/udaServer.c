@@ -33,9 +33,8 @@
 
 #ifndef FATCLIENT
 #  ifdef SECURITYENABLED
-#    include "idamsecurity.h"
-#  endif
-#  ifndef NOTGENERICENABLED
+#    include <security/security.h>
+#    include <security/serverAuthentication.h>
 #  endif
 #else
 #  include <errno.h>
@@ -63,9 +62,11 @@ XDR* serverOutput = &serverXDROutput;
 
 int server_tot_block_time = 0;
 
+#define UDA_SECURITY_VERSION 7
+
 int serverVersion = 7;
 int protocolVersion = 7;
-#ifndef FATCLIENT
+#if !defined(FATCLIENT) && !defined(SECURITYENABLED)
 static int legacyServerVersion = 6;
 #endif
 
@@ -73,10 +74,6 @@ IDAMFILELIST idamfilelist;
 NTREELIST NTreeList;
 NTREE* fullNTree = NULL;
 LOGSTRUCTLIST logstructlist;
-
-#ifdef SECURITYENABLED
-//static int serverVersion = 18;
-#endif
 
 char serverUsername[STRING_LENGTH] = "server";
 
@@ -151,18 +148,18 @@ void putIdamServerLogMallocList(LOGMALLOCLIST* malloclist)
 //--------------------------------------------------------------------------------------
 // Server Entry point
 
-#ifndef FATCLIENT
+#ifdef FATCLIENT
+#  include <assert.h>
+#endif
 
+#ifndef FATCLIENT
 int idamServer(int argc, char** argv)
 {
 #else
-
-#include <assert.h>
-
-    int idamServer(CLIENT_BLOCK client_block, REQUEST_BLOCK* request_block0, SERVER_BLOCK* server_block0,
-                   DATA_BLOCK* data_block0)
-    {
-        assert(data_block0 != NULL);
+int idamServer(CLIENT_BLOCK client_block, REQUEST_BLOCK* request_block0, SERVER_BLOCK* server_block0,
+               DATA_BLOCK* data_block0)
+{
+    assert(data_block0 != NULL);
 #endif
 
     int i, rc, err = 0, depth, fatal = 0;
@@ -300,84 +297,66 @@ int idamServer(int argc, char** argv)
         strcpy(server_block.DOI, env);
     }
 
-//-------------------------------------------------------------------------
-// User Authentication at startup
-
 #ifndef FATCLIENT    // <========================== Client Server Code Only
 
 #ifdef SECURITYENABLED
-    /*
-          static int authenticationNeeded = 1;			// No data access until this is set TRUE
 
-          initClientBlock(&client_block, 0, "");
+    //-------------------------------------------------------------------------
+    // User Authentication at startup
 
-          if(authenticationNeeded && protocolVersion >= IDAMSECURITYVERSION){
-
-    // User or intermediate server Must Authenticate
-    // If the request is passed on through a chain of servers, user#2 authentication occurs within the external server.
-    // An authentication structure is passed back from the server to the client
-
-
-    // Receive the client_block
-    // Test data validity of certificate
-    // Test certificate signature						=> has a valid certificate (not proof of authentication)
-    // Decrypt token A with the server private key
-    // Encrypt token A with the client public key
-    // Generate new token B and encrypt with the client public key
-
-             unsigned short authenticationStep = 2;
-
-         if((err = idamServerAuthentication(&client_block, &server_block, authenticationStep)) != 0){
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "idamServer", err, "Authentication Failed #2");
-            return err;
-         }
-
-             authenticationStep = 3;
-
-         if((err = idamServerAuthentication(&client_block, &server_block, authenticationStep)) != 0){
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "idamServer", err, "Client or Server Authentication Failed #1");
-            return err;
-         }
-
-    // Send the server_block
-
-             authenticationStep = 4;
-
-         if((err = idamServerAuthentication(&client_block, &server_block, authenticationStep)) != 0){
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "idamServer", err, "Client or Server Authentication Failed #1");
-            return err;
-         }
-
-    // Receive the client_block
-    // Decrypt token B with the server private key				=> Proof Client has valid private key == client authenticated
-    // Test token B identical to that sent in step 4
-    // Generate a new token B and encrypt with the client public key	=> maintain mutual authentication
-    // Send the server_block
-
-             authenticationStep = 7;
-
-         if((err = idamServerAuthentication(&client_block, &server_block, authenticationStep)) != 0){
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "idamServer", err, "Client or Server Authentication Failed #1");
-            return err;
-         }
-
-         authenticationNeeded = 0;
-          }
-
-    #undef IDAMSECURITY 	// Old macro superceded
-    */
-#else
-
-// Exchange version details - once only
+    static BOOLEAN authenticationNeeded = TRUE; // No data access until this is set TRUE
 
     initClientBlock(&client_block, 0, "");
 
-//----------------------------------------------------------------------------
-// Initialise the Request Structure
+    if (authenticationNeeded && protocolVersion >= UDA_SECURITY_VERSION) {
+        // User or intermediate server Must Authenticate
+        // If the request is passed on through a chain of servers, user#2 authentication occurs within the external server.
+        // An authentication structure is passed back from the server to the client
+
+        // Receive the client_block
+        // Test data validity of certificate
+        // Test certificate signature => has a valid certificate (not proof of authentication)
+        // Decrypt token A with the server private key
+        // Encrypt token A with the client public key
+        // Generate new token B and encrypt with the client public key
+
+        if ((err = serverAuthentication(&client_block, &server_block, SERVER_DECRYPT_CLIENT_TOKEN)) != 0) {
+            THROW_ERROR(err, "Authentication Failed #2");
+        }
+
+        if ((err = serverAuthentication(&client_block, &server_block, SERVER_ENCRYPT_CLIENT_TOKEN)) != 0) {
+            THROW_ERROR(err, "Client or Server Authentication Failed #3")
+        }
+
+        if ((err = serverAuthentication(&client_block, &server_block, SERVER_ISSUE_TOKEN)) != 0) {
+            THROW_ERROR(err, "Client or Server Authentication Failed #4");
+        }
+
+        // Receive the client_block
+        // Decrypt token B with the server private key => Proof Client has valid private key == client authenticated
+        // Test token B identical to that sent in step 4
+        // Generate a new token B and encrypt with the client public key => maintain mutual authentication
+        // Send the server_block
+
+        if ((err = serverAuthentication(&client_block, &server_block, SERVER_VERIFY_TOKEN)) != 0) {
+            THROW_ERROR(err, "Client or Server Authentication Failed #1");
+        }
+
+        authenticationNeeded = FALSE;
+    }
+
+#else
+
+    // Exchange version details - once only
+
+    initClientBlock(&client_block, 0, "");
+
+    //----------------------------------------------------------------------------
+    // Initialise the Request Structure
 
     initRequestBlock(&request_block);
 
-// Receive the client block, respecting earlier protocol versions
+    // Receive the client block, respecting earlier protocol versions
 
     IDAM_LOG(LOG_DEBUG, "Waiting for Initial Client Block\n");
 
@@ -399,7 +378,7 @@ int idamServer(int argc, char** argv)
             printClientBlock(client_block);
         }
 
-// Test for an immediate CLOSEDOWN instruction
+        // Test for an immediate CLOSEDOWN instruction
 
         if (client_block.timeout == 0 || client_block.clientFlags & CLIENTFLAG_CLOSEDOWN) goto SERVERCLOSEDOWN;
 
@@ -407,18 +386,14 @@ int idamServer(int argc, char** argv)
 
     if (err != 0) return err;
 
-// Flush (mark as at EOF) the input socket buffer (not all client state data may have been read - version dependent)
+    // Flush (mark as at EOF) the input socket buffer (not all client state data may have been read - version dependent)
 
-// Protocol Version: Lower of the client and server version numbers
-// This defines the set of elements within data structures passed between client and server
-// Must be the same on both sides of the socket
-// set in xdr_client
+    // Protocol Version: Lower of the client and server version numbers
+    // This defines the set of elements within data structures passed between client and server
+    // Must be the same on both sides of the socket
+    // set in xdr_client
 
-    //protocolVersion = serverVersion;
-    //if(client_block.version < serverVersion) protocolVersion = client_block.version;
-    //if(client_block.version < server_block.version) protocolVersion = client_block.version;
-
-// Send the server block
+    // Send the server block
 
     IDAM_LOG(LOG_DEBUG, "Sending Initial Server Block \n");
     printServerBlock(server_block);
@@ -438,7 +413,7 @@ int idamServer(int argc, char** argv)
 
     IDAM_LOG(LOG_DEBUG, "Initial Server Block sent without error\n");
 
-// If the protocol version is legacy (<=6), then divert full control to a legacy server
+    // If the protocol version is legacy (<=6), then divert full control to a legacy server
 
     if (client_block.version <= legacyServerVersion) {
         IDAM_LOG(LOG_DEBUG, "Diverting to the Legacy Server\n");

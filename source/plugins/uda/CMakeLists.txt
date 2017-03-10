@@ -24,4 +24,4 @@ uda_plugin(
     ${OPENSSL_LIBRARIES}
 )
 
-target_link_libraries( uda_plugin LINK_PUBLIC client-static )
+target_link_libraries( uda_plugin LINK_PRIVATE client-static )

@@ -11,7 +11,8 @@
 void printRequestBlock(REQUEST_BLOCK str)
 {
     int i;
-    IDAM_LOG(LOG_DEBUG, "\nClient Request Block\n\n");
+    IDAM_LOG(LOG_DEBUG, "Client Request Block\n");
+    IDAM_LOG(LOG_DEBUG, "--------------------------------------------------------------------------------\n");
     IDAM_LOGF(LOG_DEBUG, "request     : %d\n", str.request);
     IDAM_LOGF(LOG_DEBUG, "exp_number  : %d\n", str.exp_number);
     IDAM_LOGF(LOG_DEBUG, "pass        : %d\n", str.pass);
@@ -37,11 +38,13 @@ void printRequestBlock(REQUEST_BLOCK str)
         IDAM_LOGF(LOG_DEBUG, "[%d] %s,   %s,   %s\n", i, str.nameValueList.nameValue[i].pair,
                 str.nameValueList.nameValue[i].name, str.nameValueList.nameValue[i].value);
     }
+    IDAM_LOG(LOG_DEBUG, "--------------------------------------------------------------------------------\n");
 }
 
 void printClientBlock(CLIENT_BLOCK str)
 {
-    IDAM_LOG(LOG_DEBUG, "\nClient State Block\n\n");
+    IDAM_LOG(LOG_DEBUG, "Client State Block\n");
+    IDAM_LOG(LOG_DEBUG, "--------------------------------------------------------------------------------\n");
     IDAM_LOGF(LOG_DEBUG, "version      : %d\n", str.version);
     IDAM_LOGF(LOG_DEBUG, "pid          : %d\n", str.pid);
     IDAM_LOGF(LOG_DEBUG, "uid          : %s\n", str.uid);
@@ -68,12 +71,14 @@ void printClientBlock(CLIENT_BLOCK str)
 
     IDAM_LOGF(LOG_DEBUG, "OS Name      : %s\n", str.OSName);
     IDAM_LOGF(LOG_DEBUG, "Study DOI    : %s\n", str.DOI);
+    IDAM_LOG(LOG_DEBUG, "--------------------------------------------------------------------------------\n");
 }
 
 
 void printServerBlock(SERVER_BLOCK str)
 {
-    IDAM_LOG(LOG_DEBUG, "\nServer State Block\n\n");
+    IDAM_LOG(LOG_DEBUG, "Server State Block\n");
+    IDAM_LOG(LOG_DEBUG, "--------------------------------------------------------------------------------\n");
     IDAM_LOGF(LOG_DEBUG, "version          : %d\n", str.version);
     IDAM_LOGF(LOG_DEBUG, "error            : %d\n", str.error);
     IDAM_LOGF(LOG_DEBUG, "msg              : %s\n", str.msg);
@@ -81,13 +86,15 @@ void printServerBlock(SERVER_BLOCK str)
     IDAM_LOGF(LOG_DEBUG, "OS Name          : %s\n", str.OSName);
     IDAM_LOGF(LOG_DEBUG, "Configuration DOI: %s\n", str.DOI);
     printIdamErrorStack(str.idamerrorstack);
+    IDAM_LOG(LOG_DEBUG, "--------------------------------------------------------------------------------\n");
 }
 
 
 void printDataBlock(DATA_BLOCK str)
 {
     int i, j, k;
-    IDAM_LOG(LOG_DEBUG, "\nData Block Contents\n\n");
+    IDAM_LOG(LOG_DEBUG, "Data Block Contents\n");
+    IDAM_LOG(LOG_DEBUG, "--------------------------------------------------------------------------------\n");
     IDAM_LOGF(LOG_DEBUG, "handle       : %d\n", str.handle);
     IDAM_LOGF(LOG_DEBUG, "error code   : %d\n", str.errcode);
     IDAM_LOGF(LOG_DEBUG, "error msg    : %s\n", str.error_msg);
@@ -138,58 +145,58 @@ void printDataBlock(DATA_BLOCK str)
     IDAM_LOGF(LOG_DEBUG, "data_label  : %s\n", str.data_label);
     IDAM_LOGF(LOG_DEBUG, "data_desc   : %s\n", str.data_desc);
     for (i = 0; i < str.rank; i++) {
-        IDAM_LOGF(LOG_DEBUG, "\nDimension #%d Contents\n\n", i);
-        IDAM_LOGF(LOG_DEBUG, "data_type    : %d\n", str.dims[i].data_type);
-        IDAM_LOGF(LOG_DEBUG, "error_type   : %d\n", str.dims[i].error_type);
-        IDAM_LOGF(LOG_DEBUG, "errhi != NULL: %d\n", str.dims[i].errhi != NULL);
-        IDAM_LOGF(LOG_DEBUG, "errlo != NULL: %d\n", str.dims[i].errlo != NULL);
-        IDAM_LOGF(LOG_DEBUG, "error model  : %d\n", str.dims[i].error_model);
-        IDAM_LOGF(LOG_DEBUG, "asymmetry    : %d\n", str.dims[i].errasymmetry);
-        IDAM_LOGF(LOG_DEBUG, "error model no. params : %d\n", str.dims[i].error_param_n);
+        IDAM_LOGF(LOG_DEBUG, "Dimension #%d Contents\n", i);
+        IDAM_LOGF(LOG_DEBUG, "  data_type    : %d\n", str.dims[i].data_type);
+        IDAM_LOGF(LOG_DEBUG, "  error_type   : %d\n", str.dims[i].error_type);
+        IDAM_LOGF(LOG_DEBUG, "  errhi != NULL: %d\n", str.dims[i].errhi != NULL);
+        IDAM_LOGF(LOG_DEBUG, "  errlo != NULL: %d\n", str.dims[i].errlo != NULL);
+        IDAM_LOGF(LOG_DEBUG, "  error model  : %d\n", str.dims[i].error_model);
+        IDAM_LOGF(LOG_DEBUG, "  asymmetry    : %d\n", str.dims[i].errasymmetry);
+        IDAM_LOGF(LOG_DEBUG, "  error model no. params : %d\n", str.dims[i].error_param_n);
         for (j = 0; j < str.dims[i].error_param_n; j++)IDAM_LOGF(LOG_DEBUG, "param[%d] = %f \n", j, str.dims[i].errparams[j]);
-        IDAM_LOGF(LOG_DEBUG, "data_number : %d\n", str.dims[i].dim_n);
-        IDAM_LOGF(LOG_DEBUG, "compressed? : %d\n", str.dims[i].compressed);
-        IDAM_LOGF(LOG_DEBUG, "method      : %d\n", str.dims[i].method);
+        IDAM_LOGF(LOG_DEBUG, "  data_number : %d\n", str.dims[i].dim_n);
+        IDAM_LOGF(LOG_DEBUG, "  compressed? : %d\n", str.dims[i].compressed);
+        IDAM_LOGF(LOG_DEBUG, "  method      : %d\n", str.dims[i].method);
         if (str.dims[i].method == 0) {
             if (str.dims[i].compressed) {
-                IDAM_LOGF(LOG_DEBUG, "starting val: %f\n", str.dims[i].dim0);
-                IDAM_LOGF(LOG_DEBUG, "stepping val: %f\n", str.dims[i].diff);
+                IDAM_LOGF(LOG_DEBUG, "  starting val: %f\n", str.dims[i].dim0);
+                IDAM_LOGF(LOG_DEBUG, "  stepping val: %f\n", str.dims[i].diff);
             } else {
                 if (str.dims[i].data_type == TYPE_FLOAT) {
                     k = 10;
                     if (str.dims[i].dim_n < 10) k = str.dims[i].dim_n;
                     if (str.dims[i].dim != NULL)
                         for (j = 0; j < k; j++)
-                            IDAM_LOGF(LOG_DEBUG, "val[%d] = %f\n", j, *((float*) str.dims[i].dim + j));
+                            IDAM_LOGF(LOG_DEBUG, "  val[%d] = %f\n", j, *((float*) str.dims[i].dim + j));
                 }
                 if (str.dims[i].data_type == TYPE_DOUBLE) {
                     k = 10;
                     if (str.dims[i].dim_n < 10) k = str.dims[i].dim_n;
                     if (str.dims[i].dim != NULL)
                         for (j = 0; j < k; j++)
-                            IDAM_LOGF(LOG_DEBUG, "val[%d] = %f\n", j, *((double*) str.dims[i].dim + j));
+                            IDAM_LOGF(LOG_DEBUG, "v  al[%d] = %f\n", j, *((double*) str.dims[i].dim + j));
                 }
             }
         } else {
-            IDAM_LOGF(LOG_DEBUG, "udoms: %d\n", str.dims[i].udoms);
+            IDAM_LOGF(LOG_DEBUG, "  udoms: %d\n", str.dims[i].udoms);
             switch (str.dims[i].method) {
                 case 1:
                     if (str.dims[i].data_type == TYPE_FLOAT) {
                         k = 10;
                         if (str.dims[i].udoms < 10) k = str.dims[i].udoms;
                         for (j = 0; j < k; j++) {
-                            IDAM_LOGF(LOG_DEBUG, "sams[%d]: %d\n", j, (int) *(str.dims[i].sams + j));
-                            IDAM_LOGF(LOG_DEBUG, "offs[%d]: %f\n", j, *((float*) str.dims[i].offs + j));
-                            IDAM_LOGF(LOG_DEBUG, "ints[%d]: %f\n", j, *((float*) str.dims[i].ints + j));
+                            IDAM_LOGF(LOG_DEBUG, "  sams[%d]: %d\n", j, (int) *(str.dims[i].sams + j));
+                            IDAM_LOGF(LOG_DEBUG, "  offs[%d]: %f\n", j, *((float*) str.dims[i].offs + j));
+                            IDAM_LOGF(LOG_DEBUG, "  ints[%d]: %f\n", j, *((float*) str.dims[i].ints + j));
                         }
                     }
                     if (str.dims[i].data_type == TYPE_DOUBLE) {
                         k = 10;
                         if (str.dims[i].udoms < 10) k = str.dims[i].udoms;
                         for (j = 0; j < k; j++) {
-                            IDAM_LOGF(LOG_DEBUG, "sams[%d]: %d\n", j, (int) *(str.dims[i].sams + j));
-                            IDAM_LOGF(LOG_DEBUG, "offs[%d]: %f\n", j, *((double*) str.dims[i].offs + j));
-                            IDAM_LOGF(LOG_DEBUG, "ints[%d]: %f\n", j, *((double*) str.dims[i].ints + j));
+                            IDAM_LOGF(LOG_DEBUG, "  sams[%d]: %d\n", j, (int) *(str.dims[i].sams + j));
+                            IDAM_LOGF(LOG_DEBUG, "  offs[%d]: %f\n", j, *((double*) str.dims[i].offs + j));
+                            IDAM_LOGF(LOG_DEBUG, "  ints[%d]: %f\n", j, *((double*) str.dims[i].ints + j));
                         }
                     }
                     break;
@@ -207,16 +214,16 @@ void printDataBlock(DATA_BLOCK str)
                     break;
                 case 3:
                     if (str.dims[i].data_type == TYPE_FLOAT) {
-                        IDAM_LOGF(LOG_DEBUG, "offs[0] val: %f\n", *((float*) str.dims[i].offs));
-                        IDAM_LOGF(LOG_DEBUG, "ints[0] val: %f\n", *((float*) str.dims[i].ints));
+                        IDAM_LOGF(LOG_DEBUG, "  offs[0] val: %f\n", *((float*) str.dims[i].offs));
+                        IDAM_LOGF(LOG_DEBUG, "  ints[0] val: %f\n", *((float*) str.dims[i].ints));
                     }
                     if (str.dims[i].data_type == TYPE_DOUBLE) {
-                        IDAM_LOGF(LOG_DEBUG, "offs[0] val: %f\n", *((double*) str.dims[i].offs));
-                        IDAM_LOGF(LOG_DEBUG, "ints[0] val: %f\n", *((double*) str.dims[i].ints));
+                        IDAM_LOGF(LOG_DEBUG, "  offs[0] val: %f\n", *((double*) str.dims[i].offs));
+                        IDAM_LOGF(LOG_DEBUG, "  ints[0] val: %f\n", *((double*) str.dims[i].ints));
                     }
                     break;
                 default:
-                    IDAM_LOGF(LOG_WARN, "unknown method (%d) for dim (%d)", str.dims[i].method, i);
+                    IDAM_LOGF(LOG_WARN, "  unknown method (%d) for dim (%d)", str.dims[i].method, i);
             }
         }
         if (str.dims[i].error_type == TYPE_FLOAT) {
@@ -224,20 +231,22 @@ void printDataBlock(DATA_BLOCK str)
             if (str.dims[i].dim_n < 10) k = str.dims[i].dim_n;
             if (str.dims[i].errhi != NULL)
                 for (j = 0; j < k; j++)
-                    IDAM_LOGF(LOG_DEBUG, "errhi[%d] = %f\n", j, *((float*) str.dims[i].errhi + j));
+                    IDAM_LOGF(LOG_DEBUG, "  errhi[%d] = %f\n", j, *((float*) str.dims[i].errhi + j));
             if (str.dims[i].errlo != NULL && str.dims[i].errasymmetry)
                 for (j = 0; j < k; j++)
-                    IDAM_LOGF(LOG_DEBUG, "errlo[%d] = %f\n", j, *((float*) str.dims[i].errlo + j));
+                    IDAM_LOGF(LOG_DEBUG, "  errlo[%d] = %f\n", j, *((float*) str.dims[i].errlo + j));
         }
-        IDAM_LOGF(LOG_DEBUG, "data_units  : %s\n", str.dims[i].dim_units);
-        IDAM_LOGF(LOG_DEBUG, "data_label  : %s\n", str.dims[i].dim_label);
+        IDAM_LOGF(LOG_DEBUG, "  data_units  : %s\n", str.dims[i].dim_units);
+        IDAM_LOGF(LOG_DEBUG, "  data_label  : %s\n", str.dims[i].dim_label);
     }
+    IDAM_LOG(LOG_DEBUG, "--------------------------------------------------------------------------------\n");
 }
 
 
 void printSystemConfig(SYSTEM_CONFIG str)
 {
-    IDAM_LOG(LOG_DEBUG, "\nSystem Configuration Record\n\n");
+    IDAM_LOG(LOG_DEBUG, "System Configuration Record\n");
+    IDAM_LOG(LOG_DEBUG, "--------------------------------------------------------------------------------\n");
     IDAM_LOGF(LOG_DEBUG, "config_id   : %d\n", str.config_id);
     IDAM_LOGF(LOG_DEBUG, "system_id   : %d\n", str.system_id);
     IDAM_LOGF(LOG_DEBUG, "config_name : %s\n", str.config_name);
@@ -246,12 +255,14 @@ void printSystemConfig(SYSTEM_CONFIG str)
     IDAM_LOGF(LOG_DEBUG, "meta_id     : %d\n", str.meta_id);
     IDAM_LOGF(LOG_DEBUG, "xml         : %s\n", str.xml);
     IDAM_LOGF(LOG_DEBUG, "xml_creation: %s\n", str.xml_creation);
+    IDAM_LOG(LOG_DEBUG, "--------------------------------------------------------------------------------\n");
 }
 
 
 void printDataSystem(DATA_SYSTEM str)
 {
-    IDAM_LOG(LOG_DEBUG, "\nData System Record\n\n");
+    IDAM_LOG(LOG_DEBUG, "Data System Record\n");
+    IDAM_LOG(LOG_DEBUG, "--------------------------------------------------------------------------------\n");
     IDAM_LOGF(LOG_DEBUG, "system_id   : %d\n", str.system_id);
     IDAM_LOGF(LOG_DEBUG, "version     : %d\n", str.version);
     IDAM_LOGF(LOG_DEBUG, "type        : %c\n", str.type);
@@ -262,11 +273,13 @@ void printDataSystem(DATA_SYSTEM str)
     IDAM_LOGF(LOG_DEBUG, "meta_id     : %d\n", str.meta_id);
     IDAM_LOGF(LOG_DEBUG, "xml         : %s\n", str.xml);
     IDAM_LOGF(LOG_DEBUG, "xml_creation: %s\n", str.xml_creation);
+    IDAM_LOG(LOG_DEBUG, "--------------------------------------------------------------------------------\n");
 }
 
 void printDataSource(DATA_SOURCE str)
 {
-    IDAM_LOG(LOG_DEBUG, "\nData Source Record\n\n");
+    IDAM_LOG(LOG_DEBUG, "Data Source Record\n");
+    IDAM_LOG(LOG_DEBUG, "--------------------------------------------------------------------------------\n");
     IDAM_LOGF(LOG_DEBUG, "source_id     : %d\n", str.source_id);
     IDAM_LOGF(LOG_DEBUG, "config_id     : %d\n", str.config_id);
     IDAM_LOGF(LOG_DEBUG, "reason_id     : %d\n", str.reason_id);
@@ -297,11 +310,13 @@ void printDataSource(DATA_SOURCE str)
     IDAM_LOGF(LOG_DEBUG, "meta_id       : %d\n", str.meta_id);
     IDAM_LOGF(LOG_DEBUG, "xml           : %s\n", str.xml);
     IDAM_LOGF(LOG_DEBUG, "xml_creation  : %s\n", str.xml_creation);
+    IDAM_LOG(LOG_DEBUG, "--------------------------------------------------------------------------------\n");
 }
 
 void printSignal(SIGNAL str)
 {
-    IDAM_LOG(LOG_DEBUG, "\nSignal Record\n\n");
+    IDAM_LOG(LOG_DEBUG, "Signal Record\n");
+    IDAM_LOG(LOG_DEBUG, "--------------------------------------------------------------------------------\n");
     IDAM_LOGF(LOG_DEBUG, "source_id         : %d\n", str.source_id);
     IDAM_LOGF(LOG_DEBUG, "signal_desc_id    : %d\n", str.signal_desc_id);
     IDAM_LOGF(LOG_DEBUG, "status_desc_id    : %d\n", str.status_desc_id);
@@ -316,11 +331,13 @@ void printSignal(SIGNAL str)
     IDAM_LOGF(LOG_DEBUG, "meta_id           : %d\n", str.meta_id);
     IDAM_LOGF(LOG_DEBUG, "xml               : %s\n", str.xml);
     IDAM_LOGF(LOG_DEBUG, "xml_creation      : %s\n", str.xml_creation);
+    IDAM_LOG(LOG_DEBUG, "--------------------------------------------------------------------------------\n");
 }
 
 void printSignalDesc(SIGNAL_DESC str)
 {
-    IDAM_LOG(LOG_DEBUG, "\nSignal Description Record\n\n");
+    IDAM_LOG(LOG_DEBUG, "Signal Description Record\n");
+    IDAM_LOG(LOG_DEBUG, "--------------------------------------------------------------------------------\n");
     IDAM_LOGF(LOG_DEBUG, "signal_desc_id: %d\n", str.signal_desc_id);
     IDAM_LOGF(LOG_DEBUG, "signal_alias  : %s\n", str.signal_alias);
     IDAM_LOGF(LOG_DEBUG, "signal_name   : %s\n", str.signal_name);
@@ -340,6 +357,7 @@ void printSignalDesc(SIGNAL_DESC str)
     IDAM_LOGF(LOG_DEBUG, "meta_id       : %d\n", str.meta_id);
     IDAM_LOGF(LOG_DEBUG, "xml           : %s\n", str.xml);
     IDAM_LOGF(LOG_DEBUG, "xml_creation  : %s\n", str.xml_creation);
+    IDAM_LOG(LOG_DEBUG, "--------------------------------------------------------------------------------\n");
 }
 
 void printPerformance(PERFORMANCE str)
