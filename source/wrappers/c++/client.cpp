@@ -239,7 +239,7 @@ void uda::Client::put(const uda::Signal& signal)
     std::vector<int> shape(pdblock.rank);
     pdblock.shape = shape.data();
 
-    pdblock.data = array.data();
+    pdblock.data = (char*)array.data();
 
     idamPutAPI("", &pdblock);
 }

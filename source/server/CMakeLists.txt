@@ -167,6 +167,8 @@ set( ETC_FILES
   README.md
 )
 
+set( GEN_ETC_FILES ${CMAKE_BINARY_DIR}/etc/udagenstruct.conf )
+
 foreach( ETC_FILE ${ETC_FILES} )
   configure_file(
     "${CMAKE_SOURCE_DIR}/source/etc/${ETC_FILE}.in"
