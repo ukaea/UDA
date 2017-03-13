@@ -214,7 +214,7 @@ void expandImage(char* buffer, char defnames[MAXELEMENTS][MAXELEMENTNAME], int* 
                     len = (int) strlen(expand);
                 } else {
                     for (j = 0; j < defCount; j++) {
-                        if (STR_EQUALS((char*) defnames[j], work)) {
+                        if (!strcmp((char*) defnames[j], work)) {
                             sprintf(work, " = %d]", defvalues[j]);   // Array size
                             strncat(expand, &p1[1], p2 - &p1[1]);
                             len = len + (int) (p2 - &p1[1]);
@@ -1229,12 +1229,12 @@ void freeUserDefinedTypeList(USERDEFINEDTYPELIST* userdefinedtypelist)
 * @param type The name of the type
 * @return The size in bytes.
 */
-int getsizeof(char* type)
+size_t getsizeof(char* type)
 {
     USERDEFINEDTYPE* udt;
     char* p, * base = type;
 
-    if (STR_EQUALS(type, "const")) {
+    if (!strncmp(type, "const", 5)) {
         p = strrchr(type, ' '); // ignore const
         if (p != NULL)
             base = &p[1];
@@ -1242,27 +1242,27 @@ int getsizeof(char* type)
             base = &type[6];
     }
 
-    if (STR_IEQUALS(base, "FLOAT")) return sizeof(float);
-    if (STR_IEQUALS(base, "DOUBLE")) return sizeof(double);
-    if (STR_IEQUALS(base, "CHAR")) return sizeof(char);
-    if (STR_IEQUALS(base, "UNSIGNED CHAR")) return sizeof(unsigned char);
-    if (STR_IEQUALS(base, "UCHAR")) return sizeof(unsigned char);
-    if (STR_IEQUALS(base, "STRING")) return sizeof(char);  // Same as char array but null terminated
-    if (STR_IEQUALS(base, "SHORT")) return sizeof(short);
-    if (STR_IEQUALS(base, "UNSIGNED SHORT")) return sizeof(unsigned short);
-    if (STR_IEQUALS(base, "USHORT")) return sizeof(unsigned short);
-    if (STR_IEQUALS(base, "INT")) return sizeof(int);
-    if (STR_IEQUALS(base, "UNSIGNED INT")) return sizeof(unsigned int);
-    if (STR_IEQUALS(base, "UINT")) return sizeof(unsigned int);
-    if (STR_IEQUALS(base, "LONG")) return sizeof(long);
-    if (STR_IEQUALS(base, "UNSIGNED LONG")) return sizeof(unsigned long);
-    if (STR_IEQUALS(base, "ULONG")) return sizeof(unsigned long);
-    if (STR_IEQUALS(base, "LONG LONG")) return sizeof(long long);
-    if (STR_IEQUALS(base, "UNSIGNED LONG LONG")) return sizeof(unsigned long long);
-    if (STR_IEQUALS(base, "LONG64")) return sizeof(long long);
-    if (STR_IEQUALS(base, "ULONG64")) return sizeof(unsigned long long);
-    if (STR_IEQUALS(base, "COMPLEX")) return 2 * sizeof(float);
-    if (STR_IEQUALS(base, "DCOMPLEX")) return 2 * sizeof(double); // Always aligned on correct byte boundary
+    if (!strcasecmp(base, "FLOAT")) return sizeof(float);
+    if (!strcasecmp(base, "DOUBLE")) return sizeof(double);
+    if (!strcasecmp(base, "CHAR")) return sizeof(char);
+    if (!strcasecmp(base, "UNSIGNED CHAR")) return sizeof(unsigned char);
+    if (!strcasecmp(base, "UCHAR")) return sizeof(unsigned char);
+    if (!strcasecmp(base, "STRING")) return sizeof(char);  // Same as char array but null terminated
+    if (!strcasecmp(base, "SHORT")) return sizeof(short);
+    if (!strcasecmp(base, "UNSIGNED SHORT")) return sizeof(unsigned short);
+    if (!strcasecmp(base, "USHORT")) return sizeof(unsigned short);
+    if (!strcasecmp(base, "INT")) return sizeof(int);
+    if (!strcasecmp(base, "UNSIGNED INT")) return sizeof(unsigned int);
+    if (!strcasecmp(base, "UINT")) return sizeof(unsigned int);
+    if (!strcasecmp(base, "LONG")) return sizeof(long);
+    if (!strcasecmp(base, "UNSIGNED LONG")) return sizeof(unsigned long);
+    if (!strcasecmp(base, "ULONG")) return sizeof(unsigned long);
+    if (!strcasecmp(base, "LONG LONG")) return sizeof(long long);
+    if (!strcasecmp(base, "UNSIGNED LONG LONG")) return sizeof(unsigned long long);
+    if (!strcasecmp(base, "LONG64")) return sizeof(long long);
+    if (!strcasecmp(base, "ULONG64")) return sizeof(unsigned long long);
+    if (!strcasecmp(base, "COMPLEX")) return 2 * sizeof(float);
+    if (!strcasecmp(base, "DCOMPLEX")) return 2 * sizeof(double); // Always aligned on correct byte boundary
 
 // Search list of User defined types for size
 
@@ -1283,33 +1283,33 @@ int getsizeof(char* type)
 int gettypeof(char* type)
 {     // **** const unsigned ....
     if (type == NULL) return TYPE_UNKNOWN;
-    if (STR_IEQUALS(type, "FLOAT")) return TYPE_FLOAT;
-    if (STR_IEQUALS(type, "DOUBLE")) return TYPE_DOUBLE;
-    if (STR_IEQUALS(type, "CHAR")) return TYPE_CHAR;
-    if (STR_IEQUALS(type, "SHORT")) return TYPE_SHORT;
-    if (STR_IEQUALS(type, "INT")) return TYPE_INT;
-    if (STR_IEQUALS(type, "LONG")) return TYPE_LONG;
-    if (STR_IEQUALS(type, "LONG64")) return TYPE_LONG64;
-    if (STR_IEQUALS(type, "LONG LONG"))return TYPE_LONG64;
-    if (STR_IEQUALS(type, "COMPLEX")) return TYPE_COMPLEX;
-    if (STR_IEQUALS(type, "DCOMPLEX")) return TYPE_DCOMPLEX;
-    if (STR_IEQUALS(type, "STRING")) return TYPE_STRING;
-    if (STR_IEQUALS(type, "VOID")) return TYPE_VOID;
+    if (!strcasecmp(type, "FLOAT")) return TYPE_FLOAT;
+    if (!strcasecmp(type, "DOUBLE")) return TYPE_DOUBLE;
+    if (!strcasecmp(type, "CHAR")) return TYPE_CHAR;
+    if (!strcasecmp(type, "SHORT")) return TYPE_SHORT;
+    if (!strcasecmp(type, "INT")) return TYPE_INT;
+    if (!strcasecmp(type, "LONG")) return TYPE_LONG;
+    if (!strcasecmp(type, "LONG64")) return TYPE_LONG64;
+    if (!strcasecmp(type, "LONG LONG"))return TYPE_LONG64;
+    if (!strcasecmp(type, "COMPLEX")) return TYPE_COMPLEX;
+    if (!strcasecmp(type, "DCOMPLEX")) return TYPE_DCOMPLEX;
+    if (!strcasecmp(type, "STRING")) return TYPE_STRING;
+    if (!strcasecmp(type, "VOID")) return TYPE_VOID;
 
-    if (STR_IEQUALS(type, "UCHAR")) return TYPE_UNSIGNED_CHAR;
-    if (STR_IEQUALS(type, "USHORT")) return TYPE_UNSIGNED_SHORT;
-    if (STR_IEQUALS(type, "UINT")) return TYPE_UNSIGNED_INT;
-    if (STR_IEQUALS(type, "ULONG")) return TYPE_UNSIGNED_LONG;
+    if (!strcasecmp(type, "UCHAR")) return TYPE_UNSIGNED_CHAR;
+    if (!strcasecmp(type, "USHORT")) return TYPE_UNSIGNED_SHORT;
+    if (!strcasecmp(type, "UINT")) return TYPE_UNSIGNED_INT;
+    if (!strcasecmp(type, "ULONG")) return TYPE_UNSIGNED_LONG;
 #ifndef __APPLE__
-    if (STR_IEQUALS(type, "ULONG64")) return TYPE_UNSIGNED_LONG64;
+    if (!strcasecmp(type, "ULONG64")) return TYPE_UNSIGNED_LONG64;
 #endif
-    if (STR_IEQUALS(type, "UNSIGNED CHAR")) return TYPE_UNSIGNED_CHAR;
-    if (STR_IEQUALS(type, "UNSIGNED SHORT")) return TYPE_UNSIGNED_SHORT;
-    if (STR_IEQUALS(type, "UNSIGNED INT")) return TYPE_UNSIGNED_INT;
-    if (STR_IEQUALS(type, "UNSIGNED LONG")) return TYPE_UNSIGNED_LONG;
+    if (!strcasecmp(type, "UNSIGNED CHAR")) return TYPE_UNSIGNED_CHAR;
+    if (!strcasecmp(type, "UNSIGNED SHORT")) return TYPE_UNSIGNED_SHORT;
+    if (!strcasecmp(type, "UNSIGNED INT")) return TYPE_UNSIGNED_INT;
+    if (!strcasecmp(type, "UNSIGNED LONG")) return TYPE_UNSIGNED_LONG;
 #ifndef __APPLE__
-    if (STR_IEQUALS(type, "UNSIGNED LONG64")) return TYPE_UNSIGNED_LONG64;
-    if (STR_IEQUALS(type, "UNSIGNED LONG LONG")) return TYPE_UNSIGNED_LONG64;
+    if (!strcasecmp(type, "UNSIGNED LONG64")) return TYPE_UNSIGNED_LONG64;
+    if (!strcasecmp(type, "UNSIGNED LONG LONG")) return TYPE_UNSIGNED_LONG64;
 #endif
     return TYPE_UNKNOWN;  // Means Non Atomic => User defined structure type
 }
@@ -1342,12 +1342,12 @@ int getalignmentof(char* type)
     int is32 = (sizeof(void*) == POINTER_SIZE32); // Test architecture
     char* p, * base = type;
 
-    if (STR_EQUALS(type, "const") || STR_EQUALS(type, "unsigned")) {  // ignore const and unsigned
+    if (!strncmp(type, "const", 5) || !strncmp(type, "unsigned", 8)) {  // ignore const and unsigned
         p = strrchr(type, ' ');
         if (p != NULL)
             base = &p[1];
         else {
-            if (STR_EQUALS(type, "const"))
+            if (!strncmp(type, "const", 5))
                 base = &type[6];
             else
                 base = &type[9];
@@ -1357,46 +1357,46 @@ int getalignmentof(char* type)
     if (strchr(base, '*'))return sizeof(void*);  // Pointer type
 
     if (is32) {
-        if (STR_IEQUALS(base, "FLOAT")) return 4;  // 32 bit architecture
+        if (!strcasecmp(base, "FLOAT")) return 4;  // 32 bit architecture
 #ifndef WINDOWS
-        if (STR_IEQUALS(base, "DOUBLE")) return 4;
+        if (!strcasecmp(base, "DOUBLE")) return 4;
 #else
-        if (STR_IEQUALS(base,"DOUBLE"))    return 8;
+        if (!strcasecmp(base,"DOUBLE"))    return 8;
 #endif
-        if (STR_IEQUALS(base, "CHAR")) return 1;
-        if (STR_IEQUALS(base, "STRING")) return 1;
-        if (STR_IEQUALS(base, "SHORT")) return 2;
-        if (STR_IEQUALS(base, "INT")) return 4;
-        if (STR_IEQUALS(base, "LONG")) return 4;
-        if (STR_IEQUALS(base, "LONG64")) return 4;
-        if (STR_IEQUALS(base, "LONG LONG")) return 4;
-        if (STR_IEQUALS(base, "UCHAR")) return 1;
-        if (STR_IEQUALS(base, "USHORT")) return 2;
-        if (STR_IEQUALS(base, "UINT")) return 4;
-        if (STR_IEQUALS(base, "ULONG")) return 4;
-        if (STR_IEQUALS(base, "ULONG64")) return 4;
-        if (STR_IEQUALS(base, "COMPLEX")) return 4;
-        if (STR_IEQUALS(base, "DCOMPLEX"))return 4;
-        if (STR_IEQUALS(base, "STRUCTURE"))return 1; // Structures are aligned depending on structure content
+        if (!strcasecmp(base, "CHAR")) return 1;
+        if (!strcasecmp(base, "STRING")) return 1;
+        if (!strcasecmp(base, "SHORT")) return 2;
+        if (!strcasecmp(base, "INT")) return 4;
+        if (!strcasecmp(base, "LONG")) return 4;
+        if (!strcasecmp(base, "LONG64")) return 4;
+        if (!strcasecmp(base, "LONG LONG")) return 4;
+        if (!strcasecmp(base, "UCHAR")) return 1;
+        if (!strcasecmp(base, "USHORT")) return 2;
+        if (!strcasecmp(base, "UINT")) return 4;
+        if (!strcasecmp(base, "ULONG")) return 4;
+        if (!strcasecmp(base, "ULONG64")) return 4;
+        if (!strcasecmp(base, "COMPLEX")) return 4;
+        if (!strcasecmp(base, "DCOMPLEX"))return 4;
+        if (!strcasecmp(base, "STRUCTURE"))return 1; // Structures are aligned depending on structure content
     } else {
 #ifdef A64
-        if (STR_IEQUALS(base, "FLOAT")) return 4;  // 64 bit architecture
-        if (STR_IEQUALS(base, "DOUBLE")) return 8;
-        if (STR_IEQUALS(base, "CHAR")) return 1;
-        if (STR_IEQUALS(base, "STRING")) return 1;
-        if (STR_IEQUALS(base, "SHORT")) return 2;
-        if (STR_IEQUALS(base, "INT")) return 4;
-        if (STR_IEQUALS(base, "LONG")) return 4;
-        if (STR_IEQUALS(base, "LONG64")) return 8;
-        if (STR_IEQUALS(base, "LONG LONG")) return 8;
-        if (STR_IEQUALS(base, "UCHAR")) return 1;
-        if (STR_IEQUALS(base, "USHORT")) return 2;
-        if (STR_IEQUALS(base, "UINT")) return 4;
-        if (STR_IEQUALS(base, "ULONG")) return 4;
-        if (STR_IEQUALS(base, "ULONG64")) return 8;
-        if (STR_IEQUALS(base, "COMPLEX")) return 4;
-        if (STR_IEQUALS(base, "DCOMPLEX"))return 8;
-        if (STR_IEQUALS(base, "STRUCTURE"))return 1;
+        if (!strcasecmp(base, "FLOAT")) return 4;  // 64 bit architecture
+        if (!strcasecmp(base, "DOUBLE")) return 8;
+        if (!strcasecmp(base, "CHAR")) return 1;
+        if (!strcasecmp(base, "STRING")) return 1;
+        if (!strcasecmp(base, "SHORT")) return 2;
+        if (!strcasecmp(base, "INT")) return 4;
+        if (!strcasecmp(base, "LONG")) return 4;
+        if (!strcasecmp(base, "LONG64")) return 8;
+        if (!strcasecmp(base, "LONG LONG")) return 8;
+        if (!strcasecmp(base, "UCHAR")) return 1;
+        if (!strcasecmp(base, "USHORT")) return 2;
+        if (!strcasecmp(base, "UINT")) return 4;
+        if (!strcasecmp(base, "ULONG")) return 4;
+        if (!strcasecmp(base, "ULONG64")) return 8;
+        if (!strcasecmp(base, "COMPLEX")) return 4;
+        if (!strcasecmp(base, "DCOMPLEX"))return 8;
+        if (!strcasecmp(base, "STRUCTURE"))return 1;
 #endif
     }
     return ALIGNMENT; // Best Guess!
@@ -1679,18 +1679,18 @@ int findUserDefinedTypeId(const char* name)
 
     int i;
     for (i = 0; i < userdefinedtypelist->listCount; i++) {
-        if (STR_EQUALS(userdefinedtypelist->userdefinedtype[i].name, name)) return (i);
+        if (!strcmp(userdefinedtypelist->userdefinedtype[i].name, name)) return (i);
     }
 #ifdef INCLUDESTRUCTPREFIX
-    if (STR_EQUALS(name, "struct ")) {   // search without the struct prefix
+    if (!strncmp(name, "struct ", 7)) {   // search without the struct prefix
         for (i=0; i<userdefinedtypelist->listCount; i++) {
-            if (STR_EQUALS(userdefinedtypelist->userdefinedtype[i].name, &name[7])) return(i);
+            if (!strcmp(userdefinedtypelist->userdefinedtype[i].name, &name[7])) return(i);
         }
     } else {
         char work[MAXELEMENTNAME+25] = "struct ";  // search with the struct prefix
         strcat(work, name);
         for (i=0; i<userdefinedtypelist->listCount; i++) {
-            if (STR_EQUALS(userdefinedtypelist->userdefinedtype[i].name, work)) return(i);
+            if (!strcmp(userdefinedtypelist->userdefinedtype[i].name, work)) return(i);
         }
     }
 #endif
@@ -1712,7 +1712,7 @@ USERDEFINEDTYPE* findUserDefinedType(const char* name, int ref_id)
 
     if (ref_id > 0 && name[0] != '\0') {
         for (i = 0; i < userdefinedtypelist->listCount; i++) {
-            if (STR_EQUALS(userdefinedtypelist->userdefinedtype[i].name, name) &&
+            if (!strcmp(userdefinedtypelist->userdefinedtype[i].name, name) &&
                 userdefinedtypelist->userdefinedtype[i].ref_id == ref_id)
                 return (&userdefinedtypelist->userdefinedtype[i]);
         }
@@ -1723,7 +1723,7 @@ USERDEFINEDTYPE* findUserDefinedType(const char* name, int ref_id)
 
         for (i = 0; i < userdefinedtypelist->listCount; i++) {
             IDAM_LOGF(LOG_DEBUG, "[%2d]: [%s]\n", i, userdefinedtypelist->userdefinedtype[i].name);
-            if (STR_EQUALS(userdefinedtypelist->userdefinedtype[i].name, name))
+            if (!strcmp(userdefinedtypelist->userdefinedtype[i].name, name))
                 return (&userdefinedtypelist->userdefinedtype[i]);
         }
         return NULL;
@@ -1831,12 +1831,13 @@ bool_t xdr_userdefinedtype(XDR* xdrs, USERDEFINEDTYPE* str)
 // Offsets from netCDF files are comapct with no filler bytes so will not generally map to a structure type
 
         if (xdrs->x_op == XDR_DECODE && !adjust && rc) {
-            int size, alignment;
+            size_t size;
+            int alignment;
             if (str->compoundfield[i].pointer) {
                 size = sizeof(void*);
             } else {
-                size = getsizeof(
-                        str->compoundfield[i].type);  // Non-atomic types (structures) will already have been adjusted
+                // Non-atomic types (structures) will already have been adjusted
+                size = getsizeof(str->compoundfield[i].type);
             }
             alignment = getalignmentof(str->compoundfield[i].type);
             adjust = (alignment != str->compoundfield[i].alignment ||
@@ -2083,11 +2084,11 @@ void printAtomicType(NTREE* tree, const char* target)
     void* data;
     int i, fieldcount = tree->userdefinedtype->fieldcount;
     for (i = 0; i < fieldcount; i++) {
-        if (STR_EQUALS(userdefinedtype->compoundfield[i].name, target)) {
+        if (!strcmp(userdefinedtype->compoundfield[i].name, target)) {
             if (userdefinedtype->compoundfield[i].atomictype != TYPE_UNKNOWN) {
                 p = (char*) tree->data;
                 if (userdefinedtype->compoundfield[i].pointer ||
-                    STR_EQUALS(userdefinedtype->compoundfield[i].type, "STRING *")) {  // Strings are an exception!
+                    !strcmp(userdefinedtype->compoundfield[i].type, "STRING *")) {  // Strings are an exception!
                     int count, size;
                     char* type;
                     data = (void*) *((VOIDTYPE*) &p[userdefinedtype->compoundfield[i].offset]);
@@ -2127,7 +2128,7 @@ void printTypeCount(NTREE* ntree, const char* target)
     USERDEFINEDTYPE* userdefinedtype = ntree->userdefinedtype;
     int i, fieldcount = ntree->userdefinedtype->fieldcount;
     for (i = 0; i < fieldcount; i++) {
-        if (STR_EQUALS(userdefinedtype->compoundfield[i].name, target)) {
+        if (!strcmp(userdefinedtype->compoundfield[i].name, target)) {
             printCompoundField(userdefinedtype->compoundfield[i]);
             IDAM_LOGF(LOG_DEBUG, "%s[ %d ]\n", target, userdefinedtype->compoundfield[i].count);
         }
@@ -2159,8 +2160,8 @@ COMPOUNDFIELD* getNodeStructureComponent(NTREE* ntree, const char* target)
         userdefinedtype = ntree->userdefinedtype;
         fieldcount = ntree->userdefinedtype->fieldcount;
         for (i = 0; i < fieldcount; i++) {
-            //if (STR_EQUALS(userdefinedtype->compoundfield[i].name, target)){ //dgm 07Jul14
-            if (STR_EQUALS(userdefinedtype->compoundfield[i].name, target)) {
+            //if (!strcmp(userdefinedtype->compoundfield[i].name, target)){ //dgm 07Jul14
+            if (!strcmp(userdefinedtype->compoundfield[i].name, target)) {
                 return &userdefinedtype->compoundfield[i];
             }
         }
@@ -2375,7 +2376,7 @@ void* getNodeStructureComponentArrayData(NTREE* ntree, const char* target, int s
     if ((pp = (char*) getNodeStructureArrayData(ntree, structureindex)) == NULL) return NULL;
 
     for (i = 0; i < ntree->userdefinedtype->fieldcount; i++) {
-        if (STR_EQUALS(ntree->userdefinedtype->compoundfield[i].name, target)) {
+        if (!strcmp(ntree->userdefinedtype->compoundfield[i].name, target)) {
             offset = ntree->userdefinedtype->compoundfield[i].offset;
             if (ntree->userdefinedtype->compoundfield[i].pointer) {
                 p = (char*) *((VOIDTYPE*) &pp[offset]);    // Data Element from the single Structure Array Element
@@ -2633,7 +2634,7 @@ int* getNodeAtomicPointers(NTREE* ntree)
     for (i = 0; i < ntree->userdefinedtype->fieldcount; i++)
         if (ntree->userdefinedtype->compoundfield[i].atomictype != TYPE_UNKNOWN) {
             pointers[count] = ntree->userdefinedtype->compoundfield[i].pointer;
-            // if (STR_EQUALS(ntree->userdefinedtype->compoundfield[i].type, "STRING *")) pointers[count] = 1;
+            // if (!strcmp(ntree->userdefinedtype->compoundfield[i].type, "STRING *")) pointers[count] = 1;
             count++;
         }
     return pointers;
@@ -2909,12 +2910,12 @@ int getNodeStructureComponentDataCount(NTREE* ntree, const char* target)
     if (ntree == NULL) return 0;
 
 //dgm 05Aug2015		structure and first component share the same address   
-    if (STR_EQUALS(ntree->name, lastname)) return ntree->parent->branches;
+    if (!strcmp(ntree->name, lastname)) return ntree->parent->branches;
 
     userdefinedtype = ntree->userdefinedtype;
     fieldcount = ntree->userdefinedtype->fieldcount;
     for (i = 0; i < fieldcount; i++) {
-        if (STR_EQUALS(userdefinedtype->compoundfield[i].name, lastname)) {
+        if (!strcmp(userdefinedtype->compoundfield[i].name, lastname)) {
             if (userdefinedtype->compoundfield[i].pointer) {
                 if ((data = (char*) ntree->data) == NULL) break;
                 findMalloc(&data[userdefinedtype->compoundfield[i].offset], &count, &size, &type);
@@ -2947,7 +2948,7 @@ int getNodeStructureComponentDataRank(NTREE* ntree, const char* target)
     userdefinedtype = ntree->userdefinedtype;
     fieldcount = ntree->userdefinedtype->fieldcount;
     for (i = 0; i < fieldcount; i++) {
-        if (STR_EQUALS(userdefinedtype->compoundfield[i].name, lastname)) {
+        if (!strcmp(userdefinedtype->compoundfield[i].name, lastname)) {
             if (userdefinedtype->compoundfield[i].pointer) {
                 if ((data = (char*) ntree->data) == NULL) return 0;
                 findMalloc2(&data[ntree->userdefinedtype->compoundfield[i].offset], &count, &size, &type, &rank,
@@ -2981,7 +2982,7 @@ int* getNodeStructureComponentDataShape(NTREE* ntree, const char* target)
     userdefinedtype = ntree->userdefinedtype;
     fieldcount = ntree->userdefinedtype->fieldcount;
     for (i = 0; i < fieldcount; i++) {
-        if (STR_EQUALS(userdefinedtype->compoundfield[i].name, lastname)) {
+        if (!strcmp(userdefinedtype->compoundfield[i].name, lastname)) {
             if (userdefinedtype->compoundfield[i].pointer) {
                 if ((data = (char*) ntree->data) == NULL) return 0;
                 findMalloc2(&data[ntree->userdefinedtype->compoundfield[i].offset], &count, &size, &type, &rank,
@@ -3014,7 +3015,7 @@ int getNodeStructureComponentDataIsPointer(NTREE* ntree, const char* target)
     userdefinedtype = ntree->userdefinedtype;
     fieldcount = ntree->userdefinedtype->fieldcount;
     for (i = 0; i < fieldcount; i++) {
-        if (STR_EQUALS(userdefinedtype->compoundfield[i].name, lastname)) {
+        if (!strcmp(userdefinedtype->compoundfield[i].name, lastname)) {
             ispointer = userdefinedtype->compoundfield[i].pointer;
             break;
         }
@@ -3040,7 +3041,7 @@ int getNodeStructureComponentDataSize(NTREE* ntree, const char* target)
     userdefinedtype = ntree->userdefinedtype;
     fieldcount = ntree->userdefinedtype->fieldcount;
     for (i = 0; i < fieldcount; i++) {
-        if (STR_EQUALS(userdefinedtype->compoundfield[i].name, lastname)) {
+        if (!strcmp(userdefinedtype->compoundfield[i].name, lastname)) {
             if (userdefinedtype->compoundfield[i].pointer) {
                 if ((data = (char*) ntree->data) == NULL) break;
                 findMalloc(&data[userdefinedtype->compoundfield[i].offset], &count, &size, &type);
@@ -3072,7 +3073,7 @@ char* getNodeStructureComponentDataDataType(NTREE* ntree, const char* target)
     userdefinedtype = ntree->userdefinedtype;
     fieldcount = ntree->userdefinedtype->fieldcount;
     for (i = 0; i < fieldcount; i++) {
-        if (STR_EQUALS(userdefinedtype->compoundfield[i].name, lastname)) {
+        if (!strcmp(userdefinedtype->compoundfield[i].name, lastname)) {
             if (userdefinedtype->compoundfield[i].pointer) {
                 if ((data = (char*) ntree->data) == NULL) break;
                 findMalloc(&data[userdefinedtype->compoundfield[i].offset], &count, &size, &type);
@@ -3104,12 +3105,12 @@ void* getNodeStructureComponentData(NTREE* ntree, const char* target)
     if (ntree == NULL) return NULL;
 
 //dgm 05Aug2015   
-    if (STR_EQUALS(ntree->name, lastname)) return ntree->data;
+    if (!strcmp(ntree->name, lastname)) return ntree->data;
 
     userdefinedtype = ntree->userdefinedtype;
     fieldcount = ntree->userdefinedtype->fieldcount;
     for (i = 0; i < fieldcount; i++) {
-        if (STR_EQUALS(userdefinedtype->compoundfield[i].name, lastname)) {
+        if (!strcmp(userdefinedtype->compoundfield[i].name, lastname)) {
             p = (char*) ntree->data;
             offset = userdefinedtype->compoundfield[i].offset;
             if (userdefinedtype->compoundfield[i].pointer) {
@@ -3149,17 +3150,17 @@ void printNodeStructureComponentData(NTREE* ntree, const char* target)
     if (count > 0) {
         IDAM_LOGF(LOG_DEBUG, "[%s] Data Count %d   Type %s\n", target, count, type);
         IDAM_LOG(LOG_DEBUG, "Data Values\n");
-        if (STR_EQUALS(type, "float")) {
+        if (!strcmp(type, "float")) {
             float* s = getNodeStructureComponentData(node, lastname);
             for (i = 0; i < count; i++) IDAM_LOGF(LOG_DEBUG, "[%d] %f\n", i, s[i]);
             return;
         }
-        if (STR_EQUALS(type, "int")) {
+        if (!strcmp(type, "int")) {
             int* s = getNodeStructureComponentData(node, lastname);
             for (i = 0; i < count; i++) IDAM_LOGF(LOG_DEBUG, "[%d] %d\n", i, s[i]);
             return;
         }
-        if (STR_EQUALS(type, "STRING")) {
+        if (!strcmp(type, "STRING")) {
             char* s = getNodeStructureComponentData(node, lastname);
             IDAM_LOGF(LOG_DEBUG, "%s\n", s);
             return;
@@ -3256,7 +3257,7 @@ void printNodeStructure(NTREE* ntree)
         if (j > 0) {
             node = NULL;
             for (k = kstart; k < ntree->parent->branches; k++) {
-                if (STR_EQUALS(ntree->parent->children[k]->name, ntree->name) &&
+                if (!strcmp(ntree->parent->children[k]->name, ntree->name) &&
                     (ntree->parent->children[k]->data == data)) {
                     node = ntree->parent->children[k];
                     kstart = k + 1;       // Next Start from the next sibling node
@@ -3305,19 +3306,19 @@ float* castNodeStructureComponentDatatoFloat(NTREE* ntree, const char* target)
     count = getNodeStructureComponentDataCount(node, lastname);
     type = getNodeStructureComponentDataDataType(node, lastname);
 
-    if (STR_EQUALS(type, "float")) {
+    if (!strcmp(type, "float")) {
         return ((float*) getNodeStructureComponentData(node, lastname));
     }
 
     if (count == 0) return NULL;
 
     data = (float*) malloc(count * sizeof(float));
-    if (STR_EQUALS(type, "double")) {
+    if (!strcmp(type, "double")) {
         double* s = (double*) getNodeStructureComponentData(node, lastname);
         for (i = 0; i < count; i++) data[i] = (float) s[i];
         return data;
     }
-    if (STR_EQUALS(type, "int")) {
+    if (!strcmp(type, "int")) {
         int* s = (int*) getNodeStructureComponentData(node, lastname);
         for (i = 0; i < count; i++) data[i] = (float) s[i];
         return data;
@@ -3347,19 +3348,19 @@ double* castNodeStructureComponentDatatoDouble(NTREE* ntree, const char* target)
     count = getNodeStructureComponentDataCount(node, lastname);
     type = getNodeStructureComponentDataDataType(node, lastname);
 
-    if (STR_EQUALS(type, "double")) {
+    if (!strcmp(type, "double")) {
         return (double*) getNodeStructureComponentData(node, lastname);
     }
 
     if (count == 0) return NULL;
 
     data = (double*) malloc(count * sizeof(double));
-    if (STR_EQUALS(type, "float")) {
+    if (!strcmp(type, "float")) {
         float* s = (float*) getNodeStructureComponentData(node, lastname);
         for (i = 0; i < count; i++) data[i] = (double) s[i];
         return data;
     }
-    if (STR_EQUALS(type, "int")) {
+    if (!strcmp(type, "int")) {
         int* s = (int*) getNodeStructureComponentData(node, lastname);
         for (i = 0; i < count; i++) data[i] = (double) s[i];
         return data;
@@ -3798,34 +3799,34 @@ short* castNodeStructureComponentDatatoShort(NTREE* ntree, const char* target)
     count = getNodeStructureComponentDataCount(node, lastname);
     type = getNodeStructureComponentDataDataType(node, lastname);
 
-    if (STR_EQUALS(type, "short")) {
+    if (!strcmp(type, "short")) {
         return (short*) getNodeStructureComponentData(node, lastname);
     }
 
     if (count == 0) return NULL;
 
     data = (short*) malloc(count * sizeof(short));
-    if (STR_EQUALS(type, "double")) {
+    if (!strcmp(type, "double")) {
         double* s = (double*) getNodeStructureComponentData(node, lastname);
         for (i = 0; i < count; i++) data[i] = (short) s[i];
         return data;
     }
-    if (STR_EQUALS(type, "float")) {
+    if (!strcmp(type, "float")) {
         float* s = (float*) getNodeStructureComponentData(node, lastname);
         for (i = 0; i < count; i++) data[i] = (short) s[i];
         return data;
     }
-    if (STR_EQUALS(type, "int")) {
+    if (!strcmp(type, "int")) {
         int* s = (int*) getNodeStructureComponentData(node, lastname);
         for (i = 0; i < count; i++) data[i] = (short) s[i];
         return data;
     }
-    if (STR_EQUALS(type, "unsigned int")) {
+    if (!strcmp(type, "unsigned int")) {
         unsigned int* s = (unsigned int*) getNodeStructureComponentData(node, lastname);
         for (i = 0; i < count; i++) data[i] = (short) s[i];
         return data;
     }
-    if (STR_EQUALS(type, "unsigned short")) {
+    if (!strcmp(type, "unsigned short")) {
         unsigned short* s = (unsigned short*) getNodeStructureComponentData(node, lastname);
         for (i = 0; i < count; i++) data[i] = (short) s[i];
         return data;
