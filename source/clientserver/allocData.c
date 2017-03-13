@@ -13,8 +13,8 @@
 #include <logging/logging.h>
 #include <clientserver/udaTypes.h>
 
-#include "udaErrors.h"
 #include "initStructs.h"
+#include "udaErrors.h"
 
 /**
  * Generic function to (Re)Allocate Memory for a typed Array
@@ -26,6 +26,8 @@
 int allocArray(int data_type, size_t n_data, char** ap)
 {
     if (n_data == 0) return 0; // Insufficient Data to Allocate!
+
+    *ap = NULL;
 
     size_t data_size = getSizeOf(data_type);
     if (data_size > 0) {
@@ -48,18 +50,13 @@ int allocArray(int data_type, size_t n_data, char** ap)
  */
 int allocData(DATA_BLOCK* data_block)
 {
-    unsigned int ndata;
-    char* db = NULL;
-    char* ebh = NULL;
-    char* ebl = NULL;
-
     //------------------------------------------------------------------------
     // Allocate Memory for data Dimensions
 
     if (data_block->rank > 0) {
         data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
-        if (data_block->dims == NULL) return ERROR_ALLOCATING_HEAP;
-        int i;
+        if (data_block->dims == NULL) return (ERROR_ALLOCATING_HEAP);
+        unsigned int i;
         for (i = 0; i < data_block->rank; i++) {
             initDimBlock(&data_block->dims[i]);
         }
@@ -68,22 +65,26 @@ int allocData(DATA_BLOCK* data_block)
     //------------------------------------------------------------------------
     // Allocate Memory for data and errors
 
+    unsigned int ndata;
     if ((ndata = (unsigned int)data_block->data_n) == 0) {
+        // Insufficient Data to Allocate!
         return 1;
-    }   // Insufficient Data to Allocate!
+    }
+
+    char* db = NULL;
+    char* ebh = NULL;
+    char* ebl = NULL;
 
     size_t data_size = getSizeOf(data_block->data_type);
-
     if (data_size > 0) {
         db = (char*)malloc(ndata * data_size);
-
         if (data_block->error_type == TYPE_UNKNOWN) {
-            ebh = (char*)malloc(ndata * data_size); // Will be same type as Data if Accessed
+            ebh = (char*)malloc(ndata * data_size);
             if (data_block->errasymmetry) {
                 ebl = (char*)malloc(ndata * data_size);
             }
         }
-    } else {
+    } else if (data_block->data_type != TYPE_COMPOUND) {
         return UNKNOWN_DATA_TYPE;
     }
 
@@ -98,11 +99,10 @@ int allocData(DATA_BLOCK* data_block)
 
     if (db == NULL && data_block->data_type != TYPE_COMPOUND) {
         IDAM_LOG(LOG_DEBUG, "allocData: Unable to Allocate Heap Memory for Data \n");
-        return (ERROR_ALLOCATING_HEAP);
+        return ERROR_ALLOCATING_HEAP;
     }
 
     size_t error_size = getSizeOf(data_block->error_type);
-
     if (error_size > 0) {
         ebh = (char*)malloc(ndata * error_size);
         if (data_block->errasymmetry) {
@@ -112,7 +112,7 @@ int allocData(DATA_BLOCK* data_block)
 
     if ((ebh == NULL || (ebl == NULL && data_block->errasymmetry)) &&
         (data_block->error_type != TYPE_COMPOUND && data_block->error_type != TYPE_UNKNOWN)) {
-            return ERROR_ALLOCATING_HEAP;
+        return ERROR_ALLOCATING_HEAP;
     }
 
     data_block->data = db;
@@ -121,7 +121,6 @@ int allocData(DATA_BLOCK* data_block)
 
     return 0;
 }
-
 
 int allocDim(DATA_BLOCK* data_block)
 {
@@ -257,4 +256,3 @@ void addIdamPutDataBlockList(PUTDATA_BLOCK* putDataBlock, PUTDATA_BLOCK_LIST* pu
     }
     putDataBlockList->putDataBlock[putDataBlockList->blockCount++] = *putDataBlock;
 }
-
