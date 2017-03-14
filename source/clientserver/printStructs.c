@@ -41,6 +41,7 @@ void printRequestBlock(REQUEST_BLOCK str)
     IDAM_LOG(LOG_DEBUG, "--------------------------------------------------------------------------------\n");
 }
 
+#ifdef SECURITYENABLED
 static void printUCharArray(const char* name, unsigned char* arr, size_t arr_len, size_t max_len)
 {
     IDAM_LOGF(LOG_DEBUG, "%s :  [ ", name);
@@ -58,6 +59,7 @@ static void printUCharArray(const char* name, unsigned char* arr, size_t arr_len
     }
     idamLog(LOG_DEBUG, " ]\n");
 }
+#endif
 
 void printClientBlock(CLIENT_BLOCK str)
 {

@@ -23,4 +23,5 @@ uda_plugin(
     ${LIBXML2_LIBRARIES}
     ${OPENSSL_LIBRARIES}
     client-static
+    ${SECURITY_LIBRARIES}
 )

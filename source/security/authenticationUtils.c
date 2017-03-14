@@ -8,15 +8,12 @@
 int testFilePermissions(const char* object)
 {
     struct stat buffer;
-    int rc, err = 0;
+    errno = 0;
 
-    rc = stat(object, &buffer);
+    int rc = stat(object, &buffer);
     if (rc != 0 || errno != 0) {
-        err = 999;
         if (errno != 0) addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "idamClientAuthentication", errno, "");
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "idamClientAuthentication", err,
-                     "Could not verify the user's private key directory's access permissions!");
-        return err;
+        THROW_ERROR(999, "Could not verify the user's private key directory's access permissions!");
     }
     if (buffer.st_mode & S_IRGRP ||
         buffer.st_mode & S_IWGRP ||
@@ -24,11 +21,9 @@ int testFilePermissions(const char* object)
         buffer.st_mode & S_IROTH ||
         buffer.st_mode & S_IWOTH ||
         buffer.st_mode & S_IXOTH) {
-        err = 999;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "idamClientAuthentication", err,
-                     "The user's private key directory is public: Your keys and certificate may be compromised!!!");
-        return err;
+        THROW_ERROR(999, "The user's private key directory is public: Your keys and certificate may be compromised!!!");
     }
+
     return 0;
 }
 

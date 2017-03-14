@@ -28,4 +28,5 @@ uda_plugin(
     ${LIBXML2_LIBRARIES}
     ${PostgreSQL_LIBRARY}
     client-static
+    ${SECURITY_LIBRARIES}
 )

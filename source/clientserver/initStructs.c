@@ -9,7 +9,7 @@
 #include <string.h>
 
 #include <clientserver/udaTypes.h>
-#ifdef SECURITYENABLED
+#if !defined(FATCLIENT) && defined(SECURITYENABLED)
 #  include <security/authenticationUtils.h>
 #endif
 
@@ -70,7 +70,7 @@ void initClientBlock(CLIENT_BLOCK *str, int version, char *clientname) {
     str->OSName[0]    = '\0'; 	// Operating System Name
     str->DOI[0]       = '\0'; 	// Digital Object Identifier (client study reference)
 
-#ifdef SECURITYENABLED
+#if !defined(FATCLIENT) && defined(SECURITYENABLED)
     initSecurityBlock(&(str->securityBlock));
 #endif
 }
@@ -85,7 +85,7 @@ void initServerBlock(SERVER_BLOCK *str, int version) {
     str->OSName[0] = '\0'; 	// Operating System Name
     str->DOI[0]    = '\0'; 	// Digital Object Identifier (server configuration)
 
-#ifdef SECURITYENABLED
+#if !defined(FATCLIENT) && defined(SECURITYENABLED)
     initSecurityBlock(&(str->securityBlock));
 #endif
 }

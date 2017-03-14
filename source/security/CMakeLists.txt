@@ -21,3 +21,5 @@ add_library( security-server-objects OBJECT ${SRC_FILES} serverAuthentication.c 
 # Authentication code without any passing of objects between the client and server to use in local test executables.
 add_library( security-test-objects OBJECT ${SRC_FILES} clientAuthentication.c serverAuthentication.c )
 target_compile_definitions( security-test-objects PRIVATE -DTESTIDAMSECURITY )
+
+set( SECURITY_LIBRARIES ${GCRYPT_LIBRARIES} ${KSBA_LIBRARIES} PARENT_SCOPE )

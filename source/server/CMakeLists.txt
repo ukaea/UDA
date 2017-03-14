@@ -6,8 +6,6 @@ cmake_minimum_required( VERSION 2.8 )
 find_package( PostgreSQL REQUIRED )
 find_package( LibXml2 REQUIRED )
 find_package( OpenSSL REQUIRED )
-find_package( GCrypt REQUIRED )
-find_package( KSBA REQUIRED )
 
 include( modules )
 find_modules()
@@ -113,8 +111,7 @@ target_link_libraries( server-exe LINK_PRIVATE
   server-shared
   client-shared
   ${OPENSSL_LIBRARIES}
-  ${GCRYPT_LIBRARIES}
-  ${KSBA_LIBRARIES}
+  ${SECURITY_LIBRARIES}
 )
 
 if( NOT APPLE )

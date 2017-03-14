@@ -30,4 +30,5 @@ uda_plugin(
     m
     ${PostgreSQL_LIBRARY}
     client-static
+    ${SECURITY_LIBRARIES}
 )

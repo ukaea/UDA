@@ -29,7 +29,7 @@ else()
 endif()
 set_source_files_properties( UDA.i PROPERTIES SWIG_MODULE_NAME ${LIB_NAME} )
 swig_add_module( ${LIB_NAME} python UDA.i )
-swig_link_libraries( ${LIB_NAME} ${PROJECT_NAME}_cpp ssl ${PYTHON_LIBRARIES} )
+swig_link_libraries( ${LIB_NAME} ${PROJECT_NAME}_cpp ssl ${PYTHON_LIBRARIES} ${SECURITY_LIBRARIES} )
 
 install( TARGETS ${SWIG_MODULE_${LIB_NAME}_REAL_NAME}
   DESTINATION include/pyuda )
