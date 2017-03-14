@@ -3,14 +3,16 @@ cmake_minimum_required( VERSION 3.0 )
 add_definitions(
   -Wall
   -Werror
-  #-DSECURITYENABLED
 )
+
+if( ENABLE_AUTH )
+  add_definitions( -DSECURITYENABLED )
+endif()
 
 add_subdirectory( cache )
 add_subdirectory( logging )
 add_subdirectory( security )
 add_subdirectory( structures )
-#add_subdirectory( config )
 add_subdirectory( clientserver )
 add_subdirectory( client )
 

@@ -18,8 +18,6 @@
 
 int protocolVersionTypeTest(int protocolVersion, int type);
 
-int wrap_string(XDR *xdrs, char *sp);
-
 int WrapXDRString(XDR *xdrs, char *sp, int maxlen);
 
 bool_t xdr_meta(XDR* xdrs, DATA_BLOCK* str);

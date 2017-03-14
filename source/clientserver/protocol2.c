@@ -663,8 +663,7 @@ int protocol2(XDR* xdrs, int protocol_id, int direction, int* token, void* str)
 #ifdef SECURITYENABLED
         if(protocol_id == PROTOCOL_SECURITY_BLOCK) {
 
-            client_block = (CLIENT_BLOCK *)str;
-            SECURITY_BLOCK* security_block = &(client_block->securityBlock);
+            SECURITY_BLOCK* security_block = (SECURITY_BLOCK *)str;
 
             switch (direction) {
                 case XDR_RECEIVE:
@@ -689,21 +688,28 @@ int protocol2(XDR* xdrs, int protocol_id, int direction, int* token, void* str)
                     break;
             }
 
-// Allocate heap
+            if (direction == XDR_RECEIVE) {
+                // Allocate heap
 
-            if(security_block->client_ciphertextLength > 0)
-                security_block->client_ciphertext  = (unsigned char *)malloc(security_block->client_ciphertextLength*sizeof(unsigned char));
-            if(security_block->client2_ciphertextLength > 0)
-                security_block->client2_ciphertext = (unsigned char *)malloc(security_block->client2_ciphertextLength*sizeof(unsigned char));
-            if(security_block->server_ciphertextLength > 0)
-                security_block->server_ciphertext  = (unsigned char *)malloc(security_block->server_ciphertextLength*sizeof(unsigned char));
-            if(security_block->client_X509Length > 0)
-                security_block->client_X509        = (unsigned char *)malloc(security_block->client_X509Length*sizeof(unsigned char));
-            if(security_block->client2_X509Length > 0)
-                security_block->client2_X509       = (unsigned char *)malloc(security_block->client2_X509Length*sizeof(unsigned char));
+                if(security_block->client_ciphertextLength > 0) {
+                    security_block->client_ciphertext = (unsigned char *)malloc(security_block->client_ciphertextLength * sizeof(unsigned char));
+                }
+                if(security_block->client2_ciphertextLength > 0) {
+                    security_block->client2_ciphertext = (unsigned char *)malloc(security_block->client2_ciphertextLength * sizeof(unsigned char));
+                }
+                if(security_block->server_ciphertextLength > 0) {
+                    security_block->server_ciphertext = (unsigned char *)malloc(security_block->server_ciphertextLength * sizeof(unsigned char));
+                }
+                if(security_block->client_X509Length > 0) {
+                    security_block->client_X509 = (unsigned char *)malloc(security_block->client_X509Length * sizeof(unsigned char));
+                }
+                if(security_block->client2_X509Length > 0) {
+                    security_block->client2_X509 = (unsigned char *)malloc(security_block->client2_X509Length * sizeof(unsigned char));
+                }
+            }
 
             switch (direction) {
-                case XDR_RECEIVE :
+                case XDR_RECEIVE:
                     if(!xdr_securityBlock2(xdrs, security_block)) {
                         err = PROTOCOL_ERROR_24;
                         break;
@@ -717,7 +723,7 @@ int protocol2(XDR* xdrs, int protocol_id, int direction, int* token, void* str)
                     }
                     break;
 
-                case XDR_FREE_HEAP :
+                case XDR_FREE_HEAP:
                     break;
 
                 default:

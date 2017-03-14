@@ -35,6 +35,8 @@ typedef enum AuthenticationStep {
     HOUSEKEEPING                = 9,
 } AUTHENTICATION_STEP;
 
+int initAuthentication();
+
 int udaAuthentication(AUTHENTICATION_STEP authenticationStep, ENCRYPTION_METHOD encryptionMethod,
                       TOKEN_TYPE tokenType, unsigned short tokenByteLength,
                       gcry_sexp_t publickey, gcry_sexp_t privatekey,

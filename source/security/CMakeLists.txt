@@ -1,13 +1,11 @@
 cmake_minimum_required( VERSION 2.8 )
 
-find_package( GCrypt )
-find_package( KSBA )
-
-if( NOT GCRYPT_FOUND OR NOT KSBA_FOUND )
-  message( WARNING "GCrypt or KSBA not found - security library being skipped" )
-  add_library( security OBJECT )
+if( NOT ENABLE_AUTH )
   return()
 endif()
+
+find_package( GCrypt REQUIRED )
+find_package( KSBA REQUIRED )
 
 set( SRC_FILES
   security.c

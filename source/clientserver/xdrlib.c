@@ -64,14 +64,9 @@ int protocolVersionTypeTest(int protocolVersion, int type)
 //-----------------------------------------------------------------------
 // Strings
 
-int wrap_string(XDR* xdrs, char* sp)
-{
-    return (xdr_string(xdrs, &sp, MAX_STRING_LENGTH));
-}
-
 int WrapXDRString(XDR* xdrs, char* sp, int maxlen)
 {
-    return (xdr_string(xdrs, &sp, maxlen));
+    return xdr_string(xdrs, &sp, maxlen);
 }
 
 //-----------------------------------------------------------------------

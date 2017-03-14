@@ -83,8 +83,9 @@ endif()
 ########################################################################################################################
 # Build options
 
-option( CLIENT_ONLY "Only build IDAM client" OFF )
-option( NO_WRAPPERS "Don't build any IDAM client wrappers" OFF )
+option( CLIENT_ONLY "Only build UDA client" OFF )
+option( NO_WRAPPERS "Don't build any UDA client wrappers" OFF )
+option( ENABLE_AUTH "Build UDA with X509 authentication enabled" OFF )
 
 ########################################################################################################################
 # Source directories

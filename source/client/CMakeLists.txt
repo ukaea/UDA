@@ -51,15 +51,17 @@ set( CLIENT_OBJS
   $<TARGET_OBJECTS:cache-objects>
   $<TARGET_OBJECTS:logging-client-objects>
   $<TARGET_OBJECTS:structures-client-objects>
-  $<TARGET_OBJECTS:security-client-objects>
 )
+
+if( ENABLE_AUTH )
+  list( APPEND CLIENT_OBJS $<TARGET_OBJECTS:security-client-objects> )
+endif()
 
 set( FATCLIENT_OBJS
   $<TARGET_OBJECTS:fatclient-objects>
   $<TARGET_OBJECTS:fatserver-objects>
   $<TARGET_OBJECTS:fatclientserver-objects>
   $<TARGET_OBJECTS:structures-server-objects>
-  $<TARGET_OBJECTS:security-client-objects>
   $<TARGET_OBJECTS:fatmodules-objects>
   $<TARGET_OBJECTS:cache-objects>
   $<TARGET_OBJECTS:logging-server-objects>

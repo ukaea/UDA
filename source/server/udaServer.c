@@ -298,8 +298,7 @@ int idamServer(CLIENT_BLOCK client_block, REQUEST_BLOCK* request_block0, SERVER_
     }
 
 #ifndef FATCLIENT    // <========================== Client Server Code Only
-
-#ifdef SECURITYENABLED
+#  ifdef SECURITYENABLED
 
     //-------------------------------------------------------------------------
     // User Authentication at startup
@@ -321,14 +320,23 @@ int idamServer(CLIENT_BLOCK client_block, REQUEST_BLOCK* request_block0, SERVER_
         // Generate new token B and encrypt with the client public key
 
         if ((err = serverAuthentication(&client_block, &server_block, SERVER_DECRYPT_CLIENT_TOKEN)) != 0) {
+            REQUEST_BLOCK request_block = {};
+            IDAM_LOG(LOG_ERROR, "Authentication Failed #2");
+            idamErrorLog(client_block, request_block, idamerrorstack);
             THROW_ERROR(err, "Authentication Failed #2");
         }
 
         if ((err = serverAuthentication(&client_block, &server_block, SERVER_ENCRYPT_CLIENT_TOKEN)) != 0) {
+            REQUEST_BLOCK request_block = {};
+            IDAM_LOG(LOG_ERROR, "Client or Server Authentication Failed #3");
+            idamErrorLog(client_block, request_block, idamerrorstack);
             THROW_ERROR(err, "Client or Server Authentication Failed #3")
         }
 
         if ((err = serverAuthentication(&client_block, &server_block, SERVER_ISSUE_TOKEN)) != 0) {
+            REQUEST_BLOCK request_block = {};
+            IDAM_LOG(LOG_ERROR, "Client or Server Authentication Failed #4");
+            idamErrorLog(client_block, request_block, idamerrorstack);
             THROW_ERROR(err, "Client or Server Authentication Failed #4");
         }
 
@@ -339,13 +347,16 @@ int idamServer(CLIENT_BLOCK client_block, REQUEST_BLOCK* request_block0, SERVER_
         // Send the server_block
 
         if ((err = serverAuthentication(&client_block, &server_block, SERVER_VERIFY_TOKEN)) != 0) {
+            REQUEST_BLOCK request_block = {};
+            IDAM_LOG(LOG_ERROR, "Client or Server Authentication Failed #1");
+            idamErrorLog(client_block, request_block, idamerrorstack);
             THROW_ERROR(err, "Client or Server Authentication Failed #1");
         }
 
         authenticationNeeded = FALSE;
     }
 
-#else
+#  else
 
     // Exchange version details - once only
 
@@ -421,7 +432,7 @@ int idamServer(CLIENT_BLOCK client_block, REQUEST_BLOCK* request_block0, SERVER_
         return idamLegacyServer(client_block, &pluginList);
     }
 
-#endif // not SECURITYENABLED
+#  endif // not SECURITYENABLED
 
 //----------------------------------------------------------------------------
 // Start of Server Wait Loop

@@ -63,17 +63,20 @@ add_library( fatserver-objects OBJECT ${SRC_FILES} )
 
 target_compile_definitions( fatserver-objects PRIVATE -DFATCLIENT )
 
-set( SERVER_OBJ
+set( SERVER_OBJS
   $<TARGET_OBJECTS:server-objects>
   $<TARGET_OBJECTS:clientserver-server-objects>
   $<TARGET_OBJECTS:logging-server-objects>
   $<TARGET_OBJECTS:structures-server-objects>
-  $<TARGET_OBJECTS:security-server-objects>
   $<TARGET_OBJECTS:modules-objects>
 )
 
-add_library( server-shared SHARED ${SERVER_OBJ} )
-add_library( server-static STATIC ${SERVER_OBJ} )
+if( ENABLE_AUTH )
+  list( APPEND SERVER_OBJS $<TARGET_OBJECTS:security-server-objects> )
+endif()
+
+add_library( server-shared SHARED ${SERVER_OBJS} )
+add_library( server-static STATIC ${SERVER_OBJS} )
 
 add_executable( server-exe serverMain.c )
 

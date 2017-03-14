@@ -48,18 +48,18 @@ foreach( TEST ${TESTS} )
   add_test( ${TEST} ${TEST} )
 endforeach()
 
-find_package( GCrypt )
-find_package( KSBA )
+if( ENABLE_AUTH )
+  find_package( GCrypt REQUIRED )
+  find_package( KSBA REQUIRED )
 
-add_definitions( -g -O0 )
-
-if( GCRYPT_FOUND AND KSBA_FOUND AND OPENSSL_FOUND AND LIBXML2_FOUND )
-  add_executable( testSecurity testSecurity.c $<TARGET_OBJECTS:security-test-objects> )
-  target_link_libraries( testSecurity PRIVATE
-    ${GCRYPT_LIBRARIES}
-    ${KSBA_LIBRARIES}
-    client-shared
-    ${OPENSSL_LIBRARIES}
-    ${LIBXML2_LIBRARIES} )
-  add_test( testSecurity testSecurity )
+  if( GCRYPT_FOUND AND KSBA_FOUND AND OPENSSL_FOUND AND LIBXML2_FOUND )
+    add_executable( testSecurity testSecurity.c $<TARGET_OBJECTS:security-test-objects> )
+    target_link_libraries( testSecurity LINK_PRIVATE
+      ${GCRYPT_LIBRARIES}
+      ${KSBA_LIBRARIES}
+      client-shared
+      ${OPENSSL_LIBRARIES}
+      ${LIBXML2_LIBRARIES} )
+    add_test( testSecurity testSecurity )
+  endif()
 endif()

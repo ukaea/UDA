@@ -41,6 +41,24 @@ void printRequestBlock(REQUEST_BLOCK str)
     IDAM_LOG(LOG_DEBUG, "--------------------------------------------------------------------------------\n");
 }
 
+static void printUCharArray(const char* name, unsigned char* arr, size_t arr_len, size_t max_len)
+{
+    IDAM_LOGF(LOG_DEBUG, "%s :  [ ", name);
+    size_t max = max_len < arr_len ? max_len : arr_len;
+    int i;
+    for (i = 0; i < max; ++i) {
+        if (i == 0) {
+            idamLog(LOG_DEBUG, "%x", arr[i]);
+        } else {
+            idamLog(LOG_DEBUG, ", %x", arr[i]);
+        }
+    }
+    if (arr_len > 0 && max_len < arr_len) {
+        idamLog(LOG_DEBUG, ", ...");
+    }
+    idamLog(LOG_DEBUG, " ]\n");
+}
+
 void printClientBlock(CLIENT_BLOCK str)
 {
     IDAM_LOG(LOG_DEBUG, "Client State Block\n");
@@ -71,6 +89,19 @@ void printClientBlock(CLIENT_BLOCK str)
 
     IDAM_LOGF(LOG_DEBUG, "OS Name      : %s\n", str.OSName);
     IDAM_LOGF(LOG_DEBUG, "Study DOI    : %s\n", str.DOI);
+#ifdef SECURITYENABLED
+    IDAM_LOGF(LOG_DEBUG, "uid2         : %s\n", str.uid2);
+    IDAM_LOG(LOG_DEBUG, "Client State Security Block\n");
+    IDAM_LOG(LOG_DEBUG, "--------------------------------------------------------------------------------\n");
+    IDAM_LOGF(LOG_DEBUG, "encryptionMethod          : %d\n", str.securityBlock.encryptionMethod);
+    IDAM_LOGF(LOG_DEBUG, "authenticationStep        : %d\n", str.securityBlock.authenticationStep);
+    IDAM_LOGF(LOG_DEBUG, "client_ciphertextLength   : %d\n", str.securityBlock.client_ciphertextLength);
+    printUCharArray("client_ciphertext", str.securityBlock.client_ciphertext, str.securityBlock.client_ciphertextLength, 10);
+    IDAM_LOGF(LOG_DEBUG, "server_ciphertextLength   : %d\n", str.securityBlock.server_ciphertextLength);
+    printUCharArray("server_ciphertext", str.securityBlock.server_ciphertext, str.securityBlock.server_ciphertextLength, 10);
+    IDAM_LOGF(LOG_DEBUG, "client_X509Length         : %d\n", str.securityBlock.client_X509Length);
+    printUCharArray("client_X509", str.securityBlock.client_X509, str.securityBlock.client_X509Length, 10);
+#endif
     IDAM_LOG(LOG_DEBUG, "--------------------------------------------------------------------------------\n");
 }
 
@@ -85,6 +116,20 @@ void printServerBlock(SERVER_BLOCK str)
     IDAM_LOGF(LOG_DEBUG, "Server PID       : %d\n", str.pid);
     IDAM_LOGF(LOG_DEBUG, "OS Name          : %s\n", str.OSName);
     IDAM_LOGF(LOG_DEBUG, "Configuration DOI: %s\n", str.DOI);
+#ifdef SECURITYENABLED
+    IDAM_LOG(LOG_DEBUG, "Server State Security Block\n");
+    IDAM_LOG(LOG_DEBUG, "--------------------------------------------------------------------------------\n");
+    IDAM_LOGF(LOG_DEBUG, "encryptionMethod          : %d\n", str.securityBlock.encryptionMethod);
+    IDAM_LOGF(LOG_DEBUG, "authenticationStep        : %d\n", str.securityBlock.authenticationStep);
+    IDAM_LOGF(LOG_DEBUG, "client_ciphertextLength   : %d\n", str.securityBlock.client_ciphertextLength);
+    printUCharArray("client_ciphertext", str.securityBlock.client_ciphertext, str.securityBlock.client_ciphertextLength, 10);
+    IDAM_LOGF(LOG_DEBUG, "server_ciphertextLength   : %d\n", str.securityBlock.server_ciphertextLength);
+    printUCharArray("server_ciphertext", str.securityBlock.server_ciphertext, str.securityBlock.server_ciphertextLength, 10);
+    IDAM_LOGF(LOG_DEBUG, "client_X509Length         : %d\n", str.securityBlock.client_X509Length);
+    printUCharArray("client_X509", str.securityBlock.client_X509, str.securityBlock.client_X509Length, 10);
+#endif
+    IDAM_LOG(LOG_DEBUG, "Server State Error Stack\n");
+    IDAM_LOG(LOG_DEBUG, "--------------------------------------------------------------------------------\n");
     printIdamErrorStack(str.idamerrorstack);
     IDAM_LOG(LOG_DEBUG, "--------------------------------------------------------------------------------\n");
 }

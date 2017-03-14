@@ -394,19 +394,11 @@ static int decryptToken(gcry_mpi_t* mpi_token, gcry_sexp_t key, unsigned char** 
     return err;
 }
 
-int udaAuthentication(AUTHENTICATION_STEP authenticationStep, ENCRYPTION_METHOD encryptionMethod,
-                      TOKEN_TYPE tokenType, unsigned short tokenByteLength,
-                      gcry_sexp_t publickey, gcry_sexp_t privatekey,
-                      gcry_mpi_t* client_mpiToken, gcry_mpi_t* server_mpiToken,
-                      unsigned char** client_ciphertext, size_t* client_ciphertextLength,
-                      unsigned char** server_ciphertext, size_t* server_ciphertextLength)
+static BOOLEAN initialised = FALSE;
+
+int initAuthentication()
 {
-
-    int err = 0;
-
     // Initialise the library
-
-    static BOOLEAN initialised = FALSE;
 
     if (!initialised) {
         // Check version of runtime gcrypt library.
@@ -422,6 +414,21 @@ int udaAuthentication(AUTHENTICATION_STEP authenticationStep, ENCRYPTION_METHOD 
 
         initialised = TRUE;
     }
+
+    return initialised;
+}
+
+int udaAuthentication(AUTHENTICATION_STEP authenticationStep, ENCRYPTION_METHOD encryptionMethod,
+                      TOKEN_TYPE tokenType, unsigned short tokenByteLength,
+                      gcry_sexp_t publickey, gcry_sexp_t privatekey,
+                      gcry_mpi_t* client_mpiToken, gcry_mpi_t* server_mpiToken,
+                      unsigned char** client_ciphertext, size_t* client_ciphertextLength,
+                      unsigned char** server_ciphertext, size_t* server_ciphertextLength)
+{
+
+    int err = 0;
+
+    initAuthentication();
 
     //--------------------------------------------------------------------------------------------------------------------
     // Authentication Steps
