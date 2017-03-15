@@ -51,6 +51,13 @@ char** SplitString(const char* string, const char* delim);
 
 void FreeSplitStringTokens(char*** tokens);
 
+static inline int StringEquals(const char* a, const char* b)
+{
+    if (a == NULL || b == NULL) return 0;
+    const size_t b_len = strlen(b);
+    return !strncmp(a, b, b_len) && a[b_len] == '\0';
+}
+
 #define STR_STARTSWITH(X, Y) !strncmp(X, Y, strlen(Y))
 #define STR_ISTARTSWITH(X, Y) !strncasecmp(X, Y, strlen(Y))
 

@@ -4,6 +4,7 @@
 
 #include <clientserver/errorLog.h>
 #include <clientserver/stringUtils.h>
+#include <logging/logging.h>
 
 #include "security.h"
 
@@ -1041,4 +1042,93 @@ int importPEMPublicKey(char* keyFile, gcry_sexp_t* key_sexp)
     *key_sexp = s_key;
 
     return err;
+}
+
+#define EMAIL_OID "1.2.840.113549.1.9.1"
+
+char* decodeBytes(const char* string)
+{
+    if (string == NULL || string[0] != '#') return NULL;
+
+    ++string; // first char is #
+
+    size_t len = strlen(string);
+
+    if (len % 2 != 0) {
+        return NULL;
+    }
+
+    char* bytes = malloc(len/2 + 1);
+
+    size_t i = 0;
+    char buf[2];
+    for (i = 0; i < len/2; ++i)
+    {
+        buf[0] = string[2*i];
+        buf[1] = string[2*i+1];
+        sscanf(buf, "%x", (unsigned int*)&bytes[i]);
+    }
+
+    bytes[len/2] = '\0';
+
+    return bytes;
+}
+
+DISTINGUISHED_NAME unpackDistinguishedName(const char* dn_string)
+{
+    DISTINGUISHED_NAME dn = { 0 };
+
+    char** tokens = SplitString(dn_string, ",");
+
+    size_t i = 0;
+    while (tokens[i] != NULL) {
+        char* value = strchr(tokens[i], '=');
+        if (value != NULL) {
+            *value = '\0';
+            ++value;
+            char* key = tokens[i];
+            IDAM_LOGF(LOG_DEBUG, "key = %s, value = %s\n", key, value);
+            if (StringEquals(key, "C")) {
+                dn.countryName = strdup(value);
+            } else if (StringEquals(key, "L")) {
+                dn.localityName = strdup(value);
+            } else if (StringEquals(key, "O")) {
+                dn.organisationName = strdup(value);
+            } else if (StringEquals(key, "OU")) {
+                dn.organisationalUnitName = strdup(value);
+            } else if (StringEquals(key, "CN")) {
+                dn.commonName = strdup(value);
+            } else if (StringEquals(key, EMAIL_OID)) {
+                dn.emailAddress = decodeBytes(value);
+            }
+        }
+        ++i;
+    }
+
+    FreeSplitStringTokens(&tokens);
+
+    return dn;
+}
+
+void printDistinguishedName(const DISTINGUISHED_NAME* dn)
+{
+    IDAM_LOG(LOG_DEBUG, "Distinguished Name\n");
+    IDAM_LOG(LOG_DEBUG, "--------------------------------------------------------------------------------\n");
+    IDAM_LOGF(LOG_DEBUG, "countryName             : %s\n", dn->countryName);
+    IDAM_LOGF(LOG_DEBUG, "localityName            : %s\n", dn->localityName);
+    IDAM_LOGF(LOG_DEBUG, "organisationName        : %s\n", dn->organisationName);
+    IDAM_LOGF(LOG_DEBUG, "organisationalUnitName  : %s\n", dn->organisationalUnitName);
+    IDAM_LOGF(LOG_DEBUG, "commonName              : %s\n", dn->commonName);
+    IDAM_LOGF(LOG_DEBUG, "emailAddress            : %s\n", dn->emailAddress);
+}
+
+void destroyDistinguishedName(DISTINGUISHED_NAME* dn)
+{
+    free(dn->emailAddress);
+    free(dn->commonName);
+    free(dn->organisationalUnitName);
+    free(dn->organisationName);
+    free(dn->localityName);
+    free(dn->countryName);
+    memset(dn, '\0', sizeof(*dn));
 }

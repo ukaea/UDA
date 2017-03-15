@@ -51,15 +51,15 @@ endforeach()
 if( ENABLE_AUTH )
   find_package( GCrypt REQUIRED )
   find_package( KSBA REQUIRED )
+  find_package( PostgreSQL REQUIRED )
 
-  if( GCRYPT_FOUND AND KSBA_FOUND AND OPENSSL_FOUND AND LIBXML2_FOUND )
-    add_executable( testSecurity testSecurity.c $<TARGET_OBJECTS:security-test-objects> )
-    target_link_libraries( testSecurity LINK_PRIVATE
-      ${GCRYPT_LIBRARIES}
-      ${KSBA_LIBRARIES}
-      client-shared
-      ${OPENSSL_LIBRARIES}
-      ${LIBXML2_LIBRARIES} )
-    add_test( testSecurity testSecurity )
-  endif()
+  add_executable( testSecurity testSecurity.c $<TARGET_OBJECTS:security-test-objects> )
+  target_link_libraries( testSecurity LINK_PRIVATE
+    ${GCRYPT_LIBRARIES}
+    ${KSBA_LIBRARIES}
+    client-shared
+    ${OPENSSL_LIBRARIES}
+    ${LIBXML2_LIBRARIES}
+    ${PostgreSQL_LIBRARY} )
+  add_test( testSecurity testSecurity )
 endif()

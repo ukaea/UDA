@@ -1,5 +1,7 @@
 #include "serverAuthentication.h"
 
+#include <libpq-fe.h>
+
 #include <server/udaServer.h>
 #include <clientserver/errorLog.h>
 #include <logging/logging.h>
@@ -55,6 +57,68 @@ static int receiveSecurityBlock(CLIENT_BLOCK* client_block)
 #endif
 
     return err;
+}
+
+static int validateDistinguishedName(const DISTINGUISHED_NAME* dn)
+{
+    PGconn* conn;
+
+    const char* host = "idam3.mast.ccfe.ac.uk";
+    const char* port = "60001";
+    const char* dbname = "idam";
+    const char* user = "idam";
+    const char* pswrd = NULL;
+
+    if ((conn = PQsetdbLogin(host, port, "", "", dbname, user, pswrd)) == NULL) {
+        PQfinish(conn);
+        THROW_ERROR(999, "SQL Server Connect Error");
+    }
+
+    if (PQstatus(conn) == CONNECTION_BAD) {
+        PQfinish(conn);
+        THROW_ERROR(999, "Bad SQL Server Connect Status");
+    }
+
+    const char* sql = "SELECT valid_to FROM uda_authentication WHERE name = $1";
+
+    const char* params[1];
+    params[0] = dn->commonName;
+
+    PGresult* res = PQexecParams(conn, sql, 1, NULL, params, NULL, NULL, 0);
+    if (PQresultStatus(res) != PGRES_TUPLES_OK) {
+        addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, PQresultStatus(res), PQresultErrorMessage(res));
+        THROW_ERROR(999, "Authentication query failed");
+    }
+
+    if (PQntuples(res) == 0) {
+        THROW_ERROR(999, "Authentication query returned no rows");
+    }
+
+    if (PQntuples(res) > 1) {
+        THROW_ERROR(999, "Authentication query returned multiple rows");
+    }
+
+    const char* buf = PQgetvalue(res, 0, 0);
+    IDAM_LOGF(LOG_DEBUG, "timestamp: %s\n", buf);
+
+    struct tm ts;
+    if (strptime(buf, "%Y-%m-%d %H:%M:%S", &ts) == NULL) {
+        THROW_ERROR(999, "Failed to parse database timestamp");
+    }
+
+    time_t valid_to = mktime(&ts);
+    time_t now = time(NULL);
+
+    if (now > valid_to) {
+        IDAM_LOGF(LOG_INFO, "Certificate expired on %s\n", buf);
+        THROW_ERROR(999, "Certificate is no longer valid");
+    }
+
+    sql = "UPDATE uda_authentication SET last_login = now() WHERE name = $1;";
+
+    PQexecParams(conn, sql, 1, NULL, params, NULL, NULL, 0);
+
+    return 0;
 }
 
 /**
@@ -130,41 +194,64 @@ static int initialiseKeys(CLIENT_BLOCK* client_block, gcry_sexp_t* client_public
                                           &clientCert)) != 0) {
                 break;
             }
-            if ((err = testX509Dates(clientCert)) != 0) break;                // Check the Certificate Validity
+            const char* idn = ksba_cert_get_issuer(clientCert, 0);
+            IDAM_LOGF(LOG_INFO, "issuer distinguished name: %s\n", idn);
+
+            const char* sdn = ksba_cert_get_subject(clientCert, 0);
+            IDAM_LOGF(LOG_INFO, "subject distinguished name: %s\n", sdn);
+
+            DISTINGUISHED_NAME dn = unpackDistinguishedName(sdn);
+            printDistinguishedName(&dn);
+
+            int validation = validateDistinguishedName(&dn);
+
+            destroyDistinguishedName(&dn);
+            free((void*)idn);
+            free((void*)sdn);
+
+            if (validation) {
+                addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, err, "Certificate is invalid");
+                break;
+            }
+
+            // Check the Certificate Validity
+            if ((err = testX509Dates(clientCert)) != 0) {
+                break;
+            }
+
+            // get the Public key from an X509 certificate
             if ((err = extractX509SExpKey(clientCert, &client_publickey)) != 0) {
                 break;
-            }        // get the Public key from an X509 certificate
+            }
         } else {
             addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, err, "Failed to receive the Client's certificate");
             break;
         }
 
         // get the server's Private key from a PEM file (for decryption) and convert to S-Expression
-
         if ((err = importPEMPrivateKey(serverPrivateKeyFile, &server_privatekey)) != 0) {
             addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, err, "Failed to load Server's Private Key File");
             break;
         }
 
         // Read the CA's certificate, check date validity
-
         if (CACertFile != NULL) {
             if ((err = importX509Reader(CACertFile, &CACert)) != 0) break;
             if ((err = testX509Dates(CACert)) != 0) break;
         }
 
         // Test the server's private key for consistency
-
         if (gcry_pk_testkey(server_privatekey) != 0) {
             err = 999;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "idamServerAuthentication", err,
+            addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, err,
                          "The Server's Private Authentication Key is Invalid!");
             break;
         }
 
         // Verify the client certificate's signature using the CA's public key
-
-        if ((err = checkX509Signature(CACert, clientCert)) != 0) break;
+        if ((err = checkX509Signature(CACert, clientCert)) != 0) {
+            break;
+        }
 
         ksba_cert_release(clientCert);
         ksba_cert_release(CACert);
