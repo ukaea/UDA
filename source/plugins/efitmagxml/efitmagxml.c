@@ -22,80 +22,56 @@
 *
 * 06Sept2016	dgm	Original Version
 *---------------------------------------------------------------------------------------------------------------*/
-#include "efitmagxml.h"
-
-#include <idampluginfiles.h>
-#include <idamserver.h>
-#include <idamErrorLog.h>
-#include <managePluginFiles.h>
-#include <initStructs.h>
-#include <makeServerRequestBlock.h>
-#include <client/accAPI_C.h>
-#include <client/IdamAPI.h>
-#include <freeDataBlock.h>
-#include <structures/struct.h>
-#include <structures/accessors.h>
-#include <clientserver/TrimString.h>
-
-/*
 #include "idamclientpublic.h"
 #include "idamclientserver.h"
 #include "idamserver.h"
 #include "idamserverfiles.h"
+
 #include "idamgenstruct.h"
 #include <mcheck.h>
 #include <time.h>
+
+#include "idamplugin.h"
 #include "efitmagxml.h"
-*/
 
-//#include "allocXMLData.c"
-//#include "initXMLStructs.c"
-//#include "efitmagxmllib.c"
-//#include "parseHData.c"
+#include "allocXMLData.c"
+#include "initXMLStructs.c"
+#include "efitmagxmllib.c"
+#include "parseHData.c"
 
-//#ifndef USE_PLUGIN_DIRECTLY
-//   #include "/home/dgm/IDAM/source/clientserver/TrimString.c"
-//#endif
+#ifndef USE_PLUGIN_DIRECTLY
+   #include "/home/dgm/IDAM/source/clientserver/TrimString.c"
+#endif
 
-static FILE* dbgout, * errout;
+static FILE *dbgout, *errout;
 
-/*
 #ifndef USE_PLUGIN_DIRECTLY
    static ENVIRONMENT environment;
    IDAMERRORSTACK *idamErrorStack;	// Pointer to the Server's Error Stack. Global scope within this plugin library
 #endif
-*/
 
-int efitmagxml(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
-{
-    //int i,j,k,err=0,offset;
-    int i, err = 0;
-    char* p;
-
-    static short init = 0;
-    static EFIT efit;
-
+int efitmagxml(IDAM_PLUGIN_INTERFACE *idam_plugin_interface){
+   int i,j,k,err=0,offset;
+   char *p;
+   
+   static short init = 0;
+   static EFIT efit;
+      
 //----------------------------------------------------------------------------------------
 // Standard v1 Plugin Interface
 
-    DATA_BLOCK* data_block;
-    REQUEST_BLOCK* request_block;
-    DATA_SOURCE* data_source;
-    SIGNAL_DESC* signal_desc;
+   DATA_BLOCK *data_block;
+   REQUEST_BLOCK *request_block;
+   DATA_SOURCE *data_source;
+   SIGNAL_DESC *signal_desc;
+   
+   PLUGINLIST *pluginList;	// List of all data reader plugins (internal and external shared libraries)
+   
+   FILE *old_stdout, *old_stderr;
 
-    PLUGINLIST* pluginList;    // List of all data reader plugins (internal and external shared libraries)
-
-    //FILE *old_stdout, *old_stderr;
-
-    USERDEFINEDTYPE usertype;
-    COMPOUNDFIELD field;
-
-    IDAMERRORSTACK* idamErrorStack = getIdamServerPluginErrorStack();        // Server library functions
-    USERDEFINEDTYPELIST* userdefinedtypelist = getIdamServerUserDefinedTypeList();
-    LOGMALLOCLIST* logmalloclist = getIdamServerLogMallocList();
-
-    initIdamErrorStack(&idamerrorstack);
-/*   
+   USERDEFINEDTYPE usertype;
+   COMPOUNDFIELD field;
+   
 #ifndef USE_PLUGIN_DIRECTLY
    idamErrorStack                           = getIdamServerPluginErrorStack(); 		// Server's error stack	 
    LOGMALLOCLIST  *logmalloclist            = getIdamServerLogMallocList();
@@ -105,60 +81,57 @@ int efitmagxml(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 #else
    IDAMERRORSTACK *idamErrorStack = &idamerrorstack;		// local and server are the same!  
 #endif   
-*/
-    unsigned short housekeeping;
-
-    if (idam_plugin_interface->interfaceVersion > THISPLUGIN_MAX_INTERFACE_VERSION) {
-        err = 999;
-        idamLog(LOG_ERROR,
-                "ERROR efitmagxml: Plugin Interface Version Unknown to this plugin: Unable to execute the request!\n");
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "efitmagxml", err,
-                     "Plugin Interface Version Unknown to this plugin: Unable to execute the request!");
-        concatIdamError(idamerrorstack, idamErrorStack);
-        return (err);
-    }
-
-    idam_plugin_interface->pluginVersion = THISPLUGIN_VERSION;
-
-    data_block = idam_plugin_interface->data_block;
-    request_block = idam_plugin_interface->request_block;
-    data_source = idam_plugin_interface->data_source;
-    signal_desc = idam_plugin_interface->signal_desc;
-
-    pluginList = idam_plugin_interface->pluginList;
-
-    dbgout = idam_plugin_interface->dbgout;
-    errout = idam_plugin_interface->errout;
-
-    housekeeping = idam_plugin_interface->housekeeping;
-
-    //debugon = (dbgout != NULL);
-    //verbose = (errout != NULL);
-
+   
+   unsigned short housekeeping;
+   
+   if(idam_plugin_interface->interfaceVersion > THISPLUGIN_MAX_INTERFACE_VERSION){
+      err = 999;
+      if(verbose) fprintf(errout, "ERROR efitmagxml: Plugin Interface Version Unknown to this plugin: Unable to execute the request!\n");      
+      addIdamError(&idamerrorstack, CODEERRORTYPE, "efitmagxml", err, "Plugin Interface Version Unknown to this plugin: Unable to execute the request!");
+      concatIdamError(idamerrorstack, idamErrorStack);
+      return(err);
+   }
+      
+   idam_plugin_interface->pluginVersion = THISPLUGIN_VERSION;
+      
+   data_block    = idam_plugin_interface->data_block;
+   request_block = idam_plugin_interface->request_block;
+   data_source   = idam_plugin_interface->data_source;
+   signal_desc   = idam_plugin_interface->signal_desc;
+      
+   pluginList = idam_plugin_interface->pluginList;
+            
+   dbgout  = idam_plugin_interface->dbgout;
+   errout  = idam_plugin_interface->errout;
+      
+   housekeeping = idam_plugin_interface->housekeeping;
+            
+   debugon = (dbgout != NULL);
+   verbose = (errout != NULL); 
+   
 #ifndef USE_PLUGIN_DIRECTLY
 // Don't copy the structure if housekeeping is requested - may dereference a NULL or freed pointer!     
-    if (!housekeeping && idam_plugin_interface->environment != NULL) environment = *idam_plugin_interface->environment;
-#endif
+      if(!housekeeping && idam_plugin_interface->environment != NULL) environment = *idam_plugin_interface->environment;
+#endif   
 
 // Additional interface components (must be defined at the bottom of the standard data structure)
 // Versioning must be consistent with the macro THISPLUGIN_MAX_INTERFACE_VERSION and the plugin registration with the server
-
-    //if(idam_plugin_interface->interfaceVersion >= 2){
-    // NEW COMPONENTS
-    //}
+      
+   //if(idam_plugin_interface->interfaceVersion >= 2){
+   // NEW COMPONENTS  
+   //}      
 
 //----------------------------------------------------------------------------------------
 // Arguments and keywords 
 
-    unsigned short int isReset = 0;
-    for (i = 0; i < request_block->nameValueList.pairCount; i++) {
-        if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "reset") ||
-            !strcasecmp(request_block->nameValueList.nameValue[i].name, "initialise")) {
-            isReset = 1;
-            break;
-        }
-    }
-
+   unsigned short int isReset=0;
+   for(i=0;i<request_block->nameValueList.pairCount;i++){
+      if(!strcasecmp(request_block->nameValueList.nameValue[i].name, "reset") || !strcasecmp(request_block->nameValueList.nameValue[i].name, "initialise")){
+	 isReset = 1;
+	 break;
+      }
+   }
+        
 //----------------------------------------------------------------------------------------
 // Heap Housekeeping 
 
@@ -172,139 +145,175 @@ int efitmagxml(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 // If the housekeeping action is requested, this must be also applied to all plugins called.
 // A list must be maintained to register these plugin calls to manage housekeeping.
 // Calls to plugins must also respect access policy and user authentication policy
-
-    if (isReset || housekeeping || !strcasecmp(request_block->function, "reset")) {
-
-        if (!init) return 0;        // Not previously initialised: Nothing to do!
-
+   
+   if(isReset || housekeeping || !strcasecmp(request_block->function, "reset")){ 
+      
+      if(!init) return 0;		// Not previously initialised: Nothing to do!
+      
 // Free Heap & reset counters
 
-        freeEfit(&efit);
+      freeEfit(&efit);
 
-        init = 0;
-
-        if (!isReset) return 0;        // Step to Initialisation
-    }
-
+      init = 0;
+       
+      if(!isReset) return 0;		// Step to Initialisation
+   }
+   
 //----------------------------------------------------------------------------------------
 // Initialise 
-
-    if (!init || !strcasecmp(request_block->function, "init")
-        || !strcasecmp(request_block->function, "initialise")) {
+   
+   if(!init || !strcasecmp(request_block->function, "init") 
+            || !strcasecmp(request_block->function, "initialise")){
 
 // EFIT Data Structures
 
-        initEfit(&efit);
+      initEfit(&efit);
 
 // Arguments and keywords 
 
-        char* xmlFile;
-        unsigned short int isXmlFile = 0;
-        for (i = 0; i < request_block->nameValueList.pairCount; i++) {
-            if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "xmlfile")) {
-                isXmlFile = 1;
-                xmlFile = request_block->nameValueList.nameValue[i].value;
-                break;
-            }
-        }
-
+      char *xmlFile;
+      unsigned short int isXmlFile=0;
+      for(i=0;i<request_block->nameValueList.pairCount;i++){
+         if(!strcasecmp(request_block->nameValueList.nameValue[i].name, "xmlfile")){
+	    isXmlFile = 1;
+	    xmlFile = request_block->nameValueList.nameValue[i].value;	
+	    break;
+	 }
+      }
+            
 // Parse the XML if the file has been identified      
 
-        if (isXmlFile && parseEfitXML(xmlFile, &efit) != 0) {
-            err = 999;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "efitmagxml", err, "EFIT++ Magnetics XML could Not be Parsed");
-            return err;
-        }
-
-        init = 1;
-        if (!strcasecmp(request_block->function, "init") || !strcasecmp(request_block->function, "initialise")) {
-            return 0;
-        }
-    }
-
+      if(isXmlFile && parseEfitXML(xmlFile, &efit) != 0){
+         err = 999;
+         addIdamError(&idamerrorstack, CODEERRORTYPE, "efitmagxml", err, "EFIT++ Magnetics XML could Not be Parsed");
+         return err;         
+      }
+               
+      init = 1;
+      if(!strcasecmp(request_block->function, "init") || !strcasecmp(request_block->function, "initialise")) return 0;
+   } 
+	             
 //----------------------------------------------------------------------------------------
 // Plugin Functions 
 //----------------------------------------------------------------------------------------
-
-    do {
+      
+   do {
 
 //---------------------------------------------------------------------------------------- 
 // Common Passed name-value pairs and Keywords 
 
-        unsigned short int isObjectId = 0, isFluxLoop = 0, isMagProbe = 0, isCount = 0, isIndex = 0, isPosition = 0, isName = 0,
-                isIdentifier, isSignal = 0, isR = 0, isZ = 0, isPhi = 0, isUnitStartIndex = 0, isDevice = 0;
-        int objectId = -1, index = -1;
-
+         unsigned short int isObjectId=0, isFluxLoop=0, isMagProbe=0, isCount=0, isIndex=0, isPosition=0, isName=0,
+	                    isIdentifier=0, isSignal=0, isR=0, isZ=0, isPhi=0, isUnitStartIndex=0, isDevice=0,
+                            isPFActive=0, isElement=0, isGeometry=0, isRectangle=0, isTurns=0, isDataScaling=0,
+                            isTimeScaling=0, isWidth=0, isHeight=0;
+	 int objectId=-1, index=-1; 
+	 
 // Arguments and keywords 
+      
+         for(i=0;i<request_block->nameValueList.pairCount;i++){
 
-        for (i = 0; i < request_block->nameValueList.pairCount; i++) {
-
-            if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "id")) {
-                isObjectId = 1;
-                objectId = atoi(request_block->nameValueList.nameValue[i].value);
-                continue;
-            }
-            if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "FluxLoop")) {
-                isFluxLoop = 1;
-                continue;
-            }
-            if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "MagProbe")) {
-                isMagProbe = 1;
-                continue;
-            }
-            if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "Position")) {
-                isPosition = 1;
-                continue;
-            }
-            if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "Count")) {
-                isCount = 1;
-                continue;
-            }
-            if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "index")) {
-                isIndex = 1;
-                index = atoi(request_block->nameValueList.nameValue[i].value);
-                continue;
-            }
-            if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "R")) {
-                isR = 1;
-                continue;
-            }
-            if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "Z")) {
-                isZ = 1;
-                continue;
-            }
-            if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "Phi")) {
-                isPhi = 1;
-                continue;
-            }
-            if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "Signal")) {
-                isSignal = 1;
-                continue;
-            }
-            if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "Name")) {
-                isName = 1;
-                continue;
-            }
-            if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "Identifier")) {
-                isIdentifier = 1;
-                continue;
-            }
-            if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "UnitStartIndex")) {
-                isUnitStartIndex = 1;
-                continue;
-            }
-            if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "Device")) {
-                isDevice = 1;
-                continue;
-            }
-
-        }
-
-        if (isUnitStartIndex) {
-            if (isObjectId) objectId = objectId - 1;    // All C arrays begin with index 0
-            if (isIndex) index = index - 1;
-        }
-
+	    if(!strcasecmp(request_block->nameValueList.nameValue[i].name, "id")){
+	       isObjectId = 1;
+	       objectId = atoi(request_block->nameValueList.nameValue[i].value);	
+	       continue;
+	    }
+	    if(!strcasecmp(request_block->nameValueList.nameValue[i].name, "FluxLoop")){
+	       isFluxLoop = 1;
+	       continue;
+	    }
+	    if(!strcasecmp(request_block->nameValueList.nameValue[i].name, "MagProbe")){
+	       isMagProbe = 1;
+	       continue;
+	    }
+	    if(!strcasecmp(request_block->nameValueList.nameValue[i].name, "PFActive")){
+	       isPFActive = 1;
+	       continue;
+	    }
+	    if(!strcasecmp(request_block->nameValueList.nameValue[i].name, "Position")){
+	       isPosition = 1;
+	       continue;
+	    }
+	    if(!strcasecmp(request_block->nameValueList.nameValue[i].name, "Element")){
+	       isElement = 1;
+	       continue;
+	    }
+	    if(!strcasecmp(request_block->nameValueList.nameValue[i].name, "Geometry")){
+	       isGeometry = 1;
+	       continue;
+	    }
+	    if(!strcasecmp(request_block->nameValueList.nameValue[i].name, "Rectangle")){
+	       isRectangle = 1;
+	       continue;
+	    }
+	    if(!strcasecmp(request_block->nameValueList.nameValue[i].name, "Count")){
+	       isCount = 1;
+	       continue;
+	    }
+	    if(!strcasecmp(request_block->nameValueList.nameValue[i].name, "index")){
+	       isIndex = 1;
+	       index = atoi(request_block->nameValueList.nameValue[i].value);	
+	       continue;
+	    }
+	    if(!strcasecmp(request_block->nameValueList.nameValue[i].name, "R")){
+	       isR = 1;
+	       continue;
+	    }
+	    if(!strcasecmp(request_block->nameValueList.nameValue[i].name, "Z")){
+	       isZ = 1;
+	       continue;
+	    }
+	    if(!strcasecmp(request_block->nameValueList.nameValue[i].name, "Phi")){
+	       isPhi = 1;
+	       continue;
+	    }
+	    if(!strcasecmp(request_block->nameValueList.nameValue[i].name, "Width")){
+	       isWidth = 1;
+	       continue;
+	    }
+	    if(!strcasecmp(request_block->nameValueList.nameValue[i].name, "Height")){
+	       isHeight = 1;
+	       continue;
+	    }
+	    if(!strcasecmp(request_block->nameValueList.nameValue[i].name, "Signal")){
+	       isSignal = 1;
+	       continue;
+	    }
+	    if(!strcasecmp(request_block->nameValueList.nameValue[i].name, "Turns")){
+	       isTurns = 1;
+	       continue;
+	    }
+	    if(!strcasecmp(request_block->nameValueList.nameValue[i].name, "DataScaling")){
+	       isDataScaling = 1;
+	       continue;
+	    }
+	    if(!strcasecmp(request_block->nameValueList.nameValue[i].name, "TimeScaling")){
+	       isTimeScaling = 1;
+	       continue;
+	    }
+	    if(!strcasecmp(request_block->nameValueList.nameValue[i].name, "Name")){
+	       isName = 1;
+	       continue;
+	    }
+	    if(!strcasecmp(request_block->nameValueList.nameValue[i].name, "Identifier")){
+	       isIdentifier = 1;
+	       continue;
+	    }
+	    if(!strcasecmp(request_block->nameValueList.nameValue[i].name, "UnitStartIndex")){
+	       isUnitStartIndex = 1;
+	       continue;
+	    }
+	    if(!strcasecmp(request_block->nameValueList.nameValue[i].name, "Device")){
+	       isDevice = 1;
+	       continue;
+	    }
+	    
+         }
+	 
+	 if(isUnitStartIndex){
+	    if(isObjectId) objectId = objectId -1;	// All C arrays begin with index 0	 
+	    if(isIndex) index = index -1; 	 
+         }
+	    
 //---------------------------------------------------------------------------------------- 
 // Get(xmlFile=xmlFile, /UnitStartIndex]) 
 
@@ -328,6 +337,28 @@ bpol_probe(id)/position/r		id=id, /MagProbe, /Position, /r
 bpol_probe(id)/position/z		id=id, /MagProbe, /Position, /z  
 bpol_probe(id)/position/phi		id=id, /MagProbe, /Position, /phi  
 
+Mapping from PF_ACTIVE IDS to XML objects
+
+pf_active.coil(:)						/PFActive, /Count
+pf_active.coil(id).name						/PFActive, /Name
+pf_active.coil(id).identifier					/PFActive, /Identifier
+pf_active.coil(id).signal					/PFActive, /Signal
+pf_active.coil(id).data_scaling					/PFActive, /DataScaling
+pf_active.coil(id).time_scaling					/PFActive, /TimeScaling
+
+pf_active.coil(id).element(:)					id=id, /PFActive, /Element, /Count
+pf_active.coil(id).element(index).geometry.rectangle.r		id=id, /PFActive, /Element, /Geometry, /Rectangle, index=index, /r 	
+pf_active.coil(id).element(index).geometry.rectangle.z		id=id, /PFActive, /Element, /Geometry, /Rectangle, index=index, /z
+pf_active.coil(id).element(index).geometry.rectangle.width	id=id, /PFActive, /Element, /Geometry, /Rectangle, index=index, /width
+pf_active.coil(id).element(index).geometry.rectangle.height	id=id, /PFActive, /Element, /Geometry, /Rectangle, index=index, /height
+pf_active.coil(id).element(index).turns_with_sign		id=id, /PFActive, /Element, /turns
+
+pf_active.coil(id).element(*).geometry.rectangle.r		id=id, /PFActive, /Geometry, /Rectangle, /r 		// Full array of element coordinate data
+pf_active.coil(id).element(*).geometry.rectangle.z		id=id, /PFActive, /Geometry, /Rectangle, /z
+pf_active.coil(id).element(*).geometry.rectangle.width		id=id, /PFActive, /Geometry, /Rectangle, /width
+pf_active.coil(id).element(*).geometry.rectangle.height		id=id, /PFActive, /Geometry, /Rectangle, /height
+
+
 ToDo:
 
 1> Reset when the file name changes
@@ -335,343 +366,414 @@ ToDo:
 
 */
 
-        if (!strcasecmp(request_block->function, "get")) {
-            initDataBlock(data_block);
-
-            int count;
-            //float r,z,phi;
-            char* p;   // *name;
-
-            if (isCount) {
-                if (isFluxLoop) {
-                    if (isPosition) {
-                        count = getnfluxloopcoords(&efit, objectId);
-                    } else {
-                        count = getnfluxloops(&efit);
-                    }
-                } else if (isMagProbe) {
-                    if (isPosition) {
-                        count = 1;    // The IMAS IDS can only have 1
-                    } else {
-                        count = getnmagprobes(&efit);
-                    }
-                }
-
-                data_block->data_n = 1;
-                data_block->rank = 0;
-                data_block->data_type = TYPE_INT;
-                strcpy(data_block->data_desc, "efitmagxml: object count returned");
-                int* data = (int*) malloc(sizeof(int));
-                *data = count;
-                data_block->data = (char*) data;
-                break;
-            } else if (isSignal) {
-                if (isFluxLoop) {
-                    p = (efit.fluxloop[objectId].instance).signal;
-                } else if (isMagProbe) {
-                    p = (efit.magprobe[objectId].instance).signal;
-                }
-                data_block->data_n = strlen(p) + 1;
-                data_block->rank = 0;
-                data_block->data_type = TYPE_STRING;
-                strcpy(data_block->data_desc, "efitmagxml: object name returned");
-                data_block->data = (char*) malloc(data_block->data_n * sizeof(char));
-                strcpy(data_block->data, p);
-                break;
-            } else if (isName || isIdentifier) {
-                if (isFluxLoop) {
-                    p = getidfluxloop(&efit, objectId);
-                } else if (isMagProbe) {
-                    p = getidmagprobe(&efit, objectId);
-                }
-                data_block->data_n = strlen(p) + 1;
-                data_block->rank = 0;
-                data_block->data_type = TYPE_STRING;
-                strcpy(data_block->data_desc, "efitmagxml: object name returned");
-                data_block->data = (char*) malloc(data_block->data_n * sizeof(char));
-                strcpy(data_block->data, p);
-                break;
-            } else if (isPosition) {
-                double* data = (double*) malloc(sizeof(double));
-                *data = 0.0;
-                int rc;
-                if (isFluxLoop) {
-                    float* r = NULL, * z = NULL, * phi = NULL, aerr, rerr;
-                    rc = getfluxloop(&efit, objectId, &r, &z, &phi, &aerr, &rerr);
-                    if (isR) {
-                        *data = (double) r[index];
-                    } else if (isZ) {
-                        *data = (double) z[index];
-                    } else if (isPhi) {
-                        *data = (double) phi[index];
-                    }
-                } else if (isMagProbe) {
-                    float r, z, phi, aerr, rerr;
-                    rc = getmagprobe(&efit, objectId, &r, &z, &phi, &aerr, &rerr);
-                    if (isR) {
-                        *data = (double) r;
-                    } else if (isZ) {
-                        *data = (double) z;
-                    } else if (isPhi) {
-                        *data = (double) phi;
-                    }
-                }
-                data_block->rank = 0;
-                data_block->data_n = 1;
-                data_block->data_type = TYPE_DOUBLE;
-                strcpy(data_block->data_desc, "efitmagxml: Position Coordinate returned");
-                data_block->data = (char*) data;
-                break;
-            } else if (isDevice) {
-                p = getdevice(&efit);
-                data_block->data_n = strlen(p) + 1;
-                data_block->rank = 0;
-                data_block->data_type = TYPE_STRING;
-                strcpy(data_block->data_desc, "efitmagxml: device name returned");
-                data_block->data = (char*) malloc(data_block->data_n * sizeof(char));
-                strcpy(data_block->data, p);
+      if(!strcasecmp(request_block->function, "get")){
+         initDataBlock(data_block);	 
+         
+	 int count;
+	 float r,z,phi;
+	 char *p, *name;
+	 
+	 if(isCount){
+	    if(isFluxLoop){
+	       if(isPosition)
+	          count = getnfluxloopcoords(&efit, objectId);
+	       else
+	          count = getnfluxloops(&efit);
+	    } else
+	    if(isMagProbe){
+	       if(isPosition)
+                  count = 1;	// The IMAS IDS can only have 1
+               else
+                  count = getnmagprobes(&efit);
+	    } else
+	    if(isPFActive){
+	       if(isElement)
+	          count = getnpfcoilcoords(&efit, objectId);
+	       else
+	          count = getnpfcoils(&efit);
+	    }	    
+	    data_block->data_n = 1;
+	    data_block->rank = 0;
+	    data_block->data_type = TYPE_INT;
+	    strcpy(data_block->data_desc, "efitmagxml: object count returned");
+	    int *data = (int *)malloc(sizeof(int));
+	    *data = count;
+	    data_block->data = (char *)data;
+	    break;	 		 	 
+	 } else 
+	 if(isSignal){
+	    if(isFluxLoop){
+               p = (efit.fluxloop[objectId].instance).signal;
+            } else
+	    if(isMagProbe){
+	       p = (efit.magprobe[objectId].instance).signal;
+            } else
+	    if(isPFActive){
+               p = (efit.pfcoils[objectId].instance).signal;
+            } 	       	       
+	    data_block->data_n = strlen(p)+1;
+	    data_block->rank = 0;
+	    data_block->data_type = TYPE_STRING;
+	    strcpy(data_block->data_desc, "efitmagxml: object name returned");
+	    data_block->data = (char *)malloc(data_block->data_n*sizeof(char));
+	    strcpy(data_block->data, p);
+	    break;
+         } else
+	 if(isDataScaling){
+	    double *scalingFactor = (double *)malloc(sizeof(double));	    
+	    if(isFluxLoop){
+               scalingFactor[0]  = (double)(efit.fluxloop[objectId].instance).factor;
+            } else
+	    if(isMagProbe){
+	       scalingFactor[0]  = (double)(efit.magprobe[objectId].instance).factor;
+            } else	       
+	    if(isPFActive){
+               scalingFactor[0] = (double)(efit.pfcoils[objectId].instance).factor;
+            } 	       
+	    data_block->data_n = 1;
+	    data_block->rank = 0;
+	    data_block->data_type = TYPE_DOUBLE;
+	    strcpy(data_block->data_desc, "efitmagxml: object data scaling factor returned");
+	    data_block->data = (char *)scalingFactor;
+	    break;
+         } else
+	 if(isTimeScaling){
+	    double *scalingFactor = (double *)malloc(sizeof(double));	    
+            scalingFactor[0] = (double)1.0;	// Not encoded in xml at this time
+ 	    data_block->data_n = 1;
+	    data_block->rank = 0;
+	    data_block->data_type = TYPE_DOUBLE;
+	    strcpy(data_block->data_desc, "efitmagxml: object time scaling factor returned");
+	    data_block->data = (char *)scalingFactor;
+	    break;
+         } else
+	 if(isTurns){
+	    int *data = (int *)malloc(sizeof(int));
+	    *data = 0;
+	    if(isPFActive){		// Not by Element in this XML!
+               data[0] = efit.pfcoils[objectId].turns;
+            } 	       
+	    data_block->data_n = 1;
+	    data_block->rank = 0;
+	    data_block->data_type = TYPE_INT;
+	    strcpy(data_block->data_desc, "efitmagxml: object turns returned");
+	    data_block->data = (char *)data;
+	    break;
+         } else
+	 
+	 if(isName || isIdentifier){
+	    if(isFluxLoop){
+	       p = getidfluxloop(&efit, objectId);
+            } else
+	    if(isMagProbe){
+	       p = getidmagprobe(&efit, objectId);
+            } else
+	    if(isPFActive){
+	       p = getidpfcoils(&efit, objectId);
+            }	    	       
+	    data_block->data_n = strlen(p)+1;
+	    data_block->rank = 0;
+	    data_block->data_type = TYPE_STRING;
+	    strcpy(data_block->data_desc, "efitmagxml: object name returned");
+	    data_block->data = (char *)malloc(data_block->data_n*sizeof(char));
+	    strcpy(data_block->data, p);
+	    break;
+         } else
+	 if(isPosition){
+	    double *data = (double *)malloc(sizeof(double));
+	    *data = 0.0;
+	    int rc;
+	    if(isFluxLoop){
+	       float *r=NULL, *z=NULL, *phi=NULL, aerr, rerr; 
+	       rc = getfluxloop(&efit, objectId, &r, &z, &phi, &aerr, &rerr) ;
+	       if(isR){
+	          *data = (double) r[index];
+	       } else  	 
+	       if(isZ){
+	          *data = (double) z[index];
+	       } else  	 
+	       if(isPhi){
+	          *data = (double) phi[index];
+	       }	        
+	    } else     	 
+	    if(isMagProbe){
+	       float r, z, phi, aerr, rerr; 
+	       rc = getmagprobe(&efit, objectId, &r, &z, &phi, &aerr, &rerr);
+	       if(isR){
+	          *data = (double) r;
+	       } else  	 
+	       if(isZ){
+	          *data = (double) z;
+	       } else  	 
+	       if(isPhi){
+	          *data = (double) phi;
+	       } 
             }
-            break;
-        } else
+	    data_block->rank = 0;
+	    data_block->data_n = 1;
+	    data_block->data_type = TYPE_DOUBLE;
+	    strcpy(data_block->data_desc, "efitmagxml: Position Coordinate returned");
+	    data_block->data = (char *)data;
+	    break;
+	 } else
+	 if(isPFActive && isGeometry && isRectangle){
+	    if(isElement){
+	       double *data = (double *)malloc(sizeof(double));
+	       *data = 0.0;
+               float *r=NULL, *z=NULL, *width=NULL, *height=NULL, aerr, rerr;
+	       int rc, turns;
+	       rc = getpfcoil(&efit, objectId, &turns, &r, &z, &width, &height, &aerr, &rerr); 
+	       if(isR){
+	          *data = (double) r[index];
+	       } else  	 
+	       if(isZ){
+	          *data = (double) z[index];
+	       } else  	 
+	       if(isWidth){
+	          *data = (double) width[index];
+	       } else  	 
+	       if(isHeight){
+	          *data = (double) height[index];
+	       } 
+	       data_block->rank = 0;
+	       data_block->data_n = 1;
+	       data_block->data_type = TYPE_DOUBLE;	    
+	       strcpy(data_block->data_desc, "efitmagxml: Element Geometry/Coordinate returned");
+	       data_block->data = (char *)data;
+	       break;
+	    } else {		// Return all element data
+               int count = getnpfcoilcoords(&efit, objectId);	       
+               double *data = (double *)malloc(count * sizeof(double));
+               float *r=NULL, *z=NULL, *width=NULL, *height=NULL, aerr, rerr;
+	       int rc, turns;
+	       rc = getpfcoil(&efit, objectId, &turns, &r, &z, &width, &height, &aerr, &rerr);               	       
+               if(isR){
+                  for(i=0;i<count;i++) data[i] = (double) r[i];
+	       } else  	 
+	       if(isZ){
+	          for(i=0;i<count;i++) data[i] = (double) z[i];
+	       } else  	 
+	       if(isWidth){
+	          for(i=0;i<count;i++) data[i] = (double) width[i];
+	       } else  	 
+	       if(isHeight){
+	          for(i=0;i<count;i++) data[i] = (double) height[i];
+	       } 
+	       data_block->rank = 0;
+	       data_block->data_n = count;
+	       data_block->data_type = TYPE_DOUBLE;	    
+	       strcpy(data_block->data_desc, "efitmagxml: Element Geometry/Coordinate Array returned");
+	       data_block->data = (char *)data;
+	       break;
+            }
+         } else	 
+         if(isDevice){
+            p = getdevice(&efit);
+	    data_block->data_n = strlen(p)+1;
+	    data_block->rank = 0;
+	    data_block->data_type = TYPE_STRING;
+	    strcpy(data_block->data_desc, "efitmagxml: device name returned");
+	    data_block->data = (char *)malloc(data_block->data_n*sizeof(char));
+	    strcpy(data_block->data, p);
+         }	 	 
+         break;
+      } else 
 
 //----------------------------------------------------------------------------------------
 // HELP Documentation
 //----------------------------------------------------------------------------------------
-
+    
 // Help: A Description of library functionality
+ 
+      if(!strcasecmp(request_block->function, "help")){
+      
+	 p = (char *)malloc(sizeof(char)*2*1024);
+	 
+	 strcpy(p, "\nefitmagxml: Add Functions Names, Syntax, and Descriptions\n\n");
+				 
+	 initDataBlock(data_block);
+	 
+         data_block->rank = 1;
+	 data_block->dims = (DIMS *)malloc(data_block->rank * sizeof(DIMS));
+	 for(i=0;i<data_block->rank;i++) initDimBlock(&data_block->dims[i]);
 
-        if (!strcasecmp(request_block->function, "help")) {
+	 data_block->data_type = TYPE_STRING;
+	 strcpy(data_block->data_desc, "efitmagxml: help = description of this plugin");
+	 
+	 data_block->data = (char *)p;
 
-            p = (char*) malloc(sizeof(char) * 2 * 1024);
-
-            strcpy(p, "\nefitmagxml: Add Functions Names, Syntax, and Descriptions\n\n");
-
-            initDataBlock(data_block);
-
-            data_block->rank = 1;
-            data_block->dims = (DIMS*) malloc(data_block->rank * sizeof(DIMS));
-            for (i = 0; i < data_block->rank; i++) initDimBlock(&data_block->dims[i]);
-
-            data_block->data_type = TYPE_STRING;
-            strcpy(data_block->data_desc, "efitmagxml: help = description of this plugin");
-
-            data_block->data = (char*) p;
-
-            data_block->dims[0].data_type = TYPE_UNSIGNED_INT;
-            data_block->dims[0].dim_n = strlen(p) + 1;
-            data_block->dims[0].compressed = 1;
-            data_block->dims[0].dim0 = 0.0;
-            data_block->dims[0].diff = 1.0;
-            data_block->dims[0].method = 0;
-
-            data_block->data_n = data_block->dims[0].dim_n;
-
-            strcpy(data_block->data_label, "");
-            strcpy(data_block->data_units, "");
-
-            break;
-        } else
-
+	 data_block->dims[0].data_type  = TYPE_UNSIGNED_INT;
+	 data_block->dims[0].dim_n      = strlen(p)+1;
+	 data_block->dims[0].compressed = 1;
+	 data_block->dims[0].dim0   = 0.0;
+	 data_block->dims[0].diff   = 1.0;
+	 data_block->dims[0].method = 0;
+	 	
+	 data_block->data_n = data_block->dims[0].dim_n;
+	 	 
+         strcpy(data_block->data_label,"");
+         strcpy(data_block->data_units,"");       
+      
+         break;
+      } else
+      
 //----------------------------------------------------------------------------------------    
 // Standard methods: version, builddate, defaultmethod, maxinterfaceversion 
-
-        if (!strcasecmp(request_block->function, "version")) {
-            initDataBlock(data_block);
-            data_block->data_type = TYPE_INT;
-            data_block->rank = 0;
-            data_block->data_n = 1;
-            int* data = (int*) malloc(sizeof(int));
-            data[0] = THISPLUGIN_VERSION;
-            data_block->data = (char*) data;
-            strcpy(data_block->data_desc, "Plugin version number");
-            strcpy(data_block->data_label, "version");
-            strcpy(data_block->data_units, "");
-            break;
-        } else
+ 
+      if(!strcasecmp(request_block->function, "version")){ 
+         initDataBlock(data_block);	 
+         data_block->data_type = TYPE_INT;
+         data_block->rank      = 0;
+         data_block->data_n    = 1;
+	 int *data = (int *)malloc(sizeof(int));
+	 data[0] = THISPLUGIN_VERSION;
+	 data_block->data      = (char *)data;	 	 
+         strcpy(data_block->data_desc, "Plugin version number");
+         strcpy(data_block->data_label,"version");
+         strcpy(data_block->data_units,""); 
+         break;
+      } else	
 
 // Plugin Build Date
-
-        if (!strcasecmp(request_block->function, "builddate")) {
-            initDataBlock(data_block);
-            data_block->data_type = TYPE_STRING;
-            data_block->rank = 0;
-            data_block->data_n = strlen(__DATE__) + 1;
-            char* data = (char*) malloc(data_block->data_n * sizeof(char));
-            strcpy(data, __DATE__);
-            data_block->data = (char*) data;
-            strcpy(data_block->data_desc, "Plugin build date");
-            strcpy(data_block->data_label, "date");
-            strcpy(data_block->data_units, "");
-            break;
-        } else
-
+ 
+      if(!strcasecmp(request_block->function, "builddate")){ 
+         initDataBlock(data_block);	 
+         data_block->data_type = TYPE_STRING;
+         data_block->rank      = 0;
+         data_block->data_n    = strlen(__DATE__)+1;
+	 char *data = (char *)malloc(data_block->data_n*sizeof(char));
+	 strcpy(data, __DATE__);
+	 data_block->data      = (char *)data;	 	 
+         strcpy(data_block->data_desc, "Plugin build date");
+         strcpy(data_block->data_label,"date");
+         strcpy(data_block->data_units,""); 
+         break;
+      } else
+      
 // Plugin Default Method
-
-        if (!strcasecmp(request_block->function, "defaultmethod")) {
-            initDataBlock(data_block);
-            data_block->data_type = TYPE_STRING;
-            data_block->rank = 0;
-            data_block->data_n = strlen(THISPLUGIN_DEFAULT_METHOD) + 1;
-            char* data = (char*) malloc(data_block->data_n * sizeof(char));
-            strcpy(data, THISPLUGIN_DEFAULT_METHOD);
-            data_block->data = (char*) data;
-            strcpy(data_block->data_desc, "Plugin default method");
-            strcpy(data_block->data_label, "method");
-            strcpy(data_block->data_units, "");
-            break;
-        } else
-
+ 
+      if(!strcasecmp(request_block->function, "defaultmethod")){ 
+         initDataBlock(data_block);	 
+         data_block->data_type = TYPE_STRING;
+         data_block->rank      = 0;
+         data_block->data_n    = strlen(THISPLUGIN_DEFAULT_METHOD)+1;
+	 char *data = (char *)malloc(data_block->data_n*sizeof(char));
+	 strcpy(data, THISPLUGIN_DEFAULT_METHOD);
+	 data_block->data      = (char *)data;	 	 
+         strcpy(data_block->data_desc, "Plugin default method");
+         strcpy(data_block->data_label,"method");
+         strcpy(data_block->data_units,""); 
+         break;
+      } else  
+                  
 // Plugin Maximum Interface Version
-
-        if (!strcasecmp(request_block->function, "maxinterfaceversion")) {
-            initDataBlock(data_block);
-            data_block->data_type = TYPE_INT;
-            data_block->rank = 0;
-            data_block->data_n = 1;
-            int* data = (int*) malloc(sizeof(int));
-            data[0] = THISPLUGIN_MAX_INTERFACE_VERSION;
-            data_block->data = (char*) data;
-            strcpy(data_block->data_desc, "Maximum Interface Version");
-            strcpy(data_block->data_label, "version");
-            strcpy(data_block->data_units, "");
-            break;
-        } else {
-
+ 
+      if(!strcasecmp(request_block->function, "maxinterfaceversion")){ 
+         initDataBlock(data_block);	 
+         data_block->data_type = TYPE_INT;
+         data_block->rank      = 0;
+         data_block->data_n    = 1;
+	 int *data = (int *)malloc(sizeof(int));
+	 data[0] = THISPLUGIN_MAX_INTERFACE_VERSION;
+	 data_block->data      = (char *)data;	 	 
+         strcpy(data_block->data_desc, "Maximum Interface Version");
+         strcpy(data_block->data_label,"version");
+         strcpy(data_block->data_units,""); 
+         break;
+      } else {     	                                            
+            	 	                                                                                                                                                                                                                                                                                   
 //======================================================================================
 // Error ...
-
-            err = 999;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "efitmagxml", err, "Unknown function requested!");
-            break;
-        }
-
-    } while (0);
+                   
+         err = 999;      
+         addIdamError(&idamerrorstack, CODEERRORTYPE, "efitmagxml", err, "Unknown function requested!");
+         break;
+      }
+        
+   } while(0); 
 
 //--------------------------------------------------------------------------------------
 // Housekeeping
-
-    concatIdamError(idamerrorstack, idamErrorStack);    // Combine local errors with the Server's error stack
+   
+   concatIdamError(idamerrorstack, idamErrorStack);	// Combine local errors with the Server's error stack 
 
 #ifndef USE_PLUGIN_DIRECTLY
-    closeIdamError(&idamerrorstack);            // Free local plugin error stack
-#endif
-
-    return err;
+   closeIdamError(&idamerrorstack);			// Free local plugin error stack    
+#endif 
+    
+   return err;   
 }
 
-int getnfluxloops(EFIT* efit)
-{
-    return (efit->nfluxloops);
-}
-
-int getnfluxloopcoords(EFIT* efit, const int n)
-{
-    return (efit->fluxloop[n].nco);
-}
-
-int getnlimiter(EFIT* efit)
-{
-    return (efit->nlimiter);
-}
-
-int getnlimitercoords(EFIT* efit)
-{
-    return (efit->limiter->nco);
-}
-
-int getnmagprobes(EFIT* efit)
-{
-    return (efit->nmagprobes);
-}
-
-int getnpfsupplies(EFIT* efit)
-{
-    return (efit->npfsupplies);
-}
-
-int getnpfcoils(EFIT* efit)
-{
-    return (efit->npfcoils);
-}
-
-int getnpfcoilcoords(EFIT* efit, const int n)
-{
-    return (efit->pfcoils[n].nco);
-}
-
-int getnpfcircuits(EFIT* efit)
-{
-    return (efit->npfcircuits);
-}
-
-int getnpfcircuitconnections(EFIT* efit, const int n)
-{
-    return (efit->pfcircuit[n].nco);
-}
-
-int getnpfpassive(EFIT* efit)
-{
-    return (efit->npfpassive);
-}
-
-int getnpfpassivecoords(EFIT* efit, const int n)
-{
-    return (efit->pfpassive[n].nco);
-}
-
-int getnplasmacurrent(EFIT* efit)
-{
-    return (efit->nplasmacurrent);
-}
-
-int getndiamagnetic(EFIT* efit)
-{
-    return (efit->ndiamagnetic);
-}
-
-int getntoroidalfield(EFIT* efit)
-{
-    return (efit->ntoroidalfield);
-}
+int getnfluxloops(EFIT *efit){  
+   return(efit->nfluxloops);		    
+} 
+int getnfluxloopcoords(EFIT *efit, const int n){  
+   return(efit->fluxloop[n].nco);		    
+} 
+int getnlimiter(EFIT *efit){  
+   return(efit->nlimiter);		    
+} 
+int getnlimitercoords(EFIT *efit){  
+   return(efit->limiter->nco);		    
+} 
+int getnmagprobes(EFIT *efit){  
+   return(efit->nmagprobes);		    
+} 
+ 
+int getnpfsupplies(EFIT *efit){  
+   return(efit->npfsupplies);		    
+}  
+int getnpfcoils(EFIT *efit){  
+   return(efit->npfcoils);		    
+} 
+int getnpfcoilcoords(EFIT *efit, const int n){  
+   return(efit->pfcoils[n].nco);		    
+} 
+int getnpfcircuits(EFIT *efit){  
+   return(efit->npfcircuits);		    
+} 
+int getnpfcircuitconnections(EFIT *efit, const int n){  
+   return(efit->pfcircuit[n].nco);		    
+} 
+int getnpfpassive(EFIT *efit){  
+   return(efit->npfpassive);		    
+}  
+int getnpfpassivecoords(EFIT *efit, const int n){  
+   return(efit->pfpassive[n].nco);		    
+} 
+int getnplasmacurrent(EFIT *efit){  
+   return(efit->nplasmacurrent);		    
+} 
+int getndiamagnetic(EFIT *efit){  
+   return(efit->ndiamagnetic);		    
+} 
+int getntoroidalfield(EFIT *efit){  
+   return(efit->ntoroidalfield);		    
+} 
 
 //=========================================================================
 
-char* getidmagprobe(EFIT* efit, const int index)
-{
-    return (efit->magprobe[index].id);
+char *getidmagprobe(EFIT *efit, const int index){  
+   return(efit->magprobe[index].id);		    
 }
-
-char* getidfluxloop(EFIT* efit, const int index)
-{
-    return (efit->fluxloop[index].id);
+char *getidfluxloop(EFIT *efit, const int index){  
+   return(efit->fluxloop[index].id);		    
 }
-
-char* getidplasmacurrent(EFIT* efit, const int index)
-{
-    return (efit->plasmacurrent[index].id);
+char *getidplasmacurrent(EFIT *efit, const int index){  
+   return(efit->plasmacurrent[index].id);		    
 }
-
-char* getidtoroidalfield(EFIT* efit, const int index)
-{
-    return (efit->toroidalfield[index].id);
+char *getidtoroidalfield(EFIT *efit, const int index){  
+   return(efit->toroidalfield[index].id);		    
 }
-
-char* getidpfcoils(EFIT* efit, const int index)
-{
-    return (efit->pfcoils[index].id);
+char *getidpfcoils(EFIT *efit, const int index){  
+   return(efit->pfcoils[index].id);		    
 }
-
-char* getidpfpassive(EFIT* efit, const int index)
-{
-    return (efit->pfpassive[index].id);
+char *getidpfpassive(EFIT *efit, const int index){  
+   return(efit->pfpassive[index].id);		    
 }
-
-char* getidpfsupplies(EFIT* efit, const int index)
-{
-    return (efit->pfsupplies[index].id);
+char *getidpfsupplies(EFIT *efit, const int index){  
+   return(efit->pfsupplies[index].id);		     
 }
-
-char* getidpfcircuit(EFIT* efit, const int index)
-{
-    return (efit->pfcircuit[index].id);
+char *getidpfcircuit(EFIT *efit, const int index){  
+   return(efit->pfcircuit[index].id);		    
 }
