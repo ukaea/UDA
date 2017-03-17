@@ -26,7 +26,8 @@ test10y	BPOL_PROBE machine description only with cache
 test10	BPOL_PROBE	
 
 magnetics || test11	MAGNETICS_PROXY
-limiter			EQUILIBRIUM_PROXY		
+limiter			EQUILIBRIUM_PROXY
+pfactive		PF_ACTIVE_PROXY		
 
 Options: test11 for all data or
          test11 for first pass, then test9x for Flux Loop measurment data only followed by test10x for Bpol Probe data only
@@ -38,206 +39,227 @@ Subsequent calls for cached data and subset measurement data are 2.2 seconds
 The option to have multiple calls is slower: 7.5s to initialise and 3.6s for the measurement data only.
 => 29ms per signal!
 
-Issues:
+Issues: MAST data specific
 
+*
+* Change History
+*
+* 28Sept2016	D.G.Muir	Original Version
 *---------------------------------------------------------------------------------------------------------------*/
+#include "idamclientpublic.h"
+#include "idamclientserver.h"
+#include "idamserver.h"
+#include "idamserverfiles.h"
+
+#include "idamgenstruct.h"
+#include <mcheck.h>
+#include <time.h>
+
+#include "idamplugin.h"
 #include "livedisplay.h"
 
-#include <client/accAPI_C.h>
-#include <client/IdamAPI.h>
-#include <structures/struct.h>
-#include <structures/accessors.h>
-#include <clientserver/TrimString.h>
-#include <client/idam_client.h>
-#include <server/makeServerRequestBlock.h>
-#include <clientserver/initStructs.h>
-#include <clientserver/freeDataBlock.h>
+#ifndef USE_PLUGIN_DIRECTLY
 
-void defineIDSStructures()
-{
-    int offset = 0; //, stringLength;
+   static LOGMALLOCLIST *logmalloclist = NULL; 			// List of all Heap Allocations for Data
+   static USERDEFINEDTYPELIST *userdefinedtypelist = NULL;	// User Defined Structure Types from Data Files
 
-    USERDEFINEDTYPE usertype;
-    COMPOUNDFIELD field;
+   #include "/home/dgm/IDAM/source/clientserver/TrimString.c"
+   //#include "/home/ITER/muird1/IDAM/source/clientserver/initStructs.c"
+   //#include "/home/ITER/muird1/IDAM/source/clientserver/freeDataBlock.c"
+   #include "/home/dgm/IDAM/source/clientserver/initStructs.c"
+   #include "/home/dgm/IDAM/source/clientserver/freeDataBlock.c"
 
-//#ifndef USE_PLUGIN_DIRECTLY
+   static ENVIRONMENT environment;
+   IDAMERRORSTACK *idamErrorStack;	// Pointer to the Server's Error Stack. Global scope within this plugin library
+#endif
+
+//char *LOG_ERROR = NULL;
+//char *LOG_DEBUG = NULL;
+
+void defineIDSStructures(){
+   int offset = 0, stringLength;
+   
+   USERDEFINEDTYPE usertype;
+   COMPOUNDFIELD field;
+   
+#ifndef USE_PLUGIN_DIRECTLY
     USERDEFINEDTYPELIST* userdefinedtypelist = getIdamServerUserDefinedTypeList();
-//#endif
+#endif   
 
-    initUserDefinedType(&usertype);   // New structure definition
+   initUserDefinedType(&usertype);   // New structure definition
 
-    strcpy(usertype.name, "CODE");
-    usertype.size = sizeof(CODE);
-    strcpy(usertype.source, "LiveDisplay");
-    usertype.ref_id = 0;
-    usertype.imagecount = 0;       // No Structure Image data
-    usertype.image = NULL;
-    usertype.idamclass = TYPE_COMPOUND;
+   strcpy(usertype.name, "CODE");         
+   usertype.size = sizeof(CODE);
+   strcpy(usertype.source, "LiveDisplay");
+   usertype.ref_id = 0;
+   usertype.imagecount = 0;       // No Structure Image data
+   usertype.image = NULL;
+   usertype.idamclass = TYPE_COMPOUND;
 
-    offset = 0;
+   offset = 0;
 
-    defineField(&field, "name", "Code Name", &offset, SCALARSTRING);
-    addCompoundField(&usertype, field);
+   defineField(&field, "name", "Code Name", &offset, SCALARSTRING);
+   addCompoundField(&usertype, field);
 
-    defineField(&field, "version", "Code Version", &offset, SCALARSTRING);
-    addCompoundField(&usertype, field);
-    defineField(&field, "parameters", "Code Parameters", &offset, SCALARSTRING);
-    addCompoundField(&usertype, field);
-    defineField(&field, "output_flag_count", "The array count", &offset, SCALARINT);
-    addCompoundField(&usertype, field);
-    defineField(&field, "output_flag", "The Code output flags", &offset, ARRAYINT);
-    addCompoundField(&usertype, field);
+   defineField(&field, "version", "Code Version", &offset, SCALARSTRING);    
+   addCompoundField(&usertype, field);
+   defineField(&field, "parameters", "Code Parameters", &offset, SCALARSTRING);
+   addCompoundField(&usertype, field);
+   defineField(&field, "output_flag_count", "The array count", &offset, SCALARINT);
+   addCompoundField(&usertype, field);
+   defineField(&field, "output_flag", "The Code output flags", &offset, ARRAYINT);
+   addCompoundField(&usertype, field);
 
-    addUserDefinedType(userdefinedtypelist, usertype);    // CODE
-
-
-    initUserDefinedType(&usertype);   // New structure definition
-
-    strcpy(usertype.name, "FLUX_LOOP");
-    usertype.size = sizeof(FLUX_LOOP);
-    strcpy(usertype.source, "LiveDisplay");
-    usertype.ref_id = 0;
-    usertype.imagecount = 0;       // No Structure Image data
-    usertype.image = NULL;
-    usertype.idamclass = TYPE_COMPOUND;
-
-    offset = 0;
-
-    defineField(&field, "identifier", "Identifier", &offset, SCALARSTRING);
-    addCompoundField(&usertype, field);
-    defineField(&field, "name", "name", &offset, SCALARSTRING);
-    addCompoundField(&usertype, field);
-    defineField(&field, "position_count", "Position Count", &offset, SCALARINT);
-    addCompoundField(&usertype, field);
-    defineField(&field, "r", "Major Radius", &offset, ARRAYDOUBLE);
-    addCompoundField(&usertype, field);
-    defineField(&field, "z", "Height", &offset, ARRAYDOUBLE);
-    addCompoundField(&usertype, field);
-    defineField(&field, "phi", "Toroidal Angle", &offset, ARRAYDOUBLE);
-    addCompoundField(&usertype, field);
-    defineField(&field, "xdata_count", "Measurement data count", &offset, SCALARINT);
-    addCompoundField(&usertype, field);
-    defineField(&field, "xdata", "Measurement data", &offset, ARRAYDOUBLE);        // Doesn't like 'data' !!!
-    addCompoundField(&usertype, field);
-    defineField(&field, "xtime", "Measurement time", &offset, ARRAYDOUBLE);
-    addCompoundField(&usertype, field);
-
-    addUserDefinedType(userdefinedtypelist, usertype);    // FLUX_LOOP
+   addUserDefinedType(userdefinedtypelist, usertype);	// CODE
 
 
-    initUserDefinedType(&usertype);   // New structure definition
+   initUserDefinedType(&usertype);   // New structure definition
 
-    strcpy(usertype.name, "BPOL_PROBE");
-    usertype.size = sizeof(BPOL_PROBE);
-    strcpy(usertype.source, "LiveDisplay");
-    usertype.ref_id = 0;
-    usertype.imagecount = 0;       // No Structure Image data
-    usertype.image = NULL;
-    usertype.idamclass = TYPE_COMPOUND;
+   strcpy(usertype.name, "FLUX_LOOP");         
+   usertype.size = sizeof(FLUX_LOOP);
+   strcpy(usertype.source, "LiveDisplay");
+   usertype.ref_id = 0;
+   usertype.imagecount = 0;       // No Structure Image data
+   usertype.image = NULL;
+   usertype.idamclass = TYPE_COMPOUND;
+   
+   offset = 0;
 
-    offset = 0;
+   defineField(&field, "identifier", "Identifier", &offset, SCALARSTRING);
+   addCompoundField(&usertype, field);
+   defineField(&field, "name", "name", &offset, SCALARSTRING);
+   addCompoundField(&usertype, field);
+   defineField(&field, "position_count", "Position Count", &offset, SCALARINT);    
+   addCompoundField(&usertype, field);
+   defineField(&field, "r", "Major Radius", &offset, ARRAYDOUBLE);    
+   addCompoundField(&usertype, field);
+   defineField(&field, "z", "Height", &offset, ARRAYDOUBLE);    
+   addCompoundField(&usertype, field);
+   defineField(&field, "phi", "Toroidal Angle", &offset, ARRAYDOUBLE);    
+   addCompoundField(&usertype, field);      
+   defineField(&field, "xdata_count", "Measurement data count", &offset, SCALARINT);    
+   addCompoundField(&usertype, field);
+   defineField(&field, "xdata", "Measurement data", &offset, ARRAYDOUBLE); 		// Doesn't like 'data' !!!   
+   addCompoundField(&usertype, field);      
+   defineField(&field, "xtime", "Measurement time", &offset, ARRAYDOUBLE);    
+   addCompoundField(&usertype, field);      
 
-    defineField(&field, "identifier", "Identifier", &offset, SCALARSTRING);
-    addCompoundField(&usertype, field);
-    defineField(&field, "name", "name", &offset, SCALARSTRING);
-    addCompoundField(&usertype, field);
-    defineField(&field, "r", "Major Radius", &offset, SCALARDOUBLE);
-    addCompoundField(&usertype, field);
-    defineField(&field, "z", "Height", &offset, SCALARDOUBLE);
-    addCompoundField(&usertype, field);
-    defineField(&field, "phi", "Toroidal Angle", &offset, SCALARDOUBLE);
-    addCompoundField(&usertype, field);
-    defineField(&field, "xdata_count", "Measurement data count", &offset, SCALARINT);
-    addCompoundField(&usertype, field);
-    defineField(&field, "xdata", "Measurement data", &offset, ARRAYDOUBLE);        // Doesn't like 'data' !!!
-    addCompoundField(&usertype, field);
-    defineField(&field, "xtime", "Measurement time", &offset, ARRAYDOUBLE);
-    addCompoundField(&usertype, field);
+   addUserDefinedType(userdefinedtypelist, usertype);	// FLUX_LOOP
+   
+   
+   initUserDefinedType(&usertype);   // New structure definition
 
-    addUserDefinedType(userdefinedtypelist, usertype);    // BPOL_PROBE
+   strcpy(usertype.name, "BPOL_PROBE");         
+   usertype.size = sizeof(BPOL_PROBE);
+   strcpy(usertype.source, "LiveDisplay");
+   usertype.ref_id = 0;
+   usertype.imagecount = 0;       // No Structure Image data
+   usertype.image = NULL;
+   usertype.idamclass = TYPE_COMPOUND;
+   
+   offset = 0;
 
+   defineField(&field, "identifier", "Identifier", &offset, SCALARSTRING);
+   addCompoundField(&usertype, field);
+   defineField(&field, "name", "name", &offset, SCALARSTRING);
+   addCompoundField(&usertype, field);
+   defineField(&field, "r", "Major Radius", &offset, SCALARDOUBLE);    
+   addCompoundField(&usertype, field);
+   defineField(&field, "z", "Height", &offset, SCALARDOUBLE);    
+   addCompoundField(&usertype, field);
+   defineField(&field, "phi", "Toroidal Angle", &offset, SCALARDOUBLE);    
+   addCompoundField(&usertype, field);      
+   defineField(&field, "xdata_count", "Measurement data count", &offset, SCALARINT);    
+   addCompoundField(&usertype, field);
+   defineField(&field, "xdata", "Measurement data", &offset, ARRAYDOUBLE); 		// Doesn't like 'data' !!!   
+   addCompoundField(&usertype, field);      
+   defineField(&field, "xtime", "Measurement time", &offset, ARRAYDOUBLE);    
+   addCompoundField(&usertype, field);      
 
-    initUserDefinedType(&usertype);   // New structure definition
+   addUserDefinedType(userdefinedtypelist, usertype);	// BPOL_PROBE
+   
 
-    strcpy(usertype.name, "METHOD_DATA");
-    usertype.size = sizeof(METHOD_DATA);
-    strcpy(usertype.source, "LiveDisplay");
-    usertype.ref_id = 0;
-    usertype.imagecount = 0;       // No Structure Image data
-    usertype.image = NULL;
-    usertype.idamclass = TYPE_COMPOUND;
+   initUserDefinedType(&usertype);   // New structure definition
 
-    offset = 0;
+   strcpy(usertype.name, "METHOD_DATA");         
+   usertype.size = sizeof(METHOD_DATA);
+   strcpy(usertype.source, "LiveDisplay");
+   usertype.ref_id = 0;
+   usertype.imagecount = 0;       // No Structure Image data
+   usertype.image = NULL;
+   usertype.idamclass = TYPE_COMPOUND;
+   
+   offset = 0;
 
-    defineField(&field, "identifier", "Identifier", &offset, SCALARSTRING);
-    addCompoundField(&usertype, field);
-    defineField(&field, "name", "name", &offset, SCALARSTRING);
-    addCompoundField(&usertype, field);
-    defineField(&field, "xdata_count", "Measurement data count", &offset, SCALARINT);
-    addCompoundField(&usertype, field);
-    defineField(&field, "xdata", "Measurement data", &offset, ARRAYDOUBLE);        // Doesn't like 'data' !!!
-    addCompoundField(&usertype, field);
-    defineField(&field, "xtime", "Measurement time", &offset, ARRAYDOUBLE);
-    addCompoundField(&usertype, field);
+   defineField(&field, "identifier", "Identifier", &offset, SCALARSTRING);
+   addCompoundField(&usertype, field);
+   defineField(&field, "name", "name", &offset, SCALARSTRING);
+   addCompoundField(&usertype, field);
+   defineField(&field, "xdata_count", "Measurement data count", &offset, SCALARINT);    
+   addCompoundField(&usertype, field);
+   defineField(&field, "xdata", "Measurement data", &offset, ARRAYDOUBLE); 		// Doesn't like 'data' !!!   
+   addCompoundField(&usertype, field);      
+   defineField(&field, "xtime", "Measurement time", &offset, ARRAYDOUBLE);    
+   addCompoundField(&usertype, field);      
 
-    addUserDefinedType(userdefinedtypelist, usertype);    // METHOD_DATA
+   addUserDefinedType(userdefinedtypelist, usertype);	// METHOD_DATA 
 
 /*
-typedef struct{
-   STRING *name;
-   METHOD_DATA ip;
-   METHOD_DATA diamagnetic_flux;
+typedef struct{ 
+   STRING *name; 
+   METHOD_DATA *ip;
+   METHOD_DATA *diamagnetic_flux;
 } METHOD;
 */
-    initUserDefinedType(&usertype);   // New structure definition
+   initUserDefinedType(&usertype);   // New structure definition
 
-    strcpy(usertype.name, "METHOD");
-    usertype.size = sizeof(METHOD);
-    strcpy(usertype.source, "LiveDisplay");
-    usertype.ref_id = 0;
-    usertype.imagecount = 0;       // No Structure Image data
-    usertype.image = NULL;
-    usertype.idamclass = TYPE_COMPOUND;
+   strcpy(usertype.name, "METHOD");         
+   usertype.size = sizeof(METHOD);
+   strcpy(usertype.source, "LiveDisplay");
+   usertype.ref_id = 0;
+   usertype.imagecount = 0;       // No Structure Image data
+   usertype.image = NULL;
+   usertype.idamclass = TYPE_COMPOUND;
+   
+   offset = 0;
 
-    offset = 0;
+   defineField(&field, "name", "name", &offset, SCALARSTRING);
+   addCompoundField(&usertype, field);
 
-    defineField(&field, "name", "name", &offset, SCALARSTRING);
-    addCompoundField(&usertype, field);
+	 initCompoundField(&field);	 
+         strcpy(field.name, "ip");
+         field.atomictype = TYPE_UNKNOWN;				 
+         strcpy(field.type, "METHOD_DATA");			 
+         strcpy(field.desc, "Plasma Current");	 	 
+         field.pointer    = 1;	 
+         field.count      = 1;	 
+         field.rank       = 0; 	 
+	 field.shape      = NULL; 	 
+	 field.size       = field.count*sizeof(void *); 		
+	 field.offset     = newoffset(offset,field.type);	   			 			 		     	 
+	 field.offpad     = padding(offset,field.type);
+         field.alignment  = getalignmentof(field.type);		     						     
+	 offset           = field.offset + field.size;	   
+         addCompoundField(&usertype, field);		     
 
-    initCompoundField(&field);
-    strcpy(field.name, "ip");
-    field.atomictype = TYPE_UNKNOWN;
-    strcpy(field.type, "METHOD_DATA");
-    strcpy(field.desc, "Plasma Current");
-    field.pointer = 1;
-    field.count = 1;
-    field.rank = 0;
-    field.shape = NULL;
-    field.size = field.count * sizeof(void*);
-    field.offset = newoffset(offset, field.type);
-    field.offpad = padding(offset, field.type);
-    field.alignment = getalignmentof(field.type);
-    offset = field.offset + field.size;
-    addCompoundField(&usertype, field);
+	 initCompoundField(&field);	 
+         strcpy(field.name, "diamagnetic_flux");
+         field.atomictype = TYPE_UNKNOWN;				 
+         strcpy(field.type, "METHOD_DATA");			 
+         strcpy(field.desc, "Diamagnetic Flux");	 	 
+         field.pointer    = 1;	 
+         field.count      = 1;	 
+         field.rank       = 0; 	 
+	 field.shape      = NULL;			  
+	 field.size       = field.count*sizeof(void *); 		
+	 field.offset     = newoffset(offset,field.type);	   			 			 		     	 
+	 field.offpad     = padding(offset,field.type);
+         field.alignment  = getalignmentof(field.type);		     						     
+	 offset           = field.offset + field.size;	   
+         addCompoundField(&usertype, field);		     
 
-    initCompoundField(&field);
-    strcpy(field.name, "diamagnetic_flux");
-    field.atomictype = TYPE_UNKNOWN;
-    strcpy(field.type, "METHOD_DATA");
-    strcpy(field.desc, "Diamagnetic Flux");
-    field.pointer = 1;
-    field.count = 1;
-    field.rank = 0;
-    field.shape = NULL;
-    field.size = field.count * sizeof(void*);
-    field.offset = newoffset(offset, field.type);
-    field.offpad = padding(offset, field.type);
-    field.alignment = getalignmentof(field.type);
-    offset = field.offset + field.size;
-    addCompoundField(&usertype, field);
-
-    addUserDefinedType(userdefinedtypelist, usertype);    // METHOD
-
+   addUserDefinedType(userdefinedtypelist, usertype);	// METHOD
+   
 
 /*
 typedef struct{
@@ -252,110 +274,110 @@ typedef struct{
    //CODE code;
 } MAGNETICS_PROXY;
 */
-    initUserDefinedType(&usertype);   // New structure definition
+   initUserDefinedType(&usertype);   // New structure definition
 
-    strcpy(usertype.name, "MAGNETICS_PROXY");
-    usertype.size = sizeof(MAGNETICS_PROXY);
-    strcpy(usertype.source, "LiveDisplay");
-    usertype.ref_id = 0;
-    usertype.imagecount = 0;       // No Structure Image data
-    usertype.image = NULL;
-    usertype.idamclass = TYPE_COMPOUND;
+   strcpy(usertype.name, "MAGNETICS_PROXY");         
+   usertype.size = sizeof(MAGNETICS_PROXY);
+   strcpy(usertype.source, "LiveDisplay");
+   usertype.ref_id = 0;
+   usertype.imagecount = 0;       // No Structure Image data
+   usertype.image = NULL;
+   usertype.idamclass = TYPE_COMPOUND;
+   
+   offset = 0;
 
-    offset = 0;
-
-    //defineField(&field, "comment", "comment", &offset, SCALARSTRING);
-    //addCompoundField(&usertype, field);
-    //defineField(&field, "homogeneous_time", "homogeneous time", &offset, SCALARINT);
-    //addCompoundField(&usertype, field);
-
-    defineField(&field, "flux_loop_count", "Flux Loop count", &offset, SCALARINT);
-    addCompoundField(&usertype, field);
-
+   //defineField(&field, "comment", "comment", &offset, SCALARSTRING);
+   //addCompoundField(&usertype, field);
+   //defineField(&field, "homogeneous_time", "homogeneous time", &offset, SCALARINT);    
+   //addCompoundField(&usertype, field);
+   
+   defineField(&field, "flux_loop_count", "Flux Loop count", &offset, SCALARINT);    
+   addCompoundField(&usertype, field);
+   
 // FLUX_LOOP structure array
 
-    initCompoundField(&field);
-    strcpy(field.name, "flux_loop");
-    field.atomictype = TYPE_UNKNOWN;
-    strcpy(field.type, "FLUX_LOOP");
-    strcpy(field.desc, "Array of Flux Loop data");
-    field.pointer = 1;
-    field.count = 1;
-    field.rank = 0;
-    field.shape = NULL;            // Needed when rank >= 1
-    field.size = field.count * sizeof(void*);
-    field.offset = newoffset(offset, field.type);
-    field.offpad = padding(offset, field.type);
-    field.alignment = getalignmentof(field.type);
-    offset = field.offset + field.size;
-    addCompoundField(&usertype, field);
+	 initCompoundField(&field);	 
+         strcpy(field.name, "flux_loop");
+         field.atomictype = TYPE_UNKNOWN;				 
+         strcpy(field.type, "FLUX_LOOP");			 
+         strcpy(field.desc, "Array of Flux Loop data");	 	 
+         field.pointer    = 1;	 
+         field.count      = 1;	 
+         field.rank       = 0; 	 
+	 field.shape      = NULL;			// Needed when rank >= 1	 
+	 field.size       = field.count*sizeof(void *); 		
+	 field.offset     = newoffset(offset,field.type);	   			 			 		     	 
+	 field.offpad     = padding(offset,field.type);
+         field.alignment  = getalignmentof(field.type);		     						     
+	 offset           = field.offset + field.size;	   
+         addCompoundField(&usertype, field);		     
 
-    defineField(&field, "bpol_probe_count", "Bpol Probe count", &offset, SCALARINT);
-    addCompoundField(&usertype, field);
+   defineField(&field, "bpol_probe_count", "Bpol Probe count", &offset, SCALARINT);    
+   addCompoundField(&usertype, field);
 
 // BPOL_PROBE structure array
 
-    initCompoundField(&field);
-    strcpy(field.name, "bpol_probe");
-    field.atomictype = TYPE_UNKNOWN;
-    strcpy(field.type, "BPOL_PROBE");
-    strcpy(field.desc, "Array of Bpol Probe data");
-    field.pointer = 1;
-    field.count = 1;
-    field.rank = 0;
-    field.shape = NULL;            // Needed when rank >= 1
-    field.size = field.count * sizeof(void*);
-    field.offset = newoffset(offset, field.type);
-    field.offpad = padding(offset, field.type);
-    field.alignment = getalignmentof(field.type);
-    offset = field.offset + field.size;
-    addCompoundField(&usertype, field);
+	 initCompoundField(&field);	 
+         strcpy(field.name, "bpol_probe");
+         field.atomictype = TYPE_UNKNOWN;				 
+         strcpy(field.type, "BPOL_PROBE");			 
+         strcpy(field.desc, "Array of Bpol Probe data");	 	 
+         field.pointer    = 1;	 
+         field.count      = 1;	 
+         field.rank       = 0; 	 
+	 field.shape      = NULL;			// Needed when rank >= 1	 
+	 field.size       = field.count*sizeof(void *); 		
+	 field.offset     = newoffset(offset,field.type);	   			 			 		     	 
+	 field.offpad     = padding(offset,field.type);
+         field.alignment  = getalignmentof(field.type);		     						     
+	 offset           = field.offset + field.size;	   
+         addCompoundField(&usertype, field);		     
 
-    defineField(&field, "method_count", "Method count", &offset, SCALARINT);
-    addCompoundField(&usertype, field);
+   defineField(&field, "method_count", "Method count", &offset, SCALARINT);    
+   addCompoundField(&usertype, field);
 
 // METHOD structure array
 
-    initCompoundField(&field);
-    strcpy(field.name, "method");
-    field.atomictype = TYPE_UNKNOWN;
-    strcpy(field.type, "METHOD");
-    strcpy(field.desc, "Array of Method measurement data");
-    field.pointer = 1;
-    field.count = 1;
-    field.rank = 0;
-    field.shape = NULL;            // Needed when rank >= 1
-    field.size = field.count * sizeof(void*);
-    field.offset = newoffset(offset, field.type);
-    field.offpad = padding(offset, field.type);
-    field.alignment = getalignmentof(field.type);
-    offset = field.offset + field.size;
-    addCompoundField(&usertype, field);
+	 initCompoundField(&field);	 
+         strcpy(field.name, "method");
+         field.atomictype = TYPE_UNKNOWN;				 
+         strcpy(field.type, "METHOD");			 
+         strcpy(field.desc, "Array of Method measurement data");	 	 
+         field.pointer    = 1;	 
+         field.count      = 1;	 
+         field.rank       = 0; 	 
+	 field.shape      = NULL;			// Needed when rank >= 1	 
+	 field.size       = field.count*sizeof(void *); 		
+	 field.offset     = newoffset(offset,field.type);	   			 			 		     	 
+	 field.offpad     = padding(offset,field.type);
+         field.alignment  = getalignmentof(field.type);		     						     
+	 offset           = field.offset + field.size;	   
+         addCompoundField(&usertype, field);		     
 
 /*
 // CODE structure array
 
-	 initCompoundField(&field);
+	 initCompoundField(&field);	 
          strcpy(field.name, "code");
-         field.atomictype = TYPE_UNKNOWN;
-         strcpy(field.type, "CODE");
-         strcpy(field.desc, "Code");
-         field.pointer    = 0;
-         field.count      = 1;
-         field.rank       = 0;
-	 field.shape      = NULL;			// Needed when rank >= 1
-	 field.size       = field.count*sizeof(CODE);
-	 field.offset     = newoffset(offset,field.type);
+         field.atomictype = TYPE_UNKNOWN;				 
+         strcpy(field.type, "CODE");			 
+         strcpy(field.desc, "Code");	 	 
+         field.pointer    = 0;	 
+         field.count      = 1;	 
+         field.rank       = 0; 	 
+	 field.shape      = NULL;			// Needed when rank >= 1	 
+	 field.size       = field.count*sizeof(CODE); 		
+	 field.offset     = newoffset(offset,field.type);	   			 			 		     	 
 	 field.offpad     = padding(offset,field.type);
-         field.alignment  = getalignmentof(field.type);
-	 offset           = field.offset + field.size;
-         addCompoundField(&usertype, field);
+         field.alignment  = getalignmentof(field.type);		     						     
+	 offset           = field.offset + field.size;	   
+         addCompoundField(&usertype, field);		     	     
 */
-    addUserDefinedType(userdefinedtypelist, usertype);    // METHOD_DATA
-
-
-
-
+   addUserDefinedType(userdefinedtypelist, usertype);	// METHOD_DATA 
+   
+   
+   
+   
 /*
 typedef struct{
    int   count;
@@ -363,181 +385,384 @@ typedef struct{
    double *z;
 } ACTIVE_LIMITER_POINT;
 */
-    initUserDefinedType(&usertype);   // New structure definition
+   initUserDefinedType(&usertype);   // New structure definition
 
-    strcpy(usertype.name, "STATIC_LIMITER");
-    usertype.size = sizeof(STATIC_LIMITER);
-    strcpy(usertype.source, "LiveDisplay");
-    usertype.ref_id = 0;
-    usertype.imagecount = 0;       // No Structure Image data
-    usertype.image = NULL;
-    usertype.idamclass = TYPE_COMPOUND;
-
-    offset = 0;
-
-    defineField(&field, "count", "Number of coordinates", &offset, SCALARINT);
-    addCompoundField(&usertype, field);
-    defineField(&field, "r", "Major Radius", &offset, ARRAYDOUBLE);
-    addCompoundField(&usertype, field);
-    defineField(&field, "z", "Height", &offset, ARRAYDOUBLE);
-    addCompoundField(&usertype, field);
-
-    addUserDefinedType(userdefinedtypelist, usertype);    // STATIC_LIMITER
-
-/*
+   strcpy(usertype.name, "STATIC_LIMITER");         
+   usertype.size = sizeof(STATIC_LIMITER);
+   strcpy(usertype.source, "LiveDisplay");
+   usertype.ref_id = 0;
+   usertype.imagecount = 0;       // No Structure Image data
+   usertype.image = NULL;
+   usertype.idamclass = TYPE_COMPOUND;
+   
+   offset = 0;
+   
+   defineField(&field, "count", "Number of coordinates", &offset, SCALARINT);    
+   addCompoundField(&usertype, field);
+   defineField(&field, "r", "Major Radius", &offset, ARRAYDOUBLE);    
+   addCompoundField(&usertype, field);
+   defineField(&field, "z", "Height", &offset, ARRAYDOUBLE);    
+   addCompoundField(&usertype, field);
+   
+   addUserDefinedType(userdefinedtypelist, usertype);	// STATIC_LIMITER
+   
+/*   
 typedef struct{
    int data_count;			// Number of data Measurements
    double *r0;				// Major Radius of Measurement (m)
-   double *b0;				// Vacuum Toroidal Magnetic Field at the Measurement Major Radius (T)
+   double *b0;				// Vacuum Toroidal Magnetic Field at the Measurement Major Radius (T) 
    double *rb0;				// Product r0 * b0 (Tm)
    double *time;				// Measurement Time+
-} TF_PROXY;
+} TF_PROXY;		   
 */
 
-    initUserDefinedType(&usertype);   // New structure definition
+   initUserDefinedType(&usertype);   // New structure definition
 
-    strcpy(usertype.name, "TF_PROXY");
-    usertype.size = sizeof(TF_PROXY);
-    strcpy(usertype.source, "LiveDisplay");
-    usertype.ref_id = 0;
-    usertype.imagecount = 0;       // No Structure Image data
-    usertype.image = NULL;
-    usertype.idamclass = TYPE_COMPOUND;
+   strcpy(usertype.name, "TF_PROXY");         
+   usertype.size = sizeof(TF_PROXY);
+   strcpy(usertype.source, "LiveDisplay");
+   usertype.ref_id = 0;
+   usertype.imagecount = 0;       // No Structure Image data
+   usertype.image = NULL;
+   usertype.idamclass = TYPE_COMPOUND;
+   
+   offset = 0;
+   
+   defineField(&field, "data_count", "Measurement data count", &offset, SCALARINT);
+   addCompoundField(&usertype, field);
+   defineField(&field, "r0", "Major Radius", &offset, ARRAYDOUBLE);    
+   addCompoundField(&usertype, field);
+   defineField(&field, "b0", "Vacuum Magnetic Field at r0", &offset, ARRAYDOUBLE);    
+   addCompoundField(&usertype, field);
+   defineField(&field, "rb0", "Product r0*b0", &offset, ARRAYDOUBLE);    
+   addCompoundField(&usertype, field);
+   defineField(&field, "time", "Measurement Time", &offset, ARRAYDOUBLE);    
+   addCompoundField(&usertype, field);
+   
+   addUserDefinedType(userdefinedtypelist, usertype);	// Toroidal Magnetic Field IDS Proxy
 
-    offset = 0;
+/*
+typedef struct{
+   double r;				// Radial Position array 
+   double z;				// Z Position array
+   double width;			// Width array
+   double height;			// Height array
+} PF_ACTIVE_ELEMENT;
+*/
+   initUserDefinedType(&usertype);   // New structure definition
 
-    defineField(&field, "data_count", "Measurement data count", &offset, SCALARINT);
-    addCompoundField(&usertype, field);
-    defineField(&field, "r0", "Major Radius", &offset, ARRAYDOUBLE);
-    addCompoundField(&usertype, field);
-    defineField(&field, "b0", "Vacuum Magnetic Field at r0", &offset, ARRAYDOUBLE);
-    addCompoundField(&usertype, field);
-    defineField(&field, "rb0", "Product r0*b0", &offset, ARRAYDOUBLE);
-    addCompoundField(&usertype, field);
-    defineField(&field, "time", "Measurement Time", &offset, ARRAYDOUBLE);
-    addCompoundField(&usertype, field);
+   strcpy(usertype.name, "PF_ACTIVE_ELEMENT");         
+   usertype.size = sizeof(PF_ACTIVE_ELEMENT);
+   strcpy(usertype.source, "LiveDisplay");
+   usertype.ref_id = 0;
+   usertype.imagecount = 0;        
+   usertype.image = NULL;
+   usertype.idamclass = TYPE_COMPOUND;
+   
+   offset = 0;
+   
+   defineField(&field, "r", "Major Radius", &offset, SCALARDOUBLE);    
+   addCompoundField(&usertype, field);
+   defineField(&field, "z", "Z position",   &offset, SCALARDOUBLE);    
+   addCompoundField(&usertype, field);
+   defineField(&field, "width", "Width",    &offset, SCALARDOUBLE);    
+   addCompoundField(&usertype, field);
+   defineField(&field, "height", "Height",  &offset, SCALARDOUBLE);    
+   addCompoundField(&usertype, field);
+   
+   addUserDefinedType(userdefinedtypelist, usertype);	// PF_ACTIVE_ELEMENT
 
-    addUserDefinedType(userdefinedtypelist, usertype);    // Toroidal Magnetic Field IDS Proxy
+/*
+typedef struct{
+   STRING * identifier;
+   STRING * name; 
+   int  element_count;			// Number of Coil Elements positions
+   PF_ACTIVE_ELEMENT *element;		// Coil Element properties
+   int data_count;			// Number of data points 
+   double *data;			// Measurement data array
+   double *time;			// Measurement time array
+} PF_ACTIVE;		   
+*/
 
+   initUserDefinedType(&usertype);    
+
+   strcpy(usertype.name, "PF_ACTIVE");         
+   usertype.size = sizeof(PF_ACTIVE);
+   strcpy(usertype.source, "LiveDisplay");
+   usertype.ref_id = 0;
+   usertype.imagecount = 0;        
+   usertype.image = NULL;
+   usertype.idamclass = TYPE_COMPOUND;
+   
+   offset = 0;
+   
+   defineField(&field, "identifier", "Identifier", &offset, SCALARSTRING);
+   addCompoundField(&usertype, field);
+   defineField(&field, "name", "name", &offset, SCALARSTRING);
+   addCompoundField(&usertype, field);
+   defineField(&field, "element_count", "Count of Coil Elements/Coordinates", &offset, SCALARINT);    
+   addCompoundField(&usertype, field);
+   
+// PF_ACTIVE_ELEMENT structure array
+
+   initCompoundField(&field);	 
+   strcpy(field.name, "element");
+   field.atomictype = TYPE_UNKNOWN;				 
+   strcpy(field.type, "PF_ACTIVE_ELEMENT");			 
+   strcpy(field.desc, "Array of Coil Element properties");	 	 
+   field.pointer    = 1;	 
+   field.count      = 1;	 
+   field.rank       = 0; 	 
+   field.shape      = NULL;			// Needed when rank >= 1	 
+   field.size       = field.count*sizeof(void *); 		
+   field.offset     = newoffset(offset,field.type);	   			 			 		     	 
+   field.offpad     = padding(offset,field.type);
+   field.alignment  = getalignmentof(field.type);		     						     
+   offset           = field.offset + field.size;	   
+   addCompoundField(&usertype, field);	
+   
+   defineField(&field, "xdata_count", "Measurement data count", &offset, SCALARINT);    
+   addCompoundField(&usertype, field);
+   defineField(&field, "xdata", "Measurement data", &offset, ARRAYDOUBLE); 		// Doesn't like 'data' !!!   
+   addCompoundField(&usertype, field);      
+   defineField(&field, "xtime", "Measurement time", &offset, ARRAYDOUBLE);    
+   addCompoundField(&usertype, field);      
+  
+   addUserDefinedType(userdefinedtypelist, usertype);	// PF_ACTIVE
+
+
+/*
+typedef struct{
+   int pfactive_count;
+   PF_ACTIVE *pfactive;			// Array of PF Active Coils
+} PF_ACTIVE_PROXY;			// Proxy for the PF_Active IDS 	   
+*/
+
+   initUserDefinedType(&usertype);    
+
+   strcpy(usertype.name, "PF_ACTIVE_PROXY");         
+   usertype.size = sizeof(PF_ACTIVE_PROXY);
+   strcpy(usertype.source, "LiveDisplay");
+   usertype.ref_id = 0;
+   usertype.imagecount = 0;        
+   usertype.image = NULL;
+   usertype.idamclass = TYPE_COMPOUND;
+   
+   offset = 0;
+   
+   defineField(&field, "pfactive_count", "Count of PF Active Coils", &offset, SCALARINT);    
+   addCompoundField(&usertype, field);
+   
+// PF_ACTIVE structure array
+
+   initCompoundField(&field);	 
+   strcpy(field.name, "pfactive");
+   field.atomictype = TYPE_UNKNOWN;				 
+   strcpy(field.type, "PF_ACTIVE");			 
+   strcpy(field.desc, "Array of PF Active Coil properties");	 	 
+   field.pointer    = 1;	 
+   field.count      = 1;	 
+   field.rank       = 0; 	 
+   field.shape      = NULL;			 
+   field.size       = field.count*sizeof(void *); 		
+   field.offset     = newoffset(offset,field.type);	   			 			 		     	 
+   field.offpad     = padding(offset,field.type);
+   field.alignment  = getalignmentof(field.type);		     						     
+   offset           = field.offset + field.size;	   
+   addCompoundField(&usertype, field);	
+      
+   addUserDefinedType(userdefinedtypelist, usertype);	// PF_ACTIVE_PROXY
 }
 
 
-void initRB(TF_PROXY* str)
-{
-    str->data_count = 0;
-    str->r0 = NULL;
-    str->b0 = NULL;
-    str->rb0 = NULL;
-    str->time = NULL;
+void initRB(TF_PROXY *str){
+   str->data_count = 0;
+   str->r0 = NULL;
+   str->b0 = NULL;
+   str->rb0 = NULL;
+   str->time = NULL;
 }
 
-void initStaticLimiter(STATIC_LIMITER* str)
-{
-    str->count = 0;
-    str->r = NULL;
-    str->z = NULL;
+void initStaticLimiter(STATIC_LIMITER *str){
+   str->count = 0;
+   str->r = NULL;
+   str->z = NULL;
 }
 
-void initFluxLoop(FLUX_LOOP* floop)
-{
-    floop->identifier = NULL;
-    floop->name = NULL;
-    floop->position_count = 0;
-    floop->r = NULL;
-    floop->z = NULL;
-    floop->phi = NULL;
-    floop->data_count = 0;
-    floop->data = NULL;
-    floop->time = NULL;
+void initFluxLoop(FLUX_LOOP *floop){
+   floop->identifier = NULL;
+   floop->name = NULL;
+   floop->position_count = 0;
+   floop->r = NULL;
+   floop->z = NULL;
+   floop->phi = NULL;
+   floop->data_count = 0;
+   floop->data = NULL;
+   floop->time = NULL;
+}
+void freeFluxLoop(FLUX_LOOP *floop){
+   if(floop->identifier != NULL) free((void *)floop->identifier);
+   if(floop->name != NULL) free((void *)floop->name);
+   if(floop->r != NULL) free((void *)floop->r);
+   if(floop->z != NULL) free((void *)floop->z);
+   if(floop->phi != NULL) free((void *)floop->phi);
+   if(floop->data != NULL) free((void *)floop->data);
+   if(floop->time != NULL) free((void *)floop->time);
+   initFluxLoop(floop);
 }
 
-void freeFluxLoop(FLUX_LOOP* floop)
-{
-    if (floop->identifier != NULL) free((void*) floop->identifier);
-    if (floop->name != NULL) free((void*) floop->name);
-    if (floop->r != NULL) free((void*) floop->r);
-    if (floop->z != NULL) free((void*) floop->z);
-    if (floop->phi != NULL) free((void*) floop->phi);
-    if (floop->data != NULL) free((void*) floop->data);
-    if (floop->time != NULL) free((void*) floop->time);
-    initFluxLoop(floop);
+void initBpolProbe(BPOL_PROBE *str){
+   str->identifier = NULL;
+   str->name = NULL;
+   str->r = 0.0;
+   str->z = 0.0;
+   str->phi = 0.0;
+   str->data_count = 0;
+   str->data = NULL;
+   str->time = NULL;
+}
+void freeBpolProbe(BPOL_PROBE *str){
+   if(str->identifier != NULL) free((void *)str->identifier);
+   if(str->name != NULL) free((void *)str->name);
+   if(str->data != NULL) free((void *)str->data);
+   if(str->time != NULL) free((void *)str->time);
+   initBpolProbe(str);
 }
 
-void initBpolProbe(BPOL_PROBE* str)
-{
-    str->identifier = NULL;
-    str->name = NULL;
-    str->r = 0.0;
-    str->z = 0.0;
-    str->phi = 0.0;
-    str->data_count = 0;
-    str->data = NULL;
-    str->time = NULL;
+void initMethodData(METHOD_DATA *str){
+   str->identifier = NULL;
+   str->name = NULL;
+   str->count = 0;
+   str->data = NULL;
+   str->time = NULL;
+}
+void freeMethodData(METHOD_DATA *str){
+   if(str->identifier != NULL) free((void *)str->identifier);
+   if(str->name != NULL) free((void *)str->name);
+   if(str->data != NULL) free((void *)str->data);
+   if(str->time != NULL) free((void *)str->time);
+   initMethodData(str);
+}
+void initMethod(METHOD *str){
+   str->name = NULL;
+   str->ip = NULL;
+   str->diamagnetic_flux = NULL;
 }
 
-void freeBpolProbe(BPOL_PROBE* str)
-{
-    if (str->identifier != NULL) free((void*) str->identifier);
-    if (str->name != NULL) free((void*) str->name);
-    if (str->data != NULL) free((void*) str->data);
-    if (str->time != NULL) free((void*) str->time);
-    initBpolProbe(str);
+void initBpolProbe2(BPOL_PROBE_TEST2 *str){
+   str->identifier = NULL;
+   str->name = NULL;
+   str->r = 0.0;
+   str->z = 0.0;
+   str->phi = 0.0;
+}
+void freeBpolProbe2(BPOL_PROBE_TEST2 *str){
+   if(str->identifier != NULL) free((void *)str->identifier);
+   if(str->name != NULL) free((void *)str->name);
+   initBpolProbe2(str);
 }
 
-void initMethodData(METHOD_DATA* str)
-{
-    str->identifier = NULL;
-    str->name = NULL;
-    str->count = 0;
-    str->data = NULL;
-    str->time = NULL;
+void initPFActiveElement(PF_ACTIVE_ELEMENT *str){
+   str->r      = 0.0;
+   str->z      = 0.0;
+   str->width  = 0.0;
+   str->height = 0.0;
 }
-
-void freeMethodData(METHOD_DATA* str)
-{
-    if (str->identifier != NULL) free((void*) str->identifier);
-    if (str->name != NULL) free((void*) str->name);
-    if (str->data != NULL) free((void*) str->data);
-    if (str->time != NULL) free((void*) str->time);
-    initMethodData(str);
+void initPFActive(PF_ACTIVE *str){
+   str->identifier = NULL;
+   str->name = NULL;
+   str->element_count = 0;
+   str->element = NULL;
+   str->data_count = 0;
+   str->data = NULL;
+   str->time = NULL;
 }
-
-void initMethod(METHOD* str)
-{
-    str->name = NULL;
-    str->ip = NULL;
-    str->diamagnetic_flux = NULL;
+void initPFActiveProxy(PF_ACTIVE_PROXY *str){
+   str->pfactive_count = 0;
+   str->pfactive = NULL;
 }
-
-void initBpolProbe2(BPOL_PROBE_TEST2* str)
-{
-    str->identifier = NULL;
-    str->name = NULL;
-    str->r = 0.0;
-    str->z = 0.0;
-    str->phi = 0.0;
+void freePFActive(PF_ACTIVE *str){
+   if(str->identifier != NULL) free((void *)str->identifier);
+   if(str->name != NULL) free((void *)str->name);
+   if(str->element != NULL) free((void *)str->element);
+   initPFActive(str);
 }
-
-void freeBpolProbe2(BPOL_PROBE_TEST2* str)
-{
-    if (str->identifier != NULL) free((void*) str->identifier);
-    if (str->name != NULL) free((void*) str->name);
-    initBpolProbe2(str);
+void freePFActiveProxy(PF_ACTIVE_PROXY *str){
+   int i;
+   if(str->pfactive != NULL) for(i=0;i<str->pfactive_count;i++) freePFActive(&str->pfactive[i]);
+   initPFActiveProxy(str);
 }
 
 // Return Count Data
 
-int returnCount(int count, DATA_BLOCK* data_block)
-{
-    data_block->data_type = TYPE_INT;
-    data_block->rank = 0;
-    data_block->data_n = 1;
-    int* data = (int*) malloc(sizeof(int));
-    data[0] = count;
-    data_block->data = (char*) data;
-    return 0;
+int returnCount(int count, DATA_BLOCK *data_block){
+   data_block->data_type = TYPE_INT;
+   data_block->rank = 0;
+   data_block->data_n = 1;
+   int *data = (int *) malloc(sizeof(int));
+   data[0] = count;
+   data_block->data = (char*)data;
+   return 0;
 }
 
+// Subset the data 
+int dataSubset(double *times, int data_count, double startTime, int isEndTime, double endTime, int isFirst, int isLast, int isNearest,
+               int *subset_count, int *index1, int *index2){
+   int j, err=0;
+   if(data_count == 0) return 1;
+   
+      *index1 = -1;
+      *index2 = -1;
+      *subset_count = 0;
+      
+      if(startTime > times[0] && startTime < times[data_count-1]){ 
+         for(j=0;j<data_count;j++){ 
+            if(*index1 < 0 && times[j] >= startTime){
+               *index1 = j;
+               if(!isEndTime) break;
+            }
+            if(*index1 >= 0 && *index2 < 0 && times[j] >= endTime){
+               *index2 = j-1;
+               if(*index2 < 0) *index2 = 0;
+               if(times[j] == endTime) *index2 = j;
+               break;
+            }
+         }
+      } else {
+         if(startTime <= times[0]) 
+            *index1 = 0;
+         else
+            *index1 = data_count-1;
+      }	  
+ 
+      if(isEndTime){	// Subset of the data
+         if(*index2 == -1) *index2 = data_count-1;
+         *subset_count = *index2 - *index1 + 1;
+      } else {		// Single value
+         *subset_count = 1;
+         *index2 = *index1;
+      }
+
+      if(isFirst){
+         *subset_count = 1;
+         *index2 = *index1;
+      } else
+      if(isLast){
+         *subset_count = 1;
+         *index1 = *index2;
+      } else
+      if(isNearest){
+         *subset_count = 1;
+         if( *index1 > 0 && ((startTime - times[*index1-1]) > (times[*index1] - startTime))) *index1 = *index1-1;
+	 *index2 = *index1;
+      } 
+      
+      if(*index1 == -1 || *index2 == -1) err = 1;
+
+   return err;
+}   
+
+   
 
 extern int livedisplay(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
@@ -546,14 +771,18 @@ extern int livedisplay(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     int i, j, handle, offset = 0, stringLength;
 
-    //char * p, * s;
+    char * p, * s;
 
-    static FLUX_LOOP* flux_loop_cache = NULL;            // maintain a copy of the time invarient machine description data
-    static unsigned short flux_loop_cache_count = 0;        // How many flux loops
-    static char flux_loop_source[256];                // The re-cache trigger
-    static BPOL_PROBE* bpol_probe_cache = NULL;
-    static unsigned short bpol_probe_cache_count = 0;
-    static char bpol_probe_source[256];
+    static FLUX_LOOP *flux_loop_cache = NULL;			// maintain a copy of the time invarient machine description data
+    static unsigned short flux_loop_cache_count = 0;		// How many flux loops
+    static char flux_loop_source[256];				// The re-cache trigger
+    static BPOL_PROBE *bpol_probe_cache = NULL;			 
+    static unsigned short bpol_probe_cache_count = 0;		 
+    static char bpol_probe_source[256];				 
+
+    static PF_ACTIVE *pfactive_cache = NULL;			 
+    static unsigned short pfactive_cache_count = 0;		 
+    static char pfactive_source[256];				 
 
 //----------------------------------------------------------------------------------------
 // Standard v1 Plugin Interface
@@ -563,22 +792,28 @@ extern int livedisplay(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     DATA_SOURCE* data_source;
     SIGNAL_DESC* signal_desc;
 
-    PLUGINLIST* pluginList;    // List of all data reader plugins (internal and external shared libraries)
+    PLUGINLIST *pluginList;	// List of all data reader plugins (internal and external shared libraries)
 
     USERDEFINEDTYPE usertype;
     COMPOUNDFIELD field;
 
+#ifndef USE_PLUGIN_DIRECTLY
+    IDAMERRORSTACK idamerrorstack;
     IDAMERRORSTACK* idamErrorStack = getIdamServerPluginErrorStack();        // Server library functions
     USERDEFINEDTYPELIST* userdefinedtypelist = getIdamServerUserDefinedTypeList();
+    LOGMALLOCLIST  *logmalloclist            = getIdamServerLogMallocList();
 
     initIdamErrorStack(&idamerrorstack);
+#else
+    IDAMERRORSTACK *idamErrorStack = &idamerrorstack;
+#endif
 
     unsigned short housekeeping;
 
     if (idam_plugin_interface->interfaceVersion > THISPLUGIN_MAX_INTERFACE_VERSION) {
         err = 999;
-        idamLog(LOG_ERROR,
-                "ERROR LiveDisplay: Plugin Interface Version Unknown to this plugin: Unable to execute the request!\n");
+        //idamLog(LOG_ERROR,
+        //        "ERROR LiveDisplay: Plugin Interface Version Unknown to this plugin: Unable to execute the request!\n");
         addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err,
                      "Plugin Interface Version Unknown to this plugin: Unable to execute the request!");
         concatIdamError(idamerrorstack, idamErrorStack);
@@ -608,21 +843,21 @@ extern int livedisplay(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     if (housekeeping || !strcasecmp(request_block->function, "reset")) {
 
-        idamLog(LOG_DEBUG, "LiveDisplay: reset function called.\n");
+        //idamLog(LOG_DEBUG, "LiveDisplay: reset function called.\n");
 
-        if (flux_loop_cache != NULL) {
-            for (i = 0; i < flux_loop_cache_count; i++) freeFluxLoop(&flux_loop_cache[i]);
-            free((void*) flux_loop_cache);
-            flux_loop_cache = NULL;
-            flux_loop_cache_count = 0;
+        if(flux_loop_cache != NULL){
+           for(i=0;i<flux_loop_cache_count;i++) freeFluxLoop(&flux_loop_cache[i]);
+           free((void *)flux_loop_cache);
+	   flux_loop_cache = NULL; 
+           flux_loop_cache_count = 0;
         }
         flux_loop_source[0] = '\0';
 
-        if (bpol_probe_cache != NULL) {
-            for (i = 0; i < bpol_probe_cache_count; i++) freeBpolProbe(&bpol_probe_cache[i]);
-            free((void*) bpol_probe_cache);
-            bpol_probe_cache = NULL;
-            bpol_probe_cache_count = 0;
+        if(bpol_probe_cache != NULL){
+           for(i=0;i<bpol_probe_cache_count;i++) freeBpolProbe(&bpol_probe_cache[i]);
+           free((void *)bpol_probe_cache);
+	   bpol_probe_cache = NULL; 
+           bpol_probe_cache_count = 0;
         }
         bpol_probe_source[0] = '\0';
 
@@ -633,12 +868,12 @@ extern int livedisplay(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     }
 
 //----------------------------------------------------------------------------------------
-// Initialise if requested
+// Initialise if requested  
 
     if (!init || !strcasecmp(request_block->function, "init")
         || !strcasecmp(request_block->function, "initialise")) {
 
-        idamLog(LOG_DEBUG, "LiveDisplay: init function called.\n");
+        //idamLog(LOG_DEBUG, "LiveDisplay: init function called.\n");
 
         flux_loop_cache = NULL;
         flux_loop_cache_count = 0;
@@ -650,36 +885,35 @@ extern int livedisplay(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
         init = 1;
 
-        if (!strcasecmp(request_block->function, "init") || !strcasecmp(request_block->function, "initialise")) {
+        if (!strcasecmp(request_block->function, "init") || !strcasecmp(request_block->function, "initialise"))
             return 0;
-        }
     }
 
 //----------------------------------------------------------------------------------------
 // Name Value pairs and Keywords
 
-    unsigned short isExp_number = 0, isPass = 0, isDevice = 0, isStartTime = 0, isEndTime = 0, isCache = 0, isStructureVersion = 0;
-    unsigned short isAverage = 0, isNearest = 0, isFirst = 0, isLast = 0, isCount = 0;
-    int exp_number, pass, structureVersion = 1;
+    unsigned short isExp_number=0, isPass=0, isDevice=0, isStartTime=0,isEndTime=0, isCache=0, isStructureVersion=0;
+    unsigned short isAverage=0, isNearest=0, isFirst=0, isLast=0, isCount=0;
+    int exp_number, pass, structureVersion=1;
     double startTime, endTime;
-    char* device = NULL;
-
+    char *device = NULL;
+    
     exp_number = request_block->exp_number;
-    pass = request_block->pass;                // 'Pass' as a text string (tpass) is not used
+    pass = request_block->pass;        		// 'Pass' as a text string (tpass) is not used
 
 // Keyword have higher priority
 
     for (i = 0; i < request_block->nameValueList.pairCount; i++) {
 
-        idamLog(LOG_DEBUG, "[%d] %s = %s\n", i, request_block->nameValueList.nameValue[i].name,
-                request_block->nameValueList.nameValue[i].value);
+        //idamLog(LOG_DEBUG, "[%d] %s = %s\n", i, request_block->nameValueList.nameValue[i].name,
+        //        request_block->nameValueList.nameValue[i].value);
 
         if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "exp_number") ||
             !strcasecmp(request_block->nameValueList.nameValue[i].name, "shot") ||
             !strcasecmp(request_block->nameValueList.nameValue[i].name, "pulno")) {
             if (IsNumber(request_block->nameValueList.nameValue[i].value)) {
                 isExp_number = 1;
-                exp_number = atoi(request_block->nameValueList.nameValue[i].value);
+		exp_number = atoi(request_block->nameValueList.nameValue[i].value);
                 continue;
             } else {
                 err = 888;
@@ -689,7 +923,7 @@ extern int livedisplay(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "pass")) {
             if (IsNumber(request_block->nameValueList.nameValue[i].value)) {
                 isPass = 1;
-                pass = atoi(request_block->nameValueList.nameValue[i].value);
+		pass = atoi(request_block->nameValueList.nameValue[i].value);
                 continue;
             } else {
                 err = 888;
@@ -715,7 +949,7 @@ extern int livedisplay(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "structureVersion")) {
             if (IsNumber(request_block->nameValueList.nameValue[i].value)) {
                 isStructureVersion = 1;
-                structureVersion = atoi(request_block->nameValueList.nameValue[i].value);
+		structureVersion = atoi(request_block->nameValueList.nameValue[i].value);
                 continue;
             } else {
                 err = 888;
@@ -725,33 +959,27 @@ extern int livedisplay(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Keywords
 
-        if (!strcasecmp(request_block->nameValueList.nameValue[i].name,
-                        "average")) {        // Average data within the time window (startTime and endTime must be specified)
+        if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "average")) {		// Average data within the time window (startTime and endTime must be specified)
             isAverage = 1;
             continue;
         }
-        if (!strcasecmp(request_block->nameValueList.nameValue[i].name,
-                        "nearest")) {        // The data measurement nearest startTime.  endTime is ignored.
+        if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "nearest")) {		// The data measurement nearest startTime.  endTime is ignored.
             isNearest = 1;
             continue;
         }
-        if (!strcasecmp(request_block->nameValueList.nameValue[i].name,
-                        "first")) {        // The first data measurement within the time window (startTime and endTime must be specified)
+        if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "first")) {		// The first data measurement within the time window (startTime and endTime must be specified)
             isFirst = 1;
             continue;
         }
-        if (!strcasecmp(request_block->nameValueList.nameValue[i].name,
-                        "last")) {        // The last data measurement within the time window (startTime and endTime must be specified)
+        if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "last")) {		// The last data measurement within the time window (startTime and endTime must be specified)
             isLast = 1;
             continue;
         }
-        if (!strcasecmp(request_block->nameValueList.nameValue[i].name,
-                        "cache")) {        // Cache the machine description data
+        if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "cache")) {		// Cache the machine description data
             isCache = 1;
             continue;
         }
-        if (!strcasecmp(request_block->nameValueList.nameValue[i].name,
-                        "count")) {        // Cache the Count of the coil or probe
+        if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "count")) {		// Cache the Count of the coil or probe
             isCount = 1;
             continue;
         }
@@ -767,41 +995,41 @@ extern int livedisplay(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 //----------------------------------------------------------------------------------------
 // Test Methods
 //----------------------------------------------------------------------------------------
-
-        if (!strcasecmp(request_block->function, "test1")) {    // CODE data structure
+    
+         if (!strcasecmp(request_block->function, "test1")) {	// CODE data structure
 
 // Create the Returned Structure Definitions
 
-            defineIDSStructures();
+	    defineIDSStructures();
 
 // Build the Returned Structures
 
-            CODE* code = (CODE*) malloc(sizeof(CODE));
-            addMalloc((void*) code, 1, sizeof(CODE), "CODE");
+            CODE *code = (CODE *)malloc(sizeof(CODE));
+            addMalloc((void*)code, 1, sizeof(CODE), "CODE");	 
+	    
+	    stringLength = 56;
+	    code->name = (char *)malloc(stringLength*sizeof(char));
+            addMalloc((void*)code->name, 1, stringLength*sizeof(char), "STRING");	// Scalar String
+	    strcpy(code->name, "IDAM LiveDisplay Plugin");
 
-            stringLength = 56;
-            code->name = (char*) malloc(stringLength * sizeof(char));
-            addMalloc((void*) code->name, 1, stringLength * sizeof(char), "STRING");    // Scalar String
-            strcpy(code->name, "IDAM LiveDisplay Plugin");
+	    stringLength = 56;
+	    code->version = (char *)malloc(stringLength*sizeof(char));
+            addMalloc((void*)code->version, 1, stringLength*sizeof(char), "STRING");	// Scalar String
+	    sprintf(code->version, "LiveDisplay Plugin Version: %d", THISPLUGIN_VERSION);
 
-            stringLength = 56;
-            code->version = (char*) malloc(stringLength * sizeof(char));
-            addMalloc((void*) code->version, 1, stringLength * sizeof(char), "STRING");    // Scalar String
-            sprintf(code->version, "LiveDisplay Plugin Version: %d", THISPLUGIN_VERSION);
-
-            stringLength = strlen(request_block->signal) + strlen(request_block->source) + 7;
-            code->parameters = (char*) malloc(stringLength * sizeof(char));
-            addMalloc((void*) code->parameters, 1, stringLength * sizeof(char), "STRING");    // Scalar String
-            sprintf(code->parameters, "\"%s\", \"%s\"", request_block->signal, request_block->source);
+	    stringLength = strlen(request_block->signal)+strlen(request_block->source)+7;
+	    code->parameters = (char *)malloc(stringLength*sizeof(char));
+            addMalloc((void*)code->parameters, 1, stringLength*sizeof(char), "STRING");	// Scalar String
+	    sprintf(code->parameters, "\"%s\", \"%s\"", request_block->signal, request_block->source);
 
             code->output_flag_count = 3;
-
-            code->output_flag = (int*) malloc(code->output_flag_count * sizeof(int));
-            addMalloc((void*) code->output_flag, code->output_flag_count, sizeof(int), "int");    // Integer Array
-            code->output_flag[0] = 12345;
-            code->output_flag[1] = 67890;
-            code->output_flag[2] = 99999;
-
+	    
+	    code->output_flag = (int *)malloc(code->output_flag_count*sizeof(int));
+	    addMalloc((void*)code->output_flag, code->output_flag_count, sizeof(int), "int");	// Integer Array
+	    code->output_flag[0] = 12345;
+	    code->output_flag[1] = 67890;
+	    code->output_flag[2] = 99999;
+	    	    
 // Pass Data
 
             data_block->data_type = TYPE_COMPOUND;
@@ -819,94 +1047,96 @@ extern int livedisplay(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             break;
 
-        } else if (!strcasecmp(request_block->function, "test2")) {
+        } else
+
+        if (!strcasecmp(request_block->function, "test2")) {
 
 // Create the Returned Structure Definitions
 
-            defineIDSStructures();
+	    defineIDSStructures();	    
 
-            initUserDefinedType(&usertype);        // New structure definition
+	    initUserDefinedType(&usertype);	    // New structure definition
 
-            strcpy(usertype.name, "MAGNETICS_TEST2");
-            usertype.size = sizeof(MAGNETICS_TEST2);
-            strcpy(usertype.source, "LiveDisplay");
-            usertype.ref_id = 0;
-            usertype.imagecount = 0;                 // No Structure Image data
-            usertype.image = NULL;
-            usertype.idamclass = TYPE_COMPOUND;
+	    strcpy(usertype.name, "MAGNETICS_TEST2");	    	    	    
+	    usertype.size = sizeof(MAGNETICS_TEST2);
+	    strcpy(usertype.source, "LiveDisplay");
+	    usertype.ref_id = 0;
+	    usertype.imagecount = 0;	    	     // No Structure Image data
+	    usertype.image = NULL;
+	    usertype.idamclass = TYPE_COMPOUND;
 
-            offset = 0;
+	    offset = 0;
 
-            defineField(&field, "comment", "Comment", &offset, SCALARSTRING);
-            addCompoundField(&usertype, field);
-            defineField(&field, "homogeneous_time", "homogeneous_time", &offset, SCALARINT);
-            addCompoundField(&usertype, field);
-            defineField(&field, "flux_loop_count", "flux_loop array count", &offset, SCALARINT);
-            addCompoundField(&usertype, field);
-            defineField(&field, "bpol_probe_count", "bpol_probe array count", &offset, SCALARINT);
-            addCompoundField(&usertype, field);
-            defineField(&field, "method_count", "method array count", &offset, SCALARINT);
-            addCompoundField(&usertype, field);
+	    defineField(&field, "comment", "Comment", &offset, SCALARSTRING);
+	    addCompoundField(&usertype, field);
+	    defineField(&field, "homogeneous_time", "homogeneous_time", &offset, SCALARINT);	     
+	    addCompoundField(&usertype, field);
+	    defineField(&field, "flux_loop_count", "flux_loop array count", &offset, SCALARINT);	     
+	    addCompoundField(&usertype, field);
+	    defineField(&field, "bpol_probe_count", "bpol_probe array count", &offset, SCALARINT);	     
+	    addCompoundField(&usertype, field);
+	    defineField(&field, "method_count", "method array count", &offset, SCALARINT);	     
+	    addCompoundField(&usertype, field);
 
-            initCompoundField(&field);
-            strcpy(field.name, "code");
-            field.atomictype = TYPE_UNKNOWN;
-            strcpy(field.type, "CODE");
-            strcpy(field.desc, "Code Information");
-            field.pointer = 0;
-            field.count = 1;
-            field.rank = 0;
-            field.shape = NULL;                    // Needed when rank >= 1
-            field.size = field.count * sizeof(CODE);
-            field.offset = newoffset(offset, field.type);
-            field.offpad = padding(offset, field.type);
-            field.alignment = getalignmentof(field.type);
-            offset = field.offset + field.size;        // Next Offset
-            addCompoundField(&usertype, field);        // Single Structure element
+	    initCompoundField(&field);
+	    strcpy(field.name, "code");
+	    field.atomictype = TYPE_UNKNOWN;
+	    strcpy(field.type, "CODE");
+	    strcpy(field.desc, "Code Information");
+	    field.pointer = 0;
+	    field.count = 1;
+	    field.rank = 0;
+	    field.shape = NULL;	    			// Needed when rank >= 1
+	    field.size = field.count * sizeof(CODE);
+	    field.offset = newoffset(offset, field.type);
+	    field.offpad = padding(offset, field.type);
+	    field.alignment = getalignmentof(field.type);
+	    offset = field.offset + field.size;		// Next Offset
+	    addCompoundField(&usertype, field);		// Single Structure element
 
-            addUserDefinedType(userdefinedtypelist, usertype);
+	    addUserDefinedType(userdefinedtypelist, usertype);	    
 
 // Build the Returned Structures
 
             CODE code;
+	    
+	    stringLength = 56;
+	    code.name = (char *)malloc(stringLength*sizeof(char));
+            addMalloc((void*)code.name, 1, stringLength*sizeof(char), "STRING");	// Scalar String
+	    strcpy(code.name, "IDAM LiveDisplay Plugin");
 
-            stringLength = 56;
-            code.name = (char*) malloc(stringLength * sizeof(char));
-            addMalloc((void*) code.name, 1, stringLength * sizeof(char), "STRING");    // Scalar String
-            strcpy(code.name, "IDAM LiveDisplay Plugin");
+	    stringLength = 56;
+	    code.version = (char *)malloc(stringLength*sizeof(char));
+            addMalloc((void*)code.version, 1, stringLength*sizeof(char), "STRING");	// Scalar String
+	    sprintf(code.version, "LiveDisplay Plugin Version: %d", THISPLUGIN_VERSION);
 
-            stringLength = 56;
-            code.version = (char*) malloc(stringLength * sizeof(char));
-            addMalloc((void*) code.version, 1, stringLength * sizeof(char), "STRING");    // Scalar String
-            sprintf(code.version, "LiveDisplay Plugin Version: %d", THISPLUGIN_VERSION);
-
-            stringLength = strlen(request_block->signal) + strlen(request_block->source) + 7;
-            code.parameters = (char*) malloc(stringLength * sizeof(char));
-            addMalloc((void*) code.parameters, 1, stringLength * sizeof(char), "STRING");    // Scalar String
-            sprintf(code.parameters, "\"%s\", \"%s\"", request_block->signal, request_block->source);
+	    stringLength = strlen(request_block->signal)+strlen(request_block->source)+7;
+	    code.parameters = (char *)malloc(stringLength*sizeof(char));
+            addMalloc((void*)code.parameters, 1, stringLength*sizeof(char), "STRING");	// Scalar String
+	    sprintf(code.parameters, "\"%s\", \"%s\"", request_block->signal, request_block->source);
 
             code.output_flag_count = 3;
-            code.output_flag = (int*) malloc(code.output_flag_count * sizeof(int));
-            addMalloc((void*) code.output_flag, code.output_flag_count, sizeof(int), "int");    // Integer Array
-            code.output_flag[0] = 12345;
-            code.output_flag[1] = 67890;
-            code.output_flag[2] = 99999;
-
-            MAGNETICS_TEST2* magnetics = (MAGNETICS_TEST2*) malloc(sizeof(MAGNETICS_TEST2));
-            addMalloc((void*) magnetics, 1, sizeof(MAGNETICS_TEST2), "MAGNETICS_TEST2");
-
-            stringLength = 128;
-            magnetics->comment = (char*) malloc(stringLength * sizeof(char));
-            addMalloc((void*) magnetics->comment, 1, stringLength * sizeof(char), "STRING");    // Scalar String
-            strcpy(magnetics->comment, "This is the LiveDisplay prototype plugin for Magnetics IDS data");
-
-            magnetics->homogeneous_time = 1;
-            magnetics->flux_loop_count = 2;
-            magnetics->bpol_probe_count = 3;
-            magnetics->method_count = 4;
-
-            magnetics->code = code;
-
+	    code.output_flag = (int *)malloc(code.output_flag_count*sizeof(int));
+	    addMalloc((void*)code.output_flag, code.output_flag_count, sizeof(int), "int");	// Integer Array
+	    code.output_flag[0] = 12345;
+	    code.output_flag[1] = 67890;
+	    code.output_flag[2] = 99999;
+	    
+	    MAGNETICS_TEST2 *magnetics = (MAGNETICS_TEST2 *)malloc(sizeof(MAGNETICS_TEST2));
+	    addMalloc((void*)magnetics, 1, sizeof(MAGNETICS_TEST2), "MAGNETICS_TEST2");
+ 
+	    stringLength = 128;
+	    magnetics->comment = (char *)malloc(stringLength*sizeof(char));
+	    addMalloc((void*)magnetics->comment, 1, stringLength*sizeof(char), "STRING");	// Scalar String
+	    strcpy(magnetics->comment, "This is the LiveDisplay prototype plugin for Magnetics IDS data");
+	    
+	    magnetics->homogeneous_time = 1;
+	    magnetics->flux_loop_count = 2;
+	    magnetics->bpol_probe_count = 3;
+	    magnetics->method_count = 4;
+	    
+	    magnetics->code = code;
+	    
 // Pass Data
 
             data_block->data_type = TYPE_COMPOUND;
@@ -924,50 +1154,52 @@ extern int livedisplay(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             break;
 
-        } else if (!strcasecmp(request_block->function, "test3")) {    // FLUX_LOOP data structure
+         } else
+	
+         if (!strcasecmp(request_block->function, "test3")) {	// FLUX_LOOP data structure
 
 // Create the Returned Structure Definitions
 
-            defineIDSStructures();
+	    defineIDSStructures();
 
 // Build the Returned Structures
 
-            FLUX_LOOP* floop = (FLUX_LOOP*) malloc(sizeof(FLUX_LOOP));
-            addMalloc((void*) floop, 1, sizeof(FLUX_LOOP), "FLUX_LOOP");
-
-            stringLength = 56;
-            floop->identifier = (char*) malloc(stringLength * sizeof(char));
-            addMalloc((void*) floop->identifier, 1, stringLength * sizeof(char), "STRING");    // Scalar String
-            strcpy(floop->identifier, "IDAM LiveDisplay Plugin");
-
-            stringLength = 56;
-            floop->name = (char*) malloc(stringLength * sizeof(char));
-            addMalloc((void*) floop->name, 1, stringLength * sizeof(char), "STRING");    // Scalar String
-            strcpy(floop->name, "Flux Loop #1");
+            FLUX_LOOP *floop = (FLUX_LOOP *)malloc(sizeof(FLUX_LOOP));
+            addMalloc((void*)floop, 1, sizeof(FLUX_LOOP), "FLUX_LOOP");	 
+	    
+	    stringLength = 56;
+	    floop->identifier = (char *)malloc(stringLength*sizeof(char));
+            addMalloc((void*)floop->identifier, 1, stringLength*sizeof(char), "STRING");	// Scalar String
+	    strcpy(floop->identifier, "IDAM LiveDisplay Plugin");
+	    
+	    stringLength = 56;
+	    floop->name = (char *)malloc(stringLength*sizeof(char));
+            addMalloc((void*)floop->name, 1, stringLength*sizeof(char), "STRING");	// Scalar String
+	    strcpy(floop->name, "Flux Loop #1");
 
             floop->position_count = 1;
-
-            floop->r = (double*) malloc(floop->position_count * sizeof(double));
-            addMalloc((void*) floop->r, floop->position_count, sizeof(double), "double");
-            floop->r[0] = 1.2345;
-            floop->z = (double*) malloc(floop->position_count * sizeof(double));
-            addMalloc((void*) floop->z, floop->position_count, sizeof(double), "double");
-            floop->z[0] = 6.7890;
-            floop->phi = (double*) malloc(floop->position_count * sizeof(double));
-            addMalloc((void*) floop->phi, floop->position_count, sizeof(double), "double");
-            floop->phi[0] = 9.9999;
+	    
+	    floop->r = (double *)malloc(floop->position_count*sizeof(double));
+	    addMalloc((void*)floop->r, floop->position_count, sizeof(double), "double");	 
+	    floop->r[0] = 1.2345;
+	    floop->z = (double *)malloc(floop->position_count*sizeof(double));
+	    addMalloc((void*)floop->z, floop->position_count, sizeof(double), "double");	 
+	    floop->z[0] = 6.7890;
+	    floop->phi = (double *)malloc(floop->position_count*sizeof(double));
+	    addMalloc((void*)floop->phi, floop->position_count, sizeof(double), "double");	 
+	    floop->phi[0] = 9.9999;
 
             floop->data_count = 1;
+	    
+	    floop->data = (double *)malloc(floop->data_count*sizeof(double));
+	    addMalloc((void*)floop->data, floop->data_count, sizeof(double), "double");	 
+	    floop->data[0] = 3.1415927;
+	    
+	    floop->time = (double *)malloc(floop->data_count*sizeof(double));
+	    addMalloc((void*)floop->time, floop->data_count, sizeof(double), "double");	 
+	    floop->time[0] = 2.71828;
 
-            floop->data = (double*) malloc(floop->data_count * sizeof(double));
-            addMalloc((void*) floop->data, floop->data_count, sizeof(double), "double");
-            floop->data[0] = 3.1415927;
-
-            floop->time = (double*) malloc(floop->data_count * sizeof(double));
-            addMalloc((void*) floop->time, floop->data_count, sizeof(double), "double");
-            floop->time[0] = 2.71828;
-
-
+	    	    
 // Pass Data
 
             data_block->data_type = TYPE_COMPOUND;
@@ -985,54 +1217,57 @@ extern int livedisplay(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             break;
 
-        } else if (!strcasecmp(request_block->function, "test4")) {    // FLUX_LOOP data structure
+         } else
+
+	
+         if (!strcasecmp(request_block->function, "test4")) {	// FLUX_LOOP data structure
 
 // Create the Returned Structure Definitions
 
-            defineIDSStructures();
+	    defineIDSStructures();
 
 // Build the Returned Structures
 
             int flux_loop_count = 2;
+	    
+	    FLUX_LOOP *floop = (FLUX_LOOP *)malloc(flux_loop_count*sizeof(FLUX_LOOP));
+            addMalloc((void*)floop,flux_loop_count, sizeof(FLUX_LOOP), "FLUX_LOOP");	 
+	    
+	    for(i=0;i<flux_loop_count;i++){
+	    
+	       stringLength = 56;
+	       floop[i].identifier = (char *)malloc(stringLength*sizeof(char));
+               addMalloc((void*)floop[i].identifier, 1, stringLength*sizeof(char), "STRING");	// Scalar String
+	       strcpy(floop[i].identifier, "IDAM LiveDisplay Plugin");
+	    
+	       stringLength = 56;
+	       floop[i].name = (char *)malloc(stringLength*sizeof(char));
+               addMalloc((void*)floop[i].name, 1, stringLength*sizeof(char), "STRING");	 
+	       strcpy(floop[i].name, "Flux Loop #1");
 
-            FLUX_LOOP* floop = (FLUX_LOOP*) malloc(flux_loop_count * sizeof(FLUX_LOOP));
-            addMalloc((void*) floop, flux_loop_count, sizeof(FLUX_LOOP), "FLUX_LOOP");
+               floop[i].position_count = 1;
+	    
+	       floop[i].r = (double *)malloc(floop[i].position_count*sizeof(double));
+	       addMalloc((void*)floop[i].r, floop[i].position_count, sizeof(double), "double");	 
+	       floop[i].r[0] = 1.2345;
+	       floop[i].z = (double *)malloc(floop[i].position_count*sizeof(double));
+	       addMalloc((void*)floop[i].z, floop[i].position_count, sizeof(double), "double"); 
+	       floop[i].z[0] = 6.7890;
+	       floop[i].phi = (double *)malloc(floop[i].position_count*sizeof(double));
+	       addMalloc((void*)floop[i].phi, floop[i].position_count, sizeof(double), "double"); 
+	       floop[i].phi[0] = 9.9999;
 
-            for (i = 0; i < flux_loop_count; i++) {
-
-                stringLength = 56;
-                floop[i].identifier = (char*) malloc(stringLength * sizeof(char));
-                addMalloc((void*) floop[i].identifier, 1, stringLength * sizeof(char), "STRING");    // Scalar String
-                strcpy(floop[i].identifier, "IDAM LiveDisplay Plugin");
-
-                stringLength = 56;
-                floop[i].name = (char*) malloc(stringLength * sizeof(char));
-                addMalloc((void*) floop[i].name, 1, stringLength * sizeof(char), "STRING");
-                strcpy(floop[i].name, "Flux Loop #1");
-
-                floop[i].position_count = 1;
-
-                floop[i].r = (double*) malloc(floop[i].position_count * sizeof(double));
-                addMalloc((void*) floop[i].r, floop[i].position_count, sizeof(double), "double");
-                floop[i].r[0] = 1.2345;
-                floop[i].z = (double*) malloc(floop[i].position_count * sizeof(double));
-                addMalloc((void*) floop[i].z, floop[i].position_count, sizeof(double), "double");
-                floop[i].z[0] = 6.7890;
-                floop[i].phi = (double*) malloc(floop[i].position_count * sizeof(double));
-                addMalloc((void*) floop[i].phi, floop[i].position_count, sizeof(double), "double");
-                floop[i].phi[0] = 9.9999;
-
-                floop[i].data_count = 1;
-
-                floop[i].data = (double*) malloc(floop[i].data_count * sizeof(double));
-                addMalloc((void*) floop[i].data, floop[i].data_count, sizeof(double), "double");
-                floop[i].data[0] = 3.1415927;
-
-                floop[i].time = (double*) malloc(floop[i].data_count * sizeof(double));
-                addMalloc((void*) floop[i].time, floop[i].data_count, sizeof(double), "double");
-                floop[i].time[0] = 2.71828;
-            }
-
+               floop[i].data_count = 1;
+	    
+	       floop[i].data = (double *)malloc(floop[i].data_count*sizeof(double));
+	       addMalloc((void*)floop[i].data, floop[i].data_count, sizeof(double), "double");	 
+	       floop[i].data[0] = 3.1415927;
+	    
+	       floop[i].time = (double *)malloc(floop[i].data_count*sizeof(double));
+	       addMalloc((void*)floop[i].time, floop[i].data_count, sizeof(double), "double");	 
+	       floop[i].time[0] = 2.71828;
+         }
+	    	    
 // Pass Data
 
             data_block->data_type = TYPE_COMPOUND;
@@ -1050,103 +1285,101 @@ extern int livedisplay(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             break;
 
-        } else if (!strcasecmp(request_block->function, "test5")) {    // FLUX_LOOP data structure
+         } else
+ 	
+         if (!strcasecmp(request_block->function, "test5")) {	// FLUX_LOOP data structure
 
             char signal[256], source[256];
-            int stringLength;
-
-            sprintf(source, "%s%s%d", request_block->device_name, request_block->api_delim, exp_number);
+	    int stringLength;
+	    	    
+	    sprintf(source,"%s%s%d", request_block->device_name, request_block->api_delim, exp_number);
 
 // Create the Returned Structure Definitions
 
-            defineIDSStructures();
+	    defineIDSStructures();
 
 // Build the Returned Structures
 
             int flux_loop_count = 2;
+	    
+	    FLUX_LOOP *floop = (FLUX_LOOP *)malloc(flux_loop_count*sizeof(FLUX_LOOP));
+            addMalloc((void*)floop,flux_loop_count, sizeof(FLUX_LOOP), "FLUX_LOOP");	 
+ 	    
+	    for(i=0;i<flux_loop_count;i++){
+	    
+	       initFluxLoop(&floop[i]);
+	       
+	       sprintf(signal,"MAGNETICS/FLUX_LOOP/%d/NAME", i+1);   
+ 	    
+	       handle = idamGetAPI(signal, source);
+	    
+	       if(handle < 0 || getIdamErrorCode(handle) > 0){
+                  err = 999;
+                  addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Unable to access Machine Description data!");
+                  idamFree(handle);
+	          break;
+	       }
+	    
+	       if(getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_STRING){
+                  err = 999;
+                  addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Machine Description data has Incorrect properties!");
+                  idamFree(handle);
+	          break;
+	       }
+	       
+	       char *name = (char *)getIdamData(handle);
+	       stringLength = strlen(name)+1;
+	       floop[i].name = (char *)malloc(stringLength*sizeof(char));
+	       addMalloc((void*)floop[i].name, 1, stringLength*sizeof(char), "STRING");	// Scalar String
+	       strcpy(floop[i].name, name);
+	       
+	       sprintf(signal,"MAGNETICS/FLUX_LOOP/%d/IDENTIFIER", i+1);   
+	    
+	       handle = idamGetAPI(signal, source);
+	    
+	       if(handle < 0 || getIdamErrorCode(handle) > 0){
+                  err = 999;
+                  addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Unable to access Machine Description data!");
+                  idamFree(handle);
+	          break;
+	       }
+	    
+	       if(getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_STRING){
+                  err = 999;
+                  addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Machine Description data has Incorrect properties!");
+                  idamFree(handle);
+	          break;
+	       }
+	       
+	       char *identifier = (char *)getIdamData(handle);
+	       stringLength = strlen(identifier)+1;
+	       floop[i].identifier = (char *)malloc(stringLength*sizeof(char));
+	       addMalloc((void*)floop[i].identifier, 1, stringLength*sizeof(char), "STRING");	// Scalar String
+	       strcpy(floop[i].identifier, identifier);
+ 
+               floop[i].position_count = 1;
+	    
+	       floop[i].r = (double *)malloc(floop[i].position_count*sizeof(double));
+	       addMalloc((void*)floop[i].r, floop[i].position_count, sizeof(double), "double");	 
+	       floop[i].r[0] = 1.2345;
+	       floop[i].z = (double *)malloc(floop[i].position_count*sizeof(double));
+	       addMalloc((void*)floop[i].z, floop[i].position_count, sizeof(double), "double"); 
+	       floop[i].z[0] = 6.7890;
+	       floop[i].phi = (double *)malloc(floop[i].position_count*sizeof(double));
+	       addMalloc((void*)floop[i].phi, floop[i].position_count, sizeof(double), "double"); 
+	       floop[i].phi[0] = 9.9999;
 
-            FLUX_LOOP* floop = (FLUX_LOOP*) malloc(flux_loop_count * sizeof(FLUX_LOOP));
-            addMalloc((void*) floop, flux_loop_count, sizeof(FLUX_LOOP), "FLUX_LOOP");
-
-            for (i = 0; i < flux_loop_count; i++) {
-
-                initFluxLoop(&floop[i]);
-
-                sprintf(signal, "MAGNETICS/FLUX_LOOP/%d/NAME", i + 1);
-
-                handle = idamGetAPI(signal, source);
-
-                if (handle < 0 || getIdamErrorCode(handle) > 0) {
-                    err = 999;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err,
-                                 "Unable to access Machine Description data!");
-                    idamFree(handle);
-                    break;
-                }
-
-                if (getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_STRING) {
-                    err = 999;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err,
-                                 "Machine Description data has Incorrect properties!");
-                    idamFree(handle);
-                    break;
-                }
-
-                char* name = (char*) getIdamData(handle);
-                stringLength = strlen(name) + 1;
-                floop[i].name = (char*) malloc(stringLength * sizeof(char));
-                addMalloc((void*) floop[i].name, 1, stringLength * sizeof(char), "STRING");    // Scalar String
-                strcpy(floop[i].name, name);
-
-                sprintf(signal, "MAGNETICS/FLUX_LOOP/%d/IDENTIFIER", i + 1);
-
-                handle = idamGetAPI(signal, source);
-
-                if (handle < 0 || getIdamErrorCode(handle) > 0) {
-                    err = 999;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err,
-                                 "Unable to access Machine Description data!");
-                    idamFree(handle);
-                    break;
-                }
-
-                if (getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_STRING) {
-                    err = 999;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err,
-                                 "Machine Description data has Incorrect properties!");
-                    idamFree(handle);
-                    break;
-                }
-
-                char* identifier = (char*) getIdamData(handle);
-                stringLength = strlen(identifier) + 1;
-                floop[i].identifier = (char*) malloc(stringLength * sizeof(char));
-                addMalloc((void*) floop[i].identifier, 1, stringLength * sizeof(char), "STRING");    // Scalar String
-                strcpy(floop[i].identifier, identifier);
-
-                floop[i].position_count = 1;
-
-                floop[i].r = (double*) malloc(floop[i].position_count * sizeof(double));
-                addMalloc((void*) floop[i].r, floop[i].position_count, sizeof(double), "double");
-                floop[i].r[0] = 1.2345;
-                floop[i].z = (double*) malloc(floop[i].position_count * sizeof(double));
-                addMalloc((void*) floop[i].z, floop[i].position_count, sizeof(double), "double");
-                floop[i].z[0] = 6.7890;
-                floop[i].phi = (double*) malloc(floop[i].position_count * sizeof(double));
-                addMalloc((void*) floop[i].phi, floop[i].position_count, sizeof(double), "double");
-                floop[i].phi[0] = 9.9999;
-
-                floop[i].data_count = 1;
-
-                floop[i].data = (double*) malloc(floop[i].data_count * sizeof(double));
-                addMalloc((void*) floop[i].data, floop[i].data_count, sizeof(double), "double");
-                floop[i].data[0] = 3.1415927;
-
-                floop[i].time = (double*) malloc(floop[i].data_count * sizeof(double));
-                addMalloc((void*) floop[i].time, floop[i].data_count, sizeof(double), "double");
-                floop[i].time[0] = 2.71828;
+               floop[i].data_count = 1;
+	    
+	       floop[i].data = (double *)malloc(floop[i].data_count*sizeof(double));
+	       addMalloc((void*)floop[i].data, floop[i].data_count, sizeof(double), "double"); 
+	       floop[i].data[0] = 3.1415927;
+	    
+	       floop[i].time = (double *)malloc(floop[i].data_count*sizeof(double));
+	       addMalloc((void*)floop[i].time, floop[i].data_count, sizeof(double), "double"); 
+	       floop[i].time[0] = 2.71828;
             }
-
+ 	    	    
 // Pass Data
 
             data_block->data_type = TYPE_COMPOUND;
@@ -1164,172 +1397,164 @@ extern int livedisplay(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             break;
 
-        } else if (!strcasecmp(request_block->function, "test6")) {    // FLUX_LOOP data structure with MAST data
+         } else
+ 	 
+	 
+         if (!strcasecmp(request_block->function, "test6")) {	// FLUX_LOOP data structure with MAST data
 
             char signal[256], source[256];
-            int stringLength;
+	    int stringLength;
 
 // Create the Returned Structure Definitions
 
-            defineIDSStructures();
+	    defineIDSStructures();
 
 // Access MAST machine description data: Flux Loops
 // Use the IDAM client API with IMAS name abstraction
 
-            sprintf(source, "MAST::%d", exp_number);
+	    sprintf(source,"MAST::%d", exp_number);
 
 // 1. Number of Flux Loops
-            sprintf(signal, "MAGNETICS/FLUX_LOOP/SHAPE_OF");
-
-            handle = idamGetAPI(signal, source);
-
-            if (handle < 0 || getIdamErrorCode(handle) > 0) {
-                err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err,
-                             "Unable to access Machine Description data!");
-                idamFree(handle);
-                break;
-            }
-
-            if (getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_INT || getIdamDataNum(handle) != 1) {
-                err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err,
-                             "Machine Description data has Incorrect properties!");
-                idamFree(handle);
-                break;
-            }
-
-            int flux_loop_count = *((int*) getIdamData(handle));
-
-            //flux_loop_count = 1;
-
+	    sprintf(signal,"MAGNETICS/FLUX_LOOP/SHAPE_OF");
+	    	    
+	    handle = idamGetAPI(signal, source);
+	    
+	    if(handle < 0 || getIdamErrorCode(handle) > 0){
+               err = 999;
+               addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Unable to access Machine Description data!");
+               idamFree(handle);
+	       break;
+	    }
+	    
+	    if(getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_INT || getIdamDataNum(handle) != 1){
+               err = 999;
+               addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Machine Description data has Incorrect properties!");
+               idamFree(handle);
+	       break;
+	    }
+	    
+	    int flux_loop_count = *((int *)getIdamData(handle));
+	    
+	    //flux_loop_count = 1;
+	    
 // Build the Returned Structures
 
-            FLUX_LOOP* floop = (FLUX_LOOP*) malloc(flux_loop_count * sizeof(FLUX_LOOP));
-            addMalloc((void*) floop, flux_loop_count, sizeof(FLUX_LOOP), "FLUX_LOOP");
-
+            FLUX_LOOP *floop = (FLUX_LOOP *)malloc(flux_loop_count*sizeof(FLUX_LOOP));
+            addMalloc((void*)floop, flux_loop_count, sizeof(FLUX_LOOP), "FLUX_LOOP");	 
+	    
 
 // 2. Loop over all Flux Loops
 
-            for (i = 0; i < flux_loop_count; i++) {
-
-                //initFluxLoop(floop);
-
-                sprintf(signal, "MAGNETICS/FLUX_LOOP/%d/NAME", i + 1);
-
-                handle = idamGetAPI(signal, source);
-
-                if (handle < 0 || getIdamErrorCode(handle) > 0) {
-                    err = 999;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err,
-                                 "Unable to access Machine Description data!");
-                    idamFree(handle);
-                    break;
-                }
-
-                if (getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_STRING) {
-                    err = 999;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err,
-                                 "Machine Description data has Incorrect properties!");
-                    idamFree(handle);
-                    break;
-                }
-
-                char* name = (char*) getIdamData(handle);
-                stringLength = strlen(name) + 1;
-                floop[i].name = (char*) malloc(stringLength * sizeof(char));
-                addMalloc((void*) floop[i].name, 1, stringLength * sizeof(char), "STRING");    // Scalar String
-                strcpy(floop[i].name, name);
-
-                sprintf(signal, "MAGNETICS/FLUX_LOOP/%d/IDENTIFIER", i + 1);
-
-                handle = idamGetAPI(signal, source);
-
-                if (handle < 0 || getIdamErrorCode(handle) > 0) {
-                    err = 999;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err,
-                                 "Unable to access Machine Description data!");
-                    idamFree(handle);
-                    break;
-                }
-
-                if (getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_STRING) {
-                    err = 999;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err,
-                                 "Machine Description data has Incorrect properties!");
-                    idamFree(handle);
-                    break;
-                }
-
-                char* identifier = (char*) getIdamData(handle);
-                stringLength = strlen(identifier) + 1;
-                floop[i].identifier = (char*) malloc(stringLength * sizeof(char));
-                addMalloc((void*) floop[i].identifier, 1, stringLength * sizeof(char), "STRING");    // Scalar String
-                strcpy(floop[i].identifier, identifier);
+            for(i=0; i<flux_loop_count; i++){
+	       
+	       //initFluxLoop(floop);
+	       
+	       sprintf(signal,"MAGNETICS/FLUX_LOOP/%d/NAME", i+1);   
+	    
+	       handle = idamGetAPI(signal, source);
+	    
+	       if(handle < 0 || getIdamErrorCode(handle) > 0){
+                  err = 999;
+                  addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Unable to access Machine Description data!");
+                  idamFree(handle);
+	          break;
+	       }
+	    
+	       if(getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_STRING){
+                  err = 999;
+                  addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Machine Description data has Incorrect properties!");
+                  idamFree(handle);
+	          break;
+	       }
+	       
+	       char *name = (char *)getIdamData(handle);
+	       stringLength = strlen(name)+1;
+	       floop[i].name = (char *)malloc(stringLength*sizeof(char));
+	       addMalloc((void*)floop[i].name, 1, stringLength*sizeof(char), "STRING");	// Scalar String
+	       strcpy(floop[i].name, name);
+	       
+	       sprintf(signal,"MAGNETICS/FLUX_LOOP/%d/IDENTIFIER", i+1);   
+	    
+	       handle = idamGetAPI(signal, source);
+	    
+	       if(handle < 0 || getIdamErrorCode(handle) > 0){
+                  err = 999;
+                  addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Unable to access Machine Description data!");
+                  idamFree(handle);
+	          break;
+	       }
+	    
+	       if(getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_STRING){
+                  err = 999;
+                  addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Machine Description data has Incorrect properties!");
+                  idamFree(handle);
+	          break;
+	       }
+	       
+	       char *identifier = (char *)getIdamData(handle);
+	       stringLength = strlen(identifier)+1;
+	       floop[i].identifier = (char *)malloc(stringLength*sizeof(char));
+	       addMalloc((void*)floop[i].identifier, 1, stringLength*sizeof(char), "STRING");	// Scalar String
+	       strcpy(floop[i].identifier, identifier);
 
 // 3. Number of Coordinates
 
-                sprintf(signal, "MAGNETICS/FLUX_LOOP/%d/POSITION/SHAPE_OF", i + 1);
-
-                handle = idamGetAPI(signal, source);
-
-                if (handle < 0 || getIdamErrorCode(handle) > 0) {
-                    err = 999;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err,
-                                 "Unable to access Machine Description data!");
-                    idamFree(handle);
-                    break;
-                }
-
-                if (getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_INT || getIdamDataNum(handle) != 1) {
-                    err = 999;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err,
-                                 "Machine Description data has Incorrect properties!");
-                    idamFree(handle);
-                    break;
-                }
-
-                floop[i].position_count = *((int*) getIdamData(handle));
-
-                floop[i].position_count = 1;
-
-                floop[i].r = (double*) malloc(floop[i].position_count * sizeof(double));
-                addMalloc((void*) floop[i].r, floop[i].position_count, sizeof(double), "double");
-                floop[i].z = (double*) malloc(floop[i].position_count * sizeof(double));
-                addMalloc((void*) floop[i].z, floop[i].position_count, sizeof(double), "double");
-                floop[i].phi = (double*) malloc(floop[i].position_count * sizeof(double));
-                addMalloc((void*) floop[i].phi, floop[i].position_count, sizeof(double), "double");
-
+	       sprintf(signal,"MAGNETICS/FLUX_LOOP/%d/POSITION/SHAPE_OF", i+1);
+	    
+	       handle = idamGetAPI(signal, source);
+	    
+	       if(handle < 0 || getIdamErrorCode(handle) > 0){
+                  err = 999;
+                  addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Unable to access Machine Description data!");
+                  idamFree(handle);
+	          break;
+	       }
+	    
+	       if(getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_INT || getIdamDataNum(handle) != 1){
+                  err = 999;
+                  addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Machine Description data has Incorrect properties!");
+                  idamFree(handle);
+	          break;
+	       }
+	    
+	       floop[i].position_count = *((int *)getIdamData(handle));
+	    
+	       floop[i].position_count = 1;
+	       
+	       floop[i].r = (double *)malloc(floop[i].position_count*sizeof(double));
+	       addMalloc((void*)floop[i].r, floop[i].position_count, sizeof(double), "double");	 
+	       floop[i].z = (double *)malloc(floop[i].position_count*sizeof(double));
+	       addMalloc((void*)floop[i].z, floop[i].position_count, sizeof(double), "double");	 
+	       floop[i].phi = (double *)malloc(floop[i].position_count*sizeof(double));
+	       addMalloc((void*)floop[i].phi, floop[i].position_count, sizeof(double), "double"); 
+	    
 // 4. Loop over coordinates
 
-                for (j = 0; j < floop[i].position_count; j++) {
-
-                    sprintf(signal, "MAGNETICS/FLUX_LOOP/%d/POSITION/%d/R", i + 1, j + 1);
-
-                    handle = idamGetAPI(signal, source);
-
-                    if (handle < 0 || getIdamErrorCode(handle) > 0) {
-                        err = 999;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err,
-                                     "Unable to access Machine Description data!");
-                        idamFree(handle);
-                        break;
-                    }
-
-                    if (getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_DOUBLE ||
-                        getIdamDataNum(handle) != 1) {
-                        err = 999;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err,
-                                     "Machine Description data has Incorrect properties!");
-                        idamFree(handle);
-                        break;
-                    }
-
-                    floop[i].r[j] = *((double*) getIdamData(handle));
-
-                }
-
-                if (err != 0) break;
+               for(j=0; j<floop[i].position_count; j++){
+	       
+	          sprintf(signal,"MAGNETICS/FLUX_LOOP/%d/POSITION/%d/R", i+1, j+1);   
+	    
+	          handle = idamGetAPI(signal, source);
+	    
+	          if(handle < 0 || getIdamErrorCode(handle) > 0){
+                     err = 999;
+                     addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Unable to access Machine Description data!");
+                     idamFree(handle);
+	             break;
+	          }
+	    
+	          if(getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_DOUBLE || getIdamDataNum(handle) != 1){
+                     err = 999;
+                     addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Machine Description data has Incorrect properties!");
+                     idamFree(handle);
+	             break;
+	          }
+	       
+	          floop[i].r[j] = *((double *)getIdamData(handle));
+	    
+	       }
+	       
+	       if(err != 0) break;
 
 /*
 MAGNETICS/FLUX_LOOP/1/NAME
@@ -1343,20 +1568,20 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
 */
 
 
-                floop[i].z[0] = 6.7890;
-                floop[i].phi[0] = 9.9999;
+	       floop[i].z[0] = 6.7890;
+	       floop[i].phi[0] = 9.9999;
 
-                floop[i].data_count = 1;
-
-                floop[i].data = (double*) malloc(floop[i].data_count * sizeof(double));
-                addMalloc((void*) floop[i].data, floop[i].data_count, sizeof(double), "double");
-                floop[i].data[0] = 3.1415927;
-
-                floop[i].time = (double*) malloc(floop[i].data_count * sizeof(double));
-                addMalloc((void*) floop[i].time, floop[i].data_count, sizeof(double), "double");
-                floop[i].time[0] = 2.71828;
-            }
-
+               floop[i].data_count = 1;
+	    
+	       floop[i].data = (double *)malloc(floop[i].data_count*sizeof(double));
+	       addMalloc((void*)floop[i].data, floop[i].data_count, sizeof(double), "double"); 
+	       floop[i].data[0] = 3.1415927;
+	    
+	       floop[i].time = (double *)malloc(floop[i].data_count*sizeof(double));
+	       addMalloc((void*)floop[i].time, floop[i].data_count, sizeof(double), "double"); 
+	       floop[i].time[0] = 2.71828;
+	    }	    
+	    	    
 // Pass Data
 
             data_block->data_type = TYPE_COMPOUND;
@@ -1374,234 +1599,223 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
 
             break;
 
-        } else if (!strcasecmp(request_block->function, "test7")) {    // FLUX_LOOP data structure with MAST data
+        } else
+	
+	 
+         if (!strcasecmp(request_block->function, "test7")) {	// FLUX_LOOP data structure with MAST data
 
             char signal[256], source[256];
-            int stringLength;
+	    int stringLength;
 
 // Create the Returned Structure Definitions
 
-            defineIDSStructures();
+	    defineIDSStructures();
 
 // Access MAST machine description data: Flux Loops
 // Use the IDAM client API with IMAS name abstraction
 
-            sprintf(source, "MAST::%d", exp_number);
+	    sprintf(source,"MAST::%d", exp_number);
 
 // 1. Number of Flux Loops
-            sprintf(signal, "MAGNETICS/FLUX_LOOP/SHAPE_OF");
-
-            handle = idamGetAPI(signal, source);
-
-            if (handle < 0 || getIdamErrorCode(handle) > 0) {
-                err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err,
-                             "Unable to access Machine Description data!");
-                idamFree(handle);
-                break;
-            }
-
-            if (getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_INT || getIdamDataNum(handle) != 1) {
-                err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err,
-                             "Machine Description data has Incorrect properties!");
-                idamFree(handle);
-                break;
-            }
-
-            int flux_loop_count = *((int*) getIdamData(handle));
-
-            //flux_loop_count = 1;
-
+	    sprintf(signal,"MAGNETICS/FLUX_LOOP/SHAPE_OF");
+	    	    
+	    handle = idamGetAPI(signal, source);
+	    
+	    if(handle < 0 || getIdamErrorCode(handle) > 0){
+               err = 999;
+               addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Unable to access Machine Description data!");
+               idamFree(handle);
+	       break;
+	    }
+	    
+	    if(getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_INT || getIdamDataNum(handle) != 1){
+               err = 999;
+               addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Machine Description data has Incorrect properties!");
+               idamFree(handle);
+	       break;
+	    }
+	    
+	    int flux_loop_count = *((int *)getIdamData(handle));
+	    
+	    //flux_loop_count = 1;
+	    
 // Build the Returned Structures
 
-            FLUX_LOOP* floop = (FLUX_LOOP*) malloc(flux_loop_count * sizeof(FLUX_LOOP));
-            addMalloc((void*) floop, flux_loop_count, sizeof(FLUX_LOOP), "FLUX_LOOP");
+            FLUX_LOOP *floop = (FLUX_LOOP *)malloc(flux_loop_count*sizeof(FLUX_LOOP));
+            addMalloc((void*)floop, flux_loop_count, sizeof(FLUX_LOOP), "FLUX_LOOP");	 	    
 
 // 2. Loop over all Flux Loops
 
-            for (i = 0; i < flux_loop_count; i++) {
-
-                //initFluxLoop(floop);
-
-                sprintf(signal, "MAGNETICS/FLUX_LOOP/%d/NAME", i + 1);
-
-                handle = idamGetAPI(signal, source);
-
-                if (handle < 0 || getIdamErrorCode(handle) > 0) {
-                    err = 999;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err,
-                                 "Unable to access Machine Description data!");
-                    idamFree(handle);
-                    break;
-                }
-
-                if (getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_STRING) {
-                    err = 999;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err,
-                                 "Machine Description data has Incorrect properties!");
-                    idamFree(handle);
-                    break;
-                }
-
-                char* name = (char*) getIdamData(handle);
-                stringLength = strlen(name) + 1;
-                floop[i].name = (char*) malloc(stringLength * sizeof(char));
-                addMalloc((void*) floop[i].name, 1, stringLength * sizeof(char), "STRING");    // Scalar String
-                strcpy(floop[i].name, name);
-
-                sprintf(signal, "MAGNETICS/FLUX_LOOP/%d/IDENTIFIER", i + 1);
-
-                handle = idamGetAPI(signal, source);
-
-                if (handle < 0 || getIdamErrorCode(handle) > 0) {
-                    err = 999;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err,
-                                 "Unable to access Machine Description data!");
-                    idamFree(handle);
-                    break;
-                }
-
-                if (getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_STRING) {
-                    err = 999;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err,
-                                 "Machine Description data has Incorrect properties!");
-                    idamFree(handle);
-                    break;
-                }
-
-                char* identifier = (char*) getIdamData(handle);
-                stringLength = strlen(identifier) + 1;
-                floop[i].identifier = (char*) malloc(stringLength * sizeof(char));
-                addMalloc((void*) floop[i].identifier, 1, stringLength * sizeof(char), "STRING");    // Scalar String
-                strcpy(floop[i].identifier, identifier);
+            for(i=0; i<flux_loop_count; i++){
+	       
+	       //initFluxLoop(floop);
+	       
+	       sprintf(signal,"MAGNETICS/FLUX_LOOP/%d/NAME", i+1);   
+	    
+	       handle = idamGetAPI(signal, source);
+	    
+	       if(handle < 0 || getIdamErrorCode(handle) > 0){
+                  err = 999;
+                  addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Unable to access Machine Description data!");
+                  idamFree(handle);
+	          break;
+	       }
+	    
+	       if(getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_STRING){
+                  err = 999;
+                  addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Machine Description data has Incorrect properties!");
+                  idamFree(handle);
+	          break;
+	       }
+	       
+	       char *name = (char *)getIdamData(handle);
+	       stringLength = strlen(name)+1;
+	       floop[i].name = (char *)malloc(stringLength*sizeof(char));
+	       addMalloc((void*)floop[i].name, 1, stringLength*sizeof(char), "STRING");	// Scalar String
+	       strcpy(floop[i].name, name);
+	       
+	       sprintf(signal,"MAGNETICS/FLUX_LOOP/%d/IDENTIFIER", i+1);   
+	    
+	       handle = idamGetAPI(signal, source);
+	    
+	       if(handle < 0 || getIdamErrorCode(handle) > 0){
+                  err = 999;
+                  addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Unable to access Machine Description data!");
+                  idamFree(handle);
+	          break;
+	       }
+	    
+	       if(getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_STRING){
+                  err = 999;
+                  addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Machine Description data has Incorrect properties!");
+                  idamFree(handle);
+	          break;
+	       }
+	       
+	       char *identifier = (char *)getIdamData(handle);
+	       stringLength = strlen(identifier)+1;
+	       floop[i].identifier = (char *)malloc(stringLength*sizeof(char));
+	       addMalloc((void*)floop[i].identifier, 1, stringLength*sizeof(char), "STRING");	// Scalar String
+	       strcpy(floop[i].identifier, identifier);
 
 // 3. Number of Coordinates
 
-                sprintf(signal, "MAGNETICS/FLUX_LOOP/%d/POSITION/SHAPE_OF", i + 1);
-
-                handle = idamGetAPI(signal, source);
-
-                if (handle < 0 || getIdamErrorCode(handle) > 0) {
-                    err = 999;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err,
-                                 "Unable to access Machine Description data!");
-                    idamFree(handle);
-                    break;
-                }
-
-                if (getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_INT || getIdamDataNum(handle) != 1) {
-                    err = 999;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err,
-                                 "Machine Description data has Incorrect properties!");
-                    idamFree(handle);
-                    break;
-                }
-
-                floop[i].position_count = *((int*) getIdamData(handle));
-
-                floop[i].position_count = 1;
-
-                floop[i].r = (double*) malloc(floop[i].position_count * sizeof(double));
-                addMalloc((void*) floop[i].r, floop[i].position_count, sizeof(double), "double");
-                floop[i].z = (double*) malloc(floop[i].position_count * sizeof(double));
-                addMalloc((void*) floop[i].z, floop[i].position_count, sizeof(double), "double");
-                floop[i].phi = (double*) malloc(floop[i].position_count * sizeof(double));
-                addMalloc((void*) floop[i].phi, floop[i].position_count, sizeof(double), "double");
-
+	       sprintf(signal,"MAGNETICS/FLUX_LOOP/%d/POSITION/SHAPE_OF", i+1);
+	    
+	       handle = idamGetAPI(signal, source);
+	    
+	       if(handle < 0 || getIdamErrorCode(handle) > 0){
+                  err = 999;
+                  addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Unable to access Machine Description data!");
+                  idamFree(handle);
+	          break;
+	       }
+	    
+	       if(getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_INT || getIdamDataNum(handle) != 1){
+                  err = 999;
+                  addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Machine Description data has Incorrect properties!");
+                  idamFree(handle);
+	          break;
+	       }
+	    
+	       floop[i].position_count = *((int *)getIdamData(handle));
+	    
+	       floop[i].position_count = 1;
+	       
+	       floop[i].r = (double *)malloc(floop[i].position_count*sizeof(double));
+	       addMalloc((void*)floop[i].r, floop[i].position_count, sizeof(double), "double");	 
+	       floop[i].z = (double *)malloc(floop[i].position_count*sizeof(double));
+	       addMalloc((void*)floop[i].z, floop[i].position_count, sizeof(double), "double");	 
+	       floop[i].phi = (double *)malloc(floop[i].position_count*sizeof(double));
+	       addMalloc((void*)floop[i].phi, floop[i].position_count, sizeof(double), "double"); 
+	    
 // 4. Loop over coordinates
 
-                for (j = 0; j < floop[i].position_count; j++) {
+               for(j=0; j<floop[i].position_count; j++){
+	       
+	          sprintf(signal,"MAGNETICS/FLUX_LOOP/%d/POSITION/%d/R", i+1, j+1);   
+	    
+	          handle = idamGetAPI(signal, source);
+	    
+	          if(handle < 0 || getIdamErrorCode(handle) > 0){
+                     err = 999;
+                     addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Unable to access Machine Description data!");
+                     idamFree(handle);
+	             break;
+	          }
+	    
+	          if(getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_DOUBLE || getIdamDataNum(handle) != 1){
+                     err = 999;
+                     addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Machine Description data has Incorrect properties!");
+                     idamFree(handle);
+	             break;
+	          }
+	       
+	          floop[i].r[j] = *((double *)getIdamData(handle));
 
-                    sprintf(signal, "MAGNETICS/FLUX_LOOP/%d/POSITION/%d/R", i + 1, j + 1);
 
-                    handle = idamGetAPI(signal, source);
+	       
+	          sprintf(signal,"MAGNETICS/FLUX_LOOP/%d/POSITION/%d/Z", i+1, j+1);   
+	    
+	          handle = idamGetAPI(signal, source);
+	    
+	          if(handle < 0 || getIdamErrorCode(handle) > 0){
+                     err = 999;
+                     addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Unable to access Machine Description data!");
+                     idamFree(handle);
+	             break;
+	          }
+	    
+	          if(getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_DOUBLE || getIdamDataNum(handle) != 1){
+                     err = 999;
+                     addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Machine Description data has Incorrect properties!");
+                     idamFree(handle);
+	             break;
+	          }
+	       
+	          floop[i].z[j] = *((double *)getIdamData(handle));
 
-                    if (handle < 0 || getIdamErrorCode(handle) > 0) {
-                        err = 999;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err,
-                                     "Unable to access Machine Description data!");
-                        idamFree(handle);
-                        break;
-                    }
-
-                    if (getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_DOUBLE ||
-                        getIdamDataNum(handle) != 1) {
-                        err = 999;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err,
-                                     "Machine Description data has Incorrect properties!");
-                        idamFree(handle);
-                        break;
-                    }
-
-                    floop[i].r[j] = *((double*) getIdamData(handle));
-
-                    sprintf(signal, "MAGNETICS/FLUX_LOOP/%d/POSITION/%d/Z", i + 1, j + 1);
-
-                    handle = idamGetAPI(signal, source);
-
-                    if (handle < 0 || getIdamErrorCode(handle) > 0) {
-                        err = 999;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err,
-                                     "Unable to access Machine Description data!");
-                        idamFree(handle);
-                        break;
-                    }
-
-                    if (getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_DOUBLE ||
-                        getIdamDataNum(handle) != 1) {
-                        err = 999;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err,
-                                     "Machine Description data has Incorrect properties!");
-                        idamFree(handle);
-                        break;
-                    }
-
-                    floop[i].z[j] = *((double*) getIdamData(handle));
-
-                    sprintf(signal, "MAGNETICS/FLUX_LOOP/%d/POSITION/%d/PHI", i + 1, j + 1);
-
-                    handle = idamGetAPI(signal, source);
-
-                    if (handle < 0 || getIdamErrorCode(handle) > 0) {
-                        err = 999;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err,
-                                     "Unable to access Machine Description data!");
-                        idamFree(handle);
-                        break;
-                    }
-
-                    if (getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_DOUBLE ||
-                        getIdamDataNum(handle) != 1) {
-                        err = 999;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err,
-                                     "Machine Description data has Incorrect properties!");
-                        idamFree(handle);
-                        break;
-                    }
-
-                    floop[i].phi[j] = *((double*) getIdamData(handle));
-
-                }
-
-                if (err != 0) break;
+	       
+	          sprintf(signal,"MAGNETICS/FLUX_LOOP/%d/POSITION/%d/PHI", i+1, j+1);   
+	    
+	          handle = idamGetAPI(signal, source);
+	    
+	          if(handle < 0 || getIdamErrorCode(handle) > 0){
+                     err = 999;
+                     addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Unable to access Machine Description data!");
+                     idamFree(handle);
+	             break;
+	          }
+	    
+	          if(getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_DOUBLE || getIdamDataNum(handle) != 1){
+                     err = 999;
+                     addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Machine Description data has Incorrect properties!");
+                     idamFree(handle);
+	             break;
+	          }
+	       
+	          floop[i].phi[j] = *((double *)getIdamData(handle));
+	    
+	       }
+	       
+	       if(err != 0) break;
 
 /*
 MAGNETICS/FLUX_LOOP/1/FLUX/DATA
 MAGNETICS/FLUX_LOOP/1/FLUX/TIME
 */
 
-                floop[i].data_count = 1;
-
-                floop[i].data = (double*) malloc(floop[i].data_count * sizeof(double));
-                addMalloc((void*) floop[i].data, floop[i].data_count, sizeof(double), "double");
-                floop[i].data[0] = 3.1415927;
-
-                floop[i].time = (double*) malloc(floop[i].data_count * sizeof(double));
-                addMalloc((void*) floop[i].time, floop[i].data_count, sizeof(double), "double");
-                floop[i].time[0] = 2.71828;
-            }
-
+               floop[i].data_count = 1;
+	    
+	       floop[i].data = (double *)malloc(floop[i].data_count*sizeof(double));
+	       addMalloc((void*)floop[i].data, floop[i].data_count, sizeof(double), "double");	 
+	       floop[i].data[0] = 3.1415927;
+	    
+	       floop[i].time = (double *)malloc(floop[i].data_count*sizeof(double));
+	       addMalloc((void*)floop[i].time, floop[i].data_count, sizeof(double), "double");	 
+	       floop[i].time[0] = 2.71828;
+	    }	    
+	    	    
 // Pass Data
 
             data_block->data_type = TYPE_COMPOUND;
@@ -1619,19 +1833,21 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
 
             break;
 
-        } else if (!strcasecmp(request_block->function, "test8")) {    // FLUX_LOOP data structure with MAST data
+         } else	
+		 
+         if (!strcasecmp(request_block->function, "test8")) {	// FLUX_LOOP data structure with MAST data
 
             char signal[256], source[256];
-            int stringLength;
+	    int stringLength;
 
 // Create the Returned Structure Definitions
 
-            defineIDSStructures();
+	    defineIDSStructures();
 
 // Access MAST machine description data: Flux Loops
 // Use the IDAM client API with IMAS name abstraction
 
-            sprintf(source, "MAST::%d", exp_number);
+	    sprintf(source,"MAST::%d", exp_number);
 
 // Test the cache for Machine Description data - based on the SOURCE identifier
 // Reuse if cached
@@ -1640,336 +1856,319 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
 //          FLUX_LOOP_CACHE flux_loop_cache;
 
 // 1. Number of Flux Loops
-            sprintf(signal, "MAGNETICS/FLUX_LOOP/SHAPE_OF");
-
-            handle = idamGetAPI(signal, source);
-
-            if (handle < 0 || getIdamErrorCode(handle) > 0) {
-                err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err,
-                             "Unable to access Machine Description data!");
-                idamFree(handle);
-                break;
-            }
-
-            if (getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_INT || getIdamDataNum(handle) != 1) {
-                err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err,
-                             "Machine Description data has Incorrect properties!");
-                idamFree(handle);
-                break;
-            }
-
-            int flux_loop_count = *((int*) getIdamData(handle));
-
-            //flux_loop_count = 1;
-
+	    sprintf(signal,"MAGNETICS/FLUX_LOOP/SHAPE_OF");
+	    	    
+	    handle = idamGetAPI(signal, source);
+	    
+	    if(handle < 0 || getIdamErrorCode(handle) > 0){
+               err = 999;
+               addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Unable to access Machine Description data!");
+               idamFree(handle);
+	       break;
+	    }
+	    
+	    if(getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_INT || getIdamDataNum(handle) != 1){
+               err = 999;
+               addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Machine Description data has Incorrect properties!");
+               idamFree(handle);
+	       break;
+	    }
+	    
+	    int flux_loop_count = *((int *)getIdamData(handle));
+	    
+	    //flux_loop_count = 1;
+	    
 // Build the Returned Structures
 
-            FLUX_LOOP* floop = (FLUX_LOOP*) malloc(flux_loop_count * sizeof(FLUX_LOOP));
-            addMalloc((void*) floop, flux_loop_count, sizeof(FLUX_LOOP), "FLUX_LOOP");
+            FLUX_LOOP *floop = (FLUX_LOOP *)malloc(flux_loop_count*sizeof(FLUX_LOOP));
+            addMalloc((void*)floop, flux_loop_count, sizeof(FLUX_LOOP), "FLUX_LOOP");	 	    
 
 // 2. Loop over all Flux Loops
 
-            for (i = 0; i < flux_loop_count; i++) {
-
-                //initFluxLoop(floop);
-
-                sprintf(signal, "MAGNETICS/FLUX_LOOP/%d/NAME", i + 1);
-
-                handle = idamGetAPI(signal, source);
-
-                if (handle < 0 || getIdamErrorCode(handle) > 0) {
-                    err = 999;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err,
-                                 "Unable to access Machine Description data!");
-                    idamFree(handle);
-                    break;
-                }
-
-                if (getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_STRING) {
-                    err = 999;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err,
-                                 "Machine Description data has Incorrect properties!");
-                    idamFree(handle);
-                    break;
-                }
-
-                char* name = (char*) getIdamData(handle);
-                stringLength = strlen(name) + 1;
-                floop[i].name = (char*) malloc(stringLength * sizeof(char));
-                addMalloc((void*) floop[i].name, 1, stringLength * sizeof(char), "STRING");    // Scalar String
-                strcpy(floop[i].name, name);
-
-                sprintf(signal, "MAGNETICS/FLUX_LOOP/%d/IDENTIFIER", i + 1);
-
-                handle = idamGetAPI(signal, source);
-
-                if (handle < 0 || getIdamErrorCode(handle) > 0) {
-                    err = 999;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err,
-                                 "Unable to access Machine Description data!");
-                    idamFree(handle);
-                    break;
-                }
-
-                if (getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_STRING) {
-                    err = 999;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err,
-                                 "Machine Description data has Incorrect properties!");
-                    idamFree(handle);
-                    break;
-                }
-
-                char* identifier = (char*) getIdamData(handle);
-                stringLength = strlen(identifier) + 1;
-                floop[i].identifier = (char*) malloc(stringLength * sizeof(char));
-                addMalloc((void*) floop[i].identifier, 1, stringLength * sizeof(char), "STRING");    // Scalar String
-                strcpy(floop[i].identifier, identifier);
+            for(i=0; i<flux_loop_count; i++){
+	       
+	       //initFluxLoop(floop);
+	       
+	       sprintf(signal,"MAGNETICS/FLUX_LOOP/%d/NAME", i+1);   
+	    
+	       handle = idamGetAPI(signal, source);
+	    
+	       if(handle < 0 || getIdamErrorCode(handle) > 0){
+                  err = 999;
+                  addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Unable to access Machine Description data!");
+                  idamFree(handle);
+	          break;
+	       }
+	    
+	       if(getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_STRING){
+                  err = 999;
+                  addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Machine Description data has Incorrect properties!");
+                  idamFree(handle);
+	          break;
+	       }
+	       
+	       char *name = (char *)getIdamData(handle);
+	       stringLength = strlen(name)+1;
+	       floop[i].name = (char *)malloc(stringLength*sizeof(char));
+	       addMalloc((void*)floop[i].name, 1, stringLength*sizeof(char), "STRING");	// Scalar String
+	       strcpy(floop[i].name, name);
+	       
+	       sprintf(signal,"MAGNETICS/FLUX_LOOP/%d/IDENTIFIER", i+1);   
+	    
+	       handle = idamGetAPI(signal, source);
+	    
+	       if(handle < 0 || getIdamErrorCode(handle) > 0){
+                  err = 999;
+                  addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Unable to access Machine Description data!");
+                  idamFree(handle);
+	          break;
+	       }
+	    
+	       if(getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_STRING){
+                  err = 999;
+                  addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Machine Description data has Incorrect properties!");
+                  idamFree(handle);
+	          break;
+	       }
+	       
+	       char *identifier = (char *)getIdamData(handle);
+	       stringLength = strlen(identifier)+1;
+	       floop[i].identifier = (char *)malloc(stringLength*sizeof(char));
+	       addMalloc((void*)floop[i].identifier, 1, stringLength*sizeof(char), "STRING");	// Scalar String
+	       strcpy(floop[i].identifier, identifier);
 
 // 3. Number of Coordinates
 
-                sprintf(signal, "MAGNETICS/FLUX_LOOP/%d/POSITION/SHAPE_OF", i + 1);
-
-                handle = idamGetAPI(signal, source);
-
-                if (handle < 0 || getIdamErrorCode(handle) > 0) {
-                    err = 999;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err,
-                                 "Unable to access Machine Description data!");
-                    idamFree(handle);
-                    break;
-                }
-
-                if (getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_INT || getIdamDataNum(handle) != 1) {
-                    err = 999;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err,
-                                 "Machine Description data has Incorrect properties!");
-                    idamFree(handle);
-                    break;
-                }
-
-                floop[i].position_count = *((int*) getIdamData(handle));
-
-                floop[i].position_count = 1;
-
-                floop[i].r = (double*) malloc(floop[i].position_count * sizeof(double));
-                addMalloc((void*) floop[i].r, floop[i].position_count, sizeof(double), "double");
-                floop[i].z = (double*) malloc(floop[i].position_count * sizeof(double));
-                addMalloc((void*) floop[i].z, floop[i].position_count, sizeof(double), "double");
-                floop[i].phi = (double*) malloc(floop[i].position_count * sizeof(double));
-                addMalloc((void*) floop[i].phi, floop[i].position_count, sizeof(double), "double");
-
+	       sprintf(signal,"MAGNETICS/FLUX_LOOP/%d/POSITION/SHAPE_OF", i+1);
+	    
+	       handle = idamGetAPI(signal, source);
+	    
+	       if(handle < 0 || getIdamErrorCode(handle) > 0){
+                  err = 999;
+                  addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Unable to access Machine Description data!");
+                  idamFree(handle);
+	          break;
+	       }
+	    
+	       if(getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_INT || getIdamDataNum(handle) != 1){
+                  err = 999;
+                  addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Machine Description data has Incorrect properties!");
+                  idamFree(handle);
+	          break;
+	       }
+	    
+	       floop[i].position_count = *((int *)getIdamData(handle));
+	    
+	       floop[i].position_count = 1;
+	       
+	       floop[i].r = (double *)malloc(floop[i].position_count*sizeof(double));
+	       addMalloc((void*)floop[i].r, floop[i].position_count, sizeof(double), "double");	 
+	       floop[i].z = (double *)malloc(floop[i].position_count*sizeof(double));
+	       addMalloc((void*)floop[i].z, floop[i].position_count, sizeof(double), "double"); 
+	       floop[i].phi = (double *)malloc(floop[i].position_count*sizeof(double));
+	       addMalloc((void*)floop[i].phi, floop[i].position_count, sizeof(double), "double");	 
+	    
 // 4. Loop over coordinates
 
-                for (j = 0; j < floop[i].position_count; j++) {
+               for(j=0; j<floop[i].position_count; j++){
+	       
+	          sprintf(signal,"MAGNETICS/FLUX_LOOP/%d/POSITION/%d/R", i+1, j+1);   
+	    
+	          handle = idamGetAPI(signal, source);
+	    
+	          if(handle < 0 || getIdamErrorCode(handle) > 0){
+                     err = 999;
+                     addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Unable to access Machine Description data!");
+                     idamFree(handle);
+	             break;
+	          }
+	    
+	          if(getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_DOUBLE || getIdamDataNum(handle) != 1){
+                     err = 999;
+                     addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Machine Description data has Incorrect properties!");
+                     idamFree(handle);
+	             break;
+	          }
+	       
+	          floop[i].r[j] = *((double *)getIdamData(handle));
 
-                    sprintf(signal, "MAGNETICS/FLUX_LOOP/%d/POSITION/%d/R", i + 1, j + 1);
 
-                    handle = idamGetAPI(signal, source);
+	       
+	          sprintf(signal,"MAGNETICS/FLUX_LOOP/%d/POSITION/%d/Z", i+1, j+1);   
+	    
+	          handle = idamGetAPI(signal, source);
+	    
+	          if(handle < 0 || getIdamErrorCode(handle) > 0){
+                     err = 999;
+                     addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Unable to access Machine Description data!");
+                     idamFree(handle);
+	             break;
+	          }
+	    
+	          if(getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_DOUBLE || getIdamDataNum(handle) != 1){
+                     err = 999;
+                     addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Machine Description data has Incorrect properties!");
+                     idamFree(handle);
+	             break;
+	          }
+	       
+	          floop[i].z[j] = *((double *)getIdamData(handle));
 
-                    if (handle < 0 || getIdamErrorCode(handle) > 0) {
-                        err = 999;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err,
-                                     "Unable to access Machine Description data!");
-                        idamFree(handle);
-                        break;
-                    }
-
-                    if (getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_DOUBLE ||
-                        getIdamDataNum(handle) != 1) {
-                        err = 999;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err,
-                                     "Machine Description data has Incorrect properties!");
-                        idamFree(handle);
-                        break;
-                    }
-
-                    floop[i].r[j] = *((double*) getIdamData(handle));
-
-                    sprintf(signal, "MAGNETICS/FLUX_LOOP/%d/POSITION/%d/Z", i + 1, j + 1);
-
-                    handle = idamGetAPI(signal, source);
-
-                    if (handle < 0 || getIdamErrorCode(handle) > 0) {
-                        err = 999;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err,
-                                     "Unable to access Machine Description data!");
-                        idamFree(handle);
-                        break;
-                    }
-
-                    if (getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_DOUBLE ||
-                        getIdamDataNum(handle) != 1) {
-                        err = 999;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err,
-                                     "Machine Description data has Incorrect properties!");
-                        idamFree(handle);
-                        break;
-                    }
-
-                    floop[i].z[j] = *((double*) getIdamData(handle));
-
-                    sprintf(signal, "MAGNETICS/FLUX_LOOP/%d/POSITION/%d/PHI", i + 1, j + 1);
-
-                    handle = idamGetAPI(signal, source);
-
-                    if (handle < 0 || getIdamErrorCode(handle) > 0) {
-                        err = 999;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err,
-                                     "Unable to access Machine Description data!");
-                        idamFree(handle);
-                        break;
-                    }
-
-                    if (getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_DOUBLE ||
-                        getIdamDataNum(handle) != 1) {
-                        err = 999;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err,
-                                     "Machine Description data has Incorrect properties!");
-                        idamFree(handle);
-                        break;
-                    }
-
-                    floop[i].phi[j] = *((double*) getIdamData(handle));
-
-                }
-
-                if (err != 0) break;
+	       
+	          sprintf(signal,"MAGNETICS/FLUX_LOOP/%d/POSITION/%d/PHI", i+1, j+1);   
+	    
+	          handle = idamGetAPI(signal, source);
+	    
+	          if(handle < 0 || getIdamErrorCode(handle) > 0){
+                     err = 999;
+                     addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Unable to access Machine Description data!");
+                     idamFree(handle);
+	             break;
+	          }
+	    
+	          if(getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_DOUBLE || getIdamDataNum(handle) != 1){
+                     err = 999;
+                     addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Machine Description data has Incorrect properties!");
+                     idamFree(handle);
+	             break;
+	          }
+	       
+	          floop[i].phi[j] = *((double *)getIdamData(handle));
+	    
+	       }
+	       
+	       if(err != 0) break;
 
 // 5. Access measurement data and apply subsetting
 
-                floop[i].data_count = 0;
-                floop[i].data = NULL;
-                floop[i].time = NULL;
+               floop[i].data_count = 0;
+	       floop[i].data = NULL;
+	       floop[i].time = NULL;	    
+ 	       
+ 	       sprintf(signal,"MAGNETICS/FLUX_LOOP/%d/FLUX/DATA", i+1);   	    
+	       handle = idamGetAPI(signal, source);
+ 
+	       if(handle < 0 || getIdamErrorCode(handle) > 0){		// Unable to access Machine Measurement data - set count to zero! Ignore Error
+                  idamFree(handle);
+		  continue;
+	       }
+ 
+ 	       sprintf(signal,"MAGNETICS/FLUX_LOOP/%d/FLUX/TIME", i+1);   	    
+	       int handle2 = idamGetAPI(signal, source);
+	    
+	       if(handle2 < 0 || getIdamErrorCode(handle2) > 0){	// Unable to access Machine Measurement data - set count to zero! Ignore Error		 
+                  idamFree(handle);
+		  idamFree(handle2);
+		  continue;
+	       }
+	       
+	       if(getIdamRank(handle2) != 0 || getIdamDataType(handle2) != TYPE_DOUBLE || getIdamDataNum(handle) != getIdamDataNum(handle2)){
+int a = getIdamRank(handle2);
+int b = getIdamDataType(handle2);
+int c = TYPE_DOUBLE;
+int d = getIdamDataNum(handle);
+int e = getIdamDataNum(handle2);	       
+                  err = 999;
+                  addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Machine Measurement data has Incorrect properties!");
+                  idamFree(handle);
+		  idamFree(handle2);
+	          break;
+	       }
 
-                sprintf(signal, "MAGNETICS/FLUX_LOOP/%d/FLUX/DATA", i + 1);
-                handle = idamGetAPI(signal, source);
+               int data_count = getIdamDataNum(handle);
+  	    	       
+	       double *fd = (double *)getIdamData(handle);
+	       double *ft = (double *)getIdamData(handle2);
+	       
+               if(isStartTime){
+                  double sum1=0.0, sum2=0.0;
+                  int index1 = -1;
+                  int index2 = -1;
+                  for(j=0;j<data_count;j++){ 
+	             if(index1 < 0 && ft[j] >= startTime){
+                        index1 = j;
+                        if(!isEndTime) break;
+                     }
+                     if(index1 >= 0 && index2 < 0 && ft[j] >= endTime){
+                        index2 = j-1;
+                        if(index2 < 0) index2 = 0;
+                        if(ft[j] == endTime) index2 = j;
+                        break;
+                     }
+                  }
+                  if(index1 == -1){
+      // ERROR
+                  }
+  
+                  if(isEndTime){	// Subset of the data
+                     if(index2 == -1) index2 = data_count-1;
+                     data_count = index2 - index1 + 1;
+                  } else {		// Single value
+                     data_count = 1;
+                     index2 = index1;
+                  }
 
-                if (handle < 0 || getIdamErrorCode(handle) >
-                                  0) {        // Unable to access Machine Measurement data - set count to zero! Ignore Error
-                    idamFree(handle);
-                    continue;
-                }
+                  if(isFirst){
+                     data_count = 1;
+                     index2 = index1;
+                  } else
+                  if(isLast){
+                     data_count = 1;
+                     index1 = index2;
+                  } else
+                  if(isNearest){
+                     data_count = 1;
+                     if( index1 > 0 && ((startTime - ft[index1-1]) > (ft[index1] - startTime))) index1 = index1-1;
+                  } else
+                  if(isAverage){
+                     for(j=0;j<data_count;j++){ 
+	                sum1 += fd[index1+j];
+		        sum2 += ft[index1+j];
+	             }
+                     sum1 = sum1 / (double)data_count;
+                     sum2 = sum2 / (double)data_count;
+                     data_count = 1;
+                  }  
+double x1 = ft[index1];
+double x2 = ft[index2]; 
 
-                sprintf(signal, "MAGNETICS/FLUX_LOOP/%d/FLUX/TIME", i + 1);
-                int handle2 = idamGetAPI(signal, source);
+                  floop[i].data_count = data_count;
+	          floop[i].data = (double *)malloc(floop[i].data_count*sizeof(double));
+	          addMalloc((void*)floop[i].data, floop[i].data_count, sizeof(double), "double");	 
+	          floop[i].time = (double *)malloc(floop[i].data_count*sizeof(double));
+	          addMalloc((void*)floop[i].time, floop[i].data_count, sizeof(double), "double");	 
+                     
+                  if(isAverage){
+	             floop[i].data[0] = sum1;
+		     floop[i].time[0] = sum2;
+                  } else {	 
+                     for(j=0;j<floop[i].data_count;j++){ 
+	                floop[i].data[j] = fd[index1+j];
+		        floop[i].time[j] = ft[index1+j];
+                     }
+                  }
+               } else {		// All data are returned
 
-                if (handle2 < 0 || getIdamErrorCode(handle2) >
-                                   0) {    // Unable to access Machine Measurement data - set count to zero! Ignore Error
-                    idamFree(handle);
-                    idamFree(handle2);
-                    continue;
-                }
+                  floop[i].data_count = data_count;
+ 
+// Reuse the allocated data blocks - no need to copy! 
 
-                if (getIdamRank(handle2) != 0 || getIdamDataType(handle2) != TYPE_DOUBLE ||
-                    getIdamDataNum(handle) != getIdamDataNum(handle2)) {
-//int a = getIdamRank(handle2);
-//int b = getIdamDataType(handle2);
-//int c = TYPE_DOUBLE;
-//int d = getIdamDataNum(handle);
-//int e = getIdamDataNum(handle2);
-                    err = 999;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err,
-                                 "Machine Measurement data has Incorrect properties!");
-                    idamFree(handle);
-                    idamFree(handle2);
-                    break;
-                }
+	          floop[i].data = (double *)getIdamData(handle);
+	          addMalloc((void*)floop[i].data, floop[i].data_count, sizeof(double), "double");	 
+	          floop[i].time = (double *)getIdamData(handle2);
+	          addMalloc((void*)floop[i].time, floop[i].data_count, sizeof(double), "double");	
+                  DATA_BLOCK *db = getIdamDataBlock(handle);
+                  db->data = NULL;		// Prevent double free
+                  db = getIdamDataBlock(handle2);
+                  db->data = NULL;	    
+               }
 
-                int data_count = getIdamDataNum(handle);
-
-                double* fd = (double*) getIdamData(handle);
-                double* ft = (double*) getIdamData(handle2);
-
-                if (isStartTime) {
-                    double sum1 = 0.0, sum2 = 0.0;
-                    int index1 = -1;
-                    int index2 = -1;
-                    for (j = 0; j < data_count; j++) {
-                        if (index1 < 0 && ft[j] >= startTime) {
-                            index1 = j;
-                            if (!isEndTime) break;
-                        }
-                        if (index1 >= 0 && index2 < 0 && ft[j] >= endTime) {
-                            index2 = j - 1;
-                            if (index2 < 0) index2 = 0;
-                            if (ft[j] == endTime) index2 = j;
-                            break;
-                        }
-                    }
-                    if (index1 == -1) {
-                        // ERROR
-                    }
-
-                    if (isEndTime) {    // Subset of the data
-                        if (index2 == -1) index2 = data_count - 1;
-                        data_count = index2 - index1 + 1;
-                    } else {        // Single value
-                        data_count = 1;
-                        index2 = index1;
-                    }
-
-                    if (isFirst) {
-                        data_count = 1;
-                        index2 = index1;
-                    } else if (isLast) {
-                        data_count = 1;
-                        index1 = index2;
-                    } else if (isNearest) {
-                        data_count = 1;
-                        if (index1 > 0 && ((startTime - ft[index1 - 1]) > (ft[index1] - startTime))) {
-                            index1 = index1 - 1;
-                        }
-                    } else if (isAverage) {
-                        for (j = 0; j < data_count; j++) {
-                            sum1 += fd[index1 + j];
-                            sum2 += ft[index1 + j];
-                        }
-                        sum1 = sum1 / (double) data_count;
-                        sum2 = sum2 / (double) data_count;
-                        data_count = 1;
-                    }
-//double x1 = ft[index1];
-//double x2 = ft[index2];
-
-                    floop[i].data_count = data_count;
-                    floop[i].data = (double*) malloc(floop[i].data_count * sizeof(double));
-                    addMalloc((void*) floop[i].data, floop[i].data_count, sizeof(double), "double");
-                    floop[i].time = (double*) malloc(floop[i].data_count * sizeof(double));
-                    addMalloc((void*) floop[i].time, floop[i].data_count, sizeof(double), "double");
-
-                    if (isAverage) {
-                        floop[i].data[0] = sum1;
-                        floop[i].time[0] = sum2;
-                    } else {
-                        for (j = 0; j < floop[i].data_count; j++) {
-                            floop[i].data[j] = fd[index1 + j];
-                            floop[i].time[j] = ft[index1 + j];
-                        }
-                    }
-                } else {        // All data are returned
-
-                    floop[i].data_count = data_count;
-
-// Reuse the allocated data blocks - no need to copy!
-
-                    floop[i].data = (double*) getIdamData(handle);
-                    addMalloc((void*) floop[i].data, floop[i].data_count, sizeof(double), "double");
-                    floop[i].time = (double*) getIdamData(handle2);
-                    addMalloc((void*) floop[i].time, floop[i].data_count, sizeof(double), "double");
-                    DATA_BLOCK* db = getIdamDataBlock(handle);
-                    db->data = NULL;        // Prevent double free
-                    db = getIdamDataBlock(handle2);
-                    db->data = NULL;
-                }
-
-                idamFree(handle);        // Do not cache
-                idamFree(handle2);
-
-            }
-
-            if (err != 0) break;
+               idamFree(handle);		// Do not cache 
+	       idamFree(handle2);
+	       	       	       	       
+	    }
+	    
+	    if(err != 0) break;	    
 
 // 6. Cache the machine description data
 
@@ -1992,478 +2191,460 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
 
             break;
 
-        } else if (!strcasecmp(request_block->function, "test9")) {    // FLUX_LOOP data structure with MAST data
+         } else	
+
+
+
+         if (!strcasecmp(request_block->function, "test9")) {	// FLUX_LOOP data structure with MAST data
 
             char signal[256], source[256];
-            int stringLength;
-
-            FLUX_LOOP* floop = NULL;
-            int flux_loop_count = 0;
-            int cacheData = 0, cacheRetrieve = 0;
-
+	    int stringLength;
+	    
+	    FLUX_LOOP *floop = NULL;
+	    int flux_loop_count = 0;
+	    int cacheData = 0, cacheRetrieve = 0; 
+	    
 
 // Create the Returned Structure Definitions
 
-            defineIDSStructures();
+	    defineIDSStructures();
 
 // Access MAST machine description data: Flux Loops
 // Use the IDAM client API with IMAS name abstraction
 
-            sprintf(source, "%s%s%d", request_block->device_name, request_block->api_delim, exp_number);
+	    sprintf(source,"%s%s%d", request_block->device_name, request_block->api_delim, exp_number);
 
 // Test the cache for Machine Description data - based on the SOURCE identifier
 // Reuse if cached
 // Create static arrays (with generous limits) rather than pointers for machine description data
 
-            if (isCache && strcmp(source, flux_loop_source) != 0) {    // clear the cache - new data requested
-                if (flux_loop_cache_count > 0 && flux_loop_cache != NULL) {
-                    for (i = 0; i < flux_loop_cache_count; i++) freeFluxLoop(&flux_loop_cache[i]);
-                    free((void*) flux_loop_cache);
-                    flux_loop_cache = NULL;
-                    flux_loop_cache_count = 0;
-                }
-                strcpy(flux_loop_source, source);
-            }
+            if(isCache && strcmp(source, flux_loop_source) != 0){	// clear the cache - new data requested
+               if(flux_loop_cache_count > 0 && flux_loop_cache != NULL){
+                  for(i=0;i<flux_loop_cache_count;i++) freeFluxLoop(&flux_loop_cache[i]);
+                  free((void *)flux_loop_cache);
+                  flux_loop_cache = NULL;
+                  flux_loop_cache_count = 0;
+               }
+               strcpy(flux_loop_source, source);
+            } 
+	    
+	    if(isCache && flux_loop_cache_count == 0) cacheData = 1;		// Cache the machine description data	    
+	    if(isCache && flux_loop_cache_count > 0)  cacheRetrieve = 1;	// Retrieve the machine description data from the Cache 
+ 
+ 
+// Read Machine Description Data  
 
-            if (isCache && flux_loop_cache_count == 0) cacheData = 1;        // Cache the machine description data
-            if (isCache && flux_loop_cache_count > 0) {
-                cacheRetrieve = 1;
-            }    // Retrieve the machine description data from the Cache
-
-
-// Read Machine Description Data
-
-            if (!isCache || cacheData) {
+            if(!isCache || cacheData) {
 
 // 1. Number of Flux Loops
-
-                sprintf(signal, "MAGNETICS/FLUX_LOOP/SHAPE_OF");
-
-                handle = idamGetAPI(signal, source);
-
-                if (handle < 0 || getIdamErrorCode(handle) > 0) {
-                    err = 999;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err,
-                                 "Unable to access Machine Description data!");
-                    idamFree(handle);
-                    break;
-                }
-
-                if (getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_INT || getIdamDataNum(handle) != 1) {
-                    err = 999;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err,
-                                 "Machine Description data has Incorrect properties!");
-                    idamFree(handle);
-                    break;
-                }
-
-                flux_loop_count = *((int*) getIdamData(handle));
+	    
+            sprintf(signal,"MAGNETICS/FLUX_LOOP/SHAPE_OF");
+	    	    
+	    handle = idamGetAPI(signal, source);
+	    
+	    if(handle < 0 || getIdamErrorCode(handle) > 0){
+               err = 999;
+               addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Unable to access Machine Description data!");
+               idamFree(handle);
+	       break;
+	    }
+	    
+	    if(getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_INT || getIdamDataNum(handle) != 1){
+               err = 999;
+               addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Machine Description data has Incorrect properties!");
+               idamFree(handle);
+	       break;
+	    }
+	    
+	    flux_loop_count = *((int *)getIdamData(handle));
 
 // Return if only the count is requested
 
-                if (isCount) return (returnCount(flux_loop_count, data_block));
-
+            if(isCount) return( returnCount(flux_loop_count, data_block));
+	    
 // Build the Returned Structures
 
-                floop = (FLUX_LOOP*) malloc(flux_loop_count * sizeof(FLUX_LOOP));
-                addMalloc((void*) floop, flux_loop_count, sizeof(FLUX_LOOP), "FLUX_LOOP");
+            floop = (FLUX_LOOP *)malloc(flux_loop_count*sizeof(FLUX_LOOP));
+            addMalloc((void*)floop, flux_loop_count, sizeof(FLUX_LOOP), "FLUX_LOOP");	 	    
 
 // 2. Loop over all Flux Loops
 
-                for (i = 0; i < flux_loop_count; i++) {
-
-                    initFluxLoop(&floop[i]);
-
-                    sprintf(signal, "MAGNETICS/FLUX_LOOP/%d/NAME", i + 1);
-
-                    handle = idamGetAPI(signal, source);
-
-                    if (handle < 0 || getIdamErrorCode(handle) > 0) {
-                        err = 999;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err,
-                                     "Unable to access Machine Description data!");
-                        idamFree(handle);
-                        break;
-                    }
-
-                    if (getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_STRING) {
-                        err = 999;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err,
-                                     "Machine Description data has Incorrect properties!");
-                        idamFree(handle);
-                        break;
-                    }
-
-                    char* name = (char*) getIdamData(handle);
-                    stringLength = strlen(name) + 1;
-                    floop[i].name = (char*) malloc(stringLength * sizeof(char));
-                    addMalloc((void*) floop[i].name, 1, stringLength * sizeof(char), "STRING");    // Scalar String
-                    strcpy(floop[i].name, name);
-
-                    sprintf(signal, "MAGNETICS/FLUX_LOOP/%d/IDENTIFIER", i + 1);
-
-                    handle = idamGetAPI(signal, source);
-
-                    if (handle < 0 || getIdamErrorCode(handle) > 0) {
-                        err = 999;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err,
-                                     "Unable to access Machine Description data!");
-                        idamFree(handle);
-                        break;
-                    }
-
-                    if (getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_STRING) {
-                        err = 999;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err,
-                                     "Machine Description data has Incorrect properties!");
-                        idamFree(handle);
-                        break;
-                    }
-
-                    char* identifier = (char*) getIdamData(handle);
-                    stringLength = strlen(identifier) + 1;
-                    floop[i].identifier = (char*) malloc(stringLength * sizeof(char));
-                    addMalloc((void*) floop[i].identifier, 1, stringLength * sizeof(char),
-                              "STRING");    // Scalar String
-                    strcpy(floop[i].identifier, identifier);
+            for(i=0; i<flux_loop_count; i++){
+	       
+	       initFluxLoop(&floop[i]);
+	       
+	       sprintf(signal,"MAGNETICS/FLUX_LOOP/%d/NAME", i+1);   
+	    
+	       handle = idamGetAPI(signal, source);
+	    
+	       if(handle < 0 || getIdamErrorCode(handle) > 0){
+                  err = 999;
+                  addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Unable to access Machine Description data!");
+                  idamFree(handle);
+	          break;
+	       }
+	    
+	       if(getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_STRING){
+                  err = 999;
+                  addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Machine Description data has Incorrect properties!");
+                  idamFree(handle);
+	          break;
+	       }
+	       
+	       char *name = (char *)getIdamData(handle);
+	       stringLength = strlen(name)+1;
+	       floop[i].name = (char *)malloc(stringLength*sizeof(char));
+	       addMalloc((void*)floop[i].name, 1, stringLength*sizeof(char), "STRING");	// Scalar String
+	       strcpy(floop[i].name, name);
+	       
+	       sprintf(signal,"MAGNETICS/FLUX_LOOP/%d/IDENTIFIER", i+1);   
+	    
+	       handle = idamGetAPI(signal, source);
+	    
+	       if(handle < 0 || getIdamErrorCode(handle) > 0){
+                  err = 999;
+                  addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Unable to access Machine Description data!");
+                  idamFree(handle);
+	          break;
+	       }
+	    
+	       if(getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_STRING){
+                  err = 999;
+                  addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Machine Description data has Incorrect properties!");
+                  idamFree(handle);
+	          break;
+	       }
+	       
+	       char *identifier = (char *)getIdamData(handle);
+	       stringLength = strlen(identifier)+1;
+	       floop[i].identifier = (char *)malloc(stringLength*sizeof(char));
+	       addMalloc((void*)floop[i].identifier, 1, stringLength*sizeof(char), "STRING");	// Scalar String
+	       strcpy(floop[i].identifier, identifier);
 
 // 3. Number of Coordinates
 
-                    sprintf(signal, "MAGNETICS/FLUX_LOOP/%d/POSITION/SHAPE_OF", i + 1);
-
-                    handle = idamGetAPI(signal, source);
-
-                    if (handle < 0 || getIdamErrorCode(handle) > 0) {
-                        err = 999;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err,
-                                     "Unable to access Machine Description data!");
-                        idamFree(handle);
-                        break;
-                    }
-
-                    if (getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_INT ||
-                        getIdamDataNum(handle) != 1) {
-                        err = 999;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err,
-                                     "Machine Description data has Incorrect properties!");
-                        idamFree(handle);
-                        break;
-                    }
-
-                    floop[i].position_count = *((int*) getIdamData(handle));
-
-                    floop[i].r = (double*) malloc(floop[i].position_count * sizeof(double));
-                    addMalloc((void*) floop[i].r, floop[i].position_count, sizeof(double), "double");
-                    floop[i].z = (double*) malloc(floop[i].position_count * sizeof(double));
-                    addMalloc((void*) floop[i].z, floop[i].position_count, sizeof(double), "double");
-                    floop[i].phi = (double*) malloc(floop[i].position_count * sizeof(double));
-                    addMalloc((void*) floop[i].phi, floop[i].position_count, sizeof(double), "double");
-
+	       sprintf(signal,"MAGNETICS/FLUX_LOOP/%d/POSITION/SHAPE_OF", i+1);
+	    
+	       handle = idamGetAPI(signal, source);
+	    
+	       if(handle < 0 || getIdamErrorCode(handle) > 0){
+                  err = 999;
+                  addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Unable to access Machine Description data!");
+                  idamFree(handle);
+	          break;
+	       }
+	    
+	       if(getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_INT || getIdamDataNum(handle) != 1){
+                  err = 999;
+                  addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Machine Description data has Incorrect properties!");
+                  idamFree(handle);
+	          break;
+	       }
+	    
+	       floop[i].position_count = *((int *)getIdamData(handle));
+	       
+	       floop[i].r = (double *)malloc(floop[i].position_count*sizeof(double));
+	       addMalloc((void*)floop[i].r, floop[i].position_count, sizeof(double), "double");	 
+	       floop[i].z = (double *)malloc(floop[i].position_count*sizeof(double));
+	       addMalloc((void*)floop[i].z, floop[i].position_count, sizeof(double), "double");	 
+	       floop[i].phi = (double *)malloc(floop[i].position_count*sizeof(double));
+	       addMalloc((void*)floop[i].phi, floop[i].position_count, sizeof(double), "double"); 
+	    
 // 4. Loop over coordinates
 
-                    for (j = 0; j < floop[i].position_count; j++) {
+               for(j=0; j<floop[i].position_count; j++){
+	       
+	          sprintf(signal,"MAGNETICS/FLUX_LOOP/%d/POSITION/%d/R", i+1, j+1);   
+	    
+	          handle = idamGetAPI(signal, source);
+	    
+	          if(handle < 0 || getIdamErrorCode(handle) > 0){
+                     err = 999;
+                     addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Unable to access Machine Description data!");
+                     idamFree(handle);
+	             break;
+	          }
+	    
+	          if(getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_DOUBLE || getIdamDataNum(handle) != 1){
+                     err = 999;
+                     addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Machine Description data has Incorrect properties!");
+                     idamFree(handle);
+	             break;
+	          }
+	       
+	          floop[i].r[j] = *((double *)getIdamData(handle));
 
-                        sprintf(signal, "MAGNETICS/FLUX_LOOP/%d/POSITION/%d/R", i + 1, j + 1);
+	       
+	          sprintf(signal,"MAGNETICS/FLUX_LOOP/%d/POSITION/%d/Z", i+1, j+1);   
+	    
+	          handle = idamGetAPI(signal, source);
+	    
+	          if(handle < 0 || getIdamErrorCode(handle) > 0){
+                     err = 999;
+                     addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Unable to access Machine Description data!");
+                     idamFree(handle);
+	             break;
+	          }
+	    
+	          if(getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_DOUBLE || getIdamDataNum(handle) != 1){
+                     err = 999;
+                     addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Machine Description data has Incorrect properties!");
+                     idamFree(handle);
+	             break;
+	          }
+	       
+	          floop[i].z[j] = *((double *)getIdamData(handle));
 
-                        handle = idamGetAPI(signal, source);
-
-                        if (handle < 0 || getIdamErrorCode(handle) > 0) {
-                            err = 999;
-                            addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err,
-                                         "Unable to access Machine Description data!");
-                            idamFree(handle);
-                            break;
-                        }
-
-                        if (getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_DOUBLE ||
-                            getIdamDataNum(handle) != 1) {
-                            err = 999;
-                            addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err,
-                                         "Machine Description data has Incorrect properties!");
-                            idamFree(handle);
-                            break;
-                        }
-
-                        floop[i].r[j] = *((double*) getIdamData(handle));
-
-                        sprintf(signal, "MAGNETICS/FLUX_LOOP/%d/POSITION/%d/Z", i + 1, j + 1);
-
-                        handle = idamGetAPI(signal, source);
-
-                        if (handle < 0 || getIdamErrorCode(handle) > 0) {
-                            err = 999;
-                            addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err,
-                                         "Unable to access Machine Description data!");
-                            idamFree(handle);
-                            break;
-                        }
-
-                        if (getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_DOUBLE ||
-                            getIdamDataNum(handle) != 1) {
-                            err = 999;
-                            addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err,
-                                         "Machine Description data has Incorrect properties!");
-                            idamFree(handle);
-                            break;
-                        }
-
-                        floop[i].z[j] = *((double*) getIdamData(handle));
-
-                        sprintf(signal, "MAGNETICS/FLUX_LOOP/%d/POSITION/%d/PHI", i + 1, j + 1);
-
-                        handle = idamGetAPI(signal, source);
-
-                        if (handle < 0 || getIdamErrorCode(handle) > 0) {
-                            err = 999;
-                            addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err,
-                                         "Unable to access Machine Description data!");
-                            idamFree(handle);
-                            break;
-                        }
-
-                        if (getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_DOUBLE ||
-                            getIdamDataNum(handle) != 1) {
-                            err = 999;
-                            addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err,
-                                         "Machine Description data has Incorrect properties!");
-                            idamFree(handle);
-                            break;
-                        }
-
-                        floop[i].phi[j] = *((double*) getIdamData(handle));
-
-                    } // Loop over coordinates
-
-                    if (err != 0) break;
-
-                } // Loop over all Flux Loops
+	       
+	          sprintf(signal,"MAGNETICS/FLUX_LOOP/%d/POSITION/%d/PHI", i+1, j+1);   
+	    
+	          handle = idamGetAPI(signal, source);
+	    
+	          if(handle < 0 || getIdamErrorCode(handle) > 0){
+                     err = 999;
+                     addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Unable to access Machine Description data!");
+                     idamFree(handle);
+	             break;
+	          }
+	    
+	          if(getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_DOUBLE || getIdamDataNum(handle) != 1){
+                     err = 999;
+                     addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Machine Description data has Incorrect properties!");
+                     idamFree(handle);
+	             break;
+	          }
+	       
+	          floop[i].phi[j] = *((double *)getIdamData(handle));
+	    
+	       } // Loop over coordinates
+	       
+	       if(err != 0) break;
+	       
+	    } // Loop over all Flux Loops   
             } // Read Machine Description Data
 
 // Save to cache after data access
+ 
+               if(cacheData){
 
-            if (cacheData) {
-
-                flux_loop_cache_count = flux_loop_count;
-                flux_loop_cache = (FLUX_LOOP*) malloc(flux_loop_count * sizeof(FLUX_LOOP));
+                  flux_loop_cache_count = flux_loop_count;
+                  flux_loop_cache = (FLUX_LOOP *)malloc(flux_loop_count*sizeof(FLUX_LOOP));
 
 // 2. Loop over all Flux Loops
 
-                for (i = 0; i < flux_loop_count; i++) {
+                  for(i=0; i<flux_loop_count; i++){
+	       
+	             initFluxLoop(&flux_loop_cache[i]);
 
-                    initFluxLoop(&flux_loop_cache[i]);
+ 	             stringLength = strlen(floop[i].name)+1;
+	             flux_loop_cache[i].name = (char *)malloc(stringLength*sizeof(char));
+	             strcpy(flux_loop_cache[i].name, floop[i].name);
 
-                    stringLength = strlen(floop[i].name) + 1;
-                    flux_loop_cache[i].name = (char*) malloc(stringLength * sizeof(char));
-                    strcpy(flux_loop_cache[i].name, floop[i].name);
-
-                    stringLength = strlen(floop[i].identifier) + 1;
-                    flux_loop_cache[i].identifier = (char*) malloc(stringLength * sizeof(char));
-                    strcpy(flux_loop_cache[i].identifier, floop[i].identifier);
+ 	             stringLength = strlen(floop[i].identifier)+1;
+	             flux_loop_cache[i].identifier = (char *)malloc(stringLength*sizeof(char));
+	             strcpy(flux_loop_cache[i].identifier, floop[i].identifier);
 
 // 3. Number of Coordinates
 
-                    flux_loop_cache[i].position_count = floop[i].position_count;
+	             flux_loop_cache[i].position_count = floop[i].position_count;
 
-                    flux_loop_cache[i].r = (double*) malloc(floop[i].position_count * sizeof(double));
-                    flux_loop_cache[i].z = (double*) malloc(floop[i].position_count * sizeof(double));
-                    flux_loop_cache[i].phi = (double*) malloc(floop[i].position_count * sizeof(double));
-
+	             flux_loop_cache[i].r = (double *)malloc(floop[i].position_count*sizeof(double));
+                     flux_loop_cache[i].z = (double *)malloc(floop[i].position_count*sizeof(double));
+                     flux_loop_cache[i].phi = (double *)malloc(floop[i].position_count*sizeof(double));
+	    
 // 4. Loop over coordinates
 
-                    for (j = 0; j < floop[i].position_count; j++) {
-                        flux_loop_cache[i].r[j] = floop[i].r[j];
-                        flux_loop_cache[i].z[j] = floop[i].z[j];
-                        flux_loop_cache[i].phi[j] = floop[i].phi[j];
-                    }
-                } // Loop over all Flux Loops
+                     for(j=0; j<floop[i].position_count; j++){	       
+	                flux_loop_cache[i].r[j] = floop[i].r[j]; 
+	                flux_loop_cache[i].z[j] = floop[i].z[j] ;
+	                flux_loop_cache[i].phi[j] = floop[i].phi[j]; 
+                     }	    
+                  } // Loop over all Flux Loops
 
-            } else // cacheData
-
-            if (cacheRetrieve) {        // Retrieve Machine Description Data from Cache
-
+               }  else // cacheData    
+ 
+               if(cacheRetrieve){		// Retrieve Machine Description Data from Cache
+  
 // 1. Number of Flux Loops
-
-                flux_loop_count = flux_loop_cache_count;
+	    	    
+	          flux_loop_count = flux_loop_cache_count;
 
 // Return if only the count is requested
 
-                if (isCount) return (returnCount(flux_loop_count, data_block));
-
+                  if(isCount) return( returnCount(flux_loop_count, data_block));
+	    
 // Build the Returned Structures
 
-                floop = (FLUX_LOOP*) malloc(flux_loop_count * sizeof(FLUX_LOOP));
-                addMalloc((void*) floop, flux_loop_count, sizeof(FLUX_LOOP), "FLUX_LOOP");
+                  floop = (FLUX_LOOP *)malloc(flux_loop_count*sizeof(FLUX_LOOP));
+                  addMalloc((void*)floop, flux_loop_count, sizeof(FLUX_LOOP), "FLUX_LOOP");	 	    
 
 // 2. Loop over all Flux Loops
 
-                for (i = 0; i < flux_loop_count; i++) {
-
-                    initFluxLoop(&floop[i]);
-
-                    stringLength = strlen(flux_loop_cache[i].name) + 1;
-                    floop[i].name = (char*) malloc(stringLength * sizeof(char));
-                    addMalloc((void*) floop[i].name, 1, stringLength * sizeof(char), "STRING");    // Scalar String
-                    strcpy(floop[i].name, flux_loop_cache[i].name);
-
-                    stringLength = strlen(flux_loop_cache[i].identifier) + 1;
-                    floop[i].identifier = (char*) malloc(stringLength * sizeof(char));
-                    addMalloc((void*) floop[i].identifier, 1, stringLength * sizeof(char),
-                              "STRING");    // Scalar String
-                    strcpy(floop[i].identifier, flux_loop_cache[i].identifier);
+                  for(i=0; i<flux_loop_count; i++){
+	       
+	             initFluxLoop(&floop[i]);
+	       
+	             stringLength = strlen(flux_loop_cache[i].name)+1;
+	             floop[i].name = (char *)malloc(stringLength*sizeof(char));
+	             addMalloc((void*)floop[i].name, 1, stringLength*sizeof(char), "STRING");	// Scalar String
+	             strcpy(floop[i].name, flux_loop_cache[i].name);
+	       	       
+	             stringLength = strlen(flux_loop_cache[i].identifier)+1;
+	             floop[i].identifier = (char *)malloc(stringLength*sizeof(char));
+	             addMalloc((void*)floop[i].identifier, 1, stringLength*sizeof(char), "STRING");	// Scalar String
+	             strcpy(floop[i].identifier, flux_loop_cache[i].identifier);
 
 // 3. Number of Coordinates
-
-                    floop[i].position_count = flux_loop_cache[i].position_count;
-
-                    floop[i].r = (double*) malloc(floop[i].position_count * sizeof(double));
-                    addMalloc((void*) floop[i].r, floop[i].position_count, sizeof(double), "double");
-                    floop[i].z = (double*) malloc(floop[i].position_count * sizeof(double));
-                    addMalloc((void*) floop[i].z, floop[i].position_count, sizeof(double), "double");
-                    floop[i].phi = (double*) malloc(floop[i].position_count * sizeof(double));
-                    addMalloc((void*) floop[i].phi, floop[i].position_count, sizeof(double), "double");
-
+	    
+	             floop[i].position_count = flux_loop_cache[i].position_count;
+	          
+	             floop[i].r = (double *)malloc(floop[i].position_count*sizeof(double));
+	             addMalloc((void*)floop[i].r, floop[i].position_count, sizeof(double), "double");	 
+	             floop[i].z = (double *)malloc(floop[i].position_count*sizeof(double));
+	             addMalloc((void*)floop[i].z, floop[i].position_count, sizeof(double), "double");	 
+	             floop[i].phi = (double *)malloc(floop[i].position_count*sizeof(double));
+	             addMalloc((void*)floop[i].phi, floop[i].position_count, sizeof(double), "double");	 
+	    
 // 4. Loop over coordinates
 
-                    for (j = 0; j < floop[i].position_count; j++) {
-                        floop[i].r[j] = flux_loop_cache[i].r[j];
-                        floop[i].z[j] = flux_loop_cache[i].z[j];
-                        floop[i].phi[j] = flux_loop_cache[i].phi[j];
-                    }
-                }    // Loop over all Flux Loops
-
-            }    // end of cache retrieval
+                     for(j=0; j<floop[i].position_count; j++){       
+	                floop[i].r[j] = flux_loop_cache[i].r[j];
+	                floop[i].z[j] = flux_loop_cache[i].z[j];
+	                floop[i].phi[j] = flux_loop_cache[i].phi[j];	    
+	             }
+                  }	// Loop over all Flux Loops
+ 		  
+               }	// end of cache retrieval
 
 
 
 // 5. Access measurement data and apply subsetting
 
-            for (i = 0; i < flux_loop_count; i++) {
+            for(i=0; i<flux_loop_count; i++){
 
-                floop[i].data_count = 0;
-                floop[i].data = NULL;
-                floop[i].time = NULL;
+               floop[i].data_count = 0;
+	       floop[i].data = NULL;
+	       floop[i].time = NULL;	    
+ 	       
+ 	       sprintf(signal,"MAGNETICS/FLUX_LOOP/%d/FLUX/DATA", i+1);   	    
+	       handle = idamGetAPI(signal, source);
+ 
+	       if(handle < 0 || getIdamErrorCode(handle) > 0){		// Unable to access Machine Measurement data - set count to zero! Ignore Error
+                  idamFree(handle);
+		  continue;
+	       }
+ 
+ 	       sprintf(signal,"MAGNETICS/FLUX_LOOP/%d/FLUX/TIME", i+1);   	    
+	       int handle2 = idamGetAPI(signal, source);
+	    
+	       if(handle2 < 0 || getIdamErrorCode(handle2) > 0){	// Unable to access Machine Measurement data - set count to zero! Ignore Error		 
+                  idamFree(handle);
+		  idamFree(handle2);
+		  continue;
+	       }
+	       
+	       if(getIdamRank(handle2) != 0 || getIdamDataType(handle2) != TYPE_DOUBLE || getIdamDataNum(handle) != getIdamDataNum(handle2)){
+                  err = 999;
+                  addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Machine Measurement data has Incorrect properties!");
+                  idamFree(handle);
+		  idamFree(handle2);
+	          break;
+	       }
 
-                sprintf(signal, "MAGNETICS/FLUX_LOOP/%d/FLUX/DATA", i + 1);
-                handle = idamGetAPI(signal, source);
+               int data_count = getIdamDataNum(handle);
+  	    	       
+	       double *fd = (double *)getIdamData(handle);
+	       double *ft = (double *)getIdamData(handle2);
+	       
+               if(isStartTime){
+                  double sum1=0.0, sum2=0.0;
+                  int index1 = -1;
+                  int index2 = -1;
+                  for(j=0;j<data_count;j++){ 
+	             if(index1 < 0 && ft[j] >= startTime){
+                        index1 = j;
+                        if(!isEndTime) break;
+                     }
+                     if(index1 >= 0 && index2 < 0 && ft[j] >= endTime){
+                        index2 = j-1;
+                        if(index2 < 0) index2 = 0;
+                        if(ft[j] == endTime) index2 = j;
+                        break;
+                     }
+                  }
+                  if(index1 == -1){
+      // ERROR
+                  }
+  
+                  if(isEndTime){	// Subset of the data
+                     if(index2 == -1) index2 = data_count-1;
+                     data_count = index2 - index1 + 1;
+                  } else {		// Single value
+                     data_count = 1;
+                     index2 = index1;
+                  }
 
-                if (handle < 0 || getIdamErrorCode(handle) >
-                                  0) {        // Unable to access Machine Measurement data - set count to zero! Ignore Error
-                    idamFree(handle);
-                    continue;
-                }
+                  if(isFirst){
+                     data_count = 1;
+                     index2 = index1;
+                  } else
+                  if(isLast){
+                     data_count = 1;
+                     index1 = index2;
+                  } else
+                  if(isNearest){
+                     data_count = 1;
+                     if( index1 > 0 && ((startTime - ft[index1-1]) > (ft[index1] - startTime))) index1 = index1-1;
+                  } else
+                  if(isAverage){
+                     for(j=0;j<data_count;j++){ 
+	                sum1 += fd[index1+j];
+		        sum2 += ft[index1+j];
+	             }
+                     sum1 = sum1 / (double)data_count;
+                     sum2 = sum2 / (double)data_count;
+                     data_count = 1;
+                  }  
+double x1 = ft[index1];
+double x2 = ft[index2]; 
 
-                sprintf(signal, "MAGNETICS/FLUX_LOOP/%d/FLUX/TIME", i + 1);
-                int handle2 = idamGetAPI(signal, source);
+                  floop[i].data_count = data_count;
+	          floop[i].data = (double *)malloc(floop[i].data_count*sizeof(double));
+	          addMalloc((void*)floop[i].data, floop[i].data_count, sizeof(double), "double");	 
+	          floop[i].time = (double *)malloc(floop[i].data_count*sizeof(double));
+	          addMalloc((void*)floop[i].time, floop[i].data_count, sizeof(double), "double");	 
+                     
+                  if(isAverage){
+	             floop[i].data[0] = sum1;
+		     floop[i].time[0] = sum2;
+                  } else {	 
+                     for(j=0;j<floop[i].data_count;j++){ 
+	                floop[i].data[j] = fd[index1+j];
+		        floop[i].time[j] = ft[index1+j];
+                     }
+                  }
+               } else {		// All data are returned
 
-                if (handle2 < 0 || getIdamErrorCode(handle2) >
-                                   0) {    // Unable to access Machine Measurement data - set count to zero! Ignore Error
-                    idamFree(handle);
-                    idamFree(handle2);
-                    continue;
-                }
+                  floop[i].data_count = data_count;
+ 
+// Reuse the allocated data blocks - no need to copy! 
 
-                if (getIdamRank(handle2) != 0 || getIdamDataType(handle2) != TYPE_DOUBLE ||
-                    getIdamDataNum(handle) != getIdamDataNum(handle2)) {
-                    err = 999;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err,
-                                 "Machine Measurement data has Incorrect properties!");
-                    idamFree(handle);
-                    idamFree(handle2);
-                    break;
-                }
+	          floop[i].data = (double *)getIdamData(handle);
+	          addMalloc((void*)floop[i].data, floop[i].data_count, sizeof(double), "double");	 
+	          floop[i].time = (double *)getIdamData(handle2);
+	          addMalloc((void*)floop[i].time, floop[i].data_count, sizeof(double), "double");	
+                  DATA_BLOCK *db = getIdamDataBlock(handle);
+                  db->data = NULL;		// Prevent double free
+                  db = getIdamDataBlock(handle2);
+                  db->data = NULL;	    
+               }
 
-                int data_count = getIdamDataNum(handle);
-
-                double* fd = (double*) getIdamData(handle);
-                double* ft = (double*) getIdamData(handle2);
-
-                if (isStartTime) {
-                    double sum1 = 0.0, sum2 = 0.0;
-                    int index1 = -1;
-                    int index2 = -1;
-                    for (j = 0; j < data_count; j++) {
-                        if (index1 < 0 && ft[j] >= startTime) {
-                            index1 = j;
-                            if (!isEndTime) break;
-                        }
-                        if (index1 >= 0 && index2 < 0 && ft[j] >= endTime) {
-                            index2 = j - 1;
-                            if (index2 < 0) index2 = 0;
-                            if (ft[j] == endTime) index2 = j;
-                            break;
-                        }
-                    }
-                    if (index1 == -1) {
-                        // ERROR
-                    }
-
-                    if (isEndTime) {    // Subset of the data
-                        if (index2 == -1) index2 = data_count - 1;
-                        data_count = index2 - index1 + 1;
-                    } else {        // Single value
-                        data_count = 1;
-                        index2 = index1;
-                    }
-
-                    if (isFirst) {
-                        data_count = 1;
-                        index2 = index1;
-                    } else if (isLast) {
-                        data_count = 1;
-                        index1 = index2;
-                    } else if (isNearest) {
-                        data_count = 1;
-                        if (index1 > 0 && ((startTime - ft[index1 - 1]) > (ft[index1] - startTime)))
-                            index1 = index1 - 1;
-                    } else if (isAverage) {
-                        for (j = 0; j < data_count; j++) {
-                            sum1 += fd[index1 + j];
-                            sum2 += ft[index1 + j];
-                        }
-                        sum1 = sum1 / (double) data_count;
-                        sum2 = sum2 / (double) data_count;
-                        data_count = 1;
-                    }
-//double x1 = ft[index1];
-//double x2 = ft[index2];
-
-                    floop[i].data_count = data_count;
-                    floop[i].data = (double*) malloc(floop[i].data_count * sizeof(double));
-                    addMalloc((void*) floop[i].data, floop[i].data_count, sizeof(double), "double");
-                    floop[i].time = (double*) malloc(floop[i].data_count * sizeof(double));
-                    addMalloc((void*) floop[i].time, floop[i].data_count, sizeof(double), "double");
-
-                    if (isAverage) {
-                        floop[i].data[0] = sum1;
-                        floop[i].time[0] = sum2;
-                    } else {
-                        for (j = 0; j < floop[i].data_count; j++) {
-                            floop[i].data[j] = fd[index1 + j];
-                            floop[i].time[j] = ft[index1 + j];
-                        }
-                    }
-                } else {        // All data are returned
-
-                    floop[i].data_count = data_count;
-
-// Reuse the allocated data blocks - no need to copy!
-
-                    floop[i].data = (double*) getIdamData(handle);
-                    addMalloc((void*) floop[i].data, floop[i].data_count, sizeof(double), "double");
-                    floop[i].time = (double*) getIdamData(handle2);
-                    addMalloc((void*) floop[i].time, floop[i].data_count, sizeof(double), "double");
-                    DATA_BLOCK* db = getIdamDataBlock(handle);
-                    db->data = NULL;        // Prevent double free
-                    db = getIdamDataBlock(handle2);
-                    db->data = NULL;
-                }
-
-                idamFree(handle);        // Do not cache
-                idamFree(handle2);
-
-            } // Access measurement data and apply subsetting
-
-            if (err != 0) break;
+               idamFree(handle);		// Do not cache 
+	       idamFree(handle2);
+	       	       	       	       
+	    } // Access measurement data and apply subsetting
+	    
+	    if(err != 0) break;	    
 
 // 6. Cache the machine description data
 
@@ -2486,220 +2667,217 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
 
             break;
 
-        } else if (!strcasecmp(request_block->function, "test9x")) {    // FLUX_LOOP Measurement Data Only
-            char signal[256], source[256];
-            //int stringLength;
-            int cacheData = 0, cacheRetrieve = 0;
+         } else	
 
-            FLUX_LOOP_TEST1* floop = NULL;
-            int flux_loop_count = 0;
+
+         if (!strcasecmp(request_block->function, "test9x")) {	// FLUX_LOOP Measurement Data Only
+            char signal[256], source[256];
+	    int stringLength;
+	    int cacheData = 0, cacheRetrieve = 0; 
+	    
+	    FLUX_LOOP_TEST1 *floop = NULL;
+	    int flux_loop_count = 0;	    
 
 // Create the Returned Structure Definitions
 
-            defineIDSStructures();
+	    defineIDSStructures();
 
 // Access MAST machine description data: Flux Loops
 // Use the IDAM client API with IMAS name abstraction
 
-            sprintf(source, "%s%s%d", request_block->device_name, request_block->api_delim, exp_number);
-
-// Read Machine Description Data
+	    sprintf(source,"%s%s%d", request_block->device_name, request_block->api_delim, exp_number);
+ 
+// Read Machine Description Data  
 
 // Test the cache for Machine Description data - based on the SOURCE identifier
 // Reuse if cached
 
-            if (isCache && strcmp(source, flux_loop_source) != 0) {    // clear the cache - new data requested
-                if (flux_loop_cache_count > 0 && flux_loop_cache != NULL) {
-                    for (i = 0; i < flux_loop_cache_count; i++) freeFluxLoop(&flux_loop_cache[i]);
-                    free((void*) flux_loop_cache);
-                    flux_loop_cache = NULL;
-                    flux_loop_cache_count = 0;
-                }
-                strcpy(flux_loop_source, source);
-            }
+            if(isCache && strcmp(source, flux_loop_source) != 0){	// clear the cache - new data requested
+               if(flux_loop_cache_count > 0 && flux_loop_cache != NULL){
+                  for(i=0;i<flux_loop_cache_count;i++) freeFluxLoop(&flux_loop_cache[i]);
+                  free((void *)flux_loop_cache);
+                  flux_loop_cache = NULL;
+                  flux_loop_cache_count = 0;
+               }
+               strcpy(flux_loop_source, source);
+            } 
+	    
+	    if(isCache && flux_loop_cache_count == 0) cacheData = 1;		// Cache the machine description data	    
+	    if(isCache && flux_loop_cache_count > 0)  cacheRetrieve = 1;	// Retrieve the machine description data from the Cache 
 
-            if (isCache && flux_loop_cache_count == 0) cacheData = 1;        // Cache the machine description data
-            if (isCache && flux_loop_cache_count > 0) {
-                cacheRetrieve = 1;
-            }    // Retrieve the machine description data from the Cache
+// Read Machine Description Data  
 
-// Read Machine Description Data
-
-            if (!isCache || cacheData) {
+            if(!isCache || cacheData) {
 
 // 1. Number of Flux Loops
+	    
+            sprintf(signal,"MAGNETICS/FLUX_LOOP/SHAPE_OF");
+	    	    
+	    handle = idamGetAPI(signal, source);
+	    
+	    if(handle < 0 || getIdamErrorCode(handle) > 0){
+               err = 999;
+               addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Unable to access Machine Description data!");
+               idamFree(handle);
+	       break;
+	    }
+	    
+	    if(getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_INT || getIdamDataNum(handle) != 1){
+               err = 999;
+               addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Machine Description data has Incorrect properties!");
+               idamFree(handle);
+	       break;
+	    }
+	    
+	    flux_loop_count = *((int *)getIdamData(handle));
 
-                sprintf(signal, "MAGNETICS/FLUX_LOOP/SHAPE_OF");
+           } // Read Machine Description Data 
 
-                handle = idamGetAPI(signal, source);
+              if(cacheData){
 
-                if (handle < 0 || getIdamErrorCode(handle) > 0) {
-                    err = 999;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err,
-                                 "Unable to access Machine Description data!");
-                    idamFree(handle);
-                    break;
-                }
+                  flux_loop_cache_count = flux_loop_count;
 
-                if (getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_INT || getIdamDataNum(handle) != 1) {
-                    err = 999;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err,
-                                 "Machine Description data has Incorrect properties!");
-                    idamFree(handle);
-                    break;
-                }
-
-                flux_loop_count = *((int*) getIdamData(handle));
-
-            } // Read Machine Description Data
-
-            if (cacheData) {
-
-                flux_loop_cache_count = flux_loop_count;
-
-            } else // cacheData
-
-            if (cacheRetrieve) {        // Retrieve Machine Description Data from Cache
-
+               }  else // cacheData    
+ 
+               if(cacheRetrieve){		// Retrieve Machine Description Data from Cache
+  
 // 1. Number of Flux Loops
+	    	    
+	          flux_loop_count = flux_loop_cache_count;
+ 		  
+               }	// end of cache retrieval
 
-                flux_loop_count = flux_loop_cache_count;
-
-            }    // end of cache retrieval
-
-
-
+ 
+	    
 // Build the Returned Structures
 
-            floop = (FLUX_LOOP_TEST1*) malloc(flux_loop_count * sizeof(FLUX_LOOP_TEST1));
-            addMalloc((void*) floop, flux_loop_count, sizeof(FLUX_LOOP_TEST1), "FLUX_LOOP_TEST1");
+            floop = (FLUX_LOOP_TEST1 *)malloc(flux_loop_count*sizeof(FLUX_LOOP_TEST1));
+            addMalloc((void*)floop, flux_loop_count, sizeof(FLUX_LOOP_TEST1), "FLUX_LOOP_TEST1");	 	    
 
 // 5. Access measurement data and apply subsetting
 
-            for (i = 0; i < flux_loop_count; i++) {
+            for(i=0; i<flux_loop_count; i++){
 
-                floop[i].data_count = 0;
-                floop[i].data = NULL;
-                floop[i].time = NULL;
+               floop[i].data_count = 0;
+	       floop[i].data = NULL;
+	       floop[i].time = NULL;	    
+ 	       
+ 	       sprintf(signal,"MAGNETICS/FLUX_LOOP/%d/FLUX/DATA", i+1);   	    
+	       handle = idamGetAPI(signal, source);
+ 
+	       if(handle < 0 || getIdamErrorCode(handle) > 0){		// Unable to access Machine Measurement data - set count to zero! Ignore Error
+                  idamFree(handle);
+		  continue;
+	       }
+ 
+ 	       sprintf(signal,"MAGNETICS/FLUX_LOOP/%d/FLUX/TIME", i+1);   	    
+	       int handle2 = idamGetAPI(signal, source);
+	    
+	       if(handle2 < 0 || getIdamErrorCode(handle2) > 0){	// Unable to access Machine Measurement data - set count to zero! Ignore Error		 
+                  idamFree(handle);
+		  idamFree(handle2);
+		  continue;
+	       }
+	       
+	       if(getIdamRank(handle2) != 0 || getIdamDataType(handle2) != TYPE_DOUBLE || getIdamDataNum(handle) != getIdamDataNum(handle2)){
+                  err = 999;
+                  addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Machine Measurement data has Incorrect properties!");
+                  idamFree(handle);
+		  idamFree(handle2);
+	          break;
+	       }
 
-                sprintf(signal, "MAGNETICS/FLUX_LOOP/%d/FLUX/DATA", i + 1);
-                handle = idamGetAPI(signal, source);
+               int data_count = getIdamDataNum(handle);
+  	    	       
+	       double *fd = (double *)getIdamData(handle);
+	       double *ft = (double *)getIdamData(handle2);
+	       
+               if(isStartTime){
+                  double sum1=0.0, sum2=0.0;
+                  int index1 = -1;
+                  int index2 = -1;
+                  for(j=0;j<data_count;j++){ 
+	             if(index1 < 0 && ft[j] >= startTime){
+                        index1 = j;
+                        if(!isEndTime) break;
+                     }
+                     if(index1 >= 0 && index2 < 0 && ft[j] >= endTime){
+                        index2 = j-1;
+                        if(index2 < 0) index2 = 0;
+                        if(ft[j] == endTime) index2 = j;
+                        break;
+                     }
+                  }
+                  if(index1 == -1){
+      // ERROR
+                  }
+  
+                  if(isEndTime){	// Subset of the data
+                     if(index2 == -1) index2 = data_count-1;
+                     data_count = index2 - index1 + 1;
+                  } else {		// Single value
+                     data_count = 1;
+                     index2 = index1;
+                  }
 
-                if (handle < 0 || getIdamErrorCode(handle) >
-                                  0) {        // Unable to access Machine Measurement data - set count to zero! Ignore Error
-                    idamFree(handle);
-                    continue;
-                }
+                  if(isFirst){
+                     data_count = 1;
+                     index2 = index1;
+                  } else
+                  if(isLast){
+                     data_count = 1;
+                     index1 = index2;
+                  } else
+                  if(isNearest){
+                     data_count = 1;
+                     if( index1 > 0 && ((startTime - ft[index1-1]) > (ft[index1] - startTime))) index1 = index1-1;
+                  } else
+                  if(isAverage){
+                     for(j=0;j<data_count;j++){ 
+	                sum1 += fd[index1+j];
+		        sum2 += ft[index1+j];
+	             }
+                     sum1 = sum1 / (double)data_count;
+                     sum2 = sum2 / (double)data_count;
+                     data_count = 1;
+                  }  
+                  floop[i].data_count = data_count;
+	          floop[i].data = (double *)malloc(floop[i].data_count*sizeof(double));
+	          addMalloc((void*)floop[i].data, floop[i].data_count, sizeof(double), "double");	 
+	          floop[i].time = (double *)malloc(floop[i].data_count*sizeof(double));
+	          addMalloc((void*)floop[i].time, floop[i].data_count, sizeof(double), "double");	 
+                     
+                  if(isAverage){
+	             floop[i].data[0] = sum1;
+		     floop[i].time[0] = sum2;
+                  } else {	 
+                     for(j=0;j<floop[i].data_count;j++){ 
+	                floop[i].data[j] = fd[index1+j];
+		        floop[i].time[j] = ft[index1+j];
+                     }
+                  }
+               } else {		// All data are returned
 
-                sprintf(signal, "MAGNETICS/FLUX_LOOP/%d/FLUX/TIME", i + 1);
-                int handle2 = idamGetAPI(signal, source);
+                  floop[i].data_count = data_count;
+ 
+// Reuse the allocated data blocks - no need to copy! 
 
-                if (handle2 < 0 || getIdamErrorCode(handle2) >
-                                   0) {    // Unable to access Machine Measurement data - set count to zero! Ignore Error
-                    idamFree(handle);
-                    idamFree(handle2);
-                    continue;
-                }
+	          floop[i].data = (double *)getIdamData(handle);
+	          addMalloc((void*)floop[i].data, floop[i].data_count, sizeof(double), "double");	 
+	          floop[i].time = (double *)getIdamData(handle2);
+	          addMalloc((void*)floop[i].time, floop[i].data_count, sizeof(double), "double");	
+                  DATA_BLOCK *db = getIdamDataBlock(handle);
+                  db->data = NULL;		// Prevent double free
+                  db = getIdamDataBlock(handle2);
+                  db->data = NULL;	    
+               }
 
-                if (getIdamRank(handle2) != 0 || getIdamDataType(handle2) != TYPE_DOUBLE ||
-                    getIdamDataNum(handle) != getIdamDataNum(handle2)) {
-                    err = 999;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err,
-                                 "Machine Measurement data has Incorrect properties!");
-                    idamFree(handle);
-                    idamFree(handle2);
-                    break;
-                }
-
-                int data_count = getIdamDataNum(handle);
-
-                double* fd = (double*) getIdamData(handle);
-                double* ft = (double*) getIdamData(handle2);
-
-                if (isStartTime) {
-                    double sum1 = 0.0, sum2 = 0.0;
-                    int index1 = -1;
-                    int index2 = -1;
-                    for (j = 0; j < data_count; j++) {
-                        if (index1 < 0 && ft[j] >= startTime) {
-                            index1 = j;
-                            if (!isEndTime) break;
-                        }
-                        if (index1 >= 0 && index2 < 0 && ft[j] >= endTime) {
-                            index2 = j - 1;
-                            if (index2 < 0) index2 = 0;
-                            if (ft[j] == endTime) index2 = j;
-                            break;
-                        }
-                    }
-                    if (index1 == -1) {
-                        // ERROR
-                    }
-
-                    if (isEndTime) {    // Subset of the data
-                        if (index2 == -1) index2 = data_count - 1;
-                        data_count = index2 - index1 + 1;
-                    } else {        // Single value
-                        data_count = 1;
-                        index2 = index1;
-                    }
-
-                    if (isFirst) {
-                        data_count = 1;
-                        index2 = index1;
-                    } else if (isLast) {
-                        data_count = 1;
-                        index1 = index2;
-                    } else if (isNearest) {
-                        data_count = 1;
-                        if (index1 > 0 && ((startTime - ft[index1 - 1]) > (ft[index1] - startTime)))
-                            index1 = index1 - 1;
-                    } else if (isAverage) {
-                        for (j = 0; j < data_count; j++) {
-                            sum1 += fd[index1 + j];
-                            sum2 += ft[index1 + j];
-                        }
-                        sum1 = sum1 / (double) data_count;
-                        sum2 = sum2 / (double) data_count;
-                        data_count = 1;
-                    }
-                    floop[i].data_count = data_count;
-                    floop[i].data = (double*) malloc(floop[i].data_count * sizeof(double));
-                    addMalloc((void*) floop[i].data, floop[i].data_count, sizeof(double), "double");
-                    floop[i].time = (double*) malloc(floop[i].data_count * sizeof(double));
-                    addMalloc((void*) floop[i].time, floop[i].data_count, sizeof(double), "double");
-
-                    if (isAverage) {
-                        floop[i].data[0] = sum1;
-                        floop[i].time[0] = sum2;
-                    } else {
-                        for (j = 0; j < floop[i].data_count; j++) {
-                            floop[i].data[j] = fd[index1 + j];
-                            floop[i].time[j] = ft[index1 + j];
-                        }
-                    }
-                } else {        // All data are returned
-
-                    floop[i].data_count = data_count;
-
-// Reuse the allocated data blocks - no need to copy!
-
-                    floop[i].data = (double*) getIdamData(handle);
-                    addMalloc((void*) floop[i].data, floop[i].data_count, sizeof(double), "double");
-                    floop[i].time = (double*) getIdamData(handle2);
-                    addMalloc((void*) floop[i].time, floop[i].data_count, sizeof(double), "double");
-                    DATA_BLOCK* db = getIdamDataBlock(handle);
-                    db->data = NULL;        // Prevent double free
-                    db = getIdamDataBlock(handle2);
-                    db->data = NULL;
-                }
-
-                idamFree(handle);        // Do not cache
-                idamFree(handle2);
-
-            } // Access measurement data and apply subsetting
-
-            if (err != 0) break;
+               idamFree(handle);		// Do not cache 
+	       idamFree(handle2);
+	       	       	       	       
+	    } // Access measurement data and apply subsetting
+	    
+	    if(err != 0) break;	    
 
 // 7. Return the Data
 
@@ -2718,414 +2896,401 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
 
             break;
 
-        } else if (!strcasecmp(request_block->function, "test10")) {    // BPOL_PROBE data structure with MAST data
+         } else	
+
+
+
+
+
+         if (!strcasecmp(request_block->function, "test10")) {	// BPOL_PROBE data structure with MAST data
 
             char signal[256], source[256];
-            int stringLength;
-
-            BPOL_PROBE* bprobe = NULL;
-            int bpol_probe_count = 0;
-            int cacheData = 0, cacheRetrieve = 0;
-
+	    int stringLength;
+	    
+	    BPOL_PROBE *bprobe = NULL;
+	    int bpol_probe_count = 0;
+	    int cacheData = 0, cacheRetrieve = 0; 
+	    
 // Create the Returned Structure Definitions
 
-            defineIDSStructures();
+   	    defineIDSStructures();
 
-// Access MAST machine description data
+// Access MAST machine description data 
 // Use the IDAM client API with IMAS name abstraction
 
-            sprintf(source, "%s%s%d", request_block->device_name, request_block->api_delim, exp_number);
+	    sprintf(source,"%s%s%d", request_block->device_name, request_block->api_delim, exp_number);
 
 // Test the cache for Machine Description data - based on the SOURCE identifier
 // Reuse if cached
 // Create static arrays (with generous limits) rather than pointers for machine description data
 
-            if (isCache && strcmp(source, bpol_probe_source) != 0) {    // clear the cache - new data requested
-                if (bpol_probe_cache_count > 0 && bpol_probe_cache != NULL) {
-                    for (i = 0; i < bpol_probe_cache_count; i++) freeBpolProbe(&bpol_probe_cache[i]);
-                    free((void*) bpol_probe_cache);
-                    bpol_probe_cache = NULL;
-                    bpol_probe_cache_count = 0;
-                }
-                strcpy(bpol_probe_source, source);
-            }
+            if(isCache && strcmp(source, bpol_probe_source) != 0){	// clear the cache - new data requested
+               if(bpol_probe_cache_count > 0 && bpol_probe_cache != NULL){
+                  for(i=0;i<bpol_probe_cache_count;i++) freeBpolProbe(&bpol_probe_cache[i]);
+                  free((void *)bpol_probe_cache);
+                  bpol_probe_cache = NULL;
+                  bpol_probe_cache_count = 0;
+               }
+               strcpy(bpol_probe_source, source);
+            } 
+	    
+	    if(isCache && bpol_probe_cache_count == 0) cacheData = 1;		// Cache the machine description data	    
+	    if(isCache && bpol_probe_cache_count > 0)  cacheRetrieve = 1;	// Retrieve the machine description data from the Cache 
 
-            if (isCache && bpol_probe_cache_count == 0) cacheData = 1;        // Cache the machine description data
-            if (isCache && bpol_probe_cache_count > 0) {
-                cacheRetrieve = 1;
-            }    // Retrieve the machine description data from the Cache
+// Read Machine Description Data  
 
-// Read Machine Description Data
+            if(!isCache || cacheData) {
 
-            if (!isCache || cacheData) {
-
-// 1. Number of Magnetic Probes
-
-                sprintf(signal, "MAGNETICS/BPOL_PROBE/SHAPE_OF");
-
-                handle = idamGetAPI(signal, source);
-
-                if (handle < 0 || getIdamErrorCode(handle) > 0) {
-                    err = 999;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err,
-                                 "Unable to access Machine Description data!");
-                    idamFree(handle);
-                    break;
-                }
-
-                if (getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_INT || getIdamDataNum(handle) != 1) {
-                    err = 999;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err,
-                                 "Machine Description data has Incorrect properties!");
-                    idamFree(handle);
-                    break;
-                }
-
-                bpol_probe_count = *((int*) getIdamData(handle));
+// 1. Number of Magnetic Probes 
+	    
+            sprintf(signal,"MAGNETICS/BPOL_PROBE/SHAPE_OF");
+	    	    
+	    handle = idamGetAPI(signal, source);
+	    
+	    if(handle < 0 || getIdamErrorCode(handle) > 0){
+               err = 999;
+               addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Unable to access Machine Description data!");
+               idamFree(handle);
+	       break;
+	    }
+	    
+	    if(getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_INT || getIdamDataNum(handle) != 1){
+               err = 999;
+               addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Machine Description data has Incorrect properties!");
+               idamFree(handle);
+	       break;
+	    }
+	    
+	    bpol_probe_count = *((int *)getIdamData(handle));
 
 //bpol_probe_count = 1;
 
 // Return if only the count is requested
 
-                if (isCount) return (returnCount(bpol_probe_count, data_block));
-
+            if(isCount) return( returnCount(bpol_probe_count, data_block));
+	    
 // Build the Returned Structures
 
-                bprobe = (BPOL_PROBE*) malloc(bpol_probe_count * sizeof(BPOL_PROBE));
-                addMalloc((void*) bprobe, bpol_probe_count, sizeof(BPOL_PROBE), "BPOL_PROBE");
+            bprobe = (BPOL_PROBE *)malloc(bpol_probe_count*sizeof(BPOL_PROBE));
+            addMalloc((void*)bprobe, bpol_probe_count, sizeof(BPOL_PROBE), "BPOL_PROBE");	  	    
 
 // 2. Loop over all Bpol Probes
 
-                for (i = 0; i < bpol_probe_count; i++) {
-
-                    initBpolProbe(&bprobe[i]);
-
-                    sprintf(signal, "MAGNETICS/BPOL_PROBE/%d/NAME", i + 1);
-
-                    handle = idamGetAPI(signal, source);
-
-                    if (handle < 0 || getIdamErrorCode(handle) > 0) {
-                        err = 999;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err,
-                                     "Unable to access Machine Description data!");
-                        idamFree(handle);
-                        break;
-                    }
-
-                    if (getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_STRING) {
-                        err = 999;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err,
-                                     "Machine Description data has Incorrect properties!");
-                        idamFree(handle);
-                        break;
-                    }
-
-                    char* name = (char*) getIdamData(handle);
-                    stringLength = strlen(name) + 1;
-                    bprobe[i].name = (char*) malloc(stringLength * sizeof(char));
-                    addMalloc((void*) bprobe[i].name, 1, stringLength * sizeof(char), "STRING");    // Scalar String
-                    strcpy(bprobe[i].name, name);
-
-                    sprintf(signal, "MAGNETICS/BPOL_PROBE/%d/IDENTIFIER", i + 1);
-
-                    handle = idamGetAPI(signal, source);
-
-                    if (handle < 0 || getIdamErrorCode(handle) > 0) {
-                        err = 999;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err,
-                                     "Unable to access Machine Description data!");
-                        idamFree(handle);
-                        break;
-                    }
-
-                    if (getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_STRING) {
-                        err = 999;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err,
-                                     "Machine Description data has Incorrect properties!");
-                        idamFree(handle);
-                        break;
-                    }
-
-                    char* identifier = (char*) getIdamData(handle);
-                    stringLength = strlen(identifier) + 1;
-                    bprobe[i].identifier = (char*) malloc(stringLength * sizeof(char));
-                    addMalloc((void*) bprobe[i].identifier, 1, stringLength * sizeof(char),
-                              "STRING");    // Scalar String
-                    strcpy(bprobe[i].identifier, identifier);
+            for(i=0; i<bpol_probe_count; i++){
+	       
+	       initBpolProbe(&bprobe[i]);
+	       
+	       sprintf(signal,"MAGNETICS/BPOL_PROBE/%d/NAME", i+1);   
+	    
+	       handle = idamGetAPI(signal, source);
+	    
+	       if(handle < 0 || getIdamErrorCode(handle) > 0){
+                  err = 999;
+                  addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Unable to access Machine Description data!");
+                  idamFree(handle);
+	          break;
+	       }
+	    
+	       if(getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_STRING){
+                  err = 999;
+                  addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Machine Description data has Incorrect properties!");
+                  idamFree(handle);
+	          break;
+	       }
+	       
+	       char *name = (char *)getIdamData(handle);
+	       stringLength = strlen(name)+1;
+	       bprobe[i].name = (char *)malloc(stringLength*sizeof(char));
+	       addMalloc((void*)bprobe[i].name, 1, stringLength*sizeof(char), "STRING");	// Scalar String
+	       strcpy(bprobe[i].name, name);
+	       
+	       sprintf(signal,"MAGNETICS/BPOL_PROBE/%d/IDENTIFIER", i+1);   
+	    
+	       handle = idamGetAPI(signal, source);
+	    
+	       if(handle < 0 || getIdamErrorCode(handle) > 0){
+                  err = 999;
+                  addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Unable to access Machine Description data!");
+                  idamFree(handle);
+	          break;
+	       }
+	    
+	       if(getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_STRING){
+                  err = 999;
+                  addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Machine Description data has Incorrect properties!");
+                  idamFree(handle);
+	          break;
+	       }
+	       
+	       char *identifier = (char *)getIdamData(handle);
+	       stringLength = strlen(identifier)+1;
+	       bprobe[i].identifier = (char *)malloc(stringLength*sizeof(char));
+	       addMalloc((void*)bprobe[i].identifier, 1, stringLength*sizeof(char), "STRING");	// Scalar String
+	       strcpy(bprobe[i].identifier, identifier);
 
 // 3. Coordinates
+	       	    
+	       sprintf(signal,"MAGNETICS/BPOL_PROBE/%d/POSITION/R", i+1);   
+	    
+	       handle = idamGetAPI(signal, source);
+	    
+	       if(handle < 0 || getIdamErrorCode(handle) > 0){
+                  err = 999;
+                  addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Unable to access Machine Description data!");
+                  idamFree(handle);
+	          break;
+	       }
+	    
+	       if(getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_DOUBLE || getIdamDataNum(handle) != 1){
+                  err = 999;
+                  addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Machine Description data has Incorrect properties!");
+                  idamFree(handle);
+	          break;
+	       }
+	       
+	       bprobe[i].r = *((double *)getIdamData(handle));
 
-                    sprintf(signal, "MAGNETICS/BPOL_PROBE/%d/POSITION/R", i + 1);
+	       sprintf(signal,"MAGNETICS/BPOL_PROBE/%d/POSITION/Z", i+1);   
+	    
+	       handle = idamGetAPI(signal, source);
+	    
+	       if(handle < 0 || getIdamErrorCode(handle) > 0){
+                  err = 999;
+                  addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Unable to access Machine Description data!");
+                  idamFree(handle);
+	          break;
+	       }
+	    
+	       if(getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_DOUBLE || getIdamDataNum(handle) != 1){
+                  err = 999;
+                  addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Machine Description data has Incorrect properties!");
+                  idamFree(handle);
+	          break;
+	       }
+	       
+	       bprobe[i].z = *((double *)getIdamData(handle));
 
-                    handle = idamGetAPI(signal, source);
+	    
+	       sprintf(signal,"MAGNETICS/BPOL_PROBE/%d/POSITION/PHI", i+1);   
+	    
+	       handle = idamGetAPI(signal, source);
+	    
+	       if(handle < 0 || getIdamErrorCode(handle) > 0){
+                  err = 999;
+                  addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Unable to access Machine Description data!");
+                  idamFree(handle);
+	          break;
+	       }
+	    
+	       if(getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_DOUBLE || getIdamDataNum(handle) != 1){
+                  err = 999;
+                  addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Machine Description data has Incorrect properties!");
+                  idamFree(handle);
+	          break;
+	       }
+	       
+	       bprobe[i].phi = *((double *)getIdamData(handle));
 
-                    if (handle < 0 || getIdamErrorCode(handle) > 0) {
-                        err = 999;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err,
-                                     "Unable to access Machine Description data!");
-                        idamFree(handle);
-                        break;
-                    }
-
-                    if (getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_DOUBLE ||
-                        getIdamDataNum(handle) != 1) {
-                        err = 999;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err,
-                                     "Machine Description data has Incorrect properties!");
-                        idamFree(handle);
-                        break;
-                    }
-
-                    bprobe[i].r = *((double*) getIdamData(handle));
-
-                    sprintf(signal, "MAGNETICS/BPOL_PROBE/%d/POSITION/Z", i + 1);
-
-                    handle = idamGetAPI(signal, source);
-
-                    if (handle < 0 || getIdamErrorCode(handle) > 0) {
-                        err = 999;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err,
-                                     "Unable to access Machine Description data!");
-                        idamFree(handle);
-                        break;
-                    }
-
-                    if (getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_DOUBLE ||
-                        getIdamDataNum(handle) != 1) {
-                        err = 999;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err,
-                                     "Machine Description data has Incorrect properties!");
-                        idamFree(handle);
-                        break;
-                    }
-
-                    bprobe[i].z = *((double*) getIdamData(handle));
-
-                    sprintf(signal, "MAGNETICS/BPOL_PROBE/%d/POSITION/PHI", i + 1);
-
-                    handle = idamGetAPI(signal, source);
-
-                    if (handle < 0 || getIdamErrorCode(handle) > 0) {
-                        err = 999;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err,
-                                     "Unable to access Machine Description data!");
-                        idamFree(handle);
-                        break;
-                    }
-
-                    if (getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_DOUBLE ||
-                        getIdamDataNum(handle) != 1) {
-                        err = 999;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err,
-                                     "Machine Description data has Incorrect properties!");
-                        idamFree(handle);
-                        break;
-                    }
-
-                    bprobe[i].phi = *((double*) getIdamData(handle));
-
-                } //  Loop over all Bpol Probes
+            } //  Loop over all Bpol Probes
             } // Read Machine Description Data
 
 // Save to cache after data access
+ 
+               if(cacheData){
 
-            if (cacheData) {
-
-                bpol_probe_cache_count = bpol_probe_count;
-                bpol_probe_cache = (BPOL_PROBE*) malloc(bpol_probe_count * sizeof(BPOL_PROBE));
+                  bpol_probe_cache_count = bpol_probe_count;
+                  bpol_probe_cache = (BPOL_PROBE *)malloc(bpol_probe_count*sizeof(BPOL_PROBE));
 
 // 2. Loop over all Bpol Probes
 
-                for (i = 0; i < bpol_probe_count; i++) {
+                  for(i=0; i<bpol_probe_count; i++){
+	       
+	             initBpolProbe(&bpol_probe_cache[i]);
 
-                    initBpolProbe(&bpol_probe_cache[i]);
+ 	             stringLength = strlen(bprobe[i].name)+1;
+	             bpol_probe_cache[i].name = (char *)malloc(stringLength*sizeof(char));
+	             strcpy(bpol_probe_cache[i].name, bprobe[i].name);
 
-                    stringLength = strlen(bprobe[i].name) + 1;
-                    bpol_probe_cache[i].name = (char*) malloc(stringLength * sizeof(char));
-                    strcpy(bpol_probe_cache[i].name, bprobe[i].name);
-
-                    stringLength = strlen(bprobe[i].identifier) + 1;
-                    bpol_probe_cache[i].identifier = (char*) malloc(stringLength * sizeof(char));
-                    strcpy(bpol_probe_cache[i].identifier, bprobe[i].identifier);
+ 	             stringLength = strlen(bprobe[i].identifier)+1;
+	             bpol_probe_cache[i].identifier = (char *)malloc(stringLength*sizeof(char));
+	             strcpy(bpol_probe_cache[i].identifier, bprobe[i].identifier);
 
 // 3. Coordinates
-                    bpol_probe_cache[i].r = bprobe[i].r;
-                    bpol_probe_cache[i].z = bprobe[i].z;
-                    bpol_probe_cache[i].phi = bprobe[i].phi;
-                } // Loop over all Bpol Probes
+	             bpol_probe_cache[i].r = bprobe[i].r; 
+	             bpol_probe_cache[i].z = bprobe[i].z;
+	             bpol_probe_cache[i].phi = bprobe[i].phi; 
+                  } // Loop over all Bpol Probes
 
-            } else // cacheData
-
-            if (cacheRetrieve) {        // Retrieve Machine Description Data from Cache
-
+               }  else // cacheData    
+ 
+               if(cacheRetrieve){		// Retrieve Machine Description Data from Cache
+  
 // 1. Number of Flux Loops
-
-                bpol_probe_count = bpol_probe_cache_count;
+	    	    
+	          bpol_probe_count = bpol_probe_cache_count;
 
 // Return if only the count is requested
 
-                if (isCount) return (returnCount(bpol_probe_count, data_block));
-
+            if(isCount) return( returnCount(bpol_probe_count, data_block));
+	    
 // Build the Returned Structures
 
-                bprobe = (BPOL_PROBE*) malloc(bpol_probe_count * sizeof(BPOL_PROBE));
-                addMalloc((void*) bprobe, bpol_probe_count, sizeof(BPOL_PROBE), "BPOL_PROBE");
+                  bprobe = (BPOL_PROBE *)malloc(bpol_probe_count*sizeof(BPOL_PROBE));
+                  addMalloc((void*)bprobe, bpol_probe_count, sizeof(BPOL_PROBE), "BPOL_PROBE");	 	    
 
 // 2. Loop over all Flux Loops
 
-                for (i = 0; i < bpol_probe_count; i++) {
-
-                    initBpolProbe(&bprobe[i]);
-
-                    stringLength = strlen(bpol_probe_cache[i].name) + 1;
-                    bprobe[i].name = (char*) malloc(stringLength * sizeof(char));
-                    addMalloc((void*) bprobe[i].name, 1, stringLength * sizeof(char), "STRING");    // Scalar String
-                    strcpy(bprobe[i].name, bpol_probe_cache[i].name);
-
-                    stringLength = strlen(bpol_probe_cache[i].identifier) + 1;
-                    bprobe[i].identifier = (char*) malloc(stringLength * sizeof(char));
-                    addMalloc((void*) bprobe[i].identifier, 1, stringLength * sizeof(char),
-                              "STRING");    // Scalar String
-                    strcpy(bprobe[i].identifier, bpol_probe_cache[i].identifier);
+                  for(i=0; i<bpol_probe_count; i++){
+	       
+	             initBpolProbe(&bprobe[i]);
+	       
+	             stringLength = strlen(bpol_probe_cache[i].name)+1;
+	             bprobe[i].name = (char *)malloc(stringLength*sizeof(char));
+	             addMalloc((void*)bprobe[i].name, 1, stringLength*sizeof(char), "STRING");	// Scalar String
+	             strcpy(bprobe[i].name, bpol_probe_cache[i].name);
+	       	      
+	             stringLength = strlen(bpol_probe_cache[i].identifier)+1;
+	             bprobe[i].identifier = (char *)malloc(stringLength*sizeof(char));
+	             addMalloc((void*)bprobe[i].identifier, 1, stringLength*sizeof(char), "STRING");	// Scalar String
+	             strcpy(bprobe[i].identifier, bpol_probe_cache[i].identifier);
 
 // 3. Coordinates
-                    bprobe[i].r = bpol_probe_cache[i].r;
-                    bprobe[i].z = bpol_probe_cache[i].z;
-                    bprobe[i].phi = bpol_probe_cache[i].phi;
-                }    // Loop over all Bpol Probes
-
-            }    // end of cache retrieval
+ 	             bprobe[i].r = bpol_probe_cache[i].r;
+	             bprobe[i].z = bpol_probe_cache[i].z;
+	             bprobe[i].phi = bpol_probe_cache[i].phi;	    
+                  }	// Loop over all Bpol Probes
+ 		  
+               }	// end of cache retrieval
 
 
 
 // 5. Access measurement data and apply subsetting
 
-            for (i = 0; i < bpol_probe_count; i++) {
+            for(i=0; i<bpol_probe_count; i++){	          
+ 	    
+               bprobe[i].data_count = 0;
+	       bprobe[i].data = NULL;
+	       bprobe[i].time = NULL;	
+   	       
+ 	       sprintf(signal,"MAGNETICS/BPOL_PROBE/%d/FIELD/DATA", i+1);   	    
+	       handle = idamGetAPI(signal, source);
+  
+	       if(handle < 0 || getIdamErrorCode(handle) > 0){		// Unable to access Machine Measurement data - set count to zero! Ignore Error
+                  idamFree(handle);
+		  continue;
+	       }
+ 
+ 	       sprintf(signal,"MAGNETICS/BPOL_PROBE/%d/FIELD/TIME", i+1);   	    
+	       int handle2 = idamGetAPI(signal, source);
+	    
+	       if(handle2 < 0 || getIdamErrorCode(handle2) > 0){	// Unable to access Machine Measurement data - set count to zero! 
+                  idamFree(handle);
+		  idamFree(handle2);
+		  continue;
+	       }
+	       
+	       if(getIdamRank(handle2) != 0 || getIdamDataType(handle2) != TYPE_DOUBLE || getIdamDataNum(handle) != getIdamDataNum(handle2)){
+                  err = 999;
+                  addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Machine Measurement data has Incorrect properties!");
+                  idamFree(handle);
+		  idamFree(handle2);
+	          break;
+	       }
+  
+               int data_count = getIdamDataNum(handle);
+  	    	       
+	       double *fd = (double *)getIdamData(handle);
+	       double *ft = (double *)getIdamData(handle2);
+	       
+               if(isStartTime){
+                  double sum1=0.0, sum2=0.0;
+                  int index1 = -1;
+                  int index2 = -1;
+                  for(j=0;j<data_count;j++){ 
+	             if(index1 < 0 && ft[j] >= startTime){
+                        index1 = j;
+                        if(!isEndTime) break;
+                     }
+                     if(index1 >= 0 && index2 < 0 && ft[j] >= endTime){
+                        index2 = j-1;
+                        if(index2 < 0) index2 = 0;
+                        if(ft[j] == endTime) index2 = j;
+                        break;
+                     }
+                  }
+                  if(index1 == -1){
+      // ERROR
+                  }
+  
+                  if(isEndTime){	// Subset of the data
+                     if(index2 == -1) index2 = data_count-1;
+                     data_count = index2 - index1 + 1;
+                  } else {		// Single value
+                     data_count = 1;
+                     index2 = index1;
+                  }
 
-                bprobe[i].data_count = 0;
-                bprobe[i].data = NULL;
-                bprobe[i].time = NULL;
+                  if(isFirst){
+                     data_count = 1;
+                     index2 = index1;
+                  } else
+                  if(isLast){
+                     data_count = 1;
+                     index1 = index2;
+                  } else
+                  if(isNearest){
+                     data_count = 1;
+                     if( index1 > 0 && ((startTime - ft[index1-1]) > (ft[index1] - startTime))) index1 = index1-1;
+                  } else
+                  if(isAverage){
+                     for(j=0;j<data_count;j++){ 
+	                sum1 += fd[index1+j];
+		        sum2 += ft[index1+j];
+	             }
+                     sum1 = sum1 / (double)data_count;
+                     sum2 = sum2 / (double)data_count;
+                     data_count = 1;
+                  }
+ 
+  		    
+                  bprobe[i].data_count = data_count;
+	          bprobe[i].data = (double *)malloc(bprobe[i].data_count*sizeof(double));
+	          addMalloc((void*)bprobe[i].data, bprobe[i].data_count, sizeof(double), "double");	 
+	          bprobe[i].time = (double *)malloc(bprobe[i].data_count*sizeof(double));
+	          addMalloc((void*)bprobe[i].time, bprobe[i].data_count, sizeof(double), "double");	 
+                     
+                  if(isAverage){
+	             bprobe[i].data[0] = sum1;
+		     bprobe[i].time[0] = sum2;
+                  } else {	 
+                     for(j=0;j<bprobe[i].data_count;j++){ 
+	                bprobe[i].data[j] = fd[index1+j];
+		        bprobe[i].time[j] = ft[index1+j];
+                     }
+                  }
+  		  
+               } else {		// All data are returned
+ 
+                  bprobe[i].data_count = data_count;
+ 
+// Reuse the allocated data blocks - no need to copy! 
+ 
+	          bprobe[i].data = (double *)getIdamData(handle);
+	          addMalloc((void*)bprobe[i].data, bprobe[i].data_count, sizeof(double), "double");	 
+	          bprobe[i].time = (double *)getIdamData(handle2);
+	          addMalloc((void*)bprobe[i].time, bprobe[i].data_count, sizeof(double), "double");	                 
+                  DATA_BLOCK *db = getIdamDataBlock(handle);
+                  db->data = NULL;		// Prevent double free
+                  db = getIdamDataBlock(handle2);
+                  db->data = NULL;	    
+               }
+ 
+               idamFree(handle);		// Do not cache 
+	       idamFree(handle2);	    
+  	    	    
+	    } // Access measurement data and apply subsetting
 
-                sprintf(signal, "MAGNETICS/BPOL_PROBE/%d/FIELD/DATA", i + 1);
-                handle = idamGetAPI(signal, source);
-
-                if (handle < 0 || getIdamErrorCode(handle) >
-                                  0) {        // Unable to access Machine Measurement data - set count to zero! Ignore Error
-                    idamFree(handle);
-                    continue;
-                }
-
-                sprintf(signal, "MAGNETICS/BPOL_PROBE/%d/FIELD/TIME", i + 1);
-                int handle2 = idamGetAPI(signal, source);
-
-                if (handle2 < 0 || getIdamErrorCode(handle2) >
-                                   0) {    // Unable to access Machine Measurement data - set count to zero!
-                    idamFree(handle);
-                    idamFree(handle2);
-                    continue;
-                }
-
-                if (getIdamRank(handle2) != 0 || getIdamDataType(handle2) != TYPE_DOUBLE ||
-                    getIdamDataNum(handle) != getIdamDataNum(handle2)) {
-                    err = 999;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err,
-                                 "Machine Measurement data has Incorrect properties!");
-                    idamFree(handle);
-                    idamFree(handle2);
-                    break;
-                }
-
-                int data_count = getIdamDataNum(handle);
-
-                double* fd = (double*) getIdamData(handle);
-                double* ft = (double*) getIdamData(handle2);
-
-                if (isStartTime) {
-                    double sum1 = 0.0, sum2 = 0.0;
-                    int index1 = -1;
-                    int index2 = -1;
-                    for (j = 0; j < data_count; j++) {
-                        if (index1 < 0 && ft[j] >= startTime) {
-                            index1 = j;
-                            if (!isEndTime) break;
-                        }
-                        if (index1 >= 0 && index2 < 0 && ft[j] >= endTime) {
-                            index2 = j - 1;
-                            if (index2 < 0) index2 = 0;
-                            if (ft[j] == endTime) index2 = j;
-                            break;
-                        }
-                    }
-                    if (index1 == -1) {
-                        // ERROR
-                    }
-
-                    if (isEndTime) {    // Subset of the data
-                        if (index2 == -1) index2 = data_count - 1;
-                        data_count = index2 - index1 + 1;
-                    } else {        // Single value
-                        data_count = 1;
-                        index2 = index1;
-                    }
-
-                    if (isFirst) {
-                        data_count = 1;
-                        index2 = index1;
-                    } else if (isLast) {
-                        data_count = 1;
-                        index1 = index2;
-                    } else if (isNearest) {
-                        data_count = 1;
-                        if (index1 > 0 && ((startTime - ft[index1 - 1]) > (ft[index1] - startTime)))
-                            index1 = index1 - 1;
-                    } else if (isAverage) {
-                        for (j = 0; j < data_count; j++) {
-                            sum1 += fd[index1 + j];
-                            sum2 += ft[index1 + j];
-                        }
-                        sum1 = sum1 / (double) data_count;
-                        sum2 = sum2 / (double) data_count;
-                        data_count = 1;
-                    }
-
-                    bprobe[i].data_count = data_count;
-                    bprobe[i].data = (double*) malloc(bprobe[i].data_count * sizeof(double));
-                    addMalloc((void*) bprobe[i].data, bprobe[i].data_count, sizeof(double), "double");
-                    bprobe[i].time = (double*) malloc(bprobe[i].data_count * sizeof(double));
-                    addMalloc((void*) bprobe[i].time, bprobe[i].data_count, sizeof(double), "double");
-
-                    if (isAverage) {
-                        bprobe[i].data[0] = sum1;
-                        bprobe[i].time[0] = sum2;
-                    } else {
-                        for (j = 0; j < bprobe[i].data_count; j++) {
-                            bprobe[i].data[j] = fd[index1 + j];
-                            bprobe[i].time[j] = ft[index1 + j];
-                        }
-                    }
-
-                } else {        // All data are returned
-
-                    bprobe[i].data_count = data_count;
-
-// Reuse the allocated data blocks - no need to copy!
-
-                    bprobe[i].data = (double*) getIdamData(handle);
-                    addMalloc((void*) bprobe[i].data, bprobe[i].data_count, sizeof(double), "double");
-                    bprobe[i].time = (double*) getIdamData(handle2);
-                    addMalloc((void*) bprobe[i].time, bprobe[i].data_count, sizeof(double), "double");
-                    DATA_BLOCK* db = getIdamDataBlock(handle);
-                    db->data = NULL;        // Prevent double free
-                    db = getIdamDataBlock(handle2);
-                    db->data = NULL;
-                }
-
-                idamFree(handle);        // Do not cache
-                idamFree(handle2);
-
-            } // Access measurement data and apply subsetting
-
-            if (err != 0) break;
+	    if(err != 0) break;	    
 
 // 7. Return the Data
 
@@ -3144,234 +3309,233 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
 
             break;
 
-        } else if (!strcasecmp(request_block->function, "test10x")) {    // BPOL_PROBE data structure with MAST data
+         } else	
+	 
+
+         if (!strcasecmp(request_block->function, "test10x")) {	// BPOL_PROBE data structure with MAST data
 
             char signal[256], source[256];
-            //int stringLength;
-
-            BPOL_PROBE_TEST1* bprobe = NULL;
-            int bpol_probe_count = 0;
-
+	    int stringLength;
+	    
+	    BPOL_PROBE_TEST1 *bprobe = NULL;
+	    int bpol_probe_count = 0;
+	    
 // Create the Returned Structure Definitions
 
-            initUserDefinedType(&usertype);   // New structure definition
+   initUserDefinedType(&usertype);   // New structure definition
 
-            strcpy(usertype.name, "BPOL_PROBE_TEST1");
-            usertype.size = sizeof(BPOL_PROBE_TEST1);
-            strcpy(usertype.source, "LiveDisplay");
-            usertype.ref_id = 0;
-            usertype.imagecount = 0;       // No Structure Image data
-            usertype.image = NULL;
-            usertype.idamclass = TYPE_COMPOUND;
+   strcpy(usertype.name, "BPOL_PROBE_TEST1");         
+   usertype.size = sizeof(BPOL_PROBE_TEST1);
+   strcpy(usertype.source, "LiveDisplay");
+   usertype.ref_id = 0;
+   usertype.imagecount = 0;       // No Structure Image data
+   usertype.image = NULL;
+   usertype.idamclass = TYPE_COMPOUND;
+   
+   offset = 0;
 
-            offset = 0;
+   defineField(&field, "xdata_count", "Measurement data count", &offset, SCALARINT);    
+   addCompoundField(&usertype, field);
+   defineField(&field, "xdata", "Measurement data", &offset, ARRAYDOUBLE); 		// Doesn't like 'data' !!!   
+   addCompoundField(&usertype, field);      
+   defineField(&field, "xtime", "Measurement time", &offset, ARRAYDOUBLE);    
+   addCompoundField(&usertype, field);      
 
-            defineField(&field, "xdata_count", "Measurement data count", &offset, SCALARINT);
-            addCompoundField(&usertype, field);
-            defineField(&field, "xdata", "Measurement data", &offset, ARRAYDOUBLE);        // Doesn't like 'data' !!!
-            addCompoundField(&usertype, field);
-            defineField(&field, "xtime", "Measurement time", &offset, ARRAYDOUBLE);
-            addCompoundField(&usertype, field);
-
-            addUserDefinedType(userdefinedtypelist, usertype);    // BPOL_PROBE_TEST1
+   addUserDefinedType(userdefinedtypelist, usertype);	// BPOL_PROBE_TEST1
 
 
-// Access MAST machine description data
+// Access MAST machine description data 
 // Use the IDAM client API with IMAS name abstraction
 
-            sprintf(source, "MAST::%d", exp_number);
+	    sprintf(source,"MAST::%d", exp_number);
 
-// 1. Number of Magnetic Probes
-
-            sprintf(signal, "MAGNETICS/BPOL_PROBE/SHAPE_OF");
-
-            handle = idamGetAPI(signal, source);
-
-            if (handle < 0 || getIdamErrorCode(handle) > 0) {
-                err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err,
-                             "Unable to access Machine Description data!");
-                idamFree(handle);
-                break;
-            }
-
-            if (getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_INT || getIdamDataNum(handle) != 1) {
-                err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err,
-                             "Machine Description data has Incorrect properties!");
-                idamFree(handle);
-                break;
-            }
-
-            bpol_probe_count = *((int*) getIdamData(handle));
+// 1. Number of Magnetic Probes 
+	    
+            sprintf(signal,"MAGNETICS/BPOL_PROBE/SHAPE_OF");
+	    	    
+	    handle = idamGetAPI(signal, source);
+	    
+	    if(handle < 0 || getIdamErrorCode(handle) > 0){
+               err = 999;
+               addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Unable to access Machine Description data!");
+               idamFree(handle);
+	       break;
+	    }
+	    
+	    if(getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_INT || getIdamDataNum(handle) != 1){
+               err = 999;
+               addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Machine Description data has Incorrect properties!");
+               idamFree(handle);
+	       break;
+	    }
+	    
+	    bpol_probe_count = *((int *)getIdamData(handle));
 
 //bpol_probe_count = 1;
-
+	    
 // Build the Returned Structures
 
-            bprobe = (BPOL_PROBE_TEST1*) malloc(bpol_probe_count * sizeof(BPOL_PROBE_TEST1));
-            addMalloc((void*) bprobe, bpol_probe_count, sizeof(BPOL_PROBE), "BPOL_PROBE_TEST1");
+            bprobe = (BPOL_PROBE_TEST1 *)malloc(bpol_probe_count*sizeof(BPOL_PROBE_TEST1));
+            addMalloc((void*)bprobe, bpol_probe_count, sizeof(BPOL_PROBE), "BPOL_PROBE_TEST1");	  	    
 
 
 
 // 5. Access measurement data and apply subsetting
 
-            for (i = 0; i < bpol_probe_count; i++) {
+            for(i=0; i<bpol_probe_count; i++){	          
+ 	    
+	          bprobe[i].data_count = 1;
+	          bprobe[i].data = (double *)malloc(bprobe[i].data_count*sizeof(double));
+	          addMalloc((void*)bprobe[i].data, bprobe[i].data_count, sizeof(double), "double");	 
+	          bprobe[i].time = (double *)malloc(bprobe[i].data_count*sizeof(double));
+	          addMalloc((void*)bprobe[i].time, bprobe[i].data_count, sizeof(double), "double");	 
+	          bprobe[i].data[0] = 10+3.1415927;
+		  bprobe[i].time[0] = 100+2.71828;	       	       	       	       
+ 	    
+               bprobe[i].data_count = 0;
+	       bprobe[i].data = NULL;
+	       bprobe[i].time = NULL;	
+   	       
+ 	       sprintf(signal,"MAGNETICS/BPOL_PROBE/%d/FIELD/DATA", i+1);   	    
+	       handle = idamGetAPI(signal, source);
+  
+	       if(handle < 0 || getIdamErrorCode(handle) > 0){		// Unable to access Machine Measurement data - set count to zero! Ignore Error
+                  idamFree(handle);
+		  continue;
+	       }
+ 
+ 	       sprintf(signal,"MAGNETICS/BPOL_PROBE/%d/FIELD/TIME", i+1);   	    
+	       int handle2 = idamGetAPI(signal, source);
+	    
+	       if(handle2 < 0 || getIdamErrorCode(handle2) > 0){	// Unable to access Machine Measurement data - set count to zero! 
+                  idamFree(handle);
+		  idamFree(handle2);
+		  continue;
+	       }
+	       
+	       if(getIdamRank(handle2) != 0 || getIdamDataType(handle2) != TYPE_DOUBLE || getIdamDataNum(handle) != getIdamDataNum(handle2)){
+                  err = 999;
+                  addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Machine Measurement data has Incorrect properties!");
+                  idamFree(handle);
+		  idamFree(handle2);
+	          break;
+	       }
+  
+               int data_count = getIdamDataNum(handle);
+  	    	       
+	       double *fd = (double *)getIdamData(handle);
+	       double *ft = (double *)getIdamData(handle2);
+	       
+               if(isStartTime){
+                  double sum1=0.0, sum2=0.0;
+                  int index1 = -1;
+                  int index2 = -1;
+                  for(j=0;j<data_count;j++){ 
+	             if(index1 < 0 && ft[j] >= startTime){
+                        index1 = j;
+                        if(!isEndTime) break;
+                     }
+                     if(index1 >= 0 && index2 < 0 && ft[j] >= endTime){
+                        index2 = j-1;
+                        if(index2 < 0) index2 = 0;
+                        if(ft[j] == endTime) index2 = j;
+                        break;
+                     }
+                  }
+                  if(index1 == -1){
+      // ERROR
+                  }
+  
+                  if(isEndTime){	// Subset of the data
+                     if(index2 == -1) index2 = data_count-1;
+                     data_count = index2 - index1 + 1;
+                  } else {		// Single value
+                     data_count = 1;
+                     index2 = index1;
+                  }
 
-                bprobe[i].data_count = 1;
-                bprobe[i].data = (double*) malloc(bprobe[i].data_count * sizeof(double));
-                addMalloc((void*) bprobe[i].data, bprobe[i].data_count, sizeof(double), "double");
-                bprobe[i].time = (double*) malloc(bprobe[i].data_count * sizeof(double));
-                addMalloc((void*) bprobe[i].time, bprobe[i].data_count, sizeof(double), "double");
-                bprobe[i].data[0] = 10 + 3.1415927;
-                bprobe[i].time[0] = 100 + 2.71828;
-
-                bprobe[i].data_count = 0;
-                bprobe[i].data = NULL;
-                bprobe[i].time = NULL;
-
-                sprintf(signal, "MAGNETICS/BPOL_PROBE/%d/FIELD/DATA", i + 1);
-                handle = idamGetAPI(signal, source);
-
-                if (handle < 0 || getIdamErrorCode(handle) >
-                                  0) {        // Unable to access Machine Measurement data - set count to zero! Ignore Error
-                    idamFree(handle);
-                    continue;
-                }
-
-                sprintf(signal, "MAGNETICS/BPOL_PROBE/%d/FIELD/TIME", i + 1);
-                int handle2 = idamGetAPI(signal, source);
-
-                if (handle2 < 0 || getIdamErrorCode(handle2) >
-                                   0) {    // Unable to access Machine Measurement data - set count to zero!
-                    idamFree(handle);
-                    idamFree(handle2);
-                    continue;
-                }
-
-                if (getIdamRank(handle2) != 0 || getIdamDataType(handle2) != TYPE_DOUBLE ||
-                    getIdamDataNum(handle) != getIdamDataNum(handle2)) {
-                    err = 999;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err,
-                                 "Machine Measurement data has Incorrect properties!");
-                    idamFree(handle);
-                    idamFree(handle2);
-                    break;
-                }
-
-                int data_count = getIdamDataNum(handle);
-
-                double* fd = (double*) getIdamData(handle);
-                double* ft = (double*) getIdamData(handle2);
-
-                if (isStartTime) {
-                    double sum1 = 0.0, sum2 = 0.0;
-                    int index1 = -1;
-                    int index2 = -1;
-                    for (j = 0; j < data_count; j++) {
-                        if (index1 < 0 && ft[j] >= startTime) {
-                            index1 = j;
-                            if (!isEndTime) break;
-                        }
-                        if (index1 >= 0 && index2 < 0 && ft[j] >= endTime) {
-                            index2 = j - 1;
-                            if (index2 < 0) index2 = 0;
-                            if (ft[j] == endTime) index2 = j;
-                            break;
-                        }
-                    }
-                    if (index1 == -1) {
-                        // ERROR
-                    }
-
-                    if (isEndTime) {    // Subset of the data
-                        if (index2 == -1) index2 = data_count - 1;
-                        data_count = index2 - index1 + 1;
-                    } else {        // Single value
-                        data_count = 1;
-                        index2 = index1;
-                    }
-
-                    if (isFirst) {
-                        data_count = 1;
-                        index2 = index1;
-                    } else if (isLast) {
-                        data_count = 1;
-                        index1 = index2;
-                    } else if (isNearest) {
-                        data_count = 1;
-                        if (index1 > 0 && ((startTime - ft[index1 - 1]) > (ft[index1] - startTime))) {
-                            index1 = index1 - 1;
-                        }
-                    } else if (isAverage) {
-                        for (j = 0; j < data_count; j++) {
-                            sum1 += fd[index1 + j];
-                            sum2 += ft[index1 + j];
-                        }
-                        sum1 = sum1 / (double) data_count;
-                        sum2 = sum2 / (double) data_count;
-                        data_count = 1;
-                    }
-
-                    bprobe[i].data_count = data_count;
-                    bprobe[i].data = (double*) malloc(bprobe[i].data_count * sizeof(double));
-                    addMalloc((void*) bprobe[i].data, bprobe[i].data_count, sizeof(double), "double");
+                  if(isFirst){
+                     data_count = 1;
+                     index2 = index1;
+                  } else
+                  if(isLast){
+                     data_count = 1;
+                     index1 = index2;
+                  } else
+                  if(isNearest){
+                     data_count = 1;
+                     if( index1 > 0 && ((startTime - ft[index1-1]) > (ft[index1] - startTime))) index1 = index1-1;
+                  } else
+                  if(isAverage){
+                     for(j=0;j<data_count;j++){ 
+	                sum1 += fd[index1+j];
+		        sum2 += ft[index1+j];
+	             }
+                     sum1 = sum1 / (double)data_count;
+                     sum2 = sum2 / (double)data_count;
+                     data_count = 1;
+                  }
+ 
+  		    
+                  bprobe[i].data_count = data_count;
+	          bprobe[i].data = (double *)malloc(bprobe[i].data_count*sizeof(double));
+	          addMalloc((void*)bprobe[i].data, bprobe[i].data_count, sizeof(double), "double");	 
 
 //for(j=0;j<bprobe[i].data_count;j++) bprobe[i].data[j] = 2*3.1415927;
-
-                    bprobe[i].time = (double*) malloc(bprobe[i].data_count * sizeof(double));
-                    addMalloc((void*) bprobe[i].time, bprobe[i].data_count, sizeof(double), "double");
-
-                    if (isAverage) {
-                        bprobe[i].data[0] = sum1;
-                        bprobe[i].time[0] = sum2;
-                    } else {
-                        for (j = 0; j < bprobe[i].data_count; j++) {
-                            bprobe[i].data[j] = fd[index1 + j];
-                            bprobe[i].time[j] = ft[index1 + j];
-                        }
-                    }
-
-                } else {        // All data are returned
-
-
-                    bprobe[i].data_count = 1;
-                    bprobe[i].data = (double*) malloc(bprobe[i].data_count * sizeof(double));
-                    addMalloc((void*) bprobe[i].data, bprobe[i].data_count, sizeof(double), "double");
-                    for (j = 0; j < bprobe[i].data_count; j++) bprobe[i].data[j] = 0.5 * 3.1415927;
-                    bprobe[i].time = (double*) malloc(bprobe[i].data_count * sizeof(double));
-                    addMalloc((void*) bprobe[i].time, bprobe[i].data_count, sizeof(double), "double");
-                    for (j = 0; j < bprobe[i].data_count; j++) bprobe[i].time[j] = 1.2345;
-
+ 
+	          bprobe[i].time = (double *)malloc(bprobe[i].data_count*sizeof(double));
+	          addMalloc((void*)bprobe[i].time, bprobe[i].data_count, sizeof(double), "double");	 
+                     
+                  if(isAverage){
+	             bprobe[i].data[0] = sum1;
+		     bprobe[i].time[0] = sum2;
+                  } else {	 
+                     for(j=0;j<bprobe[i].data_count;j++){ 
+	                bprobe[i].data[j] = fd[index1+j];
+		        bprobe[i].time[j] = ft[index1+j];
+                     }
+                  }
+  		  
+               } else {		// All data are returned
+ 
+ 
+bprobe[i].data_count = 1;
+bprobe[i].data = (double *)malloc(bprobe[i].data_count*sizeof(double));
+addMalloc((void*)bprobe[i].data, bprobe[i].data_count, sizeof(double), "double");	 
+for(j=0;j<bprobe[i].data_count;j++) bprobe[i].data[j] = 0.5*3.1415927;
+bprobe[i].time = (double *)malloc(bprobe[i].data_count*sizeof(double));
+addMalloc((void*)bprobe[i].time, bprobe[i].data_count, sizeof(double), "double");	 
+for(j=0;j<bprobe[i].data_count;j++) bprobe[i].time[j] = 1.2345;
+ 
 
 
 /*
 
                   bprobe[i].data_count = data_count;
-
-// Reuse the allocated data blocks - no need to copy!
-
+ 
+// Reuse the allocated data blocks - no need to copy! 
+ 
 	          bprobe[i].data = (double *)getIdamData(handle);
-	          addMalloc((void*)bprobe[i].data, bprobe[i].data_count, sizeof(double), "double");
+	          addMalloc((void*)bprobe[i].data, bprobe[i].data_count, sizeof(double), "double");	 
 	          bprobe[i].time = (double *)getIdamData(handle2);
-	          addMalloc((void*)bprobe[i].time, bprobe[i].data_count, sizeof(double), "double");
+	          addMalloc((void*)bprobe[i].time, bprobe[i].data_count, sizeof(double), "double");	                 
                   DATA_BLOCK *db = getIdamDataBlock(handle);
                   db->data = NULL;		// Prevent double free
                   db = getIdamDataBlock(handle2);
-                  db->data = NULL;
-*/
+                  db->data = NULL;	    
+*/ 
+
+ 
+               }
+ 
+               idamFree(handle);		// Do not cache 
+	       idamFree(handle2);	    
+  	    	    
+	    } // Access measurement data and apply subsetting
 
 
-                }
 
-                idamFree(handle);        // Do not cache
-                idamFree(handle2);
-
-            } // Access measurement data and apply subsetting
-
-
-
-            if (err != 0) break;
+	    if(err != 0) break;	    
 
 // 7. Return the Data
 
@@ -3391,307 +3555,292 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
 
             break;
 
-        } else if (!strcasecmp(request_block->function, "test10y")) {    // BPOL_PROBE data structure with MAST data
+         } else	
+	 
 
-            static BPOL_PROBE_TEST2* bpol_probe_cache = NULL;
-            static unsigned short bpol_probe_cache_count = 0;
-            static char bpol_probe_source[256];
+         if (!strcasecmp(request_block->function, "test10y")) {	// BPOL_PROBE data structure with MAST data
+
+    static BPOL_PROBE_TEST2 *bpol_probe_cache = NULL;			 
+    static unsigned short bpol_probe_cache_count = 0;		 
+    static char bpol_probe_source[256];				 
 
             char signal[256], source[256];
-            int stringLength;
-
-            BPOL_PROBE_TEST2* bprobe = NULL;
-            int bpol_probe_count = 0;
-            int cacheData = 0, cacheRetrieve = 0;
-
+	    int stringLength;
+	    
+	    BPOL_PROBE_TEST2 *bprobe = NULL;
+	    int bpol_probe_count = 0;
+	    int cacheData = 0, cacheRetrieve = 0; 
+	    
 // Create the Returned Structure Definitions
 
-            initUserDefinedType(&usertype);   // New structure definition
+   initUserDefinedType(&usertype);   // New structure definition
 
-            strcpy(usertype.name, "BPOL_PROBE_TEST2");
-            usertype.size = sizeof(BPOL_PROBE_TEST2);
-            strcpy(usertype.source, "LiveDisplay");
-            usertype.ref_id = 0;
-            usertype.imagecount = 0;       // No Structure Image data
-            usertype.image = NULL;
-            usertype.idamclass = TYPE_COMPOUND;
+   strcpy(usertype.name, "BPOL_PROBE_TEST2");         
+   usertype.size = sizeof(BPOL_PROBE_TEST2);
+   strcpy(usertype.source, "LiveDisplay");
+   usertype.ref_id = 0;
+   usertype.imagecount = 0;       // No Structure Image data
+   usertype.image = NULL;
+   usertype.idamclass = TYPE_COMPOUND;
+   
+   offset = 0;
 
-            offset = 0;
+   defineField(&field, "identifier", "Identifier", &offset, SCALARSTRING);
+   addCompoundField(&usertype, field);
+   defineField(&field, "name", "name", &offset, SCALARSTRING);
+   addCompoundField(&usertype, field);
+   defineField(&field, "r", "Major Radius", &offset, SCALARDOUBLE);    
+   addCompoundField(&usertype, field);
+   defineField(&field, "z", "Height", &offset, SCALARDOUBLE);    
+   addCompoundField(&usertype, field);
+   defineField(&field, "phi", "Toroidal Angle", &offset, SCALARDOUBLE);    
+   addCompoundField(&usertype, field);      
+   addUserDefinedType(userdefinedtypelist, usertype);	// BPOL_PROBE_TEST2
 
-            defineField(&field, "identifier", "Identifier", &offset, SCALARSTRING);
-            addCompoundField(&usertype, field);
-            defineField(&field, "name", "name", &offset, SCALARSTRING);
-            addCompoundField(&usertype, field);
-            defineField(&field, "r", "Major Radius", &offset, SCALARDOUBLE);
-            addCompoundField(&usertype, field);
-            defineField(&field, "z", "Height", &offset, SCALARDOUBLE);
-            addCompoundField(&usertype, field);
-            defineField(&field, "phi", "Toroidal Angle", &offset, SCALARDOUBLE);
-            addCompoundField(&usertype, field);
-            addUserDefinedType(userdefinedtypelist, usertype);    // BPOL_PROBE_TEST2
-
-// Access MAST machine description data
+// Access MAST machine description data 
 // Use the IDAM client API with IMAS name abstraction
 
-            sprintf(source, "MAST::%d", exp_number);
+	    sprintf(source,"MAST::%d", exp_number);
 
 // Test the cache for Machine Description data - based on the SOURCE identifier
 // Reuse if cached
 // Create static arrays (with generous limits) rather than pointers for machine description data
 
-            if (isCache && strcmp(source, bpol_probe_source) != 0) {    // clear the cache - new data requested
-                if (bpol_probe_cache_count > 0 && bpol_probe_cache != NULL) {
-                    for (i = 0; i < bpol_probe_cache_count; i++) freeBpolProbe2(&bpol_probe_cache[i]);
-                    free((void*) bpol_probe_cache);
-                    bpol_probe_cache = NULL;
-                    bpol_probe_cache_count = 0;
-                }
-                strcpy(bpol_probe_source, source);
-            }
+            if(isCache && strcmp(source, bpol_probe_source) != 0){	// clear the cache - new data requested
+               if(bpol_probe_cache_count > 0 && bpol_probe_cache != NULL){
+                  for(i=0;i<bpol_probe_cache_count;i++) freeBpolProbe2(&bpol_probe_cache[i]);
+                  free((void *)bpol_probe_cache);
+                  bpol_probe_cache = NULL;
+                  bpol_probe_cache_count = 0;
+               }
+               strcpy(bpol_probe_source, source);
+            } 
+	    
+	    if(isCache && bpol_probe_cache_count == 0) cacheData = 1;		// Cache the machine description data	    
+	    if(isCache && bpol_probe_cache_count > 0)  cacheRetrieve = 1;	// Retrieve the machine description data from the Cache 
 
-            if (isCache && bpol_probe_cache_count == 0) cacheData = 1;        // Cache the machine description data
-            if (isCache && bpol_probe_cache_count > 0) {
-                cacheRetrieve = 1;
-            }    // Retrieve the machine description data from the Cache
+// Read Machine Description Data  
 
-// Read Machine Description Data
+            if(!isCache || cacheData) {
 
-            if (!isCache || cacheData) {
-
-// 1. Number of Magnetic Probes
-
-                sprintf(signal, "MAGNETICS/BPOL_PROBE/SHAPE_OF");
-
-                handle = idamGetAPI(signal, source);
-
-                if (handle < 0 || getIdamErrorCode(handle) > 0) {
-                    err = 999;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err,
-                                 "Unable to access Machine Description data!");
-                    idamFree(handle);
-                    break;
-                }
-
-                if (getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_INT || getIdamDataNum(handle) != 1) {
-                    err = 999;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err,
-                                 "Machine Description data has Incorrect properties!");
-                    idamFree(handle);
-                    break;
-                }
-
-                bpol_probe_count = *((int*) getIdamData(handle));
+// 1. Number of Magnetic Probes 
+	    
+            sprintf(signal,"MAGNETICS/BPOL_PROBE/SHAPE_OF");
+	    	    
+	    handle = idamGetAPI(signal, source);
+	    
+	    if(handle < 0 || getIdamErrorCode(handle) > 0){
+               err = 999;
+               addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Unable to access Machine Description data!");
+               idamFree(handle);
+	       break;
+	    }
+	    
+	    if(getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_INT || getIdamDataNum(handle) != 1){
+               err = 999;
+               addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Machine Description data has Incorrect properties!");
+               idamFree(handle);
+	       break;
+	    }
+	    
+	    bpol_probe_count = *((int *)getIdamData(handle));
 
 //bpol_probe_count = 1;
-
+	    
 // Build the Returned Structures
 
-                bprobe = (BPOL_PROBE_TEST2*) malloc(bpol_probe_count * sizeof(BPOL_PROBE_TEST2));
-                addMalloc((void*) bprobe, bpol_probe_count, sizeof(BPOL_PROBE_TEST2), "BPOL_PROBE_TEST2");
+            bprobe = (BPOL_PROBE_TEST2 *)malloc(bpol_probe_count*sizeof(BPOL_PROBE_TEST2));
+            addMalloc((void*)bprobe, bpol_probe_count, sizeof(BPOL_PROBE_TEST2), "BPOL_PROBE_TEST2");	  	    
 
 // 2. Loop over all Bpol Probes
 
-                for (i = 0; i < bpol_probe_count; i++) {
-
-                    initBpolProbe2(&bprobe[i]);
-
-                    sprintf(signal, "MAGNETICS/BPOL_PROBE/%d/NAME", i + 1);
-
-                    handle = idamGetAPI(signal, source);
-
-                    if (handle < 0 || getIdamErrorCode(handle) > 0) {
-                        err = 999;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err,
-                                     "Unable to access Machine Description data!");
-                        idamFree(handle);
-                        break;
-                    }
-
-                    if (getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_STRING) {
-                        err = 999;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err,
-                                     "Machine Description data has Incorrect properties!");
-                        idamFree(handle);
-                        break;
-                    }
-
-                    char* name = (char*) getIdamData(handle);
-                    stringLength = strlen(name) + 1;
-                    bprobe[i].name = (char*) malloc(stringLength * sizeof(char));
-                    addMalloc((void*) bprobe[i].name, 1, stringLength * sizeof(char), "STRING");    // Scalar String
-                    strcpy(bprobe[i].name, name);
-
-                    sprintf(signal, "MAGNETICS/BPOL_PROBE/%d/IDENTIFIER", i + 1);
-
-                    handle = idamGetAPI(signal, source);
-
-                    if (handle < 0 || getIdamErrorCode(handle) > 0) {
-                        err = 999;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err,
-                                     "Unable to access Machine Description data!");
-                        idamFree(handle);
-                        break;
-                    }
-
-                    if (getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_STRING) {
-                        err = 999;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err,
-                                     "Machine Description data has Incorrect properties!");
-                        idamFree(handle);
-                        break;
-                    }
-
-                    char* identifier = (char*) getIdamData(handle);
-                    stringLength = strlen(identifier) + 1;
-                    bprobe[i].identifier = (char*) malloc(stringLength * sizeof(char));
-                    addMalloc((void*) bprobe[i].identifier, 1, stringLength * sizeof(char),
-                              "STRING");    // Scalar String
-                    strcpy(bprobe[i].identifier, identifier);
+            for(i=0; i<bpol_probe_count; i++){
+	       
+	       initBpolProbe2(&bprobe[i]);
+	       
+	       sprintf(signal,"MAGNETICS/BPOL_PROBE/%d/NAME", i+1);   
+	    
+	       handle = idamGetAPI(signal, source);
+	    
+	       if(handle < 0 || getIdamErrorCode(handle) > 0){
+                  err = 999;
+                  addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Unable to access Machine Description data!");
+                  idamFree(handle);
+	          break;
+	       }
+	    
+	       if(getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_STRING){
+                  err = 999;
+                  addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Machine Description data has Incorrect properties!");
+                  idamFree(handle);
+	          break;
+	       }
+	       
+	       char *name = (char *)getIdamData(handle);
+	       stringLength = strlen(name)+1;
+	       bprobe[i].name = (char *)malloc(stringLength*sizeof(char));
+	       addMalloc((void*)bprobe[i].name, 1, stringLength*sizeof(char), "STRING");	// Scalar String
+	       strcpy(bprobe[i].name, name);
+	       
+	       sprintf(signal,"MAGNETICS/BPOL_PROBE/%d/IDENTIFIER", i+1);   
+	    
+	       handle = idamGetAPI(signal, source);
+	    
+	       if(handle < 0 || getIdamErrorCode(handle) > 0){
+                  err = 999;
+                  addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Unable to access Machine Description data!");
+                  idamFree(handle);
+	          break;
+	       }
+	    
+	       if(getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_STRING){
+                  err = 999;
+                  addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Machine Description data has Incorrect properties!");
+                  idamFree(handle);
+	          break;
+	       }
+	       
+	       char *identifier = (char *)getIdamData(handle);
+	       stringLength = strlen(identifier)+1;
+	       bprobe[i].identifier = (char *)malloc(stringLength*sizeof(char));
+	       addMalloc((void*)bprobe[i].identifier, 1, stringLength*sizeof(char), "STRING");	// Scalar String
+	       strcpy(bprobe[i].identifier, identifier);
 
 // 3. Coordinates
+	       	    
+	       sprintf(signal,"MAGNETICS/BPOL_PROBE/%d/POSITION/R", i+1);   
+	    
+	       handle = idamGetAPI(signal, source);
+	    
+	       if(handle < 0 || getIdamErrorCode(handle) > 0){
+                  err = 999;
+                  addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Unable to access Machine Description data!");
+                  idamFree(handle);
+	          break;
+	       }
+	    
+	       if(getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_DOUBLE || getIdamDataNum(handle) != 1){
+                  err = 999;
+                  addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Machine Description data has Incorrect properties!");
+                  idamFree(handle);
+	          break;
+	       }
+	       
+	       bprobe[i].r = *((double *)getIdamData(handle));
 
-                    sprintf(signal, "MAGNETICS/BPOL_PROBE/%d/POSITION/R", i + 1);
+	       sprintf(signal,"MAGNETICS/BPOL_PROBE/%d/POSITION/Z", i+1);   
+	    
+	       handle = idamGetAPI(signal, source);
+	    
+	       if(handle < 0 || getIdamErrorCode(handle) > 0){
+                  err = 999;
+                  addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Unable to access Machine Description data!");
+                  idamFree(handle);
+	          break;
+	       }
+	    
+	       if(getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_DOUBLE || getIdamDataNum(handle) != 1){
+                  err = 999;
+                  addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Machine Description data has Incorrect properties!");
+                  idamFree(handle);
+	          break;
+	       }
+	       
+	       bprobe[i].z = *((double *)getIdamData(handle));
 
-                    handle = idamGetAPI(signal, source);
+	    
+	       sprintf(signal,"MAGNETICS/BPOL_PROBE/%d/POSITION/PHI", i+1);   
+	    
+	       handle = idamGetAPI(signal, source);
+	    
+	       if(handle < 0 || getIdamErrorCode(handle) > 0){
+                  err = 999;
+                  addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Unable to access Machine Description data!");
+                  idamFree(handle);
+	          break;
+	       }
+	    
+	       if(getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_DOUBLE || getIdamDataNum(handle) != 1){
+                  err = 999;
+                  addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Machine Description data has Incorrect properties!");
+                  idamFree(handle);
+	          break;
+	       }
+	       
+	       bprobe[i].phi = *((double *)getIdamData(handle));
 
-                    if (handle < 0 || getIdamErrorCode(handle) > 0) {
-                        err = 999;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err,
-                                     "Unable to access Machine Description data!");
-                        idamFree(handle);
-                        break;
-                    }
-
-                    if (getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_DOUBLE ||
-                        getIdamDataNum(handle) != 1) {
-                        err = 999;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err,
-                                     "Machine Description data has Incorrect properties!");
-                        idamFree(handle);
-                        break;
-                    }
-
-                    bprobe[i].r = *((double*) getIdamData(handle));
-
-                    sprintf(signal, "MAGNETICS/BPOL_PROBE/%d/POSITION/Z", i + 1);
-
-                    handle = idamGetAPI(signal, source);
-
-                    if (handle < 0 || getIdamErrorCode(handle) > 0) {
-                        err = 999;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err,
-                                     "Unable to access Machine Description data!");
-                        idamFree(handle);
-                        break;
-                    }
-
-                    if (getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_DOUBLE ||
-                        getIdamDataNum(handle) != 1) {
-                        err = 999;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err,
-                                     "Machine Description data has Incorrect properties!");
-                        idamFree(handle);
-                        break;
-                    }
-
-                    bprobe[i].z = *((double*) getIdamData(handle));
-
-                    sprintf(signal, "MAGNETICS/BPOL_PROBE/%d/POSITION/PHI", i + 1);
-
-                    handle = idamGetAPI(signal, source);
-
-                    if (handle < 0 || getIdamErrorCode(handle) > 0) {
-                        err = 999;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err,
-                                     "Unable to access Machine Description data!");
-                        idamFree(handle);
-                        break;
-                    }
-
-                    if (getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_DOUBLE ||
-                        getIdamDataNum(handle) != 1) {
-                        err = 999;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err,
-                                     "Machine Description data has Incorrect properties!");
-                        idamFree(handle);
-                        break;
-                    }
-
-                    bprobe[i].phi = *((double*) getIdamData(handle));
-
-                } //  Loop over all Bpol Probes
+            } //  Loop over all Bpol Probes
             } // Read Machine Description Data
 
 // Save to cache after data access
+ 
+               if(cacheData){
 
-            if (cacheData) {
-
-                bpol_probe_cache_count = bpol_probe_count;
-                bpol_probe_cache = (BPOL_PROBE_TEST2*) malloc(bpol_probe_count * sizeof(BPOL_PROBE_TEST2));
+                  bpol_probe_cache_count = bpol_probe_count;
+                  bpol_probe_cache = (BPOL_PROBE_TEST2 *)malloc(bpol_probe_count*sizeof(BPOL_PROBE_TEST2));
 
 // 2. Loop over all Bpol Probes
 
-                for (i = 0; i < bpol_probe_count; i++) {
+                  for(i=0; i<bpol_probe_count; i++){
+	       
+	             initBpolProbe2(&bpol_probe_cache[i]);
 
-                    initBpolProbe2(&bpol_probe_cache[i]);
+ 	             stringLength = strlen(bprobe[i].name)+1;
+	             bpol_probe_cache[i].name = (char *)malloc(stringLength*sizeof(char));
+	             strcpy(bpol_probe_cache[i].name, bprobe[i].name);
 
-                    stringLength = strlen(bprobe[i].name) + 1;
-                    bpol_probe_cache[i].name = (char*) malloc(stringLength * sizeof(char));
-                    strcpy(bpol_probe_cache[i].name, bprobe[i].name);
-
-                    stringLength = strlen(bprobe[i].identifier) + 1;
-                    bpol_probe_cache[i].identifier = (char*) malloc(stringLength * sizeof(char));
-                    strcpy(bpol_probe_cache[i].identifier, bprobe[i].identifier);
+ 	             stringLength = strlen(bprobe[i].identifier)+1;
+	             bpol_probe_cache[i].identifier = (char *)malloc(stringLength*sizeof(char));
+	             strcpy(bpol_probe_cache[i].identifier, bprobe[i].identifier);
 
 // 3. Coordinates
-                    bpol_probe_cache[i].r = bprobe[i].r;
-                    bpol_probe_cache[i].z = bprobe[i].z;
-                    bpol_probe_cache[i].phi = bprobe[i].phi;
-                } // Loop over all Bpol Probes
+	             bpol_probe_cache[i].r = bprobe[i].r; 
+	             bpol_probe_cache[i].z = bprobe[i].z;
+	             bpol_probe_cache[i].phi = bprobe[i].phi; 
+                  } // Loop over all Bpol Probes
 
-            } else // cacheData
-
-            if (cacheRetrieve) {        // Retrieve Machine Description Data from Cache
-
+               }  else // cacheData    
+ 
+               if(cacheRetrieve){		// Retrieve Machine Description Data from Cache
+  
 // 1. Number of Flux Loops
-
-                bpol_probe_count = bpol_probe_cache_count;
-
+	    	    
+	          bpol_probe_count = bpol_probe_cache_count;
+	    
 // Build the Returned Structures
 
-                bprobe = (BPOL_PROBE_TEST2*) malloc(bpol_probe_count * sizeof(BPOL_PROBE_TEST2));
-                addMalloc((void*) bprobe, bpol_probe_count, sizeof(BPOL_PROBE_TEST2), "BPOL_PROBE_TEST2");
+                  bprobe = (BPOL_PROBE_TEST2 *)malloc(bpol_probe_count*sizeof(BPOL_PROBE_TEST2));
+                  addMalloc((void*)bprobe, bpol_probe_count, sizeof(BPOL_PROBE_TEST2), "BPOL_PROBE_TEST2");	 	    
 
 // 2. Loop over all Flux Loops
 
-                for (i = 0; i < bpol_probe_count; i++) {
-
-                    initBpolProbe2(&bprobe[i]);
-
-                    stringLength = strlen(bpol_probe_cache[i].name) + 1;
-                    bprobe[i].name = (char*) malloc(stringLength * sizeof(char));
-                    addMalloc((void*) bprobe[i].name, 1, stringLength * sizeof(char), "STRING");    // Scalar String
-                    strcpy(bprobe[i].name, bpol_probe_cache[i].name);
-
-                    stringLength = strlen(bpol_probe_cache[i].identifier) + 1;
-                    bprobe[i].identifier = (char*) malloc(stringLength * sizeof(char));
-                    addMalloc((void*) bprobe[i].identifier, 1, stringLength * sizeof(char),
-                              "STRING");    // Scalar String
-                    strcpy(bprobe[i].identifier, bpol_probe_cache[i].identifier);
+                  for(i=0; i<bpol_probe_count; i++){
+	       
+	             initBpolProbe2(&bprobe[i]);
+	       
+	             stringLength = strlen(bpol_probe_cache[i].name)+1;
+	             bprobe[i].name = (char *)malloc(stringLength*sizeof(char));
+	             addMalloc((void*)bprobe[i].name, 1, stringLength*sizeof(char), "STRING");	// Scalar String
+	             strcpy(bprobe[i].name, bpol_probe_cache[i].name);
+	       	      
+	             stringLength = strlen(bpol_probe_cache[i].identifier)+1;
+	             bprobe[i].identifier = (char *)malloc(stringLength*sizeof(char));
+	             addMalloc((void*)bprobe[i].identifier, 1, stringLength*sizeof(char), "STRING");	// Scalar String
+	             strcpy(bprobe[i].identifier, bpol_probe_cache[i].identifier);
 
 // 3. Coordinates
-                    bprobe[i].r = bpol_probe_cache[i].r;
-                    bprobe[i].z = bpol_probe_cache[i].z;
-                    bprobe[i].phi = bpol_probe_cache[i].phi;
-                }    // Loop over all Bpol Probes
-
-            }    // end of cache retrieval
+ 	             bprobe[i].r = bpol_probe_cache[i].r;
+	             bprobe[i].z = bpol_probe_cache[i].z;
+	             bprobe[i].phi = bpol_probe_cache[i].phi;	    
+                  }	// Loop over all Bpol Probes
+ 		  
+               }	// end of cache retrieval
 
 
 
 // 5. Access measurement data and apply subsetting
 
-            if (err != 0) break;
+	    if(err != 0) break;	    
 
 // 7. Return the Data
 
@@ -3711,35 +3860,40 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
 
             break;
 
-        } else
-
+         } else	
+	 
 
 // -------------------------------------------------------------------------------------------------------------------------------------------------
-
-        if (!strcasecmp(request_block->function, "magnetics") ||
-            !strcasecmp(request_block->function, "test11")) {    // MAGNETICS data structure with MAST data
-            char* p = NULL;
-            int rc, size = 0;
-            char* type = NULL;
+/*
+MAGNETICS/METHOD/COUNT_OF
+MAGNETICS/METHOD/%d/IP/DATA
+MAGNETICS/METHOD/%d/IP/TIME
+MAGNETICS/METHOD/%d/DIAMAGNETIC_FLUX/DATA
+MAGNETICS/METHOD/%d/DIAMAGNETIC_FLUX/TIME
+*/
+         if (!strcasecmp(request_block->function, "magnetics") || !strcasecmp(request_block->function, "test11")) {	// MAGNETICS data structure with MAST data
+            char *p = NULL;
+	    int rc, size = 0;
+            char *type = NULL;
             char signal[256], source[256];
             DATA_BLOCK plugin_data_block;
             REQUEST_BLOCK plugin_request_block;
             IDAM_PLUGIN_INTERFACE idam_plugin_interface2;
-
+	    	    
 // Create the Returned Structure Definitions
 // ToDo ... pass in the structureVersion
 
-            defineIDSStructures();
+   	    defineIDSStructures();
 
 // Build the Returned Structures
 
-            MAGNETICS_PROXY* magnetics = (MAGNETICS_PROXY*) malloc(1 * sizeof(MAGNETICS_PROXY));
-            addMalloc((void*) magnetics, 1, sizeof(MAGNETICS_PROXY), "MAGNETICS_PROXY");
+            MAGNETICS_PROXY *magnetics = (MAGNETICS_PROXY *)malloc(1*sizeof(MAGNETICS_PROXY));
+            addMalloc((void*)magnetics, 1, sizeof(MAGNETICS_PROXY), "MAGNETICS_PROXY");
 
-// Access MAST machine description data
+// Access MAST machine description data 
 // Use the IDAM client API with IMAS name abstraction
 
-            sprintf(source, "%s%s%d", request_block->device_name, request_block->api_delim, exp_number);
+	    sprintf(source,"%s%s%d", request_block->device_name, request_block->api_delim, exp_number);
 
 // Read Flux Loop Data (Recursive call to this plugin)
 
@@ -3752,20 +3906,19 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
 
             strcpy(plugin_request_block.source, source);
 
-            strcpy(signal, request_block->signal);
+            strcpy(signal, request_block->signal); 
             p = strchr(request_block->signal, '(');
-            sprintf(idam_plugin_interface2.request_block->signal, "%s%stest9%s", request_block->format,
-                    request_block->api_delim, p);    // Request Flux_Loop Data
-
-            makeServerRequestBlock(&plugin_request_block, *pluginList);
-
+            sprintf(idam_plugin_interface2.request_block->signal, "%s%stest9%s", request_block->format, request_block->api_delim, p);	// Request Flux_Loop Data
+ 
+            makeServerRequestBlock(&plugin_request_block, *pluginList);  
+            
             rc = livedisplay(&idam_plugin_interface2);
+ 
+            magnetics->flux_loop = (FLUX_LOOP *)(plugin_data_block.data);
 
-            magnetics->flux_loop = (FLUX_LOOP*) (plugin_data_block.data);
-
-            plugin_data_block.data = NULL;    // Prevent Double Free
+            plugin_data_block.data = NULL;	// Prevent Double Free
             freeDataBlock(&plugin_data_block);
-            freeNameValueList(&plugin_request_block.nameValueList);
+	    freeNameValueList(&plugin_request_block.nameValueList);	       
 
             size = 0;
             type = NULL;
@@ -3780,22 +3933,21 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
 
             strcpy(plugin_request_block.source, source);
 
-            strcpy(signal, request_block->signal);
+            strcpy(signal, request_block->signal); 
             p = strrchr(signal, ')');
             p[0] = '\0';
             strcat(signal, ", /Count)");
             p = strchr(signal, '(');
-            sprintf(idam_plugin_interface2.request_block->signal, "%s%stest9%s", request_block->format,
-                    request_block->api_delim, p);    // Request Flux_Loop Data Count
-
-            makeServerRequestBlock(&plugin_request_block, *pluginList);
+            sprintf(idam_plugin_interface2.request_block->signal, "%s%stest9%s", request_block->format, request_block->api_delim, p);	// Request Flux_Loop Data Count
+ 
+            makeServerRequestBlock(&plugin_request_block, *pluginList);    
 
             rc = livedisplay(&idam_plugin_interface2);
 
-            magnetics->flux_loop_count = *((int*) plugin_data_block.data);
-
+            magnetics->flux_loop_count = *((int *)plugin_data_block.data);
+            
             freeDataBlock(&plugin_data_block);
-            freeNameValueList(&plugin_request_block.nameValueList);
+	    freeNameValueList(&plugin_request_block.nameValueList);	       
 
 
 // Read Bpol Probe Data (Recursive call to this plugin)
@@ -3809,20 +3961,19 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
 
             strcpy(plugin_request_block.source, source);
 
-            strcpy(signal, request_block->signal);
+            strcpy(signal, request_block->signal); 
             p = strchr(request_block->signal, '(');
-            sprintf(idam_plugin_interface2.request_block->signal, "%s%stest10%s", request_block->format,
-                    request_block->api_delim, p);    // Request Bpol Probe Data
-
-            makeServerRequestBlock(&plugin_request_block, *pluginList);
-
+            sprintf(idam_plugin_interface2.request_block->signal, "%s%stest10%s", request_block->format, request_block->api_delim, p);	// Request Bpol Probe Data
+ 
+            makeServerRequestBlock(&plugin_request_block, *pluginList);  
+            
             rc = livedisplay(&idam_plugin_interface2);
+ 
+            magnetics->bpol_probe = (BPOL_PROBE *)(plugin_data_block.data);
 
-            magnetics->bpol_probe = (BPOL_PROBE*) (plugin_data_block.data);
-
-            plugin_data_block.data = NULL;    // Prevent Double Free
+            plugin_data_block.data = NULL;	// Prevent Double Free
             freeDataBlock(&plugin_data_block);
-            freeNameValueList(&plugin_request_block.nameValueList);
+	    freeNameValueList(&plugin_request_block.nameValueList);	       
 
             initDataBlock(&plugin_data_block);
             initRequestBlock(&plugin_request_block);
@@ -3833,292 +3984,272 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
 
             strcpy(plugin_request_block.source, source);
 
-            strcpy(signal, request_block->signal);
+            strcpy(signal, request_block->signal); 
             p = strrchr(signal, ')');
             p[0] = '\0';
             strcat(signal, ", /Count)");
             p = strchr(signal, '(');
-            sprintf(idam_plugin_interface2.request_block->signal, "%s%stest10%s", request_block->format,
-                    request_block->api_delim, p);    // Request Bpol Probe Data Count
-
-            makeServerRequestBlock(&plugin_request_block, *pluginList);
+            sprintf(idam_plugin_interface2.request_block->signal, "%s%stest10%s", request_block->format, request_block->api_delim, p);	// Request Bpol Probe Data Count
+ 
+            makeServerRequestBlock(&plugin_request_block, *pluginList);    
 
             rc = livedisplay(&idam_plugin_interface2);
 
-            magnetics->bpol_probe_count = *((int*) plugin_data_block.data);
-
+            magnetics->bpol_probe_count = *((int *)plugin_data_block.data);
+            
             freeDataBlock(&plugin_data_block);
-            freeNameValueList(&plugin_request_block.nameValueList);
-
+	    freeNameValueList(&plugin_request_block.nameValueList);
+	    
 // Build the Returned METHOD Structure
 
             magnetics->method_count = 1;
-            METHOD* method = (METHOD*) malloc(magnetics->method_count * sizeof(METHOD));
-            addMalloc((void*) method, magnetics->method_count, sizeof(METHOD_DATA), "METHOD");
-
-            for (j = 0; j < magnetics->method_count; j++) initMethod(&method[j]);
-
-            magnetics->method = method;
-
-            int stringLength = 56;
-            method[0].name = (char*) malloc(stringLength * sizeof(char));
-            addMalloc((void*) method[0].name, 1, stringLength * sizeof(char), "STRING");    // Scalar String
-            strcpy(method[0].name, "Method #1");
+	    METHOD *method = (METHOD *)malloc(magnetics->method_count*sizeof(METHOD));
+            addMalloc((void*)method, magnetics->method_count, sizeof(METHOD_DATA), "METHOD");
+	    
+	    for(j=0;j<magnetics->method_count;j++) initMethod(&method[j]);
+	    
+	    magnetics->method = method;
+	    
+	    int stringLength = 56;
+	    method[0].name = (char *)malloc(stringLength*sizeof(char));
+            addMalloc((void*)method[0].name, 1, stringLength*sizeof(char), "STRING");	// Scalar String
+	    strcpy(method[0].name, "Method #1");	   	    	    	    
 
 // Access the Plasma Current
-
-            strcpy(signal, "amc_plasma current");
-            sprintf(source, "%s%s%d", request_block->device_name, request_block->api_delim, exp_number);
-
-            int handle = idamGetAPI(signal, source);
-
-            if (handle < 0 || getIdamErrorCode(handle) > 0) {
-                err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err,
-                             "Unable to access Plasma Current data!");
-                idamFree(handle);
-                break;
-            }
-
-            if (getIdamRank(handle) != 1) {
-                err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err,
-                             "Plasma Current data has Incorrect properties!");
-                idamFree(handle);
-                break;
-            }
-
+	       
+	    strcpy(signal,"amc_plasma current");   
+	    sprintf(source,"%s%s%d", request_block->device_name, request_block->api_delim, exp_number);
+ 	    
+	    int handle = idamGetAPI(signal, source);
+	    
+	    if(handle < 0 || getIdamErrorCode(handle) > 0){
+               err = 999;
+               addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Unable to access Plasma Current data!");
+               idamFree(handle);
+	       break;
+	    }
+	    
+	    if(getIdamRank(handle) != 1){
+               err = 999;
+               addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Plasma Current data has Incorrect properties!");
+               idamFree(handle);
+	       break;
+	    }
+	    	    
 // Scan the data for the requested time slice and window
 
-            METHOD_DATA* method_data = (METHOD_DATA*) malloc(sizeof(METHOD_DATA));
-            addMalloc((void*) method_data, 1, sizeof(METHOD_DATA), "METHOD_DATA");
-            initMethodData(method_data);
-
-            magnetics->method[0].ip = method_data;
-
-            stringLength = 56;
-            method_data->name = (char*) malloc(stringLength * sizeof(char));
-            addMalloc((void*) method_data->name, 1, stringLength * sizeof(char), "STRING");    // Scalar String
-            strcpy(method_data->name, "Plasma Current");
-            method_data->identifier = (char*) malloc(stringLength * sizeof(char));
-            addMalloc((void*) method_data->identifier, 1, stringLength * sizeof(char), "STRING");    // Scalar String
-            strcpy(method_data->identifier, "#1");
-
+            METHOD_DATA *method_data = (METHOD_DATA *)malloc(sizeof(METHOD_DATA));
+	    addMalloc((void*)method_data, 1, sizeof(METHOD_DATA), "METHOD_DATA");
+	    initMethodData(method_data);
+	    
+	    magnetics->method[0].ip = method_data;
+	    
+	    stringLength = 56;
+	    method_data->name = (char *)malloc(stringLength*sizeof(char));
+            addMalloc((void*)method_data->name, 1, stringLength*sizeof(char), "STRING");	// Scalar String
+	    strcpy(method_data->name, "Plasma Current");	    
+	    method_data->identifier = (char *)malloc(stringLength*sizeof(char));
+            addMalloc((void*)method_data->identifier, 1, stringLength*sizeof(char), "STRING");	// Scalar String
+	    strcpy(method_data->identifier, "#1");	    
+	    
             int data_count = getIdamDataNum(handle);
+	    
+            double *fd = (double *)malloc(data_count*sizeof(double));
+	    double *ft = (double *)malloc(data_count*sizeof(double));
+	    
+	    getIdamDoubleData(handle, fd);
+	    getIdamDoubleDimData(handle, getIdamOrder(handle), ft);
+	    
+	    idamFree(handle);
+	    
+// data conversion factors
 
-            double* fd = (double*) malloc(data_count * sizeof(double));
-            double* ft = (double*) malloc(data_count * sizeof(double));
+            double dataScaling = 1000.0;	    
+	    
+            if(isStartTime){
+               double sum1=0.0, sum2=0.0;
+               int index1 = -1;
+               int index2 = -1;
+	       int subset_count = 0;
+	    
+               err = dataSubset(ft, data_count, startTime, isEndTime, endTime, isFirst, isLast, isNearest,
+                                &subset_count, &index1, &index2);
 
-            getIdamDoubleData(handle, fd);
-            getIdamDoubleDimData(handle, getIdamOrder(handle), ft);
+               if(err != 0){
+	          err = 999;
+                  addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Unable to Subset Plasma Current!");
+	          idamFree(handle);
+		  if(fd != NULL) free((void *)fd);
+	          if(ft != NULL) free((void *)ft);
+	          break;
+               }
 
-            idamFree(handle);
+               if(isAverage){
+                  for(j=0;j<subset_count;j++){ 
+	             sum1 += fd[index1+j];
+		     sum2 += ft[index1+j];
+	          }
+		  
+		  if(fd != NULL) free((void *)fd);
+		  if(ft != NULL) free((void *)ft);
+                  sum1 = sum1 / (double)subset_count;
+                  sum2 = sum2 / (double)subset_count;
+                  data_count = 1;
+		  
+		  method_data->count = data_count;
+	          method_data->data = (double *)malloc(data_count*sizeof(double));
+	          method_data->time = (double *)malloc(data_count*sizeof(double));
+	          addMalloc((void*)method_data->data, data_count, sizeof(double), "double");
+	          addMalloc((void*)method_data->time, data_count, sizeof(double), "double");
 
-            if (isStartTime) {
-                double sum1 = 0.0, sum2 = 0.0;
-                int index1 = -1;
-                int index2 = -1;
-                for (j = 0; j < data_count; j++) {
-                    if (index1 < 0 && ft[j] >= startTime) {
-                        index1 = j;
-                        if (!isEndTime) break;
-                    }
-                    if (index1 >= 0 && index2 < 0 && ft[j] >= endTime) {
-                        index2 = j - 1;
-                        if (index2 < 0) index2 = 0;
-                        if (ft[j] == endTime) index2 = j;
-                        break;
-                    }
-                }
-                if (index1 == -1) {
-                    err = 999;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err,
-                                 "No Plasma Current data found for requested time!");
-                    break;
-                }
+	          method_data->data[j] = dataScaling * sum1;
+		  method_data->time[j] = sum2;
 
-                if (isEndTime) {    // Subset of the data
-                    if (index2 == -1) index2 = data_count - 1;
-                    data_count = index2 - index1 + 1;
-                } else {        // Single value
-                    data_count = 1;
-                    index2 = index1;
-                }
+               } else { 
+	       
+	          method_data->count = subset_count;
+	          method_data->data = (double *)malloc(subset_count*sizeof(double));
+	          method_data->time = (double *)malloc(subset_count*sizeof(double));
+	          addMalloc((void*)method_data->data, subset_count, sizeof(double), "double");
+	          addMalloc((void*)method_data->time, subset_count, sizeof(double), "double");
 
-                if (isFirst) {
-                    data_count = 1;
-                    index2 = index1;
-                } else if (isLast) {
-                    data_count = 1;
-                    index1 = index2;
-                } else if (isNearest) {
-                    data_count = 1;
-                    if (index1 > 0 && ((startTime - ft[index1 - 1]) > (ft[index1] - startTime))) index1 = index1 - 1;
-                } else if (isAverage) {
-                    for (j = 0; j < data_count; j++) {
-                        sum1 += fd[index1 + j];
-                        sum2 += ft[index1 + j];
-                    }
-                    sum1 = sum1 / (double) data_count;
-                    sum2 = sum2 / (double) data_count;
-                    data_count = 1;
-                }
+                  for(j=0;j<subset_count;j++){ 
+	             method_data->data[j] = dataScaling * fd[index1+j];
+		     method_data->time[j] = ft[index1+j];
+                  }
+		  
+		  if(fd != NULL) free((void *)fd);
+		  if(ft != NULL) free((void *)ft);
 
-                method_data->count = data_count;
-                method_data->data = (double*) malloc(data_count * sizeof(double));
-                method_data->time = (double*) malloc(data_count * sizeof(double));
-                addMalloc((void*) method_data->data, data_count, sizeof(double), "double");
-                addMalloc((void*) method_data->time, data_count, sizeof(double), "double");
+	       }
+	       	  
+            } else {		// All data are returned
 
-                if (isAverage) {
-                    method_data->data[0] = sum1;
-                    method_data->time[0] = sum2;
-                } else {
-                    for (j = 0; j < data_count; j++) {
-                        method_data->data[j] = fd[index1 + j];
-                        method_data->time[j] = ft[index1 + j];
-                    }
-                }
-
-            } else {        // All data are returned
-
-                method_data->count = data_count;
-
-// Reuse the allocated data blocks - no need to copy!
-
-                method_data->data = fd;
-                method_data->time = ft;
-                addMalloc((void*) method_data->data, data_count, sizeof(double), "double");
-                addMalloc((void*) method_data->time, data_count, sizeof(double), "double");
+               method_data->count = data_count;
+	       
+	       for(j=0;j<data_count;j++) fd[j] = dataScaling * fd[j];
+ 
+	       method_data->data = fd;
+	       method_data->time = ft;
+               addMalloc((void*)method_data->data, data_count, sizeof(double), "double");
+	       addMalloc((void*)method_data->time, data_count, sizeof(double), "double"); 
             }
+
 
 // Access the Diamagnetic Flux
-
-            strcpy(signal, "amd_dia flux");
-            sprintf(source, "%s%s%d", request_block->device_name, request_block->api_delim, exp_number);
-
-            handle = idamGetAPI(signal, source);
-
-            if (handle < 0 || getIdamErrorCode(handle) > 0) {
-                err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err,
-                             "Unable to access Diamagnetic Flux data!");
-                idamFree(handle);
-                break;
-            }
-
-            if (getIdamRank(handle) != 1) {
-                err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err,
-                             "Diamagnetic Flux data has Incorrect properties!");
-                idamFree(handle);
-                break;
-            }
-
+	       
+	    strcpy(signal,"amd_dia flux");   
+	    sprintf(source,"%s%s%d", request_block->device_name, request_block->api_delim, exp_number);
+ 	    
+	    handle = idamGetAPI(signal, source);
+	    
+	    if(handle < 0 || getIdamErrorCode(handle) > 0){
+               err = 999;
+               addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Unable to access Diamagnetic Flux data!");
+               idamFree(handle);
+	       break;
+	    }
+	    
+	    if(getIdamRank(handle) != 1){
+               err = 999;
+               addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Diamagnetic Flux data has Incorrect properties!");
+               idamFree(handle);
+	       break;
+	    }
+	    	    
 // Scan the data for the requested time slice and window
 
-            method_data = (METHOD_DATA*) malloc(sizeof(METHOD_DATA));
-            addMalloc((void*) method_data, 1, sizeof(METHOD_DATA), "METHOD_DATA");
-            initMethodData(method_data);
-
-            magnetics->method[0].diamagnetic_flux = method_data;
-
-            stringLength = 56;
-            method_data->name = (char*) malloc(stringLength * sizeof(char));
-            addMalloc((void*) method_data->name, 1, stringLength * sizeof(char), "STRING");    // Scalar String
-            strcpy(method_data->name, "Diamagnetic Flux");
-            method_data->identifier = (char*) malloc(stringLength * sizeof(char));
-            addMalloc((void*) method_data->identifier, 1, stringLength * sizeof(char), "STRING");    // Scalar String
-            strcpy(method_data->identifier, "#1");
-
+            method_data = (METHOD_DATA *)malloc(sizeof(METHOD_DATA));
+	    addMalloc((void*)method_data, 1, sizeof(METHOD_DATA), "METHOD_DATA");
+	    initMethodData(method_data);
+	    
+	    magnetics->method[0].diamagnetic_flux = method_data;
+	    
+	    stringLength = 56;
+	    method_data->name = (char *)malloc(stringLength*sizeof(char));
+            addMalloc((void*)method_data->name, 1, stringLength*sizeof(char), "STRING");	// Scalar String
+	    strcpy(method_data->name, "Diamagnetic Flux");	    
+	    method_data->identifier = (char *)malloc(stringLength*sizeof(char));
+            addMalloc((void*)method_data->identifier, 1, stringLength*sizeof(char), "STRING");	// Scalar String
+	    strcpy(method_data->identifier, "#1");	    
+	    
             data_count = getIdamDataNum(handle);
+	    
+            fd = (double *)malloc(data_count*sizeof(double));
+	    ft = (double *)malloc(data_count*sizeof(double));
+	    
+	    getIdamDoubleData(handle, fd);
+	    getIdamDoubleDimData(handle, getIdamOrder(handle), ft);
+	    
+	    idamFree(handle);
+	    
+            if(isStartTime){
+               double sum1=0.0, sum2=0.0;
+               int index1 = -1;
+               int index2 = -1;
+	       int subset_count = 0;
+	    
+               err = dataSubset(ft, data_count, startTime, isEndTime, endTime, isFirst, isLast, isNearest,
+                                &subset_count, &index1, &index2);
 
-            fd = (double*) malloc(data_count * sizeof(double));
-            ft = (double*) malloc(data_count * sizeof(double));
+               if(err != 0){
+	          err = 999;
+                  addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Unable to Subset Diamagnetic Flux!");
+	          idamFree(handle);
+		  if(fd != NULL) free((void *)fd);
+	          if(ft != NULL) free((void *)ft);
+	          break;
+               }
+               
+               if(isAverage){
+                  for(j=0;j<subset_count;j++){ 
+	             sum1 += fd[index1+j];
+		     sum2 += ft[index1+j];
+	          }
+		  
+		  if(fd != NULL) free((void *)fd);
+		  if(ft != NULL) free((void *)ft);
+                  sum1 = sum1 / (double)subset_count;
+                  sum2 = sum2 / (double)subset_count;
+                  data_count = 1;
+		  
+		  method_data->count = data_count;
+	          method_data->data = (double *)malloc(data_count*sizeof(double));
+	          method_data->time = (double *)malloc(data_count*sizeof(double));
+	          addMalloc((void*)method_data->data, data_count, sizeof(double), "double");
+	          addMalloc((void*)method_data->time, data_count, sizeof(double), "double");
 
-            getIdamDoubleData(handle, fd);
-            getIdamDoubleDimData(handle, getIdamOrder(handle), ft);
+	          method_data->data[j] = sum1;
+		  method_data->time[j] = sum2;
 
-            idamFree(handle);
+               } else { 
+	       
+	          method_data->count = subset_count;
+	          method_data->data = (double *)malloc(subset_count*sizeof(double));
+	          method_data->time = (double *)malloc(subset_count*sizeof(double));
+	          addMalloc((void*)method_data->data, subset_count, sizeof(double), "double");
+	          addMalloc((void*)method_data->time, subset_count, sizeof(double), "double");
 
-            if (isStartTime) {
-                double sum1 = 0.0, sum2 = 0.0;
-                int index1 = -1;
-                int index2 = -1;
-                for (j = 0; j < data_count; j++) {
-                    if (index1 < 0 && ft[j] >= startTime) {
-                        index1 = j;
-                        if (!isEndTime) break;
-                    }
-                    if (index1 >= 0 && index2 < 0 && ft[j] >= endTime) {
-                        index2 = j - 1;
-                        if (index2 < 0) index2 = 0;
-                        if (ft[j] == endTime) index2 = j;
-                        break;
-                    }
-                }
-                if (index1 == -1) {
-                    err = 999;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err,
-                                 "No Diamagnetic Flux data found for requested time!");
-                    break;
-                }
+                  for(j=0;j<subset_count;j++){ 
+	             method_data->data[j] = fd[index1+j];
+		     method_data->time[j] = ft[index1+j];
+                  }
+		  
+		  if(fd != NULL) free((void *)fd);
+		  if(ft != NULL) free((void *)ft);
 
-                if (isEndTime) {    // Subset of the data
-                    if (index2 == -1) index2 = data_count - 1;
-                    data_count = index2 - index1 + 1;
-                } else {        // Single value
-                    data_count = 1;
-                    index2 = index1;
-                }
+	       }
+	       	  
+            } else {		// All data are returned
 
-                if (isFirst) {
-                    data_count = 1;
-                    index2 = index1;
-                } else if (isLast) {
-                    data_count = 1;
-                    index1 = index2;
-                } else if (isNearest) {
-                    data_count = 1;
-                    if (index1 > 0 && ((startTime - ft[index1 - 1]) > (ft[index1] - startTime))) index1 = index1 - 1;
-                } else if (isAverage) {
-                    for (j = 0; j < data_count; j++) {
-                        sum1 += fd[index1 + j];
-                        sum2 += ft[index1 + j];
-                    }
-                    sum1 = sum1 / (double) data_count;
-                    sum2 = sum2 / (double) data_count;
-                    data_count = 1;
-                }
-
-                method_data->count = data_count;
-                method_data->data = (double*) malloc(data_count * sizeof(double));
-                method_data->time = (double*) malloc(data_count * sizeof(double));
-                addMalloc((void*) method_data->data, data_count, sizeof(double), "double");
-                addMalloc((void*) method_data->time, data_count, sizeof(double), "double");
-
-                if (isAverage) {
-                    method_data->data[0] = sum1;
-                    method_data->time[0] = sum2;
-                } else {
-                    for (j = 0; j < data_count; j++) {
-                        method_data->data[j] = fd[index1 + j];
-                        method_data->time[j] = ft[index1 + j];
-                    }
-                }
-
-            } else {        // All data are returned
-
-                method_data->count = data_count;
-
-// Reuse the allocated data blocks - no need to copy!
-
-                method_data->data = fd;
-                method_data->time = ft;
-                addMalloc((void*) method_data->data, data_count, sizeof(double), "double");
-                addMalloc((void*) method_data->time, data_count, sizeof(double), "double");
+               method_data->count = data_count;
+ 
+	       method_data->data = fd;
+	       method_data->time = ft;
+               addMalloc((void*)method_data->data, data_count, sizeof(double), "double");
+	       addMalloc((void*)method_data->time, data_count, sizeof(double), "double"); 
             }
-
+	       	     	  	     	    	    
 // Return the Data
 
             data_block->data_type = TYPE_COMPOUND;
@@ -4136,46 +4267,53 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
 
             break;
 
-        } else if (!strcasecmp(request_block->function, "limiter")) {    // STATIC_LIMITER data structure
+         } else	
+
+
+// -------------------------------------------------------------------------------------------------------------------------------------------------
+/*
+*/
+
+         if (!strcasecmp(request_block->function, "limiter")) {	// STATIC_LIMITER data structure
 
 // Create the Returned Structure Definitions
 
-            defineIDSStructures();
+	    defineIDSStructures();
 
 // Build the Returned Structures
 
-            STATIC_LIMITER* limiter = (STATIC_LIMITER*) malloc(sizeof(STATIC_LIMITER));
-            addMalloc((void*) limiter, 1, sizeof(STATIC_LIMITER), "STATIC_LIMITER");
-
-            initStaticLimiter(limiter);
-
-            limiter->count = 37;
-
-            limiter->r = (double*) malloc(limiter->count * sizeof(STATIC_LIMITER));
-            limiter->z = (double*) malloc(limiter->count * sizeof(STATIC_LIMITER));
-
-            addMalloc((void*) limiter->r, limiter->count, sizeof(double), "double");
-            addMalloc((void*) limiter->z, limiter->count, sizeof(double), "double");
-
-            double rr[] = { 1.9000000, 1.5551043, 1.5551043, 1.4079306, 1.4079306, 1.0399311,
-                            1.0399311, 1.9000000, 1.9000000, 0.56493068, 0.56493068, 0.78350002, 0.78350002,
-                            0.58259028, 0.41650000, 0.28000000, 0.28000000, 0.19524440, 0.19524440, 0.28000000,
-                            0.28000000, 0.41650000, 0.58259028, 0.78350002, 0.78350002, 0.56493068, 0.56493068,
-                            1.9000000, 1.9000000, 1.0399311, 1.0399311, 1.4079306, 1.4079306, 1.5551043, 1.5551043,
-                            1.9000000, 1.9000000 };
-
-            double zz[] = { 0.40500000, 0.40500000, 0.82250023, 0.82250023, 1.0330003, 1.0330003,
-                            1.1950001, 1.1950001, 1.8250000, 1.8250000, 1.7280816, 1.7280816, 1.7155817, 1.5470001,
-                            1.5470001, 1.6835001, 1.2290885, 1.0835000, -1.0835000, -1.2290885, -1.6835001,
-                            -1.5470001, -1.5470001, -1.7155817, -1.7280816, -1.7280816, -1.8250000, -1.8250000,
-                            -1.1950001, -1.1950001, -1.0330003, -1.0330003, -0.82250023, -0.82250023, -0.40500000,
-                            -0.40500000, 0.40500000 };
-
-            for (i = 0; i < limiter->count; i++) {
-                limiter->r[i] = rr[i];
-                limiter->z[i] = zz[i];
-            }
-
+            STATIC_LIMITER *limiter = (STATIC_LIMITER *)malloc(sizeof(STATIC_LIMITER));
+            addMalloc((void*)limiter, 1, sizeof(STATIC_LIMITER), "STATIC_LIMITER");
+	    
+	    initStaticLimiter(limiter);	 
+	    
+	    limiter->count = 37;
+	    
+	    limiter->r = (double *)malloc(limiter->count*sizeof(STATIC_LIMITER));
+	    limiter->z = (double *)malloc(limiter->count*sizeof(STATIC_LIMITER)); 
+	    
+	    addMalloc((void*)limiter->r, limiter->count, sizeof(double), "double");
+	    addMalloc((void*)limiter->z, limiter->count, sizeof(double), "double"); 
+	    
+	    double rr[] = { 1.9000000,  1.5551043,  1.5551043,  1.4079306,  1.4079306,  1.0399311,
+                           1.0399311,  1.9000000,  1.9000000,  0.56493068, 0.56493068, 0.78350002, 0.78350002,
+                           0.58259028, 0.41650000, 0.28000000, 0.28000000, 0.19524440, 0.19524440, 0.28000000,
+                           0.28000000, 0.41650000, 0.58259028, 0.78350002, 0.78350002, 0.56493068, 0.56493068,
+                           1.9000000,  1.9000000,  1.0399311,  1.0399311,  1.4079306,  1.4079306,  1.5551043,  1.5551043,
+                           1.9000000,  1.9000000 };
+	    
+	    double zz[] = { 0.40500000, 0.40500000, 0.82250023, 0.82250023, 1.0330003,   1.0330003,
+                           1.1950001,  1.1950001,  1.8250000,  1.8250000,  1.7280816,   1.7280816,   1.7155817, 1.5470001,
+                           1.5470001,  1.6835001,  1.2290885,  1.0835000, -1.0835000,  -1.2290885,  -1.6835001,
+                          -1.5470001, -1.5470001, -1.7155817, -1.7280816, -1.7280816,  -1.8250000,  -1.8250000,
+                          -1.1950001, -1.1950001, -1.0330003, -1.0330003, -0.82250023, -0.82250023, -0.40500000,
+                         -0.40500000,  0.40500000 };
+			 
+            for (i=0;i<limiter->count;i++){
+	       	limiter->r[i] = rr[i];
+		limiter->z[i] = zz[i];	 
+ 	    }
+	    	    
 // Pass Data
 
             data_block->data_type = TYPE_COMPOUND;
@@ -4198,212 +4336,156 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
 // -------------------------------------------------------------------------------------------------------------------------------------------------
 // To Do
 //
-// plasma current: IDS core_profiles, equilibrium, MAGNETICS
+// plasma current: IDS core_profiles, equilibrium, MAGNETICS 
 // vacuum toroidal field: IDS core_profiles, core_sources, core_transport, EQUILIBRIUM, mhd_linear, ntms, sawteeth
-// diamagnetic flux: MAGNETICS
+// diamagnetic flux: MAGNETICS	
 // -------------------------------------------------------------------------------------------------------------------------------------------------
 // Vacuum R*Bphi
 // -ve sign means clockwise when viewed from above
 
-        if (!strcasecmp(request_block->function, "RB")) {
-            char signal[256], source[256];
+/*
+TF/B_TOR_VACUUM_R
+TF/B_TOR_VACUUM_DATA
+TF/B_TOR_VACUUM_TIME
+*/
 
+         if (!strcasecmp(request_block->function, "RB")) { 
+            char signal[256], source[256];
+	    	    
 // Create the Returned Structure Definitions
 // ToDo ... pass in the structureVersion
 
-            defineIDSStructures();
+   	    defineIDSStructures();
 
 // Access the Data
-
-            strcpy(signal, "efm_bvac_r");
-            sprintf(source, "%s%s%d", request_block->device_name, request_block->api_delim, exp_number);
-
-            int handle1 = idamGetAPI(signal, source);
-
-            if (handle1 < 0 || getIdamErrorCode(handle1) > 0) {
-                err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err,
-                             "Unable to access Vacuum Magnetic Field!");
-                idamFree(handle1);
-                break;
-            }
-
-            if (getIdamRank(handle1) != 1 &&
-                !(getIdamDataType(handle1) == TYPE_DOUBLE || getIdamDataType(handle1) == TYPE_FLOAT)) {
-                err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err,
-                             "Vacuum Magnetic Field data has Incorrect properties!");
-                idamFree(handle1);
-                break;
-            }
-
-            strcpy(signal, "efm_bvac_val");
-
-            int handle2 = idamGetAPI(signal, source);
-
-            if (handle2 < 0 || getIdamErrorCode(handle2) > 0) {
-                err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err,
-                             "Unable to access Vacuum Magnetic Field!");
-                idamFree(handle2);
-                break;
-            }
-
-            if (getIdamRank(handle2) != 1 &&
-                !(getIdamDataType(handle2) == TYPE_DOUBLE || getIdamDataType(handle2) == TYPE_FLOAT)) {
-                err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err,
-                             "Vacuum Magnetic Field data has Incorrect properties!");
-                idamFree(handle2);
-                break;
-            }
-
+	       
+	    strcpy(signal,"amc_tf current");   
+	    sprintf(source,"%s%s%d", request_block->device_name, request_block->api_delim, exp_number);
+ 	    
+	    int handle = idamGetAPI(signal, source);
+	    
+	    if(handle < 0 || getIdamErrorCode(handle) > 0){
+               err = 999;
+               addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Unable to access Vacuum Magnetic Field!");
+               idamFree(handle);
+	       break;
+	    }
+	    
+	    if(getIdamRank(handle) != 1 && !(getIdamDataType(handle) == TYPE_DOUBLE || getIdamDataType(handle) == TYPE_FLOAT)){
+               err = 999;
+               addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Vacuum Magnetic Field data has Incorrect properties!");
+               idamFree(handle);
+	       break;
+	    }
+	    
 // Build the Returned Structure
 
-            TF_PROXY* RB = (TF_PROXY*) malloc(1 * sizeof(TF_PROXY));
-            addMalloc((void*) RB, 1, sizeof(TF_PROXY), "TF_PROXY");
-
-            initRB(RB);
-
+            TF_PROXY *RB = (TF_PROXY *)malloc(1*sizeof(TF_PROXY));
+            addMalloc((void*)RB, 1, sizeof(TF_PROXY), "TF_PROXY");
+	    
+	    initRB(RB);	    
+	    
 // Scan the data for the requested time slice and window
+	    
+            int data_count = getIdamDataNum(handle);
+  	    	       
+	    double r0     = 0.7;		// MAST specific data
+	    double factor = 0.0048;		// Conversion factor
+	    
+	    double *b0  = (double *)malloc(data_count*sizeof(double));
+	    double *ft  = (double *)malloc(data_count*sizeof(double));
+	    
+	    getIdamDoubleData(handle, b0);
+	    getIdamDoubleDimData(handle, getIdamOrder(handle), ft);
+	    
+            if(data_count == 0){
+               err = 999;
+               addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "No Vacuum Magnetic Field data!");
+               idamFree(handle);
+	       if(b0 != NULL) free((void *)b0);
+	       if(ft != NULL) free((void *)ft);
+	       break;
+	    }
+	    	    
+	    if(isStartTime){
+	       double sum1b=0.0, sum2=0.0;
+               int index1 = -1;
+               int index2 = -1;
+	       int subset_count = 0;
+	    
+               err = dataSubset(ft, data_count, startTime, isEndTime, endTime, isFirst, isLast, isNearest,
+                                &subset_count, &index1, &index2);
 
-            int data_count = getIdamDataNum(handle1);
+               if(err != 0){
+	          err = 999;
+                  addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Unable to Subset Vacuum Magnetic Field data!");
+	          idamFree(handle);
+		  if(b0 != NULL) free((void *)b0);
+	          if(ft != NULL) free((void *)ft);
+	          break;
+               }
+	       
+               if(isAverage){
+                  for(j=0;j<subset_count;j++){ 
+		     sum1b += b0[index1 + j];
+		     sum2  += ft[index1 + j];
+	          }
+		  sum1b = sum1b / (double)(subset_count);
+                  sum2  = sum2  / (double)(subset_count);
+                  data_count = 1;
+               
+	          RB->r0 = (double *)malloc(sizeof(double));
+		  RB->b0 = (double *)malloc(sizeof(double));
+		  RB->rb0 = (double *)malloc(sizeof(double));
+		  RB->time = (double *)malloc(sizeof(double));
+		  addMalloc((void*)RB->r0, 1, sizeof(double), "double");
+		  addMalloc((void*)RB->b0, 1, sizeof(double), "double");
+		  addMalloc((void*)RB->rb0, 1, sizeof(double), "double");
+		  addMalloc((void*)RB->time, 1, sizeof(double), "double");
+		  RB->data_count = 1;
+		  RB->r0[0]   = r0;
+		  RB->b0[0]   = factor * sum1b;
+		  RB->rb0[0]  = r0 * factor * sum1b;
+		  RB->time[0] = sum2;
+               } else {	 
+	          RB->r0 = (double *)malloc(subset_count*sizeof(double));
+		  RB->b0 = (double *)malloc(subset_count*sizeof(double));
+		  RB->rb0 = (double *)malloc(subset_count*sizeof(double));
+		  RB->time = (double *)malloc(subset_count*sizeof(double));
+		  addMalloc((void*)RB->r0, subset_count, sizeof(double), "double");
+		  addMalloc((void*)RB->b0, subset_count, sizeof(double), "double");
+		  addMalloc((void*)RB->rb0, subset_count, sizeof(double), "double");
+		  addMalloc((void*)RB->time, subset_count, sizeof(double), "double");
+		  RB->data_count = subset_count;
+                  for(j=0;j<subset_count;j++){ 
+	             RB->r0[j]   = r0;
+		     RB->b0[j]   = factor * b0[index1+j];
+		     RB->rb0[j]  = r0 * factor * b0[index1+j];
+		     RB->time[j] = ft[index1+j];
+                  }
+	       }
+	       	  
+            } else {		// All data are returned
 
-            double* r0 = (double*) malloc(data_count * sizeof(double));
-            double* b0 = (double*) malloc(data_count * sizeof(double));
-            double* ft = (double*) malloc(data_count * sizeof(double));
-            double* ft2 = (double*) malloc(data_count * sizeof(double));
-
-            getIdamDoubleData(handle1, r0);
-            getIdamDoubleData(handle2, b0);
-            getIdamDoubleDimData(handle2, getIdamOrder(handle1), ft);
-            getIdamDoubleDimData(handle2, getIdamOrder(handle2), ft2);
-
-// Verify Time arrays are consistent
-
-            if (data_count != getIdamDataNum(handle2)) {
-                err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err,
-                             "Vacuum Magnetic Field data has Inconsistent properties!");
-                idamFree(handle1);
-                idamFree(handle2);
-                break;
+               RB->data_count = data_count;
+               RB->r0 = (double *)malloc(data_count*sizeof(double));
+	       addMalloc((void*)RB->r0, RB->data_count, sizeof(double), "double");
+	       addMalloc((void*)RB->b0, RB->data_count, sizeof(double), "double");	 	       
+	       addMalloc((void*)RB->time, RB->data_count, sizeof(double), "double");
+	       RB->rb0 = (double *)malloc(RB->data_count*sizeof(double));
+	       addMalloc((void*)RB->rb0, RB->data_count, sizeof(double), "double");
+	       for(j=0;j<RB->data_count;j++){
+	          RB->r0[j]   = r0;
+		  RB->b0[j]   = factor * b0[j];		  
+	          RB->rb0[j]  = r0 * factor * b0[j];
+		  RB->time[j] = ft[j];
+	       }	  
             }
-
-            idamFree(handle1);
-            idamFree(handle2);
-
-            for (j = 0; j < data_count; j++) {
-                if (ft[j] != ft2[j]) {
-                    err = 999;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err,
-                                 "Vacuum Magnetic Field data has Inconsistent properties!");
-                    break;
-                }
-            }
-            if (err != 0) break;
-
-            if (isStartTime) {
-                double sum1a = 0.0, sum1b = 0.0, sum2 = 0.0;
-                int index1 = -1;
-                int index2 = -1;
-                for (j = 0; j < data_count; j++) {
-                    if (index1 < 0 && ft[j] >= startTime) {
-                        index1 = j;
-                        if (!isEndTime) break;
-                    }
-                    if (index1 >= 0 && index2 < 0 && ft[j] >= endTime) {
-                        index2 = j - 1;
-                        if (index2 < 0) index2 = 0;
-                        if (ft[j] == endTime) index2 = j;
-                        break;
-                    }
-                }
-                if (index1 == -1) {
-                    err = 999;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err,
-                                 "No Vacuum Magnetic Field data found for requested time!");
-                    break;
-                }
-
-                if (isEndTime) {    // Subset of the data
-                    if (index2 == -1) index2 = data_count - 1;
-                    data_count = index2 - index1 + 1;
-                } else {        // Single value
-                    data_count = 1;
-                    index2 = index1;
-                }
-
-                if (isFirst) {
-                    data_count = 1;
-                    index2 = index1;
-                } else if (isLast) {
-                    data_count = 1;
-                    index1 = index2;
-                } else if (isNearest) {
-                    data_count = 1;
-                    if (index1 > 0 && ((startTime - ft[index1 - 1]) > (ft[index1] - startTime))) index1 = index1 - 1;
-                } else if (isAverage) {
-                    for (j = 0; j < data_count; j++) {
-                        sum1a += r0[index1 + j];
-                        sum1b += b0[index1 + j];
-                        sum2 += ft[index1 + j];
-                    }
-                    sum1a = sum1a / (double) data_count;
-                    sum1b = sum1b / (double) data_count;
-                    sum2 = sum2 / (double) data_count;
-                    data_count = 1;
-                }
-
-                if (isAverage) {
-                    RB->r0 = (double*) malloc(sizeof(double));
-                    RB->b0 = (double*) malloc(sizeof(double));
-                    RB->rb0 = (double*) malloc(sizeof(double));
-                    RB->time = (double*) malloc(sizeof(double));
-                    addMalloc((void*) RB->r0, 1, sizeof(double), "double");
-                    addMalloc((void*) RB->b0, 1, sizeof(double), "double");
-                    addMalloc((void*) RB->rb0, 1, sizeof(double), "double");
-                    addMalloc((void*) RB->time, 1, sizeof(double), "double");
-                    RB->data_count = 1;
-                    RB->r0[0] = sum1a;
-                    RB->b0[0] = sum1b;
-                    RB->rb0[0] = sum1a * sum1b;
-                    RB->time[0] = sum2;
-                } else {
-                    RB->r0 = (double*) malloc(data_count * sizeof(double));
-                    RB->b0 = (double*) malloc(data_count * sizeof(double));
-                    RB->rb0 = (double*) malloc(data_count * sizeof(double));
-                    RB->time = (double*) malloc(data_count * sizeof(double));
-                    addMalloc((void*) RB->r0, data_count, sizeof(double), "double");
-                    addMalloc((void*) RB->b0, data_count, sizeof(double), "double");
-                    addMalloc((void*) RB->rb0, data_count, sizeof(double), "double");
-                    addMalloc((void*) RB->time, data_count, sizeof(double), "double");
-                    RB->data_count = data_count;
-                    for (j = 0; j < data_count; j++) {
-                        RB->r0[j] = r0[index1 + j];
-                        RB->b0[j] = b0[index1 + j];
-                        RB->rb0[j] = r0[index1 + j] * b0[index1 + j];
-                        RB->time[j] = ft[index1 + j];
-                    }
-                }
-
-            } else {        // All data are returned
-
-                RB->data_count = data_count;
-
-// Reuse the allocated data blocks - no need to copy!
-
-                RB->r0 = r0;
-                addMalloc((void*) RB->r0, RB->data_count, sizeof(double), "double");
-                RB->b0 = b0;
-                addMalloc((void*) RB->b0, RB->data_count, sizeof(double), "double");
-                RB->time = ft;
-                addMalloc((void*) RB->time, RB->data_count, sizeof(double), "double");
-                RB->rb0 = (double*) malloc(RB->data_count * sizeof(double));
-                addMalloc((void*) RB->rb0, RB->data_count, sizeof(double), "double");
-                for (j = 0; j < RB->data_count; j++) RB->rb0[j] = r0[j] * b0[j];
-            }
-
+	    
+	    idamFree(handle);
+	    if(b0 != NULL) free((void *)b0);
+	    if(ft != NULL) free((void *)ft);
+	     	    	    
 // Pass Data
 
             data_block->data_type = TYPE_COMPOUND;
@@ -4421,8 +4503,728 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
 
             break;
 
-        } else
+         } else	
 
+
+         if (!strcasecmp(request_block->function, "RB_EFIT")) { 
+            char signal[256], source[256];
+	    	    
+// Create the Returned Structure Definitions
+// ToDo ... pass in the structureVersion
+
+   	    defineIDSStructures();
+
+// Access the Data
+	       
+	    strcpy(signal,"efm_bvac_r");   
+	    sprintf(source,"%s%s%d", request_block->device_name, request_block->api_delim, exp_number);
+ 	    
+	    int handle1 = idamGetAPI(signal, source);
+	    
+	    if(handle1 < 0 || getIdamErrorCode(handle1) > 0){
+               err = 999;
+               addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Unable to access Vacuum Magnetic Field!");
+               idamFree(handle1);
+	       break;
+	    }
+	    
+	    if(getIdamRank(handle1) != 1 && !(getIdamDataType(handle1) == TYPE_DOUBLE || getIdamDataType(handle1) == TYPE_FLOAT)){
+               err = 999;
+               addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Vacuum Magnetic Field data has Incorrect properties!");
+               idamFree(handle1);
+	       break;
+	    }
+
+	    strcpy(signal,"efm_bvac_val");   
+ 	    
+	    int handle2 = idamGetAPI(signal, source);
+	    
+	    if(handle2 < 0 || getIdamErrorCode(handle2) > 0){
+               err = 999;
+               addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Unable to access Vacuum Magnetic Field!");
+               idamFree(handle2);
+	       break;
+	    }
+	    
+	    if(getIdamRank(handle2) != 1 && !(getIdamDataType(handle2) == TYPE_DOUBLE || getIdamDataType(handle2) == TYPE_FLOAT)){
+               err = 999;
+               addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Vacuum Magnetic Field data has Incorrect properties!");
+               idamFree(handle2);
+	       break;
+	    }
+	    
+// Build the Returned Structure
+
+            TF_PROXY *RB = (TF_PROXY *)malloc(1*sizeof(TF_PROXY));
+            addMalloc((void*)RB, 1, sizeof(TF_PROXY), "TF_PROXY");
+	    
+	    initRB(RB);	    
+	    
+// Scan the data for the requested time slice and window
+	    
+            int data_count = getIdamDataNum(handle1);
+  	    	       
+	    double *r0  = (double *)malloc(data_count*sizeof(double));
+	    double *b0  = (double *)malloc(data_count*sizeof(double));
+	    double *ft  = (double *)malloc(data_count*sizeof(double));
+	    double *ft2 = (double *)malloc(data_count*sizeof(double));
+	    
+	    getIdamDoubleData(handle1, r0);
+	    getIdamDoubleData(handle2, b0);
+	    getIdamDoubleDimData(handle1, getIdamOrder(handle1), ft);
+	    getIdamDoubleDimData(handle2, getIdamOrder(handle2), ft2);
+	    
+// Verify Time arrays are consistent
+
+            if(data_count != getIdamDataNum(handle2)){
+               err = 999;
+               addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Vacuum Magnetic Field data has Inconsistent properties!");
+               idamFree(handle1);
+	       idamFree(handle2);
+	       if(r0 != NULL) free((void *)r0);
+	       if(b0 != NULL) free((void *)b0);
+	       if(ft != NULL) free((void *)ft);
+	       if(ft2 != NULL) free((void *)ft2);
+	       break;
+	    }
+            if(data_count == 0){
+               err = 999;
+               addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "No Vacuum Magnetic Field data!");
+               idamFree(handle1);
+	       idamFree(handle2);
+	       if(r0 != NULL) free((void *)r0);
+	       if(b0 != NULL) free((void *)b0);
+	       if(ft != NULL) free((void *)ft);
+	       if(ft2 != NULL) free((void *)ft2);
+	       break;
+	    }
+	    
+	    idamFree(handle1);
+	    idamFree(handle2);
+
+	    for(j=0;j<data_count;j++){
+	       if(ft[j] != ft2[j]){
+                  err = 999;
+                  addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Vacuum Magnetic Field data has Inconsistent properties!");
+	          if(r0 != NULL) free((void *)r0);
+	          if(b0 != NULL) free((void *)b0);
+	          if(ft != NULL) free((void *)ft);
+	          if(ft2 != NULL) free((void *)ft2);
+	          break;
+	       }
+	    }   
+	    if(err != 0) break;
+	    
+	    if(ft2 != NULL) free((void *)ft2);
+	    
+	    if(isStartTime){
+	       double sum1a=0.0, sum1b=0.0, sum2=0.0;
+               int index1 = -1;
+               int index2 = -1;
+	       int subset_count = 0;
+	    
+               err = dataSubset(ft, data_count, startTime, isEndTime, endTime, isFirst, isLast, isNearest,
+                                &subset_count, &index1, &index2);
+
+               if(err != 0){
+	          err = 999;
+                  addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Unable to Subset Vacuum Magnetic Field datas!");
+	          if(r0 != NULL) free((void *)r0);
+	          if(b0 != NULL) free((void *)b0);
+	          if(ft != NULL) free((void *)ft);
+	          break;
+               }
+	       
+               if(isAverage){
+                  for(j=0;j<subset_count;j++){ 
+	             sum1a += r0[index1 + j];
+		     sum1b += b0[index1 + j];
+		     sum2  += ft[index1 + j];
+	          }
+                  sum1a = sum1a / (double)(subset_count);
+		  sum1b = sum1b / (double)(subset_count);
+                  sum2  = sum2  / (double)(subset_count);
+                  data_count = 1;
+               
+	          RB->r0 = (double *)malloc(sizeof(double));
+		  RB->b0 = (double *)malloc(sizeof(double));
+		  RB->rb0 = (double *)malloc(sizeof(double));
+		  RB->time = (double *)malloc(sizeof(double));
+		  addMalloc((void*)RB->r0, 1, sizeof(double), "double");
+		  addMalloc((void*)RB->b0, 1, sizeof(double), "double");
+		  addMalloc((void*)RB->rb0, 1, sizeof(double), "double");
+		  addMalloc((void*)RB->time, 1, sizeof(double), "double");
+		  RB->data_count = 1;
+		  RB->r0[0]  = sum1a;
+		  RB->b0[0]  = sum1b;
+		  RB->rb0[0] = sum1a*sum1b;
+		  RB->time[0] = sum2;
+               } else {	 
+	          RB->r0 = (double *)malloc(subset_count*sizeof(double));
+		  RB->b0 = (double *)malloc(subset_count*sizeof(double));
+		  RB->rb0 = (double *)malloc(subset_count*sizeof(double));
+		  RB->time = (double *)malloc(subset_count*sizeof(double));
+		  addMalloc((void*)RB->r0, subset_count, sizeof(double), "double");
+		  addMalloc((void*)RB->b0, subset_count, sizeof(double), "double");
+		  addMalloc((void*)RB->rb0, subset_count, sizeof(double), "double");
+		  addMalloc((void*)RB->time, subset_count, sizeof(double), "double");
+		  RB->data_count = subset_count;
+                  for(j=0;j<subset_count;j++){ 
+	             RB->r0[j] = r0[index1+j];
+		     RB->b0[j] = b0[index1+j];
+		     RB->rb0[j] = r0[index1+j] * b0[index1+j];
+		     RB->time[j] = ft[index1+j];
+                  }
+	       }
+	       	  
+            } else {		// All data are returned
+
+               RB->data_count = data_count;
+ 
+// Reuse the allocated data blocks - no need to copy! 
+
+	       RB->r0 = r0;
+	       addMalloc((void*)RB->r0, RB->data_count, sizeof(double), "double");	 
+	       RB->b0 = b0;
+	       addMalloc((void*)RB->b0, RB->data_count, sizeof(double), "double");	 
+	       RB->time = ft;
+	       addMalloc((void*)RB->time, RB->data_count, sizeof(double), "double");
+	       RB->rb0 = (double *)malloc(RB->data_count*sizeof(double));
+	       addMalloc((void*)RB->rb0, RB->data_count, sizeof(double), "double");
+	       for(j=0;j<RB->data_count;j++) RB->rb0[j] = r0[j] * b0[j];
+            }
+	    
+	    if(r0 != NULL) free((void *)r0);
+	    if(b0 != NULL) free((void *)b0);
+	    if(ft != NULL) free((void *)ft);
+	     	    	    
+// Pass Data
+
+            data_block->data_type = TYPE_COMPOUND;
+            data_block->rank = 0;
+            data_block->data_n = 1;
+            data_block->data = (char*) RB;
+
+            strcpy(data_block->data_desc, "Vacuum Toroidal Magnetic Field");
+            strcpy(data_block->data_label, "");
+            strcpy(data_block->data_units, "");
+
+            data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
+            data_block->opaque_count = 1;
+            data_block->opaque_block = (void*) findUserDefinedType("TF_PROXY", 0);
+
+            break;
+
+         } else	
+	
+// -------------------------------------------------------------------------------------------------------------------------------------------------
+/* 
+PF_ACTIVE/COIL/SHAPE_OF
+PF_ACTIVE/COIL/%d/NAME
+PF_ACTIVE/COIL/%d/IDENTIFIER
+PF_ACTIVE/COIL/%d/ELEMENT/SHAPE_OF
+PF_ACTIVE/COIL/%d/ELEMENT/%d/GEOMETRY/RECTANGLE/R
+PF_ACTIVE/COIL/%d/ELEMENT/%d/GEOMETRY/RECTANGLE/Z
+PF_ACTIVE/COIL/%d/ELEMENT/%d/GEOMETRY/RECTANGLE/WIDTH
+PF_ACTIVE/COIL/%d/ELEMENT/%d/GEOMETRY/RECTANGLE/HEIGHT
+PF_ACTIVE/COIL/%d/CURRENT/DATA		# Apply scaling factor to data within data access plugin
+PF_ACTIVE/COIL/%d/CURRENT/TIME
+*/
+
+         if (!strcasecmp(request_block->function, "PFActive")) {	// PF_ACTIVE data structure with MAST data
+
+            char signal[256], source[256];
+	    int stringLength;
+	    PF_ACTIVE_PROXY *pfactive_proxy = NULL;
+	    PF_ACTIVE *pfactive = NULL;
+	    int pfactive_count = 0;
+	    int cacheData = 0, cacheRetrieve = 0; 
+	    
+// Create the Returned Structure Definitions
+
+	    defineIDSStructures();
+
+// Access MAST machine description data: PF_Active
+// Use the IDAM client API with IMAS name abstraction
+
+	    sprintf(source,"%s%s%d", request_block->device_name, request_block->api_delim, exp_number);
+
+// Test the cache for Machine Description data - based on the SOURCE identifier
+// Reuse if cached
+// Create static arrays (with generous limits) rather than pointers for machine description data
+
+            if(isCache && strcmp(source, pfactive_source) != 0){	// clear the cache - new data requested
+               if(pfactive_cache_count > 0 && pfactive_cache != NULL){
+                  for(i=0;i<pfactive_cache_count;i++) freePFActive(&pfactive_cache[i]);
+                  free((void *)pfactive_cache);
+                  pfactive_cache = NULL;
+                  pfactive_cache_count = 0;
+               }
+               strcpy(pfactive_source, source);
+            } 
+	    
+	    if(isCache && pfactive_cache_count == 0) cacheData = 1;		// Cache the machine description data	    
+	    if(isCache && pfactive_cache_count > 0)  cacheRetrieve = 1;		// Retrieve the machine description data from the Cache 
+ 
+ 
+// Read Machine Description Data  
+
+            if(!isCache || cacheData) {
+
+// 1. Number of PF Active Coils
+	    
+            sprintf(signal,"PF_ACTIVE/COIL/SHAPE_OF");
+	    	    
+	    handle = idamGetAPI(signal, source);
+	    
+	    if(handle < 0 || getIdamErrorCode(handle) > 0){
+               err = 999;
+               addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Unable to access Machine Description data!");
+               idamFree(handle);
+	       break;
+	    }
+	    
+	    if(getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_INT || getIdamDataNum(handle) != 1){
+               err = 999;
+               addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Machine Description data has Incorrect properties!");
+               idamFree(handle);
+	       break;
+	    }
+	    
+	    pfactive_count = *((int *)getIdamData(handle));
+
+// Return if only the count is requested
+
+            if(isCount) return( returnCount(pfactive_count, data_block));
+	    
+// Build the Returned Data Structures
+
+            pfactive_proxy = (PF_ACTIVE_PROXY *)malloc(sizeof(PF_ACTIVE_PROXY));
+            addMalloc((void*)pfactive_proxy, 1, sizeof(PF_ACTIVE_PROXY), "PF_ACTIVE_PROXY");	 	    
+
+            pfactive = (PF_ACTIVE *)malloc(pfactive_count*sizeof(PF_ACTIVE));
+            addMalloc((void*)pfactive, pfactive_count, sizeof(PF_ACTIVE), "PF_ACTIVE");	 
+
+            pfactive_proxy->pfactive_count = pfactive_count;
+            pfactive_proxy->pfactive       = pfactive;
+	    
+
+// 2. Loop over all Coils
+
+            for(i=0; i<pfactive_count; i++){
+	       
+	       initPFActive(&pfactive[i]);
+	       
+	       sprintf(signal,"PF_ACTIVE/COIL/%d/NAME", i+1);   
+	    
+	       handle = idamGetAPI(signal, source);
+	    
+	       if(handle < 0 || getIdamErrorCode(handle) > 0){
+                  err = 999;
+                  addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Unable to access Machine Description data!");
+                  idamFree(handle);
+	          break;
+	       }
+	    
+	       if(getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_STRING){
+                  err = 999;
+                  addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Machine Description data has Incorrect properties!");
+                  idamFree(handle);
+	          break;
+	       }
+	       
+	       char *name = (char *)getIdamData(handle);
+	       stringLength = strlen(name)+1;
+	       pfactive[i].name = (char *)malloc(stringLength*sizeof(char));
+	       addMalloc((void*)pfactive[i].name, 1, stringLength*sizeof(char), "STRING");	// Scalar String
+	       strcpy(pfactive[i].name, name);
+	       
+	       sprintf(signal,"PF_ACTIVE/COIL/%d/IDENTIFIER", i+1);   
+	    
+	       handle = idamGetAPI(signal, source);
+	    
+	       if(handle < 0 || getIdamErrorCode(handle) > 0){
+                  err = 999;
+                  addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Unable to access Machine Description data!");
+                  idamFree(handle);
+	          break;
+	       }
+	    
+	       if(getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_STRING){
+                  err = 999;
+                  addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Machine Description data has Incorrect properties!");
+                  idamFree(handle);
+	          break;
+	       }
+	       
+	       char *identifier = (char *)getIdamData(handle);
+	       stringLength = strlen(identifier)+1;
+	       pfactive[i].identifier = (char *)malloc(stringLength*sizeof(char));
+	       addMalloc((void*)pfactive[i].identifier, 1, stringLength*sizeof(char), "STRING");	// Scalar String
+	       strcpy(pfactive[i].identifier, identifier);
+
+// 3. Number of Elements/Coordinates
+
+	       sprintf(signal,"PF_ACTIVE/COIL/%d/ELEMENT/SHAPE_OF", i+1);
+	    
+	       handle = idamGetAPI(signal, source);
+	    
+	       if(handle < 0 || getIdamErrorCode(handle) > 0){
+                  err = 999;
+                  addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Unable to access Machine Description data!");
+                  idamFree(handle);
+	          break;
+	       }
+	    
+	       if(getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_INT || getIdamDataNum(handle) != 1){
+                  err = 999;
+                  addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Machine Description data has Incorrect properties!");
+                  idamFree(handle);
+	          break;
+	       }
+	    
+	       pfactive[i].element_count = *((int *)getIdamData(handle));
+
+               PF_ACTIVE_ELEMENT *element = (PF_ACTIVE_ELEMENT *)malloc(pfactive[i].element_count*sizeof(PF_ACTIVE_ELEMENT));
+               addMalloc((void*)element, pfactive[i].element_count, sizeof(PF_ACTIVE_ELEMENT), "PF_ACTIVE_ELEMENT");
+
+               pfactive[i].element = element;
+	       	    
+// 4. Loop over Elements/Coordinates
+
+               for(j=0; j<pfactive[i].element_count; j++){
+	       
+	          sprintf(signal,"PF_ACTIVE/COIL/%d/ELEMENT/%d/GEOMETRY/RECTANGLE/R", i+1, j+1);   
+	    
+	          handle = idamGetAPI(signal, source);
+	    
+	          if(handle < 0 || getIdamErrorCode(handle) > 0){
+                     err = 999;
+                     addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Unable to access Machine Description data!");
+                     idamFree(handle);
+	             break;
+	          }
+	    
+	          if(getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_DOUBLE || getIdamDataNum(handle) != 1){
+                     err = 999;
+                     addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Machine Description data has Incorrect properties!");
+                     idamFree(handle);
+	             break;
+	          }
+	       
+	          element[j].r = *((double *)getIdamData(handle));
+
+	       
+	          sprintf(signal,"PF_ACTIVE/COIL/%d/ELEMENT/%d/GEOMETRY/RECTANGLE/Z", i+1, j+1);   
+	    
+	          handle = idamGetAPI(signal, source);
+	    
+	          if(handle < 0 || getIdamErrorCode(handle) > 0){
+                     err = 999;
+                     addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Unable to access Machine Description data!");
+                     idamFree(handle);
+	             break;
+	          }
+	    
+	          if(getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_DOUBLE || getIdamDataNum(handle) != 1){
+                     err = 999;
+                     addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Machine Description data has Incorrect properties!");
+                     idamFree(handle);
+	             break;
+	          }
+	       
+	          element[j].z = *((double *)getIdamData(handle));
+
+	       
+	          sprintf(signal,"PF_ACTIVE/COIL/%d/ELEMENT/%d/GEOMETRY/RECTANGLE/WIDTH", i+1, j+1);   
+	    
+	          handle = idamGetAPI(signal, source);
+	    
+	          if(handle < 0 || getIdamErrorCode(handle) > 0){
+                     err = 999;
+                     addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Unable to access Machine Description data!");
+                     idamFree(handle);
+	             break;
+	          }
+	    
+	          if(getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_DOUBLE || getIdamDataNum(handle) != 1){
+                     err = 999;
+                     addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Machine Description data has Incorrect properties!");
+                     idamFree(handle);
+	             break;
+	          }
+	       
+	          element[j].width = *((double *)getIdamData(handle));
+
+
+	          sprintf(signal,"PF_ACTIVE/COIL/%d/ELEMENT/%d/GEOMETRY/RECTANGLE/HEIGHT", i+1, j+1);   
+	    
+	          handle = idamGetAPI(signal, source);
+	    
+	          if(handle < 0 || getIdamErrorCode(handle) > 0){
+                     err = 999;
+                     addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Unable to access Machine Description data!");
+                     idamFree(handle);
+	             break;
+	          }
+	    
+	          if(getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_DOUBLE || getIdamDataNum(handle) != 1){
+                     err = 999;
+                     addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Machine Description data has Incorrect properties!");
+                     idamFree(handle);
+	             break;
+	          }
+	       
+	          element[j].height = *((double *)getIdamData(handle));
+	    
+	       } // Loop over elements/coordinates
+	       
+	       if(err != 0) break;
+	       
+	    } // Loop over all PF_Active Coils 
+            } // Read Machine Description Data
+
+// Save to cache after data access
+ 
+               if(cacheData){
+
+                  pfactive_cache_count = pfactive_count;
+                  pfactive_cache = (PF_ACTIVE *)malloc(pfactive_count*sizeof(PF_ACTIVE));
+
+// 2. Loop over all PF Active Coils
+
+                  for(i=0; i<pfactive_count; i++){
+	       
+	             initPFActive(&pfactive_cache[i]);
+
+ 	             stringLength = strlen(pfactive[i].name)+1;
+	             pfactive_cache[i].name = (char *)malloc(stringLength*sizeof(char));
+	             strcpy(pfactive_cache[i].name, pfactive[i].name);
+
+ 	             stringLength = strlen(pfactive[i].identifier)+1;
+	             pfactive_cache[i].identifier = (char *)malloc(stringLength*sizeof(char));
+	             strcpy(pfactive_cache[i].identifier, pfactive[i].identifier);
+
+// 3. Number of Elements/Coordinates
+
+	             pfactive_cache[i].element_count = pfactive[i].element_count;
+	             pfactive_cache[i].element = (PF_ACTIVE_ELEMENT *)malloc(pfactive[i].element_count*sizeof(PF_ACTIVE_ELEMENT));
+	    
+// 4. Loop over coordinates
+
+                     for(j=0; j<pfactive[i].element_count; j++){	       
+	                pfactive_cache[i].element[j].r      = pfactive[i].element[j].r; 
+	                pfactive_cache[i].element[j].z      = pfactive[i].element[j].z; 
+	                pfactive_cache[i].element[j].width  = pfactive[i].element[j].width; 
+                        pfactive_cache[i].element[j].height = pfactive[i].element[j].height; 
+                     }	    
+                  } // Loop over all PF Coils
+
+               }  else // cacheData    
+ 
+               if(cacheRetrieve){		// Retrieve Machine Description Data from Cache
+  
+// 1. Number of PF Active Coils
+	    	    
+	          pfactive_count = pfactive_cache_count;
+
+// Return if only the count is requested
+
+                  if(isCount) return( returnCount(pfactive_count, data_block));
+	    
+// Build the Returned Structures
+
+                  pfactive_proxy = (PF_ACTIVE_PROXY *)malloc(sizeof(PF_ACTIVE_PROXY));
+                  addMalloc((void*)pfactive_proxy, 1, sizeof(PF_ACTIVE_PROXY), "PF_ACTIVE_PROXY");	 	    
+
+                  pfactive = (PF_ACTIVE *)malloc(pfactive_count*sizeof(PF_ACTIVE));
+                  addMalloc((void*)pfactive, pfactive_count, sizeof(PF_ACTIVE), "PF_ACTIVE");	 
+
+                  pfactive_proxy->pfactive_count = pfactive_count;
+                  pfactive_proxy->pfactive       = pfactive;
+
+// 2. Loop over all Flux Loops
+
+                  for(i=0; i<pfactive_count; i++){
+	       
+	             initPFActive(&pfactive[i]);
+	       
+	             stringLength = strlen(pfactive_cache[i].name)+1;
+	             pfactive[i].name = (char *)malloc(stringLength*sizeof(char));
+	             addMalloc((void*)pfactive[i].name, 1, stringLength*sizeof(char), "STRING");	// Scalar String
+	             strcpy(pfactive[i].name, pfactive_cache[i].name);
+	       	       
+	             stringLength = strlen(pfactive_cache[i].identifier)+1;
+	             pfactive[i].identifier = (char *)malloc(stringLength*sizeof(char));
+	             addMalloc((void*)pfactive[i].identifier, 1, stringLength*sizeof(char), "STRING");	// Scalar String
+	             strcpy(pfactive[i].identifier, pfactive_cache[i].identifier);
+
+// 3. Number of Elements/Coordinates
+	    
+	             pfactive[i].element_count = pfactive_cache[i].element_count;
+
+                     PF_ACTIVE_ELEMENT *element = (PF_ACTIVE_ELEMENT *)malloc(pfactive[i].element_count*sizeof(PF_ACTIVE_ELEMENT));
+                     addMalloc((void*)element, pfactive[i].element_count, sizeof(PF_ACTIVE_ELEMENT), "PF_ACTIVE_ELEMENT");
+
+                     pfactive[i].element = element;
+	    
+// 4. Loop over Elements/coordinates
+
+                     for(j=0; j<pfactive[i].element_count; j++){       
+	                pfactive[i].element[j].r      = pfactive_cache[i].element[j].r;
+	                pfactive[i].element[j].z      = pfactive_cache[i].element[j].z;
+	                pfactive[i].element[j].width  = pfactive_cache[i].element[j].width;    
+                        pfactive[i].element[j].height = pfactive_cache[i].element[j].height;    
+	             }
+                  }	// Loop over all PF Active Coils
+ 		  
+               }	// end of cache retrieval
+
+
+// 5. Access measurement data and apply subsetting  
+
+            for(i=0; i<pfactive_count; i++){
+
+               pfactive[i].data_count = 0;
+	       pfactive[i].data = NULL;
+	       pfactive[i].time = NULL;	    
+ 	       
+ 	       sprintf(signal,"PF_ACTIVE/COIL/%d/CURRENT/DATA", i+1);   	    
+	       handle = idamGetAPI(signal, source);
+ 
+	       if(handle < 0 || getIdamErrorCode(handle) > 0){		// Unable to access Machine Measurement data - set count to zero! Ignore Error
+                  idamFree(handle);
+		  continue;
+	       }
+ 
+ 	       sprintf(signal,"PF_ACTIVE/COIL/%d/CURRENT/TIME", i+1);   	    
+	       int handle2 = idamGetAPI(signal, source);
+	    
+	       if(handle2 < 0 || getIdamErrorCode(handle2) > 0){	// Unable to access Machine Measurement data - set count to zero! Ignore Error		 
+                  idamFree(handle);
+		  idamFree(handle2);
+		  continue;
+	       }
+	       
+	       if(getIdamRank(handle2) != 0 || getIdamDataType(handle2) != TYPE_DOUBLE || getIdamDataNum(handle) != getIdamDataNum(handle2)){
+                  err = 999;
+                  addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Machine Measurement data has Incorrect properties!");
+                  idamFree(handle);
+		  idamFree(handle2);
+	          break;
+	       }
+
+               int data_count = getIdamDataNum(handle);
+  	    	       
+	       double *fd = (double *)getIdamData(handle);
+	       double *ft = (double *)getIdamData(handle2);
+	       
+               if(isStartTime){
+                  double sum1=0.0, sum2=0.0;
+                  int index1 = -1;
+                  int index2 = -1;
+                  for(j=0;j<data_count;j++){ 
+	             if(index1 < 0 && ft[j] >= startTime){
+                        index1 = j;
+                        if(!isEndTime) break;
+                     }
+                     if(index1 >= 0 && index2 < 0 && ft[j] >= endTime){
+                        index2 = j-1;
+                        if(index2 < 0) index2 = 0;
+                        if(ft[j] == endTime) index2 = j;
+                        break;
+                     }
+                  }
+                  if(index1 == -1){
+      // ERROR
+                  }
+  
+                  if(isEndTime){	// Subset of the data
+                     if(index2 == -1) index2 = data_count-1;
+                     data_count = index2 - index1 + 1;
+                  } else {		// Single value
+                     data_count = 1;
+                     index2 = index1;
+                  }
+
+                  if(isFirst){
+                     data_count = 1;
+                     index2 = index1;
+                  } else
+                  if(isLast){
+                     data_count = 1;
+                     index1 = index2;
+                  } else
+                  if(isNearest){
+                     data_count = 1;
+                     if( index1 > 0 && ((startTime - ft[index1-1]) > (ft[index1] - startTime))) index1 = index1-1;
+                  } else
+                  if(isAverage){
+                     for(j=0;j<data_count;j++){ 
+	                sum1 += fd[index1+j];
+		        sum2 += ft[index1+j];
+	             }
+                     sum1 = sum1 / (double)data_count;
+                     sum2 = sum2 / (double)data_count;
+                     data_count = 1;
+                  }  
+
+                  pfactive[i].data_count = data_count;
+	          pfactive[i].data = (double *)malloc(pfactive[i].data_count*sizeof(double));
+	          addMalloc((void*)pfactive[i].data, pfactive[i].data_count, sizeof(double), "double");	 
+	          pfactive[i].time = (double *)malloc(pfactive[i].data_count*sizeof(double));
+	          addMalloc((void*)pfactive[i].time, pfactive[i].data_count, sizeof(double), "double");	 
+                     
+                  if(isAverage){
+	             pfactive[i].data[0] = sum1;
+		     pfactive[i].time[0] = sum2;
+                  } else {	 
+                     for(j=0;j<pfactive[i].data_count;j++){ 
+	                pfactive[i].data[j] = fd[index1+j];
+		        pfactive[i].time[j] = ft[index1+j];
+                     }
+                  }
+               } else {		// All data are returned
+
+                  pfactive[i].data_count = data_count;
+ 
+// Reuse the allocated data blocks - no need to copy! 
+
+	          pfactive[i].data = (double *)getIdamData(handle);
+	          addMalloc((void*)pfactive[i].data, pfactive[i].data_count, sizeof(double), "double");	 
+	          pfactive[i].time = (double *)getIdamData(handle2);
+	          addMalloc((void*)pfactive[i].time, pfactive[i].data_count, sizeof(double), "double");	
+                  DATA_BLOCK *db = getIdamDataBlock(handle);
+                  db->data = NULL;		// Prevent double free
+                  db = getIdamDataBlock(handle2);
+                  db->data = NULL;	    
+               }
+
+               idamFree(handle);		// Do not cache 
+	       idamFree(handle2);
+	       	       	       	       
+	    } // Access measurement data and apply subsetting
+	    
+	    if(err != 0) break;	    
+
+// Return the Data
+
+            data_block->data_type = TYPE_COMPOUND;
+            data_block->rank = 0;
+            data_block->data_n = 1;
+            data_block->data = (char*) pfactive_proxy;
+
+            strcpy(data_block->data_desc, "Proxy for a PF_ACTIVE IDS structure");
+            strcpy(data_block->data_label, "");
+            strcpy(data_block->data_units, "");
+
+            data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
+            data_block->opaque_count = 1;
+            data_block->opaque_block = (void*) findUserDefinedType("PF_ACTIVE_PROXY", 0);
+
+            break;
+
+         } else	
 
 
 //----------------------------------------------------------------------------------------
@@ -4432,13 +5234,13 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
 /*
         if (!strcasecmp(request_block->function, "get")) {
 
-            idamLog(LOG_DEBUG, "LiveDisplay: GET entered\n");
+            //idamLog(LOG_DEBUG, "LiveDisplay: GET entered\n");
 
 // Create the Returned Structure Definitions
 
             initUserDefinedType(&usertype);            // New structure definition
 
-            strcpy(usertype.name, "CODE");
+            strcpy(usertype.name, "CODE");         
             usertype.size = sizeof(CODE);
             strcpy(usertype.source, "LiveDisplay");
             usertype.ref_id = 0;
@@ -4451,7 +5253,7 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
             defineField(&field, "name", "Code Name", &offset, SCALARSTRING);
             addCompoundField(&usertype, field);
 
-            defineField(&field, "version", "Code Version", &offset, SCALARSTRING);
+            defineField(&field, "version", "Code Version", &offset, SCALARSTRING);    
             addCompoundField(&usertype, field);
             defineField(&field, "parameters", "Code Parameters", &offset, SCALARSTRING);
             addCompoundField(&usertype, field);
@@ -4465,7 +5267,7 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
 
             initUserDefinedType(&usertype);            // New structure definition
 
-            strcpy(usertype.name, "MAGNETICS_TEST");
+            strcpy(usertype.name, "MAGNETICS_TEST");         
             usertype.size = sizeof(MAGNETICS_TEST);
             strcpy(usertype.source, "LiveDisplay");
             usertype.ref_id = 0;
@@ -4477,13 +5279,13 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
 
             defineField(&field, "comment", "Comment", &offset, SCALARSTRING);
             addCompoundField(&usertype, field);
-            defineField(&field, "homogeneous_time", "homogeneous_time", &offset, SCALARINT);
+            defineField(&field, "homogeneous_time", "homogeneous_time", &offset, SCALARINT);    
             addCompoundField(&usertype, field);
-            defineField(&field, "flux_loop_count", "flux_loop array count", &offset, SCALARINT);
+            defineField(&field, "flux_loop_count", "flux_loop array count", &offset, SCALARINT);    
             addCompoundField(&usertype, field);
-            defineField(&field, "bpol_probe_count", "bpol_probe array count", &offset, SCALARINT);
+            defineField(&field, "bpol_probe_count", "bpol_probe array count", &offset, SCALARINT);    
             addCompoundField(&usertype, field);
-            defineField(&field, "method_count", "method array count", &offset, SCALARINT);
+            defineField(&field, "method_count", "method array count", &offset, SCALARINT);    
             addCompoundField(&usertype, field);
 
             defineField(&field, "output_flag", "The Code output flags", &offset, ARRAYINT);
@@ -4510,7 +5312,7 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
 // Build the Returned Structures
 
             CODE code;
-
+	    
 	    stringLength = 56;
 
 	    code.name = (char *)malloc(stringLength*sizeof(char));
@@ -4533,22 +5335,22 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
 	    code.output_flag = (int *)malloc(code.output_flag_count*sizeof(int));
 	    addMalloc((void*)code.output_flag, code.output_flag_count, sizeof(int), "int");	// Integer Array
 	    code.output_flag[0] = 0;
-
+	    
 	    MAGNETICS_TEST *magnetics = (MAGNETICS_TEST *)malloc(sizeof(MAGNETICS_TEST));
 	    addMalloc((void*)magnetics, 1, sizeof(MAGNETICS_TEST), "MAGNETICS_TEST");
-
+ 
 	    stringLength = 128;
 	    magnetics->comment = (char *)malloc(stringLength*sizeof(char));
 	    addMalloc((void*)magnetics->comment, 1, stringLength*sizeof(char), "STRING");	// Scalar String
 	    strcpy(magnetics->comment, "This is the LiveDisplay prototype plugin for Magnetics IDS data");
-
+	    
 	    magnetics->homogeneous_time = 1;
 	    magnetics->flux_loop_count = 2;
 	    magnetics->bpol_probe_count = 3;
 	    magnetics->method_count = 4;
-
+	    
 	    magnetics->code = code;
-
+	    
 // Pass Data
 
             data_block->data_type = TYPE_COMPOUND;
@@ -4564,40 +5366,40 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
             data_block->opaque_count = 1;
             data_block->opaque_block = (void*) findUserDefinedType("MAGNETICS_TEST", 0);
 
-            idamLog(LOG_DEBUG, "LiveDisplay: GET exited\n");
+            //idamLog(LOG_DEBUG, "LiveDisplay: GET exited\n");
 
             break;
 
         } else
-*/
+*/	
 //----------------------------------------------------------------------------------------
 // Help: A Description of library functionality
 //
-// livedisplay::help()
+// livedisplay::help()		
 // Information is returned as a single string containing all required format control characters.
 
         if (!strcasecmp(request_block->function, "help")) {
-
+ 
 // Create Data
 
             stringLength = 128;
-            char* data = (char*) malloc(stringLength * sizeof(char));
+	    char* data = (char *)malloc(stringLength*sizeof(char));
             strcpy(data, "\nLIVEDISPLAY: description and examples\n");
 
-            idamLog(LOG_DEBUG, "LiveDisplay:\n%s\n", data);
+            //idamLog(LOG_DEBUG, "LiveDisplay:\n%s\n", data);
 
 // Pass Data
 
             data_block->data_type = TYPE_STRING;
             data_block->rank = 0;
-            data_block->data_n = strlen(data) + 1;
+            data_block->data_n = strlen(data)+1;
             data_block->data = (char*) data;
 
             strcpy(data_block->data_desc, "LiveDisplay Plugin help");
             strcpy(data_block->data_label, "");
             strcpy(data_block->data_units, "");
 
-            idamLog(LOG_DEBUG, "LiveDisplay: Function help called\n");
+            //idamLog(LOG_DEBUG, "LiveDisplay: Function help called\n");
 
             break;
 
@@ -4666,14 +5468,13 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
             strcpy(data_block->data_label, "version");
             strcpy(data_block->data_units, "");
             break;
-        } else {
-
+        } else
+	
 //----------------------------------------------------------------------------------------
 // Not a Known Function!
 
-            err = 999;
-        }
-        idamLog(LOG_ERROR, "ERROR LiveDisplay: Function %s Not Known.!\n", request_block->function);
+        err = 999;
+        //idamLog(LOG_ERROR, "ERROR LiveDisplay: Function %s Not Known.!\n", request_block->function);
         addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, "Unknown Function requested");
         addIdamError(&idamerrorstack, CODEERRORTYPE, "LiveDisplay", err, request_block->function);
         concatIdamError(idamerrorstack, idamErrorStack);
