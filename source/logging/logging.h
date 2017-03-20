@@ -19,6 +19,8 @@ typedef enum LogMode {
     LOG_NONE    = 6
 } LOG_MODE;
 
+typedef void (*logFunc)(FILE*);
+
 void idamSetLogLevel(LOG_MODE mode);
 LOG_MODE idamGetLogLevel();
 
@@ -27,6 +29,7 @@ void idamCloseLogging();
 FILE* idamGetLogFile(LOG_MODE mode);
 void idamSetLogFile(LOG_MODE mode, FILE* file_name);
 
+void idamLogWithFunc(LOG_MODE mode, logFunc func);
 void idamLog(LOG_MODE mode, const char* fmt, ...);
 
 #endif //IDAM_LOGGING_IDAMLOG_H

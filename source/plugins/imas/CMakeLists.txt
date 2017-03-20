@@ -2,12 +2,16 @@ cmake_minimum_required( VERSION 2.8 )
 
 find_package( LibXml2 QUIET )
 find_package( MDSplus QUIET )
+find_package( HDF5 COMPONENTS C HL QUIET )
 
 if( NOT MDSPLUS_FOUND )
   message( WARNING "mdsplus not found - skipping imas plugin" )
   return()
 elseif( NOT LIBXML2_FOUND )
   message( WARNING "Libxml2 not found - skipping imas plugin" )
+  return()
+elseif( NOT HDF5_FOUND )
+  message( WARNING "HDF5 not found - skipping imas plugin" )
   return()
 endif()
 
@@ -30,7 +34,9 @@ uda_plugin(
   EXAMPLE "IMAS::put()"
   LIBNAME imas_plugin
   SOURCES
+    imas.c
     imas_mds.c
+    imas_hdf5.c
     extract_indices.c
     common.c
     ${IMAS_SOURCES}
@@ -39,9 +45,12 @@ uda_plugin(
     ${LIBXML2_INCLUDE_DIR}
     ${MDSPLUS_INCLUDES}
     ${CMAKE_SOURCE_DIR}/client
+    ${HDF5_INCLUDE_DIRS}
   EXTRA_LINK_LIBS
     ${LIBXML2_LIBRARIES}
     ${MDSPLUS_LIBRARIES}
+    ${HDF5_LIBRARIES}
+    ${HDF5_HL_LIBRARIES}
     ${IDC_LIB_NAME}
     pthread
 )

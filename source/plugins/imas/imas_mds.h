@@ -15,24 +15,9 @@ extern "C" {
 #define FILEISOPEN      2
 #define FILEISCLOSED    3
 
-#define PUT_OPERATION               0
-#define ISTIMED_OPERATION           1
-#define PUTSLICE_OPERATION          2
-#define REPLACELASTSLICE_OPERATION  3
-
-#define GET_OPERATION               0
-#define GETSLICE_OPERATION          1
-#define GETDIMENSION_OPERATION      2
-
 #define CLOSEST_SAMPLE  1
 #define PREVIOUS_SAMPLE 2
 #define INTERPOLATION   3
-
-#define UNKNOWN_TYPE    0
-#define STRING          1        // Must be the same as the client for consistency
-#define INT             2
-#define FLOAT           3
-#define DOUBLE          4
 
 #define TIMEBASEPATHLENGTH      256
 
@@ -128,10 +113,6 @@ typedef struct PluginArgs {
 
 } PLUGIN_ARGS;
 
-char* getImasIdsVersion();
-
-char* getImasIdsDevice();
-
 void putImasIdsVersion(const char* version);
 
 void putImasIdsDevice(const char* device);
@@ -162,12 +143,6 @@ int imas_mds_getDataSliceInObject(void* obj, char* path, int index, int type, in
 void putTimeBasePath(char* timeBasePath);
 
 char* getTimeBasePath();
-
-int getSliceIdxs(int expIdx, char* cpoPath, double time);
-
-void setSliceIdx(int index1, int index2);
-
-void setSliceTime(double time1, double time2);
 
 #ifdef __cplusplus
 }
