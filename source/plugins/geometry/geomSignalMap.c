@@ -100,7 +100,20 @@ int do_signal_file(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
   // CURRENTLY HARDCODED IN WHILE I'M TESTING
   // .... Once this is actually in the new MAST-U db, will need to use idam functions as in readMeta to open connection.
   IDAM_LOG(LOG_DEBUG, "trying to get connection\n");
-  PGconn* DBConnect = openDatabase("idam3.mast.ccfe.ac.uk", 60001, "idam", "idam");
+  
+  char* db_host = getenv("GEOM_DB_HOST");
+  char* db_port_str = getenv("GEOM_DB_PORT");
+  int db_port = -1;
+  if (db_port_str != NULL) db_port = atoi(db_port_str);    
+  char* db_name = getenv("GEOM_DB_NAME");
+  char* db_user = getenv("GEOM_DB_USER");
+  
+  if (db_host == NULL || db_port_str == NULL || db_name == NULL || db_user == NULL) {
+    RAISE_PLUGIN_ERROR("Geom db host, port, name and user env variables were not set.\n");
+  }
+
+  PGconn* DBConnect = openDatabase(db_host, db_port, db_name, db_user);
+
   PGresult* DBQuery = NULL;
 
   if (PQstatus(DBConnect) != CONNECTION_OK) {
@@ -417,7 +430,18 @@ int do_signal_filename(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
   ////////////////////
   // Query to find data signals and filename associated with given geom group
   IDAM_LOG(LOG_DEBUG, "trying to get connection\n");
-  PGconn* DBConnect = openDatabase("idam3.mast.ccfe.ac.uk", 60001, "idam", "idam");
+  char* db_host = getenv("GEOM_DB_HOST");
+  char* db_port_str = getenv("GEOM_DB_PORT");
+  int db_port = -1;
+  if (db_port_str != NULL) db_port = atoi(db_port_str);    
+  char* db_name = getenv("GEOM_DB_NAME");
+  char* db_user = getenv("GEOM_DB_USER");
+  
+  if (db_host == NULL || db_port_str == NULL || db_name == NULL || db_user == NULL) {
+    RAISE_PLUGIN_ERROR("Geom db host, port, name and user env variables were not set.\n");
+  }
+
+  PGconn* DBConnect = openDatabase(db_host, db_port, db_name, db_user);
   PGresult* DBQuery = NULL;
 
   if (PQstatus(DBConnect) != CONNECTION_OK) {

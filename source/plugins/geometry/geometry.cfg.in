@@ -3,3 +3,7 @@
 #------------------------------------------------------------------------------------------------------
 
 export MAST_GEOM_DATA="/home/lkogan/MAST-U_Machine_Description/Netcdf_Files/"
+export GEOM_DB_HOST="idam3.mast.ccfe.ac.uk"
+export GEOM_DB_PORT=60001
+export GEOM_DB_NAME="idam"
+export GEOM_DB_USER="idam"
