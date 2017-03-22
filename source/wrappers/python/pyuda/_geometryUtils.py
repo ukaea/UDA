@@ -5,21 +5,23 @@ Utilities for geometry manipulations, that are useful across geometry manipulati
 import math
 import numpy as np
 
-def unit_vector_to_poloidal_angle(R, Z):
+def unit_vector_to_poloidal_angle(R, Z, convention="anticlockwise"):
     """
     Take a unit vector in cylindrical co-ordinates
     and calculate the "poloidal angle".
     :param R: R element
     :param Z: Z element
+    :param convention: clockwise or anticlockwise: direction in which poloidal angle increases from x-axis
     :return: poloidal angle
     """
-    try:
-        theta = math.acos(R/math.sqrt(Z*Z+R*R))*180.0/math.pi
-    except ZeroDivisionError:
-        theta = 0.0
+    theta = math.atan2(Z, R) * 180.0 / math.pi
 
-    if Z > 0.0:
-        theta = 360.0 - theta
+    # Make it go from 0 -> 2pi
+    if theta < 0:
+        theta = 360 + theta
+
+    if convention == "clockwise" and theta > 0.0:
+        theta = 360 - theta
 
     return theta
 

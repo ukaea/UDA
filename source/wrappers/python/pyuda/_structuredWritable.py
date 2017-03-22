@@ -26,6 +26,13 @@ class StructuredWritable(StructuredData):
         if self._children is None:
             self._import_children()
 
+        child_names = []
+        for child in self._children:
+            child_names.append(child.name)
+
+        if new_child.name in child_names:
+            new_child._name += "_"
+
         self._children.append(new_child)
 
     def retain_children(self, indices=None):

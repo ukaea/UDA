@@ -28,12 +28,6 @@ else()
   message( WARNING "PostgreSQL or LibXml2 not found - IDL roidam library not building" )
 endif()
 
-if( NetCDF_FOUND AND LibXml2_FOUND )
-  add_subdirectory( putdata )
-else()
-  message( WARNING "NetCDF4 or LibXml2 not found - IDL netcdf4 library not building" )
-endif()
-
 target_link_libraries( ${LIB_NAME} LINK_PRIVATE client-static ${IDL_LIBRARIES} )
 
 set_target_properties( ${LIB_NAME}
@@ -58,14 +52,15 @@ install( FILES ${INSTALL_FILES}
 set( INSTALL_FILES
   getstruct.pro
   getdata.pro
-#  callplugin.pro
-#  geometry/addsignaldata.pro
-#  geometry/applygeommanipulation.pro
-#  geometry/cylindrical_cartesian.pro
-#  geometry/getgeomdata.pro
-#  geometry/getgeomsignaldata.pro
-#  geometry/pickupmanipulation.pro
-#  geometry/strnumber.pro
+#  calluda.pro
+  geometry/addsignaldata.pro
+  geometry/applygeommanipulation.pro
+  geometry/cylindrical_cartesian.pro
+  geometry/getgeomdata.pro
+  geometry/getgeomsignaldata.pro
+  geometry/pickupmanipulation.pro
+  geometry/strnumber.pro
+#  putdata/putdata.pro
 )
 
 install( FILES ${INSTALL_FILES}

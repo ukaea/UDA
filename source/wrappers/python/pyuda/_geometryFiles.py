@@ -25,6 +25,7 @@ class GeometryFiles:
         """
         # Map from top-level groups in each file to the appropriate manipulator
         self._signal_manip_map = { '/magnetics/pickup': GeomPickup(),
+                                   '/magnetics/mirnov': GeomPickup(),
                                    '/magnetics/fluxloops': GeomFluxloops()}
 
     # --------------------------
