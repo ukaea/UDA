@@ -1,13 +1,8 @@
-
-//--------------------------------------------------------------- 
+//---------------------------------------------------------------
 // Library of XML Accessor functions 
-// 
-// Change History: 
-// 06Sept2016	dgm	Original Version
+//
 //-------------------------------------------------------------- 
 #include "efitmagxml.h"
-
-#include <clientserver/udaErrors.h>
 
 INSTANCE* getinstmagprobe(EFIT* efit, const int index)
 {
@@ -49,9 +44,7 @@ INSTANCE* getinstpfcircuit(EFIT* efit, const int index)
     return &efit->pfcircuit[index].instance;
 }
 
-
 //=========================================================================
-
 
 char* getdevice(EFIT* efit)
 {
@@ -66,13 +59,6 @@ int getexpnumber(EFIT* efit)
 void getinstance(INSTANCE* str, int* seq, int* status, float* factor,
                  char** archive, char** file, char** signal, char** owner, char** format)
 {
-
-//fprintf(stdout,"Archive : %s\n", str->archive); 
-//fprintf(stdout,"File    : %s\n", str->file); 
-//fprintf(stdout,"Signal  : %s\n", str->signal); 
-//fprintf(stdout,"Owner   : %s\n", str->owner); 
-//fprintf(stdout,"Format  : %s\n", str->format); 
-
     *archive = str->archive;
     *file = str->file;
     *signal = str->signal;
@@ -97,29 +83,6 @@ int getmagprobe(EFIT* efit, const int n, float* r, float* z, float* angle, float
     } else { return 1; }
 }
 
-/*
-int getpolarimetry(EFIT *efit, const int n, float *r, float *z, float *angle, float *aerr, float *rerr){ 
-   if(n >= 0 && n <= efit->npolarimetry-1){ 
-      *r      = efit->polarimetry[n].r; 
-      *z      = efit->polarimetry[n].z; 
-      *angle  = efit->polarimetry[n].angle; 
-      *aerr   = efit->polarimetry[n].aerr; 
-      *rerr   = efit->polarimetry[n].rerr; 
-      return 0; 
-   } else return 1; 
-}
-
-int getinterferometry(EFIT *efit, const int n, float *r, float *z, float *angle, float *aerr, float *rerr){ 
-   if(n >= 0 && n <= efit->ninterferometry-1){ 
-      *r      = efit->interferometry[n].r; 
-      *z      = efit->interferometry[n].z; 
-      *angle  = efit->interferometry[n].angle; 
-      *aerr   = efit->interferometry[n].aerr; 
-      *rerr   = efit->interferometry[n].rerr; 
-      return 0; 
-   } else return 1; 
-}      
-*/
 int getpfsupply(EFIT* efit, const int n, float* aerr, float* rerr)
 {
     if (n >= 0 && n <= efit->npfsupplies - 1) {
@@ -140,7 +103,6 @@ int getfluxloop(EFIT* efit, const int n, float** r, float** z, float** dphi, flo
         return 0;
     } else { return 1; }
 }
-
 
 int getpfpassive(EFIT* efit, const int n, float** r, float** z, float** dr,
                  float** dz, float** ang1, float** ang2, float** res,

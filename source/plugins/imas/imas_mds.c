@@ -25,6 +25,7 @@
 #include "ual_low_level_mdsplus.h"
 #include "ual_low_level.h"
 #include "extract_indices.h"
+#include "imas.h"
 
 #include <mdslib.h>
 #include <regex.h>
@@ -151,29 +152,6 @@ void* findLocalObj(int refId)
     return NULL;
 }
 
-static char imasIdsVersion[256] = "";   // The IDS Data Model Version
-static char imasIdsDevice[256] = "";    // The IDS Data Model Device name
-
-void putImasIdsVersion(const char* version)
-{
-    strcpy(imasIdsVersion, version);
-}
-
-char* getImasIdsVersion()
-{
-    return imasIdsVersion;
-}
-
-void putImasIdsDevice(const char* device)
-{
-    strcpy(imasIdsDevice, device);
-}
-
-char* getImasIdsDevice()
-{
-    return imasIdsDevice;
-}
-
 static char TimeBasePath[TIMEBASEPATHLENGTH];
 
 void putTimeBasePath(char* timeBasePath)
@@ -188,62 +166,6 @@ void putTimeBasePath(char* timeBasePath)
 char* getTimeBasePath()
 {
     return TimeBasePath;
-}
-
-// dgm  Convert name to IMAS type
-int findIMASType(char* typeName)
-{
-    if (typeName == NULL) return (UNKNOWN_TYPE);
-    //if(STR_IEQUALS(typeName, "byte"))     return TYPE_CHAR;
-    //if(STR_IEQUALS(typeName, "char"))     return TYPE_CHAR;
-    //if(STR_IEQUALS(typeName, "short"))    return TYPE_SHORT;
-    if (STR_IEQUALS(typeName, "int")) return INT;
-    //if(STR_IEQUALS(typeName, "int64"))    return TYPE_LONG64;
-    if (STR_IEQUALS(typeName, "float")) return FLOAT;
-    if (STR_IEQUALS(typeName, "double")) return DOUBLE;
-    //if(STR_IEQUALS(typeName, "ubyte"))    return TYPE_UNSIGNED_CHAR;
-    //if(STR_IEQUALS(typeName, "ushort"))   return TYPE_UNSIGNED_SHORT;
-    //if(STR_IEQUALS(typeName, "uint"))     return TYPE_UNSIGNED_INT;
-    //if(STR_IEQUALS(typeName, "uint64"))   return TYPE_UNSIGNED_LONG64;
-    //if(STR_IEQUALS(typeName, "text"))     return TYPE_STRING;
-    if (STR_IEQUALS(typeName, "string")) return STRING;
-    //if(STR_IEQUALS(typeName, "vlen"))     return TYPE_VLEN;
-    //if(STR_IEQUALS(typeName, "compound")) return TYPE_COMPOUND;
-    //if(STR_IEQUALS(typeName, "opaque"))   return TYPE_OPAQUE;
-    //if(STR_IEQUALS(typeName, "enum"))     return TYPE_ENUM;
-    return (UNKNOWN_TYPE);
-}
-
-// dgm  Convert IMAS type to IDAM type
-
-int findIMASIDAMType(int type)
-{
-    switch (type) {
-        case INT:
-            return TYPE_INT;
-        case FLOAT:
-            return TYPE_FLOAT;
-        case DOUBLE:
-            return TYPE_DOUBLE;
-        case STRING:
-            return TYPE_STRING;
-    }
-    return TYPE_UNKNOWN;
-}
-
-static int sliceIdx1, sliceIdx2;
-static double sliceTime1, sliceTime2;
-
-void setSliceIdx(int index1, int index2)
-{
-    sliceIdx1 = index1;
-    sliceIdx2 = index2;
-}
-
-void setSliceTime(double time1, double time2)
-{
-    sliceTime1 = time1;
-    sliceTime2 = time2;
 }
 
 extern int imas_mds(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
