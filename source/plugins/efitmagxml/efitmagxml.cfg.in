@@ -1,0 +1,1 @@
+export UDA_EFITMAGXML_XMLDIR=@CMAKE_INSTALL_PREFIX@/etc/plugins/xml

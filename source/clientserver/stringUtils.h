@@ -15,6 +15,14 @@ void reverseString(const char* in, char* out);
 // Copy a String subject to a Maximum length constraint
 void copyString(const char* in, char* out, int maxlength);
 
+/**
+ * Allocate and return a string built using the given format and arguments.
+ * @param fmt The printf style format string
+ * @param ... The arguments to use to generate the string
+ * @return The allocated string, needs to be freed
+ */
+char* FormatString(const char* fmt, ...);
+
 // Trim Trailing Space Characters from a String
 char* TrimString(char* szSource);
 
@@ -43,9 +51,11 @@ char* convertNonPrintable(char* str);
 
 char* convertNonPrintable2(char* str);
 
-int IsLegalFilePath(char* str);
+int IsLegalFilePath(const char* str);
 
+#if !defined(asprintf)
 int asprintf(char** strp, const char* fmt, ...);
+#endif
 
 char** SplitString(const char* string, const char* delim);
 

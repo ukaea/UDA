@@ -11348,17 +11348,16 @@ struct descriptor_xd* doShellCommand(char* cmd) {
     static EMPTYXD(retXd);
     char* fullCommand = malloc(strlen(cmd) + 64);
     char* answer = malloc(MAX_COMMAND_ANSWER_LEN);
-    int retLen;
-    FILE* f;
     struct descriptor answerD = {0, DTYPE_T, CLASS_S, answer};
-    char* tmpName;
 
-    tmpName = tempnam("/tmp", "ual_");
+    char tmpName[] = "/tmp/ual_XXXXXX";
+    mkstemp(tmpName);
+
     sprintf(fullCommand, "%s > %s", cmd, tmpName);
     system(fullCommand);
     free(fullCommand);
-    retLen = 0;
-    f = fopen(tmpName, "r");
+    int retLen = 0;
+    FILE* f = fopen(tmpName, "r");
     if (!f) {
         free(tmpName);
         return NULL;

@@ -8,18 +8,17 @@
 #include <dlfcn.h>
 #include <strings.h>
 
-#include <clientserver/initStructs.h>
-#include <clientserver/stringUtils.h>
-#include <clientserver/expand_path.h>
-#include <clientserver/printStructs.h>
-#include <structures/struct.h>
-#include <clientserver/freeDataBlock.h>
-#include <clientserver/protocol.h>
-#include <clientserver/udaErrors.h>
 #include <cache/cache.h>
-
-#include <modules/ida/parseIdaPath.h>
 #include <client/udaClient.h>
+#include <clientserver/expand_path.h>
+#include <clientserver/freeDataBlock.h>
+#include <clientserver/initStructs.h>
+#include <clientserver/printStructs.h>
+#include <clientserver/protocol.h>
+#include <clientserver/stringUtils.h>
+#include <clientserver/udaErrors.h>
+#include <modules/ida/parseIdaPath.h>
+#include <structures/struct.h>
 
 #include "getPluginAddress.h"
 #include "makeServerRequestBlock.h"
@@ -36,12 +35,71 @@ int initPlugin(const IDAM_PLUGIN_INTERFACE* plugin_interface)
     return 0;
 }
 
+int setReturnDataDblScalar(IDAM_PLUGIN_INTERFACE* plugin_interface, double value)
+{
+    double* data = (double*)malloc(sizeof(double));
+    data[0] = value;
+
+    DATA_BLOCK* data_block = plugin_interface->data_block;
+
+    initDataBlock(data_block);
+    data_block->rank = 0;
+    data_block->data_type = TYPE_DOUBLE;
+    data_block->data = (char*)data;
+    data_block->data_n = 1;
+
+    return 0;
+}
+
+int setReturnDataIntScalar(IDAM_PLUGIN_INTERFACE* plugin_interface, int value)
+{
+    int* data = (int*)malloc(sizeof(int));
+    data[0] = value;
+
+    DATA_BLOCK* data_block = plugin_interface->data_block;
+
+    initDataBlock(data_block);
+    data_block->rank = 0;
+    data_block->data_type = TYPE_INT;
+    data_block->data = (char*)data;
+    data_block->data_n = 1;
+
+    return 0;
+}
+
+int setReturnDataString(IDAM_PLUGIN_INTERFACE* plugin_interface, const char* value)
+{
+    DATA_BLOCK* data_block = plugin_interface->data_block;
+
+    data_block->data_type = TYPE_STRING;
+    data_block->data = strdup(value);
+
+    data_block->rank = 1;
+    data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
+
+    int i;
+    for (i = 0; i < data_block->rank; i++) {
+        initDimBlock(&data_block->dims[i]);
+    }
+
+    data_block->dims[0].data_type = TYPE_UNSIGNED_INT;
+    data_block->dims[0].dim_n = (int)strlen(value) + 1;
+    data_block->dims[0].compressed = 1;
+    data_block->dims[0].dim0 = 0.0;
+    data_block->dims[0].diff = 1.0;
+    data_block->dims[0].method = 0;
+
+    data_block->data_n = data_block->dims[0].dim_n;
+
+    return 0;
+}
+
 void allocPluginList(int count, PLUGINLIST* plugin_list)
 {
     if (count >= plugin_list->mcount) {
         plugin_list->mcount = plugin_list->mcount + REQUEST_PLUGIN_MSTEP;
-        plugin_list->plugin = (PLUGIN_DATA*) realloc((void*) plugin_list->plugin,
-                                                     plugin_list->mcount * sizeof(PLUGIN_DATA));
+        plugin_list->plugin = (PLUGIN_DATA*)realloc((void*)plugin_list->plugin,
+                                                    plugin_list->mcount * sizeof(PLUGIN_DATA));
     }
 }
 
@@ -72,7 +130,7 @@ void freePluginList(PLUGINLIST* plugin_list)
             dlclose(plugin_list->plugin[i].pluginHandle);
         }
     }
-    if (plugin_list->plugin != NULL) free((void*) plugin_list->plugin);
+    free((void*)plugin_list->plugin);
     plugin_list->plugin = NULL;
 }
 
@@ -163,8 +221,9 @@ int findPluginIdByDevice(const char* device, const PLUGINLIST* plugin_list)
 {
     int i;
     for (i = 0; i < plugin_list->count; i++) {
-        if (plugin_list->plugin[i].class == PLUGINDEVICE && STR_IEQUALS(plugin_list->plugin[i].format, device))
+        if (plugin_list->plugin[i].class == PLUGINDEVICE && STR_IEQUALS(plugin_list->plugin[i].format, device)) {
             return i;
+        }
     }
     return -1;
 }
@@ -207,7 +266,7 @@ void initPluginList(PLUGINLIST* plugin_list)
 // initialise the Plugin List and Allocate heap for the list
 
     plugin_list->count = 0;
-    plugin_list->plugin = (PLUGIN_DATA*) malloc(REQUEST_PLUGIN_MCOUNT * sizeof(PLUGIN_DATA));
+    plugin_list->plugin = (PLUGIN_DATA*)malloc(REQUEST_PLUGIN_MCOUNT * sizeof(PLUGIN_DATA));
     plugin_list->mcount = REQUEST_PLUGIN_MCOUNT;
 
     for (i = 0; i < plugin_list->mcount; i++) {
@@ -228,7 +287,6 @@ void initPluginList(PLUGINLIST* plugin_list)
     strcpy(plugin_list->plugin[plugin_list->count].example, "idamGetAPI(\"signal name\", \"12345\")");
     allocPluginList(plugin_list->count++, plugin_list);
 
-#ifndef DGM8OCT14
 #ifndef NOIDAMPLUGIN
 
     /*!
@@ -241,9 +299,10 @@ void initPluginList(PLUGINLIST* plugin_list)
     plugin_list->plugin[plugin_list->count].class = PLUGINSERVER;
 
     ENVIRONMENT* environment = getIdamServerEnvironment();
-    
-    if (environment->server_proxy[0] != '\0')
-        plugin_list->plugin[plugin_list->count].private = PLUGINPUBLIC;        // Public service if running as a PROXY
+
+    if (environment->server_proxy[0] != '\0') {
+        plugin_list->plugin[plugin_list->count].private = PLUGINPUBLIC;
+    }        // Public service if running as a PROXY
 
     if (!environment->external_user)
         plugin_list->plugin[plugin_list->count].private = PLUGINPUBLIC;        // Public service for internal requests only
@@ -268,7 +327,6 @@ void initPluginList(PLUGINLIST* plugin_list)
                    "together.");
     strcpy(plugin_list->plugin[plugin_list->count].example, "idamGetAPI(\"ip\",\"SERVER::server:port/12345\")");
     allocPluginList(plugin_list->count++, plugin_list);
-#endif
 #endif
 
 #ifndef NOWEBPLUGIN
@@ -305,25 +363,31 @@ void initPluginList(PLUGINLIST* plugin_list)
     Data via a MDSPlus Server can be accessed using either of three protocol names: MDS or MDS+ or MDSPLUS.
     These access services are identical.
     */
-    strcpy(plugin_list->plugin[plugin_list->count].format,  "MDS");
+    strcpy(plugin_list->plugin[plugin_list->count].format, "MDS");
     plugin_list->plugin[plugin_list->count].request = REQUEST_READ_MDS;
-    plugin_list->plugin[plugin_list->count].class   = PLUGINSERVER;
-    strcpy(plugin_list->plugin[plugin_list->count].desc,  "Data accessed via an internal or external MDSPlus server. The latter may be subject to user authentication.");
-    strcpy(plugin_list->plugin[plugin_list->count].example, "idamGetAPI(\"\\top.inputs:cur\",\"MDS::/trmast/159052601\")");
+    plugin_list->plugin[plugin_list->count].class = PLUGINSERVER;
+    strcpy(plugin_list->plugin[plugin_list->count].desc,
+           "Data accessed via an internal or external MDSPlus server. The latter may be subject to user authentication.");
+    strcpy(plugin_list->plugin[plugin_list->count].example,
+           "idamGetAPI(\"\\top.inputs:cur\",\"MDS::/trmast/159052601\")");
     allocPluginList(plugin_list->count++, plugin_list);
 
-    strcpy(plugin_list->plugin[plugin_list->count].format,  "MDS+");
+    strcpy(plugin_list->plugin[plugin_list->count].format, "MDS+");
     plugin_list->plugin[plugin_list->count].request = REQUEST_READ_MDS;
-    plugin_list->plugin[plugin_list->count].class   = PLUGINSERVER;
-    strcpy(plugin_list->plugin[plugin_list->count].desc,  "Data accessed via an internal or external MDSPlus server. The latter may be subject to user authentication.");
-    strcpy(plugin_list->plugin[plugin_list->count].example, "idamGetAPI(\"\\top.inputs:cur\",\"MDS+::/trmast/159052601\")");
+    plugin_list->plugin[plugin_list->count].class = PLUGINSERVER;
+    strcpy(plugin_list->plugin[plugin_list->count].desc,
+           "Data accessed via an internal or external MDSPlus server. The latter may be subject to user authentication.");
+    strcpy(plugin_list->plugin[plugin_list->count].example,
+           "idamGetAPI(\"\\top.inputs:cur\",\"MDS+::/trmast/159052601\")");
     allocPluginList(plugin_list->count++, plugin_list);
 
-    strcpy(plugin_list->plugin[plugin_list->count].format,  "MDSPLUS");
+    strcpy(plugin_list->plugin[plugin_list->count].format, "MDSPLUS");
     plugin_list->plugin[plugin_list->count].request = REQUEST_READ_MDS;
-    plugin_list->plugin[plugin_list->count].class   = PLUGINSERVER;
-    strcpy(plugin_list->plugin[plugin_list->count].desc,  "Data accessed via an internal or external MDSPlus server. The latter may be subject to user authentication.");
-    strcpy(plugin_list->plugin[plugin_list->count].example, "idamGetAPI(\"\\top.inputs:cur\",\"MDSPLUS::/trmast/159052601\")");
+    plugin_list->plugin[plugin_list->count].class = PLUGINSERVER;
+    strcpy(plugin_list->plugin[plugin_list->count].desc,
+           "Data accessed via an internal or external MDSPlus server. The latter may be subject to user authentication.");
+    strcpy(plugin_list->plugin[plugin_list->count].example,
+           "idamGetAPI(\"\\top.inputs:cur\",\"MDSPLUS::/trmast/159052601\")");
     allocPluginList(plugin_list->count++, plugin_list);
 #endif
 
@@ -364,20 +428,22 @@ void initPluginList(PLUGINLIST* plugin_list)
 // File Formats
 
 #ifndef NOIDAPLUGIN
-    strcpy(plugin_list->plugin[plugin_list->count].format,  "IDA");
+    strcpy(plugin_list->plugin[plugin_list->count].format, "IDA");
     plugin_list->plugin[plugin_list->count].request = REQUEST_READ_IDA;
-    plugin_list->plugin[plugin_list->count].class   = PLUGINFILE;
+    plugin_list->plugin[plugin_list->count].class = PLUGINFILE;
     plugin_list->plugin[plugin_list->count].private = PLUGINPUBLIC;
-    strcpy(plugin_list->plugin[plugin_list->count].desc,  "Data accessed from a Legacy IDA3 file.");
-    strcpy(plugin_list->plugin[plugin_list->count].example, "idamGetAPI(\"abc_my data\", \"IDA::/path/to/my/file123.45\")");
+    strcpy(plugin_list->plugin[plugin_list->count].desc, "Data accessed from a Legacy IDA3 file.");
+    strcpy(plugin_list->plugin[plugin_list->count].example,
+           "idamGetAPI(\"abc_my data\", \"IDA::/path/to/my/file123.45\")");
     allocPluginList(plugin_list->count++, plugin_list);
 
-    strcpy(plugin_list->plugin[plugin_list->count].format,  "IDA3");
+    strcpy(plugin_list->plugin[plugin_list->count].format, "IDA3");
     plugin_list->plugin[plugin_list->count].request = REQUEST_READ_IDA;
-    plugin_list->plugin[plugin_list->count].class   = PLUGINFILE;
+    plugin_list->plugin[plugin_list->count].class = PLUGINFILE;
     plugin_list->plugin[plugin_list->count].private = PLUGINPUBLIC;
-    strcpy(plugin_list->plugin[plugin_list->count].desc,  "Data accessed from a Legacy IDA3 file.");
-    strcpy(plugin_list->plugin[plugin_list->count].example, "idamGetAPI(\"abc_my data\", \"IDA3::/path/to/my/file123.45\")");
+    strcpy(plugin_list->plugin[plugin_list->count].desc, "Data accessed from a Legacy IDA3 file.");
+    strcpy(plugin_list->plugin[plugin_list->count].example,
+           "idamGetAPI(\"abc_my data\", \"IDA3::/path/to/my/file123.45\")");
     allocPluginList(plugin_list->count++, plugin_list);
 #endif
 
@@ -663,7 +729,7 @@ void initPluginList(PLUGINLIST* plugin_list)
         strcpy(plugin_list->plugin[i].desc, "Inbuilt Serverside functions");
         plugin_list->plugin[i].private = PLUGINPUBLIC;
         plugin_list->plugin[i].library[0] = '\0';
-        plugin_list->plugin[i].pluginHandle = (void*) NULL;
+        plugin_list->plugin[i].pluginHandle = (void*)NULL;
         plugin_list->plugin[i].external = PLUGINNOTEXTERNAL;        // These are all linked as internal functions
         plugin_list->plugin[i].status = PLUGINOPERATIONAL;        // By default all these are available
         plugin_list->plugin[i].cachePermission = PLUGINCACHEDEFAULT;    // OK or not for Client and Server to Cache
@@ -674,7 +740,8 @@ void initPluginList(PLUGINLIST* plugin_list)
 
     {
         //PLUGINFUNP idamPlugin;	// Plugin Function Pointer - the external data reader function located within a shared library
-        int i, j, lstr, err, rc, pluginID;
+        int i, j, lstr, err, pluginID;
+        int rc = 0;
         int pluginCount = plugin_list->count;                // Number of internal plugins before adding external sources
         static int offset = 0;
         char csvChar = ',';
@@ -690,17 +757,17 @@ void initPluginList(PLUGINLIST* plugin_list)
         if (config == NULL) {
             root = getenv("UDA_SERVERROOT");                // Where udaPlugins.conf is located by default
             if (root == NULL) {
-                lstr = (int) strlen(filename) + 3;
-                work = (char*) malloc(lstr * sizeof(char));
+                lstr = (int)strlen(filename) + 3;
+                work = (char*)malloc(lstr * sizeof(char));
                 sprintf(work, "./%s", filename);            // Default ROOT is the server's Working Directory
             } else {
-                lstr = (int) strlen(filename) + (int) strlen(root) + 2;
-                work = (char*) malloc(lstr * sizeof(char));
+                lstr = (int)strlen(filename) + (int)strlen(root) + 2;
+                work = (char*)malloc(lstr * sizeof(char));
                 sprintf(work, "%s/%s", root, filename);
             }
         } else {
-            lstr = (int) strlen(config) + 1;
-            work = (char*) malloc(lstr * sizeof(char));            // Alternative File Name and Path
+            lstr = (int)strlen(config) + 1;
+            work = (char*)malloc(lstr * sizeof(char));            // Alternative File Name and Path
             strcpy(work, config);
         }
 
@@ -713,11 +780,11 @@ void initPluginList(PLUGINLIST* plugin_list)
             addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "idamServerPlugin", err,
                          "No Server Plugin Configuration File found!");
             if (conf != NULL) fclose(conf);
-            free((void*) work);
+            free((void*)work);
             return;
         }
 
-        if (work != NULL) free((void*) work);
+        if (work != NULL) free((void*)work);
 
         /*
         record format: csv, empty records ignored, comment begins #, max record size 1023;
@@ -738,7 +805,7 @@ void initPluginList(PLUGINLIST* plugin_list)
                targetFormat,formatClass="device",deviceProtocol,deviceHost,devicePort,interface,cachePermission,publicUse,description,example
 
         cachePermission and publicUse may use one of the following values: "Y|N,1|0,T|F,True|False"
-               */
+       */
 
         while (fgets(buffer, STRING_LENGTH, conf) != NULL) {
             convertNonPrintable2(buffer);
@@ -821,7 +888,9 @@ void initPluginList(PLUGINLIST* plugin_list)
                             break;
 
                         case 5:    // Minimum Plugin Interface Version
-                            if (strlen(next) > 0) plugin_list->plugin[plugin_list->count].interfaceVersion = atoi(next);
+                            if (strlen(next) > 0) {
+                                plugin_list->plugin[plugin_list->count].interfaceVersion = (unsigned short)atoi(next);
+                            }
                             break;
 
                         case 6:    // Permission to Cache returned values
@@ -878,7 +947,7 @@ void initPluginList(PLUGINLIST* plugin_list)
                 plugin_list->plugin[plugin_list->count].request =
                         REQUEST_READ_START + offset++;    // Issue Unique request ID
 
-                plugin_list->plugin[plugin_list->count].pluginHandle = (void*) NULL;        // Library handle: Not opened
+                plugin_list->plugin[plugin_list->count].pluginHandle = (void*)NULL;        // Library handle: Not opened
                 plugin_list->plugin[plugin_list->count].status = PLUGINNOTOPERATIONAL;    // Not yet available
 
 // Internal Serverside function ?
@@ -942,7 +1011,9 @@ void initPluginList(PLUGINLIST* plugin_list)
                     }
                 }
 
-                if (rc == 0) plugin_list->plugin[plugin_list->count].status = PLUGINOPERATIONAL;
+                if (rc == 0) {
+                    plugin_list->plugin[plugin_list->count].status = PLUGINOPERATIONAL;
+                }
 
                 allocPluginList(plugin_list->count++, plugin_list);
 
@@ -1219,21 +1290,21 @@ int idamProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_BLOCK* original_req
             IDAM_LOGF(LOG_DEBUG, "Plugin id: %d\n", id);
             if (id >= 0) {
                 IDAM_LOGF(LOG_DEBUG, "plugin_list->plugin[id].class == PLUGINFUNCTION = %d\n",
-                        plugin_list->plugin[id].class == PLUGINFUNCTION);
+                          plugin_list->plugin[id].class == PLUGINFUNCTION);
                 IDAM_LOGF(LOG_DEBUG, "!environment->external_user = %d\n", !environment->external_user);
                 IDAM_LOGF(LOG_DEBUG, "plugin_list->plugin[id].status == PLUGINOPERATIONAL = %d\n",
-                        plugin_list->plugin[id].status == PLUGINOPERATIONAL);
+                          plugin_list->plugin[id].status == PLUGINOPERATIONAL);
                 IDAM_LOGF(LOG_DEBUG, "plugin_list->plugin[id].pluginHandle != NULL = %d\n",
-                        plugin_list->plugin[id].pluginHandle != NULL);
+                          plugin_list->plugin[id].pluginHandle != NULL);
                 IDAM_LOGF(LOG_DEBUG, "plugin_list->plugin[id].idamPlugin   != NULL = %d\n",
-                        plugin_list->plugin[id].idamPlugin != NULL);
+                          plugin_list->plugin[id].idamPlugin != NULL);
             }
             if (id >= 0 &&
-                    plugin_list->plugin[id].class == PLUGINFUNCTION &&
-                    !environment->external_user &&
-                    plugin_list->plugin[id].status == PLUGINOPERATIONAL &&
-                    plugin_list->plugin[id].pluginHandle != NULL &&
-                    plugin_list->plugin[id].idamPlugin != NULL) {
+                plugin_list->plugin[id].class == PLUGINFUNCTION &&
+                !environment->external_user &&
+                plugin_list->plugin[id].status == PLUGINOPERATIONAL &&
+                plugin_list->plugin[id].pluginHandle != NULL &&
+                plugin_list->plugin[id].idamPlugin != NULL) {
                 plugin_id = id;
             }
         }
@@ -1254,7 +1325,7 @@ int idamProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_BLOCK* original_req
 
     if (logRecord == NULL || strlen(logRecord) == 0) {
         sprintf(request_block.signal, "%s::putSignal(uuid='%s',requestedSignal='%s',requestedSource='%s', "
-                        "trueSignal='%s', trueSource='%s', trueSourceDOI='%s', execMethod=%d, status=new)",
+                "trueSignal='%s', trueSource='%s', trueSourceDOI='%s', execMethod=%d, status=new)",
                 plugin_list->plugin[plugin_id].format, client_block->DOI,
                 original_request_block->signal, original_request_block->source,
                 signal_desc->signal_name, data_source->path, "", execMethod);
@@ -1317,7 +1388,7 @@ int idamProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_BLOCK* original_req
 // Initialise general structure passing components
 
     LOGMALLOCLIST* prior_logmalloclist = logmalloclist;                // Preserve global pointer
-    logmalloclist = (LOGMALLOCLIST*) malloc(sizeof(LOGMALLOCLIST));
+    logmalloclist = (LOGMALLOCLIST*)malloc(sizeof(LOGMALLOCLIST));
     initLogMallocList(logmalloclist);
 
     USERDEFINEDTYPELIST* prior_userdefinedtypelist = userdefinedtypelist;    // Preserve global pointer
@@ -1336,11 +1407,11 @@ int idamProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_BLOCK* original_req
     IDAM_LOG(LOG_DEBUG, "housekeeping\n");
 
     freeMallocLogList(logmalloclist);
-    free((void*) logmalloclist);
+    free((void*)logmalloclist);
     logmalloclist = NULL;
 
     freeUserDefinedTypeList(userdefinedtypelist);
-    free((void*) userdefinedtypelist);
+    free((void*)userdefinedtypelist);
     userdefinedtypelist = NULL;
 
     freeNameValueList(&request_block.nameValueList);
@@ -1364,15 +1435,16 @@ int idamProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_BLOCK* original_req
 
     reset = 1;
     if ((rc = idamServerRedirectStdStreams(reset)) != 0 || err != 0) {
-        if (rc != 0)
+        if (rc != 0) {
             addIdamError(&idamerrorstack, CODEERRORTYPE, "idamProvenancePlugin", rc,
                          "Error Resetting Redirected Plugin Message Output");
+        }
         if (err != 0) return err;
         return rc;
     }
 
     gettimeofday(&tv_stop, NULL);
-    int msecs = (int) (tv_stop.tv_sec - tv_start.tv_sec) * 1000 + (int) (tv_stop.tv_usec - tv_start.tv_usec) / 1000;
+    int msecs = (int)(tv_stop.tv_sec - tv_start.tv_sec) * 1000 + (int)(tv_stop.tv_usec - tv_start.tv_usec) / 1000;
 
     IDAM_LOG(LOG_DEBUG, "end of housekeeping\n");
     IDAM_LOGF(LOG_DEBUG, "Timing (ms) = %d\n", msecs);
@@ -1402,8 +1474,9 @@ int idamServerMetaDataPluginId(const PLUGINLIST* plugin_list)
             plugin_list->plugin[id].private == PLUGINPRIVATE && getIdamServerEnvironment()->external_user &&
             plugin_list->plugin[id].status == PLUGINOPERATIONAL &&
             plugin_list->plugin[id].pluginHandle != NULL &&
-            plugin_list->plugin[id].idamPlugin != NULL)
-            plugin_id = (short) id;
+            plugin_list->plugin[id].idamPlugin != NULL) {
+                plugin_id = (short)id;
+        }
     }
 
     if (plugin_id < 0) noPluginRegistered = 1;        // No Plugin found (registered)
@@ -1460,9 +1533,10 @@ int idamServerMetaDataPlugin(const PLUGINLIST* plugin_list, int plugin_id, REQUE
 
     reset = 1;
     if ((rc = idamServerRedirectStdStreams(reset)) != 0 || err != 0) {
-        if (rc != 0)
+        if (rc != 0) {
             addIdamError(&idamerrorstack, CODEERRORTYPE, "idamServerMetaDataPlugin", rc,
                          "Error Resetting Redirected Plugin Message Output");
+        }
         if (err != 0) return err;
         return rc;
     }
@@ -1533,6 +1607,26 @@ unsigned short findIntValue(NAMEVALUELIST* namevaluelist, int* value, const char
  * @return
  */
 unsigned short findShortValue(NAMEVALUELIST* namevaluelist, short* value, const char* name)
+{
+    char* str;
+    unsigned short found = findStringValue(namevaluelist, &str, name);
+    if (found) {
+        *value = (short)atoi(str);
+    }
+    return found;
+}
+
+/**
+ * Look for an argument with the given name in the provided NAMEVALUELIST and return it's associate value as a short.
+ *
+ * If the argument is found the value associated with the argument is provided via the value parameter and the function
+ * returns 1. Otherwise value is not set and the function returns 0.
+ * @param namevaluelist
+ * @param value
+ * @param name
+ * @return
+ */
+unsigned short findCharValue(NAMEVALUELIST* namevaluelist, char* value, const char* name)
 {
     char* str;
     unsigned short found = findStringValue(namevaluelist, &str, name);

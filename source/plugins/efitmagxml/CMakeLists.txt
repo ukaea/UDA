@@ -15,6 +15,7 @@ uda_plugin(
   DESCRIPTION "Legacy EFIT++ Magnetics XML reader"
   EXAMPLE "EFITMAGXML::get()"
   LIBNAME efitmagxml_plugin
+  CONFIG_FILE efitmagxml.cfg
   SOURCES
     initXMLStructs.c    
     allocXMLData.c
@@ -27,4 +28,8 @@ uda_plugin(
     ${CMAKE_SOURCE_DIR}/structures
   EXTRA_LINK_LIBS
     ${LIBXML2_LIBRARIES}
+  EXTRA_INSTALL_FILES
+    xml/idam.xml
+    xml/jet.xml
+    xml/mast.xml
 )

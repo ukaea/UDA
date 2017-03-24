@@ -1,82 +1,86 @@
-#if 0
-#!/bin/bash
-g++ test_imas.cpp -g -O0 -gdwarf-3 -o test_imas \
-    -I$HOME/itmwork/idam/latest/source/include -I$HOME/itmwork/idam/latest/source/wrappers/c++ \
-    -I$BOOST_HOME/include \
-    -Wl,-rpath,$HOME/itmwork/IdamInstall/lib -L$HOME/itmwork/IdamInstall/lib \
-    -Wl,-rpath,$HOME/lib -L$HOME/lib \
-    -lidamcpp -lidam64 \
-    -DHOME=$HOME
-exit 0
+#define CATCH_CONFIG_MAIN
+#include "catch.hpp"
+
+#include <c++/UDA.hpp>
+
+//TEST_CASE( "Test get MAST static data", "[imas]" ) {
+//
+//#ifdef FATCLIENT
+//#  include "setupEnvironment.inc"
+//#endif
+//
+//    uda::Client client;
+//
+//    const uda::Result& result = client.get("MAGNETICS/FLUX_LOOP/1/NAME", "MAST::");
+//
+//    REQUIRE( result.errorCode() == 0 );
+//    REQUIRE( result.error() == "" );
+//
+//    uda::Data* data = result.data();
+//
+//    REQUIRE( data != NULL );
+//    REQUIRE( !data->isNull() );
+//    REQUIRE( data->type().name() == typeid(char*).name() );
+//
+//    uda::String* str = dynamic_cast<uda::String*>(data);
+//
+//    REQUIRE( str != NULL );
+//
+//    std::string expected = "amb_fl/cc01";
+//
+//    REQUIRE( str->str() == expected );
+//}
+
+TEST_CASE( "Test get MAST experimental data", "[imas]" )
+{
+
+#ifdef FATCLIENT
+
+#  include "setupEnvironment.inc"
 #endif
 
-#include <Idam.hpp>
-#include <typeinfo>
-#include <iostream>
-#include <sstream>
+    uda::Client client;
 
-#define QUOTE_(X) #X
-#define QUOTE(X) QUOTE_(X)
-#define SHOT_NUM "43970" // TORE SUPRA
-//#define SHOT_NUM "18299" // MAST
+    const uda::Result& result = client.get("IMAS::open(filename=MAST, shotNumber=18299, runNumber=0)", "");
 
-int main() {
-    setenv("IDAM_LOG_MODE", "a", 1);
-    setenv("IDAM_LOG_LEVEL", "DEBUG", 1);
-    setenv("IDAM_DEBUG_APPEND", "a", 1);
+    REQUIRE( result.errorCode() == 0 );
+    REQUIRE( result.error() == "" );
 
-    Idam::Client::setProperty(Idam::PROP_DEBUG, true);
-    Idam::Client::setProperty(Idam::PROP_VERBOSE, true);
+    uda::Data* data = result.data();
 
-    Idam::Client::setServerHostName("localhost");
-    Idam::Client::setServerPort(56565);
+    uda::Scalar* scalar = dynamic_cast<uda::Scalar*>(data);
 
-    Idam::Client client;
+    REQUIRE( scalar != NULL );
 
-    client.get("imas::open(file='ids', shot=" SHOT_NUM ", run=1)", "");
+    REQUIRE( scalar->as<int>() == 0 );
 
-    const Idam::Result& size = client.get("imas::get(idx=0, group='magnetics', variable='bpol_probe/Shape_of', type=int, rank=0, shot=" SHOT_NUM ", )", "");
-    const Idam::Data * data = size.data();
-    const Idam::Scalar* scalar = dynamic_cast<const Idam::Scalar*>(data);
+//    const uda::Result& result2 = client.get("IMAS::source(signal=\"amb_fl/cc01\", /Data, format=MAST)", "18299/0");
+//    const uda::Result& result2 = client.get("UDA::get(host=idam3.mast.ccfe.ac.uk, port=56565, signal=\"amb_fl/cc01\", source=\"18299/0\")", "");
+//    const uda::Result& result2 = client.get("MAGNETICS/FLUX_LOOP/1/FLUX/DATA", "18299/0");
+    const uda::Result& result2 = client.get("IMAS::get(clientIdx=0, expName='MAST', cpopath='MAGNETICS', path='FLUX_LOOP/1/FLUX/DATA', typeName=double, rank=1, shot=18299)", "");
 
-    int sz = scalar->as<int>();
+    REQUIRE( result2.errorCode() == 0 );
+    REQUIRE( result2.error() == "" );
 
-    const Idam::Result& pos = client.get("imas::get(idx=0, group='magnetics', variable='flux_loop/1/position/1/r', type=double, rank=0, shot=" SHOT_NUM ", )", "");
-    scalar = dynamic_cast<const Idam::Scalar*>(pos.data());
-    std::cout << "flux_loop/1/position/1/r: " << scalar->as<double>() << std::endl;
+    uda::Data* data2 = result2.data();
 
-    for (int i = 1; i < sz+1; ++i) {
-        std::stringstream ss;
-        ss << "imas::get(idx=0, group='magnetics', variable='bpol_probe/" << i << "/name', type=string, rank=0, shot=" SHOT_NUM ")";
-        const Idam::Result& name = client.get(ss.str(), "");
+    REQUIRE( data2 != NULL );
+    REQUIRE( !data2->isNull() );
+    REQUIRE( data2->type().name() == typeid(double).name() );
 
-        data = name.data();
-        const Idam::String* str = dynamic_cast<const Idam::String*>(data);
-        std::cout << str->str() << std::endl;
+    uda::Array* arr = dynamic_cast<uda::Array*>(data2);
 
-        ss.clear();
-        ss.str("");
-        ss << "imas::get(idx=0, group='magnetics', variable='bpol_probe/" << i << "/field/time', type=double, rank=1, shot=" SHOT_NUM ")";
-        const Idam::Result& field = client.get(ss.str(), "");
+    REQUIRE( arr != NULL );
 
-        data = field.data();
-        const Idam::Array* arr = dynamic_cast<const Idam::Array*>(data);
+    double expected[] = {
+        -0.00022f, 0.00002f, -0.00022f, -0.00022f, -0.00022f, -0.00022f, 0.00003f, -0.00022f, -0.00022f, -0.00022f
+    };
 
-        const Idam::Dim& time = arr->dims().at(0);
+//    for (int i = 0; i < 10; ++i) {
+//        REQUIRE( arr->at<double>(i) == Approx( expected[i] ) );
+//    }
 
-        std::cout << "time: ";
-        for (int j = 0; j < 10; ++j) {
-            std::cout << time.at<unsigned int>(j) << " ";
-        }
-        std::cout << "..." << std::endl;
-
-        std::cout << "data: ";
-        for (int j = 0; j < 10; ++j) {
-            std::cout << arr->as<double>().at(j) << " ";
-        }
-        std::cout << "..." << std::endl;
+    for (int i = 0; i < 10; ++i) {
+        REQUIRE( arr->as<double>()[i] == Approx( expected[i] ) );
     }
-
-    return 0;
 }
-

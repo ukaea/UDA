@@ -39,6 +39,7 @@
 #  endif
 #else
 #  include <errno.h>
+#  include <assert.h>
 #  include <clientserver/copyStructs.h>
 #  include <clientserver/protocolXML.h>
 #endif
@@ -151,21 +152,14 @@ void putIdamServerLogMallocList(LOGMALLOCLIST* malloclist)
 //--------------------------------------------------------------------------------------
 // Server Entry point
 
-#ifndef FATCLIENT
-
-int idamServer(int argc, char** argv)
+int idamServer(CLIENT_BLOCK client_block, REQUEST_BLOCK* request_block0, SERVER_BLOCK* server_block0,
+               DATA_BLOCK* data_block0)
 {
-#else
-
-#include <assert.h>
-
-    int idamServer(CLIENT_BLOCK client_block, REQUEST_BLOCK* request_block0, SERVER_BLOCK* server_block0,
-                   DATA_BLOCK* data_block0)
-    {
-        assert(data_block0 != NULL);
+#ifdef FATCLIENT
+    assert(data_block0 != NULL);
 #endif
 
-    int i, rc, err = 0, depth, fatal = 0;
+    int i, err = 0, depth, fatal = 0;
     int protocol_id;
 
     static int socket_list_initialised = 0;
@@ -194,9 +188,6 @@ int idamServer(int argc, char** argv)
 
     DATA_BLOCK data_block;
     REQUEST_BLOCK request_block;
-#ifndef FATCLIENT
-    CLIENT_BLOCK client_block;
-#endif
     SERVER_BLOCK server_block;
 
     ACTIONS actions_desc;
@@ -381,7 +372,7 @@ int idamServer(int argc, char** argv)
 
     IDAM_LOG(LOG_DEBUG, "Waiting for Initial Client Block\n");
 
-    if (!(rc = xdrrec_skiprecord(serverInput))) {
+    if (!xdrrec_skiprecord(serverInput)) {
         err = PROTOCOL_ERROR_5;
         IDAM_LOG(LOG_DEBUG, "xdrrec_skiprecord error!\n");
         addIdamError(&idamerrorstack, CODEERRORTYPE, "idamServer", err, "Protocol 5 Error (Client Block)");
@@ -430,7 +421,7 @@ int idamServer(int argc, char** argv)
         return err;
     }
 
-    if (!(rc = xdrrec_endofrecord(serverOutput, 1))) {    // Send data now
+    if (!xdrrec_endofrecord(serverOutput, 1)) {    // Send data now
         err = PROTOCOL_ERROR_7;
         addIdamError(&idamerrorstack, CODEERRORTYPE, "idamClient", err, "Protocol 7 Error (Server Block)");
         return err;
@@ -479,7 +470,7 @@ int idamServer(int argc, char** argv)
 
 // Receive the Client Block, request block and putData block
 
-            if (!(rc = xdrrec_skiprecord(serverInput))) {
+            if (!xdrrec_skiprecord(serverInput)) {
                 err = PROTOCOL_ERROR_5;
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "idamServer", err, "Protocol 5 Error (Client Block)");
                 fatal = 1;
@@ -880,7 +871,7 @@ int idamServer(int argc, char** argv)
 // Server-Side Data Processing
 
             if (client_block.get_dimdble || client_block.get_timedble || client_block.get_scalar) {
-                if ((rc = serverProcessing(client_block, &data_block)) != 0) {
+                if (serverProcessing(client_block, &data_block) != 0) {
                     err = 779;
                     addIdamError(&idamerrorstack, CODEERRORTYPE, "idamServer", err, "Server-Side Processing Error");
                     break;
@@ -893,7 +884,7 @@ int idamServer(int argc, char** argv)
 #ifndef NOTGENERICENABLED
             if (client_block.get_meta && request_block.request == REQUEST_READ_GENERIC) {
 
-                if ((rc = sqlSystemConfig(DBConnect, data_source.config_id, &system_config)) != 1) {
+                if (sqlSystemConfig(DBConnect, data_source.config_id, &system_config) != 1) {
                     err = 780;
                     addIdamError(&idamerrorstack, CODEERRORTYPE, "idamServer", err,
                                  "Error Retrieving System Configuration Data");
@@ -902,7 +893,7 @@ int idamServer(int argc, char** argv)
                     printSystemConfig(system_config);
                 }
 
-                if ((rc = sqlDataSystem(DBConnect, system_config.system_id, &data_system)) != 1) {
+                if (sqlDataSystem(DBConnect, system_config.system_id, &data_system) != 1) {
                     err = 781;
                     addIdamError(&idamerrorstack, CODEERRORTYPE, "idamServer", err,
                                  "Error Retrieving Data System Information");
@@ -1025,7 +1016,7 @@ int idamServer(int argc, char** argv)
 
                 // Send the Server Block and byepass sending data (there are none!)
 
-                if (!(rc = xdrrec_endofrecord(serverOutput, 1))) {
+                if (!xdrrec_endofrecord(serverOutput, 1)) {
                     err = PROTOCOL_ERROR_7;
                     IDAM_LOG(LOG_DEBUG, "Problem Sending Server Data Block #2\n");
                     addIdamError(&idamerrorstack, CODEERRORTYPE, "idamClient", err, "Protocol 7 Error (Server Block)");
@@ -1128,7 +1119,7 @@ int idamServer(int argc, char** argv)
 // ******* is this an extra XDR EOF ?????
 
 #ifndef FATCLIENT
-            if (!(rc = xdrrec_endofrecord(serverOutput, 1))) {
+            if (!xdrrec_endofrecord(serverOutput, 1)) {
                 err = PROTOCOL_ERROR_7;
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "idamClient", err, "Protocol 7 Error (Server Block)");
                 break;
@@ -1409,7 +1400,7 @@ int idamServer(int argc, char** argv)
     //----------------------------------------------------------------------------
     // Close the Logs
 
-    rc = fflush(NULL);
+    fflush(NULL);
 
     idamCloseLogging();
 
