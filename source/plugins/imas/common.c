@@ -6,9 +6,9 @@
 #include <string.h>
 #include <stdlib.h>
 
+#include <clientserver/errorLog.h>
 #include <clientserver/stringUtils.h>
 #include <clientserver/udaTypes.h>
-#include <clientserver/errorLog.h>
 #include <logging/logging.h>
 
 // Extract list
@@ -17,7 +17,7 @@
 // item, item, item
 // 'item', 'item', 'it,em', 'it "e", m', 'ite e m' 
 
-void getIdamNameValuePairItemList(char* list, char*** itemList, unsigned short* count, char quote,
+void getIdamNameValuePairItemList(const char* list, char*** itemList, unsigned short* count, char quote,
                                   char delimiter) {
 
     unsigned int i, length;
@@ -133,7 +133,7 @@ void freeIdamNameValuePairItemList(char*** list, unsigned short count) {
 }
 
 
-int getIdamNameValuePairVarArray(char* values, char quote, char delimiter, unsigned short varSize, int varType,
+int getIdamNameValuePairVarArray(const char* values, char quote, char delimiter, unsigned short varSize, int varType,
                                  void** varData) {
 
 // Unpack 'values' sent via a name-value pair string using quote and delimiter to parse the string  
@@ -295,7 +295,7 @@ int getIdamNameValuePairVarArray(char* values, char quote, char delimiter, unsig
     return dataCount;
 }
 
-int findIdamType(char* typeName) {
+int findIdamType(const char* typeName) {
     if (typeName == NULL) return (TYPE_UNDEFINED);
     if (STR_IEQUALS(typeName, "byte")) return TYPE_CHAR;
     if (STR_IEQUALS(typeName, "char")) return TYPE_CHAR;

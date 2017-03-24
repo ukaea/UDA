@@ -1,5 +1,5 @@
-#ifndef UDA_PLUGINS_IMAS_IMAS_H
-#define UDA_PLUGINS_IMAS_IMAS_H
+#ifndef UDA_PLUGINS_IMAS_PLUGIN_IMAS_H
+#define UDA_PLUGINS_IMAS_PLUGIN_IMAS_H
 
 #include <server/pluginStructs.h>
 
@@ -25,6 +25,8 @@
 
 const char* getImasIdsVersion();
 
+void putImasIdsDevice(const char* device);
+
 const char* getImasIdsDevice();
 
 int findIMASType(const char* typeName);
@@ -33,4 +35,18 @@ int findIMASIDAMType(int type);
 
 int imas(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
 
-#endif // UDA_PLUGINS_IMAS_IMAS_H
+void putImasIdsVersion(const char* version);
+
+void setSliceIdx(int idx1, int idx2);
+
+int getSliceIdx1();
+
+int getSliceIdx2();
+
+void setSliceTime(double time1, double time2);
+
+double getSliceTime1();
+
+double getSliceTime2();
+
+#endif // UDA_PLUGINS_IMAS_PLUGIN_IMAS_H

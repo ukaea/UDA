@@ -49,91 +49,92 @@
 #include "geomSignalMap.h"
 #include "geomConfig.h"
 
-int idamGeom(IDAM_PLUGIN_INTERFACE* idam_plugin_interface){
+int idamGeom(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
+{
 
-  static int init = 0;
+    static int init = 0;
 
-  if (idam_plugin_interface->interfaceVersion > THISPLUGIN_MAX_INTERFACE_VERSION) {
-    RAISE_PLUGIN_ERROR("Plugin Interface Version Unknown to this plugin: Unable to execute the request!");
-  }
-
-  idam_plugin_interface->pluginVersion = THISPLUGIN_VERSION;
-
-  REQUEST_BLOCK* request_block = idam_plugin_interface->request_block;
-
-  if (idam_plugin_interface->housekeeping || STR_IEQUALS(request_block->function, "reset")) {
-    if (!init) return 0; // Not previously initialised: Nothing to do!
-    // Free Heap & reset counters
-    init = 0;
-    return 0;
-  }
-
-  //----------------------------------------------------------------------------------------
-  // Initialise
-
-  if (!init || STR_IEQUALS(request_block->function, "init")
-      || STR_IEQUALS(request_block->function, "initialise")) {
-    
-    init = 1;
-    if (STR_IEQUALS(request_block->function, "init") || STR_IEQUALS(request_block->function, "initialise")) {
-      return 0;
+    if (idam_plugin_interface->interfaceVersion > THISPLUGIN_MAX_INTERFACE_VERSION) {
+        RAISE_PLUGIN_ERROR("Plugin Interface Version Unknown to this plugin: Unable to execute the request!");
     }
-  }
 
-  //----------------------------------------------------------------------------------------
-  // Plugin Functions
-  //---------------------------------------------------------------------------------------- 
-  if (STR_IEQUALS(request_block->function, "help")) {
-    return do_help(idam_plugin_interface);
-  } else if (STR_IEQUALS(request_block->function, "getSignalFile")) {
-    return do_signal_file(idam_plugin_interface);
-  } else if (STR_IEQUALS(request_block->function, "getSignalFilename")) {
-    return do_signal_filename(idam_plugin_interface);
-  } else if (STR_IEQUALS(request_block->function, "getConfigFilenames")) {
-    return do_config_filename(idam_plugin_interface);
-  } else if (STR_IEQUALS(request_block->function, "get")) {
-    return do_geom_get(idam_plugin_interface);
-  } else {
-    RAISE_PLUGIN_ERROR("Unknown function requested!");
-  }
+    idam_plugin_interface->pluginVersion = THISPLUGIN_VERSION;
+
+    REQUEST_BLOCK* request_block = idam_plugin_interface->request_block;
+
+    if (idam_plugin_interface->housekeeping || STR_IEQUALS(request_block->function, "reset")) {
+        if (!init) return 0; // Not previously initialised: Nothing to do!
+        // Free Heap & reset counters
+        init = 0;
+        return 0;
+    }
+
+    //----------------------------------------------------------------------------------------
+    // Initialise
+
+    if (!init || STR_IEQUALS(request_block->function, "init")
+        || STR_IEQUALS(request_block->function, "initialise")) {
+
+        init = 1;
+        if (STR_IEQUALS(request_block->function, "init") || STR_IEQUALS(request_block->function, "initialise")) {
+            return 0;
+        }
+    }
+
+    //----------------------------------------------------------------------------------------
+    // Plugin Functions
+    //----------------------------------------------------------------------------------------
+    if (STR_IEQUALS(request_block->function, "help")) {
+        return do_help(idam_plugin_interface);
+    } else if (STR_IEQUALS(request_block->function, "getSignalFile")) {
+        return do_signal_file(idam_plugin_interface);
+    } else if (STR_IEQUALS(request_block->function, "getSignalFilename")) {
+        return do_signal_filename(idam_plugin_interface);
+    } else if (STR_IEQUALS(request_block->function, "getConfigFilenames")) {
+        return do_config_filename(idam_plugin_interface);
+    } else if (STR_IEQUALS(request_block->function, "get")) {
+        return do_geom_get(idam_plugin_interface);
+    } else {
+        RAISE_PLUGIN_ERROR("Unknown function requested!");
+    }
 }
 
 int do_help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
-  DATA_BLOCK* data_block = idam_plugin_interface->data_block;
+    DATA_BLOCK* data_block = idam_plugin_interface->data_block;
 
-  char* p = (char*) malloc(sizeof(char) * 2 * 1024);
-  
-  strcpy(p, "\ngeometry: Retrieve geometry data from netcdf files, signal mapping data & filenames\n\n");
-  
-  initDataBlock(data_block);
-  
-  data_block->rank = 1;
-  data_block->dims = (DIMS*) malloc(data_block->rank * sizeof(DIMS));
-  
-  int i;
-  for (i = 0; i < data_block->rank; i++) {
-    initDimBlock(&data_block->dims[i]);
-  }
-  
-  data_block->data_type = TYPE_STRING;
-  strcpy(data_block->data_desc, "geometry: help = description of this plugin");
-  
-  data_block->data = p;
-  
-  data_block->dims[0].data_type = TYPE_UNSIGNED_INT;
-  data_block->dims[0].dim_n = strlen(p) + 1;
-  data_block->dims[0].compressed = 1;
-  data_block->dims[0].dim0 = 0.0;
-  data_block->dims[0].diff = 1.0;
-  data_block->dims[0].method = 0;
-  
-  data_block->data_n = data_block->dims[0].dim_n;
-  
-  strcpy(data_block->data_label, "");
-  strcpy(data_block->data_units, "");
-  
-  return 0;
+    char* p = (char*)malloc(sizeof(char) * 2 * 1024);
+
+    strcpy(p, "\ngeometry: Retrieve geometry data from netcdf files, signal mapping data & filenames\n\n");
+
+    initDataBlock(data_block);
+
+    data_block->rank = 1;
+    data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
+
+    int i;
+    for (i = 0; i < data_block->rank; i++) {
+        initDimBlock(&data_block->dims[i]);
+    }
+
+    data_block->data_type = TYPE_STRING;
+    strcpy(data_block->data_desc, "geometry: help = description of this plugin");
+
+    data_block->data = p;
+
+    data_block->dims[0].data_type = TYPE_UNSIGNED_INT;
+    data_block->dims[0].dim_n = strlen(p) + 1;
+    data_block->dims[0].compressed = 1;
+    data_block->dims[0].dim0 = 0.0;
+    data_block->dims[0].diff = 1.0;
+    data_block->dims[0].method = 0;
+
+    data_block->data_n = data_block->dims[0].dim_n;
+
+    strcpy(data_block->data_label, "");
+    strcpy(data_block->data_units, "");
+
+    return 0;
 
 }
 

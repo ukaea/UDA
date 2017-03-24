@@ -19,7 +19,9 @@ int main(int argc, char ** argv)
 
     // Run server
 
-    int rc = idamServer(argc, argv);
+    CLIENT_BLOCK client_block = {0};
+
+    int rc = idamServer(client_block, NULL, NULL, NULL);
 
     return rc;
 }

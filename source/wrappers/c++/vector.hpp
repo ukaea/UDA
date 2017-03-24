@@ -1,7 +1,3 @@
-//
-// Created by jholloc on 08/03/16.
-//
-
 #ifndef IDAM_WRAPPERS_CPP_VECTOR_H
 #define IDAM_WRAPPERS_CPP_VECTOR_H
 
@@ -9,18 +5,18 @@
 #include <vector>
 #include <boost/any.hpp>
 
+#include "data.hpp"
+
 namespace uda {
 
-class Vector
+class Vector : public Data
 {
 public:
     template <typename T>
-    Vector(T * array, size_t size) : vec_(array, array+size), type_(&typeid(T)), isnull_(false)
+    Vector(T * array, size_t size) : Data(false), vec_(array, array+size), type_(&typeid(T))
     {}
 
     const std::type_info& type() const { return *type_; }
-
-    bool isNull() const { return isnull_; }
 
     template <typename T>
     std::vector<T> as() const
@@ -37,18 +33,16 @@ public:
 
     static Vector Null;
 protected:
-    Vector() : vec_(), type_(&typeid(void)), isnull_(true) {}
+    Vector() : Data(true), vec_(), type_(&typeid(void)) {}
 private:
     std::vector<boost::any> vec_;
     const std::type_info * type_;
-    bool isnull_;
 
     template <typename T>
     struct AnyCastTransform
     {
         T operator()(const boost::any& src) const
         {
-            std::string name = src.type().name();
             return boost::any_cast<T>(src);
         }
     };
