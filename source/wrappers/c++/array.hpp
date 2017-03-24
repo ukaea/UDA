@@ -15,24 +15,30 @@ class Array : public Data
 {
 public:
     template<typename T>
-    Array(T* data, std::vector <Dim> dims)
+    Array(T* data, std::vector<Dim> dims)
             : Data(false), data_(data), dims_(dims), type_(&typeid(T)), raw_data_(reinterpret_cast<char*>(data))
     { }
 
     size_t size() const;
 
     const std::type_info& type() const
-    { return *type_; }
+    {
+        return *type_;
+    }
 
     template<typename T>
-    std::vector <T> as() const
+    std::vector<T> as() const
     {
         T * data = boost::any_cast<T *>(data_);
         return std::vector<T>(data, data + size());
     }
 
-    const std::vector <Dim>& dims() const
-    { return dims_; }
+    const std::vector<size_t> shape() const;
+
+    const std::vector<Dim>& dims() const
+    {
+        return dims_;
+    }
 
     static Array Null;
 private:

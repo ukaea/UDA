@@ -18,11 +18,7 @@ USERDEFINEDTYPELIST* getIdamServerUserDefinedTypeList();
 LOGMALLOCLIST* getIdamServerLogMallocList();
 USERDEFINEDTYPELIST* getIdamServerParsedUserDefinedTypeList();
 
-#ifndef FATCLIENT
-int idamServer(int argc, char** argv);
-#else
 int idamServer(CLIENT_BLOCK client_block, REQUEST_BLOCK * request_block, SERVER_BLOCK * server_block, DATA_BLOCK * data_block);
-#endif
 
 //--------------------------------------------------------------
 // Static Global variables

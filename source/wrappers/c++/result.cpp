@@ -150,7 +150,11 @@ uda::Data* getDataAs(int handle, std::vector<uda::Dim>& dims)
     T* data = reinterpret_cast<T*>(getIdamData(handle));
 
     if (getIdamRank(handle) == 0) {
-        return new uda::Scalar(data[0]);
+        if (getIdamDataNum(handle) > 1) {
+            return new uda::Vector(data, (size_t)getIdamDataNum(handle));
+        } else {
+            return new uda::Scalar(data[0]);
+        }
     } else {
         return new uda::Array(data, dims);
     }

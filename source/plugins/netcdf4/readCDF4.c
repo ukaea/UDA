@@ -118,7 +118,8 @@ int readerCDF4(DATA_SOURCE* data_source, SIGNAL_DESC* signal_desc, REQUEST_BLOCK
     char classtxt[STRING_LENGTH];
     char comment[STRING_LENGTH];
 
-    int fd, err = 0, rc;
+    long fd;
+    int err = 0, rc;
     int fusion_ver = 0;
 
     int i, ii, j, lstr, lname, rank, drank, varid, coordid, grpid, cgrpid, subtree, attid, error_n;
@@ -174,15 +175,17 @@ int readerCDF4(DATA_SOURCE* data_source, SIGNAL_DESC* signal_desc, REQUEST_BLOCK
 
         errno = 0;
 
-        if ((fd = getOpenIdamPluginFileInt(&pluginFileList, data_source->path)) < 0) {
-            if ((rc = nc_open((const char*) data_source->path, NC_NOWRITE, &fd)) != NC_NOERR) {
+        if ((fd = getOpenIdamPluginFileLong(&pluginFileList, data_source->path)) < 0) {
+            int handle;
+            if ((rc = nc_open((const char*) data_source->path, NC_NOWRITE, &handle)) != NC_NOERR) {
                 err = NETCDF_ERROR_OPENING_FILE;
                 if (errno != 0) addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "readCDF", errno, "");
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF", err, (char*) nc_strerror(rc));
                 IDAM_LOGF(LOG_DEBUG, "Error opening file - %s\n", nc_strerror(rc));
                 break;
             }
-            addIdamPluginFileInt(&pluginFileList, data_source->path, fd);        // Register the File Handle
+            addIdamPluginFileLong(&pluginFileList, data_source->path, handle);        // Register the File Handle
+            fd = handle;
         }
 
         IDAM_LOGF(LOG_DEBUG, "filename %s\n", data_source->path);

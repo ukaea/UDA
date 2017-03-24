@@ -48,6 +48,24 @@ void copyString(const char* in, char* out, int maxlength)
     }
 }
 
+char* FormatString(const char* fmt, ...)
+{
+    va_list vargs;
+    va_start(vargs, fmt);
+
+    size_t len = vsnprintf(NULL, 0, fmt, vargs) + 1;
+
+    va_end(vargs);
+    va_start(vargs, fmt);
+
+    char* strp = malloc(len * sizeof(char));
+    vsnprintf(strp, len, fmt, vargs);
+
+    va_end(vargs);
+
+    return strp;
+}
+
 // Trim Trailing Space Characters from a String
 
 char* TrimString(char* szSource)
@@ -197,7 +215,7 @@ char* convertNonPrintable2(char* str)
     return ret;
 }
 
-int IsLegalFilePath(char* str)
+int IsLegalFilePath(const char* str)
 {
 
 // Basic check that the filename complies with good naming practice - some protection against malign embedded code!
@@ -208,7 +226,7 @@ int IsLegalFilePath(char* str)
 // The delimiter characters separating the device or format name from the source should have been split off of the path
 //
 
-    char* tst = str;
+    const char* tst = str;
     while (*tst != '\0') {
         if ((*tst >= '0' && *tst <= '9') || (*tst >= 'A' && *tst <= 'Z') || (*tst >= 'a' && *tst <= 'z')) {
             tst++;
@@ -240,12 +258,16 @@ int asprintf(char** strp, const char* fmt, ...)
     va_list vargs;
     va_start(vargs, fmt);
 
-    int len = vsnprintf(NULL, 0, fmt, vargs);
-    *strp = malloc(len * sizeof(char));
-    len = vsnprintf(*strp, (size_t)len, fmt, vargs);
+    size_t len = vsnprintf(NULL, 0, fmt, vargs) + 1;
 
     va_end(vargs);
-    return len;
+    va_start(vargs, fmt);
+
+    *strp = malloc(len * sizeof(char));
+    len = vsnprintf(*strp, len, fmt, vargs);
+
+    va_end(vargs);
+    return (int)len;
 }
 #endif
 

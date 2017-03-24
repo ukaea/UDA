@@ -76,7 +76,7 @@ int getHDF5(DATA_SOURCE* data_source, SIGNAL_DESC* signal_desc, DATA_BLOCK* data
 // Is the HDF5 file already open for reading? If not then open it. 
 // The handle hid_t is an integer (ref: H5Ipublic.h) - use the Integer specific API 
 
-        if ((file_id = getOpenIdamPluginFileInt(&pluginFileList, data_source->path)) < 0) {
+        if ((file_id = getOpenIdamPluginFileLong(&pluginFileList, data_source->path)) < 0) {
             file_id = H5Fopen(data_source->path, H5F_ACC_RDONLY, H5P_DEFAULT);
             if ((int)file_id < 0 || errno != 0) {
                 err = HDF5_ERROR_OPENING_FILE;
@@ -84,7 +84,7 @@ int getHDF5(DATA_SOURCE* data_source, SIGNAL_DESC* signal_desc, DATA_BLOCK* data
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "readHDF5", err, "Error Opening HDF5 File");
                 break;
             }
-            addIdamPluginFileInt(&pluginFileList, data_source->path, (int)file_id);        // Register the File Handle
+            addIdamPluginFileLong(&pluginFileList, data_source->path, file_id);        // Register the File Handle
         }
 
 //---------------------------------------------------------------------- 

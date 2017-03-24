@@ -27,7 +27,7 @@ configure_file(
   @ONLY
 )
 
-set( TESTS test_help test_hdf5 test_putcpp test_putdata )
+set( TESTS test_help test_hdf5 test_putcpp test_putdata test_imas )
 
 include( modules )
 
@@ -39,6 +39,15 @@ add_definitions( -D__USE_XOPEN2K8 )
 foreach( TEST ${TESTS} )
   add_executable( ${TEST} ${TEST}.cpp )
   target_link_libraries( ${TEST} PRIVATE
+    ${Boost_LIBRARIES}
+    ${PROJECT_NAME}_cpp
+    client-shared
+    ${OPENSSL_LIBRARIES}
+    ${LIBXML2_LIBRARIES}
+    ${CACHE_LIBRARIES} )
+
+  add_executable( fat_${TEST} ${TEST}.cpp )
+  target_link_libraries( fat_${TEST} PRIVATE
     ${Boost_LIBRARIES} 
     fat${PROJECT_NAME}_cpp
     fatclient-shared
@@ -49,6 +58,7 @@ foreach( TEST ${TESTS} )
     m
     dl
   )
+
   target_compile_definitions( ${TEST} PRIVATE -DFATCLIENT )
   link_modules( ${TEST} )
   add_test( ${TEST} ${TEST} )

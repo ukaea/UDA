@@ -2,7 +2,7 @@
 // Library of XML Accessor functions 
 //
 //-------------------------------------------------------------- 
-#include "efitmagxml.h"
+#include "efitmagxmllib.h"
 
 INSTANCE* getinstmagprobe(EFIT* efit, const int index)
 {

@@ -39,6 +39,7 @@
     }
 }
 
+%include "data.hpp"
 %include "vector.hpp"
 %include "dim.hpp"
 
@@ -83,7 +84,6 @@
     }
 }
 
-%include "data.hpp"
 %include "array.hpp"
 %include "scalar.hpp"
 %include "structdata.hpp"

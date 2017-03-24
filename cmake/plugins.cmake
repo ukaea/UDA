@@ -18,7 +18,7 @@ macro( uda_plugin )
 
   set( optionArgs )
   set( oneValueArgs NAME LIBNAME ENTRY_FUNC DESCRIPTION EXAMPLE CONFIG_FILE )
-  set( multiValueArgs SOURCES EXTRA_INCLUDE_DIRS EXTRA_LINK_DIRS EXTRA_LINK_LIBS EXTRA_DEFINITIONS )
+  set( multiValueArgs SOURCES EXTRA_INCLUDE_DIRS EXTRA_LINK_DIRS EXTRA_LINK_LIBS EXTRA_DEFINITIONS EXTRA_INSTALL_FILES )
 
   cmake_parse_arguments(
     PLUGIN
@@ -72,6 +72,11 @@ macro( uda_plugin )
     FILES ${CMAKE_CURRENT_BINARY_DIR}/udaPlugins_${PLUGIN_NAME}.conf
     DESTINATION etc/plugins
   )
+
+  foreach( INSTALL_FILE ${PLUGIN_EXTRA_INSTALL_FILES} )
+    get_filename_component( INSTALL_DIR ${INSTALL_FILE} DIRECTORY )
+    install( FILES ${INSTALL_FILE} DESTINATION etc/plugins/${INSTALL_DIR} )
+  endforeach()
 
   #targetFormat, formatClass="function", librarySymbol, libraryName, methodName, interface, cachePermission, publicUse, description, example
   if( APPLE )

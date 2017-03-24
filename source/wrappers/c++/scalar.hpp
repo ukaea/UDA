@@ -12,7 +12,8 @@
 
 namespace uda {
 
-class Scalar : public Data {
+class Scalar : public Data
+{
 public:
     template<typename T>
     Scalar(T value) : Data(false), value_(value), type_(&typeid(T))

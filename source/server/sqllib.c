@@ -33,7 +33,6 @@ PGconn* openDatabase(const char* host, int port, const char* dbname, const char*
 //-------------------------------------------------------------
 // Debug Trace Queries
 
-//        PQtrace(DBConnect, dbgout);
     IDAM_LOGF(LOG_DEBUG, "SQL Connection: host %s\n", host);
     IDAM_LOGF(LOG_DEBUG, "                port %s\n", pgport);
     IDAM_LOGF(LOG_DEBUG, "                db   %s\n", dbname);

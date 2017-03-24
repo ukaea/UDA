@@ -1,5 +1,5 @@
-#ifndef IdamIMASMDSPluginInclude
-#define IdamIMASMDSPluginInclude
+#ifndef UDA_PLUGINS_IMAS_PLUGIN_IMAS_MDS_H
+#define UDA_PLUGINS_IMAS_PLUGIN_IMAS_MDS_H
 
 #include <server/pluginStructs.h>
 
@@ -38,7 +38,7 @@ typedef struct PluginArgs {
     unsigned short isTypeName;
     char* typeName;
     unsigned short isClientIdx;
-    int clientIdx;
+    long clientIdx;
     unsigned short isClientObjectId;
     int clientObjectId;
     unsigned short isRank;
@@ -113,10 +113,6 @@ typedef struct PluginArgs {
 
 } PLUGIN_ARGS;
 
-void putImasIdsVersion(const char* version);
-
-void putImasIdsDevice(const char* device);
-
 int imas_mds_putDataSlice(int idx, char* cpoPath, char* path, char* timeBasePath, int type, int nDims,
                           int* dims, void* data, double time);
 
@@ -148,4 +144,4 @@ char* getTimeBasePath();
 }
 #endif
 
-#endif
+#endif // UDA_PLUGINS_IMAS_PLUGIN_IMAS_MDS_H

@@ -9,11 +9,11 @@ void registerIdamPluginFileClose(IDAMPLUGINFILELIST * idamfiles, void * fptr);
 
 int addIdamPluginFilePtr(IDAMPLUGINFILELIST * idamfiles, char * filename, void * handle);
 
-int addIdamPluginFileInt(IDAMPLUGINFILELIST * idamfiles, char * filename, int handle);
+int addIdamPluginFileLong(IDAMPLUGINFILELIST * idamfiles, char * filename, long handle);
 
 void * getOpenIdamPluginFilePtr(IDAMPLUGINFILELIST * idamfiles, char * filename);
 
-int getOpenIdamPluginFileInt(IDAMPLUGINFILELIST * idamfiles, char * filename);
+long getOpenIdamPluginFileLong(IDAMPLUGINFILELIST * idamfiles, char * filename);
 
 int getClosedIdamPluginFile(IDAMPLUGINFILELIST * idamfiles, char * filename);
 
@@ -25,7 +25,7 @@ void purgeStalestIdamPluginFile(IDAMPLUGINFILELIST * idamfiles);
 
 int findIdamPluginFileByName(IDAMPLUGINFILELIST * idamfiles, char * filename);
 
-int findIdamPluginFileByInt(IDAMPLUGINFILELIST * idamfiles, int handleInt);
+int findIdamPluginFileByLong(IDAMPLUGINFILELIST* idamfiles, long handle);
 
 void setIdamPluginFileClosed(IDAMPLUGINFILELIST * idamfiles, int record);
 

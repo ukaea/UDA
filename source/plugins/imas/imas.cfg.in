@@ -1,1 +1,13 @@
 export IDAM_IMAS_DATA_PLUGIN=WEST
+
+export UDA_CLIENT_PLUGIN=UDA
+
+# MAST connection
+export UDA_MAST_HOST=idam3.mast.ccfe.ac.uk
+export UDA_MAST_PORT=56565
+
+# JET connection
+export UDA_JET_HOST=idam3.mast.ccfe.ac.uk
+export UDA_JET_PORT=56565
+
+export IMAS_HDF5_BASE=/tmp

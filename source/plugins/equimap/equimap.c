@@ -2284,130 +2284,129 @@ void freeEquiMapData()
     int i, j;
 
     for (i = 0; i < equimapdata.timeCount; i++) {
-        if (equimapdata.efitdata[i].rlim != NULL) free((void*)equimapdata.efitdata[i].rlim);
-        if (equimapdata.efitdata[i].zlim != NULL) free((void*)equimapdata.efitdata[i].zlim);
-        if (equimapdata.efitdata[i].rlcfs != NULL) free((void*)equimapdata.efitdata[i].rlcfs);
-        if (equimapdata.efitdata[i].zlcfs != NULL) free((void*)equimapdata.efitdata[i].zlcfs);
-        if (equimapdata.efitdata[i].rgrid != NULL) free((void*)equimapdata.efitdata[i].rgrid);
-        if (equimapdata.efitdata[i].zgrid != NULL) free((void*)equimapdata.efitdata[i].zgrid);
-        if (equimapdata.efitdata[i].rgridSR != NULL) free((void*)equimapdata.efitdata[i].rgridSR);
-        if (equimapdata.efitdata[i].zgridSR != NULL) free((void*)equimapdata.efitdata[i].zgridSR);
-        if (equimapdata.efitdata[i].rgridRZBox != NULL) free((void*)equimapdata.efitdata[i].rgridRZBox);
-        if (equimapdata.efitdata[i].zgridRZBox != NULL) free((void*)equimapdata.efitdata[i].zgridRZBox);
+        free(equimapdata.efitdata[i].rlim);
+        free(equimapdata.efitdata[i].zlim);
+        free(equimapdata.efitdata[i].rlcfs);
+        free(equimapdata.efitdata[i].zlcfs);
+        free(equimapdata.efitdata[i].rgrid);
+        free(equimapdata.efitdata[i].zgrid);
+        free(equimapdata.efitdata[i].rgridSR);
+        free(equimapdata.efitdata[i].zgridSR);
+        free(equimapdata.efitdata[i].rgridRZBox);
+        free(equimapdata.efitdata[i].zgridRZBox);
 
-        if (equimapdata.efitdata[i].psiz0 != NULL) free((void*)equimapdata.efitdata[i].psiz0);
-        if (equimapdata.efitdata[i].rz0 != NULL) free((void*)equimapdata.efitdata[i].rz0);
-        if (equimapdata.efitdata[i].q != NULL) free((void*)equimapdata.efitdata[i].q);
-        if (equimapdata.efitdata[i].p != NULL) free((void*)equimapdata.efitdata[i].p);
-        if (equimapdata.efitdata[i].f != NULL) free((void*)equimapdata.efitdata[i].f);
-        if (equimapdata.efitdata[i].rho != NULL) free((void*)equimapdata.efitdata[i].rho);
-        if (equimapdata.efitdata[i].psi != NULL) free((void*)equimapdata.efitdata[i].psi);
-        if (equimapdata.efitdata[i].phi != NULL) free((void*)equimapdata.efitdata[i].phi);
-        if (equimapdata.efitdata[i].trho != NULL) free((void*)equimapdata.efitdata[i].trho);
-        if (equimapdata.efitdata[i].rho_tor != NULL) free((void*)equimapdata.efitdata[i].rho_tor);
+        free(equimapdata.efitdata[i].psiz0);
+        free(equimapdata.efitdata[i].rz0);
+        free(equimapdata.efitdata[i].q);
+        free(equimapdata.efitdata[i].p);
+        free(equimapdata.efitdata[i].f);
+        free(equimapdata.efitdata[i].rho);
+        free(equimapdata.efitdata[i].psi);
+        free(equimapdata.efitdata[i].phi);
+        free(equimapdata.efitdata[i].trho);
+        free(equimapdata.efitdata[i].rho_tor);
 
-        if (equimapdata.efitdata[i].pprime != NULL) free((void*)equimapdata.efitdata[i].pprime);
-        if (equimapdata.efitdata[i].ffprime != NULL) free((void*)equimapdata.efitdata[i].ffprime);
-        if (equimapdata.efitdata[i].elongp != NULL) free((void*)equimapdata.efitdata[i].elongp);
-        if (equimapdata.efitdata[i].trianglp != NULL) free((void*)equimapdata.efitdata[i].trianglp);
-        if (equimapdata.efitdata[i].triangup != NULL) free((void*)equimapdata.efitdata[i].triangup);
-        if (equimapdata.efitdata[i].volp != NULL) free((void*)equimapdata.efitdata[i].volp);
-        if (equimapdata.efitdata[i].areap != NULL) free((void*)equimapdata.efitdata[i].areap);
+        free(equimapdata.efitdata[i].pprime);
+        free(equimapdata.efitdata[i].ffprime);
+        free(equimapdata.efitdata[i].elongp);
+        free(equimapdata.efitdata[i].trianglp);
+        free(equimapdata.efitdata[i].triangup);
+        free(equimapdata.efitdata[i].volp);
+        free(equimapdata.efitdata[i].areap);
 
-        if (equimapdata.efitdata[i].ne != NULL) free((void*)equimapdata.efitdata[i].ne);
-        if (equimapdata.efitdata[i].te != NULL) free((void*)equimapdata.efitdata[i].te);
-        if (equimapdata.efitdata[i].rne != NULL) free((void*)equimapdata.efitdata[i].rne);
-        if (equimapdata.efitdata[i].yagpsi != NULL) free((void*)equimapdata.efitdata[i].yagpsi);
-        if (equimapdata.efitdata[i].yagphi != NULL) free((void*)equimapdata.efitdata[i].yagphi);
-        if (equimapdata.efitdata[i].yagtrho != NULL) free((void*)equimapdata.efitdata[i].yagtrho);
-        if (equimapdata.efitdata[i].yagprho != NULL) free((void*)equimapdata.efitdata[i].yagprho);
-        if (equimapdata.efitdata[i].yagrhotor != NULL) free((void*)equimapdata.efitdata[i].yagrhotor);
-        if (equimapdata.efitdata[i].mappsi != NULL) free((void*)equimapdata.efitdata[i].mappsi);
-        if (equimapdata.efitdata[i].mappsiB != NULL) free((void*)equimapdata.efitdata[i].mappsiB);
-        if (equimapdata.efitdata[i].mapq != NULL) free((void*)equimapdata.efitdata[i].mapq);
-        if (equimapdata.efitdata[i].mapqB != NULL) free((void*)equimapdata.efitdata[i].mapqB);
-        if (equimapdata.efitdata[i].mapp != NULL) free((void*)equimapdata.efitdata[i].mapp);
-        if (equimapdata.efitdata[i].mappB != NULL) free((void*)equimapdata.efitdata[i].mappB);
-        if (equimapdata.efitdata[i].mapf != NULL) free((void*)equimapdata.efitdata[i].mapf);
-        if (equimapdata.efitdata[i].mapfB != NULL) free((void*)equimapdata.efitdata[i].mapfB);
-        if (equimapdata.efitdata[i].mappprime != NULL) free((void*)equimapdata.efitdata[i].mappprime);
-        if (equimapdata.efitdata[i].mappprimeB != NULL) free((void*)equimapdata.efitdata[i].mappprimeB);
-        if (equimapdata.efitdata[i].mapffprime != NULL) free((void*)equimapdata.efitdata[i].mapffprime);
-        if (equimapdata.efitdata[i].mapffprimeB != NULL) free((void*)equimapdata.efitdata[i].mapffprimeB);
-        if (equimapdata.efitdata[i].mapelongp != NULL) free((void*)equimapdata.efitdata[i].mapelongp);
-        if (equimapdata.efitdata[i].mapelongpB != NULL) free((void*)equimapdata.efitdata[i].mapelongpB);
-        if (equimapdata.efitdata[i].maptrianglp != NULL) free((void*)equimapdata.efitdata[i].maptrianglp);
-        if (equimapdata.efitdata[i].maptrianglpB != NULL) free((void*)equimapdata.efitdata[i].maptrianglpB);
-        if (equimapdata.efitdata[i].maptriangup != NULL) free((void*)equimapdata.efitdata[i].maptriangup);
-        if (equimapdata.efitdata[i].maptriangupB != NULL) free((void*)equimapdata.efitdata[i].maptriangupB);
-        if (equimapdata.efitdata[i].mapvolp != NULL) free((void*)equimapdata.efitdata[i].mapvolp);
-        if (equimapdata.efitdata[i].mapvolpB != NULL) free((void*)equimapdata.efitdata[i].mapvolpB);
-        if (equimapdata.efitdata[i].mapareap != NULL) free((void*)equimapdata.efitdata[i].mapareap);
-        if (equimapdata.efitdata[i].mapareapB != NULL) free((void*)equimapdata.efitdata[i].mapareapB);
-        if (equimapdata.efitdata[i].mapgm0 != NULL) free((void*)equimapdata.efitdata[i].mapgm0);
-        if (equimapdata.efitdata[i].mapgm1 != NULL) free((void*)equimapdata.efitdata[i].mapgm1);
-        if (equimapdata.efitdata[i].mapgm2 != NULL) free((void*)equimapdata.efitdata[i].mapgm2);
-        if (equimapdata.efitdata[i].mapgm3 != NULL) free((void*)equimapdata.efitdata[i].mapgm3);
+        free(equimapdata.efitdata[i].ne);
+        free(equimapdata.efitdata[i].te);
+        free(equimapdata.efitdata[i].rne);
+        free(equimapdata.efitdata[i].yagpsi);
+        free(equimapdata.efitdata[i].yagphi);
+        free(equimapdata.efitdata[i].yagtrho);
+        free(equimapdata.efitdata[i].yagprho);
+        free(equimapdata.efitdata[i].yagrhotor);
+        free(equimapdata.efitdata[i].mappsi);
+        free(equimapdata.efitdata[i].mappsiB);
+        free(equimapdata.efitdata[i].mapq);
+        free(equimapdata.efitdata[i].mapqB);
+        free(equimapdata.efitdata[i].mapp);
+        free(equimapdata.efitdata[i].mappB);
+        free(equimapdata.efitdata[i].mapf);
+        free(equimapdata.efitdata[i].mapfB);
+        free(equimapdata.efitdata[i].mappprime);
+        free(equimapdata.efitdata[i].mappprimeB);
+        free(equimapdata.efitdata[i].mapffprime);
+        free(equimapdata.efitdata[i].mapffprimeB);
+        free(equimapdata.efitdata[i].mapelongp);
+        free(equimapdata.efitdata[i].mapelongpB);
+        free(equimapdata.efitdata[i].maptrianglp);
+        free(equimapdata.efitdata[i].maptrianglpB);
+        free(equimapdata.efitdata[i].maptriangup);
+        free(equimapdata.efitdata[i].maptriangupB);
+        free(equimapdata.efitdata[i].mapvolp);
+        free(equimapdata.efitdata[i].mapvolpB);
+        free(equimapdata.efitdata[i].mapareap);
+        free(equimapdata.efitdata[i].mapareapB);
+        free(equimapdata.efitdata[i].mapgm0);
+        free(equimapdata.efitdata[i].mapgm1);
+        free(equimapdata.efitdata[i].mapgm2);
+        free(equimapdata.efitdata[i].mapgm3);
 
-        if (equimapdata.efitdata[i].mapyagne != NULL) free((void*)equimapdata.efitdata[i].mapyagne);
-        if (equimapdata.efitdata[i].mapyagte != NULL) free((void*)equimapdata.efitdata[i].mapyagte);
-        if (equimapdata.efitdata[i].mapyagpsi != NULL) free((void*)equimapdata.efitdata[i].mapyagpsi);
-        if (equimapdata.efitdata[i].mapyagphi != NULL) free((void*)equimapdata.efitdata[i].mapyagphi);
-        if (equimapdata.efitdata[i].mapyagr1 != NULL) free((void*)equimapdata.efitdata[i].mapyagr1);
-        if (equimapdata.efitdata[i].mapyagne1 != NULL) free((void*)equimapdata.efitdata[i].mapyagne1);
-        if (equimapdata.efitdata[i].mapyagte1 != NULL) free((void*)equimapdata.efitdata[i].mapyagte1);
-        if (equimapdata.efitdata[i].mapyagpsi1 != NULL) free((void*)equimapdata.efitdata[i].mapyagpsi1);
-        if (equimapdata.efitdata[i].mapyagphi1 != NULL) free((void*)equimapdata.efitdata[i].mapyagphi1);
-        if (equimapdata.efitdata[i].mapyagr2 != NULL) free((void*)equimapdata.efitdata[i].mapyagr2);
-        if (equimapdata.efitdata[i].mapyagne2 != NULL) free((void*)equimapdata.efitdata[i].mapyagne2);
-        if (equimapdata.efitdata[i].mapyagte2 != NULL) free((void*)equimapdata.efitdata[i].mapyagte2);
-        if (equimapdata.efitdata[i].mapyagpsi2 != NULL) free((void*)equimapdata.efitdata[i].mapyagpsi2);
-        if (equimapdata.efitdata[i].mapyagphi2 != NULL) free((void*)equimapdata.efitdata[i].mapyagphi2);
-        if (equimapdata.efitdata[i].mapyagneB != NULL) free((void*)equimapdata.efitdata[i].mapyagneB);
-        if (equimapdata.efitdata[i].mapyagteB != NULL) free((void*)equimapdata.efitdata[i].mapyagteB);
-        if (equimapdata.efitdata[i].mapyagpsiB != NULL) free((void*)equimapdata.efitdata[i].mapyagpsiB);
-        if (equimapdata.efitdata[i].mapyagphiB != NULL) free((void*)equimapdata.efitdata[i].mapyagphiB);
-        if (equimapdata.efitdata[i].mapyagr1B != NULL) free((void*)equimapdata.efitdata[i].mapyagr1B);
-        if (equimapdata.efitdata[i].mapyagne1B != NULL) free((void*)equimapdata.efitdata[i].mapyagne1B);
-        if (equimapdata.efitdata[i].mapyagte1B != NULL) free((void*)equimapdata.efitdata[i].mapyagte1B);
-        if (equimapdata.efitdata[i].mapyagpsi1B != NULL) free((void*)equimapdata.efitdata[i].mapyagpsi1B);
-        if (equimapdata.efitdata[i].mapyagphi1B != NULL) free((void*)equimapdata.efitdata[i].mapyagphi1B);
-        if (equimapdata.efitdata[i].mapyagr2B != NULL) free((void*)equimapdata.efitdata[i].mapyagr2B);
-        if (equimapdata.efitdata[i].mapyagne2B != NULL) free((void*)equimapdata.efitdata[i].mapyagne2B);
-        if (equimapdata.efitdata[i].mapyagte2B != NULL) free((void*)equimapdata.efitdata[i].mapyagte2B);
-        if (equimapdata.efitdata[i].mapyagpsi2B != NULL) free((void*)equimapdata.efitdata[i].mapyagpsi2B);
-        if (equimapdata.efitdata[i].mapyagphi2B != NULL) free((void*)equimapdata.efitdata[i].mapyagphi2B);
+        free(equimapdata.efitdata[i].mapyagne);
+        free(equimapdata.efitdata[i].mapyagte);
+        free(equimapdata.efitdata[i].mapyagpsi);
+        free(equimapdata.efitdata[i].mapyagphi);
+        free(equimapdata.efitdata[i].mapyagr1);
+        free(equimapdata.efitdata[i].mapyagne1);
+        free(equimapdata.efitdata[i].mapyagte1);
+        free(equimapdata.efitdata[i].mapyagpsi1);
+        free(equimapdata.efitdata[i].mapyagphi1);
+        free(equimapdata.efitdata[i].mapyagr2);
+        free(equimapdata.efitdata[i].mapyagne2);
+        free(equimapdata.efitdata[i].mapyagte2);
+        free(equimapdata.efitdata[i].mapyagpsi2);
+        free(equimapdata.efitdata[i].mapyagphi2);
+        free(equimapdata.efitdata[i].mapyagneB);
+        free(equimapdata.efitdata[i].mapyagteB);
+        free(equimapdata.efitdata[i].mapyagpsiB);
+        free(equimapdata.efitdata[i].mapyagphiB);
+        free(equimapdata.efitdata[i].mapyagr1B);
+        free(equimapdata.efitdata[i].mapyagne1B);
+        free(equimapdata.efitdata[i].mapyagte1B);
+        free(equimapdata.efitdata[i].mapyagpsi1B);
+        free(equimapdata.efitdata[i].mapyagphi1B);
+        free(equimapdata.efitdata[i].mapyagr2B);
+        free(equimapdata.efitdata[i].mapyagne2B);
+        free(equimapdata.efitdata[i].mapyagte2B);
+        free(equimapdata.efitdata[i].mapyagpsi2B);
+        free(equimapdata.efitdata[i].mapyagphi2B);
 
-        for (j = 0; j < equimapdata.efitdata[i].psiCount[1]; j++)
-            if (equimapdata.efitdata[i].psig[j] != NULL) free((void*)equimapdata.efitdata[i].psig[j]);
-        if (equimapdata.efitdata[i].psig != NULL) free((void*)equimapdata.efitdata[i].psig);
+        for (j = 0; j < equimapdata.efitdata[i].psiCount[1]; j++) {
+            free(equimapdata.efitdata[i].psig[j]);
+        }
+        free(equimapdata.efitdata[i].psig);
 
-        for (j = 0; j < equimapdata.efitdata[i].psiCountSR[1]; j++)
-            if (equimapdata.efitdata[i].psigSR[j] != NULL) free((void*)equimapdata.efitdata[i].psigSR[j]);
-        if (equimapdata.efitdata[i].psigSR != NULL) free((void*)equimapdata.efitdata[i].psigSR);
+        for (j = 0; j < equimapdata.efitdata[i].psiCountSR[1]; j++) {
+            free(equimapdata.efitdata[i].psigSR[j]);
+        }
+        free(equimapdata.efitdata[i].psigSR);
 
-        for (j = 0; j < equimapdata.efitdata[i].psiCountRZBox[1]; j++)
-            if (equimapdata.efitdata[i].psigRZBox[j] != NULL) free((void*)equimapdata.efitdata[i].psigRZBox[j]);
-        if (equimapdata.efitdata[i].psigRZBox != NULL) free((void*)equimapdata.efitdata[i].psigRZBox);
+        for (j = 0; j < equimapdata.efitdata[i].psiCountRZBox[1]; j++) {
+            free(equimapdata.efitdata[i].psigRZBox[j]);
+        }
+        free(equimapdata.efitdata[i].psigRZBox);
 
-        for (j = 0; j < equimapdata.efitdata[i].psiCount[1]; j++)
-            if (equimapdata.efitdata[i].Jphi[j] != NULL) free((void*)equimapdata.efitdata[i].Jphi[j]);
-        if (equimapdata.efitdata[i].Jphi != NULL) free((void*)equimapdata.efitdata[i].Jphi);
+        for (j = 0; j < equimapdata.efitdata[i].psiCount[1]; j++) {
+            free(equimapdata.efitdata[i].Jphi[j]);
+        }
+        free(equimapdata.efitdata[i].Jphi);
 
         if (equimapdata.readITMData) {
-
             for (j = 0; j < equimapdata.efitdata[i].psiCount[1]; j++) {
-                //if(equimapdata.efitdata[i].dpsidr[j] != NULL) free((void *)equimapdata.efitdata[i].dpsidr[j]);
-                //if(equimapdata.efitdata[i].dpsidz[j] != NULL) free((void *)equimapdata.efitdata[i].dpsidz[j]);
-                if (equimapdata.efitdata[i].Br[j] != NULL) free((void*)equimapdata.efitdata[i].Br[j]);
-                if (equimapdata.efitdata[i].Bz[j] != NULL) free((void*)equimapdata.efitdata[i].Bz[j]);
-                if (equimapdata.efitdata[i].Bphi[j] != NULL) free((void*)equimapdata.efitdata[i].Bphi[j]);
+                free(equimapdata.efitdata[i].Br[j]);
+                free(equimapdata.efitdata[i].Bz[j]);
+                free(equimapdata.efitdata[i].Bphi[j]);
             }
-            //if(equimapdata.efitdata[i].dpsidr != NULL) free((void *)equimapdata.efitdata[i].dpsidr);
-            //if(equimapdata.efitdata[i].dpsidz != NULL) free((void *)equimapdata.efitdata[i].dpsidz);
-            if (equimapdata.efitdata[i].Br != NULL) free((void*)equimapdata.efitdata[i].Br);
-            if (equimapdata.efitdata[i].Bz != NULL) free((void*)equimapdata.efitdata[i].Bz);
-            if (equimapdata.efitdata[i].Bphi != NULL) free((void*)equimapdata.efitdata[i].Bphi);
+            free(equimapdata.efitdata[i].Br);
+            free(equimapdata.efitdata[i].Bz);
+            free(equimapdata.efitdata[i].Bphi);
         }
 
         initEfitData(&equimapdata.efitdata[i]);
@@ -2534,8 +2533,8 @@ void freeEquiMapData()
             if (equimapdata.fluxAverages[i].metrics.xaprime != NULL) {
                 free((void*)equimapdata.fluxAverages[i].metrics.xaprime);
             }
-            if (equimapdata.fluxAverages[i].metrics.len != NULL) free((void*)equimapdata.fluxAverages[i].metrics.len);
-            if (equimapdata.fluxAverages[i].metrics.sur != NULL) free((void*)equimapdata.fluxAverages[i].metrics.sur);
+            free(equimapdata.fluxAverages[i].metrics.len);
+            free(equimapdata.fluxAverages[i].metrics.sur);
             if (equimapdata.fluxAverages[i].metrics.grho != NULL) {
                 free((void*)equimapdata.fluxAverages[i].metrics.grho);
             }
@@ -2548,16 +2547,16 @@ void freeEquiMapData()
             if (equimapdata.fluxAverages[i].metrics.xarea != NULL) {
                 free((void*)equimapdata.fluxAverages[i].metrics.xarea);
             }
-            if (equimapdata.fluxAverages[i].metrics.gm2 != NULL) free((void*)equimapdata.fluxAverages[i].metrics.gm2);
-            if (equimapdata.fluxAverages[i].metrics.gm3 != NULL) free((void*)equimapdata.fluxAverages[i].metrics.gm3);
+            free(equimapdata.fluxAverages[i].metrics.gm2);
+            free(equimapdata.fluxAverages[i].metrics.gm3);
         }
     }
 
-    if (equimapdata.times != NULL) free((void*)equimapdata.times);
-    if (equimapdata.rho != NULL) free((void*)equimapdata.rho);
-    if (equimapdata.rhoB != NULL) free((void*)equimapdata.rhoB);
-    if (equimapdata.efitdata != NULL) free((void*)equimapdata.efitdata);
-    if (equimapdata.fluxAverages != NULL) free((void*)equimapdata.fluxAverages);
+    free(equimapdata.times);
+    free(equimapdata.rho);
+    free(equimapdata.rhoB);
+    free(equimapdata.efitdata);
+    free(equimapdata.fluxAverages);
 
     for (i = 0; i < handleCount; i++) {
         idamFree(handles[i]);        // Free IDAM Heap

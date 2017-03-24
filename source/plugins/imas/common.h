@@ -5,15 +5,15 @@
 extern "C" {
 #endif
 
-void getIdamNameValuePairItemList(char * list, char *** itemList, unsigned short * count, char quote,
+void getIdamNameValuePairItemList(const char * list, char *** itemList, unsigned short * count, char quote,
                                   char delimiter);
 
 void freeIdamNameValuePairItemList(char *** list, unsigned short count);
 
-int getIdamNameValuePairVarArray(char * values, char quote, char delimiter, unsigned short varSize, int varType,
+int getIdamNameValuePairVarArray(const char * values, char quote, char delimiter, unsigned short varSize, int varType,
                                  void ** varData);
 
-int findIdamType(char * typeName);
+int findIdamType(const char * typeName);
 
 char * convertIdam2StringType(int type);
 

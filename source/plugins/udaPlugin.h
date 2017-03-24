@@ -57,6 +57,12 @@ typedef void (* ADDIDAMERRORFUNP)(IDAMERRORSTACK*, int, char*, int, char*);   //
 
 int initPlugin(const IDAM_PLUGIN_INTERFACE* plugin_interface);
 
+int setReturnDataDblScalar(IDAM_PLUGIN_INTERFACE* plugin_interface, double value);
+
+int setReturnDataIntScalar(IDAM_PLUGIN_INTERFACE* plugin_interface, int value);
+
+int setReturnDataString(IDAM_PLUGIN_INTERFACE* plugin_interface, const char* value);
+
 unsigned short findStringValue(NAMEVALUELIST* namevaluelist, char** value, const char* name);
 
 unsigned short findValue(NAMEVALUELIST* namevaluelist, const char* name);
@@ -64,6 +70,8 @@ unsigned short findValue(NAMEVALUELIST* namevaluelist, const char* name);
 unsigned short findIntValue(NAMEVALUELIST* namevaluelist, int* value, const char* name);
 
 unsigned short findShortValue(NAMEVALUELIST* namevaluelist, short* value, const char* name);
+
+unsigned short findCharValue(NAMEVALUELIST* namevaluelist, char* value, const char* name);
 
 unsigned short findFloatValue(NAMEVALUELIST* namevaluelist, float* values, const char* name);
 
@@ -109,6 +117,8 @@ if (!find##TYPE##Array(&NAME_VALUE_LIST, &VARIABLE, CONCAT(&n, VARIABLE), QUOTE(
 }
 
 #define FIND_REQUIRED_INT_VALUE(NAME_VALUE_LIST, VARIABLE)      FIND_REQUIRED_VALUE(NAME_VALUE_LIST, VARIABLE, Int)
+#define FIND_REQUIRED_SHORT_VALUE(NAME_VALUE_LIST, VARIABLE)    FIND_REQUIRED_VALUE(NAME_VALUE_LIST, VARIABLE, Short)
+#define FIND_REQUIRED_CHAR_VALUE(NAME_VALUE_LIST, VARIABLE)     FIND_REQUIRED_VALUE(NAME_VALUE_LIST, VARIABLE, Char)
 #define FIND_REQUIRED_FLOAT_VALUE(NAME_VALUE_LIST, VARIABLE)    FIND_REQUIRED_VALUE(NAME_VALUE_LIST, VARIABLE, Float)
 #define FIND_REQUIRED_STRING_VALUE(NAME_VALUE_LIST, VARIABLE)   FIND_REQUIRED_VALUE(NAME_VALUE_LIST, VARIABLE, String)
 
@@ -117,6 +127,7 @@ if (!find##TYPE##Array(&NAME_VALUE_LIST, &VARIABLE, CONCAT(&n, VARIABLE), QUOTE(
 
 #define FIND_INT_VALUE(NAME_VALUE_LIST, VARIABLE)       findIntValue(&NAME_VALUE_LIST, &VARIABLE, QUOTE(VARIABLE))
 #define FIND_SHORT_VALUE(NAME_VALUE_LIST, VARIABLE)     findShortValue(&NAME_VALUE_LIST, &VARIABLE, QUOTE(VARIABLE))
+#define FIND_CHAR_VALUE(NAME_VALUE_LIST, VARIABLE)      findCharValue(&NAME_VALUE_LIST, &VARIABLE, QUOTE(VARIABLE))
 #define FIND_FLOAT_VALUE(NAME_VALUE_LIST, VARIABLE)     findFloatValue(&NAME_VALUE_LIST, &VARIABLE, QUOTE(VARIABLE))
 #define FIND_STRING_VALUE(NAME_VALUE_LIST, VARIABLE)    findStringValue(&NAME_VALUE_LIST, &VARIABLE, QUOTE(VARIABLE))
 
