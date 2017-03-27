@@ -9,6 +9,8 @@ endif()
 
 include( plugins )
 
+add_definitions( -Wno-error )
+
 uda_plugin(
   NAME LIVEDISPLAY
   ENTRY_FUNC livedisplay
