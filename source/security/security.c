@@ -85,1420 +85,136 @@
 #include "security.h"
 
 #include <zconf.h>
-#include <errno.h>
 
-#include <clientserver/errorLog.h>
 #include <logging/logging.h>
-#include <clientserver/stringUtils.h>
+#include <clientserver/errorLog.h>
+#include <clientserver/udaTypes.h>
 
-#define digitp(p)   (*(p) >= '0' && *(p) <= '9')
-#define xfree(a)  ksba_free (a)
-
-void initSecurityBlock(SECURITY_BLOCK* str)
+static void logToken(const char* msg, const gcry_mpi_t mpi_token)
 {
-    str->structVersion = 1;
-    str->encryptionMethod = 2;
-    str->authenticationStep = 0;
-    str->client_ciphertextLength = 0;
-    str->client2_ciphertextLength = 0;
-    str->server_ciphertextLength = 0;
-    str->client_X509Length = 0;
-    str->client2_X509Length = 0;
-    str->client2_ciphertext = NULL;
-    str->client_ciphertext = NULL;
-    str->server_ciphertext = NULL;
-    str->client_X509 = NULL;
-    str->client2_X509 = NULL;
-}
-
-// Import a Security Document from a private file (a key or X.509 certificate) 
-
-int importSecurityDoc(const char* file, unsigned char** contents, unsigned short* length)
-{
-
-    int err = 0;
-
-    *length = 0;
-    *contents = (unsigned char*)malloc(UDA_MAXKEY * sizeof(unsigned char));
-
-    FILE* fd = NULL;
-
-    errno = 0;
-
-    if (((fd = fopen(file, "rb")) == NULL || ferror(fd) || errno != 0)) {
-        err = 999;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "importIdamSecurityDoc", err,
-                     "Cannot open the security document: key or certificate");
-        if (fd != NULL) fclose(fd);
-        return err;
-    }
-
-    size_t fileLength = fread(*contents, sizeof(char), UDA_MAXKEY, fd);
-
-    if (!feof(fd) || fileLength == UDA_MAXKEY) {
-        err = 999;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "importIdamSecurityDoc", err,
-                     "Security document length limit hit!");
-        free(*contents);
-        fclose(fd);
-        return err;
-    }
-
-    *length = (unsigned short)fileLength;
-
-    fclose(fd);
-    return err;
-}
-
-int makeX509CertObject(unsigned char* doc, unsigned short docLength, ksba_cert_t* cert)
-{
-
-    int err = 0;
-    ksba_cert_t certificate;
-
-    if (ksba_cert_new(&certificate) != 0) {
-        err = 999;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "makeIdamX509CertObject", err,
-                     "Problem creating the certificate object!");
-        return err;
-    }
-
-    if (ksba_cert_init_from_mem(certificate, (const void*)doc, (size_t)docLength) != 0) {
-        err = 999;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "makeIdamX509CertObject", err,
-                     "Problem initialising the certificate object!");
-        return err;
-    }
-
-    *cert = certificate;
-
-    return err;
-}
-
-// Extract a Public Key from a X509 certificate file and return an S-Expression 
-
-int extractX509SExpKey(ksba_cert_t cert, gcry_sexp_t* key_sexp)
-{
-
-    gcry_error_t errCode;
-    int err = 0;
-
-    ksba_sexp_t p;
-    size_t n;
-
-    if ((p = ksba_cert_get_public_key(cert)) == NULL) {
-        err = 999;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "extractIdamX509SExpKey", err, "Failure to get the Public key!");
-        return err;
-    }
-
-// Get the length of the canonical S-Expression (public key)
-
-    if ((n = gcry_sexp_canon_len(p, 0, NULL, NULL)) == 0) {
-        err = 999;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "extractIdamX509SExpKey", err, "did not return a proper S-Exp!");
-        ksba_free(p);
-        return err;
-    }
-
-// Create an internal S-Expression from the external representation
-
-    if ((errCode = gcry_sexp_sscan(key_sexp, NULL, (char*)p, n)) != 0) {
-        err = 999;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "extractIdamX509SExpKey", err, "S-Exp creation failed!");
-        ksba_free(p);
-        return err;
-    }
-
-    ksba_free(p);
-
-    return err;
-}
-
-/* Return the public key algorithm id from the S-expression PKEY.
-   FIXME: libgcrypt should provide such a function.  Note that this
-   implementation uses the names as used by libksba.  */
-
-//static int
-int
-pk_algo_from_sexp(gcry_sexp_t pkey)
-{
-    gcry_sexp_t l1, l2;
-    const char* name;
-    size_t n;
-    int algo;
-
-    l1 = gcry_sexp_find_token(pkey, "public-key", 0);
-    if (!l1) {
-        return 0;
-    } /* Not found.  */
-    l2 = gcry_sexp_cadr(l1);
-    gcry_sexp_release(l1);
-
-    name = gcry_sexp_nth_data(l2, 0, &n);
-    if (!name) {
-        algo = 0; /* Not found. */
-    } else if (n == 3 && !memcmp(name, "rsa", 3)) {
-        algo = GCRY_PK_RSA;
-    } else if (n == 3 && !memcmp(name, "dsa", 3)) {
-        algo = GCRY_PK_DSA;
-        /* Because this function is called only for verification we can
-           assume that ECC actually means ECDSA.  */
-    } else if (n == 3 && !memcmp(name, "ecc", 3)) {
-        algo = GCRY_PK_ECDSA;
-    } else if (n == 13 && !memcmp(name, "ambiguous-rsa", 13)) {
-        algo = GCRY_PK_RSA;
-    } else {
-        algo = 0;
-    }
-    gcry_sexp_release(l2);
-    return algo;
-}
-
-/* Return the number of bits of the Q parameter from the DSA key
-   KEY.  */
-static unsigned int
-get_dsa_qbits(gcry_sexp_t key)
-{
-    gcry_sexp_t l1, l2;
-    gcry_mpi_t q;
-    unsigned int nbits;
-
-    l1 = gcry_sexp_find_token(key, "public-key", 0);
-    if (!l1) {
-        return 0;
-    } /* Does not contain a key object.  */
-    l2 = gcry_sexp_cadr(l1);
-    gcry_sexp_release(l1);
-    l1 = gcry_sexp_find_token(l2, "q", 1);
-    gcry_sexp_release(l2);
-    if (!l1) {
-        return 0;
-    } /* Invalid object.  */
-    q = gcry_sexp_nth_mpi(l1, 1, GCRYMPI_FMT_USG);
-    gcry_sexp_release(l1);
-    if (!q)
-        return 0; /* Missing value.  */
-    nbits = gcry_mpi_get_nbits(q);
-    gcry_mpi_release(q);
-
-    return nbits;
-}
-
-
-//static int
-int
-do_encode_md(gcry_md_hd_t md, int algo, int pkalgo, unsigned int nbits,
-             gcry_sexp_t pkey, gcry_mpi_t* r_val)
-{
-    int n;
-    size_t nframe;
-    unsigned char* frame;
-
-    if (pkalgo == GCRY_PK_DSA || pkalgo == GCRY_PK_ECDSA) {
-        unsigned int qbits;
-
-        if (pkalgo == GCRY_PK_ECDSA) {
-            qbits = gcry_pk_get_nbits(pkey);
-        } else {
-            qbits = get_dsa_qbits(pkey);
-        }
-
-        if ((qbits % 8)) {
-            return 999;
-        }
-
-        /* Don't allow any Q smaller than 160 bits.  We don't want
-       someone to issue signatures from a key with a 16-bit Q or
-       something like that, which would look correct but allow
-       trivial forgeries.  Yes, I know this rules out using MD5 with
-       DSA. ;) */
-        if (qbits < 160) {
-            return 999;
-        }
-
-        /* Check if we're too short.  Too long is safe as we'll
-       automatically left-truncate. */
-        nframe = gcry_md_get_algo_dlen(algo);
-        if (nframe < qbits / 8) {
-            return 999;
-            /* FIXME: we need to check the requirements for ECDSA.  */
-            if (nframe < 20 || pkalgo == GCRY_PK_DSA) {
-                return 999;
-            }
-        }
-
-        frame = (unsigned char*)xtrymalloc(nframe);
-        if (!frame) {
-            return 999;
-        }
-
-        memcpy (frame, gcry_md_read(md, algo), nframe);
-        n = nframe;
-        /* Truncate.  */
-        if (n > qbits / 8) {
-            n = qbits / 8;
-        }
-    } else {
-        int i;
-        unsigned char asn[100];
-        size_t asnlen;
-        size_t len;
-
-        nframe = (nbits + 7) / 8;
-
-        asnlen = DIM(asn);
-        if (!algo || gcry_md_test_algo(algo)) {
-            return 999;
-        }
-        if (gcry_md_algo_info(algo, GCRYCTL_GET_ASNOID, asn, &asnlen)) {
-            return 999;
-        }
-
-        len = gcry_md_get_algo_dlen(algo);
-
-        if (len + asnlen + 4 > nframe) {
-            return 999;
-        }
-
-        /* We encode the MD in this way:
-         *
-         *	   0  A PAD(n bytes)   0  ASN(asnlen bytes)  MD(len bytes)
-         *
-         * PAD consists of FF bytes.
-         */
-        frame = (unsigned char*)xtrymalloc(nframe);
-        if (!frame) {
-            return 999;
-        }
-
-        n = 0;
-        frame[n++] = 0;
-        frame[n++] = 1; /* block type */
-        i = nframe - len - asnlen - 3;
-
-        if (!((i > 1))) {
-            return 999;
-        }
-        memset (frame + n, 0xff, i);
-        n += i;
-        frame[n++] = 0;
-        memcpy (frame + n, asn, asnlen);
-        n += asnlen;
-        memcpy (frame + n, gcry_md_read(md, algo), len);
-        n += len;
-
-        if (!((n == nframe))) {
-            return 999;
-        }
-    }
-
-    gcry_mpi_scan(r_val, GCRYMPI_FMT_USG, frame, n, &nframe);
-    xfree (frame);
-    return 0;
-}
-
-
-int importX509Reader(const char* fileName, ksba_cert_t* cert)
-{
-
-    int err = 0;
-    FILE* fp;
-    ksba_reader_t r;
-
-    errno = 0;
-
-    fp = fopen(fileName, "rb");
-    if (!fp) {
-        err = 999;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "importIdamX509", err, "Problem opening the certificate file");
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "importIdamX509", err, strerror(errno));
-        return err;
-    }
-
-    err = ksba_reader_new(&r);
-    if (err) {
-        err = 999;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "importIdamX509", err, "can't create certificate reader");
-        return err;
-    }
-
-    err = ksba_reader_set_file(r, fp);
-    if (err) {
-        err = 999;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "importIdamX509", err, "can't set file reader");
-        return err;
-    }
-
-    err = ksba_cert_new(cert);
-    if (err) {
-        err = 999;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "importIdamX509", err,
-                     "Problem creating a new certificate object!");
-        return err;
-    }
-
-    err = ksba_cert_read_der(*cert, r);
-    if (err) {
-        err = 999;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "importIdamX509", err,
-                     "Problem initialising the certificate object!");
-        return err;
-    }
-
-    fclose(fp);
-
-    return err;
-}
-
-// Import a X509 certificate from a private file and return the certificate object  
-
-int importIdamX509Mem(const char* x509File, ksba_cert_t* cert)
-{
-
-    int err = 0;
-
-    unsigned char* contents;
-    unsigned short length;
-
-    err = importSecurityDoc(x509File, &contents, &length);
-
-    gpg_error_t errCode;
-    ksba_cert_t certificate;
-
-    if ((errCode = ksba_cert_new(&certificate)) != 0) {
-        //fail_if_err (err);
-        if (contents != NULL) free((void*)contents);
-        err = 999;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "importIdamX509", err,
-                     "Problem creating the KSBA certificate object!");
-        return err;
-    }
-
-    if ((errCode = ksba_cert_init_from_mem(certificate, (const void*)contents, (size_t)length)) != 0) {
-        if (contents != NULL) free((void*)contents);
-        err = 999;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "importIdamX509", err,
-                     "Problem initialising the KSBA certificate object!");
-        //fail_if_err(errCode);
-        return err;
-    }
-
-    if (contents != NULL) free((void*)contents);
-
-    *cert = certificate;
-
-    return err;
-}
-
-int getIdamDateTime()
-{
-
-    int err = 0;
-
-// Current Date and Time
-
-    time_t calendar;            // Simple Calendar Date & Time
-    struct tm* broken;            // Broken Down calendar Time
-    static char datetime[DATELENGTH];    // The Calendar Time as a formatted String
-
-// Calendar Time
-
-    time(&calendar);
-    broken = gmtime(&calendar);
-    asctime_r(broken, datetime);
-
-    convertNonPrintable2(datetime);
-    TrimString(datetime);
-
-    return err;
-}
-
-
-// Test the X509 certificate dates are valid  
-
-int testX509Dates(ksba_cert_t certificate)
-{
-    int err = 0;
-    ksba_isotime_t startDateTime = {};
-    ksba_isotime_t endDateTime = {};        // ISO format referenced from UTC
-
-    ksba_cert_get_validity(certificate, 0, startDateTime);
-    ksba_cert_get_validity(certificate, 1, endDateTime);
-
-// Current Date and Time
-
-    time_t calendar;                    // Simple Calendar Date & Time
-    struct tm* broken;                  // Broken Down calendar Time
-    static char datetime[DATELENGTH];   // The Calendar Time as a formatted String
-
-// Calendar Time
-
-    time(&calendar);
-    broken = gmtime(&calendar);
-    asctime_r(broken, datetime);
-
-    convertNonPrintable2(datetime);
-    TrimString(datetime);
-
-// Year
-
-    char work[56];
-    sprintf(work, "%.4d%.2d%.2dT%.2d%.2d%.2d", broken->tm_year + 1900, broken->tm_mon + 1, broken->tm_mday,
-            broken->tm_hour, broken->tm_min, broken->tm_sec);
-
-    if ((strcmp(work, startDateTime) <= 0) || (strcmp(endDateTime, work) <= 0)) {        // dates are in ascending order
-        err = 999;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "testIdamX509Dates", err,
-                     "X509 Certificate is Invalid: Time Expired!");
-        return err;
-    }
-
-    return err;
-}
-
-// Import a Public Key from a X509 certificate file and return an S-Expression 
-
-int importIdamX509SExpKey(const char* x509File, gcry_sexp_t* key_sexp)
-{
-    ksba_cert_t cert;
-    int err = 0;
-
-    ksba_sexp_t p;
-    size_t n;
-
-    // Read the certificate file
-    if ((err = importIdamX509Mem(x509File, &cert)) != 0) {
-        return err;
-    }
-
-// Check the Certificate Validity 
-
-    if ((err = testX509Dates(cert)) != 0) return err;
-
-// Get the x509 Public key  
-
-    if ((p = ksba_cert_get_public_key(cert)) == NULL) {
-        err = 999;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "importIdamX509SExpKey", err, "Failure to get the Public key!");
-        return err;
-    }
-
-// Get the length of the canonical S-Expression (public key)
-
-    if ((n = gcry_sexp_canon_len(p, 0, NULL, NULL)) == 0) {
-        err = 999;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "importIdamX509SExpKey", err,
-                     "libksba did not return a proper S-Exp!");
-        ksba_free(p);
-        return err;
-    }
-
-// Create an internal S-Expression from the external representation
-
-    if (gcry_sexp_sscan(key_sexp, NULL, (char*)p, n) != 0) {
-        err = 999;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "importIdamX509SExpKey", err, "gcry_sexp_scan failed!");
-        ksba_free(p);
-        return err;
-    }
-
-    ksba_free(p);
-
-    return err;
-}
-
-// Check the certificate signature.  
-// based on GNUPG sm/certcheck.c (gpgsm_check_cert_sig)
-
-int checkX509Signature(ksba_cert_t issuer_cert, ksba_cert_t cert)
-{
-
-    int err = 0;
-
-    const char* algoid;
-    gcry_md_hd_t md;
-    int algo;
-    gcry_mpi_t frame;
-    ksba_sexp_t p;
-    size_t n;
-    gcry_sexp_t s_sig, s_hash, s_pkey;
-
-// Extract the digest algorithm OID used for the signature
-
-    if ((algoid = ksba_cert_get_digest_algo(cert)) == NULL) {
-        err = 999;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "idamCheckX509Signature", err, "unknown digest algorithm OID");
-        return err;
-    }
-
-// Map the algorithm OID to an algorithm identifier
-
-    if ((algo = gcry_md_map_name(algoid)) == 0) {
-        err = 999;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "idamCheckX509Signature", err,
-                     "unknown digest algorithm identifier");
-        return err;
-    }
-
-// Create a new digest object with the same algorithm as the certificate signature
-
-    if (gcry_md_open(&md, algo, 0) != 0) {
-        err = 999;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "idamCheckX509Signature", err, "md_open failed!");
-        // gpg_strerror (rc)
-        return err;
-    }
-
-// Hash the certificate
-
-    if (ksba_cert_hash(cert, 1, HASH_FNC, md) != 0) {
-        err = 999;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "idamCheckX509Signature", err, "cert hash failed!");
-        //gpg_strerror (rc)
-        gcry_md_close(md);
-        return err;
-    }
-
-// Finalise the digest calculation
-
-    gcry_md_final(md);
-
-// Get the certificate signature 
-
-    if ((p = ksba_cert_get_sig_val(cert)) == NULL) {
-        err = 999;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "idamCheckX509Signature", err,
-                     "Failure to get the certificate signature!");
-        gcry_md_close(md);
-        return err;
-    }
-
-// Get the length of the canonical S-Expression (certificate signature)
-
-    if ((n = gcry_sexp_canon_len(p, 0, NULL, NULL)) == 0) {
-        err = 999;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "idamCheckX509Signature", err,
-                     "libksba did not return a proper S-Exp!");
-        gcry_md_close(md);
-        ksba_free(p);
-        return err;
-    }
-
-// Create an internal S-Expression from the external representation
-
-    if (gcry_sexp_sscan(&s_sig, NULL, (char*)p, n) != 0) {
-        err = 999;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "idamCheckX509Signature", err, "gcry_sexp_scan failed!");
-        gcry_md_close(md);
-        return err;
-    }
-
-    ksba_free(p);
-
-// Get the CA Public key  
-
-    if ((p = ksba_cert_get_public_key(issuer_cert)) == NULL) {
-        err = 999;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "idamCheckX509Signature", err, "Failure to get the Public key!");
-        gcry_md_close(md);
-        return err;
-    }
-
-// Get the length of the canonical S-Expression (public key)
-
-    if ((n = gcry_sexp_canon_len(p, 0, NULL, NULL)) == 0) {
-        err = 999;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "idamCheckX509Signature", err,
-                     "libksba did not return a proper S-Exp!");
-        gcry_md_close(md);
-        ksba_free(p);
-        gcry_sexp_release(s_sig);
-        return err;
-    }
-
-// Create an internal S-Expression from the external representation
-
-    if (gcry_sexp_sscan(&s_pkey, NULL, (char*)p, n) != 0) {
-        err = 999;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "idamCheckX509Signature", err, "gcry_sexp_scan failed!");
-        gcry_md_close(md);
-        ksba_free(p);
-        gcry_sexp_release(s_sig);
-        return err;
-    }
-
-    ksba_free(p);
-
-// 
-
-    if (do_encode_md(md, algo, pk_algo_from_sexp(s_pkey), gcry_pk_get_nbits(s_pkey), s_pkey, &frame) != 0) {
-        err = 999;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "idamCheckX509Signature", err, "do_encode_md failed!");
-        gcry_md_close(md);
-        gcry_sexp_release(s_sig);
-        gcry_sexp_release(s_pkey);
-        return err;
-    }
-
-// put hash into the S-Exp s_hash 
-
-    gcry_sexp_build(&s_hash, NULL, "%m", frame);
-
-    gcry_mpi_release(frame);
-
-// Verify the signature, data, public key    
-
-    if (gcry_pk_verify(s_sig, s_hash, s_pkey) != 0) {
-        err = 999;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "idamCheckX509Signature", err, "Signature verification failed!");
-        //gpg_strerror (rc)
-    }
-
-    gcry_md_close(md);
-    gcry_sexp_release(s_sig);
-    gcry_sexp_release(s_hash);
-    gcry_sexp_release(s_pkey);
-
-    return err;
-}
-
-//========================================================================================================
-// Components taken from
-
-/* fipsdrv.c  -  A driver to help with FIPS CAVS tests.
-   Copyright (C) 2008 Free Software Foundation, Inc.
-
-   This file is part of Libgcrypt.
-
-   Libgcrypt is free software; you can redistribute it and/or modify
-   it under the terms of the GNU Lesser General Public License as
-   published by the Free Software Foundation; either version 2.1 of
-   the License, or (at your option) any later version.
-
-   Libgcrypt is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU Lesser General Public License for more details.
-
-   You should have received a copy of the GNU Lesser General Public
-   License along with this program; if not, see <http://www.gnu.org/licenses/>.
-*/
-
-#define hexdigitp(a) (digitp (a)                     \
-                      || (*(a) >= 'A' && *(a) <= 'F')  \
-                      || (*(a) >= 'a' && *(a) <= 'f'))
-#define xtoi_1(p)   (*(p) <= '9'? (*(p)- '0'): \
-                     *(p) <= 'F'? (*(p)-'A'+10):(*(p)-'a'+10))
-#define xtoi_2(p)   ((xtoi_1(p) * 16) + xtoi_1((p)+1))
-
-/* ASN.1 classes.  */
-enum {
-    UNIVERSAL = 0,
-    APPLICATION = 1,
-    ASNCONTEXT = 2,
-    PRIVATE = 3
-};
-
-/* ASN.1 tags.  */
-enum {
-    TAG_NONE = 0,
-    TAG_BOOLEAN = 1,
-    TAG_INTEGER = 2,
-    TAG_BIT_STRING = 3,
-    TAG_OCTET_STRING = 4,
-    TAG_NULL = 5,
-    TAG_OBJECT_ID = 6,
-    TAG_OBJECT_DESCRIPTOR = 7,
-    TAG_EXTERNAL = 8,
-    TAG_REAL = 9,
-    TAG_ENUMERATED = 10,
-    TAG_EMBEDDED_PDV = 11,
-    TAG_UTF8_STRING = 12,
-    TAG_REALTIVE_OID = 13,
-    TAG_SEQUENCE = 16,
-    TAG_SET = 17,
-    TAG_NUMERIC_STRING = 18,
-    TAG_PRINTABLE_STRING = 19,
-    TAG_TELETEX_STRING = 20,
-    TAG_VIDEOTEX_STRING = 21,
-    TAG_IA5_STRING = 22,
-    TAG_UTC_TIME = 23,
-    TAG_GENERALIZED_TIME = 24,
-    TAG_GRAPHIC_STRING = 25,
-    TAG_VISIBLE_STRING = 26,
-    TAG_GENERAL_STRING = 27,
-    TAG_UNIVERSAL_STRING = 28,
-    TAG_CHARACTER_STRING = 29,
-    TAG_BMP_STRING = 30
-};
-
-/* ASN.1 Parser object.  */
-struct tag_info {
-    int class;             /* Object class.  */
-    unsigned long tag;     /* The tag of the object.  */
-    unsigned long length;  /* Length of the values.  */
-    int nhdr;              /* Length of the header (TL).  */
-    unsigned int ndef:1;   /* The object has an indefinite length.  */
-    unsigned int cons:1;   /* This is a constructed object.  */
-};
-
-/* Read a file from stream FP into a newly allocated buffer and return
-   that buffer.  The valid length of the buffer is stored at R_LENGTH.
-   Returns NULL on failure.  If decode is set, the file is assumed to
-   be hex encoded and the decoded content is returned. */
-static void*
-read_file(FILE* fp, int decode, size_t* r_length)
-{
-    char* buffer;
-    size_t buflen;
-    size_t nread, bufsize = 0;
-
-    *r_length = 0;
-#define NCHUNK 8192
-#ifdef HAVE_DOSISH_SYSTEM
-    setmode (fileno(fp), O_BINARY);
-#endif
-    buffer = NULL;
-    buflen = 0;
-    do {
-        bufsize += NCHUNK;
-        if (!buffer) {
-            buffer = gcry_xmalloc(bufsize);
-        } else {
-            buffer = gcry_xrealloc(buffer, bufsize);
-        }
-
-        nread = fread(buffer + buflen, 1, NCHUNK, fp);
-        if (nread < NCHUNK && ferror(fp)) {
-            gcry_free(buffer);
-            return NULL;
-        }
-        buflen += nread;
-    } while (nread == NCHUNK);
-#undef NCHUNK
-    if (decode) {
-        const char* s;
-        char* p;
-
-        for (s = buffer, p = buffer, nread = 0; nread + 1 < buflen; s += 2, nread += 2) {
-            if (!hexdigitp (s) || !hexdigitp (s + 1)) {
-                gcry_free(buffer);
-                return NULL;  /* Invalid hex digits. */
-            }
-            *(unsigned char*)p++ = xtoi_2 (s);
-        }
-        if (nread != buflen) {
-            gcry_free(buffer);
-            return NULL;  /* Odd number of hex digits. */
-        }
-        buflen = p - buffer;
-    }
-
-    *r_length = buflen;
-    return buffer;
-}
-
-// Do in-place decoding of base-64 data of LENGTH in BUFFER.  Returns
-// the new length of the buffer.  Returns error if set.  
-
-static int
-base64_decode(char* buffer, size_t length, size_t* newLength)
-{
-    static unsigned char const asctobin[128] =
-            {
-                    0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
-                    0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
-                    0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
-                    0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x3e, 0xff, 0xff, 0xff, 0x3f,
-                    0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x3a, 0x3b, 0x3c, 0x3d, 0xff, 0xff,
-                    0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06,
-                    0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x10, 0x11, 0x12,
-                    0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0xff, 0xff, 0xff, 0xff, 0xff,
-                    0xff, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f, 0x20, 0x21, 0x22, 0x23, 0x24,
-                    0x25, 0x26, 0x27, 0x28, 0x29, 0x2a, 0x2b, 0x2c, 0x2d, 0x2e, 0x2f, 0x30,
-                    0x31, 0x32, 0x33, 0xff, 0xff, 0xff, 0xff, 0xff
-            };
-
-    int err = 0;
-    int idx = 0;
-    unsigned char val = 0;
-    int c = 0;
-    char* d, * s;
-    int lfseen = 1;
-
-    *newLength = 0;
-
-    /* Find BEGIN line.  */
-    for (s = buffer; length; length--, s++) {
-        if (lfseen && *s == '-' && length > 11 && !memcmp(s, "-----BEGIN ", 11)) {
-            for (; length && *s != '\n'; length--, s++);
-            break;
-        }
-        lfseen = (*s == '\n');
-    }
-
-    /* Decode until pad character or END line.  */
-    for (d = buffer; length; length--, s++) {
-        if (lfseen && *s == '-' && length > 9 && !memcmp(s, "-----END ", 9)) {
-            break;
-        }
-        if ((lfseen = (*s == '\n')) || *s == ' ' || *s == '\r' || *s == '\t') {
-            continue;
-        }
-        if (*s == '=') {
-            /* Pad character: stop */
-            if (idx == 1) {
-                *d++ = val;
-            }
-            break;
-        }
-
-        if ((*s & 0x80) || (c = asctobin[*(unsigned char*)s]) == 0xff) {
-            err = 999;
-            //die ("invalid base64 character %02X at pos %d detected\n", *(unsigned char*)s, (int)(s-buffer));
-            return err;
-        }
-
-        switch (idx) {
-            case 0:
-                val = c << 2;
-                break;
-            case 1:
-                val |= (c >> 4) & 3;
-                *d++ = val;
-                val = (c << 4) & 0xf0;
-                break;
-            case 2:
-                val |= (c >> 2) & 15;
-                *d++ = val;
-                val = (c << 6) & 0xc0;
-                break;
-            case 3:
-                val |= c & 0x3f;
-                *d++ = val;
-                break;
-        }
-        idx = (idx + 1) % 4;
-    }
-
-    *newLength = d - buffer;
-    return err;
-}
-
-
-/* Parse the buffer at the address BUFFER which consists of the number
-   of octets as stored at BUFLEN.  Return the tag and the length part
-   from the TLV triplet.  Update BUFFER and BUFLEN on success.  Checks
-   that the encoded length does not exhaust the length of the provided
-   buffer. */
-static int
-parse_tag(unsigned char const** buffer, size_t* buflen, struct tag_info* ti)
-{
-    int c;
-    unsigned long tag;
-    const unsigned char* buf = *buffer;
-    size_t length = *buflen;
-
-    ti->length = 0;
-    ti->ndef = 0;
-    ti->nhdr = 0;
-
-    /* Get the tag */
-    if (!length) {
-        return -1;
-    } /* Premature EOF.  */
-    c = *buf++;
-    length--;
-    ti->nhdr++;
-
-    ti->class = (c & 0xc0) >> 6;
-    ti->cons = !!(c & 0x20);
-    tag = (c & 0x1f);
-
-    if (tag == 0x1f) {
-        tag = 0;
-        do {
-            tag <<= 7;
-            if (!length) {
-                return -1;
-            } /* Premature EOF.  */
-            c = *buf++;
-            length--;
-            ti->nhdr++;
-            tag |= (c & 0x7f);
-        } while ((c & 0x80));
-    }
-    ti->tag = tag;
-
-    /* Get the length */
-    if (!length) {
-        return -1;
-    } /* Premature EOF. */
-    c = *buf++;
-    length--;
-    ti->nhdr++;
-
-    if (!(c & 0x80))
-        ti->length = c;
-    else if (c == 0x80)
-        ti->ndef = 1;
-    else if (c == 0xff)
-        return -1; /* Forbidden length value.  */
-    else {
-        unsigned long len = 0;
-        int count = c & 0x7f;
-
-        for (; count; count--) {
-            len <<= 8;
-            if (!length)
-                return -1; /* Premature EOF.  */
-            c = *buf++;
-            length--;
-            ti->nhdr++;
-            len |= (c & 0xff);
-        }
-        ti->length = len;
-    }
-
-    if (ti->class == UNIVERSAL && !ti->tag)
-        ti->length = 0;
-
-    if (ti->length > length)
-        return -1; /* Data larger than buffer.  */
-
-    *buffer = buf;
-    *buflen = length;
-    return 0;
-}
-
-
-
-// Import a Private Key from a PEM file and return an S-Expression
-// based on fipsdrv.c#read_private_key_file 
-
-int importPEMPrivateKey(const char* keyFile, gcry_sexp_t* key_sexp)
-{
-    int err;
-    gcry_error_t gerr;
-    FILE* fp;
-    char* buffer;
-    size_t buflen, oldBuflen;
-    const unsigned char* der;
-    size_t derlen;
-    struct tag_info ti;
-    gcry_mpi_t keyparms[8];
-    int n_keyparms = 8;
-    int idx;
-    gcry_sexp_t s_key;
-
-    if ((fp = fopen(keyFile, "rb")) == NULL) {
-        err = 999;
-        return err;
-    }
-
-    buffer = read_file(fp, 0, &buflen);
-    fclose(fp);
-
-    if (!buffer) {
-        err = 999;
-        return err;
-    }
-
-    oldBuflen = buflen;
-    if ((err = base64_decode(buffer, oldBuflen, &buflen)) != 0) {
-        gcry_free(buffer);
-        return err;
-    }
-
-// Parse the ASN.1 structure. 
-
-    der = (const unsigned char*)buffer;
-    derlen = buflen;
-
-    if (parse_tag(&der, &derlen, &ti) || ti.tag != TAG_SEQUENCE || ti.class || !ti.cons || ti.ndef) {
-        gcry_free(buffer);
-        err = 999;
-        return err;
-    }
-
-    if (parse_tag(&der, &derlen, &ti) || ti.tag != TAG_INTEGER || ti.class || ti.cons || ti.ndef) {
-        gcry_free(buffer);
-        err = 999;
-        return err;
-    }
-
-    if (ti.length != 1 || *der) {
-        gcry_free(buffer);
-        err = 999;
-        return err;
-    }
-
-    der += ti.length;
-    derlen -= ti.length;
-
-    for (idx = 0; idx < n_keyparms; idx++) {
-
-        if (parse_tag(&der, &derlen, &ti) || ti.tag != TAG_INTEGER || ti.class || ti.cons || ti.ndef) {
-            gcry_free(buffer);
-            err = 999;
-            return err;
-        }
-
-        gerr = gcry_mpi_scan(keyparms + idx, GCRYMPI_FMT_USG, der, ti.length, NULL);
-
-        if (gerr) {
-            gcry_free(buffer);
-            err = 999;
-            return err;
-        }
-
-        der += ti.length;
-        derlen -= ti.length;
-    }
-
-    if (idx != n_keyparms) {
-        gcry_free(buffer);
-        err = 999;
-        return err;
-    }
-
-    gcry_free(buffer);
-
-// Convert from OpenSSL parameter ordering to the OpenPGP order.  
-// First check that p < q; if not swap p and q and recompute u.   
-
-    if (gcry_mpi_cmp(keyparms[3], keyparms[4]) > 0) {
-        gcry_mpi_swap(keyparms[3], keyparms[4]);
-        gcry_mpi_invm(keyparms[7], keyparms[3], keyparms[4]);
-    }
-
-// Build the S-expression. 
-
-    gerr = gcry_sexp_build(&s_key, NULL,
-                           "(private-key(rsa(n%m)(e%m)"
-                                   "(d%m)(p%m)(q%m)(u%m)))",
-                           keyparms[0], keyparms[1], keyparms[2],
-                           keyparms[3], keyparms[4], keyparms[7]);
-
-    if (gerr) {
-        gcry_free(buffer);
-        err = 999;
-        return err;
-    }
-
-    for (idx = 0; idx < n_keyparms; idx++) gcry_mpi_release(keyparms[idx]);
-
-    *key_sexp = s_key;
-
-    return err;
-}
-
-// Import a Public Key from a PEM file and return an S-Expression
-// based on fipsdrv.c#read_public_key_file 
-
-int importPEMPublicKey(char* keyFile, gcry_sexp_t* key_sexp)
-{
-    int err = 0;
-
-    FILE* fp;
-    if ((fp = fopen(keyFile, "rb")) == NULL) {
-        err = 999;
-        return err;
-    }
-
-    size_t buflen;
-    char* buffer = read_file(fp, 0, &buflen);
-    fclose(fp);
-
-    if (!buffer) {
-        err = 999;
-        return err;
-    }
-
-    size_t oldBuflen = buflen;
-    if ((err = base64_decode(buffer, oldBuflen, &buflen)) != 0) {
-        gcry_free(buffer);
-        return err;
-    }
-
-// Parse the ASN.1 structure. 
-
-    const unsigned char* der = (const unsigned char*)buffer;
-    size_t derlen = buflen;
-    struct tag_info ti;
-
-    if (parse_tag(&der, &derlen, &ti) || ti.tag != TAG_SEQUENCE || ti.class || !ti.cons || ti.ndef) {
-        gcry_free(buffer);
-        err = 999;
-        return err;
-    }
-
-    if (parse_tag(&der, &derlen, &ti) || ti.tag != TAG_SEQUENCE || ti.class || !ti.cons || ti.ndef) {
-        gcry_free(buffer);
-        err = 999;
-        return err;
-    }
-
-// We skip the description of the key parameters and assume it is RSA.  
-
-    der += ti.length;
-    derlen -= ti.length;
-
-    if (parse_tag(&der, &derlen, &ti) || ti.tag != TAG_BIT_STRING || ti.class || ti.cons || ti.ndef) {
-        gcry_free(buffer);
-        err = 999;
-        return err;
-    }
-
-    if (ti.length < 1 || *der) {
-        gcry_free(buffer);
-        err = 999;
-        return err;
-    }
-
-    der += 1;
-    derlen -= 1;
-
-// Parse the BIT string. 
-
-    if (parse_tag(&der, &derlen, &ti) || ti.tag != TAG_SEQUENCE || ti.class || !ti.cons || ti.ndef) {
-        gcry_free(buffer);
-        err = 999;
-        return err;
-    }
-
-    int idx;
-    int n_keyparms = 2;
-    gcry_mpi_t keyparms[2];
-
-    for (idx = 0; idx < n_keyparms; idx++) {
-
-        if (parse_tag(&der, &derlen, &ti) || ti.tag != TAG_INTEGER || ti.class || ti.cons || ti.ndef) {
-            gcry_free(buffer);
-            err = 999;
-            return err;
-        }
-
-        gcry_error_t gerr = gcry_mpi_scan(keyparms + idx, GCRYMPI_FMT_USG, der, ti.length, NULL);
-
-        if (gerr) {
-            gcry_free(buffer);
-            err = 999;
-            return err;
-        }
-        der += ti.length;
-        derlen -= ti.length;
-    }
-
-    if (idx != n_keyparms) {
-        gcry_free(buffer);
-        err = 999;
-        return err;
-    }
-
-    gcry_free(buffer);
-
-    // Build the S-expression.
-
-    gcry_sexp_t s_key;
-
-    gcry_error_t gerr = gcry_sexp_build(&s_key, NULL, "(public-key(rsa(n%m)(e%m)))", keyparms[0], keyparms[1]);
-    if (gerr) {
-        gcry_free(buffer);
-        err = 999;
-        return err;
-    }
-
-    for (idx = 0; idx < n_keyparms; idx++) gcry_mpi_release(keyparms[idx]);
-
-    *key_sexp = s_key;
-
-    return err;
-}
-
-
-//========================================================================================================
-
-// Import a Key (private or public) from a private file and return an S-Expression 
-
-int importIdamSExpKey(char* keyFile, gcry_sexp_t* key_sexp)
-{
-
-    int err = 0;
-    gcry_error_t errCode;
-
-    FILE* keyh = NULL;
-
-    errno = 0;
-
-    if (((keyh = fopen(keyFile, "rb")) == NULL || ferror(keyh) || errno != 0)) {
-        err = 999;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "importIdamSExpKey", err, "Cannot open the security key file");
-        if (keyh != NULL) fclose(keyh);
-        return err;
-    }
-
-    char* sexp = (char*)malloc(UDA_MAXKEY * sizeof(char));
-
-    unsigned int keyLength = 0;
-
-    do {
-        keyLength += fread(&sexp[keyLength], sizeof(char), UDA_MAXKEY - keyLength, keyh);
-    } while (!feof(keyh));
-
-    if (!feof(keyh) || keyLength == UDA_MAXKEY) {
-        err = 999;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "importIdamSExpKey", err, "Security key file length limit hit!");
-        free(sexp);
-        fclose(keyh);
-        return err;
-    }
-    if ((errCode = gcry_sexp_sscan(key_sexp, NULL, sexp, keyLength)) != 0) {
-        err = 999;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "importIdamSExpKey", err, "S-Expression error");
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "importIdamSExpKey", err, (char*)gpg_strerror(errCode));
-        free(sexp);
-        fclose(keyh);
-        return err;
-    }
-
-    free(sexp);
-    fclose(keyh);
-    return err;
-}
-
-
-int createIdamMPIToken(unsigned short tokenType, unsigned short tokenByteLength, gcry_mpi_t* mpiToken)
-{
-
-// Create a Multi-Precision Integer (MPI) token message (session ID)
-
-    int i, err = 0;
     unsigned char* token = NULL;
     size_t tokenLength = 0;
 
+    gcry_mpi_aprint(GCRYMPI_FMT_HEX, &token, &tokenLength, mpi_token);
+    IDAM_LOGF(LOG_DEBUG, "%s MPI [%d] %s\n", msg, tokenLength, token);
+    free((void*)token);
+}
+
+/**
+ * Create a Multi-Precision Integer (MPI) token message (session ID)
+ * @param tokenType
+ * @param tokenByteLength
+ * @param mpiToken
+ * @return
+ */
+static int createMPIToken(unsigned short tokenType, unsigned short tokenByteLength, gcry_mpi_t* mpiToken)
+{
+    int err = 0;
+
     switch (tokenType) {
-
-// Standard Test Message
-        case (NONCETEST): {
-            char* txt = "QWERTYqwerty0123456789";
+        // Standard Test Message
+        case NONCETEST: {
+            const char* txt = "QWERTYqwerty0123456789";
             if (gcry_mpi_scan(mpiToken, GCRYMPI_FMT_USG, txt, strlen(txt), NULL) != 0) {
-                err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "createIdamMPIToken", err, "Unable to generate MPI Token");
+                THROW_ERROR(999, "Unable to generate MPI Token");
             }
-            return err;
         }
+            break;
 
-// Random bits
-        case (NONCEWEAKRANDOM): {
+            // Random bits
+        case NONCEWEAKRANDOM: {
             *mpiToken = gcry_mpi_new((unsigned int)tokenByteLength * 8);
             gcry_mpi_randomize(*mpiToken, (unsigned int)tokenByteLength * 8, GCRY_WEAK_RANDOM);
             if (*mpiToken == NULL) {
-                err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "createIdamMPIToken", err, "Unable to generate MPI Token");
-                return err;
+                THROW_ERROR(999, "Unable to generate MPI Token");
             }
-            gcry_mpi_aprint(GCRYMPI_FMT_HEX, &token, &tokenLength, *mpiToken);
-            IDAM_LOGF(LOG_DEBUG, "MPI [%d] %s\n", tokenLength, token);
-            return err;
-        }
 
-// Random bits
-        case (NONCESTRONGRANDOM): {
+        }
+            break;
+
+            // Random bits
+        case NONCESTRONGRANDOM: {
             *mpiToken = gcry_mpi_new((unsigned int)tokenByteLength * 8);
             gcry_mpi_randomize(*mpiToken, (unsigned int)tokenByteLength * 8, GCRY_STRONG_RANDOM);
             if (*mpiToken == NULL) {
-                err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "createIdamMPIToken", err, "Unable to generate MPI Token");
-                return err;
+                THROW_ERROR(999, "Unable to generate MPI Token");
             }
-            gcry_mpi_aprint(GCRYMPI_FMT_HEX, &token, &tokenLength, *mpiToken);
-            IDAM_LOGF(LOG_DEBUG, "MPI [%d] %s\n", tokenLength, token);
-            return 0;
         }
+            break;
 
-// Random String
-        case (NONCESTRINGRANDOM): {
+            // Random String
+        case NONCESTRINGRANDOM: {
 
-// Get the current Process ID
-
+            // Get the current Process ID
             unsigned int pid = (unsigned int)getpid();
 
-// Get the current time and convert to a string
-
+            // Get the current time and convert to a string
             unsigned long long t = (unsigned long long)time(NULL);
             char timeList[256];   // Overestimate of the maximum possible size of a long long integer
             sprintf(timeList, "%llu", t);
             size_t timeLength = strlen(timeList);
 
-// Seed the (poor) system random number generator with the process ID and create a random string
-
+            // Seed the (poor) system random number generator with the process ID and create a random string
             unsigned char* randList = (unsigned char*)malloc(tokenByteLength * sizeof(unsigned char));
-            srand(pid);                    // Seed the random number generator
-            for (i = 0; i < tokenByteLength; i++)
-                randList[i] = (unsigned char)(1 + (int)(255.0 * (rand() / (RAND_MAX +
-                                                                           1.0))));    // quasi-random integers in the range 1-255
-
-// Create an MPI from both the time and the quasi-random list      
-
-            gcry_mpi_t timeData, randData;
-
-            if (gcry_mpi_scan(&timeData, GCRYMPI_FMT_USG, timeList, timeLength, NULL) != 0) {
-                err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "createIdamMPIToken", err, "Unable to generate MPI Token");
-                free((void*)randList);
-                return err;
+            srand(pid); // Seed the random number generator
+            int i;
+            for (i = 0; i < tokenByteLength; i++) {
+                // quasi-random integers in the range 1-255
+                randList[i] = (unsigned char)(1 + (int)(255.0 * (rand() / (RAND_MAX + 1.0))));
             }
 
+            // Create an MPI from both the time and the quasi-random list
+            gcry_mpi_t timeData;
+            if (gcry_mpi_scan(&timeData, GCRYMPI_FMT_USG, timeList, timeLength, NULL) != 0) {
+                free((void*)randList);
+                THROW_ERROR(999, "Unable to generate MPI Token");
+            }
+
+            gcry_mpi_t randData;
             if (gcry_mpi_scan(&randData, GCRYMPI_FMT_USG, randList, tokenByteLength, NULL) != 0) {
-                err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "createIdamMPIToken", err, "Unable to generate MPI Token");
                 gcry_mpi_release(timeData);
                 free((void*)randList);
-                return err;
+                THROW_ERROR(999, "Unable to generate MPI Token");
             }
 
             free((void*)randList);
 
-// Multiply to generate a token
-
+            // Multiply to generate a token
             *mpiToken = gcry_mpi_new(0);
             gcry_mpi_mul(*mpiToken, timeData, randData);
 
             if (*mpiToken == NULL) {
-                err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "createIdamMPIToken", err, "Unable to generate MPI Token");
                 gcry_mpi_release(timeData);
                 gcry_mpi_release(randData);
-                return err;
+                THROW_ERROR(999, "Unable to generate MPI Token");
             }
 
             gcry_mpi_release(timeData);
             gcry_mpi_release(randData);
 
-            IDAM_LOGF(LOG_DEBUG, "createMPIToken:pid  = %u\n", pid);
-            IDAM_LOGF(LOG_DEBUG, "               time = %u\n", t);
-            gcry_mpi_aprint(GCRYMPI_FMT_HEX, &token, &tokenLength, *mpiToken);
-            free((void*)token);
+            IDAM_LOGF(LOG_DEBUG, "pid  = %u\n", pid);
+            IDAM_LOGF(LOG_DEBUG, "time = %u\n", t);
 
             return 0;
         }
+
+        default:
+        THROW_ERROR(999, "Unknown token type");
     }
 
     return err;
 }
 
-/* Given an S-expression ENCR_DATA of the form:
-
-   (enc-val
-    (rsa
-     (a a-value)))
-
-   as returned by gcry_pk_decrypt, return the the A-VALUE.  On error,
-   return NULL.  */
-
-gcry_mpi_t extract_a_from_sexp(gcry_sexp_t encr_data)
+/**
+ * Given an S-expression ENCR_DATA of the form:
+ *      (enc-val
+ *       (rsa
+ *        (a a-value)))
+ * as returned by gcry_pk_decrypt, return the the A-VALUE. On error, return NULL.
+ * @param encr_data
+ * @return
+ */
+static gcry_mpi_t extract_a_from_sexp(gcry_sexp_t encr_data)
 {
 
     gcry_sexp_t l1, l2, l3;
@@ -1524,748 +240,276 @@ gcry_mpi_t extract_a_from_sexp(gcry_sexp_t encr_data)
     return a_value;
 }
 
-void dumpsexp(gcry_sexp_t sexp, char* msg)
+static int generateToken(gcry_mpi_t* mpi_token, unsigned short tokenType, unsigned short tokenByteLength)
 {
-    size_t outLength = gcry_sexp_sprint(sexp, GCRYSEXP_FMT_DEFAULT, NULL, 0);
-    char* out = (char*)malloc(outLength * sizeof(char));
-    gcry_sexp_sprint(sexp, GCRYSEXP_FMT_DEFAULT, out, outLength);
-    IDAM_LOGF(LOG_DEBUG, "\n\n%s[\n", msg);
+    int err = 0;
 
-    int i;
-    for (i = 0; i < outLength; i++) {
-        IDAM_LOGF(LOG_DEBUG, "%c", out[i]);
+    if (*mpi_token != NULL) {
+        gcry_mpi_release(*mpi_token);
+        *mpi_token = NULL;
     }
 
-    IDAM_LOG(LOG_DEBUG, "n]\n\n");
-    free(out);
+    err = createMPIToken(tokenType, tokenByteLength, mpi_token);
+
+    if (err != 0 || *mpi_token == NULL) {
+        if (*mpi_token != NULL) {
+            gcry_mpi_release(*mpi_token);
+            *mpi_token = NULL;
+        }
+        THROW_ERROR(err, "Error Generating Token");
+    }
+
+    logToken("Generated", *mpi_token);
+
+    return err;
 }
 
-int udaAuthentication(unsigned short authenticationStep, unsigned short encryptionMethod,
-                      unsigned short tokenType, unsigned short tokenByteLength,
+static int
+encryptToken(gcry_mpi_t* mpi_token, unsigned short encryptionMethod, gcry_sexp_t key, unsigned char** ciphertext,
+             size_t* ciphertext_len)
+{
+    int err = 0;
+
+    gcry_sexp_t mpiTokenSexp = NULL;    // Token as a S-Expression
+
+    gpg_error_t gerr;
+
+    if ((gerr = gcry_sexp_build(&mpiTokenSexp, NULL, "(data (flags raw) (value %m))", *mpi_token)) != 0) {
+        gcry_mpi_release(*mpi_token);
+        *mpi_token = NULL;
+        if (mpiTokenSexp != NULL) {
+            gcry_sexp_release(mpiTokenSexp);
+            mpiTokenSexp = NULL;
+        }
+        addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, 999, "Error Generating Token S-Exp");
+        THROW_ERROR(999, gpg_strerror(gerr));
+    }
+
+    switch (encryptionMethod) {
+        case (ASYMMETRICKEY): {
+            gcry_sexp_t encr = NULL; // Encrypted token
+
+            // Encrypt
+            if ((gerr = gcry_pk_encrypt(&encr, mpiTokenSexp, key)) != 0) {
+                if (mpiTokenSexp != NULL) gcry_sexp_release(mpiTokenSexp);
+                addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, 999, "Encryption Error");
+                THROW_ERROR(999, gpg_strerror(gerr));
+            }
+
+            if (mpiTokenSexp != NULL) gcry_sexp_release(mpiTokenSexp);
+
+            gcry_mpi_t encrypted_token = NULL; // MPI in encrypted form
+
+            // Extract the ciphertext from the S-expression
+            if ((encrypted_token = extract_a_from_sexp(encr)) == NULL) {
+                if (encr != NULL) gcry_sexp_release(encr);
+                THROW_ERROR(999, "Poor Encryption");
+            }
+
+            // Check the ciphertext does not match the plaintext
+            if (!gcry_mpi_cmp(*mpi_token, encrypted_token)) {
+                if (encrypted_token != NULL) gcry_mpi_release(encrypted_token);
+                THROW_ERROR(999, "Poor Encryption");
+            }
+
+            // Return the ciphertext
+            *ciphertext_len = gcry_sexp_sprint(encr, GCRYSEXP_FMT_DEFAULT, NULL, 0);
+
+            if (*ciphertext_len == 0) {
+                if (encr != NULL) gcry_sexp_release(encr);
+                if (encrypted_token != NULL) gcry_mpi_release(encrypted_token);
+                *ciphertext = NULL;
+                THROW_ERROR(999, "Ciphertext extraction error");
+            }
+
+            *ciphertext = (unsigned char*)malloc(*ciphertext_len * sizeof(unsigned char));
+            gcry_sexp_sprint(encr, GCRYSEXP_FMT_DEFAULT, *ciphertext, *ciphertext_len);
+
+            if (*ciphertext == NULL) {
+                if (encr != NULL) gcry_sexp_release(encr);
+                if (encrypted_token != NULL) gcry_mpi_release(encrypted_token);
+                THROW_ERROR(999, "Ciphertext extraction error");
+            }
+
+            logToken("Encrypted", encrypted_token);
+
+            if (encrypted_token != NULL) gcry_mpi_release(encrypted_token);
+
+            break;
+        }
+
+        default:
+        THROW_ERROR(999, "Unknown encryption method");
+    }
+
+    return err;
+}
+
+static int decryptToken(gcry_mpi_t* mpi_token, gcry_sexp_t key, unsigned char** ciphertext, size_t* ciphertext_len)
+{
+    int err = 0;
+
+    // Create S-Expression from the passed ciphertext and decrypt
+
+    gpg_error_t gerr = 0;
+    gcry_sexp_t encr = NULL; // Encrypted token
+    gcry_sexp_t decr = NULL; // Decrypted token
+
+    if ((gerr = gcry_sexp_create(&encr, (void*)*ciphertext, *ciphertext_len, 1, NULL)) != 0) {
+        addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, 999, "Error Generating Token S-Exp");
+        THROW_ERROR(999, (char*)gpg_strerror(gerr));
+    }
+
+    if ((gerr = gcry_pk_decrypt(&decr, encr, key)) != 0) {
+        gcry_sexp_release(encr);
+        addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, 999, "Decryption Error");
+        THROW_ERROR(999, (char*)gpg_strerror(gerr));
+    }
+
+    gcry_sexp_release(encr);
+
+    // Extract the decrypted data from the S-expression.
+    gcry_sexp_t tmplist = gcry_sexp_find_token(decr, "value", 0);
+
+    gcry_mpi_t plaintext = NULL;
+
+    if (tmplist) {
+        plaintext = gcry_sexp_nth_mpi(tmplist, 1, GCRYMPI_FMT_USG);
+        gcry_sexp_release(tmplist);
+    } else {
+        plaintext = gcry_sexp_nth_mpi(decr, 0, GCRYMPI_FMT_USG);
+    }
+
+    gcry_sexp_release(decr);
+
+    if (!plaintext) {
+        THROW_ERROR(999, "S-Exp contains no plaintext!");
+    }
+
+    logToken("Decrypted", plaintext);
+
+    // Return the Client MPI token
+    *mpi_token = plaintext;
+
+    return err;
+}
+
+int udaAuthentication(AUTHENTICATION_STEP authenticationStep, ENCRYPTION_METHOD encryptionMethod,
+                      TOKEN_TYPE tokenType, unsigned short tokenByteLength,
                       gcry_sexp_t publickey, gcry_sexp_t privatekey,
                       gcry_mpi_t* client_mpiToken, gcry_mpi_t* server_mpiToken,
-                      unsigned char** client_ciphertext, unsigned short* client_ciphertextLength,
-                      unsigned char** server_ciphertext, unsigned short* server_ciphertextLength)
+                      unsigned char** client_ciphertext, size_t* client_ciphertextLength,
+                      unsigned char** server_ciphertext, size_t* server_ciphertextLength)
 {
 
     int err = 0;
 
-// Initialise the library
+    // Initialise the library
 
-    static unsigned short initLib = 1;
+    static BOOLEAN initialised = FALSE;
 
-    if (initLib) {
-
-// Check version of libgcrypt. 
-
+    if (!initialised) {
+        // Check version of runtime gcrypt library.
         if (!gcry_check_version(GCRYPT_VERSION)) {
-            err = 999;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "idamAuthentication", err, "Library version incorrect!");
-            return err;
+            THROW_ERROR(999, "Library version incorrect!");
         }
 
-// Disable secure memory.  
-
+        // Disable secure memory.
         gcry_control(GCRYCTL_DISABLE_SECMEM, 0);
 
-// Allocate a pool of 16k secure memory.  This also drops priviliges on some systems. 
-
-        //gcry_control(GCRYCTL_INIT_SECMEM, 16384, 0);
-
-// Tell Libgcrypt that initialization has completed. 
-
+        // Tell Libgcrypt that initialization has completed.
         gcry_control(GCRYCTL_INITIALIZATION_FINISHED, 0);
 
-        initLib = 0;
-
+        initialised = TRUE;
     }
 
-//--------------------------------------------------------------------------------------------------------------------
-// Authentication Steps
-
-    gcry_error_t errCode;
-
-    unsigned char* token = NULL;
-    size_t tokenLength = 0;
+    //--------------------------------------------------------------------------------------------------------------------
+    // Authentication Steps
 
     static gcry_mpi_t mpiTokenA = NULL;    // Token passed from the client to the server (preserve for comparison)
     static gcry_mpi_t mpiTokenB = NULL;    // Token passed from the server to the client (preserve for comparison)
 
-    gcry_sexp_t mpiTokenSexp = NULL;    // Token as a S-Expression
-    gcry_sexp_t encr = NULL;            // Encrypted token
-    gcry_sexp_t decr = NULL;            // Decrypted token
-    gcry_mpi_t ciphertext = NULL;       // MPI in encrypted form
-    gcry_mpi_t plaintext = NULL;        // MPI in decrypted form
+    IDAM_LOGF(LOG_DEBUG, "Step %d\n", authenticationStep);
 
     switch (authenticationStep) {
-
-        case (1): {        // Client issues a token (A), encrypts with the server's public key (EASP), passes to server
-
-            if (mpiTokenA != NULL) {
-                gcry_mpi_release(mpiTokenA);
-                mpiTokenA = NULL;
-            }
-
-            err = createIdamMPIToken(tokenType, tokenByteLength, &mpiTokenA);
-
-            if (err != 0 || mpiTokenA == NULL) {
-                if (mpiTokenA != NULL) {
-                    gcry_mpi_release(mpiTokenA);
-                    mpiTokenA = NULL;
-                }
-                err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "idamAuthentication", err, "Error Generating Token");
+        case CLIENT_ISSUE_TOKEN: {        // Client issues a token (A), encrypts with the server's public key (EASP), passes to server
+            err = generateToken(&mpiTokenA, tokenType, tokenByteLength);
+            if (err != 0) {
                 break;
             }
-
-            gcry_mpi_aprint(GCRYMPI_FMT_HEX, &token, &tokenLength, mpiTokenA);
-            IDAM_LOGF(LOG_DEBUG, "Step#1: Token A MPI [%d] %s\n", tokenLength, token);
-            free((void*)token);
-
-            if ((errCode = gcry_sexp_build(&mpiTokenSexp, NULL, "(data (flags raw) (value %m))", mpiTokenA)) != 0) {
-                err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "idamAuthentication", err, "Error Generating Token S-Exp");
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "idamAuthentication", err, (char*)gpg_strerror(errCode));
-                gcry_mpi_release(mpiTokenA);
-                mpiTokenA = NULL;
-                if (mpiTokenSexp != NULL) {
-                    gcry_sexp_release(mpiTokenSexp);
-                    mpiTokenSexp = NULL;
-                }
-                break;
-            }
-
-            switch (encryptionMethod) {
-                case (ASYMMETRICKEY): {
-// Encrypt 
-                    if ((errCode = gcry_pk_encrypt(&encr, mpiTokenSexp, publickey)) != 0) {
-                        err = 999;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "idamAuthentication", err, "Encryption Error");
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "idamAuthentication", err,
-                                     (char*)gpg_strerror(errCode));
-                        break;
-                    }
-
-// Extract the ciphertext from the S-expression 
-
-                    if ((ciphertext = extract_a_from_sexp(encr)) == NULL) {
-                        err = 999;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "idamAuthentication", err, "Poor Encryption");
-                        break;
-                    }
-
-// Check the ciphertext does not match the plaintext 
-
-                    if (!gcry_mpi_cmp(mpiTokenA, ciphertext)) {
-                        //errtxt = "ciphertext matches plaintext";
-                        err = 999;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "idamAuthentication", err, "Poor Encryption");
-                        break;
-                    }
-
-// Return the ciphertext
-
-                    *client_ciphertextLength = gcry_sexp_sprint(encr, GCRYSEXP_FMT_DEFAULT, NULL, 0);
-
-                    if (*client_ciphertextLength == 0) {
-                        *client_ciphertext = NULL;
-                        err = 999;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "idamAuthentication", err,
-                                     "Ciphertext extraction error");
-                        break;
-                    }
-
-                    *client_ciphertext = (unsigned char*)malloc(*client_ciphertextLength * sizeof(unsigned char));
-                    gcry_sexp_sprint(encr, GCRYSEXP_FMT_DEFAULT, *client_ciphertext, *client_ciphertextLength);
-
-                    if (*client_ciphertext == NULL) {
-                        err = 999;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "idamAuthentication", err,
-                                     "Ciphertext extraction error");
-                        break;
-                    }
-
-                    gcry_mpi_aprint(GCRYMPI_FMT_HEX, &token, &tokenLength, ciphertext);
-                    IDAM_LOGF(LOG_DEBUG, "Step#1B Encrypted A SEXP [%d] %s\n", *client_ciphertextLength,
-                              *client_ciphertext);
-                    free((void*)token);
-
-                    break;
-                }
-            }
-
-            if (mpiTokenSexp != NULL) gcry_sexp_release(mpiTokenSexp);
-            if (encr != NULL) gcry_sexp_release(encr);
-            if (ciphertext != NULL) gcry_mpi_release(ciphertext);
-            mpiTokenSexp = NULL;
-            encr = NULL;
-            ciphertext = NULL;
-
+            err = encryptToken(&mpiTokenA, encryptionMethod, publickey, client_ciphertext, client_ciphertextLength);
             break;
         }
 
-        case (2): {        // Server decrypts the passed cipher (EASP) with the server's private key (A)
-
-// Create S-Expression from the passed ciphertext and decrypt 
-
-            if ((errCode = gcry_sexp_create(&encr, (void*)*client_ciphertext, *client_ciphertextLength, 1, NULL)) !=
-                0) {
-                err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "idamAuthentication", err, "Error Generating Token S-Exp");
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "idamAuthentication", err, (char*)gpg_strerror(errCode));
-                break;
-            }
-
-            if ((errCode = gcry_pk_decrypt(&decr, encr, privatekey)) != 0) {
-                err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "idamAuthentication", err, "Decryption Error");
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "idamAuthentication", err, (char*)gpg_strerror(errCode));
-                gcry_sexp_release(encr);
-                break;
-            }
-
-            gcry_sexp_release(encr);
-
-// Extract the decrypted data from the S-expression.  
-
-            gcry_sexp_t tmplist = gcry_sexp_find_token(decr, "value", 0);
-
-            if (tmplist) {
-                plaintext = gcry_sexp_nth_mpi(tmplist, 1, GCRYMPI_FMT_USG);
-                gcry_sexp_release(tmplist);
-            } else {
-                plaintext = gcry_sexp_nth_mpi(decr, 0, GCRYMPI_FMT_USG);
-            }
-
-            gcry_sexp_release(decr);
-
-            if (!plaintext) {
-                err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "idamAuthentication", err, "S-Exp contains no plaintext!");
-                break;
-            }
-
-            gcry_mpi_aprint(GCRYMPI_FMT_HEX, &token, &tokenLength, plaintext);
-            IDAM_LOGF(LOG_DEBUG, "Step#2: Token A MPI [%d] %s\n", tokenLength, token);
-            free((void*)token);
-
-// Return the Client MPI token
-
-            *client_mpiToken = plaintext;
-            plaintext = NULL;
-
+        case SERVER_DECRYPT_CLIENT_TOKEN: {        // Server decrypts the passed cipher (EASP) with the server's private key (A)
+            err = decryptToken(client_mpiToken, privatekey, client_ciphertext, client_ciphertextLength);
             break;
         }
 
-        case (3): {        // Server encrypts the client token (A) with the client's public key (EACP)
-
-            if ((errCode = gcry_sexp_build(&mpiTokenSexp, NULL, "(data (flags raw) (value %m))", *client_mpiToken)) !=
-                0) {
-                err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "idamAuthentication", err, "Error Generating Token S-Exp");
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "idamAuthentication", err, (char*)gpg_strerror(errCode));
-                if (mpiTokenSexp != NULL) {
-                    gcry_sexp_release(mpiTokenSexp);
-                    mpiTokenSexp = NULL;
-                }
-                break;
-            }
-
-            switch (encryptionMethod) {
-                case (ASYMMETRICKEY): {
-// Encrypt 
-                    if ((errCode = gcry_pk_encrypt(&encr, mpiTokenSexp, publickey)) != 0) {
-                        err = 999;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "idamAuthentication", err, "Encryption Error");
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "idamAuthentication", err,
-                                     (char*)gpg_strerror(errCode));
-                        break;
-                    }
-
-// Extract the ciphertext from the S-expression 
-
-                    if ((ciphertext = extract_a_from_sexp(encr)) == NULL) {
-                        err = 999;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "idamAuthentication", err, "Poor Encryption");
-                        break;
-                    }
-
-// Check the ciphertext does not match the plaintext 
-
-                    if (!gcry_mpi_cmp(*client_mpiToken, ciphertext)) {
-                        IDAM_LOG(LOG_ERROR, "ciphertext matches plaintext");
-                        err = 999;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "idamAuthentication", err, "Poor Encryption");
-                        break;
-                    }
-
-// Return the ciphertext
-
-                    *client_ciphertextLength = gcry_sexp_sprint(encr, GCRYSEXP_FMT_DEFAULT, NULL, 0);
-
-                    if (*client_ciphertextLength == 0) {
-                        *client_ciphertext = NULL;
-                        err = 999;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "idamAuthentication", err,
-                                     "Ciphertext extraction error");
-                        break;
-                    }
-
-                    *client_ciphertext = (unsigned char*)malloc(*client_ciphertextLength * sizeof(unsigned char));
-                    gcry_sexp_sprint(encr, GCRYSEXP_FMT_DEFAULT, *client_ciphertext, *client_ciphertextLength);
-
-                    if (*client_ciphertext == NULL) {
-                        err = 999;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "idamAuthentication", err,
-                                     "Ciphertext extraction error");
-                        break;
-                    }
-
-                    break;
-                }
-            }
-
-            if (mpiTokenSexp != NULL) gcry_sexp_release(mpiTokenSexp);
-            if (encr != NULL) gcry_sexp_release(encr);
-            if (ciphertext != NULL) gcry_mpi_release(ciphertext);
-            mpiTokenSexp = NULL;
-            encr = NULL;
-            ciphertext = NULL;
-
+        case SERVER_ENCRYPT_CLIENT_TOKEN: {        // Server encrypts the client token (A) with the client's public key (EACP)
+            err = encryptToken(client_mpiToken, encryptionMethod, publickey, client_ciphertext,
+                               client_ciphertextLength);
             break;
         }
 
-        case (4): {        // Server issues a new token (B) encrypted with the client's public key (EBCP), passes both to client
-
-            if (mpiTokenB != NULL) {
-                gcry_mpi_release(mpiTokenB);
-                mpiTokenB = NULL;
-            }
-
-            err = createIdamMPIToken(tokenType, tokenByteLength, &mpiTokenB);
-
-            if (err != 0 || mpiTokenB == NULL) {
-                if (mpiTokenB != NULL) {
-                    gcry_mpi_release(mpiTokenB);
-                    mpiTokenB = NULL;
-                }
-                err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "idamAuthentication", err, "Error Generating Token");
+        case SERVER_ISSUE_TOKEN: {        // Server issues a new token (B) encrypted with the client's public key (EBCP), passes both to client
+            err = generateToken(&mpiTokenB, tokenType, tokenByteLength);
+            if (err != 0) {
                 break;
             }
-
-            gcry_mpi_aprint(GCRYMPI_FMT_HEX, &token, &tokenLength, mpiTokenB);
-            IDAM_LOGF(LOG_DEBUG, "Step#4: Token B MPI [%d] %s\n", tokenLength, token);
-            free((void*)token);
-
-            if ((errCode = gcry_sexp_build(&mpiTokenSexp, NULL, "(data (flags raw) (value %m))", mpiTokenB)) != 0) {
-                err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "idamAuthentication", err, "Error Generating Token S-Exp");
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "idamAuthentication", err, (char*)gpg_strerror(errCode));
-                gcry_mpi_release(mpiTokenB);
-                mpiTokenB = NULL;
-                if (mpiTokenSexp != NULL) {
-                    gcry_sexp_release(mpiTokenSexp);
-                    mpiTokenSexp = NULL;
-                }
-                break;
-            }
-
-            switch (encryptionMethod) {
-                case (ASYMMETRICKEY): {
-// Encrypt 
-                    if ((errCode = gcry_pk_encrypt(&encr, mpiTokenSexp, publickey)) != 0) {
-                        err = 999;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "idamAuthentication", err, "Encryption Error");
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "idamAuthentication", err,
-                                     (char*)gpg_strerror(errCode));
-                        break;
-                    }
-
-// Extract the ciphertext from the S-expression 
-
-                    if ((ciphertext = extract_a_from_sexp(encr)) == NULL) {
-                        err = 999;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "idamAuthentication", err, "Poor Encryption");
-                        break;
-                    }
-
-// Check the ciphertext does not match the plaintext 
-
-                    if (!gcry_mpi_cmp(mpiTokenB, ciphertext)) {
-                        err = 999;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "idamAuthentication", err, "Poor Encryption");
-                        break;
-                    }
-
-// Return the ciphertext
-
-                    *server_ciphertextLength = gcry_sexp_sprint(encr, GCRYSEXP_FMT_DEFAULT, NULL, 0);
-
-                    if (*server_ciphertextLength == 0) {
-                        *server_ciphertext = NULL;
-                        err = 999;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "idamAuthentication", err,
-                                     "Ciphertext extraction error");
-                        break;
-                    }
-
-                    *server_ciphertext = (unsigned char*)malloc(*server_ciphertextLength * sizeof(unsigned char));
-                    gcry_sexp_sprint(encr, GCRYSEXP_FMT_DEFAULT, *server_ciphertext, *server_ciphertextLength);
-
-                    if (*server_ciphertext == NULL) {
-                        err = 999;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "idamAuthentication", err,
-                                     "Ciphertext extraction error");
-                        break;
-                    }
-
-                    gcry_mpi_aprint(GCRYMPI_FMT_HEX, &token, &tokenLength, ciphertext);
-                    IDAM_LOGF(LOG_DEBUG, "Step#4 Encrypted B SEXP [%d] %s\n", *server_ciphertextLength,
-                              *server_ciphertext);
-                    free((void*)token);
-
-                    break;
-                }
-            }
-
-            if (mpiTokenSexp != NULL) gcry_sexp_release(mpiTokenSexp);
-            if (encr != NULL) gcry_sexp_release(encr);
-            if (ciphertext != NULL) gcry_mpi_release(ciphertext);
-            mpiTokenSexp = NULL;
-            encr = NULL;
-            ciphertext = NULL;
-
+            err = encryptToken(&mpiTokenB, encryptionMethod, publickey, server_ciphertext, server_ciphertextLength);
             break;
         }
 
-        case (5): {        // Client decrypts the passed ciphers (EACP, EBCP) with the client's private key (A, B)
-
-// Create S-Expressions from the passed ciphertexts and decrypt 
-// Check the passed Client token A first
-
-            if ((errCode = gcry_sexp_create(&encr, (void*)*client_ciphertext, *client_ciphertextLength, 1, NULL)) !=
-                0) {
-                err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "idamAuthentication", err, "Error Generating Token S-Exp");
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "idamAuthentication", err, (char*)gpg_strerror(errCode));
+        case CLIENT_DECRYPT_SERVER_TOKEN: {        // Client decrypts the passed ciphers (EACP, EBCP) with the client's private key (A, B)
+            gcry_mpi_t received_token = NULL;
+            err = decryptToken(&received_token, privatekey, client_ciphertext, client_ciphertextLength);
+            if (err != 0) {
                 break;
             }
 
-            if ((errCode = gcry_pk_decrypt(&decr, encr, privatekey)) != 0) {
-                err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "idamAuthentication", err, "Decryption Error");
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "idamAuthentication", err, (char*)gpg_strerror(errCode));
-                gcry_sexp_release(encr);
-                break;
+            // Check that the decrypted token matches the original token.
+            if (gcry_mpi_cmp(mpiTokenA, received_token)) {
+                gcry_mpi_release(received_token);
+                THROW_ERROR(999, "Server Authentication Failed!");
             }
 
-            gcry_sexp_release(encr);
+            gcry_mpi_release(received_token);
 
-// Extract the decrypted data from the S-expression.  Note that the output of gcry_pk_decrypt 
-// depends on whether a flags lists occurs in its input data.   
-
-            gcry_sexp_t tmplist = gcry_sexp_find_token(decr, "value", 0);
-
-            if (tmplist) {
-                plaintext = gcry_sexp_nth_mpi(tmplist, 1, GCRYMPI_FMT_USG);
-                gcry_sexp_release(tmplist);
-            } else {
-                plaintext = gcry_sexp_nth_mpi(decr, 0, GCRYMPI_FMT_USG);
-            }
-
-            gcry_sexp_release(decr);
-
-            if (!plaintext) {
-                err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "idamAuthentication", err, "S-Exp contains no plaintext!");
-                break;
-            }
-
-            gcry_mpi_aprint(GCRYMPI_FMT_HEX, &token, &tokenLength, plaintext);
-            IDAM_LOGF(LOG_DEBUG, "Step#5: Token A MPI [%d] %s\n", tokenLength, token);
-            free((void*)token);
-
-// Check that the decrypted token matches the original token - the Authentication requirement 
-
-            if (gcry_mpi_cmp(mpiTokenA, plaintext)) {
-                err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "idamAuthentication", err,
-                             "Server Authentication Failed!");
-                gcry_mpi_release(plaintext);
-                break;
-            }
-
-            gcry_mpi_release(plaintext);
-
-// Server has been authenticated so delete the original token A - no longer required.
-
+            // Server has been authenticated so delete the original token A - no longer required.
             gcry_mpi_release(mpiTokenA);
             mpiTokenA = NULL;
 
-// Decrypt the passed Server token B
-
-// **** BAD CHARACTER in S_EXEP !!!
-
-            if ((errCode = gcry_sexp_create(&encr, (void*)*server_ciphertext, *server_ciphertextLength, 1, NULL)) !=
-                0) {
-                err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "idamAuthentication", err, "Error Generating Token S-Exp");
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "idamAuthentication", err, (char*)gpg_strerror(errCode));
-                break;
-            }
-
-            if ((errCode = gcry_pk_decrypt(&decr, encr, privatekey)) != 0) {
-                err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "idamAuthentication", err, "Decryption Error");
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "idamAuthentication", err, (char*)gpg_strerror(errCode));
-                gcry_sexp_release(encr);
-                break;
-            }
-
-            gcry_sexp_release(encr);
-
-// Extract the decrypted data from the S-expression.  Note that the output of gcry_pk_decrypt depends on whether 
-// a flags lists occurs in its input data.   
-
-            tmplist = gcry_sexp_find_token(decr, "value", 0);
-
-            if (tmplist) {
-                plaintext = gcry_sexp_nth_mpi(tmplist, 1, GCRYMPI_FMT_USG);
-                gcry_sexp_release(tmplist);
-            } else {
-                plaintext = gcry_sexp_nth_mpi(decr, 0, GCRYMPI_FMT_USG);
-            }
-
-            if (!plaintext) {
-                err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "idamAuthentication", err, "S-Exp contains no plaintext!");
-                break;
-            }
-
-            gcry_mpi_aprint(GCRYMPI_FMT_HEX, &token, &tokenLength, plaintext);
-            IDAM_LOGF(LOG_DEBUG, "Step#5: Token B MPI [%d] %s\n", tokenLength, token);
-            free((void*)token);
-
-// Return the Server MPI token (B)
-
-            *server_mpiToken = plaintext;
-            plaintext = NULL;
-
+            err = decryptToken(server_mpiToken, privatekey, server_ciphertext, server_ciphertextLength);
             break;
         }
 
-        case (6): {        // Client encrypts passed token (B) with the server's public key (EBSP), passes to server
-
-            if ((errCode = gcry_sexp_build(&mpiTokenSexp, NULL, "(data (flags raw) (value %m))", *server_mpiToken)) !=
-                0) {
-                err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "idamAuthentication", err, "Error Generating Token S-Exp");
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "idamAuthentication", err, (char*)gpg_strerror(errCode));
-                if (mpiTokenSexp != NULL) {
-                    gcry_sexp_release(mpiTokenSexp);
-                    mpiTokenSexp = NULL;
-                }
-                break;
-            }
-
-            switch (encryptionMethod) {
-                case (ASYMMETRICKEY): {
-// Encrypt 
-                    if ((errCode = gcry_pk_encrypt(&encr, mpiTokenSexp, publickey)) != 0) {
-                        err = 999;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "idamAuthentication", err, "Encryption Error");
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "idamAuthentication", err,
-                                     (char*)gpg_strerror(errCode));
-                        break;
-                    }
-
-// Extract the ciphertext from the S-expression 
-
-                    if ((ciphertext = extract_a_from_sexp(encr)) == NULL) {
-                        err = 999;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "idamAuthentication", err, "Poor Encryption");
-                        break;
-                    }
-
-// Check the ciphertext does not match the plaintext 
-
-                    if (!gcry_mpi_cmp(*server_mpiToken, ciphertext)) {
-                        err = 999;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "idamAuthentication", err, "Poor Encryption");
-                        break;
-                    }
-
-// Return the ciphertext
-
-                    *server_ciphertextLength = gcry_sexp_sprint(encr, GCRYSEXP_FMT_DEFAULT, NULL, 0);
-
-                    if (*server_ciphertextLength == 0) {
-                        *server_ciphertext = NULL;
-                        err = 999;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "idamAuthentication", err,
-                                     "Ciphertext extraction error");
-                        break;
-                    }
-
-                    *server_ciphertext = (unsigned char*)malloc(*server_ciphertextLength * sizeof(unsigned char));
-                    gcry_sexp_sprint(encr, GCRYSEXP_FMT_DEFAULT, *server_ciphertext, *server_ciphertextLength);
-
-                    break;
-                }
-            }
-
-            if (mpiTokenSexp != NULL) gcry_sexp_release(mpiTokenSexp);
-            if (encr != NULL) gcry_sexp_release(encr);
-            if (ciphertext != NULL) gcry_mpi_release(ciphertext);
-            mpiTokenSexp = NULL;
-            encr = NULL;
-            ciphertext = NULL;
-
+        case CLIENT_ENCRYPT_SERVER_TOKEN: {        // Client encrypts passed token (B) with the server's public key (EBSP), passes to server
+            err = encryptToken(server_mpiToken, encryptionMethod, publickey, server_ciphertext,
+                               server_ciphertextLength);
             break;
         }
 
-        case (7): {        // Server decrypts the passed cipher (EBSP) with the server's private key (B)
+        case SERVER_VERIFY_TOKEN: {        // Server decrypts the passed cipher (EBSP) with the server's private key (B)
+            gcry_mpi_t received_token = NULL;
+            err = decryptToken(&received_token, privatekey, server_ciphertext, server_ciphertextLength);
 
-// Create S-Expression from the passed ciphertext and decrypt          
-
-            if ((errCode = gcry_sexp_create(&encr, (void*)*server_ciphertext, *server_ciphertextLength, 1, NULL)) !=
-                0) {
-                err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "idamAuthentication", err, "Error Generating Token S-Exp");
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "idamAuthentication", err, (char*)gpg_strerror(errCode));
-                return err;
+            // Check that the decrypted token matches the original token.
+            if (gcry_mpi_cmp(mpiTokenB, received_token)) {
+                gcry_mpi_release(received_token);
+                THROW_ERROR(999, "Client Authentication Failed!");
             }
 
-            if ((errCode = gcry_pk_decrypt(&decr, encr, privatekey)) != 0) {
-                err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "idamAuthentication", err, "Decryption Error");
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "idamAuthentication", err, (char*)gpg_strerror(errCode));
-                gcry_sexp_release(encr);
-                break;
-            }
+            gcry_mpi_release(received_token);
 
-            gcry_sexp_release(encr);
-
-// Extract the decrypted data from the S-expression.  
-
-            gcry_sexp_t tmplist = gcry_sexp_find_token(decr, "value", 0);
-
-            if (tmplist) {
-                plaintext = gcry_sexp_nth_mpi(tmplist, 1, GCRYMPI_FMT_USG);
-                gcry_sexp_release(tmplist);
-            } else {
-                plaintext = gcry_sexp_nth_mpi(decr, 0, GCRYMPI_FMT_USG);
-            }
-
-            gcry_sexp_release(decr);
-
-            if (!plaintext) {
-                err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "idamAuthentication", err, "S-Exp contains no plaintext!");
-                break;
-            }
-
-            gcry_mpi_aprint(GCRYMPI_FMT_HEX, &token, &tokenLength, plaintext);
-            IDAM_LOGF(LOG_DEBUG, "Step#7: Token B MPI [%d] %s\n", tokenLength, token);
-            free((void*)token);
-
-// Check that the decrypted token matches the original token. 
-
-            if (gcry_mpi_cmp(mpiTokenB, plaintext)) {
-                err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "idamAuthentication", err,
-                             "Client Authentication Failed!");
-                gcry_mpi_release(plaintext);
-                break;
-            }
-
-            gcry_mpi_release(plaintext);
-
-// Client has been authenticated so delete the original token B - no longer required.
-
+            // Client has been authenticated so delete the original token B - no longer required.
             gcry_mpi_release(mpiTokenB);
             mpiTokenB = NULL;
-
-            break;
-        }
-
-// **** identical to case 6
-
-        case (8): {        // Client encrypts passed token (B) with the server's public key (EBSP), passes to server
-
-            if ((errCode = gcry_sexp_build(&mpiTokenSexp, NULL, "(data (flags raw) (value %m))", *server_mpiToken)) !=
-                0) {
-                err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "idamAuthentication", err, "Error Generating Token S-Exp");
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "idamAuthentication", err, (char*)gpg_strerror(errCode));
-                if (mpiTokenSexp != NULL) {
-                    gcry_sexp_release(mpiTokenSexp);
-                    mpiTokenSexp = NULL;
-                }
-                break;
-            }
-
-            switch (encryptionMethod) {
-                case (ASYMMETRICKEY): {
-// Encrypt 
-                    if ((errCode = gcry_pk_encrypt(&encr, mpiTokenSexp, publickey)) != 0) {
-                        err = 999;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "idamAuthentication", err, "Encryption Error");
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "idamAuthentication", err,
-                                     (char*)gpg_strerror(errCode));
-                        break;
-                    }
-
-// Extract the ciphertext from the S-expression 
-
-                    if ((ciphertext = extract_a_from_sexp(encr)) == NULL) {
-                        err = 999;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "idamAuthentication", err, "Poor Encryption");
-                        break;
-                    }
-
-// Check the ciphertext does not match the plaintext 
-
-                    if (!gcry_mpi_cmp(*server_mpiToken, ciphertext)) {
-                        err = 999;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "idamAuthentication", err, "Poor Encryption");
-                        break;
-                    }
-
-// Return the ciphertext
-
-                    *server_ciphertextLength = gcry_sexp_sprint(encr, GCRYSEXP_FMT_DEFAULT, NULL, 0);
-
-                    if (*server_ciphertextLength == 0) {
-                        *server_ciphertext = NULL;
-                        err = 999;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "idamAuthentication", err,
-                                     "Ciphertext extraction error");
-                        break;
-                    }
-
-                    *server_ciphertext = (unsigned char*)malloc(*server_ciphertextLength * sizeof(unsigned char));
-                    gcry_sexp_sprint(encr, GCRYSEXP_FMT_DEFAULT, *server_ciphertext, *server_ciphertextLength);
-
-                    break;
-                }
-            }
-
-            if (mpiTokenSexp != NULL) gcry_sexp_release(mpiTokenSexp);
-            if (encr != NULL) gcry_sexp_release(encr);
-            if (ciphertext != NULL) gcry_mpi_release(ciphertext);
-            mpiTokenSexp = NULL;
-            encr = NULL;
-            ciphertext = NULL;
             break;
         }
 
         default: {
-            IDAM_LOG(LOG_ERROR, "Uknown User Authentication Step!");
-            err = 999;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "idamAuthentication", err, "Uknown User Authentication Step");
-            break;
+            THROW_ERROR(999, "Uknown User Authentication Step");
         }
 
     }

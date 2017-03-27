@@ -27,22 +27,28 @@ configure_file(
   @ONLY
 )
 
-set( TESTS test_help test_hdf5 )
+set( TESTS test_help test_hdf5 test_putcpp test_putdata )
 
 include( modules )
 
 include_directories( SYSTEM ${Boost_INCLUDE_DIR} )
 include_directories( ${CMAKE_CURRENT_BINARY_DIR} )
 
+add_definitions( -D__USE_XOPEN2K8 )
+
 foreach( TEST ${TESTS} )
   add_executable( ${TEST} ${TEST}.cpp )
   target_link_libraries( ${TEST} PRIVATE
     ${Boost_LIBRARIES} 
-    fat${PROJECT_NAME}_cpp 
-    client-shared
+    fat${PROJECT_NAME}_cpp
+    fatclient-shared
     ${OPENSSL_LIBRARIES}
     ${LIBXML2_LIBRARIES}
-    ${CACHE_LIBRARIES} )
+    ${CACHE_LIBRARIES}
+    c
+    m
+    dl
+  )
   target_compile_definitions( ${TEST} PRIVATE -DFATCLIENT )
   link_modules( ${TEST} )
   add_test( ${TEST} ${TEST} )
@@ -51,15 +57,15 @@ endforeach()
 find_package( GCrypt )
 find_package( KSBA )
 
+add_definitions( -g -O0 )
+
 if( GCRYPT_FOUND AND KSBA_FOUND AND OPENSSL_FOUND AND LIBXML2_FOUND )
-add_executable( testSecurity testSecurity.c $<TARGET_OBJECTS:security> )
-target_link_libraries( testSecurity PRIVATE
-  ${GCRYPT_LIBRARIES}
-  ${KSBA_LIBRARIES}
-  fatclient-static
-  client-shared
-  ${OPENSSL_LIBRARIES}
-  ${LIBXML2_LIBRARIES} )
-link_modules( testSecurity )
-add_test( testSecurity testSecurity )
+  add_executable( testSecurity testSecurity.c $<TARGET_OBJECTS:security-test-objects> )
+  target_link_libraries( testSecurity PRIVATE
+    ${GCRYPT_LIBRARIES}
+    ${KSBA_LIBRARIES}
+    client-shared
+    ${OPENSSL_LIBRARIES}
+    ${LIBXML2_LIBRARIES} )
+  add_test( testSecurity testSecurity )
 endif()

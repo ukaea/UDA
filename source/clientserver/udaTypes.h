@@ -5,9 +5,15 @@
 //
 //----------------------------------------------------------------
 
+#include <stdlib.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#define FALSE (0)
+#define TRUE (1)
+#define BOOLEAN unsigned short
 
 // Data Type Codes
 
@@ -62,6 +68,8 @@ extern "C" {
 #define OPAQUE_TYPE_DIAMAGNETIC     108
 #define OPAQUE_TYPE_TOROIDALFIELD   109
 #define OPAQUE_TYPE_LIMITER         110
+
+size_t getSizeOf(int data_type);
 
 #ifdef __cplusplus
 }

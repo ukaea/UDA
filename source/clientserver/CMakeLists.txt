@@ -38,6 +38,7 @@ set( SRC_FILES
   parseOperation.c
   parseXML.c
   copyStructs.c
+  udaTypes.c
   )
 
 if( APPLE )
@@ -64,3 +65,9 @@ if( NOT CLIENT_ONLY )
   add_library( fatclientserver-objects OBJECT ${SRC_FILES} )
   target_compile_definitions( fatclientserver-objects PRIVATE -DFATCLIENT )
 endif()
+
+file( GLOB HEADER_FILES "*.h" )
+
+install( FILES ${HEADER_FILES}
+  DESTINATION include/uda/clientserver
+)

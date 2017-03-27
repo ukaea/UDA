@@ -4,5 +4,5 @@
 
 #include "dim.hpp"
 
-Idam::Dim Idam::Dim::Null = Idam::Dim();
+uda::Dim uda::Dim::Null = uda::Dim();
 

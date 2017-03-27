@@ -21,41 +21,6 @@
 #include <server/udaServer.h>
 #include <clientserver/udaTypes.h>
 
-int idamSizeOf(int data_type)
-{
-    switch (data_type) {
-        case TYPE_FLOAT:
-            return (sizeof(float));
-        case TYPE_DOUBLE:
-            return (sizeof(double));
-        case TYPE_CHAR:
-            return (sizeof(char));
-        case TYPE_SHORT:
-            return (sizeof(short));
-        case TYPE_INT:
-            return (sizeof(int));
-        case TYPE_LONG:
-            return (sizeof(long));
-        case TYPE_LONG64:
-            return (sizeof(long long));
-        case TYPE_UNSIGNED_CHAR:
-            return (sizeof(unsigned char));
-        case TYPE_UNSIGNED_SHORT:
-            return (sizeof(unsigned short));
-        case TYPE_UNSIGNED_INT:
-            return (sizeof(unsigned int));
-        case TYPE_UNSIGNED_LONG:
-            return (sizeof(unsigned long));
-        case TYPE_UNSIGNED_LONG64:
-            return (sizeof(unsigned long long));
-        case TYPE_COMPLEX:
-            return (sizeof(COMPLEX));
-        case TYPE_DCOMPLEX:
-            return (sizeof(DCOMPLEX));
-    }
-    return 0;
-}
-
 unsigned int countDataBlockSize(DATA_BLOCK* data_block, CLIENT_BLOCK* client_block)
 {
 
@@ -63,12 +28,12 @@ unsigned int countDataBlockSize(DATA_BLOCK* data_block, CLIENT_BLOCK* client_blo
     DIMS dim;
     unsigned int count = sizeof(DATA_BLOCK);
 
-    count += (unsigned int) (idamSizeOf(data_block->data_type) * data_block->data_n);
+    count += (unsigned int)(getSizeOf(data_block->data_type) * data_block->data_n);
 
     if (data_block->error_type != TYPE_UNKNOWN) {
-        count += (unsigned int) (idamSizeOf(data_block->error_type) * data_block->data_n);
+        count += (unsigned int)(getSizeOf(data_block->error_type) * data_block->data_n);
     }
-    if (data_block->errasymmetry) count += (unsigned int) (idamSizeOf(data_block->error_type) * data_block->data_n);
+    if (data_block->errasymmetry) count += (unsigned int)(getSizeOf(data_block->error_type) * data_block->data_n);
 
     unsigned int k;
     if (data_block->rank > 0) {
@@ -76,11 +41,11 @@ unsigned int countDataBlockSize(DATA_BLOCK* data_block, CLIENT_BLOCK* client_blo
             count += sizeof(DIMS);
             dim = data_block->dims[k];
             if (!dim.compressed) {
-                count += (unsigned int) (idamSizeOf(dim.data_type) * dim.dim_n);
+                count += (unsigned int)(getSizeOf(dim.data_type) * dim.dim_n);
                 factor = 1;
                 if (dim.errasymmetry) factor = 2;
                 if (dim.error_type != TYPE_UNKNOWN) {
-                    count += (unsigned int) (factor * idamSizeOf(dim.error_type) * dim.dim_n);
+                    count += (unsigned int)(factor * getSizeOf(dim.error_type) * dim.dim_n);
                 }
             } else {
                 unsigned int i;
@@ -90,14 +55,14 @@ unsigned int countDataBlockSize(DATA_BLOCK* data_block, CLIENT_BLOCK* client_blo
                         break;
                     case 1:
                         for (i = 0; i < dim.udoms; i++) {
-                            count += (unsigned int) (*((long*) dim.sams + i) * idamSizeOf(dim.data_type));
+                            count += (unsigned int)(*((long*)dim.sams + i) * getSizeOf(dim.data_type));
                         }
                         break;
                     case 2:
-                        count += dim.udoms * idamSizeOf(dim.data_type);
+                        count += dim.udoms * getSizeOf(dim.data_type);
                         break;
                     case 3:
-                        count += dim.udoms * idamSizeOf(dim.data_type);
+                        count += dim.udoms * getSizeOf(dim.data_type);
                         break;
                 }
             }
@@ -113,7 +78,8 @@ unsigned int countDataBlockSize(DATA_BLOCK* data_block, CLIENT_BLOCK* client_blo
 }
 
 
-void idamAccessLog(int init, CLIENT_BLOCK client_block, REQUEST_BLOCK request, SERVER_BLOCK server_block, const PLUGINLIST* pluginlist)
+void idamAccessLog(int init, CLIENT_BLOCK client_block, REQUEST_BLOCK request, SERVER_BLOCK server_block,
+                   const PLUGINLIST* pluginlist)
 {
 
     int err = 0;
@@ -152,7 +118,7 @@ void idamAccessLog(int init, CLIENT_BLOCK client_block, REQUEST_BLOCK request, S
         addrlen = sizeof(addr);
 #ifndef IPV6PROTOCOL
         addr.sin_family = AF_INET;
-        if ((getpeername(socket, (struct sockaddr*) &addr, &addrlen)) == -1) {        // Socket Address
+        if ((getpeername(socket, (struct sockaddr*)&addr, &addrlen)) == -1) {        // Socket Address
             strcpy(host, "-");
         } else {
             if (addrlen <= HOSTNAMELENGTH - 1) {
@@ -210,12 +176,12 @@ void idamAccessLog(int init, CLIENT_BLOCK client_block, REQUEST_BLOCK request, S
 // Request Completed Time: Elasped & CPU
 
     gettimeofday(&et_end, NULL);
-    elapsedtime = (double) ((et_end.tv_sec - et_start.tv_sec) * 1000);    // millisecs
+    elapsedtime = (double)((et_end.tv_sec - et_start.tv_sec) * 1000);    // millisecs
 
     if (et_end.tv_usec < et_start.tv_usec) {
-        elapsedtime = elapsedtime - 1.0 + (double) (1000000 + et_end.tv_usec - et_start.tv_usec) / 1000.0;
+        elapsedtime = elapsedtime - 1.0 + (double)(1000000 + et_end.tv_usec - et_start.tv_usec) / 1000.0;
     } else {
-        elapsedtime = elapsedtime + (double) (et_end.tv_usec - et_start.tv_usec) / 1000.0;
+        elapsedtime = elapsedtime + (double)(et_end.tv_usec - et_start.tv_usec) / 1000.0;
     }
 
 // Write the Log Record & Flush the fd
@@ -236,12 +202,12 @@ void idamAccessLog(int init, CLIENT_BLOCK client_block, REQUEST_BLOCK request, S
                   1024;
 
     if (wlen < MAXMETA) {
-        char* work = (char*) malloc(MAXMETA * sizeof(char));
+        char* work = (char*)malloc(MAXMETA * sizeof(char));
 
         sprintf(work, "%s - %s [%s] [%d %s %d %d %s %s %s %s %s %s %s] %d %d [%s] %f %d %d [%d %d] [%s]",
                 host, client_block.uid, accessdate, request.request, request.signal, request.exp_number,
                 request.pass, request.tpass, request.path, request.file, request.format, request.archive,
-                request.device_name, request.server, err, (int) totalDataBlockSize, msg,
+                request.device_name, request.server, err, (int)totalDataBlockSize, msg,
                 elapsedtime, client_block.version, server_block.version, client_block.pid, server_block.pid,
                 client_block.DOI);
 
@@ -253,13 +219,13 @@ void idamAccessLog(int init, CLIENT_BLOCK client_block, REQUEST_BLOCK request, S
         idamProvenancePlugin(&client_block, &request, NULL, NULL, pluginlist, work);
         idamServerRedirectStdStreams(1);
 
-        free((void*) work);
+        free((void*)work);
 
     } else {
         idamLog(LOG_ACCESS, "%s - %s [%s] [%d %s %d %d %s %s %s %s %s %s %s] %d %d [%s] %f %d %d [%d %d] [%s]\n",
                 host, client_block.uid, accessdate, request.request, request.signal, request.exp_number,
                 request.pass, request.tpass, request.path, request.file, request.format, request.archive,
-                request.device_name, request.server, err, (int) totalDataBlockSize, msg,
+                request.device_name, request.server, err, (int)totalDataBlockSize, msg,
                 elapsedtime, client_block.version, server_block.version, client_block.pid, server_block.pid,
                 client_block.DOI);
     }

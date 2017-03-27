@@ -23,7 +23,7 @@ include_directories(
 
 add_library( ${LIB_NAME} SHARED ${SRC_FILES} )
 
-target_link_libraries( ${LIB_NAME} LINK_PUBLIC ${LIB_DIR}/libidam.so ${PHPCPP_LIBRARIES} )
+target_link_libraries( ${LIB_NAME} LINK_PRIVATE ${LIB_DIR}/libidam.so ${PHPCPP_LIBRARIES} )
 
 set_target_properties( ${LIB_NAME}
   PROPERTIES

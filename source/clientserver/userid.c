@@ -5,32 +5,30 @@
 
 #include <unistd.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 #include "stringUtils.h"
 #include "udaDefines.h"
 
 void userid(char* uid)
 {
-
 #ifdef _WIN32
     int l = STRING_LENGTH-1;
     GetUserName(uid, &l);
     return;
-#endif
-
-    char* user;
+#else
+    const char* user;
     uid[0] = '\0';
-    if ((user = getlogin()) != NULL) {
+#  if defined(cuserid)
+    if((user = cuserid(NULL)) != NULL) {
         copyString(user, uid, STRING_LENGTH);
         return;
     } else
-#if defined(cuserid)
-        if((user = cuserid(NULL)) != NULL) {
-            copyString(user, uid, STRING_LENGTH);
-            return;
-        } else
-#endif
-    if ((user = getenv("USER")) != NULL) {
+#  endif
+    if ((user = getlogin()) != NULL) {
+        copyString(user, uid, STRING_LENGTH);
+        return;
+    } else if ((user = getenv("USER")) != NULL) {
         copyString(user, uid, STRING_LENGTH);
         return;
     } else if ((user = getenv("LOGNAME")) != NULL) {
@@ -39,4 +37,5 @@ void userid(char* uid)
     }
 
     return;
+#endif // _WIN32
 }

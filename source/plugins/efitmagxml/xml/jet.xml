@@ -1,0 +1,2996 @@
+<?xml version="1.0"?>
+<!--  This file is based on device_p68613.xml -->
+<!-- It is apparently valid from shot 68613 onwards -->
+<device name="JET" pulse="000000">
+
+  <Pulse Range="68613-99999">
+  </Pulse>
+
+  <magprobes number=" 167 ">
+     <instance id="1" signal="BPME(1)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+       <r>4.29200</r>
+        <z>0.604000</z>
+        <angle>-74.1000</angle>
+        <abs_error>0.00500000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="2" signal="BPME(2)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>4.08800</r>
+        <z>1.08200</z>
+        <angle>-60.5000</angle>
+        <abs_error>0.00500000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="3" signal="BPME(3)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>3.77900</r>
+        <z>1.49800</z>
+        <angle>-47.0000</angle>
+        <abs_error>0.00500000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="4" signal="BPME(4)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>3.38100</r>
+        <z>1.83000</z>
+        <angle>-33.5000</angle>
+        <abs_error>0.00500000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="5" signal="BPME(5)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>2.81500</r>
+        <z>2.09200</z>
+        <angle>-13.2000</angle>
+        <abs_error>0.00500000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="6" signal="BPME(6)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>2.21700</r>
+        <z>1.99300</z>
+        <angle>32.7000</angle>
+        <abs_error>0.00500000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="7" signal="BPME(7)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>1.86400</r>
+        <z>1.49300</z>
+        <angle>75.4000</angle>
+        <abs_error>0.00500000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="8" signal="BPME(8)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>1.73900</r>
+        <z>0.875000</z>
+        <angle>81.5000</angle>
+        <abs_error>0.00500000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="9" signal="BPME(9)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>1.67900</r>
+        <z>0.247000</z>
+        <angle>87.6000</angle>
+        <abs_error>0.00500000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="10" signal="BPME(10)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>1.67900</r>
+        <z>-0.247000</z>
+        <angle>92.4000</angle>
+        <abs_error>0.00500000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="11" signal="BPME(11)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>1.73900</r>
+        <z>-0.875000</z>
+        <angle>98.5000</angle>
+        <abs_error>0.00500000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="12" signal="BPME(12)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>1.86400</r>
+        <z>-1.49300</z>
+        <angle>104.600</angle>
+        <abs_error>0.00500000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="13" signal="BPME(13)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>2.21700</r>
+        <z>-1.99300</z>
+        <angle>147.300</angle>
+        <abs_error>0.00500000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="14" signal="BPME(14)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>2.81500</r>
+        <z>-2.09200</z>
+        <angle>-166.800</angle>
+        <abs_error>0.00500000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="15" signal="BPME(15)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>3.38100</r>
+        <z>-1.83000</z>
+        <angle>-146.500</angle>
+        <abs_error>0.00500000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="16" signal="BPME(16)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>3.77900</r>
+        <z>-1.49800</z>
+        <angle>-133.000</angle>
+        <abs_error>0.00500000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="17" signal="BPME(17)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>4.08800</r>
+        <z>-1.08200</z>
+        <angle>-119.500</angle>
+        <abs_error>0.00500000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="18" signal="BPME(18)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>4.29200</r>
+        <z>-0.604000</z>
+        <angle>-105.900</angle>
+        <abs_error>0.00500000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="19" signal="BPME(19)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>3.08100</r>
+        <z>-1.53000</z>
+        <angle>-90.0000</angle>
+        <abs_error>0.00500000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="20" signal="BPME(20)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>3.07900</r>
+        <z>-1.62800</z>
+        <angle>-90.0000</angle>
+        <abs_error>0.00500000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="21" signal="BPME(21)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>2.92500</r>
+        <z>-1.79600</z>
+        <angle>-180.000</angle>
+        <abs_error>0.00500000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="22" signal="BPME(22)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>2.82400</r>
+        <z>-1.79600</z>
+        <angle>-180.000</angle>
+        <abs_error>0.00500000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="23" signal="BPME(23)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>2.75900</r>
+        <z>-1.79600</z>
+        <angle>-180.000</angle>
+        <abs_error>0.00500000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="24" signal="BPME(24)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>2.59100</r>
+        <z>-1.79600</z>
+        <angle>-180.000</angle>
+        <abs_error>0.00500000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="25" signal="BPME(25)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>2.52600</r>
+        <z>-1.79600</z>
+        <angle>-180.000</angle>
+        <abs_error>0.00500000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="26" signal="BPME(26)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>2.42500</r>
+        <z>-1.79600</z>
+        <angle>-180.000</angle>
+        <abs_error>0.00500000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="27" signal="BPME(27)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>2.36500</r>
+        <z>-1.79600</z>
+        <angle>-180.000</angle>
+        <abs_error>0.00500000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="28" signal="BPME(28)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>2.25300</r>
+        <z>-1.58100</z>
+        <angle>90.0000</angle>
+        <abs_error>0.00500000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="29" signal="BPME(29)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>2.25200</r>
+        <z>-1.48000</z>
+        <angle>90.0000</angle>
+        <abs_error>0.00500000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="30" signal="BPME(30)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>3.08000</r>
+        <z>-1.53000</z>
+        <angle>0.00000</angle>
+        <abs_error>0.00500000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="31" signal="BPME(31)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>3.07800</r>
+        <z>-1.62800</z>
+        <angle>0.00000</angle>
+        <abs_error>0.00500000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="32" signal="BPME(32)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>2.92500</r>
+        <z>-1.79500</z>
+        <angle>270.000</angle>
+        <abs_error>0.00500000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="33" signal="BPME(33)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>2.82400</r>
+        <z>-1.79500</z>
+        <angle>270.000</angle>
+        <abs_error>0.00500000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="34" signal="BPME(34)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>2.75900</r>
+        <z>-1.79500</z>
+        <angle>270.000</angle>
+        <abs_error>0.00500000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="35" signal="BPME(35)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>2.59100</r>
+        <z>-1.79500</z>
+        <angle>270.000</angle>
+        <abs_error>0.00500000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="36" signal="BPME(36)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>2.52600</r>
+        <z>-1.79500</z>
+        <angle>270.000</angle>
+        <abs_error>0.00500000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="37" signal="BPME(37)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>2.42500</r>
+        <z>-1.79500</z>
+        <angle>270.000</angle>
+        <abs_error>0.00500000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="38" signal="BPME(38)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>2.36500</r>
+        <z>-1.79500</z>
+        <angle>270.000</angle>
+        <abs_error>0.00500000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="39" signal="BPME(39)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>2.25300</r>
+        <z>-1.58100</z>
+        <angle>180.000</angle>
+        <abs_error>0.00500000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="40" signal="BPME(40)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>2.25300</r>
+        <z>-1.48000</z>
+        <angle>180.000</angle>
+        <abs_error>0.00500000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="41" signal="BPME(41)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>3.88700</r>
+        <z>1.00800</z>
+        <angle>-71.1000</angle>
+        <abs_error>0.00500000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="42" signal="BPME(42)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>3.97200</r>
+        <z>0.678000</z>
+        <angle>-79.7000</angle>
+        <abs_error>0.00500000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="43" signal="BPME(43)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>4.00300</r>
+        <z>0.262000</z>
+        <angle>-91.2000</angle>
+        <abs_error>0.00500000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="44" signal="BPME(44)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>3.95000</r>
+        <z>-0.153000</z>
+        <angle>-102.600</angle>
+        <abs_error>0.00500000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="45" signal="BPME(45)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>3.81600</r>
+        <z>-0.549000</z>
+        <angle>-114.100</angle>
+        <abs_error>0.00500000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="46" signal="BPME(46)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>3.65400</r>
+        <z>-0.818000</z>
+        <angle>-127.800</angle>
+        <abs_error>0.00500000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="47" signal="BPME(47)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>3.46900</r>
+        <z>-1.05600</z>
+        <angle>-127.800</angle>
+        <abs_error>0.00500000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="48" signal="BPME(48)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>2.30000</r>
+        <z>2.03700</z>
+        <angle>25.9000</angle>
+        <abs_error>0.00500000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="49" signal="BPME(49)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>2.52600</r>
+        <z>2.10700</z>
+        <angle>8.40000</angle>
+        <abs_error>0.00500000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="50" signal="BPME(50)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>2.97300</r>
+        <z>2.04400</z>
+        <angle>-21.4000</angle>
+        <abs_error>0.00500000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="51" signal="BPME(51)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>2.12000</r>
+        <z>1.88700</z>
+        <angle>133.500</angle>
+        <abs_error>0.00500000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="52" signal="BPME(52)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>2.30900</r>
+        <z>2.01900</z>
+        <angle>116.000</angle>
+        <abs_error>0.00500000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="53" signal="BPME(53)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>2.52900</r>
+        <z>2.08700</z>
+        <angle>98.5000</angle>
+        <abs_error>0.00500000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="54" signal="BPME(54)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>2.76000</r>
+        <z>2.08600</z>
+        <angle>81.0000</angle>
+        <abs_error>0.00500000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="55" signal="BPME(55)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>1.84400</r>
+        <z>1.34200</z>
+        <angle>77.2000</angle>
+        <abs_error>0.00500000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="56" signal="BPME(56)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>1.77900</r>
+        <z>0.642000</z>
+        <angle>82.6000</angle>
+        <abs_error>0.00500000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="57" signal="BPME(57)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>1.78100</r>
+        <z>-0.653000</z>
+        <angle>97.4000</angle>
+        <abs_error>0.00500000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="58" signal="BPME(58)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>2.97200</r>
+        <z>-1.47800</z>
+        <angle>-90.0000</angle>
+        <abs_error>0.00500000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="59" signal="BPME(59)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>2.97200</r>
+        <z>-1.59500</z>
+        <angle>-90.0000</angle>
+        <abs_error>0.00500000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="60" signal="BPME(60)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>2.68500</r>
+        <z>-1.74600</z>
+        <angle>-180.000</angle>
+        <abs_error>0.00500000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="61" signal="BPME(61)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>2.62000</r>
+        <z>-1.74600</z>
+        <angle>-180.000</angle>
+        <abs_error>0.00500000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="62" signal="BPME(62)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>2.34100</r>
+        <z>-1.59500</z>
+        <angle>90.0000</angle>
+        <abs_error>0.00500000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="63" signal="BPME(63)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>2.34100</r>
+        <z>-1.47800</z>
+        <angle>90.0000</angle>
+        <abs_error>0.00500000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="64" signal="BPME(64)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>2.12100</r>
+        <z>-1.35300</z>
+        <angle>86.9000</angle>
+        <abs_error>0.00500000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="65" signal="BPME(65)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>2.97000</r>
+        <z>-1.50900</z>
+        <angle>0.00000</angle>
+        <abs_error>0.00500000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="66" signal="BPME(66)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>2.97000</r>
+        <z>-1.62600</z>
+        <angle>0.00000</angle>
+        <abs_error>0.00500000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="67" signal="BPME(67)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>2.71600</r>
+        <z>-1.74800</z>
+        <angle>-90.0000</angle>
+        <abs_error>0.00500000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="68" signal="BPME(68)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>2.59000</r>
+        <z>-1.74800</z>
+        <angle>-90.0000</angle>
+        <abs_error>0.00500000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="69" signal="BPME(69)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>2.34300</r>
+        <z>-1.62600</z>
+        <angle>-180.000</angle>
+        <abs_error>0.00500000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="70" signal="BPME(70)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>2.34300</r>
+        <z>-1.50900</z>
+        <angle>-180.000</angle>
+        <abs_error>0.00500000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="71" signal="BPME(71)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>2.11700</r>
+        <z>-1.38300</z>
+        <angle>176.600</angle>
+        <abs_error>0.00500000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="72" signal="BPME(72)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>9.00000</r>
+        <z>0.870000</z>
+        <angle>-90.0000</angle>
+        <abs_error>0.01000000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="120" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>9.00000</r>
+        <z>0.870000</z>
+        <angle>0.00000</angle>
+        <abs_error>0.01000000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="73" signal="BPME(73)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>9.00000</r>
+        <z>2.61000</z>
+        <angle>-90.0000</angle>
+        <abs_error>0.01000000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="121" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>9.00000</r>
+        <z>2.61000</z>
+        <angle>0.00000</angle>
+        <abs_error>0.01000000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="74" signal="BPME(74)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>9.00000</r>
+        <z>4.35000</z>
+        <angle>-90.0000</angle>
+        <abs_error>0.01000000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="122" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>9.00000</r>
+        <z>4.35000</z>
+        <angle>0.00000</angle>
+        <abs_error>0.01000000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="75" signal="BPME(75)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>2.52000</r>
+        <z>4.65281</z>
+        <angle>2.84653</angle>
+        <abs_error>0.01000000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="123" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>2.52000</r>
+        <z>4.65281</z>
+        <angle>92.8465</angle>
+        <abs_error>0.01000000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="76" signal="BPME(76)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>3.96000</r>
+        <z>4.72441</z>
+        <angle>2.84653</angle>
+        <abs_error>0.01000000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="124" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>3.96000</r>
+        <z>4.72441</z>
+        <angle>92.8465</angle>
+        <abs_error>0.01000000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="77" signal="BPME(77)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>5.40000</r>
+        <z>4.79601</z>
+        <angle>2.84653</angle>
+        <abs_error>0.01000000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="125" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>5.40000</r>
+        <z>4.79601</z>
+        <angle>92.8465</angle>
+        <abs_error>0.01000000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="78" signal="BPME(78)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>6.84000</r>
+        <z>4.86761</z>
+        <angle>2.84653</angle>
+        <abs_error>0.01000000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="126" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>6.84000</r>
+        <z>4.86761</z>
+        <angle>92.8465</angle>
+        <abs_error>0.01000000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="79" signal="BPME(79)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>8.28000</r>
+        <z>4.93921</z>
+        <angle>2.84653</angle>
+        <abs_error>0.01000000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="127" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>8.28000</r>
+        <z>4.93921</z>
+        <angle>92.8465</angle>
+        <abs_error>0.01000000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="80" signal="BPME(80)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>1.82500</r>
+        <z>4.05400</z>
+        <angle>90.0000</angle>
+        <abs_error>0.01000000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="128" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>1.82500</r>
+        <z>4.05400</z>
+        <angle>0.00000</angle>
+        <abs_error>0.01000000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="81" signal="BPME(81)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>1.68500</r>
+        <z>3.35800</z>
+        <angle>0.00000</angle>
+        <abs_error>0.01000000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="129" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>1.68500</r>
+        <z>3.35800</z>
+        <angle>90.0000</angle>
+        <abs_error>0.01000000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="82" signal="BPME(82)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>1.62500</r>
+        <z>3.21300</z>
+        <angle>90.0000</angle>
+        <abs_error>0.01000000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="130" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>1.62500</r>
+        <z>3.21300</z>
+        <angle>180.000</angle>
+        <abs_error>0.01000000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="83" signal="BPME(83)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>1.83500</r>
+        <z>3.05800</z>
+        <angle>180.000</angle>
+        <abs_error>0.01000000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="131" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>1.83500</r>
+        <z>3.05800</z>
+        <angle>-90.0000</angle>
+        <abs_error>0.01000000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="84" signal="BPME(84)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>2.15500</r>
+        <z>2.90100</z>
+        <angle>90.0000</angle>
+        <abs_error>0.01000000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="132" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>2.15500</r>
+        <z>2.90100</z>
+        <angle>180.000</angle>
+        <abs_error>0.01000000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="85" signal="BPME(85)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>2.02200</r>
+        <z>2.67400</z>
+        <angle>35.5444</angle>
+        <abs_error>0.01000000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="133" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>2.02200</r>
+        <z>2.67400</z>
+        <angle>125.544</angle>
+        <abs_error>0.01000000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="86" signal="BPME(86)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>1.75400</r>
+        <z>2.48250</z>
+        <angle>35.5444</angle>
+        <abs_error>0.01000000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="134" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>1.75400</r>
+        <z>2.48250</z>
+        <angle>125.544</angle>
+        <abs_error>0.01000000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="87" signal="BPME(87)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>1.48600</r>
+        <z>2.29150</z>
+        <angle>35.5444</angle>
+        <abs_error>0.01000000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="135" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>1.48600</r>
+        <z>2.29150</z>
+        <angle>125.544</angle>
+        <abs_error>0.01000000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="88" signal="BPME(88)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>1.25621</r>
+        <z>2.15400</z>
+        <angle>0.00000</angle>
+        <abs_error>0.01000000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="136" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>1.25621</r>
+        <z>2.15400</z>
+        <angle>90.0000</angle>
+        <abs_error>0.01000000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="89" signal="BPME(89)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>1.16221</r>
+        <z>2.45922</z>
+        <angle>-90.0000</angle>
+        <abs_error>0.01000000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="137" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>1.16221</r>
+        <z>2.45922</z>
+        <angle>0.00000</angle>
+        <abs_error>0.01000000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="90" signal="BPME(90)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>0.980000</r>
+        <z>2.70972</z>
+        <angle>0.00000</angle>
+        <abs_error>0.01000000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="138" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>0.980000</r>
+        <z>2.70972</z>
+        <angle>90.0000</angle>
+        <abs_error>0.01000000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="91" signal="BPME(91)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>0.743000</r>
+        <z>0.275100</z>
+        <angle>90.0000</angle>
+        <abs_error>0.01000000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="139" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>0.743000</r>
+        <z>0.275100</z>
+        <angle>0.00000</angle>
+        <abs_error>0.01000000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="92" signal="BPME(92)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>0.743000</r>
+        <z>0.825300</z>
+        <angle>90.0000</angle>
+        <abs_error>0.01000000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="140" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>0.743000</r>
+        <z>0.825300</z>
+        <angle>0.00000</angle>
+        <abs_error>0.01000000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="93" signal="BPME(93)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>0.743000</r>
+        <z>1.37550</z>
+        <angle>90.0000</angle>
+        <abs_error>0.01000000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="141" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>0.743000</r>
+        <z>1.37550</z>
+        <angle>0.00000</angle>
+        <abs_error>0.01000000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="94" signal="BPME(94)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>0.743000</r>
+        <z>1.92570</z>
+        <angle>90.0000</angle>
+        <abs_error>0.01000000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="142" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>0.743000</r>
+        <z>1.92570</z>
+        <angle>0.00000</angle>
+        <abs_error>0.01000000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="95" signal="BPME(95)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>0.743000</r>
+        <z>2.47590</z>
+        <angle>90.0000</angle>
+        <abs_error>0.01000000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="143" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>0.743000</r>
+        <z>2.47590</z>
+        <angle>0.00000</angle>
+        <abs_error>0.01000000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="96" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>9.00000</r>
+        <z>-0.870000</z>
+        <angle>-90.0000</angle>
+        <abs_error>0.01000000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="144" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>9.00000</r>
+        <z>-0.870000</z>
+        <angle>0.00000</angle>
+        <abs_error>0.01000000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="97" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>9.00000</r>
+        <z>-2.61000</z>
+        <angle>-90.0000</angle>
+        <abs_error>0.01000000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="145" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>9.00000</r>
+        <z>-2.61000</z>
+        <angle>0.00000</angle>
+        <abs_error>0.01000000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="98" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>9.00000</r>
+        <z>-4.35000</z>
+        <angle>-90.0000</angle>
+        <abs_error>0.01000000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="146" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>9.00000</r>
+        <z>-4.35000</z>
+        <angle>0.00000</angle>
+        <abs_error>0.01000000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="99" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>2.52000</r>
+        <z>-4.65281</z>
+        <angle>177.153</angle>
+        <abs_error>0.01000000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="147" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>2.52000</r>
+        <z>-4.65281</z>
+        <angle>-92.8465</angle>
+        <abs_error>0.01000000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="100" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>3.96000</r>
+        <z>-4.72441</z>
+        <angle>177.153</angle>
+        <abs_error>0.01000000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="148" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>3.96000</r>
+        <z>-4.72441</z>
+        <angle>-92.8465</angle>
+        <abs_error>0.01000000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="101" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>5.40000</r>
+        <z>-4.79601</z>
+        <angle>177.153</angle>
+        <abs_error>0.01000000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="149" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>5.40000</r>
+        <z>-4.79601</z>
+        <angle>-92.8465</angle>
+        <abs_error>0.01000000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="102" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>6.84000</r>
+        <z>-4.86761</z>
+        <angle>177.153</angle>
+        <abs_error>0.01000000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="150" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>6.84000</r>
+        <z>-4.86761</z>
+        <angle>-92.8465</angle>
+        <abs_error>0.01000000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="103" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>8.28000</r>
+        <z>-4.93921</z>
+        <angle>177.153</angle>
+        <abs_error>0.01000000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="151" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>8.28000</r>
+        <z>-4.93921</z>
+        <angle>-92.8465</angle>
+        <abs_error>0.01000000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="104" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>1.82500</r>
+        <z>-4.05400</z>
+        <angle>90.0000</angle>
+        <abs_error>0.01000000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="152" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>1.82500</r>
+        <z>-4.05400</z>
+        <angle>0.00000</angle>
+        <abs_error>0.01000000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="105" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>1.68500</r>
+        <z>-3.35800</z>
+        <angle>180.000</angle>
+        <abs_error>0.01000000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="153" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>1.68500</r>
+        <z>-3.35800</z>
+        <angle>-90.0000</angle>
+        <abs_error>0.01000000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="106" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>1.62500</r>
+        <z>-3.21300</z>
+        <angle>90.0000</angle>
+        <abs_error>0.01000000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="154" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>1.62500</r>
+        <z>-3.21300</z>
+        <angle>180.000</angle>
+        <abs_error>0.01000000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="107" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>1.83500</r>
+        <z>-3.05800</z>
+        <angle>0.00000</angle>
+        <abs_error>0.01000000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="155" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>1.83500</r>
+        <z>-3.05800</z>
+        <angle>90.0000</angle>
+        <abs_error>0.01000000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="108" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>2.15500</r>
+        <z>-2.90100</z>
+        <angle>90.0000</angle>
+        <abs_error>0.01000000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="156" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>2.15500</r>
+        <z>-2.90100</z>
+        <angle>180.000</angle>
+        <abs_error>0.01000000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="109" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>2.02200</r>
+        <z>-2.67400</z>
+        <angle>144.456</angle>
+        <abs_error>0.01000000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="157" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>2.02200</r>
+        <z>-2.67400</z>
+        <angle>-125.544</angle>
+        <abs_error>0.01000000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="110" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>1.75400</r>
+        <z>-2.48250</z>
+        <angle>144.456</angle>
+        <abs_error>0.01000000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="158" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>1.75400</r>
+        <z>-2.48250</z>
+        <angle>-125.000</angle>
+        <abs_error>0.01000000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="111" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>1.48600</r>
+        <z>-2.29150</z>
+        <angle>144.456</angle>
+        <abs_error>0.01000000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="159" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>1.48600</r>
+        <z>-2.29150</z>
+        <angle>-125.000</angle>
+        <abs_error>0.01000000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="112" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>1.25621</r>
+        <z>-2.15400</z>
+        <angle>180.000</angle>
+        <abs_error>0.01000000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="160" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>1.25621</r>
+        <z>-2.15400</z>
+        <angle>-90.0000</angle>
+        <abs_error>0.01000000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="113" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>1.16221</r>
+        <z>-2.45922</z>
+        <angle>-90.0000</angle>
+        <abs_error>0.01000000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="161" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>1.16221</r>
+        <z>-2.45922</z>
+        <angle>0.00000</angle>
+        <abs_error>0.01000000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="114" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>0.980000</r>
+        <z>-2.70972</z>
+        <angle>180.000</angle>
+        <abs_error>0.01000000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="162" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>0.980000</r>
+        <z>-2.70972</z>
+        <angle>-90.0000</angle>
+        <abs_error>0.01000000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="115" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>0.743000</r>
+        <z>-0.275100</z>
+        <angle>90.0000</angle>
+        <abs_error>0.01000000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="163" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>0.743000</r>
+        <z>-0.275100</z>
+        <angle>0.00000</angle>
+        <abs_error>0.01000000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="116" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>0.743000</r>
+        <z>-0.825300</z>
+        <angle>90.0000</angle>
+        <abs_error>0.01000000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="164" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>0.743000</r>
+        <z>-0.825300</z>
+        <angle>0.00000</angle>
+        <abs_error>0.01000000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="117" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>0.743000</r>
+        <z>-1.37550</z>
+        <angle>90.0000</angle>
+        <abs_error>0.01000000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="165" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>0.743000</r>
+        <z>-1.37550</z>
+        <angle>0.00000</angle>
+        <abs_error>0.01000000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="118" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>0.743000</r>
+        <z>-1.92570</z>
+        <angle>90.0000</angle>
+        <abs_error>0.01000000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="166" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>0.743000</r>
+        <z>-1.92570</z>
+        <angle>0.00000</angle>
+        <abs_error>0.01000000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="119" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>0.743000</r>
+        <z>-2.47590</z>
+        <angle>90.0000</angle>
+        <abs_error>0.01000000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="167" signal="noData"  archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r>0.743000</r>
+        <z>-2.47590</z>
+        <angle>0.00000</angle>
+        <abs_error>0.01000000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+  </magprobes>
+
+  <flux number="36">
+     <instance id="1" signal="FLME(1)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r> 2.60800 </r>
+        <z> 2.32200 </z>
+        <dphi units="pi"> 0.3183 </dphi>
+        <abs_error>0.00100000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="2" signal="FLME(2)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r> 2.60800 </r>
+        <z> -2.32200 </z>
+        <dphi units="pi"> 0.3183 </dphi>
+        <abs_error>0.00100000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="3" signal="FLME(3)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r> 1.82400 </r>
+        <z> 1.09400 </z>
+        <dphi units="pi"> 0.3183 </dphi>
+        <abs_error>0.00100000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="4" signal="FLME(4)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r> 1.77300 </r>
+        <z> -0.744000 </z>
+        <dphi units="pi"> 0.3183 </dphi>
+        <abs_error>0.00100000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="5" signal="FLME(5)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r> 2.36500 </r>
+        <z> -1.85900 </z>
+        <dphi units="pi"> 0.3183 </dphi>
+        <abs_error>0.00100000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="6" signal="FLME(6)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r> 2.99300 </r>
+        <z> -1.85800 </z>
+        <dphi units="pi"> 0.3183 </dphi>
+        <abs_error>0.00100000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="7" signal="SLME(1)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r> 4.49900 4.41200 </r>
+        <z> 0.0120000 0.646000 </z>
+        <dphi units="pi"> 0.3183 -0.3183 </dphi>
+        <abs_error>0.00840000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="8" signal="SLME(2)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r> 4.40200 3.93100 </r>
+        <z> 0.683000 1.57000 </z>
+        <dphi units="pi"> 0.3183 -0.3183 </dphi>
+        <abs_error>0.00840000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="9" signal="SLME(3)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r> 3.90900 3.44500 </r>
+        <z> 1.59600 2.01300 </z>
+        <dphi units="pi"> 0.3183 -0.3183 </dphi>
+        <abs_error>0.00840000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="10" signal="SLME(4)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r> 3.42000 2.63800 </r>
+        <z> 2.03000 2.32300 </z>
+        <dphi units="pi"> 0.3183 -0.3183 </dphi>
+        <abs_error>0.00840000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="11" signal="SLME(5)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r> 2.58900 1.84100 </r>
+        <z> 2.32200 1.91000 </z>
+        <dphi units="pi"> 0.3183 -0.3183 </dphi>
+        <abs_error>0.00840000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="12" signal="SLME(6)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r> 1.81500 1.57000 </r>
+        <z> 1.87200 1.00100 </z>
+        <dphi units="pi"> 0.3183 -0.3183 </dphi>
+        <abs_error>0.00840000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="13" signal="SLME(7)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r> 1.56400 1.54200 </r>
+        <z> 0.951000 0.0180000 </z>
+        <dphi units="pi"> 0.3183 -0.3183 </dphi>
+        <abs_error>0.00840000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="14" signal="SLME(8)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r> 1.54900 1.56400 </r>
+        <z> -0.0180000 -0.951000 </z>
+        <dphi units="pi"> 0.3183 -0.3183 </dphi>
+        <abs_error>0.00840000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="15" signal="SLME(9)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r> 1.57000 1.81500 </r>
+        <z> -1.00100 -1.87200 </z>
+        <dphi units="pi"> 0.3183 -0.3183 </dphi>
+        <abs_error>0.00840000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="16" signal="SLME(10)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r> 1.84100 2.58900 </r>
+        <z> -1.91000 -2.32200 </z>
+        <dphi units="pi"> 0.3183 -0.3183 </dphi>
+        <abs_error>0.00840000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="17" signal="SLME(11)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r> 2.63800 3.42000 </r>
+        <z> -2.32300 -2.03000 </z>
+        <dphi units="pi"> 0.3183 -0.3183 </dphi>
+        <abs_error>0.00840000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="18" signal="SLME(12)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r> 3.44000 3.90900 </r>
+        <z> -2.01600 -1.59600 </z>
+        <dphi units="pi"> 0.3183 -0.3183 </dphi>
+        <abs_error>0.00840000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="19" signal="SLME(13)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r> 3.93100 4.40200 </r>
+        <z> -1.57000 -0.683000 </z>
+        <dphi units="pi"> 0.3183 -0.3183 </dphi>
+        <abs_error>0.00840000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="20" signal="SLME(14)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r> 4.41200 4.49900 </r>
+        <z> -0.646000 -0.00100000 </z>
+        <dphi units="pi"> 0.3183 -0.3183 </dphi>
+        <abs_error>0.00840000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="21" signal="SLME(15)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r> 3.16600 2.24000 </r>
+        <z> -1.53800 -1.94600 </z>
+        <dphi units="pi"> 0.3183 -0.3183 </dphi>
+        <abs_error>0.00840000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="22" signal="SLME(16)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r> 3.16600 2.24000 </r>
+        <z> -1.67200 -1.94600 </z>
+        <dphi units="pi"> 0.3183 -0.3183 </dphi>
+        <abs_error>0.00840000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="23" signal="SLME(17)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r> 2.98300 2.24000 </r>
+        <z> -1.86300 -1.94600 </z>
+        <dphi units="pi"> 0.3183 -0.3183 </dphi>
+        <abs_error>0.00840000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="24" signal="SLME(18)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r> 2.92800 2.24000 </r>
+        <z> -1.83500 -1.94600 </z>
+        <dphi units="pi"> 0.3183 -0.3183 </dphi>
+        <abs_error>0.00840000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="25" signal="SLME(19)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r> 2.82700 2.24000 </r>
+        <z> -1.83500 -1.94600 </z>
+        <dphi units="pi"> 0.3183 -0.3183 </dphi>
+        <abs_error>0.00840000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="26" signal="SLME(20)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r> 2.76200 2.24000 </r>
+        <z> -1.83500 -1.94600 </z>
+        <dphi units="pi"> 0.3183 -0.3183 </dphi>
+        <abs_error>0.00840000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="27" signal="SLME(21)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r> 2.59400 2.24000 </r>
+        <z> -1.83500 -1.94600 </z>
+        <dphi units="pi"> 0.3183 -0.3183 </dphi>
+        <abs_error>0.00840000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="28" signal="SLME(22)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r> 2.52900 2.24000 </r>
+        <z> -1.83500 -1.94600 </z>
+        <dphi units="pi"> 0.3183 -0.3183 </dphi>
+        <abs_error>0.00840000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="29" signal="SLME(23)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r> 2.42800 2.24000 </r>
+        <z> -1.83500 -1.94600 </z>
+        <dphi units="pi"> 0.3183 -0.3183 </dphi>
+        <abs_error>0.00840000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="30" signal="SLME(24)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r> 2.36800 2.24000 </r>
+        <z> -1.86500 -1.94600 </z>
+        <dphi units="pi"> 0.3183 -0.3183 </dphi>
+        <abs_error>0.00840000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="31" signal="SLME(25)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r> 2.20200 2.24000 </r>
+        <z> -1.57000 -1.94600 </z>
+        <dphi units="pi"> 0.3183 -0.3183 </dphi>
+        <abs_error>0.00840000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="32" signal="SLME(26)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r> 2.24000 1.77300 </r>
+        <z> -1.94600 -0.744000 </z>
+        <dphi units="pi"> 0.3183 -0.3183 </dphi>
+        <abs_error>0.00840000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="33" signal="SLME(27)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r> 3.44000 3.44000 </r>
+        <z> -2.02000 2.02000 </z>
+        <dphi units="pi"> 0.3183 -0.3183 </dphi>
+        <abs_error>0.00840000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="34" signal="SLME(28)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r> 1.82100 1.82100 </r>
+        <z> 1.86500 -1.86500 </z>
+        <dphi units="pi"> 0.3183 -0.3183 </dphi>
+        <abs_error>0.00840000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="35" signal="SLME(29)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r> 4.39900 1.54600 </r>
+        <z> 0.680000 0.0300000 </z>
+        <dphi units="pi"> 0.3183 -0.3183 </dphi>
+        <abs_error>0.00840000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="36" signal="SLME(30)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r> 1.54600 4.39900 </r>
+        <z> -0.0300000 -0.680000 </z>
+        <dphi units="pi"> 0.3183 -0.3183 </dphi>
+        <abs_error>0.00840000</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+  </flux>
+
+  <pfcoils number="22">
+     <instance id="1" signal="ECME(1)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <turnsperelement> 1.00000 </turnsperelement>
+        <r> 3.99500 3.99500 </r>
+        <z> 3.13500 3.08500 </z>
+        <dr> 0.390000 0.390000 </dr>
+        <dz> 0.0500000 0.0500000 </dz>
+        <abs_error>1000.00</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="2" signal="ECME(1)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <turnsperelement> 1.00000 </turnsperelement>
+        <r> 3.99500 3.99500 </r>
+        <z> -3.13500 -3.08500 </z>
+        <dr> 0.390000 0.390000 </dr>
+        <dz> 0.0500000 0.0500000 </dz>
+        <abs_error>1000.00</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="3" signal="ECME(1)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <turnsperelement> 1.00000 </turnsperelement>
+        <r> 0.750200 0.750200 0.750200 0.750200 0.750200 0.750200 0.750200
+0.750200 0.750200 0.792700 0.792700 0.792700 0.792700 0.792700 0.792700
+0.792700 0.792700 0.792700 0.835200 0.835200 0.835200 0.835200 0.835200
+0.835200 0.835200 0.835200 0.835200 0.877700 0.877700 0.877700 0.877700
+0.877700 0.877700 0.877700 0.877700 0.877700 0.920200 0.920200 0.920200
+0.920200 0.920200 0.920200 0.920200 0.920200 0.920200 0.962700 0.962700
+0.962700 0.962700 0.962700 0.962700 0.962700 0.962700 0.962700 1.00520 1.00520
+1.00520 1.00520 1.00520 1.00520 1.00520 1.00520 1.00520 1.04770 1.04770
+1.04770 1.04770 1.04770 1.04770 1.04770 1.04770 0.750200 0.750200 0.750200
+0.750200 0.750200 0.750200 0.750200 0.750200 0.750200 0.792700 0.792700
+0.792700 0.792700 0.792700 0.792700 0.792700 0.792700 0.792700 0.835200
+0.835200 0.835200 0.835200 0.835200 0.835200 0.835200 0.835200 0.835200
+0.877700 0.877700 0.877700 0.877700 0.877700 0.877700 0.877700 0.877700
+0.877700 0.920200 0.920200 0.920200 0.920200 0.920200 0.920200 0.920200
+0.920200 0.920200 0.962700 0.962700 0.962700 0.962700 0.962700 0.962700
+0.962700 0.962700 0.962700 1.00520 1.00520 1.00520 1.00520 1.00520 1.00520
+1.00520 1.00520 1.00520 1.04770 1.04770 1.04770 1.04770 1.04770 1.04770
+1.04770 1.04770 </r>
+        <z> -2.71270 -2.65720 -2.60170 -2.54620 -2.49070 -2.43520 -2.37970
+-2.32420 -2.26870 -2.71270 -2.65720 -2.60170 -2.54620 -2.49070 -2.43520
+-2.37970 -2.32420 -2.26870 -2.71270 -2.65720 -2.60170 -2.54620 -2.49070
+-2.43520 -2.37970 -2.32420 -2.26870 -2.71270 -2.65720 -2.60170 -2.54620
+-2.49070 -2.43520 -2.37970 -2.32420 -2.26870 -2.71270 -2.65720 -2.60170
+-2.54620 -2.49070 -2.43520 -2.37970 -2.32420 -2.26870 -2.71270 -2.65720
+-2.60170 -2.54620 -2.49070 -2.43520 -2.37970 -2.32420 -2.26870 -2.71270
+-2.65720 -2.60170 -2.54620 -2.49070 -2.43520 -2.37970 -2.32420 -2.26870
+-2.71270 -2.65720 -2.60170 -2.54620 -2.49070 -2.43520 -2.37970 -2.32420
+-2.16270 -2.10720 -2.05170 -1.99620 -1.94070 -1.88520 -1.82970 -1.77420
+-1.71870 -2.16270 -2.10720 -2.05170 -1.99620 -1.94070 -1.88520 -1.82970
+-1.77420 -1.71870 -2.16270 -2.10720 -2.05170 -1.99620 -1.94070 -1.88520
+-1.82970 -1.77420 -1.71870 -2.16270 -2.10720 -2.05170 -1.99620 -1.94070
+-1.88520 -1.82970 -1.77420 -1.71870 -2.16270 -2.10720 -2.05170 -1.99620
+-1.94070 -1.88520 -1.82970 -1.77420 -1.71870 -2.16270 -2.10720 -2.05170
+-1.99620 -1.94070 -1.88520 -1.82970 -1.77420 -1.71870 -2.16270 -2.10720
+-2.05170 -1.99620 -1.94070 -1.88520 -1.82970 -1.77420 -1.71870 -2.16270
+-2.10720 -2.05170 -1.99620 -1.94070 -1.88520 -1.82970 -1.77420 </z>
+        <dr> 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000
+0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000
+0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000
+0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000
+0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000
+0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000
+0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000
+0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000
+0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000
+0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000
+0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000
+0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000
+0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000
+0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000
+0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000
+0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000
+0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000
+0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000
+0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000
+0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000
+0.0395000 0.0395000 0.0395000 </dr>
+        <dz> 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000
+0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000
+0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000
+0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000
+0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000
+0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000
+0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000
+0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000
+0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000
+0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000
+0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000
+0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000
+0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000
+0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000
+0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000
+0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000
+0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000
+0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000
+0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000
+0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000
+0.0534000 0.0534000 0.0534000 </dz>
+        <abs_error>1000.00</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="4" signal="ECME(2)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <turnsperelement> 1.00000 </turnsperelement>
+        <r> 0.750200 0.750200 0.750200 0.750200 0.750200 0.750200 0.750200
+0.750200 0.750200 0.792700 0.792700 0.792700 0.792700 0.792700 0.792700
+0.792700 0.792700 0.792700 0.835200 0.835200 0.835200 0.835200 0.835200
+0.835200 0.835200 0.835200 0.835200 0.877700 0.877700 0.877700 0.877700
+0.877700 0.877700 0.877700 0.877700 0.877700 0.920200 0.920200 0.920200
+0.920200 0.920200 0.920200 0.920200 0.920200 0.920200 0.962700 0.962700
+0.962700 0.962700 0.962700 0.962700 0.962700 0.962700 0.962700 1.00520 1.00520
+1.00520 1.00520 1.00520 1.00520 1.00520 1.00520 1.00520 1.04770 1.04770
+1.04770 1.04770 1.04770 1.04770 1.04770 1.04770 0.750200 0.750200 0.750200
+0.750200 0.750200 0.750200 0.750200 0.750200 0.750200 0.792700 0.792700
+0.792700 0.792700 0.792700 0.792700 0.792700 0.792700 0.792700 0.835200
+0.835200 0.835200 0.835200 0.835200 0.835200 0.835200 0.835200 0.835200
+0.877700 0.877700 0.877700 0.877700 0.877700 0.877700 0.877700 0.877700
+0.877700 0.920200 0.920200 0.920200 0.920200 0.920200 0.920200 0.920200
+0.920200 0.920200 0.962700 0.962700 0.962700 0.962700 0.962700 0.962700
+0.962700 0.962700 0.962700 1.00520 1.00520 1.00520 1.00520 1.00520 1.00520
+1.00520 1.00520 1.00520 1.04770 1.04770 1.04770 1.04770 1.04770 1.04770
+1.04770 1.04770 0.750200 0.750200 0.750200 0.750200 0.750200 0.750200 0.750200
+0.750200 0.750200 0.792700 0.792700 0.792700 0.792700 0.792700 0.792700
+0.792700 0.792700 0.792700 0.835200 0.835200 0.835200 0.835200 0.835200
+0.835200 0.835200 0.835200 0.835200 0.877700 0.877700 0.877700 0.877700
+0.877700 0.877700 0.877700 0.877700 0.877700 0.920200 0.920200 0.920200
+0.920200 0.920200 0.920200 0.920200 0.920200 0.920200 0.962700 0.962700
+0.962700 0.962700 0.962700 0.962700 0.962700 0.962700 0.962700 1.00520 1.00520
+1.00520 1.00520 1.00520 1.00520 1.00520 1.00520 1.00520 1.04770 1.04770
+1.04770 1.04770 1.04770 1.04770 1.04770 1.04770 </r>
+        <z> -1.61270 -1.55720 -1.50170 -1.44620 -1.39070 -1.33520 -1.27970
+-1.22420 -1.16870 -1.61270 -1.55720 -1.50170 -1.44620 -1.39070 -1.33520
+-1.27970 -1.22420 -1.16870 -1.61270 -1.55720 -1.50170 -1.44620 -1.39070
+-1.33520 -1.27970 -1.22420 -1.16870 -1.61270 -1.55720 -1.50170 -1.44620
+-1.39070 -1.33520 -1.27970 -1.22420 -1.16870 -1.61270 -1.55720 -1.50170
+-1.44620 -1.39070 -1.33520 -1.27970 -1.22420 -1.16870 -1.61270 -1.55720
+-1.50170 -1.44620 -1.39070 -1.33520 -1.27970 -1.22420 -1.16870 -1.61270
+-1.55720 -1.50170 -1.44620 -1.39070 -1.33520 -1.27970 -1.22420 -1.16870
+-1.61270 -1.55720 -1.50170 -1.44620 -1.39070 -1.33520 -1.27970 -1.22420
+-1.06270 -1.00720 -0.951700 -0.896200 -0.840700 -0.785200 -0.729700 -0.674200
+-0.618700 -1.06270 -1.00720 -0.951700 -0.896200 -0.840700 -0.785200 -0.729700
+-0.674200 -0.618700 -1.06270 -1.00720 -0.951700 -0.896200 -0.840700 -0.785200
+-0.729700 -0.674200 -0.618700 -1.06270 -1.00720 -0.951700 -0.896200 -0.840700
+-0.785200 -0.729700 -0.674200 -0.618700 -1.06270 -1.00720 -0.951700 -0.896200
+-0.840700 -0.785200 -0.729700 -0.674200 -0.618700 -1.06270 -1.00720 -0.951700
+-0.896200 -0.840700 -0.785200 -0.729700 -0.674200 -0.618700 -1.06270 -1.00720
+-0.951700 -0.896200 -0.840700 -0.785200 -0.729700 -0.674200 -0.618700 -1.06270
+-1.00720 -0.951700 -0.896200 -0.840700 -0.785200 -0.729700 -0.674200 -0.512700
+-0.457200 -0.401700 -0.346200 -0.290700 -0.235200 -0.179700 -0.124200
+-0.0687000 -0.512700 -0.457200 -0.401700 -0.346200 -0.290700 -0.235200
+-0.179700 -0.124200 -0.0687000 -0.512700 -0.457200 -0.401700 -0.346200
+-0.290700 -0.235200 -0.179700 -0.124200 -0.0687000 -0.512700 -0.457200
+-0.401700 -0.346200 -0.290700 -0.235200 -0.179700 -0.124200 -0.0687000
+-0.512700 -0.457200 -0.401700 -0.346200 -0.290700 -0.235200 -0.179700
+-0.124200 -0.0687000 -0.512700 -0.457200 -0.401700 -0.346200 -0.290700
+-0.235200 -0.179700 -0.124200 -0.0687000 -0.512700 -0.457200 -0.401700
+-0.346200 -0.290700 -0.235200 -0.179700 -0.124200 -0.0687000 -0.512700
+-0.457200 -0.401700 -0.346200 -0.290700 -0.235200 -0.179700 -0.124200 </z>
+        <dr> 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000
+0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000
+0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000
+0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000
+0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000
+0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000
+0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000
+0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000
+0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000
+0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000
+0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000
+0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000
+0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000
+0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000
+0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000
+0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000
+0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000
+0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000
+0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000
+0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000
+0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000
+0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000
+0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000
+0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000
+0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000
+0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000
+0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000
+0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000
+0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000
+0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000
+0.0395000 0.0395000 0.0395000 0.0395000 </dr>
+        <dz> 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000
+0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000
+0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000
+0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000
+0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000
+0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000
+0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000
+0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000
+0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000
+0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000
+0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000
+0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000
+0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000
+0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000
+0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000
+0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000
+0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000
+0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000
+0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000
+0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000
+0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000
+0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000
+0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000
+0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000
+0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000
+0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000
+0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000
+0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000
+0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000
+0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000
+0.0534000 0.0534000 0.0534000 0.0534000 </dz>
+        <abs_error>1000.00</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="5" signal="ECME(2)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <turnsperelement> 1.00000 </turnsperelement>
+        <r> 0.750200 0.750200 0.750200 0.750200 0.750200 0.750200 0.750200
+0.750200 0.750200 0.792700 0.792700 0.792700 0.792700 0.792700 0.792700
+0.792700 0.792700 0.792700 0.835200 0.835200 0.835200 0.835200 0.835200
+0.835200 0.835200 0.835200 0.835200 0.877700 0.877700 0.877700 0.877700
+0.877700 0.877700 0.877700 0.877700 0.877700 0.920200 0.920200 0.920000
+0.920200 0.920200 0.920200 0.920200 0.920200 0.920200 0.962700 0.962700
+0.962700 0.962700 0.962700 0.962700 0.962700 0.962700 0.962700 1.00520 1.00520
+1.00520 1.00520 1.00520 1.00520 1.00520 1.00520 1.00520 1.04770 1.04770
+1.04770 1.04770 1.04770 1.04770 1.04770 1.04770 0.750200 0.750200 0.750200
+0.750200 0.750200 0.750200 0.750200 0.750200 0.750200 0.792700 0.792700
+0.792700 0.792700 0.792700 0.792700 0.792700 0.792700 0.792700 0.835200
+0.835200 0.835200 0.835200 0.835200 0.835200 0.835200 0.835200 0.835200
+0.877700 0.877700 0.877700 0.877700 0.877700 0.877700 0.877700 0.877700
+0.877700 0.920200 0.920200 0.920200 0.920200 0.920200 0.920200 0.920200
+0.920200 0.920200 0.962700 0.962700 0.962700 0.962700 0.962700 0.962700
+0.962700 0.962700 0.962700 1.00520 1.00520 1.00520 1.00520 1.00520 1.00520
+1.00520 1.00520 1.00520 1.04770 1.04770 1.04770 1.04770 1.04770 1.04770
+1.04770 1.04770 0.750200 0.750200 0.750200 0.750200 0.750200 0.750200 0.750200
+0.750200 0.750200 0.792700 0.792700 0.792700 0.792700 0.792700 0.792700
+0.792700 0.792700 0.792700 0.835200 0.835200 0.835200 0.835200 0.835200
+0.835200 0.835200 0.835200 0.835200 0.877700 0.877700 0.877700 0.877700
+0.877700 0.877700 0.877700 0.877700 0.877700 0.920200 0.920200 0.920200
+0.920200 0.920200 0.920200 0.920200 0.920200 0.920200 0.962700 0.962700
+0.962700 0.962700 0.962700 0.962700 0.962700 0.962700 0.962700 1.00520 1.00520
+1.00520 1.00520 1.00520 1.00520 1.00520 1.00520 1.00520 1.04770 1.04770
+1.04770 1.04770 1.04770 1.04770 1.04770 1.04770 </r>
+        <z> 0.0372000 0.0927000 0.148200 0.203700 0.259200 0.314700 0.370200
+0.425700 0.481200 0.0372000 0.0927000 0.148200 0.203700 0.259200 0.314700
+0.370200 0.425700 0.481200 0.0372000 0.0927000 0.148200 0.203700 0.259200
+0.314700 0.370200 0.425700 0.481200 0.0372000 0.0927000 0.148200 0.203700
+0.259200 0.314700 0.370200 0.425700 0.481200 0.0372000 0.0927000 0.148200
+0.203700 0.259200 0.314700 0.370200 0.425700 0.481200 0.0372000 0.0927000
+0.148200 0.203700 0.259200 0.314700 0.370200 0.425700 0.481200 0.0372000
+0.0927000 0.148200 0.203700 0.259200 0.314700 0.370200 0.425700 0.481200
+0.0372000 0.0927000 0.148200 0.203700 0.259200 0.314700 0.370200 0.425700
+0.587200 0.642700 0.698200 0.753700 0.809200 0.864700 0.920200 0.975700
+1.03120 0.587200 0.642700 0.698200 0.753700 0.809200 0.864700 0.920200
+0.975700 1.03120 0.587200 0.642700 0.698200 0.753700 0.809200 0.864700
+0.920200 0.975700 1.03120 0.587200 0.642700 0.698200 0.753700 0.809200
+0.864700 0.920200 0.975700 1.03120 0.587200 0.642700 0.698200 0.753700
+0.809200 0.864700 0.920200 0.975700 1.03120 0.587200 0.642700 0.698200
+0.753700 0.809200 0.864700 0.920200 0.975700 1.03120 0.587200 0.642700
+0.698200 0.753700 0.809200 0.864700 0.920200 0.975700 1.03120 0.587200
+0.642700 0.698200 0.753700 0.809200 0.864700 0.920200 0.975700 1.13720 1.19270
+1.24820 1.30370 1.35920 1.41470 1.47020 1.52570 1.58120 1.13720 1.19270
+1.24820 1.30370 1.35920 1.41470 1.47020 1.52570 1.58120 1.13720 1.19270
+1.24820 1.30370 1.35920 1.41470 1.47020 1.52570 1.58120 1.13720 1.19270
+1.24820 1.30370 1.35920 1.41470 1.47020 1.52570 1.58120 1.13720 1.19270
+1.24820 1.30370 1.35920 1.41470 1.47020 1.52570 1.58120 1.13720 1.19270
+1.24820 1.30370 1.35920 1.41470 1.47020 1.52570 1.58120 1.13720 1.19270
+1.24820 1.30370 1.35920 1.41470 1.47020 1.52570 1.58120 1.13720 1.19270
+1.24820 1.30370 1.35920 1.41470 1.47020 1.52570 </z>
+        <dr> 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000
+0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000
+0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000
+0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000
+0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000
+0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000
+0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000
+0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000
+0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000
+0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000
+0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000
+0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000
+0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000
+0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000
+0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000
+0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000
+0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000
+0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000
+0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000
+0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000
+0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000
+0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000
+0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000
+0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000
+0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000
+0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000
+0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000
+0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000
+0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000
+0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000
+0.0395000 0.0395000 0.0395000 0.0395000 </dr>
+        <dz> 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000
+0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000
+0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000
+0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000
+0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000
+0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000
+0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000
+0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000
+0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000
+0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000
+0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000
+0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000
+0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000
+0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000
+0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000
+0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000
+0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000
+0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000
+0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000
+0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000
+0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000
+0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000
+0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000
+0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000
+0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000
+0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000
+0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000
+0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000
+0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000
+0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000
+0.0534000 0.0534000 0.0534000 0.0534000 </dz>
+        <abs_error>1000.00</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="6" signal="ECME(1)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <turnsperelement> 1.00000 </turnsperelement>
+        <r> 0.750200 0.750200 0.750200 0.750200 0.750200 0.750200 0.750200
+0.750200 0.750200 0.792700 0.792700 0.792700 0.792700 0.792700 0.792700
+0.792700 0.792700 0.792700 0.835200 0.835200 0.835200 0.835200 0.835200
+0.835200 0.835200 0.835200 0.835200 0.877700 0.877700 0.877700 0.877700
+0.877700 0.877700 0.877700 0.877700 0.877700 0.920200 0.920200 0.920200
+0.920200 0.920200 0.920200 0.920200 0.920200 0.920200 0.962700 0.962700
+0.962700 0.962700 0.962700 0.962700 0.962700 0.962700 0.962700 1.00520 1.00520
+1.00520 1.00520 1.00520 1.00520 1.00520 1.00520 1.00520 1.04770 1.04770
+1.04770 1.04770 1.04770 1.04770 1.04770 1.04770 0.750200 0.750200 0.750200
+0.750200 0.750200 0.750200 0.750200 0.750200 0.750200 0.792700 0.792700
+0.792700 0.792700 0.792700 0.792700 0.792700 0.792700 0.792700 0.835200
+0.835200 0.835200 0.835200 0.835200 0.835200 0.835200 0.835200 0.835200
+0.877700 0.877700 0.877700 0.877700 0.877700 0.877700 0.877700 0.877700
+0.877700 0.920200 0.920200 0.920200 0.920200 0.920200 0.920200 0.920200
+0.920200 0.920200 0.962700 0.962700 0.962700 0.962700 0.962700 0.962700
+0.962700 0.962700 0.962700 1.00520 1.00520 1.00520 1.00520 1.00520 1.00520
+1.00520 1.00520 1.00520 1.04770 1.04770 1.04770 1.04770 1.04770 1.04770
+1.04770 1.04770 </r>
+        <z> 1.68720 1.74270 1.79820 1.85370 1.90920 1.96470 2.02020 2.07570
+2.13120 1.68720 1.74270 1.79820 1.85370 1.90920 1.96470 2.02020 2.07570
+2.13120 1.68720 1.74270 1.79820 1.85370 1.90920 1.96470 2.02020 2.07570
+2.13120 1.68720 1.74270 1.79820 1.85370 1.90920 1.96470 2.02020 2.07570
+2.13120 1.68720 1.74270 1.79820 1.85370 1.90920 1.96470 2.02020 2.07570
+2.13120 1.68720 1.74270 1.79820 1.85370 1.90920 1.96470 2.02020 2.07570
+2.13120 1.68720 1.74270 1.79820 1.85370 1.90920 1.96470 2.02020 2.07570
+2.13120 1.68720 1.74270 1.79820 1.85370 1.90920 1.96470 2.02020 2.07570
+2.23720 2.29270 2.34820 2.40370 2.45920 2.51470 2.57020 2.62570 2.68120
+2.23720 2.29270 2.34820 2.40370 2.45920 2.51470 2.57020 2.62570 2.68120
+2.23720 2.29270 2.34820 2.40370 2.45920 2.51470 2.57020 2.62570 2.68120
+2.23720 2.29270 2.34820 2.40370 2.45920 2.51470 2.57020 2.62570 2.68120
+2.23720 2.29270 2.34820 2.40370 2.45920 2.51470 2.57020 2.62570 2.68120
+2.23720 2.29270 2.34820 2.40370 2.45920 2.51470 2.57020 2.62570 2.68120
+2.23720 2.29270 2.34820 2.40370 2.45920 2.51470 2.57020 2.62570 2.68120
+2.23720 2.29270 2.34820 2.40370 2.45920 2.51470 2.57020 2.62570 </z>
+        <dr> 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000
+0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000
+0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000
+0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000
+0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000
+0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000
+0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000
+0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000
+0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000
+0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000
+0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000
+0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000
+0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000
+0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000
+0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000
+0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000
+0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000
+0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000
+0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000
+0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000 0.0395000
+0.0395000 0.0395000 0.0395000 </dr>
+        <dz> 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000
+0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000
+0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000
+0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000
+0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000
+0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000
+0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000
+0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000
+0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000
+0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000
+0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000
+0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000
+0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000
+0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000
+0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000
+0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000
+0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000
+0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000
+0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000
+0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000 0.0534000
+0.0534000 0.0534000 0.0534000 </dz>
+        <abs_error>1000.00</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="7" signal="FCME(1)" archive="PPF::/magn/$pulseNumber$/0/jetppf"  status="1" factor="0.0163934">
+        <turnsperelement> 0.0163934 </turnsperelement>
+        <r> 5.17250 5.24650 5.28350 5.32050 5.35750 5.39450 5.43150 5.17250
+5.20950 5.24650 5.28350 5.32050 5.35750 5.39450 5.43150 5.17250 5.20950
+5.24650 5.28350 5.32050 5.35750 5.39450 5.43150 5.17250 5.20950 5.24650
+5.28350 5.32050 5.35750 5.17250 5.20950 5.24650 5.28350 5.32050 5.35750
+5.39450 5.43150 5.17250 5.20950 5.24650 5.28350 5.32050 5.35750 5.39450
+5.43150 5.17250 5.20950 5.24650 5.28350 5.32050 5.35750 5.39450 5.43150
+5.17250 5.20950 5.24650 5.28350 5.32050 5.35750 5.39450 5.43150 </r>
+        <z> 0.741000 0.741000 0.741000 0.741000 0.741000 0.741000 0.741000
+0.839000 0.839000 0.839000 0.839000 0.839000 0.839000 0.839000 0.839000
+0.937000 0.937000 0.937000 0.937000 0.937000 0.937000 0.937000 0.937000
+1.03500 1.03500 1.03500 1.03500 1.03500 1.03500 1.13300 1.13300 1.13300
+1.13300 1.13300 1.13300 1.13300 1.13300 1.23100 1.23100 1.23100 1.23100
+1.23100 1.23100 1.23100 1.23100 1.36700 1.36700 1.36700 1.36700 1.36700
+1.36700 1.36700 1.36700 1.46500 1.46500 1.46500 1.46500 1.46500 1.46500
+1.46500 1.46500 </z>
+        <dr> 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000
+0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000
+0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000
+0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000
+0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000
+0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000
+0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000
+0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000
+0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 </dr>
+        <dz> 0.0820000 0.0820000 0.0820000 0.0820000 0.0820000 0.0820000
+0.0820000 0.0820000 0.0820000 0.0820000 0.0820000 0.0820000 0.0820000
+0.0820000 0.0820000 0.0820000 0.0820000 0.0820000 0.0820000 0.0820000
+0.0820000 0.0820000 0.0820000 0.0820000 0.0820000 0.0820000 0.0820000
+0.0820000 0.0820000 0.0820000 0.0820000 0.0820000 0.0820000 0.0820000
+0.0820000 0.0820000 0.0820000 0.0820000 0.0820000 0.0820000 0.0820000
+0.0820000 0.0820000 0.0820000 0.0820000 0.0820000 0.0820000 0.0820000
+0.0820000 0.0820000 0.0820000 0.0820000 0.0820000 0.0820000 0.0820000
+0.0820000 0.0820000 0.0820000 0.0820000 0.0820000 0.0820000 </dz>
+        <abs_error>1000.00</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="8" signal="FCME(2)" archive="PPF::/magn/$pulseNumber$/0/jetppf"  status="1" factor="0.0333333">
+        <turnsperelement> 0.0333333 </turnsperelement>
+        <r> 3.82700 3.86400 3.90100 3.93800 3.97500 4.01200 4.04900 4.08600
+4.12300 4.16000 3.82700 3.86400 3.90100 3.93800 3.97500 4.01200 4.04900
+4.08600 4.12300 4.16000 3.82700 3.86400 3.90100 3.93800 3.97500 4.01200
+4.04900 4.08600 4.12300 4.16000 3.82700 3.86400 3.90100 3.93800 3.97500
+4.01200 4.04900 4.08600 4.12300 4.16000 3.82700 3.86400 3.90100 3.93800
+3.97500 4.01200 4.04900 4.08600 4.12300 4.16000 3.82700 3.86400 3.90100
+3.93800 3.97500 4.01200 4.04900 4.08600 4.12300 4.16000 </r>
+        <z> 2.78400 2.78400 2.78400 2.78400 2.78400 2.78400 2.78400 2.78400
+2.78400 2.78400 2.83100 2.83100 2.83100 2.83100 2.83100 2.83100 2.83100
+2.83100 2.83100 2.83100 2.88400 2.88400 2.88400 2.88400 2.88400 2.88400
+2.88400 2.88400 2.88400 2.88400 2.93100 2.93100 2.93100 2.93100 2.93100
+2.93100 2.93100 2.93100 2.93100 2.93100 2.98400 2.98400 2.98400 2.98400
+2.98400 2.98400 2.98400 2.98400 2.98400 2.98400 3.03100 3.03100 3.03100
+3.03100 3.03100 3.03100 3.03100 3.03100 3.03100 3.03100 </z>
+        <dr> 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000
+0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000
+0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000
+0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000
+0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000
+0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000
+0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000
+0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000
+0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 </dr>
+        <dz> 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000
+0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000
+0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000
+0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000
+0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000
+0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000
+0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000
+0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000
+0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 </dz>
+        <abs_error>1000.00</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="9" signal="FCME(3)" archive="PPF::/magn/$pulseNumber$/0/jetppf"  status="1" factor="0.100000">
+        <turnsperelement>0.1 </turnsperelement>
+        <r> 3.82700 3.86400 3.90100 3.93800 3.97500 4.01200 4.04900 4.08600
+4.12300 4.16000 3.82700 3.86400 3.90100 3.93800 3.97500 4.01200 4.04900
+4.08600 4.12300 4.16000 </r>
+        <z> 2.68400 2.68400 2.68400 2.68400 2.68400 2.68400 2.68400 2.68400
+2.68400 2.68400 2.73100 2.73100 2.73100 2.73100 2.73100 2.73100 2.73100
+2.73100 2.73100 2.73100 </z>
+        <dr> 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000
+0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000
+0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 </dr>
+        <dz> 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000
+0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000
+0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 </dz>
+        <abs_error>1000.00</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="10" signal="FCME(4)" archive="PPF::/magn/$pulseNumber$/0/jetppf"  status="1" factor="0.125000">
+        <turnsperelement> 0.125 </turnsperelement>
+        <r> 1.96700 2.00500 2.04300 2.08100 1.96700 2.00500 2.04300 2.08100
+1.96700 2.00500 2.04300 2.08100 1.96700 2.00500 2.04300 2.08100 </r>
+        <z> 3.67600 3.67600 3.67600 3.67600 3.72300 3.72300 3.72300 3.72300
+3.77300 3.77300 3.77300 3.77300 3.82000 3.82000 3.82000 3.82000 </z>
+        <dr> 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000
+0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000
+0.0350000 0.0350000 0.0350000 </dr>
+        <dz> 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000
+0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000
+0.0350000 0.0350000 0.0350000 </dz>
+        <abs_error>1000.00</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="11" signal="FCME(5)" archive="PPF::/magn/$pulseNumber$/0/jetppf"  status="1" factor="0.125000">
+        <turnsperelement> 0.125 </turnsperelement>
+        <r> 1.96700 2.00500 2.04300 2.08100 1.96700 2.00500 2.04300 2.08100
+1.96700 2.00500 2.04300 2.08100 1.96700 2.00500 2.04300 2.08100 </r>
+        <z> 3.87100 3.87100 3.87100 3.87100 3.91800 3.91800 3.91800 3.91800
+3.96800 3.96800 3.96800 3.96800 4.01500 4.01500 4.01500 4.01500 </z>
+        <dr> 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000
+0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000
+0.0350000 0.0350000 0.0350000 </dr>
+        <dz> 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000
+0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000
+0.0350000 0.0350000 0.0350000 </dz>
+        <abs_error>1000.00</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="12" signal="FCME(5)" archive="PPF::/magn/$pulseNumber$/0/jetppf"  status="1" factor="0.0500000">
+        <turnsperelement> 0.05 </turnsperelement>
+        <r> 2.24200 2.28000 2.31800 2.35600 2.39400 2.24200 2.28000 2.31800
+2.35600 2.39400 2.24200 2.28000 2.31800 2.35600 2.39400 2.24200 2.28000
+2.31800 2.35600 2.39400 </r>
+        <z> 3.69900 3.69900 3.69900 3.69900 3.69900 3.79700 3.79700 3.79700
+3.79700 3.79700 3.89400 3.89400 3.89400 3.89400 3.89400 3.99200 3.99200
+3.99200 3.99200 3.99200 </z>
+        <dr> 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000
+0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000
+0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 </dr>
+        <dz> 0.0820000 0.0820000 0.0820000 0.0820000 0.0820000 0.0820000
+0.0820000 0.0820000 0.0820000 0.0820000 0.0820000 0.0820000 0.0820000
+0.0820000 0.0820000 0.0820000 0.0820000 0.0820000 0.0820000 0.0820000 </dz>
+        <abs_error>1000.00</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="13" signal="FCME(6)" archive="PPF::/magn/$pulseNumber$/0/jetppf"  status="1" factor="0.0163934">
+        <turnsperelement>0.0163934 </turnsperelement>
+        <r> 5.17250 5.24650 5.28350 5.32050 5.35750 5.39450 5.43150 5.17250
+5.20950 5.24650 5.28350 5.32050 5.35750 5.39450 5.43150 5.17250 5.20950
+5.24650 5.28350 5.32050 5.35750 5.39450 5.43150 5.17250 5.20950 5.24650
+5.28350 5.32050 5.35750 5.17250 5.20950 5.24650 5.28350 5.32050 5.35750
+5.39450 5.43150 5.17250 5.20950 5.24650 5.28350 5.32050 5.35750 5.39450
+5.43150 5.17250 5.20950 5.24650 5.28350 5.32050 5.35750 5.39450 5.43150
+5.17250 5.20950 5.24650 5.28350 5.32050 5.35750 5.39450 5.43150 </r>
+        <z> -0.741000 -0.741000 -0.741000 -0.741000 -0.741000 -0.741000
+-0.741000 -0.839000 -0.839000 -0.839000 -0.839000 -0.839000 -0.839000
+-0.839000 -0.839000 -0.937000 -0.937000 -0.937000 -0.937000 -0.937000
+-0.937000 -0.937000 -0.937000 -1.03500 -1.03500 -1.03500 -1.03500 -1.03500
+-1.03500 -1.13300 -1.13300 -1.13300 -1.13300 -1.13300 -1.13300 -1.13300
+-1.13300 -1.23100 -1.23100 -1.23100 -1.23100 -1.23100 -1.23100 -1.23100
+-1.23100 -1.36700 -1.36700 -1.36700 -1.36700 -1.36700 -1.36700 -1.36700
+-1.36700 -1.46500 -1.46500 -1.46500 -1.46500 -1.46500 -1.46500 -1.46500
+-1.46500 </z>
+        <dr> 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000
+0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000
+0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000
+0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000
+0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000
+0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000
+0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000
+0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000
+0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 </dr>
+        <dz> 0.0820000 0.0820000 0.0820000 0.0820000 0.0820000 0.0820000
+0.0820000 0.0820000 0.0820000 0.0820000 0.0820000 0.0820000 0.0820000
+0.0820000 0.0820000 0.0820000 0.0820000 0.0820000 0.0820000 0.0820000
+0.0820000 0.0820000 0.0820000 0.0820000 0.0820000 0.0820000 0.0820000
+0.0820000 0.0820000 0.0820000 0.0820000 0.0820000 0.0820000 0.0820000
+0.0820000 0.0820000 0.0820000 0.0820000 0.0820000 0.0820000 0.0820000
+0.0820000 0.0820000 0.0820000 0.0820000 0.0820000 0.0820000 0.0820000
+0.0820000 0.0820000 0.0820000 0.0820000 0.0820000 0.0820000 0.0820000
+0.0820000 0.0820000 0.0820000 0.0820000 0.0820000 0.0820000 </dz>
+        <abs_error>1000.00</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="14" signal="FCME(7)" archive="PPF::/magn/$pulseNumber$/0/jetppf"  status="1" factor="0.0333333">
+        <turnsperelement> 0.0333333 </turnsperelement>
+        <r> 3.82700 3.86400 3.90100 3.93800 3.97500 4.01200 4.04900 4.08600
+4.12300 4.16000 3.82700 3.86400 3.90100 3.93800 3.97500 4.01200 4.04900
+4.08600 4.12300 4.16000 3.82700 3.86400 3.90100 3.93800 3.97500 4.01200
+4.04900 4.08600 4.12300 4.16000 3.82700 3.86400 3.90100 3.93800 3.97500
+4.01200 4.04900 4.08600 4.12300 4.16000 3.82700 3.86400 3.90100 3.93800
+3.97500 4.01200 4.04900 4.08600 4.12300 4.16000 3.82700 3.86400 3.90100
+3.93800 3.97500 4.01200 4.04900 4.08600 4.12300 4.16000 </r>
+        <z> -2.78400 -2.78400 -2.78400 -2.78400 -2.78400 -2.78400 -2.78400
+-2.78400 -2.78400 -2.78400 -2.83100 -2.83100 -2.83100 -2.83100 -2.83100
+-2.83100 -2.83100 -2.83100 -2.83100 -2.83100 -2.88400 -2.88400 -2.88400
+-2.88400 -2.88400 -2.88400 -2.88400 -2.88400 -2.88400 -2.88400 -2.93100
+-2.93100 -2.93100 -2.93100 -2.93100 -2.93100 -2.93100 -2.93100 -2.93100
+-2.93100 -2.98400 -2.98400 -2.98400 -2.98400 -2.98400 -2.98400 -2.98400
+-2.98400 -2.98400 -2.98400 -3.03100 -3.03100 -3.03100 -3.03100 -3.03100
+-3.03100 -3.03100 -3.03100 -3.03100 -3.03100 </z>
+        <dr> 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000
+0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000
+0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000
+0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000
+0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000
+0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000
+0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000
+0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000
+0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 </dr>
+        <dz> 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000
+0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000
+0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000
+0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000
+0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000
+0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000
+0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000
+0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000
+0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 </dz>
+        <abs_error>1000.00</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="15" signal="FCME(8)" archive="PPF::/magn/$pulseNumber$/0/jetppf"  status="1" factor="0.100000">
+        <turnsperelement> 0.1 </turnsperelement>
+        <r> 3.82700 3.86400 3.90100 3.93800 3.97500 4.01200 4.04900 4.08600
+4.12300 4.16000 3.82700 3.86400 3.90100 3.93800 3.97500 4.01200 4.04900
+4.08600 4.12300 4.16000 </r>
+        <z> -2.68400 -2.68400 -2.68400 -2.68400 -2.68400 -2.68400 -2.68400
+-2.68400 -2.68400 -2.68400 -2.73100 -2.73100 -2.73100 -2.73100 -2.73100
+-2.73100 -2.73100 -2.73100 -2.73100 -2.73100 </z>
+        <dr> 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000
+0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000
+0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 </dr>
+        <dz> 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000
+0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000
+0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 </dz>
+        <abs_error>1000.00</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="16" signal="FCME(9)" archive="PPF::/magn/$pulseNumber$/0/jetppf"  status="1" factor="0.125000">
+        <turnsperelement> 0.125 </turnsperelement>
+        <r> 1.96700 2.00500 2.04300 2.08100 1.96700 2.00500 2.04300 2.08100
+1.96700 2.00500 2.04300 2.08100 1.96700 2.00500 2.04300 2.08100 </r>
+        <z> -3.67600 -3.67600 -3.67600 -3.67600 -3.72300 -3.72300 -3.72300
+-3.72300 -3.77300 -3.77300 -3.77300 -3.77300 -3.82000 -3.82000 -3.82000
+-3.82000 </z>
+        <dr> 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000
+0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000
+0.0350000 0.0350000 0.0350000 </dr>
+        <dz> 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000
+0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000
+0.0350000 0.0350000 0.0350000 </dz>
+        <abs_error>1000.00</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="17" signal="FCME(10)" archive="PPF::/magn/$pulseNumber$/0/jetppf"  status="1" factor="0.125000">
+        <turnsperelement> 0.125 </turnsperelement>
+        <r> 1.96700 2.00500 2.04300 2.08100 1.96700 2.00500 2.04300 2.08100
+1.96700 2.00500 2.04300 2.08100 1.96700 2.00500 2.04300 2.08100 </r>
+        <z> -3.87100 -3.87100 -3.87100 -3.87100 -3.91800 -3.91800 -3.91800
+-3.91800 -3.96800 -3.96800 -3.96800 -3.96800 -4.01500 -4.01500 -4.01500
+-4.01500 </z>
+        <dr> 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000
+0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000
+0.0350000 0.0350000 0.0350000 </dr>
+        <dz> 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000
+0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000
+0.0350000 0.0350000 0.0350000 </dz>
+        <abs_error>1000.00</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="18" signal="FCME(10)" archive="PPF::/magn/$pulseNumber$/0/jetppf"  status="1" factor="0.0500000">
+        <turnsperelement> 0.05 </turnsperelement>
+        <r> 2.24200 2.28000 2.31800 2.35600 2.39400 2.24200 2.28000 2.31800
+2.35600 2.39400 2.24200 2.28000 2.31800 2.35600 2.39400 2.24200 2.28000
+2.31800 2.35600 2.39400 </r>
+        <z> -3.69900 -3.69900 -3.69900 -3.69900 -3.69900 -3.79700 -3.79700
+-3.79700 -3.79700 -3.79700 -3.89400 -3.89400 -3.89400 -3.89400 -3.89400
+-3.99200 -3.99200 -3.99200 -3.99200 -3.99200 </z>
+        <dr> 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000
+0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000
+0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 0.0350000 </dr>
+        <dz> 0.0820000 0.0820000 0.0820000 0.0820000 0.0820000 0.0820000
+0.0820000 0.0820000 0.0820000 0.0820000 0.0820000 0.0820000 0.0820000
+0.0820000 0.0820000 0.0820000 0.0820000 0.0820000 0.0820000 0.0820000 </dz>
+        <abs_error>1000.00</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="19" signal="FCME(11)" archive="PPF::/magn/$pulseNumber$/0/jetppf"  status="1" factor="0.0588235">
+        <turnsperelement> 0.0588235 </turnsperelement>
+        <r> 2.16780 2.13430 2.10080 2.06730 2.03380 2.03380 2.06730 2.10080
+2.13430 2.16780 2.16780 2.13430 2.10080 2.06730 2.10080 2.13430 2.16780 </r>
+        <z> -1.54496 -1.54496 -1.54496 -1.54496 -1.54496 -1.60696 -1.60696
+-1.60696 -1.60696 -1.60696 -1.66896 -1.66896 -1.66896 -1.66896 -1.73096
+-1.73096 -1.73096 </z>
+        <dr> 0.0305000 0.0305000 0.0305000 0.0305000 0.0305000 0.0305000
+0.0305000 0.0305000 0.0305000 0.0305000 0.0305000 0.0305000 0.0305000
+0.0305000 0.0305000 0.0305000 0.0305000 </dr>
+        <dz> 0.0590000 0.0590000 0.0590000 0.0590000 0.0590000 0.0590000
+0.0590000 0.0590000 0.0590000 0.0590000 0.0590000 0.0590000 0.0590000
+0.0590000 0.0590000 0.0590000 0.0590000 </dz>
+        <abs_error>1000.00</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="20" signal="FCME(12)" archive="PPF::/magn/$pulseNumber$/0/jetppf"  status="1" factor="0.0666667">
+        <turnsperelement> 0.0666667 </turnsperelement>
+        <r> 2.62146 2.62146 2.58796 2.58796 2.55446 2.55446 2.52096 2.52096
+2.48746 2.48746 2.45396 2.45396 2.42046 2.42046 2.38496 </r>
+        <z> -1.88631 -1.95031 -1.88631 -1.95031 -1.88631 -1.95031 -1.88631
+-1.95031 -1.88631 -1.95031 -1.88631 -1.95031 -1.88631 -1.95031 -1.91831 </z>
+        <dr> 0.0305000 0.0305000 0.0305000 0.0305000 0.0305000 0.0305000
+0.0305000 0.0305000 0.0305000 0.0305000 0.0305000 0.0305000 0.0305000
+0.0305000 0.0305000 </dr>
+        <dz> 0.0590000 0.0590000 0.0590000 0.0590000 0.0590000 0.0590000
+0.0590000 0.0590000 0.0590000 0.0590000 0.0590000 0.0590000 0.0590000
+0.0590000 0.0590000 </dz>
+        <abs_error>1000.00</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="21" signal="FCME(13)" archive="PPF::/magn/$pulseNumber$/0/jetppf"  status="1" factor="0.0666667">
+        <turnsperelement> 0.0666667 </turnsperelement>
+        <r> 2.73346 2.73346 2.76696 2.76696 2.80046 2.80046 2.83396 2.83396
+2.86746 2.86746 2.90096 2.90096 2.93446 2.93446 2.96996 </r>
+        <z> -1.88631 -1.95031 -1.88631 -1.95031 -1.88631 -1.95031 -1.88631
+-1.95031 -1.88631 -1.95031 -1.88631 -1.95031 -1.88631 -1.95031 -1.91831 </z>
+        <dr> 0.0305000 0.0305000 0.0305000 0.0305000 0.0305000 0.0305000
+0.0305000 0.0305000 0.0305000 0.0305000 0.0305000 0.0305000 0.0305000
+0.0305000 0.0305000 </dr>
+        <dz> 0.0590000 0.0590000 0.0590000 0.0590000 0.0590000 0.0590000
+0.0590000 0.0590000 0.0590000 0.0590000 0.0590000 0.0590000 0.0590000
+0.0590000 0.0590000 </dz>
+        <abs_error>1000.00</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="22" signal="FCME(14)" archive="PPF::/magn/$pulseNumber$/0/jetppf"  status="1" factor="0.0454545">
+        <turnsperelement> 0.0454545 </turnsperelement>
+        <r> 3.31615 3.34965 3.38315 3.41665 3.45015 3.48365 3.48365 3.45015
+3.41665 3.38315 3.34965 3.31615 3.31615 3.34965 3.38315 3.41665 3.45015
+3.48365 3.31615 3.34965 3.38315 3.41665 </r>
+        <z> -1.48716 -1.48716 -1.48716 -1.48716 -1.48716 -1.48716 -1.54916
+-1.54916 -1.54916 -1.54916 -1.54916 -1.54916 -1.61116 -1.61116 -1.61116
+-1.61116 -1.61116 -1.61116 -1.67316 -1.67316 -1.67316 -1.67316 </z>
+        <dr> 0.0305000 0.0305000 0.0305000 0.0305000 0.0305000 0.0305000
+0.0305000 0.0305000 0.0305000 0.0305000 0.0305000 0.0305000 0.0305000
+0.0305000 0.0305000 0.0305000 0.0305000 0.0305000 0.0305000 0.0305000
+0.0305000 0.0305000 </dr>
+        <dz> 0.0590000 0.0590000 0.0590000 0.0590000 0.0590000 0.0590000
+0.0590000 0.0590000 0.0590000 0.0590000 0.0590000 0.0590000 0.0590000
+0.0590000 0.0590000 0.0590000 0.0590000 0.0590000 0.0590000 0.0590000
+0.0590000 0.0590000 </dz>
+        <abs_error>1000.00</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+  </pfcoils>
+
+  <pfcircuits number="16">
+     <instance id="1">
+        <coil_connect> 1 2 3 6 </coil_connect>
+        <supply_connect>1</supply_connect>
+     </instance>
+     <instance id="2">
+        <coil_connect> 4 5 </coil_connect>
+        <supply_connect>2</supply_connect>
+     </instance>
+     <instance id="3">
+        <coil_connect> 7 </coil_connect>
+        <supply_connect>3</supply_connect>
+     </instance>
+     <instance id="4">
+        <coil_connect> 8 </coil_connect>
+        <supply_connect>4</supply_connect>
+     </instance>
+     <instance id="5">
+        <coil_connect> 9 </coil_connect>
+        <supply_connect>5</supply_connect>
+     </instance>
+     <instance id="6">
+        <coil_connect> 10 </coil_connect>
+        <supply_connect>6</supply_connect>
+     </instance>
+     <instance id="7">
+        <coil_connect> 11 12 </coil_connect>
+        <supply_connect>7</supply_connect>
+     </instance>
+     <instance id="8">
+        <coil_connect> 13 </coil_connect>
+        <supply_connect>8</supply_connect>
+     </instance>
+     <instance id="9">
+        <coil_connect> 14 </coil_connect>
+        <supply_connect>9</supply_connect>
+     </instance>
+     <instance id="10">
+        <coil_connect> 15 </coil_connect>
+        <supply_connect>10</supply_connect>
+     </instance>
+     <instance id="11">
+        <coil_connect> 16 </coil_connect>
+        <supply_connect>11</supply_connect>
+     </instance>
+     <instance id="12">
+        <coil_connect> 17 18 </coil_connect>
+        <supply_connect>12</supply_connect>
+     </instance>
+     <instance id="13">
+        <coil_connect> 19 </coil_connect>
+        <supply_connect>13</supply_connect>
+     </instance>
+     <instance id="14">
+        <coil_connect> 20 </coil_connect>
+        <supply_connect>14</supply_connect>
+     </instance>
+     <instance id="15">
+        <coil_connect> 21 </coil_connect>
+        <supply_connect>15</supply_connect>
+     </instance>
+     <instance id="16">
+        <coil_connect> 22 </coil_connect>
+        <supply_connect>16</supply_connect>
+     </instance>
+  </pfcircuits>
+
+  <pfsupplies number="16">
+     <instance id="1" signal="ECME(1)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <abs_error>1000.00</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="2" signal="ECME(2)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <abs_error>1000.00</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="3" signal="FCME(1)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1" >
+        <abs_error>1000.00</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="4" signal="FCME(2)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1" >
+        <abs_error>1000.00</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="5" signal="FCME(3)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1" >
+        <abs_error>1000.00</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="6" signal="FCME(4)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1" >
+        <abs_error>1000.00</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="7" signal="FCME(5)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1" >
+        <abs_error>1000.00</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="8" signal="FCME(6)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1" >
+        <abs_error>1000.00</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="9" signal="FCME(7)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1" >
+        <abs_error>1000.00</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="10" signal="FCME(8)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <abs_error>1000.00</abs_error>>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="11" signal="FCME(9)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <abs_error>1000.00</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="12" signal="FCME(10)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <abs_error>1000.00</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="13" signal="FCME(11)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <abs_error>1000.00</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="14" signal="FCME(12)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <abs_error>1000.00</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="15" signal="FCME(13)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <abs_error>1000.00</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="16" signal="FCME(14)" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <abs_error>1000.00</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+  </pfsupplies>
+
+  <toroidalfield >
+     <instance signal="bvac" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1" factor="2.96000">
+        <abs_error>1000.00</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+  </toroidalfield>
+
+  <plasmacurrent>
+     <instance signal="IPLA" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1"  >
+        <abs_error>1000.00</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+  </plasmacurrent>
+
+  <diamagneticflux>
+     <instance signal="FLX" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1"  factor="-1.00000" >
+        <abs_error>0.00000</abs_error>
+        <rel_error>0.01000</rel_error>
+     </instance>
+  </diamagneticflux>
+
+  <pfpassive number="48">
+     <instance id="1" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r> 9.01500 </r>
+        <z> 0.870000 </z>
+        <dr> 0.0300000 </dr>
+        <dz> 1.74000 </dz>
+        <ang1> 0.00000 </ang1>
+        <ang2> 0.00000 </ang2>
+        <resistance> 0.00000 </resistance>
+        <abs_error>10000.0</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="2" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r> 9.01500 </r>
+        <z> 2.61000 </z>
+        <dr> 0.0300000 </dr>
+        <dz> 1.74000 </dz>
+        <ang1> 0.00000 </ang1>
+        <ang2> 0.00000 </ang2>
+        <resistance> 0.00000 </resistance>
+        <abs_error>10000.0</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="3" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r> 9.01500 </r>
+        <z> 4.35000 </z>
+        <dr> 0.0300000 </dr>
+        <dz> 1.74000 </dz>
+        <ang1> 0.00000 </ang1>
+        <ang2> 0.00000 </ang2>
+        <resistance> 0.00000 </resistance>
+        <abs_error>10000.0</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="4" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r> 1.87200 2.01600 2.16000 2.30400 2.44800 2.59200 2.73600 2.88000
+3.02400 3.16800 </r>
+        <z> 4.64416 4.65132 4.65848 4.66564 4.67280 4.67996 4.68712 4.69428
+4.70144 4.70860 </z>
+        <dr> 0.144000 0.144000 0.144000 0.144000 0.144000 0.144000 0.144000
+0.144000 0.144000 0.144000 </dr>
+        <dz> 0.0300000 0.0300000 0.0300000 0.0300000 0.0300000 0.0300000
+0.0300000 0.0300000 0.0300000 0.0300000 </dz>
+        <ang1> 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000
+0.00000 0.00000 </ang1>
+        <ang2> 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000
+0.00000 0.00000 </ang2>
+        <resistance> 0.00000 </resistance>
+        <abs_error>10000.0</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="5" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r> 3.31200 3.45600 3.60000 3.74400 3.88800 4.03200 4.17600 4.32000
+4.46400 4.60800 </r>
+        <z> 4.71576 4.72292 4.73008 4.73724 4.74440 4.75156 4.75872 4.76588
+4.77304 4.78020 </z>
+        <dr> 0.144000 0.144000 0.144000 0.144000 0.144000 0.144000 0.144000
+0.144000 0.144000 0.144000 </dr>
+        <dz> 0.0300000 0.0300000 0.0300000 0.0300000 0.0300000 0.0300000
+0.0300000 0.0300000 0.0300000 0.0300000 </dz>
+        <ang1> 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000
+0.00000 0.00000 </ang1>
+        <ang2> 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000
+0.00000 0.00000 </ang2>
+        <resistance> 0.00000 </resistance>
+        <abs_error>10000.0</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="6" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r> 4.75200 4.89600 5.04000 5.18400 5.32800 5.47200 5.61600 5.76000
+5.90400 6.04800 </r>
+        <z> 4.78736 4.79452 4.80168 4.80884 4.81600 4.82316 4.83032 4.83748
+4.84464 4.85180 </z>
+        <dr> 0.144000 0.144000 0.144000 0.144000 0.144000 0.144000 0.144000
+0.144000 0.144000 0.144000 </dr>
+        <dz> 0.0300000 0.0300000 0.0300000 0.0300000 0.0300000 0.0300000
+0.0300000 0.0300000 0.0300000 0.0300000 </dz>
+        <ang1> 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000
+0.00000 0.00000 </ang1>
+        <ang2> 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000
+0.00000 0.00000 </ang2>
+        <resistance> 0.00000 </resistance>
+        <abs_error>10000.0</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="7" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r> 6.19200 6.33600 6.48000 6.62400 6.76800 6.91200 7.05600 7.20000
+7.34400 7.48800 </r>
+        <z> 4.85896 4.86612 4.87328 4.88044 4.88760 4.89476 4.90192 4.90908
+4.91624 4.92340 </z>
+        <dr> 0.144000 0.144000 0.144000 0.144000 0.144000 0.144000 0.144000
+0.144000 0.144000 0.144000 </dr>
+        <dz> 0.0300000 0.0300000 0.0300000 0.0300000 0.0300000 0.0300000
+0.0300000 0.0300000 0.0300000 0.0300000 </dz>
+        <ang1> 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000
+0.00000 0.00000 </ang1>
+        <ang2> 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000
+0.00000 0.00000 </ang2>
+        <resistance> 0.00000 </resistance>
+        <abs_error>10000.0</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="8" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r> 7.63200 7.77600 7.92000 8.06400 8.20800 8.35200 8.49600 8.64000
+8.78400 8.92800 </r>
+        <z> 4.93056 4.93772 4.94488 4.95204 4.95920 4.96636 4.97352 4.98068
+4.98784 4.99500 </z>
+        <dr> 0.144000 0.144000 0.144000 0.144000 0.144000 0.144000 0.144000
+0.144000 0.144000 0.144000 </dr>
+        <dz> 0.0300000 0.0300000 0.0300000 0.0300000 0.0300000 0.0300000
+0.0300000 0.0300000 0.0300000 0.0300000 </dz>
+        <ang1> 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000
+0.00000 0.00000 </ang1>
+        <ang2> 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000
+0.00000 0.00000 </ang2>
+        <resistance> 0.00000 </resistance>
+        <abs_error>10000.0</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="9" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r> 1.78500 </r>
+        <z> 4.05400 </z>
+        <dr> 0.0300000 </dr>
+        <dz> 1.26200 </dz>
+        <ang1> 0.00000 </ang1>
+        <ang2> 0.00000 </ang2>
+        <resistance> 0.00000 </resistance>
+        <abs_error>10000.0</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="10" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r> 1.68500 </r>
+        <z> 3.40800 </z>
+        <dr> 0.230000 </dr>
+        <dz> 0.0300000 </dz>
+        <ang1> 0.00000 </ang1>
+        <ang2> 0.00000 </ang2>
+        <resistance> 0.00000 </resistance>
+        <abs_error>10000.0</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="11" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r> 1.58500 </r>
+        <z> 3.21300 </z>
+        <dr> 0.0300000 </dr>
+        <dz> 0.360000 </dz>
+        <ang1> 0.00000 </ang1>
+        <ang2> 0.00000 </ang2>
+        <resistance> 0.00000 </resistance>
+        <abs_error>10000.0</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="12" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r> 1.83500 </r>
+        <z> 3.01800 </z>
+        <dr> 0.530000 </dr>
+        <dz> 0.0300000 </dz>
+        <ang1> 0.00000 </ang1>
+        <ang2> 0.00000 </ang2>
+        <resistance> 0.00000 </resistance>
+        <abs_error>10000.0</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="13" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r> 2.11500 </r>
+        <z> 2.90100 </z>
+        <dr> 0.0300000 </dr>
+        <dz> 0.264000 </dz>
+        <ang1> 0.00000 </ang1>
+        <ang2> 0.00000 </ang2>
+        <resistance> 0.00000 </resistance>
+        <abs_error>10000.0</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="14" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r> 1.98200 </r>
+        <z> 2.67400 </z>
+        <dr> 0.0300000 </dr>
+        <dz> 0.191000 </dz>
+        <ang1> 0.00000 </ang1>
+        <ang2> 35.5444 </ang2>
+        <resistance> 0.00000 </resistance>
+        <abs_error>10000.0</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="15" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r> 1.71400 </r>
+        <z> 2.48250 </z>
+        <dr> 0.0300000 </dr>
+        <dz> 0.191000 </dz>
+        <ang1> 0.00000 </ang1>
+        <ang2> 35.5444 </ang2>
+        <resistance> 0.00000 </resistance>
+        <abs_error>10000.0</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="16" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r> 1.44600 </r>
+        <z> 2.29150 </z>
+        <dr> 0.0300000 </dr>
+        <dz> 0.191000 </dz>
+        <ang1> 0.00000 </ang1>
+        <ang2> 35.5444 </ang2>
+        <resistance> 0.00000 </resistance>
+        <abs_error>10000.0</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="17" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r> 1.25621 </r>
+        <z> 2.20472 </z>
+        <dr> 0.108000 </dr>
+        <dz> 0.0174400 </dz>
+        <ang1> 0.00000 </ang1>
+        <ang2> 35.5444 </ang2>
+        <resistance> 0.00000 </resistance>
+        <abs_error>10000.0</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="18" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r> 1.20221 </r>
+        <z> 2.45922 </z>
+        <dr> 0.0244100 </dr>
+        <dz> 0.509000 </dz>
+        <ang1> 35.5444 </ang1>
+        <ang2> 0.00000 </ang2>
+        <resistance> 0.00000 </resistance>
+        <abs_error>10000.0</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="19" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r> 0.980000 </r>
+        <z> 2.75972 </z>
+        <dr> 0.540000 </dr>
+        <dz> 0.0174400 </dz>
+        <ang1> 0.00000 </ang1>
+        <ang2> 35.5444 </ang2>
+        <resistance> 0.00000 </resistance>
+        <abs_error>10000.0</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="20" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r> 0.703000 </r>
+        <z> 0.275100 </z>
+        <dr> 0.0300000 </dr>
+        <dz> 0.550200 </dz>
+        <ang1> 0.00000 </ang1>
+        <ang2> 0.00000 </ang2>
+        <resistance> 0.00000 </resistance>
+        <abs_error>10000.0</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="21" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r> 0.703000 </r>
+        <z> 0.825300 </z>
+        <dr> 0.0300000 </dr>
+        <dz> 0.550200 </dz>
+        <ang1> 0.00000 </ang1>
+        <ang2> 0.00000 </ang2>
+        <resistance> 0.00000 </resistance>
+        <abs_error>10000.0</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="22" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r> 0.703000 </r>
+        <z> 1.37550 </z>
+        <dr> 0.0300000 </dr>
+        <dz> 0.550200 </dz>
+        <ang1> 0.00000 </ang1>
+        <ang2> 0.00000 </ang2>
+        <resistance> 0.00000 </resistance>
+        <abs_error>10000.0</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="23" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r> 0.703000 </r>
+        <z> 1.92570 </z>
+        <dr> 0.0300000 </dr>
+        <dz> 0.550200 </dz>
+        <ang1> 0.00000 </ang1>
+        <ang2> 0.00000 </ang2>
+        <resistance> 0.00000 </resistance>
+        <abs_error>10000.0</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="24" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r> 0.703000 </r>
+        <z> 2.47590 </z>
+        <dr> 0.0300000 </dr>
+        <dz> 0.550200 </dz>
+        <ang1> 0.00000 </ang1>
+        <ang2> 0.00000 </ang2>
+        <resistance> 0.00000 </resistance>
+        <abs_error>10000.0</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="25" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r> 9.01500 </r>
+        <z> -0.870000 </z>
+        <dr> 0.0300000 </dr>
+        <dz> 1.74000 </dz>
+        <ang1> 0.00000 </ang1>
+        <ang2> 0.00000 </ang2>
+        <resistance> 0.00000 </resistance>
+        <abs_error>10000.0</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="26" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r> 9.01500 </r>
+        <z> -2.61000 </z>
+        <dr> 0.0300000 </dr>
+        <dz> 1.74000 </dz>
+        <ang1> 0.00000 </ang1>
+        <ang2> 0.00000 </ang2>
+        <resistance> 0.00000 </resistance>
+        <abs_error>10000.0</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="27" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r> 9.01500 </r>
+        <z> -4.35000 </z>
+        <dr> 0.0300000 </dr>
+        <dz> 1.74000 </dz>
+        <ang1> 0.00000 </ang1>
+        <ang2> 0.00000 </ang2>
+        <resistance> 0.00000 </resistance>
+        <abs_error>10000.0</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="28" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r> 1.87200 2.01600 2.16000 2.30400 2.44800 2.59200 2.73600 2.88000
+3.02400 3.16800 </r>
+        <z> -4.64416 -4.65132 -4.65848 -4.66564 -4.67280 -4.67996 -4.68712
+-4.69428 -4.70144 -4.70860 </z>
+        <dr> 0.144000 0.144000 0.144000 0.144000 0.144000 0.144000 0.144000
+0.144000 0.144000 0.144000 </dr>
+        <dz> 0.0300000 0.0300000 0.0300000 0.0300000 0.0300000 0.0300000
+0.0300000 0.0300000 0.0300000 0.0300000 </dz>
+        <ang1> 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000
+0.00000 0.00000 </ang1>
+        <ang2> 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000
+0.00000 0.00000 </ang2>
+        <resistance> 0.00000 </resistance>
+        <abs_error>10000.0</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="29" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r> 3.31200 3.45600 3.60000 3.74400 3.88800 4.03200 4.17600 4.32000
+4.46400 4.60800 </r>
+        <z> -4.71576 -4.72292 -4.73008 -4.73724 -4.74440 -4.75156 -4.75872
+-4.76588 -4.77304 -4.78020 </z>
+        <dr> 0.144000 0.144000 0.144000 0.144000 0.144000 0.144000 0.144000
+0.144000 0.144000 0.144000 </dr>
+        <dz> 0.0300000 0.0300000 0.0300000 0.0300000 0.0300000 0.0300000
+0.0300000 0.0300000 0.0300000 0.0300000 </dz>
+        <ang1> 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000
+0.00000 0.00000 </ang1>
+        <ang2> 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000
+0.00000 0.00000 </ang2>
+        <resistance> 0.00000 </resistance>
+        <abs_error>10000.0</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="30" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r> 4.75200 4.89600 5.04000 5.18400 5.32800 5.47200 5.61600 5.76000
+5.90400 6.04800 </r>
+        <z> -4.78736 -4.79452 -4.80168 -4.80884 -4.81600 -4.82316 -4.83032
+-4.83748 -4.84464 -4.85180 </z>
+        <dr> 0.144000 0.144000 0.144000 0.144000 0.144000 0.144000 0.144000
+0.144000 0.144000 0.144000 </dr>
+        <dz> 0.0300000 0.0300000 0.0300000 0.0300000 0.0300000 0.0300000
+0.0300000 0.0300000 0.0300000 0.0300000 </dz>
+        <ang1> 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000
+0.00000 0.00000 </ang1>
+        <ang2> 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000
+0.00000 0.00000 </ang2>
+        <resistance> 0.00000 </resistance>
+        <abs_error>10000.0</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="31" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r> 6.19200 6.33600 6.48000 6.62400 6.76800 6.91200 7.05600 7.20000
+7.34400 7.48800 </r>
+        <z> -4.85896 -4.86612 -4.87328 -4.88044 -4.88760 -4.89476 -4.90192
+-4.90908 -4.91624 -4.92340 </z>
+        <dr> 0.144000 0.144000 0.144000 0.144000 0.144000 0.144000 0.144000
+0.144000 0.144000 0.144000 </dr>
+        <dz> 0.0300000 0.0300000 0.0300000 0.0300000 0.0300000 0.0300000
+0.0300000 0.0300000 0.0300000 0.0300000 </dz>
+        <ang1> 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000
+0.00000 0.00000 </ang1>
+        <ang2> 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000
+0.00000 0.00000 </ang2>
+        <resistance> 0.00000 </resistance>
+        <abs_error>10000.0</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="32" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r> 7.63200 7.77600 7.92000 8.06400 8.20800 8.35200 8.49600 8.64000
+8.78400 8.92800 </r>
+        <z> -4.93056 -4.93772 -4.94488 -4.95204 -4.95920 -4.96636 -4.97352
+-4.98068 -4.98784 -4.99500 </z>
+        <dr> 0.144000 0.144000 0.144000 0.144000 0.144000 0.144000 0.144000
+0.144000 0.144000 0.144000 </dr>
+        <dz> 0.0300000 0.0300000 0.0300000 0.0300000 0.0300000 0.0300000
+0.0300000 0.0300000 0.0300000 0.0300000 </dz>
+        <ang1> 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000
+0.00000 0.00000 </ang1>
+        <ang2> 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000
+0.00000 0.00000 </ang2>
+        <resistance> 0.00000 </resistance>
+        <abs_error>10000.0</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="33" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r> 1.78500 </r>
+        <z> -4.05400 </z>
+        <dr> 0.0300000 </dr>
+        <dz> 1.26200 </dz>
+        <ang1> 0.00000 </ang1>
+        <ang2> 0.00000 </ang2>
+        <resistance> 0.00000 </resistance>
+        <abs_error>10000.0</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="34" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r> 1.68500 </r>
+        <z> -3.40800 </z>
+        <dr> 0.230000 </dr>
+        <dz> 0.0300000 </dz>
+        <ang1> 0.00000 </ang1>
+        <ang2> 0.00000 </ang2>
+        <resistance> 0.00000 </resistance>
+        <abs_error>10000.0</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="35" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r> 1.58500 </r>
+        <z> -3.21300 </z>
+        <dr> 0.0300000 </dr>
+        <dz> 0.360000 </dz>
+        <ang1> 0.00000 </ang1>
+        <ang2> 0.00000 </ang2>
+        <resistance> 0.00000 </resistance>
+        <abs_error>10000.0</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="36" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r> 1.83500 </r>
+        <z> -3.01800 </z>
+        <dr> 0.530000 </dr>
+        <dz> 0.0300000 </dz>
+        <ang1> 0.00000 </ang1>
+        <ang2> 0.00000 </ang2>
+        <resistance> 0.00000 </resistance>
+        <abs_error>10000.0</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="37" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r> 2.11500 </r>
+        <z> -2.90100 </z>
+        <dr> 0.0300000 </dr>
+        <dz> 0.264000 </dz>
+        <ang1> 0.00000 </ang1>
+        <ang2> 0.00000 </ang2>
+        <resistance> 0.00000 </resistance>
+        <abs_error>10000.0</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="38" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r> 1.98200 </r>
+        <z> -2.67400 </z>
+        <dr> 0.0300000 </dr>
+        <dz> 0.191000 </dz>
+        <ang1> 0.00000 </ang1>
+        <ang2> 144.456 </ang2>
+        <resistance> 0.00000 </resistance>
+        <abs_error>10000.0</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="39" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r> 1.71400 </r>
+        <z> -2.48250 </z>
+        <dr> 0.0300000 </dr>
+        <dz> 0.191000 </dz>
+        <ang1> 0.00000 </ang1>
+        <ang2> 144.456 </ang2>
+        <resistance> 0.00000 </resistance>
+        <abs_error>10000.0</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="40" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r> 1.44600 </r>
+        <z> -2.29150 </z>
+        <dr> 0.0300000 </dr>
+        <dz> 0.191000 </dz>
+        <ang1> 0.00000 </ang1>
+        <ang2> 144.456 </ang2>
+        <resistance> 0.00000 </resistance>
+        <abs_error>10000.0</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="41" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r> 1.25621 </r>
+        <z> -2.20472 </z>
+        <dr> 0.108000 </dr>
+        <dz> 0.0174400 </dz>
+        <ang1> 0.00000 </ang1>
+        <ang2> 144.456 </ang2>
+        <resistance> 0.00000 </resistance>
+        <abs_error>10000.0</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="42" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r> 1.20221 </r>
+        <z> -2.45922 </z>
+        <dr> 0.0244100 </dr>
+        <dz> 0.509000 </dz>
+        <ang1> 144.456 </ang1>
+        <ang2> 0.00000 </ang2>
+        <resistance> 0.00000 </resistance>
+        <abs_error>10000.0</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="43" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r> 0.980000 </r>
+        <z> -2.75972 </z>
+        <dr> 0.540000 </dr>
+        <dz> 0.0174400 </dz>
+        <ang1> 0.00000 </ang1>
+        <ang2> 144.456 </ang2>
+        <resistance> 0.00000 </resistance>
+        <abs_error>10000.0</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="44" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r> 0.703000 </r>
+        <z> -0.275100 </z>
+        <dr> 0.0300000 </dr>
+        <dz> 0.550200 </dz>
+        <ang1> 0.00000 </ang1>
+        <ang2> 0.00000 </ang2>
+        <resistance> 0.00000 </resistance>
+        <abs_error>10000.0</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="45" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r> 0.703000 </r>
+        <z> -0.825300 </z>
+        <dr> 0.0300000 </dr>
+        <dz> 0.550200 </dz>
+        <ang1> 0.00000 </ang1>
+        <ang2> 0.00000 </ang2>
+        <resistance> 0.00000 </resistance>
+        <abs_error>10000.0</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="46" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r> 0.703000 </r>
+        <z> -1.37550 </z>
+        <dr> 0.0300000 </dr>
+        <dz> 0.550200 </dz>
+        <ang1> 0.00000 </ang1>
+        <ang2> 0.00000 </ang2>
+        <resistance> 0.00000 </resistance>
+        <abs_error>10000.0</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="47" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r> 0.703000 </r>
+        <z> -1.92570 </z>
+        <dr> 0.0300000 </dr>
+        <dz> 0.550200 </dz>
+        <ang1> 0.00000 </ang1>
+        <ang2> 0.00000 </ang2>
+        <resistance> 0.00000 </resistance>
+        <abs_error>10000.0</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+     <instance id="48" signal="noData" archive="PPF::/magn/$pulseNumber$/0/jetppf" status="1">
+        <r> 0.703000 </r>
+        <z> -2.47590 </z>
+        <dr> 0.0300000 </dr>
+        <dz> 0.550200 </dz>
+        <ang1> 0.00000 </ang1>
+        <ang2> 0.00000 </ang2>
+        <resistance> 0.00000 </resistance>
+        <abs_error>10000.0</abs_error>
+        <rel_error>0.0200000</rel_error>
+     </instance>
+  </pfpassive>
+
+
+
+  <limiter>
+     <instance>
+       <r>
+          3.290     3.294     3.309     3.359     3.407     3.479     3.53      3.578
+       	  3.627     3.641     3.68      3.716     3.749     3.779     3.805     3.828
+       	  3.848     3.863     3.876     3.884     3.889     3.891     3.889     3.883
+       	  3.873     3.86      3.844     3.824     3.8       3.773     3.743     3.709
+       	  3.672     3.641     3.64      3.562     3.477     3.398     3.3       3.149
+       	  2.975     2.884     2.785     2.678     2.575     2.479     2.381     2.243
+       	  2.206     2.178     2.119     2.058     1.997     1.938     1.916     1.904
+       	  1.886     1.871     1.858     1.845     1.832     1.82      1.812     1.807
+       	  1.806     1.807     1.812     1.821     1.832     1.847     1.866     1.887
+       	  1.912     1.954     2.01      2.081     2.139     2.2       2.294     2.295
+       	  2.36      2.405     2.413     2.413     2.408     2.398     2.421     2.418
+       	  2.406     2.315     2.364     2.437     2.524     2.522     2.55      2.555
+       	  2.576     2.814     2.814     2.87      2.946     2.987     2.898     2.881
+       	  2.884     2.9       2.89      2.886     2.888     2.907     2.963     3.011
+       	  3.06      3.194     3.199     3.29                                         
+       </r>
+       <z>
+           -1.152  -1.111  -1.08   -1.031  -0.978  -0.891  -0.823  -0.753        
+       	   -0.674  -0.65   -0.575  -0.498  -0.421  -0.341  -0.26   -0.178 
+       	   -0.096  -0.012  0.071   0.156   0.241   0.326   0.41	   0.495 
+       	    0.579   0.663   0.746   0.829   0.91   0.991   1.07	   1.148 
+       	    1.224   1.283   1.425   1.495   1.572   1.643   1.711   1.816 
+       	    1.941   1.976   2.005   2.018   2.016   1.999   1.967   1.894 
+       	    1.871   1.839   1.723   1.603   1.444   1.289   1.232   1.171 
+       	    1.073   0.974   0.874   0.775   0.676   0.576   0.476   0.377 
+       	    0.277   0.177   0.077   -0.023  -0.122  -0.221  -0.319  -0.416
+       	   -0.513  -0.656  -0.787  -0.958  -1.097  -1.244  -1.32   -1.334 
+       	   -1.334  -1.386  -1.429  -1.474  -1.504  -1.516  -1.602  -1.649 
+       	   -1.69   -1.739  -1.738  -1.711  -1.71   -1.703  -1.667  -1.649 
+       	   -1.614  -1.686  -1.708  -1.713  -1.745  -1.746  -1.682  -1.619 
+       	   -1.582  -1.51   -1.498  -1.476  -1.423  -1.383  -1.335  -1.335 
+       	   -1.298  -1.214  -1.209  -1.152                                 
+       </z>
+     </instance>
+  </limiter>
+
+
+</device>

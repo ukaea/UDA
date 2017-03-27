@@ -23,7 +23,10 @@ uda_plugin(
   DESCRIPTION "Reads in geometry db netcdf files"
   EXAMPLE "GEOM::get()"
   LIBNAME geometry_plugin
-  SOURCES geometry.c
+  SOURCES 
+    geometry.c
+    geomSignalMap.c
+    geomConfig.c
   CONFIG_FILE geometry.cfg
   EXTRA_INCLUDE_DIRS
     ${LIBXML2_INCLUDE_DIR}
@@ -33,4 +36,5 @@ uda_plugin(
     ${LIBXML2_LIBRARIES}
     ${PostgreSQL_LIBRARY}
     ${NETCDF_LIBRARIES}
+    m
 )

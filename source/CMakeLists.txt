@@ -21,3 +21,5 @@ if( NOT CLIENT_ONLY )
   add_subdirectory( server )
   add_subdirectory( plugins )
 endif()
+
+install( FILES uda.h DESTINATION include/uda )

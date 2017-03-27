@@ -1,7 +1,7 @@
 from logging import DEBUG, WARNING, INFO, ERROR
 
 from . import c_uda
-from .c_uda import IdamException
+from .c_uda import UDAException
 from ._client import Client
 from ._signal import Signal
 from ._dim import Dim
@@ -12,4 +12,4 @@ from ._json import SignalEncoder, SignalDecoder
 Properties = type('Properties', (), dict((p, getattr(c_uda, p))
                                          for p in dir(c_uda) if p.startswith('PROP_')))
 
-__all__ = (IdamException, Client, Signal, Dim, Properties, DEBUG, WARNING, INFO, ERROR)
+__all__ = (UDAException, Client, Signal, Dim, Properties, DEBUG, WARNING, INFO, ERROR)

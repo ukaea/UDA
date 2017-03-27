@@ -1,5 +1,5 @@
-#ifndef IDAM_CLIENTSERVER_IDAMERRORLOG_H
-#define IDAM_CLIENTSERVER_IDAMERRORLOG_H
+#ifndef UDA_CLIENTSERVER_IDAMERRORLOG_H
+#define UDA_CLIENTSERVER_IDAMERRORLOG_H
 
 #include <clientserver/udaStructs.h>
 
@@ -24,5 +24,6 @@ void closeIdamError(IDAMERRORSTACK *idamerrorstack);
 
 extern IDAMERRORSTACK idamerrorstack;
 
-#endif // IDAM_CLIENTSERVER_IDAMERRORLOG_H
+#define THROW_ERROR(ERR, MSG) addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, ERR, MSG); return ERR;
 
+#endif // UDA_CLIENTSERVER_IDAMERRORLOG_H

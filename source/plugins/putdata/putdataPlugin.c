@@ -18,6 +18,8 @@ static int do_help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
 
 int putdataPlugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
+    idamSetLogLevel(LOG_DEBUG);
+
     static int init = 0;
 
     if (idam_plugin_interface->interfaceVersion > THISPLUGIN_MAX_INTERFACE_VERSION) {
@@ -99,7 +101,7 @@ int do_help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     data_block->data_type = TYPE_STRING;
     strcpy(data_block->data_desc, "putdataPlugin: help = description of this plugin");
 
-    data_block->data = (char*) p;
+    data_block->data = p;
 
     data_block->dims[0].data_type = TYPE_UNSIGNED_INT;
     data_block->dims[0].dim_n = strlen(p) + 1;

@@ -425,7 +425,7 @@ void freeUserDefinedTypeList(USERDEFINEDTYPELIST* userdefinedtypelist);
 * @param type The name of the type
 * @return The size in bytes.
 */
-int getsizeof(char* type);
+size_t getsizeof(char* type);
 
 /** The value of the IDAM enumeration type for a named regular atomic type
 * 

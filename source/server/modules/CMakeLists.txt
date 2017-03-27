@@ -44,9 +44,11 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/source
 )
 
-add_definitions( -DSERVERBUILD )
-
 ########################################################################################################################
 # Targets
 
-add_library( modules OBJECT ${SRC_FILES} )
+add_library( modules-objects OBJECT ${SRC_FILES} )
+target_compile_definitions( modules-objects PRIVATE -DSERVERBUILD )
+
+add_library( fatmodules-objects OBJECT ${SRC_FILES} )
+target_compile_definitions( fatmodules-objects PRIVATE -DFATCLIENT )

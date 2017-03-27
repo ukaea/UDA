@@ -22,6 +22,5 @@ uda_plugin(
   EXTRA_LINK_LIBS
     ${LIBXML2_LIBRARIES}
     ${OPENSSL_LIBRARIES}
+    client-static
 )
-
-target_link_libraries( uda_plugin LINK_PUBLIC client-static )

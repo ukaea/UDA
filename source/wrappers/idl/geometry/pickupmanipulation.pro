@@ -43,25 +43,20 @@ end
 ;------------------------------------------------------
 ; Get the poloidal angle of the coil
 ;------------------------------------------------------
-function getPolAngle, R, Z
+function getPolAngle, R, Z, convention=convention
 
-  theta = fltarr(n_elements(R))
+  if undefined(convention) then convention = 'anticlockwise'
 
-  ind_nonzero = where(((R ne 0) and (Z ne 0)), count_nonzero)
-  ind_rzzero = where((R eq 0) and (Z eq 0), count_rzzero)
-  ind_rzero = where(R eq 0, count_rzero)
-  ind_zzero = where(Z eq 0, count_zzero)
+  theta = atan(Z, R) * 180 / !PI
 
-  if count_nonzero gt 0 then begin
-     theta[ind_nonzero] = acos(R[ind_nonzero]/sqrt(R[ind_nonzero]*R[ind_nonzero]+Z[ind_nonzero]*Z[ind_nonzero]))*180.0/!PI
+  ind_neg = where(theta < 0, count_neg)
 
-     if Z[ind_nonzero] gt 0.0 then theta[ind_nonzero] = 360.0 - theta[ind_nonzero]
+  ; 0 to 2*pi
+  if count_neg gt 0 then theta[ind_neg] = 360 + theta[ind_neg]
 
-  endif else if count_rzero gt 0 then begin
-     theta[ind_rzero] = 270
-  endif
+  ind_nonzero = where(abs(theta) gt 0.0, count_nonzero)
 
-  if count_rzzero gt 0 then theta[ind_rzzero] = 0
+  if convention eq 'clockwise' then theta[ind_nonzero] = 360 - theta[ind_nonzero]
 
   return, theta
 end
@@ -75,7 +70,9 @@ end
 ; Add the poloidal length to the geometry structure, and
 ; the poloidal angle and fractions to the orientation structure.
 ;------------------------------------------------------
-pro pickup_poloidal, geometry, orientation
+pro pickup_poloidal, geometry, orientation, convention=convention
+
+  if undefined(convention) then convention = 'anticlockwise'
 
   ; Length projected to poloidal plane
   length_poloidal = lengthpolproj(geometry.length, $
@@ -96,7 +93,7 @@ pro pickup_poloidal, geometry, orientation
   geometry.length_poloidal = length_poloidal
 
   ; Angle in poloidal plane
-  poloidal_angle = getPolAngle(orientation.unit_vector.r, orientation.unit_vector.z) 
+  poloidal_angle = getPolAngle(orientation.unit_vector.r, orientation.unit_vector.z, convention=convention) 
   
   ; Fraction measured in bR, bZ, bPhi directions
   vectorTobRbZbPhi, orientation.unit_vector.r, orientation.unit_vector.z, orientation.unit_vector.phi, bR=bR, bZ=bZ, bPhi=bPhi
@@ -107,7 +104,8 @@ pro pickup_poloidal, geometry, orientation
                             bRFraction: 0.0,   $
                             bZFraction: 0.0,   $
                             bPhiFraction: 0.0, $
-                            poloidal_angle: 0.0 }, n_elements(orientation))
+                            poloidal_angle: 0.0, $
+                            poloidal_convention: convention}, n_elements(orientation))
   orientation.measurement_direction = measurement_direction
   orientation.bRFraction = bR
   orientation.bZFraction = bZ
@@ -119,7 +117,7 @@ end
 ; Recursively loop over the data structure, looking for 
 ; the level where the orientation and geometry data is
 ;------------------------------------------------------
-function pickuploop, data
+function pickuploop, data, convention=convention
 
   forward_function pickuploop
 
@@ -131,7 +129,7 @@ function pickuploop, data
   if count_orien gt 0 and count_geom gt 0 then begin
      geom = data.(ind_geom)
      orien = data.(ind_orien)
-     pickup_poloidal, geom, orien
+     pickup_poloidal, geom, orien, convention=convention
 
      new_struct = {}
      for i = 0, n_elements(tag_names_data)-1 do begin
@@ -171,7 +169,7 @@ function pickuploop, data
            new_struct = create_struct(new_struct, tag_names_data[i], data.(i))
            continue
         endif
-        new_struct = create_struct(new_struct, tag_names_data[i], pickuploop(data.(i)))
+        new_struct = create_struct(new_struct, tag_names_data[i], pickuploop(data.(i), convention=convention))
      endfor
   endelse
 
@@ -224,12 +222,18 @@ pro getallcoords, data, R=R, x=x, y=y, z=z, $
         unitz = [unitz, data[0].(ind_data).orientation.unit_vector.z]
      endif
 
-     ind_pol_angle = where(tag_names_orientation eq 'POLOIDAL_ANGLE', count_pol_angle)
+     ind_pol_angle = where(tag_names_orientation eq 'POLOIDAL_ANGLE', count_pol_angle)     
 
-     if count_pol_angle gt 0 and strtrim(data[0].(ind_data).orientation.measurement_direction, 2) eq 'POLOIDAL' then begin        
+     pdirection = strtrim(data[0].(ind_data).orientation.measurement_direction, 2)
+
+     if (count_pol_angle gt 0 $
+         and (pdirection eq 'POLOIDAL' or pdirection eq 'PARALLEL' or pdirection eq 'NORMAL')) then begin        
         pol_angle = data[0].(ind_data).orientation.poloidal_angle
-        unitr = [unitr, cos(!PI * (360.0 - pol_angle) / 180.0)]
-        unitz = [unitz, sin(!PI * (360.0 - pol_angle) / 180.0)]
+        
+        if data[0].(ind_data).orientation.poloidal_convention eq 'clockwise' then pol_angle = 360.0 - pol_angle
+
+        unitr = [unitr, cos(!PI * (pol_angle) / 180.0)]
+        unitz = [unitz, sin(!PI * (pol_angle) / 180.0)]
      endif else if count_pol_angle gt 0 then begin
         unitr = [unitr, 0.0]
         unitz = [unitz, 0.0]
@@ -255,8 +259,6 @@ pro pickupplot, data
 
   getallcoords, data, R=R, z=z, unitr=unit_r, unitz=unit_z, colours=colours
 
-  ind_high = where(Z gt 2.0)
-
   if n_elements(R) eq 0 or n_elements(z) eq 0  then return
                                                   
   ; Set up graphics
@@ -281,7 +283,6 @@ pro pickupplot, data
   plots, R, z, psym=6, symsize=1, color=colours
 
   if n_elements(unit_r) ne n_elements(r) then begin
-     print, 'No unit vectors'
      return
   endif
 
@@ -305,9 +306,14 @@ end
 ; Main function for data manipulation.
 ;------------------------------------------------------
 function pickupmanipulation, datastruct, poloidal=poloidal, plot=plot  
+  calc_pol = 0B
 
-  if keyword_set(poloidal) then begin
-     newstruct = pickuploop(datastruct) 
+  if is_string(poloidal) then begin
+     calc_pol = 1B
+  endif
+
+  if calc_pol then begin
+     newstruct = pickuploop(datastruct, convention=poloidal) 
   endif else newstruct = datastruct
 
   ; These are mostly intended for testing.

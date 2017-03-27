@@ -13,7 +13,8 @@ function applygeommanipulation, datastruct, signal, _extra=_extra
 
   newstruct = datastruct
 
-  if strmatch(signal, '/magnetics/pickup*') then begin
+  if strmatch(signal, '/magnetics/pickup*') or strmatch(signal, '/magnetics/mirnov*') $
+     or strmatch(signal, 'b_*') or strmatch(signal, 'm_*') then begin
      newstruct = pickupmanipulation(newstruct, _extra=_extra)
   endif
 

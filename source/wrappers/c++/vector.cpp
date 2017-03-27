@@ -4,5 +4,5 @@
 
 #include "vector.hpp"
 
-Idam::Vector Idam::Vector::Null = Idam::Vector();
+uda::Vector uda::Vector::Null = uda::Vector();
 

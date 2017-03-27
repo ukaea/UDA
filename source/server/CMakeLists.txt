@@ -66,63 +66,60 @@ add_library( fatserver-objects OBJECT
 
 target_compile_definitions( fatserver-objects PRIVATE -DFATCLIENT )
 
-add_library( server-shared SHARED
+set( SERVER_OBJ
   $<TARGET_OBJECTS:server-objects>
   $<TARGET_OBJECTS:clientserver-server-objects>
-  $<TARGET_OBJECTS:serverlogging>
-  $<TARGET_OBJECTS:structures-server>
-  $<TARGET_OBJECTS:security>
-  $<TARGET_OBJECTS:modules>
-  )
+  $<TARGET_OBJECTS:logging-server-objects>
+  $<TARGET_OBJECTS:structures-server-objects>
+  #$<TARGET_OBJECTS:security-objects>
+  $<TARGET_OBJECTS:modules-objects>
+)
 
-add_library( server-static STATIC
-  $<TARGET_OBJECTS:server-objects>
-  $<TARGET_OBJECTS:clientserver-server-objects>
-  $<TARGET_OBJECTS:serverlogging>
-  $<TARGET_OBJECTS:structures-server>
-  $<TARGET_OBJECTS:security>
-  $<TARGET_OBJECTS:modules>
-  )
+add_library( server-shared SHARED ${SERVER_OBJ} )
+add_library( server-static STATIC ${SERVER_OBJ} )
 
 add_executable( server-exe serverMain.c )
 
 ########################################################################################################################
 # Add libraries
 
-target_link_libraries( server-shared LINK_PUBLIC
+target_link_libraries( server-shared LINK_PRIVATE
   client-shared
   ${OPENSSL_LIBRARIES}
   ${LIBXML2_LIBRARIES}
   ${PostgreSQL_LIBRARY}
   ${CACHE_LIBRARIES}
-  )
+)
 
 link_modules( server-shared )
 
-target_link_libraries( server-static LINK_PUBLIC
+target_link_libraries( server-static LINK_PRIVATE
   client-shared
   ${OPENSSL_LIBRARIES}
   ${LIBXML2_LIBRARIES}
   ${PostgreSQL_LIBRARY}
   ${CACHE_LIBRARIES}
-  )
+)
 
 link_modules( server-static )
 
 # Executable
-target_link_libraries( server-exe LINK_PUBLIC
+target_link_libraries( server-exe LINK_PRIVATE
+  client-shared
+  server-shared
+  ${OPENSSL_LIBRARIES}
   ${LIBXML2_LIBRARIES}
   ${PostgreSQL_LIBRARY}
+  ${CACHE_LIBRARIES}
   c
   m
   dl
-  server-shared
-  client-shared
-  ${OPENSSL_LIBRARIES}
-  )
+)
+
+link_modules( server-exe )
 
 if( NOT APPLE )
-  target_link_libraries( server-exe LINK_PUBLIC gcc_s )
+  target_link_libraries( server-exe LINK_PRIVATE gcc_s )
 endif()
 
 ########################################################################################################################
@@ -173,6 +170,8 @@ set( ETC_FILES
   uda-fat-cpp.pc
   README.md
 )
+
+set( GEN_ETC_FILES ${CMAKE_BINARY_DIR}/etc/udagenstruct.conf )
 
 foreach( ETC_FILE ${ETC_FILES} )
   configure_file(

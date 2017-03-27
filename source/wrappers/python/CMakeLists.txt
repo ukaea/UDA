@@ -5,6 +5,7 @@ include( ${SWIG_USE_FILE} )
 
 find_package( PythonLibs 3.3 REQUIRED )
 find_package( Boost REQUIRED )
+find_package( LibXml2 REQUIRED)
 
 set( SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../.. )
 
@@ -29,7 +30,7 @@ else()
 endif()
 set_source_files_properties( UDA.i PROPERTIES SWIG_MODULE_NAME ${LIB_NAME} )
 swig_add_module( ${LIB_NAME} python UDA.i )
-swig_link_libraries( ${LIB_NAME} ${PROJECT_NAME}_cpp ssl ${PYTHON_LIBRARIES} )
+swig_link_libraries( ${LIB_NAME} ${PROJECT_NAME}_cpp ssl ${PYTHON_LIBRARIES} ${LIBXML2_LIBRARIES} ${CACHE_LIBRARIES} )
 
 install( TARGETS ${SWIG_MODULE_${LIB_NAME}_REAL_NAME}
   DESTINATION include/pyuda )

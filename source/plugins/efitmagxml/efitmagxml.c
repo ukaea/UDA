@@ -1,4 +1,3 @@
-
 /*---------------------------------------------------------------
 * v1 IDAM Plugin: Parse and server EFIT++ legacy Magnetics XML
 *
@@ -28,44 +27,26 @@
 
 #include <client/accAPI.h>
 #include <structures/struct.h>
-#include <structures/accessors.h>
-#include <clientserver/stringUtils.h>
-#include <plugins/udaPlugin.h>
 #include <clientserver/initStructs.h>
 
 int efitmagxml(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
-    int i, err = 0;
+    int err = 0;
 
     static short init = 0;
     static EFIT efit;
 
-//----------------------------------------------------------------------------------------
-// Standard v1 Plugin Interface
-
-    DATA_BLOCK* data_block;
-    REQUEST_BLOCK* request_block;
-
-    IDAMERRORSTACK* idamErrorStack = getIdamServerPluginErrorStack();        // Server library functions
-
-    initIdamErrorStack(&idamerrorstack);
-
     unsigned short housekeeping;
 
     if (idam_plugin_interface->interfaceVersion > THISPLUGIN_MAX_INTERFACE_VERSION) {
-        err = 999;
-        IDAM_LOG(LOG_ERROR,
-                "ERROR efitmagxml: Plugin Interface Version Unknown to this plugin: Unable to execute the request!\n");
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "efitmagxml", err,
-                     "Plugin Interface Version Unknown to this plugin: Unable to execute the request!");
-        concatIdamError(idamerrorstack, idamErrorStack);
-        return err;
+        IDAM_LOG(LOG_ERROR, "Plugin Interface Version Unknown to this plugin: Unable to execute the request!\n");
+        THROW_ERROR(999, "Plugin Interface Version Unknown to this plugin: Unable to execute the request!");
     }
 
     idam_plugin_interface->pluginVersion = THISPLUGIN_VERSION;
 
-    data_block = idam_plugin_interface->data_block;
-    request_block = idam_plugin_interface->request_block;
+    DATA_BLOCK* data_block = idam_plugin_interface->data_block;
+    REQUEST_BLOCK* request_block = idam_plugin_interface->request_block;
 
     housekeeping = idam_plugin_interface->housekeeping;
 
@@ -73,9 +54,11 @@ int efitmagxml(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 // Arguments and keywords 
 
     unsigned short int isReset = 0;
+
+    int i;
     for (i = 0; i < request_block->nameValueList.pairCount; i++) {
-        if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "reset") ||
-            STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "initialise")) {
+        if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "reset") ||
+            !strcasecmp(request_block->nameValueList.nameValue[i].name, "initialise")) {
             isReset = 1;
             break;
         }
@@ -95,7 +78,7 @@ int efitmagxml(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 // A list must be maintained to register these plugin calls to manage housekeeping.
 // Calls to plugins must also respect access policy and user authentication policy
 
-    if (isReset || housekeeping || STR_IEQUALS(request_block->function, "reset")) {
+    if (isReset || housekeeping || !strcasecmp(request_block->function, "reset")) {
 
         if (!init) return 0;        // Not previously initialised: Nothing to do!
 
@@ -111,8 +94,7 @@ int efitmagxml(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 //----------------------------------------------------------------------------------------
 // Initialise 
 
-    if (!init || STR_IEQUALS(request_block->function, "init")
-        || STR_IEQUALS(request_block->function, "initialise")) {
+    if (!init || !strcasecmp(request_block->function, "init") || !strcasecmp(request_block->function, "initialise")) {
 
 // EFIT Data Structures
 
@@ -120,10 +102,10 @@ int efitmagxml(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Arguments and keywords 
 
-        char* xmlFile = NULL;
+        char* xmlFile;
         unsigned short int isXmlFile = 0;
         for (i = 0; i < request_block->nameValueList.pairCount; i++) {
-            if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "xmlfile")) {
+            if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "xmlfile")) {
                 isXmlFile = 1;
                 xmlFile = request_block->nameValueList.nameValue[i].value;
                 break;
@@ -133,13 +115,11 @@ int efitmagxml(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 // Parse the XML if the file has been identified      
 
         if (isXmlFile && parseEfitXML(xmlFile, &efit) != 0) {
-            err = 999;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "efitmagxml", err, "EFIT++ Magnetics XML could Not be Parsed");
-            return err;
+            THROW_ERROR(999, "EFIT++ Magnetics XML could Not be Parsed");
         }
 
         init = 1;
-        if (STR_IEQUALS(request_block->function, "init") || STR_IEQUALS(request_block->function, "initialise")) {
+        if (!strcasecmp(request_block->function, "init") || !strcasecmp(request_block->function, "initialise")) {
             return 0;
         }
     }
@@ -154,72 +134,108 @@ int efitmagxml(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 // Common Passed name-value pairs and Keywords 
 
         unsigned short int isObjectId = 0, isFluxLoop = 0, isMagProbe = 0, isCount = 0, isIndex = 0, isPosition = 0, isName = 0,
-                isIdentifier, isSignal = 0, isR = 0, isZ = 0, isPhi = 0, isUnitStartIndex = 0, isDevice = 0;
+                isIdentifier = 0, isSignal = 0, isR = 0, isZ = 0, isPhi = 0, isUnitStartIndex = 0, isDevice = 0,
+                isPFActive = 0, isElement = 0, isGeometry = 0, isRectangle = 0, isTurns = 0, isDataScaling = 0,
+                isTimeScaling = 0, isWidth = 0, isHeight = 0;
         int objectId = -1, index = -1;
 
 // Arguments and keywords 
 
         for (i = 0; i < request_block->nameValueList.pairCount; i++) {
-
-            if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "id")) {
+            if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "id")) {
                 isObjectId = 1;
                 objectId = atoi(request_block->nameValueList.nameValue[i].value);
                 continue;
             }
-            if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "FluxLoop")) {
+            if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "FluxLoop")) {
                 isFluxLoop = 1;
                 continue;
             }
-            if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "MagProbe")) {
+            if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "MagProbe")) {
                 isMagProbe = 1;
                 continue;
             }
-            if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "Position")) {
+            if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "PFActive")) {
+                isPFActive = 1;
+                continue;
+            }
+            if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "Position")) {
                 isPosition = 1;
                 continue;
             }
-            if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "Count")) {
+            if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "Element")) {
+                isElement = 1;
+                continue;
+            }
+            if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "Geometry")) {
+                isGeometry = 1;
+                continue;
+            }
+            if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "Rectangle")) {
+                isRectangle = 1;
+                continue;
+            }
+            if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "Count")) {
                 isCount = 1;
                 continue;
             }
-            if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "index")) {
+            if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "index")) {
                 isIndex = 1;
                 index = atoi(request_block->nameValueList.nameValue[i].value);
                 continue;
             }
-            if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "R")) {
+            if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "R")) {
                 isR = 1;
                 continue;
             }
-            if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "Z")) {
+            if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "Z")) {
                 isZ = 1;
                 continue;
             }
-            if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "Phi")) {
+            if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "Phi")) {
                 isPhi = 1;
                 continue;
             }
-            if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "Signal")) {
+            if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "Width")) {
+                isWidth = 1;
+                continue;
+            }
+            if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "Height")) {
+                isHeight = 1;
+                continue;
+            }
+            if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "Signal")) {
                 isSignal = 1;
                 continue;
             }
-            if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "Name")) {
+            if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "Turns")) {
+                isTurns = 1;
+                continue;
+            }
+            if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "DataScaling")) {
+                isDataScaling = 1;
+                continue;
+            }
+            if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "TimeScaling")) {
+                isTimeScaling = 1;
+                continue;
+            }
+            if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "Name")) {
                 isName = 1;
                 continue;
             }
-            if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "Identifier")) {
+            if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "Identifier")) {
                 isIdentifier = 1;
                 continue;
             }
-            if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "UnitStartIndex")) {
+            if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "UnitStartIndex")) {
                 isUnitStartIndex = 1;
                 continue;
             }
-            if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "Device")) {
+            if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "Device")) {
                 isDevice = 1;
                 continue;
             }
-
         }
 
         if (isUnitStartIndex) {
@@ -250,6 +266,28 @@ bpol_probe(id)/position/r		id=id, /MagProbe, /Position, /r
 bpol_probe(id)/position/z		id=id, /MagProbe, /Position, /z  
 bpol_probe(id)/position/phi		id=id, /MagProbe, /Position, /phi  
 
+Mapping from PF_ACTIVE IDS to XML objects
+
+pf_active.coil(:)						/PFActive, /Count
+pf_active.coil(id).name						/PFActive, /Name
+pf_active.coil(id).identifier					/PFActive, /Identifier
+pf_active.coil(id).signal					/PFActive, /Signal
+pf_active.coil(id).data_scaling					/PFActive, /DataScaling
+pf_active.coil(id).time_scaling					/PFActive, /TimeScaling
+
+pf_active.coil(id).element(:)					id=id, /PFActive, /Element, /Count
+pf_active.coil(id).element(index).geometry.rectangle.r		id=id, /PFActive, /Element, /Geometry, /Rectangle, index=index, /r 	
+pf_active.coil(id).element(index).geometry.rectangle.z		id=id, /PFActive, /Element, /Geometry, /Rectangle, index=index, /z
+pf_active.coil(id).element(index).geometry.rectangle.width	id=id, /PFActive, /Element, /Geometry, /Rectangle, index=index, /width
+pf_active.coil(id).element(index).geometry.rectangle.height	id=id, /PFActive, /Element, /Geometry, /Rectangle, index=index, /height
+pf_active.coil(id).element(index).turns_with_sign		id=id, /PFActive, /Element, /turns
+
+pf_active.coil(id).element(*).geometry.rectangle.r		id=id, /PFActive, /Geometry, /Rectangle, /r 		// Full array of element coordinate data
+pf_active.coil(id).element(*).geometry.rectangle.z		id=id, /PFActive, /Geometry, /Rectangle, /z
+pf_active.coil(id).element(*).geometry.rectangle.width		id=id, /PFActive, /Geometry, /Rectangle, /width
+pf_active.coil(id).element(*).geometry.rectangle.height		id=id, /PFActive, /Geometry, /Rectangle, /height
+
+
 ToDo:
 
 1> Reset when the file name changes
@@ -257,10 +295,11 @@ ToDo:
 
 */
 
-        if (STR_IEQUALS(request_block->function, "get")) {
+        if (!strcasecmp(request_block->function, "get")) {
             initDataBlock(data_block);
 
             int count = 0;
+            char* p;
 
             if (isCount) {
                 if (isFluxLoop) {
@@ -275,81 +314,169 @@ ToDo:
                     } else {
                         count = getnmagprobes(&efit);
                     }
+                } else if (isPFActive) {
+                    if (isElement) {
+                        count = getnpfcoilcoords(&efit, objectId);
+                    } else {
+                        count = getnpfcoils(&efit);
+                    }
                 }
-
                 data_block->data_n = 1;
                 data_block->rank = 0;
                 data_block->data_type = TYPE_INT;
                 strcpy(data_block->data_desc, "efitmagxml: object count returned");
-                int* data = (int*) malloc(sizeof(int));
+                int* data = (int*)malloc(sizeof(int));
                 *data = count;
-                data_block->data = (char*) data;
+                data_block->data = (char*)data;
                 break;
             } else if (isSignal) {
-                char* p = NULL;
                 if (isFluxLoop) {
                     p = (efit.fluxloop[objectId].instance).signal;
                 } else if (isMagProbe) {
                     p = (efit.magprobe[objectId].instance).signal;
+                } else if (isPFActive) {
+                    p = (efit.pfcoils[objectId].instance).signal;
                 }
-                data_block->data_n = (int)(strlen(p) + 1);
+                data_block->data_n = strlen(p) + 1;
                 data_block->rank = 0;
                 data_block->data_type = TYPE_STRING;
                 strcpy(data_block->data_desc, "efitmagxml: object name returned");
-                data_block->data = (char*) malloc(data_block->data_n * sizeof(char));
+                data_block->data = (char*)malloc(data_block->data_n * sizeof(char));
                 strcpy(data_block->data, p);
                 break;
+            } else if (isDataScaling) {
+                double* scalingFactor = (double*)malloc(sizeof(double));
+                if (isFluxLoop) {
+                    scalingFactor[0] = (double)(efit.fluxloop[objectId].instance).factor;
+                } else if (isMagProbe) {
+                    scalingFactor[0] = (double)(efit.magprobe[objectId].instance).factor;
+                } else if (isPFActive) {
+                    scalingFactor[0] = (double)(efit.pfcoils[objectId].instance).factor;
+                }
+                data_block->data_n = 1;
+                data_block->rank = 0;
+                data_block->data_type = TYPE_DOUBLE;
+                strcpy(data_block->data_desc, "efitmagxml: object data scaling factor returned");
+                data_block->data = (char*)scalingFactor;
+                break;
+            } else if (isTimeScaling) {
+                double* scalingFactor = (double*)malloc(sizeof(double));
+                scalingFactor[0] = (double)1.0;    // Not encoded in xml at this time
+                data_block->data_n = 1;
+                data_block->rank = 0;
+                data_block->data_type = TYPE_DOUBLE;
+                strcpy(data_block->data_desc, "efitmagxml: object time scaling factor returned");
+                data_block->data = (char*)scalingFactor;
+                break;
+            } else if (isTurns) {
+                int* data = (int*)malloc(sizeof(int));
+                *data = 0;
+                if (isPFActive) {        // Not by Element in this XML!
+                    data[0] = efit.pfcoils[objectId].turns;
+                }
+                data_block->data_n = 1;
+                data_block->rank = 0;
+                data_block->data_type = TYPE_INT;
+                strcpy(data_block->data_desc, "efitmagxml: object turns returned");
+                data_block->data = (char*)data;
+                break;
             } else if (isName || isIdentifier) {
-                char* p = NULL;
                 if (isFluxLoop) {
                     p = getidfluxloop(&efit, objectId);
                 } else if (isMagProbe) {
                     p = getidmagprobe(&efit, objectId);
+                } else if (isPFActive) {
+                    p = getidpfcoils(&efit, objectId);
                 }
-                data_block->data_n = (int)(strlen(p) + 1);
+                data_block->data_n = strlen(p) + 1;
                 data_block->rank = 0;
                 data_block->data_type = TYPE_STRING;
                 strcpy(data_block->data_desc, "efitmagxml: object name returned");
-                data_block->data = (char*) malloc(data_block->data_n * sizeof(char));
+                data_block->data = (char*)malloc(data_block->data_n * sizeof(char));
                 strcpy(data_block->data, p);
                 break;
             } else if (isPosition) {
-                double* data = (double*) malloc(sizeof(double));
+                double* data = (double*)malloc(sizeof(double));
                 *data = 0.0;
+                int rc;
                 if (isFluxLoop) {
                     float* r = NULL, * z = NULL, * phi = NULL, aerr, rerr;
-                    getfluxloop(&efit, objectId, &r, &z, &phi, &aerr, &rerr);
+                    rc = getfluxloop(&efit, objectId, &r, &z, &phi, &aerr, &rerr);
                     if (isR) {
-                        *data = (double) r[index];
+                        *data = (double)r[index];
                     } else if (isZ) {
-                        *data = (double) z[index];
+                        *data = (double)z[index];
                     } else if (isPhi) {
-                        *data = (double) phi[index];
+                        *data = (double)phi[index];
                     }
                 } else if (isMagProbe) {
                     float r, z, phi, aerr, rerr;
-                    getmagprobe(&efit, objectId, &r, &z, &phi, &aerr, &rerr);
+                    rc = getmagprobe(&efit, objectId, &r, &z, &phi, &aerr, &rerr);
                     if (isR) {
-                        *data = (double) r;
+                        *data = (double)r;
                     } else if (isZ) {
-                        *data = (double) z;
+                        *data = (double)z;
                     } else if (isPhi) {
-                        *data = (double) phi;
+                        *data = (double)phi;
                     }
                 }
                 data_block->rank = 0;
                 data_block->data_n = 1;
                 data_block->data_type = TYPE_DOUBLE;
                 strcpy(data_block->data_desc, "efitmagxml: Position Coordinate returned");
-                data_block->data = (char*) data;
+                data_block->data = (char*)data;
                 break;
+            } else if (isPFActive && isGeometry && isRectangle) {
+                if (isElement) {
+                    double* data = (double*)malloc(sizeof(double));
+                    *data = 0.0;
+                    float* r = NULL, * z = NULL, * width = NULL, * height = NULL, aerr, rerr;
+                    int rc, turns;
+                    rc = getpfcoil(&efit, objectId, &turns, &r, &z, &width, &height, &aerr, &rerr);
+                    if (isR) {
+                        *data = (double)r[index];
+                    } else if (isZ) {
+                        *data = (double)z[index];
+                    } else if (isWidth) {
+                        *data = (double)width[index];
+                    } else if (isHeight) {
+                        *data = (double)height[index];
+                    }
+                    data_block->rank = 0;
+                    data_block->data_n = 1;
+                    data_block->data_type = TYPE_DOUBLE;
+                    strcpy(data_block->data_desc, "efitmagxml: Element Geometry/Coordinate returned");
+                    data_block->data = (char*)data;
+                    break;
+                } else {        // Return all element data
+                    int count = getnpfcoilcoords(&efit, objectId);
+                    double* data = (double*)malloc(count * sizeof(double));
+                    float* r = NULL, * z = NULL, * width = NULL, * height = NULL, aerr, rerr;
+                    int rc, turns;
+                    rc = getpfcoil(&efit, objectId, &turns, &r, &z, &width, &height, &aerr, &rerr);
+                    if (isR) {
+                        for (i = 0; i < count; i++) data[i] = (double)r[i];
+                    } else if (isZ) {
+                        for (i = 0; i < count; i++) data[i] = (double)z[i];
+                    } else if (isWidth) {
+                        for (i = 0; i < count; i++) data[i] = (double)width[i];
+                    } else if (isHeight) {
+                        for (i = 0; i < count; i++) data[i] = (double)height[i];
+                    }
+                    data_block->rank = 0;
+                    data_block->data_n = count;
+                    data_block->data_type = TYPE_DOUBLE;
+                    strcpy(data_block->data_desc, "efitmagxml: Element Geometry/Coordinate Array returned");
+                    data_block->data = (char*)data;
+                    break;
+                }
             } else if (isDevice) {
-                char* p = getdevice(&efit);
-                data_block->data_n = (int)(strlen(p) + 1);
+                p = getdevice(&efit);
+                data_block->data_n = strlen(p) + 1;
                 data_block->rank = 0;
                 data_block->data_type = TYPE_STRING;
                 strcpy(data_block->data_desc, "efitmagxml: device name returned");
-                data_block->data = (char*) malloc(data_block->data_n * sizeof(char));
+                data_block->data = (char*)malloc(data_block->data_n * sizeof(char));
                 strcpy(data_block->data, p);
             }
             break;
@@ -361,25 +488,25 @@ ToDo:
 
 // Help: A Description of library functionality
 
-        if (STR_IEQUALS(request_block->function, "help")) {
+        if (!strcasecmp(request_block->function, "help")) {
 
-            char* p = (char*) malloc(sizeof(char) * 2 * 1024);
+            char* p = (char*)malloc(sizeof(char) * 2 * 1024);
 
             strcpy(p, "\nefitmagxml: Add Functions Names, Syntax, and Descriptions\n\n");
 
             initDataBlock(data_block);
 
             data_block->rank = 1;
-            data_block->dims = (DIMS*) malloc(data_block->rank * sizeof(DIMS));
+            data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
             for (i = 0; i < data_block->rank; i++) initDimBlock(&data_block->dims[i]);
 
             data_block->data_type = TYPE_STRING;
             strcpy(data_block->data_desc, "efitmagxml: help = description of this plugin");
 
-            data_block->data = (char*) p;
+            data_block->data = (char*)p;
 
             data_block->dims[0].data_type = TYPE_UNSIGNED_INT;
-            data_block->dims[0].dim_n = (int)(strlen(p) + 1);
+            data_block->dims[0].dim_n = strlen(p) + 1;
             data_block->dims[0].compressed = 1;
             data_block->dims[0].dim0 = 0.0;
             data_block->dims[0].diff = 1.0;
@@ -396,14 +523,14 @@ ToDo:
 //----------------------------------------------------------------------------------------    
 // Standard methods: version, builddate, defaultmethod, maxinterfaceversion 
 
-        if (STR_IEQUALS(request_block->function, "version")) {
+        if (!strcasecmp(request_block->function, "version")) {
             initDataBlock(data_block);
             data_block->data_type = TYPE_INT;
             data_block->rank = 0;
             data_block->data_n = 1;
-            int* data = (int*) malloc(sizeof(int));
+            int* data = (int*)malloc(sizeof(int));
             data[0] = THISPLUGIN_VERSION;
-            data_block->data = (char*) data;
+            data_block->data = (char*)data;
             strcpy(data_block->data_desc, "Plugin version number");
             strcpy(data_block->data_label, "version");
             strcpy(data_block->data_units, "");
@@ -412,14 +539,14 @@ ToDo:
 
 // Plugin Build Date
 
-        if (STR_IEQUALS(request_block->function, "builddate")) {
+        if (!strcasecmp(request_block->function, "builddate")) {
             initDataBlock(data_block);
             data_block->data_type = TYPE_STRING;
             data_block->rank = 0;
-            data_block->data_n = (int)(strlen(__DATE__) + 1);
-            char* data = (char*) malloc(data_block->data_n * sizeof(char));
+            data_block->data_n = strlen(__DATE__) + 1;
+            char* data = (char*)malloc(data_block->data_n * sizeof(char));
             strcpy(data, __DATE__);
-            data_block->data = (char*) data;
+            data_block->data = (char*)data;
             strcpy(data_block->data_desc, "Plugin build date");
             strcpy(data_block->data_label, "date");
             strcpy(data_block->data_units, "");
@@ -428,14 +555,14 @@ ToDo:
 
 // Plugin Default Method
 
-        if (STR_IEQUALS(request_block->function, "defaultmethod")) {
+        if (!strcasecmp(request_block->function, "defaultmethod")) {
             initDataBlock(data_block);
             data_block->data_type = TYPE_STRING;
             data_block->rank = 0;
-            data_block->data_n = (int)(strlen(THISPLUGIN_DEFAULT_METHOD) + 1);
-            char* data = (char*) malloc(data_block->data_n * sizeof(char));
+            data_block->data_n = strlen(THISPLUGIN_DEFAULT_METHOD) + 1;
+            char* data = (char*)malloc(data_block->data_n * sizeof(char));
             strcpy(data, THISPLUGIN_DEFAULT_METHOD);
-            data_block->data = (char*) data;
+            data_block->data = (char*)data;
             strcpy(data_block->data_desc, "Plugin default method");
             strcpy(data_block->data_label, "method");
             strcpy(data_block->data_units, "");
@@ -444,14 +571,14 @@ ToDo:
 
 // Plugin Maximum Interface Version
 
-        if (STR_IEQUALS(request_block->function, "maxinterfaceversion")) {
+        if (!strcasecmp(request_block->function, "maxinterfaceversion")) {
             initDataBlock(data_block);
             data_block->data_type = TYPE_INT;
             data_block->rank = 0;
             data_block->data_n = 1;
-            int* data = (int*) malloc(sizeof(int));
+            int* data = (int*)malloc(sizeof(int));
             data[0] = THISPLUGIN_MAX_INTERFACE_VERSION;
-            data_block->data = (char*) data;
+            data_block->data = (char*)data;
             strcpy(data_block->data_desc, "Maximum Interface Version");
             strcpy(data_block->data_label, "version");
             strcpy(data_block->data_units, "");
@@ -470,12 +597,6 @@ ToDo:
 
 //--------------------------------------------------------------------------------------
 // Housekeeping
-
-    concatIdamError(idamerrorstack, idamErrorStack);    // Combine local errors with the Server's error stack
-
-#ifndef USE_PLUGIN_DIRECTLY
-    closeIdamError(&idamerrorstack);            // Free local plugin error stack
-#endif
 
     return err;
 }

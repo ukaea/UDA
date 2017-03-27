@@ -206,7 +206,7 @@ function getgeomdata, namearg, sourcearg,     $
     goto, fatalerror
   endif
 
-  if not_integer(sourcearg) and undefined(filecal) and undefined(fileconfig) then begin
+  if undefined(sourcearg) and undefined(filecal) and undefined(fileconfig) then begin
      errmsg='Source argument must a pulse number, or fileconfig (and optionally filecal) must be set to the URL-filepath.'
      goto, fatalerror
   endif
@@ -222,16 +222,27 @@ function getgeomdata, namearg, sourcearg,     $
   endif
 
   ; If there is not an / at the beginning, add one
-  if strpos(namearg[0], '/') ne 0 then begin
-     namearg = '/'+namearg[0]
-  endif
+  ;if strpos(namearg[0], '/') ne 0 then begin
+  ;   namearg = '/'+namearg[0]
+  ;endif
 
   ; Signal map: if asking for very top
   ; levels may need to read in multiple files
-  signaldict = hash('/magnetics', ['/magnetics/pickup', '/magnetics/fluxloops'])
+  filenames_call = 'GEOM::getConfigFilenames(signal='+strtrim(namearg[0])+')'
+  multiple_names = getstruct(filenames_call, sourcearg[0])
 
-  if signaldict.haskey(namearg[0]) then allsignals = signaldict[namearg[0]] $
-  else allsignals = namearg[0]
+  if multiple_names.erc eq 0 then begin
+     allsignals = multiple_names.data.geomgroups
+     allsignals = allsignals[uniq(allsignals, sort(allsignals))]
+
+     if n_elements(allsignals) gt 1 then begin
+        allsignals = multiple_names.data.geomgroups 
+        allsignals = strmid(allsignals, 0, transpose(strpos(allsignals, '/', /reverse_search)))
+     endif else allsignals = namearg[0]
+  endif else begin
+     errmsg='Signal was not recognized'
+     goto, fatalerror
+  endelse
 
   datastruct = {}
   signalinfostruct = {}
@@ -252,7 +263,7 @@ function getgeomdata, namearg, sourcearg,     $
      workname = 'GEOM::get(signal='+strtrim(allsignals[i])+', '
                                             
      if exists(fileconfig) then workname = workname+'file='+strtrim(fileconfig[0],2)+', '
-     if exists(verconfig) then workname = workname+'version_config='+strtrim(verconfig[0], 2)+', '
+     if exists(verconfig) then workname = workname+'version='+strtrim(verconfig[0], 2)+', '
      if exists(torangle) and not keyword_set(threed) then workname = workname+'tor_angle='+strtrim(torangle[0], 2)+', '
      if keyword_set(threed) then workname = workname+'three_d=True, '
 
@@ -285,7 +296,7 @@ function getgeomdata, namearg, sourcearg,     $
      ; Adjust call for retrieving calibration data
      workname = 'GEOM::get(signal='+strtrim(allsignals[i])+', '
      if exists(filecal) then workname = workname+'file='+strtrim(filecal[0],2)+', '
-     if exists(vercal) then workname = workname+'version_cal='+strtrim(vercal[0], 2)+', '
+     if exists(vercal) then workname = workname+'version='+strtrim(vercal[0], 2)+', '
      if exists(torangle) then workname = workname+'tor_angle='+strtrim(torangle[0], 2)+', '
      if keyword_set(threed) then workname = workname+'three_d=True, '
 

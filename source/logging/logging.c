@@ -46,6 +46,16 @@ void idamSetLogFile(LOG_MODE mode, FILE* file)
     }
 }
 
+void idamLogWithFunc(LOG_MODE mode, logFunc func)
+{
+    FILE* log_file = idamGetLogFile(mode);
+
+    if (mode >= log_level && log_file != NULL) {
+        func(log_file);
+        fflush(log_file);
+    }
+}
+
 void idamLog(LOG_MODE mode, const char * fmt, ...)
 {
     va_list args;

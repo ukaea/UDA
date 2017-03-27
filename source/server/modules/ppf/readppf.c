@@ -43,8 +43,10 @@ int readPPF(DATA_SOURCE data_source,
 
 #include <ppf.h>
 
+#include <stdio.h>
+
 #include <clientserver/stringUtils.h>
-#include <clientserver/idamTypes.h>
+#include <clientserver/udaTypes.h>
 #include <clientserver/initStructs.h>
 
 #define NWCOM     20        // 80 Byte DDA Comment
@@ -67,7 +69,9 @@ int readPPF(DATA_SOURCE data_source,
 
     float* dvec = NULL, * xvec = NULL, * tvec = NULL, * sdvec = NULL;    //Data, x vector and T vector arrays
 
+#ifndef FATCLIENT
     static int pwdstatus = 1;
+#endif
 
 //--------------------------------------------------------------------
 // Extract Signal from SubSet Instruction if present.

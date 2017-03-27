@@ -13,8 +13,14 @@ set( SRC_FILES
   serverAuthentication.c
   clientAuthentication.c
   security.c
-  )
+  authenticationUtils.c
+  x509Utils.c
+)
 
 include_directories( ${CMAKE_SOURCE_DIR}/source ${GCRYPT_INCLUDE_DIRS} ${KSBA_INCLUDE_DIRS} )
 
-add_library( security OBJECT ${SRC_FILES} )
+add_library( security-objects OBJECT ${SRC_FILES} )
+
+# Authentication code without any passing of objects between the client and server to use in local test executables.
+add_library( security-test-objects OBJECT ${SRC_FILES} )
+target_compile_definitions( security-test-objects PRIVATE -DTESTIDAMSECURITY )

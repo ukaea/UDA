@@ -1,4 +1,4 @@
-import pyidam
+import pyuda
 import json
 import base64
 import numpy as np
@@ -9,7 +9,7 @@ from ._dim import Dim
 class DimEncoder(json.JSONEncoder):
 
     def default(self, obj):
-        if isinstance(obj, pyidam.Dim):
+        if isinstance(obj, pyuda.Dim):
             dim = obj
             obj = {
                 '_type': 'pyuda.Dim',
@@ -28,7 +28,7 @@ class DimEncoder(json.JSONEncoder):
 class SignalEncoder(json.JSONEncoder):
 
     def default(self, obj):
-        if isinstance(obj, pyidam.Signal):
+        if isinstance(obj, pyuda.Signal):
             signal = obj
             dim_enc = DimEncoder()
             obj = {

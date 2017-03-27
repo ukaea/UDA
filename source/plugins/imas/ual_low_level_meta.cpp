@@ -115,8 +115,8 @@ public:
     PathNode* getLeaf(const char* path)
     {
         int idx, childIdx;
-        PathNode* retLeaf;
-        bool exists;
+        PathNode* retLeaf = NULL;
+        bool exists = true;
         int dims[16];
         if (numChildren == childrenSize - 1) {
             PathNode** newC = new PathNode* [2 * numChildren];
@@ -136,7 +136,7 @@ public:
                 }
             }
             if (childIdx == numChildren) {
-                children[numChildren++] = retLeaf = (PathNode*)createPathLeaf(this, path, &exists, 0, dims, 0, 0, 0, 0);
+                children[numChildren++] = retLeaf = (PathNode*)createPathLeaf(this, path, exists, 0, dims, 0, 0, 0, 0);
                 return retLeaf;
             }
         } else {
@@ -157,6 +157,8 @@ public:
             delete[] name1;
             return retLeaf;
         }
+
+        return retLeaf;
     }
 
 

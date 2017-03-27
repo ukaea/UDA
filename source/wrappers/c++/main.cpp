@@ -20,24 +20,24 @@ int main()
 {
     int test = 1;
 
-    //Idam::Client::setServerHostName("localhost");
-    //Idam::Client::setServerPort(56564);
+    //uda::Client::setServerHostName("localhost");
+    //uda::Client::setServerPort(56564);
 
-    Idam::Client::setServerHostName("idam0");
-    Idam::Client::setServerPort(56561);
+    uda::Client::setServerHostName("idam0");
+    uda::Client::setServerPort(56561);
 
-    Idam::Client client;
+    uda::Client client;
 
     //-----------------------------------------------------------------------------------
     // Basic data access
 
     if (test == 1 || test == 0) {
 
-        const Idam::Result& data = client.get("ip", "13500");
+        const uda::Result& data = client.get("ip", "13500");
 
         // Check for errors
 
-        if (data.errorCode() != Idam::OK) {
+        if (data.errorCode() != uda::OK) {
             std::cout << data.error() << std::endl;
             return data.errorCode();
         }
@@ -50,7 +50,7 @@ int main()
         std::cout << data.units() << std::endl;
         std::cout << data.description() << std::endl;
 
-        const Idam::Dim dim = data.dim(0);
+        const uda::Dim dim = data.dim(0);
 
         std::cout << dim.num() << std::endl;
         std::cout << dim.size() << std::endl;
@@ -71,11 +71,11 @@ int main()
 
     if (test == 2 || test == 0) {
 
-        const Idam::Result& data = client.get("meta::getdata(context=data, device=MAST, /lastshot)", "MAST::");
+        const uda::Result& data = client.get("meta::getdata(context=data, device=MAST, /lastshot)", "MAST::");
 
         // Check for errors
 
-        if (data.errorCode() != Idam::OK) {
+        if (data.errorCode() != uda::OK) {
             std::cout << data.error() << std::endl;
             return data.errorCode();
         }
@@ -89,11 +89,11 @@ int main()
 
         // Cast to a known structure type: check the structure name and version is correct
 
-        Idam::TreeNode root = data.tree();
+        uda::TreeNode root = data.tree();
         root.print(); // Print the Tree Node details
 
         // node containing data with a specific structure type
-        Idam::TreeNode node = root.findStructureDefinition("DATALASTSHOT");
+        uda::TreeNode node = root.findStructureDefinition("DATALASTSHOT");
         node.print(); // Print the Tree Node details
 
         // If the structure definition is known and located, a simple cast is all that is required
@@ -149,7 +149,7 @@ int main()
 
         // Call a high level method for the data
 
-        Idam::Scalar lastshot = root.atomicScalar("lastshot"); // Start from the ROOT node
+        uda::Scalar lastshot = root.atomicScalar("lastshot"); // Start from the ROOT node
 
         printf("\nRC = %d\n\n", lastshot.isNull());
         printf("\ntype = %s\n", lastshot.type().name());
@@ -169,10 +169,10 @@ int main()
 
     if (test == 3 || test == 0) {
 
-        const Idam::Result& data = client.get("meta::listdata(context=data,device=MAST,shot=22812)", "MAST::");
+        const uda::Result& data = client.get("meta::listdata(context=data,device=MAST,shot=22812)", "MAST::");
 
         // Check for errors
-        if (data.errorCode() != Idam::OK) {
+        if (data.errorCode() != uda::OK) {
             std::cout << data.error() << std::endl;
             return data.errorCode();
         }
@@ -183,11 +183,11 @@ int main()
             return 1;
         }
 
-        Idam::TreeNode root = data.tree();
+        uda::TreeNode root = data.tree();
 
         // Find the data node
 
-        Idam::TreeNode node = root.findStructureComponent("data.datalistsignals.signal_name"); // node containing data
+        uda::TreeNode node = root.findStructureComponent("data.datalistsignals.signal_name"); // node containing data
 
         node.print();
 
@@ -205,13 +205,13 @@ int main()
 
         // If the structure definition is known and located, a simple cast is all that is required
 
-        std::vector<Idam::TreeNode> children = node.parent().children();
+        std::vector<uda::TreeNode> children = node.parent().children();
         printf("\nstructure array count = %zu\n\n", children.size());
 
         // print each signal name
         // the returned data is an array of structures - loop over each array member and print the signal name
 
-        for (std::vector<Idam::TreeNode>::iterator iter = children.begin(); iter != children.end(); ++iter) {
+        for (std::vector<uda::TreeNode>::iterator iter = children.begin(); iter != children.end(); ++iter) {
             char * signal_name = reinterpret_cast<char *>(iter->structureComponentData("signal_name"));
             printf("%s\n", signal_name);
         }
@@ -224,10 +224,10 @@ int main()
 
     if (test == 4 || test == 0) {
 
-        const Idam::Result& data = client.get("meta::listdata(context=data,cast=COLUMN,device=MAST,shot=22812)", "MAST::");
+        const uda::Result& data = client.get("meta::listdata(context=data,cast=COLUMN,device=MAST,shot=22812)", "MAST::");
 
         // Check for errors
-        if (data.errorCode() != Idam::OK) {
+        if (data.errorCode() != uda::OK) {
             std::cout << data.error() << std::endl;
             return data.errorCode();
         }
@@ -238,12 +238,12 @@ int main()
             return 1;
         }
 
-        Idam::TreeNode root = data.tree();
+        uda::TreeNode root = data.tree();
 
         // Find the data node
 
         // node containing data with a specific structure type
-        Idam::TreeNode node = root.findStructureComponent("data.signal_name");
+        uda::TreeNode node = root.findStructureComponent("data.signal_name");
 
         node.print();
 
@@ -333,10 +333,10 @@ int main()
             char configuration[20];
         };
 
-        const Idam::Result& data = client.get("meta::getdata(context=meta,device=MAST,cast=column,class=code,system=specview,configuration=default,/latest)", "MAST::22812");
+        const uda::Result& data = client.get("meta::getdata(context=meta,device=MAST,cast=column,class=code,system=specview,configuration=default,/latest)", "MAST::22812");
 
         // Check for errors
-        if (data.errorCode() != Idam::OK) {
+        if (data.errorCode() != uda::OK) {
             std::cout << data.error() << std::endl;
             return data.errorCode();
         }
@@ -347,19 +347,19 @@ int main()
             return 1;
         }
 
-        Idam::TreeNode root = data.tree();
+        uda::TreeNode root = data.tree();
 
         root.printStructureNames();
 
         // node containing data with a specific structure type
-        Idam::TreeNode node = root.findStructureDefinition("SARRAY.root.SIGNALSET");
+        uda::TreeNode node = root.findStructureDefinition("SARRAY.root.SIGNALSET");
 
         // node containing data with a specific structure type
         node = root.findStructureDefinition("SIGNALSET");
 
         node.printUserDefinedTypeTable();
 
-        std::vector<Idam::TreeNode> signals = node.parent().children();
+        std::vector<uda::TreeNode> signals = node.parent().children();
         int signalSetCount = signals.size();
 
         printf("\nSIGNALSET structure array count = %zu\n\n", signals.size());
@@ -387,7 +387,7 @@ int main()
         char * configuration;
 
         int i = 0;
-        for (std::vector<Idam::TreeNode>::iterator iter = signals.begin(); iter != signals.end(); ++iter) {
+        for (std::vector<uda::TreeNode>::iterator iter = signals.begin(); iter != signals.end(); ++iter) {
             name = iter->atomicScalar("name").as<char *>();
             className = iter->atomicScalar("class").as<char *>();
             system = iter->atomicScalar("system").as<char *>();
@@ -429,14 +429,14 @@ int main()
 
     if(test == 6 || test == 0) {
 
-        const Idam::Result& data = client.get("meta::getdata(context=meta,device=MAST,cast=column,class=code,system=specview,configuration=default,/latest)", "MAST::22812");
+        const uda::Result& data = client.get("meta::getdata(context=meta,device=MAST,cast=column,class=code,system=specview,configuration=default,/latest)", "MAST::22812");
 
-        Idam::TreeNode root = data.tree();
+        uda::TreeNode root = data.tree();
 
         // node containing data with a specific structure type
-        Idam::TreeNode node = root.findStructureDefinition("SIGNALSET");
+        uda::TreeNode node = root.findStructureDefinition("SIGNALSET");
 
-        std::vector<Idam::TreeNode> signals = node.parent().children();
+        std::vector<uda::TreeNode> signals = node.parent().children();
         int signalSetCount = signals.size();
 
         struct SIGNALSET {
@@ -481,10 +481,10 @@ int main()
                     "meta::getdata(context=meta,device=MAST,class=%s,system=%s,subsystem=%s,configuration=%s,/latest)",
                     signalSet[i].classname, signalSet[i].system, signalSet[i].subSystem, signalSet[i].configuration);
 
-            const Idam::Result& data2 = client.get(signal, "MAST::22812");
+            const uda::Result& data2 = client.get(signal, "MAST::22812");
 
             // Check for errors
-            if (data2.errorCode() != Idam::OK) {
+            if (data2.errorCode() != uda::OK) {
                 std::cout << data2.error() << std::endl;
                 return data2.errorCode();
             }
@@ -507,7 +507,7 @@ int main()
                 node.printUserDefinedTypeTable("COORDINATE");
             }
 
-            std::vector<Idam::TreeNode> coils = node.parent().children();
+            std::vector<uda::TreeNode> coils = node.parent().children();
             int count = coils.size();
             printf("\nCOIL structure array count = %d\n\n", count);
 
@@ -577,10 +577,10 @@ int main()
             int value;
         };
 
-        const Idam::Result& data = client.get("TESTPLUGIN::test11()", "MAST::");
+        const uda::Result& data = client.get("TESTPLUGIN::test11()", "MAST::");
 
         // Check for errors
-        if (data.errorCode() != Idam::OK) {
+        if (data.errorCode() != uda::OK) {
             std::cout << data.error() << std::endl;
             return data.errorCode();
         }
@@ -591,11 +591,11 @@ int main()
             return 1;
         }
 
-        Idam::TreeNode root = data.tree();
+        uda::TreeNode root = data.tree();
 
         root.printStructureNames();
 
-        Idam::TreeNode node = root.findStructureDefinition("SARRAY.TEST11");
+        uda::TreeNode node = root.findStructureDefinition("SARRAY.TEST11");
 
         node = root.findStructureDefinition("TEST11");
 
@@ -625,7 +625,7 @@ int main()
 
         // Call a high level method for the data
 
-        Idam::Vector vec = node.atomicVector("value");
+        uda::Vector vec = node.atomicVector("value");
 
         std::vector<int> idata  = vec.as<int>();
 
@@ -643,10 +643,10 @@ int main()
             int value[3];
         };
 
-        const Idam::Result& data = client.get("TESTPLUGIN::test12()", "MAST::");
+        const uda::Result& data = client.get("TESTPLUGIN::test12()", "MAST::");
 
         // Check for errors
-        if (data.errorCode() != Idam::OK) {
+        if (data.errorCode() != uda::OK) {
             std::cout << data.error() << std::endl;
             return data.errorCode();
         }
@@ -657,11 +657,11 @@ int main()
             return 1;
         }
 
-        Idam::TreeNode root = data.tree();
+        uda::TreeNode root = data.tree();
 
         root.printStructureNames();
 
-        Idam::TreeNode node = root.findStructureDefinition("SARRAY.TEST12");
+        uda::TreeNode node = root.findStructureDefinition("SARRAY.TEST12");
 
         node = root.findStructureDefinition("TEST12");
 
@@ -690,7 +690,7 @@ int main()
 
         // Call a high level method for the data
 
-        Idam::Vector vec = node.atomicVector("value");
+        uda::Vector vec = node.atomicVector("value");
 
         std::vector<int> idata  = vec.as<int>();
 
@@ -707,10 +707,10 @@ int main()
     if(test == 9 || test == 0) {
 
         // Read the whole IDS file
-        const Idam::Result& data = client.get("/", "NETCDF::/home/dgm/IDAM/test/source/plugins/imas/ids_123_1.hd5");
+        const uda::Result& data = client.get("/", "NETCDF::/home/dgm/IDAM/test/source/plugins/imas/ids_123_1.hd5");
 
         // Check for errors
-        if (data.errorCode() != Idam::OK) {
+        if (data.errorCode() != uda::OK) {
             std::cout << data.error() << std::endl;
             return data.errorCode();
         }
@@ -721,12 +721,12 @@ int main()
             return 1;
         }
 
-        Idam::TreeNode root = data.tree();
+        uda::TreeNode root = data.tree();
 
         root.printStructureNames();
 
         // target a data tree node containing data with a specific structure type
-        Idam::TreeNode node = root.findStructureDefinition("SARRAY.root");
+        uda::TreeNode node = root.findStructureDefinition("SARRAY.root");
 
         // node containing data with a specific structure type
         node = root.findStructureDefinition("root");
@@ -767,11 +767,11 @@ int main()
             float *time;
         };
 
-        const Idam::Result& data = client.get("/magnetics/flux_loop/13/flux",
+        const uda::Result& data = client.get("/magnetics/flux_loop/13/flux",
                 "NETCDF::/home/dgm/IDAM/test/source/plugins/imas/ids_123_1.hd5");
 
         // Check for errors
-        if (data.errorCode() != Idam::OK) {
+        if (data.errorCode() != uda::OK) {
             std::cout << data.error() << std::endl;
             return data.errorCode();
         }
@@ -782,12 +782,12 @@ int main()
             return 1;
         }
 
-        Idam::TreeNode root = data.tree();
+        uda::TreeNode root = data.tree();
 
         root.printStructureNames();
 
         // The first node has no name other tha the generic 'data'
-        Idam::TreeNode node = root.findStructureComponent("data");
+        uda::TreeNode node = root.findStructureComponent("data");
 
         node.printUserDefinedTypeTable();
 
@@ -832,11 +832,11 @@ int main()
             float *zValues;
         };
 
-        const Idam::Result& data = client.get("/magnetics/flux_loop/13/position",
+        const uda::Result& data = client.get("/magnetics/flux_loop/13/position",
                 "NETCDF::/home/dgm/IDAM/test/source/plugins/imas/ids_123_1.hd5");
 
         // Check for errors
-        if (data.errorCode() != Idam::OK) {
+        if (data.errorCode() != uda::OK) {
             std::cout << data.error() << std::endl;
             return data.errorCode();
         }
@@ -847,11 +847,11 @@ int main()
             return 1;
         }
 
-        Idam::TreeNode root = data.tree();
+        uda::TreeNode root = data.tree();
 
         // Locate the data required
 
-        Idam::TreeNode node = root.findStructureComponent("2");
+        uda::TreeNode node = root.findStructureComponent("2");
 
         node.printUserDefinedTypeTable();
 
@@ -889,11 +889,11 @@ int main()
 
     //========================================================================================================
     if (test == 12 || test == 0) {  // return structures of known type
-        const Idam::Result& data = client.get("/input/pfSystem/pfCoilsGeometry",
+        const uda::Result& data = client.get("/input/pfSystem/pfCoilsGeometry",
                 "NETCDF::/home/dgm/IDAM/test/source/plugins/imas/efitOut.nc");
 
         // Check for errors
-        if (data.errorCode() != Idam::OK) {
+        if (data.errorCode() != uda::OK) {
             std::cout << data.error() << std::endl;
             return data.errorCode();
         }
@@ -904,7 +904,7 @@ int main()
             return 1;
         }
 
-        Idam::TreeNode root = data.tree();
+        uda::TreeNode root = data.tree();
 
         // Call a high level method for the data
 

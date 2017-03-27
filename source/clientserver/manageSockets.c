@@ -3,12 +3,15 @@
 // Routines addSocket and getSocket return 0 if successfull otherwise return 1
 //
 //----------------------------------------------------------------------------------
+#include "manageSockets.h"
 
+#ifndef _WIN32
+#  include <unistd.h>
+#endif
 #include <stdlib.h>
 #include <memory.h>
 #include <strings.h>
 
-#include "manageSockets.h"
 #include "stringUtils.h"
 
 // Initialise
@@ -63,4 +66,34 @@ int getSocketRecordId(SOCKETLIST *socks, int fh) {
     int i;
     for(i=0; i<socks->nsocks; i++) if(socks->sockets[i].fh == fh) return(i);
     return -1; 	// Failed - No Socket
+}
+
+void closeClientSocket(SOCKETLIST* socks, int fh)
+{
+    int i;
+    for (i = 0; i < socks->nsocks; i++) {
+        if (socks->sockets[i].fh == fh && socks->sockets[i].fh >= 0) {
+            if (socks->sockets[i].type == TYPE_IDAM_SERVER) {
+#ifndef _WIN32
+                close(fh);                    // Only Genuine Sockets!
+#else
+                closesocket(fh);
+#endif
+            }
+            socks->sockets[i].status = 0;
+            socks->sockets[i].fh = -1;
+            break;
+        }
+    }
+}
+
+void closeClientSockets(SOCKETLIST* socks)
+{
+    int i;
+    for (i = 0; i < socks->nsocks; i++) {
+        closeClientSocket(socks, socks->sockets[i].fh);
+    }
+    free((void*)socks->sockets);
+    initSocketList(socks);
+    return;
 }

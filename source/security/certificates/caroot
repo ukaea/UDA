@@ -1,0 +1,122 @@
+#!/bin/bash
+
+# TODO: change from sha-1 to sha-2
+
+#--------------------------------------------------------------------------
+# Create UKAEA/CCFE Certificate Authority Self Signed X.509 certificate and asymmetric encryption key pair  
+#
+# These are used to sign and validate other X.509 certificates for user authentication over UDA.
+#
+# Inputs: 	1 key length (4096 bits is default)
+#		2 Duration of Certificate (365 days is default)
+#
+# Defaults:	Directory of the CA root certificate and private key ~/.UDA/caroot
+#		Directory of the openssl configuration files ~/.UDA/caroot/openssl.cnf
+#
+# Outputs:	certs/carootX509.pem	self-signed certificate
+#		certs/carootX509.der	self-signed certificate in der format
+#		private/carootskey.pem	CA key pair (secret key)  
+#		certs/carootpkey.pem	CA public key 
+#
+# openssl commands: genrsa, req, x509, rsa 
+# commands with input configuration file: req
+#
+# Change History
+#
+# 14Dec2016 D.G.Muir	Original Version
+#--------------------------------------------------------------------------
+
+LENGTH=${1:-4096}
+DAYS=${2:-365}
+
+# Create a secure CA directory
+
+CADIR=$HOME/.UDA/caroot
+mkdir -p $CADIR/rollback >/dev/null 2>&1
+mkdir $CADIR/certs >/dev/null 2>&1
+mkdir $CADIR/crl $CADIR/newcerts $CADIR/private >/dev/null 2>&1
+mkdir $CADIR/newcerts $CADIR/private >/dev/null 2>&1
+mkdir $CADIR/private >/dev/null 2>&1
+
+touch $CADIR/index.txt		# database
+
+if [ ! -e $CADIR/serial ] ; then
+   echo 1000 > $CADIR/serial	# certificate serial numbers
+fi
+
+cp -p $PWD/openssl.cnf $CADIR/. 
+CONFIG=$CADIR/openssl.cnf
+
+# Create a secure work directory
+
+WORK=$PWD/work 
+rm -f $WORK/* >/dev/null 2>&1
+mkdir -p $WORK >/dev/null 2>&1
+
+# Change permissions to owner read only
+
+chmod -R 700 $CADIR  
+chmod 700 $WORK  
+
+# Copy everything to the rollback directory
+
+rm -rf $CADIR/rollback/* >/dev/null 2>&1
+cp -r $CADIR/* $CADIR/rollback/. >/dev/null 2>&1
+
+#--------------------------------------------------------------------------
+# Create the root CA key pair
+
+openssl genpkey -algorithm RSA -out $CADIR/private/carootskey.pem $LENGTH -batch >/dev/null 2>&1
+
+#openssl genrsa -out $CADIR/private/carootskey.pem $LENGTH -batch ###>/dev/null 2>&1
+
+if [ $? != 0 ]; then   
+   echo "Unable to Generate a new key pair!"
+   exit 1  
+fi   
+
+#--------------------------------------------------------------------------
+# Create the root CA x.509 certificate
+
+openssl req -new -inform PEM -config $CONFIG -key $CADIR/private/carootskey.pem -x509 -out $WORK/req.pem -batch >/dev/null 2>&1
+
+if [ $? != 0 ]; then   
+   echo "Unable to Generate a new x509 certificate request!"
+   exit 1  
+fi
+
+# Convert the certificate request into a self signed certificate
+
+openssl x509 -in $WORK/req.pem -days $DAYS -signkey $CADIR/private/carootskey.pem -out $CADIR/certs/carootX509.pem >/dev/null 2>&1  
+
+if [ $? != 0 ]; then   
+   echo "Unable to Convert the new x509 certificate into a Self-Signed certificate!"
+   exit 1  
+fi
+ 
+# Convert certificate to DER format
+
+openssl x509 -in $CADIR/certs/carootX509.pem -inform PEM -out $CADIR/certs/carootX509.der -outform DER 
+
+if [ $? != 0 ]; then   
+   echo "Unable to Convert Certificate to DER Format!"
+   exit 1  
+fi
+
+# public key
+
+openssl rsa -in $CADIR/private/carootskey.pem -inform PEM -pubout -outform PEM -out $CADIR/certs/carootpkey.pem >/dev/null 2>&1
+
+# Verify: Issuer and Subject should be the same
+
+openssl x509 -noout -text -in $CADIR/certs/carootX509.pem
+
+# Cleanup
+
+rm -f $WORK/*
+
+# Ceritificate Properties
+ 
+#./properties CAROOT
+
+exit

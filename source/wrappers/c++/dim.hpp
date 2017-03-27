@@ -10,7 +10,7 @@
 
 #include "vector.hpp"
 
-namespace Idam {
+namespace uda {
 
 typedef unsigned int dim_type;
 

@@ -73,7 +73,7 @@
 #  include <server/createXDRStream.h>
 #  include <server/serverStartup.h>
 #elif !defined(FATCLIENT)
-#  include <client/createClientXDRStream.h>
+#  include <client/clientXDRStream.h>
 #  include <client/udaClient.h>
 #endif
 

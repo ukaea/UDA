@@ -33,7 +33,7 @@ char source[]
 #include <clientserver/errorLog.h>
 #include <clientserver/stringUtils.h>
 #include <structures/struct.h>
-#include <client/createClientXDRStream.h>
+#include <client/clientXDRStream.h>
 #include <clientserver/xdrlib.h>
 #include <client/udaClient.h>
 

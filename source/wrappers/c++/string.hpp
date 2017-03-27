@@ -11,7 +11,7 @@
 
 #include "data.hpp"
 
-namespace Idam {
+namespace uda {
 
 class String : public Data
 {

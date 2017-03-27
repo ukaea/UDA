@@ -28,7 +28,7 @@
 
 #include <string.h>
 
-#include <include/idamserver.h>
+#include <server/udaServer.h>
 #include <clientserver/initStructs.h>
 #include <clientserver/udaTypes.h>
 #include <clientserver/errorLog.h>
@@ -343,10 +343,6 @@ int plugin_entry(IDAM_PLUGIN_INTERFACE * idam_plugin_interface)
         request_block = idam_plugin_interface->request_block;
         housekeeping = idam_plugin_interface->housekeeping;
 
-        // Don't copy the structure if housekeeping is requested
-        // - may dereference a NULL or freed pointer!
-        if (!housekeeping && idam_plugin_interface->environment != NULL)
-            environment = *idam_plugin_interface->environment;
     } else {
         err = 999;
         IDAM_LOG(LOG_ERROR, "ERROR templatePlugin: Plugin Interface Version Unknown\n");

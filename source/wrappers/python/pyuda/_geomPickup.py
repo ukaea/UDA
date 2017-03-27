@@ -16,6 +16,7 @@ Pickup coils that measure only toroidally are coloured red.
 """
 
 import math
+import numpy as np
 
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
@@ -27,6 +28,7 @@ from ._geometryUtils import cylindrical_cartesian
 
 class GeomPickup():
     def __init__(self):
+        self.pol_type = ""
         pass
 
     def _pickup_poloidal(self, geometry, orientation):
@@ -44,8 +46,9 @@ class GeomPickup():
         geometry.add_attr("length_poloidal", length_poloidal)
 
         # Angle in poloidal plane
-        poloidal_angle = unit_vector_to_poloidal_angle(orientation["unit_vector"].r, orientation["unit_vector"].z)
+        poloidal_angle = unit_vector_to_poloidal_angle(orientation["unit_vector"].r, orientation["unit_vector"].z, convention=self.pol_type)
         orientation.add_attr("poloidal_angle", poloidal_angle)
+        orientation.add_attr("poloidal_convention", self.pol_type)
 
         # Fraction measured in bR, bZ and bPhi directions
         bRFraction, bZFraction, bPhiFraction = vector_to_bR_bZ_bPhi(orientation)
@@ -81,17 +84,22 @@ class GeomPickup():
         :return:
         """
         # Otherwise, perform manipulations
-        poloidal = False
+        calc_poloidal = False
         if "poloidal" in kwargs.keys():
-            poloidal = kwargs["poloidal"]
+            calc_poloidal = kwargs["poloidal"]
+            self.pol_type = kwargs["poloidal"].lower()
 
-        if not poloidal:
+        if not calc_poloidal:
+            return
+        
+        if self.pol_type != "clockwise" and self.pol_type != "anticlockwise":
+            self.pol_type = ""
             return
 
         # loop over nodes and find pickup coil node to manipulate
         self._pickup_loop(data)
 
-    def plot(self, data, ax_2d=None, ax_3d=None):
+    def plot(self, data, ax_2d=None, ax_3d=None, show=True):
         """
         Plot the pickup coils.
         :param data: data tree (instance of StructuredWritable, with pickup coil tree structure)
@@ -107,7 +115,8 @@ class GeomPickup():
         unit_r = []
         unit_z = []
         colours = []
-        self._get_all_coords(data, r_z_to_plot, x_y_z_to_plot, unit_r, unit_z, colours)
+        markers = []
+        self._get_all_coords(data, r_z_to_plot, x_y_z_to_plot, unit_r, unit_z, colours, markers)
 
         if len(r_z_to_plot) == 0 or len(x_y_z_to_plot) == 0:
             return
@@ -122,14 +131,28 @@ class GeomPickup():
 
         # Plot
         if ax_2d is not None:
-            ax_2d.scatter(r_z_to_plot[::2], r_z_to_plot[1::2], c=colours)
+            all_R = r_z_to_plot[::2]
+            all_Z = r_z_to_plot[1::2]
+
+            marker_size = np.zeros(len(colours)) + 60
+
+            markers_unique = set(markers)
+
+            for marker in markers_unique:
+                r_here = [all_R[i] for i in range(len(all_R)) if markers[i] == marker]
+                z_here = [all_Z[i] for i in range(len(all_Z)) if markers[i] == marker]
+                c_here = [colours[i] for i in range(len(colours)) if markers[i] == marker]
+                s_here = [marker_size[i] for i in range(len(marker_size)) if markers[i] == marker]
+
+                ax_2d.scatter(r_here, z_here, c=c_here, marker=marker, s=s_here)
+
             ax_2d.set_xlabel('R [m]')
             ax_2d.set_ylabel('Z [m]')
 
             if len(unit_r) == len(r_z_to_plot[::2]):
                 for ur, uz, r, z in zip(unit_r, unit_z, r_z_to_plot[::2], r_z_to_plot[1::2]):
                     if abs(ur) > 1e-6 or abs(uz) > 1e-6:
-                        ax_2d.arrow(r, z, ur*0.1, uz*0.1, fc="k", ec="k", head_width=0.05, head_length=0.05)
+                        ax_2d.arrow(r, z, ur*0.05, uz*0.05, fc="k", ec="k", head_width=0.01, head_length=0.01)
 
         if ax_3d is not None:
             ax_3d.scatter(x_y_z_to_plot[::3], x_y_z_to_plot[1::3], x_y_z_to_plot[2::3], c=colours)
@@ -137,9 +160,10 @@ class GeomPickup():
             ax_3d.set_ylabel('y [m]')
             ax_3d.set_zlabel('z [m]')
 
-        plt.show()
+        if show:
+            plt.show()
 
-    def _get_all_coords(self, data, r_z_coord, x_y_z_coord, unit_r, unit_z, colours):
+    def _get_all_coords(self, data, r_z_coord, x_y_z_coord, unit_r, unit_z, colours, markers):
         """
         Recursively loop over tree, and retrieve pickup coil co-ordinates.
         :param data: data tree (instance of StructuredWritable, with pickup coil tree structure)
@@ -157,18 +181,43 @@ class GeomPickup():
 
             x_y_z_coord.extend(cylindrical_cartesian(data["coordinate"]))
 
-            if data["orientation"].measurement_direction == "TOROIDAL":
+            direction = data["orientation"].measurement_direction.replace(" ", "")
+
+            if direction == "TOROIDAL":
                 colours.append("red")
-            else:
+            elif direction == "POLOIDAL":
                 colours.append("blue")
+            elif direction == "PARALLEL":
+                colours.append("green")
+            else:
+                colours.append("magenta")
+
+            length = data["geometry"].length
+        
+            # These shouldn't really be hard-coded
+            if np.isclose(length, 0.021, rtol=0.0, atol=0.0009):
+                markers.append("o")
+            elif np.isclose(length, 0.026, rtol=0.0, atol=0.0009):
+                markers.append("v")
+            elif np.isclose(length, 0.002, rtol=0.0, atol=0.0009):
+                markers.append("s")
+            else:
+                markers.append("x")
 
             child_names_orientation = [child.name for child in data["orientation"].children]
 
             try:
                 pol_angle = data["orientation"].poloidal_angle
-                if "POLOIDAL" in data["orientation"].measurement_direction:
-                    unit_r = unit_r.append(math.cos(math.pi * (360 - pol_angle) / 180.0))
-                    unit_z = unit_z.append(math.sin(math.pi * (360 - pol_angle) / 180.0))
+
+                if data["orientation"].poloidal_convention == "clockwise":
+                    pol_angle = 360 - pol_angle
+
+                direction = data["orientation"].measurement_direction
+                if ("POLOIDAL" in direction
+                    or "NORMAL" in direction 
+                    or "PARALLEL" in direction):
+                    unit_r = unit_r.append(math.cos(math.pi * pol_angle / 180.0))
+                    unit_z = unit_z.append(math.sin(math.pi * pol_angle / 180.0))
                 else:
                     unit_r = unit_r.append(0.0)
                     unit_z = unit_z.append(0.0)
@@ -178,5 +227,5 @@ class GeomPickup():
                     unit_z = unit_z.append(data["orientation/unit_vector"].z)
         else:
             for child in data.children:
-                self._get_all_coords(child, r_z_coord, x_y_z_coord, unit_r, unit_z, colours)
+                self._get_all_coords(child, r_z_coord, x_y_z_coord, unit_r, unit_z, colours, markers)
 

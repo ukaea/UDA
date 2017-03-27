@@ -95,7 +95,7 @@ class Client(metaclass = ClientMeta):
 
             return filenames, geom_alias, signal_alias, var_name
 
-        except c_uda.IdamException:
+        except c_uda.UDAException:
             return None, None, None, None
 
     def _find_matching_group(self, signal_aliases):
@@ -151,7 +151,7 @@ class Client(metaclass = ClientMeta):
         try:
             self.logger.info("Call is {}".format(sig_call))
             sig_struct = StructuredWritable(self._cclient.get(str(sig_call), str(source_call)).tree())
-        except c_uda.IdamException:
+        except c_uda.UDAException:
             self.logger.error("Could not retrieve signal geometry data for signal {} and source {}".format(signal,
                                                                                                            source))
             return
@@ -189,10 +189,30 @@ class Client(metaclass = ClientMeta):
         :return:
         """
 
+        # Get rid of trailing slash...
+        if signal[-1] == '/':
+            signal = signal[:-1]
+
         # Retrieve signal names and modules to be used for
         # manipulating the data
+        filenames_call = "GEOM::getConfigFilenames(signal={})".format(signal.lower())
+
+        self.logger.debug("Call to retrieve filenames is {}".format(filenames_call))
+
+        multiple_names = self.get(filenames_call, source)
+
         signal_map = GeometryFiles()
-        signal_names, manip = signal_map.get_signals(signal.lower())
+        signal_groups = multiple_names["data"].geomgroups
+        signal_groups = list(set(signal_groups))        
+
+        manip = signal_map.get_signals(signal_groups)
+
+        self.logger.debug("Signal groups: {}".format(signal_groups))
+
+        if len(signal_groups) > 1:
+            signal_names = signal_groups
+        else:
+            signal_names = [signal.lower()]
 
         if signal_names is None:
             return
@@ -217,20 +237,25 @@ class Client(metaclass = ClientMeta):
         version_config = ""
         version_cal = ""
         if "version_config" in kwargs.keys():
-            version_config = "version_config={0}".format(kwargs["version_config"])
+            version_config = "version={0}".format(kwargs["version_config"])
         if "version_cal" in kwargs.keys():
-            version_cal = "version_cal={0}".format(kwargs["version_cal"])
+            version_cal = "version={0}".format(kwargs["version_cal"])
 
         # Loop files to be read in
         for signal_name in signal_names:
+            if signal_name[-1] == '/':
+                signal_name = signal_name[:-1]
+
+            self.logger.debug("Retrieve geom data for {}".format(signal_name))
+
             # Get configuration data
             config_extra = "Config=1"
             config_call = geom_call.format(signal_name, config_extra, version_config)
 
             self.logger.info("Call is {0}\n".format(config_call))
-            try:
+            try:                
                 config_struct = StructuredWritable((self._cclient.get(str(config_call), str(source_call))).tree())
-            except c_uda.IdamException:
+            except c_uda.UDAException:
                 self.logger.error("ERROR: Could not retrieve geometry data for signal {0} and source {1}".format(signal,
                                                                                                          source))
                 return
@@ -238,11 +263,11 @@ class Client(metaclass = ClientMeta):
             # Get calibration data
             cal_extra = "cal=1"
             cal_call = geom_call.format(signal_name, cal_extra, version_cal)
-            self.logger.info("Call is {0}\n".format(cal_call))
+            self.logger.debug("Call is {0}\n".format(cal_call))
             try:
                 cal_struct = StructuredWritable((self._cclient.get(str(cal_call), str(source_call))).tree())
                 self.logger.debug("Calibration data was found")
-            except c_uda.IdamException:
+            except c_uda.UDAException:
                 cal_struct = None
                 self.logger.debug("No calibration data was found")
 
@@ -257,7 +282,6 @@ class Client(metaclass = ClientMeta):
                     geom_aliases.extend(g_aliases)
                     signal_aliases.extend(s_aliases)
                     signal_var_names.extend(s_var_names)
-
 
         # Calibrate geometry data
         geom_data = GeometryData(results, signal_names, manip, **kwargs)
@@ -284,7 +308,7 @@ class Client(metaclass = ClientMeta):
                     else:
                         signal_data._add_struct(StructuredWritable((self._cclient.get(global_signal_group,
                                                                                       signal_file)).tree()))
-                except c_uda.IdamException:
+                except c_uda.UDAException:
                     self.logger.warning("Something went wrong retrieving signal data")
                     continue
 

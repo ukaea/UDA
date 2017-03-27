@@ -3,7 +3,9 @@
 
 #include <clientserver/udaStructs.h>
 
-int serverAuthentication(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block, unsigned short authenticationStep);
+#include "security.h"
+
+int serverAuthentication(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block, AUTHENTICATION_STEP authenticationStep);
 
 #endif // UDA_SECURITY_SERVERAUTHENTICATION_H
 

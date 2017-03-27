@@ -197,7 +197,7 @@ int do_attribute(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     } else {
         // String
 
-        char* text = putdata.data;
+        const char* text = putdata.data;
 
         if (text != NULL) {
             IDAM_LOGF(LOG_DEBUG, "Text Attribute to be added: %s", text);
