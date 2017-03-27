@@ -34,6 +34,8 @@ include( modules )
 include_directories( SYSTEM ${Boost_INCLUDE_DIR} )
 include_directories( ${CMAKE_CURRENT_BINARY_DIR} )
 
+add_definitions( -D__USE_XOPEN2K8 )
+
 foreach( TEST ${TESTS} )
   add_executable( ${TEST} ${TEST}.cpp )
   target_link_libraries( ${TEST} PRIVATE
