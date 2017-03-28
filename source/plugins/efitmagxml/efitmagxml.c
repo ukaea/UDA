@@ -398,10 +398,9 @@ ToDo:
             } else if (isPosition) {
                 double* data = (double*)malloc(sizeof(double));
                 *data = 0.0;
-                int rc;
                 if (isFluxLoop) {
                     float* r = NULL, * z = NULL, * phi = NULL, aerr, rerr;
-                    rc = getfluxloop(&efit, objectId, &r, &z, &phi, &aerr, &rerr);
+                    getfluxloop(&efit, objectId, &r, &z, &phi, &aerr, &rerr);
                     if (isR) {
                         *data = (double)r[index];
                     } else if (isZ) {
@@ -411,7 +410,7 @@ ToDo:
                     }
                 } else if (isMagProbe) {
                     float r, z, phi, aerr, rerr;
-                    rc = getmagprobe(&efit, objectId, &r, &z, &phi, &aerr, &rerr);
+                    getmagprobe(&efit, objectId, &r, &z, &phi, &aerr, &rerr);
                     if (isR) {
                         *data = (double)r;
                     } else if (isZ) {
@@ -431,8 +430,8 @@ ToDo:
                     double* data = (double*)malloc(sizeof(double));
                     *data = 0.0;
                     float* r = NULL, * z = NULL, * width = NULL, * height = NULL, aerr, rerr;
-                    int rc, turns;
-                    rc = getpfcoil(&efit, objectId, &turns, &r, &z, &width, &height, &aerr, &rerr);
+                    int turns;
+                    getpfcoil(&efit, objectId, &turns, &r, &z, &width, &height, &aerr, &rerr);
                     if (isR) {
                         *data = (double)r[index];
                     } else if (isZ) {
@@ -452,8 +451,8 @@ ToDo:
                     int count = getnpfcoilcoords(&efit, objectId);
                     double* data = (double*)malloc(count * sizeof(double));
                     float* r = NULL, * z = NULL, * width = NULL, * height = NULL, aerr, rerr;
-                    int rc, turns;
-                    rc = getpfcoil(&efit, objectId, &turns, &r, &z, &width, &height, &aerr, &rerr);
+                    int turns;
+                    getpfcoil(&efit, objectId, &turns, &r, &z, &width, &height, &aerr, &rerr);
                     if (isR) {
                         for (i = 0; i < count; i++) data[i] = (double)r[i];
                     } else if (isZ) {
