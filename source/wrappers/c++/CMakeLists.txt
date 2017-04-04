@@ -64,6 +64,7 @@ if( NOT CLIENT_ONLY )
 endif()
 
 set( INSTALL_FILES
+  UDA.hpp
   array.hpp
   client.hpp
   data.hpp

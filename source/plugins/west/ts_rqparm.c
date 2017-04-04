@@ -166,7 +166,7 @@ int readStaticParameters(char** pt_char, int* nb_val, int num_choc, char* nom_pr
 int readSignal(char* nomsigp, int numchoc, int occ,
                int rang[], float** X, float** Y, int* len)
 {
-    IDAM_LOG(LOG_DEBUG, "Reading signal : %s\n", nomsigp);
+    IDAM_LOGF(LOG_DEBUG, "Reading signal : %s\n", nomsigp);
 
     cr = lit_traite(nomsigp, numchoc, occ, rang, (float**)X, (float**)Y, (int*)len);
     int i;

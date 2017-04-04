@@ -17,6 +17,8 @@ elseif( NOT LIBTS_FOUND )
   return()
 endif()
 
+add_definitions( -Wno-error )
+
 include( plugins )
 
 uda_plugin(
