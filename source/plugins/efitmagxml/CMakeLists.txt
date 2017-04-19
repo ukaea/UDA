@@ -9,6 +9,8 @@ endif()
 
 include( plugins )
 
+add_definitions( -Wno-error )
+
 uda_plugin(
   NAME EFITMAGXML
   ENTRY_FUNC efitmagxml

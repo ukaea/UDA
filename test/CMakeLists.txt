@@ -34,6 +34,8 @@ include( modules )
 include_directories( SYSTEM ${Boost_INCLUDE_DIR} )
 include_directories( ${CMAKE_CURRENT_BINARY_DIR} )
 
+add_definitions( -D__USE_XOPEN2K8 )
+
 foreach( TEST ${TESTS} )
   add_executable( ${TEST} ${TEST}.cpp )
   target_link_libraries( ${TEST} PRIVATE
@@ -42,7 +44,11 @@ foreach( TEST ${TESTS} )
     fatclient-shared
     ${OPENSSL_LIBRARIES}
     ${LIBXML2_LIBRARIES}
-    ${CACHE_LIBRARIES} )
+    ${CACHE_LIBRARIES}
+    c
+    m
+    dl
+  )
   target_compile_definitions( ${TEST} PRIVATE -DFATCLIENT )
   link_modules( ${TEST} )
   add_test( ${TEST} ${TEST} )

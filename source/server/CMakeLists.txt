@@ -89,7 +89,7 @@ target_link_libraries( server-shared LINK_PRIVATE
   ${LIBXML2_LIBRARIES}
   ${PostgreSQL_LIBRARY}
   ${CACHE_LIBRARIES}
-  )
+)
 
 link_modules( server-shared )
 
@@ -99,21 +99,22 @@ target_link_libraries( server-static LINK_PRIVATE
   ${LIBXML2_LIBRARIES}
   ${PostgreSQL_LIBRARY}
   ${CACHE_LIBRARIES}
-  )
+)
 
 link_modules( server-static )
 
 # Executable
 target_link_libraries( server-exe LINK_PRIVATE
+  client-shared
+  server-shared
+  ${OPENSSL_LIBRARIES}
   ${LIBXML2_LIBRARIES}
   ${PostgreSQL_LIBRARY}
+  ${CACHE_LIBRARIES}
   c
   m
   dl
-  server-shared
-  client-shared
-  ${OPENSSL_LIBRARIES}
-  )
+)
 
 link_modules( server-exe )
 
