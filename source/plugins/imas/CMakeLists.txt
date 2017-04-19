@@ -51,6 +51,6 @@ uda_plugin(
     ${MDSPLUS_LIBRARIES}
     ${HDF5_LIBRARIES}
     ${HDF5_HL_LIBRARIES}
-    ${IDC_LIB_NAME}
+    client-static
     pthread
 )
