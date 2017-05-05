@@ -27,12 +27,14 @@ configure_file(
   @ONLY
 )
 
-set( TESTS test_help test_hdf5 test_putcpp test_putdata test_imas )
+set( TESTS test_putcpp )
 
 include( modules )
 
 include_directories( SYSTEM ${Boost_INCLUDE_DIR} )
-include_directories( ${CMAKE_CURRENT_BINARY_DIR} )
+include_directories( ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_LIST_DIR} )
+
+add_subdirectory( plugins )
 
 add_definitions( -D__USE_XOPEN2K8 )
 

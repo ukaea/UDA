@@ -14,10 +14,10 @@ endif()
 include( plugins )
 
 uda_plugin(
-  NAME MONGODBPLUGIN
+  NAME MONGO
   ENTRY_FUNC query
   DESCRIPTION "Query the MongoDB database"
-  EXAMPLE "MONGODBPLUGIN::query()"
+  EXAMPLE "MONGO::query()"
   LIBNAME mongodb_plugin
   SOURCES mongodbplugin.c
   EXTRA_INCLUDE_DIRS

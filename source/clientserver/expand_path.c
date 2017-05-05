@@ -63,18 +63,17 @@ char* hostid(char* host)
     return host;
 #endif
 
-    int rc;
     host[0] = '\0';
 
 #ifndef USEHOSTDOMAINNAME
-    if ((rc = gethostname(host, STRING_LENGTH - 1)) != 0) {
+    if ((gethostname(host, STRING_LENGTH - 1)) != 0) {
         char* env = getenv("HOSTNAME");
         if (env != NULL) copyString(env, host, STRING_LENGTH);
     }
 #else
-    if((rc = gethostname(host, STRING_LENGTH-1)) == 0) {
+    if((gethostname(host, STRING_LENGTH-1)) == 0) {
         char domain[STRING_LENGTH];
-        if((rc = getdomainname(domain, STRING_LENGTH-1)) == 0) {
+        if((getdomainname(domain, STRING_LENGTH-1)) == 0) {
             int l1 = (int)strlen(host);
             int l2 = (int)strlen(domain);
             if(l1+l2+1 < STRING_LENGTH-1) {
@@ -106,7 +105,9 @@ void freeTokenList(char*** tokenListArray, int* tokenCount)
     int i;
     char** list = *tokenListArray;
     if (*tokenCount == 0 || *tokenListArray == NULL) return;
-    for (i = 0; i < *tokenCount; i++) free((void*) list[i]);
+    for (i = 0; i < *tokenCount; i++) {
+        free((void*) list[i]);
+    }
     free((void*) list);
     *tokenListArray = NULL;        // Reset to avoid double free.
     *tokenCount = 0;
@@ -186,8 +187,8 @@ If there are more wildcards in the substitute string than in the target string, 
 @returns An integer Error Code: If non zero, a problem occured.
 */
 
-#define MAXPATHSUBS        10
-#define MAXPATHSUBSLENGTH    256
+#define MAXPATHSUBS         10
+#define MAXPATHSUBSLENGTH   256
 
 int pathReplacement(char* path, const ENVIRONMENT* environment)
 {
@@ -449,20 +450,20 @@ int linkReplacement(char *path) { // Links are resolved client side only
 //------------------------------------------------------------------------------------------------------------------
 /*! Fully expand file directory paths to remove relative path or environment variable components.
 
- Examples:	filename			use getpwd
-		./filename			use cd; $PWD
-		../../filename			use cd; $PWD
-		/abc/filename			do nothing - fully resolved
-		~user/abc/filename		use cd; $PWD
-		/scratch/abc/filename		use hostname
-		/tmp/abc/def/filename		use hostname
+ Examples:	filename			        use getpwd
+		./filename			            use cd; $PWD
+		../../filename			        use cd; $PWD
+		/abc/filename			        do nothing - fully resolved
+		~user/abc/filename		        use cd; $PWD
+		/scratch/abc/filename		    use hostname
+		/tmp/abc/def/filename		    use hostname
 		/fuslwx/scratch/abc/filename	do nothing - fully resolved
-		/fuslwx/tmp/abc/filename	do nothing - fully resolved
-		/fuslwx/abc/filename		do nothing - fully resolved
-		/99999  			do nothing - Resolved by the Server Data Plugin
-		/99999/999 			do nothing - Resolved by the Server Data Plugin
-		$ENVAR/abc/filename		expand with the specified environment variable
-		$ENVAR/abc/$ENVAR/filename	expand with the specified environment variable
+		/fuslwx/tmp/abc/filename	    do nothing - fully resolved
+		/fuslwx/abc/filename		    do nothing - fully resolved
+		/99999  			            do nothing - Resolved by the Server Data Plugin
+		/99999/999 			            do nothing - Resolved by the Server Data Plugin
+		$ENVAR/abc/filename		        expand with the specified environment variable
+		$ENVAR/abc/$ENVAR/filename	    expand with the specified environment variable
 
 @param path The file path to be resolved and expanded.
 @returns An integer Error Code: If non zero, a problem occured.
