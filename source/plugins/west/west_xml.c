@@ -14,7 +14,7 @@
 
 static void printNum(const char* label, int i);
 static void RemoveSpaces(char* source);
-static void getValueCollect(char* command, char** value);
+static void getValueCollect(char* command, char** value, int* nodeIndices);
 static void multiplyFloat(float* p, float factor, int val_nb);
 static void multiplyInt(int* p, float factor, int val_nb);
 
@@ -49,6 +49,8 @@ static void execute_setchannels_validity(int* unvalid_channels_list, int unvalid
 static void getShapeOf(const char* command, int shotNumber, int* nb_val);
 
 static int  getNumIDAMIndex(char* attributes, int* nodeIndices);
+static int  getNumIDAMIndex2(char* s, int* nodeIndices);
+
 static void getReturnType(char* attributes, int* dataType);
 static void searchIndices(int requestedIndex, int* l, int* searchedArray, int* searchedArrayIndex);
 static void addExtractionChars(char* result, char* signalName, int extractionIndex);
@@ -238,10 +240,8 @@ int execute(const char* mapfun, int shotNumber, DATA_BLOCK* data_block, int* nod
 		IDAM_LOG(LOG_DEBUG, "Case of set_value_collect from WEST plugin\n");
 		IDAM_LOG(LOG_DEBUG, "Calling tokenizeFunParameters() from WEST plugin\n");
 		tokenizeFunParameters(mapfun, &TOP_collections_parameters, &attributes, &normalizationAttributes);
-		IDAM_LOGF(LOG_DEBUG, "Status : %s\n", "TESTING1 ");
 		execute_setvalue_collect(TOP_collections_parameters, attributes, shotNumber, data_block, nodeIndices,
 				normalizationAttributes);
-		IDAM_LOGF(LOG_DEBUG, "Status : %s\n", "TESTING10 ");
 		break;
 	}
 
@@ -299,25 +299,17 @@ void execute_setvalue_collect(const char* TOP_collections_parameters, char* attr
 	int collectionsCount;
 	getTopCollectionsCount(TOP_collections_parameters, &collectionsCount);
 
-	IDAM_LOGF(LOG_DEBUG, "Status : %s\n", "TESTING2 ");
-
 	int* l;
 	l = (int*)calloc(collectionsCount, sizeof(int));
-
-	IDAM_LOGF(LOG_DEBUG, "Status : %s\n", "TESTING21 ");
 
 	int i;
 	for (i = 0; i < collectionsCount; i++) {
 		char* command = NULL;
 		getCommand(i, &command, TOP_collections_parameters);
 		int nb_val = 0;
-		IDAM_LOGF(LOG_DEBUG, "Status : %s\n", "TESTING22 ");
 		getShapeOf(command, shotNumber, &nb_val);
-		IDAM_LOGF(LOG_DEBUG, "Status : %s\n", "TESTING23 ");
 		l[i] = nb_val;
 	}
-
-	IDAM_LOGF(LOG_DEBUG, "Status : %s\n", "TESTING3 ");
 
 	int requestedIndex = getNumIDAMIndex(attributes, nodeIndices);
 
@@ -332,7 +324,7 @@ void execute_setvalue_collect(const char* TOP_collections_parameters, char* attr
 	getCommand(searchedArray, &command, TOP_collections_parameters);
 
 	char* value;
-	getValueCollect(command, &value);
+	getValueCollect(command, &value, nodeIndices);
 	IDAM_LOGF(LOG_DEBUG, "Command : %s\n", command);
 
 	int data_type;
@@ -638,6 +630,15 @@ int GetDynamicData(int shotNumber, const char* mapfun, DATA_BLOCK* data_block, i
 	int rang[2] = { 0, 0 };
 	status = readSignal(objectName, shotNumber, 0, rang, &time, &data, &len);
 
+	//float f1 = data[0];
+	IDAM_LOGF(LOG_DEBUG, "%s\n", "First values...");
+	int j;
+	for (j=0; j <10; j++) {
+		IDAM_LOGF(LOG_DEBUG, "value : %f\n", data[j]);
+	}
+
+	//IDAM_LOGF(LOG_DEBUG, "First value 1: %f\n", data(1));
+
 	IDAM_LOG(LOG_DEBUG, "End of reading signal\n");
 
 	/*if (status != 0) {
@@ -645,7 +646,7 @@ int GetDynamicData(int shotNumber, const char* mapfun, DATA_BLOCK* data_block, i
             addIdamError(&idamerrorstack, CODEERRORTYPE, "Unable to read dynamic data from WEST !", err, "");
         }*/
 
-	IDAM_LOG(LOG_DEBUG, "After error handling\n");
+	//IDAM_LOG(LOG_DEBUG, "After error handling\n");
 
 	IDAM_LOG(LOG_DEBUG, "Getting normalization factor, if any\n");
 	float normalizationFactor = 1;
@@ -1081,7 +1082,7 @@ int getNumIDAMIndex(char *attributes, int* nodeIndices) {
 	char* charIDAMIndex = NULL;
 	strtok(s_copy, delim); //rank
 	strtok(NULL, delim); //type
-	charIDAMIndex = strdup(strtok(NULL, delim));
+	charIDAMIndex = strdup(strtok(NULL, delim)); //#0
 	char firstChar;
 	firstChar = charIDAMIndex[0];
 
@@ -1095,7 +1096,21 @@ int getNumIDAMIndex(char *attributes, int* nodeIndices) {
 	}
 	free(s_copy);
 	free(charIDAMIndex);
+}
 
+int getNumIDAMIndex2(char *s, int* nodeIndices) {
+
+	char firstChar;
+	firstChar = s[0];
+
+	if (firstChar == '#') {
+		IDAM_LOG(LOG_DEBUG, "index specified in IDAM request\n");
+		return nodeIndices[atoi(&s[1])] - 1;
+	}
+	else {
+		IDAM_LOG(LOG_DEBUG, "no index specified\n");
+		return -1;
+	}
 }
 
 void getReturnType(char* attributes, int* dataType)
@@ -1117,7 +1132,7 @@ void getRank(char* attributes, int* rank)
 	free(rankStr);
 }
 
-void getValueCollect(char* command, char** value)
+void getValueCollect(char* command, char** value, int* nodeIndices)
 {
 	char* s_copy = strdup(command);
 	const char delim[] = ":";
@@ -1125,6 +1140,14 @@ void getValueCollect(char* command, char** value)
 	strtok(NULL, delim); //object name
 	strtok(NULL, delim); //param name
 	*value = strdup(strtok(NULL, delim)); //value for the setvalue_collect function
+	char* token = strtok(NULL, delim);
+	if (token != NULL) {
+		int UDAIndex = getNumIDAMIndex2(token, nodeIndices);
+		char str[2];
+		sprintf(str, "%s", "_");
+		sprintf(str, "%d", UDAIndex);
+		*value = strcat(*value, str);
+	}
 	free(s_copy);
 }
 

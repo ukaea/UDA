@@ -42,13 +42,25 @@
 
 <mapping key="interfero_polarimeter/channel/Shape_of" value="shape_of_tsmat_collect;DINTRPOL:GINTLIDRT:CALIB;0:float:#0" type="static"/>
 
-<!-- mapping key="interfero_polarimeter/channel/#/n_e_line/data" value="tsbase_collect;DINTRPOL:GINTLIDRT;1:float:#0;multiply:cste:1e19" type="dynamic"/ -->
-<!-- mapping key="interfero_polarimeter/channel/#/n_e_line/time" value="tsbase_time_;DINTRPOL:GINTLIDRT;1:float:#0" type="dynamic"/ -->
-
-<mapping key="interfero_polarimeter/channel/#/n_e_line/data" value="tsbase_collect_with_channels;unvalid_channels:2:1,2;DINTRPOL:GINTLIDRT;1:float:#0;multiply:cste:1e19" type="dynamic"/>:
+<mapping key="interfero_polarimeter/channel/#/n_e_line/data" value="tsbase_collect_with_channels;unvalid_channels:2:1,2;DINTRPOL:GINTLIDRT;1:float:#0;multiply:cste:1e19" type="dynamic"/>
 <mapping key="interfero_polarimeter/channel/#/n_e_line/time" value="tsbase_time_with_channels;unvalid_channels:2:1,2;DINTRPOL:GINTLIDRT;1:float:#0" type="dynamic"/>
-
 <mapping key="interfero_polarimeter/channel/#/validity" value="set_channels_validity;unvalid_channels:2:1,2;0:int:#0" type="static"/>
+
+<mapping key="interfero_polarimeter/channel/#/name" value="set_value_collect;DINTRPOL:LIDRT:CHANNEL:Channel:#0;0:string:#0" type="static"/>
+<mapping key="interfero_polarimeter/channel/#/identifier" value="set_value_collect;DINTRPOL:LIDRT:CHANNEL:Id:#0;0:string:#0" type="static"/>
+
+<mapping key="interfero_polarimeter/channel/#/line_of_sight/first_point/r" value="tsmat_collect;DINTRPOL:LIDRT:RPOS1;0:float:#0" type="static"/>
+<mapping key="interfero_polarimeter/channel/#/line_of_sight/first_point/z" value="tsmat_collect;DINTRPOL:LIDRT:ZPOS1;0:float:#0" type="static"/>
+<mapping key="interfero_polarimeter/channel/#/line_of_sight/first_point/phi" value="tsmat_collect;DINTRPOL:LIDRT:TPOS1;0:float:#0" type="static"/>
+
+<mapping key="interfero_polarimeter/channel/#/line_of_sight/second_point/r" value="tsmat_collect;DINTRPOL:LIDRT:RPOS2;0:float:#0" type="static"/>
+<mapping key="interfero_polarimeter/channel/#/line_of_sight/second_point/z" value="tsmat_collect;DINTRPOL:LIDRT:ZPOS2;0:float:#0" type="static"/>
+<mapping key="interfero_polarimeter/channel/#/line_of_sight/second_point/phi" value="tsmat_collect;DINTRPOL:LIDRT:TPOS2;0:float:#0" type="static"/>
+
+<mapping key="interfero_polarimeter/channel/#/line_of_sight/third_point/r" value="tsmat_collect;DINTRPOL:LIDRT:RPOS1;0:float:#0" type="static"/>
+<mapping key="interfero_polarimeter/channel/#/line_of_sight/third_point/z" value="tsmat_collect;DINTRPOL:LIDRT:ZPOS1;0:float:#0" type="static"/>
+<mapping key="interfero_polarimeter/channel/#/line_of_sight/third_point/phi" value="tsmat_collect;DINTRPOL:LIDRT:TPOS1;0:float:#0" type="static"/>
+
 
 <mapping key="interfero_polarimeter/channel/#/faraday_angle/data" value="tsbase_collect;DINTRPOL:GINTFARART;1:float:#0" type="dynamic"/>
 <mapping key="interfero_polarimeter/channel/#/faraday_angle/time" value="tsbase_time;DINTRPOL:GINTFARART;1:float:#0" type="dynamic"/>
