@@ -25,3 +25,4 @@ prepend-path        PYTHONPATH          $UDA_DIR/include
 prepend-path        LD_LIBRARY_PATH     $UDA_DIR/lib:$UDA_DIR/include/pyidam
 prepend-path        IDL_DLM_PATH        $UDA_DIR/dlm
 prepend-path        IDL_PATH            $UDA_DIR/idl
+prepend-path        PKG_CONFIG_PATH     $UDA_DIR/etc
