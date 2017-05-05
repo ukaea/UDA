@@ -2144,15 +2144,15 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             if (exp_number > 0) {
                 if (pass > -1) {
                     sprintf(sql,
-                            "SELECT signal_alias, generic_name, source_alias, type, description FROM Signal_Desc as D, "
-                                    "(SELECT DISTINCT signal_desc_id from Signal as A, (SELECT source_id FROM Data_Source WHERE "
+                            "SELECT signal_alias, generic_name, source_alias, type, description, signal_status FROM Signal_Desc as D, "
+                                    "(SELECT DISTINCT signal_desc_id, signal_status from Signal as A, (SELECT source_id FROM Data_Source WHERE "
                                     "exp_number = %d AND pass = %d %s) as B WHERE A.source_id = B.source_id) as C WHERE "
                                     "D.signal_desc_id = C.signal_desc_id ORDER BY signal_alias ASC", exp_number, pass,
                             work);
                 } else {
                     sprintf(sql,
-                            "SELECT signal_alias, generic_name, source_alias, type, description FROM Signal_Desc as D, "
-                                    "(SELECT DISTINCT signal_desc_id from Signal as A, (SELECT source_id FROM Data_Source WHERE "
+                            "SELECT signal_alias, generic_name, source_alias, type, description, signal_status FROM Signal_Desc as D, "
+                                    "(SELECT DISTINCT signal_desc_id, signal_status from Signal as A, (SELECT source_id FROM Data_Source WHERE "
                                     "exp_number = %d %s) as B WHERE A.source_id = B.source_id) as C WHERE "
                                     "D.signal_desc_id = C.signal_desc_id ORDER BY signal_alias ASC", exp_number, work);
                 }
@@ -2237,6 +2237,9 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             addCompoundField(&usertype, field);
             defineField(&field, "description", "data description", &offset, stringTypeId);
             field.atomictype = TYPE_STRING;
+            addCompoundField(&usertype, field);
+            defineField(&field, "signal_status", "signal status", &offset, intTypeId);
+            field.atomictype = TYPE_INT;
             addCompoundField(&usertype, field);
 
             addUserDefinedType(userdefinedtypelist, usertype);
@@ -2338,6 +2341,12 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                     strcpy(data[i].description, PQgetvalue(DBQuery, i, 4));
                     addMalloc((void*) data[i].description, 1, stringLength * sizeof(char), "char");
 
+		    if (exp_number > 0) {
+		      data[i].signal_status = (int) atoi(PQgetvalue(DBQuery, i, 5));
+		    } else {
+		      data[i].signal_status = 1;
+		    }
+
                     IDAM_LOGF(LOG_DEBUG, "signal_name : %s\n", data[i].signal_name);
                     IDAM_LOGF(LOG_DEBUG, "generic_name: %s\n", data[i].generic_name);
                     IDAM_LOGF(LOG_DEBUG, "source_alias: %s\n", data[i].source_alias);
@@ -2364,6 +2373,8 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 addMalloc((void*) data->type, nrows, sizeof(char*), "STRING *");
                 data->description = (char**) malloc(nrows * sizeof(char*));
                 addMalloc((void*) data->description, nrows, sizeof(char*), "STRING *");
+                data->signal_status = (int*) malloc(nrows * sizeof(int));
+                addMalloc((void*) data->signal_status, nrows, sizeof(int), "INT");
 
                 data->shot = exp_number;
                 data->pass = pass;
@@ -2406,6 +2417,12 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                     data->description[i] = (char*) malloc(stringLength * sizeof(char));
                     strcpy(data->description[i], PQgetvalue(DBQuery, i, 4));
                     addMalloc((void*) data->description[i], stringLength, sizeof(char), "STRING");
+
+		    if (exp_number > 0) {
+		      data->signal_status[i] = (int) atoi(PQgetvalue(DBQuery, i, 5));
+		    } else {
+		      data->signal_status[i] = 1;
+		    }
 
                     IDAM_LOGF(LOG_DEBUG, "signal_name : %s\n", data->signal_name[i]);
                     IDAM_LOGF(LOG_DEBUG, "generic_name: %s\n", data->generic_name[i]);

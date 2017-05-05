@@ -5,7 +5,7 @@
 
 #include <clientserver/udaStructs.h>
 
-#if LIBXML_VERSION >= 20903
+#if LIBXML_VERSION >= 20901
 #  define FMT_TYPE const char*
 #else
 #  define FMT_TYPE const xmlChar*

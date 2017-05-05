@@ -171,6 +171,7 @@ struct DATALISTSIGNALS_R
     char * source_alias;
     char * type;
     char * description;
+    int signal_status;
 };
 typedef struct DATALISTSIGNALS_R DATALISTSIGNALS_R;
 
@@ -193,6 +194,7 @@ struct DATALISTSIGNALS_C
     char ** source_alias;
     char ** type;
     char ** description;
+    int * signal_status;
 };
 typedef struct DATALISTSIGNALS_C DATALISTSIGNALS_C;
 

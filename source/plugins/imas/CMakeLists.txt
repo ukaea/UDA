@@ -57,5 +57,6 @@ uda_plugin(
     ${HDF5_HL_LIBRARIES}
     ${IDC_LIB_NAME}
     ${OPENSSL_LIBRARIES}
+    client-static
     pthread
 )
