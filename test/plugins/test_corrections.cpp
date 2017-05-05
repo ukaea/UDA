@@ -3,7 +3,7 @@
 
 #include <c++/UDA.hpp>
 
-TEST_CASE( "Test hdf5::test() function", "[hdf5]" ) {
+TEST_CASE( "Test ANBCORRECTIONS::help() function", "[ANBCORRECTIONS][plugins]" ) {
 
 #ifdef FATCLIENT
 #  include "setupEnvironment.inc"
@@ -11,7 +11,7 @@ TEST_CASE( "Test hdf5::test() function", "[hdf5]" ) {
 
     uda::Client client;
 
-    const uda::Result& result = client.get("NEWHDF5::help()", "");
+    const uda::Result& result = client.get("ANBCORRECTIONS::help()", "");
 
     REQUIRE( result.errorCode() == 0 );
     REQUIRE( result.error() == "" );

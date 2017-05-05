@@ -31,7 +31,7 @@
 //    REQUIRE( str->str() == expected );
 //}
 
-TEST_CASE( "Test get MAST experimental data", "[imas]" )
+TEST_CASE( "Test get MAST experimental data", "[imas][plugins]" )
 {
 
 #ifdef FATCLIENT

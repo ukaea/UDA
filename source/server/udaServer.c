@@ -819,7 +819,7 @@ int idamServer(CLIENT_BLOCK client_block, REQUEST_BLOCK* request_block0, SERVER_
 #ifndef NOTGENERICENABLED
             if (request_block.request == REQUEST_READ_GENERIC || (client_block.clientFlags & CLIENTFLAG_ALTDATA)) {
                 if (DBConnect == NULL) {
-                    if (!(DBConnect = (PGconn*)startSQL())) {
+                    if (!(DBConnect = startSQL())) {
                         if (DBConnect != NULL) PQfinish(DBConnect);
                         err = 777;
                         addIdamError(&idamerrorstack, CODEERRORTYPE, "idamServer", err,

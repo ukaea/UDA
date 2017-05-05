@@ -18,10 +18,10 @@ endif()
 include( plugins )
 
 uda_plugin(
-  NAME PROVENANCE
+  NAME PROV
   ENTRY_FUNC admin
   DESCRIPTION "Issue and Register Unique Identifiers"
-  EXAMPLE "PROVENANCE::get()"
+  EXAMPLE "PROV::get()"
   LIBNAME provenance_plugin
   SOURCES
     provenance.c

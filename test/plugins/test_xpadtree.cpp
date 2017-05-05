@@ -3,7 +3,7 @@
 
 #include <c++/UDA.hpp>
 
-TEST_CASE( "Test help::help() function", "[help]" ) {
+TEST_CASE( "Test XPADTREE::help() function", "[XPADTREE][plugins]" ) {
 
 #ifdef FATCLIENT
 #  include "setupEnvironment.inc"
@@ -11,7 +11,7 @@ TEST_CASE( "Test help::help() function", "[help]" ) {
 
     uda::Client client;
 
-    const uda::Result& result = client.get("help::help()", "");
+    const uda::Result& result = client.get("XPADTREE::help()", "");
 
     REQUIRE( result.errorCode() == 0 );
     REQUIRE( result.error() == "" );
@@ -26,12 +26,7 @@ TEST_CASE( "Test help::help() function", "[help]" ) {
 
     REQUIRE( str != NULL );
 
-    std::string expected =
-            "\nHelp\tList of HELP plugin functions:\n"
-            "\n"
-            "services()\tReturns a list of available services with descriptions\n"
-            "ping()\t\tReturn the Local Server Time in seconds and microseonds\n"
-            "servertime()\tReturn the Local Server Time in seconds and microseonds\n\n";
+    std::string expected = "\nnewHDF5: get - Read data from a HDF5 file\n\n";
 
     REQUIRE( str->str() == expected );
 }

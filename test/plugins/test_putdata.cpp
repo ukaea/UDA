@@ -3,7 +3,7 @@
 
 #include <client/udaPutAPI.h>
 
-TEST_CASE( "Test cpp putdata functionality", "[putdata]" ) {
+TEST_CASE( "Test cpp PUTDATA functionality", "[PUTDATA][plugins]" ) {
 
 #ifdef FATCLIENT
 #  include "setupEnvironment.inc"
@@ -22,5 +22,5 @@ TEST_CASE( "Test cpp putdata functionality", "[putdata]" ) {
             << ", version=1"
             << ")";
 
-    idamPutAPI("putdata::open(create, filename=, conventions=, class=, title=, shot=, pass=)", NULL);
+    idamPutAPI("PUTDATA::open(create, filename=, conventions=, class=, title=, shot=, pass=)", NULL);
 }
