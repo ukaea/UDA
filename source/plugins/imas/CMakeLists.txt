@@ -51,6 +51,7 @@ uda_plugin(
     ${MDSPLUS_LIBRARIES}
     ${HDF5_LIBRARIES}
     ${HDF5_HL_LIBRARIES}
+    ${OPENSSL_LIBRARIES}
     client-static
     pthread
 )
