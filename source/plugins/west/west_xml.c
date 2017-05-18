@@ -527,16 +527,18 @@ int GetDynamicData(int shotNumber, const char* mapfun, DATA_BLOCK* data_block, i
 		fun = 2;
 		tokenizeFunParametersWithChannels(mapfun, &unvalid_channels, &TOP_collections_parameters, &attributes, &normalizationAttributes);
 		getUnvalidChannelsSize(unvalid_channels, &unvalid_channels_size);
+		unvalid_channels_list = (int *)malloc(sizeof(int)*unvalid_channels_size);
 		getUnvalidChannels(unvalid_channels, unvalid_channels_list);
 	} else if (strcmp(fun_name, "tsbase_time_with_channels") == 0) {
 		IDAM_LOG(LOG_DEBUG, "tsbase_time_with_channels request \n");
 		fun = 3;
 		tokenizeFunParametersWithChannels(mapfun, &unvalid_channels, &TOP_collections_parameters, &attributes, &normalizationAttributes);
 		getUnvalidChannelsSize(unvalid_channels, &unvalid_channels_size);
+		unvalid_channels_list = (int *)malloc(sizeof(int)*unvalid_channels_size);
 		getUnvalidChannels(unvalid_channels, unvalid_channels_list);
 	}
 
-
+	IDAM_LOG(LOG_DEBUG, "now searching for signals\n");
 	int collectionsCount;
 	getTopCollectionsCount(TOP_collections_parameters, &collectionsCount);
 
@@ -666,10 +668,13 @@ int GetDynamicData(int shotNumber, const char* mapfun, DATA_BLOCK* data_block, i
 	} else if (fun == 1) {
 		data_block->data = (char*)time;
 	} else if (fun == 2) {
-		if (isChannelValid(requestedIndex + 1, unvalid_channels_list, unvalid_channels_size))
+		//TODO if (isChannelValid(requestedIndex + 1, unvalid_channels_list, unvalid_channels_size))
+		//{
+			//IDAM_LOGF(LOG_DEBUG, "Setting data for valid channel: %d\n", requestedIndex + 1);
 			data_block->data = (char*)data;
+		//}
 	} else if (fun == 3) {
-		if (isChannelValid(requestedIndex + 1, unvalid_channels_list, unvalid_channels_size))
+		//TODO if (isChannelValid(requestedIndex + 1, unvalid_channels_list, unvalid_channels_size))
 			data_block->data = (char*)time;
 	}
 
@@ -696,7 +701,7 @@ int GetDynamicData(int shotNumber, const char* mapfun, DATA_BLOCK* data_block, i
 	free(normalizationAttributes);
 	free(unvalid_channels);
 	free(unvalid_channels_list);
-
+	IDAM_LOG(LOG_DEBUG, "TEST_FINAL\n");
 	return 0;
 }
 
@@ -955,7 +960,6 @@ void getUnvalidChannels(char* unvalid_channels, int* v)
 		}
 		IDAM_LOGF(LOG_DEBUG, "unvalid channel : %d\n", v[i]);
 	}
-
 	free(s_copy);
 	free(s_copy2);
 	free(token);
