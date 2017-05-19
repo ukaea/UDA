@@ -1198,9 +1198,9 @@ static int process_arguments(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGI
     plugin_args->isShapeString = findStringValue(&request_block->nameValueList, &plugin_args->shapeString,
                                                  "shape|dims");
     plugin_args->isDataString = findStringValue(&request_block->nameValueList, &plugin_args->dataString, "data");
-    plugin_args->quote = findValue(&request_block->nameValueList, "singlequote") ? '\'' : plugin_args->quote;
-    plugin_args->quote = findValue(&request_block->nameValueList, "doublequote") ? '\"' : plugin_args->quote;
-    plugin_args->delimiter = findValue(&request_block->nameValueList, "delimiter") ? '\'' : plugin_args->delimiter;
+    plugin_args->quote = findValue(&request_block->nameValueList, "singlequote") ? (char)'\'' : plugin_args->quote;
+    plugin_args->quote = findValue(&request_block->nameValueList, "doublequote") ? (char)'\"' : plugin_args->quote;
+    plugin_args->delimiter = findValue(&request_block->nameValueList, "delimiter") ? (char)'\'' : plugin_args->delimiter;
     plugin_args->isFileName = findStringValue(&request_block->nameValueList, &plugin_args->filename,
                                               "filename|file|name");
     plugin_args->isShotNumber = findIntValue(&request_block->nameValueList, &plugin_args->shotNumber,
@@ -1509,7 +1509,7 @@ static int do_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARGS plug
     int err = 0;
     int rc = 0;
     int* shape = NULL;
-    int type;
+    int type = TYPE_UNKNOWN;
 
 /*
 idx	- reference to the open data file: file handle from an array of open files - hdf5Files[idx]
@@ -1576,7 +1576,8 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
 
         // Replacing // in path with / to standardise paths for mapping
         char* tmp_path = calloc(strlen(plugin_args.path) + 1, sizeof(char));
-        size_t i = 0, ii = 0;
+        i = 0;
+        size_t ii = 0;
         while (i < strlen(plugin_args.path)) {
             if (plugin_args.path[i] == '/' && plugin_args.path[i + 1] == '/') {
                 ++i;
@@ -1641,7 +1642,6 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
                 rc = plugin->idamPlugin(idam_plugin_interface);
 
                 if (rc == 0) {
-                    DATA_BLOCK* data_block = idam_plugin_interface->data_block;
                     for (i = 0; i < data_block->rank; ++i) {
                         shape[i] = data_block->dims[i].dim_n;
                     }
@@ -1705,11 +1705,11 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
             break;
         }
         case GET_OPERATION: {
-            data_block->rank = plugin_args.rank;
+            data_block->rank = (unsigned int)plugin_args.rank;
             data_block->data_type = findIMASIDAMType(type);
             data_block->data = (char*)imasData;
             if (data_block->data_type == TYPE_STRING && plugin_args.rank <= 1) {
-                data_block->data_n = strlen((char*)imasData) + 1;
+                data_block->data_n = (int)strlen(imasData) + 1;
                 shape[0] = data_block->data_n;
             } else {
                 data_block->data_n = shape[0];

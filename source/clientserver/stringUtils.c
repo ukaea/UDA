@@ -317,3 +317,31 @@ void FreeSplitStringTokens(char*** tokens)
     free(*tokens);
     *tokens = NULL;
 }
+
+bool StringEquals(const char* a, const char* b)
+{
+    if (a == NULL || b == NULL) return false;
+
+    while (*a != '\0') {
+        if (*b == '\0' || *a != *b)
+            return false;
+        ++a;
+        ++b;
+    }
+
+    return *a == *b;
+}
+
+bool StringIEquals(const char* a, const char* b)
+{
+    if (a == NULL || b == NULL) return false;
+
+    while (*a != '\0') {
+        if (*b == '\0' || toupper(*a) != toupper(*b))
+            return false;
+        ++a;
+        ++b;
+    }
+
+    return *a == *b;
+}

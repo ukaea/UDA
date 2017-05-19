@@ -165,9 +165,9 @@ int idamserverGetData(PGconn* DBConnect, int* depth, REQUEST_BLOCK request_block
 
         isDerived = 1;                        // is True
 
-        //derived_signal_desc     = *signal_desc;			// Preserve details of Derived Signal Description Record
-        data_source->exp_number = request_block.exp_number;    // Needed for Pulse Number Range Check in XML Parser
-        data_source->pass = request_block.pass;        // Needed for a Pass/Sequence Range Check in XML Parser
+        //derived_signal_desc     = *signal_desc;			    // Preserve details of Derived Signal Description Record
+        data_source->exp_number = request_block.exp_number;     // Needed for Pulse Number Range Check in XML Parser
+        data_source->pass = request_block.pass;                 // Needed for a Pass/Sequence Range Check in XML Parser
 
 // Allways Parse Signal XML to Identify the True Data Source for this Pulse Number - not subject to client request: get_asis
 // (First Valid Action Record found only - others ignored)
@@ -244,7 +244,6 @@ int idamserverGetData(PGconn* DBConnect, int* depth, REQUEST_BLOCK request_block
 //=======>>>==========================================================
 
                     if (request_block.request == REQUEST_READ_XML || request_block.exp_number <= 0) {
-//	       if(request_block.request == REQUEST_READ_XML){				// Has the User defined the signal explicitly?
                         if ((strlen(actions_comp_desc.action[compId].composite.file) == 0 ||
                              strlen(actions_comp_desc.action[compId].composite.format) == 0) &&
                             request_block2.exp_number <= 0) {
@@ -258,7 +257,6 @@ int idamserverGetData(PGconn* DBConnect, int* depth, REQUEST_BLOCK request_block
                         }
                         strcpy(request_block2.path, actions_comp_desc.action[compId].composite.file);
 
-//#ifdef PLUGINTEST
                         request_block2.request = findPluginRequestByFormat(
                                 actions_comp_desc.action[compId].composite.format, pluginlist);
 
@@ -278,15 +276,14 @@ int idamserverGetData(PGconn* DBConnect, int* depth, REQUEST_BLOCK request_block
                         }
 
                         if (request_block2.request == REQUEST_READ_HDF5) {
-                            strcpy(data_source->path, TrimString(request_block2.path));        // HDF5 File Location
-                            strcpy(signal_desc->signal_name,
-                                   TrimString(request_block2.signal));    // HDF5 Variable Name
+                            strcpy(data_source->path, TrimString(request_block2.path));          // HDF5 File Location
+                            strcpy(signal_desc->signal_name, TrimString(request_block2.signal)); // HDF5 Variable Name
                         }
                     }
 
-// Does the request type need an SQL socket?
-// This is not passed back via the argument as only a 'by value' pointer is specified.
-// Assign to a global to pass back - poor design that needs correcting at a later date!
+                    // Does the request type need an SQL socket?
+                    // This is not passed back via the argument as only a 'by value' pointer is specified.
+                    // Assign to a global to pass back - poor design that needs correcting at a later date!
 
 #ifndef NOTGENERICENABLED
                     if (DBConnect == NULL && (request_block2.request == REQUEST_READ_GENERIC ||
@@ -364,7 +361,7 @@ int idamserverGetData(PGconn* DBConnect, int* depth, REQUEST_BLOCK request_block
                     }
                 }
             }
-        }                    // #############
+        }
 
     } else isDerived = 0;
 
@@ -372,16 +369,16 @@ int idamserverGetData(PGconn* DBConnect, int* depth, REQUEST_BLOCK request_block
 // Parse Qualifying Actionable XML
 
     if (isDerived) {
-        copyActions(actions_desc,
-                    &actions_comp_desc);    // All Actions are applicable to the Derived/Composite Data Structure
+        // All Actions are applicable to the Derived/Composite Data Structure
+        copyActions(actions_desc, &actions_comp_desc);
         copyActions(actions_sig, &actions_comp_sig);
     } else {
         IDAM_LOG(LOG_DEBUG, "parsing XML for a Regular Signal\n");
 
         if (!client_block.get_asis) {
 
-            rc = idamserverParseSignalXML(*data_source, *signal_rec, *signal_desc, actions_desc,
-                                          actions_sig);    // Regular Signal
+            // Regular Signal
+            rc = idamserverParseSignalXML(*data_source, *signal_rec, *signal_desc, actions_desc, actions_sig);
 
             if (rc == -1) {
                 if (!serverside) {
@@ -1524,7 +1521,7 @@ int idamserverReadData(PGconn* DBConnect, REQUEST_BLOCK request_block, CLIENT_BL
 // Don't append the file name to the path - if it's already present!
 
         if (strlen(data_source->path) == 0) {        // No path in Data_Source record so must be on default Archive Path
-            if (request_block.pass == -1 && request_block.tpass[0] == '\0') {    // Always LATEST
+            if (request_block.pass == -1 && request_block.tpass[0] == '\0') {    // Always LATES
                 mastArchiveFilePath(request_block.exp_number, request_block.pass, data_source->filename,
                                     data_source->path);
             } else {                                // Specific PASS

@@ -160,11 +160,34 @@ uda::Data* getDataAs(int handle, std::vector<uda::Dim>& dims)
     }
 }
 
-uda::String* getDataAsString(int handle)
+uda::Data* getDataAsString(int handle)
 {
     char* data = getIdamData(handle);
 
     return new uda::String(data);
+}
+
+uda::Data* getDataAsStringArray(int handle, std::vector<uda::Dim>& dims)
+{
+    char* data = getIdamData(handle);
+
+    size_t str_len = dims[0].size();
+    size_t arr_len = getIdamDataNum(handle) / str_len;
+
+    std::vector<std::string> strings;
+
+    for (int i = 0; i < arr_len; ++i) {
+        char* str = &data[i * str_len];
+        strings.push_back(std::string(str, strlen(str)));
+    }
+
+    std::vector<uda::Dim> string_dims;
+
+    for (int i = 1; i < dims.size(); ++i) {
+        string_dims.push_back(dims[i]);
+    }
+
+    return new uda::Array(strings.data(), string_dims);
 }
 
 uda::Data* uda::Result::data() const
@@ -203,7 +226,11 @@ uda::Data* uda::Result::data() const
         case TYPE_UNSIGNED_LONG64:
             return getDataAs<unsigned long long>(handle_, dims);
         case TYPE_STRING:
-            return getDataAsString(handle_);
+            if (rank == 1) {
+                return getDataAsString(handle_);
+            } else {
+                return getDataAsStringArray(handle_, dims);
+            }
         default:
             return &Array::Null;
     }

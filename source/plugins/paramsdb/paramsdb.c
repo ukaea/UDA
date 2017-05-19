@@ -27,6 +27,12 @@ static int do_getFilterCoefficients(IDAM_PLUGIN_INTERFACE* idam_plugin_interface
 static int do_getBoardCalibrations(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PGconn* conn);
 static int do_getCoilParameters(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PGconn* conn);
 
+static void
+loggingNoticeProcessor(void* arg, const char* message)
+{
+    IDAM_LOGF(LOG_WARN, "%s", message);
+}
+
 int paramsdb(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
     static int init = 0;
@@ -236,12 +242,6 @@ int do_maxinterfaceversion(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     return 0;
 }
 
-static void
-loggingNoticeProcessor(void* arg, const char* message)
-{
-    IDAM_LOGF(LOG_WARN, "%s", message);
-}
-
 // Struct to store results in
 typedef struct ActiveLimitsStruct {
     char* system;
@@ -271,7 +271,8 @@ typedef struct FilterCoefficientsStruct {
 typedef struct BoardCalibrationsStruct {
     int board;
     int* channels;
-    double* values;
+    double* gains;
+    double* offsets;
 } BOARDCALIBRATION_STRUCTS;
 
 // Struct to store results in
@@ -361,18 +362,6 @@ static PGresult* activeLimitsQuery(PGconn* conn, const char* system, const char*
         );
     }
 
-    if (PQresultStatus(res) != PGRES_TUPLES_OK) {
-        RAISE_PLUGIN_ERROR_F("DB query failed", "DB query failed: %s", PQresultErrorMessage(res));
-    }
-
-    if (PQntuples(res) == 0) {
-        RAISE_PLUGIN_ERROR("DB query returned no rows");
-    }
-
-    if (is_subtype && is_coil && PQntuples(res) > 1) {
-        RAISE_PLUGIN_ERROR("DB query returned multiple rows");
-    }
-
     return res;
 }
 
@@ -424,8 +413,12 @@ static BOARDCALIBRATION_STRUCTS* allocBoardCalibration(int board, int nrows)
     data->channels = (int*)malloc((nrows) * sizeof(int));
     addMalloc(data->channels, nrows, sizeof(int), "INT *");
 
-    data->values = (double*)malloc((nrows) * sizeof(double));
-    addMalloc(data->values, nrows, sizeof(double), "DOUBLE *");
+    data->gains = (double*)malloc((nrows) * sizeof(double));
+    addMalloc(data->gains, nrows, sizeof(double), "DOUBLE *");
+
+    data->offsets = (double*)malloc((nrows) * sizeof(double));
+    addMalloc(data->offsets, nrows, sizeof(double), "DOUBLE *");
+
     return data;
 }
 
@@ -587,6 +580,18 @@ int do_getActiveLimit(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PGconn* conn
     PGresult* res = activeLimitsQuery(conn, system, subtype, is_subtype, coil, is_coil);
 
     int nrows = PQntuples(res);
+
+    if (PQresultStatus(res) != PGRES_TUPLES_OK) {
+        RAISE_PLUGIN_ERROR_F("DB query failed", "DB query failed: %s", PQresultErrorMessage(res));
+    }
+
+    if (PQntuples(res) == 0) {
+        RAISE_PLUGIN_ERROR("DB query returned no rows");
+    }
+
+    if (is_subtype && is_coil && nrows > 1) {
+        RAISE_PLUGIN_ERROR("DB query returned multiple rows");
+    }
 
     ACTIVELIMITS_STRUCT* data = allocActiveLimits(system, subtype, coil, nrows);
 
@@ -800,7 +805,7 @@ int do_getFilterCoefficients(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PGcon
     DATA_BLOCK* data_block = idam_plugin_interface->data_block;
     initDataBlock(data_block);
 
-    int filter = NULL;
+    int filter = 0;
 
     FIND_REQUIRED_INT_VALUE(request_block->nameValueList, filter);
 
@@ -892,7 +897,7 @@ int do_getFilterCoefficients(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PGcon
 
 //call: getBoardCalibrations(board=?)
 //returns:
-//  [ (0, value), (1, value), ..., (31, value) ]
+//  [ (0, gain, offset), (1, gain, offset), ..., (31, gain, offset) ]
 int do_getBoardCalibrations(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PGconn* conn)
 {
     REQUEST_BLOCK* request_block = idam_plugin_interface->request_block;
@@ -910,7 +915,7 @@ int do_getBoardCalibrations(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PGconn
     params[0] = FormatString("%d", board);
 
     res = PQexecParams(conn,
-                       "SELECT channel, value"
+                       "SELECT channel, gain, cal_offset"
                                " FROM BoardCalibration"
                                " WHERE board = $1",
                        1, NULL, params, NULL, NULL, 0
@@ -930,13 +935,18 @@ int do_getBoardCalibrations(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PGconn
 
     BOARDCALIBRATION_STRUCTS* data = allocBoardCalibration(board, nrows);
 
+    data->board = board;
+
     int i;
     for (i = 0; i < nrows; i++) {
         const char* buf = PQgetvalue(res, i, 0);
         data->channels[i] = atoi(buf);
 
         buf = PQgetvalue(res, i, 1);
-        data->values[i] = atof(buf);
+        data->gains[i] = atof(buf);
+
+        buf = PQgetvalue(res, i, 2);
+        data->offsets[i] = atof(buf);
     }
 
     PQclear(res);
@@ -967,8 +977,13 @@ int do_getBoardCalibrations(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PGconn
     addCompoundField(&parentTree, field);
 
     initCompoundField(&field);
-    strcpy(field.name, "values");
-    defineField(&field, "values", "values", &offset, ARRAYDOUBLE);
+    strcpy(field.name, "gains");
+    defineField(&field, "gains", "gains", &offset, ARRAYDOUBLE);
+    addCompoundField(&parentTree, field);
+
+    initCompoundField(&field);
+    strcpy(field.name, "offsets");
+    defineField(&field, "offsets", "offsets", &offset, ARRAYDOUBLE);
     addCompoundField(&parentTree, field);
 
     addUserDefinedType(userdefinedtypelist, parentTree);

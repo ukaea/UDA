@@ -2,6 +2,7 @@
 #define UDA_PLUGINS_IMAS_PLUGIN_IMAS_MDS_H
 
 #include <server/pluginStructs.h>
+#include <stdbool.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -38,7 +39,7 @@ typedef struct PluginArgs {
     unsigned short isTypeName;
     char* typeName;
     unsigned short isClientIdx;
-    long clientIdx;
+    int clientIdx;
     unsigned short isClientObjectId;
     int clientObjectId;
     unsigned short isRank;
@@ -105,8 +106,8 @@ typedef struct PluginArgs {
     unsigned short isEndIDSNonTimed;
     char quote;
     char delimiter;
-    unsigned short isPutData;
-    unsigned short isImasIdsVersion;
+    bool isPutData;
+    bool isImasIdsVersion;
     char* imasIdsVersion;
     unsigned short isImasIdsDevice;
     char* imasIdsDevice;

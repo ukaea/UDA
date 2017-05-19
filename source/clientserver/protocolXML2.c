@@ -164,10 +164,9 @@ int protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, void* st
 
                     SARRAY sarray;                                // Structure array carrier structure
                     SARRAY* psarray = &sarray;
-                    int shape = data_block->data_n;                        // rank 1 array of dimension lengths
-                    USERDEFINEDTYPE* udt = (USERDEFINEDTYPE*) data_block->opaque_block;    // The data's structure definition
-                    USERDEFINEDTYPE* u = findUserDefinedType("SARRAY",
-                                                             0);            // Locate the carrier structure definition
+                    int shape = data_block->data_n;                                         // rank 1 array of dimension lengths
+                    USERDEFINEDTYPE* udt = (USERDEFINEDTYPE*) data_block->opaque_block;     // The data's structure definition
+                    USERDEFINEDTYPE* u = findUserDefinedType("SARRAY", 0);                  // Locate the carrier structure definition
 
                     IDAM_LOG(LOG_DEBUG, "protocolXML: Sending to Client\n");
 
@@ -183,11 +182,11 @@ int protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, void* st
                     IDAM_LOG(LOG_DEBUG, "protocolXML: Creating SARRAY carrier structure\n");
 
                     initSArray(&sarray);
-                    sarray.count = data_block->data_n;                // Number of this structure
-                    sarray.rank = 1;                        // Array Data Rank?
-                    sarray.shape = &shape;                        // Only if rank > 1?
-                    sarray.data = (void*) data_block->data;            // Pointer to the data to be passed
-                    strcpy(sarray.type, udt->name);                    // The name of the type
+                    sarray.count = data_block->data_n;          // Number of this structure
+                    sarray.rank = 1;                            // Array Data Rank?
+                    sarray.shape = &shape;                      // Only if rank > 1?
+                    sarray.data = (void*) data_block->data;     // Pointer to the data to be passed
+                    strcpy(sarray.type, udt->name);             // The name of the type
                     data = (void*) &psarray;                    // Pointer to the SARRAY array pointer
                     addNonMalloc((void*) &shape, 1, sizeof(int), "int");
 
@@ -230,8 +229,8 @@ int protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, void* st
 
                         IDAM_LOGF(LOG_DEBUG, "protocolXML: stdio XDR file: %s\n", tempFile);
 
-                        packageType = PACKAGE_XDRFILE;        // The package is a file with XDR serialised data
-                        rc = xdr_int(xdrs, &packageType);        // Send data package type
+                        packageType = PACKAGE_XDRFILE;              // The package is a file with XDR serialised data
+                        rc = xdr_int(xdrs, &packageType);           // Send data package type
                         rc = rc && xdrrec_endofrecord(xdrs, 1);
 
                         // Create a stdio file stream
@@ -270,7 +269,7 @@ int protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, void* st
 
                         XDRstdioFlag = 1;
                         xdrstdio_create(&XDROutput, xdrfile, XDR_ENCODE);
-                        xdrs = &XDROutput;                // Switch from TCP stream to memory based object
+                        xdrs = &XDROutput;                      // Switch from TCP stream to memory based object
 
                     } else {
 
@@ -286,8 +285,8 @@ int protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, void* st
 
 // Send the data
 
-                    rc = rc && xdr_userdefinedtypelist(xdrs,
-                                                       userdefinedtypelist);        // send the full set of known named structures
+                    // send the full set of known named structures
+                    rc = rc && xdr_userdefinedtypelist(xdrs, userdefinedtypelist);
 
                     IDAM_LOGF(LOG_DEBUG, "protocolXML: Structure Definitions sent: rc = %d\n", rc);
 
