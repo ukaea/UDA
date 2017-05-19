@@ -1,6 +1,6 @@
 cmake-build-*
 build
-etc
+build_*
 bin
 include
 lib

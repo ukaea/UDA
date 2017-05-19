@@ -10,10 +10,11 @@ if { ! [ is-loaded ida ] } {
    module load ida
 }
 
-if { ! [ is-loaded idlcodes-rmartin ] } {
-   module load idlcodes-rmartin
-}
+#if { ! [ is-loaded idlcodes-rmartin ] } {
+#   module load idlcodes-rmartin
+#}
 
+conflict            uda
 conflict            idam
 
 set                 UDA_DIR             @CMAKE_INSTALL_PREFIX@

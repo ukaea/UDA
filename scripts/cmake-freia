@@ -4,14 +4,17 @@ module purge
 module load idl/08.4
 module load mdsplus/6.1
 module load java/1.8
+module load udunits/2.2.24
+module load python/3.3.5
+module load CMake/3.8.1
 
 export HDF5_USE_SHLIB=yes
-export BOOST_ROOT=/usr/local/depot/boost-1.53
+export BOOST_ROOT=/usr/local/depot/boost-1.60
 
-/home/jholloc/freia/bin/cmake -Bbuild_freia -H. -DCMAKE_BUILD_TYPE=Debug -DTARGET_TYPE=MAST \
-    -DCMAKE_INSTALL_PREFIX=$HOME/freia \
-    -DSWIG_DIR=/home/jholloc/freia/bin \
-    -DUDUNITS_ROOT=/home/jholloc/freia \
+cmake -Bbuild_freia -H. -DCMAKE_BUILD_TYPE=Debug -DTARGET_TYPE=MAST \
+    -DCMAKE_INSTALL_PREFIX=/common/IMAS/extra/uda/0.2.0 \
+    -DSWIG_EXECUTABLE=/home/jholloc/freia/bin/swig \
+    -DUDUNITS_ROOT=$UDUNITS_DIR \
     -DPYTHON_INCLUDE_DIR=/usr/local/depot/Python-3.3.5/include/python3.3m/ -DPYTHON_LIBRARY=/usr/local/depot/Python-3.3.5/lib/libpython3.3m.so \
     $*
 
