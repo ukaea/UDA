@@ -1,4 +1,3 @@
-//
 // To Do:
 //
 //	Only rank 1 arrays are handled. Higher rank causes a seg fault
@@ -155,14 +154,14 @@ int parseIncludeFile(const char* header)
 
         do {
 
-            if (STR_EQUALS(buffer, "# ")) break;
-            if (STR_EQUALS(buffer, "//")) break;
-            if (STR_EQUALS(buffer, "/*")) break;
-            if (STR_EQUALS(buffer, "*/")) break;
+            if (STR_STARTSWITH(buffer, "# ")) break;
+            if (STR_STARTSWITH(buffer, "//")) break;
+            if (STR_STARTSWITH(buffer, "/*")) break;
+            if (STR_STARTSWITH(buffer, "*/")) break;
             if (buffer[0] == '\n') break;
             if (buffer[0] == '\0') break;
 
-            if (STR_EQUALS(buffer, "#define ")) {
+            if (STR_STARTSWITH(buffer, "#define ")) {
                 strcpy(defnames[defCount], &buffer[8]);
                 if ((p = strstr(defnames[defCount], "//")) != NULL) p[0] = '\0';        // drop Comments
                 convertNonPrintable2(defnames[defCount]);
@@ -187,7 +186,7 @@ int parseIncludeFile(const char* header)
 // *** Scan for free standing typedef statements
 
 
-            if (!isEnum && STR_EQUALS(buffer, "typedef enum")) {
+            if (!isEnum && STR_STARTSWITH(buffer, "typedef enum")) {
                 isEnum = 1;    // Enumerated Type Definition
                 break;
             }
@@ -204,7 +203,7 @@ int parseIncludeFile(const char* header)
                 } else { break; }
             }
 
-            if (!isEnum && STR_EQUALS(buffer, "typedef") &&
+            if (!isEnum && STR_STARTSWITH(buffer, "typedef") &&
                 (strncmp(buffer, "typedef struct", 14) != 0)) { // Regular Type Definition
                 strcpy(name1, &buffer[7]);
                 LeftTrimString(name1);
@@ -231,7 +230,7 @@ int parseIncludeFile(const char* header)
                 break;
             }
 
-            if (!isEnum && STR_EQUALS(buffer, "typedef struct") &&
+            if (!isEnum && STR_STARTSWITH(buffer, "typedef struct") &&
                 (p = strchr(buffer, '{')) == NULL) { // Type Definition
                 strcpy(name1, &buffer[14]);
                 LeftTrimString(name1);
@@ -258,21 +257,20 @@ int parseIncludeFile(const char* header)
                 break;
             }
 
-            if (!status && STR_EQUALS(buffer, "struct")) {
-                model = 1;                            // Start of stucture definition using model 1
-            } else {
-                if (!status &&
-                    STR_EQUALS(buffer, "typedef struct")) {        // Start of stucture definition using model 2
-                    model = 2;
-                }
+            if (!status && STR_STARTSWITH(buffer, "struct")) {
+                // Start of stucture definition using model 1
+                model = 1;
+            } else if (!status && STR_STARTSWITH(buffer, "typedef struct")) {
+                // Start of stucture definition using model 2
+                model = 2;
             }
 
             do {
 
-                if (status && model == 1 && (STR_EQUALS(buffer, "{\n") || STR_EQUALS(buffer, "#endif") ||
-                                             STR_EQUALS(buffer, "#define") || STR_EQUALS(buffer, "#ifdef") ||
-                                             STR_EQUALS(buffer, "#ifndef"))) {
-                                                 break;
+                if (status && model == 1 && (STR_STARTSWITH(buffer, "{\n") || STR_STARTSWITH(buffer, "#endif") ||
+                        STR_STARTSWITH(buffer, "#define") || STR_STARTSWITH(buffer, "#ifdef") ||
+                        STR_STARTSWITH(buffer, "#ifndef"))) {
+                    break;
                 }
 
                 if (status || model != 0) {                    // Start of structure definition
@@ -298,23 +296,18 @@ int parseIncludeFile(const char* header)
 
                     } else {
                         // End of the Structure definition?
-                        if (model != 0 && STR_EQUALS(buffer, "}")) {
+                        if (model != 0 && STR_STARTSWITH(buffer, "}")) {
 
-                            addImage(&image, &imagecount, "};\n");
+                            if (model == 1) addImage(&image, &imagecount, "};\n");
                             addImage(&image, &imagecount, buffer);
                             addImage(&image, &imagecount, "\n");
 
                             if (model == 1) {
                                 if (buffer[0] == '}') {        // No typedef statement
-                                    //strcpy(name1, "struct ");
-                                    //strcat(name1, name);
-                                    //strcpy(name, name1);
                                     strcpy(name1, name);
                                     strcpy(name2, name1);
                                     strcpy(name3, name1);
                                 } else {                            // typedef statement
-                                    //if(STR_EQUALS(buffer, "typedef struct ")){
-                                    //   p = &buffer[15];
                                     if ((p = strchr(&buffer[14], ' ')) != NULL) {
                                         strcpy(name2, &p[1]);
                                         if ((p = strchr(name2, ' ')) != NULL) {
@@ -344,7 +337,7 @@ int parseIncludeFile(const char* header)
                                 }
                             }
 
-                            if (STR_EQUALS(name, name1) && STR_EQUALS(name, name2)) {    // Create Meta data on structure
+                            if (STR_STARTSWITH(name, name1) && STR_STARTSWITH(name, name2)) {    // Create Meta data on structure
                                 if (itemCount > 0) {
                                     userdefinedtypelist->userdefinedtype = (USERDEFINEDTYPE*) realloc(
                                             (void*) userdefinedtypelist->userdefinedtype,
@@ -431,19 +424,19 @@ int parseIncludeFile(const char* header)
                                 isUnsigned = 0;
                                 isLong64 = 0;
 
-                                if ((isStruct = STR_EQUALS(buffer, "struct"))) {
+                                if ((isStruct = STR_STARTSWITH(buffer, "struct"))) {
                                     strcpy(work, &buffer[7]);
                                     strcpy(buffer, work);
                                 } else {
-                                    if ((isConst = STR_EQUALS(buffer, "const"))) {
+                                    if ((isConst = STR_STARTSWITH(buffer, "const"))) {
                                         strcpy(work, &buffer[6]);
                                         strcpy(buffer, work);
                                     }
-                                    if ((isUnsigned = STR_EQUALS(buffer, "unsigned"))) {
+                                    if ((isUnsigned = STR_STARTSWITH(buffer, "unsigned"))) {
                                         strcpy(work, &buffer[9]);
                                         strcpy(buffer, work);
                                     }
-                                    if ((isLong64 = STR_EQUALS(buffer, "long long"))) {
+                                    if ((isLong64 = STR_STARTSWITH(buffer, "long long"))) {
                                         strcpy(work, &buffer[9]);
                                         strcpy(buffer, work);
                                     }
@@ -517,13 +510,13 @@ int parseIncludeFile(const char* header)
 // Substitute type defs and enum types
 
                                     for (j = 0; j < typeEnumCount; j++) {
-                                        if (STR_EQUALS(typeEnum[j], type[itemCount])) {
+                                        if (STR_STARTSWITH(typeEnum[j], type[itemCount])) {
                                             strcpy(type[itemCount], "unsigned int");
                                             break;
                                         }
                                     }
                                     for (j = 0; j < typeDefCount; j++) {
-                                        if (STR_EQUALS(typeDefName[j], type[itemCount]) &&
+                                        if (STR_STARTSWITH(typeDefName[j], type[itemCount]) &&
                                             strcmp(type[itemCount], "STRING") != 0) {
                                             strcpy(type[itemCount], typeDef[j]);
                                             if (typeDefPtr[j]) pointer[itemCount] = 1;
@@ -531,7 +524,7 @@ int parseIncludeFile(const char* header)
                                         }
                                     }
                                     for (j = 0; j < typeStrCount; j++) {
-                                        if (STR_EQUALS(typeStrName[j], type[itemCount])) {
+                                        if (STR_STARTSWITH(typeStrName[j], type[itemCount])) {
                                             strcpy(type[itemCount], typeStruct[j]);
                                             if (typeStrPtr[j]) pointer[itemCount] = 1;
                                             break;
@@ -541,13 +534,13 @@ int parseIncludeFile(const char* header)
 // repeat for nested type defs
 
                                     for (j = 0; j < typeEnumCount; j++) {
-                                        if (STR_EQUALS(typeEnum[j], type[itemCount])) {
+                                        if (STR_STARTSWITH(typeEnum[j], type[itemCount])) {
                                             strcpy(type[itemCount], "unsigned int");
                                             break;
                                         }
                                     }
                                     for (j = 0; j < typeDefCount; j++) {
-                                        if (STR_EQUALS(typeDefName[j], type[itemCount]) &&
+                                        if (STR_STARTSWITH(typeDefName[j], type[itemCount]) &&
                                             strcmp(type[itemCount], "STRING") != 0) {
                                             strcpy(type[itemCount], typeDef[j]);
                                             if (typeDefPtr[j]) pointer[itemCount] = 1;
@@ -555,7 +548,7 @@ int parseIncludeFile(const char* header)
                                         }
                                     }
                                     for (j = 0; j < typeStrCount; j++) {
-                                        if (STR_EQUALS(typeStrName[j], type[itemCount])) {
+                                        if (STR_STARTSWITH(typeStrName[j], type[itemCount])) {
                                             strcpy(type[itemCount], typeStruct[j]);
                                             if (typeStrPtr[j]) pointer[itemCount] = 1;
                                             break;
@@ -565,12 +558,11 @@ int parseIncludeFile(const char* header)
 // Size of this type (Not pointer size)
 
                                     if (!pointer[itemCount]) {
-                                        if (STR_EQUALS(type[itemCount], "STRING")) {
-                                            size[itemCount] = getsizeof("char");
+                                        if (STR_STARTSWITH(type[itemCount], "STRING")) {
+                                            size[itemCount] = (int)getsizeof("char");
                                         } else {
-                                            size[itemCount] = getsizeof(type[itemCount]);
+                                            size[itemCount] = (int)getsizeof(type[itemCount]);
                                         }
-                                        //if(size[itemCount] == 0)fprintf(stdout," **** WARNING: type %s is not recognised ****\n", type[itemCount]);
                                     }
 
 // Rank and Shape (Pointer rank and shape are unknown)
@@ -594,10 +586,9 @@ int parseIncludeFile(const char* header)
                                                 } else {
 
                                                     for (j = 0; j < defCount; j++) {
-                                                        if (STR_EQUALS(defnames[j], buffer)) {
-                                                            shape[itemCount][rnk++] = defvalues[j];            // Array Shape
-                                                            count[itemCount] = count[itemCount] +
-                                                                               defvalues[j];    // Total Count of Array elements
+                                                        if (STR_STARTSWITH(defnames[j], buffer)) {
+                                                            shape[itemCount][rnk++] = defvalues[j];             // Array Shape
+                                                            count[itemCount] = count[itemCount] + defvalues[j];    // Total Count of Array elements
                                                             break;
                                                         }
                                                     }

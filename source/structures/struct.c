@@ -106,8 +106,8 @@ void printSarray(SARRAY str)
 void addNTreeList(NTREE* node)
 {
     NTREE* old = NTreeList.forrest;
-    NTreeList.forrest = (NTREE*) realloc((void*) NTreeList.forrest, (++NTreeList.listCount) * sizeof(NTREE*));
-    changeMalloc(old, (void*) NTreeList.forrest, NTreeList.listCount, sizeof(NTREE*), "NTREE *");
+    NTreeList.forrest = (NTREE*)realloc((void*)NTreeList.forrest, (++NTreeList.listCount) * sizeof(NTREE*));
+    changeMalloc(old, (void*)NTreeList.forrest, NTreeList.listCount, sizeof(NTREE*), "NTREE *");
 }
 
 /** Add an NTREE node to an array of child nodes.
@@ -137,7 +137,7 @@ void freeNTreeNode(NTREE* ntree)
     if (ntree == NULL) return;
     if (ntree->branches > 0 && ntree->children != NULL) {
         for (i = 0; i < ntree->branches; i++) freeNTreeNode(ntree->children[i]);
-        free((void*) ntree->children);
+        free((void*)ntree->children);
     }
 }
 
@@ -153,7 +153,7 @@ void freeNTree()
 
     if (fullNTree->branches > 0 && fullNTree->children != NULL) {
         for (i = 0; i < fullNTree->branches; i++)freeNTreeNode(fullNTree->children[i]);
-        free((void*) fullNTree->children);
+        free((void*)fullNTree->children);
     }
 }
 
@@ -167,11 +167,11 @@ void freeNTree()
 void addImage(char** image, int* imagecount, char* line)
 {
     int len;
-    void* old = (void*) *image;
+    void* old = (void*)*image;
     char* anew = NULL;
     if (line == NULL || line[0] == '\0') return;
-    len = (int) strlen(line);
-    anew = (char*) realloc((void*) old, (*imagecount + len + 1) * sizeof(char));
+    len = (int)strlen(line);
+    anew = (char*)realloc((void*)old, (*imagecount + len + 1) * sizeof(char));
     strcpy(&anew[*imagecount], line);
     *imagecount = *imagecount + len + 1;
     *image = anew;
@@ -195,32 +195,32 @@ void expandImage(char* buffer, char defnames[MAXELEMENTS][MAXELEMENTNAME], int* 
 
     if (buffer[0] != '\t' || buffer[0] != ' ') {
         strcpy(expand, "\t");    // Tab out the structure contents
-    } else expand[0] = '\0';
-    len = (int) strlen(expand);
+    } else { expand[0] = '\0'; }
+    len = (int)strlen(expand);
 
     if ((p1 = strchr(buffer, '[')) != NULL) {  // Array
         strncat(expand, buffer, p1 - buffer + 1);
-        expand[len + (int) (p1 - buffer + 1)] = '\0';
-        len = (int) strlen(expand);
+        expand[len + (int)(p1 - buffer + 1)] = '\0';
+        len = (int)strlen(expand);
         do {
             if ((p2 = strchr(buffer, ']')) != NULL) {
-                lstr = (int) (p2 - p1 - 1);
+                lstr = (int)(p2 - p1 - 1);
                 strncpy(work, &p1[1], lstr);
                 work[lstr] = '\0';
                 if (IsNumber(work)) {      // hard coded size
                     strncat(expand, &p1[1], p2 - &p1[1] + 1);
-                    len = len + (int) (p2 - &p1[1] + 1);
+                    len = len + (int)(p2 - &p1[1] + 1);
                     expand[len] = '\0';
-                    len = (int) strlen(expand);
+                    len = (int)strlen(expand);
                 } else {
                     for (j = 0; j < defCount; j++) {
-                        if (!strcmp((char*) defnames[j], work)) {
+                        if (!strcmp((char*)defnames[j], work)) {
                             sprintf(work, " = %d]", defvalues[j]);   // Array size
                             strncat(expand, &p1[1], p2 - &p1[1]);
-                            len = len + (int) (p2 - &p1[1]);
+                            len = len + (int)(p2 - &p1[1]);
                             expand[len] = '\0';
                             strcat(expand, work);
-                            len = (int) strlen(expand);
+                            len = (int)strlen(expand);
                             break;
                         }
                     }
@@ -229,7 +229,8 @@ void expandImage(char* buffer, char defnames[MAXELEMENTS][MAXELEMENTNAME], int* 
             p3 = p2;
         } while (p2 != NULL && (p1 = strchr(p2, '[')) != NULL);
         strcat(expand, &p3[1]);
-    } else strcat(expand, buffer);
+    } else
+        strcat(expand, buffer);
 }
 
 /** Initialise a LOGMALLOCLIST data structure.
@@ -371,14 +372,14 @@ void printCompoundField(COMPOUNDFIELD str)
     IDAM_LOGF(LOG_DEBUG, "count    : %d\n", str.count);
     if (str.rank > 0 && str.shape != NULL) {
         int i;
-        IDAM_LOGF(LOG_DEBUG, "shape    : [%d", str.shape[0]);
-        for (i = 1; i < str.rank; i++) {
+        IDAM_LOGF(LOG_DEBUG, "shape    : [", str.shape[0]);
+        for (i = 0; i < str.rank; i++) {
             if (i < str.rank - 1)
-                IDAM_LOGF(LOG_DEBUG, "%d,", str.shape[i]);
+                idamLog(LOG_DEBUG, "%d,", str.shape[i]);
             else
-                IDAM_LOGF(LOG_DEBUG, "%d", str.shape[i]);
+                idamLog(LOG_DEBUG, "%d", str.shape[i]);
         }
-        IDAM_LOG(LOG_DEBUG, "]\n");
+        idamLog(LOG_DEBUG, "]\n");
     }
 }
 
@@ -391,7 +392,7 @@ void printCompoundField(COMPOUNDFIELD str)
 void printCompoundFieldTable(COMPOUNDFIELD str)
 {
     IDAM_LOGF(LOG_DEBUG, "\t%20s\t%16s\t%d\t%d\t%d\t%d\t%d\t%d\n",
-            str.name, str.type, str.pointer, str.size, str.count, str.offset, str.offpad, str.alignment);
+              str.name, str.type, str.pointer, str.size, str.count, str.offset, str.offpad, str.alignment);
 }
 
 /** Print the Contents of a USERDEFINEDTYPE data structure.
@@ -429,10 +430,10 @@ void printUserDefinedTypeTable(USERDEFINEDTYPE str)
 {
     int i;
     IDAM_LOGF(LOG_DEBUG, "USERDEFINEDTYPE name: %s size: %d [%d] fieldcount: %d ref_id: %d \n",
-            str.name, str.size, getStructureSize(&str), str.fieldcount, str.ref_id);
+              str.name, str.size, getStructureSize(&str), str.fieldcount, str.ref_id);
     if (str.compoundfield != NULL) {
         IDAM_LOG(LOG_DEBUG,
-                "\t                Item\t            type\tpointer\tsize\tcount\toffset\toffpad\talignment\n");
+                 "\t                Item\t            type\tpointer\tsize\tcount\toffset\toffpad\talignment\n");
         for (i = 0; i < str.fieldcount; i++) {
             printCompoundFieldTable(str.compoundfield[i]);
         }
@@ -451,7 +452,7 @@ void printZeroSizedUserDefinedTypeTable(USERDEFINEDTYPE str)
     IDAM_LOGF(LOG_DEBUG, "USERDEFINEDTYPE name: %s size: %d fieldcount %d\n", str.name, str.size, str.fieldcount);
     if (str.compoundfield != NULL) {
         IDAM_LOG(LOG_DEBUG,
-                "\t                Item\t            type\tpointer\tsize\tcount\toffset\toffpad\talignment\n");
+                 "\t                Item\t            type\tpointer\tsize\tcount\toffset\toffpad\talignment\n");
         for (i = 0; i < str.fieldcount; i++) {
             if (str.compoundfield[i].size > 0) continue;
             printCompoundFieldTable(str.compoundfield[i]);
@@ -527,7 +528,7 @@ void printZeroSizedUserDefinedTypeListTable(USERDEFINEDTYPELIST str)
 */
 void printMallocLog(LOGMALLOC str)
 {
-    IDAM_LOGF(LOG_DEBUG, "%p\t%d\t%d\t%d\t%s\n", (void*) str.heap, str.count, str.size, str.freed, str.type);
+    IDAM_LOGF(LOG_DEBUG, "%p\t%d\t%d\t%d\t%s\n", (void*)str.heap, str.count, str.size, str.freed, str.type);
     if (str.rank > 1 && str.shape != NULL) {
         int i;
         IDAM_LOGF(LOG_DEBUG, "\trank %d shape [%d", str.rank, str.shape[0]);
@@ -572,8 +573,8 @@ void addNonMalloc(void* stack, int count, size_t size, char* type)
 // Put a non malloc'd memory location on the malloc log flagging it as freed
 
     if (logmalloclist->listcount + 1 >= logmalloclist->listsize) {
-        logmalloclist->logmalloc = (LOGMALLOC*) realloc((void*) logmalloclist->logmalloc,
-                                                        (logmalloclist->listsize + GROWMALLOCLIST) * sizeof(LOGMALLOC));
+        logmalloclist->logmalloc = (LOGMALLOC*)realloc((void*)logmalloclist->logmalloc,
+                                                       (logmalloclist->listsize + GROWMALLOCLIST) * sizeof(LOGMALLOC));
         logmalloclist->listsize = logmalloclist->listsize + GROWMALLOCLIST;
     }
 
@@ -606,8 +607,8 @@ void addNonMalloc2(void* stack, int count, size_t size, char* type, int rank, in
 // Put a non malloc'd memory location on the malloc log flagging it as freed
 
     if (logmalloclist->listcount + 1 >= logmalloclist->listsize) {
-        logmalloclist->logmalloc = (LOGMALLOC*) realloc((void*) logmalloclist->logmalloc,
-                                                        (logmalloclist->listsize + GROWMALLOCLIST) * sizeof(LOGMALLOC));
+        logmalloclist->logmalloc = (LOGMALLOC*)realloc((void*)logmalloclist->logmalloc,
+                                                       (logmalloclist->listsize + GROWMALLOCLIST) * sizeof(LOGMALLOC));
         logmalloclist->listsize = logmalloclist->listsize + GROWMALLOCLIST;
     }
 
@@ -618,10 +619,11 @@ void addNonMalloc2(void* stack, int count, size_t size, char* type, int rank, in
     strcpy(logmalloclist->logmalloc[logmalloclist->listcount].type, type);
 
     logmalloclist->logmalloc[logmalloclist->listcount].rank = rank;
-    if (rank > 1)
+    if (rank > 1) {
         logmalloclist->logmalloc[logmalloclist->listcount].shape = shape;
-    else
+    } else {
         logmalloclist->logmalloc[logmalloclist->listcount].shape = NULL;
+    }
 
     logmalloclist->listcount++;
 }
@@ -645,8 +647,8 @@ void addMalloc(void* heap, int count, size_t size, char* type)
     if (heap == NULL) return;
 
     if (logmalloclist->listcount + 1 >= logmalloclist->listsize) {
-        logmalloclist->logmalloc = (LOGMALLOC*) realloc((void*) logmalloclist->logmalloc,
-                                                        (logmalloclist->listsize + GROWMALLOCLIST) * sizeof(LOGMALLOC));
+        logmalloclist->logmalloc = (LOGMALLOC*)realloc((void*)logmalloclist->logmalloc,
+                                                       (logmalloclist->listsize + GROWMALLOCLIST) * sizeof(LOGMALLOC));
         logmalloclist->listsize = logmalloclist->listsize + GROWMALLOCLIST;
     }
 
@@ -682,8 +684,8 @@ void addMalloc2(void* heap, int count, size_t size, char* type, int rank, int* s
     if (heap == NULL) return;
 
     if (logmalloclist->listcount + 1 >= logmalloclist->listsize) {
-        logmalloclist->logmalloc = (LOGMALLOC*) realloc((void*) logmalloclist->logmalloc,
-                                                        (logmalloclist->listsize + GROWMALLOCLIST) * sizeof(LOGMALLOC));
+        logmalloclist->logmalloc = (LOGMALLOC*)realloc((void*)logmalloclist->logmalloc,
+                                                       (logmalloclist->listsize + GROWMALLOCLIST) * sizeof(LOGMALLOC));
         logmalloclist->listsize = logmalloclist->listsize + GROWMALLOCLIST;
     }
 
@@ -694,10 +696,11 @@ void addMalloc2(void* heap, int count, size_t size, char* type, int rank, int* s
     strcpy(logmalloclist->logmalloc[logmalloclist->listcount].type, type);
 
     logmalloclist->logmalloc[logmalloclist->listcount].rank = rank;
-    if (rank > 1)
+    if (rank > 1) {
         logmalloclist->logmalloc[logmalloclist->listcount].shape = shape;
-    else
+    } else {
         logmalloclist->logmalloc[logmalloclist->listcount].shape = NULL;
+    }
 
     logmalloclist->listcount++;
 }
@@ -722,9 +725,9 @@ void changeMalloc(void* old, void* anew, int count, size_t size, char* type)
         addMalloc(anew, count, size, type);
         return;
     }
-    target = (VOIDTYPE) ((VOIDTYPE*) old);
+    target = (VOIDTYPE)((VOIDTYPE*)old);
     for (i = 0; i < logmalloclist->listcount; i++) {
-        candidate = (VOIDTYPE) ((VOIDTYPE*) logmalloclist->logmalloc[i].heap);
+        candidate = (VOIDTYPE)((VOIDTYPE*)logmalloclist->logmalloc[i].heap);
         if (target == candidate) {
             logmalloclist->logmalloc[i].heap = anew;
             logmalloclist->logmalloc[i].freed = 0;
@@ -757,9 +760,9 @@ void changeNonMalloc(void* old, void* anew, int count, size_t size, char* type)
         addNonMalloc(anew, count, size, type);
         return;
     }
-    target = (VOIDTYPE) ((VOIDTYPE*) old);
+    target = (VOIDTYPE)((VOIDTYPE*)old);
     for (i = 0; i < logmalloclist->listcount; i++) {
-        candidate = (VOIDTYPE) ((VOIDTYPE*) logmalloclist->logmalloc[i].heap);
+        candidate = (VOIDTYPE)((VOIDTYPE*)logmalloclist->logmalloc[i].heap);
         if (target == candidate) {
             logmalloclist->logmalloc[i].heap = anew;
             logmalloclist->logmalloc[i].freed = 1;
@@ -780,9 +783,9 @@ void changeNonMalloc(void* old, void* anew, int count, size_t size, char* type)
 
 int compare_ulonglong(const void* a, const void* b)
 {
-    const unsigned long long* da = (const unsigned long long*) a;
-    const unsigned long long* db = (const unsigned long long*) b;
-    return (int) (*da > *db) - (int) (*da < *db);
+    const unsigned long long* da = (const unsigned long long*)a;
+    const unsigned long long* db = (const unsigned long long*)b;
+    return (int)(*da > *db) - (int)(*da < *db);
 }
 
 #else
@@ -800,11 +803,12 @@ int dupCountMallocLog(LOGMALLOCLIST* str)
     if (str == NULL) return 0;
     if (str->listcount <= 1) return 0;
 #ifdef A64
-    unsigned long long* sorted = (unsigned long long*) malloc(str->listcount * sizeof(unsigned long long));
+    unsigned long long* sorted = (unsigned long long*)malloc(str->listcount * sizeof(unsigned long long));
     for (i = 0; i < str->listcount; i++)
-        if (str->logmalloc[i].freed == 0)
-            sorted[sortCount++] = (unsigned long long) str->logmalloc[i].heap;
-    qsort((void*) sorted, (size_t) sortCount, (size_t) sizeof(unsigned long long), compare_ulonglong);
+        if (str->logmalloc[i].freed == 0) {
+            sorted[sortCount++] = (unsigned long long)str->logmalloc[i].heap;
+        }
+    qsort((void*)sorted, (size_t)sortCount, (size_t)sizeof(unsigned long long), compare_ulonglong);
 #else
     unsigned long *sorted = (unsigned long *)malloc(str->listcount*sizeof(unsigned long));
     for (i=0; i<str->listcount; i++)if (str->logmalloc[i].freed == 0) sorted[sortCount++] = (unsigned long)str->logmalloc[i].heap;
@@ -813,7 +817,7 @@ int dupCountMallocLog(LOGMALLOCLIST* str)
     for (i = 1; i < sortCount; i++) {
         if (sorted[i] == sorted[i - 1]) dupCount++;
     }
-    free((void*) sorted);
+    free((void*)sorted);
     return dupCount;
 }
 
@@ -827,10 +831,10 @@ void freeMallocLog(LOGMALLOCLIST* str)
     if (str == NULL) return;
     for (i = 0; i < str->listcount; i++) {
         if (str->logmalloc[i].freed == 0) {
-            if (str->logmalloc[i].heap != NULL && str->logmalloc[i].count > 0) free((void*) str->logmalloc[i].heap);
+            if (str->logmalloc[i].heap != NULL && str->logmalloc[i].count > 0) free((void*)str->logmalloc[i].heap);
             str->logmalloc[i].freed = 1;
             if (str->logmalloc[i].rank > 1 && str->logmalloc[i].shape != NULL) {
-                free((void*) str->logmalloc[i].shape);
+                free((void*)str->logmalloc[i].shape);
                 str->logmalloc[i].shape = NULL;
             }
         }
@@ -845,7 +849,7 @@ void freeMallocLogList(LOGMALLOCLIST* str)
 {
     if (str == NULL) return;
     freeMallocLog(str);
-    if (str->logmalloc != NULL) free((void*) str->logmalloc);
+    if (str->logmalloc != NULL) free((void*)str->logmalloc);
     str->logmalloc = NULL;
     initLogMallocList(str);
 }
@@ -870,15 +874,15 @@ void findMalloc(void* heap, int* count, int* size, char** type)
     *type = NULL;
     if (heap == NULL) return;
 
-    if ((target = *((VOIDTYPE*) heap)) == 0) return;
+    if ((target = *((VOIDTYPE*)heap)) == 0) return;
 
-    if (lastMallocIndex >= (unsigned int) logmalloclist->listcount) {  // Defensive check
+    if (lastMallocIndex >= (unsigned int)logmalloclist->listcount) {  // Defensive check
         lastMallocIndex = 0;
         *lastMallocIndexValue = lastMallocIndex;
     }
 
     for (i = lastMallocIndex; i < logmalloclist->listcount; i++) {
-        candidate = (VOIDTYPE) ((VOIDTYPE*) logmalloclist->logmalloc[i].heap);
+        candidate = (VOIDTYPE)((VOIDTYPE*)logmalloclist->logmalloc[i].heap);
         if (target == candidate) {
             *count = logmalloclist->logmalloc[i].count;
             *size = logmalloclist->logmalloc[i].size;
@@ -890,7 +894,7 @@ void findMalloc(void* heap, int* count, int* size, char** type)
     }
 
     for (i = 0; i < lastMallocIndex; i++) {
-        candidate = (VOIDTYPE) ((VOIDTYPE*) logmalloclist->logmalloc[i].heap);
+        candidate = (VOIDTYPE)((VOIDTYPE*)logmalloclist->logmalloc[i].heap);
         if (target == candidate) {
             *count = logmalloclist->logmalloc[i].count;
             *size = logmalloclist->logmalloc[i].size;
@@ -929,7 +933,7 @@ void findMalloc2(void* heap, int* count, int* size, char** type, int* rank, int*
     *shape = NULL;
     if (heap == NULL) return;
 
-    if ((target = *((VOIDTYPE*) heap)) == 0) return;  // Both addresses same!
+    if ((target = *((VOIDTYPE*)heap)) == 0) return;  // Both addresses same!
 
     if (lastMallocIndex >= logmalloclist->listcount) {  // Defensive check
         lastMallocIndex = 0;
@@ -937,7 +941,7 @@ void findMalloc2(void* heap, int* count, int* size, char** type, int* rank, int*
     }
 
     for (i = lastMallocIndex; i < logmalloclist->listcount; i++) {
-        candidate = (VOIDTYPE) ((VOIDTYPE*) logmalloclist->logmalloc[i].heap);
+        candidate = (VOIDTYPE)((VOIDTYPE*)logmalloclist->logmalloc[i].heap);
         if (target == candidate) {
             *count = logmalloclist->logmalloc[i].count;
             *size = logmalloclist->logmalloc[i].size;
@@ -953,7 +957,7 @@ void findMalloc2(void* heap, int* count, int* size, char** type, int* rank, int*
     }
 
     for (i = 0; i < lastMallocIndex; i++) {   // Start search at the first log entry
-        candidate = (VOIDTYPE) ((VOIDTYPE*) logmalloclist->logmalloc[i].heap);
+        candidate = (VOIDTYPE)((VOIDTYPE*)logmalloclist->logmalloc[i].heap);
         if (target == candidate) {
             *count = logmalloclist->logmalloc[i].count;
             *size = logmalloclist->logmalloc[i].size;
@@ -987,8 +991,8 @@ void addStruct(void* heap, char* type)
     if (heap == NULL) return;
 
     if (logstructlist.listcount + 1 >= logstructlist.listsize) {
-        logstructlist.logstruct = (LOGSTRUCT*) realloc((void*) logstructlist.logstruct,
-                                                       (logstructlist.listsize + GROWMALLOCLIST) * sizeof(LOGSTRUCT));
+        logstructlist.logstruct = (LOGSTRUCT*)realloc((void*)logstructlist.logstruct,
+                                                      (logstructlist.listsize + GROWMALLOCLIST) * sizeof(LOGSTRUCT));
         logstructlist.listsize = logstructlist.listsize + GROWMALLOCLIST;
     }
 
@@ -1005,7 +1009,7 @@ void addStruct(void* heap, char* type)
 */
 void freeLogStructList()
 {
-    if (logstructlist.logstruct != NULL) free((void*) logstructlist.logstruct);
+    if (logstructlist.logstruct != NULL) free((void*)logstructlist.logstruct);
     initLogStructList();
 }
 
@@ -1072,14 +1076,14 @@ void copyUserDefinedType(USERDEFINEDTYPE* old, USERDEFINEDTYPE* anew)
     USERDEFINEDTYPE udt;
     initUserDefinedType(&udt);
     udt = *old;
-    udt.image = (char*) malloc((old->imagecount) * sizeof(char));
+    udt.image = (char*)malloc((old->imagecount) * sizeof(char));
     memcpy(udt.image, old->image, old->imagecount);
-    udt.compoundfield = (COMPOUNDFIELD*) malloc((old->fieldcount) * sizeof(COMPOUNDFIELD));
+    udt.compoundfield = (COMPOUNDFIELD*)malloc((old->fieldcount) * sizeof(COMPOUNDFIELD));
     for (i = 0; i < old->fieldcount; i++) {
         initCompoundField(&udt.compoundfield[i]);
         udt.compoundfield[i] = old->compoundfield[i];
         if (old->compoundfield[i].rank > 0) {
-            udt.compoundfield[i].shape = (int*) malloc(old->compoundfield[i].rank * sizeof(int));
+            udt.compoundfield[i].shape = (int*)malloc(old->compoundfield[i].rank * sizeof(int));
             for (j = 0; j < old->compoundfield[i].rank; j++)
                 udt.compoundfield[i].shape[j] = old->compoundfield[i].shape[j];
         }
@@ -1133,8 +1137,8 @@ void copyUserDefinedTypeList(USERDEFINEDTYPELIST **anew) {
 */
 void addCompoundField(USERDEFINEDTYPE* str, COMPOUNDFIELD field)
 {
-    str->compoundfield = (COMPOUNDFIELD*) realloc((void*) str->compoundfield,
-                                                  (str->fieldcount + 1) * sizeof(COMPOUNDFIELD));
+    str->compoundfield = (COMPOUNDFIELD*)realloc((void*)str->compoundfield,
+                                                 (str->fieldcount + 1) * sizeof(COMPOUNDFIELD));
     initCompoundField(&str->compoundfield[str->fieldcount]);
     str->compoundfield[str->fieldcount++] = field;
 }
@@ -1147,8 +1151,8 @@ void addCompoundField(USERDEFINEDTYPE* str, COMPOUNDFIELD field)
 */
 void addUserDefinedType(USERDEFINEDTYPELIST* str, USERDEFINEDTYPE type)
 {
-    str->userdefinedtype = (USERDEFINEDTYPE*) realloc((void*) str->userdefinedtype,
-                                                      (str->listCount + 1) * sizeof(USERDEFINEDTYPE));
+    str->userdefinedtype = (USERDEFINEDTYPE*)realloc((void*)str->userdefinedtype,
+                                                     (str->listCount + 1) * sizeof(USERDEFINEDTYPE));
     initUserDefinedType(&str->userdefinedtype[str->listCount]);
     str->userdefinedtype[str->listCount++] = type;
 }
@@ -1183,7 +1187,7 @@ int countUserDefinedType(USERDEFINEDTYPELIST* str)
 void freeCompoundField(COMPOUNDFIELD* str)
 {
     if (str == NULL) return;
-    if (str->shape != NULL) free((void*) str->shape);
+    if (str->shape != NULL) free((void*)str->shape);
     str->shape = NULL;
 }
 
@@ -1199,10 +1203,10 @@ void freeUserDefinedType(USERDEFINEDTYPE* type)
     for (i = 0; i < type->fieldcount; i++) {
         freeCompoundField(&type->compoundfield[i]);
     }
-    if (type->compoundfield != NULL) free((void*) type->compoundfield);
+    if (type->compoundfield != NULL) free((void*)type->compoundfield);
     type->compoundfield = NULL;
 
-    if (type->image != NULL) free((void*) type->image);
+    if (type->image != NULL) free((void*)type->image);
     type->image = NULL;
 }
 
@@ -1214,13 +1218,16 @@ void freeUserDefinedType(USERDEFINEDTYPE* type)
 void freeUserDefinedTypeList(USERDEFINEDTYPELIST* userdefinedtypelist)
 {
     int i;
-    if (userdefinedtypelist == NULL) return;
-    if (userdefinedtypelist->listCount == 0) return;
-    if (userdefinedtypelist->userdefinedtype == NULL) return;
+    if (userdefinedtypelist == NULL)
+        return;
+    if (userdefinedtypelist->listCount == 0)
+        return;
+    if (userdefinedtypelist->userdefinedtype == NULL)
+        return;
     for (i = 0; i < userdefinedtypelist->listCount; i++) {
         freeUserDefinedType(&userdefinedtypelist->userdefinedtype[i]);
     }
-    if (userdefinedtypelist->userdefinedtype != NULL) free((void*) userdefinedtypelist->userdefinedtype);
+    free((void*)userdefinedtypelist->userdefinedtype);
     initUserDefinedTypeList(userdefinedtypelist);
 }
 
@@ -1236,10 +1243,11 @@ size_t getsizeof(char* type)
 
     if (!strncmp(type, "const", 5)) {
         p = strrchr(type, ' '); // ignore const
-        if (p != NULL)
+        if (p != NULL) {
             base = &p[1];
-        else
+        } else {
             base = &type[6];
+        }
     }
 
     if (!strcasecmp(base, "FLOAT")) return sizeof(float);
@@ -1344,13 +1352,14 @@ int getalignmentof(char* type)
 
     if (!strncmp(type, "const", 5) || !strncmp(type, "unsigned", 8)) {  // ignore const and unsigned
         p = strrchr(type, ' ');
-        if (p != NULL)
+        if (p != NULL) {
             base = &p[1];
-        else {
-            if (!strncmp(type, "const", 5))
+        } else {
+            if (!strncmp(type, "const", 5)) {
                 base = &type[6];
-            else
+            } else {
                 base = &type[9];
+            }
         }
     }
     if (type == NULL) return ALIGNMENT;
@@ -1495,7 +1504,7 @@ int getStructureSize(USERDEFINEDTYPE* str)
 // Add any additional structure packing to align the structure
 
     if (maxAlign) {
-      byteCount = byteCount + ((maxAlign - (byteCount % maxAlign)) % maxAlign);
+        byteCount = byteCount + ((maxAlign - (byteCount % maxAlign)) % maxAlign);
     }
 
 // Return the structure size
@@ -1545,8 +1554,8 @@ int xdrAtomicData(XDR* xdrs, char* type, int count, int size, char** data)
     int typeid = gettypeof(type);
     char* d;
     if (xdrs->x_op == XDR_DECODE) {
-        d = (char*) malloc(count * size);
-        addMalloc((void*) d, count, size, type);
+        d = (char*)malloc(count * size);
+        addMalloc((void*)d, count, size, type);
         *data = d;
     } else {
         d = *data;
@@ -1574,29 +1583,29 @@ int xdrAtomicData(XDR* xdrs, char* type, int count, int size, char** data)
 #ifndef DEBUG2
     switch (typeid) {
         case (TYPE_FLOAT):
-            return (xdr_vector(xdrs, d, count, sizeof(float), (xdrproc_t) xdr_float));
+            return (xdr_vector(xdrs, d, count, sizeof(float), (xdrproc_t)xdr_float));
         case (TYPE_DOUBLE):
-            return (xdr_vector(xdrs, d, count, sizeof(double), (xdrproc_t) xdr_double));
+            return (xdr_vector(xdrs, d, count, sizeof(double), (xdrproc_t)xdr_double));
         case (TYPE_COMPLEX):
-            return (xdr_vector(xdrs, d, 2 * count, sizeof(float), (xdrproc_t) xdr_float));
+            return (xdr_vector(xdrs, d, 2 * count, sizeof(float), (xdrproc_t)xdr_float));
         case (TYPE_DCOMPLEX):
-            return (xdr_vector(xdrs, d, 2 * count, sizeof(double), (xdrproc_t) xdr_double));
+            return (xdr_vector(xdrs, d, 2 * count, sizeof(double), (xdrproc_t)xdr_double));
 
         case (TYPE_CHAR):
-            return (xdr_vector(xdrs, d, count, sizeof(char), (xdrproc_t) xdr_char));
+            return (xdr_vector(xdrs, d, count, sizeof(char), (xdrproc_t)xdr_char));
         case (TYPE_SHORT):
-            return (xdr_vector(xdrs, d, count, sizeof(short), (xdrproc_t) xdr_short));
+            return (xdr_vector(xdrs, d, count, sizeof(short), (xdrproc_t)xdr_short));
         case (TYPE_INT):
-            return (xdr_vector(xdrs, d, count, sizeof(int), (xdrproc_t) xdr_int));
+            return (xdr_vector(xdrs, d, count, sizeof(int), (xdrproc_t)xdr_int));
         case (TYPE_LONG64):
-            return (xdr_vector(xdrs, d, count, sizeof(long long), (xdrproc_t) xdr_int64_t));
+            return (xdr_vector(xdrs, d, count, sizeof(long long), (xdrproc_t)xdr_int64_t));
 
         case (TYPE_UNSIGNED_CHAR):
-            return (xdr_vector(xdrs, d, count, sizeof(unsigned char), (xdrproc_t) xdr_u_char));
+            return (xdr_vector(xdrs, d, count, sizeof(unsigned char), (xdrproc_t)xdr_u_char));
         case (TYPE_UNSIGNED_SHORT):
-            return (xdr_vector(xdrs, d, count, sizeof(unsigned short), (xdrproc_t) xdr_u_short));
+            return (xdr_vector(xdrs, d, count, sizeof(unsigned short), (xdrproc_t)xdr_u_short));
         case (TYPE_UNSIGNED_INT):
-            return (xdr_vector(xdrs, d, count, sizeof(unsigned int), (xdrproc_t) xdr_u_int));
+            return (xdr_vector(xdrs, d, count, sizeof(unsigned int), (xdrproc_t)xdr_u_int));
 #ifndef __APPLE__
         case (TYPE_UNSIGNED_LONG64):
             return (xdr_vector(xdrs, d, count, sizeof(unsigned long long), (xdrproc_t) xdr_uint64_t));
@@ -1652,7 +1661,6 @@ int xdrUserDefinedTypeData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** d
 
     } else {
 
-
         if (userdefinedtype == NULL) {
             addIdamError(&idamerrorstack, CODEERRORTYPE, "xdrUserDefinedTypeData", 999,
                          "No User Defined Type passed - cannot send!");
@@ -1679,7 +1687,7 @@ int findUserDefinedTypeId(const char* name)
 
     int i;
     for (i = 0; i < userdefinedtypelist->listCount; i++) {
-        if (!strcmp(userdefinedtypelist->userdefinedtype[i].name, name)) return (i);
+        if (!strcmp(userdefinedtypelist->userdefinedtype[i].name, name)) return i;
     }
 #ifdef INCLUDESTRUCTPREFIX
     if (!strncmp(name, "struct ", 7)) {   // search without the struct prefix
@@ -1713,8 +1721,9 @@ USERDEFINEDTYPE* findUserDefinedType(const char* name, int ref_id)
     if (ref_id > 0 && name[0] != '\0') {
         for (i = 0; i < userdefinedtypelist->listCount; i++) {
             if (!strcmp(userdefinedtypelist->userdefinedtype[i].name, name) &&
-                userdefinedtypelist->userdefinedtype[i].ref_id == ref_id)
-                return (&userdefinedtypelist->userdefinedtype[i]);
+                userdefinedtypelist->userdefinedtype[i].ref_id == ref_id) {
+                    return (&userdefinedtypelist->userdefinedtype[i]);
+            }
         }
         return NULL;
     }
@@ -1723,16 +1732,18 @@ USERDEFINEDTYPE* findUserDefinedType(const char* name, int ref_id)
 
         for (i = 0; i < userdefinedtypelist->listCount; i++) {
             IDAM_LOGF(LOG_DEBUG, "[%2d]: [%s]\n", i, userdefinedtypelist->userdefinedtype[i].name);
-            if (!strcmp(userdefinedtypelist->userdefinedtype[i].name, name))
+            if (!strcmp(userdefinedtypelist->userdefinedtype[i].name, name)) {
                 return (&userdefinedtypelist->userdefinedtype[i]);
+            }
         }
         return NULL;
     }
 
     if (ref_id != 0 && name[0] == '\0') {
         for (i = 0; i < userdefinedtypelist->listCount; i++) {
-            if (userdefinedtypelist->userdefinedtype[i].ref_id == ref_id)
+            if (userdefinedtypelist->userdefinedtype[i].ref_id == ref_id) {
                 return (&userdefinedtypelist->userdefinedtype[i]);
+            }
         }
         return NULL;
     }
@@ -1775,19 +1786,19 @@ bool_t xdr_compoundfield(XDR* xdrs, COMPOUNDFIELD* str)
     rc = rc && xdr_int(xdrs, &str->pointer);
     rc = rc && xdr_int(xdrs, &str->rank);
     rc = rc && xdr_int(xdrs, &str->count);
-    rc = rc && WrapXDRString(xdrs, (char*) str->type, MAXELEMENTNAME - 1);
-    rc = rc && WrapXDRString(xdrs, (char*) str->name, MAXELEMENTNAME - 1);
-    rc = rc && WrapXDRString(xdrs, (char*) str->desc, MAXELEMENTNAME - 1);
+    rc = rc && WrapXDRString(xdrs, (char*)str->type, MAXELEMENTNAME - 1);
+    rc = rc && WrapXDRString(xdrs, (char*)str->name, MAXELEMENTNAME - 1);
+    rc = rc && WrapXDRString(xdrs, (char*)str->desc, MAXELEMENTNAME - 1);
     if (!rc) return 0;
 // dgm 23/3/10 change rank test from 0 to 1
     //if(str->rank > 0){
     if (str->rank > 1) { // Only necessary to pass shape if the rank > 1  
         if (rc && xdrs->x_op == XDR_DECODE) {  // Receiving an array so allocate Heap for it then initialise
-            str->shape = (int*) malloc(str->rank * sizeof(int));
+            str->shape = (int*)malloc(str->rank * sizeof(int));
             for (i = 0; i < str->rank; i++) str->shape[i] = 0;
         }
-        rc = rc && xdr_vector(xdrs, (char*) str->shape, (u_int) str->rank, sizeof(int), (xdrproc_t) xdr_int);
-    } else str->shape = NULL;
+        rc = rc && xdr_vector(xdrs, (char*)str->shape, (u_int)str->rank, sizeof(int), (xdrproc_t)xdr_int);
+    } else { str->shape = NULL; }
     return rc;
 }
 
@@ -1800,8 +1811,8 @@ bool_t xdr_userdefinedtype(XDR* xdrs, USERDEFINEDTYPE* str)
     int i, rc, adjust = 0;
 
     rc = xdr_int(xdrs, &str->idamclass);
-    rc = rc && WrapXDRString(xdrs, (char*) str->name, MAXELEMENTNAME - 1);
-    rc = rc && WrapXDRString(xdrs, (char*) str->source, MAXELEMENTNAME - 1);
+    rc = rc && WrapXDRString(xdrs, (char*)str->name, MAXELEMENTNAME - 1);
+    rc = rc && WrapXDRString(xdrs, (char*)str->source, MAXELEMENTNAME - 1);
     rc = rc && xdr_int(xdrs, &str->ref_id);
     rc = rc && xdr_int(xdrs, &str->size);  // Size determined on the server side: client must recalculate
     rc = rc && xdr_int(xdrs, &str->imagecount);
@@ -1811,16 +1822,17 @@ bool_t xdr_userdefinedtype(XDR* xdrs, USERDEFINEDTYPE* str)
 
     if (xdrs->x_op == XDR_DECODE) {  // Receiving an array so allocate Heap for it then initialise
         if (str->imagecount > 0) {
-            str->image = (char*) malloc(str->imagecount * sizeof(char));
-        } else str->image = NULL;
+            str->image = (char*)malloc(str->imagecount * sizeof(char));
+        } else { str->image = NULL; }
         if (str->fieldcount > 0) {
-            str->compoundfield = (COMPOUNDFIELD*) malloc(str->fieldcount * sizeof(COMPOUNDFIELD));
+            str->compoundfield = (COMPOUNDFIELD*)malloc(str->fieldcount * sizeof(COMPOUNDFIELD));
             for (i = 0; i < str->fieldcount; i++) initCompoundField(&str->compoundfield[i]);
-        } else str->compoundfield = NULL;
+        } else { str->compoundfield = NULL; }
     }
 
-    if (str->imagecount > 0)
-        rc = rc && xdr_vector(xdrs, str->image, (u_int) str->imagecount, sizeof(char), (xdrproc_t) xdr_char);
+    if (str->imagecount > 0) {
+        rc = rc && xdr_vector(xdrs, str->image, (u_int)str->imagecount, sizeof(char), (xdrproc_t)xdr_char);
+    }
 
     for (i = 0; i < str->fieldcount; i++) {
         rc = rc && xdr_compoundfield(xdrs, &str->compoundfield[i]);
@@ -1921,7 +1933,7 @@ bool_t xdr_userdefinedtypelist(XDR* xdrs, USERDEFINEDTYPELIST* str)
     if (!rc || str->listCount == 0) return rc;
 
     if (xdrs->x_op == XDR_DECODE) {  // Receiving array so allocate Heap for it then initialise
-        str->userdefinedtype = (USERDEFINEDTYPE*) malloc(str->listCount * sizeof(USERDEFINEDTYPE));
+        str->userdefinedtype = (USERDEFINEDTYPE*)malloc(str->listCount * sizeof(USERDEFINEDTYPE));
         for (i = 0; i < str->listCount; i++) initUserDefinedType(&str->userdefinedtype[i]);
     }
 
@@ -1957,7 +1969,7 @@ void printAtomicData(void* data, int atomictype, int count, const char* label)
     }
     switch (atomictype) {
         case (TYPE_FLOAT): {
-            float* d = (float*) data;
+            float* d = (float*)data;
             if (count > 1) {
                 IDAM_LOGF(LOG_DEBUG, "%40s:\n", label);
                 for (i = 0; i < count; i++)IDAM_LOGF(LOG_DEBUG, "[%d]   %f\n", i, d[i]);
@@ -1967,7 +1979,7 @@ void printAtomicData(void* data, int atomictype, int count, const char* label)
             return;
         }
         case (TYPE_DOUBLE): {
-            double* d = (double*) data;
+            double* d = (double*)data;
             if (count > 1) {
                 IDAM_LOGF(LOG_DEBUG, "%40s:\n", label);
                 for (i = 0; i < count; i++)IDAM_LOGF(LOG_DEBUG, "[%d]   %f\n", i, d[i]);
@@ -1978,7 +1990,7 @@ void printAtomicData(void* data, int atomictype, int count, const char* label)
         }
 
         case (TYPE_SHORT): {
-            short* d = (short*) data;
+            short* d = (short*)data;
             if (count > 1) {
                 IDAM_LOGF(LOG_DEBUG, "%40s:\n", label);
                 for (i = 0; i < count; i++)IDAM_LOGF(LOG_DEBUG, "[%d]   %d\n", i, d[i]);
@@ -1989,7 +2001,7 @@ void printAtomicData(void* data, int atomictype, int count, const char* label)
         }
         case (TYPE_INT):
         case (TYPE_LONG): {
-            int* d = (int*) data;
+            int* d = (int*)data;
             if (count > 1) {
                 IDAM_LOGF(LOG_DEBUG, "%40s:\n", label);
                 for (i = 0; i < count; i++)IDAM_LOGF(LOG_DEBUG, "[%d]   %d\n", i, d[i]);
@@ -1999,7 +2011,7 @@ void printAtomicData(void* data, int atomictype, int count, const char* label)
             return;
         }
         case (TYPE_LONG64): {
-            long long* d = (long long*) data;
+            long long* d = (long long*)data;
             if (count > 1) {
                 IDAM_LOGF(LOG_DEBUG, "%40s:\n", label);
                 for (i = 0; i < count; i++)IDAM_LOGF(LOG_DEBUG, "[%d]   %lld\n", i, d[i]);
@@ -2009,9 +2021,8 @@ void printAtomicData(void* data, int atomictype, int count, const char* label)
             return;
         }
 
-
         case (TYPE_UNSIGNED_CHAR): {
-            unsigned char* d = (unsigned char*) data;
+            unsigned char* d = (unsigned char*)data;
             if (count > 1) {
                 IDAM_LOGF(LOG_DEBUG, "%40s:\n", label);
                 for (i = 0; i < count; i++)IDAM_LOGF(LOG_DEBUG, "[%d]   %u\n", i, d[i]);
@@ -2021,7 +2032,7 @@ void printAtomicData(void* data, int atomictype, int count, const char* label)
             return;
         }
         case (TYPE_UNSIGNED_SHORT): {
-            unsigned short* d = (unsigned short*) data;
+            unsigned short* d = (unsigned short*)data;
             if (count > 1) {
                 IDAM_LOGF(LOG_DEBUG, "%40s:\n", label);
                 for (i = 0; i < count; i++)IDAM_LOGF(LOG_DEBUG, "[%d]   %u\n", i, d[i]);
@@ -2032,7 +2043,7 @@ void printAtomicData(void* data, int atomictype, int count, const char* label)
         }
         case (TYPE_UNSIGNED_INT):
         case (TYPE_UNSIGNED_LONG): {
-            unsigned int* d = (unsigned int*) data;
+            unsigned int* d = (unsigned int*)data;
             if (count > 1) {
                 IDAM_LOGF(LOG_DEBUG, "%40s:\n", label);
                 for (i = 0; i < count; i++)IDAM_LOGF(LOG_DEBUG, "[%d]   %u\n", i, d[i]);
@@ -2055,12 +2066,12 @@ void printAtomicData(void* data, int atomictype, int count, const char* label)
 #endif
 
         case (TYPE_STRING): {
-            char* d = (char*) data;
+            char* d = (char*)data;
             IDAM_LOGF(LOG_DEBUG, "%40s: %s\n", label, d);
             return;
         }
         case (TYPE_CHAR): {
-            char* d = (char*) data;
+            char* d = (char*)data;
             IDAM_LOGF(LOG_DEBUG, "%40s: %s\n", label, d);
             return;
         }
@@ -2086,12 +2097,12 @@ void printAtomicType(NTREE* tree, const char* target)
     for (i = 0; i < fieldcount; i++) {
         if (!strcmp(userdefinedtype->compoundfield[i].name, target)) {
             if (userdefinedtype->compoundfield[i].atomictype != TYPE_UNKNOWN) {
-                p = (char*) tree->data;
+                p = (char*)tree->data;
                 if (userdefinedtype->compoundfield[i].pointer ||
                     !strcmp(userdefinedtype->compoundfield[i].type, "STRING *")) {  // Strings are an exception!
                     int count, size;
                     char* type;
-                    data = (void*) *((VOIDTYPE*) &p[userdefinedtype->compoundfield[i].offset]);
+                    data = (void*)*((VOIDTYPE*)&p[userdefinedtype->compoundfield[i].offset]);
                     if (data == NULL) {
                         IDAM_LOGF(LOG_DEBUG, "%40s: null\n", target);
                         return;
@@ -2102,7 +2113,7 @@ void printAtomicType(NTREE* tree, const char* target)
                     } else {
                     }
                 } else {
-                    data = (void*) &p[userdefinedtype->compoundfield[i].offset];
+                    data = (void*)&p[userdefinedtype->compoundfield[i].offset];
                     printAtomicData(data, userdefinedtype->compoundfield[i].atomictype,
                                     userdefinedtype->compoundfield[i].count, target);
                 }
@@ -2182,26 +2193,26 @@ char** parseTarget(const char* target, int* ntargets)
 {
     char** targetlist = NULL;
     char* buffer = NULL, * work, * p;
-    buffer = (char*) malloc((strlen(target) + 1) * sizeof(char));
+    buffer = (char*)malloc((strlen(target) + 1) * sizeof(char));
     strcpy(buffer, target);
     work = buffer;
     *ntargets = 0;
     if (((p = strchr(work, '.')) != NULL) || (p = strchr(work, '/')) != NULL) {
         p[0] = '\0';
-        targetlist = (char**) realloc((void*) targetlist, (*ntargets + 1) * sizeof(char*));
-        targetlist[0] = (char*) malloc((strlen(work) + 1) * sizeof(char));
+        targetlist = (char**)realloc((void*)targetlist, (*ntargets + 1) * sizeof(char*));
+        targetlist[0] = (char*)malloc((strlen(work) + 1) * sizeof(char));
         strcpy(targetlist[0], work);
         work = &p[1];
         *ntargets = 1;
         do {
-            targetlist = (char**) realloc((void*) targetlist, (*ntargets + 1) * sizeof(char*));
+            targetlist = (char**)realloc((void*)targetlist, (*ntargets + 1) * sizeof(char*));
             if (((p = strchr(work, '.')) != NULL) || (p = strchr(work, '/')) != NULL) {
                 p[0] = '\0';
-                targetlist[*ntargets] = (char*) malloc((strlen(work) + 1) * sizeof(char));
+                targetlist[*ntargets] = (char*)malloc((strlen(work) + 1) * sizeof(char));
                 strcpy(targetlist[*ntargets], work);
                 work = &p[1];
             } else {
-                targetlist[*ntargets] = (char*) malloc((strlen(work) + 1) * sizeof(char));
+                targetlist[*ntargets] = (char*)malloc((strlen(work) + 1) * sizeof(char));
                 strcpy(targetlist[*ntargets], work);
             }
             *ntargets = *ntargets + 1;
@@ -2209,10 +2220,10 @@ char** parseTarget(const char* target, int* ntargets)
     }
     if (*ntargets == 0) {  // Return the target even if not hierarchical
         *ntargets = 1;
-        targetlist = (char**) malloc(sizeof(char*));
+        targetlist = (char**)malloc(sizeof(char*));
         targetlist[0] = buffer;
     }
-    if (*ntargets > 1 && buffer != NULL)free((void*) buffer);
+    if (*ntargets > 1 && buffer != NULL)free((void*)buffer);
     return targetlist;
 }
 
@@ -2230,9 +2241,9 @@ void printNode(NTREE* tree)
     IDAM_LOGF(LOG_DEBUG, "Name    : %s \n", tree->name);
     IDAM_LOGF(LOG_DEBUG, "Branches: %d \n", tree->branches);
 #ifdef A64
-    IDAM_LOGF(LOG_DEBUG, "Parent  : %p   (%llx) \n", (void*) tree->parent, (UVOIDTYPE) tree->parent);
+    IDAM_LOGF(LOG_DEBUG, "Parent  : %p   (%llx) \n", (void*)tree->parent, (UVOIDTYPE)tree->parent);
     for (i = 0; i < tree->branches; i++)
-        IDAM_LOGF(LOG_DEBUG, "Children[%d]: %p   (%llx) \n", i, (void*) tree->children[i], (UVOIDTYPE) tree->children[i]);
+        IDAM_LOGF(LOG_DEBUG, "Children[%d]: %p   (%llx) \n", i, (void*)tree->children[i], (UVOIDTYPE)tree->children[i]);
 #else
     IDAM_LOGF(LOG_DEBUG, "Parent  : %p   (%x) \n", (void *)tree->parent, (UVOIDTYPE)tree->parent);
     for (i=0; i<tree->branches; i++) IDAM_LOGF(LOG_DEBUG, "Children[%d]: %p   (%x) \n", i, (void *)tree->children[i], (UVOIDTYPE)tree->children[i]);
@@ -2346,8 +2357,8 @@ void* getNodeStructureArrayData(NTREE* ntree, int index)
                      "The Tree Node array index > allocated array dimension");
         return NULL;
     }
-    p = (char*) ntree->data;
-    return (void*) &p[index * ntree->userdefinedtype->size];
+    p = (char*)ntree->data;
+    return (void*)&p[index * ntree->userdefinedtype->size];
 }
 
 /** Return a pointer to a Component Data Structure Array element.
@@ -2373,16 +2384,16 @@ void* getNodeStructureComponentArrayData(NTREE* ntree, const char* target, int s
     }
     if (ntree == NULL) ntree = fullNTree;
 
-    if ((pp = (char*) getNodeStructureArrayData(ntree, structureindex)) == NULL) return NULL;
+    if ((pp = (char*)getNodeStructureArrayData(ntree, structureindex)) == NULL) return NULL;
 
     for (i = 0; i < ntree->userdefinedtype->fieldcount; i++) {
         if (!strcmp(ntree->userdefinedtype->compoundfield[i].name, target)) {
             offset = ntree->userdefinedtype->compoundfield[i].offset;
             if (ntree->userdefinedtype->compoundfield[i].pointer) {
-                p = (char*) *((VOIDTYPE*) &pp[offset]);    // Data Element from the single Structure Array Element
+                p = (char*)*((VOIDTYPE*)&pp[offset]);    // Data Element from the single Structure Array Element
                 findMalloc(p, &count, &size, &type);
             } else {
-                p = (char*) &pp[offset];
+                p = (char*)&pp[offset];
                 size = ntree->userdefinedtype->compoundfield[i].size;
                 count = ntree->userdefinedtype->compoundfield[i].count;
             }
@@ -2392,7 +2403,7 @@ void* getNodeStructureComponentArrayData(NTREE* ntree, const char* target, int s
                              "The Tree Node Structure Component array index > allocated array dimension");
                 return NULL;
             }
-            return (void*) &p[componentindex * size];
+            return (void*)&p[componentindex * size];
         }
     }
     addIdamError(&idamerrorstack, CODEERRORTYPE, "getNodeStructureComponentArrayData", 999,
@@ -2520,12 +2531,13 @@ char** getNodeStructureNames(NTREE* ntree)
     char** names;
     if (ntree == NULL) ntree = fullNTree;
     if ((count = getNodeStructureCount(ntree)) == 0) return NULL;
-    names = (char**) malloc(count * sizeof(char*));
-    addMalloc((void*) names, count, sizeof(char*), "char *");
+    names = (char**)malloc(count * sizeof(char*));
+    addMalloc((void*)names, count, sizeof(char*), "char *");
     count = 0;
     for (i = 0; i < ntree->userdefinedtype->fieldcount; i++)
-        if (ntree->userdefinedtype->compoundfield[i].atomictype == TYPE_UNKNOWN)
+        if (ntree->userdefinedtype->compoundfield[i].atomictype == TYPE_UNKNOWN) {
             names[count++] = ntree->userdefinedtype->compoundfield[i].name;
+        }
     return names;
 }
 
@@ -2541,13 +2553,14 @@ char** getNodeAtomicNames(NTREE* ntree)
     char** names;
     if (ntree == NULL) ntree = fullNTree;
     if ((count = getNodeAtomicCount(ntree)) == 0) return NULL;
-    names = (char**) malloc(count * sizeof(char*));
-    addMalloc((void*) names, count, sizeof(char*), "char *");
+    names = (char**)malloc(count * sizeof(char*));
+    addMalloc((void*)names, count, sizeof(char*), "char *");
 
     count = 0;
     for (i = 0; i < ntree->userdefinedtype->fieldcount; i++)
-        if (ntree->userdefinedtype->compoundfield[i].atomictype != TYPE_UNKNOWN)
+        if (ntree->userdefinedtype->compoundfield[i].atomictype != TYPE_UNKNOWN) {
             names[count++] = ntree->userdefinedtype->compoundfield[i].name;
+        }
     return names;
 }
 
@@ -2563,12 +2576,13 @@ char** getNodeStructureTypes(NTREE* ntree)
     char** names;
     if (ntree == NULL) ntree = fullNTree;
     if ((count = getNodeStructureCount(ntree)) == 0) return NULL;
-    names = (char**) malloc(count * sizeof(char*));
-    addMalloc((void*) names, count, sizeof(char*), "char *");
+    names = (char**)malloc(count * sizeof(char*));
+    addMalloc((void*)names, count, sizeof(char*), "char *");
     count = 0;
     for (i = 0; i < ntree->userdefinedtype->fieldcount; i++)
-        if (ntree->userdefinedtype->compoundfield[i].atomictype == TYPE_UNKNOWN)
+        if (ntree->userdefinedtype->compoundfield[i].atomictype == TYPE_UNKNOWN) {
             names[count++] = ntree->userdefinedtype->compoundfield[i].type;
+        }
     return names;
 }
 
@@ -2584,12 +2598,13 @@ char** getNodeAtomicTypes(NTREE* ntree)
     char** names;
     if (ntree == NULL) ntree = fullNTree;
     if ((count = getNodeAtomicCount(ntree)) == 0) return NULL;
-    names = (char**) malloc(count * sizeof(char*));
-    addMalloc((void*) names, count, sizeof(char*), "char *");
+    names = (char**)malloc(count * sizeof(char*));
+    addMalloc((void*)names, count, sizeof(char*), "char *");
     count = 0;
     for (i = 0; i < ntree->userdefinedtype->fieldcount; i++)
-        if (ntree->userdefinedtype->compoundfield[i].atomictype != TYPE_UNKNOWN)
+        if (ntree->userdefinedtype->compoundfield[i].atomictype != TYPE_UNKNOWN) {
             names[count++] = ntree->userdefinedtype->compoundfield[i].type;
+        }
     return names;
 }
 
@@ -2605,8 +2620,8 @@ int* getNodeStructurePointers(NTREE* ntree)
     int* pointers;
     if (ntree == NULL) ntree = fullNTree;
     if ((count = getNodeStructureCount(ntree)) == 0) return NULL;
-    pointers = (int*) malloc(count * sizeof(int));
-    addMalloc((void*) pointers, count, sizeof(int), "int");
+    pointers = (int*)malloc(count * sizeof(int));
+    addMalloc((void*)pointers, count, sizeof(int), "int");
     count = 0;
     for (i = 0; i < ntree->userdefinedtype->fieldcount; i++)
         if (ntree->userdefinedtype->compoundfield[i].atomictype == TYPE_UNKNOWN) {
@@ -2628,8 +2643,8 @@ int* getNodeAtomicPointers(NTREE* ntree)
     int* pointers;
     if (ntree == NULL) ntree = fullNTree;
     if ((count = getNodeAtomicCount(ntree)) == 0) return NULL;
-    pointers = (int*) malloc(count * sizeof(int));
-    addMalloc((void*) pointers, count, sizeof(int), "int");
+    pointers = (int*)malloc(count * sizeof(int));
+    addMalloc((void*)pointers, count, sizeof(int), "int");
     count = 0;
     for (i = 0; i < ntree->userdefinedtype->fieldcount; i++)
         if (ntree->userdefinedtype->compoundfield[i].atomictype != TYPE_UNKNOWN) {
@@ -2653,15 +2668,15 @@ int* getNodeStructureRank(NTREE* ntree)
     char* type, * data;
     if (ntree == NULL) ntree = fullNTree;
     if ((count = getNodeStructureCount(ntree)) == 0) return NULL;
-    ranks = (int*) malloc(count * sizeof(int));
-    addMalloc((void*) ranks, count, sizeof(int), "int");
+    ranks = (int*)malloc(count * sizeof(int));
+    addMalloc((void*)ranks, count, sizeof(int), "int");
     count = 0;
     for (i = 0; i < ntree->userdefinedtype->fieldcount; i++) {
         if (ntree->userdefinedtype->compoundfield[i].atomictype == TYPE_UNKNOWN) {
             if (!ntree->userdefinedtype->compoundfield[i].pointer) {
                 ranks[count] = ntree->userdefinedtype->compoundfield[i].rank;
             } else {
-                if ((data = (char*) ntree->data) == NULL) return NULL;
+                if ((data = (char*)ntree->data) == NULL) return NULL;
                 findMalloc2(&data[ntree->userdefinedtype->compoundfield[i].offset], &count0, &size, &type, &rank,
                             &shape);
                 ranks[count] = rank;
@@ -2686,15 +2701,15 @@ int* getNodeAtomicRank(NTREE* ntree)
     char* type, * data;
     if (ntree == NULL) ntree = fullNTree;
     if ((count = getNodeAtomicCount(ntree)) == 0) return NULL;
-    ranks = (int*) malloc(count * sizeof(int));
-    addMalloc((void*) ranks, count, sizeof(int), "int");
+    ranks = (int*)malloc(count * sizeof(int));
+    addMalloc((void*)ranks, count, sizeof(int), "int");
     count = 0;
     for (i = 0; i < ntree->userdefinedtype->fieldcount; i++)
         if (ntree->userdefinedtype->compoundfield[i].atomictype != TYPE_UNKNOWN) {
             if (!ntree->userdefinedtype->compoundfield[i].pointer) {
                 ranks[count] = ntree->userdefinedtype->compoundfield[i].rank;
             } else {
-                if ((data = (char*) ntree->data) == NULL) return NULL;
+                if ((data = (char*)ntree->data) == NULL) return NULL;
                 findMalloc2(&data[ntree->userdefinedtype->compoundfield[i].offset], &count0, &size, &type, &rank,
                             &shape);
                 ranks[count] = rank;
@@ -2717,15 +2732,15 @@ int** getNodeStructureShape(NTREE* ntree)
     char* type, * data;
     if (ntree == NULL) ntree = fullNTree;
     if ((count = getNodeStructureCount(ntree)) == 0) return NULL;
-    shapes = (int**) malloc(count * sizeof(int*));
-    addMalloc((void*) shapes, count, sizeof(int*), "int *");
+    shapes = (int**)malloc(count * sizeof(int*));
+    addMalloc((void*)shapes, count, sizeof(int*), "int *");
     count = 0;
     for (i = 0; i < ntree->userdefinedtype->fieldcount; i++)
         if (ntree->userdefinedtype->compoundfield[i].atomictype == TYPE_UNKNOWN) {
             if (!ntree->userdefinedtype->compoundfield[i].pointer) {
                 shapes[count] = ntree->userdefinedtype->compoundfield[i].shape;
             } else {
-                if ((data = (char*) ntree->data) == NULL) return NULL;
+                if ((data = (char*)ntree->data) == NULL) return NULL;
                 findMalloc2(&data[ntree->userdefinedtype->compoundfield[i].offset], &count0, &size, &type, &rank,
                             &shape);
                 shapes[count] = shape;
@@ -2748,8 +2763,8 @@ int** getNodeAtomicShape(NTREE* ntree)
     char* type, * data;
     if (ntree == NULL) ntree = fullNTree;
     if ((count = getNodeAtomicCount(ntree)) == 0) return NULL;
-    shapes = (int**) malloc(count * sizeof(int*));
-    addMalloc((void*) shapes, count, sizeof(int*), "int *");
+    shapes = (int**)malloc(count * sizeof(int*));
+    addMalloc((void*)shapes, count, sizeof(int*), "int *");
     count = 0;
     for (i = 0; i < ntree->userdefinedtype->fieldcount; i++)
         if (ntree->userdefinedtype->compoundfield[i].atomictype != TYPE_UNKNOWN) {
@@ -2757,19 +2772,19 @@ int** getNodeAtomicShape(NTREE* ntree)
                 shapes[count] = ntree->userdefinedtype->compoundfield[i].shape;
                 if (shapes[count] == NULL &&
                     ntree->userdefinedtype->compoundfield[i].rank < 2) {    // Not passed so create
-                    shapes[count] = (int*) malloc(sizeof(int));
+                    shapes[count] = (int*)malloc(sizeof(int));
                     shapes[count][0] = ntree->userdefinedtype->compoundfield[i].count;
                     ntree->userdefinedtype->compoundfield[i].shape = shapes[count];
                     //addMalloc((void *)&shapes[count], 1, sizeof(int), "int"); 
                 }
             } else {
-                if ((data = (char*) ntree->data) == NULL) return NULL;
+                if ((data = (char*)ntree->data) == NULL) return NULL;
                 findMalloc2(&data[ntree->userdefinedtype->compoundfield[i].offset], &count0, &size, &type, &rank,
                             &shape);
                 shapes[count] = shape;
                 if (shape == 0 && (rank < 2)) {
-                    shape = (int*) malloc(sizeof(int));    // Assume rank 1
-                    addMalloc((void*) shape, 1, sizeof(int), "int");
+                    shape = (int*)malloc(sizeof(int));    // Assume rank 1
+                    addMalloc((void*)shape, 1, sizeof(int), "int");
                     shape[0] = count0;
                     shapes[count] = shape;    // Pass back the length of the scalar or rank 1 array from the malloc log query
                 }
@@ -2852,8 +2867,8 @@ char** getNodeStructureComponentNames(NTREE* ntree)
     if (ntree == NULL) ntree = fullNTree;
     count = ntree->userdefinedtype->fieldcount;
     if (count == 0) return NULL;
-    names = (char**) malloc(count * sizeof(char*));
-    for (i = 0; i < count; i++) names[i] = (char*) ntree->userdefinedtype->compoundfield[i].name;
+    names = (char**)malloc(count * sizeof(char*));
+    for (i = 0; i < count; i++) names[i] = (char*)ntree->userdefinedtype->compoundfield[i].name;
     return names;
 }
 
@@ -2869,8 +2884,8 @@ char** getNodeStructureComponentTypes(NTREE* ntree)
     if (ntree == NULL) ntree = fullNTree;
     count = ntree->userdefinedtype->fieldcount;
     if (count == 0) return NULL;
-    names = (char**) malloc(count * sizeof(char*));
-    for (i = 0; i < count; i++) names[i] = (char*) ntree->userdefinedtype->compoundfield[i].type;
+    names = (char**)malloc(count * sizeof(char*));
+    for (i = 0; i < count; i++) names[i] = (char*)ntree->userdefinedtype->compoundfield[i].type;
     return names;
 }
 
@@ -2886,8 +2901,8 @@ char** getNodeStructureComponentDescriptions(NTREE* ntree)
     if (ntree == NULL) ntree = fullNTree;
     count = ntree->userdefinedtype->fieldcount;
     if (count == 0) return NULL;
-    names = (char**) malloc(count * sizeof(char*));
-    for (i = 0; i < count; i++) names[i] = (char*) ntree->userdefinedtype->compoundfield[i].desc;
+    names = (char**)malloc(count * sizeof(char*));
+    for (i = 0; i < count; i++) names[i] = (char*)ntree->userdefinedtype->compoundfield[i].desc;
     return names;
 }
 
@@ -2917,7 +2932,7 @@ int getNodeStructureComponentDataCount(NTREE* ntree, const char* target)
     for (i = 0; i < fieldcount; i++) {
         if (!strcmp(userdefinedtype->compoundfield[i].name, lastname)) {
             if (userdefinedtype->compoundfield[i].pointer) {
-                if ((data = (char*) ntree->data) == NULL) break;
+                if ((data = (char*)ntree->data) == NULL) break;
                 findMalloc(&data[userdefinedtype->compoundfield[i].offset], &count, &size, &type);
                 break;
             } else {
@@ -2950,7 +2965,7 @@ int getNodeStructureComponentDataRank(NTREE* ntree, const char* target)
     for (i = 0; i < fieldcount; i++) {
         if (!strcmp(userdefinedtype->compoundfield[i].name, lastname)) {
             if (userdefinedtype->compoundfield[i].pointer) {
-                if ((data = (char*) ntree->data) == NULL) return 0;
+                if ((data = (char*)ntree->data) == NULL) return 0;
                 findMalloc2(&data[ntree->userdefinedtype->compoundfield[i].offset], &count, &size, &type, &rank,
                             &shape);
                 if (count == 0) rank = 0;
@@ -2984,7 +2999,7 @@ int* getNodeStructureComponentDataShape(NTREE* ntree, const char* target)
     for (i = 0; i < fieldcount; i++) {
         if (!strcmp(userdefinedtype->compoundfield[i].name, lastname)) {
             if (userdefinedtype->compoundfield[i].pointer) {
-                if ((data = (char*) ntree->data) == NULL) return 0;
+                if ((data = (char*)ntree->data) == NULL) return 0;
                 findMalloc2(&data[ntree->userdefinedtype->compoundfield[i].offset], &count, &size, &type, &rank,
                             &shape);
                 if (count == 0) shape = NULL;
@@ -3043,7 +3058,7 @@ int getNodeStructureComponentDataSize(NTREE* ntree, const char* target)
     for (i = 0; i < fieldcount; i++) {
         if (!strcmp(userdefinedtype->compoundfield[i].name, lastname)) {
             if (userdefinedtype->compoundfield[i].pointer) {
-                if ((data = (char*) ntree->data) == NULL) break;
+                if ((data = (char*)ntree->data) == NULL) break;
                 findMalloc(&data[userdefinedtype->compoundfield[i].offset], &count, &size, &type);
                 break;
             } else {
@@ -3075,7 +3090,7 @@ char* getNodeStructureComponentDataDataType(NTREE* ntree, const char* target)
     for (i = 0; i < fieldcount; i++) {
         if (!strcmp(userdefinedtype->compoundfield[i].name, lastname)) {
             if (userdefinedtype->compoundfield[i].pointer) {
-                if ((data = (char*) ntree->data) == NULL) break;
+                if ((data = (char*)ntree->data) == NULL) break;
                 findMalloc(&data[userdefinedtype->compoundfield[i].offset], &count, &size, &type);
                 break;
             } else {
@@ -3111,12 +3126,12 @@ void* getNodeStructureComponentData(NTREE* ntree, const char* target)
     fieldcount = ntree->userdefinedtype->fieldcount;
     for (i = 0; i < fieldcount; i++) {
         if (!strcmp(userdefinedtype->compoundfield[i].name, lastname)) {
-            p = (char*) ntree->data;
+            p = (char*)ntree->data;
             offset = userdefinedtype->compoundfield[i].offset;
             if (userdefinedtype->compoundfield[i].pointer) {
-                data = (void*) *((VOIDTYPE*) &p[offset]);
+                data = (void*)*((VOIDTYPE*)&p[offset]);
             } else {
-                data = (void*) &p[offset];
+                data = (void*)&p[offset];
             }
             break;
         }
@@ -3173,29 +3188,28 @@ void printNodeStructureComponentData(NTREE* ntree, const char* target)
             void* str = NULL;
             void* data = NULL;
             void* olddata = NULL;
-            char* p = (char*) getNodeStructureComponentData(node, lastname); // Structure Array
+            char* p = (char*)getNodeStructureComponentData(node, lastname); // Structure Array
             char* pp = NULL;
             namecount = userdefinedtype->fieldcount;    // Count of sub-structure elements
             IDAM_LOGF(LOG_DEBUG, "Data Count %d   Type %s\n", namecount, type);
             for (j = 0; j < count; j++) {
-                str = (void*) &p[j * userdefinedtype->size];
-                pp = (char*) str;
+                str = (void*)&p[j * userdefinedtype->size];
+                pp = (char*)str;
                 for (i = 0; i < namecount; i++) {
                     offset = userdefinedtype->compoundfield[i].offset;
                     type = userdefinedtype->compoundfield[i].type;
                     IDAM_LOGF(LOG_DEBUG, "[%d]   Type %s   Name %s\n", i, type, userdefinedtype->compoundfield[i].name);
 
                     if (userdefinedtype->compoundfield[i].pointer) {
-                        data = (void*) *((VOIDTYPE*) &pp[offset]);    // Data Element from the single Structure Array Element
+                        data = (void*)*((VOIDTYPE*)&pp[offset]);    // Data Element from the single Structure Array Element
                     } else {
-                        data = (void*) &pp[offset];
+                        data = (void*)&pp[offset];
                     }
                     if (data == NULL) continue;
                     if (userdefinedtype->compoundfield[i].atomictype != TYPE_UNKNOWN) {
                         printAtomicData(data, userdefinedtype->compoundfield[i].atomictype,
                                         userdefinedtype->compoundfield[i].count, lastname);
                     } else {
-
 
                         temp.data = data;
                         strcpy(temp.name, userdefinedtype->compoundfield[i].name);
@@ -3276,9 +3290,9 @@ void printNodeStructure(NTREE* ntree)
 
             // Structured components must be children of this node.
 
-            if ((node2 = findNTreeStructure(node, snamelist[i])) != NULL)
+            if ((node2 = findNTreeStructure(node, snamelist[i])) != NULL) {
                 printNodeStructure(node2);
-            else
+            } else
                 IDAM_LOGF(LOG_DEBUG, "%40s: null\n", snamelist[i]);
         }
     }
@@ -3307,20 +3321,20 @@ float* castNodeStructureComponentDatatoFloat(NTREE* ntree, const char* target)
     type = getNodeStructureComponentDataDataType(node, lastname);
 
     if (!strcmp(type, "float")) {
-        return ((float*) getNodeStructureComponentData(node, lastname));
+        return ((float*)getNodeStructureComponentData(node, lastname));
     }
 
     if (count == 0) return NULL;
 
-    data = (float*) malloc(count * sizeof(float));
+    data = (float*)malloc(count * sizeof(float));
     if (!strcmp(type, "double")) {
-        double* s = (double*) getNodeStructureComponentData(node, lastname);
-        for (i = 0; i < count; i++) data[i] = (float) s[i];
+        double* s = (double*)getNodeStructureComponentData(node, lastname);
+        for (i = 0; i < count; i++) data[i] = (float)s[i];
         return data;
     }
     if (!strcmp(type, "int")) {
-        int* s = (int*) getNodeStructureComponentData(node, lastname);
-        for (i = 0; i < count; i++) data[i] = (float) s[i];
+        int* s = (int*)getNodeStructureComponentData(node, lastname);
+        for (i = 0; i < count; i++) data[i] = (float)s[i];
         return data;
     }
 
@@ -3349,20 +3363,20 @@ double* castNodeStructureComponentDatatoDouble(NTREE* ntree, const char* target)
     type = getNodeStructureComponentDataDataType(node, lastname);
 
     if (!strcmp(type, "double")) {
-        return (double*) getNodeStructureComponentData(node, lastname);
+        return (double*)getNodeStructureComponentData(node, lastname);
     }
 
     if (count == 0) return NULL;
 
-    data = (double*) malloc(count * sizeof(double));
+    data = (double*)malloc(count * sizeof(double));
     if (!strcmp(type, "float")) {
-        float* s = (float*) getNodeStructureComponentData(node, lastname);
-        for (i = 0; i < count; i++) data[i] = (double) s[i];
+        float* s = (float*)getNodeStructureComponentData(node, lastname);
+        for (i = 0; i < count; i++) data[i] = (double)s[i];
         return data;
     }
     if (!strcmp(type, "int")) {
-        int* s = (int*) getNodeStructureComponentData(node, lastname);
-        for (i = 0; i < count; i++) data[i] = (double) s[i];
+        int* s = (int*)getNodeStructureComponentData(node, lastname);
+        for (i = 0; i < count; i++) data[i] = (double)s[i];
         return data;
     }
 
@@ -3411,13 +3425,13 @@ void printNTree2(NTREE* tree)
     IDAM_LOGF(LOG_DEBUG, "Name    : %s\n", tree->name);
     IDAM_LOGF(LOG_DEBUG, "Type    : %s\n", tree->userdefinedtype->name);
 #ifdef A64
-    IDAM_LOGF(LOG_DEBUG, "Parent  : %llx\n", (UVOIDTYPE) tree->parent);
+    IDAM_LOGF(LOG_DEBUG, "Parent  : %llx\n", (UVOIDTYPE)tree->parent);
 #else
     IDAM_LOGF(LOG_DEBUG, "Parent  : %x\n", (UVOIDTYPE)tree->parent);
 #endif
     IDAM_LOGF(LOG_DEBUG, "Children: %d\n", tree->branches);
 #ifdef A64
-    for (i = 0; i < tree->branches; i++) IDAM_LOGF(LOG_DEBUG, "[%2d]: %llx\n", i, (UVOIDTYPE) tree->children[i]);
+    for (i = 0; i < tree->branches; i++) IDAM_LOGF(LOG_DEBUG, "[%2d]: %llx\n", i, (UVOIDTYPE)tree->children[i]);
 #else
     for (i=0; i<tree->branches; i++) IDAM_LOGF(LOG_DEBUG, "[%2d]: %x\n", i, (UVOIDTYPE)tree->children[i]);
 #endif
@@ -3436,7 +3450,7 @@ void printNTree(NTREE* tree)
     if (tree == NULL) tree = fullNTree;
     IDAM_LOG(LOG_DEBUG, "--------------------------------------------------------------------\n");
 #ifdef A64
-    IDAM_LOGF(LOG_DEBUG, "\nNTREE Node %llx (%lld) Contents\n", (UVOIDTYPE) tree, (UVOIDTYPE) tree);
+    IDAM_LOGF(LOG_DEBUG, "\nNTREE Node %llx (%lld) Contents\n", (UVOIDTYPE)tree, (UVOIDTYPE)tree);
 #else
     IDAM_LOGF(LOG_DEBUG, "\nNTREE Node %x (%d) Contents\n", (UVOIDTYPE)tree, (UVOIDTYPE)tree);
 #endif
@@ -3458,10 +3472,10 @@ void printNTree(NTREE* tree)
 void printNTreeList(NTREE* tree)
 {
     int i;
-    if (tree == NULL) tree = fullNTree;
+    if (tree == NULL) { tree = fullNTree; }
 #ifdef A64
-    IDAM_LOGF(LOG_DEBUG, "%llx\t(%lld)\t%s\t%s\t%d\n", (UVOIDTYPE) tree, (UVOIDTYPE) tree, tree->name,
-            tree->userdefinedtype->name, tree->branches);
+    IDAM_LOGF(LOG_DEBUG, "%llx\t(%lld)\t%s\t%s\t%d\n", (UVOIDTYPE)tree, (UVOIDTYPE)tree, tree->name,
+              tree->userdefinedtype->name, tree->branches);
 #else
     IDAM_LOGF(LOG_DEBUG, "%x\t(%d)\t%s\t%s\t%d\n", (UVOIDTYPE)tree, (UVOIDTYPE)tree, tree->name,tree->userdefinedtype->name,tree->branches);
 #endif
@@ -3501,17 +3515,17 @@ char** getNTreeStructureNames(NTREE* ntree)
     void* old;
 
     if (ntree == NULL) ntree = fullNTree;
-    names = (char**) malloc(sizeof(char*));
-    addMalloc((void*) names, 1, sizeof(char*), "char *");
+    names = (char**)malloc(sizeof(char*));
+    addMalloc((void*)names, 1, sizeof(char*), "char *");
     names[0] = ntree->name;
     if (ntree->branches == 0) return names;
     for (i = 0; i < ntree->branches; i++) {
         if (i == 0 ||
             strcmp(ntree->children[i]->userdefinedtype->name, ntree->children[i - 1]->userdefinedtype->name) != 0) {
             childcount = getNTreeStructureCount(ntree->children[i]);
-            old = (void*) names;
-            names = (char**) realloc((void*) names, (count + childcount) * sizeof(char*));
-            changeMalloc(old, (void*) names, (count + childcount), sizeof(char*), "char *");
+            old = (void*)names;
+            names = (char**)realloc((void*)names, (count + childcount) * sizeof(char*));
+            changeMalloc(old, (void*)names, (count + childcount), sizeof(char*), "char *");
             childnames = getNTreeStructureNames(ntree->children[i]);
             for (j = 0; j < childcount; j++) names[count + j] = childnames[j];
             count = count + childcount;
@@ -3532,17 +3546,17 @@ char** getNTreeStructureTypes(NTREE* ntree)
     void* old;
 
     if (ntree == NULL) ntree = fullNTree;
-    names = (char**) malloc(sizeof(char*));
-    addMalloc((void*) names, 1, sizeof(char*), "char *");
+    names = (char**)malloc(sizeof(char*));
+    addMalloc((void*)names, 1, sizeof(char*), "char *");
     names[0] = ntree->userdefinedtype->name;
     if (ntree->branches == 0) return names;
     for (i = 0; i < ntree->branches; i++) {
         if (i == 0 ||
             strcmp(ntree->children[i]->userdefinedtype->name, ntree->children[i - 1]->userdefinedtype->name) != 0) {
             childcount = getNTreeStructureCount(ntree->children[i]);
-            old = (void*) names;
-            names = (char**) realloc((void*) names, (count + childcount) * sizeof(char*));
-            changeMalloc(old, (void*) names, (count + childcount), sizeof(char*), "char *");
+            old = (void*)names;
+            names = (char**)realloc((void*)names, (count + childcount) * sizeof(char*));
+            changeMalloc(old, (void*)names, (count + childcount), sizeof(char*), "char *");
             childnames = getNTreeStructureTypes(ntree->children[i]);
             for (j = 0; j < childcount; j++) names[count + j] = childnames[j];
             count = count + childcount;
@@ -3561,9 +3575,9 @@ void printNTreeStructureNames(NTREE* tree)
 {
     int i, namecount;
     char** namelist, ** typelist;
-    if (tree == NULL) tree = fullNTree;
+    if (tree == NULL) { tree = fullNTree; }
 #ifdef A64
-    IDAM_LOGF(LOG_DEBUG, "\nData Tree %llx Structure Names and Types\n", (UVOIDTYPE) tree);
+    IDAM_LOGF(LOG_DEBUG, "\nData Tree %llx Structure Names and Types\n", (UVOIDTYPE)tree);
 #else
     IDAM_LOGF(LOG_DEBUG, "\nData Tree %x Structure Names and Types\n", (UVOIDTYPE)tree);
 #endif
@@ -3616,9 +3630,9 @@ char** getNTreeStructureComponentNames(NTREE* ntree)
         if (i == 0 ||
             strcmp(ntree->children[i]->userdefinedtype->name, ntree->children[i - 1]->userdefinedtype->name) != 0) {
             childcount = getNTreeStructureComponentCount(ntree->children[i]);
-            old = (void*) names;
-            names = (char**) realloc((void*) names, (count + childcount) * sizeof(char*));
-            changeMalloc(old, (void*) names, (count + childcount), sizeof(char*), "char *");
+            old = (void*)names;
+            names = (char**)realloc((void*)names, (count + childcount) * sizeof(char*));
+            changeMalloc(old, (void*)names, (count + childcount), sizeof(char*), "char *");
             childnames = getNTreeStructureComponentNames(ntree->children[i]);
             for (j = 0; j < childcount; j++) names[count + j] = childnames[j];
             count = count + childcount;
@@ -3647,9 +3661,9 @@ char** getNTreeStructureComponentTypes(NTREE* ntree)
         if (i == 0 ||
             strcmp(ntree->children[i]->userdefinedtype->name, ntree->children[i - 1]->userdefinedtype->name) != 0) {
             childcount = getNTreeStructureComponentCount(ntree->children[i]);
-            old = (void*) names;
-            names = (char**) realloc((void*) names, (count + childcount) * sizeof(char*));
-            changeMalloc(old, (void*) names, (count + childcount), sizeof(char*), "char *");
+            old = (void*)names;
+            names = (char**)realloc((void*)names, (count + childcount) * sizeof(char*));
+            changeMalloc(old, (void*)names, (count + childcount), sizeof(char*), "char *");
             childnames = getNTreeStructureComponentTypes(ntree->children[i]);
             for (j = 0; j < childcount; j++) names[count + j] = childnames[j];
             count = count + childcount;
@@ -3678,9 +3692,9 @@ char** getNTreeStructureComponentDescriptions(NTREE* ntree)
         if (i == 0 ||
             strcmp(ntree->children[i]->userdefinedtype->name, ntree->children[i - 1]->userdefinedtype->name) != 0) {
             childcount = getNTreeStructureComponentCount(ntree->children[i]);
-            old = (void*) names;
-            names = (char**) realloc((void*) names, (count + childcount) * sizeof(char*));
-            changeMalloc(old, (void*) names, (count + childcount), sizeof(char*), "char *");
+            old = (void*)names;
+            names = (char**)realloc((void*)names, (count + childcount) * sizeof(char*));
+            changeMalloc(old, (void*)names, (count + childcount), sizeof(char*), "char *");
             childnames = getNTreeStructureComponentDescriptions(ntree->children[i]);
             for (j = 0; j < childcount; j++) names[count + j] = childnames[j];
             count = count + childcount;
@@ -3707,7 +3721,8 @@ void printNTreeStructureComponentNames(NTREE* tree)
     desclist = getNTreeStructureComponentDescriptions(tree); // Descriptions of all structure elements
     IDAM_LOGF(LOG_DEBUG, "Total Structure Component Count %d\n", namecount);
     IDAM_LOG(LOG_DEBUG, "  #\tName\tType\tDescription\n");
-    for (i = 0; i < namecount; i++) IDAM_LOGF(LOG_DEBUG, "[%2d]\t%s\t%s\t%s\n", i, namelist[i], typelist[i], desclist[i]);
+    for (i = 0; i < namecount; i++)
+        IDAM_LOGF(LOG_DEBUG, "[%2d]\t%s\t%s\t%s\n", i, namelist[i], typelist[i], desclist[i]);
 }
 
 //=======================================================================================================
@@ -3800,35 +3815,35 @@ short* castNodeStructureComponentDatatoShort(NTREE* ntree, const char* target)
     type = getNodeStructureComponentDataDataType(node, lastname);
 
     if (!strcmp(type, "short")) {
-        return (short*) getNodeStructureComponentData(node, lastname);
+        return (short*)getNodeStructureComponentData(node, lastname);
     }
 
     if (count == 0) return NULL;
 
-    data = (short*) malloc(count * sizeof(short));
+    data = (short*)malloc(count * sizeof(short));
     if (!strcmp(type, "double")) {
-        double* s = (double*) getNodeStructureComponentData(node, lastname);
-        for (i = 0; i < count; i++) data[i] = (short) s[i];
+        double* s = (double*)getNodeStructureComponentData(node, lastname);
+        for (i = 0; i < count; i++) data[i] = (short)s[i];
         return data;
     }
     if (!strcmp(type, "float")) {
-        float* s = (float*) getNodeStructureComponentData(node, lastname);
-        for (i = 0; i < count; i++) data[i] = (short) s[i];
+        float* s = (float*)getNodeStructureComponentData(node, lastname);
+        for (i = 0; i < count; i++) data[i] = (short)s[i];
         return data;
     }
     if (!strcmp(type, "int")) {
-        int* s = (int*) getNodeStructureComponentData(node, lastname);
-        for (i = 0; i < count; i++) data[i] = (short) s[i];
+        int* s = (int*)getNodeStructureComponentData(node, lastname);
+        for (i = 0; i < count; i++) data[i] = (short)s[i];
         return data;
     }
     if (!strcmp(type, "unsigned int")) {
-        unsigned int* s = (unsigned int*) getNodeStructureComponentData(node, lastname);
-        for (i = 0; i < count; i++) data[i] = (short) s[i];
+        unsigned int* s = (unsigned int*)getNodeStructureComponentData(node, lastname);
+        for (i = 0; i < count; i++) data[i] = (short)s[i];
         return data;
     }
     if (!strcmp(type, "unsigned short")) {
-        unsigned short* s = (unsigned short*) getNodeStructureComponentData(node, lastname);
-        for (i = 0; i < count; i++) data[i] = (short) s[i];
+        unsigned short* s = (unsigned short*)getNodeStructureComponentData(node, lastname);
+        for (i = 0; i < count; i++) data[i] = (short)s[i];
         return data;
     }
     return NULL;

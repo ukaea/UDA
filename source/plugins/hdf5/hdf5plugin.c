@@ -116,7 +116,7 @@ extern int idamHDF5(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             data_block->data_type = TYPE_STRING;
             strcpy(data_block->data_desc, "newHDF5: help = description of this plugin");
 
-            data_block->data = (char*) p;
+            data_block->data = p;
 
             data_block->dims[0].data_type = TYPE_UNSIGNED_INT;
             data_block->dims[0].dim_n = strlen(p) + 1;

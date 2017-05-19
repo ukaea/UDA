@@ -887,8 +887,7 @@ int idamClient(REQUEST_BLOCK* request_block)
 
             IDAM_LOG(LOG_DEBUG, "idamClient: Receiving Hierarchical Data Structure from Server\n");
 
-            if ((err = protocol2(clientInput, protocol_id, XDR_RECEIVE, NULL, data_block)) !=
-                0) {
+            if ((err = protocol2(clientInput, protocol_id, XDR_RECEIVE, NULL, data_block)) != 0) {
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "idamClient", err,
                              "Client Side Protocol Error (Opaque Structure Type)");
                 break;

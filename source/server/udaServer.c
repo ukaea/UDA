@@ -134,21 +134,6 @@ LOGMALLOCLIST* getIdamServerLogMallocList()
     return logmalloclist;
 }
 
-void putIdamServerErrorStack(IDAMERRORSTACK errorstack)
-{
-    idamerrorstack = errorstack;
-}
-
-void putIdamServerUserDefinedTypeList(USERDEFINEDTYPELIST* definedtypelist)
-{
-    userdefinedtypelist = definedtypelist;
-}
-
-void putIdamServerLogMallocList(LOGMALLOCLIST* malloclist)
-{
-    logmalloclist = malloclist;
-}
-
 //--------------------------------------------------------------------------------------
 // Server Entry point
 
@@ -206,8 +191,8 @@ int idamServer(CLIENT_BLOCK client_block, REQUEST_BLOCK* request_block0, SERVER_
     initActions(&actions_desc);        // There may be a Sequence of Actions to Apply
     initActions(&actions_sig);
 
-//-------------------------------------------------------------------------
-// Create the Server Log Directory: Fatal Error if any Problem Opening a Log?
+    //-------------------------------------------------------------------------
+    // Create the Server Log Directory: Fatal Error if any Problem Opening a Log?
 
 #ifndef FATCLIENT    // <========================== Client Server Code Only
 
@@ -230,38 +215,39 @@ int idamServer(CLIENT_BLOCK client_block, REQUEST_BLOCK* request_block0, SERVER_
 
 #endif			// <========================== End of Client Server Code 
 
-//-------------------------------------------------------------------------
-// Open and Initialise the Socket List (Once Only)
+    //-------------------------------------------------------------------------
+    // Open and Initialise the Socket List (Once Only)
 
     if (!socket_list_initialised) {
         initSocketList(&server_socketlist);
         socket_list_initialised = 1;
     }
 
-//----------------------------------------------------------------------
-// Initialise General Structure Passing
+    //----------------------------------------------------------------------
+    // Initialise General Structure Passing
 
-// this step needs doing once only - the first time a generalised user defined structure is encountered.
-// For FAT clients use a static state variable to prevent multiple parsing
+    // this step needs doing once only - the first time a generalised user defined structure is encountered.
+    // For FAT clients use a static state variable to prevent multiple parsing
 
     if (!fileParsed) {
         fileParsed = 1;
         initUserDefinedTypeList(&parseduserdefinedtypelist);
-        userdefinedtypelist = &parseduserdefinedtypelist;                    // Switch before Parsing input file
+        userdefinedtypelist = &parseduserdefinedtypelist;           // Switch before Parsing input file
 
         if ((token = getenv("UDA_SARRAY_CONFIG")) == NULL) {
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "idamServer", err,
-                         "No Environment variable UDA_SARRAY_CONFIG");
+            addIdamError(&idamerrorstack, CODEERRORTYPE, "idamServer", err, "No Environment variable UDA_SARRAY_CONFIG");
         } else {
-            parseIncludeFile(token);                // file containing the SARRAY structure definition
-            parseduserdefinedtypelist = *userdefinedtypelist;                    // Switch back
+            IDAM_LOGF(LOG_DEBUG, "Parsing structure definition file: %s\n", token);
+            parseIncludeFile(token);                                // file containing the SARRAY structure definition
+            parseduserdefinedtypelist = *userdefinedtypelist;       // Switch back
+            printUserDefinedTypeList(parseduserdefinedtypelist);
         }
     }
 
-    userdefinedtypelist = NULL;                                // Startup State
+    userdefinedtypelist = NULL;                                     // Startup State
 
-//----------------------------------------------------------------------
-// Initialise the Data Reader Plugin list
+    //----------------------------------------------------------------------
+    // Initialise the Data Reader Plugin list
 
     if (!plugin_list_initialised) {
         pluginList.count = 0;
@@ -274,8 +260,8 @@ int idamServer(CLIENT_BLOCK client_block, REQUEST_BLOCK* request_block0, SERVER_
         }
     }
 
-//----------------------------------------------------------------------------
-// Server Information: Operating System Name - may limit types of data that can be received by the Client
+    //----------------------------------------------------------------------------
+    // Server Information: Operating System Name - may limit types of data that can be received by the Client
 
     char* env = NULL;
 
@@ -285,14 +271,14 @@ int idamServer(CLIENT_BLOCK client_block, REQUEST_BLOCK* request_block0, SERVER_
         strcpy(server_block.OSName, env);
     }
 
-// Server Configuration and Environment DOI
+    // Server Configuration and Environment DOI
 
     if ((env = getenv("UDA_SERVER_DOI")) != NULL) {
         strcpy(server_block.DOI, env);
     }
 
-//-------------------------------------------------------------------------
-// User Authentication at startup
+    //-------------------------------------------------------------------------
+    // User Authentication at startup
 
 #ifndef FATCLIENT    // <========================== Client Server Code Only
 
@@ -579,9 +565,8 @@ int idamServer(CLIENT_BLOCK client_block, REQUEST_BLOCK* request_block0, SERVER_
             printServerBlock(server_block);
             printRequestBlock(request_block);
 
-
-//------------------------------------------------------------------------------------------------------------------
-// Prepend Proxy Host to Source to redirect client request
+            //------------------------------------------------------------------------------------------------------------------
+            // Prepend Proxy Host to Source to redirect client request
 
             /*! On parallel clusters where nodes are connected together on a private network, only the master node may have access
             to external data sources. Cluster nodes can access these external sources via an IDAM server running on the master node.
@@ -808,13 +793,13 @@ int idamServer(CLIENT_BLOCK client_block, REQUEST_BLOCK* request_block0, SERVER_
                 if ((err = idamServerLegacyPlugin(&request_block, &data_source, &signal_desc)) != 0) break;
             }
 
-//------------------------------------------------------------------------------------------------
-// Identify the Signal Required from the Database if a Generic Signal Requested
-// or if a name mapping (alternative signal/source) is requested by the client
-//
-// ??? Meta data when an alternative source is requested ???
-//------------------------------------------------------------------------------------------------
-// Connect to the Database
+            //------------------------------------------------------------------------------------------------
+            // Identify the Signal Required from the Database if a Generic Signal Requested
+            // or if a name mapping (alternative signal/source) is requested by the client
+            //
+            // ??? Meta data when an alternative source is requested ???
+            //------------------------------------------------------------------------------------------------
+            // Connect to the Database
 
 #ifndef NOTGENERICENABLED
             if (request_block.request == REQUEST_READ_GENERIC || (client_block.clientFlags & CLIENTFLAG_ALTDATA)) {
@@ -831,10 +816,10 @@ int idamServer(CLIENT_BLOCK client_block, REQUEST_BLOCK* request_block0, SERVER_
             }
 #endif
 
-//------------------------------------------------------------------------------------------------
-// Query the Database: Internal or External Data Sources
-// Read the Data or Create the Composite/Derived Data
-// Apply XML Actions to Data
+            //------------------------------------------------------------------------------------------------
+            // Query the Database: Internal or External Data Sources
+            // Read the Data or Create the Composite/Derived Data
+            // Apply XML Actions to Data
 
             depth = 0;
 
@@ -867,8 +852,8 @@ int idamServer(CLIENT_BLOCK client_block, REQUEST_BLOCK* request_block0, SERVER_
 
             if (err != 0) break;
 
-//------------------------------------------------------------------------------------------------
-// Server-Side Data Processing
+            //------------------------------------------------------------------------------------------------
+            // Server-Side Data Processing
 
             if (client_block.get_dimdble || client_block.get_timedble || client_block.get_scalar) {
                 if (serverProcessing(client_block, &data_block) != 0) {
@@ -878,8 +863,8 @@ int idamServer(CLIENT_BLOCK client_block, REQUEST_BLOCK* request_block0, SERVER_
                 }
             }
 
-//------------------------------------------------------------------------------------------------
-// Read Additional Meta Data
+            //------------------------------------------------------------------------------------------------
+            // Read Additional Meta Data
 
 #ifndef NOTGENERICENABLED
             if (client_block.get_meta && request_block.request == REQUEST_READ_GENERIC) {
@@ -1416,22 +1401,22 @@ int idamServer(CLIENT_BLOCK client_block, REQUEST_BLOCK* request_block0, SERVER_
 
 #else			// <========================== End of Client Server Code
 
-    //----------------------------------------------------------------------------
-    // Write the Error Log Record & Free Error Stack Heap
-
-    idamErrorLog(client_block, request_block, idamerrorstack);
-    closeIdamError(&idamerrorstack);
-
-    //----------------------------------------------------------------------------
-    // Free Data Block Heap Memory in case by-passed
-
-    freeDataBlock(&data_block);
-
-    //----------------------------------------------------------------------------
-    // Free Structure Definition List (don't free the structure as stack variable)
-
-    freeUserDefinedTypeList(&parseduserdefinedtypelist);
-    freeNTree();
+//    //----------------------------------------------------------------------------
+//    // Write the Error Log Record & Free Error Stack Heap
+//
+//    idamErrorLog(client_block, request_block, idamerrorstack);
+//    closeIdamError(&idamerrorstack);
+//
+//    //----------------------------------------------------------------------------
+//    // Free Data Block Heap Memory in case by-passed
+//
+//    freeDataBlock(&data_block);
+//
+//    //----------------------------------------------------------------------------
+//    // Free Structure Definition List (don't free the structure as stack variable)
+//
+//    freeUserDefinedTypeList(&parseduserdefinedtypelist);
+//    freeNTree();
 
     //----------------------------------------------------------------------------
     // Free Plugin List and Close all open library entries

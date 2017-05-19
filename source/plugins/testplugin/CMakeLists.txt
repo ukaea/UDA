@@ -14,7 +14,7 @@ uda_plugin(
   ENTRY_FUNC testplugin
   DESCRIPTION "Generate Test Data"
   EXAMPLE "TESTPLUGIN::test1()"
-  LIBNAME test_plugin
+  LIBNAME testplugin_plugin
   SOURCES testplugin.c
   EXTRA_INCLUDE_DIRS
     ${LIBXML2_INCLUDE_DIR}

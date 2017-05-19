@@ -4,9 +4,14 @@
 #include <string.h>
 #include <strings.h>
 #include <ctype.h>
+#include <stdbool.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #if !defined(_GNU_SOURCE) && !defined(strcasestr)
-char *strcasestr(const char *haystack, const char *needle);
+char* strcasestr(const char* haystack, const char* needle);
 #endif
 
 // Reverse a String
@@ -61,11 +66,19 @@ char** SplitString(const char* string, const char* delim);
 
 void FreeSplitStringTokens(char*** tokens);
 
+bool StringEquals(const char* a, const char* b);
+
+bool StringIEquals(const char* a, const char* b);
+
 #define STR_STARTSWITH(X, Y) !strncmp(X, Y, strlen(Y))
 #define STR_ISTARTSWITH(X, Y) !strncasecmp(X, Y, strlen(Y))
 
-#define STR_EQUALS(X, Y) !strncmp(X, Y, strlen(Y))
-#define STR_IEQUALS(X, Y) !strncasecmp(X, Y, strlen(Y))
+#define STR_EQUALS(X, Y) StringEquals(X, Y)
+#define STR_IEQUALS(X, Y) StringIEquals(X, Y)
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // IDAM_CLIENTSERVER_TRIMSTRING_H
 
