@@ -1554,12 +1554,12 @@ int idamServerMetaDataPlugin(const PLUGINLIST* plugin_list, int plugin_id, REQUE
  * @param name
  * @return
  */
-unsigned short findStringValue(NAMEVALUELIST* namevaluelist, char** value, const char* name)
+bool findStringValue(NAMEVALUELIST* namevaluelist, char** value, const char* name)
 {
     char** names = SplitString(name, "|");
     *value = NULL;
 
-    unsigned short found = 0;
+    bool found = 0;
     int i;
     for (i = 0; i < namevaluelist->pairCount; i++) {
         size_t n;
@@ -1586,10 +1586,10 @@ unsigned short findStringValue(NAMEVALUELIST* namevaluelist, char** value, const
  * @param name
  * @return
  */
-unsigned short findIntValue(NAMEVALUELIST* namevaluelist, int* value, const char* name)
+bool findIntValue(NAMEVALUELIST* namevaluelist, int* value, const char* name)
 {
     char* str;
-    unsigned short found = findStringValue(namevaluelist, &str, name);
+    bool found = findStringValue(namevaluelist, &str, name);
     if (found) {
         *value = atoi(str);
     }
@@ -1606,10 +1606,10 @@ unsigned short findIntValue(NAMEVALUELIST* namevaluelist, int* value, const char
  * @param name
  * @return
  */
-unsigned short findShortValue(NAMEVALUELIST* namevaluelist, short* value, const char* name)
+bool findShortValue(NAMEVALUELIST* namevaluelist, short* value, const char* name)
 {
     char* str;
-    unsigned short found = findStringValue(namevaluelist, &str, name);
+    bool found = findStringValue(namevaluelist, &str, name);
     if (found) {
         *value = (short)atoi(str);
     }
@@ -1626,10 +1626,10 @@ unsigned short findShortValue(NAMEVALUELIST* namevaluelist, short* value, const 
  * @param name
  * @return
  */
-unsigned short findCharValue(NAMEVALUELIST* namevaluelist, char* value, const char* name)
+bool findCharValue(NAMEVALUELIST* namevaluelist, char* value, const char* name)
 {
     char* str;
-    unsigned short found = findStringValue(namevaluelist, &str, name);
+    bool found = findStringValue(namevaluelist, &str, name);
     if (found) {
         *value = (short)atoi(str);
     }
@@ -1646,20 +1646,20 @@ unsigned short findCharValue(NAMEVALUELIST* namevaluelist, char* value, const ch
  * @param name
  * @return
  */
-unsigned short findFloatValue(NAMEVALUELIST* namevaluelist, float* value, const char* name)
+bool findFloatValue(NAMEVALUELIST* namevaluelist, float* value, const char* name)
 {
     char* str;
-    unsigned short found = findStringValue(namevaluelist, &str, name);
+    bool found = findStringValue(namevaluelist, &str, name);
     if (found) {
         *value = (float)atof(str);
     }
     return found;
 }
 
-unsigned short findIntArray(NAMEVALUELIST* namevaluelist, int** values, size_t* nvalues, const char* name)
+bool findIntArray(NAMEVALUELIST* namevaluelist, int** values, size_t* nvalues, const char* name)
 {
     char* str;
-    unsigned short found = findStringValue(namevaluelist, &str, name);
+    bool found = findStringValue(namevaluelist, &str, name);
     if (found) {
         char** tokens = SplitString(str, ";");
         size_t n;
@@ -1672,7 +1672,7 @@ unsigned short findIntArray(NAMEVALUELIST* namevaluelist, int** values, size_t* 
     return found;
 }
 
-unsigned short findFloatArray(NAMEVALUELIST* namevaluelist, float** values, size_t* nvalues, const char* name)
+bool findFloatArray(NAMEVALUELIST* namevaluelist, float** values, size_t* nvalues, const char* name)
 {
     char* str;
     unsigned short found = findStringValue(namevaluelist, &str, name);
@@ -1688,7 +1688,7 @@ unsigned short findFloatArray(NAMEVALUELIST* namevaluelist, float** values, size
     return found;
 }
 
-unsigned short findValue(NAMEVALUELIST* namevaluelist, const char* name)
+bool findValue(NAMEVALUELIST* namevaluelist, const char* name)
 {
     char** names = SplitString(name, "|");
 

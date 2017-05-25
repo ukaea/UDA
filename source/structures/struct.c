@@ -301,9 +301,9 @@ void initCompoundField(COMPOUNDFIELD* str)
     str->rank = 0;
     str->count = 0;
     str->shape = NULL;
-    str->type[0] = '\0';
-    str->name[0] = '\0';
-    str->desc[0] = '\0';
+    memset(str->type, '\0', MAXELEMENTNAME);
+    memset(str->name, '\0', MAXELEMENTNAME);
+    memset(str->desc, '\0', MAXELEMENTNAME);
 }
 
 /** Initialise a USERDEFINEDTYPE data structure.
@@ -315,8 +315,8 @@ void initUserDefinedType(USERDEFINEDTYPE* str)
 {
     str->idamclass = TYPE_UNKNOWN;
     str->ref_id = 0;
-    str->name[0] = '\0';
-    str->source[0] = '\0';
+    memset(str->name, '\0', MAXELEMENTNAME);
+    memset(str->source, '\0', MAXELEMENTNAME);
     str->imagecount = 0;
     str->image = NULL;
     str->size = 0;
@@ -486,7 +486,9 @@ void printUserDefinedTypeList(USERDEFINEDTYPELIST str)
     int i;
     IDAM_LOG(LOG_DEBUG, "USERDEFINEDTYPELIST Contents\n");
     IDAM_LOGF(LOG_DEBUG, "listCount  : %d\n", str.listCount);
-    for (i = 0; i < str.listCount; i++) printUserDefinedType(str.userdefinedtype[i]);
+    for (i = 0; i < str.listCount; i++) {
+        printUserDefinedType(str.userdefinedtype[i]);
+    }
     IDAM_LOG(LOG_DEBUG, "\n\n");
 }
 
@@ -501,7 +503,9 @@ void printUserDefinedTypeListTable(USERDEFINEDTYPELIST str)
     int i;
     IDAM_LOG(LOG_DEBUG, "USERDEFINEDTYPELIST Contents\n");
     IDAM_LOGF(LOG_DEBUG, "listCount  : %d\n", str.listCount);
-    for (i = 0; i < str.listCount; i++) printUserDefinedTypeTable(str.userdefinedtype[i]);
+    for (i = 0; i < str.listCount; i++) {
+        printUserDefinedTypeTable(str.userdefinedtype[i]);
+    }
     IDAM_LOG(LOG_DEBUG, "\n\n");
 }
 
@@ -516,7 +520,9 @@ void printZeroSizedUserDefinedTypeListTable(USERDEFINEDTYPELIST str)
     int i;
     IDAM_LOG(LOG_DEBUG, "Zero Size USERDEFINEDTYPELIST Contents\n");
     IDAM_LOGF(LOG_DEBUG, "listCount  : %d\n", str.listCount);
-    for (i = 0; i < str.listCount; i++) printZeroSizedUserDefinedTypeTable(str.userdefinedtype[i]);
+    for (i = 0; i < str.listCount; i++) {
+        printZeroSizedUserDefinedTypeTable(str.userdefinedtype[i]);
+    }
     IDAM_LOG(LOG_DEBUG, "\n\n");
 }
 
@@ -532,7 +538,9 @@ void printMallocLog(LOGMALLOC str)
     if (str.rank > 1 && str.shape != NULL) {
         int i;
         IDAM_LOGF(LOG_DEBUG, "\trank %d shape [%d", str.rank, str.shape[0]);
-        for (i = 1; i < str.rank; i++) IDAM_LOGF(LOG_DEBUG, ",%d", str.shape[i]);
+        for (i = 1; i < str.rank; i++) {
+            IDAM_LOGF(LOG_DEBUG, ",%d", str.shape[i]);
+        }
         IDAM_LOG(LOG_DEBUG, "]\n");
     }
 }
@@ -849,7 +857,9 @@ void freeMallocLogList(LOGMALLOCLIST* str)
 {
     if (str == NULL) return;
     freeMallocLog(str);
-    if (str->logmalloc != NULL) free((void*)str->logmalloc);
+    if (str->logmalloc != NULL) {
+        free((void*)str->logmalloc);
+    }
     str->logmalloc = NULL;
     initLogMallocList(str);
 }
@@ -1009,7 +1019,7 @@ void addStruct(void* heap, char* type)
 */
 void freeLogStructList()
 {
-    if (logstructlist.logstruct != NULL) free((void*)logstructlist.logstruct);
+    free((void*)logstructlist.logstruct);
     initLogStructList();
 }
 
@@ -1187,7 +1197,7 @@ int countUserDefinedType(USERDEFINEDTYPELIST* str)
 void freeCompoundField(COMPOUNDFIELD* str)
 {
     if (str == NULL) return;
-    if (str->shape != NULL) free((void*)str->shape);
+    free((void*)str->shape);
     str->shape = NULL;
 }
 
@@ -1203,10 +1213,10 @@ void freeUserDefinedType(USERDEFINEDTYPE* type)
     for (i = 0; i < type->fieldcount; i++) {
         freeCompoundField(&type->compoundfield[i]);
     }
-    if (type->compoundfield != NULL) free((void*)type->compoundfield);
+    free((void*)type->compoundfield);
     type->compoundfield = NULL;
 
-    if (type->image != NULL) free((void*)type->image);
+    free((void*)type->image);
     type->image = NULL;
 }
 
@@ -1370,7 +1380,7 @@ int getalignmentof(char* type)
 #ifndef WINDOWS
         if (!strcasecmp(base, "DOUBLE")) return 4;
 #else
-        if (!strcasecmp(base,"DOUBLE"))    return 8;
+        if (!strcasecmp(base, "DOUBLE")) return 8;
 #endif
         if (!strcasecmp(base, "CHAR")) return 1;
         if (!strcasecmp(base, "STRING")) return 1;
@@ -1385,8 +1395,8 @@ int getalignmentof(char* type)
         if (!strcasecmp(base, "ULONG")) return 4;
         if (!strcasecmp(base, "ULONG64")) return 4;
         if (!strcasecmp(base, "COMPLEX")) return 4;
-        if (!strcasecmp(base, "DCOMPLEX"))return 4;
-        if (!strcasecmp(base, "STRUCTURE"))return 1; // Structures are aligned depending on structure content
+        if (!strcasecmp(base, "DCOMPLEX")) return 4;
+        if (!strcasecmp(base, "STRUCTURE")) return 1; // Structures are aligned depending on structure content
     } else {
 #ifdef A64
         if (!strcasecmp(base, "FLOAT")) return 4;  // 64 bit architecture
@@ -1404,8 +1414,8 @@ int getalignmentof(char* type)
         if (!strcasecmp(base, "ULONG")) return 4;
         if (!strcasecmp(base, "ULONG64")) return 8;
         if (!strcasecmp(base, "COMPLEX")) return 4;
-        if (!strcasecmp(base, "DCOMPLEX"))return 8;
-        if (!strcasecmp(base, "STRUCTURE"))return 1;
+        if (!strcasecmp(base, "DCOMPLEX")) return 8;
+        if (!strcasecmp(base, "STRUCTURE")) return 1;
 #endif
     }
     return ALIGNMENT; // Best Guess!
@@ -1972,7 +1982,7 @@ void printAtomicData(void* data, int atomictype, int count, const char* label)
             float* d = (float*)data;
             if (count > 1) {
                 IDAM_LOGF(LOG_DEBUG, "%40s:\n", label);
-                for (i = 0; i < count; i++)IDAM_LOGF(LOG_DEBUG, "[%d]   %f\n", i, d[i]);
+                for (i = 0; i < count; i++) IDAM_LOGF(LOG_DEBUG, "[%d]   %f\n", i, d[i]);
             } else {
                 IDAM_LOGF(LOG_DEBUG, "%40s: %f\n", label, d[0]);
             }
@@ -1982,7 +1992,7 @@ void printAtomicData(void* data, int atomictype, int count, const char* label)
             double* d = (double*)data;
             if (count > 1) {
                 IDAM_LOGF(LOG_DEBUG, "%40s:\n", label);
-                for (i = 0; i < count; i++)IDAM_LOGF(LOG_DEBUG, "[%d]   %f\n", i, d[i]);
+                for (i = 0; i < count; i++) IDAM_LOGF(LOG_DEBUG, "[%d]   %f\n", i, d[i]);
             } else {
                 IDAM_LOGF(LOG_DEBUG, "%40s: %f\n", label, d[0]);
             }
@@ -1993,7 +2003,7 @@ void printAtomicData(void* data, int atomictype, int count, const char* label)
             short* d = (short*)data;
             if (count > 1) {
                 IDAM_LOGF(LOG_DEBUG, "%40s:\n", label);
-                for (i = 0; i < count; i++)IDAM_LOGF(LOG_DEBUG, "[%d]   %d\n", i, d[i]);
+                for (i = 0; i < count; i++) IDAM_LOGF(LOG_DEBUG, "[%d]   %d\n", i, d[i]);
             } else {
                 IDAM_LOGF(LOG_DEBUG, "%40s: %d\n", label, d[0]);
             }
@@ -2004,7 +2014,7 @@ void printAtomicData(void* data, int atomictype, int count, const char* label)
             int* d = (int*)data;
             if (count > 1) {
                 IDAM_LOGF(LOG_DEBUG, "%40s:\n", label);
-                for (i = 0; i < count; i++)IDAM_LOGF(LOG_DEBUG, "[%d]   %d\n", i, d[i]);
+                for (i = 0; i < count; i++) IDAM_LOGF(LOG_DEBUG, "[%d]   %d\n", i, d[i]);
             } else {
                 IDAM_LOGF(LOG_DEBUG, "%40s: %d\n", label, d[0]);
             }
@@ -2014,7 +2024,7 @@ void printAtomicData(void* data, int atomictype, int count, const char* label)
             long long* d = (long long*)data;
             if (count > 1) {
                 IDAM_LOGF(LOG_DEBUG, "%40s:\n", label);
-                for (i = 0; i < count; i++)IDAM_LOGF(LOG_DEBUG, "[%d]   %lld\n", i, d[i]);
+                for (i = 0; i < count; i++) IDAM_LOGF(LOG_DEBUG, "[%d]   %lld\n", i, d[i]);
             } else {
                 IDAM_LOGF(LOG_DEBUG, "%40s: %lld\n", label, d[0]);
             }
@@ -2025,7 +2035,7 @@ void printAtomicData(void* data, int atomictype, int count, const char* label)
             unsigned char* d = (unsigned char*)data;
             if (count > 1) {
                 IDAM_LOGF(LOG_DEBUG, "%40s:\n", label);
-                for (i = 0; i < count; i++)IDAM_LOGF(LOG_DEBUG, "[%d]   %u\n", i, d[i]);
+                for (i = 0; i < count; i++) IDAM_LOGF(LOG_DEBUG, "[%d]   %u\n", i, d[i]);
             } else {
                 IDAM_LOGF(LOG_DEBUG, "%40s: %d\n", label, d[0]);
             }
@@ -2035,7 +2045,7 @@ void printAtomicData(void* data, int atomictype, int count, const char* label)
             unsigned short* d = (unsigned short*)data;
             if (count > 1) {
                 IDAM_LOGF(LOG_DEBUG, "%40s:\n", label);
-                for (i = 0; i < count; i++)IDAM_LOGF(LOG_DEBUG, "[%d]   %u\n", i, d[i]);
+                for (i = 0; i < count; i++) IDAM_LOGF(LOG_DEBUG, "[%d]   %u\n", i, d[i]);
             } else {
                 IDAM_LOGF(LOG_DEBUG, "%40s: %d\n", label, d[0]);
             }
@@ -2046,7 +2056,7 @@ void printAtomicData(void* data, int atomictype, int count, const char* label)
             unsigned int* d = (unsigned int*)data;
             if (count > 1) {
                 IDAM_LOGF(LOG_DEBUG, "%40s:\n", label);
-                for (i = 0; i < count; i++)IDAM_LOGF(LOG_DEBUG, "[%d]   %u\n", i, d[i]);
+                for (i = 0; i < count; i++) IDAM_LOGF(LOG_DEBUG, "[%d]   %u\n", i, d[i]);
             } else {
                 IDAM_LOGF(LOG_DEBUG, "%40s: %d\n", label, d[0]);
             }
@@ -2557,10 +2567,11 @@ char** getNodeAtomicNames(NTREE* ntree)
     addMalloc((void*)names, count, sizeof(char*), "char *");
 
     count = 0;
-    for (i = 0; i < ntree->userdefinedtype->fieldcount; i++)
+    for (i = 0; i < ntree->userdefinedtype->fieldcount; i++) {
         if (ntree->userdefinedtype->compoundfield[i].atomictype != TYPE_UNKNOWN) {
             names[count++] = ntree->userdefinedtype->compoundfield[i].name;
         }
+    }
     return names;
 }
 
@@ -2579,10 +2590,11 @@ char** getNodeStructureTypes(NTREE* ntree)
     names = (char**)malloc(count * sizeof(char*));
     addMalloc((void*)names, count, sizeof(char*), "char *");
     count = 0;
-    for (i = 0; i < ntree->userdefinedtype->fieldcount; i++)
+    for (i = 0; i < ntree->userdefinedtype->fieldcount; i++) {
         if (ntree->userdefinedtype->compoundfield[i].atomictype == TYPE_UNKNOWN) {
             names[count++] = ntree->userdefinedtype->compoundfield[i].type;
         }
+    }
     return names;
 }
 
@@ -2601,10 +2613,11 @@ char** getNodeAtomicTypes(NTREE* ntree)
     names = (char**)malloc(count * sizeof(char*));
     addMalloc((void*)names, count, sizeof(char*), "char *");
     count = 0;
-    for (i = 0; i < ntree->userdefinedtype->fieldcount; i++)
+    for (i = 0; i < ntree->userdefinedtype->fieldcount; i++) {
         if (ntree->userdefinedtype->compoundfield[i].atomictype != TYPE_UNKNOWN) {
             names[count++] = ntree->userdefinedtype->compoundfield[i].type;
         }
+    }
     return names;
 }
 
@@ -2623,11 +2636,12 @@ int* getNodeStructurePointers(NTREE* ntree)
     pointers = (int*)malloc(count * sizeof(int));
     addMalloc((void*)pointers, count, sizeof(int), "int");
     count = 0;
-    for (i = 0; i < ntree->userdefinedtype->fieldcount; i++)
+    for (i = 0; i < ntree->userdefinedtype->fieldcount; i++) {
         if (ntree->userdefinedtype->compoundfield[i].atomictype == TYPE_UNKNOWN) {
             pointers[count] = ntree->userdefinedtype->compoundfield[i].pointer;
             count++;
         }
+    }
     return pointers;
 }
 
@@ -2646,12 +2660,13 @@ int* getNodeAtomicPointers(NTREE* ntree)
     pointers = (int*)malloc(count * sizeof(int));
     addMalloc((void*)pointers, count, sizeof(int), "int");
     count = 0;
-    for (i = 0; i < ntree->userdefinedtype->fieldcount; i++)
+    for (i = 0; i < ntree->userdefinedtype->fieldcount; i++) {
         if (ntree->userdefinedtype->compoundfield[i].atomictype != TYPE_UNKNOWN) {
             pointers[count] = ntree->userdefinedtype->compoundfield[i].pointer;
             // if (!strcmp(ntree->userdefinedtype->compoundfield[i].type, "STRING *")) pointers[count] = 1;
             count++;
         }
+    }
     return pointers;
 }
 
@@ -2868,7 +2883,9 @@ char** getNodeStructureComponentNames(NTREE* ntree)
     count = ntree->userdefinedtype->fieldcount;
     if (count == 0) return NULL;
     names = (char**)malloc(count * sizeof(char*));
-    for (i = 0; i < count; i++) names[i] = (char*)ntree->userdefinedtype->compoundfield[i].name;
+    for (i = 0; i < count; i++) {
+        names[i] = (char*)ntree->userdefinedtype->compoundfield[i].name;
+    }
     return names;
 }
 
@@ -2885,7 +2902,9 @@ char** getNodeStructureComponentTypes(NTREE* ntree)
     count = ntree->userdefinedtype->fieldcount;
     if (count == 0) return NULL;
     names = (char**)malloc(count * sizeof(char*));
-    for (i = 0; i < count; i++) names[i] = (char*)ntree->userdefinedtype->compoundfield[i].type;
+    for (i = 0; i < count; i++) {
+        names[i] = (char*)ntree->userdefinedtype->compoundfield[i].type;
+    }
     return names;
 }
 
@@ -2902,7 +2921,9 @@ char** getNodeStructureComponentDescriptions(NTREE* ntree)
     count = ntree->userdefinedtype->fieldcount;
     if (count == 0) return NULL;
     names = (char**)malloc(count * sizeof(char*));
-    for (i = 0; i < count; i++) names[i] = (char*)ntree->userdefinedtype->compoundfield[i].desc;
+    for (i = 0; i < count; i++) {
+        names[i] = (char*)ntree->userdefinedtype->compoundfield[i].desc;
+    }
     return names;
 }
 
@@ -3527,7 +3548,9 @@ char** getNTreeStructureNames(NTREE* ntree)
             names = (char**)realloc((void*)names, (count + childcount) * sizeof(char*));
             changeMalloc(old, (void*)names, (count + childcount), sizeof(char*), "char *");
             childnames = getNTreeStructureNames(ntree->children[i]);
-            for (j = 0; j < childcount; j++) names[count + j] = childnames[j];
+            for (j = 0; j < childcount; j++) {
+                names[count + j] = childnames[j];
+            }
             count = count + childcount;
         }
     }
@@ -3558,7 +3581,9 @@ char** getNTreeStructureTypes(NTREE* ntree)
             names = (char**)realloc((void*)names, (count + childcount) * sizeof(char*));
             changeMalloc(old, (void*)names, (count + childcount), sizeof(char*), "char *");
             childnames = getNTreeStructureTypes(ntree->children[i]);
-            for (j = 0; j < childcount; j++) names[count + j] = childnames[j];
+            for (j = 0; j < childcount; j++) {
+                names[count + j] = childnames[j];
+            }
             count = count + childcount;
         }
     }
@@ -3586,7 +3611,9 @@ void printNTreeStructureNames(NTREE* tree)
     typelist = getNTreeStructureTypes(tree);  // Types of all user defined data structures
     IDAM_LOGF(LOG_DEBUG, "Total Structure Count %d\n", namecount);
     IDAM_LOG(LOG_DEBUG, "  #\tName\tType\n");
-    for (i = 0; i < namecount; i++) IDAM_LOGF(LOG_DEBUG, "[%2d]\t%s\t%s\n", i, namelist[i], typelist[i]);
+    for (i = 0; i < namecount; i++) {
+        IDAM_LOGF(LOG_DEBUG, "[%2d]\t%s\t%s\n", i, namelist[i], typelist[i]);
+    }
 }
 
 /** Return the total number of User Defined Type Structure Definition Components attached to this tree branch.

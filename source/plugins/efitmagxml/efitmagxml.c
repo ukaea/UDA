@@ -303,34 +303,34 @@ static int do_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, EFIT* efit)
     initDataBlock(data_block);
 
     int count = 0;
-    BOOLEAN isCount = FIND_INT_VALUE(idam_plugin_interface->request_block->nameValueList, count);
+    bool isCount = FIND_INT_VALUE(idam_plugin_interface->request_block->nameValueList, count);
 
     int objectId;
-    BOOLEAN isObjectId = FIND_INT_VALUE(idam_plugin_interface->request_block->nameValueList, objectId);
+    bool isObjectId = FIND_INT_VALUE(idam_plugin_interface->request_block->nameValueList, objectId);
 
     int index;
-    BOOLEAN isIndex = FIND_INT_VALUE(idam_plugin_interface->request_block->nameValueList, index);
+    bool isIndex = FIND_INT_VALUE(idam_plugin_interface->request_block->nameValueList, index);
 
-    BOOLEAN isFluxLoop = findValue(&idam_plugin_interface->request_block->nameValueList, "fluxloop");
-    BOOLEAN isPosition = findValue(&idam_plugin_interface->request_block->nameValueList, "position");
-    BOOLEAN isMagProbe = findValue(&idam_plugin_interface->request_block->nameValueList, "magprobe");
-    BOOLEAN isPFActive = findValue(&idam_plugin_interface->request_block->nameValueList, "pfactive");
-    BOOLEAN isElement = findValue(&idam_plugin_interface->request_block->nameValueList, "element");
-    BOOLEAN isSignal = findValue(&idam_plugin_interface->request_block->nameValueList, "signal");
-    BOOLEAN isDataScaling = findValue(&idam_plugin_interface->request_block->nameValueList, "datascaling");
-    BOOLEAN isTimeScaling = findValue(&idam_plugin_interface->request_block->nameValueList, "timescaling");
-    BOOLEAN isTurns = findValue(&idam_plugin_interface->request_block->nameValueList, "turns");
-    BOOLEAN isName = findValue(&idam_plugin_interface->request_block->nameValueList, "name");
-    BOOLEAN isIdentifier = findValue(&idam_plugin_interface->request_block->nameValueList, "identifier");
-    BOOLEAN isR = findValue(&idam_plugin_interface->request_block->nameValueList, "r");
-    BOOLEAN isZ = findValue(&idam_plugin_interface->request_block->nameValueList, "z");
-    BOOLEAN isPhi = findValue(&idam_plugin_interface->request_block->nameValueList, "phi");
-    BOOLEAN isWidth = findValue(&idam_plugin_interface->request_block->nameValueList, "width");
-    BOOLEAN isHeight = findValue(&idam_plugin_interface->request_block->nameValueList, "height");
-    BOOLEAN isUnitStartIndex = findValue(&idam_plugin_interface->request_block->nameValueList, "unitStartIndex");
-    BOOLEAN isGeometry = findValue(&idam_plugin_interface->request_block->nameValueList, "geometry");
-    BOOLEAN isRectangle = findValue(&idam_plugin_interface->request_block->nameValueList, "rectangle");
-    BOOLEAN isDevice = findValue(&idam_plugin_interface->request_block->nameValueList, "device");
+    bool isFluxLoop = findValue(&idam_plugin_interface->request_block->nameValueList, "fluxloop");
+    bool isPosition = findValue(&idam_plugin_interface->request_block->nameValueList, "position");
+    bool isMagProbe = findValue(&idam_plugin_interface->request_block->nameValueList, "magprobe");
+    bool isPFActive = findValue(&idam_plugin_interface->request_block->nameValueList, "pfactive");
+    bool isElement = findValue(&idam_plugin_interface->request_block->nameValueList, "element");
+    bool isSignal = findValue(&idam_plugin_interface->request_block->nameValueList, "signal");
+    bool isDataScaling = findValue(&idam_plugin_interface->request_block->nameValueList, "datascaling");
+    bool isTimeScaling = findValue(&idam_plugin_interface->request_block->nameValueList, "timescaling");
+    bool isTurns = findValue(&idam_plugin_interface->request_block->nameValueList, "turns");
+    bool isName = findValue(&idam_plugin_interface->request_block->nameValueList, "name");
+    bool isIdentifier = findValue(&idam_plugin_interface->request_block->nameValueList, "identifier");
+    bool isR = findValue(&idam_plugin_interface->request_block->nameValueList, "r");
+    bool isZ = findValue(&idam_plugin_interface->request_block->nameValueList, "z");
+    bool isPhi = findValue(&idam_plugin_interface->request_block->nameValueList, "phi");
+    bool isWidth = findValue(&idam_plugin_interface->request_block->nameValueList, "width");
+    bool isHeight = findValue(&idam_plugin_interface->request_block->nameValueList, "height");
+    bool isUnitStartIndex = findValue(&idam_plugin_interface->request_block->nameValueList, "unitStartIndex");
+    bool isGeometry = findValue(&idam_plugin_interface->request_block->nameValueList, "geometry");
+    bool isRectangle = findValue(&idam_plugin_interface->request_block->nameValueList, "rectangle");
+    bool isDevice = findValue(&idam_plugin_interface->request_block->nameValueList, "device");
 
     if (isUnitStartIndex) {
         // All C arrays begin with index 0

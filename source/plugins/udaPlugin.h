@@ -1,6 +1,8 @@
 #ifndef IDAM_IDAMPLUGIN_H
 #define IDAM_IDAMPLUGIN_H
 
+#include <stdbool.h>
+
 #include <clientserver/udaStructs.h>
 #include <logging/logging.h>
 #include <clientserver/errorLog.h>
@@ -63,21 +65,21 @@ int setReturnDataIntScalar(IDAM_PLUGIN_INTERFACE* plugin_interface, int value);
 
 int setReturnDataString(IDAM_PLUGIN_INTERFACE* plugin_interface, const char* value);
 
-unsigned short findStringValue(NAMEVALUELIST* namevaluelist, char** value, const char* name);
+bool findStringValue(NAMEVALUELIST* namevaluelist, char** value, const char* name);
 
-unsigned short findValue(NAMEVALUELIST* namevaluelist, const char* name);
+bool findValue(NAMEVALUELIST* namevaluelist, const char* name);
 
-unsigned short findIntValue(NAMEVALUELIST* namevaluelist, int* value, const char* name);
+bool findIntValue(NAMEVALUELIST* namevaluelist, int* value, const char* name);
 
-unsigned short findShortValue(NAMEVALUELIST* namevaluelist, short* value, const char* name);
+bool findShortValue(NAMEVALUELIST* namevaluelist, short* value, const char* name);
 
-unsigned short findCharValue(NAMEVALUELIST* namevaluelist, char* value, const char* name);
+bool findCharValue(NAMEVALUELIST* namevaluelist, char* value, const char* name);
 
-unsigned short findFloatValue(NAMEVALUELIST* namevaluelist, float* values, const char* name);
+bool findFloatValue(NAMEVALUELIST* namevaluelist, float* values, const char* name);
 
-unsigned short findIntArray(NAMEVALUELIST* namevaluelist, int** values, size_t* nvalues, const char* name);
+bool findIntArray(NAMEVALUELIST* namevaluelist, int** values, size_t* nvalues, const char* name);
 
-unsigned short findFloatArray(NAMEVALUELIST* namevaluelist, float** values, size_t* nvalues, const char* name);
+bool findFloatArray(NAMEVALUELIST* namevaluelist, float** values, size_t* nvalues, const char* name);
 
 int callPlugin(PLUGINLIST* pluginlist, const char* request, const IDAM_PLUGIN_INTERFACE* old_plugin_interface);
 

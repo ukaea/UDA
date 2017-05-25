@@ -426,16 +426,16 @@ static int do_delete(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, int* idx)
     IDAMPLUGINFILELIST* pluginFileList = getImasPluginFileList();
 
     int clientIdx;
-    BOOLEAN isClientIdx = FIND_INT_VALUE(idam_plugin_interface->request_block->nameValueList, clientIdx);
+    bool isClientIdx = FIND_INT_VALUE(idam_plugin_interface->request_block->nameValueList, clientIdx);
 
     char* filename;
-    BOOLEAN isFileName = FIND_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, filename);
+    bool isFileName = FIND_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, filename);
 
     int shotNumber;
-    BOOLEAN isShotNumber = FIND_INT_VALUE(idam_plugin_interface->request_block->nameValueList, shotNumber);
+    bool isShotNumber = FIND_INT_VALUE(idam_plugin_interface->request_block->nameValueList, shotNumber);
 
     int runNumber;
-    BOOLEAN isRunNumber = FIND_INT_VALUE(idam_plugin_interface->request_block->nameValueList, runNumber);
+    bool isRunNumber = FIND_INT_VALUE(idam_plugin_interface->request_block->nameValueList, runNumber);
 
     if (isClientIdx) {
         int fid = checkHdf5Idx(clientIdx);
@@ -526,20 +526,20 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
     IDAMPLUGINFILELIST* pluginFileList = getImasPluginFileList();
 
     int clientIdx;
-    BOOLEAN isClientIdx = FIND_INT_VALUE(idam_plugin_interface->request_block->nameValueList, clientIdx);
+    bool isClientIdx = FIND_INT_VALUE(idam_plugin_interface->request_block->nameValueList, clientIdx);
 
     char* filename;
-    BOOLEAN isFileName = FIND_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, filename);
+    bool isFileName = FIND_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, filename);
 
     int shotNumber;
-    BOOLEAN isShotNumber = FIND_INT_VALUE(idam_plugin_interface->request_block->nameValueList, shotNumber);
+    bool isShotNumber = FIND_INT_VALUE(idam_plugin_interface->request_block->nameValueList, shotNumber);
 
     int runNumber;
-    BOOLEAN isRunNumber = FIND_INT_VALUE(idam_plugin_interface->request_block->nameValueList, runNumber);
+    bool isRunNumber = FIND_INT_VALUE(idam_plugin_interface->request_block->nameValueList, runNumber);
 
     // What is the status of the data file
 
-    BOOLEAN isOpen = FALSE;
+    bool isOpen = FALSE;
 
     if (isClientIdx) {
         int fid = checkHdf5Idx(clientIdx);
@@ -593,13 +593,13 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
 
     // Convert type string into IMAS type identifiers
 
-    BOOLEAN isPutData = (BOOLEAN)(idam_plugin_interface->request_block->putDataBlockList.blockCount > 0);
+    bool isPutData = (bool)(idam_plugin_interface->request_block->putDataBlockList.blockCount > 0);
 
-    BOOLEAN isGetDimension = findValue(&idam_plugin_interface->request_block->nameValueList, "getDimension");
-    BOOLEAN isGetDataSlice = findValue(&idam_plugin_interface->request_block->nameValueList, "getDataSlice");
+    bool isGetDimension = findValue(&idam_plugin_interface->request_block->nameValueList, "getDimension");
+    bool isGetDataSlice = findValue(&idam_plugin_interface->request_block->nameValueList, "getDataSlice");
 
     char* typeName;
-    BOOLEAN isTypeName = FIND_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, typeName);
+    bool isTypeName = FIND_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, typeName);
 
     int type = TYPE_UNKNOWN;
 
@@ -616,7 +616,7 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
     }
 
     int rank;
-    BOOLEAN isRank = FIND_INT_VALUE(idam_plugin_interface->request_block->nameValueList, rank);
+    bool isRank = FIND_INT_VALUE(idam_plugin_interface->request_block->nameValueList, rank);
 
     if (!isPutData && !isRank && !isGetDimension) {
         IDAM_LOG(LOG_ERROR, "imas get: The data's Rank has not been specified!\n");
@@ -705,7 +705,7 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
         FIND_REQUIRED_INT_VALUE(idam_plugin_interface->request_block->nameValueList, index);
 
         int index2;
-        BOOLEAN isIndex2 = FIND_INT_VALUE(idam_plugin_interface->request_block->nameValueList, index2);
+        bool isIndex2 = FIND_INT_VALUE(idam_plugin_interface->request_block->nameValueList, index2);
 
         if (!isIndex2 || index2 == -1) {
             //Only a single sample
@@ -1020,16 +1020,16 @@ time	- the time slice to be written - from a PUTDATA block (putSlice keyword)
 */
 
     int clientIdx;
-    BOOLEAN isClientIdx = FIND_INT_VALUE(idam_plugin_interface->request_block->nameValueList, clientIdx);
+    bool isClientIdx = FIND_INT_VALUE(idam_plugin_interface->request_block->nameValueList, clientIdx);
 
     char* filename;
-    BOOLEAN isFileName = FIND_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, filename);
+    bool isFileName = FIND_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, filename);
 
     int shotNumber;
-    BOOLEAN isShotNumber = FIND_INT_VALUE(idam_plugin_interface->request_block->nameValueList, shotNumber);
+    bool isShotNumber = FIND_INT_VALUE(idam_plugin_interface->request_block->nameValueList, shotNumber);
 
     int runNumber;
-    BOOLEAN isRunNumber = FIND_INT_VALUE(idam_plugin_interface->request_block->nameValueList, runNumber);
+    bool isRunNumber = FIND_INT_VALUE(idam_plugin_interface->request_block->nameValueList, runNumber);
 
 // What is the status of the data file
 
@@ -1097,14 +1097,14 @@ time	- the time slice to be written - from a PUTDATA block (putSlice keyword)
 
     // Has a PUTDATA block been passed with a missing or a matching name?
 
-    BOOLEAN isPutData = (BOOLEAN)(idam_plugin_interface->request_block->putDataBlockList.blockCount > 0);
+    bool isPutData = (bool)(idam_plugin_interface->request_block->putDataBlockList.blockCount > 0);
     void* putdata = NULL;
 
     if (isPutData) {
         PUTDATA_BLOCK_LIST* putDataBlockList = &idam_plugin_interface->request_block->putDataBlockList;
 
         char* path;
-        BOOLEAN isPath = FIND_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, path);
+        bool isPath = FIND_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, path);
 
         int i;
         for (i = 0; i < putDataBlockList->blockCount; i++) {
@@ -1172,7 +1172,7 @@ time	- the time slice to be written - from a PUTDATA block (putSlice keyword)
 // Any Data?
 
     char* dataString;
-    BOOLEAN isDataString = FIND_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, dataString);
+    bool isDataString = FIND_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, dataString);
 
     if (!isDataString && !isVarData) {
         IDAM_LOG(LOG_ERROR, "No data has been specified!\n");
@@ -1180,8 +1180,8 @@ time	- the time slice to be written - from a PUTDATA block (putSlice keyword)
     }
 
 // Which Data Operation?
-    BOOLEAN isPutDataSlice = findValue(&idam_plugin_interface->request_block->nameValueList, "putDataSlice");
-    BOOLEAN isReplaceLastDataSlice = findValue(&idam_plugin_interface->request_block->nameValueList, "replaceLastDataSlice");
+    bool isPutDataSlice = findValue(&idam_plugin_interface->request_block->nameValueList, "putDataSlice");
+    bool isReplaceLastDataSlice = findValue(&idam_plugin_interface->request_block->nameValueList, "replaceLastDataSlice");
 
     int dataOperation = PUT_OPERATION;
     if (isPutDataSlice) {
@@ -1197,10 +1197,10 @@ time	- the time slice to be written - from a PUTDATA block (putSlice keyword)
 // *** need new functions: convert from named type to HDF5 type
 
     int rank;
-    BOOLEAN isRank = FIND_INT_VALUE(idam_plugin_interface->request_block->nameValueList, rank);
+    bool isRank = FIND_INT_VALUE(idam_plugin_interface->request_block->nameValueList, rank);
 
     char* shapeString;
-    BOOLEAN isShapeString = FIND_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, shapeString);
+    bool isShapeString = FIND_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, shapeString);
 
     if (!isPutData) {
         if (!isRank && !isShapeString) {        // Assume a scalar value
@@ -1280,7 +1280,7 @@ time	- the time slice to be written - from a PUTDATA block (putSlice keyword)
 // The type passed here is the IMAS type enumeration (imas_putData is the original imas putData function)
 
         if (dataOperation == PUT_OPERATION) {
-            BOOLEAN isTimed = findValue(&idam_plugin_interface->request_block->nameValueList, "timed");
+            bool isTimed = findValue(&idam_plugin_interface->request_block->nameValueList, "timed");
 
             rc = imas_hdf5_putData(clientIdx, CPOPath, path, type, rank, shape, isTimed, putdata);
         } else {
@@ -1321,7 +1321,7 @@ time	- the time slice to be written - from a PUTDATA block (putSlice keyword)
         }
 
         if (dataOperation == PUT_OPERATION) {
-            BOOLEAN isTimed = findValue(&idam_plugin_interface->request_block->nameValueList, "timed");
+            bool isTimed = findValue(&idam_plugin_interface->request_block->nameValueList, "timed");
 
             rc = imas_hdf5_putData(clientIdx, CPOPath, path, type, putDataBlock->rank, putDataBlock->shape, isTimed,
                               (void*)putDataBlock->data);
@@ -1460,7 +1460,7 @@ retIdx	- returned data file index number
     int clientIdx;
     FIND_REQUIRED_INT_VALUE(idam_plugin_interface->request_block->nameValueList, clientIdx);
 
-    BOOLEAN isCreateFromModel = findValue(&idam_plugin_interface->request_block->nameValueList, "createFromModel");
+    bool isCreateFromModel = findValue(&idam_plugin_interface->request_block->nameValueList, "createFromModel");
 
     if (isCreateFromModel) {
         if (imas_hdf5_EuitmCreate(filename, shotNumber, runNumber, refShotNumber, refRunNumber, idx) < 0) {
@@ -1606,7 +1606,7 @@ static int do_getObjectObject(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     char* path;
     FIND_REQUIRED_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, path);
 
-    BOOLEAN isPutData = (BOOLEAN)(idam_plugin_interface->request_block->putDataBlockList.blockCount > 0);
+    bool isPutData = (bool)(idam_plugin_interface->request_block->putDataBlockList.blockCount > 0);
 
     if (!isPutData) {
         IDAM_LOG(LOG_ERROR, "Insufficient data parameters passed - begin not possible!\n");
@@ -2068,16 +2068,16 @@ static int do_source(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, int* time_cou
 
     REQUEST_BLOCK* request_block = idam_plugin_interface->request_block;
 
-    BOOLEAN isData = findValue(&request_block->nameValueList, "data");
-    BOOLEAN isTime = findValue(&request_block->nameValueList, "time");
-    BOOLEAN isNoCacheTime = findValue(&request_block->nameValueList, "nocacheTime");
-    BOOLEAN isNoCacheData = findValue(&request_block->nameValueList, "nocacheData");
+    bool isData = findValue(&request_block->nameValueList, "data");
+    bool isTime = findValue(&request_block->nameValueList, "time");
+    bool isNoCacheTime = findValue(&request_block->nameValueList, "nocacheTime");
+    bool isNoCacheData = findValue(&request_block->nameValueList, "nocacheData");
 
     float dataScaling;
-    BOOLEAN isDataScaling = FIND_FLOAT_VALUE(request_block->nameValueList, dataScaling);
+    bool isDataScaling = FIND_FLOAT_VALUE(request_block->nameValueList, dataScaling);
 
     float timeScaling = 0.0;
-    BOOLEAN isTimeScaling = FIND_FLOAT_VALUE(request_block->nameValueList, dataScaling);
+    bool isTimeScaling = FIND_FLOAT_VALUE(request_block->nameValueList, dataScaling);
 
     char* signal;
     FIND_REQUIRED_STRING_VALUE(request_block->nameValueList, signal);
@@ -2103,7 +2103,7 @@ static int do_source(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, int* time_cou
     strcpy(next_request_block.signal, signal);            // Prepare the API arguments
 
     int shotNumber;
-    BOOLEAN isShotNumber = FIND_INT_VALUE(request_block->nameValueList, shotNumber);
+    bool isShotNumber = FIND_INT_VALUE(request_block->nameValueList, shotNumber);
     if (!isShotNumber) {
         shotNumber = request_block->exp_number;
     }
@@ -2114,7 +2114,7 @@ static int do_source(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, int* time_cou
 // JET PPF sources: PPF::/$ppfname/$pulseNumber/$sequence/$owner
 
     char* format;
-    BOOLEAN isFormat = FIND_STRING_VALUE(request_block->nameValueList, format);
+    bool isFormat = FIND_STRING_VALUE(request_block->nameValueList, format);
 
     if (isFormat && !strcasecmp(format, "ppf")) {            // JET PPF source naming pattern
         int source;
@@ -2133,7 +2133,7 @@ static int do_source(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, int* time_cou
         }
 
         int runNumber;
-        BOOLEAN isRunNumber = FIND_INT_VALUE(request_block->nameValueList, runNumber);
+        bool isRunNumber = FIND_INT_VALUE(request_block->nameValueList, runNumber);
 
         if (isRunNumber) {
             sprintf(next_request_block.source, "%s/%d", next_request_block.source, runNumber);
@@ -2142,7 +2142,7 @@ static int do_source(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, int* time_cou
         }
 
         char* owner;
-        BOOLEAN isOwner = FIND_STRING_VALUE(request_block->nameValueList, owner);
+        bool isOwner = FIND_STRING_VALUE(request_block->nameValueList, owner);
 
         if (isOwner) {
             sprintf(next_request_block.source, "%s/%s", next_request_block.source, owner);
@@ -2168,7 +2168,7 @@ static int do_source(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, int* time_cou
         port = atoi(getenv("UDA_MAST_PORT"));
 
         int runNumber;
-        BOOLEAN isRunNumber = FIND_INT_VALUE(request_block->nameValueList, runNumber);
+        bool isRunNumber = FIND_INT_VALUE(request_block->nameValueList, runNumber);
 
         if (!isShotNumber && !isRunNumber) {
             // Re-Use the original source argument
@@ -2189,7 +2189,7 @@ static int do_source(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, int* time_cou
         FIND_REQUIRED_STRING_VALUE(request_block->nameValueList, server);
 
         char* source;
-        BOOLEAN isSource = FIND_STRING_VALUE(request_block->nameValueList, source);
+        bool isSource = FIND_STRING_VALUE(request_block->nameValueList, source);
 
         char* env = getenv("UDA_MDSPLUS_ALIAS");
         host = getenv("UDA_MDSPLUS_HOST");

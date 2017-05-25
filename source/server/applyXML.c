@@ -168,7 +168,7 @@ void applyCalibration(int type, int ndata, double factor, double offset, int inv
 
             case TYPE_DOUBLE :
                 dp = (double*) array;
-                for (i = 0; i < ndata; i++) dp[i] = (double) factor * dp[i] + (double) offset;
+                for (i = 0; i < ndata; i++) dp[i] = factor * dp[i] + offset;
                 break;
 
             case TYPE_CHAR:
@@ -450,7 +450,7 @@ void idamserverApplySignalXML(CLIENT_BLOCK client_block, DATA_SOURCE* data_sourc
                                     case TYPE_DOUBLE :
                                         dp = (double*) data_block->dims[data_block->order].offs;
                                         for (ii = 0; ii < data_block->dims[data_block->order].udoms; ii++) {
-                                            dp[ii] = dp[ii] + (double) actions.action[i].timeoffset.offset;
+                                            dp[ii] = dp[ii] + actions.action[i].timeoffset.offset;
                                         }
                                         break;
                                     case TYPE_CHAR :
@@ -517,7 +517,7 @@ void idamserverApplySignalXML(CLIENT_BLOCK client_block, DATA_SOURCE* data_sourc
                                     case TYPE_DOUBLE :
                                         dp = (double*) data_block->dims[data_block->order].offs;
                                         for (ii = 0; ii < data_block->dims[data_block->order].udoms; ii++) {
-                                            dp[ii] = dp[ii] + (double) actions.action[i].timeoffset.offset;
+                                            dp[ii] = dp[ii] + actions.action[i].timeoffset.offset;
                                         }
                                         break;
                                     case TYPE_CHAR :
@@ -581,7 +581,7 @@ void idamserverApplySignalXML(CLIENT_BLOCK client_block, DATA_SOURCE* data_sourc
                                         break;
                                     case TYPE_DOUBLE :
                                         dp = (double*) data_block->dims[data_block->order].offs;
-                                        dp[0] = dp[0] + (double) actions.action[i].timeoffset.offset;
+                                        dp[0] = dp[0] + actions.action[i].timeoffset.offset;
                                         break;
                                     case TYPE_CHAR :
                                         cp = (char*) data_block->dims[data_block->order].offs;
@@ -645,7 +645,7 @@ void idamserverApplySignalXML(CLIENT_BLOCK client_block, DATA_SOURCE* data_sourc
                             case TYPE_DOUBLE :
                                 dp = (double*) data_block->dims[data_block->order].dim;
                                 for (ii = 0; ii < ndata; ii++)
-                                    dp[ii] = (double) actions.action[i].timeoffset.offset + dp[ii];
+                                    dp[ii] = actions.action[i].timeoffset.offset + dp[ii];
                                 break;
                             case TYPE_CHAR :
                                 cp = (char*) data_block->dims[data_block->order].dim;

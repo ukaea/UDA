@@ -18,7 +18,7 @@ class Dim
 {
 public:
     template <typename T>
-    Dim(dim_type num, T * array, size_t size, const std::string& label, const std::string& units)
+    Dim(dim_type num, T* array, size_t size, const std::string& label, const std::string& units)
             : vec_(array, array+size)
             , type_(&typeid(T))
             , num_(num)

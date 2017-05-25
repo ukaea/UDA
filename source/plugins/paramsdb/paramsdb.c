@@ -318,7 +318,7 @@ static ACTIVELIMITS_STRUCT* allocActiveLimits(const char* system, const char* su
     return data;
 }
 
-static PGresult* activeLimitsQuery(PGconn* conn, const char* system, const char* subtype, BOOLEAN is_subtype, const char* coil, BOOLEAN is_coil)
+static PGresult* activeLimitsQuery(PGconn* conn, const char* system, const char* subtype, bool is_subtype, const char* coil, bool is_coil)
 {
     PGresult* res = NULL;
 
@@ -574,8 +574,8 @@ int do_getActiveLimit(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PGconn* conn
     char* coil = NULL;
 
     FIND_REQUIRED_STRING_VALUE(request_block->nameValueList, system);
-    BOOLEAN is_subtype = FIND_STRING_VALUE(request_block->nameValueList, subtype);
-    BOOLEAN is_coil = FIND_STRING_VALUE(request_block->nameValueList, coil);
+    bool is_subtype = FIND_STRING_VALUE(request_block->nameValueList, subtype);
+    bool is_coil = FIND_STRING_VALUE(request_block->nameValueList, coil);
 
     PGresult* res = activeLimitsQuery(conn, system, subtype, is_subtype, coil, is_coil);
 
@@ -1022,7 +1022,7 @@ int do_getCoilParameters(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PGconn* c
 
     FIND_REQUIRED_STRING_VALUE(request_block->nameValueList, coil);
     FIND_REQUIRED_STRING_VALUE(request_block->nameValueList, upper_lower);
-    BOOLEAN is_parameter = FIND_STRING_VALUE(request_block->nameValueList, parameter);
+    bool is_parameter = FIND_STRING_VALUE(request_block->nameValueList, parameter);
 
     PGresult* res = NULL;
 
