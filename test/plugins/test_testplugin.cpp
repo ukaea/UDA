@@ -1278,7 +1278,7 @@ TEST_CASE( "Run test27 - pass struct containing 3D array of shorts", "[plugins][
 
     short exp[] = { 0, 1, 2, 3, 10, 11, 12, 13, 20, 21, 22, 23, 100, 101, 102, 103, 110, 111,
                     112, 113, 120, 121, 122, 123 };
-    std::vector<short> expected(std::begin(exp), std::end(exp));
+    std::vector<short> expected(exp, exp + sizeof(exp)/sizeof(exp[0]));
 
     REQUIRE( value.as<short>() == expected );
 }
@@ -1329,7 +1329,7 @@ TEST_CASE( "Run test28 - pass struct containing 3D array of shorts passed as poi
 
     short exp[] = { 0, 1, 2, 3, 10, 11, 12, 13, 20, 21, 22, 23, 100, 101, 102, 103, 110, 111,
                     112, 113, 120, 121, 122, 123 };
-    std::vector<short> expected(std::begin(exp), std::end(exp));
+    std::vector<short> expected(exp, exp + sizeof(exp)/sizeof(exp[0]));
 
     REQUIRE( value.as<short>() == expected );
 }
