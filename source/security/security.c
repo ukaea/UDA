@@ -89,6 +89,7 @@
 #include <logging/logging.h>
 #include <clientserver/errorLog.h>
 #include <clientserver/udaTypes.h>
+#include <stdbool.h>
 
 static void logToken(const char* msg, const gcry_mpi_t mpi_token)
 {
@@ -406,7 +407,7 @@ int udaAuthentication(AUTHENTICATION_STEP authenticationStep, ENCRYPTION_METHOD 
 
     // Initialise the library
 
-    static BOOLEAN initialised = FALSE;
+    static bool initialised = false;
 
     if (!initialised) {
         // Check version of runtime gcrypt library.
@@ -420,7 +421,7 @@ int udaAuthentication(AUTHENTICATION_STEP authenticationStep, ENCRYPTION_METHOD 
         // Tell Libgcrypt that initialization has completed.
         gcry_control(GCRYCTL_INITIALIZATION_FINISHED, 0);
 
-        initialised = TRUE;
+        initialised = true;
     }
 
     //--------------------------------------------------------------------------------------------------------------------

@@ -12,6 +12,7 @@
 
 #include "scalar.hpp"
 #include "vector.hpp"
+#include "array.hpp"
 #include "structdata.hpp"
 
 namespace uda {
@@ -45,9 +46,12 @@ public:
     void * structureComponentData(const std::string& name);
     Scalar atomicScalar(const std::string& target);
     Vector atomicVector(const std::string& target);
+    Array atomicArray(const std::string& target);
 
     StructData structData(const std::string& target);
     void * data();
+
+    NTREE* node() { return node_; }
 private:
     TreeNode(NTREE * node) : node_(node) {}
     friend class Result;

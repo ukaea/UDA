@@ -174,11 +174,11 @@ uda::Data* getDataAsStringArray(int handle, std::vector<uda::Dim>& dims)
     size_t str_len = dims[0].size();
     size_t arr_len = getIdamDataNum(handle) / str_len;
 
-    std::vector<std::string> strings;
+    std::vector<std::string>* strings = new std::vector<std::string>;
 
     for (int i = 0; i < arr_len; ++i) {
         char* str = &data[i * str_len];
-        strings.push_back(std::string(str, strlen(str)));
+        strings->push_back(std::string(str, strlen(str)));
     }
 
     std::vector<uda::Dim> string_dims;
@@ -187,7 +187,7 @@ uda::Data* getDataAsStringArray(int handle, std::vector<uda::Dim>& dims)
         string_dims.push_back(dims[i]);
     }
 
-    return new uda::Array(strings.data(), string_dims);
+    return new uda::Array(strings->data(), string_dims);
 }
 
 uda::Data* uda::Result::data() const

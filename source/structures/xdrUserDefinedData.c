@@ -44,7 +44,7 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
         rc = xdr_int(xdrs, &passdata);
     } else {
         passdata = 0;
-        if (data != NULL) passdata = *(int**) data != NULL;
+        if (data != NULL) passdata = *(int**)data != NULL;
         rc = xdr_int(xdrs, &passdata);
     }
 
@@ -84,8 +84,8 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
             structRank = 0;
         }
 
-        newNTree = (NTREE*) malloc(sizeof(NTREE));        // this is the parent node for the received structure
-        addMalloc((void*) newNTree, 1, sizeof(NTREE), "NTREE");
+        newNTree = (NTREE*)malloc(sizeof(NTREE));        // this is the parent node for the received structure
+        addMalloc((void*)newNTree, 1, sizeof(NTREE), "NTREE");
 
         *NTree = newNTree;                    // Return the new tree node address
 
@@ -97,10 +97,10 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
 
 // Start of the Structure Array Element
 
-    p0 = *((char**) data) + index * userdefinedtype->size;
+    p0 = *((char**)data) + index * userdefinedtype->size;
 
     if (xdrs->x_op == XDR_DECODE) {
-        newNTree->data = (void*) p0;
+        newNTree->data = (void*)p0;
     }    // Each tree node points to a structure or an atomic array
 
 // Loop over all structure elements: Send or Receive
@@ -112,7 +112,7 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
             break;
         }
 
-        p = (VOIDTYPE*) &p0[userdefinedtype->compoundfield[j].offset];            // the Element's location
+        p = (VOIDTYPE*)&p0[userdefinedtype->compoundfield[j].offset];            // the Element's location
 
         if (xdrs->x_op == XDR_DECODE && userdefinedtype->compoundfield[j].pointer) {    // Initialise
             *p = 0;        // NULL pointer: to be allocated on heap
@@ -140,24 +140,25 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
                             rc = rc && xdr_int(xdrs,
                                                &rank);            // Receive Shape of pointer arrays (not included in definition)
                             if (rank > 1) {
-                                shape = (int*) malloc(rank * sizeof(int));    // freed via the malloc log registration
-                                rc = rc && xdr_vector(xdrs, (char*) shape, rank, sizeof(int), (xdrproc_t) xdr_int);
-                            } else
+                                shape = (int*)malloc(rank * sizeof(int));    // freed via the malloc log registration
+                                rc = rc && xdr_vector(xdrs, (char*)shape, rank, sizeof(int), (xdrproc_t)xdr_int);
+                            } else {
                                 shape = NULL;
-                            d = (char*) malloc(count * sizeof(float));
-                            addMalloc2((void*) d, count, sizeof(float), "float", rank, shape);
-                            *p = (VOIDTYPE) d;
-                        } else break;
+                            }
+                            d = (char*)malloc(count * sizeof(float));
+                            addMalloc2((void*)d, count, sizeof(float), "float", rank, shape);
+                            *p = (VOIDTYPE)d;
+                        } else { break; }
                         if (!rc)break;
                     } else {
-                        d = (char*) *p;                    // data read from here
+                        d = (char*)*p;                    // data read from here
                         if (d == NULL) {
                             count = 0;
                             rc = rc && xdr_int(xdrs, &count);            // No data to send
                             break;
                         }
 
-                        findMalloc2((void*) p, &count, &size, &type, &rank,
+                        findMalloc2((void*)p, &count, &size, &type, &rank,
                                     &shape);        // Assume 0 means No Pointer data to send!
 
 // Allocation of pointer data within SOAP is problematic.
@@ -173,9 +174,9 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
                             if (malloc_source == MALLOCSOURCESOAP && j > 0 &&
                                 STR_EQUALS(userdefinedtype->compoundfield[j - 1].name, "__size") &&
                                 STR_EQUALS(userdefinedtype->compoundfield[j].name,
-                                        &userdefinedtype->compoundfield[j - 1].name[6])) {
+                                           &userdefinedtype->compoundfield[j - 1].name[6])) {
 
-                                count = (int) *prev;        // the value of __size...
+                                count = (int)*prev;        // the value of __size...
                                 size = sizeof(float);
                                 type = userdefinedtype->compoundfield[j].type;
                             } else {
@@ -204,17 +205,17 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
 
                         rc = rc && xdr_int(xdrs, &rank);            // Send Shape of arrays
                         if (rank > 1) {
-                            rc = rc && xdr_vector(xdrs, (char*) shape, rank, sizeof(int), (xdrproc_t) xdr_int);
+                            rc = rc && xdr_vector(xdrs, (char*)shape, rank, sizeof(int), (xdrproc_t)xdr_int);
                         }
 
                     }
-                    rc = rc && xdr_vector(xdrs, d, count, sizeof(float), (xdrproc_t) xdr_float);
+                    rc = rc && xdr_vector(xdrs, d, count, sizeof(float), (xdrproc_t)xdr_float);
                 } else {
                     if (userdefinedtype->compoundfield[j].rank == 0) {        // Element is a Scalar of fixed size
-                        rc = rc && xdr_float(xdrs, (float*) p);
+                        rc = rc && xdr_float(xdrs, (float*)p);
                     } else {                            // Element is an Array of fixed size
-                        rc = rc && xdr_vector(xdrs, (char*) p, userdefinedtype->compoundfield[j].count, sizeof(float),
-                                              (xdrproc_t) xdr_float);
+                        rc = rc && xdr_vector(xdrs, (char*)p, userdefinedtype->compoundfield[j].count, sizeof(float),
+                                              (xdrproc_t)xdr_float);
                     }
                 }
                 break;
@@ -224,39 +225,38 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
                 IDAM_LOG(LOG_DEBUG, "Type: DOUBLE\n");
 
                 if (userdefinedtype->compoundfield[j].pointer) {        // Pointer to Double Data array
-                    if (xdrs->x_op == XDR_DECODE) {                // Allocate Heap for Data Received
-                        rc = rc && xdr_int(xdrs,
-                                           &count);            // Count is known from the client's malloc log and passed by the sender
+                    if (xdrs->x_op == XDR_DECODE) {                     // Allocate Heap for Data Received
+                        rc = rc && xdr_int(xdrs, &count);               // Count is known from the client's malloc log and passed by the sender
                         if (count > 0) {
-                            rc = rc && xdr_int(xdrs,
-                                               &rank);            // Receive Shape of pointer arrays (not included in definition)
+                            rc = rc && xdr_int(xdrs, &rank);            // Receive Shape of pointer arrays (not included in definition)
                             if (rank > 1) {
-                                shape = (int*) malloc(rank * sizeof(int));    // freed via the malloc log registration
-                                rc = rc && xdr_vector(xdrs, (char*) shape, rank, sizeof(int), (xdrproc_t) xdr_int);
-                            } else
+                                shape = (int*)malloc(rank * sizeof(int));    // freed via the malloc log registration
+                                rc = rc && xdr_vector(xdrs, (char*)shape, rank, sizeof(int), (xdrproc_t)xdr_int);
+                            } else {
                                 shape = NULL;
-                            d = (char*) malloc(count * sizeof(double));
-                            addMalloc2((void*) d, count, sizeof(double), "double", rank, shape);
-                            *p = (VOIDTYPE) d;                    // Save pointer: data will be written here
-                        } else break;
+                            }
+                            d = (char*)malloc(count * sizeof(double));
+                            addMalloc2((void*)d, count, sizeof(double), "double", rank, shape);
+                            *p = (VOIDTYPE)d;                           // Save pointer: data will be written here
+                        } else { break; }
                     } else {
-                        d = (char*) *p;                    // data read from here
+                        d = (char*)*p;                                  // data read from here
                         if (d == NULL) {
                             count = 0;
-                            rc = rc && xdr_int(xdrs, &count);            // No data to send
+                            rc = rc && xdr_int(xdrs, &count);           // No data to send
                             break;
                         }
 
-                        findMalloc2((void*) p, &count, &size, &type, &rank,
-                                    &shape);    // Assume count of 0 means No Pointer data to send!
+                        // Assume count of 0 means No Pointer data to send!
+                        findMalloc2((void*)p, &count, &size, &type, &rank, &shape);
 
                         if (type != NULL && STR_EQUALS(type, "unknown")) {
                             if (malloc_source == MALLOCSOURCESOAP && j > 0 &&
                                 STR_EQUALS(userdefinedtype->compoundfield[j - 1].name, "__size") &&
                                 STR_EQUALS(userdefinedtype->compoundfield[j].name,
-                                        &userdefinedtype->compoundfield[j - 1].name[6])) {
+                                           &userdefinedtype->compoundfield[j - 1].name[6])) {
 
-                                count = (int) *prev;        // the value of __size...
+                                count = (int)*prev;        // the value of __size...
                                 size = sizeof(double);
                                 type = userdefinedtype->compoundfield[j].type;
                             } else {
@@ -284,18 +284,18 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
 
                         rc = rc && xdr_int(xdrs, &rank);            // Send Shape of arrays
                         if (rank > 1) {
-                            rc = rc && xdr_vector(xdrs, (char*) shape, rank, sizeof(int), (xdrproc_t) xdr_int);
+                            rc = rc && xdr_vector(xdrs, (char*)shape, rank, sizeof(int), (xdrproc_t)xdr_int);
                         }
 
                     }
                     rc = rc && xdr_vector(xdrs, d, count, sizeof(double),
-                                          (xdrproc_t) xdr_double);            // Send or Receive data
+                                          (xdrproc_t)xdr_double);            // Send or Receive data
                 } else {
                     if (userdefinedtype->compoundfield[j].rank == 0) {        // Element is a Scalar of fixed size
-                        rc = rc && xdr_double(xdrs, (double*) p);
+                        rc = rc && xdr_double(xdrs, (double*)p);
                     } else {                            // Element is an Array of fixed size
-                        rc = rc && xdr_vector(xdrs, (char*) p, userdefinedtype->compoundfield[j].count, sizeof(double),
-                                              (xdrproc_t) xdr_double);
+                        rc = rc && xdr_vector(xdrs, (char*)p, userdefinedtype->compoundfield[j].count, sizeof(double),
+                                              (xdrproc_t)xdr_double);
                     }
                 }
                 break;
@@ -312,31 +312,32 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
                             rc = rc && xdr_int(xdrs,
                                                &rank);            // Receive Shape of pointer arrays (not included in definition)
                             if (rank > 1) {
-                                shape = (int*) malloc(rank * sizeof(int));    // freed via the malloc log registration
-                                rc = rc && xdr_vector(xdrs, (char*) shape, rank, sizeof(int), (xdrproc_t) xdr_int);
-                            } else
+                                shape = (int*)malloc(rank * sizeof(int));    // freed via the malloc log registration
+                                rc = rc && xdr_vector(xdrs, (char*)shape, rank, sizeof(int), (xdrproc_t)xdr_int);
+                            } else {
                                 shape = NULL;
-                            d = (char*) malloc(count * sizeof(short));
-                            addMalloc2((void*) d, count, sizeof(short), "short", rank, shape);
-                            *p = (VOIDTYPE) d;                    // Save pointer: data will be written here
-                        } else break;
+                            }
+                            d = (char*)malloc(count * sizeof(short));
+                            addMalloc2((void*)d, count, sizeof(short), "short", rank, shape);
+                            *p = (VOIDTYPE)d;                    // Save pointer: data will be written here
+                        } else { break; }
                     } else {
-                        d = (char*) *p;                    // data read from here
+                        d = (char*)*p;                    // data read from here
                         if (d == NULL) {
                             count = 0;
                             rc = rc && xdr_int(xdrs, &count);            // No data to send
                             break;
                         }
-                        findMalloc2((void*) p, &count, &size, &type, &rank,
+                        findMalloc2((void*)p, &count, &size, &type, &rank,
                                     &shape);    // Assume count of 0 means No Pointer data to send!
 
                         if (type != NULL && STR_EQUALS(type, "unknown")) {
                             if (malloc_source == MALLOCSOURCESOAP && j > 0 &&
                                 STR_EQUALS(userdefinedtype->compoundfield[j - 1].name, "__size") &&
                                 STR_EQUALS(userdefinedtype->compoundfield[j].name,
-                                        &userdefinedtype->compoundfield[j - 1].name[6])) {
+                                           &userdefinedtype->compoundfield[j - 1].name[6])) {
 
-                                count = (int) *prev;        // the value of __size...
+                                count = (int)*prev;        // the value of __size...
                                 size = sizeof(short);
                                 type = userdefinedtype->compoundfield[j].type;
                             } else {
@@ -364,17 +365,17 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
 
                         rc = rc && xdr_int(xdrs, &rank);            // Send Shape of arrays
                         if (rank > 1) {
-                            rc = rc && xdr_vector(xdrs, (char*) shape, rank, sizeof(int), (xdrproc_t) xdr_int);
+                            rc = rc && xdr_vector(xdrs, (char*)shape, rank, sizeof(int), (xdrproc_t)xdr_int);
                         }
 
                     }
-                    rc = rc && xdr_vector(xdrs, d, count, sizeof(short), (xdrproc_t) xdr_short);
+                    rc = rc && xdr_vector(xdrs, d, count, sizeof(short), (xdrproc_t)xdr_short);
                 } else {
                     if (userdefinedtype->compoundfield[j].rank == 0) {        // Element is a Scalar
-                        rc = rc && xdr_short(xdrs, (short*) p);
+                        rc = rc && xdr_short(xdrs, (short*)p);
                     } else {                            // Element is an Array of fixed size
-                        rc = rc && xdr_vector(xdrs, (char*) p, userdefinedtype->compoundfield[j].count, sizeof(short),
-                                              (xdrproc_t) xdr_short);
+                        rc = rc && xdr_vector(xdrs, (char*)p, userdefinedtype->compoundfield[j].count, sizeof(short),
+                                              (xdrproc_t)xdr_short);
                     }
                 }
                 break;
@@ -391,31 +392,32 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
                             rc = rc && xdr_int(xdrs,
                                                &rank);            // Receive Shape of pointer arrays (not included in definition)
                             if (rank > 1) {
-                                shape = (int*) malloc(rank * sizeof(int));    // freed via the malloc log registration
-                                rc = rc && xdr_vector(xdrs, (char*) shape, rank, sizeof(int), (xdrproc_t) xdr_int);
-                            } else
+                                shape = (int*)malloc(rank * sizeof(int));    // freed via the malloc log registration
+                                rc = rc && xdr_vector(xdrs, (char*)shape, rank, sizeof(int), (xdrproc_t)xdr_int);
+                            } else {
                                 shape = NULL;
-                            d = (char*) malloc(count * sizeof(unsigned short));
-                            addMalloc2((void*) d, count, sizeof(unsigned short), "unsigned short", rank, shape);
-                            *p = (VOIDTYPE) d;                    // Save pointer: data will be written here
-                        } else break;
+                            }
+                            d = (char*)malloc(count * sizeof(unsigned short));
+                            addMalloc2((void*)d, count, sizeof(unsigned short), "unsigned short", rank, shape);
+                            *p = (VOIDTYPE)d;                    // Save pointer: data will be written here
+                        } else { break; }
                     } else {
-                        d = (char*) *p;                    // data read from here
+                        d = (char*)*p;                    // data read from here
                         if (d == NULL) {
                             count = 0;
                             rc = rc && xdr_int(xdrs, &count);            // No data to send
                             break;
                         }
-                        findMalloc2((void*) p, &count, &size, &type, &rank,
+                        findMalloc2((void*)p, &count, &size, &type, &rank,
                                     &shape);    // Assume count of 0 means No Pointer data to send!
 
                         if (type != NULL && STR_EQUALS(type, "unknown")) {
                             if (malloc_source == MALLOCSOURCESOAP && j > 0 &&
                                 STR_EQUALS(userdefinedtype->compoundfield[j - 1].name, "__size") &&
                                 STR_EQUALS(userdefinedtype->compoundfield[j].name,
-                                        &userdefinedtype->compoundfield[j - 1].name[6])) {
+                                           &userdefinedtype->compoundfield[j - 1].name[6])) {
 
-                                count = (int) *prev;        // the value of __size...
+                                count = (int)*prev;        // the value of __size...
                                 size = sizeof(unsigned short);
                                 type = userdefinedtype->compoundfield[j].type;
                             } else {
@@ -443,17 +445,17 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
 
                         rc = rc && xdr_int(xdrs, &rank);            // Send Shape of arrays
                         if (rank > 1) {
-                            rc = rc && xdr_vector(xdrs, (char*) shape, rank, sizeof(int), (xdrproc_t) xdr_int);
+                            rc = rc && xdr_vector(xdrs, (char*)shape, rank, sizeof(int), (xdrproc_t)xdr_int);
                         }
 
                     }
-                    rc = rc && xdr_vector(xdrs, d, count, sizeof(unsigned short), (xdrproc_t) xdr_u_short);
+                    rc = rc && xdr_vector(xdrs, d, count, sizeof(unsigned short), (xdrproc_t)xdr_u_short);
                 } else {
                     if (userdefinedtype->compoundfield[j].rank == 0) {        // Element is a Scalar
-                        rc = rc && xdr_u_short(xdrs, (unsigned short*) p);
+                        rc = rc && xdr_u_short(xdrs, (unsigned short*)p);
                     } else {                            // Element is an Array of fixed size
-                        rc = rc && xdr_vector(xdrs, (char*) p, userdefinedtype->compoundfield[j].count,
-                                              sizeof(unsigned short), (xdrproc_t) xdr_u_short);
+                        rc = rc && xdr_vector(xdrs, (char*)p, userdefinedtype->compoundfield[j].count,
+                                              sizeof(unsigned short), (xdrproc_t)xdr_u_short);
                     }
                 }
                 break;
@@ -470,31 +472,32 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
                             rc = rc && xdr_int(xdrs,
                                                &rank);            // Receive Shape of pointer arrays (not included in definition)
                             if (rank > 1) {
-                                shape = (int*) malloc(rank * sizeof(int));    // freed via the malloc log registration
-                                rc = rc && xdr_vector(xdrs, (char*) shape, rank, sizeof(int), (xdrproc_t) xdr_int);
-                            } else
+                                shape = (int*)malloc(rank * sizeof(int));    // freed via the malloc log registration
+                                rc = rc && xdr_vector(xdrs, (char*)shape, rank, sizeof(int), (xdrproc_t)xdr_int);
+                            } else {
                                 shape = NULL;
-                            d = (char*) malloc(count * sizeof(int));
-                            addMalloc2((void*) d, count, sizeof(int), "int", rank, shape);
-                            *p = (VOIDTYPE) d;                    // Save pointer: data will be written here
-                        } else break;
+                            }
+                            d = (char*)malloc(count * sizeof(int));
+                            addMalloc2((void*)d, count, sizeof(int), "int", rank, shape);
+                            *p = (VOIDTYPE)d;                    // Save pointer: data will be written here
+                        } else { break; }
                     } else {
-                        d = (char*) *p;                    // data read from here
+                        d = (char*)*p;                    // data read from here
                         if (d == NULL) {
                             count = 0;
                             rc = rc && xdr_int(xdrs, &count);            // No data to send
                             break;
                         }
-                        findMalloc2((void*) p, &count, &size, &type, &rank,
+                        findMalloc2((void*)p, &count, &size, &type, &rank,
                                     &shape);    // Assume count of 0 means No Pointer data to send!
 
                         if (type != NULL && STR_EQUALS(type, "unknown")) {
                             if (malloc_source == MALLOCSOURCESOAP && j > 0 &&
                                 STR_EQUALS(userdefinedtype->compoundfield[j - 1].name, "__size") &&
                                 STR_EQUALS(userdefinedtype->compoundfield[j].name,
-                                        &userdefinedtype->compoundfield[j - 1].name[6])) {
+                                           &userdefinedtype->compoundfield[j - 1].name[6])) {
 
-                                count = (int) *prev;        // the value of __size...
+                                count = (int)*prev;        // the value of __size...
                                 size = sizeof(int);
                                 type = userdefinedtype->compoundfield[j].type;
                             } else {
@@ -522,16 +525,16 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
 
                         rc = rc && xdr_int(xdrs, &rank);            // Send Shape of arrays
                         if (rank > 1) {
-                            rc = rc && xdr_vector(xdrs, (char*) shape, rank, sizeof(int), (xdrproc_t) xdr_int);
+                            rc = rc && xdr_vector(xdrs, (char*)shape, rank, sizeof(int), (xdrproc_t)xdr_int);
                         }
                     }
-                    rc = rc && xdr_vector(xdrs, d, count, sizeof(int), (xdrproc_t) xdr_int);
+                    rc = rc && xdr_vector(xdrs, d, count, sizeof(int), (xdrproc_t)xdr_int);
                 } else {
                     if (userdefinedtype->compoundfield[j].rank == 0) {    // Element is a Scalar
-                        rc = rc && xdr_int(xdrs, (int*) p);
+                        rc = rc && xdr_int(xdrs, (int*)p);
                     } else {                            // Element is an Array of fixed size
-                        rc = rc && xdr_vector(xdrs, (char*) p, userdefinedtype->compoundfield[j].count, sizeof(int),
-                                              (xdrproc_t) xdr_int);
+                        rc = rc && xdr_vector(xdrs, (char*)p, userdefinedtype->compoundfield[j].count, sizeof(int),
+                                              (xdrproc_t)xdr_int);
                     }
                 }
                 break;
@@ -548,31 +551,32 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
                             rc = rc && xdr_int(xdrs,
                                                &rank);            // Receive Shape of pointer arrays (not included in definition)
                             if (rank > 1) {
-                                shape = (int*) malloc(rank * sizeof(int));    // freed via the malloc log registration
-                                rc = rc && xdr_vector(xdrs, (char*) shape, rank, sizeof(int), (xdrproc_t) xdr_int);
-                            } else
+                                shape = (int*)malloc(rank * sizeof(int));    // freed via the malloc log registration
+                                rc = rc && xdr_vector(xdrs, (char*)shape, rank, sizeof(int), (xdrproc_t)xdr_int);
+                            } else {
                                 shape = NULL;
-                            d = (char*) malloc(count * sizeof(unsigned int));
-                            addMalloc2((void*) d, count, sizeof(unsigned int), "unsigned int", rank, shape);
-                            *p = (VOIDTYPE) d;                    // Save pointer: data will be written here
-                        } else break;
+                            }
+                            d = (char*)malloc(count * sizeof(unsigned int));
+                            addMalloc2((void*)d, count, sizeof(unsigned int), "unsigned int", rank, shape);
+                            *p = (VOIDTYPE)d;                    // Save pointer: data will be written here
+                        } else { break; }
                     } else {
-                        d = (char*) *p;                    // data read from here
+                        d = (char*)*p;                    // data read from here
                         if (d == NULL) {
                             count = 0;
                             rc = rc && xdr_int(xdrs, &count);            // No data to send
                             break;
                         }
-                        findMalloc2((void*) p, &count, &size, &type, &rank,
+                        findMalloc2((void*)p, &count, &size, &type, &rank,
                                     &shape);    // Assume count of 0 means No Pointer data to send!
 
                         if (type != NULL && STR_EQUALS(type, "unknown")) {
                             if (malloc_source == MALLOCSOURCESOAP && j > 0 &&
                                 STR_EQUALS(userdefinedtype->compoundfield[j - 1].name, "__size") &&
                                 STR_EQUALS(userdefinedtype->compoundfield[j].name,
-                                        &userdefinedtype->compoundfield[j - 1].name[6])) {
+                                           &userdefinedtype->compoundfield[j - 1].name[6])) {
 
-                                count = (int) *prev;        // the value of __size...
+                                count = (int)*prev;        // the value of __size...
                                 size = sizeof(unsigned int);
                                 type = userdefinedtype->compoundfield[j].type;
                             } else {
@@ -598,16 +602,16 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
                         }
                         rc = rc && xdr_int(xdrs, &rank);            // Send Shape of arrays
                         if (rank > 1) {
-                            rc = rc && xdr_vector(xdrs, (char*) shape, rank, sizeof(int), (xdrproc_t) xdr_int);
+                            rc = rc && xdr_vector(xdrs, (char*)shape, rank, sizeof(int), (xdrproc_t)xdr_int);
                         }
                     }
-                    rc = rc && xdr_vector(xdrs, d, count, sizeof(unsigned int), (xdrproc_t) xdr_u_int);
+                    rc = rc && xdr_vector(xdrs, d, count, sizeof(unsigned int), (xdrproc_t)xdr_u_int);
                 } else {
                     if (userdefinedtype->compoundfield[j].rank == 0) {    // Element is a Scalar
-                        rc = rc && xdr_u_int(xdrs, (unsigned int*) p);
+                        rc = rc && xdr_u_int(xdrs, (unsigned int*)p);
                     } else {                            // Element is an Array of fixed size
-                        rc = rc && xdr_vector(xdrs, (char*) p, userdefinedtype->compoundfield[j].count,
-                                              sizeof(unsigned int), (xdrproc_t) xdr_u_int);
+                        rc = rc && xdr_vector(xdrs, (char*)p, userdefinedtype->compoundfield[j].count,
+                                              sizeof(unsigned int), (xdrproc_t)xdr_u_int);
                     }
                 }
                 break;
@@ -624,31 +628,32 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
                             rc = rc && xdr_int(xdrs,
                                                &rank);            // Receive Shape of pointer arrays (not included in definition)
                             if (rank > 1) {
-                                shape = (int*) malloc(rank * sizeof(int));    // freed via the malloc log registration
-                                rc = rc && xdr_vector(xdrs, (char*) shape, rank, sizeof(int), (xdrproc_t) xdr_int);
-                            } else
+                                shape = (int*)malloc(rank * sizeof(int));    // freed via the malloc log registration
+                                rc = rc && xdr_vector(xdrs, (char*)shape, rank, sizeof(int), (xdrproc_t)xdr_int);
+                            } else {
                                 shape = NULL;
-                            d = (char*) malloc(count * sizeof(long long));
-                            addMalloc2((void*) d, count, sizeof(long long), "long long", rank, shape);
-                            *p = (VOIDTYPE) d;                    // Save pointer: data will be written here
-                        } else break;
+                            }
+                            d = (char*)malloc(count * sizeof(long long));
+                            addMalloc2((void*)d, count, sizeof(long long), "long long", rank, shape);
+                            *p = (VOIDTYPE)d;                    // Save pointer: data will be written here
+                        } else { break; }
                     } else {
-                        d = (char*) *p;                    // data read from here
+                        d = (char*)*p;                    // data read from here
                         if (d == NULL) {
                             count = 0;
                             rc = rc && xdr_int(xdrs, &count);            // No data to send
                             break;
                         }
-                        findMalloc2((void*) p, &count, &size, &type, &rank,
+                        findMalloc2((void*)p, &count, &size, &type, &rank,
                                     &shape);    // Assume count of 0 means No Pointer data to send!
 
                         if (type != NULL && STR_EQUALS(type, "unknown")) {
                             if (malloc_source == MALLOCSOURCESOAP && j > 0 &&
                                 STR_EQUALS(userdefinedtype->compoundfield[j - 1].name, "__size") &&
                                 STR_EQUALS(userdefinedtype->compoundfield[j].name,
-                                        &userdefinedtype->compoundfield[j - 1].name[6])) {
+                                           &userdefinedtype->compoundfield[j - 1].name[6])) {
 
-                                count = (int) *prev;        // the value of __size...
+                                count = (int)*prev;        // the value of __size...
                                 size = sizeof(long long);
                                 type = userdefinedtype->compoundfield[j].type;
 
@@ -675,21 +680,21 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
                         }
                         rc = rc && xdr_int(xdrs, &rank);            // Send Shape of arrays
                         if (rank > 1) {
-                            rc = rc && xdr_vector(xdrs, (char*) shape, rank, sizeof(int), (xdrproc_t) xdr_int);
+                            rc = rc && xdr_vector(xdrs, (char*)shape, rank, sizeof(int), (xdrproc_t)xdr_int);
                         }
                     }
-                    rc = rc && xdr_vector(xdrs, d, count, sizeof(long long), (xdrproc_t) xdr_int64_t);
+                    rc = rc && xdr_vector(xdrs, d, count, sizeof(long long), (xdrproc_t)xdr_int64_t);
                 } else {
                     if (userdefinedtype->compoundfield[j].rank == 0) {        // Element is a Scalar
 #ifdef A64
-                        rc = rc && xdr_int64_t(xdrs, (int64_t*) p);
+                        rc = rc && xdr_int64_t(xdrs, (int64_t*)p);
 #else
                         rc = rc && xdr_int64_t(xdrs, (long long *)p);
 #endif
                     } else {                            // Element is an Array of fixed size
                         rc = rc &&
-                             xdr_vector(xdrs, (char*) p, userdefinedtype->compoundfield[j].count, sizeof(long long),
-                                        (xdrproc_t) xdr_int64_t);
+                             xdr_vector(xdrs, (char*)p, userdefinedtype->compoundfield[j].count, sizeof(long long),
+                                        (xdrproc_t)xdr_int64_t);
                     }
                 }
                 break;
@@ -781,40 +786,39 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
             case (TYPE_CHAR): {
                 IDAM_LOG(LOG_DEBUG, "Type: CHAR\n");
                 if (userdefinedtype->compoundfield[j].pointer) {        // Pointer to Float Data array
-                    if (xdrs->x_op == XDR_DECODE) {                // Allocate Heap for Data
-                        rc = rc && xdr_int(xdrs,
-                                           &count);            // Count is known from the client's malloc log and passed by the sender
+                    if (xdrs->x_op == XDR_DECODE) {                     // Allocate Heap for Data
+                        rc = rc && xdr_int(xdrs, &count);               // Count is known from the client's malloc log and passed by the sender
                         if (!rc)break;
                         if (count > 0) {
-                            rc = rc && xdr_int(xdrs,
-                                               &rank);            // Receive Shape of pointer arrays (not included in definition)
+                            rc = rc && xdr_int(xdrs, &rank);            // Receive Shape of pointer arrays (not included in definition)
                             if (rank > 1) {
-                                shape = (int*) malloc(rank * sizeof(int));    // freed via the malloc log registration
-                                rc = rc && xdr_vector(xdrs, (char*) shape, rank, sizeof(int), (xdrproc_t) xdr_int);
-                            } else
+                                shape = (int*)malloc(rank * sizeof(int));    // freed via the malloc log registration
+                                rc = rc && xdr_vector(xdrs, (char*)shape, rank, sizeof(int), (xdrproc_t)xdr_int);
+                            } else {
                                 shape = NULL;
-                            d = (char*) malloc(count * sizeof(char));
-                            addMalloc2((void*) d, count, sizeof(char), "char", rank, shape);
-                            *p = (VOIDTYPE) d;                    // Save pointer: data will be written here
-                        } else break;
+                            }
+                            d = (char*)malloc(count * sizeof(char));
+                            addMalloc2((void*)d, count, sizeof(char), "char", rank, shape);
+                            *p = (VOIDTYPE)d;                           // Save pointer: data will be written here
+                        } else { break; }
                     } else {
-                        d = (char*) *p;
+                        d = (char*)*p;
                         if (d == NULL) {
                             count = 0;
-                            rc = rc && xdr_int(xdrs, &count);            // No data to send
+                            rc = rc && xdr_int(xdrs, &count);           // No data to send
                             break;
                         }
-                        findMalloc2((void*) p, &count, &size, &type, &rank,
-                                    &shape);    // Assume count of 0 means No Pointer data to send!
+                        // Assume count of 0 means No Pointer data to send!
+                        findMalloc2((void*)p, &count, &size, &type, &rank, &shape);
 
                         if (type != NULL && STR_EQUALS(type, "unknown")) {
                             if (malloc_source == MALLOCSOURCESOAP && j > 0 &&
                                 STR_EQUALS(userdefinedtype->compoundfield[j - 1].name, "__size") &&
                                 STR_EQUALS(userdefinedtype->compoundfield[j].name,
-                                        &userdefinedtype->compoundfield[j - 1].name[6])) {
+                                           &userdefinedtype->compoundfield[j - 1].name[6])) {
 
                                 isSOAP = 1;
-                                count = (int) *prev;        // the value of __size...
+                                count = (int)*prev;        // the value of __size...
                                 size = sizeof(char);
                                 type = userdefinedtype->compoundfield[j].type;
                             } else {
@@ -835,7 +839,7 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
                                 *p != 0) {        // Assume SOAP string
                                 isSOAP = 1;
                                 if (d != NULL) {
-                                    int lstr = (int) strlen(d);
+                                    int lstr = (int)strlen(d);
                                     if (lstr < MAXSOAPSTACKSTRING) {
                                         count = lstr + 1;
                                         size = sizeof(char);
@@ -856,7 +860,7 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
                         }
                         rc = rc && xdr_int(xdrs, &rank);            // Send Shape of arrays
                         if (rank > 1) {
-                            rc = rc && xdr_vector(xdrs, (char*) shape, rank, sizeof(int), (xdrproc_t) xdr_int);
+                            rc = rc && xdr_vector(xdrs, (char*)shape, rank, sizeof(int), (xdrproc_t)xdr_int);
                         }
                     }
 
@@ -865,7 +869,7 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
 
                     if (isSOAP) {    // char* is a C String in gSOAP
                         if (xdrs->x_op == XDR_ENCODE) {
-                            int sl = (int) strlen(d);
+                            int sl = (int)strlen(d);
                             if (sl > count) {
                                 d[count - 1] = '\0';    // Terminate
                             }
@@ -873,50 +877,50 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
                         rc = rc && WrapXDRString(xdrs, d, count);
                         isSOAP = 0;
                     } else {
-                        rc = rc && xdr_vector(xdrs, d, count, sizeof(char), (xdrproc_t) xdr_char);
+                        rc = rc && xdr_vector(xdrs, d, count, sizeof(char), (xdrproc_t)xdr_char);
                     }
                     if (!rc) break;
 
                 } else {
                     if (userdefinedtype->compoundfield[j].rank == 0) {    // Element is a Scalar
-                        rc = rc && xdr_char(xdrs, (char*) p);
-                    } else {                            // Element is an Array of fixed size
-                        rc = rc && xdr_vector(xdrs, (char*) p, userdefinedtype->compoundfield[j].count, sizeof(char),
-                                              (xdrproc_t) xdr_char);
+                        rc = rc && xdr_char(xdrs, (char*)p);
+                    } else {
+                        // Element is an Array of fixed size
+                        rc = rc && xdr_vector(xdrs, (char*)p, userdefinedtype->compoundfield[j].count, sizeof(char),
+                                              (xdrproc_t)xdr_char);
                     }
                     if (!rc) break;
                 }
                 break;
             }
 
-            case (TYPE_STRING2): {                    // Array of char terminated by \0
+            case (TYPE_STRING2): {                                      // Array of char terminated by \0
                 if (userdefinedtype->compoundfield[j].pointer) {        // Pointer to string array
-                    if (xdrs->x_op == XDR_DECODE) {                // Allocate Heap for Data
-                        rc = rc && xdr_int(xdrs,
-                                           &count);            // Count is known from the client's malloc log and passed by the sender
+                    if (xdrs->x_op == XDR_DECODE) {                     // Allocate Heap for Data
+                        rc = rc && xdr_int(xdrs, &count);               // Count is known from the client's malloc log and passed by the sender
                         if (count > 0) {
-                            d = (char*) malloc(count * sizeof(char));
-                            addMalloc((void*) d, count, sizeof(char), "STRING");
-                            *p = (VOIDTYPE) d;                    // Save pointer: data will be written here
-                        } else break;
+                            d = (char*)malloc(count * sizeof(char));
+                            addMalloc((void*)d, count, sizeof(char), "STRING");
+                            *p = (VOIDTYPE)d;                           // Save pointer: data will be written here
+                        } else { break; }
                     } else {
-                        d = (char*) *p;
+                        d = (char*)*p;
                         if (d == NULL) {
                             count = 0;
-                            rc = rc && xdr_int(xdrs, &count);            // No data to send
+                            rc = rc && xdr_int(xdrs, &count);           // No data to send
                             break;
                         }
 
-                        if (malloc_source == MALLOCSOURCEDOM) {                            // Bad address range?
+                        if (malloc_source == MALLOCSOURCEDOM) {         // Bad address range?
                             count = 0;
-                            rc = rc && xdr_int(xdrs, &count);            // No data to send
+                            rc = rc && xdr_int(xdrs, &count);           // No data to send
                             break;
                         }
 
-                        findMalloc((void*) p, &count, &size, &type);        // Assume 0 means No Pointer data to send!
+                        findMalloc((void*)p, &count, &size, &type);     // Assume 0 means No Pointer data to send!
 
                         if (malloc_source == MALLOCSOURCEDOM && (count == 0 || size == 0) && d != NULL) {
-                            int lstr = (int) strlen(d);
+                            int lstr = (int)strlen(d);
                             if (lstr < MAXSOAPSTACKSTRING) {
                                 count = lstr + 1;
                                 size = sizeof(char);
@@ -925,7 +929,7 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
                         }
 
                         if (count == 1 && STR_EQUALS(type, "unknown")) {
-                            int lstr = (int) strlen(d);
+                            int lstr = (int)strlen(d);
                             count = size;
                             size = sizeof(char);
                             if (malloc_source == MALLOCSOURCEDOM && lstr > count - 1 && lstr < MAXSOAPSTACKSTRING) {
@@ -945,8 +949,9 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
                     if (count > 0) rc = rc && WrapXDRString(xdrs, d, count);
                 } else {
                     if (userdefinedtype->compoundfield[j].rank == 1) {        // Element is a Regular String
-                        rc = rc && WrapXDRString(xdrs, (char*) p, userdefinedtype->compoundfield[j].count);
-                    } else {                            // Element is an Array of Strings of fixed max size
+                        rc = rc && WrapXDRString(xdrs, (char*)p, userdefinedtype->compoundfield[j].count);
+                    } else {
+                        // Element is an Array of Strings of fixed max size
                     }
                 }
                 break;
@@ -976,18 +981,18 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
                         if (STR_EQUALS(userdefinedtype->compoundfield[j].type, "STRING *")) {
                             rc = rc && xdr_int(xdrs, &nstr);        // Number of strings
                             if (nstr > 0) {
-                                char** str = (char**) malloc(nstr * sizeof(char*));
-                                addMalloc((void*) str, nstr, sizeof(char*), "STRING *");
+                                char** str = (char**)malloc(nstr * sizeof(char*));
+                                addMalloc((void*)str, nstr, sizeof(char*), "STRING *");
                                 for (istr = 0; istr < nstr; istr++) {
                                     rc = rc && xdr_int(xdrs, &count);
                                     if (count > 0) {
-                                        d = (char*) malloc(count * sizeof(char));
-                                        addMalloc((void*) d, count, sizeof(char), "char");
+                                        d = (char*)malloc(count * sizeof(char));
+                                        addMalloc((void*)d, count, sizeof(char), "char");
                                         rc = rc && WrapXDRString(xdrs, d, count);
                                         str[istr] = d;
                                     }
                                 }
-                                *p = (VOIDTYPE) str;
+                                *p = (VOIDTYPE)str;
                             }
                             break;
                         }
@@ -998,36 +1003,37 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
                             rc = rc && xdr_int(xdrs,
                                                &rank);            // Receive Shape of pointer arrays (not included in definition)
                             if (rank > 1) {
-                                shape = (int*) malloc(rank * sizeof(int));    // freed via the malloc log registration
-                                rc = rc && xdr_vector(xdrs, (char*) shape, rank, sizeof(int), (xdrproc_t) xdr_int);
-                            } else
+                                shape = (int*)malloc(rank * sizeof(int));    // freed via the malloc log registration
+                                rc = rc && xdr_vector(xdrs, (char*)shape, rank, sizeof(int), (xdrproc_t)xdr_int);
+                            } else {
                                 shape = NULL;
-                            strarr = (char**) malloc(
+                            }
+                            strarr = (char**)malloc(
                                     nstr * sizeof(char*));    // nstr is the length of the array, not the strings
-                            addMalloc2((void*) strarr, nstr, sizeof(char*), "STRING", rank, shape);
-                            *p = (VOIDTYPE) strarr;                // Save pointer: First String will be written here
+                            addMalloc2((void*)strarr, nstr, sizeof(char*), "STRING", rank, shape);
+                            *p = (VOIDTYPE)strarr;                // Save pointer: First String will be written here
                             for (istr = 0;
                                  istr < nstr; istr++) {            // Receive individual String lengths, then the string
                                 rc = rc && xdr_int(xdrs, &count);
-                                strarr[istr] = (char*) malloc(count * sizeof(char));
-                                addMalloc((void*) strarr[istr], count, sizeof(char), "STRING");
+                                strarr[istr] = (char*)malloc(count * sizeof(char));
+                                addMalloc((void*)strarr[istr], count, sizeof(char), "STRING");
                                 rc = rc && WrapXDRString(xdrs, strarr[istr], count);
 // dgm 11/11/11
-                                if (rank == 0 && nstr == 1) *p = (VOIDTYPE) strarr[0];
+                                if (rank == 0 && nstr == 1) *p = (VOIDTYPE)strarr[0];
                             }
-                        } else break;
+                        } else { break; }
                     } else {
 
                         if (STR_EQUALS(userdefinedtype->compoundfield[j].type, "STRING *")) {
-                            char** str = (char**) *p;
-                            findMalloc((void*) &str, &nstr, &size, &type);
+                            char** str = (char**)*p;
+                            findMalloc((void*)&str, &nstr, &size, &type);
                             rc = rc && xdr_int(xdrs, &nstr);        // Number of strings
                             if (nstr > 0) {
                                 for (istr = 0; istr < nstr; istr++) {
-                                    findMalloc((void*) &str[istr], &count, &size, &type);
+                                    findMalloc((void*)&str[istr], &count, &size, &type);
                                     rc = rc && xdr_int(xdrs, &count);
                                     if (count > 0) {
-                                        d = (char*) str[istr];
+                                        d = (char*)str[istr];
                                         rc = rc && WrapXDRString(xdrs, d, count);
                                     }
                                 }
@@ -1035,14 +1041,14 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
                             break;
                         }
 
-                        d = (char*) *p;                    // First string in the Array
+                        d = (char*)*p;                    // First string in the Array
                         if (d == NULL) {
                             count = 0;
                             rc = rc && xdr_int(xdrs, &count);            // No data to send
                             break;
                         }
 
-                        findMalloc2((void*) p, &nstr, &size, &type, &rank,
+                        findMalloc2((void*)p, &nstr, &size, &type, &rank,
                                     &shape);    // Assume 0 means No Pointer data to send!
                         // or heap allocated in external library!
 
@@ -1066,17 +1072,17 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
 
                         rc = rc && xdr_int(xdrs, &rank);            // Send Shape of arrays
                         if (rank > 1) {
-                            rc = rc && xdr_vector(xdrs, (char*) shape, rank, sizeof(int), (xdrproc_t) xdr_int);
+                            rc = rc && xdr_vector(xdrs, (char*)shape, rank, sizeof(int), (xdrproc_t)xdr_int);
                         }
 // dgm 11/11/11
                         if (rank == 0) {
                             rc = rc && xdr_int(xdrs, &size);            // This length of string
-                            rc = rc && WrapXDRString(xdrs, (char*) d, size);
+                            rc = rc && WrapXDRString(xdrs, (char*)d, size);
                         } else {
-                            strarr = (char**) d;
+                            strarr = (char**)d;
                             for (istr = 0; istr <
                                            nstr; istr++) {                // Send individual String lengths, then the string itself
-                                count = (int) strlen(strarr[istr]) + 1;
+                                count = (int)strlen(strarr[istr]) + 1;
                                 rc = rc && xdr_int(xdrs, &count);
                                 rc = rc && WrapXDRString(xdrs, strarr[istr], count);
                             }
@@ -1089,32 +1095,32 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
                         if (userdefinedtype->compoundfield[j].rank == 1 &&
                             strcmp(userdefinedtype->compoundfield[j].type, "STRING *") !=
                             0) {    // Element is a Single String
-                            rc = rc && WrapXDRString(xdrs, (char*) p, userdefinedtype->compoundfield[j].count);
+                            rc = rc && WrapXDRString(xdrs, (char*)p, userdefinedtype->compoundfield[j].count);
                         } else {                        // Element is a String Array: Treat as Rank 1 array
                             if (userdefinedtype->compoundfield[j].rank == 1 &&
                                 STR_EQUALS(userdefinedtype->compoundfield[j].type, "STRING *")) {
-                                char** str = (char**) p;
+                                char** str = (char**)p;
                                 nstr = userdefinedtype->compoundfield[j].count;        // Number of strings
                                 for (istr = 0; istr < nstr; istr++) {
                                     if (xdrs->x_op == XDR_DECODE) {
                                         rc = rc && xdr_int(xdrs, &count);            // Arbitrary String length
                                         if (count > 0) {
-                                            d = (char*) malloc(count * sizeof(char));
-                                            addMalloc((void*) d, count, sizeof(char), "STRING");
+                                            d = (char*)malloc(count * sizeof(char));
+                                            addMalloc((void*)d, count, sizeof(char), "STRING");
                                             rc = rc && WrapXDRString(xdrs, d, count);
                                             str[istr] = d;
                                         }                        // Save pointer: data will be written here
                                     } else {
-                                        findMalloc((void*) &str[istr], &count, &size, &type);
+                                        findMalloc((void*)&str[istr], &count, &size, &type);
                                         rc = rc && xdr_int(xdrs, &count);
                                         if (count > 0) {
-                                            d = (char*) str[istr];
+                                            d = (char*)str[istr];
                                             rc = rc && WrapXDRString(xdrs, d, count);
                                         }
                                     }
                                 }
                             } else {
-                                char* str = (char*) p;
+                                char* str = (char*)p;
                                 int stride = userdefinedtype->compoundfield[j].shape[0];        // String length
                                 nstr = 1;
                                 for (istr = 1; istr < userdefinedtype->compoundfield[j].rank; istr++) {
@@ -1133,18 +1139,18 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
                             rc = rc && xdr_int(xdrs,
                                                &count);            // Count is known from the client's malloc log and passed by the sender
                             if (count > 0) {
-                                d = (char*) malloc(count * sizeof(char));
-                                addMalloc((void*) d, count, sizeof(char), "STRING");
-                                *p = (VOIDTYPE) d;                    // Save pointer: data will be written here
-                            } else break;
+                                d = (char*)malloc(count * sizeof(char));
+                                addMalloc((void*)d, count, sizeof(char), "STRING");
+                                *p = (VOIDTYPE)d;                    // Save pointer: data will be written here
+                            } else { break; }
                         } else {
-                            d = (char*) *p;
+                            d = (char*)*p;
                             if (d == NULL) {
                                 count = 0;
                                 rc = rc && xdr_int(xdrs, &count);            // No data to send
                                 break;
                             }
-                            findMalloc((void*) p, &count, &size, &type);        // Assume 0 means No string to send!
+                            findMalloc((void*)p, &count, &size, &type);        // Assume 0 means No string to send!
                             if (count == 1 &&
                                 STR_EQUALS(type, "unknown")) {        // ***** Fix for SOAP sources incomplete!
                                 count = size;
@@ -1177,7 +1183,7 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
 
                 if (userdefinedtype->compoundfield[j].pointer) {
                     if (xdrs->x_op != XDR_DECODE) {
-                        findMalloc2((void*) p, &count, &size, &type, &structRank, &structShape);
+                        findMalloc2((void*)p, &count, &size, &type, &structRank, &structShape);
 
 // Interpret an 'unknown' void data type using knowledge of the gSOAP or DOM systems
 
@@ -1185,9 +1191,9 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
                             if (malloc_source == MALLOCSOURCESOAP && j > 0 &&
                                 STR_EQUALS(userdefinedtype->compoundfield[j - 1].name, "__size") &&
                                 STR_EQUALS(userdefinedtype->compoundfield[j].name,
-                                        &userdefinedtype->compoundfield[j - 1].name[6])) {
+                                           &userdefinedtype->compoundfield[j - 1].name[6])) {
 
-                                count = (int) *prev;        // the value of __size...
+                                count = (int)*prev;        // the value of __size...
                                 size = getsizeof(userdefinedtype->compoundfield[j].type);
                                 type = userdefinedtype->compoundfield[j].type;
                             } else {
@@ -1235,20 +1241,21 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
                     rc = rc && xdr_int(xdrs, &size);        // Structure Size
 
                     if (xdrs->x_op == XDR_DECODE) {
-                        rc = rc && WrapXDRString(xdrs, (char*) rudtype, MAXELEMENTNAME - 1);
+                        rc = rc && WrapXDRString(xdrs, (char*)rudtype, MAXELEMENTNAME - 1);
                         type = rudtype;
                     } else {
-                        rc = rc && WrapXDRString(xdrs, (char*) type, MAXELEMENTNAME - 1);
+                        rc = rc && WrapXDRString(xdrs, (char*)type, MAXELEMENTNAME - 1);
                     }
 
                     if (protocolVersion >= 7) {
                         rc = rc && xdr_int(xdrs, &structRank);    // Rank of the Structure Array
                         if (structRank > 1) {
-                            if (xdrs->x_op == XDR_DECODE) structShape = (int*) malloc(structRank * sizeof(int));
+                            if (xdrs->x_op == XDR_DECODE) structShape = (int*)malloc(structRank * sizeof(int));
                             rc = rc &&
-                                 xdr_vector(xdrs, (char*) structShape, structRank, sizeof(int), (xdrproc_t) xdr_int);
-                        } else
+                                 xdr_vector(xdrs, (char*)structShape, structRank, sizeof(int), (xdrproc_t)xdr_int);
+                        } else {
                             structShape = NULL;
+                        }
                     }
 
                     IDAM_LOGF(LOG_DEBUG, "Pointer: Send or Receive Count: %d, Size: %d, Type: %s\n", count, size, type);
@@ -1258,7 +1265,7 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
 // Non Pointer types: Heap already allocated (pass 0 count to xdrUserDefinedData)
 // Size and Type also known. Type cannot be 'void'.
 
-                    addNonMalloc((void*) p, userdefinedtype->compoundfield[j].count,
+                    addNonMalloc((void*)p, userdefinedtype->compoundfield[j].count,
                                  userdefinedtype->compoundfield[j].size, userdefinedtype->compoundfield[j].type);
 
                     loopcount = userdefinedtype->compoundfield[j].count;
@@ -1266,8 +1273,8 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
                     type = userdefinedtype->compoundfield[j].type;
 
                     IDAM_LOGF(LOG_DEBUG, "Pointer: Send or Receive Count: %d, Size: %d, Type: %s\n",
-                            userdefinedtype->compoundfield[j].count, userdefinedtype->compoundfield[j].size,
-                            userdefinedtype->compoundfield[j].type);
+                              userdefinedtype->compoundfield[j].count, userdefinedtype->compoundfield[j].size,
+                              userdefinedtype->compoundfield[j].type);
                 }
 
 // Pointer to structure definition (void type ignored)
@@ -1276,7 +1283,7 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
                     strcmp(userdefinedtype->compoundfield[j].type, "void") != 0) {
 
                     IDAM_LOGF(LOG_DEBUG, "**** Error #1: User Defined Type %s not known!\n",
-                            userdefinedtype->compoundfield[j].type);
+                              userdefinedtype->compoundfield[j].type);
                     IDAM_LOGF(LOG_DEBUG, "structure Name: %s\n", userdefinedtype->name);
                     IDAM_LOGF(LOG_DEBUG, "Element Type  : %s\n", userdefinedtype->compoundfield[j].type);
                     IDAM_LOGF(LOG_DEBUG, "        Offset: %d\n", userdefinedtype->compoundfield[j].offset);
@@ -1312,11 +1319,11 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
                         if (id == 0) {                        // Only send/receive new structures
                             if (userdefinedtype->compoundfield[j].pointer) {
                                 rc = rc &&
-                                     xdrUserDefinedData(xdrs, utype, (void**) p, count, structRank, structShape, i,
+                                     xdrUserDefinedData(xdrs, utype, (void**)p, count, structRank, structShape, i,
                                                         &subNTree);
                             } else {
                                 rc = rc &&
-                                     xdrUserDefinedData(xdrs, utype, (void**) &p, count, structRank, structShape, i,
+                                     xdrUserDefinedData(xdrs, utype, (void**)&p, count, structRank, structShape, i,
                                                         &subNTree);
                             }
 
@@ -1328,15 +1335,15 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
                                 strcpy(subNTree->name, userdefinedtype->compoundfield[j].name);
                                 if (i == 0 && loopcount > 0) {
                                     if (newNTree->children == NULL && newNTree->branches == 0) {
-                                        newNTree->children = (NTREE**) malloc(
+                                        newNTree->children = (NTREE**)malloc(
                                                 loopcount * sizeof(NTREE*));        // Allocate the node array
-                                        addMalloc((void*) newNTree->children, loopcount, sizeof(NTREE*), "NTREE *");
+                                        addMalloc((void*)newNTree->children, loopcount, sizeof(NTREE*), "NTREE *");
                                     } else {                                    // Multiple branches (user types) originating in the same node
                                         NTREE** old = newNTree->children;
-                                        newNTree->children = (NTREE**) realloc((void*) old,
-                                                                               (newNTree->branches + loopcount) *
-                                                                               sizeof(NTREE*));    // Individual node addresses remain valid
-                                        changeMalloc((void*) old, (void*) newNTree->children,
+                                        newNTree->children = (NTREE**)realloc((void*)old,
+                                                                              (newNTree->branches + loopcount) *
+                                                                              sizeof(NTREE*));    // Individual node addresses remain valid
+                                        changeMalloc((void*)old, (void*)newNTree->children,
                                                      newNTree->branches + loopcount, sizeof(NTREE*), "NTREE *");
                                     }
                                 }
@@ -1354,9 +1361,9 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
 // Must be a voided atomic type
 
                     if (gettypeof(type) != TYPE_UNKNOWN) {
-                        char* z = (char*) *p;
+                        char* z = (char*)*p;
                         rc = rc && xdrAtomicData(xdrs, type, count, size, &z);        // Must be an Atomic Type
-                        *p = (VOIDTYPE) z;
+                        *p = (VOIDTYPE)z;
                         break;
                     } else {
                         addIdamError(&idamerrorstack, CODEERRORTYPE, "xdrUserDefinedData", 999,

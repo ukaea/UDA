@@ -66,30 +66,35 @@ NTREE* findNTreeStructureComponent1(NTREE* ntree, const char* target)
 {
     int i;
     NTREE* child = NULL;
-    char* p;
 
     if (ntree == NULL) ntree = fullNTree;
 
-// Single entity name expected - test
+    // Single entity name expected - test
 
-    if (((p = strchr(target, '.')) != NULL) || (p = strchr(target, '/')) != NULL) return NULL;
-
-// Is it the name of the current tree node?
-
-    if (STR_EQUALS(ntree->name, target)) return (ntree);
-
-// Recursively Search Child nodes for structured type data
-
-    for (i = 0; i < ntree->branches; i++) {
-        if ((child = findNTreeStructureComponent1(ntree->children[i], target)) != NULL) return (child);
+    if ((strchr(target, '.') != NULL) || strchr(target, '/') != NULL) {
+        return NULL;
     }
 
-// Search the components of this node for atomic types
+    // Is it the name of the current tree node?
+
+    if (STR_EQUALS(ntree->name, target)) {
+        return ntree;
+    }
+
+    // Search the components of this node for atomic types
 
     for (i = 0; i < ntree->userdefinedtype->fieldcount; i++) {
         if (STR_EQUALS(ntree->userdefinedtype->compoundfield[i].name, target) &&
             ntree->userdefinedtype->compoundfield[i].atomictype != TYPE_UNKNOWN) {
-                return (ntree);
+            return ntree;
+        }
+    }
+
+    // Recursively Search Child nodes for structured type data
+
+    for (i = 0; i < ntree->branches; i++) {
+        if ((child = findNTreeStructureComponent1(ntree->children[i], target)) != NULL) {
+            return child;
         }
     }
 
@@ -120,13 +125,12 @@ NTREE* findNTreeStructureComponent2(NTREE* ntree, const char* target, const char
 {
     int i, j;
     NTREE* child = NULL, * found = NULL;
-    char* p;
 
     if (ntree == NULL) ntree = fullNTree;
 
-// Is the hierarchical name of the form: a.b.c or a/b/c
+    // Is the hierarchical name of the form: a.b.c or a/b/c
 
-    if (((p = strchr(target, '.')) != NULL) || (p = strchr(target, '/')) != NULL) {
+    if ((strchr(target, '.') != NULL) || strchr(target, '/') != NULL) {
         int ntargets;
         char** targetlist = NULL;
         child = ntree;
@@ -135,11 +139,14 @@ NTREE* findNTreeStructureComponent2(NTREE* ntree, const char* target, const char
 
         *lastname = targetlist[ntargets - 1];        // Preserve the last element name
 
-// Search recursively for the first name 
+        // Search recursively for the first name
 
-        if ((child = findNTreeStructureComponent1(child, targetlist[0])) == NULL) return NULL;        // Not found
+        if ((child = findNTreeStructureComponent1(child, targetlist[0])) == NULL) {
+            // Not found
+            return NULL;
+        }
 
-// Search child nodes for all names but the last name
+        // Search child nodes for all names but the last name
 
         for (i = 1; i < ntargets - 1; i++) {
             found = NULL;
@@ -149,7 +156,10 @@ NTREE* findNTreeStructureComponent2(NTREE* ntree, const char* target, const char
                     break;
                 }
             }
-            if (found == NULL) return NULL;        // Not found
+            if (found == NULL) {
+                // Not found
+                return NULL;
+            }
             child = found;
         }
 
@@ -157,7 +167,7 @@ NTREE* findNTreeStructureComponent2(NTREE* ntree, const char* target, const char
         for (i = 0; i < ntargets - 1; i++) free((void*)targetlist[i]);    // Free all others
         free((void*)targetlist);                    // Free the list
 
-// Search the user defined type definition for the last name - return if an atomic type
+        // Search the user defined type definition for the last name - return if an atomic type
 
         for (i = 0; i < child->userdefinedtype->fieldcount; i++) {
             if (STR_EQUALS(child->userdefinedtype->compoundfield[i].name, targetlist[ntargets - 1]) &&
@@ -166,7 +176,7 @@ NTREE* findNTreeStructureComponent2(NTREE* ntree, const char* target, const char
             }  // Atomic type found
         }
 
-// Search child nodes for structured types
+        // Search child nodes for structured types
 
         for (j = 0; j < child->branches; j++) {
             if (STR_EQUALS(child->children[j]->name, targetlist[ntargets - 1])) return child->children[j];
@@ -175,7 +185,7 @@ NTREE* findNTreeStructureComponent2(NTREE* ntree, const char* target, const char
         return NULL;    // Not Found
     }
 
-// Recursively search using the single name passed
+    // Recursively search using the single name passed
 
     *lastname = target;
 
@@ -183,66 +193,6 @@ NTREE* findNTreeStructureComponent2(NTREE* ntree, const char* target, const char
 
     return NULL;        // Not found
 
-}
-
-NTREE* findNTreeStructureComponent2Legacy(NTREE* ntree, const char* target, const char** lastname)
-{
-
-    int i;
-    NTREE* child = NULL;
-    char* p;
-
-    if (ntree == NULL) ntree = fullNTree;
-
-    // Is the hierarchical name of the form: a.b.c or a/b/c
-
-    if (((p = strchr(target, '.')) != NULL) || (p = strchr(target, '/')) != NULL) {
-        int ntargets;
-        char** targetlist = NULL;
-        child = ntree;
-
-        targetlist = parseTarget(target, &ntargets); // Deconstruct the Name and search for each hierarchy group
-
-        for (i = 0; i < ntargets; i++) { // Drill Down to the requested named structure element
-
-            if (i < ntargets - 1) {
-                child = findNTreeStructure2(child, targetlist[i], lastname);        // Match to tree branch node name
-            } else {
-                child = findNTreeStructureComponent2(child, targetlist[i],
-                                                     lastname);    // Confirm the target is a structure element
-            }
-
-            if (child == NULL) break;
-        }
-
-        *lastname = targetlist[ntargets - 1];   // Preserve the last element name
-
-        addMalloc((void*)targetlist[ntargets - 1], (int)strlen(targetlist[ntargets - 1]) + 1, sizeof(char), "char");
-        for (i = 0; i < ntargets - 1; i++) free((void*)targetlist[i]); // Free all others
-        free((void*)targetlist);     // Free the list
-
-        return child; // Always the last node you look in !
-    }
-
-    // Search using a single hierarchical group name
-
-    *lastname = target;
-
-    for (i = 0; i < ntree->userdefinedtype->fieldcount; i++) {
-        if (STR_EQUALS(ntree->userdefinedtype->compoundfield[i].name, target)) {
-            return ntree;  // Test all structure components
-        }
-    }
-
-    // Search Child nodes
-
-    for (i = 0; i < ntree->branches; i++) {
-        if ((child = findNTreeStructureComponent(ntree->children[i], target)) != NULL) {
-            return child;
-        }
-    }
-
-    return NULL;
 }
 
 /** Find (search type B) and return a Pointer to the named Data Tree Node with a data structure of the same name.
@@ -260,12 +210,11 @@ NTREE* findNTreeStructure2(NTREE* ntree, const char* target, const char** lastna
     int i;
     NTREE* child = NULL;
     NTREE* test = NULL;
-    char* p;
     if (ntree == NULL) ntree = fullNTree;
 
     // Is the hierarchical name of the form: a.b.c or a/b/c
 
-    if (((p = strchr(target, '.')) != NULL) || (p = strchr(target, '/')) != NULL) {
+    if ((strchr(target, '.') != NULL) || strchr(target, '/') != NULL) {
         int ntargets;
         char** targetlist = NULL;
         child = ntree;
@@ -278,14 +227,14 @@ NTREE* findNTreeStructure2(NTREE* ntree, const char* target, const char** lastna
             } else {
                 if ((test = findNTreeStructure2(child, targetlist[i], lastname)) ==
                     NULL) { // Last element may not be a structure
-                    if ((test = findNTreeStructureComponent2(child, targetlist[i], lastname)) == NULL) child = NULL;
+                    if (findNTreeStructureComponent2(child, targetlist[i], lastname) == NULL) {
+                        child = NULL;
+                    }
                 } else {
                     child = test;
                 }
             }
             if (child == NULL) {
-                //addIdamError(&idamerrorstack, CODEERRORTYPE, "findNTreeStructure2", 999, "Unable to locate a named structure data tree branch!");
-                //child = NULL;
                 break;
             }
         }
@@ -293,7 +242,10 @@ NTREE* findNTreeStructure2(NTREE* ntree, const char* target, const char** lastna
         *lastname = targetlist[ntargets - 1];   // Preserve the last element name
 
         addMalloc((void*)targetlist[ntargets - 1], (int)strlen(targetlist[ntargets - 1]) + 1, sizeof(char), "char");
-        for (i = 0; i < ntargets - 1; i++) free((void*)targetlist[i]); // Free all others
+        for (i = 0; i < ntargets - 1; i++) {
+            // Free all others
+            free((void*)targetlist[i]);
+        }
         free((void*)targetlist);     // Free the list
 
         return child; // Always the last node you look in !
@@ -303,12 +255,17 @@ NTREE* findNTreeStructure2(NTREE* ntree, const char* target, const char** lastna
 
     *lastname = target;
 
-    if (STR_EQUALS(ntree->name, target)) return ntree;  // Test the current Tree Node
+    if (STR_EQUALS(ntree->name, target)) {
+        // Test the current Tree Node
+        return ntree;
+    }
 
     // Search Child nodes
 
     for (i = 0; i < ntree->branches; i++) {
-        if (STR_EQUALS(ntree->children[i]->name, target)) return ntree->children[i];
+        if (STR_EQUALS(ntree->children[i]->name, target)) {
+            return ntree->children[i];
+        }
     }
 
     return NULL;
@@ -325,7 +282,7 @@ NTREE* findNTreeStructure2(NTREE* ntree, const char* target, const char** lastna
 */
 NTREE* findNTreeStructureComponent(NTREE* ntree, const char* target)
 {
-    const char* lastname;
+    const char* lastname = NULL;
     return findNTreeStructureComponent2(ntree, target, &lastname);
 }
 
@@ -364,7 +321,7 @@ NTREE* findNTreeChildStructureComponent(NTREE* ntree, const char* target)
 */
 NTREE* findNTreeStructure(NTREE* ntree, const char* target)
 {
-    const char* lastname;
+    const char* lastname = NULL;
     return findNTreeStructure2(ntree, target, &lastname);
 }
 
@@ -383,10 +340,12 @@ NTREE* findNTreeChildStructure(NTREE* ntree, const char* target)
 
     if (ntree == NULL) ntree = fullNTree;
 
-// Search each child branch
+    // Search each child branch
 
     for (i = 0; i < ntree->branches; i++) {
-        if ((child = findNTreeStructure(ntree->children[i], target)) != NULL) return child;
+        if ((child = findNTreeStructure(ntree->children[i], target)) != NULL) {
+            return child;
+        }
     }
 
     return NULL;
@@ -405,11 +364,14 @@ NTREE* findNTreeStructureMalloc(NTREE* ntree, void* data)
     int i;
     NTREE* next;
     if (ntree == NULL) ntree = fullNTree;
-    if (data == ntree->data) return ntree;
-    for (i = 0; i < ntree->branches; i++)
+    if (data == ntree->data) {
+        return ntree;
+    }
+    for (i = 0; i < ntree->branches; i++) {
         if ((next = findNTreeStructureMalloc(ntree->children[i], data)) != NULL) {
             return next;
         }
+    }
     return NULL;
 }
 
@@ -429,8 +391,7 @@ NTREE* findNTreeStructureDefinition(NTREE* ntree, const char* target)
 
     // Is the hierarchical name of the form: a.b.c or a/b/c
 
-    char* p;
-    if (((p = strchr(target, '.')) != NULL) || (p = strchr(target, '/')) != NULL) {
+    if ((strchr(target, '.') != NULL) || strchr(target, '/') != NULL) {
         int ntargets;
         char** targetlist = NULL;
         child = ntree;
@@ -441,15 +402,26 @@ NTREE* findNTreeStructureDefinition(NTREE* ntree, const char* target)
             if ((child = findNTreeStructureDefinition(child, targetlist[i])) == NULL) break;
         }
 
-        for (i = 0; i < ntargets; i++) free((void*)targetlist[i]);    // Free all entries
+        // Free all entries
+        for (i = 0; i < ntargets; i++) {
+            free((void*)targetlist[i]);
+        }
+
         free((void*)targetlist);                    // Free the list
 
         return child;
     }
 
-    if (STR_EQUALS(ntree->userdefinedtype->name, target)) return ntree;
-    for (i = 0; i < ntree->branches; i++)
-        if ((child = findNTreeStructureDefinition(ntree->children[i], target)) != NULL)return child;
+    if (STR_EQUALS(ntree->userdefinedtype->name, target)) {
+        return ntree;
+    }
+
+    for (i = 0; i < ntree->branches; i++) {
+        if ((child = findNTreeStructureDefinition(ntree->children[i], target)) != NULL) {
+            return child;
+        }
+    }
+
     return NULL;
 }
 
@@ -457,10 +429,21 @@ NTREE* xfindNTreeStructureDefinition(NTREE* tree, const char* target)
 {
     int i;
     NTREE* next;
-    if (tree == NULL) tree = fullNTree;
-    if (STR_EQUALS(tree->userdefinedtype->name, target)) return tree;
-    for (i = 0; i < tree->branches; i++)
-        if ((next = findNTreeStructureDefinition(tree->children[i], target)) != NULL)return next;
+
+    if (tree == NULL) {
+        tree = fullNTree;
+    }
+
+    if (STR_EQUALS(tree->userdefinedtype->name, target)) {
+        return tree;
+    }
+
+    for (i = 0; i < tree->branches; i++) {
+        if ((next = findNTreeStructureDefinition(tree->children[i], target)) != NULL) {
+            return next;
+        }
+    }
+
     return NULL;
 }
 
@@ -476,18 +459,24 @@ NTREE* findNTreeStructureComponentDefinition(NTREE* tree, const char* target)
 {
     int i;
     NTREE* next;
-    if (tree == NULL) tree = fullNTree;
+
+    if (tree == NULL) {
+        tree = fullNTree;
+    }
+
     for (i = 0; i < tree->userdefinedtype->fieldcount; i++) {
         if (tree->userdefinedtype->compoundfield[i].atomictype == TYPE_UNKNOWN &&
             STR_EQUALS(tree->userdefinedtype->compoundfield[i].type, target)) {
             return tree;
         }
     }
+
     for (i = 0; i < tree->branches; i++) {
         if ((next = findNTreeStructureComponentDefinition(tree->children[i], target)) != NULL) {
             return next;
         }
     }
+
     return NULL;
 }
 
@@ -503,15 +492,21 @@ NTREE* idam_findNTreeStructureClass(NTREE* tree, int class)
 {
     int i;
     NTREE* next;
-    if (tree == NULL) tree = fullNTree;
+
+    if (tree == NULL) {
+        tree = fullNTree;
+    }
+
     if (tree->userdefinedtype->idamclass == class) {
         return tree;
     }
+
     for (i = 0; i < tree->branches; i++) {
         if ((next = idam_findNTreeStructureClass(tree->children[i], class)) != NULL) {
             return next;
         }
     }
+
     return NULL;
 }
 
@@ -526,22 +521,30 @@ NTREE* idam_findNTreeStructureClass(NTREE* tree, int class)
 */
 int idam_maxCountVlenStructureArray(NTREE* tree, const char* target, int reset)
 {
-
-    struct VLENTYPE {
+    typedef struct VLenType {
         unsigned int len;
         void* data;
-    };
-    typedef struct VLENTYPE VLENTYPE;
+    } VLENTYPE;
 
     int i;
     static int count = 0;
     if (reset) count = 0;
-    if (tree == NULL) tree = fullNTree;
+
+    if (tree == NULL) {
+        tree = fullNTree;
+    }
+
     if (tree->userdefinedtype->idamclass == TYPE_VLEN && STR_EQUALS(tree->userdefinedtype->name, target)) {
         VLENTYPE* vlen = (VLENTYPE*)tree->data;
-        if (vlen->len > count) count = vlen->len;
+        if (vlen->len > count) {
+            count = vlen->len;
+        }
     }
-    for (i = 0; i < tree->branches; i++) count = idam_maxCountVlenStructureArray(tree->children[i], target, 0);
+
+    for (i = 0; i < tree->branches; i++) {
+        count = idam_maxCountVlenStructureArray(tree->children[i], target, 0);
+    }
+
     return count;
 }
 
@@ -556,16 +559,18 @@ int idam_maxCountVlenStructureArray(NTREE* tree, const char* target, int reset)
 */
 int idam_regulariseVlenStructures(NTREE* tree, const char* target, int count)
 {
-
-    struct VLENTYPE {
+    typedef struct VLenType {
         unsigned int len;
         void* data;
-    };
-    typedef struct VLENTYPE VLENTYPE;
+    } VLENTYPE;
 
     int i, rc = 0, size = 0, resetBranches = 0;
     void* old = NULL, * newnew = NULL;
-    if (tree == NULL) tree = fullNTree;
+
+    if (tree == NULL) {
+        tree = fullNTree;
+    }
+
     if (tree->userdefinedtype->idamclass == TYPE_VLEN && STR_EQUALS(tree->userdefinedtype->name, target)) {
         VLENTYPE* vlen = (VLENTYPE*)tree->data;
 
@@ -592,8 +597,12 @@ int idam_regulariseVlenStructures(NTREE* tree, const char* target, int count)
         resetBranches = vlen->len;  // Flag requirement to add extra tree nodes
 
     }
-    for (i = 0; i < tree->branches; i++)
-        if ((rc = idam_regulariseVlenStructures(tree->children[i], target, count)) != 0)return rc;
+
+    for (i = 0; i < tree->branches; i++) {
+        if ((rc = idam_regulariseVlenStructures(tree->children[i], target, count)) != 0) {
+            return rc;
+        }
+    }
 
     // Update branch count and add new Child nodes with New data array
 
@@ -610,9 +619,13 @@ int idam_regulariseVlenStructures(NTREE* tree, const char* target, int count)
 
         // Update All new Child Nodes with array element addresses
 
-        for (i = resetBranches; i < count; i++)
+        for (i = resetBranches; i < count; i++) {
             memcpy(newnew + i * size, newnew, size);   // write extra array items: use the first array element
-        for (i = resetBranches; i < count; i++) tree->children[i]->data = newnew + i * size;
+        }
+
+        for (i = resetBranches; i < count; i++) {
+            tree->children[i]->data = newnew + i * size;
+        }
 
     }
 
@@ -632,14 +645,20 @@ int idam_regulariseVlenData(NTREE* tree)
     int rc = 0, count = 0;
     NTREE* nt = NULL;
     if (tree == NULL) tree = fullNTree;
+
     do {
         if ((nt = idam_findNTreeStructureClass(tree, TYPE_VLEN)) != NULL) {
             count = idam_maxCountVlenStructureArray(tree, nt->userdefinedtype->name, 1);
-            if (count > 0) rc = idam_regulariseVlenStructures(tree, nt->userdefinedtype->name, count);
-            if (rc != 0) return rc;
+            if (count > 0) {
+                rc = idam_regulariseVlenStructures(tree, nt->userdefinedtype->name, count);
+            }
+            if (rc != 0) {
+                return rc;
+            }
             nt->userdefinedtype->idamclass = TYPE_COMPOUND;   // Change the class to 'regular compound structure'
         }
     } while (nt != NULL);
+
     return 0;
 }
 
@@ -658,7 +677,9 @@ int getNodeStructureDataCount(NTREE* ntree)
 {
     int count, size;
     char* type;
-    if (ntree == NULL) ntree = fullNTree;
+    if (ntree == NULL) {
+        ntree = fullNTree;
+    }
     findMalloc((void*)&ntree->data, &count, &size, &type);
     return count;
 }
@@ -674,7 +695,9 @@ int getNodeStructureDataSize(NTREE* ntree)
 {
     int count, size;
     char* type;
-    if (ntree == NULL) ntree = fullNTree;
+    if (ntree == NULL) {
+        ntree = fullNTree;
+    }
     findMalloc((void*)&ntree->data, &count, &size, &type);
     return size;
 }
@@ -691,7 +714,9 @@ int getNodeStructureDataRank(NTREE* ntree)
     int count, size, rank;
     int* shape;
     char* type;
-    if (ntree == NULL) ntree = fullNTree;
+    if (ntree == NULL) {
+        ntree = fullNTree;
+    }
     findMalloc2((void*)&ntree->data, &count, &size, &type, &rank, &shape);
     return rank;
 }
@@ -708,7 +733,9 @@ int* getNodeStructureDataShape(NTREE* ntree)
     int count, size, rank;
     int* shape;
     char* type;
-    if (ntree == NULL) ntree = fullNTree;
+    if (ntree == NULL) {
+        ntree = fullNTree;
+    }
 
     if (ntree->parent != NULL) {
         int i, branches = ntree->parent->branches;
@@ -743,7 +770,9 @@ char* getNodeStructureDataDataType(NTREE* ntree)
 {
     int count, size;
     char* type = NULL;
-    if (ntree == NULL) ntree = fullNTree;
+    if (ntree == NULL) {
+        ntree = fullNTree;
+    }
     findMalloc((void*)&ntree->data, &count, &size, &type);
     return type;
 }
@@ -757,8 +786,10 @@ char* getNodeStructureDataDataType(NTREE* ntree)
 */
 void* getNodeStructureData(NTREE* ntree)
 {
-    if (ntree == NULL) ntree = fullNTree;
-    return (void*)ntree->data;
+    if (ntree == NULL) {
+        ntree = fullNTree;
+    }
+    return ntree->data;
 }
 
 //----------------------------------------------------------------------------------------------------------
@@ -777,7 +808,9 @@ void* getNodeStructureData(NTREE* ntree)
 void printImage(char* image, int imagecount)
 {
     int next = 0;
-    if (image == NULL || imagecount == '\0') return;
+    if (image == NULL || imagecount == '\0') {
+        return;
+    }
     while (next < imagecount) {
         IDAM_LOGF(LOG_DEBUG, "%s", &image[next]);
         next = next + (int)strlen(&image[next]) + 1;

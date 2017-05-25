@@ -11,10 +11,6 @@
 extern "C" {
 #endif
 
-#define FALSE (0)
-#define TRUE (1)
-#define BOOLEAN unsigned short
-
 // Data Type Codes
 
 #define TYPE_UNKNOWN                0

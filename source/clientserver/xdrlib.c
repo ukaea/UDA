@@ -378,7 +378,6 @@ bool_t xdr_putdata_block1(XDR* xdrs, PUTDATA_BLOCK* str)
 
 bool_t xdr_putdata_block2(XDR* xdrs, PUTDATA_BLOCK* str)
 {
-
     int rc = 1;
     if (str->rank > 1) {
         rc = rc && xdr_vector(xdrs, (char*)str->shape, (int)str->rank, sizeof(int), (xdrproc_t)xdr_int);
@@ -390,8 +389,7 @@ bool_t xdr_putdata_block2(XDR* xdrs, PUTDATA_BLOCK* str)
         case TYPE_FLOAT :
             return (rc && xdr_vector(xdrs, (char*)str->data, (int)str->count, sizeof(float), (xdrproc_t)xdr_float));
         case TYPE_DOUBLE :
-            return (rc &&
-                    xdr_vector(xdrs, (char*)str->data, (int)str->count, sizeof(double), (xdrproc_t)xdr_double));
+            return (rc && xdr_vector(xdrs, (char*)str->data, (int)str->count, sizeof(double), (xdrproc_t)xdr_double));
         case TYPE_CHAR :
             return (rc && xdr_vector(xdrs, (char*)str->data, (int)str->count, sizeof(char), (xdrproc_t)xdr_char));
         case TYPE_SHORT :
@@ -629,7 +627,6 @@ bool_t xdr_data_block2(XDR* xdrs, DATA_BLOCK* str)
             return (xdr_vector(xdrs, str->data, (u_int)str->data_n, sizeof(float), (xdrproc_t)xdr_float));
         case TYPE_DOUBLE :
             return (xdr_vector(xdrs, str->data, (u_int)str->data_n, sizeof(double), (xdrproc_t)xdr_double));
-
         case TYPE_CHAR :
             return (xdr_vector(xdrs, str->data, (u_int)str->data_n, sizeof(char), (xdrproc_t)xdr_char));
         case TYPE_SHORT :
@@ -694,7 +691,6 @@ bool_t xdr_data_block3(XDR* xdrs, DATA_BLOCK* str)
             return (xdr_vector(xdrs, str->errhi, (u_int)str->data_n, sizeof(float), (xdrproc_t)xdr_float));
         case TYPE_DOUBLE :
             return (xdr_vector(xdrs, str->errhi, (u_int)str->data_n, sizeof(double), (xdrproc_t)xdr_double));
-
         case TYPE_CHAR :
             return (xdr_vector(xdrs, str->errhi, (u_int)str->data_n, sizeof(char), (xdrproc_t)xdr_char));
         case TYPE_SHORT :
@@ -748,7 +744,6 @@ bool_t xdr_data_block4(XDR* xdrs, DATA_BLOCK* str)
             return (xdr_vector(xdrs, str->errlo, (u_int)str->data_n, sizeof(float), (xdrproc_t)xdr_float));
         case TYPE_DOUBLE :
             return (xdr_vector(xdrs, str->errlo, (u_int)str->data_n, sizeof(double), (xdrproc_t)xdr_double));
-
         case TYPE_CHAR :
             return (xdr_vector(xdrs, str->errlo, (u_int)str->data_n, sizeof(char), (xdrproc_t)xdr_char));
         case TYPE_SHORT :
