@@ -43,25 +43,25 @@ def cdata_vector_to_value(vector):
     :return: a list of numbers or strings
     """
     if vector.type() == 'float32':
-        return vector.fdata()
+        return np.array(vector.fdata(), dtype=vector.type())
     elif vector.type() == 'float64':
-        return vector.ddata()
+        return np.array(vector.ddata(), dtype=vector.type())
     elif vector.type() == 'int8':
-        return vector.cdata()
+        return np.array(vector.cdata(), dtype=vector.type())
     elif vector.type() == 'uint8':
-        return vector.ucdata()
+        return np.array(vector.ucdata(), dtype=vector.type())
     elif vector.type() == 'int16':
-        return vector.sdata()
+        return np.array(vector.sdata(), dtype=vector.type())
     elif vector.type() == 'uint16':
-        return vector.usdata()
+        return np.array(vector.usdata(), dtype=vector.type())
     elif vector.type() == 'int32':
-        return vector.idata()
+        return np.array(vector.idata(), dtype=vector.type())
     elif vector.type() == 'uint32':
-        return vector.uidata()
+        return np.array(vector.uidata(), dtype=vector.type())
     elif vector.type() == 'int64':
-        return vector.ldata()
+        return np.array(vector.ldata(), dtype=vector.type())
     elif vector.type() == 'uint64':
-        return vector.uldata()
+        return np.array(vector.uldata(), dtype=vector.type())
     elif vector.type() == 'string':
         vec = vector.string()
         return [vec[i] for i in range(len(vec))] # converting SWIG vector<char*> to list of strings

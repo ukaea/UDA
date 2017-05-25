@@ -1,6 +1,29 @@
-import itertools
 from ._utils import cdata_scalar_to_value, cdata_vector_to_value
 from ._data import Data
+
+import json
+import itertools
+import numpy as np
+import base64
+
+
+class StructuredDataEncoder(json.JSONEncoder):
+
+    def default(self, obj):
+        if isinstance(obj, np.ndarray):
+            data = obj
+            obj = {
+                '_type': 'numpy.ndarray',
+                'size': data.size,
+                'shape': data.shape,
+                'data': {
+                    '_encoding': 'base64',
+                    '_dtype': data.dtype.name,
+                    'value': base64.urlsafe_b64encode(data.tostring()).decode()
+                },
+            }
+            return obj
+        return super().default(obj)
 
 
 class StructuredData(Data):
@@ -26,19 +49,26 @@ class StructuredData(Data):
         cls._translation_table = ''.join(c if ord(c) in identifier_chars else '_' for c in cls._translation_table)
 
     def _import_data(self):
-        ptrs = self._cnode.atomicPointers()
-        ranks = self._cnode.atomicRank()
-        types = self._cnode.atomicTypes()
+        # ptrs = self._cnode.atomicPointers()
+        # ranks = self._cnode.atomicRank()
+        # types = self._cnode.atomicTypes()
         for (i, name) in enumerate(self._cnode.atomicNames()):
             value = None
-            if types[i] == 'STRING *' and (ranks[i] == 1 or ptrs[i]):
-                vector = self._cnode.atomicVector(name)
-                if not vector.isNull():
-                    value = cdata_vector_to_value(vector)
+            vector = self._cnode.atomicVector(name)
+            if not vector.isNull():
+                value = cdata_vector_to_value(vector)
             else:
                 scalar = self._cnode.atomicScalar(name)
                 if not scalar.isNull():
                     value = cdata_scalar_to_value(scalar)
+            # if types[i] == 'STRING *' and (ranks[i] == 1 or ptrs[i]):
+            #     vector = self._cnode.atomicVector(name)
+            #     if not vector.isNull():
+            #         value = cdata_vector_to_value(vector)
+            # else:
+            #     scalar = self._cnode.atomicScalar(name)
+            #     if not scalar.isNull():
+            #         value = cdata_scalar_to_value(scalar)
             if value is not None:
                 attr_name = self._check_name(name)
                 self._imported_attrs.append(attr_name)
@@ -116,3 +146,19 @@ class StructuredData(Data):
 
     def widget(self):
         raise NotImplementedError("widget function not implemented for StructuredData objects")
+
+    def _todict(self):
+        for child in self.children:
+            if child._name == 'data': return child._todict()
+        obj = {}
+        for name in self._imported_attrs:
+            obj[name] = getattr(self, name)
+        if len(self.children) > 0:
+            obj['children'] = []
+            for child in self.children:
+                obj['children'].append(child._todict())
+        return obj
+
+    def jsonify(self):
+        obj = self._todict()
+        return json.dumps(obj, cls=StructuredDataEncoder)

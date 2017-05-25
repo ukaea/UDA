@@ -92,7 +92,6 @@ void initServerBlock(SERVER_BLOCK* str, int version)
 
 void initDataBlock(DATA_BLOCK* str)
 {
-    int i;
     str->handle = 0;
     str->errcode = 0;
     str->source_status = 1;
@@ -112,19 +111,17 @@ void initDataBlock(DATA_BLOCK* str)
     str->synthetic = NULL;
     str->errhi = NULL;
     str->errlo = NULL;
-    for (i = 0; i < MAXERRPARAMS; i++) {
-        str->errparams[i] = 0.0;
-    }
+    memset(str->errparams, '\0', sizeof(str->errparams[0]) * MAXERRPARAMS);
     str->dims = NULL;
     str->data_system = NULL;
     str->system_config = NULL;
     str->data_source = NULL;
     str->signal_rec = NULL;
     str->signal_desc = NULL;
-    str->data_units[0] = '\0';
-    str->data_label[0] = '\0';
-    str->data_desc[0] = '\0';
-    str->error_msg[0] = '\0';
+    memset(str->data_units, '\0', STRING_LENGTH);
+    memset(str->data_label, '\0', STRING_LENGTH);
+    memset(str->data_desc, '\0', STRING_LENGTH);
+    memset(str->error_msg, '\0', STRING_LENGTH);
     initClientBlock(&(str->client_block), 0, "");
 }
 
