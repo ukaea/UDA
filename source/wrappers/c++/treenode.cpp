@@ -318,13 +318,13 @@ uda::Vector uda::TreeNode::atomicVector(const std::string& target)
                 return uda::Vector(val, (size_t)ashape[i][0]);
             } else if (arank[i] == 0 && apoint[i] == 1) {
                 int count = getNodeStructureComponentDataCount(node, (char*)target.c_str());
-                if (std::string("STRING") == atypes[i]) return getVector<char*>(node, target, count);
-                if (std::string("short") == atypes[i]) return getVector<short>(node, target, count);
-                if (std::string("double") == atypes[i]) return getVector<double>(node, target, count);
-                if (std::string("float") == atypes[i]) return getVector<float>(node, target, count);
-                if (std::string("int") == atypes[i]) return getVector<int>(node, target, count);
-                if (std::string("unsigned int") == atypes[i]) return getVector<unsigned int>(node, target, count);
-                if (std::string("unsigned short") == atypes[i]) return getVector<unsigned short>(node, target, count);
+                if (std::string("STRING *") == atypes[i]) return getVector<char*>(node, target, count);
+                if (std::string("short *") == atypes[i]) return getVector<short>(node, target, count);
+                if (std::string("double *") == atypes[i]) return getVector<double>(node, target, count);
+                if (std::string("float *") == atypes[i]) return getVector<float>(node, target, count);
+                if (std::string("int *") == atypes[i]) return getVector<int>(node, target, count);
+                if (std::string("unsigned int *") == atypes[i]) return getVector<unsigned int>(node, target, count);
+                if (std::string("unsigned short *") == atypes[i]) return getVector<unsigned short>(node, target, count);
             } else if (arank[i] == 1) {
                 if (std::string("STRING") == atypes[i]) return getVector<char*>(node, target, ashape[i][0]);
                 if (std::string("short") == atypes[i]) return getVector<short>(node, target, ashape[i][0]);
