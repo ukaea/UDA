@@ -26,7 +26,7 @@ TEST_CASE( "Test NEWCDF4::help() function", "[NEWCDF4][plugins]" ) {
 
     REQUIRE( str != NULL );
 
-    std::string expected = "\nnewHDF5: get - Read data from a HDF5 file\n\n";
+    std::string expected = "\nnewCDF4: get - Read data from a netCDF4 file\n\n";
 
     REQUIRE( str->str() == expected );
 }

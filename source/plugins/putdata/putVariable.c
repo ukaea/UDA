@@ -20,13 +20,13 @@ int do_variable(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     int fileid = 0;
     FIND_REQUIRED_INT_VALUE(idam_plugin_interface->request_block->nameValueList, fileid);
 
-    char* group = NULL;
+    const char* group = NULL;
     FIND_REQUIRED_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, group);
 
-    char* name = NULL;
+    const char* name = NULL;
     FIND_REQUIRED_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, name);
 
-    char* dimensions = NULL;
+    const char* dimensions = NULL;
     FIND_REQUIRED_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, dimensions);
 
     int ncfileid = get_file_id(fileid);
@@ -498,7 +498,7 @@ int do_variable(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     //--------------------------------------------------------------------------
     // Write Standard Variable Attributes
 
-    char* label = NULL;
+    const char* label = NULL;
     FIND_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, label);
 
     if (label != NULL) {
@@ -507,7 +507,7 @@ int do_variable(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         }
     }
 
-    char* title = NULL;
+    const char* title = NULL;
     FIND_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, title);
 
     if (title != NULL) {
@@ -516,7 +516,7 @@ int do_variable(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         }
     }
 
-    char* comment = NULL;
+    const char* comment = NULL;
     FIND_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, comment);
 
     if (comment != NULL) {
@@ -525,7 +525,7 @@ int do_variable(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         }
     }
 
-    char* units = NULL;
+    const char* units = NULL;
     FIND_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, units);
 
     int notstrict = findValue(&idam_plugin_interface->request_block->nameValueList, "notstrict");
@@ -545,7 +545,7 @@ int do_variable(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     //--------------------------------------------------------------------------
     // Write Device Association attributes: DEVICE & CHANNEL
 
-    char* device = NULL;
+    const char* device = NULL;
     FIND_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, device);
 
     if (device != NULL) {
@@ -585,7 +585,7 @@ int do_variable(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     //--------------------------------------------------------------------------
     // If there is a named error variable then check it exists in this group and it has the same shape.
 
-    char* errors = NULL;
+    const char* errors = NULL;
     FIND_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, errors);
 
     if (errors != NULL) {

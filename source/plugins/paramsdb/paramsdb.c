@@ -470,7 +470,7 @@ int do_getAll(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PGconn* conn)
     DATA_BLOCK* data_block = idam_plugin_interface->data_block;
     initDataBlock(data_block);
 
-    char* system = NULL;
+    const char* system = NULL;
 
     FIND_REQUIRED_STRING_VALUE(request_block->nameValueList, system);
 
@@ -567,9 +567,9 @@ int do_getActiveLimit(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PGconn* conn
 {
     REQUEST_BLOCK* request_block = idam_plugin_interface->request_block;
 
-    char* system = NULL;
-    char* subtype = NULL;
-    char* coil = NULL;
+    const char* system = NULL;
+    const char* subtype = NULL;
+    const char* coil = NULL;
 
     FIND_REQUIRED_STRING_VALUE(request_block->nameValueList, system);
     bool is_subtype = FIND_STRING_VALUE(request_block->nameValueList, subtype);
@@ -698,9 +698,9 @@ int do_getForceCoefficients(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PGconn
     DATA_BLOCK* data_block = idam_plugin_interface->data_block;
     initDataBlock(data_block);
 
-    char* coil = NULL;
-    char* subtype = NULL;
-    char* upper_lower = NULL;
+    const char* coil = NULL;
+    const char* subtype = NULL;
+    const char* upper_lower = NULL;
 
     FIND_REQUIRED_STRING_VALUE(request_block->nameValueList, coil);
     FIND_REQUIRED_STRING_VALUE(request_block->nameValueList, subtype);
@@ -1028,9 +1028,9 @@ int do_getCoilParameters(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PGconn* c
     DATA_BLOCK* data_block = idam_plugin_interface->data_block;
     initDataBlock(data_block);
 
-    char* coil = NULL;
-    char* upper_lower = NULL;
-    char* parameter = NULL;
+    const char* coil = NULL;
+    const char* upper_lower = NULL;
+    const char* parameter = NULL;
 
     FIND_REQUIRED_STRING_VALUE(request_block->nameValueList, coil);
     FIND_REQUIRED_STRING_VALUE(request_block->nameValueList, upper_lower);

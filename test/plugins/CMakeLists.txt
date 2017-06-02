@@ -34,6 +34,6 @@ foreach( TEST_FILE ${TEST_FILES} )
     target_compile_definitions( fat_${TEST} PRIVATE -DFATCLIENT )
     link_modules( fat_${TEST} )
 
-    add_test( ${TEST} fat_${TEST} )
+    add_test( ${TEST} ${TEST} )
   endif()
 endforeach()

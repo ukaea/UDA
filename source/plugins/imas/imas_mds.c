@@ -1476,7 +1476,7 @@ static int do_putIdsVersion(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN
 
     // Return the Status OK
 
-    return setReturnDataIntScalar(idam_plugin_interface, OK_RETURN_VALUE);
+    return setReturnDataIntScalar(idam_plugin_interface->data_block, OK_RETURN_VALUE, NULL);
 }
 
 //----------------------------------------------------------------------------------------
@@ -1487,7 +1487,7 @@ static int do_delete(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARGS p
     int rc;
 
     if (plugin_args.isClientIdx && plugin_args.isCPOPath && plugin_args.isPath) {
-        rc = mdsDeleteData(plugin_args.clientIdx, plugin_args.CPOPath, plugin_args.path);
+        rc = mdsDeleteData(plugin_args.clientIdx, (char*)plugin_args.CPOPath, (char*)plugin_args.path);
     } else {
         THROW_ERROR(999, "Incomplete set of arguments!");
     }
@@ -1498,7 +1498,7 @@ static int do_delete(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARGS p
 
     // Return the data
 
-    return setReturnDataIntScalar(idam_plugin_interface, rc);
+    return setReturnDataIntScalar(idam_plugin_interface->data_block, rc, NULL);
 }
 
 //----------------------------------------------------------------------------------------
@@ -1575,29 +1575,29 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
     if (dataOperation == GET_OPERATION) {
 
         // Replacing // in path with / to standardise paths for mapping
-        char* tmp_path = calloc(strlen(plugin_args.path) + 1, sizeof(char));
+        char* tmp_path = calloc(strlen((char*)plugin_args.path) + 1, sizeof(char));
         i = 0;
         size_t ii = 0;
-        while (i < strlen(plugin_args.path)) {
+        while (i < strlen((char*)plugin_args.path)) {
             if (plugin_args.path[i] == '/' && plugin_args.path[i + 1] == '/') {
                 ++i;
             }
             tmp_path[ii++] = plugin_args.path[i++];
         }
-        strcpy(plugin_args.path, tmp_path);
+        strcpy((char*)plugin_args.path, tmp_path);
         free(tmp_path);
 
-        IDAM_LOGF(LOG_ERROR, "CPOPath: %s, path: %s, type: %d, rank: %d, shape[0]: %d\n", plugin_args.CPOPath,
-                  plugin_args.path, type,
-                  plugin_args.rank,
-                  plugin_args.rank > 0 ? shape[0] : 0);
-        rc = imas_mds_getData(idx, plugin_args.CPOPath, plugin_args.path, type, plugin_args.rank, shape,
+        IDAM_LOGF(LOG_ERROR, "CPOPath: %s, path: %s, type: %d, rank: %d, shape[0]: %d\n", (char*)plugin_args.CPOPath,
+                (char*)plugin_args.path, type,
+                plugin_args.rank,
+                plugin_args.rank > 0 ? shape[0] : 0);
+        rc = imas_mds_getData(idx, (char*)plugin_args.CPOPath, (char*)plugin_args.path, type, plugin_args.rank, shape,
                               (void**)&imasData);
 
         if (rc != 0) {
             // data not in IDS - go to other plugins to try and get it
 
-            char* expName = NULL;
+            const char* expName = NULL;
             FIND_REQUIRED_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, expName);
 
             int id = findPluginIdByFormat(expName, idam_plugin_interface->pluginList);
@@ -1608,7 +1608,7 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
 
                 char* path = NULL;
                 int* indices = NULL;
-                int num_indices = extract_array_indices(plugin_args.path, &path, &indices);
+                int num_indices = extract_array_indices((char*)plugin_args.path, &path, &indices);
                 char* indices_string = indices_to_string(indices, num_indices);
 
                 int get_shape = 0;
@@ -1629,7 +1629,7 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
                            ? plugin_args.shotNumber
                            : ual_get_shot(idx);
 
-                sprintf(new_request.signal, fmt, expName, new_request.api_delim, plugin_args.CPOPath, path,
+                sprintf(new_request.signal, fmt, expName, new_request.api_delim, (char*)plugin_args.CPOPath, path,
                         indices_string, shot, get_shape ? ", get_shape" : "");
 
                 IDAM_LOGF(LOG_DEBUG, "imas: %s", new_request.signal);
@@ -1661,7 +1661,7 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
                     } else {
                         imasData = data_block->data;
                     }
-                    imas_mds_putData(idx, plugin_args.CPOPath, plugin_args.path, type, plugin_args.rank, shape,
+                    imas_mds_putData(idx, (char*)plugin_args.CPOPath, (char*)plugin_args.path, type, plugin_args.rank, shape,
                                      PUT_OPERATION, (void*)imasData, 0.0);
                 }
             }
@@ -1679,12 +1679,12 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
 
         double time = ((double*)putDataBlock->data)[0];
 
-        rc = imas_mds_getDataSlices(idx, plugin_args.CPOPath, plugin_args.path, type, plugin_args.rank, shape,
+        rc = imas_mds_getDataSlices(idx, (char*)plugin_args.CPOPath, (char*)plugin_args.path, type, plugin_args.rank, shape,
                                     (void**)&imasData, time, &retTime,
                                     plugin_args.interpolMode);
 
     } else if (dataOperation == GETDIMENSION_OPERATION) {
-        rc = mdsGetDimension(idx, plugin_args.CPOPath, plugin_args.path, &plugin_args.rank, &shape[0], &shape[1],
+        rc = mdsGetDimension(idx, (char*)plugin_args.CPOPath, (char*)plugin_args.path, &plugin_args.rank, &shape[0], &shape[1],
                              &shape[2], &shape[3], &shape[4],
                              &shape[5], &shape[6]);
     }
@@ -1820,7 +1820,7 @@ time	- the time slice to be written - from a PUTDATA block (putSlice keyword)
             } else if (STR_IEQUALS(putDataBlockList->putDataBlock[i].blockName, "variable") ||
                        STR_IEQUALS(putDataBlockList->putDataBlock[i].blockName, "data") ||
                        (plugin_args.isPath &&
-                        STR_IEQUALS(putDataBlockList->putDataBlock[i].blockName, plugin_args.path))) {
+                        STR_IEQUALS(putDataBlockList->putDataBlock[i].blockName, (char*)plugin_args.path))) {
                 varDataIndex = i;
                 break;
             }
@@ -2017,7 +2017,7 @@ time	- the time slice to be written - from a PUTDATA block (putSlice keyword)
 // The type passed here is the IMAS type enumeration (imas_putData is the original imas putData function)
 
         if (dataOperation == PUT_OPERATION) {
-            rc = imas_mds_putData(idx, plugin_args.CPOPath, plugin_args.path, type, plugin_args.rank, shape,
+            rc = imas_mds_putData(idx, (char*)plugin_args.CPOPath, (char*)plugin_args.path, type, plugin_args.rank, shape,
                                   plugin_args.isTimed, (void*)data,
                                   putDataSliceTime);
         } else {
@@ -2025,7 +2025,7 @@ time	- the time slice to be written - from a PUTDATA block (putSlice keyword)
                 IDAM_LOG(LOG_ERROR, "Slice Time not passed!\n");
                 THROW_ERROR(999, "Slice Time not passed!");
             } else {
-                rc = imas_mds_putDataX(idx, plugin_args.CPOPath, plugin_args.path, type, plugin_args.rank, shape,
+                rc = imas_mds_putDataX(idx, (char*)plugin_args.CPOPath, (char*)plugin_args.path, type, plugin_args.rank, shape,
                                        dataOperation, data, 0.0);    // Replace Last Slice
             }
         }
@@ -2058,7 +2058,7 @@ time	- the time slice to be written - from a PUTDATA block (putSlice keyword)
 
 // TODO....time
         if (dataOperation == PUT_OPERATION) {
-            rc = imas_mds_putData(idx, plugin_args.CPOPath, plugin_args.path, type, putDataBlock->rank,
+            rc = imas_mds_putData(idx, (char*)plugin_args.CPOPath, (char*)plugin_args.path, type, putDataBlock->rank,
                                   putDataBlock->shape, plugin_args.isTimed,
                                   (void*)putDataBlock->data, putDataSliceTime);
         } else {
@@ -2080,11 +2080,11 @@ time	- the time slice to be written - from a PUTDATA block (putSlice keyword)
                     IDAM_LOG(LOG_ERROR, "imas put: Slice Time type and count are incorrect!\n");
                     THROW_ERROR(999, "Slice Time type and count are incorrect!");
                 }
-                rc = imas_mds_putDataX(idx, plugin_args.CPOPath, plugin_args.path, type, putDataBlock->rank,
+                rc = imas_mds_putDataX(idx, (char*)plugin_args.CPOPath, (char*)plugin_args.path, type, putDataBlock->rank,
                                        putDataBlock->shape,
                                        dataOperation, (void*)putDataBlock->data, putDataSliceTime);
             } else {
-                rc = imas_mds_putDataX(idx, plugin_args.CPOPath, plugin_args.path, type, putDataBlock->rank,
+                rc = imas_mds_putDataX(idx, (char*)plugin_args.CPOPath, (char*)plugin_args.path, type, putDataBlock->rank,
                                        putDataBlock->shape, dataOperation, (void*)putDataBlock->data, 0.0);
             }
         }
@@ -2105,7 +2105,7 @@ time	- the time slice to be written - from a PUTDATA block (putSlice keyword)
 
     // Return a status value
 
-    return setReturnDataIntScalar(idam_plugin_interface, OK_RETURN_VALUE);
+    return setReturnDataIntScalar(idam_plugin_interface->data_block, OK_RETURN_VALUE, NULL);
 }
 
 
@@ -2126,7 +2126,7 @@ retIdx	- returned data file index number
         THROW_ERROR(999, "A Filename, Shot number and Run number are required!");
     }
 
-    if (mdsimasOpen(plugin_args.filename, plugin_args.shotNumber, plugin_args.runNumber, idx) < 0) {
+    if (mdsimasOpen((char*)plugin_args.filename, plugin_args.shotNumber, plugin_args.runNumber, idx) < 0) {
         THROW_ERROR(999, "Data OPEN method failed!");
     }
 
@@ -2134,12 +2134,12 @@ retIdx	- returned data file index number
 
     char work[512];
     // Use comma separated list (non compliant with filenaming conventions)
-    sprintf(work, "%s,%d,%d", plugin_args.filename, plugin_args.shotNumber, plugin_args.runNumber);
+    sprintf(work, "%s,%d,%d", (char*)plugin_args.filename, plugin_args.shotNumber, plugin_args.runNumber);
     addIdamPluginFileLong(&pluginFileList_mds, work, *idx);
 
     // Return the Index Number
 
-    return setReturnDataIntScalar(idam_plugin_interface, *idx);
+    return setReturnDataIntScalar(idam_plugin_interface->data_block, *idx, NULL);
 }
 
 
@@ -2168,13 +2168,13 @@ retIdx	- returned data file index number
     }
 
     if (plugin_args.isCreateFromModel) {
-        if (mdsimasCreate(plugin_args.filename, plugin_args.shotNumber, plugin_args.runNumber,
+        if (mdsimasCreate((char*)plugin_args.filename, plugin_args.shotNumber, plugin_args.runNumber,
                                 plugin_args.refShotNumber, plugin_args.refRunNumber, idx) < 0) {
 // BUG: createMdsImasFromModel is missing from the set of mdsplus functions.
             THROW_ERROR(999, "File Create method from Model failed!");
         }
     } else {
-        if (mdsimasCreate(plugin_args.filename, plugin_args.shotNumber, plugin_args.runNumber,
+        if (mdsimasCreate((char*)plugin_args.filename, plugin_args.shotNumber, plugin_args.runNumber,
                                 plugin_args.refShotNumber, plugin_args.refRunNumber, idx) < 0) {
             THROW_ERROR(999, "File Create method failed!");
         }
@@ -2184,12 +2184,12 @@ retIdx	- returned data file index number
 
     char work[512];
     // Use comma separated list (non compliant with filenaming conventions)
-    sprintf(work, "%s,%d,%d", plugin_args.filename, plugin_args.shotNumber, plugin_args.runNumber);
+    sprintf(work, "%s,%d,%d", (char*)plugin_args.filename, plugin_args.shotNumber, plugin_args.runNumber);
     addIdamPluginFileLong(&pluginFileList_mds, work, *idx);
 
     // Return the Index Number
 
-    return setReturnDataIntScalar(idam_plugin_interface, *idx);
+    return setReturnDataIntScalar(idam_plugin_interface->data_block, *idx, NULL);
 }
 
 
@@ -2205,13 +2205,13 @@ static int do_close(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARGS pl
 
     if (!plugin_args.isClientIdx) {
         char work[512];
-        sprintf(work, "%s,%d,%d", plugin_args.filename, plugin_args.shotNumber, plugin_args.runNumber);
-        plugin_args.clientIdx = getOpenIdamPluginFileLong(&pluginFileList_mds, work);
+        sprintf(work, "%s,%d,%d", (char*)plugin_args.filename, plugin_args.shotNumber, plugin_args.runNumber);
+        plugin_args.clientIdx = (int)getOpenIdamPluginFileLong(&pluginFileList_mds, work);
     }
 
     if (plugin_args.isFileName && plugin_args.isShotNumber && plugin_args.isRunNumber) {
         char work[512];
-        sprintf(work, "%s,%d,%d", plugin_args.filename, plugin_args.shotNumber, plugin_args.runNumber);
+        sprintf(work, "%s,%d,%d", (char*)plugin_args.filename, plugin_args.shotNumber, plugin_args.runNumber);
         closeIdamPluginFile(&pluginFileList_mds, work);
     } else {
         int id = findIdamPluginFileByLong(&pluginFileList_mds, plugin_args.clientIdx);
@@ -2232,13 +2232,13 @@ static int do_close(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARGS pl
         }
     }
 
-    if (mdsimasClose(plugin_args.clientIdx, plugin_args.filename, plugin_args.shotNumber, plugin_args.runNumber) < 0) {
+    if (mdsimasClose(plugin_args.clientIdx, (char*)plugin_args.filename, plugin_args.shotNumber, plugin_args.runNumber) < 0) {
         THROW_ERROR(999, "Data Close Failed!");
     }
 
     // Return Success
 
-    return setReturnDataIntScalar(idam_plugin_interface, OK_RETURN_VALUE);
+    return setReturnDataIntScalar(idam_plugin_interface->data_block, OK_RETURN_VALUE, NULL);
 }
 
 
@@ -2292,11 +2292,11 @@ static int do_setTimeBasePath(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUG
         THROW_ERROR(999, "No path has been specified!");
     }
 
-    putTimeBasePath(plugin_args.path);
+    putTimeBasePath((char*)plugin_args.path);
 
     // Return the Status OK
 
-    return setReturnDataIntScalar(idam_plugin_interface, OK_RETURN_VALUE);
+    return setReturnDataIntScalar(idam_plugin_interface->data_block, OK_RETURN_VALUE, NULL);
 }
 
 
@@ -2330,12 +2330,7 @@ static int do_releaseObject(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN
 
     if (obj != NULL) mdsReleaseObject(obj);
 
-    DATA_BLOCK* data_block = idam_plugin_interface->data_block;
-    initDataBlock(data_block);
-
-    // Return a status value
-
-    return setReturnDataIntScalar(idam_plugin_interface, OK_RETURN_VALUE);
+    return setReturnDataIntScalar(idam_plugin_interface->data_block, OK_RETURN_VALUE, NULL);
 }
 
 
@@ -2367,7 +2362,7 @@ static int do_getObjectObject(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUG
 // call the original IMAS function
 
     void* dataObj = NULL;
-    int rc = mdsGetObjectFromObject(obj, plugin_args.path, plugin_args.index, &dataObj);
+    int rc = mdsGetObjectFromObject(obj, (char*)plugin_args.path, plugin_args.index, &dataObj);
 
     if (rc < 0) {
         THROW_ERROR(999, "Object Get failed!");
@@ -2377,12 +2372,7 @@ static int do_getObjectObject(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUG
 
     int refId = putLocalObj(dataObj);
 
-    DATA_BLOCK* data_block = idam_plugin_interface->data_block;
-    initDataBlock(data_block);
-
-    // Return the Object reference
-
-    return setReturnDataIntScalar(idam_plugin_interface, refId);
+    return setReturnDataIntScalar(idam_plugin_interface->data_block, refId, NULL);
 }
 
 
@@ -2420,7 +2410,7 @@ static int do_getObjectSlice(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGI
 // call the original IMAS function
 
     void* dataObj = NULL;
-    int rc = mdsGetObjectSlice(plugin_args.clientIdx, plugin_args.CPOPath, plugin_args.path,
+    int rc = mdsGetObjectSlice(plugin_args.clientIdx, (char*)plugin_args.CPOPath, (char*)plugin_args.path,
                            *((double*)putDataBlock[0].data), &dataObj);
 
     if (rc < 0) {
@@ -2433,7 +2423,7 @@ static int do_getObjectSlice(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGI
 
     // Return the Object reference
 
-    return setReturnDataIntScalar(idam_plugin_interface, refId);
+    return setReturnDataIntScalar(idam_plugin_interface->data_block, refId, NULL);
 }
 
 
@@ -2454,7 +2444,7 @@ static int do_getObjectGroup(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGI
 // call the original IMAS function
 
     void* dataObj = NULL;
-    int rc = mdsGetObject(plugin_args.clientIdx, plugin_args.CPOPath, plugin_args.path, &dataObj, plugin_args.isTimed);
+    int rc = mdsGetObject(plugin_args.clientIdx, (char*)plugin_args.CPOPath, (char*)plugin_args.path, &dataObj, plugin_args.isTimed);
 
     if (rc != 0) {
         THROW_ERROR(999, "Object Get failed!");
@@ -2464,12 +2454,7 @@ static int do_getObjectGroup(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGI
 
     int refId = putLocalObj(dataObj);
 
-    DATA_BLOCK* data_block = idam_plugin_interface->data_block;
-    initDataBlock(data_block);
-
-    // Return the Object reference
-
-    return setReturnDataIntScalar(idam_plugin_interface, refId);
+    return setReturnDataIntScalar(idam_plugin_interface->data_block, refId, NULL);
 }
 
 
@@ -2505,12 +2490,9 @@ static int do_getObjectDim(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_
 
     int dim = mdsGetObjectDim(obj);
 
-    DATA_BLOCK* data_block = idam_plugin_interface->data_block;
-    initDataBlock(data_block);
-
     // Return the Object property
 
-    return setReturnDataIntScalar(idam_plugin_interface, dim);
+    return setReturnDataIntScalar(idam_plugin_interface->data_block, dim, NULL);
 }
 
 
@@ -2529,12 +2511,9 @@ static int do_beginObject(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_A
 
     int refId = putLocalObj(data);
 
-    DATA_BLOCK* data_block = idam_plugin_interface->data_block;
-    initDataBlock(data_block);
-
     // Return the Object reference
 
-    return setReturnDataIntScalar(idam_plugin_interface, refId);
+    return setReturnDataIntScalar(idam_plugin_interface->data_block, refId, NULL);
 }
 
 
@@ -2568,7 +2547,7 @@ static int do_getObject(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARG
 
         int shape[7] = { 0, 0, 0, 0, 0, 0, 0 };
 
-        rc = imas_mds_getDataSliceInObject(obj, plugin_args.path, plugin_args.index, type, plugin_args.rank, shape,
+        rc = imas_mds_getDataSliceInObject(obj, (char*)plugin_args.path, plugin_args.index, type, plugin_args.rank, shape,
                                            &data);
 
         if (rc < 0) {
@@ -2621,7 +2600,7 @@ static int do_getObject(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARG
     int* shape = (int*)malloc(7 * sizeof(int));
     int numDims = 0;
 
-    rc = mdsGetDimensionFromObject(-1, obj, plugin_args.path, plugin_args.index, &numDims, &(shape[0]), &(shape[1]),
+    rc = mdsGetDimensionFromObject(-1, obj, (char*)plugin_args.path, plugin_args.index, &numDims, &(shape[0]), &(shape[1]),
                                    &(shape[2]),
                                    &(shape[3]), &(shape[4]), &(shape[5]), &(shape[6]));
 
@@ -2704,7 +2683,7 @@ static int do_putObject(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARG
 
 // The type passed here is the IMAS type enumeration
 
-    void* newObj = imas_mds_putDataSliceInObject(obj, plugin_args.path, plugin_args.index, type,
+    void* newObj = imas_mds_putDataSliceInObject(obj, (char*)plugin_args.path, plugin_args.index, type,
                                                  putDataBlockList->putDataBlock[1].rank,
                                                  putDataBlockList->putDataBlock[1].shape,
                                                  (void*)putDataBlockList->putDataBlock[1].data);
@@ -2719,12 +2698,7 @@ static int do_putObject(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARG
 
     int refId = putLocalObj(newObj);
 
-    DATA_BLOCK* data_block = idam_plugin_interface->data_block;
-    initDataBlock(data_block);
-
-    // Return the Object Reference
-
-    return setReturnDataIntScalar(idam_plugin_interface, refId);
+    return setReturnDataIntScalar(idam_plugin_interface->data_block, refId, NULL);
 }
 
 
@@ -2764,7 +2738,7 @@ static int do_putObjectInObject(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PL
 
 // The type passed here is the IMAS type enumeration
 
-    void* newObj = mdsPutObjectInObject(obj, plugin_args.path, plugin_args.index, dataObj);
+    void* newObj = mdsPutObjectInObject(obj, (char*)plugin_args.path, plugin_args.index, dataObj);
 
     if (!newObj) {
         THROW_ERROR(999, "Data PUT method failed!");
@@ -2774,12 +2748,7 @@ static int do_putObjectInObject(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PL
 
     int refId = putLocalObj(newObj);
 
-    DATA_BLOCK* data_block = idam_plugin_interface->data_block;
-    initDataBlock(data_block);
-
-    // Return the Object Reference
-
-    return setReturnDataIntScalar(idam_plugin_interface, refId);
+    return setReturnDataIntScalar(idam_plugin_interface->data_block, refId, NULL);
 }
 
 
@@ -2809,7 +2778,7 @@ static int do_putObjectGroup(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGI
 
 // call the original IMAS function
 
-    rc = mdsPutObject(plugin_args.clientIdx, plugin_args.CPOPath, plugin_args.path, obj, plugin_args.isTimed);
+    rc = mdsPutObject(plugin_args.clientIdx, (char*)plugin_args.CPOPath, (char*)plugin_args.path, obj, plugin_args.isTimed);
 
     if (rc < 0) {
         THROW_ERROR(999, "Object Put failed!");
@@ -2863,16 +2832,13 @@ static int do_putObjectSlice(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGI
 
 // call the original IMAS function
 
-    int rc = mdsPutObjectSlice(plugin_args.clientIdx, plugin_args.CPOPath, plugin_args.path, time, obj);
+    int rc = mdsPutObjectSlice(plugin_args.clientIdx, (char*)plugin_args.CPOPath, (char*)plugin_args.path, time, obj);
 
     if (rc < 0) {
         THROW_ERROR(999, "Object Put failed!");
     }
 
-    DATA_BLOCK* data_block = idam_plugin_interface->data_block;
-    initDataBlock(data_block);
-
-    return setReturnDataIntScalar(idam_plugin_interface, rc);
+    return setReturnDataIntScalar(idam_plugin_interface->data_block, rc, NULL);
 }
 
 
@@ -2898,7 +2864,7 @@ static int do_replaceLastObjectSlice(IDAM_PLUGIN_INTERFACE* idam_plugin_interfac
 
 // call the original IMAS function
 
-    int rc = mdsReplaceLastObjectSlice(plugin_args.clientIdx, plugin_args.CPOPath, plugin_args.path, obj);
+    int rc = mdsReplaceLastObjectSlice(plugin_args.clientIdx, (char*)plugin_args.CPOPath, (char*)plugin_args.path, obj);
 
     if (rc < 0) {
         THROW_ERROR(999, "Object Replace failed");
@@ -2906,7 +2872,7 @@ static int do_replaceLastObjectSlice(IDAM_PLUGIN_INTERFACE* idam_plugin_interfac
 
     initDataBlock(idam_plugin_interface->data_block);
 
-    return setReturnDataIntScalar(idam_plugin_interface, rc);
+    return setReturnDataIntScalar(idam_plugin_interface->data_block, rc, NULL);
 }
 
 
@@ -2924,7 +2890,7 @@ static int do_cache(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARGS pl
         imas_flush_mem_cache(plugin_args.clientIdx);
         rc = OK_RETURN_VALUE;
     } else if (plugin_args.isDiscard && plugin_args.isClientIdx && plugin_args.isCPOPath) {
-        imas_discard_cpo_mem_cache(plugin_args.clientIdx, plugin_args.CPOPath);
+        imas_discard_cpo_mem_cache(plugin_args.clientIdx, (char*)plugin_args.CPOPath);
         rc = OK_RETURN_VALUE;
     } else if (plugin_args.isGetLevel && plugin_args.isClientIdx) {
         rc = imas_get_cache_level(plugin_args.clientIdx);
@@ -2932,7 +2898,7 @@ static int do_cache(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARGS pl
         imas_set_cache_level(plugin_args.clientIdx, plugin_args.setLevel);
         rc = OK_RETURN_VALUE;
     } else if (plugin_args.isFlushCPO && plugin_args.isClientIdx && plugin_args.isCPOPath) {
-        imas_flush_cpo_mem_cache(plugin_args.clientIdx, plugin_args.CPOPath);
+        imas_flush_cpo_mem_cache(plugin_args.clientIdx, (char*)plugin_args.CPOPath);
         rc = OK_RETURN_VALUE;
     } else if (plugin_args.isDisable && plugin_args.isClientIdx) {
         imas_disable_mem_cache(plugin_args.clientIdx);
@@ -2948,12 +2914,7 @@ static int do_cache(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARGS pl
         THROW_ERROR(999, "Insufficient parameters passed!");
     }
 
-    DATA_BLOCK* data_block = idam_plugin_interface->data_block;
-    initDataBlock(data_block);
-
-    // Return value
-
-    return setReturnDataIntScalar(idam_plugin_interface, rc);
+    return setReturnDataIntScalar(idam_plugin_interface->data_block, rc, NULL);
 }
 
 
@@ -2972,12 +2933,7 @@ static int do_getUniqueRun(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_
         THROW_ERROR(999, "Insufficient parameters passed!");
     }
 
-    DATA_BLOCK* data_block = idam_plugin_interface->data_block;
-    initDataBlock(data_block);
-
-    // Return value
-
-    return setReturnDataIntScalar(idam_plugin_interface, rc);
+    return setReturnDataIntScalar(idam_plugin_interface->data_block, rc, NULL);
 }
 
 
@@ -2989,18 +2945,13 @@ static int do_spawnCommand(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_
     char* result = NULL;
 
     if (plugin_args.isCommand && plugin_args.isIPAddress) {
-        result = spawnCommand(plugin_args.command, plugin_args.IPAddress);        // from mdsObject library
+        result = spawnCommand((char*)plugin_args.command, (char*)plugin_args.IPAddress);        // from mdsObject library
     } else {
         IDAM_LOG(LOG_ERROR, "Insufficient parameters passed!\n");
         THROW_ERROR(999, "Insufficient parameters passed!");
     }
 
-    DATA_BLOCK* data_block = idam_plugin_interface->data_block;
-    initDataBlock(data_block);
-
-    // Return value
-
-    return setReturnDataString(idam_plugin_interface, result);
+    return setReturnDataString(idam_plugin_interface->data_block, result, NULL);
 }
 
 
@@ -3013,26 +2964,26 @@ static int do_putIDS(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARGS p
 
     if (plugin_args.isClientIdx && plugin_args.isPath) {
         if (plugin_args.isBeginIDSSlice) {
-            rc = mdsbeginIdsPutSlice(plugin_args.clientIdx, plugin_args.path);
+            rc = mdsbeginIdsPutSlice(plugin_args.clientIdx, (char*)plugin_args.path);
         } else if (plugin_args.isEndIDSSlice) {
-            rc = mdsendIdsPutSlice(plugin_args.clientIdx, plugin_args.path);
+            rc = mdsendIdsPutSlice(plugin_args.clientIdx, (char*)plugin_args.path);
         } else if (plugin_args.isReplaceIDSSlice) {
-            rc = mdsendIdsReplaceLastSlice(plugin_args.clientIdx, plugin_args.path);
+            rc = mdsendIdsReplaceLastSlice(plugin_args.clientIdx, (char*)plugin_args.path);
         } else if (plugin_args.isBeginIDS) {
-            rc = mdsbeginIdsPut(plugin_args.clientIdx, plugin_args.path);
+            rc = mdsbeginIdsPut(plugin_args.clientIdx, (char*)plugin_args.path);
         } else if (plugin_args.isEndIDS) {
-            rc = mdsendIdsPut(plugin_args.clientIdx, plugin_args.path);
+            rc = mdsendIdsPut(plugin_args.clientIdx, (char*)plugin_args.path);
         } else if (plugin_args.isEndIDSTimed) {
-            rc = mdsendIdsPutTimed(plugin_args.clientIdx, plugin_args.path);
+            rc = mdsendIdsPutTimed(plugin_args.clientIdx, (char*)plugin_args.path);
         } else if (plugin_args.isBeginIDSTimed) {
             int count = 0;
             double* times = NULL;
             //TODO ***** fetch data from PUTDATA or name-value list
-            rc = mdsbeginIdsPutTimed(plugin_args.clientIdx, plugin_args.path, count, times);
+            rc = mdsbeginIdsPutTimed(plugin_args.clientIdx, (char*)plugin_args.path, count, times);
         } else if (plugin_args.isBeginIDSNonTimed) {
-            rc = mdsbeginIdsPutNonTimed(plugin_args.clientIdx, plugin_args.path);
+            rc = mdsbeginIdsPutNonTimed(plugin_args.clientIdx, (char*)plugin_args.path);
         } else if (plugin_args.isEndIDSNonTimed) {
-            rc = mdsendIdsPutNonTimed(plugin_args.clientIdx, plugin_args.path);
+            rc = mdsendIdsPutNonTimed(plugin_args.clientIdx, (char*)plugin_args.path);
         } else {
             IDAM_LOG(LOG_ERROR, "Insufficient parameters passed!\n");
             THROW_ERROR(999, "Insufficient parameters passed!");
@@ -3042,12 +2993,8 @@ static int do_putIDS(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARGS p
         THROW_ERROR(999, "Insufficient parameters passed!");
     }
 
-    DATA_BLOCK* data_block = idam_plugin_interface->data_block;
-    initDataBlock(data_block);
-
     // Return value
-
-    return setReturnDataIntScalar(idam_plugin_interface, rc);
+    return setReturnDataIntScalar(idam_plugin_interface->data_block, rc, NULL);
 }
 
 
@@ -3061,17 +3008,13 @@ static int do_beginIdsPut(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_A
         THROW_ERROR(999, "The function parameters have not been specified!");
     }
 
-    if (mdsbeginIdsPut(plugin_args.clientIdx, plugin_args.path) < 0) {
+    if (mdsbeginIdsPut(plugin_args.clientIdx, (char*)plugin_args.path) < 0) {
         IDAM_LOGF(LOG_ERROR, "%s\n", errmsg);
         THROW_ERROR(999, errmsg);
     }
 
-    DATA_BLOCK* data_block = idam_plugin_interface->data_block;
-    initDataBlock(data_block);
-
     // Return Success
-
-    return setReturnDataIntScalar(idam_plugin_interface, OK_RETURN_VALUE);
+    return setReturnDataIntScalar(idam_plugin_interface->data_block, OK_RETURN_VALUE, NULL);
 }
 
 static int do_endIdsPut(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARGS plugin_args)
@@ -3081,17 +3024,13 @@ static int do_endIdsPut(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARG
         THROW_ERROR(999, "The function parameters have not been specified!");
     }
 
-    if (mdsendIdsPut(plugin_args.clientIdx, plugin_args.path) < 0) {
+    if (mdsendIdsPut(plugin_args.clientIdx, (char*)plugin_args.path) < 0) {
         IDAM_LOGF(LOG_ERROR, "%s\n", errmsg);
         THROW_ERROR(999, errmsg);
     }
 
-    DATA_BLOCK* data_block = idam_plugin_interface->data_block;
-    initDataBlock(data_block);
-
     // Return Success
-
-    return setReturnDataIntScalar(idam_plugin_interface, OK_RETURN_VALUE);
+    return setReturnDataIntScalar(idam_plugin_interface->data_block, OK_RETURN_VALUE, NULL);
 }
 
 static int do_beginIdsGet(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARGS plugin_args)
@@ -3103,17 +3042,13 @@ static int do_beginIdsGet(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_A
         THROW_ERROR(999, "The function parameters have not been specified!");
     }
 
-    if (mdsbeginIdsGet(plugin_args.clientIdx, plugin_args.path, plugin_args.isTimed, &retSamples) < 0) {
+    if (mdsbeginIdsGet(plugin_args.clientIdx, (char*)plugin_args.path, plugin_args.isTimed, &retSamples) < 0) {
         IDAM_LOGF(LOG_ERROR, "%s\n", errmsg);
         THROW_ERROR(999, errmsg);
     }
 
-    DATA_BLOCK* data_block = idam_plugin_interface->data_block;
-    initDataBlock(data_block);
-
     // Return Success
-
-    return setReturnDataIntScalar(idam_plugin_interface, retSamples);
+    return setReturnDataIntScalar(idam_plugin_interface->data_block, retSamples, NULL);
 }
 
 static int do_endIdsGet(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARGS plugin_args)
@@ -3123,17 +3058,13 @@ static int do_endIdsGet(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARG
         THROW_ERROR(999, "The function parameters have not been specified!");
     }
 
-    if (mdsendIdsGet(plugin_args.clientIdx, plugin_args.path) < 0) {
+    if (mdsendIdsGet(plugin_args.clientIdx, (char*)plugin_args.path) < 0) {
         IDAM_LOGF(LOG_ERROR, "%s\n", errmsg);
         THROW_ERROR(999, errmsg);
     }
 
-    DATA_BLOCK* data_block = idam_plugin_interface->data_block;
-    initDataBlock(data_block);
-
     // Return Success
-
-    return setReturnDataIntScalar(idam_plugin_interface, OK_RETURN_VALUE);
+    return setReturnDataIntScalar(idam_plugin_interface->data_block, OK_RETURN_VALUE, NULL);
 }
 
 static int do_beginIdsGetSlice(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARGS plugin_args)
@@ -3161,17 +3092,13 @@ static int do_beginIdsGetSlice(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLU
 
     double time = ((double*)putDataBlock->data)[0];
 
-    if (mdsbeginIdsGetSlice(plugin_args.clientIdx, plugin_args.path, time) < 0) {
+    if (mdsbeginIdsGetSlice(plugin_args.clientIdx, (char*)plugin_args.path, time) < 0) {
         IDAM_LOGF(LOG_ERROR, "%s\n", errmsg);
         THROW_ERROR(999, errmsg);
     }
 
-    DATA_BLOCK* data_block = idam_plugin_interface->data_block;
-    initDataBlock(data_block);
-
     // Return Success
-
-    return setReturnDataIntScalar(idam_plugin_interface, OK_RETURN_VALUE);
+    return setReturnDataIntScalar(idam_plugin_interface->data_block, OK_RETURN_VALUE, NULL);
 }
 
 static int do_endIdsGetSlice(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARGS plugin_args)
@@ -3181,17 +3108,13 @@ static int do_endIdsGetSlice(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGI
         THROW_ERROR(999, "The function parameters have not been specified!");
     }
 
-    if (mdsendIdsGetSlice(plugin_args.clientIdx, plugin_args.path) < 0) {
+    if (mdsendIdsGetSlice(plugin_args.clientIdx, (char*)plugin_args.path) < 0) {
         IDAM_LOGF(LOG_ERROR, "%s\n", errmsg);
         THROW_ERROR(999, errmsg);
     }
 
-    DATA_BLOCK* data_block = idam_plugin_interface->data_block;
-    initDataBlock(data_block);
-
     // Return Success
-
-    return setReturnDataIntScalar(idam_plugin_interface, OK_RETURN_VALUE);
+    return setReturnDataIntScalar(idam_plugin_interface->data_block, OK_RETURN_VALUE, NULL);
 }
 
 static int do_beginIdsPutSlice(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARGS plugin_args)
@@ -3201,16 +3124,13 @@ static int do_beginIdsPutSlice(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLU
         THROW_ERROR(999, "The function parameters have not been specified!");
     }
 
-    if (mdsbeginIdsPutSlice(plugin_args.clientIdx, plugin_args.path) < 0) {
+    if (mdsbeginIdsPutSlice(plugin_args.clientIdx, (char*)plugin_args.path) < 0) {
         IDAM_LOGF(LOG_ERROR, "%s\n", errmsg);
         THROW_ERROR(999, errmsg);
     }
 
-    DATA_BLOCK* data_block = idam_plugin_interface->data_block;
-    initDataBlock(data_block);
-
     // Return Success
-    return setReturnDataIntScalar(idam_plugin_interface, OK_RETURN_VALUE);
+    return setReturnDataIntScalar(idam_plugin_interface->data_block, OK_RETURN_VALUE, NULL);
 }
 
 static int do_endIdsPutSlice(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARGS plugin_args)
@@ -3220,17 +3140,13 @@ static int do_endIdsPutSlice(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGI
         THROW_ERROR(999, "The function parameters have not been specified!");
     }
 
-    if (mdsendIdsPutSlice(plugin_args.clientIdx, plugin_args.path) < 0) {
+    if (mdsendIdsPutSlice(plugin_args.clientIdx, (char*)plugin_args.path) < 0) {
         IDAM_LOGF(LOG_ERROR, "%s\n", errmsg);
         THROW_ERROR(999, errmsg);
     }
 
-    DATA_BLOCK* data_block = idam_plugin_interface->data_block;
-    initDataBlock(data_block);
-
     // Return Success
-
-    return setReturnDataIntScalar(idam_plugin_interface, OK_RETURN_VALUE);
+    return setReturnDataIntScalar(idam_plugin_interface->data_block, OK_RETURN_VALUE, NULL);
 }
 
 static int do_beginIdsPutNonTimed(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARGS plugin_args)
@@ -3240,17 +3156,13 @@ static int do_beginIdsPutNonTimed(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, 
         THROW_ERROR(999, "The function parameters have not been specified!");
     }
 
-    if (mdsbeginIdsPutNonTimed(plugin_args.clientIdx, plugin_args.path) < 0) {
+    if (mdsbeginIdsPutNonTimed(plugin_args.clientIdx, (char*)plugin_args.path) < 0) {
         IDAM_LOGF(LOG_ERROR, "%s\n", errmsg);
         THROW_ERROR(999, errmsg);
     }
 
-    DATA_BLOCK* data_block = idam_plugin_interface->data_block;
-    initDataBlock(data_block);
-
     // Return Success
-
-    return setReturnDataIntScalar(idam_plugin_interface, OK_RETURN_VALUE);
+    return setReturnDataIntScalar(idam_plugin_interface->data_block, OK_RETURN_VALUE, NULL);
 }
 
 static int do_endIdsPutNonTimed(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARGS plugin_args)
@@ -3260,17 +3172,13 @@ static int do_endIdsPutNonTimed(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PL
         THROW_ERROR(999, "");
     }
 
-    if (mdsendIdsPutNonTimed(plugin_args.clientIdx, plugin_args.path) < 0) {
+    if (mdsendIdsPutNonTimed(plugin_args.clientIdx, (char*)plugin_args.path) < 0) {
         IDAM_LOGF(LOG_ERROR, "%s\n", errmsg);
         THROW_ERROR(999, errmsg);
     }
 
-    DATA_BLOCK* data_block = idam_plugin_interface->data_block;
-    initDataBlock(data_block);
-
     // Return Success
-
-    return setReturnDataIntScalar(idam_plugin_interface, OK_RETURN_VALUE);
+    return setReturnDataIntScalar(idam_plugin_interface->data_block, OK_RETURN_VALUE, NULL);
 }
 
 static int do_beginIdsReplaceLastSlice(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARGS plugin_args)
@@ -3280,17 +3188,13 @@ static int do_beginIdsReplaceLastSlice(IDAM_PLUGIN_INTERFACE* idam_plugin_interf
         THROW_ERROR(999, "");
     }
 
-    if (mdsbeginIdsReplaceLastSlice(plugin_args.clientIdx, plugin_args.path) < 0) {
+    if (mdsbeginIdsReplaceLastSlice(plugin_args.clientIdx, (char*)plugin_args.path) < 0) {
         IDAM_LOGF(LOG_ERROR, "%s\n", errmsg);
         THROW_ERROR(999, errmsg);
     }
 
-    DATA_BLOCK* data_block = idam_plugin_interface->data_block;
-    initDataBlock(data_block);
-
     // Return Success
-
-    return setReturnDataIntScalar(idam_plugin_interface, OK_RETURN_VALUE);
+    return setReturnDataIntScalar(idam_plugin_interface->data_block, OK_RETURN_VALUE, NULL);
 }
 
 static int do_endIdsReplaceLastSlice(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARGS plugin_args)
@@ -3300,17 +3204,13 @@ static int do_endIdsReplaceLastSlice(IDAM_PLUGIN_INTERFACE* idam_plugin_interfac
         THROW_ERROR(999, "The function parameters have not been specified!");
     }
 
-    if (mdsendIdsReplaceLastSlice(plugin_args.clientIdx, plugin_args.path) < 0) {
+    if (mdsendIdsReplaceLastSlice(plugin_args.clientIdx, (char*)plugin_args.path) < 0) {
         IDAM_LOGF(LOG_ERROR, "imas endIdsReplaceLastSlice: %s\n", errmsg);
         THROW_ERROR(999, errmsg);
     }
 
-    DATA_BLOCK* data_block = idam_plugin_interface->data_block;
-    initDataBlock(data_block);
-
     // Return Success
-
-    return setReturnDataIntScalar(idam_plugin_interface, OK_RETURN_VALUE);
+    return setReturnDataIntScalar(idam_plugin_interface->data_block, OK_RETURN_VALUE, NULL);
 }
 
 static int do_beginIdsPutTimed(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARGS plugin_args)
@@ -3336,17 +3236,13 @@ static int do_beginIdsPutTimed(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLU
 
     double* inTimes = (double*)putDataBlock->data;
 
-    if (mdsbeginIdsPutTimed(plugin_args.clientIdx, plugin_args.path, putDataBlock->count, inTimes) < 0) {
+    if (mdsbeginIdsPutTimed(plugin_args.clientIdx, (char*)plugin_args.path, putDataBlock->count, inTimes) < 0) {
         IDAM_LOGF(LOG_ERROR, "%s\n", errmsg);
         THROW_ERROR(999, errmsg);
     }
 
-    DATA_BLOCK* data_block = idam_plugin_interface->data_block;
-    initDataBlock(data_block);
-
     // Return Success
-
-    return setReturnDataIntScalar(idam_plugin_interface, OK_RETURN_VALUE);
+    return setReturnDataIntScalar(idam_plugin_interface->data_block, OK_RETURN_VALUE, NULL);
 }
 
 static int do_endIdsPutTimed(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARGS plugin_args)
@@ -3356,95 +3252,54 @@ static int do_endIdsPutTimed(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGI
         THROW_ERROR(999, "The function parameters have not been specified!");
     }
 
-    if (mdsendIdsPutTimed(plugin_args.clientIdx, plugin_args.path) < 0) {
+    if (mdsendIdsPutTimed(plugin_args.clientIdx, (char*)plugin_args.path) < 0) {
         IDAM_LOGF(LOG_ERROR, "imas endIdsPutTimed: %s\n", errmsg);
         THROW_ERROR(999, errmsg);
     }
 
-    DATA_BLOCK* data_block = idam_plugin_interface->data_block;
-    initDataBlock(data_block);
-
     // Return Success
-
-    return setReturnDataIntScalar(idam_plugin_interface, OK_RETURN_VALUE);
+    return setReturnDataIntScalar(idam_plugin_interface->data_block, OK_RETURN_VALUE, NULL);
 }
-
 
 //----------------------------------------------------------------------------------------
 // Help: A Description of library functionality
 
 static int do_help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARGS plugin_args)
 {
-    DATA_BLOCK* data_block = idam_plugin_interface->data_block;
-    initDataBlock(data_block);
-
     const char* help = "\nimas_mds: Add Functions Names, Syntax, and Descriptions\n\n";
+    const char* desc = "imas_mds: help = description of this plugin";
 
-    strcpy(data_block->data_desc, "imas_mds: help = description of this plugin");
-
-    return setReturnDataString(idam_plugin_interface, help);
+    return setReturnDataString(idam_plugin_interface->data_block, help, desc);
 }
-
 
 //----------------------------------------------------------------------------------------
 // Standard methods: version, builddate, defaultmethod, maxinterfaceversion
 
 static int do_version(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARGS plugin_args)
 {
-    DATA_BLOCK* data_block = idam_plugin_interface->data_block;
-    initDataBlock(data_block);
-
-    strcpy(data_block->data_desc, "Plugin version number");
-    strcpy(data_block->data_label, "version");
-    strcpy(data_block->data_units, "");
-
-    return setReturnDataIntScalar(idam_plugin_interface, THISPLUGIN_VERSION);
+    return setReturnDataIntScalar(idam_plugin_interface->data_block, THISPLUGIN_VERSION, "Plugin version number");
 }
-
 
 //----------------------------------------------------------------------------------------
 // Plugin Build Date
 
 static int do_builddate(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARGS plugin_args)
 {
-    DATA_BLOCK* data_block = idam_plugin_interface->data_block;
-    initDataBlock(data_block);
-
-    strcpy(data_block->data_desc, "Plugin build date");
-    strcpy(data_block->data_label, "date");
-    strcpy(data_block->data_units, "");
-
-    return setReturnDataString(idam_plugin_interface, __DATE__);
+    return setReturnDataString(idam_plugin_interface->data_block, __DATE__, "Plugin build date");
 }
-
 
 //----------------------------------------------------------------------------------------
 // Plugin Default Method
 
 static int do_defaultmethod(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARGS plugin_args)
 {
-    DATA_BLOCK* data_block = idam_plugin_interface->data_block;
-    initDataBlock(data_block);
-
-    strcpy(data_block->data_desc, "Plugin default method");
-    strcpy(data_block->data_label, "method");
-    strcpy(data_block->data_units, "");
-
-    return setReturnDataString(idam_plugin_interface, THISPLUGIN_DEFAULT_METHOD);
+    return setReturnDataString(idam_plugin_interface->data_block, THISPLUGIN_DEFAULT_METHOD, "Plugin default method");
 }
-
 
 //----------------------------------------------------------------------------------------
 // Plugin Maximum Interface Version
 
 static int do_maxinterfaceversion(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARGS plugin_args)
 {
-    DATA_BLOCK* data_block = idam_plugin_interface->data_block;
-    initDataBlock(data_block);
-
-    strcpy(data_block->data_desc, "Maximum Interface Version");
-    strcpy(data_block->data_label, "version");
-    strcpy(data_block->data_units, "");
-
-    return setReturnDataIntScalar(idam_plugin_interface, THISPLUGIN_MAX_INTERFACE_VERSION);
+    return setReturnDataIntScalar(idam_plugin_interface->data_block, THISPLUGIN_MAX_INTERFACE_VERSION, "Maximum Interface Version");
 }
