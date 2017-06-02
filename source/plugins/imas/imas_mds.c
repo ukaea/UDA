@@ -2207,9 +2207,9 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
         free(tmp_path);
 
         IDAM_LOGF(LOG_ERROR, "CPOPath: %s, path: %s, type: %d, rank: %d, shape[0]: %d\n", plugin_args.CPOPath,
-                plugin_args.path, type,
-                plugin_args.rank,
-                plugin_args.rank > 0 ? shape[0] : 0);
+                  plugin_args.path, type,
+                  plugin_args.rank,
+                  plugin_args.rank > 0 ? shape[0] : 0);
         rc = imas_mds_getData(idx, plugin_args.CPOPath, plugin_args.path, type, plugin_args.rank, shape,
                               (void**)&imasData);
 
@@ -2962,7 +2962,7 @@ static int do_close(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARGS pl
     if (!plugin_args.isClientIdx && !(plugin_args.isFileName && plugin_args.isShotNumber && plugin_args.isRunNumber)) {
         err = 999;
         IDAM_LOG(LOG_ERROR,
-                "imas: The file IDX or the Filename with Shot number and Run number are required!\n");
+                 "imas: The file IDX or the Filename with Shot number and Run number are required!\n");
         addIdamError(&idamerrorstack, CODEERRORTYPE, "imas", err,
                      "The file IDX or the Filename with Shot number and Run number are required!");
         return err;
@@ -3163,7 +3163,7 @@ static int do_getObjectObject(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUG
     if (!plugin_args.isPutData || !plugin_args.isIndex || !plugin_args.isPath) {
         err = 999;
         IDAM_LOG(LOG_ERROR,
-                "imas getObjectObject: Insufficient data parameters passed - begin not possible!\n");
+                 "imas getObjectObject: Insufficient data parameters passed - begin not possible!\n");
         addIdamError(&idamerrorstack, CODEERRORTYPE, "imas getObjectObject", err,
                      "Insufficient data parameters passed - begin not possible!");
         return err;
@@ -3664,7 +3664,7 @@ static int do_putObjectInObject(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PL
     if (!plugin_args.isPath || !plugin_args.isIndex || !plugin_args.isPutData || putDataBlock->count != 2) {
         err = 999;
         IDAM_LOG(LOG_ERROR,
-                "imas putObjectInObject: Insufficient data parameters passed - put not possible!\n");
+                 "imas putObjectInObject: Insufficient data parameters passed - put not possible!\n");
         addIdamError(&idamerrorstack, CODEERRORTYPE, "imas putObjectInObject", err,
                      "Insufficient data parameters passed - put not possible!");
         return err;
@@ -3734,7 +3734,7 @@ static int do_putObjectGroup(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGI
         !plugin_args.isTimedArg) {
         err = 999;
         IDAM_LOG(LOG_ERROR,
-                "imas putObjectGroup: Insufficient data parameters passed - putObject not possible!\n");
+                 "imas putObjectGroup: Insufficient data parameters passed - putObject not possible!\n");
         addIdamError(&idamerrorstack, CODEERRORTYPE, "imas putObjectGroup", err,
                      "Insufficient data parameters passed - putObject not possible!");
         return err;
@@ -3795,7 +3795,7 @@ static int do_putObjectSlice(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGI
         !plugin_args.isClientObjectId) {
         err = 999;
         IDAM_LOG(LOG_ERROR,
-                "imas putObjectSlice: Insufficient data parameters passed - putObjectSlice not possible!\n");
+                 "imas putObjectSlice: Insufficient data parameters passed - putObjectSlice not possible!\n");
         addIdamError(&idamerrorstack, CODEERRORTYPE, "imas putObjectSlice", err,
                      "Insufficient data parameters passed - putObjectSlice not possible!");
         return err;
@@ -3853,7 +3853,7 @@ static int do_replaceLastObjectSlice(IDAM_PLUGIN_INTERFACE* idam_plugin_interfac
         !plugin_args.isClientObjectId) {
         err = 999;
         IDAM_LOG(LOG_ERROR,
-                "imas replaceLastObjectSlice: Insufficient data parameters passed - replaceLastObjectSlice not possible!\n");
+                 "imas replaceLastObjectSlice: Insufficient data parameters passed - replaceLastObjectSlice not possible!\n");
         addIdamError(&idamerrorstack, CODEERRORTYPE, "imas replaceLastObjectSlice", err,
                      "Insufficient data parameters passed - replaceLastObjectSlice not possible!");
         return err;
@@ -4471,7 +4471,7 @@ static int do_beginIdsReplaceLastSlice(IDAM_PLUGIN_INTERFACE* idam_plugin_interf
     if (!plugin_args.isClientIdx || !plugin_args.isPath) {
         err = 999;
         IDAM_LOG(LOG_ERROR,
-                "imas beginIdsReplaceLastSlice: The function parameters have not been specified!\n");
+                 "imas beginIdsReplaceLastSlice: The function parameters have not been specified!\n");
         addIdamError(&idamerrorstack, CODEERRORTYPE, "imas beginIdsReplaceLastSlice", err,
                      "The function parameters have not been specified!");
         return err;

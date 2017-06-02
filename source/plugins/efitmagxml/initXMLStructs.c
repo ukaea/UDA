@@ -18,59 +18,59 @@ void freeEfit(EFIT* efit)
 {
     int i, nel;
 
-    if (efit->magprobe != NULL) free((void*) efit->magprobe);
-    if (efit->diamagnetic != NULL) free((void*) efit->diamagnetic);
+    if (efit->magprobe != NULL) free((void*)efit->magprobe);
+    if (efit->diamagnetic != NULL) free((void*)efit->diamagnetic);
 
     nel = efit->nfluxloops;
     if (nel > 0) {
         for (i = 0; i < nel; i++) {
-            if (efit->fluxloop[i].r != NULL) free((void*) efit->fluxloop[i].r);
-            if (efit->fluxloop[i].z != NULL) free((void*) efit->fluxloop[i].z);
-            if (efit->fluxloop[i].dphi != NULL) free((void*) efit->fluxloop[i].dphi);
+            if (efit->fluxloop[i].r != NULL) free((void*)efit->fluxloop[i].r);
+            if (efit->fluxloop[i].z != NULL) free((void*)efit->fluxloop[i].z);
+            if (efit->fluxloop[i].dphi != NULL) free((void*)efit->fluxloop[i].dphi);
         }
     }
-    if (efit->fluxloop != NULL) free((void*) efit->fluxloop);
+    if (efit->fluxloop != NULL) free((void*)efit->fluxloop);
 
     if ((nel = efit->npfpassive) > 0) {
         for (i = 0; i < nel; i++) {
-            if (efit->pfpassive[i].r != NULL) free((void*) efit->pfpassive[i].r);
-            if (efit->pfpassive[i].z != NULL) free((void*) efit->pfpassive[i].z);
-            if (efit->pfpassive[i].dr != NULL) free((void*) efit->pfpassive[i].dr);
-            if (efit->pfpassive[i].dz != NULL) free((void*) efit->pfpassive[i].dz);
-            if (efit->pfpassive[i].ang1 != NULL) free((void*) efit->pfpassive[i].ang1);
-            if (efit->pfpassive[i].ang2 != NULL) free((void*) efit->pfpassive[i].ang2);
-            if (efit->pfpassive[i].res != NULL) free((void*) efit->pfpassive[i].res);
+            if (efit->pfpassive[i].r != NULL) free((void*)efit->pfpassive[i].r);
+            if (efit->pfpassive[i].z != NULL) free((void*)efit->pfpassive[i].z);
+            if (efit->pfpassive[i].dr != NULL) free((void*)efit->pfpassive[i].dr);
+            if (efit->pfpassive[i].dz != NULL) free((void*)efit->pfpassive[i].dz);
+            if (efit->pfpassive[i].ang1 != NULL) free((void*)efit->pfpassive[i].ang1);
+            if (efit->pfpassive[i].ang2 != NULL) free((void*)efit->pfpassive[i].ang2);
+            if (efit->pfpassive[i].res != NULL) free((void*)efit->pfpassive[i].res);
         }
     }
-    if (efit->pfpassive != NULL) free((void*) efit->pfpassive);
+    if (efit->pfpassive != NULL) free((void*)efit->pfpassive);
 
     if ((nel = efit->npfcoils) > 0) {
         for (i = 0; i < nel; i++) {
-            if (efit->pfcoils[i].r != NULL) free((void*) efit->pfcoils[i].r);
-            if (efit->pfcoils[i].z != NULL) free((void*) efit->pfcoils[i].z);
-            if (efit->pfcoils[i].dr != NULL) free((void*) efit->pfcoils[i].dr);
-            if (efit->pfcoils[i].dz != NULL) free((void*) efit->pfcoils[i].dz);
+            if (efit->pfcoils[i].r != NULL) free((void*)efit->pfcoils[i].r);
+            if (efit->pfcoils[i].z != NULL) free((void*)efit->pfcoils[i].z);
+            if (efit->pfcoils[i].dr != NULL) free((void*)efit->pfcoils[i].dr);
+            if (efit->pfcoils[i].dz != NULL) free((void*)efit->pfcoils[i].dz);
         }
     }
-    if (efit->pfcoils != NULL) free((void*) efit->pfcoils);
+    if (efit->pfcoils != NULL) free((void*)efit->pfcoils);
 
     if ((nel = efit->npfcircuits) > 0) {
         for (i = 0; i < nel; i++) {
-            if (efit->pfcircuit[i].coil != NULL) free((void*) efit->pfcircuit[i].coil);
+            if (efit->pfcircuit[i].coil != NULL) free((void*)efit->pfcircuit[i].coil);
         }
     }
 
-    if (efit->pfcircuit != NULL) free((void*) efit->pfcircuit);
-    if (efit->pfsupplies != NULL) free((void*) efit->pfsupplies);
-    if (efit->plasmacurrent != NULL) free((void*) efit->plasmacurrent);
-    if (efit->toroidalfield != NULL) free((void*) efit->toroidalfield);
+    if (efit->pfcircuit != NULL) free((void*)efit->pfcircuit);
+    if (efit->pfsupplies != NULL) free((void*)efit->pfsupplies);
+    if (efit->plasmacurrent != NULL) free((void*)efit->plasmacurrent);
+    if (efit->toroidalfield != NULL) free((void*)efit->toroidalfield);
 
     if (efit->limiter != NULL) {
         if (efit->nlimiter) {
-            if (efit->limiter->r != NULL) free((void*) efit->limiter->r);
-            if (efit->limiter->z != NULL) free((void*) efit->limiter->z);
+            if (efit->limiter->r != NULL) free((void*)efit->limiter->r);
+            if (efit->limiter->z != NULL) free((void*)efit->limiter->z);
         }
-        free((void*) efit->limiter);
+        free((void*)efit->limiter);
     }
 #ifdef JETMSEXML
     if(efit->mse > 0){
@@ -322,7 +322,8 @@ void printPfCoils(PFCOILS str)
     IDAM_LOGF(LOG_DEBUG, "model nr nr: %d  %d\n", str.modelnrnz[0], str.modelnrnz[1]);
     IDAM_LOGF(LOG_DEBUG, "nco        : %d\n", str.nco);
     for (i = 0; i < str.nco; i++)
-        IDAM_LOGF(LOG_DEBUG, "r, z, dr, dz # %d     : %f   %f   %f   %f\n", i, str.r[i], str.z[i], str.dr[i], str.dz[i]);
+        IDAM_LOGF(LOG_DEBUG, "r, z, dr, dz # %d     : %f   %f   %f   %f\n", i, str.r[i], str.z[i], str.dr[i],
+                  str.dz[i]);
     return;
 }
 
@@ -337,7 +338,7 @@ void printPfPassive(PFPASSIVE str)
     IDAM_LOGF(LOG_DEBUG, "model nr nr: %d  %d\n", str.modelnrnz[0], str.modelnrnz[1]);
     for (i = 0; i < str.nco; i++)
         IDAM_LOGF(LOG_DEBUG, "r,z,dr,dz,a1,a2,res   # %d     : %f  %f  %f  %f  %f  %f  %f\n", i, str.r[i], str.z[i],
-                str.dr[i], str.dz[i], str.ang1[i], str.ang2[i], str.res[i]);
+                  str.dr[i], str.dz[i], str.ang1[i], str.ang2[i], str.res[i]);
     return;
 }
 
