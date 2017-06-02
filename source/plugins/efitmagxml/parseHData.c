@@ -21,7 +21,7 @@
 // Simple Tags with Floating Point Values 
 // Assume No Attributes 
 
-void parseFloat(xmlDocPtr doc, xmlNodePtr cur, char* target, float* value)
+void parseFloat(xmlDocPtr doc, xmlNodePtr cur, const char* target, float* value)
 {
     xmlChar* key;
     *value = 0.0;
@@ -45,7 +45,7 @@ void parseFloat(xmlDocPtr doc, xmlNodePtr cur, char* target, float* value)
 // Simple Tags with Integer Values 
 // Assume No Attributes 
 
-void parseInt(xmlDocPtr doc, xmlNodePtr cur, char* target, int* value)
+void parseInt(xmlDocPtr doc, xmlNodePtr cur, const char* target, int* value)
 {
     *value = 0;
 
@@ -63,7 +63,7 @@ void parseInt(xmlDocPtr doc, xmlNodePtr cur, char* target, int* value)
     return;
 }
 
-int* parseIntArray(xmlDocPtr doc, xmlNodePtr cur, char* target, int* n)
+int* parseIntArray(xmlDocPtr doc, xmlNodePtr cur, const char* target, int* n)
 {
     int* value = NULL;
     *n = 0;
@@ -106,7 +106,7 @@ int* parseIntArray(xmlDocPtr doc, xmlNodePtr cur, char* target, int* n)
 // Simple Tags with Delimited List of Floating Point Values  
 // Assume No Attributes 
 
-float* parseFloatAngleArray(xmlDocPtr doc, xmlNodePtr cur, char* target, int* n)
+float* parseFloatAngleArray(xmlDocPtr doc, xmlNodePtr cur, const char* target, int* n)
 {
     xmlChar* key, * att;
     float* value = NULL;
@@ -167,7 +167,7 @@ float* parseFloatAngleArray(xmlDocPtr doc, xmlNodePtr cur, char* target, int* n)
 // Simple Tags with Floating Point Values 
 // Assume No Attributes 
 
-void parseFloatAngle(xmlDocPtr doc, xmlNodePtr cur, char* target, float* value)
+void parseFloatAngle(xmlDocPtr doc, xmlNodePtr cur, const char* target, float* value)
 {
     xmlChar* key, * att;
     *value = 0.0;
@@ -335,22 +335,22 @@ float* parseFloatArray(xmlDocPtr doc, xmlNodePtr cur, const char* target, int* n
 
     cur = cur->xmlChildrenNode;
     while (cur != NULL) {
-        if ((!xmlStrcmp(cur->name, (const xmlChar*) target))) {
+        if ((!xmlStrcmp(cur->name, (const xmlChar*)target))) {
             key = xmlNodeListGetString(doc, cur->xmlChildrenNode, 1);
-            convertNonPrintable((char*) key);
-            if (strlen((char*) key) > 0) {
-                int lkey = (int) strlen((char*) key);
+            convertNonPrintable((char*)key);
+            if (strlen((char*)key) > 0) {
+                int lkey = (int)strlen((char*)key);
                 IDAM_LOGF(LOG_DEBUG, "[%d] %s %s \n", lkey, target, key);
-                item = strtok((char*) key, delim);
+                item = strtok((char*)key, delim);
                 if (item != NULL) {
                     nco++;
                     IDAM_LOGF(LOG_DEBUG, "[%d] %s \n", nco, item);
-                    value = (float*) realloc((void*) value, nco * sizeof(float));
+                    value = (float*)realloc((void*)value, nco * sizeof(float));
                     value[nco - 1] = (float)atof(item);
                     IDAM_LOGF(LOG_DEBUG, "[%d] %s %f\n", nco, item, value[nco - 1]);
                     while ((item = strtok(NULL, delim)) != NULL && nco <= XMLMAXLOOP) {
                         nco++;
-                        value = (float*) realloc((void*) value, nco * sizeof(float));
+                        value = (float*)realloc((void*)value, nco * sizeof(float));
                         value[nco - 1] = (float)atof(item);
                         IDAM_LOGF(LOG_DEBUG, "[%d] %s %f\n", nco, item, value[nco - 1]);
                     }

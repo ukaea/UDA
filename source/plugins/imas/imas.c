@@ -2141,7 +2141,7 @@ static int do_source(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, int* time_cou
             sprintf(next_request_block.source, "%s/0", next_request_block.source);
         }
 
-        char* owner;
+        const char* owner;
         bool isOwner = FIND_STRING_VALUE(request_block->nameValueList, owner);
 
         if (isOwner) {

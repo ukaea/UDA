@@ -1031,12 +1031,7 @@ int readIdaItem(char* itemname, ida_file_ptr* ida_file, short* context, DATA_BLO
     char dunits[IDA_USIZE + 1], dlabel[IDA_LSIZE + 1];
     char zunits[IDA_USIZE + 1], zlabel[IDA_LSIZE + 1];
 
-//  int count,i,j,k, countt,nchar;
-
-    int i, j, rerr;
-
     long retshotnr, spaceused;
-    long nt, nx, ny, * xsams, * tsams, maxnx;
     long* dxtsam1, * xtsams, totsams;
 
     unsigned short ysams, nz, z0;
@@ -1052,20 +1047,20 @@ int readIdaItem(char* itemname, ida_file_ptr* ida_file, short* context, DATA_BLO
 
     char* data = NULL, * error = NULL;
 
-    short locn;            // Data Aquisition Device Location
-    short chan;            // Data Aquisition Device Channel Number
-    short typeno;            // Data Aquisition Device Type
-    char type[IDA_DSIZE];    // Data Aquisition Device Type
+    short locn;             // Data Aquisition Device Location
+    short chan;             // Data Aquisition Device Channel Number
+    short typeno;           // Data Aquisition Device Type
+    char type[IDA_DSIZE];   // Data Aquisition Device Type
 
-// IDA3 specific variables
+    // IDA3 specific variables
 
     ida_err err;
     ida_data_ptr* item;
 
-// Client Properties and Meta data XML
+    // Client Properties and Meta data XML
 
-    char* metaxml = NULL;                    // IDA File Data Attributes
-    char xml[STRING_LENGTH];                // Small Text Buffer
+    char* metaxml = NULL;       // IDA File Data Attributes
+    char xml[STRING_LENGTH];    // Small Text Buffer
     int lheap, nxml;
 
     int getbytes = data_block->client_block.get_bytes;    // Return RAW Data Only with XML attributes
@@ -1082,12 +1077,12 @@ int readIdaItem(char* itemname, ida_file_ptr* ida_file, short* context, DATA_BLO
 //-------------------------------------------------------------------------
 // Start of Error Trap Loop
 
+    int rerr = 0;
+
     do {
 
-        rerr = 0;
-
-//-------------------------------------------------------------------------
-// Get the IDA signal data pointer
+        //-------------------------------------------------------------------------
+        // Get the IDA signal data pointer
 
         item = ida_find(ida_file, itemname, 0, context);
 
@@ -1126,7 +1121,7 @@ int readIdaItem(char* itemname, ida_file_ptr* ida_file, short* context, DATA_BLO
             lheap = 10 * STRING_LENGTH + 1;
             metaxml = (char*)malloc(lheap * sizeof(char));
             sprintf(metaxml, "<ida_meta name=\"%s\" shot=\"%d\" ", retitemname, (int)retshotnr);
-            nxml = strlen(metaxml);
+            nxml = (int)strlen(metaxml);
 
             if (err == 0) {            // can Drop Endian type - uninitialised!
                 time[8] = '\0';
@@ -1226,13 +1221,22 @@ int readIdaItem(char* itemname, ida_file_ptr* ida_file, short* context, DATA_BLO
 
 // Time axis
 
-        tsams = (long*)calloc(udoms, sizeof(long));
-
+        int* tsams = (int*)calloc(udoms, sizeof(int));
         toff = (float*)calloc(udoms, sizeof(float));
         tint = (float*)calloc(udoms, sizeof(float));
         tmax = (float*)calloc(udoms, sizeof(float));
 
-        err = ida_get_tinfo(item, udoms, toff, tint, tmax, tsams, tunits, tlabel);
+        {
+            long* temp = (long*)calloc(udoms, sizeof(long));
+            err = ida_get_tinfo(item, udoms, toff, tint, tmax, temp, tunits, tlabel);
+
+            int i;
+            for (i = 0; i < udoms; ++i) {
+                tsams[i] = (int)temp[i];
+            }
+
+            free(temp);
+        }
 
         if (err != 0) {
             ida_error_mess(err, msg);
@@ -1245,7 +1249,10 @@ int readIdaItem(char* itemname, ida_file_ptr* ida_file, short* context, DATA_BLO
         if (tsams[0] > 0) {
             IDAM_LOG(LOG_DEBUG, "\n\tTime axis:\n");
             IDAM_LOG(LOG_DEBUG, "\t\tNo of samples:");
-            for (i = 0; i < udoms; i++) IDAM_LOGF(LOG_DEBUG, "\t%d", (int)tsams[i]);
+            int i;
+            for (i = 0; i < udoms; i++) {
+                IDAM_LOGF(LOG_DEBUG, "\t%d", (int)tsams[i]);
+            }
             IDAM_LOG(LOG_DEBUG, "\n");
             IDAM_LOGF(LOG_DEBUG, "\t\tUnits:\t%s\n", tunits);
             IDAM_LOGF(LOG_DEBUG, "\t\tLabel:\t%s\n", tlabel);
@@ -1268,27 +1275,33 @@ int readIdaItem(char* itemname, ida_file_ptr* ida_file, short* context, DATA_BLO
 //-------------------------------------------------------------------------
 // X axis
 
-        xsams = (long*)calloc(udoms, sizeof(long));
+        int* xsams = (int*)calloc(udoms, sizeof(int));
         xoff = (float*)calloc(udoms, sizeof(float));
         xint = (float*)calloc(udoms, sizeof(float));
         xmax = (float*)calloc(udoms, sizeof(float));
 
-        err = ida_get_xinfo(item, udoms, xoff, xint, xmax, xsams, xunits, xlabel);
-/*
-      if(CDAS_ERROR(err)){
-         ida_error_mess(err, msg);
-         addIdamError(&idamerrorstack, CODEERRORTYPE, "readIdaItem", 10, msg);
-         rerr = -10;
-	 break;
-      }
-*/
+        {
+            long* temp = (long*)calloc(udoms, sizeof(long));
+            err = ida_get_xinfo(item, udoms, xoff, xint, xmax, temp, xunits, xlabel);
+
+            int i;
+            for (i = 0; i < udoms; ++i) {
+                xsams[i] = (int)temp[i];
+            }
+
+            free(temp);
+        }
+
         xunits[IDA_USIZE] = '\0';
         xlabel[IDA_LSIZE] = '\0';
 
         if (xsams[0] > 0) {
             IDAM_LOG(LOG_DEBUG, "\n\tX axis:\n");
             IDAM_LOG(LOG_DEBUG, "\t\tNo of samples:");
-            for (i = 0; i < udoms; i++) IDAM_LOGF(LOG_DEBUG, "\t%d", (int)xsams[i]);
+            int i;
+            for (i = 0; i < udoms; i++) {
+                IDAM_LOGF(LOG_DEBUG, "\t%d", (int)xsams[i]);
+            }
             IDAM_LOG(LOG_DEBUG, "\n");
             IDAM_LOGF(LOG_DEBUG, "\t\tUnits:\t%s\n", xunits);
             IDAM_LOGF(LOG_DEBUG, "\t\tLabel:\t%s\n", xlabel);
@@ -1466,13 +1479,19 @@ int readIdaItem(char* itemname, ida_file_ptr* ida_file, short* context, DATA_BLO
 // is stored in X correlated with T or Y correlated with T.
 
         if ((dclass == IDA_DCTX) || (dclass == IDA_DCTXY) || (dclass == IDA_DCYTX)) {
-            for (i = 0; i < udoms; i++) tsams[i] = 1;
+            int i;
+            for (i = 0; i < udoms; i++) {
+                tsams[i] = 1;
+            }
         }
 
 // Each domain can have a different number of time samples
 
-        nt = 0;
-        for (i = 0; i < udoms; i++) nt += tsams[i];
+        int nt = 0;
+        int i;
+        for (i = 0; i < udoms; i++) {
+            nt += tsams[i];
+        }
 
 // Each domain can have a different number of X samples
 
@@ -1481,15 +1500,17 @@ int readIdaItem(char* itemname, ida_file_ptr* ida_file, short* context, DATA_BLO
 // since the missing data will be padded with zeros (this issue
 // is not yet resolved)
 
-        nx = xsams[0];
-        maxnx = xsams[0];
+        int nx = xsams[0];
+        int maxnx = xsams[0];
 
         for (i = 1; i < udoms; i++) {
             nx += xsams[i];
-            if (xsams[i - 1] < xsams[i]) maxnx = xsams[i];
+            if (xsams[i - 1] < xsams[i]) {
+                maxnx = xsams[i];
+            }
         }
 
-        ny = ysams;
+        int ny = ysams;
 
 //------------------------------------------------------------------------
 // OK now we start reading the data using low level routines
@@ -2725,19 +2746,26 @@ int readIdaItem(char* itemname, ida_file_ptr* ida_file, short* context, DATA_BLO
     if (data_block->client_block.get_dimdble || data_block->client_block.get_timedble) {
         float* foffs, * fints;
         double* doffs = NULL, * dints = NULL;
+        int i;
         for (i = 0; i < data_block->rank; i++) {
             if (data_block->client_block.get_dimdble ||
                 (data_block->client_block.get_timedble && i == data_block->order)) {
                 data_block->dims[i].data_type = TYPE_DOUBLE;
                 if ((foffs = (float*)data_block->dims[i].offs) != NULL) {
                     doffs = (double*)realloc((void*)doffs, data_block->dims[i].udoms * sizeof(double));
-                    for (j = 0; j < data_block->dims[i].udoms; j++) doffs[j] = (double)foffs[j];
+                    int j;
+                    for (j = 0; j < data_block->dims[i].udoms; j++) {
+                        doffs[j] = (double)foffs[j];
+                    }
                     free((void*)data_block->dims[i].offs);
                     data_block->dims[i].offs = (char*)doffs;
                 }
                 if ((fints = (float*)data_block->dims[i].ints) != NULL) {
                     dints = (double*)realloc((void*)dints, data_block->dims[i].udoms * sizeof(double));
-                    for (j = 0; j < data_block->dims[i].udoms; j++) dints[j] = (double)fints[j];
+                    int j;
+                    for (j = 0; j < data_block->dims[i].udoms; j++) {
+                        dints[j] = (double)fints[j];
+                    }
                     free((void*)data_block->dims[i].ints);
                     data_block->dims[i].ints = (char*)dints;
                 }
@@ -2775,7 +2803,7 @@ int readIdaItem(char* itemname, ida_file_ptr* ida_file, short* context, DATA_BLO
 
     err = ida_free(item);
 
-    return (rerr);
+    return rerr;
 }
 
 void idaclasses(int class, char* label, char* axes, int* datarank, int* timeorder)
