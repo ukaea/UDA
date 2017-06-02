@@ -5,3 +5,17 @@ bin
 include
 lib
 modulefiles
+/.cproject
+/.project
+/Debug.dbg
+/asymmetry
+/data_label
+/data_number
+/data_type
+/data_units
+/errhi
+/errlo
+/error
+/error_type
+/method
+/run_test.sh

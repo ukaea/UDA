@@ -2,7 +2,7 @@
 
 
 #include <mdsobjects.h>
-
+#include <string.h>
 using namespace MDSplus;
 
 extern "C" char * spawnCommand(char *command, char *ipAddress);
