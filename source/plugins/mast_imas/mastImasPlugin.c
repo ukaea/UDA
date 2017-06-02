@@ -390,7 +390,7 @@ static int get_signal(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, const char* 
 
 int do_read_magnetics(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
-    char* element;
+    const char* element;
     FIND_REQUIRED_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, element);
 
     int shot = -1;
@@ -477,7 +477,7 @@ int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     DATA_BLOCK* data_block = idam_plugin_interface->data_block;
     initDataBlock(data_block);
 
-    char* element;
+    const char* element;
     FIND_REQUIRED_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, element);
 
     if (STR_STARTSWITH(element, "magnetics")) {

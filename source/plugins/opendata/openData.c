@@ -40,8 +40,8 @@ extern int openData(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     static char root[MAXROOT];
 
-//----------------------------------------------------------------------------------------
-// Standard v1 Plugin Interface
+    //----------------------------------------------------------------------------------------
+    // Standard v1 Plugin Interface
 
     DATA_BLOCK* data_block;
     REQUEST_BLOCK* request_block;
@@ -57,63 +57,57 @@ extern int openData(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
         housekeeping = idam_plugin_interface->housekeeping;
     } else {
-        err = 999;
-        IDAM_LOG(LOG_ERROR, "ERROR openData: Plugin Interface Version Unknown\n");
-
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "openData", err,
-                     "Plugin Interface Version is Not Known: Unable to execute the request!");
-        return err;
+        RAISE_PLUGIN_ERROR("Plugin Interface Version is Not Known");
     }
 
-//----------------------------------------------------------------------------------------
-// Heap Housekeeping 
+    //----------------------------------------------------------------------------------------
+    // Heap Housekeeping
 
-// Plugin must maintain a list of open file handles and sockets: loop over and close all files and sockets
-// Plugin must maintain a list of plugin functions called: loop over and reset state and free heap.
-// Plugin must maintain a list of calls to other plugins: loop over and call each plugin with the housekeeping request
-// Plugin must destroy lists at end of housekeeping
+    // Plugin must maintain a list of open file handles and sockets: loop over and close all files and sockets
+    // Plugin must maintain a list of plugin functions called: loop over and reset state and free heap.
+    // Plugin must maintain a list of calls to other plugins: loop over and call each plugin with the housekeeping request
+    // Plugin must destroy lists at end of housekeeping
 
-// A plugin only has a single instance on a server. For multiple instances, multiple servers are needed.
-// Plugins can maintain state so recursive calls (on the same server) must respect this.
-// If the housekeeping action is requested, this must be also applied to all plugins called.
-// A list must be maintained to register these plugin calls to manage housekeeping.
-// Calls to plugins must also respect access policy and user authentication policy
+    // A plugin only has a single instance on a server. For multiple instances, multiple servers are needed.
+    // Plugins can maintain state so recursive calls (on the same server) must respect this.
+    // If the housekeeping action is requested, this must be also applied to all plugins called.
+    // A list must be maintained to register these plugin calls to manage housekeeping.
+    // Calls to plugins must also respect access policy and user authentication policy
 
     if (housekeeping || STR_IEQUALS(request_block->function, "reset")) {
 
         if (!init) return 0;        // Not previously initialised: Nothing to do!
 
-// Free Heap & reset counters
-
+        // Free Heap & reset counters
         init = 0;
 
         return 0;
     }
 
-//----------------------------------------------------------------------------------------
-// Initialise 
+    //----------------------------------------------------------------------------------------
+    // Initialise
 
-    if (!init || STR_IEQUALS(request_block->function, "init")
-        || STR_IEQUALS(request_block->function, "initialise")) {
+    if (!STR_IEQUALS(request_block->function, "help") &&
+            (!init || STR_IEQUALS(request_block->function, "init")
+             || STR_IEQUALS(request_block->function, "initialise"))) {
 
         char* env = getenv("UDA_PROVENANCEROOT");
         if (env != NULL) {
             strncpy(root, env, MAXROOT - 1);
             root[MAXROOT - 1] = '\0';
         } else {
-            err = 999;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "openData", err, "No Provenance Data Archive Root specified!");
-            return err;
+            RAISE_PLUGIN_ERROR("No Provenance Data Archive Root specified!");
         }
 
         init = 1;
-        if (STR_IEQUALS(request_block->function, "init") || STR_IEQUALS(request_block->function, "initialise"))
+        if (STR_IEQUALS(request_block->function, "init") || STR_IEQUALS(request_block->function, "initialise")) {
             return 0;
+        }
     }
 
-//---------------------------------------------------------------------------------------- 
-// name-value Input data:
-//
+    //----------------------------------------------------------------------------------------
+    // name-value Input data:
+    //
     char* UID = NULL;        // Must be passed
     char* fileLocation = NULL;
     char* inputDataFile = NULL;
@@ -218,33 +212,33 @@ extern int openData(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         }
     }
 
-//----------------------------------------------------------------------------------------
-// Plugin Functions 
-//----------------------------------------------------------------------------------------
+    //----------------------------------------------------------------------------------------
+    // Plugin Functions
+    //----------------------------------------------------------------------------------------
 
     do {
 
-// Help: A Description of library functionality
+        // Help: A Description of library functionality
 
         if (STR_IEQUALS(request_block->function, "help")) {
 
-            char* p = (char*) malloc(sizeof(char) * 2 * 1024);
-
-            strcpy(p, "\nopenData: Add Functions Names, Syntax, and Descriptions\n\n");
+            char* help = "\nopenData: Add Functions Names, Syntax, and Descriptions\n\n";
 
             initDataBlock(data_block);
 
             data_block->rank = 1;
             data_block->dims = (DIMS*) malloc(data_block->rank * sizeof(DIMS));
-            for (i = 0; i < data_block->rank; i++) initDimBlock(&data_block->dims[i]);
+            for (i = 0; i < data_block->rank; i++) {
+                initDimBlock(&data_block->dims[i]);
+            }
 
             data_block->data_type = TYPE_STRING;
             strcpy(data_block->data_desc, "openData: help = description of this plugin");
 
-            data_block->data = (char*) p;
+            data_block->data = strdup(help);
 
             data_block->dims[0].data_type = TYPE_UNSIGNED_INT;
-            data_block->dims[0].dim_n = strlen(p) + 1;
+            data_block->dims[0].dim_n = strlen(help) + 1;
             data_block->dims[0].compressed = 1;
             data_block->dims[0].dim0 = 0.0;
             data_block->dims[0].diff = 1.0;

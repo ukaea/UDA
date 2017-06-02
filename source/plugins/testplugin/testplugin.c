@@ -3111,8 +3111,8 @@ static int do_plugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Test specifics
 
-    char* signal = NULL;
-    char* source = NULL;
+    const char* signal = NULL;
+    const char* source = NULL;
 
     FIND_REQUIRED_STRING_VALUE(request_block->nameValueList, signal);
     FIND_REQUIRED_STRING_VALUE(request_block->nameValueList, source);

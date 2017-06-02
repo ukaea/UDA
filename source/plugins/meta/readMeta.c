@@ -599,70 +599,17 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             break;
 
-        } else
-
-//----------------------------------------------------------------------------------------
-// Standard methods: version, builddate, defaultmethod, maxinterfaceversion
-
-        if (STR_IEQUALS(request_block->function, "version")) {
-            initDataBlock(data_block);
-            data_block->data_type = TYPE_INT;
-            data_block->rank = 0;
-            data_block->data_n = 1;
-            int* data = (int*) malloc(sizeof(int));
-            data[0] = THISPLUGIN_VERSION;
-            data_block->data = (char*) data;
-            strcpy(data_block->data_desc, "Plugin version number");
-            strcpy(data_block->data_label, "version");
-            strcpy(data_block->data_units, "");
+        } else if (STR_IEQUALS(request_block->function, "version")) {
+            err = setReturnDataIntScalar(idam_plugin_interface->data_block, THISPLUGIN_VERSION, "Plugin version number");
             break;
-        } else
-
-// Plugin Build Date
-
-        if (STR_IEQUALS(request_block->function, "builddate")) {
-            initDataBlock(data_block);
-            data_block->data_type = TYPE_STRING;
-            data_block->rank = 0;
-            data_block->data_n = strlen(__DATE__) + 1;
-            char* data = (char*) malloc(data_block->data_n * sizeof(char));
-            strcpy(data, __DATE__);
-            data_block->data = (char*) data;
-            strcpy(data_block->data_desc, "Plugin build date");
-            strcpy(data_block->data_label, "date");
-            strcpy(data_block->data_units, "");
+        } else if (STR_IEQUALS(request_block->function, "builddate")) {
+            err = setReturnDataString(idam_plugin_interface->data_block, __DATE__, "Plugin build date");
             break;
-        } else
-
-// Plugin Default Method
-
-        if (STR_IEQUALS(request_block->function, "defaultmethod")) {
-            initDataBlock(data_block);
-            data_block->data_type = TYPE_STRING;
-            data_block->rank = 0;
-            data_block->data_n = strlen(THISPLUGIN_DEFAULT_METHOD) + 1;
-            char* data = (char*) malloc(data_block->data_n * sizeof(char));
-            strcpy(data, THISPLUGIN_DEFAULT_METHOD);
-            data_block->data = (char*) data;
-            strcpy(data_block->data_desc, "Plugin default method");
-            strcpy(data_block->data_label, "method");
-            strcpy(data_block->data_units, "");
+        } else if (STR_IEQUALS(request_block->function, "defaultmethod")) {
+            err = setReturnDataString(idam_plugin_interface->data_block, THISPLUGIN_DEFAULT_METHOD, "Plugin default method");
             break;
-        } else
-
-// Plugin Maximum Interface Version
-
-        if (STR_IEQUALS(request_block->function, "maxinterfaceversion")) {
-            initDataBlock(data_block);
-            data_block->data_type = TYPE_INT;
-            data_block->rank = 0;
-            data_block->data_n = 1;
-            int* data = (int*) malloc(sizeof(int));
-            data[0] = THISPLUGIN_MAX_INTERFACE_VERSION;
-            data_block->data = (char*) data;
-            strcpy(data_block->data_desc, "Maximum Interface Version");
-            strcpy(data_block->data_label, "version");
-            strcpy(data_block->data_units, "");
+        } else if (STR_IEQUALS(request_block->function, "maxinterfaceversion")) {
+            err = setReturnDataIntScalar(idam_plugin_interface->data_block, THISPLUGIN_MAX_INTERFACE_VERSION, "Maximum Interface Version");
             break;
         } else
 

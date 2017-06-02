@@ -12,7 +12,7 @@ int do_device(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     // Extract Keywords
 
     int fileid = 0;
-    char* device = NULL;
+    const char* device = NULL;
 
     FIND_REQUIRED_INT_VALUE(idam_plugin_interface->request_block->nameValueList, fileid);
     FIND_REQUIRED_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, device);
@@ -47,9 +47,9 @@ int do_device(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     //--------------------------------------------------------------------------
     // Attributes
 
-    char* type = NULL;
-    char* id = NULL;
-    char* serial = NULL;
+    const char* type = NULL;
+    const char* id = NULL;
+    const char* serial = NULL;
 
     FIND_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, type);
     FIND_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, id);

@@ -35,12 +35,17 @@ int initPlugin(const IDAM_PLUGIN_INTERFACE* plugin_interface)
     return 0;
 }
 
-int setReturnDataDblScalar(IDAM_PLUGIN_INTERFACE* plugin_interface, double value)
+int setReturnDataDblScalar(DATA_BLOCK* data_block, double value, const char* description)
 {
+    initDataBlock(data_block);
+
     double* data = (double*)malloc(sizeof(double));
     data[0] = value;
 
-    DATA_BLOCK* data_block = plugin_interface->data_block;
+    if (description != NULL) {
+        strncpy(data_block->data_desc, description, STRING_LENGTH);
+        data_block->data_desc[STRING_LENGTH-1] = '\0';
+    }
 
     initDataBlock(data_block);
     data_block->rank = 0;
@@ -51,12 +56,17 @@ int setReturnDataDblScalar(IDAM_PLUGIN_INTERFACE* plugin_interface, double value
     return 0;
 }
 
-int setReturnDataIntScalar(IDAM_PLUGIN_INTERFACE* plugin_interface, int value)
+int setReturnDataIntScalar(DATA_BLOCK* data_block, int value, const char* description)
 {
+    initDataBlock(data_block);
+
     int* data = (int*)malloc(sizeof(int));
     data[0] = value;
 
-    DATA_BLOCK* data_block = plugin_interface->data_block;
+    if (description != NULL) {
+        strncpy(data_block->data_desc, description, STRING_LENGTH);
+        data_block->data_desc[STRING_LENGTH-1] = '\0';
+    }
 
     initDataBlock(data_block);
     data_block->rank = 0;
@@ -67,9 +77,9 @@ int setReturnDataIntScalar(IDAM_PLUGIN_INTERFACE* plugin_interface, int value)
     return 0;
 }
 
-int setReturnDataString(IDAM_PLUGIN_INTERFACE* plugin_interface, const char* value)
+int setReturnDataString(DATA_BLOCK* data_block, const char* value, const char* description)
 {
-    DATA_BLOCK* data_block = plugin_interface->data_block;
+    initDataBlock(data_block);
 
     data_block->data_type = TYPE_STRING;
     data_block->data = strdup(value);
@@ -80,6 +90,11 @@ int setReturnDataString(IDAM_PLUGIN_INTERFACE* plugin_interface, const char* val
     int i;
     for (i = 0; i < data_block->rank; i++) {
         initDimBlock(&data_block->dims[i]);
+    }
+
+    if (description != NULL) {
+        strncpy(data_block->data_desc, description, STRING_LENGTH);
+        data_block->data_desc[STRING_LENGTH-1] = '\0';
     }
 
     data_block->dims[0].data_type = TYPE_UNSIGNED_INT;
@@ -1554,7 +1569,7 @@ int idamServerMetaDataPlugin(const PLUGINLIST* plugin_list, int plugin_id, REQUE
  * @param name
  * @return
  */
-bool findStringValue(NAMEVALUELIST* namevaluelist, char** value, const char* name)
+bool findStringValue(const NAMEVALUELIST* namevaluelist, const char** value, const char* name)
 {
     char** names = SplitString(name, "|");
     *value = NULL;
@@ -1586,9 +1601,9 @@ bool findStringValue(NAMEVALUELIST* namevaluelist, char** value, const char* nam
  * @param name
  * @return
  */
-bool findIntValue(NAMEVALUELIST* namevaluelist, int* value, const char* name)
+bool findIntValue(const NAMEVALUELIST* namevaluelist, int* value, const char* name)
 {
-    char* str;
+    const char* str;
     bool found = findStringValue(namevaluelist, &str, name);
     if (found) {
         *value = atoi(str);
@@ -1606,9 +1621,9 @@ bool findIntValue(NAMEVALUELIST* namevaluelist, int* value, const char* name)
  * @param name
  * @return
  */
-bool findShortValue(NAMEVALUELIST* namevaluelist, short* value, const char* name)
+bool findShortValue(const NAMEVALUELIST* namevaluelist, short* value, const char* name)
 {
-    char* str;
+    const char* str;
     bool found = findStringValue(namevaluelist, &str, name);
     if (found) {
         *value = (short)atoi(str);
@@ -1626,12 +1641,12 @@ bool findShortValue(NAMEVALUELIST* namevaluelist, short* value, const char* name
  * @param name
  * @return
  */
-bool findCharValue(NAMEVALUELIST* namevaluelist, char* value, const char* name)
+bool findCharValue(const NAMEVALUELIST* namevaluelist, char* value, const char* name)
 {
-    char* str;
+    const char* str;
     bool found = findStringValue(namevaluelist, &str, name);
     if (found) {
-        *value = (short)atoi(str);
+        *value = (char)atoi(str);
     }
     return found;
 }
@@ -1646,9 +1661,9 @@ bool findCharValue(NAMEVALUELIST* namevaluelist, char* value, const char* name)
  * @param name
  * @return
  */
-bool findFloatValue(NAMEVALUELIST* namevaluelist, float* value, const char* name)
+bool findFloatValue(const NAMEVALUELIST* namevaluelist, float* value, const char* name)
 {
-    char* str;
+    const char* str;
     bool found = findStringValue(namevaluelist, &str, name);
     if (found) {
         *value = (float)atof(str);
@@ -1656,9 +1671,9 @@ bool findFloatValue(NAMEVALUELIST* namevaluelist, float* value, const char* name
     return found;
 }
 
-bool findIntArray(NAMEVALUELIST* namevaluelist, int** values, size_t* nvalues, const char* name)
+bool findIntArray(const NAMEVALUELIST* namevaluelist, int** values, size_t* nvalues, const char* name)
 {
-    char* str;
+    const char* str;
     bool found = findStringValue(namevaluelist, &str, name);
     if (found) {
         char** tokens = SplitString(str, ";");
@@ -1672,10 +1687,10 @@ bool findIntArray(NAMEVALUELIST* namevaluelist, int** values, size_t* nvalues, c
     return found;
 }
 
-bool findFloatArray(NAMEVALUELIST* namevaluelist, float** values, size_t* nvalues, const char* name)
+bool findFloatArray(const NAMEVALUELIST* namevaluelist, float** values, size_t* nvalues, const char* name)
 {
-    char* str;
-    unsigned short found = findStringValue(namevaluelist, &str, name);
+    const char* str;
+    bool found = findStringValue(namevaluelist, &str, name);
     if (found) {
         char** tokens = SplitString(str, ";");
         size_t n;
@@ -1688,11 +1703,11 @@ bool findFloatArray(NAMEVALUELIST* namevaluelist, float** values, size_t* nvalue
     return found;
 }
 
-bool findValue(NAMEVALUELIST* namevaluelist, const char* name)
+bool findValue(const NAMEVALUELIST* namevaluelist, const char* name)
 {
     char** names = SplitString(name, "|");
 
-    unsigned short found = 0;
+    bool found = false;
     int i;
     for (i = 0; i < namevaluelist->pairCount; i++) {
         size_t n = 0;

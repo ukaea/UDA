@@ -146,7 +146,7 @@ typedef struct Dims {
 
     int method;                     // Compression Method
     unsigned int udoms;             // Number of Domains
-    long* sams;                     // Array of Domain Lengths         == sams[udoms]
+    int* sams;                      // Array of Domain Lengths         == sams[udoms]
     char* offs;                     // Array of Domain Starting Values == offs[udoms]
     char* ints;                     // Array of Domain Interval Values == ints[udoms]
 

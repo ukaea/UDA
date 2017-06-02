@@ -27,7 +27,9 @@ configure_file(
   @ONLY
 )
 
-set( TESTS test_putcpp )
+set( TESTS
+#  test_putcpp
+  )
 
 include( modules )
 

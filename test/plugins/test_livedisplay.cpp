@@ -26,7 +26,7 @@ TEST_CASE( "Test LIVEDISPLAY::help() function", "[LIVEDISPLAY][plugins]" ) {
 
     REQUIRE( str != NULL );
 
-    std::string expected = "\nnewHDF5: get - Read data from a HDF5 file\n\n";
+    std::string expected = "\nLIVEDISPLAY: description and examples\n";
 
     REQUIRE( str->str() == expected );
 }

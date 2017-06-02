@@ -26,7 +26,7 @@ TEST_CASE( "Test EQUIMAP::help() function", "[EQUIMAP][plugins]" ) {
 
     REQUIRE( str != NULL );
 
-    std::string expected = "\nnewHDF5: get - Read data from a HDF5 file\n\n";
+    std::string expected = "psiRZBox Enabled!";
 
     REQUIRE( str->str() == expected );
 }

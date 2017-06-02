@@ -12,7 +12,7 @@ int do_group(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     //---------------------------------------------------------------------------
     // Group Name
 
-    char* name = "/";
+    const char* name = "/";
     FIND_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, name);
 
     int fileid = -1;

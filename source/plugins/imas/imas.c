@@ -390,10 +390,10 @@ static int do_putIdsVersion(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     int err = 0;
     DATA_BLOCK* data_block = idam_plugin_interface->data_block;
 
-    char* imasIdsDevice;
+    const char* imasIdsDevice;
     FIND_REQUIRED_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, imasIdsDevice);
 
-    char* imasIdsVersion;
+    const char* imasIdsVersion;
     FIND_REQUIRED_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, imasIdsVersion);
 
     putImasIdsVersion(imasIdsVersion);
@@ -428,7 +428,7 @@ static int do_delete(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, int* idx)
     int clientIdx;
     bool isClientIdx = FIND_INT_VALUE(idam_plugin_interface->request_block->nameValueList, clientIdx);
 
-    char* filename;
+    const char* filename;
     bool isFileName = FIND_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, filename);
 
     int shotNumber;
@@ -486,10 +486,10 @@ static int do_delete(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, int* idx)
         }
     }
 
-    char* path;
+    const char* path;
     FIND_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, path);
 
-    char* CPOPath;
+    const char* CPOPath;
     FIND_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, CPOPath);
 
     rc = imas_hdf5_DeleteData(clientIdx, CPOPath, path);
@@ -528,7 +528,7 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
     int clientIdx;
     bool isClientIdx = FIND_INT_VALUE(idam_plugin_interface->request_block->nameValueList, clientIdx);
 
-    char* filename;
+    const char* filename;
     bool isFileName = FIND_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, filename);
 
     int shotNumber;
@@ -598,7 +598,7 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
     bool isGetDimension = findValue(&idam_plugin_interface->request_block->nameValueList, "getDimension");
     bool isGetDataSlice = findValue(&idam_plugin_interface->request_block->nameValueList, "getDataSlice");
 
-    char* typeName;
+    const char* typeName;
     bool isTypeName = FIND_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, typeName);
 
     int type = TYPE_UNKNOWN;
@@ -645,8 +645,8 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
     double retTime = 0.0;
     initDataBlock(data_block);
 
-    char* CPOPath;
-    char* path;
+    const char* CPOPath;
+    const char* path;
     FIND_REQUIRED_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, CPOPath);
     FIND_REQUIRED_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, path);
 
@@ -658,7 +658,7 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
         if (rc != 0) {
             // data not in IDS - go to other plugins to try and get it
 
-            char* expName = NULL;
+            const char* expName = NULL;
             FIND_REQUIRED_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, expName);
 
             int shot;
@@ -1022,7 +1022,7 @@ time	- the time slice to be written - from a PUTDATA block (putSlice keyword)
     int clientIdx;
     bool isClientIdx = FIND_INT_VALUE(idam_plugin_interface->request_block->nameValueList, clientIdx);
 
-    char* filename;
+    const char* filename;
     bool isFileName = FIND_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, filename);
 
     int shotNumber;
@@ -1103,7 +1103,7 @@ time	- the time slice to be written - from a PUTDATA block (putSlice keyword)
     if (isPutData) {
         PUTDATA_BLOCK_LIST* putDataBlockList = &idam_plugin_interface->request_block->putDataBlockList;
 
-        char* path;
+        const char* path;
         bool isPath = FIND_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, path);
 
         int i;
@@ -1158,7 +1158,7 @@ time	- the time slice to be written - from a PUTDATA block (putSlice keyword)
 
     } else {
         // Convert type string into IMAS type identifiers
-        char* typeName;
+        const char* typeName;
         FIND_REQUIRED_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, typeName);
 
         if ((type = findIMASType(typeName)) == UNKNOWN_TYPE) {
@@ -1171,7 +1171,7 @@ time	- the time slice to be written - from a PUTDATA block (putSlice keyword)
 
 // Any Data?
 
-    char* dataString;
+    const char* dataString;
     bool isDataString = FIND_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, dataString);
 
     if (!isDataString && !isVarData) {
@@ -1199,7 +1199,7 @@ time	- the time slice to be written - from a PUTDATA block (putSlice keyword)
     int rank;
     bool isRank = FIND_INT_VALUE(idam_plugin_interface->request_block->nameValueList, rank);
 
-    char* shapeString;
+    const char* shapeString;
     bool isShapeString = FIND_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, shapeString);
 
     if (!isPutData) {
@@ -1243,7 +1243,7 @@ time	- the time slice to be written - from a PUTDATA block (putSlice keyword)
         }    // isShapeString (from name-value pair)
 
         if (isDataString) {
-            char* typeName;
+            const char* typeName;
             FIND_REQUIRED_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, typeName);
 
             if ((idamType = findIdamType(typeName)) == TYPE_UNDEFINED) {
@@ -1271,10 +1271,10 @@ time	- the time slice to be written - from a PUTDATA block (putSlice keyword)
             THROW_ERROR(999, "Insufficient data parameters passed - put not possible!");
         }
 
-        char* path;
+        const char* path;
         FIND_REQUIRED_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, path);
 
-        char* CPOPath;
+        const char* CPOPath;
         FIND_REQUIRED_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, CPOPath);
 
 // The type passed here is the IMAS type enumeration (imas_putData is the original imas putData function)
@@ -1299,10 +1299,10 @@ time	- the time slice to be written - from a PUTDATA block (putSlice keyword)
         free(putdata);
 
     } else {        // !isPutData
-        char* path;
+        const char* path;
         FIND_REQUIRED_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, path);
 
-        char* CPOPath;
+        const char* CPOPath;
         FIND_REQUIRED_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, CPOPath);
 
         PUTDATA_BLOCK_LIST* putDataBlockList = &idam_plugin_interface->request_block->putDataBlockList;
@@ -1396,7 +1396,7 @@ retIdx	- returned data file index number
 
     // Passed name-value pairs
 
-    char* filename;
+    const char* filename;
     FIND_REQUIRED_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, filename);
 
     int shotNumber;
@@ -1442,7 +1442,7 @@ refRun  - not used
 retIdx	- returned data file index number
 */
 
-    char* filename;
+    const char* filename;
     FIND_REQUIRED_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, filename);
 
     int shotNumber;
@@ -1457,8 +1457,8 @@ retIdx	- returned data file index number
     int refRunNumber = runNumber;
     FIND_INT_VALUE(idam_plugin_interface->request_block->nameValueList, refRunNumber);
 
-    int clientIdx;
-    FIND_REQUIRED_INT_VALUE(idam_plugin_interface->request_block->nameValueList, clientIdx);
+    int clientIdx = 0;
+//    FIND_REQUIRED_INT_VALUE(idam_plugin_interface->request_block->nameValueList, clientIdx);
 
     bool isCreateFromModel = findValue(&idam_plugin_interface->request_block->nameValueList, "createFromModel");
 
@@ -1498,7 +1498,7 @@ static int do_close(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     int err = 0;
     DATA_BLOCK* data_block = idam_plugin_interface->data_block;
 
-    char* filename;
+    const char* filename;
     FIND_REQUIRED_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, filename);
 
     int shotNumber;
@@ -1536,7 +1536,7 @@ static int do_createModel(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     int version = 0;
 
-    char* filename;
+    const char* filename;
     FIND_REQUIRED_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, filename);
 
     if (imas_hdf5_IdsModelCreate(filename, version) < 0) {
@@ -1603,7 +1603,7 @@ static int do_getObjectObject(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     int index;
     FIND_REQUIRED_INT_VALUE(idam_plugin_interface->request_block->nameValueList, index);
 
-    char* path;
+    const char* path;
     FIND_REQUIRED_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, path);
 
     bool isPutData = (bool)(idam_plugin_interface->request_block->putDataBlockList.blockCount > 0);
@@ -1657,10 +1657,10 @@ static int do_getObjectSlice(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     int clientIdx;
     FIND_REQUIRED_INT_VALUE(idam_plugin_interface->request_block->nameValueList, clientIdx);
 
-    char* CPOPath;
+    const char* CPOPath;
     FIND_REQUIRED_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, CPOPath);
 
-    char* hdf5Path;
+    const char* hdf5Path;
     FIND_REQUIRED_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, hdf5Path);
 
     unsigned int blockCount = idam_plugin_interface->request_block->putDataBlockList.blockCount;
@@ -1715,10 +1715,10 @@ static int do_getObjectGroup(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     int clientIdx;
     FIND_REQUIRED_INT_VALUE(idam_plugin_interface->request_block->nameValueList, clientIdx);
 
-    char* path;
+    const char* path;
     FIND_REQUIRED_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, path);
 
-    char* CPOPath;
+    const char* CPOPath;
     FIND_REQUIRED_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, CPOPath);
 
     short isTimed;
@@ -1807,7 +1807,7 @@ static int do_beginObject(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     int index;
     FIND_REQUIRED_INT_VALUE(idam_plugin_interface->request_block->nameValueList, index);
 
-    char* relPath;
+    const char* relPath;
     FIND_REQUIRED_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, relPath);
 
     int isTimed;
@@ -1876,10 +1876,10 @@ static int do_getObject(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     int index;
     FIND_REQUIRED_INT_VALUE(idam_plugin_interface->request_block->nameValueList, index);
 
-    char* path;
+    const char* path;
     FIND_REQUIRED_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, path);
 
-    char* typeName;
+    const char* typeName;
     FIND_REQUIRED_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, typeName);
 
     int rank;
@@ -1953,7 +1953,7 @@ static int do_putObject(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     int index;
     FIND_REQUIRED_INT_VALUE(idam_plugin_interface->request_block->nameValueList, index);
 
-    char* path;
+    const char* path;
     FIND_REQUIRED_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, path);
 
     unsigned int blockCount = idam_plugin_interface->request_block->putDataBlockList.blockCount;
@@ -2079,7 +2079,7 @@ static int do_source(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, int* time_cou
     float timeScaling = 0.0;
     bool isTimeScaling = FIND_FLOAT_VALUE(request_block->nameValueList, dataScaling);
 
-    char* signal;
+    const char* signal;
     FIND_REQUIRED_STRING_VALUE(request_block->nameValueList, signal);
 
     // Prepare common code
@@ -2113,7 +2113,7 @@ static int do_source(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, int* time_cou
 
 // JET PPF sources: PPF::/$ppfname/$pulseNumber/$sequence/$owner
 
-    char* format;
+    const char* format;
     bool isFormat = FIND_STRING_VALUE(request_block->nameValueList, format);
 
     if (isFormat && !strcasecmp(format, "ppf")) {            // JET PPF source naming pattern
@@ -2185,10 +2185,10 @@ static int do_source(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, int* time_cou
     } else if (isFormat && (!strcasecmp(format, "mds") || !strcasecmp(format, "mdsplus") ||
                             !strcasecmp(format, "mds+"))) {    // MDS+ source naming pattern
 
-        char* server;
+        const char* server;
         FIND_REQUIRED_STRING_VALUE(request_block->nameValueList, server);
 
-        char* source;
+        const char* source;
         bool isSource = FIND_STRING_VALUE(request_block->nameValueList, source);
 
         char* env = getenv("UDA_MDSPLUS_ALIAS");

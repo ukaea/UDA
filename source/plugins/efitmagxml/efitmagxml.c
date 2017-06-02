@@ -146,13 +146,14 @@ int efitmagxml(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     //----------------------------------------------------------------------------------------
     // Initialise
 
-    if (!init || !strcasecmp(request_block->function, "init") || !strcasecmp(request_block->function, "initialise")) {
+    if (!STR_IEQUALS(request_block->function, "help")  &&
+            (!init || STR_IEQUALS(request_block->function, "init") || STR_IEQUALS(request_block->function, "initialise"))) {
 
         // EFIT Data Structures
 
         initEfit(&efit);
 
-        char* xmlFile;
+        const char* xmlFile = NULL;
         FIND_REQUIRED_STRING_VALUE(request_block->nameValueList, xmlFile);
 
         const char* dir = getenv("UDA_EFITMAGXML_XMLDIR");
@@ -204,45 +205,29 @@ int efitmagxml(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 static int do_help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
     char* help = "\nefitmagxml: Add Functions Names, Syntax, and Descriptions\n\n";
+    const char* desc = "efitmagxml: help = description of this plugin";
 
-    DATA_BLOCK* data_block = idam_plugin_interface->data_block;
-    initDataBlock(data_block);
-
-    strcpy(data_block->data_desc, "efitmagxml: help = description of this plugin");
-
-    return setReturnDataString(idam_plugin_interface, help);
+    return setReturnDataString(idam_plugin_interface->data_block, help, desc);
 }
 
 static int do_version(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
-    DATA_BLOCK* data_block = idam_plugin_interface->data_block;
-    initDataBlock(data_block);
-
-    return setReturnDataIntScalar(idam_plugin_interface, THISPLUGIN_VERSION);
+    return setReturnDataIntScalar(idam_plugin_interface->data_block, THISPLUGIN_VERSION, NULL);
 }
 
 static int do_builddate(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
-    DATA_BLOCK* data_block = idam_plugin_interface->data_block;
-    initDataBlock(data_block);
-
-    return setReturnDataString(idam_plugin_interface, __DATE__);
+    return setReturnDataString(idam_plugin_interface->data_block, __DATE__, NULL);
 }
 
 static int do_defaultmethod(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
-    DATA_BLOCK* data_block = idam_plugin_interface->data_block;
-    initDataBlock(data_block);
-
-    return setReturnDataString(idam_plugin_interface, THISPLUGIN_DEFAULT_METHOD);
+    return setReturnDataString(idam_plugin_interface->data_block, THISPLUGIN_DEFAULT_METHOD, NULL);
 }
 
 static int do_maxinterfaceversion(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
-    DATA_BLOCK* data_block = idam_plugin_interface->data_block;
-    initDataBlock(data_block);
-
-    return setReturnDataIntScalar(idam_plugin_interface, THISPLUGIN_MAX_INTERFACE_VERSION);
+    return setReturnDataIntScalar(idam_plugin_interface->data_block, THISPLUGIN_MAX_INTERFACE_VERSION, NULL);
 }
 
 /**
@@ -358,8 +343,7 @@ static int do_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, EFIT* efit)
                 count = getnpfcoils(efit);
             }
         }
-        strcpy(data_block->data_desc, "efitmagxml: object count returned");
-        return setReturnDataIntScalar(idam_plugin_interface, count);
+        return setReturnDataIntScalar(idam_plugin_interface->data_block, count, "efitmagxml: object count returned");
     } else if (isSignal) {
         char* signal = NULL;
         if (isFluxLoop) {
@@ -369,8 +353,7 @@ static int do_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, EFIT* efit)
         } else if (isPFActive) {
             signal = (efit->pfcoils[objectId].instance).signal;
         }
-        strcpy(data_block->data_desc, "efitmagxml: object name returned");
-        return setReturnDataString(idam_plugin_interface, signal);
+        return setReturnDataString(idam_plugin_interface->data_block, signal, "efitmagxml: object name returned");
     } else if (isDataScaling) {
         double scalingFactor = 0;
         if (isFluxLoop) {
@@ -380,20 +363,17 @@ static int do_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, EFIT* efit)
         } else if (isPFActive) {
             scalingFactor = (double)(efit->pfcoils[objectId].instance).factor;
         }
-        strcpy(data_block->data_desc, "efitmagxml: object data scaling factor returned");
-        return setReturnDataDblScalar(idam_plugin_interface, scalingFactor);
+        return setReturnDataDblScalar(idam_plugin_interface->data_block, scalingFactor, "efitmagxml: object data scaling factor returned");
     } else if (isTimeScaling) {
         double scalingFactor = 0;
         scalingFactor = (double)1.0;    // Not encoded in xml at this time
-        strcpy(data_block->data_desc, "efitmagxml: object time scaling factor returned");
-        return setReturnDataDblScalar(idam_plugin_interface, scalingFactor);
+        return setReturnDataDblScalar(idam_plugin_interface->data_block, scalingFactor, "efitmagxml: object time scaling factor returned");
     } else if (isTurns) {
         int turns = 0;
         if (isPFActive) {        // Not by Element in this XML!
             turns = efit->pfcoils[objectId].turns;
         }
-        strcpy(data_block->data_desc, "efitmagxml: object turns returned");
-        return setReturnDataIntScalar(idam_plugin_interface, turns);
+        return setReturnDataIntScalar(idam_plugin_interface->data_block, turns, "efitmagxml: object turns returned");
     } else if (isName) {
         char* name = NULL;
         if (isFluxLoop) {
@@ -403,8 +383,7 @@ static int do_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, EFIT* efit)
         } else if (isPFActive) {
             name = getnamepfcoils(efit, objectId);
         }
-        strcpy(data_block->data_desc, "efitmagxml: object name returned");
-        return setReturnDataString(idam_plugin_interface, name);
+        return setReturnDataString(idam_plugin_interface->data_block, name, "efitmagxml: object name returned");
     } else if (isIdentifier) {
         char* id = NULL;
         if (isFluxLoop) {
@@ -414,8 +393,7 @@ static int do_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, EFIT* efit)
         } else if (isPFActive) {
             id = getidpfcoils(efit, objectId);
         }
-        strcpy(data_block->data_desc, "efitmagxml: object id returned");
-        return setReturnDataString(idam_plugin_interface, id);
+        return setReturnDataString(idam_plugin_interface->data_block, id, "efitmagxml: object id returned");
     } else if (isPosition) {
         double data = 0.0;
         if (isFluxLoop) {
@@ -442,8 +420,7 @@ static int do_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, EFIT* efit)
                 data = (double)phi;
             }
         }
-        strcpy(data_block->data_desc, "efitmagxml: Position Coordinate returned");
-        return setReturnDataDblScalar(idam_plugin_interface, data);
+        return setReturnDataDblScalar(idam_plugin_interface->data_block, data, "efitmagxml: Position Coordinate returned");
     } else if (isPFActive && isGeometry && isRectangle) {
         if (isElement) {
             double data = 0.0;
@@ -463,8 +440,7 @@ static int do_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, EFIT* efit)
             } else if (isHeight) {
                 data = (double)height[index];
             }
-            strcpy(data_block->data_desc, "efitmagxml: Element Geometry/Coordinate returned");
-            return setReturnDataDblScalar(idam_plugin_interface, data);
+            return setReturnDataDblScalar(idam_plugin_interface->data_block, data, "efitmagxml: Element Geometry/Coordinate returned");
         } else {
             // Return all element data
             int count = getnpfcoilcoords(efit, objectId);
@@ -493,9 +469,8 @@ static int do_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, EFIT* efit)
             return 0;
         }
     } else if (isDevice) {
-        strcpy(data_block->data_desc, "efitmagxml: device name returned");
         const char* device = getdevice(efit);
-        return setReturnDataString(idam_plugin_interface, device);
+        return setReturnDataString(idam_plugin_interface->data_block, device, "efitmagxml: device name returned");
     }
 
     return 0;

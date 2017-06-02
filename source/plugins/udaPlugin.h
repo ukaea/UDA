@@ -59,27 +59,27 @@ typedef void (* ADDIDAMERRORFUNP)(IDAMERRORSTACK*, int, char*, int, char*);   //
 
 int initPlugin(const IDAM_PLUGIN_INTERFACE* plugin_interface);
 
-int setReturnDataDblScalar(IDAM_PLUGIN_INTERFACE* plugin_interface, double value);
+int setReturnDataDblScalar(DATA_BLOCK* data_block, double value, const char* description);
 
-int setReturnDataIntScalar(IDAM_PLUGIN_INTERFACE* plugin_interface, int value);
+int setReturnDataIntScalar(DATA_BLOCK* data_block, int value, const char* description);
 
-int setReturnDataString(IDAM_PLUGIN_INTERFACE* plugin_interface, const char* value);
+int setReturnDataString(DATA_BLOCK* data_block, const char* value, const char* description);
 
-bool findStringValue(NAMEVALUELIST* namevaluelist, char** value, const char* name);
+bool findStringValue(const NAMEVALUELIST* namevaluelist, const char** value, const char* name);
 
-bool findValue(NAMEVALUELIST* namevaluelist, const char* name);
+bool findValue(const NAMEVALUELIST* namevaluelist, const char* name);
 
-bool findIntValue(NAMEVALUELIST* namevaluelist, int* value, const char* name);
+bool findIntValue(const NAMEVALUELIST* namevaluelist, int* value, const char* name);
 
-bool findShortValue(NAMEVALUELIST* namevaluelist, short* value, const char* name);
+bool findShortValue(const NAMEVALUELIST* namevaluelist, short* value, const char* name);
 
-bool findCharValue(NAMEVALUELIST* namevaluelist, char* value, const char* name);
+bool findCharValue(const NAMEVALUELIST* namevaluelist, char* value, const char* name);
 
-bool findFloatValue(NAMEVALUELIST* namevaluelist, float* values, const char* name);
+bool findFloatValue(const NAMEVALUELIST* namevaluelist, float* values, const char* name);
 
-bool findIntArray(NAMEVALUELIST* namevaluelist, int** values, size_t* nvalues, const char* name);
+bool findIntArray(const NAMEVALUELIST* namevaluelist, int** values, size_t* nvalues, const char* name);
 
-bool findFloatArray(NAMEVALUELIST* namevaluelist, float** values, size_t* nvalues, const char* name);
+bool findFloatArray(const NAMEVALUELIST* namevaluelist, float** values, size_t* nvalues, const char* name);
 
 int callPlugin(PLUGINLIST* pluginlist, const char* request, const IDAM_PLUGIN_INTERFACE* old_plugin_interface);
 

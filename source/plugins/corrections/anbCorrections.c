@@ -97,7 +97,6 @@ void makeLegacyDataBlock(DATA_BLOCK* out)
     strcpy(out->dims[0].dim_label, "Time");
 }
 
-
 void copyANBDataBlock(DATA_BLOCK* out, DATA_BLOCK* in, int dataCount)
 {
 // Data are type FLOAT
@@ -116,7 +115,7 @@ void copyANBDataBlock(DATA_BLOCK* out, DATA_BLOCK* in, int dataCount)
     out->dims[0].errhi = NULL;
     out->dims[0].errlo = NULL;
     if (in->dims[0].udoms > 0) {
-        out->dims[0].sams = (long*)malloc(in->dims[0].udoms * sizeof(long));
+        out->dims[0].sams = (int*)malloc(in->dims[0].udoms * sizeof(long));
         out->dims[0].offs = (char*)malloc(in->dims[0].udoms * sizeof(long));
         out->dims[0].ints = (char*)malloc(in->dims[0].udoms * sizeof(long));
         memcpy((void*)out->dims[0].sams, (void*)in->dims[0].sams, (size_t)in->dims[0].udoms * sizeof(long));
@@ -580,16 +579,16 @@ extern int anbCorrections(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Assume time series is identical for all signals	 
 
-                    long* sams = getIdamDimBlock(h1, 0)->sams;
+                    int* sams = getIdamDimBlock(h1, 0)->sams;
                     char* offs = getIdamDimBlock(h1, 0)->offs;
                     char* ints = getIdamDimBlock(h1, 0)->ints;
 
                     if (sams != NULL) {
-                        dim_e->sams = (long*)malloc(dim_e->udoms * sizeof(long));
-                        dim_e2->sams = (long*)malloc(dim_e->udoms * sizeof(long));
-                        dim_e3->sams = (long*)malloc(dim_e->udoms * sizeof(long));
-                        dim_t->sams = (long*)malloc(dim_e->udoms * sizeof(long));
-                        dim_tt->sams = (long*)malloc(dim_e->udoms * sizeof(long));
+                        dim_e->sams = (int*)malloc(dim_e->udoms * sizeof(int));
+                        dim_e2->sams = (int*)malloc(dim_e->udoms * sizeof(int));
+                        dim_e3->sams = (int*)malloc(dim_e->udoms * sizeof(int));
+                        dim_t->sams = (int*)malloc(dim_e->udoms * sizeof(int));
+                        dim_tt->sams = (int*)malloc(dim_e->udoms * sizeof(int));
                         memcpy((void*)dim_e->sams, (void*)sams, (size_t)dim_e->udoms * sizeof(long));
                         memcpy((void*)dim_e2->sams, (void*)sams, (size_t)dim_e->udoms * sizeof(long));
                         memcpy((void*)dim_e3->sams, (void*)sams, (size_t)dim_e->udoms * sizeof(long));

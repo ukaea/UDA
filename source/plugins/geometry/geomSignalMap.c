@@ -81,12 +81,12 @@ int do_signal_file(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     ////////////////
     // Retrieve user inputs
-    char* signal = NULL;
+    const char* signal = NULL;
     FIND_REQUIRED_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, signal);
 
     IDAM_LOGF(LOG_DEBUG, "Using signal name: %s\n", signal);
 
-    char* file = NULL;
+    const char* file = NULL;
     FIND_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, file);
 
     int version = -1;
@@ -203,9 +203,10 @@ int do_signal_file(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         if (i == 0) {
             if (!PQgetisnull(DBQuery, i, s_file)) {
                 file_db = PQgetvalue(DBQuery, 0, s_file);
-                file = (char*)malloc(sizeof(char) * (strlen(file_db) + strlen(file_path) + 1));
-                strcpy(file, file_path);
-                strcat(file, file_db);
+                char* filename = (char*)malloc(sizeof(char) * (strlen(file_db) + strlen(file_path) + 1));
+                strcpy(filename, file_path);
+                strcat(filename, file_db);
+                file = filename;
             }
         }
 
@@ -405,7 +406,7 @@ int do_signal_filename(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     /////////////
     // Retrieve user inputs
-    char* geomsignal = NULL;
+    const char* geomsignal = NULL;
     FIND_REQUIRED_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, geomsignal);
 
     int shot = idam_plugin_interface->request_block->exp_number;

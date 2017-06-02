@@ -177,7 +177,7 @@ int allocDim(DATA_BLOCK* data_block)
 
             switch (data_block->dims[i].method) {
                 case 1 :
-                    data_block->dims[i].sams = (long*)malloc(data_block->dims[i].udoms * sizeof(long));
+                    data_block->dims[i].sams = (int*)malloc(data_block->dims[i].udoms * sizeof(int));
                     data_block->dims[i].offs = (char*)malloc(data_block->dims[i].udoms * data_size);
                     data_block->dims[i].ints = (char*)malloc(data_block->dims[i].udoms * data_size);
                     break;

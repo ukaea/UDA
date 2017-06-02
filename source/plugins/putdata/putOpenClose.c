@@ -69,7 +69,7 @@ int get_file_id(int fileidx)
 
 int do_open(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
-    char* format = NULL;
+    const char* format = NULL;
     FIND_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, format);
 
     //-------------------------------------------------------------------------
@@ -84,12 +84,12 @@ int do_open(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     //--------------------------------------------------------------------------
     // Open the File: Create or Update
 
-    char* filename = NULL;
+    const char* filename = NULL;
     FIND_REQUIRED_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, filename);
 
     IDAM_LOGF(LOG_DEBUG, "The filename is %s\n", filename);
 
-    char* directory = NULL;
+    const char* directory = NULL;
     FIND_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, directory);
 
     char* path = NULL;
@@ -123,12 +123,15 @@ int do_open(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             IDAM_LOGF(LOG_DEBUG, "Created the requested netCDF4 File: %d\n", fileid);
         } else {
             IDAM_LOGF(LOG_ERROR, "error opening netcdf file %s: %s\n", path, nc_strerror(err));
+            free((void*)path);
             RAISE_PLUGIN_ERROR("Unable to Open the requested netCDF4 File");
         }
     } else {
         IDAM_LOGF(LOG_DEBUG, "Opened the requested netCDF4 File for Update: %d\n", fileid);
         update = 1;
     }
+
+    free((void*)path);
 
     fileIds.count++;
     fileIds.ids = (int*)realloc(fileIds.ids, fileIds.count * sizeof(int));
@@ -203,7 +206,7 @@ int do_open(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     //--------------------------------------------------------------------------
     // Write Root Group Attributes: Required and Optional
 
-    char* conventions = NULL;
+    const char* conventions = NULL;
     FIND_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, conventions);
 
     if (conventions != NULL) {
@@ -217,7 +220,7 @@ int do_open(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         RAISE_PLUGIN_ERROR("No Conventions Standard has been specified!");
     }
 
-    char* class = NULL;
+    const char* class = NULL;
     FIND_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, class);
 
     if (class != NULL) {
@@ -234,7 +237,7 @@ int do_open(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         RAISE_PLUGIN_ERROR("No File Data Class has been specified");
     }
 
-    char* title = NULL;
+    const char* title = NULL;
     FIND_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, title);
 
     if (title != NULL) {
@@ -245,7 +248,7 @@ int do_open(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         RAISE_PLUGIN_ERROR("No File Title has been specified");
     }
 
-    char* date = NULL;
+    const char* date = NULL;
     FIND_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, date);
 
     if (date != NULL) {
@@ -256,7 +259,7 @@ int do_open(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         RAISE_PLUGIN_ERROR("No Date has been specified");
     }
 
-    char* time = NULL;
+    const char* time = NULL;
     FIND_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, time);
 
     if (time != NULL) {
@@ -311,7 +314,7 @@ int do_open(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     // Optional Attributes
 
-    char* comment = NULL;
+    const char* comment = NULL;
     FIND_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, comment);
 
     if (comment != NULL) {
@@ -323,7 +326,7 @@ int do_open(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     // *****************************************
     // Replaced by software attribute
 
-    char* code = NULL;
+    const char* code = NULL;
     FIND_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, code);
 
     if (code != NULL) {
@@ -341,7 +344,7 @@ int do_open(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         }
     }
 
-    char* xml = NULL;
+    const char* xml = NULL;
     FIND_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, xml);
 
     if (xml != NULL) {
@@ -352,21 +355,7 @@ int do_open(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     fileIds.compliance[fileIdx] = compliance;
 
-    DATA_BLOCK* data_block = idam_plugin_interface->data_block;
-
-    data_block->data = malloc(sizeof(int));
-    memcpy(data_block->data, &fileIdx, sizeof(int));
-    data_block->data_type = TYPE_INT;
-    data_block->data_n = 1;
-    data_block->rank = 0;
-    data_block->dims = NULL;
-
-    //--------------------------------------------------------------------------
-    // Cleanup Keywords
-
-    free((void*)path);
-
-    return 0;
+    return setReturnDataIntScalar(idam_plugin_interface->data_block, fileIdx, "file index");
 }
 
 int do_close(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
@@ -400,8 +389,7 @@ int do_close(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         RAISE_PLUGIN_ERROR("Error: There are No Open Files to Close!");
     }
 
-    int err;
-    if ((err = nc_close(ncfileid)) != NC_NOERR) {
+    if (nc_close(ncfileid) != NC_NOERR) {
         RAISE_PLUGIN_ERROR("Unable to Close the requested netCDF4 File");
     }
 
@@ -431,22 +419,5 @@ int do_close(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         }
     }
 
-    //---------------------------------------------------------------------------
-    // Free DUNITS Resources
-
-//    if (fileIds.count == 0 && unitSystem != NULL) {
-//        ut_free_system(unitSystem);
-//        unitSystem = NULL;
-//    }
-
-    DATA_BLOCK* data_block = idam_plugin_interface->data_block;
-
-    data_block->data = malloc(sizeof(int));
-    memset(data_block->data, 0, sizeof(int));
-    data_block->data_type = TYPE_INT;
-    data_block->data_n = 1;
-    data_block->rank = 0;
-    data_block->dims = NULL;
-
-    return err;
+    return setReturnDataIntScalar(idam_plugin_interface->data_block, 0, NULL);
 }

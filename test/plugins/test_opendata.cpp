@@ -26,7 +26,7 @@ TEST_CASE( "Test OPENDATA::help() function", "[OPENDATA][plugins]" ) {
 
     REQUIRE( str != NULL );
 
-    std::string expected = "\nnewHDF5: get - Read data from a HDF5 file\n\n";
+    std::string expected = "\nopenData: Add Functions Names, Syntax, and Descriptions\n\n";
 
     REQUIRE( str->str() == expected );
 }

@@ -37,10 +37,10 @@ int do_dimension(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     //--------------------------------------------------------------------------
     // Write Dimension Entry
 
-    char* group;
+    const char* group;
     FIND_REQUIRED_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, group);
 
-    char* name;
+    const char* name;
     FIND_REQUIRED_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, name);
 
     IDAM_LOGF(LOG_DEBUG, "Writing Dimension %s = %d\n", name, length);
@@ -93,10 +93,10 @@ int do_coordinate(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     int fileid = -1;
     FIND_REQUIRED_INT_VALUE(idam_plugin_interface->request_block->nameValueList, fileid);
 
-    char* group;
+    const char* group;
     FIND_REQUIRED_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, group);
 
-    char* name;
+    const char* name;
     FIND_REQUIRED_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, name);
 
     int ncfileid = get_file_id(fileid);
@@ -245,7 +245,7 @@ int do_coordinate(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     // Write Attributes
 
-    char* label = NULL;
+    const char* label = NULL;
     FIND_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, label);
 
     if (label != NULL) {
@@ -254,7 +254,7 @@ int do_coordinate(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         }
     }
 
-    char* class = NULL;
+    const char* class = NULL;
     FIND_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, class);
 
     if (class != NULL) {
@@ -263,7 +263,7 @@ int do_coordinate(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         }
     }
 
-    char* title = NULL;
+    const char* title = NULL;
     FIND_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, title);
 
     if (title != NULL) {
@@ -272,7 +272,7 @@ int do_coordinate(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         }
     }
 
-    char* comment = NULL;
+    const char* comment = NULL;
     FIND_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, comment);
 
     if (comment != NULL) {
@@ -284,7 +284,7 @@ int do_coordinate(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     //--------------------------------------------------------------------------
     // If there is a named error variable then check: it exists in this group; it has the same length.
 
-    char* errors = NULL;
+    const char* errors = NULL;
     FIND_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, errors);
 
     if (errors != NULL) {
@@ -328,7 +328,7 @@ int do_coordinate(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     //--------------------------------------------------------------------------
     // Write Units: Last attribute written - in case units not SI compliant
 
-    char* units = NULL;
+    const char* units = NULL;
     FIND_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, units);
 
     int notstrict = findValue(&idam_plugin_interface->request_block->nameValueList, "notstrict");
