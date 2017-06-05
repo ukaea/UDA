@@ -15,7 +15,13 @@
 #include <clientserver/errorLog.h>
 #include <clientserver/xmlStructs.h>
 
-void parseFloat(xmlDocPtr doc, xmlNodePtr cur, const char* target, float* value)
+// Simple Tags with Delimited List of Floating Point Values  
+// Assume No Attributes
+
+// Simple Tags with Floating Point Values 
+// Assume No Attributes 
+
+void parseFloat(xmlDocPtr doc, xmlNodePtr cur, char* target, float* value)
 {
     xmlChar* key;
     *value = 0.0;
@@ -36,7 +42,10 @@ void parseFloat(xmlDocPtr doc, xmlNodePtr cur, const char* target, float* value)
     return;
 }
 
-void parseInt(xmlDocPtr doc, xmlNodePtr cur, const char* target, int* value)
+// Simple Tags with Integer Values 
+// Assume No Attributes 
+
+void parseInt(xmlDocPtr doc, xmlNodePtr cur, char* target, int* value)
 {
     *value = 0;
 
@@ -54,7 +63,7 @@ void parseInt(xmlDocPtr doc, xmlNodePtr cur, const char* target, int* value)
     return;
 }
 
-int* parseIntArray(xmlDocPtr doc, xmlNodePtr cur, const char* target, int* n)
+int* parseIntArray(xmlDocPtr doc, xmlNodePtr cur, char* target, int* n)
 {
     int* value = NULL;
     *n = 0;
@@ -93,7 +102,11 @@ int* parseIntArray(xmlDocPtr doc, xmlNodePtr cur, const char* target, int* n)
     return value;
 }
 
-float* parseFloatAngleArray(xmlDocPtr doc, xmlNodePtr cur, const char* target, int* n)
+
+// Simple Tags with Delimited List of Floating Point Values  
+// Assume No Attributes 
+
+float* parseFloatAngleArray(xmlDocPtr doc, xmlNodePtr cur, char* target, int* n)
 {
     xmlChar* key, * att;
     float* value = NULL;
@@ -151,7 +164,10 @@ float* parseFloatAngleArray(xmlDocPtr doc, xmlNodePtr cur, const char* target, i
     return value;
 }
 
-void parseFloatAngle(xmlDocPtr doc, xmlNodePtr cur, const char* target, float* value)
+// Simple Tags with Floating Point Values 
+// Assume No Attributes 
+
+void parseFloatAngle(xmlDocPtr doc, xmlNodePtr cur, char* target, float* value)
 {
     xmlChar* key, * att;
     *value = 0.0;
@@ -258,6 +274,10 @@ void parseInstance(xmlNodePtr cur, INSTANCE* str)
 
     return;
 }
+
+
+// Magnetic Probe Data 
+// Assume multiple tags per document 
 
 MAGPROBE* parseMagProbe(xmlDocPtr doc, xmlNodePtr cur, MAGPROBE* str, int* np)
 {
@@ -389,6 +409,10 @@ FLUXLOOP* parseFluxLoop(xmlDocPtr doc, xmlNodePtr cur, FLUXLOOP* str, int* np)
     return str;
 }
 
+
+// PF Coil Data 
+// Assume multiple tags per document 
+
 PFCOILS* parsePfCoils(xmlDocPtr doc, xmlNodePtr cur, PFCOILS* str, int* np)
 {
 
@@ -443,6 +467,10 @@ PFCOILS* parsePfCoils(xmlDocPtr doc, xmlNodePtr cur, PFCOILS* str, int* np)
     *np = n;    // Number of Tags Found
     return str;
 }
+
+
+// PF Passive Circuit Elements 
+// Assume multiple tags per document 
 
 PFPASSIVE* parsePfPassive(xmlDocPtr doc, xmlNodePtr cur, PFPASSIVE* str, int* np)
 {
@@ -502,6 +530,10 @@ PFPASSIVE* parsePfPassive(xmlDocPtr doc, xmlNodePtr cur, PFPASSIVE* str, int* np
     return str;
 }
 
+
+// PF Supplies 
+// Assume multiple tags per document 
+
 PFSUPPLIES* parsePfSupplies(xmlDocPtr doc, xmlNodePtr cur, PFSUPPLIES* str, int* np)
 {
 
@@ -541,6 +573,11 @@ PFSUPPLIES* parsePfSupplies(xmlDocPtr doc, xmlNodePtr cur, PFSUPPLIES* str, int*
     *np = n;    // Number of Tags Found
     return str;
 }
+
+
+
+// PF Circuits 
+// Assume multiple tags per document 
 
 PFCIRCUIT* parsePfCircuits(xmlDocPtr doc, xmlNodePtr cur, PFCIRCUIT* str, int* np)
 {
@@ -582,6 +619,11 @@ PFCIRCUIT* parsePfCircuits(xmlDocPtr doc, xmlNodePtr cur, PFCIRCUIT* str, int* n
     return str;
 }
 
+
+
+// Plasma Current  
+// Assume Single tag per document 
+
 PLASMACURRENT* parsePlasmaCurrent(xmlDocPtr doc, xmlNodePtr cur, PLASMACURRENT* str)
 {
     cur = cur->xmlChildrenNode;
@@ -608,6 +650,9 @@ PLASMACURRENT* parsePlasmaCurrent(xmlDocPtr doc, xmlNodePtr cur, PLASMACURRENT* 
     }
     return str;
 }
+
+// Diamagnetic Flux  
+// Assume Single tag per document 
 
 DIAMAGNETIC* parseDiaMagnetic(xmlDocPtr doc, xmlNodePtr cur, DIAMAGNETIC* str)
 {
@@ -636,6 +681,9 @@ DIAMAGNETIC* parseDiaMagnetic(xmlDocPtr doc, xmlNodePtr cur, DIAMAGNETIC* str)
     return str;
 }
 
+// Toroidal Field 
+// Assume Single tag per document 
+
 TOROIDALFIELD* parseToroidalField(xmlDocPtr doc, xmlNodePtr cur, TOROIDALFIELD* str)
 {
     cur = cur->xmlChildrenNode;
@@ -663,8 +711,13 @@ TOROIDALFIELD* parseToroidalField(xmlDocPtr doc, xmlNodePtr cur, TOROIDALFIELD* 
     return str;
 }
 
+
+// Limiter Data 
+// Assume Single tag per document 
+
 LIMITER* parseLimiter(xmlDocPtr doc, xmlNodePtr cur, LIMITER* str)
 {
+
     int nco = 0;
     xmlChar* att;    // General Input of tag attribute values
 

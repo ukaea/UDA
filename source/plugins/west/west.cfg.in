@@ -1,2 +1,2 @@
-export IDAM_WEST_MAPPING_FILE=$HOME/itmwork/idam/latest/source/plugins/west/WEST_mappings/IDAM_mapping.xml
-export IDAM_WEST_MAPPING_FILE_DIRECTORY=$HOME/itmwork/idam/latest/source/plugins/west/WEST_mappings
+export UDA_WEST_MAPPING_FILE=$HOME/iter/uda/source/plugins/west/WEST_mappings/IDAM_mapping.xml
+export UDA_WEST_MAPPING_FILE_DIRECTORY=$HOME/iter/uda/source/plugins/west/WEST_mappings

@@ -15,9 +15,9 @@ int do_attribute(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     // Extract Keywords and Parameters
 
     int fileid = -1;
-    char* group = NULL;
-    char* name = NULL;
-    char* varname = NULL;
+    const char* group = NULL;
+    const char* name = NULL;
+    const char* varname = NULL;
 
     FIND_REQUIRED_INT_VALUE(idam_plugin_interface->request_block->nameValueList, fileid);
     FIND_REQUIRED_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, group);

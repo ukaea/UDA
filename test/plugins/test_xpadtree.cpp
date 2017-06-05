@@ -26,7 +26,7 @@ TEST_CASE( "Test XPADTREE::help() function", "[XPADTREE][plugins]" ) {
 
     REQUIRE( str != NULL );
 
-    std::string expected = "\nnewHDF5: get - Read data from a HDF5 file\n\n";
+    std::string expected = "xpadtree::gettree() - Read in tree.\n";
 
     REQUIRE( str->str() == expected );
 }

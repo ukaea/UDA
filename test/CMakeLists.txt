@@ -27,7 +27,9 @@ configure_file(
   @ONLY
 )
 
-set( TESTS test_putcpp )
+set( TESTS
+#  test_putcpp
+  )
 
 include( modules )
 
@@ -35,6 +37,8 @@ include_directories( SYSTEM ${Boost_INCLUDE_DIR} )
 include_directories( ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_LIST_DIR} )
 
 add_subdirectory( plugins )
+
+add_definitions( -D__USE_XOPEN2K8 )
 
 foreach( TEST ${TESTS} )
   add_executable( ${TEST} ${TEST}.cpp )
@@ -53,11 +57,15 @@ foreach( TEST ${TESTS} )
     fatclient-shared
     ${OPENSSL_LIBRARIES}
     ${LIBXML2_LIBRARIES}
-    ${CACHE_LIBRARIES} )
-  target_compile_definitions( fat_${TEST} PRIVATE -DFATCLIENT )
-  link_modules( fat_${TEST} )
+    ${CACHE_LIBRARIES}
+    c
+    m
+    dl
+  )
 
-  add_test( ${TEST} fat_${TEST} )
+  target_compile_definitions( ${TEST} PRIVATE -DFATCLIENT )
+  link_modules( ${TEST} )
+  add_test( ${TEST} ${TEST} )
 endforeach()
 
 find_package( GCrypt )

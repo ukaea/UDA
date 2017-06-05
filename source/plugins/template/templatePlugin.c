@@ -117,14 +117,10 @@ int templatePlugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
  */
 int do_help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
-    DATA_BLOCK* data_block = idam_plugin_interface->data_block;
-    initDataBlock(data_block);
-
     const char* help = "\ntemplatePlugin: Add Functions Names, Syntax, and Descriptions\n\n";
+    const char* desc = "templatePlugin: help = description of this plugin";
 
-    strcpy(data_block->data_desc, "templatePlugin: help = description of this plugin");
-
-    return setReturnDataString(idam_plugin_interface, help);
+    return setReturnDataString(idam_plugin_interface->data_block, help, desc);
 }
 
 /**
@@ -134,12 +130,7 @@ int do_help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
  */
 int do_version(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
-    DATA_BLOCK* data_block = idam_plugin_interface->data_block;
-    initDataBlock(data_block);
-
-    strcpy(data_block->data_desc, "Plugin version number");
-
-    return setReturnDataIntScalar(idam_plugin_interface, THISPLUGIN_VERSION);
+    return setReturnDataIntScalar(idam_plugin_interface->data_block, THISPLUGIN_VERSION, "Plugin version number");
 }
 
 /**
@@ -149,12 +140,7 @@ int do_version(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
  */
 int do_builddate(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
-    DATA_BLOCK* data_block = idam_plugin_interface->data_block;
-    initDataBlock(data_block);
-
-    strcpy(data_block->data_desc, "Plugin build date");
-
-    return setReturnDataString(idam_plugin_interface, __DATE__);
+    return setReturnDataString(idam_plugin_interface->data_block, __DATE__, "Plugin build date");
 }
 
 /**
@@ -164,12 +150,7 @@ int do_builddate(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
  */
 int do_defaultmethod(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
-    DATA_BLOCK* data_block = idam_plugin_interface->data_block;
-    initDataBlock(data_block);
-
-    strcpy(data_block->data_desc, "Plugin default method");
-
-    return setReturnDataString(idam_plugin_interface, THISPLUGIN_DEFAULT_METHOD);
+    return setReturnDataString(idam_plugin_interface->data_block, THISPLUGIN_DEFAULT_METHOD, "Plugin default method");
 }
 
 /**
@@ -179,12 +160,7 @@ int do_defaultmethod(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
  */
 int do_maxinterfaceversion(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
-    DATA_BLOCK* data_block = idam_plugin_interface->data_block;
-    initDataBlock(data_block);
-
-    strcpy(data_block->data_desc, "Maximum Interface Version");
-
-    return setReturnDataIntScalar(idam_plugin_interface, THISPLUGIN_MAX_INTERFACE_VERSION);
+    return setReturnDataIntScalar(idam_plugin_interface->data_block, THISPLUGIN_MAX_INTERFACE_VERSION, "Maximum Interface Version");
 }
 
 //----------------------------------------------------------------------------------------

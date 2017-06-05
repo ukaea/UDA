@@ -3,6 +3,7 @@ cmake_minimum_required( VERSION 2.8 )
 find_package( LibXml2 QUIET )
 find_package( MDSplus QUIET )
 find_package( HDF5 COMPONENTS C HL QUIET )
+find_package( OpenSSL QUIET )
 
 if( NOT MDSPLUS_FOUND )
   message( WARNING "mdsplus not found - skipping imas plugin" )
@@ -12,6 +13,9 @@ elseif( NOT LIBXML2_FOUND )
   return()
 elseif( NOT HDF5_FOUND )
   message( WARNING "HDF5 not found - skipping imas plugin" )
+  return()
+elseif( NOT OPENSSL_FOUND )
+  message( WARNING "OpenSSL not found - skipping imas plugin" )
   return()
 endif()
 
@@ -51,6 +55,7 @@ uda_plugin(
     ${MDSPLUS_LIBRARIES}
     ${HDF5_LIBRARIES}
     ${HDF5_HL_LIBRARIES}
+    ${OPENSSL_LIBRARIES}
     client-static
     pthread
 )

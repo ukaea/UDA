@@ -15,23 +15,19 @@
 *		are freed on exit. However, the blocks reserved for data are
 *		not and MUST BE FREED by the calling routine.
 *
-*
-* Change History
-*
-* 25Oct2011	D.G.Muir	Original Version
-* 05Feb2013	D.G.Muir	Added test calls to other server plugins
 *---------------------------------------------------------------------------------------------------------------*/
+
 #include "testplugin.h"
 
 #include <stdlib.h>
 #include <strings.h>
+#include <stddef.h>
 
 #include <clientserver/initStructs.h>
 #include <structures/struct.h>
 #include <server/makeServerRequestBlock.h>
 #include <clientserver/stringUtils.h>
 #include <structures/accessors.h>
-#include <stddef.h>
 
 #ifdef PUTDATAENABLED
 #  include <structures/accessors.h>
@@ -3115,8 +3111,8 @@ static int do_plugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Test specifics
 
-    char* signal = NULL;
-    char* source = NULL;
+    const char* signal = NULL;
+    const char* source = NULL;
 
     FIND_REQUIRED_STRING_VALUE(request_block->nameValueList, signal);
     FIND_REQUIRED_STRING_VALUE(request_block->nameValueList, source);

@@ -3,8 +3,8 @@
 
 #include <c++/UDA.hpp>
 
-TEST_CASE( "Test EFITMAGXML::help() function", "[EFITMAGXML][plugins]" ) {
-
+TEST_CASE( "Test EFITMAGXML::help() function", "[EFITMAGXML][plugins]" )
+{
 #ifdef FATCLIENT
 #  include "setupEnvironment.inc"
 #endif
@@ -26,7 +26,7 @@ TEST_CASE( "Test EFITMAGXML::help() function", "[EFITMAGXML][plugins]" ) {
 
     REQUIRE( str != NULL );
 
-    std::string expected = "\nnewHDF5: get - Read data from a HDF5 file\n\n";
+    std::string expected = "\nefitmagxml: Add Functions Names, Syntax, and Descriptions\n\n";
 
     REQUIRE( str->str() == expected );
 }

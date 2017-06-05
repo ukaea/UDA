@@ -1466,6 +1466,7 @@ static int getMdsShot(char* name, int shot, int run, int translate) {
                 command = malloc(strlen(getenv(baseName)) + 4);
                 sprintf(command, "%s", getenv(baseName));
             }
+            setenv(logName, command, 1);
             free(command);
         }
     }
@@ -1698,7 +1699,7 @@ int mdsimasOpen(char* name, int shot, int run, int* retIdx) {
     {
         status = _TreeOpen(&ctx, name, getMdsShot(name, shot, run, 1), 0);
         if (!(status & 1)) {
-            sprintf(errmsg, "Error opening pulse file %s shot: %d, run: %d. %s", name, shot, run, MdsGetMsg(mdsStatus));
+            sprintf(errmsg, "Error opening pulse file %s shot: %d, run: %d. %s", name, shot, run, MdsGetMsg(status));
             printf("%s\n", errmsg);
             return -1;
         }

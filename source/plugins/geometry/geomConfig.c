@@ -103,10 +103,10 @@ int do_geom_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     ////////////////////////////
     // Get parameters passed by user.
-    char* signal = NULL;
+    const char* signal = NULL;
     FIND_REQUIRED_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, signal);
 
-    char* file = NULL;
+    const char* file = NULL;
     FIND_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, file);
 
     int isConfig = findValue(&idam_plugin_interface->request_block->nameValueList, "config");
@@ -301,10 +301,11 @@ int do_geom_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             }
 
             if (file == NULL) {
-                file = (char*)malloc(sizeof(char) * (strlen(file_db) + strlen(file_path) + 2));
-                strcpy(file, file_path);
-                strcat(file, "/");
-                strcat(file, file_db);
+                char* filename = (char*)malloc(sizeof(char) * (strlen(file_db) + strlen(file_path) + 2));
+                strcpy(filename, file_path);
+                strcat(filename, "/");
+                strcat(filename, file_db);
+                file = filename;
             }
 
             IDAM_LOGF(LOG_DEBUG, "file_path %s\n", file);
@@ -495,7 +496,7 @@ int do_config_filename(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     // Arguments:
     // signal: Geom signal group
     ////////////////////////////
-    char* signal = NULL;
+    const char* signal = NULL;
     FIND_REQUIRED_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, signal);
 
     IDAM_LOGF(LOG_DEBUG, "Using signal name: %s\n", signal);

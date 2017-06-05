@@ -292,40 +292,41 @@ typedef struct ParamsDB {
     COILPARAMETERS_STRUCT* coilparameters;
 } PARAMSDB_STRUCT;
 
-static ACTIVELIMITS_STRUCT* allocActiveLimits(const char* system, const char* subtype, const char* coil, int nrows)
-{
-    ACTIVELIMITS_STRUCT* data = (ACTIVELIMITS_STRUCT*)malloc(sizeof(ACTIVELIMITS_STRUCT));
-    addMalloc(data, 1, sizeof(ACTIVELIMITS_STRUCT), "ACTIVELIMITS_STRUCT");
-
-    data->system = strdup(system);
-    addMalloc(data->system, (int)strlen(system), sizeof(char), "STRING");
-
-    if (subtype != NULL) {
-        data->subtype = strdup(subtype);
-        addMalloc(data->subtype, (int)strlen(subtype), sizeof(char), "STRING");
-    } else {
-        data->subtype = NULL;
-    }
-
-    data->coils = (char**)malloc(nrows * sizeof(char*));
-    addMalloc(data->coils, nrows, sizeof(char*), "STRING *");
-
-    data->upper_lowers = (char**)malloc(nrows * sizeof(char*));
-    addMalloc(data->upper_lowers, nrows, sizeof(char*), "STRING *");
-
-    data->values = (double*)malloc(nrows * sizeof(double));
-    addMalloc(data->values, nrows, sizeof(double), "DOUBLE *");
-    return data;
-}
+//static ACTIVELIMITS_STRUCT* allocActiveLimits(const char* system, const char* subtype, const char* coil, int nrows)
+//{
+//    ACTIVELIMITS_STRUCT* data = (ACTIVELIMITS_STRUCT*)malloc(sizeof(ACTIVELIMITS_STRUCT));
+//    addMalloc(data, 1, sizeof(ACTIVELIMITS_STRUCT), "ACTIVELIMITS_STRUCT");
+//
+//    data->system = strdup(system);
+//    addMalloc(data->system, (int)strlen(system), sizeof(char), "STRING");
+//
+//    if (subtype != NULL) {
+//        data->subtype = strdup(subtype);
+//        addMalloc(data->subtype, (int)strlen(subtype), sizeof(char), "STRING");
+//    } else {
+//        data->subtype = NULL;
+//    }
+//
+////    data->coils = (char**)malloc(nrows * sizeof(char*));
+////    addMalloc(data->coils, nrows, sizeof(char*), "STRING *");
+////
+////    data->upper_lowers = (char**)malloc(nrows * sizeof(char*));
+////    addMalloc(data->upper_lowers, nrows, sizeof(char*), "STRING *");
+////
+////    data->values = (double*)malloc(nrows * sizeof(double));
+////    addMalloc(data->values, nrows, sizeof(double), "double");
+//
+//    return data;
+//}
 
 static PGresult* activeLimitsQuery(PGconn* conn, const char* system, const char* subtype, bool is_subtype, const char* coil, bool is_coil)
 {
     PGresult* res = NULL;
 
-#define ACITIVELIMIT_SQL "SELECT (c.name, al.upper_lower_id, al.value)" \
+#define ACITIVELIMIT_SQL "SELECT c.name, al.upper_lower_id, al.value" \
             " FROM ActiveLimits al" \
             " JOIN Coil AS c ON al.coil_id = c.id" \
-            " JOIN Systems AS s ON al.system_id = s.id" \
+            " JOIN System AS s ON al.system_id = s.id" \
             " JOIN Limits AS l ON al.limit_id = l.id"
 
     if (is_subtype && is_coil) {
@@ -334,32 +335,32 @@ static PGresult* activeLimitsQuery(PGconn* conn, const char* system, const char*
         params[1] = subtype;
         params[2] = coil;
 
-        res = PQexecParams(conn, ACITIVELIMIT_SQL " WHERE s.name = $1 AND s.subtype = $2 AND c.name = $3",
-                           3, NULL, params, NULL, NULL, 0
-        );
+        char* sql = ACITIVELIMIT_SQL " WHERE s.name = $1 AND s.subtype = $2 AND c.name = $3";
+        IDAM_LOGF(LOG_DEBUG, "sql: %s\n", sql);
+        res = PQexecParams(conn, sql, 3, NULL, params, NULL, NULL, 0);
     } else if (is_subtype) {
         const char* params[2];
         params[0] = system;
         params[1] = subtype;
 
-        res = PQexecParams(conn, ACITIVELIMIT_SQL " WHERE s.name = $1 AND s.subtype = $2",
-                           2, NULL, params, NULL, NULL, 0
-        );
+        char* sql = ACITIVELIMIT_SQL " WHERE s.name = $1 AND s.subtype = $2";
+        IDAM_LOGF(LOG_DEBUG, "sql: %s\n", sql);
+        res = PQexecParams(conn, sql, 2, NULL, params, NULL, NULL, 0);
     } else if (is_coil) {
         const char* params[2];
         params[0] = system;
         params[1] = coil;
 
-        res = PQexecParams(conn, ACITIVELIMIT_SQL " WHERE s.name = $1 AND c.name = $2",
-                           2, NULL, params, NULL, NULL, 0
-        );
+        char* sql = ACITIVELIMIT_SQL " WHERE s.name = $1 AND c.name = $2";
+        IDAM_LOGF(LOG_DEBUG, "sql: %s\n", sql);
+        res = PQexecParams(conn, sql, 2, NULL, params, NULL, NULL, 0);
     } else {
         const char* params[1];
         params[0] = system;
 
-        res = PQexecParams(conn, ACITIVELIMIT_SQL " WHERE s.name = $1",
-                           1, NULL, params, NULL, NULL, 0
-        );
+        char* sql = ACITIVELIMIT_SQL " WHERE s.name = $1";
+        IDAM_LOGF(LOG_DEBUG, "sql: %s\n", sql);
+        res = PQexecParams(conn, sql, 1, NULL, params, NULL, NULL, 0);
     }
 
     return res;
@@ -469,7 +470,7 @@ int do_getAll(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PGconn* conn)
     DATA_BLOCK* data_block = idam_plugin_interface->data_block;
     initDataBlock(data_block);
 
-    char* system = NULL;
+    const char* system = NULL;
 
     FIND_REQUIRED_STRING_VALUE(request_block->nameValueList, system);
 
@@ -566,12 +567,9 @@ int do_getActiveLimit(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PGconn* conn
 {
     REQUEST_BLOCK* request_block = idam_plugin_interface->request_block;
 
-    DATA_BLOCK* data_block = idam_plugin_interface->data_block;
-    initDataBlock(data_block);
-
-    char* system = NULL;
-    char* subtype = NULL;
-    char* coil = NULL;
+    const char* system = NULL;
+    const char* subtype = NULL;
+    const char* coil = NULL;
 
     FIND_REQUIRED_STRING_VALUE(request_block->nameValueList, system);
     bool is_subtype = FIND_STRING_VALUE(request_block->nameValueList, subtype);
@@ -593,17 +591,77 @@ int do_getActiveLimit(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PGconn* conn
         RAISE_PLUGIN_ERROR("DB query returned multiple rows");
     }
 
-    ACTIVELIMITS_STRUCT* data = allocActiveLimits(system, subtype, coil, nrows);
+    DATA_BLOCK* data_block = idam_plugin_interface->data_block;
+    initDataBlock(data_block);
 
-    int i;
-    for (i = 0; i < nrows; i++) {
+    USERDEFINEDTYPE usertype;
+    initUserDefinedType(&usertype);
+
+    strcpy(usertype.name, "ACTIVELIMITS_STRUCT");
+    strcpy(usertype.source, "paramsdb");
+    usertype.ref_id = 0;
+    usertype.imagecount = 0;
+    usertype.image = NULL;
+    usertype.size = sizeof(ACTIVELIMITS_STRUCT);
+    usertype.idamclass = TYPE_COMPOUND;
+
+    int offset = 0;
+
+    COMPOUNDFIELD field;
+
+    initCompoundField(&field);
+    defineField(&field, "system", "string structure element", &offset, SCALARSTRING);
+    addCompoundField(&usertype, field);
+
+    initCompoundField(&field);
+    defineField(&field, "subtype", "string structure element", &offset, SCALARSTRING);
+    addCompoundField(&usertype, field);
+
+    initCompoundField(&field);
+    defineField(&field, "coils", "string array structure element", &offset, ARRAYSTRING);
+    addCompoundField(&usertype, field);
+
+    initCompoundField(&field);
+    defineField(&field, "upper_lowers", "string array structure element", &offset, ARRAYSTRING);
+    addCompoundField(&usertype, field);
+
+    initCompoundField(&field);
+    defineField(&field, "values", "string array structure element", &offset, ARRAYDOUBLE);
+    addCompoundField(&usertype, field);
+
+    addUserDefinedType(userdefinedtypelist, usertype);
+
+    // Create Data
+
+    ACTIVELIMITS_STRUCT* data = (ACTIVELIMITS_STRUCT*)malloc(sizeof(ACTIVELIMITS_STRUCT));
+    addMalloc((void*)data, 1, sizeof(ACTIVELIMITS_STRUCT), "ACTIVELIMITS_STRUCT");
+
+    data->system = strdup(system);
+    addMalloc(data->system, 1, (strlen(system) + 1) * sizeof(char), "STRING");
+
+    data->subtype = strdup(subtype);
+    addMalloc(data->subtype, 1, (strlen(subtype) + 1) * sizeof(char), "STRING");
+
+    int* shape = malloc(sizeof(int));
+    shape[0] = nrows;
+
+    data->coils = malloc(nrows * sizeof(char*));
+    addMalloc2(data->coils, nrows, sizeof(char*), "STRING *", 1, shape);
+
+    data->upper_lowers = malloc(nrows * sizeof(char*));
+    addMalloc2(data->upper_lowers, nrows, sizeof(char*), "STRING *", 1, shape);
+
+    data->values = malloc(nrows * sizeof(double));
+    addMalloc(data->values, nrows, sizeof(double), "double");
+
+    for (int i = 0; i < nrows; i++) {
         const char* buf = PQgetvalue(res, i, 0);
         data->coils[i] = strdup(buf);
-        addMalloc(data->coils[i], (int)strlen(data->coils[i]), sizeof(char), "char");
+        addMalloc(data->coils[i], (int)strlen(data->coils[i]) + 1, sizeof(char), "char");
 
         buf = PQgetvalue(res, i, 1);
         data->upper_lowers[i] = strdup(buf);
-        addMalloc(data->upper_lowers[i], (int)strlen(data->upper_lowers[i]), sizeof(char), "char");
+        addMalloc(data->upper_lowers[i], (int)strlen(data->upper_lowers[i]) + 1, sizeof(char), "char");
 
         buf = PQgetvalue(res, i, 2);
         data->values[i] = atof(buf);
@@ -611,53 +669,7 @@ int do_getActiveLimit(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PGconn* conn
 
     PQclear(res);
 
-    USERDEFINEDTYPE parentTree;
-
-    initUserDefinedType(&parentTree);
-    parentTree.idamclass = TYPE_COMPOUND;
-    strcpy(parentTree.name, "ACTIVELIMITS_STRUCT");
-    strcpy(parentTree.source, "paramsdb");
-    parentTree.ref_id = 0;
-    parentTree.imagecount = 0;
-    parentTree.image = NULL;
-    parentTree.size = sizeof(ACTIVELIMITS_STRUCT);
-
-    COMPOUNDFIELD field;
-    int offset = 0;
-
-    initCompoundField(&field);
-    strcpy(field.name, "system");
-    defineField(&field, "system", "system", &offset, SCALARSTRING);
-    addCompoundField(&parentTree, field);
-
-    initCompoundField(&field);
-    strcpy(field.name, "subtype");
-    defineField(&field, "subtype", "subtype", &offset, SCALARSTRING);
-    addCompoundField(&parentTree, field);
-
-    initCompoundField(&field);
-    strcpy(field.name, "coil");
-    defineField(&field, "coil", "coil", &offset, SCALARSTRING);
-    addCompoundField(&parentTree, field);
-
-    initCompoundField(&field);
-    strcpy(field.name, "coils");
-    defineField(&field, "coils", "coils", &offset, ARRAYSTRING);
-    addCompoundField(&parentTree, field);
-
-    initCompoundField(&field);
-    strcpy(field.name, "upper_lowers");
-    defineField(&field, "upper_lowers", "upper_lowers", &offset, ARRAYSTRING);
-    addCompoundField(&parentTree, field);
-
-    initCompoundField(&field);
-    strcpy(field.name, "values");
-    defineField(&field, "values", "values", &offset, ARRAYDOUBLE);
-    addCompoundField(&parentTree, field);
-
-    addUserDefinedType(userdefinedtypelist, parentTree);
-
-    initDataBlock(data_block);
+    // Pass Data
 
     data_block->data_type = TYPE_COMPOUND;
     data_block->rank = 0;
@@ -686,9 +698,9 @@ int do_getForceCoefficients(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PGconn
     DATA_BLOCK* data_block = idam_plugin_interface->data_block;
     initDataBlock(data_block);
 
-    char* coil = NULL;
-    char* subtype = NULL;
-    char* upper_lower = NULL;
+    const char* coil = NULL;
+    const char* subtype = NULL;
+    const char* upper_lower = NULL;
 
     FIND_REQUIRED_STRING_VALUE(request_block->nameValueList, coil);
     FIND_REQUIRED_STRING_VALUE(request_block->nameValueList, subtype);
@@ -1016,9 +1028,9 @@ int do_getCoilParameters(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PGconn* c
     DATA_BLOCK* data_block = idam_plugin_interface->data_block;
     initDataBlock(data_block);
 
-    char* coil = NULL;
-    char* upper_lower = NULL;
-    char* parameter = NULL;
+    const char* coil = NULL;
+    const char* upper_lower = NULL;
+    const char* parameter = NULL;
 
     FIND_REQUIRED_STRING_VALUE(request_block->nameValueList, coil);
     FIND_REQUIRED_STRING_VALUE(request_block->nameValueList, upper_lower);

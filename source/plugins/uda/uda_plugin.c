@@ -142,14 +142,10 @@ extern int UDAPlugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
  */
 int do_help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
-    DATA_BLOCK* data_block = idam_plugin_interface->data_block;
-    initDataBlock(data_block);
+    const char* help = "\nUDA: Add Functions Names, Syntax, and Descriptions\n\n";
+    const char* desc = "UDA: help = description of this plugin";
 
-    const char* help = "\ntemplatePlugin: Add Functions Names, Syntax, and Descriptions\n\n";
-
-    strcpy(data_block->data_desc, "templatePlugin: help = description of this plugin");
-
-    return setReturnDataString(idam_plugin_interface, help);
+    return setReturnDataString(idam_plugin_interface->data_block, help, desc);
 }
 
 /**
@@ -159,12 +155,7 @@ int do_help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
  */
 int do_version(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
-    DATA_BLOCK* data_block = idam_plugin_interface->data_block;
-    initDataBlock(data_block);
-
-    strcpy(data_block->data_desc, "Plugin version number");
-
-    return setReturnDataIntScalar(idam_plugin_interface, THISPLUGIN_VERSION);
+    return setReturnDataIntScalar(idam_plugin_interface->data_block, THISPLUGIN_VERSION, "Plugin version number");
 }
 
 /**
@@ -174,12 +165,7 @@ int do_version(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
  */
 int do_builddate(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
-    DATA_BLOCK* data_block = idam_plugin_interface->data_block;
-    initDataBlock(data_block);
-
-    strcpy(data_block->data_desc, "Plugin build date");
-
-    return setReturnDataString(idam_plugin_interface, __DATE__);
+    return setReturnDataString(idam_plugin_interface->data_block, __DATE__, "Plugin build date");
 }
 
 /**
@@ -189,12 +175,7 @@ int do_builddate(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
  */
 int do_defaultmethod(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
-    DATA_BLOCK* data_block = idam_plugin_interface->data_block;
-    initDataBlock(data_block);
-
-    strcpy(data_block->data_desc, "Plugin default method");
-
-    return setReturnDataString(idam_plugin_interface, THISPLUGIN_DEFAULT_METHOD);
+    return setReturnDataString(idam_plugin_interface->data_block, THISPLUGIN_DEFAULT_METHOD, "Plugin default method");
 }
 
 /**
@@ -204,18 +185,12 @@ int do_defaultmethod(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
  */
 int do_maxinterfaceversion(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
-    DATA_BLOCK* data_block = idam_plugin_interface->data_block;
-    initDataBlock(data_block);
-
-    strcpy(data_block->data_desc, "Maximum Interface Version");
-
-    return setReturnDataIntScalar(idam_plugin_interface, THISPLUGIN_MAX_INTERFACE_VERSION);
+    return setReturnDataIntScalar(idam_plugin_interface->data_block, THISPLUGIN_MAX_INTERFACE_VERSION, "Maximum Interface Version");
 }
 
 static int do_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, char* oldServerHost, int* oldPort)
 {
     int err = 0;
-    DATA_BLOCK* data_block = idam_plugin_interface->data_block;
 
     // Version 6 structures
 
@@ -294,9 +269,6 @@ static int do_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, char* oldServerH
 
     int handle = 0;
     int newPort = 0;
-
-    char signal[2 * MAXNAME + 2];
-    char source[2 * MAXNAME + 2];
 
 /* ----------------------------------------------------------------------
 Notes: there are three pathways depending on the request pattern
@@ -388,6 +360,9 @@ Notes: there are three pathways depending on the request pattern
 
     if (pathway == 1) {    // Request via the Database
 
+        char signal[2 * MAXNAME + 2];
+        char source[2 * MAXNAME + 2];
+
         sprintf(signal, "%s::%s", data_source->archive, signal_desc->signal_name);
         sprintf(source, "%s::%d", data_source->device_name, data_source->exp_number);
 
@@ -431,6 +406,8 @@ Notes: there are three pathways depending on the request pattern
         handle = idamGetAPI(signal, source);
 
     } else if (pathway == 2) {
+
+        char source[2 * MAXNAME + 2];
 
         //----------------------------------------------------------------------
         // Device redirect or server protocol
@@ -484,16 +461,16 @@ Notes: there are three pathways depending on the request pattern
         //----------------------------------------------------------------------
         // Function library
 
-        char* host = NULL;
-        unsigned short isHost = findStringValue(&request_block->nameValueList, &host, "host");
+        const char* host = NULL;
+        bool isHost = findStringValue(&request_block->nameValueList, &host, "host");
 
-        char* signal = NULL;
-        unsigned short isSignal = findStringValue(&request_block->nameValueList, &signal, "signal");
+        const char* signal = NULL;
+        bool isSignal = findStringValue(&request_block->nameValueList, &signal, "signal");
 
-        char* source = NULL;
-        unsigned short isSource = findStringValue(&request_block->nameValueList, &source, "source");
+        const char* source = NULL;
+        bool isSource = findStringValue(&request_block->nameValueList, &source, "source");
 
-        unsigned short isPort = findIntValue(&request_block->nameValueList, &newPort, "port");
+        bool isPort = findIntValue(&request_block->nameValueList, &newPort, "port");
 
         // Set host and port
 
@@ -522,6 +499,8 @@ Notes: there are three pathways depending on the request pattern
             THROW_ERROR(999, "A data object (signal) has not been specified!");
         }
     } else if (pathway == 4) {
+
+        char source[2 * MAXNAME + 2];
 
         //----------------------------------------------------------------------
         // Server protocol
@@ -593,9 +572,9 @@ Notes: there are three pathways depending on the request pattern
     // Check the originals have no XML action definitions before replacement
     // Why should a plugin have this concern?
 
-    int version = getIdamClientVersion();
+    DATA_BLOCK* data_block = idam_plugin_interface->data_block;
 
-    if (version == 7) {
+    if (getIdamClientVersion() == 7) {
         // This should contain everything!
         *data_block = *getIdamDataBlock(handle);
     } else {                        // use abstraction functions

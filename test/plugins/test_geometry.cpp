@@ -26,7 +26,8 @@ TEST_CASE( "Test GEOM::help() function", "[GEOM][plugins]" ) {
 
     REQUIRE( str != NULL );
 
-    std::string expected = "\nnewHDF5: get - Read data from a HDF5 file\n\n";
+    std::string expected = "\ngeometry: Retrieve geometry data from netcdf files, signal mapping data & "
+            "filenames\n\n";
 
     REQUIRE( str->str() == expected );
 }

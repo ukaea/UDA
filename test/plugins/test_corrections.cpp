@@ -26,7 +26,7 @@ TEST_CASE( "Test ANBCORRECTIONS::help() function", "[ANBCORRECTIONS][plugins]" )
 
     REQUIRE( str != NULL );
 
-    std::string expected = "\nnewHDF5: get - Read data from a HDF5 file\n\n";
+    std::string expected = "\nanbCorrections: Functions Names and Test Descriptions\n\n";
 
     REQUIRE( str->str() == expected );
 }

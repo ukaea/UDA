@@ -66,8 +66,7 @@ typedef struct MongoR {
 
 extern int query(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
-    int i, err = 0, offset;
-    char* p;
+    int err = 0, offset;
 
     static short init = 0;
 
@@ -173,8 +172,8 @@ extern int query(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 //----------------------------------------------------------------------------------------
 // Initialise 
 
-    if (!init || STR_IEQUALS(request_block->function, "init")
-        || STR_IEQUALS(request_block->function, "initialise")) {
+    if (!STR_IEQUALS(request_block->function, "help") && (!init || STR_IEQUALS(request_block->function, "init")
+        || STR_IEQUALS(request_block->function, "initialise"))) {
 
         char* env = NULL;
 
@@ -311,63 +310,37 @@ readwrite
         if (STR_IEQUALS(request_block->function, "query") ||
             STR_IEQUALS(request_block->function, THISPLUGIN_DEFAULT_METHOD)) {
 
-            unsigned short int isObjectName = 0, isExpNumber = 0, isDevice = 0, allMeta = 0, isObjectSource = 0, isType = 0, isSourceClass = 0, isObjectClass = 0;
-            char* empty = "";
-            char* objectName = empty, * device = empty, * objectSource = empty, * type = empty, * sourceClass = empty, * objectClass = empty;
+            bool isObjectName;
+            bool isObjectSource = false;
+            bool isExpNumber = false;
+            bool isDevice;
+            bool isType = false;
+            bool isSourceClass = false;
+            bool isObjectClass = false;
+            bool allMeta;
+
+            const char* objectName = NULL;
+            const char* objectSource = NULL;
             int expNumber = 0;
+            const char* device = NULL;
+            const char* type = NULL;
+            const char* sourceClass = NULL;
+            const char* objectClass = NULL;
 
-            if (STR_IEQUALS(request_block->function,
-                            "query")) {        // Name Value pairs => a regular returned DATA_BLOCK
+            if (STR_IEQUALS(request_block->function, "query")) {
+                // Name Value pairs => a regular returned DATA_BLOCK
 
-                for (i = 0; i < request_block->nameValueList.pairCount; i++) {
-                    if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "signal") ||
-                        STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "objectName")) {
-                        isObjectName = 1;
-                        objectName = request_block->nameValueList.nameValue[i].value;
-                        continue;
-                    }
-                    if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "source") ||
-                        STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "objectSource")) {
-                        isObjectSource = 1;
-                        objectSource = request_block->nameValueList.nameValue[i].value;
-                        continue;
-                    }
-                    if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "shot") ||
-                        STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "exp_number") ||
-                        STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "pulse") ||
-                        STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "pulno")) {
-                        isExpNumber = 1;
-                        expNumber = atoi(request_block->nameValueList.nameValue[i].value);
-                        continue;
-                    }
-                    if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "device")) {
-                        isDevice = 1;
-                        device = request_block->nameValueList.nameValue[i].value;
-                        continue;
-                    }
-                    if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "type")) {
-                        isType = 1;
-                        type = request_block->nameValueList.nameValue[i].value;
-                        continue;
-                    }
-                    if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "sourceClass")) {
-                        isSourceClass = 1;
-                        sourceClass = request_block->nameValueList.nameValue[i].value;
-                        continue;
-                    }
-                    if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "objectClass")) {
-                        isObjectClass = 1;
-                        objectClass = request_block->nameValueList.nameValue[i].value;
-                        continue;
-                    }
-// Keywords
-                    if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "allMeta")) {
-                        allMeta = 1;
-                        continue;
-                    }
-                }
+                isObjectName = findStringValue(&request_block->nameValueList, &objectName, "signal|objectName");
+                isObjectSource = findStringValue(&request_block->nameValueList, &objectName, "source|objectSource");
+                isExpNumber = findIntValue(&request_block->nameValueList, &expNumber, "shot|exp_number|pulse|pulno");
+                isDevice = FIND_STRING_VALUE(request_block->nameValueList, device);
+                isType = FIND_STRING_VALUE(request_block->nameValueList, type);
+                isSourceClass = FIND_STRING_VALUE(request_block->nameValueList, sourceClass);
+                isObjectClass = FIND_STRING_VALUE(request_block->nameValueList, objectClass);
+                allMeta = findValue(&request_block->nameValueList, "allMeta");
 
-            } else {    // Default Method: Names and shot or source passed via the standard legacy API arguments => returned SIGNAL_DESC and DATA_SOURCE
+            } else {
+                // Default Method: Names and shot or source passed via the standard legacy API arguments => returned SIGNAL_DESC and DATA_SOURCE
 
                 isObjectName = 1;
                 objectName = request_block->signal;
@@ -380,6 +353,7 @@ readwrite
                     isObjectSource = 1;
                     objectSource = request_block->tpass;
                 }
+
                 isDevice = 0;
                 allMeta = 0;
             }
@@ -452,10 +426,12 @@ Best Query time (micro secs) [load]
 
 */
 
+            char* name = strupr(strdup(objectName));
             query = BCON_NEW ("$or", "[",
-                              "{", "signal_alias", BCON_UTF8(strupr(objectName)), "}",
-                              "{", "generic_name", BCON_UTF8(strupr(objectName)), "}",
+                              "{", "signal_alias", BCON_UTF8(name), "}",
+                              "{", "generic_name", BCON_UTF8(name), "}",
                               "]");
+            free(name);
 
             if (isExpNumber) {
                 BCON_APPEND (query, "$and", "[",
@@ -473,66 +449,71 @@ Best Query time (micro secs) [load]
             }
 
             if (isDevice) {
-                char* temp = (char*)malloc((strlen(objectClass) + 1) * sizeof(char));
-                strcpy(temp, strupr(device));
+                char* lower = strlwr(strdup(device));
+                char* upper = strupr(strdup(device));
                 BCON_APPEND (query, "$and", "[",
                              "{", "$or", "[",
-                             "{", "source_device", "{", "$eq", BCON_UTF8(strlwr(device)), "}", "}",
-                             "{", "source_device", "{", "$eq", BCON_UTF8(temp), "}", "}",
+                             "{", "source_device", "{", "$eq", BCON_UTF8(lower), "}", "}",
+                             "{", "source_device", "{", "$eq", BCON_UTF8(upper), "}", "}",
                              "]",
                              "}",
                              "]");
-                free(temp);
+                free(lower);
+                free(upper);
             }
 
             if (isObjectSource) {
-                char* temp = (char*)malloc((strlen(objectClass) + 1) * sizeof(char));
-                strcpy(temp, strupr(objectSource));
+                char* lower = strlwr(strdup(objectSource));
+                char* upper = strupr(strdup(objectSource));
                 BCON_APPEND (query, "$and", "[",
                              "{", "$or", "[",
-                             "{", "objectSource", "{", "$eq", BCON_UTF8(strlwr(objectSource)), "}", "}",
-                             "{", "objectSource", "{", "$eq", BCON_UTF8(temp), "}", "}",
+                             "{", "objectSource", "{", "$eq", BCON_UTF8(lower), "}", "}",
+                             "{", "objectSource", "{", "$eq", BCON_UTF8(upper), "}", "}",
                              "]",
                              "}",
                              "]");
-                free(temp);
+                free(lower);
+                free(upper);
             }
             if (isType) {
-                char* temp = (char*)malloc((strlen(objectClass) + 1) * sizeof(char));
-                strcpy(temp, strupr(type));
+                char* lower = strlwr(strdup(type));
+                char* upper = strupr(strdup(type));
                 BCON_APPEND (query, "$and", "[",
                              "{", "$or", "[",
-                             "{", "type", "{", "$eq", BCON_UTF8(strlwr(type)), "}", "}",
-                             "{", "type", "{", "$eq", BCON_UTF8(temp), "}", "}",
+                             "{", "type", "{", "$eq", BCON_UTF8(lower), "}", "}",
+                             "{", "type", "{", "$eq", BCON_UTF8(upper), "}", "}",
                              "]",
                              "}",
                              "]");
-                free(temp);
+                free(lower);
+                free(upper);
             }
             if (isSourceClass) {
-                char* temp = (char*)malloc((strlen(sourceClass) + 1) * sizeof(char));
-                strcpy(temp, strupr(sourceClass));
+                char* lower = strlwr(strdup(sourceClass));
+                char* upper = strupr(strdup(sourceClass));
                 BCON_APPEND (query, "$and", "[",
                              "{", "$or", "[",
-                             "{", "source_alias", "{", "$eq", BCON_UTF8(strlwr(sourceClass)), "}", "}",
-                             "{", "source_alias", "{", "$eq", BCON_UTF8(temp), "}", "}",
+                             "{", "source_alias", "{", "$eq", BCON_UTF8(lower), "}", "}",
+                             "{", "source_alias", "{", "$eq", BCON_UTF8(upper), "}", "}",
                              "]",
                              "}",
                              "]");
-                free(temp);
+                free(lower);
+                free(upper);
             }
 
             if (isObjectClass) {
-                char* temp = (char*)malloc((strlen(objectClass) + 1) * sizeof(char));
-                strcpy(temp, strupr(objectClass));
+                char* lower = strlwr(strdup(objectClass));
+                char* upper = strupr(strdup(objectClass));
                 BCON_APPEND (query, "$and", "[",
                              "{", "$or", "[",
-                             "{", "signal_class", BCON_UTF8(strlwr(objectClass)), "}",
-                             "{", "signal_class", BCON_UTF8(temp), "}",
+                             "{", "signal_class", BCON_UTF8(lower), "}",
+                             "{", "signal_class", BCON_UTF8(upper), "}",
                              "]",
                              "}",
                              "]");
-                free(temp);
+                free(lower);
+                free(upper);
             }
 
 
@@ -839,9 +820,7 @@ Best Query time (micro secs) [load]
 
         if (STR_IEQUALS(request_block->function, "help")) {
 
-            p = (char*)malloc(sizeof(char) * 2 * 1024);
-
-            strcpy(p, "\nMongoDBPlugin: Function Names, Syntax, and Descriptions\n\n"
+            char* help = "\nMongoDBPlugin: Function Names, Syntax, and Descriptions\n\n"
                     "Query the mongoDB IDAM database for specific instances of a data object by alias or generic name and shot number\n\n"
                     "\tquery( [signal|objectName]=objectName, [shot|exp_number|pulse|pulno]=exp_number [,source|objectSource=objectSource] [,device=device] [,/allMeta])\n"
                     "\t       [objectClass=objectClass] [,sourceClass=sourceClass] [,type=type])\n\n"
@@ -857,21 +836,25 @@ Best Query time (micro secs) [load]
                     "\tobjectName is a mandatory argument. One or both of exp_number and ObjectSource is also mandatory unless passed via the client API's second argument.\n\n"
 
                     "\tExample\tidamGetAPI(\"mongodbplugin::query(signal=ip, shot=12345, device=ITER, /allmeta)\", \"\");\n"
-                    "\t\tidamGetAPI(\"mongodbplugin::query(signal=ip, device=ITER, /allmeta)\", \"12345\");\n\n");
+                    "\t\tidamGetAPI(\"mongodbplugin::query(signal=ip, device=ITER, /allmeta)\", \"12345\");\n\n";
 
             initDataBlock(data_block);
 
             data_block->rank = 1;
             data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
-            for (i = 0; i < data_block->rank; i++) initDimBlock(&data_block->dims[i]);
+
+            int i;
+            for (i = 0; i < data_block->rank; i++) {
+                initDimBlock(&data_block->dims[i]);
+            }
 
             data_block->data_type = TYPE_STRING;
             strcpy(data_block->data_desc, "MongoDBPlugin: help = description of this plugin");
 
-            data_block->data = (char*)p;
+            data_block->data = strdup(help);
 
             data_block->dims[0].data_type = TYPE_UNSIGNED_INT;
-            data_block->dims[0].dim_n = strlen(p) + 1;
+            data_block->dims[0].dim_n = strlen(help) + 1;
             data_block->dims[0].compressed = 1;
             data_block->dims[0].dim0 = 0.0;
             data_block->dims[0].diff = 1.0;

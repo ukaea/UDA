@@ -30,22 +30,26 @@ static char* getMappingValue(const char* mappingFileName, const char* IDSRequest
 static char* deblank(char* token);
 
 #ifndef strndup
-char *
-strndup (const char *s, size_t n)
+
+char*
+strndup(const char* s, size_t n)
 {
-    char *result;
-    size_t len = strlen (s);
+    char* result;
+    size_t len = strlen(s);
 
-    if (n < len)
+    if (n < len) {
         len = n;
+    }
 
-    result = (char *) malloc (len + 1);
-    if (!result)
-    return 0;
+    result = (char*)malloc(len + 1);
+    if (!result) {
+        return 0;
+    }
 
     result[len] = '\0';
-    return (char *) memcpy (result, s, len);
+    return (char*)memcpy (result, s, len);
 }
+
 #endif
 
 int tsPlugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
@@ -63,7 +67,7 @@ int tsPlugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         THISPLUGIN_MAX_INTERFACE_VERSION) {
         err = 999;
         IDAM_LOG(LOG_ERROR,
-                "ERROR templatePlugin: Plugin Interface Version Unknown to this plugin: Unable to execute the request!\n");
+                 "ERROR templatePlugin: Plugin Interface Version Unknown to this plugin: Unable to execute the request!\n");
         addIdamError(&idamerrorstack, CODEERRORTYPE, "templatePlugin",
                      err,
                      "Plugin Interface Version Unknown to this plugin: Unable to execute the request!");
@@ -130,7 +134,7 @@ int tsPlugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         init = 1;
         if (STR_IEQUALS(request_block->function, "init")
             || STR_IEQUALS(request_block->function, "initialise")) {
-                return 0;
+            return 0;
         }
     }
     // ----------------------------------------------------------------------------------------
@@ -170,118 +174,41 @@ int tsPlugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 // Help: A Description of library functionality
 int do_help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
-    DATA_BLOCK* data_block = idam_plugin_interface->data_block;
+    const char* help = "\ntsPlugin: this plugin maps Tore Supra data to IDS\n\n";
+    const char* desc = "tsPlugin: help = plugin used for mapping Tore Supra experimental data to IDS";
 
-    char* p = (char*) malloc(sizeof(char) * 2 * 1024);
-
-    strcpy(p, "\ntsPlugin: this plugin maps Tore Supra data to IDS\n\n");
-
-    initDataBlock(data_block);
-
-    data_block->rank = 1;
-    data_block->dims = (DIMS*) malloc(data_block->rank * sizeof(DIMS));
-
-    int i;
-    for (i = 0; i < data_block->rank; i++) {
-        initDimBlock(&data_block->dims[i]);
-    }
-
-    data_block->data_type = TYPE_STRING;
-    strcpy(data_block->data_desc,
-           "tsPlugin: help = plugin used for mapping Tore Supra experimental data to IDS");
-
-    data_block->data = (char*) p;
-
-    data_block->dims[0].data_type = TYPE_UNSIGNED_INT;
-    data_block->dims[0].dim_n = strlen(p) + 1;
-    data_block->dims[0].compressed = 1;
-    data_block->dims[0].dim0 = 0.0;
-    data_block->dims[0].diff = 1.0;
-    data_block->dims[0].method = 0;
-
-    data_block->dims[0].compressed = 0;
-
-    data_block->data_n = data_block->dims[0].dim_n;
-
-    strcpy(data_block->data_label, "");
-    strcpy(data_block->data_units, "");
-
-    return 0;
+    return setReturnDataString(idam_plugin_interface->data_block, help, desc);
 }
 
 int do_version(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
-    DATA_BLOCK* data_block = idam_plugin_interface->data_block;
+    const char* desc = "Plugin version number";
 
-    initDataBlock(data_block);
-    data_block->data_type = TYPE_INT;
-    data_block->rank = 0;
-    data_block->data_n = 1;
-    int* data = (int*) malloc(sizeof(int));
-    data[0] = THISPLUGIN_VERSION;
-    data_block->data = (char*) data;
-    strcpy(data_block->data_desc, "Plugin version number");
-    strcpy(data_block->data_label, "version");
-    strcpy(data_block->data_units, "");
-
-    return 0;
+    return setReturnDataIntScalar(idam_plugin_interface->data_block, THISPLUGIN_VERSION, desc);
 }
 
 // Plugin Build Date
 int do_builddate(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
-    DATA_BLOCK* data_block = idam_plugin_interface->data_block;
+    const char* desc = "Plugin build date";
 
-    initDataBlock(data_block);
-    data_block->data_type = TYPE_STRING;
-    data_block->rank = 0;
-    data_block->data_n = strlen(__DATE__) + 1;
-    char* data = (char*) malloc(data_block->data_n * sizeof(char));
-    strcpy(data, __DATE__);
-    data_block->data = (char*) data;
-    strcpy(data_block->data_desc, "Plugin build date");
-    strcpy(data_block->data_label, "date");
-    strcpy(data_block->data_units, "");
-
-    return 0;
+    return setReturnDataString(idam_plugin_interface->data_block, __DATE__, desc);
 }
 
 // Plugin Default Method
 int do_defaultmethod(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
-    DATA_BLOCK* data_block = idam_plugin_interface->data_block;
+    const char* desc = "Plugin default method";
 
-    initDataBlock(data_block);
-    data_block->data_type = TYPE_STRING;
-    data_block->rank = 0;
-    data_block->data_n = strlen(THISPLUGIN_DEFAULT_METHOD) + 1;
-    char* data = (char*) malloc(data_block->data_n * sizeof(char));
-    strcpy(data, THISPLUGIN_DEFAULT_METHOD);
-    data_block->data = (char*) data;
-    strcpy(data_block->data_desc, "Plugin default method");
-    strcpy(data_block->data_label, "method");
-    strcpy(data_block->data_units, "");
-
-    return 0;
+    return setReturnDataString(idam_plugin_interface->data_block, THISPLUGIN_DEFAULT_METHOD, desc);
 }
 
 // Plugin Maximum Interface Version
 int do_maxinterfaceversion(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
-    DATA_BLOCK* data_block = idam_plugin_interface->data_block;
+    const char* desc = "Maximum Interface Version";
 
-    initDataBlock(data_block);
-    data_block->data_type = TYPE_INT;
-    data_block->rank = 0;
-    data_block->data_n = 1;
-    int* data = (int*) malloc(sizeof(int));
-    data[0] = THISPLUGIN_MAX_INTERFACE_VERSION;
-    data_block->data = (char*) data;
-    strcpy(data_block->data_desc, "Maximum Interface Version");
-    strcpy(data_block->data_label, "version");
-    strcpy(data_block->data_units, "");
-
-    return 0;
+    return setReturnDataIntScalar(idam_plugin_interface->data_block, THISPLUGIN_MAX_INTERFACE_VERSION, desc);
 }
 
 // ----------------------------------------------------------------------------------------
@@ -295,7 +222,7 @@ int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     initDataBlock(data_block);
 
     data_block->rank = 1;
-    data_block->dims = (DIMS*) malloc(data_block->rank * sizeof(DIMS));
+    data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
 
     int i;
     for (i = 0; i < data_block->rank; i++) {
@@ -304,7 +231,7 @@ int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     REQUEST_BLOCK* request_block = idam_plugin_interface->request_block;
 
-    char* element;        // will contain the modified IDSRequest
+    const char* element;        // will contain the modified IDSRequest
     // which will be one key of the IDS
     // requests mapping file
     int shot;
@@ -315,7 +242,7 @@ int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     FIND_REQUIRED_INT_VALUE(request_block->nameValueList, shot);
     FIND_REQUIRED_INT_ARRAY(request_block->nameValueList, indices);
 
-    char* IDSRequest = element;
+    const char* IDSRequest = element;
 
     // Search mapping value and request type (static or dynamic)
     char* fullTSMappingFileName =
@@ -323,9 +250,7 @@ int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     char* mappingFileName = getenv("UDA_TS_MAPPING_FILE");
 
     int IDSRequestType;
-    const xmlChar* xPath =
-            (xmlChar*) getMappingValue(mappingFileName, IDSRequest,
-                                       &IDSRequestType);
+    const xmlChar* xPath = (xmlChar*)getMappingValue(mappingFileName, IDSRequest, &IDSRequestType);
 
     if (xPath == NULL) {
         return -1;
@@ -344,47 +269,47 @@ int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         int data_type = data_block->data_type;
 
         if (data_type == TYPE_DOUBLE) {
-            double* data = (double*) data_block->data;
+            double* data = (double*)data_block->data;
             double temp = data[0];
             //if (indices[0] > 0)
             //    temp = data[indices[0]-1];
             data_block->data = malloc(sizeof(double));
-            *((double*) data_block->data) = temp;
+            *((double*)data_block->data) = temp;
             free(data);
         } else if (data_type == TYPE_FLOAT) {
-            float* data = (float*) data_block->data;
+            float* data = (float*)data_block->data;
             float temp = data[0];
             //if (indices[0] > 0)
             //    temp = data[indices[0]-1];
             data_block->data = malloc(sizeof(float));
-            *((float*) data_block->data) = temp;
+            *((float*)data_block->data) = temp;
             free(data);
         } else if (data_type == TYPE_LONG) {
-            long* data = (long*) data_block->data;
+            long* data = (long*)data_block->data;
             long temp = data[0];
             //if (indices[0] > 0)
             //    temp = data[indices[0]-1];
             data_block->data = malloc(sizeof(long));
-            *((long*) data_block->data) = temp;
+            *((long*)data_block->data) = temp;
             free(data);
         } else if (data_type == TYPE_INT) {
-            int* data = (int*) data_block->data;
+            int* data = (int*)data_block->data;
             int temp = data[0];
             //if (indices[0] > 0)
             //    temp = data[indices[0]-1];
             data_block->data = malloc(sizeof(int));
-            *((int*) data_block->data) = temp;
+            *((int*)data_block->data) = temp;
             free(data);
         } else if (data_type == TYPE_SHORT) {
-            short* data = (short*) data_block->data;
+            short* data = (short*)data_block->data;
             short temp = data[0];
             //if (indices[0] > 0)
             //    temp = data[indices[0]-1];
             data_block->data = malloc(sizeof(short));
-            *((short*) data_block->data) = temp;
+            *((short*)data_block->data) = temp;
             free(data);
         } else if (data_type == TYPE_STRING) {
-            char* data = (char*) data_block->data;
+            char* data = (char*)data_block->data;
             char* temp = deblank(strdup(data));
             data_block->data = temp;
             free(data);
@@ -440,9 +365,9 @@ int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             data_block->rank = 1;
             data_block->data_type = TYPE_FLOAT;
             data_block->data_n = len;
-            data_block->data = (char*) data;
+            data_block->data = (char*)data;
             data_block->dims =
-                    (DIMS*) malloc(data_block->rank * sizeof(DIMS));
+                    (DIMS*)malloc(data_block->rank * sizeof(DIMS));
 
             for (i = 0; i < data_block->rank; i++) {
                 initDimBlock(&data_block->dims[i]);
@@ -451,7 +376,7 @@ int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             data_block->dims[0].data_type = TYPE_FLOAT;
             data_block->dims[0].dim_n = len;
             data_block->dims[0].compressed = 0;
-            data_block->dims[0].dim = (char*) time;
+            data_block->dims[0].dim = (char*)time;
 
             strcpy(data_block->data_label, "");
             strcpy(data_block->data_units, "");
@@ -529,7 +454,7 @@ char* getMappingValue(const char* mappingFileName, const char* IDSRequest,
 
     int len = strlen(IDSRequest) + 26;
     xmlChar* xPathExpr = malloc(len + sizeof(xmlChar));
-    xmlStrPrintf(xPathExpr, len, (FMT_TYPE)"//mapping[@key='%s']/@value", IDSRequest);
+    xmlStrPrintf(xPathExpr, len, "//mapping[@key='%s']/@value", IDSRequest);
 
     /*
      * Evaluate xpath expression for the type
@@ -554,7 +479,7 @@ char* getMappingValue(const char* mappingFileName, const char* IDSRequest,
     if (size != 0) {
         cur = nodes->nodeTab[0];
         cur = cur->children;
-        value = strdup((char*) cur->content);
+        value = strdup((char*)cur->content);
     } else {
         err = 998;
         addIdamError(&idamerrorstack, CODEERRORTYPE,
@@ -562,7 +487,7 @@ char* getMappingValue(const char* mappingFileName, const char* IDSRequest,
                      "no result on XPath request, no key attribute defined?");
     }
 
-    xmlStrPrintf(xPathExpr, len, (FMT_TYPE)"//mapping[@key='%s']/@type", IDSRequest);
+    xmlStrPrintf(xPathExpr, len, "//mapping[@key='%s']/@type", IDSRequest);
 
     /*
      * Evaluate xpath expression for the type
@@ -586,7 +511,7 @@ char* getMappingValue(const char* mappingFileName, const char* IDSRequest,
     if (size != 0) {
         cur = nodes->nodeTab[0];
         cur = cur->children;
-        typeStr = strdup((char*) cur->content);
+        typeStr = strdup((char*)cur->content);
     } else {
         err = 998;
         addIdamError(&idamerrorstack, CODEERRORTYPE,
