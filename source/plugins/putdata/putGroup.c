@@ -26,7 +26,7 @@ int do_group(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     //--------------------------------------------------------------------------
     // Locate or Define the Group (Can use / for Top Level - Ignored!)
 
-    IDAM_LOGF(LOG_DEBUG, "Testing whole group Hierarchy [%s]\n", name);
+    IDAM_LOGF(UDA_LOG_DEBUG, "Testing whole group Hierarchy [%s]\n", name);
 
     if (!STR_EQUALS(name, "/")) {
         // Not required if Top Level Group
@@ -38,7 +38,7 @@ int do_group(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         if ((token = strtok(work, "/")) != NULL) {
             // Tokenise for 1 or more grouping levels
 
-            IDAM_LOGF(LOG_DEBUG, "Testing group [%s]\n", token);
+            IDAM_LOGF(UDA_LOG_DEBUG, "Testing group [%s]\n", token);
 
             int status;
             int grpid;
@@ -47,16 +47,16 @@ int do_group(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 RAISE_PLUGIN_ERROR("Unable to Find or Define a Top Level Group");
             }
 
-            IDAM_LOGF(LOG_DEBUG, "Status   %d", status);
-            IDAM_LOGF(LOG_DEBUG, "Group ID %d", grpid);
+            IDAM_LOGF(UDA_LOG_DEBUG, "Status   %d", status);
+            IDAM_LOGF(UDA_LOG_DEBUG, "Group ID %d", grpid);
 
             if (status == 1) {
                 // Create all Child Nodes
 
-                IDAM_LOGF(LOG_DEBUG, "Group %s did not exist - Created with all child groups", token);
+                IDAM_LOGF(UDA_LOG_DEBUG, "Group %s did not exist - Created with all child groups", token);
 
                 while ((token = strtok(NULL, "/")) != NULL) {
-                    IDAM_LOGF(LOG_DEBUG, "Creating Group [%s]", token);
+                    IDAM_LOGF(UDA_LOG_DEBUG, "Creating Group [%s]", token);
                     if (nc_def_grp(grpid, token, &grpid) != NC_NOERR) {
                         RAISE_PLUGIN_ERROR("Unable to Create a Child Group");
                     }
@@ -65,30 +65,30 @@ int do_group(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
                 // Find or Define Child Nodes
 
-                IDAM_LOGF(LOG_DEBUG, "Group [%s] Found - Locating all child groups", token);
+                IDAM_LOGF(UDA_LOG_DEBUG, "Group [%s] Found - Locating all child groups", token);
 
                 while ((token = strtok(NULL, "/")) != NULL) {        // Loop over all Intermediate Groups
 
-                    IDAM_LOGF(LOG_DEBUG, "Testing Group [%s]", token);
+                    IDAM_LOGF(UDA_LOG_DEBUG, "Testing Group [%s]", token);
 
                     if (testgroup(grpid, token, &status, &grpid) != NC_NOERR) {
                         RAISE_PLUGIN_ERROR("Unable to Find or Define an Intermediate Level Group");
                     }
 
-                    IDAM_LOGF(LOG_DEBUG, "Status   %d", status);
-                    IDAM_LOGF(LOG_DEBUG, "Group ID %d", grpid);
+                    IDAM_LOGF(UDA_LOG_DEBUG, "Status   %d", status);
+                    IDAM_LOGF(UDA_LOG_DEBUG, "Group ID %d", grpid);
 
                     if (status == 1) {                    // Create all Child Nodes
-                        IDAM_LOGF(LOG_DEBUG, "Group [%s] did not exist - Created with all child groups", token);
+                        IDAM_LOGF(UDA_LOG_DEBUG, "Group [%s] did not exist - Created with all child groups", token);
                         while ((token = strtok(NULL, "/")) != NULL) {
-                            IDAM_LOGF(LOG_DEBUG, "Creating Group [%s]", token);
+                            IDAM_LOGF(UDA_LOG_DEBUG, "Creating Group [%s]", token);
                             if (nc_def_grp(grpid, token, &grpid) != NC_NOERR) {
                                 RAISE_PLUGIN_ERROR("Unable to Create a Child Group");
                             }
                         }
                         break;
                     } else {
-                        IDAM_LOGF(LOG_DEBUG, "Group [%s] Found", token);
+                        IDAM_LOGF(UDA_LOG_DEBUG, "Group [%s] Found", token);
                     }
 
                 }
@@ -98,7 +98,7 @@ int do_group(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         free((void*) work);
 
     } else {
-        IDAM_LOG(LOG_DEBUG, "Top Level Group Selected");
+        IDAM_LOG(UDA_LOG_DEBUG, "Top Level Group Selected");
     }
 
     return 0;
@@ -112,7 +112,7 @@ int testgroup(int locid, const char* target, int* status, int* targetid)
     // Does this group exist?
     // Obtain List from the level
 
-    IDAM_LOGF(LOG_DEBUG, "How many Child Groups (ID %d) ?\n", locid);
+    IDAM_LOGF(UDA_LOG_DEBUG, "How many Child Groups (ID %d) ?\n", locid);
 
     int numgrps;
 
@@ -120,13 +120,13 @@ int testgroup(int locid, const char* target, int* status, int* targetid)
         RAISE_PLUGIN_ERROR("Unable to Count the Child Groups");
     }
 
-    IDAM_LOGF(LOG_DEBUG, "Child Groups Count = %d\n", numgrps);
+    IDAM_LOGF(UDA_LOG_DEBUG, "Child Groups Count = %d\n", numgrps);
 
     if (numgrps > 0) {
 
         int* ncids = (int*) malloc(sizeof(int) * numgrps);
 
-        IDAM_LOG(LOG_DEBUG, "Listing Child Groups");
+        IDAM_LOG(UDA_LOG_DEBUG, "Listing Child Groups");
 
         if (nc_inq_grps(locid, &numgrps, ncids) != NC_NOERR) {
             free((void*) ncids);
@@ -137,7 +137,7 @@ int testgroup(int locid, const char* target, int* status, int* targetid)
 
         int i;
         for (i = 0; i < numgrps; i++) {
-            IDAM_LOGF(LOG_DEBUG, "Testing Child Group %d\n", ncids[i]);
+            IDAM_LOGF(UDA_LOG_DEBUG, "Testing Child Group %d\n", ncids[i]);
 
             char* grpname = NULL;
             int namelength;
@@ -156,10 +156,10 @@ int testgroup(int locid, const char* target, int* status, int* targetid)
                 RAISE_PLUGIN_ERROR("Unable to Name an existing Group");
             }
 
-            IDAM_LOGF(LOG_DEBUG, "Comparing Group Name [%s] with Target Group [%s]", grpname, target);
+            IDAM_LOGF(UDA_LOG_DEBUG, "Comparing Group Name [%s] with Target Group [%s]", grpname, target);
 
             if (STR_EQUALS(grpname, target)) {
-                IDAM_LOGF(LOG_DEBUG, "Group Found %d\n", ncids[i]);
+                IDAM_LOGF(UDA_LOG_DEBUG, "Group Found %d\n", ncids[i]);
                 *targetid = ncids[i]; // Found - it exists!
                 *status = 0;
                 free((void*) grpname);
@@ -175,7 +175,7 @@ int testgroup(int locid, const char* target, int* status, int* targetid)
 
     if (*targetid == -1) {
         // Doesn't exist so create it
-        IDAM_LOGF(LOG_DEBUG, "Creating the Group [%s]\n", target);
+        IDAM_LOGF(UDA_LOG_DEBUG, "Creating the Group [%s]\n", target);
 
         if (nc_def_grp(locid, target, targetid) != NC_NOERR) {
             RAISE_PLUGIN_ERROR("Unable to Create a Named Group");

@@ -72,7 +72,7 @@ int do_attribute(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     if (putdata.data_type != TYPE_STRING) {
         if (putdata.rank == 0 && putdata.count == 1) {
-            IDAM_LOG(LOG_DEBUG, "Scalar Attribute to be added");
+            IDAM_LOG(UDA_LOG_DEBUG, "Scalar Attribute to be added");
 
             int err;
             switch (putdata.data_type) {
@@ -143,7 +143,7 @@ int do_attribute(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             }
         } else if (putdata.rank > 0 && putdata.count >= 1 && putdata.data != NULL) {
 
-            IDAM_LOG(LOG_DEBUG, "Array to be added");
+            IDAM_LOG(UDA_LOG_DEBUG, "Array to be added");
 
             if (putdata.rank > 1) {
                 RAISE_PLUGIN_ERROR("Array Attributes Must be Rank 1");
@@ -200,7 +200,7 @@ int do_attribute(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         const char* text = putdata.data;
 
         if (text != NULL) {
-            IDAM_LOGF(LOG_DEBUG, "Text Attribute to be added: %s", text);
+            IDAM_LOGF(UDA_LOG_DEBUG, "Text Attribute to be added: %s", text);
 
             int notstrict = findValue(&idam_plugin_interface->request_block->nameValueList, "nostrict");
 

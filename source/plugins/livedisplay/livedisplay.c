@@ -814,7 +814,7 @@ extern int livedisplay(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     if (housekeeping || !strcasecmp(request_block->function, "reset")) {
 
-        //idamLog(LOG_DEBUG, "LiveDisplay: reset function called.\n");
+        //idamLog(UDA_LOG_DEBUG, "LiveDisplay: reset function called.\n");
 
         if (flux_loop_cache != NULL) {
             int i;
@@ -5329,7 +5329,7 @@ PF_ACTIVE/COIL/%d/CURRENT/TIME
 /*
         if (!strcasecmp(request_block->function, "get")) {
 
-            //idamLog(LOG_DEBUG, "LiveDisplay: GET entered\n");
+            //idamLog(UDA_LOG_DEBUG, "LiveDisplay: GET entered\n");
 
 // Create the Returned Structure Definitions
 
@@ -5461,7 +5461,7 @@ PF_ACTIVE/COIL/%d/CURRENT/TIME
             data_block->opaque_count = 1;
             data_block->opaque_block = (void*) findUserDefinedType("MAGNETICS_TEST", 0);
 
-            //idamLog(LOG_DEBUG, "LiveDisplay: GET exited\n");
+            //idamLog(UDA_LOG_DEBUG, "LiveDisplay: GET exited\n");
 
             break;
 

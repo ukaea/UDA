@@ -80,15 +80,15 @@ int do_variable(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     int* shape = putdata.shape;
     const char* data = putdata.data;
 
-    IDAM_LOGF(LOG_DEBUG, "Variable %s:\n", name);
-    IDAM_LOGF(LOG_DEBUG, "Rank     %d:\n", rank);
-    IDAM_LOGF(LOG_DEBUG, "Length   %d:\n", length);
-    IDAM_LOG(LOG_DEBUG, "Shape:\n");
+    IDAM_LOGF(UDA_LOG_DEBUG, "Variable %s:\n", name);
+    IDAM_LOGF(UDA_LOG_DEBUG, "Rank     %d:\n", rank);
+    IDAM_LOGF(UDA_LOG_DEBUG, "Length   %d:\n", length);
+    IDAM_LOG(UDA_LOG_DEBUG, "Shape:\n");
     int i;
     for (i = 0; i < rank; i++) {
-        IDAM_LOGF(LOG_DEBUG, "    [%d]=%d\n", i, shape[i]);
+        IDAM_LOGF(UDA_LOG_DEBUG, "    [%d]=%d\n", i, shape[i]);
     }
-    IDAM_LOGF(LOG_DEBUG, "Dimensions: %s\n", dimensions);
+    IDAM_LOGF(UDA_LOG_DEBUG, "Dimensions: %s\n", dimensions);
 
     //--------------------------------------------------------------------------
     // Check the variable's dimension names are specified and within the scope of this group
@@ -128,8 +128,8 @@ int do_variable(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         mdimids[mndims] = dimid;
         ++mndims;
 
-        IDAM_LOGF(LOG_DEBUG, "Rank: %d, mndims: %d\n", rank, mndims);
-        IDAM_LOGF(LOG_DEBUG, "Coordinate Dimension %s has ID %d\n", trimtoken, ncdimid);
+        IDAM_LOGF(UDA_LOG_DEBUG, "Rank: %d, mndims: %d\n", rank, mndims);
+        IDAM_LOGF(UDA_LOG_DEBUG, "Coordinate Dimension %s has ID %d\n", trimtoken, ncdimid);
 
         free((void*) trimtoken);
 
@@ -152,13 +152,13 @@ int do_variable(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     int nctype = swapType(putdata.data_type, ctype, dctype);
 
-    IDAM_LOG(LOG_DEBUG, "\nUser defined Compound Types\n ");
-    IDAM_LOGF(LOG_DEBUG, "Creating the Data Variable %s \n", name);
-    IDAM_LOGF(LOG_DEBUG, "Type ID %d \n", nctype);
-    IDAM_LOGF(LOG_DEBUG, "Dimension Count %d \n", mndims);
-    IDAM_LOG(LOG_DEBUG, "Dimension IDs\n");
+    IDAM_LOG(UDA_LOG_DEBUG, "\nUser defined Compound Types\n ");
+    IDAM_LOGF(UDA_LOG_DEBUG, "Creating the Data Variable %s \n", name);
+    IDAM_LOGF(UDA_LOG_DEBUG, "Type ID %d \n", nctype);
+    IDAM_LOGF(UDA_LOG_DEBUG, "Dimension Count %d \n", mndims);
+    IDAM_LOG(UDA_LOG_DEBUG, "Dimension IDs\n");
     for (i = 0; i < mndims; i++) {
-        IDAM_LOGF(LOG_DEBUG, "[%d]", mdimids[i]);
+        IDAM_LOGF(UDA_LOG_DEBUG, "[%d]", mdimids[i]);
     }
 
     //--------------------------------------------------------------------------
@@ -168,7 +168,7 @@ int do_variable(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         RAISE_PLUGIN_ERROR("Unable to Create the Data Variable");
     }
 
-    IDAM_LOGF(LOG_DEBUG, "Variable ID %d \n", varid);
+    IDAM_LOGF(UDA_LOG_DEBUG, "Variable ID %d \n", varid);
 
     //--------------------------------------------------------------------------
     // Get a List of the UNLIMITED Dimensions in scope of this group
@@ -180,16 +180,16 @@ int do_variable(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         RAISE_PLUGIN_ERROR("Unable to Inquire on Unlimited Dimension IDs");
     }
 
-    IDAM_LOGF(LOG_DEBUG, "Number of Unlimited Dimensions %d", nunlimdimids);
-    IDAM_LOG(LOG_DEBUG, "Unlimited Dimension IDs");
+    IDAM_LOGF(UDA_LOG_DEBUG, "Number of Unlimited Dimensions %d", nunlimdimids);
+    IDAM_LOG(UDA_LOG_DEBUG, "Unlimited Dimension IDs");
     for (i = 0; i < nunlimdimids; i++) {
-        IDAM_LOGF(LOG_DEBUG, "[%d]", unlimdimids[i]);
+        IDAM_LOGF(UDA_LOG_DEBUG, "[%d]", unlimdimids[i]);
     }
 
     //--------------------------------------------------------------------------
     // Shape (Reversed in C from IDL so data(a,b,c) is data[c][b][a])
 
-    IDAM_LOGF(LOG_DEBUG, "Testing variable %s Dimension Lengths are Consistent \n", name);
+    IDAM_LOGF(UDA_LOG_DEBUG, "Testing variable %s Dimension Lengths are Consistent \n", name);
 
     // Allocate shape array for use only if one of the dimensions is UNLIMITED
 
@@ -217,12 +217,12 @@ int do_variable(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             }
         }
 
-        IDAM_LOGF(LOG_DEBUG, "Dimension %d has length %d\n", mdimids[i], dimlength);
+        IDAM_LOGF(UDA_LOG_DEBUG, "Dimension %d has length %d\n", mdimids[i], dimlength);
 
         if (isUnlimited) {
             unlimitedCount++;
             extents[i] = (size_t) shape[i]; // Capture the current size of each UNLIMITED dimension
-            IDAM_LOGF(LOG_DEBUG, "extents[%d] = %d \n", i, (int) extents[i]);
+            IDAM_LOGF(UDA_LOG_DEBUG, "extents[%d] = %d \n", i, (int) extents[i]);
         }
 
         //Check dimension length matches input data dimension length (including unlimited)
@@ -245,7 +245,7 @@ int do_variable(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             } else {
                 chunking[i] = (size_t) shape[i];
             }
-            IDAM_LOGF(LOG_DEBUG, "Using Chunking[%d] = %d\n", i, (int) chunking[i]);
+            IDAM_LOGF(UDA_LOG_DEBUG, "Using Chunking[%d] = %d\n", i, (int) chunking[i]);
         }
 
         if (isUnlimited) {
@@ -266,7 +266,7 @@ int do_variable(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     FIND_INT_VALUE(idam_plugin_interface->request_block->nameValueList, compression);
 
     if (length > 1 && rank > 0 && compression > 0) {
-        IDAM_LOGF(LOG_DEBUG, "Using Compression level %d\n", compression);
+        IDAM_LOGF(UDA_LOG_DEBUG, "Using Compression level %d\n", compression);
 
         if ((err = nc_def_var_deflate(grpid, varid, NC_SHUFFLE, 1, compression)) != NC_NOERR) {
             RAISE_PLUGIN_ERROR("Unable to set the Compression Properties of Variable");
@@ -276,14 +276,14 @@ int do_variable(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     //--------------------------------------------------------------------------
     // Write the Data Variable
 
-    IDAM_LOGF(LOG_DEBUG, "Writing Data to the Data Variable %s \n", name);
+    IDAM_LOGF(UDA_LOG_DEBUG, "Writing Data to the Data Variable %s \n", name);
 
     if (rank == 0 && length == 1) {
         // Scalar Data Item
         size_t start[1] = { 0 };
         size_t count[1] = { 1 };
 
-        IDAM_LOGF(LOG_DEBUG, "Data Variable %s is a Scalar\n", name);
+        IDAM_LOGF(UDA_LOG_DEBUG, "Data Variable %s is a Scalar\n", name);
 
         switch (nctype) {
             case NC_FLOAT: {
@@ -393,54 +393,54 @@ int do_variable(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             start[i] = 0;
         }
 
-        IDAM_LOGF(LOG_DEBUG, "Data Variable %s is an Array\n", name);
-        IDAM_LOGF(LOG_DEBUG, "Length %d\n", length);
-        IDAM_LOGF(LOG_DEBUG, "Rank: %d\n", rank);
-        IDAM_LOG(LOG_DEBUG, "Shape:");
+        IDAM_LOGF(UDA_LOG_DEBUG, "Data Variable %s is an Array\n", name);
+        IDAM_LOGF(UDA_LOG_DEBUG, "Length %d\n", length);
+        IDAM_LOGF(UDA_LOG_DEBUG, "Rank: %d\n", rank);
+        IDAM_LOG(UDA_LOG_DEBUG, "Shape:");
         for (i = 0; i < rank; i++) {
-            IDAM_LOGF(LOG_DEBUG, "[%d]", shape[i]);
+            IDAM_LOGF(UDA_LOG_DEBUG, "[%d]", shape[i]);
         }
-        IDAM_LOG(LOG_DEBUG, "Starting Indices:");
+        IDAM_LOG(UDA_LOG_DEBUG, "Starting Indices:");
         for (i = 0; i < rank; i++) {
-            IDAM_LOGF(LOG_DEBUG, "[%d]", start[i]);
+            IDAM_LOGF(UDA_LOG_DEBUG, "[%d]", start[i]);
         }
 
         switch (nctype) {
             case NC_FLOAT:
-                IDAM_LOGF(LOG_DEBUG, "Data Variable %s is a Float Array\n", name);
+                IDAM_LOGF(UDA_LOG_DEBUG, "Data Variable %s is a Float Array\n", name);
                 err = nc_put_vara_float(grpid, varid, start, extents, (float*) data);
                 break;
             case NC_DOUBLE:
-                IDAM_LOGF(LOG_DEBUG, "Data Variable %s is a Double Array\n", name);
+                IDAM_LOGF(UDA_LOG_DEBUG, "Data Variable %s is a Double Array\n", name);
                 err = nc_put_vara_double(grpid, varid, start, extents, (double*) data);
                 break;
             case NC_INT64:
-                IDAM_LOGF(LOG_DEBUG, "Data Variable %s is an long long Array\n", name);
+                IDAM_LOGF(UDA_LOG_DEBUG, "Data Variable %s is an long long Array\n", name);
                 err = nc_put_vara_longlong(grpid, varid, start, extents, (long long*) data);
                 break;
             case NC_INT:
-                IDAM_LOGF(LOG_DEBUG, "Data Variable %s is an int Array\n", name);
+                IDAM_LOGF(UDA_LOG_DEBUG, "Data Variable %s is an int Array\n", name);
                 err = nc_put_vara_int(grpid, varid, start, extents, (int*) data);
                 break;
             case NC_SHORT:
-                IDAM_LOGF(LOG_DEBUG, "Data Variable %s is a short Array\n", name);
+                IDAM_LOGF(UDA_LOG_DEBUG, "Data Variable %s is a short Array\n", name);
                 err = nc_put_vara_short(grpid, varid, start, extents, (short*) data);
                 break;
             case NC_BYTE:
-                IDAM_LOGF(LOG_DEBUG, "Data Variable %s is a byte Array\n", name);
+                IDAM_LOGF(UDA_LOG_DEBUG, "Data Variable %s is a byte Array\n", name);
                 err = nc_put_vara_schar(grpid, varid, start, extents, (signed char*) data);
                 break;
             case NC_UINT64:
-                IDAM_LOGF(LOG_DEBUG, "Data Variable %s is an unsigned long long Array\n", name);
+                IDAM_LOGF(UDA_LOG_DEBUG, "Data Variable %s is an unsigned long long Array\n", name);
                 err = nc_put_vara_ulonglong(grpid, varid, start, extents,
                                             (unsigned long long*) data);
                 break;
             case NC_UINT:
-                IDAM_LOGF(LOG_DEBUG, "Data Variable %s is an unsigned int Array\n", name);
+                IDAM_LOGF(UDA_LOG_DEBUG, "Data Variable %s is an unsigned int Array\n", name);
                 err = nc_put_vara_uint(grpid, varid, start, extents, (unsigned int*) data);
                 break;
             case NC_USHORT:
-                IDAM_LOGF(LOG_DEBUG, "Data Variable %s is an unsigned short Array\n", name);
+                IDAM_LOGF(UDA_LOG_DEBUG, "Data Variable %s is an unsigned short Array\n", name);
                 err = nc_put_vara_ushort(grpid, varid, start, extents,
                                          (unsigned short*) data);
                 break;
@@ -463,11 +463,11 @@ int do_variable(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     // Write extents attribute if any dimension was UNLIMITED
 
     if (unlimitedCount > 0) {
-        IDAM_LOGF(LOG_DEBUG, "Writing Extent Attribute of variable %s\n", name);
+        IDAM_LOGF(UDA_LOG_DEBUG, "Writing Extent Attribute of variable %s\n", name);
         unsigned int iextents[NC_MAX_DIMS];
         for (i = 0; i < mndims; i++) {
             iextents[i] = (unsigned int)extents[i];
-            IDAM_LOGF(LOG_DEBUG, "[%d]=%d\n", i, extents[i]);
+            IDAM_LOGF(UDA_LOG_DEBUG, "[%d]=%d\n", i, extents[i]);
         }
         if ((err = nc_put_att_uint(grpid, varid, "extent", NC_UINT64, mndims, iextents)) != NC_NOERR) {
             RAISE_PLUGIN_ERROR("Unable to Write the Extent Attribute of variable");
@@ -650,7 +650,7 @@ int testDimension(int grpid, char* dimension, int parents, int* ncdimid)
         return err;
     }
 
-    IDAM_LOGF(LOG_DEBUG, "Number of Dimensions Visible from Group %d\n", ndims);
+    IDAM_LOGF(UDA_LOG_DEBUG, "Number of Dimensions Visible from Group %d\n", ndims);
 
     if (ndims == 0) {
         *ncdimid = -1;
@@ -664,15 +664,15 @@ int testDimension(int grpid, char* dimension, int parents, int* ncdimid)
     int i;
     for (i = 0; i < ndims; i++) {
         if ((err = nc_inq_dimname(grpid, dimids[i], dimname)) != NC_NOERR) {
-            IDAM_LOGF(LOG_DEBUG, "Unable to Name an existing Dimension %d\n", dimids[i]);
+            IDAM_LOGF(UDA_LOG_DEBUG, "Unable to Name an existing Dimension %d\n", dimids[i]);
             return err;
         }
 
-        IDAM_LOGF(LOG_DEBUG, "Comparing Dimension Name [%s] with Target [%s]\n", dimname, dimension);
+        IDAM_LOGF(UDA_LOG_DEBUG, "Comparing Dimension Name [%s] with Target [%s]\n", dimname, dimension);
 
         if (STR_EQUALS(dimension, dimname)) {
             // Dimension Found
-            IDAM_LOGF(LOG_DEBUG, "Dimension [%s] Found: ID %d\n", dimension, dimids[i]);
+            IDAM_LOGF(UDA_LOG_DEBUG, "Dimension [%s] Found: ID %d\n", dimension, dimids[i]);
             *ncdimid = dimids[i];
             return err;
         }

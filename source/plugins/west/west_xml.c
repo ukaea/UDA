@@ -59,7 +59,7 @@ static void getObjectName(char** obj_name, char* command);
 
 int GetStaticData(int shotNumber, const char* mapfun, DATA_BLOCK* data_block, int* nodeIndices)
 {
-	IDAM_LOG(LOG_DEBUG, "Calling GetStaticData() from WEST plugin\n");
+	IDAM_LOG(UDA_LOG_DEBUG, "Calling GetStaticData() from WEST plugin\n");
 
 	//IDAM data block initialization
 	initDataBlock(data_block);
@@ -72,7 +72,7 @@ int GetStaticData(int shotNumber, const char* mapfun, DATA_BLOCK* data_block, in
 
 	assert(mapfun); //Mandatory function to get WEST data
 
-	IDAM_LOG(LOG_DEBUG, "Calling execute() from WEST plugin\n");
+	IDAM_LOG(UDA_LOG_DEBUG, "Calling execute() from WEST plugin\n");
 	int status = execute(mapfun, shotNumber, data_block, nodeIndices);
 
 	if (status != 0) {
@@ -102,7 +102,7 @@ int execute(const char* mapfun, int shotNumber, DATA_BLOCK* data_block, int* nod
 	char* normalizationAttributes = NULL; //example : multiply:cste:3     (multiply value by constant factor equals to 3)
 
 	getFunName(mapfun, &fun_name);
-	IDAM_LOGF(LOG_DEBUG, "fun_name: %s\n", fun_name);
+	IDAM_LOGF(UDA_LOG_DEBUG, "fun_name: %s\n", fun_name);
 
 	int fun = -1;
 
@@ -132,8 +132,8 @@ int execute(const char* mapfun, int shotNumber, DATA_BLOCK* data_block, int* nod
 
 	switch (fun) {
 	case 0: {
-		IDAM_LOG(LOG_DEBUG, "Case of tsmat_collect from WEST plugin\n");
-		IDAM_LOG(LOG_DEBUG, "Calling tokenizeFunParameters() from WEST plugin\n");
+		IDAM_LOG(UDA_LOG_DEBUG, "Case of tsmat_collect from WEST plugin\n");
+		IDAM_LOG(UDA_LOG_DEBUG, "Calling tokenizeFunParameters() from WEST plugin\n");
 		tokenizeFunParameters(mapfun, &TOP_collections_parameters, &attributes, &normalizationAttributes);
 		execute_tsmat_collect(TOP_collections_parameters, attributes, shotNumber, data_block, nodeIndices,
 				normalizationAttributes);
@@ -143,36 +143,36 @@ int execute(const char* mapfun, int shotNumber, DATA_BLOCK* data_block, int* nod
 
 	case 1: {
 
-		IDAM_LOG(LOG_DEBUG, "Case of shape_of_tsmat_collect from WEST plugin\n");
+		IDAM_LOG(UDA_LOG_DEBUG, "Case of shape_of_tsmat_collect from WEST plugin\n");
 
-		IDAM_LOG(LOG_DEBUG, "Calling tokenizeFunParameters() from WEST plugin\n");
+		IDAM_LOG(UDA_LOG_DEBUG, "Calling tokenizeFunParameters() from WEST plugin\n");
 		tokenizeFunParameters(mapfun, &TOP_collections_parameters, &attributes, &normalizationAttributes);
 
 		//Get the number of parameters collections
 		int collectionsCount;
 
-		IDAM_LOG(LOG_DEBUG, "Calling getTopCollectionsCount() from WEST plugin for shape_of_tsmat_collect case\n");
+		IDAM_LOG(UDA_LOG_DEBUG, "Calling getTopCollectionsCount() from WEST plugin for shape_of_tsmat_collect case\n");
 		getTopCollectionsCount(TOP_collections_parameters, &collectionsCount);
 
 		printNum("Collections count : ", collectionsCount);
 
-		IDAM_LOG(LOG_DEBUG, "Calling tokenizeFunCollect() from WEST plugin\n");
+		IDAM_LOG(UDA_LOG_DEBUG, "Calling tokenizeFunCollect() from WEST plugin\n");
 
 		//Get the total size by adding all collections lengths
 		int i;
 		int parametersSize = 0;
 		for (i = 0; i < collectionsCount; i++) {
 			char* command = NULL;
-			IDAM_LOG(LOG_DEBUG, "Calling getCommand() from WEST plugin for shape_of_tsmat_collect case\n");
+			IDAM_LOG(UDA_LOG_DEBUG, "Calling getCommand() from WEST plugin for shape_of_tsmat_collect case\n");
 			getCommand(i, &command, TOP_collections_parameters); //get one command
-			IDAM_LOGF(LOG_DEBUG, "Command : %s\n", command);
+			IDAM_LOGF(UDA_LOG_DEBUG, "Command : %s\n", command);
 			int nb_val = 0;
-			IDAM_LOG(LOG_DEBUG, "Calling getShapeOf() from WEST plugin for shape_of_tsmat_collect case\n");
+			IDAM_LOG(UDA_LOG_DEBUG, "Calling getShapeOf() from WEST plugin for shape_of_tsmat_collect case\n");
 			getShapeOf(command, shotNumber, &nb_val);
 
 			printNum("nb_val : ", nb_val);
 
-			IDAM_LOG(LOG_DEBUG, "after getShapeOf\n");
+			IDAM_LOG(UDA_LOG_DEBUG, "after getShapeOf\n");
 			parametersSize += nb_val;
 		}
 
@@ -186,9 +186,9 @@ int execute(const char* mapfun, int shotNumber, DATA_BLOCK* data_block, int* nod
 	}
 
 	case 2: {
-		IDAM_LOG(LOG_DEBUG, "Case of set_value from WEST plugin\n");
+		IDAM_LOG(UDA_LOG_DEBUG, "Case of set_value from WEST plugin\n");
 
-		IDAM_LOG(LOG_DEBUG, "Calling tokenizeFunParameters() from WEST plugin\n");
+		IDAM_LOG(UDA_LOG_DEBUG, "Calling tokenizeFunParameters() from WEST plugin\n");
 		char* value = NULL;
 		tokenizeFunParameters(mapfun, &value, &attributes, &normalizationAttributes);
 
@@ -198,29 +198,29 @@ int execute(const char* mapfun, int shotNumber, DATA_BLOCK* data_block, int* nod
 
 
 		if (data_type == TYPE_FLOAT) {
-			IDAM_LOG(LOG_DEBUG, "TYPE_FLOAT requested from WEST plugin\n");
+			IDAM_LOG(UDA_LOG_DEBUG, "TYPE_FLOAT requested from WEST plugin\n");
 			buffer = malloc(sizeof(float));
 			float* f_buf = (float*)buffer;
 			*f_buf = atof(value);
 		} else if (data_type == TYPE_INT) {
-			IDAM_LOG(LOG_DEBUG, "TYPE_INT requested from WEST plugin\n");
+			IDAM_LOG(UDA_LOG_DEBUG, "TYPE_INT requested from WEST plugin\n");
 			buffer = malloc(sizeof(int));
 			int* i_buf = (int*)buffer;
 			*i_buf = atoi(value);
 		} else if (data_type == TYPE_STRING) {
-			IDAM_LOG(LOG_DEBUG, "TYPE_STRING requested from WEST plugin\n");
+			IDAM_LOG(UDA_LOG_DEBUG, "TYPE_STRING requested from WEST plugin\n");
 			buffer = strdup(value);
 		} else {
 			int err = 999;
-			IDAM_LOG(LOG_DEBUG, "Unsupported data type\n");
+			IDAM_LOG(UDA_LOG_DEBUG, "Unsupported data type\n");
 			addIdamError(&idamerrorstack, CODEERRORTYPE, "Unsupported data type", err, "");
 		}
 
-		IDAM_LOG(LOG_DEBUG, "Calling setStaticValue()\n");
+		IDAM_LOG(UDA_LOG_DEBUG, "Calling setStaticValue()\n");
 		float normalizationFactor = 1;
 		getNormalizationFactor(&normalizationFactor, normalizationAttributes);
 		setStaticValue(data_type, data_block, buffer, 0, normalizationFactor); //index is always 0 in this case
-		IDAM_LOG(LOG_DEBUG, "Returning from setStaticValue()\n");
+		IDAM_LOG(UDA_LOG_DEBUG, "Returning from setStaticValue()\n");
 
 		free(value);
 		free(buffer);
@@ -228,8 +228,8 @@ int execute(const char* mapfun, int shotNumber, DATA_BLOCK* data_block, int* nod
 	}
 
 	case 3: {
-		IDAM_LOG(LOG_DEBUG, "Case of tsmat from WEST plugin\n");
-		IDAM_LOG(LOG_DEBUG, "Calling tokenizeFunParameters() from WEST plugin\n");
+		IDAM_LOG(UDA_LOG_DEBUG, "Case of tsmat from WEST plugin\n");
+		IDAM_LOG(UDA_LOG_DEBUG, "Calling tokenizeFunParameters() from WEST plugin\n");
 		tokenizeFunParameters(mapfun, &TOP_collections_parameters, &attributes, &normalizationAttributes);
 		execute_tsmat_without_idam_index(TOP_collections_parameters, attributes, shotNumber, data_block,
 				normalizationAttributes);
@@ -237,8 +237,8 @@ int execute(const char* mapfun, int shotNumber, DATA_BLOCK* data_block, int* nod
 	}
 
 	case 4: {
-		IDAM_LOG(LOG_DEBUG, "Case of set_value_collect from WEST plugin\n");
-		IDAM_LOG(LOG_DEBUG, "Calling tokenizeFunParameters() from WEST plugin\n");
+		IDAM_LOG(UDA_LOG_DEBUG, "Case of set_value_collect from WEST plugin\n");
+		IDAM_LOG(UDA_LOG_DEBUG, "Calling tokenizeFunParameters() from WEST plugin\n");
 		tokenizeFunParameters(mapfun, &TOP_collections_parameters, &attributes, &normalizationAttributes);
 		execute_setvalue_collect(TOP_collections_parameters, attributes, shotNumber, data_block, nodeIndices,
 				normalizationAttributes);
@@ -246,11 +246,11 @@ int execute(const char* mapfun, int shotNumber, DATA_BLOCK* data_block, int* nod
 	}
 
 	case 5: {
-		IDAM_LOG(LOG_DEBUG, "Case of set_channels_validity from WEST plugin\n");
+		IDAM_LOG(UDA_LOG_DEBUG, "Case of set_channels_validity from WEST plugin\n");
 		char* unvalid_channels_request = NULL; //used for interfero_polarimeter IDS, example : invalid_channels:2:1,2
 		int unvalid_channels_size;
 		int* unvalid_channels_list = NULL;
-		IDAM_LOG(LOG_DEBUG, "Calling tokenize_set_channels_validity() from WEST plugin\n");
+		IDAM_LOG(UDA_LOG_DEBUG, "Calling tokenize_set_channels_validity() from WEST plugin\n");
 		tokenize_set_channels_validity(mapfun, &unvalid_channels_request, &attributes);
 
 		getUnvalidChannelsSize(unvalid_channels_request, &unvalid_channels_size);
@@ -279,15 +279,15 @@ void execute_setchannels_validity(int* unvalid_channels_list, int unvalid_channe
 {
 	int requestedIndex = getNumIDAMIndex(attributes, nodeIndices);
 	int channel_number = requestedIndex + 1; //TODO TO CHECK
-	IDAM_LOGF(LOG_DEBUG, "channel number : %d\n", channel_number);
+	IDAM_LOGF(UDA_LOG_DEBUG, "channel number : %d\n", channel_number);
 
 	if (isChannelValid(channel_number, unvalid_channels_list, unvalid_channels_size)) {
-		IDAM_LOGF(LOG_DEBUG, "valid channel number : %d\n", channel_number);
+		IDAM_LOGF(UDA_LOG_DEBUG, "valid channel number : %d\n", channel_number);
 		setStaticINTValue(TYPE_INT, data_block, 0, 1.0);
 	}
 	else
 	{
-		IDAM_LOGF(LOG_DEBUG, "unvalid channel number : %d\n", channel_number);
+		IDAM_LOGF(UDA_LOG_DEBUG, "unvalid channel number : %d\n", channel_number);
 		setStaticINTValue(TYPE_INT, data_block, -1, 1.0);
 	}
 }
@@ -317,15 +317,15 @@ void execute_setvalue_collect(const char* TOP_collections_parameters, char* attr
 	int searchedArrayIndex;
 
 	searchIndices(requestedIndex, l, &searchedArray, &searchedArrayIndex);
-	IDAM_LOGF(LOG_DEBUG, "searchedArray : %d\n", searchedArray);
-	IDAM_LOGF(LOG_DEBUG, "searchedArrayIndex : %d\n", searchedArrayIndex);
+	IDAM_LOGF(UDA_LOG_DEBUG, "searchedArray : %d\n", searchedArray);
+	IDAM_LOGF(UDA_LOG_DEBUG, "searchedArrayIndex : %d\n", searchedArrayIndex);
 
 	char* command = NULL;
 	getCommand(searchedArray, &command, TOP_collections_parameters);
 
 	char* value;
 	getValueCollect(command, &value, nodeIndices);
-	IDAM_LOGF(LOG_DEBUG, "Command : %s\n", command);
+	IDAM_LOGF(UDA_LOG_DEBUG, "Command : %s\n", command);
 
 	int data_type;
 	getReturnType(attributes, &data_type);
@@ -333,30 +333,30 @@ void execute_setvalue_collect(const char* TOP_collections_parameters, char* attr
 	char* buffer = NULL;
 
 	if (data_type == TYPE_FLOAT) {
-		IDAM_LOG(LOG_DEBUG, "TYPE_FLOAT requested from WEST plugin\n");
+		IDAM_LOG(UDA_LOG_DEBUG, "TYPE_FLOAT requested from WEST plugin\n");
 		buffer = malloc(sizeof(float));
 		float* f_buf = (float*)buffer;
 		*f_buf = atof(value);
 	} else if (data_type == TYPE_DOUBLE) {
-		IDAM_LOG(LOG_DEBUG, "TYPE_DOUBLE requested from WEST plugin\n");
+		IDAM_LOG(UDA_LOG_DEBUG, "TYPE_DOUBLE requested from WEST plugin\n");
 		buffer = malloc(sizeof(double));
 		double* f_buf = (double*)buffer;
 		*f_buf = atof(value);
 	} else if (data_type == TYPE_INT) {
-		IDAM_LOG(LOG_DEBUG, "TYPE_INT requested from WEST plugin\n");
+		IDAM_LOG(UDA_LOG_DEBUG, "TYPE_INT requested from WEST plugin\n");
 		buffer = malloc(sizeof(int));
 		int* i_buf = (int*)buffer;
 		*i_buf = atoi(value);
 	} else if (data_type == TYPE_STRING) {
-		IDAM_LOG(LOG_DEBUG, "TYPE_STRING requested from WEST plugin\n");
+		IDAM_LOG(UDA_LOG_DEBUG, "TYPE_STRING requested from WEST plugin\n");
 		buffer = strdup(value);
 	} else {
 		int err = 999;
-		IDAM_LOG(LOG_DEBUG, "Unsupported data type in execute_setvalue_collect\n");
+		IDAM_LOG(UDA_LOG_DEBUG, "Unsupported data type in execute_setvalue_collect\n");
 		addIdamError(&idamerrorstack, CODEERRORTYPE, "Unsupported data type", err, "");
 	}
 
-	IDAM_LOGF(LOG_DEBUG, "Found value: %s\n", value);
+	IDAM_LOGF(UDA_LOG_DEBUG, "Found value: %s\n", value);
 
 	float normalizationFactor = 1;
 	getNormalizationFactor(&normalizationFactor, normalizationAttributes);
@@ -473,7 +473,7 @@ void execute_tsmat_without_idam_index(const char* TOP_collections_parameters, ch
 		setStatic1DValue(data_type, data_block, value, val_nb, normalizationFactor);
 	} else {
 		int err = 999;
-		IDAM_LOG(LOG_DEBUG, "Unsupported rank from execute_tsmat_without_idam_index()\n");
+		IDAM_LOG(UDA_LOG_DEBUG, "Unsupported rank from execute_tsmat_without_idam_index()\n");
 		addIdamError(&idamerrorstack, CODEERRORTYPE, "Unsupported data type", err, "");
 	}
 
@@ -488,7 +488,7 @@ void execute_tsmat_without_idam_index(const char* TOP_collections_parameters, ch
 int GetDynamicData(int shotNumber, const char* mapfun, DATA_BLOCK* data_block, int* nodeIndices)
 {
 
-	IDAM_LOG(LOG_DEBUG, "Entering GetDynamicData() -- WEST plugin\n");
+	IDAM_LOG(UDA_LOG_DEBUG, "Entering GetDynamicData() -- WEST plugin\n");
 	//IDAM data block initialization
 	initDataBlock(data_block);
 	data_block->rank = 1; //we return always a 1D array
@@ -511,26 +511,26 @@ int GetDynamicData(int shotNumber, const char* mapfun, DATA_BLOCK* data_block, i
 
 	getFunName(mapfun, &fun_name);
 
-	IDAM_LOG(LOG_DEBUG, "Evaluating the request type (tsbase_collect, tsbase_time, ...)\n");
+	IDAM_LOG(UDA_LOG_DEBUG, "Evaluating the request type (tsbase_collect, tsbase_time, ...)\n");
 	int fun;
 
 	if (strcmp(fun_name, "tsbase_collect") == 0) {
-		IDAM_LOG(LOG_DEBUG, "tsbase_collect request \n");
+		IDAM_LOG(UDA_LOG_DEBUG, "tsbase_collect request \n");
 		fun = 0;
 		tokenizeFunParameters(mapfun, &TOP_collections_parameters, &attributes, &normalizationAttributes);
 	} else if (strcmp(fun_name, "tsbase_time") == 0) {
-		IDAM_LOG(LOG_DEBUG, "tsbase_time request \n");
+		IDAM_LOG(UDA_LOG_DEBUG, "tsbase_time request \n");
 		fun = 1;
 		tokenizeFunParameters(mapfun, &TOP_collections_parameters, &attributes, &normalizationAttributes);
 	} else if (strcmp(fun_name, "tsbase_collect_with_channels") == 0) {
-		IDAM_LOG(LOG_DEBUG, "tsbase_collect_with_channels request \n");
+		IDAM_LOG(UDA_LOG_DEBUG, "tsbase_collect_with_channels request \n");
 		fun = 2;
 		tokenizeFunParametersWithChannels(mapfun, &unvalid_channels, &TOP_collections_parameters, &attributes, &normalizationAttributes);
 		getUnvalidChannelsSize(unvalid_channels, &unvalid_channels_size);
 		unvalid_channels_list = (int *)malloc(sizeof(int)*unvalid_channels_size);
 		getUnvalidChannels(unvalid_channels, unvalid_channels_list);
 	} else if (strcmp(fun_name, "tsbase_time_with_channels") == 0) {
-		IDAM_LOG(LOG_DEBUG, "tsbase_time_with_channels request \n");
+		IDAM_LOG(UDA_LOG_DEBUG, "tsbase_time_with_channels request \n");
 		fun = 3;
 		tokenizeFunParametersWithChannels(mapfun, &unvalid_channels, &TOP_collections_parameters, &attributes, &normalizationAttributes);
 		getUnvalidChannelsSize(unvalid_channels, &unvalid_channels_size);
@@ -538,7 +538,7 @@ int GetDynamicData(int shotNumber, const char* mapfun, DATA_BLOCK* data_block, i
 		getUnvalidChannels(unvalid_channels, unvalid_channels_list);
 	}
 
-	IDAM_LOG(LOG_DEBUG, "now searching for signals\n");
+	IDAM_LOG(UDA_LOG_DEBUG, "now searching for signals\n");
 	int collectionsCount;
 	getTopCollectionsCount(TOP_collections_parameters, &collectionsCount);
 
@@ -557,7 +557,7 @@ int GetDynamicData(int shotNumber, const char* mapfun, DATA_BLOCK* data_block, i
 		int nb_extractions = 0;
 		int occ = 0;
 
-		IDAM_LOG(LOG_DEBUG, "Group of signals1 ?\n");
+		IDAM_LOG(UDA_LOG_DEBUG, "Group of signals1 ?\n");
 		getSignalType(objectName, shotNumber, &signalType);
 
 		if (signalType == 2) {
@@ -569,14 +569,14 @@ int GetDynamicData(int shotNumber, const char* mapfun, DATA_BLOCK* data_block, i
 		extractionsCount[i] = nb_extractions;
 	}
 
-	IDAM_LOG(LOG_DEBUG, "searching for IDAM index\n");
-	IDAM_LOGF(LOG_DEBUG, "attributes : %s\n", attributes);
+	IDAM_LOG(UDA_LOG_DEBUG, "searching for IDAM index\n");
+	IDAM_LOGF(UDA_LOG_DEBUG, "attributes : %s\n", attributes);
 
 	int requestedIndex = getNumIDAMIndex(attributes, nodeIndices);
 
 	printNum("Requested index (from IDAM call) : ", requestedIndex);
 
-	IDAM_LOG(LOG_DEBUG, "searching for the array according to the static index\n");
+	IDAM_LOG(UDA_LOG_DEBUG, "searching for the array according to the static index\n");
 	int searchedArray;
 	int searchedArrayIndex;
 	searchIndices(requestedIndex, extractionsCount, &searchedArray, &searchedArrayIndex);
@@ -595,35 +595,35 @@ int GetDynamicData(int shotNumber, const char* mapfun, DATA_BLOCK* data_block, i
 		searchedArray = 0;
 	}
 
-	IDAM_LOG(LOG_DEBUG, "getting the command\n");
-	IDAM_LOGF(LOG_DEBUG, "TOP_collections_parameters: %s\n", TOP_collections_parameters);
+	IDAM_LOG(UDA_LOG_DEBUG, "getting the command\n");
+	IDAM_LOGF(UDA_LOG_DEBUG, "TOP_collections_parameters: %s\n", TOP_collections_parameters);
 
 	int status = getCommand(searchedArray, &command, TOP_collections_parameters);
 
 	if (status != 0) {
 		int err = 901;
-		IDAM_LOG(LOG_DEBUG, "Unable to get command\n");
+		IDAM_LOG(UDA_LOG_DEBUG, "Unable to get command\n");
 		addIdamError(&idamerrorstack, CODEERRORTYPE, "Unable to get command", err, "");
 	}
 
-	IDAM_LOGF(LOG_DEBUG, "command: %s\n", command);
-	IDAM_LOG(LOG_DEBUG, "Getting object name\n");
+	IDAM_LOGF(UDA_LOG_DEBUG, "command: %s\n", command);
+	IDAM_LOG(UDA_LOG_DEBUG, "Getting object name\n");
 	getObjectName(&objectName, command);
 
-	IDAM_LOG(LOG_DEBUG, "Group of signals ?\n");
+	IDAM_LOG(UDA_LOG_DEBUG, "Group of signals ?\n");
 	getSignalType(objectName, shotNumber, &signalType);
 
 	if (signalType == 2) { //signal is a group of signals, so we append extraction chars to signal name
-		IDAM_LOG(LOG_DEBUG, "Signal belongs to a group of signals\n");
+		IDAM_LOG(UDA_LOG_DEBUG, "Signal belongs to a group of signals\n");
 		char result[50];
 		addExtractionChars(result, objectName,
 				searchedArrayIndex + 1); //Concatenate signalName avec %searchedArrayIndex + 1
 		objectName = strdup(result);
 	} else {
-		IDAM_LOG(LOG_DEBUG, "Signal does not belong to a group of signals\n");
+		IDAM_LOG(UDA_LOG_DEBUG, "Signal does not belong to a group of signals\n");
 	}
 
-	IDAM_LOGF(LOG_DEBUG, "Object name: %s\n", objectName);
+	IDAM_LOGF(UDA_LOG_DEBUG, "Object name: %s\n", objectName);
 
 	float* time = NULL;
 	float* data = NULL;
@@ -633,29 +633,29 @@ int GetDynamicData(int shotNumber, const char* mapfun, DATA_BLOCK* data_block, i
 	status = readSignal(objectName, shotNumber, 0, rang, &time, &data, &len);
 
 	//float f1 = data[0];
-	IDAM_LOGF(LOG_DEBUG, "%s\n", "First values...");
+	IDAM_LOGF(UDA_LOG_DEBUG, "%s\n", "First values...");
 	int j;
 	for (j=0; j <10; j++) {
-		IDAM_LOGF(LOG_DEBUG, "value : %f\n", data[j]);
+		IDAM_LOGF(UDA_LOG_DEBUG, "value : %f\n", data[j]);
 	}
 
-	//IDAM_LOGF(LOG_DEBUG, "First value 1: %f\n", data(1));
+	//IDAM_LOGF(UDA_LOG_DEBUG, "First value 1: %f\n", data(1));
 
-	IDAM_LOG(LOG_DEBUG, "End of reading signal\n");
+	IDAM_LOG(UDA_LOG_DEBUG, "End of reading signal\n");
 
 	/*if (status != 0) {
             int err = 901;
             addIdamError(&idamerrorstack, CODEERRORTYPE, "Unable to read dynamic data from WEST !", err, "");
         }*/
 
-	//IDAM_LOG(LOG_DEBUG, "After error handling\n");
+	//IDAM_LOG(UDA_LOG_DEBUG, "After error handling\n");
 
-	IDAM_LOG(LOG_DEBUG, "Getting normalization factor, if any\n");
+	IDAM_LOG(UDA_LOG_DEBUG, "Getting normalization factor, if any\n");
 	float normalizationFactor = 1;
 	getNormalizationFactor(&normalizationFactor, normalizationAttributes);
-	IDAM_LOG(LOG_DEBUG, "Starting data normalization\n");
+	IDAM_LOG(UDA_LOG_DEBUG, "Starting data normalization\n");
 	multiplyFloat(data, normalizationFactor, len);
-	IDAM_LOG(LOG_DEBUG, "end of data normalization, if any\n");
+	IDAM_LOG(UDA_LOG_DEBUG, "end of data normalization, if any\n");
 
 	free(data_block->dims);
 
@@ -670,7 +670,7 @@ int GetDynamicData(int shotNumber, const char* mapfun, DATA_BLOCK* data_block, i
 	} else if (fun == 2) {
 		//TODO if (isChannelValid(requestedIndex + 1, unvalid_channels_list, unvalid_channels_size))
 		//{
-			//IDAM_LOGF(LOG_DEBUG, "Setting data for valid channel: %d\n", requestedIndex + 1);
+			//IDAM_LOGF(UDA_LOG_DEBUG, "Setting data for valid channel: %d\n", requestedIndex + 1);
 			data_block->data = (char*)data;
 		//}
 	} else if (fun == 3) {
@@ -701,7 +701,7 @@ int GetDynamicData(int shotNumber, const char* mapfun, DATA_BLOCK* data_block, i
 	free(normalizationAttributes);
 	free(unvalid_channels);
 	free(unvalid_channels_list);
-	IDAM_LOG(LOG_DEBUG, "TEST_FINAL\n");
+	IDAM_LOG(UDA_LOG_DEBUG, "TEST_FINAL\n");
 	return 0;
 }
 
@@ -712,7 +712,7 @@ void getShapeOf(const char* command, int shotNumber, int* nb_val)
 	char* object_name = NULL;
 	char* param_name = NULL;
 
-	IDAM_LOGF(LOG_DEBUG, "Calling tokenizeCommand with command: %s\n", command);
+	IDAM_LOGF(UDA_LOG_DEBUG, "Calling tokenizeCommand with command: %s\n", command);
 
 	//Tokenize mapfun string to get function parameters, return type and arguments (#1, #2,...) to use
 	tokenizeCommand(command, &prod_name, &object_name, &param_name);
@@ -720,15 +720,15 @@ void getShapeOf(const char* command, int shotNumber, int* nb_val)
 	char* value = NULL;
 	int val_nb = 1;
 	//get the size of available data
-	IDAM_LOGF(LOG_DEBUG, "DEBUG : prod_name: %s\n", prod_name);
-	IDAM_LOGF(LOG_DEBUG, "DEBUG : object: %s\n", object_name);
-	IDAM_LOGF(LOG_DEBUG, "DEBUG : param: %s\n", param_name);
+	IDAM_LOGF(UDA_LOG_DEBUG, "DEBUG : prod_name: %s\n", prod_name);
+	IDAM_LOGF(UDA_LOG_DEBUG, "DEBUG : object: %s\n", object_name);
+	IDAM_LOGF(UDA_LOG_DEBUG, "DEBUG : param: %s\n", param_name);
 
 	int status = readStaticParameters(&value, nb_val, shotNumber, prod_name, object_name, param_name, val_nb);
 	printNum("status : ", status);
 
 	if (status != 0) {
-		IDAM_LOG(LOG_DEBUG, "Error calling readStaticParameters\n");
+		IDAM_LOG(UDA_LOG_DEBUG, "Error calling readStaticParameters\n");
 		int err = 901;
 		addIdamError(&idamerrorstack, CODEERRORTYPE, "Unable to get shape of static data from WEST", err, "");
 	}
@@ -742,11 +742,11 @@ void getShapeOf(const char* command, int shotNumber, int* nb_val)
 void setStatic1DValue(int data_type, DATA_BLOCK* data_block, char* value, int val_nb, float normalizationFactor)
 {
 	if (data_type == TYPE_FLOAT) {
-		IDAM_LOG(LOG_DEBUG, "handling float 1D in setStatic1DValue()\n");
+		IDAM_LOG(UDA_LOG_DEBUG, "handling float 1D in setStatic1DValue()\n");
 
 		char val_nb_str[10];
 		sprintf(val_nb_str, "%d", val_nb);
-		IDAM_LOGF(LOG_DEBUG, "val_nb : %s\n", val_nb_str);
+		IDAM_LOGF(UDA_LOG_DEBUG, "val_nb : %s\n", val_nb_str);
 
 		if (val_nb == 0) {
 			int err = 901;
@@ -757,27 +757,27 @@ void setStatic1DValue(int data_type, DATA_BLOCK* data_block, char* value, int va
 		data_block->data = malloc(val_nb * sizeof(float));
 		float* pt_float = (float*)value;
 		multiplyFloat(pt_float, normalizationFactor, val_nb);
-		IDAM_LOG(LOG_DEBUG, "handling float 1D in setStatic1DValue21()\n");
+		IDAM_LOG(UDA_LOG_DEBUG, "handling float 1D in setStatic1DValue21()\n");
 		*((float*)data_block->data) = *pt_float;
-		IDAM_LOG(LOG_DEBUG, "handling float 1D in setStatic1DValue22()\n");
+		IDAM_LOG(UDA_LOG_DEBUG, "handling float 1D in setStatic1DValue22()\n");
 	} else if (data_type == TYPE_INT) {
-		IDAM_LOG(LOG_DEBUG, "handling int 1D in setStatic1DValue()\n");
+		IDAM_LOG(UDA_LOG_DEBUG, "handling int 1D in setStatic1DValue()\n");
 		data_block->data_type = TYPE_INT;
 		data_block->data = malloc(val_nb * sizeof(int));
 		int* pt_int = (int*)value;
 		multiplyInt(pt_int, normalizationFactor, val_nb);
 		*((int*)data_block->data) = *pt_int;
-		IDAM_LOG(LOG_DEBUG, "handling int 1D in setStatic1DValue2()\n");
+		IDAM_LOG(UDA_LOG_DEBUG, "handling int 1D in setStatic1DValue2()\n");
 	} else {
 		int err = 999;
-		IDAM_LOG(LOG_DEBUG, "Unsupported data type from setStatic1DValue()\n");
+		IDAM_LOG(UDA_LOG_DEBUG, "Unsupported data type from setStatic1DValue()\n");
 		addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, err, "Unsupported data type");
 	}
 }
 
 void setStaticINTValue(int data_type, DATA_BLOCK* data_block, int value, float normalizationFactor)
 {
-	IDAM_LOGF(LOG_DEBUG, "handling in setStaticINTValue(): %d\n", value);
+	IDAM_LOGF(UDA_LOG_DEBUG, "handling in setStaticINTValue(): %d\n", value);
 	data_block->data_type = TYPE_INT;
 	data_block->data = malloc(1 * sizeof(int));
 	((int*)data_block->data)[0] = value * (int) normalizationFactor;
@@ -786,54 +786,54 @@ void setStaticINTValue(int data_type, DATA_BLOCK* data_block, int value, float n
 //Cast the results returned by tsmat according to the type of the data and set IDAM data
 void setStaticValue(int data_type, DATA_BLOCK* data_block, char* value, int requestedIndex, float normalizationFactor)
 {
-	IDAM_LOG(LOG_DEBUG, "Entering setStaticValue()\n");
+	IDAM_LOG(UDA_LOG_DEBUG, "Entering setStaticValue()\n");
 	printNum("requested index : ", requestedIndex);
 	if (data_type == TYPE_DOUBLE) {
-		IDAM_LOG(LOG_DEBUG, "handling double in setStaticValue()\n");
+		IDAM_LOG(UDA_LOG_DEBUG, "handling double in setStaticValue()\n");
 		data_block->data_type = TYPE_DOUBLE;
 		data_block->data = malloc(1 * sizeof(double));
 		double* pt_double = (double*)value;
 		((double*)data_block->data)[0] = pt_double[requestedIndex] * (double) normalizationFactor;
 
 	} else if (data_type == TYPE_FLOAT) {
-		IDAM_LOGF(LOG_DEBUG, "handling float in setStaticValue(): %d, %g\n", requestedIndex, normalizationFactor);
+		IDAM_LOGF(UDA_LOG_DEBUG, "handling float in setStaticValue(): %d, %g\n", requestedIndex, normalizationFactor);
 		data_block->data_type = TYPE_FLOAT;
 		data_block->data = malloc(1 * sizeof(float));
 		float* pt_float = (float*)value;
 		((float*)data_block->data)[0] = pt_float[requestedIndex] * normalizationFactor;
 
 	} else if (data_type == TYPE_LONG) {
-		IDAM_LOG(LOG_DEBUG, "handling long in setStaticValue()\n");
+		IDAM_LOG(UDA_LOG_DEBUG, "handling long in setStaticValue()\n");
 		data_block->data_type = TYPE_LONG;
 		data_block->data = malloc(1 * sizeof(long));
 		long* pt_long = (long*)value;
 		((long*)data_block->data)[0] = pt_long[requestedIndex] * (long) normalizationFactor;
 
 	} else if (data_type == TYPE_INT) {
-		IDAM_LOG(LOG_DEBUG, "handling int in setStaticValue()\n");
+		IDAM_LOG(UDA_LOG_DEBUG, "handling int in setStaticValue()\n");
 		data_block->data_type = TYPE_INT;
 		data_block->data = malloc(1 * sizeof(int));
 		int* pt_int = (int*)value;
-		IDAM_LOGF(LOG_DEBUG, "handling in setStaticValue(): %d\n", *pt_int);
+		IDAM_LOGF(UDA_LOG_DEBUG, "handling in setStaticValue(): %d\n", *pt_int);
 		((int*)data_block->data)[0] = pt_int[requestedIndex] * (int) normalizationFactor;
 
 	} else if (data_type == TYPE_SHORT) {
-		IDAM_LOG(LOG_DEBUG, "handling short in setStaticValue()\n");
+		IDAM_LOG(UDA_LOG_DEBUG, "handling short in setStaticValue()\n");
 		data_block->data_type = TYPE_SHORT;
 		data_block->data = malloc(1 * sizeof(short));
 		int* pt_short = (int*)value;
 		((short*)data_block->data)[0] = pt_short[requestedIndex] * (short) normalizationFactor;
 
 	} else if (data_type == TYPE_STRING) {
-		IDAM_LOG(LOG_DEBUG, "handling string in setStaticValue()\n");
+		IDAM_LOG(UDA_LOG_DEBUG, "handling string in setStaticValue()\n");
 		data_block->data_type = TYPE_STRING;
-		IDAM_LOG(LOG_DEBUG, "setting value\n");
+		IDAM_LOG(UDA_LOG_DEBUG, "setting value\n");
 		data_block->data = strdup(value);
-		IDAM_LOGF(LOG_DEBUG, "%s\n", data_block->data);
+		IDAM_LOGF(UDA_LOG_DEBUG, "%s\n", data_block->data);
 
 	} else {
 		int err = 999;
-		IDAM_LOG(LOG_DEBUG, "Unsupported data type from setStaticValue()\n");
+		IDAM_LOG(UDA_LOG_DEBUG, "Unsupported data type from setStaticValue()\n");
 		addIdamError(&idamerrorstack, CODEERRORTYPE, "Unsupported data type", err, "");
 	}
 }
@@ -892,9 +892,9 @@ void tokenizeFunParametersWithChannels(const char* s, char** unvalid_channels, c
 	const char delim[] = ";";
 	char* s_copy = strdup(s);
 	char* s1 = strdup(strtok(s_copy, delim)); //function name
-	IDAM_LOGF(LOG_DEBUG, "fun name : %s\n", s1);
+	IDAM_LOGF(UDA_LOG_DEBUG, "fun name : %s\n", s1);
 	*unvalid_channels = strdup(strtok(NULL, delim));
-	IDAM_LOGF(LOG_DEBUG, "unvalid channels : %s\n", *unvalid_channels);
+	IDAM_LOGF(UDA_LOG_DEBUG, "unvalid channels : %s\n", *unvalid_channels);
 	*TOP_collections_parameters = strdup(strtok(NULL, delim));
 	RemoveSpaces(*TOP_collections_parameters);
 	*attributes = strdup(strtok(NULL, delim));
@@ -939,11 +939,11 @@ void getUnvalidChannels(char* unvalid_channels, int* v)
 	token = strdup(strtok(NULL, delim)); //return the number of unvalid channels
 	int n = atoi(token);
 
-	IDAM_LOGF(LOG_DEBUG, "unvalid channels count : %d\n", n);
+	IDAM_LOGF(UDA_LOG_DEBUG, "unvalid channels count : %d\n", n);
 
 	token = strdup(strtok(NULL, delim)); //return for example "1,2" if channels 1 and 2 are not valid
 
-	IDAM_LOGF(LOG_DEBUG, "unvalid channels list : %s\n", token);
+	IDAM_LOGF(UDA_LOG_DEBUG, "unvalid channels list : %s\n", token);
 
 	const char delim2[] = ",";
 	char* s_copy2 = strdup(token);
@@ -958,7 +958,7 @@ void getUnvalidChannels(char* unvalid_channels, int* v)
 			token = strdup(strtok(NULL, delim2));
 			v[i] = atoi(token);
 		}
-		IDAM_LOGF(LOG_DEBUG, "unvalid channel : %d\n", v[i]);
+		IDAM_LOGF(UDA_LOG_DEBUG, "unvalid channel : %d\n", v[i]);
 	}
 	free(s_copy);
 	free(s_copy2);
@@ -968,10 +968,10 @@ void getUnvalidChannels(char* unvalid_channels, int* v)
 int isChannelValid(int channel_number, int* unvalid_channels_list, int unvalid_channels_list_size)
 {
 	int i;
-	IDAM_LOGF(LOG_DEBUG, "unvalid_channels_list_size : %d\n", unvalid_channels_list_size);
+	IDAM_LOGF(UDA_LOG_DEBUG, "unvalid_channels_list_size : %d\n", unvalid_channels_list_size);
 	for (i = 0; i < unvalid_channels_list_size; i++)
 	{
-		IDAM_LOGF(LOG_DEBUG, "unvalid_channels_list[i] : %d\n", unvalid_channels_list[i]);
+		IDAM_LOGF(UDA_LOG_DEBUG, "unvalid_channels_list[i] : %d\n", unvalid_channels_list[i]);
 		if (unvalid_channels_list[i] == channel_number)
 			return 0;
 	}
@@ -1024,32 +1024,32 @@ void getNormalizationFactor(float* normalizationFactor, char* normalizationAttri
 	char* csteStr = NULL;
 
 	if (normalizationAttributes != NULL) {
-		IDAM_LOG(LOG_DEBUG, "normalization attributes found\n");
+		IDAM_LOG(UDA_LOG_DEBUG, "normalization attributes found\n");
 		const char delim[] = ":";
 		s_copy = strdup(normalizationAttributes);
 		operation = strdup(strtok(s_copy, delim));
 		if (STR_EQUALS("multiply", operation)) {
-			IDAM_LOG(LOG_DEBUG, "Multiply operation\n");
+			IDAM_LOG(UDA_LOG_DEBUG, "Multiply operation\n");
 			funname = strdup(strtok(NULL, delim));
 			if (STR_EQUALS("cste", funname)) {
-				IDAM_LOG(LOG_DEBUG, "multiply data by constant value\n");
+				IDAM_LOG(UDA_LOG_DEBUG, "multiply data by constant value\n");
 				csteStr = strdup(strtok(NULL, delim));
-				IDAM_LOGF(LOG_DEBUG, "%s\n", csteStr);
+				IDAM_LOGF(UDA_LOG_DEBUG, "%s\n", csteStr);
 				*normalizationFactor = atof(csteStr);
 			} else {
 				int err = 999;
-				IDAM_LOG(LOG_DEBUG, "Unsupported operand for 'multiply' operation\n");
+				IDAM_LOG(UDA_LOG_DEBUG, "Unsupported operand for 'multiply' operation\n");
 				addIdamError(&idamerrorstack, CODEERRORTYPE, "Unsupported operand for 'multiply' operation", err,
 						"");
 			}
 
 		} else {
 			int err = 999;
-			IDAM_LOG(LOG_DEBUG, "Unsupported operation to apply\n");
+			IDAM_LOG(UDA_LOG_DEBUG, "Unsupported operation to apply\n");
 			addIdamError(&idamerrorstack, CODEERRORTYPE, "Unsupported operation to apply", err, "");
 		}
 	} else {
-		IDAM_LOG(LOG_DEBUG, "no normalization attributes found\n");
+		IDAM_LOG(UDA_LOG_DEBUG, "no normalization attributes found\n");
 	}
 	free(s_copy);
 	free(operation);
@@ -1059,9 +1059,9 @@ void getNormalizationFactor(float* normalizationFactor, char* normalizationAttri
 
 void multiplyFloat(float* p, float factor, int val_nb)
 {
-	IDAM_LOG(LOG_DEBUG, "Entering multiplyFloat...\n");
-	IDAM_LOGF(LOG_DEBUG, "val_nb : %d\n", val_nb);
-	IDAM_LOGF(LOG_DEBUG, "factor : %f\n", factor);
+	IDAM_LOG(UDA_LOG_DEBUG, "Entering multiplyFloat...\n");
+	IDAM_LOGF(UDA_LOG_DEBUG, "val_nb : %d\n", val_nb);
+	IDAM_LOGF(UDA_LOG_DEBUG, "factor : %f\n", factor);
 	if (factor != 1) {
 		int i;
 		for (i = 0; i < val_nb; i++) {
@@ -1091,11 +1091,11 @@ int getNumIDAMIndex(char *attributes, int* nodeIndices) {
 	firstChar = charIDAMIndex[0];
 
 	if (firstChar == '#') {
-		IDAM_LOG(LOG_DEBUG, "index specified in IDAM request\n");
+		IDAM_LOG(UDA_LOG_DEBUG, "index specified in IDAM request\n");
 		return nodeIndices[atoi(&charIDAMIndex[1])] - 1;
 	}
 	else {
-		IDAM_LOG(LOG_DEBUG, "idam index hard coded in mapping file\n");
+		IDAM_LOG(UDA_LOG_DEBUG, "idam index hard coded in mapping file\n");
 		return atoi(&firstChar) - 1;
 	}
 	free(s_copy);
@@ -1108,11 +1108,11 @@ int getNumIDAMIndex2(char *s, int* nodeIndices) {
 	firstChar = s[0];
 
 	if (firstChar == '#') {
-		IDAM_LOG(LOG_DEBUG, "index specified in IDAM request\n");
+		IDAM_LOG(UDA_LOG_DEBUG, "index specified in IDAM request\n");
 		return nodeIndices[atoi(&s[1])] - 1;
 	}
 	else {
-		IDAM_LOG(LOG_DEBUG, "no index specified\n");
+		IDAM_LOG(UDA_LOG_DEBUG, "no index specified\n");
 		return -1;
 	}
 }
@@ -1159,13 +1159,13 @@ void tokenizeCommand(const char* s, char** prod_name, char** obj_name, char** pa
 {
 	char* s_copy = strdup(s);
 	const char delim[] = ":";
-	IDAM_LOGF(LOG_DEBUG, "Tokenizing: %s\n", s);
+	IDAM_LOGF(UDA_LOG_DEBUG, "Tokenizing: %s\n", s);
 	*prod_name = strdup(strtok(s_copy, delim));
 	RemoveSpaces(*prod_name);
-	IDAM_LOGF(LOG_DEBUG, "%s\n", *prod_name);
+	IDAM_LOGF(UDA_LOG_DEBUG, "%s\n", *prod_name);
 	*obj_name = strdup(strtok(NULL, delim));
 	RemoveSpaces(*obj_name);
-	IDAM_LOGF(LOG_DEBUG, "%s\n", *obj_name);
+	IDAM_LOGF(UDA_LOG_DEBUG, "%s\n", *obj_name);
 	*param_name = strdup(strtok(NULL, delim));
 	RemoveSpaces(*param_name);
 	free(s_copy);
@@ -1215,7 +1215,7 @@ void searchIndices(int requestedIndex, int* l, int* searchedArray, int* searched
 
 void printNum(const char* label, int i)
 {
-	IDAM_LOGF(LOG_DEBUG, "%s -> %d\n", label, i);
+	IDAM_LOGF(UDA_LOG_DEBUG, "%s -> %d\n", label, i);
 }
 
 void addExtractionChars(char* result, char* signalName, int extractionIndex)

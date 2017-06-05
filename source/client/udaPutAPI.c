@@ -82,7 +82,7 @@ int idamPutListAPI(const char* putInstruction, PUTDATA_BLOCK_LIST* inPutDataBloc
     if ((err = makeClientRequestBlock(putInstruction, "", &request_block)) != 0) {
         closeIdamError(&idamerrorstack);
         if (idamerrorstack.nerrors == 0) {
-            IDAM_LOGF(LOG_ERROR, "Error processing the put instruction [%s]\n", putInstruction);
+            IDAM_LOGF(UDA_LOG_ERROR, "Error processing the put instruction [%s]\n", putInstruction);
             addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, 999, "Error processing the put instruction");
         }
         return -err;
@@ -157,7 +157,7 @@ int idamPutAPI(const char* putInstruction, PUTDATA_BLOCK* inPutData)
     if ((err = makeClientRequestBlock(putInstruction, "", &request_block)) != 0) {
         closeIdamError(&idamerrorstack);
         if (idamerrorstack.nerrors == 0) {
-            IDAM_LOGF(LOG_ERROR, "Error processing the put instruction [%s]\n", putInstruction);
+            IDAM_LOGF(UDA_LOG_ERROR, "Error processing the put instruction [%s]\n", putInstruction);
             addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, 999, "Error processing the put instruction");
         }
         return -err;

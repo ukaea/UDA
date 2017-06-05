@@ -58,7 +58,7 @@ extern int UDAPlugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     unsigned short housekeeping;
 
     if (idam_plugin_interface->interfaceVersion > THISPLUGIN_MAX_INTERFACE_VERSION) {
-        IDAM_LOG(LOG_ERROR, "Plugin Interface Version Unknown to this plugin: Unable to execute the request!\n");
+        IDAM_LOG(UDA_LOG_ERROR, "Plugin Interface Version Unknown to this plugin: Unable to execute the request!\n");
         THROW_ERROR(999, "Plugin Interface Version Unknown to this plugin: Unable to execute the request!");
     }
 
@@ -102,7 +102,7 @@ extern int UDAPlugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
         // Hand over Server IO File Handles to IDAM Client library
 
-        IDAM_LOG(LOG_DEBUG, "Handing over Server File Handles to IDAM Client\n");
+        IDAM_LOG(UDA_LOG_DEBUG, "Handing over Server File Handles to IDAM Client\n");
 
         init = 1;
         if (STR_IEQUALS(request_block->function, "init") || STR_IEQUALS(request_block->function, "initialise"))
@@ -301,7 +301,7 @@ Notes: there are three pathways depending on the request pattern
         // Source URL may be an Null string
         pathway = 4;
     } else {
-        IDAM_LOG(LOG_ERROR, "Execution pathway not recognised: Unable to execute the request!\n");
+        IDAM_LOG(UDA_LOG_ERROR, "Execution pathway not recognised: Unable to execute the request!\n");
         THROW_ERROR(999, "Execution pathway not recognised: Unable to execute the request!");
     }
 
@@ -397,11 +397,11 @@ Notes: there are three pathways depending on the request pattern
             THROW_ERROR(999, "No Server has been specified!");
         }
 
-        IDAM_LOGF(LOG_DEBUG, "Idam Server Host for Idam Plugin %s\n", data_source->server);
-        IDAM_LOGF(LOG_DEBUG, "Idam Server Port for Idam Plugin %d\n", newPort);
-        IDAM_LOG(LOG_DEBUG, "Calling idamGetAPI API (Database based Request)\n");
-        IDAM_LOGF(LOG_DEBUG, "Signal: %s\n", signal);
-        IDAM_LOGF(LOG_DEBUG, "Source: %s\n", source);
+        IDAM_LOGF(UDA_LOG_DEBUG, "Idam Server Host for Idam Plugin %s\n", data_source->server);
+        IDAM_LOGF(UDA_LOG_DEBUG, "Idam Server Port for Idam Plugin %d\n", newPort);
+        IDAM_LOG(UDA_LOG_DEBUG, "Calling idamGetAPI API (Database based Request)\n");
+        IDAM_LOGF(UDA_LOG_DEBUG, "Signal: %s\n", signal);
+        IDAM_LOGF(UDA_LOG_DEBUG, "Source: %s\n", source);
 
         handle = idamGetAPI(signal, source);
 
@@ -448,11 +448,11 @@ Notes: there are three pathways depending on the request pattern
             }
         }
 
-        IDAM_LOGF(LOG_DEBUG, "Idam Server Host for Idam Plugin %s\n", request_block->server);
-        IDAM_LOGF(LOG_DEBUG, "Idam Server Port for Idam Plugin %d\n", newPort);
-        IDAM_LOG(LOG_DEBUG, "Calling idamGetAPI API (Device redirect or server protocol based Request)\n");
-        IDAM_LOGF(LOG_DEBUG, "Signal: %s\n", request_block->signal);
-        IDAM_LOGF(LOG_DEBUG, "Source: %s\n", source);
+        IDAM_LOGF(UDA_LOG_DEBUG, "Idam Server Host for Idam Plugin %s\n", request_block->server);
+        IDAM_LOGF(UDA_LOG_DEBUG, "Idam Server Port for Idam Plugin %d\n", newPort);
+        IDAM_LOG(UDA_LOG_DEBUG, "Calling idamGetAPI API (Device redirect or server protocol based Request)\n");
+        IDAM_LOGF(UDA_LOG_DEBUG, "Signal: %s\n", request_block->signal);
+        IDAM_LOGF(UDA_LOG_DEBUG, "Source: %s\n", source);
 
         handle = idamGetAPI(request_block->signal, source);
 
@@ -483,17 +483,17 @@ Notes: there are three pathways depending on the request pattern
             putIdamServerPort(newPort);
         }
 
-        IDAM_LOGF(LOG_DEBUG, "Idam Server Host for Idam Plugin %s\n", host);
-        IDAM_LOGF(LOG_DEBUG, "Idam Server Port for Idam Plugin %d\n", newPort);
-        IDAM_LOG(LOG_DEBUG, "Calling idamGetAPI API (plugin library method based Request)\n");
+        IDAM_LOGF(UDA_LOG_DEBUG, "Idam Server Host for Idam Plugin %s\n", host);
+        IDAM_LOGF(UDA_LOG_DEBUG, "Idam Server Port for Idam Plugin %d\n", newPort);
+        IDAM_LOG(UDA_LOG_DEBUG, "Calling idamGetAPI API (plugin library method based Request)\n");
 
         if (isSignal && isSource) {
-            IDAM_LOGF(LOG_DEBUG, "Signal: %s\n", signal);
-            IDAM_LOGF(LOG_DEBUG, "idamAPIPlugin; Source: %s\n", source);
+            IDAM_LOGF(UDA_LOG_DEBUG, "Signal: %s\n", signal);
+            IDAM_LOGF(UDA_LOG_DEBUG, "idamAPIPlugin; Source: %s\n", source);
             handle = idamGetAPI(signal, source);
         } else if (isSignal) {
-            IDAM_LOGF(LOG_DEBUG, "Signal: %s\n", signal);
-            IDAM_LOGF(LOG_DEBUG, "idamAPIPlugin; Source: %s\n", request_block->source);
+            IDAM_LOGF(UDA_LOG_DEBUG, "Signal: %s\n", signal);
+            IDAM_LOGF(UDA_LOG_DEBUG, "idamAPIPlugin; Source: %s\n", request_block->source);
             handle = idamGetAPI(signal, request_block->source);
         } else {
             THROW_ERROR(999, "A data object (signal) has not been specified!");
@@ -537,11 +537,11 @@ Notes: there are three pathways depending on the request pattern
             }
         }
 
-        IDAM_LOGF(LOG_DEBUG, "Idam Server Host for Idam Plugin %s\n", request_block->server);
-        IDAM_LOGF(LOG_DEBUG, "Idam Server Port for Idam Plugin %d\n", newPort);
-        IDAM_LOG(LOG_DEBUG, "Calling idamGetAPI API (Server protocol based Request)\n");
-        IDAM_LOGF(LOG_DEBUG, "Signal: %s\n", request_block->signal);
-        IDAM_LOGF(LOG_DEBUG, "Source: %s\n", source);
+        IDAM_LOGF(UDA_LOG_DEBUG, "Idam Server Host for Idam Plugin %s\n", request_block->server);
+        IDAM_LOGF(UDA_LOG_DEBUG, "Idam Server Port for Idam Plugin %d\n", newPort);
+        IDAM_LOG(UDA_LOG_DEBUG, "Calling idamGetAPI API (Server protocol based Request)\n");
+        IDAM_LOGF(UDA_LOG_DEBUG, "Signal: %s\n", request_block->signal);
+        IDAM_LOGF(UDA_LOG_DEBUG, "Source: %s\n", source);
 
         handle = idamGetAPI(request_block->signal, source);
 
@@ -553,7 +553,7 @@ Notes: there are three pathways depending on the request pattern
     //----------------------------------------------------------------------
     // Test for Errors: Close Socket and Free heap
 
-    IDAM_LOGF(LOG_DEBUG, "Returned from idamGetAPI API: handle = %d, error code = %d\n", handle, getIdamErrorCode(handle));
+    IDAM_LOGF(UDA_LOG_DEBUG, "Returned from idamGetAPI API: handle = %d, error code = %d\n", handle, getIdamErrorCode(handle));
 
     if (handle < 0) {
         THROW_ERROR(abs(handle), getIdamServerErrorStackRecordMsg(0));
@@ -641,7 +641,7 @@ Notes: there are three pathways depending on the request pattern
         *signal_desc = *(data_block->signal_desc);
     }
 
-    IDAM_LOG(LOG_DEBUG, "Exit\n");
+    IDAM_LOG(UDA_LOG_DEBUG, "Exit\n");
 
     //----------------------------------------------------------------------
     // If the Data are Hierarchical, then necessary to forward the xdr file

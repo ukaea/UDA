@@ -246,37 +246,37 @@ void initLimiter(LIMITER* str)
 
 void printInstance(INSTANCE str)
 {
-    IDAM_LOGF(LOG_DEBUG, "archive       : %s\n", str.archive);
-    IDAM_LOGF(LOG_DEBUG, "file          : %s\n", str.file);
-    IDAM_LOGF(LOG_DEBUG, "signal        : %s\n", str.signal);
-    IDAM_LOGF(LOG_DEBUG, "owner         : %s\n", str.owner);
-    IDAM_LOGF(LOG_DEBUG, "format        : %s\n", str.format);
-    IDAM_LOGF(LOG_DEBUG, "sequence/pass : %d\n", str.seq);
-    IDAM_LOGF(LOG_DEBUG, "status        : %d\n", str.status);
-    IDAM_LOGF(LOG_DEBUG, "factor        : %f\n", str.factor);
+    IDAM_LOGF(UDA_LOG_DEBUG, "archive       : %s\n", str.archive);
+    IDAM_LOGF(UDA_LOG_DEBUG, "file          : %s\n", str.file);
+    IDAM_LOGF(UDA_LOG_DEBUG, "signal        : %s\n", str.signal);
+    IDAM_LOGF(UDA_LOG_DEBUG, "owner         : %s\n", str.owner);
+    IDAM_LOGF(UDA_LOG_DEBUG, "format        : %s\n", str.format);
+    IDAM_LOGF(UDA_LOG_DEBUG, "sequence/pass : %d\n", str.seq);
+    IDAM_LOGF(UDA_LOG_DEBUG, "status        : %d\n", str.status);
+    IDAM_LOGF(UDA_LOG_DEBUG, "factor        : %f\n", str.factor);
     return;
 }
 
 void printMagProbe(MAGPROBE str)
 {
-    IDAM_LOG(LOG_DEBUG, "Magnetic Probe\n");
-    IDAM_LOGF(LOG_DEBUG, "id         : %s\n", str.id);
+    IDAM_LOG(UDA_LOG_DEBUG, "Magnetic Probe\n");
+    IDAM_LOGF(UDA_LOG_DEBUG, "id         : %s\n", str.id);
     printInstance(str.instance);
-    IDAM_LOGF(LOG_DEBUG, "r          : %f\n", str.r);
-    IDAM_LOGF(LOG_DEBUG, "z          : %f\n", str.z);
-    IDAM_LOGF(LOG_DEBUG, "angle      : %f\n", str.angle);
-    IDAM_LOGF(LOG_DEBUG, "aerr       : %f\n", str.aerr);
-    IDAM_LOGF(LOG_DEBUG, "rerr       : %f\n", str.rerr);
+    IDAM_LOGF(UDA_LOG_DEBUG, "r          : %f\n", str.r);
+    IDAM_LOGF(UDA_LOG_DEBUG, "z          : %f\n", str.z);
+    IDAM_LOGF(UDA_LOG_DEBUG, "angle      : %f\n", str.angle);
+    IDAM_LOGF(UDA_LOG_DEBUG, "aerr       : %f\n", str.aerr);
+    IDAM_LOGF(UDA_LOG_DEBUG, "rerr       : %f\n", str.rerr);
     return;
 }
 
 void printPfSupplies(PFSUPPLIES str)
 {
-    IDAM_LOG(LOG_DEBUG, "PF Supply\n");
-    IDAM_LOGF(LOG_DEBUG, "id         : %s\n", str.id);
+    IDAM_LOG(UDA_LOG_DEBUG, "PF Supply\n");
+    IDAM_LOGF(UDA_LOG_DEBUG, "id         : %s\n", str.id);
     printInstance(str.instance);
-    IDAM_LOGF(LOG_DEBUG, "aerr       : %f\n", str.aerr);
-    IDAM_LOGF(LOG_DEBUG, "rerr       : %f\n", str.rerr);
+    IDAM_LOGF(UDA_LOG_DEBUG, "aerr       : %f\n", str.aerr);
+    IDAM_LOGF(UDA_LOG_DEBUG, "rerr       : %f\n", str.rerr);
     return;
 }
 
@@ -284,27 +284,27 @@ void printPfSupplies(PFSUPPLIES str)
 void printPfCircuits(PFCIRCUIT str)
 {
     int i;
-    IDAM_LOG(LOG_DEBUG, "PF Circuit\n");
-    IDAM_LOGF(LOG_DEBUG, "id         : %s\n", str.id);
+    IDAM_LOG(UDA_LOG_DEBUG, "PF Circuit\n");
+    IDAM_LOGF(UDA_LOG_DEBUG, "id         : %s\n", str.id);
     printInstance(str.instance);
-    IDAM_LOGF(LOG_DEBUG, "supply     : %d\n", str.supply);
-    IDAM_LOGF(LOG_DEBUG, "nco        : %d\n", str.nco);
-    for (i = 0; i < str.nco; i++) IDAM_LOGF(LOG_DEBUG, "Coil Connect # %d     : %d\n", i, str.coil[i]);
+    IDAM_LOGF(UDA_LOG_DEBUG, "supply     : %d\n", str.supply);
+    IDAM_LOGF(UDA_LOG_DEBUG, "nco        : %d\n", str.nco);
+    for (i = 0; i < str.nco; i++) IDAM_LOGF(UDA_LOG_DEBUG, "Coil Connect # %d     : %d\n", i, str.coil[i]);
     return;
 }
 
 void printFluxLoop(FLUXLOOP str)
 {
     int i;
-    IDAM_LOG(LOG_DEBUG, "Flux Loop\n");
-    IDAM_LOGF(LOG_DEBUG, "id         : %s\n", str.id);
+    IDAM_LOG(UDA_LOG_DEBUG, "Flux Loop\n");
+    IDAM_LOGF(UDA_LOG_DEBUG, "id         : %s\n", str.id);
     printInstance(str.instance);
-    IDAM_LOGF(LOG_DEBUG, "aerr       : %f\n", str.aerr);
-    IDAM_LOGF(LOG_DEBUG, "rerr       : %f\n", str.rerr);
-    IDAM_LOGF(LOG_DEBUG, "nco        : %d\n", str.nco);
+    IDAM_LOGF(UDA_LOG_DEBUG, "aerr       : %f\n", str.aerr);
+    IDAM_LOGF(UDA_LOG_DEBUG, "rerr       : %f\n", str.rerr);
+    IDAM_LOGF(UDA_LOG_DEBUG, "nco        : %d\n", str.nco);
     if (str.nco > 0) {
         for (i = 0; i < str.nco; i++)
-            IDAM_LOGF(LOG_DEBUG, "r, z, dphi   # %d     : %f   %f   %f\n", i, str.r[i], str.z[i], str.dphi[i]);
+            IDAM_LOGF(UDA_LOG_DEBUG, "r, z, dphi   # %d     : %f   %f   %f\n", i, str.r[i], str.z[i], str.dphi[i]);
     }
     return;
 }
@@ -312,17 +312,17 @@ void printFluxLoop(FLUXLOOP str)
 void printPfCoils(PFCOILS str)
 {
     int i;
-    IDAM_LOG(LOG_DEBUG, "PF Coil\n");
-    IDAM_LOGF(LOG_DEBUG, "id         : %s\n", str.id);
+    IDAM_LOG(UDA_LOG_DEBUG, "PF Coil\n");
+    IDAM_LOGF(UDA_LOG_DEBUG, "id         : %s\n", str.id);
     printInstance(str.instance);
-    IDAM_LOGF(LOG_DEBUG, "aerr       : %f\n", str.aerr);
-    IDAM_LOGF(LOG_DEBUG, "rerr       : %f\n", str.rerr);
-    IDAM_LOGF(LOG_DEBUG, "turns per  : %d\n", str.turns);
-    IDAM_LOGF(LOG_DEBUG, "turns per  : %f\n", str.fturns);
-    IDAM_LOGF(LOG_DEBUG, "model nr nr: %d  %d\n", str.modelnrnz[0], str.modelnrnz[1]);
-    IDAM_LOGF(LOG_DEBUG, "nco        : %d\n", str.nco);
+    IDAM_LOGF(UDA_LOG_DEBUG, "aerr       : %f\n", str.aerr);
+    IDAM_LOGF(UDA_LOG_DEBUG, "rerr       : %f\n", str.rerr);
+    IDAM_LOGF(UDA_LOG_DEBUG, "turns per  : %d\n", str.turns);
+    IDAM_LOGF(UDA_LOG_DEBUG, "turns per  : %f\n", str.fturns);
+    IDAM_LOGF(UDA_LOG_DEBUG, "model nr nr: %d  %d\n", str.modelnrnz[0], str.modelnrnz[1]);
+    IDAM_LOGF(UDA_LOG_DEBUG, "nco        : %d\n", str.nco);
     for (i = 0; i < str.nco; i++)
-        IDAM_LOGF(LOG_DEBUG, "r, z, dr, dz # %d     : %f   %f   %f   %f\n", i, str.r[i], str.z[i], str.dr[i],
+        IDAM_LOGF(UDA_LOG_DEBUG, "r, z, dr, dz # %d     : %f   %f   %f   %f\n", i, str.r[i], str.z[i], str.dr[i],
                   str.dz[i]);
     return;
 }
@@ -330,63 +330,63 @@ void printPfCoils(PFCOILS str)
 void printPfPassive(PFPASSIVE str)
 {
     int i;
-    IDAM_LOG(LOG_DEBUG, "PF Passive\n");
-    IDAM_LOGF(LOG_DEBUG, "id         : %s\n", str.id);
+    IDAM_LOG(UDA_LOG_DEBUG, "PF Passive\n");
+    IDAM_LOGF(UDA_LOG_DEBUG, "id         : %s\n", str.id);
     printInstance(str.instance);
-    IDAM_LOGF(LOG_DEBUG, "aerr       : %f\n", str.aerr);
-    IDAM_LOGF(LOG_DEBUG, "rerr       : %f\n", str.rerr);
-    IDAM_LOGF(LOG_DEBUG, "model nr nr: %d  %d\n", str.modelnrnz[0], str.modelnrnz[1]);
+    IDAM_LOGF(UDA_LOG_DEBUG, "aerr       : %f\n", str.aerr);
+    IDAM_LOGF(UDA_LOG_DEBUG, "rerr       : %f\n", str.rerr);
+    IDAM_LOGF(UDA_LOG_DEBUG, "model nr nr: %d  %d\n", str.modelnrnz[0], str.modelnrnz[1]);
     for (i = 0; i < str.nco; i++)
-        IDAM_LOGF(LOG_DEBUG, "r,z,dr,dz,a1,a2,res   # %d     : %f  %f  %f  %f  %f  %f  %f\n", i, str.r[i], str.z[i],
+        IDAM_LOGF(UDA_LOG_DEBUG, "r,z,dr,dz,a1,a2,res   # %d     : %f  %f  %f  %f  %f  %f  %f\n", i, str.r[i], str.z[i],
                   str.dr[i], str.dz[i], str.ang1[i], str.ang2[i], str.res[i]);
     return;
 }
 
 void printPlasmaCurrent(PLASMACURRENT str)
 {
-    IDAM_LOG(LOG_DEBUG, "Plasma Current\n");
-    IDAM_LOGF(LOG_DEBUG, "id         : %s\n", str.id);
+    IDAM_LOG(UDA_LOG_DEBUG, "Plasma Current\n");
+    IDAM_LOGF(UDA_LOG_DEBUG, "id         : %s\n", str.id);
     printInstance(str.instance);
-    IDAM_LOGF(LOG_DEBUG, "aerr       : %f\n", str.aerr);
-    IDAM_LOGF(LOG_DEBUG, "rerr       : %f\n", str.rerr);
+    IDAM_LOGF(UDA_LOG_DEBUG, "aerr       : %f\n", str.aerr);
+    IDAM_LOGF(UDA_LOG_DEBUG, "rerr       : %f\n", str.rerr);
     return;
 }
 
 void printDiaMagnetic(DIAMAGNETIC str)
 {
-    IDAM_LOG(LOG_DEBUG, "Diamagnetic Flux\n");
-    IDAM_LOGF(LOG_DEBUG, "id         : %s\n", str.id);
+    IDAM_LOG(UDA_LOG_DEBUG, "Diamagnetic Flux\n");
+    IDAM_LOGF(UDA_LOG_DEBUG, "id         : %s\n", str.id);
     printInstance(str.instance);
-    IDAM_LOGF(LOG_DEBUG, "aerr       : %f\n", str.aerr);
-    IDAM_LOGF(LOG_DEBUG, "rerr       : %f\n", str.rerr);
+    IDAM_LOGF(UDA_LOG_DEBUG, "aerr       : %f\n", str.aerr);
+    IDAM_LOGF(UDA_LOG_DEBUG, "rerr       : %f\n", str.rerr);
     return;
 }
 
 void printToroidalField(TOROIDALFIELD str)
 {
-    IDAM_LOG(LOG_DEBUG, "Toroidal Field\n");
-    IDAM_LOGF(LOG_DEBUG, "id         : %s\n", str.id);
+    IDAM_LOG(UDA_LOG_DEBUG, "Toroidal Field\n");
+    IDAM_LOGF(UDA_LOG_DEBUG, "id         : %s\n", str.id);
     printInstance(str.instance);
-    IDAM_LOGF(LOG_DEBUG, "aerr       : %f\n", str.aerr);
-    IDAM_LOGF(LOG_DEBUG, "rerr       : %f\n", str.rerr);
+    IDAM_LOGF(UDA_LOG_DEBUG, "aerr       : %f\n", str.aerr);
+    IDAM_LOGF(UDA_LOG_DEBUG, "rerr       : %f\n", str.rerr);
     return;
 }
 
 void printLimiter(LIMITER str)
 {
     int i;
-    IDAM_LOG(LOG_DEBUG, "Limiter\n");
-    IDAM_LOGF(LOG_DEBUG, "factor     : %f\n", str.factor);
-    IDAM_LOGF(LOG_DEBUG, "nco        : %d\n", str.nco);
-    for (i = 0; i < str.nco; i++) IDAM_LOGF(LOG_DEBUG, "r, z   # %d     : %f    %f\n", i, str.r[i], str.z[i]);
+    IDAM_LOG(UDA_LOG_DEBUG, "Limiter\n");
+    IDAM_LOGF(UDA_LOG_DEBUG, "factor     : %f\n", str.factor);
+    IDAM_LOGF(UDA_LOG_DEBUG, "nco        : %d\n", str.nco);
+    for (i = 0; i < str.nco; i++) IDAM_LOGF(UDA_LOG_DEBUG, "r, z   # %d     : %f    %f\n", i, str.r[i], str.z[i]);
     return;
 }
 
 void printEFIT(EFIT str)
 {
-    IDAM_LOG(LOG_DEBUG, "EFIT Hierarchical Structure\n");
-    IDAM_LOGF(LOG_DEBUG, "Device     : %s\n", str.device);
-    IDAM_LOGF(LOG_DEBUG, "Exp. Number: %d\n", str.exp_number);
+    IDAM_LOG(UDA_LOG_DEBUG, "EFIT Hierarchical Structure\n");
+    IDAM_LOGF(UDA_LOG_DEBUG, "Device     : %s\n", str.device);
+    IDAM_LOGF(UDA_LOG_DEBUG, "Exp. Number: %d\n", str.exp_number);
 
     if (str.fluxloop != NULL) printFluxLoop(*(str.fluxloop));
     if (str.magprobe != NULL) printMagProbe(*(str.magprobe));

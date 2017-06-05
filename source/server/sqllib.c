@@ -33,10 +33,10 @@ PGconn* openDatabase(const char* host, int port, const char* dbname, const char*
 //-------------------------------------------------------------
 // Debug Trace Queries
 
-    IDAM_LOGF(LOG_DEBUG, "SQL Connection: host %s\n", host);
-    IDAM_LOGF(LOG_DEBUG, "                port %s\n", pgport);
-    IDAM_LOGF(LOG_DEBUG, "                db   %s\n", dbname);
-    IDAM_LOGF(LOG_DEBUG, "                user %s\n", user);
+    IDAM_LOGF(UDA_LOG_DEBUG, "SQL Connection: host %s\n", host);
+    IDAM_LOGF(UDA_LOG_DEBUG, "                port %s\n", pgport);
+    IDAM_LOGF(UDA_LOG_DEBUG, "                db   %s\n", dbname);
+    IDAM_LOGF(UDA_LOG_DEBUG, "                user %s\n", user);
 
 //-------------------------------------------------------------
 // Connect to the Database Server
@@ -44,20 +44,20 @@ PGconn* openDatabase(const char* host, int port, const char* dbname, const char*
     PGconn* DBConnect = NULL;
 
     if ((DBConnect = PQsetdbLogin(host, pgport, NULL, NULL, dbname, user, NULL)) == NULL) {
-        IDAM_LOG(LOG_DEBUG, "SQL Server Connect Error");
+        IDAM_LOG(UDA_LOG_DEBUG, "SQL Server Connect Error");
         addIdamError(&idamerrorstack, CODEERRORTYPE, "startSQL", 1, "SQL Server Connect Error");
         PQfinish(DBConnect);
         return NULL;
     }
 
     if (PQstatus(DBConnect) == CONNECTION_BAD) {
-        IDAM_LOG(LOG_DEBUG, "Bad SQL Server Connect Status");
+        IDAM_LOG(UDA_LOG_DEBUG, "Bad SQL Server Connect Status");
         addIdamError(&idamerrorstack, CODEERRORTYPE, "startSQL", 1, "Bad SQL Server Connect Status");
         PQfinish(DBConnect);
         return NULL;
     }
 
-    IDAM_LOGF(LOG_DEBUG, "SQL Connection Options: %s\n", PQoptions(DBConnect));
+    IDAM_LOGF(UDA_LOG_DEBUG, "SQL Connection Options: %s\n", PQoptions(DBConnect));
 
     return DBConnect;
 
@@ -83,29 +83,29 @@ PGconn* startSQL()
 //-------------------------------------------------------------
 // Debug Trace Queries
 
-    IDAM_LOGF(LOG_DEBUG, "SQL Connection: host %s\n", pghost);
-    IDAM_LOGF(LOG_DEBUG, "                port %s\n", pgport);
-    IDAM_LOGF(LOG_DEBUG, "                db   %s\n", dbname);
-    IDAM_LOGF(LOG_DEBUG, "                user %s\n", user);
+    IDAM_LOGF(UDA_LOG_DEBUG, "SQL Connection: host %s\n", pghost);
+    IDAM_LOGF(UDA_LOG_DEBUG, "                port %s\n", pgport);
+    IDAM_LOGF(UDA_LOG_DEBUG, "                db   %s\n", dbname);
+    IDAM_LOGF(UDA_LOG_DEBUG, "                user %s\n", user);
 
 //-------------------------------------------------------------
 // Connect to the Database Server
 
     if ((DBConnect = PQsetdbLogin(pghost, pgport, pgoptions, pgtty, dbname, user, pswrd)) == NULL) {
-        IDAM_LOG(LOG_DEBUG, "SQL Server Connect Error");
+        IDAM_LOG(UDA_LOG_DEBUG, "SQL Server Connect Error");
         addIdamError(&idamerrorstack, CODEERRORTYPE, "startSQL", 1, "SQL Server Connect Error");
         PQfinish(DBConnect);
         return NULL;
     }
 
     if (PQstatus(DBConnect) == CONNECTION_BAD) {
-        IDAM_LOG(LOG_DEBUG, "Bad SQL Server Connect Status");
+        IDAM_LOG(UDA_LOG_DEBUG, "Bad SQL Server Connect Status");
         addIdamError(&idamerrorstack, CODEERRORTYPE, "startSQL", 1, "Bad SQL Server Connect Status");
         PQfinish(DBConnect);
         return NULL;
     }
 
-    IDAM_LOGF(LOG_DEBUG, "SQL Connection Options: %s\n", PQoptions(DBConnect));
+    IDAM_LOGF(UDA_LOG_DEBUG, "SQL Connection Options: %s\n", PQoptions(DBConnect));
 
     return (DBConnect);
 }
@@ -130,10 +130,10 @@ PGconn* startSQL_CPF()
 //-------------------------------------------------------------
 // Debug Trace Queries
 
-    IDAM_LOGF(LOG_DEBUG, "SQL Connection: host %s\n", pghost);
-    IDAM_LOGF(LOG_DEBUG, "                port %s\n", pgport);
-    IDAM_LOGF(LOG_DEBUG, "                db   %s\n", dbname);
-    IDAM_LOGF(LOG_DEBUG, "                user %s\n", user);
+    IDAM_LOGF(UDA_LOG_DEBUG, "SQL Connection: host %s\n", pghost);
+    IDAM_LOGF(UDA_LOG_DEBUG, "                port %s\n", pgport);
+    IDAM_LOGF(UDA_LOG_DEBUG, "                db   %s\n", dbname);
+    IDAM_LOGF(UDA_LOG_DEBUG, "                user %s\n", user);
 
 //-------------------------------------------------------------
 // Connect to the Database Server
@@ -150,7 +150,7 @@ PGconn* startSQL_CPF()
         return NULL;
     }
 
-    IDAM_LOGF(LOG_DEBUG, "SQL Connection Options: %s\n", PQoptions(DBConnect));
+    IDAM_LOGF(UDA_LOG_DEBUG, "SQL Connection Options: %s\n", PQoptions(DBConnect));
 
     return (DBConnect);
 }
@@ -521,7 +521,7 @@ int sqlSignalDescMap(PGconn* DBConnect, char* originalSignal, int exp_number, in
     free((void*)us);
 
     cost = gettimeofday(&tv_start, NULL);
-    IDAM_LOGF(LOG_DEBUG, "%s\n", sql);
+    IDAM_LOGF(UDA_LOG_DEBUG, "%s\n", sql);
 
 //-------------------------------------------------------------
 // Execute SQL
@@ -539,11 +539,11 @@ int sqlSignalDescMap(PGconn* DBConnect, char* originalSignal, int exp_number, in
 
     cost = gettimeofday(&tv_end, NULL);
     cost = (int)(tv_end.tv_sec - tv_start.tv_sec) * 1000 + (int)(tv_end.tv_usec - tv_start.tv_usec) / 1000;
-    IDAM_LOG(LOG_DEBUG, "+++ sqlSignalDescMap +++\n");
-    IDAM_LOGF(LOG_DEBUG, "SQL Time: %d (ms)\n", cost);
-    IDAM_LOGF(LOG_DEBUG, "No. Rows: %d\n", nrows);
-    IDAM_LOGF(LOG_DEBUG, "No. Cols: %d\n", ncols);
-    IDAM_LOGF(LOG_DEBUG, "SQL Msg : %s\n", PQresultErrorMessage(DBQuery));
+    IDAM_LOG(UDA_LOG_DEBUG, "+++ sqlSignalDescMap +++\n");
+    IDAM_LOGF(UDA_LOG_DEBUG, "SQL Time: %d (ms)\n", cost);
+    IDAM_LOGF(UDA_LOG_DEBUG, "No. Rows: %d\n", nrows);
+    IDAM_LOGF(UDA_LOG_DEBUG, "No. Cols: %d\n", ncols);
+    IDAM_LOGF(UDA_LOG_DEBUG, "SQL Msg : %s\n", PQresultErrorMessage(DBQuery));
     tv_start = tv_end;
 
     if (nrows == 0) {        // Nothing matched!
@@ -612,8 +612,8 @@ int sqlSignalDescMap(PGconn* DBConnect, char* originalSignal, int exp_number, in
 
     cost = gettimeofday(&tv_end, NULL);
     cost = (int)(tv_end.tv_sec - tv_start.tv_sec) * 1000 + (int)(tv_end.tv_usec - tv_start.tv_usec) / 1000;
-    IDAM_LOG(LOG_DEBUG, "+++ sqlSignalDescMap +++\n");
-    IDAM_LOGF(LOG_DEBUG, "SQL Time: %d (ms)\n", cost);
+    IDAM_LOG(UDA_LOG_DEBUG, "+++ sqlSignalDescMap +++\n");
+    IDAM_LOGF(UDA_LOG_DEBUG, "SQL Time: %d (ms)\n", cost);
     tv_start = tv_end;
 
 //-------------------------------------------------------------
@@ -693,8 +693,8 @@ int sqlSignalDescMap(PGconn* DBConnect, char* originalSignal, int exp_number, in
 
     gettimeofday(&tv_end, NULL);
     cost = (int)(tv_end.tv_sec - tv_start.tv_sec) * 1000 + (int)(tv_end.tv_usec - tv_start.tv_usec) / 1000;
-    IDAM_LOG(LOG_DEBUG, "+++ sqlSignalDescMap +++\n");
-    IDAM_LOGF(LOG_DEBUG, "SQL Time: %d (ms)\n", cost);
+    IDAM_LOG(UDA_LOG_DEBUG, "+++ sqlSignalDescMap +++\n");
+    IDAM_LOGF(UDA_LOG_DEBUG, "SQL Time: %d (ms)\n", cost);
     tv_start = tv_end;
 
     if (signal != NULL) free((void*)signal);
@@ -805,7 +805,7 @@ int sqlDataSourceMap(PGconn* DBConnect, int exp_number, int pass, char* original
 // Test Performance
 
     cost = gettimeofday(&tv_start, NULL);
-    IDAM_LOGF(LOG_DEBUG, "%s\n", sql);
+    IDAM_LOGF(UDA_LOG_DEBUG, "%s\n", sql);
 
 //-------------------------------------------------------------
 // Execute SQL
@@ -822,11 +822,11 @@ int sqlDataSourceMap(PGconn* DBConnect, int exp_number, int pass, char* original
 
     cost = gettimeofday(&tv_end, NULL);
     cost = (int)(tv_end.tv_sec - tv_start.tv_sec) * 1000 + (int)(tv_end.tv_usec - tv_start.tv_usec) / 1000;
-    IDAM_LOG(LOG_DEBUG, "+++ sqlDataSourceMap +++\n");
-    IDAM_LOGF(LOG_DEBUG, "SQL Time: %d (ms)\n", cost);
-    IDAM_LOGF(LOG_DEBUG, "No. Rows: %d\n", nrows);
-    IDAM_LOGF(LOG_DEBUG, "No. Cols: %d\n", ncols);
-    IDAM_LOGF(LOG_DEBUG, "SQL Msg : %s\n", PQresultErrorMessage(DBQuery));
+    IDAM_LOG(UDA_LOG_DEBUG, "+++ sqlDataSourceMap +++\n");
+    IDAM_LOGF(UDA_LOG_DEBUG, "SQL Time: %d (ms)\n", cost);
+    IDAM_LOGF(UDA_LOG_DEBUG, "No. Rows: %d\n", nrows);
+    IDAM_LOGF(UDA_LOG_DEBUG, "No. Cols: %d\n", ncols);
+    IDAM_LOGF(UDA_LOG_DEBUG, "SQL Msg : %s\n", PQresultErrorMessage(DBQuery));
 
 //-------------------------------------------------------------
 // Process First Record
@@ -935,7 +935,7 @@ int sqlSignal(PGconn* DBConnect, DATA_SOURCE* data_source, SIGNAL_DESC* signal_d
 // Test Performance
 
     cost = gettimeofday(&tv_start, NULL);
-    IDAM_LOGF(LOG_DEBUG, "%s\n", sql);
+    IDAM_LOGF(UDA_LOG_DEBUG, "%s\n", sql);
 
 //-------------------------------------------------------------
 // Execute SQL
@@ -951,11 +951,11 @@ int sqlSignal(PGconn* DBConnect, DATA_SOURCE* data_source, SIGNAL_DESC* signal_d
 
     cost = gettimeofday(&tv_end, NULL);
     cost = (int)(tv_end.tv_sec - tv_start.tv_sec) * 1000 + (int)(tv_end.tv_usec - tv_start.tv_usec) / 1000;
-    IDAM_LOG(LOG_DEBUG, "+++ sqlSignal +++\n");
-    IDAM_LOGF(LOG_DEBUG, "SQL Time: %d (ms)\n", cost);
-    IDAM_LOGF(LOG_DEBUG, "No. Rows: %d\n", nrows);
-    IDAM_LOGF(LOG_DEBUG, "No. Cols: %d\n", ncols);
-    IDAM_LOGF(LOG_DEBUG, "SQL Msg : %s\n", PQresultErrorMessage(DBQuery));
+    IDAM_LOG(UDA_LOG_DEBUG, "+++ sqlSignal +++\n");
+    IDAM_LOGF(UDA_LOG_DEBUG, "SQL Time: %d (ms)\n", cost);
+    IDAM_LOGF(UDA_LOG_DEBUG, "No. Rows: %d\n", nrows);
+    IDAM_LOGF(UDA_LOG_DEBUG, "No. Cols: %d\n", ncols);
+    IDAM_LOGF(UDA_LOG_DEBUG, "SQL Msg : %s\n", PQresultErrorMessage(DBQuery));
 
 //-------------------------------------------------------------
 // Process Record
@@ -1058,8 +1058,8 @@ int sqlGeneric(PGconn* DBConnect, char* originalSignal, int exp_number, int pass
 
     cost = gettimeofday(&tv_end, NULL);
     cost = (int)(tv_end.tv_sec - tv_start.tv_sec) * 1000 + (int)(tv_end.tv_usec - tv_start.tv_usec) / 1000;
-    IDAM_LOG(LOG_DEBUG, "+++ sqlGeneric +++\n");
-    IDAM_LOGF(LOG_DEBUG, "SQL Time: %d (ms)\n", cost);
+    IDAM_LOG(UDA_LOG_DEBUG, "+++ sqlGeneric +++\n");
+    IDAM_LOGF(UDA_LOG_DEBUG, "SQL Time: %d (ms)\n", cost);
     tv_start = tv_end;
 
 // If no record was found and the signal complies with netcdf naming convention but missing a leading '/' character, then
@@ -1080,16 +1080,16 @@ int sqlGeneric(PGconn* DBConnect, char* originalSignal, int exp_number, int pass
 
     cost = gettimeofday(&tv_end, NULL);
     cost = (int)(tv_end.tv_sec - tv_start.tv_sec) * 1000 + (int)(tv_end.tv_usec - tv_start.tv_usec) / 1000;
-    IDAM_LOG(LOG_DEBUG, "+++ sqlGeneric +++\n");
-    IDAM_LOGF(LOG_DEBUG, "SQL Time: %d (ms)\n", cost);
+    IDAM_LOG(UDA_LOG_DEBUG, "+++ sqlGeneric +++\n");
+    IDAM_LOGF(UDA_LOG_DEBUG, "SQL Time: %d (ms)\n", cost);
     tv_start = tv_end;
 
     if (rc1 && rc2) rc3 = sqlSignal(DBConnect, data_source, signal_desc, signal_str);
 
     cost = gettimeofday(&tv_end, NULL);
     cost = (int)(tv_end.tv_sec - tv_start.tv_sec) * 1000 + (int)(tv_end.tv_usec - tv_start.tv_usec) / 1000;
-    IDAM_LOG(LOG_DEBUG, "+++ sqlGeneric +++\n");
-    IDAM_LOGF(LOG_DEBUG, "SQL Time: %d (ms)\n", cost);
+    IDAM_LOG(UDA_LOG_DEBUG, "+++ sqlGeneric +++\n");
+    IDAM_LOGF(UDA_LOG_DEBUG, "SQL Time: %d (ms)\n", cost);
     tv_start = tv_end;
 
     rc = rc1 && rc2 && rc3;
@@ -1130,8 +1130,8 @@ int sqlGeneric(PGconn* DBConnect, char* originalSignal, int exp_number, int pass
 
     cost = gettimeofday(&tv_end, NULL);
     cost = (int)(tv_end.tv_sec - tv_start.tv_sec) * 1000 + (int)(tv_end.tv_usec - tv_start.tv_usec) / 1000;
-    IDAM_LOG(LOG_DEBUG, "+++ sqlGeneric +++\n");
-    IDAM_LOGF(LOG_DEBUG, "SQL Time: %d (ms)\n", cost);
+    IDAM_LOG(UDA_LOG_DEBUG, "+++ sqlGeneric +++\n");
+    IDAM_LOGF(UDA_LOG_DEBUG, "SQL Time: %d (ms)\n", cost);
 
     if (signal != NULL) free((void*)signal);
     if (tpass != NULL) free((void*)tpass);
@@ -1495,7 +1495,7 @@ int sqlNoIdamSignalxxx(PGconn* DBConnect, char* originalSignal, int exp_number, 
 // Execute SQL
 
     gettimeofday(&tv_start, NULL);
-    IDAM_LOGF(LOG_DEBUG, "%s\n", sql);
+    IDAM_LOGF(UDA_LOG_DEBUG, "%s\n", sql);
 
     if ((DBQuery = PQexec(DBConnect, sql)) == NULL) {
         addIdamError(&idamerrorstack, CODEERRORTYPE, "sqlNoIdamSignal", 1, PQresultErrorMessage(DBQuery));
@@ -1510,13 +1510,13 @@ int sqlNoIdamSignalxxx(PGconn* DBConnect, char* originalSignal, int exp_number, 
     ExecStatusType DBQueryStatus;
     gettimeofday(&tv_end, NULL);
     cost = (int)(tv_end.tv_sec - tv_start.tv_sec) * 1000 + (int)(tv_end.tv_usec - tv_start.tv_usec) / 1000;
-    IDAM_LOG(LOG_DEBUG, "+++ sqlNoIdamSignal +++\n");
-    IDAM_LOGF(LOG_DEBUG, "SQL Time: %d (ms)\n", cost);
-    IDAM_LOGF(LOG_DEBUG, "No. Rows: %d\n", nrows);
-    IDAM_LOGF(LOG_DEBUG, "No. Cols: %d\n", ncols);
-    IDAM_LOGF(LOG_DEBUG, "SQL Msg : %s\n", PQresultErrorMessage(DBQuery));
+    IDAM_LOG(UDA_LOG_DEBUG, "+++ sqlNoIdamSignal +++\n");
+    IDAM_LOGF(UDA_LOG_DEBUG, "SQL Time: %d (ms)\n", cost);
+    IDAM_LOGF(UDA_LOG_DEBUG, "No. Rows: %d\n", nrows);
+    IDAM_LOGF(UDA_LOG_DEBUG, "No. Cols: %d\n", ncols);
+    IDAM_LOGF(UDA_LOG_DEBUG, "SQL Msg : %s\n", PQresultErrorMessage(DBQuery));
     DBQueryStatus = PQresultStatus(DBQuery);
-    IDAM_LOGF(LOG_DEBUG, "SQL Stat: %s\n", PQresStatus(DBQueryStatus));
+    IDAM_LOGF(UDA_LOG_DEBUG, "SQL Stat: %s\n", PQresStatus(DBQueryStatus));
 
 //-------------------------------------------------------------
 // Record Found => Data probably exists in the archive
@@ -2636,7 +2636,7 @@ int sqlLatestPassx(PGconn* DBConnect, char* signal, int exp_number, char* maxpas
 
     strcat(sql, "));");
 
-    IDAM_LOGF(LOG_DEBUG, "%s\n", sql);
+    IDAM_LOGF(UDA_LOG_DEBUG, "%s\n", sql);
 
     if ((DBQuery = PQexec(DBConnect, sql)) == NULL) {
         addIdamError(&idamerrorstack, CODEERRORTYPE, "sqlLatestPass", 1, PQresultErrorMessage(DBQuery));
@@ -2716,7 +2716,7 @@ int sqlDataSourceAlias(PGconn* DBConnect, char* originalSignal, char** alias)
 //-------------------------------------------------------------
 // Execute SQL
 
-    IDAM_LOGF(LOG_DEBUG, "%s\n", sql);
+    IDAM_LOGF(UDA_LOG_DEBUG, "%s\n", sql);
 
     if ((DBQuery = PQexec(DBConnect, sql)) == NULL) {
         addIdamError(&idamerrorstack, CODEERRORTYPE, "sqlSourceAlias", 1, PQresultErrorMessage(DBQuery));
@@ -2783,7 +2783,7 @@ int sqlSignalDesc(PGconn* DBConnect, char* signal_desc_id, SIGNAL_DESC* signal_d
 //-------------------------------------------------------------
 // Execute SQL
 
-    IDAM_LOGF(LOG_DEBUG, "%s\n", sql);
+    IDAM_LOGF(UDA_LOG_DEBUG, "%s\n", sql);
 
     if ((DBQuery = PQexec(DBConnect, sql)) == NULL) {
         addIdamError(&idamerrorstack, CODEERRORTYPE, "sqlSignalDesc", 1, PQresultErrorMessage(DBQuery));
@@ -2867,7 +2867,7 @@ int sqlDataSource(PGconn* DBConnect, char* source_id, DATA_SOURCE* data_source)
 //-------------------------------------------------------------
 // Execute SQL
 
-    IDAM_LOGF(LOG_DEBUG, "%s\n", sql);
+    IDAM_LOGF(UDA_LOG_DEBUG, "%s\n", sql);
 
     if ((DBQuery = PQexec(DBConnect, sql)) == NULL) {
         addIdamError(&idamerrorstack, CODEERRORTYPE, "sqlDataSource", 1, PQresultErrorMessage(DBQuery));
@@ -3003,7 +3003,7 @@ int sqlAltData(PGconn* DBConnect, REQUEST_BLOCK request_block, int rank, SIGNAL_
                         "ORDER BY rank LIMIT 1;", ls, ls, us, us, signal, signal, rank);
     }
 
-    IDAM_LOGF(LOG_DEBUG, "sqlAltData: %s\n", sql);
+    IDAM_LOGF(UDA_LOG_DEBUG, "sqlAltData: %s\n", sql);
 
     if ((DBQuery = PQexec(DBConnect, sql)) == NULL) {
         addIdamError(&idamerrorstack, CODEERRORTYPE, "sqlAltData", 1, PQresultErrorMessage(DBQuery));
@@ -3022,7 +3022,7 @@ int sqlAltData(PGconn* DBConnect, REQUEST_BLOCK request_block, int rank, SIGNAL_
         }
         strcpy(mapping, PQgetvalue(DBQuery, 0, 1));
 
-        IDAM_LOGF(LOG_DEBUG, "Alt Signal Mapping:\n%s\n", mapping);
+        IDAM_LOGF(UDA_LOG_DEBUG, "Alt Signal Mapping:\n%s\n", mapping);
         printSignalDesc(*signal_desc);
 
         PQclear(DBQuery);
@@ -3128,7 +3128,7 @@ int sqlMapData(PGconn* DBConnect, int signal_desc_id, int exp_number, SIGNAL_DES
 
     keyList[depth] = signal_desc_id;
 
-    IDAM_LOGF(LOG_DEBUG, "sqlMapData: %d\n", signal_desc_id);
+    IDAM_LOGF(UDA_LOG_DEBUG, "sqlMapData: %d\n", signal_desc_id);
 
 //-------------------------------------------------------------
 // Build SQL: Locate the signal name mapping
@@ -3139,7 +3139,7 @@ int sqlMapData(PGconn* DBConnect, int signal_desc_id, int exp_number, SIGNAL_DES
             "range_stop>0 AND range_stop>=%d))", signal_desc_id,
             exp_number, exp_number, exp_number, exp_number);
 
-    IDAM_LOGF(LOG_DEBUG, "%s\n", sql);
+    IDAM_LOGF(UDA_LOG_DEBUG, "%s\n", sql);
 
     if ((DBQuery = PQexec(DBConnect, sql)) == NULL) {
         addIdamError(&idamerrorstack, CODEERRORTYPE, "sqlMapData", 999, "Database Query failed.");
@@ -3167,7 +3167,7 @@ int sqlMapData(PGconn* DBConnect, int signal_desc_id, int exp_number, SIGNAL_DES
                             signal_desc->signal_desc_id) {    // Mapped back to itself? Use current mapping
                             depth--;
 
-                            IDAM_LOGF(LOG_DEBUG, "sqlMapData[%d] Name Mapped to Itself\n", depth);
+                            IDAM_LOGF(UDA_LOG_DEBUG, "sqlMapData[%d] Name Mapped to Itself\n", depth);
 
                             *signal_desc = signal_desc_map;
                             rc = 1;
@@ -3233,7 +3233,7 @@ int sqlMapPrivateData(PGconn* DBConnect, REQUEST_BLOCK request_block, SIGNAL_DES
     PGresult* DBQuery = NULL;
     //ExecStatusType DBQueryStatus;
 
-    IDAM_LOG(LOG_DEBUG, "sqlMapPrivateData\n");
+    IDAM_LOG(UDA_LOG_DEBUG, "sqlMapPrivateData\n");
 
 //-------------------------------------------------------------
 // Escape SIGNAL to protect against SQL Injection
@@ -3258,7 +3258,7 @@ int sqlMapPrivateData(PGconn* DBConnect, REQUEST_BLOCK request_block, SIGNAL_DES
         else
             sprintf(sql, "SELECT old_name FROM Signal_Map_View WHERE new_name='%s'", signal);
 
-        IDAM_LOGF(LOG_DEBUG, "%s\n", sql);
+        IDAM_LOGF(UDA_LOG_DEBUG, "%s\n", sql);
 
         if ((DBQuery = PQexec(DBConnect, sql)) == NULL) {
             addIdamError(&idamerrorstack, CODEERRORTYPE, "sqlMapPrivateData", 999, "Database Query failed.");
@@ -3409,7 +3409,7 @@ int sqlMatch(PGconn* DBConnect, int signal_desc_id, char* originalSourceAlias, c
 // Test Performance
 
     cost = gettimeofday(&tv_start, NULL);
-    IDAM_LOGF(LOG_DEBUG, "%s\n", sql);
+    IDAM_LOGF(UDA_LOG_DEBUG, "%s\n", sql);
 
 //-------------------------------------------------------------
 // Execute SQL
@@ -3427,11 +3427,11 @@ int sqlMatch(PGconn* DBConnect, int signal_desc_id, char* originalSourceAlias, c
 
     cost = gettimeofday(&tv_end, NULL);
     cost = (int)(tv_end.tv_sec - tv_start.tv_sec) * 1000 + (int)(tv_end.tv_usec - tv_start.tv_usec) / 1000;
-    IDAM_LOG(LOG_DEBUG, "+++ sqlMatch +++\n");
-    IDAM_LOGF(LOG_DEBUG, "SQL Time: %d (ms)\n", cost);
-    IDAM_LOGF(LOG_DEBUG, "No. Rows: %d\n", nrows);
-    IDAM_LOGF(LOG_DEBUG, "No. Cols: %d\n", ncols);
-    IDAM_LOGF(LOG_DEBUG, "SQL Msg : %s\n", PQresultErrorMessage(DBQuery));
+    IDAM_LOG(UDA_LOG_DEBUG, "+++ sqlMatch +++\n");
+    IDAM_LOGF(UDA_LOG_DEBUG, "SQL Time: %d (ms)\n", cost);
+    IDAM_LOGF(UDA_LOG_DEBUG, "No. Rows: %d\n", nrows);
+    IDAM_LOGF(UDA_LOG_DEBUG, "No. Cols: %d\n", ncols);
+    IDAM_LOGF(UDA_LOG_DEBUG, "SQL Msg : %s\n", PQresultErrorMessage(DBQuery));
 
 //-------------------------------------------------------------
 // Process First Record

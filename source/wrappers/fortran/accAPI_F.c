@@ -78,7 +78,7 @@ extern void idamapi_(char* signal, int* pulno, int* handle, int lsignal)
 
     sig = TrimString(sig);
 
-    if (idamGetLogLevel() == LOG_DEBUG) {
+    if (idamGetLogLevel() == UDA_LOG_DEBUG) {
         errno = 0;
         FILE* ftnout = fopen("./ftn.log", "w");
         if (errno != 0) {
@@ -120,7 +120,7 @@ extern void idampassapi_(char* signal, int* pulno, int* pass, int* handle, int l
 
     sig = TrimString(sig);
 
-    if (idamGetLogLevel() == LOG_DEBUG) {
+    if (idamGetLogLevel() == UDA_LOG_DEBUG) {
         errno = 0;
         ftnout = fopen("./ftn.log", "w");
         if (errno != 0) {
@@ -163,7 +163,7 @@ extern void idamgenapi_(char* archive, char* device, char* signal, int* pulno, i
 
     sig = TrimString(sig);
 
-    if (idamGetLogLevel() == LOG_DEBUG) {
+    if (idamGetLogLevel() == UDA_LOG_DEBUG) {
         errno = 0;
         ftnout = fopen("./ftn.log", "w");
         if (errno != 0) {
@@ -238,7 +238,7 @@ extern void idamida_(char* file, char* signal, int* pulno, int* pass, int* handl
     f = TrimString(f);
     s = TrimString(s);
 
-    if (idamGetLogLevel() == LOG_DEBUG) {
+    if (idamGetLogLevel() == UDA_LOG_DEBUG) {
         errno = 0;
         ftnout = fopen("./ftn.log", "w");
         if (errno != 0) {
@@ -293,7 +293,7 @@ extern void idammds_(char* server, char* tree, char* node, int* treenum, int* ha
     t = TrimString(t);
     n = TrimString(n);
 
-    if (idamGetLogLevel() == LOG_DEBUG) {
+    if (idamGetLogLevel() == UDA_LOG_DEBUG) {
         errno = 0;
         ftnout = fopen("./ftn.log", "w");
 

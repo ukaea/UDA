@@ -215,7 +215,7 @@ readwrite
                 err = 999;
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "MongoDBPlugin", err,
                              "Insufficient Connection and Authentication details!");
-                IDAM_LOG(LOG_ERROR, "MongoDBPlugin: Insufficient Connection and Authentication details!");
+                IDAM_LOG(UDA_LOG_ERROR, "MongoDBPlugin: Insufficient Connection and Authentication details!");
                 return err;
             }
 
@@ -228,7 +228,7 @@ readwrite
             if (DBConnect != NULL) {
                 DBType = PLUGINSQLMONGODB;
                 sqlPrivate = 1;            // the connection belongs to this plugin
-                IDAM_LOG(LOG_DEBUG, "mongodbplugin: Private regular database connection made.\n");
+                IDAM_LOG(UDA_LOG_DEBUG, "mongodbplugin: Private regular database connection made.\n");
             }
         }
 
@@ -236,7 +236,7 @@ readwrite
             err = 999;
             addIdamError(&idamerrorstack, CODEERRORTYPE, "MongoDBPlugin", err,
                          "No connection to Database server made!");
-            IDAM_LOG(LOG_ERROR, "MongoDBPlugin: No connection to Database server made!");
+            IDAM_LOG(UDA_LOG_ERROR, "MongoDBPlugin: No connection to Database server made!");
             return err;
         }
 
@@ -246,7 +246,7 @@ readwrite
             err = 999;
             addIdamError(&idamerrorstack, CODEERRORTYPE, "MongoDBPlugin", err,
                          "No connection to Database cluster made!");
-            IDAM_LOG(LOG_ERROR, "MongoDBPlugin: No connection to Database cluster made!");
+            IDAM_LOG(UDA_LOG_ERROR, "MongoDBPlugin: No connection to Database cluster made!");
             return err;
         }
 
@@ -261,7 +261,7 @@ readwrite
             err = 999;
             addIdamError(&idamerrorstack, CODEERRORTYPE, "MongoDBPlugin", err,
                          "No handle to Database collection made!");
-            IDAM_LOG(LOG_ERROR, "MongoDBPlugin: No handle to Database collection made!");
+            IDAM_LOG(UDA_LOG_ERROR, "MongoDBPlugin: No handle to Database collection made!");
             return err;
         }
 
@@ -361,7 +361,7 @@ readwrite
 // Mandatory arguments
 
             if (!isObjectName) {
-                IDAM_LOG(LOG_ERROR, "MongoDBPlugin: No Data Object Name specified\n");
+                IDAM_LOG(UDA_LOG_ERROR, "MongoDBPlugin: No Data Object Name specified\n");
                 err = 999;
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "MongoDBPlugin", err, "No Data Object Name specified");
                 break;
@@ -381,7 +381,7 @@ readwrite
                 }
 
                 if (!isExpNumber && !isObjectSource) {
-                    IDAM_LOG(LOG_ERROR, "MongoDBPlugin: No Experiment Number or data source specified\n");
+                    IDAM_LOG(UDA_LOG_ERROR, "MongoDBPlugin: No Experiment Number or data source specified\n");
                     err = 999;
                     addIdamError(&idamerrorstack, CODEERRORTYPE, "MongoDBPlugin", err,
                                  "No Experiment Number or data source specified");
@@ -525,14 +525,14 @@ Best Query time (micro secs) [load]
             bson_t* opts = BCON_NEW("limit", BCON_INT64(limit));
 
             if (!(cursor = mongoc_collection_find_with_opts(collection, query, opts, NULL))) {
-                IDAM_LOG(LOG_ERROR, "MongoDBPlugin: Data Object not found!\n");
+                IDAM_LOG(UDA_LOG_ERROR, "MongoDBPlugin: Data Object not found!\n");
                 err = 999;
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "MongoDBPlugin", err, "Data Object not found!");
                 break;
             }
 #else
             if(!(cursor = mongoc_collection_find(collection, MONGOC_QUERY_NONE, 0, limit, 0, query, NULL, NULL))){
-                IDAM_LOG(LOG_ERROR, "MongoDBPlugin: Data Object not found!\n");
+                IDAM_LOG(UDA_LOG_ERROR, "MongoDBPlugin: Data Object not found!\n");
                 err =  999;
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "MongoDBPlugin", err, "Data Object not found!");
                 break;
@@ -584,7 +584,7 @@ Best Query time (micro secs) [load]
                 bson_iter_t value;
 
                 if (docCount++ > 0) {
-                    IDAM_LOG(LOG_ERROR, "MongoDBPlugin: Too many data objects found!\n");
+                    IDAM_LOG(UDA_LOG_ERROR, "MongoDBPlugin: Too many data objects found!\n");
                     err = 999;
                     addIdamError(&idamerrorstack, CODEERRORTYPE, "MongoDBPlugin", err, "Too many data objects found!");
                     break;
@@ -668,7 +668,7 @@ Best Query time (micro secs) [load]
             mongoc_cursor_destroy(cursor);
 
             if (docCount == 0) {
-                IDAM_LOG(LOG_ERROR, "MongoDBPlugin: No data object found!\n");
+                IDAM_LOG(UDA_LOG_ERROR, "MongoDBPlugin: No data object found!\n");
                 err = 999;
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "MongoDBPlugin", err, "No data object found!");
                 break;

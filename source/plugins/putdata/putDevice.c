@@ -25,7 +25,7 @@ int do_device(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     //---------------------------------------------------------------------------
     // Device Name Parameter
 
-    IDAM_LOGF(LOG_DEBUG, "The Device is named %s\n", device);
+    IDAM_LOGF(UDA_LOG_DEBUG, "The Device is named %s\n", device);
 
     //--------------------------------------------------------------------------
     // Check the Top Level Group Named 'Devices' exists - Create if not

@@ -21,14 +21,14 @@ int testUnitsCompliance(const char* units)
     if (unitSystem == NULL) {
         unitSystem = ut_read_xml(NULL);
         if (!setlocale(LC_CTYPE, "")) {
-            IDAM_LOG(LOG_DEBUG, "Can't set the specified locale! Check LANG, LC_CTYPE, LC_ALL");
+            IDAM_LOG(UDA_LOG_DEBUG, "Can't set the specified locale! Check LANG, LC_CTYPE, LC_ALL");
             return 0;
         }
     }
 
     if ((encoded = ut_parse(unitSystem, units, encoding)) == NULL) {
         int code = (int) ut_get_status();
-        IDAM_LOG(LOG_ERROR, "Units [%s] are Not SI Compliant.");
+        IDAM_LOG(UDA_LOG_ERROR, "Units [%s] are Not SI Compliant.");
         if (code == UT_SYNTAX) {
             fprintf(stderr, "Units contain a Syntax Error\n");
         } else {

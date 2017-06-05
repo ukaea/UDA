@@ -65,7 +65,7 @@ void nameIDA(char* alias, int pulno, char* filename) {
     }
     strcat(filename, strint);
 
-    IDAM_LOGF(LOG_DEBUG, "IDA_Filename: %s\n", filename);
+    IDAM_LOGF(UDA_LOG_DEBUG, "IDA_Filename: %s\n", filename);
 
     return;
 }

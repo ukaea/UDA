@@ -27,7 +27,7 @@ int get_complex_types(int fileid, int* ctype, int* dctype)
     }
 
     // Must have been defined previously when the file was created
-    IDAM_LOG(LOG_DEBUG, "Listing Defined Data Types\n");
+    IDAM_LOG(UDA_LOG_DEBUG, "Listing Defined Data Types\n");
 
     int ntypes;
     if (nc_inq_typeids(fileid, &ntypes, NULL) != NC_NOERR || ntypes == 0) {
@@ -46,7 +46,7 @@ int get_complex_types(int fileid, int* ctype, int* dctype)
         if (nc_inq_compound_name(fileid, (nc_type) typeids[i], typename) != NC_NOERR) {
             RAISE_PLUGIN_ERROR("Unable to List Data types");
         }
-        IDAM_LOGF(LOG_DEBUG, "Data Type %d Name: %s\n", typeids[i], typename);
+        IDAM_LOGF(UDA_LOG_DEBUG, "Data Type %d Name: %s\n", typeids[i], typename);
         if (STR_EQUALS(typename, "complex"))   *ctype = typeids[i];
         if (STR_EQUALS(typename, "dcomplex")) *dctype = typeids[i];
     }
@@ -87,7 +87,7 @@ int do_open(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     const char* filename = NULL;
     FIND_REQUIRED_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, filename);
 
-    IDAM_LOGF(LOG_DEBUG, "The filename is %s\n", filename);
+    IDAM_LOGF(UDA_LOG_DEBUG, "The filename is %s\n", filename);
 
     const char* directory = NULL;
     FIND_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, directory);
@@ -112,22 +112,22 @@ int do_open(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     int err;
 
-    IDAM_LOGF(LOG_DEBUG, "The path is %s\n", path);
+    IDAM_LOGF(UDA_LOG_DEBUG, "The path is %s\n", path);
 
     if ((err = nc_open(path, NC_WRITE, &fileid)) != NC_NOERR) {
         if (create) {
             if ((err = nc_create(path, NC_CLOBBER | NC_NETCDF4, &fileid)) != NC_NOERR) {
-                IDAM_LOGF(LOG_ERROR, "error creating netcdf file %s: %s\n", path, nc_strerror(err));
+                IDAM_LOGF(UDA_LOG_ERROR, "error creating netcdf file %s: %s\n", path, nc_strerror(err));
                 RAISE_PLUGIN_ERROR("Unable to Create the requested netCDF4 File");
             }
-            IDAM_LOGF(LOG_DEBUG, "Created the requested netCDF4 File: %d\n", fileid);
+            IDAM_LOGF(UDA_LOG_DEBUG, "Created the requested netCDF4 File: %d\n", fileid);
         } else {
-            IDAM_LOGF(LOG_ERROR, "error opening netcdf file %s: %s\n", path, nc_strerror(err));
+            IDAM_LOGF(UDA_LOG_ERROR, "error opening netcdf file %s: %s\n", path, nc_strerror(err));
             free((void*)path);
             RAISE_PLUGIN_ERROR("Unable to Open the requested netCDF4 File");
         }
     } else {
-        IDAM_LOGF(LOG_DEBUG, "Opened the requested netCDF4 File for Update: %d\n", fileid);
+        IDAM_LOGF(UDA_LOG_DEBUG, "Opened the requested netCDF4 File for Update: %d\n", fileid);
         update = 1;
     }
 
@@ -148,7 +148,7 @@ int do_open(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         char text[200];
         sprintf(text, "IDAM PutData VERSION %d (%s)", PLUGIN_VERSION, __DATE__);
         if (nc_put_att_text(fileid, NC_GLOBAL, "generator", strlen(text), text) != NC_NOERR) {
-            IDAM_LOGF(LOG_WARN, "Unable to Write the File Generator Attribute: %s\n", text);
+            IDAM_LOGF(UDA_LOG_WARN, "Unable to Write the File Generator Attribute: %s\n", text);
         }
     }
 
@@ -166,10 +166,10 @@ int do_open(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         }
     }
 
-    IDAM_LOG(LOG_DEBUG, "FileIds\n");
+    IDAM_LOG(UDA_LOG_DEBUG, "FileIds\n");
     int i;
     for (i = 0; i < fileIds.count; i++) {
-        IDAM_LOGF(LOG_DEBUG, "FileIds[%d]: %d %d\n", i, fileIds.ids[i], fileIds.compliance[i]);
+        IDAM_LOGF(UDA_LOG_DEBUG, "FileIds[%d]: %d %d\n", i, fileIds.ids[i], fileIds.compliance[i]);
     }
 
     //--------------------------------------------------------------------------
@@ -363,7 +363,7 @@ int do_close(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     int fileid = 0;
     FIND_REQUIRED_INT_VALUE(idam_plugin_interface->request_block->nameValueList, fileid);
 
-    IDAM_LOGF(LOG_DEBUG, "Closing the requested netCDF4 File: %d\n", fileid);
+    IDAM_LOGF(UDA_LOG_DEBUG, "Closing the requested netCDF4 File: %d\n", fileid);
 
     int ncfileid = get_file_id(fileid);
     if (ncfileid < 0) {
@@ -380,7 +380,7 @@ int do_close(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         nc_put_att_uint(ncfileid, NC_GLOBAL, "compliance", NC_UINT, 1, &compliance);
     }
 
-    IDAM_LOGF(LOG_DEBUG, "Compliance Test Result B: %d\n", compliance);
+    IDAM_LOGF(UDA_LOG_DEBUG, "Compliance Test Result B: %d\n", compliance);
 
     //---------------------------------------------------------------------------
     // Close the File
@@ -411,11 +411,11 @@ int do_close(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         fileIds.compliance = NULL;
     }
 
-    IDAM_LOGF(LOG_DEBUG, "File Closed, %d files remain open\n", fileIds.count);
+    IDAM_LOGF(UDA_LOG_DEBUG, "File Closed, %d files remain open\n", fileIds.count);
 
     if (fileIds.ids != NULL) {
         for (i = 0; i < fileIds.count; i++) {
-            IDAM_LOGF(LOG_DEBUG, "FileIds[%d]: %d %d\n", i, fileIds.ids[i], fileIds.compliance[i]);
+            IDAM_LOGF(UDA_LOG_DEBUG, "FileIds[%d]: %d %d\n", i, fileIds.ids[i], fileIds.compliance[i]);
         }
     }
 

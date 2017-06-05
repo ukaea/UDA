@@ -51,7 +51,7 @@ extern int idamCDF4(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     if (idam_plugin_interface->interfaceVersion > THISPLUGIN_MAX_INTERFACE_VERSION) {
         err = 999;
-        IDAM_LOG(LOG_ERROR,
+        IDAM_LOG(UDA_LOG_ERROR,
                  "ERROR newCDF4: Plugin Interface Version Unknown to this plugin: Unable to execute the request!\n");
         addIdamError(&idamerrorstack, CODEERRORTYPE, "newCDF4", err,
                      "Plugin Interface Version Unknown to this plugin: Unable to execute the request!");

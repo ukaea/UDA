@@ -157,14 +157,14 @@ int idamGetAPI(const char* data_object, const char* data_source)
 //-------------------------------------------------------------------------
 // Open the Logs
 
-    IDAM_LOG(LOG_DEBUG, "Calling idamStartup\n");
+    IDAM_LOG(UDA_LOG_DEBUG, "Calling idamStartup\n");
 
     if (idamStartup(0) != 0) {
         unlockIdamThread();
         return PROBLEM_OPENING_LOGS;
     }
 
-    IDAM_LOG(LOG_DEBUG, "Returned from idamStartup\n");
+    IDAM_LOG(UDA_LOG_DEBUG, "Returned from idamStartup\n");
 
 //-------------------------------------------------------------------------
 // Log all Arguments passed from Application
@@ -197,14 +197,14 @@ int idamGetAPI(const char* data_object, const char* data_source)
 
     if ((err = makeClientRequestBlock(data_object, data_source, &request_block)) != 0) {
         if (idamerrorstack.nerrors == 0) {
-            IDAM_LOGF(LOG_ERROR, "Error identifying the Data Source [%s]\n", data_source);
+            IDAM_LOGF(UDA_LOG_ERROR, "Error identifying the Data Source [%s]\n", data_source);
             addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, 999, "Error identifying the Data Source");
         }
         unlockIdamThread();
         return -err;
     }
 
-    IDAM_LOG(LOG_DEBUG, "Routine: idamGetAPI\n");
+    IDAM_LOG(UDA_LOG_DEBUG, "Routine: idamGetAPI\n");
     printRequestBlock(request_block);
 
 //-------------------------------------------------------------------------

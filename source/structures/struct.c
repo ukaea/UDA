@@ -80,22 +80,22 @@ void initSArray(SARRAY* str)
 */
 void printSarray(SARRAY str)
 {
-    IDAM_LOG(LOG_DEBUG, "SARRAY Contents\n");
-    IDAM_LOGF(LOG_DEBUG, "Type : %s\n", str.type);
-    IDAM_LOGF(LOG_DEBUG, "Rank : %d\n", str.rank);
-    IDAM_LOGF(LOG_DEBUG, "Count: %d\n", str.count);
+    IDAM_LOG(UDA_LOG_DEBUG, "SARRAY Contents\n");
+    IDAM_LOGF(UDA_LOG_DEBUG, "Type : %s\n", str.type);
+    IDAM_LOGF(UDA_LOG_DEBUG, "Rank : %d\n", str.rank);
+    IDAM_LOGF(UDA_LOG_DEBUG, "Count: %d\n", str.count);
     if (str.rank > 0 && str.shape != NULL) {
         int i;
-        IDAM_LOGF(LOG_DEBUG, "shape  : [%d", str.shape[0]);
+        IDAM_LOGF(UDA_LOG_DEBUG, "shape  : [%d", str.shape[0]);
         for (i = 1; i < str.rank; i++) {
             if (i < str.rank - 1)
-                IDAM_LOGF(LOG_DEBUG, "%d,", str.shape[i]);
+                IDAM_LOGF(UDA_LOG_DEBUG, "%d,", str.shape[i]);
             else
-                IDAM_LOGF(LOG_DEBUG, "%d", str.shape[i]);
+                IDAM_LOGF(UDA_LOG_DEBUG, "%d", str.shape[i]);
         }
-        IDAM_LOG(LOG_DEBUG, "]\n");
+        IDAM_LOG(UDA_LOG_DEBUG, "]\n");
     }
-    IDAM_LOG(LOG_DEBUG, "\n");
+    IDAM_LOG(UDA_LOG_DEBUG, "\n");
 }
 
 /** Add an NTREE List entry.
@@ -358,28 +358,28 @@ void initGeneralBlock(GENERAL_BLOCK* str)
 */
 void printCompoundField(COMPOUNDFIELD str)
 {
-    IDAM_LOG(LOG_DEBUG, "COMPOUNDFIELD Contents\n");
-    IDAM_LOGF(LOG_DEBUG, "name     : %s\n", str.name);
-    IDAM_LOGF(LOG_DEBUG, "type     : %s\n", str.type);
-    IDAM_LOGF(LOG_DEBUG, "desc     : %s\n", str.desc);
-    IDAM_LOGF(LOG_DEBUG, "Atomic type id : %d\n", str.atomictype);
-    IDAM_LOGF(LOG_DEBUG, "pointer  : %d\n", str.pointer);
-    IDAM_LOGF(LOG_DEBUG, "size     : %d\n", str.size);
-    IDAM_LOGF(LOG_DEBUG, "offset   : %d\n", str.offset);
-    IDAM_LOGF(LOG_DEBUG, "offpad   : %d\n", str.offpad);
-    IDAM_LOGF(LOG_DEBUG, "alignment: %d\n", str.alignment);
-    IDAM_LOGF(LOG_DEBUG, "rank     : %d\n", str.rank);
-    IDAM_LOGF(LOG_DEBUG, "count    : %d\n", str.count);
+    IDAM_LOG(UDA_LOG_DEBUG, "COMPOUNDFIELD Contents\n");
+    IDAM_LOGF(UDA_LOG_DEBUG, "name     : %s\n", str.name);
+    IDAM_LOGF(UDA_LOG_DEBUG, "type     : %s\n", str.type);
+    IDAM_LOGF(UDA_LOG_DEBUG, "desc     : %s\n", str.desc);
+    IDAM_LOGF(UDA_LOG_DEBUG, "Atomic type id : %d\n", str.atomictype);
+    IDAM_LOGF(UDA_LOG_DEBUG, "pointer  : %d\n", str.pointer);
+    IDAM_LOGF(UDA_LOG_DEBUG, "size     : %d\n", str.size);
+    IDAM_LOGF(UDA_LOG_DEBUG, "offset   : %d\n", str.offset);
+    IDAM_LOGF(UDA_LOG_DEBUG, "offpad   : %d\n", str.offpad);
+    IDAM_LOGF(UDA_LOG_DEBUG, "alignment: %d\n", str.alignment);
+    IDAM_LOGF(UDA_LOG_DEBUG, "rank     : %d\n", str.rank);
+    IDAM_LOGF(UDA_LOG_DEBUG, "count    : %d\n", str.count);
     if (str.rank > 0 && str.shape != NULL) {
         int i;
-        IDAM_LOGF(LOG_DEBUG, "shape    : [", str.shape[0]);
+        IDAM_LOGF(UDA_LOG_DEBUG, "shape    : [", str.shape[0]);
         for (i = 0; i < str.rank; i++) {
             if (i < str.rank - 1)
-                idamLog(LOG_DEBUG, "%d,", str.shape[i]);
+                idamLog(UDA_LOG_DEBUG, "%d,", str.shape[i]);
             else
-                idamLog(LOG_DEBUG, "%d", str.shape[i]);
+                idamLog(UDA_LOG_DEBUG, "%d", str.shape[i]);
         }
-        idamLog(LOG_DEBUG, "]\n");
+        idamLog(UDA_LOG_DEBUG, "]\n");
     }
 }
 
@@ -391,7 +391,7 @@ void printCompoundField(COMPOUNDFIELD str)
 */
 void printCompoundFieldTable(COMPOUNDFIELD str)
 {
-    IDAM_LOGF(LOG_DEBUG, "\t%20s\t%16s\t%d\t%d\t%d\t%d\t%d\t%d\n",
+    IDAM_LOGF(UDA_LOG_DEBUG, "\t%20s\t%16s\t%d\t%d\t%d\t%d\t%d\t%d\n",
               str.name, str.type, str.pointer, str.size, str.count, str.offset, str.offpad, str.alignment);
 }
 
@@ -403,21 +403,21 @@ void printCompoundFieldTable(COMPOUNDFIELD str)
 */
 void printUserDefinedType(USERDEFINEDTYPE str)
 {
-    IDAM_LOG(LOG_DEBUG, "USERDEFINEDTYPE Contents\n");
-    IDAM_LOGF(LOG_DEBUG, "name        : %s\n", str.name);
-    IDAM_LOGF(LOG_DEBUG, "source      : %s\n", str.source);
-    IDAM_LOGF(LOG_DEBUG, "ID Reference: %d\n", str.ref_id);
-    IDAM_LOGF(LOG_DEBUG, "size        : %d\n", str.size);
-    IDAM_LOGF(LOG_DEBUG, "fieldcount  : %d\n\n", str.fieldcount);
+    IDAM_LOG(UDA_LOG_DEBUG, "USERDEFINEDTYPE Contents\n");
+    IDAM_LOGF(UDA_LOG_DEBUG, "name        : %s\n", str.name);
+    IDAM_LOGF(UDA_LOG_DEBUG, "source      : %s\n", str.source);
+    IDAM_LOGF(UDA_LOG_DEBUG, "ID Reference: %d\n", str.ref_id);
+    IDAM_LOGF(UDA_LOG_DEBUG, "size        : %d\n", str.size);
+    IDAM_LOGF(UDA_LOG_DEBUG, "fieldcount  : %d\n\n", str.fieldcount);
 
     printImage(str.image, str.imagecount);
-    IDAM_LOG(LOG_DEBUG, "\n");
+    IDAM_LOG(UDA_LOG_DEBUG, "\n");
 
     if (str.compoundfield != NULL) {
         int i;
         for (i = 0; i < str.fieldcount; i++) printCompoundField(str.compoundfield[i]);
     }
-    IDAM_LOG(LOG_DEBUG, "\n");
+    IDAM_LOG(UDA_LOG_DEBUG, "\n");
 }
 
 /** Print the Tabulated Contents of a USERDEFINEDTYPE data structure.
@@ -429,10 +429,10 @@ void printUserDefinedType(USERDEFINEDTYPE str)
 void printUserDefinedTypeTable(USERDEFINEDTYPE str)
 {
     int i;
-    IDAM_LOGF(LOG_DEBUG, "USERDEFINEDTYPE name: %s size: %d [%d] fieldcount: %d ref_id: %d \n",
+    IDAM_LOGF(UDA_LOG_DEBUG, "USERDEFINEDTYPE name: %s size: %d [%d] fieldcount: %d ref_id: %d \n",
               str.name, str.size, getStructureSize(&str), str.fieldcount, str.ref_id);
     if (str.compoundfield != NULL) {
-        IDAM_LOG(LOG_DEBUG,
+        IDAM_LOG(UDA_LOG_DEBUG,
                  "\t                Item\t            type\tpointer\tsize\tcount\toffset\toffpad\talignment\n");
         for (i = 0; i < str.fieldcount; i++) {
             printCompoundFieldTable(str.compoundfield[i]);
@@ -449,9 +449,9 @@ void printUserDefinedTypeTable(USERDEFINEDTYPE str)
 void printZeroSizedUserDefinedTypeTable(USERDEFINEDTYPE str)
 {
     int i, size1 = 0, size2 = 0;
-    IDAM_LOGF(LOG_DEBUG, "USERDEFINEDTYPE name: %s size: %d fieldcount %d\n", str.name, str.size, str.fieldcount);
+    IDAM_LOGF(UDA_LOG_DEBUG, "USERDEFINEDTYPE name: %s size: %d fieldcount %d\n", str.name, str.size, str.fieldcount);
     if (str.compoundfield != NULL) {
-        IDAM_LOG(LOG_DEBUG,
+        IDAM_LOG(UDA_LOG_DEBUG,
                  "\t                Item\t            type\tpointer\tsize\tcount\toffset\toffpad\talignment\n");
         for (i = 0; i < str.fieldcount; i++) {
             if (str.compoundfield[i].size > 0) continue;
@@ -471,7 +471,7 @@ void printZeroSizedUserDefinedTypeTable(USERDEFINEDTYPE str)
         }
 
     }
-    IDAM_LOGF(LOG_DEBUG, "[%d][%d]\n", size1, size2);
+    IDAM_LOGF(UDA_LOG_DEBUG, "[%d][%d]\n", size1, size2);
 }
 
 
@@ -484,12 +484,12 @@ void printZeroSizedUserDefinedTypeTable(USERDEFINEDTYPE str)
 void printUserDefinedTypeList(USERDEFINEDTYPELIST str)
 {
     int i;
-    IDAM_LOG(LOG_DEBUG, "USERDEFINEDTYPELIST Contents\n");
-    IDAM_LOGF(LOG_DEBUG, "listCount  : %d\n", str.listCount);
+    IDAM_LOG(UDA_LOG_DEBUG, "USERDEFINEDTYPELIST Contents\n");
+    IDAM_LOGF(UDA_LOG_DEBUG, "listCount  : %d\n", str.listCount);
     for (i = 0; i < str.listCount; i++) {
         printUserDefinedType(str.userdefinedtype[i]);
     }
-    IDAM_LOG(LOG_DEBUG, "\n\n");
+    IDAM_LOG(UDA_LOG_DEBUG, "\n\n");
 }
 
 /** Print the Tabulated Contents of a USERDEFINEDTYPELIST data structure.
@@ -501,12 +501,12 @@ void printUserDefinedTypeList(USERDEFINEDTYPELIST str)
 void printUserDefinedTypeListTable(USERDEFINEDTYPELIST str)
 {
     int i;
-    IDAM_LOG(LOG_DEBUG, "USERDEFINEDTYPELIST Contents\n");
-    IDAM_LOGF(LOG_DEBUG, "listCount  : %d\n", str.listCount);
+    IDAM_LOG(UDA_LOG_DEBUG, "USERDEFINEDTYPELIST Contents\n");
+    IDAM_LOGF(UDA_LOG_DEBUG, "listCount  : %d\n", str.listCount);
     for (i = 0; i < str.listCount; i++) {
         printUserDefinedTypeTable(str.userdefinedtype[i]);
     }
-    IDAM_LOG(LOG_DEBUG, "\n\n");
+    IDAM_LOG(UDA_LOG_DEBUG, "\n\n");
 }
 
 /** Print the Tabulated Contents of a USERDEFINEDTYPELIST data structure where the size is zero.
@@ -518,12 +518,12 @@ void printUserDefinedTypeListTable(USERDEFINEDTYPELIST str)
 void printZeroSizedUserDefinedTypeListTable(USERDEFINEDTYPELIST str)
 {
     int i;
-    IDAM_LOG(LOG_DEBUG, "Zero Size USERDEFINEDTYPELIST Contents\n");
-    IDAM_LOGF(LOG_DEBUG, "listCount  : %d\n", str.listCount);
+    IDAM_LOG(UDA_LOG_DEBUG, "Zero Size USERDEFINEDTYPELIST Contents\n");
+    IDAM_LOGF(UDA_LOG_DEBUG, "listCount  : %d\n", str.listCount);
     for (i = 0; i < str.listCount; i++) {
         printZeroSizedUserDefinedTypeTable(str.userdefinedtype[i]);
     }
-    IDAM_LOG(LOG_DEBUG, "\n\n");
+    IDAM_LOG(UDA_LOG_DEBUG, "\n\n");
 }
 
 /** Print the Contents of a LOGMALLOC data structure.
@@ -534,14 +534,14 @@ void printZeroSizedUserDefinedTypeListTable(USERDEFINEDTYPELIST str)
 */
 void printMallocLog(LOGMALLOC str)
 {
-    IDAM_LOGF(LOG_DEBUG, "%p\t%d\t%d\t%d\t%s\n", (void*)str.heap, str.count, str.size, str.freed, str.type);
+    IDAM_LOGF(UDA_LOG_DEBUG, "%p\t%d\t%d\t%d\t%s\n", (void*)str.heap, str.count, str.size, str.freed, str.type);
     if (str.rank > 1 && str.shape != NULL) {
         int i;
-        IDAM_LOGF(LOG_DEBUG, "\trank %d shape [%d", str.rank, str.shape[0]);
+        IDAM_LOGF(UDA_LOG_DEBUG, "\trank %d shape [%d", str.rank, str.shape[0]);
         for (i = 1; i < str.rank; i++) {
-            IDAM_LOGF(LOG_DEBUG, ",%d", str.shape[i]);
+            IDAM_LOGF(UDA_LOG_DEBUG, ",%d", str.shape[i]);
         }
-        IDAM_LOG(LOG_DEBUG, "]\n");
+        IDAM_LOG(UDA_LOG_DEBUG, "]\n");
     }
 }
 
@@ -553,14 +553,14 @@ void printMallocLog(LOGMALLOC str)
 void printMallocLogList()
 {
     int i;
-    IDAM_LOG(LOG_DEBUG, "MALLOC LOG List Contents\n");
-    IDAM_LOGF(LOG_DEBUG, "listCount  : %d\n", logmalloclist->listcount);
-    IDAM_LOG(LOG_DEBUG, "Address\t\tCount\tSize\tFreed\tType\n");
+    IDAM_LOG(UDA_LOG_DEBUG, "MALLOC LOG List Contents\n");
+    IDAM_LOGF(UDA_LOG_DEBUG, "listCount  : %d\n", logmalloclist->listcount);
+    IDAM_LOG(UDA_LOG_DEBUG, "Address\t\tCount\tSize\tFreed\tType\n");
     for (i = 0; i < logmalloclist->listcount; i++) {
-        IDAM_LOGF(LOG_DEBUG, "[%3d]  ", i);
+        IDAM_LOGF(UDA_LOG_DEBUG, "[%3d]  ", i);
         printMallocLog(logmalloclist->logmalloc[i]);
     }
-    IDAM_LOG(LOG_DEBUG, "\n\n");
+    IDAM_LOG(UDA_LOG_DEBUG, "\n\n");
 }
 
 //==============================================================================================================
@@ -1534,9 +1534,9 @@ int getStructureSize(USERDEFINEDTYPE* str)
 void printError(int warning, int line, char* file, char* msg)
 {
     if (warning) {
-        IDAM_LOGF(LOG_DEBUG, "WARNING: line %d, file %s\n%s\n", line, file, msg);
+        IDAM_LOGF(UDA_LOG_DEBUG, "WARNING: line %d, file %s\n%s\n", line, file, msg);
     } else {
-        IDAM_LOGF(LOG_ERROR, "ERROR: line %d, file %s\n%s\n", line, file, msg);
+        IDAM_LOGF(UDA_LOG_ERROR, "ERROR: line %d, file %s\n%s\n", line, file, msg);
     }
 }
 
@@ -1722,9 +1722,9 @@ USERDEFINEDTYPE* findUserDefinedType(const char* name, int ref_id)
 
     int i;
 
-    IDAM_LOGF(LOG_DEBUG, "findUserDefinedType: [%s]\n", name);
-    IDAM_LOGF(LOG_DEBUG, "ref_id: %d\n", ref_id);
-    IDAM_LOGF(LOG_DEBUG, "listCount: %d\n", userdefinedtypelist->listCount);
+    IDAM_LOGF(UDA_LOG_DEBUG, "findUserDefinedType: [%s]\n", name);
+    IDAM_LOGF(UDA_LOG_DEBUG, "ref_id: %d\n", ref_id);
+    IDAM_LOGF(UDA_LOG_DEBUG, "listCount: %d\n", userdefinedtypelist->listCount);
 
     if (name == NULL) return NULL;
 
@@ -1741,7 +1741,7 @@ USERDEFINEDTYPE* findUserDefinedType(const char* name, int ref_id)
     if (ref_id == 0 && name[0] != '\0') {
 
         for (i = 0; i < userdefinedtypelist->listCount; i++) {
-            IDAM_LOGF(LOG_DEBUG, "[%2d]: [%s]\n", i, userdefinedtypelist->userdefinedtype[i].name);
+            IDAM_LOGF(UDA_LOG_DEBUG, "[%2d]: [%s]\n", i, userdefinedtypelist->userdefinedtype[i].name);
             if (!strcmp(userdefinedtypelist->userdefinedtype[i].name, name)) {
                 return (&userdefinedtypelist->userdefinedtype[i]);
             }
@@ -1938,7 +1938,7 @@ bool_t xdr_userdefinedtypelist(XDR* xdrs, USERDEFINEDTYPELIST* str)
 
     rc = rc && xdr_int(xdrs, &str->listCount);
 
-    IDAM_LOGF(LOG_DEBUG, "xdr_userdefinedtypelist: rc = %d, listCount = %d\n", rc, str->listCount);
+    IDAM_LOGF(UDA_LOG_DEBUG, "xdr_userdefinedtypelist: rc = %d, listCount = %d\n", rc, str->listCount);
 
     if (!rc || str->listCount == 0) return rc;
 
@@ -1974,27 +1974,27 @@ void printAtomicData(void* data, int atomictype, int count, const char* label)
 {
     int i;
     if (data == NULL || count == 0) {
-        IDAM_LOGF(LOG_DEBUG, "%40s: null\n", label);
+        IDAM_LOGF(UDA_LOG_DEBUG, "%40s: null\n", label);
         return;
     }
     switch (atomictype) {
         case (TYPE_FLOAT): {
             float* d = (float*)data;
             if (count > 1) {
-                IDAM_LOGF(LOG_DEBUG, "%40s:\n", label);
-                for (i = 0; i < count; i++) IDAM_LOGF(LOG_DEBUG, "[%d]   %f\n", i, d[i]);
+                IDAM_LOGF(UDA_LOG_DEBUG, "%40s:\n", label);
+                for (i = 0; i < count; i++) IDAM_LOGF(UDA_LOG_DEBUG, "[%d]   %f\n", i, d[i]);
             } else {
-                IDAM_LOGF(LOG_DEBUG, "%40s: %f\n", label, d[0]);
+                IDAM_LOGF(UDA_LOG_DEBUG, "%40s: %f\n", label, d[0]);
             }
             return;
         }
         case (TYPE_DOUBLE): {
             double* d = (double*)data;
             if (count > 1) {
-                IDAM_LOGF(LOG_DEBUG, "%40s:\n", label);
-                for (i = 0; i < count; i++) IDAM_LOGF(LOG_DEBUG, "[%d]   %f\n", i, d[i]);
+                IDAM_LOGF(UDA_LOG_DEBUG, "%40s:\n", label);
+                for (i = 0; i < count; i++) IDAM_LOGF(UDA_LOG_DEBUG, "[%d]   %f\n", i, d[i]);
             } else {
-                IDAM_LOGF(LOG_DEBUG, "%40s: %f\n", label, d[0]);
+                IDAM_LOGF(UDA_LOG_DEBUG, "%40s: %f\n", label, d[0]);
             }
             return;
         }
@@ -2002,10 +2002,10 @@ void printAtomicData(void* data, int atomictype, int count, const char* label)
         case (TYPE_SHORT): {
             short* d = (short*)data;
             if (count > 1) {
-                IDAM_LOGF(LOG_DEBUG, "%40s:\n", label);
-                for (i = 0; i < count; i++) IDAM_LOGF(LOG_DEBUG, "[%d]   %d\n", i, d[i]);
+                IDAM_LOGF(UDA_LOG_DEBUG, "%40s:\n", label);
+                for (i = 0; i < count; i++) IDAM_LOGF(UDA_LOG_DEBUG, "[%d]   %d\n", i, d[i]);
             } else {
-                IDAM_LOGF(LOG_DEBUG, "%40s: %d\n", label, d[0]);
+                IDAM_LOGF(UDA_LOG_DEBUG, "%40s: %d\n", label, d[0]);
             }
             return;
         }
@@ -2013,20 +2013,20 @@ void printAtomicData(void* data, int atomictype, int count, const char* label)
         case (TYPE_LONG): {
             int* d = (int*)data;
             if (count > 1) {
-                IDAM_LOGF(LOG_DEBUG, "%40s:\n", label);
-                for (i = 0; i < count; i++) IDAM_LOGF(LOG_DEBUG, "[%d]   %d\n", i, d[i]);
+                IDAM_LOGF(UDA_LOG_DEBUG, "%40s:\n", label);
+                for (i = 0; i < count; i++) IDAM_LOGF(UDA_LOG_DEBUG, "[%d]   %d\n", i, d[i]);
             } else {
-                IDAM_LOGF(LOG_DEBUG, "%40s: %d\n", label, d[0]);
+                IDAM_LOGF(UDA_LOG_DEBUG, "%40s: %d\n", label, d[0]);
             }
             return;
         }
         case (TYPE_LONG64): {
             long long* d = (long long*)data;
             if (count > 1) {
-                IDAM_LOGF(LOG_DEBUG, "%40s:\n", label);
-                for (i = 0; i < count; i++) IDAM_LOGF(LOG_DEBUG, "[%d]   %lld\n", i, d[i]);
+                IDAM_LOGF(UDA_LOG_DEBUG, "%40s:\n", label);
+                for (i = 0; i < count; i++) IDAM_LOGF(UDA_LOG_DEBUG, "[%d]   %lld\n", i, d[i]);
             } else {
-                IDAM_LOGF(LOG_DEBUG, "%40s: %lld\n", label, d[0]);
+                IDAM_LOGF(UDA_LOG_DEBUG, "%40s: %lld\n", label, d[0]);
             }
             return;
         }
@@ -2034,20 +2034,20 @@ void printAtomicData(void* data, int atomictype, int count, const char* label)
         case (TYPE_UNSIGNED_CHAR): {
             unsigned char* d = (unsigned char*)data;
             if (count > 1) {
-                IDAM_LOGF(LOG_DEBUG, "%40s:\n", label);
-                for (i = 0; i < count; i++) IDAM_LOGF(LOG_DEBUG, "[%d]   %u\n", i, d[i]);
+                IDAM_LOGF(UDA_LOG_DEBUG, "%40s:\n", label);
+                for (i = 0; i < count; i++) IDAM_LOGF(UDA_LOG_DEBUG, "[%d]   %u\n", i, d[i]);
             } else {
-                IDAM_LOGF(LOG_DEBUG, "%40s: %d\n", label, d[0]);
+                IDAM_LOGF(UDA_LOG_DEBUG, "%40s: %d\n", label, d[0]);
             }
             return;
         }
         case (TYPE_UNSIGNED_SHORT): {
             unsigned short* d = (unsigned short*)data;
             if (count > 1) {
-                IDAM_LOGF(LOG_DEBUG, "%40s:\n", label);
-                for (i = 0; i < count; i++) IDAM_LOGF(LOG_DEBUG, "[%d]   %u\n", i, d[i]);
+                IDAM_LOGF(UDA_LOG_DEBUG, "%40s:\n", label);
+                for (i = 0; i < count; i++) IDAM_LOGF(UDA_LOG_DEBUG, "[%d]   %u\n", i, d[i]);
             } else {
-                IDAM_LOGF(LOG_DEBUG, "%40s: %d\n", label, d[0]);
+                IDAM_LOGF(UDA_LOG_DEBUG, "%40s: %d\n", label, d[0]);
             }
             return;
         }
@@ -2055,10 +2055,10 @@ void printAtomicData(void* data, int atomictype, int count, const char* label)
         case (TYPE_UNSIGNED_LONG): {
             unsigned int* d = (unsigned int*)data;
             if (count > 1) {
-                IDAM_LOGF(LOG_DEBUG, "%40s:\n", label);
-                for (i = 0; i < count; i++) IDAM_LOGF(LOG_DEBUG, "[%d]   %u\n", i, d[i]);
+                IDAM_LOGF(UDA_LOG_DEBUG, "%40s:\n", label);
+                for (i = 0; i < count; i++) IDAM_LOGF(UDA_LOG_DEBUG, "[%d]   %u\n", i, d[i]);
             } else {
-                IDAM_LOGF(LOG_DEBUG, "%40s: %d\n", label, d[0]);
+                IDAM_LOGF(UDA_LOG_DEBUG, "%40s: %d\n", label, d[0]);
             }
             return;
         }
@@ -2066,10 +2066,10 @@ void printAtomicData(void* data, int atomictype, int count, const char* label)
         case (TYPE_UNSIGNED_LONG64): {
             unsigned long long* d = (unsigned long long*) data;
             if (count > 1) {
-                IDAM_LOGF(LOG_DEBUG, "%40s:\n", label);
-                for (i = 0; i < count; i++)IDAM_LOGF(LOG_DEBUG, "[%d]   %llu\n", i, d[i]);
+                IDAM_LOGF(UDA_LOG_DEBUG, "%40s:\n", label);
+                for (i = 0; i < count; i++)IDAM_LOGF(UDA_LOG_DEBUG, "[%d]   %llu\n", i, d[i]);
             } else {
-                IDAM_LOGF(LOG_DEBUG, "%40s: %llu\n", label, d[0]);
+                IDAM_LOGF(UDA_LOG_DEBUG, "%40s: %llu\n", label, d[0]);
             }
             return;
         }
@@ -2077,12 +2077,12 @@ void printAtomicData(void* data, int atomictype, int count, const char* label)
 
         case (TYPE_STRING): {
             char* d = (char*)data;
-            IDAM_LOGF(LOG_DEBUG, "%40s: %s\n", label, d);
+            IDAM_LOGF(UDA_LOG_DEBUG, "%40s: %s\n", label, d);
             return;
         }
         case (TYPE_CHAR): {
             char* d = (char*)data;
-            IDAM_LOGF(LOG_DEBUG, "%40s: %s\n", label, d);
+            IDAM_LOGF(UDA_LOG_DEBUG, "%40s: %s\n", label, d);
             return;
         }
     }
@@ -2114,7 +2114,7 @@ void printAtomicType(NTREE* tree, const char* target)
                     char* type;
                     data = (void*)*((VOIDTYPE*)&p[userdefinedtype->compoundfield[i].offset]);
                     if (data == NULL) {
-                        IDAM_LOGF(LOG_DEBUG, "%40s: null\n", target);
+                        IDAM_LOGF(UDA_LOG_DEBUG, "%40s: null\n", target);
                         return;
                     }
                     findMalloc(&data, &count, &size, &type);
@@ -2128,12 +2128,12 @@ void printAtomicType(NTREE* tree, const char* target)
                                     userdefinedtype->compoundfield[i].count, target);
                 }
             } else {
-                IDAM_LOGF(LOG_ERROR, "ERROR: %s is Not of Atomic Type\n", target);
+                IDAM_LOGF(UDA_LOG_ERROR, "ERROR: %s is Not of Atomic Type\n", target);
             }
             return;
         }
     }
-    IDAM_LOGF(LOG_ERROR, "ERROR: %s is Not located in the current Tree Node\n", target);
+    IDAM_LOGF(UDA_LOG_ERROR, "ERROR: %s is Not located in the current Tree Node\n", target);
     return;
 }
 
@@ -2151,7 +2151,7 @@ void printTypeCount(NTREE* ntree, const char* target)
     for (i = 0; i < fieldcount; i++) {
         if (!strcmp(userdefinedtype->compoundfield[i].name, target)) {
             printCompoundField(userdefinedtype->compoundfield[i]);
-            IDAM_LOGF(LOG_DEBUG, "%s[ %d ]\n", target, userdefinedtype->compoundfield[i].count);
+            IDAM_LOGF(UDA_LOG_DEBUG, "%s[ %d ]\n", target, userdefinedtype->compoundfield[i].count);
         }
     }
 }
@@ -2247,16 +2247,16 @@ void printNode(NTREE* tree)
 {
     int i;
     if (tree == NULL) tree = fullNTree;
-    IDAM_LOG(LOG_DEBUG, "NTREE Node Contents\n");
-    IDAM_LOGF(LOG_DEBUG, "Name    : %s \n", tree->name);
-    IDAM_LOGF(LOG_DEBUG, "Branches: %d \n", tree->branches);
+    IDAM_LOG(UDA_LOG_DEBUG, "NTREE Node Contents\n");
+    IDAM_LOGF(UDA_LOG_DEBUG, "Name    : %s \n", tree->name);
+    IDAM_LOGF(UDA_LOG_DEBUG, "Branches: %d \n", tree->branches);
 #ifdef A64
-    IDAM_LOGF(LOG_DEBUG, "Parent  : %p   (%llx) \n", (void*)tree->parent, (UVOIDTYPE)tree->parent);
+    IDAM_LOGF(UDA_LOG_DEBUG, "Parent  : %p   (%llx) \n", (void*)tree->parent, (UVOIDTYPE)tree->parent);
     for (i = 0; i < tree->branches; i++)
-        IDAM_LOGF(LOG_DEBUG, "Children[%d]: %p   (%llx) \n", i, (void*)tree->children[i], (UVOIDTYPE)tree->children[i]);
+        IDAM_LOGF(UDA_LOG_DEBUG, "Children[%d]: %p   (%llx) \n", i, (void*)tree->children[i], (UVOIDTYPE)tree->children[i]);
 #else
-    IDAM_LOGF(LOG_DEBUG, "Parent  : %p   (%x) \n", (void *)tree->parent, (UVOIDTYPE)tree->parent);
-    for (i=0; i<tree->branches; i++) IDAM_LOGF(LOG_DEBUG, "Children[%d]: %p   (%x) \n", i, (void *)tree->children[i], (UVOIDTYPE)tree->children[i]);
+    IDAM_LOGF(UDA_LOG_DEBUG, "Parent  : %p   (%x) \n", (void *)tree->parent, (UVOIDTYPE)tree->parent);
+    for (i=0; i<tree->branches; i++) IDAM_LOGF(UDA_LOG_DEBUG, "Children[%d]: %p   (%x) \n", i, (void *)tree->children[i], (UVOIDTYPE)tree->children[i]);
 #endif
     printUserDefinedType(*tree->userdefinedtype);
 }
@@ -2273,7 +2273,7 @@ void printNodeStructureDefinition(const char* target)
     NTREE* ntree = NULL;
     if (target[0] != '\0') {
         if ((ntree = findNTreeStructureDefinition(ntree, target)) == NULL) {
-            IDAM_LOGF(LOG_DEBUG, "the Structure Definition for %s could not be Found\n", target);
+            IDAM_LOGF(UDA_LOG_DEBUG, "the Structure Definition for %s could not be Found\n", target);
             return;
         }
     }
@@ -2292,12 +2292,12 @@ void printNodeStructureImage(const char* target)
     NTREE* ntree = NULL;
     if (target[0] != '\0') {
         if ((ntree = findNTreeStructureDefinition(ntree, target)) == NULL) {
-            IDAM_LOGF(LOG_DEBUG, "the Structure Definition for %s could not be Found\n", target);
+            IDAM_LOGF(UDA_LOG_DEBUG, "the Structure Definition for %s could not be Found\n", target);
             return;
         }
         printImage(ntree->userdefinedtype->image, ntree->userdefinedtype->imagecount);
     } else {
-        IDAM_LOG(LOG_DEBUG, "no Structure Definition name was given!\n");
+        IDAM_LOG(UDA_LOG_DEBUG, "no Structure Definition name was given!\n");
     }
 }
 
@@ -2823,23 +2823,23 @@ void printNodeNames(NTREE* tree)
     char** namelist, ** typelist;
     if (tree == NULL) tree = fullNTree;
 
-    IDAM_LOG(LOG_DEBUG, "\nData Node Structure Names and Types\n");
+    IDAM_LOG(UDA_LOG_DEBUG, "\nData Node Structure Names and Types\n");
     namecount = getNodeStructureCount(tree);  // Count of all local data structures
     namelist = getNodeStructureNames(tree);  // Names
     typelist = getNodeStructureTypes(tree);  // Types
-    IDAM_LOGF(LOG_DEBUG, "Structure Count %d\n", namecount);
+    IDAM_LOGF(UDA_LOG_DEBUG, "Structure Count %d\n", namecount);
     if (namecount > 0) {
-        IDAM_LOG(LOG_DEBUG, "  #\tName\tType\n");
-        for (i = 0; i < namecount; i++) IDAM_LOGF(LOG_DEBUG, "[%2d]\t%s\t%s\n", i, namelist[i], typelist[i]);
+        IDAM_LOG(UDA_LOG_DEBUG, "  #\tName\tType\n");
+        for (i = 0; i < namecount; i++) IDAM_LOGF(UDA_LOG_DEBUG, "[%2d]\t%s\t%s\n", i, namelist[i], typelist[i]);
     }
-    IDAM_LOG(LOG_DEBUG, "\nData Node Atomic Names and Types\n");
+    IDAM_LOG(UDA_LOG_DEBUG, "\nData Node Atomic Names and Types\n");
     namecount = getNodeAtomicCount(tree);  // Count of all local atomic data
     namelist = getNodeAtomicNames(tree);  // Names
     typelist = getNodeAtomicTypes(tree);  // Types
-    IDAM_LOGF(LOG_DEBUG, "Atomic Count %d\n", namecount);
+    IDAM_LOGF(UDA_LOG_DEBUG, "Atomic Count %d\n", namecount);
     if (namecount > 0) {
-        IDAM_LOG(LOG_DEBUG, "  #\tName\tType\n");
-        for (i = 0; i < namecount; i++) IDAM_LOGF(LOG_DEBUG, "[%2d]\t%s\t%s\n", i, namelist[i], typelist[i]);
+        IDAM_LOG(UDA_LOG_DEBUG, "  #\tName\tType\n");
+        for (i = 0; i < namecount; i++) IDAM_LOGF(UDA_LOG_DEBUG, "[%2d]\t%s\t%s\n", i, namelist[i], typelist[i]);
     }
 }
 
@@ -3184,21 +3184,21 @@ void printNodeStructureComponentData(NTREE* ntree, const char* target)
     type = getNodeStructureComponentDataDataType(node, lastname); // Type
 
     if (count > 0) {
-        IDAM_LOGF(LOG_DEBUG, "[%s] Data Count %d   Type %s\n", target, count, type);
-        IDAM_LOG(LOG_DEBUG, "Data Values\n");
+        IDAM_LOGF(UDA_LOG_DEBUG, "[%s] Data Count %d   Type %s\n", target, count, type);
+        IDAM_LOG(UDA_LOG_DEBUG, "Data Values\n");
         if (!strcmp(type, "float")) {
             float* s = getNodeStructureComponentData(node, lastname);
-            for (i = 0; i < count; i++) IDAM_LOGF(LOG_DEBUG, "[%d] %f\n", i, s[i]);
+            for (i = 0; i < count; i++) IDAM_LOGF(UDA_LOG_DEBUG, "[%d] %f\n", i, s[i]);
             return;
         }
         if (!strcmp(type, "int")) {
             int* s = getNodeStructureComponentData(node, lastname);
-            for (i = 0; i < count; i++) IDAM_LOGF(LOG_DEBUG, "[%d] %d\n", i, s[i]);
+            for (i = 0; i < count; i++) IDAM_LOGF(UDA_LOG_DEBUG, "[%d] %d\n", i, s[i]);
             return;
         }
         if (!strcmp(type, "STRING")) {
             char* s = getNodeStructureComponentData(node, lastname);
-            IDAM_LOGF(LOG_DEBUG, "%s\n", s);
+            IDAM_LOGF(UDA_LOG_DEBUG, "%s\n", s);
             return;
         }
         if ((userdefinedtype = findUserDefinedType(type, 0)) != NULL) {
@@ -3212,14 +3212,14 @@ void printNodeStructureComponentData(NTREE* ntree, const char* target)
             char* p = (char*)getNodeStructureComponentData(node, lastname); // Structure Array
             char* pp = NULL;
             namecount = userdefinedtype->fieldcount;    // Count of sub-structure elements
-            IDAM_LOGF(LOG_DEBUG, "Data Count %d   Type %s\n", namecount, type);
+            IDAM_LOGF(UDA_LOG_DEBUG, "Data Count %d   Type %s\n", namecount, type);
             for (j = 0; j < count; j++) {
                 str = (void*)&p[j * userdefinedtype->size];
                 pp = (char*)str;
                 for (i = 0; i < namecount; i++) {
                     offset = userdefinedtype->compoundfield[i].offset;
                     type = userdefinedtype->compoundfield[i].type;
-                    IDAM_LOGF(LOG_DEBUG, "[%d]   Type %s   Name %s\n", i, type, userdefinedtype->compoundfield[i].name);
+                    IDAM_LOGF(UDA_LOG_DEBUG, "[%d]   Type %s   Name %s\n", i, type, userdefinedtype->compoundfield[i].name);
 
                     if (userdefinedtype->compoundfield[i].pointer) {
                         data = (void*)*((VOIDTYPE*)&pp[offset]);    // Data Element from the single Structure Array Element
@@ -3245,7 +3245,7 @@ void printNodeStructureComponentData(NTREE* ntree, const char* target)
 
                         namecount2 = getNodeStructureComponentCount(&temp);  // Count of structure elements
                         namelist2 = getNodeStructureComponentNames(&temp);  // List of structure element names
-                        IDAM_LOGF(LOG_DEBUG, "Data Count %d   Type %s\n", namecount2, type);
+                        IDAM_LOGF(UDA_LOG_DEBUG, "Data Count %d   Type %s\n", namecount2, type);
 
                         for (k = 0; k < namecount2; k++) printNodeStructureComponentData(&temp, namelist2[k]);
                     }
@@ -3281,7 +3281,7 @@ void printNodeStructure(NTREE* ntree)
 
     for (j = 0; j < count; j++) {
 
-        IDAM_LOGF(LOG_DEBUG, "%s contents:\n", ntree->userdefinedtype->name);
+        IDAM_LOGF(UDA_LOG_DEBUG, "%s contents:\n", ntree->userdefinedtype->name);
 
         data = getNodeStructureArrayData(ntree, j);     // Loop over Structure Array Elements
 
@@ -3314,7 +3314,7 @@ void printNodeStructure(NTREE* ntree)
             if ((node2 = findNTreeStructure(node, snamelist[i])) != NULL) {
                 printNodeStructure(node2);
             } else
-                IDAM_LOGF(LOG_DEBUG, "%40s: null\n", snamelist[i]);
+                IDAM_LOGF(UDA_LOG_DEBUG, "%40s: null\n", snamelist[i]);
         }
     }
     return;
@@ -3442,19 +3442,19 @@ void printNTree2(NTREE* tree)
 {
     int i;
     if (tree == NULL) tree = fullNTree;
-    IDAM_LOG(LOG_DEBUG, "\nNTREE Node Contents\n");
-    IDAM_LOGF(LOG_DEBUG, "Name    : %s\n", tree->name);
-    IDAM_LOGF(LOG_DEBUG, "Type    : %s\n", tree->userdefinedtype->name);
+    IDAM_LOG(UDA_LOG_DEBUG, "\nNTREE Node Contents\n");
+    IDAM_LOGF(UDA_LOG_DEBUG, "Name    : %s\n", tree->name);
+    IDAM_LOGF(UDA_LOG_DEBUG, "Type    : %s\n", tree->userdefinedtype->name);
 #ifdef A64
-    IDAM_LOGF(LOG_DEBUG, "Parent  : %llx\n", (UVOIDTYPE)tree->parent);
+    IDAM_LOGF(UDA_LOG_DEBUG, "Parent  : %llx\n", (UVOIDTYPE)tree->parent);
 #else
-    IDAM_LOGF(LOG_DEBUG, "Parent  : %x\n", (UVOIDTYPE)tree->parent);
+    IDAM_LOGF(UDA_LOG_DEBUG, "Parent  : %x\n", (UVOIDTYPE)tree->parent);
 #endif
-    IDAM_LOGF(LOG_DEBUG, "Children: %d\n", tree->branches);
+    IDAM_LOGF(UDA_LOG_DEBUG, "Children: %d\n", tree->branches);
 #ifdef A64
-    for (i = 0; i < tree->branches; i++) IDAM_LOGF(LOG_DEBUG, "[%2d]: %llx\n", i, (UVOIDTYPE)tree->children[i]);
+    for (i = 0; i < tree->branches; i++) IDAM_LOGF(UDA_LOG_DEBUG, "[%2d]: %llx\n", i, (UVOIDTYPE)tree->children[i]);
 #else
-    for (i=0; i<tree->branches; i++) IDAM_LOGF(LOG_DEBUG, "[%2d]: %x\n", i, (UVOIDTYPE)tree->children[i]);
+    for (i=0; i<tree->branches; i++) IDAM_LOGF(UDA_LOG_DEBUG, "[%2d]: %x\n", i, (UVOIDTYPE)tree->children[i]);
 #endif
     for (i = 0; i < tree->branches; i++) printNTree2(tree->children[i]);
 }
@@ -3469,14 +3469,14 @@ void printNTree(NTREE* tree)
 {
     int i;
     if (tree == NULL) tree = fullNTree;
-    IDAM_LOG(LOG_DEBUG, "--------------------------------------------------------------------\n");
+    IDAM_LOG(UDA_LOG_DEBUG, "--------------------------------------------------------------------\n");
 #ifdef A64
-    IDAM_LOGF(LOG_DEBUG, "\nNTREE Node %llx (%lld) Contents\n", (UVOIDTYPE)tree, (UVOIDTYPE)tree);
+    IDAM_LOGF(UDA_LOG_DEBUG, "\nNTREE Node %llx (%lld) Contents\n", (UVOIDTYPE)tree, (UVOIDTYPE)tree);
 #else
-    IDAM_LOGF(LOG_DEBUG, "\nNTREE Node %x (%d) Contents\n", (UVOIDTYPE)tree, (UVOIDTYPE)tree);
+    IDAM_LOGF(UDA_LOG_DEBUG, "\nNTREE Node %x (%d) Contents\n", (UVOIDTYPE)tree, (UVOIDTYPE)tree);
 #endif
-    IDAM_LOGF(LOG_DEBUG, "Name: %s\n", tree->name);
-    IDAM_LOGF(LOG_DEBUG, "Children: %d\n", tree->branches);
+    IDAM_LOGF(UDA_LOG_DEBUG, "Name: %s\n", tree->name);
+    IDAM_LOGF(UDA_LOG_DEBUG, "Children: %d\n", tree->branches);
     printUserDefinedTypeTable(*tree->userdefinedtype);
     for (i = 0; i < tree->branches; i++) {
         printNTree(tree->children[i]);
@@ -3495,10 +3495,10 @@ void printNTreeList(NTREE* tree)
     int i;
     if (tree == NULL) { tree = fullNTree; }
 #ifdef A64
-    IDAM_LOGF(LOG_DEBUG, "%llx\t(%lld)\t%s\t%s\t%d\n", (UVOIDTYPE)tree, (UVOIDTYPE)tree, tree->name,
+    IDAM_LOGF(UDA_LOG_DEBUG, "%llx\t(%lld)\t%s\t%s\t%d\n", (UVOIDTYPE)tree, (UVOIDTYPE)tree, tree->name,
               tree->userdefinedtype->name, tree->branches);
 #else
-    IDAM_LOGF(LOG_DEBUG, "%x\t(%d)\t%s\t%s\t%d\n", (UVOIDTYPE)tree, (UVOIDTYPE)tree, tree->name,tree->userdefinedtype->name,tree->branches);
+    IDAM_LOGF(UDA_LOG_DEBUG, "%x\t(%d)\t%s\t%s\t%d\n", (UVOIDTYPE)tree, (UVOIDTYPE)tree, tree->name,tree->userdefinedtype->name,tree->branches);
 #endif
     for (i = 0; i < tree->branches; i++) {
         printNTreeList(tree->children[i]);
@@ -3602,17 +3602,17 @@ void printNTreeStructureNames(NTREE* tree)
     char** namelist, ** typelist;
     if (tree == NULL) { tree = fullNTree; }
 #ifdef A64
-    IDAM_LOGF(LOG_DEBUG, "\nData Tree %llx Structure Names and Types\n", (UVOIDTYPE)tree);
+    IDAM_LOGF(UDA_LOG_DEBUG, "\nData Tree %llx Structure Names and Types\n", (UVOIDTYPE)tree);
 #else
-    IDAM_LOGF(LOG_DEBUG, "\nData Tree %x Structure Names and Types\n", (UVOIDTYPE)tree);
+    IDAM_LOGF(UDA_LOG_DEBUG, "\nData Tree %x Structure Names and Types\n", (UVOIDTYPE)tree);
 #endif
     namecount = getNTreeStructureCount(tree);  // Count of all Tree Nodes
     namelist = getNTreeStructureNames(tree);  // Names of all user defined data structures
     typelist = getNTreeStructureTypes(tree);  // Types of all user defined data structures
-    IDAM_LOGF(LOG_DEBUG, "Total Structure Count %d\n", namecount);
-    IDAM_LOG(LOG_DEBUG, "  #\tName\tType\n");
+    IDAM_LOGF(UDA_LOG_DEBUG, "Total Structure Count %d\n", namecount);
+    IDAM_LOG(UDA_LOG_DEBUG, "  #\tName\tType\n");
     for (i = 0; i < namecount; i++) {
-        IDAM_LOGF(LOG_DEBUG, "[%2d]\t%s\t%s\n", i, namelist[i], typelist[i]);
+        IDAM_LOGF(UDA_LOG_DEBUG, "[%2d]\t%s\t%s\n", i, namelist[i], typelist[i]);
     }
 }
 
@@ -3741,15 +3741,15 @@ void printNTreeStructureComponentNames(NTREE* tree)
     int i, namecount;
     char** namelist, ** typelist, ** desclist;
     if (tree == NULL) tree = fullNTree;
-    IDAM_LOG(LOG_DEBUG, "\nData Tree Structure Component Names, Types and Descriptions\n");
+    IDAM_LOG(UDA_LOG_DEBUG, "\nData Tree Structure Component Names, Types and Descriptions\n");
     namecount = getNTreeStructureComponentCount(tree);  // Count of all Tree Nodes
     namelist = getNTreeStructureComponentNames(tree);  // Names of all structure elements
     typelist = getNTreeStructureComponentTypes(tree);  // Types of all structure elements
     desclist = getNTreeStructureComponentDescriptions(tree); // Descriptions of all structure elements
-    IDAM_LOGF(LOG_DEBUG, "Total Structure Component Count %d\n", namecount);
-    IDAM_LOG(LOG_DEBUG, "  #\tName\tType\tDescription\n");
+    IDAM_LOGF(UDA_LOG_DEBUG, "Total Structure Component Count %d\n", namecount);
+    IDAM_LOG(UDA_LOG_DEBUG, "  #\tName\tType\tDescription\n");
     for (i = 0; i < namecount; i++)
-        IDAM_LOGF(LOG_DEBUG, "[%2d]\t%s\t%s\t%s\n", i, namelist[i], typelist[i], desclist[i]);
+        IDAM_LOGF(UDA_LOG_DEBUG, "[%2d]\t%s\t%s\t%s\n", i, namelist[i], typelist[i], desclist[i]);
 }
 
 //=======================================================================================================
