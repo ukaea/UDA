@@ -35,3 +35,32 @@ TEST_CASE( "Test HELP::help() function", "[HELP][plugins]" ) {
 
     REQUIRE( str->str() == expected );
 }
+
+TEST_CASE( "Test HELP::services() function", "[HELP][plugins]" ) {
+
+#ifdef FATCLIENT
+#  include "setupEnvironment.inc"
+#endif
+
+    uda::Client client;
+
+    const uda::Result& result = client.get("HELP::services()", "");
+
+    REQUIRE( result.errorCode() == 0 );
+    REQUIRE( result.error() == "" );
+
+    uda::Data* data = result.data();
+
+    REQUIRE( data != NULL );
+    REQUIRE( !data->isNull() );
+    REQUIRE( data->type().name() == typeid(char*).name() );
+
+    uda::String* str = dynamic_cast<uda::String*>(data);
+
+    REQUIRE( str != NULL );
+
+    std::string expected = "\nTotal number of registered plugins available";
+
+    REQUIRE( str->str().size() > expected.size() );
+    REQUIRE( str->str().substr(0, expected.size()) == expected );
+}
