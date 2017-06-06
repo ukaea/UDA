@@ -176,14 +176,14 @@ uda::Data* getDataAsStringArray(int handle, std::vector<uda::Dim>& dims)
 
     std::vector<std::string>* strings = new std::vector<std::string>;
 
-    for (int i = 0; i < arr_len; ++i) {
+    for (size_t i = 0; i < arr_len; ++i) {
         char* str = &data[i * str_len];
         strings->push_back(std::string(str, strlen(str)));
     }
 
     std::vector<uda::Dim> string_dims;
 
-    for (int i = 1; i < dims.size(); ++i) {
+    for (size_t i = 1; i < dims.size(); ++i) {
         string_dims.push_back(dims[i]);
     }
 

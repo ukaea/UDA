@@ -53,8 +53,12 @@ int readIda3Plugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     int err = 0, serrno, rc;
 
-//----------------------------------------------------------------------
-// Data Source Details
+    if (STR_IEQUALS(idam_plugin_interface->request_block->function, "reset")) {
+        return 0;
+    }
+
+    //----------------------------------------------------------------------
+    // Data Source Details
 
     err = 0;
 
