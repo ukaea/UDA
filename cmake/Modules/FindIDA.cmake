@@ -38,6 +38,6 @@ find_library( IDA_C_LIBRARIES_LIB NAMES ida3c
 set( IDA_LIBRARIES ${IDA_LIBRARIES_LIB} ${IDA_C_LIBRARIES_LIB} )
 
 include( FindPackageHandleStandardArgs )
-find_package_handle_standard_args( Ida DEFAULT_MSG IDA_LIBRARIES IDA_INCLUDE_DIR )
+find_package_handle_standard_args( IDA DEFAULT_MSG IDA_LIBRARIES IDA_INCLUDE_DIR )
 
 mark_as_advanced( IDA_LIBRARIES IDA_INCLUDE_DIR )
