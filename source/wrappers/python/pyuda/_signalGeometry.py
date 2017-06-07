@@ -1,26 +1,28 @@
 """
 Class to import signal geometry data
 """
-
+from __future__ import absolute_import
 import inspect
 
 from ._data import Data
 
+
+# noinspection PyAbstractClass
 class SignalGeometryData(Data):
-    def __init__(self, sigData, signal, all=False):
+    def __init__(self, sig_data, signal, keep_all=False):
         """
         Initialisation
-        :param sigData:
-        :param kwargs:
+        :param sig_data:
+        :param signal:
+        :param keep_all:
         :return:
         """
-        self._sdata = sigData
+        self._sdata = sig_data
         self._signal = signal
         self.data = None
-        self._keep_all = all
+        self._keep_all = keep_all
 
         self._import_data()
-
 
     def _import_data(self):
         """
@@ -75,7 +77,8 @@ class SignalGeometryData(Data):
 
         return all_names
 
-    def _get_all_attr(self, data, exclude=()):
+    @staticmethod
+    def _get_all_attr(data, exclude=()):
         """
         Get all attributes except those in exclude
         :param data: class
@@ -83,8 +86,7 @@ class SignalGeometryData(Data):
         :return: list of attributes of the class
         """
         attr_data = inspect.getmembers(data, lambda a: not (inspect.isroutine(a)))
-        attr_data = [a for a in attr_data
-                    if not (a[0].startswith('_') or a[0] in exclude)]
+        attr_data = [a for a in attr_data if not (a[0].startswith('_') or a[0] in exclude)]
 
         return attr_data
 
@@ -92,6 +94,7 @@ class SignalGeometryData(Data):
         """
 
         :param geom_data:
+        :param lead_group:
         :return:
         """
         if lead_group[0] != "/":

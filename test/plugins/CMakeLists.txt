@@ -17,7 +17,7 @@ foreach( TEST_FILE ${TEST_FILES} )
     add_executable( ${TEST} ${TEST_FILE} )
     target_link_libraries( ${TEST} PRIVATE
       ${Boost_LIBRARIES}
-      ${PROJECT_NAME}_cpp
+      cpp-shared
       client-shared
       ${OPENSSL_LIBRARIES}
       ${LIBXML2_LIBRARIES}
@@ -26,7 +26,7 @@ foreach( TEST_FILE ${TEST_FILES} )
     add_executable( fat_${TEST} ${TEST_FILE} )
     target_link_libraries( fat_${TEST} PRIVATE
       ${Boost_LIBRARIES}
-      fat${PROJECT_NAME}_cpp
+      fatcpp-shared
       fatclient-shared
       ${OPENSSL_LIBRARIES}
       ${LIBXML2_LIBRARIES}

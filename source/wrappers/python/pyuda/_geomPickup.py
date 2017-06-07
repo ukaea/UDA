@@ -14,19 +14,18 @@ Plotting:
 The plot method will plot the pickup coil locations (in the R-Z plane and in (x,y,z)).
 Pickup coils that measure only toroidally are coloured red.
 """
-
+from __future__ import absolute_import
 import math
 import numpy as np
-
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
 
 from ._geometryUtils import length_poloidal_projection
-from ._geometryUtils import vector_to_bR_bZ_bPhi
+from ._geometryUtils import vector_to_br_bz_bphi
 from ._geometryUtils import unit_vector_to_poloidal_angle
 from ._geometryUtils import cylindrical_cartesian
 
-class GeomPickup():
+
+class GeomPickup:
     def __init__(self):
         self.pol_type = ""
         pass
@@ -46,16 +45,17 @@ class GeomPickup():
         geometry.add_attr("length_poloidal", length_poloidal)
 
         # Angle in poloidal plane
-        poloidal_angle = unit_vector_to_poloidal_angle(orientation["unit_vector"].r, orientation["unit_vector"].z, convention=self.pol_type)
+        poloidal_angle = unit_vector_to_poloidal_angle(orientation["unit_vector"].r, orientation["unit_vector"].z,
+                                                       convention=self.pol_type)
         orientation.add_attr("poloidal_angle", poloidal_angle)
         orientation.add_attr("poloidal_convention", self.pol_type)
 
         # Fraction measured in bR, bZ and bPhi directions
-        bRFraction, bZFraction, bPhiFraction = vector_to_bR_bZ_bPhi(orientation)
+        br_fraction, bz_fraction, bphi_fraction = vector_to_br_bz_bphi(orientation)
 
-        orientation.add_attr("bRFraction", bRFraction)
-        orientation.add_attr("bZFraction", bZFraction)
-        orientation.add_attr("bPhiFraction", bPhiFraction)
+        orientation.add_attr("bRFraction", br_fraction)
+        orientation.add_attr("bZFraction", bz_fraction)
+        orientation.add_attr("bPhiFraction", bphi_fraction)
 
         orientation.delete_child(child_name="unit_vector")
 
@@ -107,6 +107,7 @@ class GeomPickup():
                       If None, then an axis will be created.
         :param ax_3d: Axis on which to plot location of pickup coils in x-y-z (3D) plane.
                       If None, then an axis will be created.
+        :param show:
         :return:
         """
         # Get co-ordiantes
@@ -131,16 +132,16 @@ class GeomPickup():
 
         # Plot
         if ax_2d is not None:
-            all_R = r_z_to_plot[::2]
-            all_Z = r_z_to_plot[1::2]
+            all_r = r_z_to_plot[::2]
+            all_z = r_z_to_plot[1::2]
 
             marker_size = np.zeros(len(colours)) + 60
 
             markers_unique = set(markers)
 
             for marker in markers_unique:
-                r_here = [all_R[i] for i in range(len(all_R)) if markers[i] == marker]
-                z_here = [all_Z[i] for i in range(len(all_Z)) if markers[i] == marker]
+                r_here = [all_r[i] for i in range(len(all_r)) if markers[i] == marker]
+                z_here = [all_z[i] for i in range(len(all_z)) if markers[i] == marker]
                 c_here = [colours[i] for i in range(len(colours)) if markers[i] == marker]
                 s_here = [marker_size[i] for i in range(len(marker_size)) if markers[i] == marker]
 
@@ -195,6 +196,7 @@ class GeomPickup():
             length = data["geometry"].length
         
             # These shouldn't really be hard-coded
+            # noinspection PyTypeChecker
             if np.isclose(length, 0.021, rtol=0.0, atol=0.0009):
                 markers.append("o")
             elif np.isclose(length, 0.026, rtol=0.0, atol=0.0009):
@@ -213,18 +215,16 @@ class GeomPickup():
                     pol_angle = 360 - pol_angle
 
                 direction = data["orientation"].measurement_direction
-                if ("POLOIDAL" in direction
-                    or "NORMAL" in direction 
-                    or "PARALLEL" in direction):
-                    unit_r = unit_r.append(math.cos(math.pi * pol_angle / 180.0))
-                    unit_z = unit_z.append(math.sin(math.pi * pol_angle / 180.0))
+                if "POLOIDAL" in direction or "NORMAL" in direction or "PARALLEL" in direction:
+                    unit_r.append(math.cos(math.pi * pol_angle / 180.0))
+                    unit_z.append(math.sin(math.pi * pol_angle / 180.0))
                 else:
-                    unit_r = unit_r.append(0.0)
-                    unit_z = unit_z.append(0.0)
+                    unit_r.append(0.0)
+                    unit_z.append(0.0)
             except AttributeError:
                 if "unit_vector" in child_names_orientation:
-                    unit_r = unit_r.append(data["orientation/unit_vector"].r)
-                    unit_z = unit_z.append(data["orientation/unit_vector"].z)
+                    unit_r.append(data["orientation/unit_vector"].r)
+                    unit_z.append(data["orientation/unit_vector"].z)
         else:
             for child in data.children:
                 self._get_all_coords(child, r_z_coord, x_y_z_coord, unit_r, unit_z, colours, markers)

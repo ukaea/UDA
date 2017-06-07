@@ -1,10 +1,11 @@
-from ._utils import cdata_scalar_to_value, cdata_vector_to_value
-from ._data import Data
-
+from __future__ import absolute_import
 import json
 import itertools
 import numpy as np
 import base64
+
+from ._utils import cdata_scalar_to_value, cdata_vector_to_value
+from ._data import Data
 
 
 class StructuredDataEncoder(json.JSONEncoder):
@@ -23,7 +24,7 @@ class StructuredDataEncoder(json.JSONEncoder):
                 },
             }
             return obj
-        return super().default(obj)
+        return super(StructuredDataEncoder, self).default(obj)
 
 
 class StructuredData(Data):
@@ -80,7 +81,9 @@ class StructuredData(Data):
         print(('|' * level + '['), self._name, ']')
         for name in self._imported_attrs:
             print(('|' * (level + 1) + '->'), name)
+        # noinspection PyTypeChecker
         for child in self.children:
+            # noinspection PyProtectedMember
             child._display(depth, level+1)
 
     def display(self, depth=None):
@@ -98,6 +101,7 @@ class StructuredData(Data):
         index = None
         if "@" in name:
             (name, index) = name.split("@")
+        # noinspection PyTypeChecker
         found = tuple(c for c in self.children if c.name == name)
         if len(found) == 0:
             raise KeyError("Cannot find child " + name + " in node " + self.name)
@@ -147,14 +151,19 @@ class StructuredData(Data):
     def widget(self):
         raise NotImplementedError("widget function not implemented for StructuredData objects")
 
+    # noinspection PyProtectedMember
     def _todict(self):
+        # noinspection PyTypeChecker
         for child in self.children:
-            if child._name == 'data': return child._todict()
+            if child._name == 'data':
+                return child._todict()
         obj = {}
         for name in self._imported_attrs:
             obj[name] = getattr(self, name)
+        # noinspection PyTypeChecker
         if len(self.children) > 0:
             obj['children'] = []
+            # noinspection PyTypeChecker
             for child in self.children:
                 obj['children'].append(child._todict())
         return obj

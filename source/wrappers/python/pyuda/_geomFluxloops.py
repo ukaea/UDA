@@ -5,11 +5,12 @@ Plotting:
 
 Plot the positions of fluxloops
 """
-
+from __future__ import absolute_import
 import matplotlib.pyplot as plt
 import numpy as np
 
-class GeomFluxloops():
+
+class GeomFluxloops:
     def __init__(self):
         pass
 
@@ -38,10 +39,11 @@ class GeomFluxloops():
         :param data: data tree (instance of StructuredWritable, with pickup coil tree structure)
         :param ax_2d: Axis on which to plot location of pickup coils in R-Z (2D) plane.
                       If None, then an axis will be created.
+        :param ax_3d:
+        :param show:
         """
         # Get co-ordiantes
         r_z_to_plot = []
-        r_z_centreR_to_plot = []
 
         self._get_all_coords(data, r_z_to_plot)
 
@@ -57,18 +59,18 @@ class GeomFluxloops():
         # Plot
         if ax_2d is not None:
             # colours
-            R_coords = r_z_to_plot[::2]
-            Z_coords = r_z_to_plot[1::2]
+            r_coords = r_z_to_plot[::2]
+            z_coords = r_z_to_plot[1::2]
 
             # plot
-            ax_2d.scatter(R_coords, Z_coords)
+            ax_2d.scatter(r_coords, z_coords)
             ax_2d.set_xlabel('R [m]')
             ax_2d.set_ylabel('Z [m]')
 
         if ax_3d is not None:
             # Assuming loops are centred around R = 0
             n_loops = len(r_z_to_plot) // 2
-            for iloop in range(0,n_loops):
+            for iloop in range(0, n_loops):
                 loop_radius = r_z_to_plot[iloop*2]
                 loop_centre_z = r_z_to_plot[iloop * 2 + 1]
 

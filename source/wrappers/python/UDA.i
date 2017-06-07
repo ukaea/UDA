@@ -1,4 +1,8 @@
-%module c_uda
+#ifdef SWIGPYTHON3
+%module uda_python3
+#else
+%module uda_python2
+#endif
 
 %include "std_string.i"
 %include "std_vector.i"

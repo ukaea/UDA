@@ -1,7 +1,9 @@
+from __future__ import absolute_import
+
 from ._utils import cdata_to_numpy_array
 
 
-class Dim(object):
+class Dim:
 
     def __init__(self, cdim):
         self._cdim = cdim

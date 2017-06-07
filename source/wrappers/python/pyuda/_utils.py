@@ -1,12 +1,15 @@
+from __future__ import absolute_import
 import numpy as np
-from .c_uda import UDAException
+
+# noinspection PyUnresolvedReferences
+from .uda_swig import UDAException
 
 
 def cdata_scalar_to_value(scalar):
     """
-    Convert an IDAM C++ Scalar object to an equivalent python type.
+    Convert an UDA C++ Scalar object to an equivalent python type.
 
-    :param scalar: an IDAM C++ scalar as wrapped by the low level c_uda library
+    :param scalar: an UDA C++ scalar as wrapped by the low level uda_swig library
     :return: a number or string
     """
     if scalar.type() == 'float32':
@@ -37,9 +40,9 @@ def cdata_scalar_to_value(scalar):
 
 def cdata_vector_to_value(vector):
     """
-    Convert an IDAM C++ Vector object to an equivalent python type.
+    Convert an UDA C++ Vector object to an equivalent python type.
 
-    :param vector: an IDAM C++ vector as wrapped by the low level c_uda library
+    :param vector: an UDA C++ vector as wrapped by the low level uda_swig library
     :return: a list of numbers or strings
     """
     if vector.type() == 'float32':
@@ -64,7 +67,8 @@ def cdata_vector_to_value(vector):
         return np.array(vector.uldata(), dtype=vector.type())
     elif vector.type() == 'string':
         vec = vector.string()
-        return [vec[i] for i in range(len(vec))] # converting SWIG vector<char*> to list of strings
+        # converting SWIG vector<char*> to list of strings
+        return [vec[i] for i in range(len(vec))]
     else:
         raise UDAException("Unknown data type " + vector.type())
 

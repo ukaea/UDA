@@ -1,7 +1,8 @@
-import pyuda
+from __future__ import absolute_import
 import json
 import base64
 import numpy as np
+
 from ._signal import Signal
 from ._dim import Dim
 
@@ -9,7 +10,7 @@ from ._dim import Dim
 class DimEncoder(json.JSONEncoder):
 
     def default(self, obj):
-        if isinstance(obj, pyuda.Dim):
+        if isinstance(obj, Dim):
             dim = obj
             obj = {
                 '_type': 'pyuda.Dim',
@@ -22,13 +23,13 @@ class DimEncoder(json.JSONEncoder):
                 },
             }
             return obj
-        return super().default(obj)
+        return super(DimEncoder, self).default(obj)
 
 
 class SignalEncoder(json.JSONEncoder):
 
     def default(self, obj):
-        if isinstance(obj, pyuda.Signal):
+        if isinstance(obj, Signal):
             signal = obj
             dim_enc = DimEncoder()
             obj = {
@@ -44,19 +45,20 @@ class SignalEncoder(json.JSONEncoder):
                 'meta': signal.meta,
             }
             return obj
-        return super().default(obj)
+        return super(SignalEncoder, self).default(obj)
 
 
 class SignalDecoder(json.JSONDecoder):
 
     def __init__(self, *args, **kwargs):
-        super().__init__(object_hook=self.object_hook, *args, **kwargs)
+        super(SignalDecoder, self).__init__(object_hook=self.object_hook, *args, **kwargs)
 
-    def object_hook(self, obj):
+    @staticmethod
+    def object_hook(obj):
         if '_type' not in obj:
             return obj
-        type = obj['_type']
-        if type == 'base64':
+        _type = obj['_type']
+        if _type == 'base64':
             return np.frombuffer(base64.urlsafe_b64decode(obj['value']), dtype=obj['_dtype'])
         elif type == 'pyuda.Signal':
             signal = Signal(None)

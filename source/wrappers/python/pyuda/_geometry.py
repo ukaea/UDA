@@ -11,17 +11,18 @@ PROBLEMS:
     will try to add them when calibrating... Perhaps should ditch the
     enums and use strings instead?
 """
-
+from __future__ import absolute_import
 import inspect
 import logging
 
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
 
 from ._data import Data
 
+
+# noinspection PyAbstractClass
 class GeometryData(Data):
-    def __init__(self, structData, signal_config, manip, **kwargs):
+    def __init__(self, struct_data, signal_config, manip, **kwargs):
         """
         Initialisation
         :param structData: A list of pairs of calibration and configuration StructuredData objects
@@ -31,7 +32,7 @@ class GeometryData(Data):
         :param kwargs: Keyword arguments to be passed to manipulators
         :return:
         """
-        self._sdata = structData
+        self._sdata = struct_data
         self._signal_config = signal_config
         self._manip = manip
         self._manip_kw = kwargs
@@ -89,9 +90,10 @@ class GeometryData(Data):
             if self.data is None:
                 self.data = config_data
             else:
-                self._add_struct(config_data)
+                self.add_struct(config_data)
 
-    def _get_all_attr(self, data, exclude=()):
+    @staticmethod
+    def _get_all_attr(data, exclude=()):
         """
         Get all attributes except those in exclude
         :param data: class
@@ -99,8 +101,7 @@ class GeometryData(Data):
         :return: list of attributes of the class
         """
         attr_data = inspect.getmembers(data, lambda a: not (inspect.isroutine(a)))
-        attr_data = [a for a in attr_data
-                    if not (a[0].startswith('_') or a[0] in exclude)]
+        attr_data = [a for a in attr_data if not (a[0].startswith('_') or a[0] in exclude)]
 
         return attr_data
 
@@ -146,7 +147,7 @@ class GeometryData(Data):
             children_names_config = [child.name for child in config_data.children]
 
             for child in cal_data.children:
-                if (hasattr(child, 'calibration')):
+                if hasattr(child, 'calibration'):
                     if child.calibration == "True" and child.name in children_names_config:
                         # Found data to be calibrated: find matching Config data & calibrate
                         child_ind = children_names_config.index(child.name)
@@ -215,7 +216,7 @@ class GeometryData(Data):
             else:
                 config_data.add_child(child)
 
-    def _add_struct(self, data):
+    def add_struct(self, data):
         """
         Add data struct to self.data
         at the level below ROOT level.
@@ -223,7 +224,7 @@ class GeometryData(Data):
         :return:
         """
         for child in data.children:
-            print("_add_struct: add child {}".format(child.name))
+            print("add_struct: add child {}".format(child.name))
             self.data.add_child(child)
 
         self.data.count += len(data.children)
@@ -256,14 +257,14 @@ class GeometryData(Data):
 
         return all_names
 
-    def add_signal_data(self, signal_data, geom_aliases, signal_aliases, signal_var_names, #signal_types,
-                        geom_signal_call, global_signal_group):
+    def add_signal_data(self, signal_data, geom_aliases, signal_aliases, signal_var_names, geom_signal_call,
+                        global_signal_group):
         """
         Insert signal data into appropriate locations for geom_aliases.
         :param signal_data: Signal data class, containing the signals to be added
         :param geom_aliases: The full paths of the geometry signals with associated signals.
         :param signal_aliases: The signal names of the signals associated with the geometry signals.
-        :param signal_types: The paths of the signals associated with the geometry signals.
+        :param signal_var_names: The paths of the signals associated with the geometry signals.
         :param geom_signal_call: geometry signal that was requested.
         :param global_signal_group: The group which was requested when retrieving the signal_data.
         :return:
@@ -290,7 +291,7 @@ class GeometryData(Data):
                 signal_array = signal_data[signal_access]
 
                 sig_child_names = [child.signal_alias if child.signal_alias[-1] != '/' else child.signal_alias[0:-1]
-                                       for child in signal_array.children]
+                                   for child in signal_array.children]
 
                 if s_alias[-1] == '/':
                     s_alias = s_alias[0:-1]
@@ -311,7 +312,6 @@ class GeometryData(Data):
                       If None, then an axis will be created.
         :return:
         """
-        self._manip
         if len(self._manip) > 1:
             fig = plt.figure()
             ax_2d = fig.add_subplot(121)
@@ -332,7 +332,6 @@ class GeometryData(Data):
                 ax_3d = fig.add_subplot(122, projection='3d')
 
             self._manip[0].plot(self.data, ax_2d=ax_2d, ax_3d=ax_3d)
-
 
     def widget(self):
         raise NotImplementedError("widget function not implemented for GeometryData objects")

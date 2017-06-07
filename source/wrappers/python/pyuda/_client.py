@@ -1,7 +1,9 @@
-import re
+from __future__ import absolute_import
 import logging
+from six import add_metaclass
 
-from . import c_uda
+# noinspection PyUnresolvedReferences
+from . import uda_swig
 from ._signal import Signal
 from ._string import String
 from ._structured import StructuredData
@@ -15,9 +17,11 @@ class ClientMeta(type):
     """
     Metaclass used to add class level properties
     """
+
+    # noinspection PyShadowingBuiltins
     def __init__(cls, what, bases=None, dict=None):
         type.__init__(cls, what, bases, dict)
-        cls.C_Client = c_uda.Client
+        cls.C_Client = uda_swig.Client
 
     @property
     def port(cls):
@@ -36,28 +40,30 @@ class ClientMeta(type):
         cls.C_Client.setServerHostName(value)
 
 
-class Client(metaclass = ClientMeta):
+@add_metaclass(ClientMeta)
+class Client(object):
     """
-    A class representing the IDAM client.
+    A class representing the UDA client.
 
-    This is a pythonic wrapper around the low level c_uda.Client class which contains the wrapped C++ calls to
-    IDAM.
+    This is a pythonic wrapper around the low level uda_swig.Client class which contains the wrapped C++ calls to
+    UDA.
     """
+
+    __metaclass__ = ClientMeta
 
     def __init__(self, debug_level=logging.ERROR):
-        self._cclient = c_uda.Client()
+        self._cclient = uda_swig.Client()
 
-        logging.basicConfig(level = debug_level)
+        logging.basicConfig(level=debug_level)
 
         self.logger = logging.getLogger(__name__)
-        
-    def get(self, signal, source, **kwargs):
+
+    def get(self, signal, source):
         """
-        IDAM get data method.
+        UDA get data method.
 
         :param signal: the name of the signal to get
         :param source: the source of the signal
-        :param kwargs: additional optional keywords for geometry data
         :return: a subclass of pyuda.Data
         """
         # Standard signal
@@ -71,7 +77,7 @@ class Client(metaclass = ClientMeta):
 
     def _get_signal_filenames(self, geom_signals, shot, **kwargs):
         """
-        Given a geometry signal or group, query IDAM to retrieve the filenames
+        Given a geometry signal or group, query UDA to retrieve the file names
         of the netcdf files that contain the corresponding data signal mapping info.
         Also returns the geom signal - data signal mapping.
         :param geom_signals: Either a geometry signal or group to retrieve signal mapping info.
@@ -95,10 +101,11 @@ class Client(metaclass = ClientMeta):
 
             return filenames, geom_alias, signal_alias, var_name
 
-        except c_uda.UDAException:
+        except uda_swig.UDAException:
             return None, None, None, None
 
-    def _find_matching_group(self, signal_aliases):
+    @staticmethod
+    def _find_matching_group(signal_aliases):
         """
         Helper function. Take a list of signals, and find the highest level group common to all of them.
         Assumes groups are separated by "/".
@@ -120,7 +127,7 @@ class Client(metaclass = ClientMeta):
             if comp == "":
                 continue
 
-            if the_rest.count(comp) == to_compare.count(comp)*(len(signal_aliases)-1):
+            if the_rest.count(comp) == to_compare.count(comp) * (len(signal_aliases) - 1):
                 match = match + "/" + comp
             else:
                 break
@@ -133,7 +140,8 @@ class Client(metaclass = ClientMeta):
         First, retrieves signal - geometry signal mapping, then retrieves geometry signal info and combines.
         :param signal: Data signal or group.
         :param source: Shot to retrieve info for
-        :param kwargs: Optional arguments.
+        :param keep_all:
+        :param keep_all: Optional arguments.
         :return:
         """
         self.logger.info("Retrieving geometry info associated with signals")
@@ -143,7 +151,7 @@ class Client(metaclass = ClientMeta):
         source_call = source
 
         if "version_signal" in kwargs.keys():
-            sig_call += sig_call+"version={}".format(kwargs["version_signal"])
+            sig_call += sig_call + "version={}".format(kwargs["version_signal"])
         if keep_all:
             sig_call = "".join([sig_call, ", keep_all=True"])
         sig_call += ")"
@@ -151,12 +159,12 @@ class Client(metaclass = ClientMeta):
         try:
             self.logger.info("Call is {}".format(sig_call))
             sig_struct = StructuredWritable(self._cclient.get(str(sig_call), str(source_call)).tree())
-        except c_uda.UDAException:
+        except uda_swig.UDAException:
             self.logger.error("Could not retrieve signal geometry data for signal {} and source {}".format(signal,
                                                                                                            source))
             return
 
-        sig_struct = SignalGeometryData(sig_struct, signal, all=keep_all)
+        sig_struct = SignalGeometryData(sig_struct, signal, keep_all=keep_all)
 
         # Extract names of the geometry signals associated with the given data signal or group
         geom_names = sig_struct.get_all_geom_names()
@@ -203,7 +211,7 @@ class Client(metaclass = ClientMeta):
 
         signal_map = GeometryFiles()
         signal_groups = multiple_names["data"].geomgroups
-        signal_groups = list(set(signal_groups))        
+        signal_groups = list(set(signal_groups))
 
         manip = signal_map.get_signals(signal_groups)
 
@@ -226,13 +234,13 @@ class Client(metaclass = ClientMeta):
         source_call = source
         geom_call = "GEOM::get(signal={0}, {1}, {2}"
 
-        if not isinstance(source, (int)) and source != "":
-            geom_call = geom_call+(", file={0}".format(source_call))
+        if not isinstance(source, int) and source != "":
+            geom_call = geom_call + (", file={0}".format(source_call))
 
         if toroidal_angle is not None:
-            geom_call = geom_call+(", tor_angle={0})".format(toroidal_angle))
+            geom_call = geom_call + (", tor_angle={0})".format(toroidal_angle))
         else:
-            geom_call = geom_call+")"
+            geom_call = geom_call + ")"
 
         version_config = ""
         version_cal = ""
@@ -253,11 +261,11 @@ class Client(metaclass = ClientMeta):
             config_call = geom_call.format(signal_name, config_extra, version_config)
 
             self.logger.info("Call is {0}\n".format(config_call))
-            try:                
+            try:
                 config_struct = StructuredWritable((self._cclient.get(str(config_call), str(source_call))).tree())
-            except c_uda.UDAException:
-                self.logger.error("ERROR: Could not retrieve geometry data for signal {0} and source {1}".format(signal,
-                                                                                                         source))
+            except uda_swig.UDAException:
+                self.logger.error("ERROR: Could not retrieve geometry data for signal {0} and source {1}"
+                                  .format(signal, source))
                 return
 
             # Get calibration data
@@ -267,7 +275,7 @@ class Client(metaclass = ClientMeta):
             try:
                 cal_struct = StructuredWritable((self._cclient.get(str(cal_call), str(source_call))).tree())
                 self.logger.debug("Calibration data was found")
-            except c_uda.UDAException:
+            except uda_swig.UDAException:
                 cal_struct = None
                 self.logger.debug("No calibration data was found")
 
@@ -276,7 +284,7 @@ class Client(metaclass = ClientMeta):
             # Get filenames for data signal info if asked for
             if "add_signals" in kwargs.keys():
                 s_filenames, g_aliases, s_aliases, s_var_names = self._get_signal_filenames(signal_name,
-                                                                                str(source), **kwargs)
+                                                                                            str(source), **kwargs)
                 if s_filenames is not None:
                     signal_filenames.extend(s_filenames)
                     geom_aliases.extend(g_aliases)
@@ -301,14 +309,16 @@ class Client(metaclass = ClientMeta):
             signal_data = None
             for signal_file in signal_filenames:
                 try:
-                    self.logger.info("Retrieving signal data, signal is {} file is {} group {}".format(global_signal_group,
-                                                                                              signal_file, global_signal_group))
+                    self.logger.info(
+                        "Retrieving signal data, signal is {} file is {} group {}".format(global_signal_group,
+                                                                                          signal_file,
+                                                                                          global_signal_group))
                     if signal_data is None:
                         signal_data = StructuredWritable((self._cclient.get(global_signal_group, signal_file)).tree())
                     else:
-                        signal_data._add_struct(StructuredWritable((self._cclient.get(global_signal_group,
-                                                                                      signal_file)).tree()))
-                except c_uda.UDAException:
+                        signal_data.add_struct(StructuredWritable((self._cclient.get(global_signal_group,
+                                                                                     signal_file)).tree()))
+                except uda_swig.UDAException:
                     self.logger.warning("Something went wrong retrieving signal data")
                     continue
 
@@ -326,4 +336,4 @@ class Client(metaclass = ClientMeta):
 
     @classmethod
     def set_property(cls, prop, value):
-        cls.C_Client.setProperty(prop, value)        
+        cls.C_Client.setProperty(prop, value)

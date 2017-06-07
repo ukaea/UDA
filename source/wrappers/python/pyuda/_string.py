@@ -1,8 +1,8 @@
-from ._dim import Dim
-from ._utils import cdata_to_numpy_array
+from __future__ import absolute_import
+import json
+
 from ._data import Data
 
-import json
 
 class String(Data):
 

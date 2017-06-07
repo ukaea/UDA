@@ -1,10 +1,11 @@
-from ._dim import Dim
-from ._utils import cdata_to_numpy_array, cdata_scalar_to_value
-from ._data import Data
-
+from __future__ import absolute_import
 import json
 import base64
 import numpy as np
+
+from ._dim import Dim
+from ._utils import cdata_to_numpy_array, cdata_scalar_to_value
+from ._data import Data
 
 
 class DimEncoder(json.JSONEncoder):
@@ -23,7 +24,7 @@ class DimEncoder(json.JSONEncoder):
                 },
             }
             return obj
-        return super().default(obj)
+        return super(DimEncoder, self).default(obj)
 
 
 class SignalEncoder(json.JSONEncoder):
@@ -32,10 +33,13 @@ class SignalEncoder(json.JSONEncoder):
         if isinstance(obj, Signal):
             signal = obj
             dim_enc = DimEncoder()
+            # noinspection PyTypeChecker
             if len(signal.dims) == 0:
+                # noinspection PyTypeChecker
                 data = np.array(signal.data)
             else:
                 data = signal.data
+            # noinspection PyTypeChecker
             obj = {
                 '_type': 'pyuda.Signal',
                 'label': signal.label,
@@ -49,7 +53,7 @@ class SignalEncoder(json.JSONEncoder):
                 'meta': signal.meta,
             }
             return obj
-        return super().default(obj)
+        return super(SignalEncoder, self).default(obj)
 
 
 class Signal(Data):
@@ -70,6 +74,7 @@ class Signal(Data):
                 self._data = cdata_scalar_to_value(data)
             else:
                 self._data = cdata_to_numpy_array(data)
+                # noinspection PyTypeChecker
                 shape = [d.data.size for d in self.dims]
                 self._data = self._data.reshape(*shape)
 
