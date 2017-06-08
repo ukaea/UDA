@@ -16,6 +16,7 @@ import inspect
 import logging
 
 import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 
 from ._data import Data
 

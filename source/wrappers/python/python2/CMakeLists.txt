@@ -34,7 +34,12 @@ else()
   set_source_files_properties( ../UDA.i PROPERTIES SWIG_FLAGS "-c++;" )
 endif()
 set_source_files_properties( ../UDA.i PROPERTIES SWIG_MODULE_NAME ${LIB_NAME} )
-swig_add_library( ${LIB_NAME} LANGUAGE python SOURCES ../UDA.i TYPE MODULE )
+
+if( CMAKE_VERSION VERSION_LESS "3.8")
+  swig_add_module( ${LIB_NAME} python ../UDA.i )
+else()
+  swig_add_library( ${LIB_NAME} LANGUAGE python SOURCES ../UDA.i TYPE MODULE )
+endif()
 swig_link_libraries( ${LIB_NAME} cpp-static ssl ${PYTHON_LIBRARIES} ${LIBXML2_LIBRARIES} ${CACHE_LIBRARIES} )
 
 set( INSTALL_DIR python/python${PYTHONLIBS_VERSION_STRING}/site-packages/pyuda )
