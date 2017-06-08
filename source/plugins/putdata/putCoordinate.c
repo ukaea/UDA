@@ -13,7 +13,7 @@ static int writeCoordinateArray(PUTDATA_BLOCK* putdata, int grpid, const char* n
                                 int* varid, size_t* length, int chunksize, int compression, int ctype, int dctype);
 
 static int writeCoordinateAttribute(PUTDATA_BLOCK* putdata, int grpid, char* attribute, nc_type atype, int varid,
-                                    size_t* length, size_t* totlength, int ctype, int dctype);
+                                    int ctype, int dctype);
 
 static int createCoordinateArray(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, int grpid, int varid,
                                  int dimid, int compression, int chunksize, size_t* totlength);
@@ -27,6 +27,8 @@ int do_dimension(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     if (ncfileid < 0) {
         RAISE_PLUGIN_ERROR("Invalid fileid given");
     }
+
+    IDAM_LOGF(LOG_DEBUG, "File id retrieved: %d \n", ncfileid);    
 
     //---------------------------------------------------------------------------
     // Length Parameter
@@ -49,20 +51,21 @@ int do_dimension(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     int unlimited = findValue(&idam_plugin_interface->request_block->nameValueList, "unlimited");
 
     int grpid = -1;
-    int status = 0;
-    if (testgroup(ncfileid, group, &status, &grpid) != NC_NOERR) {
+
+    if (testmakegroup(ncfileid, group, &grpid) != NC_NOERR) {
         RAISE_PLUGIN_ERROR("Failed to find or create group");
     }
 
     int dimid = 0;
 
     if (unlimited || length == 0) {
-        IDAM_LOG(LOG_DEBUG, "Dimension is UNLIMITED");
+        IDAM_LOG(LOG_DEBUG, "Dimension is UNLIMITED\n");
         if (nc_def_dim(grpid, name, NC_UNLIMITED, &dimid) != NC_NOERR) {
             RAISE_PLUGIN_ERROR("Unable to Write the Group Dimension");
         }
     } else {
         if (nc_def_dim(grpid, name, (size_t) length, &dimid) != NC_NOERR) {
+	  IDAM_LOGF(LOG_DEBUG, "Unable to write group dimension grpid %d, name %s, length %d\n", grpid, name, length);
             RAISE_PLUGIN_ERROR("Unable to Write the Group Dimension");
         }
     }
@@ -104,18 +107,42 @@ int do_coordinate(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         RAISE_PLUGIN_ERROR("Invalid fileid given");
     }
 
-    //--------------------------------------------------------------------------
-    // Coordinate Data ?
+    IDAM_LOGF(LOG_DEBUG, "File id retrieved: %d \n", ncfileid);    
 
-    if (idam_plugin_interface->request_block->putDataBlockList.blockCount == 0) {
+    //--------------------------------------------------------------------------
+    // Coordinate Data ? Not needed if we have start, increments and optionally count
+
+    double* starts = NULL;
+    size_t nstarts = 0;
+    IDAM_LOG(LOG_DEBUG, "Retrieve starts \n");    
+    FIND_DOUBLE_ARRAY(idam_plugin_interface->request_block->nameValueList, starts);
+    IDAM_LOGF(LOG_DEBUG, "nstarts %d \n", nstarts);
+
+    double* increments = NULL;
+    size_t nincrements = 0;
+    IDAM_LOG(LOG_DEBUG, "Retrieve increments \n");    
+    FIND_DOUBLE_ARRAY(idam_plugin_interface->request_block->nameValueList, increments);
+    IDAM_LOGF(LOG_DEBUG, "nincrements %d \n", nincrements);
+
+    int* counts = NULL;
+    size_t ncounts = 0;
+    IDAM_LOG(LOG_DEBUG, "Retrieve counts\n");    
+    FIND_INT_ARRAY(idam_plugin_interface->request_block->nameValueList, counts);
+    IDAM_LOGF(LOG_DEBUG, "ncounts %d \n", ncounts);
+
+    PUTDATA_BLOCK putdata;
+
+    IDAM_LOG(LOG_DEBUG, "Check for putdata block\n");
+
+    if (idam_plugin_interface->request_block->putDataBlockList.blockCount == 0 && (starts == NULL || increments == NULL)) {
         RAISE_PLUGIN_ERROR("No Coordinate Data have been passed");
+    } else if (idam_plugin_interface->request_block->putDataBlockList.blockCount > 0) {
+      putdata = idam_plugin_interface->request_block->putDataBlockList.putDataBlock[0];
     }
 
-    PUTDATA_BLOCK putdata = idam_plugin_interface->request_block->putDataBlockList.putDataBlock[0];
-
     int grpid = -1;
-    int status = 0;
-    if (testgroup(ncfileid, group, &status, &grpid) != NC_NOERR) {
+
+    if (testmakegroup(ncfileid, group, &grpid) != NC_NOERR) {
         RAISE_PLUGIN_ERROR("Failed to find or create group");
     }
 
@@ -141,7 +168,7 @@ int do_coordinate(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         RAISE_PLUGIN_ERROR("Unable to Identify Dimensions within Group");
     }
 
-    IDAM_LOGF(LOG_DEBUG, "Coordinate Dimension %s has ID %d\n", name, ncdimid);
+    IDAM_LOGF(LOG_DEBUG, "Coordinate Dimension %s has ID %d\n", name, dimid);
 
     //--------------------------------------------------------------------------
     // Translate IDL to netCDF4 Type (Type is always that of the first parameter)
@@ -153,8 +180,14 @@ int do_coordinate(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     }
 
     int nctype;
-    if ((nctype = swapType(putdata.data_type, ctype, dctype)) == NC_NAT) {
+    if (idam_plugin_interface->request_block->putDataBlockList.blockCount != 0){
+      if ((nctype = swapType(putdata.data_type, ctype, dctype)) == NC_NAT) {
         RAISE_PLUGIN_ERROR("The Data type for the Coordinate cannot be converted into netCDF4");
+      }
+    } else if (starts != NULL && increments != NULL){
+      nctype = NC_DOUBLE;
+    } else {
+      RAISE_PLUGIN_ERROR("No coodinate data, or start, increment or count arrays");
     }
 
     //--------------------------------------------------------------------------
@@ -177,29 +210,16 @@ int do_coordinate(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     int compression = -1;
     FIND_INT_VALUE(idam_plugin_interface->request_block->nameValueList, compression);
 
-    float* starts = NULL;
-    size_t nstarts = 0;
-    FIND_FLOAT_ARRAY(idam_plugin_interface->request_block->nameValueList, starts);
-
-    float* increments = NULL;
-    size_t nincrements = 0;
-    FIND_FLOAT_ARRAY(idam_plugin_interface->request_block->nameValueList, increments);
-
-    int* counts = NULL;
-    size_t ncounts = 0;
-    FIND_INT_ARRAY(idam_plugin_interface->request_block->nameValueList, counts);
-
     if (starts == NULL && increments == NULL && counts == NULL) {
         if (writeCoordinateArray(&putdata, grpid, name, dimid, &varid, &coordcount, chunksize, compression, ctype, dctype) != NC_NOERR) {
             RAISE_PLUGIN_ERROR("Failed to write coordinate array");
         }
     } else if (starts != NULL && increments != NULL) {
-        size_t totlength = 0;
+      IDAM_LOG(LOG_DEBUG, "Create coordinate Array\n");
         if (createCoordinateArray(idam_plugin_interface, grpid, varid, dimid, compression, chunksize, &coordcount) != 0) {
             RAISE_PLUGIN_ERROR("Failed to create coordinate array");
         }
 
-        size_t attlength0 = 0;
         PUTDATA_BLOCK start_putdata = {
             .data_type = TYPE_DOUBLE,
             .rank = 1,
@@ -208,7 +228,8 @@ int do_coordinate(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             .data = (char*)starts
         };
 
-        if (writeCoordinateAttribute(&start_putdata, grpid, "start", NC_DOUBLE, varid, &attlength0, &totlength, ctype, dctype) != 0) {
+      IDAM_LOG(LOG_DEBUG, "Write start attribute\n");
+        if (writeCoordinateAttribute(&start_putdata, grpid, "start", NC_DOUBLE, varid, ctype, dctype) != 0) {
             RAISE_PLUGIN_ERROR("Failed to write start array");
         }
 
@@ -220,22 +241,22 @@ int do_coordinate(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             .data = (char*)increments
         };
 
-        size_t attlength1 = 0;
-        if (writeCoordinateAttribute(&increment_putdata, grpid, "increment", NC_DOUBLE, varid, &attlength1, &totlength, ctype, dctype) != 0) {
+      IDAM_LOG(LOG_DEBUG, "Write increment attribute\n");
+        if (writeCoordinateAttribute(&increment_putdata, grpid, "increment", NC_DOUBLE, varid, ctype, dctype) != 0) {
             RAISE_PLUGIN_ERROR("Failed to write increment array");
         }
 
         if (counts != NULL) {
             PUTDATA_BLOCK count_putdata = {
-                .data_type = TYPE_DOUBLE,
+                .data_type = TYPE_UNSIGNED_INT,
                 .rank = 1,
                 .count = (unsigned int)ncounts,
                 .shape = NULL,
                 .data = (char*)counts
             };
 
-            size_t attlength2 = 0;
-            if (writeCoordinateAttribute(&count_putdata, grpid, "increment", NC_DOUBLE, varid, &attlength2, &totlength, ctype, dctype) != 0) {
+      IDAM_LOG(LOG_DEBUG, "Write count attribute\n");
+            if (writeCoordinateAttribute(&count_putdata, grpid, "count", NC_UINT, varid, ctype, dctype) != 0) {
                 RAISE_PLUGIN_ERROR("Failed to write increment array");
             }
         }
@@ -328,10 +349,13 @@ int do_coordinate(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     //--------------------------------------------------------------------------
     // Write Units: Last attribute written - in case units not SI compliant
 
+
     const char* units = NULL;
     FIND_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, units);
 
     int notstrict = findValue(&idam_plugin_interface->request_block->nameValueList, "notstrict");
+
+    IDAM_LOGF(LOG_DEBUG, "Unit name is %s\n", units);
 
     if (units != NULL) {
         if (!notstrict) {
@@ -406,7 +430,8 @@ int writeCoordinateArray(PUTDATA_BLOCK* putdata, int grpid, const char* name, in
 
         // Test Length is Consistent with the Dimension
         if (*length != dimlength) {
-            RAISE_PLUGIN_ERROR("An Inconsistency with the Length of the Limited Coordinate Variable has been detected:"
+	  IDAM_LOGF(LOG_DEBUG, "Length %d, dimlength %d\n", length, dimlength);
+            RAISE_PLUGIN_ERROR("An Inconsistency with the Length of the Limitged Coordinate Variable has been detected:"
                                        "the Data Length is not the same as Dimension length");
         }
 
@@ -544,7 +569,7 @@ int writeCoordinateArray(PUTDATA_BLOCK* putdata, int grpid, const char* name, in
 
 
 int writeCoordinateAttribute(PUTDATA_BLOCK* putdata, int grpid, char* attribute, nc_type atype, int varid,
-                             size_t* length, size_t* totlength, int ctype, int dctype)
+                             int ctype, int dctype)
 {
     //--------------------------------------------------------------------------
     // Check No structures or Strings have been passed
@@ -579,27 +604,32 @@ int writeCoordinateAttribute(PUTDATA_BLOCK* putdata, int grpid, char* attribute,
     //--------------------------------------------------------------------------
     // Write the Attribute
 
+    IDAM_LOG(LOG_DEBUG, "Write attribute\n");
+
     int err;
 
     switch (nctype) {
 
         case NC_DOUBLE:
-            err = nc_put_att_double(grpid, varid, attribute, nctype, *length, (double*) putdata->data);
+	  IDAM_LOGF(LOG_DEBUG, "Adding double attribute with length %d\n", putdata->count);
+            err = nc_put_att_double(grpid, varid, attribute, nctype, putdata->count, (double*) putdata->data);
             break;
 
         case NC_UINT:
-            err = nc_put_att_uint(grpid, varid, attribute, nctype, *length, (unsigned int*) putdata->data);
+	  IDAM_LOG(LOG_DEBUG, "Write uint\n");
+            err = nc_put_att_uint(grpid, varid, attribute, nctype, putdata->count, (unsigned int*) putdata->data);
 
-            if (*length > 1) {
-                unsigned int* udata = (unsigned int*) putdata->data;
-                *totlength = 0;
-                int i;
-                for (i = 0; i < *length; i++) {
-                    *totlength = *totlength + udata[i]; // Total length of the expanded data array
-                }
-            } else {
-                *totlength = *((unsigned int*) putdata->data);
-            }
+	    // Not sure what this bits for ....?
+            /* if (*length > 1) { */
+            /*     unsigned int* udata = (unsigned int*) putdata->data; */
+            /*     *totlength = 0; */
+            /*     int i; */
+            /*     for (i = 0; i < *length; i++) { */
+            /*         *totlength = *totlength + udata[i]; // Total length of the expanded data array */
+            /*     } */
+            /* } else { */
+            /*     *totlength = *((unsigned int*) putdata->data); */
+            /* } */
 
             break;
 
@@ -648,17 +678,17 @@ int createCoordinateArray(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, int grpi
         }
     }
 
-    float* starts = NULL;
+    double* starts = NULL;
     size_t nstarts = 0;
-    FIND_REQUIRED_FLOAT_ARRAY(idam_plugin_interface->request_block->nameValueList, starts);
+    FIND_REQUIRED_DOUBLE_ARRAY(idam_plugin_interface->request_block->nameValueList, starts);
 
-    float* increments = NULL;
+    double* increments = NULL;
     size_t nincrements = 0;
-    FIND_REQUIRED_FLOAT_ARRAY(idam_plugin_interface->request_block->nameValueList, increments);
+    FIND_REQUIRED_DOUBLE_ARRAY(idam_plugin_interface->request_block->nameValueList, increments);
 
-    float* counts = NULL;
+    int* counts = NULL;
     size_t ncounts = 0;
-    FIND_FLOAT_ARRAY(idam_plugin_interface->request_block->nameValueList, counts);
+    FIND_INT_ARRAY(idam_plugin_interface->request_block->nameValueList, counts);
 
     if (nstarts != nincrements) {
         RAISE_PLUGIN_ERROR("Length of the starts array must be equal to length of the increments array");
@@ -670,21 +700,26 @@ int createCoordinateArray(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, int grpi
 
     //--------------------------------------------------------------------------
     // Build the Array
-
+    
     if (counts != NULL) {
         *totlength = 0;
         int j;
         for (j = 0; j < ncounts; j++) {
             *totlength += counts[j];
         }
+
+	if (isUnlimited) {
+	  dimlength = *totlength;
+	}
+    } else if ( !isUnlimited ){
+        *totlength = dimlength;
     } else {
-        *totlength = nstarts;
+      RAISE_PLUGIN_ERROR("For unlimited dimensions we need counts!");
     }
 
     IDAM_LOGF(LOG_DEBUG, "Total Length = %d\n", *totlength);
 
     // Test the Length is Consistent with the Dimension
-
     if (*totlength != dimlength) {
         RAISE_PLUGIN_ERROR("An Inconsistency with the Length of the Limited Coordinate Variable has been detected: "
                                    "the calculated Data Length is not the same as Dimension length");
@@ -693,27 +728,36 @@ int createCoordinateArray(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, int grpi
     double* data = (double*) malloc(*totlength * sizeof(double));
 
     if (counts != NULL) {
-        int j;
+        int data_index = 0;
+	int j;
         for (j = 0; j < ncounts; j++) {
             for (i = 0; i < counts[j]; i++) {
-                data[i] = starts[j] + (double) i * increments[j];
+	      IDAM_LOGF(LOG_DEBUG, "Making data[%d], start %f, increments %f\n", i, starts[j], increments[j]);
+                data[data_index++] = starts[j] + (double) i * increments[j];
             }
         }
     } else {
-        int j;
-        int n = 0;
-        size_t length = *totlength / nstarts;
-        for (j = 0; j < nstarts; j++) {
-            for (i = 0; i < length; i++) {
-                data[n] = starts[j] + (double) i * increments[j];
-                n++;
-            }
-        }
+      // No count array was given : single domain only
+      if (nstarts > 1) {
+	RAISE_PLUGIN_ERROR("No count array was given, but an array of starts has been passed. Can only have a single domain if count array is not specified");
+      }
+
+      int i;
+      for (i = 0; i < dimlength; i++) data[i] = starts[0] + (double) i * increments[0];
+
+      /* int j; */
+      /* int n = 0; */
+      /* size_t length = *totlength / nstarts; */
+      /* for (j = 0; j < nstarts; j++) { */
+      /* 	for (i = 0; i < length; i++) { */
+      /* 	  data[n] = starts[j] + (double) i * increments[j]; */
+      /* 	  n++; */
+      /* 	} */
+      /* } */
     }
 
     //--------------------------------------------------------------------------
     // Compression (Only for LIMITED length arrays) (What is the minimum length where a benefit is accrued?)
-
     if (!isUnlimited && compression > 0 && *totlength > 1) {
         RAISE_PLUGIN_ERROR("Unable to set the Compression Properties");
     }

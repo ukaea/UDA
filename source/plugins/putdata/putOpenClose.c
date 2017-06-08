@@ -61,9 +61,14 @@ int get_complex_types(int fileid, int* ctype, int* dctype)
 
 int get_file_id(int fileidx)
 {
+    IDAM_LOGF(LOG_DEBUG, "Number of files %d\n", fileIds.count);
+
     if (fileidx >= 0 && fileidx < fileIds.count) {
         return fileIds.ids[fileidx];
     }
+
+    IDAM_LOGF(LOG_DEBUG, "Failed to find file ID for file index %d\n", fileidx);
+
     return 0;
 }
 
@@ -398,25 +403,20 @@ int do_close(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     int i;
 
-    fileIds.count--;
-    for (i = fileid; i < fileIds.count - 1; i++) {
-        fileIds.ids[i] = fileIds.ids[i + 1];
-        fileIds.compliance[i] = fileIds.compliance[i + 1];
-    }
-
-    if (fileIds.count == 0) {
-        free(fileIds.ids);
-        free(fileIds.compliance);
-        fileIds.ids = NULL;
-        fileIds.compliance = NULL;
-    }
-
-    IDAM_LOGF(LOG_DEBUG, "File Closed, %d files remain open\n", fileIds.count);
+    IDAM_LOGF(LOG_DEBUG, "File Closed %d, Before Updating file ids %d\n", fileid, fileIds.count);
 
     if (fileIds.ids != NULL) {
         for (i = 0; i < fileIds.count; i++) {
             IDAM_LOGF(LOG_DEBUG, "FileIds[%d]: %d %d\n", i, fileIds.ids[i], fileIds.compliance[i]);
         }
+    }
+
+    fileIds.ids[fileid] = -1;
+
+    IDAM_LOGF(LOG_DEBUG, "File Closed, %d files remain open\n", fileIds.count);
+
+    for (i = 0; i < fileIds.count; i++) {
+      IDAM_LOGF(LOG_DEBUG, "FileIds[%d]: %d %d\n", i, fileIds.ids[i], fileIds.compliance[i]);
     }
 
     return setReturnDataIntScalar(idam_plugin_interface->data_block, 0, NULL);

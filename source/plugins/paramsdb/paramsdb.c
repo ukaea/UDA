@@ -654,7 +654,8 @@ int do_getActiveLimit(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PGconn* conn
     data->values = malloc(nrows * sizeof(double));
     addMalloc(data->values, nrows, sizeof(double), "double");
 
-    for (int i = 0; i < nrows; i++) {
+    int i;
+    for (i = 0; i < nrows; i++) {
         const char* buf = PQgetvalue(res, i, 0);
         data->coils[i] = strdup(buf);
         addMalloc(data->coils[i], (int)strlen(data->coils[i]) + 1, sizeof(char), "char");
