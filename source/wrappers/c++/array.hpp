@@ -11,13 +11,12 @@ namespace uda {
 
 class Client;
 
-class Array : public Data
-{
+class Array : public Data {
 public:
-    template<typename T>
+    template <typename T>
     Array(T* data, std::vector<Dim> dims)
             : Data(false), data_(data), dims_(dims), type_(&typeid(T)), raw_data_(reinterpret_cast<char*>(data))
-    { }
+    {}
 
     size_t size() const;
 
@@ -26,10 +25,10 @@ public:
         return *type_;
     }
 
-    template<typename T>
+    template <typename T>
     std::vector<T> as() const
     {
-        T * data = boost::any_cast<T *>(data_);
+        T* data = boost::any_cast<T*>(data_);
         return std::vector<T>(data, data + size());
     }
 
@@ -41,18 +40,20 @@ public:
     }
 
     static Array Null;
+
 private:
     friend class uda::Client;
 
     Array() : Data(true), dims_(), type_(&typeid(void))
-    { }
+    {}
 
     boost::any data_;
     std::vector<Dim> dims_;
     const std::type_info* type_;
     const char* raw_data_;
 
-    const char* data() const { return raw_data_; };
+    const char* data() const
+    { return raw_data_; };
 };
 
 }

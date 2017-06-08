@@ -30,7 +30,7 @@
 
 int initPlugin(const IDAM_PLUGIN_INTERFACE* plugin_interface)
 {
-    idamSetLogLevel((LOG_MODE)plugin_interface->environment->loglevel);
+    idamSetLogLevel((LOG_LEVEL)plugin_interface->environment->loglevel);
 
     return 0;
 }
@@ -1070,7 +1070,7 @@ int idamServerRedirectStdStreams(int reset)
         originalErrFH = stderr;
         mdsmsgFH = NULL;
 
-        IDAM_LOG(LOG_DEBUG, "Redirect standard output to temporary file\n");
+        IDAM_LOG(UDA_LOG_DEBUG, "Redirect standard output to temporary file\n");
 
         env = getenv("UDA_PLUGIN_REDIVERT");
 
@@ -1111,7 +1111,7 @@ int idamServerRedirectStdStreams(int reset)
         stderr = mdsmsgFH;
     } else {
         if (mdsmsgFH != NULL) {
-            IDAM_LOG(LOG_DEBUG, "Resetting original file handles and removing temporary file\n");
+            IDAM_LOG(UDA_LOG_DEBUG, "Resetting original file handles and removing temporary file\n");
 
             if (!singleFile) {
                 if (mdsmsgFH != NULL) fclose(mdsmsgFH);
@@ -1127,7 +1127,7 @@ int idamServerRedirectStdStreams(int reset)
 
         } else {
 
-            IDAM_LOG(LOG_DEBUG, "Resetting original file handles\n");
+            IDAM_LOG(UDA_LOG_DEBUG, "Resetting original file handles\n");
 
             stdout = originalStdFH;
             stderr = originalErrFH;
@@ -1155,7 +1155,7 @@ int idamServerPlugin(REQUEST_BLOCK* request_block, DATA_SOURCE* data_source, SIG
     char* token = NULL;
     char work[STRING_LENGTH];
 
-    IDAM_LOG(LOG_DEBUG, "Start\n");
+    IDAM_LOG(UDA_LOG_DEBUG, "Start\n");
 
 //----------------------------------------------------------------------------
 // Start of Error Trap
@@ -1167,7 +1167,7 @@ int idamServerPlugin(REQUEST_BLOCK* request_block, DATA_SOURCE* data_source, SIG
 
         if ((err = makeServerRequestBlock(request_block, *plugin_list)) != 0) break;
 
-        IDAM_LOG(LOG_DEBUG, "request_block\n");
+        IDAM_LOG(UDA_LOG_DEBUG, "request_block\n");
         printRequestBlock(*request_block);
 
 //----------------------------------------------------------------------------------------------
@@ -1256,7 +1256,7 @@ int idamServerPlugin(REQUEST_BLOCK* request_block, DATA_SOURCE* data_source, SIG
 
     } while (0);
 
-    IDAM_LOG(LOG_DEBUG, "End\n");
+    IDAM_LOG(UDA_LOG_DEBUG, "End\n");
 
     return err;
 }
@@ -1300,18 +1300,18 @@ int idamProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_BLOCK* original_req
         plugin_id = -1;
         if ((env = getenv("UDA_PROVENANCE_PLUGIN")) !=
             NULL) {                // Must be set in the server startup script
-            IDAM_LOGF(LOG_DEBUG, "Plugin name: %s\n", env);
+            IDAM_LOGF(UDA_LOG_DEBUG, "Plugin name: %s\n", env);
             int id = findPluginIdByFormat(env, plugin_list); // Must be defined in the server plugin configuration file
-            IDAM_LOGF(LOG_DEBUG, "Plugin id: %d\n", id);
+            IDAM_LOGF(UDA_LOG_DEBUG, "Plugin id: %d\n", id);
             if (id >= 0) {
-                IDAM_LOGF(LOG_DEBUG, "plugin_list->plugin[id].class == PLUGINFUNCTION = %d\n",
+                IDAM_LOGF(UDA_LOG_DEBUG, "plugin_list->plugin[id].class == PLUGINFUNCTION = %d\n",
                           plugin_list->plugin[id].class == PLUGINFUNCTION);
-                IDAM_LOGF(LOG_DEBUG, "!environment->external_user = %d\n", !environment->external_user);
-                IDAM_LOGF(LOG_DEBUG, "plugin_list->plugin[id].status == PLUGINOPERATIONAL = %d\n",
+                IDAM_LOGF(UDA_LOG_DEBUG, "!environment->external_user = %d\n", !environment->external_user);
+                IDAM_LOGF(UDA_LOG_DEBUG, "plugin_list->plugin[id].status == PLUGINOPERATIONAL = %d\n",
                           plugin_list->plugin[id].status == PLUGINOPERATIONAL);
-                IDAM_LOGF(LOG_DEBUG, "plugin_list->plugin[id].pluginHandle != NULL = %d\n",
+                IDAM_LOGF(UDA_LOG_DEBUG, "plugin_list->plugin[id].pluginHandle != NULL = %d\n",
                           plugin_list->plugin[id].pluginHandle != NULL);
-                IDAM_LOGF(LOG_DEBUG, "plugin_list->plugin[id].idamPlugin   != NULL = %d\n",
+                IDAM_LOGF(UDA_LOG_DEBUG, "plugin_list->plugin[id].idamPlugin   != NULL = %d\n",
                           plugin_list->plugin[id].idamPlugin != NULL);
             }
             if (id >= 0 &&
@@ -1326,7 +1326,7 @@ int idamProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_BLOCK* original_req
         if ((env = getenv("UDA_PROVENANCE_EXEC_METHOD")) != NULL) execMethod = atoi(env);
     }
 
-    IDAM_LOGF(LOG_DEBUG, "Plugin id: %d\n", plugin_id);
+    IDAM_LOGF(UDA_LOG_DEBUG, "Plugin id: %d\n", plugin_id);
 
     if (plugin_id <= 0) return 0;    // Not possible to record anything - no provenance plugin!
 
@@ -1354,7 +1354,7 @@ int idamProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_BLOCK* original_req
 
 // Activate the plugin
 
-    IDAM_LOGF(LOG_DEBUG, "Provenance Plugin signal: %s\n", request_block.signal);
+    IDAM_LOGF(UDA_LOG_DEBUG, "Provenance Plugin signal: %s\n", request_block.signal);
 
     makeServerRequestBlock(&request_block, *plugin_list);
 
@@ -1366,7 +1366,7 @@ int idamProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_BLOCK* original_req
 
     initDataBlock(&data_block);
 
-    IDAM_LOG(LOG_DEBUG, "Creating plugin interface\n");
+    IDAM_LOG(UDA_LOG_DEBUG, "Creating plugin interface\n");
 
 // Check the Interface Compliance
 
@@ -1411,15 +1411,15 @@ int idamProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_BLOCK* original_req
 
 // Call the plugin
 
-    IDAM_LOG(LOG_DEBUG, "entering the provenance plugin\n");
+    IDAM_LOG(UDA_LOG_DEBUG, "entering the provenance plugin\n");
 
     err = plugin_list->plugin[plugin_id].idamPlugin(&idam_plugin_interface);
 
-    IDAM_LOG(LOG_DEBUG, "returned from the provenance plugin\n");
+    IDAM_LOG(UDA_LOG_DEBUG, "returned from the provenance plugin\n");
 
 // No data are returned in this context so free everything
 
-    IDAM_LOG(LOG_DEBUG, "housekeeping\n");
+    IDAM_LOG(UDA_LOG_DEBUG, "housekeeping\n");
 
     freeMallocLogList(logmalloclist);
     free((void*)logmalloclist);
@@ -1431,11 +1431,11 @@ int idamProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_BLOCK* original_req
 
     freeNameValueList(&request_block.nameValueList);
 
-    IDAM_LOG(LOG_DEBUG, "testing for bug!!!\n");
+    IDAM_LOG(UDA_LOG_DEBUG, "testing for bug!!!\n");
     if (data_block.opaque_type != OPAQUE_TYPE_UNKNOWN ||
         data_block.opaque_count != 0 ||
         data_block.opaque_block != NULL) {
-        IDAM_LOG(LOG_DEBUG, "bug detected: mitigation!!!\n");
+        IDAM_LOG(UDA_LOG_DEBUG, "bug detected: mitigation!!!\n");
         data_block.opaque_block = NULL;
     }
 
@@ -1461,8 +1461,8 @@ int idamProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_BLOCK* original_req
     gettimeofday(&tv_stop, NULL);
     int msecs = (int)(tv_stop.tv_sec - tv_start.tv_sec) * 1000 + (int)(tv_stop.tv_usec - tv_start.tv_usec) / 1000;
 
-    IDAM_LOG(LOG_DEBUG, "end of housekeeping\n");
-    IDAM_LOGF(LOG_DEBUG, "Timing (ms) = %d\n", msecs);
+    IDAM_LOG(UDA_LOG_DEBUG, "end of housekeeping\n");
+    IDAM_LOGF(UDA_LOG_DEBUG, "Timing (ms) = %d\n", msecs);
 
     return 0;
 }

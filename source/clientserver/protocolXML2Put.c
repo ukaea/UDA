@@ -62,7 +62,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** da
         return 0;
     }
 
-    IDAM_LOGF(LOG_DEBUG, "xdrUserDefinedData Depth: %d\n", recursiveDepthPut);
+    IDAM_LOGF(UDA_LOG_DEBUG, "xdrUserDefinedData Depth: %d\n", recursiveDepthPut);
 
 
 // Allocate HEAP if receiving Data:
@@ -77,7 +77,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** da
 
     if (xdrs->x_op == XDR_DECODE) {
 
-        IDAM_LOGF(LOG_DEBUG, "index: %d   datacount: %d\n", index, datacount);
+        IDAM_LOGF(UDA_LOG_DEBUG, "index: %d   datacount: %d\n", index, datacount);
 
         if (index == 0 && datacount > 0) {
             *data = malloc(datacount * userdefinedtype->size);
@@ -137,7 +137,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** da
 
             case (TYPE_FLOAT): {
 
-                IDAM_LOG(LOG_DEBUG, "Type: FLOAT\n");
+                IDAM_LOG(UDA_LOG_DEBUG, "Type: FLOAT\n");
 
                 if (userdefinedtype->compoundfield[j].pointer) {        // Pointer to Float Data array
                     if (xdrs->x_op == XDR_DECODE) {                // Allocate Heap for Data Received
@@ -228,7 +228,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** da
             }
 
             case (TYPE_DOUBLE): {
-                IDAM_LOG(LOG_DEBUG, "Type: DOUBLE\n");
+                IDAM_LOG(UDA_LOG_DEBUG, "Type: DOUBLE\n");
 
                 if (userdefinedtype->compoundfield[j].pointer) {        // Pointer to Double Data array
                     if (xdrs->x_op == XDR_DECODE) {                // Allocate Heap for Data Received
@@ -311,7 +311,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** da
             }
 
             case (TYPE_SHORT): {
-                IDAM_LOG(LOG_DEBUG, "Type: SHORT\n");
+                IDAM_LOG(UDA_LOG_DEBUG, "Type: SHORT\n");
 
                 if (userdefinedtype->compoundfield[j].pointer) {        // Pointer to Short Data array
                     if (xdrs->x_op == XDR_DECODE) {                // Allocate Heap for Data
@@ -392,7 +392,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** da
 
 
             case (TYPE_UNSIGNED_SHORT): {
-                IDAM_LOG(LOG_DEBUG, "Type: UNSIGNED_SHORT\n");
+                IDAM_LOG(UDA_LOG_DEBUG, "Type: UNSIGNED_SHORT\n");
 
                 if (userdefinedtype->compoundfield[j].pointer) {        // Pointer to Data array
                     if (xdrs->x_op == XDR_DECODE) {                // Allocate Heap for Data
@@ -474,7 +474,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** da
 
 
             case (TYPE_INT): {
-                IDAM_LOG(LOG_DEBUG, "Type: INT\n");
+                IDAM_LOG(UDA_LOG_DEBUG, "Type: INT\n");
 
                 if (userdefinedtype->compoundfield[j].pointer) {        // Pointer to Integer Data array
                     if (xdrs->x_op == XDR_DECODE) {                // Allocate Heap for Data
@@ -555,7 +555,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** da
 
 
             case (TYPE_UNSIGNED_INT): {
-                IDAM_LOG(LOG_DEBUG, "Type: UNSIGNED INT\n");
+                IDAM_LOG(UDA_LOG_DEBUG, "Type: UNSIGNED INT\n");
 
                 if (userdefinedtype->compoundfield[j].pointer) {        // Pointer to Data array
                     if (xdrs->x_op == XDR_DECODE) {                // Allocate Heap for Data
@@ -632,7 +632,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** da
             }
 
             case (TYPE_LONG64): {
-                IDAM_LOG(LOG_DEBUG, "Type: LONG LONG\n");
+                IDAM_LOG(UDA_LOG_DEBUG, "Type: LONG LONG\n");
 
                 if (userdefinedtype->compoundfield[j].pointer) {        // Pointer to long long Data array
                     if (xdrs->x_op == XDR_DECODE) {                // Allocate Heap for Data
@@ -716,7 +716,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** da
 
 #ifndef __APPLE__
             case (TYPE_UNSIGNED_LONG64): {
-                IDAM_LOG(LOG_DEBUG, "Type: UNSIGNED LONG LONG\n");
+                IDAM_LOG(UDA_LOG_DEBUG, "Type: UNSIGNED LONG LONG\n");
 
                 if (userdefinedtype->compoundfield[j].pointer) {        // Pointer to Data array
                     if (xdrs->x_op == XDR_DECODE) {                // Allocate Heap for Data
@@ -799,7 +799,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** da
 #endif
 
             case (TYPE_CHAR): {
-                IDAM_LOG(LOG_DEBUG, "Type: CHAR\n");
+                IDAM_LOG(UDA_LOG_DEBUG, "Type: CHAR\n");
 
                 if (userdefinedtype->compoundfield[j].pointer) {        // Pointer to Float Data array
                     if (xdrs->x_op == XDR_DECODE) {                // Allocate Heap for Data
@@ -989,7 +989,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** da
 //	char p[int][int] fixed number array of strings of fixed length 		=> rank = 2, pointer = 0, type STRING
 
             case (TYPE_STRING): {                    // Array of char terminated by \0
-                IDAM_LOG(LOG_DEBUG, "Type: STRING\n");
+                IDAM_LOG(UDA_LOG_DEBUG, "Type: STRING\n");
 
                 char** strarr;
                 int nstr = 0, istr;
@@ -1196,7 +1196,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** da
 
 // Send or Receive the Count, Size and Type of the sub-structure (All atomic types except void are trapped before this point)
 
-                IDAM_LOG(LOG_DEBUG, "Type: OTHER - Void Type or Structure\n");
+                IDAM_LOG(UDA_LOG_DEBUG, "Type: OTHER - Void Type or Structure\n");
 
                 if (userdefinedtype->compoundfield[j].pointer) {
                     if (xdrs->x_op != XDR_DECODE) {
@@ -1271,7 +1271,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** da
                             structShape = NULL;
                     }
 
-                    IDAM_LOGF(LOG_DEBUG, "Pointer: Send or Receive Count: %d, Size: %d, Type: %s\n", count, size, type);
+                    IDAM_LOGF(UDA_LOG_DEBUG, "Pointer: Send or Receive Count: %d, Size: %d, Type: %s\n", count, size, type);
 
                 } else {
 
@@ -1285,7 +1285,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** da
                     count = 0;
                     type = userdefinedtype->compoundfield[j].type;
 
-                    IDAM_LOGF(LOG_DEBUG, "Pointer: Send or Receive Count: %d, Size: %d, Type: %s\n",
+                    IDAM_LOGF(UDA_LOG_DEBUG, "Pointer: Send or Receive Count: %d, Size: %d, Type: %s\n",
                             userdefinedtype->compoundfield[j].count, userdefinedtype->compoundfield[j].size,
                             userdefinedtype->compoundfield[j].type);
                 }
@@ -1295,13 +1295,13 @@ int xdrUserDefinedDataPut(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** da
                 if ((utype = findUserDefinedType(type, 0)) == NULL &&
                     strcmp(userdefinedtype->compoundfield[j].type, "void") != 0) {
 
-                    IDAM_LOGF(LOG_DEBUG, "**** Error #1: User Defined Type %s not known!\n",
+                    IDAM_LOGF(UDA_LOG_DEBUG, "**** Error #1: User Defined Type %s not known!\n",
                             userdefinedtype->compoundfield[j].type);
-                    IDAM_LOGF(LOG_DEBUG, "structure Name: %s\n", userdefinedtype->name);
-                    IDAM_LOGF(LOG_DEBUG, "Element Type  : %s\n", userdefinedtype->compoundfield[j].type);
-                    IDAM_LOGF(LOG_DEBUG, "        Offset: %d\n", userdefinedtype->compoundfield[j].offset);
-                    IDAM_LOGF(LOG_DEBUG, "        Count : %d\n", userdefinedtype->compoundfield[j].count);
-                    IDAM_LOGF(LOG_DEBUG, "        Size  : %d\n", userdefinedtype->compoundfield[j].size);
+                    IDAM_LOGF(UDA_LOG_DEBUG, "structure Name: %s\n", userdefinedtype->name);
+                    IDAM_LOGF(UDA_LOG_DEBUG, "Element Type  : %s\n", userdefinedtype->compoundfield[j].type);
+                    IDAM_LOGF(UDA_LOG_DEBUG, "        Offset: %d\n", userdefinedtype->compoundfield[j].offset);
+                    IDAM_LOGF(UDA_LOG_DEBUG, "        Count : %d\n", userdefinedtype->compoundfield[j].count);
+                    IDAM_LOGF(UDA_LOG_DEBUG, "        Size  : %d\n", userdefinedtype->compoundfield[j].size);
 
                     break;
                 }
@@ -1456,7 +1456,7 @@ bool_t xdr_userdefinedtypelistPut(XDR* xdrs, USERDEFINEDTYPELIST* str)
 
     rc = rc && xdr_int(xdrs, &str->listCount);
 
-    IDAM_LOGF(LOG_DEBUG, "xdr_userdefinedtypelist: rc = %d, listCount = %d\n", rc, str->listCount);
+    IDAM_LOGF(UDA_LOG_DEBUG, "xdr_userdefinedtypelist: rc = %d, listCount = %d\n", rc, str->listCount);
 
     if (!rc || str->listCount == 0) return rc;
 
@@ -1506,14 +1506,14 @@ int protocolXML2Put(XDR* xdrs, int protocol_id, int direction, int* token, void*
 
                     if (udt == NULL || u == NULL) {
                         err = 999;
-                        IDAM_LOG(LOG_DEBUG, "NULL SARRAY User defined data Structure Definition\n");
+                        IDAM_LOG(UDA_LOG_DEBUG, "NULL SARRAY User defined data Structure Definition\n");
                         printUserDefinedTypeListTable(*userdefinedtypelist);
                         addIdamError(&idamerrorstack, CODEERRORTYPE, "protocolXML2Put", err,
                                      "NULL User defined data Structure Definition");
                         break;
                     }
 
-                    IDAM_LOG(LOG_DEBUG, "Creating SARRAY carrier structure to Send\n");
+                    IDAM_LOG(UDA_LOG_DEBUG, "Creating SARRAY carrier structure to Send\n");
 
                     initSArray(&sarray);
                     sarray.count = data_block->data_n;                // Number of this structure
@@ -1528,7 +1528,7 @@ int protocolXML2Put(XDR* xdrs, int protocol_id, int direction, int* token, void*
 
                     packageType = PACKAGE_STRUCTDATA;        // The package is regular XDR
 
-                    IDAM_LOGF(LOG_DEBUG, "Sending Package Type: %d\n", packageType);
+                    IDAM_LOGF(UDA_LOG_DEBUG, "Sending Package Type: %d\n", packageType);
 
                     rc = xdr_int(xdrs, &packageType);        // Send data package type
 // **** the original protocolXML2 marks this as the end of a record and dispatches. This causes an error - unknown root cause
@@ -1536,11 +1536,11 @@ int protocolXML2Put(XDR* xdrs, int protocol_id, int direction, int* token, void*
                     rc = rc && xdr_userdefinedtypelistPut(xdrs,
                                                           userdefinedtypelist);        // send the full set of known named structures
 
-                    IDAM_LOGF(LOG_DEBUG, "Structure Definitions sent: rc = %d\n", rc);
+                    IDAM_LOGF(UDA_LOG_DEBUG, "Structure Definitions sent: rc = %d\n", rc);
 
                     rc = rc && xdrUserDefinedTypeDataPut(xdrs, u, data);        // send the Data
 
-                    IDAM_LOGF(LOG_DEBUG, "Structured Data sent: rc = %d\n", rc);
+                    IDAM_LOGF(UDA_LOG_DEBUG, "Structured Data sent: rc = %d\n", rc);
 
                     if (!rc) {
                         err = 999;
@@ -1555,7 +1555,7 @@ int protocolXML2Put(XDR* xdrs, int protocol_id, int direction, int* token, void*
 
                     int option = 4;
 
-                    IDAM_LOG(LOG_DEBUG, "Receiving Package Type\n");
+                    IDAM_LOG(UDA_LOG_DEBUG, "Receiving Package Type\n");
 
 // **** the original protocolXML2 reads the next record. This causes an error - unknown root cause
 
@@ -1563,8 +1563,8 @@ int protocolXML2Put(XDR* xdrs, int protocol_id, int direction, int* token, void*
 
                     if ((privateFlags & PRIVATEFLAG_XDRFILE) == 0 && packageType == PACKAGE_STRUCTDATA) option = 1;
 
-                    IDAM_LOGF(LOG_DEBUG, "Receive data option : %d\n", option);
-                    IDAM_LOGF(LOG_DEBUG, "Receive package Type: %d\n", packageType);
+                    IDAM_LOGF(UDA_LOG_DEBUG, "Receive data option : %d\n", option);
+                    IDAM_LOGF(UDA_LOG_DEBUG, "Receive package Type: %d\n", packageType);
 
                     if (option == 4) {
                         err = 999;
@@ -1589,7 +1589,7 @@ int protocolXML2Put(XDR* xdrs, int protocol_id, int direction, int* token, void*
                         rc = rc && xdr_userdefinedtypelistPut(xdrs,
                                                               userdefinedtypelist);        // receive the full set of known named structures
 
-                        IDAM_LOG(LOG_DEBUG, "userdefinedtypelist received\n");
+                        IDAM_LOG(UDA_LOG_DEBUG, "userdefinedtypelist received\n");
 
                         if (!rc) {
                             err = 999;
@@ -1603,7 +1603,7 @@ int protocolXML2Put(XDR* xdrs, int protocol_id, int direction, int* token, void*
                         rc = rc && xdrUserDefinedTypeDataPut(xdrs, udt_received, &data);        // receive the Data
                         //rc = rc && xdrUserDefinedTypeData(xdrs, udt_received, &data);		// receive the Data
 
-                        IDAM_LOG(LOG_DEBUG, "xdrUserDefinedTypeData received\n");
+                        IDAM_LOG(UDA_LOG_DEBUG, "xdrUserDefinedTypeData received\n");
 
                         if (!rc) {
                             err = 999;

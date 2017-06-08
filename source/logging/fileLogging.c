@@ -10,43 +10,43 @@ static FILE* debug_log  = NULL;
 static FILE* info_log   = NULL;
 static FILE* access_log = NULL;
 
-static LOG_MODE log_level = LOG_NONE;
+static LOG_LEVEL log_level = UDA_LOG_NONE;
 
-void idamSetLogLevel(LOG_MODE mode)
+void idamSetLogLevel(LOG_LEVEL level)
 {
-    log_level = mode;
+    log_level = level;
 }
 
-LOG_MODE idamGetLogLevel()
+LOG_LEVEL idamGetLogLevel()
 {
     return log_level;
 }
 
-FILE* idamGetLogFile(LOG_MODE mode)
+static FILE* idamGetLogFile(LOG_LEVEL mode)
 {
     switch (mode) {
-        case LOG_ACCESS: return access_log;
-        case LOG_ERROR:  return error_log;
-        case LOG_WARN:   return warn_log;
-        case LOG_INFO:   return info_log;
-        case LOG_DEBUG:  return debug_log;
-        default:         return NULL;
+        case UDA_LOG_ACCESS: return access_log;
+        case UDA_LOG_ERROR:  return error_log;
+        case UDA_LOG_WARN:   return warn_log;
+        case UDA_LOG_INFO:   return info_log;
+        case UDA_LOG_DEBUG:  return debug_log;
+        default:             return NULL;
     }
 }
 
-void idamSetLogFile(LOG_MODE mode, FILE* file)
+void idamSetLogFile(LOG_LEVEL mode, FILE* file)
 {
     switch (mode) {
-        case LOG_ACCESS: access_log = file; break;
-        case LOG_ERROR:  error_log  = file; break;
-        case LOG_WARN:   warn_log   = file; break;
-        case LOG_INFO:   info_log   = file; break;
-        case LOG_DEBUG:  debug_log  = file; break;
+        case UDA_LOG_ACCESS: access_log = file; break;
+        case UDA_LOG_ERROR:  error_log  = file; break;
+        case UDA_LOG_WARN:   warn_log   = file; break;
+        case UDA_LOG_INFO:   info_log   = file; break;
+        case UDA_LOG_DEBUG:  debug_log  = file; break;
         default: return; // do nothing
     }
 }
 
-void idamLogWithFunc(LOG_MODE mode, logFunc func)
+void idamLogWithFunc(LOG_LEVEL mode, logFunc func)
 {
     FILE* log_file = idamGetLogFile(mode);
 
@@ -56,7 +56,7 @@ void idamLogWithFunc(LOG_MODE mode, logFunc func)
     }
 }
 
-void idamLog(LOG_MODE mode, const char * fmt, ...)
+void idamLog(LOG_LEVEL mode, const char * fmt, ...)
 {
     va_list args;
     va_start(args, fmt);

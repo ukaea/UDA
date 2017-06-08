@@ -166,7 +166,7 @@ extern int anbCorrections(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     } else {
         err = 999;
-        idamLog(LOG_ERROR, "ERROR anbCorrections: Plugin Interface Version Unknown\n");
+        idamLog(UDA_LOG_ERROR, "ERROR anbCorrections: Plugin Interface Version Unknown\n");
         addIdamError(&idamerrorstack, CODEERRORTYPE, "anbCorrections", err,
                      "Plugin Interface Version is Not Known: Unable to execute the request!");
         return err;
@@ -311,7 +311,7 @@ extern int anbCorrections(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             if (exp_number < 28411 || exp_number > 30473) {
                 err = 999;
-                idamLog(LOG_ERROR, "ERROR anbCorrections: Invalid Shot number - outside range 28411-30473\n");
+                idamLog(UDA_LOG_ERROR, "ERROR anbCorrections: Invalid Shot number - outside range 28411-30473\n");
 
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "anbCorrections", err,
                              "Invalid Shot number - outside range 28411-30473");

@@ -65,7 +65,7 @@ int put(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     static char root[MAXROOT] = "";
     FILE* log = NULL;
 
-    IDAM_LOG(LOG_DEBUG, "Provenance: entering function 'put'\n");
+    IDAM_LOG(UDA_LOG_DEBUG, "Provenance: entering function 'put'\n");
 
 //----------------------------------------------------------------------------------------
 // Standard v1 Plugin Interface
@@ -82,14 +82,14 @@ int put(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     } else {
         err = 999;
-        IDAM_LOG(LOG_ERROR, "ERROR Provenance: Plugin Interface Version Unknown\n");
+        IDAM_LOG(UDA_LOG_ERROR, "ERROR Provenance: Plugin Interface Version Unknown\n");
 
         addIdamError(&idamerrorstack, CODEERRORTYPE, "Provenance", err,
                      "Plugin Interface Version is Not Known: Unable to execute the request!");
         return err;
     }
 
-    IDAM_LOG(LOG_DEBUG, "Provenance: Plugin Interface transferred\n");
+    IDAM_LOG(UDA_LOG_DEBUG, "Provenance: Plugin Interface transferred\n");
 
 //----------------------------------------------------------------------------------------
 // Provenance Data Archive location
@@ -100,7 +100,7 @@ int put(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             strncpy(root, env, MAXROOT - 1);
             root[MAXROOT - 1] = '\0';
             TrimString(root);
-            IDAM_LOGF(LOG_DEBUG, "Provenance: Archive root directory [%s]\n", root);
+            IDAM_LOGF(UDA_LOG_DEBUG, "Provenance: Archive root directory [%s]\n", root);
         } else {
             err = 999;
             addIdamError(&idamerrorstack, CODEERRORTYPE, "Provenance", err,
@@ -262,7 +262,7 @@ int put(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
         if ((err = makeProvenanceDir(&newDir, root, UID, &priorDir)) != 0) break;
 
-        if (err == 0) IDAM_LOGF(LOG_DEBUG, "Provenance Archive Directory: [%s]\n", newDir);
+        if (err == 0) IDAM_LOGF(UDA_LOG_DEBUG, "Provenance Archive Directory: [%s]\n", newDir);
 
 // Open a log file to record all activities and errors
 
@@ -284,7 +284,7 @@ int put(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             err = 999;
             if (errno != 0) addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "Provenance", errno, "");
             addIdamError(&idamerrorstack, CODEERRORTYPE, "Provenance", err, "Unable to Open the Provenance Log file!");
-            IDAM_LOGF(LOG_DEBUG, "Provenance Error: Unable to Open the Provenance Log file! [%s]\n", logName);
+            IDAM_LOGF(UDA_LOG_DEBUG, "Provenance Error: Unable to Open the Provenance Log file! [%s]\n", logName);
             free((void*) logName);
             break;
         }
@@ -596,7 +596,7 @@ int copyProvenanceWebFile(char* oldFile, char* dir, char* newFileName, FILE* log
         sprintf(newFile, "%s/%s", dir, newFileName);
 
         gettimeofday(&tv_start, NULL);
-        IDAM_LOGF(LOG_DEBUG, "\nProvenance Put\nTarget file to copy - %s\nCopy location - %s\n\n", copyFile, newFile);
+        IDAM_LOGF(UDA_LOG_DEBUG, "\nProvenance Put\nTarget file to copy - %s\nCopy location - %s\n\n", copyFile, newFile);
 
         if (log != NULL) fprintf(log, "Snapshot copy of [%s] to [%s]\n", copyFile, newFile);
 
@@ -614,7 +614,7 @@ int copyProvenanceWebFile(char* oldFile, char* dir, char* newFileName, FILE* log
             err = 999;
             if (errno != 0) addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "Provenance", errno, "");
             addIdamError(&idamerrorstack, CODEERRORTYPE, "Provenance", err, "Cannot copy file to data archive");
-            IDAM_LOGF(LOG_DEBUG, "Error: Unable to copy the file! [%s]\n", copyFile);
+            IDAM_LOGF(UDA_LOG_DEBUG, "Error: Unable to copy the file! [%s]\n", copyFile);
             if (log != NULL) fprintf(log, "Error: Unable to copy the file!\n");
             break;
         }
@@ -622,7 +622,7 @@ int copyProvenanceWebFile(char* oldFile, char* dir, char* newFileName, FILE* log
         gettimeofday(&tv_stop, NULL);
         msecs = (int) (tv_stop.tv_sec - tv_start.tv_sec) * 1000 + (int) (tv_stop.tv_usec - tv_start.tv_usec) / 1000;
         usecs = (int) (tv_stop.tv_sec - tv_start.tv_sec) * 1000000 + (int) (tv_stop.tv_usec - tv_start.tv_usec);
-        IDAM_LOGF(LOG_DEBUG, "Provenance: scp Cost %d (ms), %d (microsecs)\n", msecs, usecs);
+        IDAM_LOGF(UDA_LOG_DEBUG, "Provenance: scp Cost %d (ms), %d (microsecs)\n", msecs, usecs);
         tv_start = tv_stop;
         if (log != NULL) fprintf(log, "Copy cost %d (ms), %d (microsecs)\n", msecs, usecs);
 
@@ -685,7 +685,7 @@ int copyProvenanceFile(char* oldFile, char* dir, char* newFileName)
         newFile = (char*) malloc((strlen(dir) + strlen(newFileName) + 2) * sizeof(char));
         sprintf(newFile, "%s/%s", dir, newFileName);
 
-        IDAM_LOGF(LOG_DEBUG, "\nProvenance Put\nTarget file to copy - %s\nCopy location - %s\n\n", copyFile, newFile);
+        IDAM_LOGF(UDA_LOG_DEBUG, "\nProvenance Put\nTarget file to copy - %s\nCopy location - %s\n\n", copyFile, newFile);
 
 // Read file attributes
 
@@ -694,7 +694,7 @@ int copyProvenanceFile(char* oldFile, char* dir, char* newFileName)
             err = 999;
             if (errno != 0) addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "Provenance", errno, "");
             addIdamError(&idamerrorstack, CODEERRORTYPE, "Provenance", err, "Unable to read the file's attributes!");
-            IDAM_LOGF(LOG_DEBUG, "Error: Unable to read the file's attributes! [%s] %s\n", copyFile, strerror(errno));
+            IDAM_LOGF(UDA_LOG_DEBUG, "Error: Unable to read the file's attributes! [%s] %s\n", copyFile, strerror(errno));
             break;
         }
 
@@ -703,7 +703,7 @@ int copyProvenanceFile(char* oldFile, char* dir, char* newFileName)
         if (!S_ISREG(attributes.st_mode)) {
             err = 999;
             addIdamError(&idamerrorstack, CODEERRORTYPE, "Provenance", err, "Not a Regular File!");
-            IDAM_LOGF(LOG_DEBUG, "Error: Not a Regular File! [%s]\n", copyFile);
+            IDAM_LOGF(UDA_LOG_DEBUG, "Error: Not a Regular File! [%s]\n", copyFile);
             break;
         }
 
@@ -713,7 +713,7 @@ int copyProvenanceFile(char* oldFile, char* dir, char* newFileName)
             err = 999;
             if (errno != 0) addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "Provenance", errno, "");
             addIdamError(&idamerrorstack, CODEERRORTYPE, "Provenance", err, "Unable to Open the file for copying!");
-            IDAM_LOGF(LOG_DEBUG, "Error: Unable to Open the file for copying! [%s]\n", copyFile);
+            IDAM_LOGF(UDA_LOG_DEBUG, "Error: Unable to Open the file for copying! [%s]\n", copyFile);
             break;
         }
 
@@ -721,7 +721,7 @@ int copyProvenanceFile(char* oldFile, char* dir, char* newFileName)
             err = 999;
             if (errno != 0) addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "Provenance", errno, "");
             addIdamError(&idamerrorstack, CODEERRORTYPE, "Provenance", err, "Unable to Open the file for writing!");
-            IDAM_LOGF(LOG_DEBUG, "Error: Unable to Open the file for writing! [%s]\n", newFile);
+            IDAM_LOGF(UDA_LOG_DEBUG, "Error: Unable to Open the file for writing! [%s]\n", newFile);
             break;
         }
 
@@ -732,7 +732,7 @@ int copyProvenanceFile(char* oldFile, char* dir, char* newFileName)
                 if (n != count)
                     addIdamError(&idamerrorstack, CODEERRORTYPE, "Provenance", err, "Inconsistent byte count");
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "Provenance", err, "Unable to Write the file!");
-                IDAM_LOGF(LOG_DEBUG, "Error: Unable to Write the file! [%s]\n", newFile);
+                IDAM_LOGF(UDA_LOG_DEBUG, "Error: Unable to Write the file! [%s]\n", newFile);
                 break;
             }
         }
@@ -740,7 +740,7 @@ int copyProvenanceFile(char* oldFile, char* dir, char* newFileName)
             err = 999;
             if (errno != 0) addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "Provenance", errno, "");
             addIdamError(&idamerrorstack, CODEERRORTYPE, "Provenance", err, "Unable to Read and Write the file!");
-            IDAM_LOGF(LOG_DEBUG, "Error: Unable to Read and Write the file! [%s, %s]\n", copyFile, newFile);
+            IDAM_LOGF(UDA_LOG_DEBUG, "Error: Unable to Read and Write the file! [%s, %s]\n", copyFile, newFile);
             break;
         }
 
@@ -761,7 +761,7 @@ int copyProvenanceFile(char* oldFile, char* dir, char* newFileName)
             if (errno != 0) addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "Provenance", errno, "");
             addIdamError(&idamerrorstack, CODEERRORTYPE, "Provenance", err,
                          "Unable to Set the file copy's time stamp!");
-            IDAM_LOGF(LOG_DEBUG, "Error: Unable to Set the file copy's time stamp! [%s]\n", newFile);
+            IDAM_LOGF(UDA_LOG_DEBUG, "Error: Unable to Set the file copy's time stamp! [%s]\n", newFile);
             break;
         }
 
@@ -771,14 +771,14 @@ int copyProvenanceFile(char* oldFile, char* dir, char* newFileName)
             err = 999;
             if (errno != 0) addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "Provenance", errno, "");
             addIdamError(&idamerrorstack, CODEERRORTYPE, "Provenance", err, "Unable to hash the original file!");
-            IDAM_LOGF(LOG_DEBUG, "Error: Unable to hash the original file! [%s]\n", copyFile);
+            IDAM_LOGF(UDA_LOG_DEBUG, "Error: Unable to hash the original file! [%s]\n", copyFile);
             break;
         }
         if ((rc = fileSHA1(newFile, newHash)) != 0) {
             err = 999;
             if (errno != 0) addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "Provenance", errno, "");
             addIdamError(&idamerrorstack, CODEERRORTYPE, "Provenance", err, "Unable to hash the file copy!");
-            IDAM_LOGF(LOG_DEBUG, "Error: Unable to hash the file copy! [%s]\n", newFile);
+            IDAM_LOGF(UDA_LOG_DEBUG, "Error: Unable to hash the file copy! [%s]\n", newFile);
             break;
         }
 
@@ -789,11 +789,11 @@ int copyProvenanceFile(char* oldFile, char* dir, char* newFileName)
             if (errno != 0) addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "Provenance", errno, "");
             addIdamError(&idamerrorstack, CODEERRORTYPE, "Provenance", err,
                          "The original file and the file copy have different hash sums!");
-            IDAM_LOG(LOG_DEBUG, "Error: The original file and the file copy have different hash sums!\n");
+            IDAM_LOG(UDA_LOG_DEBUG, "Error: The original file and the file copy have different hash sums!\n");
             break;
         }
 
-        IDAM_LOG(LOG_DEBUG, "\nProvenance Put\n: Hash sums checked OK\n");
+        IDAM_LOG(UDA_LOG_DEBUG, "\nProvenance Put\n: Hash sums checked OK\n");
 
     } while (0);        // End of trap
 

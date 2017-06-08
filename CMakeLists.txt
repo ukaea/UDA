@@ -13,6 +13,8 @@ set( CMAKE_MODULE_PATH
   ${CMAKE_SOURCE_DIR}/cmake/Config
 )
 
+include( ColourMessages )
+
 ########################################################################################################################
 # Version and Machine information
 

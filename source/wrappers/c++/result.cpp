@@ -183,7 +183,7 @@ uda::Data* getDataAsStringArray(int handle, std::vector<uda::Dim>& dims)
 
     std::vector<uda::Dim> string_dims;
 
-    for (unsigned int i = 1; i < dims.size(); ++i) {
+    for (size_t i = 1; i < dims.size(); ++i) {
         string_dims.push_back(dims[i]);
     }
 

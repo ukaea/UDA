@@ -77,7 +77,7 @@ int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList)
     char work2[MAXMETA];
     unsigned short strip = 1;        // Remove enclosing quotes from name value pairs
 
-    IDAM_LOG(LOG_DEBUG, "Source Argument\n");
+    IDAM_LOG(UDA_LOG_DEBUG, "Source Argument\n");
 
     ENVIRONMENT* environment = getIdamServerEnvironment();
 
@@ -213,7 +213,7 @@ int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList)
 
         if (test == NULL || STR_IEQUALS(work2, environment->api_device)) {    // No delimiter present or default device?
 
-            IDAM_LOG(LOG_DEBUG, "No device name or format or protocol or library is present\n");
+            IDAM_LOG(UDA_LOG_DEBUG, "No device name or format or protocol or library is present\n");
 
             strcpy(request_block->device_name, environment->api_device);            // Default Device Name
 
@@ -240,7 +240,7 @@ int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList)
 
 // Request must be a private file format. It cannot be a local/remote server protocol.
 
-                IDAM_LOG(LOG_DEBUG, "No File Format has been specified. Selecting ....\n");
+                IDAM_LOG(UDA_LOG_DEBUG, "No File Format has been specified. Selecting ....\n");
 
                 rc = sourceFileFormatTest(request_block->source, request_block, pluginList);
 
@@ -260,7 +260,7 @@ int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList)
 #endif
 
                 if (rc <= 0) {
-                    IDAM_LOG(LOG_DEBUG, "File Format NOT identified from name extension!\n");
+                    IDAM_LOG(UDA_LOG_DEBUG, "File Format NOT identified from name extension!\n");
                     //if(rc < 0) return -rc;
                     err = 999;
                     addIdamError(&idamerrorstack, CODEERRORTYPE, "makeServerRequestBlock", err,
@@ -270,7 +270,7 @@ int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList)
 
                 expandEnvironmentVariables(request_block);            // Resolve any Serverside environment variables
 
-                IDAM_LOG(LOG_DEBUG, "File Format identified from name extension!\n");
+                IDAM_LOG(UDA_LOG_DEBUG, "File Format identified from name extension!\n");
                 break;
 
             } else {
@@ -288,7 +288,7 @@ int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList)
                     request_block->request = REQUEST_READ_SERVERSIDE;
                     extractFunctionName(work, request_block);
 
-                    IDAM_LOG(LOG_DEBUG, "**** Server Side Function ??? ****\n");
+                    IDAM_LOG(UDA_LOG_DEBUG, "**** Server Side Function ??? ****\n");
 
 // Extract Name Value pairs
 
@@ -328,7 +328,7 @@ int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList)
 //---------------------------------------------------------------------------------------------------------------------
 // Scenario #2: A foreign device name or format or protocol or library is present
 
-            IDAM_LOG(LOG_DEBUG, "A device name or format or protocol or library is present.\n");
+            IDAM_LOG(UDA_LOG_DEBUG, "A device name or format or protocol or library is present.\n");
 
 // Test for known File formats, Server protocols or Libraries or Devices
 
@@ -398,7 +398,7 @@ int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList)
 // The external server providing access to the foreign device's data will interpret the arguments
 
             if (request_block->request == REQUEST_READ_UNKNOWN) {
-                IDAM_LOGF(LOG_DEBUG, "No plugin was identified for the format: %s\n", work2);
+                IDAM_LOGF(UDA_LOG_DEBUG, "No plugin was identified for the format: %s\n", work2);
                 isForeign = 1;
                 strcpy(request_block->device_name, work2);                // Copy the DEVICE prefix
                 request_block->request = REQUEST_READ_GENERIC;            // The database will identify the target
@@ -440,13 +440,13 @@ int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList)
             strcpy(request_block->device_name, environment->api_device);            // Default Device Name
 
             if (isFile) {                                    // Resolve any Serverside environment variables
-                IDAM_LOG(LOG_DEBUG, "File Format has been specified.\n");
+                IDAM_LOG(UDA_LOG_DEBUG, "File Format has been specified.\n");
                 expandEnvironmentVariables(request_block);
                 break;
             }
 
             if (!isFile && !isFunction) {        // Server Protocol
-                IDAM_LOG(LOG_DEBUG, "Server Protocol\n");
+                IDAM_LOG(UDA_LOG_DEBUG, "Server Protocol\n");
                 break;
             }
 
@@ -498,7 +498,7 @@ int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList)
 
     } while (0);
 
-    IDAM_LOG(LOG_DEBUG, "Signal Argument\n");
+    IDAM_LOG(UDA_LOG_DEBUG, "Signal Argument\n");
 
 //==============================================================================
 // Check the data object (Signal) has one of these forms:
@@ -593,8 +593,8 @@ int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList)
 // If No Source was Specified: All requirements are contained in the signal string
 
     if (noSource) {
-        IDAM_LOG(LOG_DEBUG, "Signal Argument - No Source\n");
-        IDAM_LOGF(LOG_DEBUG, "request: %d\n", request_block->request);
+        IDAM_LOG(UDA_LOG_DEBUG, "Signal Argument - No Source\n");
+        IDAM_LOGF(UDA_LOG_DEBUG, "request: %d\n", request_block->request);
 
 // If the signal could be a function call, check the archive name against the function library plugins
 
@@ -609,8 +609,8 @@ int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList)
                 }
             }
 
-            IDAM_LOGF(LOG_DEBUG, "A request: %d\n", request_block->request);
-            IDAM_LOGF(LOG_DEBUG, "isFunction: %d\n", isFunction);
+            IDAM_LOGF(UDA_LOG_DEBUG, "A request: %d\n", request_block->request);
+            IDAM_LOGF(UDA_LOG_DEBUG, "isFunction: %d\n", isFunction);
 
             if (!isFunction) {                // Must be a default server-side function
 
@@ -626,7 +626,7 @@ int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList)
                 if (!isFunction) request_block->function[0] = '\0';
             }
 
-            IDAM_LOGF(LOG_DEBUG, "B request: %d\n", request_block->request);
+            IDAM_LOGF(UDA_LOG_DEBUG, "B request: %d\n", request_block->request);
 
         } else {
 
@@ -634,7 +634,7 @@ int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList)
 
             request_block->request = REQUEST_READ_GENERIC;
 
-            IDAM_LOGF(LOG_DEBUG, "C request: %d\n", request_block->request);
+            IDAM_LOGF(UDA_LOG_DEBUG, "C request: %d\n", request_block->request);
 
         }
 
@@ -653,18 +653,18 @@ int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList)
                     request_block->request == REQUEST_READ_UNKNOWN) {
                     request_block->request = pluginList.plugin[id].request;    // Found
                     strcpy(request_block->format, pluginList.plugin[id].format);
-                    IDAM_LOGF(LOG_DEBUG, "D request: %d\n", request_block->request);
+                    IDAM_LOGF(UDA_LOG_DEBUG, "D request: %d\n", request_block->request);
 
                 } else {
                     if (request_block->request != pluginList.plugin[i].request) {    // Inconsistent
 // Let Source have priority over the Signal?
-                        IDAM_LOG(LOG_DEBUG, "Inconsistent Plugin Libraries: Source selected over Signal\n");
+                        IDAM_LOG(UDA_LOG_DEBUG, "Inconsistent Plugin Libraries: Source selected over Signal\n");
                     }
                 }
             }
         }
     }
-    IDAM_LOGF(LOG_DEBUG, "E request: %d\n", request_block->request);
+    IDAM_LOGF(UDA_LOG_DEBUG, "E request: %d\n", request_block->request);
 
 //---------------------------------------------------------------------------------------------------------------------
 // Legacy Specials ...
@@ -1002,7 +1002,7 @@ int sourceFileFormatTest(const char* source, REQUEST_BLOCK* request_block, PLUGI
     for (i = 0; i < pluginList.count; i++) {
         if (STR_IEQUALS(request_block->format, pluginList.plugin[i].format)) {
             rc = 1;
-            IDAM_LOGF(LOG_DEBUG, "Format identified, selecting specific plugin for %s\n", request_block->format);
+            IDAM_LOGF(UDA_LOG_DEBUG, "Format identified, selecting specific plugin for %s\n", request_block->format);
             request_block->request = pluginList.plugin[i].request;            // Found
             if (pluginList.plugin[i].class !=
                 PLUGINFILE) {                // The full file path fully resolved by the client
@@ -1047,7 +1047,7 @@ int genericRequestTest(const char* source, REQUEST_BLOCK* request_block, PLUGINL
         request_block->request = REQUEST_READ_GENERIC;
         strcpy(request_block->path, "");                    // Clean the path
         request_block->exp_number = atoi(source);                // Plasma Shot Number
-        IDAM_LOG(LOG_DEBUG, "exp number identified, selecting GENERIC plugin.\n");
+        IDAM_LOG(UDA_LOG_DEBUG, "exp number identified, selecting GENERIC plugin.\n");
     } else {
         strcpy(work, source);
         if ((token = strtok(work, "/")) != NULL) {                // Tokenise the remaining string
@@ -1063,7 +1063,7 @@ int genericRequestTest(const char* source, REQUEST_BLOCK* request_block, PLUGINL
                         strcpy(request_block->tpass, token);            // capture anything else
                     }
                 }
-                IDAM_LOG(LOG_DEBUG, "exp number and pass id identified, selecting GENERIC plugin.\n");
+                IDAM_LOG(UDA_LOG_DEBUG, "exp number and pass id identified, selecting GENERIC plugin.\n");
             }
         }
     }
@@ -1094,7 +1094,7 @@ int extractArchive(REQUEST_BLOCK* request_block, int reduceSignal)
 
     if (request_block->signal[0] != '\0' && getIdamServerEnvironment()->server_proxy[0] == '\0') {
 
-        IDAM_LOG(LOG_DEBUG, "Testing for ARCHIVE::Signal\n");
+        IDAM_LOG(UDA_LOG_DEBUG, "Testing for ARCHIVE::Signal\n");
 
         if ((test = strstr(request_block->signal, request_block->api_delim)) != NULL) {
 
@@ -1143,8 +1143,8 @@ int extractArchive(REQUEST_BLOCK* request_block, int reduceSignal)
                 request_block->archive[0] = '\0';            // Reset Archive
             }
 
-            IDAM_LOGF(LOG_DEBUG, "Archive %s\n", request_block->archive);
-            IDAM_LOGF(LOG_DEBUG, "Signal  %s\n", request_block->signal);
+            IDAM_LOGF(UDA_LOG_DEBUG, "Archive %s\n", request_block->archive);
+            IDAM_LOGF(UDA_LOG_DEBUG, "Signal  %s\n", request_block->signal);
         }
     }
     return err;
@@ -1166,26 +1166,26 @@ void expandEnvironmentVariables(REQUEST_BLOCK* request_block)
     char ocwd[STRING_LENGTH];
 
     if (strchr(request_block->path, '$') == NULL) {
-        IDAM_LOG(LOG_DEBUG, "No embedded environment variables detected\n");
+        IDAM_LOG(UDA_LOG_DEBUG, "No embedded environment variables detected\n");
         return;
     }
 
     if ((pcwd = getcwd(ocwd, lcwd)) == NULL) {    // Current Working Directory
-        IDAM_LOG(LOG_DEBUG, "Unable to identify PWD!\n");
+        IDAM_LOG(UDA_LOG_DEBUG, "Unable to identify PWD!\n");
         return;
     }
 
     if ((err = chdir(request_block->path)) == 0) {            // Change to path directory
         pcwd = getcwd(cwd, lcwd);                    // The Current Working Directory is now the resolved directory name
 
-        IDAM_LOG(LOG_DEBUG, "Expanding embedded environment variable:\n");
-        IDAM_LOGF(LOG_DEBUG, "from: %s\n", request_block->path);
-        IDAM_LOGF(LOG_DEBUG, "to: %s\n", cwd);
+        IDAM_LOG(UDA_LOG_DEBUG, "Expanding embedded environment variable:\n");
+        IDAM_LOGF(UDA_LOG_DEBUG, "from: %s\n", request_block->path);
+        IDAM_LOGF(UDA_LOG_DEBUG, "to: %s\n", cwd);
 
         if (pcwd != NULL) strcpy(request_block->path, cwd);    // The expanded path
         chdir(ocwd);                        // Return to the Original WD
     } else {
-        IDAM_LOG(LOG_DEBUG, "expandEnvironmentvariables: Direct substitution! \n");
+        IDAM_LOG(UDA_LOG_DEBUG, "expandEnvironmentvariables: Direct substitution! \n");
 
         char* fp = NULL, * env, * fp1;
         char work1[STRING_LENGTH];
@@ -1236,7 +1236,7 @@ void expandEnvironmentVariables(REQUEST_BLOCK* request_block)
             }
         }
 
-        IDAM_LOGF(LOG_DEBUG, "Expanding to: %s\n", request_block->path);
+        IDAM_LOGF(UDA_LOG_DEBUG, "Expanding to: %s\n", request_block->path);
     }
 
     return;

@@ -30,14 +30,14 @@ static int do_getCoilParameters(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PG
 static void
 loggingNoticeProcessor(void* arg, const char* message)
 {
-    IDAM_LOGF(LOG_WARN, "%s", message);
+    IDAM_LOGF(UDA_LOG_WARN, "%s", message);
 }
 
 int paramsdb(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
     static int init = 0;
 
-    idamSetLogLevel(LOG_DEBUG);
+    idamSetLogLevel(UDA_LOG_DEBUG);
 
     //----------------------------------------------------------------------------------------
     // Standard v1 Plugin Interface
@@ -336,7 +336,7 @@ static PGresult* activeLimitsQuery(PGconn* conn, const char* system, const char*
         params[2] = coil;
 
         char* sql = ACITIVELIMIT_SQL " WHERE s.name = $1 AND s.subtype = $2 AND c.name = $3";
-        IDAM_LOGF(LOG_DEBUG, "sql: %s\n", sql);
+        IDAM_LOGF(UDA_LOG_DEBUG, "sql: %s\n", sql);
         res = PQexecParams(conn, sql, 3, NULL, params, NULL, NULL, 0);
     } else if (is_subtype) {
         const char* params[2];
@@ -344,7 +344,7 @@ static PGresult* activeLimitsQuery(PGconn* conn, const char* system, const char*
         params[1] = subtype;
 
         char* sql = ACITIVELIMIT_SQL " WHERE s.name = $1 AND s.subtype = $2";
-        IDAM_LOGF(LOG_DEBUG, "sql: %s\n", sql);
+        IDAM_LOGF(UDA_LOG_DEBUG, "sql: %s\n", sql);
         res = PQexecParams(conn, sql, 2, NULL, params, NULL, NULL, 0);
     } else if (is_coil) {
         const char* params[2];
@@ -352,14 +352,14 @@ static PGresult* activeLimitsQuery(PGconn* conn, const char* system, const char*
         params[1] = coil;
 
         char* sql = ACITIVELIMIT_SQL " WHERE s.name = $1 AND c.name = $2";
-        IDAM_LOGF(LOG_DEBUG, "sql: %s\n", sql);
+        IDAM_LOGF(UDA_LOG_DEBUG, "sql: %s\n", sql);
         res = PQexecParams(conn, sql, 2, NULL, params, NULL, NULL, 0);
     } else {
         const char* params[1];
         params[0] = system;
 
         char* sql = ACITIVELIMIT_SQL " WHERE s.name = $1";
-        IDAM_LOGF(LOG_DEBUG, "sql: %s\n", sql);
+        IDAM_LOGF(UDA_LOG_DEBUG, "sql: %s\n", sql);
         res = PQexecParams(conn, sql, 1, NULL, params, NULL, NULL, 0);
     }
 

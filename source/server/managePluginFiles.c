@@ -30,7 +30,7 @@ void registerIdamPluginFileClose(IDAMPLUGINFILELIST* idamfiles, void* fptr)
 // Add a New Open File to the List or re-Open an existing record
 // returns 1 if the handle already exists, 0 if not
 
-int addIdamPluginFilePtr(IDAMPLUGINFILELIST* idamfiles, char* filename, void* handle)
+int addIdamPluginFilePtr(IDAMPLUGINFILELIST* idamfiles, const char* filename, void* handle)
 {
     void* old_handle = NULL;
     int closed;
@@ -69,7 +69,7 @@ int addIdamPluginFilePtr(IDAMPLUGINFILELIST* idamfiles, char* filename, void* ha
     return 0;
 }
 
-int addIdamPluginFileLong(IDAMPLUGINFILELIST* idamfiles, char* filename, long handle)
+int addIdamPluginFileLong(IDAMPLUGINFILELIST* idamfiles, const char* filename, long handle)
 {
     long old_handle;
     int closed;
@@ -111,12 +111,12 @@ int addIdamPluginFileLong(IDAMPLUGINFILELIST* idamfiles, char* filename, long ha
 // Search for an Open File in the List
 // Returns an opaque pointer to the handle if found, NULL othewise.
 
-void* getOpenIdamPluginFilePtr(IDAMPLUGINFILELIST* idamfiles, char* filename)
+void* getOpenIdamPluginFilePtr(IDAMPLUGINFILELIST* idamfiles, const char* filename)
 {
     int i;
-    IDAM_LOGF(LOG_DEBUG, "Open File Count %d\n", idamfiles->count);
+    IDAM_LOGF(UDA_LOG_DEBUG, "Open File Count %d\n", idamfiles->count);
     for (i = 0; i < idamfiles->count; i++) {
-        IDAM_LOGF(LOG_DEBUG, "Status %d, Name %s [%s]\n",
+        IDAM_LOGF(UDA_LOG_DEBUG, "Status %d, Name %s [%s]\n",
                   idamfiles->files[i].status, idamfiles->files[i].filename, filename);
 
         if (idamfiles->files[i].status == 1) {
@@ -129,12 +129,12 @@ void* getOpenIdamPluginFilePtr(IDAMPLUGINFILELIST* idamfiles, char* filename)
     return NULL;    // Not Found => Not open
 }
 
-long getOpenIdamPluginFileLong(IDAMPLUGINFILELIST* idamfiles, char* filename)
+long getOpenIdamPluginFileLong(IDAMPLUGINFILELIST* idamfiles, const char* filename)
 {
     int i;
-    IDAM_LOGF(LOG_DEBUG, "Open File Count %d\n", idamfiles->count);
+    IDAM_LOGF(UDA_LOG_DEBUG, "Open File Count %d\n", idamfiles->count);
     for (i = 0; i < idamfiles->count; i++) {
-        IDAM_LOGF(LOG_DEBUG, "Status %d, Name %s [%s]\n",
+        IDAM_LOGF(UDA_LOG_DEBUG, "Status %d, Name %s [%s]\n",
                   idamfiles->files[i].status, idamfiles->files[i].filename, filename);
 
         if (idamfiles->files[i].status == 1) {
@@ -149,7 +149,7 @@ long getOpenIdamPluginFileLong(IDAMPLUGINFILELIST* idamfiles, char* filename)
 
 // Search for a Closed File in the List
 
-int getClosedIdamPluginFile(IDAMPLUGINFILELIST* idamfiles, char* filename)
+int getClosedIdamPluginFile(IDAMPLUGINFILELIST* idamfiles, const char* filename)
 {
     int i;
     for (i = 0; i < idamfiles->count; i++) {
@@ -163,7 +163,7 @@ int getClosedIdamPluginFile(IDAMPLUGINFILELIST* idamfiles, char* filename)
 
 // Close a specific file (Ignoring returned values)
 
-void closeIdamPluginFile(IDAMPLUGINFILELIST* idamfiles, char* filename)
+void closeIdamPluginFile(IDAMPLUGINFILELIST* idamfiles, const char* filename)
 {
     int i;
     for (i = 0; i < idamfiles->count; i++) {
@@ -253,7 +253,7 @@ void purgeStalestIdamPluginFile(IDAMPLUGINFILELIST* idamfiles)
     return;
 }
 
-int findIdamPluginFileByName(IDAMPLUGINFILELIST* idamfiles, char* filename)
+int findIdamPluginFileByName(IDAMPLUGINFILELIST* idamfiles, const char* filename)
 {
     int i;
     if (!filename || filename[0] == '\0' || idamfiles->count == 0) {

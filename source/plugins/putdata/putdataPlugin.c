@@ -18,7 +18,7 @@ static int do_help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
 
 int putdataPlugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
-    idamSetLogLevel(LOG_DEBUG);
+    idamSetLogLevel(UDA_LOG_DEBUG);
 
     static int init = 0;
 

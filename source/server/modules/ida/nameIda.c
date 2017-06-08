@@ -20,7 +20,8 @@
 //-------------------------------------------------------------------
 // Form the Filename of the IDA File
 
-void nameIDA(char* alias, int pulno, char* filename) {
+void nameIDA(const char* alias, int pulno, char* filename)
+{
 
     char strint[7];
     int pulno_lhs, pulno_rhs;
@@ -65,7 +66,7 @@ void nameIDA(char* alias, int pulno, char* filename) {
     }
     strcat(filename, strint);
 
-    IDAM_LOGF(LOG_DEBUG, "IDA_Filename: %s\n", filename);
+    IDAM_LOGF(UDA_LOG_DEBUG, "IDA_Filename: %s\n", filename);
 
     return;
 }

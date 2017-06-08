@@ -211,7 +211,7 @@ void idamAccessLog(int init, CLIENT_BLOCK client_block, REQUEST_BLOCK request, S
                 elapsedtime, client_block.version, server_block.version, client_block.pid, server_block.pid,
                 client_block.DOI);
 
-        idamLog(LOG_ACCESS, "%s\n", work);
+        idamLog(UDA_LOG_ACCESS, "%s\n", work);
 
 // Save Provenance with socket stream protection
 
@@ -222,7 +222,7 @@ void idamAccessLog(int init, CLIENT_BLOCK client_block, REQUEST_BLOCK request, S
         free((void*)work);
 
     } else {
-        idamLog(LOG_ACCESS, "%s - %s [%s] [%d %s %d %d %s %s %s %s %s %s %s] %d %d [%s] %f %d %d [%d %d] [%s]\n",
+        idamLog(UDA_LOG_ACCESS, "%s - %s [%s] [%d %s %d %d %s %s %s %s %s %s %s] %d %d [%s] %f %d %d [%d %d] [%s]\n",
                 host, client_block.uid, accessdate, request.request, request.signal, request.exp_number,
                 request.pass, request.tpass, request.path, request.file, request.format, request.archive,
                 request.device_name, request.server, err, (int)totalDataBlockSize, msg,

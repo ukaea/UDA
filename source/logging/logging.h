@@ -5,31 +5,32 @@
 #include <string.h>
 #include <libgen.h>
 
-#define IDAM_LOG(MODE, MSG) idamLog(MODE, "%s:%d >> " MSG, basename(__FILE__), __LINE__)
-#define IDAM_LOGF(MODE, FMT, ...) idamLog(MODE, "%s:%d >> " FMT, basename(__FILE__), __LINE__, __VA_ARGS__)
+#define IDAM_LOG(LEVEL, MSG) idamLog(LEVEL, "%s:%d >> " MSG, basename(__FILE__), __LINE__)
+#define IDAM_LOGF(LEVEL, FMT, ...) idamLog(LEVEL, "%s:%d >> " FMT, basename(__FILE__), __LINE__, __VA_ARGS__)
 
 extern int reopen_logs;         // Flags whether or Not Logs need to be Re-Opened
 
-typedef enum LogMode {
-    LOG_DEBUG   = 1,
-    LOG_INFO    = 2,
-    LOG_WARN    = 3,
-    LOG_ERROR   = 4,
-    LOG_ACCESS  = 5,
-    LOG_NONE    = 6
-} LOG_MODE;
+typedef enum LogLevel {
+    UDA_LOG_DEBUG   = 1,
+    UDA_LOG_INFO    = 2,
+    UDA_LOG_WARN    = 3,
+    UDA_LOG_ERROR   = 4,
+    UDA_LOG_ACCESS  = 5,
+    UDA_LOG_NONE    = 6
+} LOG_LEVEL;
 
 typedef void (*logFunc)(FILE*);
 
-void idamSetLogLevel(LOG_MODE mode);
-LOG_MODE idamGetLogLevel();
+void idamSetLogLevel(LOG_LEVEL log_level);
+
+LOG_LEVEL idamGetLogLevel();
 
 void idamCloseLogging();
 
-FILE* idamGetLogFile(LOG_MODE mode);
-void idamSetLogFile(LOG_MODE mode, FILE* file_name);
+void idamSetLogFile(LOG_LEVEL mode, FILE* file_name);
 
-void idamLogWithFunc(LOG_MODE mode, logFunc func);
-void idamLog(LOG_MODE mode, const char* fmt, ...);
+void idamLogWithFunc(LOG_LEVEL mode, logFunc func);
+
+void idamLog(LOG_LEVEL mode, const char* fmt, ...);
 
 #endif //IDAM_LOGGING_IDAMLOG_H

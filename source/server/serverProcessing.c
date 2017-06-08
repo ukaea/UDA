@@ -427,12 +427,12 @@ int serverProcessing(CLIENT_BLOCK client_block, DATA_BLOCK* data_block)
 // Cast the Time Dimension to Double Precision if the data are in a compressed format
 // or ALL Dimensions if the data are in compressed formats
 
-    IDAM_LOG(LOG_DEBUG, "Server Side Processing\n");
+    IDAM_LOG(UDA_LOG_DEBUG, "Server Side Processing\n");
 
     if (client_block.get_timedble || client_block.get_dimdble) {
         for (k = 0; k < data_block->rank; k++) {
             if (client_block.get_timedble && k != data_block->order) continue;    // Only Process the Time Dimension
-            IDAM_LOGF(LOG_DEBUG, "Processing Dimension %d\n", k);
+            IDAM_LOGF(UDA_LOG_DEBUG, "Processing Dimension %d\n", k);
             ddim = data_block->dims + k;
             if (ddim->compressed) {
                 if (ddim->method == 0) {
@@ -788,26 +788,26 @@ int serverProcessing(CLIENT_BLOCK client_block, DATA_BLOCK* data_block)
                                     }
 
                                     for (i = 0; i < ddim->udoms; i++) {
-                                        IDAM_LOGF(LOG_DEBUG, "%i  %f  %f\n", i, *((float*) ddim->offs + i),
+                                        IDAM_LOGF(UDA_LOG_DEBUG, "%i  %f  %f\n", i, *((float*) ddim->offs + i),
                                                 *((float*) ddim->ints + i));
 
                                         *(newoffs + i) = (double) *((float*) ddim->offs + i);
                                         *(newints + i) = (double) *((float*) ddim->ints + i);
 
-                                        IDAM_LOGF(LOG_DEBUG, "%i  %f  %f\n", i, *(newoffs + i), *(newints + i));
+                                        IDAM_LOGF(UDA_LOG_DEBUG, "%i  %f  %f\n", i, *(newoffs + i), *(newints + i));
                                     }
                                     if (ddim->offs != NULL) free((void*) ddim->offs);
                                     if (ddim->ints != NULL) free((void*) ddim->ints);
                                     ddim->offs = (char*) newoffs;
                                     ddim->ints = (char*) newints;
                                     for (i = 0; i < ddim->udoms; i++)
-                                        IDAM_LOGF(LOG_DEBUG, "%i  %f  %f\n", i, *((double*) ddim->offs + i),
+                                        IDAM_LOGF(UDA_LOG_DEBUG, "%i  %f  %f\n", i, *((double*) ddim->offs + i),
                                                 *((double*) ddim->ints + i));
                                     ddim->data_type = TYPE_DOUBLE;
                                     break;
                                 case 2:
-                                    IDAM_LOG(LOG_DEBUG, "Processing Float Method 2\n");
-                                    IDAM_LOGF(LOG_DEBUG, "udoms: %d\n", ddim->udoms);
+                                    IDAM_LOG(UDA_LOG_DEBUG, "Processing Float Method 2\n");
+                                    IDAM_LOGF(UDA_LOG_DEBUG, "udoms: %d\n", ddim->udoms);
                                     newoffs = (double*) malloc(ddim->udoms * sizeof(double));
                                     for (i = 0; i < ddim->udoms; i++)
                                         *(newoffs + i) = (double) *((float*) ddim->offs + i);
@@ -816,18 +816,18 @@ int serverProcessing(CLIENT_BLOCK client_block, DATA_BLOCK* data_block)
                                     ddim->data_type = TYPE_DOUBLE;
                                     break;
                                 case 3:
-                                    IDAM_LOG(LOG_DEBUG, "Processing Float Method 3\n");
+                                    IDAM_LOG(UDA_LOG_DEBUG, "Processing Float Method 3\n");
                                     newoffs = (double*) malloc(sizeof(double));
                                     newints = (double*) malloc(sizeof(double));
                                     *newoffs = (double) *((float*) ddim->offs);
                                     *newints = (double) *((float*) ddim->ints);
-                                    IDAM_LOGF(LOG_DEBUG, "%i  %f  %f\n", i, *((double*) ddim->offs),
+                                    IDAM_LOGF(UDA_LOG_DEBUG, "%i  %f  %f\n", i, *((double*) ddim->offs),
                                             *((double*) ddim->ints));
                                     if (ddim->offs != NULL) free((void*) ddim->offs);
                                     if (ddim->ints != NULL) free((void*) ddim->ints);
                                     ddim->offs = (char*) newoffs;
                                     ddim->ints = (char*) newints;
-                                    IDAM_LOGF(LOG_DEBUG, "%i  %f  %f\n", i, *((double*) ddim->offs),
+                                    IDAM_LOGF(UDA_LOG_DEBUG, "%i  %f  %f\n", i, *((double*) ddim->offs),
                                             *((double*) ddim->ints));
                                     ddim->data_type = TYPE_DOUBLE;
                                     break;

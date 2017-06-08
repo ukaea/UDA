@@ -812,7 +812,7 @@ void printImage(char* image, int imagecount)
         return;
     }
     while (next < imagecount) {
-        IDAM_LOGF(LOG_DEBUG, "%s", &image[next]);
+        IDAM_LOGF(UDA_LOG_DEBUG, "%s", &image[next]);
         next = next + (int)strlen(&image[next]) + 1;
     }
 }

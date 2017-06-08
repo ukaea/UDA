@@ -316,7 +316,7 @@ static int decryptServerToken(SERVER_BLOCK* server_block, CLIENT_BLOCK* client_b
     xdrrec_eof(clientInput);
 #endif
 
-    IDAM_LOG(LOG_DEBUG, "Server Block Received\n");
+    IDAM_LOG(UDA_LOG_DEBUG, "Server Block Received\n");
     printServerBlock(*server_block);
 
     // Protocol Version: Lower of the client and server version numbers

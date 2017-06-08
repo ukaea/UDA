@@ -169,7 +169,7 @@ extern int imas_mds(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     if (idam_plugin_interface->interfaceVersion > THISPLUGIN_MAX_INTERFACE_VERSION) {
         err = 999;
-        IDAM_LOG(LOG_ERROR, "Plugin Interface Version Unknown to this plugin: Unable to execute the request!\n");
+        IDAM_LOG(UDA_LOG_ERROR, "Plugin Interface Version Unknown to this plugin: Unable to execute the request!\n");
         addIdamError(&idamerrorstack, CODEERRORTYPE, "imas", err,
                      "Plugin Interface Version Unknown to this plugin: Unable to execute the request!");
         return err;
@@ -1263,7 +1263,7 @@ static int do_source(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARGS p
 
     if (!plugin_args.isSignal) {
         err = 999;
-        IDAM_LOG(LOG_ERROR, "imas source: No data object name (signal) has been specified!\n");
+        IDAM_LOG(UDA_LOG_ERROR, "imas source: No data object name (signal) has been specified!\n");
         addIdamError(&idamerrorstack, CODEERRORTYPE,
                      "imas source: No data object name (signal) has been specified!", err, "");
         return err;
@@ -1278,7 +1278,7 @@ static int do_source(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARGS p
 
     if (plugin_list == NULL) {
         err = 999;
-        IDAM_LOG(LOG_ERROR, "imas source: the specified format is not recognised!\n");
+        IDAM_LOG(UDA_LOG_ERROR, "imas source: the specified format is not recognised!\n");
         addIdamError(&idamerrorstack, CODEERRORTYPE,
                      "imas source: No plugins are available for this data request", err, "");
         return err;
@@ -1303,7 +1303,7 @@ static int do_source(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARGS p
 
         if (!plugin_args.isSource) {
             err = 999;
-            IDAM_LOG(LOG_ERROR, "imas source: No data source has been specified!\n");
+            IDAM_LOG(UDA_LOG_ERROR, "imas source: No data source has been specified!\n");
             addIdamError(&idamerrorstack, CODEERRORTYPE, "imas source: No data source has been specified!", err,
                          "");
             return err;
@@ -1370,7 +1370,7 @@ static int do_source(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARGS p
 
         if (!plugin_args.isServer) {
             err = 999;
-            IDAM_LOG(LOG_ERROR, "imas source: No data server has been specified!\n");
+            IDAM_LOG(UDA_LOG_ERROR, "imas source: No data server has been specified!\n");
             addIdamError(&idamerrorstack, CODEERRORTYPE, "imas source: No data server has been specified!", err,
                          "");
             return err;
@@ -1400,7 +1400,7 @@ static int do_source(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARGS p
         }
     } else {
         err = 999;
-        IDAM_LOG(LOG_ERROR, "imas source: the specified format is not recognised!\n");
+        IDAM_LOG(UDA_LOG_ERROR, "imas source: the specified format is not recognised!\n");
         addIdamError(&idamerrorstack, CODEERRORTYPE, "imas delete", err,
                      "the specified format is not recognised!");
         return err;
@@ -1433,7 +1433,7 @@ static int do_source(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARGS p
 
     if (next_request_block.request < 0) {
         err = 999;
-        IDAM_LOG(LOG_ERROR, "imas source: No IDAM server plugin found!\n");
+        IDAM_LOG(UDA_LOG_ERROR, "imas source: No IDAM server plugin found!\n");
         addIdamError(&idamerrorstack, CODEERRORTYPE, "imas delete", err, "No IDAM server plugin found!");
         return err;
     }
@@ -1445,7 +1445,7 @@ static int do_source(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARGS p
         err = plugin_list->plugin[id].idamPlugin(&next_plugin_interface);        // Call the data reader
     } else {
         err = 999;
-        IDAM_LOG(LOG_ERROR, "imas source: Data Access is not available for this data request!\n");
+        IDAM_LOG(UDA_LOG_ERROR, "imas source: Data Access is not available for this data request!\n");
         addIdamError(&idamerrorstack, CODEERRORTYPE, "Data Access is not available for this data request!", err,
                      "");
         return err;
@@ -1463,7 +1463,7 @@ static int do_source(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARGS p
 static int do_putIdsVersion(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARGS plugin_args)
 {
     if (!plugin_args.isImasIdsVersion && !plugin_args.isImasIdsDevice) {
-        IDAM_LOG(LOG_ERROR, "imas version: An IDS Version number or a Device name is required!\n");
+        IDAM_LOG(UDA_LOG_ERROR, "imas version: An IDS Version number or a Device name is required!\n");
         THROW_ERROR(999, "An IDS Version number or a Device name is required!");
     }
 
@@ -1521,18 +1521,18 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
 
     if (!plugin_args.isGetDimension) {
         if (!plugin_args.isTypeName && !plugin_args.isPutData) {
-            IDAM_LOG(LOG_ERROR, "imas get: The data's Type has not been specified!\n");
+            IDAM_LOG(UDA_LOG_ERROR, "imas get: The data's Type has not been specified!\n");
             THROW_ERROR(999, "The data's Type has not been specified!");
         }
 
         if ((type = findIMASType(plugin_args.typeName)) == 0) {
-            IDAM_LOG(LOG_ERROR, "imas get: The data's Type name cannot be converted!\n");
+            IDAM_LOG(UDA_LOG_ERROR, "imas get: The data's Type name cannot be converted!\n");
             THROW_ERROR(999, "The data's Type name cannot be converted!");
         }
     }
 
     if (!plugin_args.isPutData && !plugin_args.isRank && !plugin_args.isGetDimension) {
-        IDAM_LOG(LOG_ERROR, "imas get: The data's Rank has not been specified!\n");
+        IDAM_LOG(UDA_LOG_ERROR, "imas get: The data's Rank has not been specified!\n");
         THROW_ERROR(999, "The data's Rank has not been specified!");
     }
 
@@ -1587,7 +1587,7 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
         strcpy((char*)plugin_args.path, tmp_path);
         free(tmp_path);
 
-        IDAM_LOGF(LOG_ERROR, "CPOPath: %s, path: %s, type: %d, rank: %d, shape[0]: %d\n", (char*)plugin_args.CPOPath,
+        IDAM_LOGF(UDA_LOG_ERROR, "CPOPath: %s, path: %s, type: %d, rank: %d, shape[0]: %d\n", (char*)plugin_args.CPOPath,
                 (char*)plugin_args.path, type,
                 plugin_args.rank,
                 plugin_args.rank > 0 ? shape[0] : 0);
@@ -1602,7 +1602,7 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
 
             int id = findPluginIdByFormat(expName, idam_plugin_interface->pluginList);
             if (id < 0) {
-                IDAM_LOG(LOG_ERROR, "Specified IDAM data plugin not found\n");
+                IDAM_LOG(UDA_LOG_ERROR, "Specified IDAM data plugin not found\n");
             } else {
                 PLUGIN_DATA* plugin = &idam_plugin_interface->pluginList->plugin[id];
 
@@ -1632,7 +1632,7 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
                 sprintf(new_request.signal, fmt, expName, new_request.api_delim, (char*)plugin_args.CPOPath, path,
                         indices_string, shot, get_shape ? ", get_shape" : "");
 
-                IDAM_LOGF(LOG_DEBUG, "imas: %s", new_request.signal);
+                IDAM_LOGF(UDA_LOG_DEBUG, "imas: %s", new_request.signal);
 
                 makeServerRequestBlock(&new_request, *idam_plugin_interface->pluginList);
                 printRequestBlock(new_request);
@@ -1655,7 +1655,7 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
                             free(data_block->data);
                             data_block->data = imasData;
                         } else {
-                            IDAM_LOG(LOG_ERROR, "imas get: wrong data type returned\n");
+                            IDAM_LOG(UDA_LOG_ERROR, "imas get: wrong data type returned\n");
                             THROW_ERROR(999, "wrong data type returned");
                         }
                     } else {
@@ -1668,12 +1668,12 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
         }
     } else if (dataOperation == GETSLICE_OPERATION) {
         if (!plugin_args.isInterpolMode) {
-            IDAM_LOG(LOG_ERROR, "imas get: No Interpolation Mode has been specified!\n");
+            IDAM_LOG(UDA_LOG_ERROR, "imas get: No Interpolation Mode has been specified!\n");
             THROW_ERROR(999, "No Interpolation Mode has been specified!");
         }
 
         if (!plugin_args.isPutData || putDataBlock->data_type != TYPE_DOUBLE || putDataBlock->count != 3) {
-            IDAM_LOG(LOG_ERROR, "imas get: No Time Values have been specified!\n");
+            IDAM_LOG(UDA_LOG_ERROR, "imas get: No Time Values have been specified!\n");
             THROW_ERROR(999, "No Time Values have been specified!");
         }
 
@@ -1812,7 +1812,7 @@ time	- the time slice to be written - from a PUTDATA block (putSlice keyword)
 
             if (putDataBlockList->putDataBlock[i].blockName == NULL) {
                 if (putDataBlockList->blockCount > 1) {
-                    IDAM_LOG(LOG_ERROR, "imas: Multiple un-named data items - ambiguous!\n");
+                    IDAM_LOG(UDA_LOG_ERROR, "imas: Multiple un-named data items - ambiguous!\n");
                     THROW_ERROR(999, "Multiple un-named data items - ambiguous!");
                 }
                 varDataIndex = i;
@@ -1844,11 +1844,11 @@ time	- the time slice to be written - from a PUTDATA block (putSlice keyword)
             if ((dataRank = getIdamNameValuePairVarArray(plugin_args.shapeString, plugin_args.quote,
                                                          plugin_args.delimiter, (unsigned short)plugin_args.rank,
                                                          TYPE_INT, (void**)&shape)) < 0) {
-                IDAM_LOG(LOG_ERROR, "imas put: Unable to convert the passed shape values!\n");
+                IDAM_LOG(UDA_LOG_ERROR, "imas put: Unable to convert the passed shape values!\n");
                 THROW_ERROR(-dataRank, "Unable to convert the passed shape value!");
             }
             if (plugin_args.isRank && plugin_args.rank != dataRank) {
-                IDAM_LOG(LOG_ERROR, "imas put: The passed rank is inconsistent with the passed shape data!\n");
+                IDAM_LOG(UDA_LOG_ERROR, "imas put: The passed rank is inconsistent with the passed shape data!\n");
                 THROW_ERROR(999, "The passed rank is inconsistent with the passed shape data!");
             }
             isShape = 1;
@@ -1864,7 +1864,7 @@ time	- the time slice to be written - from a PUTDATA block (putSlice keyword)
         if (varDataIndex < 0 && plugin_args.isDataString) {
 
             if ((idamType = findIdamType(plugin_args.typeName)) == TYPE_UNDEFINED) {
-                IDAM_LOG(LOG_ERROR, "imas put: The data's Type name cannot be converted!\n");
+                IDAM_LOG(UDA_LOG_ERROR, "imas put: The data's Type name cannot be converted!\n");
                 THROW_ERROR(999, "The data's Type name cannot be converted!");
             }
 
@@ -1872,11 +1872,11 @@ time	- the time slice to be written - from a PUTDATA block (putSlice keyword)
                                                           plugin_args.delimiter,
                                                           (unsigned short)shapeCount, idamType,
                                                           &data)) < 0) {
-                IDAM_LOG(LOG_ERROR, "imas put: Unable to convert the passed data values!\n");
+                IDAM_LOG(UDA_LOG_ERROR, "imas put: Unable to convert the passed data values!\n");
                 THROW_ERROR(-dataCount, "Unable to convert the passed data value!");
             }
             if (plugin_args.isShapeString && shapeCount != dataCount) {
-                IDAM_LOG(LOG_ERROR, "imas put: Inconsistent count of Data items!\n");
+                IDAM_LOG(UDA_LOG_ERROR, "imas put: Inconsistent count of Data items!\n");
                 THROW_ERROR(999, "Inconsistent count of Data items!");
             }
             isData = 1;
@@ -1900,7 +1900,7 @@ time	- the time slice to be written - from a PUTDATA block (putSlice keyword)
         }
 
         if (varDataIndex < 0 && !plugin_args.isDataString) {
-            IDAM_LOG(LOG_ERROR, "imas put: Unable to Identify the data to PUT!\n");
+            IDAM_LOG(UDA_LOG_ERROR, "imas put: Unable to Identify the data to PUT!\n");
             THROW_ERROR(999, "Unable to Identify the data to PUT!");
         }
 
@@ -1909,7 +1909,7 @@ time	- the time slice to be written - from a PUTDATA block (putSlice keyword)
             putDataBlock = &putDataBlockList->putDataBlock[varDataIndex];
             if ((type = findIMASType(convertIdam2StringType(putDataBlock->data_type))) == 0) {
                 // Convert an IDAM type to an IMAS type
-                IDAM_LOG(LOG_ERROR, "imas put: The data's Type cannot be converted!\n");
+                IDAM_LOG(UDA_LOG_ERROR, "imas put: The data's Type cannot be converted!\n");
                 THROW_ERROR(999, "The data's Type cannot be converted!");
             }
         }
@@ -1919,12 +1919,12 @@ time	- the time slice to be written - from a PUTDATA block (putSlice keyword)
 // Convert type string into IMAS type identifiers
 
         if (!plugin_args.isTypeName) {
-            IDAM_LOG(LOG_ERROR, "imas put: The data's Type has not been specified!\n");
+            IDAM_LOG(UDA_LOG_ERROR, "imas put: The data's Type has not been specified!\n");
             THROW_ERROR(999, "The data's Type has not been specified!");
         }
 
         if ((type = findIMASType(plugin_args.typeName)) == 0) {
-            IDAM_LOG(LOG_ERROR, "imas put: The data's Type name cannot be converted!\n");
+            IDAM_LOG(UDA_LOG_ERROR, "imas put: The data's Type name cannot be converted!\n");
             THROW_ERROR(999, "The data's Type name cannot be converted!");
         }
     }
@@ -1934,12 +1934,12 @@ time	- the time slice to be written - from a PUTDATA block (putSlice keyword)
 // Any Data?
 
     if (!plugin_args.isDataString && !isVarData) {
-        IDAM_LOG(LOG_ERROR, "imas put: No data has been specified!\n");
+        IDAM_LOG(UDA_LOG_ERROR, "imas put: No data has been specified!\n");
         THROW_ERROR(999, "No data has been specified!");
     }
 
     if (plugin_args.isPutDataSlice && !isTime) {
-        IDAM_LOG(LOG_ERROR, "imas put: No specific time has been specified!\n");
+        IDAM_LOG(UDA_LOG_ERROR, "imas put: No specific time has been specified!\n");
         THROW_ERROR(999, "No specific time has been specified!");
     }
 
@@ -1968,11 +1968,11 @@ time	- the time slice to be written - from a PUTDATA block (putSlice keyword)
             if ((dataRank = getIdamNameValuePairVarArray(plugin_args.shapeString, plugin_args.quote,
                                                          plugin_args.delimiter, (unsigned short)plugin_args.rank,
                                                          TYPE_INT, (void**)&shape)) < 0) {
-                IDAM_LOG(LOG_ERROR, "Unable to convert the passed shape values!\n");
+                IDAM_LOG(UDA_LOG_ERROR, "Unable to convert the passed shape values!\n");
                 THROW_ERROR(-dataRank, "Unable to convert the passed shape value!");
             }
             if (plugin_args.isRank && plugin_args.rank != dataRank) {
-                IDAM_LOG(LOG_ERROR, "The passed rank is inconsistent with the passed shape data!\n");
+                IDAM_LOG(UDA_LOG_ERROR, "The passed rank is inconsistent with the passed shape data!\n");
                 THROW_ERROR(999, "The passed rank is inconsistent with the passed shape data!");
             }
             isShape = 1;
@@ -1989,7 +1989,7 @@ time	- the time slice to be written - from a PUTDATA block (putSlice keyword)
         if (plugin_args.isDataString) {
 
             if ((idamType = findIdamType(plugin_args.typeName)) == TYPE_UNDEFINED) {
-                IDAM_LOG(LOG_ERROR, "The data's Type name cannot be converted!\n");
+                IDAM_LOG(UDA_LOG_ERROR, "The data's Type name cannot be converted!\n");
                 THROW_ERROR(999, "The data's Type name cannot be converted!");
             }
 
@@ -1997,11 +1997,11 @@ time	- the time slice to be written - from a PUTDATA block (putSlice keyword)
                                                           plugin_args.delimiter,
                                                           (unsigned short)shapeCount, idamType,
                                                           &data)) < 0) {
-                IDAM_LOG(LOG_ERROR, "Unable to convert the passed data values!\n");
+                IDAM_LOG(UDA_LOG_ERROR, "Unable to convert the passed data values!\n");
                 THROW_ERROR(-dataCount, "Unable to convert the passed data value!");
             }
             if (shapeCount != dataCount) {
-                IDAM_LOG(LOG_ERROR, "Inconsistent count of Data items!\n");
+                IDAM_LOG(UDA_LOG_ERROR, "Inconsistent count of Data items!\n");
                 THROW_ERROR(999, "Inconsistent count of Data items!");
             }
             isData = 1;
@@ -2010,7 +2010,7 @@ time	- the time slice to be written - from a PUTDATA block (putSlice keyword)
 // Test all required data is available
 
         if (!plugin_args.isCPOPath || !plugin_args.isPath || !isType || !plugin_args.isRank || !isShape || !isData) {
-            IDAM_LOG(LOG_ERROR, "Insufficient data parameters passed - put not possible!\n");
+            IDAM_LOG(UDA_LOG_ERROR, "Insufficient data parameters passed - put not possible!\n");
             THROW_ERROR(999, "Insufficient data parameters passed - put not possible!");
         }
 
@@ -2022,7 +2022,7 @@ time	- the time slice to be written - from a PUTDATA block (putSlice keyword)
                                   putDataSliceTime);
         } else {
             if (dataOperation == PUTSLICE_OPERATION) {
-                IDAM_LOG(LOG_ERROR, "Slice Time not passed!\n");
+                IDAM_LOG(UDA_LOG_ERROR, "Slice Time not passed!\n");
                 THROW_ERROR(999, "Slice Time not passed!");
             } else {
                 rc = imas_mds_putDataX(idx, (char*)plugin_args.CPOPath, (char*)plugin_args.path, type, plugin_args.rank, shape,
@@ -2040,14 +2040,14 @@ time	- the time slice to be written - from a PUTDATA block (putSlice keyword)
     } else {        // !isPutData
 
         if (!plugin_args.isCPOPath || !plugin_args.isPath) {
-            IDAM_LOG(LOG_ERROR, "imas put: Insufficient data parameters passed - put not possible!\n");
+            IDAM_LOG(UDA_LOG_ERROR, "imas put: Insufficient data parameters passed - put not possible!\n");
             THROW_ERROR(999, "Insufficient data parameters passed - put not possible!");
         }
 
         int freeShape = 0;
         if (putDataBlock->shape == NULL) {
             if (putDataBlock->rank > 1) {
-                IDAM_LOG(LOG_ERROR, "imas put: No shape information passed!\n");
+                IDAM_LOG(UDA_LOG_ERROR, "imas put: No shape information passed!\n");
                 THROW_ERROR(999, "No shape information passed!");
             }
 
@@ -2073,11 +2073,11 @@ time	- the time slice to be written - from a PUTDATA block (putSlice keyword)
                     }
                 }
                 if (putTimeBlock == NULL) {
-                    IDAM_LOG(LOG_ERROR, "imas put: No Slice Time!\n");
+                    IDAM_LOG(UDA_LOG_ERROR, "imas put: No Slice Time!\n");
                     THROW_ERROR(999, "No Slice Time!");
                 }
                 if (putTimeBlock->data_type != TYPE_DOUBLE || putTimeBlock->count != 1) {
-                    IDAM_LOG(LOG_ERROR, "imas put: Slice Time type and count are incorrect!\n");
+                    IDAM_LOG(UDA_LOG_ERROR, "imas put: Slice Time type and count are incorrect!\n");
                     THROW_ERROR(999, "Slice Time type and count are incorrect!");
                 }
                 rc = imas_mds_putDataX(idx, (char*)plugin_args.CPOPath, (char*)plugin_args.path, type, putDataBlock->rank,
@@ -2122,7 +2122,7 @@ retIdx	- returned data file index number
 */
 
     if (!plugin_args.isFileName || !plugin_args.isShotNumber || !plugin_args.isRunNumber) {
-        IDAM_LOG(LOG_ERROR, "A Filename, Shot number and Run number are required!\n");
+        IDAM_LOG(UDA_LOG_ERROR, "A Filename, Shot number and Run number are required!\n");
         THROW_ERROR(999, "A Filename, Shot number and Run number are required!");
     }
 
@@ -2163,7 +2163,7 @@ retIdx	- returned data file index number
 */
 
     if (!plugin_args.isFileName || !plugin_args.isShotNumber || !plugin_args.isRunNumber) {
-        IDAM_LOG(LOG_ERROR, "imas: A Filename, Shot number and Run number are required!\n");
+        IDAM_LOG(UDA_LOG_ERROR, "imas: A Filename, Shot number and Run number are required!\n");
         THROW_ERROR(999, "A Filename, Shot number and Run number are required!");
     }
 
@@ -2199,7 +2199,7 @@ retIdx	- returned data file index number
 static int do_close(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARGS plugin_args)
 {
     if (!plugin_args.isClientIdx && !(plugin_args.isFileName && plugin_args.isShotNumber && plugin_args.isRunNumber)) {
-        IDAM_LOG(LOG_ERROR, "The file IDX or the Filename with Shot number and Run number are required!\n");
+        IDAM_LOG(UDA_LOG_ERROR, "The file IDX or the Filename with Shot number and Run number are required!\n");
         THROW_ERROR(999, "The file IDX or the Filename with Shot number and Run number are required!");
     }
 
@@ -2247,13 +2247,13 @@ static int do_close(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARGS pl
 
 static int do_createModel(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARGS plugin_args)
 {
-    IDAM_LOG(LOG_ERROR, "Not Implemented for mdsplus!\n");
+    IDAM_LOG(UDA_LOG_ERROR, "Not Implemented for mdsplus!\n");
     THROW_ERROR(999, "Not Implemented for mdsplus!");
 
 /*
          if(!isFileName){
             err = 999;
-            IDAM_LOG(LOG_ERROR, "imas createModel: A Filename is required!\n");
+            IDAM_LOG(UDA_LOG_ERROR, "imas createModel: A Filename is required!\n");
             addIdamError(&idamerrorstack, CODEERRORTYPE, "imas", err, "A Filename is required!");
 	    break;
 	 }
@@ -2288,7 +2288,7 @@ static int do_createModel(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_A
 static int do_setTimeBasePath(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARGS plugin_args)
 {
     if (!plugin_args.isPath) {
-        IDAM_LOG(LOG_ERROR, "imas putTimeBasePath: No path has been specified!\n");
+        IDAM_LOG(UDA_LOG_ERROR, "imas putTimeBasePath: No path has been specified!\n");
         THROW_ERROR(999, "No path has been specified!");
     }
 
@@ -2309,7 +2309,7 @@ static int do_releaseObject(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN
 // Test all required data is available
 
     if (!plugin_args.isPutData) {
-        IDAM_LOG(LOG_ERROR, "imas releaseObject: Insufficient data parameters passed - begin not possible!\n");
+        IDAM_LOG(UDA_LOG_ERROR, "imas releaseObject: Insufficient data parameters passed - begin not possible!\n");
         THROW_ERROR(999, "Insufficient data parameters passed - begin not possible!");
     }
 
@@ -2342,7 +2342,7 @@ static int do_getObjectObject(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUG
 // Test all required data is available
 
     if (!plugin_args.isPutData || !plugin_args.isIndex || !plugin_args.isPath) {
-        IDAM_LOG(LOG_ERROR, "Insufficient data parameters passed - begin not possible!\n");
+        IDAM_LOG(UDA_LOG_ERROR, "Insufficient data parameters passed - begin not possible!\n");
         THROW_ERROR(999, "Insufficient data parameters passed - begin not possible!");
     }
 
@@ -2392,7 +2392,7 @@ static int do_getObjectSlice(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGI
 
     if (!plugin_args.isPutData || !plugin_args.isClientIdx || !plugin_args.isPath || !plugin_args.isCPOPath ||
         putDataBlockList->blockCount != 3) {
-        IDAM_LOG(LOG_ERROR, "imas getObjectSlice: Insufficient data parameters passed - begin not possible!\n");
+        IDAM_LOG(UDA_LOG_ERROR, "imas getObjectSlice: Insufficient data parameters passed - begin not possible!\n");
         THROW_ERROR(999, "Insufficient data parameters passed - begin not possible!");
     }
 
@@ -2437,7 +2437,7 @@ static int do_getObjectGroup(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGI
 // Test all required data is available
 
     if (!plugin_args.isClientIdx || !plugin_args.isCPOPath || !plugin_args.isPath || !plugin_args.isTimedArg) {
-        IDAM_LOG(LOG_ERROR, "Insufficient data parameters passed - begin not possible!\n");
+        IDAM_LOG(UDA_LOG_ERROR, "Insufficient data parameters passed - begin not possible!\n");
         THROW_ERROR(999, "Insufficient data parameters passed - begin not possible!");
     }
 
@@ -2473,7 +2473,7 @@ static int do_getObjectDim(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_
 // Object? The data is the local object reference
 
     if (!plugin_args.isPutData || putDataBlockList->putDataBlock[0].data == NULL) {
-        IDAM_LOG(LOG_ERROR, "imas getObjectDim: No data object has been specified!\n");
+        IDAM_LOG(UDA_LOG_ERROR, "imas getObjectDim: No data object has been specified!\n");
         THROW_ERROR(999, "No data object has been specified!");
     }
 
@@ -2484,7 +2484,7 @@ static int do_getObjectDim(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_
     if (obj == NULL) obj = mdsBeginObject();
 
     if (obj == NULL) {
-        IDAM_LOG(LOG_ERROR, "imas getObjectDim: No data object has been found!\n");
+        IDAM_LOG(UDA_LOG_ERROR, "imas getObjectDim: No data object has been found!\n");
         THROW_ERROR(999, "No data object has been found!");
     }
 
@@ -2530,7 +2530,7 @@ static int do_getObject(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARG
     if (!plugin_args.isGetDimension) {
         if (!plugin_args.isPath || !plugin_args.isIndex || !plugin_args.isTypeName || !plugin_args.isClientObjectId ||
             !plugin_args.isRank) {
-            IDAM_LOG(LOG_ERROR, "Insufficient data parameters passed - put not possible!\n");
+            IDAM_LOG(UDA_LOG_ERROR, "Insufficient data parameters passed - put not possible!\n");
             THROW_ERROR(999, "Insufficient data parameters passed - put not possible!");
         }
 
@@ -2585,7 +2585,7 @@ static int do_getObject(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARG
 // Dimensional Data Only
 
     if (!plugin_args.isPath || !plugin_args.isIndex || !plugin_args.isClientObjectId) {
-        IDAM_LOG(LOG_ERROR, "Insufficient data parameters passed - put not possible!\n");
+        IDAM_LOG(UDA_LOG_ERROR, "Insufficient data parameters passed - put not possible!\n");
         THROW_ERROR(999, "Insufficient data parameters passed - put not possible!");
     }
 
@@ -2643,27 +2643,27 @@ static int do_putObject(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARG
 // Test all required data is available
 
     if (!plugin_args.isPath || !plugin_args.isIndex || !plugin_args.isPutData || putDataBlockList->blockCount != 2) {
-        IDAM_LOG(LOG_ERROR, "Insufficient data parameters passed - put not possible!\n");
+        IDAM_LOG(UDA_LOG_ERROR, "Insufficient data parameters passed - put not possible!\n");
         THROW_ERROR(999, "Insufficient data parameters passed - put not possible!");
     }
 
     // Convert an IDAM type to an IMAS type
     if ((type = findIMASType(convertIdam2StringType(putDataBlockList->putDataBlock[1].data_type))) == 0) {
-        IDAM_LOG(LOG_ERROR, "The data's Type cannot be converted!\n");
+        IDAM_LOG(UDA_LOG_ERROR, "The data's Type cannot be converted!\n");
         THROW_ERROR(999, "The data's Type cannot be converted!");
     }
 
 // Any Data?
 
     if (putDataBlockList->putDataBlock[1].data == NULL) {
-        IDAM_LOG(LOG_ERROR, "No data has been specified!\n");
+        IDAM_LOG(UDA_LOG_ERROR, "No data has been specified!\n");
         THROW_ERROR(999, "No data has been specified!");
     }
 
 // Object?
 
     if (putDataBlockList->putDataBlock[0].data == NULL) {
-        IDAM_LOG(LOG_ERROR, "No data object has been specified!\n");
+        IDAM_LOG(UDA_LOG_ERROR, "No data object has been specified!\n");
         THROW_ERROR(999, "No data object has been specified!");
     }
 
@@ -2717,14 +2717,14 @@ static int do_putObjectInObject(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PL
 // Test all required data is available
 
     if (!plugin_args.isPath || !plugin_args.isIndex || !plugin_args.isPutData || putDataBlock->count != 2) {
-        IDAM_LOG(LOG_ERROR, "Insufficient data parameters passed - put not possible!\n");
+        IDAM_LOG(UDA_LOG_ERROR, "Insufficient data parameters passed - put not possible!\n");
         THROW_ERROR(999, "Insufficient data parameters passed - put not possible!");
     }
 
 // Any Data?
 
     if (putDataBlock->data == NULL || putDataBlock->data_type != TYPE_INT) {
-        IDAM_LOG(LOG_ERROR, "No data has been specified!\n");
+        IDAM_LOG(UDA_LOG_ERROR, "No data has been specified!\n");
         THROW_ERROR(999, "No data has been specified!");
     }
 
@@ -2764,7 +2764,7 @@ static int do_putObjectGroup(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGI
 
     if (!plugin_args.isClientIdx || !plugin_args.isCPOPath || !plugin_args.isPath || !plugin_args.isClientObjectId ||
         !plugin_args.isTimedArg) {
-        IDAM_LOG(LOG_ERROR, "Insufficient data parameters passed - putObject not possible!\n");
+        IDAM_LOG(UDA_LOG_ERROR, "Insufficient data parameters passed - putObject not possible!\n");
         THROW_ERROR(999, "Insufficient data parameters passed - putObject not possible!");
     }
 
@@ -2816,7 +2816,7 @@ static int do_putObjectSlice(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGI
 
     if (!plugin_args.isClientIdx || !plugin_args.isCPOPath || !plugin_args.isPath || !plugin_args.isPutData ||
         !plugin_args.isClientObjectId) {
-        IDAM_LOG(LOG_ERROR, "Insufficient data parameters passed - putObjectSlice not possible!\n");
+        IDAM_LOG(UDA_LOG_ERROR, "Insufficient data parameters passed - putObjectSlice not possible!\n");
         THROW_ERROR(999, "Insufficient data parameters passed - putObjectSlice not possible!");
     }
 
@@ -2852,7 +2852,7 @@ static int do_replaceLastObjectSlice(IDAM_PLUGIN_INTERFACE* idam_plugin_interfac
 
     if (!plugin_args.isClientIdx || !plugin_args.isCPOPath || !plugin_args.isPath ||
         !plugin_args.isClientObjectId) {
-        IDAM_LOG(LOG_ERROR, "Insufficient data parameters passed - replaceLastObjectSlice not possible!\n");
+        IDAM_LOG(UDA_LOG_ERROR, "Insufficient data parameters passed - replaceLastObjectSlice not possible!\n");
         THROW_ERROR(999, "Insufficient data parameters passed - replaceLastObjectSlice not possible!");
     }
 
@@ -2910,7 +2910,7 @@ static int do_cache(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARGS pl
         imas_enable_mem_cache(plugin_args.clientIdx);
         rc = OK_RETURN_VALUE;
     } else {
-        IDAM_LOG(LOG_ERROR, "Insufficient parameters passed!\n");
+        IDAM_LOG(UDA_LOG_ERROR, "Insufficient parameters passed!\n");
         THROW_ERROR(999, "Insufficient parameters passed!");
     }
 
@@ -2929,7 +2929,7 @@ static int do_getUniqueRun(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_
     if (plugin_args.isShotNumber) {
         rc = getUniqueRun(plugin_args.shotNumber);
     } else {
-        IDAM_LOG(LOG_ERROR, "Insufficient parameters passed!\n");
+        IDAM_LOG(UDA_LOG_ERROR, "Insufficient parameters passed!\n");
         THROW_ERROR(999, "Insufficient parameters passed!");
     }
 
@@ -2947,7 +2947,7 @@ static int do_spawnCommand(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_
     if (plugin_args.isCommand && plugin_args.isIPAddress) {
         result = spawnCommand((char*)plugin_args.command, (char*)plugin_args.IPAddress);        // from mdsObject library
     } else {
-        IDAM_LOG(LOG_ERROR, "Insufficient parameters passed!\n");
+        IDAM_LOG(UDA_LOG_ERROR, "Insufficient parameters passed!\n");
         THROW_ERROR(999, "Insufficient parameters passed!");
     }
 
@@ -2985,11 +2985,11 @@ static int do_putIDS(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARGS p
         } else if (plugin_args.isEndIDSNonTimed) {
             rc = mdsendIdsPutNonTimed(plugin_args.clientIdx, (char*)plugin_args.path);
         } else {
-            IDAM_LOG(LOG_ERROR, "Insufficient parameters passed!\n");
+            IDAM_LOG(UDA_LOG_ERROR, "Insufficient parameters passed!\n");
             THROW_ERROR(999, "Insufficient parameters passed!");
         }
     } else {
-        IDAM_LOG(LOG_ERROR, "Insufficient parameters passed!\n");
+        IDAM_LOG(UDA_LOG_ERROR, "Insufficient parameters passed!\n");
         THROW_ERROR(999, "Insufficient parameters passed!");
     }
 
@@ -3004,12 +3004,12 @@ static int do_putIDS(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARGS p
 static int do_beginIdsPut(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARGS plugin_args)
 {
     if (!plugin_args.isClientIdx || !plugin_args.isPath) {
-        IDAM_LOG(LOG_ERROR, "The function parameters have not been specified!\n");
+        IDAM_LOG(UDA_LOG_ERROR, "The function parameters have not been specified!\n");
         THROW_ERROR(999, "The function parameters have not been specified!");
     }
 
     if (mdsbeginIdsPut(plugin_args.clientIdx, (char*)plugin_args.path) < 0) {
-        IDAM_LOGF(LOG_ERROR, "%s\n", errmsg);
+        IDAM_LOGF(UDA_LOG_ERROR, "%s\n", errmsg);
         THROW_ERROR(999, errmsg);
     }
 
@@ -3020,12 +3020,12 @@ static int do_beginIdsPut(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_A
 static int do_endIdsPut(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARGS plugin_args)
 {
     if (!plugin_args.isClientIdx || !plugin_args.isPath) {
-        IDAM_LOG(LOG_ERROR, "The function parameters have not been specified!\n");
+        IDAM_LOG(UDA_LOG_ERROR, "The function parameters have not been specified!\n");
         THROW_ERROR(999, "The function parameters have not been specified!");
     }
 
     if (mdsendIdsPut(plugin_args.clientIdx, (char*)plugin_args.path) < 0) {
-        IDAM_LOGF(LOG_ERROR, "%s\n", errmsg);
+        IDAM_LOGF(UDA_LOG_ERROR, "%s\n", errmsg);
         THROW_ERROR(999, errmsg);
     }
 
@@ -3038,12 +3038,12 @@ static int do_beginIdsGet(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_A
     int retSamples = 0;
 
     if (!plugin_args.isClientIdx || !plugin_args.isPath || !plugin_args.isTimedArg) {
-        IDAM_LOG(LOG_ERROR, "The function parameters have not been specified!\n");
+        IDAM_LOG(UDA_LOG_ERROR, "The function parameters have not been specified!\n");
         THROW_ERROR(999, "The function parameters have not been specified!");
     }
 
     if (mdsbeginIdsGet(plugin_args.clientIdx, (char*)plugin_args.path, plugin_args.isTimed, &retSamples) < 0) {
-        IDAM_LOGF(LOG_ERROR, "%s\n", errmsg);
+        IDAM_LOGF(UDA_LOG_ERROR, "%s\n", errmsg);
         THROW_ERROR(999, errmsg);
     }
 
@@ -3054,12 +3054,12 @@ static int do_beginIdsGet(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_A
 static int do_endIdsGet(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARGS plugin_args)
 {
     if (!plugin_args.isClientIdx || !plugin_args.isPath) {
-        IDAM_LOG(LOG_ERROR, "The function parameters have not been specified!\n");
+        IDAM_LOG(UDA_LOG_ERROR, "The function parameters have not been specified!\n");
         THROW_ERROR(999, "The function parameters have not been specified!");
     }
 
     if (mdsendIdsGet(plugin_args.clientIdx, (char*)plugin_args.path) < 0) {
-        IDAM_LOGF(LOG_ERROR, "%s\n", errmsg);
+        IDAM_LOGF(UDA_LOG_ERROR, "%s\n", errmsg);
         THROW_ERROR(999, errmsg);
     }
 
@@ -3072,7 +3072,7 @@ static int do_beginIdsGetSlice(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLU
     int err = 0;
 
     if (!plugin_args.isClientIdx || !plugin_args.isPath || !plugin_args.isPutData) {
-        IDAM_LOG(LOG_ERROR, "The function parameters have not been specified!\n");
+        IDAM_LOG(UDA_LOG_ERROR, "The function parameters have not been specified!\n");
         THROW_ERROR(999, "The function parameters have not been specified!");
     }
 
@@ -3086,14 +3086,14 @@ static int do_beginIdsGetSlice(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLU
 // Time is passed in a single PUTDATA structure
 
     if (putDataBlock->data_type != TYPE_DOUBLE || putDataBlock->count != 1) {
-        IDAM_LOG(LOG_ERROR, "imas beginIdsGetSlice: No Valid Time Value have been specified!\n");
+        IDAM_LOG(UDA_LOG_ERROR, "imas beginIdsGetSlice: No Valid Time Value have been specified!\n");
         THROW_ERROR(999, "No Valid Time Value have been specified!");
     }
 
     double time = ((double*)putDataBlock->data)[0];
 
     if (mdsbeginIdsGetSlice(plugin_args.clientIdx, (char*)plugin_args.path, time) < 0) {
-        IDAM_LOGF(LOG_ERROR, "%s\n", errmsg);
+        IDAM_LOGF(UDA_LOG_ERROR, "%s\n", errmsg);
         THROW_ERROR(999, errmsg);
     }
 
@@ -3104,12 +3104,12 @@ static int do_beginIdsGetSlice(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLU
 static int do_endIdsGetSlice(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARGS plugin_args)
 {
     if (!plugin_args.isClientIdx || !plugin_args.isPath) {
-        IDAM_LOG(LOG_ERROR, "The function parameters have not been specified!\n");
+        IDAM_LOG(UDA_LOG_ERROR, "The function parameters have not been specified!\n");
         THROW_ERROR(999, "The function parameters have not been specified!");
     }
 
     if (mdsendIdsGetSlice(plugin_args.clientIdx, (char*)plugin_args.path) < 0) {
-        IDAM_LOGF(LOG_ERROR, "%s\n", errmsg);
+        IDAM_LOGF(UDA_LOG_ERROR, "%s\n", errmsg);
         THROW_ERROR(999, errmsg);
     }
 
@@ -3120,12 +3120,12 @@ static int do_endIdsGetSlice(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGI
 static int do_beginIdsPutSlice(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARGS plugin_args)
 {
     if (!plugin_args.isClientIdx || !plugin_args.isPath) {
-        IDAM_LOG(LOG_ERROR, "The function parameters have not been specified!\n");
+        IDAM_LOG(UDA_LOG_ERROR, "The function parameters have not been specified!\n");
         THROW_ERROR(999, "The function parameters have not been specified!");
     }
 
     if (mdsbeginIdsPutSlice(plugin_args.clientIdx, (char*)plugin_args.path) < 0) {
-        IDAM_LOGF(LOG_ERROR, "%s\n", errmsg);
+        IDAM_LOGF(UDA_LOG_ERROR, "%s\n", errmsg);
         THROW_ERROR(999, errmsg);
     }
 
@@ -3136,12 +3136,12 @@ static int do_beginIdsPutSlice(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLU
 static int do_endIdsPutSlice(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARGS plugin_args)
 {
     if (!plugin_args.isClientIdx || !plugin_args.isPath) {
-        IDAM_LOG(LOG_ERROR, "The function parameters have not been specified!\n");
+        IDAM_LOG(UDA_LOG_ERROR, "The function parameters have not been specified!\n");
         THROW_ERROR(999, "The function parameters have not been specified!");
     }
 
     if (mdsendIdsPutSlice(plugin_args.clientIdx, (char*)plugin_args.path) < 0) {
-        IDAM_LOGF(LOG_ERROR, "%s\n", errmsg);
+        IDAM_LOGF(UDA_LOG_ERROR, "%s\n", errmsg);
         THROW_ERROR(999, errmsg);
     }
 
@@ -3152,12 +3152,12 @@ static int do_endIdsPutSlice(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGI
 static int do_beginIdsPutNonTimed(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARGS plugin_args)
 {
     if (!plugin_args.isClientIdx || !plugin_args.isPath) {
-        IDAM_LOG(LOG_ERROR, "The function parameters have not been specified!\n");
+        IDAM_LOG(UDA_LOG_ERROR, "The function parameters have not been specified!\n");
         THROW_ERROR(999, "The function parameters have not been specified!");
     }
 
     if (mdsbeginIdsPutNonTimed(plugin_args.clientIdx, (char*)plugin_args.path) < 0) {
-        IDAM_LOGF(LOG_ERROR, "%s\n", errmsg);
+        IDAM_LOGF(UDA_LOG_ERROR, "%s\n", errmsg);
         THROW_ERROR(999, errmsg);
     }
 
@@ -3168,12 +3168,12 @@ static int do_beginIdsPutNonTimed(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, 
 static int do_endIdsPutNonTimed(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARGS plugin_args)
 {
     if (!plugin_args.isClientIdx || !plugin_args.isPath) {
-        IDAM_LOG(LOG_ERROR, "The function parameters have not been specified!\n");
+        IDAM_LOG(UDA_LOG_ERROR, "The function parameters have not been specified!\n");
         THROW_ERROR(999, "");
     }
 
     if (mdsendIdsPutNonTimed(plugin_args.clientIdx, (char*)plugin_args.path) < 0) {
-        IDAM_LOGF(LOG_ERROR, "%s\n", errmsg);
+        IDAM_LOGF(UDA_LOG_ERROR, "%s\n", errmsg);
         THROW_ERROR(999, errmsg);
     }
 
@@ -3184,12 +3184,12 @@ static int do_endIdsPutNonTimed(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PL
 static int do_beginIdsReplaceLastSlice(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARGS plugin_args)
 {
     if (!plugin_args.isClientIdx || !plugin_args.isPath) {
-        IDAM_LOG(LOG_ERROR, "The function parameters have not been specified!\n");
+        IDAM_LOG(UDA_LOG_ERROR, "The function parameters have not been specified!\n");
         THROW_ERROR(999, "");
     }
 
     if (mdsbeginIdsReplaceLastSlice(plugin_args.clientIdx, (char*)plugin_args.path) < 0) {
-        IDAM_LOGF(LOG_ERROR, "%s\n", errmsg);
+        IDAM_LOGF(UDA_LOG_ERROR, "%s\n", errmsg);
         THROW_ERROR(999, errmsg);
     }
 
@@ -3200,12 +3200,12 @@ static int do_beginIdsReplaceLastSlice(IDAM_PLUGIN_INTERFACE* idam_plugin_interf
 static int do_endIdsReplaceLastSlice(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARGS plugin_args)
 {
     if (!plugin_args.isClientIdx || !plugin_args.isPath) {
-        IDAM_LOG(LOG_ERROR, "The function parameters have not been specified!\n");
+        IDAM_LOG(UDA_LOG_ERROR, "The function parameters have not been specified!\n");
         THROW_ERROR(999, "The function parameters have not been specified!");
     }
 
     if (mdsendIdsReplaceLastSlice(plugin_args.clientIdx, (char*)plugin_args.path) < 0) {
-        IDAM_LOGF(LOG_ERROR, "imas endIdsReplaceLastSlice: %s\n", errmsg);
+        IDAM_LOGF(UDA_LOG_ERROR, "imas endIdsReplaceLastSlice: %s\n", errmsg);
         THROW_ERROR(999, errmsg);
     }
 
@@ -3216,7 +3216,7 @@ static int do_endIdsReplaceLastSlice(IDAM_PLUGIN_INTERFACE* idam_plugin_interfac
 static int do_beginIdsPutTimed(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARGS plugin_args)
 {
     if (!plugin_args.isClientIdx || !plugin_args.isPath || !plugin_args.isPutData) {
-        IDAM_LOG(LOG_ERROR, "The function parameters have not been specified!\n");
+        IDAM_LOG(UDA_LOG_ERROR, "The function parameters have not been specified!\n");
         THROW_ERROR(999, "The function parameters have not been specified!");
     }
 
@@ -3230,14 +3230,14 @@ static int do_beginIdsPutTimed(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLU
 // Time is passed in a single PUTDATA structure
 
     if (putDataBlock->data_type != TYPE_DOUBLE || putDataBlock->data == NULL) {
-        IDAM_LOG(LOG_ERROR, "No Valid Time Value have been specified!\n");
+        IDAM_LOG(UDA_LOG_ERROR, "No Valid Time Value have been specified!\n");
         THROW_ERROR(999, "No Valid Time Value have been specified!");
     }
 
     double* inTimes = (double*)putDataBlock->data;
 
     if (mdsbeginIdsPutTimed(plugin_args.clientIdx, (char*)plugin_args.path, putDataBlock->count, inTimes) < 0) {
-        IDAM_LOGF(LOG_ERROR, "%s\n", errmsg);
+        IDAM_LOGF(UDA_LOG_ERROR, "%s\n", errmsg);
         THROW_ERROR(999, errmsg);
     }
 
@@ -3248,12 +3248,12 @@ static int do_beginIdsPutTimed(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLU
 static int do_endIdsPutTimed(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARGS plugin_args)
 {
     if (!plugin_args.isClientIdx || !plugin_args.isPath) {
-        IDAM_LOG(LOG_ERROR, "imas endIdsPutTimed: The function parameters have not been specified!\n");
+        IDAM_LOG(UDA_LOG_ERROR, "imas endIdsPutTimed: The function parameters have not been specified!\n");
         THROW_ERROR(999, "The function parameters have not been specified!");
     }
 
     if (mdsendIdsPutTimed(plugin_args.clientIdx, (char*)plugin_args.path) < 0) {
-        IDAM_LOGF(LOG_ERROR, "imas endIdsPutTimed: %s\n", errmsg);
+        IDAM_LOGF(UDA_LOG_ERROR, "imas endIdsPutTimed: %s\n", errmsg);
         THROW_ERROR(999, errmsg);
     }
 

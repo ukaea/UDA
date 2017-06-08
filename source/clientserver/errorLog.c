@@ -43,13 +43,13 @@ void idamErrorLog(CLIENT_BLOCK client_block, REQUEST_BLOCK request, IDAMERRORSTA
 
 // Write the Log Record & Flush the fd
 
-    idamLog(LOG_ERROR, "0 %s [%s] [%d %s %d %d %s %s %s %s %s %s %s]\n",
+    idamLog(UDA_LOG_ERROR, "0 %s [%s] [%d %s %d %d %s %s %s %s %s %s %s]\n",
             client_block.uid, accessdate, request.request, request.signal, request.exp_number,
             request.pass, request.tpass, request.path, request.file, request.format, request.archive,
             request.device_name, request.server);
 
     for (i = 0; i < errorstack.nerrors; i++) {
-        idamLog(LOG_ERROR, "1 %s [%s] %d %d [%s] [%s]\n", client_block.uid, accessdate, errorstack.idamerror[i].type,
+        idamLog(UDA_LOG_ERROR, "1 %s [%s] %d %d [%s] [%s]\n", client_block.uid, accessdate, errorstack.idamerror[i].type,
                 errorstack.idamerror[i].code, errorstack.idamerror[i].location, errorstack.idamerror[i].msg);
     }
 }
@@ -77,11 +77,11 @@ void printIdamErrorStack(IDAMERRORSTACK errorstack)
 {
     unsigned int i;
     if (errorstack.nerrors == 0) {
-        IDAM_LOG(LOG_DEBUG, "Empty Error Stack\n");
+        IDAM_LOG(UDA_LOG_DEBUG, "Empty Error Stack\n");
         return;
     }
     for (i = 0; i < errorstack.nerrors; i++) {
-        IDAM_LOGF(LOG_DEBUG, "%d %d %d %s %s\n", i, errorstack.idamerror[i].type,
+        IDAM_LOGF(UDA_LOG_DEBUG, "%d %d %d %s %s\n", i, errorstack.idamerror[i].type,
                 errorstack.idamerror[i].code, errorstack.idamerror[i].location, errorstack.idamerror[i].msg);
     }
 }

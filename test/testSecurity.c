@@ -93,11 +93,11 @@ int main()
     int clientVersion = 7;
     char* clientUsername = "jholloc";
 
-    idamSetLogFile(LOG_DEBUG, stdout);
-    idamSetLogFile(LOG_INFO, stdout);
-    idamSetLogFile(LOG_WARN, stdout);
-    idamSetLogFile(LOG_ERROR, stderr);
-    idamSetLogLevel(LOG_DEBUG);
+    idamSetLogFile(UDA_LOG_DEBUG, stdout);
+    idamSetLogFile(UDA_LOG_INFO, stdout);
+    idamSetLogFile(UDA_LOG_WARN, stdout);
+    idamSetLogFile(UDA_LOG_ERROR, stderr);
+    idamSetLogLevel(UDA_LOG_DEBUG);
 
     initClientBlock(&client_block, clientVersion, clientUsername);
     initServerBlock(&server_block, 0);

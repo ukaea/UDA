@@ -194,7 +194,7 @@ int readCDF(DATA_SOURCE data_source,
             break;
         }
 
-        IDAM_LOGF(LOG_DEBUG, "netCDF filename %s\n", data_source.path);
+        IDAM_LOGF(UDA_LOG_DEBUG, "netCDF filename %s\n", data_source.path);
 
 //----------------------------------------------------------------------
 // Test the Library Version Number
@@ -217,7 +217,7 @@ int readCDF(DATA_SOURCE data_source,
             hierarchical = (format == NC_FORMAT_NETCDF4) || (format == NC_FORMAT_NETCDF4_CLASSIC);
         }
 
-        IDAM_LOGF(LOG_DEBUG, "netCDF hierarchical organisation ? %d\n", hierarchical);
+        IDAM_LOGF(UDA_LOG_DEBUG, "netCDF hierarchical organisation ? %d\n", hierarchical);
 
 //----------------------------------------------------------------------
 // FUDGE for netcdf-3 TRANSP data (This won't work if the source alias is unknown, e.g. when private file)
@@ -282,7 +282,7 @@ int readCDF(DATA_SOURCE data_source,
                     }
                     conventions[attlen] = '\0';        // Ensure Null terminated
                 }
-                IDAM_LOGF(LOG_DEBUG, "netCDF file Conventions?  %s\n", conventions);
+                IDAM_LOGF(UDA_LOG_DEBUG, "netCDF file Conventions?  %s\n", conventions);
 
                 if (conventions[0] != '\0') {
 
@@ -316,7 +316,7 @@ int readCDF(DATA_SOURCE data_source,
             //if(!compliance && STR_EQUALS(signal_desc.source_alias, "efit")) compliance = 1;
 
 
-            IDAM_LOGF(LOG_DEBUG, "netCDF file compliance?  %d\n", compliance);
+            IDAM_LOGF(UDA_LOG_DEBUG, "netCDF file compliance?  %d\n", compliance);
 
             if (compliance) {
                 attlen = 0;
@@ -382,7 +382,7 @@ int readCDF(DATA_SOURCE data_source,
             }
         }
 
-        IDAM_LOGF(LOG_DEBUG, "netCDF file class?  %d\n", class);
+        IDAM_LOGF(UDA_LOG_DEBUG, "netCDF file class?  %d\n", class);
 
 //----------------------------------------------------------------------
 // Complex Data Types (Done once per file if the Conventions are for FUSION and MAST)
@@ -439,14 +439,14 @@ int readCDF(DATA_SOURCE data_source,
             if (STR_EQUALS(&signal_desc.signal_name[4], "/devices/")) {        //   /xyc/devices/...
                 strncpy(variable, &signal_desc.signal_name[1], 3);
                 variable[3] = '\0';
-                IDAM_LOG(LOG_DEBUG, "devices signal requested\n");
-                IDAM_LOGF(LOG_DEBUG, "source alias: [%s]\n", variable);
-                IDAM_LOGF(LOG_DEBUG, "source alias: [%s]\n", signal_desc.signal_alias);
+                IDAM_LOG(UDA_LOG_DEBUG, "devices signal requested\n");
+                IDAM_LOGF(UDA_LOG_DEBUG, "source alias: [%s]\n", variable);
+                IDAM_LOGF(UDA_LOG_DEBUG, "source alias: [%s]\n", signal_desc.signal_alias);
                 if (STR_EQUALS(signal_desc.signal_alias, variable)) {
                     strcpy(variable, &signal_desc.signal_name[4]);
                     strcpy(signal_desc.signal_name, variable);
-                    IDAM_LOG(LOG_DEBUG, "Not recorded in Database: Removing source alias prefix\n");
-                    IDAM_LOGF(LOG_DEBUG, "Target signal: %s\n", signal_desc.signal_name);
+                    IDAM_LOG(UDA_LOG_DEBUG, "Not recorded in Database: Removing source alias prefix\n");
+                    IDAM_LOGF(UDA_LOG_DEBUG, "Target signal: %s\n", signal_desc.signal_name);
                 }
             }
         }
@@ -462,7 +462,7 @@ int readCDF(DATA_SOURCE data_source,
 
         strcpy(variable, signal_desc.signal_name);
 
-        IDAM_LOGF(LOG_DEBUG, "netCDF signal name?  %s\n", variable);
+        IDAM_LOGF(UDA_LOG_DEBUG, "netCDF signal name?  %s\n", variable);
 
         if (hierarchical) {
             char* p = NULL;
@@ -630,7 +630,7 @@ int readCDF(DATA_SOURCE data_source,
             nc_type atttype;
             char* attname = NULL;
 
-            IDAM_LOG(LOG_DEBUG, "variable not found ... trying other options ...\n");
+            IDAM_LOG(UDA_LOG_DEBUG, "variable not found ... trying other options ...\n");
 
 // Check it's not an unwritten Coordinate dataset (with the same name as the variable). If so then create an index array
 
@@ -644,7 +644,7 @@ int readCDF(DATA_SOURCE data_source,
                     break;
                 }
                 data_block->data_n = (int)data_n;
-                IDAM_LOG(LOG_DEBUG, "unwritten Coordinate dataset found.\n");
+                IDAM_LOG(UDA_LOG_DEBUG, "unwritten Coordinate dataset found.\n");
 
                 data_block->rank = 1;
                 data_block->order = -1;
@@ -721,7 +721,7 @@ int readCDF(DATA_SOURCE data_source,
                                  "Unable to read Group Level Attribute data");
                     break;
                 }
-                IDAM_LOG(LOG_DEBUG, "attribute attached to a group found.\n");
+                IDAM_LOG(UDA_LOG_DEBUG, "attribute attached to a group found.\n");
 
                 if (udt != NULL) {                // A User Defined Data Structure Type?
                     malloc_source = MALLOCSOURCENETCDF;
@@ -774,7 +774,7 @@ int readCDF(DATA_SOURCE data_source,
                                          "Unable to read Group Level Attribute data");
                             break;
                         }
-                        IDAM_LOG(LOG_DEBUG, "attribute attached to a variable found.\n");
+                        IDAM_LOG(UDA_LOG_DEBUG, "attribute attached to a variable found.\n");
 
                         if (udt != NULL) {                // A User Defined Data Structure Type?
                             malloc_source = MALLOCSOURCENETCDF;
@@ -831,7 +831,7 @@ int readCDF(DATA_SOURCE data_source,
                 copyUserDefinedTypeList(&userdefinedtypelist); // Allocate and Copy the Master User Defined Type List
                 initHGroup(&hgroups);
 
-                IDAM_LOG(LOG_DEBUG, "Tree or sub-tree found.\n");
+                IDAM_LOG(UDA_LOG_DEBUG, "Tree or sub-tree found.\n");
 
 // Target all User Defined types within the scope of this sub-tree Root node (unless root node is also sub-tree node: Prevents duplicate definitions)
 
@@ -849,18 +849,18 @@ int readCDF(DATA_SOURCE data_source,
                     break;
                 }
 
-                IDAM_LOG(LOG_DEBUG, "updating User Defined Type table\n");
+                IDAM_LOG(UDA_LOG_DEBUG, "updating User Defined Type table\n");
 
                 updateUdt(&hgroups, userdefinedtypelist);        // Locate udt pointers using list array index values
 
                 //repeatUdt(userdefinedtypelist);			// Standardise type names - identify repeated types differing only in name.
 
-                IDAM_LOG(LOG_DEBUG, "printing User Defined Type table\n");
+                IDAM_LOG(UDA_LOG_DEBUG, "printing User Defined Type table\n");
                 printUserDefinedTypeListTable(*userdefinedtypelist);
 
 // Read all Data and Create the Sub-Tree structure
 
-                IDAM_LOG(LOG_DEBUG, "Creating sub-tree data structure\n");
+                IDAM_LOG(UDA_LOG_DEBUG, "Creating sub-tree data structure\n");
 
                 err = getCDF4SubTreeData((void**)&data_block->data, &hgroups.group[0], &hgroups);
 
@@ -875,7 +875,7 @@ int readCDF(DATA_SOURCE data_source,
                     data_block->opaque_block = (void*)hgroups.group[0].udt;
                 }
 
-                IDAM_LOG(LOG_DEBUG, "Freeing HGroups\n");
+                IDAM_LOG(UDA_LOG_DEBUG, "Freeing HGroups\n");
                 freeHGroups(&hgroups);
 
                 break;
@@ -1012,7 +1012,7 @@ int readCDF(DATA_SOURCE data_source,
               if(debugon && compliance && class == RAW_DATA && rank == 1){
                  int k, sn = data_block->data_n, type=data_block->data_type;
         	 char *sp = (char *)data_block->data;
-        	 if(type == TYPE_CHAR) for(k=0;k<sn;k++) IDAM_LOGF(LOG_DEBUG,"[%16d]: %d\n", k, (int)sp[k]);
+        	 if(type == TYPE_CHAR) for(k=0;k<sn;k++) IDAM_LOGF(UDA_LOG_DEBUG,"[%16d]: %d\n", k, (int)sp[k]);
               }
         */
 
@@ -1043,7 +1043,7 @@ int readCDF(DATA_SOURCE data_source,
             	 if(debugon){
                         int k, sn = data_block->data_n, type=data_block->data_type;
             	    float *sp = (float *)data_block->data;
-            	    if(type == TYPE_FLOAT) for(k=0;k<sn;k++) IDAM_LOGF(LOG_DEBUG,"[%16d]: %12.4e\n", k, sp[k]);
+            	    if(type == TYPE_FLOAT) for(k=0;k<sn;k++) IDAM_LOGF(UDA_LOG_DEBUG,"[%16d]: %12.4e\n", k, sp[k]);
                      }
             */
         }
@@ -1526,11 +1526,11 @@ int readCDF(DATA_SOURCE data_source,
     if (extent != NULL) free((void*)extent);
     if (dextent != NULL) free((void*)dextent);
 
-    IDAM_LOG(LOG_DEBUG, "NC File Closed\n");
+    IDAM_LOG(UDA_LOG_DEBUG, "NC File Closed\n");
     ncclose(fd);        // Close netCDF File
 
     gettimeofday(&tv_end0, NULL);
-    IDAM_LOGF(LOG_DEBUG, "\n\nTotal Time: %.2f (ms)\n\n", (float)(tv_end0.tv_sec - tv_start0.tv_sec) * 1.0E3 +
+    IDAM_LOGF(UDA_LOG_DEBUG, "\n\nTotal Time: %.2f (ms)\n\n", (float)(tv_end0.tv_sec - tv_start0.tv_sec) * 1.0E3 +
                                                           (float)(tv_end0.tv_usec - tv_start0.tv_usec) *
                                                           1.0E-3);
 
