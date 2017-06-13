@@ -51,6 +51,10 @@ int main() {
 	const uda::Scalar* v_tor_angle2 = dynamic_cast<const uda::Scalar*>(tor_angle2.data());
 	std::cout << "bpol_probe/56/toroidal_angle: " << v_tor_angle2->as<double>() << std::endl;*/
 
+	const uda::Result& pol_angle = client.get("imas::get(idx=0, group='magnetics', variable='bpol_probe/1/poloidal_angle', expName='WEST', type=double, rank=0, shot=" SHOT_NUM ", )", "");
+    const uda::Scalar* v_pol_angle = dynamic_cast<const uda::Scalar*>(pol_angle.data());
+	std::cout << "bpol_probe/1/pol_angle: " << v_pol_angle->as<double>() << std::endl;
+
 
 	const uda::Result& shape_of = client.get("imas::get(idx=0, group='magnetics', variable='flux_loop/Shape_of', expName='WEST', type=int, rank=0, shot=" SHOT_NUM ", )", "");
 	const uda::Scalar* v_shape_of = dynamic_cast<const uda::Scalar*>(shape_of.data());
@@ -191,11 +195,11 @@ int main() {
 	std::cout << "..." << std::endl;*/
 	
 
-        const uda::Result& shof_method_magnetics = client.get("imas::get(idx=0, group='magnetics', variable='method/Shape_of', expName='WEST', type=int, rank=0, shot=" SHOT_NUM ", )", "");
-        const uda::Data * data_shof_method_magnetics = shof_method_magnetics.data();
-        const uda::Scalar* scalar_data_shof_method_magnetics = dynamic_cast<const uda::Scalar*>(data_shof_method_magnetics);
-        int shof_method = scalar_data_shof_method_magnetics->as<int>();
-        std::cout << "method/Shape_of : " << shof_method << std::endl;
+    const uda::Result& shof_method_magnetics = client.get("imas::get(idx=0, group='magnetics', variable='method/Shape_of', expName='WEST', type=int, rank=0, shot=" SHOT_NUM ", )", "");
+    const uda::Data * data_shof_method_magnetics = shof_method_magnetics.data();
+    const uda::Scalar* scalar_data_shof_method_magnetics = dynamic_cast<const uda::Scalar*>(data_shof_method_magnetics);
+    int shof_method = scalar_data_shof_method_magnetics->as<int>();
+    std::cout << "method/Shape_of : " << shof_method << std::endl;
 
 	const uda::Result& ip0 = client.get("imas::get(idx=0, group='magnetics', variable='method/1/ip/data', expName='WEST', type=double, rank=1, shot=" SHOT_NUM ", )", "");
 	const uda::Data * data_ip0 = ip0.data();

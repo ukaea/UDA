@@ -29,11 +29,12 @@ static void tokenizeFunParameters(const char* s, char** argument_name, char** at
 static void tokenizeFunParametersWithChannels(const char* s, char** unvalid_channels, char** TOP_collections_parameters,
 		char** attributes, char** normalizationAttributes);
 static void tokenize_set_channels_validity(const char* s, char** unvalid_channels, char** attributes);
-static void tokenizeCommand(const char* s, char** prod_name, char** obj_name, char** param_name);
+static void tokenizeCommand(const char* s, char** prod_name, char** obj_name, char** param_name, char **flag);
 static int  getCommand(int i, char** command, const char* TOP_collections_parameters);
 static void getUnvalidChannelsSize(char* unvalid_channels, int* size);
 static void getUnvalidChannels(char* unvalid_channels, int* v);
 static int  isChannelValid(int channel_number, int* unvalid_channels_list, int unvalid_channels_list_size);
+static char* setBuffer(char* attributes, char* value);
 
 static int  execute(const char* mapfun, int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
 static void execute_tsmat_collect(const char* TOP_collections_parameters, char* attributes,
@@ -303,9 +304,15 @@ void execute_setvalue_collect(const char* TOP_collections_parameters, char* attr
 	l = (int*)calloc(collectionsCount, sizeof(int));
 
 	int i;
+	int status = -1;
 	for (i = 0; i < collectionsCount; i++) {
 		char* command = NULL;
-		getCommand(i, &command, TOP_collections_parameters);
+		status = getCommand(i, &command, TOP_collections_parameters);
+		if (status == -1) {
+					int err = 801;
+					addIdamError(&idamerrorstack, CODEERRORTYPE, "Unable to get the shapeof command", err, "");
+				}
+
 		int nb_val = 0;
 		getShapeOf(command, shotNumber, &nb_val);
 		l[i] = nb_val;
@@ -330,31 +337,7 @@ void execute_setvalue_collect(const char* TOP_collections_parameters, char* attr
 	int data_type;
 	getReturnType(attributes, &data_type);
 
-	char* buffer = NULL;
-
-	if (data_type == TYPE_FLOAT) {
-		IDAM_LOG(LOG_DEBUG, "TYPE_FLOAT requested from WEST plugin\n");
-		buffer = malloc(sizeof(float));
-		float* f_buf = (float*)buffer;
-		*f_buf = atof(value);
-	} else if (data_type == TYPE_DOUBLE) {
-		IDAM_LOG(LOG_DEBUG, "TYPE_DOUBLE requested from WEST plugin\n");
-		buffer = malloc(sizeof(double));
-		double* f_buf = (double*)buffer;
-		*f_buf = atof(value);
-	} else if (data_type == TYPE_INT) {
-		IDAM_LOG(LOG_DEBUG, "TYPE_INT requested from WEST plugin\n");
-		buffer = malloc(sizeof(int));
-		int* i_buf = (int*)buffer;
-		*i_buf = atoi(value);
-	} else if (data_type == TYPE_STRING) {
-		IDAM_LOG(LOG_DEBUG, "TYPE_STRING requested from WEST plugin\n");
-		buffer = strdup(value);
-	} else {
-		int err = 999;
-		IDAM_LOG(LOG_DEBUG, "Unsupported data type in execute_setvalue_collect\n");
-		addIdamError(&idamerrorstack, CODEERRORTYPE, "Unsupported data type", err, "");
-	}
+    char* buffer = setBuffer(attributes, value);
 
 	IDAM_LOGF(LOG_DEBUG, "Found value: %s\n", value);
 
@@ -365,7 +348,42 @@ void execute_setvalue_collect(const char* TOP_collections_parameters, char* attr
 	free(value);
 	free(command);
 	free(buffer);
+}
 
+
+char* setBuffer(char* attributes, char* value) {
+
+	    int data_type;
+		getReturnType(attributes, &data_type);
+
+		char* buffer = NULL;
+
+		if (data_type == TYPE_FLOAT) {
+			IDAM_LOG(LOG_DEBUG, "TYPE_FLOAT requested from WEST plugin\n");
+			buffer = malloc(sizeof(float));
+			float* f_buf = (float*)buffer;
+			*f_buf = atof(value);
+			IDAM_LOGF(LOG_DEBUG, "Testing float value : %f\n", *f_buf);
+		} else if (data_type == TYPE_DOUBLE) {
+			IDAM_LOG(LOG_DEBUG, "TYPE_DOUBLE requested from WEST plugin\n");
+			buffer = malloc(sizeof(double));
+			double* f_buf = (double*)buffer;
+			*f_buf = atof(value);
+		} else if (data_type == TYPE_INT) {
+			IDAM_LOG(LOG_DEBUG, "TYPE_INT requested from WEST plugin\n");
+			buffer = malloc(sizeof(int));
+			int* i_buf = (int*)buffer;
+			*i_buf = atoi(value);
+		} else if (data_type == TYPE_STRING) {
+			IDAM_LOG(LOG_DEBUG, "TYPE_STRING requested from WEST plugin\n");
+			buffer = strdup(value);
+		} else {
+			int err = 999;
+			IDAM_LOG(LOG_DEBUG, "Unsupported data type in setBuffer()\n");
+			addIdamError(&idamerrorstack, CODEERRORTYPE, "Unsupported data type", err, "");
+		}
+
+		return buffer;
 
 }
 
@@ -380,47 +398,79 @@ void execute_tsmat_collect(const char* TOP_collections_parameters, char* attribu
 	l = (int*)calloc(collectionsCount, sizeof(int));
 
 	int i;
+	int status = -1;
 	for (i = 0; i < collectionsCount; i++) {
 		char* command = NULL;
-		getCommand(i, &command, TOP_collections_parameters);
+		status = getCommand(i, &command, TOP_collections_parameters);
+		if (status == -1) {
+			int err = 801;
+			addIdamError(&idamerrorstack, CODEERRORTYPE, "Unable to get the shapeof command", err, "");
+		}
+
 		int nb_val = 0;
 		getShapeOf(command, shotNumber, &nb_val);
 		l[i] = nb_val;
 	}
 
+	IDAM_LOGF(LOG_DEBUG, "In execute_tsmat_collect, searching requestedIndex... %s\n", "");
 	int requestedIndex = getNumIDAMIndex(attributes, nodeIndices);
+
+	IDAM_LOGF(LOG_DEBUG, "In execute_tsmat_collect, after searching requestedIndex --> %d\n", requestedIndex);
 
 	int searchedArray;
 	int searchedArrayIndex;
 
+	IDAM_LOGF(LOG_DEBUG, "In execute_tsmat_collect, searching index array for requested index: %d\n", requestedIndex);
 	searchIndices(requestedIndex, l, &searchedArray, &searchedArrayIndex);
+	IDAM_LOGF(LOG_DEBUG, "In execute_tsmat_collect, searched array:%d\n", searchedArray);
+	IDAM_LOGF(LOG_DEBUG, "In execute_tsmat_collect, searched array index:%d\n", searchedArrayIndex);
 
 	char* command = NULL;
+
+	IDAM_LOGF(LOG_DEBUG, "In execute_tsmat_collect, getting command from TOP_collections_parameters: %s\n", TOP_collections_parameters);
 	getCommand(searchedArray, &command, TOP_collections_parameters);
+
+	IDAM_LOG(LOG_DEBUG, "In execute_tsmat_collect, after getting command...\n");
 
 	char* prod_name = NULL; //DMAG, ...
 	char* object_name = NULL; //GMAG_BNORM, ...
 	char* param_name = NULL; //PosR, ...
+	char* flag = NULL; //'Null' or blank
 
 	int data_type;
 	getReturnType(attributes, &data_type);
 
 	//Tokenize mapfun string to get function parameters
-	tokenizeCommand(command, &prod_name, &object_name, &param_name);
+	IDAM_LOGF(LOG_DEBUG, "In execute_tsmat_collect, tokenizing command... %s\n", command);
+	tokenizeCommand(command, &prod_name, &object_name, &param_name, &flag);
+	IDAM_LOG(LOG_DEBUG, "In execute_tsmat_collect, afetr tokenizing command...\n");
 
 	char* value = NULL;
 	int val_nb = l[searchedArray];
 	int nb_val;
 
-	//Reading static parameters using TSLib
-	int status = readStaticParameters(&value, &nb_val, shotNumber, prod_name, object_name, param_name, val_nb);
-	if (status != 0) {
-		int err = 901;
-		addIdamError(&idamerrorstack, CODEERRORTYPE, "Unable to read static data from WEST", err, "");
+	IDAM_LOGF(LOG_DEBUG, "In execute_tsmat_collect, flag: %s\n", flag);
+	IDAM_LOG(LOG_DEBUG, "In execute_tsmat_collect, checking if flag is Null...\n");
+
+	if (flag != NULL && strncmp("Null", flag, 4) == 0) {
+		IDAM_LOG(LOG_DEBUG, "In execute_tsmat_collect, setting value for Null flag...\n");
+		value = strdup("3"); //value for the setvalue_collect function
+		value = setBuffer(attributes, "0"); //we put zero for 'Null' flag
+		searchedArrayIndex = 0;
+	}
+	else {
+		//Reading static parameters using TSLib
+		IDAM_LOGF(LOG_DEBUG, "In execute_tsmat_collect, reading static parameters for param. name: %s\n", param_name);
+		status = readStaticParameters(&value, &nb_val, shotNumber, prod_name, object_name, param_name, val_nb);
+		if (status != 0) {
+			int err = 901;
+			addIdamError(&idamerrorstack, CODEERRORTYPE, "Unable to read static data from WEST", err, "");
+		}
 	}
 
 	float normalizationFactor = 1;
 	getNormalizationFactor(&normalizationFactor, normalizationAttributes);
+	IDAM_LOGF(LOG_DEBUG, "In execute_tsmat_collect, setting static value... %s\n", "");
 	setStaticValue(data_type, data_block, value, searchedArrayIndex, normalizationFactor);
 
 	free(command);
@@ -439,13 +489,14 @@ void execute_tsmat_without_idam_index(const char* TOP_collections_parameters, ch
 
 	char* prod_name = NULL; //DMAG, ...
 	char* object_name = NULL; //GMAG_BNORM, ...
-	char* param_name = NULL; //PosR, ...
+	char* param_name = NULL; //PosR, ..
+	char* flag = NULL;
 
 	int data_type;
 	getReturnType(attributes, &data_type);
 
 	//Tokenize mapfun string to get function parameters
-	tokenizeCommand(command, &prod_name, &object_name, &param_name);
+	tokenizeCommand(command, &prod_name, &object_name, &param_name, &flag);
 
 	int val_nb = 0;
 	getShapeOf(command, shotNumber, &val_nb);
@@ -711,11 +762,12 @@ void getShapeOf(const char* command, int shotNumber, int* nb_val)
 	char* prod_name = NULL; //DMAG, ...
 	char* object_name = NULL;
 	char* param_name = NULL;
+	char* flag = NULL;
 
-	IDAM_LOGF(LOG_DEBUG, "Calling tokenizeCommand with command: %s\n", command);
+	IDAM_LOGF(LOG_DEBUG, "In getShapeOf, calling tokenizeCommand with command: %s\n", command);
 
 	//Tokenize mapfun string to get function parameters, return type and arguments (#1, #2,...) to use
-	tokenizeCommand(command, &prod_name, &object_name, &param_name);
+	tokenizeCommand(command, &prod_name, &object_name, &param_name, &flag);
 
 	char* value = NULL;
 	int val_nb = 1;
@@ -797,10 +849,18 @@ void setStaticValue(int data_type, DATA_BLOCK* data_block, char* value, int requ
 
 	} else if (data_type == TYPE_FLOAT) {
 		IDAM_LOGF(LOG_DEBUG, "handling float in setStaticValue(): %d, %g\n", requestedIndex, normalizationFactor);
+
 		data_block->data_type = TYPE_FLOAT;
 		data_block->data = malloc(1 * sizeof(float));
 		float* pt_float = (float*)value;
+
+		IDAM_LOGF(LOG_DEBUG, "in setStaticValue(), requestedIndex:  %d\n", requestedIndex);
+		IDAM_LOGF(LOG_DEBUG, "in setStaticValue(), normalizationFactor:  %f\n", normalizationFactor);
+		IDAM_LOGF(LOG_DEBUG, "in setStaticValue(), pt_float[requestedIndex]:  %f\n", pt_float[requestedIndex]);
+
+		IDAM_LOGF(LOG_DEBUG, "Floating value set to  %f\n", pt_float[requestedIndex] * normalizationFactor);
 		((float*)data_block->data)[0] = pt_float[requestedIndex] * normalizationFactor;
+
 
 	} else if (data_type == TYPE_LONG) {
 		IDAM_LOG(LOG_DEBUG, "handling long in setStaticValue()\n");
@@ -980,11 +1040,12 @@ int isChannelValid(int channel_number, int* unvalid_channels_list, int unvalid_c
 
 int getCommand(int i, char** command, const char* TOP_collections_parameters)
 {
-
+	IDAM_LOGF(LOG_DEBUG, "In getCommand, i: %d\n", i);
 	char* s_copy = strdup(TOP_collections_parameters);
 	const char delim[] = ",";
 	int j = 0;
 	char* token = strdup(strtok(s_copy, delim));
+	IDAM_LOGF(LOG_DEBUG, "In getCommand, token: %s\n", token);
 	if (token == NULL) {
 		return -1;
 	}
@@ -1155,7 +1216,7 @@ void getValueCollect(char* command, char** value, int* nodeIndices)
 	free(s_copy);
 }
 
-void tokenizeCommand(const char* s, char** prod_name, char** obj_name, char** param_name)
+void tokenizeCommand(const char* s, char** prod_name, char** obj_name, char** param_name, char** flag)
 {
 	char* s_copy = strdup(s);
 	const char delim[] = ":";
@@ -1168,6 +1229,11 @@ void tokenizeCommand(const char* s, char** prod_name, char** obj_name, char** pa
 	IDAM_LOGF(LOG_DEBUG, "%s\n", *obj_name);
 	*param_name = strdup(strtok(NULL, delim));
 	RemoveSpaces(*param_name);
+	char *token = strtok(NULL, delim);
+	if (token != NULL) {
+		*flag = strdup(token);
+		RemoveSpaces(*flag);
+	}
 	free(s_copy);
 }
 
