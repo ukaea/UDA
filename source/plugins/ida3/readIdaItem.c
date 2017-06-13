@@ -1229,6 +1229,7 @@ int readIdaItem(char* itemname, ida_file_ptr* ida_file, short* context, DATA_BLO
         {
             long* temp = (long*)calloc(udoms, sizeof(long));
             err = ida_get_tinfo(item, udoms, toff, tint, tmax, temp, tunits, tlabel);
+            int i;
             for (i = 0; i < udoms; ++i) {
                 tsams[i] = (int)temp[i];
             }

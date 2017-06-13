@@ -3,7 +3,7 @@
 
 #include <c++/UDA.hpp>
 
-TEST_CASE( "Test NEWIDA::test() function", "[NEWIDA][plugins]" ) {
+TEST_CASE( "Test NEWIDA::test() function", "[IDA3][plugins]" ) {
 
 #ifdef FATCLIENT
 #  include "setupEnvironment.inc"

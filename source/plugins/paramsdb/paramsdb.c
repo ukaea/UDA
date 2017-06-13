@@ -261,7 +261,7 @@ static PGresult* activeLimitsQuery(PGconn* conn, const char* system, const char*
 
         char* sql = ACITIVELIMIT_SQL " WHERE s.name = $1 AND s.subtype = $2 AND c.name = $3";
         IDAM_LOGF(UDA_LOG_DEBUG, "sql: %s\n", sql);
-        IDAM_LOGF(LOG_DEBUG, "params: ('%s', '%s', '%s')\n", system, subtype, coil);
+        IDAM_LOGF(UDA_LOG_DEBUG, "params: ('%s', '%s', '%s')\n", system, subtype, coil);
         res = PQexecParams(conn, sql, 3, NULL, params, NULL, NULL, 0);
     } else if (is_subtype) {
         const char* params[2];
@@ -270,7 +270,7 @@ static PGresult* activeLimitsQuery(PGconn* conn, const char* system, const char*
 
         char* sql = ACITIVELIMIT_SQL " WHERE s.name = $1 AND s.subtype = $2";
         IDAM_LOGF(UDA_LOG_DEBUG, "sql: %s\n", sql);
-        IDAM_LOGF(LOG_DEBUG, "params: ('%s', '%s')\n", system, subtype);
+        IDAM_LOGF(UDA_LOG_DEBUG, "params: ('%s', '%s')\n", system, subtype);
         res = PQexecParams(conn, sql, 2, NULL, params, NULL, NULL, 0);
     } else if (is_coil) {
         const char* params[2];
@@ -279,7 +279,7 @@ static PGresult* activeLimitsQuery(PGconn* conn, const char* system, const char*
 
         char* sql = ACITIVELIMIT_SQL " WHERE s.name = $1 AND c.name = $2";
         IDAM_LOGF(UDA_LOG_DEBUG, "sql: %s\n", sql);
-        IDAM_LOGF(LOG_DEBUG, "params: ('%s', '%s')\n", system, coil);
+        IDAM_LOGF(UDA_LOG_DEBUG, "params: ('%s', '%s')\n", system, coil);
         res = PQexecParams(conn, sql, 2, NULL, params, NULL, NULL, 0);
     } else {
         const char* params[1];
@@ -287,7 +287,7 @@ static PGresult* activeLimitsQuery(PGconn* conn, const char* system, const char*
 
         char* sql = ACITIVELIMIT_SQL " WHERE s.name = $1";
         IDAM_LOGF(UDA_LOG_DEBUG, "sql: %s\n", sql);
-        IDAM_LOGF(LOG_DEBUG, "params: ('%s')\n", system);
+        IDAM_LOGF(UDA_LOG_DEBUG, "params: ('%s')\n", system);
         res = PQexecParams(conn, sql, 1, NULL, params, NULL, NULL, 0);
     }
 
@@ -325,7 +325,7 @@ int do_getActiveLimit(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PGconn* conn
         RAISE_PLUGIN_ERROR("DB query returned multiple rows");
     }
 
-    IDAM_LOGF(LOG_DEBUG, "num rows: %d\n", nrows);
+    IDAM_LOGF(UDA_LOG_DEBUG, "num rows: %d\n", nrows);
 
     DATA_BLOCK* data_block = idam_plugin_interface->data_block;
     initDataBlock(data_block);
@@ -450,7 +450,7 @@ int do_getActiveLimit(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PGconn* conn
         const char* db_upper_lower = PQgetvalue(res, i, 2);
         double db_value = atof(PQgetvalue(res, i, 3));
 
-        IDAM_LOGF(LOG_DEBUG, "query row: '%s' '%s' '%s' %f\n", db_subtype, db_coil, db_upper_lower, db_value);
+        IDAM_LOGF(UDA_LOG_DEBUG, "query row: '%s' '%s' '%s' %f\n", db_subtype, db_coil, db_upper_lower, db_value);
 
         int subtype_idx = 0;
         for (; subtype_idx < system_struct->num_subtypes; ++subtype_idx) {
@@ -697,7 +697,7 @@ int do_getForceCoefficients(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PGconn
     int num_coils = 0;
     COIL_STRUCT* coils = NULL;
 
-    IDAM_LOGF(LOG_DEBUG, "num rows: %d\n", nrows);
+    IDAM_LOGF(UDA_LOG_DEBUG, "num rows: %d\n", nrows);
 
     int i;
     for (i = 0; i < nrows; i++) {
@@ -706,7 +706,7 @@ int do_getForceCoefficients(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PGconn
         const char* db_driven_coil = PQgetvalue(res, i, 2);
         double db_value = atof(PQgetvalue(res, i, 3));
 
-        IDAM_LOGF(LOG_DEBUG, "query row: '%s' '%s' '%s' %f\n", db_coil, db_upper_lower, db_driven_coil, db_value);
+        IDAM_LOGF(UDA_LOG_DEBUG, "query row: '%s' '%s' '%s' %f\n", db_coil, db_upper_lower, db_driven_coil, db_value);
 
         int coil_idx = 0;
         for (; coil_idx < num_coils; ++coil_idx) {
@@ -912,7 +912,7 @@ int do_getFilterCoefficients(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PGcon
         int db_coefficient = atoi(PQgetvalue(res, i, 1));
         double db_value = atof(PQgetvalue(res, i, 2));
 
-        IDAM_LOGF(LOG_DEBUG, "query row: %d %d %f\n", db_filter, db_coefficient, db_value);
+        IDAM_LOGF(UDA_LOG_DEBUG, "query row: %d %d %f\n", db_filter, db_coefficient, db_value);
 
         int filter_idx = 0;
         for (; filter_idx < num_filters; ++filter_idx) {
@@ -1100,7 +1100,7 @@ int do_getBoardCalibrations(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PGconn
         double db_gain = atof(PQgetvalue(res, i, 2));
         double db_cal_offset = atof(PQgetvalue(res, i, 3));
 
-        IDAM_LOGF(LOG_DEBUG, "query row: %d %d %f %f\n", db_board, db_channel, db_gain, db_cal_offset);
+        IDAM_LOGF(UDA_LOG_DEBUG, "query row: %d %d %f %f\n", db_board, db_channel, db_gain, db_cal_offset);
 
         int board_idx = 0;
         for (; board_idx < num_boards; ++board_idx) {
@@ -1370,7 +1370,7 @@ int do_getCoilParameters(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PGconn* c
         const char* db_parameter = PQgetvalue(res, i, 2);
         double db_value = atof(PQgetvalue(res, i, 3));
 
-        IDAM_LOGF(LOG_DEBUG, "query row: '%s' '%s' '%s' %f\n", db_coil, db_upper_lower, db_parameter, db_value);
+        IDAM_LOGF(UDA_LOG_DEBUG, "query row: '%s' '%s' '%s' %f\n", db_coil, db_upper_lower, db_parameter, db_value);
 
         int coil_idx = 0;
         for (; coil_idx < num_coils; ++coil_idx) {
