@@ -14,7 +14,7 @@ endif()
 include( plugins )
 
 uda_plugin(
-  NAME IDA3
+  NAME NEWIDA3
   ENTRY_FUNC readIda3Plugin
   DESCRIPTION "IDA Data plugin"
   EXAMPLE ""

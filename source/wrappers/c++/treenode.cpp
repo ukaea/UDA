@@ -52,17 +52,17 @@ void uda::TreeNode::printStructureNames()
 
 uda::TreeNode uda::TreeNode::findStructureDefinition(const std::string& name)
 {
-    return TreeNode(findNTreeStructureDefinition(node_, (char*)name.c_str()));
+    return TreeNode(findNTreeStructureDefinition(node_, name.c_str()));
 }
 
 uda::TreeNode uda::TreeNode::findStructureComponent(const std::string& name)
 {
-    return TreeNode(findNTreeStructureComponent(node_, (char*)name.c_str()));
+    return TreeNode(findNTreeStructureComponent(node_, name.c_str()));
 }
 
 void uda::TreeNode::printUserDefinedTypeTable(const std::string& name)
 {
-    USERDEFINEDTYPE* type = findUserDefinedType((char*)name.c_str(), 0);
+    USERDEFINEDTYPE* type = findUserDefinedType(name.c_str(), 0);
     ::printUserDefinedTypeTable(*type);
 }
 
@@ -151,34 +151,33 @@ std::vector<std::vector<std::size_t> > uda::TreeNode::atomicShape()
 
 void* uda::TreeNode::structureComponentData(const std::string& name)
 {
-    return getNodeStructureComponentData(node_, (char*)name.c_str());
+    return getNodeStructureComponentData(node_, name.c_str());
 }
 
 template <typename T>
 static uda::Scalar getScalar(NTREE* node, const char* name)
 {
-    T* val = reinterpret_cast<T*>(getNodeStructureComponentData(node, (char*)name));
+    T* val = reinterpret_cast<T*>(getNodeStructureComponentData(node, name));
     return uda::Scalar(*val);
 }
 
 template <>
 uda::Scalar getScalar<char*>(NTREE* node, const char* name)
 {
-    char* val = reinterpret_cast<char*>(getNodeStructureComponentData(node, (char*)name));
+    char* val = reinterpret_cast<char*>(getNodeStructureComponentData(node, name));
     return uda::Scalar(val);
 }
 
 template <>
 uda::Scalar getScalar<char**>(NTREE* node, const char* name)
 {
-    char** val = reinterpret_cast<char**>(getNodeStructureComponentData(node, (char*)name));
+    char** val = reinterpret_cast<char**>(getNodeStructureComponentData(node, name));
     return uda::Scalar(val[0]);
 }
 
 uda::Scalar uda::TreeNode::atomicScalar(const std::string& target)
 {
-    NTREE* node = findNTreeStructureComponent(node_, (char*)target.c_str()); // Locate the named variable target
-    //NTREE * node = findNTreeStructureComponent(node_, target.c_str()); // Locate the named variable target
+    NTREE* node = findNTreeStructureComponent(node_, target.c_str()); // Locate the named variable target
     if (node == NULL) return Scalar::Null;
 
     int acount = getNodeAtomicCount(node); // Number of atomic typed structure members
@@ -250,7 +249,7 @@ uda::Scalar uda::TreeNode::atomicScalar(const std::string& target)
 template <typename T>
 static uda::Vector getVector(NTREE* node, const std::string& target, int count)
 {
-    T* data = reinterpret_cast<T*>(getNodeStructureComponentData(node, (char*)target.c_str()));
+    T* data = reinterpret_cast<T*>(getNodeStructureComponentData(node, target.c_str()));
 
     return uda::Vector(data, (size_t)count);
 }
@@ -264,7 +263,7 @@ uda::Vector getStringVector(NTREE* node, const std::string& target, int* shape)
         return uda::Vector::Null;
     }
 
-    char* val = reinterpret_cast<char*>(getNodeStructureComponentData(node, (char*)target.c_str()));
+    char* val = reinterpret_cast<char*>(getNodeStructureComponentData(node, target.c_str()));
 
     for (int j = 0; j < count; j++) {
         data[j] = &val[j * shape[0]];
@@ -282,7 +281,7 @@ uda::Vector getStringVector(NTREE* node, const std::string& target, int count)
         return uda::Vector::Null;
     }
 
-    char** val = reinterpret_cast<char**>(getNodeStructureComponentData(node, (char*)target.c_str()));
+    char** val = reinterpret_cast<char**>(getNodeStructureComponentData(node, target.c_str()));
 
     for (int j = 0; j < count; j++) {
         data[j] = val[j];
@@ -293,7 +292,7 @@ uda::Vector getStringVector(NTREE* node, const std::string& target, int count)
 
 uda::Vector uda::TreeNode::atomicVector(const std::string& target)
 {
-    NTREE* node = findNTreeStructureComponent(node_, (char*)target.c_str());
+    NTREE* node = findNTreeStructureComponent(node_, target.c_str());
     //NTREE * node = findNTreeStructureComponent(node_, (char *)target.c_str()); // Locate the named variable target
     if (node == NULL) return Vector::Null;
 
@@ -314,10 +313,10 @@ uda::Vector uda::TreeNode::atomicVector(const std::string& target)
         if (target == anames[i]) {
             if (std::string("STRING *") == atypes[i] && ((arank[i] == 0 && apoint[i] == 1) || (arank[i] == 1 && apoint[i] == 0))) {
                 // String array in a single data structure
-                char** val = reinterpret_cast<char**>(getNodeStructureComponentData(node, (char*)target.c_str()));
+                char** val = reinterpret_cast<char**>(getNodeStructureComponentData(node, target.c_str()));
                 return uda::Vector(val, (size_t)ashape[i][0]);
             } else if (arank[i] == 0 && apoint[i] == 1) {
-                int count = getNodeStructureComponentDataCount(node, (char*)target.c_str());
+                int count = getNodeStructureComponentDataCount(node, target.c_str());
                 if (std::string("STRING *") == atypes[i]) return getVector<char*>(node, target, count);
                 if (std::string("short *") == atypes[i]) return getVector<short>(node, target, count);
                 if (std::string("double *") == atypes[i]) return getVector<double>(node, target, count);
@@ -345,7 +344,7 @@ uda::Vector uda::TreeNode::atomicVector(const std::string& target)
 template <typename T>
 static uda::Array getArray(NTREE* node, const std::string& target, int* shape, int rank)
 {
-    T* data = reinterpret_cast<T*>(getNodeStructureComponentData(node, (char*)target.c_str()));
+    T* data = reinterpret_cast<T*>(getNodeStructureComponentData(node, target.c_str()));
 
     std::vector<uda::Dim> dims;
     for (int i = 0; i < rank; ++i) {
@@ -361,8 +360,7 @@ static uda::Array getArray(NTREE* node, const std::string& target, int* shape, i
 
 uda::Array uda::TreeNode::atomicArray(const std::string& target)
 {
-    NTREE* node = findNTreeStructureComponent(node_, (char*)target.c_str());
-    //NTREE * node = findNTreeStructureComponent(node_, (char *)target.c_str()); // Locate the named variable target
+    NTREE* node = findNTreeStructureComponent(node_, target.c_str());
     if (node == NULL) return Array::Null;
 
     int acount = getNodeAtomicCount(node); // Number of atomic typed structure members
@@ -395,15 +393,13 @@ uda::Array uda::TreeNode::atomicArray(const std::string& target)
 
 uda::StructData uda::TreeNode::structData(const std::string& target)
 {
-    NTREE* node = findNTreeStructureComponent(node_, (char*)target.c_str());
+    NTREE* node = findNTreeStructureComponent(node_, target.c_str());
     if (node == NULL) return StructData::Null;
 
     int count = getNodeChildrenCount(node->parent);
-    //void ** data = static_cast<void **>(malloc(count * sizeof(void *)));
 
     uda::StructData data;
 
-    //addMalloc(data, count, sizeof(void *), (char *)"void *");
     for (int j = 0; j < count; j++) {
         void* ptr = getNodeData(node->parent->children[j]);
         std::string name(getNodeStructureType(node->parent->children[j]));

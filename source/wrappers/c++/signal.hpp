@@ -35,6 +35,8 @@ public:
     const std::string& comment() const { return comment_; }
     const std::string& code() const { return code_; }
 
+    void put() const;
+
 private:
     uda::Array array_;
     SignalClass signal_class_;

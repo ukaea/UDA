@@ -1036,7 +1036,7 @@ int readIdaItem(char* itemname, ida_file_ptr* ida_file, short* context, DATA_BLO
     int i, j, rerr;
 
     long retshotnr, spaceused;
-    long nt, nx, ny, * xsams, * tsams, maxnx;
+    long nt, nx, ny, * xsams, maxnx;
     long* dxtsam1, * xtsams, totsams;
 
     unsigned short ysams, nz, z0;
@@ -1226,13 +1226,20 @@ int readIdaItem(char* itemname, ida_file_ptr* ida_file, short* context, DATA_BLO
 
 // Time axis
 
-        tsams = (long*)calloc(udoms, sizeof(long));
+        int* tsams = (int*)calloc(udoms, sizeof(int));
 
         toff = (float*)calloc(udoms, sizeof(float));
         tint = (float*)calloc(udoms, sizeof(float));
         tmax = (float*)calloc(udoms, sizeof(float));
 
-        err = ida_get_tinfo(item, udoms, toff, tint, tmax, tsams, tunits, tlabel);
+        {
+            long* temp = (long*)calloc(udoms, sizeof(long));
+            err = ida_get_tinfo(item, udoms, toff, tint, tmax, temp, tunits, tlabel);
+            for (i = 0; i < udoms; ++i) {
+                tsams[i] = (int)temp[i];
+            }
+            free(temp);
+        }
 
         if (err != 0) {
             ida_error_mess(err, msg);

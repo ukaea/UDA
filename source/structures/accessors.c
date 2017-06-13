@@ -805,7 +805,7 @@ void* getNodeStructureData(NTREE* ntree)
 * @param imagecount The number of bytes in the image text block.
 * @return Void
 */
-void printImage(char* image, int imagecount)
+void printImage(const char* image, int imagecount)
 {
     int next = 0;
     if (image == NULL || imagecount == '\0') {
@@ -829,7 +829,7 @@ void printImage(char* image, int imagecount)
 * @param TypeId Enumerated key indicating the type of data field, e.g. float array
 * @return Void
 */
-void defineField(COMPOUNDFIELD* field, char* name, char* desc, int* offset, unsigned short TypeId)
+void defineField(COMPOUNDFIELD* field, const char* name, const char* desc, int* offset, unsigned short TypeId)
 {
     initCompoundField(field);
     strcpy(field->name, name);
@@ -966,3 +966,22 @@ void defineField(COMPOUNDFIELD* field, char* name, char* desc, int* offset, unsi
     *offset = field->offset + field->size; // Next Offset
 }
 
+void defineCompoundField(COMPOUNDFIELD* field, const char* type, const char* name, char* desc, int offset, int size)
+{
+    initCompoundField(field);
+
+    strcpy(field->name, name);
+    field->atomictype = TYPE_UNKNOWN;
+    strcpy(field->type, type);
+    strcpy(field->desc, desc);
+
+    field->pointer = 1;
+    field->count = 1;
+    field->rank = 0;
+    field->shape = NULL;
+
+    field->size = field->count * size;
+    field->offset = offset;
+    field->offpad = padding(offset, field->type);
+    field->alignment = ALIGNMENT;
+}

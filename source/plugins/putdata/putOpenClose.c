@@ -102,7 +102,7 @@ int do_open(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         if (strstr(filename, "/") == NULL)
             sprintf(path, "./%s", filename);        // Local directory
         else
-            strcpy(path, filename);                 // Contains directory
+            sprintf(path, "%s", filename);          // Contains directory
     }
 
     int create = findValue(&idam_plugin_interface->request_block->nameValueList, "create");
@@ -238,37 +238,44 @@ int do_open(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     }
 
     const char* title = NULL;
-    FIND_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, title);
+    FIND_REQUIRED_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, title);
 
-    if (title != NULL) {
-        if (nc_put_att_text(fileid, NC_GLOBAL, "title", strlen(title), title) != NC_NOERR) {
-            RAISE_PLUGIN_ERROR("Unable to Write the Title Root Group Attribute");
-        }
-    } else if (create) {
-        RAISE_PLUGIN_ERROR("No File Title has been specified");
+    if (nc_put_att_text(fileid, NC_GLOBAL, "title", strlen(title), title) != NC_NOERR) {
+        RAISE_PLUGIN_ERROR("Unable to Write the Title Root Group Attribute");
     }
 
-    const char* date = NULL;
-    FIND_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, date);
+    time_t timer;
+    time(&timer);
+    struct tm* tm_info = localtime(&timer);
 
-    if (date != NULL) {
-        if (nc_put_att_text(fileid, NC_GLOBAL, "date", strlen(date), date) != NC_NOERR) {
-            RAISE_PLUGIN_ERROR("Unable to Write the Date Root Group Attribute");
-        }
-    } else if (create) {
-        RAISE_PLUGIN_ERROR("No Date has been specified");
+    char datetime[100] = {};
+    strftime(datetime, 100, "%FT%TZ", tm_info);
+
+    if (nc_put_att_text(fileid, NC_GLOBAL, "timestamp", strlen(datetime), datetime) != NC_NOERR) {
+        RAISE_PLUGIN_ERROR("Unable to Write the Date Root Group Attribute");
     }
 
-    const char* time = NULL;
-    FIND_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, time);
-
-    if (time != NULL) {
-        if (nc_put_att_text(fileid, NC_GLOBAL, "time", strlen(time), time) != NC_NOERR) {
-            RAISE_PLUGIN_ERROR("Unable to Write the Time Root Group Attribute");
-        }
-    } else if (create) {
-        RAISE_PLUGIN_ERROR("No Time has been specified");
-    }
+//    const char* date = NULL;
+//    FIND_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, date);
+//
+//    if (date != NULL) {
+//        if (nc_put_att_text(fileid, NC_GLOBAL, "date", strlen(date), date) != NC_NOERR) {
+//            RAISE_PLUGIN_ERROR("Unable to Write the Date Root Group Attribute");
+//        }
+//    } else if (create) {
+//        RAISE_PLUGIN_ERROR("No Date has been specified");
+//    }
+//
+//    const char* time = NULL;
+//    FIND_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, time);
+//
+//    if (time != NULL) {
+//        if (nc_put_att_text(fileid, NC_GLOBAL, "time", strlen(time), time) != NC_NOERR) {
+//            RAISE_PLUGIN_ERROR("Unable to Write the Time Root Group Attribute");
+//        }
+//    } else if (create) {
+//        RAISE_PLUGIN_ERROR("No Time has been specified");
+//    }
 
     int shot = -1;
     FIND_INT_VALUE(idam_plugin_interface->request_block->nameValueList, shot);

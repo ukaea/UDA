@@ -19,8 +19,8 @@ extern "C" {
 * more rigour to the search.  
 * @param lastname Returns the name of the element, i.e., the name of the last item in the name hierarchy.
 * @return the Tree Node containing the named element.
-*/ 
-NTREE *findNTreeStructureComponent2(NTREE *ntree, const char * target, const char **lastname);
+*/
+NTREE* findNTreeStructureComponent2(NTREE* ntree, const char* target, const char** lastname);
 
 /** Find (search type B) and return a Pointer to the named Data Tree Node with a data structure of the same name.
 * The name of the structure is also returned.  
@@ -32,7 +32,7 @@ NTREE *findNTreeStructureComponent2(NTREE *ntree, const char * target, const cha
 * @param lastname Returns the name of the Structure, i.e., the name of the last node in the name hierarchy.
 * @return the Data Tree Node with the structure name.
 */
-NTREE *findNTreeStructure2(NTREE *ntree, const char * target, const char **lastname);
+NTREE* findNTreeStructure2(NTREE* ntree, const char* target, const char** lastname);
 
 /** Find (search type A) and return a Pointer to the Data Tree Node with a data structure that contains a named element. 
 *
@@ -42,8 +42,8 @@ NTREE *findNTreeStructure2(NTREE *ntree, const char * target, const char **lastn
 * @param target The name of the structure element or member (case sensitive) using a hierachical naming syntax a.b.c or a/b/c.
 * This element may be either a structure itself or an atomic typed element.
 * @return the Data Tree Node.
-*/ 
-NTREE *findNTreeStructureComponent(NTREE *ntree, const char * target);
+*/
+NTREE* findNTreeStructureComponent(NTREE* ntree, const char* target);
 
 /** Find (search type A) and return a Pointer to the Child Data Tree Node with a data structure that contains a named element. 
 *
@@ -53,8 +53,8 @@ NTREE *findNTreeStructureComponent(NTREE *ntree, const char * target);
 * @param target The name of the structure element or member (case sensitive) using a hierachical naming syntax a.b.c or a/b/c.
 * This element may be either a structure itself or an atomic typed element.
 * @return the Data Tree Node.
-*/ 
-NTREE *findNTreeChildStructureComponent(NTREE *ntree, const char * target);
+*/
+NTREE* findNTreeChildStructureComponent(NTREE* ntree, const char* target);
 
 /** Find (search type B) and return a Pointer to the named Data Tree Node with a data structure of the same name.
 *
@@ -63,8 +63,8 @@ NTREE *findNTreeChildStructureComponent(NTREE *ntree, const char * target);
 * @param ntree A pointer to a parent tree node. If NULL the root node is assumed. 
 * @param target The name of the Structure (case sensitive) using a hierachical naming syntax a.b.c or a/b/c.
 * @return the Data Tree Node.
-*/ 
-NTREE *findNTreeStructure(NTREE *ntree, const char * target);
+*/
+NTREE* findNTreeStructure(NTREE* ntree, const char* target);
 
 /** Find (search type B) and return a Pointer to the named Data Tree Node with a data structure of the same name.
 *
@@ -74,7 +74,7 @@ NTREE *findNTreeStructure(NTREE *ntree, const char * target);
 * @param target The name of the Structure (case sensitive) using a hierachical naming syntax a.b.c or a/b/c.
 * @return the child Data Tree Node.
 */
-NTREE *findNTreeChildStructure(NTREE *ntree, const char * target);
+NTREE* findNTreeChildStructure(NTREE* ntree, const char* target);
 
 /** Find and return a Pointer to a Data Tree Node with a data structure located at a specific memory location.
 *
@@ -84,7 +84,7 @@ NTREE *findNTreeChildStructure(NTREE *ntree, const char * target);
 * @param data The heap address of the data.
 * @return the Data Tree Node.
 */
-NTREE *findNTreeStructureMalloc(NTREE *ntree, void *data);
+NTREE* findNTreeStructureMalloc(NTREE* ntree, void* data);
 
 /** Locate a tree node with structured data having the specified Structure Definition name. 
 *
@@ -94,7 +94,7 @@ NTREE *findNTreeStructureMalloc(NTREE *ntree, void *data);
 * @param target The name of the Structure Definition.
 * @return A pointer to the First tree node found with the targeted structure definition.
 */
-NTREE *findNTreeStructureDefinition(NTREE *ntree, const char * target);
+NTREE* findNTreeStructureDefinition(NTREE* ntree, const char* target);
 
 /** Locate a tree node with structured data having the specified Structure Definition name. 
 *
@@ -104,7 +104,7 @@ NTREE *findNTreeStructureDefinition(NTREE *ntree, const char * target);
 * @param target The name of the Structure Definition.
 * @return A pointer to the First tree node found with the targeted structure definition.
 */
-NTREE *findNTreeStructureComponentDefinition(NTREE *tree, const char * target);
+NTREE* findNTreeStructureComponentDefinition(NTREE* tree, const char* target);
 
 /** Locate a tree node with structured data having a Specific Structure Class. 
 *
@@ -114,7 +114,7 @@ NTREE *findNTreeStructureComponentDefinition(NTREE *tree, const char * target);
 * @param class The Structure Class, e.g., TYPE_VLEN.
 * @return A pointer to the First tree node found with the targeted structure class.
 */
-NTREE *idam_findNTreeStructureClass(NTREE *tree, int class_);
+NTREE* idam_findNTreeStructureClass(NTREE* tree, int class_);
 
 /** Identify the largest count of a Variable Length Array with a given structure type. 
 *
@@ -125,7 +125,7 @@ NTREE *idam_findNTreeStructureClass(NTREE *tree, int class_);
 * @param reset Reset the counbter to zero.
 * @return An integer returning the maximum count value.
 */
-int idam_maxCountVlenStructureArray(NTREE *tree, const char * target, int reset);
+int idam_maxCountVlenStructureArray(NTREE* tree, const char* target, int reset);
 
 /** Regularise a specific VLEN structure. 
 *
@@ -136,7 +136,7 @@ int idam_maxCountVlenStructureArray(NTREE *tree, const char * target, int reset)
 * @param count The maximum count size for the VLEN data arrays.
 * @return An integer returning an error code: 0 => OK.
 */
-int idam_regulariseVlenStructures(NTREE *tree, const char * target, int count);
+int idam_regulariseVlenStructures(NTREE* tree, const char* target, int count);
 
 /** Regularise the Shape of All VLEN structured data arrays in the data tree: necessary for accessing in some languages, e.g. IDL. 
 *
@@ -145,7 +145,7 @@ int idam_regulariseVlenStructures(NTREE *tree, const char * target, int count);
 * @param tree A pointer to a parent tree node. If NULL the root node is assumed.  
 * @return An integer returning an error code: 0 => OK.
 */
-int idam_regulariseVlenData(NTREE *tree);
+int idam_regulariseVlenData(NTREE* tree);
 
 //---------------------------------------------------------------------------------------------
 //---------------------------------------------------------------------------------------------
@@ -157,8 +157,8 @@ int idam_regulariseVlenData(NTREE *tree);
 *
 * @param ntree A pointer to a tree node. If NULL the root node is assumed. 
 * @return the Count of structured data array elements.
-*/ 
-int getNodeStructureDataCount(NTREE *ntree);
+*/
+int getNodeStructureDataCount(NTREE* ntree);
 
 /** Return the Size (bytes) of the structured data array attached to this tree node. 
 *
@@ -166,8 +166,8 @@ int getNodeStructureDataCount(NTREE *ntree);
 *
 * @param ntree A pointer to a tree node. If NULL the root node is assumed. 
 * @return the Size (bytes) of the structured data array.
-*/ 
-int getNodeStructureDataSize(NTREE *ntree);
+*/
+int getNodeStructureDataSize(NTREE* ntree);
 
 /** Return the rank of the structured data array attached to this tree node. 
 *
@@ -176,7 +176,7 @@ int getNodeStructureDataSize(NTREE *ntree);
 * @param ntree A pointer to a tree node. If NULL the root node is assumed. 
 * @return The rank of the structured data array.
 */
-int getNodeStructureDataRank(NTREE *ntree);
+int getNodeStructureDataRank(NTREE* ntree);
 
 /** Return the shape of the structured data array attached to this tree node. 
 *
@@ -184,8 +184,8 @@ int getNodeStructureDataRank(NTREE *ntree);
 *
 * @param ntree A pointer to a tree node. If NULL the root node is assumed. 
 * @return A pointer to the integer shape array of the structured data array.
-*/ 
-int *getNodeStructureDataShape(NTREE *ntree);
+*/
+int* getNodeStructureDataShape(NTREE* ntree);
 
 /** Return a pointer to the structured data type name of the data array attached to this tree node. 
 *
@@ -194,8 +194,8 @@ int *getNodeStructureDataShape(NTREE *ntree);
 * @param ntree A pointer to a tree node. If NULL the root node is assumed. 
 * @return the data type name of the structured data array.
 */
-char *getNodeStructureDataDataType(NTREE *ntree);
- 
+char* getNodeStructureDataDataType(NTREE* ntree);
+
 /** Return a pointer to the data attached to this tree node.  
 *
 * This is a public function with the current tree node only in scope.
@@ -203,7 +203,7 @@ char *getNodeStructureDataDataType(NTREE *ntree);
 * @param ntree A pointer to a tree node. If NULL the root node is assumed. 
 * @return A void pointer to the data .
 */
-void *getNodeStructureData(NTREE *ntree);
+void* getNodeStructureData(NTREE* ntree);
 
 //----------------------------------------------------------------------------------------------------------
 // Sundry utility functions
@@ -218,7 +218,7 @@ void *getNodeStructureData(NTREE *ntree);
 * @param imagecount The number of bytes in the image text block.
 * @return Void
 */
-void printImage(char *image, int imagecount);
+void printImage(const char* image, int imagecount);
 
 //---------------------------------------------------------------------------------------------------------- 
 /**User defined structure field definition for common types  
@@ -232,7 +232,9 @@ void printImage(char *image, int imagecount);
 * @param TypeId Enumerated key indicating the type of data field, e.g. float array
 * @return Void
 */
-void defineField(COMPOUNDFIELD *field, char *name, char *desc, int *offset, unsigned short TypeId);
+void defineField(COMPOUNDFIELD* field, const char* name, const char* desc, int* offset, unsigned short TypeId);
+
+void defineCompoundField(COMPOUNDFIELD* field, const char* type, const char* name, char* desc, int offset, int size);
 
 #ifdef __cplusplus
 }
