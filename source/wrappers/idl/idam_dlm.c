@@ -328,7 +328,7 @@ static IDL_SYSFUN_DEF2 getdata_functions[] = {
         {{(IDL_FUN_RET) getidamnodeatomiccount},               "GETIDAMNODEATOMICCOUNT",               2, 2, IDL_SYSFUN_DEF_F_KEYWORDS, 0},
         {{(IDL_FUN_RET) getidamnodeatomicrank},                "GETIDAMNODEATOMICRANK",                2, 2, IDL_SYSFUN_DEF_F_KEYWORDS, 0},
         {{(IDL_FUN_RET) getidamnodeatomicshape},               "GETIDAMNODEATOMICSHAPE",               2, 2, IDL_SYSFUN_DEF_F_KEYWORDS, 0},
-        {{(IDL_FUN_RET) getidamnodeatomicnames},               "GETIDAMNODEATOMICNAMES",               2, 2, IDL_SYSFUN_DEF_F_KEYWORDS, 0},
+       {{(IDL_FUN_RET) getidamnodeatomicnames},               "GETIDAMNODEATOMICNAMES",               2, 2, IDL_SYSFUN_DEF_F_KEYWORDS, 0},
         {{(IDL_FUN_RET) getidamnodeatomictypes},               "GETIDAMNODEATOMICTYPES",               2, 2, IDL_SYSFUN_DEF_F_KEYWORDS, 0},
         {{(IDL_FUN_RET) getidamnodeatomicpointers},            "GETIDAMNODEATOMICPOINTERS",            2, 2, IDL_SYSFUN_DEF_F_KEYWORDS, 0},
         {{(IDL_FUN_RET) getidamnodeatomicdatacount},           "GETIDAMNODEATOMICDATACOUNT",           3, 3, IDL_SYSFUN_DEF_F_KEYWORDS, 0},
@@ -754,153 +754,173 @@ IDL_VPTR IDL_CDECL idamputapi(int argc, IDL_VPTR argv[], char* argk) {
     int i, rank = 0, count = 0;
     int type = IDL_TYP_UNDEF;
 
-    if (argc >= 3 && (argv[1]->flags & IDL_V_ARR) && argv[1]->type != IDL_TYP_STRUCT) {
-        IDL_ENSURE_ARRAY(argv[1]);
+    if (argc >= 2 && (argv[1]->flags & IDL_V_ARR) && argv[1]->type != IDL_TYP_STRUCT) {
+      IDL_ENSURE_ARRAY(argv[1]);
 
-        if (kw.verbose) {
-            fprintf(stdout, "arg #1:Array Passed\n");
-        }
+      if (kw.verbose) {
+	fprintf(stdout, "arg #1:Array Passed\n");
+      }
+      
+      putData.rank = argv[1]->value.arr->n_dim;
+      putData.count = argv[1]->value.arr->n_elts;
+      type = argv[1]->type;
+      
+      putData.data = (char*) argv[1]->value.arr->data;
+      
+      if (putData.count == 0) {
+	if (kw.verbose) {
+	  fprintf(stdout, "Error: Zero Count of array elements\n");
+	}
+	
+	return (IDL_GettmpLong(-999));
+      }
+      
+      if (kw.debug) {
+	fprintf(stdout, "+++ idamPutAPI before shape +++\n");
+	fprintf(stdout, "rank : %d\n", putData.rank);
+	fflush(stdout);
+      }
 
-        putData.rank = argv[1]->value.arr->n_dim;
-        putData.count = argv[1]->value.arr->n_elts;
-        type = argv[1]->type;
-        putData.data = (char*) argv[1]->value.arr->data;
+      int ndims = putData.rank;
+      if (ndims == 0) {
+	ndims = 1;
+      }
 
-        if (putData.count == 0) {
-            if (kw.verbose) {
-                fprintf(stdout, "Error: Zero Count of array elements\n");
-            }
+      putData.shape = (int*) malloc(ndims * sizeof(int));
 
-            return (IDL_GettmpLong(-999));
-        }
+      if (putData.rank > 1) {
+	for (i = 0; i < putData.rank; i++) {
+	  // REVERSE dimensions (IDL => C)
+	  putData.shape[putData.rank - 1 - i] = (int) argv[1]->value.arr->dim[i];
+	}
+      } else if (putData.rank == 1) {
+	putData.shape[0] = (int) argv[1]->value.arr->dim[0];
+      } else {
+	putData.shape[0] = 1;
+      }
 
-        if (putData.rank > 1) {
-            putData.shape = (int*) malloc(rank * sizeof(int));
+      if (kw.debug) {
+	fprintf(stdout, "+++ idamPutAPI +++\n");
+	fprintf(stdout, "rank : %d\n", putData.rank);
+	fprintf(stdout, "count: %d\n", putData.count);
+	
+	if (type == IDL_TYP_FLOAT) {
+	  float* f = (float*) putData.data;
+	  
+	  for (i = 0; i < 5; i++) {
+	    fprintf(stdout, "data[%d]: %f\n", i, f[i]);
+	  }
+	}
+	
+	fflush(stdout);
+      }
 
-            for (i = 0; i < rank; i++) {
-                putData.shape[i] = (int) argv[1]->value.arr->dim[i];
-            }
-        }
+      switch (type) {
+      case (IDL_TYP_BYTE):
+	putData.data_type = TYPE_CHAR;
+	break;
+	
+      case (IDL_TYP_STRING):
+	putData.data_type = TYPE_STRING;
+	break;
+	
+      case (IDL_TYP_UINT):
+	putData.data_type = TYPE_UNSIGNED_SHORT;
+	break;
+	
+      case (IDL_TYP_INT):
+	putData.data_type = TYPE_SHORT;
+	break;
+	
+      case (IDL_TYP_ULONG):
+	putData.data_type = TYPE_UNSIGNED_INT;
+	break;
+	
+      case (IDL_TYP_LONG):
+	putData.data_type = TYPE_INT;
+	break;
+	
+      case (IDL_TYP_ULONG64):
+	putData.data_type = TYPE_UNSIGNED_LONG64;
+	break;
+	
+      case (IDL_TYP_LONG64):
+	putData.data_type = TYPE_LONG64;
+	break;
+	
+      case (IDL_TYP_FLOAT):
+	putData.data_type = TYPE_FLOAT;
+	break;
+	
+      case (IDL_TYP_DOUBLE):
+	putData.data_type = TYPE_DOUBLE;
+	break;
+	
+      case (IDL_TYP_COMPLEX):
+	putData.data_type = TYPE_COMPLEX;
+	break;
+	
+      case (IDL_TYP_DCOMPLEX):
+	putData.data_type = TYPE_DCOMPLEX;
+	break;
+      }
 
-        if (kw.debug) {
-            fprintf(stdout, "+++ idamPutAPI +++\n");
-            fprintf(stdout, "rank : %d\n", putData.rank);
-            fprintf(stdout, "count: %d\n", putData.count);
-
-            if (type == IDL_TYP_FLOAT) {
-                float* f = (float*) putData.data;
-
-                for (i = 0; i < 5; i++) {
-                    fprintf(stdout, "data[%d]: %f\n", i, f[i]);
-                }
-            }
-
-            fflush(stdout);
-        }
-
-        switch (type) {
-            case (IDL_TYP_BYTE):
-                putData.data_type = TYPE_UNSIGNED_CHAR;
-                break;
-
-            case (IDL_TYP_STRING):
-                putData.data_type = TYPE_STRING;
-                break;
-
-            case (IDL_TYP_UINT):
-                putData.data_type = TYPE_UNSIGNED_SHORT;
-                break;
-
-            case (IDL_TYP_INT):
-                putData.data_type = TYPE_SHORT;
-                break;
-
-            case (IDL_TYP_ULONG):
-                putData.data_type = TYPE_UNSIGNED_INT;
-                break;
-
-            case (IDL_TYP_LONG):
-                putData.data_type = TYPE_INT;
-                break;
-
-            case (IDL_TYP_ULONG64):
-                putData.data_type = TYPE_UNSIGNED_LONG64;
-                break;
-
-            case (IDL_TYP_LONG64):
-                putData.data_type = TYPE_LONG64;
-                break;
-
-            case (IDL_TYP_FLOAT):
-                putData.data_type = TYPE_FLOAT;
-                break;
-
-            case (IDL_TYP_DOUBLE):
-                putData.data_type = TYPE_DOUBLE;
-                break;
-
-            case (IDL_TYP_COMPLEX):
-                putData.data_type = TYPE_COMPLEX;
-                break;
-
-            case (IDL_TYP_DCOMPLEX):
-                putData.data_type = TYPE_DCOMPLEX;
-                break;
-        }
-
-        if (kw.debug) {
-            fprintf(stdout, "type: %d\n", putData.data_type);
-            fflush(stdout);
-        }
+      if (kw.debug) {
+	fprintf(stdout, "type: %d\n", putData.data_type);
+	fflush(stdout);
+      }
 
         // String arrays have to be regularised (equal length) as this method does not pass arrays of pointers
 
-        char* new = NULL;
+      char* new = NULL;
 
-        if (type == IDL_TYP_STRING) {
-            int maxLength = 0;
-            IDL_STRING* sidl = NULL;
+      if (type == IDL_TYP_STRING) {
+	int maxLength = 0;
+	IDL_STRING* sidl = NULL;
+	
+	for (i = 0; i < putData.count; i++) {
+	  sidl = (IDL_STRING*) putData.data;
+	  
+	  if (sidl->slen > maxLength) {
+	    maxLength = sidl->slen;
+	  }
+	}
+	
+	new = (char*) malloc(
+			     putData.count * (maxLength + 1) * sizeof(char)); // Block of memory for the strings
+	
+	for (i = 0; i < putData.count; i++) {
+	  sidl = (IDL_STRING*) putData.data;
+	  strncpy(&new[i * (maxLength + 1)], (char*) sidl->s, sidl->slen); // should be NULL terminated
+	}
 
-            for (i = 0; i < putData.count; i++) {
-                sidl = (IDL_STRING*) putData.data;
+	putData.data = new;
+      }
 
-                if (sidl->slen > maxLength) {
-                    maxLength = sidl->slen;
-                }
-            }
+      // PUT the data to the server      
+      if (kw.verbose) {
+	for (i = 0; i < putData.rank; i++){
+	  fprintf(stdout, "i [%d] shape [%d]\n", i, putData.shape[i]);
+	}
+      }
 
-            new = (char*) malloc(
-                    putData.count * (maxLength + 1) * sizeof(char)); // Block of memory for the strings
+      int h = idamPutAPI(IDL_STRING_STR(&(argv[0]->value.str)), &putData);
+      
+      //      if (putData.rank >= 1 && putData.shape != NULL) {
+      free((void*) putData.shape);
+	//}
+      
+      if (type == IDL_TYP_STRING && new != NULL) {
+	free((void*) new);
+      }
+      
+      return (IDL_GettmpLong(h));
 
-            for (i = 0; i < putData.count; i++) {
-                sidl = (IDL_STRING*) putData.data;
-                strncpy(&new[i * (maxLength + 1)], (char*) sidl->s, sidl->slen); // should be NULL terminated
-            }
-
-            putData.data = new;
-        }
-
-        // PUT the data to the server
-
-        int h = idamPutAPI(IDL_STRING_STR(&(argv[0]->value.str)), &putData);
-
-        if (putData.rank > 1 && putData.shape != NULL) {
-            free((void*) putData.shape);
-        }
-
-        if (type == IDL_TYP_STRING && new != NULL) {
-            free((void*) new);
-        }
-
-        return (IDL_GettmpLong(h));
-
-    } else
+    } else if (argc >= 2 && (argv[1]->flags & IDL_V_STRUCT) && argv[1]->type == IDL_TYP_STRUCT) {
 
         // Passed Structure? {name, data[]}[]   Structures are always defined as an array in IDL
         // Must have two members only: a scalar string and an array
         // An array of structures with different contents must be passed by defining a structure type
-
-    if (argc >= 3 && (argv[1]->flags & IDL_V_STRUCT) && argv[1]->type == IDL_TYP_STRUCT) {
         IDL_ENSURE_STRUCTURE(argv[1]);
 
         if (kw.debug) {
@@ -981,6 +1001,116 @@ IDL_VPTR IDL_CDECL idamputapi(int argc, IDL_VPTR argv[], char* argk) {
             */
         return (IDL_GettmpLong(-888));
 
+    } else if (argc >= 2 && argv[1]->type != IDL_TYP_STRUCT) { //argv[1]->type == IDL_TYP_STRING) {
+
+      if (kw.verbose) {
+	fprintf(stdout, "Passing a scalar value!\n");
+      }      
+
+      putData.rank = 0;
+
+      int type = argv[1]->type;
+
+
+      switch (type) {
+      case (IDL_TYP_BYTE):
+	putData.data_type = TYPE_CHAR;
+        char value_char = (char) IDL_LongScalar(argv[1]);
+	putData.data = (char*) &value_char;
+	putData.count = 1;
+	break;
+	
+      case (IDL_TYP_STRING):
+	putData.data_type = TYPE_STRING;
+	putData.data = IDL_VarGetString(argv[1]);
+	putData.count = strlen(putData.data)+1;
+	break;
+	
+      case (IDL_TYP_UINT):
+	putData.data_type = TYPE_UNSIGNED_SHORT;
+	unsigned short value_ushort = (unsigned short) IDL_ULongScalar(argv[1]);
+	putData.data = (char*) &value_ushort;
+	putData.count = 1;
+	break;
+	
+      case (IDL_TYP_INT):
+	putData.data_type = TYPE_SHORT;
+	short value_short = (short) IDL_LongScalar(argv[1]);
+	putData.data = (char*) &value_short;
+	putData.count = 1;
+	break;
+	
+      case (IDL_TYP_ULONG):
+	putData.data_type = TYPE_UNSIGNED_INT;
+	unsigned int value_uint = (unsigned int) IDL_ULongScalar(argv[1]);
+	putData.data = (char*) &value_uint;
+	putData.count = 1;
+	break;
+	
+      case (IDL_TYP_LONG):
+	putData.data_type = TYPE_INT;
+	int value_int = (int) IDL_LongScalar(argv[1]);
+	putData.data = (char*) &value_int;
+	putData.count = 1;
+	break;
+	
+      case (IDL_TYP_ULONG64):
+	putData.data_type = TYPE_UNSIGNED_LONG64;
+	unsigned long long value_ulonglong = (unsigned long long) IDL_ULong64Scalar(argv[1]);
+	putData.data = (char*) &value_ulonglong;
+	putData.count = 1;
+	break;
+	
+      case (IDL_TYP_LONG64):
+	putData.data_type = TYPE_LONG64;
+	long long value_longlong = (long long) IDL_Long64Scalar(argv[1]);
+	putData.data = (char*) &value_longlong;
+	putData.count = 1;
+	break;
+	
+      case (IDL_TYP_FLOAT):
+	putData.data_type = TYPE_FLOAT;
+	float value_float = (float) IDL_DoubleScalar(argv[1]);
+	putData.data = (char*) &value_float;
+	putData.count = 1;
+	break;
+	
+      case (IDL_TYP_DOUBLE):
+	putData.data_type = TYPE_DOUBLE;
+	double value_double = (double) IDL_DoubleScalar(argv[1]);
+	putData.data = (char*) &value_double;
+	putData.count = 1;
+	break;
+	
+      case (IDL_TYP_COMPLEX):
+	putData.data_type = TYPE_COMPLEX;
+	IDL_COMPLEX data_idlcomp = argv[1]->value.cmp;
+	COMPLEX value_complex;
+	value_complex.real = data_idlcomp.r;
+	value_complex.imaginary = data_idlcomp.i;
+	putData.data = (char*) &value_complex;
+	putData.count = 1;
+	break;
+	
+      case (IDL_TYP_DCOMPLEX):
+	putData.data_type = TYPE_DCOMPLEX;
+	IDL_DCOMPLEX data_idldcomp = argv[1]->value.dcmp;
+	DCOMPLEX value_dcomplex;
+	value_dcomplex.real = data_idldcomp.r;
+	value_dcomplex.imaginary = data_idldcomp.i;
+	putData.data = (char*) &value_dcomplex;
+	putData.count = 1;
+	break;
+      }
+
+      if (kw.debug) {
+	fprintf(stdout, "type: %d\n", putData.data_type);
+	fflush(stdout);
+      }
+
+      int h = idamPutAPI(IDL_STRING_STR(&(argv[0]->value.str)), &putData);
+
+      return (IDL_GettmpLong(h));
     }
 
     return (IDL_GettmpLong(-997));

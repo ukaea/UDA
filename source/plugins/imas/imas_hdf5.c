@@ -360,10 +360,11 @@ int imas_hdf5_EuitmCreate(const char* name, int shot, int run, int refShot, int 
         initHdf5File();
         hdf5Startup = 0;
     }
-// Register the API function needed to close HDF5 files with the IDAM file manager
-// herr_t H5Fclose(hid_t files_id);
-// herr_t and hid_t are both integers
-// The return code herr_t in an integer (ref: H5public.h) - use the Integer specific API
+
+    // Register the API function needed to close HDF5 files with the IDAM file manager
+    // herr_t H5Fclose(hid_t files_id);
+    // herr_t and hid_t are both integers
+    // The return code herr_t in an integer (ref: H5public.h) - use the Integer specific API
 
     if (!isCloseRegistered) {
         herr_t (* close)(hid_t);    // Function pointer
@@ -372,17 +373,13 @@ int imas_hdf5_EuitmCreate(const char* name, int shot, int run, int refShot, int 
         isCloseRegistered = 1;
     }
 
-// Is the HDF5 file already open for reading? If not then open it. 
-// The handle hid_t is an integer (ref: H5Ipublic.h) - use the Integer specific API 
+    // Does the file already exist
 
-    int rc;
-    char* file = getHdf5FileName(name, shot, run);
-
-    long handle;
-    if ((handle = getOpenIdamPluginFileLong(&pluginFileList, file)) >= 0) {
-        *retIdx = findIdamPluginFileByLong(&pluginFileList, handle);
+    int rc = imas_hdf5_EuitmOpen(name, shot, run, retIdx);
+    if (rc >= 0) {
         return 0;
     }
+    rc = 0;
 
     int idx = findFirstHdf5Idx();
 
@@ -396,6 +393,7 @@ int imas_hdf5_EuitmCreate(const char* name, int shot, int run, int refShot, int 
     static char cpCommand[2048];
     char* model = getHdf5ModelName(name);
 
+    const char* file = getHdf5FileName(name, shot, run);
     sprintf(cpCommand, "cp %s %s > /dev/null 2>&1", model, file);
 
     errno = 0;
@@ -482,10 +480,10 @@ int imas_hdf5_IMASCreate(const char* name, int shot, int run, int refShot, int r
         hdf5Startup = 0;
     }
 
-// Register the API function needed to close HDF5 files with the IDAM file manager
-// herr_t H5Fclose(hid_t files_id);
-// herr_t and hid_t are both integers
-// The return code herr_t in an integer (ref: H5public.h) - use the Integer specific API
+    // Register the API function needed to close HDF5 files with the IDAM file manager
+    // herr_t H5Fclose(hid_t files_id);
+    // herr_t and hid_t are both integers
+    // The return code herr_t in an integer (ref: H5public.h) - use the Integer specific API
 
     if (!isCloseRegistered) {
         herr_t (* close)(hid_t);    // Function pointer
@@ -494,19 +492,17 @@ int imas_hdf5_IMASCreate(const char* name, int shot, int run, int refShot, int r
         isCloseRegistered = 1;
     }
 
-// Is the HDF5 file already open for reading? If not then open it. 
-// The handle hid_t is an integer (ref: H5Ipublic.h) - use the Integer specific API 
+    // Does the file already exist
 
-    long handle;
-    if ((handle = getOpenIdamPluginFileLong(&pluginFileList, getHdf5FileName(name, shot, run))) >= 0) {
-        *retIdx = findIdamPluginFileByLong(&pluginFileList, handle);
+    int rc = imas_hdf5_EuitmOpen(name, shot, run, retIdx);
+    if (rc >= 0) {
         return 0;
     }
 
     int idx = findFirstHdf5Idx();
 
-// H5F_ACC_TRUNC to overwrite
-// H5F_ACC_DEBUG to request debug output (use OR bit combination)
+    // H5F_ACC_TRUNC to overwrite
+    // H5F_ACC_DEBUG to request debug output (use OR bit combination)
 
     hdf5Files[idx] = H5Fcreate(getHdf5FileName(name, shot, run), H5F_ACC_EXCL, H5P_DEFAULT, H5P_DEFAULT);
     if (hdf5Files[idx] < 0) {
@@ -538,8 +534,8 @@ int imas_hdf5_EuitmOpen(const char* name, int shot, int run, int* retIdx)
         isCloseRegistered = 1;
     }
 
-// Is the HDF5 file already open for reading? If not then open it. 
-// The handle hid_t is an integer (ref: H5Ipublic.h) - use the Integer specific API 
+    // Is the HDF5 file already open for reading? If not then open it.
+    // The handle hid_t is an integer (ref: H5Ipublic.h) - use the Integer specific API
 
     long handle;
     if ((handle = getOpenIdamPluginFileLong(&pluginFileList, getHdf5FileName(name, shot, run))) >= 0) {
@@ -1572,7 +1568,7 @@ int imas_hdf5_DeleteData(int expIdx, const char* cpoPath, const char* path)
 
 // Missing group from MODEL? Create commands for use to repair the Model
 
-        IDAM_LOGF(LOG_DEBUG, "createGroup(rootId, \"/%s\");\n", groupName);
+        IDAM_LOGF(UDA_LOG_DEBUG, "createGroup(rootId, \"/%s\");\n", groupName);
         sprintf(errmsg, "Error opening HDF5 Group %s", groupName);
         free(groupName);
         free(dataName);

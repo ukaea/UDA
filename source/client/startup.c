@@ -68,9 +68,9 @@ int idamStartup(int reset)
 //----------------------------------------------------------------
 // Check if Output Requested
 
-    idamSetLogLevel((LOG_MODE)environment->loglevel);
+    idamSetLogLevel((LOG_LEVEL)environment->loglevel);
 
-    if (environment->loglevel == LOG_NONE) return 0;
+    if (environment->loglevel == UDA_LOG_NONE) return 0;
 
 //---------------------------------------------------------------
 // Open the Log File
@@ -85,9 +85,9 @@ int idamStartup(int reset)
     strcpy(idamFile, environment->logdir);
     strcat(idamFile, "Debug.dbg");
     file = fopen(idamFile, environment->logmode);
-    idamSetLogFile(LOG_WARN, file);
-    idamSetLogFile(LOG_DEBUG, file);
-    idamSetLogFile(LOG_INFO, file);
+    idamSetLogFile(UDA_LOG_WARN, file);
+    idamSetLogFile(UDA_LOG_DEBUG, file);
+    idamSetLogFile(UDA_LOG_INFO, file);
 
     if (errno != 0) {
         addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "idamStartup", errno, "failed to open debug log");
@@ -95,11 +95,11 @@ int idamStartup(int reset)
         return -1;
     }
 
-    if (idamGetLogLevel() == LOG_ERROR) {
+    if (idamGetLogLevel() == UDA_LOG_ERROR) {
         strcpy(idamFile, environment->logdir);
         strcat(idamFile, "Error.err");
         file = fopen(idamFile, environment->logmode);
-        idamSetLogFile(LOG_ERROR, file);
+        idamSetLogFile(UDA_LOG_ERROR, file);
     }
 
     if (errno != 0) {

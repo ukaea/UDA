@@ -12,7 +12,7 @@ foreach( TEST_FILE ${TEST_FILES} )
   if( TARGET ${PLUGIN_NAME}_plugin )
     message( "Target ${PLUGIN_NAME}_plugin exists -> building test for ${PLUGIN_NAME}" )
 
-    set( TEST test_${PLUGIN_NAME} )
+    set( TEST plugin_test_${PLUGIN_NAME} )
 
     add_executable( ${TEST} ${TEST_FILE} )
     target_link_libraries( ${TEST} PRIVATE

@@ -6,13 +6,10 @@ extern "C" {
 #endif
 
 #ifndef NOIDAPLUGIN
-
-//#include <ida3.h>
-
 //-------------------------------------------------------------------
 // Form the Filename of the IDA File
 
-void nameIDA(char * alias, int pulno, char * filename);
+void nameIDA(const char* alias, int pulno, char* filename);
 
 #endif
 

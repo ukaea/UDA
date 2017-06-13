@@ -81,6 +81,8 @@ bool findIntArray(const NAMEVALUELIST* namevaluelist, int** values, size_t* nval
 
 bool findFloatArray(const NAMEVALUELIST* namevaluelist, float** values, size_t* nvalues, const char* name);
 
+bool findDoubleArray(const NAMEVALUELIST* namevaluelist, double** values, size_t* nvalues, const char* name);
+
 int callPlugin(PLUGINLIST* pluginlist, const char* request, const IDAM_PLUGIN_INTERFACE* old_plugin_interface);
 
 #define QUOTE_(X) #X
@@ -91,19 +93,19 @@ int callPlugin(PLUGINLIST* pluginlist, const char* request, const IDAM_PLUGIN_IN
 
 #define RAISE_PLUGIN_ERROR(MSG) \
 { int UNIQUE_VAR(err) = 999; \
-IDAM_LOGF(LOG_ERROR, "%s\n", MSG); \
+IDAM_LOGF(UDA_LOG_ERROR, "%s\n", MSG); \
 addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, UNIQUE_VAR(err), MSG); \
 return UNIQUE_VAR(err); }
 
 #define RAISE_PLUGIN_ERROR_F(MSG, FMT, ...) \
 { int UNIQUE_VAR(err) = 999; \
-IDAM_LOGF(LOG_ERROR, "%s\n", FMT, __VA_ARGS__); \
+IDAM_LOGF(UDA_LOG_ERROR, "%s\n", FMT, __VA_ARGS__); \
 addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, UNIQUE_VAR(err), MSG); \
 return UNIQUE_VAR(err); }
 
 #define RAISE_PLUGIN_ERROR_EX(MSG, CODE) \
 int UNIQUE_VAR(err) = 999; \
-IDAM_LOGF(LOG_ERROR, "%s", MSG); \
+IDAM_LOGF(UDA_LOG_ERROR, "%s", MSG); \
 addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, UNIQUE_VAR(err), MSG); \
 CODE; \
 return UNIQUE_VAR(err);
@@ -126,6 +128,7 @@ if (!find##TYPE##Array(&NAME_VALUE_LIST, &VARIABLE, CONCAT(&n, VARIABLE), QUOTE(
 
 #define FIND_REQUIRED_INT_ARRAY(NAME_VALUE_LIST, VARIABLE)      FIND_REQUIRED_ARRAY(NAME_VALUE_LIST, VARIABLE, Int)
 #define FIND_REQUIRED_FLOAT_ARRAY(NAME_VALUE_LIST, VARIABLE)    FIND_REQUIRED_ARRAY(NAME_VALUE_LIST, VARIABLE, Float)
+#define FIND_REQUIRED_DOUBLE_ARRAY(NAME_VALUE_LIST, VARIABLE)    FIND_REQUIRED_ARRAY(NAME_VALUE_LIST, VARIABLE, Double)
 
 #define FIND_INT_VALUE(NAME_VALUE_LIST, VARIABLE)       findIntValue(&NAME_VALUE_LIST, &VARIABLE, QUOTE(VARIABLE))
 #define FIND_SHORT_VALUE(NAME_VALUE_LIST, VARIABLE)     findShortValue(&NAME_VALUE_LIST, &VARIABLE, QUOTE(VARIABLE))
@@ -135,6 +138,7 @@ if (!find##TYPE##Array(&NAME_VALUE_LIST, &VARIABLE, CONCAT(&n, VARIABLE), QUOTE(
 
 #define FIND_INT_ARRAY(NAME_VALUE_LIST, VARIABLE)       findIntArray(&NAME_VALUE_LIST, &VARIABLE, CONCAT(&n, VARIABLE), QUOTE(VARIABLE))
 #define FIND_FLOAT_ARRAY(NAME_VALUE_LIST, VARIABLE)     findFloatArray(&NAME_VALUE_LIST, &VARIABLE, CONCAT(&n, VARIABLE), QUOTE(VARIABLE))
+#define FIND_DOUBLE_ARRAY(NAME_VALUE_LIST, VARIABLE)     findDoubleArray(&NAME_VALUE_LIST, &VARIABLE, CONCAT(&n, VARIABLE), QUOTE(VARIABLE))
 
 #define CALL_PLUGIN(PLUGIN_INTERFACE, FMT, ...) \
 { char UNIQUE_VAR(request)[1024]; \

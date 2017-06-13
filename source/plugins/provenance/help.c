@@ -36,14 +36,14 @@ int help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     } else {
         err = 999;
-        IDAM_LOG(LOG_ERROR, "ERROR Provenance: Plugin Interface Version Unknown\n");
+        IDAM_LOG(UDA_LOG_ERROR, "ERROR Provenance: Plugin Interface Version Unknown\n");
 
         addIdamError(&idamerrorstack, CODEERRORTYPE, "Provenance", err,
                      "Plugin Interface Version is Not Known: Unable to execute the request!");
         return err;
     }
 
-    IDAM_LOG(LOG_DEBUG, "Provenance: Plugin Interface transferred\n");
+    IDAM_LOG(UDA_LOG_DEBUG, "Provenance: Plugin Interface transferred\n");
 
 //----------------------------------------------------------------------------------------
 // Common Name Value pairs
@@ -57,7 +57,7 @@ int help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     do {
 
-        IDAM_LOG(LOG_DEBUG, "Provenance: entering function help\n");
+        IDAM_LOG(UDA_LOG_DEBUG, "Provenance: entering function help\n");
 
         strcpy(work, "\nProvenance: Issue and register a new UUID for a specific scientific study.\n\n"
 
@@ -82,7 +82,7 @@ int help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 "\tlogRecord=logRecord, created=created, status=[New|Update|Close|Delete])\n\n"
         );
 
-        IDAM_LOGF(LOG_DEBUG, "Provenance:\n%s\n", work);
+        IDAM_LOGF(UDA_LOG_DEBUG, "Provenance:\n%s\n", work);
 
 // Create the Returned Structure Definition
 
@@ -128,8 +128,8 @@ int help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         data_block->opaque_count = 1;
         data_block->opaque_block = (void*)findUserDefinedType("PROVENANCEHELP", 0);
 
-        IDAM_LOG(LOG_DEBUG, "Provenance: exiting function help\n");
-        if (data_block->opaque_block == NULL) IDAM_LOG(LOG_DEBUG, "Provenance: PROVENANCEHELP type not found\n");
+        IDAM_LOG(UDA_LOG_DEBUG, "Provenance: exiting function help\n");
+        if (data_block->opaque_block == NULL) IDAM_LOG(UDA_LOG_DEBUG, "Provenance: PROVENANCEHELP type not found\n");
 
         break;
 

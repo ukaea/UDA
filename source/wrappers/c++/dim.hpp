@@ -1,7 +1,3 @@
-//
-// Created by jholloc on 08/03/16.
-//
-
 #ifndef IDAM_WRAPPERS_CPP_DIM_H
 #define IDAM_WRAPPERS_CPP_DIM_H
 
@@ -14,19 +10,18 @@ namespace uda {
 
 typedef unsigned int dim_type;
 
-class Dim
-{
+class Dim {
 public:
     template <typename T>
     Dim(dim_type num, T* array, size_t size, const std::string& label, const std::string& units)
-            : vec_(array, array+size)
-            , type_(&typeid(T))
-            , num_(num)
-            , label_(label)
-            , units_(units)
+            : vec_(array, array + size), type_(&typeid(T)), num_(num), label_(label), units_(units), isnull_(false)
     {}
-    Dim() : num_(0), label_(), units_() {}
-    ~Dim() {}
+
+    Dim() : num_(0), label_(), units_(), isnull_(true)
+    {}
+
+    ~Dim()
+    {}
 
     template <typename T>
     std::vector<T> as() const
@@ -36,25 +31,43 @@ public:
         return out;
     }
 
+    const std::type_info& type() const
+    {
+        return *type_;
+    }
+
     template <typename T>
-    T at(size_t idx) const { return boost::any_cast<T>(vec_[idx]); }
+    T at(size_t idx) const
+    { return boost::any_cast<T>(vec_[idx]); }
 
     static Dim Null;
 
-    dim_type num() const { return num_; }
-    const std::string& label() const { return label_; }
-    const std::string& units() const { return units_; }
-    size_t size() const { return vec_.size(); }
+    dim_type num() const
+    { return num_; }
+
+    const std::string& label() const
+    { return label_; }
+
+    const std::string& units() const
+    { return units_; }
+
+    size_t size() const
+    { return vec_.size(); }
+
+    bool isNull() const
+    { return isnull_; }
+
 private:
+
     std::vector<boost::any> vec_;
     const std::type_info* type_;
     dim_type num_;
     std::string label_;
     std::string units_;
+    bool isnull_;
 
     template <typename T>
-    struct AnyCastTransform
-    {
+    struct AnyCastTransform {
         T operator()(const boost::any& src) const
         {
             std::string name = src.type().name();

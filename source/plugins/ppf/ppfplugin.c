@@ -345,7 +345,7 @@ int plugin_entry(IDAM_PLUGIN_INTERFACE * idam_plugin_interface)
 
     } else {
         err = 999;
-        IDAM_LOG(LOG_ERROR, "ERROR templatePlugin: Plugin Interface Version Unknown\n");
+        IDAM_LOG(UDA_LOG_ERROR, "ERROR templatePlugin: Plugin Interface Version Unknown\n");
 
         addIdamError(&idamerrorstack, CODEERRORTYPE, PLUGIN_NAME, err,
                      "Plugin Interface Version is Not Known: Unable to execute the request!");

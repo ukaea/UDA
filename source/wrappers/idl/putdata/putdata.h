@@ -7,7 +7,11 @@
 
 #include <stdio.h>
 #include <limits.h>
-#include <idl_export.h>     // IDL API Header
+
+#include <netcdf.h>
+
+#include "udunits2.h"
+#include "idl_export.h"     // IDL API Header
 
 // Useful macro
 
@@ -19,7 +23,7 @@
 typedef struct {
     IDL_KW_RESULT_FIRST_FIELD;
 
-    IDL_VPTR data;
+  //    IDL_VPTR data;
 
     IDL_STRING conventions;
     IDL_STRING class;
@@ -43,6 +47,7 @@ typedef struct {
     IDL_STRING units;
     IDL_STRING label;
     IDL_STRING type;
+    IDL_STRING varname;
 
     IDL_LONG is_data;
     IDL_LONG is_exp_number;
@@ -78,9 +83,9 @@ typedef struct {
     IDL_LONG is_name;
     IDL_LONG is_units;
     IDL_LONG is_label;
-    IDL_LONG is_link;
     IDL_LONG is_chunksize;
     IDL_LONG is_compression;
+    IDL_LONG is_varname;
 
     IDL_LONG exp_number;
     IDL_LONG pass;
@@ -127,6 +132,39 @@ typedef struct {
 } KW_RESULT;
 
 //-----------------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------------
+// PUT API: Global Private variables 
+static int ncfileid   = INT_MAX;
+static nc_type ctype  = NC_NAT;			// User defined types - defined once only
+static nc_type dctype = NC_NAT;
+
+//-----------------------------------------------------------------------------------------------------
+// UNITS Compliance 
+
+static ut_system *unitSystem = NULL;
+
+//-----------------------------------------------------------------------------------------------------
+// Multiple File handlers
+
+static int ncfilecount = 0;	// Holds the number of Open File handles
+static int *ncfileids  = NULL;	// A list of Open File Handles.
+
+//-----------------------------------------------------------------------------------------------------
+// Compliance Testing (One for every Open File)
+
+static unsigned int compliance	   = 0;			// Current compliance test
+static unsigned int *complianceSet = NULL;		// Array of Bit wise Tests of Compliance
+
+#define	CREATE_CONVENTIONS		1
+#define	CREATE_CONVENTIONS_TEST		"FUSION"
+#define	CREATE_CLASS			2
+#define	CREATE_SHOT			4
+#define	CREATE_PASS			8
+#define	CREATE_STATUS			16
+
+#define	COMPLIANCE_PASS			31
+
+//-----------------------------------------------------------------------------------------------------
 // Function Prototypes
 
 void initKW(KW_RESULT* kw);
@@ -135,20 +173,37 @@ void printKW(FILE* fd, KW_RESULT kw);
 
 void reverseString(const char* in, char* out);
 
-int opennetcdf(KW_RESULT* kw, int* fileid);
+int opennetcdf(int nparams, IDL_VPTR argv[], KW_RESULT *kw);
 
 int closenetcdf(KW_RESULT* kw);
 
-int putDevice(KW_RESULT* kw);
+int putDevice(int nparams, IDL_VPTR argv[], KW_RESULT *kw);
 
-int putGroup(KW_RESULT* kw);
+int putGroup(KW_RESULT *kw, int *ncgrpid);
 
-int putAttribute(KW_RESULT* kw);
+int putAttribute(int nparams, IDL_VPTR argv[], KW_RESULT *kw, int ncgrpid);
 
-int putVariable(KW_RESULT* kw);
+int putVariable(int nparams, IDL_VPTR argv[], KW_RESULT *kw, int ncgrpid);
 
-int putDimension(KW_RESULT* kw);
+int putDimension(int nparams, IDL_VPTR argv[], KW_RESULT *kw, int ncgrpid);
 
-int putCoordinate(KW_RESULT* kw);
+int putCoordinate(int nparams, IDL_VPTR argv[], KW_RESULT *kw, int ncgrpid);
+
+int swapType(int type);
+
+int testgroup(int ncgrpid, char *target, int *status, int *targetid, int debug, int verbose);
+
+int testDimension(int ncgrpid, KW_RESULT *kw, char *dimension, int parents, int *ncdimid);
+
+int writeCoordinateArray(IDL_VPTR argv, KW_RESULT *kw, int ncgrpid, char *group, char *name, int ncdimid, 
+                         int *ncvarid, unsigned int *length); 
+
+int writeCoordinateAttribute(IDL_VPTR argv, KW_RESULT *kw, int ncgrpid, char *group, char *name, 
+                             char *attribute, nc_type atype, int ncvarid, unsigned int *length, unsigned int *totlength); 
+
+int createCoordinateArray(IDL_VPTR argv0, IDL_VPTR argv1, IDL_VPTR argv2, KW_RESULT *kw, int ncgrpid, 
+                          char *group, char *name, int ncvarid,  int ncdimid, unsigned int *totlength);
+
+int testUnitsCompliance(KW_RESULT *kw, char * units);   
 
 #endif

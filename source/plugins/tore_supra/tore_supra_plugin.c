@@ -66,7 +66,7 @@ int tsPlugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     if (idam_plugin_interface->interfaceVersion >
         THISPLUGIN_MAX_INTERFACE_VERSION) {
         err = 999;
-        IDAM_LOG(LOG_ERROR,
+        IDAM_LOG(UDA_LOG_ERROR,
                  "ERROR templatePlugin: Plugin Interface Version Unknown to this plugin: Unable to execute the request!\n");
         addIdamError(&idamerrorstack, CODEERRORTYPE, "templatePlugin",
                      err,

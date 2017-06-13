@@ -19,3 +19,4 @@ modulefiles
 /error_type
 /method
 /run_test.sh
+.idea/*.xml

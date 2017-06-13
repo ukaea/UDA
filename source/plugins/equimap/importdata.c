@@ -94,7 +94,7 @@ int selectTimes(EQUIMAPDATA* equimapdata)
         getIdamFloatDimData(handle, getIdamOrder(handle), equimapdata->times);
     }
 
-    for (i = 0; i < equimapdata->timeCount; i++) IDAM_LOGF(LOG_DEBUG, "[%d] %f\n", i, equimapdata->times[i]);
+    for (i = 0; i < equimapdata->timeCount; i++) IDAM_LOGF(UDA_LOG_DEBUG, "[%d] %f\n", i, equimapdata->times[i]);
 
 // Pass 2: YAG Data
 
@@ -189,9 +189,9 @@ int imputeData(char* signal)
         getIdamFloatDimData(handle, 0, radii);
     }
 
-    IDAM_LOGF(LOG_DEBUG, "imputeData : %s\n", signal);
-    IDAM_LOGF(LOG_DEBUG, "time Count : %d\n", timeCount);
-    IDAM_LOGF(LOG_DEBUG, "radii Count: %d\n", rCount);
+    IDAM_LOGF(UDA_LOG_DEBUG, "imputeData : %s\n", signal);
+    IDAM_LOGF(UDA_LOG_DEBUG, "time Count : %d\n", timeCount);
+    IDAM_LOGF(UDA_LOG_DEBUG, "radii Count: %d\n", rCount);
 
 // Scan Across Major Radius detecting NaNs
 
@@ -200,7 +200,7 @@ int imputeData(char* signal)
     good = (int*)malloc(rCount * sizeof(int));
 
     for (i = 0; i < timeCount; i++) {
-        IDAM_LOGF(LOG_DEBUG, "time[%d] : %f\n", i, times[i]);
+        IDAM_LOGF(UDA_LOG_DEBUG, "time[%d] : %f\n", i, times[i]);
         for (j = 0; j < rCount; j++) {
             if (order == 0) {
                 offset = j * timeCount + i;
@@ -521,13 +521,13 @@ int importData(REQUEST_BLOCK* request_block, EQUIMAPDATA* equimapdata)
 
         if ((handles[i] = idamGetAPI(signals[i], source)) < 0 || getIdamErrorCode(handles[i]) != 0) {
 
-            IDAM_LOGF(LOG_ERROR, "ERROR equimap importdata: No Data for %s", signals[i]);
-            IDAM_LOGF(LOG_ERROR, "ERROR: %s", getIdamErrorMsg(handles[i]));
+            IDAM_LOGF(UDA_LOG_ERROR, "ERROR equimap importdata: No Data for %s", signals[i]);
+            IDAM_LOGF(UDA_LOG_ERROR, "ERROR: %s", getIdamErrorMsg(handles[i]));
 
-            IDAM_LOGF(LOG_DEBUG, "ERROR equimap importdata: No Data for %s, %s", signals[i], source);
-            IDAM_LOGF(LOG_DEBUG, "handle %d", handles[i]);
-            IDAM_LOGF(LOG_DEBUG, "error code %d", getIdamErrorCode(handles[i]));
-            IDAM_LOGF(LOG_DEBUG, "error msg: %s", getIdamErrorMsg(handles[i]));
+            IDAM_LOGF(UDA_LOG_DEBUG, "ERROR equimap importdata: No Data for %s, %s", signals[i], source);
+            IDAM_LOGF(UDA_LOG_DEBUG, "handle %d", handles[i]);
+            IDAM_LOGF(UDA_LOG_DEBUG, "error code %d", getIdamErrorCode(handles[i]));
+            IDAM_LOGF(UDA_LOG_DEBUG, "error msg: %s", getIdamErrorMsg(handles[i]));
 
             err = 999;
             return err;
@@ -546,12 +546,12 @@ int importData(REQUEST_BLOCK* request_block, EQUIMAPDATA* equimapdata)
 
         if ((handles[i] = idamGetAPI(signals[i], source)) < 0 || getIdamErrorCode(handles[i]) != 0) {
 
-            IDAM_LOGF(LOG_ERROR, "ERROR equimap importdata: No Data for %s\n", signals[i]);
-            IDAM_LOGF(LOG_ERROR, "ERROR: %s\n", getIdamErrorMsg(handles[i]));
-            IDAM_LOGF(LOG_DEBUG, "ERROR equimap importdata: No Data for %s, %s", signals[i], source);
-            IDAM_LOGF(LOG_DEBUG, "handle %d", handles[i]);
-            IDAM_LOGF(LOG_DEBUG, "error code %d", getIdamErrorCode(handles[i]));
-            IDAM_LOGF(LOG_DEBUG, "error msg: %s", getIdamErrorMsg(handles[i]));
+            IDAM_LOGF(UDA_LOG_ERROR, "ERROR equimap importdata: No Data for %s\n", signals[i]);
+            IDAM_LOGF(UDA_LOG_ERROR, "ERROR: %s\n", getIdamErrorMsg(handles[i]));
+            IDAM_LOGF(UDA_LOG_DEBUG, "ERROR equimap importdata: No Data for %s, %s", signals[i], source);
+            IDAM_LOGF(UDA_LOG_DEBUG, "handle %d", handles[i]);
+            IDAM_LOGF(UDA_LOG_DEBUG, "error code %d", getIdamErrorCode(handles[i]));
+            IDAM_LOGF(UDA_LOG_DEBUG, "error msg: %s", getIdamErrorMsg(handles[i]));
 
             err = 999;
             return err;
@@ -667,7 +667,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
             }
 
             if ((err = xdatainterval(rank, order, ndata, shape, dim, tslice, window, &target1, &target2)) != 0) {
-                IDAM_LOGF(LOG_ERROR, "The requested Time %e could not be located in the Rmin coordinate data array!\n",
+                IDAM_LOGF(UDA_LOG_ERROR, "The requested Time %e could not be located in the Rmin coordinate data array!\n",
                           tslice);
                 break;
             }
@@ -682,7 +682,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
             free((void*)data);
             free((void*)dim);
 
-            IDAM_LOGF(LOG_DEBUG, "[%d] Inner Major Radius of LCFS Data %f\n", handle, efitdata->Rmin);
+            IDAM_LOGF(UDA_LOG_DEBUG, "[%d] Inner Major Radius of LCFS Data %f\n", handle, efitdata->Rmin);
 
 // Read Outer Major Radius of LCFS Data
 
@@ -699,7 +699,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
             }
 
             if ((err = xdatainterval(rank, order, ndata, shape, dim, tslice, window, &target1, &target2)) != 0) {
-                IDAM_LOGF(LOG_ERROR, "The requested Time %e could not be located in the Rmax coordinate data array!\n",
+                IDAM_LOGF(UDA_LOG_ERROR, "The requested Time %e could not be located in the Rmax coordinate data array!\n",
                           tslice);
                 break;
             }
@@ -714,7 +714,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
             free((void*)data);
             free((void*)dim);
 
-            IDAM_LOGF(LOG_DEBUG, "[%d] Outer Major Radius of LCFS Data %f\n", handle, efitdata->Rmax);
+            IDAM_LOGF(UDA_LOG_DEBUG, "[%d] Outer Major Radius of LCFS Data %f\n", handle, efitdata->Rmax);
 
 // Magnetic Axis Position - 1D time dependent array
 
@@ -731,7 +731,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
             }
 
             if ((err = xdatainterval(rank, order, ndata, shape, dim, tslice, window, &target1, &target2)) != 0) {
-                IDAM_LOGF(LOG_ERROR, "The requested Time %e could not be located in the data array!\n", tslice);
+                IDAM_LOGF(UDA_LOG_ERROR, "The requested Time %e could not be located in the data array!\n", tslice);
                 break;
             }
 
@@ -746,7 +746,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
             free((void*)data);
             free((void*)dim);
 
-            IDAM_LOGF(LOG_DEBUG, "[%d] Magnetic Axis Position %f\n", handle, efitdata->rmag);
+            IDAM_LOGF(UDA_LOG_DEBUG, "[%d] Magnetic Axis Position %f\n", handle, efitdata->rmag);
 
 // Magnetic Axis Height - 1D time dependent array
 
@@ -763,7 +763,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
             }
 
             if ((err = xdatainterval(rank, order, ndata, shape, dim, tslice, window, &target1, &target2)) != 0) {
-                IDAM_LOGF(LOG_ERROR, "The requested Time %e could not be located in the data array!\n", tslice);
+                IDAM_LOGF(UDA_LOG_ERROR, "The requested Time %e could not be located in the data array!\n", tslice);
                 break;
             }
 
@@ -778,7 +778,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
             free((void*)data);
             free((void*)dim);
 
-            IDAM_LOGF(LOG_DEBUG, "[%d] Magnetic Axis Height %f\n", handle, efitdata->zmag);
+            IDAM_LOGF(UDA_LOG_DEBUG, "[%d] Magnetic Axis Height %f\n", handle, efitdata->zmag);
 
 // Toroidal Magnetic Field
 
@@ -795,7 +795,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
             }
 
             if ((err = xdatainterval(rank, order, ndata, shape, dim, tslice, window, &target1, &target2)) != 0) {
-                IDAM_LOGF(LOG_ERROR, "The requested Time %e could not be located in the data array!\n", tslice);
+                IDAM_LOGF(UDA_LOG_ERROR, "The requested Time %e could not be located in the data array!\n", tslice);
                 break;
             }
 
@@ -810,7 +810,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
             free((void*)data);
             free((void*)dim);
 
-            IDAM_LOGF(LOG_DEBUG, "[%d] Toroidal Magnetic Field  %f\n", handle, efitdata->bphi);
+            IDAM_LOGF(UDA_LOG_DEBUG, "[%d] Toroidal Magnetic Field  %f\n", handle, efitdata->bphi);
 
 // Plasma Current
 
@@ -827,7 +827,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
             }
 
             if ((err = xdatainterval(rank, order, ndata, shape, dim, tslice, window, &target1, &target2)) != 0) {
-                IDAM_LOGF(LOG_ERROR, "The requested Time %e could not be located in the data array!\n", tslice);
+                IDAM_LOGF(UDA_LOG_ERROR, "The requested Time %e could not be located in the data array!\n", tslice);
                 break;
             }
 
@@ -842,7 +842,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
             free((void*)data);
             free((void*)dim);
 
-            IDAM_LOGF(LOG_DEBUG, "[%d] Toroidal Plasma Current %f\n", handle, efitdata->ip);
+            IDAM_LOGF(UDA_LOG_DEBUG, "[%d] Toroidal Plasma Current %f\n", handle, efitdata->ip);
 
 // PSI at the Boundary - 1D time dependent array
 
@@ -859,7 +859,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
             }
 
             if ((err = xdatainterval(rank, order, ndata, shape, dim, tslice, window, &target1, &target2)) != 0) {
-                IDAM_LOGF(LOG_ERROR, "The requested Time %e could not be located in the data array!\n", tslice);
+                IDAM_LOGF(UDA_LOG_ERROR, "The requested Time %e could not be located in the data array!\n", tslice);
                 break;
             }
 
@@ -874,7 +874,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
             free((void*)data);
             free((void*)dim);
 
-            IDAM_LOGF(LOG_DEBUG, "[%d] [%d, %d] PSI at the Boundary %f\n", handle, target1, target2, efitdata->psi_bnd);
+            IDAM_LOGF(UDA_LOG_DEBUG, "[%d] [%d, %d] PSI at the Boundary %f\n", handle, target1, target2, efitdata->psi_bnd);
 
 // PSI at the Magnetic Axis - 1D time dependent array
 
@@ -891,7 +891,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
             }
 
             if ((err = xdatainterval(rank, order, ndata, shape, dim, tslice, window, &target1, &target2)) != 0) {
-                IDAM_LOGF(LOG_ERROR, "The requested Time %e could not be located in the data array!\n", tslice);
+                IDAM_LOGF(UDA_LOG_ERROR, "The requested Time %e could not be located in the data array!\n", tslice);
                 break;
             }
 
@@ -906,7 +906,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
             free((void*)data);
             free((void*)dim);
 
-            IDAM_LOGF(LOG_DEBUG, "[%d] [%d, %d] PSI at the Magnetic Axis %f\n", handle, target1, target2,
+            IDAM_LOGF(UDA_LOG_DEBUG, "[%d] [%d, %d] PSI at the Magnetic Axis %f\n", handle, target1, target2,
                       efitdata->psi_mag);
 
 // Number of Boundary Points in the LCFS locus - 1D time dependent array
@@ -925,7 +925,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
             }
 
             if ((err = xdatainterval(rank, order, ndata, shape, dim, tslice, window, &target1, &target2)) != 0) {
-                IDAM_LOGF(LOG_ERROR, "The requested Time %e could not be located in the data array!\n", tslice);
+                IDAM_LOGF(UDA_LOG_ERROR, "The requested Time %e could not be located in the data array!\n", tslice);
                 break;
             }
 
@@ -935,7 +935,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
             free((void*)data);
             free((void*)dim);
 
-            IDAM_LOGF(LOG_DEBUG, "[%d] [%d, %d] Number of Boundary Points in the LCFS locus %d\n", handle, target1,
+            IDAM_LOGF(UDA_LOG_DEBUG, "[%d] [%d, %d] Number of Boundary Points in the LCFS locus %d\n", handle, target1,
                       target2, efitdata->nlcfs);
 
 // Major Radii of the LCFS locus - 2D Time dependent:	Rlcfs[Nlcfs[t]][t]
@@ -953,12 +953,12 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
             }
 
             if ((err = xdatainterval(rank, order, ndata, shape, dim, tslice, window, &target1, &target2)) != 0) {
-                IDAM_LOGF(LOG_ERROR, "The requested Time %e could not be located in the data array!\n", tslice);
+                IDAM_LOGF(UDA_LOG_ERROR, "The requested Time %e could not be located in the data array!\n", tslice);
                 break;
             }
 
-            IDAM_LOGF(LOG_DEBUG, "[%d] Rlcfs\n", handle);
-            IDAM_LOGF(LOG_DEBUG, "Rlcfs: target = %d, shape[0] = %d, shape[1] = %d, order = %d\n", target1, shape[0],
+            IDAM_LOGF(UDA_LOG_DEBUG, "[%d] Rlcfs\n", handle);
+            IDAM_LOGF(UDA_LOG_DEBUG, "Rlcfs: target = %d, shape[0] = %d, shape[1] = %d, order = %d\n", target1, shape[0],
                       shape[1], order);
 
             if (order == 0) {        // array[nr][nt]
@@ -1008,12 +1008,12 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
             }
 
             if ((err = xdatainterval(rank, order, ndata, shape, dim, tslice, window, &target1, &target2)) != 0) {
-                IDAM_LOGF(LOG_ERROR, "The requested Time %e could not be located in the data array!\n", tslice);
+                IDAM_LOGF(UDA_LOG_ERROR, "The requested Time %e could not be located in the data array!\n", tslice);
                 break;
             }
 
-            IDAM_LOGF(LOG_DEBUG, "[%d] Zlcfs\n", handle);
-            IDAM_LOGF(LOG_DEBUG, "Zlcfs: target = %d, shape[0] = %d, shape[1] = %d, order = %d\n", target1, shape[0],
+            IDAM_LOGF(UDA_LOG_DEBUG, "[%d] Zlcfs\n", handle);
+            IDAM_LOGF(UDA_LOG_DEBUG, "Zlcfs: target = %d, shape[0] = %d, shape[1] = %d, order = %d\n", target1, shape[0],
                       shape[1], order);
 
             if (order == 0) {        // array[nz][nt]
@@ -1063,7 +1063,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
                     break;
             }
 
-            IDAM_LOGF(LOG_DEBUG, "[%d] Rlim\n", handle);
+            IDAM_LOGF(UDA_LOG_DEBUG, "[%d] Rlim\n", handle);
 
             efitdata->nlim = ndata;
             efitdata->rlim = data;
@@ -1085,7 +1085,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
                     break;
             }
 
-            IDAM_LOGF(LOG_DEBUG, "[%d] Zlim\n", handle);
+            IDAM_LOGF(UDA_LOG_DEBUG, "[%d] Zlim\n", handle);
 
             efitdata->zlim = data;
 
@@ -1108,7 +1108,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
             }
 
             if ((err = xdatainterval(rank, order, ndata, shape, dim, tslice, window, &target1, &target2)) != 0) {
-                IDAM_LOGF(LOG_ERROR, "The requested Time %e could not be located in the data array!\n", tslice);
+                IDAM_LOGF(UDA_LOG_ERROR, "The requested Time %e could not be located in the data array!\n", tslice);
                 break;
             }
 
@@ -1123,7 +1123,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
             free((void*)data);
             free((void*)dim);
 
-            IDAM_LOGF(LOG_DEBUG, "[%d] [%d, %d] Vacuum Magnetic Field %f\n", handle, target1, target2, efitdata->bvac);
+            IDAM_LOGF(UDA_LOG_DEBUG, "[%d] [%d, %d] Vacuum Magnetic Field %f\n", handle, target1, target2, efitdata->bvac);
 
 // Vacuum Toroidal magnetic Field Reference major radius
 
@@ -1139,7 +1139,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
             }
 
             if ((err = xdatainterval(rank, order, ndata, shape, dim, tslice, window, &target1, &target2)) != 0) {
-                IDAM_LOGF(LOG_ERROR, "The requested Time %e could not be located in the data array!\n", tslice);
+                IDAM_LOGF(UDA_LOG_ERROR, "The requested Time %e could not be located in the data array!\n", tslice);
                 break;
             }
 
@@ -1154,7 +1154,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
             free((void*)data);
             free((void*)dim);
 
-            IDAM_LOGF(LOG_DEBUG, "[%d] [%d, %d] Vacuum Magnetic Field Radius %f\n", handle, target1, target2,
+            IDAM_LOGF(UDA_LOG_DEBUG, "[%d] [%d, %d] Vacuum Magnetic Field Radius %f\n", handle, target1, target2,
                       efitdata->rvac);
 
 //-------------------------------------------------------------------------------------------------------------
@@ -1177,7 +1177,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
                 }
 
                 if ((err = xdatainterval(rank, order, ndata, shape, dim, tslice, window, &target1, &target2)) != 0) {
-                    IDAM_LOGF(LOG_ERROR, "The requested Time %e could not be located in the data array!\n", tslice);
+                    IDAM_LOGF(UDA_LOG_ERROR, "The requested Time %e could not be located in the data array!\n", tslice);
                     break;
                 }
 
@@ -1287,12 +1287,12 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
                 free((void*)data);
                 free((void*)dim);
 
-                IDAM_LOGF(LOG_DEBUG, "[%d] Geometrical Axis of boundary (R) %f\n", handle, efitdata->rgeom);
-                IDAM_LOGF(LOG_DEBUG, "[%d] Geometrical Axis of boundary (Z) %f\n", handle, efitdata->zgeom);
-                IDAM_LOGF(LOG_DEBUG, "[%d] Minor radius                     %f\n", handle, efitdata->aminor);
-                IDAM_LOGF(LOG_DEBUG, "[%d] Lower Triagularity               %f\n", handle, efitdata->triangL);
-                IDAM_LOGF(LOG_DEBUG, "[%d] Upper Triagularity               %f\n", handle, efitdata->triangU);
-                IDAM_LOGF(LOG_DEBUG, "[%d] Elongation                       %f\n", handle, efitdata->elong);
+                IDAM_LOGF(UDA_LOG_DEBUG, "[%d] Geometrical Axis of boundary (R) %f\n", handle, efitdata->rgeom);
+                IDAM_LOGF(UDA_LOG_DEBUG, "[%d] Geometrical Axis of boundary (Z) %f\n", handle, efitdata->zgeom);
+                IDAM_LOGF(UDA_LOG_DEBUG, "[%d] Minor radius                     %f\n", handle, efitdata->aminor);
+                IDAM_LOGF(UDA_LOG_DEBUG, "[%d] Lower Triagularity               %f\n", handle, efitdata->triangL);
+                IDAM_LOGF(UDA_LOG_DEBUG, "[%d] Upper Triagularity               %f\n", handle, efitdata->triangU);
+                IDAM_LOGF(UDA_LOG_DEBUG, "[%d] Elongation                       %f\n", handle, efitdata->elong);
             }
 
 //---------------------------------------------------------------------------------------------------------
@@ -1313,12 +1313,12 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
             }
 
             if ((err = xdatainterval(rank, order, ndata, shape, dim, tslice, window, &target1, &target2)) != 0) {
-                IDAM_LOGF(LOG_ERROR, "The requested Time %e could not be located in the data array!\n", tslice);
+                IDAM_LOGF(UDA_LOG_ERROR, "The requested Time %e could not be located in the data array!\n", tslice);
                 break;
             }
 
-            IDAM_LOGF(LOG_DEBUG, "[%d] Q Profile\n", handle);
-            IDAM_LOGF(LOG_DEBUG, "Q: target = %d, shape[0] = %d, shape[1] = %d, order = %d\n", target1, shape[0],
+            IDAM_LOGF(UDA_LOG_DEBUG, "[%d] Q Profile\n", handle);
+            IDAM_LOGF(UDA_LOG_DEBUG, "Q: target = %d, shape[0] = %d, shape[1] = %d, order = %d\n", target1, shape[0],
                       shape[1], order);
 
             if (order == 0) {        // array[nr][nt]
@@ -1369,12 +1369,12 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
                 }
 
                 if ((err = xdatainterval(rank, order, ndata, shape, dim, tslice, window, &target1, &target2)) != 0) {
-                    IDAM_LOGF(LOG_ERROR, "The requested Time %e could not be located in the data array!\n", tslice);
+                    IDAM_LOGF(UDA_LOG_ERROR, "The requested Time %e could not be located in the data array!\n", tslice);
                     break;
                 }
 
-                IDAM_LOGF(LOG_DEBUG, "[%d] P Profile\n", handle);
-                IDAM_LOGF(LOG_DEBUG, "P: target = %d, shape[0] = %d, shape[1] = %d, order = %d\n", target1, shape[0],
+                IDAM_LOGF(UDA_LOG_DEBUG, "[%d] P Profile\n", handle);
+                IDAM_LOGF(UDA_LOG_DEBUG, "P: target = %d, shape[0] = %d, shape[1] = %d, order = %d\n", target1, shape[0],
                           shape[1], order);
 
                 if (order == 0) {        // array[nr][nt]
@@ -1417,8 +1417,8 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
                         break;
                 }
 
-                IDAM_LOGF(LOG_DEBUG, "[%d] F Profile\n", handle);
-                IDAM_LOGF(LOG_DEBUG, "F: target = %d, shape[0] = %d, shape[1] = %d, order = %d\n", target1, shape[0],
+                IDAM_LOGF(UDA_LOG_DEBUG, "[%d] F Profile\n", handle);
+                IDAM_LOGF(UDA_LOG_DEBUG, "F: target = %d, shape[0] = %d, shape[1] = %d, order = %d\n", target1, shape[0],
                           shape[1], order);
 
                 if (order == 0) {        // array[nr][nt]
@@ -1461,8 +1461,8 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
                                        break;
                 }
 
-                IDAM_LOGF(LOG_DEBUG, "[%d] PPrime Profile\n", handle);
-                IDAM_LOGF(LOG_DEBUG, "PPrime: target = %d, shape[0] = %d, shape[1] = %d, order = %d\n", target1,
+                IDAM_LOGF(UDA_LOG_DEBUG, "[%d] PPrime Profile\n", handle);
+                IDAM_LOGF(UDA_LOG_DEBUG, "PPrime: target = %d, shape[0] = %d, shape[1] = %d, order = %d\n", target1,
                           shape[0], shape[1], order);
 
                 if (order == 0) {        // array[nr][nt]
@@ -1505,8 +1505,8 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
                                        break;
                 }
 
-                IDAM_LOGF(LOG_DEBUG, "[%d] FFPrime Profile\n", handle);
-                IDAM_LOGF(LOG_DEBUG, "FFPrime: target = %d, shape[0] = %d, shape[1] = %d, order = %d\n", target1,
+                IDAM_LOGF(UDA_LOG_DEBUG, "[%d] FFPrime Profile\n", handle);
+                IDAM_LOGF(UDA_LOG_DEBUG, "FFPrime: target = %d, shape[0] = %d, shape[1] = %d, order = %d\n", target1,
                           shape[0], shape[1], order);
 
                 if (order == 0) {        // array[nr][nt]
@@ -1549,8 +1549,8 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
                                        break;
                 }
 
-                IDAM_LOGF(LOG_DEBUG, "[%d] ElongPsi Profile\n", handle);
-                IDAM_LOGF(LOG_DEBUG, "ElongPsi: target = %d, shape[0] = %d, shape[1] = %d, order = %d\n", target1,
+                IDAM_LOGF(UDA_LOG_DEBUG, "[%d] ElongPsi Profile\n", handle);
+                IDAM_LOGF(UDA_LOG_DEBUG, "ElongPsi: target = %d, shape[0] = %d, shape[1] = %d, order = %d\n", target1,
                           shape[0], shape[1], order);
 
                 if (order == 0) {        // array[nr][nt]
@@ -1593,8 +1593,8 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
                                        break;
                 }
 
-                IDAM_LOGF(LOG_DEBUG, "[%d] TriangLPsi Profile\n", handle);
-                IDAM_LOGF(LOG_DEBUG, "TriangLPsi: target = %d, shape[0] = %d, shape[1] = %d, order = %d\n", target1,
+                IDAM_LOGF(UDA_LOG_DEBUG, "[%d] TriangLPsi Profile\n", handle);
+                IDAM_LOGF(UDA_LOG_DEBUG, "TriangLPsi: target = %d, shape[0] = %d, shape[1] = %d, order = %d\n", target1,
                           shape[0], shape[1], order);
 
                 if (order == 0) {        // array[nr][nt]
@@ -1637,8 +1637,8 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
                                        break;
                 }
 
-                IDAM_LOGF(LOG_DEBUG, "[%d] TriangUPsi Profile\n", handle);
-                IDAM_LOGF(LOG_DEBUG, "TriangUPsi: target = %d, shape[0] = %d, shape[1] = %d, order = %d\n", target1,
+                IDAM_LOGF(UDA_LOG_DEBUG, "[%d] TriangUPsi Profile\n", handle);
+                IDAM_LOGF(UDA_LOG_DEBUG, "TriangUPsi: target = %d, shape[0] = %d, shape[1] = %d, order = %d\n", target1,
                           shape[0], shape[1], order);
 
                 if (order == 0) {        // array[nr][nt]
@@ -1681,8 +1681,8 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
                                        break;
                 }
 
-                IDAM_LOGF(LOG_DEBUG, "[%d] VolPsi Profile\n", handle);
-                IDAM_LOGF(LOG_DEBUG, "VolPsi: target = %d, shape[0] = %d, shape[1] = %d, order = %d\n", target1,
+                IDAM_LOGF(UDA_LOG_DEBUG, "[%d] VolPsi Profile\n", handle);
+                IDAM_LOGF(UDA_LOG_DEBUG, "VolPsi: target = %d, shape[0] = %d, shape[1] = %d, order = %d\n", target1,
                           shape[0], shape[1], order);
 
                 if (order == 0) {        // array[nr][nt]
@@ -1725,8 +1725,8 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
                                        break;
                 }
 
-                IDAM_LOGF(LOG_DEBUG, "[%d] AreaPsi Profile\n", handle);
-                IDAM_LOGF(LOG_DEBUG, "AreaPsi: target = %d, shape[0] = %d, shape[1] = %d, order = %d\n", target1,
+                IDAM_LOGF(UDA_LOG_DEBUG, "[%d] AreaPsi Profile\n", handle);
+                IDAM_LOGF(UDA_LOG_DEBUG, "AreaPsi: target = %d, shape[0] = %d, shape[1] = %d, order = %d\n", target1,
                           shape[0], shape[1], order);
 
                 if (order == 0) {        // array[nr][nt]
@@ -1772,7 +1772,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
             }
 
             if ((err = xdatainterval(rank, order, ndata, shape, dim, tslice, window, &target1, &target2)) != 0) {
-                IDAM_LOGF(LOG_ERROR, "The requested Time %e could not be located in the data array!\n", tslice);
+                IDAM_LOGF(UDA_LOG_ERROR, "The requested Time %e could not be located in the data array!\n", tslice);
                 break;
             }
 
@@ -1990,10 +1990,10 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
             free((void*)data);
             free((void*)dim);
 
-            IDAM_LOGF(LOG_DEBUG, "[%d] Poloidal Flux Surface\n", handle);
-            IDAM_LOGF(LOG_DEBUG, "Mid-Plane Poloidal Flux: Count = %d, Major Radius, Poloidal Flux\n", rz0Count);
+            IDAM_LOGF(UDA_LOG_DEBUG, "[%d] Poloidal Flux Surface\n", handle);
+            IDAM_LOGF(UDA_LOG_DEBUG, "Mid-Plane Poloidal Flux: Count = %d, Major Radius, Poloidal Flux\n", rz0Count);
             for (i = 0; i < rz0Count; i++)
-                IDAM_LOGF(LOG_DEBUG, "[%d] %f   %f \n", i, efitdata->rz0[i], efitdata->psiz0[i]);
+                IDAM_LOGF(UDA_LOG_DEBUG, "[%d] %f   %f \n", i, efitdata->rz0[i], efitdata->psiz0[i]);
 
 // Toroidal current density - 3D time dependent array 		Jphi[R][Z][t]
 
@@ -2010,7 +2010,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
             }
 
             if ((err = xdatainterval(rank, order, ndata, shape, dim, tslice, window, &target1, &target2)) != 0) {
-                IDAM_LOGF(LOG_ERROR, "The requested Time %e could not be located in the data array!\n", tslice);
+                IDAM_LOGF(UDA_LOG_ERROR, "The requested Time %e could not be located in the data array!\n", tslice);
                 break;
             }
 
@@ -2098,9 +2098,9 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
             efitdata->rho_torb = rho_torb;
             efitdata->rho_tor = rho_tor;
 
-            IDAM_LOG(LOG_DEBUG, "Flux Coordinates of the Q Profile: rho, psi, phi, trho, rho_tor\n");
+            IDAM_LOG(UDA_LOG_DEBUG, "Flux Coordinates of the Q Profile: rho, psi, phi, trho, rho_tor\n");
             for (i = 0; i < efitdata->qCount; i++)
-                IDAM_LOGF(LOG_DEBUG, "[%3d] %f   %f   %f   %f   %f\n", i, rho[i], psi[i], phi[i], trho[i], rho_tor[i]);
+                IDAM_LOGF(UDA_LOG_DEBUG, "[%3d] %f   %f   %f   %f   %f\n", i, rho[i], psi[i], phi[i], trho[i], rho_tor[i]);
 
 //----------------------------------------------------------------------------------------------------------------
 // Magnetic field components: Bz = 1/R dpsi/dR, Br = -1/R dpsi/dZ, Bphi = F/R
@@ -2661,7 +2661,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
             if (equimapdata->exp_number > ATMAYCSHOT) {
                 if ((err = xdatand("ayc_r", shot_str, &handle, &rank, &order, &ndata, NULL, &datar, NULL)) != 0) break;
                 if ((err = xdatainterval(rank, order, ndata, shape, dim, tslice, window, &target1, &target2)) != 0) {
-                    IDAM_LOGF(LOG_ERROR, "The requested Time %e could not be located in the Nd/YAG Density data!\n",
+                    IDAM_LOGF(UDA_LOG_ERROR, "The requested Time %e could not be located in the Nd/YAG Density data!\n",
                               tslice);
                     break;
                 }
@@ -2712,10 +2712,10 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
 
             }
 
-            IDAM_LOGF(LOG_DEBUG, "Number of Nd/YAG ne and Te Points: %d\n", efitdata->nne);
-            IDAM_LOGF(LOG_DEBUG, "Time index selected: %d\n", target1);
+            IDAM_LOGF(UDA_LOG_DEBUG, "Number of Nd/YAG ne and Te Points: %d\n", efitdata->nne);
+            IDAM_LOGF(UDA_LOG_DEBUG, "Time index selected: %d\n", target1);
             for (i = 0; i < efitdata->nne; i++)
-                IDAM_LOGF(LOG_DEBUG, "[%3d]  %10.4e %10.4e %10.4e\n", i, efitdata->rne[i], efitdata->ne[i],
+                IDAM_LOGF(UDA_LOG_DEBUG, "[%3d]  %10.4e %10.4e %10.4e\n", i, efitdata->rne[i], efitdata->ne[i],
                           efitdata->te[i]);
 
 // Map data from Major Radius to Normalised Poloidal or Toroidal Flux within the Plasma
@@ -2784,9 +2784,9 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
                 if (efitdata->rne[i] >= efitdata->Rmax) yagrhotor[i] = 1.0;
             }
 
-            IDAM_LOG(LOG_DEBUG, "YAG Coordinates: R, psi, phi, rho, trho, rho_tor\n");
+            IDAM_LOG(UDA_LOG_DEBUG, "YAG Coordinates: R, psi, phi, rho, trho, rho_tor\n");
             for (i = 0; i < efitdata->nne; i++)
-                IDAM_LOGF(LOG_DEBUG, "[%3d] %f   %f   %f   %f   %f   %f\n", i, efitdata->rne[i], yagpsi[i],
+                IDAM_LOGF(UDA_LOG_DEBUG, "[%3d] %f   %f   %f   %f   %f   %f\n", i, efitdata->rne[i], yagpsi[i],
                           yagphi[i], yagprho[i], yagtrho[i], yagrhotor[i]);
 
             efitdata->yagpsi = yagpsi;
@@ -2811,17 +2811,17 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
             if (neRmin != 0.0 && neRmax == 0.0) neRmax = neRmin;
             if (TeRmin != 0.0 && TeRmax == 0.0) TeRmax = TeRmin;
 
-            IDAM_LOG(LOG_DEBUG, "YAG Data at Rmin, Rmag, Rmax\n");
-            IDAM_LOGF(LOG_DEBUG, "ne: [%f] %e   [%f] %e   [%f] %e\n", efitdata->Rmin, neRmin, efitdata->rmag, neRmag,
+            IDAM_LOG(UDA_LOG_DEBUG, "YAG Data at Rmin, Rmag, Rmax\n");
+            IDAM_LOGF(UDA_LOG_DEBUG, "ne: [%f] %e   [%f] %e   [%f] %e\n", efitdata->Rmin, neRmin, efitdata->rmag, neRmag,
                       efitdata->Rmax, neRmax);
-            IDAM_LOGF(LOG_DEBUG, "Te: [%f] %e   [%f] %e   [%f] %e\n", efitdata->Rmin, TeRmin, efitdata->rmag, TeRmag,
+            IDAM_LOGF(UDA_LOG_DEBUG, "Te: [%f] %e   [%f] %e   [%f] %e\n", efitdata->Rmin, TeRmin, efitdata->rmag, TeRmag,
                       efitdata->Rmax, TeRmax);
 
 // Locate the Magnetic Axis
 
             int iRmag = -1;
             for (i = 0; i < efitdata->nne; i++) if (efitdata->rne[i] <= efitdata->rmag) iRmag = i;
-            IDAM_LOGF(LOG_DEBUG, "YAG Psi coordinate: Major Radius, Poloidal Flux, Magnetic Axis %d\n", iRmag);
+            IDAM_LOGF(UDA_LOG_DEBUG, "YAG Psi coordinate: Major Radius, Poloidal Flux, Magnetic Axis %d\n", iRmag);
 
 // Add points at each boundary and magnetic axis if missing to rne, ne, te, yagpsi and yagphi
 
@@ -2891,9 +2891,9 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
             iRmag = -1;
             for (i = 0; i < efitdata->nne; i++) if (efitdata->rne[i] <= efitdata->rmag) iRmag = i;
 
-            IDAM_LOGF(LOG_DEBUG, "YAG Psi coordinate: Major Radius, Poloidal Flux, Magnetic Axis %d\n", iRmag);
+            IDAM_LOGF(UDA_LOG_DEBUG, "YAG Psi coordinate: Major Radius, Poloidal Flux, Magnetic Axis %d\n", iRmag);
             for (i = 0; i < efitdata->nne; i++) {
-                IDAM_LOGF(LOG_DEBUG, "[%3d] %f   %f\n", i, efitdata->rne[i], yagpsi[i]);
+                IDAM_LOGF(UDA_LOG_DEBUG, "[%3d] %f   %f\n", i, efitdata->rne[i], yagpsi[i]);
             }
 
 // Map data to Flux Surface Centers Grid
@@ -3300,7 +3300,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
             }
 
             if ((err = xdatainterval(rank, order, ndata, shape, dim, tslice, window, &target1, &target2)) != 0) {
-                IDAM_LOGF(LOG_ERROR, "The requested Time %e could not be located in the data array!\n", tslice);
+                IDAM_LOGF(UDA_LOG_ERROR, "The requested Time %e could not be located in the data array!\n", tslice);
                 break;
             }
 
@@ -3328,7 +3328,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
             }
 
             if ((err = xdatainterval(rank, order, ndata, shape, dim, tslice, window, &target1, &target2)) != 0) {
-                IDAM_LOGF(LOG_ERROR, "The requested Time %e could not be located in the data array!\n", tslice);
+                IDAM_LOGF(UDA_LOG_ERROR, "The requested Time %e could not be located in the data array!\n", tslice);
                 break;
             }
 
@@ -3358,7 +3358,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
             }
 
             if ((err = xdatainterval(rank, order, ndata, shape, dim, tslice, window, &target1, &target2)) != 0) {
-                IDAM_LOGF(LOG_ERROR, "The requested Time %e could not be located in the data array!\n", tslice);
+                IDAM_LOGF(UDA_LOG_ERROR, "The requested Time %e could not be located in the data array!\n", tslice);
                 break;
             }
 
@@ -3386,7 +3386,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
             }
 
             if ((err = xdatainterval(rank, order, ndata, shape, dim, tslice, window, &target1, &target2)) != 0) {
-                IDAM_LOGF(LOG_ERROR, "The requested Time %e could not be located in the data array!\n", tslice);
+                IDAM_LOGF(UDA_LOG_ERROR, "The requested Time %e could not be located in the data array!\n", tslice);
                 break;
             }
 

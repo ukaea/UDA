@@ -112,7 +112,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     if (idam_plugin_interface->interfaceVersion > THISPLUGIN_MAX_INTERFACE_VERSION) {
         err = 999;
-        IDAM_LOG(LOG_ERROR,
+        IDAM_LOG(UDA_LOG_ERROR,
                  "ERROR Meta: Plugin Interface Version Unknown to this plugin: Unable to execute the request!\n");
         addIdamError(&idamerrorstack, CODEERRORTYPE, "Meta", err,
                      "Plugin Interface Version Unknown to this plugin: Unable to execute the request!");
@@ -138,7 +138,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     if (housekeeping || STR_IEQUALS(request_block->function, "reset")) {
 
-        IDAM_LOG(LOG_DEBUG, "Meta: reset function called.\n");
+        IDAM_LOG(UDA_LOG_DEBUG, "Meta: reset function called.\n");
 
         if (!init) return 0;        // Not previously initialised: Nothing to do!
 
@@ -196,7 +196,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
              || STR_IEQUALS(request_block->function, "init")
              || STR_IEQUALS(request_block->function, "initialise"))) {
 
-        IDAM_LOG(LOG_DEBUG, "Meta: init function called.\n");
+        IDAM_LOG(UDA_LOG_DEBUG, "Meta: init function called.\n");
 
 // Is there an Open SQL Connection? If not then open a private connection
 // If the context is CPF then target the CPF rather than the IDAM database
@@ -208,14 +208,14 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 if (DBConnect != NULL) {
                     DBType = PLUGINSQLPOSTGRES;
                     sqlPrivate = 1;
-                    IDAM_LOG(LOG_DEBUG, "Meta: Private regular database connection made.\n");
+                    IDAM_LOG(UDA_LOG_DEBUG, "Meta: Private regular database connection made.\n");
                 }
             }
         } else {
 
 // Highjack the database name from the server's environment data structure
 
-            IDAM_LOG(LOG_DEBUG, "Meta: Connecting to the CPF database\n");
+            IDAM_LOG(UDA_LOG_DEBUG, "Meta: Connecting to the CPF database\n");
 
             ENVIRONMENT* environment = getIdamServerEnvironment();
             ENVIRONMENT oldenviron = *environment;
@@ -237,14 +237,14 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             if (DBConnect != NULL) {
                 DBType = PLUGINSQLPOSTGRES;
                 sqlPrivate = 1;
-                IDAM_LOG(LOG_DEBUG, "Meta: Private CPF database connection made.\n");
+                IDAM_LOG(UDA_LOG_DEBUG, "Meta: Private CPF database connection made.\n");
             }
             strcpy(environment->sql_dbname, old_dbname);
             free((void*)old_dbname);
             putIdamServerEnvironment(&oldenviron);    // Return the original
         }
         if (DBConnect == NULL) {        // No connection!
-            IDAM_LOG(LOG_ERROR, "ERROR Meta: SQL Database Server Connect Error\n");
+            IDAM_LOG(UDA_LOG_ERROR, "ERROR Meta: SQL Database Server Connect Error\n");
             err = 777;
             addIdamError(&idamerrorstack, CODEERRORTYPE, "readMeta", err, "SQL Database Server Connect Error");
             return err;
@@ -268,7 +268,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     for (i = 0; i < request_block->nameValueList.pairCount; i++) {
 
-        IDAM_LOGF(LOG_DEBUG, "[%d] %s = %s\n", i, request_block->nameValueList.nameValue[i].name,
+        IDAM_LOGF(UDA_LOG_DEBUG, "[%d] %s = %s\n", i, request_block->nameValueList.nameValue[i].name,
                   request_block->nameValueList.nameValue[i].value);
 
         if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "exp_number") ||
@@ -466,7 +466,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 // Test Result for malicious SQL Injection
 
     if (err == 888) {
-        IDAM_LOG(LOG_ERROR, "ERROR Meta: Invalid Keyword Content!\n");
+        IDAM_LOG(UDA_LOG_ERROR, "ERROR Meta: Invalid Keyword Content!\n");
         addIdamError(&idamerrorstack, CODEERRORTYPE, "readMeta", err, "Invalid Keyword Content!");
         return err;
     }
@@ -551,7 +551,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                     "where=\"tend>=0.4 ORDER BY exp_number desc\",limit=99,cast=column)','')\n"
             );
 
-            IDAM_LOGF(LOG_DEBUG, "readMeta:\n%s\n", work);
+            IDAM_LOGF(UDA_LOG_DEBUG, "readMeta:\n%s\n", work);
 
 // Create the Returned Structure Definition
 
@@ -597,7 +597,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             data_block->opaque_count = 1;
             data_block->opaque_block = (void*)findUserDefinedType("METAHELP", 0);
 
-            IDAM_LOG(LOG_DEBUG, "readMeta: Function help called\n");
+            IDAM_LOG(UDA_LOG_DEBUG, "readMeta: Function help called\n");
 
             break;
 
@@ -633,20 +633,20 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             strcpy(sql, "SELECT DISTINCT device FROM Meta_Alias ORDER BY device ASC");
 
-            IDAM_LOGF(LOG_DEBUG, "readMeta: listDevices SQL\n%s\n", sql);
+            IDAM_LOGF(UDA_LOG_DEBUG, "readMeta: listDevices SQL\n%s\n", sql);
 
 
 // Execute the SQL
 
             if ((DBQuery = PQexec(DBConnect, sql)) == NULL) {
                 err = 999;
-                IDAM_LOG(LOG_ERROR, "ERROR Meta listDevices: Database Query Failed!\n");
+                IDAM_LOG(UDA_LOG_ERROR, "ERROR Meta listDevices: Database Query Failed!\n");
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "readMeta listDevices", err, "Database Query Failed!");
                 break;
             }
 
             if (PQresultStatus(DBQuery) != PGRES_TUPLES_OK && PQresultStatus(DBQuery) != PGRES_COMMAND_OK) {
-                IDAM_LOGF(LOG_ERROR, "ERROR Meta listDevices: %s\n", PQresultErrorMessage(DBQuery));
+                IDAM_LOGF(UDA_LOG_ERROR, "ERROR Meta listDevices: %s\n", PQresultErrorMessage(DBQuery));
                 err = 999;
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "readMeta listDevices", err,
                              PQresultErrorMessage(DBQuery));
@@ -656,7 +656,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             nrows = PQntuples(DBQuery);
 
             if (nrows == 0) {
-                IDAM_LOG(LOG_ERROR, "ERROR Meta listDevices: No Meta Data available!\n");
+                IDAM_LOG(UDA_LOG_ERROR, "ERROR Meta listDevices: No Meta Data available!\n");
                 err = 999;
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "readMeta listDevices", err, "No Meta Data available!");
                 break;
@@ -708,8 +708,8 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                     strcpy(data[i].name, PQgetvalue(DBQuery, i, 0));
                     addMalloc((void*)data[i].name, 1, stringLength * sizeof(char), "char");
 
-                    IDAM_LOGF(LOG_DEBUG, "listDevices: [%d]\n", i);
-                    IDAM_LOGF(LOG_DEBUG, "device     : %s\n", data[i].name);
+                    IDAM_LOGF(UDA_LOG_DEBUG, "listDevices: [%d]\n", i);
+                    IDAM_LOGF(UDA_LOG_DEBUG, "device     : %s\n", data[i].name);
                 }
             } else if (castTypeId == CASTCOLUMN) {
                 // Column oriented
@@ -729,8 +729,8 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                     strcpy(data->name[i], PQgetvalue(DBQuery, i, 0));
                     addMalloc((void*)data->name[i], stringLength, sizeof(char), "char");
 
-                    IDAM_LOGF(LOG_DEBUG, "listDevices: [%d]\n", i);
-                    IDAM_LOGF(LOG_DEBUG, "device     : %s\n", data->name[i]);
+                    IDAM_LOGF(UDA_LOG_DEBUG, "listDevices: [%d]\n", i);
+                    IDAM_LOGF(UDA_LOG_DEBUG, "device     : %s\n", data->name[i]);
                 }
             }
 
@@ -754,7 +754,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             } else if (castTypeId == CASTCOLUMN) {
                 data_block->opaque_block = (void*)findUserDefinedType("METADEVICE_C", 0);
             }
-            IDAM_LOG(LOG_DEBUG, "readMeta: Function listDevices called\n");
+            IDAM_LOG(UDA_LOG_DEBUG, "readMeta: Function listDevices called\n");
 
             break;
 
@@ -779,21 +779,21 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                        "SELECT class, system, device, ro, description FROM Meta_Alias ORDER BY device, class, system ASC");
             }
 
-            IDAM_LOGF(LOG_DEBUG, "readMeta: listClasses SQL\n%s\n", sql);
+            IDAM_LOGF(UDA_LOG_DEBUG, "readMeta: listClasses SQL\n%s\n", sql);
 
 
 // Execute the SQL
 
             if ((DBQuery = PQexec(DBConnect, sql)) == NULL) {
                 err = 999;
-                IDAM_LOG(LOG_ERROR, "ERROR Meta listClasses: Database Query Failed!\n");
+                IDAM_LOG(UDA_LOG_ERROR, "ERROR Meta listClasses: Database Query Failed!\n");
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "readMeta list/listClasses", err,
                              "Database Query Failed!");
                 break;
             }
 
             if (PQresultStatus(DBQuery) != PGRES_TUPLES_OK && PQresultStatus(DBQuery) != PGRES_COMMAND_OK) {
-                IDAM_LOGF(LOG_ERROR, "ERROR Meta listClasses: %s\n", PQresultErrorMessage(DBQuery));
+                IDAM_LOGF(UDA_LOG_ERROR, "ERROR Meta listClasses: %s\n", PQresultErrorMessage(DBQuery));
                 err = 999;
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "readMeta list/listClasses", err,
                              PQresultErrorMessage(DBQuery));
@@ -803,7 +803,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             nrows = PQntuples(DBQuery);
 
             if (nrows == 0) {
-                IDAM_LOG(LOG_ERROR, "ERROR Meta listClasses: No Meta Data available!\n");
+                IDAM_LOG(UDA_LOG_ERROR, "ERROR Meta listClasses: No Meta Data available!\n");
                 err = 999;
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "readMeta list/listClasses", err,
                              "No Meta Data available!");
@@ -884,12 +884,12 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                     strcpy(data[i].description, PQgetvalue(DBQuery, i, 4));
                     addMalloc((void*)data[i].description, 1, stringLength * sizeof(char), "char");
 
-                    IDAM_LOGF(LOG_DEBUG, "listClasses: [%d]\n", i);
-                    IDAM_LOGF(LOG_DEBUG, "class      : %s\n", data[i].class);
-                    IDAM_LOGF(LOG_DEBUG, "system     : %s\n", data[i].system);
-                    IDAM_LOGF(LOG_DEBUG, "device     : %s\n", data[i].device);
-                    IDAM_LOGF(LOG_DEBUG, "ro         : %s\n", data[i].ro);
-                    IDAM_LOGF(LOG_DEBUG, "description: %s\n", data[i].description);
+                    IDAM_LOGF(UDA_LOG_DEBUG, "listClasses: [%d]\n", i);
+                    IDAM_LOGF(UDA_LOG_DEBUG, "class      : %s\n", data[i].class);
+                    IDAM_LOGF(UDA_LOG_DEBUG, "system     : %s\n", data[i].system);
+                    IDAM_LOGF(UDA_LOG_DEBUG, "device     : %s\n", data[i].device);
+                    IDAM_LOGF(UDA_LOG_DEBUG, "ro         : %s\n", data[i].ro);
+                    IDAM_LOGF(UDA_LOG_DEBUG, "description: %s\n", data[i].description);
                 }
 
             } else if (castTypeId == CASTCOLUMN) {
@@ -938,12 +938,12 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                     strcpy(data->description[i], PQgetvalue(DBQuery, i, 4));
                     addMalloc((void*)data->description[i], stringLength, sizeof(char), "char");
 
-                    IDAM_LOGF(LOG_DEBUG, "listClasses: [%d]\n", i);
-                    IDAM_LOGF(LOG_DEBUG, "class      : %s\n", data->class[i]);
-                    IDAM_LOGF(LOG_DEBUG, "system     : %s\n", data->system[i]);
-                    IDAM_LOGF(LOG_DEBUG, "device     : %s\n", data->device[i]);
-                    IDAM_LOGF(LOG_DEBUG, "ro         : %s\n", data->ro[i]);
-                    IDAM_LOGF(LOG_DEBUG, "description: %s\n", data->description[i]);
+                    IDAM_LOGF(UDA_LOG_DEBUG, "listClasses: [%d]\n", i);
+                    IDAM_LOGF(UDA_LOG_DEBUG, "class      : %s\n", data->class[i]);
+                    IDAM_LOGF(UDA_LOG_DEBUG, "system     : %s\n", data->system[i]);
+                    IDAM_LOGF(UDA_LOG_DEBUG, "device     : %s\n", data->device[i]);
+                    IDAM_LOGF(UDA_LOG_DEBUG, "ro         : %s\n", data->ro[i]);
+                    IDAM_LOGF(UDA_LOG_DEBUG, "description: %s\n", data->description[i]);
                 }
             }
 
@@ -967,7 +967,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             } else if (castTypeId == CASTCOLUMN) {
                 data_block->opaque_block = (void*)findUserDefinedType("METALIST_C", 0);
             }
-            IDAM_LOG(LOG_DEBUG, "readMeta: Function list or listClasses called\n");
+            IDAM_LOG(UDA_LOG_DEBUG, "readMeta: Function list or listClasses called\n");
 
             break;
 
@@ -1075,19 +1075,19 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             }
             strcat(sql, " ORDER BY device, class, system ASC");
 
-            IDAM_LOGF(LOG_DEBUG, "readMeta: SQL\n%s\n", sql);
+            IDAM_LOGF(UDA_LOG_DEBUG, "readMeta: SQL\n%s\n", sql);
 
 // Execute the SQL
 
             if ((DBQuery = PQexec(DBConnect, sql)) == NULL) {
-                IDAM_LOG(LOG_ERROR, "ERROR Meta: Database Query Failed!\n");
+                IDAM_LOG(UDA_LOG_ERROR, "ERROR Meta: Database Query Failed!\n");
                 err = 999;
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "readMeta", err, "Database Query Failed!");
                 break;
             }
 
             if (PQresultStatus(DBQuery) != PGRES_TUPLES_OK && PQresultStatus(DBQuery) != PGRES_COMMAND_OK) {
-                IDAM_LOGF(LOG_ERROR, "ERROR Meta: %s\n", PQresultErrorMessage(DBQuery));
+                IDAM_LOGF(UDA_LOG_ERROR, "ERROR Meta: %s\n", PQresultErrorMessage(DBQuery));
                 err = 999;
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "readMeta", err, PQresultErrorMessage(DBQuery));
                 break;
@@ -1096,7 +1096,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             nrows = PQntuples(DBQuery);
 
             if (nrows == 0) {
-                IDAM_LOG(LOG_ERROR, "ERROR Meta: No Meta Data available!\n");
+                IDAM_LOG(UDA_LOG_ERROR, "ERROR Meta: No Meta Data available!\n");
                 err = 999;
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "readMeta", err, "No Meta Data available!");
                 break;
@@ -1253,21 +1253,21 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                         strcpy(data[i].definition, PQgetvalue(DBQuery, i, col++));
                         addMalloc((void*)data[i].definition, 1, stringLength * sizeof(char), "char");
 
-                        IDAM_LOGF(LOG_DEBUG, "listData     : [%d]\n", i);
-                        IDAM_LOGF(LOG_DEBUG, "class        : %s\n", data[i].class);
-                        IDAM_LOGF(LOG_DEBUG, "system       : %s\n", data[i].system);
-                        IDAM_LOGF(LOG_DEBUG, "device       : %s\n", data[i].device);
-                        IDAM_LOGF(LOG_DEBUG, "configuration: %s\n", data[i].configuration);
-                        IDAM_LOGF(LOG_DEBUG, "version      : %d\n", data[i].version);
-                        IDAM_LOGF(LOG_DEBUG, "revision     : %d\n", data[i].revision);
-                        IDAM_LOGF(LOG_DEBUG, "status       : %s\n", data[i].status);
-                        IDAM_LOGF(LOG_DEBUG, "description  : %s\n", data[i].description);
-                        IDAM_LOGF(LOG_DEBUG, "comment      : %s\n", data[i].comment);
-                        IDAM_LOGF(LOG_DEBUG, "range_start  : %d\n", data[i].range_start);
-                        IDAM_LOGF(LOG_DEBUG, "range_stop   : %d\n", data[i].range_stop);
-                        IDAM_LOGF(LOG_DEBUG, "type_name            : %s\n", data[i].type_name);
-                        IDAM_LOGF(LOG_DEBUG, "structure_description: %s\n", data[i].structure_description);
-                        IDAM_LOGF(LOG_DEBUG, "definition           : %s\n", data[i].definition);
+                        IDAM_LOGF(UDA_LOG_DEBUG, "listData     : [%d]\n", i);
+                        IDAM_LOGF(UDA_LOG_DEBUG, "class        : %s\n", data[i].class);
+                        IDAM_LOGF(UDA_LOG_DEBUG, "system       : %s\n", data[i].system);
+                        IDAM_LOGF(UDA_LOG_DEBUG, "device       : %s\n", data[i].device);
+                        IDAM_LOGF(UDA_LOG_DEBUG, "configuration: %s\n", data[i].configuration);
+                        IDAM_LOGF(UDA_LOG_DEBUG, "version      : %d\n", data[i].version);
+                        IDAM_LOGF(UDA_LOG_DEBUG, "revision     : %d\n", data[i].revision);
+                        IDAM_LOGF(UDA_LOG_DEBUG, "status       : %s\n", data[i].status);
+                        IDAM_LOGF(UDA_LOG_DEBUG, "description  : %s\n", data[i].description);
+                        IDAM_LOGF(UDA_LOG_DEBUG, "comment      : %s\n", data[i].comment);
+                        IDAM_LOGF(UDA_LOG_DEBUG, "range_start  : %d\n", data[i].range_start);
+                        IDAM_LOGF(UDA_LOG_DEBUG, "range_stop   : %d\n", data[i].range_stop);
+                        IDAM_LOGF(UDA_LOG_DEBUG, "type_name            : %s\n", data[i].type_name);
+                        IDAM_LOGF(UDA_LOG_DEBUG, "structure_description: %s\n", data[i].structure_description);
+                        IDAM_LOGF(UDA_LOG_DEBUG, "definition           : %s\n", data[i].definition);
                     }
                 } else {
                     METADATA_R* data;
@@ -1327,18 +1327,18 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                         data[i].range_start = atoi(PQgetvalue(DBQuery, i, col++));
                         data[i].range_stop = atoi(PQgetvalue(DBQuery, i, col++));
 
-                        IDAM_LOGF(LOG_DEBUG, "listData     : [%d]\n", i);
-                        IDAM_LOGF(LOG_DEBUG, "class        : %s\n", data[i].class);
-                        IDAM_LOGF(LOG_DEBUG, "system       : %s\n", data[i].system);
-                        IDAM_LOGF(LOG_DEBUG, "device       : %s\n", data[i].device);
-                        IDAM_LOGF(LOG_DEBUG, "configuration: %s\n", data[i].configuration);
-                        IDAM_LOGF(LOG_DEBUG, "version      : %d\n", data[i].version);
-                        IDAM_LOGF(LOG_DEBUG, "revision     : %d\n", data[i].revision);
-                        IDAM_LOGF(LOG_DEBUG, "status       : %s\n", data[i].status);
-                        IDAM_LOGF(LOG_DEBUG, "description  : %s\n", data[i].description);
-                        IDAM_LOGF(LOG_DEBUG, "comment      : %s\n", data[i].comment);
-                        IDAM_LOGF(LOG_DEBUG, "range_start  : %d\n", data[i].range_start);
-                        IDAM_LOGF(LOG_DEBUG, "range_stop   : %d\n", data[i].range_stop);
+                        IDAM_LOGF(UDA_LOG_DEBUG, "listData     : [%d]\n", i);
+                        IDAM_LOGF(UDA_LOG_DEBUG, "class        : %s\n", data[i].class);
+                        IDAM_LOGF(UDA_LOG_DEBUG, "system       : %s\n", data[i].system);
+                        IDAM_LOGF(UDA_LOG_DEBUG, "device       : %s\n", data[i].device);
+                        IDAM_LOGF(UDA_LOG_DEBUG, "configuration: %s\n", data[i].configuration);
+                        IDAM_LOGF(UDA_LOG_DEBUG, "version      : %d\n", data[i].version);
+                        IDAM_LOGF(UDA_LOG_DEBUG, "revision     : %d\n", data[i].revision);
+                        IDAM_LOGF(UDA_LOG_DEBUG, "status       : %s\n", data[i].status);
+                        IDAM_LOGF(UDA_LOG_DEBUG, "description  : %s\n", data[i].description);
+                        IDAM_LOGF(UDA_LOG_DEBUG, "comment      : %s\n", data[i].comment);
+                        IDAM_LOGF(UDA_LOG_DEBUG, "range_start  : %d\n", data[i].range_start);
+                        IDAM_LOGF(UDA_LOG_DEBUG, "range_stop   : %d\n", data[i].range_stop);
                     }
                 }
             } else if (castTypeId == CASTCOLUMN) {                // Column oriented
@@ -1451,21 +1451,21 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                         strcpy(data->definition[i], PQgetvalue(DBQuery, i, col++));
                         addMalloc((void*)data->definition[i], stringLength, sizeof(char), "char");
 
-                        IDAM_LOGF(LOG_DEBUG, "listData     : [%d]\n", i);
-                        IDAM_LOGF(LOG_DEBUG, "class        : %s\n", data->class[i]);
-                        IDAM_LOGF(LOG_DEBUG, "system       : %s\n", data->system[i]);
-                        IDAM_LOGF(LOG_DEBUG, "device       : %s\n", data->device[i]);
-                        IDAM_LOGF(LOG_DEBUG, "configuration: %s\n", data->configuration[i]);
-                        IDAM_LOGF(LOG_DEBUG, "version      : %d\n", data->version[i]);
-                        IDAM_LOGF(LOG_DEBUG, "revision     : %d\n", data->revision[i]);
-                        IDAM_LOGF(LOG_DEBUG, "status       : %s\n", data->status[i]);
-                        IDAM_LOGF(LOG_DEBUG, "description  : %s\n", data->description[i]);
-                        IDAM_LOGF(LOG_DEBUG, "comment      : %s\n", data->comment[i]);
-                        IDAM_LOGF(LOG_DEBUG, "range_start  : %d\n", data->range_start[i]);
-                        IDAM_LOGF(LOG_DEBUG, "range_stop   : %d\n", data->range_stop[i]);
-                        IDAM_LOGF(LOG_DEBUG, "type_name            : %s\n", data->type_name[i]);
-                        IDAM_LOGF(LOG_DEBUG, "structure_description: %s\n", data->structure_description[i]);
-                        IDAM_LOGF(LOG_DEBUG, "definition           : %s\n", data->definition[i]);
+                        IDAM_LOGF(UDA_LOG_DEBUG, "listData     : [%d]\n", i);
+                        IDAM_LOGF(UDA_LOG_DEBUG, "class        : %s\n", data->class[i]);
+                        IDAM_LOGF(UDA_LOG_DEBUG, "system       : %s\n", data->system[i]);
+                        IDAM_LOGF(UDA_LOG_DEBUG, "device       : %s\n", data->device[i]);
+                        IDAM_LOGF(UDA_LOG_DEBUG, "configuration: %s\n", data->configuration[i]);
+                        IDAM_LOGF(UDA_LOG_DEBUG, "version      : %d\n", data->version[i]);
+                        IDAM_LOGF(UDA_LOG_DEBUG, "revision     : %d\n", data->revision[i]);
+                        IDAM_LOGF(UDA_LOG_DEBUG, "status       : %s\n", data->status[i]);
+                        IDAM_LOGF(UDA_LOG_DEBUG, "description  : %s\n", data->description[i]);
+                        IDAM_LOGF(UDA_LOG_DEBUG, "comment      : %s\n", data->comment[i]);
+                        IDAM_LOGF(UDA_LOG_DEBUG, "range_start  : %d\n", data->range_start[i]);
+                        IDAM_LOGF(UDA_LOG_DEBUG, "range_stop   : %d\n", data->range_stop[i]);
+                        IDAM_LOGF(UDA_LOG_DEBUG, "type_name            : %s\n", data->type_name[i]);
+                        IDAM_LOGF(UDA_LOG_DEBUG, "structure_description: %s\n", data->structure_description[i]);
+                        IDAM_LOGF(UDA_LOG_DEBUG, "definition           : %s\n", data->definition[i]);
                     }
                 } else {
                     METADATA_C* data;
@@ -1551,18 +1551,18 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                         data->range_start[i] = atoi(PQgetvalue(DBQuery, i, col++));
                         data->range_stop[i] = atoi(PQgetvalue(DBQuery, i, col++));
 
-                        IDAM_LOGF(LOG_DEBUG, "listData     : [%d]\n", i);
-                        IDAM_LOGF(LOG_DEBUG, "class        : %s\n", data->class[i]);
-                        IDAM_LOGF(LOG_DEBUG, "system       : %s\n", data->system[i]);
-                        IDAM_LOGF(LOG_DEBUG, "device       : %s\n", data->device[i]);
-                        IDAM_LOGF(LOG_DEBUG, "configuration: %s\n", data->configuration[i]);
-                        IDAM_LOGF(LOG_DEBUG, "version      : %d\n", data->version[i]);
-                        IDAM_LOGF(LOG_DEBUG, "revision     : %d\n", data->revision[i]);
-                        IDAM_LOGF(LOG_DEBUG, "status       : %s\n", data->status[i]);
-                        IDAM_LOGF(LOG_DEBUG, "description  : %s\n", data->description[i]);
-                        IDAM_LOGF(LOG_DEBUG, "comment      : %s\n", data->comment[i]);
-                        IDAM_LOGF(LOG_DEBUG, "range_start  : %d\n", data->range_start[i]);
-                        IDAM_LOGF(LOG_DEBUG, "range_stop   : %d\n", data->range_stop[i]);
+                        IDAM_LOGF(UDA_LOG_DEBUG, "listData     : [%d]\n", i);
+                        IDAM_LOGF(UDA_LOG_DEBUG, "class        : %s\n", data->class[i]);
+                        IDAM_LOGF(UDA_LOG_DEBUG, "system       : %s\n", data->system[i]);
+                        IDAM_LOGF(UDA_LOG_DEBUG, "device       : %s\n", data->device[i]);
+                        IDAM_LOGF(UDA_LOG_DEBUG, "configuration: %s\n", data->configuration[i]);
+                        IDAM_LOGF(UDA_LOG_DEBUG, "version      : %d\n", data->version[i]);
+                        IDAM_LOGF(UDA_LOG_DEBUG, "revision     : %d\n", data->revision[i]);
+                        IDAM_LOGF(UDA_LOG_DEBUG, "status       : %s\n", data->status[i]);
+                        IDAM_LOGF(UDA_LOG_DEBUG, "description  : %s\n", data->description[i]);
+                        IDAM_LOGF(UDA_LOG_DEBUG, "comment      : %s\n", data->comment[i]);
+                        IDAM_LOGF(UDA_LOG_DEBUG, "range_start  : %d\n", data->range_start[i]);
+                        IDAM_LOGF(UDA_LOG_DEBUG, "range_stop   : %d\n", data->range_stop[i]);
                     }
                 }
             }
@@ -1596,7 +1596,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 }
             }
 
-            IDAM_LOG(LOG_DEBUG, "readMeta: Function listData called\n");
+            IDAM_LOG(UDA_LOG_DEBUG, "readMeta: Function listData called\n");
 
             break;
 
@@ -1694,19 +1694,19 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             if (isLatest) strcat(sql, "ORDER BY version DESC, revision DESC limit 1");
 
-            IDAM_LOGF(LOG_DEBUG, "readMeta: SQL\n%s\n", sql);
+            IDAM_LOGF(UDA_LOG_DEBUG, "readMeta: SQL\n%s\n", sql);
 
 // Execute the SQL
 
             if ((DBQuery = PQexec(DBConnect, sql)) == NULL) {
-                IDAM_LOG(LOG_ERROR, "ERROR Meta: Database Query Failed!\n");
+                IDAM_LOG(UDA_LOG_ERROR, "ERROR Meta: Database Query Failed!\n");
                 err = 999;
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "readMeta", err, "Database Query Failed!");
                 break;
             }
 
             if (PQresultStatus(DBQuery) != PGRES_TUPLES_OK && PQresultStatus(DBQuery) != PGRES_COMMAND_OK) {
-                IDAM_LOGF(LOG_ERROR, "ERROR Meta: %s\n", PQresultErrorMessage(DBQuery));
+                IDAM_LOGF(UDA_LOG_ERROR, "ERROR Meta: %s\n", PQresultErrorMessage(DBQuery));
                 err = 999;
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "readMeta", err, PQresultErrorMessage(DBQuery));
                 break;
@@ -1715,14 +1715,14 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             nrows = PQntuples(DBQuery);
 
             if (nrows == 0) {
-                IDAM_LOG(LOG_ERROR, "ERROR Meta: No Meta Data available!\n");
+                IDAM_LOG(UDA_LOG_ERROR, "ERROR Meta: No Meta Data available!\n");
                 err = 999;
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "readMeta", err, "No Meta Data available!");
                 break;
             }
 
             if (nrows > 1) {
-                IDAM_LOG(LOG_ERROR, "ERROR Meta: Too many Meta Data files identified.!\n");
+                IDAM_LOG(UDA_LOG_ERROR, "ERROR Meta: Too many Meta Data files identified.!\n");
                 err = 999;
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "readMeta", err, "Too many Meta Data files identified. "
                         "Please refine your selection");
@@ -1736,11 +1736,11 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             sprintf(data_source->path, "%s", PQgetvalue(DBQuery, 0, 1));
             sprintf(data_source->filename, "%s", PQgetvalue(DBQuery, 0, 2));
 
-            IDAM_LOG(LOG_DEBUG, "getData\n");
-            IDAM_LOGF(LOG_DEBUG, "signal_name: %s\n", signal_desc->signal_name);
-            IDAM_LOGF(LOG_DEBUG, "format     : %s\n", data_source->format);
-            IDAM_LOGF(LOG_DEBUG, "path       : %s\n", data_source->path);
-            IDAM_LOGF(LOG_DEBUG, "file       : %s\n", data_source->filename);
+            IDAM_LOG(UDA_LOG_DEBUG, "getData\n");
+            IDAM_LOGF(UDA_LOG_DEBUG, "signal_name: %s\n", signal_desc->signal_name);
+            IDAM_LOGF(UDA_LOG_DEBUG, "format     : %s\n", data_source->format);
+            IDAM_LOGF(UDA_LOG_DEBUG, "path       : %s\n", data_source->path);
+            IDAM_LOGF(UDA_LOG_DEBUG, "file       : %s\n", data_source->filename);
 
 // Flag access is via a different server plugin
 
@@ -1768,13 +1768,13 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             if ((DBQuery = PQexec(DBConnect, sql)) == NULL) {
                 err = 999;
-                IDAM_LOG(LOG_ERROR, "ERROR Meta: Database Query Failed!\n");
+                IDAM_LOG(UDA_LOG_ERROR, "ERROR Meta: Database Query Failed!\n");
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "readMeta", err, "Database Query Failed!");
                 break;
             }
 
             if (PQresultStatus(DBQuery) != PGRES_TUPLES_OK && PQresultStatus(DBQuery) != PGRES_COMMAND_OK) {
-                IDAM_LOGF(LOG_ERROR, "ERROR Meta: %s\n", PQresultErrorMessage(DBQuery));
+                IDAM_LOGF(UDA_LOG_ERROR, "ERROR Meta: %s\n", PQresultErrorMessage(DBQuery));
                 err = 999;
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "readMeta", err, PQresultErrorMessage(DBQuery));
                 break;
@@ -1783,7 +1783,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             nrows = PQntuples(DBQuery);
 
             if (nrows == 0) {
-                IDAM_LOG(LOG_ERROR, "ERROR Meta: No Meta Data available!\n");
+                IDAM_LOG(UDA_LOG_ERROR, "ERROR Meta: No Meta Data available!\n");
                 err = 999;
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "readMeta", err, "No Meta Data available!");
                 break;
@@ -1814,7 +1814,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             data->lastshot = atoi(PQgetvalue(DBQuery, 0, 0));
 
-            IDAM_LOGF(LOG_DEBUG, "getLastShot: %d\n", data->lastshot);
+            IDAM_LOGF(UDA_LOG_DEBUG, "getLastShot: %d\n", data->lastshot);
 
             PQclear(DBQuery);
 
@@ -1833,7 +1833,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             data_block->opaque_count = 1;
             data_block->opaque_block = (void*)findUserDefinedType("DATALASTSHOT", 0);
 
-            IDAM_LOG(LOG_DEBUG, "readMeta: Function getLastShot called\n");
+            IDAM_LOG(UDA_LOG_DEBUG, "readMeta: Function getLastShot called\n");
 
             break;
 
@@ -1845,17 +1845,17 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                     strlwr(request_block->nameValueList.nameValue[sourceDependent].value),
                     exp_number);
 
-            IDAM_LOGF(LOG_DEBUG, "Meta: sql query %s\n", sql);
+	  IDAM_LOGF(UDA_LOG_DEBUG, "Meta: sql query %s\n", sql);
 
             if ((DBQuery = PQexec(DBConnect, sql)) == NULL) {
                 err = 999;
-                IDAM_LOG(LOG_ERROR, "ERROR Meta: Database Query Failed!\n");
+                IDAM_LOG(UDA_LOG_ERROR, "ERROR Meta: Database Query Failed!\n");
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "readMeta", err, "Database Query Failed!");
                 break;
             }
 
             if (PQresultStatus(DBQuery) != PGRES_TUPLES_OK && PQresultStatus(DBQuery) != PGRES_COMMAND_OK) {
-                IDAM_LOGF(LOG_ERROR, "ERROR Meta: %s\n", PQresultErrorMessage(DBQuery));
+                IDAM_LOGF(UDA_LOG_ERROR, "ERROR Meta: %s\n", PQresultErrorMessage(DBQuery));
                 err = 999;
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "readMeta", err, PQresultErrorMessage(DBQuery));
                 break;
@@ -1864,14 +1864,14 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             nrows = PQntuples(DBQuery);
 
             if (nrows == 0) {
-                IDAM_LOG(LOG_ERROR, "ERROR Meta: No Meta Data available!\n");
+                IDAM_LOG(UDA_LOG_ERROR, "ERROR Meta: No Meta Data available!\n");
                 err = 999;
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "readMeta", err, "No Meta Data available!");
                 break;
             }
 
             if (nrows > 1) {
-                IDAM_LOG(LOG_ERROR, "ERROR Meta: Too many Meta Data records returned!\n");
+                IDAM_LOG(UDA_LOG_ERROR, "ERROR Meta: Too many Meta Data records returned!\n");
                 err = 999;
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "readMeta", err, "Too many Meta Data records returned!");
                 break;
@@ -1936,7 +1936,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 sprintf(sql, "SELECT exp_date, exp_time FROM ExpDateTime WHERE exp_number=%d", exp_number);
             } else {
                 err = 999;
-                IDAM_LOG(LOG_ERROR, "ERROR Meta: No Shot Number passed!\n");
+                IDAM_LOG(UDA_LOG_ERROR, "ERROR Meta: No Shot Number passed!\n");
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "readMeta", err, "No Shot Number passed!");
                 break;
             }
@@ -1945,13 +1945,13 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             if ((DBQuery = PQexec(DBConnect, sql)) == NULL) {
                 err = 999;
-                IDAM_LOG(LOG_ERROR, "ERROR Meta: Database Query Failed!\n");
+                IDAM_LOG(UDA_LOG_ERROR, "ERROR Meta: Database Query Failed!\n");
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "readMeta", err, "Database Query Failed!");
                 break;
             }
 
             if (PQresultStatus(DBQuery) != PGRES_TUPLES_OK && PQresultStatus(DBQuery) != PGRES_COMMAND_OK) {
-                IDAM_LOGF(LOG_ERROR, "ERROR Meta: %s\n", PQresultErrorMessage(DBQuery));
+                IDAM_LOGF(UDA_LOG_ERROR, "ERROR Meta: %s\n", PQresultErrorMessage(DBQuery));
                 err = 999;
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "readMeta", err, PQresultErrorMessage(DBQuery));
                 break;
@@ -1960,14 +1960,14 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             nrows = PQntuples(DBQuery);
 
             if (nrows == 0) {
-                IDAM_LOG(LOG_ERROR, "ERROR Meta: No Meta Data available!\n");
+                IDAM_LOG(UDA_LOG_ERROR, "ERROR Meta: No Meta Data available!\n");
                 err = 999;
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "readMeta", err, "No Meta Data available!");
                 break;
             }
 
             if (nrows > 1) {
-                IDAM_LOG(LOG_ERROR, "ERROR Meta: Too many Meta Data records returned!\n");
+                IDAM_LOG(UDA_LOG_ERROR, "ERROR Meta: Too many Meta Data records returned!\n");
                 err = 999;
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "readMeta", err, "Too many Meta Data records returned!");
                 break;
@@ -2014,10 +2014,10 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             strcpy(data->time, PQgetvalue(DBQuery, 0, 1));
             addMalloc((void*)data->time, 1, stringLength * sizeof(char), "char");
 
-            IDAM_LOG(LOG_DEBUG, "getShotDateTime:\n");
-            IDAM_LOGF(LOG_DEBUG, "Shot: %d\n", data->shot);
-            IDAM_LOGF(LOG_DEBUG, "Date: %s\n", data->date);
-            IDAM_LOGF(LOG_DEBUG, "Time: %s\n", data->time);
+            IDAM_LOG(UDA_LOG_DEBUG, "getShotDateTime:\n");
+            IDAM_LOGF(UDA_LOG_DEBUG, "Shot: %d\n", data->shot);
+            IDAM_LOGF(UDA_LOG_DEBUG, "Date: %s\n", data->date);
+            IDAM_LOGF(UDA_LOG_DEBUG, "Time: %s\n", data->time);
 
             PQclear(DBQuery);
 
@@ -2036,7 +2036,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             data_block->opaque_count = 1;
             data_block->opaque_block = (void*)findUserDefinedType("DATASHOTDATETIME", 0);
 
-            IDAM_LOG(LOG_DEBUG, "readMeta: Function getShotDateTime called\n");
+            IDAM_LOG(UDA_LOG_DEBUG, "readMeta: Function getShotDateTime called\n");
 
             break;
 
@@ -2062,10 +2062,10 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 data_source->filename[0] = '\0';
                 data_source->format[0] = '\0';
 
-                IDAM_LOG(LOG_DEBUG, "listData\n");
-                IDAM_LOGF(LOG_DEBUG, "signal_name: %s\n", signal_desc->signal_name);
-                IDAM_LOGF(LOG_DEBUG, "path       : %s\n", data_source->path);
-                IDAM_LOGF(LOG_DEBUG, "file       : %s\n", data_source->filename);
+                IDAM_LOG(UDA_LOG_DEBUG, "listData\n");
+                IDAM_LOGF(UDA_LOG_DEBUG, "signal_name: %s\n", signal_desc->signal_name);
+                IDAM_LOGF(UDA_LOG_DEBUG, "path       : %s\n", data_source->path);
+                IDAM_LOGF(UDA_LOG_DEBUG, "file       : %s\n", data_source->filename);
 
 // Flag access is via a different server plugin
 
@@ -2120,13 +2120,13 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             if ((DBQuery = PQexec(DBConnect, sql)) == NULL) {
                 err = 999;
-                IDAM_LOG(LOG_ERROR, "ERROR DATA::listData: Database Query Failed!\n");
+                IDAM_LOG(UDA_LOG_ERROR, "ERROR DATA::listData: Database Query Failed!\n");
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "readMeta", err, "Database Query Failed!");
                 break;
             }
 
             if (PQresultStatus(DBQuery) != PGRES_TUPLES_OK && PQresultStatus(DBQuery) != PGRES_COMMAND_OK) {
-                IDAM_LOGF(LOG_ERROR, "ERROR DATA::listData: %s\n", PQresultErrorMessage(DBQuery));
+                IDAM_LOGF(UDA_LOG_ERROR, "ERROR DATA::listData: %s\n", PQresultErrorMessage(DBQuery));
                 err = 999;
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "readMeta", err, PQresultErrorMessage(DBQuery));
                 break;
@@ -2135,7 +2135,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             nrows = PQntuples(DBQuery);
 
             if (nrows == 0) {
-                IDAM_LOG(LOG_ERROR, "ERROR META::listData: No Meta Data available!\n");
+                IDAM_LOG(UDA_LOG_ERROR, "ERROR META::listData: No Meta Data available!\n");
                 err = 999;
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "readMeta", err, "No Meta Data available!");
                 break;
@@ -2231,9 +2231,9 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Create Data
 
-            IDAM_LOG(LOG_DEBUG, "listData:\n");
-            IDAM_LOGF(LOG_DEBUG, "Shot: %d\n", exp_number);
-            IDAM_LOGF(LOG_DEBUG, "Pass: %d\n", pass);
+            IDAM_LOG(UDA_LOG_DEBUG, "listData:\n");
+            IDAM_LOGF(UDA_LOG_DEBUG, "Shot: %d\n", exp_number);
+            IDAM_LOGF(UDA_LOG_DEBUG, "Pass: %d\n", pass);
 
             if (castTypeId == CASTROW) {                // Row oriented
 
@@ -2296,11 +2296,11 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                         data[i].signal_status = 1;
                     }
 
-                    IDAM_LOGF(LOG_DEBUG, "signal_name : %s\n", data[i].signal_name);
-                    IDAM_LOGF(LOG_DEBUG, "generic_name: %s\n", data[i].generic_name);
-                    IDAM_LOGF(LOG_DEBUG, "source_alias: %s\n", data[i].source_alias);
-                    IDAM_LOGF(LOG_DEBUG, "type        : %s\n", data[i].type);
-                    IDAM_LOGF(LOG_DEBUG, "description : %s\n", data[i].description);
+                    IDAM_LOGF(UDA_LOG_DEBUG, "signal_name : %s\n", data[i].signal_name);
+                    IDAM_LOGF(UDA_LOG_DEBUG, "generic_name: %s\n", data[i].generic_name);
+                    IDAM_LOGF(UDA_LOG_DEBUG, "source_alias: %s\n", data[i].source_alias);
+                    IDAM_LOGF(UDA_LOG_DEBUG, "type        : %s\n", data[i].type);
+                    IDAM_LOGF(UDA_LOG_DEBUG, "description : %s\n", data[i].description);
                 }
 
             } else if (castTypeId == CASTCOLUMN) {                // Column oriented
@@ -2371,11 +2371,11 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                         data->signal_status[i] = 1;
                     }
 
-                    IDAM_LOGF(LOG_DEBUG, "signal_name : %s\n", data->signal_name[i]);
-                    IDAM_LOGF(LOG_DEBUG, "generic_name: %s\n", data->generic_name[i]);
-                    IDAM_LOGF(LOG_DEBUG, "source_alias: %s\n", data->source_alias[i]);
-                    IDAM_LOGF(LOG_DEBUG, "type        : %s\n", data->type[i]);
-                    IDAM_LOGF(LOG_DEBUG, "description : %s\n", data->description[i]);
+                    IDAM_LOGF(UDA_LOG_DEBUG, "signal_name : %s\n", data->signal_name[i]);
+                    IDAM_LOGF(UDA_LOG_DEBUG, "generic_name: %s\n", data->generic_name[i]);
+                    IDAM_LOGF(UDA_LOG_DEBUG, "source_alias: %s\n", data->source_alias[i]);
+                    IDAM_LOGF(UDA_LOG_DEBUG, "type        : %s\n", data->type[i]);
+                    IDAM_LOGF(UDA_LOG_DEBUG, "description : %s\n", data->description[i]);
                 }
             }
 
@@ -2400,7 +2400,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 data_block->opaque_block = (void*)findUserDefinedType("DATALISTSIGNALS_C", 0);
             }
 
-            IDAM_LOG(LOG_DEBUG, "readMeta: Function listData called\n");
+            IDAM_LOG(UDA_LOG_DEBUG, "readMeta: Function listData called\n");
 
             break;
 
@@ -2441,7 +2441,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 }
             } else {
                 err = 999;
-                IDAM_LOG(LOG_ERROR, "ERROR Meta: No pulse number specified!\n");
+                IDAM_LOG(UDA_LOG_ERROR, "ERROR Meta: No pulse number specified!\n");
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "readMeta", err, "No pulse number specified!");
                 break;
             }
@@ -2450,13 +2450,13 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             if ((DBQuery = PQexec(DBConnect, sql)) == NULL) {
                 err = 999;
-                IDAM_LOG(LOG_ERROR, "ERROR Meta: Database Query Failed!\n");
+                IDAM_LOG(UDA_LOG_ERROR, "ERROR Meta: Database Query Failed!\n");
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "readMeta", err, "Database Query Failed!");
                 break;
             }
 
             if (PQresultStatus(DBQuery) != PGRES_TUPLES_OK && PQresultStatus(DBQuery) != PGRES_COMMAND_OK) {
-                IDAM_LOGF(LOG_ERROR, "ERROR Meta: %s\n", PQresultErrorMessage(DBQuery));
+                IDAM_LOGF(UDA_LOG_ERROR, "ERROR Meta: %s\n", PQresultErrorMessage(DBQuery));
                 err = 999;
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "readMeta", err, PQresultErrorMessage(DBQuery));
                 break;
@@ -2465,7 +2465,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             nrows = PQntuples(DBQuery);
 
             if (nrows == 0) {
-                IDAM_LOG(LOG_ERROR, "ERROR Meta: No Meta Data available!\n");
+                IDAM_LOG(UDA_LOG_ERROR, "ERROR Meta: No Meta Data available!\n");
                 err = 999;
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "readMeta", err, "No Meta Data available!");
                 break;
@@ -2551,13 +2551,13 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             USERDEFINEDTYPE* udt = findUserDefinedType("DATALISTSOURCES_R", 0);
             int size = getStructureSize(udt);
-            IDAM_LOGF(LOG_DEBUG, "sizeof(DATALISTSOURCES_R) = %zu [%d]\n", sizeof(DATALISTSOURCES_R), size);
+            IDAM_LOGF(UDA_LOG_DEBUG, "sizeof(DATALISTSOURCES_R) = %zu [%d]\n", sizeof(DATALISTSOURCES_R), size);
             printUserDefinedTypeListTable(*userdefinedtypelist);
 
 // Create Data
 
-            IDAM_LOG(LOG_DEBUG, "listSources:\n");
-            IDAM_LOGF(LOG_DEBUG, "Shot: %d\n", exp_number);
+            IDAM_LOG(UDA_LOG_DEBUG, "listSources:\n");
+            IDAM_LOGF(UDA_LOG_DEBUG, "Shot: %d\n", exp_number);
 
             if (castTypeId == CASTROW) {                // Row oriented
 
@@ -2611,12 +2611,12 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                     strcpy(data[i].type, work);
                     addMalloc((void*)data[i].type, 1, stringLength * sizeof(char), "char");
 
-                    IDAM_LOGF(LOG_DEBUG, "Pass        : %d\n", data[i].pass);
-                    IDAM_LOGF(LOG_DEBUG, "source_alias: %s\n", data[i].source_alias);
-                    IDAM_LOGF(LOG_DEBUG, "Status      : %d\n", data[i].status);
-                    IDAM_LOGF(LOG_DEBUG, "Format      : %s\n", data[i].format);
-                    IDAM_LOGF(LOG_DEBUG, "Filename    : %s\n", data[i].filename);
-                    IDAM_LOGF(LOG_DEBUG, "Type        : %s\n", data[i].type);
+                    IDAM_LOGF(UDA_LOG_DEBUG, "Pass        : %d\n", data[i].pass);
+                    IDAM_LOGF(UDA_LOG_DEBUG, "source_alias: %s\n", data[i].source_alias);
+                    IDAM_LOGF(UDA_LOG_DEBUG, "Status      : %d\n", data[i].status);
+                    IDAM_LOGF(UDA_LOG_DEBUG, "Format      : %s\n", data[i].format);
+                    IDAM_LOGF(UDA_LOG_DEBUG, "Filename    : %s\n", data[i].filename);
+                    IDAM_LOGF(UDA_LOG_DEBUG, "Type        : %s\n", data[i].type);
                 }
             } else if (castTypeId == CASTCOLUMN) {                // Column oriented
 
@@ -2702,7 +2702,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 data_block->opaque_block = (void*)findUserDefinedType("DATALISTSOURCES_C", 0);
             }
 
-            IDAM_LOG(LOG_DEBUG, "readMeta: Function listSources called\n");
+            IDAM_LOG(UDA_LOG_DEBUG, "readMeta: Function listSources called\n");
 
             break;
 
@@ -2720,20 +2720,20 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             strcpy(sql, "SELECT DISTINCT data_class FROM dictionary ORDER BY data_class ASC");
 
-            IDAM_LOGF(LOG_DEBUG, "readMeta: listClasses SQL\n%s\n", sql);
+            IDAM_LOGF(UDA_LOG_DEBUG, "readMeta: listClasses SQL\n%s\n", sql);
 
 
 // Execute the SQL
 
             if ((DBQuery = PQexec(DBConnect, sql)) == NULL) {
                 err = 999;
-                IDAM_LOG(LOG_ERROR, "ERROR Meta listClasses: Database Query Failed!\n");
+                IDAM_LOG(UDA_LOG_ERROR, "ERROR Meta listClasses: Database Query Failed!\n");
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "readMeta", err, "Database Query Failed!");
                 break;
             }
 
             if (PQresultStatus(DBQuery) != PGRES_TUPLES_OK && PQresultStatus(DBQuery) != PGRES_COMMAND_OK) {
-                IDAM_LOGF(LOG_ERROR, "ERROR Meta listClasses: %s\n", PQresultErrorMessage(DBQuery));
+                IDAM_LOGF(UDA_LOG_ERROR, "ERROR Meta listClasses: %s\n", PQresultErrorMessage(DBQuery));
                 err = 999;
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "readMeta", err, PQresultErrorMessage(DBQuery));
                 break;
@@ -2742,7 +2742,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             nrows = PQntuples(DBQuery);
 
             if (nrows == 0) {
-                IDAM_LOG(LOG_ERROR, "ERROR Meta listClasses: No Meta Data available!\n");
+                IDAM_LOG(UDA_LOG_ERROR, "ERROR Meta listClasses: No Meta Data available!\n");
                 err = 999;
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "readMeta", err, "No Meta Data available!");
                 break;
@@ -2834,8 +2834,8 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                     strcpy(data[i].class, PQgetvalue(DBQuery, i, 0));
                     addMalloc((void*)data[i].class, 1, stringLength * sizeof(char), "char");
 
-                    IDAM_LOGF(LOG_DEBUG, "listClasses: [%d]\n", i);
-                    IDAM_LOGF(LOG_DEBUG, "class      : %s\n", data[i].class);
+                    IDAM_LOGF(UDA_LOG_DEBUG, "listClasses: [%d]\n", i);
+                    IDAM_LOGF(UDA_LOG_DEBUG, "class      : %s\n", data[i].class);
                 }
 
             } else if (castTypeId == CASTCOLUMN) {
@@ -2856,8 +2856,8 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                     strcpy(data->class[i], PQgetvalue(DBQuery, i, 0));
                     addMalloc((void*)data->class[i], stringLength, sizeof(char), "STRING");
 
-                    IDAM_LOGF(LOG_DEBUG, "listClasses: [%d]\n", i);
-                    IDAM_LOGF(LOG_DEBUG, "class      : %s\n", data->class[i]);
+                    IDAM_LOGF(UDA_LOG_DEBUG, "listClasses: [%d]\n", i);
+                    IDAM_LOGF(UDA_LOG_DEBUG, "class      : %s\n", data->class[i]);
                 }
             }
 
@@ -2881,7 +2881,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             } else if (castTypeId == CASTCOLUMN) {
                 data_block->opaque_block = (void*)findUserDefinedType("CPFLIST_C", 0);
             }
-            IDAM_LOG(LOG_DEBUG, "readMeta: Function listClasses called with CPF context\n");
+            IDAM_LOG(UDA_LOG_DEBUG, "readMeta: Function listClasses called with CPF context\n");
 
             break;
 
@@ -2895,7 +2895,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         if (context == CONTEXT_CPF && !isListClasses &&
             (STR_IEQUALS(request_block->function, "listdata") || STR_IEQUALS(request_block->function, "list"))) {
 
-            IDAM_LOG(LOG_DEBUG, "Meta: listData function called with CPF context\n");
+            IDAM_LOG(UDA_LOG_DEBUG, "Meta: listData function called with CPF context\n");
 
             work[0] = '\0';
             wCount = 0;
@@ -2941,21 +2941,21 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 strcpy(sql, "SELECT name, cpf_table, data_class, source, description, label, units FROM dictionary "
                         "ORDER by data_class, name;");
 
-            IDAM_LOGF(LOG_DEBUG, "Meta sql: %s\n", sql);
+            IDAM_LOGF(UDA_LOG_DEBUG, "Meta sql: %s\n", sql);
 
 // Execute the SQL
 
             if ((DBQuery = PQexec(DBConnect, sql)) == NULL) {
                 err = 999;
-                IDAM_LOG(LOG_ERROR, "ERROR Meta:: Database Query Failed!\n");
-                IDAM_LOG(LOG_DEBUG, "ERROR Meta:: Database Query Failed!\n");
+                IDAM_LOG(UDA_LOG_ERROR, "ERROR Meta:: Database Query Failed!\n");
+                IDAM_LOG(UDA_LOG_DEBUG, "ERROR Meta:: Database Query Failed!\n");
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "readMeta", err, "Database Query Failed!");
                 break;
             }
 
             if (PQresultStatus(DBQuery) != PGRES_TUPLES_OK && PQresultStatus(DBQuery) != PGRES_COMMAND_OK) {
-                IDAM_LOGF(LOG_ERROR, "ERROR Meta: %s\n", PQresultErrorMessage(DBQuery));
-                IDAM_LOGF(LOG_DEBUG, "ERROR Meta: %s\n", PQresultErrorMessage(DBQuery));
+                IDAM_LOGF(UDA_LOG_ERROR, "ERROR Meta: %s\n", PQresultErrorMessage(DBQuery));
+                IDAM_LOGF(UDA_LOG_DEBUG, "ERROR Meta: %s\n", PQresultErrorMessage(DBQuery));
                 err = 999;
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "readMeta", err, PQresultErrorMessage(DBQuery));
                 break;
@@ -2963,11 +2963,11 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             nrows = PQntuples(DBQuery);
 
-            IDAM_LOGF(LOG_DEBUG, "Meta sql: Rows = %d\n", nrows);
+            IDAM_LOGF(UDA_LOG_DEBUG, "Meta sql: Rows = %d\n", nrows);
 
             if (nrows == 0) {
-                IDAM_LOG(LOG_ERROR, "ERROR Meta: No Meta Data available!\n");
-                IDAM_LOG(LOG_DEBUG, "ERROR Meta: No Meta Data available!\n");
+                IDAM_LOG(UDA_LOG_ERROR, "ERROR Meta: No Meta Data available!\n");
+                IDAM_LOG(UDA_LOG_DEBUG, "ERROR Meta: No Meta Data available!\n");
                 err = 999;
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "readMeta", err, "No Meta Data available!");
                 break;
@@ -3052,7 +3052,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Create Data
 
-            IDAM_LOG(LOG_DEBUG, "listData:\n");
+            IDAM_LOG(UDA_LOG_DEBUG, "listData:\n");
 
             if (castTypeId == CASTROW) {                // Row oriented
 
@@ -3105,13 +3105,13 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                     strcpy(data[i].units, PQgetvalue(DBQuery, i, 6));
                     addMalloc((void*)data[i].units, 1, stringLength * sizeof(char), "char");
 
-                    IDAM_LOGF(LOG_DEBUG, "name       : %s\n", data[i].name);
-                    IDAM_LOGF(LOG_DEBUG, "table      : %s\n", data[i].table);
-                    IDAM_LOGF(LOG_DEBUG, "class      : %s\n", data[i].class);
-                    IDAM_LOGF(LOG_DEBUG, "source     : %s\n", data[i].source);
-                    IDAM_LOGF(LOG_DEBUG, "description: %s\n", data[i].description);
-                    IDAM_LOGF(LOG_DEBUG, "label      : %s\n", data[i].label);
-                    IDAM_LOGF(LOG_DEBUG, "units      : %s\n", data[i].units);
+                    IDAM_LOGF(UDA_LOG_DEBUG, "name       : %s\n", data[i].name);
+                    IDAM_LOGF(UDA_LOG_DEBUG, "table      : %s\n", data[i].table);
+                    IDAM_LOGF(UDA_LOG_DEBUG, "class      : %s\n", data[i].class);
+                    IDAM_LOGF(UDA_LOG_DEBUG, "source     : %s\n", data[i].source);
+                    IDAM_LOGF(UDA_LOG_DEBUG, "description: %s\n", data[i].description);
+                    IDAM_LOGF(UDA_LOG_DEBUG, "label      : %s\n", data[i].label);
+                    IDAM_LOGF(UDA_LOG_DEBUG, "units      : %s\n", data[i].units);
                 }
             } else if (castTypeId == CASTCOLUMN) {                // Column oriented
 
@@ -3174,13 +3174,13 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                     strcpy(data->units[i], PQgetvalue(DBQuery, i, 6));
                     addMalloc((void*)data->units[i], stringLength, sizeof(char), "char");
 
-                    IDAM_LOGF(LOG_DEBUG, "name       : %s\n", data->name[i]);
-                    IDAM_LOGF(LOG_DEBUG, "table      : %s\n", data->table[i]);
-                    IDAM_LOGF(LOG_DEBUG, "class      : %s\n", data->class[i]);
-                    IDAM_LOGF(LOG_DEBUG, "source     : %s\n", data->source[i]);
-                    IDAM_LOGF(LOG_DEBUG, "description: %s\n", data->description[i]);
-                    IDAM_LOGF(LOG_DEBUG, "label      : %s\n", data->label[i]);
-                    IDAM_LOGF(LOG_DEBUG, "units      : %s\n", data->units[i]);
+                    IDAM_LOGF(UDA_LOG_DEBUG, "name       : %s\n", data->name[i]);
+                    IDAM_LOGF(UDA_LOG_DEBUG, "table      : %s\n", data->table[i]);
+                    IDAM_LOGF(UDA_LOG_DEBUG, "class      : %s\n", data->class[i]);
+                    IDAM_LOGF(UDA_LOG_DEBUG, "source     : %s\n", data->source[i]);
+                    IDAM_LOGF(UDA_LOG_DEBUG, "description: %s\n", data->description[i]);
+                    IDAM_LOGF(UDA_LOG_DEBUG, "label      : %s\n", data->label[i]);
+                    IDAM_LOGF(UDA_LOG_DEBUG, "units      : %s\n", data->units[i]);
                 }
             }
 
@@ -3205,7 +3205,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 data_block->opaque_block = (void*)findUserDefinedType("CPFLISTNAMES_C", 0);
             }
 
-            IDAM_LOG(LOG_DEBUG, "readMeta: Return from function listData\n");
+            IDAM_LOG(UDA_LOG_DEBUG, "readMeta: Return from function listData\n");
 
             break;
 
@@ -3216,7 +3216,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             // Get CPF Data
             // e.g. meta::getData(context=cpf [,cast={row|column}][,names=names][,table=table][,where=where][,limit=limit])
 
-            IDAM_LOG(LOG_DEBUG, "Meta: getData function called with CPF context\n");
+            IDAM_LOG(UDA_LOG_DEBUG, "Meta: getData function called with CPF context\n");
 
             if (nameDependent < 0) {
                 err = 999;
@@ -3279,21 +3279,21 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 strcat(sql, request_block->nameValueList.nameValue[limitDependent].value);
             }
 
-            IDAM_LOGF(LOG_DEBUG, "Meta sql: %s\n", sql);
+            IDAM_LOGF(UDA_LOG_DEBUG, "Meta sql: %s\n", sql);
 
 // Execute the SQL
 
             if ((DBQuery = PQexec(DBConnect, sql)) == NULL) {
                 err = 999;
-                IDAM_LOG(LOG_ERROR, "ERROR Meta:: Database Query Failed!\n");
-                IDAM_LOG(LOG_DEBUG, "ERROR Meta:: Database Query Failed!\n");
+                IDAM_LOG(UDA_LOG_ERROR, "ERROR Meta:: Database Query Failed!\n");
+                IDAM_LOG(UDA_LOG_DEBUG, "ERROR Meta:: Database Query Failed!\n");
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "readMeta", err, "Database Query Failed!");
                 break;
             }
 
             if (PQresultStatus(DBQuery) != PGRES_TUPLES_OK && PQresultStatus(DBQuery) != PGRES_COMMAND_OK) {
-                IDAM_LOGF(LOG_ERROR, "ERROR Meta: %s\n", PQresultErrorMessage(DBQuery));
-                IDAM_LOGF(LOG_DEBUG, "ERROR Meta: %s\n", PQresultErrorMessage(DBQuery));
+                IDAM_LOGF(UDA_LOG_ERROR, "ERROR Meta: %s\n", PQresultErrorMessage(DBQuery));
+                IDAM_LOGF(UDA_LOG_DEBUG, "ERROR Meta: %s\n", PQresultErrorMessage(DBQuery));
                 err = 999;
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "readMeta", err, PQresultErrorMessage(DBQuery));
                 break;
@@ -3302,11 +3302,11 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             nrows = PQntuples(DBQuery);        // Number of Rows
             ncols = PQnfields(DBQuery);        // Number of Columns
 
-            IDAM_LOGF(LOG_DEBUG, "Meta sql: Rows = %d\n", nrows);
+            IDAM_LOGF(UDA_LOG_DEBUG, "Meta sql: Rows = %d\n", nrows);
 
             if (nrows == 0) {
-                IDAM_LOG(LOG_ERROR, "ERROR Meta: No Meta Data available!\n");
-                IDAM_LOG(LOG_DEBUG, "ERROR Meta: No Meta Data available!\n");
+                IDAM_LOG(UDA_LOG_ERROR, "ERROR Meta: No Meta Data available!\n");
+                IDAM_LOG(UDA_LOG_DEBUG, "ERROR Meta: No Meta Data available!\n");
                 err = 999;
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "readMeta", err, "No Meta Data available!");
                 break;
@@ -3319,11 +3319,11 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             if (castTypeId == CASTROW) {
                 strcpy(usertype.name, "CPFDATA_R");            // Default is Row Oriented
                 usertype.size = ncols * sizeof(char*);
-                IDAM_LOG(LOG_DEBUG, "Structure is Row aligned\n");
+                IDAM_LOG(UDA_LOG_DEBUG, "Structure is Row aligned\n");
             } else if (castTypeId == CASTCOLUMN) {
                 strcpy(usertype.name, "CPFDATA_C");
                 usertype.size = sizeof(unsigned int) + ncols * sizeof(char*);
-                IDAM_LOG(LOG_DEBUG, "Structure is Column aligned\n");
+                IDAM_LOG(UDA_LOG_DEBUG, "Structure is Column aligned\n");
             }
 
             strcpy(usertype.source, "readMeta");
@@ -3381,7 +3381,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Create Data
 
-            IDAM_LOG(LOG_DEBUG, "getData:\n");
+            IDAM_LOG(UDA_LOG_DEBUG, "getData:\n");
 
             if (castTypeId == CASTROW) {                // Row oriented
 
@@ -3406,8 +3406,8 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                         addMalloc((void*)s, 1, stringLength * sizeof(char), "char");
                         data[offset++] = s;
 
-                        IDAM_LOGF(LOG_DEBUG, "name       : %s\n", PQfname(DBQuery, j));
-                        IDAM_LOGF(LOG_DEBUG, "value      : %s\n", data[offset - 1]);
+                        IDAM_LOGF(UDA_LOG_DEBUG, "name       : %s\n", PQfname(DBQuery, j));
+                        IDAM_LOGF(UDA_LOG_DEBUG, "value      : %s\n", data[offset - 1]);
                     }
                 }
             } else if (castTypeId == CASTCOLUMN) {                // Column oriented
@@ -3430,13 +3430,13 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
                 offset = 0;
                 for (j = 0; j < ncols; j++) {
-                    IDAM_LOGF(LOG_DEBUG, "name       : %s\n", PQfname(DBQuery, j));
+                    IDAM_LOGF(UDA_LOG_DEBUG, "name       : %s\n", PQfname(DBQuery, j));
                     for (i = 0; i < nrows; i++) {
                         stringLength = strlen(PQgetvalue(DBQuery, i, j)) + 1;
                         sData[j][i] = (char*)malloc(stringLength * sizeof(char));
                         strcpy(sData[j][i], PQgetvalue(DBQuery, i, j));
                         addMalloc((void*)sData[j][i], stringLength, sizeof(char), "char");
-                        IDAM_LOGF(LOG_DEBUG, "value      : %s\n", sData[j][i]);
+                        IDAM_LOGF(UDA_LOG_DEBUG, "value      : %s\n", sData[j][i]);
                     }
                     p[offset++] = (char*)sData[j];
                 }
@@ -3463,7 +3463,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 data_block->opaque_block = (void*)findUserDefinedType("CPFDATA_C", 0);
             }
 
-            IDAM_LOG(LOG_DEBUG, "readMeta: Return from function getData\n");
+            IDAM_LOG(UDA_LOG_DEBUG, "readMeta: Return from function getData\n");
 
             break;
 
@@ -3472,7 +3472,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             //----------------------------------------------------------------------------------------
             // Not a Known Function!
 
-            IDAM_LOGF(LOG_ERROR, "ERROR Meta: Function %s Not Known.!\n", request_block->function);
+            IDAM_LOGF(UDA_LOG_ERROR, "ERROR Meta: Function %s Not Known.!\n", request_block->function);
             err = 999;
             addIdamError(&idamerrorstack, CODEERRORTYPE, "readMeta", err, "Unknown Function requested");
             addIdamError(&idamerrorstack, CODEERRORTYPE, "readMeta", err, request_block->function);

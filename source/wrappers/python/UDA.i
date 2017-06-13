@@ -138,3 +138,15 @@
 %template(ldata) uda::StructData::as<long>;
 %template(uldata) uda::StructData::as<unsigned long>;
 %template(string) uda::StructData::as<char *>;
+
+%template(fdata) uda::Dim::as<float>;
+%template(ddata) uda::Dim::as<double>;
+%template(cdata) uda::Dim::as<char>;
+%template(ucdata) uda::Dim::as<unsigned char>;
+%template(sdata) uda::Dim::as<short>;
+%template(usdata) uda::Dim::as<unsigned short>;
+%template(idata) uda::Dim::as<int>;
+%template(uidata) uda::Dim::as<unsigned int>;
+%template(ldata) uda::Dim::as<long>;
+%template(uldata) uda::Dim::as<unsigned long>;
+%template(string) uda::Dim::as<char *>;

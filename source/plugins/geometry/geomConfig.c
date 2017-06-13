@@ -25,12 +25,12 @@
 int generateGeom(char* signal, float tor_angle, PGconn* DBConnect, PGresult* DBQuery)
 {
     char* pythonpath = getenv("PYTHONPATH");
-    IDAM_LOGF(LOG_DEBUG, "python path: %s\n", pythonpath);
+    IDAM_LOGF(UDA_LOG_DEBUG, "python path: %s\n", pythonpath);
 
     char* path = getenv("PATH");
-    IDAM_LOGF(LOG_DEBUG, "path: %s\n", path);
+    IDAM_LOGF(UDA_LOG_DEBUG, "path: %s\n", path);
 
-    IDAM_LOG(LOG_DEBUG, "Trying to generate geometry.\n");
+    IDAM_LOG(UDA_LOG_DEBUG, "Trying to generate geometry.\n");
 
     // Check if the signal exists
     char query_signal[MAXSQL];
@@ -40,7 +40,7 @@ int generateGeom(char* signal, float tor_angle, PGconn* DBConnect, PGresult* DBQ
                     "   AND g.geomgroup_id=ggm.geomgroup_id;",
             signal);
 
-    IDAM_LOGF(LOG_DEBUG, "Query is %s.\n", query_signal);
+    IDAM_LOGF(UDA_LOG_DEBUG, "Query is %s.\n", query_signal);
 
     if ((DBQuery = PQexec(DBConnect, query_signal)) == NULL) {
         RAISE_PLUGIN_ERROR("Database query failed.\n");
@@ -66,11 +66,11 @@ int generateGeom(char* signal, float tor_angle, PGconn* DBConnect, PGresult* DBQ
         char system_call[MAXSQL];
         sprintf(system_call, "run_make_file_from_cad.sh %s %f", geom_group, tor_angle);
 
-        IDAM_LOGF(LOG_DEBUG, "Run command %s\n", system_call);
+        IDAM_LOGF(UDA_LOG_DEBUG, "Run command %s\n", system_call);
 
         int ret = system(system_call);
 
-        IDAM_LOGF(LOG_DEBUG, "Return code from geometry making code %d\n", ret);
+        IDAM_LOGF(UDA_LOG_DEBUG, "Return code from geometry making code %d\n", ret);
 
         if (ret != 0) RAISE_PLUGIN_ERROR("Calling generate geom script failed\n");
     } else {
@@ -99,7 +99,7 @@ int do_geom_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     // tor_angle : If returning the 2D geometry, and the component is toroidal angle - dependent, then the user must
     //             give a toroidal angle at which to slice the model.
 
-    IDAM_LOG(LOG_DEBUG, "get file and signal names.\n");
+    IDAM_LOG(UDA_LOG_DEBUG, "get file and signal names.\n");
 
     ////////////////////////////
     // Get parameters passed by user.
@@ -120,7 +120,7 @@ int do_geom_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     if (version >= 0) {
         ver = floor(version);
         rev = floor(version * 10);
-        IDAM_LOGF(LOG_DEBUG, "Version %d, Revision %d", ver, rev);
+        IDAM_LOGF(UDA_LOG_DEBUG, "Version %d, Revision %d", ver, rev);
     }
 
     // Toroidal angle dependence
@@ -129,17 +129,17 @@ int do_geom_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     FIND_FLOAT_VALUE(idam_plugin_interface->request_block->nameValueList, tor_angle);
 
     if (tor_angle < 0 || tor_angle > 2 * M_PI) {
-        IDAM_LOG(LOG_DEBUG,
+        IDAM_LOG(UDA_LOG_DEBUG,
                  "If providing a toroidal angle, it must be in the range 0 - 2 pi. Angle given will be ignored.\n");
         tor_angle = -1;
     } else {
-        IDAM_LOGF(LOG_DEBUG, "Tor_angle is set to %f\n", tor_angle);
+        IDAM_LOGF(UDA_LOG_DEBUG, "Tor_angle is set to %f\n", tor_angle);
     }
 
     int shot = idam_plugin_interface->request_block->exp_number;
-    IDAM_LOGF(LOG_DEBUG, "Exp number %d\n", shot);
+    IDAM_LOGF(UDA_LOG_DEBUG, "Exp number %d\n", shot);
 
-    IDAM_LOGF(LOG_DEBUG, "Config? %d or cal %d \n", isConfig, isCal);
+    IDAM_LOGF(UDA_LOG_DEBUG, "Config? %d or cal %d \n", isConfig, isCal);
 
     if (file == NULL && !isCal && !isConfig) {
         RAISE_PLUGIN_ERROR("Filename wasn't given and didn't request configuration or calibration data.\n");
@@ -155,7 +155,7 @@ int do_geom_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
         //////////////////////////////
         // Open the connection
-        IDAM_LOG(LOG_DEBUG, "trying to get connection\n");
+        IDAM_LOG(UDA_LOG_DEBUG, "trying to get connection\n");
 
         char* db_host = getenv("GEOM_DB_HOST");
         char* db_port_str = getenv("GEOM_DB_PORT");
@@ -252,7 +252,7 @@ int do_geom_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             strcat(query, " ORDER BY cds.version DESC, cds.revision DESC LIMIT 1;");
         }
 
-        IDAM_LOGF(LOG_DEBUG, "query is %s\n", query);
+        IDAM_LOGF(UDA_LOG_DEBUG, "query is %s\n", query);
 
         /////////////////////////////
         // Query database
@@ -274,7 +274,7 @@ int do_geom_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         // For the future: if they've asked for a specific toroidal angle then try to generate geom from the CAD.
         //                 see commit 91ea8223480cf28228caf30cb43d05fa1c9947db for prototype
         if (nRows == 0) {
-            IDAM_LOGF(LOG_DEBUG, "no rows. isConfig %d, three_d %d, tor_angle %f\n", isConfig, three_d, tor_angle);
+            IDAM_LOGF(UDA_LOG_DEBUG, "no rows. isConfig %d, three_d %d, tor_angle %f\n", isConfig, three_d, tor_angle);
 
             PQclear(DBQuery);
             PQfinish(DBConnect);
@@ -291,7 +291,7 @@ int do_geom_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         if (!PQgetisnull(DBQuery, 0, s_file)) {
             file_db = PQgetvalue(DBQuery, 0, s_file);
 
-            IDAM_LOGF(LOG_DEBUG, "file from db %s\n", file_db);
+            IDAM_LOGF(UDA_LOG_DEBUG, "file from db %s\n", file_db);
 
             //Add on the location
             char* file_path = getenv("MAST_GEOM_DATA");
@@ -308,7 +308,7 @@ int do_geom_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 file = filename;
             }
 
-            IDAM_LOGF(LOG_DEBUG, "file_path %s\n", file);
+            IDAM_LOGF(UDA_LOG_DEBUG, "file_path %s\n", file);
         }
 
         int use_alias = 0;
@@ -319,7 +319,7 @@ int do_geom_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         if (!PQgetisnull(DBQuery, 0, s_short)) {
             char* sigShort = PQgetvalue(DBQuery, 0, s_short);
 
-            IDAM_LOGF(LOG_DEBUG, "sig short %s, sig %s\n", sigShort, signal_for_query);
+            IDAM_LOGF(UDA_LOG_DEBUG, "sig short %s, sig %s\n", sigShort, signal_for_query);
 
             if (!strncmp(sigShort, signal_for_query, strlen(sigShort) - 1)) {
                 signal_type = (char*)malloc(sizeof(char) * 7 + 1);
@@ -334,7 +334,7 @@ int do_geom_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         if (!PQgetisnull(DBQuery, 0, s_alias)) {
             char* sigAlias = PQgetvalue(DBQuery, 0, s_alias);
 
-            IDAM_LOGF(LOG_DEBUG, "sig alias %s use alias? %d\n", sigAlias, use_alias);
+            IDAM_LOGF(UDA_LOG_DEBUG, "sig alias %s use alias? %d\n", sigAlias, use_alias);
 
             // Need to ignore last character of sigAlias, which will be a /
             if (!strncmp(sigAlias, signal_for_query, strlen(sigAlias) - 1)
@@ -358,7 +358,7 @@ int do_geom_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             }
         }
 
-        IDAM_LOG(LOG_DEBUG, "Close connection\n");
+        IDAM_LOG(UDA_LOG_DEBUG, "Close connection\n");
 
         //Close db connection
         PQclear(DBQuery);
@@ -371,7 +371,7 @@ int do_geom_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         strcpy(signal_for_file, signal);
     }
 
-    IDAM_LOGF(LOG_DEBUG, "signal_type %s \n", signal_type);
+    IDAM_LOGF(UDA_LOG_DEBUG, "signal_type %s \n", signal_type);
 
     ///////////////////////////
     // Setup signal and file path in signal_desc
@@ -382,14 +382,14 @@ int do_geom_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     /////////////////////////////
     // Read in the file
-    IDAM_LOGF(LOG_DEBUG, "Calling readCDF to retrieve file %s with signal for file %s\n", file, signal_for_file);
+    IDAM_LOGF(UDA_LOG_DEBUG, "Calling readCDF to retrieve file %s with signal for file %s\n", file, signal_for_file);
     DATA_BLOCK data_block_file;
     initDataBlock(&data_block_file);
 
     REQUEST_BLOCK* request_block = idam_plugin_interface->request_block;
     int errConfig = readCDF(*data_source, *signal_desc, *request_block, &data_block_file);
 
-    IDAM_LOG(LOG_DEBUG, "Read in file\n");
+    IDAM_LOG(UDA_LOG_DEBUG, "Read in file\n");
 
     if (errConfig != 0) {
         RAISE_PLUGIN_ERROR("Error reading geometry data!\n");
@@ -499,14 +499,14 @@ int do_config_filename(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     const char* signal = NULL;
     FIND_REQUIRED_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, signal);
 
-    IDAM_LOGF(LOG_DEBUG, "Using signal name: %s\n", signal);
+    IDAM_LOGF(UDA_LOG_DEBUG, "Using signal name: %s\n", signal);
 
     int shot = idam_plugin_interface->request_block->exp_number;
-    IDAM_LOGF(LOG_DEBUG, "Exp number %d\n", shot);
+    IDAM_LOGF(UDA_LOG_DEBUG, "Exp number %d\n", shot);
 
     //////////////////////////////
     // Open the connection
-    IDAM_LOG(LOG_DEBUG, "trying to get connection\n");
+    IDAM_LOG(UDA_LOG_DEBUG, "trying to get connection\n");
 
     char* db_host = getenv("GEOM_DB_HOST");
     char* db_port_str = getenv("GEOM_DB_PORT");
@@ -545,7 +545,7 @@ int do_config_filename(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             " AND cds.end_shot > %d;",
             signal_for_query, signal_for_query, shot, shot);
 
-    IDAM_LOGF(LOG_DEBUG, "query is %s\n", query);
+    IDAM_LOGF(UDA_LOG_DEBUG, "query is %s\n", query);
 
     /////////////////////////////
     // Query database

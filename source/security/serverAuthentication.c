@@ -149,11 +149,11 @@ static int initialiseKeys(CLIENT_BLOCK* client_block, gcry_sexp_t* publickey_out
  */
 static SECURITY_BLOCK* receiveSecurityBlock(CLIENT_BLOCK* client_block)
 {
-    IDAM_LOG(LOG_DEBUG, "Waiting for Initial Client Block\n");
+    IDAM_LOG(UDA_LOG_DEBUG, "Waiting for Initial Client Block\n");
 
 #ifndef TESTIDAMSECURITY
     if (!xdrrec_skiprecord(serverInput)) {
-        IDAM_LOG(LOG_DEBUG, "xdrrec_skiprecord error!\n");
+        IDAM_LOG(UDA_LOG_DEBUG, "xdrrec_skiprecord error!\n");
         addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, PROTOCOL_ERROR_5, "Protocol 5 Error (Client Block #2)");
     } else {
         int protocol_id = PROTOCOL_CLIENT_BLOCK;        // Recieve Client Block
@@ -161,11 +161,11 @@ static SECURITY_BLOCK* receiveSecurityBlock(CLIENT_BLOCK* client_block)
         int err = 0;
         if ((err = protocol2(serverInput, protocol_id, XDR_RECEIVE, NULL, client_block)) != 0) {
             addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, err, "Protocol 10 Error (Client Block #2)");
-            IDAM_LOG(LOG_DEBUG, "protocol error! Client Block not received!\n");
+            IDAM_LOG(UDA_LOG_DEBUG, "protocol error! Client Block not received!\n");
         }
 
         if (err == 0) {
-            IDAM_LOG(LOG_DEBUG, "Initial Client Block received\n");
+            IDAM_LOG(UDA_LOG_DEBUG, "Initial Client Block received\n");
             printClientBlock(*client_block);
         }
     }
@@ -321,7 +321,7 @@ static int verifyToken(SERVER_BLOCK* server_block, CLIENT_BLOCK* client_block, g
     int protocol_id = PROTOCOL_CLIENT_BLOCK;
 
     if (!xdrrec_skiprecord(serverInput)) {
-        IDAM_LOG(LOG_DEBUG, "xdrrec_skiprecord error!\n");
+        IDAM_LOG(UDA_LOG_DEBUG, "xdrrec_skiprecord error!\n");
         THROW_ERROR(PROTOCOL_ERROR_5, "Protocol 5 Error (Client Block #7)");
     }
 

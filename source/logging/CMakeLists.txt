@@ -1,11 +1,14 @@
 cmake_minimum_required( VERSION 2.8 )
 
-set( SRC_FILES
-  logging.c
-  accessLog.c
-)
+if( "${LOGGING_BACKEND}" STREQUAL "FILE" )
+  set( SRC_FILES fileLogging.c )
+elseif( "${LOGGING_BACKEND}" STREQUAL "SYSLOG" )
+  set( SRC_FILES sysLogging.c )
+else()
+  message( FATAL_ERROR "Unknown logging backend ${LOGGING_BACKEND}" )
+endif()
 
 include_directories( ${CMAKE_SOURCE_DIR}/source )
 
-add_library( logging-client-objects OBJECT logging.c )
-add_library( logging-server-objects OBJECT ${SRC_FILES} )
+add_library( logging-client-objects OBJECT ${SRC_FILES} )
+add_library( logging-server-objects OBJECT accessLog.c ${SRC_FILES} )

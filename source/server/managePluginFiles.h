@@ -3,30 +3,30 @@
 
 #include <plugins/udaPluginFiles.h>
 
-void initIdamPluginFileList(IDAMPLUGINFILELIST * idamfiles);
+void initIdamPluginFileList(IDAMPLUGINFILELIST* idamfiles);
 
-void registerIdamPluginFileClose(IDAMPLUGINFILELIST * idamfiles, void * fptr);
+void registerIdamPluginFileClose(IDAMPLUGINFILELIST* idamfiles, void* fptr);
 
-int addIdamPluginFilePtr(IDAMPLUGINFILELIST * idamfiles, char * filename, void * handle);
+int addIdamPluginFilePtr(IDAMPLUGINFILELIST* idamfiles, const char* filename, void* handle);
 
-int addIdamPluginFileLong(IDAMPLUGINFILELIST * idamfiles, char * filename, long handle);
+int addIdamPluginFileLong(IDAMPLUGINFILELIST* idamfiles, const char* filename, long handle);
 
-void * getOpenIdamPluginFilePtr(IDAMPLUGINFILELIST * idamfiles, char * filename);
+void* getOpenIdamPluginFilePtr(IDAMPLUGINFILELIST* idamfiles, const char* filename);
 
-long getOpenIdamPluginFileLong(IDAMPLUGINFILELIST * idamfiles, char * filename);
+long getOpenIdamPluginFileLong(IDAMPLUGINFILELIST* idamfiles, const char* filename);
 
-int getClosedIdamPluginFile(IDAMPLUGINFILELIST * idamfiles, char * filename);
+int getClosedIdamPluginFile(IDAMPLUGINFILELIST* idamfiles, const char* filename);
 
-void closeIdamPluginFile(IDAMPLUGINFILELIST * idamfiles, char * filename);
+void closeIdamPluginFile(IDAMPLUGINFILELIST* idamfiles, const char* filename);
 
-void closeIdamPluginFiles(IDAMPLUGINFILELIST * idamfiles);
+void closeIdamPluginFiles(IDAMPLUGINFILELIST* idamfiles);
 
-void purgeStalestIdamPluginFile(IDAMPLUGINFILELIST * idamfiles);
+void purgeStalestIdamPluginFile(IDAMPLUGINFILELIST* idamfiles);
 
-int findIdamPluginFileByName(IDAMPLUGINFILELIST * idamfiles, char * filename);
+int findIdamPluginFileByName(IDAMPLUGINFILELIST* idamfiles, const char* filename);
 
 int findIdamPluginFileByLong(IDAMPLUGINFILELIST* idamfiles, long handle);
 
-void setIdamPluginFileClosed(IDAMPLUGINFILELIST * idamfiles, int record);
+void setIdamPluginFileClosed(IDAMPLUGINFILELIST* idamfiles, int record);
 
 #endif //IDAM_SERVER_MANAGEPLUGINFILES_H

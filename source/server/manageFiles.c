@@ -71,10 +71,10 @@ int addIdamFile(IDAMFILELIST* idamfiles, int type, char* filename, void* handle)
 void* getOpenIdamFile(IDAMFILELIST* idamfiles, int type, char* filename)
 {
     int i;
-    IDAM_LOGF(LOG_DEBUG, "Open File Count %d\n", idamfiles->nfiles);
+    IDAM_LOGF(UDA_LOG_DEBUG, "Open File Count %d\n", idamfiles->nfiles);
     for (i = 0; i < idamfiles->nfiles; i++) {
 
-        IDAM_LOGF(LOG_DEBUG, "Status %d, Type %d, Name %s [%s]\n",
+        IDAM_LOGF(UDA_LOG_DEBUG, "Status %d, Type %d, Name %s [%s]\n",
                 idamfiles->files[i].status, idamfiles->files[i].type, idamfiles->files[i].filename, filename);
 
         if (idamfiles->files[i].status == 1 && idamfiles->files[i].type == type) {

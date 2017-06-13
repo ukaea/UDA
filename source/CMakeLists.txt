@@ -5,6 +5,8 @@ add_definitions(
   -Werror
 )
 
+set( LOGGING_BACKEND "FILE" CACHE STRING "Choose logging backend [FILE;SYSLOG]" )
+
 add_subdirectory( cache )
 add_subdirectory( logging )
 add_subdirectory( security )

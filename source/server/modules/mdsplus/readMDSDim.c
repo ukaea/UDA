@@ -50,8 +50,8 @@ int readMDSDim(char* node, int ndim, DIMS* ddim)
 
     int status, err, size, lunits, type;
 
-    IDAM_LOGF(LOG_DEBUG, "Node      =  %s \n", node);
-    IDAM_LOGF(LOG_DEBUG, "Dimension =  %d \n", ndim);
+    IDAM_LOGF(UDA_LOG_DEBUG, "Node      =  %s \n", node);
+    IDAM_LOGF(UDA_LOG_DEBUG, "Dimension =  %d \n", ndim);
 
 // Check Constraint on Maximum Number of Dimensions
 
@@ -82,7 +82,7 @@ int readMDSDim(char* node, int ndim, DIMS* ddim)
 
         sprintf(sdim, "SIZE(DIM_OF(%s,%d))", node, ndim);
 
-        IDAM_LOGF(LOG_DEBUG, "TDI =  %s \n", sdim);
+        IDAM_LOGF(UDA_LOG_DEBUG, "TDI =  %s \n", sdim);
 
         desc = descr(&dtype_int, &size, &null);
         status = MdsValue(sdim, &desc, &null, 0);
@@ -93,7 +93,7 @@ int readMDSDim(char* node, int ndim, DIMS* ddim)
             break;
         }
 
-        IDAM_LOGF(LOG_DEBUG, "Length of Dimension (%d) = %d\n", ndim, size);
+        IDAM_LOGF(UDA_LOG_DEBUG, "Length of Dimension (%d) = %d\n", ndim, size);
 
 //----------------------------------------------------------------------
 // Data Type
@@ -200,7 +200,7 @@ int readMDSDim(char* node, int ndim, DIMS* ddim)
 
         sprintf(sdim, "DIM_OF(%s,%d)", node, ndim);
 
-        IDAM_LOGF(LOG_DEBUG, "TDI = %s \n", sdim);
+        IDAM_LOGF(UDA_LOG_DEBUG, "TDI = %s \n", sdim);
 
         status = MdsValue(sdim, &desc, &null, 0);
 
@@ -217,7 +217,7 @@ int readMDSDim(char* node, int ndim, DIMS* ddim)
             for (i = 0; i < size; i++) {
                 tot = tot + fp[i];
             }
-            IDAM_LOGF(LOG_DEBUG, " Dim Data Sum = %f\n", tot);
+            IDAM_LOGF(UDA_LOG_DEBUG, " Dim Data Sum = %f\n", tot);
         }
 
 //----------------------------------------------------------------------
@@ -247,7 +247,7 @@ int readMDSDim(char* node, int ndim, DIMS* ddim)
 
         lunits++;    // 1 Byte For Null Terminator
 
-        IDAM_LOGF(LOG_DEBUG, "Length of Units String %d\n", lunits);
+        IDAM_LOGF(UDA_LOG_DEBUG, "Length of Units String %d\n", lunits);
 
 //----------------------------------------------------------------------
 // Dimension Units
@@ -265,7 +265,7 @@ int readMDSDim(char* node, int ndim, DIMS* ddim)
 
             sprintf(sdim, "UNITS_OF(DIM_OF(%s,%d))", node, ndim);
 
-            IDAM_LOGF(LOG_DEBUG, "ReadMDSDim: TDI =  %s \n", sdim);
+            IDAM_LOGF(UDA_LOG_DEBUG, "ReadMDSDim: TDI =  %s \n", sdim);
 
             units = (char*)malloc(lunits * sizeof(char));
 
@@ -292,7 +292,7 @@ int readMDSDim(char* node, int ndim, DIMS* ddim)
             units[0] = '\0';
         }
 
-        IDAM_LOGF(LOG_DEBUG, "ReadMDSDim: Dimension Units =[%s] %d\n", units,
+        IDAM_LOGF(UDA_LOG_DEBUG, "ReadMDSDim: Dimension Units =[%s] %d\n", units,
                   strlen(units));
 
     } while (0);    // Always exit the Error Management Loop
@@ -300,7 +300,7 @@ int readMDSDim(char* node, int ndim, DIMS* ddim)
 //----------------------------------------------------------------------
 // Error Status
 
-    IDAM_LOGF(LOG_DEBUG, "Final Error Status = %d\n", err);
+    IDAM_LOGF(UDA_LOG_DEBUG, "Final Error Status = %d\n", err);
 
 //----------------------------------------------------------------------
 // Free Local Heap Memory

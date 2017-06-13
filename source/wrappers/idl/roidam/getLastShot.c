@@ -27,8 +27,8 @@ int getLastShot(PGconn* DBConnect, int* exp_number, int verbose, int debug) {
 
     if ((DBQuery = PQexec(DBConnect, sql)) == NULL) {
         if (verbose) {
-            IDAM_LOGF(LOG_ERROR, "Failure to Execute SQL: %s\n", sql);
-            IDAM_LOGF(LOG_ERROR, "%s\n", PQresultErrorMessage(DBQuery));
+            IDAM_LOGF(UDA_LOG_ERROR, "Failure to Execute SQL: %s\n", sql);
+            IDAM_LOGF(UDA_LOG_ERROR, "%s\n", PQresultErrorMessage(DBQuery));
         }
         return (-1);
     }
@@ -37,8 +37,8 @@ int getLastShot(PGconn* DBConnect, int* exp_number, int verbose, int debug) {
 
     if (DBQueryStatus != PGRES_TUPLES_OK) {
         if (verbose) {
-            IDAM_LOGF(LOG_ERROR, "Problem with SQL: %s\n", sql);
-            IDAM_LOGF(LOG_ERROR, "%s\n", PQresultErrorMessage(DBQuery));
+            IDAM_LOGF(UDA_LOG_ERROR, "Problem with SQL: %s\n", sql);
+            IDAM_LOGF(UDA_LOG_ERROR, "%s\n", PQresultErrorMessage(DBQuery));
         }
         return (-1);
     }

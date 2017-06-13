@@ -11,18 +11,19 @@
 #include "putdata.h"		// IDL DLM API Header
 
 #include <stdlib.h>
-#include <stringUtils.h>
+#include <clientserver/stringUtils.h>
 
 int putVariable(int nparams, IDL_VPTR argv[], KW_RESULT* kw, int ncgrpid) {
 
-    int err, lerr, i, j, ncdimid, isUnlimited, dimlength;
+    int err, lerr, i, j, ncdimid, isUnlimited;
+    size_t dimlength;
     int length, type, rank, ncvarid;
     int mndims, mdimids[NC_MAX_DIMS];
     int nunlimdimids, unlimdimids[NC_MAX_DIMS];
 
     int unlimitedCount = 0;
-    unsigned int* extents = NULL;
-    unsigned int* chunking = NULL;
+    size_t* extents = NULL;
+    size_t* chunking = NULL;
 
     nc_type xtype;
 
@@ -35,12 +36,12 @@ int putVariable(int nparams, IDL_VPTR argv[], KW_RESULT* kw, int ncgrpid) {
     char* comment;
     char* units;
     char* label;
-    char* class;
+    //    char* class;
     char* dimensions;
-    int* shape = NULL;
+    size_t* shape = NULL;
     void* data = NULL;
 
-    int scalar[1] = {0};
+    size_t scalar[1] = {0};
 
 //---------------------------------------------------------------------------      
 //---------------------------------------------------------------------------      
@@ -48,7 +49,7 @@ int putVariable(int nparams, IDL_VPTR argv[], KW_RESULT* kw, int ncgrpid) {
 
     if (kw->is_group) group = IDL_STRING_STR(&kw->group);
     if (kw->is_name) name = IDL_STRING_STR(&kw->name);
-    if (kw->is_class) class = IDL_STRING_STR(&kw->class);
+    //    if (kw->is_class) class = IDL_STRING_STR(&kw->class);
 
     if (kw->is_dimensions) dimensions = IDL_STRING_STR(&kw->dimensions);
 
@@ -98,7 +99,7 @@ int putVariable(int nparams, IDL_VPTR argv[], KW_RESULT* kw, int ncgrpid) {
             IDL_ENSURE_ARRAY(argv[0]);
             rank = (int) argv[0]->value.arr->n_dim;        // Number of Dimensions
             length = (int) argv[0]->value.arr->n_elts;        // Number of Elements
-            shape = (int*) argv[0]->value.arr->dim;        // Shape
+            shape = (size_t*) argv[0]->value.arr->dim;        // Shape
             data = (void*) argv[0]->value.arr->data;
         } else {
             IDL_ENSURE_SCALAR(argv[0]);                // Single Scalar value: Must have a dimension of length 1
@@ -113,7 +114,7 @@ int putVariable(int nparams, IDL_VPTR argv[], KW_RESULT* kw, int ncgrpid) {
             fprintf(stdout, "Rank     %d:\n", rank);
             fprintf(stdout, "Length   %d:\n", length);
             fprintf(stdout, "IDL Shape: ");
-            for (i = 0; i < rank; i++)fprintf(stdout, "[%d]=%d ", i, shape[i]);
+            for (i = 0; i < rank; i++)fprintf(stdout, "[%d]=%d ", i, (int)shape[i]);
             fprintf(stdout, "\n");
             fprintf(stdout, "Dimensions: %s\n", dimensions);
         }
@@ -161,7 +162,13 @@ int putVariable(int nparams, IDL_VPTR argv[], KW_RESULT* kw, int ncgrpid) {
                 }
             }
 
-            mdimids[rank - 1 - mndims++] = ncdimid;    // *** Reverse dimension IDs
+            if (rank > 0){
+               mdimids[rank - 1 - mndims++] = ncdimid;    // *** Reverse dimension IDs
+	    } else {
+              // Scalar 
+	       mdimids[0] = ncdimid;
+	       mndims = 1;
+	    }
 
             if (kw->debug) {
                 fprintf(stdout, "Rank: %d, mndims: %d\n", rank, mndims);
@@ -264,18 +271,18 @@ int putVariable(int nparams, IDL_VPTR argv[], KW_RESULT* kw, int ncgrpid) {
 
 // Allocate shape array for use only if one of the dimensions is UNLIMITED
 
-        extents = (unsigned int*) malloc(mndims * sizeof(unsigned int));
-
+      extents = (size_t *)malloc(mndims*sizeof(size_t));
+	 	    
 // Check all Array dimension Lengths are consistent (Ignore UNLIMITED dimensions)
 
         for (i = 0; i < mndims; i++) {
 
-            if ((err = nc_inq_dimlen(ncgrpid, mdimids[i], (size_t*) &dimlength)) != NC_NOERR) {
+            if ((err = nc_inq_dimlen(ncgrpid, mdimids[i], &dimlength)) != NC_NOERR) {
                 if (kw->verbose) fprintf(stderr, "Unable to obtain Length of Dimension %s \n", name);
                 break;
             }
 
-            extents[i] = (unsigned int) dimlength;        // Current Length
+            extents[i] = dimlength;        // Current Length
 
 // Is this dimension UNLIMITED?
 
@@ -289,32 +296,51 @@ int putVariable(int nparams, IDL_VPTR argv[], KW_RESULT* kw, int ncgrpid) {
             }
 
             if (kw->debug) {
-                fprintf(stdout, "Dimension %d has length %d\n", mdimids[i], dimlength);
+                fprintf(stdout, "Dimension %d has length %d\n", mdimids[i], (int) dimlength);
             }
 
             if (isUnlimited) {
                 unlimitedCount++;
-                extents[i] = (unsigned int) shape[rank - 1 -
-                                                  i];    // Capture the current size of each UNLIMITED dimension
+                // Capture the current size of each UNLIMITED dimension
+		if (rank > 0) {
+		  extents[i] = shape[rank - 1 -i];    
+		} else {
+		  extents[i] = shape[0];
+		}
                 if (kw->debug) {
                     fprintf(stdout, "extents[%d] = %d \n", i, (int) extents[i]);
                 }
             }
+	    else {
+            //Check dimension length matches input data dimension length
+	      if (rank > 0) {
+                if (dimlength != shape[rank - 1 - i]) {
+                   lerr = -1;
+                   if (kw->verbose) {
+                      fprintf(stderr, "<< Error >> Inconsistent Dimension Lengths for Array Variable %s \n", name);
+                      fprintf(stderr, "Dimension %d has length %d \n", mdimids[i], (int) dimlength);
+                      fprintf(stderr, "Corresponding Array Dimension %d has length %d \n", i, (int) shape[rank - 1 - i]);
+                      fprintf(stderr, "Variable (with name %s) will not be written to file\n", name);
+                   }
+                   break;
 
-            //Check dimension length matches input data dimension length (including unlimited)
-            if (dimlength != shape[rank - 1 - i]) {
-                lerr = -1;
-                if (kw->verbose) {
-                    fprintf(stderr, "<< Error >> Inconsistent Dimension Lengths for Array Variable %s \n", name);
-                    fprintf(stderr, "Dimension %d has length %d \n", mdimids[i], dimlength);
-                    fprintf(stderr, "Corresponding Array Dimension %d has length %d \n", i, shape[rank - 1 - i]);
-                    fprintf(stderr, "Variable (with name %s) will not be written to file\n", name);
+                   extents[i] = dimlength;
                 }
-                break;
-
-                extents[i] = (unsigned int) dimlength;
-            }
-
+	      } else {
+	        if (dimlength != shape[0]){
+	          lerr = -1;
+	          if(kw->verbose){
+		    fprintf(stderr,"<< Error >> Inconsistent Dimension Lengths for Array Variable %s \n", name);
+		    fprintf(stderr,"Dimension %d has length %d \n", mdimids[i], (int) dimlength);
+		    fprintf(stderr,"Corresponding Array Dimension %d has length %d \n", i, (int)shape[rank-1-i]);
+		    fprintf(stderr,"Variable (with name %s) will not be written to file\n", name);
+	          }	
+	          break;      
+	     
+   	          extents[i] = dimlength;
+	        }
+             }
+	    }
         }
 
         if (err != NC_NOERR || lerr != 0) break;
@@ -324,12 +350,12 @@ int putVariable(int nparams, IDL_VPTR argv[], KW_RESULT* kw, int ncgrpid) {
 
         if (length > 1 && rank > 0) {
 
-            chunking = (unsigned int*) malloc(rank * sizeof(unsigned int));
+            chunking = (size_t*) malloc(rank * sizeof(size_t));
             for (i = 0; i < rank; i++) {
                 if (kw->is_chunksize) {
-                    chunking[i] = (unsigned int) kw->chunksize;    // ***** Needs to be an ARRAY!
+                    chunking[i] = (size_t) kw->chunksize;    // ***** Needs to be an ARRAY!
                 } else {
-                    chunking[i] = (unsigned int) shape[rank - 1 - i];
+                    chunking[i] = (size_t) shape[rank - 1 - i];
                 }
                 if (kw->debug)fprintf(stdout, "Using Chunking[%d] = %d\n", i, (int) chunking[i]);
             }
@@ -369,7 +395,8 @@ int putVariable(int nparams, IDL_VPTR argv[], KW_RESULT* kw, int ncgrpid) {
         if (kw->debug)fprintf(stdout, "Writing Data to the Data Variable %s \n", name);
 
         if (rank == 0 && length == 1) {        // Scalar Data Item
-            int start[1] = {0};
+            size_t start[1] = { 0 };
+            size_t count[1] = { 1 };
 
             if (kw->debug)fprintf(stdout, "Data Variable %s is a Scalar\n", name);
 
@@ -379,7 +406,7 @@ int putVariable(int nparams, IDL_VPTR argv[], KW_RESULT* kw, int ncgrpid) {
                     if (unlimitedCount == 0)
                         err = nc_put_var_float(ncgrpid, ncvarid, &scalar);        // Fixed Length Dimension
                     else
-                        err = nc_put_vara_float(ncgrpid, ncvarid, (size_t*) start, (size_t*) shape, &scalar);
+                        err = nc_put_vara_float(ncgrpid, ncvarid, start, count, &scalar);
                     break;
                 }
                 case NC_DOUBLE: {
@@ -387,7 +414,7 @@ int putVariable(int nparams, IDL_VPTR argv[], KW_RESULT* kw, int ncgrpid) {
                     if (unlimitedCount == 0)
                         err = nc_put_var_double(ncgrpid, ncvarid, &scalar);
                     else
-                        err = nc_put_vara_double(ncgrpid, ncvarid, (size_t*) start, (size_t*) shape, &scalar);
+                        err = nc_put_vara_double(ncgrpid, ncvarid, start, count, &scalar);
                     break;
                 }
                 case NC_INT64: {
@@ -395,7 +422,7 @@ int putVariable(int nparams, IDL_VPTR argv[], KW_RESULT* kw, int ncgrpid) {
                     if (unlimitedCount == 0)
                         err = nc_put_var_longlong(ncgrpid, ncvarid, &scalar);
                     else
-                        err = nc_put_vara_longlong(ncgrpid, ncvarid, (size_t*) start, (size_t*) shape, &scalar);
+                        err = nc_put_vara_longlong(ncgrpid, ncvarid, start, count, &scalar);
                     break;
                 }
                 case NC_INT: {
@@ -403,7 +430,7 @@ int putVariable(int nparams, IDL_VPTR argv[], KW_RESULT* kw, int ncgrpid) {
                     if (unlimitedCount == 0)
                         err = nc_put_var_int(ncgrpid, ncvarid, &scalar);
                     else
-                        err = nc_put_vara_int(ncgrpid, ncvarid, (size_t*) start, (size_t*) shape, &scalar);
+                        err = nc_put_vara_int(ncgrpid, ncvarid, start, count, &scalar);
                     break;
                 }
                 case NC_SHORT: {
@@ -411,7 +438,7 @@ int putVariable(int nparams, IDL_VPTR argv[], KW_RESULT* kw, int ncgrpid) {
                     if (unlimitedCount == 0)
                         err = nc_put_var_short(ncgrpid, ncvarid, &scalar);
                     else
-                        err = nc_put_vara_short(ncgrpid, ncvarid, (size_t*) start, (size_t*) shape, &scalar);
+                        err = nc_put_vara_short(ncgrpid, ncvarid, start, count, &scalar);
                     break;
                 }
                 case NC_BYTE: {
@@ -419,7 +446,7 @@ int putVariable(int nparams, IDL_VPTR argv[], KW_RESULT* kw, int ncgrpid) {
                     if (unlimitedCount == 0)
                         err = nc_put_var_schar(ncgrpid, ncvarid, &scalar);
                     else
-                        err = nc_put_vara_schar(ncgrpid, ncvarid, (size_t*) start, (size_t*) shape, &scalar);
+                        err = nc_put_vara_schar(ncgrpid, ncvarid, start, count, &scalar);
                     break;
                 }
                 case NC_UINT64: {
@@ -427,7 +454,7 @@ int putVariable(int nparams, IDL_VPTR argv[], KW_RESULT* kw, int ncgrpid) {
                     if (unlimitedCount == 0)
                         err = nc_put_var_ulonglong(ncgrpid, ncvarid, &scalar);
                     else
-                        err = nc_put_vara_ulonglong(ncgrpid, ncvarid, (size_t*) start, (size_t*) shape, &scalar);
+                        err = nc_put_vara_ulonglong(ncgrpid, ncvarid, start, count, &scalar);
                     break;
                 }
                 case NC_UINT: {
@@ -435,7 +462,7 @@ int putVariable(int nparams, IDL_VPTR argv[], KW_RESULT* kw, int ncgrpid) {
                     if (unlimitedCount == 0)
                         err = nc_put_var_uint(ncgrpid, ncvarid, &scalar);
                     else
-                        err = nc_put_vara_uint(ncgrpid, ncvarid, (size_t*) start, (size_t*) shape, &scalar);
+                        err = nc_put_vara_uint(ncgrpid, ncvarid, start, count, &scalar);
                     break;
                 }
                 case NC_USHORT: {
@@ -443,7 +470,7 @@ int putVariable(int nparams, IDL_VPTR argv[], KW_RESULT* kw, int ncgrpid) {
                     if (unlimitedCount == 0)
                         err = nc_put_var_ushort(ncgrpid, ncvarid, &scalar);
                     else
-                        err = nc_put_vara_ushort(ncgrpid, ncvarid, (size_t*) start, (size_t*) shape, &scalar);
+                        err = nc_put_vara_ushort(ncgrpid, ncvarid, start, count, &scalar);
                     break;
                 }
                 default:
@@ -455,7 +482,7 @@ int putVariable(int nparams, IDL_VPTR argv[], KW_RESULT* kw, int ncgrpid) {
                         if (unlimitedCount == 0)
                             err = nc_put_var(ncgrpid, ncvarid, (void*) &scalar);
                         else
-                            err = nc_put_vara(ncgrpid, ncvarid, (size_t*) start, (size_t*) shape, &scalar);
+                            err = nc_put_vara(ncgrpid, ncvarid, start, count, &scalar);
                     } else {
                         if (xtype == dctype) {
                             IDL_DCOMPLEX data = argv[0]->value.dcmp;
@@ -465,7 +492,7 @@ int putVariable(int nparams, IDL_VPTR argv[], KW_RESULT* kw, int ncgrpid) {
                             if (unlimitedCount == 0)
                                 err = nc_put_var(ncgrpid, ncvarid, (void*) &scalar);
                             else
-                                err = nc_put_vara(ncgrpid, ncvarid, (size_t*) start, (size_t*) shape, &scalar);
+                                err = nc_put_vara(ncgrpid, ncvarid, start, count, &scalar);
                         } else {
                             lerr = -1;
                             if (kw->verbose) fprintf(stdout, "Unknown Variable [%s] type \n", name);
@@ -476,7 +503,7 @@ int putVariable(int nparams, IDL_VPTR argv[], KW_RESULT* kw, int ncgrpid) {
             }
 
         } else {
-            int* start = (int*) malloc(sizeof(int) * rank);
+            size_t* start = (size_t*) malloc(sizeof(size_t) * rank);
             for (i = 0; i < rank; i++) start[i] = 0;
 
             if (kw->debug) {
@@ -484,55 +511,55 @@ int putVariable(int nparams, IDL_VPTR argv[], KW_RESULT* kw, int ncgrpid) {
                 fprintf(stdout, "Length %d\n", length);
                 fprintf(stdout, "Rank: %d\n", rank);
                 fprintf(stdout, "Shape:");
-                for (i = 0; i < rank; i++) fprintf(stdout, "[%d]", shape[i]);
+                for (i = 0; i < rank; i++) fprintf(stdout, "[%d]", (int)shape[i]);
                 fprintf(stdout, "\n");
                 fprintf(stdout, "Starting Indices:");
-                for (i = 0; i < rank; i++) fprintf(stdout, "[%d]", start[i]);
+                for (i = 0; i < rank; i++) fprintf(stdout, "[%d]", (int)start[i]);
                 fprintf(stdout, "\n");
             }
 
             switch (xtype) {
                 case NC_FLOAT:
                     if (kw->debug)fprintf(stdout, "Data Variable %s is a Float Array\n", name);
-                    err = nc_put_vara_float(ncgrpid, ncvarid, (size_t*) start, (size_t*) extents, (float*) data);
+                    err = nc_put_vara_float(ncgrpid, ncvarid, start, extents, (float*) data);
                     break;
                 case NC_DOUBLE:
                     if (kw->debug)fprintf(stdout, "Data Variable %s is a Double Array\n", name);
-                    err = nc_put_vara_double(ncgrpid, ncvarid, (size_t*) start, (size_t*) extents, (double*) data);
+                    err = nc_put_vara_double(ncgrpid, ncvarid, start, extents, (double*) data);
                     break;
                 case NC_INT64:
                     if (kw->debug)fprintf(stdout, "Data Variable %s is an long long Array\n", name);
-                    err = nc_put_vara_longlong(ncgrpid, ncvarid, (size_t*) start, (size_t*) extents, (long long*) data);
+                    err = nc_put_vara_longlong(ncgrpid, ncvarid, start, extents, (long long*) data);
                     break;
                 case NC_INT:
                     if (kw->debug)fprintf(stdout, "Data Variable %s is an int Array\n", name);
-                    err = nc_put_vara_int(ncgrpid, ncvarid, (size_t*) start, (size_t*) extents, (int*) data);
+                    err = nc_put_vara_int(ncgrpid, ncvarid, start, extents, (int*) data);
                     break;
                 case NC_SHORT:
                     if (kw->debug)fprintf(stdout, "Data Variable %s is a short Array\n", name);
-                    err = nc_put_vara_short(ncgrpid, ncvarid, (size_t*) start, (size_t*) extents, (short*) data);
+                    err = nc_put_vara_short(ncgrpid, ncvarid, start, extents, (short*) data);
                     break;
                 case NC_BYTE:
                     if (kw->debug)fprintf(stdout, "Data Variable %s is a byte Array\n", name);
-                    err = nc_put_vara_schar(ncgrpid, ncvarid, (size_t*) start, (size_t*) extents, (signed char*) data);
+                    err = nc_put_vara_schar(ncgrpid, ncvarid, start, extents, (signed char*) data);
                     break;
                 case NC_UINT64:
                     if (kw->debug)fprintf(stdout, "Data Variable %s is an unsigned long long Array\n", name);
-                    err = nc_put_vara_ulonglong(ncgrpid, ncvarid, (size_t*) start, (size_t*) extents,
+                    err = nc_put_vara_ulonglong(ncgrpid, ncvarid, start, extents,
                                                 (unsigned long long*) data);
                     break;
                 case NC_UINT:
                     if (kw->debug)fprintf(stdout, "Data Variable %s is an unsigned int Array\n", name);
-                    err = nc_put_vara_uint(ncgrpid, ncvarid, (size_t*) start, (size_t*) extents, (unsigned int*) data);
+                    err = nc_put_vara_uint(ncgrpid, ncvarid, start, extents, (unsigned int*) data);
                     break;
                 case NC_USHORT:
                     if (kw->debug)fprintf(stdout, "Data Variable %s is an unsigned short Array\n", name);
-                    err = nc_put_vara_ushort(ncgrpid, ncvarid, (size_t*) start, (size_t*) extents,
+                    err = nc_put_vara_ushort(ncgrpid, ncvarid, start, extents,
                                              (unsigned short*) data);
                     break;
                 default:
                     if (xtype == ctype || xtype == dctype) {
-                        err = nc_put_vara(ncgrpid, ncvarid, (size_t*) start, (size_t*) extents, (void*) data);
+                        err = nc_put_vara(ncgrpid, ncvarid, start, extents, (void*) data);
                         break;
                     }
             }
@@ -553,9 +580,13 @@ int putVariable(int nparams, IDL_VPTR argv[], KW_RESULT* kw, int ncgrpid) {
         if (unlimitedCount > 0) {
             if (kw->debug) {
                 fprintf(stdout, "Writing Extent Attribute of variable %s\n", name);
-                for (i = 0; i < mndims; i++)fprintf(stdout, "[%d]=%d\n", i, extents[i]);
+                for (i = 0; i < mndims; i++)fprintf(stdout, "[%d]=%d\n", i, (unsigned int) extents[i]);
             }
-            if ((err = nc_put_att_uint(ncgrpid, ncvarid, "extent", NC_UINT, mndims, extents)) != NC_NOERR) {
+	    unsigned int iextents[NC_MAX_DIMS];
+	    for (i = 0; i < mndims; i++) {
+	      iextents[i] = (unsigned int)extents[i];
+	    }
+            if ((err = nc_put_att_uint(ncgrpid, ncvarid, "extent", NC_UINT, mndims, iextents)) != NC_NOERR) {
                 if (kw->verbose) fprintf(stderr, "Unable to Write the Extent Attribute of variable: %s\n", name);
                 break;
             }
@@ -685,13 +716,14 @@ int putVariable(int nparams, IDL_VPTR argv[], KW_RESULT* kw, int ncgrpid) {
                 break;
             }
 
-            if (ndims != rank) {
-                lerr = -1;
-                if (kw->verbose)
-                    fprintf(stderr, "The Rank of the Error Variable %s is Inconsistent with the Variable %s.\n", errors,
-                            name);
-                break;
-            }
+	    if ((ndims != rank && rank > 0) || (rank == 0 && ndims != 1)) {
+                  lerr = -1;
+                  if (kw->verbose)
+                      fprintf(stderr, "The Rank of the Error Variable %s is Inconsistent with the Variable %s.\n", errors,
+                              name);
+                  break;
+          
+	    }
 
             dimids = (int*) malloc(ndims * sizeof(int));
 
@@ -700,7 +732,8 @@ int putVariable(int nparams, IDL_VPTR argv[], KW_RESULT* kw, int ncgrpid) {
                 break;
             }
 
-            for (i = 0; i < rank; i++) {
+	    if (rank > 0){
+	      for (i = 0; i < rank; i++) {
 
                 if ((err = nc_inq_dimlen(ncgrpid, dimids[i], (size_t*) &lvarerr)) != NC_NOERR) {
                     if (kw->verbose)
@@ -713,10 +746,26 @@ int putVariable(int nparams, IDL_VPTR argv[], KW_RESULT* kw, int ncgrpid) {
                     if (kw->verbose)
                         fprintf(stderr,
                                 "The Length [%d] of the Error Variable %s is Inconsistent with the variable Length %s [%d].\n",
-                                lvarerr, errors, name, shape[rank - 1 - i]);
+                                lvarerr, errors, name, (int) shape[rank - 1 - i]);
                     break;
                 }
-            }
+             }
+	    } else {
+              if ((err = nc_inq_dimlen(ncgrpid, dimids[0], (size_t*) &lvarerr)) != NC_NOERR) {
+		if (kw->verbose)
+		  fprintf(stderr, "Unable to Query the Dimension Length of the Error Variable %s\n", errors);
+                break;
+	      }
+
+              if (shape[0] != lvarerr){
+                lerr = -1;
+                if (kw->verbose)
+		  fprintf(stderr,
+			  "The Length [%d] of the Error Variable %s is Inconsistent with the variable Length %s [%d].\n",
+			  lvarerr, errors, name, (int) shape[0]);
+		break;
+	      }
+	    }
 
             free((void*) dimids);
 

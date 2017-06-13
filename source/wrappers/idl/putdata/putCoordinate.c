@@ -47,7 +47,7 @@ int putDimension(int nparams, IDL_VPTR argv[], KW_RESULT *kw, int ncgrpid) {
         name = IDL_STRING_STR(&kw->name);
 
         if (kw->debug) {
-            fprintf(stdout, "Writing Dimension %s = %d\n", name, (int) length);
+            fprintf(stdout, "Writing Dimension %s = %d\n", name, length);
             fprintf(stdout, "to Group %s \n", group);
         }
 
@@ -301,6 +301,8 @@ int putCoordinate(int nparams, IDL_VPTR argv[], KW_RESULT *kw, int ncgrpid) {
                 if (argv[2]->type ==
                     IDL_TYP_ULONG) {    // If the type of arg 3 is unsigned int then standard data trio passed
 
+		  if (kw->debug) fprintf(stdout, "Case #3a: Start, Increment and Count Arrays\n");
+
                     if ((lerr = createCoordinateArray(argv[0], argv[1], argv[2], kw, ncgrpid, group, name, ncvarid,
                                                       ncdimid, &totlength)) != 0)
                         break;
@@ -330,6 +332,8 @@ int putCoordinate(int nparams, IDL_VPTR argv[], KW_RESULT *kw, int ncgrpid) {
                     coordcount = totlength;
 
                 } else {                    // Data Array + Start and Increment Arrays
+
+		  if (kw->debug) fprintf(stdout, "Case #3b: Data and start & increment attribute arrays\n");
 
                     if ((lerr = writeCoordinateArray(argv[0], kw, ncgrpid, group, name, ncdimid, &ncvarid,
                                                      &coordcount)) != 0)
@@ -603,7 +607,7 @@ int writeCoordinateArray(IDL_VPTR argv, KW_RESULT *kw, int ncgrpid, char *group,
     int i, err, lerr, isArray, rank = 1, isUnlimited;
     void *data = NULL;
     int ndims, dimlength, dimids[NC_MAX_DIMS];
-    unsigned int chunking;
+    size_t chunking;
     nc_type xtype;
 
     float fs;
@@ -613,13 +617,13 @@ int writeCoordinateArray(IDL_VPTR argv, KW_RESULT *kw, int ncgrpid, char *group,
     short ss;
     signed char bs;
     unsigned short uss;
-    unsigned int uis;
+    size_t uis;
     unsigned long long uls;
     COMPLEX cs;
     DCOMPLEX dcs;
 
-    unsigned int start[1] = {0};    // For Unlimited Dimensions
-    unsigned int count[1];
+    size_t start[1] = { 0 };    // For Unlimited Dimensions
+    size_t count[1];
 
 //--------------------------------------------------------------------------      
 // Error Trap  
@@ -696,6 +700,7 @@ int writeCoordinateArray(IDL_VPTR argv, KW_RESULT *kw, int ncgrpid, char *group,
 
         if (!isUnlimited) {
 
+	  fprintf(stdout, "It is not unlimited\n");
 // Get current length of the dimension
 
             if ((err = nc_inq_dimlen(ncgrpid, ncdimid, (size_t *) &dimlength)) != NC_NOERR) {
@@ -723,7 +728,7 @@ int writeCoordinateArray(IDL_VPTR argv, KW_RESULT *kw, int ncgrpid, char *group,
 
         if (!isUnlimited && *length > 1) {
             chunking = *length;
-            if (kw->is_chunksize) chunking = (unsigned int) kw->chunksize;
+            if (kw->is_chunksize) chunking = (size_t) kw->chunksize;
 
             if (kw->debug)fprintf(stdout, "Using Chunking = %d\n", (int) chunking);
 
@@ -768,10 +773,14 @@ int writeCoordinateArray(IDL_VPTR argv, KW_RESULT *kw, int ncgrpid, char *group,
                 }
 
                 if (isUnlimited) {
-                    err = nc_put_vara_float(ncgrpid, *ncvarid, (size_t *) start, (size_t *) count, (float *) data);
+		  fprintf(stdout, "It is unlimited.\n");
+                    err = nc_put_vara_float(ncgrpid, *ncvarid, start, count, (float *) data);
                 } else {
+		  fprintf(stdout, "It is not unlimited.\n");
                     err = nc_put_var_float(ncgrpid, *ncvarid, (float *) data);
                 }
+		fprintf(stdout, "Written.\n");
+
                 break;
 
             case NC_DOUBLE:
@@ -780,7 +789,7 @@ int writeCoordinateArray(IDL_VPTR argv, KW_RESULT *kw, int ncgrpid, char *group,
                     data = &ds;
                 }
                 if (isUnlimited) {
-                    err = nc_put_vara_double(ncgrpid, *ncvarid, (size_t *) start, (size_t *) count, (double *) data);
+                    err = nc_put_vara_double(ncgrpid, *ncvarid, start, count, (double *) data);
                 } else {
                     err = nc_put_var_double(ncgrpid, *ncvarid, (double *) data);
                 }
@@ -792,7 +801,7 @@ int writeCoordinateArray(IDL_VPTR argv, KW_RESULT *kw, int ncgrpid, char *group,
                     data = &ls;
                 }
                 if (isUnlimited) {
-                    err = nc_put_vara_longlong(ncgrpid, *ncvarid, (size_t *) start, (size_t *) count,
+                    err = nc_put_vara_longlong(ncgrpid, *ncvarid, start, count,
                                                (long long *) data);
                 } else {
                     err = nc_put_var_longlong(ncgrpid, *ncvarid, (long long *) data);
@@ -805,7 +814,7 @@ int writeCoordinateArray(IDL_VPTR argv, KW_RESULT *kw, int ncgrpid, char *group,
                     data = &is;
                 }
                 if (isUnlimited) {
-                    err = nc_put_vara_int(ncgrpid, *ncvarid, (size_t *) start, (size_t *) count, (int *) data);
+                    err = nc_put_vara_int(ncgrpid, *ncvarid, start, count, (int *) data);
                 } else {
                     err = nc_put_var_int(ncgrpid, *ncvarid, (int *) data);
                 }
@@ -817,7 +826,7 @@ int writeCoordinateArray(IDL_VPTR argv, KW_RESULT *kw, int ncgrpid, char *group,
                     data = &ss;
                 }
                 if (isUnlimited) {
-                    err = nc_put_vara_short(ncgrpid, *ncvarid, (size_t *) start, (size_t *) count, (short *) data);
+                    err = nc_put_vara_short(ncgrpid, *ncvarid, start, count, (short *) data);
                 } else {
                     err = nc_put_var_short(ncgrpid, *ncvarid, (short *) data);
                 }
@@ -829,7 +838,7 @@ int writeCoordinateArray(IDL_VPTR argv, KW_RESULT *kw, int ncgrpid, char *group,
                     data = &uls;
                 }
                 if (isUnlimited) {
-                    err = nc_put_vara_ulonglong(ncgrpid, *ncvarid, (size_t *) start, (size_t *) count,
+                    err = nc_put_vara_ulonglong(ncgrpid, *ncvarid, start, count,
                                                 (unsigned long long *) data);
                 } else {
                     err = nc_put_var_ulonglong(ncgrpid, *ncvarid, (unsigned long long *) data);
@@ -842,7 +851,7 @@ int writeCoordinateArray(IDL_VPTR argv, KW_RESULT *kw, int ncgrpid, char *group,
                     data = &uis;
                 }
                 if (isUnlimited) {
-                    err = nc_put_vara_uint(ncgrpid, *ncvarid, (size_t *) start, (size_t *) count,
+                    err = nc_put_vara_uint(ncgrpid, *ncvarid, start, count,
                                            (unsigned int *) data);
                 } else {
                     err = nc_put_var_uint(ncgrpid, *ncvarid, (unsigned int *) data);
@@ -855,7 +864,7 @@ int writeCoordinateArray(IDL_VPTR argv, KW_RESULT *kw, int ncgrpid, char *group,
                     data = &uss;
                 }
                 if (isUnlimited) {
-                    err = nc_put_vara_ushort(ncgrpid, *ncvarid, (size_t *) start, (size_t *) count,
+                    err = nc_put_vara_ushort(ncgrpid, *ncvarid, start, count,
                                              (unsigned short *) data);
                 } else {
                     err = nc_put_var_ushort(ncgrpid, *ncvarid, (unsigned short *) data);
@@ -868,7 +877,7 @@ int writeCoordinateArray(IDL_VPTR argv, KW_RESULT *kw, int ncgrpid, char *group,
                     data = &bs;
                 }
                 if (isUnlimited) {
-                    err = nc_put_vara_schar(ncgrpid, *ncvarid, (size_t *) start, (size_t *) count,
+                    err = nc_put_vara_schar(ncgrpid, *ncvarid, start, count,
                                             (signed char *) data);
                 } else {
                     err = nc_put_var_schar(ncgrpid, *ncvarid, (signed char *) data);
@@ -890,13 +899,15 @@ int writeCoordinateArray(IDL_VPTR argv, KW_RESULT *kw, int ncgrpid, char *group,
                         }
                     }
                     if (isUnlimited) {
-                        err = nc_put_vara(ncgrpid, *ncvarid, (size_t *) start, (size_t *) count, (void *) data);
+                        err = nc_put_vara(ncgrpid, *ncvarid, start, count, (void *) data);
                     } else {
                         err = nc_put_var(ncgrpid, *ncvarid, (void *) data);
                     }
                 }
                 break;
         }
+
+	fprintf(stdout, "After switch");
 
         if (err != NC_NOERR || lerr != 0) break;
 
@@ -1052,7 +1063,7 @@ int createCoordinateArray(IDL_VPTR argv0, IDL_VPTR argv1, IDL_VPTR argv2, KW_RES
 
     int i, j, err = NC_NOERR, isArray, rank = 1, length, isUnlimited;
     int ndims, dimlength, dimids[NC_MAX_DIMS];
-    unsigned int chunking;
+    size_t chunking;
 
     nc_type xtype;
 
@@ -1086,14 +1097,14 @@ int createCoordinateArray(IDL_VPTR argv0, IDL_VPTR argv1, IDL_VPTR argv2, KW_RES
 
         if (!isUnlimited) {
 
-// Get current length of the dimension
+           // Get current length of the dimension
 
             if ((err = nc_inq_dimlen(ncgrpid, ncdimid, (size_t *) &dimlength)) != NC_NOERR) {
                 if (kw->verbose) fprintf(stderr, "Unable to obtain Length of Dimension %s \n", name);
                 break;
             }
 
-        }
+        } 
 
 //--------------------------------------------------------------------------         
 // Translate IDL to netCDF4 Type
@@ -1160,6 +1171,15 @@ int createCoordinateArray(IDL_VPTR argv0, IDL_VPTR argv1, IDL_VPTR argv2, KW_RES
                     break;
                 }
             }
+	    if(argv1->flags && argv2 == NULL){
+	      // If an array is given for argv1 then we also need argv2 to be an array.
+	      // Can only miss argv2 if this is a single domain.
+ 	      if (kw->verbose) 
+		fprintf(stderr, "The dimension has more than one domain, please give a count array for the third argument.\n");
+  	      err = -1;
+	      break;
+	    }
+
             isArray = 1;
 
             rank = (int) argv0->value.arr->n_dim;
@@ -1207,7 +1227,14 @@ int createCoordinateArray(IDL_VPTR argv0, IDL_VPTR argv1, IDL_VPTR argv2, KW_RES
             start = (double *) argv0->value.arr->data;                // Array of Starting Values
             increment = (double *) argv1->value.arr->data;                // Array of Increment Values
             if (argv2 != NULL) {
+	      fprintf(stdout, "Argv2 has %ld elements %ld bytes\n", (long) argv2->value.arr->n_elts, (long) argv2->value.arr->arr_len);
+	      fprintf(stdout, "Sizeof int %d sizeof long %d size_t %d", (int)sizeof(int), (int)sizeof(long), (int)sizeof(size_t));
                 count = (unsigned int *) argv2->value.arr->data;            // Array of Count Values
+
+		fprintf(stdout, "Length is %d\n", length);
+		for (j = 0; j < length; j++) {
+		  fprintf(stdout, "j %d count %d\n", j, count[j]);
+		}
             } else {
                 uis = 1;
                 count = &uis;
@@ -1238,8 +1265,8 @@ int createCoordinateArray(IDL_VPTR argv0, IDL_VPTR argv1, IDL_VPTR argv2, KW_RES
             }
 
             if (kw->debug) {
-                fprintf(stdout, "Scalar Domain Data: count = %d, dimension = %d\n", count[0], dimlength);
-                fprintf(stdout, "start = %e, increment = %e, count =%d\n", *start, *increment, *count);
+	      fprintf(stdout, "Scalar Domain Data: count = %d, dimension = %d\n", count[0], (int) dimlength);
+	      fprintf(stdout, "start = %e, increment = %e, count =%d\n", *start, *increment, count[0]);
             }
         }
 
@@ -1247,25 +1274,44 @@ int createCoordinateArray(IDL_VPTR argv0, IDL_VPTR argv1, IDL_VPTR argv2, KW_RES
 
         if (!isUnlimited && argv2 == NULL) {
             if (!isArray) {
-                length = dimlength;
-                uis = length;
-                count = &uis;
-            } else {
-                if (length > 0) {
-                    uis = dimlength / length;
-                    count = &uis;
-                }
-            }
-        }
+	        fprintf(stdout, "Not an array. Setting length to dimlength\n");
+	        length = (unsigned int) dimlength;
+	        uis = length;
+  	        count = &uis;
+            }/*  else { */
+	    /*     fprintf(stdout, "Is an array. Length is %d\n", length); */
+            /*     if (length > 0) { */
+	    /* 	  uis = dimlength / length; */
+            /*       count = &uis; */
+            /*     } */
+            /* } */
+        } else if (isUnlimited) {
+	  // For unlimited dimensions, take the length of the dimension from the current size of the dimension that is to be written
+	  if (!isArray){
+	    dimlength = uis;
+	    length = 1;
+	  } else {
+   	    // Need also to do something for arrays
+	    dimlength = 0;
+	    for (j = 0; j < length; j++) {
+	      dimlength = dimlength + count[j];
+	    }
+	  }
+	}
 
 
 //--------------------------------------------------------------------------            
 // Build the Array
 
         if (argv2 != NULL) {
+	  fprintf(stdout, "Constructing length %d\n", length);
             *totlength = 0;
-            for (j = 0; j < length; j++) *totlength = *totlength + count[i];
+            for (j = 0; j < length; j++) {
+	      fprintf(stdout, "j %d count %d\n", j, count[j]);
+	      *totlength = *totlength + count[j];
+	    }
         } else {
+	  fprintf(stdout, "totlength is %d\n", length);
             *totlength = length;
         }
 
@@ -1286,17 +1332,25 @@ int createCoordinateArray(IDL_VPTR argv0, IDL_VPTR argv1, IDL_VPTR argv2, KW_RES
         data = (double *) malloc(*totlength * sizeof(double));
 
         if (argv2 != NULL) {
+       	    int data_index = 0;
+	    int j;
             for (j = 0; j < length; j++) {
-                for (i = 0; i < count[j]; i++) data[i] = start[j] + (double) i * increment[j];
+	      for (i = 0; i < count[j]; i++) {
+		data[data_index++] = start[j] + (double) i * increment[j];
+	      }
             }
         } else {
+   	    // No count array : single domain only
             if (!isArray) {
+         	// Start and increment were scalars	      
                 for (i = 0; i < count[0]; i++) data[i] = start[0] + (double) i * increment[0];
-            } else {
-                for (j = 0; j < length; j++) {
-                    for (i = 0; i < count[0]; i++) data[i] = start[j] + (double) i * increment[j];
-                }
-            }
+            } 
+            /* else { */
+	    /*     // Start and increment arrays were given ... does this even make sense ???  */
+            /*     for (j = 0; j < length; j++) { */
+            /*         for (i = 0; i < count[0]; i++) data[i] = start[j] + (double) i * increment[j]; */
+            /*     } */
+            /* } */
         }
 
 
@@ -1315,7 +1369,7 @@ int createCoordinateArray(IDL_VPTR argv0, IDL_VPTR argv1, IDL_VPTR argv2, KW_RES
 
         if (!isUnlimited && length > 1) {
             chunking = length;
-            if (kw->is_chunksize) chunking = (unsigned int) kw->chunksize;
+            if (kw->is_chunksize) chunking = (size_t) kw->chunksize;
 
             if ((err = nc_def_var_chunking(ncgrpid, ncvarid, NC_CHUNKED, &chunking)) != NC_NOERR) {
                 if (kw->verbose) fprintf(stderr, "Unable to set the Chunking Properties of Dimension %s \n", name);
@@ -1327,10 +1381,10 @@ int createCoordinateArray(IDL_VPTR argv0, IDL_VPTR argv1, IDL_VPTR argv2, KW_RES
 // Write the Coordinate Array
 
         if (isUnlimited) {
-            unsigned int start[1] = {0};    // For Unlimited Dimensions
-            unsigned int count[1];
+            size_t start[1] = {0};    // For Unlimited Dimensions
+            size_t count[1];
             count[0] = *totlength;
-            err = nc_put_vara_double(ncgrpid, ncvarid, (size_t *) start, (size_t *) count, data);
+            err = nc_put_vara_double(ncgrpid, ncvarid, start, count, data);
         } else {
             err = nc_put_var_double(ncgrpid, ncvarid, data);
         }

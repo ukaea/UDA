@@ -116,13 +116,13 @@ extern int testplugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         housekeeping = idam_plugin_interface->housekeeping;
     } else {
         err = 999;
-        IDAM_LOG(LOG_ERROR, "Plugin Interface Version Unknown\n");
+        IDAM_LOG(UDA_LOG_ERROR, "Plugin Interface Version Unknown\n");
         addIdamError(&idamerrorstack, CODEERRORTYPE, "testplugin", err,
                      "Plugin Interface Version is Not Known: Unable to execute the request!");
         return err;
     }
 
-    IDAM_LOG(LOG_DEBUG, "Interface exchanged on entry\n");
+    IDAM_LOG(UDA_LOG_DEBUG, "Interface exchanged on entry\n");
 
     //----------------------------------------------------------------------------------------
     // Heap Housekeeping
@@ -135,7 +135,7 @@ extern int testplugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     if (housekeeping || STR_IEQUALS(request_block->function, "reset")) {
         if (!init) return 0;        // Not previously initialised: Nothing to do!
         init = 0;
-        IDAM_LOG(LOG_DEBUG, "reset function executed\n");
+        IDAM_LOG(UDA_LOG_DEBUG, "reset function executed\n");
         return 0;
     }
 
@@ -144,7 +144,7 @@ extern int testplugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     if (!init || STR_IEQUALS(request_block->function, "init") || STR_IEQUALS(request_block->function, "initialise")) {
         init = 1;
-        IDAM_LOG(LOG_DEBUG, "plugin initialised\n");
+        IDAM_LOG(UDA_LOG_DEBUG, "plugin initialised\n");
         if (STR_IEQUALS(request_block->function, "init") || STR_IEQUALS(request_block->function, "initialise")) {
             return 0;
         }
@@ -288,7 +288,7 @@ static int do_help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
     DATA_BLOCK* data_block = idam_plugin_interface->data_block;
 
-    IDAM_LOG(LOG_DEBUG, "help function called\n");
+    IDAM_LOG(UDA_LOG_DEBUG, "help function called\n");
 
     const char* help = "\nTestplugin: Functions Names and Test Descriptions/n/n"
             "test0-test9: String passing tests\n"
@@ -360,7 +360,7 @@ static int do_help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     strcpy(data_block->data_label, "");
     strcpy(data_block->data_units, "");
 
-    IDAM_LOG(LOG_DEBUG, "help function completed\n");
+    IDAM_LOG(UDA_LOG_DEBUG, "help function completed\n");
 
     return 0;
 }
@@ -471,12 +471,12 @@ static void init_structure_definitions()
 
     addUserDefinedType(userdefinedtypelist, usertype);
 
-    IDAM_LOG(LOG_DEBUG, "Type TEST9 defined\n");
+    IDAM_LOG(UDA_LOG_DEBUG, "Type TEST9 defined\n");
 
     old = findUserDefinedType("TEST9", 0);            // Clone existing structure & modify
     copyUserDefinedType(old, &usertype);
 
-    IDAM_LOG(LOG_DEBUG, "Type TEST9 located\n");
+    IDAM_LOG(UDA_LOG_DEBUG, "Type TEST9 located\n");
 
     strcpy(usertype.name, "TEST9A");
     strcpy(usertype.source, "Test #9A");
@@ -501,7 +501,7 @@ static void init_structure_definitions()
 
     addUserDefinedType(userdefinedtypelist, usertype);
 
-    IDAM_LOG(LOG_DEBUG, "Type TEST9A defined\n");
+    IDAM_LOG(UDA_LOG_DEBUG, "Type TEST9A defined\n");
 }
 
 static int do_test0(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
@@ -2976,7 +2976,7 @@ static int do_test40(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 // For this test, all blocks must be of the same type: request_block->putDataBlockList.putDataBlock[0].data_type;
 // Repeat call with changing types may cause client side issues!
 
-    IDAM_LOG(LOG_DEBUG, "Number of PutData Blocks: %d\n", request_block->putDataBlockList.blockCount);
+    IDAM_LOG(UDA_LOG_DEBUG, "Number of PutData Blocks: %d\n", request_block->putDataBlockList.blockCount);
 
     if (request_block->putDataBlockList.blockCount == 0) {
         err = 999;
@@ -3049,8 +3049,8 @@ static int do_test40(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         blocks[i].dataCount = request_block->putDataBlockList.putDataBlock[i].count;
         blocks[i].data = (void*) request_block->putDataBlockList.putDataBlock[i].data;
 
-        IDAM_LOG(LOG_DEBUG, "data type : %d\n", request_block->putDataBlockList.putDataBlock[0].data_type);
-        IDAM_LOG(LOG_DEBUG, "data count: %d\n", request_block->putDataBlockList.putDataBlock[0].count);
+        IDAM_LOG(UDA_LOG_DEBUG, "data type : %d\n", request_block->putDataBlockList.putDataBlock[0].data_type);
+        IDAM_LOG(UDA_LOG_DEBUG, "data count: %d\n", request_block->putDataBlockList.putDataBlock[0].count);
 
 // Data blocks already allocated and will be freed by a separate process so use addNonMalloc instead of addMalloc
 
