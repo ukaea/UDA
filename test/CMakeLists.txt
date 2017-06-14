@@ -7,6 +7,8 @@ find_package( OpenSSL )
 find_package( LibXml2 )
 find_package( LibMemcached )
 
+add_definitions( -D__USE_XOPEN2K8 )
+
 if( NOT Boost_FOUND OR NOT OPENSSL_FOUND OR NOT LIBXML2_FOUND )
   message( WARNING "Not building tests" )
   return()
