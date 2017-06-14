@@ -75,7 +75,7 @@ void nameIDA(const char* alias, int pulno, char* filename)
 
 #include <assert.h>
 
-void nameIDA(char* alias, int pulno, char* filename)
+void nameIDA(const char* alias, int pulno, char* filename)
 {
     assert(0 && "Cannot access IDA files");
 }
