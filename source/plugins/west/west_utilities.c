@@ -295,9 +295,7 @@ void getReturnType(char* attributes, int* dataType)
 			addIdamError(&idamerrorstack, CODEERRORTYPE, "west convertToInt() : Unsupported data type", err, "");
 		}
 	*dataType = i;
-	IDAM_LOGF(LOG_DEBUG, " convertToInt() result: %d\n", *dataType);
 	free(s_copy);
-	free(token);
 }
 
 void getRank(char* attributes, int* rank)

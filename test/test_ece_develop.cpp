@@ -18,6 +18,8 @@ exit 0
 #define SHOT_NUM_10000 "10000" // WEST
 #define SHOT_NUM_33456 "33456" // WEST
 
+#define SHOT_NUM_80 "80" // WEST
+
 int main() {
 	setenv("UDA_PLUGIN_DIR", QUOTE(HOME) "/iter/uda/etc/plugins", 1);
 	setenv("UDA_PLUGIN_CONFIG", QUOTE(HOME) "/iter/uda/test/idamTest.conf", 1);
@@ -42,17 +44,17 @@ int main() {
 	const uda::Scalar* scal_freq = dynamic_cast<const uda::Scalar*>(freq.data());
 	std::cout << "ece/channel/1/frequency for shot 50355: " << scal_freq->as<float>() << std::endl;
 
-	const uda::Result& freq2 = client.get("imas::get(idx=0, group='ece', variable='channel/1/frequency', expName='WEST', type=float, rank=0, shot=" SHOT_NUM_10000 ", )", "");
+	const uda::Result& freq2 = client.get("imas::get(idx=0, group='ece', variable='channel/1/frequency', expName='WEST', type=float, rank=0, shot=" SHOT_NUM_33456 ", )", "");
 	scal_freq = dynamic_cast<const uda::Scalar*>(freq2.data());
-	std::cout << "ece/channel/1/frequency for shot 10000: " << scal_freq->as<float>() << std::endl;
+	std::cout << "ece/channel/1/frequency for shot 33456: " << scal_freq->as<float>() << std::endl;
 
 	const uda::Result& freq3 = client.get("imas::get(idx=0, group='ece', variable='channel/2/frequency', expName='WEST', type=float, rank=0, shot=" SHOT_NUM ", )", "");
 	scal_freq = dynamic_cast<const uda::Scalar*>(freq3.data());
 	std::cout << "ece/channel/2/frequency for shot 50355: " << scal_freq->as<float>() << std::endl;
 
-	const uda::Result& freq4 = client.get("imas::get(idx=0, group='ece', variable='channel/2/frequency', expName='WEST', type=float, rank=0, shot=" SHOT_NUM_10000 ", )", "");
+	const uda::Result& freq4 = client.get("imas::get(idx=0, group='ece', variable='channel/2/frequency', expName='WEST', type=float, rank=0, shot=" SHOT_NUM_33456 ", )", "");
 	scal_freq = dynamic_cast<const uda::Scalar*>(freq4.data());
-	std::cout << "ece/channel/2/frequency for shot 10000: " << scal_freq->as<float>() << std::endl;
+	std::cout << "ece/channel/2/frequency for shot 33456: " << scal_freq->as<float>() << std::endl;
 
 	const uda::Result& name = client.get("imas::get(idx=0, group='ece', variable='channel/1/name', expName='WEST', type=string, rank=0, shot=" SHOT_NUM ", )", "");
 	const uda::Data * data = name.data();
@@ -79,7 +81,7 @@ int main() {
 		std::cout << arr->as<double>().at(j) << " ";
 	}
 	std::cout << "..." << std::endl;
-	
+
 	const uda::Result& sigtime = client.get("imas::get(idx=0, group='ece', variable='channel/1/t_e/time', expName='WEST', type=double, rank=1, shot=" SHOT_NUM_33456 ", )", "");
 	data = sigtime.data();
 	const uda::Array* arrtime = dynamic_cast<const uda::Array*>(data);

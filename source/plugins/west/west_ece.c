@@ -10,6 +10,8 @@
 #include <clientserver/stringUtils.h>
 #include <clientserver/udaTypes.h>
 
+#include "west_ece_mode.h"
+
 int modeO1 = 1;
 int modeX2 = 2;
 
@@ -251,5 +253,48 @@ void ece_t_e_time(int shotNumber, char** mapfun) {
 }
 
 int getECEMode(int shotNumber) {
-	return 1;
+
+	struct Node* head = NULL;
+
+	int ECE_mode;
+
+	int shotNumberInFile;
+
+	FILE * pFile;
+	char content [15];
+
+	char* ece_modes_file = getenv("WEST_ECE_MODES_FILE");
+
+	pFile = fopen (ece_modes_file , "r");
+	if (pFile == NULL) {
+		int err = 901;
+		addIdamError(&idamerrorstack, CODEERRORTYPE, "Unable to read ECE mode file from WEST", err, "");
+		IDAM_LOG(LOG_DEBUG, "Error opening ECE mode file\n");
+	}
+	else {
+
+		while(!feof(pFile))
+		{
+			if ( fgets (content , sizeof(content) , pFile) != NULL ) {
+				const char delim[] = ":";
+				shotNumberInFile = atoi(strtok(content, delim)); //the shot number
+				ECE_mode = atoi(strtok(NULL, delim)); //the ECE mode
+				push(&head, shotNumberInFile, ECE_mode);
+			}
+
+		}
+	}
+
+	struct Node* s = search(head, shotNumber);
+
+	if (s == NULL) {
+		int err = 901;
+		addIdamError(&idamerrorstack, CODEERRORTYPE, "Unable to found ECE mode from WEST", err, "");
+		IDAM_LOGF(LOG_DEBUG, "ECE mode not found for shot: %d\n", shotNumber);
+	}
+	else {
+		return s->ECE_mode;
+	}
+
+	return -1;
 }
