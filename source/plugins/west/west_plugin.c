@@ -11,6 +11,7 @@
 #include <plugins/udaPlugin.h>
 
 #include "west_xml.h"
+#include "west_dynamic_data.h"
 
 enum MAPPING_TYPE {
     NONE, STATIC, DYNAMIC
@@ -258,8 +259,6 @@ int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     char* IDAM_MappingKey = element;
 
-    IDAM_LOG(LOG_DEBUG, "Calling do_read1 from WEST plugin\n");
-
     char* mappingFileName = getenv("UDA_WEST_MAPPING_FILE");
 
     IDAM_LOGF(LOG_DEBUG, "IDAM mapping file: %s\n", mappingFileName);
@@ -270,16 +269,12 @@ int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     int IDS_DataType;
     const char* mapfun = getMappingValue(mappingFileName, IDAM_MappingKey, &IDS_DataType);
 
-    IDAM_LOG(LOG_DEBUG, "Calling do_read2 from WEST plugin\n");
-
     //The path requested has not been found
     if (mapfun == NULL) {
         IDAM_LOG(LOG_DEBUG, "The requested mapping function has not been found. Check the IDAM mapping file.\n");
         fprintf(stderr, "The requested mapping function has not been found. Check the IDAM mapping file.");
         return -1;
     }
-
-    IDAM_LOG(LOG_DEBUG, "Calling do_read3 from WEST plugin\n");
 
     //STATIC DATA CASE
     if (IDS_DataType == STATIC) {

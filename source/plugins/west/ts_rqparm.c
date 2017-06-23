@@ -170,11 +170,11 @@ int readSignal(char* nomsigp, int numchoc, int occ,
 
     cr = lit_traite(nomsigp, numchoc, occ, rang, (float**)X, (float**)Y, (int*)len);
 
-    IDAM_LOGF(LOG_DEBUG, "%s\n", "First values...");
-    int j;
-    for (j=0; j <10; j++) {
-    		IDAM_LOGF(LOG_DEBUG, "value : %f\n", *(*Y + j));
-    }
+//    IDAM_LOGF(LOG_DEBUG, "%s\n", "First values...");
+//    int j;
+//    for (j=0; j <10; j++) {
+//    		IDAM_LOGF(LOG_DEBUG, "value : %f\n", *(*Y + j));
+//    }
 
     int i;
     for (i = 0; i < *len; i++)

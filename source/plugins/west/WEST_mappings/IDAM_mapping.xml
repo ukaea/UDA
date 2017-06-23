@@ -17,7 +17,7 @@
 <mapping key="magnetics/bpol_probe/#/position/z" value="tsmat_collect;DMAG:GMAG_BNORM:PosZ,DMAG:GMAG_BTANG:PosZ,DMAG:GMAG_BTORO1:PosZ,DMAG:GMAG_BTORO2:PosZ;0:float:#0" type="static"/>
 <!-- mapping key="magnetics/bpol_probe/#/position/phi" value="set_value;0.0;0:float" type="static"/ -->
 <mapping key="magnetics/bpol_probe/#/poloidal_angle" value="tsmat_collect;DMAG:GMAG_BNORM:PolAngle,DMAG:GMAG_BTANG:PolAngle,DMAG:GMAG_BTORO1:CALIB:Null,DMAG:GMAG_BTORO2:CALIB:Null;0:float:#0" type="static"/>
-<mapping key="magnetics/bpol_probe/#/toroidal_angle" value="set_value_collect;DMAG:GMAG_BNORM:CALIB:0.0, DMAG:GMAG_BTANG:CALIB:0.0, DMAG:GMAG_BTORO1:CALIB:1.57075, DMAG:GMAG_BTORO2:CALIB:1.57075;0:float:#0" type="static"/>
+<mapping key="magnetics/bpol_probe/#/toroidal_angle" value="set_value_collect;DMAG:GMAG_BNORM:CALIB:0.0,DMAG:GMAG_BTANG:CALIB:0.0,DMAG:GMAG_BTORO1:CALIB:1.57075,DMAG:GMAG_BTORO2:CALIB:1.57075;0:float:#0" type="static"/>
 <!-- mapping key="magnetics/bpol_probe/#/area" value="set_value;0.0;0:float" type="static"/ -->
 <!-- mapping key="magnetics/bpol_probe/#/length" value="set_value;0;0:int" type="static"/ -->
 <!-- mapping key="magnetics/bpol_probe/#/turns" value="set_value;0;0:int" type="static"/ -->
@@ -57,6 +57,21 @@
 <mapping key="interfero_polarimeter/channel/#/line_of_sight/third_point/phi" value="tsmat_collect;DINTRPOL:LIDRT:TPOS1;0:float:#0" type="static"/>
 <mapping key="interfero_polarimeter/channel/#/faraday_angle/data" value="tsbase_collect;DINTRPOL:GINTFARART;1:float:#0" type="dynamic"/>
 <mapping key="interfero_polarimeter/channel/#/faraday_angle/time" value="tsbase_time;DINTRPOL:GINTFARART;1:float:#0" type="dynamic"/>
+
+<mapping key="ece/line_of_sight/first_point/r" value="set_value;4.264881;0:float" type="static"/>
+<mapping key="ece/line_of_sight/first_point/z" value="set_value;0.;0:float" type="static"/>
+<mapping key="ece/line_of_sight/first_point/phi" value="set_value;1.4573;0:float" type="static"/>
+<mapping key="ece/line_of_sight/second_point/r" value="set_value;4.471881;0:float" type="static"/>
+<mapping key="ece/line_of_sight/second_point/z" value="set_value;0.;0:float" type="static"/>
+<mapping key="ece/line_of_sight/second_point/phi" value="set_value;1.4573;0:float" type="static"/>
+<mapping key="ece/channel/#/frequency" value="ece_frequencies" type="static"/>
+<mapping key="ece/channel/#/name" value="ece_names" type="static"/>
+<mapping key="ece/channel/#/identifier" value="ece_identifiers" type="static"/>
+<mapping key="ece/channel/#/t_e/data" value="ece_t_e_data" type="dynamic"/>
+<mapping key="ece/channel/#/t_e/time" value="ece_t_e_time" type="dynamic"/>
+<!-- mapping key="ece/channel/#/t_e/data" value="tsbase_collect;DVECE:GVSH1,DVECE:GVSH2,DVECE:GVSH3,DVECE:GVSH4;1:float:#0" type="dynamic"/ -->
+<mapping key="ece/channel/Shape_of" value="ece_t_e_data_shape_of" type="static"/>
+
 
 
 </mappings>
