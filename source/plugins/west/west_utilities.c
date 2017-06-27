@@ -365,8 +365,8 @@ void searchIndices(int requestedIndex, int* l, int* searchedArray, int* searched
 
 	if (requestedIndex < l[0]) {
 
-		*searchedArrayIndex = requestedIndex;
-		*searchedArray = 0;
+		*searchedArrayIndex = requestedIndex; //we take the (requestedIndex) signal in the signals group
+		*searchedArray = 0; //we take the first group of signals which appears in the tsmat_collect string
 
 	} else if (requestedIndex == l[0]) {
 

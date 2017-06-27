@@ -35,7 +35,7 @@
 <mapping key="tf/b_field_tor_vacuum_r/data" value="tsbase_collect;DMAG:GMAG_ITOR;1:float:2;multiply:cste:0.0073008" type="dynamic"/>
 <mapping key="tf/b_field_tor_vacuum_r/time" value="tsbase_time;DMAG:GMAG_ITOR;1:float:2" type="dynamic"/>
 <mapping key="pf_active/ids_properties/homogeneous_time" value="set_value;0;0:int" type="static"/>
-<mapping key="pf_active/coil/#/Shape_of" value="shape_of_tsmat_collect;DPOLO:GPOLO_IMES:CALIB;0:float:#0" type="static"/>
+<mapping key="pf_active/coil/Shape_of" value="shape_of_tsmat_collect;DPOLO:GPOLO_IMES:CALIB;0:float:#0" type="static"/>
 <mapping key="pf_active/coil/#/current/data" value="tsbase_collect;DPOLO:GPOLO_IMES;1:float:#0" type="dynamic"/>
 <mapping key="pf_active/coil/#/current/time" value="tsbase_time;DPOLO:GPOLO_IMES;1:float:#0" type="dynamic"/>
 
@@ -58,19 +58,22 @@
 <mapping key="interfero_polarimeter/channel/#/faraday_angle/data" value="tsbase_collect;DINTRPOL:GINTFARART;1:float:#0" type="dynamic"/>
 <mapping key="interfero_polarimeter/channel/#/faraday_angle/time" value="tsbase_time;DINTRPOL:GINTFARART;1:float:#0" type="dynamic"/>
 
+<mapping key="ece/ids_properties/homogeneous_time" value="set_value;0;0:int" type="static"/>
 <mapping key="ece/line_of_sight/first_point/r" value="set_value;4.264881;0:float" type="static"/>
 <mapping key="ece/line_of_sight/first_point/z" value="set_value;0.;0:float" type="static"/>
 <mapping key="ece/line_of_sight/first_point/phi" value="set_value;1.4573;0:float" type="static"/>
 <mapping key="ece/line_of_sight/second_point/r" value="set_value;4.471881;0:float" type="static"/>
 <mapping key="ece/line_of_sight/second_point/z" value="set_value;0.;0:float" type="static"/>
 <mapping key="ece/line_of_sight/second_point/phi" value="set_value;1.4573;0:float" type="static"/>
-<mapping key="ece/channel/#/frequency" value="ece_frequencies" type="static"/>
+<mapping key="ece/channel/Shape_of" value="ece_t_e_data_shape_of" type="static"/>
+<!-- mapping key="ece/channel/#/frequency" value="ece_frequencies" type="dynamic"/ -->
+<!-- mapping key="ece/channel/#/frequency/time" value="ece_harmonic_time" type="dynamic"/ -->
 <mapping key="ece/channel/#/name" value="ece_names" type="static"/>
 <mapping key="ece/channel/#/identifier" value="ece_identifiers" type="static"/>
 <mapping key="ece/channel/#/t_e/data" value="ece_t_e_data" type="dynamic"/>
 <mapping key="ece/channel/#/t_e/time" value="ece_t_e_time" type="dynamic"/>
-<!-- mapping key="ece/channel/#/t_e/data" value="tsbase_collect;DVECE:GVSH1,DVECE:GVSH2,DVECE:GVSH3,DVECE:GVSH4;1:float:#0" type="dynamic"/ -->
-<mapping key="ece/channel/Shape_of" value="ece_t_e_data_shape_of" type="static"/>
+<mapping key="ece/channel/#/harmonic/data" value="ece_harmonic_data" type="dynamic"/>
+<mapping key="ece/channel/#/harmonic/time" value="ece_harmonic_time" type="dynamic"/>
 
 
 

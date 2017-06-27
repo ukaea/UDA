@@ -101,10 +101,11 @@ int execute(const char* mapfun, int shotNumber, DATA_BLOCK* data_block, int* nod
 	}  else if (strcmp(fun_name, "set_channels_validity") == 0) {
 		//returns a static value according to the position of the element in the collection (rank = 0)
 		fun = 5;
-	} else if (strcmp(fun_name, "ece_frequencies") == 0) {
+	} /*else if (strcmp(fun_name, "ece_frequencies") == 0) {
 		//set frequencies of ece channels: UDA request is ece/channel/#/frequency where # is the channel number
 		fun = 6;
-	}  else if (strcmp(fun_name, "ece_names") == 0) {
+	} */
+	  else if (strcmp(fun_name, "ece_names") == 0) {
 		//set names of ece channels: UDA request is ece/channel/#/name where # is the channel number
 		fun = 7;
 	} else if (strcmp(fun_name, "ece_identifiers") == 0) {
@@ -200,12 +201,12 @@ int execute(const char* mapfun, int shotNumber, DATA_BLOCK* data_block, int* nod
 		break;
 	}
 
-	case 6: {
+	/*case 6: {
 		IDAM_LOG(LOG_DEBUG, "Case of ece_frequencies from WEST plugin\n");
 		ece_frequencies(shotNumber, data_block, nodeIndices);
 
 		break;
-	}
+	}*/
 
 	case 7: {
 		IDAM_LOG(LOG_DEBUG, "Case of ece_names from WEST plugin\n");
@@ -227,8 +228,7 @@ int execute(const char* mapfun, int shotNumber, DATA_BLOCK* data_block, int* nod
 		ece_t_e_data_shape_of(shotNumber, &ece_mapfun);
 		IDAM_LOG(LOG_DEBUG, "Calling tokenizeFunParameters() from WEST plugin\n");
 		tokenizeFunParameters(ece_mapfun, &TOP_collections_parameters, &attributes, &normalizationAttributes);
-		execute_tsmat_collect(TOP_collections_parameters, attributes, shotNumber, data_block, nodeIndices,
-				normalizationAttributes);
+		shape_of_tsmat_collect(shotNumber, TOP_collections_parameters, data_block);
 
 		break;
 	}
@@ -265,7 +265,7 @@ void shape_of_tsmat_collect(int shotNumber, char* TOP_collections_parameters, DA
 		int nb_val = 0;
 		IDAM_LOG(LOG_DEBUG, "Calling getShapeOf() from WEST plugin for shape_of_tsmat_collect case\n");
 		getShapeOf(command, shotNumber, &nb_val);
-		printNum("nb_val : ", nb_val);
+		//printNum("nb_val : ", nb_val);
 		IDAM_LOG(LOG_DEBUG, "after getShapeOf\n");
 		parametersSize += nb_val;
 	}
@@ -298,7 +298,8 @@ void getShapeOf(const char* command, int shotNumber, int* nb_val)
 	IDAM_LOGF(LOG_DEBUG, "DEBUG : param: %s\n", param_name);
 
 	int status = readStaticParameters(&value, nb_val, shotNumber, prod_name, object_name, param_name, val_nb);
-	printNum("status : ", status);
+	IDAM_LOGF(LOG_DEBUG, "readStaticParameters status: %d\n", status);
+	IDAM_LOGF(LOG_DEBUG, "readStaticParameters nb_val: %d\n", *nb_val);
 
 	if (status != 0) {
 		IDAM_LOG(LOG_DEBUG, "Error calling readStaticParameters\n");

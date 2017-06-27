@@ -17,6 +17,7 @@ exit 0
 
 #define SHOT_NUM_10000 "10000" // WEST
 #define SHOT_NUM_33456 "33456" // WEST
+#define SHOT_NUM_50819 "50819" // WEST
 
 #define SHOT_NUM_80 "80" // WEST
 
@@ -39,56 +40,81 @@ int main() {
 
 	uda::Client client;
 
+	const uda::Result& shape_of = client.get("imas::get(idx=0, group='ece', variable='channel/Shape_of', expName='WEST', type=int, rank=0, shot=" SHOT_NUM_33456 ", )", "");
+	const uda::Scalar* v_shape_of = dynamic_cast<const uda::Scalar*>(shape_of.data());
+	std::cout << "channel/Shape_of: " << v_shape_of->as<int>() << std::endl;
 
-	const uda::Result& freq = client.get("imas::get(idx=0, group='ece', variable='channel/1/frequency', expName='WEST', type=float, rank=0, shot=" SHOT_NUM ", )", "");
-	const uda::Scalar* scal_freq = dynamic_cast<const uda::Scalar*>(freq.data());
-	std::cout << "ece/channel/1/frequency for shot 50355: " << scal_freq->as<float>() << std::endl;
+	const uda::Result& name = client.get("imas::get(idx=0, group='ece', variable='channel/1/name', expName='WEST', type=string, rank=0, shot=" SHOT_NUM_33456 ", )", "");
+	const uda::Data * data1 = name.data();
+	const uda::String* s1 = dynamic_cast<const uda::String*>(data1);
 
-	const uda::Result& freq2 = client.get("imas::get(idx=0, group='ece', variable='channel/1/frequency', expName='WEST', type=float, rank=0, shot=" SHOT_NUM_33456 ", )", "");
-	scal_freq = dynamic_cast<const uda::Scalar*>(freq2.data());
-	std::cout << "ece/channel/1/frequency for shot 33456: " << scal_freq->as<float>() << std::endl;
+	char* result;
+	std::cout << "channel/1/name : " << s1->str() << "\n";
 
-	const uda::Result& freq3 = client.get("imas::get(idx=0, group='ece', variable='channel/2/frequency', expName='WEST', type=float, rank=0, shot=" SHOT_NUM ", )", "");
-	scal_freq = dynamic_cast<const uda::Scalar*>(freq3.data());
-	std::cout << "ece/channel/2/frequency for shot 50355: " << scal_freq->as<float>() << std::endl;
-
-	const uda::Result& freq4 = client.get("imas::get(idx=0, group='ece', variable='channel/2/frequency', expName='WEST', type=float, rank=0, shot=" SHOT_NUM_33456 ", )", "");
-	scal_freq = dynamic_cast<const uda::Scalar*>(freq4.data());
-	std::cout << "ece/channel/2/frequency for shot 33456: " << scal_freq->as<float>() << std::endl;
-
-	const uda::Result& name = client.get("imas::get(idx=0, group='ece', variable='channel/1/name', expName='WEST', type=string, rank=0, shot=" SHOT_NUM ", )", "");
-	const uda::Data * data = name.data();
-	const uda::String* s = dynamic_cast<const uda::String*>(data);
-
-	std::cout << "channel/1/name : ";
-	std::cout << s->str();
-	std::cout << "\n" << std::endl;
-
-	const uda::Result& name2 = client.get("imas::get(idx=0, group='ece', variable='channel/10/name', expName='WEST', type=string, rank=0, shot=" SHOT_NUM ", )", "");
+	const uda::Result& name2 = client.get("imas::get(idx=0, group='ece', variable='channel/10/name', expName='WEST', type=string, rank=0, shot=" SHOT_NUM_33456 ", )", "");
 	const uda::Data * data2 = name2.data();
 	const uda::String* s2 = dynamic_cast<const uda::String*>(data2);
 
-	std::cout << "channel/10/name : ";
-	std::cout << s2->str();
-	std::cout << "\n" << std::endl;
+	std::cout << "channel/10/name : " << s2->str() << "\n";
 
-	const uda::Result& sig = client.get("imas::get(idx=0, group='ece', variable='channel/1/t_e/data', expName='WEST', type=double, rank=1, shot=" SHOT_NUM_33456 ", )", "");
-	data = sig.data();
-	const uda::Array* arr = dynamic_cast<const uda::Array*>(data);
+	/*const uda::Result& sigfreq = client.get("imas::get(idx=0, group='ece', variable='channel/1/frequency', expName='WEST', type=double, rank=1, shot=" SHOT_NUM_33456 ", )", "");
+	const uda::Data *data = sigfreq.data();
+	const uda::Array* arrfreq = dynamic_cast<const uda::Array*>(data);
 
-	std::cout << "first values for channel/1/t_e/data : ";
+	std::cout << "first values for channel/1/frequency : ";
 	for (int j = 0; j < 10; ++j) {
-		std::cout << arr->as<double>().at(j) << " ";
+		std::cout << arrfreq->as<double>().at(j) << " ";
 	}
 	std::cout << "..." << std::endl;
 
+	const uda::Result& sigfreq2 = client.get("imas::get(idx=0, group='ece', variable='channel/7/frequency', expName='WEST', type=double, rank=1, shot=" SHOT_NUM_33456 ", )", "");
+	data = sigfreq2.data();
+	const uda::Array* arrfreq2 = dynamic_cast<const uda::Array*>(data);
+
+	std::cout << "first values for channel/2/frequency : ";
+	for (int j = 0; j < 10; ++j) {
+		std::cout << arrfreq2->as<double>().at(j) << " ";
+	}
+	std::cout << "..." << std::endl;*/
+
+
 	const uda::Result& sigtime = client.get("imas::get(idx=0, group='ece', variable='channel/1/t_e/time', expName='WEST', type=double, rank=1, shot=" SHOT_NUM_33456 ", )", "");
-	data = sigtime.data();
+	const uda::Data *data = sigtime.data();
 	const uda::Array* arrtime = dynamic_cast<const uda::Array*>(data);
 
 	std::cout << "first values for channel/1/t_e/time : ";
 	for (int j = 0; j < 10; ++j) {
 		std::cout << arrtime->as<double>().at(j) << " ";
+	}
+	std::cout << "..." << std::endl;
+
+	const uda::Result& sig2 = client.get("imas::get(idx=0, group='ece', variable='channel/1/t_e/data', expName='WEST', type=double, rank=1, shot=" SHOT_NUM_33456 ", )", "");
+	data = sig2.data();
+	const uda::Array* arr2 = dynamic_cast<const uda::Array*>(data);
+
+	std::cout << "first values for channel/1/t_e/data for shot 33456 : ";
+	for (int j = 0; j < 10; ++j) {
+		std::cout << arr2->as<double>().at(j) << " ";
+	}
+	std::cout << "..." << std::endl;
+
+	const uda::Result& sigharm = client.get("imas::get(idx=0, group='ece', variable='channel/1/harmonic/data', expName='WEST', type=double, rank=1, shot=" SHOT_NUM_33456 ", )", "");
+	data = sigharm.data();
+	const uda::Array* arrharm = dynamic_cast<const uda::Array*>(data);
+
+	std::cout << "first values for channel/1/harmonic/data : ";
+	for (int j = 0; j < 10; ++j) {
+		std::cout << arrharm->as<double>().at(j) << " ";
+	}
+	std::cout << "..." << std::endl;
+
+	const uda::Result& sigharm_time = client.get("imas::get(idx=0, group='ece', variable='channel/1/harmonic/time', expName='WEST', type=double, rank=1, shot=" SHOT_NUM_33456 ", )", "");
+	data = sigharm_time.data();
+	const uda::Array* arrharm_time = dynamic_cast<const uda::Array*>(data);
+
+	std::cout << "first values for channel/1/harmonic/time : ";
+	for (int j = 0; j < 10; ++j) {
+		std::cout << arrharm_time->as<double>().at(j) << " ";
 	}
 	std::cout << "..." << std::endl;
 
