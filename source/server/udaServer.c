@@ -1417,11 +1417,11 @@ int idamServer(CLIENT_BLOCK client_block, REQUEST_BLOCK* request_block0, SERVER_
 //
 //    freeUserDefinedTypeList(&parseduserdefinedtypelist);
 //    freeNTree();
-
-    //----------------------------------------------------------------------------
-    // Free Plugin List and Close all open library entries
-
-    freePluginList(&pluginList);
+//
+//    //----------------------------------------------------------------------------
+//    // Free Plugin List and Close all open library entries
+//
+//    freePluginList(&pluginList);
 
     //----------------------------------------------------------------------------
     // Free Actions Heap

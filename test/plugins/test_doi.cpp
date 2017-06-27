@@ -5,9 +5,7 @@
 
 TEST_CASE( "Test DOI::help() function", "[DOI][plugins]" )
 {
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+#include "setup.inc"
 
     uda::Client client;
 
@@ -52,9 +50,7 @@ TEST_CASE( "Test DOI::help() function", "[DOI][plugins]" )
 
 TEST_CASE( "Test DOI::list() function", "[DOI][plugins]" )
 {
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+#include "setup.inc"
 
     uda::Client client;
 

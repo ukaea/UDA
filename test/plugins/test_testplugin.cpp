@@ -5,9 +5,7 @@
 
 TEST_CASE( "Test help function", "[plugins][TESTPLUGIN]" )
 {
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+#include "setup.inc"
 
     uda::Client client;
 
@@ -76,9 +74,7 @@ TEST_CASE( "Test help function", "[plugins][TESTPLUGIN]" )
 
 TEST_CASE( "Run test0 - pass string as char array", "[plugins][TESTPLUGIN]" )
 {
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+#include "setup.inc"
 
     uda::Client client;
 
@@ -106,9 +102,7 @@ TEST_CASE( "Run test0 - pass string as char array", "[plugins][TESTPLUGIN]" )
 
 TEST_CASE( "Run test1 - pass string as string scalar", "[plugins][TESTPLUGIN]" )
 {
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+#include "setup.inc"
 
     uda::Client client;
 
@@ -134,9 +128,7 @@ TEST_CASE( "Run test1 - pass string as string scalar", "[plugins][TESTPLUGIN]" )
 
 TEST_CASE( "Run test2 - pass string list as 2D char array", "[plugins][TESTPLUGIN]" )
 {
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+#include "setup.inc"
 
     uda::Client client;
 
@@ -179,10 +171,7 @@ TEST_CASE( "Run test2 - pass string list as 2D char array", "[plugins][TESTPLUGI
 
 TEST_CASE( "Run test3 - pass string list as array of strings", "[plugins][TESTPLUGIN]" )
 {
-#ifdef FATCLIENT
-
-#  include "setupEnvironment.inc"
-#endif
+#include "setup.inc"
 
     uda::Client client;
 
@@ -219,9 +208,7 @@ TEST_CASE( "Run test3 - pass string list as array of strings", "[plugins][TESTPL
 
 TEST_CASE( "Run test4 - pass struct containing char array", "[plugins][TESTPLUGIN]" )
 {
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+#include "setup.inc"
 
     uda::Client client;
 
@@ -255,9 +242,7 @@ TEST_CASE( "Run test4 - pass struct containing char array", "[plugins][TESTPLUGI
 
 TEST_CASE( "Run test5 - pass struct containing array of strings", "[plugins][TESTPLUGIN]" )
 {
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+#include "setup.inc"
 
     uda::Client client;
 
@@ -300,9 +285,7 @@ TEST_CASE( "Run test5 - pass struct containing array of strings", "[plugins][TES
 
 TEST_CASE( "Run test6 - pass struct containing string", "[plugins][TESTPLUGIN]" )
 {
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+#include "setup.inc"
 
     uda::Client client;
 
@@ -336,9 +319,7 @@ TEST_CASE( "Run test6 - pass struct containing string", "[plugins][TESTPLUGIN]" 
 
 TEST_CASE( "Run test7 - pass struct containing array of strings", "[plugins][TESTPLUGIN]" )
 {
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+#include "setup.inc"
 
     uda::Client client;
 
@@ -380,9 +361,7 @@ TEST_CASE( "Run test7 - pass struct containing array of strings", "[plugins][TES
 
 TEST_CASE( "Run test8 - pass struct containing array of string pointers", "[plugins][TESTPLUGIN]" )
 {
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+#include "setup.inc"
 
     uda::Client client;
 
@@ -421,9 +400,7 @@ TEST_CASE( "Run test8 - pass struct containing array of string pointers", "[plug
 
 TEST_CASE( "Run test9 - pass 4 structs containing multiple types of string arrays", "[plugins][TESTPLUGIN]" )
 {
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+#include "setup.inc"
 
     uda::Client client;
 
@@ -544,9 +521,7 @@ TEST_CASE( "Run test9 - pass 4 structs containing multiple types of string array
 
 TEST_CASE( "Run test10 - pass single int", "[plugins][TESTPLUGIN]" )
 {
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+#include "setup.inc"
 
     uda::Client client;
 
@@ -570,9 +545,7 @@ TEST_CASE( "Run test10 - pass single int", "[plugins][TESTPLUGIN]" )
 
 TEST_CASE( "Run test11 - pass struct containing single int", "[plugins][TESTPLUGIN]" )
 {
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+#include "setup.inc"
 
     uda::Client client;
 
@@ -607,9 +580,7 @@ TEST_CASE( "Run test11 - pass struct containing single int", "[plugins][TESTPLUG
 
 TEST_CASE( "Run test12 - pass struct containing 1D array of ints", "[plugins][TESTPLUGIN]" )
 {
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+#include "setup.inc"
 
     uda::Client client;
 
@@ -652,9 +623,7 @@ TEST_CASE( "Run test12 - pass struct containing 1D array of ints", "[plugins][TE
 
 TEST_CASE( "Run test13 - pass struct containing 2D array of ints", "[plugins][TESTPLUGIN]" )
 {
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+#include "setup.inc"
 
     uda::Client client;
 
@@ -705,9 +674,7 @@ TEST_CASE( "Run test13 - pass struct containing 2D array of ints", "[plugins][TE
 
 TEST_CASE( "Run test14 - pass struct containing single int passed as pointer", "[plugins][TESTPLUGIN]" )
 {
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+#include "setup.inc"
 
     uda::Client client;
 
@@ -742,9 +709,7 @@ TEST_CASE( "Run test14 - pass struct containing single int passed as pointer", "
 
 TEST_CASE( "Run test15 - pass struct containing 1D array of ints passed as pointer", "[plugins][TESTPLUGIN]" )
 {
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+#include "setup.inc"
 
     uda::Client client;
 
@@ -787,9 +752,7 @@ TEST_CASE( "Run test15 - pass struct containing 1D array of ints passed as point
 
 TEST_CASE( "Run test16 - pass struct containing 2D array of ints passed as pointer", "[plugins][TESTPLUGIN]" )
 {
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+#include "setup.inc"
 
     uda::Client client;
 
@@ -840,9 +803,7 @@ TEST_CASE( "Run test16 - pass struct containing 2D array of ints passed as point
 
 TEST_CASE( "Run test18 - pass large number of structs containing single int", "[plugins][TESTPLUGIN]" )
 {
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+#include "setup.inc"
 
     uda::Client client;
 
@@ -879,9 +840,7 @@ TEST_CASE( "Run test18 - pass large number of structs containing single int", "[
 
 TEST_CASE( "Run test19 - pass 3 structs containing array of structs", "[plugins][TESTPLUGIN]" )
 {
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+#include "setup.inc"
 
     uda::Client client;
 
@@ -938,9 +897,7 @@ TEST_CASE( "Run test19 - pass 3 structs containing array of structs", "[plugins]
 
 TEST_CASE( "Run test20 - pass single short", "[plugins][TESTPLUGIN]" )
 {
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+#include "setup.inc"
 
     uda::Client client;
 
@@ -964,9 +921,7 @@ TEST_CASE( "Run test20 - pass single short", "[plugins][TESTPLUGIN]" )
 
 TEST_CASE( "Run test21 - pass struct containing single short", "[plugins][TESTPLUGIN]" )
 {
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+#include "setup.inc"
 
     uda::Client client;
 
@@ -1001,9 +956,7 @@ TEST_CASE( "Run test21 - pass struct containing single short", "[plugins][TESTPL
 
 TEST_CASE( "Run test22 - pass struct containing 1D array of shorts", "[plugins][TESTPLUGIN]" )
 {
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+#include "setup.inc"
 
     uda::Client client;
 
@@ -1046,9 +999,7 @@ TEST_CASE( "Run test22 - pass struct containing 1D array of shorts", "[plugins][
 
 TEST_CASE( "Run test23 - pass struct containing 2D array of shorts", "[plugins][TESTPLUGIN]" )
 {
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+#include "setup.inc"
 
     uda::Client client;
 
@@ -1099,9 +1050,7 @@ TEST_CASE( "Run test23 - pass struct containing 2D array of shorts", "[plugins][
 
 TEST_CASE( "Run test24 - pass struct containing single short passed as pointer", "[plugins][TESTPLUGIN]" )
 {
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+#include "setup.inc"
 
     uda::Client client;
 
@@ -1136,9 +1085,7 @@ TEST_CASE( "Run test24 - pass struct containing single short passed as pointer",
 
 TEST_CASE( "Run test25 - pass struct containing 1D array of shorts passed as pointer", "[plugins][TESTPLUGIN]" )
 {
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+#include "setup.inc"
 
     uda::Client client;
 
@@ -1181,9 +1128,7 @@ TEST_CASE( "Run test25 - pass struct containing 1D array of shorts passed as poi
 
 TEST_CASE( "Run test26 - pass struct containing 2D array of shorts passed as pointer", "[plugins][TESTPLUGIN]" )
 {
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+#include "setup.inc"
 
     uda::Client client;
 
@@ -1234,9 +1179,7 @@ TEST_CASE( "Run test26 - pass struct containing 2D array of shorts passed as poi
 
 TEST_CASE( "Run test27 - pass struct containing 3D array of shorts", "[plugins][TESTPLUGIN]" )
 {
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+#include "setup.inc"
 
     uda::Client client;
 
@@ -1285,9 +1228,7 @@ TEST_CASE( "Run test27 - pass struct containing 3D array of shorts", "[plugins][
 
 TEST_CASE( "Run test28 - pass struct containing 3D array of shorts passed as pointer", "[plugins][TESTPLUGIN]" )
 {
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+#include "setup.inc"
 
     uda::Client client;
 
@@ -1336,9 +1277,7 @@ TEST_CASE( "Run test28 - pass struct containing 3D array of shorts passed as poi
 
 TEST_CASE( "Run test30 - pass struct containing 2 doubles", "[plugins][TESTPLUGIN]" )
 {
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+#include "setup.inc"
 
     uda::Client client;
 
@@ -1381,9 +1320,7 @@ TEST_CASE( "Run test30 - pass struct containing 2 doubles", "[plugins][TESTPLUGI
 
 TEST_CASE( "Run test31 - pass 100 structs containing 2 doubles", "[plugins][TESTPLUGIN]" )
 {
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+#include "setup.inc"
 
     uda::Client client;
 
@@ -1428,9 +1365,7 @@ TEST_CASE( "Run test31 - pass 100 structs containing 2 doubles", "[plugins][TEST
 
 TEST_CASE( "Run test32 - pass struct containing array of 100 structs containing 2 doubles", "[plugins][TESTPLUGIN]" )
 {
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+#include "setup.inc"
 
     uda::Client client;
 
@@ -1491,9 +1426,7 @@ TEST_CASE( "Run test32 - pass struct containing array of 100 structs containing 
 
 TEST_CASE( "Run test33 - pass struct containing array of 100 structs containing 2 doubles as pointer", "[plugins][TESTPLUGIN]" )
 {
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+#include "setup.inc"
 
     uda::Client client;
 
@@ -1554,9 +1487,7 @@ TEST_CASE( "Run test33 - pass struct containing array of 100 structs containing 
 
 TEST_CASE( "Run plugin - call a plugin", "[plugins][TESTPLUGIN]" )
 {
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+#include "setup.inc"
 
     uda::Client client;
 
@@ -1587,9 +1518,7 @@ TEST_CASE( "Run plugin - call a plugin", "[plugins][TESTPLUGIN]" )
 
 TEST_CASE( "Run errortest - test error reporting", "[plugins][TESTPLUGIN]" )
 {
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+#include "setup.inc"
 
     uda::Client client;
 
@@ -1600,9 +1529,7 @@ TEST_CASE( "Run errortest - test error reporting", "[plugins][TESTPLUGIN]" )
 
 TEST_CASE( "Run scalartest - return a simple scalar value", "[plugins][TESTPLUGIN]" )
 {
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+#include "setup.inc"
 
     uda::Client client;
 
@@ -1626,9 +1553,7 @@ TEST_CASE( "Run scalartest - return a simple scalar value", "[plugins][TESTPLUGI
 
 TEST_CASE( "Run emptytest - return no data", "[plugins][TESTPLUGIN]" )
 {
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+#include "setup.inc"
 
     uda::Client client;
 

@@ -3,11 +3,9 @@
 
 #include <c++/UDA.hpp>
 
-TEST_CASE( "Test OPENDATA::help() function", "[OPENDATA][plugins]" ) {
-
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+TEST_CASE( "Test OPENDATA::help() function", "[OPENDATA][plugins]" )
+{
+#include "setup.inc"
 
     uda::Client client;
 

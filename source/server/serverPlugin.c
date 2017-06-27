@@ -147,6 +147,8 @@ void freePluginList(PLUGINLIST* plugin_list)
     }
     free((void*)plugin_list->plugin);
     plugin_list->plugin = NULL;
+    plugin_list->count = 0;
+    plugin_list->mcount = 0;
 }
 
 void initPluginData(PLUGIN_DATA* plugin)

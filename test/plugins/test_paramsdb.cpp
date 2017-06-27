@@ -6,11 +6,9 @@
 #define ARR_LEN(NAME) sizeof(NAME) / sizeof(NAME[0])
 #define ARR2VEC(TYPE, NAME) std::vector<TYPE>(&NAME[0], &NAME[ARR_LEN(NAME)])
 
-TEST_CASE( "Test help function", "[plugins][PARAMSDB]" ) {
-
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+TEST_CASE( "Test help function", "[plugins][PARAMSDB]" )
+{
+#include "setup.inc"
 
     uda::Client client;
 
@@ -36,9 +34,7 @@ TEST_CASE( "Test help function", "[plugins][PARAMSDB]" ) {
 
 TEST_CASE( "Test getActiveLimit function with system, subtype and coil", "[plugins][PARAMSDB][getActiveLimit]" )
 {
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+#include "setup.inc"
 
     uda::Client client;
 
@@ -64,10 +60,10 @@ TEST_CASE( "Test getActiveLimit function with system, subtype and coil", "[plugi
         std::string exp_types[] = { "STRING", "int" };
         size_t exp_ranks[] = { 0, 0 };
 
-        REQUIRE( system.atomicNames() == std::vector<std::string>(&exp_names[0], &exp_names[2]) );
-        REQUIRE( system.atomicPointers() == std::vector<bool>(&exp_pointers[0], &exp_pointers[2]) );
-        REQUIRE( system.atomicTypes() == std::vector<std::string>(&exp_types[0], &exp_types[2]) );
-        REQUIRE( system.atomicRank() == std::vector<size_t>(&exp_ranks[0], &exp_ranks[2]) );
+        REQUIRE( system.atomicNames() == ARR2VEC( std::string, exp_names ) );
+        REQUIRE( system.atomicPointers() == ARR2VEC( bool, exp_pointers ) );
+        REQUIRE( system.atomicTypes() == ARR2VEC( std::string, exp_types ) );
+        REQUIRE( system.atomicRank() == ARR2VEC( size_t, exp_ranks ) );
 
         uda::Scalar name = system.atomicScalar("name");
         REQUIRE( !name.isNull() );
@@ -92,10 +88,10 @@ TEST_CASE( "Test getActiveLimit function with system, subtype and coil", "[plugi
         std::string exp_types[] = { "STRING", "int" };
         size_t exp_ranks[] = { 0, 0 };
 
-        REQUIRE( subtype.atomicNames() == std::vector<std::string>(&exp_names[0], &exp_names[2]) );
-        REQUIRE( subtype.atomicPointers() == std::vector<bool>(&exp_pointers[0], &exp_pointers[2]) );
-        REQUIRE( subtype.atomicTypes() == std::vector<std::string>(&exp_types[0], &exp_types[2]) );
-        REQUIRE( subtype.atomicRank() == std::vector<size_t>(&exp_ranks[0], &exp_ranks[2]) );
+        REQUIRE( subtype.atomicNames() == ARR2VEC( std::string, exp_names ) );
+        REQUIRE( subtype.atomicPointers() == ARR2VEC( bool, exp_pointers ) );
+        REQUIRE( subtype.atomicTypes() == ARR2VEC( std::string, exp_types ) );
+        REQUIRE( subtype.atomicRank() == ARR2VEC( size_t, exp_ranks ) );
 
         uda::Scalar name = subtype.atomicScalar("name");
         REQUIRE( !name.isNull() );
@@ -120,10 +116,10 @@ TEST_CASE( "Test getActiveLimit function with system, subtype and coil", "[plugi
         std::string exp_types[] = { "STRING", "STRING", "double" };
         size_t exp_ranks[] = { 0, 0, 0 };
 
-        REQUIRE( coil.atomicNames() == std::vector<std::string>(&exp_names[0], &exp_names[3]) );
-        REQUIRE( coil.atomicPointers() == std::vector<bool>(&exp_pointers[0], &exp_pointers[3]) );
-        REQUIRE( coil.atomicTypes() == std::vector<std::string>(&exp_types[0], &exp_types[3]) );
-        REQUIRE( coil.atomicRank() == std::vector<size_t>(&exp_ranks[0], &exp_ranks[3]) );
+        REQUIRE( coil.atomicNames() == ARR2VEC( std::string, exp_names ) );
+        REQUIRE( coil.atomicPointers() == ARR2VEC( bool, exp_pointers ) );
+        REQUIRE( coil.atomicTypes() == ARR2VEC( std::string, exp_types ) );
+        REQUIRE( coil.atomicRank() == ARR2VEC( size_t, exp_ranks ) );
 
         uda::Scalar name = coil.atomicScalar("name");
         REQUIRE( !name.isNull() );
@@ -144,9 +140,7 @@ TEST_CASE( "Test getActiveLimit function with system, subtype and coil", "[plugi
 
 TEST_CASE( "Test getActiveLimit function with system and subtype", "[plugins][PARAMSDB][getActiveLimit]" )
 {
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+#include "setup.inc"
 
     uda::Client client;
 
@@ -172,10 +166,10 @@ TEST_CASE( "Test getActiveLimit function with system and subtype", "[plugins][PA
         std::string exp_types[] = { "STRING", "int" };
         size_t exp_ranks[] = { 0, 0 };
 
-        REQUIRE( system.atomicNames() == std::vector<std::string>(&exp_names[0], &exp_names[2]) );
-        REQUIRE( system.atomicPointers() == std::vector<bool>(&exp_pointers[0], &exp_pointers[2]) );
-        REQUIRE( system.atomicTypes() == std::vector<std::string>(&exp_types[0], &exp_types[2]) );
-        REQUIRE( system.atomicRank() == std::vector<size_t>(&exp_ranks[0], &exp_ranks[2]) );
+        REQUIRE( system.atomicNames() == ARR2VEC( std::string, exp_names ) );
+        REQUIRE( system.atomicPointers() == ARR2VEC( bool, exp_pointers ) );
+        REQUIRE( system.atomicTypes() == ARR2VEC( std::string, exp_types ) );
+        REQUIRE( system.atomicRank() == ARR2VEC( size_t, exp_ranks ) );
 
         uda::Scalar name = system.atomicScalar("name");
         REQUIRE( !name.isNull() );
@@ -200,10 +194,10 @@ TEST_CASE( "Test getActiveLimit function with system and subtype", "[plugins][PA
         std::string exp_types[] = { "STRING", "int" };
         size_t exp_ranks[] = { 0, 0 };
 
-        REQUIRE( subtype.atomicNames() == std::vector<std::string>(&exp_names[0], &exp_names[2]) );
-        REQUIRE( subtype.atomicPointers() == std::vector<bool>(&exp_pointers[0], &exp_pointers[2]) );
-        REQUIRE( subtype.atomicTypes() == std::vector<std::string>(&exp_types[0], &exp_types[2]) );
-        REQUIRE( subtype.atomicRank() == std::vector<size_t>(&exp_ranks[0], &exp_ranks[2]) );
+        REQUIRE( subtype.atomicNames() == ARR2VEC( std::string, exp_names ) );
+        REQUIRE( subtype.atomicPointers() == ARR2VEC( bool, exp_pointers ) );
+        REQUIRE( subtype.atomicTypes() == ARR2VEC( std::string, exp_types ) );
+        REQUIRE( subtype.atomicRank() == ARR2VEC( size_t, exp_ranks ) );
 
         uda::Scalar name = subtype.atomicScalar("name");
         REQUIRE( !name.isNull() );
@@ -233,10 +227,10 @@ TEST_CASE( "Test getActiveLimit function with system and subtype", "[plugins][PA
             std::string exp_types[] = { "STRING", "STRING", "double" };
             size_t exp_ranks[] = { 0, 0, 0 };
 
-            REQUIRE( coil.atomicNames() == std::vector<std::string>(&exp_names[0], &exp_names[3]) );
-            REQUIRE( coil.atomicPointers() == std::vector<bool>(&exp_pointers[0], &exp_pointers[3]) );
-            REQUIRE( coil.atomicTypes() == std::vector<std::string>(&exp_types[0], &exp_types[3]) );
-            REQUIRE( coil.atomicRank() == std::vector<size_t>(&exp_ranks[0], &exp_ranks[3]) );
+            REQUIRE( coil.atomicNames() == ARR2VEC( std::string, exp_names ) );
+            REQUIRE( coil.atomicPointers() == ARR2VEC( bool, exp_pointers ) );
+            REQUIRE( coil.atomicTypes() == ARR2VEC( std::string, exp_types ) );
+            REQUIRE( coil.atomicRank() == ARR2VEC( size_t, exp_ranks ) );
 
             uda::Scalar name = coil.atomicScalar("name");
             REQUIRE( !name.isNull() );
@@ -258,9 +252,7 @@ TEST_CASE( "Test getActiveLimit function with system and subtype", "[plugins][PA
 
 TEST_CASE( "Test getActiveLimit function with system", "[plugins][PARAMSDB][getActiveLimit]" )
 {
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+#include "setup.inc"
 
     uda::Client client;
 
@@ -286,10 +278,10 @@ TEST_CASE( "Test getActiveLimit function with system", "[plugins][PARAMSDB][getA
         std::string exp_types[] = { "STRING", "int" };
         size_t exp_ranks[] = { 0, 0 };
 
-        REQUIRE( system.atomicNames() == std::vector<std::string>(&exp_names[0], &exp_names[2]) );
-        REQUIRE( system.atomicPointers() == std::vector<bool>(&exp_pointers[0], &exp_pointers[2]) );
-        REQUIRE( system.atomicTypes() == std::vector<std::string>(&exp_types[0], &exp_types[2]) );
-        REQUIRE( system.atomicRank() == std::vector<size_t>(&exp_ranks[0], &exp_ranks[2]) );
+        REQUIRE( system.atomicNames() == ARR2VEC( std::string, exp_names ) );
+        REQUIRE( system.atomicPointers() == ARR2VEC( bool, exp_pointers ) );
+        REQUIRE( system.atomicTypes() == ARR2VEC( std::string, exp_types ) );
+        REQUIRE( system.atomicRank() == ARR2VEC( size_t, exp_ranks ) );
 
         uda::Scalar name = system.atomicScalar("name");
         REQUIRE( !name.isNull() );
@@ -314,10 +306,10 @@ TEST_CASE( "Test getActiveLimit function with system", "[plugins][PARAMSDB][getA
         std::string exp_types[] = { "STRING", "int" };
         size_t exp_ranks[] = { 0, 0 };
 
-        REQUIRE( subtype.atomicNames() == std::vector<std::string>(&exp_names[0], &exp_names[2]) );
-        REQUIRE( subtype.atomicPointers() == std::vector<bool>(&exp_pointers[0], &exp_pointers[2]) );
-        REQUIRE( subtype.atomicTypes() == std::vector<std::string>(&exp_types[0], &exp_types[2]) );
-        REQUIRE( subtype.atomicRank() == std::vector<size_t>(&exp_ranks[0], &exp_ranks[2]) );
+        REQUIRE( subtype.atomicNames() == ARR2VEC( std::string, exp_names ) );
+        REQUIRE( subtype.atomicPointers() == ARR2VEC( bool, exp_pointers ) );
+        REQUIRE( subtype.atomicTypes() == ARR2VEC( std::string, exp_types ) );
+        REQUIRE( subtype.atomicRank() == ARR2VEC( size_t, exp_ranks ) );
 
         uda::Scalar name = subtype.atomicScalar("name");
         REQUIRE( !name.isNull() );
@@ -347,10 +339,10 @@ TEST_CASE( "Test getActiveLimit function with system", "[plugins][PARAMSDB][getA
             std::string exp_types[] = { "STRING", "STRING", "double" };
             size_t exp_ranks[] = { 0, 0, 0 };
 
-            REQUIRE( coil.atomicNames() == std::vector<std::string>(&exp_names[0], &exp_names[3]) );
-            REQUIRE( coil.atomicPointers() == std::vector<bool>(&exp_pointers[0], &exp_pointers[3]) );
-            REQUIRE( coil.atomicTypes() == std::vector<std::string>(&exp_types[0], &exp_types[3]) );
-            REQUIRE( coil.atomicRank() == std::vector<size_t>(&exp_ranks[0], &exp_ranks[3]) );
+            REQUIRE( coil.atomicNames() == ARR2VEC( std::string, exp_names ) );
+            REQUIRE( coil.atomicPointers() == ARR2VEC( bool, exp_pointers ) );
+            REQUIRE( coil.atomicTypes() == ARR2VEC( std::string, exp_types ) );
+            REQUIRE( coil.atomicRank() == ARR2VEC( size_t, exp_ranks ) );
 
             uda::Scalar name = coil.atomicScalar("name");
             REQUIRE( !name.isNull() );
@@ -372,9 +364,7 @@ TEST_CASE( "Test getActiveLimit function with system", "[plugins][PARAMSDB][getA
 
 TEST_CASE( "Test getForceCoefficients function with coil and upper_lower", "[plugins][PARAMSDB][getForceCoefficients]" )
 {
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+#include "setup.inc"
 
     uda::Client client;
 
@@ -400,10 +390,10 @@ TEST_CASE( "Test getForceCoefficients function with coil and upper_lower", "[plu
         std::string exp_types[] = { "STRING", "int" };
         size_t exp_ranks[] = { 0, 0 };
 
-        REQUIRE( coil.atomicNames() == std::vector<std::string>(&exp_names[0], &exp_names[2]) );
-        REQUIRE( coil.atomicPointers() == std::vector<bool>(&exp_pointers[0], &exp_pointers[2]) );
-        REQUIRE( coil.atomicTypes() == std::vector<std::string>(&exp_types[0], &exp_types[2]) );
-        REQUIRE( coil.atomicRank() == std::vector<size_t>(&exp_ranks[0], &exp_ranks[2]) );
+        REQUIRE( coil.atomicNames() == ARR2VEC( std::string, exp_names ) );
+        REQUIRE( coil.atomicPointers() == ARR2VEC( bool, exp_pointers ) );
+        REQUIRE( coil.atomicTypes() == ARR2VEC( std::string, exp_types ) );
+        REQUIRE( coil.atomicRank() == ARR2VEC( size_t, exp_ranks ) );
 
         uda::Scalar name = coil.atomicScalar("name");
         REQUIRE( !name.isNull() );
@@ -428,10 +418,10 @@ TEST_CASE( "Test getForceCoefficients function with coil and upper_lower", "[plu
         std::string exp_types[] = { "STRING", "int" };
         size_t exp_ranks[] = { 0, 0 };
 
-        REQUIRE( upper_lower.atomicNames() == std::vector<std::string>(&exp_names[0], &exp_names[2]) );
-        REQUIRE( upper_lower.atomicPointers() == std::vector<bool>(&exp_pointers[0], &exp_pointers[2]) );
-        REQUIRE( upper_lower.atomicTypes() == std::vector<std::string>(&exp_types[0], &exp_types[2]) );
-        REQUIRE( upper_lower.atomicRank() == std::vector<size_t>(&exp_ranks[0], &exp_ranks[2]) );
+        REQUIRE( upper_lower.atomicNames() == ARR2VEC( std::string, exp_names ) );
+        REQUIRE( upper_lower.atomicPointers() == ARR2VEC( bool, exp_pointers ) );
+        REQUIRE( upper_lower.atomicTypes() == ARR2VEC( std::string, exp_types ) );
+        REQUIRE( upper_lower.atomicRank() == ARR2VEC( size_t, exp_ranks ) );
 
         uda::Scalar name = upper_lower.atomicScalar("name");
         REQUIRE( !name.isNull() );
@@ -460,10 +450,10 @@ TEST_CASE( "Test getForceCoefficients function with coil and upper_lower", "[plu
             std::string exp_types[] = { "STRING", "double" };
             size_t exp_ranks[] = { 0, 0 };
 
-            REQUIRE( driven_coil.atomicNames() == std::vector<std::string>(&exp_names[0], &exp_names[2]) );
-            REQUIRE( driven_coil.atomicPointers() == std::vector<bool>(&exp_pointers[0], &exp_pointers[2]) );
-            REQUIRE( driven_coil.atomicTypes() == std::vector<std::string>(&exp_types[0], &exp_types[2]) );
-            REQUIRE( driven_coil.atomicRank() == std::vector<size_t>(&exp_ranks[0], &exp_ranks[2]) );
+            REQUIRE( driven_coil.atomicNames() == ARR2VEC( std::string, exp_names ) );
+            REQUIRE( driven_coil.atomicPointers() == ARR2VEC( bool, exp_pointers ) );
+            REQUIRE( driven_coil.atomicTypes() == ARR2VEC( std::string, exp_types ) );
+            REQUIRE( driven_coil.atomicRank() == ARR2VEC( size_t, exp_ranks ) );
 
             uda::Scalar name = driven_coil.atomicScalar("driven_coil");
             REQUIRE( !name.isNull() );
@@ -480,9 +470,7 @@ TEST_CASE( "Test getForceCoefficients function with coil and upper_lower", "[plu
 
 TEST_CASE( "Test getForceCoefficients function with coil", "[plugins][PARAMSDB][getForceCoefficients]" )
 {
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+#include "setup.inc"
 
     uda::Client client;
 
@@ -508,10 +496,10 @@ TEST_CASE( "Test getForceCoefficients function with coil", "[plugins][PARAMSDB][
         std::string exp_types[] = { "STRING", "int" };
         size_t exp_ranks[] = { 0, 0 };
 
-        REQUIRE( coil.atomicNames() == std::vector<std::string>(&exp_names[0], &exp_names[2]) );
-        REQUIRE( coil.atomicPointers() == std::vector<bool>(&exp_pointers[0], &exp_pointers[2]) );
-        REQUIRE( coil.atomicTypes() == std::vector<std::string>(&exp_types[0], &exp_types[2]) );
-        REQUIRE( coil.atomicRank() == std::vector<size_t>(&exp_ranks[0], &exp_ranks[2]) );
+        REQUIRE( coil.atomicNames() == ARR2VEC( std::string, exp_names ) );
+        REQUIRE( coil.atomicPointers() == ARR2VEC( bool, exp_pointers ) );
+        REQUIRE( coil.atomicTypes() == ARR2VEC( std::string, exp_types ) );
+        REQUIRE( coil.atomicRank() == ARR2VEC( size_t, exp_ranks ) );
 
         uda::Scalar name = coil.atomicScalar("name");
         REQUIRE( !name.isNull() );
@@ -536,10 +524,10 @@ TEST_CASE( "Test getForceCoefficients function with coil", "[plugins][PARAMSDB][
         std::string exp_types[] = { "STRING", "int" };
         size_t exp_ranks[] = { 0, 0 };
 
-        REQUIRE( upper_lower.atomicNames() == std::vector<std::string>(&exp_names[0], &exp_names[2]) );
-        REQUIRE( upper_lower.atomicPointers() == std::vector<bool>(&exp_pointers[0], &exp_pointers[2]) );
-        REQUIRE( upper_lower.atomicTypes() == std::vector<std::string>(&exp_types[0], &exp_types[2]) );
-        REQUIRE( upper_lower.atomicRank() == std::vector<size_t>(&exp_ranks[0], &exp_ranks[2]) );
+        REQUIRE( upper_lower.atomicNames() == ARR2VEC( std::string, exp_names ) );
+        REQUIRE( upper_lower.atomicPointers() == ARR2VEC( bool, exp_pointers ) );
+        REQUIRE( upper_lower.atomicTypes() == ARR2VEC( std::string, exp_types ) );
+        REQUIRE( upper_lower.atomicRank() == ARR2VEC( size_t, exp_ranks ) );
 
         uda::Scalar name = upper_lower.atomicScalar("name");
         REQUIRE( !name.isNull() );
@@ -568,10 +556,10 @@ TEST_CASE( "Test getForceCoefficients function with coil", "[plugins][PARAMSDB][
             std::string exp_types[] = { "STRING", "double" };
             size_t exp_ranks[] = { 0, 0 };
 
-            REQUIRE( driven_coil.atomicNames() == std::vector<std::string>(&exp_names[0], &exp_names[2]) );
-            REQUIRE( driven_coil.atomicPointers() == std::vector<bool>(&exp_pointers[0], &exp_pointers[2]) );
-            REQUIRE( driven_coil.atomicTypes() == std::vector<std::string>(&exp_types[0], &exp_types[2]) );
-            REQUIRE( driven_coil.atomicRank() == std::vector<size_t>(&exp_ranks[0], &exp_ranks[2]) );
+            REQUIRE( driven_coil.atomicNames() == ARR2VEC( std::string, exp_names ) );
+            REQUIRE( driven_coil.atomicPointers() == ARR2VEC( bool, exp_pointers ) );
+            REQUIRE( driven_coil.atomicTypes() == ARR2VEC( std::string, exp_types ) );
+            REQUIRE( driven_coil.atomicRank() == ARR2VEC( size_t, exp_ranks ) );
 
             uda::Scalar name = driven_coil.atomicScalar("driven_coil");
             REQUIRE( !name.isNull() );
@@ -588,9 +576,7 @@ TEST_CASE( "Test getForceCoefficients function with coil", "[plugins][PARAMSDB][
 
 TEST_CASE( "Test getFilterCoefficients function with filter", "[plugins][PARAMSDB][getFilterCoefficients]" )
 {
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+#include "setup.inc"
 
     uda::Client client;
 
@@ -668,9 +654,7 @@ TEST_CASE( "Test getFilterCoefficients function with filter", "[plugins][PARAMSD
 
 TEST_CASE( "Test getFilterCoefficients function with no args", "[plugins][PARAMSDB][getFilterCoefficients]" )
 {
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+#include "setup.inc"
 
     uda::Client client;
 
@@ -750,9 +734,7 @@ TEST_CASE( "Test getFilterCoefficients function with no args", "[plugins][PARAMS
 
 TEST_CASE( "Test getBoardCalibrations function with board", "[plugins][PARAMSDB][getBoardCalibrations]" )
 {
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+#include "setup.inc"
 
     uda::Client client;
 
@@ -836,9 +818,7 @@ TEST_CASE( "Test getBoardCalibrations function with board", "[plugins][PARAMSDB]
 
 TEST_CASE( "Test getBoardCalibrations function with no args", "[plugins][PARAMSDB][getBoardCalibrations]" )
 {
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+#include "setup.inc"
 
     uda::Client client;
 
@@ -924,10 +904,7 @@ TEST_CASE( "Test getBoardCalibrations function with no args", "[plugins][PARAMSD
 
 TEST_CASE( "Test getCoilParameters function with coil, upper_lower and parameter", "[plugins][PARAMSDB][getCoilParameters]" )
 {
-#ifdef FATCLIENT
-
-#  include "setupEnvironment.inc"
-#endif
+#include "setup.inc"
 
     uda::Client client;
 
@@ -1029,10 +1006,7 @@ TEST_CASE( "Test getCoilParameters function with coil, upper_lower and parameter
 
 TEST_CASE( "Test getCoilParameters function with coil and upper_lower", "[plugins][PARAMSDB][getCoilParameters]" )
 {
-#ifdef FATCLIENT
-
-#  include "setupEnvironment.inc"
-#endif
+#include "setup.inc"
 
     uda::Client client;
 
@@ -1138,10 +1112,7 @@ TEST_CASE( "Test getCoilParameters function with coil and upper_lower", "[plugin
 
 TEST_CASE( "Test getCoilParameters function with coil", "[plugins][PARAMSDB][getCoilParameters]" )
 {
-#ifdef FATCLIENT
-
-#  include "setupEnvironment.inc"
-#endif
+#include "setup.inc"
 
     uda::Client client;
 
@@ -1251,10 +1222,7 @@ TEST_CASE( "Test getCoilParameters function with coil", "[plugins][PARAMSDB][get
 
 TEST_CASE( "Test getCoilParameters function with no args", "[plugins][PARAMSDB][getCoilParameters]" )
 {
-#ifdef FATCLIENT
-
-#  include "setupEnvironment.inc"
-#endif
+#include "setup.inc"
 
     uda::Client client;
 

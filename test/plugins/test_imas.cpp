@@ -5,9 +5,7 @@
 
 //TEST_CASE( "Test get MAST static data", "[imas]" ) {
 //
-//#ifdef FATCLIENT
-//#  include "setupEnvironment.inc"
-//#endif
+//#include "setup.inc"
 //
 //    uda::Client client;
 //
@@ -33,11 +31,7 @@
 
 TEST_CASE( "Test get MAST experimental data", "[imas][plugins]" )
 {
-
-#ifdef FATCLIENT
-
-#  include "setupEnvironment.inc"
-#endif
+#include "setup.inc"
 
 //	uda::Client client;
 //

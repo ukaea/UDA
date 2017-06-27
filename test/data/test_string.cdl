@@ -1,0 +1,13 @@
+netcdf test_string {
+// Global attributes
+
+group: testGroup {
+
+variables:
+    string simpleString;
+
+data:
+   
+   simpleString = "Hello";
+}
+}

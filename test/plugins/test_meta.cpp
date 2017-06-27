@@ -5,9 +5,7 @@
 
 TEST_CASE( "Test META::help() function", "[META][plugins]" )
 {
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+#include "setup.inc"
 
     uda::Client client;
 

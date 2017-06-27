@@ -3,11 +3,9 @@
 
 #include <c++/UDA.hpp>
 
-TEST_CASE( "Test VIEWPORT::help() function", "[VIEWPORT][plugins]" ) {
-
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+TEST_CASE( "Test VIEWPORT::help() function", "[VIEWPORT][plugins]" )
+{
+#include "setup.inc"
 
     uda::Client client;
 
