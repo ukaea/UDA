@@ -61,6 +61,7 @@ set( INSTALL_FILES
   geometry/pickupmanipulation.pro
   geometry/strnumber.pro
   putdata/putdata.pro
+  putdata/putdata__define.pro
 )
 
 install( FILES ${INSTALL_FILES}

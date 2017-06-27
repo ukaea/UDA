@@ -473,6 +473,8 @@ int writeCoordinateArray(PUTDATA_BLOCK* putdata, int grpid, const char* name, in
 
     int err = NC_NOERR;
 
+    IDAM_LOGF(UDA_LOG_DEBUG, "NC TYPE %d\n", nctype);
+
     switch (nctype) {
         case NC_FLOAT:
             if (isUnlimited) {
@@ -543,6 +545,14 @@ int writeCoordinateArray(PUTDATA_BLOCK* putdata, int grpid, const char* name, in
                 err = nc_put_vara_schar(grpid, *varid, start, count, (signed char*) putdata->data);
             } else {
                 err = nc_put_var_schar(grpid, *varid, (signed char*) putdata->data);
+            }
+            break;
+
+        case NC_UBYTE:
+            if (isUnlimited) {
+                err = nc_put_vara_ubyte(grpid, *varid, start, count, (unsigned char*) putdata->data);
+            } else {
+                err = nc_put_var_ubyte(grpid, *varid, (unsigned char*) putdata->data);
             }
             break;
 
