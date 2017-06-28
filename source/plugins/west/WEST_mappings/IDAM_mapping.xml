@@ -35,7 +35,8 @@
 <mapping key="tf/b_field_tor_vacuum_r/data" value="tsbase_collect;DMAG:GMAG_ITOR;1:float:2;multiply:cste:0.0073008" type="dynamic"/>
 <mapping key="tf/b_field_tor_vacuum_r/time" value="tsbase_time;DMAG:GMAG_ITOR;1:float:2" type="dynamic"/>
 <mapping key="pf_active/ids_properties/homogeneous_time" value="set_value;0;0:int" type="static"/>
-<mapping key="pf_active/coil/#/Shape_of" value="shape_of_tsmat_collect;DPOLO:GPOLO_IMES:CALIB;0:float:#0" type="static"/>
+<mapping key="pf_active/coil/Shape_of" value="shape_of_tsmat_collect;DPOLO:GPOLO_IMES:CALIB;0:float:#0" type="static"/>
+<mapping key="pf_active/coil/element/Shape_of" value="set_value;1;0:int" type="static"/>
 <mapping key="pf_active/coil/#/current/data" value="tsbase_collect;DPOLO:GPOLO_IMES;1:float:#0" type="dynamic"/>
 <mapping key="pf_active/coil/#/current/time" value="tsbase_time;DPOLO:GPOLO_IMES;1:float:#0" type="dynamic"/>
 
