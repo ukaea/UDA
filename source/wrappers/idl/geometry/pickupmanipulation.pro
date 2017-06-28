@@ -80,16 +80,57 @@ pro pickup_poloidal, geometry, orientation, convention=convention
 
   length = geometry.length
   nturnsTotal = geometry.nturnsTotal
+  nturnsLayer1 = geometry.nturnsLayer1
+  nturnsLayer2 = geometry.nturnsLayer2
   areaAve = geometry.areaAve
+  areaLayer1 = geometry.areaLayer1
+  areaLayer2 = geometry.areaLayer2
 
-  geometry = replicate({ length: 0.0,    $
-                         nturnsTotal: 0, $
-                         areaAve: 0.0,   $
-                         length_poloidal: 0.0 }, n_elements(geometry))
+  geom_tag_names = tag_names(geometry)
+
+  ind_4layers = where(geom_tag_names eq 'NTURNSLAYER3', count_4layers)
+
+  if count_4layers eq 0 then begin
+     geometry = replicate({ length: 0.0,    $
+                            nturnsTotal: 0, $
+                            nturnsLayer1: 0, $
+                            nturnsLayer2: 0, $
+                            areaAve: 0.0,   $
+                            areaLayer1: 0.0, $
+                            areaLayer2: 0.0, $
+                            length_poloidal: 0.0 }, n_elements(geometry))
+  endif else begin
+     nturnsLayer3 = geometry.nturnsLayer3
+     nturnsLayer4 = geometry.nturnsLayer4
+     areaLayer3 = geometry.areaLayer3
+     areaLayer4 = geometry.areaLayer4
+
+     geometry = replicate({ length: 0.0,    $
+                            nturnsTotal: 0, $
+                            nturnsLayer1: 0, $
+                            nturnsLayer2: 0, $
+                            nturnsLayer3: 0, $
+                            nturnsLayer4: 0, $
+                            areaAve: 0.0,   $
+                            areaLayer1: 0.0, $
+                            areaLayer2: 0.0, $
+                            areaLayer3: 0.0, $
+                            areaLayer4: 0.0, $
+                            length_poloidal: 0.0 }, n_elements(geometry))
+
+     geometry.nturnsLayer3 = nturnsLayer3
+     geometry.nturnsLayer4 = nturnsLayer4
+     geometry.areaLayer3 = areaLayer3
+     geometry.areaLayer4 = areaLayer4
+  endelse
 
   geometry.length = length
   geometry.nturnsTotal = nturnsTotal
+  geometry.nturnsLayer1 = nturnsLayer1
+  geometry.nturnsLayer2 = nturnsLayer2
   geometry.areaAve = areaAve
+  geometry.areaLayer1 = areaLayer1
+  geometry.areaLayer2 = areaLayer2
   geometry.length_poloidal = length_poloidal
 
   ; Angle in poloidal plane
