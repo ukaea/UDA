@@ -167,13 +167,13 @@ int main() {
 	}
 	std::cout << "..." << std::endl;*/
 	
-	const uda::Result& shof_pfactive = client.get("imas::get(idx=0, group='pf_active', variable='coil/#/Shape_of', expName='WEST', type=int, rank=0, shot=" SHOT_NUM ", )", "");
+	const uda::Result& shof_pfactive = client.get("imas::get(idx=0, group='pf_active', variable='coil/Shape_of', expName='WEST', type=int, rank=0, shot=" SHOT_NUM ", )", "");
 	const uda::Data * data_shof_pfactive = shof_pfactive.data();
 	const uda::Scalar* scalar_data_shof_pfactive = dynamic_cast<const uda::Scalar*>(data_shof_pfactive);
 
 	int shof = scalar_data_shof_pfactive->as<int>();
 
-	std::cout << "coil/#/Shape_of : " << shof << std::endl;
+	std::cout << "coil/Shape_of : " << shof << std::endl;
 	
 	/*const uda::Result& shof_magnetics = client.get("imas::get(idx=0, group='magnetics', variable='bpol_probe/Shape_of', expName='WEST', type=int, rank=0, shot=" SHOT_NUM ", )", "");
 	const uda::Data * data_shof_magnetics = shof_magnetics.data();
