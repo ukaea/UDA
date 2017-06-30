@@ -4,6 +4,7 @@
 
 #include <clientserver/udaStructs.h>
 
+int test_fun(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
 int ece_frequencies(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
 int ece_names(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
 int ece_identifiers(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);

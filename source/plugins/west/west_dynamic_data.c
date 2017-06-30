@@ -29,28 +29,23 @@ int GetDynamicData(int shotNumber, const char* mapfun, DATA_BLOCK* data_block, i
 
 	getFunName(mapfun, &fun_name);
 
-	IDAM_LOG(LOG_DEBUG, "Evaluating the request type (tsbase_collect, tsbase_time, ...)\n");
+	IDAM_LOGF(LOG_DEBUG, "request: %s\n", fun_name);
 
 	if (strcmp(fun_name, "tsbase_collect") == 0) {
-		IDAM_LOG(LOG_DEBUG, "tsbase_collect request \n");
 		tokenizeFunParameters(mapfun, &TOP_collections_parameters, &attributes, &normalizationAttributes);
 		SetNormalizedDynamicData(shotNumber, data_block, nodeIndices, TOP_collections_parameters, attributes, normalizationAttributes);
 	} else if (strcmp(fun_name, "tsbase_time") == 0) {
-		IDAM_LOG(LOG_DEBUG, "tsbase_time request \n");
 		tokenizeFunParameters(mapfun, &TOP_collections_parameters, &attributes, &normalizationAttributes);
 		SetNormalizedDynamicDataTime(shotNumber, data_block, nodeIndices, TOP_collections_parameters, attributes, normalizationAttributes);
 	} else if (strcmp(fun_name, "tsbase_collect_with_channels") == 0) {
-		IDAM_LOG(LOG_DEBUG, "tsbase_collect_with_channels request \n");
 		char* unvalid_channels = NULL; //used for interfero_polarimeter IDS, example : invalid_channels:1,2
 		tokenizeFunParametersWithChannels(mapfun, &unvalid_channels, &TOP_collections_parameters, &attributes, &normalizationAttributes);
 		SetNormalizedDynamicData(shotNumber, data_block, nodeIndices, TOP_collections_parameters, attributes, normalizationAttributes);
 	} else if (strcmp(fun_name, "tsbase_time_with_channels") == 0) {
-		IDAM_LOG(LOG_DEBUG, "tsbase_time_with_channels request \n");
 		char* unvalid_channels = NULL; //used for interfero_polarimeter IDS, example : invalid_channels:1,2
 		tokenizeFunParametersWithChannels(mapfun, &unvalid_channels, &TOP_collections_parameters, &attributes, &normalizationAttributes);
 		SetNormalizedDynamicDataTime(shotNumber, data_block, nodeIndices, TOP_collections_parameters, attributes, normalizationAttributes);
 	} else if (strcmp(fun_name, "ece_t_e_data") == 0) {
-		IDAM_LOG(LOG_DEBUG, "ece_t_e_data request \n");
 		char * ece_mapfun = NULL;
 		ece_t_e_data(shotNumber, &ece_mapfun);
 		tokenizeFunParameters(ece_mapfun, &TOP_collections_parameters, &attributes, &normalizationAttributes);
@@ -58,25 +53,22 @@ int GetDynamicData(int shotNumber, const char* mapfun, DATA_BLOCK* data_block, i
 		SetNormalizedDynamicData(shotNumber, data_block, nodeIndices, TOP_collections_parameters, attributes, normalizationAttributes);
 		free(ece_mapfun);
 	} else if (strcmp(fun_name, "ece_t_e_time") == 0) {
-		IDAM_LOG(LOG_DEBUG, "ece_t_e_time request \n");
 		char * ece_mapfun = NULL;
 		ece_t_e_time(shotNumber, &ece_mapfun);
 		tokenizeFunParameters(ece_mapfun, &TOP_collections_parameters, &attributes, &normalizationAttributes);
-		SetNormalizedDynamicDataTime(shotNumber, data_block, nodeIndices, TOP_collections_parameters, attributes, normalizationAttributes);
 		IDAM_LOGF(LOG_DEBUG, "TOP_collections_parameters : %s\n", TOP_collections_parameters);
+		SetNormalizedDynamicDataTime(shotNumber, data_block, nodeIndices, TOP_collections_parameters, attributes, normalizationAttributes);
 		free(ece_mapfun);
 	} else if (strcmp(fun_name, "ece_harmonic_data") == 0) {
-		IDAM_LOG(LOG_DEBUG, "ece_harmonic_data request \n");
 		ece_harmonic_data(shotNumber, data_block, nodeIndices);
 	} else if (strcmp(fun_name, "ece_harmonic_time") == 0) {
-		IDAM_LOG(LOG_DEBUG, "ece_harmonic_time request \n");
 		ece_harmonic_time(shotNumber, data_block, nodeIndices);
 	} else if (strcmp(fun_name, "ece_frequencies") == 0) {
-		IDAM_LOG(LOG_DEBUG, "ece_frequencies request \n");
 		ece_frequencies(shotNumber, data_block, nodeIndices);
 	} else if (strcmp(fun_name, "ece_frequencies_time") == 0) {
-		IDAM_LOG(LOG_DEBUG, "ece_frequencies_time request \n");
 		ece_harmonic_time(shotNumber, data_block, nodeIndices); //TODO
+	} else if (strcmp(fun_name, "test_fun") == 0) {
+		test_fun(shotNumber, data_block, nodeIndices); //TODO
 	}
 
 	free(fun_name);

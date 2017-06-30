@@ -26,10 +26,18 @@ int SHOT_28452 = 28452;
 int ARCADE_GECEMODE_EXISTS_FROM_SHOT = 50820; //TODO
 
 int getECEModeFromNPZFile(int shotNumber);
-void getECEModeHarmonic(int shotNumber, int channel, float** time, float** data, int* len, char* TOP_collections_parameters);
-void getECEModeObject(char* TOP_collections_parameters, char** objectName, int GVSHArray, int mode);
-void getECEModeHarmonicTime(int shotNumber, int channel, float** time, int* len, char* TOP_collections_parameters);
+int getECEModeHarmonic(int shotNumber, int channel, float** time, float** data, int* len, char* TOP_collections_parameters);
+int getECEModeObject(char* TOP_collections_parameters, char** objectName, int GVSHArray, int mode);
+int getECEModeHarmonicTime(int shotNumber, int channel, float** time, int* len, char* TOP_collections_parameters);
 char* getTopParameters(int shotNumber);
+
+
+int test_fun(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices) {
+	float* data = NULL;
+	float* time = NULL;
+	//SetDynamicData(data_block, 0, time, data);
+	return 0;
+}
 
 int ece_harmonic_data(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices) {
 
@@ -42,21 +50,33 @@ int ece_harmonic_data(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices) 
 	if (shotNumber >= ARCADE_GECEMODE_EXISTS_FROM_SHOT) {
 
 		int len;
-		getECEModeHarmonic(shotNumber, channel, &time, &data, &len, TOP_collections_parameters);
+		int status = getECEModeHarmonic(shotNumber, channel, &time, &data, &len, TOP_collections_parameters);
+		if (status != 0) {
+			free(time);
+			free(data);
+			return status;
+		}
 		SetDynamicData(data_block, len, time, data);
 	}
 	else {
-		int mode = getECEModeFromNPZFile(shotNumber); //Get the ECE acquisition mode from NPZ file
 		int len;
-		getECEModeHarmonicTime(shotNumber, channel, &time, &len, TOP_collections_parameters);
+		int status = getECEModeHarmonicTime(shotNumber, channel, &time, &len, TOP_collections_parameters);
+		IDAM_LOGF(LOG_DEBUG, "getECEModeHarmonicTime status: %d\n", status);
+		if (status != 0) return status;
 		data = malloc(sizeof(float)*len);
 		int i;
+		int mode = getECEModeFromNPZFile(shotNumber); //Get the ECE acquisition mode from NPZ file
+		IDAM_LOGF(LOG_DEBUG, "mode: %d\n", mode);
+		if (mode == -1) { //ERROR
+			free(time);
+			free(data);
+			return -1;
+		}
 		for (i = 0; i < len; i++)
 			data[i] = mode;
 
 		SetDynamicData(data_block, len, time, data);
 	}
-
 	return 0;
 }
 
@@ -68,16 +88,17 @@ int ece_harmonic_time(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices) 
 	float* time = NULL;
 	int len;
 	char* TOP_collections_parameters = getTopParameters(shotNumber);
-	//char* TOP_collections_parameters = "DVECE:GVSH1,DVECE:GVSH2,DVECE:GVSH3,DVECE:GVSH4";
+	IDAM_LOG(LOG_DEBUG, "Calling getECEModeHarmonicTime() \n");
 	getECEModeHarmonicTime(shotNumber, channel, &time, &len, TOP_collections_parameters);
 	IDAM_LOGF(LOG_DEBUG, "harmonic time array length: %d\n", len);
 
-//	IDAM_LOGF(LOG_DEBUG, "%s\n", "First time values...");
-//	int j;
-//	for (j=0; j <10; j++) {
-//		IDAM_LOGF(LOG_DEBUG, "time : %f\n", time[j]);
-//	}
+	//	IDAM_LOGF(LOG_DEBUG, "%s\n", "First time values...");
+	//	int j;
+	//	for (j=0; j <10; j++) {
+	//		IDAM_LOGF(LOG_DEBUG, "time : %f\n", time[j]);
+	//	}
 	SetDynamicDataTime(data_block, len, time, data);
+	IDAM_LOG(LOG_DEBUG, "reaching end of function of ece_harmonic_time()\n");
 	return 0;
 }
 
@@ -103,17 +124,18 @@ int ece_frequencies(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices) {
 
 	float* frequencies_data = NULL;
 	float* frequencies_time = NULL;
+	char* TOP_collections_parameters = NULL;
 
 	int channel = nodeIndices[0]; //starts from 1
-
-	char* TOP_collections_parameters = NULL;
 
 	if (shotNumber >= ARCADE_GECEMODE_EXISTS_FROM_SHOT) {
 
 		float* data = NULL;
 		int len;
 		TOP_collections_parameters = "DVECE:GVSH1,DVECE:GVSH2,DVECE:GVSH3,DVECE:GVSH4";
-		getECEModeHarmonic(shotNumber, channel, &frequencies_time, &data, &len, TOP_collections_parameters);
+		int status = getECEModeHarmonic(shotNumber, channel, &frequencies_time, &data, &len, TOP_collections_parameters);
+
+		if (status != 0) return status;
 
 		frequencies_data = malloc(sizeof(float)*len);
 
@@ -156,6 +178,8 @@ int ece_frequencies(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices) {
 			else {
 				int err = 901;
 				addIdamError(&idamerrorstack, CODEERRORTYPE, "Unexpected ECE mode from WEST", err, "");
+				free(data);
+				return -1;
 			}
 
 		}
@@ -299,34 +323,7 @@ int ece_frequencies(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices) {
 int ece_names(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices) {
 
 	IDAM_LOG(LOG_DEBUG, "Calling ece_names\n");
-
-
-	//Get the ECE acquisition mode
-	//int mode = getECEMode(shotNumber);
-	//int channelNumber = nodeIndices[0];
-
 	char* name = "";
-
-	//	char channels_count[5];
-	//
-	//	if (channelNumber <= 9) {
-	//		sprintf(channels_count, "0%d", channelNumber);
-	//	}
-	//	else {
-	//		sprintf(channels_count, "%d", channelNumber);
-	//	}
-	//
-	//	if (mode == modeO1) {
-	//		sprintf(name, "%s", "O1_");
-	//		name = strcat(name, channels_count);
-	//	}
-	//	else if (mode == modeX2) {
-	//		sprintf(name, "%s", "X2_");
-	//		name = strcat(name, channels_count);
-	//	}
-	//	else {
-	//		return -1; //ERROR
-	//	}
 	data_block->data_type = TYPE_STRING;
 	data_block->data = strdup(name);
 
@@ -449,7 +446,7 @@ int getECEModeFromNPZFile(int shotNumber) {
 	return searchedMode;
 }
 
-void getECEModeHarmonicTime(int shotNumber, int channel, float** time, int* len,
+int getECEModeHarmonicTime(int shotNumber, int channel, float** time, int* len,
 		char* TOP_collections_parameters) {
 	//channel is the UDA index starting from 1
 	int GVSHArray; //0, 1, 2 or 3 (refers to the GVSH1, GVSH2, GVSH3 or GVSH4 Arcade object)
@@ -476,11 +473,13 @@ void getECEModeHarmonicTime(int shotNumber, int channel, float** time, int* len,
 
 	int mode = 1;
 
-	getECEModeObject(TOP_collections_parameters, &O_ObjectName, GVSHArray, mode);
+	int status = getECEModeObject(TOP_collections_parameters, &O_ObjectName, GVSHArray, mode);
+
+	if (status != 0) return status;
 
 	IDAM_LOGF(LOG_DEBUG, "O_ObjectName: %s\n", O_ObjectName);
+    status = readSignal(O_ObjectName, shotNumber, 0, rang, time, &O_ModeData, len);
 
-	int status = readSignal(O_ObjectName, shotNumber, 0, rang, time, &O_ModeData, len);
 
 	if (status != 0) {
 		int err = 901;
@@ -490,10 +489,12 @@ void getECEModeHarmonicTime(int shotNumber, int channel, float** time, int* len,
 	free(O_ModeData);
 	free(O_ObjectName);
 
+	return status;
+
 }
 
 
-void getECEModeHarmonic(int shotNumber, int channel, float** time, float** data, int* len,
+int getECEModeHarmonic(int shotNumber, int channel, float** time, float** data, int* len,
 		char* TOP_collections_parameters) {
 
 	//channel is the UDA index starting from 1
@@ -523,14 +524,17 @@ void getECEModeHarmonic(int shotNumber, int channel, float** time, float** data,
 
 	int mode = 1;
 
-	getECEModeObject(TOP_collections_parameters, &O_ObjectName, GVSHArray, mode);
+	int status = getECEModeObject(TOP_collections_parameters, &O_ObjectName, GVSHArray, mode);
 
-	int status = readSignal(O_ObjectName, shotNumber, 0, rang, &O_ModeTime, &O_ModeData, &O_Mode_Signal_len);
+	if (status != 0) return status;
+
+	status = readSignal(O_ObjectName, shotNumber, 0, rang, &O_ModeTime, &O_ModeData, &O_Mode_Signal_len);
 
 	if (status != 0) {
 		int err = 901;
 		IDAM_LOG(LOG_DEBUG, "Unable to get signal\n");
 		addIdamError(&idamerrorstack, CODEERRORTYPE, "Unable to get signal", err, "");
+		return status;
 	}
 
 
@@ -540,7 +544,10 @@ void getECEModeHarmonic(int shotNumber, int channel, float** time, float** data,
 	char* X_ObjectName = NULL;
 
 	mode = 2;
-	getECEModeObject(TOP_collections_parameters, &X_ObjectName, GVSHArray, mode);
+
+	status = getECEModeObject(TOP_collections_parameters, &X_ObjectName, GVSHArray, mode);
+
+	if (status != 0) return status;
 
 	status = readSignal(X_ObjectName, shotNumber, 0, rang, &X_ModeTime, &X_ModeData, &X_Mode_Signal_len);
 
@@ -548,6 +555,7 @@ void getECEModeHarmonic(int shotNumber, int channel, float** time, float** data,
 		int err = 901;
 		IDAM_LOG(LOG_DEBUG, "Unable to get signal\n");
 		addIdamError(&idamerrorstack, CODEERRORTYPE, "Unable to get signal", err, "");
+		return status;
 	}
 
 	*time = O_ModeTime; //we set the time to the O mode time
@@ -564,11 +572,12 @@ void getECEModeHarmonic(int shotNumber, int channel, float** time, float** data,
 			*data[i] = X_ModeData[i];
 		}
 	}
+	return 0;
 
 }
 
 
-void getECEModeObject(char* TOP_collections_parameters, char** objectName, int GVSHArray, int mode) {
+int getECEModeObject(char* TOP_collections_parameters, char** objectName, int GVSHArray, int mode) {
 	char* command = NULL;
 	IDAM_LOG(LOG_DEBUG, "getting the command\n");
 	int status = getCommand(GVSHArray, &command, TOP_collections_parameters); //command is for instance: DVECE:GVSH1 or DVECE:GVSH2
@@ -577,6 +586,8 @@ void getECEModeObject(char* TOP_collections_parameters, char** objectName, int G
 		int err = 901;
 		IDAM_LOG(LOG_DEBUG, "Unable to get command\n");
 		addIdamError(&idamerrorstack, CODEERRORTYPE, "Unable to get command", err, "");
+		free(command);
+		return status;
 	}
 
 	IDAM_LOGF(LOG_DEBUG, "command: %s\n", command);
@@ -588,6 +599,7 @@ void getECEModeObject(char* TOP_collections_parameters, char** objectName, int G
 	*objectName = strdup(result);
 	IDAM_LOGF(LOG_DEBUG, "Object name for mode %d: %s\n", mode, *objectName);
 	free(command);
+	return 0;
 }
 
 char* getTopParameters(int shotNumber) {

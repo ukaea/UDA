@@ -47,6 +47,8 @@ int SetNormalizedDynData(int shotNumber, DATA_BLOCK* data_block, int* nodeIndice
 	if (status != 0) {
 		int err = 901;
 		addIdamError(&idamerrorstack, CODEERRORTYPE, "Unable to get dynamic data", err, "");
+		free(time);
+		free(data);
 	}
 	else {
 		IDAM_LOG(LOG_DEBUG, "Getting normalization factor, if any\n");
@@ -97,9 +99,15 @@ int GetDynData(int shotNumber, float** time, float** data, int* len, int* nodeIn
 	int signalType = 0;
 	int i;
 	char* command = NULL;
+	int totalExtractions = 0;
+
 	for (i = 0; i < collectionsCount; i++) {
 
+		IDAM_LOGF(LOG_DEBUG, "In GetDynData, i: %d\n", i);
+
 		getCommand(i, &command, TOP_collections_parameters);
+
+		IDAM_LOGF(LOG_DEBUG, "In GetDynData, command: %s\n", command);
 
 		char* objectName = NULL;
 		getObjectName(&objectName, command);
@@ -107,7 +115,7 @@ int GetDynData(int shotNumber, float** time, float** data, int* len, int* nodeIn
 		int nb_extractions = 0;
 		int occ = 0;
 
-		IDAM_LOG(LOG_DEBUG, "Group of signals1 ?\n");
+		IDAM_LOG(LOG_DEBUG, "Group of signals ?\n");
 		getSignalType(objectName, shotNumber, &signalType);
 
 		if (signalType == 2) {
@@ -117,8 +125,10 @@ int GetDynData(int shotNumber, float** time, float** data, int* len, int* nodeIn
 		printNum("Number of extractions : ", nb_extractions);
 
 		extractionsCount[i] = nb_extractions;
+		totalExtractions +=extractionsCount[i];
 		command = NULL;
 	}
+
 
 	IDAM_LOG(LOG_DEBUG, "searching for IDAM index\n");
 	IDAM_LOGF(LOG_DEBUG, "attributes : %s\n", attributes);
@@ -135,7 +145,6 @@ int GetDynData(int shotNumber, float** time, float** data, int* len, int* nodeIn
 	char* objectName = NULL;
 
 	printNum("searchedArrayIndex : ", searchedArrayIndex);
-
 	printNum("searchedArray : ", searchedArray);
 
 	//This patch means that if the signal does not belong to a group, so it can not be aggregate as signals groups

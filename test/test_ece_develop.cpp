@@ -19,6 +19,8 @@ exit 0
 #define SHOT_NUM_33456 "33456" // WEST
 #define SHOT_NUM_50819 "50819" // WEST
 
+#define SHOT_NUM_50355 "50355" // WEST
+
 #define SHOT_NUM_80 "80" // WEST
 
 int main() {

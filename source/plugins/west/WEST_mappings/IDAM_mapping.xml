@@ -61,15 +61,18 @@
 <mapping key="ece/ids_properties/homogeneous_time" value="set_value;0;0:int" type="static"/>
 <mapping key="ece/line_of_sight/first_point/r" value="set_value;4.264881;0:float" type="static"/>
 <mapping key="ece/line_of_sight/first_point/z" value="set_value;0.;0:float" type="static"/>
-<mapping key="ece/line_of_sight/first_point/phi" value="set_value;1.4573;0:float" type="static"/>
-<mapping key="ece/line_of_sight/second_point/r" value="set_value;4.471881;0:float" type="static"/>
+<mapping key="ece/line_of_sight/first_point/phi" value="set_value;1.4573069;0:float" type="static"/>
+<mapping key="ece/line_of_sight/second_point/r" value="set_value;1.8347117;0:float" type="static"/>
 <mapping key="ece/line_of_sight/second_point/z" value="set_value;0.;0:float" type="static"/>
-<mapping key="ece/line_of_sight/second_point/phi" value="set_value;1.4573;0:float" type="static"/>
+<mapping key="ece/line_of_sight/second_point/phi" value="set_value;1.4573069;0:float" type="static"/>
+<!-- mapping key="ece/channel/Shape_of" value="test_fun" type="dynamic"/ -->
 <mapping key="ece/channel/Shape_of" value="ece_t_e_data_shape_of" type="static"/>
-<!-- mapping key="ece/channel/#/frequency/data" value="ece_frequencies" type="dynamic"/ -->
-<!-- mapping key="ece/channel/#/frequency/time" value="ece_harmonic_time" type="dynamic"/ -->
+
+<!-- mapping key="ece/channel/#/frequency/data" value="ece_frequencies" type="dynamic"/ waiting IMAS DD change by Frederic to FLT_1D type -->
+<!-- mapping key="ece/channel/#/frequency/time" value="ece_harmonic_time" type="dynamic"/ waiting IMAS DD change by Frederic -->
 <mapping key="ece/channel/#/name" value="ece_names" type="static"/>
 <mapping key="ece/channel/#/identifier" value="ece_identifiers" type="static"/>
+<mapping key="ece/channel/#/t_e/data_voltage" value="ece_t_e_data" type="dynamic"/>
 <mapping key="ece/channel/#/t_e/data" value="ece_t_e_data" type="dynamic"/>
 <mapping key="ece/channel/#/t_e/time" value="ece_t_e_time" type="dynamic"/>
 <mapping key="ece/channel/#/harmonic/data" value="ece_harmonic_data" type="dynamic"/>

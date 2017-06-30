@@ -130,12 +130,12 @@ int isChannelValid(int channel_number, int* unvalid_channels_list, int unvalid_c
 
 int getCommand(int i, char** command, const char* TOP_collections_parameters)
 {
-	IDAM_LOGF(LOG_DEBUG, "In getCommand, i: %d\n", i);
+	//IDAM_LOGF(LOG_DEBUG, "In getCommand, i: %d\n", i);
 	char* s_copy = strdup(TOP_collections_parameters);
 	const char delim[] = ",";
 	int j = 0;
 	char* token = strdup(strtok(s_copy, delim));
-	IDAM_LOGF(LOG_DEBUG, "In getCommand, token: %s\n", token);
+	//IDAM_LOGF(LOG_DEBUG, "In getCommand, token: %s\n", token);
 	if (token == NULL) {
 		return -1;
 	}
