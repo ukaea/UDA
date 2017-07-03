@@ -36,87 +36,47 @@ static int handles[MAXHANDLES];
 
 static EQUIMAPDATA equimapdata;
 
+static int do_ping(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
+static int do_help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
+
 extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
-    int i, j, k, err, offset;
-    int handle = -1;
-    static short init = 0;
-    static int prior_exp_number = -1;
-    static char prior_file[STRING_LENGTH];
-    static int smoothedPsi = 0;
-    float* arr;
-
-//----------------------------------------------------------------------------------------
-// Standard Plugin Interface
-
-    DATA_BLOCK* data_block;
-    REQUEST_BLOCK* request_block;
-
-#ifndef USE_PLUGIN_DIRECTLY
-    IDAMERRORSTACK idamerrorstack;
-    IDAMERRORSTACK* idamErrorStack = getIdamServerPluginErrorStack();        // Server library functions
-
-    initIdamErrorStack(&idamerrorstack);
-#else
-    IDAMERRORSTACK *idamErrorStack = &idamerrorstack;   	// For testing only!
-#endif
-
-    unsigned short housekeeping;
+    unsigned short housekeeping = 0;
 
     if (idam_plugin_interface->interfaceVersion == 1) {
-
         idam_plugin_interface->pluginVersion = 1;
-
-        data_block = idam_plugin_interface->data_block;
-        request_block = idam_plugin_interface->request_block;
-
         housekeeping = idam_plugin_interface->housekeeping;
     } else {
-        err = 999;
-        IDAM_LOG(LOG_ERROR, "ERROR equimap: Plugin Interface Version Unknown\n");
-
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "equimap", err,
-                     "Plugin Interface Version is Not Known: Unable to execute the request!");
-        concatIdamError(idamerrorstack, idamErrorStack);
-        return err;
+        RAISE_PLUGIN_ERROR("Plugin Interface Version Unknown");
     }
 
-//----------------------------------------------------------------------------------------
-// Ping - am I here?
-
-    if (STR_IEQUALS(request_block->function, "ping")) {
-        initDataBlock(data_block);
-        data_block->rank = 0;
-        data_block->data_n = strlen("equimap pinged!") + 1;
-        data_block->data_type = TYPE_CHAR;
-        data_block->data = malloc(data_block->data_n * sizeof(char));
-        strcpy(data_block->data, "equimap pinged!");
-        return 0;
-    }
-
-//----------------------------------------------------------------------------------------
-// Help: A Description of library functionality
+    REQUEST_BLOCK* request_block = idam_plugin_interface->request_block;
 
     if (STR_IEQUALS(request_block->function, "help")) {
-        initDataBlock(data_block);
-        data_block->rank = 0;
-        data_block->data_n = strlen("psiRZBox Enabled!") + 1;
-        data_block->data_type = TYPE_CHAR;
-        data_block->data = malloc(data_block->data_n * sizeof(char));
-        strcpy(data_block->data, "psiRZBox Enabled!");
-        return 0;
+        return do_help(idam_plugin_interface);
     }
 
-//----------------------------------------------------------------------------------------
-// Heap Housekeeping
+    if (STR_IEQUALS(request_block->function, "ping")) {
+        return do_ping(idam_plugin_interface);
+    }
+
+    //----------------------------------------------------------------------------------------
+    // Heap Housekeeping
+
+    static int init = 0;
+    static int prior_exp_number = -1;
+    static char prior_file[MAX_STRING_LENGTH];
+    static int smoothedPsi = 0;
 
     if (housekeeping || STR_IEQUALS(request_block->function, "reset")) {
 
         if (!init) return 0;        // Not previously initialised: Nothing to do!
 
-        if (prior_exp_number == -1) initEquiMapData();
+        if (prior_exp_number == -1) {
+            initEquiMapData();
+        }
 
-// Free Heap & reset counters
+        // Free Heap & reset counters
 
         freeEquiMapData();
 
@@ -132,7 +92,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     if (request_block->exp_number != prior_exp_number || strcmp(request_block->file, prior_file) != 0) {
 
-// Free Heap & reset counters
+        // Free Heap & reset counters
 
         freeEquiMapData();
 
@@ -140,21 +100,22 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         smoothedPsi = 0;
     }
 
-//----------------------------------------------------------------------------------------
-// Initialise: Define the fixed grid, read the raw data, and set the time vector
-//             Read additional data relevant to the ITM
+    //----------------------------------------------------------------------------------------
+    // Initialise: Define the fixed grid, read the raw data, and set the time vector
+    //             Read additional data relevant to the ITM
 
-// Set the number of flux surfaces using the name value pair: fluxSurfaceCount = int
+    // Set the number of flux surfaces using the name value pair: fluxSurfaceCount = int
 
-// The user has a choice of flux surface label: One must be selected
+    // The user has a choice of flux surface label: One must be selected
 
     if (!init || STR_IEQUALS(request_block->function, "init")
         || STR_IEQUALS(request_block->function, "initialise")) {
 
         initEquiMapData();    // initialise the data structure
 
-// Read the ITM Data set ?
+        // Read the ITM Data set ?
 
+        int i;
         for (i = 0; i < request_block->nameValueList.pairCount; i++) {
             if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "readITMData")) {
                 equimapdata.readITMData = 1;
@@ -163,7 +124,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             }
         }
 
-// Number of Flux Surfaces
+        // Number of Flux Surfaces
 
         for (i = 0; i < request_block->nameValueList.pairCount; i++) {
             if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "fluxSurfaceCount")) {
@@ -173,7 +134,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             }
         }
 
-// Identify Flux Surface label type: Mandatory requirement
+        // Identify Flux Surface label type: Mandatory requirement
 
         for (i = 0; i < request_block->nameValueList.pairCount; i++) {
             if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "fluxSurfaceLabel")) {
@@ -191,20 +152,14 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             }
         }
 
-// Test a Flux Surface Label has been selected
+        // Test a Flux Surface Label has been selected
 
         if (equimapdata.rhoType == UNKNOWNCOORDINATETYPE) {
-            err = 999;
-            IDAM_LOG(LOG_ERROR, "ERROR equimap: No Flux Surface label type has been selected. "
-                    "Use the fluxSurfaceLabel name-value pair argument to set it.\n");
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "equimap", err,
-                         "No Flux Surface label type has been selected. "
-                                 "Use the fluxSurfaceLabel name-value pair argument to set it.");
-            concatIdamError(idamerrorstack, idamErrorStack);
-            return err;
+            RAISE_PLUGIN_ERROR( "No Flux Surface label type has been selected. "
+                                        "Use the fluxSurfaceLabel name-value pair argument to set it.");
         }
 
-// Preserve Shot Number// Number of Flux Surfaces
+        // Preserve Shot Number// Number of Flux Surfaces
 
         if (request_block->exp_number == 0) {
             for (i = 0; i < request_block->nameValueList.pairCount; i++) {
@@ -217,7 +172,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
         equimapdata.exp_number = request_block->exp_number;
 
-// Create a normalised flux surface grid - no particular definition assumed - rhoType is used for Mapping
+        // Create a normalised flux surface grid - no particular definition assumed - rhoType is used for Mapping
 
         equimapdata.rhoB = (float*)malloc(equimapdata.rhoBCount * sizeof(float));
         for (i = 0; i < equimapdata.rhoBCount; i++)
@@ -228,22 +183,18 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             equimapdata.rho[i] = 0.5 * (equimapdata.rhoB[i] + equimapdata.rhoB[i + 1]);
 
         if (request_block->exp_number == 0 && request_block->file[0] == '\0') {
-            err = 999;
-            IDAM_LOG(LOG_ERROR, "ERROR equimap: No Shot Number or Private File!\n");
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "equimap", err, "No Shot Number or Private File!");
-            concatIdamError(idamerrorstack, idamErrorStack);
-            return err;
+            RAISE_PLUGIN_ERROR("No Shot Number or Private File!");
         }
 
-        if ((err = importData(request_block, &equimapdata)) != 0) {
-            //err = 999;
-            IDAM_LOG(LOG_ERROR, "ERROR equimap: Problem importing data\n");
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "equimap", err, "Problem importing data");
-            concatIdamError(idamerrorstack, idamErrorStack);
-            return err;
+        if ((importData(request_block, &equimapdata)) != 0) {
+            RAISE_PLUGIN_ERROR("Problem importing data");
         }
 
-        if ((err = selectTimes(&equimapdata)) != 0) return err;        // Universal/Default set of times
+        // Universal/Default set of times
+        int err;
+        if ((err = selectTimes(&equimapdata)) != 0) {
+            return err;
+        }
 
         equimapdata.efitdata = (EFITDATA*)malloc(equimapdata.timeCount * sizeof(EFITDATA));
         for (i = 0; i < equimapdata.timeCount; i++) {
@@ -256,35 +207,38 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         strcpy(prior_file, request_block->file);
 
         if (STR_IEQUALS(request_block->function, "init") || STR_IEQUALS(request_block->function, "initialise")) {
+            DATA_BLOCK* data_block = idam_plugin_interface->data_block;
             initDataBlock(data_block);
+            const char* str = "Initialisation Completed";
             data_block->rank = 0;
-            data_block->data_n = strlen("Initialisation Completed") + 1;
+            data_block->data_n = strlen(str) + 1;
             data_block->data_type = TYPE_CHAR;
-            data_block->data = malloc(data_block->data_n * sizeof(char));
-            strcpy(data_block->data, "Initialisation Completed");
+            data_block->data = strdup(str);
             return 0;
         }
     }
 
-//----------------------------------------------------------------------------------------
-// Processing over the Time domain
-//----------------------------------------------------------------------------------------
+    //----------------------------------------------------------------------------------------
+    // Processing over the Time domain
+    //----------------------------------------------------------------------------------------
 
     static float priorLimitRMaj = -1.0;
 
+    int i;
     for (i = 0; i < request_block->nameValueList.pairCount; i++) {
 
-// Reduce the size of the psi grid to the minimum size enclosing the boundary
-// Fixed grid so need to test all time points to establish the spatial range
-// Data is processed once only - smoothing is not reversible!
+        // Reduce the size of the psi grid to the minimum size enclosing the boundary
+        // Fixed grid so need to test all time points to establish the spatial range
+        // Data is processed once only - smoothing is not reversible!
 
         if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "smoothPsi")) {
 
-            IDAM_LOG(LOG_DEBUG, "EQUIMAP: processing time domain option 'smoothPsi'\n");
+            IDAM_LOG(UDA_LOG_DEBUG, "EQUIMAP: processing time domain option 'smoothPsi'\n");
 
             int invert = 0;
             int limitPsi = 0;
             float limitRMaj = -1.0;
+            int j;
             for (j = 0; j < request_block->nameValueList.pairCount; j++) {
                 if (STR_IEQUALS(request_block->nameValueList.nameValue[j].name, "invert")) invert = 1;
                 if (STR_IEQUALS(request_block->nameValueList.nameValue[j].name, "limitPsi")) limitPsi = 1;
@@ -293,7 +247,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 }
             }
 
-            IDAM_LOGF(LOG_DEBUG, "EQUIMAP: smoothPsi(invert=%d, limitPsi=%d, limitRMaj=%f)\n", invert, limitPsi,
+            IDAM_LOGF(UDA_LOG_DEBUG, "EQUIMAP: smoothPsi(invert=%d, limitPsi=%d, limitRMaj=%f)\n", invert, limitPsi,
                       limitRMaj);
 
             if (!smoothedPsi) {
@@ -304,16 +258,16 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 smoothPsi(&equimapdata, invert, limitPsi, limitRMaj);        // Constrain by upper RMajor
                 priorLimitRMaj = limitRMaj;
             }
-            IDAM_LOGF(LOG_DEBUG, "EQUIMAP: psiRZBox nr=%d, nz=%d)\n", equimapdata.efitdata[0].psiCountRZBox[0],
+            IDAM_LOGF(UDA_LOG_DEBUG, "EQUIMAP: psiRZBox nr=%d, nz=%d)\n", equimapdata.efitdata[0].psiCountRZBox[0],
                       equimapdata.efitdata[0].psiCountRZBox[1]);
         }
     }
 
-//----------------------------------------------------------------------------------------
-// Functions
-//----------------------------------------------------------------------------------------
+    //----------------------------------------------------------------------------------------
+    // Functions
+    //----------------------------------------------------------------------------------------
 
-    err = 0;
+    int err = 0;
 
     do {
 
@@ -334,6 +288,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         if (STR_IEQUALS(request_block->function, "Rlim") ||
             STR_IEQUALS(request_block->function, "Zlim")) {
 
+            DATA_BLOCK* data_block = idam_plugin_interface->data_block;
             initDataBlock(data_block);
             data_block->rank = 1;
             data_block->order = -1;
@@ -354,7 +309,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             data_block->data_n = data_block->dims[0].dim_n;
             data_block->data_type = TYPE_FLOAT;
             data_block->data = malloc(data_block->data_n * sizeof(float));
-            arr = (float*)data_block->data;
+            float *arr = (float*)data_block->data;
 
             if (STR_IEQUALS(request_block->function, "Rlim")) {
                 for (i = 0; i < data_block->data_n; i++) arr[i] = equimapdata.efitdata[0].rlim[i];
@@ -362,6 +317,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 for (i = 0; i < data_block->data_n; i++) arr[i] = equimapdata.efitdata[0].zlim[i];
             }
 
+            int handle = 0;
             if (STR_IEQUALS(request_block->function, "Rlim")) {
                 handle = whichHandle("Rlim");
             } else if (STR_IEQUALS(request_block->function, "Zlim")) {
@@ -399,8 +355,9 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             (equimapdata.readITMData && STR_IEQUALS(request_block->function, "TriangU")) ||
             (equimapdata.readITMData && STR_IEQUALS(request_block->function, "Elong"))) {
 
-            handle = whichHandle("Rmag");        // Provides Timing Labels only - not data
+            int handle = whichHandle("Rmag");        // Provides Timing Labels only - not data
 
+            DATA_BLOCK* data_block = idam_plugin_interface->data_block;
             initDataBlock(data_block);
             data_block->rank = 1;
             data_block->order = 0;
@@ -433,7 +390,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             data_block->data_type = TYPE_FLOAT;
             data_block->data = malloc(data_block->data_n * sizeof(float));
-            arr = (float*)data_block->data;
+            float* arr = (float*)data_block->data;
 
             if (STR_IEQUALS(request_block->function, "Rmin")) {
                 for (i = 0; i < equimapdata.timeCount; i++) arr[i] = equimapdata.efitdata[i].Rmin;
@@ -583,8 +540,9 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             unsigned short lcfsData = 0;
 
-            handle = whichHandle("Rmag");        // Provides Timing Labels only - not data
+            int handle = whichHandle("Rmag");        // Provides Timing Labels only - not data
 
+            DATA_BLOCK* data_block = idam_plugin_interface->data_block;
             initDataBlock(data_block);
             data_block->rank = 2;
             data_block->order = 1;
@@ -684,74 +642,75 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             data_block->data_type = TYPE_FLOAT;
             data_block->data = malloc(data_block->data_n * sizeof(float));
 
-            arr = (float*)data_block->data;
+            float* arr = (float*)data_block->data;
+            int j;
             if (STR_IEQUALS(request_block->function, "Q")) {
                 for (i = 0; i < equimapdata.timeCount; i++) {
                     for (j = 0; j < data_block->dims[0].dim_n; j++) {
-                        offset = i * data_block->dims[0].dim_n + j;
+                        int offset = i * data_block->dims[0].dim_n + j;
                         arr[offset] = equimapdata.efitdata[i].q[j];
                     }
                 }
             } else if (STR_IEQUALS(request_block->function, "P")) {
                 for (i = 0; i < equimapdata.timeCount; i++) {
                     for (j = 0; j < data_block->dims[0].dim_n; j++) {
-                        offset = i * data_block->dims[0].dim_n + j;
+                        int offset = i * data_block->dims[0].dim_n + j;
                         arr[offset] = equimapdata.efitdata[i].p[j];
                     }
                 }
             } else if (STR_IEQUALS(request_block->function, "F")) {
                 for (i = 0; i < equimapdata.timeCount; i++) {
                     for (j = 0; j < data_block->dims[0].dim_n; j++) {
-                        offset = i * data_block->dims[0].dim_n + j;
+                        int offset = i * data_block->dims[0].dim_n + j;
                         arr[offset] = equimapdata.efitdata[i].f[j];
                     }
                 }
             } else if (STR_IEQUALS(request_block->function, "PPrime")) {
                 for (i = 0; i < equimapdata.timeCount; i++) {
                     for (j = 0; j < data_block->dims[0].dim_n; j++) {
-                        offset = i * data_block->dims[0].dim_n + j;
+                        int offset = i * data_block->dims[0].dim_n + j;
                         arr[offset] = equimapdata.efitdata[i].pprime[j];
                     }
                 }
             } else if (STR_IEQUALS(request_block->function, "FFPrime")) {
                 for (i = 0; i < equimapdata.timeCount; i++) {
                     for (j = 0; j < data_block->dims[0].dim_n; j++) {
-                        offset = i * data_block->dims[0].dim_n + j;
+                        int offset = i * data_block->dims[0].dim_n + j;
                         arr[offset] = equimapdata.efitdata[i].ffprime[j];
                     }
                 }
             } else if (STR_IEQUALS(request_block->function, "ElongPsi")) {
                 for (i = 0; i < equimapdata.timeCount; i++) {
                     for (j = 0; j < data_block->dims[0].dim_n; j++) {
-                        offset = i * data_block->dims[0].dim_n + j;
+                        int offset = i * data_block->dims[0].dim_n + j;
                         arr[offset] = equimapdata.efitdata[i].elongp[j];
                     }
                 }
             } else if (STR_IEQUALS(request_block->function, "TriangLPsi")) {
                 for (i = 0; i < equimapdata.timeCount; i++) {
                     for (j = 0; j < data_block->dims[0].dim_n; j++) {
-                        offset = i * data_block->dims[0].dim_n + j;
+                        int offset = i * data_block->dims[0].dim_n + j;
                         arr[offset] = equimapdata.efitdata[i].trianglp[j];
                     }
                 }
             } else if (STR_IEQUALS(request_block->function, "TriangUPsi")) {
                 for (i = 0; i < equimapdata.timeCount; i++) {
                     for (j = 0; j < data_block->dims[0].dim_n; j++) {
-                        offset = i * data_block->dims[0].dim_n + j;
+                        int offset = i * data_block->dims[0].dim_n + j;
                         arr[offset] = equimapdata.efitdata[i].triangup[j];
                     }
                 }
             } else if (STR_IEQUALS(request_block->function, "VolPsi")) {
                 for (i = 0; i < equimapdata.timeCount; i++) {
                     for (j = 0; j < data_block->dims[0].dim_n; j++) {
-                        offset = i * data_block->dims[0].dim_n + j;
+                        int offset = i * data_block->dims[0].dim_n + j;
                         arr[offset] = equimapdata.efitdata[i].volp[j];
                     }
                 }
             } else if (STR_IEQUALS(request_block->function, "AreaPsi")) {
                 for (i = 0; i < equimapdata.timeCount; i++) {
                     for (j = 0; j < data_block->dims[0].dim_n; j++) {
-                        offset = i * data_block->dims[0].dim_n + j;
+                        int offset = i * data_block->dims[0].dim_n + j;
                         arr[offset] = equimapdata.efitdata[i].areap[j];
                     }
                 }
@@ -759,7 +718,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 handle = -1;
                 for (i = 0; i < equimapdata.timeCount; i++) {
                     for (j = 0; j < data_block->dims[0].dim_n; j++) {
-                        offset = i * data_block->dims[0].dim_n + j;
+                        int offset = i * data_block->dims[0].dim_n + j;
                         arr[offset] = equimapdata.efitdata[i].rho_tor[j];
                     }
                 }
@@ -767,7 +726,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 handle = -1;
                 for (i = 0; i < equimapdata.timeCount; i++) {
                     for (j = 0; j < data_block->dims[0].dim_n; j++) {
-                        offset = i * data_block->dims[0].dim_n + j;
+                        int offset = i * data_block->dims[0].dim_n + j;
                         arr[offset] = equimapdata.efitdata[i].rho[j];
                     }
                 }
@@ -775,7 +734,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 handle = -1;
                 for (i = 0; i < equimapdata.timeCount; i++) {
                     for (j = 0; j < data_block->dims[0].dim_n; j++) {
-                        offset = i * data_block->dims[0].dim_n + j;
+                        int offset = i * data_block->dims[0].dim_n + j;
                         arr[offset] = equimapdata.efitdata[i].trho[j];
                     }
                 }
@@ -783,7 +742,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 handle = -1;
                 for (i = 0; i < equimapdata.timeCount; i++) {
                     for (j = 0; j < data_block->dims[0].dim_n; j++) {
-                        offset = i * data_block->dims[0].dim_n + j;
+                        int offset = i * data_block->dims[0].dim_n + j;
                         arr[offset] = equimapdata.efitdata[i].psi[j];
                     }
                 }
@@ -791,7 +750,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 handle = -1;
                 for (i = 0; i < equimapdata.timeCount; i++) {
                     for (j = 0; j < data_block->dims[0].dim_n; j++) {
-                        offset = i * data_block->dims[0].dim_n + j;
+                        int offset = i * data_block->dims[0].dim_n + j;
                         arr[offset] = equimapdata.efitdata[i].phi[j];
                     }
                 }
@@ -799,11 +758,11 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 int maxn = data_block->dims[0].dim_n;
                 for (i = 0; i < equimapdata.timeCount; i++) {
                     for (j = 0; j < equimapdata.efitdata[i].nlcfs; j++) {
-                        offset = i * maxn + j;
+                        int offset = i * maxn + j;
                         arr[offset] = equimapdata.efitdata[i].rlcfs[j];
                     }
                     for (j = equimapdata.efitdata[i].nlcfs; j < maxn; j++) {
-                        offset = i * maxn + j;
+                        int offset = i * maxn + j;
                         arr[offset] = 0.0;
                     }
                 }
@@ -811,11 +770,11 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 int maxn = data_block->dims[0].dim_n;
                 for (i = 0; i < equimapdata.timeCount; i++) {
                     for (j = 0; j < equimapdata.efitdata[i].nlcfs; j++) {
-                        offset = i * maxn + j;
+                        int offset = i * maxn + j;
                         arr[offset] = equimapdata.efitdata[i].zlcfs[j];
                     }
                     for (j = equimapdata.efitdata[i].nlcfs; j < maxn; j++) {
-                        offset = i * maxn + j;
+                        int offset = i * maxn + j;
                         arr[offset] = 0.0;
                     }
                 }
@@ -864,8 +823,9 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         if (STR_IEQUALS(request_block->function, "PsiZ0") ||
             STR_IEQUALS(request_block->function, "RPsiZ0")) {    // Generally ragged arrays !
 
-            handle = whichHandle("psi");                // Provides Timing Labels only - not data
+            int handle = whichHandle("psi");                // Provides Timing Labels only - not data
 
+            DATA_BLOCK* data_block = idam_plugin_interface->data_block;
             initDataBlock(data_block);
             data_block->rank = 2;
             data_block->order = 1;
@@ -916,30 +876,32 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             data_block->data_type = TYPE_FLOAT;
             data_block->data = malloc(data_block->data_n * sizeof(float));
 
-            arr = (float*)data_block->data;
+            float* arr = (float*)data_block->data;
 
             if (STR_IEQUALS(request_block->function, "PsiZ0")) {
                 for (i = 0; i < equimapdata.timeCount; i++) {
+                    int j;
                     for (j = 0; j < equimapdata.efitdata[i].rz0Count; j++) {
-                        offset = i * data_block->dims[0].dim_n + j;
+                        int offset = i * data_block->dims[0].dim_n + j;
                         arr[offset] = equimapdata.efitdata[i].psiz0[j];
                     }
                     if (rz0CountMax > equimapdata.efitdata[i].rz0Count) {
                         for (j = equimapdata.efitdata[i].rz0Count; j < rz0CountMax; j++) {
-                            offset = i * data_block->dims[0].dim_n + j;
+                            int offset = i * data_block->dims[0].dim_n + j;
                             arr[offset] = equimapdata.efitdata[i].psiz0[equimapdata.efitdata[i].rz0Count - 1];
                         }
                     }
                 }
             } else {
                 for (i = 0; i < equimapdata.timeCount; i++) {
+                    int j;
                     for (j = 0; j < equimapdata.efitdata[i].rz0Count; j++) {
-                        offset = i * data_block->dims[0].dim_n + j;
+                        int offset = i * data_block->dims[0].dim_n + j;
                         arr[offset] = equimapdata.efitdata[i].rz0[j];
                     }
                     if (rz0CountMax > equimapdata.efitdata[i].rz0Count) {
                         for (j = equimapdata.efitdata[i].rz0Count; j < rz0CountMax; j++) {
-                            offset = i * data_block->dims[0].dim_n + j;
+                            int offset = i * data_block->dims[0].dim_n + j;
                             arr[offset] = equimapdata.efitdata[i].rz0[equimapdata.efitdata[i].rz0Count - 1];
                         }
                     }
@@ -972,8 +934,9 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             STR_IEQUALS(request_block->function, "Bt") ||
             STR_IEQUALS(request_block->function, "Jphi")) {
 
-            handle = whichHandle("Rmag");        // Provides Timing Labels only - not data
+            int handle = whichHandle("Rmag");        // Provides Timing Labels only - not data
 
+            DATA_BLOCK* data_block = idam_plugin_interface->data_block;
             initDataBlock(data_block);
             data_block->rank = 3;
             data_block->order = 2;
@@ -1023,11 +986,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 strcpy(data_block->dims[1].dim_units, xdim->dim_units);
                 strcpy(data_block->dims[1].dim_label, xdim->dim_label);
             } else {
-                err = 999;
-                IDAM_LOG(LOG_ERROR, "ERROR equimap: Corrupted Psi Data\n");
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "equimap", err, "Corrupted Psi Data!");
-                concatIdamError(idamerrorstack, idamErrorStack);
-                return err;
+                RAISE_PLUGIN_ERROR("Corrupted Psi Data!");
             }
 
 // Data
@@ -1037,13 +996,14 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             data_block->data_type = TYPE_FLOAT;
             data_block->data = malloc(data_block->data_n * sizeof(float));
 
-            arr = (float*)data_block->data;
+            float* arr = (float*)data_block->data;
 
             if (STR_IEQUALS(request_block->function, "Psi")) {
                 for (i = 0; i < equimapdata.timeCount; i++) {
+                    int j, k;
                     for (j = 0; j < data_block->dims[1].dim_n; j++) {
                         for (k = 0; k < data_block->dims[0].dim_n; k++) {
-                            offset = j * data_block->dims[0].dim_n + k +
+                            int offset = j * data_block->dims[0].dim_n + k +
                                      i * data_block->dims[0].dim_n * data_block->dims[1].dim_n;
                             arr[offset] = equimapdata.efitdata[i].psig[j][k];
                         }
@@ -1051,9 +1011,10 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 }
             } else if (STR_IEQUALS(request_block->function, "Br")) {
                 for (i = 0; i < equimapdata.timeCount; i++) {
+                    int j, k;
                     for (j = 0; j < data_block->dims[1].dim_n; j++) {
                         for (k = 0; k < data_block->dims[0].dim_n; k++) {
-                            offset = j * data_block->dims[0].dim_n + k +
+                            int offset = j * data_block->dims[0].dim_n + k +
                                      i * data_block->dims[0].dim_n * data_block->dims[1].dim_n;
                             arr[offset] = equimapdata.efitdata[i].Br[j][k];
                         }
@@ -1061,9 +1022,10 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 }
             } else if (STR_IEQUALS(request_block->function, "Bz")) {
                 for (i = 0; i < equimapdata.timeCount; i++) {
+                    int j, k;
                     for (j = 0; j < data_block->dims[1].dim_n; j++) {
                         for (k = 0; k < data_block->dims[0].dim_n; k++) {
-                            offset = j * data_block->dims[0].dim_n + k +
+                            int offset = j * data_block->dims[0].dim_n + k +
                                      i * data_block->dims[0].dim_n * data_block->dims[1].dim_n;
                             arr[offset] = equimapdata.efitdata[i].Bz[j][k];
                         }
@@ -1071,9 +1033,10 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 }
             } else if (STR_IEQUALS(request_block->function, "Bt")) {
                 for (i = 0; i < equimapdata.timeCount; i++) {
+                    int j, k;
                     for (j = 0; j < data_block->dims[1].dim_n; j++) {
                         for (k = 0; k < data_block->dims[0].dim_n; k++) {
-                            offset = j * data_block->dims[0].dim_n + k +
+                            int offset = j * data_block->dims[0].dim_n + k +
                                      i * data_block->dims[0].dim_n * data_block->dims[1].dim_n;
                             arr[offset] = equimapdata.efitdata[i].Bphi[j][k];
                         }
@@ -1081,9 +1044,10 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 }
             } else if (STR_IEQUALS(request_block->function, "Jphi")) {
                 for (i = 0; i < equimapdata.timeCount; i++) {
+                    int j, k;
                     for (j = 0; j < data_block->dims[1].dim_n; j++) {
                         for (k = 0; k < data_block->dims[0].dim_n; k++) {
-                            offset = j * data_block->dims[0].dim_n + k +
+                            int offset = j * data_block->dims[0].dim_n + k +
                                      i * data_block->dims[0].dim_n * data_block->dims[1].dim_n;
                             arr[offset] = equimapdata.efitdata[i].Jphi[j][k];
                         }
@@ -1124,8 +1088,9 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
         if (STR_IEQUALS(request_block->function, "PsiSR") || STR_IEQUALS(request_block->function, "PsiRZBox")) {
 
-            handle = whichHandle("Rmag");        // Provides Timing Labels only - not data
+            int handle = whichHandle("Rmag");        // Provides Timing Labels only - not data
 
+            DATA_BLOCK* data_block = idam_plugin_interface->data_block;
             initDataBlock(data_block);
             data_block->rank = 3;
             data_block->order = 2;
@@ -1193,11 +1158,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 strcpy(data_block->dims[1].dim_units, xdim->dim_units);
                 strcpy(data_block->dims[1].dim_label, xdim->dim_label);
             } else {
-                err = 999;
-                IDAM_LOG(LOG_ERROR, "ERROR equimap: Corrupted PsiSR Data\n");
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "equimap", err, "Corrupted PsiSR Data!");
-                concatIdamError(idamerrorstack, idamErrorStack);
-                return err;
+                RAISE_PLUGIN_ERROR("Corrupted PsiSR Data!");
             }
 
 // Data
@@ -1205,26 +1166,23 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             data_block->data_n = data_block->dims[0].dim_n * data_block->dims[1].dim_n * data_block->dims[2].dim_n;
 
             if (data_block->data_n == 0) {
-                err = 999;
-                IDAM_LOG(LOG_ERROR, "ERROR equimap: No Data Values selected!\n");
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "equimap", err, "No Data Values selected!");
-                concatIdamError(idamerrorstack, idamErrorStack);
-                IDAM_LOGF(LOG_DEBUG, "equimap: dims[0].dim_n = %d\n", data_block->dims[0].dim_n);
-                IDAM_LOGF(LOG_DEBUG, "equimap: dims[1].dim_n = %d\n", data_block->dims[1].dim_n);
-                IDAM_LOGF(LOG_DEBUG, "equimap: dims[2].dim_n = %d\n", data_block->dims[2].dim_n);
-                return err;
+                IDAM_LOGF(UDA_LOG_DEBUG, "dims[0].dim_n = %d\n", data_block->dims[0].dim_n);
+                IDAM_LOGF(UDA_LOG_DEBUG, "dims[1].dim_n = %d\n", data_block->dims[1].dim_n);
+                IDAM_LOGF(UDA_LOG_DEBUG, "dims[2].dim_n = %d\n", data_block->dims[2].dim_n);
+                RAISE_PLUGIN_ERROR("No Data Values selected!");
             }
 
             data_block->data_type = TYPE_FLOAT;
             data_block->data = malloc(data_block->data_n * sizeof(float));
 
-            arr = (float*)data_block->data;
+            float* arr = (float*)data_block->data;
 
             if (STR_IEQUALS(request_block->function, "PsiSR")) {
                 for (i = 0; i < equimapdata.timeCount; i++) {
+                    int j, k;
                     for (j = 0; j < data_block->dims[1].dim_n; j++) {
                         for (k = 0; k < data_block->dims[0].dim_n; k++) {
-                            offset = j * data_block->dims[0].dim_n + k +
+                            int offset = j * data_block->dims[0].dim_n + k +
                                      i * data_block->dims[0].dim_n * data_block->dims[1].dim_n;
                             arr[offset] = equimapdata.efitdata[i].psigSR[j][k];
                         }
@@ -1232,9 +1190,10 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 }
             } else {
                 for (i = 0; i < equimapdata.timeCount; i++) {
+                    int j, k;
                     for (j = 0; j < data_block->dims[1].dim_n; j++) {
                         for (k = 0; k < data_block->dims[0].dim_n; k++) {
-                            offset = j * data_block->dims[0].dim_n + k +
+                            int offset = j * data_block->dims[0].dim_n + k +
                                      i * data_block->dims[0].dim_n * data_block->dims[1].dim_n;
                             arr[offset] = equimapdata.efitdata[i].psigRZBox[j][k];
                         }
@@ -1270,8 +1229,9 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             STR_IEQUALS(request_block->function, "yag_ne") ||
             STR_IEQUALS(request_block->function, "yag_Te")) {
 
-            handle = whichHandle("EFM_MAGNETIC_AXIS_R");        // Provides Timing Labels only - not data
+            int handle = whichHandle("EFM_MAGNETIC_AXIS_R");        // Provides Timing Labels only - not data
 
+            DATA_BLOCK* data_block = idam_plugin_interface->data_block;
             initDataBlock(data_block);
             data_block->rank = 2;
             data_block->order = 1;
@@ -1329,52 +1289,53 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             data_block->data = malloc(data_block->data_n * sizeof(float));
 
             for (i = 0; i < equimapdata.timeCount; i++) {
+                int j;
                 if (STR_IEQUALS(request_block->function, "yag_R")) {
-                    arr = (float*)data_block->data;
+                    float* arr = (float*)data_block->data;
                     for (j = 0; j < data_block->dims[0].dim_n; j++) {
-                        offset = i * data_block->dims[0].dim_n + j;
+                        int offset = i * data_block->dims[0].dim_n + j;
                         arr[offset] = equimapdata.efitdata[i].rne[j];
                     }
                 } else if (STR_IEQUALS(request_block->function, "yag_ne")) {
-                    arr = (float*)data_block->data;
+                    float* arr = (float*)data_block->data;
                     for (j = 0; j < data_block->dims[0].dim_n; j++) {
-                        offset = i * data_block->dims[0].dim_n + j;
+                        int offset = i * data_block->dims[0].dim_n + j;
                         arr[offset] = equimapdata.efitdata[i].ne[j];
                     }
                 } else if (STR_IEQUALS(request_block->function, "yag_Te")) {
-                    arr = (float*)data_block->data;
+                    float* arr = (float*)data_block->data;
                     for (j = 0; j < data_block->dims[0].dim_n; j++) {
-                        offset = i * data_block->dims[0].dim_n + j;
+                        int offset = i * data_block->dims[0].dim_n + j;
                         arr[offset] = equimapdata.efitdata[i].te[j];
                     }
                 } else if (STR_IEQUALS(request_block->function, "yag_psi")) {
-                    arr = (float*)data_block->data;
+                    float* arr = (float*)data_block->data;
                     for (j = 0; j < data_block->dims[0].dim_n; j++) {
-                        offset = i * data_block->dims[0].dim_n + j;
+                        int offset = i * data_block->dims[0].dim_n + j;
                         arr[offset] = equimapdata.efitdata[i].yagpsi[j];
                     }
                 } else if (STR_IEQUALS(request_block->function, "yag_phi")) {
-                    arr = (float*)data_block->data;
+                    float* arr = (float*)data_block->data;
                     for (j = 0; j < data_block->dims[0].dim_n; j++) {
-                        offset = i * data_block->dims[0].dim_n + j;
+                        int offset = i * data_block->dims[0].dim_n + j;
                         arr[offset] = equimapdata.efitdata[i].yagphi[j];
                     }
                 } else if (STR_IEQUALS(request_block->function, "yag_trho")) {
-                    arr = (float*)data_block->data;
+                    float* arr = (float*)data_block->data;
                     for (j = 0; j < data_block->dims[0].dim_n; j++) {
-                        offset = i * data_block->dims[0].dim_n + j;
+                        int offset = i * data_block->dims[0].dim_n + j;
                         arr[offset] = equimapdata.efitdata[i].yagtrho[j];
                     }
                 } else if (STR_IEQUALS(request_block->function, "yag_prho")) {
-                    arr = (float*)data_block->data;
+                    float* arr = (float*)data_block->data;
                     for (j = 0; j < data_block->dims[0].dim_n; j++) {
-                        offset = i * data_block->dims[0].dim_n + j;
+                        int offset = i * data_block->dims[0].dim_n + j;
                         arr[offset] = equimapdata.efitdata[i].yagprho[j];
                     }
                 } else if (STR_IEQUALS(request_block->function, "yag_rhotor")) {
-                    arr = (float*)data_block->data;
+                    float* arr = (float*)data_block->data;
                     for (j = 0; j < data_block->dims[0].dim_n; j++) {
-                        offset = i * data_block->dims[0].dim_n + j;
+                        int offset = i * data_block->dims[0].dim_n + j;
                         arr[offset] = equimapdata.efitdata[i].yagrhotor[j];
                     }
                 }
@@ -1439,8 +1400,9 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             (equimapdata.readITMData && STR_IEQUALS(request_block->function, "MVol")) ||
             (equimapdata.readITMData && STR_IEQUALS(request_block->function, "MArea"))) {
 
-            handle = whichHandle("Rmag");
+            int handle = whichHandle("Rmag");
 
+            DATA_BLOCK* data_block = idam_plugin_interface->data_block;
             initDataBlock(data_block);
             data_block->rank = 2;
             data_block->order = 1;
@@ -1533,11 +1495,12 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             data_block->data_type = TYPE_FLOAT;
             data_block->data = malloc(data_block->data_n * sizeof(float));
 
-            arr = (float*)data_block->data;
+            float* arr = (float*)data_block->data;
 
             for (i = 0; i < equimapdata.timeCount; i++) {
+                int j;
                 for (j = 0; j < data_block->dims[0].dim_n; j++) {
-                    offset = i * data_block->dims[0].dim_n + j;
+                    int offset = i * data_block->dims[0].dim_n + j;
                     if (STR_IEQUALS(request_block->function, "R_inner")) {
                         arr[offset] = equimapdata.efitdata[i].mapyagr1[j];
                     } else if (STR_IEQUALS(request_block->function, "R_outer")) {
@@ -1648,8 +1611,9 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             (equimapdata.readITMData && STR_IEQUALS(request_block->function, "MVolB")) ||
             (equimapdata.readITMData && STR_IEQUALS(request_block->function, "MAreaB"))) {
 
-            handle = whichHandle("Rmag");
+            int handle = whichHandle("Rmag");
 
+            DATA_BLOCK* data_block = idam_plugin_interface->data_block;
             initDataBlock(data_block);
             data_block->rank = 2;
             data_block->order = 1;
@@ -1728,11 +1692,12 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             data_block->data_type = TYPE_FLOAT;
             data_block->data = malloc(data_block->data_n * sizeof(float));
 
-            arr = (float*)data_block->data;
+            float* arr = (float*)data_block->data;
 
             for (i = 0; i < equimapdata.timeCount; i++) {
+                int j;
                 for (j = 0; j < data_block->dims[0].dim_n; j++) {
-                    offset = i * data_block->dims[0].dim_n + j;
+                    int offset = i * data_block->dims[0].dim_n + j;
                     if (STR_IEQUALS(request_block->function, "Rb_inner")) {
                         arr[offset] = equimapdata.efitdata[i].mapyagr1B[j];
                     } else if (STR_IEQUALS(request_block->function, "Rb_outer")) {
@@ -1819,6 +1784,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
         if (STR_IEQUALS(request_block->function, "FRho") || STR_IEQUALS(request_block->function, "FRhoB")) {
 
+            DATA_BLOCK* data_block = idam_plugin_interface->data_block;
             initDataBlock(data_block);
             data_block->rank = 1;
             data_block->order = -1;
@@ -1886,6 +1852,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
         if (STR_IEQUALS(request_block->function, "Rho") || STR_IEQUALS(request_block->function, "RhoB")) {
 
+            DATA_BLOCK* data_block = idam_plugin_interface->data_block;
             initDataBlock(data_block);
             data_block->rank = 2;
             data_block->order = 1;
@@ -1895,7 +1862,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Time Dimension
 
-            handle = whichHandle("EFM_MAGNETIC_AXIS_R");        // Provides Timing Labels only - not data
+            int handle = whichHandle("EFM_MAGNETIC_AXIS_R");        // Provides Timing Labels only - not data
 
             data_block->dims[1].dim_n = equimapdata.timeCount;
             data_block->dims[1].data_type = TYPE_FLOAT;
@@ -1937,19 +1904,21 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             data_block->data_type = TYPE_FLOAT;
             data_block->data = malloc(data_block->data_n * sizeof(float));
-            arr = (float*)data_block->data;
+            float* arr = (float*)data_block->data;
 
             if (STR_IEQUALS(request_block->function, "Rho")) {
                 for (i = 0; i < equimapdata.timeCount; i++) {
+                    int j;
                     for (j = 0; j < equimapdata.rhoCount; j++) {
-                        offset = i * equimapdata.rhoCount + j;
+                        int offset = i * equimapdata.rhoCount + j;
                         arr[offset] = equimapdata.rho[j];
                     }
                 }
             } else {
                 for (i = 0; i < equimapdata.timeCount; i++) {
+                    int j;
                     for (j = 0; j < equimapdata.rhoBCount; j++) {
-                        offset = i * equimapdata.rhoBCount + j;
+                        int offset = i * equimapdata.rhoBCount + j;
                         arr[offset] = equimapdata.rhoB[j];
                     }
                 }
@@ -1993,8 +1962,9 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // ************ //fluxSurfaceAverage();
 
-            handle = whichHandle("Rmag");        // Provides Timing Labels only - not data
+            int handle = whichHandle("Rmag");        // Provides Timing Labels only - not data
 
+            DATA_BLOCK* data_block = idam_plugin_interface->data_block;
             initDataBlock(data_block);
             data_block->rank = 2;
             data_block->order = 1;
@@ -2050,11 +2020,12 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             data_block->data_type = TYPE_FLOAT;
             data_block->data = malloc(data_block->data_n * sizeof(float));
-            arr = (float*)data_block->data;
+            float* arr = (float*)data_block->data;
 
             for (i = 0; i < equimapdata.timeCount; i++) {
+                int j;
                 for (j = 0; j < data_block->dims[0].dim_n; j++) {
-                    offset = i * data_block->dims[0].dim_n + j;
+                    int offset = i * data_block->dims[0].dim_n + j;
                     if (STR_IEQUALS(request_block->function, "mapgm0")) {
                         arr[offset] = equimapdata.fluxAverages[i].metrics.grho[j];
                     } else if (STR_IEQUALS(request_block->function, "mapgm1")) {
@@ -2090,12 +2061,6 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             break;
         }
 
-
-
-
-
-
-
 // catch all?
 // Experimental Data? Copy the IDAM data structure
 // No ... double free unless data and coordinate data are copied.
@@ -2108,12 +2073,65 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
         err = 999;
         addIdamError(&idamerrorstack, CODEERRORTYPE, "equimap", err, "Unknown function requested!");
-        concatIdamError(idamerrorstack, idamErrorStack);
         return err;
 
     } while (0);
 
     return err;
+}
+
+//----------------------------------------------------------------------------------------
+// Ping - am I here?
+static int do_ping(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
+{
+    const char* str = "equimap pinged!";
+
+    DATA_BLOCK* data_block = idam_plugin_interface->data_block;
+    initDataBlock(data_block);
+    data_block->rank = 1;
+    data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
+    int i;
+    for (i = 0; i < data_block->rank; i++) {
+        initDimBlock(&data_block->dims[i]);
+    }
+    data_block->dims[0].data_type = TYPE_UNSIGNED_INT;
+    data_block->dims[0].dim_n = strlen(str) + 1;
+    data_block->dims[0].compressed = 1;
+    data_block->dims[0].dim0 = 0.0;
+    data_block->dims[0].diff = 1.0;
+    data_block->dims[0].method = 0;
+    data_block->data_n = strlen(str) + 1;
+    data_block->data_type = TYPE_STRING;
+    data_block->data = strdup(str);
+
+    return 0;
+}
+
+//----------------------------------------------------------------------------------------
+// Help: A Description of library functionality
+static int do_help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
+{
+    const char* help = "psiRZBox Enabled!";
+
+    DATA_BLOCK* data_block = idam_plugin_interface->data_block;
+    initDataBlock(data_block);
+    data_block->rank = 1;
+    data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
+    int i;
+    for (i = 0; i < data_block->rank; i++) {
+        initDimBlock(&data_block->dims[i]);
+    }
+    data_block->dims[0].data_type = TYPE_UNSIGNED_INT;
+    data_block->dims[0].dim_n = strlen(help) + 1;
+    data_block->dims[0].compressed = 1;
+    data_block->dims[0].dim0 = 0.0;
+    data_block->dims[0].diff = 1.0;
+    data_block->dims[0].method = 0;
+    data_block->data_n = strlen(help) + 1;
+    data_block->data_type = TYPE_STRING;
+    data_block->data = strdup(help);
+
+    return 0;
 }
 
 void initEquiMapData()
@@ -2284,130 +2302,129 @@ void freeEquiMapData()
     int i, j;
 
     for (i = 0; i < equimapdata.timeCount; i++) {
-        if (equimapdata.efitdata[i].rlim != NULL) free((void*)equimapdata.efitdata[i].rlim);
-        if (equimapdata.efitdata[i].zlim != NULL) free((void*)equimapdata.efitdata[i].zlim);
-        if (equimapdata.efitdata[i].rlcfs != NULL) free((void*)equimapdata.efitdata[i].rlcfs);
-        if (equimapdata.efitdata[i].zlcfs != NULL) free((void*)equimapdata.efitdata[i].zlcfs);
-        if (equimapdata.efitdata[i].rgrid != NULL) free((void*)equimapdata.efitdata[i].rgrid);
-        if (equimapdata.efitdata[i].zgrid != NULL) free((void*)equimapdata.efitdata[i].zgrid);
-        if (equimapdata.efitdata[i].rgridSR != NULL) free((void*)equimapdata.efitdata[i].rgridSR);
-        if (equimapdata.efitdata[i].zgridSR != NULL) free((void*)equimapdata.efitdata[i].zgridSR);
-        if (equimapdata.efitdata[i].rgridRZBox != NULL) free((void*)equimapdata.efitdata[i].rgridRZBox);
-        if (equimapdata.efitdata[i].zgridRZBox != NULL) free((void*)equimapdata.efitdata[i].zgridRZBox);
+        free(equimapdata.efitdata[i].rlim);
+        free(equimapdata.efitdata[i].zlim);
+        free(equimapdata.efitdata[i].rlcfs);
+        free(equimapdata.efitdata[i].zlcfs);
+        free(equimapdata.efitdata[i].rgrid);
+        free(equimapdata.efitdata[i].zgrid);
+        free(equimapdata.efitdata[i].rgridSR);
+        free(equimapdata.efitdata[i].zgridSR);
+        free(equimapdata.efitdata[i].rgridRZBox);
+        free(equimapdata.efitdata[i].zgridRZBox);
 
-        if (equimapdata.efitdata[i].psiz0 != NULL) free((void*)equimapdata.efitdata[i].psiz0);
-        if (equimapdata.efitdata[i].rz0 != NULL) free((void*)equimapdata.efitdata[i].rz0);
-        if (equimapdata.efitdata[i].q != NULL) free((void*)equimapdata.efitdata[i].q);
-        if (equimapdata.efitdata[i].p != NULL) free((void*)equimapdata.efitdata[i].p);
-        if (equimapdata.efitdata[i].f != NULL) free((void*)equimapdata.efitdata[i].f);
-        if (equimapdata.efitdata[i].rho != NULL) free((void*)equimapdata.efitdata[i].rho);
-        if (equimapdata.efitdata[i].psi != NULL) free((void*)equimapdata.efitdata[i].psi);
-        if (equimapdata.efitdata[i].phi != NULL) free((void*)equimapdata.efitdata[i].phi);
-        if (equimapdata.efitdata[i].trho != NULL) free((void*)equimapdata.efitdata[i].trho);
-        if (equimapdata.efitdata[i].rho_tor != NULL) free((void*)equimapdata.efitdata[i].rho_tor);
+        free(equimapdata.efitdata[i].psiz0);
+        free(equimapdata.efitdata[i].rz0);
+        free(equimapdata.efitdata[i].q);
+        free(equimapdata.efitdata[i].p);
+        free(equimapdata.efitdata[i].f);
+        free(equimapdata.efitdata[i].rho);
+        free(equimapdata.efitdata[i].psi);
+        free(equimapdata.efitdata[i].phi);
+        free(equimapdata.efitdata[i].trho);
+        free(equimapdata.efitdata[i].rho_tor);
 
-        if (equimapdata.efitdata[i].pprime != NULL) free((void*)equimapdata.efitdata[i].pprime);
-        if (equimapdata.efitdata[i].ffprime != NULL) free((void*)equimapdata.efitdata[i].ffprime);
-        if (equimapdata.efitdata[i].elongp != NULL) free((void*)equimapdata.efitdata[i].elongp);
-        if (equimapdata.efitdata[i].trianglp != NULL) free((void*)equimapdata.efitdata[i].trianglp);
-        if (equimapdata.efitdata[i].triangup != NULL) free((void*)equimapdata.efitdata[i].triangup);
-        if (equimapdata.efitdata[i].volp != NULL) free((void*)equimapdata.efitdata[i].volp);
-        if (equimapdata.efitdata[i].areap != NULL) free((void*)equimapdata.efitdata[i].areap);
+        free(equimapdata.efitdata[i].pprime);
+        free(equimapdata.efitdata[i].ffprime);
+        free(equimapdata.efitdata[i].elongp);
+        free(equimapdata.efitdata[i].trianglp);
+        free(equimapdata.efitdata[i].triangup);
+        free(equimapdata.efitdata[i].volp);
+        free(equimapdata.efitdata[i].areap);
 
-        if (equimapdata.efitdata[i].ne != NULL) free((void*)equimapdata.efitdata[i].ne);
-        if (equimapdata.efitdata[i].te != NULL) free((void*)equimapdata.efitdata[i].te);
-        if (equimapdata.efitdata[i].rne != NULL) free((void*)equimapdata.efitdata[i].rne);
-        if (equimapdata.efitdata[i].yagpsi != NULL) free((void*)equimapdata.efitdata[i].yagpsi);
-        if (equimapdata.efitdata[i].yagphi != NULL) free((void*)equimapdata.efitdata[i].yagphi);
-        if (equimapdata.efitdata[i].yagtrho != NULL) free((void*)equimapdata.efitdata[i].yagtrho);
-        if (equimapdata.efitdata[i].yagprho != NULL) free((void*)equimapdata.efitdata[i].yagprho);
-        if (equimapdata.efitdata[i].yagrhotor != NULL) free((void*)equimapdata.efitdata[i].yagrhotor);
-        if (equimapdata.efitdata[i].mappsi != NULL) free((void*)equimapdata.efitdata[i].mappsi);
-        if (equimapdata.efitdata[i].mappsiB != NULL) free((void*)equimapdata.efitdata[i].mappsiB);
-        if (equimapdata.efitdata[i].mapq != NULL) free((void*)equimapdata.efitdata[i].mapq);
-        if (equimapdata.efitdata[i].mapqB != NULL) free((void*)equimapdata.efitdata[i].mapqB);
-        if (equimapdata.efitdata[i].mapp != NULL) free((void*)equimapdata.efitdata[i].mapp);
-        if (equimapdata.efitdata[i].mappB != NULL) free((void*)equimapdata.efitdata[i].mappB);
-        if (equimapdata.efitdata[i].mapf != NULL) free((void*)equimapdata.efitdata[i].mapf);
-        if (equimapdata.efitdata[i].mapfB != NULL) free((void*)equimapdata.efitdata[i].mapfB);
-        if (equimapdata.efitdata[i].mappprime != NULL) free((void*)equimapdata.efitdata[i].mappprime);
-        if (equimapdata.efitdata[i].mappprimeB != NULL) free((void*)equimapdata.efitdata[i].mappprimeB);
-        if (equimapdata.efitdata[i].mapffprime != NULL) free((void*)equimapdata.efitdata[i].mapffprime);
-        if (equimapdata.efitdata[i].mapffprimeB != NULL) free((void*)equimapdata.efitdata[i].mapffprimeB);
-        if (equimapdata.efitdata[i].mapelongp != NULL) free((void*)equimapdata.efitdata[i].mapelongp);
-        if (equimapdata.efitdata[i].mapelongpB != NULL) free((void*)equimapdata.efitdata[i].mapelongpB);
-        if (equimapdata.efitdata[i].maptrianglp != NULL) free((void*)equimapdata.efitdata[i].maptrianglp);
-        if (equimapdata.efitdata[i].maptrianglpB != NULL) free((void*)equimapdata.efitdata[i].maptrianglpB);
-        if (equimapdata.efitdata[i].maptriangup != NULL) free((void*)equimapdata.efitdata[i].maptriangup);
-        if (equimapdata.efitdata[i].maptriangupB != NULL) free((void*)equimapdata.efitdata[i].maptriangupB);
-        if (equimapdata.efitdata[i].mapvolp != NULL) free((void*)equimapdata.efitdata[i].mapvolp);
-        if (equimapdata.efitdata[i].mapvolpB != NULL) free((void*)equimapdata.efitdata[i].mapvolpB);
-        if (equimapdata.efitdata[i].mapareap != NULL) free((void*)equimapdata.efitdata[i].mapareap);
-        if (equimapdata.efitdata[i].mapareapB != NULL) free((void*)equimapdata.efitdata[i].mapareapB);
-        if (equimapdata.efitdata[i].mapgm0 != NULL) free((void*)equimapdata.efitdata[i].mapgm0);
-        if (equimapdata.efitdata[i].mapgm1 != NULL) free((void*)equimapdata.efitdata[i].mapgm1);
-        if (equimapdata.efitdata[i].mapgm2 != NULL) free((void*)equimapdata.efitdata[i].mapgm2);
-        if (equimapdata.efitdata[i].mapgm3 != NULL) free((void*)equimapdata.efitdata[i].mapgm3);
+        free(equimapdata.efitdata[i].ne);
+        free(equimapdata.efitdata[i].te);
+        free(equimapdata.efitdata[i].rne);
+        free(equimapdata.efitdata[i].yagpsi);
+        free(equimapdata.efitdata[i].yagphi);
+        free(equimapdata.efitdata[i].yagtrho);
+        free(equimapdata.efitdata[i].yagprho);
+        free(equimapdata.efitdata[i].yagrhotor);
+        free(equimapdata.efitdata[i].mappsi);
+        free(equimapdata.efitdata[i].mappsiB);
+        free(equimapdata.efitdata[i].mapq);
+        free(equimapdata.efitdata[i].mapqB);
+        free(equimapdata.efitdata[i].mapp);
+        free(equimapdata.efitdata[i].mappB);
+        free(equimapdata.efitdata[i].mapf);
+        free(equimapdata.efitdata[i].mapfB);
+        free(equimapdata.efitdata[i].mappprime);
+        free(equimapdata.efitdata[i].mappprimeB);
+        free(equimapdata.efitdata[i].mapffprime);
+        free(equimapdata.efitdata[i].mapffprimeB);
+        free(equimapdata.efitdata[i].mapelongp);
+        free(equimapdata.efitdata[i].mapelongpB);
+        free(equimapdata.efitdata[i].maptrianglp);
+        free(equimapdata.efitdata[i].maptrianglpB);
+        free(equimapdata.efitdata[i].maptriangup);
+        free(equimapdata.efitdata[i].maptriangupB);
+        free(equimapdata.efitdata[i].mapvolp);
+        free(equimapdata.efitdata[i].mapvolpB);
+        free(equimapdata.efitdata[i].mapareap);
+        free(equimapdata.efitdata[i].mapareapB);
+        free(equimapdata.efitdata[i].mapgm0);
+        free(equimapdata.efitdata[i].mapgm1);
+        free(equimapdata.efitdata[i].mapgm2);
+        free(equimapdata.efitdata[i].mapgm3);
 
-        if (equimapdata.efitdata[i].mapyagne != NULL) free((void*)equimapdata.efitdata[i].mapyagne);
-        if (equimapdata.efitdata[i].mapyagte != NULL) free((void*)equimapdata.efitdata[i].mapyagte);
-        if (equimapdata.efitdata[i].mapyagpsi != NULL) free((void*)equimapdata.efitdata[i].mapyagpsi);
-        if (equimapdata.efitdata[i].mapyagphi != NULL) free((void*)equimapdata.efitdata[i].mapyagphi);
-        if (equimapdata.efitdata[i].mapyagr1 != NULL) free((void*)equimapdata.efitdata[i].mapyagr1);
-        if (equimapdata.efitdata[i].mapyagne1 != NULL) free((void*)equimapdata.efitdata[i].mapyagne1);
-        if (equimapdata.efitdata[i].mapyagte1 != NULL) free((void*)equimapdata.efitdata[i].mapyagte1);
-        if (equimapdata.efitdata[i].mapyagpsi1 != NULL) free((void*)equimapdata.efitdata[i].mapyagpsi1);
-        if (equimapdata.efitdata[i].mapyagphi1 != NULL) free((void*)equimapdata.efitdata[i].mapyagphi1);
-        if (equimapdata.efitdata[i].mapyagr2 != NULL) free((void*)equimapdata.efitdata[i].mapyagr2);
-        if (equimapdata.efitdata[i].mapyagne2 != NULL) free((void*)equimapdata.efitdata[i].mapyagne2);
-        if (equimapdata.efitdata[i].mapyagte2 != NULL) free((void*)equimapdata.efitdata[i].mapyagte2);
-        if (equimapdata.efitdata[i].mapyagpsi2 != NULL) free((void*)equimapdata.efitdata[i].mapyagpsi2);
-        if (equimapdata.efitdata[i].mapyagphi2 != NULL) free((void*)equimapdata.efitdata[i].mapyagphi2);
-        if (equimapdata.efitdata[i].mapyagneB != NULL) free((void*)equimapdata.efitdata[i].mapyagneB);
-        if (equimapdata.efitdata[i].mapyagteB != NULL) free((void*)equimapdata.efitdata[i].mapyagteB);
-        if (equimapdata.efitdata[i].mapyagpsiB != NULL) free((void*)equimapdata.efitdata[i].mapyagpsiB);
-        if (equimapdata.efitdata[i].mapyagphiB != NULL) free((void*)equimapdata.efitdata[i].mapyagphiB);
-        if (equimapdata.efitdata[i].mapyagr1B != NULL) free((void*)equimapdata.efitdata[i].mapyagr1B);
-        if (equimapdata.efitdata[i].mapyagne1B != NULL) free((void*)equimapdata.efitdata[i].mapyagne1B);
-        if (equimapdata.efitdata[i].mapyagte1B != NULL) free((void*)equimapdata.efitdata[i].mapyagte1B);
-        if (equimapdata.efitdata[i].mapyagpsi1B != NULL) free((void*)equimapdata.efitdata[i].mapyagpsi1B);
-        if (equimapdata.efitdata[i].mapyagphi1B != NULL) free((void*)equimapdata.efitdata[i].mapyagphi1B);
-        if (equimapdata.efitdata[i].mapyagr2B != NULL) free((void*)equimapdata.efitdata[i].mapyagr2B);
-        if (equimapdata.efitdata[i].mapyagne2B != NULL) free((void*)equimapdata.efitdata[i].mapyagne2B);
-        if (equimapdata.efitdata[i].mapyagte2B != NULL) free((void*)equimapdata.efitdata[i].mapyagte2B);
-        if (equimapdata.efitdata[i].mapyagpsi2B != NULL) free((void*)equimapdata.efitdata[i].mapyagpsi2B);
-        if (equimapdata.efitdata[i].mapyagphi2B != NULL) free((void*)equimapdata.efitdata[i].mapyagphi2B);
+        free(equimapdata.efitdata[i].mapyagne);
+        free(equimapdata.efitdata[i].mapyagte);
+        free(equimapdata.efitdata[i].mapyagpsi);
+        free(equimapdata.efitdata[i].mapyagphi);
+        free(equimapdata.efitdata[i].mapyagr1);
+        free(equimapdata.efitdata[i].mapyagne1);
+        free(equimapdata.efitdata[i].mapyagte1);
+        free(equimapdata.efitdata[i].mapyagpsi1);
+        free(equimapdata.efitdata[i].mapyagphi1);
+        free(equimapdata.efitdata[i].mapyagr2);
+        free(equimapdata.efitdata[i].mapyagne2);
+        free(equimapdata.efitdata[i].mapyagte2);
+        free(equimapdata.efitdata[i].mapyagpsi2);
+        free(equimapdata.efitdata[i].mapyagphi2);
+        free(equimapdata.efitdata[i].mapyagneB);
+        free(equimapdata.efitdata[i].mapyagteB);
+        free(equimapdata.efitdata[i].mapyagpsiB);
+        free(equimapdata.efitdata[i].mapyagphiB);
+        free(equimapdata.efitdata[i].mapyagr1B);
+        free(equimapdata.efitdata[i].mapyagne1B);
+        free(equimapdata.efitdata[i].mapyagte1B);
+        free(equimapdata.efitdata[i].mapyagpsi1B);
+        free(equimapdata.efitdata[i].mapyagphi1B);
+        free(equimapdata.efitdata[i].mapyagr2B);
+        free(equimapdata.efitdata[i].mapyagne2B);
+        free(equimapdata.efitdata[i].mapyagte2B);
+        free(equimapdata.efitdata[i].mapyagpsi2B);
+        free(equimapdata.efitdata[i].mapyagphi2B);
 
-        for (j = 0; j < equimapdata.efitdata[i].psiCount[1]; j++)
-            if (equimapdata.efitdata[i].psig[j] != NULL) free((void*)equimapdata.efitdata[i].psig[j]);
-        if (equimapdata.efitdata[i].psig != NULL) free((void*)equimapdata.efitdata[i].psig);
+        for (j = 0; j < equimapdata.efitdata[i].psiCount[1]; j++) {
+            free(equimapdata.efitdata[i].psig[j]);
+        }
+        free(equimapdata.efitdata[i].psig);
 
-        for (j = 0; j < equimapdata.efitdata[i].psiCountSR[1]; j++)
-            if (equimapdata.efitdata[i].psigSR[j] != NULL) free((void*)equimapdata.efitdata[i].psigSR[j]);
-        if (equimapdata.efitdata[i].psigSR != NULL) free((void*)equimapdata.efitdata[i].psigSR);
+        for (j = 0; j < equimapdata.efitdata[i].psiCountSR[1]; j++) {
+            free(equimapdata.efitdata[i].psigSR[j]);
+        }
+        free(equimapdata.efitdata[i].psigSR);
 
-        for (j = 0; j < equimapdata.efitdata[i].psiCountRZBox[1]; j++)
-            if (equimapdata.efitdata[i].psigRZBox[j] != NULL) free((void*)equimapdata.efitdata[i].psigRZBox[j]);
-        if (equimapdata.efitdata[i].psigRZBox != NULL) free((void*)equimapdata.efitdata[i].psigRZBox);
+        for (j = 0; j < equimapdata.efitdata[i].psiCountRZBox[1]; j++) {
+            free(equimapdata.efitdata[i].psigRZBox[j]);
+        }
+        free(equimapdata.efitdata[i].psigRZBox);
 
-        for (j = 0; j < equimapdata.efitdata[i].psiCount[1]; j++)
-            if (equimapdata.efitdata[i].Jphi[j] != NULL) free((void*)equimapdata.efitdata[i].Jphi[j]);
-        if (equimapdata.efitdata[i].Jphi != NULL) free((void*)equimapdata.efitdata[i].Jphi);
+        for (j = 0; j < equimapdata.efitdata[i].psiCount[1]; j++) {
+            free(equimapdata.efitdata[i].Jphi[j]);
+        }
+        free(equimapdata.efitdata[i].Jphi);
 
         if (equimapdata.readITMData) {
-
             for (j = 0; j < equimapdata.efitdata[i].psiCount[1]; j++) {
-                //if(equimapdata.efitdata[i].dpsidr[j] != NULL) free((void *)equimapdata.efitdata[i].dpsidr[j]);
-                //if(equimapdata.efitdata[i].dpsidz[j] != NULL) free((void *)equimapdata.efitdata[i].dpsidz[j]);
-                if (equimapdata.efitdata[i].Br[j] != NULL) free((void*)equimapdata.efitdata[i].Br[j]);
-                if (equimapdata.efitdata[i].Bz[j] != NULL) free((void*)equimapdata.efitdata[i].Bz[j]);
-                if (equimapdata.efitdata[i].Bphi[j] != NULL) free((void*)equimapdata.efitdata[i].Bphi[j]);
+                free(equimapdata.efitdata[i].Br[j]);
+                free(equimapdata.efitdata[i].Bz[j]);
+                free(equimapdata.efitdata[i].Bphi[j]);
             }
-            //if(equimapdata.efitdata[i].dpsidr != NULL) free((void *)equimapdata.efitdata[i].dpsidr);
-            //if(equimapdata.efitdata[i].dpsidz != NULL) free((void *)equimapdata.efitdata[i].dpsidz);
-            if (equimapdata.efitdata[i].Br != NULL) free((void*)equimapdata.efitdata[i].Br);
-            if (equimapdata.efitdata[i].Bz != NULL) free((void*)equimapdata.efitdata[i].Bz);
-            if (equimapdata.efitdata[i].Bphi != NULL) free((void*)equimapdata.efitdata[i].Bphi);
+            free(equimapdata.efitdata[i].Br);
+            free(equimapdata.efitdata[i].Bz);
+            free(equimapdata.efitdata[i].Bphi);
         }
 
         initEfitData(&equimapdata.efitdata[i]);
@@ -2534,8 +2551,8 @@ void freeEquiMapData()
             if (equimapdata.fluxAverages[i].metrics.xaprime != NULL) {
                 free((void*)equimapdata.fluxAverages[i].metrics.xaprime);
             }
-            if (equimapdata.fluxAverages[i].metrics.len != NULL) free((void*)equimapdata.fluxAverages[i].metrics.len);
-            if (equimapdata.fluxAverages[i].metrics.sur != NULL) free((void*)equimapdata.fluxAverages[i].metrics.sur);
+            free(equimapdata.fluxAverages[i].metrics.len);
+            free(equimapdata.fluxAverages[i].metrics.sur);
             if (equimapdata.fluxAverages[i].metrics.grho != NULL) {
                 free((void*)equimapdata.fluxAverages[i].metrics.grho);
             }
@@ -2548,16 +2565,16 @@ void freeEquiMapData()
             if (equimapdata.fluxAverages[i].metrics.xarea != NULL) {
                 free((void*)equimapdata.fluxAverages[i].metrics.xarea);
             }
-            if (equimapdata.fluxAverages[i].metrics.gm2 != NULL) free((void*)equimapdata.fluxAverages[i].metrics.gm2);
-            if (equimapdata.fluxAverages[i].metrics.gm3 != NULL) free((void*)equimapdata.fluxAverages[i].metrics.gm3);
+            free(equimapdata.fluxAverages[i].metrics.gm2);
+            free(equimapdata.fluxAverages[i].metrics.gm3);
         }
     }
 
-    if (equimapdata.times != NULL) free((void*)equimapdata.times);
-    if (equimapdata.rho != NULL) free((void*)equimapdata.rho);
-    if (equimapdata.rhoB != NULL) free((void*)equimapdata.rhoB);
-    if (equimapdata.efitdata != NULL) free((void*)equimapdata.efitdata);
-    if (equimapdata.fluxAverages != NULL) free((void*)equimapdata.fluxAverages);
+    free(equimapdata.times);
+    free(equimapdata.rho);
+    free(equimapdata.rhoB);
+    free(equimapdata.efitdata);
+    free(equimapdata.fluxAverages);
 
     for (i = 0; i < handleCount; i++) {
         idamFree(handles[i]);        // Free IDAM Heap

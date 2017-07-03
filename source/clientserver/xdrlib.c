@@ -27,7 +27,7 @@ int protocolVersionTypeTest(int protocolVersion, int type)
 
 // If this client/server version cannot pass/receive a specific type, then return TRUE
 
-    IDAM_LOGF(LOG_DEBUG, "protocolVersionTypeTest Version: %d, Type: %d\n", protocolVersion, type);
+    IDAM_LOGF(UDA_LOG_DEBUG, "protocolVersionTypeTest Version: %d, Type: %d\n", protocolVersion, type);
 
 #ifdef __APPLE__
     if (type == TYPE_UNSIGNED_LONG64) return 1;
@@ -226,7 +226,7 @@ bool_t xdr_client(XDR* xdrs, CLIENT_BLOCK* str)
 
     }
 
-    IDAM_LOGF(LOG_DEBUG, "protocolVersion %d\n", protocolVersion);
+    IDAM_LOGF(UDA_LOG_DEBUG, "protocolVersion %d\n", protocolVersion);
     printClientBlock(*str);
 
     return rc;
@@ -249,25 +249,25 @@ bool_t xdr_server1(XDR* xdrs, SERVER_BLOCK* str)
         } else if (serverVersion != str->version) {        // Usually different if the server has crashed
             rc = 0;                    // Force an error
             str->version = serverVersion;        // Replace the erroneous version number
-            IDAM_LOGF(LOG_DEBUG, "Server #1 rc = %d\n", rc);
+            IDAM_LOGF(UDA_LOG_DEBUG, "Server #1 rc = %d\n", rc);
             return rc;
         }
     }
 
-    IDAM_LOGF(LOG_DEBUG, "Server #1 rc[1] = %d, version = %d\n", rc, str->version);
+    IDAM_LOGF(UDA_LOG_DEBUG, "Server #1 rc[1] = %d, version = %d\n", rc, str->version);
 
     rc = rc && xdr_int(xdrs, &str->error);
-    IDAM_LOGF(LOG_DEBUG, "Server #1 rc[2] = %d, error = %d\n", rc, str->error);
+    IDAM_LOGF(UDA_LOG_DEBUG, "Server #1 rc[2] = %d, error = %d\n", rc, str->error);
     rc = rc && xdr_u_int(xdrs, &str->idamerrorstack.nerrors);
-    IDAM_LOGF(LOG_DEBUG, "Server #1 rc[3] = %d, error = %d\n", rc, str->idamerrorstack.nerrors);
+    IDAM_LOGF(UDA_LOG_DEBUG, "Server #1 rc[3] = %d, error = %d\n", rc, str->idamerrorstack.nerrors);
 
     rc = rc && WrapXDRString(xdrs, (char*)str->msg, STRING_LENGTH);
 
-    IDAM_LOGF(LOG_DEBUG, "Server #1 rc[4] = %d, strlen = %zd\n", rc, strlen(str->msg));
-    IDAM_LOGF(LOG_DEBUG, "str->msg = %p\n", str->msg);
-    IDAM_LOGF(LOG_DEBUG, "str->msg[0] = %d\n", str->msg[0]);
-    IDAM_LOGF(LOG_DEBUG, "maxsize = %d\n", STRING_LENGTH);
-    IDAM_LOGF(LOG_DEBUG, "Server #1 protocolVersion %d [rc = %d]\n", protocolVersion, rc);
+    IDAM_LOGF(UDA_LOG_DEBUG, "Server #1 rc[4] = %d, strlen = %zd\n", rc, strlen(str->msg));
+    IDAM_LOGF(UDA_LOG_DEBUG, "str->msg = %p\n", str->msg);
+    IDAM_LOGF(UDA_LOG_DEBUG, "str->msg[0] = %d\n", str->msg[0]);
+    IDAM_LOGF(UDA_LOG_DEBUG, "maxsize = %d\n", STRING_LENGTH);
+    IDAM_LOGF(UDA_LOG_DEBUG, "Server #1 protocolVersion %d [rc = %d]\n", protocolVersion, rc);
 
     if ((xdrs->x_op == XDR_DECODE && protocolVersion >= 7) || (xdrs->x_op == XDR_ENCODE && protocolVersion >= 7)) {
         rc = rc && WrapXDRString(xdrs, (char*)str->OSName, STRING_LENGTH)
@@ -277,7 +277,7 @@ bool_t xdr_server1(XDR* xdrs, SERVER_BLOCK* str)
 #endif
     }
 
-    IDAM_LOGF(LOG_DEBUG, "Server #1 rc = %d\n", rc);
+    IDAM_LOGF(UDA_LOG_DEBUG, "Server #1 rc = %d\n", rc);
 
     return rc;
 }
@@ -292,10 +292,10 @@ bool_t xdr_server2(XDR* xdrs, SERVER_BLOCK* str)
              && WrapXDRString(xdrs, (char*)str->idamerrorstack.idamerror[i].location, STRING_LENGTH)
              && WrapXDRString(xdrs, (char*)str->idamerrorstack.idamerror[i].msg, STRING_LENGTH);
 
-        IDAM_LOGF(LOG_DEBUG, "xdr_server2 [%d] %s\n", i, str->idamerrorstack.idamerror[i].msg);
+        IDAM_LOGF(UDA_LOG_DEBUG, "xdr_server2 [%d] %s\n", i, str->idamerrorstack.idamerror[i].msg);
     }
 
-    IDAM_LOGF(LOG_DEBUG, "Server #2 rc = %d\n", rc);
+    IDAM_LOGF(UDA_LOG_DEBUG, "Server #2 rc = %d\n", rc);
 
     return rc;
 }
@@ -350,17 +350,17 @@ bool_t xdr_putdata_block1XXX(XDR* xdrs, PUTDATA_BLOCK* str)
 {
     int rc = xdr_u_int(xdrs, &str->rank);
 
-    IDAM_LOGF(LOG_DEBUG, "#rank: %d\n", str->rank);
+    IDAM_LOGF(UDA_LOG_DEBUG, "#rank: %d\n", str->rank);
     rc = rc && xdr_u_int(xdrs, &str->count);
-    IDAM_LOGF(LOG_DEBUG, "#count: %d\n", str->count);
+    IDAM_LOGF(UDA_LOG_DEBUG, "#count: %d\n", str->count);
     rc = rc && xdr_int(xdrs, &str->data_type);
-    IDAM_LOGF(LOG_DEBUG, "#type: %d\n", str->data_type);
+    IDAM_LOGF(UDA_LOG_DEBUG, "#type: %d\n", str->data_type);
     rc = rc && xdr_int(xdrs, &str->opaque_type);
-    IDAM_LOGF(LOG_DEBUG, "##type: %d\n", str->opaque_type);
+    IDAM_LOGF(UDA_LOG_DEBUG, "##type: %d\n", str->opaque_type);
     rc = rc && xdr_int(xdrs, &str->opaque_count);
-    IDAM_LOGF(LOG_DEBUG, "##count: %d\n", str->opaque_count);
+    IDAM_LOGF(UDA_LOG_DEBUG, "##count: %d\n", str->opaque_count);
     rc = rc && xdr_u_int(xdrs, &str->blockNameLength);
-    IDAM_LOGF(LOG_DEBUG, "###count: %d\n", str->blockNameLength);
+    IDAM_LOGF(UDA_LOG_DEBUG, "###count: %d\n", str->blockNameLength);
     return rc;
 }
 
@@ -378,9 +378,8 @@ bool_t xdr_putdata_block1(XDR* xdrs, PUTDATA_BLOCK* str)
 
 bool_t xdr_putdata_block2(XDR* xdrs, PUTDATA_BLOCK* str)
 {
-
     int rc = 1;
-    if (str->rank > 1) {
+    if (str->rank > 0) {
         rc = rc && xdr_vector(xdrs, (char*)str->shape, (int)str->rank, sizeof(int), (xdrproc_t)xdr_int);
     }
 
@@ -390,8 +389,7 @@ bool_t xdr_putdata_block2(XDR* xdrs, PUTDATA_BLOCK* str)
         case TYPE_FLOAT :
             return (rc && xdr_vector(xdrs, (char*)str->data, (int)str->count, sizeof(float), (xdrproc_t)xdr_float));
         case TYPE_DOUBLE :
-            return (rc &&
-                    xdr_vector(xdrs, (char*)str->data, (int)str->count, sizeof(double), (xdrproc_t)xdr_double));
+            return (rc && xdr_vector(xdrs, (char*)str->data, (int)str->count, sizeof(double), (xdrproc_t)xdr_double));
         case TYPE_CHAR :
             return (rc && xdr_vector(xdrs, (char*)str->data, (int)str->count, sizeof(char), (xdrproc_t)xdr_char));
         case TYPE_SHORT :
@@ -629,7 +627,6 @@ bool_t xdr_data_block2(XDR* xdrs, DATA_BLOCK* str)
             return (xdr_vector(xdrs, str->data, (u_int)str->data_n, sizeof(float), (xdrproc_t)xdr_float));
         case TYPE_DOUBLE :
             return (xdr_vector(xdrs, str->data, (u_int)str->data_n, sizeof(double), (xdrproc_t)xdr_double));
-
         case TYPE_CHAR :
             return (xdr_vector(xdrs, str->data, (u_int)str->data_n, sizeof(char), (xdrproc_t)xdr_char));
         case TYPE_SHORT :
@@ -694,7 +691,6 @@ bool_t xdr_data_block3(XDR* xdrs, DATA_BLOCK* str)
             return (xdr_vector(xdrs, str->errhi, (u_int)str->data_n, sizeof(float), (xdrproc_t)xdr_float));
         case TYPE_DOUBLE :
             return (xdr_vector(xdrs, str->errhi, (u_int)str->data_n, sizeof(double), (xdrproc_t)xdr_double));
-
         case TYPE_CHAR :
             return (xdr_vector(xdrs, str->errhi, (u_int)str->data_n, sizeof(char), (xdrproc_t)xdr_char));
         case TYPE_SHORT :
@@ -748,7 +744,6 @@ bool_t xdr_data_block4(XDR* xdrs, DATA_BLOCK* str)
             return (xdr_vector(xdrs, str->errlo, (u_int)str->data_n, sizeof(float), (xdrproc_t)xdr_float));
         case TYPE_DOUBLE :
             return (xdr_vector(xdrs, str->errlo, (u_int)str->data_n, sizeof(double), (xdrproc_t)xdr_double));
-
         case TYPE_CHAR :
             return (xdr_vector(xdrs, str->errlo, (u_int)str->data_n, sizeof(char), (xdrproc_t)xdr_char));
         case TYPE_SHORT :

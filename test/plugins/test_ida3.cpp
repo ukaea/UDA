@@ -3,7 +3,7 @@
 
 #include <c++/UDA.hpp>
 
-TEST_CASE( "Test hdf5::test() function", "[hdf5]" ) {
+TEST_CASE( "Test NEWIDA::test() function", "[NEWIDA][plugins]" ) {
 
 #ifdef FATCLIENT
 #  include "setupEnvironment.inc"
@@ -11,7 +11,7 @@ TEST_CASE( "Test hdf5::test() function", "[hdf5]" ) {
 
     uda::Client client;
 
-    const uda::Result& result = client.get("NEWHDF5::help()", "");
+    const uda::Result& result = client.get("NEWIDA::help()", "");
 
     REQUIRE( result.errorCode() == 0 );
     REQUIRE( result.error() == "" );
@@ -26,7 +26,7 @@ TEST_CASE( "Test hdf5::test() function", "[hdf5]" ) {
 
     REQUIRE( str != NULL );
 
-    std::string expected = "\nnewHDF5: get - Read data from a HDF5 file\n\n";
+    std::string expected = "\nIDA3: Add Functions Names, Syntax, and Descriptions\n\n";
 
     REQUIRE( str->str() == expected );
 }

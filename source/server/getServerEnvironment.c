@@ -22,21 +22,21 @@ void putIdamServerEnvironment(const ENVIRONMENT* environment)
 
 void printIdamServerEnvironment(const ENVIRONMENT* environ)
 {
-    IDAM_LOG(LOG_INFO, "\nServer Environment Variable values\n\n");
-    IDAM_LOGF(LOG_INFO, "Log Location    : %s\n", environ->logdir);
-    IDAM_LOGF(LOG_INFO, "Log Write Mode  : %s\n", environ->logmode);
-    IDAM_LOGF(LOG_INFO, "Log Level       : %d\n", environ->loglevel);
-    IDAM_LOGF(LOG_INFO, "External User?  : %d\n", environ->external_user);
-    IDAM_LOGF(LOG_INFO, "IDAM Proxy Host : %s\n", environ->server_proxy);
-    IDAM_LOGF(LOG_INFO, "IDAM This Host  : %s\n", environ->server_this);
-    IDAM_LOGF(LOG_INFO, "Private File Path Target    : %s\n", environ->private_path_target);
-    IDAM_LOGF(LOG_INFO, "Private File Path Substitute: %s\n", environ->private_path_substitute);
+    IDAM_LOG(UDA_LOG_INFO, "\nServer Environment Variable values\n\n");
+    IDAM_LOGF(UDA_LOG_INFO, "Log Location    : %s\n", environ->logdir);
+    IDAM_LOGF(UDA_LOG_INFO, "Log Write Mode  : %s\n", environ->logmode);
+    IDAM_LOGF(UDA_LOG_INFO, "Log Level       : %d\n", environ->loglevel);
+    IDAM_LOGF(UDA_LOG_INFO, "External User?  : %d\n", environ->external_user);
+    IDAM_LOGF(UDA_LOG_INFO, "IDAM Proxy Host : %s\n", environ->server_proxy);
+    IDAM_LOGF(UDA_LOG_INFO, "IDAM This Host  : %s\n", environ->server_this);
+    IDAM_LOGF(UDA_LOG_INFO, "Private File Path Target    : %s\n", environ->private_path_target);
+    IDAM_LOGF(UDA_LOG_INFO, "Private File Path Substitute: %s\n", environ->private_path_substitute);
 
 #ifndef NOTGENERICENABLED
-    IDAM_LOGF(LOG_INFO, "IDAM SQL Server Host: %s\n", environ->sql_host);
-    IDAM_LOGF(LOG_INFO, "IDAM SQL Server Port: %d\n", environ->sql_port);
-    IDAM_LOGF(LOG_INFO, "IDAM SQL Database   : %s\n", environ->sql_dbname);
-    IDAM_LOGF(LOG_INFO, "IDAM SQL USer       : %s\n", environ->sql_user);
+    IDAM_LOGF(UDA_LOG_INFO, "IDAM SQL Server Host: %s\n", environ->sql_host);
+    IDAM_LOGF(UDA_LOG_INFO, "IDAM SQL Server Port: %d\n", environ->sql_port);
+    IDAM_LOGF(UDA_LOG_INFO, "IDAM SQL Database   : %s\n", environ->sql_dbname);
+    IDAM_LOGF(UDA_LOG_INFO, "IDAM SQL USer       : %s\n", environ->sql_user);
 #endif
 }
 
@@ -59,13 +59,13 @@ ENVIRONMENT* getIdamServerEnvironment()
         strcpy(environ.logdir, "/scratch/idamlog/");        // Log is on Scratch
     }
 
-    environ.loglevel = LOG_NONE;
+    environ.loglevel = UDA_LOG_NONE;
     if ((env = getenv("UDA_LOG_LEVEL")) != NULL) {
-        if (strncmp(env, "ACCESS", 6) == 0) { environ.loglevel = LOG_ACCESS; }
-        else if (strncmp(env, "ERROR", 5) == 0) { environ.loglevel = LOG_ERROR; }
-        else if (strncmp(env, "WARN", 4) == 0) { environ.loglevel = LOG_WARN; }
-        else if (strncmp(env, "DEBUG", 5) == 0) { environ.loglevel = LOG_DEBUG; }
-        else if (strncmp(env, "INFO", 4) == 0) { environ.loglevel = LOG_INFO; }
+        if (strncmp(env, "ACCESS", 6) == 0) { environ.loglevel = UDA_LOG_ACCESS; }
+        else if (strncmp(env, "ERROR", 5) == 0) { environ.loglevel = UDA_LOG_ERROR; }
+        else if (strncmp(env, "WARN", 4) == 0) { environ.loglevel = UDA_LOG_WARN; }
+        else if (strncmp(env, "DEBUG", 5) == 0) { environ.loglevel = UDA_LOG_DEBUG; }
+        else if (strncmp(env, "INFO", 4) == 0) { environ.loglevel = UDA_LOG_INFO; }
     }
 
 // Log Output Write Mode

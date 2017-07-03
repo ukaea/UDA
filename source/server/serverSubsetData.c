@@ -114,12 +114,12 @@ int idamserverSubsetData(DATA_BLOCK* data_block, ACTION action)
             operation = subset.operation[j];                // a single operation
             dimid = subset.dimid[j];                    // applied to this dimension (if -1 then to data only!)
 
-            IDAM_LOGF(LOG_DEBUG, "[%d][%d]Value = %e, Operation = %s, DIM id = %d, Reform = %d\n",
+            IDAM_LOGF(UDA_LOG_DEBUG, "[%d][%d]Value = %e, Operation = %s, DIM id = %d, Reform = %d\n",
                     i, j, value, operation, dimid, subset.reform);
 
             if (dimid < 0 || dimid >= data_block->rank) {
                 ierr = 9999;
-                IDAM_LOGF(LOG_ERROR, "Error ***    DIM id = %d,  Rank = %d, Test = %d \n",
+                IDAM_LOGF(UDA_LOG_ERROR, "Error ***    DIM id = %d,  Rank = %d, Test = %d \n",
                         dimid, data_block->rank, dimid >= data_block->rank);
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "idamserverSubsetData", ierr,
                              "Data Subsetting is Impossible as the subset Dimension is not Compatible with the Rank of the Signal");
@@ -539,9 +539,9 @@ int idamserverSubsetData(DATA_BLOCK* data_block, ACTION action)
 // Build the New Subsetted Dimension
 
             printDataBlock(*data_block);
-            IDAM_LOGF(LOG_DEBUG, "\n\n\n*** dim->data_type: %d\n\n\n", dim->data_type);
-            IDAM_LOGF(LOG_DEBUG, "\n\n\n*** dim->errhi != NULL: %d\n\n\n", dim->errhi != NULL);
-            IDAM_LOGF(LOG_DEBUG, "\n\n\n*** dim->errlo != NULL: %d\n\n\n", dim->errlo != NULL);
+            IDAM_LOGF(UDA_LOG_DEBUG, "\n\n\n*** dim->data_type: %d\n\n\n", dim->data_type);
+            IDAM_LOGF(UDA_LOG_DEBUG, "\n\n\n*** dim->errhi != NULL: %d\n\n\n", dim->errhi != NULL);
+            IDAM_LOGF(UDA_LOG_DEBUG, "\n\n\n*** dim->errlo != NULL: %d\n\n\n", dim->errlo != NULL);
 
             if ((ierr = idamserverNewDataArray2(dim, 1, dimid, dim->dim, dim_n, dim->data_type, notoperation, reverse,
                                                 start, end, start1, end1, &n, (void*) &newdim.dim)) != 0) {
@@ -625,7 +625,7 @@ int idamserverSubsetData(DATA_BLOCK* data_block, ACTION action)
         int rank = data_block->rank;
         for (j = 0; j < rank; j++) {
             if (data_block->dims[j].dim_n <= 1) {
-                IDAM_LOGF(LOG_DEBUG, "Reforming Dimension %d\n", j);
+                IDAM_LOGF(UDA_LOG_DEBUG, "Reforming Dimension %d\n", j);
 
                 data_block->dims[j].compressed = 0;
                 data_block->dims[j].method = 0;
@@ -678,7 +678,7 @@ int idamserverSubsetData(DATA_BLOCK* data_block, ACTION action)
 
             if (dimid < 0 || dimid >= data_block->rank) {
                 ierr = 999;
-                IDAM_LOGF(LOG_ERROR, "Function Syntax Error -  dimid = %d,  Rank = %d\n", dimid,
+                IDAM_LOGF(UDA_LOG_ERROR, "Function Syntax Error -  dimid = %d,  Rank = %d\n", dimid,
                         data_block->rank);
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "idamserverSubsetData", ierr,
                              "The dimension ID identified via the subset function is outside the rank bounds of the array!");
@@ -926,7 +926,7 @@ int idamserverSubsetData(DATA_BLOCK* data_block, ACTION action)
             char* p1 = strstr(subset.function, "value");
             strcpy(data_block->data_label, subset.function);
 
-            IDAM_LOGF(LOG_DEBUG, "%s\n", subset.function);
+            IDAM_LOGF(UDA_LOG_DEBUG, "%s\n", subset.function);
 
             if (p1 != NULL) {
                 char* p3, * p2 = strchr(&p1[5], '=');
@@ -935,16 +935,16 @@ int idamserverSubsetData(DATA_BLOCK* data_block, ACTION action)
                 p3[0] = '\0';
                 TrimString(p2);
                 LeftTrimString(p2);
-                IDAM_LOGF(LOG_DEBUG, "p2 = [%s]\n", p2);
+                IDAM_LOGF(UDA_LOG_DEBUG, "p2 = [%s]\n", p2);
                 if (IsFloat(p2)) {
                     value = atof(p2);
                 } else {
-                    IDAM_LOG(LOG_DEBUG, "IsFloat FALSE!\n");
+                    IDAM_LOG(UDA_LOG_DEBUG, "IsFloat FALSE!\n");
                     // ERROR
                 }
             }
 
-            IDAM_LOGF(LOG_DEBUG, "value = %f\n", value);
+            IDAM_LOGF(UDA_LOG_DEBUG, "value = %f\n", value);
 
             if (data_block->errhi != NULL) free((void*) data_block->errhi);
             if (data_block->errlo != NULL) free((void*) data_block->errlo);
@@ -973,7 +973,7 @@ int idamserverSubsetData(DATA_BLOCK* data_block, ACTION action)
 
         if (!strncasecmp(subset.function, "order", 5)) {        // Identify the Time dimension order
             char* p1 = strstr(subset.function, "dimid");
-            IDAM_LOGF(LOG_DEBUG, "%s\n", subset.function);
+            IDAM_LOGF(UDA_LOG_DEBUG, "%s\n", subset.function);
             if (p1 != NULL) {
                 char* p3, * p2 = strchr(&p1[5], '=');
                 p2[0] = ' ';
@@ -981,18 +981,18 @@ int idamserverSubsetData(DATA_BLOCK* data_block, ACTION action)
                 p3[0] = '\0';
                 TrimString(p2);
                 LeftTrimString(p2);
-                IDAM_LOGF(LOG_DEBUG, "p2 = [%s]\n", p2);
+                IDAM_LOGF(UDA_LOG_DEBUG, "p2 = [%s]\n", p2);
                 if (IsNumber(p2)) {
                     data_block->order = atof(p2);
                 } else {
                     // ERROR
                 }
             }
-            IDAM_LOGF(LOG_DEBUG, "order = %d\n", data_block->order);
+            IDAM_LOGF(UDA_LOG_DEBUG, "order = %d\n", data_block->order);
         }
 
         if (!strncasecmp(subset.function, "rotateRZ", 8)) {        // Rotate R,Z coordinates in rank 3 array
-            IDAM_LOGF(LOG_DEBUG, "%s\n", subset.function);
+            IDAM_LOGF(UDA_LOG_DEBUG, "%s\n", subset.function);
             if (data_block->rank != 3) {
                 ierr = 999;
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "idamserverSubsetData", ierr,
@@ -1717,7 +1717,7 @@ int idamserverNewDataArray2(DIMS* dims, int rank, int dimid,
 
     int i, j, k, ierr = 0, rows, columns, newrows, newcols, count = 0;
 
-    IDAM_LOGF(LOG_DEBUG, "Data Type: %d    Rank: %d\n", data_type, rank);
+    IDAM_LOGF(UDA_LOG_DEBUG, "Data Type: %d    Rank: %d\n", data_type, rank);
 
     *n = 0;
 
@@ -2118,9 +2118,9 @@ int idamserverNewDataArray2(DIMS* dims, int rank, int dimid,
             addIdamError(&idamerrorstack, CODEERRORTYPE, "idamserverNewDataArray", ierr,
                          "Only Float, Double and 32 bit Signed Integer Numerical Types can be Subset at this time!");
 
-            IDAM_LOG(LOG_ERROR,
+            IDAM_LOG(UDA_LOG_ERROR,
                     "ERROR - Only Float, Double and 32 bit Signed Integer Numerical Types can be Subset at this time!\n");
-            IDAM_LOGF(LOG_ERROR, "Data Type: %d    Rank: %d\n", data_type, rank);
+            IDAM_LOGF(UDA_LOG_ERROR, "Data Type: %d    Rank: %d\n", data_type, rank);
 
             return ierr;
     }

@@ -169,7 +169,8 @@ int testgroup(int ncgrpid, char* target, int* status, int* targetid, int debug, 
 
 // Test existing Groups
 
-        for (i = 0; i < numgrps; i++) {
+	int ngrps = numgrps;
+        for (i = 0; i < ngrps; i++) {
 
             if (debug)fprintf(stdout, "Testing Child Group %d\n", ncids[i]);
 

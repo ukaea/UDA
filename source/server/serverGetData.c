@@ -98,7 +98,7 @@ int idamserverGetData(PGconn* DBConnect, int* depth, REQUEST_BLOCK request_block
 
     (*depth)++;
 
-    IDAM_LOGF(LOG_DEBUG, "idamserverGetData Recursive Depth = %d\n", *depth);
+    IDAM_LOGF(UDA_LOG_DEBUG, "idamserverGetData Recursive Depth = %d\n", *depth);
 
 // Can't use REQUEST_READ_SERVERSIDE because data must be read first using a 'real' data reader or REQUEST_READ_GENERIC
 
@@ -132,8 +132,8 @@ int idamserverGetData(PGconn* DBConnect, int* depth, REQUEST_BLOCK request_block
 
     rc = idamserverReadData(DBConnect, request_block, client_block, data_block, data_source, signal_rec, signal_desc, pluginlist);
 
-    IDAM_LOGF(LOG_DEBUG, "After idamserverReadData rc = %d\n", rc);
-    IDAM_LOGF(LOG_DEBUG, "Is the Signal a Composite? %d\n", signal_desc->type == 'C');
+    IDAM_LOGF(UDA_LOG_DEBUG, "After idamserverReadData rc = %d\n", rc);
+    IDAM_LOGF(UDA_LOG_DEBUG, "Is the Signal a Composite? %d\n", signal_desc->type == 'C');
 
     if (rc > 0) {
         (*depth)--;
@@ -144,7 +144,7 @@ int idamserverGetData(PGconn* DBConnect, int* depth, REQUEST_BLOCK request_block
     irc = gettimeofday(&tv_end[0], NULL);
     tv_start[1] = tv_end[0];
     testtime = (float)(tv_end[0].tv_sec-tv_start[0].tv_sec)*1.0E6 + (float)(tv_end[0].tv_usec - tv_start[0].tv_usec) ;
-    IDAM_LOGF(LOG_DEBUG, "ReadData Timing: %.2f(microsecs)\n", testtime);
+    IDAM_LOGF(UDA_LOG_DEBUG, "ReadData Timing: %.2f(microsecs)\n", testtime);
 #endif
 
 //--------------------------------------------------------------------------------------------------------------------------
@@ -161,13 +161,13 @@ int idamserverGetData(PGconn* DBConnect, int* depth, REQUEST_BLOCK request_block
     if (rc < 0 && signal_desc->type ==
                   'C') {    // The Signal is a Derived/Composite Type so Parse the XML for the data signal identity and read the data
 
-        IDAM_LOGF(LOG_DEBUG, "Derived/Composite Signal %s\n", request_block.signal);
+        IDAM_LOGF(UDA_LOG_DEBUG, "Derived/Composite Signal %s\n", request_block.signal);
 
         isDerived = 1;                        // is True
 
-        //derived_signal_desc     = *signal_desc;			// Preserve details of Derived Signal Description Record
-        data_source->exp_number = request_block.exp_number;    // Needed for Pulse Number Range Check in XML Parser
-        data_source->pass = request_block.pass;        // Needed for a Pass/Sequence Range Check in XML Parser
+        //derived_signal_desc     = *signal_desc;			    // Preserve details of Derived Signal Description Record
+        data_source->exp_number = request_block.exp_number;     // Needed for Pulse Number Range Check in XML Parser
+        data_source->pass = request_block.pass;                 // Needed for a Pass/Sequence Range Check in XML Parser
 
 // Allways Parse Signal XML to Identify the True Data Source for this Pulse Number - not subject to client request: get_asis
 // (First Valid Action Record found only - others ignored)
@@ -175,11 +175,11 @@ int idamserverGetData(PGconn* DBConnect, int* depth, REQUEST_BLOCK request_block
         initActions(&actions_comp_desc);
         initActions(&actions_comp_sig);
 
-        IDAM_LOG(LOG_DEBUG, "parsing XML for a COMPOSITE Signal\n");
+        IDAM_LOG(UDA_LOG_DEBUG, "parsing XML for a COMPOSITE Signal\n");
 
         rc = idamserverParseSignalXML(*data_source, *signal_rec, *signal_desc, &actions_comp_desc, &actions_comp_sig);
 
-        IDAM_LOGF(LOG_DEBUG, "parsing XML RC? %d\n", rc);
+        IDAM_LOGF(UDA_LOG_DEBUG, "parsing XML RC? %d\n", rc);
 
         if (rc > 0) {
             err = 8881;
@@ -244,7 +244,6 @@ int idamserverGetData(PGconn* DBConnect, int* depth, REQUEST_BLOCK request_block
 //=======>>>==========================================================
 
                     if (request_block.request == REQUEST_READ_XML || request_block.exp_number <= 0) {
-//	       if(request_block.request == REQUEST_READ_XML){				// Has the User defined the signal explicitly?
                         if ((strlen(actions_comp_desc.action[compId].composite.file) == 0 ||
                              strlen(actions_comp_desc.action[compId].composite.format) == 0) &&
                             request_block2.exp_number <= 0) {
@@ -258,7 +257,6 @@ int idamserverGetData(PGconn* DBConnect, int* depth, REQUEST_BLOCK request_block
                         }
                         strcpy(request_block2.path, actions_comp_desc.action[compId].composite.file);
 
-//#ifdef PLUGINTEST
                         request_block2.request = findPluginRequestByFormat(
                                 actions_comp_desc.action[compId].composite.format, pluginlist);
 
@@ -278,15 +276,14 @@ int idamserverGetData(PGconn* DBConnect, int* depth, REQUEST_BLOCK request_block
                         }
 
                         if (request_block2.request == REQUEST_READ_HDF5) {
-                            strcpy(data_source->path, TrimString(request_block2.path));        // HDF5 File Location
-                            strcpy(signal_desc->signal_name,
-                                   TrimString(request_block2.signal));    // HDF5 Variable Name
+                            strcpy(data_source->path, TrimString(request_block2.path));          // HDF5 File Location
+                            strcpy(signal_desc->signal_name, TrimString(request_block2.signal)); // HDF5 Variable Name
                         }
                     }
 
-// Does the request type need an SQL socket?
-// This is not passed back via the argument as only a 'by value' pointer is specified.
-// Assign to a global to pass back - poor design that needs correcting at a later date!
+                    // Does the request type need an SQL socket?
+                    // This is not passed back via the argument as only a 'by value' pointer is specified.
+                    // Assign to a global to pass back - poor design that needs correcting at a later date!
 
 #ifndef NOTGENERICENABLED
                     if (DBConnect == NULL && (request_block2.request == REQUEST_READ_GENERIC ||
@@ -316,11 +313,11 @@ int idamserverGetData(PGconn* DBConnect, int* depth, REQUEST_BLOCK request_block
                         strcpy(request_block2.signal, &p[2]);
                     }
 
-                    IDAM_LOG(LOG_DEBUG, "Reading Composite Signal DATA\n");
+                    IDAM_LOG(UDA_LOG_DEBUG, "Reading Composite Signal DATA\n");
 
 // Recursive Call for True Data with XML Transformations Applied and Associated Meta Data
 
-                    IDAM_LOG(LOG_DEBUG, "Reading Composite Signal DATA\n");
+                    IDAM_LOG(UDA_LOG_DEBUG, "Reading Composite Signal DATA\n");
 
                     rc = idamserverGetData(DBConnect, depth, request_block2, client_block, data_block, data_source,
                                            signal_rec, signal_desc, actions_desc, actions_sig, pluginlist);
@@ -364,7 +361,7 @@ int idamserverGetData(PGconn* DBConnect, int* depth, REQUEST_BLOCK request_block
                     }
                 }
             }
-        }                    // #############
+        }
 
     } else isDerived = 0;
 
@@ -372,16 +369,16 @@ int idamserverGetData(PGconn* DBConnect, int* depth, REQUEST_BLOCK request_block
 // Parse Qualifying Actionable XML
 
     if (isDerived) {
-        copyActions(actions_desc,
-                    &actions_comp_desc);    // All Actions are applicable to the Derived/Composite Data Structure
+        // All Actions are applicable to the Derived/Composite Data Structure
+        copyActions(actions_desc, &actions_comp_desc);
         copyActions(actions_sig, &actions_comp_sig);
     } else {
-        IDAM_LOG(LOG_DEBUG, "parsing XML for a Regular Signal\n");
+        IDAM_LOG(UDA_LOG_DEBUG, "parsing XML for a Regular Signal\n");
 
         if (!client_block.get_asis) {
 
-            rc = idamserverParseSignalXML(*data_source, *signal_rec, *signal_desc, actions_desc,
-                                          actions_sig);    // Regular Signal
+            // Regular Signal
+            rc = idamserverParseSignalXML(*data_source, *signal_rec, *signal_desc, actions_desc, actions_sig);
 
             if (rc == -1) {
                 if (!serverside) {
@@ -414,7 +411,7 @@ int idamserverGetData(PGconn* DBConnect, int* depth, REQUEST_BLOCK request_block
 
         if (strlen(actions_desc->action[compId].composite.error_signal) > 0) {
 
-            IDAM_LOGF(LOG_DEBUG, "Substituting Error Data: %s\n", actions_desc->action[compId].composite.error_signal);
+            IDAM_LOGF(UDA_LOG_DEBUG, "Substituting Error Data: %s\n", actions_desc->action[compId].composite.error_signal);
 
             request_block2 = request_block;
             strcpy(request_block2.signal, actions_desc->action[compId].composite.error_signal);
@@ -464,7 +461,7 @@ int idamserverGetData(PGconn* DBConnect, int* depth, REQUEST_BLOCK request_block
 
         if (strlen(actions_desc->action[compId].composite.aserror_signal) > 0) {
 
-            IDAM_LOGF(LOG_DEBUG, "Substituting Asymmetric Error Data: %s\n",
+            IDAM_LOGF(UDA_LOG_DEBUG, "Substituting Asymmetric Error Data: %s\n",
                     actions_desc->action[compId].composite.aserror_signal);
 
             request_block2 = request_block;
@@ -521,7 +518,7 @@ int idamserverGetData(PGconn* DBConnect, int* depth, REQUEST_BLOCK request_block
             if (actions_desc->action[compId].composite.dimensions[i].dimType == DIMCOMPOSITETYPE) {
                 if (strlen(actions_desc->action[compId].composite.dimensions[i].dimcomposite.dim_signal) > 0) {
 
-                    IDAM_LOG(LOG_DEBUG, "Substituting Dimension Data\n");
+                    IDAM_LOG(UDA_LOG_DEBUG, "Substituting Dimension Data\n");
 
                     strcpy(request_block2.format,
                            "GENERIC");        // Database Lookup if not specified in XML or by Client
@@ -616,7 +613,7 @@ int idamserverGetData(PGconn* DBConnect, int* depth, REQUEST_BLOCK request_block
 
                 if (strlen(actions_desc->action[compId].composite.dimensions[i].dimcomposite.dim_error) > 0) {
 
-                    IDAM_LOG(LOG_DEBUG, "Substituting Dimension Error Data\n");
+                    IDAM_LOG(UDA_LOG_DEBUG, "Substituting Dimension Error Data\n");
 
                     request_block2 = request_block;
                     strcpy(request_block2.signal,
@@ -667,7 +664,7 @@ int idamserverGetData(PGconn* DBConnect, int* depth, REQUEST_BLOCK request_block
 
                 if (strlen(actions_desc->action[compId].composite.dimensions[i].dimcomposite.dim_aserror) > 0) {
 
-                    IDAM_LOG(LOG_DEBUG, "Substituting Dimension Asymmetric Error Data\n");
+                    IDAM_LOG(UDA_LOG_DEBUG, "Substituting Dimension Asymmetric Error Data\n");
 
                     request_block2 = request_block;
                     strcpy(request_block2.signal,
@@ -724,7 +721,7 @@ int idamserverGetData(PGconn* DBConnect, int* depth, REQUEST_BLOCK request_block
 //--------------------------------------------------------------------------------------------------------------------------
 // Apply Any Labeling, Timing Offsets and Calibration Actions to Data and Dimension (no Data or Dimension substituting)
 
-    IDAM_LOG(LOG_DEBUG, "#Timing Before XML\n");
+    IDAM_LOG(UDA_LOG_DEBUG, "#Timing Before XML\n");
     printDataBlock(*data_block);
 
     if (!client_block.get_asis) {
@@ -737,14 +734,14 @@ int idamserverGetData(PGconn* DBConnect, int* depth, REQUEST_BLOCK request_block
         idamserverApplySignalXML(client_block, data_source, signal_rec, signal_desc, data_block, *actions_sig);
     }
 
-    IDAM_LOG(LOG_DEBUG, "#Timing After XML\n");
+    IDAM_LOG(UDA_LOG_DEBUG, "#Timing After XML\n");
     printDataBlock(*data_block);
 
 //--------------------------------------------------------------------------------------------------------------------------
 // Subset Data or Map Data when all other actions have been applied
 
     if (isDerived && compId > -1) {
-        IDAM_LOGF(LOG_DEBUG, "Calling idamserverSubsetData (Derived)  %d\n", *depth);
+        IDAM_LOGF(UDA_LOG_DEBUG, "Calling idamserverSubsetData (Derived)  %d\n", *depth);
         printDataBlock(*data_block);
 
         if ((rc = idamserverSubsetData(data_block, actions_desc->action[compId])) != 0) {
@@ -759,7 +756,7 @@ int idamserverGetData(PGconn* DBConnect, int* depth, REQUEST_BLOCK request_block
     if (!serverside && !isDerived && signal_desc->type == 'S') {
         for (i = 0; i < actions_desc->nactions; i++) {
             if (actions_desc->action[i].actionType == SUBSETTYPE) {
-                IDAM_LOGF(LOG_DEBUG, "Calling idamserverSubsetData (SUBSET)   %d\n", *depth);
+                IDAM_LOGF(UDA_LOG_DEBUG, "Calling idamserverSubsetData (SUBSET)   %d\n", *depth);
                 printDataBlock(*data_block);
 
                 if ((rc = idamserverSubsetData(data_block, actions_desc->action[i])) != 0) {
@@ -778,7 +775,7 @@ int idamserverGetData(PGconn* DBConnect, int* depth, REQUEST_BLOCK request_block
         for (i = 0; i < actions_serverside.nactions; i++) {
             if (actions_serverside.action[i].actionType == SERVERSIDETYPE) {
                 for (j = 0; j < actions_serverside.action[i].serverside.nsubsets; j++) {
-                    IDAM_LOGF(LOG_DEBUG, "Calling idamserverSubsetData (Serverside)   %d\n", *depth);
+                    IDAM_LOGF(UDA_LOG_DEBUG, "Calling idamserverSubsetData (Serverside)   %d\n", *depth);
                     printDataBlock(*data_block);
 
                     if ((rc = idamserverSubsetData(data_block, actions_serverside.action[i])) != 0) {
@@ -796,7 +793,7 @@ int idamserverGetData(PGconn* DBConnect, int* depth, REQUEST_BLOCK request_block
 #ifdef TIMETEST
     irc = gettimeofday(&tv_end[1], NULL);
     testtime = (float)(tv_end[1].tv_sec-tv_start[1].tv_sec)*1.0E6 + (float)(tv_end[1].tv_usec - tv_start[1].tv_usec) ;
-    IDAM_LOGF(LOG_DEBUG, "XML Processing Timing: %.2f(microsecs)\n", testtime);
+    IDAM_LOGF(UDA_LOG_DEBUG, "XML Processing Timing: %.2f(microsecs)\n", testtime);
 #endif
 
     (*depth)--;
@@ -1279,11 +1276,11 @@ int idamserverReadData(PGconn* DBConnect, REQUEST_BLOCK request_block, CLIENT_BL
                  err = 778;
                  addIdamError(&idamerrorstack, CODEERRORTYPE, "idamserverReadData", err, "No Metadata Catalog Implemented! "
                           "Unable to identify requested data item");
-                 IDAM_LOG(LOG_ERROR, "Error: No Metadata Catalog Implemented! Unable to identify requested data item\n");
+                 IDAM_LOG(UDA_LOG_ERROR, "Error: No Metadata Catalog Implemented! Unable to identify requested data item\n");
                 return err;
               }
 
-              IDAM_LOGF(LOG_DEBUG, "Metadata Plugin ID = %d\nExecuting the plugin\n", plugin_id);
+              IDAM_LOGF(UDA_LOG_DEBUG, "Metadata Plugin ID = %d\nExecuting the plugin\n", plugin_id);
 
         // If the plugin is registered as a FILE or LIBRARY type then call the default method as no method will have been specified
 
@@ -1297,7 +1294,7 @@ int idamserverReadData(PGconn* DBConnect, REQUEST_BLOCK request_block, CLIENT_BL
                  addIdamError(&idamerrorstack, CODEERRORTYPE, "idamserverReadData", err, "No Record Found for this Generic Signal");
                  return err;
               }
-              IDAM_LOGF(LOG_DEBUG, "Metadata Plugin Executed\nSignal Type: %c", signal_desc->type);
+              IDAM_LOGF(UDA_LOG_DEBUG, "Metadata Plugin Executed\nSignal Type: %c", signal_desc->type);
 
         // Plugin? Create a new Request Block to identify the request_id
 
@@ -1362,7 +1359,7 @@ int idamserverReadData(PGconn* DBConnect, REQUEST_BLOCK request_block, CLIENT_BL
         int id, reset;
         IDAM_PLUGIN_INTERFACE idam_plugin_interface;
 
-        IDAM_LOG(LOG_DEBUG, "creating the plugin interface structure\n");
+        IDAM_LOG(UDA_LOG_DEBUG, "creating the plugin interface structure\n");
 
 // Initialise the Data Block
 
@@ -1385,19 +1382,19 @@ int idamserverReadData(PGconn* DBConnect, REQUEST_BLOCK request_block, CLIENT_BL
 
         if (request_block.request != REQUEST_READ_GENERIC && request_block.request != REQUEST_READ_UNKNOWN) {
             plugin_id = request_block.request;            // User has Specified a Plugin
-            IDAM_LOGF(LOG_DEBUG, "Plugin Request ID %d\n", plugin_id);
+            IDAM_LOGF(UDA_LOG_DEBUG, "Plugin Request ID %d\n", plugin_id);
         } else {
             plugin_id = findPluginRequestByFormat(data_source->format, pluginlist);    // via Generic database query
-            IDAM_LOGF(LOG_DEBUG, "findPluginRequestByFormat Plugin Request ID %d\n", plugin_id);
+            IDAM_LOGF(UDA_LOG_DEBUG, "findPluginRequestByFormat Plugin Request ID %d\n", plugin_id);
         }
 
-        IDAM_LOGF(LOG_DEBUG, "(idamServerGetData) Number of PutData Blocks: %d\n",
+        IDAM_LOGF(UDA_LOG_DEBUG, "(idamServerGetData) Number of PutData Blocks: %d\n",
                 request_block.putDataBlockList.blockCount);
 
         if (request_block.request != REQUEST_READ_GENERIC && request_block.request != REQUEST_READ_UNKNOWN) {
 
             if ((id = findPluginIdByRequest(plugin_id, pluginlist)) == -1) {
-                IDAM_LOGF(LOG_DEBUG, "Error locating data plugin %d\n", plugin_id);
+                IDAM_LOGF(UDA_LOG_DEBUG, "Error locating data plugin %d\n", plugin_id);
                 err = 999;
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "idamserverReadData", err, "Error locating data plugin");
                 return err;
@@ -1416,7 +1413,7 @@ int idamserverReadData(PGconn* DBConnect, REQUEST_BLOCK request_block, CLIENT_BL
                 pluginlist->plugin[id].pluginHandle != NULL &&
                 pluginlist->plugin[id].idamPlugin != NULL) {
 
-                IDAM_LOGF(LOG_DEBUG, "[%d] %s Plugin Selected\n", plugin_id, data_source->format);
+                IDAM_LOGF(UDA_LOG_DEBUG, "[%d] %s Plugin Selected\n", plugin_id, data_source->format);
 
 // Redirect Output to temporary file if no file handles passed
 
@@ -1448,7 +1445,7 @@ int idamserverReadData(PGconn* DBConnect, REQUEST_BLOCK request_block, CLIENT_BL
                     return rc;
                 }
 
-                IDAM_LOG(LOG_DEBUG, "returned from plugin called\n");
+                IDAM_LOG(UDA_LOG_DEBUG, "returned from plugin called\n");
 
 // Save Provenance with socket stream protection
 
@@ -1496,7 +1493,7 @@ int idamserverReadData(PGconn* DBConnect, REQUEST_BLOCK request_block, CLIENT_BL
             if (STR_IEQUALS(data_source->format, pluginlist->plugin[i].format)) {
                 plugin_id = pluginlist->plugin[i].request;                // Found
                 id = i;
-                IDAM_LOGF(LOG_DEBUG, "[%d] %s Plugin Selected\n", plugin_id, data_source->format);
+                IDAM_LOGF(UDA_LOG_DEBUG, "[%d] %s Plugin Selected\n", plugin_id, data_source->format);
                 break;
             }
         }
@@ -1517,14 +1514,14 @@ int idamserverReadData(PGconn* DBConnect, REQUEST_BLOCK request_block, CLIENT_BL
                 strcat(signal_desc->signal_alias, signal_desc->signal_name);
                 strcpy(signal_desc->signal_name, signal_desc->signal_alias);
             }
-            IDAM_LOGF(LOG_DEBUG, "MDS+ Tree Number %d\n", data_source->exp_number);
-            IDAM_LOGF(LOG_DEBUG, "MDS+ Tree Path %s\n", signal_desc->signal_name);
+            IDAM_LOGF(UDA_LOG_DEBUG, "MDS+ Tree Number %d\n", data_source->exp_number);
+            IDAM_LOGF(UDA_LOG_DEBUG, "MDS+ Tree Path %s\n", signal_desc->signal_name);
         }
 
 // Don't append the file name to the path - if it's already present!
 
         if (strlen(data_source->path) == 0) {        // No path in Data_Source record so must be on default Archive Path
-            if (request_block.pass == -1 && request_block.tpass[0] == '\0') {    // Always LATEST
+            if (request_block.pass == -1 && request_block.tpass[0] == '\0') {    // Always LATES
                 mastArchiveFilePath(request_block.exp_number, request_block.pass, data_source->filename,
                                     data_source->path);
             } else {                                // Specific PASS
@@ -1540,15 +1537,15 @@ int idamserverReadData(PGconn* DBConnect, REQUEST_BLOCK request_block, CLIENT_BL
     }
 
     if (plugin_id == REQUEST_READ_UNKNOWN) {
-        IDAM_LOG(LOG_DEBUG, "IdamServer: No Plugin Selected\n");
+        IDAM_LOG(UDA_LOG_DEBUG, "IdamServer: No Plugin Selected\n");
     }
-    IDAM_LOGF(LOG_DEBUG, "IdamServer: Archive      : %s \n", data_source->archive);
-    IDAM_LOGF(LOG_DEBUG, "IdamServer: Device Name  : %s \n", data_source->device_name);
-    IDAM_LOGF(LOG_DEBUG, "IdamServer: Signal Name  : %s \n", signal_desc->signal_name);
-    IDAM_LOGF(LOG_DEBUG, "IdamServer: File Path    : %s \n", data_source->path);
-    IDAM_LOGF(LOG_DEBUG, "IdamServer: File Name    : %s \n", data_source->filename);
-    IDAM_LOGF(LOG_DEBUG, "IdamServer: Pulse Number : %d \n", data_source->exp_number);
-    IDAM_LOGF(LOG_DEBUG, "IdamServer: Pass Number  : %d \n", data_source->pass);
+    IDAM_LOGF(UDA_LOG_DEBUG, "IdamServer: Archive      : %s \n", data_source->archive);
+    IDAM_LOGF(UDA_LOG_DEBUG, "IdamServer: Device Name  : %s \n", data_source->device_name);
+    IDAM_LOGF(UDA_LOG_DEBUG, "IdamServer: Signal Name  : %s \n", signal_desc->signal_name);
+    IDAM_LOGF(UDA_LOG_DEBUG, "IdamServer: File Path    : %s \n", data_source->path);
+    IDAM_LOGF(UDA_LOG_DEBUG, "IdamServer: File Name    : %s \n", data_source->filename);
+    IDAM_LOGF(UDA_LOG_DEBUG, "IdamServer: Pulse Number : %d \n", data_source->exp_number);
+    IDAM_LOGF(UDA_LOG_DEBUG, "IdamServer: Pass Number  : %d \n", data_source->pass);
 
 //----------------------------------------------------------------------------
 // Initialise the Data Block Structure
@@ -1583,7 +1580,7 @@ int idamserverReadData(PGconn* DBConnect, REQUEST_BLOCK request_block, CLIENT_BL
 #ifndef PROXYSERVER
     if (STR_IEQUALS(request_block.archive, "DUMP") && environment->server_proxy[0] == '\0') {
 
-        IDAM_LOG(LOG_DEBUG, "Requested: DUMP File Contents.\n");
+        IDAM_LOG(UDA_LOG_DEBUG, "Requested: DUMP File Contents.\n");
 
         if ((err = dumpFile(request_block, data_block)) != 0) {
             addIdamError(&idamerrorstack, CODEERRORTYPE, "idamserverReadData", err, "Error Dumping IDA File Contents");
@@ -1612,14 +1609,14 @@ int idamserverReadData(PGconn* DBConnect, REQUEST_BLOCK request_block, CLIENT_BL
     switch (plugin_id) {
 
         case REQUEST_READ_IDA :
-            IDAM_LOG(LOG_DEBUG, "Requested Data Access Routine = readIDA2 \n");
+            IDAM_LOG(UDA_LOG_DEBUG, "Requested Data Access Routine = readIDA2 \n");
             if ((err = readIDA2(*data_source, *signal_desc, data_block)) != 0) {
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "idamserverReadData", err, "Error Accessing IDA Data");
             }
             break;
 
         case REQUEST_READ_MDS :
-            IDAM_LOG(LOG_DEBUG, "Requested Data Access Routine = readMDS \n");
+            IDAM_LOG(UDA_LOG_DEBUG, "Requested Data Access Routine = readMDS \n");
             if ((err = readMDS(*data_source, *signal_desc, data_block)) != 0) {
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "idamserverReadData", err, "Error Accessing MDS+ Data");
             }
@@ -1629,47 +1626,47 @@ int idamserverReadData(PGconn* DBConnect, REQUEST_BLOCK request_block, CLIENT_BL
             if ((err = readIdam(*data_source, *signal_desc, request_block, data_block)) != 0) {
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "idamserverReadData", err, "Error Accessing IDAM Data");
             }
-            IDAM_LOGF(LOG_DEBUG, "IDAM server to IDAM server request via readIDAM Error? %d\n", data_block->errcode);
+            IDAM_LOGF(UDA_LOG_DEBUG, "IDAM server to IDAM server request via readIDAM Error? %d\n", data_block->errcode);
             break;
 #endif
         case REQUEST_READ_CDF :
-            IDAM_LOG(LOG_DEBUG, "Requested Data Access Routine = readCDF \n");
+            IDAM_LOG(UDA_LOG_DEBUG, "Requested Data Access Routine = readCDF \n");
             if ((err = readCDF(*data_source, *signal_desc, request_block, data_block)) != 0) {
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "idamserverReadData", err, "Error Accessing netCDF Data");
             }
-            IDAM_LOG(LOG_DEBUG, "Returned from readCDF \n");
+            IDAM_LOG(UDA_LOG_DEBUG, "Returned from readCDF \n");
             break;
 
         case REQUEST_READ_HDF5 :
-            IDAM_LOG(LOG_DEBUG, "Requested Data Access Routine = readHDF5 \n");
+            IDAM_LOG(UDA_LOG_DEBUG, "Requested Data Access Routine = readHDF5 \n");
             if ((err = readHDF5(*data_source, *signal_desc, data_block)) != 0) {
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "idamserverReadData", err, "Error Accessing HDF5 Data");
             }
             break;
 
         case REQUEST_READ_UFILE :
-            IDAM_LOG(LOG_DEBUG, "Requested Data Access Routine = readUFile \n");
+            IDAM_LOG(UDA_LOG_DEBUG, "Requested Data Access Routine = readUFile \n");
             if ((err = readUFile(*data_source, *signal_desc, data_block)) != 0) {
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "idamserverReadData", err, "Error Accessing UFile Data");
             }
             break;
 
         case REQUEST_READ_PPF :
-            IDAM_LOG(LOG_DEBUG, "Requested Data Access Routine = readPPF \n");
+            IDAM_LOG(UDA_LOG_DEBUG, "Requested Data Access Routine = readPPF \n");
             if ((err = readPPF(*data_source, *signal_desc, data_block)) != 0) {
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "idamserverReadData", err, "Error Accessing PPF Data");
             }
             break;
 
         case REQUEST_READ_JPF :
-            IDAM_LOG(LOG_DEBUG, "Requested Data Access Routine = readJPF \n");
+            IDAM_LOG(UDA_LOG_DEBUG, "Requested Data Access Routine = readJPF \n");
             if ((err = readJPF(*data_source, *signal_desc, data_block)) != 0) {
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "idamserverReadData", err, "Error Accessing JPF Data");
             }
             break;
 
         case REQUEST_READ_FILE :
-            IDAM_LOG(LOG_DEBUG, "Requested Data Access Routine = readBytes \n");
+            IDAM_LOG(UDA_LOG_DEBUG, "Requested Data Access Routine = readBytes \n");
             if ((err = readBytes(*data_source, *signal_desc, data_block)) != 0) {
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "idamserverReadData", err,
                              "Error Accessing File Contents (Bytes)");
@@ -1677,7 +1674,7 @@ int idamserverReadData(PGconn* DBConnect, REQUEST_BLOCK request_block, CLIENT_BL
             break;
 
         case REQUEST_READ_NOTHING :
-            IDAM_LOG(LOG_DEBUG, "Requested No Data Access Routine\n");
+            IDAM_LOG(UDA_LOG_DEBUG, "Requested No Data Access Routine\n");
             if ((err = readNothing(*data_source, *signal_desc, data_block)) != 0) {
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "idamserverReadData", err,
                              "Error Reading 'Nothing', i.e. Generating Test Data");
@@ -1685,16 +1682,16 @@ int idamserverReadData(PGconn* DBConnect, REQUEST_BLOCK request_block, CLIENT_BL
             break;
 
         case REQUEST_READ_SQL :
-            IDAM_LOG(LOG_DEBUG, "Requested SQL Plugin \n");
+            IDAM_LOG(UDA_LOG_DEBUG, "Requested SQL Plugin \n");
             if ((err = readSQL(DBConnect, request_block, *data_source, data_block)) != 0) {
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "idamserverReadData", err, "Error Reading SQL Data");
             }
-            IDAM_LOG(LOG_DEBUG, "Returned from SQL Plugin \n");
+            IDAM_LOG(UDA_LOG_DEBUG, "Returned from SQL Plugin \n");
             printDataBlock(*data_block);
             break;
 
         case REQUEST_READ_HDATA:
-            IDAM_LOG(LOG_DEBUG, "Requested Hierarchical Data Plugin \n");
+            IDAM_LOG(UDA_LOG_DEBUG, "Requested Hierarchical Data Plugin \n");
             if ((err = readHData(DBConnect, request_block, *data_source, data_block)) != 0) {
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "idamserverReadData", err,
                              "Error Reading Hierarchical Data");
@@ -1703,7 +1700,7 @@ int idamserverReadData(PGconn* DBConnect, REQUEST_BLOCK request_block, CLIENT_BL
             break;
 
         default:
-            IDAM_LOGF(LOG_DEBUG, "Unknown Requested Data Access Routine (%d) \n", request_block.request);
+            IDAM_LOGF(UDA_LOG_DEBUG, "Unknown Requested Data Access Routine (%d) \n", request_block.request);
             err = 999;
             addIdamError(&idamerrorstack, CODEERRORTYPE, "idamserverReadData", err,
                          "Unknown Data Accessor Requested - No IDAM Plug-in");

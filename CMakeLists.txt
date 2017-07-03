@@ -13,6 +13,8 @@ set( CMAKE_MODULE_PATH
   ${CMAKE_SOURCE_DIR}/cmake/Config
 )
 
+include( ColourMessages )
+
 ########################################################################################################################
 # Version and Machine information
 
@@ -114,7 +116,7 @@ include( InstallRequiredSystemLibraries )
 set( CPACK_PACKAGE_DESCRIPTION_SUMMARY "Universal Data Access library" )
 set( CPACK_PACKAGE_VENDOR "ITER" )
 set( CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/README.md" )
-set( CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/Copyright.txt" )
+set( CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENCE.txt" )
 set( CPACK_PACKAGE_VERSION_MAJOR "${PROJECT_VERSION_MAJOR}" )
 set( CPACK_PACKAGE_VERSION_MINOR "${PROJECT_VERSION_MINOR}" )
 set( CPACK_PACKAGE_VERSION_PATCH "${PROJECT_VERSION_PATCH}" )

@@ -11,3 +11,14 @@ std::size_t uda::Array::size() const
     return sz;
 }
 
+const std::vector<size_t> uda::Array::shape() const
+{
+    std::vector<size_t> shape(dims_.size());
+
+    size_t i;
+    for (i = 0; i < dims_.size(); ++i) {
+        shape[i] = dims_[i].size();
+    }
+
+    return shape;
+}

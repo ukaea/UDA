@@ -150,17 +150,44 @@ uda::Data* getDataAs(int handle, std::vector<uda::Dim>& dims)
     T* data = reinterpret_cast<T*>(getIdamData(handle));
 
     if (getIdamRank(handle) == 0) {
-        return new uda::Scalar(data[0]);
+        if (getIdamDataNum(handle) > 1) {
+            return new uda::Vector(data, (size_t)getIdamDataNum(handle));
+        } else {
+            return new uda::Scalar(data[0]);
+        }
     } else {
         return new uda::Array(data, dims);
     }
 }
 
-uda::String* getDataAsString(int handle)
+uda::Data* getDataAsString(int handle)
 {
     char* data = getIdamData(handle);
 
     return new uda::String(data);
+}
+
+uda::Data* getDataAsStringArray(int handle, std::vector<uda::Dim>& dims)
+{
+    char* data = getIdamData(handle);
+
+    size_t str_len = dims[0].size();
+    size_t arr_len = getIdamDataNum(handle) / str_len;
+
+    std::vector<std::string>* strings = new std::vector<std::string>;
+
+    for (size_t i = 0; i < arr_len; ++i) {
+        char* str = &data[i * str_len];
+        strings->push_back(std::string(str, strlen(str)));
+    }
+
+    std::vector<uda::Dim> string_dims;
+
+    for (size_t i = 1; i < dims.size(); ++i) {
+        string_dims.push_back(dims[i]);
+    }
+
+    return new uda::Array(strings->data(), string_dims);
 }
 
 uda::Data* uda::Result::data() const
@@ -199,7 +226,11 @@ uda::Data* uda::Result::data() const
         case TYPE_UNSIGNED_LONG64:
             return getDataAs<unsigned long long>(handle_, dims);
         case TYPE_STRING:
-            return getDataAsString(handle_);
+            if (rank == 1) {
+                return getDataAsString(handle_);
+            } else {
+                return getDataAsStringArray(handle_, dims);
+            }
         default:
             return &Array::Null;
     }

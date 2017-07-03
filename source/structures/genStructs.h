@@ -55,9 +55,9 @@ typedef unsigned int        UVOIDTYPE;
 //-------------------------------------------------------------------------------------------------------
 // Structure types
 
-typedef struct SArray {                     // This structure must be parsed to create a structure definition.
-    // Its function is to send or receive arrays of user defined structures and
-    // atomic types. Single user defined structures can be passed directly.
+typedef struct SArray {             // This structure must be parsed to create a structure definition.
+                                    // Its function is to send or receive arrays of user defined structures and
+                                    // atomic types. Single user defined structures can be passed directly.
     int count;                      // Number of data array elements
     int rank;                       // Rank of the data array
     int* shape;                     // Shape of the data array
@@ -71,14 +71,14 @@ typedef struct EnumMember {
 } ENUMMEMBER;
 
 typedef struct EnumList {
-    char name[MAXELEMENTNAME];    // The Enumeration name
+    char name[MAXELEMENTNAME];      // The Enumeration name
     int type;                       // The integer base type
     int count;                      // The number of members of this enumeration class
     ENUMMEMBER* enummember;         // Array of enum members
     void* data;                     // Data with this enumerated type (properties are held by regular DATA_BLOCK structure)
 } ENUMLIST;
 
-typedef struct VLenType {                   // Variable length (ragged) arrays
+typedef struct VLenType {           // Variable length (ragged) arrays
     unsigned int len;               // The array element count
     void* data;                     // Array data
 } VLENTYPE;

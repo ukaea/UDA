@@ -7,6 +7,8 @@ find_package( OpenSSL )
 find_package( LibXml2 )
 find_package( LibMemcached )
 
+add_definitions( -D__USE_XOPEN2K8 )
+
 if( NOT Boost_FOUND OR NOT OPENSSL_FOUND OR NOT LIBXML2_FOUND )
   message( WARNING "Not building tests" )
   return()
@@ -27,18 +29,31 @@ configure_file(
   @ONLY
 )
 
-set( TESTS test_help test_hdf5 test_putcpp test_putdata )
+set( TESTS
+#  test_putcpp
+  )
 
 include( modules )
 
 include_directories( SYSTEM ${Boost_INCLUDE_DIR} )
-include_directories( ${CMAKE_CURRENT_BINARY_DIR} )
+include_directories( ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_LIST_DIR} )
+
+add_subdirectory( plugins )
 
 add_definitions( -D__USE_XOPEN2K8 )
 
 foreach( TEST ${TESTS} )
   add_executable( ${TEST} ${TEST}.cpp )
   target_link_libraries( ${TEST} PRIVATE
+    ${Boost_LIBRARIES}
+    ${PROJECT_NAME}_cpp
+    client-shared
+    ${OPENSSL_LIBRARIES}
+    ${LIBXML2_LIBRARIES}
+    ${CACHE_LIBRARIES} )
+
+  add_executable( fat_${TEST} ${TEST}.cpp )
+  target_link_libraries( fat_${TEST} PRIVATE
     ${Boost_LIBRARIES} 
     fat${PROJECT_NAME}_cpp
     fatclient-shared
@@ -49,6 +64,7 @@ foreach( TEST ${TESTS} )
     m
     dl
   )
+
   target_compile_definitions( ${TEST} PRIVATE -DFATCLIENT )
   link_modules( ${TEST} )
   add_test( ${TEST} ${TEST} )
@@ -66,6 +82,7 @@ if( GCRYPT_FOUND AND KSBA_FOUND AND OPENSSL_FOUND AND LIBXML2_FOUND )
     ${KSBA_LIBRARIES}
     client-shared
     ${OPENSSL_LIBRARIES}
-    ${LIBXML2_LIBRARIES} )
+    ${LIBXML2_LIBRARIES} 
+    ${CACHE_LIBRARIES})
   add_test( testSecurity testSecurity )
 endif()

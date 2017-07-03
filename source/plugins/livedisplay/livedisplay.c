@@ -10,10 +10,10 @@
 * Calls		freeDataBlock	to free Heap memory if an Error Occurs
 *
 * Notes: 	All memory required to hold data is allocated dynamically
-*		in heap storage. Pointers to these areas of memory are held
-*		by the passed DATA_BLOCK structure. Local memory allocations
-*		are freed on exit. However, the blocks reserved for data are
-*		not and MUST BE FREED by the calling routine.
+*		    in heap storage. Pointers to these areas of memory are held
+*		    by the passed DATA_BLOCK structure. Local memory allocations
+*		    are freed on exit. However, the blocks reserved for data are
+*		    not and MUST BE FREED by the calling routine.
 
 test1	CODE
 test2	MAGNETICS_TEST2
@@ -562,7 +562,6 @@ typedef struct{
     addUserDefinedType(userdefinedtypelist, usertype);    // PF_ACTIVE_PROXY
 }
 
-
 void initRB(TF_PROXY* str)
 {
     str->data_count = 0;
@@ -777,7 +776,6 @@ int dataSubset(double* times, int data_count, double startTime, int isEndTime, d
     return err;
 }
 
-
 extern int livedisplay(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
     int err = 0;
@@ -816,7 +814,7 @@ extern int livedisplay(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     if (housekeeping || !strcasecmp(request_block->function, "reset")) {
 
-        //idamLog(LOG_DEBUG, "LiveDisplay: reset function called.\n");
+        //idamLog(UDA_LOG_DEBUG, "LiveDisplay: reset function called.\n");
 
         if (flux_loop_cache != NULL) {
             int i;
@@ -2617,8 +2615,9 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
                         index1 = index2;
                     } else if (isNearest) {
                         data_count = 1;
-                        if (index1 > 0 && ((startTime - ft[index1 - 1]) > (ft[index1] - startTime)))
+                        if (index1 > 0 && ((startTime - ft[index1 - 1]) > (ft[index1] - startTime))) {
                             index1 = index1 - 1;
+                        }
                     } else if (isAverage) {
                         for (j = 0; j < data_count; j++) {
                             sum1 += fd[index1 + j];
@@ -2853,8 +2852,9 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
                         index1 = index2;
                     } else if (isNearest) {
                         data_count = 1;
-                        if (index1 > 0 && ((startTime - ft[index1 - 1]) > (ft[index1] - startTime)))
+                        if (index1 > 0 && ((startTime - ft[index1 - 1]) > (ft[index1] - startTime))) {
                             index1 = index1 - 1;
+                        }
                     } else if (isAverage) {
                         for (j = 0; j < data_count; j++) {
                             sum1 += fd[index1 + j];
@@ -3279,8 +3279,9 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
                         index1 = index2;
                     } else if (isNearest) {
                         data_count = 1;
-                        if (index1 > 0 && ((startTime - ft[index1 - 1]) > (ft[index1] - startTime)))
+                        if (index1 > 0 && ((startTime - ft[index1 - 1]) > (ft[index1] - startTime))) {
                             index1 = index1 - 1;
+                        }
                     } else if (isAverage) {
                         for (j = 0; j < data_count; j++) {
                             sum1 += fd[index1 + j];
@@ -5251,8 +5252,9 @@ PF_ACTIVE/COIL/%d/CURRENT/TIME
                         index1 = index2;
                     } else if (isNearest) {
                         data_count = 1;
-                        if (index1 > 0 && ((startTime - ft[index1 - 1]) > (ft[index1] - startTime)))
+                        if (index1 > 0 && ((startTime - ft[index1 - 1]) > (ft[index1] - startTime))) {
                             index1 = index1 - 1;
+                        }
                     } else if (isAverage) {
                         for (j = 0; j < data_count; j++) {
                             sum1 += fd[index1 + j];
@@ -5320,7 +5322,6 @@ PF_ACTIVE/COIL/%d/CURRENT/TIME
 
         } else
 
-
 //----------------------------------------------------------------------------------------
 // Principal methods
 //----------------------------------------------------------------------------------------
@@ -5328,7 +5329,7 @@ PF_ACTIVE/COIL/%d/CURRENT/TIME
 /*
         if (!strcasecmp(request_block->function, "get")) {
 
-            //idamLog(LOG_DEBUG, "LiveDisplay: GET entered\n");
+            //idamLog(UDA_LOG_DEBUG, "LiveDisplay: GET entered\n");
 
 // Create the Returned Structure Definitions
 
@@ -5460,7 +5461,7 @@ PF_ACTIVE/COIL/%d/CURRENT/TIME
             data_block->opaque_count = 1;
             data_block->opaque_block = (void*) findUserDefinedType("MAGNETICS_TEST", 0);
 
-            //idamLog(LOG_DEBUG, "LiveDisplay: GET exited\n");
+            //idamLog(UDA_LOG_DEBUG, "LiveDisplay: GET exited\n");
 
             break;
 
@@ -5473,98 +5474,47 @@ PF_ACTIVE/COIL/%d/CURRENT/TIME
 // Information is returned as a single string containing all required format control characters.
 
         if (!strcasecmp(request_block->function, "help")) {
+            const char* help = "\nLIVEDISPLAY: description and examples\n";
+            const char* desc = "LiveDisplay Plugin help";
 
-// Create Data
-
-            size_t stringLength = 128;
-            char* data = (char*)malloc(stringLength * sizeof(char));
-            strcpy(data, "\nLIVEDISPLAY: description and examples\n");
-
-            //idamLog(LOG_DEBUG, "LiveDisplay:\n%s\n", data);
-
-// Pass Data
-
-            data_block->data_type = TYPE_STRING;
-            data_block->rank = 0;
-            data_block->data_n = strlen(data) + 1;
-            data_block->data = (char*)data;
-
-            strcpy(data_block->data_desc, "LiveDisplay Plugin help");
-            strcpy(data_block->data_label, "");
-            strcpy(data_block->data_units, "");
-
-            //idamLog(LOG_DEBUG, "LiveDisplay: Function help called\n");
+            err = setReturnDataString(idam_plugin_interface->data_block, help, desc);
 
             break;
-
         } else
 
 //----------------------------------------------------------------------------------------
 // Standard methods: version, builddate, defaultmethod, maxinterfaceversion
 
         if (!strcasecmp(request_block->function, "version")) {
-            initDataBlock(data_block);
-            data_block->data_type = TYPE_INT;
-            data_block->rank = 0;
-            data_block->data_n = 1;
-            int* data = (int*)malloc(sizeof(int));
-            data[0] = THISPLUGIN_VERSION;
-            data_block->data = (char*)data;
-            strcpy(data_block->data_desc, "Plugin version number");
-            strcpy(data_block->data_label, "version");
-            strcpy(data_block->data_units, "");
+            err = setReturnDataIntScalar(idam_plugin_interface->data_block, THISPLUGIN_VERSION, "Plugin version number");
+
             break;
         } else
 
 // Plugin Build Date
 
         if (!strcasecmp(request_block->function, "builddate")) {
-            initDataBlock(data_block);
-            data_block->data_type = TYPE_STRING;
-            data_block->rank = 0;
-            data_block->data_n = strlen(__DATE__) + 1;
-            char* data = (char*)malloc(data_block->data_n * sizeof(char));
-            strcpy(data, __DATE__);
-            data_block->data = (char*)data;
-            strcpy(data_block->data_desc, "Plugin build date");
-            strcpy(data_block->data_label, "date");
-            strcpy(data_block->data_units, "");
+            err = setReturnDataString(idam_plugin_interface->data_block, __DATE__, "Plugin build date");
+
             break;
         } else
 
 // Plugin Default Method
 
         if (!strcasecmp(request_block->function, "defaultmethod")) {
-            initDataBlock(data_block);
-            data_block->data_type = TYPE_STRING;
-            data_block->rank = 0;
-            data_block->data_n = strlen(THISPLUGIN_DEFAULT_METHOD) + 1;
-            char* data = (char*)malloc(data_block->data_n * sizeof(char));
-            strcpy(data, THISPLUGIN_DEFAULT_METHOD);
-            data_block->data = (char*)data;
-            strcpy(data_block->data_desc, "Plugin default method");
-            strcpy(data_block->data_label, "method");
-            strcpy(data_block->data_units, "");
+            err = setReturnDataString(idam_plugin_interface->data_block, THISPLUGIN_DEFAULT_METHOD, "Plugin default method");
+
             break;
         } else
 
 // Plugin Maximum Interface Version
 
         if (!strcasecmp(request_block->function, "maxinterfaceversion")) {
-            initDataBlock(data_block);
-            data_block->data_type = TYPE_INT;
-            data_block->rank = 0;
-            data_block->data_n = 1;
-            int* data = (int*)malloc(sizeof(int));
-            data[0] = THISPLUGIN_MAX_INTERFACE_VERSION;
-            data_block->data = (char*)data;
-            strcpy(data_block->data_desc, "Maximum Interface Version");
-            strcpy(data_block->data_label, "version");
-            strcpy(data_block->data_units, "");
+            err = setReturnDataIntScalar(idam_plugin_interface->data_block, THISPLUGIN_MAX_INTERFACE_VERSION, "Maximum Interface Version");
+
             break;
         } else {
-            IDAM_LOGF(LOG_ERROR, "Function %s Not Known.!\n", request_block->function);
-            THROW_ERROR(999, "Unknown Function requested");
+            RAISE_PLUGIN_ERROR("Unknown Function requested");
         }
     } while (0);
 

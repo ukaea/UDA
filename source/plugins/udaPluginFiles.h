@@ -23,7 +23,7 @@ extern "C" {
 typedef struct IDAMPluginFile {
     int status;                     // Open (1) or Closed (0)
     char filename[STRING_LENGTH];   // Full Data Source Filename
-    int handleInt;                  // Integer File Handle
+    long handleInt;                 // Integer File Handle
     void* handlePtr;                // Pointer file handle
     struct timeval file_open;       // File Open Clock Time
 } IDAMPLUGINFILE;

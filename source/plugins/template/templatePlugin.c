@@ -110,118 +110,57 @@ int templatePlugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     }
 }
 
-// Help: A Description of library functionality
+/**
+ * Help: A Description of library functionality
+ * @param idam_plugin_interface
+ * @return
+ */
 int do_help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
-    DATA_BLOCK* data_block = idam_plugin_interface->data_block;
+    const char* help = "\ntemplatePlugin: Add Functions Names, Syntax, and Descriptions\n\n";
+    const char* desc = "templatePlugin: help = description of this plugin";
 
-    char* p = (char*) malloc(sizeof(char) * 2 * 1024);
-
-    strcpy(p, "\ntemplatePlugin: Add Functions Names, Syntax, and Descriptions\n\n");
-
-    initDataBlock(data_block);
-
-    data_block->rank = 1;
-    data_block->dims = (DIMS*) malloc(data_block->rank * sizeof(DIMS));
-
-    int i;
-    for (i = 0; i < data_block->rank; i++) {
-        initDimBlock(&data_block->dims[i]);
-    }
-
-    data_block->data_type = TYPE_STRING;
-    strcpy(data_block->data_desc, "templatePlugin: help = description of this plugin");
-
-    data_block->data = (char*) p;
-
-    data_block->dims[0].data_type = TYPE_UNSIGNED_INT;
-    data_block->dims[0].dim_n = strlen(p) + 1;
-    data_block->dims[0].compressed = 1;
-    data_block->dims[0].dim0 = 0.0;
-    data_block->dims[0].diff = 1.0;
-    data_block->dims[0].method = 0;
-
-    data_block->data_n = data_block->dims[0].dim_n;
-
-    strcpy(data_block->data_label, "");
-    strcpy(data_block->data_units, "");
-
-    return 0;
+    return setReturnDataString(idam_plugin_interface->data_block, help, desc);
 }
 
+/**
+ * Plugin version
+ * @param idam_plugin_interface
+ * @return
+ */
 int do_version(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
-    DATA_BLOCK* data_block = idam_plugin_interface->data_block;
-
-    initDataBlock(data_block);
-    data_block->data_type = TYPE_INT;
-    data_block->rank = 0;
-    data_block->data_n = 1;
-    int* data = (int*) malloc(sizeof(int));
-    data[0] = THISPLUGIN_VERSION;
-    data_block->data = (char*) data;
-    strcpy(data_block->data_desc, "Plugin version number");
-    strcpy(data_block->data_label, "version");
-    strcpy(data_block->data_units, "");
-
-    return 0;
+    return setReturnDataIntScalar(idam_plugin_interface->data_block, THISPLUGIN_VERSION, "Plugin version number");
 }
 
-// Plugin Build Date
+/**
+ * Plugin Build Date
+ * @param idam_plugin_interface
+ * @return
+ */
 int do_builddate(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
-    DATA_BLOCK* data_block = idam_plugin_interface->data_block;
-
-    initDataBlock(data_block);
-    data_block->data_type = TYPE_STRING;
-    data_block->rank = 0;
-    data_block->data_n = strlen(__DATE__) + 1;
-    char* data = (char*) malloc(data_block->data_n * sizeof(char));
-    strcpy(data, __DATE__);
-    data_block->data = (char*) data;
-    strcpy(data_block->data_desc, "Plugin build date");
-    strcpy(data_block->data_label, "date");
-    strcpy(data_block->data_units, "");
-
-    return 0;
+    return setReturnDataString(idam_plugin_interface->data_block, __DATE__, "Plugin build date");
 }
 
-// Plugin Default Method
+/**
+ * Plugin Default Method
+ * @param idam_plugin_interface
+ * @return
+ */
 int do_defaultmethod(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
-    DATA_BLOCK* data_block = idam_plugin_interface->data_block;
-
-    initDataBlock(data_block);
-    data_block->data_type = TYPE_STRING;
-    data_block->rank = 0;
-    data_block->data_n = strlen(THISPLUGIN_DEFAULT_METHOD) + 1;
-    char* data = (char*) malloc(data_block->data_n * sizeof(char));
-    strcpy(data, THISPLUGIN_DEFAULT_METHOD);
-    data_block->data = (char*) data;
-    strcpy(data_block->data_desc, "Plugin default method");
-    strcpy(data_block->data_label, "method");
-    strcpy(data_block->data_units, "");
-
-    return 0;
+    return setReturnDataString(idam_plugin_interface->data_block, THISPLUGIN_DEFAULT_METHOD, "Plugin default method");
 }
 
-// Plugin Maximum Interface Version
+/**
+ * Plugin Maximum Interface Version
+ * @param idam_plugin_interface
+ * @return
+ */
 int do_maxinterfaceversion(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
-    DATA_BLOCK* data_block = idam_plugin_interface->data_block;
-
-    initDataBlock(data_block);
-    data_block->data_type = TYPE_INT;
-    data_block->rank = 0;
-    data_block->data_n = 1;
-    int* data = (int*) malloc(sizeof(int));
-    data[0] = THISPLUGIN_MAX_INTERFACE_VERSION;
-    data_block->data = (char*) data;
-    strcpy(data_block->data_desc, "Maximum Interface Version");
-    strcpy(data_block->data_label, "version");
-    strcpy(data_block->data_units, "");
-
-    return 0;
+    return setReturnDataIntScalar(idam_plugin_interface->data_block, THISPLUGIN_MAX_INTERFACE_VERSION, "Maximum Interface Version");
 }
 
 //----------------------------------------------------------------------------------------

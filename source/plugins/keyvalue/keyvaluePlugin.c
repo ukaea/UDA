@@ -251,8 +251,8 @@ int do_maxinterfaceversion(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 int do_write(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, leveldb_t* db, leveldb_writeoptions_t* woptions)
 {
-    char* key = NULL;
-    char* value = NULL;
+    const char* key = NULL;
+    const char* value = NULL;
 
     FIND_REQUIRED_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, key);
     FIND_REQUIRED_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, value);
@@ -263,7 +263,7 @@ int do_write(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, leveldb_t* db, leveld
     }
 
     if (STR_EQUALS(env, "LEVELDB")) {
-        IDAM_LOGF(LOG_DEBUG, "Writing key %s to LevelDB keystore", key);
+        IDAM_LOGF(UDA_LOG_DEBUG, "Writing key %s to LevelDB keystore", key);
     } else {
         RAISE_PLUGIN_ERROR("Unknown keyvalue store requested");
     }
@@ -280,7 +280,7 @@ int do_write(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, leveldb_t* db, leveld
 
 int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, leveldb_t* db, leveldb_readoptions_t* roptions)
 {
-    char* key = NULL;
+    const char* key = NULL;
 
     FIND_REQUIRED_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, key);
 
@@ -290,7 +290,7 @@ int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, leveldb_t* db, leveldb
     }
 
     if (STR_EQUALS(env, "LEVELDB")) {
-        IDAM_LOGF(LOG_DEBUG, "Writing key %s to LevelDB keystore", key);
+        IDAM_LOGF(UDA_LOG_DEBUG, "Writing key %s to LevelDB keystore", key);
     } else {
         RAISE_PLUGIN_ERROR("Unknown keyvalue store requested");
     }
@@ -312,7 +312,7 @@ int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, leveldb_t* db, leveldb
 
 int do_delete(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, leveldb_t* db, leveldb_writeoptions_t* woptions)
 {
-    char* key = NULL;
+    const char* key = NULL;
 
     FIND_REQUIRED_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, key);
 
@@ -322,7 +322,7 @@ int do_delete(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, leveldb_t* db, level
     }
 
     if (STR_EQUALS(env, "LEVELDB")) {
-        IDAM_LOGF(LOG_DEBUG, "Writing key %s to LevelDB keystore", key);
+        IDAM_LOGF(UDA_LOG_DEBUG, "Writing key %s to LevelDB keystore", key);
     } else {
         RAISE_PLUGIN_ERROR("Unknown keyvalue store requested");
     }

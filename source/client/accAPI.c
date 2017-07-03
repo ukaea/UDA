@@ -447,8 +447,8 @@ void setIdamProperty(const char* property)
                 if (IsNumber(value)) user_timeout = atoi(value);
             }
         } else {
-            if (STR_IEQUALS(property, "verbose")) idamSetLogLevel(LOG_INFO);
-            if (STR_IEQUALS(property, "debug")) idamSetLogLevel(LOG_DEBUG);
+            if (STR_IEQUALS(property, "verbose")) idamSetLogLevel(UDA_LOG_INFO);
+            if (STR_IEQUALS(property, "debug")) idamSetLogLevel(UDA_LOG_DEBUG);
             if (STR_IEQUALS(property, "altData")) clientFlags = clientFlags | CLIENTFLAG_ALTDATA;
             if (!strncasecmp(property, "altRank", 7)) {
                 strncpy(name, property, 55);
@@ -497,8 +497,8 @@ int getIdamProperty(const char* property)
         if (STR_IEQUALS(property, "altRank")) return altRank;
         if (STR_IEQUALS(property, "reuseLastHandle")) return clientFlags | CLIENTFLAG_REUSELASTHANDLE;
         if (STR_IEQUALS(property, "freeAndReuseLastHandle")) return clientFlags | CLIENTFLAG_FREEREUSELASTHANDLE;
-        if (STR_IEQUALS(property, "verbose")) return idamGetLogLevel() == LOG_INFO;
-        if (STR_IEQUALS(property, "debug")) return idamGetLogLevel() == LOG_DEBUG;
+        if (STR_IEQUALS(property, "verbose")) return idamGetLogLevel() == UDA_LOG_INFO;
+        if (STR_IEQUALS(property, "debug")) return idamGetLogLevel() == UDA_LOG_DEBUG;
         if (STR_IEQUALS(property, "altData")) return clientFlags | CLIENTFLAG_ALTDATA;
 
     }
@@ -530,8 +530,8 @@ void resetIdamProperty(const char* property)
         if (STR_IEQUALS(property, "get_scalar")) get_scalar = 0;
         if (STR_IEQUALS(property, "get_nodimdata")) get_nodimdata = 0;
     } else {
-        if (STR_IEQUALS(property, "verbose")) idamSetLogLevel(LOG_NONE);
-        if (STR_IEQUALS(property, "debug")) idamSetLogLevel(LOG_NONE);
+        if (STR_IEQUALS(property, "verbose")) idamSetLogLevel(UDA_LOG_NONE);
+        if (STR_IEQUALS(property, "debug")) idamSetLogLevel(UDA_LOG_NONE);
         if (STR_IEQUALS(property, "altData")) clientFlags = clientFlags & !CLIENTFLAG_ALTDATA;
         if (STR_IEQUALS(property, "altRank")) altRank = 0;
         if (STR_IEQUALS(property, "reuseLastHandle")) clientFlags = clientFlags & !CLIENTFLAG_REUSELASTHANDLE;
@@ -563,7 +563,7 @@ void resetIdamProperties()
     get_scalar = 0;
     get_bytes = 0;
     get_nodimdata = 0;
-    idamSetLogLevel(LOG_NONE);
+    idamSetLogLevel(UDA_LOG_NONE);
     user_timeout = TIMEOUT;
     clientFlags = clientFlags & !CLIENTFLAG_ALTDATA;
     altRank = 0;
@@ -1265,7 +1265,7 @@ char* getIdamAsymmetricError(int handle, int above)
 
             if (allocArray(Data_Block[handle].error_type, ndata, &errhi) != 0) {
                 // Allocate Heap for Regular Error Data
-                IDAM_LOG(LOG_ERROR, "Heap Allocation Problem with Data Errors\n");
+                IDAM_LOG(UDA_LOG_ERROR, "Heap Allocation Problem with Data Errors\n");
                 Data_Block[handle].errhi = NULL;
             } else {
                 Data_Block[handle].errhi = errhi;
@@ -1273,8 +1273,8 @@ char* getIdamAsymmetricError(int handle, int above)
 
             if (Data_Block[handle].errasymmetry) {           // Allocate Heap for the Asymmetric Error Data
                 if (allocArray(Data_Block[handle].error_type, ndata, &errlo) != 0) {
-                    IDAM_LOG(LOG_ERROR, "Heap Allocation Problem with Asymmetric Errors\n");
-                    IDAM_LOG(LOG_ERROR, "Switching Asymmetry Off!\n");
+                    IDAM_LOG(UDA_LOG_ERROR, "Heap Allocation Problem with Asymmetric Errors\n");
+                    IDAM_LOG(UDA_LOG_ERROR, "Switching Asymmetry Off!\n");
                     Data_Block[handle].errlo = NULL;
                     Data_Block[handle].errasymmetry = 0;
                 } else {
@@ -2605,7 +2605,7 @@ char* getIdamDimAsymmetricError(int handle, int ndim, int above)
 
 
             if (allocArray(Data_Block[handle].dims[ndim].error_type, ndata, &errhi) != 0) {
-                IDAM_LOG(LOG_ERROR, "Heap Allocation Problem with Dimensional Data Errors\n");
+                IDAM_LOG(UDA_LOG_ERROR, "Heap Allocation Problem with Dimensional Data Errors\n");
                 Data_Block[handle].dims[ndim].errhi = NULL;
             } else {
                 Data_Block[handle].dims[ndim].errhi = errhi;
@@ -2613,8 +2613,8 @@ char* getIdamDimAsymmetricError(int handle, int ndim, int above)
 
             if (Data_Block[handle].dims[ndim].errasymmetry) {               // Allocate Heap for the Asymmetric Error Data
                 if (allocArray(Data_Block[handle].dims[ndim].error_type, ndata, &errlo) != 0) {
-                    IDAM_LOG(LOG_ERROR, "Heap Allocation Problem with Dimensional Asymmetric Errors\n");
-                    IDAM_LOG(LOG_ERROR, "Switching Asymmetry Off!\n");
+                    IDAM_LOG(UDA_LOG_ERROR, "Heap Allocation Problem with Dimensional Asymmetric Errors\n");
+                    IDAM_LOG(UDA_LOG_ERROR, "Switching Asymmetry Off!\n");
                     Data_Block[handle].dims[ndim].errlo = errlo;
                     Data_Block[handle].dims[ndim].errasymmetry = 0;
                 } else {

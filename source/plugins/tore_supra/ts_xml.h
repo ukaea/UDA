@@ -5,10 +5,10 @@
 
 #include <clientserver/udaStructs.h>
 
-#if LIBXML_VERSION >= 20901
-#  define FMT_TYPE const char*
+#ifdef LIBXML2_PRINTF_CHAR_ARG
+#  define XML_FMT_TYPE const char*
 #else
-#  define FMT_TYPE const xmlChar*
+#  define XML_FMT_TYPE const xmlChar*
 #endif
 
 int execute_xpath_expression(const char* filename, const xmlChar* xpathExpr, DATA_BLOCK* data_block, int* nodeIndices);

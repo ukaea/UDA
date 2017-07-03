@@ -6,9 +6,9 @@
 #include <string.h>
 #include <stdlib.h>
 
+#include <clientserver/errorLog.h>
 #include <clientserver/stringUtils.h>
 #include <clientserver/udaTypes.h>
-#include <clientserver/errorLog.h>
 #include <logging/logging.h>
 
 // Extract list
@@ -17,7 +17,7 @@
 // item, item, item
 // 'item', 'item', 'it,em', 'it "e", m', 'ite e m' 
 
-void getIdamNameValuePairItemList(char* list, char*** itemList, unsigned short* count, char quote,
+void getIdamNameValuePairItemList(const char* list, char*** itemList, unsigned short* count, char quote,
                                   char delimiter) {
 
     unsigned int i, length;
@@ -71,8 +71,6 @@ void getIdamNameValuePairItemList(char* list, char*** itemList, unsigned short* 
     i = 0;
     while ((p = strchr(p0, delimiter)) != NULL) {
 
-//fprintf(stdout,"[%d] %d\n", i, p - work + 1);   
-
         splits[i++] = p - work;
         p[0] = '\0';
         p0 = &p[1];
@@ -93,14 +91,10 @@ void getIdamNameValuePairItemList(char* list, char*** itemList, unsigned short* 
         (*itemList)[i - 1] = (char*) malloc((strlen(p) + 1) * sizeof(char));
         strcpy((*itemList)[i - 1], p);
 
-//fprintf(stdout,"[%d] %s\n", i-1, p);  
-
         p = &work[splits[i - 1] + 1];
     }
     (*itemList)[*count - 1] = (char*) malloc((strlen(p) + 1) * sizeof(char));
     strcpy((*itemList)[*count - 1], p);
-
-//fprintf(stdout,"[%d] %s\n", *count-1, p);
 
 // Remove leading and trailing quotes
 
@@ -111,8 +105,6 @@ void getIdamNameValuePairItemList(char* list, char*** itemList, unsigned short* 
             if ((p = strrchr(p0, quote)) != NULL) p[0] = ' ';
             TrimString((*itemList)[i]);
             LeftTrimString((*itemList)[i]);
-
-//fprintf(stdout,"T[%d] %s\n", i, p0);
 
         }
     }
@@ -133,7 +125,7 @@ void freeIdamNameValuePairItemList(char*** list, unsigned short count) {
 }
 
 
-int getIdamNameValuePairVarArray(char* values, char quote, char delimiter, unsigned short varSize, int varType,
+int getIdamNameValuePairVarArray(const char* values, char quote, char delimiter, unsigned short varSize, int varType,
                                  void** varData) {
 
 // Unpack 'values' sent via a name-value pair string using quote and delimiter to parse the string  
@@ -156,7 +148,7 @@ int getIdamNameValuePairVarArray(char* values, char quote, char delimiter, unsig
 
     if (varSize > 0 && dataCount != varSize) {        // Check counts for consistency if known in advance
         err = 999;
-        IDAM_LOG(LOG_ERROR,
+        IDAM_LOG(UDA_LOG_ERROR,
                 "getNameValuePairVarArray: The number of values passed by argument is inconsistent with the specified Size value!\n");
         addIdamError(&idamerrorstack, CODEERRORTYPE, "getNameValuePairVarArray", err,
                      "The number of values passed by argument is inconsistent with the specified Size value!");
@@ -182,7 +174,6 @@ int getIdamNameValuePairVarArray(char* values, char quote, char delimiter, unsig
       }
 */
         case (TYPE_UNSIGNED_CHAR): {
-
             unsigned char* d = (unsigned char*) malloc(dataCount * sizeof(unsigned char));
             unsigned int* id = (unsigned int*) malloc(dataCount * sizeof(unsigned int));
             for (i = 0; i < dataCount; i++) {
@@ -195,7 +186,6 @@ int getIdamNameValuePairVarArray(char* values, char quote, char delimiter, unsig
         }
 
         case (TYPE_CHAR): {
-
             char* d = (char*) malloc(dataCount * sizeof(char));
             for (i = 0; i < dataCount; i++) d[i] = (char) (dataList[i])[0];
             data = (void*) d;
@@ -203,7 +193,6 @@ int getIdamNameValuePairVarArray(char* values, char quote, char delimiter, unsig
         }
 
         case (TYPE_SHORT): {
-
             short* d = (short*) malloc(dataCount * sizeof(short));
             for (i = 0; i < dataCount; i++) d[i] = (short) atoi(dataList[i]);
             data = (void*) d;
@@ -211,7 +200,6 @@ int getIdamNameValuePairVarArray(char* values, char quote, char delimiter, unsig
         }
 
         case (TYPE_UNSIGNED_SHORT): {
-
             unsigned short* d = (unsigned short*) malloc(dataCount * sizeof(unsigned short));
             for (i = 0; i < dataCount; i++) d[i] = (unsigned short) atoi(dataList[i]);
             data = (void*) d;
@@ -219,7 +207,6 @@ int getIdamNameValuePairVarArray(char* values, char quote, char delimiter, unsig
         }
 
         case (TYPE_INT): {
-
             int* d = (int*) malloc(dataCount * sizeof(int));
             for (i = 0; i < dataCount; i++) d[i] = (int) atoi(dataList[i]);
             data = (void*) d;
@@ -227,7 +214,6 @@ int getIdamNameValuePairVarArray(char* values, char quote, char delimiter, unsig
         }
 
         case (TYPE_UNSIGNED_INT): {
-
             unsigned int* d = (unsigned int*) malloc(dataCount * sizeof(int));
             for (i = 0; i < dataCount; i++) d[i] = (unsigned int) atoi(dataList[i]);
             data = (void*) d;
@@ -235,7 +221,6 @@ int getIdamNameValuePairVarArray(char* values, char quote, char delimiter, unsig
         }
 
         case (TYPE_LONG64): {
-
             long long* d = (long long*) malloc(dataCount * sizeof(long long));
             for (i = 0; i < dataCount; i++) d[i] = (long long) atoi(dataList[i]);
             data = (void*) d;
@@ -243,7 +228,6 @@ int getIdamNameValuePairVarArray(char* values, char quote, char delimiter, unsig
         }
 
         case (TYPE_UNSIGNED_LONG64): {
-
             unsigned long long* d = (unsigned long long*) malloc(dataCount * sizeof(unsigned long long));
             for (i = 0; i < dataCount; i++) d[i] = (unsigned long long) atoi(dataList[i]);
             data = (void*) d;
@@ -251,7 +235,6 @@ int getIdamNameValuePairVarArray(char* values, char quote, char delimiter, unsig
         }
 
         case (TYPE_FLOAT): {
-
             float* d = (float*) malloc(dataCount * sizeof(float));
             for (i = 0; i < dataCount; i++) d[i] = (float) atof(dataList[i]);
             data = (void*) d;
@@ -259,15 +242,15 @@ int getIdamNameValuePairVarArray(char* values, char quote, char delimiter, unsig
         }
 
         case (TYPE_DOUBLE): {
-
             double* d = (double*) malloc(dataCount * sizeof(double));
-            for (i = 0; i < dataCount; i++) d[i] = (double) atof(dataList[i]);
+            for (i = 0; i < dataCount; i++) d[i] = atof(dataList[i]);
             data = (void*) d;
             break;
         }
+
         default:
             err = 999;
-            IDAM_LOG(LOG_ERROR,
+            IDAM_LOG(UDA_LOG_ERROR,
                     "getNameValuePairVarArray: The data type of the values passed by argument is not recognised!\n");
             addIdamError(&idamerrorstack, CODEERRORTYPE, "getNameValuePairVarArray", err,
                          "The data type of the values passed by argument is not recognised!");
@@ -278,7 +261,7 @@ int getIdamNameValuePairVarArray(char* values, char quote, char delimiter, unsig
 
     if (err == 0 && data == NULL) {
         err = 999;
-        IDAM_LOG(LOG_ERROR,
+        IDAM_LOG(UDA_LOG_ERROR,
                 "getNameValuePairVarArray: Processing of the specified type of data passed by argument has not been implemented!\n");
         addIdamError(&idamerrorstack, CODEERRORTYPE, "getNameValuePairVarArray", err,
                      "Processing of the specified type of data passed by argument has not been implemented!");
@@ -295,7 +278,7 @@ int getIdamNameValuePairVarArray(char* values, char quote, char delimiter, unsig
     return dataCount;
 }
 
-int findIdamType(char* typeName) {
+int findIdamType(const char* typeName) {
     if (typeName == NULL) return (TYPE_UNDEFINED);
     if (STR_IEQUALS(typeName, "byte")) return TYPE_CHAR;
     if (STR_IEQUALS(typeName, "char")) return TYPE_CHAR;
@@ -320,31 +303,27 @@ int findIdamType(char* typeName) {
 char* convertIdam2StringType(int type) {
     switch (type) {
         case TYPE_CHAR:
-            return ("char");
+            return "char";
         case TYPE_SHORT:
-            return ("short");
+            return "short";
         case TYPE_INT:
-            return ("int");
+            return "int";
         case TYPE_LONG64:
-            return ("int64");
+            return "int64";
         case TYPE_FLOAT:
-            return ("float");
+            return "float";
         case TYPE_DOUBLE:
-            return ("double");
+            return "double";
         case TYPE_UNSIGNED_CHAR:
-            return ("ubyte");
+            return "ubyte";
         case TYPE_UNSIGNED_SHORT:
-            return ("ushort");
+            return "ushort";
         case TYPE_UNSIGNED_INT:
-            return ("uint");
+            return "uint";
         case TYPE_UNSIGNED_LONG64:
-            return ("ulong64");
-            //case TYPE_VLEN:		return(NC_VLEN);
-            //case TYPE_COMPOUND:	return(NC_COMPOUND);
-            //case TYPE_OPAQUE:		return(NC_OPAQUE);
-            //case TYPE_ENUM:		return(NC_ENUM);
+            return "ulong64";
         case TYPE_STRING:
-            return ("string");
+            return "string";
         default:
             return "unknown";
     }
@@ -417,25 +396,25 @@ int convertIdam2HDF5Type(int type)
 int sizeIdamType(int type) {
     switch (type) {
         case TYPE_CHAR:
-            return (sizeof(char));
+            return sizeof(char);
         case TYPE_SHORT:
-            return (sizeof(short));
+            return sizeof(short);
         case TYPE_INT:
-            return (sizeof(int));
+            return sizeof(int);
         case TYPE_LONG64:
-            return (sizeof(long long));
+            return sizeof(long long);
         case TYPE_FLOAT:
-            return (sizeof(float));
+            return sizeof(float);
         case TYPE_DOUBLE:
-            return (sizeof(double));
+            return sizeof(double);
         case TYPE_UNSIGNED_CHAR:
-            return (sizeof(unsigned char));
+            return sizeof(unsigned char);
         case TYPE_UNSIGNED_SHORT:
-            return (sizeof(unsigned short));
+            return sizeof(unsigned short);
         case TYPE_UNSIGNED_INT:
-            return (sizeof(unsigned int));
+            return sizeof(unsigned int);
         case TYPE_UNSIGNED_LONG64:
-            return (sizeof(unsigned long long));
+            return sizeof(unsigned long long);
         default:
             return 0;
     }

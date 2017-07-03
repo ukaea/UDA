@@ -1,7 +1,8 @@
-#ifndef IdamIMASMDSPluginInclude
-#define IdamIMASMDSPluginInclude
+#ifndef UDA_PLUGINS_IMAS_PLUGIN_IMAS_MDS_H
+#define UDA_PLUGINS_IMAS_PLUGIN_IMAS_MDS_H
 
 #include <server/pluginStructs.h>
+#include <stdbool.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -31,91 +32,87 @@ char* imas_reset_errmsg();
 int mdsGetDimension(int expIdx, char *cpoPath, char *path, int *numDims, int *dim1, int *dim2, int *dim3, int *dim4, int *dim5, int *dim6, int *dim7);
 
 typedef struct PluginArgs {
-    unsigned short isCPOPath;
-    char* CPOPath;
-    unsigned short isPath;
-    char* path;
-    unsigned short isTypeName;
-    char* typeName;
-    unsigned short isClientIdx;
+    bool isCPOPath;
+    const char* CPOPath;
+    bool isPath;
+    const char* path;
+    bool isTypeName;
+    const char* typeName;
+    bool isClientIdx;
     int clientIdx;
-    unsigned short isClientObjectId;
+    bool isClientObjectId;
     int clientObjectId;
-    unsigned short isRank;
+    bool isRank;
     int rank;
-    unsigned short isIndex;
+    bool isIndex;
     int index;
-    unsigned short isCount;
+    bool isCount;
     int count;
-    unsigned short isShapeString;
-    char* shapeString;
-    unsigned short isDataString;
-    char* dataString;
-    unsigned short isFileName;
-    char* filename;
-    unsigned short isShotNumber;
+    bool isShapeString;
+    const char* shapeString;
+    bool isDataString;
+    const char* dataString;
+    bool isFileName;
+    const char* filename;
+    bool isShotNumber;
     int shotNumber;
-    unsigned short isRunNumber;
+    bool isRunNumber;
     int runNumber;
-    unsigned short isRefShotNumber;
+    bool isRefShotNumber;
     int refShotNumber;
-    unsigned short isRefRunNumber;
+    bool isRefRunNumber;
     int refRunNumber;
-    unsigned short isTimedArg;
+    bool isTimedArg;
     int isTimed;
-    unsigned short isInterpolMode;
+    bool isInterpolMode;
     int interpolMode;
-    unsigned short isSignal;
-    char* signal;
-    unsigned short isSource;
-    char* source;
-    unsigned short isFormat;
-    char* format;
-    unsigned short isOwner;
-    char* owner;
-    unsigned short isServer;
-    char* server;
-    unsigned short isSetLevel;
+    bool isSignal;
+    const char* signal;
+    bool isSource;
+    const char* source;
+    bool isFormat;
+    const char* format;
+    bool isOwner;
+    const char* owner;
+    bool isServer;
+    const char* server;
+    bool isSetLevel;
     int setLevel;
-    unsigned short isCommand;
-    char* command;
-    unsigned short isIPAddress;
-    char* IPAddress;
-    unsigned short isTimes;
-    char* timesString;
-    unsigned short isPutDataSlice;
-    unsigned short isReplaceLastDataSlice;
-    unsigned short isGetDataSlice;
-    unsigned short isGetDimension;
-    unsigned short isCreateFromModel;
-    unsigned short isFlush;
-    unsigned short isDiscard;
-    unsigned short isGetLevel;
-    unsigned short isFlushCPO;
-    unsigned short isDisable;
-    unsigned short isEnable;
-    unsigned short isBeginIDSSlice;
-    unsigned short isEndIDSSlice;
-    unsigned short isReplaceIDSSlice;
-    unsigned short isBeginIDS;
-    unsigned short isEndIDS;
-    unsigned short isBeginIDSTimed;
-    unsigned short isEndIDSTimed;
-    unsigned short isBeginIDSNonTimed;
-    unsigned short isEndIDSNonTimed;
+    bool isCommand;
+    const char* command;
+    bool isIPAddress;
+    const char* IPAddress;
+    bool isTimes;
+    const char* timesString;
+    bool isPutDataSlice;
+    bool isReplaceLastDataSlice;
+    bool isGetDataSlice;
+    bool isGetDimension;
+    bool isCreateFromModel;
+    bool isFlush;
+    bool isDiscard;
+    bool isGetLevel;
+    bool isFlushCPO;
+    bool isDisable;
+    bool isEnable;
+    bool isBeginIDSSlice;
+    bool isEndIDSSlice;
+    bool isReplaceIDSSlice;
+    bool isBeginIDS;
+    bool isEndIDS;
+    bool isBeginIDSTimed;
+    bool isEndIDSTimed;
+    bool isBeginIDSNonTimed;
+    bool isEndIDSNonTimed;
     char quote;
     char delimiter;
-    unsigned short isPutData;
-    unsigned short isImasIdsVersion;
-    char* imasIdsVersion;
-    unsigned short isImasIdsDevice;
-    char* imasIdsDevice;
+    bool isPutData;
+    bool isImasIdsVersion;
+    const char* imasIdsVersion;
+    bool isImasIdsDevice;
+    const char* imasIdsDevice;
 
 } PLUGIN_ARGS;
-
-void putImasIdsVersion(const char* version);
-
-void putImasIdsDevice(const char* device);
 
 int imas_mds_putDataSlice(int idx, char* cpoPath, char* path, char* timeBasePath, int type, int nDims,
                           int* dims, void* data, double time);
@@ -148,4 +145,4 @@ char* getTimeBasePath();
 }
 #endif
 
-#endif
+#endif // UDA_PLUGINS_IMAS_PLUGIN_IMAS_MDS_H

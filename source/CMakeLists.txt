@@ -1,9 +1,13 @@
 cmake_minimum_required( VERSION 3.0 )
 
+include( LibXml2StrPrintfConfig )
+
 add_definitions(
   -Wall
   -Werror
 )
+
+set( LOGGING_BACKEND "FILE" CACHE STRING "Choose logging backend [FILE;SYSLOG]" )
 
 add_subdirectory( cache )
 add_subdirectory( logging )

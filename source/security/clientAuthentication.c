@@ -173,7 +173,7 @@ static int initialiseKeys(CLIENT_BLOCK* client_block, gcry_sexp_t* publickey_out
         }        // get the server's Public key from an X509 certificate
         ksba_cert_release(serverCert);
         serverCert = NULL;
-        if (serverCertificate != NULL) free(serverCertificate);
+        free(serverCertificate);
         serverCertificate = NULL;
     } else if ((err = importPEMPublicKey(serverPublicKeyFile, &publickey)) != 0) {
         return err;
@@ -316,7 +316,7 @@ static int decryptServerToken(SERVER_BLOCK* server_block, CLIENT_BLOCK* client_b
     xdrrec_eof(clientInput);
 #endif
 
-    IDAM_LOG(LOG_DEBUG, "Server Block Received\n");
+    IDAM_LOG(UDA_LOG_DEBUG, "Server Block Received\n");
     printServerBlock(*server_block);
 
     // Protocol Version: Lower of the client and server version numbers

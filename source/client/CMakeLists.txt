@@ -4,8 +4,8 @@ cmake_minimum_required( VERSION 2.8 )
 # Dependencies
 
 find_package( OpenSSL REQUIRED )
+find_package( LibXml2 REQUIRED )
 if( NOT CLIENT_ONLY )
-  find_package( LibXml2 REQUIRED )
   find_package( PostgreSQL REQUIRED )
 endif()
 
@@ -67,9 +67,17 @@ set( FATCLIENT_OBJS
 add_library( client-shared SHARED ${CLIENT_OBJS} )
 add_library( client-static STATIC ${CLIENT_OBJS} )
 
+set( CLIENT_LINK_LIBS ${OPENSSL_LIBRARIES} ${LIBXML2_LIBRARIES} ${CACHE_LIBRARIES} )
+
+target_link_libraries( client-shared PRIVATE ${CLIENT_LINK_LIBS} )
+target_link_libraries( client-static PRIVATE ${CLIENT_LINK_LIBS} )
+
 if( NOT CLIENT_ONLY )
   add_library( fatclient-shared SHARED ${FATCLIENT_OBJS} )
   add_library( fatclient-static STATIC ${FATCLIENT_OBJS} )
+
+  target_link_libraries( fatclient-shared PRIVATE ${CLIENT_LINK_LIBS} ${PostgreSQL_LIBRARY} )
+  target_link_libraries( fatclient-static PRIVATE ${CLIENT_LINK_LIBS} ${PostgreSQL_LIBRARY} )
 endif()
 
 set_target_properties( client-shared

@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------
-* Test IDAM Plugin: Test regular and sructured data passing middleware
+* Test IDAM Plugin: Test regular and structured data passing middleware
 *
 * Input Arguments:	IDAM_PLUGIN_INTERFACE *idam_plugin_interface
 *
@@ -15,21 +15,19 @@
 *		are freed on exit. However, the blocks reserved for data are
 *		not and MUST BE FREED by the calling routine.
 *
-*
-* Change History
-*
-* 25Oct2011	D.G.Muir	Original Version
-* 05Feb2013	D.G.Muir	Added test calls to other server plugins
 *---------------------------------------------------------------------------------------------------------------*/
+
 #include "testplugin.h"
 
 #include <stdlib.h>
 #include <strings.h>
+#include <stddef.h>
 
 #include <clientserver/initStructs.h>
 #include <structures/struct.h>
 #include <server/makeServerRequestBlock.h>
 #include <clientserver/stringUtils.h>
+#include <structures/accessors.h>
 
 #ifdef PUTDATAENABLED
 #  include <structures/accessors.h>
@@ -71,6 +69,7 @@ static int do_test28(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
 static int do_test30(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
 static int do_test31(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
 static int do_test32(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
+static int do_test33(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
 #ifdef PUTDATAENABLED
 static int do_test40(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
 #endif // PUTDATAENABLED
@@ -82,24 +81,22 @@ static int do_emptytest(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
 static int do_testudt(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
 #endif // TESTUDT
 
-struct TEST9 {
+typedef struct Test9 {
     char v1[56];        // single fixed length string
     char v2[3][56];     // 3 fixed length strings
     char* v3;           // single arbitrary length string
     char* v4[3];        // 3 strings of arbitrary length
     char** v5;          // arbitrary number of strings of arbitrary length
-};
-typedef struct TEST9 TEST9;
+} TEST9;
 
-struct TEST9A {
+typedef struct Test9A {
     char v1[56];        // single fixed length string
     char v2[3][56];     // 3 fixed length strings
     char* v3;           // single arbitrary length string
     char* v4[3];        // 3 strings of arbitrary length
     char** v5;          // arbitrary number of strings of arbitrary length
     TEST9 v6;           // Sub Structure with String types
-};
-typedef struct TEST9A TEST9A;
+} TEST9A;
 
 extern int testplugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
@@ -119,13 +116,13 @@ extern int testplugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         housekeeping = idam_plugin_interface->housekeeping;
     } else {
         err = 999;
-        IDAM_LOG(LOG_ERROR, "Plugin Interface Version Unknown\n");
+        IDAM_LOG(UDA_LOG_ERROR, "Plugin Interface Version Unknown\n");
         addIdamError(&idamerrorstack, CODEERRORTYPE, "testplugin", err,
                      "Plugin Interface Version is Not Known: Unable to execute the request!");
         return err;
     }
 
-    IDAM_LOG(LOG_DEBUG, "Interface exchanged on entry\n");
+    IDAM_LOG(UDA_LOG_DEBUG, "Interface exchanged on entry\n");
 
     //----------------------------------------------------------------------------------------
     // Heap Housekeeping
@@ -138,7 +135,7 @@ extern int testplugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     if (housekeeping || STR_IEQUALS(request_block->function, "reset")) {
         if (!init) return 0;        // Not previously initialised: Nothing to do!
         init = 0;
-        IDAM_LOG(LOG_DEBUG, "reset function executed\n");
+        IDAM_LOG(UDA_LOG_DEBUG, "reset function executed\n");
         return 0;
     }
 
@@ -147,9 +144,10 @@ extern int testplugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     if (!init || STR_IEQUALS(request_block->function, "init") || STR_IEQUALS(request_block->function, "initialise")) {
         init = 1;
-        IDAM_LOG(LOG_DEBUG, "plugin initialised\n");
-        if (STR_IEQUALS(request_block->function, "init") || STR_IEQUALS(request_block->function, "initialise"))
+        IDAM_LOG(UDA_LOG_DEBUG, "plugin initialised\n");
+        if (STR_IEQUALS(request_block->function, "init") || STR_IEQUALS(request_block->function, "initialise")) {
             return 0;
+        }
     }
 
     init_structure_definitions();
@@ -186,8 +184,8 @@ extern int testplugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         err = do_test9A(idam_plugin_interface);
     } else
 
-    //=========================================================================================================
-    // Integer Tests
+        //=========================================================================================================
+        // Integer Tests
 
     if (STR_IEQUALS(request_block->function, "test10")) {           // Single Integer
         err = do_test10(idam_plugin_interface);
@@ -207,10 +205,10 @@ extern int testplugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         err = do_test18(idam_plugin_interface);
     } else if (STR_IEQUALS(request_block->function, "test19")) {    // array of multi-typed Structures
         err = do_test19(idam_plugin_interface);
-    }
+    } else
 
-    //=========================================================================================================
-    // Short Integer Tests
+        //=========================================================================================================
+        // Short Integer Tests
 
     if (STR_IEQUALS(request_block->function, "test20")) {           // Single Short Integer
         err = do_test20(idam_plugin_interface);
@@ -232,8 +230,8 @@ extern int testplugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         err = do_test28(idam_plugin_interface);
     } else
 
-    //=====================================================================================================
-    // Doubles
+        //=====================================================================================================
+        // Doubles
 
     if (STR_IEQUALS(request_block->function, "test30")) {           // Simple Structure
         err = do_test30(idam_plugin_interface);
@@ -241,13 +239,15 @@ extern int testplugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         err = do_test31(idam_plugin_interface);
     } else if (STR_IEQUALS(request_block->function, "test32")) {    // Compound Structure
         err = do_test32(idam_plugin_interface);
+    } else if (STR_IEQUALS(request_block->function, "test33")) {    // Compound Structure
+        err = do_test33(idam_plugin_interface);
 #ifdef PUTDATAENABLED
-    } else if(STR_IEQUALS(request_block->function, "test40")) {
-        err = do_test40(idam_plugin_interface);
+        } else if(STR_IEQUALS(request_block->function, "test40")) {
+            err = do_test40(idam_plugin_interface);
 #endif
 
-    //=====================================================================================================
-    // Misc
+        //=====================================================================================================
+        // Misc
 
     } else if (STR_IEQUALS(request_block->function, "plugin")) {
         err = do_plugin(idam_plugin_interface);
@@ -256,26 +256,15 @@ extern int testplugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     } else if (STR_IEQUALS(request_block->function, "scalartest")) {
         err = do_scalartest(idam_plugin_interface);
     } else if (STR_IEQUALS(request_block->function, "emptytest")) {
-        err = do_emptytest(idam_plugin_interface);	
+        err = do_emptytest(idam_plugin_interface);
 #ifdef TESTUDT
-    } else if(STR_IEQUALS(request_block->function, "test40")) {
-        err = do_testudt(idam_plugin_interface);
+        } else if(STR_IEQUALS(request_block->function, "test40")) {
+            err = do_testudt(idam_plugin_interface);
 #endif
     } else {
         err = 999;
         addIdamError(&idamerrorstack, CODEERRORTYPE, "testplugin", err, "Unknown function requested!");
     }
-
-    //--------------------------------------------------------------------------------------
-    // Housekeeping
-
-    IDAM_LOG(LOG_DEBUG, "housekeeping started\n");
-
-#ifndef USE_PLUGIN_DIRECTLY
-    closeIdamError(&idamerrorstack);            // Free local plugin error stack
-#endif
-
-    IDAM_LOG(LOG_DEBUG, "housekeeping completed\n");
 
     return err;
 }
@@ -299,11 +288,9 @@ static int do_help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
     DATA_BLOCK* data_block = idam_plugin_interface->data_block;
 
-    IDAM_LOG(LOG_DEBUG, "help function called\n");
+    IDAM_LOG(UDA_LOG_DEBUG, "help function called\n");
 
-    char* p = (char*) malloc(sizeof(char) * 2 * 1024);
-
-    strcpy(p, "/nTestplugin: Functions Names and Test Descriptions/n/n"
+    const char* help = "\nTestplugin: Functions Names and Test Descriptions/n/n"
             "test0-test9: String passing tests\n"
             "\ttest0: single string as a char array\n"
             "\ttest1: single string\n"
@@ -346,13 +333,12 @@ static int do_help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             "plugin: test calling other plugins\n"
 
-            "error: Error reporting and server termination tests\n"
-    );
+            "error: Error reporting and server termination tests\n";
 
     initDataBlock(data_block);
 
     data_block->rank = 1;
-    data_block->dims = (DIMS*) malloc(data_block->rank * sizeof(DIMS));
+    data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
 
     int i;
     for (i = 0; i < data_block->rank; i++) initDimBlock(&data_block->dims[i]);
@@ -360,10 +346,10 @@ static int do_help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     data_block->data_type = TYPE_STRING;
     strcpy(data_block->data_desc, "testplugins: help = description of this plugin");
 
-    data_block->data = p;
+    data_block->data = strdup(help);
 
     data_block->dims[0].data_type = TYPE_UNSIGNED_INT;
-    data_block->dims[0].dim_n = (int) strlen(p) + 1;
+    data_block->dims[0].dim_n = (int)strlen(help) + 1;
     data_block->dims[0].compressed = 1;
     data_block->dims[0].dim0 = 0.0;
     data_block->dims[0].diff = 1.0;
@@ -374,7 +360,7 @@ static int do_help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     strcpy(data_block->data_label, "");
     strcpy(data_block->data_units, "");
 
-    IDAM_LOG(LOG_DEBUG, "help function completed\n");
+    IDAM_LOG(UDA_LOG_DEBUG, "help function completed\n");
 
     return 0;
 }
@@ -408,7 +394,7 @@ static void init_structure_definitions()
     field.pointer = 0;
     field.count = 56;
     field.rank = 1;
-    field.shape = (int*) malloc(field.rank * sizeof(int));        // Needed when rank >= 1
+    field.shape = (int*)malloc(field.rank * sizeof(int));        // Needed when rank >= 1
     field.shape[0] = field.count;
     field.size = field.count * sizeof(char);
     field.offset = newoffset(offset, field.type);
@@ -425,7 +411,7 @@ static void init_structure_definitions()
     field.pointer = 0;
     field.count = 3 * 56;
     field.rank = 2;
-    field.shape = (int*) malloc(field.rank * sizeof(int));        // Needed when rank >= 1
+    field.shape = (int*)malloc(field.rank * sizeof(int));        // Needed when rank >= 1
     field.shape[0] = 56;
     field.shape[1] = 3;
     field.size = field.count * sizeof(char);
@@ -459,7 +445,7 @@ static void init_structure_definitions()
     field.pointer = 0;
     field.count = 3;
     field.rank = 1;
-    field.shape = (int*) malloc(field.rank * sizeof(int));        // Needed when rank >= 1
+    field.shape = (int*)malloc(field.rank * sizeof(int));        // Needed when rank >= 1
     field.shape[0] = 3;
     field.size = field.count * sizeof(char*);
     field.offset = newoffset(offset, field.type);
@@ -485,12 +471,12 @@ static void init_structure_definitions()
 
     addUserDefinedType(userdefinedtypelist, usertype);
 
-    IDAM_LOG(LOG_DEBUG, "Type TEST9 defined\n");
+    IDAM_LOG(UDA_LOG_DEBUG, "Type TEST9 defined\n");
 
     old = findUserDefinedType("TEST9", 0);            // Clone existing structure & modify
     copyUserDefinedType(old, &usertype);
 
-    IDAM_LOG(LOG_DEBUG, "Type TEST9 located\n");
+    IDAM_LOG(UDA_LOG_DEBUG, "Type TEST9 located\n");
 
     strcpy(usertype.name, "TEST9A");
     strcpy(usertype.source, "Test #9A");
@@ -515,7 +501,7 @@ static void init_structure_definitions()
 
     addUserDefinedType(userdefinedtypelist, usertype);
 
-    IDAM_LOG(LOG_DEBUG, "Type TEST9A defined\n");
+    IDAM_LOG(UDA_LOG_DEBUG, "Type TEST9A defined\n");
 }
 
 static int do_test0(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
@@ -523,14 +509,12 @@ static int do_test0(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     DATA_BLOCK* data_block = idam_plugin_interface->data_block;
     REQUEST_BLOCK* request_block = idam_plugin_interface->request_block;
 
-    char* p = (char*) malloc(sizeof(char) * 30);
-
-    strcpy(p, "Hello World!");
+    const char* help = "Hello World!";
 
     initDataBlock(data_block);
 
     data_block->rank = 1;
-    data_block->dims = (DIMS*) malloc(data_block->rank * sizeof(DIMS));
+    data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
 
     int i;
     for (i = 0; i < data_block->rank; i++) initDimBlock(&data_block->dims[i]);
@@ -543,10 +527,10 @@ static int do_test0(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         strcpy(data_block->data_desc, "testplugins: test1 = single string");
     }
 
-    data_block->data = p;
+    data_block->data = strdup(help);
 
     data_block->dims[0].data_type = TYPE_UNSIGNED_INT;
-    data_block->dims[0].dim_n = (int) strlen(p) + 1;
+    data_block->dims[0].dim_n = (int)strlen(help) + 1;
     data_block->dims[0].compressed = 1;
     data_block->dims[0].dim0 = 0.0;
     data_block->dims[0].diff = 1.0;
@@ -579,11 +563,11 @@ static int do_test2(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 // create original data using model 2
 
     int sCount = 3;
-    char** sarr = (char**) malloc(sCount * sizeof(char*));
+    char** sarr = (char**)malloc(sCount * sizeof(char*));
 
     int i;
     for (i = 0; i < sCount; i++) {
-        sarr[i] = (char*) malloc(30 * sizeof(char));
+        sarr[i] = (char*)malloc(30 * sizeof(char));
     }
 
     strcpy(sarr[0], "Hello World!");
@@ -593,26 +577,32 @@ static int do_test2(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 // Maximum size of any individual string
 
     int sLen = 0, sMax = 0;
-    for (i = 0; i < sCount; i++) if ((sLen = (int) strlen(sarr[1]) + 1) > sMax) sMax = sLen;
+    for (i = 0; i < sCount; i++) {
+        if ((sLen = (int)strlen(sarr[1]) + 1) > sMax) sMax = sLen;
+    }
 
 // Create a block of contigous memory and assign all bytes to NULL character
 
-    char* p = (char*) malloc(sLen * sCount * sizeof(char));
-    for (i = 0; i < sLen * sCount; i++) p[i] = (char) 0;
+    char* p = (char*)malloc(sLen * sCount * sizeof(char));
+    memset(p, 0, sLen * sCount);
 
 // Copy string data into the block positioned at regular intervals
 
-    for (i = 0; i < sCount; i++) strcpy(&p[i * sMax], sarr[i]);
+    for (i = 0; i < sCount; i++) {
+        strcpy(&p[i * sMax], sarr[i]);
+    }
 
 // Free original data
 
-    for (i = 0; i < sCount; i++) free((void*) sarr[i]);
-    free((void*) sarr);
+    for (i = 0; i < sCount; i++) {
+        free(sarr[i]);
+    }
+    free(sarr);
 
     initDataBlock(data_block);
 
     data_block->rank = 2;
-    data_block->dims = (DIMS*) malloc(data_block->rank * sizeof(DIMS));
+    data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
     for (i = 0; i < data_block->rank; i++) initDimBlock(&data_block->dims[i]);
 
     if (STR_IEQUALS(request_block->function, "test2")) {
@@ -651,10 +641,9 @@ static int do_test4(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
     DATA_BLOCK* data_block = idam_plugin_interface->data_block;
 
-    struct TEST4 {
+    typedef struct Test4 {
         char value[56];
-    };
-    typedef struct TEST4 TEST4;
+    } TEST4;
 
     TEST4* data;
 
@@ -683,7 +672,7 @@ static int do_test4(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     field.count = 56;
     field.rank = 1;
 
-    field.shape = (int*) malloc(field.rank * sizeof(int));        // Needed when rank >= 1
+    field.shape = (int*)malloc(field.rank * sizeof(int));        // Needed when rank >= 1
     field.shape[0] = field.count;
 
     field.size = field.count * sizeof(char);
@@ -696,16 +685,16 @@ static int do_test4(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Create Data
 
-    data = (TEST4*) malloc(sizeof(TEST4));            // Structured Data Must be a heap variable
+    data = (TEST4*)malloc(sizeof(TEST4));            // Structured Data Must be a heap variable
     strcpy(data->value, "012345678901234567890");
-    addMalloc((void*) data, 1, sizeof(TEST4), "TEST4");
+    addMalloc((void*)data, 1, sizeof(TEST4), "TEST4");
 
 // Pass Data
 
     data_block->data_type = TYPE_COMPOUND;
     data_block->rank = 0;
     data_block->data_n = 1;
-    data_block->data = (char*) data;
+    data_block->data = (char*)data;
 
     strcpy(data_block->data_desc, "Structure Data Test #4");
     strcpy(data_block->data_label, "Values: 012345678901234567890");
@@ -713,7 +702,7 @@ static int do_test4(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
-    data_block->opaque_block = (void*) findUserDefinedType("TEST4", 0);
+    data_block->opaque_block = (void*)findUserDefinedType("TEST4", 0);
 
     return 0;
 }
@@ -722,10 +711,9 @@ static int do_test5(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
     DATA_BLOCK* data_block = idam_plugin_interface->data_block;
 
-    struct TEST5 {
+    typedef struct Test5 {
         char value[3][56];
-    };
-    typedef struct TEST5 TEST5;
+    } TEST5;
 
     TEST5* data;
 
@@ -754,7 +742,7 @@ static int do_test5(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     field.count = 3 * 56;
     field.rank = 2;
 
-    field.shape = (int*) malloc(field.rank * sizeof(int));        // Needed when rank >= 1
+    field.shape = (int*)malloc(field.rank * sizeof(int));        // Needed when rank >= 1
     field.shape[0] = 56;
     field.shape[1] = 3;
 
@@ -768,18 +756,18 @@ static int do_test5(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Create Data
 
-    data = (TEST5*) malloc(sizeof(TEST5));            // Structured Data Must be a heap variable
+    data = (TEST5*)malloc(sizeof(TEST5));            // Structured Data Must be a heap variable
     strcpy(data->value[0], "012345678901234567890");
     strcpy(data->value[1], "QWERTY KEYBOARD");
     strcpy(data->value[2], "MAST TOKAMAK");
-    addMalloc((void*) data, 1, sizeof(TEST5), "TEST5");
+    addMalloc((void*)data, 1, sizeof(TEST5), "TEST5");
 
 // Pass Data
 
     data_block->data_type = TYPE_COMPOUND;
     data_block->rank = 0;
     data_block->data_n = 1;
-    data_block->data = (char*) data;
+    data_block->data = (char*)data;
 
     strcpy(data_block->data_desc, "Structure Data Test #5");
     strcpy(data_block->data_label, "Values: 012345678901234567890, QWERTY KEYBOARD, MAST TOKAMAK");
@@ -787,7 +775,7 @@ static int do_test5(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
-    data_block->opaque_block = (void*) findUserDefinedType("TEST5", 0);
+    data_block->opaque_block = (void*)findUserDefinedType("TEST5", 0);
 
     return 0;
 }
@@ -796,10 +784,9 @@ static int do_test6(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
     DATA_BLOCK* data_block = idam_plugin_interface->data_block;
 
-    struct TEST6 {
+    typedef struct Test6 {
         char* value;
-    };
-    typedef struct TEST6 TEST6;
+    } TEST6;
 
     TEST6* data;
 
@@ -840,18 +827,18 @@ static int do_test6(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Create Data
 
-    data = (TEST6*) malloc(sizeof(TEST6));            // Structured Data Must be a heap variable
-    data->value = (char*) malloc(56 * sizeof(char));
+    data = (TEST6*)malloc(sizeof(TEST6));            // Structured Data Must be a heap variable
+    data->value = (char*)malloc(56 * sizeof(char));
     strcpy(data->value, "PI=3.1415927");
-    addMalloc((void*) data, 1, sizeof(TEST6), "TEST6");
-    addMalloc((void*) data->value, 1, 56 * sizeof(char), "char");
+    addMalloc((void*)data, 1, sizeof(TEST6), "TEST6");
+    addMalloc((void*)data->value, 1, 56 * sizeof(char), "char");
 
 // Pass Data
 
     data_block->data_type = TYPE_COMPOUND;
     data_block->rank = 0;
     data_block->data_n = 1;
-    data_block->data = (char*) data;
+    data_block->data = (char*)data;
 
     strcpy(data_block->data_desc, "Structure Data Test #6");
     strcpy(data_block->data_label, "Value: PI=3.1415927");
@@ -859,7 +846,7 @@ static int do_test6(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
-    data_block->opaque_block = (void*) findUserDefinedType("TEST6", 0);
+    data_block->opaque_block = (void*)findUserDefinedType("TEST6", 0);
 
     return 0;
 }
@@ -868,22 +855,21 @@ static int do_test7(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
     DATA_BLOCK* data_block = idam_plugin_interface->data_block;
 
-    struct TEST7 {
-        char* value[3];        // 3 strings of arbitrary length
-    };
-    typedef struct TEST7 TEST7;
+    typedef struct Test7 {
+        char* value[3];                                     // 3 strings of arbitrary length
+    } TEST7;
 
     TEST7* data;
 
     USERDEFINEDTYPE usertype;
-    initUserDefinedType(&usertype);            // New structure definition
+    initUserDefinedType(&usertype);                         // New structure definition
 
     strcpy(usertype.name, "TEST7");
     strcpy(usertype.source, "Test #7");
     usertype.ref_id = 0;
-    usertype.imagecount = 0;                // No Structure Image data
+    usertype.imagecount = 0;                                // No Structure Image data
     usertype.image = NULL;
-    usertype.size = sizeof(TEST7);            // Structure size
+    usertype.size = sizeof(TEST7);                          // Structure size
     usertype.idamclass = TYPE_COMPOUND;
 
     int offset = 0;
@@ -893,36 +879,36 @@ static int do_test7(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     strcpy(field.name, "value");
     field.atomictype = TYPE_STRING;
-    strcpy(field.type, "STRING *");            // Array of String pointers
+    strcpy(field.type, "STRING *");                         // Array of String pointers
     strcpy(field.desc, "string structure element: *value[3]");
 
     field.pointer = 0;
     field.count = 3;
     field.rank = 1;
 
-    field.shape = (int*) malloc(field.rank * sizeof(int));        // Needed when rank >= 1
+    field.shape = (int*)malloc(field.rank * sizeof(int));   // Needed when rank >= 1
     field.shape[0] = 3;
 
     field.size = field.count * sizeof(char*);
     field.offset = newoffset(offset, field.type);
     field.offpad = padding(offset, field.type);
     field.alignment = getalignmentof(field.type);
-    addCompoundField(&usertype, field);        // Single Structure element
+    addCompoundField(&usertype, field);                     // Single Structure element
 
     addUserDefinedType(userdefinedtypelist, usertype);
 
 // Create Data
 
-    data = (TEST7*) malloc(sizeof(TEST7));            // Structured Data Must be a heap variable
-    addMalloc((void*) data, 1, sizeof(TEST7), "TEST7");
+    data = (TEST7*)malloc(sizeof(TEST7));                   // Structured Data Must be a heap variable
+    addMalloc((void*)data, 1, sizeof(TEST7), "TEST7");
 
-    data->value[0] = (char*) malloc(56 * sizeof(char));
-    data->value[1] = (char*) malloc(55 * sizeof(char));
-    data->value[2] = (char*) malloc(54 * sizeof(char));
+    data->value[0] = (char*)malloc(56 * sizeof(char));
+    data->value[1] = (char*)malloc(55 * sizeof(char));
+    data->value[2] = (char*)malloc(54 * sizeof(char));
 
-    addMalloc((void*) data->value[0], 56, sizeof(char), "char");
-    addMalloc((void*) data->value[1], 55, sizeof(char), "char");
-    addMalloc((void*) data->value[2], 54, sizeof(char), "char");
+    addMalloc((void*)data->value[0], 56, sizeof(char), "char");
+    addMalloc((void*)data->value[1], 55, sizeof(char), "char");
+    addMalloc((void*)data->value[2], 54, sizeof(char), "char");
 
     strcpy(data->value[0], "012345678901234567890");
     strcpy(data->value[1], "QWERTY KEYBOARD");
@@ -934,7 +920,7 @@ static int do_test7(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     data_block->data_type = TYPE_COMPOUND;
     data_block->rank = 0;
     data_block->data_n = 1;
-    data_block->data = (char*) data;
+    data_block->data = (char*)data;
 
     strcpy(data_block->data_desc, "Structure Data Test #7");
     strcpy(data_block->data_label, "Values: 012345678901234567890, QWERTY KEYBOARD, MAST TOKAMAK");
@@ -942,7 +928,7 @@ static int do_test7(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
-    data_block->opaque_block = (void*) findUserDefinedType("TEST7", 0);
+    data_block->opaque_block = (void*)findUserDefinedType("TEST7", 0);
 
     return 0;
 }
@@ -951,22 +937,21 @@ static int do_test8(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
     DATA_BLOCK* data_block = idam_plugin_interface->data_block;
 
-    struct TEST8 {
-        char** value;        // arbitrary number of strings of arbitrary length
-    };
-    typedef struct TEST8 TEST8;
+    typedef struct Test8 {
+        char** value;                                   // arbitrary number of strings of arbitrary length
+    } TEST8;
 
     TEST8* data;
 
     USERDEFINEDTYPE usertype;
-    initUserDefinedType(&usertype);            // New structure definition
+    initUserDefinedType(&usertype);                     // New structure definition
 
     strcpy(usertype.name, "TEST8");
     strcpy(usertype.source, "Test #8");
     usertype.ref_id = 0;
-    usertype.imagecount = 0;                // No Structure Image data
+    usertype.imagecount = 0;                            // No Structure Image data
     usertype.image = NULL;
-    usertype.size = sizeof(TEST8);            // Structure size
+    usertype.size = sizeof(TEST8);                      // Structure size
     usertype.idamclass = TYPE_COMPOUND;
 
     int offset = 0;
@@ -976,7 +961,7 @@ static int do_test8(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     strcpy(field.name, "value");
     field.atomictype = TYPE_STRING;
-    strcpy(field.type, "STRING *");                // Array of String pointers
+    strcpy(field.type, "STRING *");                     // Array of String pointers
     strcpy(field.desc, "string structure element: **value");
 
     field.pointer = 1;
@@ -989,25 +974,25 @@ static int do_test8(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     field.offset = newoffset(offset, field.type);
     field.offpad = padding(offset, field.type);
     field.alignment = getalignmentof(field.type);
-    addCompoundField(&usertype, field);        // Single Structure element
+    addCompoundField(&usertype, field);                 // Single Structure element
 
     addUserDefinedType(userdefinedtypelist, usertype);
 
 // Create Data
 
-    data = (TEST8*) malloc(sizeof(TEST8));            // Structured Data Must be a heap variable
-    addMalloc((void*) data, 1, sizeof(TEST8), "TEST8");
+    data = (TEST8*)malloc(sizeof(TEST8));               // Structured Data Must be a heap variable
+    addMalloc((void*)data, 1, sizeof(TEST8), "TEST8");
 
-    data->value = (char**) malloc(3 * sizeof(char*));
-    addMalloc((void*) data->value, 3, sizeof(char*), "STRING *");
+    data->value = (char**)malloc(3 * sizeof(char*));
+    addMalloc((void*)data->value, 3, sizeof(char*), "STRING *");
 
-    data->value[0] = (char*) malloc(56 * sizeof(char));
-    data->value[1] = (char*) malloc(55 * sizeof(char));
-    data->value[2] = (char*) malloc(54 * sizeof(char));
+    data->value[0] = (char*)malloc(56 * sizeof(char));
+    data->value[1] = (char*)malloc(55 * sizeof(char));
+    data->value[2] = (char*)malloc(54 * sizeof(char));
 
-    addMalloc((void*) data->value[0], 56, sizeof(char), "char");
-    addMalloc((void*) data->value[1], 55, sizeof(char), "char");
-    addMalloc((void*) data->value[2], 54, sizeof(char), "char");
+    addMalloc((void*)data->value[0], 56, sizeof(char), "char");
+    addMalloc((void*)data->value[1], 55, sizeof(char), "char");
+    addMalloc((void*)data->value[2], 54, sizeof(char), "char");
 
     strcpy(data->value[0], "012345678901234567890");
     strcpy(data->value[1], "QWERTY KEYBOARD");
@@ -1018,7 +1003,7 @@ static int do_test8(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     data_block->data_type = TYPE_COMPOUND;
     data_block->rank = 0;
     data_block->data_n = 1;
-    data_block->data = (char*) data;
+    data_block->data = (char*)data;
 
     strcpy(data_block->data_desc, "Structure Data Test #8");
     strcpy(data_block->data_label, "Values: 012345678901234567890, QWERTY KEYBOARD, MAST TOKAMAK");
@@ -1026,7 +1011,7 @@ static int do_test8(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
-    data_block->opaque_block = (void*) findUserDefinedType("TEST8", 0);
+    data_block->opaque_block = (void*)findUserDefinedType("TEST8", 0);
 
     return 0;
 }
@@ -1035,10 +1020,10 @@ static int do_test9(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
     DATA_BLOCK* data_block = idam_plugin_interface->data_block;
 
-// Create Data
+    // Create Data
 
-    TEST9* data = (TEST9*) malloc(4 * sizeof(TEST9));            // Structured Data Must be a heap variable
-    addMalloc((void*) data, 4, sizeof(TEST9), "TEST9");
+    TEST9* data = (TEST9*)malloc(4 * sizeof(TEST9));            // Structured Data Must be a heap variable
+    addMalloc((void*)data, 4, sizeof(TEST9), "TEST9");
 
     int i;
     for (i = 0; i < 4; i++) {
@@ -1047,28 +1032,28 @@ static int do_test9(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         strcpy(data[i].v2[1], "QWERTY KEYBOARD");
         strcpy(data[i].v2[2], "MAST TOKAMAK");
 
-        data[i].v3 = (char*) malloc(56 * sizeof(char));
+        data[i].v3 = (char*)malloc(56 * sizeof(char));
         strcpy(data[i].v3, "PI=3.1415927");
-        addMalloc((void*) data[i].v3, 1, 56 * sizeof(char), "char");
+        addMalloc((void*)data[i].v3, 1, 56 * sizeof(char), "char");
 
-        data[i].v4[0] = (char*) malloc(56 * sizeof(char));
-        data[i].v4[1] = (char*) malloc(55 * sizeof(char));
-        data[i].v4[2] = (char*) malloc(54 * sizeof(char));
-        addMalloc((void*) data[i].v4[0], 56, sizeof(char), "char");
-        addMalloc((void*) data[i].v4[1], 55, sizeof(char), "char");
-        addMalloc((void*) data[i].v4[2], 54, sizeof(char), "char");
+        data[i].v4[0] = (char*)malloc(56 * sizeof(char));
+        data[i].v4[1] = (char*)malloc(55 * sizeof(char));
+        data[i].v4[2] = (char*)malloc(54 * sizeof(char));
+        addMalloc((void*)data[i].v4[0], 56, sizeof(char), "char");
+        addMalloc((void*)data[i].v4[1], 55, sizeof(char), "char");
+        addMalloc((void*)data[i].v4[2], 54, sizeof(char), "char");
         strcpy(data[i].v4[0], "012345678901234567890");
         strcpy(data[i].v4[1], "QWERTY KEYBOARD");
         strcpy(data[i].v4[2], "MAST TOKAMAK");
 
-        data[i].v5 = (char**) malloc(3 * sizeof(char*));
-        addMalloc((void*) data[i].v5, 3, sizeof(char*), "STRING *");
-        data[i].v5[0] = (char*) malloc(56 * sizeof(char));
-        data[i].v5[1] = (char*) malloc(55 * sizeof(char));
-        data[i].v5[2] = (char*) malloc(54 * sizeof(char));
-        addMalloc((void*) data[i].v5[0], 56, sizeof(char), "char");
-        addMalloc((void*) data[i].v5[1], 55, sizeof(char), "char");
-        addMalloc((void*) data[i].v5[2], 54, sizeof(char), "char");
+        data[i].v5 = (char**)malloc(3 * sizeof(char*));
+        addMalloc((void*)data[i].v5, 3, sizeof(char*), "STRING *");
+        data[i].v5[0] = (char*)malloc(56 * sizeof(char));
+        data[i].v5[1] = (char*)malloc(55 * sizeof(char));
+        data[i].v5[2] = (char*)malloc(54 * sizeof(char));
+        addMalloc((void*)data[i].v5[0], 56, sizeof(char), "char");
+        addMalloc((void*)data[i].v5[1], 55, sizeof(char), "char");
+        addMalloc((void*)data[i].v5[2], 54, sizeof(char), "char");
         strcpy(data[i].v5[0], "012345678901234567890");
         strcpy(data[i].v5[1], "QWERTY KEYBOARD");
         strcpy(data[i].v5[2], "MAST TOKAMAK");
@@ -1079,7 +1064,7 @@ static int do_test9(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     data_block->data_type = TYPE_COMPOUND;
     data_block->rank = 1;
     data_block->data_n = 4;
-    data_block->data = (char*) data;
+    data_block->data = (char*)data;
 
     strcpy(data_block->data_desc, "Structure Data Test #9");
     strcpy(data_block->data_label, "Multiple test results");
@@ -1087,9 +1072,9 @@ static int do_test9(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
-    data_block->opaque_block = (void*) findUserDefinedType("TEST9", 0);
+    data_block->opaque_block = (void*)findUserDefinedType("TEST9", 0);
 
-    data_block->dims = (DIMS*) malloc(data_block->rank * sizeof(DIMS));
+    data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
 
     for (i = 0; i < data_block->rank; i++) initDimBlock(&data_block->dims[i]);
 
@@ -1109,8 +1094,8 @@ static int do_test9A(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Create Data
 
-    TEST9A* data = (TEST9A*) malloc(4 * sizeof(TEST9A));    // Structured Data Must be a heap variable
-    addMalloc((void*) data, 4, sizeof(TEST9A), "TEST9A");
+    TEST9A* data = (TEST9A*)malloc(4 * sizeof(TEST9A));    // Structured Data Must be a heap variable
+    addMalloc((void*)data, 4, sizeof(TEST9A), "TEST9A");
 
     int i;
     for (i = 0; i < 4; i++) {
@@ -1119,28 +1104,28 @@ static int do_test9A(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         strcpy(data[i].v2[1], "QWERTY KEYBOARD");
         strcpy(data[i].v2[2], "MAST TOKAMAK");
 
-        data[i].v3 = (char*) malloc(56 * sizeof(char));
+        data[i].v3 = (char*)malloc(56 * sizeof(char));
         strcpy(data[i].v3, "PI=3.1415927");
-        addMalloc((void*) data[i].v3, 1, 56 * sizeof(char), "char");
+        addMalloc((void*)data[i].v3, 1, 56 * sizeof(char), "char");
 
-        data[i].v4[0] = (char*) malloc(56 * sizeof(char));
-        data[i].v4[1] = (char*) malloc(55 * sizeof(char));
-        data[i].v4[2] = (char*) malloc(54 * sizeof(char));
-        addMalloc((void*) data[i].v4[0], 56, sizeof(char), "char");
-        addMalloc((void*) data[i].v4[1], 55, sizeof(char), "char");
-        addMalloc((void*) data[i].v4[2], 54, sizeof(char), "char");
+        data[i].v4[0] = (char*)malloc(56 * sizeof(char));
+        data[i].v4[1] = (char*)malloc(55 * sizeof(char));
+        data[i].v4[2] = (char*)malloc(54 * sizeof(char));
+        addMalloc((void*)data[i].v4[0], 56, sizeof(char), "char");
+        addMalloc((void*)data[i].v4[1], 55, sizeof(char), "char");
+        addMalloc((void*)data[i].v4[2], 54, sizeof(char), "char");
         strcpy(data[i].v4[0], "012345678901234567890");
         strcpy(data[i].v4[1], "QWERTY KEYBOARD");
         strcpy(data[i].v4[2], "MAST TOKAMAK");
 
-        data[i].v5 = (char**) malloc(3 * sizeof(char*));
-        addMalloc((void*) data[i].v5, 3, sizeof(char*), "STRING *");
-        data[i].v5[0] = (char*) malloc(56 * sizeof(char));
-        data[i].v5[1] = (char*) malloc(55 * sizeof(char));
-        data[i].v5[2] = (char*) malloc(54 * sizeof(char));
-        addMalloc((void*) data[i].v5[0], 56, sizeof(char), "char");
-        addMalloc((void*) data[i].v5[1], 55, sizeof(char), "char");
-        addMalloc((void*) data[i].v5[2], 54, sizeof(char), "char");
+        data[i].v5 = (char**)malloc(3 * sizeof(char*));
+        addMalloc((void*)data[i].v5, 3, sizeof(char*), "STRING *");
+        data[i].v5[0] = (char*)malloc(56 * sizeof(char));
+        data[i].v5[1] = (char*)malloc(55 * sizeof(char));
+        data[i].v5[2] = (char*)malloc(54 * sizeof(char));
+        addMalloc((void*)data[i].v5[0], 56, sizeof(char), "char");
+        addMalloc((void*)data[i].v5[1], 55, sizeof(char), "char");
+        addMalloc((void*)data[i].v5[2], 54, sizeof(char), "char");
         strcpy(data[i].v5[0], "012345678901234567890");
         strcpy(data[i].v5[1], "QWERTY KEYBOARD");
         strcpy(data[i].v5[2], "MAST TOKAMAK");
@@ -1150,28 +1135,28 @@ static int do_test9A(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         strcpy(data[i].v6.v2[1], "QWERTY KEYBOARD");
         strcpy(data[i].v6.v2[2], "MAST TOKAMAK");
 
-        data[i].v6.v3 = (char*) malloc(56 * sizeof(char));
+        data[i].v6.v3 = (char*)malloc(56 * sizeof(char));
         strcpy(data[i].v6.v3, "PI=3.1415927");
-        addMalloc((void*) data[i].v6.v3, 1, 56 * sizeof(char), "char");
+        addMalloc((void*)data[i].v6.v3, 1, 56 * sizeof(char), "char");
 
-        data[i].v6.v4[0] = (char*) malloc(56 * sizeof(char));
-        data[i].v6.v4[1] = (char*) malloc(55 * sizeof(char));
-        data[i].v6.v4[2] = (char*) malloc(54 * sizeof(char));
-        addMalloc((void*) data[i].v6.v4[0], 56, sizeof(char), "char");
-        addMalloc((void*) data[i].v6.v4[1], 55, sizeof(char), "char");
-        addMalloc((void*) data[i].v6.v4[2], 54, sizeof(char), "char");
+        data[i].v6.v4[0] = (char*)malloc(56 * sizeof(char));
+        data[i].v6.v4[1] = (char*)malloc(55 * sizeof(char));
+        data[i].v6.v4[2] = (char*)malloc(54 * sizeof(char));
+        addMalloc((void*)data[i].v6.v4[0], 56, sizeof(char), "char");
+        addMalloc((void*)data[i].v6.v4[1], 55, sizeof(char), "char");
+        addMalloc((void*)data[i].v6.v4[2], 54, sizeof(char), "char");
         strcpy(data[i].v6.v4[0], "012345678901234567890");
         strcpy(data[i].v6.v4[1], "QWERTY KEYBOARD");
         strcpy(data[i].v6.v4[2], "MAST TOKAMAK");
 
-        data[i].v6.v5 = (char**) malloc(3 * sizeof(char*));
-        addMalloc((void*) data[i].v6.v5, 3, sizeof(char*), "STRING *");
-        data[i].v6.v5[0] = (char*) malloc(56 * sizeof(char));
-        data[i].v6.v5[1] = (char*) malloc(55 * sizeof(char));
-        data[i].v6.v5[2] = (char*) malloc(54 * sizeof(char));
-        addMalloc((void*) data[i].v6.v5[0], 56, sizeof(char), "char");
-        addMalloc((void*) data[i].v6.v5[1], 55, sizeof(char), "char");
-        addMalloc((void*) data[i].v6.v5[2], 54, sizeof(char), "char");
+        data[i].v6.v5 = (char**)malloc(3 * sizeof(char*));
+        addMalloc((void*)data[i].v6.v5, 3, sizeof(char*), "STRING *");
+        data[i].v6.v5[0] = (char*)malloc(56 * sizeof(char));
+        data[i].v6.v5[1] = (char*)malloc(55 * sizeof(char));
+        data[i].v6.v5[2] = (char*)malloc(54 * sizeof(char));
+        addMalloc((void*)data[i].v6.v5[0], 56, sizeof(char), "char");
+        addMalloc((void*)data[i].v6.v5[1], 55, sizeof(char), "char");
+        addMalloc((void*)data[i].v6.v5[2], 54, sizeof(char), "char");
         strcpy(data[i].v6.v5[0], "012345678901234567890");
         strcpy(data[i].v6.v5[1], "QWERTY KEYBOARD");
         strcpy(data[i].v6.v5[2], "MAST TOKAMAK");
@@ -1183,7 +1168,7 @@ static int do_test9A(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     data_block->data_type = TYPE_COMPOUND;
     data_block->rank = 1;
     data_block->data_n = 4;
-    data_block->data = (char*) data;
+    data_block->data = (char*)data;
 
     strcpy(data_block->data_desc, "Structure Data Test #9A");
     strcpy(data_block->data_label, "Multiple test results");
@@ -1191,9 +1176,9 @@ static int do_test9A(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
-    data_block->opaque_block = (void*) findUserDefinedType("TEST9A", 0);
+    data_block->opaque_block = (void*)findUserDefinedType("TEST9A", 0);
 
-    data_block->dims = (DIMS*) malloc(data_block->rank * sizeof(DIMS));
+    data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
     for (i = 0; i < data_block->rank; i++) initDimBlock(&data_block->dims[i]);
 
     data_block->dims[0].data_type = TYPE_UNSIGNED_INT;
@@ -1212,7 +1197,7 @@ static int do_test10(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Create Data
 
-    int* data = (int*) malloc(sizeof(int));
+    int* data = (int*)malloc(sizeof(int));
     data[0] = 7;
 
 // Pass Data
@@ -1220,7 +1205,7 @@ static int do_test10(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     data_block->data_type = TYPE_INT;
     data_block->rank = 0;
     data_block->data_n = 1;
-    data_block->data = (char*) data;
+    data_block->data = (char*)data;
 
     strcpy(data_block->data_desc, "Structure Data Test #10");
     strcpy(data_block->data_label, "Value: 7");
@@ -1233,10 +1218,9 @@ static int do_test11(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
     DATA_BLOCK* data_block = idam_plugin_interface->data_block;
 
-    struct TEST11 {
+    typedef struct Test11 {
         int value;
-    };
-    typedef struct TEST11 TEST11;
+    } TEST11;
 
     TEST11* data;
 
@@ -1277,16 +1261,16 @@ static int do_test11(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Create Data
 
-    data = (TEST11*) malloc(sizeof(TEST11));            // Structured Data Must be a heap variable
+    data = (TEST11*)malloc(sizeof(TEST11));            // Structured Data Must be a heap variable
     data[0].value = 11;
-    addMalloc((void*) data, 1, sizeof(TEST11), "TEST11");
+    addMalloc((void*)data, 1, sizeof(TEST11), "TEST11");
 
 // Pass Data
 
     data_block->data_type = TYPE_COMPOUND;
     data_block->rank = 0;
     data_block->data_n = 1;
-    data_block->data = (char*) data;
+    data_block->data = (char*)data;
 
     strcpy(data_block->data_desc, "Structure Data Test #11");
     strcpy(data_block->data_label, "Value: 11");
@@ -1294,7 +1278,7 @@ static int do_test11(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
-    data_block->opaque_block = (void*) findUserDefinedType("TEST11", 0);
+    data_block->opaque_block = (void*)findUserDefinedType("TEST11", 0);
 
     return 0;
 }
@@ -1303,10 +1287,9 @@ static int do_test12(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
     DATA_BLOCK* data_block = idam_plugin_interface->data_block;
 
-    struct TEST12 {
+    typedef struct Test12 {
         int value[3];
-    };
-    typedef struct TEST12 TEST12;
+    } TEST12;
 
     TEST12* data;
 
@@ -1334,7 +1317,7 @@ static int do_test12(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     field.pointer = 0;
     field.count = 3;
     field.rank = 1;
-    field.shape = (int*) malloc(field.rank * sizeof(int));        // Needed when rank >= 1
+    field.shape = (int*)malloc(field.rank * sizeof(int));        // Needed when rank >= 1
     field.shape[0] = field.count;
 
     field.size = field.count * sizeof(int);
@@ -1347,18 +1330,18 @@ static int do_test12(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Create Data
 
-    data = (TEST12*) malloc(sizeof(TEST12));            // Structured Data Must be a heap variable
+    data = (TEST12*)malloc(sizeof(TEST12));            // Structured Data Must be a heap variable
     data[0].value[0] = 10;
     data[0].value[1] = 11;
     data[0].value[2] = 12;
-    addMalloc((void*) data, 1, sizeof(TEST12), "TEST12");
+    addMalloc((void*)data, 1, sizeof(TEST12), "TEST12");
 
 // Pass Data
 
     data_block->data_type = TYPE_COMPOUND;
     data_block->rank = 0;
     data_block->data_n = 1;
-    data_block->data = (char*) data;
+    data_block->data = (char*)data;
 
     strcpy(data_block->data_desc, "Structure Data Test #12");
     strcpy(data_block->data_label, "Values: 10,11,12");
@@ -1366,7 +1349,7 @@ static int do_test12(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
-    data_block->opaque_block = (void*) findUserDefinedType("TEST12", 0);
+    data_block->opaque_block = (void*)findUserDefinedType("TEST12", 0);
 
     return 0;
 }
@@ -1375,10 +1358,9 @@ static int do_test13(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
     DATA_BLOCK* data_block = idam_plugin_interface->data_block;
 
-    struct TEST13 {
+    typedef struct Test13 {
         int value[2][3];
-    };
-    typedef struct TEST13 TEST13;
+    } TEST13;
 
     TEST13* data;
 
@@ -1406,7 +1388,7 @@ static int do_test13(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     field.pointer = 0;
     field.count = 6;
     field.rank = 2;
-    field.shape = (int*) malloc(field.rank * sizeof(int));        // Needed when rank >= 1
+    field.shape = (int*)malloc(field.rank * sizeof(int));        // Needed when rank >= 1
     field.shape[0] = 2;
     field.shape[1] = 3;                // Reversed ... Fortran/IDL like
 
@@ -1420,21 +1402,21 @@ static int do_test13(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Create Data
 
-    data = (TEST13*) malloc(sizeof(TEST13));            // Structured Data Must be a heap variable
+    data = (TEST13*)malloc(sizeof(TEST13));            // Structured Data Must be a heap variable
     data[0].value[0][0] = 0;
     data[0].value[0][1] = 1;
     data[0].value[0][2] = 2;
     data[0].value[1][0] = 10;
     data[0].value[1][1] = 11;
     data[0].value[1][2] = 12;
-    addMalloc((void*) data, 1, sizeof(TEST13), "TEST13");
+    addMalloc((void*)data, 1, sizeof(TEST13), "TEST13");
 
 // Pass Data
 
     data_block->data_type = TYPE_COMPOUND;
     data_block->rank = 0;
     data_block->data_n = 1;
-    data_block->data = (char*) data;
+    data_block->data = (char*)data;
 
     strcpy(data_block->data_desc, "Structure Data Test #13");
     strcpy(data_block->data_label, "Values: {0,1,2},{10,11,12}");
@@ -1442,7 +1424,7 @@ static int do_test13(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
-    data_block->opaque_block = (void*) findUserDefinedType("TEST13", 0);
+    data_block->opaque_block = (void*)findUserDefinedType("TEST13", 0);
 
     return 0;
 }
@@ -1451,10 +1433,9 @@ static int do_test14(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
     DATA_BLOCK* data_block = idam_plugin_interface->data_block;
 
-    struct TEST14 {
+    typedef struct Test14 {
         int* value;
-    };
-    typedef struct TEST14 TEST14;
+    } TEST14;
 
     TEST14* data;
 
@@ -1495,11 +1476,11 @@ static int do_test14(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Create Data
 
-    data = (TEST14*) malloc(sizeof(TEST14));            // Structured Data Must be a heap variable
-    addMalloc((void*) data, 1, sizeof(TEST14), "TEST14");
+    data = (TEST14*)malloc(sizeof(TEST14));            // Structured Data Must be a heap variable
+    addMalloc((void*)data, 1, sizeof(TEST14), "TEST14");
 
-    data[0].value = (int*) malloc(sizeof(int));
-    addMalloc((void*) data[0].value, 1, sizeof(int), "int");
+    data[0].value = (int*)malloc(sizeof(int));
+    addMalloc((void*)data[0].value, 1, sizeof(int), "int");
 
     data[0].value[0] = 14;
 
@@ -1508,7 +1489,7 @@ static int do_test14(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     data_block->data_type = TYPE_COMPOUND;
     data_block->rank = 0;
     data_block->data_n = 1;
-    data_block->data = (char*) data;
+    data_block->data = (char*)data;
 
     strcpy(data_block->data_desc, "Structure Data Test #14");
     strcpy(data_block->data_label, "int *value: 14");
@@ -1516,7 +1497,7 @@ static int do_test14(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
-    data_block->opaque_block = (void*) findUserDefinedType("TEST14", 0);
+    data_block->opaque_block = (void*)findUserDefinedType("TEST14", 0);
 
     return 0;
 }
@@ -1525,10 +1506,9 @@ static int do_test15(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
     DATA_BLOCK* data_block = idam_plugin_interface->data_block;
 
-    struct TEST15 {
+    typedef struct Test15 {
         int* value;
-    };
-    typedef struct TEST15 TEST15;
+    } TEST15;
 
     TEST15* data;
 
@@ -1568,11 +1548,12 @@ static int do_test15(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Create Data
 
-    data = (TEST15*) malloc(sizeof(TEST15));            // Structured Data Must be a heap variable
-    addMalloc((void*) data, 1, sizeof(TEST15), "TEST15");
+    data = (TEST15*)malloc(sizeof(TEST15));            // Structured Data Must be a heap variable
+    addMalloc((void*)data, 1, sizeof(TEST15), "TEST15");
 
-    data[0].value = (int*) malloc(3 * sizeof(int));
-    addMalloc((void*) data[0].value, 3, sizeof(int), "int");
+    data[0].value = (int*)malloc(3 * sizeof(int));
+    int shape[] = {3};
+    addMalloc2((void*)data[0].value, 3, sizeof(int), "int", 1, shape);
 
     data[0].value[0] = 13;
     data[0].value[1] = 14;
@@ -1583,7 +1564,7 @@ static int do_test15(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     data_block->data_type = TYPE_COMPOUND;
     data_block->rank = 0;
     data_block->data_n = 1;
-    data_block->data = (char*) data;
+    data_block->data = (char*)data;
 
     strcpy(data_block->data_desc, "Structure Data Test #15");
     strcpy(data_block->data_label, "Values: 13,14,15");
@@ -1591,7 +1572,7 @@ static int do_test15(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
-    data_block->opaque_block = (void*) findUserDefinedType("TEST15", 0);
+    data_block->opaque_block = (void*)findUserDefinedType("TEST15", 0);
 
     return 0;
 }
@@ -1600,10 +1581,9 @@ static int do_test16(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
     DATA_BLOCK* data_block = idam_plugin_interface->data_block;
 
-    struct TEST16 {
+    typedef struct Test16 {
         int* value;
-    };
-    typedef struct TEST16 TEST16;
+    } TEST16;
 
     TEST16* data;
 
@@ -1643,16 +1623,16 @@ static int do_test16(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Create Data
 
-    data = (TEST16*) malloc(sizeof(TEST16));            // Structured Data Must be a heap variable
-    addMalloc((void*) data, 1, sizeof(TEST16), "TEST16");
+    data = (TEST16*)malloc(sizeof(TEST16));            // Structured Data Must be a heap variable
+    addMalloc((void*)data, 1, sizeof(TEST16), "TEST16");
 
-    int* shape = (int*) malloc(2 * sizeof(int));
+    int* shape = (int*)malloc(2 * sizeof(int));
     shape[0] = 2;
     shape[1] = 3;
     int count = shape[0] * shape[1];
     int rank = 2;
-    data[0].value = (int*) malloc(count * sizeof(int));
-    addMalloc2((void*) data[0].value, count, sizeof(int), "int", rank, shape);
+    data[0].value = (int*)malloc(count * sizeof(int));
+    addMalloc2((void*)data[0].value, count, sizeof(int), "int", rank, shape);
 
     data[0].value[0] = 0;
     data[0].value[1] = 1;
@@ -1666,7 +1646,7 @@ static int do_test16(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     data_block->data_type = TYPE_COMPOUND;
     data_block->rank = 0;
     data_block->data_n = 1;
-    data_block->data = (char*) data;
+    data_block->data = (char*)data;
 
     strcpy(data_block->data_desc, "Structure Data Test #16");
     strcpy(data_block->data_label, "Values: {0,1,2},{10,11,12}");
@@ -1674,7 +1654,7 @@ static int do_test16(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
-    data_block->opaque_block = (void*) findUserDefinedType("TEST16", 0);
+    data_block->opaque_block = (void*)findUserDefinedType("TEST16", 0);
 
     return 0;
 }
@@ -1683,10 +1663,9 @@ static int do_test18(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
     DATA_BLOCK* data_block = idam_plugin_interface->data_block;
 
-    struct TEST18 {
+    typedef struct Test18 {
         int value;
-    };
-    typedef struct TEST18 TEST18;
+    } TEST18;
 
     TEST18* data;
 
@@ -1728,19 +1707,19 @@ static int do_test18(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 // Create Data
 
     data_block->data_n = 100000;
-    data = (TEST18*) malloc(data_block->data_n * sizeof(TEST18)); // Structured Data Must be a heap variable
+    data = (TEST18*)malloc(data_block->data_n * sizeof(TEST18)); // Structured Data Must be a heap variable
 
     int i;
     for (i = 0; i < data_block->data_n; i++) {
         data[i].value = i;
     }
-    addMalloc((void*) data, data_block->data_n, sizeof(TEST18), "TEST18");
+    addMalloc((void*)data, data_block->data_n, sizeof(TEST18), "TEST18");
 
 // Pass Data
 
     data_block->data_type = TYPE_COMPOUND;
     data_block->rank = 1;
-    data_block->data = (char*) data;
+    data_block->data = (char*)data;
 
     strcpy(data_block->data_desc, "Structure Array Integer Data Test #18");
     strcpy(data_block->data_label, "100000 Values: i 0, 100000");
@@ -1748,9 +1727,9 @@ static int do_test18(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
-    data_block->opaque_block = (void*) findUserDefinedType("TEST18", 0);
+    data_block->opaque_block = (void*)findUserDefinedType("TEST18", 0);
 
-    data_block->dims = (DIMS*) malloc(data_block->rank * sizeof(DIMS));
+    data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
     for (i = 0; i < data_block->rank; i++) initDimBlock(&data_block->dims[i]);
 
     data_block->dims[0].data_type = TYPE_UNSIGNED_INT;
@@ -1767,20 +1746,19 @@ static int do_test19(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
     DATA_BLOCK* data_block = idam_plugin_interface->data_block;
 
-    struct TEST19A {
+    typedef struct Test19A {
         int value;
-    };
-    typedef struct TEST19A TEST19A;
+    } TEST19A;
 
     USERDEFINEDTYPE usertype;
-    initUserDefinedType(&usertype);            // New structure definition
+    initUserDefinedType(&usertype);                                 // New structure definition
 
     strcpy(usertype.name, "TEST19A");
     strcpy(usertype.source, "Test #19");
     usertype.ref_id = 0;
-    usertype.imagecount = 0;                // No Structure Image data
+    usertype.imagecount = 0;                                        // No Structure Image data
     usertype.image = NULL;
-    usertype.size = sizeof(TEST19A);            // Structure size
+    usertype.size = sizeof(TEST19A);                                // Structure size
     usertype.idamclass = TYPE_COMPOUND;
 
     int offset = 0;
@@ -1797,32 +1775,31 @@ static int do_test19(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     field.count = 1;
     field.rank = 0;
 
-    field.shape = NULL;            // Needed when rank >= 1
+    field.shape = NULL;                                             // Needed when rank >= 1
 
     field.size = field.count * sizeof(int);
     field.offset = newoffset(offset, field.type);
     field.offpad = padding(offset, field.type);
     field.alignment = getalignmentof(field.type);
-    addCompoundField(&usertype, field);        // Single Structure element
+    addCompoundField(&usertype, field);                             // Single Structure element
 
     addUserDefinedType(userdefinedtypelist, usertype);
 
-    struct TEST19 {
+    typedef struct Test19 {
         int value;
         TEST19A vals[7];
-    };
-    typedef struct TEST19 TEST19;
+    } TEST19;
 
     TEST19* data;
 
-    initUserDefinedType(&usertype);            // New structure definition
+    initUserDefinedType(&usertype);                                 // New structure definition
 
     strcpy(usertype.name, "TEST19");
     strcpy(usertype.source, "Test #19");
     usertype.ref_id = 0;
-    usertype.imagecount = 0;                // No Structure Image data
+    usertype.imagecount = 0;                                        // No Structure Image data
     usertype.image = NULL;
-    usertype.size = sizeof(TEST19);            // Structure size
+    usertype.size = sizeof(TEST19);                                 // Structure size
     usertype.idamclass = TYPE_COMPOUND;
 
     offset = 0;
@@ -1838,14 +1815,14 @@ static int do_test19(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     field.count = 1;
     field.rank = 0;
 
-    field.shape = NULL;            // Needed when rank >= 1
+    field.shape = NULL;                                             // Needed when rank >= 1
 
     field.size = field.count * sizeof(int);
     field.offset = newoffset(offset, field.type);
     field.offpad = padding(offset, field.type);
     field.alignment = getalignmentof(field.type);
-    offset = field.offset + field.size;    // Next Offset
-    addCompoundField(&usertype, field);        // Single Structure element
+    offset = field.offset + field.size;                             // Next Offset
+    addCompoundField(&usertype, field);                             // Single Structure element
 
     initCompoundField(&field);
 
@@ -1858,21 +1835,21 @@ static int do_test19(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     field.count = 7;
     field.rank = 1;
 
-    field.shape = (int*) malloc(field.rank * sizeof(int));            // Needed when rank >= 1
+    field.shape = (int*)malloc(field.rank * sizeof(int));           // Needed when rank >= 1
     field.shape[0] = 7;
 
     field.size = field.count * sizeof(TEST19A);
     field.offset = newoffset(offset, field.type);
     field.offpad = padding(offset, field.type);
     field.alignment = getalignmentof(field.type);
-    addCompoundField(&usertype, field);        // Single Structure element
+    addCompoundField(&usertype, field);                             // Single Structure element
 
     addUserDefinedType(userdefinedtypelist, usertype);
 
 // Create Data
 
     data_block->data_n = 3;
-    data = (TEST19*) malloc(data_block->data_n * sizeof(TEST19)); // Structured Data Must be a heap variable
+    data = (TEST19*)malloc(data_block->data_n * sizeof(TEST19));    // Structured Data Must be a heap variable
 
     int i, j;
     for (i = 0; i < data_block->data_n; i++) {
@@ -1881,13 +1858,13 @@ static int do_test19(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             data[i].vals[j].value = 10 * i + j;
         }
     }
-    addMalloc((void*) data, data_block->data_n, sizeof(TEST19), "TEST19");
+    addMalloc((void*)data, data_block->data_n, sizeof(TEST19), "TEST19");
 
 // Pass Data
 
     data_block->data_type = TYPE_COMPOUND;
     data_block->rank = 1;
-    data_block->data = (char*) data;
+    data_block->data = (char*)data;
 
     strcpy(data_block->data_desc, "Structure Test #19");
     strcpy(data_block->data_label, "Values: ");
@@ -1895,9 +1872,9 @@ static int do_test19(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
-    data_block->opaque_block = (void*) findUserDefinedType("TEST19", 0);
+    data_block->opaque_block = (void*)findUserDefinedType("TEST19", 0);
 
-    data_block->dims = (DIMS*) malloc(data_block->rank * sizeof(DIMS));
+    data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
     for (i = 0; i < data_block->rank; i++) initDimBlock(&data_block->dims[i]);
 
     data_block->dims[0].data_type = TYPE_UNSIGNED_INT;
@@ -1916,7 +1893,7 @@ static int do_test20(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Create Data
 
-    short* data = (short*) malloc(sizeof(short));
+    short* data = (short*)malloc(sizeof(short));
     data[0] = 7;
 
 // Pass Data
@@ -1924,7 +1901,7 @@ static int do_test20(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     data_block->data_type = TYPE_SHORT;
     data_block->rank = 0;
     data_block->data_n = 1;
-    data_block->data = (char*) data;
+    data_block->data = (char*)data;
 
     strcpy(data_block->data_desc, "Structure Data Test #20");
     strcpy(data_block->data_label, "Short Value: 7");
@@ -1937,22 +1914,21 @@ static int do_test21(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
     DATA_BLOCK* data_block = idam_plugin_interface->data_block;
 
-    struct TEST21 {
+    typedef struct Test21 {
         short value;
-    };
-    typedef struct TEST21 TEST21;
+    } TEST21;
 
     TEST21* data;
 
     USERDEFINEDTYPE usertype;
-    initUserDefinedType(&usertype);            // New structure definition
+    initUserDefinedType(&usertype);                         // New structure definition
 
     strcpy(usertype.name, "TEST21");
     strcpy(usertype.source, "Test #21");
     usertype.ref_id = 0;
-    usertype.imagecount = 0;                // No Structure Image data
+    usertype.imagecount = 0;                                // No Structure Image data
     usertype.image = NULL;
-    usertype.size = sizeof(TEST21);            // Structure size
+    usertype.size = sizeof(TEST21);                         // Structure size
     usertype.idamclass = TYPE_COMPOUND;
 
     int offset = 0;
@@ -1962,35 +1938,35 @@ static int do_test21(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     strcpy(field.name, "value");
     field.atomictype = TYPE_SHORT;
-    strcpy(field.type, "short");            // convert atomic type to a string label
+    strcpy(field.type, "short");                            // convert atomic type to a string label
     strcpy(field.desc, "single short integer structure element: value");
 
     field.pointer = 0;
     field.count = 1;
     field.rank = 0;
 
-    field.shape = NULL;            // Needed when rank >= 1
+    field.shape = NULL;                                     // Needed when rank >= 1
 
     field.size = field.count * sizeof(short);
     field.offset = newoffset(offset, field.type);
     field.offpad = padding(offset, field.type);
     field.alignment = getalignmentof(field.type);
-    addCompoundField(&usertype, field);        // Single Structure element
+    addCompoundField(&usertype, field);                     // Single Structure element
 
     addUserDefinedType(userdefinedtypelist, usertype);
 
 // Create Data
 
-    data = (TEST21*) malloc(sizeof(TEST21));            // Structured Data Must be a heap variable
+    data = (TEST21*)malloc(sizeof(TEST21));                 // Structured Data Must be a heap variable
     data[0].value = 21;
-    addMalloc((void*) data, 1, sizeof(TEST21), "TEST21");
+    addMalloc((void*)data, 1, sizeof(TEST21), "TEST21");
 
 // Pass Data
 
     data_block->data_type = TYPE_COMPOUND;
     data_block->rank = 0;
     data_block->data_n = 1;
-    data_block->data = (char*) data;
+    data_block->data = (char*)data;
 
     strcpy(data_block->data_desc, "Structure Data Test #21");
     strcpy(data_block->data_label, "Short Value: 21");
@@ -1998,7 +1974,7 @@ static int do_test21(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
-    data_block->opaque_block = (void*) findUserDefinedType("TEST21", 0);
+    data_block->opaque_block = (void*)findUserDefinedType("TEST21", 0);
 
     return 0;
 }
@@ -2007,10 +1983,9 @@ static int do_test22(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
     DATA_BLOCK* data_block = idam_plugin_interface->data_block;
 
-    struct TEST22 {
+    typedef struct Test22 {
         short value[3];
-    };
-    typedef struct TEST22 TEST22;
+    } TEST22;
 
     TEST22* data;
 
@@ -2038,7 +2013,7 @@ static int do_test22(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     field.pointer = 0;
     field.count = 3;
     field.rank = 1;
-    field.shape = (int*) malloc(field.rank * sizeof(int));        // Needed when rank >= 1
+    field.shape = (int*)malloc(field.rank * sizeof(int));        // Needed when rank >= 1
     field.shape[0] = field.count;
 
     field.size = field.count * sizeof(short);
@@ -2051,18 +2026,18 @@ static int do_test22(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Create Data
 
-    data = (TEST22*) malloc(sizeof(TEST22));            // Structured Data Must be a heap variable
+    data = (TEST22*)malloc(sizeof(TEST22));            // Structured Data Must be a heap variable
     data[0].value[0] = 20;
     data[0].value[1] = 21;
     data[0].value[2] = 22;
-    addMalloc((void*) data, 1, sizeof(TEST22), "TEST22");
+    addMalloc((void*)data, 1, sizeof(TEST22), "TEST22");
 
 // Pass Data
 
     data_block->data_type = TYPE_COMPOUND;
     data_block->rank = 0;
     data_block->data_n = 1;
-    data_block->data = (char*) data;
+    data_block->data = (char*)data;
 
     strcpy(data_block->data_desc, "Structure Data Test #22");
     strcpy(data_block->data_label, "Short Array Values: 20,21,22");
@@ -2070,7 +2045,7 @@ static int do_test22(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
-    data_block->opaque_block = (void*) findUserDefinedType("TEST22", 0);
+    data_block->opaque_block = (void*)findUserDefinedType("TEST22", 0);
 
     return 0;
 }
@@ -2079,22 +2054,21 @@ static int do_test23(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
     DATA_BLOCK* data_block = idam_plugin_interface->data_block;
 
-    struct TEST23 {
+    typedef struct Test23 {
         short value[2][3];
-    };
-    typedef struct TEST23 TEST23;
+    } TEST23;
 
     TEST23* data;
 
     USERDEFINEDTYPE usertype;
-    initUserDefinedType(&usertype);            // New structure definition
+    initUserDefinedType(&usertype);                             // New structure definition
 
     strcpy(usertype.name, "TEST23");
     strcpy(usertype.source, "Test #23");
     usertype.ref_id = 0;
-    usertype.imagecount = 0;                // No Structure Image data
+    usertype.imagecount = 0;                                    // No Structure Image data
     usertype.image = NULL;
-    usertype.size = sizeof(TEST23);            // Structure size
+    usertype.size = sizeof(TEST23);                             // Structure size
     usertype.idamclass = TYPE_COMPOUND;
 
     int offset = 0;
@@ -2104,13 +2078,13 @@ static int do_test23(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     strcpy(field.name, "value");
     field.atomictype = TYPE_SHORT;
-    strcpy(field.type, "short");            // convert atomic type to a string label
+    strcpy(field.type, "short");                                // convert atomic type to a string label
     strcpy(field.desc, "short integer array: value");
 
     field.pointer = 0;
     field.count = 6;
     field.rank = 2;
-    field.shape = (int*) malloc(field.rank * sizeof(int));        // Needed when rank >= 1
+    field.shape = (int*)malloc(field.rank * sizeof(int));       // Needed when rank >= 1
     field.shape[0] = 3;
     field.shape[1] = 2;
 
@@ -2118,27 +2092,27 @@ static int do_test23(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     field.offset = newoffset(offset, field.type);
     field.offpad = padding(offset, field.type);
     field.alignment = getalignmentof(field.type);
-    addCompoundField(&usertype, field);        // Single Structure element
+    addCompoundField(&usertype, field);                         // Single Structure element
 
     addUserDefinedType(userdefinedtypelist, usertype);
 
 // Create Data
 
-    data = (TEST23*) malloc(sizeof(TEST23));            // Structured Data Must be a heap variable
+    data = (TEST23*)malloc(sizeof(TEST23));                     // Structured Data Must be a heap variable
     data[0].value[0][0] = 0;
     data[0].value[0][1] = 1;
     data[0].value[0][2] = 2;
     data[0].value[1][0] = 10;
     data[0].value[1][1] = 11;
     data[0].value[1][2] = 12;
-    addMalloc((void*) data, 1, sizeof(TEST23), "TEST23");
+    addMalloc((void*)data, 1, sizeof(TEST23), "TEST23");
 
 // Pass Data
 
     data_block->data_type = TYPE_COMPOUND;
     data_block->rank = 0;
     data_block->data_n = 1;
-    data_block->data = (char*) data;
+    data_block->data = (char*)data;
 
     strcpy(data_block->data_desc, "Structure Data Test #23");
     strcpy(data_block->data_label, "Values: {0,1,2},{10,11,12}");
@@ -2146,7 +2120,7 @@ static int do_test23(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
-    data_block->opaque_block = (void*) findUserDefinedType("TEST23", 0);
+    data_block->opaque_block = (void*)findUserDefinedType("TEST23", 0);
 
     return 0;
 }
@@ -2155,22 +2129,21 @@ static int do_test24(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
     DATA_BLOCK* data_block = idam_plugin_interface->data_block;
 
-    struct TEST24 {
+    typedef struct Test24 {
         short* value;
-    };
-    typedef struct TEST24 TEST24;
+    } TEST24;
 
     TEST24* data;
 
     USERDEFINEDTYPE usertype;
-    initUserDefinedType(&usertype);            // New structure definition
+    initUserDefinedType(&usertype);                             // New structure definition
 
     strcpy(usertype.name, "TEST24");
     strcpy(usertype.source, "Test #24");
     usertype.ref_id = 0;
-    usertype.imagecount = 0;                // No Structure Image data
+    usertype.imagecount = 0;                                    // No Structure Image data
     usertype.image = NULL;
-    usertype.size = sizeof(TEST24);            // Structure size
+    usertype.size = sizeof(TEST24);                             // Structure size
     usertype.idamclass = TYPE_COMPOUND;
 
     int offset = 0;
@@ -2180,39 +2153,39 @@ static int do_test24(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     strcpy(field.name, "value");
     field.atomictype = TYPE_SHORT;
-    strcpy(field.type, "short");            // convert atomic type to a string label
+    strcpy(field.type, "short");                                // convert atomic type to a string label
     strcpy(field.desc, "short *value");
 
     field.pointer = 1;
     field.count = 1;
     field.rank = 0;
 
-    field.shape = NULL;            // Needed when rank >= 1
+    field.shape = NULL;                                         // Needed when rank >= 1
 
     field.size = field.count * sizeof(short);
     field.offset = newoffset(offset, field.type);
     field.offpad = padding(offset, field.type);
     field.alignment = getalignmentof(field.type);
-    addCompoundField(&usertype, field);        // Single Structure element
+    addCompoundField(&usertype, field);                         // Single Structure element
 
     addUserDefinedType(userdefinedtypelist, usertype);
 
 // Create Data
 
-    data = (TEST24*) malloc(sizeof(TEST24));            // Structured Data Must be a heap variable
-    addMalloc((void*) data, 1, sizeof(TEST24), "TEST24");
+    data = (TEST24*)malloc(sizeof(TEST24));                     // Structured Data Must be a heap variable
+    addMalloc((void*)data, 1, sizeof(TEST24), "TEST24");
 
-    data[0].value = (short*) malloc(sizeof(short));
-    addMalloc((void*) data[0].value, 1, sizeof(short), "short");
+    data[0].value = (short*)malloc(sizeof(short));
+    addMalloc((void*)data[0].value, 1, sizeof(short), "short");
 
-    data[0].value[0] = 14;
+    data[0].value[0] = 24;
 
 // Pass Data
 
     data_block->data_type = TYPE_COMPOUND;
     data_block->rank = 0;
     data_block->data_n = 1;
-    data_block->data = (char*) data;
+    data_block->data = (char*)data;
 
     strcpy(data_block->data_desc, "Structure Data Test #24");
     strcpy(data_block->data_label, "short *value: 14");
@@ -2220,7 +2193,7 @@ static int do_test24(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
-    data_block->opaque_block = (void*) findUserDefinedType("TEST24", 0);
+    data_block->opaque_block = (void*)findUserDefinedType("TEST24", 0);
 
     return 0;
 }
@@ -2229,22 +2202,21 @@ static int do_test25(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
     DATA_BLOCK* data_block = idam_plugin_interface->data_block;
 
-    struct TEST25 {
+    typedef struct Test25 {
         short* value;
-    };
-    typedef struct TEST25 TEST25;
+    } TEST25;
 
     TEST25* data;
 
     USERDEFINEDTYPE usertype;
-    initUserDefinedType(&usertype);            // New structure definition
+    initUserDefinedType(&usertype);                             // New structure definition
 
     strcpy(usertype.name, "TEST25");
     strcpy(usertype.source, "Test #25");
     usertype.ref_id = 0;
-    usertype.imagecount = 0;                // No Structure Image data
+    usertype.imagecount = 0;                                    // No Structure Image data
     usertype.image = NULL;
-    usertype.size = sizeof(TEST25);            // Structure size
+    usertype.size = sizeof(TEST25);                             // Structure size
     usertype.idamclass = TYPE_COMPOUND;
 
     int offset = 0;
@@ -2254,7 +2226,7 @@ static int do_test25(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     strcpy(field.name, "value");
     field.atomictype = TYPE_SHORT;
-    strcpy(field.type, "short");            // convert atomic type to a string label
+    strcpy(field.type, "short");                                // convert atomic type to a string label
     strcpy(field.desc, "short *value");
 
     field.pointer = 1;
@@ -2266,17 +2238,18 @@ static int do_test25(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     field.offset = newoffset(offset, field.type);
     field.offpad = padding(offset, field.type);
     field.alignment = getalignmentof(field.type);
-    addCompoundField(&usertype, field);        // Single Structure element
+    addCompoundField(&usertype, field);                         // Single Structure element
 
     addUserDefinedType(userdefinedtypelist, usertype);
 
 // Create Data
 
-    data = (TEST25*) malloc(sizeof(TEST25));            // Structured Data Must be a heap variable
-    addMalloc((void*) data, 1, sizeof(TEST25), "TEST25");
+    data = (TEST25*)malloc(sizeof(TEST25));                     // Structured Data Must be a heap variable
+    addMalloc((void*)data, 1, sizeof(TEST25), "TEST25");
 
-    data[0].value = (short*) malloc(3 * sizeof(short));
-    addMalloc((void*) data[0].value, 3, sizeof(short), "short");
+    data[0].value = (short*)malloc(3 * sizeof(short));
+    int shape[] = {3};
+    addMalloc2((void*)data[0].value, 3, sizeof(short), "short", 1, shape);
 
     data[0].value[0] = 13;
     data[0].value[1] = 14;
@@ -2287,7 +2260,7 @@ static int do_test25(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     data_block->data_type = TYPE_COMPOUND;
     data_block->rank = 0;
     data_block->data_n = 1;
-    data_block->data = (char*) data;
+    data_block->data = (char*)data;
 
     strcpy(data_block->data_desc, "Structure Data Test #25");
     strcpy(data_block->data_label, "Short Values: 13,14,15");
@@ -2295,7 +2268,7 @@ static int do_test25(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
-    data_block->opaque_block = (void*) findUserDefinedType("TEST25", 0);
+    data_block->opaque_block = (void*)findUserDefinedType("TEST25", 0);
 
     return 0;
 }
@@ -2304,22 +2277,21 @@ static int do_test26(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
     DATA_BLOCK* data_block = idam_plugin_interface->data_block;
 
-    struct TEST26 {
+    typedef struct Test26 {
         short* value;
-    };
-    typedef struct TEST26 TEST26;
+    } TEST26;
 
     TEST26* data;
 
     USERDEFINEDTYPE usertype;
-    initUserDefinedType(&usertype);            // New structure definition
+    initUserDefinedType(&usertype);                                 // New structure definition
 
     strcpy(usertype.name, "TEST26");
     strcpy(usertype.source, "Test #26");
     usertype.ref_id = 0;
-    usertype.imagecount = 0;                // No Structure Image data
+    usertype.imagecount = 0;                                        // No Structure Image data
     usertype.image = NULL;
-    usertype.size = sizeof(TEST26);            // Structure size
+    usertype.size = sizeof(TEST26);                                 // Structure size
     usertype.idamclass = TYPE_COMPOUND;
 
     int offset = 0;
@@ -2329,7 +2301,7 @@ static int do_test26(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     strcpy(field.name, "value");
     field.atomictype = TYPE_SHORT;
-    strcpy(field.type, "short");            // convert atomic type to a string label
+    strcpy(field.type, "short");                                    // convert atomic type to a string label
     strcpy(field.desc, "short *value");
 
     field.pointer = 1;
@@ -2341,22 +2313,22 @@ static int do_test26(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     field.offset = newoffset(offset, field.type);
     field.offpad = padding(offset, field.type);
     field.alignment = getalignmentof(field.type);
-    addCompoundField(&usertype, field);        // Single Structure element
+    addCompoundField(&usertype, field);                             // Single Structure element
 
     addUserDefinedType(userdefinedtypelist, usertype);
 
 // Create Data Structure
 
-    data = (TEST26*) malloc(sizeof(TEST26));            // Structured Data Must be a heap variable
-    addMalloc((void*) data, 1, sizeof(TEST26), "TEST26");
+    data = (TEST26*)malloc(sizeof(TEST26));                         // Structured Data Must be a heap variable
+    addMalloc((void*)data, 1, sizeof(TEST26), "TEST26");
 
 // Data is a compact Fortran like rank 2 array
 
-    data[0].value = (short*) malloc(6 * sizeof(short));
-    int* shape = (int*) malloc(2 * sizeof(int));
+    data[0].value = (short*)malloc(6 * sizeof(short));
+    int* shape = (int*)malloc(2 * sizeof(int));
     shape[0] = 3;
     shape[1] = 2;
-    addMalloc2((void*) data[0].value, 6, sizeof(short), "short", 2, shape);
+    addMalloc2((void*)data[0].value, 6, sizeof(short), "short", 2, shape);
 
     data[0].value[0] = 13;
     data[0].value[1] = 14;
@@ -2371,7 +2343,7 @@ static int do_test26(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     data_block->data_type = TYPE_COMPOUND;
     data_block->rank = 0;
     data_block->data_n = 1;
-    data_block->data = (char*) data;
+    data_block->data = (char*)data;
 
     strcpy(data_block->data_desc, "Structure Data Test #26");
     strcpy(data_block->data_label, "Short Values: 13,14,15   23,24,25");
@@ -2379,7 +2351,7 @@ static int do_test26(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
-    data_block->opaque_block = (void*) findUserDefinedType("TEST26", 0);
+    data_block->opaque_block = (void*)findUserDefinedType("TEST26", 0);
 
     return 0;
 }
@@ -2388,22 +2360,21 @@ static int do_test27(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
     DATA_BLOCK* data_block = idam_plugin_interface->data_block;
 
-    struct TEST27 {
+    typedef struct Test27 {
         short value[2][3][4];
-    };
-    typedef struct TEST27 TEST27;
+    } TEST27;
 
     TEST27* data;
 
     USERDEFINEDTYPE usertype;
-    initUserDefinedType(&usertype);            // New structure definition
+    initUserDefinedType(&usertype);                             // New structure definition
 
     strcpy(usertype.name, "TEST27");
     strcpy(usertype.source, "Test #27");
     usertype.ref_id = 0;
-    usertype.imagecount = 0;                // No Structure Image data
+    usertype.imagecount = 0;                                    // No Structure Image data
     usertype.image = NULL;
-    usertype.size = sizeof(TEST27);            // Structure size
+    usertype.size = sizeof(TEST27);                             // Structure size
     usertype.idamclass = TYPE_COMPOUND;
 
     int offset = 0;
@@ -2413,13 +2384,13 @@ static int do_test27(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     strcpy(field.name, "value");
     field.atomictype = TYPE_SHORT;
-    strcpy(field.type, "short");            // convert atomic type to a string label
+    strcpy(field.type, "short");                                // convert atomic type to a string label
     strcpy(field.desc, "short integer array: value");
 
     field.pointer = 0;
     field.count = 24;
     field.rank = 3;
-    field.shape = (int*) malloc(field.rank * sizeof(int));        // Needed when rank >= 1
+    field.shape = (int*)malloc(field.rank * sizeof(int));        // Needed when rank >= 1
     field.shape[0] = 4;
     field.shape[1] = 3;
     field.shape[2] = 2;
@@ -2428,13 +2399,13 @@ static int do_test27(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     field.offset = newoffset(offset, field.type);
     field.offpad = padding(offset, field.type);
     field.alignment = getalignmentof(field.type);
-    addCompoundField(&usertype, field);        // Single Structure element
+    addCompoundField(&usertype, field);                         // Single Structure element
 
     addUserDefinedType(userdefinedtypelist, usertype);
 
 // Create Data
 
-    data = (TEST27*) malloc(sizeof(TEST27));            // Structured Data Must be a heap variable
+    data = (TEST27*)malloc(sizeof(TEST27));                     // Structured Data Must be a heap variable
 
     data[0].value[0][0][0] = 0;
     data[0].value[0][0][1] = 1;
@@ -2462,14 +2433,14 @@ static int do_test27(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     data[0].value[1][2][2] = 122;
     data[0].value[1][2][3] = 123;
 
-    addMalloc((void*) data, 1, sizeof(TEST27), "TEST27");
+    addMalloc((void*)data, 1, sizeof(TEST27), "TEST27");
 
 // Pass Data
 
     data_block->data_type = TYPE_COMPOUND;
     data_block->rank = 0;
     data_block->data_n = 1;
-    data_block->data = (char*) data;
+    data_block->data = (char*)data;
 
     strcpy(data_block->data_desc, "Structure Data Test #27");
     strcpy(data_block->data_label, "Values: {0,1,2,3},{10,11,12,13},...");
@@ -2477,7 +2448,7 @@ static int do_test27(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
-    data_block->opaque_block = (void*) findUserDefinedType("TEST27", 0);
+    data_block->opaque_block = (void*)findUserDefinedType("TEST27", 0);
 
     return 0;
 }
@@ -2486,10 +2457,9 @@ static int do_test28(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
     DATA_BLOCK* data_block = idam_plugin_interface->data_block;
 
-    struct TEST28 {
+    typedef struct Test28 {
         short* value;
-    };
-    typedef struct TEST28 TEST28;
+    } TEST28;
 
     TEST28* data;
 
@@ -2529,17 +2499,17 @@ static int do_test28(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Create Data Structure
 
-    data = (TEST28*) malloc(sizeof(TEST28));            // Structured Data Must be a heap variable
-    addMalloc((void*) data, 1, sizeof(TEST28), "TEST28");
+    data = (TEST28*)malloc(sizeof(TEST28));            // Structured Data Must be a heap variable
+    addMalloc((void*)data, 1, sizeof(TEST28), "TEST28");
 
 // Data is a compact Fortran like rank 3 array
 
-    data[0].value = (short*) malloc(24 * sizeof(short));
-    int* shape = (int*) malloc(3 * sizeof(int));
+    data[0].value = (short*)malloc(24 * sizeof(short));
+    int* shape = (int*)malloc(3 * sizeof(int));
     shape[0] = 4;
     shape[1] = 3;
     shape[2] = 2;
-    addMalloc2((void*) data[0].value, 24, sizeof(short), "short", 3, shape);
+    addMalloc2((void*)data[0].value, 24, sizeof(short), "short", 3, shape);
 
     int index = 0;
     data[0].value[index++] = 0;
@@ -2572,7 +2542,7 @@ static int do_test28(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     data_block->data_type = TYPE_COMPOUND;
     data_block->rank = 0;
     data_block->data_n = 1;
-    data_block->data = (char*) data;
+    data_block->data = (char*)data;
 
     strcpy(data_block->data_desc, "Structure Data Test #28");
     strcpy(data_block->data_label, "Short Values: 13,14,15   23,24,25");
@@ -2580,7 +2550,7 @@ static int do_test28(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
-    data_block->opaque_block = (void*) findUserDefinedType("TEST28", 0);
+    data_block->opaque_block = (void*)findUserDefinedType("TEST28", 0);
 
     return 0;
 }
@@ -2589,11 +2559,10 @@ static int do_test30(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
     DATA_BLOCK* data_block = idam_plugin_interface->data_block;
 
-    struct TEST30 {
+    typedef struct Test30 {
         double R;
         double Z;
-    };
-    typedef struct TEST30 TEST30;
+    } TEST30;
 
     TEST30* data;
 
@@ -2611,57 +2580,32 @@ static int do_test30(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     int offset = 0;
 
     COMPOUNDFIELD field;
-    initCompoundField(&field);
-    strcpy(field.name, "R");
-    field.atomictype = TYPE_DOUBLE;
-    strcpy(field.type, "double");            // convert atomic type to a string label
-    strcpy(field.desc, "double structure element: R");
-
-    field.pointer = 0;
-    field.count = 1;
-    field.rank = 0;
-    field.shape = NULL;            // Needed when rank >= 1
-
-    field.size = field.count * sizeof(double);
-    field.offset = newoffset(offset, field.type);
-    field.offpad = padding(offset, field.type);
-    field.alignment = getalignmentof(field.type);
-    offset = field.offset + field.size;    // Next Offset
-    addCompoundField(&usertype, field);        // Single Structure element
 
     initCompoundField(&field);
-    strcpy(field.name, "Z");
-    field.atomictype = TYPE_DOUBLE;
-    strcpy(field.type, "double");            // convert atomic type to a string label
-    strcpy(field.desc, "double structure element: Z");
+    defineField(&field, "R", "double structure element", &offset, SCALARDOUBLE);
 
-    field.pointer = 0;
-    field.count = 1;
-    field.rank = 0;
+    addCompoundField(&usertype, field);
 
-    field.shape = NULL;            // Needed when rank >= 1
+    initCompoundField(&field);
+    defineField(&field, "Z", "double structure element", &offset, SCALARDOUBLE);
 
-    field.size = field.count * sizeof(double);
-    field.offset = newoffset(offset, field.type);
-    field.offpad = padding(offset, field.type);
-    field.alignment = getalignmentof(field.type);
-    addCompoundField(&usertype, field);        // Single Structure element
+    addCompoundField(&usertype, field);
 
     addUserDefinedType(userdefinedtypelist, usertype);
 
 // Create Data
 
-    data = (TEST30*) malloc(sizeof(TEST30));            // Structured Data Must be a heap variable
+    data = (TEST30*)malloc(sizeof(TEST30));            // Structured Data Must be a heap variable
     data[0].R = 1.0;
     data[0].Z = 2.0;
-    addMalloc((void*) data, 1, sizeof(TEST30), "TEST30");
+    addMalloc((void*)data, 1, sizeof(TEST30), "TEST30");
 
 // Pass Data
 
     data_block->data_type = TYPE_COMPOUND;
     data_block->rank = 0;
     data_block->data_n = 1;
-    data_block->data = (char*) data;
+    data_block->data = (char*)data;
 
     strcpy(data_block->data_desc, "Structure Data Test #30");
     strcpy(data_block->data_label, "Double Values: (1, 2)");
@@ -2669,7 +2613,7 @@ static int do_test30(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
-    data_block->opaque_block = (void*) findUserDefinedType("TEST30", 0);
+    data_block->opaque_block = (void*)findUserDefinedType("TEST30", 0);
 
     return 0;
 }
@@ -2678,11 +2622,10 @@ static int do_test31(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
     DATA_BLOCK* data_block = idam_plugin_interface->data_block;
 
-    struct TEST30 {
+    typedef struct Test30 {
         double R;
         double Z;
-    };
-    typedef struct TEST30 TEST30;
+    } TEST30;
 
     TEST30* data;
 
@@ -2700,74 +2643,48 @@ static int do_test31(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     int offset = 0;
 
     COMPOUNDFIELD field;
-    initCompoundField(&field);
-    strcpy(field.name, "R");
-    field.atomictype = TYPE_DOUBLE;
-    strcpy(field.type, "double");            // convert atomic type to a string label
-    strcpy(field.desc, "double structure element: R");
-
-    field.pointer = 0;
-    field.count = 1;
-    field.rank = 0;
-    field.shape = NULL;            // Needed when rank >= 1
-
-    field.size = field.count * sizeof(double);
-    field.offset = newoffset(offset, field.type);
-    field.offpad = padding(offset, field.type);
-    field.alignment = getalignmentof(field.type);
-    offset = field.offset + field.size;    // Next Offset
-    addCompoundField(&usertype, field);        // Single Structure element
 
     initCompoundField(&field);
-    strcpy(field.name, "Z");
-    field.atomictype = TYPE_DOUBLE;
-    strcpy(field.type, "double");            // convert atomic type to a string label
-    strcpy(field.desc, "double structure element: Z");
+    defineField(&field, "R", "double structure element", &offset, SCALARDOUBLE);
 
-    field.pointer = 0;
-    field.count = 1;
-    field.rank = 0;
+    addCompoundField(&usertype, field);
 
-    field.shape = NULL;            // Needed when rank >= 1
+    initCompoundField(&field);
+    defineField(&field, "Z", "double structure element", &offset, SCALARDOUBLE);
 
-    field.size = field.count * sizeof(double);
-    field.offset = newoffset(offset, field.type);
-    field.offpad = padding(offset, field.type);
-    field.alignment = getalignmentof(field.type);
-    addCompoundField(&usertype, field);        // Single Structure element
+    addCompoundField(&usertype, field);
 
     addUserDefinedType(userdefinedtypelist, usertype);
 
 // Create Data
 
     int count = 100;
-    data = (TEST30*) malloc(count * sizeof(TEST30));            // Structured Data Must be a heap variable
+    data = (TEST30*)malloc(count * sizeof(TEST30));            // Structured Data Must be a heap variable
 
     offset = 0;
 
     int i, j;
     for (i = 0; i < 5; i++) {
         for (j = 0; j < 20; j++) {
-            data[offset].R = (double) offset;
-            data[offset].Z = 10.0 * (double) offset;
+            data[offset].R = (double)offset;
+            data[offset].Z = 10.0 * (double)offset;
             offset++;
         }
     }
 
     int rank = 2;
-    int* shape = (int*) malloc(2 * sizeof(int));
+    int* shape = (int*)malloc(2 * sizeof(int));
     shape[0] = 5;
     shape[1] = 20;
 
-    addMalloc((void*) shape, 2, sizeof(int), "int");
-    addMalloc2((void*) data, count, sizeof(TEST30), "TEST30", rank, shape);
+    addMalloc2((void*)data, count, sizeof(TEST30), "TEST30", rank, shape);
 
 // Pass Data
 
     data_block->data_type = TYPE_COMPOUND;
     data_block->rank = 0;
     data_block->data_n = 1;
-    data_block->data = (char*) data;
+    data_block->data = (char*)data;
 
     strcpy(data_block->data_desc, "Structure Data Test #30");
     strcpy(data_block->data_label, "Double Values [5, 20] : (1*, 10*)");
@@ -2775,7 +2692,7 @@ static int do_test31(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
-    data_block->opaque_block = (void*) findUserDefinedType("TEST30", 0);
+    data_block->opaque_block = (void*)findUserDefinedType("TEST30", 0);
 
     return 0;
 }
@@ -2784,162 +2701,234 @@ static int do_test32(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
     DATA_BLOCK* data_block = idam_plugin_interface->data_block;
 
-    struct TEST30 {
+    typedef struct Test32A {
         double R;
         double Z;
-    };
-    typedef struct TEST30 TEST30;
-
-    struct TEST32 {
-        int count;
-        TEST30* coords;
-    };
-    typedef struct TEST32 TEST32;
+    } TEST32A;
 
     USERDEFINEDTYPE usertype;
-    initUserDefinedType(&usertype);            // New structure definition
+    initUserDefinedType(&usertype);                                 // New structure definition
 
-    strcpy(usertype.name, "TEST30");
+    strcpy(usertype.name, "TEST32A");
     strcpy(usertype.source, "Test #32");
     usertype.ref_id = 0;
-    usertype.imagecount = 0;                // No Structure Image data
+    usertype.imagecount = 0;                                        // No Structure Image data
     usertype.image = NULL;
-    usertype.size = sizeof(TEST30);            // Structure size
+    usertype.size = sizeof(TEST32A);                                // Structure size
     usertype.idamclass = TYPE_COMPOUND;
 
     int offset = 0;
 
     COMPOUNDFIELD field;
-    initCompoundField(&field);
-    strcpy(field.name, "R");
-    field.atomictype = TYPE_DOUBLE;
-    strcpy(field.type, "double");            // convert atomic type to a string label
-    strcpy(field.desc, "double structure element: R");
-
-    field.pointer = 0;
-    field.count = 1;
-    field.rank = 0;
-    field.shape = NULL;            // Needed when rank >= 1
-
-    field.size = field.count * sizeof(double);
-    field.offset = newoffset(offset, field.type);
-    field.offpad = padding(offset, field.type);
-    field.alignment = getalignmentof(field.type);
-    offset = field.offset + field.size;    // Next Offset
-    addCompoundField(&usertype, field);        // Single Structure element
 
     initCompoundField(&field);
-    strcpy(field.name, "Z");
-    field.atomictype = TYPE_DOUBLE;
-    strcpy(field.type, "double");            // convert atomic type to a string label
-    strcpy(field.desc, "double structure element: Z");
+    defineField(&field, "R", "double structure element", &offset, SCALARDOUBLE);
 
-    field.pointer = 0;
-    field.count = 1;
-    field.rank = 0;
+    addCompoundField(&usertype, field);                             // Single Structure element
 
-    field.shape = NULL;            // Needed when rank >= 1
+    initCompoundField(&field);
+    defineField(&field, "Z", "double structure element", &offset, SCALARDOUBLE);
 
-    field.size = field.count * sizeof(double);
-    field.offset = newoffset(offset, field.type);
-    field.offpad = padding(offset, field.type);
-    field.alignment = getalignmentof(field.type);
-    addCompoundField(&usertype, field);        // Single Structure element
+    addCompoundField(&usertype, field);                             // Single Structure element
 
     addUserDefinedType(userdefinedtypelist, usertype);
 
-    initUserDefinedType(&usertype);            // New structure definition
+    typedef struct Test32 {
+        int count;
+        TEST32A coords[100];
+    } TEST32;
+
+    TEST32* data;
+
+    initUserDefinedType(&usertype);                                 // New structure definition
 
     strcpy(usertype.name, "TEST32");
     strcpy(usertype.source, "Test #32");
     usertype.ref_id = 0;
-    usertype.imagecount = 0;                // No Structure Image data
+    usertype.imagecount = 0;                                        // No Structure Image data
     usertype.image = NULL;
-    usertype.size = sizeof(TEST32);            // Structure size
+    usertype.size = sizeof(TEST32);                                 // Structure size
     usertype.idamclass = TYPE_COMPOUND;
 
     offset = 0;
 
     initCompoundField(&field);
-    strcpy(field.name, "count");
-    field.atomictype = TYPE_INT;
-    strcpy(field.type, "int");            // convert atomic type to a string label
-    strcpy(field.desc, "int structure element: count");
+    defineField(&field, "count", "int structure element", &offset, SCALARINT);
 
-    field.pointer = 0;
-    field.count = 1;
-    field.rank = 0;
-    field.shape = NULL;            // Needed when rank >= 1
-
-    field.size = field.count * sizeof(int);
-    field.offset = newoffset(offset, field.type);
-    field.offpad = padding(offset, field.type);
-    field.alignment = getalignmentof(field.type);
-    offset = field.offset + field.size;    // Next Offset
-    addCompoundField(&usertype, field);        // Single Structure element
+    addCompoundField(&usertype, field);                             // Single Structure element
 
     initCompoundField(&field);
+
     strcpy(field.name, "coords");
     field.atomictype = TYPE_UNKNOWN;
-    strcpy(field.type, "TEST30");            // convert atomic type to a string label
-    strcpy(field.desc, "TEST30 array structure element: coords");
+    strcpy(field.type, "TEST32A");
+    strcpy(field.desc, "structure TEST32A");
 
-    field.pointer = 1;
-    field.count = 1;
-    field.rank = 0;
+    field.pointer = 0;
+    field.count = 100;
+    field.rank = 1;
 
-    field.shape = NULL;            // Needed when rank >= 1
+    field.shape = (int*)malloc(field.rank * sizeof(int));           // Needed when rank >= 1
+    field.shape[0] = field.count;
 
-    field.size = field.count * sizeof(TEST30);
-    field.offset = newoffset(offset, field.type);
+    field.size = field.count * sizeof(TEST32A);
+    field.offset = offsetof(TEST32, coords);
     field.offpad = padding(offset, field.type);
     field.alignment = getalignmentof(field.type);
-    addCompoundField(&usertype, field);        // Single Structure element
+
+    addCompoundField(&usertype, field);                             // Single Structure element
 
     addUserDefinedType(userdefinedtypelist, usertype);
 
 // Create Data
 
-    TEST32* data = (TEST32*) malloc(sizeof(TEST32));
+    data_block->data_n = 1;
+    data = (TEST32*)malloc(data_block->data_n * sizeof(TEST32));    // Structured Data Must be a heap variable
+    addMalloc((void*)data, data_block->data_n, sizeof(TEST32), "TEST32");
 
-    int count = 100;
-    TEST30* coords = (TEST30*) malloc(count * sizeof(TEST30)); // Structured Data Must be a heap variable
+    data[0].count = field.count;
 
-    offset = 0;
-
-    int i, j;
-    for (i = 0; i < 5; i++) {
-        for (j = 0; j < 20; j++) {
-            coords[offset].R = (double) offset;
-            coords[offset].Z = 10.0 * (double) offset;
-            offset++;
-        }
+    int i;
+    for (i = 0; i < field.count; i++) {
+        data[0].coords[i].R = 1.0 * i;
+        data[0].coords[i].Z = 10.0 * i;
     }
-    data->coords = coords;
-    data->count = 100;
-
-    int rank = 2;
-    int* shape = (int*) malloc(2 * sizeof(int));
-    shape[0] = 5;
-    shape[1] = 20;
-
-    addMalloc((void*) data, 1, sizeof(TEST32), "TEST32");
-    addMalloc2((void*) coords, count, sizeof(TEST30), "TEST30", rank, shape);
 
 // Pass Data
 
     data_block->data_type = TYPE_COMPOUND;
     data_block->rank = 0;
     data_block->data_n = 1;
-    data_block->data = (char*) data;
+    data_block->data = (char*)data;
 
-    strcpy(data_block->data_desc, "Compound Structure Data Test #32");
+    strcpy(data_block->data_desc, "Structure Data Test #32");
     strcpy(data_block->data_label, "Double Values [5, 20] : (1*, 10*)");
     strcpy(data_block->data_units, "");
 
     data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
-    data_block->opaque_block = (void*) findUserDefinedType("TEST32", 0);
+    data_block->opaque_block = (void*)findUserDefinedType("TEST32", 0);
+
+    return 0;
+}
+
+static int do_test33(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
+{
+    DATA_BLOCK* data_block = idam_plugin_interface->data_block;
+
+    typedef struct Test33A {
+        double R;
+        double Z;
+    } TEST33A;
+
+    USERDEFINEDTYPE usertype;
+    initUserDefinedType(&usertype);                                 // New structure definition
+
+    strcpy(usertype.name, "TEST33A");
+    strcpy(usertype.source, "Test #33");
+    usertype.ref_id = 0;
+    usertype.imagecount = 0;                                        // No Structure Image data
+    usertype.image = NULL;
+    usertype.size = sizeof(TEST33A);                                // Structure size
+    usertype.idamclass = TYPE_COMPOUND;
+
+    int offset = 0;
+
+    COMPOUNDFIELD field;
+
+    initCompoundField(&field);
+    defineField(&field, "R", "double structure element", &offset, SCALARDOUBLE);
+
+    addCompoundField(&usertype, field);                             // Single Structure element
+
+    initCompoundField(&field);
+    defineField(&field, "Z", "double structure element", &offset, SCALARDOUBLE);
+
+    addCompoundField(&usertype, field);                             // Single Structure element
+
+    addUserDefinedType(userdefinedtypelist, usertype);
+
+    typedef struct Test33 {
+        int count;
+        TEST33A* coords;
+    } TEST33;
+
+    TEST33* data;
+
+    initUserDefinedType(&usertype);                                 // New structure definition
+
+    strcpy(usertype.name, "TEST33");
+    strcpy(usertype.source, "Test #33");
+    usertype.ref_id = 0;
+    usertype.imagecount = 0;                                        // No Structure Image data
+    usertype.image = NULL;
+    usertype.size = sizeof(TEST33);                                 // Structure size
+    usertype.idamclass = TYPE_COMPOUND;
+
+    offset = 0;
+
+    initCompoundField(&field);
+    defineField(&field, "count", "int structure element", &offset, SCALARINT);
+
+    addCompoundField(&usertype, field);                             // Single Structure element
+
+    initCompoundField(&field);
+
+    strcpy(field.name, "coords");
+    field.atomictype = TYPE_UNKNOWN;
+    strcpy(field.type, "TEST33A");
+    strcpy(field.desc, "structure TEST33A");
+
+    field.pointer = 1;
+    field.count = 1;
+    field.rank = 0;
+    field.shape = NULL;
+
+    field.size = field.count * sizeof(TEST33A);
+    field.offset = offsetof(TEST33, coords);
+    field.offpad = padding(offset, field.type);
+    field.alignment = getalignmentof(field.type);
+
+    addCompoundField(&usertype, field);                             // Single Structure element
+
+    addUserDefinedType(userdefinedtypelist, usertype);
+
+// Create Data
+
+    data_block->data_n = 1;
+    data = (TEST33*)malloc(data_block->data_n * sizeof(TEST33));    // Structured Data Must be a heap variable
+    addMalloc((void*)data, data_block->data_n, sizeof(TEST33), "TEST33");
+
+    data->count = 100;
+    data->coords = (TEST33A*)malloc(data->count * sizeof(TEST33A));
+
+    int rank = 2;
+    int* shape = (int*)malloc(2 * sizeof(int));
+    shape[0] = 5;
+    shape[1] = 20;
+
+    addMalloc2((void*)data->coords, data->count, sizeof(TEST33A), "TEST33A", rank, shape);
+
+    int i;
+    for (i = 0; i < data->count; i++) {
+        data->coords[i].R = 1.0 * i;
+        data->coords[i].Z = 10.0 * i;
+    }
+
+// Pass Data
+
+    data_block->data_type = TYPE_COMPOUND;
+    data_block->rank = 0;
+    data_block->data_n = 1;
+    data_block->data = (char*)data;
+
+    strcpy(data_block->data_desc, "Structure Data Test #33");
+    strcpy(data_block->data_label, "Double Values [5, 20] : (1*, 10*)");
+    strcpy(data_block->data_units, "");
+
+    data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
+    data_block->opaque_count = 1;
+    data_block->opaque_block = (void*)findUserDefinedType("TEST33", 0);
 
     return 0;
 }
@@ -2952,17 +2941,15 @@ static int do_test32(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 // If the client cannot pass putdata blocks then no data will appear here to process.
 static int do_test40(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
-    struct TEST40 {
+    typedef struct Test40 {
         unsigned int dataCount;
         void* data;
-    };
-    typedef struct TEST40 TEST40;
+    } TEST40;
 
-    struct TEST41 {
+    typedef struct Test41 {
         int count;
         TEST40* blocks;
-    };
-    typedef struct TEST41 TEST41;
+    } TEST41;
 
     int err = 0;
 
@@ -2989,7 +2976,7 @@ static int do_test40(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 // For this test, all blocks must be of the same type: request_block->putDataBlockList.putDataBlock[0].data_type;
 // Repeat call with changing types may cause client side issues!
 
-    IDAM_LOG(LOG_DEBUG, "Number of PutData Blocks: %d\n", request_block->putDataBlockList.blockCount);
+    IDAM_LOG(UDA_LOG_DEBUG, "Number of PutData Blocks: %d\n", request_block->putDataBlockList.blockCount);
 
     if (request_block->putDataBlockList.blockCount == 0) {
         err = 999;
@@ -3062,8 +3049,8 @@ static int do_test40(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         blocks[i].dataCount = request_block->putDataBlockList.putDataBlock[i].count;
         blocks[i].data = (void*) request_block->putDataBlockList.putDataBlock[i].data;
 
-        IDAM_LOG(LOG_DEBUG, "data type : %d\n", request_block->putDataBlockList.putDataBlock[0].data_type);
-        IDAM_LOG(LOG_DEBUG, "data count: %d\n", request_block->putDataBlockList.putDataBlock[0].count);
+        IDAM_LOG(UDA_LOG_DEBUG, "data type : %d\n", request_block->putDataBlockList.putDataBlock[0].data_type);
+        IDAM_LOG(UDA_LOG_DEBUG, "data count: %d\n", request_block->putDataBlockList.putDataBlock[0].count);
 
 // Data blocks already allocated and will be freed by a separate process so use addNonMalloc instead of addMalloc
 
@@ -3119,28 +3106,16 @@ static int do_plugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     const PLUGINLIST* pluginList = idam_plugin_interface->pluginList;
 
     if (pluginList == NULL) {
-        err = 999;
-        addIdamError(&idamerrorstack, CODEERRORTYPE,
-                     "No plugins available for this data request", err, "");
-        return err;
+        RAISE_PLUGIN_ERROR("No plugins available for this data request");
     }
 
 // Test specifics
 
-    char* signal = NULL;
-    char* source = NULL;
+    const char* signal = NULL;
+    const char* source = NULL;
 
-    int i;
-    for (i = 0; i < request_block->nameValueList.pairCount; i++) {
-        if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "signal")) {
-            signal = request_block->nameValueList.nameValue[i].value;
-            continue;
-        }
-        if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "source")) {
-            source = request_block->nameValueList.nameValue[i].value;
-            continue;
-        }
-    }
+    FIND_REQUIRED_STRING_VALUE(request_block->nameValueList, signal);
+    FIND_REQUIRED_STRING_VALUE(request_block->nameValueList, source);
 
     if (signal != NULL || source != NULL) {            // Identify the plugin to test
 
@@ -3150,16 +3125,16 @@ static int do_plugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         initServerRequestBlock(&next_request_block);
         strcpy(next_request_block.api_delim, request_block->api_delim);
 
-        if (signal != NULL) strcpy(next_request_block.signal, signal);
-        if (source != NULL) strcpy(next_request_block.source, source);
+        strcpy(next_request_block.signal, signal);
+        strcpy(next_request_block.source, source);
 
         makeServerRequestBlock(&next_request_block, *pluginList);
 
+        int i;
         for (i = 0; i < pluginList->count; i++) {
             if (next_request_block.request == pluginList->plugin[i].request) {
                 if (pluginList->plugin[i].idamPlugin != NULL) {
-                    err = pluginList->plugin[i].idamPlugin(
-                            &next_plugin_interface);        // Call the data reader
+                    err = pluginList->plugin[i].idamPlugin(&next_plugin_interface); // Call the data reader
                 } else {
                     err = 999;
                     addIdamError(&idamerrorstack, CODEERRORTYPE,
@@ -3183,7 +3158,7 @@ static int do_plugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 // Adding errors to an error stack is done using the function exposed by the server library.
 // No state is maintained by this function and the stack structure is passed by argument.
 // The server error structure is passed into plugins using an accessor function: getIdamServerPluginErrorStack()
-// To maintain consitency with existing legacy code, use a local stucture with a global scope (plugin library only)
+// To maintain consistency with existing legacy code, use a local structure with a global scope (plugin library only)
 // A final necessary step is to concatenate this local structure with the server structure before returning.
 // When testing the plugin, errors are doubled (tripled!) up as both stacks are the same.
 static int do_errortest(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
@@ -3193,24 +3168,15 @@ static int do_errortest(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     REQUEST_BLOCK* request_block = idam_plugin_interface->request_block;
 
-    int i;
-    for (i = 0; i < request_block->nameValueList.pairCount; i++) {
-        if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "test")) {
-            if (IsNumber(request_block->nameValueList.nameValue[i].value))
-                test = atoi(request_block->nameValueList.nameValue[i].value);
-            break;
-        }
-    }
+    FIND_REQUIRED_INT_VALUE(request_block->nameValueList, test);
 
     if (test == 1) {
         testError1();
         return err;
-    }
-    if (test == 2) {
+    } else if (test == 2) {
         testError2();
         return err;
-    }
-    if (test == 3) {
+    } else if (test == 3) {
         char* p = "crash!";        // force a server crash! (write to read-only memory)
         *p = '*';
 
@@ -3234,7 +3200,7 @@ static int do_scalartest(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     int* p = malloc(sizeof(int));
     *p = 10;
-    data_block->data = (char*) p;
+    data_block->data = (char*)p;
     data_block->data_n = 1;
     data_block->data_type = TYPE_INT;
 

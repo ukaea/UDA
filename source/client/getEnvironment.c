@@ -24,38 +24,38 @@ void putIdamClientEnvironment(const ENVIRONMENT* environment)
 
 void printIdamClientEnvironment(const ENVIRONMENT* environ)
 {
-    IDAM_LOG(LOG_INFO, "\nClient Environment Variable values\n\n");
-    IDAM_LOGF(LOG_INFO, "Log Location    : %s\n", environ->logdir);
-    IDAM_LOGF(LOG_INFO, "Log Write Mode  : %s\n", environ->logmode);
-    IDAM_LOGF(LOG_INFO, "Log Level       : %d\n", environ->loglevel);
-    IDAM_LOGF(LOG_INFO, "Client Flags    : %u\n", environ->clientFlags);
-    IDAM_LOGF(LOG_INFO, "Alt Rank        : %d\n", environ->altRank);
+    IDAM_LOG(UDA_LOG_INFO, "\nClient Environment Variable values\n\n");
+    IDAM_LOGF(UDA_LOG_INFO, "Log Location    : %s\n", environ->logdir);
+    IDAM_LOGF(UDA_LOG_INFO, "Log Write Mode  : %s\n", environ->logmode);
+    IDAM_LOGF(UDA_LOG_INFO, "Log Level       : %d\n", environ->loglevel);
+    IDAM_LOGF(UDA_LOG_INFO, "Client Flags    : %u\n", environ->clientFlags);
+    IDAM_LOGF(UDA_LOG_INFO, "Alt Rank        : %d\n", environ->altRank);
 #ifdef FATCLIENT
-    IDAM_LOGF(LOG_INFO, "External User?  : %d\n", environ->external_user);
+    IDAM_LOGF(UDA_LOG_INFO, "External User?  : %d\n", environ->external_user);
 #  ifdef PROXYSERVER
-    IDAM_LOGF(LOG_INFO, "IDAM Proxy Host : %s\n", environ->server_proxy);
-    IDAM_LOGF(LOG_INFO, "IDAM This Host  : %s\n", environ->server_this);
+    IDAM_LOGF(UDA_LOG_INFO, "IDAM Proxy Host : %s\n", environ->server_proxy);
+    IDAM_LOGF(UDA_LOG_INFO, "IDAM This Host  : %s\n", environ->server_this);
 #  endif
 #endif
-    IDAM_LOGF(LOG_INFO, "IDAM Server Host: %s\n", environ->server_host);
-    IDAM_LOGF(LOG_INFO, "IDAM Server Port: %d\n", environ->server_port);
-    IDAM_LOGF(LOG_INFO, "IDAM Server Host2: %s\n", environ->server_host2);
-    IDAM_LOGF(LOG_INFO, "IDAM Server Port2: %d\n", environ->server_port2);
-    IDAM_LOGF(LOG_INFO, "Server Reconnect: %d\n", environ->server_reconnect);
-    IDAM_LOGF(LOG_INFO, "Server Change Socket: %d\n", environ->server_change_socket);
-    IDAM_LOGF(LOG_INFO, "Server Socket ID: %d\n", environ->server_socket);
-    IDAM_LOGF(LOG_INFO, "API Delimiter   : %s\n", environ->api_delim);
-    IDAM_LOGF(LOG_INFO, "Default Device  : %s\n", environ->api_device);
-    IDAM_LOGF(LOG_INFO, "Default Archive : %s\n", environ->api_archive);
-    IDAM_LOGF(LOG_INFO, "Default Format  : %s\n", environ->api_format);
-    IDAM_LOGF(LOG_INFO, "Private File Path Target    : %s\n", environ->private_path_target);
-    IDAM_LOGF(LOG_INFO, "Private File Path Substitute: %s\n", environ->private_path_substitute);
+    IDAM_LOGF(UDA_LOG_INFO, "IDAM Server Host: %s\n", environ->server_host);
+    IDAM_LOGF(UDA_LOG_INFO, "IDAM Server Port: %d\n", environ->server_port);
+    IDAM_LOGF(UDA_LOG_INFO, "IDAM Server Host2: %s\n", environ->server_host2);
+    IDAM_LOGF(UDA_LOG_INFO, "IDAM Server Port2: %d\n", environ->server_port2);
+    IDAM_LOGF(UDA_LOG_INFO, "Server Reconnect: %d\n", environ->server_reconnect);
+    IDAM_LOGF(UDA_LOG_INFO, "Server Change Socket: %d\n", environ->server_change_socket);
+    IDAM_LOGF(UDA_LOG_INFO, "Server Socket ID: %d\n", environ->server_socket);
+    IDAM_LOGF(UDA_LOG_INFO, "API Delimiter   : %s\n", environ->api_delim);
+    IDAM_LOGF(UDA_LOG_INFO, "Default Device  : %s\n", environ->api_device);
+    IDAM_LOGF(UDA_LOG_INFO, "Default Archive : %s\n", environ->api_archive);
+    IDAM_LOGF(UDA_LOG_INFO, "Default Format  : %s\n", environ->api_format);
+    IDAM_LOGF(UDA_LOG_INFO, "Private File Path Target    : %s\n", environ->private_path_target);
+    IDAM_LOGF(UDA_LOG_INFO, "Private File Path Substitute: %s\n", environ->private_path_substitute);
 
 #ifndef NOTGENERICENABLED
-    IDAM_LOGF(LOG_INFO, "IDAM SQL Server Host: %s\n", environ->sql_host);
-    IDAM_LOGF(LOG_INFO, "IDAM SQL Server Port: %d\n", environ->sql_port);
-    IDAM_LOGF(LOG_INFO, "IDAM SQL Database   : %s\n", environ->sql_dbname);
-    IDAM_LOGF(LOG_INFO, "IDAM SQL USer       : %s\n", environ->sql_user);
+    IDAM_LOGF(UDA_LOG_INFO, "IDAM SQL Server Host: %s\n", environ->sql_host);
+    IDAM_LOGF(UDA_LOG_INFO, "IDAM SQL Server Port: %d\n", environ->sql_port);
+    IDAM_LOGF(UDA_LOG_INFO, "IDAM SQL Database   : %s\n", environ->sql_dbname);
+    IDAM_LOGF(UDA_LOG_INFO, "IDAM SQL USer       : %s\n", environ->sql_user);
 #endif
 
 }
@@ -92,13 +92,13 @@ ENVIRONMENT* getIdamClientEnvironment()
         }
     }    // Append Mode
 
-    environ.loglevel = LOG_NONE;
+    environ.loglevel = UDA_LOG_NONE;
     if ((env = getenv("UDA_LOG_LEVEL")) != NULL) {
-        if (strncmp(env, "ACCESS", 6) == 0)      environ.loglevel = LOG_ACCESS;
-        else if (strncmp(env, "ERROR", 5) == 0)  environ.loglevel = LOG_ERROR;
-        else if (strncmp(env, "WARN", 4) == 0)   environ.loglevel = LOG_WARN;
-        else if (strncmp(env, "DEBUG", 5) == 0)  environ.loglevel = LOG_DEBUG;
-        else if (strncmp(env, "INFO", 4) == 0)   environ.loglevel = LOG_INFO;
+        if (strncmp(env, "ACCESS", 6) == 0)      environ.loglevel = UDA_LOG_ACCESS;
+        else if (strncmp(env, "ERROR", 5) == 0)  environ.loglevel = UDA_LOG_ERROR;
+        else if (strncmp(env, "WARN", 4) == 0)   environ.loglevel = UDA_LOG_WARN;
+        else if (strncmp(env, "DEBUG", 5) == 0)  environ.loglevel = UDA_LOG_DEBUG;
+        else if (strncmp(env, "INFO", 4) == 0)   environ.loglevel = UDA_LOG_INFO;
     }
 
 // IDAM Server Host Name
@@ -237,22 +237,22 @@ ENVIRONMENT* getIdamClientEnvironment()
 
 // IDAM SQL Server Host Name
 
-    strcpy(environ.sql_host, SQL_HOST);                // Default, e.g. fuslwn
+    strcpy(environ.sql_host, SQL_HOST); // Default, e.g. fuslwn
     if ((env = getenv("UDA_SQLHOST")) != NULL) strcpy(environ.sql_host, env);
 
 // IDAM SQL Server Port name
 
-    environ.sql_port = (int) SQL_PORT;                // Default, e.g. 56566
+    environ.sql_port = (int) SQL_PORT; // Default, e.g. 56566
     if ((env = getenv("UDA_SQLPORT")) != NULL) environ.sql_port = atoi(env);
 
 // IDAM SQL Database name
 
-    strcpy(environ.sql_dbname, SQL_DBNAME);                // Default, e.g. idam
+    strcpy(environ.sql_dbname, SQL_DBNAME); // Default, e.g. idam
     if ((env = getenv("UDA_SQLDBNAME")) != NULL) strcpy(environ.sql_dbname, env);
 
 // IDAM SQL Access username
 
-    strcpy(environ.sql_user, SQL_USER);                // Default, e.g. mast_db
+    strcpy(environ.sql_user, SQL_USER); // Default, e.g. mast_db
     if ((env = getenv("UDA_SQLUSER")) != NULL) strcpy(environ.sql_user, env);
 
 #endif
@@ -265,7 +265,6 @@ ENVIRONMENT* getIdamClientEnvironment()
 
     environ.altRank = 0;
     if ((env = getenv("UDA_ALTRANK")) != NULL) environ.altRank = atoi(env);
-
 
 //-------------------------------------------------------------------------------------------
 

@@ -88,17 +88,17 @@ int allocData(DATA_BLOCK* data_block)
         return UNKNOWN_DATA_TYPE;
     }
 
-    IDAM_LOG(LOG_DEBUG, "allocData :\n");
-    IDAM_LOGF(LOG_DEBUG, "rank      : %d\n", data_block->rank);
-    IDAM_LOGF(LOG_DEBUG, "count     : %d\n", data_block->data_n);
-    IDAM_LOGF(LOG_DEBUG, "data_type : %d\n", data_block->data_type);
-    IDAM_LOGF(LOG_DEBUG, "error_type: %d\n", data_block->error_type);
-    IDAM_LOGF(LOG_DEBUG, "data  != NULL: %d\n", db != NULL);
-    IDAM_LOGF(LOG_DEBUG, "errhi != NULL: %d\n", ebh != NULL);
-    IDAM_LOGF(LOG_DEBUG, "errlo != NULL: %d\n", ebl != NULL);
+    IDAM_LOG(UDA_LOG_DEBUG, "allocData :\n");
+    IDAM_LOGF(UDA_LOG_DEBUG, "rank      : %d\n", data_block->rank);
+    IDAM_LOGF(UDA_LOG_DEBUG, "count     : %d\n", data_block->data_n);
+    IDAM_LOGF(UDA_LOG_DEBUG, "data_type : %d\n", data_block->data_type);
+    IDAM_LOGF(UDA_LOG_DEBUG, "error_type: %d\n", data_block->error_type);
+    IDAM_LOGF(UDA_LOG_DEBUG, "data  != NULL: %d\n", db != NULL);
+    IDAM_LOGF(UDA_LOG_DEBUG, "errhi != NULL: %d\n", ebh != NULL);
+    IDAM_LOGF(UDA_LOG_DEBUG, "errlo != NULL: %d\n", ebl != NULL);
 
     if (db == NULL && data_block->data_type != TYPE_COMPOUND) {
-        IDAM_LOG(LOG_DEBUG, "allocData: Unable to Allocate Heap Memory for Data \n");
+        IDAM_LOG(UDA_LOG_DEBUG, "allocData: Unable to Allocate Heap Memory for Data \n");
         return ERROR_ALLOCATING_HEAP;
     }
 
@@ -177,7 +177,7 @@ int allocDim(DATA_BLOCK* data_block)
 
             switch (data_block->dims[i].method) {
                 case 1 :
-                    data_block->dims[i].sams = (long*)malloc(data_block->dims[i].udoms * sizeof(long));
+                    data_block->dims[i].sams = (int*)malloc(data_block->dims[i].udoms * sizeof(int));
                     data_block->dims[i].offs = (char*)malloc(data_block->dims[i].udoms * data_size);
                     data_block->dims[i].ints = (char*)malloc(data_block->dims[i].udoms * data_size);
                     break;
@@ -217,14 +217,14 @@ int allocPutData(PUTDATA_BLOCK* putData)
         return UNKNOWN_DATA_TYPE;
     }
 
-    IDAM_LOG(LOG_DEBUG, "allocPutData :\n");
-    IDAM_LOGF(LOG_DEBUG, "rank      : %d\n", putData->rank);
-    IDAM_LOGF(LOG_DEBUG, "count     : %d\n", putData->count);
-    IDAM_LOGF(LOG_DEBUG, "data_type : %d\n", putData->data_type);
-    IDAM_LOGF(LOG_DEBUG, "data  != NULL: %d\n", db != NULL);
+    IDAM_LOG(UDA_LOG_DEBUG, "allocPutData :\n");
+    IDAM_LOGF(UDA_LOG_DEBUG, "rank      : %d\n", putData->rank);
+    IDAM_LOGF(UDA_LOG_DEBUG, "count     : %d\n", putData->count);
+    IDAM_LOGF(UDA_LOG_DEBUG, "data_type : %d\n", putData->data_type);
+    IDAM_LOGF(UDA_LOG_DEBUG, "data  != NULL: %d\n", db != NULL);
 
     if (db == NULL && putData->data_type != TYPE_COMPOUND) {
-        IDAM_LOG(LOG_DEBUG, "allocPutData: Unable to Allocate Heap Memory for Data \n");
+        IDAM_LOG(UDA_LOG_DEBUG, "allocPutData: Unable to Allocate Heap Memory for Data \n");
         return (ERROR_ALLOCATING_HEAP);
     }
 
@@ -232,7 +232,7 @@ int allocPutData(PUTDATA_BLOCK* putData)
 
 // Shape of data
 
-    if (putData->rank > 1) putData->shape = (int*)malloc(putData->rank * sizeof(int));
+    if (putData->rank > 0) putData->shape = (int*)malloc(putData->rank * sizeof(int));
 
 // Name of data
 

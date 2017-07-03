@@ -64,7 +64,7 @@ int readNothing(DATA_SOURCE data_source,
         return err;
     }
 
-    IDAM_LOGF(LOG_DEBUG, "Generating %d test Data\n", data_block->data_n);
+    IDAM_LOGF(UDA_LOG_DEBUG, "Generating %d test Data\n", data_block->data_n);
 
     data_block->rank = 1;
     data_block->order = 0;
@@ -108,7 +108,7 @@ int readNothing(DATA_SOURCE data_source,
     data_block->data = (char*)fp;
     data_block->dims[0].dim = (char*)fdp;
 
-    IDAM_LOG(LOG_DEBUG, "Data Generated\n");
+    IDAM_LOG(UDA_LOG_DEBUG, "Data Generated\n");
 
     return 0;
 }

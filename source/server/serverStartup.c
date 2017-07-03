@@ -27,9 +27,9 @@ int startup(void)
 //---------------------------------------------------------------
 // Open the Log Files
 
-    idamSetLogLevel((LOG_MODE)environment->loglevel);
+    idamSetLogLevel((LOG_LEVEL)environment->loglevel);
 
-    if (environment->loglevel <= LOG_ACCESS) {
+    if (environment->loglevel <= UDA_LOG_ACCESS) {
         char cmd[STRING_LENGTH];
         sprintf(cmd, "mkdir -p %s 2>/dev/null", environment->logdir);
         system(cmd);
@@ -43,11 +43,11 @@ int startup(void)
             addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "startup", errno, "Access Log: ");
             if (accout != NULL) fclose(accout);
         } else {
-            idamSetLogFile(LOG_ACCESS, accout);
+            idamSetLogFile(UDA_LOG_ACCESS, accout);
         }
     }
 
-    if (environment->loglevel <= LOG_ERROR) {
+    if (environment->loglevel <= UDA_LOG_ERROR) {
         errno = 0;
         strcpy(idamFile, environment->logdir);
         strcat(idamFile, "Error.log");
@@ -57,11 +57,11 @@ int startup(void)
             addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "startup", errno, "Error Log: ");
             if (errout != NULL) fclose(errout);
         } else {
-            idamSetLogFile(LOG_ERROR, errout);
+            idamSetLogFile(UDA_LOG_ERROR, errout);
         }
     }
 
-    if (environment->loglevel <= LOG_WARN) {
+    if (environment->loglevel <= UDA_LOG_WARN) {
         errno = 0;
         strcpy(idamFile, environment->logdir);
         strcat(idamFile, "DebugServer.log");
@@ -71,9 +71,9 @@ int startup(void)
             addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "startup", errno, "Debug Log: ");
             if (dbgout != NULL) fclose(dbgout);
         } else {
-            idamSetLogFile(LOG_WARN, dbgout);
-            idamSetLogFile(LOG_DEBUG, dbgout);
-            idamSetLogFile(LOG_INFO, dbgout);
+            idamSetLogFile(UDA_LOG_WARN, dbgout);
+            idamSetLogFile(UDA_LOG_DEBUG, dbgout);
+            idamSetLogFile(UDA_LOG_INFO, dbgout);
         }
     }
 

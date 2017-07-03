@@ -33,7 +33,7 @@ set( IMAS_SOURCES
 
 uda_plugin(
   NAME IMAS
-  ENTRY_FUNC imas_mds
+  ENTRY_FUNC imas
   DESCRIPTION "ITER IMAS put & get plugin"
   EXAMPLE "IMAS::put()"
   LIBNAME imas_plugin
@@ -55,7 +55,6 @@ uda_plugin(
     ${MDSPLUS_LIBRARIES}
     ${HDF5_LIBRARIES}
     ${HDF5_HL_LIBRARIES}
-    ${IDC_LIB_NAME}
     ${OPENSSL_LIBRARIES}
     client-static
     pthread

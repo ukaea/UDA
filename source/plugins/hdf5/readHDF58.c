@@ -76,7 +76,7 @@ int getHDF5(DATA_SOURCE* data_source, SIGNAL_DESC* signal_desc, DATA_BLOCK* data
 // Is the HDF5 file already open for reading? If not then open it. 
 // The handle hid_t is an integer (ref: H5Ipublic.h) - use the Integer specific API 
 
-        if ((file_id = getOpenIdamPluginFileInt(&pluginFileList, data_source->path)) < 0) {
+        if ((file_id = getOpenIdamPluginFileLong(&pluginFileList, data_source->path)) < 0) {
             file_id = H5Fopen(data_source->path, H5F_ACC_RDONLY, H5P_DEFAULT);
             if ((int)file_id < 0 || errno != 0) {
                 err = HDF5_ERROR_OPENING_FILE;
@@ -84,7 +84,7 @@ int getHDF5(DATA_SOURCE* data_source, SIGNAL_DESC* signal_desc, DATA_BLOCK* data
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "readHDF5", err, "Error Opening HDF5 File");
                 break;
             }
-            addIdamPluginFileInt(&pluginFileList, data_source->path, (int)file_id);        // Register the File Handle
+            addIdamPluginFileLong(&pluginFileList, data_source->path, file_id);        // Register the File Handle
         }
 
 //---------------------------------------------------------------------- 
@@ -201,43 +201,43 @@ int getHDF5(DATA_SOURCE* data_source, SIGNAL_DESC* signal_desc, DATA_BLOCK* data
             H5Sclose(space_id);
         }
 
-        IDAM_LOGF(LOG_DEBUG, "file_id     = %d\n", (int)file_id);
-        IDAM_LOGF(LOG_DEBUG, "datatype_id = %d\n", (int)datatype_id);
-        IDAM_LOGF(LOG_DEBUG, "rank        = %d\n", data_block->rank);
-        IDAM_LOGF(LOG_DEBUG, "size        = %d\n", size);
-        IDAM_LOGF(LOG_DEBUG, "nativetype  = %d\n", nativetype);
-        IDAM_LOGF(LOG_DEBUG, "precision   = %d\n", precision);
-        IDAM_LOGF(LOG_DEBUG, "typesize    = %zu\n", typesize);
-        IDAM_LOGF(LOG_DEBUG, "classtype   = %d\n", (int)classtype);
-        IDAM_LOGF(LOG_DEBUG, "issigned    = %d\n", issigned);
+        IDAM_LOGF(UDA_LOG_DEBUG, "file_id     = %d\n", (int)file_id);
+        IDAM_LOGF(UDA_LOG_DEBUG, "datatype_id = %d\n", (int)datatype_id);
+        IDAM_LOGF(UDA_LOG_DEBUG, "rank        = %d\n", data_block->rank);
+        IDAM_LOGF(UDA_LOG_DEBUG, "size        = %d\n", size);
+        IDAM_LOGF(UDA_LOG_DEBUG, "nativetype  = %d\n", nativetype);
+        IDAM_LOGF(UDA_LOG_DEBUG, "precision   = %d\n", precision);
+        IDAM_LOGF(UDA_LOG_DEBUG, "typesize    = %zu\n", typesize);
+        IDAM_LOGF(UDA_LOG_DEBUG, "classtype   = %d\n", (int)classtype);
+        IDAM_LOGF(UDA_LOG_DEBUG, "issigned    = %d\n", issigned);
 
-        IDAM_LOGF(LOG_DEBUG, "Integer Class ?  %d\n", H5T_INTEGER == classtype);
-        IDAM_LOGF(LOG_DEBUG, "Float Class ?    %d\n", H5T_FLOAT == classtype);
-        IDAM_LOGF(LOG_DEBUG, "Array Class ?    %d\n", H5T_ARRAY == classtype);
-        IDAM_LOGF(LOG_DEBUG, "Time Class ?     %d\n", H5T_TIME == classtype);
-        IDAM_LOGF(LOG_DEBUG, "String Class ?   %d\n", H5T_STRING == classtype);
-        IDAM_LOGF(LOG_DEBUG, "Bitfield Class ? %d\n", H5T_BITFIELD == classtype);
-        IDAM_LOGF(LOG_DEBUG, "Opaque Class ?   %d\n", H5T_OPAQUE == classtype);
-        IDAM_LOGF(LOG_DEBUG, "Compound Class ? %d\n", H5T_COMPOUND == classtype);
-        IDAM_LOGF(LOG_DEBUG, "Reference Class ?%d\n", H5T_REFERENCE == classtype);
-        IDAM_LOGF(LOG_DEBUG, "Enumerated Class?%d\n", H5T_ENUM == classtype);
-        IDAM_LOGF(LOG_DEBUG, "VLen Class ?     %d\n", H5T_VLEN == classtype);
-        IDAM_LOGF(LOG_DEBUG, "No Class ?       %d\n", H5T_NO_CLASS == classtype);
+        IDAM_LOGF(UDA_LOG_DEBUG, "Integer Class ?  %d\n", H5T_INTEGER == classtype);
+        IDAM_LOGF(UDA_LOG_DEBUG, "Float Class ?    %d\n", H5T_FLOAT == classtype);
+        IDAM_LOGF(UDA_LOG_DEBUG, "Array Class ?    %d\n", H5T_ARRAY == classtype);
+        IDAM_LOGF(UDA_LOG_DEBUG, "Time Class ?     %d\n", H5T_TIME == classtype);
+        IDAM_LOGF(UDA_LOG_DEBUG, "String Class ?   %d\n", H5T_STRING == classtype);
+        IDAM_LOGF(UDA_LOG_DEBUG, "Bitfield Class ? %d\n", H5T_BITFIELD == classtype);
+        IDAM_LOGF(UDA_LOG_DEBUG, "Opaque Class ?   %d\n", H5T_OPAQUE == classtype);
+        IDAM_LOGF(UDA_LOG_DEBUG, "Compound Class ? %d\n", H5T_COMPOUND == classtype);
+        IDAM_LOGF(UDA_LOG_DEBUG, "Reference Class ?%d\n", H5T_REFERENCE == classtype);
+        IDAM_LOGF(UDA_LOG_DEBUG, "Enumerated Class?%d\n", H5T_ENUM == classtype);
+        IDAM_LOGF(UDA_LOG_DEBUG, "VLen Class ?     %d\n", H5T_VLEN == classtype);
+        IDAM_LOGF(UDA_LOG_DEBUG, "No Class ?       %d\n", H5T_NO_CLASS == classtype);
 
-        IDAM_LOGF(LOG_DEBUG, "Native Char?     %d\n", H5T_NATIVE_CHAR == nativetype);
-        IDAM_LOGF(LOG_DEBUG, "Native Short?    %d\n", H5T_NATIVE_SHORT == nativetype);
-        IDAM_LOGF(LOG_DEBUG, "Native Int?      %d\n", H5T_NATIVE_INT == nativetype);
-        IDAM_LOGF(LOG_DEBUG, "Native Long?     %d\n", H5T_NATIVE_LONG == nativetype);
-        IDAM_LOGF(LOG_DEBUG, "Native LLong?    %d\n", H5T_NATIVE_LLONG == nativetype);
-        IDAM_LOGF(LOG_DEBUG, "Native UChar?    %d\n", H5T_NATIVE_UCHAR == nativetype);
-        IDAM_LOGF(LOG_DEBUG, "Native SChar?    %d\n", H5T_NATIVE_SCHAR == nativetype);
-        IDAM_LOGF(LOG_DEBUG, "Native UShort?   %d\n", H5T_NATIVE_USHORT == nativetype);
-        IDAM_LOGF(LOG_DEBUG, "Native UInt?     %d\n", H5T_NATIVE_UINT == nativetype);
-        IDAM_LOGF(LOG_DEBUG, "Native ULong?    %d\n", H5T_NATIVE_ULONG == nativetype);
-        IDAM_LOGF(LOG_DEBUG, "Native ULLong?   %d\n", H5T_NATIVE_ULLONG == nativetype);
-        IDAM_LOGF(LOG_DEBUG, "Native Float?    %d\n", H5T_NATIVE_FLOAT == nativetype);
-        IDAM_LOGF(LOG_DEBUG, "Native Double?   %d\n", H5T_NATIVE_DOUBLE == nativetype);
-        IDAM_LOGF(LOG_DEBUG, "Native LDouble?  %d\n", H5T_NATIVE_LDOUBLE == nativetype);
+        IDAM_LOGF(UDA_LOG_DEBUG, "Native Char?     %d\n", H5T_NATIVE_CHAR == nativetype);
+        IDAM_LOGF(UDA_LOG_DEBUG, "Native Short?    %d\n", H5T_NATIVE_SHORT == nativetype);
+        IDAM_LOGF(UDA_LOG_DEBUG, "Native Int?      %d\n", H5T_NATIVE_INT == nativetype);
+        IDAM_LOGF(UDA_LOG_DEBUG, "Native Long?     %d\n", H5T_NATIVE_LONG == nativetype);
+        IDAM_LOGF(UDA_LOG_DEBUG, "Native LLong?    %d\n", H5T_NATIVE_LLONG == nativetype);
+        IDAM_LOGF(UDA_LOG_DEBUG, "Native UChar?    %d\n", H5T_NATIVE_UCHAR == nativetype);
+        IDAM_LOGF(UDA_LOG_DEBUG, "Native SChar?    %d\n", H5T_NATIVE_SCHAR == nativetype);
+        IDAM_LOGF(UDA_LOG_DEBUG, "Native UShort?   %d\n", H5T_NATIVE_USHORT == nativetype);
+        IDAM_LOGF(UDA_LOG_DEBUG, "Native UInt?     %d\n", H5T_NATIVE_UINT == nativetype);
+        IDAM_LOGF(UDA_LOG_DEBUG, "Native ULong?    %d\n", H5T_NATIVE_ULONG == nativetype);
+        IDAM_LOGF(UDA_LOG_DEBUG, "Native ULLong?   %d\n", H5T_NATIVE_ULLONG == nativetype);
+        IDAM_LOGF(UDA_LOG_DEBUG, "Native Float?    %d\n", H5T_NATIVE_FLOAT == nativetype);
+        IDAM_LOGF(UDA_LOG_DEBUG, "Native Double?   %d\n", H5T_NATIVE_DOUBLE == nativetype);
+        IDAM_LOGF(UDA_LOG_DEBUG, "Native LDouble?  %d\n", H5T_NATIVE_LDOUBLE == nativetype);
 
         if (size == 0) {
             if (dataset_type == H5O_TYPE_DATASET) {
@@ -370,12 +370,12 @@ int getHDF5(DATA_SOURCE* data_source, SIGNAL_DESC* signal_desc, DATA_BLOCK* data
             H5Aread(att_id, att_type, (void*)att_buff);
             H5Aclose(att_id);
 
-            IDAM_LOGF(LOG_DEBUG, "%d attribute[%d]: %s\n", i, (int)att_size, att_name);
-            IDAM_LOGF(LOG_DEBUG, "%d type: %d\n", i, (int)att_type);
-            IDAM_LOGF(LOG_DEBUG, "Value: %s\n", att_buff);
-            IDAM_LOGF(LOG_DEBUG, "H5T_STRING     ?   %d\n", H5T_STRING == att_type);
-            IDAM_LOGF(LOG_DEBUG, "H5T_CSET_ASCII ?   %d\n", H5T_CSET_ASCII == att_type);
-            IDAM_LOGF(LOG_DEBUG, "H5T_C_S1       ?   %d\n", H5T_C_S1 == att_type);
+            IDAM_LOGF(UDA_LOG_DEBUG, "%d attribute[%d]: %s\n", i, (int)att_size, att_name);
+            IDAM_LOGF(UDA_LOG_DEBUG, "%d type: %d\n", i, (int)att_type);
+            IDAM_LOGF(UDA_LOG_DEBUG, "Value: %s\n", att_buff);
+            IDAM_LOGF(UDA_LOG_DEBUG, "H5T_STRING     ?   %d\n", H5T_STRING == att_type);
+            IDAM_LOGF(UDA_LOG_DEBUG, "H5T_CSET_ASCII ?   %d\n", H5T_CSET_ASCII == att_type);
+            IDAM_LOGF(UDA_LOG_DEBUG, "H5T_C_S1       ?   %d\n", H5T_C_S1 == att_type);
 
             if (STR_IEQUALS(att_name, "units")) strcpy(data_block->data_units, att_buff);
             if (STR_IEQUALS(att_name, "label")) strcpy(data_block->data_label, att_buff);

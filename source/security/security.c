@@ -89,6 +89,7 @@
 #include <logging/logging.h>
 #include <clientserver/errorLog.h>
 #include <clientserver/udaTypes.h>
+#include <stdbool.h>
 
 static void logToken(const char* msg, const gcry_mpi_t mpi_token)
 {
@@ -96,7 +97,7 @@ static void logToken(const char* msg, const gcry_mpi_t mpi_token)
     size_t tokenLength = 0;
 
     gcry_mpi_aprint(GCRYMPI_FMT_HEX, &token, &tokenLength, mpi_token);
-    IDAM_LOGF(LOG_DEBUG, "%s MPI [%d] %s\n", msg, tokenLength, token);
+    IDAM_LOGF(UDA_LOG_DEBUG, "%s MPI [%d] %s\n", msg, tokenLength, token);
     free((void*)token);
 }
 
@@ -192,8 +193,8 @@ static int createMPIToken(unsigned short tokenType, unsigned short tokenByteLeng
             gcry_mpi_release(timeData);
             gcry_mpi_release(randData);
 
-            IDAM_LOGF(LOG_DEBUG, "pid  = %u\n", pid);
-            IDAM_LOGF(LOG_DEBUG, "time = %u\n", t);
+            IDAM_LOGF(UDA_LOG_DEBUG, "pid  = %u\n", pid);
+            IDAM_LOGF(UDA_LOG_DEBUG, "time = %u\n", t);
 
             return 0;
         }
@@ -406,7 +407,7 @@ int udaAuthentication(AUTHENTICATION_STEP authenticationStep, ENCRYPTION_METHOD 
 
     // Initialise the library
 
-    static BOOLEAN initialised = FALSE;
+    static bool initialised = false;
 
     if (!initialised) {
         // Check version of runtime gcrypt library.
@@ -420,7 +421,7 @@ int udaAuthentication(AUTHENTICATION_STEP authenticationStep, ENCRYPTION_METHOD 
         // Tell Libgcrypt that initialization has completed.
         gcry_control(GCRYCTL_INITIALIZATION_FINISHED, 0);
 
-        initialised = TRUE;
+        initialised = true;
     }
 
     //--------------------------------------------------------------------------------------------------------------------
@@ -429,7 +430,7 @@ int udaAuthentication(AUTHENTICATION_STEP authenticationStep, ENCRYPTION_METHOD 
     static gcry_mpi_t mpiTokenA = NULL;    // Token passed from the client to the server (preserve for comparison)
     static gcry_mpi_t mpiTokenB = NULL;    // Token passed from the server to the client (preserve for comparison)
 
-    IDAM_LOGF(LOG_DEBUG, "Step %d\n", authenticationStep);
+    IDAM_LOGF(UDA_LOG_DEBUG, "Step %d\n", authenticationStep);
 
     switch (authenticationStep) {
         case CLIENT_ISSUE_TOKEN: {        // Client issues a token (A), encrypts with the server's public key (EASP), passes to server
