@@ -175,7 +175,7 @@ int execute(const char* mapfun, int shotNumber, DATA_BLOCK* data_block, int* nod
 		IDAM_LOG(UDA_LOG_DEBUG, "Case of set_value_collect from WEST plugin\n");
 		IDAM_LOG(UDA_LOG_DEBUG, "Calling tokenizeFunParameters() from WEST plugin\n");
 		tokenizeFunParameters(mapfun, &TOP_collections_parameters, &attributes, &normalizationAttributes);
-		IDAM_LOGF(LOG_DEBUG, "attributes: %s\n", attributes);
+		IDAM_LOGF(UDA_LOG_DEBUG, "attributes: %s\n", attributes);
 		execute_setvalue_collect(TOP_collections_parameters, attributes, shotNumber, data_block, nodeIndices,
 				normalizationAttributes);
 		break;
@@ -209,24 +209,24 @@ int execute(const char* mapfun, int shotNumber, DATA_BLOCK* data_block, int* nod
 	}*/
 
 	case 7: {
-		IDAM_LOG(LOG_DEBUG, "Case of ece_names from WEST plugin\n");
+		IDAM_LOG(UDA_LOG_DEBUG, "Case of ece_names from WEST plugin\n");
 		ece_names(shotNumber, data_block, nodeIndices);
 
 		break;
 	}
 
 	case 8: {
-		IDAM_LOG(LOG_DEBUG, "Case of ece_identifiers from WEST plugin\n");
+		IDAM_LOG(UDA_LOG_DEBUG, "Case of ece_identifiers from WEST plugin\n");
 		ece_identifiers(shotNumber, data_block, nodeIndices);
 
 		break;
 	}
 
 	case 9: {
-		IDAM_LOG(LOG_DEBUG, "Case of ece_t_e_data_shape_of from WEST plugin\n");
+		IDAM_LOG(UDA_LOG_DEBUG, "Case of ece_t_e_data_shape_of from WEST plugin\n");
 		char * ece_mapfun = NULL;
 		ece_t_e_data_shape_of(shotNumber, &ece_mapfun);
-		IDAM_LOG(LOG_DEBUG, "Calling tokenizeFunParameters() from WEST plugin\n");
+		IDAM_LOG(UDA_LOG_DEBUG, "Calling tokenizeFunParameters() from WEST plugin\n");
 		tokenizeFunParameters(ece_mapfun, &TOP_collections_parameters, &attributes, &normalizationAttributes);
 		shape_of_tsmat_collect(shotNumber, TOP_collections_parameters, data_block);
 
@@ -247,26 +247,26 @@ void shape_of_tsmat_collect(int shotNumber, char* TOP_collections_parameters, DA
 	//Get the number of parameters collections
 	int collectionsCount;
 
-	IDAM_LOG(LOG_DEBUG, "Calling getTopCollectionsCount() from WEST plugin for shape_of_tsmat_collect case\n");
+	IDAM_LOG(UDA_LOG_DEBUG, "Calling getTopCollectionsCount() from WEST plugin for shape_of_tsmat_collect case\n");
 	getTopCollectionsCount(TOP_collections_parameters, &collectionsCount);
 
 	printNum("Collections count : ", collectionsCount);
 
-	IDAM_LOG(LOG_DEBUG, "Calling tokenizeFunCollect() from WEST plugin\n");
+	IDAM_LOG(UDA_LOG_DEBUG, "Calling tokenizeFunCollect() from WEST plugin\n");
 
 	//Get the total size by adding all collections lengths
 	int i;
 	int parametersSize = 0;
 	for (i = 0; i < collectionsCount; i++) {
 		char* command = NULL;
-		IDAM_LOG(LOG_DEBUG, "Calling getCommand() from WEST plugin for shape_of_tsmat_collect case\n");
+		IDAM_LOG(UDA_LOG_DEBUG, "Calling getCommand() from WEST plugin for shape_of_tsmat_collect case\n");
 		getCommand(i, &command, TOP_collections_parameters); //get one command
-		IDAM_LOGF(LOG_DEBUG, "Command : %s\n", command);
+		IDAM_LOGF(UDA_LOG_DEBUG, "Command : %s\n", command);
 		int nb_val = 0;
-		IDAM_LOG(LOG_DEBUG, "Calling getShapeOf() from WEST plugin for shape_of_tsmat_collect case\n");
+		IDAM_LOG(UDA_LOG_DEBUG, "Calling getShapeOf() from WEST plugin for shape_of_tsmat_collect case\n");
 		getShapeOf(command, shotNumber, &nb_val);
 		//printNum("nb_val : ", nb_val);
-		IDAM_LOG(LOG_DEBUG, "after getShapeOf\n");
+		IDAM_LOG(UDA_LOG_DEBUG, "after getShapeOf\n");
 		parametersSize += nb_val;
 	}
 
@@ -285,7 +285,7 @@ void getShapeOf(const char* command, int shotNumber, int* nb_val)
 	char* param_name = NULL;
 	char* flag = NULL;
 
-	IDAM_LOGF(LOG_DEBUG, "In getShapeOf, calling tokenizeCommand with command: %s\n", command);
+	IDAM_LOGF(UDA_LOG_DEBUG, "In getShapeOf, calling tokenizeCommand with command: %s\n", command);
 
 	//Tokenize mapfun string to get function parameters, return type and arguments (#1, #2,...) to use
 	tokenizeCommand(command, &prod_name, &object_name, &param_name, &flag);
@@ -293,16 +293,16 @@ void getShapeOf(const char* command, int shotNumber, int* nb_val)
 	char* value = NULL;
 	int val_nb = 1;
 	//get the size of available data
-	IDAM_LOGF(LOG_DEBUG, "DEBUG : prod_name: %s\n", prod_name);
-	IDAM_LOGF(LOG_DEBUG, "DEBUG : object: %s\n", object_name);
-	IDAM_LOGF(LOG_DEBUG, "DEBUG : param: %s\n", param_name);
+	IDAM_LOGF(UDA_LOG_DEBUG, "DEBUG : prod_name: %s\n", prod_name);
+	IDAM_LOGF(UDA_LOG_DEBUG, "DEBUG : object: %s\n", object_name);
+	IDAM_LOGF(UDA_LOG_DEBUG, "DEBUG : param: %s\n", param_name);
 
 	int status = readStaticParameters(&value, nb_val, shotNumber, prod_name, object_name, param_name, val_nb);
-	IDAM_LOGF(LOG_DEBUG, "readStaticParameters status: %d\n", status);
-	IDAM_LOGF(LOG_DEBUG, "readStaticParameters nb_val: %d\n", *nb_val);
+	IDAM_LOGF(UDA_LOG_DEBUG, "readStaticParameters status: %d\n", status);
+	IDAM_LOGF(UDA_LOG_DEBUG, "readStaticParameters nb_val: %d\n", *nb_val);
 
 	if (status != 0) {
-		IDAM_LOG(LOG_DEBUG, "Error calling readStaticParameters\n");
+		IDAM_LOG(UDA_LOG_DEBUG, "Error calling readStaticParameters\n");
 		int err = 901;
 		addIdamError(&idamerrorstack, CODEERRORTYPE, "Unable to get shape of static data from WEST", err, "");
 	}
@@ -376,7 +376,7 @@ void execute_setvalue_collect(const char* TOP_collections_parameters, char* attr
 
 	char* buffer = setBuffer(data_type, value);
 
-	IDAM_LOGF(LOG_DEBUG, "Found value: %s\n", value);
+	IDAM_LOGF(UDA_LOG_DEBUG, "Found value: %s\n", value);
 
 	float normalizationFactor = 1;
 	getNormalizationFactor(&normalizationFactor, normalizationAttributes);
@@ -397,7 +397,7 @@ char* setBuffer(int data_type, char* value) {
 		buffer = malloc(sizeof(float));
 		float* f_buf = (float*)buffer;
 		*f_buf = atof(value);
-		IDAM_LOGF(LOG_DEBUG, "Testing float value : %f\n", *f_buf);
+		IDAM_LOGF(UDA_LOG_DEBUG, "Testing float value : %f\n", *f_buf);
 	} else if (data_type == TYPE_DOUBLE) {
 		IDAM_LOG(UDA_LOG_DEBUG, "TYPE_DOUBLE requested from WEST plugin\n");
 		buffer = malloc(sizeof(double));
@@ -413,7 +413,7 @@ char* setBuffer(int data_type, char* value) {
 		buffer = strdup(value);
 	} else {
 		int err = 999;
-		IDAM_LOGF(LOG_DEBUG, "Unsupported data type in setBuffer(): %d\n", data_type);
+		IDAM_LOGF(UDA_LOG_DEBUG, "Unsupported data type in setBuffer(): %d\n", data_type);
 		addIdamError(&idamerrorstack, CODEERRORTYPE, "Unsupported data type", err, "");
 	}
 
@@ -446,25 +446,25 @@ void execute_tsmat_collect(const char* TOP_collections_parameters, char* attribu
 		l[i] = nb_val;
 	}
 
-	IDAM_LOGF(LOG_DEBUG, "In execute_tsmat_collect, searching requestedIndex... %s\n", "");
+	IDAM_LOGF(UDA_LOG_DEBUG, "In execute_tsmat_collect, searching requestedIndex... %s\n", "");
 	int requestedIndex = getNumIDAMIndex(attributes, nodeIndices);
 
-	IDAM_LOGF(LOG_DEBUG, "In execute_tsmat_collect, after searching requestedIndex --> %d\n", requestedIndex);
+	IDAM_LOGF(UDA_LOG_DEBUG, "In execute_tsmat_collect, after searching requestedIndex --> %d\n", requestedIndex);
 
 	int searchedArray;
 	int searchedArrayIndex;
 
-	IDAM_LOGF(LOG_DEBUG, "In execute_tsmat_collect, searching index array for requested index: %d\n", requestedIndex);
+	IDAM_LOGF(UDA_LOG_DEBUG, "In execute_tsmat_collect, searching index array for requested index: %d\n", requestedIndex);
 	searchIndices(requestedIndex, l, &searchedArray, &searchedArrayIndex);
-	IDAM_LOGF(LOG_DEBUG, "In execute_tsmat_collect, searched array:%d\n", searchedArray);
-	IDAM_LOGF(LOG_DEBUG, "In execute_tsmat_collect, searched array index:%d\n", searchedArrayIndex);
+	IDAM_LOGF(UDA_LOG_DEBUG, "In execute_tsmat_collect, searched array:%d\n", searchedArray);
+	IDAM_LOGF(UDA_LOG_DEBUG, "In execute_tsmat_collect, searched array index:%d\n", searchedArrayIndex);
 
 	char* command = NULL;
 
-	IDAM_LOGF(LOG_DEBUG, "In execute_tsmat_collect, getting command from TOP_collections_parameters: %s\n", TOP_collections_parameters);
+	IDAM_LOGF(UDA_LOG_DEBUG, "In execute_tsmat_collect, getting command from TOP_collections_parameters: %s\n", TOP_collections_parameters);
 	getCommand(searchedArray, &command, TOP_collections_parameters);
 
-	IDAM_LOG(LOG_DEBUG, "In execute_tsmat_collect, after getting command...\n");
+	IDAM_LOG(UDA_LOG_DEBUG, "In execute_tsmat_collect, after getting command...\n");
 
 	char* prod_name = NULL; //DMAG, ...
 	char* object_name = NULL; //GMAG_BNORM, ...
@@ -475,19 +475,19 @@ void execute_tsmat_collect(const char* TOP_collections_parameters, char* attribu
 	getReturnType(attributes, &data_type);
 
 	//Tokenize mapfun string to get function parameters
-	IDAM_LOGF(LOG_DEBUG, "In execute_tsmat_collect, tokenizing command... %s\n", command);
+	IDAM_LOGF(UDA_LOG_DEBUG, "In execute_tsmat_collect, tokenizing command... %s\n", command);
 	tokenizeCommand(command, &prod_name, &object_name, &param_name, &flag);
-	IDAM_LOG(LOG_DEBUG, "In execute_tsmat_collect, afetr tokenizing command...\n");
+	IDAM_LOG(UDA_LOG_DEBUG, "In execute_tsmat_collect, afetr tokenizing command...\n");
 
 	char* value = NULL;
 	int val_nb = l[searchedArray];
 	int nb_val;
 
-	IDAM_LOGF(LOG_DEBUG, "In execute_tsmat_collect, flag: %s\n", flag);
-	IDAM_LOG(LOG_DEBUG, "In execute_tsmat_collect, checking if flag is Null...\n");
+	IDAM_LOGF(UDA_LOG_DEBUG, "In execute_tsmat_collect, flag: %s\n", flag);
+	IDAM_LOG(UDA_LOG_DEBUG, "In execute_tsmat_collect, checking if flag is Null...\n");
 
 	if (flag != NULL && strncmp("Null", flag, 4) == 0) {
-		IDAM_LOG(LOG_DEBUG, "In execute_tsmat_collect, setting value for Null flag...\n");
+		IDAM_LOG(UDA_LOG_DEBUG, "In execute_tsmat_collect, setting value for Null flag...\n");
 		int data_type;
 		getReturnType(attributes, &data_type);
 		value = setBuffer(data_type, "0"); //we put zero for 'Null' flag
@@ -495,7 +495,7 @@ void execute_tsmat_collect(const char* TOP_collections_parameters, char* attribu
 	}
 	else {
 		//Reading static parameters using TSLib
-		IDAM_LOGF(LOG_DEBUG, "In execute_tsmat_collect, reading static parameters for param. name: %s\n", param_name);
+		IDAM_LOGF(UDA_LOG_DEBUG, "In execute_tsmat_collect, reading static parameters for param. name: %s\n", param_name);
 		status = readStaticParameters(&value, &nb_val, shotNumber, prod_name, object_name, param_name, val_nb);
 		if (status != 0) {
 			int err = 901;
@@ -505,7 +505,7 @@ void execute_tsmat_collect(const char* TOP_collections_parameters, char* attribu
 
 	float normalizationFactor = 1;
 	getNormalizationFactor(&normalizationFactor, normalizationAttributes);
-	IDAM_LOGF(LOG_DEBUG, "In execute_tsmat_collect, setting static value... %s\n", "");
+	IDAM_LOGF(UDA_LOG_DEBUG, "In execute_tsmat_collect, setting static value... %s\n", "");
 	setStaticValue(data_type, data_block, value, searchedArrayIndex, normalizationFactor);
 
 	free(command);
@@ -629,17 +629,17 @@ void setStaticValue(int data_type, DATA_BLOCK* data_block, char* value, int requ
 		((double*)data_block->data)[0] = pt_double[requestedIndex] * (double) normalizationFactor;
 
 	} else if (data_type == TYPE_FLOAT) {
-		IDAM_LOGF(LOG_DEBUG, "handling float in setStaticValue(): %d, %g\n", requestedIndex, normalizationFactor);
+		IDAM_LOGF(UDA_LOG_DEBUG, "handling float in setStaticValue(): %d, %g\n", requestedIndex, normalizationFactor);
 
 		data_block->data_type = TYPE_FLOAT;
 		data_block->data = malloc(1 * sizeof(float));
 		float* pt_float = (float*)value;
 
-		IDAM_LOGF(LOG_DEBUG, "in setStaticValue(), requestedIndex:  %d\n", requestedIndex);
-		IDAM_LOGF(LOG_DEBUG, "in setStaticValue(), normalizationFactor:  %f\n", normalizationFactor);
-		IDAM_LOGF(LOG_DEBUG, "in setStaticValue(), pt_float[requestedIndex]:  %f\n", pt_float[requestedIndex]);
+		IDAM_LOGF(UDA_LOG_DEBUG, "in setStaticValue(), requestedIndex:  %d\n", requestedIndex);
+		IDAM_LOGF(UDA_LOG_DEBUG, "in setStaticValue(), normalizationFactor:  %f\n", normalizationFactor);
+		IDAM_LOGF(UDA_LOG_DEBUG, "in setStaticValue(), pt_float[requestedIndex]:  %f\n", pt_float[requestedIndex]);
 
-		IDAM_LOGF(LOG_DEBUG, "Floating value set to  %f\n", pt_float[requestedIndex] * normalizationFactor);
+		IDAM_LOGF(UDA_LOG_DEBUG, "Floating value set to  %f\n", pt_float[requestedIndex] * normalizationFactor);
 		((float*)data_block->data)[0] = pt_float[requestedIndex] * normalizationFactor;
 
 

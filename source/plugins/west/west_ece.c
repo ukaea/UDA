@@ -61,12 +61,12 @@ int ece_harmonic_data(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices) 
 	else {
 		int len;
 		int status = getECEModeHarmonicTime(shotNumber, channel, &time, &len, TOP_collections_parameters);
-		IDAM_LOGF(LOG_DEBUG, "getECEModeHarmonicTime status: %d\n", status);
+		IDAM_LOGF(UDA_LOG_DEBUG, "getECEModeHarmonicTime status: %d\n", status);
 		if (status != 0) return status;
 		data = malloc(sizeof(float)*len);
 		int i;
 		int mode = getECEModeFromNPZFile(shotNumber); //Get the ECE acquisition mode from NPZ file
-		IDAM_LOGF(LOG_DEBUG, "mode: %d\n", mode);
+		IDAM_LOGF(UDA_LOG_DEBUG, "mode: %d\n", mode);
 		if (mode == -1) { //ERROR
 			free(time);
 			free(data);
@@ -88,17 +88,17 @@ int ece_harmonic_time(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices) 
 	float* time = NULL;
 	int len;
 	char* TOP_collections_parameters = getTopParameters(shotNumber);
-	IDAM_LOG(LOG_DEBUG, "Calling getECEModeHarmonicTime() \n");
+	IDAM_LOG(UDA_LOG_DEBUG, "Calling getECEModeHarmonicTime() \n");
 	getECEModeHarmonicTime(shotNumber, channel, &time, &len, TOP_collections_parameters);
-	IDAM_LOGF(LOG_DEBUG, "harmonic time array length: %d\n", len);
+	IDAM_LOGF(UDA_LOG_DEBUG, "harmonic time array length: %d\n", len);
 
-	//	IDAM_LOGF(LOG_DEBUG, "%s\n", "First time values...");
+	//	IDAM_LOGF(UDA_LOG_DEBUG, "%s\n", "First time values...");
 	//	int j;
 	//	for (j=0; j <10; j++) {
-	//		IDAM_LOGF(LOG_DEBUG, "time : %f\n", time[j]);
+	//		IDAM_LOGF(UDA_LOG_DEBUG, "time : %f\n", time[j]);
 	//	}
 	SetDynamicDataTime(data_block, len, time, data);
-	IDAM_LOG(LOG_DEBUG, "reaching end of function of ece_harmonic_time()\n");
+	IDAM_LOG(UDA_LOG_DEBUG, "reaching end of function of ece_harmonic_time()\n");
 	return 0;
 }
 
@@ -304,17 +304,17 @@ int ece_frequencies(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices) {
 		}
 
 		int len;
-		IDAM_LOG(LOG_DEBUG, "Calling getECEModeHarmonicTime\n");
+		IDAM_LOG(UDA_LOG_DEBUG, "Calling getECEModeHarmonicTime\n");
 		getECEModeHarmonicTime(shotNumber, channel, &frequencies_time, &len, TOP_collections_parameters);
-		IDAM_LOG(LOG_DEBUG, "After calling getECEModeHarmonicTime\n");
+		IDAM_LOG(UDA_LOG_DEBUG, "After calling getECEModeHarmonicTime\n");
 		frequencies_data = malloc(sizeof(float)*len);
 		for (i = 0; i < len; i++)
 			frequencies_data[i] = GSH[channel - 1]*1e9; //result converted in Hertz
-		IDAM_LOG(LOG_DEBUG, "setting dynamic data\n");
+		IDAM_LOG(UDA_LOG_DEBUG, "setting dynamic data\n");
 		SetDynamicData(data_block, len, frequencies_time, frequencies_data);
-		IDAM_LOG(LOG_DEBUG, "freeing GSH\n");
+		IDAM_LOG(UDA_LOG_DEBUG, "freeing GSH\n");
 		free(GSH);
-		IDAM_LOG(LOG_DEBUG, "end of function\n");
+		IDAM_LOG(UDA_LOG_DEBUG, "end of function\n");
 		return 0;
 	}
 	return -1;
@@ -322,7 +322,7 @@ int ece_frequencies(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices) {
 
 int ece_names(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices) {
 
-	IDAM_LOG(LOG_DEBUG, "Calling ece_names\n");
+	IDAM_LOG(UDA_LOG_DEBUG, "Calling ece_names\n");
 	char* name = "";
 	data_block->data_type = TYPE_STRING;
 	data_block->data = strdup(name);
@@ -332,7 +332,7 @@ int ece_names(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices) {
 
 int ece_identifiers(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices) {
 
-	IDAM_LOG(LOG_DEBUG, "Calling ece_identifiers\n");
+	IDAM_LOG(UDA_LOG_DEBUG, "Calling ece_identifiers\n");
 	int channelNumber = nodeIndices[0]; //UDA request index
 	char* identifier = malloc(sizeof(char));
 	sprintf(identifier, "%d", channelNumber + 1); //starts the identifier to 1
@@ -410,7 +410,7 @@ int getECEModeFromNPZFile(int shotNumber) {
 	if (pFile == NULL) {
 		int err = 901;
 		addIdamError(&idamerrorstack, CODEERRORTYPE, "Unable to read ECE mode file from WEST", err, "");
-		IDAM_LOG(LOG_DEBUG, "Error opening ECE mode file\n");
+		IDAM_LOG(UDA_LOG_DEBUG, "Error opening ECE mode file\n");
 		return -1;
 	}
 	else {
@@ -434,7 +434,7 @@ int getECEModeFromNPZFile(int shotNumber) {
 	if (s == NULL) {
 		int err = 901;
 		addIdamError(&idamerrorstack, CODEERRORTYPE, "Unable to found ECE mode from WEST", err, "");
-		IDAM_LOGF(LOG_DEBUG, "ECE mode not found for shot: %d\n", shotNumber);
+		IDAM_LOGF(UDA_LOG_DEBUG, "ECE mode not found for shot: %d\n", shotNumber);
 	}
 	else {
 		searchedMode = s->ECE_mode;
@@ -464,7 +464,7 @@ int getECEModeHarmonicTime(int shotNumber, int channel, float** time, int* len,
 		GVSHArray = 3;
 	}
 
-	IDAM_LOGF(LOG_DEBUG, "TOP_collections_parameters: %s\n", TOP_collections_parameters);
+	IDAM_LOGF(UDA_LOG_DEBUG, "TOP_collections_parameters: %s\n", TOP_collections_parameters);
 
 	float* O_ModeData = NULL;
 
@@ -477,7 +477,7 @@ int getECEModeHarmonicTime(int shotNumber, int channel, float** time, int* len,
 
 	if (status != 0) return status;
 
-	IDAM_LOGF(LOG_DEBUG, "O_ObjectName: %s\n", O_ObjectName);
+	IDAM_LOGF(UDA_LOG_DEBUG, "O_ObjectName: %s\n", O_ObjectName);
     status = readSignal(O_ObjectName, shotNumber, 0, rang, time, &O_ModeData, len);
 
 
@@ -513,7 +513,7 @@ int getECEModeHarmonic(int shotNumber, int channel, float** time, float** data, 
 		GVSHArray = 3;
 	}
 
-	IDAM_LOGF(LOG_DEBUG, "TOP_collections_parameters: %s\n", TOP_collections_parameters);
+	IDAM_LOGF(UDA_LOG_DEBUG, "TOP_collections_parameters: %s\n", TOP_collections_parameters);
 
 	float* O_ModeTime = NULL;
 	float* O_ModeData = NULL;
@@ -532,7 +532,7 @@ int getECEModeHarmonic(int shotNumber, int channel, float** time, float** data, 
 
 	if (status != 0) {
 		int err = 901;
-		IDAM_LOG(LOG_DEBUG, "Unable to get signal\n");
+		IDAM_LOG(UDA_LOG_DEBUG, "Unable to get signal\n");
 		addIdamError(&idamerrorstack, CODEERRORTYPE, "Unable to get signal", err, "");
 		return status;
 	}
@@ -553,7 +553,7 @@ int getECEModeHarmonic(int shotNumber, int channel, float** time, float** data, 
 
 	if (status != 0) {
 		int err = 901;
-		IDAM_LOG(LOG_DEBUG, "Unable to get signal\n");
+		IDAM_LOG(UDA_LOG_DEBUG, "Unable to get signal\n");
 		addIdamError(&idamerrorstack, CODEERRORTYPE, "Unable to get signal", err, "");
 		return status;
 	}
@@ -579,25 +579,25 @@ int getECEModeHarmonic(int shotNumber, int channel, float** time, float** data, 
 
 int getECEModeObject(char* TOP_collections_parameters, char** objectName, int GVSHArray, int mode) {
 	char* command = NULL;
-	IDAM_LOG(LOG_DEBUG, "getting the command\n");
+	IDAM_LOG(UDA_LOG_DEBUG, "getting the command\n");
 	int status = getCommand(GVSHArray, &command, TOP_collections_parameters); //command is for instance: DVECE:GVSH1 or DVECE:GVSH2
 
 	if (status != 0) {
 		int err = 901;
-		IDAM_LOG(LOG_DEBUG, "Unable to get command\n");
+		IDAM_LOG(UDA_LOG_DEBUG, "Unable to get command\n");
 		addIdamError(&idamerrorstack, CODEERRORTYPE, "Unable to get command", err, "");
 		free(command);
 		return status;
 	}
 
-	IDAM_LOGF(LOG_DEBUG, "command: %s\n", command);
-	IDAM_LOG(LOG_DEBUG, "Getting object name\n");
+	IDAM_LOGF(UDA_LOG_DEBUG, "command: %s\n", command);
+	IDAM_LOG(UDA_LOG_DEBUG, "Getting object name\n");
 	getObjectName(objectName, command);
 
 	char result[50];
 	addExtractionChars(result, *objectName, mode); //Concatenate objectName with %1 or %2 depending on the ECE mode
 	*objectName = strdup(result);
-	IDAM_LOGF(LOG_DEBUG, "Object name for mode %d: %s\n", mode, *objectName);
+	IDAM_LOGF(UDA_LOG_DEBUG, "Object name for mode %d: %s\n", mode, *objectName);
 	free(command);
 	return 0;
 }

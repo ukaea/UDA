@@ -18,7 +18,7 @@
 int GetDynamicData(int shotNumber, const char* mapfun, DATA_BLOCK* data_block, int* nodeIndices)
 {
 
-	IDAM_LOG(LOG_DEBUG, "Entering GetDynamicData() -- WEST plugin\n");
+	IDAM_LOG(UDA_LOG_DEBUG, "Entering GetDynamicData() -- WEST plugin\n");
 
 	assert(mapfun); //Mandatory function to get WEST data
 
@@ -29,7 +29,7 @@ int GetDynamicData(int shotNumber, const char* mapfun, DATA_BLOCK* data_block, i
 
 	getFunName(mapfun, &fun_name);
 
-	IDAM_LOGF(LOG_DEBUG, "request: %s\n", fun_name);
+	IDAM_LOGF(UDA_LOG_DEBUG, "request: %s\n", fun_name);
 
 	if (strcmp(fun_name, "tsbase_collect") == 0) {
 		tokenizeFunParameters(mapfun, &TOP_collections_parameters, &attributes, &normalizationAttributes);
@@ -49,14 +49,14 @@ int GetDynamicData(int shotNumber, const char* mapfun, DATA_BLOCK* data_block, i
 		char * ece_mapfun = NULL;
 		ece_t_e_data(shotNumber, &ece_mapfun);
 		tokenizeFunParameters(ece_mapfun, &TOP_collections_parameters, &attributes, &normalizationAttributes);
-		IDAM_LOGF(LOG_DEBUG, "TOP_collections_parameters : %s\n", TOP_collections_parameters);
+		IDAM_LOGF(UDA_LOG_DEBUG, "TOP_collections_parameters : %s\n", TOP_collections_parameters);
 		SetNormalizedDynamicData(shotNumber, data_block, nodeIndices, TOP_collections_parameters, attributes, normalizationAttributes);
 		free(ece_mapfun);
 	} else if (strcmp(fun_name, "ece_t_e_time") == 0) {
 		char * ece_mapfun = NULL;
 		ece_t_e_time(shotNumber, &ece_mapfun);
 		tokenizeFunParameters(ece_mapfun, &TOP_collections_parameters, &attributes, &normalizationAttributes);
-		IDAM_LOGF(LOG_DEBUG, "TOP_collections_parameters : %s\n", TOP_collections_parameters);
+		IDAM_LOGF(UDA_LOG_DEBUG, "TOP_collections_parameters : %s\n", TOP_collections_parameters);
 		SetNormalizedDynamicDataTime(shotNumber, data_block, nodeIndices, TOP_collections_parameters, attributes, normalizationAttributes);
 		free(ece_mapfun);
 	} else if (strcmp(fun_name, "ece_harmonic_data") == 0) {
