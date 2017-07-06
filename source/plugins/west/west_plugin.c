@@ -368,8 +368,8 @@ char* getMappingValue(const char* mappingFileName, const char* IDAM_MappingKey,
     IDAM_LOG(UDA_LOG_DEBUG, "Creating the Xpath request\n");
     int len = strlen(IDAM_MappingKey) + 26;
     xmlChar* xPathExpr = malloc(len + sizeof(xmlChar));
-    xmlStrPrintf(xPathExpr, len, "//mapping[@key='%s']/@value",
-                 IDAM_MappingKey);
+    const xmlChar* c = "//mapping[@key='%s']/@value";
+    xmlStrPrintf(xPathExpr, len, c, IDAM_MappingKey);
 
     /*
      * Evaluate xpath expression for the type
@@ -402,8 +402,8 @@ char* getMappingValue(const char* mappingFileName, const char* IDAM_MappingKey,
         err = 998;
         addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, err, "no result on XPath request");
     }
-
-    xmlStrPrintf(xPathExpr, len, "//mapping[@key='%s']/@type",
+    const xmlChar* key_type= "//mapping[@key='%s']/@type";
+    xmlStrPrintf(xPathExpr, len, key_type,
                  IDAM_MappingKey);
 
     /*
