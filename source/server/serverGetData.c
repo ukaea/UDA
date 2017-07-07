@@ -1272,6 +1272,7 @@ int idamserverReadData(PGconn* DBConnect, REQUEST_BLOCK request_block, CLIENT_BL
         // Identify the required Plugin
 
               plugin_id = idamServerMetaDataPluginId(pluginlist);
+	      
               if(plugin_id < 0){	// No plugin so not possible to identify the requested data item
                  err = 778;
                  addIdamError(&idamerrorstack, CODEERRORTYPE, "idamserverReadData", err, "No Metadata Catalog Implemented! "
@@ -1301,7 +1302,7 @@ int idamserverReadData(PGconn* DBConnect, REQUEST_BLOCK request_block, CLIENT_BL
               if(signal_desc->type == 'P'){
                  strcpy(request_block.signal,signal_desc->signal_name);
 		 strcpy(request_block.source,data_source->path); 
-                 makeServerRequestBlock(&request_block, pluginList);
+                 makeServerRequestBlock(&request_block, *pluginlist);
               }
 
 #endif		// NOTGENERICENABLED

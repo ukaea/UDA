@@ -33,7 +33,7 @@
 
 #ifndef FATCLIENT
 #  ifdef SECURITYENABLED
-#    include "idamsecurity.h"
+#    include <security/serverAuthentication.h>
 #  endif
 #  ifndef NOTGENERICENABLED
 #  endif
@@ -66,7 +66,7 @@ int server_tot_block_time = 0;
 
 int serverVersion = 7;
 int protocolVersion = 7;
-#ifndef FATCLIENT
+#if !defined(FATCLIENT) && !defined(SECURITYENABLED)
 static int legacyServerVersion = 6;
 #endif
 
@@ -75,9 +75,9 @@ NTREELIST NTreeList;
 NTREE* fullNTree = NULL;
 LOGSTRUCTLIST logstructlist;
 
-#ifdef SECURITYENABLED
+//#ifdef SECURITYENABLED
 //static int serverVersion = 18;
-#endif
+//#endif
 
 char serverUsername[STRING_LENGTH] = "server";
 
