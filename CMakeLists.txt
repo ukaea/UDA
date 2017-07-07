@@ -83,6 +83,11 @@ endif()
 option( CLIENT_ONLY "Only build IDAM client" OFF )
 option( NO_WRAPPERS "Don't build any IDAM client wrappers" OFF )
 
+if( SECURITY )
+   message( "Including X509 User Authentication" )
+   add_definitions( -DSECURITYENABLED )
+endif()   
+
 ########################################################################################################################
 # Source directories
 

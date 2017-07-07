@@ -1,4 +1,4 @@
-cmake_minimum_required( VERSION 2.8 )
+  cmake_minimum_required( VERSION 2.8 )
 
 ########################################################################################################################
 # Dependencies
@@ -45,13 +45,25 @@ if( NOT CLIENT_ONLY )
   target_include_directories( fatclient-objects PRIVATE ${PostgreSQL_INCLUDE_DIRS} )
 endif()
 
+if( NOT SECURITY )
 set( CLIENT_OBJS
   $<TARGET_OBJECTS:client-objects>
   $<TARGET_OBJECTS:clientserver-client-objects>
   $<TARGET_OBJECTS:cache-objects>
   $<TARGET_OBJECTS:logging-client-objects>
   $<TARGET_OBJECTS:structures-client-objects>
+  #$<TARGET_OBJECTS:security-objects>
 )
+else()
+set( CLIENT_OBJS
+  $<TARGET_OBJECTS:client-objects>
+  $<TARGET_OBJECTS:clientserver-client-objects>
+  $<TARGET_OBJECTS:cache-objects>
+  $<TARGET_OBJECTS:logging-client-objects>
+  $<TARGET_OBJECTS:structures-client-objects>
+  $<TARGET_OBJECTS:security-objects>
+)
+endif()
 
 set( FATCLIENT_OBJS
   $<TARGET_OBJECTS:fatclient-objects>
