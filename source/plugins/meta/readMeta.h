@@ -9,7 +9,7 @@
 extern "C" {
 #endif
 
-#define API_DEVICE "MAST"            // Must be consistent with the Data Server
+#define API_DEVICE "JET"            // Must be consistent with the Data Server
 
 #define THISPLUGIN_VERSION                  1
 #define THISPLUGIN_MAX_INTERFACE_VERSION    1
