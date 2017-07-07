@@ -34,6 +34,8 @@
 #  include <server/udaServer.h>
 #else
 #  include "clientXDRStream.h"
+#  include <security/authenticationUtils.h>
+#  include <security/clientAuthentication.h>
 #endif
 
 #ifdef MEMCACHE
@@ -170,7 +172,7 @@ int idamClient(REQUEST_BLOCK* request_block)
     request_block_ptr = request_block;    // Passed down to middleware player via global pointer
 #endif
 
-#ifndef FATCLIENT
+#if !defined(FATCLIENT) && !defined(SECURITYENABLED)
     static int startupStates;
 #endif
 
@@ -335,8 +337,9 @@ int idamClient(REQUEST_BLOCK* request_block)
 
         if (initServer) {
             authenticationNeeded = 1;
+#if !defined(FATCLIENT) && !defined(SECURITYENABLED)
             startupStates = 0;
-
+#endif
             if ((createConnection()) != 0) {
                 err = NO_SOCKET_CONNECTION;
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "idamClient", err, "No Socket Connection to Server");
@@ -428,7 +431,7 @@ int idamClient(REQUEST_BLOCK* request_block)
 
             unsigned short authenticationStep = 1;     // Client Certificate authenticated by server
 
-            if ((err = idamClientAuthentication(&client_block, &server_block, authenticationStep)) != 0) {
+            if ((err = clientAuthentication(&client_block, &server_block, authenticationStep)) != 0) {
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "idamClient", err, "Client or Server Authentication Failed #1");
                 break;
             }
@@ -439,7 +442,7 @@ int idamClient(REQUEST_BLOCK* request_block)
 
             authenticationStep = 5;
 
-            if ((err = idamClientAuthentication(&client_block, &server_block, authenticationStep)) != 0) {
+            if ((err = clientAuthentication(&client_block, &server_block, authenticationStep)) != 0) {
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "idamClient", err, "Client or Server Authentication Failed #5");
                 break;
             }
@@ -449,7 +452,7 @@ int idamClient(REQUEST_BLOCK* request_block)
 
             authenticationStep = 6;
 
-            if ((err = idamClientAuthentication(&client_block, &server_block, authenticationStep)) != 0) {
+            if ((err = clientAuthentication(&client_block, &server_block, authenticationStep)) != 0) {
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "idamClient", err, "Client or Server Authentication Failed #6");
                 break;
             }
@@ -460,7 +463,7 @@ int idamClient(REQUEST_BLOCK* request_block)
 
             authenticationStep = 8;
 
-            if ((err = idamClientAuthentication(&client_block, &server_block, authenticationStep)) != 0) {
+            if ((err = clientAuthentication(&client_block, &server_block, authenticationStep)) != 0) {
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "idamClient", err, "Client or Server Authentication Failed #8");
                 break;
             }
@@ -715,7 +718,7 @@ int idamClient(REQUEST_BLOCK* request_block)
 
         if (client_block.get_meta && !request_block->put) {
 
-#ifndef NOTGENERICENABLED
+//#ifndef NOTGENERICENABLED
 
             // Allocate memory for the Meta Data
 
@@ -734,7 +737,7 @@ int idamClient(REQUEST_BLOCK* request_block)
 
             allocMetaHeap = 1;      // Manage Heap if an Error Occurs
 
-#endif
+//#endif
 
             //------------------------------------------------------------------------------
             // Receive the Data System Record
@@ -829,7 +832,7 @@ int idamClient(REQUEST_BLOCK* request_block)
         //------------------------------------------------------------------------------
         // Assign Meta Data to Data Block
 
-#ifndef NOTGENERICENABLED
+//#ifndef NOTGENERICENABLED
 
         if (client_block.get_meta && allocMetaHeap) {
             data_block->data_system = data_system;
@@ -839,7 +842,7 @@ int idamClient(REQUEST_BLOCK* request_block)
             data_block->signal_desc = signal_desc;
         }
 
-#endif
+//#endif
 
 #ifndef FATCLIENT   // <========================== Client Server Code Only
 

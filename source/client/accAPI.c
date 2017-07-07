@@ -32,11 +32,13 @@
 #  include <malloc.h>
 #endif
 
+/*
 #ifndef FATCLIENT
 #  ifdef SECURITYENABLED
 #    include "idamsecurity.h"
 #  endif
 #endif
+*/
 
 static int Data_Block_Count = 0;        // Count of Blocks recorded
 static DATA_BLOCK* Data_Block = NULL;   // All Data are recorded here!
