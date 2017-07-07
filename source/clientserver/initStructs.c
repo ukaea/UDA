@@ -7,6 +7,7 @@
 
 #include <unistd.h>
 #include <clientserver/udaTypes.h>
+#include <security/authenticationUtils.h>
 #include <string.h>
 
 #include "errorLog.h"
