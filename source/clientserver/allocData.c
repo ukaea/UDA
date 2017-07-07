@@ -232,7 +232,7 @@ int allocPutData(PUTDATA_BLOCK* putData)
 
 // Shape of data
 
-    if (putData->rank > 1) putData->shape = (int*)malloc(putData->rank * sizeof(int));
+    if (putData->rank > 0) putData->shape = (int*)malloc(putData->rank * sizeof(int));
 
 // Name of data
 

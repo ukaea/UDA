@@ -39,163 +39,144 @@
 #include "nameIda.h"
 #include "readIdaItem.h"
 
-int readIda3Plugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
+int readIda3(DATA_BLOCK* data_block, int exp_number, int pass, const char* source_alias, const char* signal_name,
+                   const char* filename, const char* path, char type)
 {
+    int err = 0;
 
-    char ida_path[STRING_LENGTH] = "";
+    //----------------------------------------------------------------------
+    // Data Source Details
+
     char ida_file[IDA_FSIZE + 1] = "";
-    char ida_signal[IDA_LSIZE + 1] = "";
-    char ida_errmsg[256] = "";
+    char ida_path[STRING_LENGTH] = "";
 
-    ida_file_ptr* ida_file_id = NULL;
+    if (exp_number > 0) {
 
-    short context;
+        char* alias;
 
-    int err = 0, serrno, rc;
-
-//----------------------------------------------------------------------
-// Data Source Details
-
-    err = 0;
-
-    DATA_SOURCE data_source = *idam_plugin_interface->data_source;
-    SIGNAL_DESC signal_desc = *idam_plugin_interface->signal_desc;
-
-    int pulno = data_source.exp_number;
-    int pass = data_source.pass;
-
-    if (pulno > 0) {
-
-        if (strlen(data_source.source_alias) == 0) {
-            strncpy(data_source.source_alias, signal_desc.signal_name, 3);
-            data_source.source_alias[3] = '\0';
-        }
-
-        TrimString(data_source.source_alias);
-        TrimString(data_source.filename);
-        strlwr(data_source.source_alias);
-        strlwr(data_source.filename);
-
-        IDAM_LOGF(UDA_LOG_DEBUG, "alias          : %s \n", data_source.source_alias);
-        IDAM_LOGF(UDA_LOG_DEBUG, "filename       : %s \n", data_source.filename);
-        IDAM_LOGF(UDA_LOG_DEBUG, "length         : %d \n", strlen(data_source.source_alias));
-        IDAM_LOGF(UDA_LOG_DEBUG, "alias == file? : %d \n",
-                strcasecmp(data_source.filename, data_source.source_alias));
-
-// Check whether or not the filename is the alias name   
-// If is it then form the correct filename
-
-        if (strcasecmp(data_source.filename, data_source.source_alias) == 0) {
-            nameIDA(data_source.source_alias, (int) pulno, ida_file);
+        if (strlen(source_alias) == 0) {
+            alias = strdup(signal_name);
         } else {
-            strcpy(ida_file, data_source.filename);
+            alias = strdup(source_alias);
         }
 
-// Check whether or not a Path has been specified
+        TrimString(alias);
+        strlwr(alias);
 
-        if (strlen(data_source.path) == 0) {
-            if (data_source.type == 'R') {
-                mastArchiveFilePath(pulno, -1, ida_file, ida_path);    // Always Latest
+        char* file = NULL;
+
+        if (filename != NULL) {
+            file = strdup(filename);
+            TrimString(file);
+            strlwr(file);
+        }
+
+        IDAM_LOGF(UDA_LOG_DEBUG, "alias          : %s \n", alias);
+        IDAM_LOGF(UDA_LOG_DEBUG, "filename       : %s \n", file);
+        IDAM_LOGF(UDA_LOG_DEBUG, "length         : %d \n", strlen(alias));
+        IDAM_LOGF(UDA_LOG_DEBUG, "alias == file? : %d \n", strcasecmp(file, alias));
+
+        // Check whether or not the filename is the alias name
+        // If is it then form the correct filename
+
+        if (file == NULL || STR_IEQUALS(file, alias)) {
+            nameIDA(alias, exp_number, ida_file);
+        } else {
+            strncpy(ida_file, filename, IDA_FSIZE + 1);
+            ida_file[IDA_FSIZE] = '\0';
+        }
+
+        // Check whether or not a Path has been specified
+
+        if (path == NULL || strlen(path) == 0) {
+            if (type == 'R') {
+                mastArchiveFilePath(exp_number, -1, ida_file, ida_path);    // Always Latest
             } else {
-                mastArchiveFilePath(pulno, pass, ida_file, ida_path);
+                mastArchiveFilePath(exp_number, pass, ida_file, ida_path);
             }
         } else {                        // User Specified
-            strcpy(ida_path, data_source.path);
+            strncpy(ida_path, path, STRING_LENGTH);
+            ida_path[STRING_LENGTH - 1] = '\0';
         }
 
-        IDAM_LOGF(UDA_LOG_DEBUG, "Signal Name  : %s \n", signal_desc.signal_name);
-        IDAM_LOGF(UDA_LOG_DEBUG, "File Alias   : %s \n", data_source.source_alias);
+        IDAM_LOGF(UDA_LOG_DEBUG, "Signal Name  : %s \n", signal_name);
+        IDAM_LOGF(UDA_LOG_DEBUG, "File Alias   : %s \n", source_alias);
         IDAM_LOGF(UDA_LOG_DEBUG, "File Name    : %s \n", ida_file);
         IDAM_LOGF(UDA_LOG_DEBUG, "File Path    : %s \n", ida_path);
-        IDAM_LOGF(UDA_LOG_DEBUG, "Pulse Number : %d \n", (int) pulno);
-        IDAM_LOGF(UDA_LOG_DEBUG, "Pass Number  : %d \n", (int) pass);
+        IDAM_LOGF(UDA_LOG_DEBUG, "Pulse Number : %d \n", exp_number);
+        IDAM_LOGF(UDA_LOG_DEBUG, "Pass Number  : %d \n", pass);
 
     } else {
-        strcpy(ida_path, data_source.path);        //Fully Specified
+        strcpy(ida_path, path);        //Fully Specified
 
-        IDAM_LOGF(UDA_LOG_DEBUG, "Signal Name  : %s \n", signal_desc.signal_name);
+        IDAM_LOGF(UDA_LOG_DEBUG, "Signal Name  : %s \n", signal_name);
         IDAM_LOGF(UDA_LOG_DEBUG, "File Name    : %s \n", ida_path);
     }
 
-    IDAM_LOGF(UDA_LOG_DEBUG, "Signal Name  : %s \n", signal_desc.signal_name);
-    IDAM_LOGF(UDA_LOG_DEBUG, "File Alias   : %s \n", data_source.source_alias);
-    IDAM_LOGF(UDA_LOG_DEBUG, "File Name    : %s \n", ida_file);
-    IDAM_LOGF(UDA_LOG_DEBUG, "File Path    : %s \n", ida_path);
-    IDAM_LOGF(UDA_LOG_DEBUG, "Pulse Number : %d \n", (int) pulno);
-    IDAM_LOGF(UDA_LOG_DEBUG, "Pass Number  : %d \n", (int) pass);
+    //----------------------------------------------------------------------
+    // Test String lengths are Compliant
 
-    DATA_BLOCK* data_block = idam_plugin_interface->data_block;
+    if (strlen(filename) <= IDA_FSIZE + 1 || exp_number < 0) {
+        strcpy(ida_file, filename);
+    } else {
+        err = IDA_CLIENT_FILE_NAME_TOO_LONG;
+        addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, err, "IDA Filename Length is too Long");
+        return err;
+    }
 
-//---------------------------------------------------------------------- 
-// Error Trap Loop
+    char ida_signal[IDA_LSIZE + 1] = "";
 
-    do {
+    if (strlen(signal_name) <= IDA_LSIZE + 1) {
+        strcpy(ida_signal, signal_name);
+    } else {
+        err = IDA_CLIENT_SIGNAL_NAME_TOO_LONG;
+        addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, err, "IDA Signalname Length is too Long");
+        return err;
+    }
 
-//---------------------------------------------------------------------- 
-// Test String lengths are Compliant  
+    //----------------------------------------------------------------------
+    // Is the IDA File Already open for Reading? If Not then Open
 
-        if (strlen(data_source.filename) <= IDA_FSIZE + 1 || pulno < 0) {
-            strcpy(ida_file, data_source.filename);
-        } else {
-            err = IDA_CLIENT_FILE_NAME_TOO_LONG;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, err, "IDA Filename Length is too Long");
-            break;
+    IDAM_LOGF(UDA_LOG_DEBUG, "IDA file: (%s)\n", ida_path);
+
+    errno = 0;
+    char ida_errmsg[256] = "";
+
+    ida_file_ptr* ida_file_id = ida_open(ida_path, IDA_READ, NULL);
+    int serrno = errno;
+    if (ida_file_id == NULL || errno != 0) {
+        err = IDA_ERROR_OPENING_FILE;
+        if (serrno != 0) {
+            addIdamError(&idamerrorstack, SYSTEMERRORTYPE, __func__, serrno, "");
         }
+        ida_error_mess(ida_error(ida_file_id), ida_errmsg);
+        addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, err, ida_errmsg);
+        return err;
+    }
 
-        if (strlen(signal_desc.signal_name) <= IDA_LSIZE + 1) {
-            strcpy(ida_signal, signal_desc.signal_name);
-        } else {
-            err = IDA_CLIENT_SIGNAL_NAME_TOO_LONG;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, err, "IDA Signalname Length is too Long");
-            break;
-        }
+    //----------------------------------------------------------------------
+    // Fetch the Data
 
-//----------------------------------------------------------------------
-// Is the IDA File Already open for Reading? If Not then Open  
+    IDAM_LOG(UDA_LOG_DEBUG, "Calling readIdaItem\n");
 
-        IDAM_LOGF(UDA_LOG_DEBUG, "IDA file: (%s)\n", ida_path);
+    short context = (short)0;
 
-        errno = 0;
+    if ((err = readIdaItem(ida_signal, ida_file_id, &context, data_block)) != 0) {
+        err = IDA_ERROR_READING_DATA;
+        addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, err, "Unable to Read IDA Data Item");
+        return err;
+    }
 
-        ida_file_id = ida_open(ida_path, IDA_READ, NULL);
-        serrno = errno;
-        if (ida_file_id == NULL || errno != 0) {
-            err = IDA_ERROR_OPENING_FILE;
-            if (serrno != 0) addIdamError(&idamerrorstack, SYSTEMERRORTYPE, __func__, serrno, "");
-            ida_error_mess(ida_error(ida_file_id), ida_errmsg);
-            addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, err, ida_errmsg);
-            break;
-        }
+    IDAM_LOG(UDA_LOG_DEBUG, "Returned from readIdaItem\n");
 
-//----------------------------------------------------------------------
-// Fetch the Data
-
-        IDAM_LOG(UDA_LOG_DEBUG, "Calling readIdaItem\n");
-
-        context = (short) 0;
-
-        if ((err = readIdaItem(ida_signal, ida_file_id, &context, data_block)) != 0) {
-            err = IDA_ERROR_READING_DATA;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, err, "Unable to Read IDA Data Item");
-            break;
-        }
-
-        IDAM_LOG(UDA_LOG_DEBUG, "Returned from readIdaItem\n");
-
-//----------------------------------------------------------------------
-// End of Error Trap Loop
-
-    } while (0);
-
-    IDAM_LOGF(UDA_LOG_DEBUG, "Final Error Status = %d\n", err);
     printDataBlock(*data_block);
 
-//---------------------------------------------------------------------- 
-// Housekeeping
+    //----------------------------------------------------------------------
+    // Housekeeping
 
-// Close IDA File
+    // Close IDA File
 
-    rc = (int)ida_close(ida_file_id);
+    int rc = (int)ida_close(ida_file_id);
 
     if (rc != 0) {
         ida_error_mess(ida_error(ida_file_id), ida_errmsg);

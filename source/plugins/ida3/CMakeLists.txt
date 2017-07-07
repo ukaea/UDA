@@ -14,12 +14,12 @@ endif()
 include( plugins )
 
 uda_plugin(
-  NAME IDA3
-  ENTRY_FUNC readIda3Plugin
+  NAME NEWIDA
+  ENTRY_FUNC ida3plugin
   DESCRIPTION "IDA Data plugin"
   EXAMPLE ""
   LIBNAME ida3_plugin
-  SOURCES readIda.c nameIda.c readIdaItem.c
+  SOURCES ida3plugin.c readIda.c nameIda.c readIdaItem.c
   EXTRA_INCLUDE_DIRS
     ${LIBXML2_INCLUDE_DIR}
     SYSTEM ${IDA_INCLUDE_DIR}

@@ -70,7 +70,7 @@ int protocol2(XDR* xdrs, int protocol_id, int direction, int* token, void* str)
 
         if (protocol_id == PROTOCOL_REQUEST_BLOCK) {
 
-            request_block = (REQUEST_BLOCK*) str;
+            request_block = (REQUEST_BLOCK*)str;
 
             switch (direction) {
 
@@ -91,7 +91,6 @@ int protocol2(XDR* xdrs, int protocol_id, int direction, int* token, void* str)
                 case XDR_FREE_HEAP :
                     break;
 
-
                 default:
                     err = PROTOCOL_ERROR_4;
                     break;
@@ -106,7 +105,7 @@ int protocol2(XDR* xdrs, int protocol_id, int direction, int* token, void* str)
 
         if (protocol_id == PROTOCOL_DATA_BLOCK) {
 
-            data_block = (DATA_BLOCK*) str;
+            data_block = (DATA_BLOCK*)str;
 
 #ifndef SKIPSEND
             switch (direction) {
@@ -240,7 +239,6 @@ int protocol2(XDR* xdrs, int protocol_id, int direction, int* token, void* str)
                         }
                     }
 
-
                     if (data_block->rank > 0) {    // Dimensional Data to Send
 
 // Check client/server understands new data types
@@ -298,7 +296,7 @@ int protocol2(XDR* xdrs, int protocol_id, int direction, int* token, void* str)
 
         if (protocol_id == PROTOCOL_PUTDATA_BLOCK_LIST) {
 
-            PUTDATA_BLOCK_LIST* putDataBlockList = (PUTDATA_BLOCK_LIST*) str;
+            PUTDATA_BLOCK_LIST* putDataBlockList = (PUTDATA_BLOCK_LIST*)str;
             PUTDATA_BLOCK putData;
 
             switch (direction) {
@@ -348,7 +346,7 @@ int protocol2(XDR* xdrs, int protocol_id, int direction, int* token, void* str)
 // userdefinedtypelist is passed from the client
 // NTREE is automatically generated
 
-                            DATA_BLOCK* data_block = (DATA_BLOCK*) malloc(sizeof(DATA_BLOCK));
+                            DATA_BLOCK* data_block = (DATA_BLOCK*)malloc(sizeof(DATA_BLOCK));
 
 // *** Add to malloclog and test to ensure it is freed after use ***
 
@@ -358,11 +356,12 @@ int protocol2(XDR* xdrs, int protocol_id, int direction, int* token, void* str)
                             data_block->opaque_block = putData.opaque_block;    // User Defined Type
 
                             protocol_id = PROTOCOL_STRUCTURES;
-                            if ((err = protocolXML2Put(xdrs, protocol_id, direction, token, data_block)) != 0)
-                                break;    // Fetch Structured data
+                            if ((err = protocolXML2Put(xdrs, protocol_id, direction, token, data_block)) != 0) {
+                                break;
+                            }    // Fetch Structured data
 
-                            putData.data = (void*) data_block;        // Compact memory block with structures
-                            GENERAL_BLOCK* general_block = (GENERAL_BLOCK*) data_block->opaque_block;
+                            putData.data = (void*)data_block;        // Compact memory block with structures
+                            GENERAL_BLOCK* general_block = (GENERAL_BLOCK*)data_block->opaque_block;
                             putData.opaque_block = general_block->userdefinedtype;
 
                         }
@@ -417,11 +416,12 @@ int protocol2(XDR* xdrs, int protocol_id, int direction, int* token, void* str)
                             data_block.opaque_type = OPAQUE_TYPE_STRUCTURES;
                             data_block.data_n = putDataBlockList->putDataBlock[i].count;        // This number (also rank and shape)
                             data_block.opaque_block = putDataBlockList->putDataBlock[i].opaque_block;    // User Defined Type
-                            data_block.data = (char*) putDataBlockList->putDataBlock[i].data;    // Compact memory block with structures
+                            data_block.data = (char*)putDataBlockList->putDataBlock[i].data;    // Compact memory block with structures
 
                             protocol_id = PROTOCOL_STRUCTURES;
-                            if ((err = protocolXML2Put(xdrs, protocol_id, direction, token, &data_block)) != 0)
-                                break;    // Send Structured data
+                            if ((err = protocolXML2Put(xdrs, protocol_id, direction, token, &data_block)) != 0) {
+                                break;
+                            }    // Send Structured data
 
                         }
                     }
@@ -485,7 +485,7 @@ int protocol2(XDR* xdrs, int protocol_id, int direction, int* token, void* str)
 
         if (protocol_id == PROTOCOL_DATA_SYSTEM) {
 
-            data_system = (DATA_SYSTEM*) str;
+            data_system = (DATA_SYSTEM*)str;
 #ifndef SKIPSEND
             switch (direction) {
 
@@ -521,7 +521,7 @@ int protocol2(XDR* xdrs, int protocol_id, int direction, int* token, void* str)
 
         if (protocol_id == PROTOCOL_SYSTEM_CONFIG) {
 
-            system_config = (SYSTEM_CONFIG*) str;
+            system_config = (SYSTEM_CONFIG*)str;
 #ifndef SKIPSEND
             switch (direction) {
 
@@ -556,7 +556,7 @@ int protocol2(XDR* xdrs, int protocol_id, int direction, int* token, void* str)
 
         if (protocol_id == PROTOCOL_DATA_SOURCE) {
 
-            data_source = (DATA_SOURCE*) str;
+            data_source = (DATA_SOURCE*)str;
 #ifndef SKIPSEND
             switch (direction) {
 
@@ -592,7 +592,7 @@ int protocol2(XDR* xdrs, int protocol_id, int direction, int* token, void* str)
 
         if (protocol_id == PROTOCOL_SIGNAL) {
 
-            signal = (SIGNAL*) str;
+            signal = (SIGNAL*)str;
 #ifndef SKIPSEND
             switch (direction) {
 
@@ -628,7 +628,7 @@ int protocol2(XDR* xdrs, int protocol_id, int direction, int* token, void* str)
 
         if (protocol_id == PROTOCOL_SIGNAL_DESC) {
 
-            signal_desc = (SIGNAL_DESC*) str;
+            signal_desc = (SIGNAL_DESC*)str;
 #ifndef SKIPSEND
             switch (direction) {
 
@@ -738,7 +738,7 @@ int protocol2(XDR* xdrs, int protocol_id, int direction, int* token, void* str)
 
         if (protocol_id == PROTOCOL_CLIENT_BLOCK) {
 
-            client_block = (CLIENT_BLOCK*) str;
+            client_block = (CLIENT_BLOCK*)str;
 
             switch (direction) {
 
@@ -773,7 +773,7 @@ int protocol2(XDR* xdrs, int protocol_id, int direction, int* token, void* str)
 
         if (protocol_id == PROTOCOL_SERVER_BLOCK) {
 
-            server_block = (SERVER_BLOCK*) str;
+            server_block = (SERVER_BLOCK*)str;
 
             switch (direction) {
 
@@ -787,7 +787,7 @@ int protocol2(XDR* xdrs, int protocol_id, int direction, int* token, void* str)
 
                     if (server_block->idamerrorstack.nerrors > 0) {    // No Data to Receive?
 
-                        server_block->idamerrorstack.idamerror = (IDAMERROR*) malloc(
+                        server_block->idamerrorstack.idamerror = (IDAMERROR*)malloc(
                                 server_block->idamerrorstack.nerrors * sizeof(IDAMERROR));
                         initIdamErrorRecords(&server_block->idamerrorstack);
 
@@ -831,7 +831,7 @@ int protocol2(XDR* xdrs, int protocol_id, int direction, int* token, void* str)
 
         if (protocol_id == PROTOCOL_DATAOBJECT) {
 
-            DATA_OBJECT* data_object = (DATA_OBJECT*) str;
+            DATA_OBJECT* data_object = (DATA_OBJECT*)str;
 
             switch (direction) {
 
@@ -841,10 +841,12 @@ int protocol2(XDR* xdrs, int protocol_id, int direction, int* token, void* str)
                         err = PROTOCOL_ERROR_22;
                         break;
                     }
-                    if (data_object->objectSize > 0)
-                        data_object->object = (char*) malloc(data_object->objectSize * sizeof(char));
-                    if (data_object->hashLength > 0)
-                        data_object->md = (char*) malloc(data_object->hashLength * sizeof(char));
+                    if (data_object->objectSize > 0) {
+                        data_object->object = (char*)malloc(data_object->objectSize * sizeof(char));
+                    }
+                    if (data_object->hashLength > 0) {
+                        data_object->md = (char*)malloc(data_object->hashLength * sizeof(char));
+                    }
                     if (!xdr_data_object2(xdrs, data_object)) {
                         err = PROTOCOL_ERROR_22;
                         break;
@@ -876,7 +878,7 @@ int protocol2(XDR* xdrs, int protocol_id, int direction, int* token, void* str)
 
         if (protocol_id == PROTOCOL_DATAOBJECT_FILE) {
 
-            data_block = (DATA_BLOCK*) str;
+            data_block = (DATA_BLOCK*)str;
 
             switch (direction) {
 

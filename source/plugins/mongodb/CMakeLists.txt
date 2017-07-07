@@ -13,6 +13,8 @@ endif()
 
 include( plugins )
 
+get_filename_component( LIBMONGOC_LIBRARY_DIR ${LIBMONGOC_LIBRARY} DIRECTORY )
+
 uda_plugin(
   NAME MONGO
   ENTRY_FUNC query
@@ -20,6 +22,7 @@ uda_plugin(
   EXAMPLE "MONGO::query()"
   LIBNAME mongodb_plugin
   SOURCES mongodbplugin.c
+  CONFIG_FILE mongodb.cfg
   EXTRA_INCLUDE_DIRS
     ${LIBXML2_INCLUDE_DIR}
     ${LIBMONGOC_INCLUDE_DIRS}

@@ -1,5 +1,6 @@
 #include "putdata.h"		// IDL DLM API Header
 
+#include <clientserver/udaTypes.h>
 
 int putAttribute(int nparams, IDL_VPTR argv[], KW_RESULT* kw, int ncgrpid) {
 //
@@ -11,7 +12,7 @@ int putAttribute(int nparams, IDL_VPTR argv[], KW_RESULT* kw, int ncgrpid) {
 
     int length, type, rank, err, lerr;
     int ncvarid;
-    char* group;
+    //    char* group;
     char* name;
     char* varname;
     char* text;
@@ -22,12 +23,12 @@ int putAttribute(int nparams, IDL_VPTR argv[], KW_RESULT* kw, int ncgrpid) {
 
     type = 0;
 
-    group = NULL;
+    //    group = NULL;
     name = NULL;
     varname = NULL;
     text = NULL;
 
-    if (kw->is_group) group = IDL_STRING_STR(&kw->group);
+    //    if (kw->is_group) group = IDL_STRING_STR(&kw->group);
     if (kw->is_name) name = IDL_STRING_STR(&kw->name);
     if (kw->is_varname) varname = IDL_STRING_STR(&kw->varname);
 

@@ -7,6 +7,8 @@ find_package( OpenSSL )
 find_package( LibXml2 )
 find_package( LibMemcached )
 
+add_definitions( -D__USE_XOPEN2K8 )
+
 if( NOT Boost_FOUND OR NOT OPENSSL_FOUND OR NOT LIBXML2_FOUND )
   message( WARNING "Not building tests" )
   return()
@@ -80,6 +82,7 @@ if( GCRYPT_FOUND AND KSBA_FOUND AND OPENSSL_FOUND AND LIBXML2_FOUND )
     ${KSBA_LIBRARIES}
     client-shared
     ${OPENSSL_LIBRARIES}
-    ${LIBXML2_LIBRARIES} )
+    ${LIBXML2_LIBRARIES} 
+    ${CACHE_LIBRARIES})
   add_test( testSecurity testSecurity )
 endif()
