@@ -35,5 +35,5 @@ uda_plugin(
   EXTRA_LINK_LIBS
     ${LIBXML2_LIBRARIES}
     ${MDSPLUS_LIBRARIES}
-    TS
+    ${LIBTS_LIBRARIES}
 )
