@@ -13,6 +13,8 @@
 
 #include <stdlib.h>
 
+#include <clientserver/udaStructs.h>
+
 int opennetcdf(int nparams, IDL_VPTR argv[], KW_RESULT* kw) {
 
     int i, lerr, err;

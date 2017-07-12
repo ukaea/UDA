@@ -29,10 +29,10 @@ int do_attribute(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         RAISE_PLUGIN_ERROR("Invalid fileid given");
     }
 
-    int grpid = -1;
-    int status = 0;
-    if (testgroup(ncfileid, group, &status, &grpid) != NC_NOERR) {
-        RAISE_PLUGIN_ERROR("Failed to find or create group");
+    int grpid = -1; 
+
+    if (testmakegroup(ncfileid, group, &grpid) != NC_NOERR) {
+      RAISE_PLUGIN_ERROR("Failed to find or create group"); 
     }
 
     //--------------------------------------------------------------------------
@@ -58,8 +58,11 @@ int do_attribute(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         if (nc_inq_varid(grpid, varname, &varid) != NC_NOERR) {
             RAISE_PLUGIN_ERROR("Unable to Identify the Variable/Coordinate");
         }
+
+	IDAM_LOGF(UDA_LOG_DEBUG, "Attach attribute to %s\n", varname);
     } else {
         varid = NC_GLOBAL;
+	IDAM_LOG(UDA_LOG_DEBUG, "Global attribute!\n");
     }
 
     int ctype = 0;
@@ -69,8 +72,8 @@ int do_attribute(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     }
 
     // Scalar Attributes
-
     if (putdata.data_type != TYPE_STRING) {
+        IDAM_LOG(UDA_LOG_DEBUG, "Not a string\n");
         if (putdata.rank == 0 && putdata.count == 1) {
             IDAM_LOG(UDA_LOG_DEBUG, "Scalar Attribute to be added");
 
@@ -92,11 +95,16 @@ int do_attribute(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                     break;
                 }
                 case TYPE_LONG: {
+                    long long value = ((long long*)putdata.data)[0];
+                    err = nc_put_att_longlong(grpid, varid, name, NC_INT64, 1, &value);
+                    break;
+                }
+                case TYPE_INT: {
                     int value = ((int*)putdata.data)[0];
                     err = nc_put_att_int(grpid, varid, name, NC_INT, 1, &value);
                     break;
                 }
-                case TYPE_INT: {
+                case TYPE_SHORT: {
                     short value = ((short*)putdata.data)[0];
                     err = nc_put_att_short(grpid, varid, name, NC_SHORT, 1, &value);
                     break;
@@ -112,16 +120,20 @@ int do_attribute(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                     break;
                 }
                 case TYPE_UNSIGNED_LONG: {
+                    unsigned long long value = ((unsigned long long*)putdata.data)[0];
+                    err = nc_put_att_ulonglong(grpid, varid, name, NC_UINT64, 1, &value);
+                    break;
+                }
+                case TYPE_UNSIGNED_INT: {
                     unsigned int value = ((unsigned int*)putdata.data)[0];
                     err = nc_put_att_uint(grpid, varid, name, NC_UINT, 1, &value);
                     break;
                 }
-                case TYPE_UNSIGNED_INT: {
+                case TYPE_UNSIGNED_SHORT: {
                     unsigned short value = ((unsigned short*)putdata.data)[0];
                     err = nc_put_att_ushort(grpid, varid, name, NC_USHORT, 1, &value);
                     break;
                 }
-
                 case TYPE_COMPLEX: {
                     COMPLEX value = ((COMPLEX*)putdata.data)[0];
                     err = nc_put_att(grpid, varid, name, ctype, 1, (void*)&value);
@@ -161,9 +173,12 @@ int do_attribute(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                     err = nc_put_att_longlong(grpid, varid, name, NC_INT64, putdata.count, (long long*)putdata.data);
                     break;
                 case TYPE_LONG:
-                    err = nc_put_att_int(grpid, varid, name, NC_INT, putdata.count, (int*)putdata.data);
+		    err = nc_put_att_longlong(grpid, varid, name, NC_INT64, putdata.count, (long long*)putdata.data);
                     break;
                 case TYPE_INT:
+                    err = nc_put_att_int(grpid, varid, name, NC_INT, putdata.count, (int*)putdata.data);
+                    break;
+                case TYPE_SHORT:
                     err = nc_put_att_short(grpid, varid, name, NC_SHORT, putdata.count, (short*)putdata.data);
                     break;
                 case TYPE_UNSIGNED_CHAR:
@@ -173,9 +188,12 @@ int do_attribute(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                     err = nc_put_att_ulonglong(grpid, varid, name, NC_UINT64, putdata.count, (unsigned long long*)putdata.data);
                     break;
                 case TYPE_UNSIGNED_LONG:
-                    err = nc_put_att_uint(grpid, varid, name, NC_UINT, putdata.count, (unsigned int*)putdata.data);
+                    err = nc_put_att_ulonglong(grpid, varid, name, NC_UINT64, putdata.count, (unsigned long long*)putdata.data);
                     break;
                 case TYPE_UNSIGNED_INT:
+                    err = nc_put_att_uint(grpid, varid, name, NC_UINT, putdata.count, (unsigned int*)putdata.data);
+                    break;
+                case TYPE_UNSIGNED_SHORT:
                     err = nc_put_att_ushort(grpid, varid, name, NC_USHORT, putdata.count, (unsigned short*)putdata.data);
                     break;
                 case TYPE_COMPLEX:

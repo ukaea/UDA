@@ -11,8 +11,10 @@ module load python/3.3.5
 export HDF5_USE_SHLIB=yes
 export BOOST_ROOT=/usr/local/depot/boost-1.60
 
+VERSION=`git describe --always --dirty --tags`
+
 cmake -Bbuild_freia -H. -DCMAKE_BUILD_TYPE=Debug -DTARGET_TYPE=MAST \
-    -DCMAKE_INSTALL_PREFIX=${HOME}/freia \
+    -DCMAKE_INSTALL_PREFIX=/common/IMAS/extra/uda/$VERSION \
     -DSWIG_EXECUTABLE=/home/jholloc/freia/bin/swig \
     -DUDUNITS_ROOT=$UDUNITS_DIR \
     -DPYTHON_EXECUTABLE=$(which python3)

@@ -30,7 +30,8 @@ foreach( TEST_FILE ${TEST_FILES} )
       fatclient-shared
       ${OPENSSL_LIBRARIES}
       ${LIBXML2_LIBRARIES}
-      ${CACHE_LIBRARIES} )
+      ${CACHE_LIBRARIES}
+      c m dl )
     target_compile_definitions( fat_${TEST} PRIVATE -DFATCLIENT )
     link_modules( fat_${TEST} )
 

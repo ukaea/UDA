@@ -103,7 +103,7 @@ end
 ;   3       Int*4
 ;   4       Real*4
 ;   5       Real*8
-    6       complex
+;   6       complex
 ;   7       String
 ;   8       Structure
 ;

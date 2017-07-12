@@ -1703,6 +1703,22 @@ bool findFloatArray(const NAMEVALUELIST* namevaluelist, float** values, size_t* 
     return found;
 }
 
+bool findDoubleArray(const NAMEVALUELIST* namevaluelist, double** values, size_t* nvalues, const char* name)
+{
+    const char* str;
+    bool found = findStringValue(namevaluelist, &str, name);
+    if (found) {
+        char** tokens = SplitString(str, ";");
+        size_t n;
+        size_t num_tokens = 0;
+        for (n = 0; tokens[n] != NULL; ++n) ++num_tokens;
+        *values = calloc(num_tokens, sizeof(double));
+        for (n = 0; tokens[n] != NULL; ++n) (*values)[n] = (double)atof(tokens[n]);
+        *nvalues = num_tokens;
+    }
+    return found;
+}
+
 bool findValue(const NAMEVALUELIST* namevaluelist, const char* name)
 {
     char** names = SplitString(name, "|");

@@ -52,7 +52,7 @@ install( FILES ${INSTALL_FILES}
 set( INSTALL_FILES
   getstruct.pro
   getdata.pro
-#  calluda.pro
+  calluda.pro
   geometry/addsignaldata.pro
   geometry/applygeommanipulation.pro
   geometry/cylindrical_cartesian.pro
@@ -60,7 +60,7 @@ set( INSTALL_FILES
   geometry/getgeomsignaldata.pro
   geometry/pickupmanipulation.pro
   geometry/strnumber.pro
-#  putdata/putdata.pro
+  putdata/putdata.pro
 )
 
 install( FILES ${INSTALL_FILES}

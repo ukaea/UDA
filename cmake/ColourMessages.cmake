@@ -1,4 +1,4 @@
-get_filename_component( SHELL $ENV{SHELL} NAME )
+get_filename_component( SHELL "$ENV{SHELL}" NAME )
 
 if("${SHELL}" STREQUAL "bash" AND NOT WIN32)
   string(ASCII 27 Esc)

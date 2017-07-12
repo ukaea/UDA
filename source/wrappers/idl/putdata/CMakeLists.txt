@@ -2,6 +2,16 @@ cmake_minimum_required( VERSION 2.8 )
 
 find_package( IDL REQUIRED )
 find_package( LibXml2 REQUIRED )
+find_package( NetCDF QUIET )
+find_package( UDUNITS QUIET )
+
+if( NOT NETCDF_FOUND )
+  message( WARNING "NetCDF not found - skipping putdata IDL DLM library" )
+  return()
+elseif( NOT UDUNITS_FOUND )
+  message( WARNING "UDUNITS not found - skipping putdata IDL DLM library" )
+  return()
+endif()
 
 set( LIB_NAME putdata )
 
@@ -13,6 +23,8 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/source
   ${LIBXML2_INCLUDE_DIR}
   ${IDL_INCLUDES}
+  ${NETCDF_INCLUDES}
+  ${UDUNITS_INCLUDE_DIRS}
 )
 
 add_library( ${LIB_NAME} SHARED ${SRC_FILES} )
@@ -20,7 +32,11 @@ add_library( ${LIB_NAME} SHARED ${SRC_FILES} )
 target_link_libraries( ${LIB_NAME} LINK_PRIVATE
   ${IDC_LIB_NAME}
   ${IDL_LIBRARIES}
-  ${LIBXML2_LIBRARIES} )
+  ${LIBXML2_LIBRARIES} 
+  ${NETCDF_LIBRARIES}
+  ${UDUNITS_LIBRARIES} 
+  client-static
+)
 
 set_target_properties( ${LIB_NAME}
   PROPERTIES

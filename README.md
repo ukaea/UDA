@@ -5,6 +5,10 @@ The UDA API provides plugin driven data abstraction.
 The UDA can be either run as a client-server API, running as thin client with all functionality being handled on a
 remote server, or as fat-client API where both the client access and plugin functionality is run on the local machine.
 
+## Licence
+
+See LICENCE.txt for details.
+
 ## Getting UDA
 
 UDA binaries can be downloaded from:

@@ -28,9 +28,9 @@
 
 // Send multiple data blocks to the server
 
-#ifndef FATCLIENT
-static unsigned short idamGetAPICalledOnce = 0;
-#endif
+/* #ifndef FATCLIENT */
+/* static unsigned short idamGetAPICalledOnce = 0; */
+/* #endif */
 
 int idamPutListAPI(const char* putInstruction, PUTDATA_BLOCK_LIST* inPutDataBlockList)
 {
@@ -56,20 +56,20 @@ int idamPutListAPI(const char* putInstruction, PUTDATA_BLOCK_LIST* inPutDataBloc
 // This problem also causes the application malloclog and the userdefinedtypelist heaps to be overwritten.
 // Copy and replace to preserve the application heap
 
-#ifndef FATCLIENT
-    if (!idamGetAPICalledOnce) {
-        LOGMALLOCLIST* oldlogmalloclist = logmalloclist;
-        USERDEFINEDTYPELIST* olduserdefinedtypelist = userdefinedtypelist;
-        logmalloclist = NULL;
-        userdefinedtypelist = NULL;
-        int h = idamGetAPI("help::ping()", "");
-        idamFree(h);
-        idamGetAPICalledOnce = 1;
-        lastMallocIndex = 0;
-        logmalloclist = oldlogmalloclist;
-        userdefinedtypelist = olduserdefinedtypelist;
-    }
-#endif
+/* #ifndef FATCLIENT */
+/*         if (!idamGetAPICalledOnce) { */
+/* 	  LOGMALLOCLIST* oldlogmalloclist = logmalloclist; */
+/*         USERDEFINEDTYPELIST* olduserdefinedtypelist = userdefinedtypelist; */
+/*         logmalloclist = NULL; */
+/*         userdefinedtypelist = NULL; */
+/*         int h = idamGetAPI("help::ping()", ""); */
+/*         idamFree(h); */
+/*         idamGetAPICalledOnce = 1; */
+/*         lastMallocIndex = 0; */
+/*         logmalloclist = oldlogmalloclist; */
+/*         userdefinedtypelist = olduserdefinedtypelist; */
+/*     } */
+/* #endif */
 
 //-------------------------------------------------------------------------
 // Initialise the Client Data Request Structure
@@ -131,20 +131,21 @@ int idamPutAPI(const char* putInstruction, PUTDATA_BLOCK* inPutData)
 // This problem also causes the application malloclog and the userdefinedtypelist heaps to be overwritten.
 // Copy and replace to preserve the application heap
 
-#ifndef FATCLIENT
-    if (!idamGetAPICalledOnce) {
-        LOGMALLOCLIST* oldlogmalloclist = logmalloclist;
-        USERDEFINEDTYPELIST* olduserdefinedtypelist = userdefinedtypelist;
-        logmalloclist = NULL;
-        userdefinedtypelist = NULL;
-        int h = idamGetAPI("help::ping()", "");
-        idamFree(h);
-        idamGetAPICalledOnce = 1;
-        lastMallocIndex = 0;
-        logmalloclist = oldlogmalloclist;
-        userdefinedtypelist = olduserdefinedtypelist;
-    }
-#endif
+/* #ifndef FATCLIENT */
+/*     if (!idamGetAPICalledOnce) { */
+/*         IDAM_LOG(LOG_DEBUG, "!idamGetAPICalledOnce\n"); */
+/*         LOGMALLOCLIST* oldlogmalloclist = logmalloclist; */
+/*         USERDEFINEDTYPELIST* olduserdefinedtypelist = userdefinedtypelist; */
+/*         logmalloclist = NULL; */
+/*         userdefinedtypelist = NULL; */
+/*         int h = idamGetAPI("help::ping()", ""); */
+/*         idamFree(h); */
+/*         idamGetAPICalledOnce = 1; */
+/*         lastMallocIndex = 0; */
+/*         logmalloclist = oldlogmalloclist; */
+/*         userdefinedtypelist = olduserdefinedtypelist; */
+/*     } */
+/* #endif */
 
 //-------------------------------------------------------------------------
 // Initialise the Client Data Request Structure

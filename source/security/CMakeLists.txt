@@ -5,7 +5,6 @@ find_package( KSBA )
 
 if( NOT GCRYPT_FOUND OR NOT KSBA_FOUND )
   message( WARNING "GCrypt or KSBA not found - security library being skipped" )
-  add_library( security OBJECT )
   return()
 endif()
 

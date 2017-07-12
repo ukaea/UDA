@@ -38,14 +38,12 @@ int do_variable(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     // Find or create the group
 
     int grpid = -1;
-    int status = 0;
-    if (testgroup(ncfileid, group, &status, &grpid) != NC_NOERR) {
+    if (testmakegroup(ncfileid, group, &grpid) != NC_NOERR) {
         RAISE_PLUGIN_ERROR("Failed to find or create group");
     }
 
     //--------------------------------------------------------------------------
     // Check the Variable does not already exist in this group
-
     int err;
     int varid;
     if ((err = nc_inq_varid(grpid, name, &varid)) != NC_NOERR && err != NC_ENOTVAR) {
@@ -84,6 +82,11 @@ int do_variable(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     IDAM_LOGF(UDA_LOG_DEBUG, "Rank     %d:\n", rank);
     IDAM_LOGF(UDA_LOG_DEBUG, "Length   %d:\n", length);
     IDAM_LOG(UDA_LOG_DEBUG, "Shape:\n");
+
+    if (putdata.shape == NULL) {
+      IDAM_LOG(UDA_LOG_DEBUG, "Shape is NULL\n");
+    }
+
     int i;
     for (i = 0; i < rank; i++) {
         IDAM_LOGF(UDA_LOG_DEBUG, "    [%d]=%d\n", i, shape[i]);
@@ -219,16 +222,20 @@ int do_variable(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
         IDAM_LOGF(UDA_LOG_DEBUG, "Dimension %d has length %d\n", mdimids[i], dimlength);
 
-        if (isUnlimited) {
+	if (rank > 0) {
+	  if (isUnlimited) {
             unlimitedCount++;
             extents[i] = (size_t) shape[i]; // Capture the current size of each UNLIMITED dimension
             IDAM_LOGF(UDA_LOG_DEBUG, "extents[%d] = %d \n", i, (int) extents[i]);
-        }
-
-        //Check dimension length matches input data dimension length (including unlimited)
-        if (dimlength != shape[i]) {
-            RAISE_PLUGIN_ERROR("Inconsistent Dimension Lengths for Array Variable");
-        }
+	  } else { 
+	    //Check dimension length matches input data dimension length
+	    if (dimlength != shape[i]) {
+	      RAISE_PLUGIN_ERROR("Inconsistent Dimension Lengths for Array Variable");
+	    }
+	  }
+	} else if (isUnlimited) {
+	  unlimitedCount++;
+	}
     }
 
     //--------------------------------------------------------------------------
@@ -404,6 +411,10 @@ int do_variable(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         for (i = 0; i < rank; i++) {
             IDAM_LOGF(UDA_LOG_DEBUG, "[%d]", start[i]);
         }
+        IDAM_LOG(UDA_LOG_DEBUG, "Extents::\n");
+        for (i = 0; i < rank; i++) {
+            IDAM_LOGF(UDA_LOG_DEBUG, "[%d]\n", extents[i]);
+        }
 
         switch (nctype) {
             case NC_FLOAT:
@@ -446,6 +457,7 @@ int do_variable(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 break;
             default:
                 if (nctype == ctype || nctype == dctype) {
+		  IDAM_LOGF(UDA_LOG_DEBUG, "Data Variable %s is a complex or double complex Array\n", name);
                     err = nc_put_vara(grpid, varid, start, extents, (void*) data);
                 }
         }
@@ -456,7 +468,7 @@ int do_variable(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     if (err != NC_NOERR) {
         RAISE_PLUGIN_ERROR("Unable to Write Data to Data Variable");
     } else {
-        fprintf(stdout, "Variable \"%s\" was written to file\n", name);
+        IDAM_LOGF(UDA_LOG_DEBUG, "Variable \"%s\" was written to file\n", name);
     }
 
     //--------------------------------------------------------------------------
@@ -599,7 +611,7 @@ int do_variable(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             RAISE_PLUGIN_ERROR("Unable to Query the number of Dimensions");
         }
 
-        if (ndims != rank) {
+        if ((rank > 0 && ndims != rank) || (rank == 0 && ndims != 1)) {
             RAISE_PLUGIN_ERROR("The Rank of the Error Variable is Inconsistent with the Variable");
         }
 
@@ -609,16 +621,27 @@ int do_variable(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             RAISE_PLUGIN_ERROR("Unable to Query the Dimension ID of the Error Variable");
         }
 
-        for (i = 0; i < rank; i++) {
+	if (rank > 0) {
+	  for (i = 0; i < rank; i++) {
             int lvarerr;
             if ((err = nc_inq_dimlen(grpid, dimids[i], (size_t*) &lvarerr)) != NC_NOERR) {
                 RAISE_PLUGIN_ERROR("Unable to Query the Dimension Length of the Error Variable");
             }
 
-            if (shape[rank - 1 - i] != lvarerr) {
+            if (shape[i] != lvarerr) {
                 RAISE_PLUGIN_ERROR("The Length of the Error Variable is Inconsistent with the variable Length");
             }
-        }
+	  }
+	} else {
+	  int lvarerr;
+	  if ((err = nc_inq_dimlen(grpid, dimids[0], (size_t*) &lvarerr)) != NC_NOERR) {
+	    RAISE_PLUGIN_ERROR("Unable to Query the Dimension Length of the Error Variable");
+	  }
+
+	  if (lvarerr != 1) {
+	    RAISE_PLUGIN_ERROR("The Length of the Error Variable is Inconsistent with the variable Length");
+	  }
+	}
 
         free((void*) dimids);
 
@@ -695,19 +718,25 @@ nc_type swapType(int type, int ctype, int dctype)
         case TYPE_LONG64:           // 8 byte signed integer
             return NC_INT64;
 
-        case TYPE_LONG:             // 4 byte signed integer
+        case TYPE_LONG:             // 8 byte signed integer
+            return NC_INT64;
+
+        case TYPE_INT:              // 4 byte signed integer
             return NC_INT;
 
-        case TYPE_INT:              // 2 byte signed integer
+        case TYPE_SHORT:            // 2 byte signed integer
             return NC_SHORT;
 
         case TYPE_UNSIGNED_LONG64:  // 8 byte unsigned integer
             return NC_UINT64;
 
-        case TYPE_UNSIGNED_LONG:    // 4 byte unsigned integer
+        case TYPE_UNSIGNED_LONG:    // 8 byte unsigned integer
+            return NC_UINT64;
+
+        case TYPE_UNSIGNED_INT:     // 4 byte unsigned integer
             return NC_UINT;
 
-        case TYPE_UNSIGNED_INT:     // 2 byte unsigned integer
+        case TYPE_UNSIGNED_SHORT:     // 2 byte unsigned integer
             return NC_USHORT;
 
         case TYPE_COMPLEX:          // structure with 2 4 byte floats
@@ -718,6 +747,9 @@ nc_type swapType(int type, int ctype, int dctype)
 
         case TYPE_CHAR:             // 1 byte signed char (options NC_BYTE, NC_UBYTE, NC_CHAR ?)
             return NC_BYTE;
+
+        case TYPE_UNSIGNED_CHAR:             // 1 byte unsigned char (options NC_BYTE, NC_UBYTE, NC_CHAR ?)
+            return NC_UBYTE;
 
         default:
             return NC_NAT;

@@ -379,7 +379,7 @@ bool_t xdr_putdata_block1(XDR* xdrs, PUTDATA_BLOCK* str)
 bool_t xdr_putdata_block2(XDR* xdrs, PUTDATA_BLOCK* str)
 {
     int rc = 1;
-    if (str->rank > 1) {
+    if (str->rank > 0) {
         rc = rc && xdr_vector(xdrs, (char*)str->shape, (int)str->rank, sizeof(int), (xdrproc_t)xdr_int);
     }
 

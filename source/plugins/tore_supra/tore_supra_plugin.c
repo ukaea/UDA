@@ -454,7 +454,7 @@ char* getMappingValue(const char* mappingFileName, const char* IDSRequest,
 
     int len = strlen(IDSRequest) + 26;
     xmlChar* xPathExpr = malloc(len + sizeof(xmlChar));
-    xmlStrPrintf(xPathExpr, len, "//mapping[@key='%s']/@value", IDSRequest);
+    xmlStrPrintf(xPathExpr, len, (XML_FMT_TYPE)"//mapping[@key='%s']/@value", IDSRequest);
 
     /*
      * Evaluate xpath expression for the type
@@ -487,7 +487,7 @@ char* getMappingValue(const char* mappingFileName, const char* IDSRequest,
                      "no result on XPath request, no key attribute defined?");
     }
 
-    xmlStrPrintf(xPathExpr, len, "//mapping[@key='%s']/@type", IDSRequest);
+    xmlStrPrintf(xPathExpr, len, (XML_FMT_TYPE)"//mapping[@key='%s']/@type", IDSRequest);
 
     /*
      * Evaluate xpath expression for the type
