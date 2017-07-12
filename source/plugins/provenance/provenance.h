@@ -99,5 +99,4 @@ int preventSQLInjection(PGconn * DBConnect, char ** from, unsigned short freeHea
 #ifdef __cplusplus
 }
 #endif
-
 #endif // IDAM_PLUGINS_PROVENANCE_PROVENANCE_H
