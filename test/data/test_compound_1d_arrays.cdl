@@ -1,0 +1,42 @@
+netcdf test_compound_1d_arrays {
+// Global attributes
+
+group: testGroup {
+
+types:
+  compound testCompoundByte {
+    byte simpleByte(3);        
+  }
+
+  compound testCompoundShort {
+    int simpleShort(3);        
+  }
+
+  compound testCompoundInt {
+    int simpleInt(3);        
+  }
+
+  compound testCompoundFloat {
+    float simpleFloat(3);        
+  }
+
+  compound testCompoundDouble {
+    double simpleDouble(3);        
+  }
+
+variables:
+  testCompoundByte simpleByte;
+  testCompoundByte simpleShort;
+  testCompoundInt simpleInt;
+  testCompoundFloat simpleFloat;
+  testCompoundDouble simpleDouble;
+
+data:
+   
+   simpleByte = {{1,2,3}};
+   simpleShort = {{1,2,3}};
+   simpleInt = {{1,2,3}};	
+   simpleFloat = {{4.5,5.5,6.6}};
+   simpleDouble = {{4.5,5.5,6.6}};
+}
+}

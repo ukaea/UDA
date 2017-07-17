@@ -3,11 +3,9 @@
 
 #include <c++/UDA.hpp>
 
-TEST_CASE( "Test PROV::help() function", "[PROV][plugins]" ) {
-
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+TEST_CASE( "Test PROV::help() function", "[PROV][plugins]" )
+{
+#include "setup.inc"
 
     uda::Client client;
 

@@ -73,6 +73,7 @@
 #  include <server/createXDRStream.h>
 #  include <server/serverStartup.h>
 #elif !defined(FATCLIENT)
+
 #  include <client/clientXDRStream.h>
 #  include <client/udaClient.h>
 #endif
@@ -108,7 +109,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, void* str
     char* env = NULL;
 
     if ((privateFlags & PRIVATEFLAG_XDRFILE) && protocolVersion >= 5) {
-        if((env = getenv("UDA_WORK_DIR")) != NULL) {
+        if ((env = getenv("UDA_WORK_DIR")) != NULL) {
             // File to record XDR encoded data
             sprintf(tempFile, "%s/idamXDRXXXXXX", env);
         }
@@ -124,8 +125,9 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, void* str
 
 #ifndef FATCLIENT
 
-    if ((xdrs->x_op == XDR_DECODE && protocolVersion < 3) || (xdrs->x_op == XDR_ENCODE && protocolVersion < 3))
+    if ((xdrs->x_op == XDR_DECODE && protocolVersion < 3) || (xdrs->x_op == XDR_ENCODE && protocolVersion < 3)) {
         return 0;
+    }
 
 #endif
 //----------------------------------------------------------------------------
@@ -139,7 +141,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, void* str
         if (protocol_id == PROTOCOL_STRUCTURES) {
 
             void* data = NULL;
-            data_block = (DATA_BLOCK*) str;
+            data_block = (DATA_BLOCK*)str;
 
             if (data_block->opaque_type == OPAQUE_TYPE_STRUCTURES) {
                 int packageType = 0;
@@ -172,10 +174,10 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, void* str
                     sarray.count = data_block->data_n;              // Number of this structure
                     sarray.rank = 1;                                // Array Data Rank?
                     sarray.shape = &shape;                          // Only if rank > 1?
-                    sarray.data = (void*) data_block->data;         // Pointer to the data to be passed
+                    sarray.data = (void*)data_block->data;         // Pointer to the data to be passed
                     strcpy(sarray.type, udt->name);                 // The name of the type
-                    data = (void*) &psarray;                        // Pointer to the SARRAY array pointer
-                    addNonMalloc((void*) &shape, 1, sizeof(int), "int");
+                    data = (void*)&psarray;                        // Pointer to the SARRAY array pointer
+                    addNonMalloc((void*)&shape, 1, sizeof(int), "int");
 
                     IDAM_LOG(UDA_LOG_DEBUG, "protocolXML: sending Structure Definitions\n");
 
@@ -318,14 +320,16 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, void* str
 
                     if ((privateFlags & PRIVATEFLAG_XDRFILE) == 0 && packageType == PACKAGE_STRUCTDATA) option = 1;
                     if ((privateFlags & PRIVATEFLAG_XDRFILE) == 0 && packageType == PACKAGE_XDRFILE &&
-                        protocolVersion >= 5)
-                        option = 2;
+                        protocolVersion >= 5) {
+                            option = 2;
+                    }
                     if ((privateFlags & PRIVATEFLAG_XDRFILE) == 1 && packageType == PACKAGE_XDRFILE &&
-                        protocolVersion >= 5)
-                        option = 3;
+                        protocolVersion >= 5) {
+                            option = 3;
+                    }
 
                     IDAM_LOGF(UDA_LOG_DEBUG, "protocolXML: %d  %d\n", privateFlags & PRIVATEFLAG_XDRFILE,
-                            packageType == PACKAGE_STRUCTDATA);
+                              packageType == PACKAGE_STRUCTDATA);
                     IDAM_LOGF(UDA_LOG_DEBUG, "protocolXML: Receive data option : %d\n", option);
                     IDAM_LOGF(UDA_LOG_DEBUG, "protocolXML: Receive package Type: %d\n", packageType);
 
@@ -351,16 +355,16 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, void* str
                             err = 998;
                             addIdamError(&idamerrorstack, CODEERRORTYPE, "protocolXML", err, tempFile);
                             IDAM_LOGF(UDA_LOG_DEBUG, "Unable to Obtain a Temporary File Name [3], tempFile=[%s]\n",
-                                    tempFile);
+                                      tempFile);
                             break;
                         }
 
                         err = receiveXDRFile(xdrs, tempFile);        // Receive and write the file
 
-                        char* fname = (char*) malloc(sizeof(char) * (strlen(tempFile) + 1));
+                        char* fname = (char*)malloc(sizeof(char) * (strlen(tempFile) + 1));
                         strcpy(fname, tempFile);
                         data_block->data = NULL;                // No Data - not unpacked
-                        data_block->opaque_block = (void*) fname;            // File name
+                        data_block->opaque_block = (void*)fname;            // File name
                         data_block->opaque_type = OPAQUE_TYPE_XDRFILE;        // The data block is carrying the filename only
 
                     }
@@ -369,11 +373,11 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, void* str
 
                     if (option == 1 || option == 2) {
 
-                        logmalloclist = (LOGMALLOCLIST*) malloc(sizeof(LOGMALLOCLIST));
+                        logmalloclist = (LOGMALLOCLIST*)malloc(sizeof(LOGMALLOCLIST));
                         initLogMallocList(logmalloclist);
 
-                        userdefinedtypelist = (USERDEFINEDTYPELIST*) malloc(sizeof(USERDEFINEDTYPELIST));
-                        USERDEFINEDTYPE* udt_received = (USERDEFINEDTYPE*) malloc(sizeof(USERDEFINEDTYPE));
+                        userdefinedtypelist = (USERDEFINEDTYPELIST*)malloc(sizeof(USERDEFINEDTYPELIST));
+                        USERDEFINEDTYPE* udt_received = (USERDEFINEDTYPE*)malloc(sizeof(USERDEFINEDTYPE));
 
                         initUserDefinedTypeList(userdefinedtypelist);
 
@@ -398,7 +402,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, void* str
                                 err = 997;
                                 addIdamError(&idamerrorstack, CODEERRORTYPE, "protocolXML", err, tempFile);
                                 IDAM_LOGF(UDA_LOG_DEBUG, "Unable to Obtain a Temporary File Name [2], tempFile=[%s]\n",
-                                        tempFile);
+                                          tempFile);
                                 break;
                             }
 
@@ -473,17 +477,17 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, void* str
 
                         if (STR_EQUALS(udt_received->name, "SARRAY")) {            // expecting this carrier structure
 
-                            GENERAL_BLOCK* general_block = (GENERAL_BLOCK*) malloc(sizeof(GENERAL_BLOCK));
+                            GENERAL_BLOCK* general_block = (GENERAL_BLOCK*)malloc(sizeof(GENERAL_BLOCK));
 
-                            SARRAY* s = (SARRAY*) data;
+                            SARRAY* s = (SARRAY*)data;
                             if (s->count != data_block->data_n) {                // check for consistency
                                 err = 999;
                                 addIdamError(&idamerrorstack, CODEERRORTYPE, "protocolXML", err,
                                              "Inconsistent S Array Counts");
                                 break;
                             }
-                            data_block->data = (char*) fullNTree;        // Global Root Node with the Carrier Structure containing data
-                            data_block->opaque_block = (void*) general_block;
+                            data_block->data = (char*)fullNTree;        // Global Root Node with the Carrier Structure containing data
+                            data_block->opaque_block = (void*)general_block;
                             general_block->userdefinedtype = udt_received;
                             general_block->userdefinedtypelist = userdefinedtypelist;
                             general_block->logmalloclist = logmalloclist;
@@ -542,10 +546,10 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, void* str
 
                             // If this is an intermediate client then read the file without unpacking the structures
 
-                            char* fname = (char*) malloc(sizeof(char) * (strlen(tempFile) + 1));
+                            char* fname = (char*)malloc(sizeof(char) * (strlen(tempFile) + 1));
                             strcpy(fname, tempFile);
                             data_block->data = NULL;                // No Data - not unpacked
-                            data_block->opaque_block = (void*) fname;            // File name
+                            data_block->opaque_block = (void*)fname;            // File name
                             data_block->opaque_type = OPAQUE_TYPE_XDRFILE;        // The data block is carrying the filename only
 
                             IDAM_LOG(UDA_LOG_DEBUG, "protocolXML: Forwarding Received forwarded XDR File\n");
@@ -554,11 +558,11 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, void* str
 
                             // Unpack the data Structures
 
-                            logmalloclist = (LOGMALLOCLIST*) malloc(sizeof(LOGMALLOCLIST));
+                            logmalloclist = (LOGMALLOCLIST*)malloc(sizeof(LOGMALLOCLIST));
                             initLogMallocList(logmalloclist);
 
-                            userdefinedtypelist = (USERDEFINEDTYPELIST*) malloc(sizeof(USERDEFINEDTYPELIST));
-                            USERDEFINEDTYPE* udt_received = (USERDEFINEDTYPE*) malloc(sizeof(USERDEFINEDTYPE));
+                            userdefinedtypelist = (USERDEFINEDTYPELIST*)malloc(sizeof(USERDEFINEDTYPELIST));
+                            USERDEFINEDTYPE* udt_received = (USERDEFINEDTYPE*)malloc(sizeof(USERDEFINEDTYPE));
 
                             initUserDefinedTypeList(userdefinedtypelist);
 
@@ -614,19 +618,20 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, void* str
 
                             // Regular client or server
 
-                            if (STR_EQUALS(udt_received->name, "SARRAY")) {            // expecting this carrier structure
+                            if (STR_EQUALS(udt_received->name,
+                                           "SARRAY")) {            // expecting this carrier structure
 
-                                GENERAL_BLOCK* general_block = (GENERAL_BLOCK*) malloc(sizeof(GENERAL_BLOCK));
+                                GENERAL_BLOCK* general_block = (GENERAL_BLOCK*)malloc(sizeof(GENERAL_BLOCK));
 
-                                SARRAY* s = (SARRAY*) data;
+                                SARRAY* s = (SARRAY*)data;
                                 if (s->count != data_block->data_n) {                // check for consistency
                                     err = 999;
                                     addIdamError(&idamerrorstack, CODEERRORTYPE, "protocolXML", err,
                                                  "Inconsistent S Array Counts");
                                     break;
                                 }
-                                data_block->data = (char*) fullNTree;        // Global Root Node with the Carrier Structure containing data
-                                data_block->opaque_block = (void*) general_block;
+                                data_block->data = (char*)fullNTree;        // Global Root Node with the Carrier Structure containing data
+                                data_block->opaque_block = (void*)general_block;
                                 data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
                                 general_block->userdefinedtype = udt_received;
                                 general_block->userdefinedtypelist = userdefinedtypelist;
@@ -656,7 +661,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, void* str
 #ifndef FATCLIENT
 
         if (protocol_id == PROTOCOL_META) {
-            data_block = (DATA_BLOCK*) str;
+            data_block = (DATA_BLOCK*)str;
             if (data_block->opaque_type == OPAQUE_TYPE_XML_DOCUMENT && data_block->opaque_count > 0) {
                 switch (direction) {
                     case XDR_RECEIVE :
@@ -664,7 +669,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, void* str
                             err = PROTOCOL_ERROR_5;
                             break;
                         }
-                        if ((data_block->opaque_block = (char*) malloc(
+                        if ((data_block->opaque_block = (char*)malloc(
                                 (data_block->opaque_count + 1) * sizeof(char))) == NULL) {
                             err = 991;
                             break;
@@ -677,10 +682,9 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, void* str
                         break;
 
                     case XDR_SEND:
-
                         if (!xdr_meta(xdrs, data_block)) {
                             IDAM_LOGF(UDA_LOG_DEBUG, "Error sending Metadata XML Document: \n%s\n\n",
-                                    (char*) data_block->opaque_block);
+                                      (char*)data_block->opaque_block);
                             err = 990;
                             break;
                         }

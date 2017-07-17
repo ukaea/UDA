@@ -112,8 +112,7 @@ unsigned int readCDF4Properties()
 }
 */
 
-int readerCDF4(DATA_SOURCE* data_source, SIGNAL_DESC* signal_desc, REQUEST_BLOCK* request_block,
-               DATA_BLOCK* data_block)
+int readerCDF4(DATA_SOURCE* data_source, SIGNAL_DESC* signal_desc, REQUEST_BLOCK* request_block, DATA_BLOCK* data_block)
 {
     char classtxt[STRING_LENGTH];
     char comment[STRING_LENGTH];

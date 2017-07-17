@@ -4,11 +4,9 @@
 #include <client/udaPutAPI.h>
 #include <c++/UDA.hpp>
 
-TEST_CASE( "Test PUTDATA::help() function", "[PUTDATA][plugins]" ) {
-
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+TEST_CASE( "Test PUTDATA::help() function", "[PUTDATA][plugins]" )
+{
+#include "setup.inc"
 
     uda::Client client;
 
@@ -32,11 +30,9 @@ TEST_CASE( "Test PUTDATA::help() function", "[PUTDATA][plugins]" ) {
     REQUIRE( str->str() == expected );
 }
 
-TEST_CASE( "Test cpp PUTDATA functionality", "[PUTDATA][plugins]" ) {
-
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+TEST_CASE( "Test cpp PUTDATA functionality", "[PUTDATA][plugins]" )
+{
+#include "setup.inc"
 
     std::stringstream ss;
     ss << "putdata::open(/create"
