@@ -3,6 +3,8 @@
 
 #include <gcrypt.h>
 
+#define UDA_SECURITY_VERSION 7
+
 // Limits
 #define NONCEBYTELENGTH     50  // System problem when >~ 110 !
 #define UDA_MAXKEY 4096
