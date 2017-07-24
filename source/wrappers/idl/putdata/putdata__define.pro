@@ -1,8 +1,6 @@
 
 function putdata::close
 
-  print, 'CLOSE FILE'
-
   if self.fileid lt 0 then message, 'putdata::close << ERROR >> File is not open, cannot close.'
 
   ; Close file
@@ -18,8 +16,6 @@ function putdata::close
   ; Reset fileid and list of created dims
   self.fileid = -1 
   if self.created_dims ne !NULL then *self.created_dims = []
-
-  print, 'FILE ID ', self.fileid
 
   return, 0
 end
@@ -106,9 +102,6 @@ function putdata::add_errors, errors,    $
   size_data = size(errors)
   ndims = size_data[0] 
 
-  print, 'size ', size_data
-  print, 'n reversed dim ', n_elements(reversed_dim)
-
   if ( ((ndims ne n_elements(reversed_dim)) and (n_elements(reversed_dim) gt 1)) $
      or ((ndims eq 0) and (n_elements(reversed_dim) eq 1) and n_elements(errors) ne 1)) then message, 'putdata::add_signal << ERROR >> The number of dimensions does not match the data shape'  
   dims = strjoin(reversed_dim, ';')
@@ -190,9 +183,6 @@ function putdata::add_signal, data,      $
   size_data = size(data)
   ndims = size_data[0] 
 
-  print, 'size ', size_data
-  print, 'n reversed dim ', n_elements(reversed_dim)
-
   if ( ((ndims ne n_elements(reversed_dim)) and (n_elements(reversed_dim) gt 1)) $
      or ((ndims eq 0) and (n_elements(reversed_dim) eq 1) and n_elements(data) ne 1)) then message, 'putdata::add_signal << ERROR >> The number of dimensions does not match the data shape'  
   dims = strjoin(reversed_dim, ';')
@@ -206,7 +196,6 @@ function putdata::add_signal, data,      $
   ; -------------------
   if is_number(errors) then begin
 
-     print, 'Errors!'
      ; Create variable containing errors : first check if the shape matches
      size_errors = size(errors)
      if n_elements(size_data) ne n_elements(size_errors) then message, 'Errors have a different shape to the data!'
@@ -518,7 +507,6 @@ end
 pro putdata::cleanup
 
   if self.fileid ge 0 then begin
-     print, 'cleanup CLOSE FILE ', self.fileid
      rtn = self->close()
   endif
 
