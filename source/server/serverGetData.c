@@ -1401,7 +1401,7 @@ int idamserverReadData(PGconn* DBConnect, REQUEST_BLOCK request_block, CLIENT_BL
             }
 
 #ifndef ITERSERVER
-            if (pluginlist->plugin[id].private == PLUGINPRIVATE && environment->external_user) {
+            if (pluginlist->plugin[id].isPrivate == PLUGINPRIVATE && environment->external_user) {
                 err = 999;
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "idamserverReadData", err,
                              "Access to this data class is not available.");
@@ -1498,7 +1498,7 @@ int idamserverReadData(PGconn* DBConnect, REQUEST_BLOCK request_block, CLIENT_BL
             }
         }
 
-        if (id >= 0 && pluginlist->plugin[id].private == PLUGINPRIVATE && environment->external_user) {
+        if (id >= 0 && pluginlist->plugin[id].isPrivate == PLUGINPRIVATE && environment->external_user) {
             err = 999;
             addIdamError(&idamerrorstack, CODEERRORTYPE, "idamserverReadData", err,
                          "Access to this data class is not available.");

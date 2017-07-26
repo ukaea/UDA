@@ -1,8 +1,13 @@
-#ifndef IDAM_CLIENTSERVER_IDAMSTRUCTS_H
-#define IDAM_CLIENTSERVER_IDAMSTRUCTS_H
+#ifndef UDA_CLIENTSERVER_IDAMSTRUCTS_H
+#define UDA_CLIENTSERVER_IDAMSTRUCTS_H
 
 #include <sys/time.h>
+
 #include "udaDefines.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 //--------------------------------------------------------
 // Structure Definitions
@@ -388,4 +393,8 @@ typedef struct Environment {
     char _padding[1];
 } ENVIRONMENT;
 
-#endif //IDAM_CLIENTSERVER_IDAMSTRUCTS_H
+#ifdef __cplusplus
+}
+#endif
+
+#endif //UDA_CLIENTSERVER_IDAMSTRUCTS_H

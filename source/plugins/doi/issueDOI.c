@@ -12,16 +12,16 @@ Issues:
 *---------------------------------------------------------------------------------------------------------------*/
 #include "issueDOI.h"
 
+#include <errno.h>
 #include <libpq-fe.h>
 #include <stdlib.h>
-#include <errno.h>
 #include <strings.h>
 
-#include <server/udaServer.h>
-#include <structures/struct.h>
-#include <structures/accessors.h>
 #include <clientserver/stringUtils.h>
 #include <server/getServerEnvironment.h>
+#include <server/udaServer.h>
+#include <structures/accessors.h>
+#include <structures/struct.h>
 
 static const char* dbhost = NULL;
 static char dbport[56];

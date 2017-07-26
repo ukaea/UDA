@@ -8,8 +8,8 @@
 
 #define XDEBUG          0   // Socket Streams
 
-#include <server/pluginStructs.h>
 #include <clientserver/socketStructs.h>
+#include <server/pluginStructs.h>
 #include <structures/genStructs.h>
 
 IDAMERRORSTACK* getIdamServerPluginErrorStack();
@@ -28,8 +28,8 @@ extern SOCKETLIST server_socketlist;    // List of Data Server Sockets
 extern unsigned int totalDataBlockSize;
 extern int serverVersion;
 extern int altRank;
-extern unsigned int lastMallocIndex;
-extern unsigned int* lastMallocIndexValue;
+//extern unsigned int lastMallocIndex;
+//extern unsigned int* lastMallocIndexValue;
 
 extern IDAMERRORSTACK idamerrorstack;
 

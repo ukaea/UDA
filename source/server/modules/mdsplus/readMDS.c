@@ -44,14 +44,14 @@ int readMDS(DATA_SOURCE data_source,
 
 #include <errno.h>
 
-#include <clientserver/manageSockets.h>
-#include <clientserver/stringUtils.h>
 #include <clientserver/freeDataBlock.h>
 #include <clientserver/initStructs.h>
+#include <clientserver/manageSockets.h>
+#include <clientserver/stringUtils.h>
 #include <clientserver/udaTypes.h>
 #include <logging/logging.h>
-#include <server/udaServer.h>
 #include <server/getServerEnvironment.h>
+#include <server/udaServer.h>
 
 #include "readMDSDim.h"
 

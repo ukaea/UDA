@@ -36,14 +36,14 @@
 #include <bson.h>
 #include <mongoc.h>
 
-#include <server/pluginStructs.h>
-#include <plugins/udaPlugin.h>
-#include <structures/genStructs.h>
-#include <server/udaServer.h>
-#include <clientserver/stringUtils.h>
-#include <structures/struct.h>
-#include <structures/accessors.h>
 #include <clientserver/initStructs.h>
+#include <clientserver/stringUtils.h>
+#include <plugins/udaPlugin.h>
+#include <server/pluginStructs.h>
+#include <server/udaServer.h>
+#include <structures/accessors.h>
+#include <structures/genStructs.h>
+#include <structures/struct.h>
 
 typedef struct MongoR {
     char* objectName;

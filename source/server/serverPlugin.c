@@ -162,10 +162,10 @@ void initPluginData(PLUGIN_DATA* plugin)
     plugin->deviceHost[0] = '\0';
     plugin->devicePort[0] = '\0';
     plugin->request = REQUEST_READ_UNKNOWN;
-    plugin->class = PLUGINUNKNOWN;
+    plugin->pluginClass = PLUGINUNKNOWN;
     plugin->external = PLUGINNOTEXTERNAL;
     plugin->status = PLUGINNOTOPERATIONAL;
-    plugin->private = PLUGINPRIVATE;                    // All services are private: Not accessible to external users
+    plugin->isPrivate = PLUGINPRIVATE;                    // All services are private: Not accessible to external users
     plugin->cachePermission = PLUGINCACHEDEFAULT;       // Data are OK or Not for the Client to Cache
     plugin->interfaceVersion = 1;                       // Maximum Interface Version
     plugin->pluginHandle = NULL;
@@ -187,10 +187,10 @@ void printPluginList(FILE* fd, const PLUGINLIST* plugin_list)
         fprintf(fd, "Protocol   : %s\n", plugin_list->plugin[i].deviceProtocol);
         fprintf(fd, "Host       : %s\n", plugin_list->plugin[i].deviceHost);
         fprintf(fd, "Port       : %s\n", plugin_list->plugin[i].devicePort);
-        fprintf(fd, "Class      : %d\n", plugin_list->plugin[i].class);
+        fprintf(fd, "Class      : %d\n", plugin_list->plugin[i].pluginClass);
         fprintf(fd, "External   : %d\n", plugin_list->plugin[i].external);
         fprintf(fd, "Status     : %d\n", plugin_list->plugin[i].status);
-        fprintf(fd, "Private    : %d\n", plugin_list->plugin[i].private);
+        fprintf(fd, "Private    : %d\n", plugin_list->plugin[i].isPrivate);
         fprintf(fd, "cachePermission : %d\n", plugin_list->plugin[i].cachePermission);
         fprintf(fd, "interfaceVersion: %d\n\n", plugin_list->plugin[i].interfaceVersion);
     }
@@ -236,7 +236,7 @@ int findPluginIdByDevice(const char* device, const PLUGINLIST* plugin_list)
 {
     int i;
     for (i = 0; i < plugin_list->count; i++) {
-        if (plugin_list->plugin[i].class == PLUGINDEVICE && STR_IEQUALS(plugin_list->plugin[i].format, device)) {
+        if (plugin_list->plugin[i].pluginClass == PLUGINDEVICE && STR_IEQUALS(plugin_list->plugin[i].format, device)) {
             return i;
         }
     }
@@ -295,8 +295,8 @@ void initPluginList(PLUGINLIST* plugin_list)
 
     strcpy(plugin_list->plugin[plugin_list->count].format, "GENERIC");
     plugin_list->plugin[plugin_list->count].request = REQUEST_READ_GENERIC;
-    plugin_list->plugin[plugin_list->count].class = PLUGINOTHER;
-    plugin_list->plugin[plugin_list->count].private = PLUGINPUBLIC;
+    plugin_list->plugin[plugin_list->count].pluginClass = PLUGINOTHER;
+    plugin_list->plugin[plugin_list->count].isPrivate = PLUGINPUBLIC;
     strcpy(plugin_list->plugin[plugin_list->count].desc,
            "Generic Data Access request - no file format or server name specified, only the shot number");
     strcpy(plugin_list->plugin[plugin_list->count].example, "idamGetAPI(\"signal name\", \"12345\")");
@@ -311,16 +311,16 @@ void initPluginList(PLUGINLIST* plugin_list)
     initPluginData(&plugin_list->plugin[plugin_list->count]);
     strcpy(plugin_list->plugin[plugin_list->count].format, "IDAM");
     plugin_list->plugin[plugin_list->count].request = REQUEST_READ_IDAM;
-    plugin_list->plugin[plugin_list->count].class = PLUGINSERVER;
+    plugin_list->plugin[plugin_list->count].pluginClass = PLUGINSERVER;
 
     ENVIRONMENT* environment = getIdamServerEnvironment();
 
     if (environment->server_proxy[0] != '\0') {
-        plugin_list->plugin[plugin_list->count].private = PLUGINPUBLIC;
+        plugin_list->plugin[plugin_list->count].isPrivate = PLUGINPUBLIC;
     }        // Public service if running as a PROXY
 
     if (!environment->external_user)
-        plugin_list->plugin[plugin_list->count].private = PLUGINPUBLIC;        // Public service for internal requests only
+        plugin_list->plugin[plugin_list->count].isPrivate = PLUGINPUBLIC;        // Public service for internal requests only
 
     strcpy(plugin_list->plugin[plugin_list->count].desc,
            "Data is accessed from an internal or external IDAM server. The server the client is connected to "
@@ -331,11 +331,11 @@ void initPluginList(PLUGINLIST* plugin_list)
 
     strcpy(plugin_list->plugin[plugin_list->count].format, "SERVER");
     plugin_list->plugin[plugin_list->count].request = REQUEST_READ_IDAM;
-    plugin_list->plugin[plugin_list->count].class = PLUGINSERVER;
+    plugin_list->plugin[plugin_list->count].pluginClass = PLUGINSERVER;
     if (environment->server_proxy[0] != '\0')
-        plugin_list->plugin[plugin_list->count].private = PLUGINPUBLIC;        // Public service if running as a PROXY
+        plugin_list->plugin[plugin_list->count].isPrivate = PLUGINPUBLIC;        // Public service if running as a PROXY
     if (!environment->external_user)
-        plugin_list->plugin[plugin_list->count].private = PLUGINPUBLIC;        // Public service for internal requests only
+        plugin_list->plugin[plugin_list->count].isPrivate = PLUGINPUBLIC;        // Public service for internal requests only
     strcpy(plugin_list->plugin[plugin_list->count].desc,
            "Data is accessed from an internal or external IDAM server. The server the client is connected to "
                    "acts as a proxy and passes the access request forward. Multiple servers can be chained "
@@ -353,7 +353,7 @@ void initPluginList(PLUGINLIST* plugin_list)
     strcpy(plugin_list->plugin[plugin_list->count].format, "WEB");
     strcpy(plugin_list->plugin[plugin_list->count].extension, "html");
     plugin_list->plugin[plugin_list->count].request = REQUEST_READ_WEB;
-    plugin_list->plugin[plugin_list->count].class = PLUGINSERVER;
+    plugin_list->plugin[plugin_list->count].pluginClass = PLUGINSERVER;
     strcpy(plugin_list->plugin[plugin_list->count].desc,
            "Data accessed via an internal or external http Web server. Access to external "
                    "html web pages is subject to authentication with the proxy web server.");
@@ -364,7 +364,7 @@ void initPluginList(PLUGINLIST* plugin_list)
     strcpy(plugin_list->plugin[plugin_list->count].format, "HTTP");
     strcpy(plugin_list->plugin[plugin_list->count].extension, "html");
     plugin_list->plugin[plugin_list->count].request = REQUEST_READ_WEB;
-    plugin_list->plugin[plugin_list->count].class = PLUGINSERVER;
+    plugin_list->plugin[plugin_list->count].pluginClass = PLUGINSERVER;
     strcpy(plugin_list->plugin[plugin_list->count].desc,
            "Data accessed via an internal or external http Web server. Access to external "
                    "html web pages is subject to authentication with the proxy web server.");
@@ -380,7 +380,7 @@ void initPluginList(PLUGINLIST* plugin_list)
     */
     strcpy(plugin_list->plugin[plugin_list->count].format, "MDS");
     plugin_list->plugin[plugin_list->count].request = REQUEST_READ_MDS;
-    plugin_list->plugin[plugin_list->count].class = PLUGINSERVER;
+    plugin_list->plugin[plugin_list->count].pluginClass = PLUGINSERVER;
     strcpy(plugin_list->plugin[plugin_list->count].desc,
            "Data accessed via an internal or external MDSPlus server. The latter may be subject to user authentication.");
     strcpy(plugin_list->plugin[plugin_list->count].example,
@@ -389,7 +389,7 @@ void initPluginList(PLUGINLIST* plugin_list)
 
     strcpy(plugin_list->plugin[plugin_list->count].format, "MDS+");
     plugin_list->plugin[plugin_list->count].request = REQUEST_READ_MDS;
-    plugin_list->plugin[plugin_list->count].class = PLUGINSERVER;
+    plugin_list->plugin[plugin_list->count].pluginClass = PLUGINSERVER;
     strcpy(plugin_list->plugin[plugin_list->count].desc,
            "Data accessed via an internal or external MDSPlus server. The latter may be subject to user authentication.");
     strcpy(plugin_list->plugin[plugin_list->count].example,
@@ -398,7 +398,7 @@ void initPluginList(PLUGINLIST* plugin_list)
 
     strcpy(plugin_list->plugin[plugin_list->count].format, "MDSPLUS");
     plugin_list->plugin[plugin_list->count].request = REQUEST_READ_MDS;
-    plugin_list->plugin[plugin_list->count].class = PLUGINSERVER;
+    plugin_list->plugin[plugin_list->count].pluginClass = PLUGINSERVER;
     strcpy(plugin_list->plugin[plugin_list->count].desc,
            "Data accessed via an internal or external MDSPlus server. The latter may be subject to user authentication.");
     strcpy(plugin_list->plugin[plugin_list->count].example,
@@ -409,7 +409,7 @@ void initPluginList(PLUGINLIST* plugin_list)
 #ifndef NOSQLPLUGIN
     strcpy(plugin_list->plugin[plugin_list->count].format, "SQL");
     plugin_list->plugin[plugin_list->count].request = REQUEST_READ_SQL;
-    plugin_list->plugin[plugin_list->count].class = PLUGINSERVER;
+    plugin_list->plugin[plugin_list->count].pluginClass = PLUGINSERVER;
     strcpy(plugin_list->plugin[plugin_list->count].desc,
            "Data accessed from the IDAM SQL server. Now deprecated. Use the META library.");
     allocPluginList(plugin_list->count++, plugin_list);
@@ -418,7 +418,7 @@ void initPluginList(PLUGINLIST* plugin_list)
 #ifndef NOPPFPLUGIN
     strcpy(plugin_list->plugin[plugin_list->count].format,  "PPF");
     plugin_list->plugin[plugin_list->count].request = REQUEST_READ_PPF;
-    plugin_list->plugin[plugin_list->count].class   = PLUGINSERVER;	// Treat pathname as a URL
+    plugin_list->plugin[plugin_list->count].pluginClass   = PLUGINSERVER;	// Treat pathname as a URL
     strcpy(plugin_list->plugin[plugin_list->count].desc,  "Data accessed from the JET PPF server. This is the default data archive on JET so does not need to be explictly "
            "stated in the signal argument.");
     strcpy(plugin_list->plugin[plugin_list->count].example, "idamGetAPI(\"ipla\",\"magn/12345\")\n"
@@ -433,7 +433,7 @@ void initPluginList(PLUGINLIST* plugin_list)
 #ifndef NOJPFPLUGIN
     strcpy(plugin_list->plugin[plugin_list->count].format,  "JPF");
     plugin_list->plugin[plugin_list->count].request = REQUEST_READ_JPF;
-    plugin_list->plugin[plugin_list->count].class   = PLUGINSERVER;	// Treat pathname as a URL
+    plugin_list->plugin[plugin_list->count].pluginClass   = PLUGINSERVER;	// Treat pathname as a URL
     strcpy(plugin_list->plugin[plugin_list->count].desc,  "Data accessed from a JET JPF server.");
     strcpy(plugin_list->plugin[plugin_list->count].example, "idamGetAPI(\"DA/C1-IPLA\", \"JPF::/56000\")");
     allocPluginList(plugin_list->count++, plugin_list);
@@ -445,8 +445,8 @@ void initPluginList(PLUGINLIST* plugin_list)
 #ifndef NOIDAPLUGIN
     strcpy(plugin_list->plugin[plugin_list->count].format, "IDA");
     plugin_list->plugin[plugin_list->count].request = REQUEST_READ_IDA;
-    plugin_list->plugin[plugin_list->count].class = PLUGINFILE;
-    plugin_list->plugin[plugin_list->count].private = PLUGINPUBLIC;
+    plugin_list->plugin[plugin_list->count].pluginClass = PLUGINFILE;
+    plugin_list->plugin[plugin_list->count].isPrivate = PLUGINPUBLIC;
     strcpy(plugin_list->plugin[plugin_list->count].desc, "Data accessed from a Legacy IDA3 file.");
     strcpy(plugin_list->plugin[plugin_list->count].example,
            "idamGetAPI(\"abc_my data\", \"IDA::/path/to/my/file123.45\")");
@@ -454,8 +454,8 @@ void initPluginList(PLUGINLIST* plugin_list)
 
     strcpy(plugin_list->plugin[plugin_list->count].format, "IDA3");
     plugin_list->plugin[plugin_list->count].request = REQUEST_READ_IDA;
-    plugin_list->plugin[plugin_list->count].class = PLUGINFILE;
-    plugin_list->plugin[plugin_list->count].private = PLUGINPUBLIC;
+    plugin_list->plugin[plugin_list->count].pluginClass = PLUGINFILE;
+    plugin_list->plugin[plugin_list->count].isPrivate = PLUGINPUBLIC;
     strcpy(plugin_list->plugin[plugin_list->count].desc, "Data accessed from a Legacy IDA3 file.");
     strcpy(plugin_list->plugin[plugin_list->count].example,
            "idamGetAPI(\"abc_my data\", \"IDA3::/path/to/my/file123.45\")");
@@ -466,8 +466,8 @@ void initPluginList(PLUGINLIST* plugin_list)
     strcpy(plugin_list->plugin[plugin_list->count].format, "NETCDF");
     strcpy(plugin_list->plugin[plugin_list->count].extension, "nc");
     plugin_list->plugin[plugin_list->count].request = REQUEST_READ_CDF;
-    plugin_list->plugin[plugin_list->count].class = PLUGINFILE;
-    plugin_list->plugin[plugin_list->count].private = PLUGINPUBLIC;
+    plugin_list->plugin[plugin_list->count].pluginClass = PLUGINFILE;
+    plugin_list->plugin[plugin_list->count].isPrivate = PLUGINPUBLIC;
     strcpy(plugin_list->plugin[plugin_list->count].desc, "Data accessed from a netCDF-3 or netCDF-4 file.");
     strcpy(plugin_list->plugin[plugin_list->count].example,
            "idamGetAPI(\"/group/group/variable\", \"/path/to/my/file.nc\")\n"
@@ -480,8 +480,8 @@ void initPluginList(PLUGINLIST* plugin_list)
     strcpy(plugin_list->plugin[plugin_list->count].format, "CDF");
     strcpy(plugin_list->plugin[plugin_list->count].extension, "nc");
     plugin_list->plugin[plugin_list->count].request = REQUEST_READ_CDF;
-    plugin_list->plugin[plugin_list->count].class = PLUGINFILE;
-    plugin_list->plugin[plugin_list->count].private = PLUGINPUBLIC;
+    plugin_list->plugin[plugin_list->count].pluginClass = PLUGINFILE;
+    plugin_list->plugin[plugin_list->count].isPrivate = PLUGINPUBLIC;
     strcpy(plugin_list->plugin[plugin_list->count].desc, "Data accessed from a netCDF-3 or netCDF-4 file.");
     strcpy(plugin_list->plugin[plugin_list->count].example,
            "idamGetAPI(\"/group/group/variable\", \"/path/to/my/file.nc\")\n"
@@ -494,8 +494,8 @@ void initPluginList(PLUGINLIST* plugin_list)
     strcpy(plugin_list->plugin[plugin_list->count].format, "NETCDF");
     strcpy(plugin_list->plugin[plugin_list->count].extension, "cdf");
     plugin_list->plugin[plugin_list->count].request = REQUEST_READ_CDF;
-    plugin_list->plugin[plugin_list->count].class = PLUGINFILE;
-    plugin_list->plugin[plugin_list->count].private = PLUGINPUBLIC;
+    plugin_list->plugin[plugin_list->count].pluginClass = PLUGINFILE;
+    plugin_list->plugin[plugin_list->count].isPrivate = PLUGINPUBLIC;
     strcpy(plugin_list->plugin[plugin_list->count].desc, "Data accessed from a netCDF-3 or netCDF-4 file.");
     strcpy(plugin_list->plugin[plugin_list->count].example,
            "idamGetAPI(\"/group/group/variable\", \"/path/to/my/file.cdf\")\n"
@@ -508,8 +508,8 @@ void initPluginList(PLUGINLIST* plugin_list)
     strcpy(plugin_list->plugin[plugin_list->count].format, "CDF");
     strcpy(plugin_list->plugin[plugin_list->count].extension, "cdf");
     plugin_list->plugin[plugin_list->count].request = REQUEST_READ_CDF;
-    plugin_list->plugin[plugin_list->count].class = PLUGINFILE;
-    plugin_list->plugin[plugin_list->count].private = PLUGINPUBLIC;
+    plugin_list->plugin[plugin_list->count].pluginClass = PLUGINFILE;
+    plugin_list->plugin[plugin_list->count].isPrivate = PLUGINPUBLIC;
     strcpy(plugin_list->plugin[plugin_list->count].desc, "Data accessed from a netCDF-3 or netCDF-4 file.");
     strcpy(plugin_list->plugin[plugin_list->count].example,
            "idamGetAPI(\"/group/group/variable\", \"/path/to/my/file.cdf\")\n"
@@ -524,8 +524,8 @@ void initPluginList(PLUGINLIST* plugin_list)
     strcpy(plugin_list->plugin[plugin_list->count].format, "HDF5");
     strcpy(plugin_list->plugin[plugin_list->count].extension, "hf");
     plugin_list->plugin[plugin_list->count].request = REQUEST_READ_HDF5;
-    plugin_list->plugin[plugin_list->count].class = PLUGINFILE;
-    plugin_list->plugin[plugin_list->count].private = PLUGINPUBLIC;
+    plugin_list->plugin[plugin_list->count].pluginClass = PLUGINFILE;
+    plugin_list->plugin[plugin_list->count].isPrivate = PLUGINPUBLIC;
     strcpy(plugin_list->plugin[plugin_list->count].desc, "Data accessed from a HDF5 file.");
     strcpy(plugin_list->plugin[plugin_list->count].example,
            "idamGetAPI(\"/group/group/variable\", \"/path/to/my/file.hf\")\n"
@@ -535,8 +535,8 @@ void initPluginList(PLUGINLIST* plugin_list)
     strcpy(plugin_list->plugin[plugin_list->count].format, "HDF");
     strcpy(plugin_list->plugin[plugin_list->count].extension, "hf");
     plugin_list->plugin[plugin_list->count].request = REQUEST_READ_HDF5;
-    plugin_list->plugin[plugin_list->count].class = PLUGINFILE;
-    plugin_list->plugin[plugin_list->count].private = PLUGINPUBLIC;
+    plugin_list->plugin[plugin_list->count].pluginClass = PLUGINFILE;
+    plugin_list->plugin[plugin_list->count].isPrivate = PLUGINPUBLIC;
     strcpy(plugin_list->plugin[plugin_list->count].desc, "Data accessed from a HDF5 file.");
     strcpy(plugin_list->plugin[plugin_list->count].example,
            "idamGetAPI(\"/group/group/variable\", \"/path/to/my/file.hf\")\n"
@@ -546,8 +546,8 @@ void initPluginList(PLUGINLIST* plugin_list)
     strcpy(plugin_list->plugin[plugin_list->count].format, "HDF5");
     strcpy(plugin_list->plugin[plugin_list->count].extension, "h5");
     plugin_list->plugin[plugin_list->count].request = REQUEST_READ_HDF5;
-    plugin_list->plugin[plugin_list->count].class = PLUGINFILE;
-    plugin_list->plugin[plugin_list->count].private = PLUGINPUBLIC;
+    plugin_list->plugin[plugin_list->count].pluginClass = PLUGINFILE;
+    plugin_list->plugin[plugin_list->count].isPrivate = PLUGINPUBLIC;
     strcpy(plugin_list->plugin[plugin_list->count].desc, "Data accessed from a HDF5 file.");
     strcpy(plugin_list->plugin[plugin_list->count].example,
            "idamGetAPI(\"/group/group/variable\", \"/path/to/my/file.h5\")\n"
@@ -557,8 +557,8 @@ void initPluginList(PLUGINLIST* plugin_list)
     strcpy(plugin_list->plugin[plugin_list->count].format, "HDF");
     strcpy(plugin_list->plugin[plugin_list->count].extension, "h5");
     plugin_list->plugin[plugin_list->count].request = REQUEST_READ_HDF5;
-    plugin_list->plugin[plugin_list->count].class = PLUGINFILE;
-    plugin_list->plugin[plugin_list->count].private = PLUGINPUBLIC;
+    plugin_list->plugin[plugin_list->count].pluginClass = PLUGINFILE;
+    plugin_list->plugin[plugin_list->count].isPrivate = PLUGINPUBLIC;
     strcpy(plugin_list->plugin[plugin_list->count].desc, "Data accessed from a HDF5 file.");
     strcpy(plugin_list->plugin[plugin_list->count].example,
            "idamGetAPI(\"/group/group/variable\", \"/path/to/my/file.h5\")\n"
@@ -568,8 +568,8 @@ void initPluginList(PLUGINLIST* plugin_list)
     strcpy(plugin_list->plugin[plugin_list->count].format, "HDF5");
     strcpy(plugin_list->plugin[plugin_list->count].extension, "hdf5");
     plugin_list->plugin[plugin_list->count].request = REQUEST_READ_HDF5;
-    plugin_list->plugin[plugin_list->count].class = PLUGINFILE;
-    plugin_list->plugin[plugin_list->count].private = PLUGINPUBLIC;
+    plugin_list->plugin[plugin_list->count].pluginClass = PLUGINFILE;
+    plugin_list->plugin[plugin_list->count].isPrivate = PLUGINPUBLIC;
     strcpy(plugin_list->plugin[plugin_list->count].desc, "Data accessed from a HDF5 file.");
     strcpy(plugin_list->plugin[plugin_list->count].example,
            "idamGetAPI(\"/group/group/variable\", \"/path/to/my/file.hdf5\")\n"
@@ -579,8 +579,8 @@ void initPluginList(PLUGINLIST* plugin_list)
     strcpy(plugin_list->plugin[plugin_list->count].format, "HDF");
     strcpy(plugin_list->plugin[plugin_list->count].extension, "hdf5");
     plugin_list->plugin[plugin_list->count].request = REQUEST_READ_HDF5;
-    plugin_list->plugin[plugin_list->count].class = PLUGINFILE;
-    plugin_list->plugin[plugin_list->count].private = PLUGINPUBLIC;
+    plugin_list->plugin[plugin_list->count].pluginClass = PLUGINFILE;
+    plugin_list->plugin[plugin_list->count].isPrivate = PLUGINPUBLIC;
     strcpy(plugin_list->plugin[plugin_list->count].desc, "Data accessed from a HDF5 file.");
     strcpy(plugin_list->plugin[plugin_list->count].example,
            "idamGetAPI(\"/group/group/variable\", \"/path/to/my/file.hdf5\")\n"
@@ -590,8 +590,8 @@ void initPluginList(PLUGINLIST* plugin_list)
     strcpy(plugin_list->plugin[plugin_list->count].format, "HDF5");
     strcpy(plugin_list->plugin[plugin_list->count].extension, "hd5");
     plugin_list->plugin[plugin_list->count].request = REQUEST_READ_HDF5;
-    plugin_list->plugin[plugin_list->count].class = PLUGINFILE;
-    plugin_list->plugin[plugin_list->count].private = PLUGINPUBLIC;
+    plugin_list->plugin[plugin_list->count].pluginClass = PLUGINFILE;
+    plugin_list->plugin[plugin_list->count].isPrivate = PLUGINPUBLIC;
     strcpy(plugin_list->plugin[plugin_list->count].desc, "Data accessed from a HDF5 file.");
     strcpy(plugin_list->plugin[plugin_list->count].example,
            "idamGetAPI(\"/group/group/variable\", \"/path/to/my/file.hd5\")\n"
@@ -601,8 +601,8 @@ void initPluginList(PLUGINLIST* plugin_list)
     strcpy(plugin_list->plugin[plugin_list->count].format, "HDF");
     strcpy(plugin_list->plugin[plugin_list->count].extension, "hd5");
     plugin_list->plugin[plugin_list->count].request = REQUEST_READ_HDF5;
-    plugin_list->plugin[plugin_list->count].class = PLUGINFILE;
-    plugin_list->plugin[plugin_list->count].private = PLUGINPUBLIC;
+    plugin_list->plugin[plugin_list->count].pluginClass = PLUGINFILE;
+    plugin_list->plugin[plugin_list->count].isPrivate = PLUGINPUBLIC;
     strcpy(plugin_list->plugin[plugin_list->count].desc, "Data accessed from a HDF5 file.");
     strcpy(plugin_list->plugin[plugin_list->count].example,
            "idamGetAPI(\"/group/group/variable\", \"/path/to/my/file.hd5\")\n"
@@ -613,7 +613,7 @@ void initPluginList(PLUGINLIST* plugin_list)
 #ifndef NOXMLPLUGIN
     strcpy(plugin_list->plugin[plugin_list->count].format, "XML");
     plugin_list->plugin[plugin_list->count].request = REQUEST_READ_XML;
-    plugin_list->plugin[plugin_list->count].class = PLUGINFILE;
+    plugin_list->plugin[plugin_list->count].pluginClass = PLUGINFILE;
     strcpy(plugin_list->plugin[plugin_list->count].desc, "Data accessed from a XML file.");
     allocPluginList(plugin_list->count++, plugin_list);
 #endif
@@ -621,8 +621,8 @@ void initPluginList(PLUGINLIST* plugin_list)
 #ifndef NOUFILEPLUGIN
     strcpy(plugin_list->plugin[plugin_list->count].format, "UFILE");
     plugin_list->plugin[plugin_list->count].request = REQUEST_READ_UFILE;
-    plugin_list->plugin[plugin_list->count].class = PLUGINFILE;
-    plugin_list->plugin[plugin_list->count].private = PLUGINPUBLIC;
+    plugin_list->plugin[plugin_list->count].pluginClass = PLUGINFILE;
+    plugin_list->plugin[plugin_list->count].isPrivate = PLUGINPUBLIC;
     strcpy(plugin_list->plugin[plugin_list->count].desc, "Data accessed from a UFILE file.");
     strcpy(plugin_list->plugin[plugin_list->count].example, "idamGetAPI(\"\", \"UFILE::/path/to/my/u/file\")");
     allocPluginList(plugin_list->count++, plugin_list);
@@ -631,14 +631,14 @@ void initPluginList(PLUGINLIST* plugin_list)
 #ifndef NOBINARYPLUGIN
     strcpy(plugin_list->plugin[plugin_list->count].format, "BIN");
     plugin_list->plugin[plugin_list->count].request = REQUEST_READ_FILE;
-    plugin_list->plugin[plugin_list->count].class = PLUGINFILE;
+    plugin_list->plugin[plugin_list->count].pluginClass = PLUGINFILE;
     strcpy(plugin_list->plugin[plugin_list->count].desc, "Return a Binary file.");
     strcpy(plugin_list->plugin[plugin_list->count].example, "idamGetAPI(\"\", \"BIN::/path/to/my/binary/file\")");
     allocPluginList(plugin_list->count++, plugin_list);
 
     strcpy(plugin_list->plugin[plugin_list->count].format, "BINARY");
     plugin_list->plugin[plugin_list->count].request = REQUEST_READ_FILE;
-    plugin_list->plugin[plugin_list->count].class = PLUGINFILE;
+    plugin_list->plugin[plugin_list->count].pluginClass = PLUGINFILE;
     strcpy(plugin_list->plugin[plugin_list->count].desc, "Return a Binary file.");
     strcpy(plugin_list->plugin[plugin_list->count].example, "idamGetAPI(\"\", \"BINARY::/path/to/my/binary/file\")");
     allocPluginList(plugin_list->count++, plugin_list);
@@ -646,7 +646,7 @@ void initPluginList(PLUGINLIST* plugin_list)
     strcpy(plugin_list->plugin[plugin_list->count].format, "JPG");
     strcpy(plugin_list->plugin[plugin_list->count].extension, "jpg");
     plugin_list->plugin[plugin_list->count].request = REQUEST_READ_FILE;
-    plugin_list->plugin[plugin_list->count].class = PLUGINFILE;
+    plugin_list->plugin[plugin_list->count].pluginClass = PLUGINFILE;
     strcpy(plugin_list->plugin[plugin_list->count].desc, "Return a JPG file.");
     strcpy(plugin_list->plugin[plugin_list->count].example, "idamGetAPI(\"\", \"/path/to/my/file.jpg\")\n"
             "idamGetAPI(\"\", \"JPG::/path/to/my/file.jpg\")");
@@ -654,7 +654,7 @@ void initPluginList(PLUGINLIST* plugin_list)
 
     strcpy(plugin_list->plugin[plugin_list->count].format, "NIDA");
     plugin_list->plugin[plugin_list->count].request = REQUEST_READ_FILE;
-    plugin_list->plugin[plugin_list->count].class = PLUGINFILE;
+    plugin_list->plugin[plugin_list->count].pluginClass = PLUGINFILE;
     strcpy(plugin_list->plugin[plugin_list->count].desc, "Return a NIDA (Not an IDA) file.");
     strcpy(plugin_list->plugin[plugin_list->count].example, "idamGetAPI(\"\", \"NIDA::/path/to/my/file\")");
     allocPluginList(plugin_list->count++, plugin_list);
@@ -662,7 +662,7 @@ void initPluginList(PLUGINLIST* plugin_list)
     strcpy(plugin_list->plugin[plugin_list->count].format, "CSV");
     strcpy(plugin_list->plugin[plugin_list->count].extension, "csv");
     plugin_list->plugin[plugin_list->count].request = REQUEST_READ_FILE;
-    plugin_list->plugin[plugin_list->count].class = PLUGINFILE;
+    plugin_list->plugin[plugin_list->count].pluginClass = PLUGINFILE;
     strcpy(plugin_list->plugin[plugin_list->count].desc, "Return a CSV ASCII file.");
     strcpy(plugin_list->plugin[plugin_list->count].example, "idamGetAPI(\"\", \"/path/to/my/file.csv\")\n"
             "idamGetAPI(\"\", \"CSV::/path/to/my/file.csv\")");
@@ -670,14 +670,14 @@ void initPluginList(PLUGINLIST* plugin_list)
 
     strcpy(plugin_list->plugin[plugin_list->count].format, "TIF");
     plugin_list->plugin[plugin_list->count].request = REQUEST_READ_FILE;
-    plugin_list->plugin[plugin_list->count].class = PLUGINFILE;
+    plugin_list->plugin[plugin_list->count].pluginClass = PLUGINFILE;
     strcpy(plugin_list->plugin[plugin_list->count].desc, "Return a TIF file.");
     strcpy(plugin_list->plugin[plugin_list->count].example, "idamGetAPI(\"\", \"TIF::/path/to/my/file\")");
     allocPluginList(plugin_list->count++, plugin_list);
 
     strcpy(plugin_list->plugin[plugin_list->count].format, "IPX");
     plugin_list->plugin[plugin_list->count].request = REQUEST_READ_FILE;
-    plugin_list->plugin[plugin_list->count].class = PLUGINFILE;
+    plugin_list->plugin[plugin_list->count].pluginClass = PLUGINFILE;
     strcpy(plugin_list->plugin[plugin_list->count].desc, "Return an IPX file.");
     strcpy(plugin_list->plugin[plugin_list->count].example, "idamGetAPI(\"\", \"IPX::/path/to/my/file\")");
     allocPluginList(plugin_list->count++, plugin_list);
@@ -689,7 +689,7 @@ void initPluginList(PLUGINLIST* plugin_list)
 #ifndef HIERARCHICAL_DATA
     strcpy(plugin_list->plugin[plugin_list->count].format, "HDATA");
     plugin_list->plugin[plugin_list->count].request = REQUEST_READ_HDATA;
-    plugin_list->plugin[plugin_list->count].class = PLUGINFILE;
+    plugin_list->plugin[plugin_list->count].pluginClass = PLUGINFILE;
     strcpy(plugin_list->plugin[plugin_list->count].desc, "Data accessed from the EFIT++ XML Meta data file.");
     allocPluginList(plugin_list->count++, plugin_list);
 #endif
@@ -699,8 +699,8 @@ void initPluginList(PLUGINLIST* plugin_list)
 #ifndef NOTESTPLUGIN
     strcpy(plugin_list->plugin[plugin_list->count].format, "TEST");
     plugin_list->plugin[plugin_list->count].request = REQUEST_READ_NEW_PLUGIN;
-    plugin_list->plugin[plugin_list->count].class = PLUGINOTHER;
-    plugin_list->plugin[plugin_list->count].private = PLUGINPUBLIC;
+    plugin_list->plugin[plugin_list->count].pluginClass = PLUGINOTHER;
+    plugin_list->plugin[plugin_list->count].isPrivate = PLUGINPUBLIC;
     strcpy(plugin_list->plugin[plugin_list->count].desc, "Test a New Plugin");
     allocPluginList(plugin_list->count++, plugin_list);
 #endif
@@ -708,8 +708,8 @@ void initPluginList(PLUGINLIST* plugin_list)
 #ifndef NONOTHINGPLUGIN
     strcpy(plugin_list->plugin[plugin_list->count].format, "NOTHING");
     plugin_list->plugin[plugin_list->count].request = REQUEST_READ_NOTHING;
-    plugin_list->plugin[plugin_list->count].class = PLUGINOTHER;
-    plugin_list->plugin[plugin_list->count].private = PLUGINPUBLIC;
+    plugin_list->plugin[plugin_list->count].pluginClass = PLUGINOTHER;
+    plugin_list->plugin[plugin_list->count].isPrivate = PLUGINPUBLIC;
     strcpy(plugin_list->plugin[plugin_list->count].desc, "Generate Test Data");
     allocPluginList(plugin_list->count++, plugin_list);
 #endif
@@ -739,10 +739,10 @@ void initPluginList(PLUGINLIST* plugin_list)
 
     for (i = pluginCount; i < plugin_list->count; i++) {
         plugin_list->plugin[i].request = REQUEST_READ_GENERIC;
-        plugin_list->plugin[i].class = PLUGINFUNCTION;
+        plugin_list->plugin[i].pluginClass = PLUGINFUNCTION;
         strcpy(plugin_list->plugin[i].symbol, "SERVERSIDE");
         strcpy(plugin_list->plugin[i].desc, "Inbuilt Serverside functions");
-        plugin_list->plugin[i].private = PLUGINPUBLIC;
+        plugin_list->plugin[i].isPrivate = PLUGINPUBLIC;
         plugin_list->plugin[i].library[0] = '\0';
         plugin_list->plugin[i].pluginHandle = (void*)NULL;
         plugin_list->plugin[i].external = PLUGINNOTEXTERNAL;        // These are all linked as internal functions
@@ -845,26 +845,26 @@ void initPluginList(PLUGINLIST* plugin_list)
                             break;
 
                         case 1:    // Plugin class: File, Server, Function or Device
-                            plugin_list->plugin[plugin_list->count].class = PLUGINFILE;
+                            plugin_list->plugin[plugin_list->count].pluginClass = PLUGINFILE;
                             if (STR_IEQUALS(LeftTrimString(next), "server"))
-                                plugin_list->plugin[plugin_list->count].class = PLUGINSERVER;
+                                plugin_list->plugin[plugin_list->count].pluginClass = PLUGINSERVER;
                             if (STR_IEQUALS(LeftTrimString(next), "function"))
-                                plugin_list->plugin[plugin_list->count].class = PLUGINFUNCTION;
+                                plugin_list->plugin[plugin_list->count].pluginClass = PLUGINFUNCTION;
                             if (STR_IEQUALS(LeftTrimString(next), "file"))
-                                plugin_list->plugin[plugin_list->count].class = PLUGINFILE;
+                                plugin_list->plugin[plugin_list->count].pluginClass = PLUGINFILE;
                             if (STR_IEQUALS(LeftTrimString(next), "device"))
-                                plugin_list->plugin[plugin_list->count].class = PLUGINDEVICE;
+                                plugin_list->plugin[plugin_list->count].pluginClass = PLUGINDEVICE;
                             break;
 
                         case 2:
 
 // Allow the same symbol (name of data access reader function or plugin entrypoint symbol) but from different libraries!
 
-                            if (plugin_list->plugin[plugin_list->count].class != PLUGINDEVICE) {
+                            if (plugin_list->plugin[plugin_list->count].pluginClass != PLUGINDEVICE) {
                                 strcpy(plugin_list->plugin[plugin_list->count].symbol, LeftTrimString(next));
                                 plugin_list->plugin[plugin_list->count].external = PLUGINEXTERNAL;        // External (not linked) shared library
 
-                                if (plugin_list->plugin[plugin_list->count].class ==
+                                if (plugin_list->plugin[plugin_list->count].pluginClass ==
                                     PLUGINFILE) {            // Plugin method name using a dot syntax
                                     if ((p = strchr(plugin_list->plugin[plugin_list->count].symbol, '.')) != NULL) {
                                         p[0] = '\0';                                // Remove the method name from the symbol text
@@ -882,7 +882,7 @@ void initPluginList(PLUGINLIST* plugin_list)
                             break;
 
                         case 3:    // Server Host or Name of the shared library - can contain multiple plugin symbols so may not be unique
-                            if (plugin_list->plugin[plugin_list->count].class != PLUGINDEVICE) {
+                            if (plugin_list->plugin[plugin_list->count].pluginClass != PLUGINDEVICE) {
                                 strcpy(plugin_list->plugin[plugin_list->count].library, LeftTrimString(next));
                             } else {
                                 strcpy(plugin_list->plugin[plugin_list->count].deviceHost, LeftTrimString(next));
@@ -891,8 +891,8 @@ void initPluginList(PLUGINLIST* plugin_list)
 
                         case 4:    // File extension or Method Name or Port number
 // TO DO: make extensions a list of valid extensions to minimise plugin duplication
-                            if (plugin_list->plugin[plugin_list->count].class != PLUGINDEVICE) {
-                                if (plugin_list->plugin[plugin_list->count].class == PLUGINFILE)
+                            if (plugin_list->plugin[plugin_list->count].pluginClass != PLUGINDEVICE) {
+                                if (plugin_list->plugin[plugin_list->count].pluginClass == PLUGINFILE)
                                     strcpy(plugin_list->plugin[plugin_list->count].extension, next);
                                 else if (next[0] != '*')
                                     strcpy(plugin_list->plugin[plugin_list->count].method,
@@ -933,7 +933,7 @@ void initPluginList(PLUGINLIST* plugin_list)
                                     plugin_list->plugin[plugin_list->count].desc[0] == 'T' ||
                                     plugin_list->plugin[plugin_list->count].desc[0] == 't' ||
                                     plugin_list->plugin[plugin_list->count].desc[0] == '1')) {
-                                plugin_list->plugin[plugin_list->count].private = PLUGINPUBLIC;
+                                plugin_list->plugin[plugin_list->count].isPrivate = PLUGINPUBLIC;
                                 plugin_list->plugin[plugin_list->count].desc[0] = '\0';
                             }
 
@@ -967,7 +967,7 @@ void initPluginList(PLUGINLIST* plugin_list)
 
 // Internal Serverside function ?
 
-                if (plugin_list->plugin[plugin_list->count].class == PLUGINFUNCTION &&
+                if (plugin_list->plugin[plugin_list->count].pluginClass == PLUGINFUNCTION &&
                     STR_IEQUALS(plugin_list->plugin[plugin_list->count].symbol, "serverside") &&
                     plugin_list->plugin[plugin_list->count].library[0] == '\0') {
                     strcpy(plugin_list->plugin[plugin_list->count].symbol, "SERVERSIDE");
@@ -1002,7 +1002,7 @@ void initPluginList(PLUGINLIST* plugin_list)
 
 // New symbol in opened library
 
-                            if (plugin_list->plugin[plugin_list->count].class != PLUGINDEVICE) {
+                            if (plugin_list->plugin[plugin_list->count].pluginClass != PLUGINDEVICE) {
                                 rc = getPluginAddress(
                                         &plugin_list->plugin[j].pluginHandle,                // locate symbol
                                         plugin_list->plugin[j].library,
@@ -1018,7 +1018,7 @@ void initPluginList(PLUGINLIST* plugin_list)
                 }
 
                 if (pluginID == -1) {                                    // open library and locate symbol
-                    if (plugin_list->plugin[plugin_list->count].class != PLUGINDEVICE) {
+                    if (plugin_list->plugin[plugin_list->count].pluginClass != PLUGINDEVICE) {
                         rc = getPluginAddress(&plugin_list->plugin[plugin_list->count].pluginHandle,
                                               plugin_list->plugin[plugin_list->count].library,
                                               plugin_list->plugin[plugin_list->count].symbol,
@@ -1304,8 +1304,8 @@ int idamProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_BLOCK* original_req
             int id = findPluginIdByFormat(env, plugin_list); // Must be defined in the server plugin configuration file
             IDAM_LOGF(UDA_LOG_DEBUG, "Plugin id: %d\n", id);
             if (id >= 0) {
-                IDAM_LOGF(UDA_LOG_DEBUG, "plugin_list->plugin[id].class == PLUGINFUNCTION = %d\n",
-                          plugin_list->plugin[id].class == PLUGINFUNCTION);
+                IDAM_LOGF(UDA_LOG_DEBUG, "plugin_list->plugin[id].pluginClass == PLUGINFUNCTION = %d\n",
+                          plugin_list->plugin[id].pluginClass == PLUGINFUNCTION);
                 IDAM_LOGF(UDA_LOG_DEBUG, "!environment->external_user = %d\n", !environment->external_user);
                 IDAM_LOGF(UDA_LOG_DEBUG, "plugin_list->plugin[id].status == PLUGINOPERATIONAL = %d\n",
                           plugin_list->plugin[id].status == PLUGINOPERATIONAL);
@@ -1315,7 +1315,7 @@ int idamProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_BLOCK* original_req
                           plugin_list->plugin[id].idamPlugin != NULL);
             }
             if (id >= 0 &&
-                plugin_list->plugin[id].class == PLUGINFUNCTION &&
+                plugin_list->plugin[id].pluginClass == PLUGINFUNCTION &&
                 !environment->external_user &&
                 plugin_list->plugin[id].status == PLUGINOPERATIONAL &&
                 plugin_list->plugin[id].pluginHandle != NULL &&
@@ -1481,12 +1481,11 @@ int idamServerMetaDataPluginId(const PLUGINLIST* plugin_list)
 // Identify the MetaData Catalog plugin (must be a function library type plugin)
 
     char* env = NULL;
-    if ((env = getenv("UDA_METADATA_PLUGIN")) != NULL) {        // Must be set in the server startup script
-        int id = findPluginIdByFormat(env,
-                                      plugin_list);        // Must be defined in the server plugin configuration file
+    if ((env = getenv("UDA_METADATA_PLUGIN")) != NULL) {    // Must be set in the server startup script
+        int id = findPluginIdByFormat(env, plugin_list);    // Must be defined in the server plugin configuration file
         if (id >= 0 &&
-            plugin_list->plugin[id].class == PLUGINFUNCTION &&
-            plugin_list->plugin[id].private == PLUGINPRIVATE && getIdamServerEnvironment()->external_user &&
+            plugin_list->plugin[id].pluginClass == PLUGINFUNCTION &&
+            plugin_list->plugin[id].isPrivate == PLUGINPRIVATE && getIdamServerEnvironment()->external_user &&
             plugin_list->plugin[id].status == PLUGINOPERATIONAL &&
             plugin_list->plugin[id].pluginHandle != NULL &&
             plugin_list->plugin[id].idamPlugin != NULL) {

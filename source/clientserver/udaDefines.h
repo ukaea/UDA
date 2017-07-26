@@ -1,5 +1,9 @@
-#ifndef IDAM_CLIENTSERVER_IDAMDEFINES_H
-#define IDAM_CLIENTSERVER_IDAMDEFINES_H
+#ifndef UDA_CLIENTSERVER_IDAMDEFINES_H
+#define UDA_CLIENTSERVER_IDAMDEFINES_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 //--------------------------------------------------------
 // Size Definitions
@@ -123,5 +127,8 @@ extern unsigned int clientFlags;
 
 #define DEFAULT_STATUS 1   // Default Signal and Data_Source Status value
 
+#ifdef __cplusplus
+}
+#endif
 
-#endif //IDAM_CLIENTSERVER_IDAMDEFINES_H
+#endif //UDA_CLIENTSERVER_IDAMDEFINES_H

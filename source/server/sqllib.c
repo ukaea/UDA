@@ -11,15 +11,15 @@
 
 #include <stdlib.h>
 
-#include <logging/logging.h>
-#include <server/udaServer.h>
 #include <clientserver/errorLog.h>
 #include <clientserver/initStructs.h>
-#include <clientserver/stringUtils.h>
-#include <modules/ida/nameIda.h>
 #include <clientserver/printStructs.h>
 #include <clientserver/protocol.h>
+#include <clientserver/stringUtils.h>
 #include <clientserver/udaErrors.h>
+#include <logging/logging.h>
+#include <modules/ida/nameIda.h>
+#include <server/udaServer.h>
 
 // Open the Connection with the PostgreSQL IDAM Database
 

@@ -22,8 +22,8 @@
 #include "readHData.h"
 
 #include <clientserver/errorLog.h>
-#include <server/udaServer.h>
 #include <clientserver/udaErrors.h>
+#include <server/udaServer.h>
 
 #ifdef HIERARCHICAL_DATA
 #include "idamclientserverxml.h"
@@ -95,7 +95,6 @@ int readHData(PGconn *DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_s
 
     return 0;
 }
-
 #else
 
 int readHData(PGconn *DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_source,

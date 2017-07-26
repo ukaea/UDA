@@ -12,14 +12,14 @@
 
 #include "accessLog.h"
 
+#include <arpa/inet.h>
 #include <errno.h>
 #include <stdlib.h>
-#include <arpa/inet.h>
 
 #include <clientserver/stringUtils.h>
+#include <clientserver/udaTypes.h>
 #include <server/serverPlugin.h>
 #include <server/udaServer.h>
-#include <clientserver/udaTypes.h>
 
 unsigned int countDataBlockSize(DATA_BLOCK* data_block, CLIENT_BLOCK* client_block)
 {

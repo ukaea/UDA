@@ -4,12 +4,12 @@
 #include <netcdf.h>
 #include <stdlib.h>
 
-#include <structures/struct.h>
-#include <server/udaServer.h>
 #include <clientserver/errorLog.h>
-#include <logging/logging.h>
 #include <clientserver/stringUtils.h>
 #include <clientserver/udaErrors.h>
+#include <logging/logging.h>
+#include <server/udaServer.h>
+#include <structures/struct.h>
 
 #include "readCDF4.h"
 

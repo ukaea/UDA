@@ -20,17 +20,17 @@
 *---------------------------------------------------------------------------------------------------------------*/
 #include "openData.h"
 
-#include <sys/stat.h>
 #include <dirent.h>
-#include <utime.h>
-#include <stdlib.h>
 #include <errno.h>
+#include <stdlib.h>
 #include <strings.h>
+#include <sys/stat.h>
+#include <utime.h>
 
-#include <server/udaServer.h>
 #include <clientserver/initStructs.h>
-#include <clientserver/udaTypes.h>
 #include <clientserver/stringUtils.h>
+#include <clientserver/udaTypes.h>
+#include <server/udaServer.h>
 
 extern int openData(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {

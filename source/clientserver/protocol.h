@@ -1,8 +1,12 @@
-#ifndef IDAM_CLIENTSERVER_PROTOCOL_H
-#define IDAM_CLIENTSERVER_PROTOCOL_H
+#ifndef UDA_CLIENTSERVER_PROTOCOL_H
+#define UDA_CLIENTSERVER_PROTOCOL_H
 
 #include <rpc/types.h>
 #include <rpc/xdr.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 //-------------------------------------------------------
 // Client Server Conversation Protocols
@@ -80,7 +84,11 @@ enum REQUEST {
 
 extern int protocolVersion; // Client or Server Version number for Protocol Configuration
 
-int protocol(XDR *xdrs, int protocol_id, int direction, int *token, void *str);
-int protocol2(XDR *xdrs, int protocol_id, int direction, int *token, void *str);
+int protocol(XDR* xdrs, int protocol_id, int direction, int* token, void* str);
+int protocol2(XDR* xdrs, int protocol_id, int direction, int* token, void* str);
 
-#endif // IDAM_CLIENTSERVER_PROTOCOL_H
+#ifdef __cplusplus
+}
+#endif
+
+#endif // UDA_CLIENTSERVER_PROTOCOL_H

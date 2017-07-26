@@ -172,7 +172,6 @@ typedef struct {
 
 } ACTION;
 
-
 typedef struct {
     int nactions;                           // Number of Actions
     ACTION* action;                         // Array of Actions

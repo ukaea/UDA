@@ -1,6 +1,3 @@
-// Create the Server Side XDR File Stream
-//
-//----------------------------------------------------------------
 #include "createXDRStream.h"
 
 #include <server/udaServer.h>

@@ -32,13 +32,13 @@ Issues:
 #include <string.h>
 #include <strings.h>
 
-#include <server/udaServer.h>
-#include <clientserver/stringUtils.h>
-#include <structures/struct.h>
-#include <structures/accessors.h>
 #include <clientserver/initStructs.h>
-#include <server/sqllib.h>
+#include <clientserver/stringUtils.h>
 #include <server/getServerEnvironment.h>
+#include <server/sqllib.h>
+#include <server/udaServer.h>
+#include <structures/accessors.h>
+#include <structures/struct.h>
 
 // Prevent SQL injection malicious intent
 // Not required if the server is Read Only!

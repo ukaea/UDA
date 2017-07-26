@@ -1,14 +1,23 @@
-#ifndef IDAM_LOGGING_IDAMACCESSLOG_H
-#define IDAM_LOGGING_IDAMACCESSLOG_H
+#ifndef UDA_LOGGING_IDAMACCESSLOG_H
+#define UDA_LOGGING_IDAMACCESSLOG_H
 
 #include <plugins/udaPlugin.h>
 
-#define HOSTNAMELENGTH    20
-#define DATELENGTH    27
+#define HOSTNAMELENGTH  20
+#define DATELENGTH      27
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 unsigned int countDataBlockSize(DATA_BLOCK* data_block, CLIENT_BLOCK* client_block);
 
-void idamAccessLog(int init, CLIENT_BLOCK client_block, REQUEST_BLOCK request, SERVER_BLOCK server_block, const PLUGINLIST* pluginlist);
+void idamAccessLog(int init, CLIENT_BLOCK client_block, REQUEST_BLOCK request, SERVER_BLOCK server_block,
+                   const PLUGINLIST* pluginlist);
 
-#endif // IDAM_LOGGING_IDAMACCESSLOG_H
+#ifdef __cplusplus
+}
+#endif
+
+#endif // UDA_LOGGING_IDAMACCESSLOG_H
 

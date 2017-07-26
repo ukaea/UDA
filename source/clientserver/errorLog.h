@@ -14,16 +14,24 @@
 #define CODEERRORTYPE       2
 #define PLUGINERRORTYPE     3
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 void idamErrorLog(CLIENT_BLOCK client_block, REQUEST_BLOCK request, IDAMERRORSTACK idamerrorstack);
-void initIdamErrorStack(IDAMERRORSTACK *idamerrorstack);
-void initIdamErrorRecords(IDAMERRORSTACK *idamerrorstack);
+void initIdamErrorStack(IDAMERRORSTACK* idamerrorstack);
+void initIdamErrorRecords(IDAMERRORSTACK* idamerrorstack);
 void printIdamErrorStack(IDAMERRORSTACK idamerrorstack);
-void addIdamError(IDAMERRORSTACK *idamerrorstack, int type, const char *location, int code, const char *msg);
-void concatIdamError(IDAMERRORSTACK errorstackin, IDAMERRORSTACK *errorstackout);
-void closeIdamError(IDAMERRORSTACK *idamerrorstack);
+void addIdamError(IDAMERRORSTACK* idamerrorstack, int type, const char* location, int code, const char* msg);
+void concatIdamError(IDAMERRORSTACK errorstackin, IDAMERRORSTACK* errorstackout);
+void closeIdamError(IDAMERRORSTACK* idamerrorstack);
 
 extern IDAMERRORSTACK idamerrorstack;
 
 #define THROW_ERROR(ERR, MSG) addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, ERR, MSG); return ERR;
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // UDA_CLIENTSERVER_IDAMERRORLOG_H

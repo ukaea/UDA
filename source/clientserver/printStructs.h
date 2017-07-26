@@ -1,7 +1,11 @@
-#ifndef IDAM_CLIENTSERVER_PRINTSTRUCTS_H
-#define IDAM_CLIENTSERVER_PRINTSTRUCTS_H
+#ifndef UDA_CLIENTSERVER_PRINTSTRUCTS_H
+#define UDA_CLIENTSERVER_PRINTSTRUCTS_H
 
 #include "udaStructs.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 void printRequestBlock(REQUEST_BLOCK str);
 
@@ -23,5 +27,9 @@ void printSignalDesc(SIGNAL_DESC str);
 
 void printPerformance(PERFORMANCE str);
 
-#endif // IDAM_CLIENTSERVER_PRINTSTRUCTS_H
+#ifdef __cplusplus
+}
+#endif
+
+#endif // UDA_CLIENTSERVER_PRINTSTRUCTS_H
 

@@ -16,14 +16,15 @@ add_subdirectory( modules )
 # Sources
 
 set( SRC_FILES
-  udaServer.c
+  fatServer.c
+  udaServer.cpp
   serverGetData.c
   freeIdamPut.c
   udaLegacyServer.c
   serverPlugin.c
   serverLegacyPlugin.c
   makeServerRequestBlock.c
-  udaServer.c
+  fatServer.c
   sleepServer.c
   writer.c
   createXDRStream.c
@@ -39,7 +40,7 @@ set( SRC_FILES
   serverStartup.c
   getServerEnvironment.c
   getPluginAddress.c
-  )
+)
 
 include_directories(
   ${CMAKE_SOURCE_DIR}/source
@@ -58,11 +59,11 @@ link_directories( ${PostgreSQL_LIBRARY_DIRS} )
 
 add_library( server-objects OBJECT
   ${SRC_FILES}
-  )
+)
 
 add_library( fatserver-objects OBJECT
   ${SRC_FILES}
-  )
+)
 
 target_compile_definitions( fatserver-objects PRIVATE -DFATCLIENT )
 
@@ -78,7 +79,7 @@ set( SERVER_OBJ
 add_library( server-shared SHARED ${SERVER_OBJ} )
 add_library( server-static STATIC ${SERVER_OBJ} )
 
-add_executable( server-exe serverMain.c )
+add_executable( server-exe serverMain.cpp )
 
 ########################################################################################################################
 # Add libraries
@@ -126,16 +127,16 @@ endif()
 # Set library properties
 
 set_target_properties( server-shared
-    PROPERTIES
-      OUTPUT_NAME ${PROJECT_NAME}_server
-      VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}
-      SOVERSION ${PROJECT_VERSION_MAJOR}
-  )
+  PROPERTIES
+    OUTPUT_NAME ${PROJECT_NAME}_server
+    VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}
+    SOVERSION ${PROJECT_VERSION_MAJOR}
+)
 
 set_target_properties( server-static
   PROPERTIES
   OUTPUT_NAME ${PROJECT_NAME}_server
-  )
+)
 
 install(
   TARGETS server-shared server-static

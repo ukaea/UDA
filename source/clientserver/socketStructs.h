@@ -6,6 +6,10 @@
 #include <time.h>
 #include <rpc/rpc.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 //-------------------------------------------------------
 // Socket Types
 
@@ -32,5 +36,9 @@ typedef struct SocketList {
     int nsocks;             // Number of Sockets
     SOCKETS* sockets;      // Array of Socket Management Data
 } SOCKETLIST;
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // UDA_CLIENTSERVER_SOCKETSTRUCTS_H

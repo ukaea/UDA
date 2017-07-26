@@ -1,11 +1,15 @@
-#ifndef IDAM_SERVER_IDAMSERVERPLUGIN_H
-#define IDAM_SERVER_IDAMSERVERPLUGIN_H
+#ifndef UDA_SERVER_IDAMSERVERPLUGIN_H
+#define UDA_SERVER_IDAMSERVERPLUGIN_H
 
 #include <plugins/udaPlugin.h>
 
 #define REQUEST_READ_START      1000
 #define REQUEST_PLUGIN_MCOUNT   100    // Maximum initial number of plugins that can be registered
 #define REQUEST_PLUGIN_MSTEP    10    // Increase heap by 10 records once the maximum is exceeded
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 void allocPluginList(int count, PLUGINLIST* plugin_list);
 
@@ -71,5 +75,9 @@ int idamServerMetaDataPluginId(const PLUGINLIST* plugin_list);
 int idamServerMetaDataPlugin(const PLUGINLIST* plugin_list, int plugin_id, REQUEST_BLOCK* request_block,
                              SIGNAL_DESC* signal_desc, DATA_SOURCE* data_source);
 
-#endif // IDAM_SERVER_IDAMSERVERPLUGIN_H
+#ifdef __cplusplus
+}
+#endif
+
+#endif // UDA_SERVER_IDAMSERVERPLUGIN_H
 

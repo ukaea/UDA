@@ -43,7 +43,7 @@ void initRequestBlock(REQUEST_BLOCK* str)
 
 }
 
-void initClientBlock(CLIENT_BLOCK* str, int version, char* clientname)
+void initClientBlock(CLIENT_BLOCK* str, int version, const char* clientname)
 {
     str->version = version;
     str->timeout = TIMEOUT;

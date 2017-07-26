@@ -12,10 +12,10 @@
 #include <stdlib.h>
 #include <strings.h>
 
-#include <logging/logging.h>
 #include <clientserver/protocol.h>
-#include <server/udaServer.h>
 #include <clientserver/stringUtils.h>
+#include <logging/logging.h>
+#include <server/udaServer.h>
 
 // Initialise the File List
 

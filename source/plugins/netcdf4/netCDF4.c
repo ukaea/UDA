@@ -22,11 +22,11 @@
 
 #include <strings.h>
 
-#include <server/udaServer.h>
-#include <structures/struct.h>
-#include <server/managePluginFiles.h>
 #include <clientserver/initStructs.h>
 #include <clientserver/stringUtils.h>
+#include <server/managePluginFiles.h>
+#include <server/udaServer.h>
+#include <structures/struct.h>
 
 #include "readCDF4.h"
 
