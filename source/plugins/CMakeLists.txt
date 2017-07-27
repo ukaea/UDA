@@ -54,6 +54,10 @@ else()
 #  add_subdirectory( xpadtree )
 #  add_subdirectory( paramsdb )
   add_subdirectory( corrections )
+<<<<<<< HEAD
   add_subdirectory( postgres )
   add_subdirectory( source )
+=======
+  add_subdirectory( exp2imas )
+>>>>>>> 97041aeea08a4e5039a2419df908002779e94549
 endif( DEFINED BUILD_PLUGINS )
