@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <rpc/rpc.h>
+#include <strings.h>
 
 #include <clientserver/udaErrors.h>
 #include <clientserver/initStructs.h>
@@ -61,9 +62,9 @@ int server_tot_block_time = 0;
 int serverVersion = 7;
 int protocolVersion = 7;
 
-#if !defined(FATCLIENT) && !defined(SECURITYENABLED)
-
+//#if !defined(FATCLIENT)
 static int legacyServerVersion = 6;
+//#endif
 
 NTREELIST NTreeList;
 NTREE* fullNTree = NULL;
