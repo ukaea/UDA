@@ -42,7 +42,7 @@ TEST_CASE( "Test cpp putdata functionality", "[putdata]" ) {
 //    const uda::Result& result = client.get("NEWHDF5::help()", "");
 //
 //    REQUIRE( result.errorCode() == 0 );
-//    REQUIRE( result.error() == "" );
+//    REQUIRE( result.errorMessage() == "" );
 //
 //    uda::Data* data = result.data();
 //

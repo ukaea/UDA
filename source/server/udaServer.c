@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <strings.h>
 #include <rpc/rpc.h>
 
 #include <clientserver/udaErrors.h>

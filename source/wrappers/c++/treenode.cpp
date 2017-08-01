@@ -42,7 +42,7 @@ void uda::TreeNode::print()
 std::string uda::TreeNode::name()
 {
     char* name = getNodeStructureName(node_);
-    return name == NULL ? "" : name;
+    return name == nullptr ? "" : name;
 }
 
 void uda::TreeNode::printStructureNames()
@@ -137,7 +137,7 @@ std::vector<std::vector<std::size_t> > uda::TreeNode::atomicShape()
     int size = getNodeAtomicCount(node_);
     std::vector<std::vector<std::size_t> > vec;
     for (int i = 0; i < size; ++i) {
-        if (shapes[i] == NULL || ranks[i] == 0) {
+        if (shapes[i] == nullptr || ranks[i] == 0) {
             std::vector<std::size_t> vec2;
             vec2.push_back(0);
             vec.push_back(vec2);
@@ -179,7 +179,7 @@ uda::Scalar uda::TreeNode::atomicScalar(const std::string& target)
 {
     NTREE* node = findNTreeStructureComponent(node_, (char*)target.c_str()); // Locate the named variable target
     //NTREE * node = findNTreeStructureComponent(node_, target.c_str()); // Locate the named variable target
-    if (node == NULL) return Scalar::Null;
+    if (node == nullptr) return Scalar::Null;
 
     int acount = getNodeAtomicCount(node); // Number of atomic typed structure members
     if (acount == 0) return Scalar::Null; // No atomic data
@@ -189,7 +189,7 @@ uda::Scalar uda::TreeNode::atomicScalar(const std::string& target)
     int* arank = getNodeAtomicRank(node);
     int** ashape = getNodeAtomicShape(node);
 
-    if (anames == NULL || atypes == NULL || arank == NULL || ashape == NULL) {
+    if (anames == nullptr || atypes == nullptr || arank == nullptr || ashape == nullptr) {
         return Scalar::Null;
     }
 
@@ -220,7 +220,7 @@ uda::Scalar uda::TreeNode::atomicScalar(const std::string& target)
 //{
 //    int count = getNodeChildrenCount(node->parent);
 //    T* data = static_cast<T*>(malloc(count * sizeof(T)));
-//    if (data == NULL) {
+//    if (data == nullptr) {
 //        return uda::Vector::Null;
 //    }
 //    for (int j = 0; j < count; j++) {
@@ -236,7 +236,7 @@ uda::Scalar uda::TreeNode::atomicScalar(const std::string& target)
 //    // Scalar String in an array of data structures
 //    int count = getNodeChildrenCount(node->parent);
 //    char** data = static_cast<char**>(malloc(count * sizeof(char*))); // Managed by IDAM
-//    if (data == NULL) {
+//    if (data == nullptr) {
 //        return uda::Vector::Null;
 //    }
 //    addMalloc(data, count, sizeof(char*), (char*)"char *");
@@ -259,12 +259,12 @@ uda::Vector getStringVector(NTREE* node, const std::string& target, int* shape)
 {
     int count = shape[1];
 
-    char** data = static_cast<char**>(malloc(count * sizeof(char*)));
-    if (data == NULL) {
+    auto data = static_cast<char**>(malloc(count * sizeof(char*)));
+    if (data == nullptr) {
         return uda::Vector::Null;
     }
 
-    char* val = reinterpret_cast<char*>(getNodeStructureComponentData(node, (char*)target.c_str()));
+    auto val = reinterpret_cast<char*>(getNodeStructureComponentData(node, (char*)target.c_str()));
 
     for (int j = 0; j < count; j++) {
         data[j] = &val[j * shape[0]];
@@ -276,13 +276,13 @@ uda::Vector getStringVector(NTREE* node, const std::string& target, int* shape)
 uda::Vector getStringVector(NTREE* node, const std::string& target, int count)
 {
     // Scalar String in an array of data structures
-    char** data = static_cast<char**>(malloc(count * sizeof(char*))); // Managed by IDAM
+    auto data = static_cast<char**>(malloc(count * sizeof(char*))); // Managed by IDAM
     addMalloc(data, count, sizeof(char*), (char*)"char *");
-    if (data == NULL) {
+    if (data == nullptr) {
         return uda::Vector::Null;
     }
 
-    char** val = reinterpret_cast<char**>(getNodeStructureComponentData(node, (char*)target.c_str()));
+    auto val = reinterpret_cast<char**>(getNodeStructureComponentData(node, (char*)target.c_str()));
 
     for (int j = 0; j < count; j++) {
         data[j] = val[j];
@@ -295,7 +295,7 @@ uda::Vector uda::TreeNode::atomicVector(const std::string& target)
 {
     NTREE* node = findNTreeStructureComponent(node_, (char*)target.c_str());
     //NTREE * node = findNTreeStructureComponent(node_, (char *)target.c_str()); // Locate the named variable target
-    if (node == NULL) return Vector::Null;
+    if (node == nullptr) return Vector::Null;
 
     int acount = getNodeAtomicCount(node); // Number of atomic typed structure members
     if (acount == 0) return Vector::Null; // No atomic data
@@ -306,7 +306,7 @@ uda::Vector uda::TreeNode::atomicVector(const std::string& target)
     int* arank = getNodeAtomicRank(node);
     int** ashape = getNodeAtomicShape(node);
 
-    if (anames == NULL || atypes == NULL || apoint == NULL || arank == NULL || ashape == NULL) {
+    if (anames == nullptr || atypes == nullptr || apoint == nullptr || arank == nullptr || ashape == nullptr) {
         return Vector::Null;
     }
 
@@ -363,7 +363,7 @@ uda::Array uda::TreeNode::atomicArray(const std::string& target)
 {
     NTREE* node = findNTreeStructureComponent(node_, (char*)target.c_str());
     //NTREE * node = findNTreeStructureComponent(node_, (char *)target.c_str()); // Locate the named variable target
-    if (node == NULL) return Array::Null;
+    if (node == nullptr) return Array::Null;
 
     int acount = getNodeAtomicCount(node); // Number of atomic typed structure members
     if (acount == 0) return Array::Null; // No atomic data
@@ -374,7 +374,7 @@ uda::Array uda::TreeNode::atomicArray(const std::string& target)
     int* arank = getNodeAtomicRank(node);
     int** ashape = getNodeAtomicShape(node);
 
-    if (anames == NULL || atypes == NULL || apoint == NULL || arank == NULL || ashape == NULL) {
+    if (anames == nullptr || atypes == nullptr || apoint == nullptr || arank == nullptr || ashape == nullptr) {
         return Array::Null;
     }
 
@@ -396,7 +396,7 @@ uda::Array uda::TreeNode::atomicArray(const std::string& target)
 uda::StructData uda::TreeNode::structData(const std::string& target)
 {
     NTREE* node = findNTreeStructureComponent(node_, (char*)target.c_str());
-    if (node == NULL) return StructData::Null;
+    if (node == nullptr) return StructData::Null;
 
     int count = getNodeChildrenCount(node->parent);
     //void ** data = static_cast<void **>(malloc(count * sizeof(void *)));
@@ -407,7 +407,7 @@ uda::StructData uda::TreeNode::structData(const std::string& target)
     for (int j = 0; j < count; j++) {
         void* ptr = getNodeData(node->parent->children[j]);
         std::string name(getNodeStructureType(node->parent->children[j]));
-        std::size_t size = static_cast<std::size_t>(getNodeStructureSize(node->parent->children[j]));
+        auto size = static_cast<std::size_t>(getNodeStructureSize(node->parent->children[j]));
         data.append(name, size, ptr);
     }
 
