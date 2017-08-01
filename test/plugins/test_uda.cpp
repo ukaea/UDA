@@ -14,7 +14,7 @@ TEST_CASE( "Test UDA::help() function", "[UDA][plugins]" ) {
     const uda::Result& result = client.get("UDA::help()", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.error() == "" );
+    REQUIRE( result.errorMessage() == "" );
 
     uda::Data* data = result.data();
 
@@ -42,7 +42,7 @@ TEST_CASE( "Test UDA::get() function", "[UDA][plugins]" ) {
     const uda::Result& result = client.get("UDA::get(host=idam3.mast.ccfe.ac.uk, port=56565, signal=\"amb_fl/cc01\", source=\"18299\")", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.error() == "" );
+    REQUIRE( result.errorMessage() == "" );
 
     uda::Data* data = result.data();
 

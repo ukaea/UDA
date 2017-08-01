@@ -6,7 +6,7 @@
 #include <clientserver/udaTypes.h>
 
 /**
- * IDAM Server Side Data Processing
+ * UDA Server Side Data Processing
  *
  * @param client_block
  * @param data_block
@@ -14,7 +14,6 @@
  */
 int serverProcessing(CLIENT_BLOCK client_block, DATA_BLOCK* data_block)
 {
-
     DIMS* ddim = NULL;
     int i, j, k;
     double* newoffs = NULL, * newints = NULL;
@@ -27,27 +26,27 @@ int serverProcessing(CLIENT_BLOCK client_block, DATA_BLOCK* data_block)
     float sf;
     double sd;
 
-//--------------------------------------------------------------------------------------------------
-// If the Rank is 1 and the dimensional data are compressed with zero values, then reduce the
-// rank giving a scalar array
+    //--------------------------------------------------------------------------------------------------
+    // If the Rank is 1 and the dimensional data are compressed with zero values, then reduce the
+    // rank giving a scalar array
 
     if (client_block.get_scalar && data_block->rank == 1) {
         ddim = data_block->dims;
         if (ddim->compressed) {
             reduce = 1;
             if (ddim->method == 0) {
-                if (ddim->dim0 != (double) 0.0 || ddim->diff == (double) 0.0) reduce = 0;
+                if (ddim->dim0 != (double)0.0 || ddim->diff == (double)0.0) reduce = 0;
             } else {
                 switch (ddim->data_type) {
 
                     case TYPE_FLOAT :
-                        sf = (float) 0.0;
+                        sf = (float)0.0;
                         switch (ddim->method) {
                             case 1:
                                 for (i = 0; i < ddim->udoms; i++) {
-                                    for (j = 0; j < *((long*) ddim->sams + i); j++) {
-                                        sf = sf + *((float*) ddim->offs + i) + (float) j * *((float*) ddim->ints + i);
-                                        if (sf != (float) 0.0) {
+                                    for (j = 0; j < *((long*)ddim->sams + i); j++) {
+                                        sf = sf + *((float*)ddim->offs + i) + (float)j * *((float*)ddim->ints + i);
+                                        if (sf != (float)0.0) {
                                             reduce = 0;
                                             break;
                                         }
@@ -56,8 +55,8 @@ int serverProcessing(CLIENT_BLOCK client_block, DATA_BLOCK* data_block)
                                 break;
                             case 2:
                                 for (i = 0; i < ddim->udoms; i++) {
-                                    sf = sf + *((float*) ddim->offs + i);
-                                    if (sf != (float) 0.0) {
+                                    sf = sf + *((float*)ddim->offs + i);
+                                    if (sf != (float)0.0) {
                                         reduce = 0;
                                         break;
                                     }
@@ -65,8 +64,8 @@ int serverProcessing(CLIENT_BLOCK client_block, DATA_BLOCK* data_block)
                                 break;
                             case 3:
                                 for (i = 0; i < ddim->udoms; i++) {
-                                    sf = sf + *((float*) ddim->offs) + (float) i * *((float*) ddim->ints);
-                                    if (sf != (float) 0.0) {
+                                    sf = sf + *((float*)ddim->offs) + (float)i * *((float*)ddim->ints);
+                                    if (sf != (float)0.0) {
                                         reduce = 0;
                                         break;
                                     }
@@ -76,14 +75,14 @@ int serverProcessing(CLIENT_BLOCK client_block, DATA_BLOCK* data_block)
                         break;
 
                     case TYPE_DOUBLE :
-                        sd = (double) 0.0;
+                        sd = (double)0.0;
                         switch (ddim->method) {
                             case 1:
                                 for (i = 0; i < ddim->udoms; i++) {
-                                    for (j = 0; j < *((long*) ddim->sams + i); j++) {
-                                        sd = sd + *((double*) ddim->offs + i) +
-                                             (double) j * *((double*) ddim->ints + i);
-                                        if (sd != (double) 0.0) {
+                                    for (j = 0; j < *((long*)ddim->sams + i); j++) {
+                                        sd = sd + *((double*)ddim->offs + i) +
+                                             (double)j * *((double*)ddim->ints + i);
+                                        if (sd != (double)0.0) {
                                             reduce = 0;
                                             break;
                                         }
@@ -92,8 +91,8 @@ int serverProcessing(CLIENT_BLOCK client_block, DATA_BLOCK* data_block)
                                 break;
                             case 2:
                                 for (i = 0; i < ddim->udoms; i++) {
-                                    sd = sd + *((double*) ddim->offs + i);
-                                    if (sd != (double) 0.0) {
+                                    sd = sd + *((double*)ddim->offs + i);
+                                    if (sd != (double)0.0) {
                                         reduce = 0;
                                         break;
                                     }
@@ -101,8 +100,8 @@ int serverProcessing(CLIENT_BLOCK client_block, DATA_BLOCK* data_block)
                                 break;
                             case 3:
                                 for (i = 0; i < ddim->udoms; i++) {
-                                    sd = sd + *((double*) ddim->offs) + (double) i * *((double*) ddim->ints);
-                                    if (sd != (double) 0.0) {
+                                    sd = sd + *((double*)ddim->offs) + (double)i * *((double*)ddim->ints);
+                                    if (sd != (double)0.0) {
                                         reduce = 0;
                                         break;
                                     }
@@ -112,13 +111,13 @@ int serverProcessing(CLIENT_BLOCK client_block, DATA_BLOCK* data_block)
                         break;
 
                     case TYPE_CHAR : {
-                        char sc = (char) 0;
+                        char sc = (char)0;
                         switch (ddim->method) {
                             case 1:
                                 for (i = 0; i < ddim->udoms; i++) {
-                                    for (j = 0; j < *((long*) ddim->sams + i); j++) {
-                                        sc = sc + *((char*) ddim->offs + i) + (char) j * *((char*) ddim->ints + i);
-                                        if (sc != (short) 0) {
+                                    for (j = 0; j < *((long*)ddim->sams + i); j++) {
+                                        sc = sc + *((char*)ddim->offs + i) + (char)j * *((char*)ddim->ints + i);
+                                        if (sc != (short)0) {
                                             reduce = 0;
                                             break;
                                         }
@@ -127,8 +126,8 @@ int serverProcessing(CLIENT_BLOCK client_block, DATA_BLOCK* data_block)
                                 break;
                             case 2:
                                 for (i = 0; i < ddim->udoms; i++) {
-                                    sc = sc + *((char*) ddim->offs + i);
-                                    if (sc != (char) 0) {
+                                    sc = sc + *((char*)ddim->offs + i);
+                                    if (sc != (char)0) {
                                         reduce = 0;
                                         break;
                                     }
@@ -136,8 +135,8 @@ int serverProcessing(CLIENT_BLOCK client_block, DATA_BLOCK* data_block)
                                 break;
                             case 3:
                                 for (i = 0; i < ddim->udoms; i++) {
-                                    sc = sc + *((char*) ddim->offs) + (char) i * *((char*) ddim->ints);
-                                    if (sc != (char) 0) {
+                                    sc = sc + *((char*)ddim->offs) + (char)i * *((char*)ddim->ints);
+                                    if (sc != (char)0) {
                                         reduce = 0;
                                         break;
                                     }
@@ -148,13 +147,13 @@ int serverProcessing(CLIENT_BLOCK client_block, DATA_BLOCK* data_block)
                     }
 
                     case TYPE_SHORT :
-                        ss = (short) 0;
+                        ss = (short)0;
                         switch (ddim->method) {
                             case 1:
                                 for (i = 0; i < ddim->udoms; i++) {
-                                    for (j = 0; j < *((long*) ddim->sams + i); j++) {
-                                        ss = ss + *((short*) ddim->offs + i) + (short) j * *((short*) ddim->ints + i);
-                                        if (ss != (short) 0) {
+                                    for (j = 0; j < *((long*)ddim->sams + i); j++) {
+                                        ss = ss + *((short*)ddim->offs + i) + (short)j * *((short*)ddim->ints + i);
+                                        if (ss != (short)0) {
                                             reduce = 0;
                                             break;
                                         }
@@ -163,8 +162,8 @@ int serverProcessing(CLIENT_BLOCK client_block, DATA_BLOCK* data_block)
                                 break;
                             case 2:
                                 for (i = 0; i < ddim->udoms; i++) {
-                                    ss = ss + *((short*) ddim->offs + i);
-                                    if (ss != (short) 0) {
+                                    ss = ss + *((short*)ddim->offs + i);
+                                    if (ss != (short)0) {
                                         reduce = 0;
                                         break;
                                     }
@@ -172,8 +171,8 @@ int serverProcessing(CLIENT_BLOCK client_block, DATA_BLOCK* data_block)
                                 break;
                             case 3:
                                 for (i = 0; i < ddim->udoms; i++) {
-                                    ss = ss + *((short*) ddim->offs) + (short) i * *((short*) ddim->ints);
-                                    if (ss != (short) 0) {
+                                    ss = ss + *((short*)ddim->offs) + (short)i * *((short*)ddim->ints);
+                                    if (ss != (short)0) {
                                         reduce = 0;
                                         break;
                                     }
@@ -183,13 +182,13 @@ int serverProcessing(CLIENT_BLOCK client_block, DATA_BLOCK* data_block)
                         break;
 
                     case TYPE_INT :
-                        si = (int) 0;
+                        si = (int)0;
                         switch (ddim->method) {
                             case 1:
                                 for (i = 0; i < ddim->udoms; i++) {
-                                    for (j = 0; j < *((long*) ddim->sams + i); j++) {
-                                        si = si + *((int*) ddim->offs + i) + (int) j * *((int*) ddim->ints + i);
-                                        if (si != (int) 0) {
+                                    for (j = 0; j < *((long*)ddim->sams + i); j++) {
+                                        si = si + *((int*)ddim->offs + i) + (int)j * *((int*)ddim->ints + i);
+                                        if (si != (int)0) {
                                             reduce = 0;
                                             break;
                                         }
@@ -198,8 +197,8 @@ int serverProcessing(CLIENT_BLOCK client_block, DATA_BLOCK* data_block)
                                 break;
                             case 2:
                                 for (i = 0; i < ddim->udoms; i++) {
-                                    si = si + *((int*) ddim->offs + i);
-                                    if (si != (int) 0) {
+                                    si = si + *((int*)ddim->offs + i);
+                                    if (si != (int)0) {
                                         reduce = 0;
                                         break;
                                     }
@@ -207,8 +206,8 @@ int serverProcessing(CLIENT_BLOCK client_block, DATA_BLOCK* data_block)
                                 break;
                             case 3:
                                 for (i = 0; i < ddim->udoms; i++) {
-                                    si = si + *((int*) ddim->offs) + (int) i * *((int*) ddim->ints);
-                                    if (si != (int) 0) {
+                                    si = si + *((int*)ddim->offs) + (int)i * *((int*)ddim->ints);
+                                    if (si != (int)0) {
                                         reduce = 0;
                                         break;
                                     }
@@ -218,13 +217,13 @@ int serverProcessing(CLIENT_BLOCK client_block, DATA_BLOCK* data_block)
                         break;
 
                     case TYPE_LONG :
-                        sl = (long) 0;
+                        sl = (long)0;
                         switch (ddim->method) {
                             case 1:
                                 for (i = 0; i < ddim->udoms; i++) {
-                                    for (j = 0; j < *((long*) ddim->sams + i); j++) {
-                                        sl = sl + *((long*) ddim->offs + i) + (long) j * *((long*) ddim->ints + i);
-                                        if (sl != (long) 0) {
+                                    for (j = 0; j < *((long*)ddim->sams + i); j++) {
+                                        sl = sl + *((long*)ddim->offs + i) + (long)j * *((long*)ddim->ints + i);
+                                        if (sl != (long)0) {
                                             reduce = 0;
                                             break;
                                         }
@@ -233,8 +232,8 @@ int serverProcessing(CLIENT_BLOCK client_block, DATA_BLOCK* data_block)
                                 break;
                             case 2:
                                 for (i = 0; i < ddim->udoms; i++) {
-                                    sl = sl + *((long*) ddim->offs + i);
-                                    if (sl != (long) 0) {
+                                    sl = sl + *((long*)ddim->offs + i);
+                                    if (sl != (long)0) {
                                         reduce = 0;
                                         break;
                                     }
@@ -242,8 +241,8 @@ int serverProcessing(CLIENT_BLOCK client_block, DATA_BLOCK* data_block)
                                 break;
                             case 3:
                                 for (i = 0; i < ddim->udoms; i++) {
-                                    sl = sl + *((long*) ddim->offs) + (long) i * *((long*) ddim->ints);
-                                    if (sl != (long) 0) {
+                                    sl = sl + *((long*)ddim->offs) + (long)i * *((long*)ddim->ints);
+                                    if (sl != (long)0) {
                                         reduce = 0;
                                         break;
                                     }
@@ -253,14 +252,14 @@ int serverProcessing(CLIENT_BLOCK client_block, DATA_BLOCK* data_block)
                         break;
 
                     case TYPE_UNSIGNED_CHAR : {
-                        unsigned char sc = (unsigned char) 0;
+                        unsigned char sc = (unsigned char)0;
                         switch (ddim->method) {
                             case 1:
                                 for (i = 0; i < ddim->udoms; i++) {
-                                    for (j = 0; j < *((long*) ddim->sams + i); j++) {
-                                        sc = sc + *((unsigned char*) ddim->offs + i) +
-                                             (unsigned char) j * *((unsigned char*) ddim->ints + i);
-                                        if (sc != (short) 0) {
+                                    for (j = 0; j < *((long*)ddim->sams + i); j++) {
+                                        sc = sc + *((unsigned char*)ddim->offs + i) +
+                                             (unsigned char)j * *((unsigned char*)ddim->ints + i);
+                                        if (sc != (short)0) {
                                             reduce = 0;
                                             break;
                                         }
@@ -269,8 +268,8 @@ int serverProcessing(CLIENT_BLOCK client_block, DATA_BLOCK* data_block)
                                 break;
                             case 2:
                                 for (i = 0; i < ddim->udoms; i++) {
-                                    sc = sc + *((unsigned char*) ddim->offs + i);
-                                    if (sc != (unsigned char) 0) {
+                                    sc = sc + *((unsigned char*)ddim->offs + i);
+                                    if (sc != (unsigned char)0) {
                                         reduce = 0;
                                         break;
                                     }
@@ -278,9 +277,9 @@ int serverProcessing(CLIENT_BLOCK client_block, DATA_BLOCK* data_block)
                                 break;
                             case 3:
                                 for (i = 0; i < ddim->udoms; i++) {
-                                    sc = sc + *((unsigned char*) ddim->offs) +
-                                         (unsigned char) i * *((unsigned char*) ddim->ints);
-                                    if (sc != (unsigned char) 0) {
+                                    sc = sc + *((unsigned char*)ddim->offs) +
+                                         (unsigned char)i * *((unsigned char*)ddim->ints);
+                                    if (sc != (unsigned char)0) {
                                         reduce = 0;
                                         break;
                                     }
@@ -291,14 +290,14 @@ int serverProcessing(CLIENT_BLOCK client_block, DATA_BLOCK* data_block)
                     }
 
                     case TYPE_UNSIGNED_SHORT : {
-                        unsigned short ss = (unsigned short) 0;
+                        unsigned short ss = (unsigned short)0;
                         switch (ddim->method) {
                             case 1:
                                 for (i = 0; i < ddim->udoms; i++) {
-                                    for (j = 0; j < *((long*) ddim->sams + i); j++) {
-                                        ss = ss + *((unsigned short*) ddim->offs + i) +
-                                             (unsigned short) j * *((unsigned short*) ddim->ints + i);
-                                        if (ss != (unsigned short) 0) {
+                                    for (j = 0; j < *((long*)ddim->sams + i); j++) {
+                                        ss = ss + *((unsigned short*)ddim->offs + i) +
+                                             (unsigned short)j * *((unsigned short*)ddim->ints + i);
+                                        if (ss != (unsigned short)0) {
                                             reduce = 0;
                                             break;
                                         }
@@ -307,8 +306,8 @@ int serverProcessing(CLIENT_BLOCK client_block, DATA_BLOCK* data_block)
                                 break;
                             case 2:
                                 for (i = 0; i < ddim->udoms; i++) {
-                                    ss = ss + *((unsigned short*) ddim->offs + i);
-                                    if (ss != (unsigned short) 0) {
+                                    ss = ss + *((unsigned short*)ddim->offs + i);
+                                    if (ss != (unsigned short)0) {
                                         reduce = 0;
                                         break;
                                     }
@@ -316,9 +315,9 @@ int serverProcessing(CLIENT_BLOCK client_block, DATA_BLOCK* data_block)
                                 break;
                             case 3:
                                 for (i = 0; i < ddim->udoms; i++) {
-                                    ss = ss + *((unsigned short*) ddim->offs) +
-                                         (unsigned short) i * *((unsigned short*) ddim->ints);
-                                    if (ss != (unsigned short) 0) {
+                                    ss = ss + *((unsigned short*)ddim->offs) +
+                                         (unsigned short)i * *((unsigned short*)ddim->ints);
+                                    if (ss != (unsigned short)0) {
                                         reduce = 0;
                                         break;
                                     }
@@ -329,14 +328,14 @@ int serverProcessing(CLIENT_BLOCK client_block, DATA_BLOCK* data_block)
                     }
 
                     case TYPE_UNSIGNED :
-                        su = (unsigned int) 0;
+                        su = (unsigned int)0;
                         switch (ddim->method) {
                             case 1:
                                 for (i = 0; i < ddim->udoms; i++) {
-                                    for (j = 0; j < *((long*) ddim->sams + i); j++) {
-                                        su = su + *((unsigned int*) ddim->offs + i) +
-                                             (unsigned int) j * *((unsigned int*) ddim->ints + i);
-                                        if (su != (unsigned int) 0) {
+                                    for (j = 0; j < *((long*)ddim->sams + i); j++) {
+                                        su = su + *((unsigned int*)ddim->offs + i) +
+                                             (unsigned int)j * *((unsigned int*)ddim->ints + i);
+                                        if (su != (unsigned int)0) {
                                             reduce = 0;
                                             break;
                                         }
@@ -345,8 +344,8 @@ int serverProcessing(CLIENT_BLOCK client_block, DATA_BLOCK* data_block)
                                 break;
                             case 2:
                                 for (i = 0; i < ddim->udoms; i++) {
-                                    su = su + *((unsigned int*) ddim->offs + i);
-                                    if (su != (unsigned int) 0) {
+                                    su = su + *((unsigned int*)ddim->offs + i);
+                                    if (su != (unsigned int)0) {
                                         reduce = 0;
                                         break;
                                     }
@@ -354,9 +353,9 @@ int serverProcessing(CLIENT_BLOCK client_block, DATA_BLOCK* data_block)
                                 break;
                             case 3:
                                 for (i = 0; i < ddim->udoms; i++) {
-                                    su = su + *((unsigned int*) ddim->offs) +
-                                         (unsigned int) i * *((unsigned int*) ddim->ints);
-                                    if (su != (unsigned int) 0) {
+                                    su = su + *((unsigned int*)ddim->offs) +
+                                         (unsigned int)i * *((unsigned int*)ddim->ints);
+                                    if (su != (unsigned int)0) {
                                         reduce = 0;
                                         break;
                                     }
@@ -366,14 +365,14 @@ int serverProcessing(CLIENT_BLOCK client_block, DATA_BLOCK* data_block)
                         break;
 
                     case TYPE_UNSIGNED_LONG : {
-                        unsigned long sl = (unsigned long) 0;
+                        unsigned long sl = (unsigned long)0;
                         switch (ddim->method) {
                             case 1:
                                 for (i = 0; i < ddim->udoms; i++) {
-                                    for (j = 0; j < *((long*) ddim->sams + i); j++) {
-                                        sl = sl + *((unsigned long*) ddim->offs + i) +
-                                             (unsigned long) j * *((unsigned long*) ddim->ints + i);
-                                        if (sl != (unsigned long) 0) {
+                                    for (j = 0; j < *((long*)ddim->sams + i); j++) {
+                                        sl = sl + *((unsigned long*)ddim->offs + i) +
+                                             (unsigned long)j * *((unsigned long*)ddim->ints + i);
+                                        if (sl != (unsigned long)0) {
                                             reduce = 0;
                                             break;
                                         }
@@ -382,8 +381,8 @@ int serverProcessing(CLIENT_BLOCK client_block, DATA_BLOCK* data_block)
                                 break;
                             case 2:
                                 for (i = 0; i < ddim->udoms; i++) {
-                                    sl = sl + *((unsigned long*) ddim->offs + i);
-                                    if (sl != (unsigned long) 0) {
+                                    sl = sl + *((unsigned long*)ddim->offs + i);
+                                    if (sl != (unsigned long)0) {
                                         reduce = 0;
                                         break;
                                     }
@@ -391,9 +390,9 @@ int serverProcessing(CLIENT_BLOCK client_block, DATA_BLOCK* data_block)
                                 break;
                             case 3:
                                 for (i = 0; i < ddim->udoms; i++) {
-                                    sl = sl + *((unsigned long*) ddim->offs) +
-                                         (unsigned long) i * *((unsigned long*) ddim->ints);
-                                    if (sl != (unsigned long) 0) {
+                                    sl = sl + *((unsigned long*)ddim->offs) +
+                                         (unsigned long)i * *((unsigned long*)ddim->ints);
+                                    if (sl != (unsigned long)0) {
                                         reduce = 0;
                                         break;
                                     }
@@ -411,21 +410,21 @@ int serverProcessing(CLIENT_BLOCK client_block, DATA_BLOCK* data_block)
             if (reduce) {                // Reduce the Rank to Scalar and free Dimensional Heap Memory
                 data_block->order = -1;
                 data_block->rank = 0;
-                if (ddim->dim != NULL) free((void*) ddim->dim);
-                if (ddim->errhi != NULL) free((void*) ddim->errhi);
-                if (ddim->errlo != NULL) free((void*) ddim->errlo);
-                if (ddim->sams != NULL) free((void*) ddim->sams);
-                if (ddim->offs != NULL) free((void*) ddim->offs);
-                if (ddim->ints != NULL) free((void*) ddim->ints);
-                free((void*) ddim);
+                if (ddim->dim != NULL) free((void*)ddim->dim);
+                if (ddim->errhi != NULL) free((void*)ddim->errhi);
+                if (ddim->errlo != NULL) free((void*)ddim->errlo);
+                if (ddim->sams != NULL) free((void*)ddim->sams);
+                if (ddim->offs != NULL) free((void*)ddim->offs);
+                if (ddim->ints != NULL) free((void*)ddim->ints);
+                free((void*)ddim);
                 data_block->dims = NULL;
             }
         }
     }
 
-//--------------------------------------------------------------------------------------------------
-// Cast the Time Dimension to Double Precision if the data are in a compressed format
-// or ALL Dimensions if the data are in compressed formats
+    //--------------------------------------------------------------------------------------------------
+    // Cast the Time Dimension to Double Precision if the data are in a compressed format
+    // or ALL Dimensions if the data are in compressed formats
 
     IDAM_LOG(UDA_LOG_DEBUG, "Server Side Processing\n");
 
@@ -439,44 +438,43 @@ int serverProcessing(CLIENT_BLOCK client_block, DATA_BLOCK* data_block)
                     ddim->data_type = TYPE_DOUBLE;
                 } else {
                     switch (ddim->data_type) {
-
                         case TYPE_CHAR :
                             switch (ddim->method) {
                                 case 1:
-                                    newoffs = (double*) malloc(ddim->udoms * sizeof(double));
-                                    newints = (double*) malloc(ddim->udoms * sizeof(double));
+                                    newoffs = (double*)malloc(ddim->udoms * sizeof(double));
+                                    newints = (double*)malloc(ddim->udoms * sizeof(double));
                                     if (newoffs == NULL || newints == NULL) {
-                                        if (newoffs != NULL) free((void*) newoffs);
-                                        if (newints != NULL) free((void*) newints);
+                                        if (newoffs != NULL) free((void*)newoffs);
+                                        if (newints != NULL) free((void*)newints);
                                         return 1;
                                     }
                                     for (i = 0; i < ddim->udoms; i++) {
-                                        *(newoffs + i) = (double) *((char*) ddim->offs + i);
-                                        *(newints + i) = (double) *((char*) ddim->ints + i);
+                                        *(newoffs + i) = (double)*((char*)ddim->offs + i);
+                                        *(newints + i) = (double)*((char*)ddim->ints + i);
                                     }
-                                    if (ddim->offs != NULL) free((void*) ddim->offs);
-                                    if (ddim->ints != NULL) free((void*) ddim->ints);
-                                    ddim->offs = (char*) newoffs;
-                                    ddim->ints = (char*) newints;
+                                    if (ddim->offs != NULL) free((void*)ddim->offs);
+                                    if (ddim->ints != NULL) free((void*)ddim->ints);
+                                    ddim->offs = (char*)newoffs;
+                                    ddim->ints = (char*)newints;
                                     ddim->data_type = TYPE_DOUBLE;
                                     break;
                                 case 2:
-                                    newoffs = (double*) malloc(ddim->udoms * sizeof(double));
+                                    newoffs = (double*)malloc(ddim->udoms * sizeof(double));
                                     for (i = 0; i < ddim->udoms; i++)
-                                        *(newoffs + i) = (double) *((char*) ddim->offs + i);
-                                    if (ddim->offs != NULL) free((void*) ddim->offs);
-                                    ddim->offs = (char*) newoffs;
+                                        *(newoffs + i) = (double)*((char*)ddim->offs + i);
+                                    if (ddim->offs != NULL) free((void*)ddim->offs);
+                                    ddim->offs = (char*)newoffs;
                                     ddim->data_type = TYPE_DOUBLE;
                                     break;
                                 case 3:
-                                    newoffs = (double*) malloc(sizeof(double));
-                                    newints = (double*) malloc(sizeof(double));
-                                    *newoffs = (double) *((char*) ddim->offs);
-                                    *newints = (double) *((char*) ddim->ints);
-                                    if (ddim->offs != NULL) free((void*) ddim->offs);
-                                    if (ddim->ints != NULL) free((void*) ddim->ints);
-                                    ddim->offs = (char*) newoffs;
-                                    ddim->ints = (char*) newints;
+                                    newoffs = (double*)malloc(sizeof(double));
+                                    newints = (double*)malloc(sizeof(double));
+                                    *newoffs = (double)*((char*)ddim->offs);
+                                    *newints = (double)*((char*)ddim->ints);
+                                    if (ddim->offs != NULL) free((void*)ddim->offs);
+                                    if (ddim->ints != NULL) free((void*)ddim->ints);
+                                    ddim->offs = (char*)newoffs;
+                                    ddim->ints = (char*)newints;
                                     ddim->data_type = TYPE_DOUBLE;
                                     break;
                             }
@@ -485,40 +483,40 @@ int serverProcessing(CLIENT_BLOCK client_block, DATA_BLOCK* data_block)
                         case TYPE_SHORT :
                             switch (ddim->method) {
                                 case 1:
-                                    newoffs = (double*) malloc(ddim->udoms * sizeof(double));
-                                    newints = (double*) malloc(ddim->udoms * sizeof(double));
+                                    newoffs = (double*)malloc(ddim->udoms * sizeof(double));
+                                    newints = (double*)malloc(ddim->udoms * sizeof(double));
                                     if (newoffs == NULL || newints == NULL) {
-                                        if (newoffs != NULL) free((void*) newoffs);
-                                        if (newints != NULL) free((void*) newints);
+                                        if (newoffs != NULL) free((void*)newoffs);
+                                        if (newints != NULL) free((void*)newints);
                                         return 1;
                                     }
                                     for (i = 0; i < ddim->udoms; i++) {
-                                        *(newoffs + i) = (double) *((short*) ddim->offs + i);
-                                        *(newints + i) = (double) *((short*) ddim->ints + i);
+                                        *(newoffs + i) = (double)*((short*)ddim->offs + i);
+                                        *(newints + i) = (double)*((short*)ddim->ints + i);
                                     }
-                                    if (ddim->offs != NULL) free((void*) ddim->offs);
-                                    if (ddim->ints != NULL) free((void*) ddim->ints);
-                                    ddim->offs = (char*) newoffs;
-                                    ddim->ints = (char*) newints;
+                                    if (ddim->offs != NULL) free((void*)ddim->offs);
+                                    if (ddim->ints != NULL) free((void*)ddim->ints);
+                                    ddim->offs = (char*)newoffs;
+                                    ddim->ints = (char*)newints;
                                     ddim->data_type = TYPE_DOUBLE;
                                     break;
                                 case 2:
-                                    newoffs = (double*) malloc(ddim->udoms * sizeof(double));
+                                    newoffs = (double*)malloc(ddim->udoms * sizeof(double));
                                     for (i = 0; i < ddim->udoms; i++)
-                                        *(newoffs + i) = (double) *((short*) ddim->offs + i);
-                                    if (ddim->offs != NULL) free((void*) ddim->offs);
-                                    ddim->offs = (char*) newoffs;
+                                        *(newoffs + i) = (double)*((short*)ddim->offs + i);
+                                    if (ddim->offs != NULL) free((void*)ddim->offs);
+                                    ddim->offs = (char*)newoffs;
                                     ddim->data_type = TYPE_DOUBLE;
                                     break;
                                 case 3:
-                                    newoffs = (double*) malloc(sizeof(double));
-                                    newints = (double*) malloc(sizeof(double));
-                                    *newoffs = (double) *((short*) ddim->offs);
-                                    *newints = (double) *((short*) ddim->ints);
-                                    if (ddim->offs != NULL) free((void*) ddim->offs);
-                                    if (ddim->ints != NULL) free((void*) ddim->ints);
-                                    ddim->offs = (char*) newoffs;
-                                    ddim->ints = (char*) newints;
+                                    newoffs = (double*)malloc(sizeof(double));
+                                    newints = (double*)malloc(sizeof(double));
+                                    *newoffs = (double)*((short*)ddim->offs);
+                                    *newints = (double)*((short*)ddim->ints);
+                                    if (ddim->offs != NULL) free((void*)ddim->offs);
+                                    if (ddim->ints != NULL) free((void*)ddim->ints);
+                                    ddim->offs = (char*)newoffs;
+                                    ddim->ints = (char*)newints;
                                     ddim->data_type = TYPE_DOUBLE;
                                     break;
                             }
@@ -527,40 +525,40 @@ int serverProcessing(CLIENT_BLOCK client_block, DATA_BLOCK* data_block)
                         case TYPE_INT :
                             switch (ddim->method) {
                                 case 1:
-                                    newoffs = (double*) malloc(ddim->udoms * sizeof(double));
-                                    newints = (double*) malloc(ddim->udoms * sizeof(double));
+                                    newoffs = (double*)malloc(ddim->udoms * sizeof(double));
+                                    newints = (double*)malloc(ddim->udoms * sizeof(double));
                                     if (newoffs == NULL || newints == NULL) {
-                                        if (newoffs != NULL) free((void*) newoffs);
-                                        if (newints != NULL) free((void*) newints);
+                                        if (newoffs != NULL) free((void*)newoffs);
+                                        if (newints != NULL) free((void*)newints);
                                         return 1;
                                     }
                                     for (i = 0; i < ddim->udoms; i++) {
-                                        *(newoffs + i) = (double) *((int*) ddim->offs + i);
-                                        *(newints + i) = (double) *((int*) ddim->ints + i);
+                                        *(newoffs + i) = (double)*((int*)ddim->offs + i);
+                                        *(newints + i) = (double)*((int*)ddim->ints + i);
                                     }
-                                    if (ddim->offs != NULL) free((void*) ddim->offs);
-                                    if (ddim->ints != NULL) free((void*) ddim->ints);
-                                    ddim->offs = (char*) newoffs;
-                                    ddim->ints = (char*) newints;
+                                    if (ddim->offs != NULL) free((void*)ddim->offs);
+                                    if (ddim->ints != NULL) free((void*)ddim->ints);
+                                    ddim->offs = (char*)newoffs;
+                                    ddim->ints = (char*)newints;
                                     ddim->data_type = TYPE_DOUBLE;
                                     break;
                                 case 2:
-                                    newoffs = (double*) malloc(ddim->udoms * sizeof(double));
+                                    newoffs = (double*)malloc(ddim->udoms * sizeof(double));
                                     for (i = 0; i < ddim->udoms; i++)
-                                        *(newoffs + i) = (double) *((int*) ddim->offs + i);
-                                    if (ddim->offs != NULL) free((void*) ddim->offs);
-                                    ddim->offs = (char*) newoffs;
+                                        *(newoffs + i) = (double)*((int*)ddim->offs + i);
+                                    if (ddim->offs != NULL) free((void*)ddim->offs);
+                                    ddim->offs = (char*)newoffs;
                                     ddim->data_type = TYPE_DOUBLE;
                                     break;
                                 case 3:
-                                    newoffs = (double*) malloc(sizeof(double));
-                                    newints = (double*) malloc(sizeof(double));
-                                    *newoffs = (double) *((int*) ddim->offs);
-                                    *newints = (double) *((int*) ddim->ints);
-                                    if (ddim->offs != NULL) free((void*) ddim->offs);
-                                    if (ddim->ints != NULL) free((void*) ddim->ints);
-                                    ddim->offs = (char*) newoffs;
-                                    ddim->ints = (char*) newints;
+                                    newoffs = (double*)malloc(sizeof(double));
+                                    newints = (double*)malloc(sizeof(double));
+                                    *newoffs = (double)*((int*)ddim->offs);
+                                    *newints = (double)*((int*)ddim->ints);
+                                    if (ddim->offs != NULL) free((void*)ddim->offs);
+                                    if (ddim->ints != NULL) free((void*)ddim->ints);
+                                    ddim->offs = (char*)newoffs;
+                                    ddim->ints = (char*)newints;
                                     ddim->data_type = TYPE_DOUBLE;
                                     break;
                             }
@@ -569,40 +567,40 @@ int serverProcessing(CLIENT_BLOCK client_block, DATA_BLOCK* data_block)
                         case TYPE_LONG :
                             switch (ddim->method) {
                                 case 1:
-                                    newoffs = (double*) malloc(ddim->udoms * sizeof(double));
-                                    newints = (double*) malloc(ddim->udoms * sizeof(double));
+                                    newoffs = (double*)malloc(ddim->udoms * sizeof(double));
+                                    newints = (double*)malloc(ddim->udoms * sizeof(double));
                                     if (newoffs == NULL || newints == NULL) {
-                                        if (newoffs != NULL) free((void*) newoffs);
-                                        if (newints != NULL) free((void*) newints);
+                                        if (newoffs != NULL) free((void*)newoffs);
+                                        if (newints != NULL) free((void*)newints);
                                         return 1;
                                     }
                                     for (i = 0; i < ddim->udoms; i++) {
-                                        *(newoffs + i) = (double) *((long*) ddim->offs + i);
-                                        *(newints + i) = (double) *((long*) ddim->ints + i);
+                                        *(newoffs + i) = (double)*((long*)ddim->offs + i);
+                                        *(newints + i) = (double)*((long*)ddim->ints + i);
                                     }
-                                    if (ddim->offs != NULL) free((void*) ddim->offs);
-                                    if (ddim->ints != NULL) free((void*) ddim->ints);
-                                    ddim->offs = (char*) newoffs;
-                                    ddim->ints = (char*) newints;
+                                    if (ddim->offs != NULL) free((void*)ddim->offs);
+                                    if (ddim->ints != NULL) free((void*)ddim->ints);
+                                    ddim->offs = (char*)newoffs;
+                                    ddim->ints = (char*)newints;
                                     ddim->data_type = TYPE_DOUBLE;
                                     break;
                                 case 2:
-                                    newoffs = (double*) malloc(ddim->udoms * sizeof(double));
+                                    newoffs = (double*)malloc(ddim->udoms * sizeof(double));
                                     for (i = 0; i < ddim->udoms; i++)
-                                        *(newoffs + i) = (double) *((long*) ddim->offs + i);
-                                    if (ddim->offs != NULL) free((void*) ddim->offs);
-                                    ddim->offs = (char*) newoffs;
+                                        *(newoffs + i) = (double)*((long*)ddim->offs + i);
+                                    if (ddim->offs != NULL) free((void*)ddim->offs);
+                                    ddim->offs = (char*)newoffs;
                                     ddim->data_type = TYPE_DOUBLE;
                                     break;
                                 case 3:
-                                    newoffs = (double*) malloc(sizeof(double));
-                                    newints = (double*) malloc(sizeof(double));
-                                    *newoffs = (double) *((long*) ddim->offs);
-                                    *newints = (double) *((long*) ddim->ints);
-                                    if (ddim->offs != NULL) free((void*) ddim->offs);
-                                    if (ddim->ints != NULL) free((void*) ddim->ints);
-                                    ddim->offs = (char*) newoffs;
-                                    ddim->ints = (char*) newints;
+                                    newoffs = (double*)malloc(sizeof(double));
+                                    newints = (double*)malloc(sizeof(double));
+                                    *newoffs = (double)*((long*)ddim->offs);
+                                    *newints = (double)*((long*)ddim->ints);
+                                    if (ddim->offs != NULL) free((void*)ddim->offs);
+                                    if (ddim->ints != NULL) free((void*)ddim->ints);
+                                    ddim->offs = (char*)newoffs;
+                                    ddim->ints = (char*)newints;
                                     ddim->data_type = TYPE_DOUBLE;
                                     break;
                             }
@@ -611,40 +609,40 @@ int serverProcessing(CLIENT_BLOCK client_block, DATA_BLOCK* data_block)
                         case TYPE_UNSIGNED_CHAR :
                             switch (ddim->method) {
                                 case 1:
-                                    newoffs = (double*) malloc(ddim->udoms * sizeof(double));
-                                    newints = (double*) malloc(ddim->udoms * sizeof(double));
+                                    newoffs = (double*)malloc(ddim->udoms * sizeof(double));
+                                    newints = (double*)malloc(ddim->udoms * sizeof(double));
                                     if (newoffs == NULL || newints == NULL) {
-                                        if (newoffs != NULL) free((void*) newoffs);
-                                        if (newints != NULL) free((void*) newints);
+                                        if (newoffs != NULL) free((void*)newoffs);
+                                        if (newints != NULL) free((void*)newints);
                                         return 1;
                                     }
                                     for (i = 0; i < ddim->udoms; i++) {
-                                        *(newoffs + i) = (double) *((unsigned char*) ddim->offs + i);
-                                        *(newints + i) = (double) *((unsigned char*) ddim->ints + i);
+                                        *(newoffs + i) = (double)*((unsigned char*)ddim->offs + i);
+                                        *(newints + i) = (double)*((unsigned char*)ddim->ints + i);
                                     }
-                                    if (ddim->offs != NULL) free((void*) ddim->offs);
-                                    if (ddim->ints != NULL) free((void*) ddim->ints);
-                                    ddim->offs = (char*) newoffs;
-                                    ddim->ints = (char*) newints;
+                                    if (ddim->offs != NULL) free((void*)ddim->offs);
+                                    if (ddim->ints != NULL) free((void*)ddim->ints);
+                                    ddim->offs = (char*)newoffs;
+                                    ddim->ints = (char*)newints;
                                     ddim->data_type = TYPE_DOUBLE;
                                     break;
                                 case 2:
-                                    newoffs = (double*) malloc(ddim->udoms * sizeof(double));
+                                    newoffs = (double*)malloc(ddim->udoms * sizeof(double));
                                     for (i = 0; i < ddim->udoms; i++)
-                                        *(newoffs + i) = (double) *((unsigned char*) ddim->offs + i);
-                                    if (ddim->offs != NULL) free((void*) ddim->offs);
-                                    ddim->offs = (char*) newoffs;
+                                        *(newoffs + i) = (double)*((unsigned char*)ddim->offs + i);
+                                    if (ddim->offs != NULL) free((void*)ddim->offs);
+                                    ddim->offs = (char*)newoffs;
                                     ddim->data_type = TYPE_DOUBLE;
                                     break;
                                 case 3:
-                                    newoffs = (double*) malloc(sizeof(double));
-                                    newints = (double*) malloc(sizeof(double));
-                                    *newoffs = (double) *((unsigned char*) ddim->offs);
-                                    *newints = (double) *((unsigned char*) ddim->ints);
-                                    if (ddim->offs != NULL) free((void*) ddim->offs);
-                                    if (ddim->ints != NULL) free((void*) ddim->ints);
-                                    ddim->offs = (char*) newoffs;
-                                    ddim->ints = (char*) newints;
+                                    newoffs = (double*)malloc(sizeof(double));
+                                    newints = (double*)malloc(sizeof(double));
+                                    *newoffs = (double)*((unsigned char*)ddim->offs);
+                                    *newints = (double)*((unsigned char*)ddim->ints);
+                                    if (ddim->offs != NULL) free((void*)ddim->offs);
+                                    if (ddim->ints != NULL) free((void*)ddim->ints);
+                                    ddim->offs = (char*)newoffs;
+                                    ddim->ints = (char*)newints;
                                     ddim->data_type = TYPE_DOUBLE;
                                     break;
                             }
@@ -653,40 +651,40 @@ int serverProcessing(CLIENT_BLOCK client_block, DATA_BLOCK* data_block)
                         case TYPE_UNSIGNED_SHORT :
                             switch (ddim->method) {
                                 case 1:
-                                    newoffs = (double*) malloc(ddim->udoms * sizeof(double));
-                                    newints = (double*) malloc(ddim->udoms * sizeof(double));
+                                    newoffs = (double*)malloc(ddim->udoms * sizeof(double));
+                                    newints = (double*)malloc(ddim->udoms * sizeof(double));
                                     if (newoffs == NULL || newints == NULL) {
-                                        if (newoffs != NULL) free((void*) newoffs);
-                                        if (newints != NULL) free((void*) newints);
+                                        if (newoffs != NULL) free((void*)newoffs);
+                                        if (newints != NULL) free((void*)newints);
                                         return 1;
                                     }
                                     for (i = 0; i < ddim->udoms; i++) {
-                                        *(newoffs + i) = (double) *((unsigned short*) ddim->offs + i);
-                                        *(newints + i) = (double) *((unsigned short*) ddim->ints + i);
+                                        *(newoffs + i) = (double)*((unsigned short*)ddim->offs + i);
+                                        *(newints + i) = (double)*((unsigned short*)ddim->ints + i);
                                     }
-                                    if (ddim->offs != NULL) free((void*) ddim->offs);
-                                    if (ddim->ints != NULL) free((void*) ddim->ints);
-                                    ddim->offs = (char*) newoffs;
-                                    ddim->ints = (char*) newints;
+                                    if (ddim->offs != NULL) free((void*)ddim->offs);
+                                    if (ddim->ints != NULL) free((void*)ddim->ints);
+                                    ddim->offs = (char*)newoffs;
+                                    ddim->ints = (char*)newints;
                                     ddim->data_type = TYPE_DOUBLE;
                                     break;
                                 case 2:
-                                    newoffs = (double*) malloc(ddim->udoms * sizeof(double));
+                                    newoffs = (double*)malloc(ddim->udoms * sizeof(double));
                                     for (i = 0; i < ddim->udoms; i++)
-                                        *(newoffs + i) = (double) *((unsigned short*) ddim->offs + i);
-                                    if (ddim->offs != NULL) free((void*) ddim->offs);
-                                    ddim->offs = (char*) newoffs;
+                                        *(newoffs + i) = (double)*((unsigned short*)ddim->offs + i);
+                                    if (ddim->offs != NULL) free((void*)ddim->offs);
+                                    ddim->offs = (char*)newoffs;
                                     ddim->data_type = TYPE_DOUBLE;
                                     break;
                                 case 3:
-                                    newoffs = (double*) malloc(sizeof(double));
-                                    newints = (double*) malloc(sizeof(double));
-                                    *newoffs = (double) *((unsigned short*) ddim->offs);
-                                    *newints = (double) *((unsigned short*) ddim->ints);
-                                    if (ddim->offs != NULL) free((void*) ddim->offs);
-                                    if (ddim->ints != NULL) free((void*) ddim->ints);
-                                    ddim->offs = (char*) newoffs;
-                                    ddim->ints = (char*) newints;
+                                    newoffs = (double*)malloc(sizeof(double));
+                                    newints = (double*)malloc(sizeof(double));
+                                    *newoffs = (double)*((unsigned short*)ddim->offs);
+                                    *newints = (double)*((unsigned short*)ddim->ints);
+                                    if (ddim->offs != NULL) free((void*)ddim->offs);
+                                    if (ddim->ints != NULL) free((void*)ddim->ints);
+                                    ddim->offs = (char*)newoffs;
+                                    ddim->ints = (char*)newints;
                                     ddim->data_type = TYPE_DOUBLE;
                                     break;
                             }
@@ -695,40 +693,40 @@ int serverProcessing(CLIENT_BLOCK client_block, DATA_BLOCK* data_block)
                         case TYPE_UNSIGNED :
                             switch (ddim->method) {
                                 case 1:
-                                    newoffs = (double*) malloc(ddim->udoms * sizeof(double));
-                                    newints = (double*) malloc(ddim->udoms * sizeof(double));
+                                    newoffs = (double*)malloc(ddim->udoms * sizeof(double));
+                                    newints = (double*)malloc(ddim->udoms * sizeof(double));
                                     if (newoffs == NULL || newints == NULL) {
-                                        if (newoffs != NULL) free((void*) newoffs);
-                                        if (newints != NULL) free((void*) newints);
+                                        if (newoffs != NULL) free((void*)newoffs);
+                                        if (newints != NULL) free((void*)newints);
                                         return 1;
                                     }
                                     for (i = 0; i < ddim->udoms; i++) {
-                                        *(newoffs + i) = (double) *((unsigned int*) ddim->offs + i);
-                                        *(newints + i) = (double) *((unsigned int*) ddim->ints + i);
+                                        *(newoffs + i) = (double)*((unsigned int*)ddim->offs + i);
+                                        *(newints + i) = (double)*((unsigned int*)ddim->ints + i);
                                     }
-                                    if (ddim->offs != NULL) free((void*) ddim->offs);
-                                    if (ddim->ints != NULL) free((void*) ddim->ints);
-                                    ddim->offs = (char*) newoffs;
-                                    ddim->ints = (char*) newints;
+                                    if (ddim->offs != NULL) free((void*)ddim->offs);
+                                    if (ddim->ints != NULL) free((void*)ddim->ints);
+                                    ddim->offs = (char*)newoffs;
+                                    ddim->ints = (char*)newints;
                                     ddim->data_type = TYPE_DOUBLE;
                                     break;
                                 case 2:
-                                    newoffs = (double*) malloc(ddim->udoms * sizeof(double));
+                                    newoffs = (double*)malloc(ddim->udoms * sizeof(double));
                                     for (i = 0; i < ddim->udoms; i++)
-                                        *(newoffs + i) = (double) *((unsigned int*) ddim->offs + i);
-                                    if (ddim->offs != NULL) free((void*) ddim->offs);
-                                    ddim->offs = (char*) newoffs;
+                                        *(newoffs + i) = (double)*((unsigned int*)ddim->offs + i);
+                                    if (ddim->offs != NULL) free((void*)ddim->offs);
+                                    ddim->offs = (char*)newoffs;
                                     ddim->data_type = TYPE_DOUBLE;
                                     break;
                                 case 3:
-                                    newoffs = (double*) malloc(sizeof(double));
-                                    newints = (double*) malloc(sizeof(double));
-                                    *newoffs = (double) *((unsigned int*) ddim->offs);
-                                    *newints = (double) *((unsigned int*) ddim->ints);
-                                    if (ddim->offs != NULL) free((void*) ddim->offs);
-                                    if (ddim->ints != NULL) free((void*) ddim->ints);
-                                    ddim->offs = (char*) newoffs;
-                                    ddim->ints = (char*) newints;
+                                    newoffs = (double*)malloc(sizeof(double));
+                                    newints = (double*)malloc(sizeof(double));
+                                    *newoffs = (double)*((unsigned int*)ddim->offs);
+                                    *newints = (double)*((unsigned int*)ddim->ints);
+                                    if (ddim->offs != NULL) free((void*)ddim->offs);
+                                    if (ddim->ints != NULL) free((void*)ddim->ints);
+                                    ddim->offs = (char*)newoffs;
+                                    ddim->ints = (char*)newints;
                                     ddim->data_type = TYPE_DOUBLE;
                                     break;
                             }
@@ -737,40 +735,40 @@ int serverProcessing(CLIENT_BLOCK client_block, DATA_BLOCK* data_block)
                         case TYPE_UNSIGNED_LONG :
                             switch (ddim->method) {
                                 case 1:
-                                    newoffs = (double*) malloc(ddim->udoms * sizeof(double));
-                                    newints = (double*) malloc(ddim->udoms * sizeof(double));
+                                    newoffs = (double*)malloc(ddim->udoms * sizeof(double));
+                                    newints = (double*)malloc(ddim->udoms * sizeof(double));
                                     if (newoffs == NULL || newints == NULL) {
-                                        if (newoffs != NULL) free((void*) newoffs);
-                                        if (newints != NULL) free((void*) newints);
+                                        if (newoffs != NULL) free((void*)newoffs);
+                                        if (newints != NULL) free((void*)newints);
                                         return 1;
                                     }
                                     for (i = 0; i < ddim->udoms; i++) {
-                                        *(newoffs + i) = (double) *((unsigned long*) ddim->offs + i);
-                                        *(newints + i) = (double) *((unsigned long*) ddim->ints + i);
+                                        *(newoffs + i) = (double)*((unsigned long*)ddim->offs + i);
+                                        *(newints + i) = (double)*((unsigned long*)ddim->ints + i);
                                     }
-                                    if (ddim->offs != NULL) free((void*) ddim->offs);
-                                    if (ddim->ints != NULL) free((void*) ddim->ints);
-                                    ddim->offs = (char*) newoffs;
-                                    ddim->ints = (char*) newints;
+                                    if (ddim->offs != NULL) free((void*)ddim->offs);
+                                    if (ddim->ints != NULL) free((void*)ddim->ints);
+                                    ddim->offs = (char*)newoffs;
+                                    ddim->ints = (char*)newints;
                                     ddim->data_type = TYPE_DOUBLE;
                                     break;
                                 case 2:
-                                    newoffs = (double*) malloc(ddim->udoms * sizeof(double));
+                                    newoffs = (double*)malloc(ddim->udoms * sizeof(double));
                                     for (i = 0; i < ddim->udoms; i++)
-                                        *(newoffs + i) = (double) *((unsigned long*) ddim->offs + i);
-                                    if (ddim->offs != NULL) free((void*) ddim->offs);
-                                    ddim->offs = (char*) newoffs;
+                                        *(newoffs + i) = (double)*((unsigned long*)ddim->offs + i);
+                                    if (ddim->offs != NULL) free((void*)ddim->offs);
+                                    ddim->offs = (char*)newoffs;
                                     ddim->data_type = TYPE_DOUBLE;
                                     break;
                                 case 3:
-                                    newoffs = (double*) malloc(sizeof(double));
-                                    newints = (double*) malloc(sizeof(double));
-                                    *newoffs = (double) *((unsigned long*) ddim->offs);
-                                    *newints = (double) *((unsigned long*) ddim->ints);
-                                    if (ddim->offs != NULL) free((void*) ddim->offs);
-                                    if (ddim->ints != NULL) free((void*) ddim->ints);
-                                    ddim->offs = (char*) newoffs;
-                                    ddim->ints = (char*) newints;
+                                    newoffs = (double*)malloc(sizeof(double));
+                                    newints = (double*)malloc(sizeof(double));
+                                    *newoffs = (double)*((unsigned long*)ddim->offs);
+                                    *newints = (double)*((unsigned long*)ddim->ints);
+                                    if (ddim->offs != NULL) free((void*)ddim->offs);
+                                    if (ddim->ints != NULL) free((void*)ddim->ints);
+                                    ddim->offs = (char*)newoffs;
+                                    ddim->ints = (char*)newints;
                                     ddim->data_type = TYPE_DOUBLE;
                                     break;
                             }
@@ -779,56 +777,56 @@ int serverProcessing(CLIENT_BLOCK client_block, DATA_BLOCK* data_block)
                         case TYPE_FLOAT :
                             switch (ddim->method) {
                                 case 1:
-                                    newoffs = (double*) malloc(ddim->udoms * sizeof(double));
-                                    newints = (double*) malloc(ddim->udoms * sizeof(double));
+                                    newoffs = (double*)malloc(ddim->udoms * sizeof(double));
+                                    newints = (double*)malloc(ddim->udoms * sizeof(double));
                                     if (newoffs == NULL || newints == NULL) {
-                                        if (newoffs != NULL) free((void*) newoffs);
-                                        if (newints != NULL) free((void*) newints);
+                                        if (newoffs != NULL) free((void*)newoffs);
+                                        if (newints != NULL) free((void*)newints);
                                         return 1;
                                     }
 
                                     for (i = 0; i < ddim->udoms; i++) {
-                                        IDAM_LOGF(UDA_LOG_DEBUG, "%i  %f  %f\n", i, *((float*) ddim->offs + i),
-                                                *((float*) ddim->ints + i));
+                                        IDAM_LOGF(UDA_LOG_DEBUG, "%i  %f  %f\n", i, *((float*)ddim->offs + i),
+                                                  *((float*)ddim->ints + i));
 
-                                        *(newoffs + i) = (double) *((float*) ddim->offs + i);
-                                        *(newints + i) = (double) *((float*) ddim->ints + i);
+                                        *(newoffs + i) = (double)*((float*)ddim->offs + i);
+                                        *(newints + i) = (double)*((float*)ddim->ints + i);
 
                                         IDAM_LOGF(UDA_LOG_DEBUG, "%i  %f  %f\n", i, *(newoffs + i), *(newints + i));
                                     }
-                                    if (ddim->offs != NULL) free((void*) ddim->offs);
-                                    if (ddim->ints != NULL) free((void*) ddim->ints);
-                                    ddim->offs = (char*) newoffs;
-                                    ddim->ints = (char*) newints;
+                                    if (ddim->offs != NULL) free((void*)ddim->offs);
+                                    if (ddim->ints != NULL) free((void*)ddim->ints);
+                                    ddim->offs = (char*)newoffs;
+                                    ddim->ints = (char*)newints;
                                     for (i = 0; i < ddim->udoms; i++)
-                                        IDAM_LOGF(UDA_LOG_DEBUG, "%i  %f  %f\n", i, *((double*) ddim->offs + i),
-                                                *((double*) ddim->ints + i));
+                                        IDAM_LOGF(UDA_LOG_DEBUG, "%i  %f  %f\n", i, *((double*)ddim->offs + i),
+                                                  *((double*)ddim->ints + i));
                                     ddim->data_type = TYPE_DOUBLE;
                                     break;
                                 case 2:
                                     IDAM_LOG(UDA_LOG_DEBUG, "Processing Float Method 2\n");
                                     IDAM_LOGF(UDA_LOG_DEBUG, "udoms: %d\n", ddim->udoms);
-                                    newoffs = (double*) malloc(ddim->udoms * sizeof(double));
+                                    newoffs = (double*)malloc(ddim->udoms * sizeof(double));
                                     for (i = 0; i < ddim->udoms; i++)
-                                        *(newoffs + i) = (double) *((float*) ddim->offs + i);
-                                    if (ddim->offs != NULL) free((void*) ddim->offs);
-                                    ddim->offs = (char*) newoffs;
+                                        *(newoffs + i) = (double)*((float*)ddim->offs + i);
+                                    if (ddim->offs != NULL) free((void*)ddim->offs);
+                                    ddim->offs = (char*)newoffs;
                                     ddim->data_type = TYPE_DOUBLE;
                                     break;
                                 case 3:
                                     IDAM_LOG(UDA_LOG_DEBUG, "Processing Float Method 3\n");
-                                    newoffs = (double*) malloc(sizeof(double));
-                                    newints = (double*) malloc(sizeof(double));
-                                    *newoffs = (double) *((float*) ddim->offs);
-                                    *newints = (double) *((float*) ddim->ints);
-                                    IDAM_LOGF(UDA_LOG_DEBUG, "%i  %f  %f\n", i, *((double*) ddim->offs),
-                                            *((double*) ddim->ints));
-                                    if (ddim->offs != NULL) free((void*) ddim->offs);
-                                    if (ddim->ints != NULL) free((void*) ddim->ints);
-                                    ddim->offs = (char*) newoffs;
-                                    ddim->ints = (char*) newints;
-                                    IDAM_LOGF(UDA_LOG_DEBUG, "%i  %f  %f\n", i, *((double*) ddim->offs),
-                                            *((double*) ddim->ints));
+                                    newoffs = (double*)malloc(sizeof(double));
+                                    newints = (double*)malloc(sizeof(double));
+                                    *newoffs = (double)*((float*)ddim->offs);
+                                    *newints = (double)*((float*)ddim->ints);
+                                    IDAM_LOGF(UDA_LOG_DEBUG, "%i  %f  %f\n", i, *((double*)ddim->offs),
+                                              *((double*)ddim->ints));
+                                    if (ddim->offs != NULL) free((void*)ddim->offs);
+                                    if (ddim->ints != NULL) free((void*)ddim->ints);
+                                    ddim->offs = (char*)newoffs;
+                                    ddim->ints = (char*)newints;
+                                    IDAM_LOGF(UDA_LOG_DEBUG, "%i  %f  %f\n", i, *((double*)ddim->offs),
+                                              *((double*)ddim->ints));
                                     ddim->data_type = TYPE_DOUBLE;
                                     break;
                             }

@@ -176,11 +176,9 @@ void freeDataBlock(DATA_BLOCK* data_block)
     IDAM_LOG(UDA_LOG_DEBUG, "Exit\n");
 }
 
+// Free Heap Memory & Zero all Integer values
 void freeReducedDataBlock(DATA_BLOCK* data_block)
 {
-
-// Free Heap Memory & Zero all Integer values
-
 #ifndef FATCLIENT
     if (data_block == NULL) return;
     return;

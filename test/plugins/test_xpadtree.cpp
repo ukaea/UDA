@@ -14,7 +14,7 @@ TEST_CASE( "Test XPADTREE::help() function", "[XPADTREE][plugins]" ) {
     const uda::Result& result = client.get("XPADTREE::help()", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.error() == "" );
+    REQUIRE( result.errorMessage() == "" );
 
     uda::Data* data = result.data();
 

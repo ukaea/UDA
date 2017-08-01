@@ -14,7 +14,7 @@ TEST_CASE( "Test DOI::help() function", "[DOI][plugins]" )
     const uda::Result& result = client.get("DOI::help()", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.error() == "" );
+    REQUIRE( result.errorMessage() == "" );
     REQUIRE( result.isTree()  );
 
     uda::TreeNode tree = result.tree();
@@ -61,7 +61,7 @@ TEST_CASE( "Test DOI::list() function", "[DOI][plugins]" )
     const uda::Result& result = client.get("DOI::list(doi=ccfe/1, dbname=doi, dbuser=idamowner, dbhost=idam1.mast.ccfe.ac.uk, dbport=56566)", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.error() == "" );
+    REQUIRE( result.errorMessage() == "" );
     REQUIRE( result.isTree()  );
 
     uda::TreeNode tree = result.tree();

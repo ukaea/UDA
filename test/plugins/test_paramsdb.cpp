@@ -14,7 +14,7 @@ TEST_CASE( "Test help function", "[plugins][PARAMSDB]" ) {
     const uda::Result& result = client.get("PARAMSDB::help()", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.error() == "" );
+    REQUIRE( result.errorMessage() == "" );
 
     uda::Data* data = result.data();
 
@@ -42,7 +42,7 @@ TEST_CASE( "Test getActiveLimit function with subtype and coil", "[plugins][PARA
     const uda::Result& result = client.get("PARAMSDB::getActiveLimit(system='RTP', subtype='Current_Threshold_Trip', coil='TFP1')", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.error() == "" );
+    REQUIRE( result.errorMessage() == "" );
     REQUIRE( result.isTree() );
 
     uda::TreeNode tree = result.tree();
@@ -107,7 +107,7 @@ TEST_CASE( "Test getActiveLimit function with subtype", "[plugins][PARAMSDB][get
     const uda::Result& result = client.get("PARAMSDB::getActiveLimit(system='RTP', subtype='Current_Threshold_Trip')", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.error() == "" );
+    REQUIRE( result.errorMessage() == "" );
     REQUIRE( result.isTree() );
 
     uda::TreeNode tree = result.tree();
@@ -178,7 +178,7 @@ TEST_CASE( "Test getActiveLimit function with subtype", "[plugins][PARAMSDB][get
 //    const uda::Result& result = client.get("PARAMSDB::getActiveLimit(system='RTP')", "");
 //
 //    REQUIRE( result.errorCode() == 0 );
-//    REQUIRE( result.error() == "" );
+//    REQUIRE( result.errorMessage() == "" );
 //
 //    uda::Data* data = result.data();
 //

@@ -134,10 +134,10 @@ int uda::Client::serverPort()
 
 const uda::Result& uda::Client::get(const std::string& signalName, const std::string& dataSource) throw(UDAException)
 {
-    Result * data = new Result(idamGetAPI(signalName.c_str(), dataSource.c_str()));
+    auto data = new Result(idamGetAPI(signalName.c_str(), dataSource.c_str()));
 
     if (data->errorCode() != OK) {
-        std::string error = data->error();
+        std::string error = data->errorMessage();
         delete data;
         throw UDAException(error);
     }
@@ -150,36 +150,36 @@ static int typeIDToUDAType(const std::type_info& type)
 {
     if (type == typeid(char))
         return TYPE_CHAR;
-    else if (type == typeid(short))
+    if (type == typeid(short))
         return TYPE_SHORT;
-    else if (type == typeid(int))
+    if (type == typeid(int))
         return TYPE_INT;
-    else if (type == typeid(unsigned int))
+    if (type == typeid(unsigned int))
         return TYPE_UNSIGNED_INT;
-    else if (type == typeid(long))
+    if (type == typeid(long))
         return TYPE_LONG;
-    else if (type == typeid(float))
+    if (type == typeid(float))
         return TYPE_FLOAT;
-    else if (type == typeid(double))
+    if (type == typeid(double))
         return TYPE_DOUBLE;
-    else if (type == typeid(unsigned char))
+    if (type == typeid(unsigned char))
         return TYPE_UNSIGNED_CHAR;
-    else if (type == typeid(unsigned short))
+    if (type == typeid(unsigned short))
         return TYPE_UNSIGNED_SHORT;
-    else if (type == typeid(unsigned long))
+    if (type == typeid(unsigned long))
         return TYPE_UNSIGNED_LONG;
-    else if (type == typeid(long long))
+    if (type == typeid(long long))
         return TYPE_LONG64;
-    else if (type == typeid(unsigned long long))
+    if (type == typeid(unsigned long long))
         return TYPE_UNSIGNED_LONG64;
-    else if (type == typeid(std::complex<float>))
+    if (type == typeid(std::complex<float>))
         return TYPE_COMPLEX;
-    else if (type == typeid(std::complex<double>))
+    if (type == typeid(std::complex<double>))
         return TYPE_DCOMPLEX;
-    else if (type == typeid(char*))
+    if (type == typeid(char*))
         return TYPE_STRING;
-    else
-        return TYPE_UNKNOWN;
+
+    return TYPE_UNKNOWN;
 }
 
 //typedef struct PutDataBlock {
@@ -225,9 +225,9 @@ void uda::Client::put(const uda::Signal& signal)
             % filename % signal_class % signal.title() % signal.shot() % signal.pass()
             % signal.comment() % signal.code()).str();
 
-    idamPutAPI(request.c_str(), NULL);
+    idamPutAPI(request.c_str(), nullptr);
 
-    PUTDATA_BLOCK pdblock;
+    PUTDATA_BLOCK pdblock{};
     initIdamPutDataBlock(&pdblock);
 
     const uda::Array& array = signal.array();
@@ -246,7 +246,7 @@ void uda::Client::put(const uda::Signal& signal)
 
 uda::Client::~Client()
 {
-    for (std::vector<Result *>::iterator iter = data_.begin(); iter != data_.end(); ++iter) {
-        delete(*iter);
+    for (auto& data : data_) {
+        delete(data);
     }
 }

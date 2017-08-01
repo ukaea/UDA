@@ -14,7 +14,7 @@ TEST_CASE( "Test VIEWPORT::help() function", "[VIEWPORT][plugins]" ) {
     const uda::Result& result = client.get("VIEWPORT::help()", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.error() == "" );
+    REQUIRE( result.errorMessage() == "" );
 
     uda::Data* data = result.data();
 

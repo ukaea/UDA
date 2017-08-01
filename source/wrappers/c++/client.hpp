@@ -15,11 +15,15 @@ namespace uda {
 class UDAException : public std::exception
 {
 public:
-    UDAException(const std::string& what) : what_(what) {}
-    ~UDAException() throw() {};
-    const char * what() const throw() { return what_.c_str(); }
+    explicit UDAException(std::string what) throw() : what_(std::move(what)) {}
+    UDAException(const UDAException& ex) noexcept : what_(ex.what_) {}
+    UDAException(UDAException&& ex) noexcept : what_(std::move(ex.what_)) {}
+    UDAException& operator=(const UDAException& ex) noexcept { what_ = ex.what_; return *this; }
+    UDAException& operator=(UDAException&& ex) noexcept { what_ = ex.what_; ex.what_.clear(); return *this; }
+    ~UDAException() noexcept override = default;
+    const char* what() const noexcept override { return what_.c_str(); }
 private:
-    const std::string what_;
+    std::string what_;
 };
 
 enum Property

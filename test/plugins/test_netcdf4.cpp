@@ -14,7 +14,7 @@ TEST_CASE( "Test NEWCDF4::help() function", "[NEWCDF4][plugins]" ) {
     const uda::Result& result = client.get("NEWCDF4::help()", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.error() == "" );
+    REQUIRE( result.errorMessage() == "" );
 
     uda::Data* data = result.data();
 

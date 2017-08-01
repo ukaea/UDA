@@ -15,12 +15,12 @@ class Array : public Data {
 public:
     template <typename T>
     Array(T* data, std::vector<Dim> dims)
-            : Data(false), data_(data), dims_(dims), type_(&typeid(T)), raw_data_(reinterpret_cast<char*>(data))
+            : Data(false), data_(data), dims_(std::move(dims)), type_(&typeid(T)), raw_data_(reinterpret_cast<char*>(data))
     {}
 
-    size_t size() const;
+    size_t size() const override;
 
-    const std::type_info& type() const
+    const std::type_info& type() const override
     {
         return *type_;
     }
@@ -44,7 +44,7 @@ public:
 private:
     friend class uda::Client;
 
-    Array() : Data(true), dims_(), type_(&typeid(void))
+    explicit Array() noexcept : Data(true), type_(&typeid(void)), raw_data_{}
     {}
 
     boost::any data_;

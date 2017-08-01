@@ -15,7 +15,7 @@ TEST_CASE( "Test PUTDATA::help() function", "[PUTDATA][plugins]" ) {
     const uda::Result& result = client.get("PUTDATA::help()", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.error() == "" );
+    REQUIRE( result.errorMessage() == "" );
 
     uda::Data* data = result.data();
 

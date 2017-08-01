@@ -14,7 +14,7 @@ TEST_CASE( "Test help function", "[plugins][TESTPLUGIN]" )
     const uda::Result& result = client.get("TESTPLUGIN::help()", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.error() == "" );
+    REQUIRE( result.errorMessage() == "" );
 
     uda::Data* data = result.data();
 
@@ -85,7 +85,7 @@ TEST_CASE( "Run test0 - pass string as char array", "[plugins][TESTPLUGIN]" )
     const uda::Result& result = client.get("TESTPLUGIN::test0()", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.error() == "" );
+    REQUIRE( result.errorMessage() == "" );
 
     uda::Data* data = result.data();
 
@@ -115,7 +115,7 @@ TEST_CASE( "Run test1 - pass string as string scalar", "[plugins][TESTPLUGIN]" )
     const uda::Result& result = client.get("TESTPLUGIN::test1()", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.error() == "" );
+    REQUIRE( result.errorMessage() == "" );
 
     uda::Data* data = result.data();
 
@@ -143,7 +143,7 @@ TEST_CASE( "Run test2 - pass string list as 2D char array", "[plugins][TESTPLUGI
     const uda::Result& result = client.get("TESTPLUGIN::test2()", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.error() == "" );
+    REQUIRE( result.errorMessage() == "" );
 
     uda::Data* data = result.data();
 
@@ -189,7 +189,7 @@ TEST_CASE( "Run test3 - pass string list as array of strings", "[plugins][TESTPL
     const uda::Result& result = client.get("TESTPLUGIN::test3()", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.error() == "" );
+    REQUIRE( result.errorMessage() == "" );
 
     uda::Data* data = result.data();
 
@@ -228,7 +228,7 @@ TEST_CASE( "Run test4 - pass struct containing char array", "[plugins][TESTPLUGI
     const uda::Result& result = client.get("TESTPLUGIN::test4()", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.error() == "" );
+    REQUIRE( result.errorMessage() == "" );
     REQUIRE( result.isTree() );
 
     uda::TreeNode tree = result.tree();
@@ -264,7 +264,7 @@ TEST_CASE( "Run test5 - pass struct containing array of strings", "[plugins][TES
     const uda::Result& result = client.get("TESTPLUGIN::test5()", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.error() == "" );
+    REQUIRE( result.errorMessage() == "" );
     REQUIRE( result.isTree() );
 
     uda::TreeNode tree = result.tree();
@@ -309,7 +309,7 @@ TEST_CASE( "Run test6 - pass struct containing string", "[plugins][TESTPLUGIN]" 
     const uda::Result& result = client.get("TESTPLUGIN::test6()", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.error() == "" );
+    REQUIRE( result.errorMessage() == "" );
     REQUIRE( result.isTree() );
 
     uda::TreeNode tree = result.tree();
@@ -345,7 +345,7 @@ TEST_CASE( "Run test7 - pass struct containing array of strings", "[plugins][TES
     const uda::Result& result = client.get("TESTPLUGIN::test7()", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.error() == "" );
+    REQUIRE( result.errorMessage() == "" );
     REQUIRE( result.isTree() );
 
     uda::TreeNode tree = result.tree();
@@ -389,7 +389,7 @@ TEST_CASE( "Run test8 - pass struct containing array of string pointers", "[plug
     const uda::Result& result = client.get("TESTPLUGIN::test8()", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.error() == "" );
+    REQUIRE( result.errorMessage() == "" );
     REQUIRE( result.isTree() );
 
     uda::TreeNode tree = result.tree();
@@ -430,7 +430,7 @@ TEST_CASE( "Run test9 - pass 4 structs containing multiple types of string array
     const uda::Result& result = client.get("TESTPLUGIN::test9()", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.error() == "" );
+    REQUIRE( result.errorMessage() == "" );
     REQUIRE( result.isTree() );
 
     uda::TreeNode tree = result.tree();
@@ -553,7 +553,7 @@ TEST_CASE( "Run test10 - pass single int", "[plugins][TESTPLUGIN]" )
     const uda::Result& result = client.get("TESTPLUGIN::test10()", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.error() == "" );
+    REQUIRE( result.errorMessage() == "" );
 
     uda::Data* data = result.data();
 
@@ -579,7 +579,7 @@ TEST_CASE( "Run test11 - pass struct containing single int", "[plugins][TESTPLUG
     const uda::Result& result = client.get("TESTPLUGIN::test11()", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.error() == "" );
+    REQUIRE( result.errorMessage() == "" );
     REQUIRE( result.isTree() );
 
     uda::TreeNode tree = result.tree();
@@ -616,7 +616,7 @@ TEST_CASE( "Run test12 - pass struct containing 1D array of ints", "[plugins][TE
     const uda::Result& result = client.get("TESTPLUGIN::test12()", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.error() == "" );
+    REQUIRE( result.errorMessage() == "" );
     REQUIRE( result.isTree() );
 
     uda::TreeNode tree = result.tree();
@@ -661,7 +661,7 @@ TEST_CASE( "Run test13 - pass struct containing 2D array of ints", "[plugins][TE
     const uda::Result& result = client.get("TESTPLUGIN::test13()", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.error() == "" );
+    REQUIRE( result.errorMessage() == "" );
     REQUIRE( result.isTree() );
 
     uda::TreeNode tree = result.tree();
@@ -714,7 +714,7 @@ TEST_CASE( "Run test14 - pass struct containing single int passed as pointer", "
     const uda::Result& result = client.get("TESTPLUGIN::test14()", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.error() == "" );
+    REQUIRE( result.errorMessage() == "" );
     REQUIRE( result.isTree() );
 
     uda::TreeNode tree = result.tree();
@@ -751,7 +751,7 @@ TEST_CASE( "Run test15 - pass struct containing 1D array of ints passed as point
     const uda::Result& result = client.get("TESTPLUGIN::test15()", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.error() == "" );
+    REQUIRE( result.errorMessage() == "" );
     REQUIRE( result.isTree() );
 
     uda::TreeNode tree = result.tree();
@@ -796,7 +796,7 @@ TEST_CASE( "Run test16 - pass struct containing 2D array of ints passed as point
     const uda::Result& result = client.get("TESTPLUGIN::test16()", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.error() == "" );
+    REQUIRE( result.errorMessage() == "" );
     REQUIRE( result.isTree() );
 
     uda::TreeNode tree = result.tree();
@@ -849,7 +849,7 @@ TEST_CASE( "Run test18 - pass large number of structs containing single int", "[
     const uda::Result& result = client.get("TESTPLUGIN::test18()", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.error() == "" );
+    REQUIRE( result.errorMessage() == "" );
     REQUIRE( result.isTree() );
 
     uda::TreeNode tree = result.tree();
@@ -888,7 +888,7 @@ TEST_CASE( "Run test19 - pass 3 structs containing array of structs", "[plugins]
     const uda::Result& result = client.get("TESTPLUGIN::test19()", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.error() == "" );
+    REQUIRE( result.errorMessage() == "" );
     REQUIRE( result.isTree() );
 
     uda::TreeNode tree = result.tree();
@@ -947,7 +947,7 @@ TEST_CASE( "Run test20 - pass single short", "[plugins][TESTPLUGIN]" )
     const uda::Result& result = client.get("TESTPLUGIN::test20()", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.error() == "" );
+    REQUIRE( result.errorMessage() == "" );
 
     uda::Data* data = result.data();
 
@@ -973,7 +973,7 @@ TEST_CASE( "Run test21 - pass struct containing single short", "[plugins][TESTPL
     const uda::Result& result = client.get("TESTPLUGIN::test21()", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.error() == "" );
+    REQUIRE( result.errorMessage() == "" );
     REQUIRE( result.isTree() );
 
     uda::TreeNode tree = result.tree();
@@ -1010,7 +1010,7 @@ TEST_CASE( "Run test22 - pass struct containing 1D array of shorts", "[plugins][
     const uda::Result& result = client.get("TESTPLUGIN::test22()", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.error() == "" );
+    REQUIRE( result.errorMessage() == "" );
     REQUIRE( result.isTree() );
 
     uda::TreeNode tree = result.tree();
@@ -1055,7 +1055,7 @@ TEST_CASE( "Run test23 - pass struct containing 2D array of shorts", "[plugins][
     const uda::Result& result = client.get("TESTPLUGIN::test23()", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.error() == "" );
+    REQUIRE( result.errorMessage() == "" );
     REQUIRE( result.isTree() );
 
     uda::TreeNode tree = result.tree();
@@ -1108,7 +1108,7 @@ TEST_CASE( "Run test24 - pass struct containing single short passed as pointer",
     const uda::Result& result = client.get("TESTPLUGIN::test24()", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.error() == "" );
+    REQUIRE( result.errorMessage() == "" );
     REQUIRE( result.isTree() );
 
     uda::TreeNode tree = result.tree();
@@ -1145,7 +1145,7 @@ TEST_CASE( "Run test25 - pass struct containing 1D array of shorts passed as poi
     const uda::Result& result = client.get("TESTPLUGIN::test25()", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.error() == "" );
+    REQUIRE( result.errorMessage() == "" );
     REQUIRE( result.isTree() );
 
     uda::TreeNode tree = result.tree();
@@ -1190,7 +1190,7 @@ TEST_CASE( "Run test26 - pass struct containing 2D array of shorts passed as poi
     const uda::Result& result = client.get("TESTPLUGIN::test26()", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.error() == "" );
+    REQUIRE( result.errorMessage() == "" );
     REQUIRE( result.isTree() );
 
     uda::TreeNode tree = result.tree();
@@ -1243,7 +1243,7 @@ TEST_CASE( "Run test27 - pass struct containing 3D array of shorts", "[plugins][
     const uda::Result& result = client.get("TESTPLUGIN::test27()", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.error() == "" );
+    REQUIRE( result.errorMessage() == "" );
     REQUIRE( result.isTree() );
 
     uda::TreeNode tree = result.tree();
@@ -1294,7 +1294,7 @@ TEST_CASE( "Run test28 - pass struct containing 3D array of shorts passed as poi
     const uda::Result& result = client.get("TESTPLUGIN::test28()", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.error() == "" );
+    REQUIRE( result.errorMessage() == "" );
     REQUIRE( result.isTree() );
 
     uda::TreeNode tree = result.tree();
@@ -1345,7 +1345,7 @@ TEST_CASE( "Run test30 - pass struct containing 2 doubles", "[plugins][TESTPLUGI
     const uda::Result& result = client.get("TESTPLUGIN::test30()", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.error() == "" );
+    REQUIRE( result.errorMessage() == "" );
     REQUIRE( result.isTree() );
 
     uda::TreeNode tree = result.tree();
@@ -1390,7 +1390,7 @@ TEST_CASE( "Run test31 - pass 100 structs containing 2 doubles", "[plugins][TEST
     const uda::Result& result = client.get("TESTPLUGIN::test31()", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.error() == "" );
+    REQUIRE( result.errorMessage() == "" );
     REQUIRE( result.isTree() );
 
     uda::TreeNode tree = result.tree();
@@ -1437,7 +1437,7 @@ TEST_CASE( "Run test32 - pass struct containing array of 100 structs containing 
     const uda::Result& result = client.get("TESTPLUGIN::test32()", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.error() == "" );
+    REQUIRE( result.errorMessage() == "" );
     REQUIRE( result.isTree() );
 
     uda::TreeNode tree = result.tree();
@@ -1500,7 +1500,7 @@ TEST_CASE( "Run test33 - pass struct containing array of 100 structs containing 
     const uda::Result& result = client.get("TESTPLUGIN::test33()", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.error() == "" );
+    REQUIRE( result.errorMessage() == "" );
     REQUIRE( result.isTree() );
 
     uda::TreeNode tree = result.tree();
@@ -1563,7 +1563,7 @@ TEST_CASE( "Run plugin - call a plugin", "[plugins][TESTPLUGIN]" )
     const uda::Result& result = client.get("TESTPLUGIN::plugin(signal='HELP::HELP()', source='')", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.error() == "" );
+    REQUIRE( result.errorMessage() == "" );
 
     uda::Data* data = result.data();
 
@@ -1609,7 +1609,7 @@ TEST_CASE( "Run scalartest - return a simple scalar value", "[plugins][TESTPLUGI
     const uda::Result& result = client.get("TESTPLUGIN::scalartest()", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.error() == "" );
+    REQUIRE( result.errorMessage() == "" );
 
     uda::Data* data = result.data();
 
@@ -1635,7 +1635,7 @@ TEST_CASE( "Run emptytest - return no data", "[plugins][TESTPLUGIN]" )
     const uda::Result& result = client.get("TESTPLUGIN::emptytest()", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.error() == "" );
+    REQUIRE( result.errorMessage() == "" );
 
     uda::Data* data = result.data();
 

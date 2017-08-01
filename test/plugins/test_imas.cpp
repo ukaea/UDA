@@ -14,7 +14,7 @@
 //    const uda::Result& result = client.get("MAGNETICS/FLUX_LOOP/1/NAME", "MAST::");
 //
 //    REQUIRE( result.errorCode() == 0 );
-//    REQUIRE( result.error() == "" );
+//    REQUIRE( result.errorMessage() == "" );
 //
 //    uda::Data* data = result.data();
 //
@@ -44,7 +44,7 @@ TEST_CASE( "Test get MAST experimental data", "[imas][plugins]" )
 //	const uda::Result& result = client.get("IMAS::open(filename=MAST, shotNumber=18299, runNumber=0)", "");
 //
 //	REQUIRE( result.errorCode() == 0 );
-//	REQUIRE( result.error() == "" );
+//	REQUIRE( result.errorMessage() == "" );
 //
 //	uda::Data* data = result.data();
 //

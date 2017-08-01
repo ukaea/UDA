@@ -14,7 +14,7 @@ TEST_CASE( "Test NEWIDA::test() function", "[NEWIDA][plugins]" ) {
     const uda::Result& result = client.get("NEWIDA::help()", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.error() == "" );
+    REQUIRE( result.errorMessage() == "" );
 
     uda::Data* data = result.data();
 

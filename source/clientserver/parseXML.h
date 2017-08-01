@@ -1,9 +1,5 @@
-// Header file for Server XML Structures
-//
-//------------------------------------------------------------------------------------------
-
-#ifndef IDAM_CLIENTSERVER_PARSEXML_H
-#define IDAM_CLIENTSERVER_PARSEXML_H
+#ifndef UDA_CLIENTSERVER_PARSEXML_H
+#define UDA_CLIENTSERVER_PARSEXML_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -16,11 +12,11 @@ extern "C" {
 
 #include "udaDefines.h"
 
-#define SXMLMAXSTRING   1024
-#define MAXDATARANK     8
-#define XMLMAXDESC      1024
-#define XMLMAXRECURSIVE 10
-#define XMLMAXLOOP      1024
+#define SXMLMAXSTRING           1024
+#define MAXDATARANK             8
+#define XMLMAXDESC              1024
+#define XMLMAXRECURSIVE         10
+#define XMLMAXLOOP              1024
 
 #define DIMCALIBRATIONTYPE      1    // Identifies DIMENSION Union Structures
 #define DIMCOMPOSITETYPE        2
@@ -36,70 +32,62 @@ extern "C" {
 #define SUBSETTYPE              7
 #define MAPTYPE                 8
 
-typedef struct
-{
-    int nbound;                    // the Number of Subsetting Operations
-    int reform;                    // reduce Rank if any dimension has length 1
-    int order;                    // Time Dimension order
-    double bound[MAXDATARANK];            // Array of Floating point Bounding values
-    long ubindex[MAXDATARANK];            // Array of Integer values: Bounding or Upper Index
-    long lbindex[MAXDATARANK];            // Array of Integer values: Lower Index
-    char operation[MAXDATARANK][SXMLMAXSTRING];    // Array of Subsetting Operations
-    int dimid[MAXDATARANK];            // Array of Dimension IDs to subset
-    int isindex[MAXDATARANK];            // Flag the Operation Bound is an Integer Type
-    char data_signal[SXMLMAXSTRING];        // Name of Signal to subset
-    char member[SXMLMAXSTRING];            // Name of Structure Member to extract and to subset
-    char function[SXMLMAXSTRING];        // Apply this named function to the subsetted data
+typedef struct {
+    int nbound;                                 // the Number of Subsetting Operations
+    int reform;                                 // reduce Rank if any dimension has length 1
+    int order;                                  // Time Dimension order
+    double bound[MAXDATARANK];                  // Array of Floating point Bounding values
+    long ubindex[MAXDATARANK];                  // Array of Integer values: Bounding or Upper Index
+    long lbindex[MAXDATARANK];                  // Array of Integer values: Lower Index
+    char operation[MAXDATARANK][SXMLMAXSTRING]; // Array of Subsetting Operations
+    int dimid[MAXDATARANK];                     // Array of Dimension IDs to subset
+    int isindex[MAXDATARANK];                   // Flag the Operation Bound is an Integer Type
+    char data_signal[SXMLMAXSTRING];            // Name of Signal to subset
+    char member[SXMLMAXSTRING];                 // Name of Structure Member to extract and to subset
+    char function[SXMLMAXSTRING];               // Apply this named function to the subsetted data
 } SUBSET;
 
-typedef struct
-{
-    int nmap;                    // the Number of Mapping Operations
-    double value[MAXDATARANK];            // Array of values to Map to
-    char mapping[MAXDATARANK][SXMLMAXSTRING];    // Array of Mapping Operations
-    int dimid[MAXDATARANK];            // Array of Dimension IDs to Map to
-    char data_signal[SXMLMAXSTRING];        // Name of Signal
+typedef struct {
+    int nmap;                                   // the Number of Mapping Operations
+    double value[MAXDATARANK];                  // Array of values to Map to
+    char mapping[MAXDATARANK][SXMLMAXSTRING];   // Array of Mapping Operations
+    int dimid[MAXDATARANK];                     // Array of Dimension IDs to Map to
+    char data_signal[SXMLMAXSTRING];            // Name of Signal
 } MAP;
 
-typedef struct
-{
+typedef struct {
     double factor;
     double offset;
     int invert;
     char units[SXMLMAXSTRING];
 } DIMCALIBRATION;
 
-typedef struct
-{
-    int to_dim;    // duplicated as dimid 	// Swap to Dimension ID
-    int from_dim;                // Swap from Dimension ID
+typedef struct {
+    int to_dim;                                 // duplicated as dimid 	// Swap to Dimension ID
+    int from_dim;                               // Swap from Dimension ID
     char file[SXMLMAXSTRING];
     char format[SXMLMAXSTRING];
-    char dim_signal[SXMLMAXSTRING];        // Dimension Source Signal Name
-    char dim_error[SXMLMAXSTRING];        // Dimension Error Source Signal Name
-    char dim_aserror[SXMLMAXSTRING];        // Dimension Asymmetric Error Source Signal Name
+    char dim_signal[SXMLMAXSTRING];             // Dimension Source Signal Name
+    char dim_error[SXMLMAXSTRING];              // Dimension Error Source Signal Name
+    char dim_aserror[SXMLMAXSTRING];            // Dimension Asymmetric Error Source Signal Name
 } DIMCOMPOSITE;
 
-typedef struct
-{
+typedef struct {
     char label[SXMLMAXSTRING];
     char units[SXMLMAXSTRING];
 } DIMDOCUMENTATION;
 
-typedef struct
-{
-    int model;                // Error Model Id
-    int param_n;                // The number of parameters
-    //float *params;			// Parameter Array
+typedef struct {
+    int model;                                  // Error Model Id
+    int param_n;                                // The number of parameters
+    //float *params;			                // Parameter Array
     float params[MAXERRPARAMS];
 } DIMERRORMODEL;
 
-typedef struct
-{
+typedef struct {
     int dimType;
     int dimid;
-    union
-    {
+    union {
         DIMCALIBRATION dimcalibration;
         DIMCOMPOSITE dimcomposite;
         DIMDOCUMENTATION dimdocumentation;
@@ -107,79 +95,71 @@ typedef struct
     };
 } DIMENSION;
 
-typedef struct
-{
+typedef struct {
     double offset;
     double interval;
     int method;
 } TIMEOFFSET;
 
-typedef struct
-{
+typedef struct {
     double factor;
     double offset;
     int invert;
     char units[SXMLMAXSTRING];
     char target[SXMLMAXSTRING];
     int ndimensions;
-    DIMENSION * dimensions;
+    DIMENSION* dimensions;
 } CALIBRATION;
 
-typedef struct
-{
+typedef struct {
     char label[SXMLMAXSTRING];
     char units[SXMLMAXSTRING];
     char description[XMLMAXDESC];
     int ndimensions;
-    DIMENSION * dimensions;
+    DIMENSION* dimensions;
 } DOCUMENTATION;
 
-typedef struct
-{
-    char file[SXMLMAXSTRING];            // Complete file name
-    char format[SXMLMAXSTRING];            // File Format
+typedef struct {
+    char file[SXMLMAXSTRING];                   // Complete file name
+    char format[SXMLMAXSTRING];                 // File Format
     char data_signal[SXMLMAXSTRING];
     char error_signal[SXMLMAXSTRING];
-    char aserror_signal[SXMLMAXSTRING];        // Asymmetric Error Source Signal Name
-    char map_to_signal[SXMLMAXSTRING];        // straight replacement of signals (useful only if pass range is necessary)
-    int order;                    // Identify the Time Dimension
+    char aserror_signal[SXMLMAXSTRING];         // Asymmetric Error Source Signal Name
+    char map_to_signal[SXMLMAXSTRING];          // straight replacement of signals (useful only if pass range is necessary)
+    int order;                                  // Identify the Time Dimension
     int ndimensions;
     int nsubsets;
     int nmaps;
-    DIMENSION * dimensions;
-    SUBSET * subsets;
-    MAP * maps;
+    DIMENSION* dimensions;
+    SUBSET* subsets;
+    MAP* maps;
 } COMPOSITE;
 
-typedef struct
-{
-    int model;                // Error Model Id
-    int param_n;                // The number of parameters
-    //float *params;			// Parameter Array
+typedef struct {
+    int model;                                  // Error Model Id
+    int param_n;                                // The number of parameters
+    //float *params;			                // Parameter Array
     float params[MAXERRPARAMS];
     int ndimensions;
-    DIMENSION * dimensions;
+    DIMENSION* dimensions;
 } ERRORMODEL;
 
-typedef struct
-{
+typedef struct {
     int nsubsets;
     int nmaps;
-    SUBSET * subsets;
-    MAP * maps;
+    SUBSET* subsets;
+    MAP* maps;
 } SERVERSIDE;
 
 
-typedef struct
-{
+typedef struct {
     int actionType;
     int inRange;
     int actionId;
     int exp_range[2];
     int pass_range[2];
 
-    union
-    {
+    union {
         TIMEOFFSET timeoffset;
         DOCUMENTATION documentation;
         CALIBRATION calibration;
@@ -193,10 +173,9 @@ typedef struct
 } ACTION;
 
 
-typedef struct
-{
-    int nactions;            // Number of Actions
-    ACTION * action;            // Array of Actions
+typedef struct {
+    int nactions;                           // Number of Actions
+    ACTION* action;                         // Array of Actions
 } ACTIONS;
 
 #ifndef NOXMLPARSER
@@ -241,45 +220,45 @@ void printAction(ACTION action);
 
 void printActions(ACTIONS actions);
 
-void initAction(ACTION * act);
+void initAction(ACTION* act);
 
-void initActions(ACTIONS * act);
+void initActions(ACTIONS* act);
 
-void freeActions(ACTIONS * actions);
+void freeActions(ACTIONS* actions);
 
-void copyActions(ACTIONS * actions_out, ACTIONS * actions_in);
+void copyActions(ACTIONS* actions_out, ACTIONS* actions_in);
 
-void printDimensions(int ndim, DIMENSION * dims);
+void printDimensions(int ndim, DIMENSION* dims);
 
-void initDimCalibration(DIMCALIBRATION * act);
+void initDimCalibration(DIMCALIBRATION* act);
 
-void initDimComposite(DIMCOMPOSITE * act);
+void initDimComposite(DIMCOMPOSITE* act);
 
-void initDimDocumentation(DIMDOCUMENTATION * act);
+void initDimDocumentation(DIMDOCUMENTATION* act);
 
-void initDimErrorModel(DIMERRORMODEL * act);
+void initDimErrorModel(DIMERRORMODEL* act);
 
-void initDimension(DIMENSION * act);
+void initDimension(DIMENSION* act);
 
-void initTimeOffset(TIMEOFFSET * act);
+void initTimeOffset(TIMEOFFSET* act);
 
-void initCalibration(CALIBRATION * act);
+void initCalibration(CALIBRATION* act);
 
-void initDocumentation(DOCUMENTATION * act);
+void initDocumentation(DOCUMENTATION* act);
 
-void initComposite(COMPOSITE * act);
+void initComposite(COMPOSITE* act);
 
-void initServerside(SERVERSIDE * act);
+void initServerside(SERVERSIDE* act);
 
-void initErrorModel(ERRORMODEL * act);
+void initErrorModel(ERRORMODEL* act);
 
-void initSubset(SUBSET * act);
+void initSubset(SUBSET* act);
 
-void initMap(MAP * act);
+void initMap(MAP* act);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif // IDAM_CLIENTSERVER_PARSEXML_H
+#endif // UDA_CLIENTSERVER_PARSEXML_H
 

@@ -14,7 +14,7 @@ TEST_CASE( "Test LIVEDISPLAY::help() function", "[LIVEDISPLAY][plugins]" ) {
     const uda::Result& result = client.get("LIVEDISPLAY::help()", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.error() == "" );
+    REQUIRE( result.errorMessage() == "" );
 
     uda::Data* data = result.data();
 
