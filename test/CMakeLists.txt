@@ -29,9 +29,18 @@ configure_file(
   @ONLY
 )
 
+file(
+  MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/imas
+)
+
+file(
+  COPY ${CMAKE_CURRENT_SOURCE_DIR}/imas/exp2imas_tests.py
+  DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/imas
+)
+
 set( TESTS
 #  test_putcpp
-  )
+)
 
 include( modules )
 

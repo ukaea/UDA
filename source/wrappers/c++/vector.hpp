@@ -36,7 +36,7 @@ public:
     static Vector Null;
 
 protected:
-    Vector() noexcept : Data(true), vec_(), type_(&typeid(void))
+    Vector() noexcept : Data(true), type_(&typeid(void))
     {}
 
 private:

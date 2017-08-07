@@ -13,7 +13,7 @@ namespace uda {
 class Data
 {
 public:
-    Data(bool isnull) : isnull_(isnull)
+    explicit Data(bool isnull) : isnull_(isnull)
     { }
 
     virtual ~Data()

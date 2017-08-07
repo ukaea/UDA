@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mappings IDS_version="3.0.4">
+<mapping key="thomson_scattering/ids_properties/comment" value="" type="constant"/>
+<mapping key="thomson_scattering/ids_properties/homogeneous_time" value="" type="constant"/>
+<mapping key="thomson_scattering/channel/Shape_of" value="" type="static"/>
+<mapping key="thomson_scattering/channel/#/name" value="" type="static"/>
+<mapping key="thomson_scattering/channel/#/identifier" value="" type="static"/>
+<mapping key="thomson_scattering/channel/#/position/r" value="" type="static"/>
+<mapping key="thomson_scattering/channel/#/position/r_error_upper" value="" type="static"/>
+<mapping key="thomson_scattering/channel/#/position/r_error_lower" value="" type="static"/>
+<mapping key="thomson_scattering/channel/#/position/r_error_index" value="" type="constant"/>
+<mapping key="thomson_scattering/channel/#/position/z" value="" type="static"/>
+<mapping key="thomson_scattering/channel/#/position/z_error_upper" value="" type="static"/>
+<mapping key="thomson_scattering/channel/#/position/z_error_lower" value="" type="static"/>
+<mapping key="thomson_scattering/channel/#/position/z_error_index" value="" type="constant"/>
+<mapping key="thomson_scattering/channel/#/position/phi" value="" type="static"/>
+<mapping key="thomson_scattering/channel/#/position/phi_error_upper" value="" type="static"/>
+<mapping key="thomson_scattering/channel/#/position/phi_error_lower" value="" type="static"/>
+<mapping key="thomson_scattering/channel/#/position/phi_error_index" value="" type="constant"/>
+<mapping key="thomson_scattering/channel/#/t_e/data" value="" type="dynamic"/>
+<mapping key="thomson_scattering/channel/#/t_e/data_error_upper" value="" type="dynamic"/>
+<mapping key="thomson_scattering/channel/#/t_e/data_error_lower" value="" type="dynamic"/>
+<mapping key="thomson_scattering/channel/#/t_e/data_error_index" value="" type="constant"/>
+<mapping key="thomson_scattering/channel/#/t_e/time" value="" type="dynamic"/>
+<mapping key="thomson_scattering/channel/#/n_e/data" value="" type="dynamic"/>
+<mapping key="thomson_scattering/channel/#/n_e/data_error_upper" value="" type="dynamic"/>
+<mapping key="thomson_scattering/channel/#/n_e/data_error_lower" value="" type="dynamic"/>
+<mapping key="thomson_scattering/channel/#/n_e/data_error_index" value="" type="constant"/>
+<mapping key="thomson_scattering/channel/#/n_e/time" value="" type="dynamic"/>
+<mapping key="thomson_scattering/code/name" value="" type="constant"/>
+<mapping key="thomson_scattering/code/commit" value="" type="constant"/>
+<mapping key="thomson_scattering/code/version" value="" type="constant"/>
+<mapping key="thomson_scattering/code/repository" value="" type="constant"/>
+<mapping key="thomson_scattering/code/parameters" value="" type="constant"/>
+<mapping key="thomson_scattering/code/output_flag" value="" type="dynamic"/>
+<mapping key="thomson_scattering/time" value="" type="dynamic"/>
+</mappings>

@@ -13,18 +13,16 @@ enum SignalClass {
 class Signal
 {
 public:
-    Signal(const uda::Array& array, SignalClass signal_class, const std::string& alias, const std::string& title,
-           long shot, int pass, const std::string& comment="")
-        : array_(array)
+    Signal(uda::Array array, SignalClass signal_class, std::string alias, std::string title,
+           long shot, int pass, std::string comment="")
+        : array_(std::move(array))
         , signal_class_(signal_class)
-        , alias_(alias)
-        , title_(title)
+        , alias_(std::move(alias))
+        , title_(std::move(title))
         , shot_(shot)
         , pass_(pass)
-        , comment_(comment)
-    {
-
-    }
+        , comment_(std::move(comment))
+    {}
 
     const uda::Array& array() const { return array_; };
     SignalClass signalClass() const { return signal_class_; }

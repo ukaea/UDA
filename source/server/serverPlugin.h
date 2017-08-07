@@ -15,7 +15,7 @@ void freePluginList(PLUGINLIST* plugin_list);
 
 void initPluginData(PLUGIN_DATA* plugin);
 
-void printPluginList(FILE* fd, const PLUGINLIST* plugin_list);
+void printPluginList(const PLUGINLIST* plugin_list);
 
 int findPluginIdByRequest(int request, const PLUGINLIST* plugin_list);
 

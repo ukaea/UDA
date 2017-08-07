@@ -10,7 +10,7 @@
 
 static int convertToInt(char* value);
 static char** getContent(xmlNode* node, int dim);
-static xmlChar* insertNodeIndices(const xmlChar* xpathExpr, int* nodeIndices);
+static xmlChar* insertNodeIndices(const xmlChar* xpathExpr, const int* nodeIndices);
 
 /**
  * execute_xpath_expression:
@@ -23,7 +23,7 @@ static xmlChar* insertNodeIndices(const xmlChar* xpathExpr, int* nodeIndices);
  *
  * Returns 0 on success and a negative value otherwise.
  */
-int execute_xpath_expression(const char* filename, const xmlChar* xpathExpr, DATA_BLOCK* data_block, int* nodeIndices)
+int execute_xpath_expression(const char* filename, const xmlChar* xpathExpr, DATA_BLOCK* data_block, const int* nodeIndices)
 {
     xmlDocPtr doc;
     xmlXPathContextPtr xpathCtx;
@@ -261,7 +261,7 @@ int convertToInt(char* value)
     return i;
 }
 
-xmlChar* insertNodeIndices(const xmlChar* xpathExpr, int* nodeIndices)
+xmlChar* insertNodeIndices(const xmlChar* xpathExpr, const int* nodeIndices)
 {
     xmlChar* indexedXpathExpr = xmlStrdup(xpathExpr);
 

@@ -4,7 +4,7 @@
 
 #define status_ok(status) (((status) & 1) == 1)
 
-int get_signal_length(const char *signal)
+static int get_signal_length(const char *signal)
 {
     /* local vars */
     int dtype_long = DTYPE_LONG;
@@ -29,12 +29,10 @@ int get_signal_length(const char *signal)
 
     /* return signal length */
     return size;
-
 }
 
-int ts_mds_get(const char *signalName, int shot, float **time, float **data, int *len)
+int exp2imas_mds_get(const char *signalName, int shot, float **time, float **data, int *len)
 {
-
     int dtype_float = DTYPE_FLOAT;
     int null = 0;
     int status;
@@ -67,7 +65,7 @@ int ts_mds_get(const char *signalName, int shot, float **time, float **data, int
     snprintf(buf, sizeof(buf) - 1, "dim_of(GetTsBaseITM(%d, '%s'), 0)", shot, signalName);
 
     status = MdsValue(buf, &fdesc, &null, &rlen, NULL);
-    if (!((status & 1) == 1)) {
+    if ((status & 1) != 1) {
 	    fprintf(stderr, "Unable to get signal.\n");
     	return -1;
     }
@@ -80,11 +78,10 @@ int ts_mds_get(const char *signalName, int shot, float **time, float **data, int
 
 
     status = MdsValue(buf, &fdesc, &null, &rlen, NULL);
-    if (!((status & 1) == 1)) {
+    if ((status & 1) != 1) {
 	    fprintf(stderr, "Unable to get signal.\n");
 	    return -1;
     }
-
 
     return 0;
 }

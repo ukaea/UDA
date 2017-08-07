@@ -16,14 +16,14 @@ namespace uda {
 class String : public Data
 {
 public:
-    String(char * data)
+    explicit String(char * data)
             : Data(false), data_(data), size_(strlen(data))
     { }
 
-    size_t size() const
+    size_t size() const override
     { return size_; }
 
-    const std::type_info& type() const
+    const std::type_info& type() const override
     { return typeid(char *); }
 
     std::string str() const

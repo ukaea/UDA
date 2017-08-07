@@ -170,29 +170,31 @@ void initPluginData(PLUGIN_DATA* plugin)
     plugin->interfaceVersion = 1;                       // Maximum Interface Version
     plugin->pluginHandle = NULL;
     plugin->idamPlugin = NULL;
+    plugin->loadErrors[0] = '\0';
 }
 
-void printPluginList(FILE* fd, const PLUGINLIST* plugin_list)
+void printPluginList(const PLUGINLIST* plugin_list)
 {
     int i;
     for (i = 0; i < plugin_list->count; i++) {
-        fprintf(fd, "Request    : %d\n", plugin_list->plugin[i].request);
-        fprintf(fd, "Format     : %s\n", plugin_list->plugin[i].format);
-        fprintf(fd, "Library    : %s\n", plugin_list->plugin[i].library);
-        fprintf(fd, "Symbol     : %s\n", plugin_list->plugin[i].symbol);
-        fprintf(fd, "Extension  : %s\n", plugin_list->plugin[i].extension);
-        fprintf(fd, "Method     : %s\n", plugin_list->plugin[i].method);
-        fprintf(fd, "Description: %s\n", plugin_list->plugin[i].desc);
-        fprintf(fd, "Example    : %s\n", plugin_list->plugin[i].example);
-        fprintf(fd, "Protocol   : %s\n", plugin_list->plugin[i].deviceProtocol);
-        fprintf(fd, "Host       : %s\n", plugin_list->plugin[i].deviceHost);
-        fprintf(fd, "Port       : %s\n", plugin_list->plugin[i].devicePort);
-        fprintf(fd, "Class      : %d\n", plugin_list->plugin[i].class);
-        fprintf(fd, "External   : %d\n", plugin_list->plugin[i].external);
-        fprintf(fd, "Status     : %d\n", plugin_list->plugin[i].status);
-        fprintf(fd, "Private    : %d\n", plugin_list->plugin[i].private);
-        fprintf(fd, "cachePermission : %d\n", plugin_list->plugin[i].cachePermission);
-        fprintf(fd, "interfaceVersion: %d\n\n", plugin_list->plugin[i].interfaceVersion);
+        IDAM_LOGF(UDA_LOG_DEBUG, "Request    : %d\n", plugin_list->plugin[i].request);
+        IDAM_LOGF(UDA_LOG_DEBUG, "Format     : %s\n", plugin_list->plugin[i].format);
+        IDAM_LOGF(UDA_LOG_DEBUG, "Library    : %s\n", plugin_list->plugin[i].library);
+        IDAM_LOGF(UDA_LOG_DEBUG, "Symbol     : %s\n", plugin_list->plugin[i].symbol);
+        IDAM_LOGF(UDA_LOG_DEBUG, "Extension  : %s\n", plugin_list->plugin[i].extension);
+        IDAM_LOGF(UDA_LOG_DEBUG, "Method     : %s\n", plugin_list->plugin[i].method);
+        IDAM_LOGF(UDA_LOG_DEBUG, "Description: %s\n", plugin_list->plugin[i].desc);
+        IDAM_LOGF(UDA_LOG_DEBUG, "Example    : %s\n", plugin_list->plugin[i].example);
+        IDAM_LOGF(UDA_LOG_DEBUG, "Protocol   : %s\n", plugin_list->plugin[i].deviceProtocol);
+        IDAM_LOGF(UDA_LOG_DEBUG, "Host       : %s\n", plugin_list->plugin[i].deviceHost);
+        IDAM_LOGF(UDA_LOG_DEBUG, "Port       : %s\n", plugin_list->plugin[i].devicePort);
+        IDAM_LOGF(UDA_LOG_DEBUG, "Class      : %d\n", plugin_list->plugin[i].class);
+        IDAM_LOGF(UDA_LOG_DEBUG, "External   : %d\n", plugin_list->plugin[i].external);
+        IDAM_LOGF(UDA_LOG_DEBUG, "Status     : %d\n", plugin_list->plugin[i].status);
+        IDAM_LOGF(UDA_LOG_DEBUG, "Private    : %d\n", plugin_list->plugin[i].private);
+        IDAM_LOGF(UDA_LOG_DEBUG, "cachePermission : %d\n", plugin_list->plugin[i].cachePermission);
+        IDAM_LOGF(UDA_LOG_DEBUG, "interfaceVersion: %d\n", plugin_list->plugin[i].interfaceVersion);
+        IDAM_LOGF(UDA_LOG_DEBUG, "loadErrors : %s\n\n", plugin_list->plugin[i].loadErrors);
     }
 }
 
@@ -1003,11 +1005,7 @@ void initPluginList(PLUGINLIST* plugin_list)
 // New symbol in opened library
 
                             if (plugin_list->plugin[plugin_list->count].class != PLUGINDEVICE) {
-                                rc = getPluginAddress(
-                                        &plugin_list->plugin[j].pluginHandle,                // locate symbol
-                                        plugin_list->plugin[j].library,
-                                        plugin_list->plugin[plugin_list->count].symbol,
-                                        &plugin_list->plugin[plugin_list->count].idamPlugin);
+                                rc = getPluginAddress(&plugin_list->plugin[j]);
                             }
                         }
 
@@ -1019,10 +1017,7 @@ void initPluginList(PLUGINLIST* plugin_list)
 
                 if (pluginID == -1) {                                    // open library and locate symbol
                     if (plugin_list->plugin[plugin_list->count].class != PLUGINDEVICE) {
-                        rc = getPluginAddress(&plugin_list->plugin[plugin_list->count].pluginHandle,
-                                              plugin_list->plugin[plugin_list->count].library,
-                                              plugin_list->plugin[plugin_list->count].symbol,
-                                              &plugin_list->plugin[plugin_list->count].idamPlugin);
+                        rc = getPluginAddress(&plugin_list->plugin[plugin_list->count]);
                     }
                 }
 
@@ -1037,6 +1032,8 @@ void initPluginList(PLUGINLIST* plugin_list)
 
         fclose(conf);
     }
+
+    printPluginList(plugin_list);
 }
 
 int idamServerRedirectStdStreams(int reset)

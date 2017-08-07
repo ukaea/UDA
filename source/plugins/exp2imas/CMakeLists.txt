@@ -14,7 +14,7 @@ endif()
 include( plugins )
 
 uda_plugin(
-  NAME TORE
+  NAME EXP2IMAS
   ENTRY_FUNC exp2imasPlugin
   DESCRIPTION "Map IMAS element name to experiment static or dynamic data using XML mapping files"
   EXAMPLE "EXP2IMAS::read()"

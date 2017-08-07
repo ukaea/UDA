@@ -57,7 +57,6 @@ public:
     { return isnull_; }
 
 private:
-
     std::vector<boost::any> vec_;
     const std::type_info* type_;
     dim_type num_;

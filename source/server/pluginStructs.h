@@ -51,6 +51,7 @@ typedef struct PluginData {
     unsigned short interfaceVersion;    // Maximum interface version the plugin is compliant with (Minimum is 1)
     void* pluginHandle;                 // Plugin Library handle
     PLUGINFUNP idamPlugin;              // Plugin function address
+    char loadErrors[STRING_LENGTH];     // Errors encountered on loading the plugin
 } PLUGIN_DATA;
 
 struct PluginList {

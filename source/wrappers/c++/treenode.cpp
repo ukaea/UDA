@@ -14,7 +14,7 @@ uda::TreeNode uda::TreeNode::parent()
 
 size_t uda::TreeNode::numChildren()
 {
-    return getNodeChildrenCount(node_);
+    return static_cast<size_t>(getNodeChildrenCount(node_));
 }
 
 std::vector<uda::TreeNode> uda::TreeNode::children()
@@ -250,7 +250,7 @@ uda::Scalar uda::TreeNode::atomicScalar(const std::string& target)
 template <typename T>
 static uda::Vector getVector(NTREE* node, const std::string& target, int count)
 {
-    T* data = reinterpret_cast<T*>(getNodeStructureComponentData(node, (char*)target.c_str()));
+    auto data = reinterpret_cast<T*>(getNodeStructureComponentData(node, (char*)target.c_str()));
 
     return uda::Vector(data, (size_t)count);
 }
@@ -314,9 +314,11 @@ uda::Vector uda::TreeNode::atomicVector(const std::string& target)
         if (target == anames[i]) {
             if (std::string("STRING *") == atypes[i] && ((arank[i] == 0 && apoint[i] == 1) || (arank[i] == 1 && apoint[i] == 0))) {
                 // String array in a single data structure
-                char** val = reinterpret_cast<char**>(getNodeStructureComponentData(node, (char*)target.c_str()));
+                auto val = reinterpret_cast<char**>(getNodeStructureComponentData(node, (char*)target.c_str()));
                 return uda::Vector(val, (size_t)ashape[i][0]);
-            } else if (arank[i] == 0 && apoint[i] == 1) {
+            }
+
+            if (arank[i] == 0 && apoint[i] == 1) {
                 int count = getNodeStructureComponentDataCount(node, (char*)target.c_str());
                 if (std::string("STRING *") == atypes[i]) return getVector<char*>(node, target, count);
                 if (std::string("short *") == atypes[i]) return getVector<short>(node, target, count);
@@ -345,7 +347,7 @@ uda::Vector uda::TreeNode::atomicVector(const std::string& target)
 template <typename T>
 static uda::Array getArray(NTREE* node, const std::string& target, int* shape, int rank)
 {
-    T* data = reinterpret_cast<T*>(getNodeStructureComponentData(node, (char*)target.c_str()));
+    auto data = reinterpret_cast<T*>(getNodeStructureComponentData(node, (char*)target.c_str()));
 
     std::vector<uda::Dim> dims;
     for (int i = 0; i < rank; ++i) {
@@ -353,7 +355,7 @@ static uda::Array getArray(NTREE* node, const std::string& target, int* shape, i
         for (int j = 0; j < shape[i]; ++j) {
             dim[j] = j;
         }
-        dims.push_back(uda::Dim((uda::dim_type)i, dim.data(), (size_t)shape[i], "", ""));
+        dims.emplace_back(uda::Dim((uda::dim_type)i, dim.data(), (size_t)shape[i], "", ""));
     }
 
     return uda::Array(data, dims);

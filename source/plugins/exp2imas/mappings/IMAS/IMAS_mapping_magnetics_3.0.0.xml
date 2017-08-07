@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mappings IDS_version="3.0.0">
+  <mapping key="magnetics/ids_properties/comment" value="" type="constant"/>
+  <mapping key="magnetics/ids_properties/homogeneous_time" value="" type="constant"/>
+  <mapping key="magnetics/flux_loop/Shape_of" value="//flux_loops/setup_floops/position/r/@dim" index="0" type="static"/>
+  <mapping key="magnetics/flux_loop/#/name" value="" type="static"/>
+  <mapping key="magnetics/flux_loop/#/identifier" value="" type="static"/>
+  <mapping key="magnetics/flux_loop/#/position/Shape_of" value="" type="static"/>
+  <mapping key="magnetics/flux_loop/#/position/#/r" value="//flux_loops/setup_floops/position/r" type="static"/>
+  <mapping key="magnetics/flux_loop/#/position/#/r_error_upper" value="" type="static"/>
+  <mapping key="magnetics/flux_loop/#/position/#/r_error_lower" value="" type="static"/>
+  <mapping key="magnetics/flux_loop/#/position/#/r_error_index" value="" type="constant"/>
+  <mapping key="magnetics/flux_loop/#/position/#/z" value="//flux_loops/setup_floops/position/z" type="static"/>
+  <mapping key="magnetics/flux_loop/#/position/#/z_error_upper" value="" type="static"/>
+  <mapping key="magnetics/flux_loop/#/position/#/z_error_lower" value="" type="static"/>
+  <mapping key="magnetics/flux_loop/#/position/#/z_error_index" value="" type="constant"/>
+  <mapping key="magnetics/flux_loop/#/position/#/phi" value="//flux_loops/setup_floops/position/phi" type="static"/>
+  <mapping key="magnetics/flux_loop/#/position/#/phi_error_upper" value="" type="static"/>
+  <mapping key="magnetics/flux_loop/#/position/#/phi_error_lower" value="" type="static"/>
+  <mapping key="magnetics/flux_loop/#/position/#/phi_error_index" value="" type="constant"/>
+  <mapping key="magnetics/flux_loop/#/flux/data" value="//flux_loops/measure/value/name" type="dynamic" scale="//flux_loops/measure/value/coeffa" offset="//flux_loops/measure/value/coeffb"/>
+  <mapping key="magnetics/flux_loop/#/flux/data_error_upper" value="" type="dynamic"/>
+  <mapping key="magnetics/flux_loop/#/flux/data_error_lower" value="" type="dynamic"/>
+  <mapping key="magnetics/flux_loop/#/flux/data_error_index" value="" type="constant"/>
+  <mapping key="magnetics/flux_loop/#/flux/time" value="//flux_loops/measure/value/name" type="dynamic"/>
+
+  <mapping key="magnetics/bpol_probe/Shape_of" value="" type="static"/>
+  <mapping key="magnetics/bpol_probe/#/name" value="//bpol_probes/setup_bprobe/name" type="static"/>
+  <mapping key="magnetics/bpol_probe/#/identifier" value="" type="static"/>
+  <mapping key="magnetics/bpol_probe/#/position/r" value="" type="static"/>
+  <mapping key="magnetics/bpol_probe/#/position/r_error_upper" value="" type="static"/>
+  <mapping key="magnetics/bpol_probe/#/position/r_error_lower" value="" type="static"/>
+  <mapping key="magnetics/bpol_probe/#/position/r_error_index" value="" type="constant"/>
+  <mapping key="magnetics/bpol_probe/#/position/z" value="" type="static"/>
+  <mapping key="magnetics/bpol_probe/#/position/z_error_upper" value="" type="static"/>
+  <mapping key="magnetics/bpol_probe/#/position/z_error_lower" value="" type="static"/>
+  <mapping key="magnetics/bpol_probe/#/position/z_error_index" value="" type="constant"/>
+  <mapping key="magnetics/bpol_probe/#/position/phi" value="" type="static"/>
+  <mapping key="magnetics/bpol_probe/#/position/phi_error_upper" value="" type="static"/>
+  <mapping key="magnetics/bpol_probe/#/position/phi_error_lower" value="" type="static"/>
+  <mapping key="magnetics/bpol_probe/#/position/phi_error_index" value="" type="constant"/>
+  <mapping key="magnetics/bpol_probe/#/poloidal_angle" value="" type="static"/>
+  <mapping key="magnetics/bpol_probe/#/poloidal_angle_error_upper" value="" type="static"/>
+  <mapping key="magnetics/bpol_probe/#/poloidal_angle_error_lower" value="" type="static"/>
+  <mapping key="magnetics/bpol_probe/#/poloidal_angle_error_index" value="" type="constant"/>
+  <mapping key="magnetics/bpol_probe/#/toroidal_angle" value="" type="static"/>
+  <mapping key="magnetics/bpol_probe/#/toroidal_angle_error_upper" value="" type="static"/>
+  <mapping key="magnetics/bpol_probe/#/toroidal_angle_error_lower" value="" type="static"/>
+  <mapping key="magnetics/bpol_probe/#/toroidal_angle_error_index" value="" type="constant"/>
+  <mapping key="magnetics/bpol_probe/#/area" value="" type="static"/>
+  <mapping key="magnetics/bpol_probe/#/area_error_upper" value="" type="static"/>
+  <mapping key="magnetics/bpol_probe/#/area_error_lower" value="" type="static"/>
+  <mapping key="magnetics/bpol_probe/#/area_error_index" value="" type="constant"/>
+  <mapping key="magnetics/bpol_probe/#/length" value="" type="static"/>
+  <mapping key="magnetics/bpol_probe/#/length_error_upper" value="" type="static"/>
+  <mapping key="magnetics/bpol_probe/#/length_error_lower" value="" type="static"/>
+  <mapping key="magnetics/bpol_probe/#/length_error_index" value="" type="constant"/>
+  <mapping key="magnetics/bpol_probe/#/turns" value="" type="static"/>
+  <mapping key="magnetics/bpol_probe/#/field/data" value="" type="dynamic"/>
+  <mapping key="magnetics/bpol_probe/#/field/data_error_upper" value="" type="dynamic"/>
+  <mapping key="magnetics/bpol_probe/#/field/data_error_lower" value="" type="dynamic"/>
+  <mapping key="magnetics/bpol_probe/#/field/data_error_index" value="" type="constant"/>
+  <mapping key="magnetics/bpol_probe/#/field/time" value="" type="dynamic"/>
+
+  <mapping key="magnetics/method/Shape_of" value="" type="static"/>
+  <mapping key="magnetics/method/#/name" value="" type="static"/>
+  <mapping key="magnetics/method/#/ip/data" value="" type="dynamic"/>
+  <mapping key="magnetics/method/#/ip/data_error_upper" value="" type="dynamic"/>
+  <mapping key="magnetics/method/#/ip/data_error_lower" value="" type="dynamic"/>
+  <mapping key="magnetics/method/#/ip/data_error_index" value="" type="constant"/>
+  <mapping key="magnetics/method/#/ip/time" value="" type="dynamic"/>
+  <mapping key="magnetics/method/#/diamagnetic_flux/data" value="" type="dynamic"/>
+  <mapping key="magnetics/method/#/diamagnetic_flux/data_error_upper" value="" type="dynamic"/>
+  <mapping key="magnetics/method/#/diamagnetic_flux/data_error_lower" value="" type="dynamic"/>
+  <mapping key="magnetics/method/#/diamagnetic_flux/data_error_index" value="" type="constant"/>
+  <mapping key="magnetics/method/#/diamagnetic_flux/time" value="" type="dynamic"/>
+  <mapping key="magnetics/code/name" value="" type="constant"/>
+  <mapping key="magnetics/code/commit" value="" type="constant"/>
+  <mapping key="magnetics/code/version" value="" type="constant"/>
+  <mapping key="magnetics/code/repository" value="" type="constant"/>
+  <mapping key="magnetics/code/parameters" value="" type="constant"/>
+  <mapping key="magnetics/code/output_flag" value="" type="dynamic"/>
+  <mapping key="magnetics/time" value="" type="dynamic"/>
+</mappings>

@@ -104,15 +104,15 @@ static uda::Dim getDim(int handle, uda::dim_type num, uda::Result::DataType data
     if (data_type == uda::Result::DataType::DATA) {
         std::string label = getIdamDimLabel(handle, num);
         std::string units = getIdamDimUnits(handle, num);
-        int size = getIdamDimNum(handle, num);
-        T* data = reinterpret_cast<T*>(getIdamDimData(handle, num));
+        auto size = static_cast<size_t>(getIdamDimNum(handle, num));
+        auto data = reinterpret_cast<T*>(getIdamDimData(handle, num));
         return uda::Dim(num, data, size, label, units);
     }
 
     std::string label = getIdamDimLabel(handle, num);
     std::string units = getIdamDimUnits(handle, num);
-    int size = getIdamDimNum(handle, num);
-    T* data = reinterpret_cast<T*>(getIdamDimError(handle, num));
+    auto size = static_cast<size_t>(getIdamDimNum(handle, num));
+    auto data = reinterpret_cast<T*>(getIdamDimError(handle, num));
     return uda::Dim(num, data, size, label + " error", units);
 }
 
@@ -172,9 +172,9 @@ uda::Data* getDataAs(int handle, uda::Result::DataType data_type, std::vector<ud
             return new uda::Vector(data, (size_t)getIdamDataNum(handle));
         }
         return new uda::Scalar(data[0]);
-    } else {
-        return new uda::Array(data, dims);
     }
+
+    return new uda::Array(data, dims);
 }
 
 uda::Data* getDataAsString(int handle)
@@ -268,6 +268,7 @@ uda::Data* uda::Result::errors() const
     std::vector<Dim> dims;
     auto rank = static_cast<dim_type>(getIdamRank(handle_));
     for (dim_type i = 0; i < rank; ++i) {
+        // XXX: error dimension data doesn't seem to actually be returned, so stick with standard dims for now
         dims.push_back(dim(i, DATA));
     }
 
@@ -311,7 +312,7 @@ uda::Data* uda::Result::errors() const
 
 uda::TreeNode uda::Result::tree() const
 {
-    return TreeNode(getIdamDataTree(handle_));
+    return { getIdamDataTree(handle_) };
 }
 
 

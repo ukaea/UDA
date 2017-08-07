@@ -1,3 +1,4 @@
+import os
 import xml.etree.cElementTree as ET
 
 tree = ET.parse('IDSDef.xml')
@@ -21,17 +22,22 @@ def walk(node):
     else:
         return [(name, node.attrib['type'])]
 
-values = []
-version = ''
 for IDS in root:
-    version = max(IDS.attrib['lifecycle_version'], version)
-    values += walk(IDS)
+    values = walk(IDS)
 
-file_name = 'IMAS_mapping_' + version + '.xml'
+    version = IDS.attrib['lifecycle_version']
+    file_name = 'IMAS_mapping_%s_%s.xml' % (IDS.attrib['name'], version)
 
-with open(file_name, 'w') as file:
-    print('<?xml version="1.0" encoding="UTF-8"?>', file=file)
-    print('<mappings IDS_version="{0}">'.format(version), file=file)
-    for value in values:
-        print('<mapping key="{0}" value="" type="{1}"/>'.format(*value), file=file)
-    print('</mappings>', file=file)
+    with open(file_name, 'w') as file:
+        print('<?xml version="1.0" encoding="UTF-8"?>', file=file)
+        print('<mappings IDS_version="{0}">'.format(version), file=file)
+        for value in values:
+            print('  <mapping key="{0}" value="" type="{1}"/>'.format(*value), file=file)
+        print('</mappings>', file=file)
+
+    link_name = 'IMAS_mapping_%s.xml' % IDS.attrib['name']
+
+    if os.path.exists(link_name):
+        os.remove(link_name)
+
+    os.symlink(file_name, link_name)

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mappings IDS_version="3.0.0">
+<mapping key="actuator/ids_properties/comment" value="" type="constant"/>
+<mapping key="actuator/ids_properties/homogeneous_time" value="" type="constant"/>
+<mapping key="actuator/name" value="" type="static"/>
+<mapping key="actuator/channels" value="" type="static"/>
+<mapping key="actuator/power" value="" type="dynamic"/>
+<mapping key="actuator/power_error_upper" value="" type="dynamic"/>
+<mapping key="actuator/power_error_lower" value="" type="dynamic"/>
+<mapping key="actuator/power_error_index" value="" type="constant"/>
+<mapping key="actuator/generic_dynamic" value="" type="dynamic"/>
+<mapping key="actuator/generic_dynamic_error_upper" value="" type="dynamic"/>
+<mapping key="actuator/generic_dynamic_error_lower" value="" type="dynamic"/>
+<mapping key="actuator/generic_dynamic_error_index" value="" type="constant"/>
+<mapping key="actuator/code/name" value="" type="constant"/>
+<mapping key="actuator/code/commit" value="" type="constant"/>
+<mapping key="actuator/code/version" value="" type="constant"/>
+<mapping key="actuator/code/repository" value="" type="constant"/>
+<mapping key="actuator/code/parameters" value="" type="constant"/>
+<mapping key="actuator/code/output_flag" value="" type="dynamic"/>
+<mapping key="actuator/time" value="" type="dynamic"/>
+</mappings>

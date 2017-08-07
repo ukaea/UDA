@@ -2,7 +2,7 @@
 #define IDAM_GETPLUGIN_ADDRESS_H
 
 #include <plugins/udaPlugin.h>
+int getPluginAddress(PLUGIN_DATA* plugin_data);
 
-int getPluginAddress(void **pluginHandle, const char *library, const char *symbol, PLUGINFUNP *idamPlugin);
 
 #endif // IDAM_GETPLUGIN_ADDRESS_H

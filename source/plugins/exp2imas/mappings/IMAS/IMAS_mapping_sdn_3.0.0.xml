@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mappings IDS_version="3.0.0">
+<mapping key="sdn/ids_properties/comment" value="" type="constant"/>
+<mapping key="sdn/ids_properties/homogeneous_time" value="" type="constant"/>
+<mapping key="sdn/topic/Shape_of" value="" type="static"/>
+<mapping key="sdn/topic/#/name" value="" type="constant"/>
+<mapping key="sdn/topic/#/signal/Shape_of" value="" type="static"/>
+<mapping key="sdn/topic/#/signal/#/name" value="" type="constant"/>
+<mapping key="sdn/topic/#/signal/#/definition" value="" type="constant"/>
+<mapping key="sdn/topic/#/signal/#/allocated_position" value="" type="constant"/>
+<mapping key="sdn/topic/#/signal/#/value/data" value="" type="dynamic"/>
+<mapping key="sdn/topic/#/signal/#/value/data_error_upper" value="" type="dynamic"/>
+<mapping key="sdn/topic/#/signal/#/value/data_error_lower" value="" type="dynamic"/>
+<mapping key="sdn/topic/#/signal/#/value/data_error_index" value="" type="constant"/>
+<mapping key="sdn/topic/#/signal/#/value/time" value="" type="dynamic"/>
+<mapping key="sdn/topic/#/signal/#/quality/data" value="" type="dynamic"/>
+<mapping key="sdn/topic/#/signal/#/quality/time" value="" type="dynamic"/>
+<mapping key="sdn/code/name" value="" type="constant"/>
+<mapping key="sdn/code/commit" value="" type="constant"/>
+<mapping key="sdn/code/version" value="" type="constant"/>
+<mapping key="sdn/code/repository" value="" type="constant"/>
+<mapping key="sdn/code/parameters" value="" type="constant"/>
+<mapping key="sdn/code/output_flag" value="" type="dynamic"/>
+<mapping key="sdn/time" value="" type="dynamic"/>
+</mappings>
