@@ -99,7 +99,7 @@ int main() {
 	}
 	std::cout << "..." << std::endl;*/
 
-	const uda::Result& name = client.get("imas::get(idx=0, group='magnetics', variable='flux_loop/1/name', expName='WEST', type=string, rank=0, shot=" SHOT_NUM ", )", "");
+	const uda::Result& name = client.get("imas::get(idx=0, group='magnetics', variable='flux_loop/1/name', expName='WEST', type=string, rank=1, shot=" SHOT_NUM ", )", "");
 	const uda::Data * data4 = name.data();
 	const uda::String* s = dynamic_cast<const uda::String*>(data4);
 
@@ -241,7 +241,7 @@ int main() {
 	}
 	std::cout << "..." << std::endl;
 
-	const uda::Result& bpol_name = client.get("imas::get(idx=0, group='magnetics', variable='bpol_probe/60/name', expName='WEST', type=string, rank=0, shot=" SHOT_NUM ", )", "");
+	const uda::Result& bpol_name = client.get("imas::get(idx=0, group='magnetics', variable='bpol_probe/60/name', expName='WEST', type=string, rank=1, shot=" SHOT_NUM ", )", "");
 	const uda::Data * bpol_data_name = bpol_name.data();
 	const uda::String* s_bpol_data_name = dynamic_cast<const uda::String*>(bpol_data_name);
 
