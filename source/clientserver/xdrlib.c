@@ -925,7 +925,7 @@ bool_t xdr_data_dim2(XDR* xdrs, DATA_BLOCK* str)
                         switch (str->dims[i].method) {
                             case 1:
                                 if (!(xdr_vector(xdrs, (char*)str->dims[i].sams, (int)str->dims[i].udoms,
-                                                 sizeof(long), (xdrproc_t)xdr_long)
+                                                 sizeof(int), (xdrproc_t)xdr_int)
                                       && xdr_vector(xdrs, str->dims[i].offs, (int)str->dims[i].udoms,
                                                     sizeof(float), (xdrproc_t)xdr_float)
                                       && xdr_vector(xdrs, str->dims[i].ints, (int)str->dims[i].udoms,
@@ -954,7 +954,7 @@ bool_t xdr_data_dim2(XDR* xdrs, DATA_BLOCK* str)
                         switch (str->dims[i].method) {
                             case 1:
                                 if (!(xdr_vector(xdrs, (char*)str->dims[i].sams, (int)str->dims[i].udoms,
-                                                 sizeof(long), (xdrproc_t)xdr_long)
+                                                 sizeof(int), (xdrproc_t)xdr_int)
                                       && xdr_vector(xdrs, str->dims[i].offs, (int)str->dims[i].udoms,
                                                     sizeof(double), (xdrproc_t)xdr_double)
                                       && xdr_vector(xdrs, str->dims[i].ints, (int)str->dims[i].udoms,
@@ -983,7 +983,7 @@ bool_t xdr_data_dim2(XDR* xdrs, DATA_BLOCK* str)
                         switch (str->dims[i].method) {
                             case 1:
                                 if (!(xdr_vector(xdrs, (char*)str->dims[i].sams, (int)str->dims[i].udoms,
-                                                 sizeof(long), (xdrproc_t)xdr_long)
+                                                 sizeof(int), (xdrproc_t)xdr_int)
                                       && xdr_vector(xdrs, str->dims[i].offs, (int)str->dims[i].udoms,
                                                     sizeof(char), (xdrproc_t)xdr_char)
                                       && xdr_vector(xdrs, str->dims[i].ints, (int)str->dims[i].udoms,
@@ -1012,7 +1012,7 @@ bool_t xdr_data_dim2(XDR* xdrs, DATA_BLOCK* str)
                         switch (str->dims[i].method) {
                             case 1:
                                 if (!(xdr_vector(xdrs, (char*)str->dims[i].sams, (int)str->dims[i].udoms,
-                                                 sizeof(long), (xdrproc_t)xdr_long)
+                                                 sizeof(int), (xdrproc_t)xdr_int)
                                       && xdr_vector(xdrs, str->dims[i].offs, (int)str->dims[i].udoms,
                                                     sizeof(short), (xdrproc_t)xdr_short)
                                       && xdr_vector(xdrs, str->dims[i].ints, (int)str->dims[i].udoms,
@@ -1041,7 +1041,7 @@ bool_t xdr_data_dim2(XDR* xdrs, DATA_BLOCK* str)
                         switch (str->dims[i].method) {
                             case 1:
                                 if (!(xdr_vector(xdrs, (char*)str->dims[i].sams, (int)str->dims[i].udoms,
-                                                 sizeof(long), (xdrproc_t)xdr_long)
+                                                 sizeof(int), (xdrproc_t)xdr_int)
                                       && xdr_vector(xdrs, str->dims[i].offs, (int)str->dims[i].udoms,
                                                     sizeof(int), (xdrproc_t)xdr_int)
                                       && xdr_vector(xdrs, str->dims[i].ints, (int)str->dims[i].udoms,
@@ -1070,7 +1070,7 @@ bool_t xdr_data_dim2(XDR* xdrs, DATA_BLOCK* str)
                         switch (str->dims[i].method) {
                             case 1:
                                 if (!(xdr_vector(xdrs, (char*)str->dims[i].sams, (int)str->dims[i].udoms,
-                                                 sizeof(long), (xdrproc_t)xdr_long)
+                                                 sizeof(int), (xdrproc_t)xdr_int)
                                       && xdr_vector(xdrs, str->dims[i].offs, (int)str->dims[i].udoms,
                                                     sizeof(long), (xdrproc_t)xdr_long)
                                       && xdr_vector(xdrs, str->dims[i].ints, (int)str->dims[i].udoms,
@@ -1098,7 +1098,7 @@ bool_t xdr_data_dim2(XDR* xdrs, DATA_BLOCK* str)
                         switch (str->dims[i].method) {
                             case 1:
                                 if (!(xdr_vector(xdrs, (char*)str->dims[i].sams, (int)str->dims[i].udoms,
-                                                 sizeof(long), (xdrproc_t)xdr_long)
+                                                 sizeof(int), (xdrproc_t)xdr_int)
                                       && xdr_vector(xdrs, str->dims[i].offs, (int)str->dims[i].udoms,
                                                     sizeof(long long int), (xdrproc_t)xdr_int64_t)
                                       && xdr_vector(xdrs, str->dims[i].ints, (int)str->dims[i].udoms,
@@ -1126,7 +1126,7 @@ bool_t xdr_data_dim2(XDR* xdrs, DATA_BLOCK* str)
                         switch (str->dims[i].method) {
                             case 1:
                                 if (!(xdr_vector(xdrs, (char*)str->dims[i].sams, (int)str->dims[i].udoms,
-                                                 sizeof(long), (xdrproc_t)xdr_long)
+                                                 sizeof(int), (xdrproc_t)xdr_int)
                                       && xdr_vector(xdrs, str->dims[i].offs, (int)str->dims[i].udoms,
                                                     sizeof(unsigned char), (xdrproc_t)xdr_u_char)
                                       && xdr_vector(xdrs, str->dims[i].ints, (int)str->dims[i].udoms,
@@ -1155,7 +1155,7 @@ bool_t xdr_data_dim2(XDR* xdrs, DATA_BLOCK* str)
                         switch (str->dims[i].method) {
                             case 1:
                                 if (!(xdr_vector(xdrs, (char*)str->dims[i].sams, (int)str->dims[i].udoms,
-                                                 sizeof(long), (xdrproc_t)xdr_long)
+                                                 sizeof(int), (xdrproc_t)xdr_int)
                                       && xdr_vector(xdrs, str->dims[i].offs, (int)str->dims[i].udoms,
                                                     sizeof(unsigned short), (xdrproc_t)xdr_u_short)
                                       && xdr_vector(xdrs, str->dims[i].ints, (int)str->dims[i].udoms,
@@ -1184,7 +1184,7 @@ bool_t xdr_data_dim2(XDR* xdrs, DATA_BLOCK* str)
                         switch (str->dims[i].method) {
                             case 1:
                                 if (!(xdr_vector(xdrs, (char*)str->dims[i].sams, (int)str->dims[i].udoms,
-                                                 sizeof(long), (xdrproc_t)xdr_long)
+                                                 sizeof(int), (xdrproc_t)xdr_int)
                                       && xdr_vector(xdrs, str->dims[i].offs, (int)str->dims[i].udoms,
                                                     sizeof(unsigned int), (xdrproc_t)xdr_u_int)
                                       && xdr_vector(xdrs, str->dims[i].ints, (int)str->dims[i].udoms,
@@ -1213,7 +1213,7 @@ bool_t xdr_data_dim2(XDR* xdrs, DATA_BLOCK* str)
                         switch (str->dims[i].method) {
                             case 1:
                                 if (!(xdr_vector(xdrs, (char*)str->dims[i].sams, (int)str->dims[i].udoms,
-                                                 sizeof(long), (xdrproc_t)xdr_long)
+                                                 sizeof(int), (xdrproc_t)xdr_int)
                                       && xdr_vector(xdrs, str->dims[i].offs, (int)str->dims[i].udoms,
                                                     sizeof(unsigned long), (xdrproc_t)xdr_u_long)
                                       && xdr_vector(xdrs, str->dims[i].ints, (int)str->dims[i].udoms,
@@ -1242,7 +1242,7 @@ bool_t xdr_data_dim2(XDR* xdrs, DATA_BLOCK* str)
                         switch (str->dims[i].method) {
                             case 1:
                                 if (!(xdr_vector(xdrs, (char*) str->dims[i].sams, (int) str->dims[i].udoms,
-                                                 sizeof(long), (xdrproc_t) xdr_long)
+                                                 sizeof(int), (xdrproc_t)xdr_int)
                                       && xdr_vector(xdrs, str->dims[i].offs, (int) str->dims[i].udoms,
                                                     sizeof(unsigned long long int), (xdrproc_t) xdr_uint64_t)
                                       && xdr_vector(xdrs, str->dims[i].ints, (int) str->dims[i].udoms,
