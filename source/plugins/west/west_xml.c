@@ -12,6 +12,7 @@
 
 #include "ts_rqparam.h"
 #include "west_ece.h"
+#include "west_pf_passive.h"
 #include "west_utilities.h"
 
 char* setBuffer(int data_type, char* value);
@@ -105,7 +106,7 @@ int execute(const char* mapfun, int shotNumber, DATA_BLOCK* data_block, int* nod
 		//set frequencies of ece channels: UDA request is ece/channel/#/frequency where # is the channel number
 		fun = 6;
 	} */
-	  else if (strcmp(fun_name, "ece_names") == 0) {
+	else if (strcmp(fun_name, "ece_names") == 0) {
 		//set names of ece channels: UDA request is ece/channel/#/name where # is the channel number
 		fun = 7;
 	} else if (strcmp(fun_name, "ece_identifiers") == 0) {
@@ -113,8 +114,11 @@ int execute(const char* mapfun, int shotNumber, DATA_BLOCK* data_block, int* nod
 		fun = 8;
 	} else if (strcmp(fun_name, "ece_t_e_data_shape_of") == 0) {
 		fun = 9;
+	}  else if (strcmp(fun_name, "passive_current_shapeOf") == 0) {
+		fun = 10;
+	}else if (strcmp(fun_name, "passive_name") == 0) {
+		fun = 11;
 	}
-
 
 	printNum("Case : ", fun);
 
@@ -211,14 +215,12 @@ int execute(const char* mapfun, int shotNumber, DATA_BLOCK* data_block, int* nod
 	case 7: {
 		IDAM_LOG(UDA_LOG_DEBUG, "Case of ece_names from WEST plugin\n");
 		ece_names(shotNumber, data_block, nodeIndices);
-
 		break;
 	}
 
 	case 8: {
 		IDAM_LOG(UDA_LOG_DEBUG, "Case of ece_identifiers from WEST plugin\n");
 		ece_identifiers(shotNumber, data_block, nodeIndices);
-
 		break;
 	}
 
@@ -229,9 +231,21 @@ int execute(const char* mapfun, int shotNumber, DATA_BLOCK* data_block, int* nod
 		IDAM_LOG(UDA_LOG_DEBUG, "Calling tokenizeFunParameters() from WEST plugin\n");
 		tokenizeFunParameters(ece_mapfun, &TOP_collections_parameters, &attributes, &normalizationAttributes);
 		shape_of_tsmat_collect(shotNumber, TOP_collections_parameters, data_block);
-
 		break;
 	}
+
+	case 10: {
+		IDAM_LOG(UDA_LOG_DEBUG, "Case of passive_current_shapeOf from WEST plugin\n");
+		passive_current_shapeOf(shotNumber, data_block, nodeIndices);
+		break;
+	}
+
+	case 11: {
+		IDAM_LOG(UDA_LOG_DEBUG, "Case of passive_name from WEST plugin\n");
+		passive_name(shotNumber, data_block, nodeIndices);
+		break;
+	}
+
 
 	}
 
