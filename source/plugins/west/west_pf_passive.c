@@ -13,13 +13,14 @@
 #include "west_utilities.h"
 #include "west_dyn_data_utilities.h"
 #include "ts_rqparam.h"
+#include "west_static_data_utilities.h"
 
 
 float Rsup[10] = {2.3475, 2.3476, 2.3273, 2.3272, 2.3273, 2.3284, 2.3671, 2.3669, 2.3676, 2.3683};
 float Zsup[10] = {0.8923, 0.8503, 0.9055, 0.8806, 0.8620, 0.8360, 0.9038, 0.8838, 0.8618, 0.8372};
 
 float Rbaf[8] = {2.6003,    2.6491,    2.5278,    2.5735,    2.6235,    2.6723,    2.6235,    2.6241};
-float Zbaf[8] = { -0.8503   -0.8503   -0.7216   -0.7222   -0.7222   -0.7222   -0.8094   -0.7618};
+float Zbaf[8] = { -0.8503,   -0.8503,   -0.7216,   -0.7222,   -0.7222,   -0.7222,   -0.8094,   -0.7618};
 
 float Rsup1[3] = {1.9578,    1.9300,    1.9003};
 float Zsup1[3] = {0.7558,    0.7300,    0.6807};
@@ -250,57 +251,60 @@ void passive_name(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices) {
 
 void passive_r(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices) {
 	int k = nodeIndices[0]; //starts from 1
-	data_block->data_type = TYPE_FLOAT;
-	data_block->data = malloc(sizeof(float));
+	float *r = NULL;
+	r = (float*) malloc(sizeof(float));
 
 	if (k <= 10) {
-		((float*)data_block->data)[0] = Rsup[k-1];
+		r[0] = Rsup[k-1];
 	}
 	else if (k>10 && k<=18) {
-		((float*)data_block->data)[0] = Rbaf[k-11];
+		r[0] = Rbaf[k-11];
 	}
 	else if (k>18 && k<=21) {
-		((float*)data_block->data)[0] = Rsup1[k-19];
+		r[0] = Rsup1[k-19];
 	}
 	else if (k>21 && k<=24) {
-		((float*)data_block->data)[0] = Rsup2[k-22];
+		r[0] = Rsup2[k-22];
 	}
 	else if (k>24 && k<=26) {
-		((float*)data_block->data)[0] = Rsup3[k-25];
+		r[0] = Rsup3[k-25];
 	}
 	else if (k>26 && k<=29) {
-		((float*)data_block->data)[0] = Rinf1[k-27];
+		r[0] = Rinf1[k-27];
 	}
 	else if (k>29 && k<=32) {
-		((float*)data_block->data)[0] = Rinf2[k-30];
+		r[0] = Rinf2[k-30];
 	}
+	SetStatic1DData(data_block, 1, r);
 }
 
 void passive_z(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices) {
 	int k = nodeIndices[0]; //starts from 1
-	data_block->data_type = TYPE_FLOAT;
-	data_block->data = malloc(sizeof(float));
+	float *z = NULL;
+	z = (float*) malloc(sizeof(float));
+
 	if (k <= 10) {
-		((float*)data_block->data)[0] = Zsup[k-1];
+		z[0] = Zsup[k-1];
 	}
 	else if (k>10 && k<=18) {
-		((float*)data_block->data)[0] = Rbaf[k-11];
+		z[0] = Zbaf[k-11];
 	}
 	else if (k>18 && k<=21) {
-		((float*)data_block->data)[0] = Zsup1[k-19];
+		z[0] = Zsup1[k-19];
 	}
 	else if (k>21 && k<=24) {
-		((float*)data_block->data)[0] = Zsup2[k-22];
+		z[0] = Zsup2[k-22];
 	}
 	else if (k>24 && k<=26) {
-		((float*)data_block->data)[0] = Zsup3[k-25];
+		z[0] = Zsup3[k-25];
 	}
 	else if (k>26 && k<=29) {
-		((float*)data_block->data)[0] = Zinf1[k-27];
+		z[0] = Zinf1[k-27];
 	}
 	else if (k>29 && k<=32) {
-		((float*)data_block->data)[0] = Zinf2[k-30];
+		z[0] = Zinf2[k-30];
 	}
+	SetStatic1DData(data_block, 1, z);
 }
 
 void passive_current_shapeOf(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices) {

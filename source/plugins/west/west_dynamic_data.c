@@ -68,10 +68,6 @@ int GetDynamicData(int shotNumber, const char* mapfun, DATA_BLOCK* data_block, i
 		ece_frequencies(shotNumber, data_block, nodeIndices);
 	} else if (strcmp(fun_name, "ece_frequencies_time") == 0) {
 		ece_harmonic_time(shotNumber, data_block, nodeIndices); //TODO
-	} else if (strcmp(fun_name, "passive_r") == 0) {
-		passive_r(shotNumber, data_block, nodeIndices);
-	} else if (strcmp(fun_name, "passive_z") == 0) {
-		passive_z(shotNumber, data_block, nodeIndices);
 	} else if (strcmp(fun_name, "passive_current") == 0) {
 		passive_current(shotNumber, data_block, nodeIndices);
 	} else if (strcmp(fun_name, "test_fun") == 0) {
