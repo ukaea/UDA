@@ -311,10 +311,7 @@ void passive_current_shapeOf(int shotNumber, DATA_BLOCK* data_block, int* nodeIn
 
 	float* data = NULL;
 	float* time = NULL;
-	int len;
-
-	getCurrent(shotNumber, data_block, nodeIndices, &data, &time, &len);
-
+	int len = 34;
 	data_block->data_type = TYPE_INT;
 	data_block->data = malloc(sizeof(int));
 	*((int*)data_block->data) = len;
