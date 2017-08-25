@@ -377,7 +377,6 @@ int passive_time(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices) {
 	int status = -1;
 
 	if (k <= 10) {
-		IDAM_LOG(UDA_LOG_DEBUG, "calling getIFREEB...\n");
 		status = getIFREEB(shotNumber, 2, &time, &data, &len, 1.);
 	}
 	else if (k>10 && k<=18) {
@@ -398,10 +397,12 @@ int passive_time(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices) {
 	else if (k>29 && k<=32) {
 		status = getIDCOEF(shotNumber, 23, &time, &data, &len, 1.);
 	}
-	IDAM_LOG(UDA_LOG_DEBUG, "before calling SetDynamicDataTime...\n");
+	/*IDAM_LOG(UDA_LOG_DEBUG, "before calling SetDynamicDataTime...\n");
 	if (status != 0) return status;
 	IDAM_LOG(UDA_LOG_DEBUG, "calling SetDynamicDataTime...\n");
-	SetDynamicDataTime(data_block, len, time, data);
+	SetDynamicDataTime(data_block, len, time, data);*/
+
+	SetStatic1DData(data_block, len, time);
 
 	return 0;
 }
