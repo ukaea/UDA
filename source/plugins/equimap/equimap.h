@@ -1,5 +1,5 @@
-#ifndef IDAM_PLUGINS_EQUIMAP_EQUIMAP_H
-#define IDAM_PLUGINS_EQUIMAP_EQUIMAP_H
+#ifndef UDA_PLUGINS_EQUIMAP_EQUIMAP_H
+#define UDA_PLUGINS_EQUIMAP_EQUIMAP_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -253,4 +253,4 @@ void initEfitData(EFITDATA * efitdata);
 }
 #endif
 
-#endif // IDAM_PLUGINS_EQUIMAP_EQUIMAP_H
+#endif // UDA_PLUGINS_EQUIMAP_EQUIMAP_H

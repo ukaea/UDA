@@ -195,12 +195,12 @@ double getSliceTime2()
  */
 int findIMASType(const char* typeName)
 {
-    if (typeName == NULL)                       return UNKNOWN_TYPE;
-    else if (!strcasecmp(typeName, "int"))      return INT;
-    else if (!strcasecmp(typeName, "float"))    return FLOAT;
-    else if (!strcasecmp(typeName, "double"))   return DOUBLE;
-    else if (!strcasecmp(typeName, "string"))   return STRING;
-    else return UNKNOWN_TYPE;
+    if (typeName == NULL)                   return UNKNOWN_TYPE;
+    if (StringIEquals(typeName, "int"))     return INT;
+    if (StringIEquals(typeName, "float"))   return FLOAT;
+    if (StringIEquals(typeName, "double"))  return DOUBLE;
+    if (StringIEquals(typeName, "string"))  return STRING;
+    return UNKNOWN_TYPE;
 }
 
 /**

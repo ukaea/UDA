@@ -53,8 +53,9 @@ public:
 
     NTREE* node() { return node_; }
 private:
-    TreeNode(NTREE * node) : node_(node) {}
+    TreeNode(int handle, NTREE * node) : handle_(handle), node_(node) {}
     friend class Result;
+    int handle_;
     NTREE * node_;
 };
 

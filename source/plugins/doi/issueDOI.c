@@ -240,6 +240,7 @@ static int do_help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     // Create the Returned Structure Definition
 
+    USERDEFINEDTYPELIST* userdefinedtypelist = idam_plugin_interface->userdefinedtypelist;
     USERDEFINEDTYPE usertype;
 
     initUserDefinedType(&usertype);            // New structure definition
@@ -265,8 +266,10 @@ static int do_help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     DOIHELP* data;
     data = (DOIHELP*)malloc(sizeof(DOIHELP));
     data->value = strdup(help);
-    addMalloc((void*)data, 1, sizeof(DOIHELP), "DOIHELP");
-    addMalloc((void*)data->value, 1, strlen(help) * sizeof(char), "char");
+
+    LOGMALLOCLIST* logmalloclist = idam_plugin_interface->logmalloclist;
+    addMalloc(logmalloclist, (void*)data, 1, sizeof(DOIHELP), "DOIHELP");
+    addMalloc(logmalloclist, (void*)data->value, 1, strlen(help) * sizeof(char), "char");
 
     // Pass Data
 
@@ -283,7 +286,7 @@ static int do_help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
-    data_block->opaque_block = (void*)findUserDefinedType("DOIHELP", 0);
+    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "DOIHELP", 0);
 
     IDAM_LOG(UDA_LOG_DEBUG, "exiting function help\n");
     if (data_block->opaque_block == NULL) {
@@ -391,20 +394,22 @@ static int do_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PGconn* dbConn)
 
     // Write Return Structure
 
+    LOGMALLOCLIST* logmalloclist = idam_plugin_interface->logmalloclist;
+
     size_t stringLength = strlen(work) + 1;
     data->doi = (char*)malloc(stringLength * sizeof(char));
     strcpy(data->doi, work);
-    addMalloc((void*)data->doi, 1, stringLength * sizeof(char), "char");
+    addMalloc(logmalloclist, (void*)data->doi, 1, stringLength * sizeof(char), "char");
 
     stringLength = strlen(owner) + 1;
     data->owner = (char*)malloc(stringLength * sizeof(char));
     strcpy(data->owner, owner);
-    addMalloc((void*)data->owner, 1, stringLength * sizeof(char), "char");
+    addMalloc(logmalloclist, (void*)data->owner, 1, stringLength * sizeof(char), "char");
 
     stringLength = strlen(icatRef) + 1;
     data->icatRef = (char*)malloc(stringLength * sizeof(char));
     strcpy(data->icatRef, icatRef);
-    addMalloc((void*)data->icatRef, 1, stringLength * sizeof(char), "char");
+    addMalloc(logmalloclist, (void*)data->icatRef, 1, stringLength * sizeof(char), "char");
 
     data->status = ' ';
 
@@ -447,11 +452,12 @@ static int do_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PGconn* dbConn)
     defineField(&field, "status", "DOI Status", &offset, SCALARCHAR);
     addCompoundField(&usertype, field);
 
+    USERDEFINEDTYPELIST* userdefinedtypelist = idam_plugin_interface->userdefinedtypelist;
     addUserDefinedType(userdefinedtypelist, usertype);
 
     // Register the Pointer to the Data Structure
 
-    addMalloc((void*)data, 1, sizeof(ISSUEDOI), "ISSUEDOI");
+    addMalloc(logmalloclist, (void*)data, 1, sizeof(ISSUEDOI), "ISSUEDOI");
 
     // Pass the Data back
 
@@ -467,7 +473,7 @@ static int do_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PGconn* dbConn)
 
     data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
-    data_block->opaque_block = (void*)findUserDefinedType("ISSUEDOI", 0);
+    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "ISSUEDOI", 0);
 
     IDAM_LOG(UDA_LOG_DEBUG, "exiting function new\n");
 
@@ -1043,11 +1049,13 @@ static int do_list(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PGconn* dbConn)
         RAISE_PLUGIN_ERROR("No doi_log records found");
     }
 
+    LOGMALLOCLIST* logmalloclist = idam_plugin_interface->logmalloclist;
+
     // Create the Data Structures to be returned
 
     DOIRECORD* data = (DOIRECORD*)malloc(nrows * sizeof(DOIRECORD));
 
-    addMalloc((void*)data, nrows, sizeof(DOIRECORD), "DOIRECORD");
+    addMalloc(logmalloclist, (void*)data, nrows, sizeof(DOIRECORD), "DOIRECORD");
 
     LISTDOI* list = (LISTDOI*)malloc(1 * sizeof(LISTDOI));
 
@@ -1057,8 +1065,8 @@ static int do_list(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PGconn* dbConn)
     strcpy(list->doi, doi);
     list->list = data;
 
-    addMalloc((void*)list, 1, sizeof(LISTDOI), "LISTDOI");
-    addMalloc((void*)list->doi, 1, (strlen(doi) + 1) * sizeof(char), "char");
+    addMalloc(logmalloclist, (void*)list, 1, sizeof(LISTDOI), "LISTDOI");
+    addMalloc(logmalloclist, (void*)list->doi, 1, (strlen(doi) + 1) * sizeof(char), "char");
 
     // Extract the SQL data
 
@@ -1067,42 +1075,42 @@ static int do_list(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PGconn* dbConn)
         size_t stringLength = strlen(PQgetvalue(dbQuery, i, 0)) + 1;
         data[i].doi = (char*)malloc(stringLength * sizeof(char));
         strcpy(data[i].doi, PQgetvalue(dbQuery, i, 0));
-        addMalloc((void*)data[i].doi, 1, stringLength * sizeof(char), "char");
+        addMalloc(logmalloclist, (void*)data[i].doi, 1, stringLength * sizeof(char), "char");
 
         stringLength = strlen(PQgetvalue(dbQuery, i, 1)) + 1;
         data[i].requestedSignal = (char*)malloc(stringLength * sizeof(char));
         strcpy(data[i].requestedSignal, PQgetvalue(dbQuery, i, 1));
-        addMalloc((void*)data[i].requestedSignal, 1, stringLength * sizeof(char), "char");
+        addMalloc(logmalloclist, (void*)data[i].requestedSignal, 1, stringLength * sizeof(char), "char");
 
         stringLength = strlen(PQgetvalue(dbQuery, i, 2)) + 1;
         data[i].requestedSource = (char*)malloc(stringLength * sizeof(char));
         strcpy(data[i].requestedSource, PQgetvalue(dbQuery, i, 2));
-        addMalloc((void*)data[i].requestedSource, 1, stringLength * sizeof(char), "char");
+        addMalloc(logmalloclist, (void*)data[i].requestedSource, 1, stringLength * sizeof(char), "char");
 
         stringLength = strlen(PQgetvalue(dbQuery, i, 3)) + 1;
         data[i].trueSignal = (char*)malloc(stringLength * sizeof(char));
         strcpy(data[i].trueSignal, PQgetvalue(dbQuery, i, 3));
-        addMalloc((void*)data[i].trueSignal, 1, stringLength * sizeof(char), "char");
+        addMalloc(logmalloclist, (void*)data[i].trueSignal, 1, stringLength * sizeof(char), "char");
 
         stringLength = strlen(PQgetvalue(dbQuery, i, 4)) + 1;
         data[i].trueSource = (char*)malloc(stringLength * sizeof(char));
         strcpy(data[i].trueSource, PQgetvalue(dbQuery, i, 4));
-        addMalloc((void*)data[i].trueSource, 1, stringLength * sizeof(char), "char");
+        addMalloc(logmalloclist, (void*)data[i].trueSource, 1, stringLength * sizeof(char), "char");
 
         stringLength = strlen(PQgetvalue(dbQuery, i, 5)) + 1;
         data[i].trueSourceDOI = (char*)malloc(stringLength * sizeof(char));
         strcpy(data[i].trueSourceDOI, PQgetvalue(dbQuery, i, 5));
-        addMalloc((void*)data[i].trueSourceDOI, 1, stringLength * sizeof(char), "char");
+        addMalloc(logmalloclist, (void*)data[i].trueSourceDOI, 1, stringLength * sizeof(char), "char");
 
         stringLength = strlen(PQgetvalue(dbQuery, i, 6)) + 1;
         data[i].logRecord = (char*)malloc(stringLength * sizeof(char));
         strcpy(data[i].logRecord, PQgetvalue(dbQuery, i, 6));
-        addMalloc((void*)data[i].logRecord, 1, stringLength * sizeof(char), "char");
+        addMalloc(logmalloclist, (void*)data[i].logRecord, 1, stringLength * sizeof(char), "char");
 
         stringLength = strlen(PQgetvalue(dbQuery, i, 7)) + 1;
         data[i].creation = (char*)malloc(stringLength * sizeof(char));
         strcpy(data[i].creation, PQgetvalue(dbQuery, i, 7));
-        addMalloc((void*)data[i].creation, 1, stringLength * sizeof(char), "char");
+        addMalloc(logmalloclist, (void*)data[i].creation, 1, stringLength * sizeof(char), "char");
 
         IDAM_LOGF(UDA_LOG_DEBUG, "doi            : %s\n\n", data[i].doi);
         IDAM_LOGF(UDA_LOG_DEBUG, "requestedSignal: %s\n", data[i].requestedSignal);
@@ -1156,6 +1164,7 @@ static int do_list(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PGconn* dbConn)
     defineField(&field, "creation", "record creation date", &offset, SCALARSTRING);
     addCompoundField(&usertype, field);
 
+    USERDEFINEDTYPELIST* userdefinedtypelist = idam_plugin_interface->userdefinedtypelist;
     addUserDefinedType(userdefinedtypelist, usertype);
 
     initUserDefinedType(&usertype);            // New structure definition
@@ -1213,7 +1222,7 @@ static int do_list(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PGconn* dbConn)
 
     data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
-    data_block->opaque_block = (void*)findUserDefinedType("LISTDOI", 0);
+    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "LISTDOI", 0);
 
     IDAM_LOG(UDA_LOG_DEBUG, "Function list called\n");
 

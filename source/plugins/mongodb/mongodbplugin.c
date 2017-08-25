@@ -728,67 +728,70 @@ Best Query time (micro secs) [load]
                 defineField(&field, "range_stop", "validity range ending value", &offset, SCALARINT);
                 addCompoundField(&usertype, field);
 
+                USERDEFINEDTYPELIST* userdefinedtypelist = idam_plugin_interface->userdefinedtypelist;
                 addUserDefinedType(userdefinedtypelist, usertype);
 
 // Create the data to be returned
 
+                LOGMALLOCLIST* logmalloclist = idam_plugin_interface->logmalloclist;
+
                 MONGO_R* data = (MONGO_R*)malloc(sizeof(MONGO_R));
-                addMalloc((void*)data, 1, sizeof(MONGO_R), "MONGO_R");
+                addMalloc(logmalloclist, (void*)data, 1, sizeof(MONGO_R), "MONGO_R");
 
                 int lstr = strlen(objectName) + 1;
                 data->objectName = (char*)malloc(lstr * sizeof(char));
-                addMalloc((void*)data->objectName, 1, lstr * sizeof(char), "char");
+                addMalloc(logmalloclist, (void*)data->objectName, 1, lstr * sizeof(char), "char");
                 strcpy(data->objectName, objectName);
 
                 lstr = strlen(device) + 1;
                 data->device = (char*)malloc(lstr * sizeof(char));
-                addMalloc((void*)data->device, 1, lstr * sizeof(char), "char");
+                addMalloc(logmalloclist, (void*)data->device, 1, lstr * sizeof(char), "char");
                 strcpy(data->device, device);
 
                 lstr = strlen(objectSource) + 1;
                 data->objectSource = (char*)malloc(lstr * sizeof(char));
-                addMalloc((void*)data->objectSource, 1, lstr * sizeof(char), "char");
+                addMalloc(logmalloclist, (void*)data->objectSource, 1, lstr * sizeof(char), "char");
                 strcpy(data->objectSource, objectSource);
 
                 lstr = strlen(data_source->path) + 1;
                 data->source = (char*)malloc(lstr * sizeof(char));
-                addMalloc((void*)data->source, 1, lstr * sizeof(char), "char");
+                addMalloc(logmalloclist, (void*)data->source, 1, lstr * sizeof(char), "char");
                 strcpy(data->source, data_source->path);
 
                 lstr = strlen(signal_desc->signal_name) + 1;
                 data->signal_name = (char*)malloc(lstr * sizeof(char));
-                addMalloc((void*)data->signal_name, 1, lstr * sizeof(char), "char");
+                addMalloc(logmalloclist, (void*)data->signal_name, 1, lstr * sizeof(char), "char");
                 strcpy(data->signal_name, signal_desc->signal_name);
 
                 lstr = 2;
                 data->type = (char*)malloc(lstr * sizeof(char));
-                addMalloc((void*)data->type, 1, lstr * sizeof(char), "char");
+                addMalloc(logmalloclist, (void*)data->type, 1, lstr * sizeof(char), "char");
                 data->type[0] = signal_desc->type;
                 data->type[1] = '\0';
 
                 lstr = strlen(signal_desc->signal_alias) + 1;
                 data->signal_alias = (char*)malloc(lstr * sizeof(char));
-                addMalloc((void*)data->signal_alias, 1, lstr * sizeof(char), "char");
+                addMalloc(logmalloclist, (void*)data->signal_alias, 1, lstr * sizeof(char), "char");
                 strcpy(data->signal_alias, signal_desc->signal_alias);
 
                 lstr = strlen(signal_desc->generic_name) + 1;
                 data->generic_name = (char*)malloc(lstr * sizeof(char));
-                addMalloc((void*)data->generic_name, 1, lstr * sizeof(char), "char");
+                addMalloc(logmalloclist, (void*)data->generic_name, 1, lstr * sizeof(char), "char");
                 strcpy(data->generic_name, signal_desc->generic_name);
 
                 lstr = strlen(signal_desc->source_alias) + 1;
                 data->source_alias = (char*)malloc(lstr * sizeof(char));
-                addMalloc((void*)data->source_alias, 1, lstr * sizeof(char), "char");
+                addMalloc(logmalloclist, (void*)data->source_alias, 1, lstr * sizeof(char), "char");
                 strcpy(data->source_alias, signal_desc->source_alias);
 
                 lstr = strlen(signal_desc->signal_class) + 1;
                 data->signal_class = (char*)malloc(lstr * sizeof(char));
-                addMalloc((void*)data->signal_class, 1, lstr * sizeof(char), "char");
+                addMalloc(logmalloclist, (void*)data->signal_class, 1, lstr * sizeof(char), "char");
                 strcpy(data->signal_class, signal_desc->signal_class);
 
                 lstr = strlen(signal_desc->description) + 1;
                 data->description = (char*)malloc(lstr * sizeof(char));
-                addMalloc((void*)data->description, 1, lstr * sizeof(char), "char");
+                addMalloc(logmalloclist, (void*)data->description, 1, lstr * sizeof(char), "char");
                 strcpy(data->description, signal_desc->description);
 
                 data->expNumber = expNumber;
@@ -808,7 +811,7 @@ Best Query time (micro secs) [load]
 
                 data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
                 data_block->opaque_count = 1;
-                data_block->opaque_block = (void*)findUserDefinedType("MONGO_R", 0);
+                data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "MONGO_R", 0);
 
             }
 

@@ -96,9 +96,7 @@ int readMDSType(int type)
     return TYPE_UNKNOWN;
 }
 
-int readMDS(DATA_SOURCE data_source,
-            SIGNAL_DESC signal_desc,
-            DATA_BLOCK* data_block)
+int readMDS(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK* data_block, SOCKETLIST* socket_list)
 {
 
     int dtype_float = DTYPE_FLOAT;
@@ -253,7 +251,7 @@ int readMDS(DATA_SOURCE data_source,
 
             type = TYPE_MDSPLUS_SERVER;
             status = 1;
-            if ((rc = getSocket(&server_socketlist, type, &status, server, mdsport, &socket)) ==
+            if ((rc = getSocket(socket_list, type, &status, server, mdsport, &socket)) ==
                 1) {    // Check if the Server is Connected
                 mdssocket = -1;
                 MdsSetSocket(&mdssocket);    // Flags that a New Socket is to be opened without closing the previous one
@@ -269,7 +267,7 @@ int readMDS(DATA_SOURCE data_source,
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "readMDS", err, "Unable to Connect to MDSPlus Server");
                 break;
             } else {
-                addSocket(&server_socketlist, type, status, server, mdsport, socket);
+                addSocket(socket_list, type, status, server, mdsport, socket);
             }
 
             IDAM_LOGF(UDA_LOG_DEBUG, "Socket fd: %d \n", socket);

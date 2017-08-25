@@ -9,9 +9,9 @@ int extract_array_indices(const char* input, char** output, int** indices)
 {
     regex_t preg;
     int rc;
-    const char* pattern = "\\(/[0-9]\\+/\\)";
+    const char* pattern = "(/[0-9]+/)";
 
-    rc = regcomp(&preg, pattern, 0);
+    rc = regcomp(&preg, pattern, REG_EXTENDED);
     if (rc != 0) {
         fprintf(stderr, "regcomp() failed\n");
         return rc;

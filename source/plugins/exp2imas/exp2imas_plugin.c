@@ -26,6 +26,7 @@ static int do_defaultmethod(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
 static int do_maxinterfaceversion(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
 static int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
 static char* getMappingFileName(const char* IDSversion);
+static char* getMachineMappingFileName(const char* element);
 static xmlChar* getMappingValue(const char* mapping_file_name, const char* request, int* request_type);
 static char* deblank(char* token);
 
@@ -191,12 +192,12 @@ int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     size_t nindices = 0;
     FIND_REQUIRED_INT_ARRAY(request_block->nameValueList, indices);
 
-    const char* IDSversion = NULL;
-    FIND_REQUIRED_STRING_VALUE(request_block->nameValueList, IDSversion);
+    const char* IDS_version = NULL;
+    FIND_REQUIRED_STRING_VALUE(request_block->nameValueList, IDS_version);
 
     // Search mapping value and request type (static or dynamic)
-    char* experiment_mapping_file_name = getMappingFileName(IDSversion);
-    char* mapping_file_name = getenv("UDA_EXP2IMAS_MAPPING_FILE");
+    char* experiment_mapping_file_name = getMachineMappingFileName(element);
+    char* mapping_file_name = getMappingFileName(IDS_version);
 
     int request_type;
     const xmlChar* xPath = getMappingValue(mapping_file_name, element, &request_type);
@@ -209,73 +210,68 @@ int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
         // Executing XPath
 
-        int status = execute_xpath_expression(experiment_mapping_file_name, xPath, data_block, indices);
+        char* data;
+        int data_type;
+        int time_dim;
+        int size;
+
+        int status = execute_xpath_expression(experiment_mapping_file_name, xPath, indices, &data, &data_type, &time_dim, &size);
         if (status != 0) {
             return status;
         }
 
-        int data_type = data_block->data_type;
-
         if (data_type == TYPE_DOUBLE) {
-            double* data = (double*)data_block->data;
-            double temp = data[0];
-            //if (indices[0] > 0)
-            //    temp = data[indices[0]-1];
-            data_block->data = malloc(sizeof(double));
-            *((double*)data_block->data) = temp;
+            double* ddata = (double*)data;
+            if (indices[0] > 0) {
+                setReturnDataDblScalar(data_block, ddata[indices[0] - 1], NULL);
+            } else {
+                setReturnDataDblScalar(data_block, ddata[0], NULL);
+            }
             free(data);
         } else if (data_type == TYPE_FLOAT) {
-            float* data = (float*)data_block->data;
-            float temp = data[0];
-            //if (indices[0] > 0)
-            //    temp = data[indices[0]-1];
-            data_block->data = malloc(sizeof(float));
-            *((float*)data_block->data) = temp;
+            float* fdata = (float*)data;
+            if (indices[0] > 0) {
+                setReturnDataFltScalar(data_block, fdata[indices[0] - 1], NULL);
+            } else {
+                setReturnDataFltScalar(data_block, fdata[0], NULL);
+            }
             free(data);
         } else if (data_type == TYPE_LONG) {
-            long* data = (long*)data_block->data;
-            long temp = data[0];
-            //if (indices[0] > 0)
-            //    temp = data[indices[0]-1];
-            data_block->data = malloc(sizeof(long));
-            *((long*)data_block->data) = temp;
+            long* ldata = (long*)data;
+            if (indices[0] > 0) {
+                setReturnDataLongScalar(data_block, ldata[indices[0] - 1], NULL);
+            } else {
+                setReturnDataLongScalar(data_block, ldata[0], NULL);
+            }
             free(data);
         } else if (data_type == TYPE_INT) {
-            int* data = (int*)data_block->data;
-            int temp = data[0];
-            //if (indices[0] > 0)
-            //    temp = data[indices[0]-1];
-            data_block->data = malloc(sizeof(int));
-            *((int*)data_block->data) = temp;
+            int* idata = (int*)data;
+            if (indices[0] > 0) {
+                setReturnDataIntScalar(data_block, idata[indices[0] - 1], NULL);
+            } else {
+                setReturnDataIntScalar(data_block, idata[0], NULL);
+            }
             free(data);
         } else if (data_type == TYPE_SHORT) {
-            short* data = (short*)data_block->data;
-            short temp = data[0];
-            //if (indices[0] > 0)
-            //    temp = data[indices[0]-1];
-            data_block->data = malloc(sizeof(short));
-            *((short*)data_block->data) = temp;
+            short* sdata = (short*)data;
+            if (indices[0] > 0) {
+                setReturnDataShortScalar(data_block, sdata[indices[0] - 1], NULL);
+            } else {
+                setReturnDataShortScalar(data_block, sdata[0], NULL);
+            }
             free(data);
         } else if (data_type == TYPE_STRING) {
-            char* data = (char*)data_block->data;
-            char* temp = deblank(strdup(data));
-            data_block->data = temp;
-            free(data);
+            char** sdata = (char**)data;
+            if (indices[0] > 0) {
+                setReturnDataString(data_block, deblank(strdup(sdata[indices[0] - 1])), NULL);
+            } else {
+                setReturnDataString(data_block, deblank(strdup(sdata[0])), NULL);
+            }
+            FreeSplitStringTokens((char***)&data);
         } else {
             err = 999;
             addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, err, "Unsupported data type");
         }
-
-        free(data_block->dims);
-        data_block->dims = NULL;
-
-        // Scalar data
-        data_block->rank = 0;
-        data_block->data_n = 1;
-
-        strcpy(data_block->data_label, "");
-        strcpy(data_block->data_units, "");
-        strcpy(data_block->data_desc, "");
 
         return 0;
 
@@ -283,23 +279,26 @@ int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
         // DYNAMIC case
 
-        int status = execute_xpath_expression(experiment_mapping_file_name, xPath, data_block, indices);
+        char* data;
+        int data_type;
+        int time_dim;
+        int size;
+
+        int status = execute_xpath_expression(experiment_mapping_file_name, xPath, indices, &data, &data_type, &time_dim, &size);
         if (status != 0) {
             return status;
         }
 
-        int data_type = data_block->data_type;
-
         if (data_type == TYPE_STRING) {
             // data_block->data contains MDS+ signal name -- use to get
             // data from MDS+ server
-            char* signalName = data_block->data;
+            char* signalName = *(char**)data;
 
             float* time;
             int len;
-            float* data;
-            int status =
-                    ts_mds_get(signalName, shot, &time, &data, &len);
+            float* fdata;
+            status = mds_get(signalName, shot, &time, &fdata, &len, time_dim);
+
             if (status != 0) {
                 return status;
             }
@@ -307,19 +306,31 @@ int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             free(data_block->dims);
             data_block->dims = NULL;
 
-            data_block->rank = 1;
-            data_block->data_type = TYPE_FLOAT;
-            data_block->data_n = len;
-            data_block->data = (char*)data;
-            data_block->dims =
-                    (DIMS*)malloc(data_block->rank * sizeof(DIMS));
+            int data_n = len / size;
 
+            if (StringEndsWith(element, "/time")) {
+                data_block->rank = 1;
+                data_block->data_type = TYPE_FLOAT;
+                data_block->data_n = data_n;
+                data_block->data = (char*)time;
+            } else {
+                data_block->rank = 1;
+                data_block->data_type = TYPE_FLOAT;
+                data_block->data_n = data_n;
+                if (indices[0] > 0) {
+                    data_block->data = (char*)(fdata + (indices[0] - 1) *  data_n);
+                } else {
+                    data_block->data = (char*)fdata;
+                }
+            }
+
+            data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
             for (i = 0; i < data_block->rank; i++) {
                 initDimBlock(&data_block->dims[i]);
             }
 
             data_block->dims[0].data_type = TYPE_FLOAT;
-            data_block->dims[0].dim_n = len;
+            data_block->dims[0].dim_n = data_n;
             data_block->dims[0].compressed = 0;
             data_block->dims[0].dim = (char*)time;
 
@@ -328,9 +339,7 @@ int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             strcpy(data_block->data_desc, "");
         } else {
             err = 999;
-            addIdamError(&idamerrorstack, CODEERRORTYPE,
-                         "tore_supra : Unsupported data type", err,
-                         "");
+            addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, err, "Unsupported data type");
         }
     }
 
@@ -340,8 +349,21 @@ int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 char* getMappingFileName(const char* IDSversion)
 {
     char* dir = getenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY");
+    return FormatString("%s/IMAS_mapping.xml", dir);
+//    return FormatString("%s/IMAS_mapping_%s.xml", dir, IDSversion);
+}
 
-    return FormatString("%s/IMAS_mapping_%s.xml", dir, IDSversion);
+char* getMachineMappingFileName(const char* element)
+{
+    char* dir = getenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY");
+
+    char* slash = strchr(element, '/');
+    char* token = strndup(element, slash - element);
+
+    char* name = FormatString("%s/JET_%s.xml", dir, token);
+    free(token);
+
+    return name;
 }
 
 xmlChar* getMappingValue(const char* mapping_file_name, const char* request, int* request_type)

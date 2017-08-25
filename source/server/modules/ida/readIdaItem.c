@@ -1251,8 +1251,10 @@ int readIdaItem(char* itemname, ida_file_ptr* ida_file, short* context, DATA_BLO
         if (tsams[0] > 0) {
             IDAM_LOG(UDA_LOG_DEBUG, "\n\tTime axis:\n");
             IDAM_LOG(UDA_LOG_DEBUG, "\t\tNo of samples:");
-            for (i = 0; i < udoms; i++) IDAM_LOGF(UDA_LOG_DEBUG, "\t%d", (int)tsams[i]);
-            IDAM_LOG(UDA_LOG_DEBUG, "\n");
+            for (i = 0; i < udoms; i++) {
+                idamLog(UDA_LOG_DEBUG, "\t%d", tsams[i]);
+            }
+            idamLog(UDA_LOG_DEBUG, "\n");
             IDAM_LOGF(UDA_LOG_DEBUG, "\t\tUnits:\t%s\n", tunits);
             IDAM_LOGF(UDA_LOG_DEBUG, "\t\tLabel:\t%s\n", tlabel);
         }
@@ -1287,8 +1289,10 @@ int readIdaItem(char* itemname, ida_file_ptr* ida_file, short* context, DATA_BLO
         if (xsams[0] > 0) {
             IDAM_LOG(UDA_LOG_DEBUG, "\n\tX axis:\n");
             IDAM_LOG(UDA_LOG_DEBUG, "\t\tNo of samples:");
-            for (i = 0; i < udoms; i++) IDAM_LOGF(UDA_LOG_DEBUG, "\t%d", (int)xsams[i]);
-            IDAM_LOG(UDA_LOG_DEBUG, "\n");
+            for (i = 0; i < udoms; i++) {
+                idamLog(UDA_LOG_DEBUG, "\t%d", (int)xsams[i]);
+            }
+            idamLog(UDA_LOG_DEBUG, "\n");
             IDAM_LOGF(UDA_LOG_DEBUG, "\t\tUnits:\t%s\n", xunits);
             IDAM_LOGF(UDA_LOG_DEBUG, "\t\tLabel:\t%s\n", xlabel);
         }

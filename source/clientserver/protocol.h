@@ -1,8 +1,9 @@
-#ifndef IDAM_CLIENTSERVER_PROTOCOL_H
-#define IDAM_CLIENTSERVER_PROTOCOL_H
+#ifndef UDA_CLIENTSERVER_PROTOCOL_H
+#define UDA_CLIENTSERVER_PROTOCOL_H
 
 #include <rpc/types.h>
 #include <rpc/xdr.h>
+#include <structures/genStructs.h>
 
 //-------------------------------------------------------
 // Client Server Conversation Protocols
@@ -61,7 +62,7 @@ enum REQUEST {
     REQUEST_READ_CDF,           // netCDF File
     REQUEST_READ_HDF5,          // HDF5 FIle
     REQUEST_READ_XML,           // XML Document defining a Signal
-    REQUEST_READ_UFILE,     // TRANSP UFile
+    REQUEST_READ_UFILE,         // TRANSP UFile
     REQUEST_READ_FILE,          // Read a File: A Container of Bytes!
     REQUEST_READ_SQL,           // Read from an SQL Data Source
     REQUEST_READ_PPF,           // JET PPF
@@ -70,17 +71,19 @@ enum REQUEST {
     REQUEST_READ_NOTHING,       // Immediate Return without Error: Client Server Timing Tests
     REQUEST_READ_BLOCKED,       // Disable Server Option for External Users (Not a client side option)
     REQUEST_READ_HDATA,         // Hierarchical Data Structures
-    REQUEST_READ_SERVERSIDE,        // Server Side Functions
+    REQUEST_READ_SERVERSIDE,    // Server Side Functions
     REQUEST_READ_UNKNOWN,       // Plugin Not Known
     REQUEST_READ_WEB,           // a Remote or Local web server
     REQUEST_READ_BIN,           // Binary file
     REQUEST_READ_HELP,          // Help file
-    REQUEST_READ_DEVICE     // Request to an External Device's data server
+    REQUEST_READ_DEVICE         // Request to an External Device's data server
 };
 
 extern int protocolVersion; // Client or Server Version number for Protocol Configuration
 
-int protocol(XDR *xdrs, int protocol_id, int direction, int *token, void *str);
-int protocol2(XDR *xdrs, int protocol_id, int direction, int *token, void *str);
+int protocol(XDR *xdrs, int protocol_id, int direction, int *token, LOGMALLOCLIST* logmalloclist,
+             USERDEFINEDTYPELIST* userdefinedtypelist, void *str);
+int protocol2(XDR *xdrs, int protocol_id, int direction, int *token, LOGMALLOCLIST* logmalloclist,
+              USERDEFINEDTYPELIST* userdefinedtypelist, void *str);
 
-#endif // IDAM_CLIENTSERVER_PROTOCOL_H
+#endif // UDA_CLIENTSERVER_PROTOCOL_H

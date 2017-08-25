@@ -1,5 +1,5 @@
-#ifndef IDAM_SERVER_IDAMSERVERPLUGIN_H
-#define IDAM_SERVER_IDAMSERVERPLUGIN_H
+#ifndef UDA_SERVER_SERVERPLUGIN_H
+#define UDA_SERVER_SERVERPLUGIN_H
 
 #include <plugins/udaPlugin.h>
 
@@ -69,7 +69,6 @@ int idamProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_BLOCK* original_req
 int idamServerMetaDataPluginId(const PLUGINLIST* plugin_list);
 
 int idamServerMetaDataPlugin(const PLUGINLIST* plugin_list, int plugin_id, REQUEST_BLOCK* request_block,
-                             SIGNAL_DESC* signal_desc, DATA_SOURCE* data_source);
+                             SIGNAL_DESC* signal_desc, DATA_SOURCE* data_source, LOGMALLOCLIST* logmalloclist);
 
-#endif // IDAM_SERVER_IDAMSERVERPLUGIN_H
-
+#endif // UDA_SERVER_SERVERPLUGIN_H

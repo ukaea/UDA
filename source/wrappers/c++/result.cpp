@@ -64,12 +64,12 @@ int uda::Result::errorCode() const
 }
 
 namespace {
-std::string to_string(int num)
-{
-    std::ostringstream ss;
-    ss << num;
-    return ss.str();
-}
+//std::string to_string(int num)
+//{
+//    std::ostringstream ss;
+//    ss << num;
+//    return ss.str();
+//}
 }
 
 uda::Result::Result(int handle)
@@ -82,13 +82,13 @@ uda::Result::Result(int handle)
           size_(handle >= 0 ? static_cast<std::size_t>(getIdamDataNum(handle)) : 0)
 {
     if (handle >= 0 && (bool)getIdamProperties(handle)->get_meta) {
-        DATA_SOURCE* source = getIdamDataSource(handle);
-        meta_["path"] = source->path;
-        meta_["filename"] = source->filename;
-        meta_["format"] = source->format;
-        meta_["exp_number"] = to_string(source->exp_number);
-        meta_["pass"] = to_string(source->pass);
-        meta_["pass_date"] = source->pass_date;
+//        DATA_SOURCE* source = getIdamDataSource(handle);
+//        meta_["path"] = source->path;
+//        meta_["filename"] = source->filename;
+//        meta_["format"] = source->format;
+//        meta_["exp_number"] = to_string(source->exp_number);
+//        meta_["pass"] = to_string(source->pass);
+//        meta_["pass_date"] = source->pass_date;
     }
     istree_ = (setIdamDataTree(handle) != 0);
 }
@@ -268,6 +268,7 @@ uda::Data* uda::Result::errors() const
     std::vector<Dim> dims;
     auto rank = static_cast<dim_type>(getIdamRank(handle_));
     for (dim_type i = 0; i < rank; ++i) {
+        // XXX: error dimension data doesn't seem to actually be returned, so stick with standard dims for now
         dims.push_back(dim(i, DATA));
     }
 
@@ -311,7 +312,5 @@ uda::Data* uda::Result::errors() const
 
 uda::TreeNode uda::Result::tree() const
 {
-    return TreeNode(getIdamDataTree(handle_));
+    return TreeNode(handle_, getIdamDataTree(handle_));
 }
-
-

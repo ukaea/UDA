@@ -70,6 +70,8 @@ bool StringEquals(const char* a, const char* b);
 
 bool StringIEquals(const char* a, const char* b);
 
+bool StringEndsWith(const char* str, const char* find);
+
 #define STR_STARTSWITH(X, Y) !strncmp(X, Y, strlen(Y))
 #define STR_ISTARTSWITH(X, Y) !strncasecmp(X, Y, strlen(Y))
 

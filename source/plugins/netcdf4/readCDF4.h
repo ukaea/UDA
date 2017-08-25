@@ -156,16 +156,16 @@ int isAtomicNCType(nc_type type);
 int convertNCType(nc_type type);
 void printNCType(FILE *fd, nc_type type);
 int readCDFTypes(int grpid, USERDEFINEDTYPELIST *userdefinedtypelist);
-int getCDF4SubTreeMeta(int grpid, int parent, USERDEFINEDTYPE *udt, USERDEFINEDTYPELIST *userdefinedtypelist,HGROUPS *hgroups);
+
 int getCDF4SubTreeMetaX(int grpid, int parent, USERDEFINEDTYPE *udt, USERDEFINEDTYPELIST *userdefinedtypelist,HGROUPS *hgroups);
 void initHGroup(HGROUPS *hgroups);
-int getCDF4SubTreeData(void **data, GROUP *group, HGROUPS *hgroups);
+
 int getCDF4SubTreeUserDefinedTypes(int grpid, GROUPLIST *grouplist, USERDEFINEDTYPELIST *userdefinedtypelist);
 int scopedUserDefinedTypes(int grpid);
 void replaceStrings(char **svec, int *ndata, char **dvec, int *ndims);
 void replaceEmbeddedStrings(USERDEFINEDTYPE *udt, int ndata, char *dvec);
 unsigned int readCDF4Properties();
-int readerCDF4(DATA_SOURCE *data_source, SIGNAL_DESC *signal_desc, REQUEST_BLOCK *request_block, DATA_BLOCK *data_block);
+int readerCDF4(DATA_SOURCE *data_source, SIGNAL_DESC *signal_desc, REQUEST_BLOCK *request_block, DATA_BLOCK *data_block, LOGMALLOCLIST* logmalloclist);
 int getGroupId(int ncgrpid, char *target, int *targetid);
 
 extern CDFSUBSET cdfsubset;

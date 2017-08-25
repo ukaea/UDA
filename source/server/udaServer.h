@@ -12,24 +12,19 @@
 #include <clientserver/socketStructs.h>
 #include <structures/genStructs.h>
 
-IDAMERRORSTACK* getIdamServerPluginErrorStack();
 USERDEFINEDTYPELIST* getIdamServerUserDefinedTypeList();
 
-LOGMALLOCLIST* getIdamServerLogMallocList();
-USERDEFINEDTYPELIST* getIdamServerParsedUserDefinedTypeList();
+int udaServer(CLIENT_BLOCK client_block);
 
-int idamServer(CLIENT_BLOCK client_block, REQUEST_BLOCK * request_block, SERVER_BLOCK * server_block, DATA_BLOCK * data_block);
+int fatServer(CLIENT_BLOCK client_block, REQUEST_BLOCK* request_block0, SERVER_BLOCK* server_block0,
+              DATA_BLOCK* data_block0);
 
 //--------------------------------------------------------------
 // Static Global variables
 
-extern SOCKETLIST server_socketlist;    // List of Data Server Sockets
-
 extern unsigned int totalDataBlockSize;
 extern int serverVersion;
 extern int altRank;
-extern unsigned int lastMallocIndex;
-extern unsigned int* lastMallocIndexValue;
 
 extern IDAMERRORSTACK idamerrorstack;
 

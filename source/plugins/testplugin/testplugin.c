@@ -37,7 +37,7 @@
 #  include <netdb.h>
 #endif // TESTUDT
 
-static void init_structure_definitions();
+static void init_structure_definitions(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
 static int do_help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
 static int do_test0(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
 static int do_test2(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
@@ -150,7 +150,7 @@ extern int testplugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         }
     }
 
-    init_structure_definitions();
+    init_structure_definitions(idam_plugin_interface);
 
     //----------------------------------------------------------------------------------------
     // Plugin Functions
@@ -368,7 +368,7 @@ static int do_help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 //----------------------------------------------------------------------------------------
 // Structure Definitions
 //----------------------------------------------------------------------------------------
-static void init_structure_definitions()
+static void init_structure_definitions(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
     USERDEFINEDTYPE* old;
 
@@ -469,11 +469,12 @@ static void init_structure_definitions()
     field.alignment = getalignmentof(field.type);
     addCompoundField(&usertype, field);        // Single Structure element
 
+    USERDEFINEDTYPELIST* userdefinedtypelist = idam_plugin_interface->userdefinedtypelist;
     addUserDefinedType(userdefinedtypelist, usertype);
 
     IDAM_LOG(UDA_LOG_DEBUG, "Type TEST9 defined\n");
 
-    old = findUserDefinedType("TEST9", 0);            // Clone existing structure & modify
+    old = findUserDefinedType(userdefinedtypelist, "TEST9", 0);            // Clone existing structure & modify
     copyUserDefinedType(old, &usertype);
 
     IDAM_LOG(UDA_LOG_DEBUG, "Type TEST9 located\n");
@@ -681,13 +682,14 @@ static int do_test4(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     field.alignment = getalignmentof(field.type);
     addCompoundField(&usertype, field);        // Single Structure element
 
+    USERDEFINEDTYPELIST* userdefinedtypelist = idam_plugin_interface->userdefinedtypelist;
     addUserDefinedType(userdefinedtypelist, usertype);
 
 // Create Data
 
     data = (TEST4*)malloc(sizeof(TEST4));            // Structured Data Must be a heap variable
     strcpy(data->value, "012345678901234567890");
-    addMalloc((void*)data, 1, sizeof(TEST4), "TEST4");
+    addMalloc(idam_plugin_interface->logmalloclist, (void*)data, 1, sizeof(TEST4), "TEST4");
 
 // Pass Data
 
@@ -702,7 +704,7 @@ static int do_test4(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
-    data_block->opaque_block = (void*)findUserDefinedType("TEST4", 0);
+    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST4", 0);
 
     return 0;
 }
@@ -752,6 +754,7 @@ static int do_test5(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     field.alignment = getalignmentof(field.type);
     addCompoundField(&usertype, field);        // Single Structure element
 
+    USERDEFINEDTYPELIST* userdefinedtypelist = idam_plugin_interface->userdefinedtypelist;
     addUserDefinedType(userdefinedtypelist, usertype);
 
 // Create Data
@@ -760,7 +763,7 @@ static int do_test5(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     strcpy(data->value[0], "012345678901234567890");
     strcpy(data->value[1], "QWERTY KEYBOARD");
     strcpy(data->value[2], "MAST TOKAMAK");
-    addMalloc((void*)data, 1, sizeof(TEST5), "TEST5");
+    addMalloc(idam_plugin_interface->logmalloclist, (void*)data, 1, sizeof(TEST5), "TEST5");
 
 // Pass Data
 
@@ -775,7 +778,7 @@ static int do_test5(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
-    data_block->opaque_block = (void*)findUserDefinedType("TEST5", 0);
+    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST5", 0);
 
     return 0;
 }
@@ -823,6 +826,7 @@ static int do_test6(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     field.alignment = getalignmentof(field.type);
     addCompoundField(&usertype, field);        // Single Structure element
 
+    USERDEFINEDTYPELIST* userdefinedtypelist = idam_plugin_interface->userdefinedtypelist;
     addUserDefinedType(userdefinedtypelist, usertype);
 
 // Create Data
@@ -830,8 +834,8 @@ static int do_test6(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     data = (TEST6*)malloc(sizeof(TEST6));            // Structured Data Must be a heap variable
     data->value = (char*)malloc(56 * sizeof(char));
     strcpy(data->value, "PI=3.1415927");
-    addMalloc((void*)data, 1, sizeof(TEST6), "TEST6");
-    addMalloc((void*)data->value, 1, 56 * sizeof(char), "char");
+    addMalloc(idam_plugin_interface->logmalloclist, (void*)data, 1, sizeof(TEST6), "TEST6");
+    addMalloc(idam_plugin_interface->logmalloclist, (void*)data->value, 1, 56 * sizeof(char), "char");
 
 // Pass Data
 
@@ -846,7 +850,7 @@ static int do_test6(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
-    data_block->opaque_block = (void*)findUserDefinedType("TEST6", 0);
+    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST6", 0);
 
     return 0;
 }
@@ -895,20 +899,21 @@ static int do_test7(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     field.alignment = getalignmentof(field.type);
     addCompoundField(&usertype, field);                     // Single Structure element
 
+    USERDEFINEDTYPELIST* userdefinedtypelist = idam_plugin_interface->userdefinedtypelist;
     addUserDefinedType(userdefinedtypelist, usertype);
 
 // Create Data
 
     data = (TEST7*)malloc(sizeof(TEST7));                   // Structured Data Must be a heap variable
-    addMalloc((void*)data, 1, sizeof(TEST7), "TEST7");
+    addMalloc(idam_plugin_interface->logmalloclist, (void*)data, 1, sizeof(TEST7), "TEST7");
 
     data->value[0] = (char*)malloc(56 * sizeof(char));
     data->value[1] = (char*)malloc(55 * sizeof(char));
     data->value[2] = (char*)malloc(54 * sizeof(char));
 
-    addMalloc((void*)data->value[0], 56, sizeof(char), "char");
-    addMalloc((void*)data->value[1], 55, sizeof(char), "char");
-    addMalloc((void*)data->value[2], 54, sizeof(char), "char");
+    addMalloc(idam_plugin_interface->logmalloclist, (void*)data->value[0], 56, sizeof(char), "char");
+    addMalloc(idam_plugin_interface->logmalloclist, (void*)data->value[1], 55, sizeof(char), "char");
+    addMalloc(idam_plugin_interface->logmalloclist, (void*)data->value[2], 54, sizeof(char), "char");
 
     strcpy(data->value[0], "012345678901234567890");
     strcpy(data->value[1], "QWERTY KEYBOARD");
@@ -928,7 +933,7 @@ static int do_test7(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
-    data_block->opaque_block = (void*)findUserDefinedType("TEST7", 0);
+    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST7", 0);
 
     return 0;
 }
@@ -976,23 +981,24 @@ static int do_test8(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     field.alignment = getalignmentof(field.type);
     addCompoundField(&usertype, field);                 // Single Structure element
 
+    USERDEFINEDTYPELIST* userdefinedtypelist = idam_plugin_interface->userdefinedtypelist;
     addUserDefinedType(userdefinedtypelist, usertype);
 
 // Create Data
 
     data = (TEST8*)malloc(sizeof(TEST8));               // Structured Data Must be a heap variable
-    addMalloc((void*)data, 1, sizeof(TEST8), "TEST8");
+    addMalloc(idam_plugin_interface->logmalloclist, (void*)data, 1, sizeof(TEST8), "TEST8");
 
     data->value = (char**)malloc(3 * sizeof(char*));
-    addMalloc((void*)data->value, 3, sizeof(char*), "STRING *");
+    addMalloc(idam_plugin_interface->logmalloclist, (void*)data->value, 3, sizeof(char*), "STRING *");
 
     data->value[0] = (char*)malloc(56 * sizeof(char));
     data->value[1] = (char*)malloc(55 * sizeof(char));
     data->value[2] = (char*)malloc(54 * sizeof(char));
 
-    addMalloc((void*)data->value[0], 56, sizeof(char), "char");
-    addMalloc((void*)data->value[1], 55, sizeof(char), "char");
-    addMalloc((void*)data->value[2], 54, sizeof(char), "char");
+    addMalloc(idam_plugin_interface->logmalloclist, (void*)data->value[0], 56, sizeof(char), "char");
+    addMalloc(idam_plugin_interface->logmalloclist, (void*)data->value[1], 55, sizeof(char), "char");
+    addMalloc(idam_plugin_interface->logmalloclist, (void*)data->value[2], 54, sizeof(char), "char");
 
     strcpy(data->value[0], "012345678901234567890");
     strcpy(data->value[1], "QWERTY KEYBOARD");
@@ -1011,7 +1017,7 @@ static int do_test8(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
-    data_block->opaque_block = (void*)findUserDefinedType("TEST8", 0);
+    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST8", 0);
 
     return 0;
 }
@@ -1023,7 +1029,7 @@ static int do_test9(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     // Create Data
 
     TEST9* data = (TEST9*)malloc(4 * sizeof(TEST9));            // Structured Data Must be a heap variable
-    addMalloc((void*)data, 4, sizeof(TEST9), "TEST9");
+    addMalloc(idam_plugin_interface->logmalloclist, (void*)data, 4, sizeof(TEST9), "TEST9");
 
     int i;
     for (i = 0; i < 4; i++) {
@@ -1034,26 +1040,26 @@ static int do_test9(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
         data[i].v3 = (char*)malloc(56 * sizeof(char));
         strcpy(data[i].v3, "PI=3.1415927");
-        addMalloc((void*)data[i].v3, 1, 56 * sizeof(char), "char");
+        addMalloc(idam_plugin_interface->logmalloclist, (void*)data[i].v3, 1, 56 * sizeof(char), "char");
 
         data[i].v4[0] = (char*)malloc(56 * sizeof(char));
         data[i].v4[1] = (char*)malloc(55 * sizeof(char));
         data[i].v4[2] = (char*)malloc(54 * sizeof(char));
-        addMalloc((void*)data[i].v4[0], 56, sizeof(char), "char");
-        addMalloc((void*)data[i].v4[1], 55, sizeof(char), "char");
-        addMalloc((void*)data[i].v4[2], 54, sizeof(char), "char");
+        addMalloc(idam_plugin_interface->logmalloclist, (void*)data[i].v4[0], 56, sizeof(char), "char");
+        addMalloc(idam_plugin_interface->logmalloclist, (void*)data[i].v4[1], 55, sizeof(char), "char");
+        addMalloc(idam_plugin_interface->logmalloclist, (void*)data[i].v4[2], 54, sizeof(char), "char");
         strcpy(data[i].v4[0], "012345678901234567890");
         strcpy(data[i].v4[1], "QWERTY KEYBOARD");
         strcpy(data[i].v4[2], "MAST TOKAMAK");
 
         data[i].v5 = (char**)malloc(3 * sizeof(char*));
-        addMalloc((void*)data[i].v5, 3, sizeof(char*), "STRING *");
+        addMalloc(idam_plugin_interface->logmalloclist, (void*)data[i].v5, 3, sizeof(char*), "STRING *");
         data[i].v5[0] = (char*)malloc(56 * sizeof(char));
         data[i].v5[1] = (char*)malloc(55 * sizeof(char));
         data[i].v5[2] = (char*)malloc(54 * sizeof(char));
-        addMalloc((void*)data[i].v5[0], 56, sizeof(char), "char");
-        addMalloc((void*)data[i].v5[1], 55, sizeof(char), "char");
-        addMalloc((void*)data[i].v5[2], 54, sizeof(char), "char");
+        addMalloc(idam_plugin_interface->logmalloclist, (void*)data[i].v5[0], 56, sizeof(char), "char");
+        addMalloc(idam_plugin_interface->logmalloclist, (void*)data[i].v5[1], 55, sizeof(char), "char");
+        addMalloc(idam_plugin_interface->logmalloclist, (void*)data[i].v5[2], 54, sizeof(char), "char");
         strcpy(data[i].v5[0], "012345678901234567890");
         strcpy(data[i].v5[1], "QWERTY KEYBOARD");
         strcpy(data[i].v5[2], "MAST TOKAMAK");
@@ -1072,7 +1078,9 @@ static int do_test9(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
-    data_block->opaque_block = (void*)findUserDefinedType("TEST9", 0);
+
+    USERDEFINEDTYPELIST* userdefinedtypelist = idam_plugin_interface->userdefinedtypelist;
+    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST9", 0);
 
     data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
 
@@ -1095,7 +1103,7 @@ static int do_test9A(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 // Create Data
 
     TEST9A* data = (TEST9A*)malloc(4 * sizeof(TEST9A));    // Structured Data Must be a heap variable
-    addMalloc((void*)data, 4, sizeof(TEST9A), "TEST9A");
+    addMalloc(idam_plugin_interface->logmalloclist, (void*)data, 4, sizeof(TEST9A), "TEST9A");
 
     int i;
     for (i = 0; i < 4; i++) {
@@ -1106,26 +1114,26 @@ static int do_test9A(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
         data[i].v3 = (char*)malloc(56 * sizeof(char));
         strcpy(data[i].v3, "PI=3.1415927");
-        addMalloc((void*)data[i].v3, 1, 56 * sizeof(char), "char");
+        addMalloc(idam_plugin_interface->logmalloclist, (void*)data[i].v3, 1, 56 * sizeof(char), "char");
 
         data[i].v4[0] = (char*)malloc(56 * sizeof(char));
         data[i].v4[1] = (char*)malloc(55 * sizeof(char));
         data[i].v4[2] = (char*)malloc(54 * sizeof(char));
-        addMalloc((void*)data[i].v4[0], 56, sizeof(char), "char");
-        addMalloc((void*)data[i].v4[1], 55, sizeof(char), "char");
-        addMalloc((void*)data[i].v4[2], 54, sizeof(char), "char");
+        addMalloc(idam_plugin_interface->logmalloclist, (void*)data[i].v4[0], 56, sizeof(char), "char");
+        addMalloc(idam_plugin_interface->logmalloclist, (void*)data[i].v4[1], 55, sizeof(char), "char");
+        addMalloc(idam_plugin_interface->logmalloclist, (void*)data[i].v4[2], 54, sizeof(char), "char");
         strcpy(data[i].v4[0], "012345678901234567890");
         strcpy(data[i].v4[1], "QWERTY KEYBOARD");
         strcpy(data[i].v4[2], "MAST TOKAMAK");
 
         data[i].v5 = (char**)malloc(3 * sizeof(char*));
-        addMalloc((void*)data[i].v5, 3, sizeof(char*), "STRING *");
+        addMalloc(idam_plugin_interface->logmalloclist, (void*)data[i].v5, 3, sizeof(char*), "STRING *");
         data[i].v5[0] = (char*)malloc(56 * sizeof(char));
         data[i].v5[1] = (char*)malloc(55 * sizeof(char));
         data[i].v5[2] = (char*)malloc(54 * sizeof(char));
-        addMalloc((void*)data[i].v5[0], 56, sizeof(char), "char");
-        addMalloc((void*)data[i].v5[1], 55, sizeof(char), "char");
-        addMalloc((void*)data[i].v5[2], 54, sizeof(char), "char");
+        addMalloc(idam_plugin_interface->logmalloclist, (void*)data[i].v5[0], 56, sizeof(char), "char");
+        addMalloc(idam_plugin_interface->logmalloclist, (void*)data[i].v5[1], 55, sizeof(char), "char");
+        addMalloc(idam_plugin_interface->logmalloclist, (void*)data[i].v5[2], 54, sizeof(char), "char");
         strcpy(data[i].v5[0], "012345678901234567890");
         strcpy(data[i].v5[1], "QWERTY KEYBOARD");
         strcpy(data[i].v5[2], "MAST TOKAMAK");
@@ -1137,26 +1145,26 @@ static int do_test9A(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
         data[i].v6.v3 = (char*)malloc(56 * sizeof(char));
         strcpy(data[i].v6.v3, "PI=3.1415927");
-        addMalloc((void*)data[i].v6.v3, 1, 56 * sizeof(char), "char");
+        addMalloc(idam_plugin_interface->logmalloclist, (void*)data[i].v6.v3, 1, 56 * sizeof(char), "char");
 
         data[i].v6.v4[0] = (char*)malloc(56 * sizeof(char));
         data[i].v6.v4[1] = (char*)malloc(55 * sizeof(char));
         data[i].v6.v4[2] = (char*)malloc(54 * sizeof(char));
-        addMalloc((void*)data[i].v6.v4[0], 56, sizeof(char), "char");
-        addMalloc((void*)data[i].v6.v4[1], 55, sizeof(char), "char");
-        addMalloc((void*)data[i].v6.v4[2], 54, sizeof(char), "char");
+        addMalloc(idam_plugin_interface->logmalloclist, (void*)data[i].v6.v4[0], 56, sizeof(char), "char");
+        addMalloc(idam_plugin_interface->logmalloclist, (void*)data[i].v6.v4[1], 55, sizeof(char), "char");
+        addMalloc(idam_plugin_interface->logmalloclist, (void*)data[i].v6.v4[2], 54, sizeof(char), "char");
         strcpy(data[i].v6.v4[0], "012345678901234567890");
         strcpy(data[i].v6.v4[1], "QWERTY KEYBOARD");
         strcpy(data[i].v6.v4[2], "MAST TOKAMAK");
 
         data[i].v6.v5 = (char**)malloc(3 * sizeof(char*));
-        addMalloc((void*)data[i].v6.v5, 3, sizeof(char*), "STRING *");
+        addMalloc(idam_plugin_interface->logmalloclist, (void*)data[i].v6.v5, 3, sizeof(char*), "STRING *");
         data[i].v6.v5[0] = (char*)malloc(56 * sizeof(char));
         data[i].v6.v5[1] = (char*)malloc(55 * sizeof(char));
         data[i].v6.v5[2] = (char*)malloc(54 * sizeof(char));
-        addMalloc((void*)data[i].v6.v5[0], 56, sizeof(char), "char");
-        addMalloc((void*)data[i].v6.v5[1], 55, sizeof(char), "char");
-        addMalloc((void*)data[i].v6.v5[2], 54, sizeof(char), "char");
+        addMalloc(idam_plugin_interface->logmalloclist, (void*)data[i].v6.v5[0], 56, sizeof(char), "char");
+        addMalloc(idam_plugin_interface->logmalloclist, (void*)data[i].v6.v5[1], 55, sizeof(char), "char");
+        addMalloc(idam_plugin_interface->logmalloclist, (void*)data[i].v6.v5[2], 54, sizeof(char), "char");
         strcpy(data[i].v6.v5[0], "012345678901234567890");
         strcpy(data[i].v6.v5[1], "QWERTY KEYBOARD");
         strcpy(data[i].v6.v5[2], "MAST TOKAMAK");
@@ -1176,7 +1184,9 @@ static int do_test9A(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
-    data_block->opaque_block = (void*)findUserDefinedType("TEST9A", 0);
+
+    USERDEFINEDTYPELIST* userdefinedtypelist = idam_plugin_interface->userdefinedtypelist;
+    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST9A", 0);
 
     data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
     for (i = 0; i < data_block->rank; i++) initDimBlock(&data_block->dims[i]);
@@ -1257,13 +1267,14 @@ static int do_test11(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     field.alignment = getalignmentof(field.type);
     addCompoundField(&usertype, field);        // Single Structure element
 
+    USERDEFINEDTYPELIST* userdefinedtypelist = idam_plugin_interface->userdefinedtypelist;
     addUserDefinedType(userdefinedtypelist, usertype);
 
 // Create Data
 
     data = (TEST11*)malloc(sizeof(TEST11));            // Structured Data Must be a heap variable
     data[0].value = 11;
-    addMalloc((void*)data, 1, sizeof(TEST11), "TEST11");
+    addMalloc(idam_plugin_interface->logmalloclist, (void*)data, 1, sizeof(TEST11), "TEST11");
 
 // Pass Data
 
@@ -1278,7 +1289,7 @@ static int do_test11(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
-    data_block->opaque_block = (void*)findUserDefinedType("TEST11", 0);
+    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST11", 0);
 
     return 0;
 }
@@ -1326,6 +1337,7 @@ static int do_test12(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     field.alignment = getalignmentof(field.type);
     addCompoundField(&usertype, field);        // Single Structure element
 
+    USERDEFINEDTYPELIST* userdefinedtypelist = idam_plugin_interface->userdefinedtypelist;
     addUserDefinedType(userdefinedtypelist, usertype);
 
 // Create Data
@@ -1334,7 +1346,7 @@ static int do_test12(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     data[0].value[0] = 10;
     data[0].value[1] = 11;
     data[0].value[2] = 12;
-    addMalloc((void*)data, 1, sizeof(TEST12), "TEST12");
+    addMalloc(idam_plugin_interface->logmalloclist, (void*)data, 1, sizeof(TEST12), "TEST12");
 
 // Pass Data
 
@@ -1349,7 +1361,7 @@ static int do_test12(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
-    data_block->opaque_block = (void*)findUserDefinedType("TEST12", 0);
+    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST12", 0);
 
     return 0;
 }
@@ -1398,6 +1410,7 @@ static int do_test13(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     field.alignment = getalignmentof(field.type);
     addCompoundField(&usertype, field);        // Single Structure element
 
+    USERDEFINEDTYPELIST* userdefinedtypelist = idam_plugin_interface->userdefinedtypelist;
     addUserDefinedType(userdefinedtypelist, usertype);
 
 // Create Data
@@ -1409,7 +1422,7 @@ static int do_test13(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     data[0].value[1][0] = 10;
     data[0].value[1][1] = 11;
     data[0].value[1][2] = 12;
-    addMalloc((void*)data, 1, sizeof(TEST13), "TEST13");
+    addMalloc(idam_plugin_interface->logmalloclist, (void*)data, 1, sizeof(TEST13), "TEST13");
 
 // Pass Data
 
@@ -1424,7 +1437,7 @@ static int do_test13(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
-    data_block->opaque_block = (void*)findUserDefinedType("TEST13", 0);
+    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST13", 0);
 
     return 0;
 }
@@ -1472,15 +1485,16 @@ static int do_test14(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     field.alignment = getalignmentof(field.type);
     addCompoundField(&usertype, field);        // Single Structure element
 
+    USERDEFINEDTYPELIST* userdefinedtypelist = idam_plugin_interface->userdefinedtypelist;
     addUserDefinedType(userdefinedtypelist, usertype);
 
 // Create Data
 
     data = (TEST14*)malloc(sizeof(TEST14));            // Structured Data Must be a heap variable
-    addMalloc((void*)data, 1, sizeof(TEST14), "TEST14");
+    addMalloc(idam_plugin_interface->logmalloclist, (void*)data, 1, sizeof(TEST14), "TEST14");
 
     data[0].value = (int*)malloc(sizeof(int));
-    addMalloc((void*)data[0].value, 1, sizeof(int), "int");
+    addMalloc(idam_plugin_interface->logmalloclist, (void*)data[0].value, 1, sizeof(int), "int");
 
     data[0].value[0] = 14;
 
@@ -1497,7 +1511,7 @@ static int do_test14(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
-    data_block->opaque_block = (void*)findUserDefinedType("TEST14", 0);
+    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST14", 0);
 
     return 0;
 }
@@ -1544,16 +1558,17 @@ static int do_test15(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     field.alignment = getalignmentof(field.type);
     addCompoundField(&usertype, field);        // Single Structure element
 
+    USERDEFINEDTYPELIST* userdefinedtypelist = idam_plugin_interface->userdefinedtypelist;
     addUserDefinedType(userdefinedtypelist, usertype);
 
 // Create Data
 
     data = (TEST15*)malloc(sizeof(TEST15));            // Structured Data Must be a heap variable
-    addMalloc((void*)data, 1, sizeof(TEST15), "TEST15");
+    addMalloc(idam_plugin_interface->logmalloclist, (void*)data, 1, sizeof(TEST15), "TEST15");
 
     data[0].value = (int*)malloc(3 * sizeof(int));
     int shape[] = {3};
-    addMalloc2((void*)data[0].value, 3, sizeof(int), "int", 1, shape);
+    addMalloc2(idam_plugin_interface->logmalloclist, (void*)data[0].value, 3, sizeof(int), "int", 1, shape);
 
     data[0].value[0] = 13;
     data[0].value[1] = 14;
@@ -1572,7 +1587,7 @@ static int do_test15(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
-    data_block->opaque_block = (void*)findUserDefinedType("TEST15", 0);
+    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST15", 0);
 
     return 0;
 }
@@ -1619,12 +1634,13 @@ static int do_test16(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     field.alignment = getalignmentof(field.type);
     addCompoundField(&usertype, field);        // Single Structure element
 
+    USERDEFINEDTYPELIST* userdefinedtypelist = idam_plugin_interface->userdefinedtypelist;
     addUserDefinedType(userdefinedtypelist, usertype);
 
 // Create Data
 
     data = (TEST16*)malloc(sizeof(TEST16));            // Structured Data Must be a heap variable
-    addMalloc((void*)data, 1, sizeof(TEST16), "TEST16");
+    addMalloc(idam_plugin_interface->logmalloclist, (void*)data, 1, sizeof(TEST16), "TEST16");
 
     int* shape = (int*)malloc(2 * sizeof(int));
     shape[0] = 2;
@@ -1632,7 +1648,7 @@ static int do_test16(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     int count = shape[0] * shape[1];
     int rank = 2;
     data[0].value = (int*)malloc(count * sizeof(int));
-    addMalloc2((void*)data[0].value, count, sizeof(int), "int", rank, shape);
+    addMalloc2(idam_plugin_interface->logmalloclist, (void*)data[0].value, count, sizeof(int), "int", rank, shape);
 
     data[0].value[0] = 0;
     data[0].value[1] = 1;
@@ -1654,7 +1670,7 @@ static int do_test16(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
-    data_block->opaque_block = (void*)findUserDefinedType("TEST16", 0);
+    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST16", 0);
 
     return 0;
 }
@@ -1702,6 +1718,7 @@ static int do_test18(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     field.alignment = getalignmentof(field.type);
     addCompoundField(&usertype, field);        // Single Structure element
 
+    USERDEFINEDTYPELIST* userdefinedtypelist = idam_plugin_interface->userdefinedtypelist;
     addUserDefinedType(userdefinedtypelist, usertype);
 
 // Create Data
@@ -1713,7 +1730,7 @@ static int do_test18(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     for (i = 0; i < data_block->data_n; i++) {
         data[i].value = i;
     }
-    addMalloc((void*)data, data_block->data_n, sizeof(TEST18), "TEST18");
+    addMalloc(idam_plugin_interface->logmalloclist, (void*)data, data_block->data_n, sizeof(TEST18), "TEST18");
 
 // Pass Data
 
@@ -1727,7 +1744,7 @@ static int do_test18(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
-    data_block->opaque_block = (void*)findUserDefinedType("TEST18", 0);
+    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST18", 0);
 
     data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
     for (i = 0; i < data_block->rank; i++) initDimBlock(&data_block->dims[i]);
@@ -1783,6 +1800,7 @@ static int do_test19(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     field.alignment = getalignmentof(field.type);
     addCompoundField(&usertype, field);                             // Single Structure element
 
+    USERDEFINEDTYPELIST* userdefinedtypelist = idam_plugin_interface->userdefinedtypelist;
     addUserDefinedType(userdefinedtypelist, usertype);
 
     typedef struct Test19 {
@@ -1858,7 +1876,7 @@ static int do_test19(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             data[i].vals[j].value = 10 * i + j;
         }
     }
-    addMalloc((void*)data, data_block->data_n, sizeof(TEST19), "TEST19");
+    addMalloc(idam_plugin_interface->logmalloclist, (void*)data, data_block->data_n, sizeof(TEST19), "TEST19");
 
 // Pass Data
 
@@ -1872,7 +1890,7 @@ static int do_test19(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
-    data_block->opaque_block = (void*)findUserDefinedType("TEST19", 0);
+    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST19", 0);
 
     data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
     for (i = 0; i < data_block->rank; i++) initDimBlock(&data_block->dims[i]);
@@ -1953,13 +1971,14 @@ static int do_test21(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     field.alignment = getalignmentof(field.type);
     addCompoundField(&usertype, field);                     // Single Structure element
 
+    USERDEFINEDTYPELIST* userdefinedtypelist = idam_plugin_interface->userdefinedtypelist;
     addUserDefinedType(userdefinedtypelist, usertype);
 
 // Create Data
 
     data = (TEST21*)malloc(sizeof(TEST21));                 // Structured Data Must be a heap variable
     data[0].value = 21;
-    addMalloc((void*)data, 1, sizeof(TEST21), "TEST21");
+    addMalloc(idam_plugin_interface->logmalloclist, (void*)data, 1, sizeof(TEST21), "TEST21");
 
 // Pass Data
 
@@ -1974,7 +1993,7 @@ static int do_test21(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
-    data_block->opaque_block = (void*)findUserDefinedType("TEST21", 0);
+    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST21", 0);
 
     return 0;
 }
@@ -2022,6 +2041,7 @@ static int do_test22(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     field.alignment = getalignmentof(field.type);
     addCompoundField(&usertype, field);        // Single Structure element
 
+    USERDEFINEDTYPELIST* userdefinedtypelist = idam_plugin_interface->userdefinedtypelist;
     addUserDefinedType(userdefinedtypelist, usertype);
 
 // Create Data
@@ -2030,7 +2050,7 @@ static int do_test22(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     data[0].value[0] = 20;
     data[0].value[1] = 21;
     data[0].value[2] = 22;
-    addMalloc((void*)data, 1, sizeof(TEST22), "TEST22");
+    addMalloc(idam_plugin_interface->logmalloclist, (void*)data, 1, sizeof(TEST22), "TEST22");
 
 // Pass Data
 
@@ -2045,7 +2065,7 @@ static int do_test22(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
-    data_block->opaque_block = (void*)findUserDefinedType("TEST22", 0);
+    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST22", 0);
 
     return 0;
 }
@@ -2094,6 +2114,7 @@ static int do_test23(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     field.alignment = getalignmentof(field.type);
     addCompoundField(&usertype, field);                         // Single Structure element
 
+    USERDEFINEDTYPELIST* userdefinedtypelist = idam_plugin_interface->userdefinedtypelist;
     addUserDefinedType(userdefinedtypelist, usertype);
 
 // Create Data
@@ -2105,7 +2126,7 @@ static int do_test23(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     data[0].value[1][0] = 10;
     data[0].value[1][1] = 11;
     data[0].value[1][2] = 12;
-    addMalloc((void*)data, 1, sizeof(TEST23), "TEST23");
+    addMalloc(idam_plugin_interface->logmalloclist, (void*)data, 1, sizeof(TEST23), "TEST23");
 
 // Pass Data
 
@@ -2120,7 +2141,7 @@ static int do_test23(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
-    data_block->opaque_block = (void*)findUserDefinedType("TEST23", 0);
+    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST23", 0);
 
     return 0;
 }
@@ -2168,15 +2189,16 @@ static int do_test24(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     field.alignment = getalignmentof(field.type);
     addCompoundField(&usertype, field);                         // Single Structure element
 
+    USERDEFINEDTYPELIST* userdefinedtypelist = idam_plugin_interface->userdefinedtypelist;
     addUserDefinedType(userdefinedtypelist, usertype);
 
 // Create Data
 
     data = (TEST24*)malloc(sizeof(TEST24));                     // Structured Data Must be a heap variable
-    addMalloc((void*)data, 1, sizeof(TEST24), "TEST24");
+    addMalloc(idam_plugin_interface->logmalloclist, (void*)data, 1, sizeof(TEST24), "TEST24");
 
     data[0].value = (short*)malloc(sizeof(short));
-    addMalloc((void*)data[0].value, 1, sizeof(short), "short");
+    addMalloc(idam_plugin_interface->logmalloclist, (void*)data[0].value, 1, sizeof(short), "short");
 
     data[0].value[0] = 24;
 
@@ -2193,7 +2215,7 @@ static int do_test24(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
-    data_block->opaque_block = (void*)findUserDefinedType("TEST24", 0);
+    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST24", 0);
 
     return 0;
 }
@@ -2240,16 +2262,17 @@ static int do_test25(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     field.alignment = getalignmentof(field.type);
     addCompoundField(&usertype, field);                         // Single Structure element
 
+    USERDEFINEDTYPELIST* userdefinedtypelist = idam_plugin_interface->userdefinedtypelist;
     addUserDefinedType(userdefinedtypelist, usertype);
 
 // Create Data
 
     data = (TEST25*)malloc(sizeof(TEST25));                     // Structured Data Must be a heap variable
-    addMalloc((void*)data, 1, sizeof(TEST25), "TEST25");
+    addMalloc(idam_plugin_interface->logmalloclist, (void*)data, 1, sizeof(TEST25), "TEST25");
 
     data[0].value = (short*)malloc(3 * sizeof(short));
     int shape[] = {3};
-    addMalloc2((void*)data[0].value, 3, sizeof(short), "short", 1, shape);
+    addMalloc2(idam_plugin_interface->logmalloclist, (void*)data[0].value, 3, sizeof(short), "short", 1, shape);
 
     data[0].value[0] = 13;
     data[0].value[1] = 14;
@@ -2268,7 +2291,7 @@ static int do_test25(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
-    data_block->opaque_block = (void*)findUserDefinedType("TEST25", 0);
+    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST25", 0);
 
     return 0;
 }
@@ -2315,12 +2338,13 @@ static int do_test26(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     field.alignment = getalignmentof(field.type);
     addCompoundField(&usertype, field);                             // Single Structure element
 
+    USERDEFINEDTYPELIST* userdefinedtypelist = idam_plugin_interface->userdefinedtypelist;
     addUserDefinedType(userdefinedtypelist, usertype);
 
 // Create Data Structure
 
     data = (TEST26*)malloc(sizeof(TEST26));                         // Structured Data Must be a heap variable
-    addMalloc((void*)data, 1, sizeof(TEST26), "TEST26");
+    addMalloc(idam_plugin_interface->logmalloclist, (void*)data, 1, sizeof(TEST26), "TEST26");
 
 // Data is a compact Fortran like rank 2 array
 
@@ -2328,7 +2352,7 @@ static int do_test26(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     int* shape = (int*)malloc(2 * sizeof(int));
     shape[0] = 3;
     shape[1] = 2;
-    addMalloc2((void*)data[0].value, 6, sizeof(short), "short", 2, shape);
+    addMalloc2(idam_plugin_interface->logmalloclist, (void*)data[0].value, 6, sizeof(short), "short", 2, shape);
 
     data[0].value[0] = 13;
     data[0].value[1] = 14;
@@ -2351,7 +2375,7 @@ static int do_test26(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
-    data_block->opaque_block = (void*)findUserDefinedType("TEST26", 0);
+    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST26", 0);
 
     return 0;
 }
@@ -2401,6 +2425,7 @@ static int do_test27(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     field.alignment = getalignmentof(field.type);
     addCompoundField(&usertype, field);                         // Single Structure element
 
+    USERDEFINEDTYPELIST* userdefinedtypelist = idam_plugin_interface->userdefinedtypelist;
     addUserDefinedType(userdefinedtypelist, usertype);
 
 // Create Data
@@ -2433,7 +2458,7 @@ static int do_test27(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     data[0].value[1][2][2] = 122;
     data[0].value[1][2][3] = 123;
 
-    addMalloc((void*)data, 1, sizeof(TEST27), "TEST27");
+    addMalloc(idam_plugin_interface->logmalloclist, (void*)data, 1, sizeof(TEST27), "TEST27");
 
 // Pass Data
 
@@ -2448,7 +2473,7 @@ static int do_test27(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
-    data_block->opaque_block = (void*)findUserDefinedType("TEST27", 0);
+    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST27", 0);
 
     return 0;
 }
@@ -2495,12 +2520,13 @@ static int do_test28(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     field.alignment = getalignmentof(field.type);
     addCompoundField(&usertype, field);        // Single Structure element
 
+    USERDEFINEDTYPELIST* userdefinedtypelist = idam_plugin_interface->userdefinedtypelist;
     addUserDefinedType(userdefinedtypelist, usertype);
 
 // Create Data Structure
 
     data = (TEST28*)malloc(sizeof(TEST28));            // Structured Data Must be a heap variable
-    addMalloc((void*)data, 1, sizeof(TEST28), "TEST28");
+    addMalloc(idam_plugin_interface->logmalloclist, (void*)data, 1, sizeof(TEST28), "TEST28");
 
 // Data is a compact Fortran like rank 3 array
 
@@ -2509,7 +2535,7 @@ static int do_test28(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     shape[0] = 4;
     shape[1] = 3;
     shape[2] = 2;
-    addMalloc2((void*)data[0].value, 24, sizeof(short), "short", 3, shape);
+    addMalloc2(idam_plugin_interface->logmalloclist, (void*)data[0].value, 24, sizeof(short), "short", 3, shape);
 
     int index = 0;
     data[0].value[index++] = 0;
@@ -2550,7 +2576,7 @@ static int do_test28(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
-    data_block->opaque_block = (void*)findUserDefinedType("TEST28", 0);
+    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST28", 0);
 
     return 0;
 }
@@ -2591,6 +2617,7 @@ static int do_test30(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     addCompoundField(&usertype, field);
 
+    USERDEFINEDTYPELIST* userdefinedtypelist = idam_plugin_interface->userdefinedtypelist;
     addUserDefinedType(userdefinedtypelist, usertype);
 
 // Create Data
@@ -2598,7 +2625,7 @@ static int do_test30(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     data = (TEST30*)malloc(sizeof(TEST30));            // Structured Data Must be a heap variable
     data[0].R = 1.0;
     data[0].Z = 2.0;
-    addMalloc((void*)data, 1, sizeof(TEST30), "TEST30");
+    addMalloc(idam_plugin_interface->logmalloclist, (void*)data, 1, sizeof(TEST30), "TEST30");
 
 // Pass Data
 
@@ -2613,7 +2640,7 @@ static int do_test30(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
-    data_block->opaque_block = (void*)findUserDefinedType("TEST30", 0);
+    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST30", 0);
 
     return 0;
 }
@@ -2654,6 +2681,7 @@ static int do_test31(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     addCompoundField(&usertype, field);
 
+    USERDEFINEDTYPELIST* userdefinedtypelist = idam_plugin_interface->userdefinedtypelist;
     addUserDefinedType(userdefinedtypelist, usertype);
 
 // Create Data
@@ -2677,7 +2705,7 @@ static int do_test31(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     shape[0] = 5;
     shape[1] = 20;
 
-    addMalloc2((void*)data, count, sizeof(TEST30), "TEST30", rank, shape);
+    addMalloc2(idam_plugin_interface->logmalloclist, (void*)data, count, sizeof(TEST30), "TEST30", rank, shape);
 
 // Pass Data
 
@@ -2692,7 +2720,7 @@ static int do_test31(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
-    data_block->opaque_block = (void*)findUserDefinedType("TEST30", 0);
+    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST30", 0);
 
     return 0;
 }
@@ -2731,6 +2759,7 @@ static int do_test32(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     addCompoundField(&usertype, field);                             // Single Structure element
 
+    USERDEFINEDTYPELIST* userdefinedtypelist = idam_plugin_interface->userdefinedtypelist;
     addUserDefinedType(userdefinedtypelist, usertype);
 
     typedef struct Test32 {
@@ -2784,7 +2813,7 @@ static int do_test32(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     data_block->data_n = 1;
     data = (TEST32*)malloc(data_block->data_n * sizeof(TEST32));    // Structured Data Must be a heap variable
-    addMalloc((void*)data, data_block->data_n, sizeof(TEST32), "TEST32");
+    addMalloc(idam_plugin_interface->logmalloclist, (void*)data, data_block->data_n, sizeof(TEST32), "TEST32");
 
     data[0].count = field.count;
 
@@ -2807,7 +2836,7 @@ static int do_test32(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
-    data_block->opaque_block = (void*)findUserDefinedType("TEST32", 0);
+    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST32", 0);
 
     return 0;
 }
@@ -2846,6 +2875,7 @@ static int do_test33(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     addCompoundField(&usertype, field);                             // Single Structure element
 
+    USERDEFINEDTYPELIST* userdefinedtypelist = idam_plugin_interface->userdefinedtypelist;
     addUserDefinedType(userdefinedtypelist, usertype);
 
     typedef struct Test33 {
@@ -2897,7 +2927,7 @@ static int do_test33(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     data_block->data_n = 1;
     data = (TEST33*)malloc(data_block->data_n * sizeof(TEST33));    // Structured Data Must be a heap variable
-    addMalloc((void*)data, data_block->data_n, sizeof(TEST33), "TEST33");
+    addMalloc(idam_plugin_interface->logmalloclist, (void*)data, data_block->data_n, sizeof(TEST33), "TEST33");
 
     data->count = 100;
     data->coords = (TEST33A*)malloc(data->count * sizeof(TEST33A));
@@ -2907,7 +2937,7 @@ static int do_test33(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     shape[0] = 5;
     shape[1] = 20;
 
-    addMalloc2((void*)data->coords, data->count, sizeof(TEST33A), "TEST33A", rank, shape);
+    addMalloc2(idam_plugin_interface->logmalloclist, (void*)data->coords, data->count, sizeof(TEST33A), "TEST33A", rank, shape);
 
     int i;
     for (i = 0; i < data->count; i++) {
@@ -2928,7 +2958,7 @@ static int do_test33(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
-    data_block->opaque_block = (void*)findUserDefinedType("TEST33", 0);
+    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST33", 0);
 
     return 0;
 }
@@ -3039,8 +3069,8 @@ static int do_test40(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     TEST41* data = (TEST41*) malloc(sizeof(TEST41));
     TEST40* blocks = (TEST40*) malloc(request_block->putDataBlockList.blockCount * sizeof(TEST40));
 
-    addMalloc((void*) data, 1, sizeof(TEST41), "TEST41");
-    addMalloc((void*) blocks, request_block->putDataBlockList.blockCount, sizeof(TEST40), "TEST40");
+    addMalloc(idam_plugin_interface->logmalloclist, (void*) data, 1, sizeof(TEST41), "TEST41");
+    addMalloc(idam_plugin_interface->logmalloclist, (void*) blocks, request_block->putDataBlockList.blockCount, sizeof(TEST40), "TEST40");
 
     data->count = request_block->putDataBlockList.blockCount;
 
@@ -3081,7 +3111,7 @@ static int do_test40(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
-    data_block->opaque_block = (void*) findUserDefinedType("TEST41", 0);
+    data_block->opaque_block = (void*) findUserDefinedType(userdefinedtypelist, "TEST41", 0);
 
     return 0;
 }

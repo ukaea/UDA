@@ -31,12 +31,29 @@ set( SRC_FILES
   udaClient.c
 )
 
+set( HEADER_FILES
+  accAPI.h
+  clientAPI.h
+  clientMDS.h
+  clientXDRStream.h
+  closedown.h
+  connection.h
+  generateErrors.h
+  getEnvironment.h
+  makeClientRequestBlock.h
+  startup.h
+  udaClient.h
+  udaGetAPI.h
+  udaPutAPI.h
+  updateSelectParms.h
+)
+
 include_directories(
   ${CMAKE_SOURCE_DIR}/source
   ${OPENSSL_INCLUDE_DIR}
 )
 
-add_library( client-objects OBJECT ${SRC_FILES} )
+add_library( client-objects OBJECT ${SRC_FILES} ${HEADER_FILES} )
 
 if( NOT CLIENT_ONLY )
   add_library( fatclient-objects OBJECT ${SRC_FILES} )

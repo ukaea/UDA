@@ -263,7 +263,9 @@ int do_signal_file(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     initDataBlock(&data_block_file);
 
     REQUEST_BLOCK* request_block = idam_plugin_interface->request_block;
-    err = readCDF(*data_source, *signal_desc, *request_block, &data_block_file);
+    USERDEFINEDTYPELIST* userdefinedtypelist = idam_plugin_interface->userdefinedtypelist;
+    LOGMALLOCLIST* logmalloclist = idam_plugin_interface->logmalloclist;
+    err = readCDF(*data_source, *signal_desc, *request_block, &data_block_file, logmalloclist, userdefinedtypelist);
 
     IDAM_LOGF(UDA_LOG_DEBUG, "Read in file signal %s\n", signal_desc->signal_name);
 
@@ -340,8 +342,8 @@ int do_signal_file(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     data->data = data_block_file.data;
     strcpy(data->signal_type, signal_type);
 
-    addMalloc((void*)data, 1, sizeof(DATAPLUSTYPE), "DATAPLUSTYPE");
-    addMalloc((void*)data->signal_type, 1, stringLength * sizeof(char), "char");
+    addMalloc(logmalloclist, (void*)data, 1, sizeof(DATAPLUSTYPE), "DATAPLUSTYPE");
+    addMalloc(logmalloclist, (void*)data->signal_type, 1, stringLength * sizeof(char), "char");
 
     if (n_signals_available > 0) {
         data->signal_alias_available = (char**)malloc(n_signals_available * sizeof(char*));
@@ -350,7 +352,7 @@ int do_signal_file(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             if (is_available[i] == 1) {
                 size_t strLength = strlen(all_sig_alias[i]) + 1;
                 data->signal_alias_available[i_avail] = (char*)malloc(strLength * sizeof(char));
-                addMalloc(data->signal_alias_available[i_avail], (int)strLength, sizeof(char), "char");
+                addMalloc(logmalloclist, data->signal_alias_available[i_avail], (int)strLength, sizeof(char), "char");
                 strcpy(data->signal_alias_available[i_avail], all_sig_alias[i]);
                 i_avail = i_avail + 1;
             }
@@ -358,13 +360,13 @@ int do_signal_file(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 break;
             }
         }
-        addMalloc((void*)data->signal_alias_available, n_signals_available, sizeof(char*), "STRING *");
+        addMalloc(logmalloclist, (void*)data->signal_alias_available, n_signals_available, sizeof(char*), "STRING *");
     } else {
         data->signal_alias_available = (char**)malloc(sizeof(char*));
         data->signal_alias_available[0] = (char*)malloc(5 * sizeof(char));
         strcpy(data->signal_alias_available[0], "None");
-        addMalloc(data->signal_alias_available[0], 5, sizeof(char), "char");
-        addMalloc((void*)data->signal_alias_available, 1, sizeof(char*), "STRING *");
+        addMalloc(logmalloclist, data->signal_alias_available[0], 5, sizeof(char), "char");
+        addMalloc(logmalloclist, (void*)data->signal_alias_available, 1, sizeof(char*), "STRING *");
     }
 
     //Return data
@@ -383,7 +385,7 @@ int do_signal_file(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
-    data_block->opaque_block = (void*)findUserDefinedType("DATAPLUSTYPE", 0);
+    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "DATAPLUSTYPE", 0);
 
     // Free heap data associated with the DATA_BLOCKS
     // Nothing to free?
@@ -602,18 +604,20 @@ int do_signal_filename(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         char** var_name;
     } DATASTRUCT;
 
+    LOGMALLOCLIST* logmalloclist = idam_plugin_interface->logmalloclist;
+
     DATASTRUCT* data_out;
     data_out = (DATASTRUCT*)malloc(sizeof(DATASTRUCT));
-    addMalloc((void*)data_out, 1, sizeof(DATASTRUCT), "DATASTRUCT");
+    addMalloc(logmalloclist, (void*)data_out, 1, sizeof(DATASTRUCT), "DATASTRUCT");
 
     data_out->filenames = (char**)malloc((n_signals_available) * sizeof(char*));
-    addMalloc((void*)data_out->filenames, n_signals_available, sizeof(char*), "STRING *");
+    addMalloc(logmalloclist, (void*)data_out->filenames, n_signals_available, sizeof(char*), "STRING *");
     data_out->geom_alias = (char**)malloc((n_signals_available) * sizeof(char*));
-    addMalloc((void*)data_out->geom_alias, n_signals_available, sizeof(char*), "STRING *");
+    addMalloc(logmalloclist, (void*)data_out->geom_alias, n_signals_available, sizeof(char*), "STRING *");
     data_out->signal_alias = (char**)malloc((n_signals_available) * sizeof(char*));
-    addMalloc((void*)data_out->signal_alias, n_signals_available, sizeof(char*), "STRING *");
+    addMalloc(logmalloclist, (void*)data_out->signal_alias, n_signals_available, sizeof(char*), "STRING *");
     data_out->var_name = (char**)malloc((n_signals_available) * sizeof(char*));
-    addMalloc((void*)data_out->var_name, n_signals_available, sizeof(char*), "STRING *");
+    addMalloc(logmalloclist, (void*)data_out->var_name, n_signals_available, sizeof(char*), "STRING *");
 
     // Transfer data to data_out
     int out_index = 0;
@@ -622,22 +626,22 @@ int do_signal_filename(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             size_t stringLength = strlen(data->file_name[i]) + 1;
             data_out->filenames[out_index] = (char*)malloc(stringLength * sizeof(char));
             strcpy(data_out->filenames[out_index], data->file_name[i]);
-            addMalloc((void*)data_out->filenames[out_index], (int)stringLength, sizeof(char), "char");
+            addMalloc(logmalloclist, (void*)data_out->filenames[out_index], (int)stringLength, sizeof(char), "char");
 
             stringLength = strlen(data->geom_alias[i]) + 1;
             data_out->geom_alias[out_index] = (char*)malloc(stringLength * sizeof(char));
             strcpy(data_out->geom_alias[out_index], data->geom_alias[i]);
-            addMalloc((void*)data_out->geom_alias[out_index], (int)stringLength, sizeof(char), "char");
+            addMalloc(logmalloclist, (void*)data_out->geom_alias[out_index], (int)stringLength, sizeof(char), "char");
 
             stringLength = strlen(data->signal_alias[i]) + 1;
             data_out->signal_alias[out_index] = (char*)malloc(stringLength * sizeof(char));
             strcpy(data_out->signal_alias[out_index], data->signal_alias[i]);
-            addMalloc((void*)data_out->signal_alias[out_index], (int)stringLength, sizeof(char), "char");
+            addMalloc(logmalloclist, (void*)data_out->signal_alias[out_index], (int)stringLength, sizeof(char), "char");
 
             stringLength = strlen(data->var_name[i]) + 1;
             data_out->var_name[out_index] = (char*)malloc(stringLength * sizeof(char));
             strcpy(data_out->var_name[out_index], data->var_name[i]);
-            addMalloc((void*)data_out->var_name[out_index], (int)stringLength, sizeof(char), "char");
+            addMalloc(logmalloclist, (void*)data_out->var_name[out_index], (int)stringLength, sizeof(char), "char");
 
             out_index = out_index + 1;
         }
@@ -689,6 +693,7 @@ int do_signal_filename(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     defineField(&field, "var_name", "var_name", &offset, ARRAYSTRING);
     addCompoundField(&parentTree, field);
 
+    USERDEFINEDTYPELIST* userdefinedtypelist = idam_plugin_interface->userdefinedtypelist;
     addUserDefinedType(userdefinedtypelist, parentTree);
 
     // Put file name into signal block, to return to user.
@@ -707,7 +712,7 @@ int do_signal_filename(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
-    data_block->opaque_block = (void*)findUserDefinedType("DATASTRUCT", 0);
+    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "DATASTRUCT", 0);
 
     return 0;
 

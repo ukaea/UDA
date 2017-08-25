@@ -113,7 +113,7 @@ int readCDFTypes(int grpid, USERDEFINEDTYPELIST* userdefinedtypelist)
 
                             if (field.atomictype ==
                                 TYPE_UNKNOWN) {                // must be another user defined structure
-                                USERDEFINEDTYPE* udt = findUserDefinedType("", (int) type);    // Identify via type id
+                                USERDEFINEDTYPE* udt = findUserDefinedType(userdefinedtypelist, "", (int) type);    // Identify via type id
                                 if (udt != NULL) {
 
 // **** ENUM types within compound structures cannot be passed in the expanded form: collapse back to the original integer type.
@@ -140,7 +140,7 @@ int readCDFTypes(int grpid, USERDEFINEDTYPELIST* userdefinedtypelist)
 
                             field.pointer = 0;                        // all fields are fixed size arrays
                             field.desc[0] = '\0';
-                            field.size = getsizeof(field.type);
+                            field.size = getsizeof(userdefinedtypelist, field.type);
 
                             field.rank = rank;
                             field.count = 1;
@@ -162,7 +162,7 @@ int readCDFTypes(int grpid, USERDEFINEDTYPELIST* userdefinedtypelist)
                                                  "String Arrays with Rank > 1 have not been implemented");
                                     break;
                                 }
-                                field.size = field.count * getsizeof("char *");
+                                field.size = field.count * getsizeof(userdefinedtypelist, "char *");
                             }
 
                             field.offset = (int) offset;                                            // use previous offset for alignment
@@ -198,7 +198,7 @@ int readCDFTypes(int grpid, USERDEFINEDTYPELIST* userdefinedtypelist)
                         strcpy(field.name, "len");
                         strcpy(field.type, "unsigned int");
                         strcpy(field.desc, "Length of the data array");
-                        field.size = getsizeof(field.type);
+                        field.size = getsizeof(userdefinedtypelist, field.type);
                         field.offset = newoffset(0, field.type);
                         foff = field.offset + field.size;
                         field.offpad = padding(field.offset, field.type);
@@ -218,7 +218,7 @@ int readCDFTypes(int grpid, USERDEFINEDTYPELIST* userdefinedtypelist)
                         field.atomictype = convertNCType(base);                // convert netCDF base type to IDAM type
 
                         if (field.atomictype == TYPE_UNKNOWN) {                // must be a User Defined Type
-                            USERDEFINEDTYPE* udt = findUserDefinedType("", (int) base);        // Identify via type id
+                            USERDEFINEDTYPE* udt = findUserDefinedType(userdefinedtypelist, "", (int) base);        // Identify via type id
                             if (udt == NULL) {
                                 err = 999;
                                 addIdamError(&idamerrorstack, CODEERRORTYPE, __FILE__, err,
@@ -233,7 +233,7 @@ int readCDFTypes(int grpid, USERDEFINEDTYPELIST* userdefinedtypelist)
 
                         field.pointer = 1;
 
-                        field.size = getsizeof("void *");                // pointer size
+                        field.size = getsizeof(userdefinedtypelist, "void *");                // pointer size
                         field.offset = newoffset(foff, "void *");
                         field.offpad = padding(field.offset, "void *");
                         field.alignment = getalignmentof("void *");
@@ -264,7 +264,7 @@ int readCDFTypes(int grpid, USERDEFINEDTYPELIST* userdefinedtypelist)
 
                 case (NC_ENUM): {                // enum Types use an existing structure: Copy and personalise
 
-                    USERDEFINEDTYPE* udt = findUserDefinedType("ENUMLIST", 0);    // Standard ENUMLIST type
+                    USERDEFINEDTYPE* udt = findUserDefinedType(userdefinedtypelist, "ENUMLIST", 0);    // Standard ENUMLIST type
 
                     usertype = *udt;    //copyUserDefinedType(udt, &usertype);	// Use as a template: Copy original reallocating heap
 

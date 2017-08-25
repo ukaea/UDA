@@ -48,8 +48,7 @@ PGconn *gDBConnect = NULL;
 
 // Continuously Measured Data
 
-int readCMDSQL(PGconn* DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_source,
-               DATA_BLOCK* data_block)
+static int readCMDSQL(PGconn* DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_source, DATA_BLOCK* data_block, USERDEFINEDTYPELIST* userdefinedtypelist)
 {
 
     int i, ltpass, err = 0;
@@ -205,10 +204,8 @@ int readCMDSQL(PGconn* DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_
 // For each archive:		list of data sources; list of data items.
 // External links:		list of known external devices and how to connect to them (web, idam, mds+).
 
-int readSQL(PGconn* DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_source,
-            DATA_BLOCK* data_block)
+int readSQL(PGconn* DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_source, DATA_BLOCK* data_block, USERDEFINEDTYPELIST* userdefinedtypelist)
 {
-
     int err = 0;
 
     char sql[MAXSQL];
@@ -233,7 +230,7 @@ int readSQL(PGconn* DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_sou
 // Is this a request for Continuously Measured Data?
 
     if (STR_IEQUALS(request_block.archive, "CMD")) {
-        return (readCMDSQL(DBConnect, request_block, data_source, data_block));
+        return (readCMDSQL(DBConnect, request_block, data_source, data_block, userdefinedtypelist));
     }
 
 //-------------------------------------------------------------
@@ -630,7 +627,7 @@ int readSQL(PGconn* DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_sou
         char*** data;        // Array of String Arrays
         char* p;
 
-        logmalloclist = (LOGMALLOCLIST*)malloc(sizeof(LOGMALLOCLIST));        // Create a MALLOC Log List
+        LOGMALLOCLIST* logmalloclist = (LOGMALLOCLIST*)malloc(sizeof(LOGMALLOCLIST));        // Create a MALLOC Log List
         initLogMallocList(logmalloclist);
 
         copyUserDefinedTypeList(&userdefinedtypelist); // Allocate and Copy the Master User Defined Type List
@@ -659,7 +656,7 @@ int readSQL(PGconn* DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_sou
 
         data = (char***)malloc(
                 ncols * sizeof(char**));            // Single Structure with multiple (ncols) Arrays of Strings
-        addMalloc((void*)data, 1, ncols * sizeof(char**), udtname);
+        addMalloc(logmalloclist, (void*)data, 1, ncols * sizeof(char**), udtname);
 
 // Contiguous data block with multiple string arrays
 
@@ -667,12 +664,12 @@ int readSQL(PGconn* DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_sou
             char** field = (char**)malloc(nrows * sizeof(char*));        // Table fields: each array of size nrows
             rank = 1;
             shape = NULL;
-            addMalloc2((void*)field, nrows, sizeof(char*), "STRING", rank, shape);
+            addMalloc2(logmalloclist, (void*)field, nrows, sizeof(char*), "STRING", rank, shape);
             int i;
             for (i = 0; i < nrows; i++) {
                 len = strlen(PQgetvalue(DBQuery, i, j)) + 1;
                 field[i] = (char*)malloc(len * sizeof(char));
-                addMalloc((void*)field[i], len, sizeof(char), "STRING");    // Individual scalar strings
+                addMalloc(logmalloclist, (void*)field[i], len, sizeof(char), "STRING");    // Individual scalar strings
                 strcpy(field[i], PQgetvalue(DBQuery, i, j));
             }
             data[j] = field;
@@ -732,7 +729,7 @@ int readSQL(PGconn* DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_sou
         printUserDefinedType(usertype);
         printUserDefinedTypeListTable(*userdefinedtypelist);
 
-        if ((udt = findUserDefinedType(udtname, 0)) == NULL) {
+        if ((udt = findUserDefinedType(userdefinedtypelist, udtname, 0)) == NULL) {
             err = 999;
             addIdamError(&idamerrorstack, CODEERRORTYPE, "readSQL", err,
                          "Unable to Locate the User Defined Structure Definition");
@@ -918,6 +915,7 @@ int readSQL(PGconn *DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_sou
     addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF", err, "SQL PLUGIN NOT ENABLED");
     return err;
 }
+
 int readCMDSQL(PGconn *DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_source,
                DATA_BLOCK *data_block) {
     int err = 999;

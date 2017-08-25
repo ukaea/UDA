@@ -22,7 +22,7 @@ extern PGconn * DBConnect;    // IDAM database Socket Connection
 #  include "connection.h"
 #endif
 
-int idamClosedown(int type)
+int idamClosedown(int type, SOCKETLIST* socket_list)
 {
     int rc = 0;
 
@@ -59,7 +59,7 @@ int idamClosedown(int type)
             DBConnect = NULL;
         }
 #endif
-        closeServerSockets(&server_socketlist);    // Close the Socket Connections to Other Data Servers
+        closeServerSockets(socket_list);    // Close the Socket Connections to Other Data Servers
     }
 #endif
 

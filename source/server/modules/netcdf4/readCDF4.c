@@ -79,10 +79,12 @@ int IMAS_HDF_READER = 0;            // Modify behaviour when reading strings fro
 CDFSUBSET cdfsubset;
 
 int readCDF4Var(GROUPLIST grouplist, int varid, int isCoordinate, int rank, int* dimids, unsigned int* extent,
-                int* ndvec, int* data_type, int* isIndex, char** data, USERDEFINEDTYPE** udt);
+                int* ndvec, int* data_type, int* isIndex, char** data, LOGMALLOCLIST* logmalloclist,
+                USERDEFINEDTYPELIST* userdefinedtypelist, USERDEFINEDTYPE** udt);
 
 int readCDF4AVar(GROUPLIST grouplist, int grpid, int varid, nc_type atttype, char* name, int* ndvec, int ndims[2],
-                 int* data_type, char** data, USERDEFINEDTYPE** udt);
+                 int* data_type, char** data, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist,
+                 USERDEFINEDTYPE** udt);
 
 unsigned int readCDF4Properties()
 {
@@ -96,10 +98,8 @@ unsigned int readCDF4Properties()
     return cdfProperties;
 }
 
-int readCDF(DATA_SOURCE data_source,
-            SIGNAL_DESC signal_desc,
-            REQUEST_BLOCK request_block,
-            DATA_BLOCK* data_block)
+int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK request_block, DATA_BLOCK* data_block,
+            LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist)
 {
 
     int getMeta = 0;            // ************** temporary
@@ -150,7 +150,6 @@ int readCDF(DATA_SOURCE data_source,
     struct timeval tv_end0;    // Stop time
 
     gettimeofday(&tv_start0, NULL);
-
 
 //----------------------------------------------------------------------
 // Initialise the META XML Structure
@@ -715,7 +714,7 @@ int readCDF(DATA_SOURCE data_source,
             if (cdfsubset.subsetCount == 0 &&
                 (rc2 = nc_inq_atttype(grpid, NC_GLOBAL, variable, &atttype)) == NC_NOERR) {
                 if ((rc2 = readCDF4AVar(grouplist, grpid, NC_GLOBAL, atttype, variable, &data_block->data_n, ndimatt,
-                                        &data_block->data_type, &data_block->data, &udt)) != NC_NOERR) {
+                                        &data_block->data_type, &data_block->data, logmalloclist, userdefinedtypelist, &udt)) != NC_NOERR) {
                     err = 999;
                     addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF", err,
                                  "Unable to read Group Level Attribute data");
@@ -767,8 +766,8 @@ int readCDF(DATA_SOURCE data_source,
                 if ((rc2 = nc_inq_varid(grpid, variable, &varid)) == NC_NOERR) {
                     if ((rc2 = nc_inq_atttype(grpid, varid, &attname[1], &atttype)) == NC_NOERR) {
                         if ((rc2 = readCDF4AVar(grouplist, grpid, varid, atttype, &attname[1], &data_block->data_n,
-                                                ndimatt,
-                                                &data_block->data_type, &data_block->data, &udt)) != NC_NOERR) {
+                                                ndimatt, &data_block->data_type, &data_block->data, logmalloclist,
+                                                userdefinedtypelist, &udt)) != NC_NOERR) {
                             err = 999;
                             addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF", err,
                                          "Unable to read Group Level Attribute data");
@@ -814,8 +813,8 @@ int readCDF(DATA_SOURCE data_source,
                 }
             }
 
-// If it's a group name or the Root then return the whole sub-tree (without modification)
-// No subsetting operation
+            // If it's a group name or the Root then return the whole sub-tree (without modification)
+            // No subsetting operation
 
             int subtree = 0;
             HGROUPS hgroups;
@@ -826,14 +825,14 @@ int readCDF(DATA_SOURCE data_source,
                   NC_NOERR))) {
 
                 USERDEFINEDTYPE usertype;
-                logmalloclist = (LOGMALLOCLIST*)malloc(sizeof(LOGMALLOCLIST));
+                LOGMALLOCLIST* logmalloclist = (LOGMALLOCLIST*)malloc(sizeof(LOGMALLOCLIST));
                 initLogMallocList(logmalloclist);
                 copyUserDefinedTypeList(&userdefinedtypelist); // Allocate and Copy the Master User Defined Type List
                 initHGroup(&hgroups);
 
                 IDAM_LOG(UDA_LOG_DEBUG, "Tree or sub-tree found.\n");
 
-// Target all User Defined types within the scope of this sub-tree Root node (unless root node is also sub-tree node: Prevents duplicate definitions)
+                // Target all User Defined types within the scope of this sub-tree Root node (unless root node is also sub-tree node: Prevents duplicate definitions)
 
                 if (subtree == 0 && numgrp == 1 && STR_EQUALS(signal_desc.signal_name, "/")) {
                     subtree = grpid;        // getCDF4SubTreeMeta  will call getCDF4SubTreeUserDefinedTypes for the root group
@@ -842,9 +841,9 @@ int readCDF(DATA_SOURCE data_source,
                     if (err != 0) break;
                 }
 
-// Extract all information about groups, variables and attributes within the sub-tree
+                // Extract all information about groups, variables and attributes within the sub-tree
 
-                if ((err = getCDF4SubTreeMeta(subtree, 0, &usertype, userdefinedtypelist, &hgroups)) != 0) {
+                if ((err = getCDF4SubTreeMeta(subtree, 0, &usertype, logmalloclist, userdefinedtypelist, &hgroups)) != 0) {
                     freeHGroups(&hgroups);
                     break;
                 }
@@ -858,11 +857,11 @@ int readCDF(DATA_SOURCE data_source,
                 IDAM_LOG(UDA_LOG_DEBUG, "printing User Defined Type table\n");
                 printUserDefinedTypeListTable(*userdefinedtypelist);
 
-// Read all Data and Create the Sub-Tree structure
+                // Read all Data and Create the Sub-Tree structure
 
                 IDAM_LOG(UDA_LOG_DEBUG, "Creating sub-tree data structure\n");
 
-                err = getCDF4SubTreeData((void**)&data_block->data, &hgroups.group[0], &hgroups);
+                err = getCDF4SubTreeData(logmalloclist, userdefinedtypelist, (void**)&data_block->data, &hgroups.group[0], &hgroups);
 
                 if (err == NC_NOERR && hgroups.group[0].udt != NULL) {
                     malloc_source = MALLOCSOURCENETCDF;
@@ -881,7 +880,7 @@ int readCDF(DATA_SOURCE data_source,
                 break;
             }
 
-// Can't identify the data object
+            // Can't identify the data object
 
             err = NETCDF_ERROR_INQUIRING_VARIABLE_1;
             addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF", err,
@@ -889,8 +888,8 @@ int readCDF(DATA_SOURCE data_source,
             break;
         }
 
-//----------------------------------------------------------------------
-// Get Dimension/Coordinate ID List of the variable
+        //----------------------------------------------------------------------
+        // Get Dimension/Coordinate ID List of the variable
 
         rank = 0;
 
@@ -930,15 +929,14 @@ int readCDF(DATA_SOURCE data_source,
                 }
             }
 
-// Check there is at least one dimension to subset!
+            // Check there is at least one dimension to subset!
 
             for (i = 0; i < rank; i++) if (cdfsubset.subset[i]) count++;
             if (count == 0) cdfsubset.subsetCount = 0;    // Disable all subsetting
         }
 
-
-//----------------------------------------------------------------------
-// Get a list of the Unlimited Dimensions visible from this group
+        //----------------------------------------------------------------------
+        // Get a list of the Unlimited Dimensions visible from this group
 
         if ((rc = nc_inq_unlimdims(grpid, &nunlimdims, unlimdimids)) != NC_NOERR) {
             err = NETCDF_ERROR_INQUIRING_DIM_1;
@@ -946,13 +944,13 @@ int readCDF(DATA_SOURCE data_source,
             break;
         }
 
-//----------------------------------------------------------------------
-// Allocate and Initialise Dimensional/Coordinate Data & Extent data
+        //----------------------------------------------------------------------
+        // Allocate and Initialise Dimensional/Coordinate Data & Extent data
 
         data_block->rank = rank;
         data_block->order = -1;        // Don't know the t-vector yet!
 
-// Allocate & Initialise extents (include an additional element for STRING type)
+        // Allocate & Initialise extents (include an additional element for STRING type)
 
         if ((extent = (unsigned int*)malloc((data_block->rank + 2) * sizeof(unsigned int))) == NULL) {
             err = NETCDF_ERROR_ALLOCATING_HEAP_1;
@@ -993,31 +991,22 @@ int readCDF(DATA_SOURCE data_source,
         dextent[data_block->rank] = 0;
         dextent[data_block->rank + 1] = 0;
 
-
-//----------------------------------------------------------------------
-//----------------------------------------------------------------------
-// Read the Data Array first
+        //----------------------------------------------------------------------
+        //----------------------------------------------------------------------
+        // Read the Data Array first
 
         isCoordinate = 0;
         err = readCDF4Var(grouplist, varid, isCoordinate, rank, dimids, extent, &data_block->data_n,
-                          &data_block->data_type,
-                          &isIndex, &data_block->data, &udt);
+                          &data_block->data_type, &isIndex, &data_block->data, logmalloclist,
+                          userdefinedtypelist, &udt);
 
         if (err != 0) {
             addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF", err, "Unable to Read Data Values");
             break;
         }
 
-        /*
-              if(debugon && compliance && class == RAW_DATA && rank == 1){
-                 int k, sn = data_block->data_n, type=data_block->data_type;
-        	 char *sp = (char *)data_block->data;
-        	 if(type == TYPE_CHAR) for(k=0;k<sn;k++) IDAM_LOGF(UDA_LOG_DEBUG,"[%16d]: %d\n", k, (int)sp[k]);
-              }
-        */
-
-//----------------------------------------------------------------------
-// A User Defined Data Structure Type?
+        //----------------------------------------------------------------------
+        // A User Defined Data Structure Type?
 
         if (udt != NULL) {
             malloc_source = MALLOCSOURCENETCDF;
@@ -1026,9 +1015,9 @@ int readCDF(DATA_SOURCE data_source,
             data_block->opaque_block = (void*)udt;
         }
 
-//----------------------------------------------------------------------
-// Apply Data Conversion to Raw Data (Disabled with the property: get_bytes)
-// Ignore MAST standard on Rank
+        //----------------------------------------------------------------------
+        // Apply Data Conversion to Raw Data (Disabled with the property: get_bytes)
+        // Ignore MAST standard on Rank
 
         //if(compliance && class == RAW_DATA && rank == 1 && !data_block->client_block.get_bytes)
 
@@ -1039,17 +1028,10 @@ int readCDF(DATA_SOURCE data_source,
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF", err, (char*)nc_strerror(rc));
                 break;
             }
-            /*
-            	 if(debugon){
-                        int k, sn = data_block->data_n, type=data_block->data_type;
-            	    float *sp = (float *)data_block->data;
-            	    if(type == TYPE_FLOAT) for(k=0;k<sn;k++) IDAM_LOGF(UDA_LOG_DEBUG,"[%16d]: %12.4e\n", k, sp[k]);
-                     }
-            */
         }
 
-//----------------------------------------------------------------------
-// Data Attributes
+        //----------------------------------------------------------------------
+        // Data Attributes
 
         classtxt[0] = '\0';
 
@@ -1071,19 +1053,19 @@ int readCDF(DATA_SOURCE data_source,
             }
         }
 
-//----------------------------------------------------------------------
-// Error Data Array: Test for Errors Attribute
+        //----------------------------------------------------------------------
+        // Error Data Array: Test for Errors Attribute
 
         if (compliance) {
             error_n = 0;
             isCoordinate = 0;
             if ((err = readCDF4Err(grpid, varid, isCoordinate, class, rank, dimids, &error_n, &data_block->error_type,
-                                   &data_block->errhi)) != 0) {
+                                   &data_block->errhi, logmalloclist, userdefinedtypelist)) != 0) {
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF", err, "Unable to Read Data Error Values");
                 break;
             }
 
-// Check Size is consistent
+            // Check Size is consistent
 
             if (error_n > 0 && error_n != data_block->data_n) {
                 err = 999;
@@ -1093,9 +1075,9 @@ int readCDF(DATA_SOURCE data_source,
             }
         }
 
-//----------------------------------------------------------------------
-//----------------------------------------------------------------------
-// Read Dimensional/Coordinate Data
+        //----------------------------------------------------------------------
+        //----------------------------------------------------------------------
+        // Read Dimensional/Coordinate Data
 
         printClientBlock(data_block->client_block);
 
@@ -1105,7 +1087,7 @@ int readCDF(DATA_SOURCE data_source,
         cgrouplist.grpid = 0;
         cgrouplist.grpids = NULL;
 
-// If the type is STRING then extend the rank
+        // If the type is STRING then extend the rank
 
         if (data_block->rank == 1 && data_block->data_type == TYPE_STRING && extent[1] > 0) {
             data_block->rank = 2;
@@ -1117,10 +1099,8 @@ int readCDF(DATA_SOURCE data_source,
 
             ii = data_block->rank - i - 1;        // Reverse the Indexing  (WHY?)
 
-// Return a Simple Index if the Data are not required
+            // Return a Simple Index if the Data are not required
 
-
-            //if(data_block->client_block.get_nodimdata || (data_block->data_type == TYPE_STRING && i > 0)){
             if (data_block->client_block.get_nodimdata || data_block->data_type == TYPE_STRING) {
                 data_block->dims[ii].compressed = 1;
                 data_block->dims[ii].data_type = TYPE_UNSIGNED_INT;
@@ -1133,7 +1113,7 @@ int readCDF(DATA_SOURCE data_source,
 
             data_block->dims[ii].compressed = 0;
 
-// Get Dimension Name and Size
+            // Get Dimension Name and Size
 
             if ((rc = nc_inq_dim(grpid, dimids[i], dimname, &dimlen)) != NC_NOERR) {
                 err = NETCDF_ERROR_INQUIRING_DIM_3;
@@ -1141,7 +1121,7 @@ int readCDF(DATA_SOURCE data_source,
                 break;
             }
 
-// Get Coordinate Variable ID (Must be in the Scope of the data variable, i.e., anywhere within the group hierarchy)
+            // Get Coordinate Variable ID (Must be in the Scope of the data variable, i.e., anywhere within the group hierarchy)
 
             for (j = 0; j < numgrp; j++) {
                 if ((rc = nc_inq_varid(grpids[numgrp - j - 1], dimname, &coordid)) == NC_NOERR) {
@@ -1173,7 +1153,7 @@ int readCDF(DATA_SOURCE data_source,
                 continue;
             }
 
-// Is this dimension ULIMITED?
+            // Is this dimension ULIMITED?
 
             isUnlimited = 0;
 
@@ -1184,7 +1164,7 @@ int readCDF(DATA_SOURCE data_source,
                 }
             }
 
-// Check the Coordinate variable's Rank if not Unlimited (always 1) as may be > 1 for legacy files (e.g. TRANSP)
+            // Check the Coordinate variable's Rank if not Unlimited (always 1) as may be > 1 for legacy files (e.g. TRANSP)
 
             if (!isUnlimited) {
                 if ((rc = nc_inq_varndims(cgrpid, coordid, &drank)) != NC_NOERR) {
@@ -1210,20 +1190,20 @@ int readCDF(DATA_SOURCE data_source,
             isCoordinate = 1;
             cgrouplist.grpid = cgrpid;
             err = readCDF4Var(cgrouplist, coordid, isCoordinate, drank, &dimids[i], &dextent[i],
-                              &data_block->dims[ii].dim_n,
-                              &data_block->dims[ii].data_type, &isIndex, &data_block->dims[ii].dim, &dudt);
+                              &data_block->dims[ii].dim_n, &data_block->dims[ii].data_type, &isIndex,
+                              &data_block->dims[ii].dim, logmalloclist, userdefinedtypelist, &dudt);
             if (err != 0) {
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF", err, "Unable to Read Coordinate Values");
                 break;
             }
 
-// Check values are constant if this is a (Legacy) multi-dimensional coordinate array
-// If not then generate a simple index coordinate for later substitution by the user and modify the label
+            // Check values are constant if this is a (Legacy) multi-dimensional coordinate array
+            // If not then generate a simple index coordinate for later substitution by the user and modify the label
 
             if (drank > 1 && !isIndex) {
 
                 err = readCDFCheckCoordinate(cgrpid, coordid, drank, data_block->dims[ii].dim_n,
-                                             data_block->dims[ii].dim);
+                                             data_block->dims[ii].dim, logmalloclist, userdefinedtypelist);
 
                 if (err > 0) break;
 
@@ -1237,7 +1217,7 @@ int readCDF(DATA_SOURCE data_source,
                 }
             }
 
-// Apply Data Conversion to Raw Data: Enforce MAST convention on Rank as Coordinate variables must be Rank 1
+            // Apply Data Conversion to Raw Data: Enforce MAST convention on Rank as Coordinate variables must be Rank 1
 
             if (compliance && class == RAW_DATA && drank == 1) {
                 if ((rc = applyCDFCalibration(cgrpid, coordid, data_block->dims[ii].dim_n,
@@ -1249,8 +1229,8 @@ int readCDF(DATA_SOURCE data_source,
                 }
             }
 
-//----------------------------------------------------------------------
-// Read Domain Representation (MAST Convention) of the Coordinate Array
+            //----------------------------------------------------------------------
+            // Read Domain Representation (MAST Convention) of the Coordinate Array
 
             if (compliance) {
 
@@ -1261,7 +1241,7 @@ int readCDF(DATA_SOURCE data_source,
 
                 if ((rc = nc_inq_attid(cgrpid, coordid, "count", &attid)) == NC_NOERR) {
 
-// Check the type is compliant and return the Count array
+                    // Check the type is compliant and return the Count array
 
                     if ((rc = nc_inq_atttype(cgrpid, coordid, "count", &atype)) != NC_NOERR || atype != NC_UINT) {
                         err = 999;
@@ -1276,13 +1256,13 @@ int readCDF(DATA_SOURCE data_source,
                     }
 
                     if ((err = readCDF4AVar(cgrouplist, cgrpid, coordid, NC_UINT, "count", &ncount, ndimatt,
-                                            &type, (char**)&count, &dudt)) != 0) {
+                                            &type, (char**)&count, logmalloclist, userdefinedtypelist, &dudt)) != 0) {
                         addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF", err,
                                      "Unable to Read Coordinate Domain Count array");
                         break;
                     }
 
-// Subsetting only applicable to single domain coordinate data
+                    // Subsetting only applicable to single domain coordinate data
 
                     if (cdfsubset.subsetCount > 0 && cdfsubset.subset[ii] && ncount > 1) {
                         err = 999;
@@ -1293,7 +1273,7 @@ int readCDF(DATA_SOURCE data_source,
 
                     if ((rc = nc_inq_attid(cgrpid, coordid, "start", &attid)) == NC_NOERR) {
 
-// Check the type is compliant and return the Start array
+                        // Check the type is compliant and return the Start array
 
                         if ((rc = nc_inq_atttype(cgrpid, coordid, "start", &atype)) != NC_NOERR || atype != NC_DOUBLE) {
                             err = 999;
@@ -1308,7 +1288,7 @@ int readCDF(DATA_SOURCE data_source,
                         }
 
                         if ((err = readCDF4AVar(cgrouplist, cgrpid, coordid, NC_DOUBLE, "start", &nstart, ndimatt,
-                                                &type, (char**)&start, &dudt)) != 0) {
+                                                &type, (char**)&start, logmalloclist, userdefinedtypelist, &dudt)) != 0) {
                             addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF", err,
                                          "Unable to Read Coordinate Domain Start array");
                             break;
@@ -1316,7 +1296,7 @@ int readCDF(DATA_SOURCE data_source,
 
                         if ((rc = nc_inq_attid(cgrpid, coordid, "increment", &attid)) == NC_NOERR) {
 
-// Check the type is compliant and return the Increment array
+                            // Check the type is compliant and return the Increment array
 
                             if ((rc = nc_inq_atttype(cgrpid, coordid, "increment", &atype)) != NC_NOERR ||
                                 atype != NC_DOUBLE) {
@@ -1332,14 +1312,13 @@ int readCDF(DATA_SOURCE data_source,
                             }
 
                             if ((err = readCDF4AVar(cgrouplist, cgrpid, coordid, NC_DOUBLE, "increment", &nincrement,
-                                                    ndimatt,
-                                                    &type, (char**)&increment, &dudt)) != 0) {
+                                                    ndimatt, &type, (char**)&increment, logmalloclist, userdefinedtypelist, &dudt)) != 0) {
                                 addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF", err,
                                              "Unable to Read Coordinate Domain Increment array");
                                 break;
                             }
 
-// Modify if subsetting required
+                            // Modify if subsetting required
 
                             if (cdfsubset.subsetCount > 0 && cdfsubset.subset[ii]) {
                                 start[0] = start[0] + (double)cdfsubset.start[ii] * increment[0];
@@ -1370,7 +1349,7 @@ int readCDF(DATA_SOURCE data_source,
                                     }
                                 }
 
-// Apply Data Conversion to Raw Domain Data
+                                // Apply Data Conversion to Raw Domain Data
 
                                 if (class == RAW_DATA) {
                                     if ((rc = applyCDFCalibration(cgrpid, coordid, data_block->dims[ii].udoms,
@@ -1401,8 +1380,8 @@ int readCDF(DATA_SOURCE data_source,
                 }
             }
 
-//----------------------------------------------------------------------
-// Read Attribute Values (No Comment attribute: Copy to XML if present)
+            //----------------------------------------------------------------------
+            // Read Attribute Values (No Comment attribute: Copy to XML if present)
 
             comment[0] = '\0';
 
@@ -1427,7 +1406,7 @@ int readCDF(DATA_SOURCE data_source,
                 addMetaXML(&metaxml, xml);
             }
 
-// Is this the TIME dimension?
+            // Is this the TIME dimension?
 
             if (compliance) {
                 if (STR_EQUALS(classtxt, "time")) data_block->order = ii;    // Yes it is!
@@ -1438,8 +1417,7 @@ int readCDF(DATA_SOURCE data_source,
                 }    // Simple (& very poor) test for Time Dimension!
 
                 if (!isIndex) {
-                    if (strcmp(dimname,
-                               data_block->dims[ii].dim_label)) {    // Add Var Name to Label (Should be a Dimension)
+                    if (strcmp(dimname, data_block->dims[ii].dim_label)) {    // Add Var Name to Label (Should be a Dimension)
                         lstr = (int)strlen(dimname) + (int)strlen(data_block->dims[ii].dim_label) + 3;
                         if (lstr <= STRING_LENGTH) {
                             strcat(data_block->dims[ii].dim_label, " [");
@@ -1460,20 +1438,21 @@ int readCDF(DATA_SOURCE data_source,
                 }
             }
 
-//----------------------------------------------------------------------
-// Coordinate Error Array
+            //----------------------------------------------------------------------
+            // Coordinate Error Array
 
             if (compliance) {
                 error_n = 0;
                 isCoordinate = 1;
                 if ((err = readCDF4Err(cgrpid, coordid, isCoordinate, class, rank, dimids, &error_n,
-                                       &data_block->dims[ii].error_type, &data_block->dims[ii].errhi)) != 0) {
+                                       &data_block->dims[ii].error_type, &data_block->dims[ii].errhi, logmalloclist,
+                                       userdefinedtypelist)) != 0) {
                     addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF", err,
                                  "Unable to Read Coordinate Error Values");
                     break;
                 }
 
-// Check Size is consistent
+                // Check Size is consistent
 
                 if (error_n > 0 && error_n != data_block->dims[ii].dim_n) {
                     err = 999;
@@ -1483,17 +1462,17 @@ int readCDF(DATA_SOURCE data_source,
                 }
             }
 
-//----------------------------------------------------------------------
-// End of Dimension Do Loop
+            //----------------------------------------------------------------------
+            // End of Dimension Do Loop
 
         }
 
         if (err != 0) break;
 
-//----------------------------------------------------------------------
-//----------------------------------------------------------------------
-// Opaque Structure: XML Text
-//
+        //----------------------------------------------------------------------
+        //----------------------------------------------------------------------
+        // Opaque Structure: XML Text
+        //
         if (getMeta) {
 
             addMetaXML(&metaxml, "\n</coordinates>");
@@ -1504,13 +1483,13 @@ int readCDF(DATA_SOURCE data_source,
             data_block->opaque_type = OPAQUE_TYPE_XML_DOCUMENT;
         }
 
-//----------------------------------------------------------------------
-// End of Error Trap Loop
+        //----------------------------------------------------------------------
+        // End of Error Trap Loop
 
     } while (0);
 
-//----------------------------------------------------------------------
-// Housekeeping
+    //----------------------------------------------------------------------
+    // Housekeeping
 
     if (err != 0 && metaxml.xml != NULL) {
         free((void*)metaxml.xml);

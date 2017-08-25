@@ -147,7 +147,7 @@ typedef struct UserDefinedTypeList {
 
 struct NTree;
 
-typedef struct NTree {                          // N-ary Tree linking all related user defined data structures: definitions and data
+typedef struct NTree {                  // N-ary Tree linking all related user defined data structures: definitions and data
     int branches;                       // Children (Branch) Count from this node
     char name[MAXELEMENTNAME];          // The Structure's and also the tree node's name
     USERDEFINEDTYPE* userdefinedtype;   // Definition of the data
@@ -161,7 +161,7 @@ typedef struct NTreeList {
     NTREE* forrest;             // Array of Tree list structures
 } NTREELIST;
 
-typedef struct GeneralBlock {                          // Generalised Data Structures: Client Side Only
+typedef struct GeneralBlock {                   // Generalised Data Structures: Client Side Only
     USERDEFINEDTYPE* userdefinedtype;           // User defined type of the Data
     USERDEFINEDTYPELIST* userdefinedtypelist;   // List of Known Structure Definitions
     LOGMALLOCLIST* logmalloclist;               // List of Heap Mallocs
@@ -181,13 +181,9 @@ extern int malloc_source;
 #define PACKAGE_STRUCTDATA  2
 #define PACKAGE_XDROBJECT   3
 
-extern LOGMALLOCLIST* logmalloclist;
 extern NTREE* fullNTree;
 extern NTREELIST NTreeList;
 extern LOGSTRUCTLIST logstructlist;
-
-extern unsigned int lastMallocIndex;
-extern unsigned int* lastMallocIndexValue;
 
 #ifdef __cplusplus
 }

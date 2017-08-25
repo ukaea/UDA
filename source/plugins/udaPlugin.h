@@ -1,5 +1,5 @@
-#ifndef IDAM_IDAMPLUGIN_H
-#define IDAM_IDAMPLUGIN_H
+#ifndef UDA_PLUGINS_UDAPLUGIN_H
+#define UDA_PLUGINS_UDAPLUGIN_H
 
 #include <stdbool.h>
 
@@ -37,10 +37,10 @@ extern "C" {
 
 // SQL Connection Types
 
-#define PLUGINSQLNOTKNOWN   	0
-#define PLUGINSQLPOSTGRES   	1
-#define PLUGINSQLMYSQL      	2
-#define PLUGINSQLMONGODB	3
+#define PLUGINSQLNOTKNOWN   0
+#define PLUGINSQLPOSTGRES   1
+#define PLUGINSQLMYSQL      2
+#define PLUGINSQLMONGODB    3
 
 extern unsigned short pluginClass;
 
@@ -61,7 +61,13 @@ int initPlugin(const IDAM_PLUGIN_INTERFACE* plugin_interface);
 
 int setReturnDataDblScalar(DATA_BLOCK* data_block, double value, const char* description);
 
+int setReturnDataFltScalar(DATA_BLOCK* data_block, float value, const char* description);
+
 int setReturnDataIntScalar(DATA_BLOCK* data_block, int value, const char* description);
+
+int setReturnDataLongScalar(DATA_BLOCK* data_block, long value, const char* description);
+
+int setReturnDataShortScalar(DATA_BLOCK* data_block, short value, const char* description);
 
 int setReturnDataString(DATA_BLOCK* data_block, const char* value, const char* description);
 
@@ -153,4 +159,4 @@ if (UNIQUE_VAR(err)) { \
 }
 #endif
 
-#endif // IDAM_IDAMPLUGIN_H
+#endif // UDA_PLUGINS_UDAPLUGIN_H

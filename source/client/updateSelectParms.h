@@ -2,12 +2,12 @@
 //
 //----------------------------------------------------------------
 
-#ifndef IDAM_CLIENT_UPDATESELECTPARMS_H
-#define IDAM_CLIENT_UPDATESELECTPARMS_H
+#ifndef UDA_CLIENT_UPDATESELECTPARMS_H
+#define UDA_CLIENT_UPDATESELECTPARMS_H
 
 #include <time.h>
-#include <sys/select.h> 
+#include <sys/select.h>
 
-void idamUpdateSelectParms(int fd, fd_set *rfds, struct timeval *tv);
+void idamUpdateSelectParms(int fd, fd_set* rfds, struct timeval* tv);
 
-#endif // IDAM_CLIENT_UPDATESELECTPARMS_H
+#endif // UDA_CLIENT_UPDATESELECTPARMS_H

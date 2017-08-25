@@ -590,29 +590,6 @@ CLIENT_BLOCK* getIdamDataProperties(int handle)
 }
 
 //--------------------------------------------------------------
-// Pass an application's Private Structure Definitions into the Client environment prior to PUTing structured data to the server
-
-//! Pass an application's Private Structure Definitions into the Client environment
-/** Prior to PUTing structured data to the server, the application needs to define the structures contents. These must be passed to the client environment->
-* @param definedtypelist the list of USERDEFINEDTYPE structures with structure definitions.
-* @return void
-*/
-void putIdamUserDefinedTypeList(USERDEFINEDTYPELIST* definedtypelist)
-{
-    userdefinedtypelist = definedtypelist;
-}
-
-//! Pass an application's Private Malloc Log into the Client environment
-/** Prior to PUTing structured data to the server, the application needs to log all relevant heap allocations. This log must be passed to the client environment->
-* @param definedtypelist the list of USERDEFINEDTYPE structures with structure definitions.
-* @return void
-*/
-void putIdamLogMallocList(LOGMALLOCLIST* malloclist)
-{
-    logmalloclist = malloclist;
-}
-
-//--------------------------------------------------------------
 //! Test for amount of Free heap memory and current usage
 /** When the IDAM client is a server plugin, set the Client's Debug File handle to that of the Server.
 * @return void
@@ -3204,19 +3181,19 @@ TODO
 
     int token;
 
-    protocol2(&xdrs, PROTOCOL_DATA_BLOCK, XDR_SEND, &token, (void*)getIdamDataBlock(handle));
+    USERDEFINEDTYPELIST* userdefinedtypelist = getIdamUserDefinedTypeList(handle);
+    LOGMALLOCLIST* logmalloclist = getIdamLogMallocList(handle);
+    protocol2(&xdrs, PROTOCOL_DATA_BLOCK, XDR_SEND, &token, logmalloclist, userdefinedtypelist, (void*)getIdamDataBlock(handle));
 
     xdr_destroy(&xdrs);     // Destroy before the  file otherwise a segmentation error occurs
     fclose(memfile);
 
-// return the serialised data object and key
+    // return the serialised data object and key
 
     *object = buffer;
     *objectSize = bufsize;
     *key = NULL;
     *keySize = 0;
-
-    return;
 }
 
 //---------------------------------------------------------------
@@ -3230,10 +3207,9 @@ int setIdamDataTree(int handle)
 
     fullNTree = (NTREE*)getIdamData(handle); // Global pointer
     void* opaque_block = getIdamDataOpaqueBlock(handle);
-    userdefinedtypelist = ((GENERAL_BLOCK*)opaque_block)->userdefinedtypelist;
-    logmalloclist = ((GENERAL_BLOCK*)opaque_block)->logmalloclist;
-    lastMallocIndexValue = &(((GENERAL_BLOCK*)opaque_block)->lastMallocIndex);
-    lastMallocIndex = *lastMallocIndexValue;
+    setUserDefinedTypeList(((GENERAL_BLOCK*)opaque_block)->userdefinedtypelist);
+    setLogMallocList(((GENERAL_BLOCK*)opaque_block)->logmalloclist);
+    setLastMallocIndexValue(&(((GENERAL_BLOCK*)opaque_block)->lastMallocIndex));
     return 1; // Return TRUE
 }
 
@@ -3252,6 +3228,20 @@ USERDEFINEDTYPE* getIdamUserDefinedType(int handle)
     if (getIdamDataOpaqueType(handle) != OPAQUE_TYPE_STRUCTURES) return 0;
     void* opaque_block = getIdamDataOpaqueBlock(handle);
     return ((GENERAL_BLOCK*)opaque_block)->userdefinedtype;
+}
+
+USERDEFINEDTYPELIST* getIdamUserDefinedTypeList(int handle)
+{
+    if (getIdamDataOpaqueType(handle) != OPAQUE_TYPE_STRUCTURES) return 0;
+    void* opaque_block = getIdamDataOpaqueBlock(handle);
+    return ((GENERAL_BLOCK*)opaque_block)->userdefinedtypelist;
+}
+
+LOGMALLOCLIST* getIdamLogMallocList(int handle)
+{
+    if (getIdamDataOpaqueType(handle) != OPAQUE_TYPE_STRUCTURES) return 0;
+    void* opaque_block = getIdamDataOpaqueBlock(handle);
+    return ((GENERAL_BLOCK*)opaque_block)->logmalloclist;
 }
 
 NTREE* findIdamNTreeStructureDefinition(NTREE* node, const char* target)

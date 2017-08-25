@@ -1,20 +1,23 @@
-#ifndef IDAM_CLIENTSERVER_PROTOCOLXML2PUT_H
-#define IDAM_CLIENTSERVER_PROTOCOLXML2PUT_H
+#ifndef UDA_CLIENTSERVER_PROTOCOLXML2PUT_H
+#define UDA_CLIENTSERVER_PROTOCOLXML2PUT_H
 
 #include <stdio.h>
 #include <rpc/rpc.h>
 
 #include <structures/genStructs.h>
 
-int xdrUserDefinedDataPut(XDR *xdrs, USERDEFINEDTYPE *userdefinedtype, void **data, int datacount, int structRank,
-                          int* structShape, int index, NTREE **NTree);
+int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist,
+                          USERDEFINEDTYPE* userdefinedtype, void** data, int datacount, int structRank,
+                          int* structShape, int index, NTREE** NTree);
 
 // Send/Receive Array of Structures
 
-int xdrUserDefinedTypeDataPut(XDR *xdrs, USERDEFINEDTYPE *userdefinedtype, void **data);
+int xdrUserDefinedTypeDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist,
+                              USERDEFINEDTYPE* userdefinedtype, void** data);
 
-bool_t xdr_userdefinedtypelistPut(XDR *xdrs, USERDEFINEDTYPELIST *str);
+bool_t xdr_userdefinedtypelistPut(XDR* xdrs, USERDEFINEDTYPELIST* str);
 
-int protocolXML2Put(XDR *xdrs, int protocol_id, int direction, int *token, void *str);
+int protocolXML2Put(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIST* logmalloclist,
+                    USERDEFINEDTYPELIST* userdefinedtypelist, void* str);
 
-#endif // IDAM_CLIENTSERVER_PROTOCOLXML2PUT_H
+#endif // UDA_CLIENTSERVER_PROTOCOLXML2PUT_H

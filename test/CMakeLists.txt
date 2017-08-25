@@ -31,7 +31,9 @@ configure_file(
 
 set( TESTS
 #  test_putcpp
-  )
+  test_mast
+  test_imas_jet
+)
 
 include( modules )
 
@@ -50,23 +52,23 @@ foreach( TEST ${TESTS} )
     client-shared
     ${OPENSSL_LIBRARIES}
     ${LIBXML2_LIBRARIES}
-    ${CACHE_LIBRARIES} )
+    ${CACHE_LIBRARIES}
+  )
+  link_modules( ${TEST} )
 
   add_executable( fat_${TEST} ${TEST}.cpp )
   target_link_libraries( fat_${TEST} PRIVATE
-    ${Boost_LIBRARIES} 
+    ${Boost_LIBRARIES}
     fat${PROJECT_NAME}_cpp
     fatclient-shared
     ${OPENSSL_LIBRARIES}
     ${LIBXML2_LIBRARIES}
     ${CACHE_LIBRARIES}
-    c
-    m
-    dl
+    c m dl
   )
+  target_compile_definitions( fat_${TEST} PRIVATE -DFATCLIENT )
+  link_modules( fat_${TEST} )
 
-  target_compile_definitions( ${TEST} PRIVATE -DFATCLIENT )
-  link_modules( ${TEST} )
   add_test( ${TEST} ${TEST} )
 endforeach()
 

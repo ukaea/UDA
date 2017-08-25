@@ -39,8 +39,10 @@ int getPluginAddress(void** pluginHandle, const char* library, const char* symbo
     if (*pluginHandle == NULL) {
         if ((*pluginHandle = dlopen(full_path, RTLD_LOCAL | RTLD_NOW)) == NULL) {
             err = 999;
-            addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "getPluginAddress: Cannot open the target shared library",
-                         err, dlerror());
+            const char* errmsg = dlerror();
+            IDAM_LOGF(UDA_LOG_ERROR, "Cannot open the target shared library: %s", errmsg);
+            addIdamError(&idamerrorstack, SYSTEMERRORTYPE, __func__, err, "Cannot open the target shared library");
+            addIdamError(&idamerrorstack, SYSTEMERRORTYPE, __func__, err, errmsg);
             return err;
         }
     }

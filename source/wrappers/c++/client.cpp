@@ -249,4 +249,5 @@ uda::Client::~Client()
     for (auto& data : data_) {
         delete(data);
     }
+    //idamFreeAll();
 }

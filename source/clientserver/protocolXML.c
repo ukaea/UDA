@@ -77,9 +77,9 @@
 #  include <client/udaClient.h>
 #endif
 
-int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, void* str)
+int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIST* logmalloclist,
+                USERDEFINEDTYPELIST* userdefinedtypelist, void* str)
 {
-
     DATA_BLOCK* data_block;
 
 #ifdef HIERARCHICAL_DATA
@@ -114,13 +114,13 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, void* str
         }
     }
 
-//----------------------------------------------------------------------------
-// Check Versions
+    //----------------------------------------------------------------------------
+    // Check Versions
 
-// output (ENCODE) means written by the server
-// input (DECODE) means read by the client
-// xdrs->x_op == XDR_DECODE && protocolVersion == 2 Means Client receiving data from a Version 2 Server
-// xdrs->x_op == XDR_ENCODE && protocolVersion == 3 Means Server sending data to a Version 3 Client
+    // output (ENCODE) means written by the server
+    // input (DECODE) means read by the client
+    // xdrs->x_op == XDR_DECODE && protocolVersion == 2 Means Client receiving data from a Version 2 Server
+    // xdrs->x_op == XDR_ENCODE && protocolVersion == 3 Means Server sending data to a Version 3 Client
 
 #ifndef FATCLIENT
 
@@ -128,13 +128,13 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, void* str
         return 0;
 
 #endif
-//----------------------------------------------------------------------------
-// Error Management Loop
+    //----------------------------------------------------------------------------
+    // Error Management Loop
 
     do {
 
-//----------------------------------------------------------------------------
-// Generalised User Defined Data Structures
+        //----------------------------------------------------------------------------
+        // Generalised User Defined Data Structures
 
         if (protocol_id == PROTOCOL_STRUCTURES) {
 
@@ -153,7 +153,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, void* str
                     SARRAY* psarray = &sarray;
                     int shape = data_block->data_n;                                     // rank 1 array of dimension lengths
                     USERDEFINEDTYPE* udt = (USERDEFINEDTYPE*) data_block->opaque_block; // The data's structure definition
-                    USERDEFINEDTYPE* u = findUserDefinedType("SARRAY", 0);              // Locate the carrier structure definition
+                    USERDEFINEDTYPE* u = findUserDefinedType(userdefinedtypelist, "SARRAY", 0);              // Locate the carrier structure definition
 
                     IDAM_LOG(UDA_LOG_DEBUG, "protocolXML: Sending to Client\n");
 
@@ -175,7 +175,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, void* str
                     sarray.data = (void*) data_block->data;         // Pointer to the data to be passed
                     strcpy(sarray.type, udt->name);                 // The name of the type
                     data = (void*) &psarray;                        // Pointer to the SARRAY array pointer
-                    addNonMalloc((void*) &shape, 1, sizeof(int), "int");
+                    addNonMalloc(logmalloclist, (void*) &shape, 1, sizeof(int), "int");
 
                     IDAM_LOG(UDA_LOG_DEBUG, "protocolXML: sending Structure Definitions\n");
 
@@ -241,7 +241,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, void* str
 
                     IDAM_LOGF(UDA_LOG_DEBUG, "protocolXML: Structure Definitions sent: rc = %d\n", rc);
 
-                    rc = rc && xdrUserDefinedTypeData(xdrs, u, data);        // send the Data
+                    rc = rc && xdrUserDefinedTypeData(xdrs, logmalloclist, userdefinedtypelist, u, data);        // send the Data
 
                     IDAM_LOGF(UDA_LOG_DEBUG, "protocolXML: Data sent: rc = %d\n", rc);
 
@@ -257,12 +257,12 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, void* str
                     if ((privateFlags & PRIVATEFLAG_XDRFILE) &&
                         protocolVersion >= 5) {        // Server calling another server
 
-// Close the stream and file
+                        // Close the stream and file
 
                         fflush(xdrfile);
                         fclose(xdrfile);
 
-// Create the XDR Record Streams
+                        // Create the XDR Record Streams
 
 
 #  ifdef SERVERBUILD
@@ -274,7 +274,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, void* str
 #  endif
                         XDRstdioFlag = 0;
 
-// Send the Temporary File
+                        // Send the Temporary File
 
                         IDAM_LOG(UDA_LOG_DEBUG, "protocolXML: sending temporary XDR file\n");
 
@@ -285,20 +285,19 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, void* str
                     }
 #endif // !FATCLIENT
 
-//======================================================================================================================
+                //======================================================================================================
 
-                } else {            // Receive Data
+                } else { // Receive Data
 
                     IDAM_LOG(UDA_LOG_DEBUG, "protocolXML: Receiving from Server\n");
 
-
-// 3 valid options:
-//	1> unpack structures, no xdr file involved	=> privateFlags & PRIVATEFLAG_XDRFILE == 0 && packageType == PACKAGE_STRUCTDATA
-//	2> unpack structures, from an xdr file		=> privateFlags & PRIVATEFLAG_XDRFILE == 0 && packageType == PACKAGE_XDRFILE
-//	3> xdr file only, no unpacking, passforward	=> privateFlags & PRIVATEFLAG_XDRFILE == 1 && packageType == PACKAGE_XDRFILE
-//	4> Error					=> privateFlags & PRIVATEFLAG_XDRFILE == 1 && packageType == PACKAGE_STRUCTDATA
-//
-// Option 3 does not include intermediate file caching - option 2 only
+                    // 3 valid options:
+                    //	1> unpack structures, no xdr file involved	=> privateFlags & PRIVATEFLAG_XDRFILE == 0 && packageType == PACKAGE_STRUCTDATA
+                    //	2> unpack structures, from an xdr file		=> privateFlags & PRIVATEFLAG_XDRFILE == 0 && packageType == PACKAGE_XDRFILE
+                    //	3> xdr file only, no unpacking, passforward	=> privateFlags & PRIVATEFLAG_XDRFILE == 1 && packageType == PACKAGE_XDRFILE
+                    //	4> Error					=> privateFlags & PRIVATEFLAG_XDRFILE == 1 && packageType == PACKAGE_STRUCTDATA
+                    //
+                    // Option 3 does not include intermediate file caching - option 2 only
 
                     int option = 4;
 
@@ -336,11 +335,11 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, void* str
                         break;
                     }
 
-// Read xdr file without unpacking the structures
+                    // Read xdr file without unpacking the structures
 
                     if (option == 3) {
 
-// Create a temporary XDR file, receive and write data to the file - do not unpack data structures, pass the file onward
+                        // Create a temporary XDR file, receive and write data to the file - do not unpack data structures, pass the file onward
 
                         errno = 0;
                         if (mkstemp(tempFile) < 0 || errno != 0) {
@@ -365,10 +364,9 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, void* str
 
                     }
 
-// Unpack data structures
+                    // Unpack data structures
 
                     if (option == 1 || option == 2) {
-
                         logmalloclist = (LOGMALLOCLIST*) malloc(sizeof(LOGMALLOCLIST));
                         initLogMallocList(logmalloclist);
 
@@ -385,7 +383,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, void* str
 
                         if (option == 2) {
 
-// Create a temporary XDR file and receive data
+                            // Create a temporary XDR file and receive data
 
                             IDAM_LOG(UDA_LOG_DEBUG, "protocolXML: creating temporary/cached XDR file\n");
 
@@ -404,7 +402,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, void* str
 
                             err = receiveXDRFile(xdrs, tempFile);        // Receive and write
 
-// Create input xdr file stream
+                            // Create input xdr file stream
 
                             if ((xdrfile = fopen(tempFile, "rb")) == NULL) {    // Read temporary file
                                 err = 999;
@@ -435,7 +433,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, void* str
                         IDAM_LOG(UDA_LOG_DEBUG, "protocolXML: xdrUserDefinedTypeData #A\n");
                         initUserDefinedType(udt_received);
 
-                        rc = rc && xdrUserDefinedTypeData(xdrs, udt_received, &data);        // receive the Data
+                        rc = rc && xdrUserDefinedTypeData(xdrs, logmalloclist, userdefinedtypelist, udt_received, &data);        // receive the Data
 
                         IDAM_LOG(UDA_LOG_DEBUG, "protocolXML: xdrUserDefinedTypeData #B\n");
                         if (!rc) {
@@ -449,12 +447,12 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, void* str
 
                         if (option == 2) {
 
-// Close the stream and file
+                            // Close the stream and file
 
                             fflush(xdrfile);
                             fclose(xdrfile);
 
-// Switch back to the normal xdr record stream
+                            // Switch back to the normal xdr record stream
 
                             //xdrs = priorxdrs;
 
@@ -509,8 +507,8 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, void* str
 
 #else
 
-                //====================================================================================================================
-                // Passing temporary XDR files: server to server (protocolVersion >= 5 is TRUE && packageType == PACKAGE_XDRFILE)
+            //====================================================================================================================
+            // Passing temporary XDR files: server to server (protocolVersion >= 5 is TRUE && packageType == PACKAGE_XDRFILE)
 
             } else {
 
@@ -588,7 +586,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, void* str
 
                             initUserDefinedType(udt_received);
 
-                            rc = rc && xdrUserDefinedTypeData(xdrs, udt_received, &data);        // receive the Data
+                            rc = rc && xdrUserDefinedTypeData(xdrs, logmalloclist, userdefinedtypelist, udt_received, &data);        // receive the Data
 
                             if (!rc) {
                                 err = 999;
@@ -1359,8 +1357,8 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, void* str
                 }
 #  endif
 #endif // !FATCLIENT
-//----------------------------------------------------------------------------
-// End of Error Trap Loop
+    //----------------------------------------------------------------------------
+    // End of Error Trap Loop
 
     } while (0);
 

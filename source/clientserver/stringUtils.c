@@ -345,3 +345,26 @@ bool StringIEquals(const char* a, const char* b)
 
     return *a == *b;
 }
+
+bool StringEndsWith(const char* str, const char* find)
+{
+    if (str == NULL || find == NULL) return false;
+
+    size_t len = strlen(str);
+    size_t find_len = strlen(find);
+
+    const char* a = str + len;
+    const char* b = find + find_len;
+
+    if (find_len > len) return false;
+
+    size_t count = 0;
+    while (count <= find_len) {
+        if (*a != *b) return false;
+        --a;
+        --b;
+        ++count;
+    }
+
+    return true;
+}

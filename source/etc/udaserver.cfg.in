@@ -25,7 +25,7 @@ export UDA_DUMP_HDF5=`which h5dump 2>/dev/null`
 export UDA_HOST=`hostname`
 export UDA_PORT=56565
 
-export UDA_SQLHOST=idam1       # IDAM SQL Server Host
+export UDA_SQLHOST=idam1.mast.ccfe.ac.uk       # IDAM SQL Server Host
 export UDA_SQLPORT=56566       # IDAM SQL Server Port
 export UDA_SQLDBNAME=idam      # IDAM SQL Database Name
 export UDA_SQLUSER=readonly    # IDAM SQL Database User
@@ -38,6 +38,8 @@ export UDA_SARRAY_CONFIG=@CMAKE_INSTALL_PREFIX@/etc/udagenstruct.conf
 
 #------------------------------------------------------------------------------------------------------
 # Setup required dynamic library paths
+
+export MAST_DATA=/mnt/data/MAST_Data/
 
 export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:@CMAKE_INSTALL_PREFIX@/lib:@CMAKE_INSTALL_PREFIX@/lib/plugins"
 export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:@EXTRA_LD_LIBRARY_PATHS@"

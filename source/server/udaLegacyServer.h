@@ -3,14 +3,17 @@
 *
 *---------------------------------------------------------------------------------------------------------------------*/
 
-#ifndef IDAM_SERVER_IDAMLEGACYSERVER_H
-#define IDAM_SERVER_IDAMLEGACYSERVER_H
+#ifndef UDA_SERVER_IDAMLEGACYSERVER_H
+#define UDA_SERVER_IDAMLEGACYSERVER_H
 
 #include <clientserver/udaStructs.h>
+#include <structures/genStructs.h>
+#include <clientserver/socketStructs.h>
 
 #include "pluginStructs.h"
 
-int idamLegacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist);
+int idamLegacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMALLOCLIST* logmalloclist,
+                     USERDEFINEDTYPELIST* userdefinedtypelist, SOCKETLIST* socket_list);
 
-#endif // IDAM_SERVER_IDAMLEGACYSERVER_H
+#endif // UDA_SERVER_IDAMLEGACYSERVER_H
 

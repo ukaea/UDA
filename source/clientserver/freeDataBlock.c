@@ -21,15 +21,8 @@ void freeIdamClientPutDataBlockList(PUTDATA_BLOCK_LIST* putDataBlockList)
     initIdamPutDataBlockList(putDataBlockList);
 }
 
-
-void freeIdamDataBlock(DATA_BLOCK* data_block)
-{
-    freeDataBlock(data_block);
-}
-
 void freeDataBlock(DATA_BLOCK* data_block)
 {
-
     // Free Heap Memory & Zero all Integer values
 
     void* cptr;
@@ -53,18 +46,11 @@ void freeDataBlock(DATA_BLOCK* data_block)
 
             case (OPAQUE_TYPE_STRUCTURES): {
                 if (data_block->opaque_block != NULL) {
-
-                    if (userdefinedtypelist != NULL) {
-                        freeUserDefinedTypeList(userdefinedtypelist);
-                        free(userdefinedtypelist);
-                        userdefinedtypelist = NULL;
-                    }
-
-                    if (logmalloclist != NULL) {
-                        freeMallocLogList(logmalloclist);
-                        free(logmalloclist);
-                        logmalloclist = NULL;
-                    }
+//                    if (logmalloclist != NULL) {
+//                        freeMallocLogList(logmalloclist);
+//                        free(logmalloclist);
+//                        logmalloclist = NULL;
+//                    }
 
                     data_block->opaque_count = 0;
                     data_block->opaque_block = NULL;
@@ -179,25 +165,16 @@ void freeDataBlock(DATA_BLOCK* data_block)
 // Free Heap Memory & Zero all Integer values
 void freeReducedDataBlock(DATA_BLOCK* data_block)
 {
-#ifndef FATCLIENT
-    if (data_block == NULL) return;
-    return;
-#else
+#ifdef FATCLIENT
     if(data_block == NULL) return;
     if(data_block->opaque_type != OPAQUE_TYPE_STRUCTURES) return;
     if(data_block->opaque_block == NULL) return;
 
-    if(userdefinedtypelist != NULL) {
-        freeUserDefinedTypeList(userdefinedtypelist);
-        free((void *)userdefinedtypelist);
-        userdefinedtypelist = NULL;
-    }
-
-    if(logmalloclist != NULL) {
-        freeMallocLogList(logmalloclist);
-        free((void *)logmalloclist);
-        logmalloclist = NULL;
-    }
+//    if(logmalloclist != NULL) {
+//        freeMallocLogList(logmalloclist);
+//        free((void *)logmalloclist);
+//        logmalloclist = NULL;
+//    }
 
     data_block->opaque_count = 0;
     data_block->opaque_block = NULL;

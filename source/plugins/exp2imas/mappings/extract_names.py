@@ -1,6 +1,6 @@
 import xml.etree.cElementTree as ET
 
-tree = ET.parse('IDSDef.xml')
+tree = ET.parse('IMAS/IDSDef.xml')
 root = tree.getroot()
 
 def walk(node):

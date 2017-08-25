@@ -387,7 +387,9 @@ int do_geom_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     initDataBlock(&data_block_file);
 
     REQUEST_BLOCK* request_block = idam_plugin_interface->request_block;
-    int errConfig = readCDF(*data_source, *signal_desc, *request_block, &data_block_file);
+    USERDEFINEDTYPELIST* userdefinedtypelist = idam_plugin_interface->userdefinedtypelist;
+    LOGMALLOCLIST* logmalloclist = idam_plugin_interface->logmalloclist;
+    int errConfig = readCDF(*data_source, *signal_desc, *request_block, &data_block_file, logmalloclist, userdefinedtypelist);
 
     IDAM_LOG(UDA_LOG_DEBUG, "Read in file\n");
 
@@ -457,8 +459,8 @@ int do_geom_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     data->data = data_block_file.data;
     strcpy(data->signal_type, signal_type);
 
-    addMalloc((void*)data, 1, sizeof(DATAPLUSTYPE), "DATAPLUSTYPE");
-    addMalloc((void*)data->signal_type, 1, stringLength * sizeof(char), "char");
+    addMalloc(logmalloclist, (void*)data, 1, sizeof(DATAPLUSTYPE), "DATAPLUSTYPE");
+    addMalloc(logmalloclist, (void*)data->signal_type, 1, stringLength * sizeof(char), "char");
 
     //Return data
     DATA_BLOCK* data_block = idam_plugin_interface->data_block;
@@ -476,7 +478,7 @@ int do_geom_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
-    data_block->opaque_block = (void*)findUserDefinedType("DATAPLUSTYPE", 0);
+    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "DATAPLUSTYPE", 0);
 
     // Free heap data associated with the two DATA_BLOCKS
     // Nothing to free?
@@ -579,14 +581,16 @@ int do_config_filename(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     };
     typedef struct DATASTRUCT DATASTRUCT;
 
+    LOGMALLOCLIST* logmalloclist = idam_plugin_interface->logmalloclist;
+
     DATASTRUCT* data_out;
     data_out = (DATASTRUCT*)malloc(sizeof(DATASTRUCT));
-    addMalloc((void*)data_out, 1, sizeof(DATASTRUCT), "DATASTRUCT");
+    addMalloc(logmalloclist, (void*)data_out, 1, sizeof(DATASTRUCT), "DATASTRUCT");
 
     data_out->filenames = (char**)malloc((nRows) * sizeof(char*));
-    addMalloc((void*)data_out->filenames, nRows, sizeof(char*), "STRING *");
+    addMalloc(logmalloclist, (void*)data_out->filenames, nRows, sizeof(char*), "STRING *");
     data_out->geomgroups = (char**)malloc((nRows) * sizeof(char*));
-    addMalloc((void*)data_out->geomgroups, nRows, sizeof(char*), "STRING *");
+    addMalloc(logmalloclist, (void*)data_out->geomgroups, nRows, sizeof(char*), "STRING *");
 
     int i = 0;
     int stringLength;
@@ -597,7 +601,7 @@ int do_config_filename(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             stringLength = strlen(file_name) + 1;
             data_out->filenames[i] = (char*)malloc(sizeof(char) * stringLength);
             strcpy(data_out->filenames[i], file_name);
-            addMalloc((void*)data_out->filenames[i], stringLength, sizeof(char), "char");
+            addMalloc(logmalloclist, (void*)data_out->filenames[i], stringLength, sizeof(char), "char");
         }
 
         if (!PQgetisnull(DBQuery, i, s_group)) {
@@ -605,7 +609,7 @@ int do_config_filename(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             stringLength = strlen(group) + 1;
             data_out->geomgroups[i] = (char*)malloc(sizeof(char) * stringLength);
             strcpy(data_out->geomgroups[i], group);
-            addMalloc((void*)data_out->geomgroups[i], stringLength, sizeof(char), "char");
+            addMalloc(logmalloclist, (void*)data_out->geomgroups[i], stringLength, sizeof(char), "char");
         }
     }
 
@@ -643,6 +647,7 @@ int do_config_filename(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     defineField(&field, "geomgroups", "geomgroups", &offset, ARRAYSTRING);
     addCompoundField(&parentTree, field);
 
+    USERDEFINEDTYPELIST* userdefinedtypelist = idam_plugin_interface->userdefinedtypelist;
     addUserDefinedType(userdefinedtypelist, parentTree);
 
     //Return data
@@ -661,7 +666,7 @@ int do_config_filename(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
-    data_block->opaque_block = (void*)findUserDefinedType("DATASTRUCT", 0);
+    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "DATASTRUCT", 0);
 
     // Free heap data associated with the two DATA_BLOCKS
     // Nothing to free?

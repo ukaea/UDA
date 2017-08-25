@@ -1,5 +1,5 @@
-#ifndef IDAM_CLIENTSERVER_COPYSTRUCTS_H
-#define IDAM_CLIENTSERVER_COPYSTRUCTS_H
+#ifndef UDA_CLIENTSERVER_COPYSTRUCTS_H
+#define UDA_CLIENTSERVER_COPYSTRUCTS_H
 
 #include <plugins/udaPlugin.h>
 #include "udaStructs.h"
@@ -22,4 +22,4 @@ void copySignalDesc(SIGNAL_DESC * out, SIGNAL_DESC in);
 
 void copyPluginInterface(IDAM_PLUGIN_INTERFACE* out, IDAM_PLUGIN_INTERFACE* in);
 
-#endif // IDAM_CLIENTSERVER_COPYSTRUCTS_H
+#endif // UDA_CLIENTSERVER_COPYSTRUCTS_H

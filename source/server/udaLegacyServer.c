@@ -37,7 +37,8 @@ int idamLegacyServer(CLIENT_BLOCK client_block) {
 
 // Legacy Server Entry point
 
-int idamLegacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist)
+int idamLegacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMALLOCLIST* logmalloclist,
+                     USERDEFINEDTYPELIST* userdefinedtypelist, SOCKETLIST* socket_list)
 {
 
     int rc, err = 0, depth, fatal = 0;
@@ -108,7 +109,7 @@ int idamLegacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist)
 
                 protocol_id = PROTOCOL_CLIENT_BLOCK;
 
-                if ((err = protocol(serverInput, protocol_id, XDR_RECEIVE, NULL, &client_block)) != 0) {
+                if ((err = protocol(serverInput, protocol_id, XDR_RECEIVE, NULL, logmalloclist, userdefinedtypelist, &client_block)) != 0) {
                     IDAM_LOG(UDA_LOG_DEBUG, "IdamServer: Problem Receiving Client Data Block\n");
                     addIdamError(&idamerrorstack, CODEERRORTYPE, "idamServer", err,
                                  "Protocol 10 Error (Receiving Client Block)");
@@ -153,7 +154,7 @@ int idamLegacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist)
 
                 IDAM_LOG(UDA_LOG_DEBUG, "Sending Server Block\n");
 
-                if ((err = protocol(serverOutput, protocol_id, XDR_SEND, NULL, &server_block)) != 0) {
+                if ((err = protocol(serverOutput, protocol_id, XDR_SEND, NULL, logmalloclist, userdefinedtypelist, &server_block)) != 0) {
                     IDAM_LOG(UDA_LOG_DEBUG, "Problem Sending Server Data Block\n");
                     addIdamError(&idamerrorstack, CODEERRORTYPE, "idamServer", err,
                                  "Protocol 11 Error (Sending Server Block #1)");
@@ -183,7 +184,7 @@ int idamLegacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist)
 
             protocol_id = PROTOCOL_REQUEST_BLOCK;
 
-            if ((err = protocol(serverInput, protocol_id, XDR_RECEIVE, NULL, &request_block)) != 0) {
+            if ((err = protocol(serverInput, protocol_id, XDR_RECEIVE, NULL, logmalloclist, userdefinedtypelist, &request_block)) != 0) {
                 IDAM_LOG(UDA_LOG_DEBUG, "Problem Receiving Client Request Block\n");
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "idamServer", err,
                              "Protocol 1 Error (Receiving Client Request)");
@@ -295,7 +296,7 @@ int idamLegacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist)
 
                 protocol_id = PROTOCOL_PUTDATA_BLOCK_LIST;
 
-                if ((err = protocol(serverInput, protocol_id, XDR_RECEIVE, NULL, &(request_block.putDataBlockList))) !=
+                if ((err = protocol(serverInput, protocol_id, XDR_RECEIVE, NULL, logmalloclist, userdefinedtypelist, &(request_block.putDataBlockList))) !=
                     0) {
                     IDAM_LOG(UDA_LOG_DEBUG, "Problem Receiving putData Block List\n");
                     addIdamError(&idamerrorstack, CODEERRORTYPE, "idamServer", err,
@@ -350,7 +351,8 @@ int idamLegacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist)
             depth = 0;
 
             err = idamserverGetData(DBConnect, &depth, request_block, client_block, &data_block, &data_source,
-                                    &signal_rec, &signal_desc, &actions_desc, &actions_sig, pluginlist);
+                                    &signal_rec, &signal_desc, &actions_desc, &actions_sig, pluginlist, logmalloclist,
+                                    userdefinedtypelist, socket_list);
 
             if (DBConnect == NULL && gDBConnect != NULL) {
                 DBConnect = gDBConnect;    // Pass back SQL Socket from idamserverGetData
@@ -473,7 +475,7 @@ int idamLegacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist)
 
             protocol_id = PROTOCOL_SERVER_BLOCK;
 
-            if ((err = protocol(serverOutput, protocol_id, XDR_SEND, NULL, &server_block)) != 0) {
+            if ((err = protocol(serverOutput, protocol_id, XDR_SEND, NULL, logmalloclist, userdefinedtypelist, &server_block)) != 0) {
                 IDAM_LOG(UDA_LOG_DEBUG, "Problem Sending Server Data Block #2\n");
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "idamServer", err,
                              "Protocol 11 Error (Sending Server Block #2)");
@@ -502,7 +504,7 @@ int idamLegacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist)
 
                 protocol_id = PROTOCOL_NEXT_PROTOCOL;
 
-                if ((err = protocol(serverInput, protocol_id, XDR_RECEIVE, &next_protocol, NULL)) != 0) {
+                if ((err = protocol(serverInput, protocol_id, XDR_RECEIVE, &next_protocol, logmalloclist, userdefinedtypelist, NULL)) != 0) {
                     IDAM_LOG(UDA_LOG_DEBUG, "Problem #1 Receiving Next Protocol ID\n");
                     addIdamError(&idamerrorstack, CODEERRORTYPE, "idamServer", err,
                                  "Protocol 3 (Next Protocol #1) Error");
@@ -525,7 +527,7 @@ int idamLegacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist)
 
                 protocol_id = PROTOCOL_DATA_SYSTEM;
 
-                if ((err = protocol(serverOutput, protocol_id, XDR_SEND, NULL, &data_system)) != 0) {
+                if ((err = protocol(serverOutput, protocol_id, XDR_SEND, NULL, logmalloclist, userdefinedtypelist, &data_system)) != 0) {
                     IDAM_LOG(UDA_LOG_DEBUG, "Problem Sending Data System Structure\n");
                     addIdamError(&idamerrorstack, CODEERRORTYPE, "idamServer", err, "Protocol 4 Error");
                     break;
@@ -536,7 +538,7 @@ int idamLegacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist)
 
                 protocol_id = PROTOCOL_SYSTEM_CONFIG;
 
-                if ((err = protocol(serverOutput, protocol_id, XDR_SEND, NULL, &system_config)) != 0) {
+                if ((err = protocol(serverOutput, protocol_id, XDR_SEND, NULL, logmalloclist, userdefinedtypelist, &system_config)) != 0) {
                     IDAM_LOG(UDA_LOG_DEBUG, "Problem Sending System Configuration Structure\n");
                     addIdamError(&idamerrorstack, CODEERRORTYPE, "idamServer", err, "Protocol 5 Error");
                     break;
@@ -547,7 +549,7 @@ int idamLegacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist)
 
                 protocol_id = PROTOCOL_DATA_SOURCE;
 
-                if ((err = protocol(serverOutput, protocol_id, XDR_SEND, NULL, &data_source)) != 0) {
+                if ((err = protocol(serverOutput, protocol_id, XDR_SEND, NULL, logmalloclist, userdefinedtypelist, &data_source)) != 0) {
                     IDAM_LOG(UDA_LOG_DEBUG, "Problem Sending Data Source Structure\n");
                     addIdamError(&idamerrorstack, CODEERRORTYPE, "idamServer", err, "Protocol 6 Error");
                     break;
@@ -558,7 +560,7 @@ int idamLegacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist)
 
                 protocol_id = PROTOCOL_SIGNAL;
 
-                if ((err = protocol(serverOutput, protocol_id, XDR_SEND, NULL, &signal_rec)) != 0) {
+                if ((err = protocol(serverOutput, protocol_id, XDR_SEND, NULL, logmalloclist, userdefinedtypelist, &signal_rec)) != 0) {
                     IDAM_LOG(UDA_LOG_DEBUG, "Problem Sending Signal Structure\n");
                     addIdamError(&idamerrorstack, CODEERRORTYPE, "idamServer", err, "Protocol 7 Error");
                     break;
@@ -569,7 +571,7 @@ int idamLegacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist)
 
                 protocol_id = PROTOCOL_SIGNAL_DESC;
 
-                if ((err = protocol(serverOutput, protocol_id, XDR_SEND, NULL, &signal_desc)) != 0) {
+                if ((err = protocol(serverOutput, protocol_id, XDR_SEND, NULL, logmalloclist, userdefinedtypelist, &signal_desc)) != 0) {
                     IDAM_LOG(UDA_LOG_DEBUG, "Problem Sending Signal Description Structure\n");
                     addIdamError(&idamerrorstack, CODEERRORTYPE, "idamServer", err, "Protocol 8 Error");
                     break;
@@ -582,7 +584,7 @@ int idamLegacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist)
 
             protocol_id = PROTOCOL_NEXT_PROTOCOL;
 
-            if ((err = protocol(serverInput, protocol_id, XDR_RECEIVE, &next_protocol, NULL)) != 0) {
+            if ((err = protocol(serverInput, protocol_id, XDR_RECEIVE, &next_protocol, logmalloclist, userdefinedtypelist, NULL)) != 0) {
                 IDAM_LOG(UDA_LOG_DEBUG, "Problem #2 Receiving Next Protocol ID\n");
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "idamServer", err, "Protocol 3 (Next Protocol #2) Error");
                 break;
@@ -606,7 +608,7 @@ int idamLegacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist)
 
             protocol_id = PROTOCOL_DATA_BLOCK;
 
-            if ((err = protocol(serverOutput, protocol_id, XDR_SEND, NULL, &data_block)) != 0) {
+            if ((err = protocol(serverOutput, protocol_id, XDR_SEND, NULL, logmalloclist, userdefinedtypelist, &data_block)) != 0) {
                 IDAM_LOG(UDA_LOG_DEBUG, "Problem Sending Data Structure\n");
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "idamServer", err, "Protocol 2 Error");
                 break;
@@ -621,7 +623,7 @@ int idamLegacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist)
 
                 protocol_id = PROTOCOL_NEXT_PROTOCOL;
 
-                if ((err = protocol(serverInput, protocol_id, XDR_RECEIVE, &next_protocol, NULL)) != 0) {
+                if ((err = protocol(serverInput, protocol_id, XDR_RECEIVE, &next_protocol, logmalloclist, userdefinedtypelist, NULL)) != 0) {
                     IDAM_LOG(UDA_LOG_DEBUG, "Problem #2a Receiving Next Protocol ID\n");
                     addIdamError(&idamerrorstack, CODEERRORTYPE, "idamServer", err,
                                  "Protocol 3 (Next Protocol #2) Error");
@@ -653,7 +655,7 @@ int idamLegacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist)
 
                 IDAM_LOG(UDA_LOG_DEBUG, "Sending Hierarchical Data Structure to Client\n");
 
-                if ((err = protocol(serverOutput, protocol_id, XDR_SEND, NULL, &data_block)) != 0) {
+                if ((err = protocol(serverOutput, protocol_id, XDR_SEND, NULL, logmalloclist, userdefinedtypelist, &data_block)) != 0) {
                     addIdamError(&idamerrorstack, CODEERRORTYPE, "idamServer", err,
                                  "Server Side Protocol Error (Opaque Structure Type)");
                     break;
@@ -686,7 +688,7 @@ int idamLegacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist)
         protocol_id = PROTOCOL_NEXT_PROTOCOL;
         next_protocol = 0;
 
-        if ((err = protocol(serverInput, protocol_id, XDR_RECEIVE, &next_protocol, NULL)) != 0) {
+        if ((err = protocol(serverInput, protocol_id, XDR_RECEIVE, &next_protocol, logmalloclist, userdefinedtypelist, NULL)) != 0) {
             IDAM_LOG(UDA_LOG_DEBUG, "Problem #3 Receiving Next Protocol ID\n");
             addIdamError(&idamerrorstack, CODEERRORTYPE, "idamServer", err, "Protocol 3 (Server Shutdown) Error");
             break;
@@ -747,7 +749,7 @@ int idamLegacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist)
 //----------------------------------------------------------------------------
 // Server Wait Loop
 
-    } while (err == 0 && next_protocol == PROTOCOL_SLEEP && sleepServer());
+    } while (err == 0 && next_protocol == PROTOCOL_SLEEP && sleepServer(logmalloclist, userdefinedtypelist));
 
 //----------------------------------------------------------------------------
 // Server Destruct.....
@@ -778,7 +780,7 @@ int idamLegacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist)
 //----------------------------------------------------------------------------
 // Close the Socket Connections to Other Data Servers
 
-    closeServerSockets(&server_socketlist);
+    closeServerSockets(socket_list);
 
 //----------------------------------------------------------------------------
 // Write the Error Log Record & Free Error Stack Heap
