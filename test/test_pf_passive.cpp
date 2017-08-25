@@ -35,7 +35,7 @@ int main() {
 
 	uda::Client client;
 
-	const uda::Result& passive_name = client.get("imas::get(idx=0, group='pf_passive', variable='loop/1/name', expName='WEST', type=string, rank=1, shot=" SHOT_NUM ", )", "");
+	/*const uda::Result& passive_name = client.get("imas::get(idx=0, group='pf_passive', variable='loop/1/name', expName='WEST', type=string, rank=1, shot=" SHOT_NUM ", )", "");
 	const uda::Data * passive_name_data = passive_name.data();
 	const uda::String* s_passive_name_data = dynamic_cast<const uda::String*>(passive_name_data);
 
@@ -86,7 +86,19 @@ int main() {
 	for (int j = 199; j < 209; ++j) {
 		std::cout << arr_current_data12->as<double>().at(j) << " ";
 	}
+	std::cout << "..." << std::endl;*/
+
+
+	const uda::Result& passive_time = client.get("imas::get(idx=0, group='pf_passive', variable='time', expName='WEST', type=double, rank=1, shot=" SHOT_NUM ", )", "");
+	const uda::Data * passive_time_data = passive_time.data();
+	const uda::Array* arr_passive_time_data = dynamic_cast<const uda::Array*>(passive_time_data);
+
+	std::cout << "first 10 values for passive time: ";
+	for (int j = 0; j < 10; ++j) {
+		std::cout << arr_passive_time_data->as<double>().at(j) << " ";
+	}
 	std::cout << "..." << std::endl;
+
 
 	const uda::Result& bpol_probe_posR = client.get("imas::get(idx=0, group='magnetics', variable='bpol_probe/20/position/r', expName='WEST', type=double, rank=0, shot=" SHOT_NUM ", )", "");
 	const uda::Scalar* scalar_bpol_probe_posR = dynamic_cast<const uda::Scalar*>(bpol_probe_posR.data());
@@ -107,6 +119,20 @@ int main() {
 	const uda::Result& passive_loop_z12 = client.get("imas::get(idx=0, group='pf_passive', variable='loop/12/geometry/outline/z', expName='WEST', type=double, rank=0, shot=" SHOT_NUM ", )", "");
 	const uda::Scalar* passive_loop_z12_data = dynamic_cast<const uda::Scalar*>(passive_loop_z12.data());
 	std::cout << "loop/12/geometry/outline/z: " << passive_loop_z12_data->as<double>() << std::endl;
+
+
+	const uda::Result& passive_loop_r1_test = client.get("imas::get(idx=0, group='pf_passive', variable='loop/1/geometry/outline/r', expName='WEST', type=double, rank=1, shot=" SHOT_NUM ", )", "");
+	const uda::Data * passive_loop_r1_test_data = passive_loop_r1_test.data();
+	const uda::Array* arr_passive_loop_r1_test_data = dynamic_cast<const uda::Array*>(passive_loop_r1_test_data);
+
+	std::cout << "values for loop/1/geometry/outline/r from 0 to 0: ";
+	for (int j = 0; j < 1; ++j) {
+		std::cout << arr_passive_loop_r1_test_data->as<double>().at(j) << " ";
+	}
+	std::cout << "..." << std::endl;
+
+
+
 
 
 	return 0;

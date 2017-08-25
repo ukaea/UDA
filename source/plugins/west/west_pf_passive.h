@@ -9,7 +9,7 @@ void passive_r(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
 void passive_z(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
 void passive_current_shapeOf(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
 int  passive_current(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
-int passive_current_test(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
+int passive_time(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
 
 
 #endif // IDAM_PLUGIN_WEST_PF_PASSIVE_H

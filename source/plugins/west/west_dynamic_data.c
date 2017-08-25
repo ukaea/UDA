@@ -70,16 +70,18 @@ int GetDynamicData(int shotNumber, const char* mapfun, DATA_BLOCK* data_block, i
 		ece_harmonic_time(shotNumber, data_block, nodeIndices); //TODO
 	} else if (strcmp(fun_name, "passive_current") == 0) {
 		passive_current(shotNumber, data_block, nodeIndices);
+	}  else if (strcmp(fun_name, "passive_time") == 0) {
+		passive_time(shotNumber, data_block, nodeIndices);
 	} else if (strcmp(fun_name, "test_fun") == 0) {
 		test_fun(shotNumber, data_block, nodeIndices); //TODO
 	}
 
 	free(fun_name);
 	free(TOP_collections_parameters);
-    free(attributes);
-    free(normalizationAttributes);
+	free(attributes);
+	free(normalizationAttributes);
 
-    return 0;
+	return 0;
 
 }
 

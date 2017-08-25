@@ -309,8 +309,8 @@ void passive_z(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices) {
 
 void passive_current_shapeOf(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices) {
 
-	float* data = NULL;
-	float* time = NULL;
+	//float* data = NULL;
+	//float* time = NULL;
 	int len = 34;
 	data_block->data_type = TYPE_INT;
 	data_block->data = malloc(sizeof(int));
@@ -343,7 +343,6 @@ int getCurrent(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices, float *
 	const int Rinf2_length = (int)( sizeof(Rinf2) / sizeof(Rinf2[0]) );
 
 	if (k <= 10) {
-		IDAM_LOG(UDA_LOG_DEBUG, "calling I_uper_stab...\n");
 		status = I_uper_stab(shotNumber, time, data, len, 1./Rsup_length);
 	}
 	else if (k>10 && k<=18) {
@@ -378,6 +377,7 @@ int passive_time(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices) {
 	int status = -1;
 
 	if (k <= 10) {
+		IDAM_LOG(UDA_LOG_DEBUG, "calling getIFREEB...\n");
 		status = getIFREEB(shotNumber, 2, &time, &data, &len, 1.);
 	}
 	else if (k>10 && k<=18) {
@@ -398,8 +398,9 @@ int passive_time(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices) {
 	else if (k>29 && k<=32) {
 		status = getIDCOEF(shotNumber, 23, &time, &data, &len, 1.);
 	}
-
+	IDAM_LOG(UDA_LOG_DEBUG, "before calling SetDynamicDataTime...\n");
 	if (status != 0) return status;
+	IDAM_LOG(UDA_LOG_DEBUG, "calling SetDynamicDataTime...\n");
 	SetDynamicDataTime(data_block, len, time, data);
 
 	return 0;
