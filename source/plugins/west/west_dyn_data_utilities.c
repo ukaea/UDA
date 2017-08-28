@@ -225,15 +225,7 @@ void SetDynData(DATA_BLOCK* data_block, int len, float *time, float *data, int s
 
 	//IDAM data block initialization
 	initDataBlock(data_block);
-	data_block->rank = 1; //we return always a 1D array
-	data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
 	int i;
-	for (i = 0; i < data_block->rank; i++) {
-		initDimBlock(&data_block->dims[i]);
-	}
-
-	free(data_block->dims);
-
 	data_block->rank      = 1;
 	data_block->data_type = TYPE_FLOAT;
 	data_block->data_n    = len;
@@ -246,8 +238,7 @@ void SetDynData(DATA_BLOCK* data_block, int len, float *time, float *data, int s
 		data_block->data      = (char*)time;
 	}
 
-	data_block->dims =
-			(DIMS*)malloc(data_block->rank * sizeof(DIMS));
+	data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
 
 	for (i = 0; i < data_block->rank; i++) {
 		initDimBlock(&data_block->dims[i]);

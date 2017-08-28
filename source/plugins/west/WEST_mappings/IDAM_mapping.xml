@@ -79,13 +79,13 @@
 <mapping key="ece/channel/#/harmonic/data" value="ece_harmonic_data" type="dynamic"/>
 <mapping key="ece/channel/#/harmonic/time" value="ece_harmonic_time" type="dynamic"/>
 
-<mapping key="pf_passive/ids_properties/homogeneous_time" value="set_value;1;0:int" type="static"/>
+<!-- mapping key="pf_passive/ids_properties/homogeneous_time" value="set_value;1;0:int" type="static"/>
 <mapping key="pf_passive/loop/#/name" value="passive_name" type="static"/>
 <mapping key="pf_passive/loop/#/geometry/geometry_type" value="set_value;1;0:int" type="static"/>
 <mapping key="pf_passive/loop/#/geometry/outline/r" value="passive_r" type="static"/>
 <mapping key="pf_passive/loop/#/geometry/outline/z" value="passive_z" type="static"/>
 <mapping key="pf_passive/loop/Shape_of" value="passive_current_shapeOf" type="static"/>
 <mapping key="pf_passive/loop/#/current" value="passive_current" type="dynamic"/>
-<mapping key="pf_passive/time" value="passive_time" type="dynamic"/>
+<mapping key="pf_passive/time" value="passive_time" type="dynamic"/ -->
 
 </mappings>

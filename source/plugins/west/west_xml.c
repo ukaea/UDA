@@ -118,10 +118,8 @@ int execute(const char* mapfun, int shotNumber, DATA_BLOCK* data_block, int* nod
 		fun = 10;
 	}
 	else if (strcmp(fun_name, "passive_r") == 0) {
-		passive_r(shotNumber, data_block, nodeIndices);
 		fun = 11;
 	} else if (strcmp(fun_name, "passive_z") == 0) {
-		passive_z(shotNumber, data_block, nodeIndices);
 		fun = 12;
 	}else if (strcmp(fun_name, "passive_name") == 0) {
 		fun = 13;
@@ -264,7 +262,6 @@ int execute(const char* mapfun, int shotNumber, DATA_BLOCK* data_block, int* nod
 		passive_name(shotNumber, data_block, nodeIndices);
 		break;
 	}
-
 
 	}
 

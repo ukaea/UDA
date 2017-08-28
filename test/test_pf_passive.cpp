@@ -100,7 +100,7 @@ int main() {
 	std::cout << "..." << std::endl;
 
 
-	const uda::Result& bpol_probe_posR = client.get("imas::get(idx=0, group='magnetics', variable='bpol_probe/20/position/r', expName='WEST', type=double, rank=0, shot=" SHOT_NUM ", )", "");
+	/*const uda::Result& bpol_probe_posR = client.get("imas::get(idx=0, group='magnetics', variable='bpol_probe/20/position/r', expName='WEST', type=double, rank=0, shot=" SHOT_NUM ", )", "");
 	const uda::Scalar* scalar_bpol_probe_posR = dynamic_cast<const uda::Scalar*>(bpol_probe_posR.data());
 	std::cout << "bpol_probe/20/position/r: " << scalar_bpol_probe_posR->as<double>() << std::endl;
 
@@ -129,7 +129,7 @@ int main() {
 	for (int j = 0; j < 1; ++j) {
 		std::cout << arr_passive_loop_r1_test_data->as<double>().at(j) << " ";
 	}
-	std::cout << "..." << std::endl;
+	std::cout << "..." << std::endl;*/
 
 
 
