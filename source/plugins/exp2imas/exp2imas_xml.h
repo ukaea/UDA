@@ -11,6 +11,7 @@
 #  define XML_FMT_TYPE const xmlChar*
 #endif
 
-int execute_xpath_expression(const char* filename, const xmlChar* xpathExpr, int* nodeIndices, char** data, int* data_type, int* time_dim, int* size);
+int execute_xpath_expression(const char* filename, const xmlChar* xpathExpr, char** data, int* data_type, int* time_dim,
+                             int** sizes, float** coefas, float** coefbs, int index, int** dims, int* rank);
 
 #endif // UDA_PLUGIN_EXP2IMAS_EXP2IMAS_XML_H

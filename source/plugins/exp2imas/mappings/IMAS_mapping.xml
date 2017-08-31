@@ -42,6 +42,7 @@
   <mapping key="core_transport/model/#/profiles_1d/neutral(:)/Shape_of" value="//core_transport/model[#]/profiles_1d/neutral(:)/@dim" type="static"/>
   <mapping key="core_transport/model/#/profiles_1d/neutral(:)/element(:)/Shape_of" value="//core_transport/model[#]/profiles_1d/neutral(:)/element(:)/@dim" type="static"/>
   <mapping key="core_transport/model/#/profiles_1d/neutral(:)/state(:)/Shape_of" value="//core_transport/model[#]/profiles_1d/neutral(:)/state(:)/@dim" type="static"/>
+
   <mapping key="distribution_sources/source/Shape_of" value="//distribution_sources/source/@dim" type="static"/>
   <mapping key="distribution_sources/source/#/process/Shape_of" value="//distribution_sources/source[#]/process/@dim" type="static"/>
   <mapping key="distribution_sources/source/species/ion/element/Shape_of" value="//distribution_sources/source/species/ion/element/@dim" type="static"/>
@@ -113,7 +114,9 @@
   <mapping key="distributions/distribution/#/ggd/expansion(:)/grid_subset(:)/Shape_of" value="//distributions/distribution[#]/ggd/expansion(:)/grid_subset(:)/@dim" type="static"/>
   <mapping key="distributions/distribution/#/markers/Shape_of" value="//distributions/distribution[#]/markers/@dim" type="static"/>
   <mapping key="distributions/distribution/#/markers/coordinate_identifier(:)/Shape_of" value="//distributions/distribution[#]/markers/coordinate_identifier(:)/@dim" type="static"/>
+
   <mapping key="ece/channel/Shape_of" value="//ece/channel/@dim" type="static"/>
+
   <mapping key="edge_profiles/profiles_1d/Shape_of" value="//edge_profiles/profiles_1d/@dim" type="static"/>
   <mapping key="edge_profiles/profiles_1d/#/ion/Shape_of" value="//edge_profiles/profiles_1d[#]/ion/@dim" type="static"/>
   <mapping key="edge_profiles/profiles_1d/#/ion/element(:)/Shape_of" value="//edge_profiles/profiles_1d[#]/ion/element(:)/@dim" type="static"/>
@@ -199,6 +202,7 @@
   <mapping key="edge_profiles/ggd/#/j_pfirsch_schlueter/Shape_of" value="//edge_profiles/ggd[#]/j_pfirsch_schlueter/@dim" type="static"/>
   <mapping key="edge_profiles/ggd/#/j_diamagnetic/Shape_of" value="//edge_profiles/ggd[#]/j_diamagnetic/@dim" type="static"/>
   <mapping key="edge_profiles/ggd/#/e_field/Shape_of" value="//edge_profiles/ggd[#]/e_field/@dim" type="static"/>
+
   <mapping key="edge_sources/source/Shape_of" value="//edge_sources/source/@dim" type="static"/>
   <mapping key="edge_sources/source/#/ggd/Shape_of" value="//edge_sources/source[#]/ggd/@dim" type="static"/>
   <mapping key="edge_sources/source/ggd/grid/space/Shape_of" value="//edge_sources/source/ggd/grid/space/@dim" type="static"/>
@@ -232,6 +236,7 @@
   <mapping key="edge_sources/source/#/ggd/total_ion_energy(:)/Shape_of" value="//edge_sources/source[#]/ggd/total_ion_energy(:)/@dim" type="static"/>
   <mapping key="edge_sources/source/#/ggd/momentum(:)/Shape_of" value="//edge_sources/source[#]/ggd/momentum(:)/@dim" type="static"/>
   <mapping key="edge_sources/source/#/ggd/current(:)/Shape_of" value="//edge_sources/source[#]/ggd/current(:)/@dim" type="static"/>
+
   <mapping key="edge_transport/model/Shape_of" value="//edge_transport/model/@dim" type="static"/>
   <mapping key="edge_transport/model/#/ggd/Shape_of" value="//edge_transport/model[#]/ggd/@dim" type="static"/>
   <mapping key="edge_transport/model/ggd/grid/space/Shape_of" value="//edge_transport/model/ggd/grid/space/@dim" type="static"/>
@@ -313,6 +318,7 @@
   <mapping key="edge_transport/model/ggd/neutral/state/momentum/v/Shape_of" value="//edge_transport/model/ggd/neutral/state/momentum/v/@dim" type="static"/>
   <mapping key="edge_transport/model/ggd/neutral/state/momentum/flux/Shape_of" value="//edge_transport/model/ggd/neutral/state/momentum/flux/@dim" type="static"/>
   <mapping key="edge_transport/model/ggd/neutral/state/momentum/flux_limiter/Shape_of" value="//edge_transport/model/ggd/neutral/state/momentum/flux_limiter/@dim" type="static"/>
+
   <mapping key="equilibrium/time_slice/Shape_of" value="//equilibrium/time_slice/@dim" type="static"/>
   <mapping key="equilibrium/time_slice/boundary/x_point/Shape_of" value="//equilibrium/time_slice/boundary/x_point/@dim" type="static"/>
   <mapping key="equilibrium/time_slice/boundary/strike_point/Shape_of" value="//equilibrium/time_slice/boundary/strike_point/@dim" type="static"/>
@@ -335,23 +341,24 @@
   <mapping key="equilibrium/time_slice/ggd/b_r/Shape_of" value="//equilibrium/time_slice/ggd/b_r/@dim" type="static"/>
   <mapping key="equilibrium/time_slice/ggd/b_z/Shape_of" value="//equilibrium/time_slice/ggd/b_z/@dim" type="static"/>
   <mapping key="equilibrium/time_slice/ggd/b_tor/Shape_of" value="//equilibrium/time_slice/ggd/b_tor/@dim" type="static"/>
+
   <mapping key="interfero_polarimeter/channel/Shape_of" value="//interfero_polarimeter/channel/@dim" type="static"/>
   <mapping key="interfero_polarimeter/channel/#/wavelength_interferometry/Shape_of" value="//interfero_polarimeter/channel[#]/wavelength_interferometry/@dim" type="static"/>
   <mapping key="iron_core/segment/Shape_of" value="//iron_core/segment/@dim" type="static"/>
 
-  <mapping key="magnetics/flux_loop/Shape_of" value="//magdiag/flux_loops/setup_floops/position/r/@dim" type="static"/>
+  <mapping key="magnetics/flux_loop/Shape_of" value="//magdiag/flux_loops/setup_floops/position/r/@dim" type="static" index="1"/>
   <mapping key="magnetics/flux_loop/#/name" value="" type="constant"/>
-  <mapping key="magnetics/flux_loop/#/identifier" value="" type="constant"/>
-  <mapping key="magnetics/flux_loop/#/position/Shape_of" value="//magdiag/flux_loops/setup_floops/position/r/@dim" type="static"/>
+  <mapping key="magnetics/flux_loop/#/identifier" value="#" type="constant"/>
+  <mapping key="magnetics/flux_loop/#/position/Shape_of" value="//magdiag/flux_loops/setup_floops/position/r/@dim" type="static" index="2"/>
   <mapping key="magnetics/flux_loop/#/position/#/r" value="//magdiag/flux_loops/setup_floops/position/r" type="static"/>
   <mapping key="magnetics/flux_loop/#/position/#/z" value="//magdiag/flux_loops/setup_floops/position/z" type="static"/>
-  <mapping key="magnetics/flux_loop/#/position/#/phi" value="//magdiag/flux_loops/setup_floops/phi" type="static"/>
-  <mapping key="magnetics/flux_loop/#/flux" value="//magdiag/flux_loops/value/name" type="dynamic"/>
-  <mapping key="magnetics/flux_loop/#/flux/time" value="//magdiag/flux_loops/value/name" type="dynamic"/>
+  <mapping key="magnetics/flux_loop/#/position/#/phi" value="//magdiag/flux_loops/setup_floops/position/phi" type="static"/>
+  <mapping key="magnetics/flux_loop/#/flux" value="//magdiag/flux_loops/measure/value/name" type="dynamic"/>
+  <mapping key="magnetics/flux_loop/#/flux/time" value="//magdiag/flux_loops/measure/value/name" type="dynamic"/>
 
   <mapping key="magnetics/bpol_probe/Shape_of" value="//magdiag/bpol_probes/setup_bprobe/name/@dim" type="static"/>
   <mapping key="magnetics/bpol_probe/#/name" value="//magdiag/bpol_probes/setup_bprobe/name" type="static"/>
-  <mapping key="magnetics/bpol_probe/#/identifier" value="" type="constant"/>
+  <mapping key="magnetics/bpol_probe/#/identifier" value="#" type="constant"/>
   <mapping key="magnetics/bpol_probe/#/position/r" value="//magdiag/bpol_probes/setup_bprobe/position/r" type="static"/>
   <mapping key="magnetics/bpol_probe/#/position/z" value="//magdiag/bpol_probes/setup_bprobe/position/z" type="static"/>
   <mapping key="magnetics/bpol_probe/#/position/phi" value="0" type="constant"/>
@@ -371,31 +378,39 @@
   <mapping key="magnetics/method/#/diamagnetic_flux/time" value="//magdiag/method[#]/diamagnetic_flux/time/name" type="dynamic"/>
   <mapping key="magnetics/code/output_flag" value="//magdiag/code/output_flag/name" type="dynamic"/>
   <mapping key="magnetics/time" value="//magdiag/time/name" type="dynamic"/>
+
   <mapping key="mhd_linear/time_slice/Shape_of" value="//mhd_linear/time_slice/@dim" type="static"/>
   <mapping key="mhd_linear/time_slice/#/toroidal_mode/Shape_of" value="//mhd_linear/time_slice[#]/toroidal_mode/@dim" type="static"/>
+
   <mapping key="nbi/unit/Shape_of" value="//nbi/unit/@dim" type="static"/>
   <mapping key="nbi/unit/#/beamlets_group/Shape_of" value="//nbi/unit[#]/beamlets_group/@dim" type="static"/>
   <mapping key="nbi/unit/#/beamlets_group/divergence_component(:)/Shape_of" value="//nbi/unit[#]/beamlets_group/divergence_component(:)/@dim" type="static"/>
+
   <mapping key="ntms/time_slice/Shape_of" value="//ntms/time_slice/@dim" type="static"/>
   <mapping key="ntms/time_slice/#/mode/Shape_of" value="//ntms/time_slice[#]/mode/@dim" type="static"/>
   <mapping key="ntms/time_slice/#/mode/deltaw(:)/Shape_of" value="//ntms/time_slice[#]/mode/deltaw(:)/@dim" type="static"/>
   <mapping key="ntms/time_slice/#/mode/torque(:)/Shape_of" value="//ntms/time_slice[#]/mode/torque(:)/@dim" type="static"/>
   <mapping key="ntms/time_slice/mode/detailed_evolution/deltaw/Shape_of" value="//ntms/time_slice/mode/detailed_evolution/deltaw/@dim" type="static"/>
   <mapping key="ntms/time_slice/mode/detailed_evolution/torque/Shape_of" value="//ntms/time_slice/mode/detailed_evolution/torque/@dim" type="static"/>
+
   <mapping key="pellets/time_slice/Shape_of" value="//pellets/time_slice/@dim" type="static"/>
   <mapping key="pellets/time_slice/#/pellet/Shape_of" value="//pellets/time_slice[#]/pellet/@dim" type="static"/>
   <mapping key="pellets/time_slice/#/pellet/species(:)/Shape_of" value="//pellets/time_slice[#]/pellet/species(:)/@dim" type="static"/>
+
   <mapping key="pf_active/coil/Shape_of" value="//pf_active/coil/@dim" type="static"/>
   <mapping key="pf_active/coil/#/element/Shape_of" value="//pf_active/coil[#]/element/@dim" type="static"/>
   <mapping key="pf_active/vertical_force/Shape_of" value="//pf_active/vertical_force/@dim" type="static"/>
   <mapping key="pf_active/circuit/Shape_of" value="//pf_active/circuit/@dim" type="static"/>
   <mapping key="pf_active/supply/Shape_of" value="//pf_active/supply/@dim" type="static"/>
+
   <mapping key="pf_passive/loop/Shape_of" value="//pf_passive/loop/@dim" type="static"/>
+
   <mapping key="sawteeth/profiles_1d/Shape_of" value="//sawteeth/profiles_1d/@dim" type="static"/>
   <mapping key="schedule/waveform/Shape_of" value="//schedule/waveform/@dim" type="static"/>
   <mapping key="sdn/signal/Shape_of" value="//sdn/signal/@dim" type="static"/>
   <mapping key="sdn/topic_list/Shape_of" value="//sdn/topic_list/@dim" type="static"/>
   <mapping key="spectrometer_visible/channel/Shape_of" value="//spectrometer_visible/channel/@dim" type="static"/>
+
   <mapping key="temporary/constant_float0d/Shape_of" value="//temporary/constant_float0d/@dim" type="static"/>
   <mapping key="temporary/constant_integer0d/Shape_of" value="//temporary/constant_integer0d/@dim" type="static"/>
   <mapping key="temporary/constant_string0d/Shape_of" value="//temporary/constant_string0d/@dim" type="static"/>
@@ -418,7 +433,9 @@
   <mapping key="temporary/dynamic_float5d/Shape_of" value="//temporary/dynamic_float5d/@dim" type="static"/>
   <mapping key="temporary/constant_float6d/Shape_of" value="//temporary/constant_float6d/@dim" type="static"/>
   <mapping key="temporary/dynamic_float6d/Shape_of" value="//temporary/dynamic_float6d/@dim" type="static"/>
+
   <mapping key="thomson_scattering/channel/Shape_of" value="//thomson_scattering/channel/@dim" type="static"/>
+
   <mapping key="tf/coil/Shape_of" value="//tf/coil/@dim" type="static"/>
   <mapping key="tf/coil/#/conductor/Shape_of" value="//tf/coil[#]/conductor/@dim" type="static"/>
   <mapping key="tf/field_map/Shape_of" value="//tf/field_map/@dim" type="static"/>
@@ -436,6 +453,7 @@
   <mapping key="tf/field_map/#/a_r/Shape_of" value="//tf/field_map[#]/a_r/@dim" type="static"/>
   <mapping key="tf/field_map/#/a_z/Shape_of" value="//tf/field_map[#]/a_z/@dim" type="static"/>
   <mapping key="tf/field_map/#/a_tor/Shape_of" value="//tf/field_map[#]/a_tor/@dim" type="static"/>
+
   <mapping key="transport_solver_numerics/derivatives_1d/Shape_of" value="//transport_solver_numerics/derivatives_1d/@dim" type="static"/>
   <mapping key="transport_solver_numerics/derivatives_1d/#/ion/Shape_of" value="//transport_solver_numerics/derivatives_1d[#]/ion/@dim" type="static"/>
   <mapping key="transport_solver_numerics/derivatives_1d/#/ion/state(:)/Shape_of" value="//transport_solver_numerics/derivatives_1d[#]/ion/state(:)/@dim" type="static"/>
@@ -463,6 +481,7 @@
   <mapping key="transport_solver_numerics/convergence/equations/Shape_of" value="//transport_solver_numerics/convergence/equations/@dim" type="static"/>
   <mapping key="transport_solver_numerics/convergence/equations/#/ion/Shape_of" value="//transport_solver_numerics/convergence/equations[#]/ion/@dim" type="static"/>
   <mapping key="transport_solver_numerics/convergence/equations/#/ion/state(:)/Shape_of" value="//transport_solver_numerics/convergence/equations[#]/ion/state(:)/@dim" type="static"/>
+
   <mapping key="wall/global_quantities/neutral/Shape_of" value="//wall/global_quantities/neutral/@dim" type="static"/>
   <mapping key="wall/global_quantities/neutral/#/element/Shape_of" value="//wall/global_quantities/neutral[#]/element/@dim" type="static"/>
   <mapping key="wall/description_2d/Shape_of" value="//wall/description_2d/@dim" type="static"/>

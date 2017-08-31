@@ -35,7 +35,7 @@ int initPlugin(const IDAM_PLUGIN_INTERFACE* plugin_interface)
     return 0;
 }
 
-int setReturnDataDblScalar(DATA_BLOCK* data_block, double value, const char* description)
+int setReturnDataDoubleScalar(DATA_BLOCK* data_block, double value, const char* description)
 {
     initDataBlock(data_block);
 
@@ -56,7 +56,7 @@ int setReturnDataDblScalar(DATA_BLOCK* data_block, double value, const char* des
     return 0;
 }
 
-int setReturnDataFltScalar(DATA_BLOCK* data_block, float value, const char* description)
+int setReturnDataFloatScalar(DATA_BLOCK* data_block, float value, const char* description)
 {
     initDataBlock(data_block);
 
@@ -1727,7 +1727,7 @@ bool findFloatValue(const NAMEVALUELIST* namevaluelist, float* value, const char
     const char* str;
     bool found = findStringValue(namevaluelist, &str, name);
     if (found) {
-        *value = (float)atof(str);
+        *value = strtof(str, NULL);
     }
     return found;
 }
@@ -1740,9 +1740,14 @@ bool findIntArray(const NAMEVALUELIST* namevaluelist, int** values, size_t* nval
         char** tokens = SplitString(str, ";");
         size_t n;
         size_t num_tokens = 0;
-        for (n = 0; tokens[n] != NULL; ++n) ++num_tokens;
+        for (n = 0; tokens[n] != NULL; ++n) {
+            ++num_tokens;
+        }
         *values = calloc(num_tokens, sizeof(int));
-        for (n = 0; tokens[n] != NULL; ++n) (*values)[n] = atoi(tokens[n]);
+        for (n = 0; tokens[n] != NULL; ++n) {
+            (*values)[n] = (int)strtol(tokens[n], NULL, 10);
+        }
+        FreeSplitStringTokens(&tokens);
         *nvalues = num_tokens;
     }
     return found;
@@ -1756,9 +1761,14 @@ bool findFloatArray(const NAMEVALUELIST* namevaluelist, float** values, size_t* 
         char** tokens = SplitString(str, ";");
         size_t n;
         size_t num_tokens = 0;
-        for (n = 0; tokens[n] != NULL; ++n) ++num_tokens;
+        for (n = 0; tokens[n] != NULL; ++n) {
+            ++num_tokens;
+        }
         *values = calloc(num_tokens, sizeof(float));
-        for (n = 0; tokens[n] != NULL; ++n) (*values)[n] = (float)atof(tokens[n]);
+        for (n = 0; tokens[n] != NULL; ++n) {
+            (*values)[n] = strtof(tokens[n], NULL);
+        }
+        FreeSplitStringTokens(&tokens);
         *nvalues = num_tokens;
     }
     return found;
@@ -1772,9 +1782,14 @@ bool findDoubleArray(const NAMEVALUELIST* namevaluelist, double** values, size_t
         char** tokens = SplitString(str, ";");
         size_t n;
         size_t num_tokens = 0;
-        for (n = 0; tokens[n] != NULL; ++n) ++num_tokens;
+        for (n = 0; tokens[n] != NULL; ++n) {
+            ++num_tokens;
+        }
         *values = calloc(num_tokens, sizeof(double));
-        for (n = 0; tokens[n] != NULL; ++n) (*values)[n] = (double)atof(tokens[n]);
+        for (n = 0; tokens[n] != NULL; ++n) {
+            (*values)[n] = strtod(tokens[n], NULL);
+        }
+        FreeSplitStringTokens(&tokens);
         *nvalues = num_tokens;
     }
     return found;
