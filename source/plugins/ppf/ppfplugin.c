@@ -40,8 +40,6 @@
 
 FILE * g_dbgout;
 
-IDAMERRORSTACK * idamErrorStack;
-
 static short g_init = 0;
 
 int printf_(FILE * fp, const char * fmt, ...);
@@ -333,7 +331,6 @@ int plugin_entry(IDAM_PLUGIN_INTERFACE * idam_plugin_interface)
     REQUEST_BLOCK * request_block = NULL;
     unsigned short housekeeping = 0;
 
-    idamErrorStack = getIdamServerPluginErrorStack();
     initIdamErrorStack(&idamerrorstack);
 
     if (idam_plugin_interface->interfaceVersion >= 1) {
@@ -349,7 +346,6 @@ int plugin_entry(IDAM_PLUGIN_INTERFACE * idam_plugin_interface)
 
         addIdamError(&idamerrorstack, CODEERRORTYPE, PLUGIN_NAME, err,
                      "Plugin Interface Version is Not Known: Unable to execute the request!");
-        concatIdamError(idamerrorstack, idamErrorStack);
         return err;
     }
 
@@ -409,11 +405,7 @@ int plugin_entry(IDAM_PLUGIN_INTERFACE * idam_plugin_interface)
     //-------------------------------------------------------------------------
     // Housekeeping
     // Combine local errors with the Server's error stack
-    concatIdamError(idamerrorstack, idamErrorStack);
-
-
-    closeIdamError(&idamerrorstack);        // Free local plugin error stack
-
+    
     return err;
 }
 
@@ -1641,5 +1633,6 @@ int call_ppfsiz(IDAM_PLUGIN_INTERFACE * ipi)
 
     return err;
 }
+
 
 

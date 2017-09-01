@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <rpc/rpc.h>
 #include <assert.h>
+#include <errno.h>
 
 #include <clientserver/copyStructs.h>
 #include <clientserver/freeDataBlock.h>
@@ -63,6 +64,18 @@ typedef struct MetadataBlock {
     SYSTEM_CONFIG system_config;
     DATA_SYSTEM data_system;
 } METADATA_BLOCK;
+
+#ifdef FATCLIENT
+void setUserDefinedTypeList(USERDEFINEDTYPELIST* userdefinedtypelist_in)
+{
+    userdefinedtypelist = userdefinedtypelist_in;
+}
+
+void setLogMallocList(LOGMALLOCLIST* logmalloclist_in)
+{
+    logmalloclist = logmalloclist_in;
+}
+#endif
 
 static int startupFatServer(SERVER_BLOCK* server_block);
 

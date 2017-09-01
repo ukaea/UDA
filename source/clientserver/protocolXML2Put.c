@@ -705,43 +705,44 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTY
                 break;
             }
 
-#ifndef __APPLE__
+#ifdef __APPLE__
+#define xdr_uint64_t xdr_u_int64_t
+#endif
             case (TYPE_UNSIGNED_LONG64): {
                 IDAM_LOG(UDA_LOG_DEBUG, "Type: UNSIGNED LONG LONG\n");
 
                 if (userdefinedtype->compoundfield[j].pointer) {        // Pointer to Data array
-                    if (xdrs->x_op == XDR_DECODE) {                // Allocate Heap for Data
-                        rc = rc && xdr_int(xdrs,
-                                           &count);            // Count is known from the client's malloc log and passed by the sender
+                    if (xdrs->x_op == XDR_DECODE) {             // Allocate Heap for Data
+                        rc = rc && xdr_int(xdrs, &count);       // Count is known from the client's malloc log and passed by the sender
                         if (count > 0) {
-                            rc = rc && xdr_int(xdrs,
-                                               &rank);            // Receive Shape of pointer arrays (not included in definition)
+                            rc = rc && xdr_int(xdrs, &rank);    // Receive Shape of pointer arrays (not included in definition)
                             if (rank > 1) {
-                                shape = (int*) malloc(rank * sizeof(int));    // freed via the malloc log registration
-                                rc = rc && xdr_vector(xdrs, (char*) shape, rank, sizeof(int), (xdrproc_t) xdr_int);
-                            } else
+                                shape = (int*)malloc(rank * sizeof(int));    // freed via the malloc log registration
+                                rc = rc && xdr_vector(xdrs, (char*)shape, rank, sizeof(int), (xdrproc_t)xdr_int);
+                            } else {
                                 shape = NULL;
-                            d = (char*) malloc(count * sizeof(unsigned long long));
-                            addMalloc2((void*) d, count, sizeof(unsigned long long), "unsigned long long", rank, shape);
-                            *p = (VOIDTYPE) d;                    // Save pointer: data will be written here
-                        } else break;
+                            }
+                            d = (char*)malloc(count * sizeof(unsigned long long));
+                            addMalloc2(logmalloclist, (void*)d, count, sizeof(unsigned long long), "unsigned long long",
+                                       rank, shape);
+                            *p = (VOIDTYPE)d;                    // Save pointer: data will be written here
+                        } else { break; }
                     } else {
-                        d = (char*) *p;                    // data read from here
+                        d = (char*)*p;                    // data read from here
                         if (d == NULL) {
                             count = 0;
                             rc = rc && xdr_int(xdrs, &count);            // No data to send
                             break;
                         }
-                        findMalloc2((void*) p, &count, &size, &type, &rank,
-                                    &shape);    // Assume count of 0 means No Pointer data to send!
+                        findMalloc2(logmalloclist, (void*)p, &count, &size, &type, &rank, &shape);    // Assume count of 0 means No Pointer data to send!
 
                         if (type != NULL && STR_EQUALS(type, "unknown")) {
                             if (malloc_source == MALLOCSOURCESOAP && j > 0 &&
                                 STR_EQUALS(userdefinedtype->compoundfield[j - 1].name, "__size") &&
                                 STR_EQUALS(userdefinedtype->compoundfield[j].name,
-                                        &userdefinedtype->compoundfield[j - 1].name[6])) {
+                                           &userdefinedtype->compoundfield[j - 1].name[6])) {
 
-                                count = (int) *prev;            // the value of __size...
+                                count = (int)*prev;            // the value of __size...
                                 size = sizeof(unsigned long long);
                                 type = userdefinedtype->compoundfield[j].type;
 
@@ -769,25 +770,24 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTY
                         }
                         rc = rc && xdr_int(xdrs, &rank);            // Send Shape of arrays
                         if (rank > 1) {
-                            rc = rc && xdr_vector(xdrs, (char*) shape, rank, sizeof(int), (xdrproc_t) xdr_int);
+                            rc = rc && xdr_vector(xdrs, (char*)shape, rank, sizeof(int), (xdrproc_t)xdr_int);
                         }
                     }
-                    rc = rc && xdr_vector(xdrs, d, count, sizeof(unsigned long long), (xdrproc_t) xdr_uint64_t);
+                    rc = rc && xdr_vector(xdrs, d, count, sizeof(unsigned long long), (xdrproc_t)xdr_uint64_t);
                 } else {
                     if (userdefinedtype->compoundfield[j].rank == 0) {        // Element is a Scalar
 #ifdef A64
-                        rc = rc && xdr_uint64_t(xdrs, (uint64_t*) p);
+                        rc = rc && xdr_uint64_t(xdrs, (uint64_t*)p);
 #else
                         rc = rc && xdr_uint64_t(xdrs, (unsigned long long *)p);
 #endif
                     } else {                            // Element is an Array of fixed size
-                        rc = rc && xdr_vector(xdrs, (char*) p, userdefinedtype->compoundfield[j].count,
-                                              sizeof(unsigned long long), (xdrproc_t) xdr_uint64_t);
+                        rc = rc && xdr_vector(xdrs, (char*)p, userdefinedtype->compoundfield[j].count,
+                                              sizeof(unsigned long long), (xdrproc_t)xdr_uint64_t);
                     }
                 }
                 break;
             }
-#endif
 
             case (TYPE_CHAR): {
                 IDAM_LOG(UDA_LOG_DEBUG, "Type: CHAR\n");

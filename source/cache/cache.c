@@ -2,14 +2,25 @@
 
 #ifdef NOLIBMEMCACHED
 
-struct IdamCached {};
+struct IdamCached {
+};
 
-IDAM_CACHE * idamOpenCache() { return NULL; }
-void idamFreeCache() {}
-char * idamCacheKey(REQUEST_BLOCK * request_block, ENVIRONMENT environment) { return NULL; }
+IDAM_CACHE* idamOpenCache()
+{ return NULL; }
 
-int idamCacheWrite(IDAM_CACHE * cache, REQUEST_BLOCK * request_block, DATA_BLOCK * data_block, ENVIRONMENT environment) { return 0; }
-DATA_BLOCK * idamCacheRead(IDAM_CACHE * cache, REQUEST_BLOCK * request_block, ENVIRONMENT environment) { return NULL; }
+void idamFreeCache()
+{}
+
+char* idamCacheKey(REQUEST_BLOCK* request_block, ENVIRONMENT environment)
+{ return NULL; }
+
+int idamCacheWrite(IDAM_CACHE* cache, REQUEST_BLOCK* request_block, DATA_BLOCK* data_block,
+                   LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist, ENVIRONMENT environment)
+{ return 0; }
+
+DATA_BLOCK* idamCacheRead(IDAM_CACHE* cache, REQUEST_BLOCK* request_block, LOGMALLOCLIST* logmalloclist,
+                          USERDEFINEDTYPELIST* userdefinedtypelist, ENVIRONMENT environment)
+{ return NULL; }
 
 #else
 

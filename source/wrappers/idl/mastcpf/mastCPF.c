@@ -83,6 +83,10 @@ int IDL_Load(void) {
     return (IDL_TRUE);
 }
 
+// Open the Connection Once with the PostgreSQL Database
+
+PGconn* DBConnect = NULL;    // Keep Socket Open until IDL Closes down
+
 // Called when IDL is shutdown
 
 void mastCPF_exit_handler(void) {
@@ -94,10 +98,6 @@ void mastCPF_exit_handler(void) {
 
     //fprintf(stdout,"Closing the SQL database Connection\n");
 }
-
-// Open the Connection Once with the PostgreSQL Database
-
-PGconn* DBConnect = NULL;    // Keep Socket Open until IDL Closes down
 
 PGconn* StartDbSQL(char* dbName, int verbose) {
 

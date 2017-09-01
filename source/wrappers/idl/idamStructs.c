@@ -80,7 +80,8 @@ IDL_VPTR IDL_CDECL setidamdatatree(int argc, IDL_VPTR argv[], char* argk) {
 
     if (kw.debug) {
         fprintf(stdout, "Registered: %d\n", registered);
-        printNTree(0);
+        USERDEFINEDTYPELIST* userdefinedtypelist = getIdamUserDefinedTypeList(handle);
+        printNTree(NULL, userdefinedtypelist);
     }
 
     return (IDL_GettmpLong(registered));
@@ -176,10 +177,12 @@ IDL_VPTR IDL_CDECL findidamtreestructurecomponent(int argc, IDL_VPTR argv[], cha
     //---------------------------------------------------------------------------------------------
     // Call accessor
 
+    LOGMALLOCLIST* logmalloclist = getIdamLogMallocList(handle);
+
     if (!kw.children) {
-        ntreeFound = (IDL_MEMINT) findNTreeStructureComponent(ntree, target);
+        ntreeFound = (IDL_MEMINT) findNTreeStructureComponent(logmalloclist, ntree, target);
     } else {
-        ntreeFound = (IDL_MEMINT) findNTreeChildStructureComponent(ntree, target);
+        ntreeFound = (IDL_MEMINT) findNTreeChildStructureComponent(logmalloclist, ntree, target);
     }
 
     if (kw.debug) {
@@ -402,10 +405,12 @@ IDL_VPTR IDL_CDECL findidamtreestructure(int argc, IDL_VPTR argv[], char* argk) 
     //---------------------------------------------------------------------------------------------
     // Call accessor
 
+    LOGMALLOCLIST* logmalloclist = getIdamLogMallocList(handle);
+
     if (!kw.children) {
-        ntreeFound = (IDL_MEMINT) findNTreeStructure(ntree, target);
+        ntreeFound = (IDL_MEMINT) findNTreeStructure(logmalloclist, ntree, target);
     } else {
-        ntreeFound = (IDL_MEMINT) findNTreeChildStructure(ntree, target);
+        ntreeFound = (IDL_MEMINT) findNTreeChildStructure(logmalloclist, ntree, target);
     }
 
     if (kw.debug) {
@@ -608,8 +613,10 @@ IDL_VPTR IDL_CDECL getidamnodestructurenames(int argc, IDL_VPTR argv[], char* ar
     //---------------------------------------------------------------------------------------------
     // Call accessor
 
+    LOGMALLOCLIST* logmalloclist = getIdamLogMallocList(handle);
+
     count = getNodeStructureCount(ntree);
-    names = getNodeStructureNames(ntree);
+    names = getNodeStructureNames(logmalloclist, ntree);
 
     if (kw.debug) {
         USERDEFINEDTYPE* udt = ntree->userdefinedtype;
@@ -735,8 +742,10 @@ IDL_VPTR IDL_CDECL getidamnodestructuretypes(int argc, IDL_VPTR argv[], char* ar
     //---------------------------------------------------------------------------------------------
     // Call accessor
 
+    LOGMALLOCLIST* logmalloclist = getIdamLogMallocList(handle);
+
     count = getNodeStructureCount(ntree);
-    names = getNodeStructureTypes(ntree);
+    names = getNodeStructureTypes(logmalloclist, ntree);
 
     if (kw.debug) {
         USERDEFINEDTYPE* udt = ntree->userdefinedtype;
@@ -861,8 +870,10 @@ IDL_VPTR IDL_CDECL getidamnodestructurepointers(int argc, IDL_VPTR argv[], char*
     //---------------------------------------------------------------------------------------------
     // Call accessor
 
+    LOGMALLOCLIST* logmalloclist = getIdamLogMallocList(handle);
+
     count = getNodeStructureCount(ntree);
-    pointers = getNodeStructurePointers(ntree);
+    pointers = getNodeStructurePointers(logmalloclist, ntree);
 
     if (kw.debug) {
         USERDEFINEDTYPE* udt = ntree->userdefinedtype;
@@ -981,8 +992,10 @@ IDL_VPTR IDL_CDECL getidamnodestructurerank(int argc, IDL_VPTR argv[], char* arg
     //---------------------------------------------------------------------------------------------
     // Call accessor
 
+    LOGMALLOCLIST* logmalloclist = getIdamLogMallocList(handle);
+
     count = getNodeStructureCount(ntree);
-    ranks = getNodeStructureRank(ntree);
+    ranks = getNodeStructureRank(logmalloclist, ntree);
 
     if (kw.debug) {
         USERDEFINEDTYPE* udt = ntree->userdefinedtype;
@@ -1104,9 +1117,11 @@ IDL_VPTR IDL_CDECL getidamnodestructureshape(int argc, IDL_VPTR argv[], char* ar
     //---------------------------------------------------------------------------------------------
     // Call accessor
 
+    LOGMALLOCLIST* logmalloclist = getIdamLogMallocList(handle);
+
     count = getNodeStructureCount(ntree);
-    shapes = getNodeStructureShape(ntree);
-    ranks = getNodeStructureRank(ntree);
+    shapes = getNodeStructureShape(logmalloclist, ntree);
+    ranks = getNodeStructureRank(logmalloclist, ntree);
 
     if (kw.debug) {
         USERDEFINEDTYPE* udt = ntree->userdefinedtype;
@@ -1364,8 +1379,10 @@ IDL_VPTR IDL_CDECL getidamnodeatomicnames(int argc, IDL_VPTR argv[], char* argk)
     //---------------------------------------------------------------------------------------------
     // Call accessor
 
+    LOGMALLOCLIST* logmalloclist = getIdamLogMallocList(handle);
+
     count = getNodeAtomicCount(ntree);
-    names = getNodeAtomicNames(ntree);
+    names = getNodeAtomicNames(logmalloclist, ntree);
 
     if (kw.debug) {
         USERDEFINEDTYPE* udt = ntree->userdefinedtype;
@@ -1490,8 +1507,10 @@ IDL_VPTR IDL_CDECL getidamnodeatomictypes(int argc, IDL_VPTR argv[], char* argk)
     //---------------------------------------------------------------------------------------------
     // Call accessor
 
+    LOGMALLOCLIST* logmalloclist = getIdamLogMallocList(handle);
+
     count = getNodeAtomicCount(ntree);
-    names = getNodeAtomicTypes(ntree);
+    names = getNodeAtomicTypes(logmalloclist, ntree);
 
     if (kw.debug) {
         USERDEFINEDTYPE* udt = ntree->userdefinedtype;
@@ -1616,8 +1635,10 @@ IDL_VPTR IDL_CDECL getidamnodeatomicpointers(int argc, IDL_VPTR argv[], char* ar
     //---------------------------------------------------------------------------------------------
     // Call accessor
 
+    LOGMALLOCLIST* logmalloclist = getIdamLogMallocList(handle);
+
     count = getNodeAtomicCount(ntree);
-    pointers = getNodeAtomicPointers(ntree);
+    pointers = getNodeAtomicPointers(logmalloclist, ntree);
 
     if (kw.debug) {
         USERDEFINEDTYPE* udt = ntree->userdefinedtype;
@@ -1737,8 +1758,10 @@ IDL_VPTR IDL_CDECL getidamnodeatomicrank(int argc, IDL_VPTR argv[], char* argk) 
     //---------------------------------------------------------------------------------------------
     // Call accessor
 
+    LOGMALLOCLIST* logmalloclist = getIdamLogMallocList(handle);
+
     count = getNodeAtomicCount(ntree);
-    ranks = getNodeAtomicRank(ntree);
+    ranks = getNodeAtomicRank(logmalloclist, ntree);
 
     if (kw.debug) {
         USERDEFINEDTYPE* udt = ntree->userdefinedtype;
@@ -1861,9 +1884,11 @@ IDL_VPTR IDL_CDECL getidamnodeatomicshape(int argc, IDL_VPTR argv[], char* argk)
     //---------------------------------------------------------------------------------------------
     // Call accessor
 
+    LOGMALLOCLIST* logmalloclist = getIdamLogMallocList(handle);
+
     count = getNodeAtomicCount(ntree);
-    shapes = getNodeAtomicShape(ntree);
-    ranks = getNodeAtomicRank(ntree);
+    shapes = getNodeAtomicShape(logmalloclist, ntree);
+    ranks = getNodeAtomicRank(logmalloclist, ntree);
 
     if (kw.debug) {
         USERDEFINEDTYPE* udt = ntree->userdefinedtype;
@@ -2033,7 +2058,9 @@ IDL_VPTR IDL_CDECL getidamnodeatomicdatacount(int argc, IDL_VPTR argv[], char* a
     //---------------------------------------------------------------------------------------------
     // Count
 
-    count = getNodeStructureComponentDataCount(ntree, name);
+    LOGMALLOCLIST* logmalloclist = getIdamLogMallocList(handle);
+
+    count = getNodeStructureComponentDataCount(logmalloclist, ntree, name);
 
     if (kw.debug) {
         USERDEFINEDTYPE* udt = ntree->userdefinedtype;
@@ -2136,12 +2163,14 @@ IDL_VPTR IDL_CDECL getidamnodeatomicdata(int argc, IDL_VPTR argv[], char* argk) 
     //---------------------------------------------------------------------------------------------
     // Type, Pointer class, Count, Rank, Shape and Data
 
-    rank = getNodeStructureComponentDataRank(ntree, name);
-    count = getNodeStructureComponentDataCount(ntree, name);
-    shape = getNodeStructureComponentDataShape(ntree, name);
-    type = getNodeStructureComponentDataDataType(ntree, name);
-    pointer = getNodeStructureComponentDataIsPointer(ntree, name);
-    data = getNodeStructureComponentData(ntree, name);
+    LOGMALLOCLIST* logmalloclist = getIdamLogMallocList(handle);
+
+    rank = getNodeStructureComponentDataRank(logmalloclist, ntree, name);
+    count = getNodeStructureComponentDataCount(logmalloclist, ntree, name);
+    shape = getNodeStructureComponentDataShape(logmalloclist, ntree, name);
+    type = getNodeStructureComponentDataDataType(logmalloclist, ntree, name);
+    pointer = getNodeStructureComponentDataIsPointer(logmalloclist, ntree, name);
+    data = getNodeStructureComponentData(logmalloclist, ntree, name);
 
     if (rank <= 1) {
         idl_shape[0] = (IDL_MEMINT) count;
@@ -2828,7 +2857,9 @@ IDL_VPTR IDL_CDECL getidamnodestructuredatacount(int argc, IDL_VPTR argv[], char
     //---------------------------------------------------------------------------------------------
     // Call accessor
 
-    count = getNodeStructureDataCount(ntree);
+    LOGMALLOCLIST* logmalloclist = getIdamLogMallocList(handle);
+
+    count = getNodeStructureDataCount(logmalloclist, ntree);
 
     if (kw.debug) {
         USERDEFINEDTYPE* udt = ntree->userdefinedtype;
@@ -2917,7 +2948,9 @@ IDL_VPTR IDL_CDECL getidamnodestructuredatarank(int argc, IDL_VPTR argv[], char*
     //---------------------------------------------------------------------------------------------
     // Call accessor
 
-    rank = getNodeStructureDataRank(ntree);
+    LOGMALLOCLIST* logmalloclist = getIdamLogMallocList(handle);
+
+    rank = getNodeStructureDataRank(logmalloclist, ntree);
 
     if (kw.debug) {
         USERDEFINEDTYPE* udt = ntree->userdefinedtype;
@@ -3011,14 +3044,16 @@ IDL_VPTR IDL_CDECL getidamnodestructuredatashape(int argc, IDL_VPTR argv[], char
     //---------------------------------------------------------------------------------------------
     // Call accessor
 
-    count = getNodeStructureDataCount(ntree);
-    rank = getNodeStructureDataRank(ntree);
+    LOGMALLOCLIST* logmalloclist = getIdamLogMallocList(handle);
+
+    count = getNodeStructureDataCount(logmalloclist, ntree);
+    rank = getNodeStructureDataRank(logmalloclist, ntree);
     int* shape;
 
     if (rank <= 1) {
         idl_shape[0] = 1;
     } else {
-        if ((shape = getNodeStructureDataShape(ntree)) == NULL) {
+        if ((shape = getNodeStructureDataShape(logmalloclist, ntree)) == NULL) {
             fprintf(stdout, "ERROR: Structure Component has no Shape data when expected!\n");
             return (IDL_GettmpLong(0));
         }
@@ -3632,7 +3667,9 @@ IDL_VPTR IDL_CDECL printidamtreestructurenames(int argc, IDL_VPTR argv[], char* 
     //---------------------------------------------------------------------------------------------
     // Call accessor
 
-    printNTreeStructureNames(ntree);
+    LOGMALLOCLIST* logmalloclist = getIdamLogMallocList(handle);
+
+    printNTreeStructureNames(logmalloclist, ntree);
 
     //---------------------------------------------------------------------------------------------
     // Return
@@ -3720,7 +3757,9 @@ IDL_VPTR IDL_CDECL printidamtreestructurecomponentnames(int argc, IDL_VPTR argv[
     //---------------------------------------------------------------------------------------------
     // Call accessor
 
-    printNTreeStructureComponentNames(ntree);
+    LOGMALLOCLIST* logmalloclist = getIdamLogMallocList(handle);
+
+    printNTreeStructureComponentNames(logmalloclist, ntree);
 
     //---------------------------------------------------------------------------------------------
     // Return
@@ -3808,7 +3847,9 @@ IDL_VPTR IDL_CDECL printidamnodestructure(int argc, IDL_VPTR argv[], char* argk)
     //---------------------------------------------------------------------------------------------
     // Call accessor
 
-    printNodeStructure(ntree);
+    LOGMALLOCLIST* logmalloclist = getIdamLogMallocList(handle);
+
+    printNodeStructure(logmalloclist, ntree);
 
     //---------------------------------------------------------------------------------------------
     // Return
@@ -3896,7 +3937,10 @@ IDL_VPTR IDL_CDECL regulariseidamvlenstructures(int argc, IDL_VPTR argv[], char*
     //---------------------------------------------------------------------------------------------
     // Call accessor
 
-    int rc = idam_regulariseVlenData(ntree);
+    LOGMALLOCLIST* logmalloclist = getIdamLogMallocList(handle);
+    USERDEFINEDTYPELIST* userdefinedtypelist = getIdamUserDefinedTypeList(handle);
+
+    int rc = idam_regulariseVlenData(logmalloclist, ntree, userdefinedtypelist);
 
     return (IDL_GettmpLong(rc));
 }
@@ -4001,6 +4045,7 @@ IDL_VPTR IDL_CDECL getidamstructuredata(int argc, IDL_VPTR argv[], char* argk) {
     //void *getNodeStructureData(NTREE *ntree)
     return (IDL_GettmpLong(0));
 }
+
 
 
 
