@@ -363,11 +363,13 @@ static int do_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, EFIT* efit)
         } else if (isPFActive) {
             scalingFactor = (double)(efit->pfcoils[objectId].instance).factor;
         }
-        return setReturnDataDblScalar(idam_plugin_interface->data_block, scalingFactor, "efitmagxml: object data scaling factor returned");
+        return setReturnDataDoubleScalar(idam_plugin_interface->data_block, scalingFactor,
+                                         "efitmagxml: object data scaling factor returned");
     } else if (isTimeScaling) {
         double scalingFactor = 0;
         scalingFactor = (double)1.0;    // Not encoded in xml at this time
-        return setReturnDataDblScalar(idam_plugin_interface->data_block, scalingFactor, "efitmagxml: object time scaling factor returned");
+        return setReturnDataDoubleScalar(idam_plugin_interface->data_block, scalingFactor,
+                                         "efitmagxml: object time scaling factor returned");
     } else if (isTurns) {
         int turns = 0;
         if (isPFActive) {        // Not by Element in this XML!
@@ -420,7 +422,8 @@ static int do_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, EFIT* efit)
                 data = (double)phi;
             }
         }
-        return setReturnDataDblScalar(idam_plugin_interface->data_block, data, "efitmagxml: Position Coordinate returned");
+        return setReturnDataDoubleScalar(idam_plugin_interface->data_block, data,
+                                         "efitmagxml: Position Coordinate returned");
     } else if (isPFActive && isGeometry && isRectangle) {
         if (isElement) {
             double data = 0.0;
@@ -440,7 +443,8 @@ static int do_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, EFIT* efit)
             } else if (isHeight) {
                 data = (double)height[index];
             }
-            return setReturnDataDblScalar(idam_plugin_interface->data_block, data, "efitmagxml: Element Geometry/Coordinate returned");
+            return setReturnDataDoubleScalar(idam_plugin_interface->data_block, data,
+                                             "efitmagxml: Element Geometry/Coordinate returned");
         } else {
             // Return all element data
             int count = getnpfcoilcoords(efit, objectId);

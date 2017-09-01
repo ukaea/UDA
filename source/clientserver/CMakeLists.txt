@@ -39,6 +39,7 @@ set( SRC_FILES
   parseXML.c
   copyStructs.c
   udaTypes.c
+  utils.c
 )
 
 set( HEADER_FILES
