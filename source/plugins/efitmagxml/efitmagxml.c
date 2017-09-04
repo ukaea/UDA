@@ -591,7 +591,7 @@ static int do_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, EFIT* efit)
 	if(isPFPassive){
            if(efit->pfpassive) error = (double)(efit->pfpassive[objectId].aerr);
         }
-        return setReturnDataDblScalar(idam_plugin_interface->data_block, error, "efitmagxml: Absolute Error"); 
+        return setReturnDataDoubleScalar(idam_plugin_interface->data_block, error, "efitmagxml: Absolute Error"); 
     } else if (isRError) {
 	double error = 0;	    
 	if(isFluxLoop){
@@ -618,7 +618,7 @@ static int do_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, EFIT* efit)
 	if(isPFPassive){
            if(efit->pfpassive) error = (double)(efit->pfpassive[objectId].rerr);
         }
-        return setReturnDataDblScalar(idam_plugin_interface->data_block, error, "efitmagxml: Relative Error"); 
+        return setReturnDataDoubleScalar(idam_plugin_interface->data_block, error, "efitmagxml: Relative Error"); 
     } else if (isIdentifier) {
         char* id = NULL;
         if (isFluxLoop) {

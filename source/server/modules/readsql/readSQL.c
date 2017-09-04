@@ -910,7 +910,7 @@ int enable_malloc_log = 1;
 
 #else
 
-int readSQL(PGconn *DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_source, DATA_BLOCK *data_block) {
+int readSQL(PGconn *DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_source, DATA_BLOCK *data_block, USERDEFINEDTYPELIST* userdefinedtypelist) {
     int err = 999;
     addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF", err, "SQL PLUGIN NOT ENABLED");
     return err;

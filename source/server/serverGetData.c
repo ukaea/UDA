@@ -1296,7 +1296,7 @@ int idamserverReadData(PGconn* DBConnect, REQUEST_BLOCK request_block, CLIENT_BL
 
         // Execute the plugin to resolve the identity of the data requested
 
-              err = idamServerMetaDataPlugin(pluginlist, plugin_id, &request_block, signal_desc, data_source);
+              err = idamServerMetaDataPlugin(pluginlist, plugin_id, &request_block, signal_desc, data_source, logmalloclist);
 
               if(err != 0){
                  addIdamError(&idamerrorstack, CODEERRORTYPE, "idamserverReadData", err, "No Record Found for this Generic Signal");

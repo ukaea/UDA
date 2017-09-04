@@ -34,7 +34,8 @@
 
 int readMDS(DATA_SOURCE data_source,
             SIGNAL_DESC signal_desc,
-            DATA_BLOCK *data_block) {
+            DATA_BLOCK *data_block,
+	    SOCKETLIST* socket_list) {
     int err = 999;
     addIdamError(&idamerrorstack, CODEERRORTYPE, "readMDS", err, "MDSPLUS PLUGIN NOT ENABLED");
     return err;
