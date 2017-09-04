@@ -121,7 +121,7 @@ int listSignals(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
         PROVENANCESIGNAL* data = (PROVENANCESIGNAL*)malloc(nrows * sizeof(PROVENANCESIGNAL));
 
-        addMalloc((void*)data, nrows, sizeof(PROVENANCESIGNAL), "PROVENANCESIGNAL");
+        addMalloc(idam_plugin_interface->logmalloclist, (void*)data, nrows, sizeof(PROVENANCESIGNAL), "PROVENANCESIGNAL");
 
         PROVENANCESIGNALLIST* list = (PROVENANCESIGNALLIST*)malloc(1 * sizeof(PROVENANCESIGNALLIST));
 
@@ -131,8 +131,8 @@ int listSignals(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         strcpy(list->uuid, uuid);
         list->list = data;
 
-        addMalloc((void*)list, 1, sizeof(PROVENANCESIGNALLIST), "PROVENANCESIGNALLIST");
-        addMalloc((void*)list->uuid, 1, (strlen(uuid) + 1) * sizeof(char), "char");
+        addMalloc(idam_plugin_interface->logmalloclist, (void*)list, 1, sizeof(PROVENANCESIGNALLIST), "PROVENANCESIGNALLIST");
+        addMalloc(idam_plugin_interface->logmalloclist, (void*)list->uuid, 1, (strlen(uuid) + 1) * sizeof(char), "char");
 
 // Extract the SQL data
 
@@ -141,42 +141,42 @@ int listSignals(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             stringLength = strlen(PQgetvalue(DBQuery, i, 0)) + 1;
             data[i].uuid = (char*)malloc(stringLength * sizeof(char));
             strcpy(data[i].uuid, PQgetvalue(DBQuery, i, 0));
-            addMalloc((void*)data[i].uuid, 1, stringLength * sizeof(char), "char");
+            addMalloc(idam_plugin_interface->logmalloclist, (void*)data[i].uuid, 1, stringLength * sizeof(char), "char");
 
             stringLength = strlen(PQgetvalue(DBQuery, i, 1)) + 1;
             data[i].requestedSignal = (char*)malloc(stringLength * sizeof(char));
             strcpy(data[i].requestedSignal, PQgetvalue(DBQuery, i, 1));
-            addMalloc((void*)data[i].requestedSignal, 1, stringLength * sizeof(char), "char");
+            addMalloc(idam_plugin_interface->logmalloclist, (void*)data[i].requestedSignal, 1, stringLength * sizeof(char), "char");
 
             stringLength = strlen(PQgetvalue(DBQuery, i, 2)) + 1;
             data[i].requestedSource = (char*)malloc(stringLength * sizeof(char));
             strcpy(data[i].requestedSource, PQgetvalue(DBQuery, i, 2));
-            addMalloc((void*)data[i].requestedSource, 1, stringLength * sizeof(char), "char");
+            addMalloc(idam_plugin_interface->logmalloclist, (void*)data[i].requestedSource, 1, stringLength * sizeof(char), "char");
 
             stringLength = strlen(PQgetvalue(DBQuery, i, 3)) + 1;
             data[i].trueSignal = (char*)malloc(stringLength * sizeof(char));
             strcpy(data[i].trueSignal, PQgetvalue(DBQuery, i, 3));
-            addMalloc((void*)data[i].trueSignal, 1, stringLength * sizeof(char), "char");
+            addMalloc(idam_plugin_interface->logmalloclist, (void*)data[i].trueSignal, 1, stringLength * sizeof(char), "char");
 
             stringLength = strlen(PQgetvalue(DBQuery, i, 4)) + 1;
             data[i].trueSource = (char*)malloc(stringLength * sizeof(char));
             strcpy(data[i].trueSource, PQgetvalue(DBQuery, i, 4));
-            addMalloc((void*)data[i].trueSource, 1, stringLength * sizeof(char), "char");
+            addMalloc(idam_plugin_interface->logmalloclist, (void*)data[i].trueSource, 1, stringLength * sizeof(char), "char");
 
             stringLength = strlen(PQgetvalue(DBQuery, i, 5)) + 1;
             data[i].trueSourceUUID = (char*)malloc(stringLength * sizeof(char));
             strcpy(data[i].trueSourceUUID, PQgetvalue(DBQuery, i, 5));
-            addMalloc((void*)data[i].trueSourceUUID, 1, stringLength * sizeof(char), "char");
+            addMalloc(idam_plugin_interface->logmalloclist, (void*)data[i].trueSourceUUID, 1, stringLength * sizeof(char), "char");
 
             stringLength = strlen(PQgetvalue(DBQuery, i, 6)) + 1;
             data[i].logRecord = (char*)malloc(stringLength * sizeof(char));
             strcpy(data[i].logRecord, PQgetvalue(DBQuery, i, 6));
-            addMalloc((void*)data[i].logRecord, 1, stringLength * sizeof(char), "char");
+            addMalloc(idam_plugin_interface->logmalloclist, (void*)data[i].logRecord, 1, stringLength * sizeof(char), "char");
 
             stringLength = strlen(PQgetvalue(DBQuery, i, 7)) + 1;
             data[i].creation = (char*)malloc(stringLength * sizeof(char));
             strcpy(data[i].creation, PQgetvalue(DBQuery, i, 7));
-            addMalloc((void*)data[i].creation, 1, stringLength * sizeof(char), "char");
+            addMalloc(idam_plugin_interface->logmalloclist, (void*)data[i].creation, 1, stringLength * sizeof(char), "char");
 
             IDAM_LOGF(UDA_LOG_DEBUG, "uuid           : %s\n\n", data[i].uuid);
             IDAM_LOGF(UDA_LOG_DEBUG, "requestedSignal: %s\n", data[i].requestedSignal);
@@ -228,6 +228,7 @@ int listSignals(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         defineField(&field, "creation", "record creation date", &offset, SCALARSTRING);
         addCompoundField(&usertype, field);
 
+        USERDEFINEDTYPELIST* userdefinedtypelist = idam_plugin_interface->userdefinedtypelist;
         addUserDefinedType(userdefinedtypelist, usertype);
 
         initUserDefinedType(&usertype);            // New structure definition
@@ -285,7 +286,7 @@ int listSignals(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
         data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
         data_block->opaque_count = 1;
-        data_block->opaque_block = (void*)findUserDefinedType("PROVENANCESIGNALLIST", 0);
+        data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "PROVENANCESIGNALLIST", 0);
 
         IDAM_LOG(UDA_LOG_DEBUG, "Function list called\n");
 

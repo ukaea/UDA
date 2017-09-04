@@ -62,6 +62,7 @@ class Signal(Data):
         self._label = None
         self._units = None
         self._rank = None
+        self._errors = None
 
     def _import_data(self):
         data = self._cresult.data()
@@ -73,11 +74,27 @@ class Signal(Data):
                 shape = [d.data.size for d in self.dims]
                 self._data = self._data.reshape(*shape)
 
+    def _import_errors(self):
+        errors = self._cresult.errors()
+        if not errors.isNull():
+            if errors.size() == 0:
+                self._errors = cdata_scalar_to_value(errors)
+            else:
+                self._errors = cdata_to_numpy_array(errors)
+                shape = [d.data.size for d in self.dims]
+                self._errors = self._errors.reshape(*shape)
+
     @property
     def data(self):
         if self._data is None and self._cresult is not None:
             self._import_data()
         return self._data
+
+    @property
+    def errors(self):
+        if self._errors is None and self._cresult is not None and self._cresult.hasErrors():
+            self._import_errors()
+        return self._errors
 
     @property
     def label(self):
@@ -118,7 +135,7 @@ class Signal(Data):
             self._import_dim(i)
 
     def _import_dim(self, num):
-        self._dims.append(Dim(self._cresult.dim(num)))
+        self._dims.append(Dim(self._cresult.dim(num, self._cresult.DATA)))
 
     def plot(self):
         import matplotlib.pyplot as plt

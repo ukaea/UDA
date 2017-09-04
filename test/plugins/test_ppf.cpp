@@ -14,7 +14,7 @@ TEST_CASE( "Test PPF2::help() function", "[PPF2][plugins]" ) {
     const uda::Result& result = client.get("PPF2::help()", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.error() == "" );
+    REQUIRE( result.errorMessage() == "" );
 
     uda::Data* data = result.data();
 

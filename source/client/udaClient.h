@@ -4,6 +4,7 @@
 #include <rpc/rpc.h>
 
 #include <clientserver/udaStructs.h>
+#include <structures/genStructs.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -40,8 +41,6 @@ extern time_t tv_server_start;  // Server Startup Time
 extern time_t tv_server_end;    // Current Time & Server Age
 
 extern int user_timeout;        // user specified Server Lifetime
-
-extern int malloc_source;
 
 // Control Flags
 
@@ -104,6 +103,10 @@ int getIdamServerErrorStackRecordCode(int record);
 char* getIdamServerErrorStackRecordLocation(int record);
 
 char* getIdamServerErrorStackRecordMsg(int record);
+
+void setUserDefinedTypeList(USERDEFINEDTYPELIST* userdefinedtypelist);
+
+void setLogMallocList(LOGMALLOCLIST* logmalloclist_in);
 
 #ifdef __cplusplus
 }

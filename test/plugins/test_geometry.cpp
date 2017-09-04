@@ -14,7 +14,7 @@ TEST_CASE( "Test GEOM::help() function", "[GEOM][plugins]" ) {
     const uda::Result& result = client.get("GEOM::help()", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.error() == "" );
+    REQUIRE( result.errorMessage() == "" );
 
     uda::Data* data = result.data();
 

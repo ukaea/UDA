@@ -25,7 +25,7 @@
 
 int idamXpadTree(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
-  //  idamSetLogLevel(UDA_LOG_DEBUG);
+    //  idamSetLogLevel(UDA_LOG_DEBUG);
 
     REQUEST_BLOCK* request_block = idam_plugin_interface->request_block;
     DATA_BLOCK* data_block = idam_plugin_interface->data_block;
@@ -41,13 +41,13 @@ int idamXpadTree(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             initDataBlock(data_block);
 
             data_block->rank = 1;
-            data_block->dims = (DIMS*) malloc(data_block->rank * sizeof(DIMS));
+            data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
             initDimBlock(&data_block->dims[0]);
 
             data_block->data_type = TYPE_STRING;
             strcpy(data_block->data_desc, "help = description of this plugin");
 
-            data_block->data = (char*) malloc(sizeof(char) * (strlen(help) + 1));
+            data_block->data = (char*)malloc(sizeof(char) * (strlen(help) + 1));
             strcpy(data_block->data, help);
 
             data_block->dims[0].data_type = TYPE_UNSIGNED_INT;
@@ -111,7 +111,7 @@ int idamXpadTree(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             char query[MAXSQL];
 
             if (foundType == 1) {
-                char* signaltype_for_query = (char*) malloc((2 * strlen(signalType) + 1) * sizeof(char));
+                char* signaltype_for_query = (char*)malloc((2 * strlen(signalType) + 1) * sizeof(char));
                 PQescapeStringConn(DBConnect, signaltype_for_query, signalType, strlen(signalType), &err);
                 sprintf(query,
                         "SELECT signal_desc_id, signal_alias, description, category FROM signal_desc WHERE type='%s';",
@@ -175,17 +175,17 @@ int idamXpadTree(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             typedef struct DATASTRUCT DATASTRUCT;
 
             DATASTRUCT* data;
-            data = (DATASTRUCT*) malloc(sizeof(DATASTRUCT));
-            addMalloc((void*) data, 1, sizeof(DATASTRUCT), "DATASTRUCT");
+            data = (DATASTRUCT*)malloc(sizeof(DATASTRUCT));
+            addMalloc(idam_plugin_interface->logmalloclist, (void*)data, 1, sizeof(DATASTRUCT), "DATASTRUCT");
 
-            data->signal_alias = (char**) malloc((nRows) * sizeof(char*));
-            addMalloc((void*) data->signal_alias, nRows, sizeof(char*), "STRING *");
-            data->signal_description = (char**) malloc((nRows) * sizeof(char*));
-            addMalloc((void*) data->signal_description, nRows, sizeof(char*), "STRING *");
-            data->signal_category = (char**) malloc((nRows) * sizeof(char*));
-            addMalloc((void*) data->signal_category, nRows, sizeof(char*), "STRING *");
-            data->signal_id = (int*) malloc((nRows) * sizeof(int));
-            addMalloc((void*) data->signal_id, nRows, sizeof(int), "int");
+            data->signal_alias = (char**)malloc((nRows) * sizeof(char*));
+            addMalloc(idam_plugin_interface->logmalloclist, (void*)data->signal_alias, nRows, sizeof(char*), "STRING *");
+            data->signal_description = (char**)malloc((nRows) * sizeof(char*));
+            addMalloc(idam_plugin_interface->logmalloclist, (void*)data->signal_description, nRows, sizeof(char*), "STRING *");
+            data->signal_category = (char**)malloc((nRows) * sizeof(char*));
+            addMalloc(idam_plugin_interface->logmalloclist, (void*)data->signal_category, nRows, sizeof(char*), "STRING *");
+            data->signal_id = (int*)malloc((nRows) * sizeof(int));
+            addMalloc(idam_plugin_interface->logmalloclist, (void*)data->signal_id, nRows, sizeof(int), "int");
 
             //Get data from result
             int s_name_fnum = PQfnumber(DBQuery, "signal_alias");
@@ -200,35 +200,35 @@ int idamXpadTree(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 // Retrieve signal alias
                 if (!PQgetisnull(DBQuery, i, s_name_fnum)) {
                     stringLength = (int)strlen(PQgetvalue(DBQuery, i, s_name_fnum)) + 1;
-                    data->signal_alias[i] = (char*) malloc(stringLength * sizeof(char));
+                    data->signal_alias[i] = (char*)malloc(stringLength * sizeof(char));
                     strcpy(data->signal_alias[i], PQgetvalue(DBQuery, i, s_name_fnum));
-                    addMalloc((void*) data->signal_alias[i], stringLength, sizeof(char), "char");
+                    addMalloc(idam_plugin_interface->logmalloclist, (void*)data->signal_alias[i], stringLength, sizeof(char), "char");
                 } else {
-                    data->signal_alias[i] = (char*) malloc(8 * sizeof(char));
+                    data->signal_alias[i] = (char*)malloc(8 * sizeof(char));
                     strcpy(data->signal_alias[i], "unknown");
-                    addMalloc((void*) data->signal_alias[i], 8, sizeof(char), "char");
+                    addMalloc(idam_plugin_interface->logmalloclist, (void*)data->signal_alias[i], 8, sizeof(char), "char");
                 }
                 // Retrieve description, if NULL then set to an empty string
                 if (!PQgetisnull(DBQuery, i, s_desc_fnum)) {
                     stringLength = (int)strlen(PQgetvalue(DBQuery, i, s_desc_fnum)) + 1;
-                    data->signal_description[i] = (char*) malloc(stringLength * sizeof(char));
+                    data->signal_description[i] = (char*)malloc(stringLength * sizeof(char));
                     strcpy(data->signal_description[i], PQgetvalue(DBQuery, i, s_desc_fnum));
-                    addMalloc((void*) data->signal_description[i], stringLength, sizeof(char), "char");
+                    addMalloc(idam_plugin_interface->logmalloclist, (void*)data->signal_description[i], stringLength, sizeof(char), "char");
                 } else {
-                    data->signal_description[i] = (char*) malloc(sizeof(char));
+                    data->signal_description[i] = (char*)malloc(sizeof(char));
                     strcpy(data->signal_description[i], "");
-                    addMalloc((void*) data->signal_description[i], 1, sizeof(char), "char");
+                    addMalloc(idam_plugin_interface->logmalloclist, (void*)data->signal_description[i], 1, sizeof(char), "char");
                 }
                 // Retrieve category (S or P, for secondary or primary), if NULL then set to S
                 if (!PQgetisnull(DBQuery, i, s_cat_fnum)) {
                     stringLength = (int)strlen(PQgetvalue(DBQuery, i, s_cat_fnum)) + 1;
-                    data->signal_category[i] = (char*) malloc(stringLength * sizeof(char));
+                    data->signal_category[i] = (char*)malloc(stringLength * sizeof(char));
                     strcpy(data->signal_category[i], PQgetvalue(DBQuery, i, s_cat_fnum));
-                    addMalloc((void*) data->signal_category[i], stringLength, sizeof(char), "char");
+                    addMalloc(idam_plugin_interface->logmalloclist, (void*)data->signal_category[i], stringLength, sizeof(char), "char");
                 } else {
-                    data->signal_category[i] = (char*) malloc(2 * sizeof(char));
+                    data->signal_category[i] = (char*)malloc(2 * sizeof(char));
                     strcpy(data->signal_category[i], "S");
-                    addMalloc((void*) data->signal_category[i], 2, sizeof(char), "char");
+                    addMalloc(idam_plugin_interface->logmalloclist, (void*)data->signal_category[i], 2, sizeof(char), "char");
                 }
                 // Retrieve signal id
                 if (!PQgetisnull(DBQuery, i, s_id_fnum)) {
@@ -282,6 +282,7 @@ int idamXpadTree(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             defineField(&field, "signal_id", "signal_id", &offset, ARRAYINT);
             addCompoundField(&parentTree, field);
 
+            USERDEFINEDTYPELIST* userdefinedtypelist = idam_plugin_interface->userdefinedtypelist;
             addUserDefinedType(userdefinedtypelist, parentTree);
 
             // Put data struct into data block for return
@@ -290,7 +291,7 @@ int idamXpadTree(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             data_block->data_type = TYPE_COMPOUND;
             data_block->rank = 0;            // Scalar structure (don't need a DIM array)
             data_block->data_n = 1;
-            data_block->data = (char*) data;
+            data_block->data = (char*)data;
 
             strcpy(data_block->data_desc, "signals");
             strcpy(data_block->data_label, "signals");
@@ -298,7 +299,7 @@ int idamXpadTree(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
             data_block->opaque_count = 1;
-            data_block->opaque_block = (void*) findUserDefinedType("DATASTRUCT", 0);
+            data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "DATASTRUCT", 0);
 
             IDAM_LOG(UDA_LOG_DEBUG, "everything done\n");
 
@@ -349,7 +350,7 @@ int idamXpadTree(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             }
 
             // Get signal-tag mapping
-            char* treename_for_query = (char*) malloc((2 * strlen(treename) + 1) * sizeof(char));
+            char* treename_for_query = (char*)malloc((2 * strlen(treename) + 1) * sizeof(char));
             PQescapeStringConn(DBConnect, treename_for_query, treename, strlen(treename), &err);
 
             char query[MAXSQL];
@@ -410,13 +411,13 @@ int idamXpadTree(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             typedef struct DATASTRUCT DATASTRUCT;
 
             DATASTRUCT* data;
-            data = (DATASTRUCT*) malloc(sizeof(DATASTRUCT));
-            addMalloc((void*) data, 1, sizeof(DATASTRUCT), "DATASTRUCT");
+            data = (DATASTRUCT*)malloc(sizeof(DATASTRUCT));
+            addMalloc(idam_plugin_interface->logmalloclist, (void*)data, 1, sizeof(DATASTRUCT), "DATASTRUCT");
 
-            data->tag_id = (int*) malloc((nRows) * sizeof(int));
-            addMalloc((void*) data->tag_id, nRows, sizeof(int), "int");
-            data->signal_id = (int*) malloc((nRows) * sizeof(int));
-            addMalloc((void*) data->signal_id, nRows, sizeof(int), "int");
+            data->tag_id = (int*)malloc((nRows) * sizeof(int));
+            addMalloc(idam_plugin_interface->logmalloclist, (void*)data->tag_id, nRows, sizeof(int), "int");
+            data->signal_id = (int*)malloc((nRows) * sizeof(int));
+            addMalloc(idam_plugin_interface->logmalloclist, (void*)data->signal_id, nRows, sizeof(int), "int");
 
             // Get data from result
             int s_tag_id_fnum = PQfnumber(DBQuery, "tag_id");
@@ -471,6 +472,7 @@ int idamXpadTree(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             defineField(&field, "signal_id", "signal_id", &offset, ARRAYINT);
             addCompoundField(&parentTree, field);
 
+            USERDEFINEDTYPELIST* userdefinedtypelist = idam_plugin_interface->userdefinedtypelist;
             addUserDefinedType(userdefinedtypelist, parentTree);
 
             // Put data struct into data block for return
@@ -479,7 +481,7 @@ int idamXpadTree(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             data_block->data_type = TYPE_COMPOUND;
             data_block->rank = 0;            // Scalar structure (don't need a DIM array)
             data_block->data_n = 1;
-            data_block->data = (char*) data;
+            data_block->data = (char*)data;
 
             strcpy(data_block->data_desc, "signaltag_map");
             strcpy(data_block->data_label, "signaltag_map");
@@ -487,7 +489,7 @@ int idamXpadTree(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
             data_block->opaque_count = 1;
-            data_block->opaque_block = (void*) findUserDefinedType("DATASTRUCT", 0);
+            data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "DATASTRUCT", 0);
 
             IDAM_LOG(UDA_LOG_DEBUG, "everything done\n");
 
@@ -587,7 +589,7 @@ int idamXpadTree(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             PQclear(DBQuery);
 
             // Main query to get tags
-            char* treename_for_query = (char*) malloc((2 * strlen(treename) + 1) * sizeof(char));
+            char* treename_for_query = (char*)malloc((2 * strlen(treename) + 1) * sizeof(char));
             PQescapeStringConn(DBConnect, treename_for_query, treename, strlen(treename), &err);
 
             char query[MAXSQL];
@@ -648,15 +650,15 @@ int idamXpadTree(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             typedef struct DATASTRUCT DATASTRUCT;
 
             DATASTRUCT* data;
-            data = (DATASTRUCT*) malloc(sizeof(DATASTRUCT));
-            addMalloc((void*) data, 1, sizeof(DATASTRUCT), "DATASTRUCT");
+            data = (DATASTRUCT*)malloc(sizeof(DATASTRUCT));
+            addMalloc(idam_plugin_interface->logmalloclist, (void*)data, 1, sizeof(DATASTRUCT), "DATASTRUCT");
 
-            data->tag_name = (char**) malloc((nRows) * sizeof(char*));
-            addMalloc((void*) data->tag_name, nRows, sizeof(char*), "STRING *");
-            data->tag_id = (int*) malloc((nRows) * sizeof(int));
-            addMalloc((void*) data->tag_id, nRows, sizeof(int), "int");
-            data->parent_tag_id = (int*) malloc((nRows) * sizeof(int));
-            addMalloc((void*) data->parent_tag_id, nRows, sizeof(int), "int");
+            data->tag_name = (char**)malloc((nRows) * sizeof(char*));
+            addMalloc(idam_plugin_interface->logmalloclist, (void*)data->tag_name, nRows, sizeof(char*), "STRING *");
+            data->tag_id = (int*)malloc((nRows) * sizeof(int));
+            addMalloc(idam_plugin_interface->logmalloclist, (void*)data->tag_id, nRows, sizeof(int), "int");
+            data->parent_tag_id = (int*)malloc((nRows) * sizeof(int));
+            addMalloc(idam_plugin_interface->logmalloclist, (void*)data->parent_tag_id, nRows, sizeof(int), "int");
 
             data->tag_id_max = max_tag_id;
 
@@ -670,9 +672,9 @@ int idamXpadTree(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             for (i = 0; i < nRows; i++) {
                 if (!PQgetisnull(DBQuery, i, s_name_fnum)) {
                     stringLength = (int)strlen(PQgetvalue(DBQuery, i, s_name_fnum)) + 1;
-                    data->tag_name[i] = (char*) malloc(stringLength * sizeof(char));
+                    data->tag_name[i] = (char*)malloc(stringLength * sizeof(char));
                     strcpy(data->tag_name[i], PQgetvalue(DBQuery, i, s_name_fnum));
-                    addMalloc((void*) data->tag_name[i], stringLength, sizeof(char), "char");
+                    addMalloc(idam_plugin_interface->logmalloclist, (void*)data->tag_name[i], stringLength, sizeof(char), "char");
                     IDAM_LOGF(UDA_LOG_DEBUG, "%d tag %s\n", i, data->tag_name[i]);
                 }
                 if (!PQgetisnull(DBQuery, i, s_id_fnum)) {
@@ -729,6 +731,7 @@ int idamXpadTree(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             defineField(&field, "tag_id_max", "tag_id_max", &offset, SCALARINT);
             addCompoundField(&parentTree, field);
 
+            USERDEFINEDTYPELIST* userdefinedtypelist = idam_plugin_interface->userdefinedtypelist;
             addUserDefinedType(userdefinedtypelist, parentTree);
 
             // Put data struct into data block for return
@@ -737,7 +740,7 @@ int idamXpadTree(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             data_block->data_type = TYPE_COMPOUND;
             data_block->rank = 0;            // Scalar structure (don't need a DIM array)
             data_block->data_n = 1;
-            data_block->data = (char*) data;
+            data_block->data = (char*)data;
 
             strcpy(data_block->data_desc, "tags");
             strcpy(data_block->data_label, "tags");
@@ -745,7 +748,7 @@ int idamXpadTree(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
             data_block->opaque_count = 1;
-            data_block->opaque_block = (void*) findUserDefinedType("DATASTRUCT", 0);
+            data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "DATASTRUCT", 0);
 
             IDAM_LOG(UDA_LOG_DEBUG, "everything done\n");
 

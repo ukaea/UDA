@@ -42,7 +42,7 @@
 //
 
 
-int idamserverSubsetData(DATA_BLOCK* data_block, ACTION action)
+int idamserverSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* logmalloclist)
 {
 
     DIMS* dim;
@@ -59,8 +59,8 @@ int idamserverSubsetData(DATA_BLOCK* data_block, ACTION action)
     printAction(action);
     printDataBlock(*data_block);
 
-//-----------------------------------------------------------------------------------------------------------------------
-// How many sets of subsetting operations?
+    //-----------------------------------------------------------------------------------------------------------------------
+    // How many sets of subsetting operations?
 
     if (action.actionType == COMPOSITETYPE) {            // XML Based subsetting
         if (action.composite.nsubsets == 0) return 0;        // Nothing to Subset
@@ -78,8 +78,8 @@ int idamserverSubsetData(DATA_BLOCK* data_block, ACTION action)
         }
     }
 
-//-----------------------------------------------------------------------------------------------------------------------
-// Check Rank
+    //-----------------------------------------------------------------------------------------------------------------------
+    // Check Rank
 
     if (data_block->rank > 2 &&
         !(action.actionType == SUBSETTYPE && !strncasecmp(action.subset.function, "rotateRZ", 8))) {
@@ -89,8 +89,8 @@ int idamserverSubsetData(DATA_BLOCK* data_block, ACTION action)
         return ierr;
     }
 
-//-----------------------------------------------------------------------------------------------------------------------
-// Process all sets of subsetting operations
+    //-----------------------------------------------------------------------------------------------------------------------
+    // Process all sets of subsetting operations
 
     for (i = 0; i < nsubsets; i++) {                        // the number of sets of Subset Operations
 
@@ -127,15 +127,14 @@ int idamserverSubsetData(DATA_BLOCK* data_block, ACTION action)
                 return ierr;
             }
 
-
-//----------------------------------------------------------------------------------------------------------------------------
-// Operations on Simple Data Structures: target must be an Atomic Type, Scalar, Name is Case Sensitive
-//
-// (mapType=1) Array of Structures - member = single scalar value: rank and shape = rank and shape of structure array
-// (mapType=2) Single Structure - member = array of values: rank and shape = increase rank and shape of structure member by 1
-// Array of Structures - member = array of values: Not allowed.
-//
-// (mapType=3) structure[14].array[100] -> newarray[14][100]:
+            //----------------------------------------------------------------------------------------------------------------------------
+            // Operations on Simple Data Structures: target must be an Atomic Type, Scalar, Name is Case Sensitive
+            //
+            // (mapType=1) Array of Structures - member = single scalar value: rank and shape = rank and shape of structure array
+            // (mapType=2) Single Structure - member = array of values: rank and shape = increase rank and shape of structure member by 1
+            // Array of Structures - member = array of values: Not allowed.
+            //
+            // (mapType=3) structure[14].array[100] -> newarray[14][100]:
 
             if (data_block->opaque_type == OPAQUE_TYPE_STRUCTURES && subset.member[0] != '\0' &&
                 data_block->opaque_block != NULL) {
@@ -146,7 +145,7 @@ int idamserverSubsetData(DATA_BLOCK* data_block, ACTION action)
                 char* extract;
                 USERDEFINEDTYPE* udt = (USERDEFINEDTYPE*) data_block->opaque_block;
 
-// Extract an atomic type data element from the data structure
+                // Extract an atomic type data element from the data structure
 
                 for (i = 0; i < udt->fieldcount; i++) {
                     if (STR_EQUALS(udt->compoundfield[i].name, subset.member)) {        // Locate target member by name
@@ -167,7 +166,6 @@ int idamserverSubsetData(DATA_BLOCK* data_block, ACTION action)
                                 }
                             }
 
-
                             switch (udt->compoundfield[i].atomictype) {
                                 case (TYPE_DOUBLE): {
                                     double* data = NULL, * dp;
@@ -184,8 +182,8 @@ int idamserverSubsetData(DATA_BLOCK* data_block, ACTION action)
                                             dp = (double*) &data_block->data[udt->compoundfield[i].offset];
                                             for (j = 0; j < data_n; j++) data[j] = dp[j];
 
-// Increase rank and shape by 1: Preserve the original dimensional data
-// Replace with index using rank and shape from the member
+                                            // Increase rank and shape by 1: Preserve the original dimensional data
+                                            // Replace with index using rank and shape from the member
 
                                             if ((shape = udt->compoundfield[i].shape) == NULL &&
                                                 udt->compoundfield[i].rank > 1) {
@@ -213,8 +211,6 @@ int idamserverSubsetData(DATA_BLOCK* data_block, ACTION action)
                                     extract = (char*) data;
                                     break;
                                 }
-
-                                    //default:
                             }
 
                         } else {        // Locate the pointer data's properties:
@@ -227,7 +223,7 @@ int idamserverSubsetData(DATA_BLOCK* data_block, ACTION action)
                                 for (j = 0; j <
                                             data_n; j++) {    // Properties Must be identical for all structure array elements
                                     extract = *(char**) &data_block->data[j * udt->size + udt->compoundfield[i].offset];
-                                    findMalloc2((void*) extract, &count, &size, &typename, &rank, &shape);
+                                    findMalloc2(logmalloclist, (void*) extract, &count, &size, &typename, &rank, &shape);
                                     if (j > 0) {
                                         if (count != count_p || size != size_p || rank != rank_p ||
                                             strcmp(typename, typename_p) != 0) {
@@ -258,7 +254,7 @@ int idamserverSubsetData(DATA_BLOCK* data_block, ACTION action)
 
                             } else {
                                 extract = *(char**) &data_block->data[udt->compoundfield[i].offset];
-                                findMalloc2((void*) extract, &count, &size, &typename, &rank, &shape);
+                                findMalloc2(logmalloclist, (void*) extract, &count, &size, &typename, &rank, &shape);
                             }
 
                             if (count == 1 && data_n >= 1) {
@@ -304,9 +300,9 @@ int idamserverSubsetData(DATA_BLOCK* data_block, ACTION action)
                             }
                         }
 
-// mapType == 2
-// Increase rank by 1: Preserve the original dimensional data
-// Replace with index coordinate using rank and shape from the member
+                        // mapType == 2
+                        // Increase rank by 1: Preserve the original dimensional data
+                        // Replace with index coordinate using rank and shape from the member
 
                         if (mapType == 2) {
                             if (!udt->compoundfield[i].pointer) {
@@ -364,21 +360,13 @@ int idamserverSubsetData(DATA_BLOCK* data_block, ACTION action)
                             }
                         }
 
-// Free Heap associated with the UDT
-
-                        if (userdefinedtypelist != NULL) {
-                            freeUserDefinedTypeList(userdefinedtypelist);
-                            free((void*) userdefinedtypelist);
-                            userdefinedtypelist = NULL;
-                        }
-
                         if (logmalloclist != NULL) {
                             freeMallocLogList(logmalloclist);
                             free((void*) logmalloclist);
                             logmalloclist = NULL;
                         }
 
-// Update the Data Block structure
+                        // Update the Data Block structure
 
                         data_block->data = extract;
                         data_block->data_n = data_n;
@@ -392,18 +380,19 @@ int idamserverSubsetData(DATA_BLOCK* data_block, ACTION action)
                 }
             }
 
-//----------------------------------------------------------------------------------------------------------------------------
-// Subset this Dimension ?
+            //----------------------------------------------------------------------------------------------------------------------------
+            // Subset this Dimension ?
 
             if (STR_EQUALS(operation, "*"))
                 continue;                // This means No subset - Part of an array Reshape Operation
 
             if (operation[0] == ':' && subset.lbindex[j] == 0 &&
-                (subset.ubindex[j] == -1 || subset.ubindex[j] == data_block->dims[dimid].dim_n - 1))
+                (subset.ubindex[j] == -1 || subset.ubindex[j] == data_block->dims[dimid].dim_n - 1)) {
                 continue;    // subset spans the complete dimension
+            }
 
-//----------------------------------------------------------------------------------------------------------------------------
-// Decompress the dimensional data if necessary & free Heap Associated with Compression
+            //----------------------------------------------------------------------------------------------------------------------------
+            // Decompress the dimensional data if necessary & free Heap Associated with Compression
 
             initDimBlock(&newdim);                    // Holder for the Subsetted Dimension (part copy of the original)
 
@@ -424,24 +413,24 @@ int idamserverSubsetData(DATA_BLOCK* data_block, ACTION action)
                 dim->ints = NULL;
             }
 
-//----------------------------------------------------------------------------------------------------------------------------
-// Copy all existing Dimension Information to working structure
+            //----------------------------------------------------------------------------------------------------------------------------
+            // Copy all existing Dimension Information to working structure
 
             newdim = *dim;
             newdim.dim_n = 0;
             newdim.dim = NULL;
 
-//----------------------------------------------------------------------------------------------------------------------------
-// Subset Operations: Identify subset indicies
+            //----------------------------------------------------------------------------------------------------------------------------
+            // Subset Operations: Identify subset indicies
 
-// Subsetting Indices
+            // Subsetting Indices
 
             start = -1;                    // Starting Index satisfying the operation
             end = -1;                    // Ending Index
             start1 = -1;
             end1 = -1;
 
-// Test for Array Reshaping Operations
+            // Test for Array Reshaping Operations
 
             reshape = 0;                    // Subsetting has been defined using array indexing notation
             reverse = 0;                    // Reverse the ordering of elements (also uses array indexing notation)
@@ -475,7 +464,7 @@ int idamserverSubsetData(DATA_BLOCK* data_block, ACTION action)
                 dim_n = 1;
             }
 
-// Create an Array of Indices satisfying the criteria
+            // Create an Array of Indices satisfying the criteria
 
             if (!reshape) {
 
@@ -494,7 +483,7 @@ int idamserverSubsetData(DATA_BLOCK* data_block, ACTION action)
                     return ierr;
                 }
 
-// Start and End of Subset Ranges
+                // Start and End of Subset Ranges
 
                 start = subsetindices[0];
                 end = subsetindices[dim_n - 1];
@@ -535,8 +524,8 @@ int idamserverSubsetData(DATA_BLOCK* data_block, ACTION action)
 
             newdim.dim_n = dim_n;
 
-//----------------------------------------------------------------------------------------------------------------------------
-// Build the New Subsetted Dimension
+            //----------------------------------------------------------------------------------------------------------------------------
+            // Build the New Subsetted Dimension
 
             printDataBlock(*data_block);
             IDAM_LOGF(UDA_LOG_DEBUG, "\n\n\n*** dim->data_type: %d\n\n\n", dim->data_type);
@@ -563,8 +552,8 @@ int idamserverSubsetData(DATA_BLOCK* data_block, ACTION action)
                     return ierr;
             }
 
-//-----------------------------------------------------------------------------------------------------------------------
-// Reshape and Save the Subsetted Data
+            //-----------------------------------------------------------------------------------------------------------------------
+            // Reshape and Save the Subsetted Data
 
             printDataBlock(*data_block);
 
@@ -599,10 +588,10 @@ int idamserverSubsetData(DATA_BLOCK* data_block, ACTION action)
             free((void*) data_block->data);                // Free Original Heap
             data_block->data = newdata;                    // Replace with the Reshaped Array
 
-// replace the Original Dimensional Structure with the New Subsetted Structure unless a
-// REFORM [Rank Reduction] has been requested and the dimension length is 1 (this has no effect on the Data Array items)
+            // replace the Original Dimensional Structure with the New Subsetted Structure unless a
+            // REFORM [Rank Reduction] has been requested and the dimension length is 1 (this has no effect on the Data Array items)
 
-// Free Heap associated with the original Dimensional Structure Array
+            // Free Heap associated with the original Dimensional Structure Array
 
             if (dim->dim != NULL) free((void*) dim->dim);
             if (dim->errlo != NULL) free((void*) dim->errlo);
@@ -612,14 +601,14 @@ int idamserverSubsetData(DATA_BLOCK* data_block, ACTION action)
             dim->errlo = NULL;
             dim->errhi = NULL;
 
-// Save the reshaped Dimension or Reform the whole
+            // Save the reshaped Dimension or Reform the whole
 
             data_block->dims[dimid] = newdim;                            // Replace with the subsetted dimension
         }
     }
 
-//-------------------------------------------------------------------------------------------------------------
-// Reform the Data if requested
+    //-------------------------------------------------------------------------------------------------------------
+    // Reform the Data if requested
 
     if (ierr == 0 && subset.reform) {
         int rank = data_block->rank;
@@ -652,8 +641,8 @@ int idamserverSubsetData(DATA_BLOCK* data_block, ACTION action)
         }
     }
 
-//-------------------------------------------------------------------------------------------------------------
-// Apply simple functions to the subset data: XML syntax function="name(dimid=9)"
+    //-------------------------------------------------------------------------------------------------------------
+    // Apply simple functions to the subset data: XML syntax function="name(dimid=9)"
 
     if (ierr == 0 && subset.function[0] != '\0') {
 
@@ -839,7 +828,6 @@ int idamserverSubsetData(DATA_BLOCK* data_block, ACTION action)
                     break;
             }
         }
-
 
         if (STR_IEQUALS(subset.function, "maximum")) {        // Single scalar result
         }
@@ -1090,8 +1078,8 @@ int idamserverSubsetData(DATA_BLOCK* data_block, ACTION action)
 
     }
 
-//-------------------------------------------------------------------------------------------------------------
-// Explicitly set the order of the time dimension if not possible via the other options
+    //-------------------------------------------------------------------------------------------------------------
+    // Explicitly set the order of the time dimension if not possible via the other options
 
     if (subset.order >= 0) data_block->order = subset.order;
 

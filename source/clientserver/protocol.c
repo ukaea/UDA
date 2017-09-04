@@ -39,9 +39,9 @@
 #  include <server/serverStartup.h>
 #endif
 
-int protocol(XDR* xdrs, int protocol_id, int direction, int* token, void* str)
+int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIST* logmalloclist,
+             USERDEFINEDTYPELIST* userdefinedtypelist, void* str)
 {
-
     DATA_BLOCK* data_block;
     DIMS* dim;
     DATA_SYSTEM* data_system;
@@ -58,21 +58,20 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, void* str)
 
     IDAM_LOGF(UDA_LOG_DEBUG, "\nPROTOCOL: protocolVersion = %d\n\n", protocolVersion);
 
-//----------------------------------------------------------------------------
-// Error Management Loop
+    //----------------------------------------------------------------------------
+    // Error Management Loop
 
     do {
 
-//----------------------------------------------------------------------------
-// Retrieve Client Requests
+        //----------------------------------------------------------------------------
+        // Retrieve Client Requests
 
         if (protocol_id == PROTOCOL_REQUEST_BLOCK) {
 
             request_block = (REQUEST_BLOCK*) str;
 
             switch (direction) {
-
-                case XDR_RECEIVE :
+                case XDR_RECEIVE:
                     if (!xdrrec_skiprecord(xdrs)) {
                         err = PROTOCOL_ERROR_5;
                         break;
@@ -111,10 +110,8 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, void* str)
             break;
         }
 
-
-//----------------------------------------------------------------------------
-// Data Block
-
+        //----------------------------------------------------------------------------
+        // Data Block
 
         if (protocol_id == PROTOCOL_DATA_BLOCK) {
 
@@ -123,8 +120,7 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, void* str)
 #ifndef SKIPSEND
             switch (direction) {
 
-                case XDR_RECEIVE :
-
+                case XDR_RECEIVE:
                     if (!xdrrec_skiprecord(xdrs)) {
                         err = PROTOCOL_ERROR_5;
                         break;
@@ -134,9 +130,9 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, void* str)
                         break;
                     }
 
-// Check client/server understands new data types
-// direction == XDR_RECEIVE && protocolVersion == 3 Means Client receiving data from a
-// Version >= 3 Server (Type has to be passed first)
+                    // Check client/server understands new data types
+                    // direction == XDR_RECEIVE && protocolVersion == 3 Means Client receiving data from a
+                    // Version >= 3 Server (Type has to be passed first)
 
                     if (protocolVersionTypeTest(protocolVersion, data_block->data_type) ||
                         protocolVersionTypeTest(protocolVersion, data_block->error_type)) {
@@ -164,7 +160,6 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, void* str)
                             err = PROTOCOL_ERROR_62;
                             break;
                         }
-
                     }
 
                     if (data_block->rank > 0) {    // Check if there are Dimensional Data to Receive
@@ -217,9 +212,9 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, void* str)
 
                 case XDR_SEND:
 
-// Check client/server understands new data types
+                    // Check client/server understands new data types
 
-// direction == XDR_SEND && protocolVersion == 3 Means Server sending data to a Version 3 Client (Type is known)
+                    // direction == XDR_SEND && protocolVersion == 3 Means Server sending data to a Version 3 Client (Type is known)
 
                     if (protocolVersionTypeTest(protocolVersion, data_block->data_type) ||
                         protocolVersionTypeTest(protocolVersion, data_block->error_type)) {
@@ -257,7 +252,7 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, void* str)
 
                     if (data_block->rank > 0) {    // Dimensional Data to Send
 
-// Check client/server understands new data types
+                        // Check client/server understands new data types
 
                         if (protocolVersion < 3) {
                             int i;
@@ -313,8 +308,8 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, void* str)
             break;
         }
 
-//----------------------------------------------------------------------------
-// Data Block
+        //----------------------------------------------------------------------------
+        // Data Block
 
         if (protocol_id == PROTOCOL_PUTDATA_BLOCK_LIST) {
 
@@ -423,9 +418,8 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, void* str)
             break;
         }
 
-
-//----------------------------------------------------------------------------
-// Error Status or Next Protocol id or exchange token ....
+        //----------------------------------------------------------------------------
+        // Error Status or Next Protocol id or exchange token ....
 
         if (protocol_id == PROTOCOL_NEXT_PROTOCOL) {
 
@@ -465,9 +459,8 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, void* str)
             break;
         }
 
-
-//----------------------------------------------------------------------------
-// Data System record
+        //----------------------------------------------------------------------------
+        // Data System record
 
         if (protocol_id == PROTOCOL_DATA_SYSTEM) {
 
@@ -514,9 +507,8 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, void* str)
             break;
         }
 
-
-//----------------------------------------------------------------------------
-// System Configuration record
+        //----------------------------------------------------------------------------
+        // System Configuration record
 
         if (protocol_id == PROTOCOL_SYSTEM_CONFIG) {
 
@@ -565,9 +557,8 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, void* str)
             break;
         }
 
-
-//----------------------------------------------------------------------------
-// Data Source record
+        //----------------------------------------------------------------------------
+        // Data Source record
 
         if (protocol_id == PROTOCOL_DATA_SOURCE) {
 
@@ -615,8 +606,8 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, void* str)
             break;
         }
 
-//----------------------------------------------------------------------------
-// Signal record
+        //----------------------------------------------------------------------------
+        // Signal record
 
         if (protocol_id == PROTOCOL_SIGNAL) {
 
@@ -664,10 +655,8 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, void* str)
             break;
         }
 
-
-
-//----------------------------------------------------------------------------
-// Signal Description record
+        //----------------------------------------------------------------------------
+        // Signal Description record
 
         if (protocol_id == PROTOCOL_SIGNAL_DESC) {
 
@@ -716,8 +705,8 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, void* str)
             break;
         }
 
-//----------------------------------------------------------------------------
-// Client State
+        //----------------------------------------------------------------------------
+        // Client State
 
         if (protocol_id == PROTOCOL_CLIENT_BLOCK) {
 
@@ -766,9 +755,8 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, void* str)
             break;
         }
 
-
-//----------------------------------------------------------------------------
-// Server State
+        //----------------------------------------------------------------------------
+        // Server State
 
         if (protocol_id == PROTOCOL_SERVER_BLOCK) {
 
@@ -839,16 +827,15 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, void* str)
             break;
         }
 
-
-//----------------------------------------------------------------------------
-// Hierarchical or Meta Data Structures
+        //----------------------------------------------------------------------------
+        // Hierarchical or Meta Data Structures
 
         if (protocol_id > PROTOCOL_OPAQUE_START && protocol_id < PROTOCOL_OPAQUE_STOP) {
-            err = protocolXML(xdrs, protocol_id, direction, token, str);
+            err = protocolXML(xdrs, protocol_id, direction, token, logmalloclist, userdefinedtypelist, str);
         }
 
-//----------------------------------------------------------------------------
-// End of Error Trap Loop
+        //----------------------------------------------------------------------------
+        // End of Error Trap Loop
 
     } while (0);
 

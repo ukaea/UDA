@@ -13,15 +13,15 @@
 
 static int recursiveDepth = 0;    // Keep count of recursive calls
 
-int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data, int datacount, int structRank,
-                       int* structShape,
+int xdrUserDefinedData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist,
+                       USERDEFINEDTYPE* userdefinedtype, void** data, int datacount, int structRank, int* structShape,
                        int index, NTREE** NTree)
 {
-// Grow the data tree recursively through pointer elements within individual structures
-// Build a linked list tree structure when receiving data.
+    // Grow the data tree recursively through pointer elements within individual structures
+    // Build a linked list tree structure when receiving data.
 
-// Sending: data points to the memory location of the structure, defined by userdefinedtype, to be sent
-// Receiving: userdefinedtype contains the definition of the structure to be received.
+    // Sending: data points to the memory location of the structure, defined by userdefinedtype, to be sent
+    // Receiving: userdefinedtype contains the definition of the structure to be received.
 
     int rc = 1, i, j, id, loopcount, rank, count, size, passdata = 0, isSOAP;
     int* shape;
@@ -38,7 +38,7 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
     NTREE* newNTree = NULL;
     NTREE* subNTree = NULL;
 
-// Flag whether there is Data to Send or Receive
+    // Flag whether there is Data to Send or Receive
 
     if (xdrs->x_op == XDR_DECODE) {
         rc = xdr_int(xdrs, &passdata);
@@ -50,7 +50,7 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
 
     if (!passdata) return rc;
 
-// If the recursive depth is too large then perhaps an infinite loop is in play!
+    // If the recursive depth is too large then perhaps an infinite loop is in play!
 
     if (recursiveDepth++ > MAXRECURSIVEDEPTH) {
         addIdamError(&idamerrorstack, CODEERRORTYPE, "xdrUserDefinedData", 999, "Maximum Recursive Depth reached!");
@@ -60,15 +60,15 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
     IDAM_LOGF(UDA_LOG_DEBUG, "Depth: %d\n", recursiveDepth);
 
 
-// Allocate HEAP if receiving Data:
-// Size of Structure or atomic type array or scalar is provided by the structure definition (corrected for alignment and architecture)
-// datacount, rank and shape are passed via the argument - it's the number of structure array elements to allocate in a single block
-// Index is the element of the structure array to be received
-// Allocation occurs only when index == 0, i.e. the first time the function is entered. Rank and shape of structured data are captured.
-// Allocation occurs only when datacount > 0, i.e. Must be a Pointer to a User Defined Type Structure: Otherwise it's already
-// allocated - but must add a tree node to the structure element.
-//
-// Child nodes of the same type are branched consequentially
+    // Allocate HEAP if receiving Data:
+    // Size of Structure or atomic type array or scalar is provided by the structure definition (corrected for alignment and architecture)
+    // datacount, rank and shape are passed via the argument - it's the number of structure array elements to allocate in a single block
+    // Index is the element of the structure array to be received
+    // Allocation occurs only when index == 0, i.e. the first time the function is entered. Rank and shape of structured data are captured.
+    // Allocation occurs only when datacount > 0, i.e. Must be a Pointer to a User Defined Type Structure: Otherwise it's already
+    // allocated - but must add a tree node to the structure element.
+    //
+    // Child nodes of the same type are branched consequentially
 
     if (xdrs->x_op == XDR_DECODE) {
         IDAM_LOGF(UDA_LOG_DEBUG, "index: %d   datacount: %d\n", index, datacount);
@@ -76,16 +76,16 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
         if (index == 0 && datacount > 0) {
             *data = malloc(datacount * userdefinedtype->size);
             if (structRank > 1 && structShape != NULL) {
-                addMalloc2(*data, datacount, userdefinedtype->size, userdefinedtype->name, structRank,
+                addMalloc2(logmalloclist, *data, datacount, userdefinedtype->size, userdefinedtype->name, structRank,
                            structShape);
             } else {
-                addMalloc(*data, datacount, userdefinedtype->size, userdefinedtype->name);
+                addMalloc(logmalloclist, *data, datacount, userdefinedtype->size, userdefinedtype->name);
             }
             structRank = 0;
         }
 
         newNTree = (NTREE*)malloc(sizeof(NTREE));        // this is the parent node for the received structure
-        addMalloc((void*)newNTree, 1, sizeof(NTREE), "NTREE");
+        addMalloc(logmalloclist, (void*)newNTree, 1, sizeof(NTREE), "NTREE");
 
         *NTree = newNTree;                    // Return the new tree node address
 
@@ -95,7 +95,7 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
 
     }
 
-// Start of the Structure Array Element
+    // Start of the Structure Array Element
 
     p0 = *((char**)data) + index * userdefinedtype->size;
 
@@ -103,7 +103,7 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
         newNTree->data = (void*)p0;
     }    // Each tree node points to a structure or an atomic array
 
-// Loop over all structure elements: Send or Receive
+    // Loop over all structure elements: Send or Receive
 
     for (j = 0; j < userdefinedtype->fieldcount; j++) {
 
@@ -124,8 +124,8 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
         size = 0;
         isSOAP = 0;
 
-// Element Data by Atomic Type (Use recursion to manage user defined types)
-// Data can be a scalar, an array of fixed and known length or a pointer to an array also of known length
+        // Element Data by Atomic Type (Use recursion to manage user defined types)
+        // Data can be a scalar, an array of fixed and known length or a pointer to an array also of known length
 
         switch (userdefinedtype->compoundfield[j].atomictype) {
 
@@ -146,7 +146,7 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
                                 shape = NULL;
                             }
                             d = (char*)malloc(count * sizeof(float));
-                            addMalloc2((void*)d, count, sizeof(float), "float", rank, shape);
+                            addMalloc2(logmalloclist, (void*)d, count, sizeof(float), "float", rank, shape);
                             *p = (VOIDTYPE)d;
                         } else { break; }
                         if (!rc)break;
@@ -158,17 +158,17 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
                             break;
                         }
 
-                        findMalloc2((void*)p, &count, &size, &type, &rank,
-                                    &shape);        // Assume 0 means No Pointer data to send!
+                        findMalloc2(logmalloclist, (void*)p, &count, &size, &type, &rank, &shape);
+                        // Assume 0 means No Pointer data to send!
 
-// Allocation of pointer data within SOAP is problematic.
-// Data malloc'd within SOAP are typed "unknown".
-// Generally, pointer class data are preceded within the data binding structures with integer elements
-// named __size followed by the name of the element. The value stored by this element is the equivalent
-// of the count parameter required from findMalloc.
-//
-// Other data creators, e.g., XML DOM, also have types "unknown"
-// In these cases, a best guess is made to the type and count based on expectations and the heap allocated - very unsatisfactory!
+                        // Allocation of pointer data within SOAP is problematic.
+                        // Data malloc'd within SOAP are typed "unknown".
+                        // Generally, pointer class data are preceded within the data binding structures with integer elements
+                        // named __size followed by the name of the element. The value stored by this element is the equivalent
+                        // of the count parameter required from findMalloc.
+                        //
+                        // Other data creators, e.g., XML DOM, also have types "unknown"
+                        // In these cases, a best guess is made to the type and count based on expectations and the heap allocated - very unsatisfactory!
 
                         if (type != NULL && STR_EQUALS(type, "unknown")) {
                             if (malloc_source == MALLOCSOURCESOAP && j > 0 &&
@@ -236,7 +236,7 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
                                 shape = NULL;
                             }
                             d = (char*)malloc(count * sizeof(double));
-                            addMalloc2((void*)d, count, sizeof(double), "double", rank, shape);
+                            addMalloc2(logmalloclist, (void*)d, count, sizeof(double), "double", rank, shape);
                             *p = (VOIDTYPE)d;                           // Save pointer: data will be written here
                         } else { break; }
                     } else {
@@ -248,7 +248,7 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
                         }
 
                         // Assume count of 0 means No Pointer data to send!
-                        findMalloc2((void*)p, &count, &size, &type, &rank, &shape);
+                        findMalloc2(logmalloclist, (void*)p, &count, &size, &type, &rank, &shape);
 
                         if (type != NULL && STR_EQUALS(type, "unknown")) {
                             if (malloc_source == MALLOCSOURCESOAP && j > 0 &&
@@ -318,7 +318,7 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
                                 shape = NULL;
                             }
                             d = (char*)malloc(count * sizeof(short));
-                            addMalloc2((void*)d, count, sizeof(short), "short", rank, shape);
+                            addMalloc2(logmalloclist, (void*)d, count, sizeof(short), "short", rank, shape);
                             *p = (VOIDTYPE)d;                    // Save pointer: data will be written here
                         } else { break; }
                     } else {
@@ -328,7 +328,7 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
                             rc = rc && xdr_int(xdrs, &count);            // No data to send
                             break;
                         }
-                        findMalloc2((void*)p, &count, &size, &type, &rank,
+                        findMalloc2(logmalloclist, (void*)p, &count, &size, &type, &rank,
                                     &shape);    // Assume count of 0 means No Pointer data to send!
 
                         if (type != NULL && STR_EQUALS(type, "unknown")) {
@@ -398,7 +398,7 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
                                 shape = NULL;
                             }
                             d = (char*)malloc(count * sizeof(unsigned short));
-                            addMalloc2((void*)d, count, sizeof(unsigned short), "unsigned short", rank, shape);
+                            addMalloc2(logmalloclist, (void*)d, count, sizeof(unsigned short), "unsigned short", rank, shape);
                             *p = (VOIDTYPE)d;                    // Save pointer: data will be written here
                         } else { break; }
                     } else {
@@ -408,7 +408,7 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
                             rc = rc && xdr_int(xdrs, &count);            // No data to send
                             break;
                         }
-                        findMalloc2((void*)p, &count, &size, &type, &rank,
+                        findMalloc2(logmalloclist, (void*)p, &count, &size, &type, &rank,
                                     &shape);    // Assume count of 0 means No Pointer data to send!
 
                         if (type != NULL && STR_EQUALS(type, "unknown")) {
@@ -478,7 +478,7 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
                                 shape = NULL;
                             }
                             d = (char*)malloc(count * sizeof(int));
-                            addMalloc2((void*)d, count, sizeof(int), "int", rank, shape);
+                            addMalloc2(logmalloclist, (void*)d, count, sizeof(int), "int", rank, shape);
                             *p = (VOIDTYPE)d;                    // Save pointer: data will be written here
                         } else { break; }
                     } else {
@@ -488,7 +488,7 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
                             rc = rc && xdr_int(xdrs, &count);            // No data to send
                             break;
                         }
-                        findMalloc2((void*)p, &count, &size, &type, &rank,
+                        findMalloc2(logmalloclist, (void*)p, &count, &size, &type, &rank,
                                     &shape);    // Assume count of 0 means No Pointer data to send!
 
                         if (type != NULL && STR_EQUALS(type, "unknown")) {
@@ -557,7 +557,7 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
                                 shape = NULL;
                             }
                             d = (char*)malloc(count * sizeof(unsigned int));
-                            addMalloc2((void*)d, count, sizeof(unsigned int), "unsigned int", rank, shape);
+                            addMalloc2(logmalloclist, (void*)d, count, sizeof(unsigned int), "unsigned int", rank, shape);
                             *p = (VOIDTYPE)d;                    // Save pointer: data will be written here
                         } else { break; }
                     } else {
@@ -567,7 +567,7 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
                             rc = rc && xdr_int(xdrs, &count);            // No data to send
                             break;
                         }
-                        findMalloc2((void*)p, &count, &size, &type, &rank,
+                        findMalloc2(logmalloclist, (void*)p, &count, &size, &type, &rank,
                                     &shape);    // Assume count of 0 means No Pointer data to send!
 
                         if (type != NULL && STR_EQUALS(type, "unknown")) {
@@ -634,7 +634,7 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
                                 shape = NULL;
                             }
                             d = (char*)malloc(count * sizeof(long long));
-                            addMalloc2((void*)d, count, sizeof(long long), "long long", rank, shape);
+                            addMalloc2(logmalloclist, (void*)d, count, sizeof(long long), "long long", rank, shape);
                             *p = (VOIDTYPE)d;                    // Save pointer: data will be written here
                         } else { break; }
                     } else {
@@ -644,7 +644,7 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
                             rc = rc && xdr_int(xdrs, &count);            // No data to send
                             break;
                         }
-                        findMalloc2((void*)p, &count, &size, &type, &rank,
+                        findMalloc2(logmalloclist, (void*)p, &count, &size, &type, &rank,
                                     &shape);    // Assume count of 0 means No Pointer data to send!
 
                         if (type != NULL && STR_EQUALS(type, "unknown")) {
@@ -717,7 +717,7 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
                             } else
                                 shape = NULL;
                             d = (char*) malloc(count * sizeof(unsigned long long));
-                            addMalloc2((void*) d, count, sizeof(unsigned long long), "unsigned long long", rank, shape);
+                            addMalloc2(logmalloclist, (void*) d, count, sizeof(unsigned long long), "unsigned long long", rank, shape);
                             *p = (VOIDTYPE) d;                    // Save pointer: data will be written here
                         } else break;
                     } else {
@@ -727,7 +727,7 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
                             rc = rc && xdr_int(xdrs, &count);            // No data to send
                             break;
                         }
-                        findMalloc2((void*) p, &count, &size, &type, &rank,
+                        findMalloc2(logmalloclist, (void*) p, &count, &size, &type, &rank,
                                     &shape);    // Assume count of 0 means No Pointer data to send!
 
                         if (type != NULL && STR_EQUALS(type, "unknown")) {
@@ -798,7 +798,7 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
                                 shape = NULL;
                             }
                             d = (char*)malloc(count * sizeof(char));
-                            addMalloc2((void*)d, count, sizeof(char), "char", rank, shape);
+                            addMalloc2(logmalloclist, (void*)d, count, sizeof(char), "char", rank, shape);
                             *p = (VOIDTYPE)d;                           // Save pointer: data will be written here
                         } else { break; }
                     } else {
@@ -809,7 +809,7 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
                             break;
                         }
                         // Assume count of 0 means No Pointer data to send!
-                        findMalloc2((void*)p, &count, &size, &type, &rank, &shape);
+                        findMalloc2(logmalloclist, (void*)p, &count, &size, &type, &rank, &shape);
 
                         if (type != NULL && STR_EQUALS(type, "unknown")) {
                             if (malloc_source == MALLOCSOURCESOAP && j > 0 &&
@@ -900,7 +900,7 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
                         rc = rc && xdr_int(xdrs, &count);               // Count is known from the client's malloc log and passed by the sender
                         if (count > 0) {
                             d = (char*)malloc(count * sizeof(char));
-                            addMalloc((void*)d, count, sizeof(char), "STRING");
+                            addMalloc(logmalloclist, (void*)d, count, sizeof(char), "STRING");
                             *p = (VOIDTYPE)d;                           // Save pointer: data will be written here
                         } else { break; }
                     } else {
@@ -917,7 +917,7 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
                             break;
                         }
 
-                        findMalloc((void*)p, &count, &size, &type);     // Assume 0 means No Pointer data to send!
+                        findMalloc(logmalloclist, (void*)p, &count, &size, &type);     // Assume 0 means No Pointer data to send!
 
                         if (malloc_source == MALLOCSOURCEDOM && (count == 0 || size == 0) && d != NULL) {
                             int lstr = (int)strlen(d);
@@ -957,18 +957,18 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
                 break;
             }
 
-// String handling is complicated ...
+            // String handling is complicated ...
 
-// Strings with a Fixed Length:	    Rank >= 1, Pointer = FALSE	(Convention)
-// Strings with a Non-Fixed Length: Rank  = 0, Pointer = TRUE
-// If the number of strings is arbitrary then the type is STRING* rather than STRING
+            // Strings with a Fixed Length:	    Rank >= 1, Pointer = FALSE	(Convention)
+            // Strings with a Non-Fixed Length: Rank  = 0, Pointer = TRUE
+            // If the number of strings is arbitrary then the type is STRING* rather than STRING
 
-// Strings:
-//	char *p	 	 single scalar string of arbitrary length 		=> rank = 0, pointer = 1, type STRING
-//	char **p;	 arbitrary number array of strings of arbitrary length 	=> rank = 0, pointer = 1, type STRING*
-//	char p[int]	 single scalar string of fixed length 			=> rank = 1, pointer = 0, type STRING
-//	char *p[int]	 fixed number array of strings of arbitrary length 	=> rank = 1, pointer = 0, type STRING*
-//	char p[int][int] fixed number array of strings of fixed length 		=> rank = 2, pointer = 0, type STRING
+            // Strings:
+            //	char *p	 	 single scalar string of arbitrary length 		=> rank = 0, pointer = 1, type STRING
+            //	char **p;	 arbitrary number array of strings of arbitrary length 	=> rank = 0, pointer = 1, type STRING*
+            //	char p[int]	 single scalar string of fixed length 			=> rank = 1, pointer = 0, type STRING
+            //	char *p[int]	 fixed number array of strings of arbitrary length 	=> rank = 1, pointer = 0, type STRING*
+            //	char p[int][int] fixed number array of strings of fixed length 		=> rank = 2, pointer = 0, type STRING
 
             case (TYPE_STRING): {                    // Array of char terminated by \0
                 IDAM_LOG(UDA_LOG_DEBUG, "Type: STRING\n");
@@ -982,12 +982,12 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
                             rc = rc && xdr_int(xdrs, &nstr);        // Number of strings
                             if (nstr > 0) {
                                 char** str = (char**)malloc(nstr * sizeof(char*));
-                                addMalloc((void*)str, nstr, sizeof(char*), "STRING *");
+                                addMalloc(logmalloclist, (void*)str, nstr, sizeof(char*), "STRING *");
                                 for (istr = 0; istr < nstr; istr++) {
                                     rc = rc && xdr_int(xdrs, &count);
                                     if (count > 0) {
                                         d = (char*)malloc(count * sizeof(char));
-                                        addMalloc((void*)d, count, sizeof(char), "char");
+                                        addMalloc(logmalloclist, (void*)d, count, sizeof(char), "char");
                                         rc = rc && WrapXDRString(xdrs, d, count);
                                         str[istr] = d;
                                     }
@@ -1010,27 +1010,28 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
                             }
                             strarr = (char**)malloc(
                                     nstr * sizeof(char*));    // nstr is the length of the array, not the strings
-                            addMalloc2((void*)strarr, nstr, sizeof(char*), "STRING", rank, shape);
+                            addMalloc2(logmalloclist, (void*)strarr, nstr, sizeof(char*), "STRING", rank, shape);
                             *p = (VOIDTYPE)strarr;                // Save pointer: First String will be written here
                             for (istr = 0;
                                  istr < nstr; istr++) {            // Receive individual String lengths, then the string
                                 rc = rc && xdr_int(xdrs, &count);
                                 strarr[istr] = (char*)malloc(count * sizeof(char));
-                                addMalloc((void*)strarr[istr], count, sizeof(char), "STRING");
+                                addMalloc(logmalloclist, (void*)strarr[istr], count, sizeof(char), "STRING");
                                 rc = rc && WrapXDRString(xdrs, strarr[istr], count);
-// dgm 11/11/11
-                                if (rank == 0 && nstr == 1) *p = (VOIDTYPE)strarr[0];
+                                if (rank == 0 && nstr == 1) {
+                                    *p = (VOIDTYPE)strarr[0];
+                                }
                             }
                         } else { break; }
                     } else {
 
                         if (STR_EQUALS(userdefinedtype->compoundfield[j].type, "STRING *")) {
                             char** str = (char**)*p;
-                            findMalloc((void*)&str, &nstr, &size, &type);
+                            findMalloc(logmalloclist, (void*)&str, &nstr, &size, &type);
                             rc = rc && xdr_int(xdrs, &nstr);        // Number of strings
                             if (nstr > 0) {
                                 for (istr = 0; istr < nstr; istr++) {
-                                    findMalloc((void*)&str[istr], &count, &size, &type);
+                                    findMalloc(logmalloclist, (void*)&str[istr], &count, &size, &type);
                                     rc = rc && xdr_int(xdrs, &count);
                                     if (count > 0) {
                                         d = (char*)str[istr];
@@ -1048,7 +1049,7 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
                             break;
                         }
 
-                        findMalloc2((void*)p, &nstr, &size, &type, &rank,
+                        findMalloc2(logmalloclist, (void*)p, &nstr, &size, &type, &rank,
                                     &shape);    // Assume 0 means No Pointer data to send!
                         // or heap allocated in external library!
 
@@ -1074,7 +1075,6 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
                         if (rank > 1) {
                             rc = rc && xdr_vector(xdrs, (char*)shape, rank, sizeof(int), (xdrproc_t)xdr_int);
                         }
-// dgm 11/11/11
                         if (rank == 0) {
                             rc = rc && xdr_int(xdrs, &size);            // This length of string
                             rc = rc && WrapXDRString(xdrs, (char*)d, size);
@@ -1106,12 +1106,12 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
                                         rc = rc && xdr_int(xdrs, &count);            // Arbitrary String length
                                         if (count > 0) {
                                             d = (char*)malloc(count * sizeof(char));
-                                            addMalloc((void*)d, count, sizeof(char), "STRING");
+                                            addMalloc(logmalloclist, (void*)d, count, sizeof(char), "STRING");
                                             rc = rc && WrapXDRString(xdrs, d, count);
                                             str[istr] = d;
                                         }                        // Save pointer: data will be written here
                                     } else {
-                                        findMalloc((void*)&str[istr], &count, &size, &type);
+                                        findMalloc(logmalloclist, (void*)&str[istr], &count, &size, &type);
                                         rc = rc && xdr_int(xdrs, &count);
                                         if (count > 0) {
                                             d = (char*)str[istr];
@@ -1140,7 +1140,7 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
                                                &count);            // Count is known from the client's malloc log and passed by the sender
                             if (count > 0) {
                                 d = (char*)malloc(count * sizeof(char));
-                                addMalloc((void*)d, count, sizeof(char), "STRING");
+                                addMalloc(logmalloclist, (void*)d, count, sizeof(char), "STRING");
                                 *p = (VOIDTYPE)d;                    // Save pointer: data will be written here
                             } else { break; }
                         } else {
@@ -1150,7 +1150,7 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
                                 rc = rc && xdr_int(xdrs, &count);            // No data to send
                                 break;
                             }
-                            findMalloc((void*)p, &count, &size, &type);        // Assume 0 means No string to send!
+                            findMalloc(logmalloclist, (void*)p, &count, &size, &type);        // Assume 0 means No string to send!
                             if (count == 1 &&
                                 STR_EQUALS(type, "unknown")) {        // ***** Fix for SOAP sources incomplete!
                                 count = size;
@@ -1169,23 +1169,23 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
                 break;
             }
 
-// Atomic Type or User Defined Type => Recursive Send/Receive
-// Scalar or Array of fixed count within a structure
-// Pointer to Scalar or Array
-// For fixed count types, the count is given by the structure definition
-// For pointer types, the count is given by the malloc log
+            // Atomic Type or User Defined Type => Recursive Send/Receive
+            // Scalar or Array of fixed count within a structure
+            // Pointer to Scalar or Array
+            // For fixed count types, the count is given by the structure definition
+            // For pointer types, the count is given by the malloc log
 
             default: {
 
-// Send or Receive the Count, Size and Type of the sub-structure (All atomic types except void are trapped before this point)
+                // Send or Receive the Count, Size and Type of the sub-structure (All atomic types except void are trapped before this point)
 
                 IDAM_LOG(UDA_LOG_DEBUG, "Type: OTHER - Void Type or Structure\n");
 
                 if (userdefinedtype->compoundfield[j].pointer) {
                     if (xdrs->x_op != XDR_DECODE) {
-                        findMalloc2((void*)p, &count, &size, &type, &structRank, &structShape);
+                        findMalloc2(logmalloclist, (void*)p, &count, &size, &type, &structRank, &structShape);
 
-// Interpret an 'unknown' void data type using knowledge of the gSOAP or DOM systems
+                        // Interpret an 'unknown' void data type using knowledge of the gSOAP or DOM systems
 
                         if (type != NULL && STR_EQUALS(type, "unknown")) {        // arises from a malloc redirection
                             if (malloc_source == MALLOCSOURCESOAP && j > 0 &&
@@ -1194,7 +1194,7 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
                                            &userdefinedtype->compoundfield[j - 1].name[6])) {
 
                                 count = (int)*prev;        // the value of __size...
-                                size = getsizeof(userdefinedtype->compoundfield[j].type);
+                                size = getsizeof(userdefinedtypelist, userdefinedtype->compoundfield[j].type);
                                 type = userdefinedtype->compoundfield[j].type;
                             } else {
                                 if (count > 0) {
@@ -1205,7 +1205,7 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
                                         ssize = sizeof(char);    // Assume xml void pointer type is to char
                                         type = chartype;
                                     } else {
-                                        ssize = getsizeof(userdefinedtype->compoundfield[j].type);
+                                        ssize = getsizeof(userdefinedtypelist, userdefinedtype->compoundfield[j].type);
                                         type = userdefinedtype->compoundfield[j].type;
                                     }
 
@@ -1244,7 +1244,7 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
                         rc = rc && WrapXDRString(xdrs, (char*)rudtype, MAXELEMENTNAME - 1);
                         type = rudtype;
                     } else {
-                        rc = rc && WrapXDRString(xdrs, (char*)type, MAXELEMENTNAME - 1);
+                        rc = rc && WrapXDRString(xdrs, type, MAXELEMENTNAME - 1);
                     }
 
                     if (protocolVersion >= 7) {
@@ -1262,10 +1262,10 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
 
                 } else {
 
-// Non Pointer types: Heap already allocated (pass 0 count to xdrUserDefinedData)
-// Size and Type also known. Type cannot be 'void'.
+                    // Non Pointer types: Heap already allocated (pass 0 count to xdrUserDefinedData)
+                    // Size and Type also known. Type cannot be 'void'.
 
-                    addNonMalloc((void*)p, userdefinedtype->compoundfield[j].count,
+                    addNonMalloc(logmalloclist, (void*)p, userdefinedtype->compoundfield[j].count,
                                  userdefinedtype->compoundfield[j].size, userdefinedtype->compoundfield[j].type);
 
                     loopcount = userdefinedtype->compoundfield[j].count;
@@ -1277,9 +1277,9 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
                               userdefinedtype->compoundfield[j].type);
                 }
 
-// Pointer to structure definition (void type ignored)
+                // Pointer to structure definition (void type ignored)
 
-                if ((utype = findUserDefinedType(type, 0)) == NULL &&
+                if ((utype = findUserDefinedType(userdefinedtypelist, type, 0)) == NULL &&
                     strcmp(userdefinedtype->compoundfield[j].type, "void") != 0) {
 
                     IDAM_LOGF(UDA_LOG_DEBUG, "**** Error #1: User Defined Type %s not known!\n",
@@ -1293,18 +1293,18 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
                     break;
                 }
 
-// Must be a known User Defined Type
-// Execute once for each structure array element: count comes either from the malloc log or from the structure definition for non-pointer types
-// A new tree node is used for each array element when receiving
+                // Must be a known User Defined Type
+                // Execute once for each structure array element: count comes either from the malloc log or from the structure definition for non-pointer types
+                // A new tree node is used for each array element when receiving
 
-// When passing linked lists, the parent->child->parent link needs to be detected and blocked when sending.
-// On receiving data, the pointer references can be added back.
+                // When passing linked lists, the parent->child->parent link needs to be detected and blocked when sending.
+                // On receiving data, the pointer references can be added back.
 
                 if (utype != NULL) {
 
                     for (i = 0; i < loopcount; i++) {
 
-// Has this structure already been sent/received (e.g. in a linked list)
+                        // Has this structure already been sent/received (e.g. in a linked list)
 
                         id = 0;
 
@@ -1318,18 +1318,16 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
 
                         if (id == 0) {                        // Only send/receive new structures
                             if (userdefinedtype->compoundfield[j].pointer) {
-                                rc = rc &&
-                                     xdrUserDefinedData(xdrs, utype, (void**)p, count, structRank, structShape, i,
-                                                        &subNTree);
+                                rc = rc && xdrUserDefinedData(xdrs, logmalloclist, userdefinedtypelist, utype, (void**)p, count,
+                                                              structRank, structShape, i, &subNTree);
                             } else {
-                                rc = rc &&
-                                     xdrUserDefinedData(xdrs, utype, (void**)&p, count, structRank, structShape, i,
-                                                        &subNTree);
+                                rc = rc && xdrUserDefinedData(xdrs, logmalloclist, userdefinedtypelist, utype, (void**)&p, count,
+                                                              structRank, structShape, i, &subNTree);
                             }
 
-// Add the new data branch to the tree
-// If this is the first pass, allocate all loopcount child nodes
-// dgm 15Nov2011: pre-allocate to avoid performance degradation when tree becomes large
+                            // Add the new data branch to the tree
+                            // If this is the first pass, allocate all loopcount child nodes
+                            // dgm 15Nov2011: pre-allocate to avoid performance degradation when tree becomes large
 
                             if (xdrs->x_op == XDR_DECODE && subNTree != NULL) {
                                 strcpy(subNTree->name, userdefinedtype->compoundfield[j].name);
@@ -1337,13 +1335,13 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
                                     if (newNTree->children == NULL && newNTree->branches == 0) {
                                         newNTree->children = (NTREE**)malloc(
                                                 loopcount * sizeof(NTREE*));        // Allocate the node array
-                                        addMalloc((void*)newNTree->children, loopcount, sizeof(NTREE*), "NTREE *");
+                                        addMalloc(logmalloclist, (void*)newNTree->children, loopcount, sizeof(NTREE*), "NTREE *");
                                     } else {                                    // Multiple branches (user types) originating in the same node
                                         NTREE** old = newNTree->children;
                                         newNTree->children = (NTREE**)realloc((void*)old,
                                                                               (newNTree->branches + loopcount) *
                                                                               sizeof(NTREE*));    // Individual node addresses remain valid
-                                        changeMalloc((void*)old, (void*)newNTree->children,
+                                        changeMalloc(logmalloclist, (void*)old, (void*)newNTree->children,
                                                      newNTree->branches + loopcount, sizeof(NTREE*), "NTREE *");
                                     }
                                 }
@@ -1358,11 +1356,11 @@ int xdrUserDefinedData(XDR* xdrs, USERDEFINEDTYPE* userdefinedtype, void** data,
 
                 } else {
 
-// Must be a voided atomic type
+                    // Must be a voided atomic type
 
                     if (gettypeof(type) != TYPE_UNKNOWN) {
                         char* z = (char*)*p;
-                        rc = rc && xdrAtomicData(xdrs, type, count, size, &z);        // Must be an Atomic Type
+                        rc = rc && xdrAtomicData(logmalloclist, xdrs, type, count, size, &z);        // Must be an Atomic Type
                         *p = (VOIDTYPE)z;
                         break;
                     } else {

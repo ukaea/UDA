@@ -44,14 +44,14 @@ PGconn* openDatabase(const char* host, int port, const char* dbname, const char*
     PGconn* DBConnect = NULL;
 
     if ((DBConnect = PQsetdbLogin(host, pgport, NULL, NULL, dbname, user, NULL)) == NULL) {
-        IDAM_LOG(UDA_LOG_DEBUG, "SQL Server Connect Error");
+        IDAM_LOG(UDA_LOG_DEBUG, "SQL Server Connect Error\n");
         addIdamError(&idamerrorstack, CODEERRORTYPE, "startSQL", 1, "SQL Server Connect Error");
         PQfinish(DBConnect);
         return NULL;
     }
 
     if (PQstatus(DBConnect) == CONNECTION_BAD) {
-        IDAM_LOG(UDA_LOG_DEBUG, "Bad SQL Server Connect Status");
+        IDAM_LOG(UDA_LOG_DEBUG, "Bad SQL Server Connect Status\n");
         addIdamError(&idamerrorstack, CODEERRORTYPE, "startSQL", 1, "Bad SQL Server Connect Status");
         PQfinish(DBConnect);
         return NULL;
@@ -92,14 +92,14 @@ PGconn* startSQL()
 // Connect to the Database Server
 
     if ((DBConnect = PQsetdbLogin(pghost, pgport, pgoptions, pgtty, dbname, user, pswrd)) == NULL) {
-        IDAM_LOG(UDA_LOG_DEBUG, "SQL Server Connect Error");
+        IDAM_LOG(UDA_LOG_DEBUG, "SQL Server Connect Error\n");
         addIdamError(&idamerrorstack, CODEERRORTYPE, "startSQL", 1, "SQL Server Connect Error");
         PQfinish(DBConnect);
         return NULL;
     }
 
     if (PQstatus(DBConnect) == CONNECTION_BAD) {
-        IDAM_LOG(UDA_LOG_DEBUG, "Bad SQL Server Connect Status");
+        IDAM_LOG(UDA_LOG_DEBUG, "Bad SQL Server Connect Status\n");
         addIdamError(&idamerrorstack, CODEERRORTYPE, "startSQL", 1, "Bad SQL Server Connect Status");
         PQfinish(DBConnect);
         return NULL;
@@ -192,8 +192,6 @@ void sqlReason(PGconn* DBConnect, char* reason_id, char* reason)
     }
 
     PQclear(DBQuery);
-
-    return;
 }
 
 
@@ -226,8 +224,6 @@ void sqlResult(PGconn* DBConnect, char* run_id, char* desc)
     if (nrows == 1) strcpy(desc, PQgetvalue(DBQuery, 0, 1));
 
     PQclear(DBQuery);
-
-    return;
 }
 
 
@@ -260,8 +256,6 @@ void sqlStatusDesc(PGconn* DBConnect, char* status_desc_id, char* desc)
     if (nrows == 1) strcpy(desc, PQgetvalue(DBQuery, 0, 1));
 
     PQclear(DBQuery);
-
-    return;
 }
 
 
@@ -314,7 +308,6 @@ void sqlMeta(PGconn* DBConnect, char* table, char* meta_id, char* xml, char* cre
     }
 
     PQclear(DBQuery);
-    return;
 }
 
 static int preventSQLInjection(PGconn* DBConnect, char** from)

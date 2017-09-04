@@ -2,7 +2,7 @@
 /*---------------------------------------------------------------
 * v1 UDA Plugin: Query the UDA POSTGRES Metadata Catalog
 *                Designed for use case where each signal class is recorded but not each signal instance
-*                Only the first record identified that satisfies the selection criteria is returned.
+*                Only the first record identified that satisfies the selection criteria is returned - multiple records raises an error
 *                Records within the database must be unique 
 *
 * Input Arguments:	IDAM_PLUGIN_INTERFACE *idam_plugin_interface
@@ -83,7 +83,7 @@ static PGconn *postgresConnect(){
    char *dbname = getenv("UDA_SQLDBNAME");
    char *user   = getenv("UDA_SQLUSER");
    
-   char pswrd[9] = "readonly";
+   char pswrd[9] = "readonly";	// Default for user 'readonly'
    
    char *pgoptions = NULL; 	//"connect_timeout=5";
    char *pgtty = NULL;
@@ -162,9 +162,8 @@ extern int postgres_query(IDAM_PLUGIN_INTERFACE *idam_plugin_interface){
    request_block = idam_plugin_interface->request_block;
    data_source   = idam_plugin_interface->data_source;
    signal_desc   = idam_plugin_interface->signal_desc;
-   //environment   = idam_plugin_interface->environment;
-      
-   //pluginList = idam_plugin_interface->pluginList;           
+ //environment   = idam_plugin_interface->environment;      
+ //pluginList    = idam_plugin_interface->pluginList;           
       
    housekeeping = idam_plugin_interface->housekeeping;
 
@@ -413,29 +412,44 @@ extern int postgres_query(IDAM_PLUGIN_INTERFACE *idam_plugin_interface){
    initDataSource(data_source);      
 
 //-------------------------------------------------------------
-// Note on Identifying the correct record using alias and generic names.
-//
-// Signal_Desc records have a uniqueness constraint: signal_name+data_source_alias
-// Scheduler codes use this to test whether or not a record exists for any signal being processed.
-// Scheduler codes do NOT check the signal_alias field.
-//
-// Signal_alias names (which might not be unique) are used by users to identify the correct signal and data source file.
-// There are no shot dependencies because of the uniqueness constraint.
-//
-// Generic names are short cut names used by users to identify a signal_name.
-// Generic names should be unique and case insensitive. They MUST NOT match a signal_alias entry.
-// Generic names have a validity constraint: shot number range (not a pass number range)
-// Generic names can be shared with multiple signal_name records, but only with non overlapping shot ranges.
-//
 // Build SQL
 
+// Signal_Desc records have a uniqueness constraint: signal alias + generic name + name mapping shotrange + source alias name
+// Signal_alias or generic names are used by users to identify the correct signal for the given shot number
+// Generic names can be shared with multiple signal_name records, but only with non overlapping shot ranges.
+//
+
+/*
+
+// Add shot range to table: mapping_shot_range of type int4range
+// Add default inclusive range values '[0, 10000000]'
+// Add time-stamp range to table: mapping_time_range of type tstzrange (specific time-zone with millisecond time resolution)
+
+// Create ranges with inclusive end values [] rather than exclusive end values (). [ and ) can be mixed in defining the range.
+// Change uniqueness constraint to UNIQUE(signal_alias, generic_name, mapping_shot_range, source_alias);
+// Change index for range: CREATE INDEX mapping_shot_range_idx ON signal_desc USING gist (mapping_shot_range);
+   
+ToDo:
+
+The 'tpass' string normally contain the data's sequence number but can pass any set of name-value pairs or other types of directives. These are passed into this plugin via the
+GET API's second argument - the data source argument. This is currently unused in the query.
+
+Parameters passed to the plugin as name-value pairs (type, source_alias or sourceClass, signal_class or objectClass) are also not used.        
+*/
    if(isExpNumber){
+
+      sprintf(sql, "SELECT type, source_alias, signal_alias, generic_name, signal_name, signal_class FROM signal_desc WHERE "   
+                   "signal_alias = '%s' OR generic_name = '%s' AND mapping_shot_range @> %d ",
+		   signal, signal, expNumber);
+
+/*
       sprintf(sql, "SELECT type, source_alias, signal_alias, generic_name, signal_name, signal_class FROM signal_desc WHERE "   
                    "signal_alias = '%s' OR generic_name = '%s' AND "						
 		   "((range_start=0 AND range_stop=0) OR (range_start=0 AND range_stop>=%d) OR "
 		   " (range_stop=0  AND range_start<=%d) OR "
 		   " (range_start>0 AND range_start<=%d AND range_stop>0 AND range_stop>=%d)) ",
 		   signal, signal, expNumber, expNumber, expNumber, expNumber);
+*/
    } else {
       sprintf(sql, "SELECT type, source_alias, signal_alias, generic_name, signal_name, signal_class FROM signal_desc WHERE "   
                    "signal_alias = '%s' OR generic_name = '%s' ",
@@ -673,7 +687,6 @@ extern int postgres_query(IDAM_PLUGIN_INTERFACE *idam_plugin_interface){
                    "\tobjectName: The alias or generic name of the data object.\n"
                    "\texp_number: The experiment shot number. This may be passed via the UDA client API's second argument.\n"
                    "\tobjectSource: the abstract name of the source. This may be passed via the client API's second argument, either alone or with exp_number [exp_number/objectSource]\n"
-                   "\tdevice: the name of the experiment device, e.g. ITER\n"
                    "\tobjectClass: the name of the data's measurement class, e.g. magnetics\n"
                    "\tsourceClass: the name of the data's source class, e.g. imas\n"
                    "\ttype: the data type classsification, e.g. P for Plugin\n\n"

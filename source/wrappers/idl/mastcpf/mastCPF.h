@@ -43,7 +43,7 @@ extern IDL_MSG_BLOCK msg_block;
 
 // Globals
 
-extern PGconn * DBConnect;
+//extern PGconn * DBConnect;
 extern int     nGroupRows;
 
 // Prototypes

@@ -1,5 +1,5 @@
-#ifndef IDAM_PLUGIN_TORE_SUPRA_TS_XML_H
-#define IDAM_PLUGIN_TORE_SUPRA_TS_XML_H
+#ifndef UDA_PLUGIN_EXP2IMAS_EXP2IMAS_XML_H
+#define UDA_PLUGIN_EXP2IMAS_EXP2IMAS_XML_H
 
 #include <libxml/xpath.h>
 
@@ -11,6 +11,7 @@
 #  define XML_FMT_TYPE const xmlChar*
 #endif
 
-int execute_xpath_expression(const char* filename, const xmlChar* xpathExpr, DATA_BLOCK* data_block, int* nodeIndices);
+int execute_xpath_expression(const char* filename, const xmlChar* xpathExpr, char** data, int* data_type, int* time_dim,
+                             int** sizes, float** coefas, float** coefbs, int index, int** dims, int* rank);
 
-#endif // IDAM_PLUGIN_TORE_SUPRA_TS_XML_H
+#endif // UDA_PLUGIN_EXP2IMAS_EXP2IMAS_XML_H

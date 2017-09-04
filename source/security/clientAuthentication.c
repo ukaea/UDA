@@ -227,7 +227,8 @@ static int initialiseKeys(CLIENT_BLOCK* client_block, gcry_sexp_t* publickey_out
     return 0;
 }
 
-static int issueToken(CLIENT_BLOCK* client_block, gcry_sexp_t publickey, gcry_sexp_t privatekey, gcry_mpi_t* client_mpiToken, gcry_mpi_t* server_mpiToken)
+static int issueToken(CLIENT_BLOCK* client_block, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist,
+                      gcry_sexp_t publickey, gcry_sexp_t privatekey, gcry_mpi_t* client_mpiToken, gcry_mpi_t* server_mpiToken)
 {
     int err = 0;
 
@@ -263,7 +264,7 @@ static int issueToken(CLIENT_BLOCK* client_block, gcry_sexp_t publickey, gcry_se
 #ifndef TESTIDAMSECURITY
     int protocol_id = PROTOCOL_CLIENT_BLOCK;
 
-    if ((err = protocol2(clientOutput, protocol_id, XDR_SEND, NULL, &client_block)) != 0) {
+    if ((err = protocol2(clientOutput, protocol_id, XDR_SEND, NULL, logmalloclist, userdefinedtypelist, &client_block)) != 0) {
         THROW_ERROR(err, "Protocol 10 Error (securityBlock #1)");
     }
 
@@ -290,7 +291,9 @@ static int issueToken(CLIENT_BLOCK* client_block, gcry_sexp_t publickey, gcry_se
     return err;
 }
 
-static int decryptServerToken(SERVER_BLOCK* server_block, CLIENT_BLOCK* client_block, gcry_sexp_t publickey, gcry_sexp_t privatekey, gcry_mpi_t* client_mpiToken, gcry_mpi_t* server_mpiToken)
+static int decryptServerToken(SERVER_BLOCK* server_block, CLIENT_BLOCK* client_block, LOGMALLOCLIST* logmalloclist,
+                              USERDEFINEDTYPELIST* userdefinedtypelist, gcry_sexp_t publickey, gcry_sexp_t privatekey,
+                              gcry_mpi_t* client_mpiToken, gcry_mpi_t* server_mpiToken)
 {
     int err = 0;
 
@@ -307,7 +310,7 @@ static int decryptServerToken(SERVER_BLOCK* server_block, CLIENT_BLOCK* client_b
 
     int protocol_id = PROTOCOL_SERVER_BLOCK;
 
-    if ((err = protocol2(clientInput, protocol_id, XDR_RECEIVE, NULL, &server_block)) != 0) {
+    if ((err = protocol2(clientInput, protocol_id, XDR_RECEIVE, NULL, logmalloclist, userdefinedtypelist, &server_block)) != 0) {
         THROW_ERROR(err, "Protocol 11 Error (securityBlock #5)");
     }
 
@@ -365,7 +368,8 @@ static int decryptServerToken(SERVER_BLOCK* server_block, CLIENT_BLOCK* client_b
     return err;
 }
 
-static int encryptServerToken(CLIENT_BLOCK* client_block, gcry_sexp_t publickey, gcry_sexp_t privatekey, gcry_mpi_t* client_mpiToken, gcry_mpi_t* server_mpiToken)
+static int encryptServerToken(CLIENT_BLOCK* client_block, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist,
+                              gcry_sexp_t publickey, gcry_sexp_t privatekey, gcry_mpi_t* client_mpiToken, gcry_mpi_t* server_mpiToken)
 {
     int err = 0;
 
@@ -403,7 +407,7 @@ static int encryptServerToken(CLIENT_BLOCK* client_block, gcry_sexp_t publickey,
 #ifndef TESTIDAMSECURITY
     int protocol_id = PROTOCOL_CLIENT_BLOCK;
 
-    if ((err = protocol2(clientOutput, protocol_id, XDR_SEND, NULL, &client_block)) != 0) {
+    if ((err = protocol2(clientOutput, protocol_id, XDR_SEND, NULL, logmalloclist, userdefinedtypelist, &client_block)) != 0) {
         THROW_ERROR(err, "Protocol 10 Error (securityBlock #6)");
     }
 
@@ -419,7 +423,8 @@ static int encryptServerToken(CLIENT_BLOCK* client_block, gcry_sexp_t publickey,
     return err;
 }
 
-int clientAuthentication(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block, AUTHENTICATION_STEP authenticationStep)
+int clientAuthentication(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block, LOGMALLOCLIST* logmalloclist,
+                         USERDEFINEDTYPELIST* userdefinedtypelist, AUTHENTICATION_STEP authenticationStep)
 {
     gcry_sexp_t privatekey = NULL;
     gcry_sexp_t publickey = NULL;
@@ -434,15 +439,15 @@ int clientAuthentication(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block,
 
     switch (authenticationStep) {
         case CLIENT_ISSUE_TOKEN:
-            err = issueToken(client_block, publickey, privatekey, &client_mpiToken, &server_mpiToken);
+            err = issueToken(client_block, logmalloclist, userdefinedtypelist, publickey, privatekey, &client_mpiToken, &server_mpiToken);
             break;
 
         case CLIENT_DECRYPT_SERVER_TOKEN:
-            err = decryptServerToken(server_block, client_block, publickey, privatekey, &client_mpiToken, &server_mpiToken);
+            err = decryptServerToken(server_block, client_block, logmalloclist, userdefinedtypelist, publickey, privatekey, &client_mpiToken, &server_mpiToken);
             break;
 
         case CLIENT_ENCRYPT_SERVER_TOKEN:
-            err = encryptServerToken(client_block, publickey, privatekey, &client_mpiToken, &server_mpiToken);
+            err = encryptServerToken(client_block, logmalloclist, userdefinedtypelist, publickey, privatekey, &client_mpiToken, &server_mpiToken);
             break;
 
         case HOUSEKEEPING:

@@ -1,9 +1,10 @@
-#ifndef IDAM_SERVER_IDAMPLUGINSTRUCTS_H
-#define IDAM_SERVER_IDAMPLUGINSTRUCTS_H
+#ifndef UDA_SERVER_IDAMPLUGINSTRUCTS_H
+#define UDA_SERVER_IDAMPLUGINSTRUCTS_H
 
 #include <stdio.h>
 
 #include <clientserver/udaStructs.h>
+#include <structures/genStructs.h>
 
 struct PluginList;              // Forward declaration
 typedef struct PluginList PLUGINLIST;
@@ -23,8 +24,10 @@ typedef struct IdamPluginInterface {    // Standard Plugin interface
     DATA_SOURCE* data_source;
     SIGNAL_DESC* signal_desc;
     ENVIRONMENT* environment;           // Server environment
+    LOGMALLOCLIST* logmalloclist;
+    USERDEFINEDTYPELIST* userdefinedtypelist;
     void* sqlConnection;                // Opaque structure
-    const PLUGINLIST* pluginList;             // List of data readers, filters, models, and servers
+    const PLUGINLIST* pluginList;       // List of data readers, filters, models, and servers
 } IDAM_PLUGIN_INTERFACE;
 
 typedef int (* PLUGINFUNP)(IDAM_PLUGIN_INTERFACE*);             // Plugin function type
@@ -59,4 +62,4 @@ struct PluginList {
     PLUGIN_DATA* plugin;
 };
 
-#endif // IDAM_SERVER_IDAMPLUGINSTRUCTS_H
+#endif // UDA_SERVER_IDAMPLUGINSTRUCTS_H

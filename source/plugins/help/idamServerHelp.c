@@ -151,12 +151,13 @@ static int do_ping(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     defineField(&field, "microseconds", "Server inter-second time in microseconds", &offset, SCALARUINT);
     addCompoundField(&usertype, field);
 
+    USERDEFINEDTYPELIST* userdefinedtypelist = idam_plugin_interface->userdefinedtypelist;
     addUserDefinedType(userdefinedtypelist, usertype);
 
     // assign the returned data structure
 
     HELP_PING* data = (HELP_PING*)malloc(sizeof(HELP_PING));
-    addMalloc((void*)data, 1, sizeof(HELP_PING), "HELP_PING");        // Register
+    addMalloc(idam_plugin_interface->logmalloclist, (void*)data, 1, sizeof(HELP_PING), "HELP_PING");        // Register
 
     data->seconds = (unsigned int)serverTime.tv_sec;
     data->microseconds = (unsigned int)serverTime.tv_usec;
@@ -177,7 +178,7 @@ static int do_ping(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
-    data_block->opaque_block = (void*)findUserDefinedType("HELP_PING", 0);
+    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "HELP_PING", 0);
 
     return 0;
 }

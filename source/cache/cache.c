@@ -2,14 +2,25 @@
 
 #ifdef NOLIBMEMCACHED
 
-struct IdamCached {};
+struct IdamCached {
+};
 
-IDAM_CACHE * idamOpenCache() { return NULL; }
-void idamFreeCache() {}
-char * idamCacheKey(REQUEST_BLOCK * request_block, ENVIRONMENT environment) { return NULL; }
+IDAM_CACHE* idamOpenCache()
+{ return NULL; }
 
-int idamCacheWrite(IDAM_CACHE * cache, REQUEST_BLOCK * request_block, DATA_BLOCK * data_block, ENVIRONMENT environment) { return 0; }
-DATA_BLOCK * idamCacheRead(IDAM_CACHE * cache, REQUEST_BLOCK * request_block, ENVIRONMENT environment) { return NULL; }
+void idamFreeCache()
+{}
+
+char* idamCacheKey(REQUEST_BLOCK* request_block, ENVIRONMENT environment)
+{ return NULL; }
+
+int idamCacheWrite(IDAM_CACHE* cache, REQUEST_BLOCK* request_block, DATA_BLOCK* data_block,
+                   LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist, ENVIRONMENT environment)
+{ return 0; }
+
+DATA_BLOCK* idamCacheRead(IDAM_CACHE* cache, REQUEST_BLOCK* request_block, LOGMALLOCLIST* logmalloclist,
+                          USERDEFINEDTYPELIST* userdefinedtypelist, ENVIRONMENT environment)
+{ return NULL; }
 
 #else
 
@@ -139,7 +150,8 @@ char* idamCacheKey(REQUEST_BLOCK* request_block, ENVIRONMENT environment)
 // All data services should indicate whether or not the data returned is suitable for client side caching (all server plugin get methods must decide!)
 // The server should also set a recommmended expiration time (lifetime of the stored object) - overridden by the client if necessary
 
-int idamCacheWrite(IDAM_CACHE* cache, REQUEST_BLOCK* request_block, DATA_BLOCK* data_block, ENVIRONMENT environment)
+int idamCacheWrite(IDAM_CACHE* cache, REQUEST_BLOCK* request_block, DATA_BLOCK* data_block, LOGMALLOCLIST* logmalloclist,
+                   USERDEFINEDTYPELIST* userdefinedtypelist, ENVIRONMENT environment)
 {
 #ifdef CACHEDEV
 
@@ -165,7 +177,7 @@ int idamCacheWrite(IDAM_CACHE* cache, REQUEST_BLOCK* request_block, DATA_BLOCK* 
 
     int token;
 
-    protocol2(&xdrs, PROTOCOL_DATA_BLOCK, XDR_SEND, &token, (void*)data_block);
+    protocol2(&xdrs, PROTOCOL_DATA_BLOCK, XDR_SEND, &token, logmalloclist, userdefinedtypelist, (void*)data_block);
     xdr_destroy(&xdrs);     // Destroy before the  file otherwise a segmentation error occurs
     fclose(memfile);
 
@@ -215,7 +227,8 @@ int idamCacheWrite(IDAM_CACHE* cache, REQUEST_BLOCK* request_block, DATA_BLOCK* 
     return 0;
 }
 
-DATA_BLOCK* idamCacheRead(IDAM_CACHE* cache, REQUEST_BLOCK* request_block, ENVIRONMENT environment)
+DATA_BLOCK* idamCacheRead(IDAM_CACHE* cache, REQUEST_BLOCK* request_block, LOGMALLOCLIST* logmalloclist,
+                          USERDEFINEDTYPELIST* userdefinedtypelist, ENVIRONMENT environment)
 {
     char* key = idamCacheKey(request_block, environment);
     IDAM_LOGF(UDA_LOG_DEBUG, "Retrieving value for key: %s\n", key);
@@ -251,7 +264,7 @@ DATA_BLOCK* idamCacheRead(IDAM_CACHE* cache, REQUEST_BLOCK* request_block, ENVIR
     initDataBlock(data_block);
 
     int token;
-    protocol2(&xdrs, PROTOCOL_DATA_BLOCK, XDR_RECEIVE, &token, (void*)data_block);
+    protocol2(&xdrs, PROTOCOL_DATA_BLOCK, XDR_RECEIVE, &token, logmalloclist, userdefinedtypelist, (void*)data_block);
 
     xdr_destroy(&xdrs);     // Destroy before the  file otherwise a segmentation error occurs
     fclose(memfile);

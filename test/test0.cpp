@@ -1,36 +1,46 @@
 #if 0
 #!/bin/bash
-g++ test0.cpp -g -O0 -gdwarf-3 -o test \
-    -I$HOME/itmwork/IdamInstall/include/idam -I$HOME/itmwork/IdamInstall/include/idam/c++ \
-    -I$BOOST_HOME/include \
-    -Wl,-rpath,$HOME/itmwork/IdamInstall/lib -L$HOME/itmwork/IdamInstall/lib \
-    -Wl,-rpath,$HOME/lib -L$HOME/lib \
-    -lidamcpp -lidam64
+g++ test0.cpp -g -O0 -gdwarf-3 -o test $(pkg-config --cflags uda-cpp) $(pkg-config --libs uda-cpp)
 exit 0
 #endif
 
-#include "Idam.hpp"
 #include <typeinfo>
 #include <iostream>
 #include <fstream>
 
+#include <UDA.hpp>
+
 int main() {
-    Idam::Client::setServerHostName("localhost");
-    Idam::Client::setServerPort(56565);
+    uda::Client client;
 
-    Idam::Client client;
-
-    const Idam::Result& result = client.get("TORE::read(element=/bpol_probe/Size_of, shot=43970)", "");
+    const uda::Result& result = client.get("ayc_te", "30420");
     
-    Idam::Data * data = result.data();
+    uda::Data* data = result.data();
 
     std::cout << "size = " << data->size() << std::endl;
     std::cout << "type = " << data->type().name() << std::endl;
 
-    Idam::Array * arr = dynamic_cast< Idam::Array*>(data);
+    uda::Array* arr = dynamic_cast< uda::Array*>(data);
     
-    std::vector<int> values = arr->as<int>();
+    std::vector<float> values = arr->as<float>();
     std::cout << "value(0) = " << values.at(0) << "\n"; 
+
+    bool hasErrors = result.hasErrors();
+
+    std::cout << "hasErrors = " << hasErrors << std::endl;
+
+    if (hasErrors) {
+
+        uda::Data* errors = result.errors();
+
+        std::cout << "size = " << errors->size() << std::endl;
+        std::cout << "type = " << errors->type().name() << std::endl;
+
+        uda::Array* errArr = dynamic_cast< uda::Array*>(errors);
+    
+        std::vector<float> errVals = errArr->as<float>();
+        std::cout << "value(0) = " << errVals.at(0) << "\n"; 
+    }
 
     return 0;
 }

@@ -11360,14 +11360,12 @@ struct descriptor_xd* doShellCommand(char* cmd) {
     int retLen = 0;
     FILE* f = fopen(tmpName, "r");
     if (!f) {
-        free(tmpName);
         return NULL;
     }
     while (fread(&answer[retLen], 1, 1, f) > 0 && retLen < MAX_COMMAND_ANSWER_LEN)
         retLen++;
     fclose(f);
     remove(tmpName);
-    free(tmpName);
     answerD.length = retLen;
     MdsCopyDxXd(&answerD, &retXd);
     free(answer);

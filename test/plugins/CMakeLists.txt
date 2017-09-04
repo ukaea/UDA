@@ -21,7 +21,8 @@ foreach( TEST_FILE ${TEST_FILES} )
       client-shared
       ${OPENSSL_LIBRARIES}
       ${LIBXML2_LIBRARIES}
-      ${CACHE_LIBRARIES} )
+      ${CACHE_LIBRARIES}
+    )
 
     add_executable( fat_${TEST} ${TEST_FILE} )
     target_link_libraries( fat_${TEST} PRIVATE
@@ -31,7 +32,8 @@ foreach( TEST_FILE ${TEST_FILES} )
       ${OPENSSL_LIBRARIES}
       ${LIBXML2_LIBRARIES}
       ${CACHE_LIBRARIES}
-      c m dl )
+      c m dl
+    )
     target_compile_definitions( fat_${TEST} PRIVATE -DFATCLIENT )
     link_modules( fat_${TEST} )
 

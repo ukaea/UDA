@@ -14,7 +14,7 @@ TEST_CASE( "Test MONGO::help() function", "[MONGO][plugins]" ) {
     const uda::Result& result = client.get("MONGO::help()", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.error() == "" );
+    REQUIRE( result.errorMessage() == "" );
 
     uda::Data* data = result.data();
 

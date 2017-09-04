@@ -1600,7 +1600,9 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
             const char* expName = NULL;
             FIND_REQUIRED_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, expName);
 
-            int id = findPluginIdByFormat(expName, idam_plugin_interface->pluginList);
+            const char* pluginName = "EXP2IMAS";
+
+            int id = findPluginIdByFormat(pluginName, idam_plugin_interface->pluginList);
             if (id < 0) {
                 IDAM_LOG(UDA_LOG_ERROR, "Specified IDAM data plugin not found\n");
             } else {
@@ -1613,24 +1615,26 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
 
                 int get_shape = 0;
 
-                size_t len = strlen(path);
-                if (len > 5 && (STR_EQUALS(path + (len - 5), "/time") || STR_EQUALS(path + (len - 5), "/data"))) {
-                    //path[len - 5] = '\0';
-                }
+//                size_t len = strlen(path);
+//                if (len > 5 && (STR_EQUALS(path + (len - 5), "/time") || STR_EQUALS(path + (len - 5), "/data"))) {
+//                    path[len - 5] = '\0';
+//                }
 
                 REQUEST_BLOCK new_request;
                 copyRequestBlock(&new_request, *idam_plugin_interface->request_block);
 
                 const char* fmt = path[0] == '/'
-                                  ? "%s%sread(element=%s%s, indices=%s, shot=%d%s)"
-                                  : "%s%sread(element=%s/%s, indices=%s, shot=%d%s)";
+                                  ? "%s%sread(element=%s%s, indices=%s, shot=%d, dtype=%d, IDS_version=3.7.4%s)"
+                                  : "%s%sread(element=%s/%s, indices=%s, shot=%d, dtype=%d, IDS_version=3.7.4%s)";
 
                 int shot = plugin_args.isShotNumber
                            ? plugin_args.shotNumber
                            : ual_get_shot(idx);
 
+                int uda_type = findIMASIDAMType(type);
+
                 sprintf(new_request.signal, fmt, expName, new_request.api_delim, (char*)plugin_args.CPOPath, path,
-                        indices_string, shot, get_shape ? ", get_shape" : "");
+                        indices_string, shot, uda_type, get_shape ? ", get_shape" : "");
 
                 IDAM_LOGF(UDA_LOG_DEBUG, "imas: %s", new_request.signal);
 
@@ -1645,9 +1649,8 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
                     for (i = 0; i < data_block->rank; ++i) {
                         shape[i] = data_block->dims[i].dim_n;
                     }
-                    int idam_type = findIMASIDAMType(type);
-                    if (idam_type != data_block->data_type) {
-                        if (idam_type == TYPE_DOUBLE && data_block->data_type == TYPE_FLOAT) {
+                    if (uda_type != data_block->data_type) {
+                        if (uda_type == TYPE_DOUBLE && data_block->data_type == TYPE_FLOAT) {
                             imasData = malloc(data_block->data_n * sizeof(double));
                             for (i = 0; i < data_block->data_n; ++i) {
                                 ((double*)imasData)[i] = ((float*)data_block->data)[i];
@@ -1661,8 +1664,8 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
                     } else {
                         imasData = data_block->data;
                     }
-                    imas_mds_putData(idx, (char*)plugin_args.CPOPath, (char*)plugin_args.path, type, plugin_args.rank, shape,
-                                     PUT_OPERATION, (void*)imasData, 0.0);
+                    imas_mds_putData(idx, (char*)plugin_args.CPOPath, (char*)plugin_args.path, type, plugin_args.rank,
+                                     shape, PUT_OPERATION, (void*)imasData, 0.0);
                 }
             }
         }
@@ -1705,13 +1708,15 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
             break;
         }
         case GET_OPERATION: {
-            data_block->rank = (unsigned int)plugin_args.rank;
             data_block->data_type = findIMASIDAMType(type);
-            data_block->data = (char*)imasData;
-            if (data_block->data_type == TYPE_STRING && plugin_args.rank <= 1) {
+            data_block->data = imasData;
+
+            if (data_block->data_type == TYPE_STRING && plugin_args.rank == 0) {
+                data_block->rank = 1;
                 data_block->data_n = (int)strlen(imasData) + 1;
                 shape[0] = data_block->data_n;
             } else {
+                data_block->rank = (unsigned int)plugin_args.rank;
                 data_block->data_n = shape[0];
                 for (i = 1; i < plugin_args.rank; i++) {
                     data_block->data_n *= shape[i];
@@ -1719,18 +1724,19 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
             }
             break;
         }
-        case GETSLICE_OPERATION: {        // Need to return Data as well as the time - increase rank by 1 and pass in a
+        case GETSLICE_OPERATION: {
+            // Need to return Data as well as the time - increase rank by 1 and pass in a
             // coordinate array of length 1
             data_block->rank = plugin_args.rank;
             data_block->data_type = findIMASIDAMType(type);
-            data_block->data = (char*)imasData;
+            data_block->data = imasData;
             data_block->data_n = shape[0];
             for (i = 1; i < plugin_args.rank; i++)data_block->data_n *= shape[i];
             break;
         }
     }
 
-// Return dimensions
+    // Return dimensions
 
     if (data_block->rank > 0 || dataOperation == GETSLICE_OPERATION) {
         data_block->dims = (DIMS*)malloc((data_block->rank + 1) * sizeof(DIMS));

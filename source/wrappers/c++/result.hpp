@@ -19,12 +19,20 @@ class Data;
 
 class Result : private boost::noncopyable {
 public:
+    enum DataType {
+        DATA, ERRORS
+    };
+
     ~Result();
 
-    const std::string error() const;
+    const std::string errorMessage() const;
     int errorCode() const;
 
     Data* data() const;
+
+    bool hasErrors() const;
+
+    Data* errors() const;
 
     const std::type_info& type() const
     { return *type_; };
@@ -47,7 +55,7 @@ public:
     const std::map<std::string, std::string>& meta()
     { return meta_; }
 
-    Dim dim(dim_type ndim) const;
+    Dim dim(dim_type ndim, DataType data_type) const;
 
     bool isTree() const
     { return istree_; }
@@ -55,7 +63,7 @@ public:
     TreeNode tree() const;
 
 private:
-    Result(int handle);
+    explicit Result(int handle);
 
     friend class Client;
 

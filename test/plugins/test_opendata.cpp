@@ -14,7 +14,7 @@ TEST_CASE( "Test OPENDATA::help() function", "[OPENDATA][plugins]" ) {
     const uda::Result& result = client.get("OPENDATA::help()", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.error() == "" );
+    REQUIRE( result.errorMessage() == "" );
 
     uda::Data* data = result.data();
 

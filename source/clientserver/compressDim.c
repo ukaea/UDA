@@ -260,21 +260,23 @@ int uncompressDim(DIMS* ddim)
             switch (ddim->method) {
                 case 0:
                     cp[0] = (char)d0;
-                    for (i = 1; i < ndata; i++)cp[i] = cp[i - 1] + (char)diff;
+                    for (i = 1; i < ndata; i++) {
+                        cp[i] = cp[i - 1] + (char)diff;
+                    }
                     break;
                 case 1:
                     count = 0;
                     for (i = 0; i < ddim->udoms; i++) {
-                        for (j = 0; j < *((long*)ddim->sams + i); j++) {
-                            cp[count++] = *((char*)ddim->offs + i) + (char)j * *((char*)ddim->ints + i);
+                        for (j = 0; j < *(ddim->sams + i); j++) {
+                            cp[count++] = *(ddim->offs + i) + (char)j * *(ddim->ints + i);
                         }
                     }
                     break;
                 case 2:
-                    for (i = 0; i < ddim->udoms; i++)cp[i] = *((char*)ddim->offs + i);
+                    for (i = 0; i < ddim->udoms; i++)cp[i] = *(ddim->offs + i);
                     break;
                 case 3:
-                    for (i = 0; i < ddim->udoms; i++)cp[i] = *((char*)ddim->offs) + (char)i * *((char*)ddim->ints);
+                    for (i = 0; i < ddim->udoms; i++)cp[i] = *(ddim->offs) + (char)i * *(ddim->ints);
                     break;
             }
             break;
@@ -290,12 +292,14 @@ int uncompressDim(DIMS* ddim)
             switch (ddim->method) {
                 case 0:
                     sp[0] = (short)d0;
-                    for (i = 1; i < ndata; i++)sp[i] = sp[i - 1] + (short)diff;
+                    for (i = 1; i < ndata; i++) {
+                        sp[i] = sp[i - 1] + (short)diff;
+                    }
                     break;
                 case 1:
                     count = 0;
                     for (i = 0; i < ddim->udoms; i++) {
-                        for (j = 0; j < *((long*)ddim->sams + i); j++) {
+                        for (j = 0; j < *(ddim->sams + i); j++) {
                             sp[count++] = *((short*)ddim->offs + i) + (short)j * *((short*)ddim->ints + i);
                         }
                     }
@@ -321,13 +325,15 @@ int uncompressDim(DIMS* ddim)
             switch (ddim->method) {
                 case 0:
                     ip[0] = (int)d0;
-                    for (i = 1; i < ndata; i++)ip[i] = ip[i - 1] + (int)diff;
+                    for (i = 1; i < ndata; i++) {
+                        ip[i] = ip[i - 1] + (int)diff;
+                    }
                     break;
                 case 1:
                     count = 0;
                     for (i = 0; i < ddim->udoms; i++) {
-                        for (j = 0; j < *((long*)ddim->sams + i); j++) {
-                            ip[count++] = *((int*)ddim->offs + i) + (int)j * *((int*)ddim->ints + i);
+                        for (j = 0; j < *(ddim->sams + i); j++) {
+                            ip[count++] = *((int*)ddim->offs + i) + j * *((int*)ddim->ints + i);
                         }
                     }
                     break;
@@ -335,7 +341,7 @@ int uncompressDim(DIMS* ddim)
                     for (i = 0; i < ddim->udoms; i++)ip[i] = *((int*)ddim->offs + i);
                     break;
                 case 3:
-                    for (i = 0; i < ddim->udoms; i++)ip[i] = *((int*)ddim->offs) + (int)i * *((int*)ddim->ints);
+                    for (i = 0; i < ddim->udoms; i++)ip[i] = *((int*)ddim->offs) + i * *((int*)ddim->ints);
                     break;
             }
             break;
@@ -350,12 +356,14 @@ int uncompressDim(DIMS* ddim)
             switch (ddim->method) {
                 case 0:
                     lp[0] = (long)d0;
-                    for (i = 1; i < ndata; i++)lp[i] = lp[i - 1] + (long)diff;
+                    for (i = 1; i < ndata; i++) {
+                        lp[i] = lp[i - 1] + (long)diff;
+                    }
                     break;
                 case 1:
                     count = 0;
                     for (i = 0; i < ddim->udoms; i++) {
-                        for (j = 0; j < *((long*)ddim->sams + i); j++) {
+                        for (j = 0; j < *(ddim->sams + i); j++) {
                             lp[count++] = *((long*)ddim->offs + i) + (long)j * *((long*)ddim->ints + i);
                         }
                     }
@@ -368,6 +376,7 @@ int uncompressDim(DIMS* ddim)
                     break;
             }
             break;
+
         case TYPE_LONG64 : {
             long long int* lp;
             if (ddim->dim == NULL) {
@@ -379,12 +388,14 @@ int uncompressDim(DIMS* ddim)
             switch (ddim->method) {
                 case 0:
                     lp[0] = (long long int)d0;
-                    for (i = 1; i < ndata; i++)lp[i] = lp[i - 1] + (long long int)diff;
+                    for (i = 1; i < ndata; i++) {
+                        lp[i] = lp[i - 1] + (long long int)diff;
+                    }
                     break;
                 case 1:
                     count = 0;
                     for (i = 0; i < ddim->udoms; i++) {
-                        for (j = 0; j < *((long long int*)ddim->sams + i); j++) {
+                        for (j = 0; j < *(ddim->sams + i); j++) {
                             lp[count++] = *((long long int*)ddim->offs + i) +
                                           (long long int)j * *((long long int*)ddim->ints + i);
                         }
@@ -400,6 +411,7 @@ int uncompressDim(DIMS* ddim)
             }
             break;
         }
+
         case TYPE_FLOAT :
             if ((ddim->dim = (char*)malloc(ndata * sizeof(float))) == NULL) {
                 return UNCOMPRESS_ALLOCATING_HEAP;
@@ -409,7 +421,9 @@ int uncompressDim(DIMS* ddim)
             switch (ddim->method) {
                 case 0:
                     fp[0] = (float)d0;
-                    for (i = 1; i < ndata; i++)fp[i] = fp[i - 1] + (float)diff;
+                    for (i = 1; i < ndata; i++) {
+                        fp[i] = fp[i - 1] + (float)diff;
+                    }
                     break;
                 case 1:
                     count = 0;
@@ -440,12 +454,14 @@ int uncompressDim(DIMS* ddim)
             switch (ddim->method) {
                 case 0:
                     dp[0] = (double)d0;
-                    for (i = 1; i < ndata; i++)dp[i] = dp[i - 1] + (double)diff;
+                    for (i = 1; i < ndata; i++) {
+                        dp[i] = dp[i - 1] + diff;
+                    }
                     break;
                 case 1:
                     count = 0;
                     for (i = 0; i < ddim->udoms; i++) {
-                        for (j = 0; j < *((long*)ddim->sams + i); j++) {
+                        for (j = 0; j < *(ddim->sams + i); j++) {
                             dp[count++] = *((double*)ddim->offs + i) + (double)j * *((double*)ddim->ints + i);
                         }
                     }
@@ -471,12 +487,14 @@ int uncompressDim(DIMS* ddim)
             switch (ddim->method) {
                 case 0:
                     ucp[0] = (unsigned char)d0;
-                    for (i = 1; i < ndata; i++)ucp[i] = ucp[i - 1] + (char)diff;
+                    for (i = 1; i < ndata; i++) {
+                        ucp[i] = ucp[i - 1] + (char)diff;
+                    }
                     break;
                 case 1:
                     count = 0;
                     for (i = 0; i < ddim->udoms; i++) {
-                        for (j = 0; j < *((long*)ddim->sams + i); j++) {
+                        for (j = 0; j < *(ddim->sams + i); j++) {
                             ucp[count++] = *((unsigned char*)ddim->offs + i) +
                                            (unsigned char)j * *((unsigned char*)ddim->ints + i);
                         }
@@ -503,12 +521,14 @@ int uncompressDim(DIMS* ddim)
             switch (ddim->method) {
                 case 0:
                     usp[0] = (unsigned short)d0;
-                    for (i = 1; i < ndata; i++)usp[i] = usp[i - 1] + (unsigned short)diff;
+                    for (i = 1; i < ndata; i++) {
+                        usp[i] = usp[i - 1] + (unsigned short)diff;
+                    }
                     break;
                 case 1:
                     count = 0;
                     for (i = 0; i < ddim->udoms; i++) {
-                        for (j = 0; j < *((long*)ddim->sams + i); j++) {
+                        for (j = 0; j < *(ddim->sams + i); j++) {
                             usp[count++] = *((unsigned short*)ddim->offs + i) +
                                            (unsigned short)j * *((unsigned short*)ddim->ints + i);
                         }
@@ -535,12 +555,14 @@ int uncompressDim(DIMS* ddim)
             switch (ddim->method) {
                 case 0:
                     uip[0] = (unsigned int)d0;
-                    for (i = 1; i < ndata; i++)uip[i] = uip[i - 1] + (unsigned int)diff;
+                    for (i = 1; i < ndata; i++) {
+                        uip[i] = uip[i - 1] + (unsigned int)diff;
+                    }
                     break;
                 case 1:
                     count = 0;
                     for (i = 0; i < ddim->udoms; i++) {
-                        for (j = 0; j < *((long*)ddim->sams + i); j++) {
+                        for (j = 0; j < *(ddim->sams + i); j++) {
                             uip[count++] = *((unsigned int*)ddim->offs + i) +
                                            (unsigned int)j * *((unsigned int*)ddim->ints + i);
                         }
@@ -566,12 +588,14 @@ int uncompressDim(DIMS* ddim)
             switch (ddim->method) {
                 case 0:
                     ulp[0] = (unsigned long)d0;
-                    for (i = 1; i < ndata; i++)ulp[i] = ulp[i - 1] + (unsigned long)diff;
+                    for (i = 1; i < ndata; i++) {
+                        ulp[i] = ulp[i - 1] + (unsigned long)diff;
+                    }
                     break;
                 case 1:
                     count = 0;
                     for (i = 0; i < ddim->udoms; i++) {
-                        for (j = 0; j < *((unsigned long*)ddim->sams + i); j++) {
+                        for (j = 0; j < *(ddim->sams + i); j++) {
                             ulp[count++] = *((unsigned long*)ddim->offs + i) +
                                            (unsigned long)j * *((unsigned long*)ddim->ints + i);
                         }
@@ -603,7 +627,7 @@ int uncompressDim(DIMS* ddim)
                 case 1:
                     count = 0;
                     for (i = 0; i < ddim->udoms; i++) {
-                        for (j = 0; j < *((unsigned long long int*) ddim->sams + i); j++) {
+                        for (j = 0; j < *(ddim->sams + i); j++) {
                             ulp[count++] = *((unsigned long long int*) ddim->offs + i) +
                                            (unsigned long long int) j * *((unsigned long long int*) ddim->ints + i);
                         }

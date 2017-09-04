@@ -15,5 +15,5 @@ add_definitions(
   -DSQL_PORT=56566
   -DSQL_DBNAME="idam"
   -DSQL_USER="readonly"
-  -DSQL_HOST="idam1"
+  -DSQL_HOST="idam1.mast.ccfe.ac.uk"
 )

@@ -961,8 +961,10 @@ extern int livedisplay(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         }
     }
 
-//----------------------------------------------------------------------------------------
-// Functions
+    USERDEFINEDTYPELIST* userdefinedtypelist = idam_plugin_interface->userdefinedtypelist;
+
+    //----------------------------------------------------------------------------------------
+    // Functions
 
     err = 0;
 
@@ -981,27 +983,31 @@ extern int livedisplay(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 // Build the Returned Structures
 
             CODE* code = (CODE*)malloc(sizeof(CODE));
-            addMalloc((void*)code, 1, sizeof(CODE), "CODE");
+            addMalloc(idam_plugin_interface->logmalloclist, (void*)code, 1, sizeof(CODE), "CODE");
 
             size_t stringLength = 56;
             code->name = (char*)malloc(stringLength * sizeof(char));
-            addMalloc((void*)code->name, 1, stringLength * sizeof(char), "STRING");    // Scalar String
+            addMalloc(idam_plugin_interface->logmalloclist, (void*)code->name, 1, stringLength * sizeof(char),
+                      "STRING");    // Scalar String
             strcpy(code->name, "IDAM LiveDisplay Plugin");
 
             stringLength = 56;
             code->version = (char*)malloc(stringLength * sizeof(char));
-            addMalloc((void*)code->version, 1, stringLength * sizeof(char), "STRING");    // Scalar String
+            addMalloc(idam_plugin_interface->logmalloclist, (void*)code->version, 1, stringLength * sizeof(char),
+                      "STRING");    // Scalar String
             sprintf(code->version, "LiveDisplay Plugin Version: %d", THISPLUGIN_VERSION);
 
             stringLength = strlen(request_block->signal) + strlen(request_block->source) + 7;
             code->parameters = (char*)malloc(stringLength * sizeof(char));
-            addMalloc((void*)code->parameters, 1, stringLength * sizeof(char), "STRING");    // Scalar String
+            addMalloc(idam_plugin_interface->logmalloclist, (void*)code->parameters, 1, stringLength * sizeof(char),
+                      "STRING");    // Scalar String
             sprintf(code->parameters, "\"%s\", \"%s\"", request_block->signal, request_block->source);
 
             code->output_flag_count = 3;
 
             code->output_flag = (int*)malloc(code->output_flag_count * sizeof(int));
-            addMalloc((void*)code->output_flag, code->output_flag_count, sizeof(int), "int");    // Integer Array
+            addMalloc(idam_plugin_interface->logmalloclist, (void*)code->output_flag, code->output_flag_count,
+                      sizeof(int), "int");    // Integer Array
             code->output_flag[0] = 12345;
             code->output_flag[1] = 67890;
             code->output_flag[2] = 99999;
@@ -1019,7 +1025,7 @@ extern int livedisplay(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
             data_block->opaque_count = 1;
-            data_block->opaque_block = (void*)findUserDefinedType("CODE", 0);
+            data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "CODE", 0);
 
             break;
 
@@ -1076,32 +1082,38 @@ extern int livedisplay(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             size_t stringLength = 56;
             code.name = (char*)malloc(stringLength * sizeof(char));
-            addMalloc((void*)code.name, 1, stringLength * sizeof(char), "STRING");    // Scalar String
+            addMalloc(idam_plugin_interface->logmalloclist, (void*)code.name, 1, stringLength * sizeof(char),
+                      "STRING");    // Scalar String
             strcpy(code.name, "IDAM LiveDisplay Plugin");
 
             stringLength = 56;
             code.version = (char*)malloc(stringLength * sizeof(char));
-            addMalloc((void*)code.version, 1, stringLength * sizeof(char), "STRING");    // Scalar String
+            addMalloc(idam_plugin_interface->logmalloclist, (void*)code.version, 1, stringLength * sizeof(char),
+                      "STRING");    // Scalar String
             sprintf(code.version, "LiveDisplay Plugin Version: %d", THISPLUGIN_VERSION);
 
             stringLength = strlen(request_block->signal) + strlen(request_block->source) + 7;
             code.parameters = (char*)malloc(stringLength * sizeof(char));
-            addMalloc((void*)code.parameters, 1, stringLength * sizeof(char), "STRING");    // Scalar String
+            addMalloc(idam_plugin_interface->logmalloclist, (void*)code.parameters, 1, stringLength * sizeof(char),
+                      "STRING");    // Scalar String
             sprintf(code.parameters, "\"%s\", \"%s\"", request_block->signal, request_block->source);
 
             code.output_flag_count = 3;
             code.output_flag = (int*)malloc(code.output_flag_count * sizeof(int));
-            addMalloc((void*)code.output_flag, code.output_flag_count, sizeof(int), "int");    // Integer Array
+            addMalloc(idam_plugin_interface->logmalloclist, (void*)code.output_flag, code.output_flag_count,
+                      sizeof(int), "int");    // Integer Array
             code.output_flag[0] = 12345;
             code.output_flag[1] = 67890;
             code.output_flag[2] = 99999;
 
             MAGNETICS_TEST2* magnetics = (MAGNETICS_TEST2*)malloc(sizeof(MAGNETICS_TEST2));
-            addMalloc((void*)magnetics, 1, sizeof(MAGNETICS_TEST2), "MAGNETICS_TEST2");
+            addMalloc(idam_plugin_interface->logmalloclist, (void*)magnetics, 1, sizeof(MAGNETICS_TEST2),
+                      "MAGNETICS_TEST2");
 
             stringLength = 128;
             magnetics->comment = (char*)malloc(stringLength * sizeof(char));
-            addMalloc((void*)magnetics->comment, 1, stringLength * sizeof(char), "STRING");    // Scalar String
+            addMalloc(idam_plugin_interface->logmalloclist, (void*)magnetics->comment, 1, stringLength * sizeof(char),
+                      "STRING");    // Scalar String
             strcpy(magnetics->comment, "This is the LiveDisplay prototype plugin for Magnetics IDS data");
 
             magnetics->homogeneous_time = 1;
@@ -1124,7 +1136,7 @@ extern int livedisplay(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
             data_block->opaque_count = 1;
-            data_block->opaque_block = (void*)findUserDefinedType("MAGNETICS_TEST2", 0);
+            data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "MAGNETICS_TEST2", 0);
 
             break;
 
@@ -1137,38 +1149,45 @@ extern int livedisplay(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 // Build the Returned Structures
 
             FLUX_LOOP* floop = (FLUX_LOOP*)malloc(sizeof(FLUX_LOOP));
-            addMalloc((void*)floop, 1, sizeof(FLUX_LOOP), "FLUX_LOOP");
+            addMalloc(idam_plugin_interface->logmalloclist, (void*)floop, 1, sizeof(FLUX_LOOP), "FLUX_LOOP");
 
             size_t stringLength = 56;
             floop->identifier = (char*)malloc(stringLength * sizeof(char));
-            addMalloc((void*)floop->identifier, 1, stringLength * sizeof(char), "STRING");    // Scalar String
+            addMalloc(idam_plugin_interface->logmalloclist, (void*)floop->identifier, 1, stringLength * sizeof(char),
+                      "STRING");    // Scalar String
             strcpy(floop->identifier, "IDAM LiveDisplay Plugin");
 
             stringLength = 56;
             floop->name = (char*)malloc(stringLength * sizeof(char));
-            addMalloc((void*)floop->name, 1, stringLength * sizeof(char), "STRING");    // Scalar String
+            addMalloc(idam_plugin_interface->logmalloclist, (void*)floop->name, 1, stringLength * sizeof(char),
+                      "STRING");    // Scalar String
             strcpy(floop->name, "Flux Loop #1");
 
             floop->position_count = 1;
 
             floop->r = (double*)malloc(floop->position_count * sizeof(double));
-            addMalloc((void*)floop->r, floop->position_count, sizeof(double), "double");
+            addMalloc(idam_plugin_interface->logmalloclist, (void*)floop->r, floop->position_count, sizeof(double),
+                      "double");
             floop->r[0] = 1.2345;
             floop->z = (double*)malloc(floop->position_count * sizeof(double));
-            addMalloc((void*)floop->z, floop->position_count, sizeof(double), "double");
+            addMalloc(idam_plugin_interface->logmalloclist, (void*)floop->z, floop->position_count, sizeof(double),
+                      "double");
             floop->z[0] = 6.7890;
             floop->phi = (double*)malloc(floop->position_count * sizeof(double));
-            addMalloc((void*)floop->phi, floop->position_count, sizeof(double), "double");
+            addMalloc(idam_plugin_interface->logmalloclist, (void*)floop->phi, floop->position_count, sizeof(double),
+                      "double");
             floop->phi[0] = 9.9999;
 
             floop->data_count = 1;
 
             floop->data = (double*)malloc(floop->data_count * sizeof(double));
-            addMalloc((void*)floop->data, floop->data_count, sizeof(double), "double");
+            addMalloc(idam_plugin_interface->logmalloclist, (void*)floop->data, floop->data_count, sizeof(double),
+                      "double");
             floop->data[0] = 3.1415927;
 
             floop->time = (double*)malloc(floop->data_count * sizeof(double));
-            addMalloc((void*)floop->time, floop->data_count, sizeof(double), "double");
+            addMalloc(idam_plugin_interface->logmalloclist, (void*)floop->time, floop->data_count, sizeof(double),
+                      "double");
             floop->time[0] = 2.71828;
 
 
@@ -1185,7 +1204,7 @@ extern int livedisplay(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
             data_block->opaque_count = 1;
-            data_block->opaque_block = (void*)findUserDefinedType("FLUX_LOOP", 0);
+            data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "FLUX_LOOP", 0);
 
             break;
 
@@ -1200,40 +1219,48 @@ extern int livedisplay(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             int flux_loop_count = 2;
 
             FLUX_LOOP* floop = (FLUX_LOOP*)malloc(flux_loop_count * sizeof(FLUX_LOOP));
-            addMalloc((void*)floop, flux_loop_count, sizeof(FLUX_LOOP), "FLUX_LOOP");
+            addMalloc(idam_plugin_interface->logmalloclist, (void*)floop, flux_loop_count, sizeof(FLUX_LOOP),
+                      "FLUX_LOOP");
 
             for (i = 0; i < flux_loop_count; i++) {
 
                 size_t stringLength = 56;
                 floop[i].identifier = (char*)malloc(stringLength * sizeof(char));
-                addMalloc((void*)floop[i].identifier, 1, stringLength * sizeof(char), "STRING");    // Scalar String
+                addMalloc(idam_plugin_interface->logmalloclist, (void*)floop[i].identifier, 1,
+                          stringLength * sizeof(char), "STRING");    // Scalar String
                 strcpy(floop[i].identifier, "IDAM LiveDisplay Plugin");
 
                 stringLength = 56;
                 floop[i].name = (char*)malloc(stringLength * sizeof(char));
-                addMalloc((void*)floop[i].name, 1, stringLength * sizeof(char), "STRING");
+                addMalloc(idam_plugin_interface->logmalloclist, (void*)floop[i].name, 1, stringLength * sizeof(char),
+                          "STRING");
                 strcpy(floop[i].name, "Flux Loop #1");
 
                 floop[i].position_count = 1;
 
                 floop[i].r = (double*)malloc(floop[i].position_count * sizeof(double));
-                addMalloc((void*)floop[i].r, floop[i].position_count, sizeof(double), "double");
+                addMalloc(idam_plugin_interface->logmalloclist, (void*)floop[i].r, floop[i].position_count,
+                          sizeof(double), "double");
                 floop[i].r[0] = 1.2345;
                 floop[i].z = (double*)malloc(floop[i].position_count * sizeof(double));
-                addMalloc((void*)floop[i].z, floop[i].position_count, sizeof(double), "double");
+                addMalloc(idam_plugin_interface->logmalloclist, (void*)floop[i].z, floop[i].position_count,
+                          sizeof(double), "double");
                 floop[i].z[0] = 6.7890;
                 floop[i].phi = (double*)malloc(floop[i].position_count * sizeof(double));
-                addMalloc((void*)floop[i].phi, floop[i].position_count, sizeof(double), "double");
+                addMalloc(idam_plugin_interface->logmalloclist, (void*)floop[i].phi, floop[i].position_count,
+                          sizeof(double), "double");
                 floop[i].phi[0] = 9.9999;
 
                 floop[i].data_count = 1;
 
                 floop[i].data = (double*)malloc(floop[i].data_count * sizeof(double));
-                addMalloc((void*)floop[i].data, floop[i].data_count, sizeof(double), "double");
+                addMalloc(idam_plugin_interface->logmalloclist, (void*)floop[i].data, floop[i].data_count,
+                          sizeof(double), "double");
                 floop[i].data[0] = 3.1415927;
 
                 floop[i].time = (double*)malloc(floop[i].data_count * sizeof(double));
-                addMalloc((void*)floop[i].time, floop[i].data_count, sizeof(double), "double");
+                addMalloc(idam_plugin_interface->logmalloclist, (void*)floop[i].time, floop[i].data_count,
+                          sizeof(double), "double");
                 floop[i].time[0] = 2.71828;
             }
 
@@ -1250,7 +1277,7 @@ extern int livedisplay(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
             data_block->opaque_count = 1;
-            data_block->opaque_block = (void*)findUserDefinedType("FLUX_LOOP", 0);
+            data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "FLUX_LOOP", 0);
 
             break;
 
@@ -1270,7 +1297,8 @@ extern int livedisplay(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             int flux_loop_count = 2;
 
             FLUX_LOOP* floop = (FLUX_LOOP*)malloc(flux_loop_count * sizeof(FLUX_LOOP));
-            addMalloc((void*)floop, flux_loop_count, sizeof(FLUX_LOOP), "FLUX_LOOP");
+            addMalloc(idam_plugin_interface->logmalloclist, (void*)floop, flux_loop_count, sizeof(FLUX_LOOP),
+                      "FLUX_LOOP");
 
             for (i = 0; i < flux_loop_count; i++) {
 
@@ -1299,7 +1327,8 @@ extern int livedisplay(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 char* name = (char*)getIdamData(handle);
                 stringLength = strlen(name) + 1;
                 floop[i].name = (char*)malloc(stringLength * sizeof(char));
-                addMalloc((void*)floop[i].name, 1, stringLength * sizeof(char), "STRING");    // Scalar String
+                addMalloc(idam_plugin_interface->logmalloclist, (void*)floop[i].name, 1, stringLength * sizeof(char),
+                          "STRING");    // Scalar String
                 strcpy(floop[i].name, name);
 
                 sprintf(signal, "MAGNETICS/FLUX_LOOP/%d/IDENTIFIER", i + 1);
@@ -1325,29 +1354,35 @@ extern int livedisplay(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 char* identifier = (char*)getIdamData(handle);
                 stringLength = strlen(identifier) + 1;
                 floop[i].identifier = (char*)malloc(stringLength * sizeof(char));
-                addMalloc((void*)floop[i].identifier, 1, stringLength * sizeof(char), "STRING");    // Scalar String
+                addMalloc(idam_plugin_interface->logmalloclist, (void*)floop[i].identifier, 1,
+                          stringLength * sizeof(char), "STRING");    // Scalar String
                 strcpy(floop[i].identifier, identifier);
 
                 floop[i].position_count = 1;
 
                 floop[i].r = (double*)malloc(floop[i].position_count * sizeof(double));
-                addMalloc((void*)floop[i].r, floop[i].position_count, sizeof(double), "double");
+                addMalloc(idam_plugin_interface->logmalloclist, (void*)floop[i].r, floop[i].position_count,
+                          sizeof(double), "double");
                 floop[i].r[0] = 1.2345;
                 floop[i].z = (double*)malloc(floop[i].position_count * sizeof(double));
-                addMalloc((void*)floop[i].z, floop[i].position_count, sizeof(double), "double");
+                addMalloc(idam_plugin_interface->logmalloclist, (void*)floop[i].z, floop[i].position_count,
+                          sizeof(double), "double");
                 floop[i].z[0] = 6.7890;
                 floop[i].phi = (double*)malloc(floop[i].position_count * sizeof(double));
-                addMalloc((void*)floop[i].phi, floop[i].position_count, sizeof(double), "double");
+                addMalloc(idam_plugin_interface->logmalloclist, (void*)floop[i].phi, floop[i].position_count,
+                          sizeof(double), "double");
                 floop[i].phi[0] = 9.9999;
 
                 floop[i].data_count = 1;
 
                 floop[i].data = (double*)malloc(floop[i].data_count * sizeof(double));
-                addMalloc((void*)floop[i].data, floop[i].data_count, sizeof(double), "double");
+                addMalloc(idam_plugin_interface->logmalloclist, (void*)floop[i].data, floop[i].data_count,
+                          sizeof(double), "double");
                 floop[i].data[0] = 3.1415927;
 
                 floop[i].time = (double*)malloc(floop[i].data_count * sizeof(double));
-                addMalloc((void*)floop[i].time, floop[i].data_count, sizeof(double), "double");
+                addMalloc(idam_plugin_interface->logmalloclist, (void*)floop[i].time, floop[i].data_count,
+                          sizeof(double), "double");
                 floop[i].time[0] = 2.71828;
             }
 
@@ -1364,7 +1399,7 @@ extern int livedisplay(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
             data_block->opaque_count = 1;
-            data_block->opaque_block = (void*)findUserDefinedType("FLUX_LOOP", 0);
+            data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "FLUX_LOOP", 0);
 
             break;
 
@@ -1410,7 +1445,8 @@ extern int livedisplay(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 // Build the Returned Structures
 
             FLUX_LOOP* floop = (FLUX_LOOP*)malloc(flux_loop_count * sizeof(FLUX_LOOP));
-            addMalloc((void*)floop, flux_loop_count, sizeof(FLUX_LOOP), "FLUX_LOOP");
+            addMalloc(idam_plugin_interface->logmalloclist, (void*)floop, flux_loop_count, sizeof(FLUX_LOOP),
+                      "FLUX_LOOP");
 
 
 // 2. Loop over all Flux Loops
@@ -1442,7 +1478,8 @@ extern int livedisplay(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 char* name = (char*)getIdamData(handle);
                 stringLength = strlen(name) + 1;
                 floop[i].name = (char*)malloc(stringLength * sizeof(char));
-                addMalloc((void*)floop[i].name, 1, stringLength * sizeof(char), "STRING");    // Scalar String
+                addMalloc(idam_plugin_interface->logmalloclist, (void*)floop[i].name, 1, stringLength * sizeof(char),
+                          "STRING");    // Scalar String
                 strcpy(floop[i].name, name);
 
                 sprintf(signal, "MAGNETICS/FLUX_LOOP/%d/IDENTIFIER", i + 1);
@@ -1468,7 +1505,8 @@ extern int livedisplay(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 char* identifier = (char*)getIdamData(handle);
                 stringLength = strlen(identifier) + 1;
                 floop[i].identifier = (char*)malloc(stringLength * sizeof(char));
-                addMalloc((void*)floop[i].identifier, 1, stringLength * sizeof(char), "STRING");    // Scalar String
+                addMalloc(idam_plugin_interface->logmalloclist, (void*)floop[i].identifier, 1,
+                          stringLength * sizeof(char), "STRING");    // Scalar String
                 strcpy(floop[i].identifier, identifier);
 
 // 3. Number of Coordinates
@@ -1498,11 +1536,14 @@ extern int livedisplay(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 floop[i].position_count = 1;
 
                 floop[i].r = (double*)malloc(floop[i].position_count * sizeof(double));
-                addMalloc((void*)floop[i].r, floop[i].position_count, sizeof(double), "double");
+                addMalloc(idam_plugin_interface->logmalloclist, (void*)floop[i].r, floop[i].position_count,
+                          sizeof(double), "double");
                 floop[i].z = (double*)malloc(floop[i].position_count * sizeof(double));
-                addMalloc((void*)floop[i].z, floop[i].position_count, sizeof(double), "double");
+                addMalloc(idam_plugin_interface->logmalloclist, (void*)floop[i].z, floop[i].position_count,
+                          sizeof(double), "double");
                 floop[i].phi = (double*)malloc(floop[i].position_count * sizeof(double));
-                addMalloc((void*)floop[i].phi, floop[i].position_count, sizeof(double), "double");
+                addMalloc(idam_plugin_interface->logmalloclist, (void*)floop[i].phi, floop[i].position_count,
+                          sizeof(double), "double");
 
 // 4. Loop over coordinates
 
@@ -1554,11 +1595,13 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
                 floop[i].data_count = 1;
 
                 floop[i].data = (double*)malloc(floop[i].data_count * sizeof(double));
-                addMalloc((void*)floop[i].data, floop[i].data_count, sizeof(double), "double");
+                addMalloc(idam_plugin_interface->logmalloclist, (void*)floop[i].data, floop[i].data_count,
+                          sizeof(double), "double");
                 floop[i].data[0] = 3.1415927;
 
                 floop[i].time = (double*)malloc(floop[i].data_count * sizeof(double));
-                addMalloc((void*)floop[i].time, floop[i].data_count, sizeof(double), "double");
+                addMalloc(idam_plugin_interface->logmalloclist, (void*)floop[i].time, floop[i].data_count,
+                          sizeof(double), "double");
                 floop[i].time[0] = 2.71828;
             }
 
@@ -1575,7 +1618,7 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
 
             data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
             data_block->opaque_count = 1;
-            data_block->opaque_block = (void*)findUserDefinedType("FLUX_LOOP", 0);
+            data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "FLUX_LOOP", 0);
 
             break;
 
@@ -1621,7 +1664,8 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
 // Build the Returned Structures
 
             FLUX_LOOP* floop = (FLUX_LOOP*)malloc(flux_loop_count * sizeof(FLUX_LOOP));
-            addMalloc((void*)floop, flux_loop_count, sizeof(FLUX_LOOP), "FLUX_LOOP");
+            addMalloc(idam_plugin_interface->logmalloclist, (void*)floop, flux_loop_count, sizeof(FLUX_LOOP),
+                      "FLUX_LOOP");
 
 // 2. Loop over all Flux Loops
 
@@ -1652,7 +1696,8 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
                 char* name = (char*)getIdamData(handle);
                 stringLength = strlen(name) + 1;
                 floop[i].name = (char*)malloc(stringLength * sizeof(char));
-                addMalloc((void*)floop[i].name, 1, stringLength * sizeof(char), "STRING");    // Scalar String
+                addMalloc(idam_plugin_interface->logmalloclist, (void*)floop[i].name, 1, stringLength * sizeof(char),
+                          "STRING");    // Scalar String
                 strcpy(floop[i].name, name);
 
                 sprintf(signal, "MAGNETICS/FLUX_LOOP/%d/IDENTIFIER", i + 1);
@@ -1678,7 +1723,8 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
                 char* identifier = (char*)getIdamData(handle);
                 stringLength = strlen(identifier) + 1;
                 floop[i].identifier = (char*)malloc(stringLength * sizeof(char));
-                addMalloc((void*)floop[i].identifier, 1, stringLength * sizeof(char), "STRING");    // Scalar String
+                addMalloc(idam_plugin_interface->logmalloclist, (void*)floop[i].identifier, 1,
+                          stringLength * sizeof(char), "STRING");    // Scalar String
                 strcpy(floop[i].identifier, identifier);
 
 // 3. Number of Coordinates
@@ -1708,11 +1754,14 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
                 floop[i].position_count = 1;
 
                 floop[i].r = (double*)malloc(floop[i].position_count * sizeof(double));
-                addMalloc((void*)floop[i].r, floop[i].position_count, sizeof(double), "double");
+                addMalloc(idam_plugin_interface->logmalloclist, (void*)floop[i].r, floop[i].position_count,
+                          sizeof(double), "double");
                 floop[i].z = (double*)malloc(floop[i].position_count * sizeof(double));
-                addMalloc((void*)floop[i].z, floop[i].position_count, sizeof(double), "double");
+                addMalloc(idam_plugin_interface->logmalloclist, (void*)floop[i].z, floop[i].position_count,
+                          sizeof(double), "double");
                 floop[i].phi = (double*)malloc(floop[i].position_count * sizeof(double));
-                addMalloc((void*)floop[i].phi, floop[i].position_count, sizeof(double), "double");
+                addMalloc(idam_plugin_interface->logmalloclist, (void*)floop[i].phi, floop[i].position_count,
+                          sizeof(double), "double");
 
 // 4. Loop over coordinates
 
@@ -1800,11 +1849,13 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
                 floop[i].data_count = 1;
 
                 floop[i].data = (double*)malloc(floop[i].data_count * sizeof(double));
-                addMalloc((void*)floop[i].data, floop[i].data_count, sizeof(double), "double");
+                addMalloc(idam_plugin_interface->logmalloclist, (void*)floop[i].data, floop[i].data_count,
+                          sizeof(double), "double");
                 floop[i].data[0] = 3.1415927;
 
                 floop[i].time = (double*)malloc(floop[i].data_count * sizeof(double));
-                addMalloc((void*)floop[i].time, floop[i].data_count, sizeof(double), "double");
+                addMalloc(idam_plugin_interface->logmalloclist, (void*)floop[i].time, floop[i].data_count,
+                          sizeof(double), "double");
                 floop[i].time[0] = 2.71828;
             }
 
@@ -1821,7 +1872,7 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
 
             data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
             data_block->opaque_count = 1;
-            data_block->opaque_block = (void*)findUserDefinedType("FLUX_LOOP", 0);
+            data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "FLUX_LOOP", 0);
 
             break;
 
@@ -1873,7 +1924,8 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
 // Build the Returned Structures
 
             FLUX_LOOP* floop = (FLUX_LOOP*)malloc(flux_loop_count * sizeof(FLUX_LOOP));
-            addMalloc((void*)floop, flux_loop_count, sizeof(FLUX_LOOP), "FLUX_LOOP");
+            addMalloc(idam_plugin_interface->logmalloclist, (void*)floop, flux_loop_count, sizeof(FLUX_LOOP),
+                      "FLUX_LOOP");
 
 // 2. Loop over all Flux Loops
 
@@ -1904,7 +1956,8 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
                 char* name = (char*)getIdamData(handle);
                 stringLength = strlen(name) + 1;
                 floop[i].name = (char*)malloc(stringLength * sizeof(char));
-                addMalloc((void*)floop[i].name, 1, stringLength * sizeof(char), "STRING");    // Scalar String
+                addMalloc(idam_plugin_interface->logmalloclist, (void*)floop[i].name, 1, stringLength * sizeof(char),
+                          "STRING");    // Scalar String
                 strcpy(floop[i].name, name);
 
                 sprintf(signal, "MAGNETICS/FLUX_LOOP/%d/IDENTIFIER", i + 1);
@@ -1930,7 +1983,8 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
                 char* identifier = (char*)getIdamData(handle);
                 stringLength = strlen(identifier) + 1;
                 floop[i].identifier = (char*)malloc(stringLength * sizeof(char));
-                addMalloc((void*)floop[i].identifier, 1, stringLength * sizeof(char), "STRING");    // Scalar String
+                addMalloc(idam_plugin_interface->logmalloclist, (void*)floop[i].identifier, 1,
+                          stringLength * sizeof(char), "STRING");    // Scalar String
                 strcpy(floop[i].identifier, identifier);
 
 // 3. Number of Coordinates
@@ -1960,11 +2014,14 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
                 floop[i].position_count = 1;
 
                 floop[i].r = (double*)malloc(floop[i].position_count * sizeof(double));
-                addMalloc((void*)floop[i].r, floop[i].position_count, sizeof(double), "double");
+                addMalloc(idam_plugin_interface->logmalloclist, (void*)floop[i].r, floop[i].position_count,
+                          sizeof(double), "double");
                 floop[i].z = (double*)malloc(floop[i].position_count * sizeof(double));
-                addMalloc((void*)floop[i].z, floop[i].position_count, sizeof(double), "double");
+                addMalloc(idam_plugin_interface->logmalloclist, (void*)floop[i].z, floop[i].position_count,
+                          sizeof(double), "double");
                 floop[i].phi = (double*)malloc(floop[i].position_count * sizeof(double));
-                addMalloc((void*)floop[i].phi, floop[i].position_count, sizeof(double), "double");
+                addMalloc(idam_plugin_interface->logmalloclist, (void*)floop[i].phi, floop[i].position_count,
+                          sizeof(double), "double");
 
 // 4. Loop over coordinates
 
@@ -2135,9 +2192,11 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
 
                     floop[i].data_count = data_count;
                     floop[i].data = (double*)malloc(floop[i].data_count * sizeof(double));
-                    addMalloc((void*)floop[i].data, floop[i].data_count, sizeof(double), "double");
+                    addMalloc(idam_plugin_interface->logmalloclist, (void*)floop[i].data, floop[i].data_count,
+                              sizeof(double), "double");
                     floop[i].time = (double*)malloc(floop[i].data_count * sizeof(double));
-                    addMalloc((void*)floop[i].time, floop[i].data_count, sizeof(double), "double");
+                    addMalloc(idam_plugin_interface->logmalloclist, (void*)floop[i].time, floop[i].data_count,
+                              sizeof(double), "double");
 
                     if (isAverage) {
                         floop[i].data[0] = sum1;
@@ -2155,9 +2214,11 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
 // Reuse the allocated data blocks - no need to copy!
 
                     floop[i].data = (double*)getIdamData(handle);
-                    addMalloc((void*)floop[i].data, floop[i].data_count, sizeof(double), "double");
+                    addMalloc(idam_plugin_interface->logmalloclist, (void*)floop[i].data, floop[i].data_count,
+                              sizeof(double), "double");
                     floop[i].time = (double*)getIdamData(handle2);
-                    addMalloc((void*)floop[i].time, floop[i].data_count, sizeof(double), "double");
+                    addMalloc(idam_plugin_interface->logmalloclist, (void*)floop[i].time, floop[i].data_count,
+                              sizeof(double), "double");
                     DATA_BLOCK* db = getIdamDataBlock(handle);
                     db->data = NULL;        // Prevent double free
                     db = getIdamDataBlock(handle2);
@@ -2188,7 +2249,7 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
 
             data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
             data_block->opaque_count = 1;
-            data_block->opaque_block = (void*)findUserDefinedType("FLUX_LOOP", 0);
+            data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "FLUX_LOOP", 0);
 
             break;
 
@@ -2266,7 +2327,8 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
 // Build the Returned Structures
 
                 floop = (FLUX_LOOP*)malloc(flux_loop_count * sizeof(FLUX_LOOP));
-                addMalloc((void*)floop, flux_loop_count, sizeof(FLUX_LOOP), "FLUX_LOOP");
+                addMalloc(idam_plugin_interface->logmalloclist, (void*)floop, flux_loop_count, sizeof(FLUX_LOOP),
+                          "FLUX_LOOP");
 
 // 2. Loop over all Flux Loops
 
@@ -2297,7 +2359,8 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
                     char* name = (char*)getIdamData(handle);
                     stringLength = strlen(name) + 1;
                     floop[i].name = (char*)malloc(stringLength * sizeof(char));
-                    addMalloc((void*)floop[i].name, 1, stringLength * sizeof(char), "STRING");    // Scalar String
+                    addMalloc(idam_plugin_interface->logmalloclist, (void*)floop[i].name, 1,
+                              stringLength * sizeof(char), "STRING");    // Scalar String
                     strcpy(floop[i].name, name);
 
                     sprintf(signal, "MAGNETICS/FLUX_LOOP/%d/IDENTIFIER", i + 1);
@@ -2323,7 +2386,8 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
                     char* identifier = (char*)getIdamData(handle);
                     stringLength = strlen(identifier) + 1;
                     floop[i].identifier = (char*)malloc(stringLength * sizeof(char));
-                    addMalloc((void*)floop[i].identifier, 1, stringLength * sizeof(char), "STRING");    // Scalar String
+                    addMalloc(idam_plugin_interface->logmalloclist, (void*)floop[i].identifier, 1,
+                              stringLength * sizeof(char), "STRING");    // Scalar String
                     strcpy(floop[i].identifier, identifier);
 
 // 3. Number of Coordinates
@@ -2352,11 +2416,14 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
                     floop[i].position_count = *((int*)getIdamData(handle));
 
                     floop[i].r = (double*)malloc(floop[i].position_count * sizeof(double));
-                    addMalloc((void*)floop[i].r, floop[i].position_count, sizeof(double), "double");
+                    addMalloc(idam_plugin_interface->logmalloclist, (void*)floop[i].r, floop[i].position_count,
+                              sizeof(double), "double");
                     floop[i].z = (double*)malloc(floop[i].position_count * sizeof(double));
-                    addMalloc((void*)floop[i].z, floop[i].position_count, sizeof(double), "double");
+                    addMalloc(idam_plugin_interface->logmalloclist, (void*)floop[i].z, floop[i].position_count,
+                              sizeof(double), "double");
                     floop[i].phi = (double*)malloc(floop[i].position_count * sizeof(double));
-                    addMalloc((void*)floop[i].phi, floop[i].position_count, sizeof(double), "double");
+                    addMalloc(idam_plugin_interface->logmalloclist, (void*)floop[i].phi, floop[i].position_count,
+                              sizeof(double), "double");
 
 // 4. Loop over coordinates
 
@@ -2493,7 +2560,8 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
 // Build the Returned Structures
 
                 floop = (FLUX_LOOP*)malloc(flux_loop_count * sizeof(FLUX_LOOP));
-                addMalloc((void*)floop, flux_loop_count, sizeof(FLUX_LOOP), "FLUX_LOOP");
+                addMalloc(idam_plugin_interface->logmalloclist, (void*)floop, flux_loop_count, sizeof(FLUX_LOOP),
+                          "FLUX_LOOP");
 
 // 2. Loop over all Flux Loops
 
@@ -2503,12 +2571,14 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
 
                     stringLength = strlen(flux_loop_cache[i].name) + 1;
                     floop[i].name = (char*)malloc(stringLength * sizeof(char));
-                    addMalloc((void*)floop[i].name, 1, stringLength * sizeof(char), "STRING");    // Scalar String
+                    addMalloc(idam_plugin_interface->logmalloclist, (void*)floop[i].name, 1,
+                              stringLength * sizeof(char), "STRING");    // Scalar String
                     strcpy(floop[i].name, flux_loop_cache[i].name);
 
                     stringLength = strlen(flux_loop_cache[i].identifier) + 1;
                     floop[i].identifier = (char*)malloc(stringLength * sizeof(char));
-                    addMalloc((void*)floop[i].identifier, 1, stringLength * sizeof(char), "STRING");    // Scalar String
+                    addMalloc(idam_plugin_interface->logmalloclist, (void*)floop[i].identifier, 1,
+                              stringLength * sizeof(char), "STRING");    // Scalar String
                     strcpy(floop[i].identifier, flux_loop_cache[i].identifier);
 
 // 3. Number of Coordinates
@@ -2516,11 +2586,14 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
                     floop[i].position_count = flux_loop_cache[i].position_count;
 
                     floop[i].r = (double*)malloc(floop[i].position_count * sizeof(double));
-                    addMalloc((void*)floop[i].r, floop[i].position_count, sizeof(double), "double");
+                    addMalloc(idam_plugin_interface->logmalloclist, (void*)floop[i].r, floop[i].position_count,
+                              sizeof(double), "double");
                     floop[i].z = (double*)malloc(floop[i].position_count * sizeof(double));
-                    addMalloc((void*)floop[i].z, floop[i].position_count, sizeof(double), "double");
+                    addMalloc(idam_plugin_interface->logmalloclist, (void*)floop[i].z, floop[i].position_count,
+                              sizeof(double), "double");
                     floop[i].phi = (double*)malloc(floop[i].position_count * sizeof(double));
-                    addMalloc((void*)floop[i].phi, floop[i].position_count, sizeof(double), "double");
+                    addMalloc(idam_plugin_interface->logmalloclist, (void*)floop[i].phi, floop[i].position_count,
+                              sizeof(double), "double");
 
 // 4. Loop over coordinates
 
@@ -2630,9 +2703,11 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
 
                     floop[i].data_count = data_count;
                     floop[i].data = (double*)malloc(floop[i].data_count * sizeof(double));
-                    addMalloc((void*)floop[i].data, floop[i].data_count, sizeof(double), "double");
+                    addMalloc(idam_plugin_interface->logmalloclist, (void*)floop[i].data, floop[i].data_count,
+                              sizeof(double), "double");
                     floop[i].time = (double*)malloc(floop[i].data_count * sizeof(double));
-                    addMalloc((void*)floop[i].time, floop[i].data_count, sizeof(double), "double");
+                    addMalloc(idam_plugin_interface->logmalloclist, (void*)floop[i].time, floop[i].data_count,
+                              sizeof(double), "double");
 
                     if (isAverage) {
                         floop[i].data[0] = sum1;
@@ -2650,9 +2725,11 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
 // Reuse the allocated data blocks - no need to copy!
 
                     floop[i].data = (double*)getIdamData(handle);
-                    addMalloc((void*)floop[i].data, floop[i].data_count, sizeof(double), "double");
+                    addMalloc(idam_plugin_interface->logmalloclist, (void*)floop[i].data, floop[i].data_count,
+                              sizeof(double), "double");
                     floop[i].time = (double*)getIdamData(handle2);
-                    addMalloc((void*)floop[i].time, floop[i].data_count, sizeof(double), "double");
+                    addMalloc(idam_plugin_interface->logmalloclist, (void*)floop[i].time, floop[i].data_count,
+                              sizeof(double), "double");
                     DATA_BLOCK* db = getIdamDataBlock(handle);
                     db->data = NULL;        // Prevent double free
                     db = getIdamDataBlock(handle2);
@@ -2683,7 +2760,7 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
 
             data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
             data_block->opaque_count = 1;
-            data_block->opaque_block = (void*)findUserDefinedType("FLUX_LOOP", 0);
+            data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "FLUX_LOOP", 0);
 
             break;
 
@@ -2770,7 +2847,8 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
 // Build the Returned Structures
 
             floop = (FLUX_LOOP_TEST1*)malloc(flux_loop_count * sizeof(FLUX_LOOP_TEST1));
-            addMalloc((void*)floop, flux_loop_count, sizeof(FLUX_LOOP_TEST1), "FLUX_LOOP_TEST1");
+            addMalloc(idam_plugin_interface->logmalloclist, (void*)floop, flux_loop_count, sizeof(FLUX_LOOP_TEST1),
+                      "FLUX_LOOP_TEST1");
 
 // 5. Access measurement data and apply subsetting
 
@@ -2866,9 +2944,11 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
                     }
                     floop[i].data_count = data_count;
                     floop[i].data = (double*)malloc(floop[i].data_count * sizeof(double));
-                    addMalloc((void*)floop[i].data, floop[i].data_count, sizeof(double), "double");
+                    addMalloc(idam_plugin_interface->logmalloclist, (void*)floop[i].data, floop[i].data_count,
+                              sizeof(double), "double");
                     floop[i].time = (double*)malloc(floop[i].data_count * sizeof(double));
-                    addMalloc((void*)floop[i].time, floop[i].data_count, sizeof(double), "double");
+                    addMalloc(idam_plugin_interface->logmalloclist, (void*)floop[i].time, floop[i].data_count,
+                              sizeof(double), "double");
 
                     if (isAverage) {
                         floop[i].data[0] = sum1;
@@ -2886,9 +2966,11 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
 // Reuse the allocated data blocks - no need to copy!
 
                     floop[i].data = (double*)getIdamData(handle);
-                    addMalloc((void*)floop[i].data, floop[i].data_count, sizeof(double), "double");
+                    addMalloc(idam_plugin_interface->logmalloclist, (void*)floop[i].data, floop[i].data_count,
+                              sizeof(double), "double");
                     floop[i].time = (double*)getIdamData(handle2);
-                    addMalloc((void*)floop[i].time, floop[i].data_count, sizeof(double), "double");
+                    addMalloc(idam_plugin_interface->logmalloclist, (void*)floop[i].time, floop[i].data_count,
+                              sizeof(double), "double");
                     DATA_BLOCK* db = getIdamDataBlock(handle);
                     db->data = NULL;        // Prevent double free
                     db = getIdamDataBlock(handle2);
@@ -2915,7 +2997,7 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
 
             data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
             data_block->opaque_count = 1;
-            data_block->opaque_block = (void*)findUserDefinedType("FLUX_LOOP_TEST1", 0);
+            data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "FLUX_LOOP_TEST1", 0);
 
             break;
 
@@ -2993,7 +3075,8 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
 // Build the Returned Structures
 
                 bprobe = (BPOL_PROBE*)malloc(bpol_probe_count * sizeof(BPOL_PROBE));
-                addMalloc((void*)bprobe, bpol_probe_count, sizeof(BPOL_PROBE), "BPOL_PROBE");
+                addMalloc(idam_plugin_interface->logmalloclist, (void*)bprobe, bpol_probe_count, sizeof(BPOL_PROBE),
+                          "BPOL_PROBE");
 
 // 2. Loop over all Bpol Probes
 
@@ -3024,7 +3107,8 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
                     char* name = (char*)getIdamData(handle);
                     stringLength = strlen(name) + 1;
                     bprobe[i].name = (char*)malloc(stringLength * sizeof(char));
-                    addMalloc((void*)bprobe[i].name, 1, stringLength * sizeof(char), "STRING");    // Scalar String
+                    addMalloc(idam_plugin_interface->logmalloclist, (void*)bprobe[i].name, 1,
+                              stringLength * sizeof(char), "STRING");    // Scalar String
                     strcpy(bprobe[i].name, name);
 
                     sprintf(signal, "MAGNETICS/BPOL_PROBE/%d/IDENTIFIER", i + 1);
@@ -3050,7 +3134,8 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
                     char* identifier = (char*)getIdamData(handle);
                     stringLength = strlen(identifier) + 1;
                     bprobe[i].identifier = (char*)malloc(stringLength * sizeof(char));
-                    addMalloc((void*)bprobe[i].identifier, 1, stringLength * sizeof(char),
+                    addMalloc(idam_plugin_interface->logmalloclist, (void*)bprobe[i].identifier, 1,
+                              stringLength * sizeof(char),
                               "STRING");    // Scalar String
                     strcpy(bprobe[i].identifier, identifier);
 
@@ -3170,7 +3255,8 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
 // Build the Returned Structures
 
                 bprobe = (BPOL_PROBE*)malloc(bpol_probe_count * sizeof(BPOL_PROBE));
-                addMalloc((void*)bprobe, bpol_probe_count, sizeof(BPOL_PROBE), "BPOL_PROBE");
+                addMalloc(idam_plugin_interface->logmalloclist, (void*)bprobe, bpol_probe_count, sizeof(BPOL_PROBE),
+                          "BPOL_PROBE");
 
 // 2. Loop over all Flux Loops
 
@@ -3180,12 +3266,14 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
 
                     stringLength = strlen(bpol_probe_cache[i].name) + 1;
                     bprobe[i].name = (char*)malloc(stringLength * sizeof(char));
-                    addMalloc((void*)bprobe[i].name, 1, stringLength * sizeof(char), "STRING");    // Scalar String
+                    addMalloc(idam_plugin_interface->logmalloclist, (void*)bprobe[i].name, 1,
+                              stringLength * sizeof(char), "STRING");    // Scalar String
                     strcpy(bprobe[i].name, bpol_probe_cache[i].name);
 
                     stringLength = strlen(bpol_probe_cache[i].identifier) + 1;
                     bprobe[i].identifier = (char*)malloc(stringLength * sizeof(char));
-                    addMalloc((void*)bprobe[i].identifier, 1, stringLength * sizeof(char),
+                    addMalloc(idam_plugin_interface->logmalloclist, (void*)bprobe[i].identifier, 1,
+                              stringLength * sizeof(char),
                               "STRING");    // Scalar String
                     strcpy(bprobe[i].identifier, bpol_probe_cache[i].identifier);
 
@@ -3294,9 +3382,11 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
 
                     bprobe[i].data_count = data_count;
                     bprobe[i].data = (double*)malloc(bprobe[i].data_count * sizeof(double));
-                    addMalloc((void*)bprobe[i].data, bprobe[i].data_count, sizeof(double), "double");
+                    addMalloc(idam_plugin_interface->logmalloclist, (void*)bprobe[i].data, bprobe[i].data_count,
+                              sizeof(double), "double");
                     bprobe[i].time = (double*)malloc(bprobe[i].data_count * sizeof(double));
-                    addMalloc((void*)bprobe[i].time, bprobe[i].data_count, sizeof(double), "double");
+                    addMalloc(idam_plugin_interface->logmalloclist, (void*)bprobe[i].time, bprobe[i].data_count,
+                              sizeof(double), "double");
 
                     if (isAverage) {
                         bprobe[i].data[0] = sum1;
@@ -3315,9 +3405,11 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
 // Reuse the allocated data blocks - no need to copy!
 
                     bprobe[i].data = (double*)getIdamData(handle);
-                    addMalloc((void*)bprobe[i].data, bprobe[i].data_count, sizeof(double), "double");
+                    addMalloc(idam_plugin_interface->logmalloclist, (void*)bprobe[i].data, bprobe[i].data_count,
+                              sizeof(double), "double");
                     bprobe[i].time = (double*)getIdamData(handle2);
-                    addMalloc((void*)bprobe[i].time, bprobe[i].data_count, sizeof(double), "double");
+                    addMalloc(idam_plugin_interface->logmalloclist, (void*)bprobe[i].time, bprobe[i].data_count,
+                              sizeof(double), "double");
                     DATA_BLOCK* db = getIdamDataBlock(handle);
                     db->data = NULL;        // Prevent double free
                     db = getIdamDataBlock(handle2);
@@ -3344,7 +3436,7 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
 
             data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
             data_block->opaque_count = 1;
-            data_block->opaque_block = (void*)findUserDefinedType("BPOL_PROBE", 0);
+            data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "BPOL_PROBE", 0);
 
             break;
 
@@ -3413,7 +3505,8 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
 // Build the Returned Structures
 
             bprobe = (BPOL_PROBE_TEST1*)malloc(bpol_probe_count * sizeof(BPOL_PROBE_TEST1));
-            addMalloc((void*)bprobe, bpol_probe_count, sizeof(BPOL_PROBE), "BPOL_PROBE_TEST1");
+            addMalloc(idam_plugin_interface->logmalloclist, (void*)bprobe, bpol_probe_count, sizeof(BPOL_PROBE),
+                      "BPOL_PROBE_TEST1");
 
 
 
@@ -3423,9 +3516,11 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
 
                 bprobe[i].data_count = 1;
                 bprobe[i].data = (double*)malloc(bprobe[i].data_count * sizeof(double));
-                addMalloc((void*)bprobe[i].data, bprobe[i].data_count, sizeof(double), "double");
+                addMalloc(idam_plugin_interface->logmalloclist, (void*)bprobe[i].data, bprobe[i].data_count,
+                          sizeof(double), "double");
                 bprobe[i].time = (double*)malloc(bprobe[i].data_count * sizeof(double));
-                addMalloc((void*)bprobe[i].time, bprobe[i].data_count, sizeof(double), "double");
+                addMalloc(idam_plugin_interface->logmalloclist, (void*)bprobe[i].time, bprobe[i].data_count,
+                          sizeof(double), "double");
                 bprobe[i].data[0] = 10 + 3.1415927;
                 bprobe[i].time[0] = 100 + 2.71828;
 
@@ -3520,12 +3615,14 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
 
                     bprobe[i].data_count = data_count;
                     bprobe[i].data = (double*)malloc(bprobe[i].data_count * sizeof(double));
-                    addMalloc((void*)bprobe[i].data, bprobe[i].data_count, sizeof(double), "double");
+                    addMalloc(idam_plugin_interface->logmalloclist, (void*)bprobe[i].data, bprobe[i].data_count,
+                              sizeof(double), "double");
 
 //for(j=0;j<bprobe[i].data_count;j++) bprobe[i].data[j] = 2*3.1415927;
 
                     bprobe[i].time = (double*)malloc(bprobe[i].data_count * sizeof(double));
-                    addMalloc((void*)bprobe[i].time, bprobe[i].data_count, sizeof(double), "double");
+                    addMalloc(idam_plugin_interface->logmalloclist, (void*)bprobe[i].time, bprobe[i].data_count,
+                              sizeof(double), "double");
 
                     if (isAverage) {
                         bprobe[i].data[0] = sum1;
@@ -3540,11 +3637,13 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
                 } else {        // All data are returned
                     bprobe[i].data_count = 1;
                     bprobe[i].data = (double*)malloc(bprobe[i].data_count * sizeof(double));
-                    addMalloc((void*)bprobe[i].data, bprobe[i].data_count, sizeof(double), "double");
+                    addMalloc(idam_plugin_interface->logmalloclist, (void*)bprobe[i].data, bprobe[i].data_count,
+                              sizeof(double), "double");
                     int j;
                     for (j = 0; j < bprobe[i].data_count; j++) bprobe[i].data[j] = 0.5 * 3.1415927;
                     bprobe[i].time = (double*)malloc(bprobe[i].data_count * sizeof(double));
-                    addMalloc((void*)bprobe[i].time, bprobe[i].data_count, sizeof(double), "double");
+                    addMalloc(idam_plugin_interface->logmalloclist, (void*)bprobe[i].time, bprobe[i].data_count,
+                              sizeof(double), "double");
                     for (j = 0; j < bprobe[i].data_count; j++) bprobe[i].time[j] = 1.2345;
                 }
 
@@ -3571,7 +3670,7 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
 
             data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
             data_block->opaque_count = 1;
-            data_block->opaque_block = (void*)findUserDefinedType("BPOL_PROBE_TEST1", 0);
+            data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "BPOL_PROBE_TEST1", 0);
 
             break;
 
@@ -3671,7 +3770,8 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
 // Build the Returned Structures
 
                 bprobe = (BPOL_PROBE_TEST2*)malloc(bpol_probe_count * sizeof(BPOL_PROBE_TEST2));
-                addMalloc((void*)bprobe, bpol_probe_count, sizeof(BPOL_PROBE_TEST2), "BPOL_PROBE_TEST2");
+                addMalloc(idam_plugin_interface->logmalloclist, (void*)bprobe, bpol_probe_count,
+                          sizeof(BPOL_PROBE_TEST2), "BPOL_PROBE_TEST2");
 
 // 2. Loop over all Bpol Probes
 
@@ -3702,7 +3802,8 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
                     char* name = (char*)getIdamData(handle);
                     stringLength = strlen(name) + 1;
                     bprobe[i].name = (char*)malloc(stringLength * sizeof(char));
-                    addMalloc((void*)bprobe[i].name, 1, stringLength * sizeof(char), "STRING");    // Scalar String
+                    addMalloc(idam_plugin_interface->logmalloclist, (void*)bprobe[i].name, 1,
+                              stringLength * sizeof(char), "STRING");    // Scalar String
                     strcpy(bprobe[i].name, name);
 
                     sprintf(signal, "MAGNETICS/BPOL_PROBE/%d/IDENTIFIER", i + 1);
@@ -3728,7 +3829,8 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
                     char* identifier = (char*)getIdamData(handle);
                     stringLength = strlen(identifier) + 1;
                     bprobe[i].identifier = (char*)malloc(stringLength * sizeof(char));
-                    addMalloc((void*)bprobe[i].identifier, 1, stringLength * sizeof(char),
+                    addMalloc(idam_plugin_interface->logmalloclist, (void*)bprobe[i].identifier, 1,
+                              stringLength * sizeof(char),
                               "STRING");    // Scalar String
                     strcpy(bprobe[i].identifier, identifier);
 
@@ -3844,7 +3946,8 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
 // Build the Returned Structures
 
                 bprobe = (BPOL_PROBE_TEST2*)malloc(bpol_probe_count * sizeof(BPOL_PROBE_TEST2));
-                addMalloc((void*)bprobe, bpol_probe_count, sizeof(BPOL_PROBE_TEST2), "BPOL_PROBE_TEST2");
+                addMalloc(idam_plugin_interface->logmalloclist, (void*)bprobe, bpol_probe_count,
+                          sizeof(BPOL_PROBE_TEST2), "BPOL_PROBE_TEST2");
 
 // 2. Loop over all Flux Loops
 
@@ -3854,12 +3957,14 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
 
                     stringLength = strlen(bpol_probe_cache[i].name) + 1;
                     bprobe[i].name = (char*)malloc(stringLength * sizeof(char));
-                    addMalloc((void*)bprobe[i].name, 1, stringLength * sizeof(char), "STRING");    // Scalar String
+                    addMalloc(idam_plugin_interface->logmalloclist, (void*)bprobe[i].name, 1,
+                              stringLength * sizeof(char), "STRING");    // Scalar String
                     strcpy(bprobe[i].name, bpol_probe_cache[i].name);
 
                     stringLength = strlen(bpol_probe_cache[i].identifier) + 1;
                     bprobe[i].identifier = (char*)malloc(stringLength * sizeof(char));
-                    addMalloc((void*)bprobe[i].identifier, 1, stringLength * sizeof(char),
+                    addMalloc(idam_plugin_interface->logmalloclist, (void*)bprobe[i].identifier, 1,
+                              stringLength * sizeof(char),
                               "STRING");    // Scalar String
                     strcpy(bprobe[i].identifier, bpol_probe_cache[i].identifier);
 
@@ -3891,7 +3996,7 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
 
             data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
             data_block->opaque_count = 1;
-            data_block->opaque_block = (void*)findUserDefinedType("BPOL_PROBE_TEST2", 0);
+            data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "BPOL_PROBE_TEST2", 0);
 
             break;
 
@@ -3924,7 +4029,8 @@ MAGNETICS/METHOD/%d/DIAMAGNETIC_FLUX/TIME
 // Build the Returned Structures
 
             MAGNETICS_PROXY* magnetics = (MAGNETICS_PROXY*)malloc(1 * sizeof(MAGNETICS_PROXY));
-            addMalloc((void*)magnetics, 1, sizeof(MAGNETICS_PROXY), "MAGNETICS_PROXY");
+            addMalloc(idam_plugin_interface->logmalloclist, (void*)magnetics, 1, sizeof(MAGNETICS_PROXY),
+                      "MAGNETICS_PROXY");
 
 // Access MAST machine description data
 // Use the IDAM client API with IMAS name abstraction
@@ -3959,7 +4065,7 @@ MAGNETICS/METHOD/%d/DIAMAGNETIC_FLUX/TIME
 
             size = 0;
             type = NULL;
-            findMalloc(magnetics->flux_loop, &magnetics->flux_loop_count, &size, &type);
+            findMalloc(idam_plugin_interface->logmalloclist, magnetics->flux_loop, &magnetics->flux_loop_count, &size, &type);
 
             initDataBlock(&plugin_data_block);
             initRequestBlock(&plugin_request_block);
@@ -4044,7 +4150,8 @@ MAGNETICS/METHOD/%d/DIAMAGNETIC_FLUX/TIME
 
             magnetics->method_count = 1;
             METHOD* method = (METHOD*)malloc(magnetics->method_count * sizeof(METHOD));
-            addMalloc((void*)method, magnetics->method_count, sizeof(METHOD_DATA), "METHOD");
+            addMalloc(idam_plugin_interface->logmalloclist, (void*)method, magnetics->method_count, sizeof(METHOD_DATA),
+                      "METHOD");
 
             int j;
             for (j = 0; j < magnetics->method_count; j++) initMethod(&method[j]);
@@ -4053,7 +4160,8 @@ MAGNETICS/METHOD/%d/DIAMAGNETIC_FLUX/TIME
 
             int stringLength = 56;
             method[0].name = (char*)malloc(stringLength * sizeof(char));
-            addMalloc((void*)method[0].name, 1, stringLength * sizeof(char), "STRING");    // Scalar String
+            addMalloc(idam_plugin_interface->logmalloclist, (void*)method[0].name, 1, stringLength * sizeof(char),
+                      "STRING");    // Scalar String
             strcpy(method[0].name, "Method #1");
 
 // Access the Plasma Current
@@ -4082,17 +4190,19 @@ MAGNETICS/METHOD/%d/DIAMAGNETIC_FLUX/TIME
 // Scan the data for the requested time slice and window
 
             METHOD_DATA* method_data = (METHOD_DATA*)malloc(sizeof(METHOD_DATA));
-            addMalloc((void*)method_data, 1, sizeof(METHOD_DATA), "METHOD_DATA");
+            addMalloc(idam_plugin_interface->logmalloclist, (void*)method_data, 1, sizeof(METHOD_DATA), "METHOD_DATA");
             initMethodData(method_data);
 
             magnetics->method[0].ip = method_data;
 
             stringLength = 56;
             method_data->name = (char*)malloc(stringLength * sizeof(char));
-            addMalloc((void*)method_data->name, 1, stringLength * sizeof(char), "STRING");    // Scalar String
+            addMalloc(idam_plugin_interface->logmalloclist, (void*)method_data->name, 1, stringLength * sizeof(char),
+                      "STRING");    // Scalar String
             strcpy(method_data->name, "Plasma Current");
             method_data->identifier = (char*)malloc(stringLength * sizeof(char));
-            addMalloc((void*)method_data->identifier, 1, stringLength * sizeof(char), "STRING");    // Scalar String
+            addMalloc(idam_plugin_interface->logmalloclist, (void*)method_data->identifier, 1,
+                      stringLength * sizeof(char), "STRING");    // Scalar String
             strcpy(method_data->identifier, "#1");
 
             int data_count = getIdamDataNum(handle);
@@ -4143,8 +4253,10 @@ MAGNETICS/METHOD/%d/DIAMAGNETIC_FLUX/TIME
                     method_data->count = data_count;
                     method_data->data = (double*)malloc(data_count * sizeof(double));
                     method_data->time = (double*)malloc(data_count * sizeof(double));
-                    addMalloc((void*)method_data->data, data_count, sizeof(double), "double");
-                    addMalloc((void*)method_data->time, data_count, sizeof(double), "double");
+                    addMalloc(idam_plugin_interface->logmalloclist, (void*)method_data->data, data_count,
+                              sizeof(double), "double");
+                    addMalloc(idam_plugin_interface->logmalloclist, (void*)method_data->time, data_count,
+                              sizeof(double), "double");
 
                     method_data->data[j] = dataScaling * sum1;
                     method_data->time[j] = sum2;
@@ -4154,8 +4266,10 @@ MAGNETICS/METHOD/%d/DIAMAGNETIC_FLUX/TIME
                     method_data->count = subset_count;
                     method_data->data = (double*)malloc(subset_count * sizeof(double));
                     method_data->time = (double*)malloc(subset_count * sizeof(double));
-                    addMalloc((void*)method_data->data, subset_count, sizeof(double), "double");
-                    addMalloc((void*)method_data->time, subset_count, sizeof(double), "double");
+                    addMalloc(idam_plugin_interface->logmalloclist, (void*)method_data->data, subset_count,
+                              sizeof(double), "double");
+                    addMalloc(idam_plugin_interface->logmalloclist, (void*)method_data->time, subset_count,
+                              sizeof(double), "double");
 
                     for (j = 0; j < subset_count; j++) {
                         method_data->data[j] = dataScaling * fd[index1 + j];
@@ -4175,8 +4289,10 @@ MAGNETICS/METHOD/%d/DIAMAGNETIC_FLUX/TIME
 
                 method_data->data = fd;
                 method_data->time = ft;
-                addMalloc((void*)method_data->data, data_count, sizeof(double), "double");
-                addMalloc((void*)method_data->time, data_count, sizeof(double), "double");
+                addMalloc(idam_plugin_interface->logmalloclist, (void*)method_data->data, data_count, sizeof(double),
+                          "double");
+                addMalloc(idam_plugin_interface->logmalloclist, (void*)method_data->time, data_count, sizeof(double),
+                          "double");
             }
 
 
@@ -4206,17 +4322,19 @@ MAGNETICS/METHOD/%d/DIAMAGNETIC_FLUX/TIME
 // Scan the data for the requested time slice and window
 
             method_data = (METHOD_DATA*)malloc(sizeof(METHOD_DATA));
-            addMalloc((void*)method_data, 1, sizeof(METHOD_DATA), "METHOD_DATA");
+            addMalloc(idam_plugin_interface->logmalloclist, (void*)method_data, 1, sizeof(METHOD_DATA), "METHOD_DATA");
             initMethodData(method_data);
 
             magnetics->method[0].diamagnetic_flux = method_data;
 
             stringLength = 56;
             method_data->name = (char*)malloc(stringLength * sizeof(char));
-            addMalloc((void*)method_data->name, 1, stringLength * sizeof(char), "STRING");    // Scalar String
+            addMalloc(idam_plugin_interface->logmalloclist, (void*)method_data->name, 1, stringLength * sizeof(char),
+                      "STRING");    // Scalar String
             strcpy(method_data->name, "Diamagnetic Flux");
             method_data->identifier = (char*)malloc(stringLength * sizeof(char));
-            addMalloc((void*)method_data->identifier, 1, stringLength * sizeof(char), "STRING");    // Scalar String
+            addMalloc(idam_plugin_interface->logmalloclist, (void*)method_data->identifier, 1,
+                      stringLength * sizeof(char), "STRING");    // Scalar String
             strcpy(method_data->identifier, "#1");
 
             data_count = getIdamDataNum(handle);
@@ -4263,8 +4381,10 @@ MAGNETICS/METHOD/%d/DIAMAGNETIC_FLUX/TIME
                     method_data->count = data_count;
                     method_data->data = (double*)malloc(data_count * sizeof(double));
                     method_data->time = (double*)malloc(data_count * sizeof(double));
-                    addMalloc((void*)method_data->data, data_count, sizeof(double), "double");
-                    addMalloc((void*)method_data->time, data_count, sizeof(double), "double");
+                    addMalloc(idam_plugin_interface->logmalloclist, (void*)method_data->data, data_count,
+                              sizeof(double), "double");
+                    addMalloc(idam_plugin_interface->logmalloclist, (void*)method_data->time, data_count,
+                              sizeof(double), "double");
 
                     method_data->data[j] = sum1;
                     method_data->time[j] = sum2;
@@ -4274,8 +4394,10 @@ MAGNETICS/METHOD/%d/DIAMAGNETIC_FLUX/TIME
                     method_data->count = subset_count;
                     method_data->data = (double*)malloc(subset_count * sizeof(double));
                     method_data->time = (double*)malloc(subset_count * sizeof(double));
-                    addMalloc((void*)method_data->data, subset_count, sizeof(double), "double");
-                    addMalloc((void*)method_data->time, subset_count, sizeof(double), "double");
+                    addMalloc(idam_plugin_interface->logmalloclist, (void*)method_data->data, subset_count,
+                              sizeof(double), "double");
+                    addMalloc(idam_plugin_interface->logmalloclist, (void*)method_data->time, subset_count,
+                              sizeof(double), "double");
 
                     for (j = 0; j < subset_count; j++) {
                         method_data->data[j] = fd[index1 + j];
@@ -4293,8 +4415,10 @@ MAGNETICS/METHOD/%d/DIAMAGNETIC_FLUX/TIME
 
                 method_data->data = fd;
                 method_data->time = ft;
-                addMalloc((void*)method_data->data, data_count, sizeof(double), "double");
-                addMalloc((void*)method_data->time, data_count, sizeof(double), "double");
+                addMalloc(idam_plugin_interface->logmalloclist, (void*)method_data->data, data_count, sizeof(double),
+                          "double");
+                addMalloc(idam_plugin_interface->logmalloclist, (void*)method_data->time, data_count, sizeof(double),
+                          "double");
             }
 
 // Return the Data
@@ -4310,7 +4434,7 @@ MAGNETICS/METHOD/%d/DIAMAGNETIC_FLUX/TIME
 
             data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
             data_block->opaque_count = 1;
-            data_block->opaque_block = (void*)findUserDefinedType("MAGNETICS_PROXY", 0);
+            data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "MAGNETICS_PROXY", 0);
 
             break;
 
@@ -4330,7 +4454,8 @@ MAGNETICS/METHOD/%d/DIAMAGNETIC_FLUX/TIME
 // Build the Returned Structures
 
             STATIC_LIMITER* limiter = (STATIC_LIMITER*)malloc(sizeof(STATIC_LIMITER));
-            addMalloc((void*)limiter, 1, sizeof(STATIC_LIMITER), "STATIC_LIMITER");
+            addMalloc(idam_plugin_interface->logmalloclist, (void*)limiter, 1, sizeof(STATIC_LIMITER),
+                      "STATIC_LIMITER");
 
             initStaticLimiter(limiter);
 
@@ -4339,8 +4464,10 @@ MAGNETICS/METHOD/%d/DIAMAGNETIC_FLUX/TIME
             limiter->r = (double*)malloc(limiter->count * sizeof(STATIC_LIMITER));
             limiter->z = (double*)malloc(limiter->count * sizeof(STATIC_LIMITER));
 
-            addMalloc((void*)limiter->r, limiter->count, sizeof(double), "double");
-            addMalloc((void*)limiter->z, limiter->count, sizeof(double), "double");
+            addMalloc(idam_plugin_interface->logmalloclist, (void*)limiter->r, limiter->count, sizeof(double),
+                      "double");
+            addMalloc(idam_plugin_interface->logmalloclist, (void*)limiter->z, limiter->count, sizeof(double),
+                      "double");
 
             double rr[] = { 1.9000000, 1.5551043, 1.5551043, 1.4079306, 1.4079306, 1.0399311,
                             1.0399311, 1.9000000, 1.9000000, 0.56493068, 0.56493068, 0.78350002, 0.78350002,
@@ -4374,7 +4501,7 @@ MAGNETICS/METHOD/%d/DIAMAGNETIC_FLUX/TIME
 
             data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
             data_block->opaque_count = 1;
-            data_block->opaque_block = (void*)findUserDefinedType("STATIC_LIMITER", 0);
+            data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "STATIC_LIMITER", 0);
 
             break;
 
@@ -4431,7 +4558,7 @@ TF/B_TOR_VACUUM_TIME
 // Build the Returned Structure
 
             TF_PROXY* RB = (TF_PROXY*)malloc(1 * sizeof(TF_PROXY));
-            addMalloc((void*)RB, 1, sizeof(TF_PROXY), "TF_PROXY");
+            addMalloc(idam_plugin_interface->logmalloclist, (void*)RB, 1, sizeof(TF_PROXY), "TF_PROXY");
 
             initRB(RB);
 
@@ -4490,10 +4617,10 @@ TF/B_TOR_VACUUM_TIME
                     RB->b0 = (double*)malloc(sizeof(double));
                     RB->rb0 = (double*)malloc(sizeof(double));
                     RB->time = (double*)malloc(sizeof(double));
-                    addMalloc((void*)RB->r0, 1, sizeof(double), "double");
-                    addMalloc((void*)RB->b0, 1, sizeof(double), "double");
-                    addMalloc((void*)RB->rb0, 1, sizeof(double), "double");
-                    addMalloc((void*)RB->time, 1, sizeof(double), "double");
+                    addMalloc(idam_plugin_interface->logmalloclist, (void*)RB->r0, 1, sizeof(double), "double");
+                    addMalloc(idam_plugin_interface->logmalloclist, (void*)RB->b0, 1, sizeof(double), "double");
+                    addMalloc(idam_plugin_interface->logmalloclist, (void*)RB->rb0, 1, sizeof(double), "double");
+                    addMalloc(idam_plugin_interface->logmalloclist, (void*)RB->time, 1, sizeof(double), "double");
                     RB->data_count = 1;
                     RB->r0[0] = r0;
                     RB->b0[0] = factor * sum1b;
@@ -4504,10 +4631,14 @@ TF/B_TOR_VACUUM_TIME
                     RB->b0 = (double*)malloc(subset_count * sizeof(double));
                     RB->rb0 = (double*)malloc(subset_count * sizeof(double));
                     RB->time = (double*)malloc(subset_count * sizeof(double));
-                    addMalloc((void*)RB->r0, subset_count, sizeof(double), "double");
-                    addMalloc((void*)RB->b0, subset_count, sizeof(double), "double");
-                    addMalloc((void*)RB->rb0, subset_count, sizeof(double), "double");
-                    addMalloc((void*)RB->time, subset_count, sizeof(double), "double");
+                    addMalloc(idam_plugin_interface->logmalloclist, (void*)RB->r0, subset_count, sizeof(double),
+                              "double");
+                    addMalloc(idam_plugin_interface->logmalloclist, (void*)RB->b0, subset_count, sizeof(double),
+                              "double");
+                    addMalloc(idam_plugin_interface->logmalloclist, (void*)RB->rb0, subset_count, sizeof(double),
+                              "double");
+                    addMalloc(idam_plugin_interface->logmalloclist, (void*)RB->time, subset_count, sizeof(double),
+                              "double");
                     RB->data_count = subset_count;
                     int j;
                     for (j = 0; j < subset_count; j++) {
@@ -4522,11 +4653,15 @@ TF/B_TOR_VACUUM_TIME
 
                 RB->data_count = data_count;
                 RB->r0 = (double*)malloc(data_count * sizeof(double));
-                addMalloc((void*)RB->r0, RB->data_count, sizeof(double), "double");
-                addMalloc((void*)RB->b0, RB->data_count, sizeof(double), "double");
-                addMalloc((void*)RB->time, RB->data_count, sizeof(double), "double");
+                addMalloc(idam_plugin_interface->logmalloclist, (void*)RB->r0, RB->data_count, sizeof(double),
+                          "double");
+                addMalloc(idam_plugin_interface->logmalloclist, (void*)RB->b0, RB->data_count, sizeof(double),
+                          "double");
+                addMalloc(idam_plugin_interface->logmalloclist, (void*)RB->time, RB->data_count, sizeof(double),
+                          "double");
                 RB->rb0 = (double*)malloc(RB->data_count * sizeof(double));
-                addMalloc((void*)RB->rb0, RB->data_count, sizeof(double), "double");
+                addMalloc(idam_plugin_interface->logmalloclist, (void*)RB->rb0, RB->data_count, sizeof(double),
+                          "double");
                 int j;
                 for (j = 0; j < RB->data_count; j++) {
                     RB->r0[j] = r0;
@@ -4553,7 +4688,7 @@ TF/B_TOR_VACUUM_TIME
 
             data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
             data_block->opaque_count = 1;
-            data_block->opaque_block = (void*)findUserDefinedType("TF_PROXY", 0);
+            data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TF_PROXY", 0);
 
             break;
 
@@ -4613,7 +4748,7 @@ TF/B_TOR_VACUUM_TIME
 // Build the Returned Structure
 
             TF_PROXY* RB = (TF_PROXY*)malloc(1 * sizeof(TF_PROXY));
-            addMalloc((void*)RB, 1, sizeof(TF_PROXY), "TF_PROXY");
+            addMalloc(idam_plugin_interface->logmalloclist, (void*)RB, 1, sizeof(TF_PROXY), "TF_PROXY");
 
             initRB(RB);
 
@@ -4711,10 +4846,10 @@ TF/B_TOR_VACUUM_TIME
                     RB->b0 = (double*)malloc(sizeof(double));
                     RB->rb0 = (double*)malloc(sizeof(double));
                     RB->time = (double*)malloc(sizeof(double));
-                    addMalloc((void*)RB->r0, 1, sizeof(double), "double");
-                    addMalloc((void*)RB->b0, 1, sizeof(double), "double");
-                    addMalloc((void*)RB->rb0, 1, sizeof(double), "double");
-                    addMalloc((void*)RB->time, 1, sizeof(double), "double");
+                    addMalloc(idam_plugin_interface->logmalloclist, (void*)RB->r0, 1, sizeof(double), "double");
+                    addMalloc(idam_plugin_interface->logmalloclist, (void*)RB->b0, 1, sizeof(double), "double");
+                    addMalloc(idam_plugin_interface->logmalloclist, (void*)RB->rb0, 1, sizeof(double), "double");
+                    addMalloc(idam_plugin_interface->logmalloclist, (void*)RB->time, 1, sizeof(double), "double");
                     RB->data_count = 1;
                     RB->r0[0] = sum1a;
                     RB->b0[0] = sum1b;
@@ -4725,10 +4860,14 @@ TF/B_TOR_VACUUM_TIME
                     RB->b0 = (double*)malloc(subset_count * sizeof(double));
                     RB->rb0 = (double*)malloc(subset_count * sizeof(double));
                     RB->time = (double*)malloc(subset_count * sizeof(double));
-                    addMalloc((void*)RB->r0, subset_count, sizeof(double), "double");
-                    addMalloc((void*)RB->b0, subset_count, sizeof(double), "double");
-                    addMalloc((void*)RB->rb0, subset_count, sizeof(double), "double");
-                    addMalloc((void*)RB->time, subset_count, sizeof(double), "double");
+                    addMalloc(idam_plugin_interface->logmalloclist, (void*)RB->r0, subset_count, sizeof(double),
+                              "double");
+                    addMalloc(idam_plugin_interface->logmalloclist, (void*)RB->b0, subset_count, sizeof(double),
+                              "double");
+                    addMalloc(idam_plugin_interface->logmalloclist, (void*)RB->rb0, subset_count, sizeof(double),
+                              "double");
+                    addMalloc(idam_plugin_interface->logmalloclist, (void*)RB->time, subset_count, sizeof(double),
+                              "double");
                     RB->data_count = subset_count;
                     for (j = 0; j < subset_count; j++) {
                         RB->r0[j] = r0[index1 + j];
@@ -4745,13 +4884,17 @@ TF/B_TOR_VACUUM_TIME
 // Reuse the allocated data blocks - no need to copy!
 
                 RB->r0 = r0;
-                addMalloc((void*)RB->r0, RB->data_count, sizeof(double), "double");
+                addMalloc(idam_plugin_interface->logmalloclist, (void*)RB->r0, RB->data_count, sizeof(double),
+                          "double");
                 RB->b0 = b0;
-                addMalloc((void*)RB->b0, RB->data_count, sizeof(double), "double");
+                addMalloc(idam_plugin_interface->logmalloclist, (void*)RB->b0, RB->data_count, sizeof(double),
+                          "double");
                 RB->time = ft;
-                addMalloc((void*)RB->time, RB->data_count, sizeof(double), "double");
+                addMalloc(idam_plugin_interface->logmalloclist, (void*)RB->time, RB->data_count, sizeof(double),
+                          "double");
                 RB->rb0 = (double*)malloc(RB->data_count * sizeof(double));
-                addMalloc((void*)RB->rb0, RB->data_count, sizeof(double), "double");
+                addMalloc(idam_plugin_interface->logmalloclist, (void*)RB->rb0, RB->data_count, sizeof(double),
+                          "double");
                 for (j = 0; j < RB->data_count; j++) RB->rb0[j] = r0[j] * b0[j];
             }
 
@@ -4772,7 +4915,7 @@ TF/B_TOR_VACUUM_TIME
 
             data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
             data_block->opaque_count = 1;
-            data_block->opaque_block = (void*)findUserDefinedType("TF_PROXY", 0);
+            data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TF_PROXY", 0);
 
             break;
 
@@ -4865,10 +5008,12 @@ PF_ACTIVE/COIL/%d/CURRENT/TIME
 // Build the Returned Data Structures
 
                 pfactive_proxy = (PF_ACTIVE_PROXY*)malloc(sizeof(PF_ACTIVE_PROXY));
-                addMalloc((void*)pfactive_proxy, 1, sizeof(PF_ACTIVE_PROXY), "PF_ACTIVE_PROXY");
+                addMalloc(idam_plugin_interface->logmalloclist, (void*)pfactive_proxy, 1, sizeof(PF_ACTIVE_PROXY),
+                          "PF_ACTIVE_PROXY");
 
                 pfactive = (PF_ACTIVE*)malloc(pfactive_count * sizeof(PF_ACTIVE));
-                addMalloc((void*)pfactive, pfactive_count, sizeof(PF_ACTIVE), "PF_ACTIVE");
+                addMalloc(idam_plugin_interface->logmalloclist, (void*)pfactive, pfactive_count, sizeof(PF_ACTIVE),
+                          "PF_ACTIVE");
 
                 pfactive_proxy->pfactive_count = pfactive_count;
                 pfactive_proxy->pfactive = pfactive;
@@ -4903,7 +5048,8 @@ PF_ACTIVE/COIL/%d/CURRENT/TIME
                     char* name = (char*)getIdamData(handle);
                     stringLength = strlen(name) + 1;
                     pfactive[i].name = (char*)malloc(stringLength * sizeof(char));
-                    addMalloc((void*)pfactive[i].name, 1, stringLength * sizeof(char), "STRING");    // Scalar String
+                    addMalloc(idam_plugin_interface->logmalloclist, (void*)pfactive[i].name, 1,
+                              stringLength * sizeof(char), "STRING");    // Scalar String
                     strcpy(pfactive[i].name, name);
 
                     sprintf(signal, "PF_ACTIVE/COIL/%d/IDENTIFIER", i + 1);
@@ -4929,7 +5075,8 @@ PF_ACTIVE/COIL/%d/CURRENT/TIME
                     char* identifier = (char*)getIdamData(handle);
                     stringLength = strlen(identifier) + 1;
                     pfactive[i].identifier = (char*)malloc(stringLength * sizeof(char));
-                    addMalloc((void*)pfactive[i].identifier, 1, stringLength * sizeof(char),
+                    addMalloc(idam_plugin_interface->logmalloclist, (void*)pfactive[i].identifier, 1,
+                              stringLength * sizeof(char),
                               "STRING");    // Scalar String
                     strcpy(pfactive[i].identifier, identifier);
 
@@ -4960,7 +5107,8 @@ PF_ACTIVE/COIL/%d/CURRENT/TIME
 
                     PF_ACTIVE_ELEMENT* element = (PF_ACTIVE_ELEMENT*)malloc(
                             pfactive[i].element_count * sizeof(PF_ACTIVE_ELEMENT));
-                    addMalloc((void*)element, pfactive[i].element_count, sizeof(PF_ACTIVE_ELEMENT),
+                    addMalloc(idam_plugin_interface->logmalloclist, (void*)element, pfactive[i].element_count,
+                              sizeof(PF_ACTIVE_ELEMENT),
                               "PF_ACTIVE_ELEMENT");
 
                     pfactive[i].element = element;
@@ -5122,10 +5270,12 @@ PF_ACTIVE/COIL/%d/CURRENT/TIME
 // Build the Returned Structures
 
                 pfactive_proxy = (PF_ACTIVE_PROXY*)malloc(sizeof(PF_ACTIVE_PROXY));
-                addMalloc((void*)pfactive_proxy, 1, sizeof(PF_ACTIVE_PROXY), "PF_ACTIVE_PROXY");
+                addMalloc(idam_plugin_interface->logmalloclist, (void*)pfactive_proxy, 1, sizeof(PF_ACTIVE_PROXY),
+                          "PF_ACTIVE_PROXY");
 
                 pfactive = (PF_ACTIVE*)malloc(pfactive_count * sizeof(PF_ACTIVE));
-                addMalloc((void*)pfactive, pfactive_count, sizeof(PF_ACTIVE), "PF_ACTIVE");
+                addMalloc(idam_plugin_interface->logmalloclist, (void*)pfactive, pfactive_count, sizeof(PF_ACTIVE),
+                          "PF_ACTIVE");
 
                 pfactive_proxy->pfactive_count = pfactive_count;
                 pfactive_proxy->pfactive = pfactive;
@@ -5138,12 +5288,14 @@ PF_ACTIVE/COIL/%d/CURRENT/TIME
 
                     stringLength = strlen(pfactive_cache[i].name) + 1;
                     pfactive[i].name = (char*)malloc(stringLength * sizeof(char));
-                    addMalloc((void*)pfactive[i].name, 1, stringLength * sizeof(char), "STRING");    // Scalar String
+                    addMalloc(idam_plugin_interface->logmalloclist, (void*)pfactive[i].name, 1,
+                              stringLength * sizeof(char), "STRING");    // Scalar String
                     strcpy(pfactive[i].name, pfactive_cache[i].name);
 
                     stringLength = strlen(pfactive_cache[i].identifier) + 1;
                     pfactive[i].identifier = (char*)malloc(stringLength * sizeof(char));
-                    addMalloc((void*)pfactive[i].identifier, 1, stringLength * sizeof(char),
+                    addMalloc(idam_plugin_interface->logmalloclist, (void*)pfactive[i].identifier, 1,
+                              stringLength * sizeof(char),
                               "STRING");    // Scalar String
                     strcpy(pfactive[i].identifier, pfactive_cache[i].identifier);
 
@@ -5153,7 +5305,8 @@ PF_ACTIVE/COIL/%d/CURRENT/TIME
 
                     PF_ACTIVE_ELEMENT* element = (PF_ACTIVE_ELEMENT*)malloc(
                             pfactive[i].element_count * sizeof(PF_ACTIVE_ELEMENT));
-                    addMalloc((void*)element, pfactive[i].element_count, sizeof(PF_ACTIVE_ELEMENT),
+                    addMalloc(idam_plugin_interface->logmalloclist, (void*)element, pfactive[i].element_count,
+                              sizeof(PF_ACTIVE_ELEMENT),
                               "PF_ACTIVE_ELEMENT");
 
                     pfactive[i].element = element;
@@ -5267,9 +5420,11 @@ PF_ACTIVE/COIL/%d/CURRENT/TIME
 
                     pfactive[i].data_count = data_count;
                     pfactive[i].data = (double*)malloc(pfactive[i].data_count * sizeof(double));
-                    addMalloc((void*)pfactive[i].data, pfactive[i].data_count, sizeof(double), "double");
+                    addMalloc(idam_plugin_interface->logmalloclist, (void*)pfactive[i].data, pfactive[i].data_count,
+                              sizeof(double), "double");
                     pfactive[i].time = (double*)malloc(pfactive[i].data_count * sizeof(double));
-                    addMalloc((void*)pfactive[i].time, pfactive[i].data_count, sizeof(double), "double");
+                    addMalloc(idam_plugin_interface->logmalloclist, (void*)pfactive[i].time, pfactive[i].data_count,
+                              sizeof(double), "double");
 
                     if (isAverage) {
                         pfactive[i].data[0] = sum1;
@@ -5287,9 +5442,11 @@ PF_ACTIVE/COIL/%d/CURRENT/TIME
 // Reuse the allocated data blocks - no need to copy!
 
                     pfactive[i].data = (double*)getIdamData(handle);
-                    addMalloc((void*)pfactive[i].data, pfactive[i].data_count, sizeof(double), "double");
+                    addMalloc(idam_plugin_interface->logmalloclist, (void*)pfactive[i].data, pfactive[i].data_count,
+                              sizeof(double), "double");
                     pfactive[i].time = (double*)getIdamData(handle2);
-                    addMalloc((void*)pfactive[i].time, pfactive[i].data_count, sizeof(double), "double");
+                    addMalloc(idam_plugin_interface->logmalloclist, (void*)pfactive[i].time, pfactive[i].data_count,
+                              sizeof(double), "double");
                     DATA_BLOCK* db = getIdamDataBlock(handle);
                     db->data = NULL;        // Prevent double free
                     db = getIdamDataBlock(handle2);
@@ -5316,7 +5473,7 @@ PF_ACTIVE/COIL/%d/CURRENT/TIME
 
             data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
             data_block->opaque_count = 1;
-            data_block->opaque_block = (void*)findUserDefinedType("PF_ACTIVE_PROXY", 0);
+            data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "PF_ACTIVE_PROXY", 0);
 
             break;
 
@@ -5413,30 +5570,30 @@ PF_ACTIVE/COIL/%d/CURRENT/TIME
 	    code.name = (char *)malloc(stringLength*sizeof(char));
 
 
-            addMalloc((void*)code.name, 1, stringLength*sizeof(char), "STRING");	// Scalar String
+            addMalloc(idam_plugin_interface->logmalloclist, (void*)code.name, 1, stringLength*sizeof(char), "STRING");	// Scalar String
 	    strcpy(code.name, "IDAM LiveDisplay Plugin");
 
 	    stringLength = 56;
 	    code.version = (char *)malloc(stringLength*sizeof(char));
-            addMalloc((void*)code.version, 1, stringLength*sizeof(char), "STRING");	// Scalar String
+            addMalloc(idam_plugin_interface->logmalloclist, (void*)code.version, 1, stringLength*sizeof(char), "STRING");	// Scalar String
 	    sprintf(code.version, "LiveDisplay Plugin Version: %d", THISPLUGIN_VERSION);
 
 	    stringLength = strlen(request_block->signal)+strlen(request_block->source)+7;
 	    code.parameters = (char *)malloc(stringLength*sizeof(char));
-            addMalloc((void*)code.parameters, 1, stringLength*sizeof(char), "STRING");	// Scalar String
+            addMalloc(idam_plugin_interface->logmalloclist, (void*)code.parameters, 1, stringLength*sizeof(char), "STRING");	// Scalar String
 	    sprintf(code.parameters, "\"%s\", \"%s\"", request_block->signal, request_block->source);
 
             code.output_flag_count = 1;
 	    code.output_flag = (int *)malloc(code.output_flag_count*sizeof(int));
-	    addMalloc((void*)code.output_flag, code.output_flag_count, sizeof(int), "int");	// Integer Array
+	    addMalloc(idam_plugin_interface->logmalloclist, (void*)code.output_flag, code.output_flag_count, sizeof(int), "int");	// Integer Array
 	    code.output_flag[0] = 0;
 
 	    MAGNETICS_TEST *magnetics = (MAGNETICS_TEST *)malloc(sizeof(MAGNETICS_TEST));
-	    addMalloc((void*)magnetics, 1, sizeof(MAGNETICS_TEST), "MAGNETICS_TEST");
+	    addMalloc(idam_plugin_interface->logmalloclist, (void*)magnetics, 1, sizeof(MAGNETICS_TEST), "MAGNETICS_TEST");
 
 	    stringLength = 128;
 	    magnetics->comment = (char *)malloc(stringLength*sizeof(char));
-	    addMalloc((void*)magnetics->comment, 1, stringLength*sizeof(char), "STRING");	// Scalar String
+	    addMalloc(idam_plugin_interface->logmalloclist, (void*)magnetics->comment, 1, stringLength*sizeof(char), "STRING");	// Scalar String
 	    strcpy(magnetics->comment, "This is the LiveDisplay prototype plugin for Magnetics IDS data");
 
 	    magnetics->homogeneous_time = 1;
@@ -5459,7 +5616,7 @@ PF_ACTIVE/COIL/%d/CURRENT/TIME
 
             data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
             data_block->opaque_count = 1;
-            data_block->opaque_block = (void*) findUserDefinedType("MAGNETICS_TEST", 0);
+            data_block->opaque_block = (void*) findUserDefinedType(userdefinedtypelist, "MAGNETICS_TEST", 0);
 
             //idamLog(UDA_LOG_DEBUG, "LiveDisplay: GET exited\n");
 
@@ -5486,7 +5643,8 @@ PF_ACTIVE/COIL/%d/CURRENT/TIME
 // Standard methods: version, builddate, defaultmethod, maxinterfaceversion
 
         if (!strcasecmp(request_block->function, "version")) {
-            err = setReturnDataIntScalar(idam_plugin_interface->data_block, THISPLUGIN_VERSION, "Plugin version number");
+            err = setReturnDataIntScalar(idam_plugin_interface->data_block, THISPLUGIN_VERSION,
+                                         "Plugin version number");
 
             break;
         } else
@@ -5502,7 +5660,8 @@ PF_ACTIVE/COIL/%d/CURRENT/TIME
 // Plugin Default Method
 
         if (!strcasecmp(request_block->function, "defaultmethod")) {
-            err = setReturnDataString(idam_plugin_interface->data_block, THISPLUGIN_DEFAULT_METHOD, "Plugin default method");
+            err = setReturnDataString(idam_plugin_interface->data_block, THISPLUGIN_DEFAULT_METHOD,
+                                      "Plugin default method");
 
             break;
         } else
@@ -5510,7 +5669,8 @@ PF_ACTIVE/COIL/%d/CURRENT/TIME
 // Plugin Maximum Interface Version
 
         if (!strcasecmp(request_block->function, "maxinterfaceversion")) {
-            err = setReturnDataIntScalar(idam_plugin_interface->data_block, THISPLUGIN_MAX_INTERFACE_VERSION, "Maximum Interface Version");
+            err = setReturnDataIntScalar(idam_plugin_interface->data_block, THISPLUGIN_MAX_INTERFACE_VERSION,
+                                         "Maximum Interface Version");
 
             break;
         } else {

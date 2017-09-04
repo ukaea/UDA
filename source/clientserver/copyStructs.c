@@ -102,20 +102,21 @@ void copySignalDesc(SIGNAL_DESC *out, SIGNAL_DESC in) {
 
 void copyPluginInterface(IDAM_PLUGIN_INTERFACE* out, IDAM_PLUGIN_INTERFACE* in)
 {
-    out->interfaceVersion   = in->interfaceVersion;
-    out->pluginVersion      = in->pluginVersion;
-    out->sqlConnectionType  = in->sqlConnectionType;
-    out->verbose            = in->verbose;
-    out->housekeeping       = in->housekeeping;
-    out->changePlugin       = in->changePlugin;
-    out->dbgout             = in->dbgout;
-    out->errout             = in->errout;
-    out->data_block         = in->data_block;
-    out->request_block      = in->request_block;
-    out->client_block       = in->client_block;
-    out->data_source        = in->data_source;
-    out->signal_desc        = in->signal_desc;
-    out->environment        = in->environment;
-    out->sqlConnection      = in->sqlConnection;
-    out->pluginList         = in->pluginList;
+    out->interfaceVersion       = in->interfaceVersion;
+    out->pluginVersion          = in->pluginVersion;
+    out->sqlConnectionType      = in->sqlConnectionType;
+    out->verbose                = in->verbose;
+    out->housekeeping           = in->housekeeping;
+    out->changePlugin           = in->changePlugin;
+    out->dbgout                 = in->dbgout;
+    out->errout                 = in->errout;
+    out->data_block             = in->data_block;
+    out->request_block          = in->request_block;
+    out->client_block           = in->client_block;
+    out->data_source            = in->data_source;
+    out->signal_desc            = in->signal_desc;
+    out->environment            = in->environment;
+    out->sqlConnection          = in->sqlConnection;
+    out->pluginList             = in->pluginList;
+    out->userdefinedtypelist    = in->userdefinedtypelist;
 }

@@ -41,8 +41,10 @@ int protocolVersionTypeTest(int protocolVersion, int type)
                 return 1;
             case (TYPE_UNSIGNED_LONG):
                 return 1;
+#ifndef __APPLE__
             case (TYPE_UNSIGNED_LONG64):
                 return 1;
+#endif
             case (TYPE_COMPLEX):
                 return 1;
             case (TYPE_DCOMPLEX):
@@ -66,12 +68,12 @@ int protocolVersionTypeTest(int protocolVersion, int type)
 
 int wrap_string(XDR* xdrs, char* sp)
 {
-    return (xdr_string(xdrs, &sp, MAX_STRING_LENGTH));
+    return xdr_string(xdrs, &sp, MAX_STRING_LENGTH);
 }
 
 int WrapXDRString(XDR* xdrs, char* sp, int maxlen)
 {
-    return (xdr_string(xdrs, &sp, maxlen));
+    return xdr_string(xdrs, &sp, maxlen);
 }
 
 //-----------------------------------------------------------------------
@@ -167,22 +169,16 @@ bool_t xdr_client(XDR* xdrs, CLIENT_BLOCK* str)
              && xdr_int(xdrs, &str->timeout)
              && WrapXDRString(xdrs, (char*)str->uid, STRING_LENGTH);
 
-// if(xdrs->x_op == XDR_DECODE && str->version < protocolVersion) protocolVersion = str->version;
-
     if (str->version < protocolVersion) protocolVersion = str->version;
 
-// clientFlags and altRank do not exist in the CLIENT_BLOCK structure prior to version 6
-
-    //if((xdrs->x_op == XDR_DECODE && protocolVersion >= 6) ||
-    //   (xdrs->x_op == XDR_ENCODE && str->version >= 6)){
+    // clientFlags and altRank do not exist in the CLIENT_BLOCK structure prior to version 6
 
     if (protocolVersion >= 6) {
-        rc = rc && xdr_u_int(xdrs, &str->clientFlags)
-             && xdr_int(xdrs, &str->altRank);
+        rc = rc && xdr_u_int(xdrs, &str->clientFlags) && xdr_int(xdrs, &str->altRank);
     } else {
         int temp = 0;                                   // retain Legacy!
-        rc = rc && xdr_int(xdrs, &temp)        // Changed type		(was verbose & not used)
-             && xdr_int(xdrs, &str->altRank);           //                      (was debug)
+        rc = rc && xdr_int(xdrs, &temp)                 // Changed type		(was verbose & not used)
+             && xdr_int(xdrs, &str->altRank);           //                  (was debug)
         str->clientFlags = (unsigned int)temp;
     }
 
@@ -198,16 +194,13 @@ bool_t xdr_client(XDR* xdrs, CLIENT_BLOCK* str)
          && xdr_int(xdrs, &str->get_uncal)
          && xdr_int(xdrs, &str->get_notoff);
 
-// output (ENCODE) means written by the client
-// input (DECODE) means read by the server
+    // output (ENCODE) means written by the client
+    // input (DECODE) means read by the server
 
-// xdrs->x_op == XDR_DECODE && protocolVersion == 2 Means Client receiving data from a Version 2 Server
-// xdrs->x_op == XDR_ENCODE && protocolVersion == 3 Means Server sending data to a Version 3 Client
+    // xdrs->x_op == XDR_DECODE && protocolVersion == 2 Means Client receiving data from a Version 2 Server
+    // xdrs->x_op == XDR_ENCODE && protocolVersion == 3 Means Server sending data to a Version 3 Client
 
-// privateFlags does not exist in the CLIENT_BLOCK structure prior to version 5
-
-    //if((xdrs->x_op == XDR_DECODE && protocolVersion >= 5) ||
-    //   (xdrs->x_op == XDR_ENCODE && str->version >= 5))
+    // privateFlags does not exist in the CLIENT_BLOCK structure prior to version 5
 
     if (protocolVersion >= 5) rc = rc && xdr_u_int(xdrs, &str->privateFlags);
 
@@ -246,9 +239,9 @@ bool_t xdr_server1(XDR* xdrs, SERVER_BLOCK* str)
     if (xdrs->x_op == XDR_DECODE && rc) {                // Test for a server crash!
         if (serverVersion == 0) {
             serverVersion = str->version;               // Assume OK on first exchange
-        } else if (serverVersion != str->version) {        // Usually different if the server has crashed
-            rc = 0;                    // Force an error
-            str->version = serverVersion;        // Replace the erroneous version number
+        } else if (serverVersion != str->version) {     // Usually different if the server has crashed
+            rc = 0;                                     // Force an error
+            str->version = serverVersion;               // Replace the erroneous version number
             IDAM_LOGF(UDA_LOG_DEBUG, "Server #1 rc = %d\n", rc);
             return rc;
         }
@@ -302,9 +295,9 @@ bool_t xdr_server2(XDR* xdrs, SERVER_BLOCK* str)
 
 bool_t xdr_server(XDR* xdrs, SERVER_BLOCK* str)
 {
-    return (xdr_int(xdrs, &str->version)
-            && xdr_int(xdrs, &str->error)
-            && WrapXDRString(xdrs, (char*)str->msg, STRING_LENGTH));
+    return xdr_int(xdrs, &str->version)
+        && xdr_int(xdrs, &str->error)
+        && WrapXDRString(xdrs, (char*)str->msg, STRING_LENGTH);
 }
 
 //-----------------------------------------------------------------------
@@ -326,7 +319,8 @@ bool_t xdr_request(XDR* xdrs, REQUEST_BLOCK* str)
     rc = rc && WrapXDRString(xdrs, (char*)str->signal, MAXMETA);
 
     if ((xdrs->x_op == XDR_DECODE && protocolVersion >= 6) || (xdrs->x_op == XDR_ENCODE && protocolVersion >= 6)) {
-        rc = rc && WrapXDRString(xdrs, (char*)str->source, STRING_LENGTH)
+        rc = rc
+             && WrapXDRString(xdrs, (char*)str->source, STRING_LENGTH)
              && WrapXDRString(xdrs, (char*)str->api_delim, MAXNAME);
     }
 
@@ -343,24 +337,6 @@ bool_t xdr_request(XDR* xdrs, REQUEST_BLOCK* str)
 bool_t xdr_putdatablocklist_block(XDR* xdrs, PUTDATA_BLOCK_LIST* str)
 {
     int rc = xdr_u_int(xdrs, &str->blockCount);
-    return rc;
-}
-
-bool_t xdr_putdata_block1XXX(XDR* xdrs, PUTDATA_BLOCK* str)
-{
-    int rc = xdr_u_int(xdrs, &str->rank);
-
-    IDAM_LOGF(UDA_LOG_DEBUG, "#rank: %d\n", str->rank);
-    rc = rc && xdr_u_int(xdrs, &str->count);
-    IDAM_LOGF(UDA_LOG_DEBUG, "#count: %d\n", str->count);
-    rc = rc && xdr_int(xdrs, &str->data_type);
-    IDAM_LOGF(UDA_LOG_DEBUG, "#type: %d\n", str->data_type);
-    rc = rc && xdr_int(xdrs, &str->opaque_type);
-    IDAM_LOGF(UDA_LOG_DEBUG, "##type: %d\n", str->opaque_type);
-    rc = rc && xdr_int(xdrs, &str->opaque_count);
-    IDAM_LOGF(UDA_LOG_DEBUG, "##count: %d\n", str->opaque_count);
-    rc = rc && xdr_u_int(xdrs, &str->blockNameLength);
-    IDAM_LOGF(UDA_LOG_DEBUG, "###count: %d\n", str->blockNameLength);
     return rc;
 }
 
@@ -386,55 +362,47 @@ bool_t xdr_putdata_block2(XDR* xdrs, PUTDATA_BLOCK* str)
     if (str->blockNameLength > 0) rc = rc && WrapXDRString(xdrs, (char*)str->blockName, str->blockNameLength + 1);
 
     switch (str->data_type) {
-        case TYPE_FLOAT :
-            return (rc && xdr_vector(xdrs, (char*)str->data, (int)str->count, sizeof(float), (xdrproc_t)xdr_float));
-        case TYPE_DOUBLE :
-            return (rc && xdr_vector(xdrs, (char*)str->data, (int)str->count, sizeof(double), (xdrproc_t)xdr_double));
-        case TYPE_CHAR :
-            return (rc && xdr_vector(xdrs, (char*)str->data, (int)str->count, sizeof(char), (xdrproc_t)xdr_char));
-        case TYPE_SHORT :
-            return (rc && xdr_vector(xdrs, (char*)str->data, (int)str->count, sizeof(short), (xdrproc_t)xdr_short));
-        case TYPE_INT :
-            return (rc && xdr_vector(xdrs, (char*)str->data, (int)str->count, sizeof(int), (xdrproc_t)xdr_int));
-        case TYPE_LONG :
-            return (rc && xdr_vector(xdrs, (char*)str->data, (int)str->count, sizeof(long), (xdrproc_t)xdr_long));
-        case TYPE_LONG64 :
-            return (rc && xdr_vector(xdrs, (char*)str->data, (int)str->count, sizeof(long long int),
-                                     (xdrproc_t)xdr_int64_t));
-        case TYPE_UNSIGNED_CHAR :
-            return (rc && xdr_vector(xdrs, (char*)str->data, (int)str->count, sizeof(unsigned char),
-                                     (xdrproc_t)xdr_u_char));
-        case TYPE_UNSIGNED_SHORT :
-            return (rc && xdr_vector(xdrs, (char*)str->data, (int)str->count, sizeof(unsigned short),
-                                     (xdrproc_t)xdr_u_short));
-        case TYPE_UNSIGNED_INT :
-            return (rc &&
-                    xdr_vector(xdrs, (char*)str->data, (int)str->count, sizeof(unsigned int), (xdrproc_t)xdr_u_int));
-        case TYPE_UNSIGNED_LONG :
-            return (rc && xdr_vector(xdrs, (char*)str->data, (int)str->count, sizeof(unsigned long),
-                                     (xdrproc_t)xdr_u_long));
+        case TYPE_FLOAT:
+            return rc && xdr_vector(xdrs, (char*)str->data, (int)str->count, sizeof(float), (xdrproc_t)xdr_float);
+        case TYPE_DOUBLE:
+            return rc && xdr_vector(xdrs, (char*)str->data, (int)str->count, sizeof(double), (xdrproc_t)xdr_double);
+        case TYPE_CHAR:
+            return rc && xdr_vector(xdrs, (char*)str->data, (int)str->count, sizeof(char), (xdrproc_t)xdr_char);
+        case TYPE_SHORT:
+            return rc && xdr_vector(xdrs, (char*)str->data, (int)str->count, sizeof(short), (xdrproc_t)xdr_short);
+        case TYPE_INT:
+            return rc && xdr_vector(xdrs, (char*)str->data, (int)str->count, sizeof(int), (xdrproc_t)xdr_int);
+        case TYPE_LONG:
+            return rc && xdr_vector(xdrs, (char*)str->data, (int)str->count, sizeof(long), (xdrproc_t)xdr_long);
+        case TYPE_LONG64:
+            return rc && xdr_vector(xdrs, (char*)str->data, (int)str->count, sizeof(long long int), (xdrproc_t)xdr_int64_t);
+        case TYPE_UNSIGNED_CHAR:
+            return rc && xdr_vector(xdrs, (char*)str->data, (int)str->count, sizeof(unsigned char), (xdrproc_t)xdr_u_char);
+        case TYPE_UNSIGNED_SHORT:
+            return rc && xdr_vector(xdrs, (char*)str->data, (int)str->count, sizeof(unsigned short), (xdrproc_t)xdr_u_short);
+        case TYPE_UNSIGNED_INT:
+            return rc && xdr_vector(xdrs, (char*)str->data, (int)str->count, sizeof(unsigned int), (xdrproc_t)xdr_u_int);
+        case TYPE_UNSIGNED_LONG:
+            return rc && xdr_vector(xdrs, (char*)str->data, (int)str->count, sizeof(unsigned long), (xdrproc_t)xdr_u_long);
 #ifndef __APPLE__
-        case TYPE_UNSIGNED_LONG64 :
-            return (rc && xdr_vector(xdrs, (char*)str->data, (int) str->count, sizeof(unsigned long long int),
-                                     (xdrproc_t) xdr_uint64_t));
+        case TYPE_UNSIGNED_LONG64:
+            return rc && xdr_vector(xdrs, (char*)str->data, (int) str->count, sizeof(unsigned long long int), (xdrproc_t) xdr_uint64_t);
 #endif
-// Strings are passed as a regular array of CHARs
+        // Strings are passed as a regular array of CHARs
 
-        case TYPE_STRING :
-            return (rc && xdr_vector(xdrs, (char*)str->data, (int)str->count, sizeof(char), (xdrproc_t)xdr_char));
+        case TYPE_STRING:
+            return rc && xdr_vector(xdrs, (char*)str->data, (int)str->count, sizeof(char), (xdrproc_t)xdr_char);
 
-// Complex structure is a simple two float combination: => twice the number of element transmitted
+        // Complex structure is a simple two float combination: => twice the number of element transmitted
 
-        case TYPE_DCOMPLEX :
-            return (rc &&
-                    xdr_vector(xdrs, (char*)str->data, 2 * (int)str->count, sizeof(double), (xdrproc_t)xdr_double));
-        case TYPE_COMPLEX :
-            return (rc &&
-                    xdr_vector(xdrs, (char*)str->data, 2 * (int)str->count, sizeof(float), (xdrproc_t)xdr_float));
+        case TYPE_DCOMPLEX:
+            return rc && xdr_vector(xdrs, (char*)str->data, 2 * str->count, sizeof(double), (xdrproc_t)xdr_double);
+        case TYPE_COMPLEX:
+            return rc && xdr_vector(xdrs, (char*)str->data, 2 * str->count, sizeof(float), (xdrproc_t)xdr_float);
 
-// General Data structures are passed using a specialised set of xdr components
+        // General Data structures are passed using a specialised set of xdr components
 
-        case TYPE_COMPOUND :
+        case TYPE_COMPOUND:
             return rc;    // Nothing to send so retain good return code
 
         default:
@@ -461,7 +429,7 @@ bool_t xdr_data_object2(XDR* xdrs, DATA_OBJECT* str)
     return rc;
 }
 
-bool_t xdr_serialise_object(XDR* xdrs, DATA_BLOCK* str)
+bool_t xdr_serialise_object(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist, DATA_BLOCK* str)
 {
     int err = 0, rc = 1;
     int packageType = 0;
@@ -473,8 +441,7 @@ bool_t xdr_serialise_object(XDR* xdrs, DATA_BLOCK* str)
         SARRAY* psarray = &sarray;
         int shape = str->data_n;                            // rank 1 array of dimension lengths	       
         USERDEFINEDTYPE* udt = (USERDEFINEDTYPE*)str->opaque_block;        // The data's structure definition
-        USERDEFINEDTYPE* u = findUserDefinedType("SARRAY",
-                                                 0);            // Locate the carrier structure definition	       
+        USERDEFINEDTYPE* u = findUserDefinedType(userdefinedtypelist, "SARRAY", 0); // Locate the carrier structure definition
 
         if (udt == NULL || u == NULL) {
             err = 999;
@@ -484,23 +451,22 @@ bool_t xdr_serialise_object(XDR* xdrs, DATA_BLOCK* str)
         }
 
         initSArray(&sarray);
-        sarray.count = str->data_n;                // Number of this structure
-        sarray.rank = 1;                        // Array Data Rank?
-        sarray.shape = &shape;                    // Only if rank > 1?				
-        sarray.data = (void*)str->data;            // Pointer to the data to be passed
-        strcpy(sarray.type, udt->name);                // The name of the type    
-        data = (void*)&psarray;                    // Pointer to the SARRAY array pointer
-        addNonMalloc((void*)&shape, 1, sizeof(int), "int");
+        sarray.count = str->data_n;                 // Number of this structure
+        sarray.rank = 1;                            // Array Data Rank?
+        sarray.shape = &shape;                      // Only if rank > 1?
+        sarray.data = (void*)str->data;             // Pointer to the data to be passed
+        strcpy(sarray.type, udt->name);             // The name of the type
+        data = (void*)&psarray;                     // Pointer to the SARRAY array pointer
+        addNonMalloc(logmalloclist, (void*)&shape, 1, sizeof(int), "int");
 
-        packageType = PACKAGE_XDROBJECT;                // The package is an XDR serialised object 
+        packageType = PACKAGE_XDROBJECT;            // The package is an XDR serialised object
 
-        rc = xdr_int(xdrs, &packageType);                // Send data package type
+        rc = xdr_int(xdrs, &packageType);           // Send data package type
 
-// Send the data 
+        // Send the data
 
-        rc = rc && xdr_userdefinedtypelist(xdrs,
-                                           userdefinedtypelist);    // send the full set of known named structures	       
-        rc = rc && xdrUserDefinedTypeData(xdrs, u, data);            // send the Data    	       
+        rc = rc && xdr_userdefinedtypelist(xdrs, userdefinedtypelist);    // send the full set of known named structures
+        rc = rc && xdrUserDefinedTypeData(xdrs, logmalloclist, userdefinedtypelist, u, data);            // send the Data
 
         if (!rc) {
             err = 999;
@@ -519,18 +485,17 @@ bool_t xdr_serialise_object(XDR* xdrs, DATA_BLOCK* str)
             return 0;
         }
 
-// Heap allocations log	       
+        // Heap allocations log
 
         logmalloclist = (LOGMALLOCLIST*)malloc(sizeof(LOGMALLOCLIST));
         initLogMallocList(logmalloclist);
 
-// Data structure definitions
+        // Data structure definitions
 
         userdefinedtypelist = (USERDEFINEDTYPELIST*)malloc(sizeof(USERDEFINEDTYPELIST));
         initUserDefinedTypeList(userdefinedtypelist);
 
-        rc = rc && xdr_userdefinedtypelist(xdrs,
-                                           userdefinedtypelist);        // receive the full set of known named structures
+        rc = rc && xdr_userdefinedtypelist(xdrs, userdefinedtypelist);        // receive the full set of known named structures
 
         if (!rc) {
             err = 999;
@@ -539,12 +504,12 @@ bool_t xdr_serialise_object(XDR* xdrs, DATA_BLOCK* str)
             return 0;
         }
 
-// Receive data
+        // Receive data
 
         USERDEFINEDTYPE* udt_received = (USERDEFINEDTYPE*)malloc(sizeof(USERDEFINEDTYPE));
         initUserDefinedType(udt_received);
 
-        rc = rc && xdrUserDefinedTypeData(xdrs, udt_received, &data);            // receive the Data      
+        rc = rc && xdrUserDefinedTypeData(xdrs, logmalloclist, userdefinedtypelist, udt_received, &data);            // receive the Data
 
         if (!rc) {
             err = 999;
@@ -553,7 +518,7 @@ bool_t xdr_serialise_object(XDR* xdrs, DATA_BLOCK* str)
             return 0;
         }
 
-// Prepare returned data structure containing the data
+        // Prepare returned data structure containing the data
 
         if (STR_EQUALS(udt_received->name, "SARRAY")) {            // expecting this carrier structure
 
@@ -604,14 +569,14 @@ bool_t xdr_data_block1(XDR* xdrs, DATA_BLOCK* str)
     rc = rc && WrapXDRString(xdrs, (char*)str->data_desc, STRING_LENGTH);
     rc = rc && WrapXDRString(xdrs, (char*)str->error_msg, STRING_LENGTH);
 
-// output (ENCODE) means written by the server
-// input (DECODE) means read by the client
+    // output (ENCODE) means written by the server
+    // input (DECODE) means read by the client
 
-// xdrs->x_op == XDR_DECODE && protocolVersion == 2 Means Client receiving data from a Version 2 Server
-// xdrs->x_op == XDR_ENCODE && protocolVersion == 3 Means Server sending data to a Version 3 Client
+    // xdrs->x_op == XDR_DECODE && protocolVersion == 2 Means Client receiving data from a Version 2 Server
+    // xdrs->x_op == XDR_ENCODE && protocolVersion == 3 Means Server sending data to a Version 3 Client
 
-// opaque_count does not exist in the DATA_BLOCK structure prior to version 3
-// general structure passing not available prior to version 4
+    // opaque_count does not exist in the DATA_BLOCK structure prior to version 3
+    // general structure passing not available prior to version 4
 
     if ((xdrs->x_op == XDR_DECODE && protocolVersion >= 3) || (xdrs->x_op == XDR_ENCODE && protocolVersion >= 3)) {
         rc = rc && xdr_int(xdrs, &str->opaque_type) && xdr_int(xdrs, &str->opaque_count);
@@ -623,53 +588,47 @@ bool_t xdr_data_block1(XDR* xdrs, DATA_BLOCK* str)
 bool_t xdr_data_block2(XDR* xdrs, DATA_BLOCK* str)
 {
     switch (str->data_type) {
-        case TYPE_FLOAT :
-            return (xdr_vector(xdrs, str->data, (u_int)str->data_n, sizeof(float), (xdrproc_t)xdr_float));
-        case TYPE_DOUBLE :
-            return (xdr_vector(xdrs, str->data, (u_int)str->data_n, sizeof(double), (xdrproc_t)xdr_double));
-        case TYPE_CHAR :
-            return (xdr_vector(xdrs, str->data, (u_int)str->data_n, sizeof(char), (xdrproc_t)xdr_char));
-        case TYPE_SHORT :
-            return (xdr_vector(xdrs, str->data, (u_int)str->data_n, sizeof(short), (xdrproc_t)xdr_short));
-        case TYPE_INT :
-            return (xdr_vector(xdrs, str->data, (u_int)str->data_n, sizeof(int), (xdrproc_t)xdr_int));
-        case TYPE_LONG :
-            return (xdr_vector(xdrs, str->data, (u_int)str->data_n, sizeof(long), (xdrproc_t)xdr_long));
-        case TYPE_LONG64 :
-            return (xdr_vector(xdrs, str->data, (u_int)str->data_n, sizeof(long long int),
-                               (xdrproc_t)xdr_int64_t));
-        case TYPE_UNSIGNED_CHAR :
-            return (xdr_vector(xdrs, str->data, (u_int)str->data_n, sizeof(unsigned char),
-                               (xdrproc_t)xdr_u_char));
-        case TYPE_UNSIGNED_SHORT :
-            return (xdr_vector(xdrs, str->data, (u_int)str->data_n, sizeof(unsigned short),
-                               (xdrproc_t)xdr_u_short));
-        case TYPE_UNSIGNED_INT :
-            return (xdr_vector(xdrs, str->data, (u_int)str->data_n, sizeof(unsigned int),
-                               (xdrproc_t)xdr_u_int));
-        case TYPE_UNSIGNED_LONG :
-            return (xdr_vector(xdrs, str->data, (u_int)str->data_n, sizeof(unsigned long),
-                               (xdrproc_t)xdr_u_long));
+        case TYPE_FLOAT:
+            return xdr_vector(xdrs, str->data, (u_int)str->data_n, sizeof(float), (xdrproc_t)xdr_float);
+        case TYPE_DOUBLE:
+            return xdr_vector(xdrs, str->data, (u_int)str->data_n, sizeof(double), (xdrproc_t)xdr_double);
+        case TYPE_CHAR:
+            return xdr_vector(xdrs, str->data, (u_int)str->data_n, sizeof(char), (xdrproc_t)xdr_char);
+        case TYPE_SHORT:
+            return xdr_vector(xdrs, str->data, (u_int)str->data_n, sizeof(short), (xdrproc_t)xdr_short);
+        case TYPE_INT:
+            return xdr_vector(xdrs, str->data, (u_int)str->data_n, sizeof(int), (xdrproc_t)xdr_int);
+        case TYPE_LONG:
+            return xdr_vector(xdrs, str->data, (u_int)str->data_n, sizeof(long), (xdrproc_t)xdr_long);
+        case TYPE_LONG64:
+            return xdr_vector(xdrs, str->data, (u_int)str->data_n, sizeof(long long int), (xdrproc_t)xdr_int64_t);
+        case TYPE_UNSIGNED_CHAR:
+            return xdr_vector(xdrs, str->data, (u_int)str->data_n, sizeof(unsigned char), (xdrproc_t)xdr_u_char);
+        case TYPE_UNSIGNED_SHORT:
+            return xdr_vector(xdrs, str->data, (u_int)str->data_n, sizeof(unsigned short), (xdrproc_t)xdr_u_short);
+        case TYPE_UNSIGNED_INT:
+            return xdr_vector(xdrs, str->data, (u_int)str->data_n, sizeof(unsigned int), (xdrproc_t)xdr_u_int);
+        case TYPE_UNSIGNED_LONG:
+            return xdr_vector(xdrs, str->data, (u_int)str->data_n, sizeof(unsigned long), (xdrproc_t)xdr_u_long);
 #ifndef __APPLE__
-        case TYPE_UNSIGNED_LONG64 :
-            return (xdr_vector(xdrs, str->data, (u_int)str->data_n, sizeof(unsigned long long int),
-                               (xdrproc_t) xdr_uint64_t));
+        case TYPE_UNSIGNED_LONG64:
+            return xdr_vector(xdrs, str->data, (u_int)str->data_n, sizeof(unsigned long long int), (xdrproc_t) xdr_uint64_t);
 #endif
-// Strings are passed as a regular array of CHARs
+        // Strings are passed as a regular array of CHARs
 
-        case TYPE_STRING :
-            return (xdr_vector(xdrs, str->data, (u_int)str->data_n, sizeof(char), (xdrproc_t)xdr_char));
+        case TYPE_STRING:
+            return xdr_vector(xdrs, str->data, (u_int)str->data_n, sizeof(char), (xdrproc_t)xdr_char);
 
-// Complex structure is a simple two float combination: => twice the number of element transmitted
+        // Complex structure is a simple two float combination: => twice the number of element transmitted
 
-        case TYPE_DCOMPLEX :
-            return (xdr_vector(xdrs, str->data, 2 * (u_int)str->data_n, sizeof(double), (xdrproc_t)xdr_double));
-        case TYPE_COMPLEX :
-            return (xdr_vector(xdrs, str->data, 2 * (u_int)str->data_n, sizeof(float), (xdrproc_t)xdr_float));
+        case TYPE_DCOMPLEX:
+            return xdr_vector(xdrs, str->data, 2 * (u_int)str->data_n, sizeof(double), (xdrproc_t)xdr_double);
+        case TYPE_COMPLEX:
+            return xdr_vector(xdrs, str->data, 2 * (u_int)str->data_n, sizeof(float), (xdrproc_t)xdr_float);
 
-// General Data structures are passed using a specialised set of xdr components
+        // General Data structures are passed using a specialised set of xdr components
 
-        case TYPE_COMPOUND :
+        case TYPE_COMPOUND:
             return 1;    // Nothing to send so retain good return code
 
         default:
@@ -684,48 +643,41 @@ bool_t xdr_data_block3(XDR* xdrs, DATA_BLOCK* str)
         xdr_vector(xdrs, (char*)str->errparams, (u_int)str->error_param_n, sizeof(float), (xdrproc_t)xdr_float);
     }
 
-// Data Errors
+    // Data Errors
 
     switch (str->error_type) {
-        case TYPE_FLOAT :
-            return (xdr_vector(xdrs, str->errhi, (u_int)str->data_n, sizeof(float), (xdrproc_t)xdr_float));
-        case TYPE_DOUBLE :
-            return (xdr_vector(xdrs, str->errhi, (u_int)str->data_n, sizeof(double), (xdrproc_t)xdr_double));
-        case TYPE_CHAR :
-            return (xdr_vector(xdrs, str->errhi, (u_int)str->data_n, sizeof(char), (xdrproc_t)xdr_char));
-        case TYPE_SHORT :
-            return (xdr_vector(xdrs, str->errhi, (u_int)str->data_n, sizeof(short), (xdrproc_t)xdr_short));
-        case TYPE_INT :
-            return (xdr_vector(xdrs, str->errhi, (u_int)str->data_n, sizeof(int), (xdrproc_t)xdr_int));
-        case TYPE_LONG :
-            return (xdr_vector(xdrs, str->errhi, (u_int)str->data_n, sizeof(long), (xdrproc_t)xdr_long));
-        case TYPE_LONG64 :
-            return (xdr_vector(xdrs, str->errhi, (u_int)str->data_n, sizeof(long long int),
-                               (xdrproc_t)xdr_int64_t));
-        case TYPE_UNSIGNED_CHAR :
-            return (xdr_vector(xdrs, str->errhi, (u_int)str->data_n, sizeof(unsigned char),
-                               (xdrproc_t)xdr_u_char));
-        case TYPE_UNSIGNED_SHORT :
-            return (xdr_vector(xdrs, str->errhi, (u_int)str->data_n, sizeof(unsigned short),
-                               (xdrproc_t)xdr_u_short));
-        case TYPE_UNSIGNED_INT :
-            return (xdr_vector(xdrs, str->errhi, (u_int)str->data_n, sizeof(unsigned int),
-                               (xdrproc_t)xdr_u_int));
-        case TYPE_UNSIGNED_LONG :
-            return (xdr_vector(xdrs, str->errhi, (u_int)str->data_n, sizeof(unsigned long),
-                               (xdrproc_t)xdr_u_long));
+        case TYPE_FLOAT:
+            return xdr_vector(xdrs, str->errhi, (u_int)str->data_n, sizeof(float), (xdrproc_t)xdr_float);
+        case TYPE_DOUBLE:
+            return xdr_vector(xdrs, str->errhi, (u_int)str->data_n, sizeof(double), (xdrproc_t)xdr_double);
+        case TYPE_CHAR:
+            return xdr_vector(xdrs, str->errhi, (u_int)str->data_n, sizeof(char), (xdrproc_t)xdr_char);
+        case TYPE_SHORT:
+            return xdr_vector(xdrs, str->errhi, (u_int)str->data_n, sizeof(short), (xdrproc_t)xdr_short);
+        case TYPE_INT:
+            return xdr_vector(xdrs, str->errhi, (u_int)str->data_n, sizeof(int), (xdrproc_t)xdr_int);
+        case TYPE_LONG:
+            return xdr_vector(xdrs, str->errhi, (u_int)str->data_n, sizeof(long), (xdrproc_t)xdr_long);
+        case TYPE_LONG64:
+            return xdr_vector(xdrs, str->errhi, (u_int)str->data_n, sizeof(long long int), (xdrproc_t)xdr_int64_t);
+        case TYPE_UNSIGNED_CHAR:
+            return xdr_vector(xdrs, str->errhi, (u_int)str->data_n, sizeof(unsigned char), (xdrproc_t)xdr_u_char);
+        case TYPE_UNSIGNED_SHORT:
+            return xdr_vector(xdrs, str->errhi, (u_int)str->data_n, sizeof(unsigned short), (xdrproc_t)xdr_u_short);
+        case TYPE_UNSIGNED_INT:
+            return xdr_vector(xdrs, str->errhi, (u_int)str->data_n, sizeof(unsigned int), (xdrproc_t)xdr_u_int);
+        case TYPE_UNSIGNED_LONG:
+            return xdr_vector(xdrs, str->errhi, (u_int)str->data_n, sizeof(unsigned long), (xdrproc_t)xdr_u_long);
 #ifndef __APPLE__
-        case TYPE_UNSIGNED_LONG64 :
-            return (xdr_vector(xdrs, str->errhi, (u_int)str->data_n, sizeof(unsigned long long int),
-                               (xdrproc_t) xdr_uint64_t));
+        case TYPE_UNSIGNED_LONG64:
+            return xdr_vector(xdrs, str->errhi, (u_int)str->data_n, sizeof(unsigned long long int), (xdrproc_t) xdr_uint64_t);
 #endif
-// Complex structure is a simple two float combination: => twice the number of element transmitted
+        // Complex structure is a simple two float combination: => twice the number of element transmitted
 
-        case TYPE_DCOMPLEX :
-            return (xdr_vector(xdrs, str->errhi, 2 * (u_int)str->data_n, sizeof(double),
-                               (xdrproc_t)xdr_double));
-        case TYPE_COMPLEX :
-            return (xdr_vector(xdrs, str->errhi, 2 * (u_int)str->data_n, sizeof(float), (xdrproc_t)xdr_float));
+        case TYPE_DCOMPLEX:
+            return xdr_vector(xdrs, str->errhi, 2 * (u_int)str->data_n, sizeof(double), (xdrproc_t)xdr_double);
+        case TYPE_COMPLEX:
+            return xdr_vector(xdrs, str->errhi, 2 * (u_int)str->data_n, sizeof(float), (xdrproc_t)xdr_float);
 
         default:
             return 1;
@@ -734,51 +686,43 @@ bool_t xdr_data_block3(XDR* xdrs, DATA_BLOCK* str)
 
 bool_t xdr_data_block4(XDR* xdrs, DATA_BLOCK* str)
 {
-
     if (!str->errasymmetry) return 1;    // Nothing New to Pass or Receive (same as errhi!)
 
-// Asymmetric Data Errors
+    // Asymmetric Data Errors
 
     switch (str->error_type) {
-        case TYPE_FLOAT :
-            return (xdr_vector(xdrs, str->errlo, (u_int)str->data_n, sizeof(float), (xdrproc_t)xdr_float));
-        case TYPE_DOUBLE :
-            return (xdr_vector(xdrs, str->errlo, (u_int)str->data_n, sizeof(double), (xdrproc_t)xdr_double));
-        case TYPE_CHAR :
-            return (xdr_vector(xdrs, str->errlo, (u_int)str->data_n, sizeof(char), (xdrproc_t)xdr_char));
-        case TYPE_SHORT :
-            return (xdr_vector(xdrs, str->errlo, (u_int)str->data_n, sizeof(short), (xdrproc_t)xdr_short));
-        case TYPE_INT :
-            return (xdr_vector(xdrs, str->errlo, (u_int)str->data_n, sizeof(int), (xdrproc_t)xdr_int));
-        case TYPE_LONG :
-            return (xdr_vector(xdrs, str->errlo, (u_int)str->data_n, sizeof(long), (xdrproc_t)xdr_long));
-        case TYPE_LONG64 :
-            return (xdr_vector(xdrs, str->errlo, (u_int)str->data_n, sizeof(long long int),
-                               (xdrproc_t)xdr_int64_t));
-        case TYPE_UNSIGNED_CHAR :
-            return (xdr_vector(xdrs, str->errlo, (u_int)str->data_n, sizeof(unsigned char),
-                               (xdrproc_t)xdr_u_char));
-        case TYPE_UNSIGNED_SHORT :
-            return (xdr_vector(xdrs, str->errlo, (u_int)str->data_n, sizeof(unsigned short),
-                               (xdrproc_t)xdr_u_short));
-        case TYPE_UNSIGNED_INT :
-            return (xdr_vector(xdrs, str->errlo, (u_int)str->data_n, sizeof(unsigned int),
-                               (xdrproc_t)xdr_u_int));
-        case TYPE_UNSIGNED_LONG :
-            return (xdr_vector(xdrs, str->errlo, (u_int)str->data_n, sizeof(unsigned long),
-                               (xdrproc_t)xdr_u_long));
+        case TYPE_FLOAT:
+            return xdr_vector(xdrs, str->errlo, (u_int)str->data_n, sizeof(float), (xdrproc_t)xdr_float);
+        case TYPE_DOUBLE:
+            return xdr_vector(xdrs, str->errlo, (u_int)str->data_n, sizeof(double), (xdrproc_t)xdr_double);
+        case TYPE_CHAR:
+            return xdr_vector(xdrs, str->errlo, (u_int)str->data_n, sizeof(char), (xdrproc_t)xdr_char);
+        case TYPE_SHORT:
+            return xdr_vector(xdrs, str->errlo, (u_int)str->data_n, sizeof(short), (xdrproc_t)xdr_short);
+        case TYPE_INT:
+            return xdr_vector(xdrs, str->errlo, (u_int)str->data_n, sizeof(int), (xdrproc_t)xdr_int);
+        case TYPE_LONG:
+            return xdr_vector(xdrs, str->errlo, (u_int)str->data_n, sizeof(long), (xdrproc_t)xdr_long);
+        case TYPE_LONG64:
+            return xdr_vector(xdrs, str->errlo, (u_int)str->data_n, sizeof(long long int), (xdrproc_t)xdr_int64_t);
+        case TYPE_UNSIGNED_CHAR:
+            return xdr_vector(xdrs, str->errlo, (u_int)str->data_n, sizeof(unsigned char), (xdrproc_t)xdr_u_char);
+        case TYPE_UNSIGNED_SHORT:
+            return xdr_vector(xdrs, str->errlo, (u_int)str->data_n, sizeof(unsigned short), (xdrproc_t)xdr_u_short);
+        case TYPE_UNSIGNED_INT:
+            return xdr_vector(xdrs, str->errlo, (u_int)str->data_n, sizeof(unsigned int), (xdrproc_t)xdr_u_int);
+        case TYPE_UNSIGNED_LONG:
+            return xdr_vector(xdrs, str->errlo, (u_int)str->data_n, sizeof(unsigned long), (xdrproc_t)xdr_u_long);
 #ifndef __APPLE__
-        case TYPE_UNSIGNED_LONG64 :
-            return (xdr_vector(xdrs, str->errlo, (u_int)str->data_n, sizeof(unsigned long long int),
-                               (xdrproc_t) xdr_uint64_t));
+        case TYPE_UNSIGNED_LONG64:
+            return xdr_vector(xdrs, str->errlo, (u_int)str->data_n, sizeof(unsigned long long int), (xdrproc_t) xdr_uint64_t);
 #endif
-// Complex structure is a simple two float combination: => twice the number of element transmitted
+        // Complex structure is a simple two float combination: => twice the number of element transmitted
 
-        case TYPE_DCOMPLEX :
-            return (xdr_vector(xdrs, str->errlo, 2 * (u_int)str->data_n, sizeof(double),
-                               (xdrproc_t)xdr_double));
-        case TYPE_COMPLEX :
-            return (xdr_vector(xdrs, str->errlo, 2 * (u_int)str->data_n, sizeof(float), (xdrproc_t)xdr_float));
+        case TYPE_DCOMPLEX:
+            return xdr_vector(xdrs, str->errlo, 2 * (u_int)str->data_n, sizeof(double), (xdrproc_t)xdr_double);
+        case TYPE_COMPLEX:
+            return xdr_vector(xdrs, str->errlo, 2 * (u_int)str->data_n, sizeof(float), (xdrproc_t)xdr_float);
 
         default:
             return 1;
@@ -811,103 +755,103 @@ bool_t xdr_data_dim2(XDR* xdrs, DATA_BLOCK* str)
     int i;
 
     for (i = 0; i < str->rank; i++) {
-
         if (str->dims[i].compressed == 0) {
-
             switch (str->dims[i].data_type) {
 
-                case TYPE_FLOAT :
+                case TYPE_FLOAT:
                     if (!xdr_vector(xdrs, str->dims[i].dim, (u_int)str->dims[i].dim_n,
                                     sizeof(float), (xdrproc_t)xdr_float)) {
                                         return 0;
                     }
                     break;
 
-                case TYPE_DOUBLE :
+                case TYPE_DOUBLE:
                     if (!xdr_vector(xdrs, str->dims[i].dim, (u_int)str->dims[i].dim_n,
                                     sizeof(double), (xdrproc_t)xdr_double)) {
                                         return 0;
                     }
                     break;
 
-                case TYPE_CHAR :
+                case TYPE_CHAR:
                     if (!xdr_vector(xdrs, str->dims[i].dim, (u_int)str->dims[i].dim_n,
                                     sizeof(char), (xdrproc_t)xdr_char)) {
                                         return 0;
                     }
                     break;
 
-                case TYPE_SHORT :
+                case TYPE_SHORT:
                     if (!xdr_vector(xdrs, str->dims[i].dim, (u_int)str->dims[i].dim_n,
                                     sizeof(short), (xdrproc_t)xdr_short)) {
                                         return 0;
                     }
                     break;
 
-                case TYPE_INT :
+                case TYPE_INT:
                     if (!xdr_vector(xdrs, str->dims[i].dim, (u_int)str->dims[i].dim_n,
                                     sizeof(int), (xdrproc_t)xdr_int)) {
                                         return 0;
                     }
                     break;
 
-                case TYPE_LONG :
+                case TYPE_LONG:
                     if (!xdr_vector(xdrs, str->dims[i].dim, (u_int)str->dims[i].dim_n,
                                     sizeof(long), (xdrproc_t)xdr_long)) {
                                         return 0;
                     }
                     break;
-                case TYPE_LONG64 :
+
+                case TYPE_LONG64:
                     if (!xdr_vector(xdrs, str->dims[i].dim, (u_int)str->dims[i].dim_n,
                                     sizeof(long long int), (xdrproc_t)xdr_int64_t)) {
                                         return 0;
                     }
                     break;
-                case TYPE_UNSIGNED_CHAR :
+
+                case TYPE_UNSIGNED_CHAR:
                     if (!xdr_vector(xdrs, str->dims[i].dim, (u_int)str->dims[i].dim_n,
                                     sizeof(unsigned char), (xdrproc_t)xdr_u_char)) {
                                         return 0;
                     }
                     break;
 
-                case TYPE_UNSIGNED_SHORT :
+                case TYPE_UNSIGNED_SHORT:
                     if (!xdr_vector(xdrs, str->dims[i].dim, (u_int)str->dims[i].dim_n,
                                     sizeof(unsigned short), (xdrproc_t)xdr_u_short)) {
                                         return 0;
                     }
                     break;
 
-                case TYPE_UNSIGNED_INT :
+                case TYPE_UNSIGNED_INT:
                     if (!xdr_vector(xdrs, str->dims[i].dim, (u_int)str->dims[i].dim_n,
                                     sizeof(unsigned int), (xdrproc_t)xdr_u_int)) {
                                         return 0;
                     }
                     break;
 
-                case TYPE_UNSIGNED_LONG :
+                case TYPE_UNSIGNED_LONG:
                     if (!xdr_vector(xdrs, str->dims[i].dim, (u_int)str->dims[i].dim_n,
                                     sizeof(unsigned long), (xdrproc_t)xdr_u_long)) {
                                         return 0;
                     }
                     break;
 #ifndef __APPLE__
-                case TYPE_UNSIGNED_LONG64 :
+                case TYPE_UNSIGNED_LONG64:
                     if (!xdr_vector(xdrs, str->dims[i].dim, (u_int)str->dims[i].dim_n,
                                     sizeof(unsigned long long int), (xdrproc_t) xdr_uint64_t))
                         return 0;
                     break;
 #endif
 
-// Complex structure is a simple two float combination: => twice the number of element transmitted
+                // Complex structure is a simple two float combination: => twice the number of element transmitted
 
-                case TYPE_DCOMPLEX :
+                case TYPE_DCOMPLEX:
                     if (!xdr_vector(xdrs, str->dims[i].dim, 2 * (u_int)str->dims[i].dim_n,
                                     sizeof(double), (xdrproc_t)xdr_double)) {
                                         return 0;
                     }
                     break;
 
-                case TYPE_COMPLEX :
+                case TYPE_COMPLEX:
                     if (!xdr_vector(xdrs, str->dims[i].dim, 2 * (u_int)str->dims[i].dim_n,
                                     sizeof(float), (xdrproc_t)xdr_float)) {
                                         return 0;
@@ -918,101 +862,94 @@ bool_t xdr_data_dim2(XDR* xdrs, DATA_BLOCK* str)
                     return 0;
             }
         } else {
-
             if (str->dims[i].method > 0) {
                 switch (str->dims[i].data_type) {
-                    case TYPE_FLOAT :
+                    case TYPE_FLOAT:
                         switch (str->dims[i].method) {
                             case 1:
-                                if (!(xdr_vector(xdrs, (char*)str->dims[i].sams, (int)str->dims[i].udoms,
-                                                 sizeof(long), (xdrproc_t)xdr_long)
+                                if (!(xdr_vector(xdrs, (char*)str->dims[i].sams, str->dims[i].udoms,
+                                                 sizeof(int), (xdrproc_t)xdr_int)
                                       && xdr_vector(xdrs, str->dims[i].offs, (int)str->dims[i].udoms,
                                                     sizeof(float), (xdrproc_t)xdr_float)
                                       && xdr_vector(xdrs, str->dims[i].ints, (int)str->dims[i].udoms,
                                                     sizeof(float), (xdrproc_t)xdr_float))) {
-                                                        return 0;
+                                    return 0;
                                 }
                                 break;
                             case 2:
                                 if (!xdr_vector(xdrs, str->dims[i].offs, (int)str->dims[i].udoms,
                                                 sizeof(float), (xdrproc_t)xdr_float)) {
-                                                    return 0;
+                                    return 0;
                                 }
                                 break;
                             case 3:
-                                if (!(xdr_vector(xdrs, str->dims[i].offs, (int)1,
-                                                 sizeof(float), (xdrproc_t)xdr_float)
-                                      && xdr_vector(xdrs, str->dims[i].ints, (int)1,
-                                                    sizeof(float), (xdrproc_t)xdr_float))) {
-                                                        return 0;
+                                if (!(xdr_vector(xdrs, str->dims[i].offs, 1, sizeof(float), (xdrproc_t)xdr_float)
+                                      && xdr_vector(xdrs, str->dims[i].ints, 1, sizeof(float), (xdrproc_t)xdr_float))) {
+                                    return 0;
                                 }
                                 break;
                         }
                         break;
 
-                    case TYPE_DOUBLE :
+                    case TYPE_DOUBLE:
                         switch (str->dims[i].method) {
                             case 1:
-                                if (!(xdr_vector(xdrs, (char*)str->dims[i].sams, (int)str->dims[i].udoms,
-                                                 sizeof(long), (xdrproc_t)xdr_long)
-                                      && xdr_vector(xdrs, str->dims[i].offs, (int)str->dims[i].udoms,
+                                if (!(xdr_vector(xdrs, (char*)str->dims[i].sams, str->dims[i].udoms,
+                                                 sizeof(int), (xdrproc_t)xdr_int)
+                                      && xdr_vector(xdrs, str->dims[i].offs, str->dims[i].udoms,
                                                     sizeof(double), (xdrproc_t)xdr_double)
-                                      && xdr_vector(xdrs, str->dims[i].ints, (int)str->dims[i].udoms,
+                                      && xdr_vector(xdrs, str->dims[i].ints, str->dims[i].udoms,
                                                     sizeof(double), (xdrproc_t)xdr_double))) {
-                                                        return 0;
+                                    return 0;
                                 }
                                 break;
                             case 2:
-                                if (!xdr_vector(xdrs, str->dims[i].offs, (int)str->dims[i].udoms,
+                                if (!xdr_vector(xdrs, str->dims[i].offs, str->dims[i].udoms,
                                                 sizeof(double), (xdrproc_t)xdr_double)) {
-                                                    return 0;
+                                    return 0;
                                 }
                                 break;
                             case 3:
-                                if (!(xdr_vector(xdrs, str->dims[i].offs, (int)1,
-                                                 sizeof(double), (xdrproc_t)xdr_double)
-                                      && xdr_vector(xdrs, str->dims[i].ints, (int)1,
-                                                    sizeof(double), (xdrproc_t)xdr_double))) {
-                                                        return 0;
+                                if (!(xdr_vector(xdrs, str->dims[i].offs, 1, sizeof(double), (xdrproc_t)xdr_double)
+                                      && xdr_vector(xdrs, str->dims[i].ints, 1, sizeof(double), (xdrproc_t)xdr_double))) {
+                                    return 0;
                                 }
                                 break;
                         }
                         break;
 
-                    case TYPE_CHAR :
+                    case TYPE_CHAR:
                         switch (str->dims[i].method) {
                             case 1:
                                 if (!(xdr_vector(xdrs, (char*)str->dims[i].sams, (int)str->dims[i].udoms,
-                                                 sizeof(long), (xdrproc_t)xdr_long)
+                                                 sizeof(int), (xdrproc_t)xdr_int)
                                       && xdr_vector(xdrs, str->dims[i].offs, (int)str->dims[i].udoms,
                                                     sizeof(char), (xdrproc_t)xdr_char)
                                       && xdr_vector(xdrs, str->dims[i].ints, (int)str->dims[i].udoms,
                                                     sizeof(char), (xdrproc_t)xdr_char))) {
-                                                        return 0;
+                                    return 0;
                                 }
                                 break;
                             case 2:
                                 if (!xdr_vector(xdrs, str->dims[i].offs, (int)str->dims[i].udoms,
                                                 sizeof(char), (xdrproc_t)xdr_char)) {
-                                                    return 0;
+                                    return 0;
                                 }
                                 break;
                             case 3:
-                                if (!(xdr_vector(xdrs, str->dims[i].offs, (int)1,
-                                                 sizeof(char), (xdrproc_t)xdr_char)
-                                      && xdr_vector(xdrs, str->dims[i].ints, (int)1,
-                                                    sizeof(char), (xdrproc_t)xdr_char))) {
-                                                        return 0;
+                                if (!(xdr_vector(xdrs, str->dims[i].offs, 1, sizeof(char), (xdrproc_t)xdr_char)
+                                      && xdr_vector(xdrs, str->dims[i].ints, 1, sizeof(char), (xdrproc_t)xdr_char))) {
+                                    return 0;
                                 }
                                 break;
                         }
                         break;
 
-                    case TYPE_SHORT :
+                    case TYPE_SHORT:
                         switch (str->dims[i].method) {
                             case 1:
                                 if (!(xdr_vector(xdrs, (char*)str->dims[i].sams, (int)str->dims[i].udoms,
-                                                 sizeof(long), (xdrproc_t)xdr_long)
+                                                 sizeof(int), (xdrproc_t)xdr_int)
                                       && xdr_vector(xdrs, str->dims[i].offs, (int)str->dims[i].udoms,
                                                     sizeof(short), (xdrproc_t)xdr_short)
                                       && xdr_vector(xdrs, str->dims[i].ints, (int)str->dims[i].udoms,
@@ -1027,50 +964,46 @@ bool_t xdr_data_dim2(XDR* xdrs, DATA_BLOCK* str)
                                 }
                                 break;
                             case 3:
-                                if (!(xdr_vector(xdrs, str->dims[i].offs, (int)1,
-                                                 sizeof(short), (xdrproc_t)xdr_short)
-                                      && xdr_vector(xdrs, str->dims[i].ints, (int)1,
-                                                    sizeof(short), (xdrproc_t)xdr_short))) {
-                                                        return 0;
+                                if (!(xdr_vector(xdrs, str->dims[i].offs, 1, sizeof(short), (xdrproc_t)xdr_short)
+                                      && xdr_vector(xdrs, str->dims[i].ints, 1, sizeof(short), (xdrproc_t)xdr_short))) {
+                                    return 0;
                                 }
                                 break;
                         }
                         break;
 
-                    case TYPE_INT :
+                    case TYPE_INT:
                         switch (str->dims[i].method) {
                             case 1:
                                 if (!(xdr_vector(xdrs, (char*)str->dims[i].sams, (int)str->dims[i].udoms,
-                                                 sizeof(long), (xdrproc_t)xdr_long)
+                                                 sizeof(int), (xdrproc_t)xdr_int)
                                       && xdr_vector(xdrs, str->dims[i].offs, (int)str->dims[i].udoms,
                                                     sizeof(int), (xdrproc_t)xdr_int)
                                       && xdr_vector(xdrs, str->dims[i].ints, (int)str->dims[i].udoms,
                                                     sizeof(int), (xdrproc_t)xdr_int))) {
-                                                        return 0;
+                                    return 0;
                                 }
                                 break;
                             case 2:
                                 if (!xdr_vector(xdrs, str->dims[i].offs, (int)str->dims[i].udoms,
                                                 sizeof(int), (xdrproc_t)xdr_int)) {
-                                                    return 0;
+                                    return 0;
                                 }
                                 break;
                             case 3:
-                                if (!(xdr_vector(xdrs, str->dims[i].offs, (int)1,
-                                                 sizeof(int), (xdrproc_t)xdr_int)
-                                      && xdr_vector(xdrs, str->dims[i].ints, (int)1,
-                                                    sizeof(int), (xdrproc_t)xdr_int))) {
-                                                        return 0;
+                                if (!(xdr_vector(xdrs, str->dims[i].offs, 1, sizeof(int), (xdrproc_t)xdr_int)
+                                      && xdr_vector(xdrs, str->dims[i].ints, 1, sizeof(int), (xdrproc_t)xdr_int))) {
+                                    return 0;
                                 }
                                 break;
                         }
                         break;
 
-                    case TYPE_LONG :
+                    case TYPE_LONG:
                         switch (str->dims[i].method) {
                             case 1:
                                 if (!(xdr_vector(xdrs, (char*)str->dims[i].sams, (int)str->dims[i].udoms,
-                                                 sizeof(long), (xdrproc_t)xdr_long)
+                                                 sizeof(int), (xdrproc_t)xdr_int)
                                       && xdr_vector(xdrs, str->dims[i].offs, (int)str->dims[i].udoms,
                                                     sizeof(long), (xdrproc_t)xdr_long)
                                       && xdr_vector(xdrs, str->dims[i].ints, (int)str->dims[i].udoms,
@@ -1085,20 +1018,19 @@ bool_t xdr_data_dim2(XDR* xdrs, DATA_BLOCK* str)
                                 }
                                 break;
                             case 3:
-                                if (!(xdr_vector(xdrs, str->dims[i].offs, (int)1,
-                                                 sizeof(long), (xdrproc_t)xdr_long)
-                                      && xdr_vector(xdrs, str->dims[i].ints, (int)1,
-                                                    sizeof(long), (xdrproc_t)xdr_long))) {
+                                if (!(xdr_vector(xdrs, str->dims[i].offs, 1, sizeof(long), (xdrproc_t)xdr_long)
+                                      && xdr_vector(xdrs, str->dims[i].ints, 1, sizeof(long), (xdrproc_t)xdr_long))) {
                                                         return 0;
                                 }
                                 break;
                         }
                         break;
-                    case TYPE_LONG64 :
+
+                    case TYPE_LONG64:
                         switch (str->dims[i].method) {
                             case 1:
                                 if (!(xdr_vector(xdrs, (char*)str->dims[i].sams, (int)str->dims[i].udoms,
-                                                 sizeof(long), (xdrproc_t)xdr_long)
+                                                 sizeof(int), (xdrproc_t)xdr_int)
                                       && xdr_vector(xdrs, str->dims[i].offs, (int)str->dims[i].udoms,
                                                     sizeof(long long int), (xdrproc_t)xdr_int64_t)
                                       && xdr_vector(xdrs, str->dims[i].ints, (int)str->dims[i].udoms,
@@ -1113,20 +1045,18 @@ bool_t xdr_data_dim2(XDR* xdrs, DATA_BLOCK* str)
                                 }
                                 break;
                             case 3:
-                                if (!(xdr_vector(xdrs, str->dims[i].offs, (int)1,
-                                                 sizeof(long long int), (xdrproc_t)xdr_int64_t)
-                                      && xdr_vector(xdrs, str->dims[i].ints, (int)1,
-                                                    sizeof(long long int), (xdrproc_t)xdr_int64_t))) {
-                                                        return 0;
+                                if (!(xdr_vector(xdrs, str->dims[i].offs, 1, sizeof(long long int), (xdrproc_t)xdr_int64_t)
+                                      && xdr_vector(xdrs, str->dims[i].ints, 1, sizeof(long long int), (xdrproc_t)xdr_int64_t))) {return 0;
                                 }
                                 break;
                         }
                         break;
-                    case TYPE_UNSIGNED_CHAR :
+
+                    case TYPE_UNSIGNED_CHAR:
                         switch (str->dims[i].method) {
                             case 1:
                                 if (!(xdr_vector(xdrs, (char*)str->dims[i].sams, (int)str->dims[i].udoms,
-                                                 sizeof(long), (xdrproc_t)xdr_long)
+                                                 sizeof(int), (xdrproc_t)xdr_int)
                                       && xdr_vector(xdrs, str->dims[i].offs, (int)str->dims[i].udoms,
                                                     sizeof(unsigned char), (xdrproc_t)xdr_u_char)
                                       && xdr_vector(xdrs, str->dims[i].ints, (int)str->dims[i].udoms,
@@ -1141,21 +1071,19 @@ bool_t xdr_data_dim2(XDR* xdrs, DATA_BLOCK* str)
                                 }
                                 break;
                             case 3:
-                                if (!(xdr_vector(xdrs, str->dims[i].offs, (int)1,
-                                                 sizeof(unsigned char), (xdrproc_t)xdr_u_char)
-                                      && xdr_vector(xdrs, str->dims[i].ints, (int)1,
-                                                    sizeof(unsigned char), (xdrproc_t)xdr_u_char))) {
-                                                        return 0;
+                                if (!(xdr_vector(xdrs, str->dims[i].offs, 1, sizeof(unsigned char), (xdrproc_t)xdr_u_char)
+                                      && xdr_vector(xdrs, str->dims[i].ints, 1, sizeof(unsigned char), (xdrproc_t)xdr_u_char))) {
+                                    return 0;
                                 }
                                 break;
                         }
                         break;
 
-                    case TYPE_UNSIGNED_SHORT :
+                    case TYPE_UNSIGNED_SHORT:
                         switch (str->dims[i].method) {
                             case 1:
                                 if (!(xdr_vector(xdrs, (char*)str->dims[i].sams, (int)str->dims[i].udoms,
-                                                 sizeof(long), (xdrproc_t)xdr_long)
+                                                 sizeof(int), (xdrproc_t)xdr_int)
                                       && xdr_vector(xdrs, str->dims[i].offs, (int)str->dims[i].udoms,
                                                     sizeof(unsigned short), (xdrproc_t)xdr_u_short)
                                       && xdr_vector(xdrs, str->dims[i].ints, (int)str->dims[i].udoms,
@@ -1170,21 +1098,19 @@ bool_t xdr_data_dim2(XDR* xdrs, DATA_BLOCK* str)
                                 }
                                 break;
                             case 3:
-                                if (!(xdr_vector(xdrs, str->dims[i].offs, (int)1,
-                                                 sizeof(unsigned short), (xdrproc_t)xdr_u_short)
-                                      && xdr_vector(xdrs, str->dims[i].ints, (int)1,
-                                                    sizeof(unsigned short), (xdrproc_t)xdr_u_short))) {
+                                if (!(xdr_vector(xdrs, str->dims[i].offs, 1, sizeof(unsigned short), (xdrproc_t)xdr_u_short)
+                                      && xdr_vector(xdrs, str->dims[i].ints, 1, sizeof(unsigned short), (xdrproc_t)xdr_u_short))) {
                                                         return 0;
                                 }
                                 break;
                         }
                         break;
 
-                    case TYPE_UNSIGNED_INT :
+                    case TYPE_UNSIGNED_INT:
                         switch (str->dims[i].method) {
                             case 1:
                                 if (!(xdr_vector(xdrs, (char*)str->dims[i].sams, (int)str->dims[i].udoms,
-                                                 sizeof(long), (xdrproc_t)xdr_long)
+                                                 sizeof(int), (xdrproc_t)xdr_int)
                                       && xdr_vector(xdrs, str->dims[i].offs, (int)str->dims[i].udoms,
                                                     sizeof(unsigned int), (xdrproc_t)xdr_u_int)
                                       && xdr_vector(xdrs, str->dims[i].ints, (int)str->dims[i].udoms,
@@ -1199,21 +1125,19 @@ bool_t xdr_data_dim2(XDR* xdrs, DATA_BLOCK* str)
                                 }
                                 break;
                             case 3:
-                                if (!(xdr_vector(xdrs, str->dims[i].offs, (int)1,
-                                                 sizeof(unsigned int), (xdrproc_t)xdr_u_int)
-                                      && xdr_vector(xdrs, str->dims[i].ints, (int)1,
-                                                    sizeof(unsigned int), (xdrproc_t)xdr_u_int))) {
+                                if (!(xdr_vector(xdrs, str->dims[i].offs, 1, sizeof(unsigned int), (xdrproc_t)xdr_u_int)
+                                      && xdr_vector(xdrs, str->dims[i].ints, 1, sizeof(unsigned int), (xdrproc_t)xdr_u_int))) {
                                                         return 0;
                                 }
                                 break;
                         }
                         break;
 
-                    case TYPE_UNSIGNED_LONG :
+                    case TYPE_UNSIGNED_LONG:
                         switch (str->dims[i].method) {
                             case 1:
                                 if (!(xdr_vector(xdrs, (char*)str->dims[i].sams, (int)str->dims[i].udoms,
-                                                 sizeof(long), (xdrproc_t)xdr_long)
+                                                 sizeof(int), (xdrproc_t)xdr_int)
                                       && xdr_vector(xdrs, str->dims[i].offs, (int)str->dims[i].udoms,
                                                     sizeof(unsigned long), (xdrproc_t)xdr_u_long)
                                       && xdr_vector(xdrs, str->dims[i].ints, (int)str->dims[i].udoms,
@@ -1228,21 +1152,19 @@ bool_t xdr_data_dim2(XDR* xdrs, DATA_BLOCK* str)
                                 }
                                 break;
                             case 3:
-                                if (!(xdr_vector(xdrs, str->dims[i].offs, (int)1,
-                                                 sizeof(unsigned long), (xdrproc_t)xdr_u_long)
-                                      && xdr_vector(xdrs, str->dims[i].ints, (int)1,
-                                                    sizeof(unsigned long), (xdrproc_t)xdr_u_long))) {
-                                                        return 0;
+                                if (!(xdr_vector(xdrs, str->dims[i].offs, 1, sizeof(unsigned long), (xdrproc_t)xdr_u_long)
+                                      && xdr_vector(xdrs, str->dims[i].ints, 1, sizeof(unsigned long), (xdrproc_t)xdr_u_long))) {
+                                    return 0;
                                 }
                                 break;
                         }
                         break;
 #ifndef __APPLE__
-                    case TYPE_UNSIGNED_LONG64 :
+                    case TYPE_UNSIGNED_LONG64:
                         switch (str->dims[i].method) {
                             case 1:
                                 if (!(xdr_vector(xdrs, (char*) str->dims[i].sams, (int) str->dims[i].udoms,
-                                                 sizeof(long), (xdrproc_t) xdr_long)
+                                                 sizeof(int), (xdrproc_t)xdr_int)
                                       && xdr_vector(xdrs, str->dims[i].offs, (int) str->dims[i].udoms,
                                                     sizeof(unsigned long long int), (xdrproc_t) xdr_uint64_t)
                                       && xdr_vector(xdrs, str->dims[i].ints, (int) str->dims[i].udoms,
@@ -1265,7 +1187,7 @@ bool_t xdr_data_dim2(XDR* xdrs, DATA_BLOCK* str)
                         break;
 #endif
 
-// COMPLEX Types are Not Compressed
+                    // COMPLEX Types are Not Compressed
 
                     default:
                         return 0;
@@ -1283,69 +1205,69 @@ bool_t xdr_data_dim3(XDR* xdrs, DATA_BLOCK* str)
     for (i = 0; i < str->rank; i++) {
 
         if (str->dims[i].error_param_n > 0) {
-            xdr_vector(xdrs, (char*)str->dims[i].errparams, (int)str->dims[i].error_param_n,
+            xdr_vector(xdrs, (char*)str->dims[i].errparams, (unsigned int)str->dims[i].error_param_n,
                        sizeof(float), (xdrproc_t)xdr_float);
         }
 
         switch (str->dims[i].error_type) {
-            case TYPE_FLOAT :
+            case TYPE_FLOAT:
                 rc = xdr_vector(xdrs, str->dims[i].errhi, (u_int)str->dims[i].dim_n, sizeof(float),
                                 (xdrproc_t)xdr_float);
                 break;
-            case TYPE_DOUBLE :
+            case TYPE_DOUBLE:
                 rc = xdr_vector(xdrs, str->dims[i].errhi, (u_int)str->dims[i].dim_n, sizeof(double),
                                 (xdrproc_t)xdr_double);
                 break;
-            case TYPE_CHAR :
+            case TYPE_CHAR:
                 rc = xdr_vector(xdrs, str->dims[i].errhi, (u_int)str->dims[i].dim_n, sizeof(char),
                                 (xdrproc_t)xdr_char);
                 break;
-            case TYPE_SHORT :
+            case TYPE_SHORT:
                 rc = xdr_vector(xdrs, str->dims[i].errhi, (u_int)str->dims[i].dim_n, sizeof(short),
                                 (xdrproc_t)xdr_short);
                 break;
-            case TYPE_INT :
+            case TYPE_INT:
                 rc = xdr_vector(xdrs, str->dims[i].errhi, (u_int)str->dims[i].dim_n, sizeof(int),
                                 (xdrproc_t)xdr_int);
                 break;
-            case TYPE_LONG :
+            case TYPE_LONG:
                 rc = xdr_vector(xdrs, str->dims[i].errhi, (u_int)str->dims[i].dim_n, sizeof(long),
                                 (xdrproc_t)xdr_long);
                 break;
-            case TYPE_LONG64 :
+            case TYPE_LONG64:
                 rc = xdr_vector(xdrs, str->dims[i].errhi, (u_int)str->dims[i].dim_n, sizeof(long long int),
                                 (xdrproc_t)xdr_int64_t);
                 break;
-            case TYPE_UNSIGNED_CHAR :
+            case TYPE_UNSIGNED_CHAR:
                 rc = xdr_vector(xdrs, str->dims[i].errhi, (u_int)str->dims[i].dim_n, sizeof(unsigned char),
                                 (xdrproc_t)xdr_u_char);
                 break;
-            case TYPE_UNSIGNED_SHORT :
+            case TYPE_UNSIGNED_SHORT:
                 rc = xdr_vector(xdrs, str->dims[i].errhi, (u_int)str->dims[i].dim_n, sizeof(unsigned short),
                                 (xdrproc_t)xdr_u_short);
                 break;
-            case TYPE_UNSIGNED_INT :
+            case TYPE_UNSIGNED_INT:
                 rc = xdr_vector(xdrs, str->dims[i].errhi, (u_int)str->dims[i].dim_n, sizeof(unsigned int),
                                 (xdrproc_t)xdr_u_int);
                 break;
-            case TYPE_UNSIGNED_LONG :
+            case TYPE_UNSIGNED_LONG:
                 rc = xdr_vector(xdrs, str->dims[i].errhi, (u_int)str->dims[i].dim_n, sizeof(unsigned long),
                                 (xdrproc_t)xdr_u_long);
                 break;
 #ifndef __APPLE__
-            case TYPE_UNSIGNED_LONG64 :
+            case TYPE_UNSIGNED_LONG64:
                 rc = xdr_vector(xdrs, str->dims[i].errhi, (u_int)str->dims[i].dim_n,
                                 sizeof(unsigned long long int), (xdrproc_t) xdr_uint64_t);
                 break;
 #endif
 
-// Complex structure is a simple two float combination: => twice the number of element transmitted
+            // Complex structure is a simple two float combination: => twice the number of element transmitted
 
-            case TYPE_DCOMPLEX :
+            case TYPE_DCOMPLEX:
                 rc = xdr_vector(xdrs, str->dims[i].errhi, 2 * (u_int)str->dims[i].dim_n, sizeof(double),
                                 (xdrproc_t)xdr_double);
                 break;
-            case TYPE_COMPLEX :
+            case TYPE_COMPLEX:
                 rc = xdr_vector(xdrs, str->dims[i].errhi, 2 * (u_int)str->dims[i].dim_n, sizeof(float),
                                 (xdrproc_t)xdr_float);
                 break;
@@ -1367,64 +1289,64 @@ bool_t xdr_data_dim4(XDR* xdrs, DATA_BLOCK* str)
     for (i = 0; i < str->rank; i++) {
         if (str->dims[i].errasymmetry) {
             switch (str->dims[i].error_type) {
-                case TYPE_FLOAT :
+                case TYPE_FLOAT:
                     rc = xdr_vector(xdrs, str->dims[i].errlo, (u_int)str->dims[i].dim_n, sizeof(float),
                                     (xdrproc_t)xdr_float);
                     break;
-                case TYPE_DOUBLE :
+                case TYPE_DOUBLE:
                     rc = xdr_vector(xdrs, str->dims[i].errlo, (u_int)str->dims[i].dim_n, sizeof(double),
                                     (xdrproc_t)xdr_double);
                     break;
-                case TYPE_CHAR :
+                case TYPE_CHAR:
                     rc = xdr_vector(xdrs, str->dims[i].errlo, (u_int)str->dims[i].dim_n, sizeof(char),
                                     (xdrproc_t)xdr_char);
                     break;
-                case TYPE_SHORT :
+                case TYPE_SHORT:
                     rc = xdr_vector(xdrs, str->dims[i].errlo, (u_int)str->dims[i].dim_n, sizeof(short),
                                     (xdrproc_t)xdr_short);
                     break;
-                case TYPE_INT :
+                case TYPE_INT:
                     rc = xdr_vector(xdrs, str->dims[i].errlo, (u_int)str->dims[i].dim_n, sizeof(int),
                                     (xdrproc_t)xdr_int);
                     break;
-                case TYPE_LONG :
+                case TYPE_LONG:
                     rc = xdr_vector(xdrs, str->dims[i].errlo, (u_int)str->dims[i].dim_n, sizeof(long),
                                     (xdrproc_t)xdr_long);
                     break;
-                case TYPE_LONG64 :
+                case TYPE_LONG64:
                     rc = xdr_vector(xdrs, str->dims[i].errlo, (u_int)str->dims[i].dim_n, sizeof(long long int),
                                     (xdrproc_t)xdr_int64_t);
                     break;
-                case TYPE_UNSIGNED_CHAR :
+                case TYPE_UNSIGNED_CHAR:
                     rc = xdr_vector(xdrs, str->dims[i].errlo, (u_int)str->dims[i].dim_n, sizeof(unsigned char),
                                     (xdrproc_t)xdr_u_char);
                     break;
-                case TYPE_UNSIGNED_SHORT :
+                case TYPE_UNSIGNED_SHORT:
                     rc = xdr_vector(xdrs, str->dims[i].errlo, (u_int)str->dims[i].dim_n, sizeof(unsigned short),
                                     (xdrproc_t)xdr_u_short);
                     break;
-                case TYPE_UNSIGNED_INT :
+                case TYPE_UNSIGNED_INT:
                     rc = xdr_vector(xdrs, str->dims[i].errlo, (u_int)str->dims[i].dim_n, sizeof(unsigned int),
                                     (xdrproc_t)xdr_u_int);
                     break;
-                case TYPE_UNSIGNED_LONG :
+                case TYPE_UNSIGNED_LONG:
                     rc = xdr_vector(xdrs, str->dims[i].errlo, (u_int)str->dims[i].dim_n, sizeof(unsigned long),
                                     (xdrproc_t)xdr_u_long);
                     break;
 #ifndef __APPLE__
-                case TYPE_UNSIGNED_LONG64 :
+                case TYPE_UNSIGNED_LONG64:
                     rc = xdr_vector(xdrs, str->dims[i].errlo, (u_int)str->dims[i].dim_n,
                                     sizeof(unsigned long long int), (xdrproc_t) xdr_uint64_t);
                     break;
 #endif
 
-// Complex structure is a simple two float combination: => twice the number of element transmitted
+                // Complex structure is a simple two float combination: => twice the number of element transmitted
 
-                case TYPE_DCOMPLEX :
+                case TYPE_DCOMPLEX:
                     rc = xdr_vector(xdrs, str->dims[i].errlo, 2 * (u_int)str->dims[i].dim_n, sizeof(double),
                                     (xdrproc_t)xdr_double);
                     break;
-                case TYPE_COMPLEX :
+                case TYPE_COMPLEX:
                     rc = xdr_vector(xdrs, str->dims[i].errlo, 2 * (u_int)str->dims[i].dim_n, sizeof(float),
                                     (xdrproc_t)xdr_float);
                     break;
@@ -1446,17 +1368,16 @@ bool_t xdr_data_dim4(XDR* xdrs, DATA_BLOCK* str)
 
 bool_t xdr_data_system(XDR* xdrs, DATA_SYSTEM* str)
 {
-    return (xdr_int(xdrs, &str->system_id)
-            && xdr_int(xdrs, &str->version)
-            && xdr_int(xdrs, &str->meta_id)
-            && xdr_char(xdrs, &str->type)
-            && WrapXDRString(xdrs, (char*)str->device_name, STRING_LENGTH)
-            && WrapXDRString(xdrs, (char*)str->system_name, STRING_LENGTH)
-            && WrapXDRString(xdrs, (char*)str->system_desc, MAX_STRING_LENGTH)
-            && WrapXDRString(xdrs, (char*)str->creation, DATE_LENGTH)
-            && WrapXDRString(xdrs, (char*)str->xml, MAXMETA)
-            && WrapXDRString(xdrs, (char*)str->xml_creation, DATE_LENGTH)
-    );
+    return xdr_int(xdrs, &str->system_id)
+        && xdr_int(xdrs, &str->version)
+        && xdr_int(xdrs, &str->meta_id)
+        && xdr_char(xdrs, &str->type)
+        && WrapXDRString(xdrs, (char*)str->device_name, STRING_LENGTH)
+        && WrapXDRString(xdrs, (char*)str->system_name, STRING_LENGTH)
+        && WrapXDRString(xdrs, (char*)str->system_desc, MAX_STRING_LENGTH)
+        && WrapXDRString(xdrs, (char*)str->creation, DATE_LENGTH)
+        && WrapXDRString(xdrs, (char*)str->xml, MAXMETA)
+        && WrapXDRString(xdrs, (char*)str->xml_creation, DATE_LENGTH);
 }
 
 
@@ -1465,15 +1386,14 @@ bool_t xdr_data_system(XDR* xdrs, DATA_SYSTEM* str)
 
 bool_t xdr_system_config(XDR* xdrs, SYSTEM_CONFIG* str)
 {
-    return (xdr_int(xdrs, &str->config_id)
-            && xdr_int(xdrs, &str->system_id)
-            && xdr_int(xdrs, &str->meta_id)
-            && WrapXDRString(xdrs, (char*)str->config_name, STRING_LENGTH)
-            && WrapXDRString(xdrs, (char*)str->config_desc, MAX_STRING_LENGTH)
-            && WrapXDRString(xdrs, (char*)str->creation, DATE_LENGTH)
-            && WrapXDRString(xdrs, (char*)str->xml, MAXMETA)
-            && WrapXDRString(xdrs, (char*)str->xml_creation, DATE_LENGTH)
-    );
+    return xdr_int(xdrs, &str->config_id)
+        && xdr_int(xdrs, &str->system_id)
+        && xdr_int(xdrs, &str->meta_id)
+        && WrapXDRString(xdrs, (char*)str->config_name, STRING_LENGTH)
+        && WrapXDRString(xdrs, (char*)str->config_desc, MAX_STRING_LENGTH)
+        && WrapXDRString(xdrs, (char*)str->creation, DATE_LENGTH)
+        && WrapXDRString(xdrs, (char*)str->xml, MAXMETA)
+        && WrapXDRString(xdrs, (char*)str->xml_creation, DATE_LENGTH);
 }
 
 //-----------------------------------------------------------------------
@@ -1481,37 +1401,36 @@ bool_t xdr_system_config(XDR* xdrs, SYSTEM_CONFIG* str)
 
 bool_t xdr_data_source(XDR* xdrs, DATA_SOURCE* str)
 {
-    return (xdr_int(xdrs, &str->source_id)
-            && xdr_int(xdrs, &str->config_id)
-            && xdr_int(xdrs, &str->reason_id)
-            && xdr_int(xdrs, &str->run_id)
-            && xdr_int(xdrs, &str->meta_id)
-            && xdr_int(xdrs, &str->status_desc_id)
-            && xdr_int(xdrs, &str->exp_number)
-            && xdr_int(xdrs, &str->pass)
-            && xdr_int(xdrs, &str->status)
-            && xdr_int(xdrs, &str->status_reason_code)
-            && xdr_int(xdrs, &str->status_impact_code)
-            && xdr_char(xdrs, &str->access)
-            && xdr_char(xdrs, &str->reprocess)
-            && xdr_char(xdrs, &str->type)
-            && WrapXDRString(xdrs, (char*)str->source_alias, STRING_LENGTH)
-            && WrapXDRString(xdrs, (char*)str->pass_date, DATE_LENGTH)
-            && WrapXDRString(xdrs, (char*)str->archive, STRING_LENGTH)
-            && WrapXDRString(xdrs, (char*)str->device_name, STRING_LENGTH)
-            && WrapXDRString(xdrs, (char*)str->format, STRING_LENGTH)
-            && WrapXDRString(xdrs, (char*)str->path, MAX_STRING_LENGTH)
-            && WrapXDRString(xdrs, (char*)str->filename, STRING_LENGTH)
-            && WrapXDRString(xdrs, (char*)str->server, STRING_LENGTH)
-            && WrapXDRString(xdrs, (char*)str->userid, STRING_LENGTH)
-            && WrapXDRString(xdrs, (char*)str->reason_desc, MAX_STRING_LENGTH)
-            && WrapXDRString(xdrs, (char*)str->status_desc, MAXMETA)
-            && WrapXDRString(xdrs, (char*)str->run_desc, MAXMETA)
-            && WrapXDRString(xdrs, (char*)str->creation, DATE_LENGTH)
-            && WrapXDRString(xdrs, (char*)str->modified, DATE_LENGTH)
-            && WrapXDRString(xdrs, (char*)str->xml, MAXMETA)
-            && WrapXDRString(xdrs, (char*)str->xml_creation, DATE_LENGTH)
-    );
+    return xdr_int(xdrs, &str->source_id)
+        && xdr_int(xdrs, &str->config_id)
+        && xdr_int(xdrs, &str->reason_id)
+        && xdr_int(xdrs, &str->run_id)
+        && xdr_int(xdrs, &str->meta_id)
+        && xdr_int(xdrs, &str->status_desc_id)
+        && xdr_int(xdrs, &str->exp_number)
+        && xdr_int(xdrs, &str->pass)
+        && xdr_int(xdrs, &str->status)
+        && xdr_int(xdrs, &str->status_reason_code)
+        && xdr_int(xdrs, &str->status_impact_code)
+        && xdr_char(xdrs, &str->access)
+        && xdr_char(xdrs, &str->reprocess)
+        && xdr_char(xdrs, &str->type)
+        && WrapXDRString(xdrs, (char*)str->source_alias, STRING_LENGTH)
+        && WrapXDRString(xdrs, (char*)str->pass_date, DATE_LENGTH)
+        && WrapXDRString(xdrs, (char*)str->archive, STRING_LENGTH)
+        && WrapXDRString(xdrs, (char*)str->device_name, STRING_LENGTH)
+        && WrapXDRString(xdrs, (char*)str->format, STRING_LENGTH)
+        && WrapXDRString(xdrs, (char*)str->path, MAX_STRING_LENGTH)
+        && WrapXDRString(xdrs, (char*)str->filename, STRING_LENGTH)
+        && WrapXDRString(xdrs, (char*)str->server, STRING_LENGTH)
+        && WrapXDRString(xdrs, (char*)str->userid, STRING_LENGTH)
+        && WrapXDRString(xdrs, (char*)str->reason_desc, MAX_STRING_LENGTH)
+        && WrapXDRString(xdrs, (char*)str->status_desc, MAXMETA)
+        && WrapXDRString(xdrs, (char*)str->run_desc, MAXMETA)
+        && WrapXDRString(xdrs, (char*)str->creation, DATE_LENGTH)
+        && WrapXDRString(xdrs, (char*)str->modified, DATE_LENGTH)
+        && WrapXDRString(xdrs, (char*)str->xml, MAXMETA)
+        && WrapXDRString(xdrs, (char*)str->xml_creation, DATE_LENGTH);
 }
 
 //-----------------------------------------------------------------------
@@ -1519,22 +1438,20 @@ bool_t xdr_data_source(XDR* xdrs, DATA_SOURCE* str)
 
 bool_t xdr_signal(XDR* xdrs, SIGNAL* str)
 {
-    return (xdr_int(xdrs, &str->source_id)
-            && xdr_int(xdrs, &str->signal_desc_id)
-            && xdr_int(xdrs, &str->meta_id)
-            && xdr_int(xdrs, &str->status_desc_id)
-            && xdr_int(xdrs, &str->status)
-            && xdr_int(xdrs, &str->status_reason_code)
-            && xdr_int(xdrs, &str->status_impact_code)
-            && xdr_char(xdrs, &str->access)
-            && xdr_char(xdrs, &str->reprocess)
-            && WrapXDRString(xdrs, (char*)str->status_desc, MAXMETA)
-            && WrapXDRString(xdrs, (char*)str->creation, DATE_LENGTH)
-            && WrapXDRString(xdrs, (char*)str->modified, DATE_LENGTH)
-            && WrapXDRString(xdrs, (char*)str->xml, MAXMETA)
-            && WrapXDRString(xdrs, (char*)str->xml_creation, DATE_LENGTH)
-    );
-    //&&	xdr_char(xdrs, &str->status)
+    return xdr_int(xdrs, &str->source_id)
+        && xdr_int(xdrs, &str->signal_desc_id)
+        && xdr_int(xdrs, &str->meta_id)
+        && xdr_int(xdrs, &str->status_desc_id)
+        && xdr_int(xdrs, &str->status)
+        && xdr_int(xdrs, &str->status_reason_code)
+        && xdr_int(xdrs, &str->status_impact_code)
+        && xdr_char(xdrs, &str->access)
+        && xdr_char(xdrs, &str->reprocess)
+        && WrapXDRString(xdrs, (char*)str->status_desc, MAXMETA)
+        && WrapXDRString(xdrs, (char*)str->creation, DATE_LENGTH)
+        && WrapXDRString(xdrs, (char*)str->modified, DATE_LENGTH)
+        && WrapXDRString(xdrs, (char*)str->xml, MAXMETA)
+        && WrapXDRString(xdrs, (char*)str->xml_creation, DATE_LENGTH);
 }
 
 //-----------------------------------------------------------------------
@@ -1542,25 +1459,21 @@ bool_t xdr_signal(XDR* xdrs, SIGNAL* str)
 
 bool_t xdr_signal_desc(XDR* xdrs, SIGNAL_DESC* str)
 {
-    return (xdr_int(xdrs, &str->signal_desc_id)
-            && xdr_int(xdrs, &str->meta_id)
-            && xdr_int(xdrs, &str->rank)
-            && xdr_int(xdrs, &str->range_start)
-            && xdr_int(xdrs, &str->range_stop)
-            && xdr_char(xdrs, &str->type)
-            && WrapXDRString(xdrs, (char*)str->source_alias, STRING_LENGTH)
-            && WrapXDRString(xdrs, (char*)str->signal_alias, STRING_LENGTH)
-            && WrapXDRString(xdrs, (char*)str->signal_name, STRING_LENGTH)
-            && WrapXDRString(xdrs, (char*)str->generic_name, STRING_LENGTH)
-            && WrapXDRString(xdrs, (char*)str->description, MAX_STRING_LENGTH)
-            && WrapXDRString(xdrs, (char*)str->signal_class, MAX_STRING_LENGTH)
-            && WrapXDRString(xdrs, (char*)str->signal_owner, MAX_STRING_LENGTH)
-            && WrapXDRString(xdrs, (char*)str->creation, DATE_LENGTH)
-            && WrapXDRString(xdrs, (char*)str->modified, DATE_LENGTH)
-            && WrapXDRString(xdrs, (char*)str->xml, MAXMETA)
-            && WrapXDRString(xdrs, (char*)str->xml_creation, DATE_LENGTH)
-    );
-    //&&	xdr_int(xdrs, &str->errdist)
-    //&&	xdr_float(xdrs, &str->errscale)
-    //&&	xdr_float(xdrs, &str->erroffset)
+    return xdr_int(xdrs, &str->signal_desc_id)
+        && xdr_int(xdrs, &str->meta_id)
+        && xdr_int(xdrs, &str->rank)
+        && xdr_int(xdrs, &str->range_start)
+        && xdr_int(xdrs, &str->range_stop)
+        && xdr_char(xdrs, &str->type)
+        && WrapXDRString(xdrs, (char*)str->source_alias, STRING_LENGTH)
+        && WrapXDRString(xdrs, (char*)str->signal_alias, STRING_LENGTH)
+        && WrapXDRString(xdrs, (char*)str->signal_name, STRING_LENGTH)
+        && WrapXDRString(xdrs, (char*)str->generic_name, STRING_LENGTH)
+        && WrapXDRString(xdrs, (char*)str->description, MAX_STRING_LENGTH)
+        && WrapXDRString(xdrs, (char*)str->signal_class, MAX_STRING_LENGTH)
+        && WrapXDRString(xdrs, (char*)str->signal_owner, MAX_STRING_LENGTH)
+        && WrapXDRString(xdrs, (char*)str->creation, DATE_LENGTH)
+        && WrapXDRString(xdrs, (char*)str->modified, DATE_LENGTH)
+        && WrapXDRString(xdrs, (char*)str->xml, MAXMETA)
+        && WrapXDRString(xdrs, (char*)str->xml_creation, DATE_LENGTH);
 }

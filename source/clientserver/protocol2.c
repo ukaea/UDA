@@ -43,7 +43,8 @@
 #include "udaErrors.h"
 #include "errorLog.h"
 
-int protocol2(XDR* xdrs, int protocol_id, int direction, int* token, void* str)
+int protocol2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIST* logmalloclist,
+              USERDEFINEDTYPELIST* userdefinedtypelist, void* str)
 {
 
     DATA_BLOCK* data_block;
@@ -227,8 +228,8 @@ int protocol2(XDR* xdrs, int protocol_id, int direction, int* token, void* str)
                         break;
                     }
 
-                    if (data_block->error_type != TYPE_UNKNOWN ||
-                        data_block->error_param_n > 0) {    // Only Send if Error Data are available
+                    if (data_block->error_type != TYPE_UNKNOWN || data_block->error_param_n > 0) {
+                        // Only Send if Error Data are available
                         if (!xdr_data_block3(xdrs, data_block)) {
                             err = PROTOCOL_ERROR_62;
                             break;
@@ -239,9 +240,10 @@ int protocol2(XDR* xdrs, int protocol_id, int direction, int* token, void* str)
                         }
                     }
 
-                    if (data_block->rank > 0) {    // Dimensional Data to Send
+                    if (data_block->rank > 0) {
+                        // Dimensional Data to Send
 
-// Check client/server understands new data types
+                        // Check client/server understands new data types
 
                         int i;
                         if (protocolVersion < 3) {
@@ -276,7 +278,6 @@ int protocol2(XDR* xdrs, int protocol_id, int direction, int* token, void* str)
                         if (!xdr_data_dim4(xdrs, data_block)) {
                             err = PROTOCOL_ERROR_65;
                         }
-
                     }
                     break;
 
@@ -356,7 +357,8 @@ int protocol2(XDR* xdrs, int protocol_id, int direction, int* token, void* str)
                             data_block->opaque_block = putData.opaque_block;    // User Defined Type
 
                             protocol_id = PROTOCOL_STRUCTURES;
-                            if ((err = protocolXML2Put(xdrs, protocol_id, direction, token, data_block)) != 0) {
+                            if ((err = protocolXML2Put(xdrs, protocol_id, direction, token, logmalloclist,
+                                                       userdefinedtypelist, data_block)) != 0) {
                                 break;
                             }    // Fetch Structured data
 
@@ -419,7 +421,8 @@ int protocol2(XDR* xdrs, int protocol_id, int direction, int* token, void* str)
                             data_block.data = (char*)putDataBlockList->putDataBlock[i].data;    // Compact memory block with structures
 
                             protocol_id = PROTOCOL_STRUCTURES;
-                            if ((err = protocolXML2Put(xdrs, protocol_id, direction, token, &data_block)) != 0) {
+                            if ((err = protocolXML2Put(xdrs, protocol_id, direction, token, logmalloclist,
+                                                       userdefinedtypelist, &data_block)) != 0) {
                                 break;
                             }    // Send Structured data
 
@@ -901,7 +904,7 @@ int protocol2(XDR* xdrs, int protocol_id, int direction, int* token, void* str)
 // Legacy: Hierarchical or Meta Data Structures
 
         if (protocol_id > PROTOCOL_OPAQUE_START && protocol_id < PROTOCOL_OPAQUE_STOP) {
-            err = protocolXML2(xdrs, protocol_id, direction, token, str);
+            err = protocolXML2(xdrs, protocol_id, direction, token, logmalloclist, userdefinedtypelist, str);
         }
 
 //----------------------------------------------------------------------------

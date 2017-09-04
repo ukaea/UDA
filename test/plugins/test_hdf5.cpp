@@ -14,7 +14,7 @@ TEST_CASE( "Test NEWHDF5::help() function", "[NEWHDF5][plugins]" ) {
     const uda::Result& result = client.get("NEWHDF5::help()", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.error() == "" );
+    REQUIRE( result.errorMessage() == "" );
 
     uda::Data* data = result.data();
 

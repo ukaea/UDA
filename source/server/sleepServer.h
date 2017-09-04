@@ -1,7 +1,9 @@
-#ifndef IDAM_IDAMFILESLEEPSERVER_H
-#define IDAM_IDAMFILESLEEPSERVER_H
+#ifndef UDA_IDAMFILESLEEPSERVER_H
+#define UDA_IDAMFILESLEEPSERVER_H
 
-int sleepServer(void);
+#include <structures/genStructs.h>
 
-#endif // IDAM_IDAMFILESLEEPSERVER_H
+int sleepServer(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist);
+
+#endif // UDA_IDAMFILESLEEPSERVER_H
 

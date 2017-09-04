@@ -4,8 +4,10 @@
 #include <stddef.h>
 
 #include <clientserver/udaStructs.h>
+#include <structures/genStructs.h>
 
-int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK request_block, DATA_BLOCK* data_block);
+int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK request_block, DATA_BLOCK* data_block,
+            LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist);
 
 #ifndef NONETCDFPLUGIN
 #  include <netcdf.h>
@@ -155,7 +157,7 @@ struct CDFSUBSET {
 typedef struct CDFSUBSET CDFSUBSET;
 
 int readCDF4Err(int grpid, int varid, int isCoordinate, int class, int rank, int* dimids, int* nevec,
-                int* error_type, char** edata);
+                int* error_type, char** edata, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist);
 
 int readCDFAtts(int fd, int varid, char* units, char* longname);
 
@@ -165,7 +167,8 @@ int applyCDFCalibration(int grpid, int varid, int ndata, int* type, char** data)
 
 void readCDF4CreateIndex(int ndata, void* dvec);
 
-int readCDFCheckCoordinate(int grpid, int varid, int rank, int ncoords, char* coords);
+int readCDFCheckCoordinate(int grpid, int varid, int rank, int ncoords, char* coords, LOGMALLOCLIST* logmalloclist,
+                           USERDEFINEDTYPELIST* userdefinedtypelist);
 
 int isAtomicNCType(nc_type type);
 
@@ -175,23 +178,23 @@ void printNCType(FILE* fd, nc_type type);
 
 int readCDFTypes(int grpid, USERDEFINEDTYPELIST* userdefinedtypelist);
 
-int getCDF4SubTreeMeta(int grpid, int parent, USERDEFINEDTYPE* udt, USERDEFINEDTYPELIST* userdefinedtypelist,
-                       HGROUPS* hgroups);
+int getCDF4SubTreeMeta(int grpid, int parent, USERDEFINEDTYPE* udt, LOGMALLOCLIST* logmalloclist,
+                       USERDEFINEDTYPELIST* userdefinedtypelist, HGROUPS* hgroups);
 
 int getCDF4SubTreeMetaX(int grpid, int parent, USERDEFINEDTYPE* udt, USERDEFINEDTYPELIST* userdefinedtypelist,
                         HGROUPS* hgroups);
 
 void initHGroup(HGROUPS* hgroups);
 
-int getCDF4SubTreeData(void** data, GROUP* group, HGROUPS* hgroups);
+int getCDF4SubTreeData(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist, void** data, GROUP* group, HGROUPS* hgroups);
 
 int getCDF4SubTreeUserDefinedTypes(int grpid, GROUPLIST* grouplist, USERDEFINEDTYPELIST* userdefinedtypelist);
 
-int scopedUserDefinedTypes(int grpid);
+int scopedUserDefinedTypes(LOGMALLOCLIST* logmalloclist, int grpid);
 
 void replaceStrings(char** svec, int* ndata, char** dvec, int* ndims);
 
-void replaceEmbeddedStrings(USERDEFINEDTYPE* udt, int ndata, char* dvec);
+void replaceEmbeddedStrings(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist, USERDEFINEDTYPE* udt, int ndata, char* dvec);
 
 unsigned int readCDF4Properties();
 

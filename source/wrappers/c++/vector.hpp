@@ -15,7 +15,7 @@ public:
     Vector(T* array, size_t size) : Data(false), vec_(array, array + size), type_(&typeid(T))
     {}
 
-    const std::type_info& type() const
+    const std::type_info& type() const override
     { return *type_; }
 
     template <typename T>
@@ -30,13 +30,13 @@ public:
     T at(size_t idx) const
     { return boost::any_cast<T>(vec_[idx]); }
 
-    size_t size() const
+    size_t size() const override
     { return vec_.size(); }
 
     static Vector Null;
 
 protected:
-    Vector() : Data(true), vec_(), type_(&typeid(void))
+    Vector() noexcept : Data(true), vec_(), type_(&typeid(void))
     {}
 
 private:

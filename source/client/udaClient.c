@@ -100,6 +100,20 @@ char clientUsername[STRING_LENGTH] = "client";
 
 int authenticationNeeded = 1; // Enable the mutual authentication conversation at startup
 
+#ifndef FATCLIENT
+void setUserDefinedTypeList(USERDEFINEDTYPELIST* userdefinedtypelist_in)
+{
+    userdefinedtypelist = userdefinedtypelist_in;
+}
+
+void setLogMallocList(LOGMALLOCLIST* logmalloclist_in)
+{
+    logmalloclist = logmalloclist_in;
+}
+#else
+extern SOCKETLIST socket_list;
+#endif
+
 void updateClientBlock(CLIENT_BLOCK* str)
 {
     // other structure elements are set when the structure is initialised
@@ -315,7 +329,7 @@ int idamClient(REQUEST_BLOCK* request_block)
             IDAM_LOGF(UDA_LOG_DEBUG, "idamClient: Server Age Limit Reached %ld\n", (long)age);
             IDAM_LOG(UDA_LOG_DEBUG, "idamClient: Server Closed and New Instance Started\n");
 
-            idamClosedown(CLOSE_SOCKETS);  // Close the Existing Socket and XDR Stream: Reopening will Instance a New Server
+            idamClosedown(CLOSE_SOCKETS, NULL);  // Close the Existing Socket and XDR Stream: Reopening will Instance a New Server
         } else {
             if (connectionOpen()) {          // Assume the Server is Still Alive
                 if (clientOutput->x_ops == NULL || clientInput->x_ops == NULL) {
@@ -323,7 +337,7 @@ int idamClient(REQUEST_BLOCK* request_block)
 
                     IDAM_LOG(UDA_LOG_DEBUG, "idamClient: XDR Streams are Closed!\n");
 
-                    idamClosedown(CLOSE_SOCKETS);
+                    idamClosedown(CLOSE_SOCKETS, NULL);
                     initServer = 1;
                 } else {
                     initServer = 0;
@@ -483,7 +497,7 @@ int idamClient(REQUEST_BLOCK* request_block)
 
             int protocol_id = PROTOCOL_CLIENT_BLOCK;      // Send Client Block (proxy for authenticationStep = 6)
 
-            if ((err = protocol2(clientOutput, protocol_id, XDR_SEND, NULL, &client_block)) != 0) {
+            if ((err = protocol2(clientOutput, protocol_id, XDR_SEND, NULL, logmalloclist, userdefinedtypelist, &client_block)) != 0) {
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "idamClient", err, "Protocol 10 Error (Client Block)");
 
                 IDAM_LOG(UDA_LOG_DEBUG, "idamClient: Error Sending Client Block\n");
@@ -514,7 +528,7 @@ int idamClient(REQUEST_BLOCK* request_block)
 
             protocol_id = PROTOCOL_SERVER_BLOCK;      // Receive Server Block: Server Aknowledgement (proxy for authenticationStep = 8)
 
-            if ((err = protocol2(clientInput, protocol_id, XDR_RECEIVE, NULL, &server_block)) != 0) {
+            if ((err = protocol2(clientInput, protocol_id, XDR_RECEIVE, NULL, logmalloclist, userdefinedtypelist, &server_block)) != 0) {
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "idamClient", err, "Protocol 11 Error (Server Block #1)");
                 // Assuming the server_block is corrupted, replace with a clean copy to avoid concatonation problems
                 server_block.idamerrorstack.nerrors = 0;
@@ -626,7 +640,7 @@ int idamClient(REQUEST_BLOCK* request_block)
 
         int protocol_id = PROTOCOL_CLIENT_BLOCK;      // Send Client Block
 
-        if ((err = protocol2(clientOutput, protocol_id, XDR_SEND, NULL, &client_block)) != 0) {
+        if ((err = protocol2(clientOutput, protocol_id, XDR_SEND, NULL, logmalloclist, userdefinedtypelist, &client_block)) != 0) {
             addIdamError(&idamerrorstack, CODEERRORTYPE, "idamClient", err, "Protocol 10 Error (Client Block)");
             break;
         }
@@ -637,7 +651,7 @@ int idamClient(REQUEST_BLOCK* request_block)
 
         protocol_id = PROTOCOL_REQUEST_BLOCK;     // This is what the Client Wants
 
-        if ((err = protocol2(clientOutput, protocol_id, XDR_SEND, NULL, request_block)) != 0) {
+        if ((err = protocol2(clientOutput, protocol_id, XDR_SEND, NULL, logmalloclist, userdefinedtypelist, request_block)) != 0) {
             addIdamError(&idamerrorstack, CODEERRORTYPE, "idamClient", err, "Protocol 1 Error (Request Block)");
             break;
         }
@@ -648,7 +662,7 @@ int idamClient(REQUEST_BLOCK* request_block)
         if (request_block->put) {
             protocol_id = PROTOCOL_PUTDATA_BLOCK_LIST;
 
-            if ((err = protocol2(clientOutput, protocol_id, XDR_SEND, NULL, &(request_block->putDataBlockList))) != 0) {
+            if ((err = protocol2(clientOutput, protocol_id, XDR_SEND, NULL, logmalloclist, userdefinedtypelist, &(request_block->putDataBlockList))) != 0) {
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "idamClient", err,
                              "Protocol 1 Error (sending putDataBlockList from Request Block)");
                 break;
@@ -684,7 +698,7 @@ int idamClient(REQUEST_BLOCK* request_block)
 
         protocol_id = PROTOCOL_SERVER_BLOCK;      // Receive Server Block: Server Aknowledgement
 
-        if ((err = protocol2(clientInput, protocol_id, XDR_RECEIVE, NULL, &server_block)) != 0) {
+        if ((err = protocol2(clientInput, protocol_id, XDR_RECEIVE, NULL, logmalloclist, userdefinedtypelist, &server_block)) != 0) {
             IDAM_LOGF(UDA_LOG_DEBUG, "idamClient: Protocol 11 Error (Server Block #2) = %d\n", err);
 
             addIdamError(&idamerrorstack, CODEERRORTYPE, "idamClient", err, " Protocol 11 Error (Server Block #2)");
@@ -746,7 +760,7 @@ int idamClient(REQUEST_BLOCK* request_block)
 
             protocol_id = PROTOCOL_DATA_SYSTEM;
 
-            if ((err = protocol2(clientInput, protocol_id, XDR_RECEIVE, NULL, data_system)) != 0) {
+            if ((err = protocol2(clientInput, protocol_id, XDR_RECEIVE, NULL, logmalloclist, userdefinedtypelist, data_system)) != 0) {
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "idamClient", err, "Protocol 4 Error (Data System)");
                 break;
             }
@@ -758,7 +772,7 @@ int idamClient(REQUEST_BLOCK* request_block)
 
             protocol_id = PROTOCOL_SYSTEM_CONFIG;
 
-            if ((err = protocol2(clientInput, protocol_id, XDR_RECEIVE, NULL, system_config)) != 0) {
+            if ((err = protocol2(clientInput, protocol_id, XDR_RECEIVE, NULL, logmalloclist, userdefinedtypelist, system_config)) != 0) {
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "idamClient", err, "Protocol 5 Error (System Config)");
                 break;
             }
@@ -770,7 +784,7 @@ int idamClient(REQUEST_BLOCK* request_block)
 
             protocol_id = PROTOCOL_DATA_SOURCE;
 
-            if ((err = protocol2(clientInput, protocol_id, XDR_RECEIVE, NULL, data_source)) != 0) {
+            if ((err = protocol2(clientInput, protocol_id, XDR_RECEIVE, NULL, logmalloclist, userdefinedtypelist, data_source)) != 0) {
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "idamClient", err, "Protocol 6 Error (Data Source)");
                 break;
             }
@@ -782,7 +796,7 @@ int idamClient(REQUEST_BLOCK* request_block)
 
             protocol_id = PROTOCOL_SIGNAL;
 
-            if ((err = protocol2(clientInput, protocol_id, XDR_RECEIVE, NULL, signal_rec)) != 0) {
+            if ((err = protocol2(clientInput, protocol_id, XDR_RECEIVE, NULL, logmalloclist, userdefinedtypelist, signal_rec)) != 0) {
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "idamClient", err, "Protocol 7 Error (Signal)");
                 break;
             }
@@ -794,7 +808,7 @@ int idamClient(REQUEST_BLOCK* request_block)
 
             protocol_id = PROTOCOL_SIGNAL_DESC;
 
-            if ((err = protocol2(clientInput, protocol_id, XDR_RECEIVE, NULL, signal_desc)) != 0) {
+            if ((err = protocol2(clientInput, protocol_id, XDR_RECEIVE, NULL, logmalloclist, userdefinedtypelist, signal_desc)) != 0) {
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "idamClient", err, "Protocol 8 Error (Signal Desc)");
                 break;
             }
@@ -851,7 +865,7 @@ int idamClient(REQUEST_BLOCK* request_block)
 
         protocol_id = PROTOCOL_DATA_BLOCK;
 
-        if ((err = protocol2(clientInput, protocol_id, XDR_RECEIVE, NULL, data_block)) != 0) {
+        if ((err = protocol2(clientInput, protocol_id, XDR_RECEIVE, NULL, logmalloclist, userdefinedtypelist, data_block)) != 0) {
             IDAM_LOG(UDA_LOG_DEBUG, "idamClient: Protocol 2 Error (Failure Receiving Data Block)\n");
 
             addIdamError(&idamerrorstack, CODEERRORTYPE, "idamClient", err,
@@ -890,7 +904,7 @@ int idamClient(REQUEST_BLOCK* request_block)
 
             IDAM_LOG(UDA_LOG_DEBUG, "idamClient: Receiving Hierarchical Data Structure from Server\n");
 
-            if ((err = protocol2(clientInput, protocol_id, XDR_RECEIVE, NULL, data_block)) != 0) {
+            if ((err = protocol2(clientInput, protocol_id, XDR_RECEIVE, NULL, logmalloclist, userdefinedtypelist, data_block)) != 0) {
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "idamClient", err,
                              "Client Side Protocol Error (Opaque Structure Type)");
                 break;
@@ -905,7 +919,7 @@ int idamClient(REQUEST_BLOCK* request_block)
         // Fat Client Server
 
         DATA_BLOCK data_block0;
-        err = idamServer(client_block, request_block, &server_block, &data_block0);
+        err = fatServer(client_block, request_block, &server_block, &data_block0);
 
         data_block = getIdamDataBlock(data_block_idx); // data blocks may have been realloc'ed
         *data_block = data_block0;
@@ -992,7 +1006,7 @@ int idamClient(REQUEST_BLOCK* request_block)
         IDAM_LOGF(UDA_LOG_DEBUG, "idamClient: Handle %d\n", data_block_idx);
 
         if (err != 0 && !serverside) {
-            idamClosedown(CLOSE_SOCKETS);    // Close Socket & XDR Streams but Not Files
+            idamClosedown(CLOSE_SOCKETS, NULL);    // Close Socket & XDR Streams but Not Files
         }
 
         if (err == 0 && (getIdamDataStatus(data_block_idx)) == MIN_STATUS && !get_bad) {
@@ -1063,7 +1077,7 @@ int idamClient(REQUEST_BLOCK* request_block)
         IDAM_LOGF(UDA_LOG_DEBUG, "idamClient: Returning Error %d\n", err);
 
         if (err != 0 && !serverside) {
-            idamClosedown(CLOSE_SOCKETS);
+            idamClosedown(CLOSE_SOCKETS, NULL);
         }
 
         concatIdamError(idamerrorstack, &server_block.idamerrorstack);
@@ -1080,16 +1094,16 @@ int idamClient(REQUEST_BLOCK* request_block)
 
 #else       // <========================== End of Client Server Code Only (not FATCLIENT)
 
-//------------------------------------------------------------------------------
-// If an error has occured: Close all File Handles, Streams, sockets and Free Heap Memory
+    //------------------------------------------------------------------------------
+    // If an error has occured: Close all File Handles, Streams, sockets and Free Heap Memory
 
-//rc = fflush(NULL); // save anything ... the user might not follow correct procedure!
+    //rc = fflush(NULL); // save anything ... the user might not follow correct procedure!
 
     if (newHandle) {
         IDAM_LOGF(UDA_LOG_DEBUG, "idamClient: Handle %d\n", data_block_idx);
 
         if (err != 0) {
-            idamClosedown(0);
+            idamClosedown(0, &socket_list);
         }
 
         if (err == 0 && (getIdamDataStatus(data_block_idx)) == MIN_STATUS &&
@@ -1165,9 +1179,8 @@ int idamClient(REQUEST_BLOCK* request_block)
         IDAM_LOGF(UDA_LOG_DEBUG, "idamClient: Returning Error %d\n", err);
 
         if (err != 0) {
-            idamClosedown(0);
+            idamClosedown(0, &socket_list);
         }
-
 
         server_block.idamerrorstack = idamerrorstack;
         idamErrorLog(client_block, *request_block, server_block.idamerrorstack);
@@ -1214,8 +1227,8 @@ void idamFree(int handle)
                 GENERAL_BLOCK* general_block = (GENERAL_BLOCK*)data_block->opaque_block;
 
                 if (general_block->userdefinedtypelist != NULL) {
-                    if (userdefinedtypelist ==
-                        general_block->userdefinedtypelist) {  // Is this the current setting?
+#ifndef FATCLIENT
+                    if (userdefinedtypelist == general_block->userdefinedtypelist) {  // Is this the current setting?
                         freeUserDefinedTypeList(userdefinedtypelist);
                         free((void*)userdefinedtypelist);
                         userdefinedtypelist = NULL;
@@ -1223,9 +1236,14 @@ void idamFree(int handle)
                         freeUserDefinedTypeList(general_block->userdefinedtypelist);
                         free((void*)general_block->userdefinedtypelist);
                     }
+#else
+                    freeUserDefinedTypeList(general_block->userdefinedtypelist);
+                    free((void*)general_block->userdefinedtypelist);
+#endif
                 }
 
                 if (general_block->logmalloclist != NULL) {
+#ifndef FATCLIENT
                     if (logmalloclist == general_block->logmalloclist) {
                         freeMallocLogList(logmalloclist);
                         free((void*)logmalloclist);
@@ -1234,6 +1252,10 @@ void idamFree(int handle)
                         freeMallocLogList(general_block->logmalloclist);
                         free((void*)general_block->logmalloclist);
                     }
+#else
+                    freeMallocLogList(general_block->logmalloclist);
+                    free((void*)general_block->logmalloclist);
+#endif
                 }
 
                 if (general_block->userdefinedtype != NULL) {
@@ -1398,13 +1420,19 @@ void idamFreeAll()
 #endif
 
     for (i = 0; i < acc_getCurrentDataBlockIndex(); ++i) {
+#ifndef FATCLIENT
         freeDataBlock(getIdamDataBlock(i));
+#else
+        freeDataBlock(getIdamDataBlock(i));
+#endif
     }
 
     acc_freeDataBlocks();
 
+#ifndef FATCLIENT
     userdefinedtypelist = NULL;              // malloc'd within protocolXML
     logmalloclist = NULL;
+#endif
 
     closeIdamError(&server_block.idamerrorstack);
 
@@ -1419,13 +1447,13 @@ void idamFreeAll()
         client_block.timeout = 0;                             // Surrogate CLOSEDOWN instruction
         client_block.clientFlags = client_block.clientFlags | CLIENTFLAG_CLOSEDOWN;   // Direct CLOSEDOWN instruction
         protocol_id = PROTOCOL_CLIENT_BLOCK;
-        protocol2(clientOutput, protocol_id, XDR_SEND, NULL, &client_block);
+        protocol2(clientOutput, protocol_id, XDR_SEND, NULL, logmalloclist, userdefinedtypelist, &client_block);
         xdrrec_endofrecord(clientOutput, 1);
     }
 
 #endif // <========================== End of Client Server Code Only
 
-    idamClosedown(CLOSE_ALL);        // Close the Socket, XDR Streams and All Files
+    idamClosedown(CLOSE_ALL, NULL);        // Close the Socket, XDR Streams and All Files
 
 }
 

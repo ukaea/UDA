@@ -35,7 +35,7 @@ int initPlugin(const IDAM_PLUGIN_INTERFACE* plugin_interface)
     return 0;
 }
 
-int setReturnDataDblScalar(DATA_BLOCK* data_block, double value, const char* description)
+int setReturnDataDoubleScalar(DATA_BLOCK* data_block, double value, const char* description)
 {
     initDataBlock(data_block);
 
@@ -50,6 +50,27 @@ int setReturnDataDblScalar(DATA_BLOCK* data_block, double value, const char* des
     initDataBlock(data_block);
     data_block->rank = 0;
     data_block->data_type = TYPE_DOUBLE;
+    data_block->data = (char*)data;
+    data_block->data_n = 1;
+
+    return 0;
+}
+
+int setReturnDataFloatScalar(DATA_BLOCK* data_block, float value, const char* description)
+{
+    initDataBlock(data_block);
+
+    float* data = (float*)malloc(sizeof(float));
+    data[0] = value;
+
+    if (description != NULL) {
+        strncpy(data_block->data_desc, description, STRING_LENGTH);
+        data_block->data_desc[STRING_LENGTH-1] = '\0';
+    }
+
+    initDataBlock(data_block);
+    data_block->rank = 0;
+    data_block->data_type = TYPE_FLOAT;
     data_block->data = (char*)data;
     data_block->data_n = 1;
 
@@ -71,6 +92,48 @@ int setReturnDataIntScalar(DATA_BLOCK* data_block, int value, const char* descri
     initDataBlock(data_block);
     data_block->rank = 0;
     data_block->data_type = TYPE_INT;
+    data_block->data = (char*)data;
+    data_block->data_n = 1;
+
+    return 0;
+}
+
+int setReturnDataLongScalar(DATA_BLOCK* data_block, long value, const char* description)
+{
+    initDataBlock(data_block);
+
+    long* data = (long*)malloc(sizeof(long));
+    data[0] = value;
+
+    if (description != NULL) {
+        strncpy(data_block->data_desc, description, STRING_LENGTH);
+        data_block->data_desc[STRING_LENGTH-1] = '\0';
+    }
+
+    initDataBlock(data_block);
+    data_block->rank = 0;
+    data_block->data_type = TYPE_LONG;
+    data_block->data = (char*)data;
+    data_block->data_n = 1;
+
+    return 0;
+}
+
+int setReturnDataShortScalar(DATA_BLOCK* data_block, short value, const char* description)
+{
+    initDataBlock(data_block);
+
+    short* data = (short*)malloc(sizeof(short));
+    data[0] = value;
+
+    if (description != NULL) {
+        strncpy(data_block->data_desc, description, STRING_LENGTH);
+        data_block->data_desc[STRING_LENGTH-1] = '\0';
+    }
+
+    initDataBlock(data_block);
+    data_block->rank = 0;
+    data_block->data_type = TYPE_SHORT;
     data_block->data = (char*)data;
     data_block->data_n = 1;
 
@@ -1284,7 +1347,7 @@ int idamProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_BLOCK* original_req
 
     if (strcmp(client_block->DOI, "") || strlen(client_block->DOI) == 0) return 0;    // No Provenance to Capture
 
-// Identify the Provenance Gathering plugin (must be a function library type plugin)
+    // Identify the Provenance Gathering plugin (must be a function library type plugin)
 
     static short plugin_id = -2;
     static int execMethod = 1;        // The default method used to write efficiently to the backend SQL server
@@ -1335,8 +1398,8 @@ int idamProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_BLOCK* original_req
     strcpy(request_block.api_delim, "::");
     strcpy(request_block.source, "");
 
-// need 1> record the original and the actual signal and source terms with the source file DOI
-// mimic a client request
+    // need 1> record the original and the actual signal and source terms with the source file DOI
+    // mimic a client request
 
     if (logRecord == NULL || strlen(logRecord) == 0) {
         sprintf(request_block.signal, "%s::putSignal(uuid='%s',requestedSignal='%s',requestedSource='%s', "
@@ -1346,13 +1409,13 @@ int idamProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_BLOCK* original_req
                 signal_desc->signal_name, data_source->path, "", execMethod);
     } else {
 
-// need 2> record the server log record
+    // need 2> record the server log record
 
         sprintf(request_block.signal, "%s::putSignal(uuid='%s',logRecord='%s', execMethod=%d, status=update)",
                 plugin_list->plugin[plugin_id].format, client_block->DOI, logRecord, execMethod);
     }
 
-// Activate the plugin
+    // Activate the plugin
 
     IDAM_LOGF(UDA_LOG_DEBUG, "Provenance Plugin signal: %s\n", request_block.signal);
 
@@ -1362,13 +1425,13 @@ int idamProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_BLOCK* original_req
     DATA_BLOCK data_block;
     IDAM_PLUGIN_INTERFACE idam_plugin_interface;
 
-// Initialise the Data Block
+    // Initialise the Data Block
 
     initDataBlock(&data_block);
 
     IDAM_LOG(UDA_LOG_DEBUG, "Creating plugin interface\n");
 
-// Check the Interface Compliance
+    // Check the Interface Compliance
 
     if (plugin_list->plugin[plugin_id].interfaceVersion > 1) {
         err = 999;
@@ -1376,6 +1439,12 @@ int idamProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_BLOCK* original_req
                      "The Provenance Plugin's Interface Version is not Implemented.");
         return err;
     }
+
+    USERDEFINEDTYPELIST* userdefinedtypelist = NULL;
+    copyUserDefinedTypeList(&userdefinedtypelist);                // Allocate and Copy the Master User Defined Type List
+
+    LOGMALLOCLIST* logmalloclist = (LOGMALLOCLIST*)malloc(sizeof(LOGMALLOCLIST));
+    initLogMallocList(logmalloclist);
 
     idam_plugin_interface.interfaceVersion = 1;
     idam_plugin_interface.pluginVersion = 0;
@@ -1390,8 +1459,10 @@ int idamProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_BLOCK* original_req
     idam_plugin_interface.housekeeping = 0;
     idam_plugin_interface.changePlugin = 0;
     idam_plugin_interface.pluginList = plugin_list;
+    idam_plugin_interface.userdefinedtypelist = userdefinedtypelist;
+    idam_plugin_interface.logmalloclist = logmalloclist;
 
-// Redirect Output to temporary file if no file handles passed
+    // Redirect Output to temporary file if no file handles passed
 
     reset = 0;
     if ((err = idamServerRedirectStdStreams(reset)) != 0) {
@@ -1400,16 +1471,7 @@ int idamProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_BLOCK* original_req
         return err;
     }
 
-// Initialise general structure passing components
-
-    LOGMALLOCLIST* prior_logmalloclist = logmalloclist;                // Preserve global pointer
-    logmalloclist = (LOGMALLOCLIST*)malloc(sizeof(LOGMALLOCLIST));
-    initLogMallocList(logmalloclist);
-
-    USERDEFINEDTYPELIST* prior_userdefinedtypelist = userdefinedtypelist;    // Preserve global pointer
-    copyUserDefinedTypeList(&userdefinedtypelist);                // Allocate and Copy the Master User Defined Type List
-
-// Call the plugin
+    // Call the plugin
 
     IDAM_LOG(UDA_LOG_DEBUG, "entering the provenance plugin\n");
 
@@ -1417,13 +1479,12 @@ int idamProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_BLOCK* original_req
 
     IDAM_LOG(UDA_LOG_DEBUG, "returned from the provenance plugin\n");
 
-// No data are returned in this context so free everything
+    // No data are returned in this context so free everything
 
     IDAM_LOG(UDA_LOG_DEBUG, "housekeeping\n");
 
     freeMallocLogList(logmalloclist);
     free((void*)logmalloclist);
-    logmalloclist = NULL;
 
     freeUserDefinedTypeList(userdefinedtypelist);
     free((void*)userdefinedtypelist);
@@ -1441,12 +1502,7 @@ int idamProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_BLOCK* original_req
 
     freeDataBlock(&data_block);
 
-// Reset the global pointers
-
-    logmalloclist = prior_logmalloclist;
-    userdefinedtypelist = prior_userdefinedtypelist;
-
-// Reset Redirected Output
+    // Reset Redirected Output
 
     reset = 1;
     if ((rc = idamServerRedirectStdStreams(reset)) != 0 || err != 0) {
@@ -1481,7 +1537,7 @@ int idamServerMetaDataPluginId(const PLUGINLIST* plugin_list)
     if (plugin_id >= 0) return plugin_id;     // Plugin previously identified
     if (noPluginRegistered) return -1;        // No Plugin for the MetaData Catalog to resolve Generic Name mappings
 
-// Identify the MetaData Catalog plugin (must be a function library type plugin)
+    // Identify the MetaData Catalog plugin (must be a function library type plugin)
 
     char* env = NULL;
     if ((env = getenv("UDA_METADATA_PLUGIN")) != NULL) {        // Must be set in the server startup script
@@ -1520,12 +1576,12 @@ int idamServerMetaDataPluginId(const PLUGINLIST* plugin_list)
 // Execute the Generic Name mapping Plugin
 
 int idamServerMetaDataPlugin(const PLUGINLIST* plugin_list, int plugin_id, REQUEST_BLOCK* request_block,
-                             SIGNAL_DESC* signal_desc, DATA_SOURCE* data_source)
+                             SIGNAL_DESC* signal_desc, DATA_SOURCE* data_source, LOGMALLOCLIST* logmalloclist)
 {
     int err, reset, rc;
     IDAM_PLUGIN_INTERFACE idam_plugin_interface;
 
-// Check the Interface Compliance
+    // Check the Interface Compliance
 
     if (plugin_list->plugin[plugin_id].interfaceVersion > 1) {
         err = 999;
@@ -1533,6 +1589,9 @@ int idamServerMetaDataPlugin(const PLUGINLIST* plugin_list, int plugin_id, REQUE
                      "The Plugin's Interface Version is not Implemented.");
         return err;
     }
+
+    USERDEFINEDTYPELIST* userdefinedtypelist = NULL;
+    copyUserDefinedTypeList(&userdefinedtypelist);
 
     idam_plugin_interface.interfaceVersion = 1;
     idam_plugin_interface.pluginVersion = 0;
@@ -1547,8 +1606,10 @@ int idamServerMetaDataPlugin(const PLUGINLIST* plugin_list, int plugin_id, REQUE
     idam_plugin_interface.housekeeping = 0;
     idam_plugin_interface.changePlugin = 0;
     idam_plugin_interface.pluginList = plugin_list;
+    idam_plugin_interface.userdefinedtypelist = userdefinedtypelist;
+    idam_plugin_interface.logmalloclist = logmalloclist;
 
-// Redirect Output to temporary file if no file handles passed
+    // Redirect Output to temporary file if no file handles passed
 
     reset = 0;
     if ((err = idamServerRedirectStdStreams(reset)) != 0) {
@@ -1683,7 +1744,7 @@ bool findFloatValue(const NAMEVALUELIST* namevaluelist, float* value, const char
     const char* str;
     bool found = findStringValue(namevaluelist, &str, name);
     if (found) {
-        *value = (float)atof(str);
+        *value = strtof(str, NULL);
     }
     return found;
 }
@@ -1696,9 +1757,14 @@ bool findIntArray(const NAMEVALUELIST* namevaluelist, int** values, size_t* nval
         char** tokens = SplitString(str, ";");
         size_t n;
         size_t num_tokens = 0;
-        for (n = 0; tokens[n] != NULL; ++n) ++num_tokens;
+        for (n = 0; tokens[n] != NULL; ++n) {
+            ++num_tokens;
+        }
         *values = calloc(num_tokens, sizeof(int));
-        for (n = 0; tokens[n] != NULL; ++n) (*values)[n] = atoi(tokens[n]);
+        for (n = 0; tokens[n] != NULL; ++n) {
+            (*values)[n] = (int)strtol(tokens[n], NULL, 10);
+        }
+        FreeSplitStringTokens(&tokens);
         *nvalues = num_tokens;
     }
     return found;
@@ -1712,9 +1778,14 @@ bool findFloatArray(const NAMEVALUELIST* namevaluelist, float** values, size_t* 
         char** tokens = SplitString(str, ";");
         size_t n;
         size_t num_tokens = 0;
-        for (n = 0; tokens[n] != NULL; ++n) ++num_tokens;
+        for (n = 0; tokens[n] != NULL; ++n) {
+            ++num_tokens;
+        }
         *values = calloc(num_tokens, sizeof(float));
-        for (n = 0; tokens[n] != NULL; ++n) (*values)[n] = (float)atof(tokens[n]);
+        for (n = 0; tokens[n] != NULL; ++n) {
+            (*values)[n] = strtof(tokens[n], NULL);
+        }
+        FreeSplitStringTokens(&tokens);
         *nvalues = num_tokens;
     }
     return found;
@@ -1728,9 +1799,14 @@ bool findDoubleArray(const NAMEVALUELIST* namevaluelist, double** values, size_t
         char** tokens = SplitString(str, ";");
         size_t n;
         size_t num_tokens = 0;
-        for (n = 0; tokens[n] != NULL; ++n) ++num_tokens;
+        for (n = 0; tokens[n] != NULL; ++n) {
+            ++num_tokens;
+        }
         *values = calloc(num_tokens, sizeof(double));
-        for (n = 0; tokens[n] != NULL; ++n) (*values)[n] = (double)atof(tokens[n]);
+        for (n = 0; tokens[n] != NULL; ++n) {
+            (*values)[n] = strtod(tokens[n], NULL);
+        }
+        FreeSplitStringTokens(&tokens);
         *nvalues = num_tokens;
     }
     return found;

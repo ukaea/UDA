@@ -7,6 +7,6 @@
 #include "result.hpp"
 #include "array.hpp"
 #include "string.hpp"
-#include "signal.hpp"
+//#include "signal.hpp"
 
 #endif // IDAM_WRAPPERS_CPP_IDAM_HPP

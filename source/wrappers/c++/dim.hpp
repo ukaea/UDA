@@ -17,11 +17,10 @@ public:
             : vec_(array, array + size), type_(&typeid(T)), num_(num), label_(label), units_(units), isnull_(false)
     {}
 
-    Dim() : num_(0), label_(), units_(), isnull_(true)
+    Dim() : type_(nullptr), num_(0), label_(), units_(), isnull_(true)
     {}
 
-    ~Dim()
-    {}
+    ~Dim() = default;
 
     template <typename T>
     std::vector<T> as() const

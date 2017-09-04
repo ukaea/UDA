@@ -101,6 +101,8 @@ int help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         defineField(&field, "help", "Information about the Provenance plugin functions", &offset,
                     SCALARSTRING);    // Single string, arbitrary length
         addCompoundField(&usertype, field);
+
+        USERDEFINEDTYPELIST* userdefinedtypelist = idam_plugin_interface->userdefinedtypelist;
         addUserDefinedType(userdefinedtypelist, usertype);
 
 // Create Data	 
@@ -110,8 +112,8 @@ int help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         data = (PROVENANCEHELP*)malloc(sizeof(PROVENANCEHELP));
         data->value = (char*)malloc(stringLength * sizeof(char));
         strcpy(data->value, work);
-        addMalloc((void*)data, 1, sizeof(PROVENANCEHELP), "PROVENANCEHELP");
-        addMalloc((void*)data->value, 1, stringLength * sizeof(char), "char");
+        addMalloc(idam_plugin_interface->logmalloclist, (void*)data, 1, sizeof(PROVENANCEHELP), "PROVENANCEHELP");
+        addMalloc(idam_plugin_interface->logmalloclist, (void*)data->value, 1, stringLength * sizeof(char), "char");
 
 // Pass Data	 
 
@@ -126,7 +128,7 @@ int help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
         data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
         data_block->opaque_count = 1;
-        data_block->opaque_block = (void*)findUserDefinedType("PROVENANCEHELP", 0);
+        data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "PROVENANCEHELP", 0);
 
         IDAM_LOG(UDA_LOG_DEBUG, "Provenance: exiting function help\n");
         if (data_block->opaque_block == NULL) IDAM_LOG(UDA_LOG_DEBUG, "Provenance: PROVENANCEHELP type not found\n");

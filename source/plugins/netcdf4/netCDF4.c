@@ -211,7 +211,7 @@ extern int idamCDF4(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             //cdfProperties = 0; //NC_IGNOREHIDDENATTS;
 
-            err = readerCDF4(data_source, signal_desc, request_block, data_block);        // Legacy data reader!
+            err = readerCDF4(data_source, signal_desc, request_block, data_block, idam_plugin_interface->logmalloclist);        // Legacy data reader!
 
             break;
         } else if (STR_IEQUALS(request_block->function, "put")) {

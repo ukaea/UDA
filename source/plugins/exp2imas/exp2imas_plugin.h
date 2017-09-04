@@ -1,5 +1,5 @@
-#ifndef IDAM_PLUGINS_TORE_SUPRA_PLUGIN_H
-#define IDAM_PLUGINS_TORE_SUPRA_PLUGIN_H
+#ifndef UDA_PLUGIN_EXP2IMAS_EXP2IMAS_PLUGIN_H
+#define UDA_PLUGIN_EXP2IMAS_EXP2IMAS_PLUGIN_H
 
 #include <server/pluginStructs.h>
 
@@ -17,4 +17,4 @@ int tsPlugin(IDAM_PLUGIN_INTERFACE * idam_plugin_interface);
 }
 #endif
 
-#endif // IDAM_PLUGINS_TORE_SUPRA_PLUGIN_H
+#endif // UDA_PLUGIN_EXP2IMAS_EXP2IMAS_PLUGIN_H

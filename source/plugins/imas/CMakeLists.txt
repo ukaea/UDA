@@ -33,7 +33,7 @@ set( IMAS_SOURCES
 
 uda_plugin(
   NAME IMAS
-  ENTRY_FUNC imas
+  ENTRY_FUNC imas_mds
   DESCRIPTION "ITER IMAS put & get plugin"
   EXAMPLE "IMAS::put()"
   LIBNAME imas_plugin

@@ -14,7 +14,7 @@ TEST_CASE( "Test EQUIMAP::help() function", "[EQUIMAP][plugins]" ) {
     const uda::Result& result = client.get("EQUIMAP::help()", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.error() == "" );
+    REQUIRE( result.errorMessage() == "" );
 
     uda::Data* data = result.data();
 

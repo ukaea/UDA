@@ -113,7 +113,7 @@ unsigned int readCDF4Properties()
 */
 
 int readerCDF4(DATA_SOURCE* data_source, SIGNAL_DESC* signal_desc, REQUEST_BLOCK* request_block,
-               DATA_BLOCK* data_block)
+               DATA_BLOCK* data_block, LOGMALLOCLIST* logmalloclist)
 {
     char classtxt[STRING_LENGTH];
     char comment[STRING_LENGTH];
@@ -762,11 +762,9 @@ int readerCDF4(DATA_SOURCE* data_source, SIGNAL_DESC* signal_desc, REQUEST_BLOCK
                 ((numgrp == 1 && STR_EQUALS(signal_desc->signal_name, "/")) ||
                  ((rc = getGroupId(grpid, variable, &subtree)) == NC_NOERR))) {
 
+                USERDEFINEDTYPELIST* userdefinedtypelist = NULL;
                 USERDEFINEDTYPE usertype;
-                logmalloclist = (LOGMALLOCLIST*)malloc(sizeof(LOGMALLOCLIST));
-                initLogMallocList(logmalloclist);
-                copyUserDefinedTypeList(
-                        &userdefinedtypelist);                // Allocate and Copy the Master User Defined Type List
+                copyUserDefinedTypeList(&userdefinedtypelist); // Allocate and Copy the Master User Defined Type List
                 initHGroup(&hgroups);
 
                 IDAM_LOG(UDA_LOG_DEBUG, "Tree or sub-tree found.\n");
@@ -782,7 +780,7 @@ int readerCDF4(DATA_SOURCE* data_source, SIGNAL_DESC* signal_desc, REQUEST_BLOCK
 
 // Extract all information about groups, variables and attributes within the sub-tree
 
-                if ((err = getCDF4SubTreeMeta(subtree, 0, &usertype, userdefinedtypelist, &hgroups)) != 0) {
+                if ((err = getCDF4SubTreeMeta(subtree, 0, &usertype, logmalloclist, userdefinedtypelist, &hgroups)) != 0) {
                     freeHGroups(&hgroups);
                     break;
                 }
@@ -798,7 +796,7 @@ int readerCDF4(DATA_SOURCE* data_source, SIGNAL_DESC* signal_desc, REQUEST_BLOCK
 
                 IDAM_LOG(UDA_LOG_DEBUG, "\nCreating sub-tree data structure\n");
 
-                err = getCDF4SubTreeData((void**)&data_block->data, &hgroups.group[0], &hgroups);
+                err = getCDF4SubTreeData(logmalloclist, userdefinedtypelist, (void**)&data_block->data, &hgroups.group[0], &hgroups);
 
                 if (err == NC_NOERR && hgroups.group[0].udt != NULL) {
                     malloc_source = MALLOCSOURCENETCDF;

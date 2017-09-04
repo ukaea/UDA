@@ -1,6 +1,6 @@
-#ifndef IDAM_CLIENTSERVER_USERID_H
-#define IDAM_CLIENTSERVER_USERID_H
+#ifndef UDA_CLIENTSERVER_USERID_H
+#define UDA_CLIENTSERVER_USERID_H
 
-void userid(char *uid);
+void userid(char* uid);
 
-#endif // IDAM_CLIENTSERVER_USERID_H
+#endif // UDA_CLIENTSERVER_USERID_H

@@ -295,39 +295,39 @@ int get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             stringLength = strlen(PQgetvalue(DBQuery, 0, 0)) + 1;
             data->uuid = (char*) malloc(stringLength * sizeof(char));
             strcpy(data->uuid, PQgetvalue(DBQuery, 0, 0));
-            addMalloc((void*) data->uuid, 1, stringLength * sizeof(char), "char");
+            addMalloc(idam_plugin_interface->logmalloclist, (void*) data->uuid, 1, stringLength * sizeof(char), "char");
 
             stringLength = strlen(PQgetvalue(DBQuery, 0, 1)) + 1;
             data->owner = (char*) malloc(stringLength * sizeof(char));
             strcpy(data->owner, PQgetvalue(DBQuery, 0, 1));
-            addMalloc((void*) data->owner, 1, stringLength * sizeof(char), "char");
+            addMalloc(idam_plugin_interface->logmalloclist, (void*) data->owner, 1, stringLength * sizeof(char), "char");
 
             stringLength = strlen(PQgetvalue(DBQuery, 0, 2)) + 1;
             data->class = (char*) malloc(stringLength * sizeof(char));
             strcpy(data->class, PQgetvalue(DBQuery, 0, 2));
-            addMalloc((void*) data->class, 1, stringLength * sizeof(char), "char");
+            addMalloc(idam_plugin_interface->logmalloclist, (void*) data->class, 1, stringLength * sizeof(char), "char");
 
             stringLength = strlen(PQgetvalue(DBQuery, 0, 3)) + 1;
             data->title = (char*) malloc(stringLength * sizeof(char));
             strcpy(data->title, PQgetvalue(DBQuery, 0, 3));
-            addMalloc((void*) data->title, 1, stringLength * sizeof(char), "char");
+            addMalloc(idam_plugin_interface->logmalloclist, (void*) data->title, 1, stringLength * sizeof(char), "char");
 
             stringLength = strlen(PQgetvalue(DBQuery, 0, 4)) + 1;
             data->description = (char*) malloc(stringLength * sizeof(char));
             strcpy(data->description, PQgetvalue(DBQuery, 0, 4));
-            addMalloc((void*) data->description, 1, stringLength * sizeof(char), "char");
+            addMalloc(idam_plugin_interface->logmalloclist, (void*) data->description, 1, stringLength * sizeof(char), "char");
 
             stringLength = strlen(PQgetvalue(DBQuery, 0, 5)) + 1;
             data->icatRef = (char*) malloc(stringLength * sizeof(char));
             strcpy(data->icatRef, PQgetvalue(DBQuery, 0, 5));
-            addMalloc((void*) data->icatRef, 1, stringLength * sizeof(char), "char");
+            addMalloc(idam_plugin_interface->logmalloclist, (void*) data->icatRef, 1, stringLength * sizeof(char), "char");
 
             data->status = PQgetvalue(DBQuery, 0, 6)[0];
 
             stringLength = strlen(PQgetvalue(DBQuery, 0, 7)) + 1;
             data->creation = (char*) malloc(stringLength * sizeof(char));
             strcpy(data->creation, PQgetvalue(DBQuery, 0, 7));
-            addMalloc((void*) data->creation, 1, stringLength * sizeof(char), "char");
+            addMalloc(idam_plugin_interface->logmalloclist, (void*) data->creation, 1, stringLength * sizeof(char), "char");
 
             PQclear(DBQuery);
 
@@ -376,11 +376,12 @@ int get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             defineField(&field, "creation", "Creation or registration date", &offset, SCALARSTRING);
             addCompoundField(&usertype, field);
 
+            USERDEFINEDTYPELIST* userdefinedtypelist = idam_plugin_interface->userdefinedtypelist;
             addUserDefinedType(userdefinedtypelist, usertype);
 
 // Register the Pointer to the Data Structure 	 
 
-            addMalloc((void*) data, 1, sizeof(PROVENANCEUUID), "PROVENANCEUUID");
+            addMalloc(idam_plugin_interface->logmalloclist, (void*) data, 1, sizeof(PROVENANCEUUID), "PROVENANCEUUID");
 
 // Pass the Data back	 
 
@@ -395,7 +396,7 @@ int get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
             data_block->opaque_count = 1;
-            data_block->opaque_block = (void*) findUserDefinedType("PROVENANCEUUID", 0);
+            data_block->opaque_block = (void*) findUserDefinedType(userdefinedtypelist, "PROVENANCEUUID", 0);
 
         }
 

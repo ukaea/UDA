@@ -39,7 +39,41 @@ set( SRC_FILES
   parseXML.c
   copyStructs.c
   udaTypes.c
-  )
+#  utils.c
+)
+
+set( HEADER_FILES
+  allocData.h
+  allocXMLData.h
+  compressDim.h
+  copyStructs.h
+  errorLog.h
+  expand_path.h
+  freeDataBlock.h
+  initStructs.h
+  initXMLStructs.h
+  manageSockets.h
+  md5Sum.h
+  memstream.h
+  parseOperation.h
+  parseXML.h
+  printStructs.h
+  protocol.h
+  protocolXML.h
+  protocolXML2.h
+  protocolXML2Put.h
+  readXDRFile.h
+  socketStructs.h
+  stringUtils.h
+  udaDefines.h
+  udaErrors.h
+  udaStructs.h
+  udaTypes.h
+  userid.h
+  xdrHData.h
+  xdrlib.h
+  xmlStructs.h
+)
 
 if( APPLE )
   list( APPEND SRC_FILES
@@ -56,7 +90,7 @@ include_directories(
   ${LIBXML2_INCLUDE_DIR}
 )
 
-add_library( clientserver-client-objects OBJECT ${SRC_FILES} )
+add_library( clientserver-client-objects OBJECT ${SRC_FILES} ${HEADER_FILES} )
 
 if( NOT CLIENT_ONLY )
   add_library( clientserver-server-objects OBJECT ${SRC_FILES} )

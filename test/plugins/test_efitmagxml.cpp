@@ -14,7 +14,7 @@ TEST_CASE( "Test EFITMAGXML::help() function", "[EFITMAGXML][plugins]" )
     const uda::Result& result = client.get("EFITMAGXML::help()", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.error() == "" );
+    REQUIRE( result.errorMessage() == "" );
 
     uda::Data* data = result.data();
 

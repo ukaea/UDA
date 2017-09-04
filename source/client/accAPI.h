@@ -276,6 +276,10 @@ NTREE* getIdamDataTree(int handle);
 
 USERDEFINEDTYPE* getIdamUserDefinedType(int handle);
 
+USERDEFINEDTYPELIST* getIdamUserDefinedTypeList(int handle);
+
+LOGMALLOCLIST* getIdamLogMallocList(int handle);
+
 NTREE* findIdamNTreeStructureDefinition(NTREE* node, const char* target);
 
 #ifdef __cplusplus

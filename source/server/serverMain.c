@@ -21,7 +21,7 @@ int main(int argc, char ** argv)
 
     CLIENT_BLOCK client_block = {0};
 
-    int rc = idamServer(client_block, NULL, NULL, NULL);
+    int rc = udaServer(client_block);
 
     return rc;
 }

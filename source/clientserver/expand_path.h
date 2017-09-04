@@ -1,5 +1,5 @@
-#ifndef IDAM_CLIENTSERVER_EXPAND_PATH_H
-#define IDAM_CLIENTSERVER_EXPAND_PATH_H
+#ifndef UDA_CLIENTSERVER_EXPAND_PATH_H
+#define UDA_CLIENTSERVER_EXPAND_PATH_H
 
 #include "udaStructs.h"
 /*! The workstation (client host) name is obtained using the operating system command 'hostname'.
@@ -93,4 +93,4 @@ int linkReplacement(char *path);
 
 #endif // NOEXPANDPATH
 
-#endif // IDAM_CLIENTSERVER_EXPAND_PATH_H
+#endif // UDA_CLIENTSERVER_EXPAND_PATH_H

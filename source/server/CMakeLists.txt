@@ -21,14 +21,12 @@ add_subdirectory( modules )
 # Sources
 
 set( SRC_FILES
-  udaServer.c
   serverGetData.c
   freeIdamPut.c
   udaLegacyServer.c
   serverPlugin.c
   serverLegacyPlugin.c
   makeServerRequestBlock.c
-  udaServer.c
   sleepServer.c
   writer.c
   createXDRStream.c
@@ -44,6 +42,32 @@ set( SRC_FILES
   serverStartup.c
   getServerEnvironment.c
   getPluginAddress.c
+)
+
+set( HEADER_FILES
+  applyXML.h
+  closeServerSockets.h
+  createXDRStream.h
+  dumpFile.h
+  freeIdamPut.h
+  getPluginAddress.h
+  getServerEnvironment.h
+  makeServerRequestBlock.h
+  manageFiles.h
+  managePluginFiles.h
+  mastArchiveFilePath.h
+  pluginStructs.h
+  serverGetData.h
+  serverLegacyPlugin.h
+  serverPlugin.h
+  serverProcessing.h
+  serverStartup.h
+  serverSubsetData.h
+  sleepServer.h
+  sqllib.h
+  udaLegacyServer.h
+  udaServer.h
+  writer.h
 )
 
 include_directories(
@@ -62,12 +86,16 @@ add_definitions( -DSERVERBUILD )
 link_directories( ${PostgreSQL_LIBRARY_DIRS} )
 
 add_library( server-objects OBJECT
+  udaServer.c
   ${SRC_FILES}
-  )
+  ${HEADER_FILES}
+)
 
 add_library( fatserver-objects OBJECT
+  fatServer.c
   ${SRC_FILES}
-  )
+  ${HEADER_FILES}
+)
 
 target_compile_definitions( fatserver-objects PRIVATE -DFATCLIENT )
 
