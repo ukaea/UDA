@@ -1279,20 +1279,20 @@ void printAction(ACTION action)
     IDAM_LOGF(UDA_LOG_DEBUG, "Pass Number Range: %d -> %d\n", action.pass_range[0], action.pass_range[1]);
 
     switch (action.actionType) {
-        case (TIMEOFFSETTYPE):
+        case TIMEOFFSETTYPE:
             IDAM_LOG(UDA_LOG_DEBUG, "TIMEOFFSET xml\n");
             IDAM_LOGF(UDA_LOG_DEBUG, "Method         : %d\n", action.timeoffset.method);
             IDAM_LOGF(UDA_LOG_DEBUG, "Time Offset    : %.12f\n", action.timeoffset.offset);
             IDAM_LOGF(UDA_LOG_DEBUG, "Time Interval  : %.12f\n", action.timeoffset.interval);
             break;
-        case (DOCUMENTATIONTYPE):
+        case DOCUMENTATIONTYPE:
             IDAM_LOG(UDA_LOG_DEBUG, "DOCUMENTATION xml\n");
             IDAM_LOGF(UDA_LOG_DEBUG, "Description: %s\n", action.documentation.description);
             IDAM_LOGF(UDA_LOG_DEBUG, "Data Label : %s\n", action.documentation.label);
             IDAM_LOGF(UDA_LOG_DEBUG, "Data Units : %s\n", action.documentation.units);
             printDimensions(action.documentation.ndimensions, action.documentation.dimensions);
             break;
-        case (CALIBRATIONTYPE):
+        case CALIBRATIONTYPE:
             IDAM_LOG(UDA_LOG_DEBUG, "CALIBRATION xml\n");
             IDAM_LOGF(UDA_LOG_DEBUG, "Target     : %s\n", action.calibration.target);
             IDAM_LOGF(UDA_LOG_DEBUG, "Factor     : %f\n", action.calibration.factor);
@@ -1301,7 +1301,7 @@ void printAction(ACTION action)
             IDAM_LOGF(UDA_LOG_DEBUG, "Data Units : %s\n", action.calibration.units);
             printDimensions(action.calibration.ndimensions, action.calibration.dimensions);
             break;
-        case (COMPOSITETYPE):
+        case COMPOSITETYPE:
             IDAM_LOG(UDA_LOG_DEBUG, "COMPOSITE xml\n");
             IDAM_LOGF(UDA_LOG_DEBUG, "Composite Data Signal    : %s\n", action.composite.data_signal);
             IDAM_LOGF(UDA_LOG_DEBUG, "Composite Error Signal   : %s\n", action.composite.error_signal);
@@ -1312,7 +1312,7 @@ void printAction(ACTION action)
             IDAM_LOGF(UDA_LOG_DEBUG, "Composite Time Dimension : %d\n", action.composite.order);
             printDimensions(action.composite.ndimensions, action.composite.dimensions);
             break;
-        case (ERRORMODELTYPE):
+        case ERRORMODELTYPE:
             IDAM_LOG(UDA_LOG_DEBUG, "ERRORMODEL xml\n");
             IDAM_LOGF(UDA_LOG_DEBUG, "Error Model Id            : %d\n", action.errormodel.model);
             IDAM_LOGF(UDA_LOG_DEBUG, "Number of Model Parameters: %d\n", action.errormodel.param_n);
@@ -1321,7 +1321,7 @@ void printAction(ACTION action)
             printDimensions(action.errormodel.ndimensions, action.errormodel.dimensions);
             break;
 
-        case (SERVERSIDETYPE):
+        case SERVERSIDETYPE:
             IDAM_LOG(UDA_LOG_DEBUG, "SERVERSIDE Actions\n");
             IDAM_LOGF(UDA_LOG_DEBUG, "Number of Serverside Subsets: %d\n", action.serverside.nsubsets);
             for (i = 0; i < action.serverside.nsubsets; i++) {
@@ -1339,7 +1339,7 @@ void printAction(ACTION action)
             }
             IDAM_LOGF(UDA_LOG_DEBUG, "Number of Serverside mappings: %d\n", action.serverside.nmaps);
             break;
-        case (SUBSETTYPE):
+        case SUBSETTYPE:
             IDAM_LOG(UDA_LOG_DEBUG, "SUBSET Actions\n");
             IDAM_LOG(UDA_LOG_DEBUG, "Number of Subsets: 1\n");
             IDAM_LOGF(UDA_LOG_DEBUG, "Number of Subsetting Operations: %d\n", action.subset.nbound);

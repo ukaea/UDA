@@ -3017,13 +3017,13 @@ static int do_test40(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     defineField(&field, "dataCount", "the number of data array elements", &offset, SCALARUINT);
 
     switch (request_block->putDataBlockList.putDataBlock[0].data_type) {
-        case (TYPE_INT):
+        case TYPE_INT:
             defineField(&field, "data", "the block data array", &offset, ARRAYINT);
             break;
-        case (TYPE_FLOAT):
+        case TYPE_FLOAT:
             defineField(&field, "data", "the block data array", &offset, ARRAYFLOAT);
             break;
-        case (TYPE_DOUBLE):
+        case TYPE_DOUBLE:
             defineField(&field, "data", "the block data array", &offset, ARRAYDOUBLE);
             break;
     }
@@ -3085,14 +3085,14 @@ static int do_test40(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 // Data blocks already allocated and will be freed by a separate process so use addNonMalloc instead of addMalloc
 
         switch (request_block->putDataBlockList.putDataBlock[0].data_type) {
-            case (TYPE_INT):
+            case TYPE_INT:
                 addNonMalloc(blocks[i].data, blocks[i].dataCount, sizeof(int), "int");
                 break;
-            case (TYPE_FLOAT):
+            case TYPE_FLOAT:
                 addNonMalloc(blocks[i].data, blocks[i].dataCount, sizeof(float), "float");
                 float* f = (float*) blocks[i].data;
                 break;
-            case (TYPE_DOUBLE):
+            case TYPE_DOUBLE:
                 addNonMalloc(blocks[i].data, blocks[i].dataCount, sizeof(double), "double");
                 break;
         }

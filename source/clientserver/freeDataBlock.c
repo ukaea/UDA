@@ -37,14 +37,14 @@ void freeDataBlock(DATA_BLOCK* data_block)
         IDAM_LOG(UDA_LOG_DEBUG, "Opaque Data\n");
 
         switch (data_block->opaque_type) {
-            case (OPAQUE_TYPE_XML_DOCUMENT): {
+            case OPAQUE_TYPE_XML_DOCUMENT: {
                 if (data_block->opaque_block != NULL) free(data_block->opaque_block);
                 data_block->opaque_count = 0;
                 data_block->opaque_block = NULL;
                 break;
             }
 
-            case (OPAQUE_TYPE_STRUCTURES): {
+            case OPAQUE_TYPE_STRUCTURES: {
                 if (data_block->opaque_block != NULL) {
 //                    if (logmalloclist != NULL) {
 //                        freeMallocLogList(logmalloclist);
@@ -62,7 +62,7 @@ void freeDataBlock(DATA_BLOCK* data_block)
                 break;
             }
 
-            case (OPAQUE_TYPE_XDRFILE): {
+            case OPAQUE_TYPE_XDRFILE: {
                 if (data_block->opaque_block != NULL) {
                     free(data_block->opaque_block);
                 }
@@ -74,7 +74,7 @@ void freeDataBlock(DATA_BLOCK* data_block)
                 break;
             }
 
-            case (OPAQUE_TYPE_XDROBJECT): {
+            case OPAQUE_TYPE_XDROBJECT: {
                 if (data_block->opaque_block != NULL) {
                     free(data_block->opaque_block);
                 }

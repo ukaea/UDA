@@ -47,25 +47,25 @@ int xdatamapw(int volumePoints, EQUIMAPDATA* equimapdata, EFITDATA* efitdata, fl
 {
     if (volumePoints) {
         switch (equimapdata->rhoType) {
-            case (SQRTNORMALISEDTOROIDALFLUX):
+            case SQRTNORMALISEDTOROIDALFLUX:
                 return xdatamap(equimapdata->rhoCount, equimapdata->rho, efitdata->qCount, efitdata->trho, data,
                                 minvalue, mapped);
-            case (NORMALISEDPOLOIDALFLUX):
+            case NORMALISEDPOLOIDALFLUX:
                 return xdatamap(equimapdata->rhoCount, equimapdata->rho, efitdata->qCount, efitdata->rho, data,
                                 minvalue, mapped);
-            case (NORMALISEDITMFLUXRADIUS):
+            case NORMALISEDITMFLUXRADIUS:
                 return xdatamap(equimapdata->rhoCount, equimapdata->rho, efitdata->qCount, efitdata->rho_tor, data,
                                 minvalue, mapped);
         }
     } else {
         switch (equimapdata->rhoType) {
-            case (SQRTNORMALISEDTOROIDALFLUX):
+            case SQRTNORMALISEDTOROIDALFLUX:
                 return xdatamap(equimapdata->rhoBCount, equimapdata->rhoB, efitdata->qCount, efitdata->trho, data,
                                 minvalue, mapped);
-            case (NORMALISEDPOLOIDALFLUX):
+            case NORMALISEDPOLOIDALFLUX:
                 return xdatamap(equimapdata->rhoBCount, equimapdata->rhoB, efitdata->qCount, efitdata->rho, data,
                                 minvalue, mapped);
-            case (NORMALISEDITMFLUXRADIUS):
+            case NORMALISEDITMFLUXRADIUS:
                 return xdatamap(equimapdata->rhoBCount, equimapdata->rhoB, efitdata->qCount, efitdata->rho_tor, data,
                                 minvalue, mapped);
         }

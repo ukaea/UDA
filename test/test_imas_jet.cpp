@@ -23,6 +23,9 @@
   ✓ bpol_probe/#/field/time
  */
 
+/*
+ * imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/Shape_of', type=int, rank=0, shot=84600, )
+ */
 TEST_CASE( "Test bpol_probe count", "[IMAS][JET][BPOL]" )
 {
 #ifdef FATCLIENT
@@ -54,6 +57,9 @@ TEST_CASE( "Test bpol_probe count", "[IMAS][JET][BPOL]" )
     REQUIRE( val->as<int>() == 71 );
 }
 
+/*
+ * imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/#/name', type=string, rank=0, shot=84600, )
+ */
 TEST_CASE( "Test bpol_probe name", "[IMAS][JET][BPOL]" )
 {
 #ifdef FATCLIENT
@@ -84,6 +90,9 @@ TEST_CASE( "Test bpol_probe name", "[IMAS][JET][BPOL]" )
     REQUIRE( val->str() == "C2-CX01" );
 }
 
+/*
+ * imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/#/identifier', type=string, rank=0, shot=84600, )
+ */
 TEST_CASE( "Test bpol_probe identifier", "[IMAS][JET][BPOL]" )
 {
 #ifdef FATCLIENT
@@ -114,6 +123,12 @@ TEST_CASE( "Test bpol_probe identifier", "[IMAS][JET][BPOL]" )
     REQUIRE( val->as<int>() == 1 );
 }
 
+/*
+ * imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/#/toroidal_angle_error_index', type=int, rank=0, shot=84600, )
+ * imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/#/toroidal_angle_error_lower', type=double, rank=0, shot=84600, )
+ * imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/#/toroidal_angle_error_upper', type=double, rank=0, shot=84600, )
+ * imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/#/toroidal_angle', type=double, rank=0, shot=84600, )
+ */
 TEST_CASE( "Test bpol_probe toroidal_angle", "[IMAS][JET][BPOL]" )
 {
 #ifdef FATCLIENT
@@ -125,7 +140,7 @@ TEST_CASE( "Test bpol_probe toroidal_angle", "[IMAS][JET][BPOL]" )
 
 	uda::Client client;
 
-	const uda::Result& result = client.get("imas::get(idx=0, group='magnetics', variable='bpol_probe/1/toroidal_angle', expName='JET', type=float, rank=0, shot=" SHOT_NUM ", )", "");
+	const uda::Result& result = client.get("imas::get(idx=0, group='magnetics', variable='bpol_probe/1/toroidal_angle', expName='JET', type=double, rank=0, shot=" SHOT_NUM ", )", "");
 
 	REQUIRE( result.errorCode() == 0 );
 	REQUIRE( result.errorMessage() == "" );
@@ -134,17 +149,23 @@ TEST_CASE( "Test bpol_probe toroidal_angle", "[IMAS][JET][BPOL]" )
 
 	REQUIRE( data != nullptr );
 	REQUIRE( !data->isNull() );
-	REQUIRE( data->type().name() == typeid(float).name() );
+	REQUIRE( data->type().name() == typeid(double).name() );
 
 	auto val = dynamic_cast<uda::Scalar*>(data);
 
 	REQUIRE( val != nullptr );
     REQUIRE( !val->isNull() );
 
-	REQUIRE( val->type().name() == typeid(float).name() );
-	REQUIRE( val->as<float>() == Approx(0.0f) );
+	REQUIRE( val->type().name() == typeid(double).name() );
+	REQUIRE( val->as<double>() == Approx(0.0) );
 }
 
+/*
+ * imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/#/poloidal_angle_error_index', type=int, rank=0, shot=84600, )
+ * imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/#/poloidal_angle_error_lower', type=double, rank=0, shot=84600, )
+ * imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/#/poloidal_angle_error_upper', type=double, rank=0, shot=84600, )
+ * imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/#/poloidal_angle', type=double, rank=0, shot=84600, )
+ */
 TEST_CASE( "Test bpol_probe poloidal_angle", "[IMAS][JET][BPOL]" )
 {
 #ifdef FATCLIENT
@@ -156,7 +177,7 @@ TEST_CASE( "Test bpol_probe poloidal_angle", "[IMAS][JET][BPOL]" )
 
 	uda::Client client;
 
-	const uda::Result& result = client.get("imas::get(idx=0, group='magnetics', variable='bpol_probe/1/poloidal_angle', expName='JET', type=float, rank=0, shot=" SHOT_NUM ", )", "");
+	const uda::Result& result = client.get("imas::get(idx=0, group='magnetics', variable='bpol_probe/1/poloidal_angle', expName='JET', type=double, rank=0, shot=" SHOT_NUM ", )", "");
 
 	REQUIRE( result.errorCode() == 0 );
 	REQUIRE( result.errorMessage() == "" );
@@ -165,17 +186,23 @@ TEST_CASE( "Test bpol_probe poloidal_angle", "[IMAS][JET][BPOL]" )
 
 	REQUIRE( data != nullptr );
 	REQUIRE( !data->isNull() );
-	REQUIRE( data->type().name() == typeid(float).name() );
+	REQUIRE( data->type().name() == typeid(double).name() );
 
 	auto val = dynamic_cast<uda::Scalar*>(data);
 
 	REQUIRE( val != nullptr );
 	REQUIRE( !val->isNull() );
 
-	REQUIRE( val->type().name() == typeid(float).name() );
-	REQUIRE( val->as<float>() == Approx(-1.2933f) );
+	REQUIRE( val->type().name() == typeid(double).name() );
+	REQUIRE( val->as<double>() == Approx(-1.2933) );
 }
 
+/*
+ * imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/#/area_error_index', type=int, rank=0, shot=84600, )
+ * imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/#/area_error_lower', type=double, rank=0, shot=84600, )
+ * imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/#/area_error_upper', type=double, rank=0, shot=84600, )
+ * imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/#/area', type=double, rank=0, shot=84600, )
+ */
 TEST_CASE( "Test bpol_probe area", "[IMAS][JET][BPOL]" )
 {
 #ifdef FATCLIENT
@@ -187,7 +214,7 @@ TEST_CASE( "Test bpol_probe area", "[IMAS][JET][BPOL]" )
 
     uda::Client client;
 
-    const uda::Result& result = client.get("imas::get(idx=0, group='magnetics', variable='bpol_probe/1/area', expName='JET', type=float, rank=0, shot=" SHOT_NUM ", )", "");
+    const uda::Result& result = client.get("imas::get(idx=0, group='magnetics', variable='bpol_probe/1/area', expName='JET', type=double, rank=0, shot=" SHOT_NUM ", )", "");
 
     REQUIRE( result.errorCode() == 0 );
     REQUIRE( result.errorMessage() == "" );
@@ -196,17 +223,23 @@ TEST_CASE( "Test bpol_probe area", "[IMAS][JET][BPOL]" )
 
     REQUIRE( data != nullptr );
     REQUIRE( !data->isNull() );
-    REQUIRE( data->type().name() == typeid(float).name() );
+    REQUIRE( data->type().name() == typeid(double).name() );
 
     auto val = dynamic_cast<uda::Scalar*>(data);
 
     REQUIRE( val != nullptr );
     REQUIRE( !val->isNull() );
 
-    REQUIRE( val->type().name() == typeid(float).name() );
-    REQUIRE( val->as<float>() == Approx(0.001f) );
+    REQUIRE( val->type().name() == typeid(double).name() );
+    REQUIRE( val->as<double>() == Approx(0.001) );
 }
 
+/*
+ * imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/#/position/r_error_index', type=int, rank=0, shot=84600, )
+ * imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/#/position/r_error_lower', type=double, rank=0, shot=84600, )
+ * imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/#/position/r_error_upper', type=double, rank=0, shot=84600, )
+ * imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/#/position/r', type=double, rank=0, shot=84600, )
+ */
 TEST_CASE( "Test bpol_probe position r", "[IMAS][JET][BPOL]" )
 {
 #ifdef FATCLIENT
@@ -218,7 +251,7 @@ TEST_CASE( "Test bpol_probe position r", "[IMAS][JET][BPOL]" )
 
     uda::Client client;
 
-    const uda::Result& result = client.get("imas::get(idx=0, group='magnetics', variable='bpol_probe/1/position/r', expName='JET', type=float, rank=0, shot=" SHOT_NUM ", )", "");
+    const uda::Result& result = client.get("imas::get(idx=0, group='magnetics', variable='bpol_probe/1/position/r', expName='JET', type=double, rank=0, shot=" SHOT_NUM ", )", "");
 
     REQUIRE( result.errorCode() == 0 );
     REQUIRE( result.errorMessage() == "" );
@@ -227,17 +260,23 @@ TEST_CASE( "Test bpol_probe position r", "[IMAS][JET][BPOL]" )
 
     REQUIRE( data != nullptr );
     REQUIRE( !data->isNull() );
-    REQUIRE( data->type().name() == typeid(float).name() );
+    REQUIRE( data->type().name() == typeid(double).name() );
 
     auto val = dynamic_cast<uda::Scalar*>(data);
 
     REQUIRE( val != nullptr );
     REQUIRE( !val->isNull() );
 
-    REQUIRE( val->type().name() == typeid(float).name() );
-    REQUIRE( val->as<float>() == Approx(4.2920f) );
+    REQUIRE( val->type().name() == typeid(double).name() );
+    REQUIRE( val->as<double>() == Approx(4.2920) );
 }
 
+/*
+ * imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/#/position/z_error_index', type=int, rank=0, shot=84600, )
+ * imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/#/position/z_error_lower', type=double, rank=0, shot=84600, )
+ * imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/#/position/z_error_upper', type=double, rank=0, shot=84600, )
+ * imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/#/position/z', type=double, rank=0, shot=84600, )
+ */
 TEST_CASE( "Test bpol_probe position z", "[IMAS][JET][BPOL]" )
 {
 #ifdef FATCLIENT
@@ -249,7 +288,7 @@ TEST_CASE( "Test bpol_probe position z", "[IMAS][JET][BPOL]" )
 
     uda::Client client;
 
-    const uda::Result& result = client.get("imas::get(idx=0, group='magnetics', variable='bpol_probe/1/position/z', expName='JET', type=float, rank=0, shot=" SHOT_NUM ", )", "");
+    const uda::Result& result = client.get("imas::get(idx=0, group='magnetics', variable='bpol_probe/1/position/z', expName='JET', type=double, rank=0, shot=" SHOT_NUM ", )", "");
 
     REQUIRE( result.errorCode() == 0 );
     REQUIRE( result.errorMessage() == "" );
@@ -258,17 +297,23 @@ TEST_CASE( "Test bpol_probe position z", "[IMAS][JET][BPOL]" )
 
     REQUIRE( data != nullptr );
     REQUIRE( !data->isNull() );
-    REQUIRE( data->type().name() == typeid(float).name() );
+    REQUIRE( data->type().name() == typeid(double).name() );
 
     auto val = dynamic_cast<uda::Scalar*>(data);
 
     REQUIRE( val != nullptr );
     REQUIRE( !val->isNull() );
 
-    REQUIRE( val->type().name() == typeid(float).name() );
-    REQUIRE( val->as<float>() == Approx(0.6040f) );
+    REQUIRE( val->type().name() == typeid(double).name() );
+    REQUIRE( val->as<double>() == Approx(0.6040) );
 }
 
+/*
+ * imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/#/position/phi_error_index', type=int, rank=0, shot=84600, )
+ * imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/#/position/phi_error_lower', type=double, rank=0, shot=84600, )
+ * imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/#/position/phi_error_upper', type=double, rank=0, shot=84600, )
+ * imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/#/position/phi', type=double, rank=0, shot=84600, )
+ */
 TEST_CASE( "Test bpol_probe position phi", "[IMAS][JET][BPOL]" )
 {
 #ifdef FATCLIENT
@@ -280,7 +325,7 @@ TEST_CASE( "Test bpol_probe position phi", "[IMAS][JET][BPOL]" )
 
     uda::Client client;
 
-    const uda::Result& result = client.get("imas::get(idx=0, group='magnetics', variable='bpol_probe/1/position/phi', expName='JET', type=float, rank=0, shot=" SHOT_NUM ", )", "");
+    const uda::Result& result = client.get("imas::get(idx=0, group='magnetics', variable='bpol_probe/1/position/phi', expName='JET', type=double, rank=0, shot=" SHOT_NUM ", )", "");
 
     REQUIRE( result.errorCode() == 0 );
     REQUIRE( result.errorMessage() == "" );
@@ -289,17 +334,23 @@ TEST_CASE( "Test bpol_probe position phi", "[IMAS][JET][BPOL]" )
 
     REQUIRE( data != nullptr );
     REQUIRE( !data->isNull() );
-    REQUIRE( data->type().name() == typeid(float).name() );
+    REQUIRE( data->type().name() == typeid(double).name() );
 
     auto val = dynamic_cast<uda::Scalar*>(data);
 
     REQUIRE( val != nullptr );
     REQUIRE( !val->isNull() );
 
-    REQUIRE( val->type().name() == typeid(float).name() );
-    REQUIRE( val->as<float>() == Approx(0.0f) );
+    REQUIRE( val->type().name() == typeid(double).name() );
+    REQUIRE( val->as<double>() == Approx(0.0) );
 }
 
+/*
+ * imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/#/length_error_index', type=int, rank=0, shot=84600, )
+ * imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/#/length_error_lower', type=double, rank=0, shot=84600, )
+ * imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/#/length_error_upper', type=double, rank=0, shot=84600, )
+ * imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/#/length', type=double, rank=0, shot=84600, )
+ */
 TEST_CASE( "Test bpol_probe length", "[IMAS][JET][BPOL]" )
 {
 #ifdef FATCLIENT
@@ -311,7 +362,7 @@ TEST_CASE( "Test bpol_probe length", "[IMAS][JET][BPOL]" )
 
     uda::Client client;
 
-    const uda::Result& result = client.get("imas::get(idx=0, group='magnetics', variable='bpol_probe/1/length', expName='JET', type=float, rank=0, shot=" SHOT_NUM ", )", "");
+    const uda::Result& result = client.get("imas::get(idx=0, group='magnetics', variable='bpol_probe/1/length', expName='JET', type=double, rank=0, shot=" SHOT_NUM ", )", "");
 
     REQUIRE( result.errorCode() == 0 );
     REQUIRE( result.errorMessage() == "" );
@@ -320,17 +371,20 @@ TEST_CASE( "Test bpol_probe length", "[IMAS][JET][BPOL]" )
 
     REQUIRE( data != nullptr );
     REQUIRE( !data->isNull() );
-    REQUIRE( data->type().name() == typeid(float).name() );
+    REQUIRE( data->type().name() == typeid(double).name() );
 
     auto val = dynamic_cast<uda::Scalar*>(data);
 
     REQUIRE( val != nullptr );
     REQUIRE( !val->isNull() );
 
-    REQUIRE( val->type().name() == typeid(float).name() );
-    REQUIRE( val->as<float>() == Approx(0.15f) );
+    REQUIRE( val->type().name() == typeid(double).name() );
+    REQUIRE( val->as<double>() == Approx(0.15) );
 }
 
+/*
+ * imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/#/turns', type=int, rank=0, shot=84600, )
+ */
 TEST_CASE( "Test bpol_probe turns", "[IMAS][JET][BPOL]" )
 {
 #ifdef FATCLIENT
@@ -362,6 +416,12 @@ TEST_CASE( "Test bpol_probe turns", "[IMAS][JET][BPOL]" )
     REQUIRE( val->as<int>() == 1 );
 }
 
+/*
+ * imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/#/field/data_error_index', type=int, rank=0, shot=84600, )
+ * imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/#/field/data_error_lower', type=double, rank=1, shot=84600, )
+ * imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/#/field/data_error_upper', type=double, rank=1, shot=84600, )
+ * imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/#/field/data', type=double, rank=1, shot=84600, )
+ */
 TEST_CASE( "Test bpol_probe field", "[IMAS][JET][BPOL]" )
 {
 #ifdef FATCLIENT
@@ -373,7 +433,7 @@ TEST_CASE( "Test bpol_probe field", "[IMAS][JET][BPOL]" )
 
     uda::Client client;
 
-    const uda::Result& result = client.get("imas::get(idx=0, group='magnetics', variable='bpol_probe/1/field', expName='JET', type=float, rank=1, shot=" SHOT_NUM ", )", "");
+    const uda::Result& result = client.get("imas::get(idx=0, group='magnetics', variable='bpol_probe/1/field/data', expName='JET', type=double, rank=1, shot=" SHOT_NUM ", )", "");
 
     REQUIRE( result.errorCode() == 0 );
     REQUIRE( result.errorMessage() == "" );
@@ -382,7 +442,7 @@ TEST_CASE( "Test bpol_probe field", "[IMAS][JET][BPOL]" )
 
     REQUIRE( data != nullptr );
     REQUIRE( !data->isNull() );
-    REQUIRE( data->type().name() == typeid(float).name() );
+    REQUIRE( data->type().name() == typeid(double).name() );
 
     auto arr = dynamic_cast<uda::Array*>(data);
 
@@ -390,10 +450,13 @@ TEST_CASE( "Test bpol_probe field", "[IMAS][JET][BPOL]" )
     REQUIRE( !arr->isNull() );
 
     REQUIRE( arr->size() == 1024 );
-    REQUIRE( arr->type().name() == typeid(float).name() );
-    REQUIRE( arr->as<float>()[0] == Approx(-0.0000273885871f) );
+    REQUIRE( arr->type().name() == typeid(double).name() );
+    REQUIRE( arr->as<double>()[0] == Approx(-0.0000273885871) );
 }
 
+/*
+ * imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/#/field/time', type=double, rank=1, shot=84600, )
+ */
 TEST_CASE( "Test bpol_probe time", "[IMAS][JET][BPOL]" )
 {
 #ifdef FATCLIENT
@@ -405,7 +468,7 @@ TEST_CASE( "Test bpol_probe time", "[IMAS][JET][BPOL]" )
 
     uda::Client client;
 
-    const uda::Result& result = client.get("imas::get(idx=0, group='magnetics', variable='bpol_probe/1/field/time', expName='JET', type=float, rank=1, shot=" SHOT_NUM ", )", "");
+    const uda::Result& result = client.get("imas::get(idx=0, group='magnetics', variable='bpol_probe/1/field/time', expName='JET', type=double, rank=1, shot=" SHOT_NUM ", )", "");
 
     REQUIRE( result.errorCode() == 0 );
     REQUIRE( result.errorMessage() == "" );
@@ -414,7 +477,7 @@ TEST_CASE( "Test bpol_probe time", "[IMAS][JET][BPOL]" )
 
     REQUIRE( data != nullptr );
     REQUIRE( !data->isNull() );
-    REQUIRE( data->type().name() == typeid(float).name() );
+    REQUIRE( data->type().name() == typeid(double).name() );
 
     auto arr = dynamic_cast<uda::Array*>(data);
 
@@ -422,8 +485,8 @@ TEST_CASE( "Test bpol_probe time", "[IMAS][JET][BPOL]" )
     REQUIRE( !arr->isNull() );
 
     REQUIRE( arr->size() == 1024 );
-    REQUIRE( arr->type().name() == typeid(float).name() );
-    REQUIRE( arr->as<float>()[0] == Approx(25.0161991f) );
+    REQUIRE( arr->type().name() == typeid(double).name() );
+    REQUIRE( arr->as<double>()[0] == Approx(25.0161991) );
 }
 
 /*
@@ -722,7 +785,7 @@ TEST_CASE( "Test flux_loop flux", "[IMAS][JET][FLUX]" )
 
     uda::Client client;
 
-    const uda::Result& result_1 = client.get("imas::get(idx=0, group='magnetics', variable='flux_loop/1/flux', expName='JET', type=float, rank=1, shot=" SHOT_NUM ", )", "");
+    const uda::Result& result_1 = client.get("imas::get(idx=0, group='magnetics', variable='flux_loop/1/flux/data', expName='JET', type=float, rank=1, shot=" SHOT_NUM ", )", "");
 
     REQUIRE( result_1.errorCode() == 0 );
     REQUIRE( result_1.errorMessage() == "" );
@@ -742,7 +805,7 @@ TEST_CASE( "Test flux_loop flux", "[IMAS][JET][FLUX]" )
     REQUIRE( arr->type().name() == typeid(float).name() );
     REQUIRE( arr->as<float>()[0] == Approx(0.00029f) );
 
-    const uda::Result& result_36 = client.get("imas::get(idx=0, group='magnetics', variable='flux_loop/36/flux', expName='JET', type=float, rank=1, shot=" SHOT_NUM ", )", "");
+    const uda::Result& result_36 = client.get("imas::get(idx=0, group='magnetics', variable='flux_loop/36/flux/data', expName='JET', type=float, rank=1, shot=" SHOT_NUM ", )", "");
 
     REQUIRE( result_36.errorCode() == 0 );
     REQUIRE( result_36.errorMessage() == "" );

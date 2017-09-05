@@ -39,14 +39,14 @@ int readCDFTypes(int grpid, USERDEFINEDTYPELIST* userdefinedtypelist)
     USERDEFINEDTYPE usertype;
     COMPOUNDFIELD field;
 
-//----------------------------------------------------------------------
-// Error Trap Loop
+    //----------------------------------------------------------------------
+    // Error Trap Loop
 
     do {
 
-//----------------------------------------------------------------------
-// List all User Defined data types within this group (What is the scoping rule?)
-// Should Add all others within scope if types are Not Local
+        //----------------------------------------------------------------------
+        // List all User Defined data types within this group (What is the scoping rule?)
+        // Should Add all others within scope if types are Not Local
 
         if ((rc = nc_inq_typeids(grpid, &ntypes, NULL)) != NC_NOERR || ntypes == 0) break;
 
@@ -54,8 +54,8 @@ int readCDFTypes(int grpid, USERDEFINEDTYPELIST* userdefinedtypelist)
 
         if ((rc = nc_inq_typeids(grpid, &ntypes, typeids)) != NC_NOERR) break;
 
-//----------------------------------------------------------------------
-// Build Definitions of User Defined data types in this group
+        //----------------------------------------------------------------------
+        // Build Definitions of User Defined data types in this group
 
         for (i = 0; i < ntypes; i++) {
 
@@ -77,7 +77,7 @@ int readCDFTypes(int grpid, USERDEFINEDTYPELIST* userdefinedtypelist)
 
             switch (class) {
 
-                case (NC_COMPOUND): {                // Compound Types
+                case NC_COMPOUND: {                // Compound Types
 
                     usertype.idamclass = TYPE_COMPOUND;
 
@@ -92,33 +92,30 @@ int readCDFTypes(int grpid, USERDEFINEDTYPELIST* userdefinedtypelist)
 
                             strcpy(field.name, name);
 
-// STRING Convention: 1 byte numerical values are always signed and unsigned bytes. Character strings (rank > 0, length > 1) are always char.
+                            // STRING Convention: 1 byte numerical values are always signed and unsigned bytes. Character strings (rank > 0, length > 1) are always char.
 
-                            if (type == NC_CHAR && rank > 0 &&
-                                shape[0] > 1) {            // Otherwise treat as a single character
+                            if (type == NC_CHAR && rank > 0 && shape[0] > 1) {
+                                // Otherwise treat as a single character
                                 field.atomictype = TYPE_STRING;
                                 strcpy(field.type, "STRING");
                             } else {
                                 if (type == NC_STRING) {
                                     field.atomictype = TYPE_STRING;
-                                    strcpy(field.type,
-                                           "STRING *");                // Array of strings of arbitrary length
+                                    strcpy(field.type, "STRING *");                // Array of strings of arbitrary length
                                 } else {
-                                    field.atomictype = convertNCType(
-                                            type);            // convert netCDF base type to IDAM type
-                                    strcpy(field.type, idamNameType(
-                                            field.atomictype));        // convert atomic type to a string label
+                                    field.atomictype = convertNCType(type);            // convert netCDF base type to IDAM type
+                                    strcpy(field.type, idamNameType(field.atomictype));        // convert atomic type to a string label
                                 }
                             }
 
-                            if (field.atomictype ==
-                                TYPE_UNKNOWN) {                // must be another user defined structure
+                            if (field.atomictype == TYPE_UNKNOWN) {
+                                // must be another user defined structure
                                 USERDEFINEDTYPE* udt = findUserDefinedType(userdefinedtypelist, "", (int) type);    // Identify via type id
                                 if (udt != NULL) {
 
-// **** ENUM types within compound structures cannot be passed in the expanded form: collapse back to the original integer type.
-// **** Unable to substitute a pointer as integer type may only be 1 or 2 bytes
-// **** NEED: Return the enumerated type set of values and names to the client
+                                    // **** ENUM types within compound structures cannot be passed in the expanded form: collapse back to the original integer type.
+                                    // **** Unable to substitute a pointer as integer type may only be 1 or 2 bytes
+                                    // **** NEED: Return the enumerated type set of values and names to the client
 
                                     if (udt->idamclass == TYPE_ENUM) {
                                         size_t base_size, memberCount;        // dgm changed from int to size_t 16Dec11
@@ -176,7 +173,7 @@ int readCDFTypes(int grpid, USERDEFINEDTYPELIST* userdefinedtypelist)
                     break;
                 }
 
-                case (NC_VLEN): {                    // variable Length Array Types
+                case NC_VLEN: {                    // variable Length Array Types
 
                     usertype.idamclass = TYPE_VLEN;
 
@@ -221,8 +218,7 @@ int readCDFTypes(int grpid, USERDEFINEDTYPELIST* userdefinedtypelist)
                             USERDEFINEDTYPE* udt = findUserDefinedType(userdefinedtypelist, "", (int) base);        // Identify via type id
                             if (udt == NULL) {
                                 err = 999;
-                                addIdamError(&idamerrorstack, CODEERRORTYPE, __FILE__, err,
-                                             "User defined type not registered!");
+                                addIdamError(&idamerrorstack, CODEERRORTYPE, __FILE__, err, "User defined type not registered!");
                                 break;
                             }
                             strcpy(field.type, udt->name);
@@ -247,7 +243,7 @@ int readCDFTypes(int grpid, USERDEFINEDTYPELIST* userdefinedtypelist)
                     break;
                 }
 
-                case (NC_OPAQUE): {                                // Opaque Types
+                case NC_OPAQUE: {                                // Opaque Types
 
                     err = 999;
                     addIdamError(&idamerrorstack, CODEERRORTYPE, __FILE__, err, "Not configured for OPAQUE Types!");
@@ -262,7 +258,7 @@ int readCDFTypes(int grpid, USERDEFINEDTYPELIST* userdefinedtypelist)
                     break;
                 }
 
-                case (NC_ENUM): {                // enum Types use an existing structure: Copy and personalise
+                case NC_ENUM: {                // enum Types use an existing structure: Copy and personalise
 
                     USERDEFINEDTYPE* udt = findUserDefinedType(userdefinedtypelist, "ENUMLIST", 0);    // Standard ENUMLIST type
 
@@ -317,39 +313,39 @@ int convertNCType(nc_type type)
 {
     switch (type) {
         case NC_BYTE:
-            return (TYPE_CHAR);
+            return TYPE_CHAR;
         case NC_CHAR:
-            return (TYPE_CHAR);
+            return TYPE_CHAR;
         case NC_SHORT:
-            return (TYPE_SHORT);
+            return TYPE_SHORT;
         case NC_INT:
-            return (TYPE_INT);
+            return TYPE_INT;
         case NC_INT64:
-            return (TYPE_LONG64);
+            return TYPE_LONG64;
         case NC_FLOAT:
-            return (TYPE_FLOAT);
+            return TYPE_FLOAT;
         case NC_DOUBLE:
-            return (TYPE_DOUBLE);
+            return TYPE_DOUBLE;
         case NC_UBYTE:
-            return (TYPE_UNSIGNED_CHAR);
+            return TYPE_UNSIGNED_CHAR;
         case NC_USHORT:
-            return (TYPE_UNSIGNED_SHORT);
+            return TYPE_UNSIGNED_SHORT;
         case NC_UINT:
-            return (TYPE_UNSIGNED_INT);
+            return TYPE_UNSIGNED_INT;
         case NC_UINT64:
-            return (TYPE_UNSIGNED_LONG64);
+            return TYPE_UNSIGNED_LONG64;
         case NC_VLEN:
-            return (TYPE_VLEN);
+            return TYPE_VLEN;
         case NC_COMPOUND:
-            return (TYPE_COMPOUND);
+            return TYPE_COMPOUND;
         case NC_OPAQUE:
-            return (TYPE_OPAQUE);
+            return TYPE_OPAQUE;
         case NC_ENUM:
-            return (TYPE_ENUM);
+            return TYPE_ENUM;
         case NC_STRING:
-            return (TYPE_STRING);
+            return TYPE_STRING;
         default:
-            return (TYPE_UNKNOWN);
+            return TYPE_UNKNOWN;
     }
 }
 

@@ -33,6 +33,7 @@ set( TESTS
 #  test_putcpp
   test_mast
   test_imas_jet
+  test_imas_jet_all
 )
 
 include( modules )

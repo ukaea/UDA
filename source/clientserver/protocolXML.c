@@ -139,7 +139,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
         if (protocol_id == PROTOCOL_STRUCTURES) {
 
             void* data = NULL;
-            data_block = (DATA_BLOCK*) str;
+            data_block = (DATA_BLOCK*)str;
 
             if (data_block->opaque_type == OPAQUE_TYPE_STRUCTURES) {
                 int packageType = 0;
@@ -151,9 +151,9 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
 
                     SARRAY sarray;                                // Structure array carrier structure
                     SARRAY* psarray = &sarray;
-                    int shape = data_block->data_n;                                     // rank 1 array of dimension lengths
-                    USERDEFINEDTYPE* udt = (USERDEFINEDTYPE*) data_block->opaque_block; // The data's structure definition
-                    USERDEFINEDTYPE* u = findUserDefinedType(userdefinedtypelist, "SARRAY", 0);              // Locate the carrier structure definition
+                    int shape = data_block->data_n;                                                 // rank 1 array of dimension lengths
+                    USERDEFINEDTYPE* udt = (USERDEFINEDTYPE*)data_block->opaque_block;              // The data's structure definition
+                    USERDEFINEDTYPE* u = findUserDefinedType(userdefinedtypelist, "SARRAY", 0);     // Locate the carrier structure definition
 
                     IDAM_LOG(UDA_LOG_DEBUG, "protocolXML: Sending to Client\n");
 
@@ -172,10 +172,10 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                     sarray.count = data_block->data_n;              // Number of this structure
                     sarray.rank = 1;                                // Array Data Rank?
                     sarray.shape = &shape;                          // Only if rank > 1?
-                    sarray.data = (void*) data_block->data;         // Pointer to the data to be passed
+                    sarray.data = (void*)data_block->data;          // Pointer to the data to be passed
                     strcpy(sarray.type, udt->name);                 // The name of the type
-                    data = (void*) &psarray;                        // Pointer to the SARRAY array pointer
-                    addNonMalloc(logmalloclist, (void*) &shape, 1, sizeof(int), "int");
+                    data = (void*)&psarray;                         // Pointer to the SARRAY array pointer
+                    addNonMalloc(logmalloclist, (void*)&shape, 1, sizeof(int), "int");
 
                     IDAM_LOG(UDA_LOG_DEBUG, "protocolXML: sending Structure Definitions\n");
 
@@ -236,8 +236,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                     }
 #endif
 
-                    rc = rc && xdr_userdefinedtypelist(xdrs,
-                                                       userdefinedtypelist);        // send the full set of known named structures
+                    rc = rc && xdr_userdefinedtypelist(xdrs, userdefinedtypelist); // send the full set of known named structures
 
                     IDAM_LOGF(UDA_LOG_DEBUG, "protocolXML: Structure Definitions sent: rc = %d\n", rc);
 
@@ -480,8 +479,8 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                                              "Inconsistent S Array Counts");
                                 break;
                             }
-                            data_block->data = (char*) fullNTree;        // Global Root Node with the Carrier Structure containing data
-                            data_block->opaque_block = (void*) general_block;
+                            data_block->data = (char*)fullNTree;        // Global Root Node with the Carrier Structure containing data
+                            data_block->opaque_block = (void*)general_block;
                             general_block->userdefinedtype = udt_received;
                             general_block->userdefinedtypelist = userdefinedtypelist;
                             general_block->logmalloclist = logmalloclist;
@@ -540,7 +539,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
 
                             // If this is an intermediate client then read the file without unpacking the structures
 
-                            char* fname = (char*) malloc(sizeof(char) * (strlen(tempFile) + 1));
+                            char* fname = (char*)malloc(sizeof(char) * (strlen(tempFile) + 1));
                             strcpy(fname, tempFile);
                             data_block->data = NULL;                // No Data - not unpacked
                             data_block->opaque_block = (void*) fname;            // File name
@@ -552,11 +551,11 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
 
                             // Unpack the data Structures
 
-                            logmalloclist = (LOGMALLOCLIST*) malloc(sizeof(LOGMALLOCLIST));
+                            logmalloclist = (LOGMALLOCLIST*)malloc(sizeof(LOGMALLOCLIST));
                             initLogMallocList(logmalloclist);
 
-                            userdefinedtypelist = (USERDEFINEDTYPELIST*) malloc(sizeof(USERDEFINEDTYPELIST));
-                            USERDEFINEDTYPE* udt_received = (USERDEFINEDTYPE*) malloc(sizeof(USERDEFINEDTYPE));
+                            userdefinedtypelist = (USERDEFINEDTYPELIST*)malloc(sizeof(USERDEFINEDTYPELIST));
+                            USERDEFINEDTYPE* udt_received = (USERDEFINEDTYPE*)malloc(sizeof(USERDEFINEDTYPE));
 
                             initUserDefinedTypeList(userdefinedtypelist);
 
@@ -623,8 +622,8 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                                                  "Inconsistent S Array Counts");
                                     break;
                                 }
-                                data_block->data = (char*) fullNTree;        // Global Root Node with the Carrier Structure containing data
-                                data_block->opaque_block = (void*) general_block;
+                                data_block->data = (char*)fullNTree;        // Global Root Node with the Carrier Structure containing data
+                                data_block->opaque_block = (void*)general_block;
                                 data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
                                 general_block->userdefinedtype = udt_received;
                                 general_block->userdefinedtypelist = userdefinedtypelist;

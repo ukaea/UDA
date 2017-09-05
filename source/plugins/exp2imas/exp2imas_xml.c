@@ -221,26 +221,31 @@ static void get_coefs(float** coefas, float** coefbs, const xmlChar* xpathExpr, 
 int execute_xpath_expression(const char* filename, const xmlChar* xpathExpr, char** data, int* data_type, int* time_dim,
                              int** sizes, float** coefas, float** coefbs, int index, int** dims, int* rank)
 {
-    xmlDocPtr doc;
-    xmlXPathContextPtr xpathCtx;
-    xmlXPathObjectPtr xpathObj;
-
     assert(filename);
     assert(xpathExpr);
 
-    /* Load XML document */
-    doc = xmlParseFile(filename);
+    static xmlDocPtr doc = NULL;
+
     if (doc == NULL) {
-        IDAM_LOGF(UDA_LOG_ERROR, "Error: unable to parse file \"%s\"\n", filename);
-        return -1;
+        /* Load XML document */
+        doc = xmlParseFile(filename);
+        if (doc == NULL) {
+            IDAM_LOGF(UDA_LOG_ERROR, "Error: unable to parse file \"%s\"\n", filename);
+            return -1;
+        }
     }
 
-    /* Create xpath evaluation context */
-    xpathCtx = xmlXPathNewContext(doc);
+    static xmlXPathContextPtr xpathCtx = NULL;
+
     if (xpathCtx == NULL) {
-        IDAM_LOG(UDA_LOG_ERROR, "Error: unable to create new XPath context\n");
-        xmlFreeDoc(doc);
-        return -1;
+        /* Create xpath evaluation context */
+        xpathCtx = xmlXPathNewContext(doc);
+        if (xpathCtx == NULL) {
+            IDAM_LOG(UDA_LOG_ERROR, "Error: unable to create new XPath context\n");
+//            xmlFreeDoc(doc);
+            return -1;
+        }
+
     }
 
     *dims = get_dims(xpathExpr, xpathCtx, rank);
@@ -250,12 +255,12 @@ int execute_xpath_expression(const char* filename, const xmlChar* xpathExpr, cha
     get_coefs(coefas, coefbs, xpathExpr, xpathCtx);
 
     /* Evaluate xpath expression for requesting the data  */
-    xpathObj = xmlXPathEvalExpression(xpathExpr, xpathCtx);
+    xmlXPathObjectPtr xpathObj = xmlXPathEvalExpression(xpathExpr, xpathCtx);
 
     if (xpathObj == NULL) {
         IDAM_LOGF(UDA_LOG_ERROR, "Error: unable to evaluate xpath expression \"%s\"\n", xpathExpr);
-        xmlXPathFreeContext(xpathCtx);
-        xmlFreeDoc(doc);
+//        xmlXPathFreeContext(xpathCtx);
+//        xmlFreeDoc(doc);
         return -1;
     }
 
@@ -263,8 +268,8 @@ int execute_xpath_expression(const char* filename, const xmlChar* xpathExpr, cha
 
     if (nodes == NULL || nodes->nodeNr == 0) {
         IDAM_LOG(UDA_LOG_ERROR, "error in XPath request  \n");
-        xmlXPathFreeContext(xpathCtx);
-        xmlFreeDoc(doc);
+//        xmlXPathFreeContext(xpathCtx);
+//        xmlFreeDoc(doc);
         return -1;
     }
 
@@ -290,8 +295,8 @@ int execute_xpath_expression(const char* filename, const xmlChar* xpathExpr, cha
 
         if (cur->name == NULL) {
             IDAM_LOG(UDA_LOG_ERROR, "Error: null pointer (nodes->nodeTab[nodeindex]->name) \n");
-            xmlXPathFreeContext(xpathCtx);
-            xmlFreeDoc(doc);
+//            xmlXPathFreeContext(xpathCtx);
+//            xmlFreeDoc(doc);
             return -1;
         }
 
@@ -382,8 +387,8 @@ int execute_xpath_expression(const char* filename, const xmlChar* xpathExpr, cha
 
     /* Cleanup */
     xmlXPathFreeObject(xpathObj);
-    xmlXPathFreeContext(xpathCtx);
-    xmlFreeDoc(doc);
+//    xmlXPathFreeContext(xpathCtx);
+//    xmlFreeDoc(doc);
 
     return 0;
 }

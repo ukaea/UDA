@@ -485,26 +485,35 @@ char* getMachineMappingFileName(const char* element)
 
 xmlChar* getMappingValue(const char* mapping_file_name, const char* request, MAPPING_TYPE* request_type, int* index)
 {
-    /*
-     * Load XML document
-     */
-    xmlDocPtr doc = xmlParseFile(mapping_file_name);
+    static xmlDocPtr doc = NULL;
+
     if (doc == NULL) {
-        addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, 999, "unable to parse file");
-        IDAM_LOGF(UDA_LOG_ERROR, "unable to parse file \"%s\"\n", mapping_file_name);
-        return NULL;
+        /*
+         * Load XML document
+         */
+        doc = xmlParseFile(mapping_file_name);
+        if (doc == NULL) {
+            addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, 999, "unable to parse file");
+            IDAM_LOGF(UDA_LOG_ERROR, "unable to parse file \"%s\"\n", mapping_file_name);
+            return NULL;
+        }
     }
 
-    /*
-     * Create xpath evaluation context
-     */
-    xmlXPathContextPtr xpath_ctx = xmlXPathNewContext(doc);
+    static xmlXPathContextPtr xpath_ctx = NULL;
+
     if (xpath_ctx == NULL) {
-        addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, 999, "unable to create new XPath context");
-        IDAM_LOGF(UDA_LOG_ERROR, "unable to create new XPath context\n", mapping_file_name);
-        xmlFreeDoc(doc);
-        return NULL;
+        /*
+         * Create xpath evaluation context
+         */
+        xpath_ctx = xmlXPathNewContext(doc);
+        if (xpath_ctx == NULL) {
+            addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, 999, "unable to create new XPath context");
+            IDAM_LOGF(UDA_LOG_ERROR, "unable to create new XPath context\n", mapping_file_name);
+//            xmlFreeDoc(doc);
+            return NULL;
+        }
     }
+
     // Creating the Xpath request
 
     XML_FMT_TYPE fmt = "//mapping[@key='%s']/@value";
@@ -520,8 +529,8 @@ xmlChar* getMappingValue(const char* mapping_file_name, const char* request, MAP
         addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, 999, "unable to evaluate xpath expression");
         IDAM_LOGF(UDA_LOG_ERROR, "unable to evaluate xpath expression \"%s\"\n", xpath_expr);
         free(xpath_expr);
-        xmlXPathFreeContext(xpath_ctx);
-        xmlFreeDoc(doc);
+//        xmlXPathFreeContext(xpath_ctx);
+//        xmlFreeDoc(doc);
         return NULL;
     }
 
@@ -549,13 +558,14 @@ xmlChar* getMappingValue(const char* mapping_file_name, const char* request, MAP
     /*
      * Evaluate xpath expression for the type
      */
+    xmlXPathFreeObject(xpath_obj);
     xpath_obj = xmlXPathEvalExpression(xpath_expr, xpath_ctx);
     if (xpath_obj == NULL) {
         addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, 999, "unable to evaluate xpath expression");
         IDAM_LOGF(UDA_LOG_ERROR, "unable to evaluate xpath expression \"%s\"\n", xpath_expr);
         free(xpath_expr);
-        xmlXPathFreeContext(xpath_ctx);
-        xmlFreeDoc(doc);
+//        xmlXPathFreeContext(xpath_ctx);
+//        xmlFreeDoc(doc);
         return NULL;
     }
 
@@ -594,13 +604,14 @@ xmlChar* getMappingValue(const char* mapping_file_name, const char* request, MAP
     /*
      * Evaluate xpath expression for the type
      */
+    xmlXPathFreeObject(xpath_obj);
     xpath_obj = xmlXPathEvalExpression(xpath_expr, xpath_ctx);
     if (xpath_obj == NULL) {
         addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, 999, "unable to evaluate xpath expression");
         IDAM_LOGF(UDA_LOG_ERROR, "unable to evaluate xpath expression \"%s\"\n", xpath_expr);
         free(xpath_expr);
-        xmlXPathFreeContext(xpath_ctx);
-        xmlFreeDoc(doc);
+//        xmlXPathFreeContext(xpath_ctx);
+//        xmlFreeDoc(doc);
         return NULL;
     }
 
@@ -617,8 +628,8 @@ xmlChar* getMappingValue(const char* mapping_file_name, const char* request, MAP
      */
     free(xpath_expr);
     xmlXPathFreeObject(xpath_obj);
-    xmlXPathFreeContext(xpath_ctx);
-    xmlFreeDoc(doc);
+//    xmlXPathFreeContext(xpath_ctx);
+//    xmlFreeDoc(doc);
 
     return value;
 }

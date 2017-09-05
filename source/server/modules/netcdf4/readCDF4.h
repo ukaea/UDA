@@ -190,8 +190,6 @@ int getCDF4SubTreeData(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userde
 
 int getCDF4SubTreeUserDefinedTypes(int grpid, GROUPLIST* grouplist, USERDEFINEDTYPELIST* userdefinedtypelist);
 
-int scopedUserDefinedTypes(LOGMALLOCLIST* logmalloclist, int grpid);
-
 void replaceStrings(char** svec, int* ndata, char** dvec, int* ndims);
 
 void replaceEmbeddedStrings(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist, USERDEFINEDTYPE* udt, int ndata, char* dvec);

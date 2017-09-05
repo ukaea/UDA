@@ -135,7 +135,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTY
 
         switch (userdefinedtype->compoundfield[j].atomictype) {
 
-            case (TYPE_FLOAT): {
+            case TYPE_FLOAT: {
 
                 IDAM_LOG(UDA_LOG_DEBUG, "Type: FLOAT\n");
 
@@ -226,7 +226,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTY
                 break;
             }
 
-            case (TYPE_DOUBLE): {
+            case TYPE_DOUBLE: {
                 IDAM_LOG(UDA_LOG_DEBUG, "Type: DOUBLE\n");
 
                 if (userdefinedtype->compoundfield[j].pointer) {        // Pointer to Double Data array
@@ -308,7 +308,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTY
                 break;
             }
 
-            case (TYPE_SHORT): {
+            case TYPE_SHORT: {
                 IDAM_LOG(UDA_LOG_DEBUG, "Type: SHORT\n");
 
                 if (userdefinedtype->compoundfield[j].pointer) {        // Pointer to Short Data array
@@ -387,7 +387,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTY
                 break;
             }
 
-            case (TYPE_UNSIGNED_SHORT): {
+            case TYPE_UNSIGNED_SHORT: {
                 IDAM_LOG(UDA_LOG_DEBUG, "Type: UNSIGNED_SHORT\n");
 
                 if (userdefinedtype->compoundfield[j].pointer) {        // Pointer to Data array
@@ -468,7 +468,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTY
                 break;
             }
 
-            case (TYPE_INT): {
+            case TYPE_INT: {
                 IDAM_LOG(UDA_LOG_DEBUG, "Type: INT\n");
 
                 if (userdefinedtype->compoundfield[j].pointer) {        // Pointer to Integer Data array
@@ -547,7 +547,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTY
                 break;
             }
 
-            case (TYPE_UNSIGNED_INT): {
+            case TYPE_UNSIGNED_INT: {
                 IDAM_LOG(UDA_LOG_DEBUG, "Type: UNSIGNED INT\n");
 
                 if (userdefinedtype->compoundfield[j].pointer) {        // Pointer to Data array
@@ -623,7 +623,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTY
                 break;
             }
 
-            case (TYPE_LONG64): {
+            case TYPE_LONG64: {
                 IDAM_LOG(UDA_LOG_DEBUG, "Type: LONG LONG\n");
 
                 if (userdefinedtype->compoundfield[j].pointer) {        // Pointer to long long Data array
@@ -708,7 +708,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTY
 #ifdef __APPLE__
 #define xdr_uint64_t xdr_u_int64_t
 #endif
-            case (TYPE_UNSIGNED_LONG64): {
+            case TYPE_UNSIGNED_LONG64: {
                 IDAM_LOG(UDA_LOG_DEBUG, "Type: UNSIGNED LONG LONG\n");
 
                 if (userdefinedtype->compoundfield[j].pointer) {        // Pointer to Data array
@@ -789,7 +789,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTY
                 break;
             }
 
-            case (TYPE_CHAR): {
+            case TYPE_CHAR: {
                 IDAM_LOG(UDA_LOG_DEBUG, "Type: CHAR\n");
 
                 if (userdefinedtype->compoundfield[j].pointer) {        // Pointer to Float Data array
@@ -902,7 +902,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTY
                 break;
             }
 
-            case (TYPE_STRING2): {                    // Array of char terminated by \0
+            case TYPE_STRING2: {                    // Array of char terminated by \0
                 if (userdefinedtype->compoundfield[j].pointer) {        // Pointer to string array
                     if (xdrs->x_op == XDR_DECODE) {                // Allocate Heap for Data
                         rc = rc && xdr_int(xdrs,
@@ -978,7 +978,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTY
                 //	char *p[int]	    fixed number array of strings of arbitrary length 	    => rank = 1, pointer = 0, type STRING*
                 //	char p[int][int]    fixed number array of strings of fixed length 		    => rank = 2, pointer = 0, type STRING
 
-            case (TYPE_STRING): {                    // Array of char terminated by \0
+            case TYPE_STRING: {                    // Array of char terminated by \0
                 IDAM_LOG(UDA_LOG_DEBUG, "Type: STRING\n");
 
                 char** strarr;

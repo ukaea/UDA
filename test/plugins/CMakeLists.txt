@@ -38,5 +38,7 @@ foreach( TEST_FILE ${TEST_FILES} )
     link_modules( fat_${TEST} )
 
     add_test( ${TEST} ${TEST} )
+  else()
+    message( "Target ${PLUGIN_NAME}_plugin does not exist -> skipping test for ${PLUGIN_NAME}" )
   endif()
 endforeach()

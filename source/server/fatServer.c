@@ -98,7 +98,7 @@ int fatServer(CLIENT_BLOCK client_block, REQUEST_BLOCK* request_block0, SERVER_B
     assert(data_block0 != NULL);
 
     METADATA_BLOCK metadata_block;
-    memset(&metadata_block, sizeof(METADATA_BLOCK), '\0');
+    memset(&metadata_block, '\0', sizeof(METADATA_BLOCK));
 
     DATA_BLOCK data_block;
     REQUEST_BLOCK request_block;
@@ -182,7 +182,7 @@ int fatClientReturn(SERVER_BLOCK* server_block, DATA_BLOCK* data_block, DATA_BLO
     // Client deletes stale files automatically on startup.
     //----------------------------------------------------------------------------------
 
-    if (data_block->opaque_type == OPAQUE_TYPE_STRUCTURES) {
+    if (false && data_block->opaque_type == OPAQUE_TYPE_STRUCTURES) {
 
         // Create an output XDR stream
 
@@ -218,7 +218,7 @@ int fatClientReturn(SERVER_BLOCK* server_block, DATA_BLOCK* data_block, DATA_BLO
         // Write data to the temporary file
 
         int protocol_id = PROTOCOL_STRUCTURES;
-        err = protocolXML(serverOutput, protocol_id, XDR_SEND, NULL, logmalloclist, userdefinedtypelist, &data_block);
+        err = protocolXML(serverOutput, protocol_id, XDR_SEND, NULL, logmalloclist, userdefinedtypelist, data_block);
 
         // Close the stream and file
 

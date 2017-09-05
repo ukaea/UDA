@@ -15,45 +15,6 @@
 
 int idamAtomicType(nc_type type);
 
-int scopedUserDefinedTypes(LOGMALLOCLIST* logmalloclist, int grpid)
-{
-    int i, j, k;
-    USERDEFINEDTYPE usertypeOld, usertypeNew;
-
-    logmalloclist = (LOGMALLOCLIST*)malloc(sizeof(LOGMALLOCLIST));
-    initLogMallocList(logmalloclist);
-
-    USERDEFINEDTYPELIST* userdefinedtypelist = (USERDEFINEDTYPELIST*)malloc(sizeof(USERDEFINEDTYPELIST));
-    initUserDefinedTypeList(userdefinedtypelist);
-
-    userdefinedtypelist->listCount = parseduserdefinedtypelist.listCount;    // Copy the standard set of structure definitions
-    userdefinedtypelist->userdefinedtype = (USERDEFINEDTYPE*)malloc(
-            userdefinedtypelist->listCount * sizeof(USERDEFINEDTYPE));
-
-    for (i = 0; i < userdefinedtypelist->listCount; i++) {
-        usertypeOld = parseduserdefinedtypelist.userdefinedtype[i];
-        initUserDefinedType(&usertypeNew);
-        usertypeNew = usertypeOld;
-        usertypeNew.image = (char*)malloc(
-                usertypeOld.imagecount * sizeof(char));        // Copy pointer type (prevents double free)
-        memcpy(usertypeNew.image, usertypeOld.image, usertypeOld.imagecount);
-
-        usertypeNew.compoundfield = (COMPOUNDFIELD*)malloc(usertypeOld.fieldcount * sizeof(COMPOUNDFIELD));
-        for (j = 0; j < usertypeOld.fieldcount; j++) {
-            initCompoundField(&usertypeNew.compoundfield[j]);
-            usertypeNew.compoundfield[j] = usertypeOld.compoundfield[j];
-            if (usertypeOld.compoundfield[j].rank > 0) {
-                usertypeNew.compoundfield[j].shape = (int*)malloc(usertypeOld.compoundfield[j].rank * sizeof(int));
-                for (k = 0; k < usertypeOld.compoundfield[j].rank; k++)
-                    usertypeNew.compoundfield[j].shape[k] = usertypeOld.compoundfield[j].shape[k];
-            }
-        }
-        userdefinedtypelist->userdefinedtype[i] = usertypeNew;
-    }
-
-    return readCDFTypes(grpid, userdefinedtypelist);
-}
-
 void replaceStrings(char** svec, int* ndata, char** dvec, int* ndims)
 {
 
@@ -248,15 +209,13 @@ int readCDF4Var(GROUPLIST grouplist, int varid, int isCoordinate, int rank, int*
 
             if (isCoordinate && rank > 1 && cdfsubset.subsetCount > 0) {
                 err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDFVar", err,
-                             "Unable to Subset a Coordinate Variable with a Rank >= 2!");
+                addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDFVar", err, "Unable to Subset a Coordinate Variable with a Rank >= 2!");
                 break;
             }
 
             if (start == NULL || count == NULL || dnums == NULL) {
                 err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDFVar", err,
-                             "Unable to Allocate Heap for Shape Arrays");
+                addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDFVar", err, "Unable to Allocate Heap for Shape Arrays");
                 break;
             }
 
@@ -324,8 +283,7 @@ int readCDF4Var(GROUPLIST grouplist, int varid, int isCoordinate, int rank, int*
                                 } else {
                                     if (cdfsubset.stop[j] > (size_t)(dnums[0] - 1)) {
                                         err = 999;
-                                        addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDFVar", err,
-                                                     "Invalid Stop Index in subset operation");
+                                        addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDFVar", err, "Invalid Stop Index in subset operation");
                                         break;
                                     }
                                 }
@@ -386,68 +344,57 @@ int readCDF4Var(GROUPLIST grouplist, int varid, int isCoordinate, int rank, int*
         // Allocate heap
 
         switch (vartype) {
-
-            case (NC_DOUBLE): {
+            case NC_DOUBLE: {
                 *data_type = TYPE_DOUBLE;
                 dvec = (char*)malloc((size_t)ndata * sizeof(double));
                 break;
             }
-
-            case (NC_FLOAT): {
+            case NC_FLOAT: {
                 *data_type = TYPE_FLOAT;
                 dvec = (char*)malloc((size_t)ndata * sizeof(float));
                 break;
             }
-
-            case (NC_INT64): {
+            case NC_INT64: {
                 *data_type = TYPE_LONG64;
                 dvec = (char*)malloc((size_t)ndata * sizeof(long long int));
                 break;
             }
-
-            case (NC_INT): {
+            case NC_INT: {
                 *data_type = TYPE_INT;
                 dvec = (char*)malloc((size_t)ndata * sizeof(int));
                 break;
             }
-
-            case (NC_SHORT): {
+            case NC_SHORT: {
                 *data_type = TYPE_SHORT;
                 dvec = (char*)malloc((size_t)ndata * sizeof(short));
                 break;
             }
-
-            case (NC_BYTE): {
+            case NC_BYTE: {
                 *data_type = TYPE_CHAR;
                 dvec = (char*)malloc((size_t)ndata * sizeof(char));
                 break;
             }
-
-            case (NC_UINT64): {
+            case NC_UINT64: {
                 *data_type = TYPE_UNSIGNED_LONG64;
                 dvec = (char*)malloc((size_t)ndata * sizeof(unsigned long long int));
                 break;
             }
-
-            case (NC_UINT): {
+            case NC_UINT: {
                 *data_type = TYPE_UNSIGNED_INT;
                 dvec = (char*)malloc((size_t)ndata * sizeof(unsigned int));
                 break;
             }
-
-            case (NC_USHORT): {
+            case NC_USHORT: {
                 *data_type = TYPE_UNSIGNED_SHORT;
                 dvec = (char*)malloc((size_t)ndata * sizeof(unsigned short));
                 break;
             }
-
-            case (NC_UBYTE): {
+            case NC_UBYTE: {
                 *data_type = TYPE_UNSIGNED_CHAR;
                 dvec = (char*)malloc((size_t)ndata * sizeof(unsigned char));
                 break;
             }
-
-            case (NC_CHAR): {
+            case NC_CHAR: {
                 // *data_type = TYPE_CHAR;
                 *data_type = TYPE_STRING;
                 if (IMAS_HDF_READER) {
@@ -458,16 +405,14 @@ int readCDF4Var(GROUPLIST grouplist, int varid, int isCoordinate, int rank, int*
                 }
                 break;
             }
-
-            case (NC_STRING): {
+            case NC_STRING: {
                 *data_type = TYPE_STRING;                    // Treated as a byte/char array
-                svec = (char**)malloc(
-                        (size_t)ndata * sizeof(char*));        // Array of pointers to string array elements
+                svec = (char**)malloc((size_t)ndata * sizeof(char*)); // Array of pointers to string array elements
                 break;
             }
 
-                //----------------------------------------------------------------------
-                // Must be a user defined type: COMPLEX, OPAQUE, VLEN, COMPOUND and ENUMERATED
+            //----------------------------------------------------------------------
+            // Must be a user defined type: COMPLEX, OPAQUE, VLEN, COMPOUND and ENUMERATED
 
             default: {
                 if (isCoordinate) {    // User Defined type coordinates are Not Enabled: swap for a local index
@@ -488,25 +433,25 @@ int readCDF4Var(GROUPLIST grouplist, int varid, int isCoordinate, int rank, int*
 
                         // Create User defined data structure definitions: descriptions of the internal composition (Global Structure)
 
-                        if ((err = scopedUserDefinedTypes(logmalloclist, grpid)) != 0) break;
+                        if ((err = readCDFTypes(grpid, userdefinedtypelist)) != 0) break;
 
                         // Identify the required structure definition
 
-                        *udt = findUserDefinedType(userdefinedtypelist, "",
-                                                   (int)vartype);        // Identify via type id (assuming local to this group)
+                        // Identify via type id (assuming local to this group)
+                        *udt = findUserDefinedType(userdefinedtypelist, "", (int)vartype);
 
-                        if (*udt == NULL &&
-                            grouplist.grpids != NULL) {        // Must be defined elsewhere within scope of this group
+                        if (*udt == NULL && grouplist.grpids != NULL) {
+                            // Must be defined elsewhere within scope of this group
                             int igrp;
-                            for (igrp = 0;
-                                 igrp < grouplist.count; igrp++) {        // Extend list to include all groups in scope
+                            for (igrp = 0; igrp < grouplist.count; igrp++) {
+                                // Extend list to include all groups in scope
                                 if (grouplist.grpids[igrp] != grpid) {
                                     if ((err = readCDFTypes(grouplist.grpids[igrp], userdefinedtypelist)) != 0) break;
                                 }
                             }
                             if (err != 0) break;
-                            *udt = findUserDefinedType(userdefinedtypelist, "",
-                                                       (int)vartype);        // Should be found now if within scope
+                            // Should be found now if within scope
+                            *udt = findUserDefinedType(userdefinedtypelist, "", (int)vartype);
                         }
 
                         if (*udt == NULL) {
@@ -522,8 +467,7 @@ int readCDF4Var(GROUPLIST grouplist, int varid, int isCoordinate, int rank, int*
                         *data_type = TYPE_COMPOUND;
 
                         if ((*udt)->idamclass == TYPE_ENUM) {
-                            dvec = (char*)malloc(
-                                    ndata * sizeof(long long));    // Sufficient space ignoring integer type
+                            dvec = (char*)malloc(ndata * sizeof(long long)); // Sufficient space ignoring integer type
                         } else {
                             dvec = (char*)malloc(ndata * (*udt)->size);        // Create heap for the data
                         }
@@ -546,8 +490,7 @@ int readCDF4Var(GROUPLIST grouplist, int varid, int isCoordinate, int rank, int*
         } else {
             if (dvec == NULL && vartype != NC_STRING) {
                 err = NETCDF_ERROR_ALLOCATING_HEAP_6;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDFVar", err,
-                             "Unable to Allocate Heap Memory for the Data");
+                addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDFVar", err, "Unable to Allocate Heap Memory for the Data");
                 break;
             }
         }
@@ -561,8 +504,7 @@ int readCDF4Var(GROUPLIST grouplist, int varid, int isCoordinate, int rank, int*
                         if (vartype == NC_STRING) {
                             if (rank > 1) {
                                 err = 999;
-                                addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDFVar", err,
-                                             "String Array rank is too large - must be 1");
+                                addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDFVar", err, "String Array rank is too large - must be 1");
                                 break;
                             }
 
@@ -651,37 +593,37 @@ int readCDF4Var(GROUPLIST grouplist, int varid, int isCoordinate, int rank, int*
                         for (i = 0; i < members; i++) {
                             rc = nc_inq_enum_member(grpid, vartype, i, enumlist->enummember[i].name, (void*)value);
                             switch (enumlist->type) {
-                                case (TYPE_CHAR): {
+                                case TYPE_CHAR: {
                                     char* enumvalue = (char*)value;
                                     enumlist->enummember[i].value = (long long)*enumvalue;
                                     break;
                                 }
-                                case (TYPE_SHORT): {
+                                case TYPE_SHORT: {
                                     short* enumvalue = (short*)value;
                                     enumlist->enummember[i].value = (long long)*enumvalue;
                                     break;
                                 }
-                                case (TYPE_UNSIGNED_SHORT): {
+                                case TYPE_UNSIGNED_SHORT: {
                                     unsigned short* enumvalue = (unsigned short*)value;
                                     enumlist->enummember[i].value = (long long)*enumvalue;
                                     break;
                                 }
-                                case (TYPE_INT): {
+                                case TYPE_INT: {
                                     short* enumvalue = (short*)value;
                                     enumlist->enummember[i].value = (long long)*enumvalue;
                                     break;
                                 }
-                                case (TYPE_UNSIGNED_INT): {
+                                case TYPE_UNSIGNED_INT: {
                                     unsigned int* enumvalue = (unsigned int*)value;
                                     enumlist->enummember[i].value = (long long)*enumvalue;
                                     break;
                                 }
-                                case (TYPE_LONG64): {
+                                case TYPE_LONG64: {
                                     long long* enumvalue = (long long*)value;
                                     enumlist->enummember[i].value = (long long)*enumvalue;
                                     break;
                                 }
-                                case (TYPE_UNSIGNED_LONG64): {
+                                case TYPE_UNSIGNED_LONG64: {
                                     unsigned long long* enumvalue = (unsigned long long*)value;
                                     enumlist->enummember[i].value = (long long)*enumvalue;
                                     break;
@@ -770,67 +712,67 @@ int readCDF4AVar(GROUPLIST grouplist, int grpid, int varid, nc_type atttype, cha
 
         switch (atttype) {
 
-            case (NC_DOUBLE): {
+            case NC_DOUBLE: {
                 *data_type = TYPE_DOUBLE;
                 dvec = (char*)malloc((size_t)ndata * sizeof(double));
                 break;
             }
 
-            case (NC_FLOAT): {
+            case NC_FLOAT: {
                 *data_type = TYPE_FLOAT;
                 dvec = (char*)malloc((size_t)ndata * sizeof(float));
                 break;
             }
 
-            case (NC_INT64): {
+            case NC_INT64: {
                 *data_type = TYPE_LONG64;
                 dvec = (char*)malloc((size_t)ndata * sizeof(long long int));
                 break;
             }
 
-            case (NC_INT): {
+            case NC_INT: {
                 *data_type = TYPE_INT;
                 dvec = (char*)malloc((size_t)ndata * sizeof(int));
                 break;
             }
 
-            case (NC_SHORT): {
+            case NC_SHORT: {
                 *data_type = TYPE_SHORT;
                 dvec = (char*)malloc((size_t)ndata * sizeof(short));
                 break;
             }
 
-            case (NC_BYTE): {
+            case NC_BYTE: {
                 *data_type = TYPE_CHAR;
                 dvec = (char*)malloc((size_t)ndata * sizeof(char));
                 break;
             }
 
-            case (NC_UINT64): {
+            case NC_UINT64: {
                 *data_type = TYPE_UNSIGNED_LONG64;
                 dvec = (char*)malloc((size_t)ndata * sizeof(unsigned long long int));
                 break;
             }
 
-            case (NC_UINT): {
+            case NC_UINT: {
                 *data_type = TYPE_UNSIGNED_INT;
                 dvec = (char*)malloc((size_t)ndata * sizeof(unsigned int));
                 break;
             }
 
-            case (NC_USHORT): {
+            case NC_USHORT: {
                 *data_type = TYPE_UNSIGNED_SHORT;
                 dvec = (char*)malloc((size_t)ndata * sizeof(unsigned short));
                 break;
             }
 
-            case (NC_UBYTE): {
+            case NC_UBYTE: {
                 *data_type = TYPE_UNSIGNED_CHAR;
                 dvec = (char*)malloc((size_t)ndata * sizeof(unsigned char));
                 break;
             }
 
-            case (NC_CHAR): {            // String Attribute
+            case NC_CHAR: {            // String Attribute
                 // *data_type = TYPE_CHAR;
                 *data_type = TYPE_STRING;
                 ndata = ndata + 1;
@@ -839,7 +781,7 @@ int readCDF4AVar(GROUPLIST grouplist, int grpid, int varid, nc_type atttype, cha
                 break;
             }
 
-            case (NC_STRING): {
+            case NC_STRING: {
                 *data_type = TYPE_STRING;                    // Treated as a byte/char array
                 svec = (char**)malloc(
                         (size_t)ndata * sizeof(char*));        // Array of pointers to string array elements
@@ -862,7 +804,7 @@ int readCDF4AVar(GROUPLIST grouplist, int grpid, int varid, nc_type atttype, cha
 
                         // Create User defined data structure definitions: descriptions of the internal composition (Global Structure)
 
-                        if ((err = scopedUserDefinedTypes(logmalloclist, grpid)) != 0) break;
+                        if ((err = readCDFTypes(grpid, userdefinedtypelist)) != 0) break;
 
                         // Identify the required structure definition
 
@@ -963,37 +905,37 @@ int readCDF4AVar(GROUPLIST grouplist, int grpid, int varid, nc_type atttype, cha
                 for (i = 0; i < members; i++) {
                     rc = nc_inq_enum_member(grpid, atttype, i, enumlist->enummember[i].name, (void*)value);
                     switch (enumlist->type) {
-                        case (TYPE_CHAR): {
+                        case TYPE_CHAR: {
                             char* enumvalue = (char*)value;
                             enumlist->enummember[i].value = (long long)*enumvalue;
                             break;
                         }
-                        case (TYPE_SHORT): {
+                        case TYPE_SHORT: {
                             short* enumvalue = (short*)value;
                             enumlist->enummember[i].value = (long long)*enumvalue;
                             break;
                         }
-                        case (TYPE_UNSIGNED_SHORT): {
+                        case TYPE_UNSIGNED_SHORT: {
                             unsigned short* enumvalue = (unsigned short*)value;
                             enumlist->enummember[i].value = (long long)*enumvalue;
                             break;
                         }
-                        case (TYPE_INT): {
+                        case TYPE_INT: {
                             short* enumvalue = (short*)value;
                             enumlist->enummember[i].value = (long long)*enumvalue;
                             break;
                         }
-                        case (TYPE_UNSIGNED_INT): {
+                        case TYPE_UNSIGNED_INT: {
                             unsigned int* enumvalue = (unsigned int*)value;
                             enumlist->enummember[i].value = (long long)*enumvalue;
                             break;
                         }
-                        case (TYPE_LONG64): {
+                        case TYPE_LONG64: {
                             long long* enumvalue = (long long*)value;
                             enumlist->enummember[i].value = (long long)*enumvalue;
                             break;
                         }
-                        case (TYPE_UNSIGNED_LONG64): {
+                        case TYPE_UNSIGNED_LONG64: {
                             unsigned long long* enumvalue = (unsigned long long*)value;
                             enumlist->enummember[i].value = (long long)*enumvalue;
                             break;
@@ -1253,7 +1195,7 @@ int applyCDFCalibration(int grpid, int varid, int ndata, int* type, char** data)
         double* measure = (double*)malloc(ndata * sizeof(double));
         switch (*type) {
 
-            case (TYPE_DOUBLE): {
+            case TYPE_DOUBLE: {
                 double* dvec = (double*)*data;
                 if (isScale && isOffset) {
                     for (i = 0; i < ndata; i++) measure[i] = scale * dvec[i] + offset;
@@ -1269,7 +1211,7 @@ int applyCDFCalibration(int grpid, int varid, int ndata, int* type, char** data)
                 break;
             }
 
-            case (TYPE_LONG64): {
+            case TYPE_LONG64: {
                 long long int* dvec = (long long int*)*data;
                 if (isScale && isOffset) {
                     for (i = 0; i < ndata; i++) measure[i] = scale * (double)dvec[i] + offset;
@@ -1285,7 +1227,7 @@ int applyCDFCalibration(int grpid, int varid, int ndata, int* type, char** data)
                 break;
             }
 
-            case (TYPE_UNSIGNED_LONG64): {
+            case TYPE_UNSIGNED_LONG64: {
                 unsigned long long int* dvec = (unsigned long long int*)*data;
                 if (isScale && isOffset) {
                     for (i = 0; i < ndata; i++) measure[i] = scale * (double)dvec[i] + offset;
@@ -1324,7 +1266,7 @@ int applyCDFCalibration(int grpid, int varid, int ndata, int* type, char** data)
             float* measure = (float*)malloc(ndata * sizeof(float));
             switch (*type) {
 
-                case (TYPE_FLOAT): {
+                case TYPE_FLOAT: {
                     float* dvec = (float*)*data;
                     if (isScale && isOffset) {
                         for (i = 0; i < ndata; i++) measure[i] = (float)scale * dvec[i] + (float)offset;
@@ -1340,7 +1282,7 @@ int applyCDFCalibration(int grpid, int varid, int ndata, int* type, char** data)
                     break;
                 }
 
-                case (TYPE_INT): {
+                case TYPE_INT: {
                     int* dvec = (int*)*data;
                     if (isScale && isOffset) {
                         for (i = 0; i < ndata; i++) measure[i] = (float)scale * (float)dvec[i] + (float)offset;
@@ -1356,7 +1298,7 @@ int applyCDFCalibration(int grpid, int varid, int ndata, int* type, char** data)
                     break;
                 }
 
-                case (TYPE_UNSIGNED_INT): {
+                case TYPE_UNSIGNED_INT: {
                     unsigned int* dvec = (unsigned int*)*data;
                     if (isScale && isOffset) {
                         for (i = 0; i < ndata; i++) measure[i] = (float)scale * (float)dvec[i] + (float)offset;
@@ -1372,7 +1314,7 @@ int applyCDFCalibration(int grpid, int varid, int ndata, int* type, char** data)
                     break;
                 }
 
-                case (TYPE_SHORT): {
+                case TYPE_SHORT: {
                     short* dvec = (short*)*data;
                     if (isScale && isOffset) {
                         for (i = 0; i < ndata; i++) measure[i] = (float)scale * (float)dvec[i] + (float)offset;
@@ -1388,7 +1330,7 @@ int applyCDFCalibration(int grpid, int varid, int ndata, int* type, char** data)
                     break;
                 }
 
-                case (TYPE_UNSIGNED_SHORT): {
+                case TYPE_UNSIGNED_SHORT: {
                     unsigned short* dvec = (unsigned short*)*data;
                     if (isScale && isOffset) {
                         for (i = 0; i < ndata; i++) measure[i] = (float)scale * (float)dvec[i] + (float)offset;
@@ -1403,7 +1345,7 @@ int applyCDFCalibration(int grpid, int varid, int ndata, int* type, char** data)
                     }
                     break;
                 }
-                case (TYPE_CHAR): {
+                case TYPE_CHAR: {
                     char* dvec = (char*)*data;
                     if (isScale && isOffset) {
                         for (i = 0; i < ndata; i++) measure[i] = (float)scale * (float)dvec[i] + (float)offset;
@@ -1419,7 +1361,7 @@ int applyCDFCalibration(int grpid, int varid, int ndata, int* type, char** data)
                     break;
                 }
 
-                case (TYPE_UNSIGNED_CHAR): {
+                case TYPE_UNSIGNED_CHAR: {
                     unsigned char* dvec = (unsigned char*)*data;
                     if (isScale && isOffset) {
                         for (i = 0; i < ndata; i++) measure[i] = (float)scale * (float)dvec[i] + (float)offset;
@@ -1538,7 +1480,7 @@ int readCDFCheckCoordinate(int grpid, int varid, int rank, int ncoords, char* co
 
         switch (data_type) {
 
-            case (TYPE_DOUBLE): {
+            case TYPE_DOUBLE: {
                 double* dvec, * dcoo;
                 dvec = (double*)data;
                 dcoo = (double*)coords;
@@ -1554,7 +1496,7 @@ int readCDFCheckCoordinate(int grpid, int varid, int rank, int ncoords, char* co
                 break;
             }
 
-            case (TYPE_FLOAT): {
+            case TYPE_FLOAT: {
                 float* dvec, * dcoo;
                 dvec = (float*)data;
                 dcoo = (float*)coords;
@@ -1570,7 +1512,7 @@ int readCDFCheckCoordinate(int grpid, int varid, int rank, int ncoords, char* co
                 break;
             }
 
-            case (TYPE_LONG64): {
+            case TYPE_LONG64: {
                 long long int* dvec, * dcoo;
                 dvec = (long long int*)data;
                 dcoo = (long long int*)coords;
@@ -1586,7 +1528,7 @@ int readCDFCheckCoordinate(int grpid, int varid, int rank, int ncoords, char* co
                 break;
             }
 
-            case (TYPE_INT): {
+            case TYPE_INT: {
                 int* dvec, * dcoo;
                 dvec = (int*)data;
                 dcoo = (int*)coords;
@@ -1602,7 +1544,7 @@ int readCDFCheckCoordinate(int grpid, int varid, int rank, int ncoords, char* co
                 break;
             }
 
-            case (TYPE_SHORT): {
+            case TYPE_SHORT: {
                 short* dvec, * dcoo;
                 dvec = (short*)data;
                 dcoo = (short*)coords;
@@ -1618,7 +1560,7 @@ int readCDFCheckCoordinate(int grpid, int varid, int rank, int ncoords, char* co
                 break;
             }
 
-            case (TYPE_CHAR): {
+            case TYPE_CHAR: {
                 char* dvec, * dcoo;
                 dvec = (char*)data;
                 dcoo = (char*)coords;
@@ -1634,7 +1576,7 @@ int readCDFCheckCoordinate(int grpid, int varid, int rank, int ncoords, char* co
                 break;
             }
 
-            case (TYPE_UNSIGNED_LONG64): {
+            case TYPE_UNSIGNED_LONG64: {
                 unsigned long long int* dvec, * dcoo;
                 dvec = (unsigned long long int*)data;
                 dcoo = (unsigned long long int*)coords;
@@ -1650,7 +1592,7 @@ int readCDFCheckCoordinate(int grpid, int varid, int rank, int ncoords, char* co
                 break;
             }
 
-            case (TYPE_UNSIGNED_INT): {
+            case TYPE_UNSIGNED_INT: {
                 unsigned int* dvec, * dcoo;
                 dvec = (unsigned int*)data;
                 dcoo = (unsigned int*)coords;
@@ -1666,7 +1608,7 @@ int readCDFCheckCoordinate(int grpid, int varid, int rank, int ncoords, char* co
                 break;
             }
 
-            case (TYPE_UNSIGNED_SHORT): {
+            case TYPE_UNSIGNED_SHORT: {
                 unsigned short* dvec, * dcoo;
                 dvec = (unsigned short*)data;
                 dcoo = (unsigned short*)coords;
@@ -1682,7 +1624,7 @@ int readCDFCheckCoordinate(int grpid, int varid, int rank, int ncoords, char* co
                 break;
             }
 
-            case (TYPE_UNSIGNED_CHAR): {
+            case TYPE_UNSIGNED_CHAR: {
                 unsigned char* dvec, * dcoo;
                 dvec = (unsigned char*)data;
                 dcoo = (unsigned char*)coords;
@@ -1791,29 +1733,29 @@ int isAtomicNCType(nc_type type)
 int idamAtomicType(nc_type type)
 {
     switch (type) {
-        case (NC_DOUBLE):
+        case NC_DOUBLE:
             return TYPE_DOUBLE;
-        case (NC_FLOAT):
+        case NC_FLOAT:
             return TYPE_FLOAT;
-        case (NC_INT64):
+        case NC_INT64:
             return TYPE_LONG64;
-        case (NC_INT):
+        case NC_INT:
             return TYPE_INT;
-        case (NC_SHORT):
+        case NC_SHORT:
             return TYPE_SHORT;
-        case (NC_BYTE):
+        case NC_BYTE:
             return TYPE_CHAR;
-        case (NC_CHAR):
+        case NC_CHAR:
             return TYPE_CHAR;
-        case (NC_UINT64):
+        case NC_UINT64:
             return TYPE_UNSIGNED_LONG64;
-        case (NC_UINT):
+        case NC_UINT:
             return TYPE_UNSIGNED_INT;
-        case (NC_USHORT):
+        case NC_USHORT:
             return TYPE_UNSIGNED_SHORT;
-        case (NC_UBYTE):
+        case NC_UBYTE:
             return TYPE_UNSIGNED_CHAR;
-        case (NC_STRING):
+        case NC_STRING:
             return TYPE_STRING;
     }
     return TYPE_UNKNOWN;

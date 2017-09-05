@@ -122,7 +122,7 @@ static int handshakeClient(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_bloc
 int udaServer(CLIENT_BLOCK client_block)
 {
     METADATA_BLOCK metadata_block;
-    memset(&metadata_block, sizeof(METADATA_BLOCK), '\0');
+    memset(&metadata_block, '\0', sizeof(METADATA_BLOCK));
 
     DATA_BLOCK data_block;
     REQUEST_BLOCK request_block;

@@ -18,22 +18,22 @@ extern "C" {
 //--------------------------------------------------------------
 // Client Side API Error Codes
 
-#define NO_SOCKET_CONNECTION            -10000
-#define PROBLEM_OPENING_LOGS            -11000
-#define FILE_FORMAT_NOT_SUPPORTED       -12000
-#define ERROR_ALLOCATING_DATA_BOCK_HEAP -13000
-#define SERVER_BLOCK_ERROR              -14000
-#define SERVER_SIDE_ERROR               -14001
-#define DATA_BLOCK_RECEIPT_ERROR        -15000
-#define ERROR_CONDITION_UNKNOWN         -16000
+#define NO_SOCKET_CONNECTION            (-10000)
+#define PROBLEM_OPENING_LOGS            (-11000)
+#define FILE_FORMAT_NOT_SUPPORTED       (-12000)
+#define ERROR_ALLOCATING_DATA_BOCK_HEAP (-13000)
+#define SERVER_BLOCK_ERROR              (-14000)
+#define SERVER_SIDE_ERROR               (-14001)
+#define DATA_BLOCK_RECEIPT_ERROR        (-15000)
+#define ERROR_CONDITION_UNKNOWN         (-16000)
 
-#define NO_EXP_NUMBER_SPECIFIED         -18005
+#define NO_EXP_NUMBER_SPECIFIED         (-18005)
 
 #define MAX_SOCKET_DELAY        10      // maximum random delay (secs) between attempts to connect a socket
 #define MAX_SOCKET_ATTEMPTS     3       // maximum number of attempts to connect a socket per host
 
-#define MIN_STATUS          -1      // Deny Access to Data if this Status Value
-#define DATA_STATUS_BAD     -17000  // Error Code if Status is Bad
+#define MIN_STATUS          (-1)        // Deny Access to Data if this Status Value
+#define DATA_STATUS_BAD     (-17000)    // Error Code if Status is Bad
 
 extern int altRank;
 

@@ -54,12 +54,6 @@ void addNTree(NTREE* parent, NTREE* child);
 */
 void freeNTreeNode(NTREE* ntree);
 
-/** Free the complete NTREE structure. 
-*
-* @return Void.
-*/
-void freeNTree();
-
 /** Add a new image line to the existing image.
 *
 * @param image A block of bytes used to record structure definition image data.

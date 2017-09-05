@@ -1816,10 +1816,11 @@ bool findValue(const NAMEVALUELIST* namevaluelist, const char* name)
     return found;
 }
 
-int callPlugin(PLUGINLIST* pluginlist, const char* request, const IDAM_PLUGIN_INTERFACE* old_plugin_interface)
+int callPlugin(const PLUGINLIST* pluginlist, const char* request, const IDAM_PLUGIN_INTERFACE* old_plugin_interface)
 {
     IDAM_PLUGIN_INTERFACE idam_plugin_interface = *old_plugin_interface;
     REQUEST_BLOCK request_block = *old_plugin_interface->request_block;
+    idam_plugin_interface.request_block = &request_block;
 
     request_block.source[0] = '\0';
     strcpy(request_block.signal, request);

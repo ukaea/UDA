@@ -167,7 +167,7 @@ int idamserverSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* l
                             }
 
                             switch (udt->compoundfield[i].atomictype) {
-                                case (TYPE_DOUBLE): {
+                                case TYPE_DOUBLE: {
                                     double* data = NULL, * dp;
 
                                     if (mapType == 1) {
@@ -274,7 +274,7 @@ int idamserverSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* l
                             type = gettypeof(typename);
 
                             switch (type) {
-                                case (TYPE_DOUBLE): {
+                                case TYPE_DOUBLE: {
                                     double* data = NULL, * dp;
                                     if (mapType == 1) {
                                         data = (double*) malloc(data_n * sizeof(double));
@@ -676,11 +676,11 @@ int idamserverSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* l
 
 
             switch (data_block->data_type) {
-                case (TYPE_FLOAT): {
+                case TYPE_FLOAT: {
                     float* dp = (float*) data_block->data;
                     float min = dp[0];
                     switch (data_block->rank) {
-                        case (0): {            // Ignore function dimid argument
+                        case 0: {            // Ignore function dimid argument
                             for (j = 1; j < data_block->data_n; j++)
                                 if (dp[j] < min) {
                                     min = dp[j];
@@ -690,7 +690,7 @@ int idamserverSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* l
                             data_block->data_n = 1;
                             break;
                         }
-                        case (1): {
+                        case 1: {
                             newdim = data_block->dims[0];
                             for (j = 1; j < data_block->dims[0].dim_n; j++) {
                                 if (dp[j] < min) {
@@ -706,7 +706,7 @@ int idamserverSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* l
                             data_block->dims = NULL;
                             break;
                         }
-                        case (2): {
+                        case 2: {
                             float* ddp;
                             if (dimid == 0) {
                                 ddp = (float*) malloc(data_block->dims[1].dim_n * sizeof(float));
@@ -750,11 +750,11 @@ int idamserverSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* l
                     break;
                 }
 
-                case (TYPE_DOUBLE): {
+                case TYPE_DOUBLE: {
                     double* dp = (double*) data_block->data;
                     double min = dp[0];
                     switch (data_block->rank) {
-                        case (0): {            // Ignore function dimid argument
+                        case 0: {            // Ignore function dimid argument
                             for (j = 1; j < data_block->data_n; j++)
                                 if (dp[j] < min) {
                                     min = dp[j];
@@ -764,7 +764,7 @@ int idamserverSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* l
                             data_block->data_n = 1;
                             break;
                         }
-                        case (1): {
+                        case 1: {
                             newdim = data_block->dims[0];
                             for (j = 1; j < data_block->dims[0].dim_n; j++) {
                                 if (dp[j] < min) {
@@ -780,7 +780,7 @@ int idamserverSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* l
                             data_block->dims = NULL;
                             break;
                         }
-                        case (2): {
+                        case 2: {
                             double* ddp;
                             if (dimid == 0) {
                                 ddp = (double*) malloc(data_block->dims[1].dim_n * sizeof(double));
@@ -894,12 +894,12 @@ int idamserverSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* l
 
         if (!strncasecmp(subset.function, "abs()", 5)) {            // Absolute value
             switch (data_block->data_type) {
-                case (TYPE_FLOAT): {
+                case TYPE_FLOAT: {
                     float* dp = (float*) data_block->data;
                     for (j = 0; j < data_block->data_n; j++) dp[j] = fabsf(dp[j]);
                     break;
                 }
-                case (TYPE_DOUBLE): {
+                case TYPE_DOUBLE: {
                     double* dp = (double*) data_block->data;
                     for (j = 0; j < data_block->data_n; j++) dp[j] = fabs(dp[j]);
                     break;
@@ -944,12 +944,12 @@ int idamserverSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* l
             data_block->data_units[0] = '\0';
 
             switch (data_block->data_type) {
-                case (TYPE_FLOAT): {
+                case TYPE_FLOAT: {
                     float* dp = (float*) data_block->data;
                     for (j = 0; j < data_block->data_n; j++) dp[j] = (float) value;
                     break;
                 }
-                case (TYPE_DOUBLE): {
+                case TYPE_DOUBLE: {
                     double* dp = (double*) data_block->data;
                     for (j = 0; j < data_block->data_n; j++) dp[j] = value;
                     break;
@@ -1474,7 +1474,7 @@ int idamserversubsetindices(char* operation, DIMS* dim, double value, unsigned i
 
     switch (dim->data_type) {
 
-        case (TYPE_DOUBLE): {
+        case TYPE_DOUBLE: {
             double* p = (double*) dim->dim;
             if (STR_IEQUALS(operation, "eq") || operation[0] == '=' || STR_EQUALS(operation, "~=")) {
                 for (k = 0; k < dim->dim_n; k++) if (p[k] == (double) value) subsetindices[count++] = k;
@@ -1567,7 +1567,7 @@ int idamserversubsetindices(char* operation, DIMS* dim, double value, unsigned i
         }
 
 
-        case (TYPE_FLOAT): {
+        case TYPE_FLOAT: {
             float* p = (float*) dim->dim;
             if (STR_IEQUALS(operation, "eq") || operation[0] == '=' || STR_EQUALS(operation, "~=")) {
                 for (k = 0; k < dim->dim_n; k++) if (p[k] == (float) value) subsetindices[count++] = k;
@@ -1660,7 +1660,7 @@ int idamserversubsetindices(char* operation, DIMS* dim, double value, unsigned i
         }
 
 
-        case (TYPE_INT): {
+        case TYPE_INT: {
             int* p = (int*) dim->dim;
             if (STR_IEQUALS(operation, "eq") || operation[0] == '=' || STR_EQUALS(operation, "~=")) {
                 for (k = 0; k < dim->dim_n; k++) if (p[k] == (int) value) subsetindices[count++] = k;
@@ -1711,7 +1711,7 @@ int idamserverNewDataArray2(DIMS* dims, int rank, int dimid,
 
     switch (data_type) {
 
-        case (TYPE_FLOAT): {
+        case TYPE_FLOAT: {
 
             float* p, * dp;
             float** pa, ** dpa;
@@ -1730,7 +1730,7 @@ int idamserverNewDataArray2(DIMS* dims, int rank, int dimid,
 // Reshape
 
             switch (rank) {
-                case (1):
+                case 1:
                     k = 0;
                     if (!reverse) {
                         for (i = start; i <= end; i++) p[k++] = dp[i];
@@ -1743,7 +1743,7 @@ int idamserverNewDataArray2(DIMS* dims, int rank, int dimid,
                     *newdata = (void*) p;
                     break;
 
-                case (2):
+                case 2:
 
 // Original Data
 
@@ -1841,7 +1841,7 @@ int idamserverNewDataArray2(DIMS* dims, int rank, int dimid,
             break;
         }
 
-        case (TYPE_DOUBLE): {
+        case TYPE_DOUBLE: {
 
             double* p, * dp;
             double** pa, ** dpa;
@@ -1860,7 +1860,7 @@ int idamserverNewDataArray2(DIMS* dims, int rank, int dimid,
 // Reshape
 
             switch (rank) {
-                case (1):
+                case 1:
                     k = 0;
                     if (!reverse) {
                         for (i = start; i <= end; i++) p[k++] = dp[i];
@@ -1873,7 +1873,7 @@ int idamserverNewDataArray2(DIMS* dims, int rank, int dimid,
                     *newdata = (void*) p;
                     break;
 
-                case (2):
+                case 2:
 
 // Original Data
 
@@ -1971,7 +1971,7 @@ int idamserverNewDataArray2(DIMS* dims, int rank, int dimid,
             break;
         }
 
-        case (TYPE_INT): {
+        case TYPE_INT: {
 
             int* p, * dp;
             int** pa, ** dpa;
@@ -1990,7 +1990,7 @@ int idamserverNewDataArray2(DIMS* dims, int rank, int dimid,
 // Reshape
 
             switch (rank) {
-                case (1):
+                case 1:
                     k = 0;
                     if (!reverse) {
                         for (i = start; i <= end; i++) p[k++] = dp[i];
@@ -2003,7 +2003,7 @@ int idamserverNewDataArray2(DIMS* dims, int rank, int dimid,
                     *newdata = (void*) p;
                     break;
 
-                case (2):
+                case 2:
 
 // Original Data
 

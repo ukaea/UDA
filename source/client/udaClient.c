@@ -22,18 +22,17 @@
 #include <clientserver/udaTypes.h>
 #include <clientserver/freeDataBlock.h>
 #include <structures/struct.h>
-#include <clientserver/xdrlib.h>
 #include <client/connection.h>
 
 #include "closedown.h"
 #include "accAPI.h"
 
 #ifdef FATCLIENT
-#  include <server/serverPlugin.h>
 #  include <clientserver/compressDim.h>
 #  include <server/udaServer.h>
 #else
 #  include "clientXDRStream.h"
+#  include <clientserver/xdrlib.h>
 #endif
 
 #ifdef MEMCACHE
@@ -563,23 +562,12 @@ int idamClient(REQUEST_BLOCK* request_block)
 
 #endif  // not SECURITYENABLED
 
-
         //-------------------------------------------------------------------------
         // Check the Server version is not older than this client's version
 
         IDAM_LOGF(UDA_LOG_DEBUG, "idamClient: protocolVersion %d\n", protocolVersion);
         IDAM_LOGF(UDA_LOG_DEBUG, "idamClient: Client Version  %d\n", client_block.version);
         IDAM_LOGF(UDA_LOG_DEBUG, "idamClient: Server Version  %d\n", server_block.version);
-
-        /*
-           if(protocolVersion < 7 || server_block.version < 7){
-              err = 999;
-              addIdamError(&idamerrorstack, CODEERRORTYPE, "idamClient", err,
-              "The connected Server has an Incompatible Protocol. It's too old! Please connect to a version 7 server.");
-              break;
-           }
-        */
-
 
         //-------------------------------------------------------------------------
         // Flush to EOF the input buffer (start of wait for new data) necessary when Zero data waiting but not an EOF!
@@ -678,7 +666,7 @@ int idamClient(REQUEST_BLOCK* request_block)
 
         IDAM_LOG(UDA_LOG_DEBUG, "idamClient: ****** Outgoing tcp packet sent without error. Waiting for data.\n");
 
-        if (!(rc = xdrrec_skiprecord(clientInput))) {
+        if (!xdrrec_skiprecord(clientInput)) {
             err = PROTOCOL_ERROR_5;
             addIdamError(&idamerrorstack, CODEERRORTYPE, "idamClient", err,
                          " Protocol 5 Error (Server & Data Structures)");
@@ -824,7 +812,6 @@ int idamClient(REQUEST_BLOCK* request_block)
         // Allocate memory for the Data Block Structure 
         // Re-use existing stale Data Blocks
 
-
         data_block_idx = acc_getIdamNewDataHandle();
 
         if (data_block_idx < 0) {            // Error
@@ -916,6 +903,7 @@ int idamClient(REQUEST_BLOCK* request_block)
         // Fat Client Server
 
         DATA_BLOCK data_block0;
+        initDataBlock(&data_block0);
         err = fatServer(client_block, request_block, &server_block, &data_block0);
 
         data_block = getIdamDataBlock(data_block_idx); // data blocks may have been realloc'ed
@@ -936,9 +924,9 @@ int idamClient(REQUEST_BLOCK* request_block)
 
         int i;
 
-        for (i = 0; i < data_block->rank; i++) {       // Expand Compressed Regular Vector
+        for (i = 0; i < data_block->rank; i++) {            // Expand Compressed Regular Vector
             err = uncompressDim(&(data_block->dims[i]));    // Allocate Heap as required
-            err = 0;                               // Need to Test for Error Condition!
+            err = 0;                                        // Need to Test for Error Condition!
         }
 
         printDataBlock(*data_block);
@@ -965,7 +953,6 @@ int idamClient(REQUEST_BLOCK* request_block)
         // End of Error Trap Loop
 
     } while (0);
-
 
     // 4 Possible Error States:
     //
@@ -1103,13 +1090,13 @@ int idamClient(REQUEST_BLOCK* request_block)
             idamClosedown(0, &socket_list);
         }
 
-        if (err == 0 && (getIdamDataStatus(data_block_idx)) == MIN_STATUS &&
-            !get_bad) { // If Data are not usable, flag the client
+        if (err == 0 && (getIdamDataStatus(data_block_idx) == MIN_STATUS) && !get_bad) {
+            // If Data are not usable, flag the client
             addIdamError(&idamerrorstack, CODEERRORTYPE, "idamClient", DATA_STATUS_BAD,
                          "Data Status is BAD ... Data are Not Usable!");
 
-            if (data_block->errcode ==
-                0) {                     // Don't over-rule a server side error
+            if (data_block->errcode == 0) {
+                // Don't over-rule a server side error
                 data_block->errcode = DATA_STATUS_BAD;
                 strcpy(data_block->error_msg, "Data Status is BAD ... Data are Not Usable!");
             }
@@ -1118,7 +1105,6 @@ int idamClient(REQUEST_BLOCK* request_block)
         //------------------------------------------------------------------------------
         // Concatenate Error Message Stacks & Write to the Error Log
 
-        //server_block.idamerrorstack = idamerrorstack;          // Keep Updated: Heap is the same if FatClient
         concatIdamError(idamerrorstack, &server_block.idamerrorstack);
         closeIdamError(&idamerrorstack);
 
@@ -1170,7 +1156,6 @@ int idamClient(REQUEST_BLOCK* request_block)
             signal_rec = NULL;
             signal_desc = NULL;
         }
-
 #endif
 
         IDAM_LOGF(UDA_LOG_DEBUG, "idamClient: Returning Error %d\n", err);
@@ -1183,10 +1168,10 @@ int idamClient(REQUEST_BLOCK* request_block)
         idamErrorLog(client_block, *request_block, server_block.idamerrorstack);
 
         if (err == 0) {
-            return (ERROR_CONDITION_UNKNOWN);
+            return ERROR_CONDITION_UNKNOWN;
         }
 
-        return (-abs(err));                       // Abnormal Exit
+        return -abs(err);                       // Abnormal Exit
     }
 }
 
@@ -1208,9 +1193,9 @@ void idamFree(int handle)
     // Free Hierarchical structured data first
 
     switch (data_block->opaque_type) {
-        case (OPAQUE_TYPE_XML_DOCUMENT): {
+        case OPAQUE_TYPE_XML_DOCUMENT: {
             if (data_block->opaque_block != NULL) {
-                free((void*)data_block->opaque_block);
+                free(data_block->opaque_block);
             }
 
             data_block->opaque_count = 0;
@@ -1219,7 +1204,7 @@ void idamFree(int handle)
             break;
         }
 
-        case (OPAQUE_TYPE_STRUCTURES): {
+        case OPAQUE_TYPE_STRUCTURES: {
             if (data_block->opaque_block != NULL) {
                 GENERAL_BLOCK* general_block = (GENERAL_BLOCK*)data_block->opaque_block;
 
@@ -1255,12 +1240,14 @@ void idamFree(int handle)
 #endif
                 }
 
+#ifndef FATCLIENT
                 if (general_block->userdefinedtype != NULL) {
                     freeUserDefinedType(general_block->userdefinedtype);
                     free((void*)general_block->userdefinedtype);
                 }
 
                 free((void*)general_block);
+#endif
             }
 
             data_block->opaque_block = NULL;
@@ -1272,7 +1259,7 @@ void idamFree(int handle)
             break;
         }
 
-        case (OPAQUE_TYPE_XDRFILE): {
+        case OPAQUE_TYPE_XDRFILE: {
             if (data_block->opaque_block != NULL) {
                 free(data_block->opaque_block);
             }
@@ -1286,7 +1273,7 @@ void idamFree(int handle)
             break;
         }
 
-        case (OPAQUE_TYPE_XDROBJECT): {
+        case OPAQUE_TYPE_XDROBJECT: {
             if (data_block->opaque_block != NULL) {
                 free(data_block->opaque_block);
             }
