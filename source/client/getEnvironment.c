@@ -167,17 +167,6 @@ ENVIRONMENT* getIdamClientEnvironment()
     }
 
 //-------------------------------------------------------------------------------------------
-// Security Defaults
-    /*
-       if(env_cert){
-          if((env = getenv("UDA_CERTIFICATE")) !=NULL)
-             strcpy(environ.security_cert, env);
-          else
-             strcpy(environ.security_cert, SECURITY_CERT);
-       }
-    */
-
-//-------------------------------------------------------------------------------------------
 // Standard Data Location Path Algorithm ID
 
 #ifdef FATCLIENT

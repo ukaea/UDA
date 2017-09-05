@@ -11,6 +11,10 @@
 
 #include "connection.h"
 
+#if !defined(FATCLIENT) && defined(SSLAUTHENTICATION) && !defined(SECURITYENABLED)
+#include <authentication/udaSSL.h>
+#endif
+
 static XDR clientXDRinput;
 static XDR clientXDRoutput;
 
@@ -23,6 +27,28 @@ void idamCreateXDRStream()
     clientInput->x_ops = NULL;
 
     IDAM_LOG(UDA_LOG_DEBUG, "IdamAPI: Creating XDR Streams \n");
+
+#if !defined(FATCLIENT) && defined(SSLAUTHENTICATION) && !defined(SECURITYENABLED)
+
+#ifdef __APPLE__
+    xdrrec_create(clientOutput, DB_READ_BLOCK_SIZE, DB_WRITE_BLOCK_SIZE, NULL,
+                  (int (*)(void*, void*, int))readUdaClientSSL,
+                  (int (*)(void*, void*, int))writeUdaClientSSL);
+
+    xdrrec_create(clientInput, DB_READ_BLOCK_SIZE, DB_WRITE_BLOCK_SIZE, NULL,
+                  (int (*)(void*, void*, int))readUdaClientSSL,
+                  (int (*)(void*, void*, int))writeUdaClientSSL);
+#else
+    xdrrec_create(clientOutput, DB_READ_BLOCK_SIZE, DB_WRITE_BLOCK_SIZE, NULL,
+                  (int (*)(char*, char*, int)) readUdaClientSSL,
+                  (int (*)(char*, char*, int)) writeUdaClientSSL);
+
+    xdrrec_create(clientInput, DB_READ_BLOCK_SIZE, DB_WRITE_BLOCK_SIZE, NULL,
+                  (int (*)(char*, char*, int)) readUdaClientSSL,
+                  (int (*)(char*, char*, int)) writeUdaClientSSL);
+#endif
+
+#else
 
 #ifdef __APPLE__
     xdrrec_create(clientOutput, DB_READ_BLOCK_SIZE, DB_WRITE_BLOCK_SIZE, NULL,
@@ -41,6 +67,8 @@ void idamCreateXDRStream()
                   (int (*)(char*, char*, int)) clientReadin,
                   (int (*)(char*, char*, int)) clientWriteout);
 #endif
+
+#endif   // SSLAUTHENTICATION
 
     clientInput->x_op = XDR_DECODE;
     clientOutput->x_op = XDR_ENCODE;

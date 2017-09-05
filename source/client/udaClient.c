@@ -42,6 +42,10 @@
 #  include "idamCache.h"
 #endif
 
+#if !defined(FATCLIENT) && defined(SSLAUTHENTICATION) && !defined(SECURITYENABLED)
+#include <authentication/udaSSL.h>
+#endif
+
 //------------------------------------------------ Static Globals ------------------------------------------------------
 
 int clientVersion = 7;          // previous version
@@ -362,6 +366,19 @@ int idamClient(REQUEST_BLOCK* request_block)
 
             time(&tv_server_start);        // Start the Clock again: Age of Server
         }
+
+
+        //-------------------------------------------------------------------------
+        // Connect to the server with SSL (X509) authentication
+	
+#if !defined(FATCLIENT) && defined(SSLAUTHENTICATION) && !defined(SECURITYENABLED)
+
+        // Create the SSL binding and context, and verify the server certificate
+	
+	authenticationNeeded = 1;
+	if((err = startIdamSSL()) != 0) break;	
+	
+#endif	
 
         //-------------------------------------------------------------------------
         // Create the XDR Record Streams

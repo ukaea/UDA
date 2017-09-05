@@ -16,11 +16,15 @@
 #include <client/udaClient.h>
 #include <client/getEnvironment.h>
 
+#if !defined(FATCLIENT) && defined(SSLAUTHENTICATION) && !defined(SECURITYENABLED)
+#include <authentication/udaSSL.h>
+#endif
+
 int createConnection()
 {
     int window_size = DB_READ_BLOCK_SIZE;        // 128K
     int on = 1;
-    int rc, serrno;
+    int rc;
     char* hostname;
 
     struct sockaddr_in server;
@@ -43,13 +47,11 @@ int createConnection()
         }
 #endif
 
-    errno = 0;
     clientSocket = socket(AF_INET, SOCK_STREAM, 0);        // create an unbound socket
-    serrno = errno;
 
-    if (clientSocket < 0 || serrno != 0) {
-        if (serrno != 0) {
-            addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "idamCreateConnection", serrno, "");
+    if (clientSocket < 0 || errno != 0) {
+        if (errno != 0) {
+            addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "idamCreateConnection", errno, "");
         } else {
             addIdamError(&idamerrorstack, CODEERRORTYPE, "idamCreateConnection", -1, "Problem Opening Socket");
         }
@@ -63,13 +65,11 @@ int createConnection()
 
 // Resolve host
 
-    errno = 0;
     host = gethostbyname(hostname);
-    serrno = errno;
 
-    if (host == NULL || serrno != 0) {
-        if (serrno != 0) {
-            addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "idamCreateConnection", serrno, "");
+    if (host == NULL || errno != 0) {
+        if (errno != 0) {
+            addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "idamCreateConnection", errno, "");
         } else {
             addIdamError(&idamerrorstack, CODEERRORTYPE, "idamCreateConnection", -1, "Unknown Server Host");
         }
@@ -90,11 +90,9 @@ int createConnection()
 
 // Connect to server
 
-    errno = 0;
     while ((rc = connect(clientSocket, (struct sockaddr*)&server, sizeof(server))) && errno == EINTR) {}
-    serrno = errno;
 
-    if (rc < 0 || (serrno != 0 && serrno != EINTR)) {
+    if (rc < 0 || (errno != 0 && errno != EINTR)) {
 
 // Try again for a maximum number of tries with a random time delay between attempts
 
@@ -105,10 +103,8 @@ int createConnection()
         delay = MAX_SOCKET_DELAY * ((float)rand() / (float)RAND_MAX);        // random delay
         sleep(delay);                            // wait period
         for (i = 0; i < MAX_SOCKET_ATTEMPTS; i++) {                // try again
-            errno = 0;
             while ((rc = connect(clientSocket, (struct sockaddr*)&server, sizeof(server))) && errno == EINTR) {}
-            serrno = errno;
-
+ 
             if (rc == 0) break;
 
             delay = MAX_SOCKET_DELAY * ((float)rand() / (float)RAND_MAX);
@@ -118,7 +114,6 @@ int createConnection()
         if (rc < 0 && strcmp(environment->server_host, environment->server_host2) != 0) {
             // Abandon principal Host - attempt secondary host
             hostname = environment->server_host2;
-            errno = 0;
             host = gethostbyname(hostname);
             if (host == NULL || errno != 0) {
                 if (errno != 0) {
@@ -133,9 +128,7 @@ int createConnection()
             memcpy(&server.sin_addr, host->h_addr_list[0], host->h_length);
             server.sin_port = htons(environment->server_port2);
             for (i = 0; i < MAX_SOCKET_ATTEMPTS; i++) {
-                errno = 0;
                 while ((rc = connect(clientSocket, (struct sockaddr*)&server, sizeof(server))) && errno == EINTR) {}
-                serrno = errno;
                 if (rc == 0) {
                     char* name;
                     int port;
@@ -155,8 +148,8 @@ int createConnection()
         }
 
         if (rc < 0) {
-            if (serrno != 0) {
-                addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "idamCreateConnection", serrno, "");
+            if (errno != 0) {
+                addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "idamCreateConnection", errno, "");
             } else {
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "idamCreateConnection", -1,
                              "Unable to Connect to Server Stream Socket");
@@ -201,6 +194,13 @@ int createConnection()
     environment->server_reconnect = 0;
     environment->server_change_socket = 0;
     environment->server_socket = clientSocket;
+    
+//-------------------------------------------------------------------------
+// Write the socket number to the SSL functions
+	
+#if !defined(FATCLIENT) && defined(SSLAUTHENTICATION) && !defined(SECURITYENABLED)
+    putUdaSSLSocket(clientSocket);    
+#endif
 
     return 0;
 }
