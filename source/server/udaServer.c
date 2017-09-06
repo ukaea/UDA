@@ -133,7 +133,7 @@ int udaServer(CLIENT_BLOCK client_block)
 {
     int err = 0;
     METADATA_BLOCK metadata_block;
-    memset(&metadata_block, sizeof(METADATA_BLOCK), '\0');
+    memset(&metadata_block, '\0', sizeof(METADATA_BLOCK));
 
     DATA_BLOCK data_block;
     REQUEST_BLOCK request_block;

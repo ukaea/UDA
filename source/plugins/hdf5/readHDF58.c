@@ -245,13 +245,13 @@ int getHDF5(DATA_SOURCE* data_source, SIGNAL_DESC* signal_desc, DATA_BLOCK* data
                 H5Dget_space_status(dataset_id, &space_status);
                 err = 0;
                 switch (space_status) {
-                    case (H5D_SPACE_STATUS_NOT_ALLOCATED):
+                    case H5D_SPACE_STATUS_NOT_ALLOCATED:
                         //addIdamError(&idamerrorstack, CODEERRORTYPE, "readHDF5", err, "No Storage Allocated within the File for this data item");
                         break;
-                    case (H5D_SPACE_STATUS_PART_ALLOCATED):
+                    case H5D_SPACE_STATUS_PART_ALLOCATED:
                         //addIdamError(&idamerrorstack, CODEERRORTYPE, "readHDF5", err, "Incomplete Storage Allocated within the File for this data item");
                         break;
-                    case (H5D_SPACE_STATUS_ALLOCATED):
+                    case H5D_SPACE_STATUS_ALLOCATED:
                         err = HDF5_ERROR_NO_STORAGE_SIZE;
                         addIdamError(&idamerrorstack, CODEERRORTYPE, "readHDF5", err,
                                      "Storage Allocated within the File for "

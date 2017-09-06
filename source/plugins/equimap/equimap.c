@@ -1439,15 +1439,15 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             strcpy(data_block->dims[0].dim_units, "");
 
             switch (equimapdata.rhoType) {
-                case (SQRTNORMALISEDTOROIDALFLUX): {
+                case SQRTNORMALISEDTOROIDALFLUX: {
                     strcpy(data_block->dims[0].dim_label, "sqrt(Normalised Toroidal Flux)");
                     break;
                 }
-                case (NORMALISEDPOLOIDALFLUX): {
+                case NORMALISEDPOLOIDALFLUX: {
                     strcpy(data_block->dims[0].dim_label, "Normalised Poloidal Flux");
                     break;
                 }
-                case (NORMALISEDITMFLUXRADIUS): {
+                case NORMALISEDITMFLUXRADIUS: {
                     strcpy(data_block->dims[0].dim_label, "Normalised ITM Toroidal Flux Radius");
                     break;
                 }
@@ -1823,15 +1823,15 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             strcpy(data_block->data_units, "");
 
             switch (equimapdata.rhoType) {
-                case (SQRTNORMALISEDTOROIDALFLUX): {
+                case SQRTNORMALISEDTOROIDALFLUX: {
                     strcpy(data_block->data_desc, "Sqrt Normalised Toroidal Magnetic Flux at ");
                     break;
                 }
-                case (NORMALISEDPOLOIDALFLUX): {
+                case NORMALISEDPOLOIDALFLUX: {
                     strcpy(data_block->data_desc, "Normalised Poloidal Magnetic Flux at ");
                     break;
                 }
-                case (NORMALISEDITMFLUXRADIUS): {
+                case NORMALISEDITMFLUXRADIUS: {
                     strcpy(data_block->data_desc, "Normalised ITM Toroidal Flux Radius at ");
                     break;
                 }
@@ -1925,15 +1925,15 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             }
 
             switch (equimapdata.rhoType) {
-                case (SQRTNORMALISEDTOROIDALFLUX): {
+                case SQRTNORMALISEDTOROIDALFLUX: {
                     strcpy(data_block->data_desc, "Sqrt Normalised Toroidal Magnetic Flux at ");
                     break;
                 }
-                case (NORMALISEDPOLOIDALFLUX): {
+                case NORMALISEDPOLOIDALFLUX: {
                     strcpy(data_block->data_desc, "Normalised Poloidal Magnetic Flux at ");
                     break;
                 }
-                case (NORMALISEDITMFLUXRADIUS): {
+                case NORMALISEDITMFLUXRADIUS: {
                     strcpy(data_block->data_desc, "Normalised ITM Toroidal Flux Radius at ");
                     break;
                 }
@@ -2000,15 +2000,15 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             data_block->dims[0].compressed = 0;
 
             switch (equimapdata.rhoType) {
-                case (SQRTNORMALISEDTOROIDALFLUX): {
+                case SQRTNORMALISEDTOROIDALFLUX: {
                     strcpy(data_block->dims[0].dim_label, "sqrt(Normalised Toroidal Flux)");
                     break;
                 }
-                case (NORMALISEDPOLOIDALFLUX): {
+                case NORMALISEDPOLOIDALFLUX: {
                     strcpy(data_block->dims[0].dim_label, "Normalised Poloidal Flux");
                     break;
                 }
-                case (NORMALISEDITMFLUXRADIUS): {
+                case NORMALISEDITMFLUXRADIUS: {
                     strcpy(data_block->dims[0].dim_label, "Normalised ITM Toroidal Flux Radius");
                     break;
                 }

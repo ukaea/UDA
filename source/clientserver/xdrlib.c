@@ -35,19 +35,19 @@ int protocolVersionTypeTest(int protocolVersion, int type)
 
     if (protocolVersion < 3) {
         switch (type) {
-            case (TYPE_UNSIGNED_CHAR):
+            case TYPE_UNSIGNED_CHAR:
                 return 1;
-            case (TYPE_UNSIGNED_SHORT):
+            case TYPE_UNSIGNED_SHORT:
                 return 1;
-            case (TYPE_UNSIGNED_LONG):
+            case TYPE_UNSIGNED_LONG:
                 return 1;
 #ifndef __APPLE__
-            case (TYPE_UNSIGNED_LONG64):
+            case TYPE_UNSIGNED_LONG64:
                 return 1;
 #endif
-            case (TYPE_COMPLEX):
+            case TYPE_COMPLEX:
                 return 1;
-            case (TYPE_DCOMPLEX):
+            case TYPE_DCOMPLEX:
                 return 1;
         }
         return 0;

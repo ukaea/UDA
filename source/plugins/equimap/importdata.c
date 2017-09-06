@@ -2234,7 +2234,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
             err2 = 0;
 
             switch (equimapdata->rhoType) {
-                case (SQRTNORMALISEDTOROIDALFLUX): {
+                case SQRTNORMALISEDTOROIDALFLUX: {
 
                     //              TO                                       FROM                              Input               Output
 
@@ -2244,14 +2244,14 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
                                     efitdata->psi, 0.0, mappsiB);
                     break;
                 }
-                case (NORMALISEDPOLOIDALFLUX): {
+                case NORMALISEDPOLOIDALFLUX: {
                     err1 = xdatamap(equimapdata->rhoCount, equimapdata->rho, efitdata->qCount, efitdata->rho,
                                     efitdata->psi, 0.0, mappsi);
                     err2 = xdatamap(equimapdata->rhoBCount, equimapdata->rhoB, efitdata->qCount, efitdata->rho,
                                     efitdata->psi, 0.0, mappsiB);
                     break;
                 }
-                case (NORMALISEDITMFLUXRADIUS): {
+                case NORMALISEDITMFLUXRADIUS: {
                     err1 = xdatamap(equimapdata->rhoCount, equimapdata->rho, efitdata->qCount, efitdata->rho_tor,
                                     efitdata->psi, 0.0, mappsi);
                     err2 = xdatamap(equimapdata->rhoBCount, equimapdata->rhoB, efitdata->qCount, efitdata->rho_tor,
@@ -2330,14 +2330,14 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
             err2 = 0;
 
             switch (equimapdata->rhoType) {
-                case (SQRTNORMALISEDTOROIDALFLUX): {
+                case SQRTNORMALISEDTOROIDALFLUX: {
                     err1 = xdatamap(equimapdata->rhoCount, equimapdata->rho, efitdata->qCount, efitdata->trho,
                                     efitdata->q, 0.0, mapq);
                     err2 = xdatamap(equimapdata->rhoBCount, equimapdata->rhoB, efitdata->qCount, efitdata->trho,
                                     efitdata->q, 0.0, mapqB);
                     break;
                 }
-                case (NORMALISEDPOLOIDALFLUX): {
+                case NORMALISEDPOLOIDALFLUX: {
                     err1 = xdatamap(equimapdata->rhoCount, equimapdata->rho, efitdata->qCount, efitdata->rho,
                                     efitdata->q,
                                     0.0, mapq);
@@ -2345,7 +2345,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
                                     efitdata->q, 0.0, mapqB);
                     break;
                 }
-                case (NORMALISEDITMFLUXRADIUS): {
+                case NORMALISEDITMFLUXRADIUS: {
                     err1 = xdatamap(equimapdata->rhoCount, equimapdata->rho, efitdata->qCount, efitdata->rho_tor,
                                     efitdata->q, 0.0, mapq);
                     err2 = xdatamap(equimapdata->rhoBCount, equimapdata->rhoB, efitdata->qCount, efitdata->rho_tor,
@@ -2384,21 +2384,21 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
                 err2 = 0;
 
                 switch (equimapdata->rhoType) {
-                    case (SQRTNORMALISEDTOROIDALFLUX): {
+                    case SQRTNORMALISEDTOROIDALFLUX: {
                         err1 = xdatamap(equimapdata->rhoCount, equimapdata->rho, efitdata->qCount, efitdata->trho,
                                         efitdata->p, 0.0, mapp);
                         err2 = xdatamap(equimapdata->rhoBCount, equimapdata->rhoB, efitdata->qCount, efitdata->trho,
                                         efitdata->p, 0.0, mappB);
                         break;
                     }
-                    case (NORMALISEDPOLOIDALFLUX): {
+                    case NORMALISEDPOLOIDALFLUX: {
                         err1 = xdatamap(equimapdata->rhoCount, equimapdata->rho, efitdata->qCount, efitdata->rho,
                                         efitdata->p, 0.0, mapp);
                         err2 = xdatamap(equimapdata->rhoBCount, equimapdata->rhoB, efitdata->qCount, efitdata->rho,
                                         efitdata->p, 0.0, mappB);
                         break;
                     }
-                    case (NORMALISEDITMFLUXRADIUS): {
+                    case NORMALISEDITMFLUXRADIUS: {
                         err1 = xdatamap(equimapdata->rhoCount, equimapdata->rho, efitdata->qCount, efitdata->rho_tor,
                                         efitdata->p, 0.0, mapp);
                         err2 = xdatamap(equimapdata->rhoBCount, equimapdata->rhoB, efitdata->qCount, efitdata->rho_tor,
@@ -2435,21 +2435,21 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
                 err2 = 0;
 
                 switch (equimapdata->rhoType) {
-                    case (SQRTNORMALISEDTOROIDALFLUX): {
+                    case SQRTNORMALISEDTOROIDALFLUX: {
                         err1 = xdatamap(equimapdata->rhoCount, equimapdata->rho, efitdata->qCount, efitdata->trho,
                                         efitdata->f, 0.0, mapf);
                         err2 = xdatamap(equimapdata->rhoBCount, equimapdata->rhoB, efitdata->qCount, efitdata->trho,
                                         efitdata->f, 0.0, mapfB);
                         break;
                     }
-                    case (NORMALISEDPOLOIDALFLUX): {
+                    case NORMALISEDPOLOIDALFLUX: {
                         err1 = xdatamap(equimapdata->rhoCount, equimapdata->rho, efitdata->qCount, efitdata->rho,
                                         efitdata->f, 0.0, mapf);
                         err2 = xdatamap(equimapdata->rhoBCount, equimapdata->rhoB, efitdata->qCount, efitdata->rho,
                                         efitdata->f, 0.0, mapfB);
                         break;
                     }
-                    case (NORMALISEDITMFLUXRADIUS): {
+                    case NORMALISEDITMFLUXRADIUS: {
                         err1 = xdatamap(equimapdata->rhoCount, equimapdata->rho, efitdata->qCount, efitdata->rho_tor,
                                         efitdata->f, 0.0, mapf);
                         err2 = xdatamap(equimapdata->rhoBCount, equimapdata->rhoB, efitdata->qCount, efitdata->rho_tor,
@@ -2917,7 +2917,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
 
             switch (equimapdata->rhoType) {
 
-                case (SQRTNORMALISEDTOROIDALFLUX): {
+                case SQRTNORMALISEDTOROIDALFLUX: {
 
 // Inner measurements
 
@@ -2956,7 +2956,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
                     break;
                 }
 
-                case (NORMALISEDPOLOIDALFLUX): {
+                case NORMALISEDPOLOIDALFLUX: {
 
 // Inner measurements
 
@@ -2987,7 +2987,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
                     break;
                 }
 
-                case (NORMALISEDITMFLUXRADIUS): {
+                case NORMALISEDITMFLUXRADIUS: {
 
 // Inner measurements
 
@@ -3069,7 +3069,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
 
             switch (equimapdata->rhoType) {
 
-                case (SQRTNORMALISEDTOROIDALFLUX): {
+                case SQRTNORMALISEDTOROIDALFLUX: {
 
 // Inner measurements
 
@@ -3130,7 +3130,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
                     break;
                 }
 
-                case (NORMALISEDPOLOIDALFLUX): {
+                case NORMALISEDPOLOIDALFLUX: {
 
 // Inner measurements
 
@@ -3191,7 +3191,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
                     break;
                 }
 
-                case (NORMALISEDITMFLUXRADIUS): {
+                case NORMALISEDITMFLUXRADIUS: {
 
 // Inner measurements
 

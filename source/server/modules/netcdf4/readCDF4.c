@@ -44,10 +44,9 @@
 
 #ifdef NONETCDFPLUGIN
 
-int readCDF(DATA_SOURCE data_source,
-            SIGNAL_DESC signal_desc,
-            REQUEST_BLOCK request_block,
-            DATA_BLOCK *data_block) {
+int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK request_block, DATA_BLOCK* data_block,
+            LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist)
+{
     int err = 999;
     addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF", err, "Cannot Read netCDF Files - PLUGIN NOT ENABLED");
     return err;
@@ -151,8 +150,8 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
 
     gettimeofday(&tv_start0, NULL);
 
-//----------------------------------------------------------------------
-// Initialise the META XML Structure
+    //-------------------------------------------
+    // Initialise the META XML Structure---------------------------
 
     metaxml.xml = NULL;
     metaxml.lheap = 0;
@@ -164,22 +163,24 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
 
     if (getMeta) addMetaXML(&metaxml, "<?xml version=\"1.0\"?>\n<netcdf-4>\n<root>\n");    // Top level tags
 
-//----------------------------------------------------------------------
-// Error Trap Loop
+    //----------------------------------------------------------------------
+    // Error Trap Loop
 
     err = 0;
 
     do {
 
-//----------------------------------------------------------------------
-// Modify behaviour when reading strings from an HDF5 file
+    //----------------------------------------------------------------------
+    // Modify behaviour when reading strings from an HDF5 file
 
         if (((token = strrchr(data_source.path, '.')) != NULL) && STR_EQUALS(token, ".hd5")) {    // Test File extension
-            if ((token = getenv("IMAS_HDF_READER")) != NULL) IMAS_HDF_READER = 1;
+            if (getenv("IMAS_HDF_READER") != NULL) {
+                IMAS_HDF_READER = 1;
+            }
         }
 
-//----------------------------------------------------------------------
-// Is the netCDF File Already open for Reading? If Not then Open in READ ONLY mode
+        //----------------------------------------------------------------------
+        // Is the netCDF File Already open for Reading? If Not then Open in READ ONLY mode
 
         errno = 0;
 
@@ -195,8 +196,8 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
 
         IDAM_LOGF(UDA_LOG_DEBUG, "netCDF filename %s\n", data_source.path);
 
-//----------------------------------------------------------------------
-// Test the Library Version Number
+        //----------------------------------------------------------------------
+        // Test the Library Version Number
 
         if (getMeta) {
             if ((cp = (char*)nc_inq_libvers()) != NULL) {
@@ -206,25 +207,25 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
             }
         }
 
-//----------------------------------------------------------------------
-// Test the File Format Version. Was the file written using hierarchical netCDF4 layout?
-// If NC_FORMAT_CLASSIC or NC_FORMAT_64BIT then flat file (non-hierarchical) version assumed.
+        //----------------------------------------------------------------------
+        // Test the File Format Version. Was the file written using hierarchical netCDF4 layout?
+        // If NC_FORMAT_CLASSIC or NC_FORMAT_64BIT then flat file (non-hierarchical) version assumed.
 
         hierarchical = 0;
 
-        if ((rc = nc_inq_format(fd, &format)) == NC_NOERR) {
+        if (nc_inq_format(fd, &format) == NC_NOERR) {
             hierarchical = (format == NC_FORMAT_NETCDF4) || (format == NC_FORMAT_NETCDF4_CLASSIC);
         }
 
         IDAM_LOGF(UDA_LOG_DEBUG, "netCDF hierarchical organisation ? %d\n", hierarchical);
 
-//----------------------------------------------------------------------
-// FUDGE for netcdf-3 TRANSP data (This won't work if the source alias is unknown, e.g. when private file)
+        //----------------------------------------------------------------------
+        // FUDGE for netcdf-3 TRANSP data (This won't work if the source alias is unknown, e.g. when private file)
 
         //if(hierarchical && STR_EQUALS(signal_desc.source_alias, "transp")) hierarchical = 0;
 
-//----------------------------------------------------------------------
-// Global Meta Data: What convention has been adopted? Data Class? Build XML if Meta data requested
+        //----------------------------------------------------------------------
+        // Global Meta Data: What convention has been adopted? Data Class? Build XML if Meta data requested
 
         compliance = 0;            // Compliance also means hierarchical file format
         class = NOCLASS_DATA;
@@ -232,13 +233,13 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
 
         if (hierarchical) {
 
-// Check the compliance attribute is set (ignore for now as a work in progress)
+            // Check the compliance attribute is set (ignore for now as a work in progress)
 
             if (0 && (rc = nc_get_att_uint(fd, NC_GLOBAL, "compliance", &fdcompliance)) == NC_NOERR) {
                 compliance = (fdcompliance == COMPLIANCE_PASS);
             }
 
-// Conventions (Always with an upper case C)
+            // Conventions (Always with an upper case C)
 
             attlen = 0;
             if ((rc = nc_inq_attlen(fd, NC_GLOBAL, "Conventions", &attlen)) == NC_NOERR ||
@@ -310,10 +311,9 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
                 free((void*)conventions);
             }
 
-// FUDGE for efit++ data
+            // FUDGE for efit++ data
 
             //if(!compliance && STR_EQUALS(signal_desc.source_alias, "efit")) compliance = 1;
-
 
             IDAM_LOGF(UDA_LOG_DEBUG, "netCDF file compliance?  %d\n", compliance);
 
@@ -383,8 +383,8 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
 
         IDAM_LOGF(UDA_LOG_DEBUG, "netCDF file class?  %d\n", class);
 
-//----------------------------------------------------------------------
-// Complex Data Types (Done once per file if the Conventions are for FUSION and MAST)
+        //----------------------------------------------------------------------
+        // Complex Data Types (Done once per file if the Conventions are for FUSION and MAST)
 
         if (compliance && fusion_ver >= 1 && ((ctype == NC_NAT && dctype == NC_NAT) || prior_fd != fd)) {
             int ntypes = 0;
@@ -409,8 +409,8 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
             prior_fd = fd;
         }
 
-//----------------------------------------------------------------------
-// Read all top level attributes and copy to the Meta data XML
+        //----------------------------------------------------------------------
+        // Read all top level attributes and copy to the Meta data XML
 
         if (getMeta && compliance) {
             if ((err = addIntMetaXML(fd, NC_GLOBAL, &metaxml, "shot")) != 0) break;
@@ -427,12 +427,12 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
             addMetaXML(&metaxml, "\n</root>\n");        // Close the Top level META data tag
         }
 
-//----------------------------------------------------------------------
-// Test signal name for non unique compliant name: devices
-// signal_alias must be the source alias => no entry in database found
-// If found then replace with a truncated form
+        //----------------------------------------------------------------------
+        // Test signal name for non unique compliant name: devices
+        // signal_alias must be the source alias => no entry in database found
+        // If found then replace with a truncated form
 
-// ***** This assumes a 3 letter source_alias name prefix !!!!!
+        // ***** This assumes a 3 letter source_alias name prefix !!!!!
 
         if (compliance) {
             if (STR_EQUALS(&signal_desc.signal_name[4], "/devices/")) {        //   /xyc/devices/...
@@ -450,8 +450,8 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
             }
         }
 
-//----------------------------------------------------------------------
-// Get Group ID List - Group Hierarchy - from the top down to the dataset
+        //----------------------------------------------------------------------
+        // Get Group ID List - Group Hierarchy - from the top down to the dataset
 
         if ((lname = (int)strlen(signal_desc.signal_name) + 2) > lnamemax) {
             err = 999;
@@ -543,7 +543,7 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
                     }
                     if (err != NC_NOERR) break;
 
-// Close XML tags (A work in Progress !!!)
+                    // Close XML tags (A work in Progress !!!)
 
                     if (getMeta && compliance) addMetaXML(&metaxml, closexml.xml);
 
@@ -571,8 +571,8 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
 
         }
 
-//----------------------------------------------------------------------
-// Does the variable name contain sub-setting instructions [start:stop:stride]
+        //----------------------------------------------------------------------
+        // Does the variable name contain sub-setting instructions [start:stop:stride]
 
         varid = -1;
         cdfsubset.subsetCount = request_block.datasubset.subsetCount;
@@ -586,7 +586,7 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
                 break;
             }
 
-// Copy subset details to local structure
+            // Copy subset details to local structure
 
             {
                 int i;
@@ -599,7 +599,7 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
                 }
             }
 
-// Does the subset operation remain within the signal name string: extract if so
+            // Does the subset operation remain within the signal name string: extract if so
 
             char* work = (char*)malloc((strlen(variable) + 1) * sizeof(char));
             strcpy(work, variable);
@@ -607,7 +607,7 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
             if (p != NULL) p[0] = '\0';            // Remove subset operations from variable name
             TrimString(work);
 
-// Test the reduced Variable name matches a Group variable. If it does use the reduced name.
+            // Test the reduced Variable name matches a Group variable. If it does use the reduced name.
 
             if ((rc = nc_inq_varid(grpid, work, &varid)) == NC_NOERR) {
                 strcpy(variable, work);
@@ -619,8 +619,8 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
             free(work);
         }
 
-//----------------------------------------------------------------------
-// Get Variable ID attached to the final group (or Return the Attribute values)
+        //----------------------------------------------------------------------
+        // Get Variable ID attached to the final group (or Return the Attribute values)
 
         if (varid == -1 &&
             (rc = nc_inq_varid(grpid, variable, &varid)) != NC_NOERR) {    // If not found then irregular data item
@@ -631,10 +631,9 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
 
             IDAM_LOG(UDA_LOG_DEBUG, "variable not found ... trying other options ...\n");
 
-// Check it's not an unwritten Coordinate dataset (with the same name as the variable). If so then create an index array
+            // Check it's not an unwritten Coordinate dataset (with the same name as the variable). If so then create an index array
 
             if ((rc = nc_inq_dimid(grpid, variable, &dimid)) == NC_NOERR) {                // Found!
-// dgm size_t 64 bit bug 16Dec2011
                 size_t data_n;
                 if ((rc = nc_inq_dimlen(grpid, dimid, &data_n)) != NC_NOERR) {
                     err = 999;
@@ -649,7 +648,7 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
                 data_block->order = -1;
                 data_block->data_type = TYPE_INT;
 
-// Subset operation?
+                // Subset operation?
 
                 if (cdfsubset.subsetCount > 1) {
                     err = 999;
@@ -658,7 +657,7 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
                     break;
                 }
 
-// Adjust data array length and fill out missing data
+                // Adjust data array length and fill out missing data
 
                 if (cdfsubset.subsetCount == 1 && cdfsubset.subset[0]) {    // Dimension variables are always rank 1
                     cdfsubset.rank = 1;
@@ -709,7 +708,7 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
 
             }
 
-// Check it's not an attribute attached to a group (No native subsetting of attribute array data)
+            // Check it's not an attribute attached to a group (No native subsetting of attribute array data)
 
             if (cdfsubset.subsetCount == 0 &&
                 (rc2 = nc_inq_atttype(grpid, NC_GLOBAL, variable, &atttype)) == NC_NOERR) {
@@ -758,7 +757,7 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
                 break;
             }
 
-// Check it's an attribute attached to a variable (assuming a DOT operator)
+            // Check it's an attribute attached to a variable (assuming a DOT operator)
 
             if (cdfsubset.subsetCount == 0 &&
                 (attname = strstr(variable, ".")) != NULL) {                        // Maybe a variable attribute
@@ -1516,7 +1515,6 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
     return err;
 }
 
-
 //-------------------------------------------------------------------------------------------------------
 // Locate a specific named group
 
@@ -1528,7 +1526,7 @@ int getGroupId(int ncgrpid, char* target, int* targetid)
     int* ncids = NULL;
     char* grpname = NULL;
 
-// List All Child Groups
+    // List All Child Groups
 
     if ((err = nc_inq_grps(ncgrpid, &numgrps, NULL)) != NC_NOERR) return err;
 
@@ -1541,7 +1539,7 @@ int getGroupId(int ncgrpid, char* target, int* targetid)
         return err;
     }
 
-// Test Child Group Names against Target Group Name
+    // Test Child Group Names against Target Group Name
 
     for (i = 0; i < numgrps; i++) {
 

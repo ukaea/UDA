@@ -2277,7 +2277,7 @@ IDL_VPTR IDL_CDECL getidamnodeatomicdata(int argc, IDL_VPTR argv[], char* argk) 
 
     switch (getIdamDataTypeId(type)) {
 
-        case (TYPE_STRING): {
+        case TYPE_STRING: {
 
             //fprintf(stdout,"[%s]   Rank: %d\tCount: %d\tType: %s\tPointer: %d\n",name, rank, count, type, pointer);
             //if(shape != NULL){
@@ -2424,7 +2424,7 @@ IDL_VPTR IDL_CDECL getidamnodeatomicdata(int argc, IDL_VPTR argv[], char* argk) 
             return (vData);
         }
 
-        case (TYPE_FLOAT): {
+        case TYPE_FLOAT: {
             float* Data = (float*) data;
             float* idlData;
 
@@ -2452,7 +2452,7 @@ IDL_VPTR IDL_CDECL getidamnodeatomicdata(int argc, IDL_VPTR argv[], char* argk) 
             return (vData);
         }
 
-        case (TYPE_DOUBLE): {
+        case TYPE_DOUBLE: {
             double* Data = (double*) data;
             double* idlData;
 
@@ -2496,7 +2496,7 @@ IDL_VPTR IDL_CDECL getidamnodeatomicdata(int argc, IDL_VPTR argv[], char* argk) 
             return (vData);
         }
 
-        case (TYPE_CHAR): {
+        case TYPE_CHAR: {
             char* Data = (char*) data;
             char* idlData;
 
@@ -2524,7 +2524,7 @@ IDL_VPTR IDL_CDECL getidamnodeatomicdata(int argc, IDL_VPTR argv[], char* argk) 
             return (vData);
         }
 
-        case (TYPE_SHORT): {
+        case TYPE_SHORT: {
             short* Data = (short*) data;
             short* idlData;
 
@@ -2550,7 +2550,7 @@ IDL_VPTR IDL_CDECL getidamnodeatomicdata(int argc, IDL_VPTR argv[], char* argk) 
             return (vData);
         }
 
-        case (TYPE_INT): {
+        case TYPE_INT: {
             int* Data = (int*) data;
             int* idlData;
 
@@ -2575,7 +2575,7 @@ IDL_VPTR IDL_CDECL getidamnodeatomicdata(int argc, IDL_VPTR argv[], char* argk) 
             return (vData);
         }
 
-        case (TYPE_LONG64): {
+        case TYPE_LONG64: {
             long long* Data = (long long*) data;
             long long* idlData;
 
@@ -2604,7 +2604,7 @@ IDL_VPTR IDL_CDECL getidamnodeatomicdata(int argc, IDL_VPTR argv[], char* argk) 
             return (vData);
         }
 
-        case (TYPE_UNSIGNED_CHAR): {
+        case TYPE_UNSIGNED_CHAR: {
             unsigned char* Data = (unsigned char*) data;
             unsigned char* idlData;
 
@@ -2633,7 +2633,7 @@ IDL_VPTR IDL_CDECL getidamnodeatomicdata(int argc, IDL_VPTR argv[], char* argk) 
             return (vData);
         }
 
-        case (TYPE_UNSIGNED_SHORT): {
+        case TYPE_UNSIGNED_SHORT: {
             unsigned short* Data = (unsigned short*) data;
             unsigned short* idlData;
 
@@ -2660,7 +2660,7 @@ IDL_VPTR IDL_CDECL getidamnodeatomicdata(int argc, IDL_VPTR argv[], char* argk) 
             return (vData);
         }
 
-        case (TYPE_UNSIGNED_INT): {
+        case TYPE_UNSIGNED_INT: {
             unsigned int* Data = (unsigned int*) data;
             unsigned int* idlData;
 
@@ -2687,7 +2687,7 @@ IDL_VPTR IDL_CDECL getidamnodeatomicdata(int argc, IDL_VPTR argv[], char* argk) 
             return (vData);
         }
 
-        case (TYPE_UNSIGNED_LONG64): {
+        case TYPE_UNSIGNED_LONG64: {
             unsigned long long* Data = (unsigned long long*) data;
             unsigned long long* idlData;
 
@@ -2716,7 +2716,7 @@ IDL_VPTR IDL_CDECL getidamnodeatomicdata(int argc, IDL_VPTR argv[], char* argk) 
             return (vData);
         }
 
-        case (TYPE_COMPLEX): {
+        case TYPE_COMPLEX: {
             COMPLEX* Data = (COMPLEX*) data;
             COMPLEX* idlData;
 
@@ -2745,7 +2745,7 @@ IDL_VPTR IDL_CDECL getidamnodeatomicdata(int argc, IDL_VPTR argv[], char* argk) 
             return (vData);
         }
 
-        case (TYPE_DCOMPLEX): {
+        case TYPE_DCOMPLEX: {
             DCOMPLEX* Data = (DCOMPLEX*) data;
             DCOMPLEX* idlData;
 

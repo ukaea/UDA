@@ -816,51 +816,51 @@ IDL_VPTR IDL_CDECL idamputapi(int argc, IDL_VPTR argv[], char* argk) {
       }
 
       switch (type) {
-      case (IDL_TYP_BYTE):
+      case IDL_TYP_BYTE:
 	putData.data_type = TYPE_CHAR;
 	break;
 	
-      case (IDL_TYP_STRING):
+      case IDL_TYP_STRING:
 	putData.data_type = TYPE_STRING;
 	break;
 	
-      case (IDL_TYP_UINT):
+      case IDL_TYP_UINT:
 	putData.data_type = TYPE_UNSIGNED_SHORT;
 	break;
 	
-      case (IDL_TYP_INT):
+      case IDL_TYP_INT:
 	putData.data_type = TYPE_SHORT;
 	break;
 	
-      case (IDL_TYP_ULONG):
+      case IDL_TYP_ULONG:
 	putData.data_type = TYPE_UNSIGNED_INT;
 	break;
 	
-      case (IDL_TYP_LONG):
+      case IDL_TYP_LONG:
 	putData.data_type = TYPE_INT;
 	break;
 	
-      case (IDL_TYP_ULONG64):
+      case IDL_TYP_ULONG64:
 	putData.data_type = TYPE_UNSIGNED_LONG64;
 	break;
 	
-      case (IDL_TYP_LONG64):
+      case IDL_TYP_LONG64:
 	putData.data_type = TYPE_LONG64;
 	break;
 	
-      case (IDL_TYP_FLOAT):
+      case IDL_TYP_FLOAT:
 	putData.data_type = TYPE_FLOAT;
 	break;
 	
-      case (IDL_TYP_DOUBLE):
+      case IDL_TYP_DOUBLE:
 	putData.data_type = TYPE_DOUBLE;
 	break;
 	
-      case (IDL_TYP_COMPLEX):
+      case IDL_TYP_COMPLEX:
 	putData.data_type = TYPE_COMPLEX;
 	break;
 	
-      case (IDL_TYP_DCOMPLEX):
+      case IDL_TYP_DCOMPLEX:
 	putData.data_type = TYPE_DCOMPLEX;
 	break;
       }
@@ -1013,76 +1013,76 @@ IDL_VPTR IDL_CDECL idamputapi(int argc, IDL_VPTR argv[], char* argk) {
 
 
       switch (type) {
-      case (IDL_TYP_BYTE):
+      case IDL_TYP_BYTE:
 	putData.data_type = TYPE_CHAR;
         char value_char = (char) IDL_LongScalar(argv[1]);
 	putData.data = (char*) &value_char;
 	putData.count = 1;
 	break;
 	
-      case (IDL_TYP_STRING):
+      case IDL_TYP_STRING:
 	putData.data_type = TYPE_STRING;
 	putData.data = IDL_VarGetString(argv[1]);
 	putData.count = strlen(putData.data)+1;
 	break;
 	
-      case (IDL_TYP_UINT):
+      case IDL_TYP_UINT:
 	putData.data_type = TYPE_UNSIGNED_SHORT;
 	unsigned short value_ushort = (unsigned short) IDL_ULongScalar(argv[1]);
 	putData.data = (char*) &value_ushort;
 	putData.count = 1;
 	break;
 	
-      case (IDL_TYP_INT):
+      case IDL_TYP_INT:
 	putData.data_type = TYPE_SHORT;
 	short value_short = (short) IDL_LongScalar(argv[1]);
 	putData.data = (char*) &value_short;
 	putData.count = 1;
 	break;
 	
-      case (IDL_TYP_ULONG):
+      case IDL_TYP_ULONG:
 	putData.data_type = TYPE_UNSIGNED_INT;
 	unsigned int value_uint = (unsigned int) IDL_ULongScalar(argv[1]);
 	putData.data = (char*) &value_uint;
 	putData.count = 1;
 	break;
 	
-      case (IDL_TYP_LONG):
+      case IDL_TYP_LONG:
 	putData.data_type = TYPE_INT;
 	int value_int = (int) IDL_LongScalar(argv[1]);
 	putData.data = (char*) &value_int;
 	putData.count = 1;
 	break;
 	
-      case (IDL_TYP_ULONG64):
+      case IDL_TYP_ULONG64:
 	putData.data_type = TYPE_UNSIGNED_LONG64;
 	unsigned long long value_ulonglong = (unsigned long long) IDL_ULong64Scalar(argv[1]);
 	putData.data = (char*) &value_ulonglong;
 	putData.count = 1;
 	break;
 	
-      case (IDL_TYP_LONG64):
+      case IDL_TYP_LONG64:
 	putData.data_type = TYPE_LONG64;
 	long long value_longlong = (long long) IDL_Long64Scalar(argv[1]);
 	putData.data = (char*) &value_longlong;
 	putData.count = 1;
 	break;
 	
-      case (IDL_TYP_FLOAT):
+      case IDL_TYP_FLOAT:
 	putData.data_type = TYPE_FLOAT;
 	float value_float = (float) IDL_DoubleScalar(argv[1]);
 	putData.data = (char*) &value_float;
 	putData.count = 1;
 	break;
 	
-      case (IDL_TYP_DOUBLE):
+      case IDL_TYP_DOUBLE:
 	putData.data_type = TYPE_DOUBLE;
 	double value_double = (double) IDL_DoubleScalar(argv[1]);
 	putData.data = (char*) &value_double;
 	putData.count = 1;
 	break;
 	
-      case (IDL_TYP_COMPLEX):
+      case IDL_TYP_COMPLEX:
 	putData.data_type = TYPE_COMPLEX;
 	IDL_COMPLEX data_idlcomp = argv[1]->value.cmp;
 	COMPLEX value_complex;
@@ -1092,7 +1092,7 @@ IDL_VPTR IDL_CDECL idamputapi(int argc, IDL_VPTR argv[], char* argk) {
 	putData.count = 1;
 	break;
 	
-      case (IDL_TYP_DCOMPLEX):
+      case IDL_TYP_DCOMPLEX:
 	putData.data_type = TYPE_DCOMPLEX;
 	IDL_DCOMPLEX data_idldcomp = argv[1]->value.dcmp;
 	DCOMPLEX value_dcomplex;

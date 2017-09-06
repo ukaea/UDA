@@ -353,7 +353,7 @@
   <mapping key="magnetics/flux_loop/#/position/#/r" value="//magdiag/flux_loops/setup_floops/position/r" type="static"/>
   <mapping key="magnetics/flux_loop/#/position/#/z" value="//magdiag/flux_loops/setup_floops/position/z" type="static"/>
   <mapping key="magnetics/flux_loop/#/position/#/phi" value="//magdiag/flux_loops/setup_floops/position/phi" type="static"/>
-  <mapping key="magnetics/flux_loop/#/flux" value="//magdiag/flux_loops/measure/value/name" type="dynamic"/>
+  <mapping key="magnetics/flux_loop/#/flux/data" value="//magdiag/flux_loops/measure/value/name" type="dynamic"/>
   <mapping key="magnetics/flux_loop/#/flux/time" value="//magdiag/flux_loops/measure/value/name" type="dynamic"/>
 
   <mapping key="magnetics/bpol_probe/Shape_of" value="//magdiag/bpol_probes/setup_bprobe/name/@dim" type="static"/>
@@ -367,7 +367,7 @@
   <mapping key="magnetics/bpol_probe/#/area" value="//magdiag/bpol_probes/setup_bprobe/area" type="static"/>
   <mapping key="magnetics/bpol_probe/#/length" value="//magdiag/bpol_probes/setup_bprobe/length" type="static"/>
   <mapping key="magnetics/bpol_probe/#/turns" value="//magdiag/bpol_probes/setup_bprobe/turns" type="static"/>
-  <mapping key="magnetics/bpol_probe/#/field" value="//magdiag/bpol_probes/measure/value/name" type="dynamic"/>
+  <mapping key="magnetics/bpol_probe/#/field/data" value="//magdiag/bpol_probes/measure/value/name" type="dynamic"/>
   <mapping key="magnetics/bpol_probe/#/field/time" value="//magdiag/bpol_probes/measure/value/name" type="dynamic"/>
 
   <mapping key="magnetics/method/Shape_of" value="//magdiag/method/@dim" type="static"/>

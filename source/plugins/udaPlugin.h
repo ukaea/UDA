@@ -89,7 +89,7 @@ bool findFloatArray(const NAMEVALUELIST* namevaluelist, float** values, size_t* 
 
 bool findDoubleArray(const NAMEVALUELIST* namevaluelist, double** values, size_t* nvalues, const char* name);
 
-int callPlugin(PLUGINLIST* pluginlist, const char* request, const IDAM_PLUGIN_INTERFACE* old_plugin_interface);
+int callPlugin(const PLUGINLIST* pluginlist, const char* request, const IDAM_PLUGIN_INTERFACE* old_plugin_interface);
 
 #define QUOTE_(X) #X
 #define QUOTE(X) QUOTE_(X)
@@ -148,7 +148,7 @@ if (!find##TYPE##Array(&NAME_VALUE_LIST, &VARIABLE, CONCAT(&n, VARIABLE), QUOTE(
 
 #define CALL_PLUGIN(PLUGIN_INTERFACE, FMT, ...) \
 { char UNIQUE_VAR(request)[1024]; \
-snprintf(UNIQUE_VAR(request), FMT, __VA_ARGS__); \
+snprintf(UNIQUE_VAR(request), 1024, FMT, __VA_ARGS__); \
 UNIQUE_VAR(request)[1023] = '\0'; \
 int UNIQUE_VAR(err) = callPlugin(PLUGIN_INTERFACE->pluginList, UNIQUE_VAR(request), PLUGIN_INTERFACE); \
 if (UNIQUE_VAR(err)) { \

@@ -145,8 +145,6 @@ typedef struct UserDefinedTypeList {
 
 // ***** How many structures are in data (rank, shape, etc?)
 
-struct NTree;
-
 typedef struct NTree {                  // N-ary Tree linking all related user defined data structures: definitions and data
     int branches;                       // Children (Branch) Count from this node
     char name[MAXELEMENTNAME];          // The Structure's and also the tree node's name

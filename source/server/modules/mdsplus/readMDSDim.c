@@ -127,52 +127,52 @@ int readMDSDim(char* node, int ndim, DIMS* ddim)
         null = 0;
 
         switch (ddim->data_type) {
-            case (TYPE_FLOAT): {
+            case TYPE_FLOAT: {
                 data = malloc(size * sizeof(float));                // allocate memory for the signal
                 desc = descr(&dtype_float, (float*)data, &size, &null);    // descriptor for this signal
                 break;
             }
-            case (TYPE_DOUBLE): {
+            case TYPE_DOUBLE: {
                 data = malloc(size * sizeof(double));
                 desc = descr(&dtype_double, (double*)data, &size, &null);
                 break;
             }
-            case (TYPE_UNSIGNED_CHAR): {
+            case TYPE_UNSIGNED_CHAR: {
                 data = malloc(size * sizeof(unsigned char));
                 desc = descr(&dtype_uchar, (unsigned char*)data, &size, &null);
                 break;
             }
-            case (TYPE_CHAR): {
+            case TYPE_CHAR: {
                 data = malloc(size * sizeof(char));
                 desc = descr(&dtype_char, (char*)data, &size, &null);
                 break;
             }
-            case (TYPE_UNSIGNED_SHORT): {
+            case TYPE_UNSIGNED_SHORT: {
                 data = malloc(size * sizeof(unsigned short));
                 desc = descr(&dtype_ushort, (unsigned short*)data, &size, &null);
                 break;
             }
-            case (TYPE_SHORT): {
+            case TYPE_SHORT: {
                 data = malloc(size * sizeof(short));
                 desc = descr(&dtype_short, (short*)data, &size, &null);
                 break;
             }
-            case (TYPE_UNSIGNED): {
+            case TYPE_UNSIGNED: {
                 data = malloc(size * sizeof(unsigned int));
                 desc = descr(&dtype_uint, (unsigned int*)data, &size, &null);
                 break;
             }
-            case (TYPE_INT): {
+            case TYPE_INT: {
                 data = malloc(size * sizeof(int));
                 desc = descr(&dtype_int, (int*)data, &size, &null);
                 break;
             }
-            case (TYPE_UNSIGNED_LONG): {
+            case TYPE_UNSIGNED_LONG: {
                 data = malloc(size * sizeof(unsigned long));
                 desc = descr(&dtype_ulong, (unsigned long*)data, &size, &null);
                 break;
             }
-            case (TYPE_LONG): {
+            case TYPE_LONG: {
                 data = malloc(size * sizeof(long));
                 desc = descr(&dtype_long, (long*)data, &size, &null);
                 break;

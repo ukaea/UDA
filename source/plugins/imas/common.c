@@ -173,7 +173,7 @@ int getIdamNameValuePairVarArray(const char* values, char quote, char delimiter,
 	 break;
       }
 */
-        case (TYPE_UNSIGNED_CHAR): {
+        case TYPE_UNSIGNED_CHAR: {
             unsigned char* d = (unsigned char*) malloc(dataCount * sizeof(unsigned char));
             unsigned int* id = (unsigned int*) malloc(dataCount * sizeof(unsigned int));
             for (i = 0; i < dataCount; i++) {
@@ -185,63 +185,63 @@ int getIdamNameValuePairVarArray(const char* values, char quote, char delimiter,
             break;
         }
 
-        case (TYPE_CHAR): {
+        case TYPE_CHAR: {
             char* d = (char*) malloc(dataCount * sizeof(char));
             for (i = 0; i < dataCount; i++) d[i] = (char) (dataList[i])[0];
             data = (void*) d;
             break;
         }
 
-        case (TYPE_SHORT): {
+        case TYPE_SHORT: {
             short* d = (short*) malloc(dataCount * sizeof(short));
             for (i = 0; i < dataCount; i++) d[i] = (short) atoi(dataList[i]);
             data = (void*) d;
             break;
         }
 
-        case (TYPE_UNSIGNED_SHORT): {
+        case TYPE_UNSIGNED_SHORT: {
             unsigned short* d = (unsigned short*) malloc(dataCount * sizeof(unsigned short));
             for (i = 0; i < dataCount; i++) d[i] = (unsigned short) atoi(dataList[i]);
             data = (void*) d;
             break;
         }
 
-        case (TYPE_INT): {
+        case TYPE_INT: {
             int* d = (int*) malloc(dataCount * sizeof(int));
             for (i = 0; i < dataCount; i++) d[i] = (int) atoi(dataList[i]);
             data = (void*) d;
             break;
         }
 
-        case (TYPE_UNSIGNED_INT): {
+        case TYPE_UNSIGNED_INT: {
             unsigned int* d = (unsigned int*) malloc(dataCount * sizeof(int));
             for (i = 0; i < dataCount; i++) d[i] = (unsigned int) atoi(dataList[i]);
             data = (void*) d;
             break;
         }
 
-        case (TYPE_LONG64): {
+        case TYPE_LONG64: {
             long long* d = (long long*) malloc(dataCount * sizeof(long long));
             for (i = 0; i < dataCount; i++) d[i] = (long long) atoi(dataList[i]);
             data = (void*) d;
             break;
         }
 
-        case (TYPE_UNSIGNED_LONG64): {
+        case TYPE_UNSIGNED_LONG64: {
             unsigned long long* d = (unsigned long long*) malloc(dataCount * sizeof(unsigned long long));
             for (i = 0; i < dataCount; i++) d[i] = (unsigned long long) atoi(dataList[i]);
             data = (void*) d;
             break;
         }
 
-        case (TYPE_FLOAT): {
+        case TYPE_FLOAT: {
             float* d = (float*) malloc(dataCount * sizeof(float));
             for (i = 0; i < dataCount; i++) d[i] = (float) atof(dataList[i]);
             data = (void*) d;
             break;
         }
 
-        case (TYPE_DOUBLE): {
+        case TYPE_DOUBLE: {
             double* d = (double*) malloc(dataCount * sizeof(double));
             for (i = 0; i < dataCount; i++) d[i] = atof(dataList[i]);
             data = (void*) d;

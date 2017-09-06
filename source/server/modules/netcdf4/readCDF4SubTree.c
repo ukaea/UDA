@@ -1476,37 +1476,37 @@ ENUMLIST* getCDF4EnumList(int grpid, nc_type vartype, LOGMALLOCLIST* logmallocli
             return NULL;
         }
         switch (enumlist->type) {
-            case (TYPE_CHAR): {
+            case TYPE_CHAR: {
                 char* enumvalue = (char*)value;
                 enumlist->enummember[i].value = (long long)*enumvalue;
                 break;
             }
-            case (TYPE_SHORT): {
+            case TYPE_SHORT: {
                 short* enumvalue = (short*)value;
                 enumlist->enummember[i].value = (long long)*enumvalue;
                 break;
             }
-            case (TYPE_UNSIGNED_SHORT): {
+            case TYPE_UNSIGNED_SHORT: {
                 unsigned short* enumvalue = (unsigned short*)value;
                 enumlist->enummember[i].value = (long long)*enumvalue;
                 break;
             }
-            case (TYPE_INT): {
+            case TYPE_INT: {
                 short* enumvalue = (short*)value;
                 enumlist->enummember[i].value = (long long)*enumvalue;
                 break;
             }
-            case (TYPE_UNSIGNED_INT): {
+            case TYPE_UNSIGNED_INT: {
                 unsigned int* enumvalue = (unsigned int*)value;
                 enumlist->enummember[i].value = (long long)*enumvalue;
                 break;
             }
-            case (TYPE_LONG64): {
+            case TYPE_LONG64: {
                 long long* enumvalue = (long long*)value;
                 enumlist->enummember[i].value = (long long)*enumvalue;
                 break;
             }
-            case (TYPE_UNSIGNED_LONG64): {
+            case TYPE_UNSIGNED_LONG64: {
                 unsigned long long* enumvalue = (unsigned long long*)value;
                 enumlist->enummember[i].value = (long long)*enumvalue;
                 break;
@@ -1699,37 +1699,37 @@ int getCDF4SubTreeVarData(int grpid, void** data, VARIABLE* variable, LOGMALLOCL
                         rc = nc_inq_enum_member(grpid, variable->attribute[i].atttype, j, enumlist->enummember[j].name,
                                                 (void*)value);
                         switch (enumlist->type) {
-                            case (TYPE_CHAR): {
+                            case TYPE_CHAR: {
                                 char* enumvalue = (char*)value;
                                 enumlist->enummember[j].value = (long long)*enumvalue;
                                 break;
                             }
-                            case (TYPE_SHORT): {
+                            case TYPE_SHORT: {
                                 short* enumvalue = (short*)value;
                                 enumlist->enummember[j].value = (long long)*enumvalue;
                                 break;
                             }
-                            case (TYPE_UNSIGNED_SHORT): {
+                            case TYPE_UNSIGNED_SHORT: {
                                 unsigned short* enumvalue = (unsigned short*)value;
                                 enumlist->enummember[j].value = (long long)*enumvalue;
                                 break;
                             }
-                            case (TYPE_INT): {
+                            case TYPE_INT: {
                                 short* enumvalue = (short*)value;
                                 enumlist->enummember[j].value = (long long)*enumvalue;
                                 break;
                             }
-                            case (TYPE_UNSIGNED_INT): {
+                            case TYPE_UNSIGNED_INT: {
                                 unsigned int* enumvalue = (unsigned int*)value;
                                 enumlist->enummember[j].value = (long long)*enumvalue;
                                 break;
                             }
-                            case (TYPE_LONG64): {
+                            case TYPE_LONG64: {
                                 long long* enumvalue = (long long*)value;
                                 enumlist->enummember[j].value = (long long)*enumvalue;
                                 break;
                             }
-                            case (TYPE_UNSIGNED_LONG64): {
+                            case TYPE_UNSIGNED_LONG64: {
                                 unsigned long long* enumvalue = (unsigned long long*)value;
                                 enumlist->enummember[j].value = (long long)*enumvalue;
                                 break;
@@ -2179,73 +2179,73 @@ int readCDF4SubTreeVar3Data(GROUPLIST grouplist, int varid, int rank, int* dimid
 
         switch (vartype) {
 
-            case (NC_DOUBLE): {
+            case NC_DOUBLE: {
                 *data_type = TYPE_DOUBLE;
                 dvec = (char*)malloc((size_t)ndata * sizeof(double));
                 break;
             }
 
-            case (NC_FLOAT): {
+            case NC_FLOAT: {
                 *data_type = TYPE_FLOAT;
                 dvec = (char*)malloc((size_t)ndata * sizeof(float));
                 break;
             }
 
-            case (NC_INT64): {
+            case NC_INT64: {
                 *data_type = TYPE_LONG64;
                 dvec = (char*)malloc((size_t)ndata * sizeof(long long int));
                 break;
             }
 
-            case (NC_INT): {
+            case NC_INT: {
                 *data_type = TYPE_INT;
                 dvec = (char*)malloc((size_t)ndata * sizeof(int));
                 break;
             }
 
-            case (NC_SHORT): {
+            case NC_SHORT: {
                 *data_type = TYPE_SHORT;
                 dvec = (char*)malloc((size_t)ndata * sizeof(short));
                 break;
             }
 
-            case (NC_BYTE): {
+            case NC_BYTE: {
                 *data_type = TYPE_CHAR;
                 dvec = (char*)malloc((size_t)ndata * sizeof(char));
                 break;
             }
 
-            case (NC_UINT64): {
+            case NC_UINT64: {
                 *data_type = TYPE_UNSIGNED_LONG64;
                 dvec = (char*)malloc((size_t)ndata * sizeof(unsigned long long int));
                 break;
             }
 
-            case (NC_UINT): {
+            case NC_UINT: {
                 *data_type = TYPE_UNSIGNED_INT;
                 dvec = (char*)malloc((size_t)ndata * sizeof(unsigned int));
                 break;
             }
 
-            case (NC_USHORT): {
+            case NC_USHORT: {
                 *data_type = TYPE_UNSIGNED_SHORT;
                 dvec = (char*)malloc((size_t)ndata * sizeof(unsigned short));
                 break;
             }
 
-            case (NC_UBYTE): {
+            case NC_UBYTE: {
                 *data_type = TYPE_UNSIGNED_CHAR;
                 dvec = (char*)malloc((size_t)ndata * sizeof(unsigned char));
                 break;
             }
 
-            case (NC_CHAR): {
+            case NC_CHAR: {
                 *data_type = TYPE_STRING;
                 dvec = (char*)malloc((size_t)ndata * sizeof(char));
                 break;
             }
 
-            case (NC_STRING): {
+            case NC_STRING: {
                 *data_type = TYPE_STRING;                    // Treated as a byte/char array
                 svec = (char**)malloc(
                         (size_t)ndata * sizeof(char*));        // Array of pointers to string array elements
@@ -2268,7 +2268,7 @@ int readCDF4SubTreeVar3Data(GROUPLIST grouplist, int varid, int rank, int* dimid
 
 // Create User defined data structure definitions: descriptions of the internal composition (Global Structure)
 
-                        if ((err = scopedUserDefinedTypes(logmalloclist, grpid)) != 0) break;
+                        if ((err = readCDFTypes(grpid, userdefinedtypelist)) != 0) break;
 
 // Identify the required structure definition
 
@@ -2408,37 +2408,37 @@ int readCDF4SubTreeVar3Data(GROUPLIST grouplist, int varid, int rank, int* dimid
                     for (i = 0; i < members; i++) {
                         rc = nc_inq_enum_member(grpid, vartype, i, enumlist->enummember[i].name, (void*)value);
                         switch (enumlist->type) {
-                            case (TYPE_CHAR): {
+                            case TYPE_CHAR: {
                                 char* enumvalue = (char*)value;
                                 enumlist->enummember[i].value = (long long)*enumvalue;
                                 break;
                             }
-                            case (TYPE_SHORT): {
+                            case TYPE_SHORT: {
                                 short* enumvalue = (short*)value;
                                 enumlist->enummember[i].value = (long long)*enumvalue;
                                 break;
                             }
-                            case (TYPE_UNSIGNED_SHORT): {
+                            case TYPE_UNSIGNED_SHORT: {
                                 unsigned short* enumvalue = (unsigned short*)value;
                                 enumlist->enummember[i].value = (long long)*enumvalue;
                                 break;
                             }
-                            case (TYPE_INT): {
+                            case TYPE_INT: {
                                 short* enumvalue = (short*)value;
                                 enumlist->enummember[i].value = (long long)*enumvalue;
                                 break;
                             }
-                            case (TYPE_UNSIGNED_INT): {
+                            case TYPE_UNSIGNED_INT: {
                                 unsigned int* enumvalue = (unsigned int*)value;
                                 enumlist->enummember[i].value = (long long)*enumvalue;
                                 break;
                             }
-                            case (TYPE_LONG64): {
+                            case TYPE_LONG64: {
                                 long long* enumvalue = (long long*)value;
                                 enumlist->enummember[i].value = (long long)*enumvalue;
                                 break;
                             }
-                            case (TYPE_UNSIGNED_LONG64): {
+                            case TYPE_UNSIGNED_LONG64: {
                                 unsigned long long* enumvalue = (unsigned long long*)value;
                                 enumlist->enummember[i].value = (long long)*enumvalue;
                                 break;
@@ -2721,37 +2721,37 @@ ROOT1A *y = (ROOT1A *)p0;
                         rc = nc_inq_enum_member(group->grpid, group->attribute[i].atttype, j,
                                                 enumlist->enummember[j].name, (void*)value);
                         switch (enumlist->type) {
-                            case (TYPE_CHAR): {
+                            case TYPE_CHAR: {
                                 char* enumvalue = (char*)value;
                                 enumlist->enummember[j].value = (long long)*enumvalue;
                                 break;
                             }
-                            case (TYPE_SHORT): {
+                            case TYPE_SHORT: {
                                 short* enumvalue = (short*)value;
                                 enumlist->enummember[j].value = (long long)*enumvalue;
                                 break;
                             }
-                            case (TYPE_UNSIGNED_SHORT): {
+                            case TYPE_UNSIGNED_SHORT: {
                                 unsigned short* enumvalue = (unsigned short*)value;
                                 enumlist->enummember[j].value = (long long)*enumvalue;
                                 break;
                             }
-                            case (TYPE_INT): {
+                            case TYPE_INT: {
                                 short* enumvalue = (short*)value;
                                 enumlist->enummember[j].value = (long long)*enumvalue;
                                 break;
                             }
-                            case (TYPE_UNSIGNED_INT): {
+                            case TYPE_UNSIGNED_INT: {
                                 unsigned int* enumvalue = (unsigned int*)value;
                                 enumlist->enummember[j].value = (long long)*enumvalue;
                                 break;
                             }
-                            case (TYPE_LONG64): {
+                            case TYPE_LONG64: {
                                 long long* enumvalue = (long long*)value;
                                 enumlist->enummember[j].value = (long long)*enumvalue;
                                 break;
                             }
-                            case (TYPE_UNSIGNED_LONG64): {
+                            case TYPE_UNSIGNED_LONG64: {
                                 unsigned long long* enumvalue = (unsigned long long*)value;
                                 enumlist->enummember[j].value = (long long)*enumvalue;
                                 break;

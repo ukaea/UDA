@@ -35,12 +35,15 @@ static int get_signal_length(const char* signal)
 int mds_get(const char* signalName, int shot, float** time, float** data, int* len, int time_dim)
 {
     int status;
+    static int socket = -1;
 
-    /* Connect to MDSplus */
-    int socket = MdsConnect("mdsplus.jet.efda.org:8000");
     if (socket == -1) {
-        IDAM_LOG(UDA_LOG_ERROR, "Error connecting to mdsplus.jet.efda.org.\n");
-        return -1;
+        /* Connect to MDSplus */
+        socket = MdsConnect("mdsplus.jet.efda.org:8000");
+        if (socket == -1) {
+            IDAM_LOG(UDA_LOG_ERROR, "Error connecting to mdsplus.jet.efda.org.\n");
+            return -1;
+        }
     }
 
     bool is_tdi = false;
@@ -101,7 +104,7 @@ int mds_get(const char* signalName, int shot, float** time, float** data, int* l
         return -1;
     }
 
-    MdsDisconnect();
+//    MdsDisconnect();
 
     return 0;
 }
