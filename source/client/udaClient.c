@@ -39,8 +39,8 @@
 #  include "idamCache.h"
 #endif
 
-#if !defined(FATCLIENT) && defined(SSLAUTHENTICATION) && !defined(SECURITYENABLED)
-#include <authentication/udaSSL.h>
+#if defined(SSLAUTHENTICATION) && !defined(FATCLIENT) 
+#  include <authentication/udaSSL.h>
 #endif
 
 //------------------------------------------------ Static Globals ------------------------------------------------------
@@ -368,11 +368,10 @@ int idamClient(REQUEST_BLOCK* request_block)
         //-------------------------------------------------------------------------
         // Connect to the server with SSL (X509) authentication
 	
-#if !defined(FATCLIENT) && defined(SSLAUTHENTICATION) && !defined(SECURITYENABLED)
+#if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
 
         // Create the SSL binding and context, and verify the server certificate
 	
-	authenticationNeeded = 1;
 	if((err = startUdaClientSSL()) != 0) break;	
 	
 #endif	

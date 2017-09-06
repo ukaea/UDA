@@ -7,11 +7,6 @@ find_package( PostgreSQL REQUIRED )
 find_package( LibXml2 REQUIRED )
 find_package( OpenSSL REQUIRED )
 
-#if( SECURITY )
-#   find_package( KSBA REQUIRED )
-#   find_package( GCrypt REQUIRED )
-#endif()
-
 include( modules )
 find_modules()
 
@@ -99,25 +94,15 @@ add_library( fatserver-objects OBJECT
 
 target_compile_definitions( fatserver-objects PRIVATE -DFATCLIENT )
 
-if( NOT SECURITY )
-   set( SERVER_OBJ
-     $<TARGET_OBJECTS:server-objects>
-     $<TARGET_OBJECTS:clientserver-server-objects>
-     $<TARGET_OBJECTS:logging-server-objects>
-     $<TARGET_OBJECTS:structures-server-objects>
-     $<TARGET_OBJECTS:modules-objects>
-   )
-else()
-   set( SERVER_OBJ
-     $<TARGET_OBJECTS:server-objects>
-     $<TARGET_OBJECTS:clientserver-server-objects>
-     $<TARGET_OBJECTS:logging-server-objects>
-     $<TARGET_OBJECTS:structures-server-objects>
-     $<TARGET_OBJECTS:authentication-objects>
-     $<TARGET_OBJECTS:modules-objects>
-   )
-#     $<TARGET_OBJECTS:security-objects>
-endif()
+
+set( SERVER_OBJ
+  $<TARGET_OBJECTS:server-objects>
+  $<TARGET_OBJECTS:clientserver-server-objects>
+  $<TARGET_OBJECTS:logging-server-objects>
+  $<TARGET_OBJECTS:structures-server-objects>
+  $<TARGET_OBJECTS:authentication-server-objects>
+  $<TARGET_OBJECTS:modules-objects>
+)
 
 add_library( server-shared SHARED ${SERVER_OBJ} )
 add_library( server-static STATIC ${SERVER_OBJ} )
@@ -148,7 +133,6 @@ target_link_libraries( server-static LINK_PRIVATE
 link_modules( server-static )
 
 # Executable
-if( NOT SECURITY )
 target_link_libraries( server-exe LINK_PRIVATE
   client-shared
   server-shared
@@ -160,22 +144,6 @@ target_link_libraries( server-exe LINK_PRIVATE
   m
   dl
 )
-else()
-target_link_libraries( server-exe LINK_PRIVATE
-  client-shared
-  server-shared
-  ${OPENSSL_LIBRARIES}
-  ${KSBA_LIBRARIES}
-  ${GCrypt_LIBRARIES}
-  ${LIBXML2_LIBRARIES}
-  ${PostgreSQL_LIBRARY}
-  ${CACHE_LIBRARIES}
-  c
-  m
-  dl
-  gcrypt
-)
-endif()
 
 link_modules( server-exe )
 

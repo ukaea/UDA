@@ -23,6 +23,10 @@
 #include "updateSelectParms.h"
 #include "getEnvironment.h"
 
+#if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
+#  include <authentication/udaSSL.h>
+#endif
+
 static int clientSocket = -1;
 static SOCKETLIST client_socketlist;   // List of open sockets
 
@@ -110,6 +114,11 @@ int createConnection()
         return 0;                // Check Already Opened?
 
     }
+    
+#if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
+    putUdaSSLSocket(clientSocket);    
+#endif
+
 #ifdef _WIN32                            // Initialise WINSOCK Once only
         static unsigned int	initWinsock = 0;
         WORD sockVersion;
@@ -279,6 +288,12 @@ int createConnection()
     environment->server_reconnect = 0;
     environment->server_change_socket = 0;
     environment->server_socket = clientSocket;
+    
+// Write the socket number to the SSL functions
+	
+#if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
+    putUdaSSLSocket(clientSocket);    
+#endif    
 
     return 0;
 }
@@ -408,7 +423,7 @@ int clientReadin(void* iohandle, char* buf, int count)
         if (serrno != 0 && serrno != EINTR) addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "idamClientReadin", rc, "");
         addIdamError(&idamerrorstack, CODEERRORTYPE, "idamClientReadin", rc,
                      "No Data waiting at Socket when Data Expected!");
-    }
+    }    
 
     return rc;
 }

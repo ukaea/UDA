@@ -22,8 +22,8 @@ extern PGconn * DBConnect;    // IDAM database Socket Connection
 #  include "connection.h"
 #endif
 
-#if !defined(FATCLIENT) && defined(SSLAUTHENTICATION) && !defined(SECURITYENABLED)
-#include <authentication/udaSSL.h>
+#if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
+#  include <authentication/udaSSL.h>
 #endif
 
 int idamClosedown(int type, SOCKETLIST* socket_list)
@@ -69,7 +69,7 @@ int idamClosedown(int type, SOCKETLIST* socket_list)
 
     // Close the SSL binding and context
 
-#if !defined(FATCLIENT) && defined(SSLAUTHENTICATION) && !defined(SECURITYENABLED)
+#if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
     closeUdaSSL();
 #endif
 

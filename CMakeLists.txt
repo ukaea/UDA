@@ -85,10 +85,9 @@ endif()
 option( CLIENT_ONLY "Only build IDAM client" OFF )
 option( NO_WRAPPERS "Don't build any IDAM client wrappers" OFF )
 
-if( SECURITY )
+if( SSLAUTHENTICATION )
    message( "Including SSL/RTL X509 User Authentication" )
    add_definitions( -DSSLAUTHENTICATION )
-#  add_definitions( -DSECURITYENABLED )
 endif()   
 
 ########################################################################################################################

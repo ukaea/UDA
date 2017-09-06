@@ -11,8 +11,8 @@
 
 #include "connection.h"
 
-#if !defined(FATCLIENT) && defined(SSLAUTHENTICATION) && !defined(SECURITYENABLED)
-#include <authentication/udaSSL.h>
+#if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
+#  include <authentication/udaSSL.h>
 #endif
 
 static XDR clientXDRinput;
@@ -28,7 +28,7 @@ void idamCreateXDRStream()
 
     IDAM_LOG(UDA_LOG_DEBUG, "IdamAPI: Creating XDR Streams \n");
 
-#if !defined(FATCLIENT) && defined(SSLAUTHENTICATION) && !defined(SECURITYENABLED)
+#if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
 
 #ifdef __APPLE__
     xdrrec_create(clientOutput, DB_READ_BLOCK_SIZE, DB_WRITE_BLOCK_SIZE, NULL,

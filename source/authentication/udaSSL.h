@@ -3,6 +3,10 @@
 
 #if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
 
+// Create the SSL context and binding to the socket
+// 3 UDA protocol modes: TCP without SSL/TLS, TCP and UDP both with SSL/TLS
+// This set of functions is concerned only with the SSL/TLS protocol (authentication and encryption) - not with establishing socket connections or non SSL TCP transport
+
 #include <openssl/ssl.h>
 #include <openssl/err.h>
 #include <openssl/crypto.h>

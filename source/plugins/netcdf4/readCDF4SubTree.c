@@ -2213,7 +2213,8 @@ int readCDF4SubTreeVar3Data(GROUPLIST grouplist, int varid, int rank, int* dimid
                         dvec = (char*)malloc((size_t)ndata * sizeof(DCOMPLEX));
                     } else {
                         // Create User defined data structure definitions: descriptions of the internal composition (Global Structure)
-                        if ((err = scopedUserDefinedTypes(grpid)) != 0) {
+                        // scopedUserDefinedTypes(grpid) doesn't work but simply returns readCDFTypes
+			if ((err = readCDFTypes(grpid, userdefinedtypelist)) != 0) {
                             break;
                         }
 

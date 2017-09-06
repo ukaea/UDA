@@ -30,7 +30,7 @@
 #  include <security/serverAuthentication.h>
 #endif
 
-#if !defined(FATCLIENT) && defined(SSLAUTHENTICATION) && !defined(SECURITYENABLED)
+#if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
 #include <authentication/udaSSL.h>
 #endif
 
@@ -920,7 +920,7 @@ int doServerClosedown(CLIENT_BLOCK* client_block, REQUEST_BLOCK* request_block, 
     //----------------------------------------------------------------------------
     // Close the SSL binding and context
 
-#if !defined(FATCLIENT) && defined(SSLAUTHENTICATION) && !defined(SECURITYENABLED)
+#if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
     closeUdaSSL();
 #endif    
 
@@ -1093,7 +1093,7 @@ int startupServer(SERVER_BLOCK* server_block)
     //-------------------------------------------------------------------------
     // Connect to the client with SSL (X509) authentication
 	
-#if !defined(FATCLIENT) && defined(SSLAUTHENTICATION) && !defined(SECURITYENABLED)
+#if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
 
     // Create the SSL binding (on socket #0), the SSL context, and verify the client certificate
     // Identify the authenticated user for service authorisation

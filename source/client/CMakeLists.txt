@@ -62,33 +62,20 @@ if( NOT CLIENT_ONLY )
   target_include_directories( fatclient-objects PRIVATE ${PostgreSQL_INCLUDE_DIRS} )
 endif()
 
-if( NOT SECURITY )
 set( CLIENT_OBJS
   $<TARGET_OBJECTS:client-objects>
   $<TARGET_OBJECTS:clientserver-client-objects>
   $<TARGET_OBJECTS:cache-objects>
   $<TARGET_OBJECTS:logging-client-objects>
   $<TARGET_OBJECTS:structures-client-objects>
-  #$<TARGET_OBJECTS:security-objects>
+  $<TARGET_OBJECTS:authentication-client-objects>
 )
-else()
-set( CLIENT_OBJS
-  $<TARGET_OBJECTS:client-objects>
-  $<TARGET_OBJECTS:clientserver-client-objects>
-  $<TARGET_OBJECTS:cache-objects>
-  $<TARGET_OBJECTS:logging-client-objects>
-  $<TARGET_OBJECTS:structures-client-objects>
-  $<TARGET_OBJECTS:authentication-objects>
-)
-#  $<TARGET_OBJECTS:security-objects>
-endif()
 
 set( FATCLIENT_OBJS
   $<TARGET_OBJECTS:fatclient-objects>
   $<TARGET_OBJECTS:fatserver-objects>
   $<TARGET_OBJECTS:fatclientserver-objects>
   $<TARGET_OBJECTS:structures-server-objects>
-#  $<TARGET_OBJECTS:security-objects>
   $<TARGET_OBJECTS:fatmodules-objects>
   $<TARGET_OBJECTS:cache-objects>
   $<TARGET_OBJECTS:logging-server-objects>
