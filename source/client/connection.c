@@ -98,7 +98,7 @@ int createConnection()
 {
     int window_size = DB_READ_BLOCK_SIZE;        // 128K
     int on = 1;
-    int rc;
+    int rc, serrno;
     char* hostname;
 
     struct sockaddr_in server;
@@ -121,11 +121,13 @@ int createConnection()
         }
 #endif
 
+    errno = 0;
     clientSocket = socket(AF_INET, SOCK_STREAM, 0);        // create an unbound socket
+    serrno = errno;
 
-    if (clientSocket < 0 || errno != 0) {
-        if (errno != 0) {
-            addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "idamCreateConnection", errno, "");
+    if (clientSocket < 0 || serrno != 0) {
+        if (serrno != 0) {
+            addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "idamCreateConnection", serrno, "");
         } else {
             addIdamError(&idamerrorstack, CODEERRORTYPE, "idamCreateConnection", -1, "Problem Opening Socket");
         }
@@ -139,11 +141,13 @@ int createConnection()
 
 // Resolve host
 
+    errno = 0;
     host = gethostbyname(hostname);
+    serrno = errno;
 
-    if (host == NULL || errno != 0) {
-        if (errno != 0) {
-            addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "idamCreateConnection", errno, "");
+    if (host == NULL || serrno != 0) {
+        if (serrno != 0) {
+            addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "idamCreateConnection", serrno, "");
         } else {
             addIdamError(&idamerrorstack, CODEERRORTYPE, "idamCreateConnection", -1, "Unknown Server Host");
         }
@@ -165,9 +169,11 @@ int createConnection()
 
 // Connect to server
 
+    errno = 0;
     while ((rc = connect(clientSocket, (struct sockaddr*) &server, sizeof(server))) && errno == EINTR) {}
+    serrno = errno;
 
-    if (rc < 0 || (errno != 0 && errno != EINTR)) {
+    if (rc < 0 || (serrno != 0 && serrno != EINTR)) {
 
 // Try again for a maximum number of tries with a random time delay between attempts
 
@@ -178,7 +184,9 @@ int createConnection()
         delay = MAX_SOCKET_DELAY * ((float) rand() / (float) RAND_MAX);        // random delay
         sleep(delay);                            // wait period
         for (i = 0; i < MAX_SOCKET_ATTEMPTS; i++) {                // try again
+            errno = 0;
             while ((rc = connect(clientSocket, (struct sockaddr*) &server, sizeof(server))) && errno == EINTR) {}
+            serrno = errno;
 
             if (rc == 0) break;
 
@@ -204,7 +212,9 @@ int createConnection()
             memcpy(&server.sin_addr, host->h_addr_list[0], host->h_length);
             server.sin_port = htons(environment->server_port2);
             for (i = 0; i < MAX_SOCKET_ATTEMPTS; i++) {
+                errno = 0;
                 while ((rc = connect(clientSocket, (struct sockaddr*) &server, sizeof(server))) && errno == EINTR) {}
+                serrno = errno;
                 if (rc == 0) {
                     char* name;
                     int port;
@@ -224,8 +234,8 @@ int createConnection()
         }
 
         if (rc < 0) {
-            if (errno != 0) {
-                addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "idamCreateConnection", errno, "");
+            if (serrno != 0) {
+                addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "idamCreateConnection", serrno, "");
             } else {
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "idamCreateConnection", -1,
                              "Unable to Connect to Server Stream Socket");
@@ -295,6 +305,8 @@ int clientWriteout(void* iohandle, char* buf, int count)
 
     idamUpdateSelectParms(clientSocket, &wfds, &tv);
 
+    errno = 0;
+
     while (select(clientSocket + 1, NULL, &wfds, NULL, &tv) <= 0) {
 
         if (errno == ECONNRESET || errno == ENETUNREACH || errno == ECONNREFUSED) {
@@ -337,7 +349,6 @@ int clientWriteout(void* iohandle, char* buf, int count)
 // Write to socket, checking for EINTR, as happens if called from IDL
 
     while (BytesSent < count) {
-
 #ifndef _WIN32
         while (((rc = (int) write(clientSocket, buf, count)) == -1) && (errno == EINTR)) { }
 #else
@@ -360,11 +371,13 @@ int clientWriteout(void* iohandle, char* buf, int count)
 
 int clientReadin(void* iohandle, char* buf, int count)
 {
-    int rc;
+    int rc, serrno;
     fd_set rfds;
     struct timeval tv;
 
     int maxloop = 0;
+
+    errno = 0;
 
     /* Wait till it is possible to read from socket */
 
@@ -382,15 +395,18 @@ int clientReadin(void* iohandle, char* buf, int count)
     while ((( rc=recv( clientSocket, buf, count, 0)) == SOCKET_ERROR ) && (errno == EINTR)) {}
 
     // if rc == 0 then socket is closed => server fail?
+
 #endif
+
+    serrno = errno;
 
 // As we have waited to be told that there is data to be read, if nothing
 // arrives, then there must be an error
 
     if (!rc) {
         rc = -1;
-        if (errno != 0 && errno != EINTR) addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "idamClientReadin", errno, "");
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "idamClientReadin", 999,
+        if (serrno != 0 && serrno != EINTR) addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "idamClientReadin", rc, "");
+        addIdamError(&idamerrorstack, CODEERRORTYPE, "idamClientReadin", rc,
                      "No Data waiting at Socket when Data Expected!");
     }
 

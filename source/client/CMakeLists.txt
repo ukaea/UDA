@@ -78,8 +78,9 @@ set( CLIENT_OBJS
   $<TARGET_OBJECTS:cache-objects>
   $<TARGET_OBJECTS:logging-client-objects>
   $<TARGET_OBJECTS:structures-client-objects>
-  $<TARGET_OBJECTS:security-objects>
+  $<TARGET_OBJECTS:authentication-objects>
 )
+#  $<TARGET_OBJECTS:security-objects>
 endif()
 
 set( FATCLIENT_OBJS

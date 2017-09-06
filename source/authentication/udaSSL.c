@@ -1,10 +1,19 @@
 // udaSSL - Create the SSL context and binding to the socket
+// 3 protocol modes: TCP without SSL/TLS, TCP and UDP both with SSL/TLS
+// This set of functions is concerned only with the SSL/TLS protocol - not with establishing socket connections
+ 
+#include <signal.h>
 
 #include <authentication/udaSSL.h>
+#include <clientserver/errorLog.h>
+#include <logging/logging.h>
+
+#include <client/updateSelectParms.h>
+#include <server/writer.h>
 
 static SSL *ssl = NULL;
 static SSL_CTX *ctx = NULL;
-static sslSocket = 0;
+static int sslSocket = 0;
 
 void putUdaSSL(SSL *s){
    ssl = s;
@@ -56,7 +65,7 @@ void getUdaSSLErrorCode(int rc){
    err = 999;
    addIdamError(&idamerrorstack, CODEERRORTYPE, "udaSSL", err, msg);
    IDAM_LOGF(UDA_LOG_DEBUG, "udaSSL: Error - %s\n", ERR_error_string(ERR_get_error(), NULL));
-   IDAM_LOGF(UDA_LOG_DEBUG, "udaSSL: State - %s\n", SSL_state_string(getudaSSL()));
+   IDAM_LOGF(UDA_LOG_DEBUG, "udaSSL: State - %s\n", SSL_state_string(getUdaSSL()));
 }  
 
 void initUdaSSL(){ 
@@ -70,7 +79,8 @@ void cleanupUdaSSL(){
 }
 
 SSL_CTX *createUdaSSLContext(){
- 
+    int err = 0;
+    
     const SSL_METHOD *method;
     SSL_CTX *ctx;
 
@@ -182,14 +192,14 @@ int startUdaSSL(){
         
 // Connect to the server
 
-    rc = SSL_connect(ssl);
+    int rc = SSL_connect(ssl);
 
 // Check for error in connect 
 
     if (rc < 1) {       
-       err = 999
+       err = 999;
        if(errno != 0) addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "udaSSL", errno, "Error connecting to the server!");       
-       getudaSSLErrorCode(rc);
+       getUdaSSLErrorCode(rc);
        SSL_free(ssl);
        SSL_CTX_free(ctx);
        ssl = NULL;
@@ -221,10 +231,10 @@ int startUdaSSL(){
 
 // Server's details - not required apart from logging
 
-      char work[STRINGSIZE];
+      char work[X509STRINGSIZE];
       IDAM_LOG(UDA_LOG_DEBUG, "udaSSL: Server certificate verified");
-      IDAM_LOGF(UDA_LOG_DEBUG, "X509 subject: %s\n", X509_NAME_oneline(X509_get_subject_name(peer), work, sizeof(work));
-      IDAM_LOGF(UDA_LOG_DEBUG, "X509 issuer: %s\n", X509_NAME_oneline(X509_get_issuer_name(peer), work, sizeof(work));
+      IDAM_LOGF(UDA_LOG_DEBUG, "X509 subject: %s\n", X509_NAME_oneline(X509_get_subject_name(peer), work, sizeof(work)));
+      IDAM_LOGF(UDA_LOG_DEBUG, "X509 issuer: %s\n", X509_NAME_oneline(X509_get_issuer_name(peer), work, sizeof(work)));
       IDAM_LOGF(UDA_LOG_DEBUG, "X509 not before: %d\n", X509_get_notBefore(peer));
       IDAM_LOGF(UDA_LOG_DEBUG, "X509 not after: %d\n", X509_get_notAfter(peer));
       X509_free(peer);
@@ -252,9 +262,10 @@ void closeUdaSSL(){
    SSL_shutdown(getUdaSSL());           
    SSL_free(getUdaSSL());
    SSL_CTX_free(getUdaSSLCTX());
-   cleanUpudaSSL();
+   cleanupUdaSSL();
 } 
 
+#ifndef SERVERBUILD
 int writeUdaClientSSL(void* iohandle, char* buf, int count)
 {
     void (* OldSIGPIPEHandler)();
@@ -309,7 +320,7 @@ int writeUdaClientSSL(void* iohandle, char* buf, int count)
 // Write to socket, checking for EINTR, as happens if called from IDL
 // if the return code from SSL_write == -1 and WANT_READ or WANT_WRITE then repeat the write with the same arguments
 
-    while (((rc = (int) SSL_write(getIdamSSL(), buf, count)) == -1) && 
+    while (((rc = (int) SSL_write(getUdaSSL(), buf, count)) == -1) && 
            (((err = SSL_get_error(getUdaSSL(), rc)) == SSL_ERROR_WANT_READ || err == SSL_ERROR_WANT_WRITE) || 
 	   (errno == EINTR))) { }
     
@@ -349,7 +360,7 @@ int writeUdaClientSSL(void* iohandle, char* buf, int count)
  
 int readUdaClientSSL(void* iohandle, char* buf, int count)
 {
-    int rc;
+    int rc, err=0;
     fd_set rfds;
     struct timeval tv;
 
@@ -365,7 +376,7 @@ int readUdaClientSSL(void* iohandle, char* buf, int count)
 
     // Read from it, checking for EINTR, as happens if called from IDL
 
-    while (((rc = (int) SSL_read(getIdamSSL(), buf, count)) == -1) && 
+    while (((rc = (int) SSL_read(getUdaSSL(), buf, count)) == -1) && 
            (((err = SSL_get_error(getUdaSSL(), rc)) == SSL_ERROR_WANT_READ || err == SSL_ERROR_WANT_WRITE) || 
 	   (errno == EINTR))) { }
 
@@ -393,14 +404,17 @@ int readUdaClientSSL(void* iohandle, char* buf, int count)
     return rc;
 }
 
+#endif   // #ifndef SERVERBUILD
+
 //============================================================================================================================
 
+#ifdef SERVERBUILD
 int writeUdaServerSSL(void* iohandle, char* buf, int count)
 {
 
 // This routine is only called when there is something to write back to the Client
 
-    int rc;
+    int rc, err=0;
 
     fd_set wfds;        // File Descriptor Set for Writing to the Socket
     struct timeval tv;
@@ -421,7 +435,7 @@ int writeUdaServerSSL(void* iohandle, char* buf, int count)
 // Write to socket, checking for EINTR, as happens if called from IDL
 // if the return code from SSL_write == -1 and WANT_READ or WANT_WRITE then repeat the write with the same arguments
 
-    while (((rc = (int) SSL_write(getIdamSSL(), buf, count)) == -1) && 
+    while (((rc = (int) SSL_write(getUdaSSL(), buf, count)) == -1) && 
            (((err = SSL_get_error(getUdaSSL(), rc)) == SSL_ERROR_WANT_READ || err == SSL_ERROR_WANT_WRITE) || 
 	   (errno == EINTR))) { }
 
@@ -454,7 +468,7 @@ int writeUdaServerSSL(void* iohandle, char* buf, int count)
 int readUdaServerSSL(void* iohandle, char* buf, int count)
 {
 
-    int rc;
+    int rc, err=0;
     fd_set rfds;        // File Descriptor Set for Reading from the Socket
     struct timeval tv, tvc;
 
@@ -477,7 +491,7 @@ int readUdaServerSSL(void* iohandle, char* buf, int count)
 
 // Read from it, checking for EINTR, as happens if called from IDL
 
-    while (((rc = (int) SSL_read(getIdamSSL(), buf, count)) == -1) && 
+    while (((rc = (int) SSL_read(getUdaSSL(), buf, count)) == -1) && 
            (((err = SSL_get_error(getUdaSSL(), rc)) == SSL_ERROR_WANT_READ || err == SSL_ERROR_WANT_WRITE) || 
 	   (errno == EINTR))) { }
 
@@ -504,4 +518,4 @@ int readUdaServerSSL(void* iohandle, char* buf, int count)
 
     return rc;
 }
-
+#endif   // #ifdef SERVERBUILD

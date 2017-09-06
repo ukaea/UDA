@@ -9,6 +9,9 @@
 #include <openssl/x509.h>
 #include <openssl/pem.h>
 
+#define VERIFY_DEPTH	4
+#define X509STRINGSIZE	256
+
 void putUdaSSL(SSL *s);
 SSL *getUdaSSL();
 void putUdaSSLCTX(SSL_CTX *c);
@@ -18,13 +21,24 @@ int getUdaSSLSocket();
 void getUdaSSLErrorCode(int rc);
 void initUdaSSL();
 void cleanupUdaSSL();
-SSL_CTX *createUdaSSLContext();
-int configureUdaSSLContext();
-int startUdaSSL();
 void closeUdaSSL();
-int readUdaClientSSL(void* iohandle, char* buf, int count);
-int writeUdaClientSSL(void* iohandle, char* buf, int count);
+
+#ifdef SERVERBUILD
+SSL_CTX *createUdaServerSSLContext();
+int configureUdaServerSSLContext();
+X509_CRL *loadUdaServerSSLCrl(char *crlist);
+int addUdaSSLCrlsStore(X509_STORE *st, STACK_OF(X509_CRL) *crls);
+int startUdaServerSSL();
 int readUdaServerSSL(void* iohandle, char* buf, int count);
 int writeUdaServerSSL(void* iohandle, char* buf, int count);
+#else
+SSL_CTX *createUdaClientSSLContext();
+int configureUdaClientSSLContext();
+int startUdaClientSSL();
+int readUdaClientSSL(void* iohandle, char* buf, int count);
+int writeUdaClientSSL(void* iohandle, char* buf, int count);
+#endif
+
+#endif // SSLAUTHENTICATION
 
 #endif // UDA_AUTHENTICATION_SSL_H

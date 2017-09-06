@@ -7,10 +7,10 @@ find_package( PostgreSQL REQUIRED )
 find_package( LibXml2 REQUIRED )
 find_package( OpenSSL REQUIRED )
 
-if( SECURITY )
-   find_package( KSBA REQUIRED )
-   find_package( GCrypt REQUIRED )
-endif()
+#if( SECURITY )
+#   find_package( KSBA REQUIRED )
+#   find_package( GCrypt REQUIRED )
+#endif()
 
 include( modules )
 find_modules()
@@ -113,9 +113,10 @@ else()
      $<TARGET_OBJECTS:clientserver-server-objects>
      $<TARGET_OBJECTS:logging-server-objects>
      $<TARGET_OBJECTS:structures-server-objects>
-     $<TARGET_OBJECTS:security-objects>
+     $<TARGET_OBJECTS:authentication-objects>
      $<TARGET_OBJECTS:modules-objects>
    )
+#     $<TARGET_OBJECTS:security-objects>
 endif()
 
 add_library( server-shared SHARED ${SERVER_OBJ} )

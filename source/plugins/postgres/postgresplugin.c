@@ -142,7 +142,6 @@ extern int postgres_query(IDAM_PLUGIN_INTERFACE *idam_plugin_interface){
    
    //PLUGINLIST *pluginList;	// List of all data reader plugins (internal and external shared libraries)
    
-   USERDEFINEDTYPELIST* userdefinedtypelist;
    USERDEFINEDTYPE usertype;
    COMPOUNDFIELD field;
    
@@ -164,9 +163,10 @@ extern int postgres_query(IDAM_PLUGIN_INTERFACE *idam_plugin_interface){
    data_source   = idam_plugin_interface->data_source;
    signal_desc   = idam_plugin_interface->signal_desc;
  //environment   = idam_plugin_interface->environment;      
- //pluginList    = idam_plugin_interface->pluginList;  
- 
-   userdefinedtypelist = idam_plugin_interface->userdefinedtypelist;         
+ //pluginList    = idam_plugin_interface->pluginList;           
+
+   USERDEFINEDTYPELIST* userdefinedtypelist = idam_plugin_interface->userdefinedtypelist;
+   LOGMALLOCLIST* logmalloclist = idam_plugin_interface->logmalloclist;
       
    housekeeping = idam_plugin_interface->housekeeping;
 
@@ -609,47 +609,47 @@ Parameters passed to the plugin as name-value pairs (type, source_alias or sourc
 // Create the data to be returned
 
             POSTGRES_R * data = (POSTGRES_R *)malloc(sizeof(POSTGRES_R));
-            addMalloc(idam_plugin_interface->logmalloclist, (void *)data, 1, sizeof(POSTGRES_R), "POSTGRES_R");
+            addMalloc(logmalloclist, (void *)data, 1, sizeof(POSTGRES_R), "POSTGRES_R");
 
             int lstr = strlen(objectName)+1;
             data->objectName = (char *)malloc(lstr*sizeof(char));
-            addMalloc(idam_plugin_interface->logmalloclist, (void *)data->objectName, 1, lstr*sizeof(char), "char");
+            addMalloc(logmalloclist, (void *)data->objectName, 1, lstr*sizeof(char), "char");
             strcpy(data->objectName, objectName);
 
             lstr = strlen(signal_desc->signal_name)+1;
             data->signal_name = (char *)malloc(lstr*sizeof(char));
-            addMalloc(idam_plugin_interface->logmalloclist, (void *)data->signal_name, 1, lstr*sizeof(char), "char");
+            addMalloc(logmalloclist, (void *)data->signal_name, 1, lstr*sizeof(char), "char");
             strcpy(data->signal_name, signal_desc->signal_name);
 
             lstr = 2;
             data->type = (char *)malloc(lstr*sizeof(char));
-            addMalloc(idam_plugin_interface->logmalloclist, (void *)data->type, 1, lstr*sizeof(char), "char");
+            addMalloc(logmalloclist, (void *)data->type, 1, lstr*sizeof(char), "char");
             data->type[0] = signal_desc->type;
             data->type[1] = '\0';
 
             lstr = strlen(signal_desc->signal_alias)+1;
             data->signal_alias = (char *)malloc(lstr*sizeof(char));
-            addMalloc(idam_plugin_interface->logmalloclist, (void *)data->signal_alias, 1, lstr*sizeof(char), "char");
+            addMalloc(logmalloclist, (void *)data->signal_alias, 1, lstr*sizeof(char), "char");
             strcpy(data->signal_alias, signal_desc->signal_alias);
 
             lstr = strlen(signal_desc->generic_name)+1;
             data->generic_name = (char *)malloc(lstr*sizeof(char));
-            addMalloc(idam_plugin_interface->logmalloclist, (void *)data->generic_name, 1, lstr*sizeof(char), "char");
+            addMalloc(logmalloclist, (void *)data->generic_name, 1, lstr*sizeof(char), "char");
             strcpy(data->generic_name, signal_desc->generic_name);
 
             lstr = strlen(signal_desc->source_alias)+1;
             data->source_alias = (char *)malloc(lstr*sizeof(char));
-            addMalloc(idam_plugin_interface->logmalloclist, (void *)data->source_alias, 1, lstr*sizeof(char), "char");
+            addMalloc(logmalloclist, (void *)data->source_alias, 1, lstr*sizeof(char), "char");
             strcpy(data->source_alias, signal_desc->source_alias);
 
             lstr = strlen(signal_desc->signal_class)+1;
             data->signal_class = (char *)malloc(lstr*sizeof(char));
-            addMalloc(idam_plugin_interface->logmalloclist, (void *)data->signal_class, 1, lstr*sizeof(char), "char");
+            addMalloc(logmalloclist, (void *)data->signal_class, 1, lstr*sizeof(char), "char");
             strcpy(data->signal_class, signal_desc->signal_class);
 
             lstr = strlen(signal_desc->description)+1;
             data->description = (char *)malloc(lstr*sizeof(char));
-            addMalloc(idam_plugin_interface->logmalloclist, (void *)data->description, 1, lstr*sizeof(char), "char");
+            addMalloc(logmalloclist, (void *)data->description, 1, lstr*sizeof(char), "char");
             strcpy(data->description, signal_desc->description);
 
             data->expNumber   = expNumber;

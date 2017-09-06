@@ -376,7 +376,7 @@ int idamClient(REQUEST_BLOCK* request_block)
         // Create the SSL binding and context, and verify the server certificate
 	
 	authenticationNeeded = 1;
-	if((err = startIdamSSL()) != 0) break;	
+	if((err = startUdaClientSSL()) != 0) break;	
 	
 #endif	
 

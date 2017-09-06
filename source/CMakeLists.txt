@@ -5,12 +5,14 @@ include( LibXml2StrPrintfConfig )
 add_definitions(
   -Wall
   -Werror
+  -DSSLAUTHENTICATION
 )
 
 set( LOGGING_BACKEND "FILE" CACHE STRING "Choose logging backend [FILE;SYSLOG]" )
 
 add_subdirectory( cache )
 add_subdirectory( logging )
+add_subdirectory( authentication )
 add_subdirectory( security )
 add_subdirectory( structures )
 #add_subdirectory( config )

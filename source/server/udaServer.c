@@ -131,6 +131,7 @@ static int handshakeClient(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_bloc
 
 int udaServer(CLIENT_BLOCK client_block)
 {
+    int err = 0;
     METADATA_BLOCK metadata_block;
     memset(&metadata_block, sizeof(METADATA_BLOCK), '\0');
 
@@ -151,13 +152,13 @@ int udaServer(CLIENT_BLOCK client_block)
     initActions(&actions_desc);        // There may be a Sequence of Actions to Apply
     initActions(&actions_sig);
 
-    startupServer(&server_block);
+    if((err = startupServer(&server_block)) != 0) return err;
 
 #ifdef SECURITYENABLED
-    int err = authenticateClient(&client_block, &server_block);
+    err = authenticateClient(&client_block, &server_block);
 #else
     int server_closedown = 0;
-    int err = handshakeClient(&client_block, &server_block, &request_block, &server_closedown);
+    err = handshakeClient(&client_block, &server_block, &request_block, &server_closedown);
 #endif
 
     if (!err & !server_closedown) {
@@ -1071,6 +1072,7 @@ int handshakeClient(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block, REQU
 
 int startupServer(SERVER_BLOCK* server_block)
 {
+    int err = 0;
     static int socket_list_initialised = 0;
     static int plugin_list_initialised = 0;
     static int fileParsed = 0;
@@ -1079,10 +1081,11 @@ int startupServer(SERVER_BLOCK* server_block)
     // Create the Server Log Directory: Fatal Error if any Problem Opening a Log?
 
     if (startup() != 0) {
-        int err = FATAL_ERROR_LOGS;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "idamServer", err, "Fatal Error Opening the Server Logs");
         server_block->idamerrorstack = idamerrorstack;
         initIdamErrorStack(&idamerrorstack);
+        err = FATAL_ERROR_LOGS;
+        addIdamError(&idamerrorstack, CODEERRORTYPE, "idamServer", err, "Fatal Error Opening the Server Logs");
+        return err;
     }
 
     IDAM_LOG(UDA_LOG_DEBUG, "New Server Instance\n");
@@ -1097,7 +1100,7 @@ int startupServer(SERVER_BLOCK* server_block)
 	
     putUdaSSLSocket(0);
     
-    if((err = startUdaSSL()) != 0) break;	
+    if((err = startUdaServerSSL()) != 0) return err;	
 	
 #endif
 	

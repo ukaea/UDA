@@ -917,7 +917,7 @@ int readSQL(PGconn *DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_sou
 }
 
 int readCMDSQL(PGconn *DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_source,
-               DATA_BLOCK *data_block) {
+               DATA_BLOCK *data_block, USERDEFINEDTYPELIST* userdefinedtypelist) {
     int err = 999;
     addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF", err, "CMD PLUGIN NOT ENABLED");
     return err;
