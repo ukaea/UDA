@@ -35,7 +35,20 @@
 <mapping key="tf/b_field_tor_vacuum_r/data" value="tsbase_collect;DMAG:GMAG_ITOR;1:float:2;multiply:cste:0.0073008" type="dynamic"/>
 <mapping key="tf/b_field_tor_vacuum_r/time" value="tsbase_time;DMAG:GMAG_ITOR;1:float:2" type="dynamic"/>
 <mapping key="pf_active/ids_properties/homogeneous_time" value="set_value;0;0:int" type="static"/>
-<mapping key="pf_active/coil/Shape_of" value="shape_of_tsmat_collect;DPOLO:GPOLO_IMES:CALIB;0:float:#0" type="static"/>
+
+<mapping key="pf_active/coil/#/name" value="pf_active_coil_name" type="static"/>
+<mapping key="pf_active/coil/#/identifier" value="pf_active_coil_identifier" type="static"/>
+<mapping key="pf_active/coil/#/element/#/name" value="pf_active_element_name" type="static"/>
+<mapping key="pf_active/coil/#/element/#/identifier" value="pf_active_element_identifier" type="static"/>
+<!-- mapping key="pf_active/coil/Shape_of" value="shape_of_tsmat_collect;DPOLO:GPOLO_IMES:CALIB;0:float:#0" type="static" CHECK IF WE NEED SPARE COILS --> 
+<mapping key="pf_active/coil/Shape_of" value="pf_active_coils_shapeOf" type="static"/>
+<mapping key="pf_active/coil/#/element/#/turns_with_sign" value="pf_active_turns" type="static"/>
+<mapping key="pf_active/coil/#/element/Shape_of" value="pf_active_elements_shapeOf" type="static"/>
+<mapping key="pf_active/coil/#/element/#/geometry/geometry_type" value="set_value;2;0:int" type="static"/>
+<mapping key="pf_active/coil/#/element/#/geometry/rectangle/r" value="pf_active_R" type="static"/>
+<mapping key="pf_active/coil/#/element/#/geometry/rectangle/z" value="pf_active_Z" type="static"/>
+<mapping key="pf_active/coil/#/element/#/geometry/rectangle/height" value="pf_active_H" type="static"/>
+<mapping key="pf_active/coil/#/element/#/geometry/rectangle/width" value="pf_active_W" type="static"/>
 <mapping key="pf_active/coil/#/current/data" value="tsbase_collect;DPOLO:GPOLO_IMES;1:float:#0" type="dynamic"/>
 <mapping key="pf_active/coil/#/current/time" value="tsbase_time;DPOLO:GPOLO_IMES;1:float:#0" type="dynamic"/>
 

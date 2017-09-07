@@ -35,7 +35,7 @@ int main() {
 
 	uda::Client client;
 
-	/*const uda::Result& passive_name = client.get("imas::get(idx=0, group='pf_passive', variable='loop/1/name', expName='WEST', type=string, rank=1, shot=" SHOT_NUM ", )", "");
+	const uda::Result& passive_name = client.get("imas::get(idx=0, group='pf_passive', variable='loop/1/name', expName='WEST', type=string, rank=1, shot=" SHOT_NUM ", )", "");
 	const uda::Data * passive_name_data = passive_name.data();
 	const uda::String* s_passive_name_data = dynamic_cast<const uda::String*>(passive_name_data);
 
@@ -86,7 +86,7 @@ int main() {
 	for (int j = 199; j < 209; ++j) {
 		std::cout << arr_current_data12->as<double>().at(j) << " ";
 	}
-	std::cout << "..." << std::endl;*/
+	std::cout << "..." << std::endl;
 
 
 	const uda::Result& passive_time = client.get("imas::get(idx=0, group='pf_passive', variable='time', expName='WEST', type=double, rank=1, shot=" SHOT_NUM ", )", "");
@@ -100,7 +100,7 @@ int main() {
 	std::cout << "..." << std::endl;
 
 
-	/*const uda::Result& bpol_probe_posR = client.get("imas::get(idx=0, group='magnetics', variable='bpol_probe/20/position/r', expName='WEST', type=double, rank=0, shot=" SHOT_NUM ", )", "");
+	const uda::Result& bpol_probe_posR = client.get("imas::get(idx=0, group='magnetics', variable='bpol_probe/20/position/r', expName='WEST', type=double, rank=0, shot=" SHOT_NUM ", )", "");
 	const uda::Scalar* scalar_bpol_probe_posR = dynamic_cast<const uda::Scalar*>(bpol_probe_posR.data());
 	std::cout << "bpol_probe/20/position/r: " << scalar_bpol_probe_posR->as<double>() << std::endl;
 
@@ -129,10 +129,7 @@ int main() {
 	for (int j = 0; j < 1; ++j) {
 		std::cout << arr_passive_loop_r1_test_data->as<double>().at(j) << " ";
 	}
-	std::cout << "..." << std::endl;*/
-
-
-
+	std::cout << "..." << std::endl;
 
 
 	return 0;

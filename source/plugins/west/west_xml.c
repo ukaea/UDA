@@ -13,6 +13,7 @@
 #include "ts_rqparam.h"
 #include "west_ece.h"
 #include "west_pf_passive.h"
+#include "west_pf_active.h"
 #include "west_utilities.h"
 
 char* setBuffer(int data_type, char* value);
@@ -99,7 +100,7 @@ int execute(const char* mapfun, int shotNumber, DATA_BLOCK* data_block, int* nod
 	} else if (strcmp(fun_name, "set_value_collect") == 0) {
 		//returns a static value according to the position of the element in the collection (rank = 0)
 		fun = 4;
-	}  else if (strcmp(fun_name, "set_channels_validity") == 0) {
+	} else if (strcmp(fun_name, "set_channels_validity") == 0) {
 		//returns a static value according to the position of the element in the collection (rank = 0)
 		fun = 5;
 	} /*else if (strcmp(fun_name, "ece_frequencies") == 0) {
@@ -114,15 +115,32 @@ int execute(const char* mapfun, int shotNumber, DATA_BLOCK* data_block, int* nod
 		fun = 8;
 	} else if (strcmp(fun_name, "ece_t_e_data_shape_of") == 0) {
 		fun = 9;
-	}  else if (strcmp(fun_name, "passive_current_shapeOf") == 0) {
+	} else if (strcmp(fun_name, "passive_current_shapeOf") == 0) {
 		fun = 10;
-	}
-	else if (strcmp(fun_name, "passive_r") == 0) {
+	} else if (strcmp(fun_name, "passive_r") == 0) {
 		fun = 11;
 	} else if (strcmp(fun_name, "passive_z") == 0) {
 		fun = 12;
-	}else if (strcmp(fun_name, "passive_name") == 0) {
+	} else if (strcmp(fun_name, "passive_name") == 0) {
 		fun = 13;
+	} else if (strcmp(fun_name, "pf_active_elements_shapeOf") == 0) {
+		fun = 14;
+	} else if (strcmp(fun_name, "pf_active_coils_shapeOf") == 0) {
+		fun = 15;
+	} else if (strcmp(fun_name, "pf_active_R") == 0) {
+		fun = 16;
+	} else if (strcmp(fun_name, "pf_active_Z") == 0) {
+		fun = 17;
+	} else if (strcmp(fun_name, "pf_active_element_identifier") == 0) {
+		fun = 18;
+	} else if (strcmp(fun_name, "pf_active_element_name") == 0) {
+		fun = 19;
+	} else if (strcmp(fun_name, "pf_active_coil_identifier") == 0) {
+		fun = 20;
+	} else if (strcmp(fun_name, "pf_active_coil_name") == 0) {
+		fun = 21;
+	} else if (strcmp(fun_name, "pf_active_turns") == 0) {
+		fun = 22;
 	}
 
 	printNum("Case : ", fun);
@@ -260,6 +278,60 @@ int execute(const char* mapfun, int shotNumber, DATA_BLOCK* data_block, int* nod
 	case 13: {
 		IDAM_LOG(UDA_LOG_DEBUG, "Case of passive_name from WEST plugin\n");
 		passive_name(shotNumber, data_block, nodeIndices);
+		break;
+	}
+
+	case 14: {
+		IDAM_LOG(UDA_LOG_DEBUG, "Case of pf_active_elements_shapeOf from WEST plugin\n");
+		pf_active_elements_shapeOf(shotNumber, data_block, nodeIndices);
+		break;
+	}
+
+	case 15: {
+		IDAM_LOG(UDA_LOG_DEBUG, "Case of pf_active_coils_shapeOf from WEST plugin\n");
+		pf_active_coils_shapeOf(shotNumber, data_block, nodeIndices);
+		break;
+	}
+
+	case 16: {
+		IDAM_LOG(UDA_LOG_DEBUG, "Case of pf_active_R from WEST plugin\n");
+		pf_active_R(shotNumber, data_block, nodeIndices);
+		break;
+	}
+
+	case 17: {
+		IDAM_LOG(UDA_LOG_DEBUG, "Case of pf_active_Z from WEST plugin\n");
+		pf_active_Z(shotNumber, data_block, nodeIndices);
+		break;
+	}
+
+	case 18: {
+		IDAM_LOG(UDA_LOG_DEBUG, "Case of pf_active_element_identifier from WEST plugin\n");
+		pf_active_element_identifier(shotNumber, data_block, nodeIndices);
+		break;
+	}
+
+	case 19: {
+		IDAM_LOG(UDA_LOG_DEBUG, "Case of pf_active_element_name from WEST plugin\n");
+		pf_active_element_name(shotNumber, data_block, nodeIndices);
+		break;
+	}
+
+	case 20: {
+		IDAM_LOG(UDA_LOG_DEBUG, "Case of pf_active_coil_identifier from WEST plugin\n");
+		pf_active_coil_identifier(shotNumber, data_block, nodeIndices);
+		break;
+	}
+
+	case 21: {
+		IDAM_LOG(UDA_LOG_DEBUG, "Case of pf_active_coil_name from WEST plugin\n");
+		pf_active_coil_name(shotNumber, data_block, nodeIndices);
+		break;
+	}
+
+	case 22: {
+		IDAM_LOG(UDA_LOG_DEBUG, "Case of pf_active_turns from WEST plugin\n");
+		pf_active_turns(shotNumber, data_block, nodeIndices);
 		break;
 	}
 

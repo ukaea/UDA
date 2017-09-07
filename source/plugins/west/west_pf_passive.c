@@ -309,8 +309,6 @@ void passive_z(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices) {
 
 void passive_current_shapeOf(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices) {
 
-	//float* data = NULL;
-	//float* time = NULL;
 	int len = 34;
 	data_block->data_type = TYPE_INT;
 	data_block->data = malloc(sizeof(int));
