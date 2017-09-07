@@ -59,6 +59,14 @@ int main() {
 	const uda::Scalar* scalar_pf_active_Z21 = dynamic_cast<const uda::Scalar*>(pf_active_Z21.data());
 	std::cout << "coil/2/element/1/geometry/rectangle/z: " << scalar_pf_active_Z21->as<double>() << std::endl;
 
+	const uda::Result& pf_active_height = client.get("imas::get(idx=0, group='pf_active', variable='coil/1/element/1/geometry/rectangle/height', expName='WEST', type=double, rank=0, shot=" SHOT_NUM ", )", "");
+	const uda::Scalar* scalar_pf_active_height = dynamic_cast<const uda::Scalar*>(pf_active_height.data());
+	std::cout << "coil/1/element/1/geometry/rectangle/height: " << scalar_pf_active_height->as<double>() << std::endl;
+
+	const uda::Result& pf_active_height2 = client.get("imas::get(idx=0, group='pf_active', variable='coil/2/element/1/geometry/rectangle/height', expName='WEST', type=double, rank=0, shot=" SHOT_NUM ", )", "");
+	const uda::Scalar* scalar_pf_active_height2 = dynamic_cast<const uda::Scalar*>(pf_active_height2.data());
+	std::cout << "coil/1/element/1/geometry/rectangle/height2: " << scalar_pf_active_height2->as<double>() << std::endl;
+
 	const uda::Result& pf_active_coil_name = client.get("imas::get(idx=0, group='pf_active', variable='coil/1/name', expName='WEST', type=string, rank=1, shot=" SHOT_NUM ", )", "");
 	const uda::Data * pf_active_coil_name_data = pf_active_coil_name.data();
 	const uda::String* pf_active_coil_name_data_s = dynamic_cast<const uda::String*>(pf_active_coil_name_data);

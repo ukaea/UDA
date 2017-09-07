@@ -141,6 +141,10 @@ int execute(const char* mapfun, int shotNumber, DATA_BLOCK* data_block, int* nod
 		fun = 21;
 	} else if (strcmp(fun_name, "pf_active_turns") == 0) {
 		fun = 22;
+	} else if (strcmp(fun_name, "pf_active_H") == 0) {
+		fun = 23;
+	} else if (strcmp(fun_name, "pf_active_W") == 0) {
+		fun = 24;
 	}
 
 	printNum("Case : ", fun);
@@ -332,6 +336,18 @@ int execute(const char* mapfun, int shotNumber, DATA_BLOCK* data_block, int* nod
 	case 22: {
 		IDAM_LOG(UDA_LOG_DEBUG, "Case of pf_active_turns from WEST plugin\n");
 		pf_active_turns(shotNumber, data_block, nodeIndices);
+		break;
+	}
+
+	case 23: {
+		IDAM_LOG(UDA_LOG_DEBUG, "Case of pf_active_H from WEST plugin\n");
+		pf_active_H(shotNumber, data_block, nodeIndices);
+		break;
+	}
+
+	case 24: {
+		IDAM_LOG(UDA_LOG_DEBUG, "Case of pf_active_W from WEST plugin\n");
+		pf_active_W(shotNumber, data_block, nodeIndices);
 		break;
 	}
 
