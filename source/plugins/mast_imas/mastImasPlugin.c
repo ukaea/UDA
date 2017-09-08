@@ -154,12 +154,12 @@ int do_help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         initDimBlock(&data_block->dims[i]);
     }
 
-    data_block->data_type = TYPE_STRING;
+    data_block->data_type = UDA_TYPE_STRING;
     strcpy(data_block->data_desc, "templatePlugin: help = description of this plugin");
 
     data_block->data = p;
 
-    data_block->dims[0].data_type = TYPE_UNSIGNED_INT;
+    data_block->dims[0].data_type = UDA_TYPE_UNSIGNED_INT;
     data_block->dims[0].dim_n = strlen(p) + 1;
     data_block->dims[0].compressed = 1;
     data_block->dims[0].dim0 = 0.0;
@@ -179,7 +179,7 @@ int do_version(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     DATA_BLOCK* data_block = idam_plugin_interface->data_block;
 
     initDataBlock(data_block);
-    data_block->data_type = TYPE_INT;
+    data_block->data_type = UDA_TYPE_INT;
     data_block->rank = 0;
     data_block->data_n = 1;
     int* data = (int*) malloc(sizeof(int));
@@ -198,7 +198,7 @@ int do_builddate(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     DATA_BLOCK* data_block = idam_plugin_interface->data_block;
 
     initDataBlock(data_block);
-    data_block->data_type = TYPE_STRING;
+    data_block->data_type = UDA_TYPE_STRING;
     data_block->rank = 0;
     data_block->data_n = strlen(__DATE__) + 1;
     char* data = (char*) malloc(data_block->data_n * sizeof(char));
@@ -217,7 +217,7 @@ int do_defaultmethod(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     DATA_BLOCK* data_block = idam_plugin_interface->data_block;
 
     initDataBlock(data_block);
-    data_block->data_type = TYPE_STRING;
+    data_block->data_type = UDA_TYPE_STRING;
     data_block->rank = 0;
     data_block->data_n = strlen(THISPLUGIN_DEFAULT_METHOD) + 1;
     char* data = (char*) malloc(data_block->data_n * sizeof(char));
@@ -236,7 +236,7 @@ int do_maxinterfaceversion(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     DATA_BLOCK* data_block = idam_plugin_interface->data_block;
 
     initDataBlock(data_block);
-    data_block->data_type = TYPE_INT;
+    data_block->data_type = UDA_TYPE_INT;
     data_block->rank = 0;
     data_block->data_n = 1;
     int* data = (int*) malloc(sizeof(int));
@@ -412,23 +412,23 @@ int do_read_magnetics(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         d[0] = 1;
         data_block->data = (void*)d;
         data_block->data_n = 1;
-        data_block->data_type = TYPE_INT;
+        data_block->data_type = UDA_TYPE_INT;
     } else if (STR_EQUALS(element, "magnetics/flux_loop/Size_of")) {
         flux_loops = get_names(db, "amb_fl%", shot, &num_flux_loops);
         data_block->data = malloc(sizeof(int));
         *((int*)data_block->data) = num_flux_loops;
         data_block->data_n = 1;
-        data_block->data_type = TYPE_INT;
+        data_block->data_type = UDA_TYPE_INT;
     } else if (STR_EQUALS(element, "magnetics/bpol_probe/Size_of")) {
         bpol_probes = get_names(db, "amb_cc%", shot, &num_bpol_probes);
         data_block->data = malloc(sizeof(int));
         *((int*)data_block->data) = num_bpol_probes;
         data_block->data_n = 1;
-        data_block->data_type = TYPE_INT;
+        data_block->data_type = UDA_TYPE_INT;
     } else if (STR_EQUALS(element, "magnetics/flux_loop/#/name")) {
         data_block->data = flux_loops[index];
         data_block->data_n = 1;
-        data_block->data_type = TYPE_STRING;
+        data_block->data_type = UDA_TYPE_STRING;
     } else if (STR_EQUALS(element, "magnetics/flux_loop/#/identifier")) {
     } else if (STR_EQUALS(element, "magnetics/flux_loop/#/position/r")) {
     } else if (STR_EQUALS(element, "magnetics/flux_loop/#/position/z")) {
@@ -436,7 +436,7 @@ int do_read_magnetics(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     } else if (STR_EQUALS(element, "magnetics/bpol_probe/#/name")) {
         data_block->data = bpol_probes[index];
         data_block->data_n = 1;
-        data_block->data_type = TYPE_STRING;
+        data_block->data_type = UDA_TYPE_STRING;
     } else if (STR_EQUALS(element, "magnetics/bpol_probe/#/identifier")) {
     } else if (STR_EQUALS(element, "magnetics/bpol_probe/#/position/r")) {
     } else if (STR_EQUALS(element, "magnetics/bpol_probe/#/position/z")) {

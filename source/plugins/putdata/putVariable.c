@@ -65,11 +65,11 @@ int do_variable(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     PUTDATA_BLOCK putdata = putdata_block_list.putDataBlock[0];
 
-    if (putdata.data_type == TYPE_OPAQUE) {
+    if (putdata.data_type == UDA_TYPE_OPAQUE) {
         RAISE_PLUGIN_ERROR("Structured Data Variable Types are Not Supported");
     }
 
-    if (putdata.data_type == TYPE_STRING) {
+    if (putdata.data_type == UDA_TYPE_STRING) {
         RAISE_PLUGIN_ERROR("String Data Variable Types are Not Supported");
     }
 
@@ -709,46 +709,46 @@ nc_type swapType(int type, int ctype, int dctype)
 {
     // Translate IDAM to netCDF4 Type
     switch (type) {
-        case TYPE_FLOAT:            // 4 byte float
+        case UDA_TYPE_FLOAT:            // 4 byte float
             return NC_FLOAT;
 
-        case TYPE_DOUBLE:           // 8 byte float
+        case UDA_TYPE_DOUBLE:           // 8 byte float
             return NC_DOUBLE;
 
-        case TYPE_LONG64:           // 8 byte signed integer
+        case UDA_TYPE_LONG64:           // 8 byte signed integer
             return NC_INT64;
 
-        case TYPE_LONG:             // 8 byte signed integer
+        case UDA_TYPE_LONG:             // 8 byte signed integer
             return NC_INT64;
 
-        case TYPE_INT:              // 4 byte signed integer
+        case UDA_TYPE_INT:              // 4 byte signed integer
             return NC_INT;
 
-        case TYPE_SHORT:            // 2 byte signed integer
+        case UDA_TYPE_SHORT:            // 2 byte signed integer
             return NC_SHORT;
 
-        case TYPE_UNSIGNED_LONG64:  // 8 byte unsigned integer
+        case UDA_TYPE_UNSIGNED_LONG64:  // 8 byte unsigned integer
             return NC_UINT64;
 
-        case TYPE_UNSIGNED_LONG:    // 8 byte unsigned integer
+        case UDA_TYPE_UNSIGNED_LONG:    // 8 byte unsigned integer
             return NC_UINT64;
 
-        case TYPE_UNSIGNED_INT:     // 4 byte unsigned integer
+        case UDA_TYPE_UNSIGNED_INT:     // 4 byte unsigned integer
             return NC_UINT;
 
-        case TYPE_UNSIGNED_SHORT:     // 2 byte unsigned integer
+        case UDA_TYPE_UNSIGNED_SHORT:     // 2 byte unsigned integer
             return NC_USHORT;
 
-        case TYPE_COMPLEX:          // structure with 2 4 byte floats
+        case UDA_TYPE_COMPLEX:          // structure with 2 4 byte floats
             return ctype;
 
-        case TYPE_DCOMPLEX:         // structure with 2 8 byte floats
+        case UDA_TYPE_DCOMPLEX:         // structure with 2 8 byte floats
             return dctype;
 
-        case TYPE_CHAR:             // 1 byte signed char (options NC_BYTE, NC_UBYTE, NC_CHAR ?)
+        case UDA_TYPE_CHAR:             // 1 byte signed char (options NC_BYTE, NC_UBYTE, NC_CHAR ?)
             return NC_BYTE;
 
-        case TYPE_UNSIGNED_CHAR:             // 1 byte unsigned char (options NC_BYTE, NC_UBYTE, NC_CHAR ?)
+        case UDA_TYPE_UNSIGNED_CHAR:             // 1 byte unsigned char (options NC_BYTE, NC_UBYTE, NC_CHAR ?)
             return NC_UBYTE;
 
         default:

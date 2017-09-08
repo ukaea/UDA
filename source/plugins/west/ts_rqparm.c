@@ -278,7 +278,7 @@ lit_traite(char* nomsigp, int numchoc, int occ,
             if (cr1) {            /* le choc n'existe pas */
 
                 switch (cr1) {
-                    case 103 :
+                    case 103:
                         printf("Tslib Server down !!! \n");
                         printf("N'en fau tasta per lou saupre \n");
                         break;

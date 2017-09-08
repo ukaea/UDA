@@ -72,7 +72,7 @@ int readHData(PGconn *DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_s
     }
 
     initEfit(efit);
-    data_block->opaque_type = OPAQUE_TYPE_UNKNOWN;
+    data_block->opaque_type = UDA_OPAQUE_TYPE_UNKNOWN;
 
     //----------------------------------------------------------------------
     // parse XML
@@ -88,7 +88,7 @@ int readHData(PGconn *DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_s
     //----------------------------------------------------------------------
     // Assign meta data to the Data Block return structure
 
-    data_block->opaque_type  = OPAQUE_TYPE_EFIT;
+    data_block->opaque_type  = UDA_OPAQUE_TYPE_EFIT;
     data_block->opaque_block = (void *) efit;
 
     free((void *) xml);

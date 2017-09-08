@@ -139,7 +139,7 @@ static int readCMDSQL(PGconn* DBConnect, REQUEST_BLOCK request_block, DATA_SOURC
         data_block->data_n = (int)PQntuples(DBQuery);        // Number of Rows
         data_block->rank = 1;
         data_block->order = 0;
-        data_block->data_type = TYPE_DOUBLE;
+        data_block->data_type = UDA_TYPE_DOUBLE;
         strcpy(data_block->data_desc, request_block.signal);
         strcpy(data_block->data_label, request_block.signal);
         strcpy(data_block->data_units, "");
@@ -169,7 +169,7 @@ static int readCMDSQL(PGconn* DBConnect, REQUEST_BLOCK request_block, DATA_SOURC
 // Dimension Labels and Units
 
         data_block->dims[0].dim_n = data_block->data_n;
-        data_block->dims[0].data_type = TYPE_DOUBLE;
+        data_block->dims[0].data_type = UDA_TYPE_DOUBLE;
         strcpy(data_block->dims[0].dim_label, "Epoch Time");
         strcpy(data_block->dims[0].dim_units, "sec");
 
@@ -596,7 +596,7 @@ int readSQL(PGconn* DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_sou
 
     if (queryType == SQLLASTSHOT && PQntuples(DBQuery) == 1) {
         int* data = (int*)malloc(sizeof(int));
-        data_block->data_type = TYPE_INT;
+        data_block->data_type = UDA_TYPE_INT;
         data_block->rank = 0;
         data_block->data_n = 1;
         data[0] = atoi(PQgetvalue(DBQuery, 0, 0));
@@ -683,7 +683,7 @@ int readSQL(PGconn* DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_sou
         usertype.imagecount = 0;                // No Structure Image data
         usertype.image = NULL;
         usertype.size = ncols * sizeof(char**);    // Structure size
-        usertype.idamclass = TYPE_COMPOUND;
+        usertype.idamclass = UDA_TYPE_COMPOUND;
 
         strcpy(work, &sql[7]);        // Step over 'SELECT '
 
@@ -706,7 +706,7 @@ int readSQL(PGconn* DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_sou
             LeftTrimString(field.name);
             strcpy(sql, &p[1]);
             strcpy(work, sql);
-            field.atomictype = TYPE_STRING;
+            field.atomictype = UDA_TYPE_STRING;
 
             field.rank = 0;
             field.count = 1;
@@ -738,7 +738,7 @@ int readSQL(PGconn* DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_sou
             return err;
         }
 
-        data_block->data_type = TYPE_COMPOUND;
+        data_block->data_type = UDA_TYPE_COMPOUND;
         data_block->rank = 0;
         data_block->data_n = 1;
         data_block->data = (char*)data;
@@ -746,7 +746,7 @@ int readSQL(PGconn* DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_sou
         strcpy(data_block->data_label, "Database Query Result Set");
         strcpy(data_block->data_units, "");
 
-        data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
+        data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
         data_block->opaque_count = 1;
         data_block->opaque_block = (void*)udt;
 
@@ -824,7 +824,7 @@ int readSQL(PGconn* DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_sou
 
         if(debugon) printUserDefinedTypeListTable(dbgout, *userdefinedtypelist);
 
-        data_block->data_type = TYPE_COMPOUND;
+        data_block->data_type = UDA_TYPE_COMPOUND;
         data_block->rank      = 0;
         data_block->data_n    = 1;
         data_block->data      = (char *)ef;
@@ -832,7 +832,7 @@ int readSQL(PGconn* DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_sou
         strcpy(data_block->data_label,"EFIT XML Data Test");
         strcpy(data_block->data_units,"");
 
-        data_block->opaque_type  = OPAQUE_TYPE_STRUCTURES;
+        data_block->opaque_type  = UDA_OPAQUE_TYPE_STRUCTURES;
         data_block->opaque_count = 1;
         data_block->opaque_block = (void *)findUserDefinedType("EFIT", 0);			// The EFIT structure definition
 
@@ -864,7 +864,7 @@ int readSQL(PGconn* DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_sou
 
         malloc_source = MALLOCSOURCESOAP;
 
-        data_block->data_type = TYPE_COMPOUND;
+        data_block->data_type = UDA_TYPE_COMPOUND;
         data_block->rank      = 0;
         data_block->data_n    = 1;
         data_block->data      = (char *)dev;
@@ -872,7 +872,7 @@ int readSQL(PGconn* DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_sou
         strcpy(data_block->data_label,"SOAP XML Data Test");
         strcpy(data_block->data_units,"");
 
-        data_block->opaque_type  = OPAQUE_TYPE_STRUCTURES;
+        data_block->opaque_type  = UDA_OPAQUE_TYPE_STRUCTURES;
         data_block->opaque_count = 1;
         data_block->opaque_block = (void *)findUserDefinedType("_ns1__device", 0);		// The SOAP structure definition
 

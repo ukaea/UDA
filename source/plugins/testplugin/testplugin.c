@@ -339,12 +339,12 @@ static int do_help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     int i;
     for (i = 0; i < data_block->rank; i++) initDimBlock(&data_block->dims[i]);
 
-    data_block->data_type = TYPE_STRING;
+    data_block->data_type = UDA_TYPE_STRING;
     strcpy(data_block->data_desc, "testplugins: help = description of this plugin");
 
     data_block->data = strdup(help);
 
-    data_block->dims[0].data_type = TYPE_UNSIGNED_INT;
+    data_block->dims[0].data_type = UDA_TYPE_UNSIGNED_INT;
     data_block->dims[0].dim_n = (int)strlen(help) + 1;
     data_block->dims[0].compressed = 1;
     data_block->dims[0].dim0 = 0.0;
@@ -377,14 +377,14 @@ static void init_structure_definitions(IDAM_PLUGIN_INTERFACE* idam_plugin_interf
     usertype.imagecount = 0;                // No Structure Image data
     usertype.image = NULL;
     usertype.size = sizeof(TEST9);            // Structure size
-    usertype.idamclass = TYPE_COMPOUND;
+    usertype.idamclass = UDA_TYPE_COMPOUND;
 
     int offset = 0;
 
     COMPOUNDFIELD field;
     initCompoundField(&field);
     strcpy(field.name, "v1");
-    field.atomictype = TYPE_STRING;
+    field.atomictype = UDA_TYPE_STRING;
     strcpy(field.type, "STRING");            // convert atomic type to a string label
     strcpy(field.desc, "string structure element: char [56]");
     field.pointer = 0;
@@ -401,7 +401,7 @@ static void init_structure_definitions(IDAM_PLUGIN_INTERFACE* idam_plugin_interf
 
     initCompoundField(&field);
     strcpy(field.name, "v2");
-    field.atomictype = TYPE_STRING;
+    field.atomictype = UDA_TYPE_STRING;
     strcpy(field.type, "STRING");            // convert atomic type to a string label
     strcpy(field.desc, "string structure element: char [3][56]");
     field.pointer = 0;
@@ -419,7 +419,7 @@ static void init_structure_definitions(IDAM_PLUGIN_INTERFACE* idam_plugin_interf
 
     initCompoundField(&field);
     strcpy(field.name, "v3");
-    field.atomictype = TYPE_STRING;
+    field.atomictype = UDA_TYPE_STRING;
     strcpy(field.type, "STRING");            // convert atomic type to a string label
     strcpy(field.desc, "string structure element: char *");
     field.pointer = 1;
@@ -435,7 +435,7 @@ static void init_structure_definitions(IDAM_PLUGIN_INTERFACE* idam_plugin_interf
 
     initCompoundField(&field);
     strcpy(field.name, "v4");
-    field.atomictype = TYPE_STRING;
+    field.atomictype = UDA_TYPE_STRING;
     strcpy(field.type, "STRING *");            // Array of String pointers
     strcpy(field.desc, "string structure element: char *[3]");
     field.pointer = 0;
@@ -452,7 +452,7 @@ static void init_structure_definitions(IDAM_PLUGIN_INTERFACE* idam_plugin_interf
 
     initCompoundField(&field);
     strcpy(field.name, "v5");
-    field.atomictype = TYPE_STRING;
+    field.atomictype = UDA_TYPE_STRING;
     strcpy(field.type, "STRING *");                // Array of String pointers
     strcpy(field.desc, "string structure element: char **");
     field.pointer = 1;
@@ -483,7 +483,7 @@ static void init_structure_definitions(IDAM_PLUGIN_INTERFACE* idam_plugin_interf
 
     initCompoundField(&field);
     strcpy(field.name, "v6");
-    field.atomictype = TYPE_UNKNOWN;
+    field.atomictype = UDA_TYPE_UNKNOWN;
     strcpy(field.type, "TEST9");                // Array of String pointers
     strcpy(field.desc, "string structure elements with sub structure");
     field.pointer = 0;
@@ -517,16 +517,16 @@ static int do_test0(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     for (i = 0; i < data_block->rank; i++) initDimBlock(&data_block->dims[i]);
 
     if (STR_IEQUALS(request_block->function, "test0")) {
-        data_block->data_type = TYPE_CHAR;
+        data_block->data_type = UDA_TYPE_CHAR;
         strcpy(data_block->data_desc, "testplugins: test0 = single string as a char array");
     } else {
-        data_block->data_type = TYPE_STRING;
+        data_block->data_type = UDA_TYPE_STRING;
         strcpy(data_block->data_desc, "testplugins: test1 = single string");
     }
 
     data_block->data = strdup(help);
 
-    data_block->dims[0].data_type = TYPE_UNSIGNED_INT;
+    data_block->dims[0].data_type = UDA_TYPE_UNSIGNED_INT;
     data_block->dims[0].dim_n = (int)strlen(help) + 1;
     data_block->dims[0].compressed = 1;
     data_block->dims[0].dim0 = 0.0;
@@ -603,23 +603,23 @@ static int do_test2(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     for (i = 0; i < data_block->rank; i++) initDimBlock(&data_block->dims[i]);
 
     if (STR_IEQUALS(request_block->function, "test2")) {
-        data_block->data_type = TYPE_CHAR;
+        data_block->data_type = UDA_TYPE_CHAR;
         strcpy(data_block->data_desc, "testplugins: test2 = 2D array of chars");
     } else {
-        data_block->data_type = TYPE_STRING;
+        data_block->data_type = UDA_TYPE_STRING;
         strcpy(data_block->data_desc, "testplugins: test3 = array of strings");
     }
 
     data_block->data = p;
 
-    data_block->dims[0].data_type = TYPE_UNSIGNED_INT;
+    data_block->dims[0].data_type = UDA_TYPE_UNSIGNED_INT;
     data_block->dims[0].dim_n = sMax;
     data_block->dims[0].compressed = 1;
     data_block->dims[0].dim0 = 0.0;
     data_block->dims[0].diff = 1.0;
     data_block->dims[0].method = 0;
 
-    data_block->dims[1].data_type = TYPE_UNSIGNED_INT;
+    data_block->dims[1].data_type = UDA_TYPE_UNSIGNED_INT;
     data_block->dims[1].dim_n = sCount;
     data_block->dims[1].compressed = 1;
     data_block->dims[1].dim0 = 0.0;
@@ -653,7 +653,7 @@ static int do_test4(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     usertype.imagecount = 0;                // No Structure Image data
     usertype.image = NULL;
     usertype.size = sizeof(TEST4);            // Structure size
-    usertype.idamclass = TYPE_COMPOUND;
+    usertype.idamclass = UDA_TYPE_COMPOUND;
 
     int offset = 0;
 
@@ -661,7 +661,7 @@ static int do_test4(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     initCompoundField(&field);
 
     strcpy(field.name, "value");
-    field.atomictype = TYPE_STRING;
+    field.atomictype = UDA_TYPE_STRING;
     strcpy(field.type, "STRING");            // convert atomic type to a string label
     strcpy(field.desc, "string structure element: value[56]");
 
@@ -689,7 +689,7 @@ static int do_test4(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Pass Data
 
-    data_block->data_type = TYPE_COMPOUND;
+    data_block->data_type = UDA_TYPE_COMPOUND;
     data_block->rank = 0;
     data_block->data_n = 1;
     data_block->data = (char*)data;
@@ -698,7 +698,7 @@ static int do_test4(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     strcpy(data_block->data_label, "Values: 012345678901234567890");
     strcpy(data_block->data_units, "");
 
-    data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
+    data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
     data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST4", 0);
 
@@ -724,7 +724,7 @@ static int do_test5(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     usertype.imagecount = 0;                // No Structure Image data
     usertype.image = NULL;
     usertype.size = sizeof(TEST5);            // Structure size
-    usertype.idamclass = TYPE_COMPOUND;
+    usertype.idamclass = UDA_TYPE_COMPOUND;
 
     int offset = 0;
 
@@ -732,7 +732,7 @@ static int do_test5(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     initCompoundField(&field);
 
     strcpy(field.name, "value");
-    field.atomictype = TYPE_STRING;
+    field.atomictype = UDA_TYPE_STRING;
     strcpy(field.type, "STRING");            // convert atomic type to a string label
     strcpy(field.desc, "string structure element: value[3][56]");
 
@@ -763,7 +763,7 @@ static int do_test5(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Pass Data
 
-    data_block->data_type = TYPE_COMPOUND;
+    data_block->data_type = UDA_TYPE_COMPOUND;
     data_block->rank = 0;
     data_block->data_n = 1;
     data_block->data = (char*)data;
@@ -772,7 +772,7 @@ static int do_test5(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     strcpy(data_block->data_label, "Values: 012345678901234567890, QWERTY KEYBOARD, MAST TOKAMAK");
     strcpy(data_block->data_units, "");
 
-    data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
+    data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
     data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST5", 0);
 
@@ -798,7 +798,7 @@ static int do_test6(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     usertype.imagecount = 0;                // No Structure Image data
     usertype.image = NULL;
     usertype.size = sizeof(TEST6);            // Structure size
-    usertype.idamclass = TYPE_COMPOUND;
+    usertype.idamclass = UDA_TYPE_COMPOUND;
 
     int offset = 0;
 
@@ -806,7 +806,7 @@ static int do_test6(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     initCompoundField(&field);
 
     strcpy(field.name, "value");
-    field.atomictype = TYPE_STRING;
+    field.atomictype = UDA_TYPE_STRING;
     strcpy(field.type, "STRING");            // convert atomic type to a string label
     strcpy(field.desc, "string structure element: *value");
 
@@ -835,7 +835,7 @@ static int do_test6(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Pass Data
 
-    data_block->data_type = TYPE_COMPOUND;
+    data_block->data_type = UDA_TYPE_COMPOUND;
     data_block->rank = 0;
     data_block->data_n = 1;
     data_block->data = (char*)data;
@@ -844,7 +844,7 @@ static int do_test6(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     strcpy(data_block->data_label, "Value: PI=3.1415927");
     strcpy(data_block->data_units, "");
 
-    data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
+    data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
     data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST6", 0);
 
@@ -870,7 +870,7 @@ static int do_test7(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     usertype.imagecount = 0;                                // No Structure Image data
     usertype.image = NULL;
     usertype.size = sizeof(TEST7);                          // Structure size
-    usertype.idamclass = TYPE_COMPOUND;
+    usertype.idamclass = UDA_TYPE_COMPOUND;
 
     int offset = 0;
 
@@ -878,7 +878,7 @@ static int do_test7(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     initCompoundField(&field);
 
     strcpy(field.name, "value");
-    field.atomictype = TYPE_STRING;
+    field.atomictype = UDA_TYPE_STRING;
     strcpy(field.type, "STRING *");                         // Array of String pointers
     strcpy(field.desc, "string structure element: *value[3]");
 
@@ -918,7 +918,7 @@ static int do_test7(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Pass Data
 
-    data_block->data_type = TYPE_COMPOUND;
+    data_block->data_type = UDA_TYPE_COMPOUND;
     data_block->rank = 0;
     data_block->data_n = 1;
     data_block->data = (char*)data;
@@ -927,7 +927,7 @@ static int do_test7(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     strcpy(data_block->data_label, "Values: 012345678901234567890, QWERTY KEYBOARD, MAST TOKAMAK");
     strcpy(data_block->data_units, "");
 
-    data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
+    data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
     data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST7", 0);
 
@@ -953,7 +953,7 @@ static int do_test8(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     usertype.imagecount = 0;                            // No Structure Image data
     usertype.image = NULL;
     usertype.size = sizeof(TEST8);                      // Structure size
-    usertype.idamclass = TYPE_COMPOUND;
+    usertype.idamclass = UDA_TYPE_COMPOUND;
 
     int offset = 0;
 
@@ -961,7 +961,7 @@ static int do_test8(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     initCompoundField(&field);
 
     strcpy(field.name, "value");
-    field.atomictype = TYPE_STRING;
+    field.atomictype = UDA_TYPE_STRING;
     strcpy(field.type, "STRING *");                     // Array of String pointers
     strcpy(field.desc, "string structure element: **value");
 
@@ -1002,7 +1002,7 @@ static int do_test8(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Pass Data
 
-    data_block->data_type = TYPE_COMPOUND;
+    data_block->data_type = UDA_TYPE_COMPOUND;
     data_block->rank = 0;
     data_block->data_n = 1;
     data_block->data = (char*)data;
@@ -1011,7 +1011,7 @@ static int do_test8(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     strcpy(data_block->data_label, "Values: 012345678901234567890, QWERTY KEYBOARD, MAST TOKAMAK");
     strcpy(data_block->data_units, "");
 
-    data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
+    data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
     data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST8", 0);
 
@@ -1063,7 +1063,7 @@ static int do_test9(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Pass Data
 
-    data_block->data_type = TYPE_COMPOUND;
+    data_block->data_type = UDA_TYPE_COMPOUND;
     data_block->rank = 1;
     data_block->data_n = 4;
     data_block->data = (char*)data;
@@ -1072,7 +1072,7 @@ static int do_test9(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     strcpy(data_block->data_label, "Multiple test results");
     strcpy(data_block->data_units, "");
 
-    data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
+    data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
 
     USERDEFINEDTYPELIST* userdefinedtypelist = idam_plugin_interface->userdefinedtypelist;
@@ -1082,7 +1082,7 @@ static int do_test9(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     for (i = 0; i < data_block->rank; i++) initDimBlock(&data_block->dims[i]);
 
-    data_block->dims[0].data_type = TYPE_UNSIGNED_INT;
+    data_block->dims[0].data_type = UDA_TYPE_UNSIGNED_INT;
     data_block->dims[0].dim_n = data_block->data_n;
     data_block->dims[0].compressed = 1;
     data_block->dims[0].dim0 = 0.0;
@@ -1169,7 +1169,7 @@ static int do_test9A(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Pass Data
 
-    data_block->data_type = TYPE_COMPOUND;
+    data_block->data_type = UDA_TYPE_COMPOUND;
     data_block->rank = 1;
     data_block->data_n = 4;
     data_block->data = (char*)data;
@@ -1178,7 +1178,7 @@ static int do_test9A(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     strcpy(data_block->data_label, "Multiple test results");
     strcpy(data_block->data_units, "");
 
-    data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
+    data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
 
     USERDEFINEDTYPELIST* userdefinedtypelist = idam_plugin_interface->userdefinedtypelist;
@@ -1187,7 +1187,7 @@ static int do_test9A(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
     for (i = 0; i < data_block->rank; i++) initDimBlock(&data_block->dims[i]);
 
-    data_block->dims[0].data_type = TYPE_UNSIGNED_INT;
+    data_block->dims[0].data_type = UDA_TYPE_UNSIGNED_INT;
     data_block->dims[0].dim_n = data_block->data_n;
     data_block->dims[0].compressed = 1;
     data_block->dims[0].dim0 = 0.0;
@@ -1208,7 +1208,7 @@ static int do_test10(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Pass Data
 
-    data_block->data_type = TYPE_INT;
+    data_block->data_type = UDA_TYPE_INT;
     data_block->rank = 0;
     data_block->data_n = 1;
     data_block->data = (char*)data;
@@ -1239,7 +1239,7 @@ static int do_test11(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     usertype.imagecount = 0;                // No Structure Image data
     usertype.image = NULL;
     usertype.size = sizeof(TEST11);            // Structure size
-    usertype.idamclass = TYPE_COMPOUND;
+    usertype.idamclass = UDA_TYPE_COMPOUND;
 
     int offset = 0;
 
@@ -1247,7 +1247,7 @@ static int do_test11(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     initCompoundField(&field);
 
     strcpy(field.name, "value");
-    field.atomictype = TYPE_INT;
+    field.atomictype = UDA_TYPE_INT;
     strcpy(field.type, "int");            // convert atomic type to a string label
     strcpy(field.desc, "single integer structure element: value");
 
@@ -1274,7 +1274,7 @@ static int do_test11(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Pass Data
 
-    data_block->data_type = TYPE_COMPOUND;
+    data_block->data_type = UDA_TYPE_COMPOUND;
     data_block->rank = 0;
     data_block->data_n = 1;
     data_block->data = (char*)data;
@@ -1283,7 +1283,7 @@ static int do_test11(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     strcpy(data_block->data_label, "Value: 11");
     strcpy(data_block->data_units, "");
 
-    data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
+    data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
     data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST11", 0);
 
@@ -1309,7 +1309,7 @@ static int do_test12(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     usertype.imagecount = 0;                // No Structure Image data
     usertype.image = NULL;
     usertype.size = sizeof(TEST12);            // Structure size
-    usertype.idamclass = TYPE_COMPOUND;
+    usertype.idamclass = UDA_TYPE_COMPOUND;
 
     int offset = 0;
 
@@ -1317,7 +1317,7 @@ static int do_test12(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     initCompoundField(&field);
 
     strcpy(field.name, "value");
-    field.atomictype = TYPE_INT;
+    field.atomictype = UDA_TYPE_INT;
     strcpy(field.type, "int");            // convert atomic type to a string label
     strcpy(field.desc, "single integer structure element: value");
 
@@ -1346,7 +1346,7 @@ static int do_test12(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Pass Data
 
-    data_block->data_type = TYPE_COMPOUND;
+    data_block->data_type = UDA_TYPE_COMPOUND;
     data_block->rank = 0;
     data_block->data_n = 1;
     data_block->data = (char*)data;
@@ -1355,7 +1355,7 @@ static int do_test12(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     strcpy(data_block->data_label, "Values: 10,11,12");
     strcpy(data_block->data_units, "");
 
-    data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
+    data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
     data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST12", 0);
 
@@ -1381,7 +1381,7 @@ static int do_test13(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     usertype.imagecount = 0;                // No Structure Image data
     usertype.image = NULL;
     usertype.size = sizeof(TEST13);            // Structure size
-    usertype.idamclass = TYPE_COMPOUND;
+    usertype.idamclass = UDA_TYPE_COMPOUND;
 
     int offset = 0;
 
@@ -1389,7 +1389,7 @@ static int do_test13(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     initCompoundField(&field);
 
     strcpy(field.name, "value");
-    field.atomictype = TYPE_INT;
+    field.atomictype = UDA_TYPE_INT;
     strcpy(field.type, "int");            // convert atomic type to a string label
     strcpy(field.desc, "single integer structure element: value");
 
@@ -1422,7 +1422,7 @@ static int do_test13(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Pass Data
 
-    data_block->data_type = TYPE_COMPOUND;
+    data_block->data_type = UDA_TYPE_COMPOUND;
     data_block->rank = 0;
     data_block->data_n = 1;
     data_block->data = (char*)data;
@@ -1431,7 +1431,7 @@ static int do_test13(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     strcpy(data_block->data_label, "Values: {0,1,2},{10,11,12}");
     strcpy(data_block->data_units, "");
 
-    data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
+    data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
     data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST13", 0);
 
@@ -1457,7 +1457,7 @@ static int do_test14(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     usertype.imagecount = 0;                // No Structure Image data
     usertype.image = NULL;
     usertype.size = sizeof(TEST14);            // Structure size
-    usertype.idamclass = TYPE_COMPOUND;
+    usertype.idamclass = UDA_TYPE_COMPOUND;
 
     int offset = 0;
 
@@ -1465,7 +1465,7 @@ static int do_test14(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     initCompoundField(&field);
 
     strcpy(field.name, "value");
-    field.atomictype = TYPE_INT;
+    field.atomictype = UDA_TYPE_INT;
     strcpy(field.type, "int");            // convert atomic type to a string label
     strcpy(field.desc, "single integer structure element: int *value");
 
@@ -1496,7 +1496,7 @@ static int do_test14(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Pass Data
 
-    data_block->data_type = TYPE_COMPOUND;
+    data_block->data_type = UDA_TYPE_COMPOUND;
     data_block->rank = 0;
     data_block->data_n = 1;
     data_block->data = (char*)data;
@@ -1505,7 +1505,7 @@ static int do_test14(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     strcpy(data_block->data_label, "int *value: 14");
     strcpy(data_block->data_units, "");
 
-    data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
+    data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
     data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST14", 0);
 
@@ -1531,7 +1531,7 @@ static int do_test15(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     usertype.imagecount = 0;                // No Structure Image data
     usertype.image = NULL;
     usertype.size = sizeof(TEST15);            // Structure size
-    usertype.idamclass = TYPE_COMPOUND;
+    usertype.idamclass = UDA_TYPE_COMPOUND;
 
     int offset = 0;
 
@@ -1539,7 +1539,7 @@ static int do_test15(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     initCompoundField(&field);
 
     strcpy(field.name, "value");
-    field.atomictype = TYPE_INT;
+    field.atomictype = UDA_TYPE_INT;
     strcpy(field.type, "int");            // convert atomic type to a string label
     strcpy(field.desc, "single integer structure element: value");
 
@@ -1572,7 +1572,7 @@ static int do_test15(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Pass Data
 
-    data_block->data_type = TYPE_COMPOUND;
+    data_block->data_type = UDA_TYPE_COMPOUND;
     data_block->rank = 0;
     data_block->data_n = 1;
     data_block->data = (char*)data;
@@ -1581,7 +1581,7 @@ static int do_test15(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     strcpy(data_block->data_label, "Values: 13,14,15");
     strcpy(data_block->data_units, "");
 
-    data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
+    data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
     data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST15", 0);
 
@@ -1607,7 +1607,7 @@ static int do_test16(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     usertype.imagecount = 0;                // No Structure Image data
     usertype.image = NULL;
     usertype.size = sizeof(TEST16);            // Structure size
-    usertype.idamclass = TYPE_COMPOUND;
+    usertype.idamclass = UDA_TYPE_COMPOUND;
 
     int offset = 0;
 
@@ -1615,7 +1615,7 @@ static int do_test16(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     initCompoundField(&field);
 
     strcpy(field.name, "value");
-    field.atomictype = TYPE_INT;
+    field.atomictype = UDA_TYPE_INT;
     strcpy(field.type, "int");            // convert atomic type to a string label
     strcpy(field.desc, "single integer structure element: value");
 
@@ -1655,7 +1655,7 @@ static int do_test16(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Pass Data
 
-    data_block->data_type = TYPE_COMPOUND;
+    data_block->data_type = UDA_TYPE_COMPOUND;
     data_block->rank = 0;
     data_block->data_n = 1;
     data_block->data = (char*)data;
@@ -1664,7 +1664,7 @@ static int do_test16(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     strcpy(data_block->data_label, "Values: {0,1,2},{10,11,12}");
     strcpy(data_block->data_units, "");
 
-    data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
+    data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
     data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST16", 0);
 
@@ -1690,7 +1690,7 @@ static int do_test18(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     usertype.imagecount = 0;                // No Structure Image data
     usertype.image = NULL;
     usertype.size = sizeof(TEST18);            // Structure size
-    usertype.idamclass = TYPE_COMPOUND;
+    usertype.idamclass = UDA_TYPE_COMPOUND;
 
     int offset = 0;
 
@@ -1698,7 +1698,7 @@ static int do_test18(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     initCompoundField(&field);
 
     strcpy(field.name, "value");
-    field.atomictype = TYPE_INT;
+    field.atomictype = UDA_TYPE_INT;
     strcpy(field.type, "int");            // convert atomic type to a string label
     strcpy(field.desc, "single integer structure element: value");
 
@@ -1730,7 +1730,7 @@ static int do_test18(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Pass Data
 
-    data_block->data_type = TYPE_COMPOUND;
+    data_block->data_type = UDA_TYPE_COMPOUND;
     data_block->rank = 1;
     data_block->data = (char*)data;
 
@@ -1738,14 +1738,14 @@ static int do_test18(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     strcpy(data_block->data_label, "100000 Values: i 0, 100000");
     strcpy(data_block->data_units, "");
 
-    data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
+    data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
     data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST18", 0);
 
     data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
     for (i = 0; i < data_block->rank; i++) initDimBlock(&data_block->dims[i]);
 
-    data_block->dims[0].data_type = TYPE_UNSIGNED_INT;
+    data_block->dims[0].data_type = UDA_TYPE_UNSIGNED_INT;
     data_block->dims[0].dim_n = data_block->data_n;
     data_block->dims[0].compressed = 1;
     data_block->dims[0].dim0 = 0.0;
@@ -1772,7 +1772,7 @@ static int do_test19(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     usertype.imagecount = 0;                                        // No Structure Image data
     usertype.image = NULL;
     usertype.size = sizeof(TEST19A);                                // Structure size
-    usertype.idamclass = TYPE_COMPOUND;
+    usertype.idamclass = UDA_TYPE_COMPOUND;
 
     int offset = 0;
 
@@ -1780,7 +1780,7 @@ static int do_test19(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     initCompoundField(&field);
 
     strcpy(field.name, "value");
-    field.atomictype = TYPE_INT;
+    field.atomictype = UDA_TYPE_INT;
     strcpy(field.type, "int");
     strcpy(field.desc, "integer structure element");
 
@@ -1814,14 +1814,14 @@ static int do_test19(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     usertype.imagecount = 0;                                        // No Structure Image data
     usertype.image = NULL;
     usertype.size = sizeof(TEST19);                                 // Structure size
-    usertype.idamclass = TYPE_COMPOUND;
+    usertype.idamclass = UDA_TYPE_COMPOUND;
 
     offset = 0;
 
     initCompoundField(&field);
 
     strcpy(field.name, "value");
-    field.atomictype = TYPE_INT;
+    field.atomictype = UDA_TYPE_INT;
     strcpy(field.type, "int");
     strcpy(field.desc, "integer");
 
@@ -1841,7 +1841,7 @@ static int do_test19(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     initCompoundField(&field);
 
     strcpy(field.name, "vals");
-    field.atomictype = TYPE_UNKNOWN;
+    field.atomictype = UDA_TYPE_UNKNOWN;
     strcpy(field.type, "TEST19A");
     strcpy(field.desc, "structure TEST19A");
 
@@ -1876,7 +1876,7 @@ static int do_test19(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Pass Data
 
-    data_block->data_type = TYPE_COMPOUND;
+    data_block->data_type = UDA_TYPE_COMPOUND;
     data_block->rank = 1;
     data_block->data = (char*)data;
 
@@ -1884,14 +1884,14 @@ static int do_test19(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     strcpy(data_block->data_label, "Values: ");
     strcpy(data_block->data_units, "");
 
-    data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
+    data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
     data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST19", 0);
 
     data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
     for (i = 0; i < data_block->rank; i++) initDimBlock(&data_block->dims[i]);
 
-    data_block->dims[0].data_type = TYPE_UNSIGNED_INT;
+    data_block->dims[0].data_type = UDA_TYPE_UNSIGNED_INT;
     data_block->dims[0].dim_n = data_block->data_n;
     data_block->dims[0].compressed = 1;
     data_block->dims[0].dim0 = 0.0;
@@ -1912,7 +1912,7 @@ static int do_test20(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Pass Data
 
-    data_block->data_type = TYPE_SHORT;
+    data_block->data_type = UDA_TYPE_SHORT;
     data_block->rank = 0;
     data_block->data_n = 1;
     data_block->data = (char*)data;
@@ -1943,7 +1943,7 @@ static int do_test21(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     usertype.imagecount = 0;                                // No Structure Image data
     usertype.image = NULL;
     usertype.size = sizeof(TEST21);                         // Structure size
-    usertype.idamclass = TYPE_COMPOUND;
+    usertype.idamclass = UDA_TYPE_COMPOUND;
 
     int offset = 0;
 
@@ -1951,7 +1951,7 @@ static int do_test21(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     initCompoundField(&field);
 
     strcpy(field.name, "value");
-    field.atomictype = TYPE_SHORT;
+    field.atomictype = UDA_TYPE_SHORT;
     strcpy(field.type, "short");                            // convert atomic type to a string label
     strcpy(field.desc, "single short integer structure element: value");
 
@@ -1978,7 +1978,7 @@ static int do_test21(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Pass Data
 
-    data_block->data_type = TYPE_COMPOUND;
+    data_block->data_type = UDA_TYPE_COMPOUND;
     data_block->rank = 0;
     data_block->data_n = 1;
     data_block->data = (char*)data;
@@ -1987,7 +1987,7 @@ static int do_test21(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     strcpy(data_block->data_label, "Short Value: 21");
     strcpy(data_block->data_units, "");
 
-    data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
+    data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
     data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST21", 0);
 
@@ -2013,7 +2013,7 @@ static int do_test22(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     usertype.imagecount = 0;                // No Structure Image data
     usertype.image = NULL;
     usertype.size = sizeof(TEST22);            // Structure size
-    usertype.idamclass = TYPE_COMPOUND;
+    usertype.idamclass = UDA_TYPE_COMPOUND;
 
     int offset = 0;
 
@@ -2021,7 +2021,7 @@ static int do_test22(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     initCompoundField(&field);
 
     strcpy(field.name, "value");
-    field.atomictype = TYPE_SHORT;
+    field.atomictype = UDA_TYPE_SHORT;
     strcpy(field.type, "short");            // convert atomic type to a string label
     strcpy(field.desc, "single short integer structure element: value");
 
@@ -2050,7 +2050,7 @@ static int do_test22(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Pass Data
 
-    data_block->data_type = TYPE_COMPOUND;
+    data_block->data_type = UDA_TYPE_COMPOUND;
     data_block->rank = 0;
     data_block->data_n = 1;
     data_block->data = (char*)data;
@@ -2059,7 +2059,7 @@ static int do_test22(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     strcpy(data_block->data_label, "Short Array Values: 20,21,22");
     strcpy(data_block->data_units, "");
 
-    data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
+    data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
     data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST22", 0);
 
@@ -2085,7 +2085,7 @@ static int do_test23(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     usertype.imagecount = 0;                                    // No Structure Image data
     usertype.image = NULL;
     usertype.size = sizeof(TEST23);                             // Structure size
-    usertype.idamclass = TYPE_COMPOUND;
+    usertype.idamclass = UDA_TYPE_COMPOUND;
 
     int offset = 0;
 
@@ -2093,7 +2093,7 @@ static int do_test23(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     initCompoundField(&field);
 
     strcpy(field.name, "value");
-    field.atomictype = TYPE_SHORT;
+    field.atomictype = UDA_TYPE_SHORT;
     strcpy(field.type, "short");                                // convert atomic type to a string label
     strcpy(field.desc, "short integer array: value");
 
@@ -2126,7 +2126,7 @@ static int do_test23(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Pass Data
 
-    data_block->data_type = TYPE_COMPOUND;
+    data_block->data_type = UDA_TYPE_COMPOUND;
     data_block->rank = 0;
     data_block->data_n = 1;
     data_block->data = (char*)data;
@@ -2135,7 +2135,7 @@ static int do_test23(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     strcpy(data_block->data_label, "Values: {0,1,2},{10,11,12}");
     strcpy(data_block->data_units, "");
 
-    data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
+    data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
     data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST23", 0);
 
@@ -2161,7 +2161,7 @@ static int do_test24(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     usertype.imagecount = 0;                                    // No Structure Image data
     usertype.image = NULL;
     usertype.size = sizeof(TEST24);                             // Structure size
-    usertype.idamclass = TYPE_COMPOUND;
+    usertype.idamclass = UDA_TYPE_COMPOUND;
 
     int offset = 0;
 
@@ -2169,7 +2169,7 @@ static int do_test24(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     initCompoundField(&field);
 
     strcpy(field.name, "value");
-    field.atomictype = TYPE_SHORT;
+    field.atomictype = UDA_TYPE_SHORT;
     strcpy(field.type, "short");                                // convert atomic type to a string label
     strcpy(field.desc, "short *value");
 
@@ -2200,7 +2200,7 @@ static int do_test24(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Pass Data
 
-    data_block->data_type = TYPE_COMPOUND;
+    data_block->data_type = UDA_TYPE_COMPOUND;
     data_block->rank = 0;
     data_block->data_n = 1;
     data_block->data = (char*)data;
@@ -2209,7 +2209,7 @@ static int do_test24(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     strcpy(data_block->data_label, "short *value: 14");
     strcpy(data_block->data_units, "");
 
-    data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
+    data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
     data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST24", 0);
 
@@ -2235,7 +2235,7 @@ static int do_test25(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     usertype.imagecount = 0;                                    // No Structure Image data
     usertype.image = NULL;
     usertype.size = sizeof(TEST25);                             // Structure size
-    usertype.idamclass = TYPE_COMPOUND;
+    usertype.idamclass = UDA_TYPE_COMPOUND;
 
     int offset = 0;
 
@@ -2243,7 +2243,7 @@ static int do_test25(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     initCompoundField(&field);
 
     strcpy(field.name, "value");
-    field.atomictype = TYPE_SHORT;
+    field.atomictype = UDA_TYPE_SHORT;
     strcpy(field.type, "short");                                // convert atomic type to a string label
     strcpy(field.desc, "short *value");
 
@@ -2276,7 +2276,7 @@ static int do_test25(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Pass Data
 
-    data_block->data_type = TYPE_COMPOUND;
+    data_block->data_type = UDA_TYPE_COMPOUND;
     data_block->rank = 0;
     data_block->data_n = 1;
     data_block->data = (char*)data;
@@ -2285,7 +2285,7 @@ static int do_test25(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     strcpy(data_block->data_label, "Short Values: 13,14,15");
     strcpy(data_block->data_units, "");
 
-    data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
+    data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
     data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST25", 0);
 
@@ -2311,7 +2311,7 @@ static int do_test26(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     usertype.imagecount = 0;                                        // No Structure Image data
     usertype.image = NULL;
     usertype.size = sizeof(TEST26);                                 // Structure size
-    usertype.idamclass = TYPE_COMPOUND;
+    usertype.idamclass = UDA_TYPE_COMPOUND;
 
     int offset = 0;
 
@@ -2319,7 +2319,7 @@ static int do_test26(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     initCompoundField(&field);
 
     strcpy(field.name, "value");
-    field.atomictype = TYPE_SHORT;
+    field.atomictype = UDA_TYPE_SHORT;
     strcpy(field.type, "short");                                    // convert atomic type to a string label
     strcpy(field.desc, "short *value");
 
@@ -2360,7 +2360,7 @@ static int do_test26(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Pass Data
 
-    data_block->data_type = TYPE_COMPOUND;
+    data_block->data_type = UDA_TYPE_COMPOUND;
     data_block->rank = 0;
     data_block->data_n = 1;
     data_block->data = (char*)data;
@@ -2369,7 +2369,7 @@ static int do_test26(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     strcpy(data_block->data_label, "Short Values: 13,14,15   23,24,25");
     strcpy(data_block->data_units, "");
 
-    data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
+    data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
     data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST26", 0);
 
@@ -2395,7 +2395,7 @@ static int do_test27(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     usertype.imagecount = 0;                                    // No Structure Image data
     usertype.image = NULL;
     usertype.size = sizeof(TEST27);                             // Structure size
-    usertype.idamclass = TYPE_COMPOUND;
+    usertype.idamclass = UDA_TYPE_COMPOUND;
 
     int offset = 0;
 
@@ -2403,7 +2403,7 @@ static int do_test27(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     initCompoundField(&field);
 
     strcpy(field.name, "value");
-    field.atomictype = TYPE_SHORT;
+    field.atomictype = UDA_TYPE_SHORT;
     strcpy(field.type, "short");                                // convert atomic type to a string label
     strcpy(field.desc, "short integer array: value");
 
@@ -2458,7 +2458,7 @@ static int do_test27(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Pass Data
 
-    data_block->data_type = TYPE_COMPOUND;
+    data_block->data_type = UDA_TYPE_COMPOUND;
     data_block->rank = 0;
     data_block->data_n = 1;
     data_block->data = (char*)data;
@@ -2467,7 +2467,7 @@ static int do_test27(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     strcpy(data_block->data_label, "Values: {0,1,2,3},{10,11,12,13},...");
     strcpy(data_block->data_units, "");
 
-    data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
+    data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
     data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST27", 0);
 
@@ -2493,7 +2493,7 @@ static int do_test28(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     usertype.imagecount = 0;                // No Structure Image data
     usertype.image = NULL;
     usertype.size = sizeof(TEST28);            // Structure size
-    usertype.idamclass = TYPE_COMPOUND;
+    usertype.idamclass = UDA_TYPE_COMPOUND;
 
     int offset = 0;
 
@@ -2501,7 +2501,7 @@ static int do_test28(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     initCompoundField(&field);
 
     strcpy(field.name, "value");
-    field.atomictype = TYPE_SHORT;
+    field.atomictype = UDA_TYPE_SHORT;
     strcpy(field.type, "short");            // convert atomic type to a string label
     strcpy(field.desc, "short *value");
 
@@ -2561,7 +2561,7 @@ static int do_test28(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Pass Data
 
-    data_block->data_type = TYPE_COMPOUND;
+    data_block->data_type = UDA_TYPE_COMPOUND;
     data_block->rank = 0;
     data_block->data_n = 1;
     data_block->data = (char*)data;
@@ -2570,7 +2570,7 @@ static int do_test28(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     strcpy(data_block->data_label, "Short Values: 13,14,15   23,24,25");
     strcpy(data_block->data_units, "");
 
-    data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
+    data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
     data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST28", 0);
 
@@ -2597,7 +2597,7 @@ static int do_test30(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     usertype.imagecount = 0;                // No Structure Image data
     usertype.image = NULL;
     usertype.size = sizeof(TEST30);            // Structure size
-    usertype.idamclass = TYPE_COMPOUND;
+    usertype.idamclass = UDA_TYPE_COMPOUND;
 
     int offset = 0;
 
@@ -2625,7 +2625,7 @@ static int do_test30(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Pass Data
 
-    data_block->data_type = TYPE_COMPOUND;
+    data_block->data_type = UDA_TYPE_COMPOUND;
     data_block->rank = 0;
     data_block->data_n = 1;
     data_block->data = (char*)data;
@@ -2634,7 +2634,7 @@ static int do_test30(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     strcpy(data_block->data_label, "Double Values: (1, 2)");
     strcpy(data_block->data_units, "");
 
-    data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
+    data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
     data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST30", 0);
 
@@ -2661,7 +2661,7 @@ static int do_test31(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     usertype.imagecount = 0;                // No Structure Image data
     usertype.image = NULL;
     usertype.size = sizeof(TEST30);            // Structure size
-    usertype.idamclass = TYPE_COMPOUND;
+    usertype.idamclass = UDA_TYPE_COMPOUND;
 
     int offset = 0;
 
@@ -2705,7 +2705,7 @@ static int do_test31(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Pass Data
 
-    data_block->data_type = TYPE_COMPOUND;
+    data_block->data_type = UDA_TYPE_COMPOUND;
     data_block->rank = 0;
     data_block->data_n = 1;
     data_block->data = (char*)data;
@@ -2714,7 +2714,7 @@ static int do_test31(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     strcpy(data_block->data_label, "Double Values [5, 20] : (1*, 10*)");
     strcpy(data_block->data_units, "");
 
-    data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
+    data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
     data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST30", 0);
 
@@ -2739,7 +2739,7 @@ static int do_test32(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     usertype.imagecount = 0;                                        // No Structure Image data
     usertype.image = NULL;
     usertype.size = sizeof(TEST32A);                                // Structure size
-    usertype.idamclass = TYPE_COMPOUND;
+    usertype.idamclass = UDA_TYPE_COMPOUND;
 
     int offset = 0;
 
@@ -2773,7 +2773,7 @@ static int do_test32(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     usertype.imagecount = 0;                                        // No Structure Image data
     usertype.image = NULL;
     usertype.size = sizeof(TEST32);                                 // Structure size
-    usertype.idamclass = TYPE_COMPOUND;
+    usertype.idamclass = UDA_TYPE_COMPOUND;
 
     offset = 0;
 
@@ -2785,7 +2785,7 @@ static int do_test32(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     initCompoundField(&field);
 
     strcpy(field.name, "coords");
-    field.atomictype = TYPE_UNKNOWN;
+    field.atomictype = UDA_TYPE_UNKNOWN;
     strcpy(field.type, "TEST32A");
     strcpy(field.desc, "structure TEST32A");
 
@@ -2821,7 +2821,7 @@ static int do_test32(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Pass Data
 
-    data_block->data_type = TYPE_COMPOUND;
+    data_block->data_type = UDA_TYPE_COMPOUND;
     data_block->rank = 0;
     data_block->data_n = 1;
     data_block->data = (char*)data;
@@ -2830,7 +2830,7 @@ static int do_test32(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     strcpy(data_block->data_label, "Double Values [5, 20] : (1*, 10*)");
     strcpy(data_block->data_units, "");
 
-    data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
+    data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
     data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST32", 0);
 
@@ -2855,7 +2855,7 @@ static int do_test33(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     usertype.imagecount = 0;                                        // No Structure Image data
     usertype.image = NULL;
     usertype.size = sizeof(TEST33A);                                // Structure size
-    usertype.idamclass = TYPE_COMPOUND;
+    usertype.idamclass = UDA_TYPE_COMPOUND;
 
     int offset = 0;
 
@@ -2889,7 +2889,7 @@ static int do_test33(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     usertype.imagecount = 0;                                        // No Structure Image data
     usertype.image = NULL;
     usertype.size = sizeof(TEST33);                                 // Structure size
-    usertype.idamclass = TYPE_COMPOUND;
+    usertype.idamclass = UDA_TYPE_COMPOUND;
 
     offset = 0;
 
@@ -2901,7 +2901,7 @@ static int do_test33(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     initCompoundField(&field);
 
     strcpy(field.name, "coords");
-    field.atomictype = TYPE_UNKNOWN;
+    field.atomictype = UDA_TYPE_UNKNOWN;
     strcpy(field.type, "TEST33A");
     strcpy(field.desc, "structure TEST33A");
 
@@ -2943,7 +2943,7 @@ static int do_test33(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Pass Data
 
-    data_block->data_type = TYPE_COMPOUND;
+    data_block->data_type = UDA_TYPE_COMPOUND;
     data_block->rank = 0;
     data_block->data_n = 1;
     data_block->data = (char*)data;
@@ -2952,7 +2952,7 @@ static int do_test33(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     strcpy(data_block->data_label, "Double Values [5, 20] : (1*, 10*)");
     strcpy(data_block->data_units, "");
 
-    data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
+    data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
     data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST33", 0);
 
@@ -2991,7 +2991,7 @@ static int do_test40(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     usertype.imagecount = 0;                // No Structure Image data
     usertype.image = NULL;
     usertype.size = sizeof(TEST40);            // Structure size
-    usertype.idamclass = TYPE_COMPOUND;
+    usertype.idamclass = UDA_TYPE_COMPOUND;
 
     int offset = 0;
 
@@ -3013,13 +3013,13 @@ static int do_test40(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     defineField(&field, "dataCount", "the number of data array elements", &offset, SCALARUINT);
 
     switch (request_block->putDataBlockList.putDataBlock[0].data_type) {
-        case TYPE_INT:
+        case UDA_TYPE_INT:
             defineField(&field, "data", "the block data array", &offset, ARRAYINT);
             break;
-        case TYPE_FLOAT:
+        case UDA_TYPE_FLOAT:
             defineField(&field, "data", "the block data array", &offset, ARRAYFLOAT);
             break;
-        case TYPE_DOUBLE:
+        case UDA_TYPE_DOUBLE:
             defineField(&field, "data", "the block data array", &offset, ARRAYDOUBLE);
             break;
     }
@@ -3034,7 +3034,7 @@ static int do_test40(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     usertype.imagecount = 0;                // No Structure Image data
     usertype.image = NULL;
     usertype.size = sizeof(TEST41);            // Structure size
-    usertype.idamclass = TYPE_COMPOUND;
+    usertype.idamclass = UDA_TYPE_COMPOUND;
 
     offset = 0;
     initCompoundField(&field);
@@ -3042,7 +3042,7 @@ static int do_test40(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     defineField(&field, "count", "the number of data blocks", &offset, SCALARUINT);
 
     strcpy(field.name, "blocks");
-    field.atomictype = TYPE_UNKNOWN;
+    field.atomictype = UDA_TYPE_UNKNOWN;
     strcpy(field.type, "TEST40");
     strcpy(field.desc, "Array of Block Data");
 
@@ -3081,14 +3081,14 @@ static int do_test40(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 // Data blocks already allocated and will be freed by a separate process so use addNonMalloc instead of addMalloc
 
         switch (request_block->putDataBlockList.putDataBlock[0].data_type) {
-            case TYPE_INT:
+            case UDA_TYPE_INT:
                 addNonMalloc(blocks[i].data, blocks[i].dataCount, sizeof(int), "int");
                 break;
-            case TYPE_FLOAT:
+            case UDA_TYPE_FLOAT:
                 addNonMalloc(blocks[i].data, blocks[i].dataCount, sizeof(float), "float");
                 float* f = (float*) blocks[i].data;
                 break;
-            case TYPE_DOUBLE:
+            case UDA_TYPE_DOUBLE:
                 addNonMalloc(blocks[i].data, blocks[i].dataCount, sizeof(double), "double");
                 break;
         }
@@ -3096,7 +3096,7 @@ static int do_test40(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Pass Data back
 
-    data_block->data_type = TYPE_COMPOUND;
+    data_block->data_type = UDA_TYPE_COMPOUND;
     data_block->rank = 0;
     data_block->data_n = 1;
     data_block->data = (char*) data;
@@ -3105,7 +3105,7 @@ static int do_test40(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     strcpy(data_block->data_label, "Data type TEST41 with array of TEST40");
     strcpy(data_block->data_units, "");
 
-    data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
+    data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
     data_block->opaque_block = (void*) findUserDefinedType(userdefinedtypelist, "TEST41", 0);
 
@@ -3227,7 +3227,7 @@ static int do_scalartest(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     *p = 10;
     data_block->data = (char*)p;
     data_block->data_n = 1;
-    data_block->data_type = TYPE_INT;
+    data_block->data_type = UDA_TYPE_INT;
 
     return 0;
 }
@@ -3478,7 +3478,7 @@ static int do_testudt(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     data_block->rank = 0;
     data_block->data_n = 1;
-    data_block->data_type = TYPE_INT;
+    data_block->data_type = UDA_TYPE_INT;
 
     int* status = (int*) malloc(sizeof(int));
     status[0] = 0;

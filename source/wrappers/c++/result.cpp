@@ -17,35 +17,35 @@
 static const std::type_info* idamTypeToTypeID(int type)
 {
     switch (type) {
-        case TYPE_CHAR:
+        case UDA_TYPE_CHAR:
             return &typeid(char);
-        case TYPE_SHORT:
+        case UDA_TYPE_SHORT:
             return &typeid(short);
-        case TYPE_INT:
+        case UDA_TYPE_INT:
             return &typeid(int);
-        case TYPE_UNSIGNED_INT:
+        case UDA_TYPE_UNSIGNED_INT:
             return &typeid(unsigned int);
-        case TYPE_LONG:
+        case UDA_TYPE_LONG:
             return &typeid(long);
-        case TYPE_FLOAT:
+        case UDA_TYPE_FLOAT:
             return &typeid(float);
-        case TYPE_DOUBLE:
+        case UDA_TYPE_DOUBLE:
             return &typeid(double);
-        case TYPE_UNSIGNED_CHAR:
+        case UDA_TYPE_UNSIGNED_CHAR:
             return &typeid(unsigned char);
-        case TYPE_UNSIGNED_SHORT:
+        case UDA_TYPE_UNSIGNED_SHORT:
             return &typeid(unsigned short);
-        case TYPE_UNSIGNED_LONG:
+        case UDA_TYPE_UNSIGNED_LONG:
             return &typeid(unsigned long);
-        case TYPE_LONG64:
+        case UDA_TYPE_LONG64:
             return &typeid(long long);
-        case TYPE_UNSIGNED_LONG64:
+        case UDA_TYPE_UNSIGNED_LONG64:
             return &typeid(unsigned long long);
-        case TYPE_COMPLEX:
+        case UDA_TYPE_COMPLEX:
             return &typeid(std::complex<float>);
-        case TYPE_DCOMPLEX:
+        case UDA_TYPE_DCOMPLEX:
             return &typeid(std::complex<double>);
-        case TYPE_STRING:
+        case UDA_TYPE_STRING:
             return &typeid(char*);
         default:
             return &typeid(void);
@@ -126,29 +126,29 @@ uda::Dim uda::Result::dim(uda::dim_type num, DataType data_type) const
     }
 
     switch (type) {
-        case TYPE_CHAR:
+        case UDA_TYPE_CHAR:
             return getDim<char>(handle_, num, data_type);
-        case TYPE_SHORT:
+        case UDA_TYPE_SHORT:
             return getDim<short>(handle_, num, data_type);
-        case TYPE_INT:
+        case UDA_TYPE_INT:
             return getDim<int>(handle_, num, data_type);
-        case TYPE_UNSIGNED_INT:
+        case UDA_TYPE_UNSIGNED_INT:
             return getDim<unsigned int>(handle_, num, data_type);
-        case TYPE_LONG:
+        case UDA_TYPE_LONG:
             return getDim<long>(handle_, num, data_type);
-        case TYPE_FLOAT:
+        case UDA_TYPE_FLOAT:
             return getDim<float>(handle_, num, data_type);
-        case TYPE_DOUBLE:
+        case UDA_TYPE_DOUBLE:
             return getDim<double>(handle_, num, data_type);
-        case TYPE_UNSIGNED_CHAR:
+        case UDA_TYPE_UNSIGNED_CHAR:
             return getDim<unsigned char>(handle_, num, data_type);
-        case TYPE_UNSIGNED_SHORT:
+        case UDA_TYPE_UNSIGNED_SHORT:
             return getDim<unsigned short>(handle_, num, data_type);
-        case TYPE_UNSIGNED_LONG:
+        case UDA_TYPE_UNSIGNED_LONG:
             return getDim<unsigned long>(handle_, num, data_type);
-        case TYPE_LONG64:
+        case UDA_TYPE_LONG64:
             return getDim<long long>(handle_, num, data_type);
-        case TYPE_UNSIGNED_LONG64:
+        case UDA_TYPE_UNSIGNED_LONG64:
             return getDim<unsigned long long>(handle_, num, data_type);
         default:
             return Dim::Null;
@@ -218,31 +218,31 @@ uda::Data* uda::Result::data() const
     int type = getIdamDataType(handle_);
 
     switch (type) {
-        case TYPE_CHAR:
+        case UDA_TYPE_CHAR:
             return getDataAs<char>(handle_, DATA, dims);
-        case TYPE_SHORT:
+        case UDA_TYPE_SHORT:
             return getDataAs<short>(handle_, DATA, dims);
-        case TYPE_INT:
+        case UDA_TYPE_INT:
             return getDataAs<int>(handle_, DATA, dims);
-        case TYPE_UNSIGNED_INT:
+        case UDA_TYPE_UNSIGNED_INT:
             return getDataAs<unsigned int>(handle_, DATA, dims);
-        case TYPE_LONG:
+        case UDA_TYPE_LONG:
             return getDataAs<long>(handle_, DATA, dims);
-        case TYPE_FLOAT:
+        case UDA_TYPE_FLOAT:
             return getDataAs<float>(handle_, DATA, dims);
-        case TYPE_DOUBLE:
+        case UDA_TYPE_DOUBLE:
             return getDataAs<double>(handle_, DATA, dims);
-        case TYPE_UNSIGNED_CHAR:
+        case UDA_TYPE_UNSIGNED_CHAR:
             return getDataAs<unsigned char>(handle_, DATA, dims);
-        case TYPE_UNSIGNED_SHORT:
+        case UDA_TYPE_UNSIGNED_SHORT:
             return getDataAs<unsigned short>(handle_, DATA, dims);
-        case TYPE_UNSIGNED_LONG:
+        case UDA_TYPE_UNSIGNED_LONG:
             return getDataAs<unsigned long>(handle_, DATA, dims);
-        case TYPE_LONG64:
+        case UDA_TYPE_LONG64:
             return getDataAs<long long>(handle_, DATA, dims);
-        case TYPE_UNSIGNED_LONG64:
+        case UDA_TYPE_UNSIGNED_LONG64:
             return getDataAs<unsigned long long>(handle_, DATA, dims);
-        case TYPE_STRING:
+        case UDA_TYPE_STRING:
             if (rank == 1) {
                 return getDataAsString(handle_);
             } else {
@@ -256,7 +256,7 @@ uda::Data* uda::Result::data() const
 
 bool uda::Result::hasErrors() const
 {
-    return getIdamErrorType(handle_) != TYPE_UNKNOWN;
+    return getIdamErrorType(handle_) != UDA_TYPE_UNKNOWN;
 }
 
 uda::Data* uda::Result::errors() const
@@ -275,31 +275,31 @@ uda::Data* uda::Result::errors() const
     int type = getIdamErrorType(handle_);
 
     switch (type) {
-        case TYPE_CHAR:
+        case UDA_TYPE_CHAR:
             return getDataAs<char>(handle_, ERRORS, dims);
-        case TYPE_SHORT:
+        case UDA_TYPE_SHORT:
             return getDataAs<short>(handle_, ERRORS, dims);
-        case TYPE_INT:
+        case UDA_TYPE_INT:
             return getDataAs<int>(handle_, ERRORS, dims);
-        case TYPE_UNSIGNED_INT:
+        case UDA_TYPE_UNSIGNED_INT:
             return getDataAs<unsigned int>(handle_, ERRORS, dims);
-        case TYPE_LONG:
+        case UDA_TYPE_LONG:
             return getDataAs<long>(handle_, ERRORS, dims);
-        case TYPE_FLOAT:
+        case UDA_TYPE_FLOAT:
             return getDataAs<float>(handle_, ERRORS, dims);
-        case TYPE_DOUBLE:
+        case UDA_TYPE_DOUBLE:
             return getDataAs<double>(handle_, ERRORS, dims);
-        case TYPE_UNSIGNED_CHAR:
+        case UDA_TYPE_UNSIGNED_CHAR:
             return getDataAs<unsigned char>(handle_, ERRORS, dims);
-        case TYPE_UNSIGNED_SHORT:
+        case UDA_TYPE_UNSIGNED_SHORT:
             return getDataAs<unsigned short>(handle_, ERRORS, dims);
-        case TYPE_UNSIGNED_LONG:
+        case UDA_TYPE_UNSIGNED_LONG:
             return getDataAs<unsigned long>(handle_, ERRORS, dims);
-        case TYPE_LONG64:
+        case UDA_TYPE_LONG64:
             return getDataAs<long long>(handle_, ERRORS, dims);
-        case TYPE_UNSIGNED_LONG64:
+        case UDA_TYPE_UNSIGNED_LONG64:
             return getDataAs<unsigned long long>(handle_, ERRORS, dims);
-        case TYPE_STRING:
+        case UDA_TYPE_STRING:
             if (rank == 1) {
                 return getDataAsString(handle_);
             } else {

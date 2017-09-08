@@ -467,7 +467,7 @@ static int do_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, EFIT* efit)
             }
             data_block->rank = 0;
             data_block->data_n = count;
-            data_block->data_type = TYPE_DOUBLE;
+            data_block->data_type = UDA_TYPE_DOUBLE;
             strcpy(data_block->data_desc, "efitmagxml: Element Geometry/Coordinate Array returned");
             data_block->data = (char*)data;
             return 0;

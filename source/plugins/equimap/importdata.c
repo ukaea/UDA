@@ -261,7 +261,7 @@ int imputeData(char* signal)
 // Replace Data
 
     DATA_BLOCK* data_block = getIdamDataBlock(handle);
-    data_block->data_type = TYPE_FLOAT;
+    data_block->data_type = UDA_TYPE_FLOAT;
     free((void*)data_block->data);
     data_block->data = (char*)dataR;
 
@@ -603,7 +603,7 @@ int importData(REQUEST_BLOCK* request_block, EQUIMAPDATA* equimapdata)
                 db->dims->dim = (char*)malloc(sizeof(float));
                 float* temp = (float*)db->dims->dim;
                 temp[0] = times[0];
-                db->data_type = TYPE_FLOAT;
+                db->data_type = UDA_TYPE_FLOAT;
             }
         }
         free((void*)times);

@@ -105,7 +105,7 @@ void printDataBlock(DATA_BLOCK str)
     IDAM_LOGF(UDA_LOG_DEBUG, "opaque_count: %d\n", str.opaque_count);
 
     switch (str.opaque_type) {
-        case (OPAQUE_TYPE_XML_DOCUMENT):
+        case (UDA_OPAQUE_TYPE_XML_DOCUMENT):
             if (str.opaque_block != NULL) IDAM_LOGF(UDA_LOG_DEBUG, "\nXML: %s\n\n", (char*) str.opaque_block);
             break;
         default:
@@ -115,18 +115,18 @@ void printDataBlock(DATA_BLOCK str)
     k = 10;
     if (str.data_n < 10) k = str.data_n;
 
-    if (str.data_type == TYPE_FLOAT) {
+    if (str.data_type == UDA_TYPE_FLOAT) {
         for (j = 0; j < k; j++)IDAM_LOGF(UDA_LOG_DEBUG, "data[%d]: %f\n", j, *((float*) str.data + j));
     }
-    if (str.data_type == TYPE_DOUBLE) {
+    if (str.data_type == UDA_TYPE_DOUBLE) {
         for (j = 0; j < k; j++)IDAM_LOGF(UDA_LOG_DEBUG, "data[%d]: %f\n", j, *((double*) str.data + j));
     }
 
-    if (str.error_type == TYPE_FLOAT && str.errhi != NULL) {
+    if (str.error_type == UDA_TYPE_FLOAT && str.errhi != NULL) {
         for (j = 0; j < k; j++)IDAM_LOGF(UDA_LOG_DEBUG, "errhi[%d]: %f\n", j, *((float*) str.errhi + j));
     }
 
-    if (str.error_type == TYPE_FLOAT && str.errlo != NULL && str.errasymmetry) {
+    if (str.error_type == UDA_TYPE_FLOAT && str.errlo != NULL && str.errasymmetry) {
         for (j = 0; j < k; j++)IDAM_LOGF(UDA_LOG_DEBUG, "errlo[%d]: %f\n", j, *((float*) str.errlo + j));
     }
 
@@ -155,14 +155,14 @@ void printDataBlock(DATA_BLOCK str)
                 IDAM_LOGF(UDA_LOG_DEBUG, "starting val: %f\n", str.dims[i].dim0);
                 IDAM_LOGF(UDA_LOG_DEBUG, "stepping val: %f\n", str.dims[i].diff);
             } else {
-                if (str.dims[i].data_type == TYPE_FLOAT) {
+                if (str.dims[i].data_type == UDA_TYPE_FLOAT) {
                     k = 10;
                     if (str.dims[i].dim_n < 10) k = str.dims[i].dim_n;
                     if (str.dims[i].dim != NULL)
                         for (j = 0; j < k; j++)
                             IDAM_LOGF(UDA_LOG_DEBUG, "val[%d] = %f\n", j, *((float*) str.dims[i].dim + j));
                 }
-                if (str.dims[i].data_type == TYPE_DOUBLE) {
+                if (str.dims[i].data_type == UDA_TYPE_DOUBLE) {
                     k = 10;
                     if (str.dims[i].dim_n < 10) k = str.dims[i].dim_n;
                     if (str.dims[i].dim != NULL)
@@ -174,7 +174,7 @@ void printDataBlock(DATA_BLOCK str)
             IDAM_LOGF(UDA_LOG_DEBUG, "udoms: %d\n", str.dims[i].udoms);
             switch (str.dims[i].method) {
                 case 1:
-                    if (str.dims[i].data_type == TYPE_FLOAT) {
+                    if (str.dims[i].data_type == UDA_TYPE_FLOAT) {
                         k = 10;
                         if (str.dims[i].udoms < 10) k = str.dims[i].udoms;
                         for (j = 0; j < k; j++) {
@@ -183,7 +183,7 @@ void printDataBlock(DATA_BLOCK str)
                             IDAM_LOGF(UDA_LOG_DEBUG, "ints[%d]: %f\n", j, *((float*) str.dims[i].ints + j));
                         }
                     }
-                    if (str.dims[i].data_type == TYPE_DOUBLE) {
+                    if (str.dims[i].data_type == UDA_TYPE_DOUBLE) {
                         k = 10;
                         if (str.dims[i].udoms < 10) k = str.dims[i].udoms;
                         for (j = 0; j < k; j++) {
@@ -194,23 +194,23 @@ void printDataBlock(DATA_BLOCK str)
                     }
                     break;
                 case 2:
-                    if (str.dims[i].data_type == TYPE_FLOAT) {
+                    if (str.dims[i].data_type == UDA_TYPE_FLOAT) {
                         k = 10;
                         if (str.dims[i].udoms < 10) k = str.dims[i].udoms;
                         for (j = 0; j < k; j++) IDAM_LOGF(UDA_LOG_DEBUG, "offs[%d]: %f\n", j, *((float*) str.dims[i].offs + j));
                     }
-                    if (str.dims[i].data_type == TYPE_DOUBLE) {
+                    if (str.dims[i].data_type == UDA_TYPE_DOUBLE) {
                         k = 10;
                         if (str.dims[i].udoms < 10) k = str.dims[i].udoms;
                         for (j = 0; j < k; j++) IDAM_LOGF(UDA_LOG_DEBUG, "offs[%d]: %f\n", j, *((double*) str.dims[i].offs + j));
                     }
                     break;
                 case 3:
-                    if (str.dims[i].data_type == TYPE_FLOAT) {
+                    if (str.dims[i].data_type == UDA_TYPE_FLOAT) {
                         IDAM_LOGF(UDA_LOG_DEBUG, "offs[0] val: %f\n", *((float*) str.dims[i].offs));
                         IDAM_LOGF(UDA_LOG_DEBUG, "ints[0] val: %f\n", *((float*) str.dims[i].ints));
                     }
-                    if (str.dims[i].data_type == TYPE_DOUBLE) {
+                    if (str.dims[i].data_type == UDA_TYPE_DOUBLE) {
                         IDAM_LOGF(UDA_LOG_DEBUG, "offs[0] val: %f\n", *((double*) str.dims[i].offs));
                         IDAM_LOGF(UDA_LOG_DEBUG, "ints[0] val: %f\n", *((double*) str.dims[i].ints));
                     }
@@ -219,7 +219,7 @@ void printDataBlock(DATA_BLOCK str)
                     IDAM_LOGF(UDA_LOG_WARN, "unknown method (%d) for dim (%d)", str.dims[i].method, i);
             }
         }
-        if (str.dims[i].error_type == TYPE_FLOAT) {
+        if (str.dims[i].error_type == UDA_TYPE_FLOAT) {
             k = 10;
             if (str.dims[i].dim_n < 10) k = str.dims[i].dim_n;
             if (str.dims[i].errhi != NULL)

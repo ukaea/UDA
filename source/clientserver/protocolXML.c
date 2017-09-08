@@ -28,13 +28,13 @@
 *
 * The DATA_BLOCK structure has the following fields used to pass and receive generalised data structures
 *
-* data_block->data_type		set to TYPE_COMPOUND (external to this routine)
+* data_block->data_type		set to UDA_TYPE_COMPOUND (external to this routine)
 * data_block->data_n		set to the count of structure array elements (external to this routine)
 *
 * data_block->data		sending (server side): set to the data array (external to this routine)
 *				receiving (client side): set to the root data tree node within this routine
 *
-* data_block->opaque_type	set to OPAQUE_TYPE_STRUCTURES (external to this routine)
+* data_block->opaque_type	set to UDA_OPAQUE_TYPE_STRUCTURES (external to this routine)
 * data_block->count		set to 1 (external to this routine). Not Used!
 *
 * data_block->opaque_block	sending (server side): set to the User Defined Data Structure Definition of
@@ -130,7 +130,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
             void* data = NULL;
             data_block = (DATA_BLOCK*)str;
 
-            if (data_block->opaque_type == OPAQUE_TYPE_STRUCTURES) {
+            if (data_block->opaque_type == UDA_OPAQUE_TYPE_STRUCTURES) {
 
                 IDAM_LOG(UDA_LOG_DEBUG, "protocolXML: Compound Data Structure\n");
                 IDAM_LOGF(UDA_LOG_DEBUG, "direction  : %d [%d][%d]\n", (int) xdrs->x_op, XDR_ENCODE, XDR_DECODE);
@@ -357,7 +357,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                         strcpy(fname, tempFile);
                         data_block->data = NULL;                // No Data - not unpacked
                         data_block->opaque_block = (void*) fname;            // File name
-                        data_block->opaque_type = OPAQUE_TYPE_XDRFILE;        // The data block is carrying the filename only
+                        data_block->opaque_type = UDA_OPAQUE_TYPE_XDRFILE;        // The data block is carrying the filename only
 
                     }
 
@@ -509,7 +509,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
 
             } else {
 
-                if (data_block->opaque_type == OPAQUE_TYPE_XDRFILE) {
+                if (data_block->opaque_type == UDA_OPAQUE_TYPE_XDRFILE) {
 
                     if (xdrs->x_op == XDR_ENCODE) {
                         IDAM_LOGF(UDA_LOG_DEBUG, "protocolXML: Forwarding XDR File %s\n", (char*) data_block->opaque_block);
@@ -543,7 +543,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                             strcpy(fname, tempFile);
                             data_block->data = NULL;                // No Data - not unpacked
                             data_block->opaque_block = (void*) fname;            // File name
-                            data_block->opaque_type = OPAQUE_TYPE_XDRFILE;        // The data block is carrying the filename only
+                            data_block->opaque_type = UDA_OPAQUE_TYPE_XDRFILE;        // The data block is carrying the filename only
 
                             IDAM_LOG(UDA_LOG_DEBUG, "protocolXML: Forwarding Received forwarded XDR File\n");
                         } else {
@@ -624,7 +624,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                                 }
                                 data_block->data = (char*)fullNTree;        // Global Root Node with the Carrier Structure containing data
                                 data_block->opaque_block = (void*)general_block;
-                                data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
+                                data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
                                 general_block->userdefinedtype = udt_received;
                                 general_block->userdefinedtypelist = userdefinedtypelist;
                                 general_block->logmalloclist = logmalloclist;
@@ -654,9 +654,9 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
 
         if (protocol_id == PROTOCOL_META) {
             data_block = (DATA_BLOCK*) str;
-            if (data_block->opaque_type == OPAQUE_TYPE_XML_DOCUMENT && data_block->opaque_count > 0) {
+            if (data_block->opaque_type == UDA_OPAQUE_TYPE_XML_DOCUMENT && data_block->opaque_count > 0) {
                 switch (direction) {
-                    case XDR_RECEIVE :
+                    case XDR_RECEIVE:
                         if (!xdrrec_skiprecord(xdrs)) {
                             err = PROTOCOL_ERROR_5;
                             break;
@@ -687,7 +687,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                         }
                         break;
 
-                    case XDR_FREE_HEAP :
+                    case XDR_FREE_HEAP:
                         break;
 
                     default:
@@ -707,7 +707,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
         
                     switch (direction) {
         
-                    case XDR_RECEIVE :
+                    case XDR_RECEIVE:
         
                         if((efit = (EFIT *)malloc(sizeof(EFIT))) == NULL) {
                             err = PROTOCOL_ERROR_1001;
@@ -824,7 +824,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
         
                         break;
         
-                    case XDR_FREE_HEAP :
+                    case XDR_FREE_HEAP:
                         break;
         
                     default:
@@ -844,7 +844,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
         
                     switch (direction) {
         
-                    case XDR_RECEIVE :
+                    case XDR_RECEIVE:
         
                         if (!(rc = xdrrec_skiprecord(xdrs))) {
                             err = PROTOCOL_ERROR_5;
@@ -884,7 +884,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
         
                         break;
         
-                    case XDR_FREE_HEAP :
+                    case XDR_FREE_HEAP:
                         break;
         
                     default:
@@ -904,7 +904,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
         
                     switch (direction) {
         
-                    case XDR_RECEIVE :
+                    case XDR_RECEIVE:
         
                         if (!(rc = xdrrec_skiprecord(xdrs))) {
                             err = PROTOCOL_ERROR_5;
@@ -944,7 +944,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
         
                         break;
         
-                    case XDR_FREE_HEAP :
+                    case XDR_FREE_HEAP:
                         break;
         
                     default:
@@ -964,7 +964,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
         
                     switch (direction) {
         
-                    case XDR_RECEIVE :
+                    case XDR_RECEIVE:
         
                         if (!(rc = xdrrec_skiprecord(xdrs))) {
                             err = PROTOCOL_ERROR_5;
@@ -988,7 +988,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
         
                         break;
         
-                    case XDR_FREE_HEAP :
+                    case XDR_FREE_HEAP:
                         break;
         
                     default:
@@ -1008,7 +1008,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
         
                     switch (direction) {
         
-                    case XDR_RECEIVE :
+                    case XDR_RECEIVE:
         
                         if (!(rc = xdrrec_skiprecord(xdrs))) {
                             err = PROTOCOL_ERROR_5;
@@ -1048,7 +1048,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
         
                         break;
         
-                    case XDR_FREE_HEAP :
+                    case XDR_FREE_HEAP:
                         break;
         
                     default:
@@ -1068,7 +1068,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
         
                     switch (direction) {
         
-                    case XDR_RECEIVE :
+                    case XDR_RECEIVE:
         
                         if (!(rc = xdrrec_skiprecord(xdrs))) {
                             err = PROTOCOL_ERROR_5;
@@ -1092,7 +1092,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
         
                         break;
         
-                    case XDR_FREE_HEAP :
+                    case XDR_FREE_HEAP:
                         break;
         
                     default:
@@ -1112,7 +1112,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
         
                     switch (direction) {
         
-                    case XDR_RECEIVE :
+                    case XDR_RECEIVE:
         
                         if (!(rc = xdrrec_skiprecord(xdrs))) {
                             err = PROTOCOL_ERROR_5;
@@ -1152,7 +1152,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
         
                         break;
         
-                    case XDR_FREE_HEAP :
+                    case XDR_FREE_HEAP:
                         break;
         
                     default:
@@ -1172,7 +1172,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
         
                     switch (direction) {
         
-                    case XDR_RECEIVE :
+                    case XDR_RECEIVE:
         
                         if (!(rc = xdrrec_skiprecord(xdrs))) {
                             err = PROTOCOL_ERROR_5;
@@ -1196,7 +1196,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
         
                         break;
         
-                    case XDR_FREE_HEAP :
+                    case XDR_FREE_HEAP:
                         break;
         
                     default:
@@ -1216,7 +1216,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
         
                     switch (direction) {
         
-                    case XDR_RECEIVE :
+                    case XDR_RECEIVE:
         
                         if (!(rc = xdrrec_skiprecord(xdrs))) {
                             err = PROTOCOL_ERROR_5;
@@ -1240,7 +1240,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
         
                         break;
         
-                    case XDR_FREE_HEAP :
+                    case XDR_FREE_HEAP:
                         break;
         
                     default:
@@ -1260,7 +1260,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
         
                     switch (direction) {
         
-                    case XDR_RECEIVE :
+                    case XDR_RECEIVE:
         
                         if (!(rc = xdrrec_skiprecord(xdrs))) {
                             err = PROTOCOL_ERROR_5;
@@ -1284,7 +1284,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
         
                         break;
         
-                    case XDR_FREE_HEAP :
+                    case XDR_FREE_HEAP:
                         break;
         
                     default:
@@ -1304,7 +1304,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
         
                     switch (direction) {
         
-                    case XDR_RECEIVE :
+                    case XDR_RECEIVE:
         
                         if (!(rc = xdrrec_skiprecord(xdrs))) {
                             err = PROTOCOL_ERROR_5;
@@ -1344,7 +1344,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
         
                         break;
         
-                    case XDR_FREE_HEAP :
+                    case XDR_FREE_HEAP:
                         break;
         
                     default:

@@ -30,33 +30,33 @@ int protocolVersionTypeTest(int protocolVersion, int type)
     IDAM_LOGF(UDA_LOG_DEBUG, "protocolVersionTypeTest Version: %d, Type: %d\n", protocolVersion, type);
 
 #ifdef __APPLE__
-    if (type == TYPE_UNSIGNED_LONG64) return 1;
+    if (type == UDA_TYPE_UNSIGNED_LONG64) return 1;
 #endif
 
     if (protocolVersion < 3) {
         switch (type) {
-            case TYPE_UNSIGNED_CHAR:
+            case UDA_TYPE_UNSIGNED_CHAR:
                 return 1;
-            case TYPE_UNSIGNED_SHORT:
+            case UDA_TYPE_UNSIGNED_SHORT:
                 return 1;
-            case TYPE_UNSIGNED_LONG:
+            case UDA_TYPE_UNSIGNED_LONG:
                 return 1;
 #ifndef __APPLE__
-            case TYPE_UNSIGNED_LONG64:
+            case UDA_TYPE_UNSIGNED_LONG64:
                 return 1;
 #endif
-            case TYPE_COMPLEX:
+            case UDA_TYPE_COMPLEX:
                 return 1;
-            case TYPE_DCOMPLEX:
+            case UDA_TYPE_DCOMPLEX:
                 return 1;
         }
         return 0;
     } else {
         if (protocolVersion < 4) {
-            if (type == TYPE_COMPOUND) return 1;
+            if (type == UDA_TYPE_COMPOUND) return 1;
         }
         if (protocolVersion < 6) {
-            if (type == TYPE_STRING) return 1;
+            if (type == UDA_TYPE_STRING) return 1;
         }
     }
     return 0;        // Return Test False: This type is OK
@@ -362,47 +362,47 @@ bool_t xdr_putdata_block2(XDR* xdrs, PUTDATA_BLOCK* str)
     if (str->blockNameLength > 0) rc = rc && WrapXDRString(xdrs, (char*)str->blockName, str->blockNameLength + 1);
 
     switch (str->data_type) {
-        case TYPE_FLOAT:
+        case UDA_TYPE_FLOAT:
             return rc && xdr_vector(xdrs, (char*)str->data, (int)str->count, sizeof(float), (xdrproc_t)xdr_float);
-        case TYPE_DOUBLE:
+        case UDA_TYPE_DOUBLE:
             return rc && xdr_vector(xdrs, (char*)str->data, (int)str->count, sizeof(double), (xdrproc_t)xdr_double);
-        case TYPE_CHAR:
+        case UDA_TYPE_CHAR:
             return rc && xdr_vector(xdrs, (char*)str->data, (int)str->count, sizeof(char), (xdrproc_t)xdr_char);
-        case TYPE_SHORT:
+        case UDA_TYPE_SHORT:
             return rc && xdr_vector(xdrs, (char*)str->data, (int)str->count, sizeof(short), (xdrproc_t)xdr_short);
-        case TYPE_INT:
+        case UDA_TYPE_INT:
             return rc && xdr_vector(xdrs, (char*)str->data, (int)str->count, sizeof(int), (xdrproc_t)xdr_int);
-        case TYPE_LONG:
+        case UDA_TYPE_LONG:
             return rc && xdr_vector(xdrs, (char*)str->data, (int)str->count, sizeof(long), (xdrproc_t)xdr_long);
-        case TYPE_LONG64:
+        case UDA_TYPE_LONG64:
             return rc && xdr_vector(xdrs, (char*)str->data, (int)str->count, sizeof(long long int), (xdrproc_t)xdr_int64_t);
-        case TYPE_UNSIGNED_CHAR:
+        case UDA_TYPE_UNSIGNED_CHAR:
             return rc && xdr_vector(xdrs, (char*)str->data, (int)str->count, sizeof(unsigned char), (xdrproc_t)xdr_u_char);
-        case TYPE_UNSIGNED_SHORT:
+        case UDA_TYPE_UNSIGNED_SHORT:
             return rc && xdr_vector(xdrs, (char*)str->data, (int)str->count, sizeof(unsigned short), (xdrproc_t)xdr_u_short);
-        case TYPE_UNSIGNED_INT:
+        case UDA_TYPE_UNSIGNED_INT:
             return rc && xdr_vector(xdrs, (char*)str->data, (int)str->count, sizeof(unsigned int), (xdrproc_t)xdr_u_int);
-        case TYPE_UNSIGNED_LONG:
+        case UDA_TYPE_UNSIGNED_LONG:
             return rc && xdr_vector(xdrs, (char*)str->data, (int)str->count, sizeof(unsigned long), (xdrproc_t)xdr_u_long);
 #ifndef __APPLE__
-        case TYPE_UNSIGNED_LONG64:
+        case UDA_TYPE_UNSIGNED_LONG64:
             return rc && xdr_vector(xdrs, (char*)str->data, (int) str->count, sizeof(unsigned long long int), (xdrproc_t) xdr_uint64_t);
 #endif
         // Strings are passed as a regular array of CHARs
 
-        case TYPE_STRING:
+        case UDA_TYPE_STRING:
             return rc && xdr_vector(xdrs, (char*)str->data, (int)str->count, sizeof(char), (xdrproc_t)xdr_char);
 
         // Complex structure is a simple two float combination: => twice the number of element transmitted
 
-        case TYPE_DCOMPLEX:
+        case UDA_TYPE_DCOMPLEX:
             return rc && xdr_vector(xdrs, (char*)str->data, 2 * str->count, sizeof(double), (xdrproc_t)xdr_double);
-        case TYPE_COMPLEX:
+        case UDA_TYPE_COMPLEX:
             return rc && xdr_vector(xdrs, (char*)str->data, 2 * str->count, sizeof(float), (xdrproc_t)xdr_float);
 
         // General Data structures are passed using a specialised set of xdr components
 
-        case TYPE_COMPOUND:
+        case UDA_TYPE_COMPOUND:
             return rc;    // Nothing to send so retain good return code
 
         default:
@@ -588,47 +588,47 @@ bool_t xdr_data_block1(XDR* xdrs, DATA_BLOCK* str)
 bool_t xdr_data_block2(XDR* xdrs, DATA_BLOCK* str)
 {
     switch (str->data_type) {
-        case TYPE_FLOAT:
+        case UDA_TYPE_FLOAT:
             return xdr_vector(xdrs, str->data, (u_int)str->data_n, sizeof(float), (xdrproc_t)xdr_float);
-        case TYPE_DOUBLE:
+        case UDA_TYPE_DOUBLE:
             return xdr_vector(xdrs, str->data, (u_int)str->data_n, sizeof(double), (xdrproc_t)xdr_double);
-        case TYPE_CHAR:
+        case UDA_TYPE_CHAR:
             return xdr_vector(xdrs, str->data, (u_int)str->data_n, sizeof(char), (xdrproc_t)xdr_char);
-        case TYPE_SHORT:
+        case UDA_TYPE_SHORT:
             return xdr_vector(xdrs, str->data, (u_int)str->data_n, sizeof(short), (xdrproc_t)xdr_short);
-        case TYPE_INT:
+        case UDA_TYPE_INT:
             return xdr_vector(xdrs, str->data, (u_int)str->data_n, sizeof(int), (xdrproc_t)xdr_int);
-        case TYPE_LONG:
+        case UDA_TYPE_LONG:
             return xdr_vector(xdrs, str->data, (u_int)str->data_n, sizeof(long), (xdrproc_t)xdr_long);
-        case TYPE_LONG64:
+        case UDA_TYPE_LONG64:
             return xdr_vector(xdrs, str->data, (u_int)str->data_n, sizeof(long long int), (xdrproc_t)xdr_int64_t);
-        case TYPE_UNSIGNED_CHAR:
+        case UDA_TYPE_UNSIGNED_CHAR:
             return xdr_vector(xdrs, str->data, (u_int)str->data_n, sizeof(unsigned char), (xdrproc_t)xdr_u_char);
-        case TYPE_UNSIGNED_SHORT:
+        case UDA_TYPE_UNSIGNED_SHORT:
             return xdr_vector(xdrs, str->data, (u_int)str->data_n, sizeof(unsigned short), (xdrproc_t)xdr_u_short);
-        case TYPE_UNSIGNED_INT:
+        case UDA_TYPE_UNSIGNED_INT:
             return xdr_vector(xdrs, str->data, (u_int)str->data_n, sizeof(unsigned int), (xdrproc_t)xdr_u_int);
-        case TYPE_UNSIGNED_LONG:
+        case UDA_TYPE_UNSIGNED_LONG:
             return xdr_vector(xdrs, str->data, (u_int)str->data_n, sizeof(unsigned long), (xdrproc_t)xdr_u_long);
 #ifndef __APPLE__
-        case TYPE_UNSIGNED_LONG64:
+        case UDA_TYPE_UNSIGNED_LONG64:
             return xdr_vector(xdrs, str->data, (u_int)str->data_n, sizeof(unsigned long long int), (xdrproc_t) xdr_uint64_t);
 #endif
         // Strings are passed as a regular array of CHARs
 
-        case TYPE_STRING:
+        case UDA_TYPE_STRING:
             return xdr_vector(xdrs, str->data, (u_int)str->data_n, sizeof(char), (xdrproc_t)xdr_char);
 
         // Complex structure is a simple two float combination: => twice the number of element transmitted
 
-        case TYPE_DCOMPLEX:
+        case UDA_TYPE_DCOMPLEX:
             return xdr_vector(xdrs, str->data, 2 * (u_int)str->data_n, sizeof(double), (xdrproc_t)xdr_double);
-        case TYPE_COMPLEX:
+        case UDA_TYPE_COMPLEX:
             return xdr_vector(xdrs, str->data, 2 * (u_int)str->data_n, sizeof(float), (xdrproc_t)xdr_float);
 
         // General Data structures are passed using a specialised set of xdr components
 
-        case TYPE_COMPOUND:
+        case UDA_TYPE_COMPOUND:
             return 1;    // Nothing to send so retain good return code
 
         default:
@@ -646,37 +646,37 @@ bool_t xdr_data_block3(XDR* xdrs, DATA_BLOCK* str)
     // Data Errors
 
     switch (str->error_type) {
-        case TYPE_FLOAT:
+        case UDA_TYPE_FLOAT:
             return xdr_vector(xdrs, str->errhi, (u_int)str->data_n, sizeof(float), (xdrproc_t)xdr_float);
-        case TYPE_DOUBLE:
+        case UDA_TYPE_DOUBLE:
             return xdr_vector(xdrs, str->errhi, (u_int)str->data_n, sizeof(double), (xdrproc_t)xdr_double);
-        case TYPE_CHAR:
+        case UDA_TYPE_CHAR:
             return xdr_vector(xdrs, str->errhi, (u_int)str->data_n, sizeof(char), (xdrproc_t)xdr_char);
-        case TYPE_SHORT:
+        case UDA_TYPE_SHORT:
             return xdr_vector(xdrs, str->errhi, (u_int)str->data_n, sizeof(short), (xdrproc_t)xdr_short);
-        case TYPE_INT:
+        case UDA_TYPE_INT:
             return xdr_vector(xdrs, str->errhi, (u_int)str->data_n, sizeof(int), (xdrproc_t)xdr_int);
-        case TYPE_LONG:
+        case UDA_TYPE_LONG:
             return xdr_vector(xdrs, str->errhi, (u_int)str->data_n, sizeof(long), (xdrproc_t)xdr_long);
-        case TYPE_LONG64:
+        case UDA_TYPE_LONG64:
             return xdr_vector(xdrs, str->errhi, (u_int)str->data_n, sizeof(long long int), (xdrproc_t)xdr_int64_t);
-        case TYPE_UNSIGNED_CHAR:
+        case UDA_TYPE_UNSIGNED_CHAR:
             return xdr_vector(xdrs, str->errhi, (u_int)str->data_n, sizeof(unsigned char), (xdrproc_t)xdr_u_char);
-        case TYPE_UNSIGNED_SHORT:
+        case UDA_TYPE_UNSIGNED_SHORT:
             return xdr_vector(xdrs, str->errhi, (u_int)str->data_n, sizeof(unsigned short), (xdrproc_t)xdr_u_short);
-        case TYPE_UNSIGNED_INT:
+        case UDA_TYPE_UNSIGNED_INT:
             return xdr_vector(xdrs, str->errhi, (u_int)str->data_n, sizeof(unsigned int), (xdrproc_t)xdr_u_int);
-        case TYPE_UNSIGNED_LONG:
+        case UDA_TYPE_UNSIGNED_LONG:
             return xdr_vector(xdrs, str->errhi, (u_int)str->data_n, sizeof(unsigned long), (xdrproc_t)xdr_u_long);
 #ifndef __APPLE__
-        case TYPE_UNSIGNED_LONG64:
+        case UDA_TYPE_UNSIGNED_LONG64:
             return xdr_vector(xdrs, str->errhi, (u_int)str->data_n, sizeof(unsigned long long int), (xdrproc_t) xdr_uint64_t);
 #endif
         // Complex structure is a simple two float combination: => twice the number of element transmitted
 
-        case TYPE_DCOMPLEX:
+        case UDA_TYPE_DCOMPLEX:
             return xdr_vector(xdrs, str->errhi, 2 * (u_int)str->data_n, sizeof(double), (xdrproc_t)xdr_double);
-        case TYPE_COMPLEX:
+        case UDA_TYPE_COMPLEX:
             return xdr_vector(xdrs, str->errhi, 2 * (u_int)str->data_n, sizeof(float), (xdrproc_t)xdr_float);
 
         default:
@@ -691,37 +691,37 @@ bool_t xdr_data_block4(XDR* xdrs, DATA_BLOCK* str)
     // Asymmetric Data Errors
 
     switch (str->error_type) {
-        case TYPE_FLOAT:
+        case UDA_TYPE_FLOAT:
             return xdr_vector(xdrs, str->errlo, (u_int)str->data_n, sizeof(float), (xdrproc_t)xdr_float);
-        case TYPE_DOUBLE:
+        case UDA_TYPE_DOUBLE:
             return xdr_vector(xdrs, str->errlo, (u_int)str->data_n, sizeof(double), (xdrproc_t)xdr_double);
-        case TYPE_CHAR:
+        case UDA_TYPE_CHAR:
             return xdr_vector(xdrs, str->errlo, (u_int)str->data_n, sizeof(char), (xdrproc_t)xdr_char);
-        case TYPE_SHORT:
+        case UDA_TYPE_SHORT:
             return xdr_vector(xdrs, str->errlo, (u_int)str->data_n, sizeof(short), (xdrproc_t)xdr_short);
-        case TYPE_INT:
+        case UDA_TYPE_INT:
             return xdr_vector(xdrs, str->errlo, (u_int)str->data_n, sizeof(int), (xdrproc_t)xdr_int);
-        case TYPE_LONG:
+        case UDA_TYPE_LONG:
             return xdr_vector(xdrs, str->errlo, (u_int)str->data_n, sizeof(long), (xdrproc_t)xdr_long);
-        case TYPE_LONG64:
+        case UDA_TYPE_LONG64:
             return xdr_vector(xdrs, str->errlo, (u_int)str->data_n, sizeof(long long int), (xdrproc_t)xdr_int64_t);
-        case TYPE_UNSIGNED_CHAR:
+        case UDA_TYPE_UNSIGNED_CHAR:
             return xdr_vector(xdrs, str->errlo, (u_int)str->data_n, sizeof(unsigned char), (xdrproc_t)xdr_u_char);
-        case TYPE_UNSIGNED_SHORT:
+        case UDA_TYPE_UNSIGNED_SHORT:
             return xdr_vector(xdrs, str->errlo, (u_int)str->data_n, sizeof(unsigned short), (xdrproc_t)xdr_u_short);
-        case TYPE_UNSIGNED_INT:
+        case UDA_TYPE_UNSIGNED_INT:
             return xdr_vector(xdrs, str->errlo, (u_int)str->data_n, sizeof(unsigned int), (xdrproc_t)xdr_u_int);
-        case TYPE_UNSIGNED_LONG:
+        case UDA_TYPE_UNSIGNED_LONG:
             return xdr_vector(xdrs, str->errlo, (u_int)str->data_n, sizeof(unsigned long), (xdrproc_t)xdr_u_long);
 #ifndef __APPLE__
-        case TYPE_UNSIGNED_LONG64:
+        case UDA_TYPE_UNSIGNED_LONG64:
             return xdr_vector(xdrs, str->errlo, (u_int)str->data_n, sizeof(unsigned long long int), (xdrproc_t) xdr_uint64_t);
 #endif
         // Complex structure is a simple two float combination: => twice the number of element transmitted
 
-        case TYPE_DCOMPLEX:
+        case UDA_TYPE_DCOMPLEX:
             return xdr_vector(xdrs, str->errlo, 2 * (u_int)str->data_n, sizeof(double), (xdrproc_t)xdr_double);
-        case TYPE_COMPLEX:
+        case UDA_TYPE_COMPLEX:
             return xdr_vector(xdrs, str->errlo, 2 * (u_int)str->data_n, sizeof(float), (xdrproc_t)xdr_float);
 
         default:
@@ -758,84 +758,84 @@ bool_t xdr_data_dim2(XDR* xdrs, DATA_BLOCK* str)
         if (str->dims[i].compressed == 0) {
             switch (str->dims[i].data_type) {
 
-                case TYPE_FLOAT:
+                case UDA_TYPE_FLOAT:
                     if (!xdr_vector(xdrs, str->dims[i].dim, (u_int)str->dims[i].dim_n,
                                     sizeof(float), (xdrproc_t)xdr_float)) {
                                         return 0;
                     }
                     break;
 
-                case TYPE_DOUBLE:
+                case UDA_TYPE_DOUBLE:
                     if (!xdr_vector(xdrs, str->dims[i].dim, (u_int)str->dims[i].dim_n,
                                     sizeof(double), (xdrproc_t)xdr_double)) {
                                         return 0;
                     }
                     break;
 
-                case TYPE_CHAR:
+                case UDA_TYPE_CHAR:
                     if (!xdr_vector(xdrs, str->dims[i].dim, (u_int)str->dims[i].dim_n,
                                     sizeof(char), (xdrproc_t)xdr_char)) {
                                         return 0;
                     }
                     break;
 
-                case TYPE_SHORT:
+                case UDA_TYPE_SHORT:
                     if (!xdr_vector(xdrs, str->dims[i].dim, (u_int)str->dims[i].dim_n,
                                     sizeof(short), (xdrproc_t)xdr_short)) {
                                         return 0;
                     }
                     break;
 
-                case TYPE_INT:
+                case UDA_TYPE_INT:
                     if (!xdr_vector(xdrs, str->dims[i].dim, (u_int)str->dims[i].dim_n,
                                     sizeof(int), (xdrproc_t)xdr_int)) {
                                         return 0;
                     }
                     break;
 
-                case TYPE_LONG:
+                case UDA_TYPE_LONG:
                     if (!xdr_vector(xdrs, str->dims[i].dim, (u_int)str->dims[i].dim_n,
                                     sizeof(long), (xdrproc_t)xdr_long)) {
                                         return 0;
                     }
                     break;
 
-                case TYPE_LONG64:
+                case UDA_TYPE_LONG64:
                     if (!xdr_vector(xdrs, str->dims[i].dim, (u_int)str->dims[i].dim_n,
                                     sizeof(long long int), (xdrproc_t)xdr_int64_t)) {
                                         return 0;
                     }
                     break;
 
-                case TYPE_UNSIGNED_CHAR:
+                case UDA_TYPE_UNSIGNED_CHAR:
                     if (!xdr_vector(xdrs, str->dims[i].dim, (u_int)str->dims[i].dim_n,
                                     sizeof(unsigned char), (xdrproc_t)xdr_u_char)) {
                                         return 0;
                     }
                     break;
 
-                case TYPE_UNSIGNED_SHORT:
+                case UDA_TYPE_UNSIGNED_SHORT:
                     if (!xdr_vector(xdrs, str->dims[i].dim, (u_int)str->dims[i].dim_n,
                                     sizeof(unsigned short), (xdrproc_t)xdr_u_short)) {
                                         return 0;
                     }
                     break;
 
-                case TYPE_UNSIGNED_INT:
+                case UDA_TYPE_UNSIGNED_INT:
                     if (!xdr_vector(xdrs, str->dims[i].dim, (u_int)str->dims[i].dim_n,
                                     sizeof(unsigned int), (xdrproc_t)xdr_u_int)) {
                                         return 0;
                     }
                     break;
 
-                case TYPE_UNSIGNED_LONG:
+                case UDA_TYPE_UNSIGNED_LONG:
                     if (!xdr_vector(xdrs, str->dims[i].dim, (u_int)str->dims[i].dim_n,
                                     sizeof(unsigned long), (xdrproc_t)xdr_u_long)) {
                                         return 0;
                     }
                     break;
 #ifndef __APPLE__
-                case TYPE_UNSIGNED_LONG64:
+                case UDA_TYPE_UNSIGNED_LONG64:
                     if (!xdr_vector(xdrs, str->dims[i].dim, (u_int)str->dims[i].dim_n,
                                     sizeof(unsigned long long int), (xdrproc_t) xdr_uint64_t))
                         return 0;
@@ -844,14 +844,14 @@ bool_t xdr_data_dim2(XDR* xdrs, DATA_BLOCK* str)
 
                 // Complex structure is a simple two float combination: => twice the number of element transmitted
 
-                case TYPE_DCOMPLEX:
+                case UDA_TYPE_DCOMPLEX:
                     if (!xdr_vector(xdrs, str->dims[i].dim, 2 * (u_int)str->dims[i].dim_n,
                                     sizeof(double), (xdrproc_t)xdr_double)) {
                                         return 0;
                     }
                     break;
 
-                case TYPE_COMPLEX:
+                case UDA_TYPE_COMPLEX:
                     if (!xdr_vector(xdrs, str->dims[i].dim, 2 * (u_int)str->dims[i].dim_n,
                                     sizeof(float), (xdrproc_t)xdr_float)) {
                                         return 0;
@@ -864,7 +864,7 @@ bool_t xdr_data_dim2(XDR* xdrs, DATA_BLOCK* str)
         } else {
             if (str->dims[i].method > 0) {
                 switch (str->dims[i].data_type) {
-                    case TYPE_FLOAT:
+                    case UDA_TYPE_FLOAT:
                         switch (str->dims[i].method) {
                             case 1:
                                 if (!(xdr_vector(xdrs, (char*)str->dims[i].sams, str->dims[i].udoms,
@@ -891,7 +891,7 @@ bool_t xdr_data_dim2(XDR* xdrs, DATA_BLOCK* str)
                         }
                         break;
 
-                    case TYPE_DOUBLE:
+                    case UDA_TYPE_DOUBLE:
                         switch (str->dims[i].method) {
                             case 1:
                                 if (!(xdr_vector(xdrs, (char*)str->dims[i].sams, str->dims[i].udoms,
@@ -918,7 +918,7 @@ bool_t xdr_data_dim2(XDR* xdrs, DATA_BLOCK* str)
                         }
                         break;
 
-                    case TYPE_CHAR:
+                    case UDA_TYPE_CHAR:
                         switch (str->dims[i].method) {
                             case 1:
                                 if (!(xdr_vector(xdrs, (char*)str->dims[i].sams, (int)str->dims[i].udoms,
@@ -945,7 +945,7 @@ bool_t xdr_data_dim2(XDR* xdrs, DATA_BLOCK* str)
                         }
                         break;
 
-                    case TYPE_SHORT:
+                    case UDA_TYPE_SHORT:
                         switch (str->dims[i].method) {
                             case 1:
                                 if (!(xdr_vector(xdrs, (char*)str->dims[i].sams, (int)str->dims[i].udoms,
@@ -972,7 +972,7 @@ bool_t xdr_data_dim2(XDR* xdrs, DATA_BLOCK* str)
                         }
                         break;
 
-                    case TYPE_INT:
+                    case UDA_TYPE_INT:
                         switch (str->dims[i].method) {
                             case 1:
                                 if (!(xdr_vector(xdrs, (char*)str->dims[i].sams, (int)str->dims[i].udoms,
@@ -999,7 +999,7 @@ bool_t xdr_data_dim2(XDR* xdrs, DATA_BLOCK* str)
                         }
                         break;
 
-                    case TYPE_LONG:
+                    case UDA_TYPE_LONG:
                         switch (str->dims[i].method) {
                             case 1:
                                 if (!(xdr_vector(xdrs, (char*)str->dims[i].sams, (int)str->dims[i].udoms,
@@ -1026,7 +1026,7 @@ bool_t xdr_data_dim2(XDR* xdrs, DATA_BLOCK* str)
                         }
                         break;
 
-                    case TYPE_LONG64:
+                    case UDA_TYPE_LONG64:
                         switch (str->dims[i].method) {
                             case 1:
                                 if (!(xdr_vector(xdrs, (char*)str->dims[i].sams, (int)str->dims[i].udoms,
@@ -1052,7 +1052,7 @@ bool_t xdr_data_dim2(XDR* xdrs, DATA_BLOCK* str)
                         }
                         break;
 
-                    case TYPE_UNSIGNED_CHAR:
+                    case UDA_TYPE_UNSIGNED_CHAR:
                         switch (str->dims[i].method) {
                             case 1:
                                 if (!(xdr_vector(xdrs, (char*)str->dims[i].sams, (int)str->dims[i].udoms,
@@ -1079,7 +1079,7 @@ bool_t xdr_data_dim2(XDR* xdrs, DATA_BLOCK* str)
                         }
                         break;
 
-                    case TYPE_UNSIGNED_SHORT:
+                    case UDA_TYPE_UNSIGNED_SHORT:
                         switch (str->dims[i].method) {
                             case 1:
                                 if (!(xdr_vector(xdrs, (char*)str->dims[i].sams, (int)str->dims[i].udoms,
@@ -1106,7 +1106,7 @@ bool_t xdr_data_dim2(XDR* xdrs, DATA_BLOCK* str)
                         }
                         break;
 
-                    case TYPE_UNSIGNED_INT:
+                    case UDA_TYPE_UNSIGNED_INT:
                         switch (str->dims[i].method) {
                             case 1:
                                 if (!(xdr_vector(xdrs, (char*)str->dims[i].sams, (int)str->dims[i].udoms,
@@ -1133,7 +1133,7 @@ bool_t xdr_data_dim2(XDR* xdrs, DATA_BLOCK* str)
                         }
                         break;
 
-                    case TYPE_UNSIGNED_LONG:
+                    case UDA_TYPE_UNSIGNED_LONG:
                         switch (str->dims[i].method) {
                             case 1:
                                 if (!(xdr_vector(xdrs, (char*)str->dims[i].sams, (int)str->dims[i].udoms,
@@ -1160,7 +1160,7 @@ bool_t xdr_data_dim2(XDR* xdrs, DATA_BLOCK* str)
                         }
                         break;
 #ifndef __APPLE__
-                    case TYPE_UNSIGNED_LONG64:
+                    case UDA_TYPE_UNSIGNED_LONG64:
                         switch (str->dims[i].method) {
                             case 1:
                                 if (!(xdr_vector(xdrs, (char*) str->dims[i].sams, (int) str->dims[i].udoms,
@@ -1210,52 +1210,52 @@ bool_t xdr_data_dim3(XDR* xdrs, DATA_BLOCK* str)
         }
 
         switch (str->dims[i].error_type) {
-            case TYPE_FLOAT:
+            case UDA_TYPE_FLOAT:
                 rc = xdr_vector(xdrs, str->dims[i].errhi, (u_int)str->dims[i].dim_n, sizeof(float),
                                 (xdrproc_t)xdr_float);
                 break;
-            case TYPE_DOUBLE:
+            case UDA_TYPE_DOUBLE:
                 rc = xdr_vector(xdrs, str->dims[i].errhi, (u_int)str->dims[i].dim_n, sizeof(double),
                                 (xdrproc_t)xdr_double);
                 break;
-            case TYPE_CHAR:
+            case UDA_TYPE_CHAR:
                 rc = xdr_vector(xdrs, str->dims[i].errhi, (u_int)str->dims[i].dim_n, sizeof(char),
                                 (xdrproc_t)xdr_char);
                 break;
-            case TYPE_SHORT:
+            case UDA_TYPE_SHORT:
                 rc = xdr_vector(xdrs, str->dims[i].errhi, (u_int)str->dims[i].dim_n, sizeof(short),
                                 (xdrproc_t)xdr_short);
                 break;
-            case TYPE_INT:
+            case UDA_TYPE_INT:
                 rc = xdr_vector(xdrs, str->dims[i].errhi, (u_int)str->dims[i].dim_n, sizeof(int),
                                 (xdrproc_t)xdr_int);
                 break;
-            case TYPE_LONG:
+            case UDA_TYPE_LONG:
                 rc = xdr_vector(xdrs, str->dims[i].errhi, (u_int)str->dims[i].dim_n, sizeof(long),
                                 (xdrproc_t)xdr_long);
                 break;
-            case TYPE_LONG64:
+            case UDA_TYPE_LONG64:
                 rc = xdr_vector(xdrs, str->dims[i].errhi, (u_int)str->dims[i].dim_n, sizeof(long long int),
                                 (xdrproc_t)xdr_int64_t);
                 break;
-            case TYPE_UNSIGNED_CHAR:
+            case UDA_TYPE_UNSIGNED_CHAR:
                 rc = xdr_vector(xdrs, str->dims[i].errhi, (u_int)str->dims[i].dim_n, sizeof(unsigned char),
                                 (xdrproc_t)xdr_u_char);
                 break;
-            case TYPE_UNSIGNED_SHORT:
+            case UDA_TYPE_UNSIGNED_SHORT:
                 rc = xdr_vector(xdrs, str->dims[i].errhi, (u_int)str->dims[i].dim_n, sizeof(unsigned short),
                                 (xdrproc_t)xdr_u_short);
                 break;
-            case TYPE_UNSIGNED_INT:
+            case UDA_TYPE_UNSIGNED_INT:
                 rc = xdr_vector(xdrs, str->dims[i].errhi, (u_int)str->dims[i].dim_n, sizeof(unsigned int),
                                 (xdrproc_t)xdr_u_int);
                 break;
-            case TYPE_UNSIGNED_LONG:
+            case UDA_TYPE_UNSIGNED_LONG:
                 rc = xdr_vector(xdrs, str->dims[i].errhi, (u_int)str->dims[i].dim_n, sizeof(unsigned long),
                                 (xdrproc_t)xdr_u_long);
                 break;
 #ifndef __APPLE__
-            case TYPE_UNSIGNED_LONG64:
+            case UDA_TYPE_UNSIGNED_LONG64:
                 rc = xdr_vector(xdrs, str->dims[i].errhi, (u_int)str->dims[i].dim_n,
                                 sizeof(unsigned long long int), (xdrproc_t) xdr_uint64_t);
                 break;
@@ -1263,11 +1263,11 @@ bool_t xdr_data_dim3(XDR* xdrs, DATA_BLOCK* str)
 
             // Complex structure is a simple two float combination: => twice the number of element transmitted
 
-            case TYPE_DCOMPLEX:
+            case UDA_TYPE_DCOMPLEX:
                 rc = xdr_vector(xdrs, str->dims[i].errhi, 2 * (u_int)str->dims[i].dim_n, sizeof(double),
                                 (xdrproc_t)xdr_double);
                 break;
-            case TYPE_COMPLEX:
+            case UDA_TYPE_COMPLEX:
                 rc = xdr_vector(xdrs, str->dims[i].errhi, 2 * (u_int)str->dims[i].dim_n, sizeof(float),
                                 (xdrproc_t)xdr_float);
                 break;
@@ -1289,52 +1289,52 @@ bool_t xdr_data_dim4(XDR* xdrs, DATA_BLOCK* str)
     for (i = 0; i < str->rank; i++) {
         if (str->dims[i].errasymmetry) {
             switch (str->dims[i].error_type) {
-                case TYPE_FLOAT:
+                case UDA_TYPE_FLOAT:
                     rc = xdr_vector(xdrs, str->dims[i].errlo, (u_int)str->dims[i].dim_n, sizeof(float),
                                     (xdrproc_t)xdr_float);
                     break;
-                case TYPE_DOUBLE:
+                case UDA_TYPE_DOUBLE:
                     rc = xdr_vector(xdrs, str->dims[i].errlo, (u_int)str->dims[i].dim_n, sizeof(double),
                                     (xdrproc_t)xdr_double);
                     break;
-                case TYPE_CHAR:
+                case UDA_TYPE_CHAR:
                     rc = xdr_vector(xdrs, str->dims[i].errlo, (u_int)str->dims[i].dim_n, sizeof(char),
                                     (xdrproc_t)xdr_char);
                     break;
-                case TYPE_SHORT:
+                case UDA_TYPE_SHORT:
                     rc = xdr_vector(xdrs, str->dims[i].errlo, (u_int)str->dims[i].dim_n, sizeof(short),
                                     (xdrproc_t)xdr_short);
                     break;
-                case TYPE_INT:
+                case UDA_TYPE_INT:
                     rc = xdr_vector(xdrs, str->dims[i].errlo, (u_int)str->dims[i].dim_n, sizeof(int),
                                     (xdrproc_t)xdr_int);
                     break;
-                case TYPE_LONG:
+                case UDA_TYPE_LONG:
                     rc = xdr_vector(xdrs, str->dims[i].errlo, (u_int)str->dims[i].dim_n, sizeof(long),
                                     (xdrproc_t)xdr_long);
                     break;
-                case TYPE_LONG64:
+                case UDA_TYPE_LONG64:
                     rc = xdr_vector(xdrs, str->dims[i].errlo, (u_int)str->dims[i].dim_n, sizeof(long long int),
                                     (xdrproc_t)xdr_int64_t);
                     break;
-                case TYPE_UNSIGNED_CHAR:
+                case UDA_TYPE_UNSIGNED_CHAR:
                     rc = xdr_vector(xdrs, str->dims[i].errlo, (u_int)str->dims[i].dim_n, sizeof(unsigned char),
                                     (xdrproc_t)xdr_u_char);
                     break;
-                case TYPE_UNSIGNED_SHORT:
+                case UDA_TYPE_UNSIGNED_SHORT:
                     rc = xdr_vector(xdrs, str->dims[i].errlo, (u_int)str->dims[i].dim_n, sizeof(unsigned short),
                                     (xdrproc_t)xdr_u_short);
                     break;
-                case TYPE_UNSIGNED_INT:
+                case UDA_TYPE_UNSIGNED_INT:
                     rc = xdr_vector(xdrs, str->dims[i].errlo, (u_int)str->dims[i].dim_n, sizeof(unsigned int),
                                     (xdrproc_t)xdr_u_int);
                     break;
-                case TYPE_UNSIGNED_LONG:
+                case UDA_TYPE_UNSIGNED_LONG:
                     rc = xdr_vector(xdrs, str->dims[i].errlo, (u_int)str->dims[i].dim_n, sizeof(unsigned long),
                                     (xdrproc_t)xdr_u_long);
                     break;
 #ifndef __APPLE__
-                case TYPE_UNSIGNED_LONG64:
+                case UDA_TYPE_UNSIGNED_LONG64:
                     rc = xdr_vector(xdrs, str->dims[i].errlo, (u_int)str->dims[i].dim_n,
                                     sizeof(unsigned long long int), (xdrproc_t) xdr_uint64_t);
                     break;
@@ -1342,11 +1342,11 @@ bool_t xdr_data_dim4(XDR* xdrs, DATA_BLOCK* str)
 
                 // Complex structure is a simple two float combination: => twice the number of element transmitted
 
-                case TYPE_DCOMPLEX:
+                case UDA_TYPE_DCOMPLEX:
                     rc = xdr_vector(xdrs, str->dims[i].errlo, 2 * (u_int)str->dims[i].dim_n, sizeof(double),
                                     (xdrproc_t)xdr_double);
                     break;
-                case TYPE_COMPLEX:
+                case UDA_TYPE_COMPLEX:
                     rc = xdr_vector(xdrs, str->dims[i].errlo, 2 * (u_int)str->dims[i].dim_n, sizeof(float),
                                     (xdrproc_t)xdr_float);
                     break;

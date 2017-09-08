@@ -138,7 +138,7 @@ static int do_ping(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     usertype.imagecount = 0;                // No Structure Image data
     usertype.image = NULL;
     usertype.size = sizeof(HELP_PING);        // Structure size
-    usertype.idamclass = TYPE_COMPOUND;
+    usertype.idamclass = UDA_TYPE_COMPOUND;
 
     int offset = 0;
     defineField(&field, "seconds", "Server time in seconds from the epoch start", &offset, SCALARUINT);
@@ -162,7 +162,7 @@ static int do_ping(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     DATA_BLOCK* data_block = idam_plugin_interface->data_block;
     initDataBlock(data_block);
 
-    data_block->data_type = TYPE_COMPOUND;
+    data_block->data_type = UDA_TYPE_COMPOUND;
     data_block->rank = 0;
     data_block->data_n = 1;
     data_block->data = (char*)data;
@@ -171,7 +171,7 @@ static int do_ping(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     strcpy(data_block->data_label, "servertime");
     strcpy(data_block->data_units, "");
 
-    data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
+    data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
     data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "HELP_PING", 0);
 

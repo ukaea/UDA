@@ -887,25 +887,33 @@ unsigned int getIdamTotalDataBlockSize(int handle)
 */
 int getIdamDataType(int handle)
 {
-    if (handle < 0 || handle >= Data_Block_Count) return TYPE_UNKNOWN;
+    if (handle < 0 || handle >= Data_Block_Count) {
+        return UDA_TYPE_UNKNOWN;
+    }
     return Data_Block[handle].data_type;
 }
 
 int getIdamDataOpaqueType(int handle)
 {
-    if (handle < 0 || handle >= Data_Block_Count) return TYPE_UNKNOWN;
+    if (handle < 0 || handle >= Data_Block_Count) {
+        return UDA_TYPE_UNKNOWN;
+    }
     return Data_Block[handle].opaque_type;
 }
 
 void* getIdamDataOpaqueBlock(int handle)
 {
-    if (handle < 0 || handle >= Data_Block_Count) return TYPE_UNKNOWN;
+    if (handle < 0 || handle >= Data_Block_Count) {
+        return NULL;
+    }
     return Data_Block[handle].opaque_block;
 }
 
 int getIdamDataOpaqueCount(int handle)
 {
-    if (handle < 0 || handle >= Data_Block_Count) return TYPE_UNKNOWN;
+    if (handle < 0 || handle >= Data_Block_Count) {
+        return 0;
+    }
     return Data_Block[handle].opaque_count;
 }
 
@@ -916,7 +924,9 @@ int getIdamDataOpaqueCount(int handle)
 */
 int getIdamErrorType(int handle)
 {
-    if (handle < 0 || handle >= Data_Block_Count) return TYPE_UNKNOWN;
+    if (handle < 0 || handle >= Data_Block_Count) {
+        return UDA_TYPE_UNKNOWN;
+    }
     return Data_Block[handle].error_type;
 }
 
@@ -927,90 +937,90 @@ int getIdamErrorType(int handle)
 */
 int getIdamDataTypeId(const char* type)
 { // Return the Internal Code for Data Types
-    if (STR_IEQUALS(type, "dcomplex")) return TYPE_DCOMPLEX;
-    if (STR_IEQUALS(type, "complex")) return TYPE_COMPLEX;
-    if (STR_IEQUALS(type, "double")) return TYPE_DOUBLE;
-    if (STR_IEQUALS(type, "float")) return TYPE_FLOAT;
-    if (STR_IEQUALS(type, "long64")) return TYPE_LONG64;
-    if (STR_IEQUALS(type, "long long")) return TYPE_LONG64;
+    if (STR_IEQUALS(type, "dcomplex")) return UDA_TYPE_DCOMPLEX;
+    if (STR_IEQUALS(type, "complex")) return UDA_TYPE_COMPLEX;
+    if (STR_IEQUALS(type, "double")) return UDA_TYPE_DOUBLE;
+    if (STR_IEQUALS(type, "float")) return UDA_TYPE_FLOAT;
+    if (STR_IEQUALS(type, "long64")) return UDA_TYPE_LONG64;
+    if (STR_IEQUALS(type, "long long")) return UDA_TYPE_LONG64;
 #ifndef __APPLE__
-    if (STR_IEQUALS(type, "ulong64")) return TYPE_UNSIGNED_LONG64;
-    if (STR_IEQUALS(type, "unsigned long64")) return TYPE_UNSIGNED_LONG64;
-    if (STR_IEQUALS(type, "unsigned long long")) return TYPE_UNSIGNED_LONG64;
+    if (STR_IEQUALS(type, "ulong64")) return UDA_TYPE_UNSIGNED_LONG64;
+    if (STR_IEQUALS(type, "unsigned long64")) return UDA_TYPE_UNSIGNED_LONG64;
+    if (STR_IEQUALS(type, "unsigned long long")) return UDA_TYPE_UNSIGNED_LONG64;
 #endif
-    if (STR_IEQUALS(type, "long")) return TYPE_LONG;
-    if (STR_IEQUALS(type, "unsigned long")) return TYPE_UNSIGNED_LONG;
-    if (STR_IEQUALS(type, "int")) return TYPE_INT;
-    if (STR_IEQUALS(type, "integer")) return TYPE_INT;
-    if (STR_IEQUALS(type, "unsigned")) return TYPE_UNSIGNED_INT;
-    if (STR_IEQUALS(type, "unsigned int")) return TYPE_UNSIGNED_INT;
-    if (STR_IEQUALS(type, "unsigned integer")) return TYPE_UNSIGNED_INT;
-    if (STR_IEQUALS(type, "short")) return TYPE_SHORT;
-    if (STR_IEQUALS(type, "unsigned short")) return TYPE_UNSIGNED_SHORT;
-    if (STR_IEQUALS(type, "char")) return TYPE_CHAR;
-    if (STR_IEQUALS(type, "unsigned char")) return TYPE_UNSIGNED_CHAR;
-    if (STR_IEQUALS(type, "unknown")) return TYPE_UNKNOWN;
-    if (STR_IEQUALS(type, "undefined")) return TYPE_UNDEFINED;
+    if (STR_IEQUALS(type, "long")) return UDA_TYPE_LONG;
+    if (STR_IEQUALS(type, "unsigned long")) return UDA_TYPE_UNSIGNED_LONG;
+    if (STR_IEQUALS(type, "int")) return UDA_TYPE_INT;
+    if (STR_IEQUALS(type, "integer")) return UDA_TYPE_INT;
+    if (STR_IEQUALS(type, "unsigned")) return UDA_TYPE_UNSIGNED_INT;
+    if (STR_IEQUALS(type, "unsigned int")) return UDA_TYPE_UNSIGNED_INT;
+    if (STR_IEQUALS(type, "unsigned integer")) return UDA_TYPE_UNSIGNED_INT;
+    if (STR_IEQUALS(type, "short")) return UDA_TYPE_SHORT;
+    if (STR_IEQUALS(type, "unsigned short")) return UDA_TYPE_UNSIGNED_SHORT;
+    if (STR_IEQUALS(type, "char")) return UDA_TYPE_CHAR;
+    if (STR_IEQUALS(type, "unsigned char")) return UDA_TYPE_UNSIGNED_CHAR;
+    if (STR_IEQUALS(type, "unknown")) return UDA_TYPE_UNKNOWN;
+    if (STR_IEQUALS(type, "undefined")) return UDA_TYPE_UNDEFINED;
 
-    if (STR_IEQUALS(type, "vlen")) return TYPE_VLEN;
-    if (STR_IEQUALS(type, "compound")) return TYPE_COMPOUND;
-    if (STR_IEQUALS(type, "opaque")) return TYPE_OPAQUE;
-    if (STR_IEQUALS(type, "enum")) return TYPE_ENUM;
-    if (STR_IEQUALS(type, "string")) return TYPE_STRING;
-    if (STR_IEQUALS(type, "void")) return TYPE_VOID;
+    if (STR_IEQUALS(type, "vlen")) return UDA_TYPE_VLEN;
+    if (STR_IEQUALS(type, "compound")) return UDA_TYPE_COMPOUND;
+    if (STR_IEQUALS(type, "opaque")) return UDA_TYPE_OPAQUE;
+    if (STR_IEQUALS(type, "enum")) return UDA_TYPE_ENUM;
+    if (STR_IEQUALS(type, "string")) return UDA_TYPE_STRING;
+    if (STR_IEQUALS(type, "void")) return UDA_TYPE_VOID;
 
-    if (STR_IEQUALS(type, "string *")) return TYPE_STRING;
+    if (STR_IEQUALS(type, "string *")) return UDA_TYPE_STRING;
 
-    return TYPE_UNKNOWN;
+    return UDA_TYPE_UNKNOWN;
 }
 
 int getIdamDataTypeSize(int type)
 {   // Return the size of the Data Type
 
     switch (type) {
-        case TYPE_DCOMPLEX:
+        case UDA_TYPE_DCOMPLEX:
             return 0;
-        case TYPE_COMPLEX:
+        case UDA_TYPE_COMPLEX:
             return 0;
-        case TYPE_DOUBLE:
+        case UDA_TYPE_DOUBLE:
             return 8;
-        case TYPE_FLOAT:
+        case UDA_TYPE_FLOAT:
             return 4;
-        case TYPE_LONG64:
+        case UDA_TYPE_LONG64:
             return 8;
-        case TYPE_UNSIGNED_LONG64:
+        case UDA_TYPE_UNSIGNED_LONG64:
             return 8;
-        case TYPE_LONG:
+        case UDA_TYPE_LONG:
             return 8;
-        case TYPE_UNSIGNED_LONG:
+        case UDA_TYPE_UNSIGNED_LONG:
             return 8;
-        case TYPE_INT:
+        case UDA_TYPE_INT:
             return 4;
-        case TYPE_UNSIGNED_INT:
+        case UDA_TYPE_UNSIGNED_INT:
             return 4;
-        case TYPE_SHORT:
+        case UDA_TYPE_SHORT:
             return 2;
-        case TYPE_UNSIGNED_SHORT:
+        case UDA_TYPE_UNSIGNED_SHORT:
             return 2;
-        case TYPE_CHAR:
+        case UDA_TYPE_CHAR:
             return 1;
-        case TYPE_UNSIGNED_CHAR:
+        case UDA_TYPE_UNSIGNED_CHAR:
             return 1;
-        case TYPE_UNKNOWN:
+        case UDA_TYPE_UNKNOWN:
             return 0;
-        case TYPE_UNDEFINED:
+        case UDA_TYPE_UNDEFINED:
             return 0;
-        case TYPE_VLEN:
+        case UDA_TYPE_VLEN:
             return 0;
-        case TYPE_COMPOUND:
+        case UDA_TYPE_COMPOUND:
             return 0;
-        case TYPE_OPAQUE:
+        case UDA_TYPE_OPAQUE:
             return 0;
-        case TYPE_ENUM:
+        case UDA_TYPE_ENUM:
             return 4;
-        case TYPE_STRING:
+        case UDA_TYPE_STRING:
             return 0;
-        case TYPE_VOID:
+        case UDA_TYPE_VOID:
             return 8;
         default:
             return -1;
@@ -1212,7 +1222,7 @@ void acc_setIdamDimErrLo(int handle, int ndim, char* errlo)
 char* getIdamAsymmetricError(int handle, int above)
 {
     if (handle < 0 || handle >= Data_Block_Count) return NULL;
-    if (Data_Block[handle].error_type != TYPE_UNKNOWN) {
+    if (Data_Block[handle].error_type != UDA_TYPE_UNKNOWN) {
         if (above) {
             return Data_Block[handle].errhi;      // return the default error array
         } else {
@@ -1263,7 +1273,7 @@ char* getIdamAsymmetricError(int handle, int above)
 // Generate and return Zeros if this data is requested unless Error is Modelled
 
             switch (Data_Block[handle].data_type) {
-                case TYPE_FLOAT: {
+                case UDA_TYPE_FLOAT: {
                     float* fh, * fl;
                     fh = (float*)Data_Block[handle].errhi;
                     if (Data_Block[handle].errasymmetry) fl = (float*)Data_Block[handle].errlo;
@@ -1273,7 +1283,7 @@ char* getIdamAsymmetricError(int handle, int above)
                     }
                     break;
                 }
-                case TYPE_DOUBLE: {
+                case UDA_TYPE_DOUBLE: {
                     double* dh, * dl;
                     dh = (double*)Data_Block[handle].errhi;
                     if (Data_Block[handle].errasymmetry) dl = (double*)Data_Block[handle].errlo;
@@ -1283,7 +1293,7 @@ char* getIdamAsymmetricError(int handle, int above)
                     }
                     break;
                 }
-                case TYPE_SHORT: {
+                case UDA_TYPE_SHORT: {
                     short* sh, * sl;
                     sh = (short*)Data_Block[handle].errhi;
                     if (Data_Block[handle].errasymmetry) sl = (short*)Data_Block[handle].errlo;
@@ -1293,7 +1303,7 @@ char* getIdamAsymmetricError(int handle, int above)
                     }
                     break;
                 }
-                case TYPE_UNSIGNED_SHORT: {
+                case UDA_TYPE_UNSIGNED_SHORT: {
                     unsigned short* sh, * sl;
                     sh = (unsigned short*)Data_Block[handle].errhi;
                     if (Data_Block[handle].errasymmetry) sl = (unsigned short*)Data_Block[handle].errlo;
@@ -1303,7 +1313,7 @@ char* getIdamAsymmetricError(int handle, int above)
                     }
                     break;
                 }
-                case TYPE_INT: {
+                case UDA_TYPE_INT: {
                     int* ih, * il;
                     ih = (int*)Data_Block[handle].errhi;
                     if (Data_Block[handle].errasymmetry) il = (int*)Data_Block[handle].errlo;
@@ -1313,7 +1323,7 @@ char* getIdamAsymmetricError(int handle, int above)
                     }
                     break;
                 }
-                case TYPE_UNSIGNED_INT: {
+                case UDA_TYPE_UNSIGNED_INT: {
                     unsigned int* uh, * ul;
                     uh = (unsigned int*)Data_Block[handle].errhi;
                     if (Data_Block[handle].errasymmetry) ul = (unsigned int*)Data_Block[handle].errlo;
@@ -1323,7 +1333,7 @@ char* getIdamAsymmetricError(int handle, int above)
                     }
                     break;
                 }
-                case TYPE_LONG: {
+                case UDA_TYPE_LONG: {
                     long* lh, * ll;
                     lh = (long*)Data_Block[handle].errhi;
                     if (Data_Block[handle].errasymmetry) ll = (long*)Data_Block[handle].errlo;
@@ -1333,7 +1343,7 @@ char* getIdamAsymmetricError(int handle, int above)
                     }
                     break;
                 }
-                case TYPE_UNSIGNED_LONG: {
+                case UDA_TYPE_UNSIGNED_LONG: {
                     unsigned long* lh, * ll;
                     lh = (unsigned long*)Data_Block[handle].errhi;
                     if (Data_Block[handle].errasymmetry) ll = (unsigned long*)Data_Block[handle].errlo;
@@ -1343,7 +1353,7 @@ char* getIdamAsymmetricError(int handle, int above)
                     }
                     break;
                 }
-                case TYPE_LONG64: {
+                case UDA_TYPE_LONG64: {
                     long long int* lh, * ll;
                     lh = (long long int*)Data_Block[handle].errhi;
                     if (Data_Block[handle].errasymmetry) ll = (long long int*)Data_Block[handle].errlo;
@@ -1354,7 +1364,7 @@ char* getIdamAsymmetricError(int handle, int above)
                     break;
                 }
 #ifndef __APPLE__
-                case TYPE_UNSIGNED_LONG64: {
+                case UDA_TYPE_UNSIGNED_LONG64: {
                     unsigned long long int* lh, * ll;
                     lh = (unsigned long long int*) Data_Block[handle].errhi;
                     if (Data_Block[handle].errasymmetry) ll = (unsigned long long int*) Data_Block[handle].errlo;
@@ -1365,7 +1375,7 @@ char* getIdamAsymmetricError(int handle, int above)
                     break;
                 }
 #endif
-                case TYPE_CHAR: {
+                case UDA_TYPE_CHAR: {
                     char* ch, * cl;
                     ch = Data_Block[handle].errhi;
                     if (Data_Block[handle].errasymmetry) cl = Data_Block[handle].errlo;
@@ -1375,7 +1385,7 @@ char* getIdamAsymmetricError(int handle, int above)
                     }
                     break;
                 }
-                case TYPE_UNSIGNED_CHAR: {
+                case UDA_TYPE_UNSIGNED_CHAR: {
                     unsigned char* ch, * cl;
                     ch = (unsigned char*)Data_Block[handle].errhi;
                     if (Data_Block[handle].errasymmetry) cl = (unsigned char*)Data_Block[handle].errlo;
@@ -1385,7 +1395,7 @@ char* getIdamAsymmetricError(int handle, int above)
                     }
                     break;
                 }
-                case TYPE_DCOMPLEX: {
+                case UDA_TYPE_DCOMPLEX: {
                     DCOMPLEX* ch, * cl;
                     ch = (DCOMPLEX*)Data_Block[handle].errhi;
                     if (Data_Block[handle].errasymmetry) cl = (DCOMPLEX*)Data_Block[handle].errlo;
@@ -1399,7 +1409,7 @@ char* getIdamAsymmetricError(int handle, int above)
                     }
                     break;
                 }
-                case TYPE_COMPLEX: {
+                case UDA_TYPE_COMPLEX: {
                     COMPLEX* ch, * cl;
                     ch = (COMPLEX*)Data_Block[handle].errhi;
                     if (Data_Block[handle].errasymmetry) cl = (COMPLEX*)Data_Block[handle].errlo;
@@ -1455,7 +1465,7 @@ void getIdamDoubleData(int handle, double* fp)
     if (status == MIN_STATUS && !Data_Block[handle].client_block.get_bad && !get_bad) return;
     if (status != MIN_STATUS && (Data_Block[handle].client_block.get_bad || get_bad)) return;
 
-    if (Data_Block[handle].data_type == TYPE_DOUBLE) {
+    if (Data_Block[handle].data_type == UDA_TYPE_DOUBLE) {
         if (!get_synthetic)
             memcpy((void*)fp, (void*)Data_Block[handle].data, (size_t)Data_Block[handle].data_n * sizeof(double));
         else {
@@ -1487,68 +1497,68 @@ void getIdamDoubleData(int handle, double* fp)
         }
 
         switch (Data_Block[handle].data_type) {
-            case TYPE_FLOAT: {
+            case UDA_TYPE_FLOAT: {
                 float* dp = (float*)array;
                 for (i = 0; i < ndata; i++) fp[i] = (double)dp[i];
                 break;
             }
-            case TYPE_SHORT: {
+            case UDA_TYPE_SHORT: {
                 short* sp = (short*)array;
                 for (i = 0; i < ndata; i++) fp[i] = (double)sp[i];
                 break;
             }
-            case TYPE_UNSIGNED_SHORT: {
+            case UDA_TYPE_UNSIGNED_SHORT: {
                 unsigned short* sp = (unsigned short*)array;
                 for (i = 0; i < ndata; i++) fp[i] = (double)sp[i];
                 break;
             }
-            case TYPE_INT: {
+            case UDA_TYPE_INT: {
                 int* ip = (int*)array;
                 for (i = 0; i < ndata; i++) fp[i] = (double)ip[i];
                 break;
             }
-            case TYPE_UNSIGNED_INT: {
+            case UDA_TYPE_UNSIGNED_INT: {
                 unsigned int* up = (unsigned int*)array;
                 for (i = 0; i < ndata; i++) fp[i] = (double)up[i];
                 break;
             }
-            case TYPE_LONG: {
+            case UDA_TYPE_LONG: {
                 long* lp = (long*)array;
                 for (i = 0; i < ndata; i++) fp[i] = (double)lp[i];
                 break;
             }
-            case TYPE_UNSIGNED_LONG: {
+            case UDA_TYPE_UNSIGNED_LONG: {
                 unsigned long* lp = (unsigned long*)array;
                 for (i = 0; i < ndata; i++) fp[i] = (double)lp[i];
                 break;
             }
-            case TYPE_LONG64: {
+            case UDA_TYPE_LONG64: {
                 long long int* lp = (long long int*)array;
                 for (i = 0; i < ndata; i++) fp[i] = (double)lp[i];
                 break;
             }
 #ifndef __APPLE__
-            case TYPE_UNSIGNED_LONG64: {
+            case UDA_TYPE_UNSIGNED_LONG64: {
                 unsigned long long int* lp = (unsigned long long int*) array;
                 for (i = 0; i < ndata; i++) fp[i] = (double) lp[i];
                 break;
             }
 #endif
-            case TYPE_CHAR: {
+            case UDA_TYPE_CHAR: {
                 char* cp = (char*)array;
                 for (i = 0; i < ndata; i++) fp[i] = (double)cp[i];
                 break;
             }
-            case TYPE_UNSIGNED_CHAR: {
+            case UDA_TYPE_UNSIGNED_CHAR: {
                 unsigned char* cp = (unsigned char*)array;
                 for (i = 0; i < ndata; i++) fp[i] = (double)cp[i];
                 break;
             }
-            case TYPE_UNKNOWN: {
+            case UDA_TYPE_UNKNOWN: {
                 for (i = 0; i < ndata; i++) fp[i] = (double)0.0;  // No Data !
                 break;
             }
-            case TYPE_DCOMPLEX: {
+            case UDA_TYPE_DCOMPLEX: {
                 int j = 0;
                 DCOMPLEX* dp = (DCOMPLEX*)array;
                 for (i = 0; i < ndata; i++) {
@@ -1557,7 +1567,7 @@ void getIdamDoubleData(int handle, double* fp)
                 }
                 break;
             }
-            case TYPE_COMPLEX: {
+            case UDA_TYPE_COMPLEX: {
                 int j = 0;
                 COMPLEX* dp = (COMPLEX*)array;
                 for (i = 0; i < ndata; i++) {
@@ -1593,7 +1603,7 @@ void getIdamFloatData(int handle, float* fp)
     if (status == MIN_STATUS && !Data_Block[handle].client_block.get_bad && !get_bad) return;
     if (status != MIN_STATUS && (Data_Block[handle].client_block.get_bad || get_bad)) return;
 
-    if (Data_Block[handle].data_type == TYPE_FLOAT) {
+    if (Data_Block[handle].data_type == UDA_TYPE_FLOAT) {
         if (!get_synthetic)
             memcpy((void*)fp, (void*)Data_Block[handle].data, (size_t)Data_Block[handle].data_n * sizeof(float));
         else {
@@ -1625,68 +1635,68 @@ void getIdamFloatData(int handle, float* fp)
         }
 
         switch (Data_Block[handle].data_type) {
-            case TYPE_DOUBLE: {
+            case UDA_TYPE_DOUBLE: {
                 double* dp = (double*)array;
                 for (i = 0; i < ndata; i++) fp[i] = (float)dp[i];
                 break;
             }
-            case TYPE_SHORT: {
+            case UDA_TYPE_SHORT: {
                 short* sp = (short*)array;
                 for (i = 0; i < ndata; i++) fp[i] = (float)sp[i];
                 break;
             }
-            case TYPE_UNSIGNED_SHORT: {
+            case UDA_TYPE_UNSIGNED_SHORT: {
                 unsigned short* sp = (unsigned short*)array;
                 for (i = 0; i < ndata; i++) fp[i] = (float)sp[i];
                 break;
             }
-            case TYPE_INT: {
+            case UDA_TYPE_INT: {
                 int* ip = (int*)array;
                 for (i = 0; i < ndata; i++) fp[i] = (float)ip[i];
                 break;
             }
-            case TYPE_UNSIGNED_INT: {
+            case UDA_TYPE_UNSIGNED_INT: {
                 unsigned int* up = (unsigned int*)array;
                 for (i = 0; i < ndata; i++) fp[i] = (float)up[i];
                 break;
             }
-            case TYPE_LONG: {
+            case UDA_TYPE_LONG: {
                 long* lp = (long*)array;
                 for (i = 0; i < ndata; i++) fp[i] = (float)lp[i];
                 break;
             }
-            case TYPE_UNSIGNED_LONG: {
+            case UDA_TYPE_UNSIGNED_LONG: {
                 unsigned long* lp = (unsigned long*)array;
                 for (i = 0; i < ndata; i++) fp[i] = (float)lp[i];
                 break;
             }
-            case TYPE_LONG64: {
+            case UDA_TYPE_LONG64: {
                 long long int* lp = (long long int*)array;
                 for (i = 0; i < ndata; i++) fp[i] = (float)lp[i];
                 break;
             }
 #ifndef __APPLE__
-            case TYPE_UNSIGNED_LONG64: {
+            case UDA_TYPE_UNSIGNED_LONG64: {
                 unsigned long long int* lp = (unsigned long long int*) array;
                 for (i = 0; i < ndata; i++) fp[i] = (float) lp[i];
                 break;
             }
 #endif
-            case TYPE_CHAR: {
+            case UDA_TYPE_CHAR: {
                 char* cp = (char*)array;
                 for (i = 0; i < ndata; i++) fp[i] = (float)cp[i];
                 break;
             }
-            case TYPE_UNSIGNED_CHAR: {
+            case UDA_TYPE_UNSIGNED_CHAR: {
                 unsigned char* cp = (unsigned char*)array;
                 for (i = 0; i < ndata; i++) fp[i] = (float)cp[i];
                 break;
             }
-            case TYPE_UNKNOWN: {
+            case UDA_TYPE_UNKNOWN: {
                 for (i = 0; i < ndata; i++) fp[i] = (float)0.0;   // No Data !
                 break;
             }
-            case TYPE_DCOMPLEX: {
+            case UDA_TYPE_DCOMPLEX: {
                 int j = 0;
                 DCOMPLEX* dp = (DCOMPLEX*)array;
                 for (i = 0; i < ndata; i++) {
@@ -1695,7 +1705,7 @@ void getIdamFloatData(int handle, float* fp)
                 }
                 break;
             }
-            case TYPE_COMPLEX: {
+            case UDA_TYPE_COMPLEX: {
                 int j = 0;
                 COMPLEX* dp = (COMPLEX*)array;
                 for (i = 0; i < ndata; i++) {
@@ -1722,46 +1732,46 @@ void getIdamFloatData(int handle, float* fp)
 void getIdamGenericData(int handle, void* data)
 {
     switch (getIdamDataType(handle)) {
-        case TYPE_FLOAT:
+        case UDA_TYPE_FLOAT:
             memcpy(data, (void*)getIdamData(handle), (size_t)getIdamDataNum(handle) * sizeof(float));
             break;
-        case TYPE_DOUBLE:
+        case UDA_TYPE_DOUBLE:
             memcpy(data, (void*)getIdamData(handle), (size_t)getIdamDataNum(handle) * sizeof(double));
             break;
-        case TYPE_INT:
+        case UDA_TYPE_INT:
             memcpy(data, (void*)getIdamData(handle), (size_t)getIdamDataNum(handle) * sizeof(int));
             break;
-        case TYPE_UNSIGNED_INT:
+        case UDA_TYPE_UNSIGNED_INT:
             memcpy(data, (void*)getIdamData(handle), (size_t)getIdamDataNum(handle) * sizeof(unsigned int));
             break;
-        case TYPE_LONG:
+        case UDA_TYPE_LONG:
             memcpy(data, (void*)getIdamData(handle), (size_t)getIdamDataNum(handle) * sizeof(long));
             break;
-        case TYPE_UNSIGNED_LONG:
+        case UDA_TYPE_UNSIGNED_LONG:
             memcpy(data, (void*)getIdamData(handle), (size_t)getIdamDataNum(handle) * sizeof(unsigned long));
             break;
-        case TYPE_LONG64:
+        case UDA_TYPE_LONG64:
             memcpy(data, (void*)getIdamData(handle), (size_t)getIdamDataNum(handle) * sizeof(long long int));
             break;
-        case TYPE_UNSIGNED_LONG64:
+        case UDA_TYPE_UNSIGNED_LONG64:
             memcpy(data, (void*)getIdamData(handle), (size_t)getIdamDataNum(handle) * sizeof(unsigned long long int));
             break;
-        case TYPE_SHORT:
+        case UDA_TYPE_SHORT:
             memcpy(data, (void*)getIdamData(handle), (size_t)getIdamDataNum(handle) * sizeof(short));
             break;
-        case TYPE_UNSIGNED_SHORT:
+        case UDA_TYPE_UNSIGNED_SHORT:
             memcpy(data, (void*)getIdamData(handle), (size_t)getIdamDataNum(handle) * sizeof(unsigned short));
             break;
-        case TYPE_CHAR:
+        case UDA_TYPE_CHAR:
             memcpy(data, (void*)getIdamData(handle), (size_t)getIdamDataNum(handle) * sizeof(char));
             break;
-        case TYPE_UNSIGNED_CHAR:
+        case UDA_TYPE_UNSIGNED_CHAR:
             memcpy(data, (void*)getIdamData(handle), (size_t)getIdamDataNum(handle) * sizeof(unsigned char));
             break;
-        case TYPE_DCOMPLEX:
+        case UDA_TYPE_DCOMPLEX:
             memcpy(data, (void*)getIdamData(handle), (size_t)getIdamDataNum(handle) * sizeof(DCOMPLEX));
             break;
-        case TYPE_COMPLEX:
+        case UDA_TYPE_COMPLEX:
             memcpy(data, (void*)getIdamData(handle), (size_t)getIdamDataNum(handle) * sizeof(COMPLEX));
             break;
     }
@@ -1780,15 +1790,15 @@ void getIdamFloatAsymmetricError(int handle, int above, float* fp)
 
     ndata = Data_Block[handle].data_n;
 
-    if (Data_Block[handle].error_type == TYPE_UNKNOWN) {
+    if (Data_Block[handle].error_type == UDA_TYPE_UNKNOWN) {
         getIdamAsymmetricError(handle, above);
     } // Create the Error Data prior to Casting
 
     switch (Data_Block[handle].error_type) {
-        case TYPE_UNKNOWN:
+        case UDA_TYPE_UNKNOWN:
             for (i = 0; i < ndata; i++) fp[i] = (float)0.0; // No Error Data
             break;
-        case TYPE_FLOAT:
+        case UDA_TYPE_FLOAT:
             if (above)
                 memcpy((void*)fp, (void*)Data_Block[handle].errhi,
                        (size_t)Data_Block[handle].data_n * sizeof(float));
@@ -1799,7 +1809,7 @@ void getIdamFloatAsymmetricError(int handle, int above, float* fp)
                 memcpy((void*)fp, (void*)Data_Block[handle].errlo,
                        (size_t)Data_Block[handle].data_n * sizeof(float));
             break;
-        case TYPE_DOUBLE: {
+        case UDA_TYPE_DOUBLE: {
             double* dp;
             if (above) {
                 dp = (double*)Data_Block[handle].errhi;
@@ -1811,7 +1821,7 @@ void getIdamFloatAsymmetricError(int handle, int above, float* fp)
             for (i = 0; i < ndata; i++) fp[i] = (float)dp[i];
             break;
         }
-        case TYPE_SHORT: {
+        case UDA_TYPE_SHORT: {
             short* sp;
             if (above) {
                 sp = (short*)Data_Block[handle].errhi;
@@ -1823,7 +1833,7 @@ void getIdamFloatAsymmetricError(int handle, int above, float* fp)
             for (i = 0; i < ndata; i++) fp[i] = (float)sp[i];
             break;
         }
-        case TYPE_UNSIGNED_SHORT: {
+        case UDA_TYPE_UNSIGNED_SHORT: {
             unsigned short* sp;
             if (above) {
                 sp = (unsigned short*)Data_Block[handle].errhi;
@@ -1835,7 +1845,7 @@ void getIdamFloatAsymmetricError(int handle, int above, float* fp)
             for (i = 0; i < ndata; i++) fp[i] = (float)sp[i];
             break;
         }
-        case TYPE_INT: {
+        case UDA_TYPE_INT: {
             int* ip;
             if (above) {
                 ip = (int*)Data_Block[handle].errhi;
@@ -1847,7 +1857,7 @@ void getIdamFloatAsymmetricError(int handle, int above, float* fp)
             for (i = 0; i < ndata; i++) fp[i] = (float)ip[i];
             break;
         }
-        case TYPE_UNSIGNED_INT: {
+        case UDA_TYPE_UNSIGNED_INT: {
             unsigned int* up;
             if (above) {
                 up = (unsigned int*)Data_Block[handle].errhi;
@@ -1859,7 +1869,7 @@ void getIdamFloatAsymmetricError(int handle, int above, float* fp)
             for (i = 0; i < ndata; i++) fp[i] = (float)up[i];
             break;
         }
-        case TYPE_LONG: {
+        case UDA_TYPE_LONG: {
             long* lp;
             if (above) {
                 lp = (long*)Data_Block[handle].errhi;
@@ -1871,7 +1881,7 @@ void getIdamFloatAsymmetricError(int handle, int above, float* fp)
             for (i = 0; i < ndata; i++) fp[i] = (float)lp[i];
             break;
         }
-        case TYPE_UNSIGNED_LONG: {
+        case UDA_TYPE_UNSIGNED_LONG: {
             unsigned long* lp;
             if (above) {
                 lp = (unsigned long*)Data_Block[handle].errhi;
@@ -1883,7 +1893,7 @@ void getIdamFloatAsymmetricError(int handle, int above, float* fp)
             for (i = 0; i < ndata; i++) fp[i] = (float)lp[i];
             break;
         }
-        case TYPE_LONG64: {
+        case UDA_TYPE_LONG64: {
             long long int* lp;
             if (above) {
                 lp = (long long int*)Data_Block[handle].errhi;
@@ -1896,7 +1906,7 @@ void getIdamFloatAsymmetricError(int handle, int above, float* fp)
             break;
         }
 #ifndef __APPLE__
-        case TYPE_UNSIGNED_LONG64: {
+        case UDA_TYPE_UNSIGNED_LONG64: {
             unsigned long long int* lp;
             if (above)
                 lp = (unsigned long long int*) Data_Block[handle].errhi;
@@ -1908,7 +1918,7 @@ void getIdamFloatAsymmetricError(int handle, int above, float* fp)
             break;
         }
 #endif
-        case TYPE_CHAR: {
+        case UDA_TYPE_CHAR: {
             char* cp;
             if (above) {
                 cp = Data_Block[handle].errhi;
@@ -1920,7 +1930,7 @@ void getIdamFloatAsymmetricError(int handle, int above, float* fp)
             for (i = 0; i < ndata; i++) fp[i] = (float)cp[i];
             break;
         }
-        case TYPE_UNSIGNED_CHAR: {
+        case UDA_TYPE_UNSIGNED_CHAR: {
             unsigned char* cp;
             if (above) {
                 cp = (unsigned char*)Data_Block[handle].errhi;
@@ -1932,7 +1942,7 @@ void getIdamFloatAsymmetricError(int handle, int above, float* fp)
             for (i = 0; i < ndata; i++) fp[i] = (float)cp[i];
             break;
         }
-        case TYPE_DCOMPLEX: {
+        case UDA_TYPE_DCOMPLEX: {
             int j = 0;
             DCOMPLEX* cp;
             if (above) {
@@ -1948,7 +1958,7 @@ void getIdamFloatAsymmetricError(int handle, int above, float* fp)
             }
             break;
         }
-        case TYPE_COMPLEX: {
+        case UDA_TYPE_COMPLEX: {
             int j = 0;
             COMPLEX* cp;
             if (above) {
@@ -2098,7 +2108,7 @@ int getIdamDimNum(int handle, int ndim)
 */
 int getIdamDimType(int handle, int ndim)
 {
-    if (handle < 0 || handle >= Data_Block_Count || ndim < 0 || ndim >= Data_Block[handle].rank) return TYPE_UNKNOWN;
+    if (handle < 0 || handle >= Data_Block_Count || ndim < 0 || ndim >= Data_Block[handle].rank) return UDA_TYPE_UNKNOWN;
     return (int)Data_Block[handle].dims[ndim].data_type;
 }
 
@@ -2110,7 +2120,7 @@ int getIdamDimType(int handle, int ndim)
 */
 int getIdamDimErrorType(int handle, int ndim)
 {
-    if (handle < 0 || handle >= Data_Block_Count || ndim < 0 || ndim >= Data_Block[handle].rank) return TYPE_UNKNOWN;
+    if (handle < 0 || handle >= Data_Block_Count || ndim < 0 || ndim >= Data_Block[handle].rank) return UDA_TYPE_UNKNOWN;
     return (int)Data_Block[handle].dims[ndim].error_type;
 }
 
@@ -2228,7 +2238,7 @@ void getIdamDoubleDimData(int handle, int ndim, double* fp)
 // **** The double array must be TWICE the size if the type is COMPLEX otherwise a seg fault will occur!
 
     if (handle < 0 || handle >= Data_Block_Count || ndim < 0 || ndim >= Data_Block[handle].rank) return;
-    if (Data_Block[handle].dims[ndim].data_type == TYPE_DOUBLE) {
+    if (Data_Block[handle].dims[ndim].data_type == UDA_TYPE_DOUBLE) {
         if (!get_synthetic)
             memcpy((void*)fp, (void*)Data_Block[handle].dims[ndim].dim,
                    (size_t)Data_Block[handle].dims[ndim].dim_n * sizeof(double));
@@ -2259,64 +2269,64 @@ void getIdamDoubleDimData(int handle, int ndim, double* fp)
         }
 
         switch (Data_Block[handle].dims[ndim].data_type) {
-            case TYPE_FLOAT: {
+            case UDA_TYPE_FLOAT: {
                 float* dp = (float*)array;
                 for (i = 0; i < ndata; i++) fp[i] = (double)dp[i];
                 break;
             }
-            case TYPE_SHORT: {
+            case UDA_TYPE_SHORT: {
                 short* sp = (short*)array;
                 for (i = 0; i < ndata; i++) fp[i] = (double)sp[i];
                 break;
             }
-            case TYPE_UNSIGNED_SHORT: {
+            case UDA_TYPE_UNSIGNED_SHORT: {
                 unsigned short* sp = (unsigned short*)array;
                 for (i = 0; i < ndata; i++) fp[i] = (double)sp[i];
                 break;
             }
-            case TYPE_INT: {
+            case UDA_TYPE_INT: {
                 int* ip = (int*)array;
                 for (i = 0; i < ndata; i++) fp[i] = (double)ip[i];
                 break;
             }
-            case TYPE_UNSIGNED_INT: {
+            case UDA_TYPE_UNSIGNED_INT: {
                 unsigned int* up = (unsigned int*)array;
                 for (i = 0; i < ndata; i++) fp[i] = (double)up[i];
                 break;
             }
-            case TYPE_LONG: {
+            case UDA_TYPE_LONG: {
                 long* lp = (long*)array;
                 for (i = 0; i < ndata; i++) fp[i] = (double)lp[i];
                 break;
             }
-            case TYPE_UNSIGNED_LONG: {
+            case UDA_TYPE_UNSIGNED_LONG: {
                 unsigned long* lp = (unsigned long*)array;
                 for (i = 0; i < ndata; i++) fp[i] = (double)lp[i];
                 break;
             }
-            case TYPE_LONG64: {
+            case UDA_TYPE_LONG64: {
                 long long int* lp = (long long int*)array;
                 for (i = 0; i < ndata; i++) fp[i] = (double)lp[i];
                 break;
             }
 #ifndef __APPLE__
-            case TYPE_UNSIGNED_LONG64: {
+            case UDA_TYPE_UNSIGNED_LONG64: {
                 unsigned long long int* lp = (unsigned long long int*) array;
                 for (i = 0; i < ndata; i++) fp[i] = (double) lp[i];
                 break;
             }
 #endif
-            case TYPE_CHAR: {
+            case UDA_TYPE_CHAR: {
                 char* cp = (char*)array;
                 for (i = 0; i < ndata; i++) fp[i] = (double)cp[i];
                 break;
             }
-            case TYPE_UNSIGNED_CHAR: {
+            case UDA_TYPE_UNSIGNED_CHAR: {
                 unsigned char* cp = (unsigned char*)array;
                 for (i = 0; i < ndata; i++) fp[i] = (double)cp[i];
                 break;
             }
-            case TYPE_DCOMPLEX: {
+            case UDA_TYPE_DCOMPLEX: {
                 int j = 0;
                 DCOMPLEX* cp = (DCOMPLEX*)array;
                 for (i = 0; i < ndata; i++) {
@@ -2325,7 +2335,7 @@ void getIdamDoubleDimData(int handle, int ndim, double* fp)
                 }
                 break;
             }
-            case TYPE_COMPLEX: {
+            case UDA_TYPE_COMPLEX: {
                 int j = 0;
                 COMPLEX* cp = (COMPLEX*)array;
                 for (i = 0; i < ndata; i++) {
@@ -2334,7 +2344,7 @@ void getIdamDoubleDimData(int handle, int ndim, double* fp)
                 }
                 break;
             }
-            case TYPE_UNKNOWN:
+            case UDA_TYPE_UNKNOWN:
                 for (i = 0; i < ndata; i++) fp[i] = (double)0.0;
                 break;
             default:
@@ -2359,7 +2369,7 @@ void getIdamFloatDimData(int handle, int ndim, float* fp)
 // **** The float array must be TWICE the size if the type is COMPLEX otherwise a seg fault will occur!
 
     if (handle < 0 || handle >= Data_Block_Count || ndim < 0 || ndim >= Data_Block[handle].rank) return;
-    if (Data_Block[handle].dims[ndim].data_type == TYPE_FLOAT) {
+    if (Data_Block[handle].dims[ndim].data_type == UDA_TYPE_FLOAT) {
         if (!get_synthetic)
             memcpy((void*)fp, (void*)Data_Block[handle].dims[ndim].dim,
                    (size_t)Data_Block[handle].dims[ndim].dim_n * sizeof(float));
@@ -2390,64 +2400,64 @@ void getIdamFloatDimData(int handle, int ndim, float* fp)
         }
 
         switch (Data_Block[handle].dims[ndim].data_type) {
-            case TYPE_DOUBLE: {
+            case UDA_TYPE_DOUBLE: {
                 double* dp = (double*)array;
                 for (i = 0; i < ndata; i++) fp[i] = (float)dp[i];
                 break;
             }
-            case TYPE_SHORT: {
+            case UDA_TYPE_SHORT: {
                 short* sp = (short*)array;
                 for (i = 0; i < ndata; i++) fp[i] = (float)sp[i];
                 break;
             }
-            case TYPE_UNSIGNED_SHORT: {
+            case UDA_TYPE_UNSIGNED_SHORT: {
                 unsigned short* sp = (unsigned short*)array;
                 for (i = 0; i < ndata; i++) fp[i] = (float)sp[i];
                 break;
             }
-            case TYPE_INT: {
+            case UDA_TYPE_INT: {
                 int* ip = (int*)array;
                 for (i = 0; i < ndata; i++) fp[i] = (float)ip[i];
                 break;
             }
-            case TYPE_UNSIGNED_INT: {
+            case UDA_TYPE_UNSIGNED_INT: {
                 unsigned int* up = (unsigned int*)array;
                 for (i = 0; i < ndata; i++) fp[i] = (float)up[i];
                 break;
             }
-            case TYPE_LONG: {
+            case UDA_TYPE_LONG: {
                 long* lp = (long*)array;
                 for (i = 0; i < ndata; i++) fp[i] = (float)lp[i];
                 break;
             }
-            case TYPE_UNSIGNED_LONG: {
+            case UDA_TYPE_UNSIGNED_LONG: {
                 unsigned long* lp = (unsigned long*)array;
                 for (i = 0; i < ndata; i++) fp[i] = (float)lp[i];
                 break;
             }
-            case TYPE_LONG64: {
+            case UDA_TYPE_LONG64: {
                 long long int* lp = (long long int*)array;
                 for (i = 0; i < ndata; i++) fp[i] = (float)lp[i];
                 break;
             }
 #ifndef __APPLE__
-            case TYPE_UNSIGNED_LONG64: {
+            case UDA_TYPE_UNSIGNED_LONG64: {
                 unsigned long long int* lp = (unsigned long long int*) array;
                 for (i = 0; i < ndata; i++) fp[i] = (float) lp[i];
                 break;
             }
 #endif
-            case TYPE_CHAR: {
+            case UDA_TYPE_CHAR: {
                 char* cp = (char*)array;
                 for (i = 0; i < ndata; i++) fp[i] = (float)cp[i];
                 break;
             }
-            case TYPE_UNSIGNED_CHAR: {
+            case UDA_TYPE_UNSIGNED_CHAR: {
                 unsigned char* cp = (unsigned char*)array;
                 for (i = 0; i < ndata; i++) fp[i] = (float)cp[i];
                 break;
             }
-            case TYPE_DCOMPLEX: {
+            case UDA_TYPE_DCOMPLEX: {
                 int j = 0;
                 DCOMPLEX* cp = (DCOMPLEX*)array;
                 for (i = 0; i < ndata; i++) {
@@ -2456,7 +2466,7 @@ void getIdamFloatDimData(int handle, int ndim, float* fp)
                 }
                 break;
             }
-            case TYPE_COMPLEX: {
+            case UDA_TYPE_COMPLEX: {
                 int j = 0;
                 COMPLEX* cp = (COMPLEX*)array;
                 for (i = 0; i < ndata; i++) {
@@ -2465,7 +2475,7 @@ void getIdamFloatDimData(int handle, int ndim, float* fp)
                 }
                 break;
             }
-            case TYPE_UNKNOWN:
+            case UDA_TYPE_UNKNOWN:
                 for (i = 0; i < ndata; i++) fp[i] = (float)0.0;
                 break;
             default:
@@ -2486,52 +2496,52 @@ void getIdamFloatDimData(int handle, int ndim, float* fp)
 void getIdamGenericDimData(int handle, int ndim, void* data)
 {
     switch (getIdamDimType(handle, ndim)) {
-        case TYPE_FLOAT:
+        case UDA_TYPE_FLOAT:
             memcpy(data, (void*)getIdamDimData(handle, ndim), (size_t)getIdamDimNum(handle, ndim) * sizeof(float));
             break;
-        case TYPE_DOUBLE:
+        case UDA_TYPE_DOUBLE:
             memcpy(data, (void*)getIdamDimData(handle, ndim), (size_t)getIdamDimNum(handle, ndim) * sizeof(double));
             break;
-        case TYPE_INT:
+        case UDA_TYPE_INT:
             memcpy(data, (void*)getIdamDimData(handle, ndim), (size_t)getIdamDimNum(handle, ndim) * sizeof(int));
             break;
-        case TYPE_LONG:
+        case UDA_TYPE_LONG:
             memcpy(data, (void*)getIdamDimData(handle, ndim), (size_t)getIdamDimNum(handle, ndim) * sizeof(long));
             break;
-        case TYPE_LONG64:
+        case UDA_TYPE_LONG64:
             memcpy(data, (void*)getIdamDimData(handle, ndim),
                    (size_t)getIdamDimNum(handle, ndim) * sizeof(long long int));
             break;
-        case TYPE_SHORT:
+        case UDA_TYPE_SHORT:
             memcpy(data, (void*)getIdamDimData(handle, ndim), (size_t)getIdamDimNum(handle, ndim) * sizeof(short));
             break;
-        case TYPE_CHAR:
+        case UDA_TYPE_CHAR:
             memcpy(data, (void*)getIdamDimData(handle, ndim), (size_t)getIdamDimNum(handle, ndim) * sizeof(char));
             break;
-        case TYPE_UNSIGNED_INT:
+        case UDA_TYPE_UNSIGNED_INT:
             memcpy(data, (void*)getIdamDimData(handle, ndim),
                    (size_t)getIdamDimNum(handle, ndim) * sizeof(unsigned int));
             break;
-        case TYPE_UNSIGNED_LONG:
+        case UDA_TYPE_UNSIGNED_LONG:
             memcpy(data, (void*)getIdamDimData(handle, ndim),
                    (size_t)getIdamDimNum(handle, ndim) * sizeof(unsigned long));
             break;
-        case TYPE_UNSIGNED_LONG64:
+        case UDA_TYPE_UNSIGNED_LONG64:
             memcpy(data, (void*)getIdamDimData(handle, ndim),
                    (size_t)getIdamDimNum(handle, ndim) * sizeof(unsigned long long int));
             break;
-        case TYPE_UNSIGNED_SHORT:
+        case UDA_TYPE_UNSIGNED_SHORT:
             memcpy(data, (void*)getIdamDimData(handle, ndim),
                    (size_t)getIdamDimNum(handle, ndim) * sizeof(unsigned short));
             break;
-        case TYPE_UNSIGNED_CHAR:
+        case UDA_TYPE_UNSIGNED_CHAR:
             memcpy(data, (void*)getIdamDimData(handle, ndim),
                    (size_t)getIdamDimNum(handle, ndim) * sizeof(unsigned char));
             break;
-        case TYPE_DCOMPLEX:
+        case UDA_TYPE_DCOMPLEX:
             memcpy(data, (void*)getIdamDimData(handle, ndim), (size_t)getIdamDimNum(handle, ndim) * sizeof(DCOMPLEX));
             break;
-        case TYPE_COMPLEX:
+        case UDA_TYPE_COMPLEX:
             memcpy(data, (void*)getIdamDimData(handle, ndim), (size_t)getIdamDimNum(handle, ndim) * sizeof(COMPLEX));
             break;
     }
@@ -2553,7 +2563,7 @@ DIMS* getIdamDimBlock(int handle, int ndim)
 char* getIdamDimAsymmetricError(int handle, int ndim, int above)
 {
     if (handle < 0 || handle >= Data_Block_Count || ndim < 0 || ndim >= Data_Block[handle].rank) return NULL;
-    if (Data_Block[handle].dims[ndim].error_type != TYPE_UNKNOWN) {
+    if (Data_Block[handle].dims[ndim].error_type != UDA_TYPE_UNKNOWN) {
         if (above) {
             return Data_Block[handle].dims[ndim].errhi;    // return the default error array
         } else {
@@ -2601,7 +2611,7 @@ char* getIdamDimAsymmetricError(int handle, int ndim, int above)
             }
 
             switch (Data_Block[handle].dims[ndim].data_type) {
-                case TYPE_FLOAT: {
+                case UDA_TYPE_FLOAT: {
                     float* fh, * fl;
                     fh = (float*)Data_Block[handle].dims[ndim].errhi;
                     if (Data_Block[handle].dims[ndim].errasymmetry) fl = (float*)Data_Block[handle].dims[ndim].errlo;
@@ -2611,7 +2621,7 @@ char* getIdamDimAsymmetricError(int handle, int ndim, int above)
                     }
                     break;
                 }
-                case TYPE_DOUBLE: {
+                case UDA_TYPE_DOUBLE: {
                     double* dh, * dl;
                     dh = (double*)Data_Block[handle].dims[ndim].errhi;
                     if (Data_Block[handle].dims[ndim].errasymmetry) dl = (double*)Data_Block[handle].dims[ndim].errlo;
@@ -2621,7 +2631,7 @@ char* getIdamDimAsymmetricError(int handle, int ndim, int above)
                     }
                     break;
                 }
-                case TYPE_SHORT: {
+                case UDA_TYPE_SHORT: {
                     short* sh, * sl;
                     sh = (short*)Data_Block[handle].dims[ndim].errhi;
                     if (Data_Block[handle].dims[ndim].errasymmetry) sl = (short*)Data_Block[handle].dims[ndim].errlo;
@@ -2631,7 +2641,7 @@ char* getIdamDimAsymmetricError(int handle, int ndim, int above)
                     }
                     break;
                 }
-                case TYPE_UNSIGNED_SHORT: {
+                case UDA_TYPE_UNSIGNED_SHORT: {
                     unsigned short* sh, * sl;
                     sh = (unsigned short*)Data_Block[handle].dims[ndim].errhi;
                     if (Data_Block[handle].dims[ndim].errasymmetry) sl = (unsigned short*)Data_Block[handle].dims[ndim].errlo;
@@ -2641,7 +2651,7 @@ char* getIdamDimAsymmetricError(int handle, int ndim, int above)
                     }
                     break;
                 }
-                case TYPE_INT: {
+                case UDA_TYPE_INT: {
                     int* ih, * il;
                     ih = (int*)Data_Block[handle].dims[ndim].errhi;
                     if (Data_Block[handle].dims[ndim].errasymmetry) il = (int*)Data_Block[handle].dims[ndim].errlo;
@@ -2651,7 +2661,7 @@ char* getIdamDimAsymmetricError(int handle, int ndim, int above)
                     }
                     break;
                 }
-                case TYPE_UNSIGNED_INT: {
+                case UDA_TYPE_UNSIGNED_INT: {
                     unsigned int* uh, * ul;
                     uh = (unsigned int*)Data_Block[handle].dims[ndim].errhi;
                     if (Data_Block[handle].dims[ndim].errasymmetry) ul = (unsigned int*)Data_Block[handle].dims[ndim].errlo;
@@ -2661,7 +2671,7 @@ char* getIdamDimAsymmetricError(int handle, int ndim, int above)
                     }
                     break;
                 }
-                case TYPE_LONG: {
+                case UDA_TYPE_LONG: {
                     long* lh, * ll;
                     lh = (long*)Data_Block[handle].dims[ndim].errhi;
                     if (Data_Block[handle].dims[ndim].errasymmetry) ll = (long*)Data_Block[handle].dims[ndim].errlo;
@@ -2671,7 +2681,7 @@ char* getIdamDimAsymmetricError(int handle, int ndim, int above)
                     }
                     break;
                 }
-                case TYPE_UNSIGNED_LONG: {
+                case UDA_TYPE_UNSIGNED_LONG: {
                     unsigned long* lh, * ll;
                     lh = (unsigned long*)Data_Block[handle].dims[ndim].errhi;
                     if (Data_Block[handle].dims[ndim].errasymmetry) ll = (unsigned long*)Data_Block[handle].dims[ndim].errlo;
@@ -2681,7 +2691,7 @@ char* getIdamDimAsymmetricError(int handle, int ndim, int above)
                     }
                     break;
                 }
-                case TYPE_LONG64: {
+                case UDA_TYPE_LONG64: {
                     long long int* lh, * ll;
                     lh = (long long int*)Data_Block[handle].dims[ndim].errhi;
                     if (Data_Block[handle].dims[ndim].errasymmetry) ll = (long long int*)Data_Block[handle].dims[ndim].errlo;
@@ -2692,7 +2702,7 @@ char* getIdamDimAsymmetricError(int handle, int ndim, int above)
                     break;
                 }
 #ifndef __APPLE__
-                case TYPE_UNSIGNED_LONG64: {
+                case UDA_TYPE_UNSIGNED_LONG64: {
                     unsigned long long int* lh, * ll;
                     lh = (unsigned long long int*) Data_Block[handle].dims[ndim].errhi;
                     if (Data_Block[handle].dims[ndim].errasymmetry) ll = (unsigned long long int*) Data_Block[handle].dims[ndim].errlo;
@@ -2703,7 +2713,7 @@ char* getIdamDimAsymmetricError(int handle, int ndim, int above)
                     break;
                 }
 #endif
-                case TYPE_CHAR: {
+                case UDA_TYPE_CHAR: {
                     char* ch, * cl;
                     ch = Data_Block[handle].dims[ndim].errhi;
                     if (Data_Block[handle].dims[ndim].errasymmetry) cl = Data_Block[handle].dims[ndim].errlo;
@@ -2713,7 +2723,7 @@ char* getIdamDimAsymmetricError(int handle, int ndim, int above)
                     }
                     break;
                 }
-                case TYPE_UNSIGNED_CHAR: {
+                case UDA_TYPE_UNSIGNED_CHAR: {
                     unsigned char* ch, * cl;
                     ch = (unsigned char*)Data_Block[handle].dims[ndim].errhi;
                     if (Data_Block[handle].dims[ndim].errasymmetry) cl = (unsigned char*)Data_Block[handle].dims[ndim].errlo;
@@ -2723,7 +2733,7 @@ char* getIdamDimAsymmetricError(int handle, int ndim, int above)
                     }
                     break;
                 }
-                case TYPE_DCOMPLEX: {
+                case UDA_TYPE_DCOMPLEX: {
                     DCOMPLEX* ch, * cl;
                     ch = (DCOMPLEX*)Data_Block[handle].dims[ndim].errhi;
                     if (Data_Block[handle].dims[ndim].errasymmetry) cl = (DCOMPLEX*)Data_Block[handle].dims[ndim].errlo;
@@ -2737,7 +2747,7 @@ char* getIdamDimAsymmetricError(int handle, int ndim, int above)
                     }
                     break;
                 }
-                case TYPE_COMPLEX: {
+                case UDA_TYPE_COMPLEX: {
                     COMPLEX* ch, * cl;
                     ch = (COMPLEX*)Data_Block[handle].dims[ndim].errhi;
                     if (Data_Block[handle].dims[ndim].errasymmetry) cl = (COMPLEX*)Data_Block[handle].dims[ndim].errlo;
@@ -2778,15 +2788,15 @@ void getIdamFloatDimAsymmetricError(int handle, int ndim, int above, float* fp)
 
     ndata = Data_Block[handle].dims[ndim].dim_n;
 
-    if (Data_Block[handle].dims[ndim].error_type == TYPE_UNKNOWN) {
+    if (Data_Block[handle].dims[ndim].error_type == UDA_TYPE_UNKNOWN) {
         getIdamDimAsymmetricError(handle, ndim, above);
     }     // Create the Error Data prior to Casting
 
     switch (Data_Block[handle].dims[ndim].error_type) {
-        case TYPE_UNKNOWN:
+        case UDA_TYPE_UNKNOWN:
             for (i = 0; i < ndata; i++) fp[i] = (float)0.0; // No Error Data
             break;
-        case TYPE_FLOAT:
+        case UDA_TYPE_FLOAT:
             if (above)
                 memcpy((void*)fp, (void*)Data_Block[handle].dims[ndim].errhi,
                        (size_t)Data_Block[handle].dims[ndim].dim_n * sizeof(float));
@@ -2797,7 +2807,7 @@ void getIdamFloatDimAsymmetricError(int handle, int ndim, int above, float* fp)
                 memcpy((void*)fp, (void*)Data_Block[handle].dims[ndim].errlo,
                        (size_t)Data_Block[handle].dims[ndim].dim_n * sizeof(float));
             break;
-        case TYPE_DOUBLE: {
+        case UDA_TYPE_DOUBLE: {
             double* dp;                          // Return Zeros if this data is requested unless Error is Modelled
             if (above) {
                 dp = (double*)Data_Block[handle].dims[ndim].errhi;
@@ -2809,7 +2819,7 @@ void getIdamFloatDimAsymmetricError(int handle, int ndim, int above, float* fp)
             for (i = 0; i < ndata; i++) fp[i] = (float)dp[i];
             break;
         }
-        case TYPE_SHORT: {
+        case UDA_TYPE_SHORT: {
             short* sp;
             if (above) {
                 sp = (short*)Data_Block[handle].dims[ndim].errhi;
@@ -2821,7 +2831,7 @@ void getIdamFloatDimAsymmetricError(int handle, int ndim, int above, float* fp)
             for (i = 0; i < ndata; i++) fp[i] = (float)sp[i];
             break;
         }
-        case TYPE_UNSIGNED_SHORT: {
+        case UDA_TYPE_UNSIGNED_SHORT: {
             unsigned short* sp;
             if (above) {
                 sp = (unsigned short*)Data_Block[handle].dims[ndim].errhi;
@@ -2833,7 +2843,7 @@ void getIdamFloatDimAsymmetricError(int handle, int ndim, int above, float* fp)
             for (i = 0; i < ndata; i++) fp[i] = (float)sp[i];
             break;
         }
-        case TYPE_INT: {
+        case UDA_TYPE_INT: {
             int* ip;
             if (above) {
                 ip = (int*)Data_Block[handle].dims[ndim].errhi;
@@ -2845,7 +2855,7 @@ void getIdamFloatDimAsymmetricError(int handle, int ndim, int above, float* fp)
             for (i = 0; i < ndata; i++) fp[i] = (float)ip[i];
             break;
         }
-        case TYPE_UNSIGNED_INT: {
+        case UDA_TYPE_UNSIGNED_INT: {
             unsigned int* up;
             if (above) {
                 up = (unsigned int*)Data_Block[handle].dims[ndim].errhi;
@@ -2857,7 +2867,7 @@ void getIdamFloatDimAsymmetricError(int handle, int ndim, int above, float* fp)
             for (i = 0; i < ndata; i++) fp[i] = (float)up[i];
             break;
         }
-        case TYPE_LONG: {
+        case UDA_TYPE_LONG: {
             long* lp;
             if (above) {
                 lp = (long*)Data_Block[handle].dims[ndim].errhi;
@@ -2869,7 +2879,7 @@ void getIdamFloatDimAsymmetricError(int handle, int ndim, int above, float* fp)
             for (i = 0; i < ndata; i++) fp[i] = (float)lp[i];
             break;
         }
-        case TYPE_UNSIGNED_LONG: {
+        case UDA_TYPE_UNSIGNED_LONG: {
             unsigned long* lp;
             if (above) {
                 lp = (unsigned long*)Data_Block[handle].dims[ndim].errhi;
@@ -2881,7 +2891,7 @@ void getIdamFloatDimAsymmetricError(int handle, int ndim, int above, float* fp)
             for (i = 0; i < ndata; i++) fp[i] = (float)lp[i];
             break;
         }
-        case TYPE_CHAR: {
+        case UDA_TYPE_CHAR: {
             char* cp;
             if (above) {
                 cp = Data_Block[handle].dims[ndim].errhi;
@@ -2893,7 +2903,7 @@ void getIdamFloatDimAsymmetricError(int handle, int ndim, int above, float* fp)
             for (i = 0; i < ndata; i++) fp[i] = (float)cp[i];
             break;
         }
-        case TYPE_UNSIGNED_CHAR: {
+        case UDA_TYPE_UNSIGNED_CHAR: {
             unsigned char* cp;
             if (above) {
                 cp = (unsigned char*)Data_Block[handle].dims[ndim].errhi;
@@ -2905,7 +2915,7 @@ void getIdamFloatDimAsymmetricError(int handle, int ndim, int above, float* fp)
             for (i = 0; i < ndata; i++) fp[i] = (float)cp[i];
             break;
         }
-        case TYPE_DCOMPLEX: {
+        case UDA_TYPE_DCOMPLEX: {
             int j = 0;
             DCOMPLEX* cp;
             if (above) {
@@ -2921,7 +2931,7 @@ void getIdamFloatDimAsymmetricError(int handle, int ndim, int above, float* fp)
             }
             break;
         }
-        case TYPE_COMPLEX: {
+        case UDA_TYPE_COMPLEX: {
             int j = 0;
             COMPLEX* cp;
             if (above) {
@@ -3039,7 +3049,7 @@ int idamDataCheckSum(void* data, int data_n, int type)
 {
     int i, sum = 0;
     switch (type) {
-        case TYPE_FLOAT: {
+        case UDA_TYPE_FLOAT: {
             float fsum = 0.0;
             float* dp = (float*)data;
             for (i = 0; i < data_n; i++) if (isfinite(dp[i])) fsum = fsum + dp[i];
@@ -3047,7 +3057,7 @@ int idamDataCheckSum(void* data, int data_n, int type)
             if (sum == 0) sum = (int)(1000000.0 * fsum);      // Rescale
             break;
         }
-        case TYPE_DOUBLE: {
+        case UDA_TYPE_DOUBLE: {
             double fsum = 0.0;
             double* dp = (double*)data;
             for (i = 0; i < data_n; i++) if (isfinite(dp[i])) fsum = fsum + dp[i];
@@ -3055,7 +3065,7 @@ int idamDataCheckSum(void* data, int data_n, int type)
             if (sum == 0) sum = (int)(1000000.0 * fsum);      // Rescale
             break;
         }
-        case TYPE_COMPLEX: {
+        case UDA_TYPE_COMPLEX: {
             float fsum = 0.0;
             COMPLEX* dp = (COMPLEX*)data;
             for (i = 0; i < data_n; i++)
@@ -3066,7 +3076,7 @@ int idamDataCheckSum(void* data, int data_n, int type)
             if (sum == 0) sum = (int)(1000000.0 * fsum);      // Rescale
             break;
         }
-        case TYPE_DCOMPLEX: {
+        case UDA_TYPE_DCOMPLEX: {
             double fsum = 0.0;
             DCOMPLEX* dp = (DCOMPLEX*)data;
             for (i = 0; i < data_n; i++)
@@ -3078,53 +3088,53 @@ int idamDataCheckSum(void* data, int data_n, int type)
             break;
         }
 
-        case TYPE_CHAR: {
+        case UDA_TYPE_CHAR: {
             char* dp = (char*)data;
             for (i = 0; i < data_n; i++) sum = sum + (int)dp[i];
             break;
         }
-        case TYPE_SHORT: {
+        case UDA_TYPE_SHORT: {
             short int* dp = (short int*)data;
             for (i = 0; i < data_n; i++) sum = sum + (int)dp[i];
             break;
         }
-        case TYPE_INT: {
+        case UDA_TYPE_INT: {
             int* dp = (int*)data;
             for (i = 0; i < data_n; i++) sum = sum + (int)dp[i];
             break;
         }
-        case TYPE_LONG: {
+        case UDA_TYPE_LONG: {
             long* dp = (long*)data;
             for (i = 0; i < data_n; i++) sum = sum + (int)dp[i];
             break;
         }
-        case TYPE_LONG64: {
+        case UDA_TYPE_LONG64: {
             long long int* dp = (long long int*)data;
             for (i = 0; i < data_n; i++) sum = sum + (int)dp[i];
             break;
         }
-        case TYPE_UNSIGNED_CHAR: {
+        case UDA_TYPE_UNSIGNED_CHAR: {
             unsigned char* dp = (unsigned char*)data;
             for (i = 0; i < data_n; i++) sum = sum + (int)dp[i];
             break;
         }
-        case TYPE_UNSIGNED_SHORT: {
+        case UDA_TYPE_UNSIGNED_SHORT: {
             unsigned short int* dp = (unsigned short int*)data;
             for (i = 0; i < data_n; i++) sum = sum + (int)dp[i];
             break;
         }
-        case TYPE_UNSIGNED_INT: {
+        case UDA_TYPE_UNSIGNED_INT: {
             unsigned int* dp = (unsigned int*)data;
             for (i = 0; i < data_n; i++) sum = sum + (int)dp[i];
             break;
         }
-        case TYPE_UNSIGNED_LONG: {
+        case UDA_TYPE_UNSIGNED_LONG: {
             unsigned long* dp = (unsigned long*)data;
             for (i = 0; i < data_n; i++) sum = sum + (int)dp[i];
             break;
         }
 #ifndef __APPLE__
-        case TYPE_UNSIGNED_LONG64: {
+        case UDA_TYPE_UNSIGNED_LONG64: {
             unsigned long long int* dp = (unsigned long long int*) data;
             for (i = 0; i < data_n; i++) sum = sum + (int) dp[i];
             break;
@@ -3203,7 +3213,7 @@ TODO
 
 int setIdamDataTree(int handle)
 {
-    if (getIdamDataOpaqueType(handle) != OPAQUE_TYPE_STRUCTURES) return 0;    // Return FALSE
+    if (getIdamDataOpaqueType(handle) != UDA_OPAQUE_TYPE_STRUCTURES) return 0;    // Return FALSE
     if (getIdamData(handle) == NULL) return 0;
 
     fullNTree = (NTREE*)getIdamData(handle); // Global pointer
@@ -3218,7 +3228,7 @@ int setIdamDataTree(int handle)
 
 NTREE* getIdamDataTree(int handle)
 {
-    if (getIdamDataOpaqueType(handle) != OPAQUE_TYPE_STRUCTURES) return 0;
+    if (getIdamDataOpaqueType(handle) != UDA_OPAQUE_TYPE_STRUCTURES) return 0;
     return (NTREE*)getIdamData(handle);
 }
 
@@ -3226,21 +3236,21 @@ NTREE* getIdamDataTree(int handle)
 
 USERDEFINEDTYPE* getIdamUserDefinedType(int handle)
 {
-    if (getIdamDataOpaqueType(handle) != OPAQUE_TYPE_STRUCTURES) return 0;
+    if (getIdamDataOpaqueType(handle) != UDA_OPAQUE_TYPE_STRUCTURES) return 0;
     void* opaque_block = getIdamDataOpaqueBlock(handle);
     return ((GENERAL_BLOCK*)opaque_block)->userdefinedtype;
 }
 
 USERDEFINEDTYPELIST* getIdamUserDefinedTypeList(int handle)
 {
-    if (getIdamDataOpaqueType(handle) != OPAQUE_TYPE_STRUCTURES) return 0;
+    if (getIdamDataOpaqueType(handle) != UDA_OPAQUE_TYPE_STRUCTURES) return 0;
     void* opaque_block = getIdamDataOpaqueBlock(handle);
     return ((GENERAL_BLOCK*)opaque_block)->userdefinedtypelist;
 }
 
 LOGMALLOCLIST* getIdamLogMallocList(int handle)
 {
-    if (getIdamDataOpaqueType(handle) != OPAQUE_TYPE_STRUCTURES) return 0;
+    if (getIdamDataOpaqueType(handle) != UDA_OPAQUE_TYPE_STRUCTURES) return 0;
     void* opaque_block = getIdamDataOpaqueBlock(handle);
     return ((GENERAL_BLOCK*)opaque_block)->logmalloclist;
 }

@@ -39,7 +39,7 @@ int serverProcessing(CLIENT_BLOCK client_block, DATA_BLOCK* data_block)
             } else {
                 switch (ddim->data_type) {
 
-                    case TYPE_FLOAT :
+                    case UDA_TYPE_FLOAT:
                         sf = (float)0.0;
                         switch (ddim->method) {
                             case 1:
@@ -74,7 +74,7 @@ int serverProcessing(CLIENT_BLOCK client_block, DATA_BLOCK* data_block)
                         }
                         break;
 
-                    case TYPE_DOUBLE :
+                    case UDA_TYPE_DOUBLE:
                         sd = (double)0.0;
                         switch (ddim->method) {
                             case 1:
@@ -110,7 +110,7 @@ int serverProcessing(CLIENT_BLOCK client_block, DATA_BLOCK* data_block)
                         }
                         break;
 
-                    case TYPE_CHAR : {
+                    case UDA_TYPE_CHAR: {
                         char sc = (char)0;
                         switch (ddim->method) {
                             case 1:
@@ -146,7 +146,7 @@ int serverProcessing(CLIENT_BLOCK client_block, DATA_BLOCK* data_block)
                         break;
                     }
 
-                    case TYPE_SHORT :
+                    case UDA_TYPE_SHORT:
                         ss = (short)0;
                         switch (ddim->method) {
                             case 1:
@@ -181,7 +181,7 @@ int serverProcessing(CLIENT_BLOCK client_block, DATA_BLOCK* data_block)
                         }
                         break;
 
-                    case TYPE_INT :
+                    case UDA_TYPE_INT:
                         si = (int)0;
                         switch (ddim->method) {
                             case 1:
@@ -216,7 +216,7 @@ int serverProcessing(CLIENT_BLOCK client_block, DATA_BLOCK* data_block)
                         }
                         break;
 
-                    case TYPE_LONG :
+                    case UDA_TYPE_LONG:
                         sl = (long)0;
                         switch (ddim->method) {
                             case 1:
@@ -251,7 +251,7 @@ int serverProcessing(CLIENT_BLOCK client_block, DATA_BLOCK* data_block)
                         }
                         break;
 
-                    case TYPE_UNSIGNED_CHAR : {
+                    case UDA_TYPE_UNSIGNED_CHAR: {
                         unsigned char sc = (unsigned char)0;
                         switch (ddim->method) {
                             case 1:
@@ -289,7 +289,7 @@ int serverProcessing(CLIENT_BLOCK client_block, DATA_BLOCK* data_block)
                         break;
                     }
 
-                    case TYPE_UNSIGNED_SHORT : {
+                    case UDA_TYPE_UNSIGNED_SHORT: {
                         unsigned short ss = (unsigned short)0;
                         switch (ddim->method) {
                             case 1:
@@ -327,7 +327,7 @@ int serverProcessing(CLIENT_BLOCK client_block, DATA_BLOCK* data_block)
                         break;
                     }
 
-                    case TYPE_UNSIGNED :
+                    case UDA_TYPE_UNSIGNED_INT:
                         su = (unsigned int)0;
                         switch (ddim->method) {
                             case 1:
@@ -364,7 +364,7 @@ int serverProcessing(CLIENT_BLOCK client_block, DATA_BLOCK* data_block)
                         }
                         break;
 
-                    case TYPE_UNSIGNED_LONG : {
+                    case UDA_TYPE_UNSIGNED_LONG: {
                         unsigned long sl = (unsigned long)0;
                         switch (ddim->method) {
                             case 1:
@@ -435,10 +435,10 @@ int serverProcessing(CLIENT_BLOCK client_block, DATA_BLOCK* data_block)
             ddim = data_block->dims + k;
             if (ddim->compressed) {
                 if (ddim->method == 0) {
-                    ddim->data_type = TYPE_DOUBLE;
+                    ddim->data_type = UDA_TYPE_DOUBLE;
                 } else {
                     switch (ddim->data_type) {
-                        case TYPE_CHAR :
+                        case UDA_TYPE_CHAR:
                             switch (ddim->method) {
                                 case 1:
                                     newoffs = (double*)malloc(ddim->udoms * sizeof(double));
@@ -456,7 +456,7 @@ int serverProcessing(CLIENT_BLOCK client_block, DATA_BLOCK* data_block)
                                     if (ddim->ints != NULL) free((void*)ddim->ints);
                                     ddim->offs = (char*)newoffs;
                                     ddim->ints = (char*)newints;
-                                    ddim->data_type = TYPE_DOUBLE;
+                                    ddim->data_type = UDA_TYPE_DOUBLE;
                                     break;
                                 case 2:
                                     newoffs = (double*)malloc(ddim->udoms * sizeof(double));
@@ -464,7 +464,7 @@ int serverProcessing(CLIENT_BLOCK client_block, DATA_BLOCK* data_block)
                                         *(newoffs + i) = (double)*((char*)ddim->offs + i);
                                     if (ddim->offs != NULL) free((void*)ddim->offs);
                                     ddim->offs = (char*)newoffs;
-                                    ddim->data_type = TYPE_DOUBLE;
+                                    ddim->data_type = UDA_TYPE_DOUBLE;
                                     break;
                                 case 3:
                                     newoffs = (double*)malloc(sizeof(double));
@@ -475,12 +475,12 @@ int serverProcessing(CLIENT_BLOCK client_block, DATA_BLOCK* data_block)
                                     if (ddim->ints != NULL) free((void*)ddim->ints);
                                     ddim->offs = (char*)newoffs;
                                     ddim->ints = (char*)newints;
-                                    ddim->data_type = TYPE_DOUBLE;
+                                    ddim->data_type = UDA_TYPE_DOUBLE;
                                     break;
                             }
                             break;
 
-                        case TYPE_SHORT :
+                        case UDA_TYPE_SHORT:
                             switch (ddim->method) {
                                 case 1:
                                     newoffs = (double*)malloc(ddim->udoms * sizeof(double));
@@ -498,7 +498,7 @@ int serverProcessing(CLIENT_BLOCK client_block, DATA_BLOCK* data_block)
                                     if (ddim->ints != NULL) free((void*)ddim->ints);
                                     ddim->offs = (char*)newoffs;
                                     ddim->ints = (char*)newints;
-                                    ddim->data_type = TYPE_DOUBLE;
+                                    ddim->data_type = UDA_TYPE_DOUBLE;
                                     break;
                                 case 2:
                                     newoffs = (double*)malloc(ddim->udoms * sizeof(double));
@@ -506,7 +506,7 @@ int serverProcessing(CLIENT_BLOCK client_block, DATA_BLOCK* data_block)
                                         *(newoffs + i) = (double)*((short*)ddim->offs + i);
                                     if (ddim->offs != NULL) free((void*)ddim->offs);
                                     ddim->offs = (char*)newoffs;
-                                    ddim->data_type = TYPE_DOUBLE;
+                                    ddim->data_type = UDA_TYPE_DOUBLE;
                                     break;
                                 case 3:
                                     newoffs = (double*)malloc(sizeof(double));
@@ -517,12 +517,12 @@ int serverProcessing(CLIENT_BLOCK client_block, DATA_BLOCK* data_block)
                                     if (ddim->ints != NULL) free((void*)ddim->ints);
                                     ddim->offs = (char*)newoffs;
                                     ddim->ints = (char*)newints;
-                                    ddim->data_type = TYPE_DOUBLE;
+                                    ddim->data_type = UDA_TYPE_DOUBLE;
                                     break;
                             }
                             break;
 
-                        case TYPE_INT :
+                        case UDA_TYPE_INT:
                             switch (ddim->method) {
                                 case 1:
                                     newoffs = (double*)malloc(ddim->udoms * sizeof(double));
@@ -540,7 +540,7 @@ int serverProcessing(CLIENT_BLOCK client_block, DATA_BLOCK* data_block)
                                     if (ddim->ints != NULL) free((void*)ddim->ints);
                                     ddim->offs = (char*)newoffs;
                                     ddim->ints = (char*)newints;
-                                    ddim->data_type = TYPE_DOUBLE;
+                                    ddim->data_type = UDA_TYPE_DOUBLE;
                                     break;
                                 case 2:
                                     newoffs = (double*)malloc(ddim->udoms * sizeof(double));
@@ -548,7 +548,7 @@ int serverProcessing(CLIENT_BLOCK client_block, DATA_BLOCK* data_block)
                                         *(newoffs + i) = (double)*((int*)ddim->offs + i);
                                     if (ddim->offs != NULL) free((void*)ddim->offs);
                                     ddim->offs = (char*)newoffs;
-                                    ddim->data_type = TYPE_DOUBLE;
+                                    ddim->data_type = UDA_TYPE_DOUBLE;
                                     break;
                                 case 3:
                                     newoffs = (double*)malloc(sizeof(double));
@@ -559,12 +559,12 @@ int serverProcessing(CLIENT_BLOCK client_block, DATA_BLOCK* data_block)
                                     if (ddim->ints != NULL) free((void*)ddim->ints);
                                     ddim->offs = (char*)newoffs;
                                     ddim->ints = (char*)newints;
-                                    ddim->data_type = TYPE_DOUBLE;
+                                    ddim->data_type = UDA_TYPE_DOUBLE;
                                     break;
                             }
                             break;
 
-                        case TYPE_LONG :
+                        case UDA_TYPE_LONG:
                             switch (ddim->method) {
                                 case 1:
                                     newoffs = (double*)malloc(ddim->udoms * sizeof(double));
@@ -582,7 +582,7 @@ int serverProcessing(CLIENT_BLOCK client_block, DATA_BLOCK* data_block)
                                     if (ddim->ints != NULL) free((void*)ddim->ints);
                                     ddim->offs = (char*)newoffs;
                                     ddim->ints = (char*)newints;
-                                    ddim->data_type = TYPE_DOUBLE;
+                                    ddim->data_type = UDA_TYPE_DOUBLE;
                                     break;
                                 case 2:
                                     newoffs = (double*)malloc(ddim->udoms * sizeof(double));
@@ -590,7 +590,7 @@ int serverProcessing(CLIENT_BLOCK client_block, DATA_BLOCK* data_block)
                                         *(newoffs + i) = (double)*((long*)ddim->offs + i);
                                     if (ddim->offs != NULL) free((void*)ddim->offs);
                                     ddim->offs = (char*)newoffs;
-                                    ddim->data_type = TYPE_DOUBLE;
+                                    ddim->data_type = UDA_TYPE_DOUBLE;
                                     break;
                                 case 3:
                                     newoffs = (double*)malloc(sizeof(double));
@@ -601,12 +601,12 @@ int serverProcessing(CLIENT_BLOCK client_block, DATA_BLOCK* data_block)
                                     if (ddim->ints != NULL) free((void*)ddim->ints);
                                     ddim->offs = (char*)newoffs;
                                     ddim->ints = (char*)newints;
-                                    ddim->data_type = TYPE_DOUBLE;
+                                    ddim->data_type = UDA_TYPE_DOUBLE;
                                     break;
                             }
                             break;
 
-                        case TYPE_UNSIGNED_CHAR :
+                        case UDA_TYPE_UNSIGNED_CHAR:
                             switch (ddim->method) {
                                 case 1:
                                     newoffs = (double*)malloc(ddim->udoms * sizeof(double));
@@ -624,7 +624,7 @@ int serverProcessing(CLIENT_BLOCK client_block, DATA_BLOCK* data_block)
                                     if (ddim->ints != NULL) free((void*)ddim->ints);
                                     ddim->offs = (char*)newoffs;
                                     ddim->ints = (char*)newints;
-                                    ddim->data_type = TYPE_DOUBLE;
+                                    ddim->data_type = UDA_TYPE_DOUBLE;
                                     break;
                                 case 2:
                                     newoffs = (double*)malloc(ddim->udoms * sizeof(double));
@@ -632,7 +632,7 @@ int serverProcessing(CLIENT_BLOCK client_block, DATA_BLOCK* data_block)
                                         *(newoffs + i) = (double)*((unsigned char*)ddim->offs + i);
                                     if (ddim->offs != NULL) free((void*)ddim->offs);
                                     ddim->offs = (char*)newoffs;
-                                    ddim->data_type = TYPE_DOUBLE;
+                                    ddim->data_type = UDA_TYPE_DOUBLE;
                                     break;
                                 case 3:
                                     newoffs = (double*)malloc(sizeof(double));
@@ -643,12 +643,12 @@ int serverProcessing(CLIENT_BLOCK client_block, DATA_BLOCK* data_block)
                                     if (ddim->ints != NULL) free((void*)ddim->ints);
                                     ddim->offs = (char*)newoffs;
                                     ddim->ints = (char*)newints;
-                                    ddim->data_type = TYPE_DOUBLE;
+                                    ddim->data_type = UDA_TYPE_DOUBLE;
                                     break;
                             }
                             break;
 
-                        case TYPE_UNSIGNED_SHORT :
+                        case UDA_TYPE_UNSIGNED_SHORT:
                             switch (ddim->method) {
                                 case 1:
                                     newoffs = (double*)malloc(ddim->udoms * sizeof(double));
@@ -666,7 +666,7 @@ int serverProcessing(CLIENT_BLOCK client_block, DATA_BLOCK* data_block)
                                     if (ddim->ints != NULL) free((void*)ddim->ints);
                                     ddim->offs = (char*)newoffs;
                                     ddim->ints = (char*)newints;
-                                    ddim->data_type = TYPE_DOUBLE;
+                                    ddim->data_type = UDA_TYPE_DOUBLE;
                                     break;
                                 case 2:
                                     newoffs = (double*)malloc(ddim->udoms * sizeof(double));
@@ -674,7 +674,7 @@ int serverProcessing(CLIENT_BLOCK client_block, DATA_BLOCK* data_block)
                                         *(newoffs + i) = (double)*((unsigned short*)ddim->offs + i);
                                     if (ddim->offs != NULL) free((void*)ddim->offs);
                                     ddim->offs = (char*)newoffs;
-                                    ddim->data_type = TYPE_DOUBLE;
+                                    ddim->data_type = UDA_TYPE_DOUBLE;
                                     break;
                                 case 3:
                                     newoffs = (double*)malloc(sizeof(double));
@@ -685,12 +685,12 @@ int serverProcessing(CLIENT_BLOCK client_block, DATA_BLOCK* data_block)
                                     if (ddim->ints != NULL) free((void*)ddim->ints);
                                     ddim->offs = (char*)newoffs;
                                     ddim->ints = (char*)newints;
-                                    ddim->data_type = TYPE_DOUBLE;
+                                    ddim->data_type = UDA_TYPE_DOUBLE;
                                     break;
                             }
                             break;
 
-                        case TYPE_UNSIGNED :
+                        case UDA_TYPE_UNSIGNED_INT:
                             switch (ddim->method) {
                                 case 1:
                                     newoffs = (double*)malloc(ddim->udoms * sizeof(double));
@@ -708,7 +708,7 @@ int serverProcessing(CLIENT_BLOCK client_block, DATA_BLOCK* data_block)
                                     if (ddim->ints != NULL) free((void*)ddim->ints);
                                     ddim->offs = (char*)newoffs;
                                     ddim->ints = (char*)newints;
-                                    ddim->data_type = TYPE_DOUBLE;
+                                    ddim->data_type = UDA_TYPE_DOUBLE;
                                     break;
                                 case 2:
                                     newoffs = (double*)malloc(ddim->udoms * sizeof(double));
@@ -716,7 +716,7 @@ int serverProcessing(CLIENT_BLOCK client_block, DATA_BLOCK* data_block)
                                         *(newoffs + i) = (double)*((unsigned int*)ddim->offs + i);
                                     if (ddim->offs != NULL) free((void*)ddim->offs);
                                     ddim->offs = (char*)newoffs;
-                                    ddim->data_type = TYPE_DOUBLE;
+                                    ddim->data_type = UDA_TYPE_DOUBLE;
                                     break;
                                 case 3:
                                     newoffs = (double*)malloc(sizeof(double));
@@ -727,12 +727,12 @@ int serverProcessing(CLIENT_BLOCK client_block, DATA_BLOCK* data_block)
                                     if (ddim->ints != NULL) free((void*)ddim->ints);
                                     ddim->offs = (char*)newoffs;
                                     ddim->ints = (char*)newints;
-                                    ddim->data_type = TYPE_DOUBLE;
+                                    ddim->data_type = UDA_TYPE_DOUBLE;
                                     break;
                             }
                             break;
 
-                        case TYPE_UNSIGNED_LONG :
+                        case UDA_TYPE_UNSIGNED_LONG:
                             switch (ddim->method) {
                                 case 1:
                                     newoffs = (double*)malloc(ddim->udoms * sizeof(double));
@@ -750,7 +750,7 @@ int serverProcessing(CLIENT_BLOCK client_block, DATA_BLOCK* data_block)
                                     if (ddim->ints != NULL) free((void*)ddim->ints);
                                     ddim->offs = (char*)newoffs;
                                     ddim->ints = (char*)newints;
-                                    ddim->data_type = TYPE_DOUBLE;
+                                    ddim->data_type = UDA_TYPE_DOUBLE;
                                     break;
                                 case 2:
                                     newoffs = (double*)malloc(ddim->udoms * sizeof(double));
@@ -758,7 +758,7 @@ int serverProcessing(CLIENT_BLOCK client_block, DATA_BLOCK* data_block)
                                         *(newoffs + i) = (double)*((unsigned long*)ddim->offs + i);
                                     if (ddim->offs != NULL) free((void*)ddim->offs);
                                     ddim->offs = (char*)newoffs;
-                                    ddim->data_type = TYPE_DOUBLE;
+                                    ddim->data_type = UDA_TYPE_DOUBLE;
                                     break;
                                 case 3:
                                     newoffs = (double*)malloc(sizeof(double));
@@ -769,12 +769,12 @@ int serverProcessing(CLIENT_BLOCK client_block, DATA_BLOCK* data_block)
                                     if (ddim->ints != NULL) free((void*)ddim->ints);
                                     ddim->offs = (char*)newoffs;
                                     ddim->ints = (char*)newints;
-                                    ddim->data_type = TYPE_DOUBLE;
+                                    ddim->data_type = UDA_TYPE_DOUBLE;
                                     break;
                             }
                             break;
 
-                        case TYPE_FLOAT :
+                        case UDA_TYPE_FLOAT:
                             switch (ddim->method) {
                                 case 1:
                                     newoffs = (double*)malloc(ddim->udoms * sizeof(double));
@@ -801,7 +801,7 @@ int serverProcessing(CLIENT_BLOCK client_block, DATA_BLOCK* data_block)
                                     for (i = 0; i < ddim->udoms; i++)
                                         IDAM_LOGF(UDA_LOG_DEBUG, "%i  %f  %f\n", i, *((double*)ddim->offs + i),
                                                   *((double*)ddim->ints + i));
-                                    ddim->data_type = TYPE_DOUBLE;
+                                    ddim->data_type = UDA_TYPE_DOUBLE;
                                     break;
                                 case 2:
                                     IDAM_LOG(UDA_LOG_DEBUG, "Processing Float Method 2\n");
@@ -811,7 +811,7 @@ int serverProcessing(CLIENT_BLOCK client_block, DATA_BLOCK* data_block)
                                         *(newoffs + i) = (double)*((float*)ddim->offs + i);
                                     if (ddim->offs != NULL) free((void*)ddim->offs);
                                     ddim->offs = (char*)newoffs;
-                                    ddim->data_type = TYPE_DOUBLE;
+                                    ddim->data_type = UDA_TYPE_DOUBLE;
                                     break;
                                 case 3:
                                     IDAM_LOG(UDA_LOG_DEBUG, "Processing Float Method 3\n");
@@ -827,7 +827,7 @@ int serverProcessing(CLIENT_BLOCK client_block, DATA_BLOCK* data_block)
                                     ddim->ints = (char*)newints;
                                     IDAM_LOGF(UDA_LOG_DEBUG, "%i  %f  %f\n", i, *((double*)ddim->offs),
                                               *((double*)ddim->ints));
-                                    ddim->data_type = TYPE_DOUBLE;
+                                    ddim->data_type = UDA_TYPE_DOUBLE;
                                     break;
                             }
                             break;

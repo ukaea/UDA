@@ -175,7 +175,7 @@ int fatClientReturn(SERVER_BLOCK* server_block, DATA_BLOCK* data_block, DATA_BLO
     // Client deletes stale files automatically on startup.
     //----------------------------------------------------------------------------------
 
-    if (data_block->opaque_type == OPAQUE_TYPE_STRUCTURES) {
+    if (data_block->opaque_type == UDA_OPAQUE_TYPE_STRUCTURES) {
 
         // Create an output XDR stream
 

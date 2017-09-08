@@ -47,7 +47,7 @@ int main()
         type = getIdamDataType(handle);
 
         switch (type) {
-        case (TYPE_FLOAT):
+        case (UDA_TYPE_FLOAT):
             fvec = (float *) getIdamData(handle);       // pointer to the Data
 
             for (i = 0; i < nmax; i++) {
@@ -56,7 +56,7 @@ int main()
 
             break;
 
-        case (TYPE_DOUBLE):
+        case (UDA_TYPE_DOUBLE):
             dvec = (double *) getIdamData(handle);
 
             for (i = 0; i < nmax; i++) {
@@ -99,7 +99,7 @@ int main()
                 type = getIdamDimType(handle, irank);
 
                 switch (type) {
-                case (TYPE_FLOAT):
+                case (UDA_TYPE_FLOAT):
                     fvec = (float *) getIdamDimData(handle, irank); // pointer to the Dimension?s Data
 
                     for (i = 0; i < nmax; i++) {
@@ -108,7 +108,7 @@ int main()
 
                     break;
 
-                case (TYPE_DOUBLE):
+                case (UDA_TYPE_DOUBLE):
                     dvec = (double *) getIdamDimData(handle, irank);
 
                     for (i = 0; i < nmax; i++) {

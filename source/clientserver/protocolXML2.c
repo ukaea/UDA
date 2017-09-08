@@ -28,13 +28,13 @@
 *
 * The DATA_BLOCK structure has the following fields used to pass and receive generalised data structures
 *
-* data_block->data_type		set to TYPE_COMPOUND (external to this routine)
+* data_block->data_type		set to UDA_TYPE_COMPOUND (external to this routine)
 * data_block->data_n		set to the count of structure array elements (external to this routine)
 *
 * data_block->data		sending (server side): set to the data array (external to this routine)
 *				receiving (client side): set to the root data tree node within this routine
 *
-* data_block->opaque_type	set to OPAQUE_TYPE_STRUCTURES (external to this routine)
+* data_block->opaque_type	set to UDA_OPAQUE_TYPE_STRUCTURES (external to this routine)
 * data_block->count		set to 1 (external to this routine). Not Used!
 *
 * data_block->opaque_block	sending (server side): set to the User Defined Data Structure Definition of
@@ -157,7 +157,7 @@ protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
             void* data = NULL;
             data_block = (DATA_BLOCK*)str;
 
-            if (data_block->opaque_type == OPAQUE_TYPE_STRUCTURES) {
+            if (data_block->opaque_type == UDA_OPAQUE_TYPE_STRUCTURES) {
                 // These can be transformed into different opaque types to simplify sending
                 int packageType = 0;
 
@@ -529,7 +529,7 @@ protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                         strcpy(fname, tempFile);
                         data_block->data = NULL;                // No Data - not unpacked
                         data_block->opaque_block = (void*)fname;            // File name
-                        data_block->opaque_type = OPAQUE_TYPE_XDRFILE;        // The data block is carrying the filename only
+                        data_block->opaque_type = UDA_OPAQUE_TYPE_XDRFILE;        // The data block is carrying the filename only
 
 // The temporary file is essentially cached
 // The opaque type has been changed so the future receiving server or client knows what it is and how to de-serialise it.
@@ -552,7 +552,7 @@ protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                         data_block->data = NULL;                // No Data - not unpacked
                         data_block->opaque_block = (void*)object;            // data object (needs to be freed when the Data_Block is sent)
                         data_block->opaque_count = objectSize;
-                        data_block->opaque_type = OPAQUE_TYPE_XDROBJECT;
+                        data_block->opaque_type = UDA_OPAQUE_TYPE_XDROBJECT;
 
                         //data_block->hash = md;
 // Check the hash
@@ -777,7 +777,7 @@ protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
 
             } else {
 
-                if (data_block->opaque_type == OPAQUE_TYPE_XDROBJECT) {
+                if (data_block->opaque_type == UDA_OPAQUE_TYPE_XDROBJECT) {
 
                     if (xdrs->x_op == XDR_ENCODE) {
                         IDAM_LOG(UDA_LOG_DEBUG, "protocolXML: Forwarding XDR Objects\n");
@@ -832,7 +832,7 @@ protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                             data_block->data = NULL;            // No Data - not unpacked
                             data_block->opaque_block = (void*)object;    // data object (needs to be freed when the Data_Block is sent)
                             data_block->opaque_count = objectSize;
-                            data_block->opaque_type = OPAQUE_TYPE_XDROBJECT;
+                            data_block->opaque_type = UDA_OPAQUE_TYPE_XDROBJECT;
 
                             IDAM_LOG(UDA_LOG_DEBUG, "protocolXML: Forwarding Received forwarded XDR Object\n");
                         } else {
@@ -910,7 +910,7 @@ protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                                 }
                                 data_block->data = (char*)fullNTree;        // Global Root Node with the Carrier Structure containing data
                                 data_block->opaque_block = (void*)general_block;
-                                data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
+                                data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
                                 general_block->userdefinedtype = udt_received;
                                 general_block->userdefinedtypelist = userdefinedtypelist;
                                 general_block->logmalloclist = logmalloclist;
@@ -925,7 +925,7 @@ protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                         }
                     }
 
-                } else if (data_block->opaque_type == OPAQUE_TYPE_XDRFILE) {
+                } else if (data_block->opaque_type == UDA_OPAQUE_TYPE_XDRFILE) {
                     if (xdrs->x_op == XDR_ENCODE) {
                         IDAM_LOGF(UDA_LOG_DEBUG, "protocolXML: Forwarding XDR File %s\n",
                                   (char*)data_block->opaque_block);
@@ -965,7 +965,7 @@ protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                             strcpy(fname, tempFile);
                             data_block->data = NULL;                // No Data - not unpacked
                             data_block->opaque_block = (void*)fname;            // File name
-                            data_block->opaque_type = OPAQUE_TYPE_XDRFILE;        // The data block is carrying the filename only
+                            data_block->opaque_type = UDA_OPAQUE_TYPE_XDRFILE;        // The data block is carrying the filename only
 
                             IDAM_LOG(UDA_LOG_DEBUG, "protocolXML: Forwarding Received forwarded XDR File\n");
                         } else {
@@ -1053,7 +1053,7 @@ protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                                 }
                                 data_block->data = (char*)fullNTree;        // Global Root Node with the Carrier Structure containing data
                                 data_block->opaque_block = (void*)general_block;
-                                data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
+                                data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
                                 general_block->userdefinedtype = udt_received;
                                 general_block->userdefinedtypelist = userdefinedtypelist;
                                 general_block->logmalloclist = logmalloclist;
@@ -1083,9 +1083,9 @@ protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
 
         if (protocol_id == PROTOCOL_META) {
             data_block = (DATA_BLOCK*)str;
-            if (data_block->opaque_type == OPAQUE_TYPE_XML_DOCUMENT && data_block->opaque_count > 0) {
+            if (data_block->opaque_type == UDA_OPAQUE_TYPE_XML_DOCUMENT && data_block->opaque_count > 0) {
                 switch (direction) {
-                    case XDR_RECEIVE :
+                    case XDR_RECEIVE:
                         if (!(rc = xdrrec_skiprecord(xdrs))) {
                             err = PROTOCOL_ERROR_5;
                             break;
@@ -1115,7 +1115,7 @@ protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                         }
                         break;
 
-                    case XDR_FREE_HEAP :
+                    case XDR_FREE_HEAP:
                         break;
 
                     default:
@@ -1261,7 +1261,7 @@ int unpackXDRFile(LOGMALLOCLIST* logmalloclist, XDR* xdrs, unsigned char* filena
 
         data_block->data = (char*)fullNTree;        // Global Root Node with the Carrier Structure containing data
         data_block->opaque_block = (void*)general_block;
-        data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
+        data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
         general_block->userdefinedtype = udt_received;
         general_block->userdefinedtypelist = userdefinedtypelist;
         general_block->logmalloclist = logmalloclist;
@@ -1364,7 +1364,7 @@ int unpackXDRObject(LOGMALLOCLIST* logmalloclist, XDR* xdrs, unsigned char* obje
 
         data_block->data = (char*)fullNTree;        // Global Root Node with the Carrier Structure containing data
         data_block->opaque_block = (void*)general_block;
-        data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
+        data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
         general_block->userdefinedtype = udt_received;
         general_block->userdefinedtypelist = userdefinedtypelist;
         general_block->logmalloclist = logmalloclist;
@@ -1394,7 +1394,7 @@ int packXDRDataBlockObject(unsigned char* object, size_t objectSize, DATA_BLOCK*
     int protocol_id = PROTOCOL_DATA_BLOCK;
 
 #ifdef CACHEDEV
-    if(data_block->totalDataBlockSize > 1000000 || data_block->data_type == TYPE_UNKNOWN) return 0;		// Size is too large and the type is not Atomic
+    if(data_block->totalDataBlockSize > 1000000 || data_block->data_type == UDA_TYPE_UNKNOWN) return 0;		// Size is too large and the type is not Atomic
 #endif
     do {
 

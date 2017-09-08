@@ -93,7 +93,7 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                     }
                     break;
 
-                case XDR_FREE_HEAP :
+                case XDR_FREE_HEAP:
 
                     if (!xdr_request(xdrs, request_block)) {
                         err = PROTOCOL_ERROR_3;
@@ -149,7 +149,7 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                         break;
                     }
 
-                    if (data_block->error_type != TYPE_UNKNOWN ||
+                    if (data_block->error_type != UDA_TYPE_UNKNOWN ||
                         data_block->error_param_n > 0) {    // Receive Only if Error Data are available
                         if (!xdr_data_block3(xdrs, data_block)) {
                             err = PROTOCOL_ERROR_62;
@@ -237,7 +237,7 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                         break;
                     }
 
-                    if (data_block->error_type != TYPE_UNKNOWN ||
+                    if (data_block->error_type != UDA_TYPE_UNKNOWN ||
                         data_block->error_param_n > 0) {    // Only Send if Error Data are available
                         if (!xdr_data_block3(xdrs, data_block)) {
                             err = PROTOCOL_ERROR_62;
@@ -297,7 +297,7 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
 
                     break;
 
-                case XDR_FREE_HEAP :
+                case XDR_FREE_HEAP:
                     break;
 
                 default:
@@ -318,7 +318,7 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
 
             switch (direction) {
 
-                case XDR_RECEIVE :
+                case XDR_RECEIVE:
 
                     if (!xdrrec_skiprecord(xdrs)) {
                         err = PROTOCOL_ERROR_5;
@@ -407,7 +407,7 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
 
                     break;
 
-                case XDR_FREE_HEAP :
+                case XDR_FREE_HEAP:
                     break;
 
                 default:
@@ -425,7 +425,7 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
 
             switch (direction) {
 
-                case XDR_RECEIVE :                    // From Client to Server
+                case XDR_RECEIVE:                    // From Client to Server
                     if (!xdrrec_skiprecord(xdrs)) {
                         err = PROTOCOL_ERROR_5;
                         break;
@@ -447,7 +447,7 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                     }
                     break;
 
-                case XDR_FREE :
+                case XDR_FREE:
                     err = PROTOCOL_ERROR_3;
                     break;
 
@@ -468,7 +468,7 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
 #ifndef SKIPSEND
             switch (direction) {
 
-                case XDR_RECEIVE :                    // From Client to Server
+                case XDR_RECEIVE:                    // From Client to Server
                     if (!xdrrec_skiprecord(xdrs)) {
                         err = PROTOCOL_ERROR_5;
                         break;
@@ -491,7 +491,7 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                     }
                     break;
 
-                case XDR_FREE_HEAP :
+                case XDR_FREE_HEAP:
 
                     if (!xdr_data_system(xdrs, data_system)) {
                         err = PROTOCOL_ERROR_11;
@@ -516,7 +516,7 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
 #ifndef SKIPSEND
             switch (direction) {
 
-                case XDR_RECEIVE :
+                case XDR_RECEIVE:
                     // From Client to Server
                     if (!xdrrec_skiprecord(xdrs)) {
                         err = PROTOCOL_ERROR_5;
@@ -541,7 +541,7 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                     }
                     break;
 
-                case XDR_FREE_HEAP :
+                case XDR_FREE_HEAP:
 
                     if (!xdr_system_config(xdrs, system_config)) {
                         err = PROTOCOL_ERROR_13;
@@ -566,7 +566,7 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
 #ifndef SKIPSEND
             switch (direction) {
 
-                case XDR_RECEIVE :
+                case XDR_RECEIVE:
                     // From Client to Server
                     if (!xdrrec_skiprecord(xdrs)) {
                         err = PROTOCOL_ERROR_5;
@@ -590,7 +590,7 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                     }
                     break;
 
-                case XDR_FREE_HEAP :
+                case XDR_FREE_HEAP:
 
                     if (!xdr_data_source(xdrs, data_source)) {
                         err = PROTOCOL_ERROR_15;
@@ -615,7 +615,7 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
 #ifndef SKIPSEND
             switch (direction) {
 
-                case XDR_RECEIVE :
+                case XDR_RECEIVE:
                     // From Client to Server
                     if (!xdrrec_skiprecord(xdrs)) {
                         err = PROTOCOL_ERROR_5;
@@ -639,7 +639,7 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                     }
                     break;
 
-                case XDR_FREE_HEAP :
+                case XDR_FREE_HEAP:
 
                     if (!xdr_signal(xdrs, signal)) {
                         err = PROTOCOL_ERROR_17;
@@ -664,7 +664,7 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
 #ifndef SKIPSEND
             switch (direction) {
 
-                case XDR_RECEIVE :
+                case XDR_RECEIVE:
                     // From Client to Server
                     if (!xdrrec_skiprecord(xdrs)) {
                         err = PROTOCOL_ERROR_5;
@@ -689,7 +689,7 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                     }
                     break;
 
-                case XDR_FREE_HEAP :
+                case XDR_FREE_HEAP:
 
                     if (!xdr_signal_desc(xdrs, signal_desc)) {
                         err = PROTOCOL_ERROR_19;
@@ -714,7 +714,7 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
 
             switch (direction) {
 
-                case XDR_RECEIVE :
+                case XDR_RECEIVE:
                     // From Client to Server
                     if (!xdrrec_skiprecord(xdrs)) {
                         err = PROTOCOL_ERROR_5;
@@ -739,7 +739,7 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                     }
                     break;
 
-                case XDR_FREE_HEAP :
+                case XDR_FREE_HEAP:
 
                     if (!xdr_client(xdrs, client_block)) {
                         err = PROTOCOL_ERROR_21;
@@ -764,7 +764,7 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
 
             switch (direction) {
 
-                case XDR_RECEIVE :
+                case XDR_RECEIVE:
 
                     if (!xdrrec_skiprecord(xdrs)) {
                         err = PROTOCOL_ERROR_5;
@@ -811,7 +811,7 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                     }
                     break;
 
-                case XDR_FREE_HEAP :
+                case XDR_FREE_HEAP:
 
                     if (!xdr_server(xdrs, server_block)) {
                         err = PROTOCOL_ERROR_23;

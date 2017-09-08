@@ -157,37 +157,37 @@ const uda::Result& uda::Client::get(const std::string& signalName, const std::st
 static int typeIDToUDAType(const std::type_info& type)
 {
     if (type == typeid(char))
-        return TYPE_CHAR;
+        return UDA_TYPE_CHAR;
     if (type == typeid(short))
-        return TYPE_SHORT;
+        return UDA_TYPE_SHORT;
     if (type == typeid(int))
-        return TYPE_INT;
+        return UDA_TYPE_INT;
     if (type == typeid(unsigned int))
-        return TYPE_UNSIGNED_INT;
+        return UDA_TYPE_UNSIGNED_INT;
     if (type == typeid(long))
-        return TYPE_LONG;
+        return UDA_TYPE_LONG;
     if (type == typeid(float))
-        return TYPE_FLOAT;
+        return UDA_TYPE_FLOAT;
     if (type == typeid(double))
-        return TYPE_DOUBLE;
+        return UDA_TYPE_DOUBLE;
     if (type == typeid(unsigned char))
-        return TYPE_UNSIGNED_CHAR;
+        return UDA_TYPE_UNSIGNED_CHAR;
     if (type == typeid(unsigned short))
-        return TYPE_UNSIGNED_SHORT;
+        return UDA_TYPE_UNSIGNED_SHORT;
     if (type == typeid(unsigned long))
-        return TYPE_UNSIGNED_LONG;
+        return UDA_TYPE_UNSIGNED_LONG;
     if (type == typeid(long long))
-        return TYPE_LONG64;
+        return UDA_TYPE_LONG64;
     if (type == typeid(unsigned long long))
-        return TYPE_UNSIGNED_LONG64;
+        return UDA_TYPE_UNSIGNED_LONG64;
     if (type == typeid(std::complex<float>))
-        return TYPE_COMPLEX;
+        return UDA_TYPE_COMPLEX;
     if (type == typeid(std::complex<double>))
-        return TYPE_DCOMPLEX;
+        return UDA_TYPE_DCOMPLEX;
     if (type == typeid(char*))
-        return TYPE_STRING;
+        return UDA_TYPE_STRING;
 
-    return TYPE_UNKNOWN;
+    return UDA_TYPE_UNKNOWN;
 }
 
 //typedef struct PutDataBlock {

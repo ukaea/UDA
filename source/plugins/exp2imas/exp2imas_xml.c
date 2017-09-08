@@ -291,7 +291,7 @@ int execute_xpath_expression(const char* filename, const xmlChar* xpathExpr, cha
     }
 
     char** content = NULL;
-    if (*data_type != TYPE_STRING) {
+    if (*data_type != UDA_TYPE_STRING) {
         xmlNodePtr cur = nodes->nodeTab[0];
 
         if (cur->name == NULL) {
@@ -308,7 +308,7 @@ int execute_xpath_expression(const char* filename, const xmlChar* xpathExpr, cha
         }
     }
 
-    if (*data_type == TYPE_DOUBLE) {
+    if (*data_type == UDA_TYPE_DOUBLE) {
         *data = malloc(data_n * sizeof(double));
         if (*dims == NULL) {
             ((double*)*data)[0] = strtod(content[index-1], NULL);
@@ -317,7 +317,7 @@ int execute_xpath_expression(const char* filename, const xmlChar* xpathExpr, cha
                 ((double*)*data)[i] = strtod(content[i], NULL);
             }
         }
-    } else if (*data_type == TYPE_FLOAT) {
+    } else if (*data_type == UDA_TYPE_FLOAT) {
         *data = malloc(data_n * sizeof(float));
         if (*dims == NULL) {
             ((float*)*data)[0] = strtof(content[index-1], NULL);
@@ -326,7 +326,7 @@ int execute_xpath_expression(const char* filename, const xmlChar* xpathExpr, cha
                 ((float*)*data)[i] = strtof(content[i], NULL);
             }
         }
-    } else if (*data_type == TYPE_LONG) {
+    } else if (*data_type == UDA_TYPE_LONG) {
         *data = malloc(data_n * sizeof(long));
         if (*dims == NULL) {
             ((long*)*data)[0] = strtol(content[index-1], NULL, 10);
@@ -335,7 +335,7 @@ int execute_xpath_expression(const char* filename, const xmlChar* xpathExpr, cha
                 ((long*)*data)[i] = strtol(content[i], NULL, 10);
             }
         }
-    } else if (*data_type == TYPE_INT) {
+    } else if (*data_type == UDA_TYPE_INT) {
         *data = malloc(data_n * sizeof(int));
         if (*dims == NULL) {
             ((int*)*data)[0] = (int)strtol(content[index-1], NULL, 10);
@@ -344,7 +344,7 @@ int execute_xpath_expression(const char* filename, const xmlChar* xpathExpr, cha
                 ((int*)*data)[i] = (int)strtol(content[i], NULL, 10);
             }
         }
-    } else if (*data_type == TYPE_SHORT) {
+    } else if (*data_type == UDA_TYPE_SHORT) {
         *data = malloc(data_n * sizeof(short));
         if (*dims == NULL) {
             ((short*)*data)[0] = (short)strtol(content[index-1], NULL, 10);
@@ -353,7 +353,7 @@ int execute_xpath_expression(const char* filename, const xmlChar* xpathExpr, cha
                 ((short*)*data)[i] = (short)strtol(content[i], NULL, 10);
             }
         }
-    } else if (*data_type == TYPE_STRING) {
+    } else if (*data_type == UDA_TYPE_STRING) {
         char** strings = NULL;
         size_t n_strings = 0;
 
@@ -479,18 +479,18 @@ char** getContent(xmlNode* node, size_t data_n)
 
 int convertToInt(char* value)
 {
-    int i = TYPE_UNKNOWN;
+    int i = UDA_TYPE_UNKNOWN;
     int err = 0;
 
     if (StringEquals(value, "matstring_type") || StringEquals(value, "vecstring_type")
         || StringEquals(value, "xs:string") || StringEquals(value, "STR_0D")) {
-        i = TYPE_STRING;
+        i = UDA_TYPE_STRING;
     } else if (StringEquals(value, "matflt_type") || StringEquals(value, "vecflt_type")
                || StringEquals(value, "xs:float") || StringEquals(value, "FLT_0D")) {
-        i = TYPE_FLOAT;
+        i = UDA_TYPE_FLOAT;
     } else if (StringEquals(value, "matint_type") || StringEquals(value, "vecint_type")
                || StringEquals(value, "xs:integer") || StringEquals(value, "INT_0D")) {
-        i = TYPE_INT;
+        i = UDA_TYPE_INT;
     } else {
         err = 999;
         addIdamError(CODEERRORTYPE, __func__, err, "Unsupported data type");

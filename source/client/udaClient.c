@@ -873,14 +873,14 @@ int idamClient(REQUEST_BLOCK* request_block)
         //                              xdrrec_endofrecord
         // xdr_int(xdrs, &packageType)
 
-        if (data_block->data_type == TYPE_COMPOUND &&
-            data_block->opaque_type != OPAQUE_TYPE_UNKNOWN) {
+        if (data_block->data_type == UDA_TYPE_COMPOUND &&
+            data_block->opaque_type != UDA_OPAQUE_TYPE_UNKNOWN) {
 
-            if (data_block->opaque_type == OPAQUE_TYPE_XML_DOCUMENT) {
+            if (data_block->opaque_type == UDA_OPAQUE_TYPE_XML_DOCUMENT) {
                 protocol_id = PROTOCOL_META;
-            } else if (data_block->opaque_type == OPAQUE_TYPE_STRUCTURES ||
-                       data_block->opaque_type == OPAQUE_TYPE_XDRFILE ||
-                       data_block->opaque_type == OPAQUE_TYPE_XDROBJECT) {
+            } else if (data_block->opaque_type == UDA_OPAQUE_TYPE_STRUCTURES ||
+                       data_block->opaque_type == UDA_OPAQUE_TYPE_XDRFILE ||
+                       data_block->opaque_type == UDA_OPAQUE_TYPE_XDROBJECT) {
                 protocol_id = PROTOCOL_STRUCTURES;
             } else {
                 protocol_id = PROTOCOL_EFIT;
@@ -1170,18 +1170,18 @@ void idamFree(int handle)
     // Free Hierarchical structured data first
 
     switch (data_block->opaque_type) {
-        case OPAQUE_TYPE_XML_DOCUMENT: {
+        case UDA_OPAQUE_TYPE_XML_DOCUMENT: {
             if (data_block->opaque_block != NULL) {
                 free(data_block->opaque_block);
             }
 
             data_block->opaque_count = 0;
             data_block->opaque_block = NULL;
-            data_block->opaque_type = OPAQUE_TYPE_UNKNOWN;
+            data_block->opaque_type = UDA_OPAQUE_TYPE_UNKNOWN;
             break;
         }
 
-        case OPAQUE_TYPE_STRUCTURES: {
+        case UDA_OPAQUE_TYPE_STRUCTURES: {
             if (data_block->opaque_block != NULL) {
                 GENERAL_BLOCK* general_block = (GENERAL_BLOCK*)data_block->opaque_block;
 
@@ -1228,37 +1228,37 @@ void idamFree(int handle)
             }
 
             data_block->opaque_block = NULL;
-            data_block->data_type = TYPE_UNKNOWN;
+            data_block->data_type = UDA_TYPE_UNKNOWN;
             data_block->opaque_count = 0;
-            data_block->opaque_type = OPAQUE_TYPE_UNKNOWN;
+            data_block->opaque_type = UDA_OPAQUE_TYPE_UNKNOWN;
             data_block->data = NULL;
 
             break;
         }
 
-        case OPAQUE_TYPE_XDRFILE: {
+        case UDA_OPAQUE_TYPE_XDRFILE: {
             if (data_block->opaque_block != NULL) {
                 free(data_block->opaque_block);
             }
 
             data_block->opaque_block = NULL;
-            data_block->data_type = TYPE_UNKNOWN;
+            data_block->data_type = UDA_TYPE_UNKNOWN;
             data_block->opaque_count = 0;
-            data_block->opaque_type = OPAQUE_TYPE_UNKNOWN;
+            data_block->opaque_type = UDA_OPAQUE_TYPE_UNKNOWN;
             data_block->data = NULL;
 
             break;
         }
 
-        case OPAQUE_TYPE_XDROBJECT: {
+        case UDA_OPAQUE_TYPE_XDROBJECT: {
             if (data_block->opaque_block != NULL) {
                 free(data_block->opaque_block);
             }
 
             data_block->opaque_block = NULL;
-            data_block->data_type = TYPE_UNKNOWN;
+            data_block->data_type = UDA_TYPE_UNKNOWN;
             data_block->opaque_count = 0;
-            data_block->opaque_type = OPAQUE_TYPE_UNKNOWN;
+            data_block->opaque_type = UDA_OPAQUE_TYPE_UNKNOWN;
             data_block->data = NULL;
 
             break;

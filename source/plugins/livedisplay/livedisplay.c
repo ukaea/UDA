@@ -78,7 +78,7 @@ void defineIDSStructures(USERDEFINEDTYPELIST* userdefinedtypelist)
     usertype.ref_id = 0;
     usertype.imagecount = 0;       // No Structure Image data
     usertype.image = NULL;
-    usertype.idamclass = TYPE_COMPOUND;
+    usertype.idamclass = UDA_TYPE_COMPOUND;
 
     offset = 0;
 
@@ -105,7 +105,7 @@ void defineIDSStructures(USERDEFINEDTYPELIST* userdefinedtypelist)
     usertype.ref_id = 0;
     usertype.imagecount = 0;       // No Structure Image data
     usertype.image = NULL;
-    usertype.idamclass = TYPE_COMPOUND;
+    usertype.idamclass = UDA_TYPE_COMPOUND;
 
     offset = 0;
 
@@ -139,7 +139,7 @@ void defineIDSStructures(USERDEFINEDTYPELIST* userdefinedtypelist)
     usertype.ref_id = 0;
     usertype.imagecount = 0;       // No Structure Image data
     usertype.image = NULL;
-    usertype.idamclass = TYPE_COMPOUND;
+    usertype.idamclass = UDA_TYPE_COMPOUND;
 
     offset = 0;
 
@@ -171,7 +171,7 @@ void defineIDSStructures(USERDEFINEDTYPELIST* userdefinedtypelist)
     usertype.ref_id = 0;
     usertype.imagecount = 0;       // No Structure Image data
     usertype.image = NULL;
-    usertype.idamclass = TYPE_COMPOUND;
+    usertype.idamclass = UDA_TYPE_COMPOUND;
 
     offset = 0;
 
@@ -203,7 +203,7 @@ typedef struct{
     usertype.ref_id = 0;
     usertype.imagecount = 0;       // No Structure Image data
     usertype.image = NULL;
-    usertype.idamclass = TYPE_COMPOUND;
+    usertype.idamclass = UDA_TYPE_COMPOUND;
 
     offset = 0;
 
@@ -212,7 +212,7 @@ typedef struct{
 
     initCompoundField(&field);
     strcpy(field.name, "ip");
-    field.atomictype = TYPE_UNKNOWN;
+    field.atomictype = UDA_TYPE_UNKNOWN;
     strcpy(field.type, "METHOD_DATA");
     strcpy(field.desc, "Plasma Current");
     field.pointer = 1;
@@ -228,7 +228,7 @@ typedef struct{
 
     initCompoundField(&field);
     strcpy(field.name, "diamagnetic_flux");
-    field.atomictype = TYPE_UNKNOWN;
+    field.atomictype = UDA_TYPE_UNKNOWN;
     strcpy(field.type, "METHOD_DATA");
     strcpy(field.desc, "Diamagnetic Flux");
     field.pointer = 1;
@@ -266,7 +266,7 @@ typedef struct{
     usertype.ref_id = 0;
     usertype.imagecount = 0;       // No Structure Image data
     usertype.image = NULL;
-    usertype.idamclass = TYPE_COMPOUND;
+    usertype.idamclass = UDA_TYPE_COMPOUND;
 
     offset = 0;
 
@@ -282,7 +282,7 @@ typedef struct{
 
     initCompoundField(&field);
     strcpy(field.name, "flux_loop");
-    field.atomictype = TYPE_UNKNOWN;
+    field.atomictype = UDA_TYPE_UNKNOWN;
     strcpy(field.type, "FLUX_LOOP");
     strcpy(field.desc, "Array of Flux Loop data");
     field.pointer = 1;
@@ -303,7 +303,7 @@ typedef struct{
 
     initCompoundField(&field);
     strcpy(field.name, "bpol_probe");
-    field.atomictype = TYPE_UNKNOWN;
+    field.atomictype = UDA_TYPE_UNKNOWN;
     strcpy(field.type, "BPOL_PROBE");
     strcpy(field.desc, "Array of Bpol Probe data");
     field.pointer = 1;
@@ -324,7 +324,7 @@ typedef struct{
 
     initCompoundField(&field);
     strcpy(field.name, "method");
-    field.atomictype = TYPE_UNKNOWN;
+    field.atomictype = UDA_TYPE_UNKNOWN;
     strcpy(field.type, "METHOD");
     strcpy(field.desc, "Array of Method measurement data");
     field.pointer = 1;
@@ -343,7 +343,7 @@ typedef struct{
 
 	 initCompoundField(&field);
          strcpy(field.name, "code");
-         field.atomictype = TYPE_UNKNOWN;
+         field.atomictype = UDA_TYPE_UNKNOWN;
          strcpy(field.type, "CODE");
          strcpy(field.desc, "Code");
          field.pointer    = 0;
@@ -377,7 +377,7 @@ typedef struct{
     usertype.ref_id = 0;
     usertype.imagecount = 0;       // No Structure Image data
     usertype.image = NULL;
-    usertype.idamclass = TYPE_COMPOUND;
+    usertype.idamclass = UDA_TYPE_COMPOUND;
 
     offset = 0;
 
@@ -408,7 +408,7 @@ typedef struct{
     usertype.ref_id = 0;
     usertype.imagecount = 0;       // No Structure Image data
     usertype.image = NULL;
-    usertype.idamclass = TYPE_COMPOUND;
+    usertype.idamclass = UDA_TYPE_COMPOUND;
 
     offset = 0;
 
@@ -441,7 +441,7 @@ typedef struct{
     usertype.ref_id = 0;
     usertype.imagecount = 0;
     usertype.image = NULL;
-    usertype.idamclass = TYPE_COMPOUND;
+    usertype.idamclass = UDA_TYPE_COMPOUND;
 
     offset = 0;
 
@@ -476,7 +476,7 @@ typedef struct{
     usertype.ref_id = 0;
     usertype.imagecount = 0;
     usertype.image = NULL;
-    usertype.idamclass = TYPE_COMPOUND;
+    usertype.idamclass = UDA_TYPE_COMPOUND;
 
     offset = 0;
 
@@ -491,7 +491,7 @@ typedef struct{
 
     initCompoundField(&field);
     strcpy(field.name, "element");
-    field.atomictype = TYPE_UNKNOWN;
+    field.atomictype = UDA_TYPE_UNKNOWN;
     strcpy(field.type, "PF_ACTIVE_ELEMENT");
     strcpy(field.desc, "Array of Coil Element properties");
     field.pointer = 1;
@@ -530,7 +530,7 @@ typedef struct{
     usertype.ref_id = 0;
     usertype.imagecount = 0;
     usertype.image = NULL;
-    usertype.idamclass = TYPE_COMPOUND;
+    usertype.idamclass = UDA_TYPE_COMPOUND;
 
     offset = 0;
 
@@ -541,7 +541,7 @@ typedef struct{
 
     initCompoundField(&field);
     strcpy(field.name, "pfactive");
-    field.atomictype = TYPE_UNKNOWN;
+    field.atomictype = UDA_TYPE_UNKNOWN;
     strcpy(field.type, "PF_ACTIVE");
     strcpy(field.desc, "Array of PF Active Coil properties");
     field.pointer = 1;
@@ -705,7 +705,7 @@ void freePFActiveProxy(PF_ACTIVE_PROXY* str)
 
 int returnCount(int count, DATA_BLOCK* data_block)
 {
-    data_block->data_type = TYPE_INT;
+    data_block->data_type = UDA_TYPE_INT;
     data_block->rank = 0;
     data_block->data_n = 1;
     int* data = (int*)malloc(sizeof(int));
@@ -1010,7 +1010,7 @@ extern int livedisplay(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             // Pass Data
 
-            data_block->data_type = TYPE_COMPOUND;
+            data_block->data_type = UDA_TYPE_COMPOUND;
             data_block->rank = 0;
             data_block->data_n = 1;
             data_block->data = (char*)code;
@@ -1019,7 +1019,7 @@ extern int livedisplay(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             strcpy(data_block->data_label, "");
             strcpy(data_block->data_units, "");
 
-            data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
+            data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
             data_block->opaque_count = 1;
             data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "CODE", 0);
 
@@ -1039,7 +1039,7 @@ extern int livedisplay(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             usertype.ref_id = 0;
             usertype.imagecount = 0;                 // No Structure Image data
             usertype.image = NULL;
-            usertype.idamclass = TYPE_COMPOUND;
+            usertype.idamclass = UDA_TYPE_COMPOUND;
 
             int offset = 0;
 
@@ -1056,7 +1056,7 @@ extern int livedisplay(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             initCompoundField(&field);
             strcpy(field.name, "code");
-            field.atomictype = TYPE_UNKNOWN;
+            field.atomictype = UDA_TYPE_UNKNOWN;
             strcpy(field.type, "CODE");
             strcpy(field.desc, "Code Information");
             field.pointer = 0;
@@ -1121,7 +1121,7 @@ extern int livedisplay(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             // Pass Data
 
-            data_block->data_type = TYPE_COMPOUND;
+            data_block->data_type = UDA_TYPE_COMPOUND;
             data_block->rank = 0;
             data_block->data_n = 1;
             data_block->data = (char*)magnetics;
@@ -1130,7 +1130,7 @@ extern int livedisplay(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             strcpy(data_block->data_label, "");
             strcpy(data_block->data_units, "");
 
-            data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
+            data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
             data_block->opaque_count = 1;
             data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "MAGNETICS_TEST2", 0);
 
@@ -1188,7 +1188,7 @@ extern int livedisplay(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             // Pass Data
 
-            data_block->data_type = TYPE_COMPOUND;
+            data_block->data_type = UDA_TYPE_COMPOUND;
             data_block->rank = 0;
             data_block->data_n = 1;
             data_block->data = (char*)floop;
@@ -1197,7 +1197,7 @@ extern int livedisplay(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             strcpy(data_block->data_label, "");
             strcpy(data_block->data_units, "");
 
-            data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
+            data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
             data_block->opaque_count = 1;
             data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "FLUX_LOOP", 0);
 
@@ -1261,7 +1261,7 @@ extern int livedisplay(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             // Pass Data
 
-            data_block->data_type = TYPE_COMPOUND;
+            data_block->data_type = UDA_TYPE_COMPOUND;
             data_block->rank = 0;
             data_block->data_n = 1;
             data_block->data = (char*)floop;
@@ -1270,7 +1270,7 @@ extern int livedisplay(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             strcpy(data_block->data_label, "");
             strcpy(data_block->data_units, "");
 
-            data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
+            data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
             data_block->opaque_count = 1;
             data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "FLUX_LOOP", 0);
 
@@ -1311,7 +1311,7 @@ extern int livedisplay(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                     break;
                 }
 
-                if (getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_STRING) {
+                if (getIdamRank(handle) != 0 || getIdamDataType(handle) != UDA_TYPE_STRING) {
                     err = 999;
                     addIdamError(CODEERRORTYPE, "LiveDisplay", err,
                                  "Machine Description data has Incorrect properties!");
@@ -1338,7 +1338,7 @@ extern int livedisplay(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                     break;
                 }
 
-                if (getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_STRING) {
+                if (getIdamRank(handle) != 0 || getIdamDataType(handle) != UDA_TYPE_STRING) {
                     err = 999;
                     addIdamError(CODEERRORTYPE, "LiveDisplay", err,
                                  "Machine Description data has Incorrect properties!");
@@ -1383,7 +1383,7 @@ extern int livedisplay(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             // Pass Data
 
-            data_block->data_type = TYPE_COMPOUND;
+            data_block->data_type = UDA_TYPE_COMPOUND;
             data_block->rank = 0;
             data_block->data_n = 1;
             data_block->data = (char*)floop;
@@ -1392,7 +1392,7 @@ extern int livedisplay(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             strcpy(data_block->data_label, "");
             strcpy(data_block->data_units, "");
 
-            data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
+            data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
             data_block->opaque_count = 1;
             data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "FLUX_LOOP", 0);
 
@@ -1425,7 +1425,7 @@ extern int livedisplay(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 break;
             }
 
-            if (getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_INT || getIdamDataNum(handle) != 1) {
+            if (getIdamRank(handle) != 0 || getIdamDataType(handle) != UDA_TYPE_INT || getIdamDataNum(handle) != 1) {
                 err = 999;
                 addIdamError(CODEERRORTYPE, "LiveDisplay", err,
                              "Machine Description data has Incorrect properties!");
@@ -1457,7 +1457,7 @@ extern int livedisplay(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                     break;
                 }
 
-                if (getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_STRING) {
+                if (getIdamRank(handle) != 0 || getIdamDataType(handle) != UDA_TYPE_STRING) {
                     err = 999;
                     addIdamError(CODEERRORTYPE, "LiveDisplay", err,
                                  "Machine Description data has Incorrect properties!");
@@ -1484,7 +1484,7 @@ extern int livedisplay(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                     break;
                 }
 
-                if (getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_STRING) {
+                if (getIdamRank(handle) != 0 || getIdamDataType(handle) != UDA_TYPE_STRING) {
                     err = 999;
                     addIdamError(CODEERRORTYPE, "LiveDisplay", err,
                                  "Machine Description data has Incorrect properties!");
@@ -1513,7 +1513,7 @@ extern int livedisplay(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                     break;
                 }
 
-                if (getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_INT || getIdamDataNum(handle) != 1) {
+                if (getIdamRank(handle) != 0 || getIdamDataType(handle) != UDA_TYPE_INT || getIdamDataNum(handle) != 1) {
                     err = 999;
                     addIdamError(CODEERRORTYPE, "LiveDisplay", err,
                                  "Machine Description data has Incorrect properties!");
@@ -1552,7 +1552,7 @@ extern int livedisplay(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                         break;
                     }
 
-                    if (getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_DOUBLE ||
+                    if (getIdamRank(handle) != 0 || getIdamDataType(handle) != UDA_TYPE_DOUBLE ||
                         getIdamDataNum(handle) != 1) {
                         err = 999;
                         addIdamError(CODEERRORTYPE, "LiveDisplay", err,
@@ -1597,7 +1597,7 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
 
             // Pass Data
 
-            data_block->data_type = TYPE_COMPOUND;
+            data_block->data_type = UDA_TYPE_COMPOUND;
             data_block->rank = 0;
             data_block->data_n = 1;
             data_block->data = (char*)floop;
@@ -1606,7 +1606,7 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
             strcpy(data_block->data_label, "");
             strcpy(data_block->data_units, "");
 
-            data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
+            data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
             data_block->opaque_count = 1;
             data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "FLUX_LOOP", 0);
 
@@ -1639,7 +1639,7 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
                 break;
             }
 
-            if (getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_INT || getIdamDataNum(handle) != 1) {
+            if (getIdamRank(handle) != 0 || getIdamDataType(handle) != UDA_TYPE_INT || getIdamDataNum(handle) != 1) {
                 err = 999;
                 addIdamError(CODEERRORTYPE, "LiveDisplay", err,
                              "Machine Description data has Incorrect properties!");
@@ -1671,7 +1671,7 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
                     break;
                 }
 
-                if (getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_STRING) {
+                if (getIdamRank(handle) != 0 || getIdamDataType(handle) != UDA_TYPE_STRING) {
                     err = 999;
                     addIdamError(CODEERRORTYPE, "LiveDisplay", err,
                                  "Machine Description data has Incorrect properties!");
@@ -1698,7 +1698,7 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
                     break;
                 }
 
-                if (getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_STRING) {
+                if (getIdamRank(handle) != 0 || getIdamDataType(handle) != UDA_TYPE_STRING) {
                     err = 999;
                     addIdamError(CODEERRORTYPE, "LiveDisplay", err,
                                  "Machine Description data has Incorrect properties!");
@@ -1727,7 +1727,7 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
                     break;
                 }
 
-                if (getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_INT || getIdamDataNum(handle) != 1) {
+                if (getIdamRank(handle) != 0 || getIdamDataType(handle) != UDA_TYPE_INT || getIdamDataNum(handle) != 1) {
                     err = 999;
                     addIdamError(CODEERRORTYPE, "LiveDisplay", err,
                                  "Machine Description data has Incorrect properties!");
@@ -1766,7 +1766,7 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
                         break;
                     }
 
-                    if (getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_DOUBLE ||
+                    if (getIdamRank(handle) != 0 || getIdamDataType(handle) != UDA_TYPE_DOUBLE ||
                         getIdamDataNum(handle) != 1) {
                         err = 999;
                         addIdamError(CODEERRORTYPE, "LiveDisplay", err,
@@ -1789,7 +1789,7 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
                         break;
                     }
 
-                    if (getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_DOUBLE ||
+                    if (getIdamRank(handle) != 0 || getIdamDataType(handle) != UDA_TYPE_DOUBLE ||
                         getIdamDataNum(handle) != 1) {
                         err = 999;
                         addIdamError(CODEERRORTYPE, "LiveDisplay", err,
@@ -1812,7 +1812,7 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
                         break;
                     }
 
-                    if (getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_DOUBLE ||
+                    if (getIdamRank(handle) != 0 || getIdamDataType(handle) != UDA_TYPE_DOUBLE ||
                         getIdamDataNum(handle) != 1) {
                         err = 999;
                         addIdamError(CODEERRORTYPE, "LiveDisplay", err,
@@ -1847,7 +1847,7 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
 
             // Pass Data
 
-            data_block->data_type = TYPE_COMPOUND;
+            data_block->data_type = UDA_TYPE_COMPOUND;
             data_block->rank = 0;
             data_block->data_n = 1;
             data_block->data = (char*)floop;
@@ -1856,7 +1856,7 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
             strcpy(data_block->data_label, "");
             strcpy(data_block->data_units, "");
 
-            data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
+            data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
             data_block->opaque_count = 1;
             data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "FLUX_LOOP", 0);
 
@@ -1893,7 +1893,7 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
                 break;
             }
 
-            if (getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_INT || getIdamDataNum(handle) != 1) {
+            if (getIdamRank(handle) != 0 || getIdamDataType(handle) != UDA_TYPE_INT || getIdamDataNum(handle) != 1) {
                 err = 999;
                 addIdamError(CODEERRORTYPE, "LiveDisplay", err,
                              "Machine Description data has Incorrect properties!");
@@ -1925,7 +1925,7 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
                     break;
                 }
 
-                if (getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_STRING) {
+                if (getIdamRank(handle) != 0 || getIdamDataType(handle) != UDA_TYPE_STRING) {
                     err = 999;
                     addIdamError(CODEERRORTYPE, "LiveDisplay", err,
                                  "Machine Description data has Incorrect properties!");
@@ -1952,7 +1952,7 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
                     break;
                 }
 
-                if (getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_STRING) {
+                if (getIdamRank(handle) != 0 || getIdamDataType(handle) != UDA_TYPE_STRING) {
                     err = 999;
                     addIdamError(CODEERRORTYPE, "LiveDisplay", err,
                                  "Machine Description data has Incorrect properties!");
@@ -1981,7 +1981,7 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
                     break;
                 }
 
-                if (getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_INT || getIdamDataNum(handle) != 1) {
+                if (getIdamRank(handle) != 0 || getIdamDataType(handle) != UDA_TYPE_INT || getIdamDataNum(handle) != 1) {
                     err = 999;
                     addIdamError(CODEERRORTYPE, "LiveDisplay", err,
                                  "Machine Description data has Incorrect properties!");
@@ -2020,7 +2020,7 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
                         break;
                     }
 
-                    if (getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_DOUBLE ||
+                    if (getIdamRank(handle) != 0 || getIdamDataType(handle) != UDA_TYPE_DOUBLE ||
                         getIdamDataNum(handle) != 1) {
                         err = 999;
                         addIdamError(CODEERRORTYPE, "LiveDisplay", err,
@@ -2043,7 +2043,7 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
                         break;
                     }
 
-                    if (getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_DOUBLE ||
+                    if (getIdamRank(handle) != 0 || getIdamDataType(handle) != UDA_TYPE_DOUBLE ||
                         getIdamDataNum(handle) != 1) {
                         err = 999;
                         addIdamError(CODEERRORTYPE, "LiveDisplay", err,
@@ -2066,7 +2066,7 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
                         break;
                     }
 
-                    if (getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_DOUBLE ||
+                    if (getIdamRank(handle) != 0 || getIdamDataType(handle) != UDA_TYPE_DOUBLE ||
                         getIdamDataNum(handle) != 1) {
                         err = 999;
                         addIdamError(CODEERRORTYPE, "LiveDisplay", err,
@@ -2106,7 +2106,7 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
                     continue;
                 }
 
-                if (getIdamRank(handle2) != 0 || getIdamDataType(handle2) != TYPE_DOUBLE ||
+                if (getIdamRank(handle2) != 0 || getIdamDataType(handle2) != UDA_TYPE_DOUBLE ||
                     getIdamDataNum(handle) != getIdamDataNum(handle2)) {
                     err = 999;
                     addIdamError(CODEERRORTYPE, "LiveDisplay", err,
@@ -2216,7 +2216,7 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
 
             // 7. Return the Data
 
-            data_block->data_type = TYPE_COMPOUND;
+            data_block->data_type = UDA_TYPE_COMPOUND;
             data_block->rank = 0;
             data_block->data_n = 1;
             data_block->data = (char*)floop;
@@ -2225,7 +2225,7 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
             strcpy(data_block->data_label, "");
             strcpy(data_block->data_units, "");
 
-            data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
+            data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
             data_block->opaque_count = 1;
             data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "FLUX_LOOP", 0);
 
@@ -2286,7 +2286,7 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
                     break;
                 }
 
-                if (getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_INT || getIdamDataNum(handle) != 1) {
+                if (getIdamRank(handle) != 0 || getIdamDataType(handle) != UDA_TYPE_INT || getIdamDataNum(handle) != 1) {
                     err = 999;
                     addIdamError(CODEERRORTYPE, "LiveDisplay", err,
                                  "Machine Description data has Incorrect properties!");
@@ -2324,7 +2324,7 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
                         break;
                     }
 
-                    if (getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_STRING) {
+                    if (getIdamRank(handle) != 0 || getIdamDataType(handle) != UDA_TYPE_STRING) {
                         err = 999;
                         addIdamError(CODEERRORTYPE, "LiveDisplay", err,
                                      "Machine Description data has Incorrect properties!");
@@ -2351,7 +2351,7 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
                         break;
                     }
 
-                    if (getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_STRING) {
+                    if (getIdamRank(handle) != 0 || getIdamDataType(handle) != UDA_TYPE_STRING) {
                         err = 999;
                         addIdamError(CODEERRORTYPE, "LiveDisplay", err,
                                      "Machine Description data has Incorrect properties!");
@@ -2380,7 +2380,7 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
                         break;
                     }
 
-                    if (getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_INT ||
+                    if (getIdamRank(handle) != 0 || getIdamDataType(handle) != UDA_TYPE_INT ||
                         getIdamDataNum(handle) != 1) {
                         err = 999;
                         addIdamError(CODEERRORTYPE, "LiveDisplay", err,
@@ -2418,7 +2418,7 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
                             break;
                         }
 
-                        if (getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_DOUBLE ||
+                        if (getIdamRank(handle) != 0 || getIdamDataType(handle) != UDA_TYPE_DOUBLE ||
                             getIdamDataNum(handle) != 1) {
                             err = 999;
                             addIdamError(CODEERRORTYPE, "LiveDisplay", err,
@@ -2441,7 +2441,7 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
                             break;
                         }
 
-                        if (getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_DOUBLE ||
+                        if (getIdamRank(handle) != 0 || getIdamDataType(handle) != UDA_TYPE_DOUBLE ||
                             getIdamDataNum(handle) != 1) {
                             err = 999;
                             addIdamError(CODEERRORTYPE, "LiveDisplay", err,
@@ -2464,7 +2464,7 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
                             break;
                         }
 
-                        if (getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_DOUBLE ||
+                        if (getIdamRank(handle) != 0 || getIdamDataType(handle) != UDA_TYPE_DOUBLE ||
                             getIdamDataNum(handle) != 1) {
                             err = 999;
                             addIdamError(CODEERRORTYPE, "LiveDisplay", err,
@@ -2612,7 +2612,7 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
                     continue;
                 }
 
-                if (getIdamRank(handle2) != 0 || getIdamDataType(handle2) != TYPE_DOUBLE ||
+                if (getIdamRank(handle2) != 0 || getIdamDataType(handle2) != UDA_TYPE_DOUBLE ||
                     getIdamDataNum(handle) != getIdamDataNum(handle2)) {
                     err = 999;
                     addIdamError(CODEERRORTYPE, "LiveDisplay", err,
@@ -2723,7 +2723,7 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
 
 // 7. Return the Data
 
-            data_block->data_type = TYPE_COMPOUND;
+            data_block->data_type = UDA_TYPE_COMPOUND;
             data_block->rank = 0;
             data_block->data_n = 1;
             data_block->data = (char*)floop;
@@ -2732,7 +2732,7 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
             strcpy(data_block->data_label, "");
             strcpy(data_block->data_units, "");
 
-            data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
+            data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
             data_block->opaque_count = 1;
             data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "FLUX_LOOP", 0);
 
@@ -2792,7 +2792,7 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
                     break;
                 }
 
-                if (getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_INT || getIdamDataNum(handle) != 1) {
+                if (getIdamRank(handle) != 0 || getIdamDataType(handle) != UDA_TYPE_INT || getIdamDataNum(handle) != 1) {
                     err = 999;
                     addIdamError(CODEERRORTYPE, "LiveDisplay", err,
                                  "Machine Description data has Incorrect properties!");
@@ -2851,7 +2851,7 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
                     continue;
                 }
 
-                if (getIdamRank(handle2) != 0 || getIdamDataType(handle2) != TYPE_DOUBLE ||
+                if (getIdamRank(handle2) != 0 || getIdamDataType(handle2) != UDA_TYPE_DOUBLE ||
                     getIdamDataNum(handle) != getIdamDataNum(handle2)) {
                     err = 999;
                     addIdamError(CODEERRORTYPE, "LiveDisplay", err,
@@ -2960,7 +2960,7 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
 
 // 7. Return the Data
 
-            data_block->data_type = TYPE_COMPOUND;
+            data_block->data_type = UDA_TYPE_COMPOUND;
             data_block->rank = 0;
             data_block->data_n = 1;
             data_block->data = (char*)floop;
@@ -2969,7 +2969,7 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
             strcpy(data_block->data_label, "");
             strcpy(data_block->data_units, "");
 
-            data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
+            data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
             data_block->opaque_count = 1;
             data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "FLUX_LOOP_TEST1", 0);
 
@@ -3030,7 +3030,7 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
                     break;
                 }
 
-                if (getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_INT || getIdamDataNum(handle) != 1) {
+                if (getIdamRank(handle) != 0 || getIdamDataType(handle) != UDA_TYPE_INT || getIdamDataNum(handle) != 1) {
                     err = 999;
                     addIdamError(CODEERRORTYPE, "LiveDisplay", err,
                                  "Machine Description data has Incorrect properties!");
@@ -3070,7 +3070,7 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
                         break;
                     }
 
-                    if (getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_STRING) {
+                    if (getIdamRank(handle) != 0 || getIdamDataType(handle) != UDA_TYPE_STRING) {
                         err = 999;
                         addIdamError(CODEERRORTYPE, "LiveDisplay", err,
                                      "Machine Description data has Incorrect properties!");
@@ -3097,7 +3097,7 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
                         break;
                     }
 
-                    if (getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_STRING) {
+                    if (getIdamRank(handle) != 0 || getIdamDataType(handle) != UDA_TYPE_STRING) {
                         err = 999;
                         addIdamError(CODEERRORTYPE, "LiveDisplay", err,
                                      "Machine Description data has Incorrect properties!");
@@ -3127,7 +3127,7 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
                         break;
                     }
 
-                    if (getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_DOUBLE ||
+                    if (getIdamRank(handle) != 0 || getIdamDataType(handle) != UDA_TYPE_DOUBLE ||
                         getIdamDataNum(handle) != 1) {
                         err = 999;
                         addIdamError(CODEERRORTYPE, "LiveDisplay", err,
@@ -3150,7 +3150,7 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
                         break;
                     }
 
-                    if (getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_DOUBLE ||
+                    if (getIdamRank(handle) != 0 || getIdamDataType(handle) != UDA_TYPE_DOUBLE ||
                         getIdamDataNum(handle) != 1) {
                         err = 999;
                         addIdamError(CODEERRORTYPE, "LiveDisplay", err,
@@ -3173,7 +3173,7 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
                         break;
                     }
 
-                    if (getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_DOUBLE ||
+                    if (getIdamRank(handle) != 0 || getIdamDataType(handle) != UDA_TYPE_DOUBLE ||
                         getIdamDataNum(handle) != 1) {
                         err = 999;
                         addIdamError(CODEERRORTYPE, "LiveDisplay", err,
@@ -3288,7 +3288,7 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
                     continue;
                 }
 
-                if (getIdamRank(handle2) != 0 || getIdamDataType(handle2) != TYPE_DOUBLE ||
+                if (getIdamRank(handle2) != 0 || getIdamDataType(handle2) != UDA_TYPE_DOUBLE ||
                     getIdamDataNum(handle) != getIdamDataNum(handle2)) {
                     err = 999;
                     addIdamError(CODEERRORTYPE, "LiveDisplay", err,
@@ -3399,7 +3399,7 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
 
 // 7. Return the Data
 
-            data_block->data_type = TYPE_COMPOUND;
+            data_block->data_type = UDA_TYPE_COMPOUND;
             data_block->rank = 0;
             data_block->data_n = 1;
             data_block->data = (char*)bprobe;
@@ -3408,7 +3408,7 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
             strcpy(data_block->data_label, "");
             strcpy(data_block->data_units, "");
 
-            data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
+            data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
             data_block->opaque_count = 1;
             data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "BPOL_PROBE", 0);
 
@@ -3431,7 +3431,7 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
             usertype.ref_id = 0;
             usertype.imagecount = 0;       // No Structure Image data
             usertype.image = NULL;
-            usertype.idamclass = TYPE_COMPOUND;
+            usertype.idamclass = UDA_TYPE_COMPOUND;
 
             int offset = 0;
 
@@ -3464,7 +3464,7 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
                 break;
             }
 
-            if (getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_INT || getIdamDataNum(handle) != 1) {
+            if (getIdamRank(handle) != 0 || getIdamDataType(handle) != UDA_TYPE_INT || getIdamDataNum(handle) != 1) {
                 err = 999;
                 addIdamError(CODEERRORTYPE, "LiveDisplay", err,
                              "Machine Description data has Incorrect properties!");
@@ -3521,7 +3521,7 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
                     continue;
                 }
 
-                if (getIdamRank(handle2) != 0 || getIdamDataType(handle2) != TYPE_DOUBLE ||
+                if (getIdamRank(handle2) != 0 || getIdamDataType(handle2) != UDA_TYPE_DOUBLE ||
                     getIdamDataNum(handle) != getIdamDataNum(handle2)) {
                     err = 999;
                     addIdamError(CODEERRORTYPE, "LiveDisplay", err,
@@ -3633,7 +3633,7 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
 // 7. Return the Data
 
 
-            data_block->data_type = TYPE_COMPOUND;
+            data_block->data_type = UDA_TYPE_COMPOUND;
             data_block->rank = 0;
             data_block->data_n = 1;
             data_block->data = (char*)bprobe;
@@ -3642,7 +3642,7 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
             strcpy(data_block->data_label, "");
             strcpy(data_block->data_units, "");
 
-            data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
+            data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
             data_block->opaque_count = 1;
             data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "BPOL_PROBE_TEST1", 0);
 
@@ -3671,7 +3671,7 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
             usertype.ref_id = 0;
             usertype.imagecount = 0;       // No Structure Image data
             usertype.image = NULL;
-            usertype.idamclass = TYPE_COMPOUND;
+            usertype.idamclass = UDA_TYPE_COMPOUND;
 
             int offset = 0;
 
@@ -3729,7 +3729,7 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
                     break;
                 }
 
-                if (getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_INT || getIdamDataNum(handle) != 1) {
+                if (getIdamRank(handle) != 0 || getIdamDataType(handle) != UDA_TYPE_INT || getIdamDataNum(handle) != 1) {
                     err = 999;
                     addIdamError(CODEERRORTYPE, "LiveDisplay", err,
                                  "Machine Description data has Incorrect properties!");
@@ -3765,7 +3765,7 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
                         break;
                     }
 
-                    if (getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_STRING) {
+                    if (getIdamRank(handle) != 0 || getIdamDataType(handle) != UDA_TYPE_STRING) {
                         err = 999;
                         addIdamError(CODEERRORTYPE, "LiveDisplay", err,
                                      "Machine Description data has Incorrect properties!");
@@ -3792,7 +3792,7 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
                         break;
                     }
 
-                    if (getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_STRING) {
+                    if (getIdamRank(handle) != 0 || getIdamDataType(handle) != UDA_TYPE_STRING) {
                         err = 999;
                         addIdamError(CODEERRORTYPE, "LiveDisplay", err,
                                      "Machine Description data has Incorrect properties!");
@@ -3822,7 +3822,7 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
                         break;
                     }
 
-                    if (getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_DOUBLE ||
+                    if (getIdamRank(handle) != 0 || getIdamDataType(handle) != UDA_TYPE_DOUBLE ||
                         getIdamDataNum(handle) != 1) {
                         err = 999;
                         addIdamError(CODEERRORTYPE, "LiveDisplay", err,
@@ -3845,7 +3845,7 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
                         break;
                     }
 
-                    if (getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_DOUBLE ||
+                    if (getIdamRank(handle) != 0 || getIdamDataType(handle) != UDA_TYPE_DOUBLE ||
                         getIdamDataNum(handle) != 1) {
                         err = 999;
                         addIdamError(CODEERRORTYPE, "LiveDisplay", err,
@@ -3868,7 +3868,7 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
                         break;
                     }
 
-                    if (getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_DOUBLE ||
+                    if (getIdamRank(handle) != 0 || getIdamDataType(handle) != UDA_TYPE_DOUBLE ||
                         getIdamDataNum(handle) != 1) {
                         err = 999;
                         addIdamError(CODEERRORTYPE, "LiveDisplay", err,
@@ -3959,7 +3959,7 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
 // 7. Return the Data
 
 
-            data_block->data_type = TYPE_COMPOUND;
+            data_block->data_type = UDA_TYPE_COMPOUND;
             data_block->rank = 0;
             data_block->data_n = 1;
             data_block->data = (char*)bprobe;
@@ -3968,7 +3968,7 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
             strcpy(data_block->data_label, "");
             strcpy(data_block->data_units, "");
 
-            data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
+            data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
             data_block->opaque_count = 1;
             data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "BPOL_PROBE_TEST2", 0);
 
@@ -4397,7 +4397,7 @@ MAGNETICS/METHOD/%d/DIAMAGNETIC_FLUX/TIME
 
 // Return the Data
 
-            data_block->data_type = TYPE_COMPOUND;
+            data_block->data_type = UDA_TYPE_COMPOUND;
             data_block->rank = 0;
             data_block->data_n = 1;
             data_block->data = (char*)magnetics;
@@ -4406,7 +4406,7 @@ MAGNETICS/METHOD/%d/DIAMAGNETIC_FLUX/TIME
             strcpy(data_block->data_label, "");
             strcpy(data_block->data_units, "");
 
-            data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
+            data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
             data_block->opaque_count = 1;
             data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "MAGNETICS_PROXY", 0);
 
@@ -4464,7 +4464,7 @@ MAGNETICS/METHOD/%d/DIAMAGNETIC_FLUX/TIME
 
 // Pass Data
 
-            data_block->data_type = TYPE_COMPOUND;
+            data_block->data_type = UDA_TYPE_COMPOUND;
             data_block->rank = 0;
             data_block->data_n = 1;
             data_block->data = (char*)limiter;
@@ -4473,7 +4473,7 @@ MAGNETICS/METHOD/%d/DIAMAGNETIC_FLUX/TIME
             strcpy(data_block->data_label, "");
             strcpy(data_block->data_units, "");
 
-            data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
+            data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
             data_block->opaque_count = 1;
             data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "STATIC_LIMITER", 0);
 
@@ -4521,7 +4521,7 @@ TF/B_TOR_VACUUM_TIME
             }
 
             if (getIdamRank(handle) != 1 &&
-                !(getIdamDataType(handle) == TYPE_DOUBLE || getIdamDataType(handle) == TYPE_FLOAT)) {
+                !(getIdamDataType(handle) == UDA_TYPE_DOUBLE || getIdamDataType(handle) == UDA_TYPE_FLOAT)) {
                 err = 999;
                 addIdamError(CODEERRORTYPE, "LiveDisplay", err,
                              "Vacuum Magnetic Field data has Incorrect properties!");
@@ -4651,7 +4651,7 @@ TF/B_TOR_VACUUM_TIME
 
 // Pass Data
 
-            data_block->data_type = TYPE_COMPOUND;
+            data_block->data_type = UDA_TYPE_COMPOUND;
             data_block->rank = 0;
             data_block->data_n = 1;
             data_block->data = (char*)RB;
@@ -4660,7 +4660,7 @@ TF/B_TOR_VACUUM_TIME
             strcpy(data_block->data_label, "");
             strcpy(data_block->data_units, "");
 
-            data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
+            data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
             data_block->opaque_count = 1;
             data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TF_PROXY", 0);
 
@@ -4690,7 +4690,7 @@ TF/B_TOR_VACUUM_TIME
             }
 
             if (getIdamRank(handle1) != 1 &&
-                !(getIdamDataType(handle1) == TYPE_DOUBLE || getIdamDataType(handle1) == TYPE_FLOAT)) {
+                !(getIdamDataType(handle1) == UDA_TYPE_DOUBLE || getIdamDataType(handle1) == UDA_TYPE_FLOAT)) {
                 err = 999;
                 addIdamError(CODEERRORTYPE, "LiveDisplay", err,
                              "Vacuum Magnetic Field data has Incorrect properties!");
@@ -4711,7 +4711,7 @@ TF/B_TOR_VACUUM_TIME
             }
 
             if (getIdamRank(handle2) != 1 &&
-                !(getIdamDataType(handle2) == TYPE_DOUBLE || getIdamDataType(handle2) == TYPE_FLOAT)) {
+                !(getIdamDataType(handle2) == UDA_TYPE_DOUBLE || getIdamDataType(handle2) == UDA_TYPE_FLOAT)) {
                 err = 999;
                 addIdamError(CODEERRORTYPE, "LiveDisplay", err,
                              "Vacuum Magnetic Field data has Incorrect properties!");
@@ -4878,7 +4878,7 @@ TF/B_TOR_VACUUM_TIME
 
 // Pass Data
 
-            data_block->data_type = TYPE_COMPOUND;
+            data_block->data_type = UDA_TYPE_COMPOUND;
             data_block->rank = 0;
             data_block->data_n = 1;
             data_block->data = (char*)RB;
@@ -4887,7 +4887,7 @@ TF/B_TOR_VACUUM_TIME
             strcpy(data_block->data_label, "");
             strcpy(data_block->data_units, "");
 
-            data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
+            data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
             data_block->opaque_count = 1;
             data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TF_PROXY", 0);
 
@@ -4965,7 +4965,7 @@ PF_ACTIVE/COIL/%d/CURRENT/TIME
                     break;
                 }
 
-                if (getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_INT || getIdamDataNum(handle) != 1) {
+                if (getIdamRank(handle) != 0 || getIdamDataType(handle) != UDA_TYPE_INT || getIdamDataNum(handle) != 1) {
                     err = 999;
                     addIdamError(CODEERRORTYPE, "LiveDisplay", err,
                                  "Machine Description data has Incorrect properties!");
@@ -5011,7 +5011,7 @@ PF_ACTIVE/COIL/%d/CURRENT/TIME
                         break;
                     }
 
-                    if (getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_STRING) {
+                    if (getIdamRank(handle) != 0 || getIdamDataType(handle) != UDA_TYPE_STRING) {
                         err = 999;
                         addIdamError(CODEERRORTYPE, "LiveDisplay", err,
                                      "Machine Description data has Incorrect properties!");
@@ -5038,7 +5038,7 @@ PF_ACTIVE/COIL/%d/CURRENT/TIME
                         break;
                     }
 
-                    if (getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_STRING) {
+                    if (getIdamRank(handle) != 0 || getIdamDataType(handle) != UDA_TYPE_STRING) {
                         err = 999;
                         addIdamError(CODEERRORTYPE, "LiveDisplay", err,
                                      "Machine Description data has Incorrect properties!");
@@ -5068,7 +5068,7 @@ PF_ACTIVE/COIL/%d/CURRENT/TIME
                         break;
                     }
 
-                    if (getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_INT ||
+                    if (getIdamRank(handle) != 0 || getIdamDataType(handle) != UDA_TYPE_INT ||
                         getIdamDataNum(handle) != 1) {
                         err = 999;
                         addIdamError(CODEERRORTYPE, "LiveDisplay", err,
@@ -5104,7 +5104,7 @@ PF_ACTIVE/COIL/%d/CURRENT/TIME
                             break;
                         }
 
-                        if (getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_DOUBLE ||
+                        if (getIdamRank(handle) != 0 || getIdamDataType(handle) != UDA_TYPE_DOUBLE ||
                             getIdamDataNum(handle) != 1) {
                             err = 999;
                             addIdamError(CODEERRORTYPE, "LiveDisplay", err,
@@ -5127,7 +5127,7 @@ PF_ACTIVE/COIL/%d/CURRENT/TIME
                             break;
                         }
 
-                        if (getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_DOUBLE ||
+                        if (getIdamRank(handle) != 0 || getIdamDataType(handle) != UDA_TYPE_DOUBLE ||
                             getIdamDataNum(handle) != 1) {
                             err = 999;
                             addIdamError(CODEERRORTYPE, "LiveDisplay", err,
@@ -5150,7 +5150,7 @@ PF_ACTIVE/COIL/%d/CURRENT/TIME
                             break;
                         }
 
-                        if (getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_DOUBLE ||
+                        if (getIdamRank(handle) != 0 || getIdamDataType(handle) != UDA_TYPE_DOUBLE ||
                             getIdamDataNum(handle) != 1) {
                             err = 999;
                             addIdamError(CODEERRORTYPE, "LiveDisplay", err,
@@ -5173,7 +5173,7 @@ PF_ACTIVE/COIL/%d/CURRENT/TIME
                             break;
                         }
 
-                        if (getIdamRank(handle) != 0 || getIdamDataType(handle) != TYPE_DOUBLE ||
+                        if (getIdamRank(handle) != 0 || getIdamDataType(handle) != UDA_TYPE_DOUBLE ||
                             getIdamDataNum(handle) != 1) {
                             err = 999;
                             addIdamError(CODEERRORTYPE, "LiveDisplay", err,
@@ -5326,7 +5326,7 @@ PF_ACTIVE/COIL/%d/CURRENT/TIME
                     continue;
                 }
 
-                if (getIdamRank(handle2) != 0 || getIdamDataType(handle2) != TYPE_DOUBLE ||
+                if (getIdamRank(handle2) != 0 || getIdamDataType(handle2) != UDA_TYPE_DOUBLE ||
                     getIdamDataNum(handle) != getIdamDataNum(handle2)) {
                     err = 999;
                     addIdamError(CODEERRORTYPE, "LiveDisplay", err,
@@ -5436,7 +5436,7 @@ PF_ACTIVE/COIL/%d/CURRENT/TIME
 
 // Return the Data
 
-            data_block->data_type = TYPE_COMPOUND;
+            data_block->data_type = UDA_TYPE_COMPOUND;
             data_block->rank = 0;
             data_block->data_n = 1;
             data_block->data = (char*)pfactive_proxy;
@@ -5445,7 +5445,7 @@ PF_ACTIVE/COIL/%d/CURRENT/TIME
             strcpy(data_block->data_label, "");
             strcpy(data_block->data_units, "");
 
-            data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
+            data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
             data_block->opaque_count = 1;
             data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "PF_ACTIVE_PROXY", 0);
 
@@ -5472,7 +5472,7 @@ PF_ACTIVE/COIL/%d/CURRENT/TIME
             usertype.ref_id = 0;
             usertype.imagecount = 0;                // No Structure Image data
             usertype.image = NULL;
-            usertype.idamclass = TYPE_COMPOUND;
+            usertype.idamclass = UDA_TYPE_COMPOUND;
 
             offset = 0;
 
@@ -5499,7 +5499,7 @@ PF_ACTIVE/COIL/%d/CURRENT/TIME
             usertype.ref_id = 0;
             usertype.imagecount = 0;                // No Structure Image data
             usertype.image = NULL;
-            usertype.idamclass = TYPE_COMPOUND;
+            usertype.idamclass = UDA_TYPE_COMPOUND;
 
             offset = 0;
 
@@ -5519,7 +5519,7 @@ PF_ACTIVE/COIL/%d/CURRENT/TIME
 
             initCompoundField(&field);
             strcpy(field.name, "code");
-            field.atomictype = TYPE_UNKNOWN;
+            field.atomictype = UDA_TYPE_UNKNOWN;
             strcpy(field.type, "CODE");
             strcpy(field.desc, "Code Information");
             field.pointer = 0;
@@ -5579,7 +5579,7 @@ PF_ACTIVE/COIL/%d/CURRENT/TIME
 
 // Pass Data
 
-            data_block->data_type = TYPE_COMPOUND;
+            data_block->data_type = UDA_TYPE_COMPOUND;
             data_block->rank = 0;
             data_block->data_n = 1;
             data_block->data = (char*) magnetics;
@@ -5588,7 +5588,7 @@ PF_ACTIVE/COIL/%d/CURRENT/TIME
             strcpy(data_block->data_label, "");
             strcpy(data_block->data_units, "");
 
-            data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
+            data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
             data_block->opaque_count = 1;
             data_block->opaque_block = (void*) findUserDefinedType(userdefinedtypelist, "MAGNETICS_TEST", 0);
 

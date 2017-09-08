@@ -349,7 +349,7 @@ int parseIncludeFile(USERDEFINEDTYPELIST* userdefinedtypelist, const char* heade
 
                                     strcpy(userdefinedtype->name, name);            // Object Name
                                     strcpy(userdefinedtype->source, header);            // Source of the Definition
-                                    userdefinedtype->idamclass = TYPE_COMPOUND;        // Class of object
+                                    userdefinedtype->idamclass = UDA_TYPE_COMPOUND;        // Class of object
 
                                     userdefinedtype->compoundfield = (COMPOUNDFIELD*)malloc(
                                             itemCount * sizeof(COMPOUNDFIELD));

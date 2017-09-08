@@ -183,10 +183,10 @@ int readUFile(DATA_SOURCE data_source,
 // Dimension Sizes & Types: Allocate Dimensional Heap
 
         data_block->data_n = 0;
-        data_block->data_type = TYPE_FLOAT;
+        data_block->data_type = UDA_TYPE_FLOAT;
 
         for (i = 0; i < data_block->rank; i++) {
-            data_block->dims[i].data_type = TYPE_FLOAT;
+            data_block->dims[i].data_type = UDA_TYPE_FLOAT;
             data_block->dims[i].dim_n = atoi(fgets(buff, 12, ufile));  // Formated as (1x,i10)
             if (i == 0) {
                 data_block->data_n = data_block->dims[i].dim_n;

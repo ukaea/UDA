@@ -128,7 +128,7 @@ int idamServerLegacyPlugin(REQUEST_BLOCK* request_block, DATA_SOURCE* data_sourc
         switch (request_block->request) {
 
 //#ifdef IDA_ENABLE
-            case REQUEST_READ_IDA :
+            case REQUEST_READ_IDA:
 
                 strcpy(data_source->source_alias, TrimString(request_block->file));
                 strcpy(data_source->filename, TrimString(request_block->file));
@@ -148,7 +148,7 @@ int idamServerLegacyPlugin(REQUEST_BLOCK* request_block, DATA_SOURCE* data_sourc
                 IDAM_LOGF(UDA_LOG_DEBUG, "IdamServer: Pass Number  : %d \n", request_block->pass);
                 break;
 //#endif
-            case REQUEST_READ_NEW_PLUGIN :
+            case REQUEST_READ_NEW_PLUGIN:
 
                 strcpy(data_source->source_alias, TrimString(request_block->file));
                 strcpy(data_source->filename, TrimString(request_block->file));
@@ -168,7 +168,7 @@ int idamServerLegacyPlugin(REQUEST_BLOCK* request_block, DATA_SOURCE* data_sourc
                 IDAM_LOGF(UDA_LOG_DEBUG, "IdamServer: Pass Number  : %d \n", request_block->pass);
                 break;
 
-            case REQUEST_READ_MDS :
+            case REQUEST_READ_MDS:
 
                 strcpy(data_source->filename, TrimString(request_block->file));        // MDS+ Tree
                 strcpy(data_source->server, TrimString(request_block->server));        // MDS+ Server Name
@@ -189,14 +189,14 @@ int idamServerLegacyPlugin(REQUEST_BLOCK* request_block, DATA_SOURCE* data_sourc
                 IDAM_LOGF(UDA_LOG_DEBUG, "IdamServer: Tree Number  : %d \n", request_block->exp_number);
                 break;
 
-            case REQUEST_READ_IDAM :
+            case REQUEST_READ_IDAM:
                 IDAM_LOG(UDA_LOG_DEBUG, "Request: Read Remote IDAM Source \n");
                 IDAM_LOGF(UDA_LOG_DEBUG, "IdamServer: Server       : %s \n", request_block->server);
                 IDAM_LOGF(UDA_LOG_DEBUG, "IdamServer: Source       : %s \n", request_block->file);
                 IDAM_LOGF(UDA_LOG_DEBUG, "IdamServer: Signal       : %s \n", request_block->signal);
                 break;
 
-            case REQUEST_READ_CDF :
+            case REQUEST_READ_CDF:
 
                 strcpy(data_source->path, TrimString(request_block->path));        // netCDF File Location
                 copyString(TrimString(request_block->signal), signal_desc->signal_name, MAXNAME);
@@ -206,7 +206,7 @@ int idamServerLegacyPlugin(REQUEST_BLOCK* request_block, DATA_SOURCE* data_sourc
                 IDAM_LOGF(UDA_LOG_DEBUG, "IdamServer: Signal       : %s \n", request_block->signal);
                 break;
 
-            case REQUEST_READ_HDF5 :
+            case REQUEST_READ_HDF5:
 
                 strcpy(data_source->path, TrimString(request_block->path));        // HDF5 File Location
                 copyString(TrimString(request_block->signal), signal_desc->signal_name, MAXNAME);
@@ -216,7 +216,7 @@ int idamServerLegacyPlugin(REQUEST_BLOCK* request_block, DATA_SOURCE* data_sourc
                 IDAM_LOGF(UDA_LOG_DEBUG, "IdamServer: Signal       : %s \n", request_block->signal);
                 break;
 
-            case REQUEST_READ_XML :
+            case REQUEST_READ_XML:
 
                 data_source->exp_number = request_block->exp_number;
                 data_source->pass = request_block->pass;
@@ -226,7 +226,7 @@ int idamServerLegacyPlugin(REQUEST_BLOCK* request_block, DATA_SOURCE* data_sourc
                 IDAM_LOGF(UDA_LOG_DEBUG, "IdamServer: XML Document : %s \n", request_block->signal);
                 break;
 
-            case REQUEST_READ_UFILE :
+            case REQUEST_READ_UFILE:
 
                 strcpy(data_source->path, TrimString(request_block->path));    // UFile File Location
 
@@ -234,7 +234,7 @@ int idamServerLegacyPlugin(REQUEST_BLOCK* request_block, DATA_SOURCE* data_sourc
                 IDAM_LOGF(UDA_LOG_DEBUG, "IdamServer: UFile File   : %s \n", request_block->path);
                 break;
 
-            case REQUEST_READ_FILE :
+            case REQUEST_READ_FILE:
 
                 strcpy(data_source->path, TrimString(request_block->path));    // File Location
 
@@ -243,7 +243,7 @@ int idamServerLegacyPlugin(REQUEST_BLOCK* request_block, DATA_SOURCE* data_sourc
                 break;
 
 
-            case REQUEST_READ_HDATA :
+            case REQUEST_READ_HDATA:
 
                 strcpy(data_source->path, TrimString(request_block->path));    // File Location
 
@@ -251,7 +251,7 @@ int idamServerLegacyPlugin(REQUEST_BLOCK* request_block, DATA_SOURCE* data_sourc
                 IDAM_LOGF(UDA_LOG_DEBUG, "IdamServer: File  : %s \n", request_block->path);
                 break;
 
-            case REQUEST_READ_SQL :
+            case REQUEST_READ_SQL:
 
                 strcpy(data_source->path, TrimString(request_block->path));        // SQL database etc.
                 strcpy(data_source->server, TrimString(request_block->server));        // SQL server host
@@ -263,7 +263,7 @@ int idamServerLegacyPlugin(REQUEST_BLOCK* request_block, DATA_SOURCE* data_sourc
                 IDAM_LOGF(UDA_LOG_DEBUG, "IdamServer: SQL   : %s \n", request_block->signal);
                 break;
 
-            case REQUEST_READ_NOTHING :
+            case REQUEST_READ_NOTHING:
 
                 data_source->exp_number = request_block->exp_number;        // Size of Data Block
                 data_source->pass = request_block->pass;        // Compressible or Not
@@ -290,7 +290,7 @@ int idamServerLegacyPlugin(REQUEST_BLOCK* request_block, DATA_SOURCE* data_sourc
                 break;
 
 #ifndef NOTGENERICENABLED
-            case REQUEST_READ_GENERIC :
+            case REQUEST_READ_GENERIC:
 
                 strcpy(file, TrimString(request_block->file));
                 strcpy(signal, TrimString(request_block->signal));
@@ -312,7 +312,7 @@ int idamServerLegacyPlugin(REQUEST_BLOCK* request_block, DATA_SOURCE* data_sourc
                 break;
 #endif
 
-            case REQUEST_READ_PPF :
+            case REQUEST_READ_PPF:
 
                 strcpy(data_source->source_alias, TrimString(request_block->file));
                 strcpy(data_source->filename, TrimString(request_block->file));
@@ -330,7 +330,7 @@ int idamServerLegacyPlugin(REQUEST_BLOCK* request_block, DATA_SOURCE* data_sourc
                 IDAM_LOGF(UDA_LOG_DEBUG, "IdamServer: Pass Number  : %d \n", request_block->pass);
                 break;
 
-            case REQUEST_READ_JPF :
+            case REQUEST_READ_JPF:
 
                 copyString(TrimString(request_block->signal), signal_desc->signal_name, MAXNAME);
                 data_source->exp_number = request_block->exp_number;

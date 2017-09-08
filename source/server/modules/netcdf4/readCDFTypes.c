@@ -79,7 +79,7 @@ int readCDFTypes(int grpid, USERDEFINEDTYPELIST* userdefinedtypelist)
 
                 case NC_COMPOUND: {                // Compound Types
 
-                    usertype.idamclass = TYPE_COMPOUND;
+                    usertype.idamclass = UDA_TYPE_COMPOUND;
 
                     foff = 0;
 
@@ -96,11 +96,11 @@ int readCDFTypes(int grpid, USERDEFINEDTYPELIST* userdefinedtypelist)
 
                             if (type == NC_CHAR && rank > 0 && shape[0] > 1) {
                                 // Otherwise treat as a single character
-                                field.atomictype = TYPE_STRING;
+                                field.atomictype = UDA_TYPE_STRING;
                                 strcpy(field.type, "STRING");
                             } else {
                                 if (type == NC_STRING) {
-                                    field.atomictype = TYPE_STRING;
+                                    field.atomictype = UDA_TYPE_STRING;
                                     strcpy(field.type, "STRING *");                // Array of strings of arbitrary length
                                 } else {
                                     field.atomictype = convertNCType(type);            // convert netCDF base type to IDAM type
@@ -108,7 +108,7 @@ int readCDFTypes(int grpid, USERDEFINEDTYPELIST* userdefinedtypelist)
                                 }
                             }
 
-                            if (field.atomictype == TYPE_UNKNOWN) {
+                            if (field.atomictype == UDA_TYPE_UNKNOWN) {
                                 // must be another user defined structure
                                 USERDEFINEDTYPE* udt = findUserDefinedType(userdefinedtypelist, "", (int) type);    // Identify via type id
                                 if (udt != NULL) {
@@ -117,7 +117,7 @@ int readCDFTypes(int grpid, USERDEFINEDTYPELIST* userdefinedtypelist)
                                     // **** Unable to substitute a pointer as integer type may only be 1 or 2 bytes
                                     // **** NEED: Return the enumerated type set of values and names to the client
 
-                                    if (udt->idamclass == TYPE_ENUM) {
+                                    if (udt->idamclass == UDA_TYPE_ENUM) {
                                         size_t base_size, memberCount;        // dgm changed from int to size_t 16Dec11
                                         nc_type base;
                                         rc = nc_inq_enum(grpid, type, name, &base, (size_t*) &base_size,
@@ -175,7 +175,7 @@ int readCDFTypes(int grpid, USERDEFINEDTYPELIST* userdefinedtypelist)
 
                 case NC_VLEN: {                    // variable Length Array Types
 
-                    usertype.idamclass = TYPE_VLEN;
+                    usertype.idamclass = UDA_TYPE_VLEN;
 
 // Ensure the Type name is unique as the data item has a named type (not void *)
 
@@ -201,7 +201,7 @@ int readCDFTypes(int grpid, USERDEFINEDTYPELIST* userdefinedtypelist)
                         field.offpad = padding(field.offset, field.type);
                         field.alignment = getalignmentof(field.type);
                         field.pointer = 0;
-                        field.atomictype = TYPE_UNSIGNED_INT;
+                        field.atomictype = UDA_TYPE_UNSIGNED_INT;
                         field.rank = 0;
                         field.count = 1;
                         field.shape = NULL;
@@ -214,7 +214,7 @@ int readCDFTypes(int grpid, USERDEFINEDTYPELIST* userdefinedtypelist)
                         strcpy(field.desc, "the variable length data array");
                         field.atomictype = convertNCType(base);                // convert netCDF base type to IDAM type
 
-                        if (field.atomictype == TYPE_UNKNOWN) {                // must be a User Defined Type
+                        if (field.atomictype == UDA_TYPE_UNKNOWN) {                // must be a User Defined Type
                             USERDEFINEDTYPE* udt = findUserDefinedType(userdefinedtypelist, "", (int) base);        // Identify via type id
                             if (udt == NULL) {
                                 err = 999;
@@ -249,7 +249,7 @@ int readCDFTypes(int grpid, USERDEFINEDTYPELIST* userdefinedtypelist)
                     addIdamError(CODEERRORTYPE, __FILE__, err, "Not configured for OPAQUE Types!");
                     break;
 
-                    usertype.idamclass = TYPE_OPAQUE;
+                    usertype.idamclass = UDA_TYPE_OPAQUE;
 
 
                     if ((rc = nc_inq_opaque(grpid, (nc_type) typeids[i], name, &size)) == NC_NOERR) {
@@ -264,7 +264,7 @@ int readCDFTypes(int grpid, USERDEFINEDTYPELIST* userdefinedtypelist)
 
                     usertype = *udt;    //copyUserDefinedType(udt, &usertype);	// Use as a template: Copy original reallocating heap
 
-                    usertype.idamclass = TYPE_ENUM;
+                    usertype.idamclass = UDA_TYPE_ENUM;
                     usertype.ref_id = typeids[i];        // Type ID is used to locate this definition (shares a type name)
 
                     usertype.image = (char*) malloc(
@@ -313,39 +313,39 @@ int convertNCType(nc_type type)
 {
     switch (type) {
         case NC_BYTE:
-            return TYPE_CHAR;
+            return UDA_TYPE_CHAR;
         case NC_CHAR:
-            return TYPE_CHAR;
+            return UDA_TYPE_CHAR;
         case NC_SHORT:
-            return TYPE_SHORT;
+            return UDA_TYPE_SHORT;
         case NC_INT:
-            return TYPE_INT;
+            return UDA_TYPE_INT;
         case NC_INT64:
-            return TYPE_LONG64;
+            return UDA_TYPE_LONG64;
         case NC_FLOAT:
-            return TYPE_FLOAT;
+            return UDA_TYPE_FLOAT;
         case NC_DOUBLE:
-            return TYPE_DOUBLE;
+            return UDA_TYPE_DOUBLE;
         case NC_UBYTE:
-            return TYPE_UNSIGNED_CHAR;
+            return UDA_TYPE_UNSIGNED_CHAR;
         case NC_USHORT:
-            return TYPE_UNSIGNED_SHORT;
+            return UDA_TYPE_UNSIGNED_SHORT;
         case NC_UINT:
-            return TYPE_UNSIGNED_INT;
+            return UDA_TYPE_UNSIGNED_INT;
         case NC_UINT64:
-            return TYPE_UNSIGNED_LONG64;
+            return UDA_TYPE_UNSIGNED_LONG64;
         case NC_VLEN:
-            return TYPE_VLEN;
+            return UDA_TYPE_VLEN;
         case NC_COMPOUND:
-            return TYPE_COMPOUND;
+            return UDA_TYPE_COMPOUND;
         case NC_OPAQUE:
-            return TYPE_OPAQUE;
+            return UDA_TYPE_OPAQUE;
         case NC_ENUM:
-            return TYPE_ENUM;
+            return UDA_TYPE_ENUM;
         case NC_STRING:
-            return TYPE_STRING;
+            return UDA_TYPE_STRING;
         default:
-            return TYPE_UNKNOWN;
+            return UDA_TYPE_UNKNOWN;
     }
 }
 

@@ -95,48 +95,48 @@ void parseFixedLengthArray(xmlNodePtr cur, char* target, void* array, int arrayt
             if (item != NULL) {
                 nco++;
                 switch (arraytype) {
-                    case TYPE_FLOAT:
+                    case UDA_TYPE_FLOAT:
                         fp = (float*) array;
                         fp[nco - 1] = atof(item);
                         break;
-                    case TYPE_DOUBLE:
+                    case UDA_TYPE_DOUBLE:
                         dp = (double*) array;
                         dp[nco - 1] = strtod(item, NULL);
                         break;
-                    case TYPE_CHAR: {
+                    case UDA_TYPE_CHAR: {
                         char* p = (char*) array;
                         p[nco - 1] = (char) atoi(item);
                         break;
                     }
-                    case TYPE_SHORT: {
+                    case UDA_TYPE_SHORT: {
                         short* p = (short*) array;
                         p[nco - 1] = (short) atoi(item);
                         break;
                     }
-                    case TYPE_INT:
+                    case UDA_TYPE_INT:
                         ip = (int*) array;
                         ip[nco - 1] = (int) atoi(item);
                         break;
-                    case TYPE_LONG:
+                    case UDA_TYPE_LONG:
                         lp = (long*) array;
                         lp[nco - 1] = (long) atol(item);
                         break;
-                    case TYPE_UNSIGNED_CHAR: {
+                    case UDA_TYPE_UNSIGNED_CHAR: {
                         unsigned char* p = (unsigned char*) array;
                         p[nco - 1] = (unsigned char) atoi(item);
                         break;
                     }
-                    case TYPE_UNSIGNED_SHORT: {
+                    case UDA_TYPE_UNSIGNED_SHORT: {
                         unsigned short* p = (unsigned short*) array;
                         p[nco - 1] = (unsigned short) atoi(item);
                         break;
                     }
-                    case TYPE_UNSIGNED: {
+                    case UDA_TYPE_UNSIGNED_INT: {
                         unsigned int* p = (unsigned int*) array;
                         p[nco - 1] = (unsigned int) atoi(item);
                         break;
                     }
-                    case TYPE_UNSIGNED_LONG: {
+                    case UDA_TYPE_UNSIGNED_LONG: {
                         unsigned long* p = (unsigned long*) array;
                         p[nco - 1] = (unsigned long) atol(item);
                         break;
@@ -148,48 +148,48 @@ void parseFixedLengthArray(xmlNodePtr cur, char* target, void* array, int arrayt
                 while ((item = strtok(NULL, delim)) != NULL && nco <= MAXDATARANK) {
                     nco++;
                     switch (arraytype) {
-                        case TYPE_FLOAT:
+                        case UDA_TYPE_FLOAT:
                             fp = (float*) array;
                             fp[nco - 1] = atof(item);
                             break;
-                        case TYPE_DOUBLE:
+                        case UDA_TYPE_DOUBLE:
                             dp = (double*) array;
                             dp[nco - 1] = strtod(item, NULL);
                             break;
-                        case TYPE_CHAR: {
+                        case UDA_TYPE_CHAR: {
                             char* p = (char*) array;
                             p[nco - 1] = (char) atoi(item);
                             break;
                         }
-                        case TYPE_SHORT: {
+                        case UDA_TYPE_SHORT: {
                             short* p = (short*) array;
                             p[nco - 1] = (short) atoi(item);
                             break;
                         }
-                        case TYPE_INT:
+                        case UDA_TYPE_INT:
                             ip = (int*) array;
                             ip[nco - 1] = (int) atoi(item);
                             break;
-                        case TYPE_LONG:
+                        case UDA_TYPE_LONG:
                             lp = (long*) array;
                             lp[nco - 1] = (long) atol(item);
                             break;
-                        case TYPE_UNSIGNED_CHAR: {
+                        case UDA_TYPE_UNSIGNED_CHAR: {
                             unsigned char* p = (unsigned char*) array;
                             p[nco - 1] = (unsigned char) atoi(item);
                             break;
                         }
-                        case TYPE_UNSIGNED_SHORT: {
+                        case UDA_TYPE_UNSIGNED_SHORT: {
                             unsigned short* p = (unsigned short*) array;
                             p[nco - 1] = (unsigned short) atoi(item);
                             break;
                         }
-                        case TYPE_UNSIGNED: {
+                        case UDA_TYPE_UNSIGNED_INT: {
                             unsigned int* p = (unsigned int*) array;
                             p[nco - 1] = (unsigned int) atoi(item);
                             break;
                         }
-                        case TYPE_UNSIGNED_LONG: {
+                        case UDA_TYPE_UNSIGNED_LONG: {
                             unsigned long* p = (unsigned long*) array;
                             p[nco - 1] = (unsigned long) atol(item);
                             break;
@@ -460,8 +460,8 @@ void parseCompositeSubset(xmlDocPtr doc, xmlNodePtr cur, COMPOSITE* comp)
             for (i = 0; i < str[n - 1].nbound; i++)
                 str[n - 1].dimid[i] = i;                    // Ordering is as DATA[4][3][2][1][0]
 
-            parseFixedLengthArray(cur, "bound", (void*) str[n - 1].bound, TYPE_DOUBLE, &n0);
-            parseFixedLengthArray(cur, "dimid", (void*) str[n - 1].dimid, TYPE_INT, &n1);
+            parseFixedLengthArray(cur, "bound", (void*) str[n - 1].bound, UDA_TYPE_DOUBLE, &n0);
+            parseFixedLengthArray(cur, "dimid", (void*) str[n - 1].dimid, UDA_TYPE_INT, &n1);
 
             //if(n0 == 0 && n1 == 0 && str[n-1].nbound > 0){					// Assume Array Reshaping has been requested
             //   for(i=0;i<str[n-1].nbound;i++) str[n-1].dimid[i] = str[n-1].nbound-i-1;	// Ordering is as DATA[4][3][2][1][0]
@@ -1123,8 +1123,8 @@ void parseSubset(xmlDocPtr doc, xmlNodePtr cur, ACTIONS* actions)
             for (i = 0; i < sub->nbound; i++)
                 sub->dimid[i] = i;                    // Ordering is as DATA[4][3][2][1][0]
 
-            parseFixedLengthArray(cur, "bound", (void*) sub->bound, TYPE_DOUBLE, &n0);
-            parseFixedLengthArray(cur, "dimid", (void*) sub->dimid, TYPE_INT, &n1);
+            parseFixedLengthArray(cur, "bound", (void*) sub->bound, UDA_TYPE_DOUBLE, &n0);
+            parseFixedLengthArray(cur, "dimid", (void*) sub->dimid, UDA_TYPE_INT, &n1);
 
             if (idamParseOperation(sub) != 0) return;
 
@@ -1233,13 +1233,13 @@ void printDimensions(int ndim, DIMENSION* dims)
 
         switch (dims[i].dimType) {
 
-            case DIMCALIBRATIONTYPE :
+            case DIMCALIBRATIONTYPE:
                 IDAM_LOGF(UDA_LOG_DEBUG, "factor     : %.12f\n", dims[i].dimcalibration.factor);
                 IDAM_LOGF(UDA_LOG_DEBUG, "Offset     : %.12f\n", dims[i].dimcalibration.offset);
                 IDAM_LOGF(UDA_LOG_DEBUG, "Units      : %s\n", dims[i].dimcalibration.units);
                 break;
 
-            case DIMCOMPOSITETYPE :
+            case DIMCOMPOSITETYPE:
                 IDAM_LOGF(UDA_LOG_DEBUG, "to Dim       : %d\n", dims[i].dimcomposite.to_dim);
                 IDAM_LOGF(UDA_LOG_DEBUG, "from Dim     : %d\n", dims[i].dimcomposite.from_dim);
                 IDAM_LOGF(UDA_LOG_DEBUG, "Dim signal   : %s\n", dims[i].dimcomposite.dim_signal);
@@ -1250,12 +1250,12 @@ void printDimensions(int ndim, DIMENSION* dims)
 
                 break;
 
-            case DIMDOCUMENTATIONTYPE :
+            case DIMDOCUMENTATIONTYPE:
                 IDAM_LOGF(UDA_LOG_DEBUG, "Dim Label  : %s\n", dims[i].dimdocumentation.label);
                 IDAM_LOGF(UDA_LOG_DEBUG, "Dim Units  : %s\n", dims[i].dimdocumentation.units);
                 break;
 
-            case DIMERRORMODELTYPE :
+            case DIMERRORMODELTYPE:
                 IDAM_LOGF(UDA_LOG_DEBUG, "Error Model Id            : %d\n", dims[i].dimerrormodel.model);
                 IDAM_LOGF(UDA_LOG_DEBUG, "Number of Model Parameters: %d\n", dims[i].dimerrormodel.param_n);
                 for (j = 0; j < dims[i].dimerrormodel.param_n; j++)

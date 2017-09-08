@@ -129,7 +129,7 @@ int xdrUserDefinedData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPEL
 
         switch (userdefinedtype->compoundfield[j].atomictype) {
 
-            case TYPE_FLOAT: {
+            case UDA_TYPE_FLOAT: {
                 IDAM_LOG(UDA_LOG_DEBUG, "Type: FLOAT\n");
 
                 if (userdefinedtype->compoundfield[j].pointer) {    // Pointer to Float Data array
@@ -219,7 +219,7 @@ int xdrUserDefinedData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPEL
                 break;
             }
 
-            case TYPE_DOUBLE: {
+            case UDA_TYPE_DOUBLE: {
                 IDAM_LOG(UDA_LOG_DEBUG, "Type: DOUBLE\n");
 
                 if (userdefinedtype->compoundfield[j].pointer) {        // Pointer to Double Data array
@@ -299,7 +299,7 @@ int xdrUserDefinedData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPEL
                 break;
             }
 
-            case TYPE_SHORT: {
+            case UDA_TYPE_SHORT: {
                 IDAM_LOG(UDA_LOG_DEBUG, "Type: SHORT\n");
 
                 if (userdefinedtype->compoundfield[j].pointer) {        // Pointer to Short Data array
@@ -379,7 +379,7 @@ int xdrUserDefinedData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPEL
                 break;
             }
 
-            case TYPE_UNSIGNED_SHORT: {
+            case UDA_TYPE_UNSIGNED_SHORT: {
                 IDAM_LOG(UDA_LOG_DEBUG, "Type: UNSIGNED_SHORT\n");
 
                 if (userdefinedtype->compoundfield[j].pointer) {        // Pointer to Data array
@@ -459,7 +459,7 @@ int xdrUserDefinedData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPEL
                 break;
             }
 
-            case TYPE_INT: {
+            case UDA_TYPE_INT: {
                 IDAM_LOG(UDA_LOG_DEBUG, "Type: INT\n");
 
                 if (userdefinedtype->compoundfield[j].pointer) {        // Pointer to Integer Data array
@@ -538,7 +538,7 @@ int xdrUserDefinedData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPEL
                 break;
             }
 
-            case TYPE_UNSIGNED_INT: {
+            case UDA_TYPE_UNSIGNED_INT: {
                 IDAM_LOG(UDA_LOG_DEBUG, "Type: UNSIGNED INT\n");
 
                 if (userdefinedtype->compoundfield[j].pointer) {        // Pointer to Data array
@@ -615,7 +615,7 @@ int xdrUserDefinedData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPEL
                 break;
             }
 
-            case TYPE_LONG64: {
+            case UDA_TYPE_LONG64: {
                 IDAM_LOG(UDA_LOG_DEBUG, "Type: LONG LONG\n");
 
                 if (userdefinedtype->compoundfield[j].pointer) {        // Pointer to long long Data array
@@ -699,7 +699,7 @@ int xdrUserDefinedData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPEL
             }
 
 #ifndef __APPLE__
-            case TYPE_UNSIGNED_LONG64: {
+            case UDA_TYPE_UNSIGNED_LONG64: {
                 IDAM_LOG(UDA_LOG_DEBUG, "Type: UNSIGNED LONG LONG\n");
 
                 if (userdefinedtype->compoundfield[j].pointer) {        // Pointer to Data array
@@ -781,7 +781,7 @@ int xdrUserDefinedData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPEL
             }
 #endif
 
-            case TYPE_CHAR: {
+            case UDA_TYPE_CHAR: {
                 IDAM_LOG(UDA_LOG_DEBUG, "Type: CHAR\n");
                 if (userdefinedtype->compoundfield[j].pointer) {        // Pointer to Float Data array
                     if (xdrs->x_op == XDR_DECODE) {                     // Allocate Heap for Data
@@ -892,7 +892,7 @@ int xdrUserDefinedData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPEL
                 break;
             }
 
-            case TYPE_STRING2: {                                      // Array of char terminated by \0
+            case UDA_TYPE_STRING2: {                                      // Array of char terminated by \0
                 if (userdefinedtype->compoundfield[j].pointer) {        // Pointer to string array
                     if (xdrs->x_op == XDR_DECODE) {                     // Allocate Heap for Data
                         rc = rc && xdr_int(xdrs, &count);               // Count is known from the client's malloc log and passed by the sender
@@ -968,7 +968,7 @@ int xdrUserDefinedData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPEL
             //	char *p[int]	 fixed number array of strings of arbitrary length 	=> rank = 1, pointer = 0, type STRING*
             //	char p[int][int] fixed number array of strings of fixed length 		=> rank = 2, pointer = 0, type STRING
 
-            case TYPE_STRING: {                    // Array of char terminated by \0
+            case UDA_TYPE_STRING: {                    // Array of char terminated by \0
                 IDAM_LOG(UDA_LOG_DEBUG, "Type: STRING\n");
 
                 char** strarr;
@@ -1356,7 +1356,7 @@ int xdrUserDefinedData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPEL
 
                     // Must be a voided atomic type
 
-                    if (gettypeof(type) != TYPE_UNKNOWN) {
+                    if (gettypeof(type) != UDA_TYPE_UNKNOWN) {
                         char* z = (char*)*p;
                         rc = rc && xdrAtomicData(logmalloclist, xdrs, type, count, size, &z);        // Must be an Atomic Type
                         *p = (VOIDTYPE)z;

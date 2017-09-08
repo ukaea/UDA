@@ -273,7 +273,7 @@ int do_signal_file(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         RAISE_PLUGIN_ERROR("Error reading geometry data!\n");
     }
 
-    if (data_block_file.data_type != TYPE_COMPOUND) {
+    if (data_block_file.data_type != UDA_TYPE_COMPOUND) {
         RAISE_PLUGIN_ERROR("Non-structured type returned from data reader!\n");
     }
 
@@ -295,7 +295,7 @@ int do_signal_file(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     //User defined type to describe data structure
     initUserDefinedType(&parentTree);
-    parentTree.idamclass = TYPE_COMPOUND;
+    parentTree.idamclass = UDA_TYPE_COMPOUND;
     strcpy(parentTree.name, "DATAPLUSTYPE");
     strcpy(parentTree.source, "netcdf");
     parentTree.ref_id = 0;
@@ -306,7 +306,7 @@ int do_signal_file(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     //Compound field for calibration file
     initCompoundField(&field);
     strcpy(field.name, "data");
-    field.atomictype = TYPE_UNKNOWN;
+    field.atomictype = UDA_TYPE_UNKNOWN;
     strcpy(field.type, udt->name);
     strcpy(field.desc, "data");
 
@@ -374,7 +374,7 @@ int do_signal_file(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     initDataBlock(data_block);
 
-    data_block->data_type = TYPE_COMPOUND;
+    data_block->data_type = UDA_TYPE_COMPOUND;
     data_block->rank = 0;            // Scalar structure (don't need a DIM array)
     data_block->data_n = 1;
     data_block->data = (char*)data;
@@ -383,7 +383,7 @@ int do_signal_file(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     strcpy(data_block->data_label, "Data plus type");
     strcpy(data_block->data_units, "");
 
-    data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
+    data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
     data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "DATAPLUSTYPE", 0);
 
@@ -664,7 +664,7 @@ int do_signal_filename(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     //////////////////
     //User defined type to describe data structure
     initUserDefinedType(&parentTree);
-    parentTree.idamclass = TYPE_COMPOUND;
+    parentTree.idamclass = UDA_TYPE_COMPOUND;
     strcpy(parentTree.name, "DATASTRUCT");
     strcpy(parentTree.source, "netcdf");
     parentTree.ref_id = 0;
@@ -701,7 +701,7 @@ int do_signal_filename(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     initDataBlock(data_block);
 
-    data_block->data_type = TYPE_COMPOUND;
+    data_block->data_type = UDA_TYPE_COMPOUND;
     data_block->rank = 0;            // Scalar structure (don't need a DIM array)
     data_block->data_n = 1;
     data_block->data = (char*)data_out;
@@ -710,7 +710,7 @@ int do_signal_filename(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     strcpy(data_block->data_label, "Filenames");
     strcpy(data_block->data_units, "");
 
-    data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
+    data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
     data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "DATASTRUCT", 0);
 

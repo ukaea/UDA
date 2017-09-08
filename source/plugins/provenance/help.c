@@ -89,7 +89,7 @@ int help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         usertype.imagecount = 0;                // No Structure Image data
         usertype.image = NULL;
         usertype.size = sizeof(PROVENANCEHELP);        // Structure size
-        usertype.idamclass = TYPE_COMPOUND;
+        usertype.idamclass = UDA_TYPE_COMPOUND;
 
         offset = 0;
 
@@ -112,7 +112,7 @@ int help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Pass Data	 
 
-        data_block->data_type = TYPE_COMPOUND;
+        data_block->data_type = UDA_TYPE_COMPOUND;
         data_block->rank = 0;
         data_block->data_n = 1;
         data_block->data = (char*)data;
@@ -121,7 +121,7 @@ int help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         strcpy(data_block->data_label, "");
         strcpy(data_block->data_units, "");
 
-        data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
+        data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
         data_block->opaque_count = 1;
         data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "PROVENANCEHELP", 0);
 

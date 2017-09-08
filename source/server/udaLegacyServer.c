@@ -419,7 +419,7 @@ int idamLegacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LO
             // Check the Client can receive the data type: Version dependent
             // Otherwise inform the client via the server state block
 
-            if (protocolVersion < 6 && data_block.data_type == TYPE_STRING) data_block.data_type = TYPE_CHAR;
+            if (protocolVersion < 6 && data_block.data_type == UDA_TYPE_STRING) data_block.data_type = UDA_TYPE_CHAR;
 
             if (data_block.data_n > 0 &&
                 (protocolVersionTypeTest(protocolVersion, data_block.data_type) ||
@@ -617,7 +617,7 @@ int idamLegacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LO
             //------------------------------------------------------------------------------
             // Clear Output Buffer (check - it should be empty!) and receive Next Protocol
 
-            if (data_block.opaque_type != OPAQUE_TYPE_UNKNOWN) {
+            if (data_block.opaque_type != UDA_OPAQUE_TYPE_UNKNOWN) {
 
                 protocol_id = PROTOCOL_NEXT_PROTOCOL;
 
@@ -639,12 +639,12 @@ int idamLegacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LO
             //------------------------------------------------------------------------------
             // Hierarchical Data Structures
 
-            if (data_block.opaque_type != OPAQUE_TYPE_UNKNOWN) {
-                if (data_block.opaque_type == OPAQUE_TYPE_XML_DOCUMENT) {
+            if (data_block.opaque_type != UDA_OPAQUE_TYPE_UNKNOWN) {
+                if (data_block.opaque_type == UDA_OPAQUE_TYPE_XML_DOCUMENT) {
                     protocol_id = PROTOCOL_META;
                 } else {
-                    if (data_block.opaque_type == OPAQUE_TYPE_STRUCTURES ||
-                        data_block.opaque_type == OPAQUE_TYPE_XDRFILE) {
+                    if (data_block.opaque_type == UDA_OPAQUE_TYPE_STRUCTURES ||
+                        data_block.opaque_type == UDA_OPAQUE_TYPE_XDRFILE) {
                         protocol_id = PROTOCOL_STRUCTURES;
                     } else {
                         protocol_id = PROTOCOL_EFIT;

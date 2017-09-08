@@ -327,7 +327,7 @@ int put(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
         if (isReturnPath && newDir != NULL) {
             data_block->data = newDir;
-            data_block->data_type = TYPE_STRING;
+            data_block->data_type = UDA_TYPE_STRING;
             data_block->rank = 0;
             data_block->data_n = strlen(newDir) + 1;
             strcpy(data_block->data_desc, "path to provenance records");
@@ -335,7 +335,7 @@ int put(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             if (newDir != NULL) free(newDir);
             data_block->data = (char*)malloc(sizeof(char));
             data_block->data[0] = '\0';
-            data_block->data_type = TYPE_CHAR;
+            data_block->data_type = UDA_TYPE_CHAR;
             data_block->rank = 0;
             data_block->data_n = 1;
             strcpy(data_block->data_desc, "Nothing to return!");

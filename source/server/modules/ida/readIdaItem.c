@@ -21,69 +21,69 @@ void idaclasses(int class, char* label, char* axes, int* datarank, int* timeorde
 
 int itemType(unsigned short datpck, short typeno, int getbytes, char* type)
 {
-    int data_type = TYPE_UNKNOWN;
+    int data_type = UDA_TYPE_UNKNOWN;
 
     if ((datpck & IDA_REAL) == IDA_REAL) {
-        if ((datpck & IDA_D1) == IDA_D1) data_type = TYPE_FLOAT;        // IDA_VALU Ignored for Float types!
-        if ((datpck & IDA_D2) == IDA_D2) data_type = TYPE_FLOAT;        // => Calibration factor is always applied
-        if ((datpck & IDA_D4) == IDA_D4) data_type = TYPE_FLOAT;
-        if ((datpck & IDA_D8) == IDA_D8) data_type = TYPE_DOUBLE;
+        if ((datpck & IDA_D1) == IDA_D1) data_type = UDA_TYPE_FLOAT;        // IDA_VALU Ignored for Float types!
+        if ((datpck & IDA_D2) == IDA_D2) data_type = UDA_TYPE_FLOAT;        // => Calibration factor is always applied
+        if ((datpck & IDA_D4) == IDA_D4) data_type = UDA_TYPE_FLOAT;
+        if ((datpck & IDA_D8) == IDA_D8) data_type = UDA_TYPE_DOUBLE;
     } else {
         if ((datpck & IDA_INTG & IDA_SGND) == (IDA_INTG & IDA_SGND)) {    // Signed Integer types
             if ((datpck & IDA_VALU) == IDA_VALU) {
-                if ((datpck & IDA_D1) == IDA_D1) data_type = TYPE_CHAR;    // Calibration Not applied
-                if ((datpck & IDA_D2) == IDA_D2) data_type = TYPE_SHORT;
-                if ((datpck & IDA_D4) == IDA_D4) data_type = TYPE_INT;
-                if ((datpck & IDA_D8) == IDA_D8) data_type = TYPE_LONG64;
+                if ((datpck & IDA_D1) == IDA_D1) data_type = UDA_TYPE_CHAR;    // Calibration Not applied
+                if ((datpck & IDA_D2) == IDA_D2) data_type = UDA_TYPE_SHORT;
+                if ((datpck & IDA_D4) == IDA_D4) data_type = UDA_TYPE_INT;
+                if ((datpck & IDA_D8) == IDA_D8) data_type = UDA_TYPE_LONG64;
             } else {                            // Calibration Applied
                 if (typeno == 6 && STR_EQUALS(type, "scalar")) {
-                    if ((datpck & IDA_D1) == IDA_D1) data_type = TYPE_CHAR;
-                    if ((datpck & IDA_D2) == IDA_D2) data_type = TYPE_SHORT;
-                    if ((datpck & IDA_D4) == IDA_D4) data_type = TYPE_INT;
-                    if ((datpck & IDA_D8) == IDA_D8) data_type = TYPE_LONG64;
+                    if ((datpck & IDA_D1) == IDA_D1) data_type = UDA_TYPE_CHAR;
+                    if ((datpck & IDA_D2) == IDA_D2) data_type = UDA_TYPE_SHORT;
+                    if ((datpck & IDA_D4) == IDA_D4) data_type = UDA_TYPE_INT;
+                    if ((datpck & IDA_D8) == IDA_D8) data_type = UDA_TYPE_LONG64;
                 } else {
                     if (!getbytes) {
-                        if ((datpck & IDA_D1) == IDA_D1) data_type = TYPE_FLOAT;    // Cast to Float Type
-                        if ((datpck & IDA_D2) == IDA_D2) data_type = TYPE_FLOAT;
-                        if ((datpck & IDA_D4) == IDA_D4) data_type = TYPE_FLOAT;
-                        if ((datpck & IDA_D8) == IDA_D8) data_type = TYPE_DOUBLE;
+                        if ((datpck & IDA_D1) == IDA_D1) data_type = UDA_TYPE_FLOAT;    // Cast to Float Type
+                        if ((datpck & IDA_D2) == IDA_D2) data_type = UDA_TYPE_FLOAT;
+                        if ((datpck & IDA_D4) == IDA_D4) data_type = UDA_TYPE_FLOAT;
+                        if ((datpck & IDA_D8) == IDA_D8) data_type = UDA_TYPE_DOUBLE;
                     } else {
-                        if ((datpck & IDA_D1) == IDA_D1) data_type = TYPE_CHAR;
-                        if ((datpck & IDA_D2) == IDA_D2) data_type = TYPE_SHORT;
-                        if ((datpck & IDA_D4) == IDA_D4) data_type = TYPE_INT;
-                        if ((datpck & IDA_D8) == IDA_D8) data_type = TYPE_LONG64;
+                        if ((datpck & IDA_D1) == IDA_D1) data_type = UDA_TYPE_CHAR;
+                        if ((datpck & IDA_D2) == IDA_D2) data_type = UDA_TYPE_SHORT;
+                        if ((datpck & IDA_D4) == IDA_D4) data_type = UDA_TYPE_INT;
+                        if ((datpck & IDA_D8) == IDA_D8) data_type = UDA_TYPE_LONG64;
                     }
                 }
             }
         } else {
             if ((datpck & IDA_INTG) == IDA_INTG) {                // Unsigned Integer types
                 if ((datpck & IDA_VALU) == IDA_VALU) {
-                    if ((datpck & IDA_D1) == IDA_D1) data_type = TYPE_UNSIGNED_CHAR;
-                    if ((datpck & IDA_D2) == IDA_D2) data_type = TYPE_UNSIGNED_SHORT;
-                    if ((datpck & IDA_D4) == IDA_D4) data_type = TYPE_UNSIGNED;
-                    if ((datpck & IDA_D8) == IDA_D8) data_type = TYPE_UNSIGNED_LONG64;
+                    if ((datpck & IDA_D1) == IDA_D1) data_type = UDA_TYPE_UNSIGNED_CHAR;
+                    if ((datpck & IDA_D2) == IDA_D2) data_type = UDA_TYPE_UNSIGNED_SHORT;
+                    if ((datpck & IDA_D4) == IDA_D4) data_type = UDA_TYPE_UNSIGNED_INT;
+                    if ((datpck & IDA_D8) == IDA_D8) data_type = UDA_TYPE_UNSIGNED_LONG64;
                 } else {
                     if (typeno == 6 && STR_EQUALS(type, "scalar")) {
-                        if ((datpck & IDA_D1) == IDA_D1) data_type = TYPE_UNSIGNED_CHAR;
-                        if ((datpck & IDA_D2) == IDA_D2) data_type = TYPE_UNSIGNED_SHORT;
-                        if ((datpck & IDA_D4) == IDA_D4) data_type = TYPE_UNSIGNED;
-                        if ((datpck & IDA_D8) == IDA_D8) data_type = TYPE_UNSIGNED_LONG64;
+                        if ((datpck & IDA_D1) == IDA_D1) data_type = UDA_TYPE_UNSIGNED_CHAR;
+                        if ((datpck & IDA_D2) == IDA_D2) data_type = UDA_TYPE_UNSIGNED_SHORT;
+                        if ((datpck & IDA_D4) == IDA_D4) data_type = UDA_TYPE_UNSIGNED_INT;
+                        if ((datpck & IDA_D8) == IDA_D8) data_type = UDA_TYPE_UNSIGNED_LONG64;
                     } else {
                         if (!getbytes) {
-                            if ((datpck & IDA_D1) == IDA_D1) data_type = TYPE_FLOAT;
-                            if ((datpck & IDA_D2) == IDA_D2) data_type = TYPE_FLOAT;
-                            if ((datpck & IDA_D4) == IDA_D4) data_type = TYPE_FLOAT;
-                            if ((datpck & IDA_D8) == IDA_D8) data_type = TYPE_DOUBLE;
+                            if ((datpck & IDA_D1) == IDA_D1) data_type = UDA_TYPE_FLOAT;
+                            if ((datpck & IDA_D2) == IDA_D2) data_type = UDA_TYPE_FLOAT;
+                            if ((datpck & IDA_D4) == IDA_D4) data_type = UDA_TYPE_FLOAT;
+                            if ((datpck & IDA_D8) == IDA_D8) data_type = UDA_TYPE_DOUBLE;
                         } else {
-                            if ((datpck & IDA_D1) == IDA_D1) data_type = TYPE_UNSIGNED_CHAR;
-                            if ((datpck & IDA_D2) == IDA_D2) data_type = TYPE_UNSIGNED_SHORT;
-                            if ((datpck & IDA_D4) == IDA_D4) data_type = TYPE_UNSIGNED;
-                            if ((datpck & IDA_D8) == IDA_D8) data_type = TYPE_UNSIGNED_LONG64;
+                            if ((datpck & IDA_D1) == IDA_D1) data_type = UDA_TYPE_UNSIGNED_CHAR;
+                            if ((datpck & IDA_D2) == IDA_D2) data_type = UDA_TYPE_UNSIGNED_SHORT;
+                            if ((datpck & IDA_D4) == IDA_D4) data_type = UDA_TYPE_UNSIGNED_INT;
+                            if ((datpck & IDA_D8) == IDA_D8) data_type = UDA_TYPE_UNSIGNED_LONG64;
                         }
                     }
                 }
             } else {
-                if ((datpck & (IDA_CHAR | IDA_D1 | IDA_VALU)) == (IDA_CHAR | IDA_D1 | IDA_VALU)) data_type = TYPE_CHAR;
+                if ((datpck & (IDA_CHAR | IDA_D1 | IDA_VALU)) == (IDA_CHAR | IDA_D1 | IDA_VALU)) data_type = UDA_TYPE_CHAR;
             }
         }
     }
@@ -110,40 +110,40 @@ int itemType(unsigned short datpck, short typeno, int getbytes, char* type)
 
 int errorType(unsigned short datpck, short typeno, int getbytes, char* type)
 {
-    int data_type = TYPE_UNKNOWN;
+    int data_type = UDA_TYPE_UNKNOWN;
 
     if ((datpck & IDA_REAL) == IDA_REAL) {
-        if ((datpck & IDA_E1) == IDA_E1) data_type = TYPE_FLOAT;        // IDA_VALU Ignored!
-        if ((datpck & IDA_E2) == IDA_E2) data_type = TYPE_FLOAT;
-        if ((datpck & IDA_E4) == IDA_E4) data_type = TYPE_FLOAT;
-        if ((datpck & IDA_E8) == IDA_E8) data_type = TYPE_DOUBLE;
+        if ((datpck & IDA_E1) == IDA_E1) data_type = UDA_TYPE_FLOAT;        // IDA_VALU Ignored!
+        if ((datpck & IDA_E2) == IDA_E2) data_type = UDA_TYPE_FLOAT;
+        if ((datpck & IDA_E4) == IDA_E4) data_type = UDA_TYPE_FLOAT;
+        if ((datpck & IDA_E8) == IDA_E8) data_type = UDA_TYPE_DOUBLE;
     } else {
         if ((datpck & IDA_INTG & IDA_SGND) == (IDA_INTG & IDA_SGND)) {
             if ((datpck & IDA_VALU) == IDA_VALU) {
                 if ((datpck & IDA_E1) == IDA_E1) {
-                    data_type = TYPE_CHAR;
+                    data_type = UDA_TYPE_CHAR;
                 }    // Calibration Not applied => Genuine Signed Integer types
-                if ((datpck & IDA_E2) == IDA_E2) data_type = TYPE_SHORT;
-                if ((datpck & IDA_E4) == IDA_E4) data_type = TYPE_INT;
-                if ((datpck & IDA_E8) == IDA_E8) data_type = TYPE_LONG64;
+                if ((datpck & IDA_E2) == IDA_E2) data_type = UDA_TYPE_SHORT;
+                if ((datpck & IDA_E4) == IDA_E4) data_type = UDA_TYPE_INT;
+                if ((datpck & IDA_E8) == IDA_E8) data_type = UDA_TYPE_LONG64;
             } else {
                 if (typeno == 6 && STR_EQUALS(type, "scalar")) {
-// 31Oct08     if((datpck & IDA_E1) == IDA_E1) data_type = TYPE_SHORT;
-                    if ((datpck & IDA_E1) == IDA_E1) data_type = TYPE_CHAR;
-                    if ((datpck & IDA_E2) == IDA_E2) data_type = TYPE_SHORT;
-                    if ((datpck & IDA_E4) == IDA_E4) data_type = TYPE_INT;
-                    if ((datpck & IDA_E8) == IDA_E8) data_type = TYPE_LONG64;
+// 31Oct08     if((datpck & IDA_E1) == IDA_E1) data_type = UDA_TYPE_SHORT;
+                    if ((datpck & IDA_E1) == IDA_E1) data_type = UDA_TYPE_CHAR;
+                    if ((datpck & IDA_E2) == IDA_E2) data_type = UDA_TYPE_SHORT;
+                    if ((datpck & IDA_E4) == IDA_E4) data_type = UDA_TYPE_INT;
+                    if ((datpck & IDA_E8) == IDA_E8) data_type = UDA_TYPE_LONG64;
                 } else {
                     if (!getbytes) {
-                        if ((datpck & IDA_E1) == IDA_E1) data_type = TYPE_FLOAT;
-                        if ((datpck & IDA_E2) == IDA_E2) data_type = TYPE_FLOAT;
-                        if ((datpck & IDA_E4) == IDA_E4) data_type = TYPE_FLOAT;
-                        if ((datpck & IDA_E8) == IDA_E8) data_type = TYPE_DOUBLE;
+                        if ((datpck & IDA_E1) == IDA_E1) data_type = UDA_TYPE_FLOAT;
+                        if ((datpck & IDA_E2) == IDA_E2) data_type = UDA_TYPE_FLOAT;
+                        if ((datpck & IDA_E4) == IDA_E4) data_type = UDA_TYPE_FLOAT;
+                        if ((datpck & IDA_E8) == IDA_E8) data_type = UDA_TYPE_DOUBLE;
                     } else {
-                        if ((datpck & IDA_E1) == IDA_E1) data_type = TYPE_CHAR;
-                        if ((datpck & IDA_E2) == IDA_E2) data_type = TYPE_SHORT;
-                        if ((datpck & IDA_E4) == IDA_E4) data_type = TYPE_INT;
-                        if ((datpck & IDA_E8) == IDA_E8) data_type = TYPE_LONG64;
+                        if ((datpck & IDA_E1) == IDA_E1) data_type = UDA_TYPE_CHAR;
+                        if ((datpck & IDA_E2) == IDA_E2) data_type = UDA_TYPE_SHORT;
+                        if ((datpck & IDA_E4) == IDA_E4) data_type = UDA_TYPE_INT;
+                        if ((datpck & IDA_E8) == IDA_E8) data_type = UDA_TYPE_LONG64;
                     }
                 }
             }
@@ -151,33 +151,33 @@ int errorType(unsigned short datpck, short typeno, int getbytes, char* type)
             if ((datpck & IDA_INTG) == IDA_INTG) {
                 if ((datpck & IDA_VALU) == IDA_VALU) {
                     if ((datpck & IDA_E1) == IDA_E1) {
-                        data_type = TYPE_UNSIGNED_CHAR;
+                        data_type = UDA_TYPE_UNSIGNED_CHAR;
                     }    // Calibration Not applied => Genuine Unsigned Integer types
-                    if ((datpck & IDA_E2) == IDA_E2) data_type = TYPE_UNSIGNED_SHORT;
-                    if ((datpck & IDA_E4) == IDA_E4) data_type = TYPE_UNSIGNED;
-                    if ((datpck & IDA_E8) == IDA_E8) data_type = TYPE_UNSIGNED_LONG64;
+                    if ((datpck & IDA_E2) == IDA_E2) data_type = UDA_TYPE_UNSIGNED_SHORT;
+                    if ((datpck & IDA_E4) == IDA_E4) data_type = UDA_TYPE_UNSIGNED_INT;
+                    if ((datpck & IDA_E8) == IDA_E8) data_type = UDA_TYPE_UNSIGNED_LONG64;
                 } else {
                     if (typeno == 6 && STR_EQUALS(type, "scalar")) {
-                        if ((datpck & IDA_E1) == IDA_E1) data_type = TYPE_UNSIGNED_CHAR;
-                        if ((datpck & IDA_E2) == IDA_E2) data_type = TYPE_UNSIGNED_SHORT;
-                        if ((datpck & IDA_E4) == IDA_E4) data_type = TYPE_UNSIGNED;
-                        if ((datpck & IDA_E8) == IDA_E8) data_type = TYPE_UNSIGNED_LONG64;
+                        if ((datpck & IDA_E1) == IDA_E1) data_type = UDA_TYPE_UNSIGNED_CHAR;
+                        if ((datpck & IDA_E2) == IDA_E2) data_type = UDA_TYPE_UNSIGNED_SHORT;
+                        if ((datpck & IDA_E4) == IDA_E4) data_type = UDA_TYPE_UNSIGNED_INT;
+                        if ((datpck & IDA_E8) == IDA_E8) data_type = UDA_TYPE_UNSIGNED_LONG64;
                     } else {
                         if (!getbytes) {
-                            if ((datpck & IDA_E1) == IDA_E1) data_type = TYPE_FLOAT;
-                            if ((datpck & IDA_E2) == IDA_E2) data_type = TYPE_FLOAT;
-                            if ((datpck & IDA_E4) == IDA_E4) data_type = TYPE_FLOAT;
-                            if ((datpck & IDA_E8) == IDA_E8) data_type = TYPE_DOUBLE;
+                            if ((datpck & IDA_E1) == IDA_E1) data_type = UDA_TYPE_FLOAT;
+                            if ((datpck & IDA_E2) == IDA_E2) data_type = UDA_TYPE_FLOAT;
+                            if ((datpck & IDA_E4) == IDA_E4) data_type = UDA_TYPE_FLOAT;
+                            if ((datpck & IDA_E8) == IDA_E8) data_type = UDA_TYPE_DOUBLE;
                         } else {
-                            if ((datpck & IDA_E1) == IDA_E1) data_type = TYPE_UNSIGNED_CHAR;
-                            if ((datpck & IDA_E2) == IDA_E2) data_type = TYPE_UNSIGNED_SHORT;
-                            if ((datpck & IDA_E4) == IDA_E4) data_type = TYPE_UNSIGNED;
-                            if ((datpck & IDA_E8) == IDA_E8) data_type = TYPE_UNSIGNED_LONG64;
+                            if ((datpck & IDA_E1) == IDA_E1) data_type = UDA_TYPE_UNSIGNED_CHAR;
+                            if ((datpck & IDA_E2) == IDA_E2) data_type = UDA_TYPE_UNSIGNED_SHORT;
+                            if ((datpck & IDA_E4) == IDA_E4) data_type = UDA_TYPE_UNSIGNED_INT;
+                            if ((datpck & IDA_E8) == IDA_E8) data_type = UDA_TYPE_UNSIGNED_LONG64;
                         }
                     }
                 }
             } else {
-                if ((datpck & (IDA_CHAR | IDA_E1 | IDA_VALU)) == (IDA_CHAR | IDA_E1 | IDA_VALU)) data_type = TYPE_CHAR;
+                if ((datpck & (IDA_CHAR | IDA_E1 | IDA_VALU)) == (IDA_CHAR | IDA_E1 | IDA_VALU)) data_type = UDA_TYPE_CHAR;
             }
         }
     }
@@ -210,40 +210,40 @@ char* itemData(int data_type, int totsams)
 
     char* data = NULL;
     switch (data_type) {
-        case TYPE_FLOAT:
+        case UDA_TYPE_FLOAT:
             data = (char*)calloc(totsams, sizeof(float));
             break;
-        case TYPE_DOUBLE:
+        case UDA_TYPE_DOUBLE:
             data = (char*)calloc(totsams, sizeof(double));
             break;
-        case TYPE_CHAR:
+        case UDA_TYPE_CHAR:
             data = (char*)calloc(totsams, sizeof(char));
             break;
-        case TYPE_SHORT:
+        case UDA_TYPE_SHORT:
             data = (char*)calloc(totsams, sizeof(short));
             break;
-        case TYPE_INT:
+        case UDA_TYPE_INT:
             data = (char*)calloc(totsams, sizeof(int));
             break;
-        case TYPE_LONG:
+        case UDA_TYPE_LONG:
             data = (char*)calloc(totsams, sizeof(long));
             break;
-        case TYPE_LONG64:
+        case UDA_TYPE_LONG64:
             data = (char*)calloc(totsams, sizeof(long long));
             break;
-        case TYPE_UNSIGNED_CHAR:
+        case UDA_TYPE_UNSIGNED_CHAR:
             data = (char*)calloc(totsams, sizeof(unsigned char));
             break;
-        case TYPE_UNSIGNED_SHORT:
+        case UDA_TYPE_UNSIGNED_SHORT:
             data = (char*)calloc(totsams, sizeof(unsigned short));
             break;
-        case TYPE_UNSIGNED:
+        case UDA_TYPE_UNSIGNED_INT:
             data = (char*)calloc(totsams, sizeof(unsigned int));
             break;
-        case TYPE_UNSIGNED_LONG:
+        case UDA_TYPE_UNSIGNED_LONG:
             data = (char*)calloc(totsams, sizeof(unsigned long));
             break;
-        case TYPE_UNSIGNED_LONG64:
+        case UDA_TYPE_UNSIGNED_LONG64:
             data = (char*)calloc(totsams, sizeof(unsigned long long));
             break;
     }
@@ -260,7 +260,7 @@ void swapRank3(DATA_BLOCK* data_block, int pattern)
 
     count = 0;
     switch (data_block->data_type) {
-        case TYPE_FLOAT: {
+        case UDA_TYPE_FLOAT: {
             float* dblock = (float*)data_block->data;
             float* data = (float*)itemData(data_block->data_type, data_block->data_n);
             if (pattern == 1) {            // Data Classes like DCXY
@@ -289,7 +289,7 @@ void swapRank3(DATA_BLOCK* data_block, int pattern)
         }
             break;
 
-        case TYPE_DOUBLE: {
+        case UDA_TYPE_DOUBLE: {
             double* dblock = (double*)data_block->data;
             double* data = (double*)itemData(data_block->data_type, data_block->data_n);
             if (pattern == 1) {
@@ -318,7 +318,7 @@ void swapRank3(DATA_BLOCK* data_block, int pattern)
         }
             break;
 
-        case TYPE_CHAR: {
+        case UDA_TYPE_CHAR: {
             char* dblock = data_block->data;
             char* data = itemData(data_block->data_type, data_block->data_n);
             if (pattern == 1) {            // Data Classes like DCXY
@@ -347,7 +347,7 @@ void swapRank3(DATA_BLOCK* data_block, int pattern)
         }
             break;
 
-        case TYPE_SHORT: {
+        case UDA_TYPE_SHORT: {
             short* dblock = (short*)data_block->data;
             short* data = (short*)itemData(data_block->data_type, data_block->data_n);
             if (pattern == 1) {            // Data Classes like DCXY
@@ -376,7 +376,7 @@ void swapRank3(DATA_BLOCK* data_block, int pattern)
         }
             break;
 
-        case TYPE_INT: {
+        case UDA_TYPE_INT: {
             int* dblock = (int*)data_block->data;
             int* data = (int*)itemData(data_block->data_type, data_block->data_n);
             if (pattern == 1) {            // Data Classes like DCXY
@@ -405,7 +405,7 @@ void swapRank3(DATA_BLOCK* data_block, int pattern)
         }
             break;
 
-        case TYPE_LONG: {
+        case UDA_TYPE_LONG: {
             long* dblock = (long*)data_block->data;
             long* data = (long*)itemData(data_block->data_type, data_block->data_n);
             if (pattern == 1) {            // Data Classes like DCXY
@@ -434,7 +434,7 @@ void swapRank3(DATA_BLOCK* data_block, int pattern)
         }
             break;
 
-        case TYPE_LONG64: {
+        case UDA_TYPE_LONG64: {
             long long* dblock = (long long*)data_block->data;
             long long* data = (long long*)itemData(data_block->data_type, data_block->data_n);
             if (pattern == 1) {            // Data Classes like DCXY
@@ -463,7 +463,7 @@ void swapRank3(DATA_BLOCK* data_block, int pattern)
         }
             break;
 
-        case TYPE_UNSIGNED_CHAR: {
+        case UDA_TYPE_UNSIGNED_CHAR: {
             unsigned char* dblock = (unsigned char*)data_block->data;
             unsigned char* data = (unsigned char*)itemData(data_block->data_type, data_block->data_n);
             if (pattern == 1) {            // Data Classes like DCXY
@@ -492,7 +492,7 @@ void swapRank3(DATA_BLOCK* data_block, int pattern)
         }
             break;
 
-        case TYPE_UNSIGNED_SHORT: {
+        case UDA_TYPE_UNSIGNED_SHORT: {
             unsigned short* dblock = (unsigned short*)data_block->data;
             unsigned short* data = (unsigned short*)itemData(data_block->data_type, data_block->data_n);
             if (pattern == 1) {            // Data Classes like DCXY
@@ -521,7 +521,7 @@ void swapRank3(DATA_BLOCK* data_block, int pattern)
         }
             break;
 
-        case TYPE_UNSIGNED: {
+        case UDA_TYPE_UNSIGNED_INT: {
             unsigned int* dblock = (unsigned int*)data_block->data;
             unsigned int* data = (unsigned int*)itemData(data_block->data_type, data_block->data_n);
             if (pattern == 1) {            // Data Classes like DCXY
@@ -550,7 +550,7 @@ void swapRank3(DATA_BLOCK* data_block, int pattern)
         }
             break;
 
-        case TYPE_UNSIGNED_LONG: {
+        case UDA_TYPE_UNSIGNED_LONG: {
             unsigned long* dblock = (unsigned long*)data_block->data;
             unsigned long* data = (unsigned long*)itemData(data_block->data_type, data_block->data_n);
             if (pattern == 1) {            // Data Classes like DCXY
@@ -579,7 +579,7 @@ void swapRank3(DATA_BLOCK* data_block, int pattern)
         }
             break;
 
-        case TYPE_UNSIGNED_LONG64: {
+        case UDA_TYPE_UNSIGNED_LONG64: {
             unsigned long long* dblock = (unsigned long long*)data_block->data;
             unsigned long long* data = (unsigned long long*)itemData(data_block->data_type, data_block->data_n);
             if (pattern == 1) {            // Data Classes like DCXY
@@ -610,10 +610,10 @@ void swapRank3(DATA_BLOCK* data_block, int pattern)
 
     }
 
-    if (data_block->error_type != TYPE_UNKNOWN) {
+    if (data_block->error_type != UDA_TYPE_UNKNOWN) {
         count = 0;
         switch (data_block->error_type) {
-            case TYPE_FLOAT: {
+            case UDA_TYPE_FLOAT: {
                 float* eblock = (float*)data_block->errhi;
                 float* error = (float*)itemData(data_block->error_type, data_block->data_n);
                 if (pattern == 1) {            // Error Data Classes like DCXY
@@ -642,7 +642,7 @@ void swapRank3(DATA_BLOCK* data_block, int pattern)
             }
                 break;
 
-            case TYPE_DOUBLE: {
+            case UDA_TYPE_DOUBLE: {
                 double* eblock = (double*)data_block->errhi;
                 double* error = (double*)itemData(data_block->error_type, data_block->data_n);
                 if (pattern == 1) {            // Error Data Classes like DCXY
@@ -671,7 +671,7 @@ void swapRank3(DATA_BLOCK* data_block, int pattern)
             }
                 break;
 
-            case TYPE_CHAR: {
+            case UDA_TYPE_CHAR: {
                 char* eblock = (char*)data_block->errhi;
                 char* error = (char*)itemData(data_block->error_type, data_block->data_n);
                 if (pattern == 1) {            // Error Data Classes like DCXY
@@ -700,7 +700,7 @@ void swapRank3(DATA_BLOCK* data_block, int pattern)
             }
                 break;
 
-            case TYPE_SHORT: {
+            case UDA_TYPE_SHORT: {
                 short* eblock = (short*)data_block->errhi;
                 short* error = (short*)itemData(data_block->error_type, data_block->data_n);
                 if (pattern == 1) {            // Error Data Classes like DCXY
@@ -729,7 +729,7 @@ void swapRank3(DATA_BLOCK* data_block, int pattern)
             }
                 break;
 
-            case TYPE_INT: {
+            case UDA_TYPE_INT: {
                 int* eblock = (int*)data_block->errhi;
                 int* error = (int*)itemData(data_block->error_type, data_block->data_n);
                 if (pattern == 1) {            // Error Data Classes like DCXY
@@ -758,7 +758,7 @@ void swapRank3(DATA_BLOCK* data_block, int pattern)
             }
                 break;
 
-            case TYPE_LONG: {
+            case UDA_TYPE_LONG: {
                 long* eblock = (long*)data_block->errhi;
                 long* error = (long*)itemData(data_block->error_type, data_block->data_n);
                 if (pattern == 1) {            // Error Data Classes like DCXY
@@ -787,7 +787,7 @@ void swapRank3(DATA_BLOCK* data_block, int pattern)
             }
                 break;
 
-            case TYPE_LONG64: {
+            case UDA_TYPE_LONG64: {
                 long long* eblock = (long long*)data_block->errhi;
                 long long* error = (long long*)itemData(data_block->error_type, data_block->data_n);
                 if (pattern == 1) {            // Error Data Classes like DCXY
@@ -816,7 +816,7 @@ void swapRank3(DATA_BLOCK* data_block, int pattern)
             }
                 break;
 
-            case TYPE_UNSIGNED_CHAR: {
+            case UDA_TYPE_UNSIGNED_CHAR: {
                 unsigned char* eblock = (unsigned char*)data_block->errhi;
                 unsigned char* error = (unsigned char*)itemData(data_block->error_type, data_block->data_n);
                 if (pattern == 1) {            // Error Data Classes like DCXY
@@ -845,7 +845,7 @@ void swapRank3(DATA_BLOCK* data_block, int pattern)
             }
                 break;
 
-            case TYPE_UNSIGNED_SHORT: {
+            case UDA_TYPE_UNSIGNED_SHORT: {
                 unsigned short* eblock = (unsigned short*)data_block->errhi;
                 unsigned short* error = (unsigned short*)itemData(data_block->error_type, data_block->data_n);
                 if (pattern == 1) {            // Error Data Classes like DCXY
@@ -874,7 +874,7 @@ void swapRank3(DATA_BLOCK* data_block, int pattern)
             }
                 break;
 
-            case TYPE_UNSIGNED: {
+            case UDA_TYPE_UNSIGNED_INT: {
                 unsigned int* eblock = (unsigned int*)data_block->errhi;
                 unsigned int* error = (unsigned int*)itemData(data_block->error_type, data_block->data_n);
                 if (pattern == 1) {            // Error Data Classes like DCXY
@@ -903,7 +903,7 @@ void swapRank3(DATA_BLOCK* data_block, int pattern)
             }
                 break;
 
-            case TYPE_UNSIGNED_LONG: {
+            case UDA_TYPE_UNSIGNED_LONG: {
                 unsigned long* eblock = (unsigned long*)data_block->errhi;
                 unsigned long* error = (unsigned long*)itemData(data_block->error_type, data_block->data_n);
                 if (pattern == 1) {            // Error Data Classes like DCXY
@@ -932,7 +932,7 @@ void swapRank3(DATA_BLOCK* data_block, int pattern)
             }
                 break;
 
-            case TYPE_UNSIGNED_LONG64: {
+            case UDA_TYPE_UNSIGNED_LONG64: {
                 unsigned long long* eblock = (unsigned long long*)data_block->errhi;
                 unsigned long long* error = (unsigned long long*)itemData(data_block->error_type, data_block->data_n);
                 if (pattern == 1) {            // Error Data Classes like DCXY
@@ -987,7 +987,7 @@ void addxmlmetaarray(char** metaxml, int* lheap, char* tag, void* data, int ndat
     char xml[STRING_LENGTH];
     sprintf(xml, "<%s>\n", tag);
     addxmlmetastring(metaxml, lheap, xml, nxml);
-    if (type == TYPE_LONG) {
+    if (type == UDA_TYPE_LONG) {
         ldata = (long*)data;
         for (i = 0; i < n; i++) {
             if (nn++ < 5) {
@@ -1266,10 +1266,10 @@ int readIdaItem(char* itemname, ida_file_ptr* ida_file, short* context, DATA_BLO
         if (getbytes && (strstr(axesorder, "T") != NULL)) {
             sprintf(xml, "<axis id=\"t\" domaincount=\"%d\" units=\"%s\" label=\"%s\">\n", udoms, tunits, tunits);
             addxmlmetastring(&metaxml, &lheap, xml, &nxml);
-            addxmlmetaarray(&metaxml, &lheap, "sams", (void*)tsams, udoms, TYPE_LONG, &nxml);
-            addxmlmetaarray(&metaxml, &lheap, "off", (void*)toff, udoms, TYPE_FLOAT, &nxml);
-            addxmlmetaarray(&metaxml, &lheap, "int", (void*)tint, udoms, TYPE_FLOAT, &nxml);
-            addxmlmetaarray(&metaxml, &lheap, "max", (void*)tmax, udoms, TYPE_FLOAT, &nxml);
+            addxmlmetaarray(&metaxml, &lheap, "sams", (void*)tsams, udoms, UDA_TYPE_LONG, &nxml);
+            addxmlmetaarray(&metaxml, &lheap, "off", (void*)toff, udoms, UDA_TYPE_FLOAT, &nxml);
+            addxmlmetaarray(&metaxml, &lheap, "int", (void*)tint, udoms, UDA_TYPE_FLOAT, &nxml);
+            addxmlmetaarray(&metaxml, &lheap, "max", (void*)tmax, udoms, UDA_TYPE_FLOAT, &nxml);
             addxmlmetastring(&metaxml, &lheap, "</axis>\n", &nxml);
         }
 
@@ -1305,10 +1305,10 @@ int readIdaItem(char* itemname, ida_file_ptr* ida_file, short* context, DATA_BLO
         if (getbytes && (strstr(axesorder, "X") != NULL)) {
             sprintf(xml, "<axis id=\"x\" domaincount=\"%d\" units=\"%s\" label=\"%s\">\n", udoms, xunits, xunits);
             addxmlmetastring(&metaxml, &lheap, xml, &nxml);
-            addxmlmetaarray(&metaxml, &lheap, "sams", (void*)xsams, udoms, TYPE_LONG, &nxml);
-            addxmlmetaarray(&metaxml, &lheap, "off", (void*)xoff, udoms, TYPE_FLOAT, &nxml);
-            addxmlmetaarray(&metaxml, &lheap, "int", (void*)xint, udoms, TYPE_FLOAT, &nxml);
-            addxmlmetaarray(&metaxml, &lheap, "max", (void*)xmax, udoms, TYPE_FLOAT, &nxml);
+            addxmlmetaarray(&metaxml, &lheap, "sams", (void*)xsams, udoms, UDA_TYPE_LONG, &nxml);
+            addxmlmetaarray(&metaxml, &lheap, "off", (void*)xoff, udoms, UDA_TYPE_FLOAT, &nxml);
+            addxmlmetaarray(&metaxml, &lheap, "int", (void*)xint, udoms, UDA_TYPE_FLOAT, &nxml);
+            addxmlmetaarray(&metaxml, &lheap, "max", (void*)xmax, udoms, UDA_TYPE_FLOAT, &nxml);
             addxmlmetastring(&metaxml, &lheap, "</axis>\n", &nxml);
         }
 
@@ -1340,10 +1340,10 @@ int readIdaItem(char* itemname, ida_file_ptr* ida_file, short* context, DATA_BLO
             long lysams = (long)ysams;
             sprintf(xml, "<axis id=\"y\" domaincount=\"%d\" units=\"%s\" label=\"%s\">\n", 1, yunits, yunits);
             addxmlmetastring(&metaxml, &lheap, xml, &nxml);
-            addxmlmetaarray(&metaxml, &lheap, "sams", (void*)&lysams, 1, TYPE_LONG, &nxml);
-            addxmlmetaarray(&metaxml, &lheap, "off", (void*)yoff, 1, TYPE_FLOAT, &nxml);
-            addxmlmetaarray(&metaxml, &lheap, "int", (void*)yint, 1, TYPE_FLOAT, &nxml);
-            addxmlmetaarray(&metaxml, &lheap, "max", (void*)ymax, 1, TYPE_FLOAT, &nxml);
+            addxmlmetaarray(&metaxml, &lheap, "sams", (void*)&lysams, 1, UDA_TYPE_LONG, &nxml);
+            addxmlmetaarray(&metaxml, &lheap, "off", (void*)yoff, 1, UDA_TYPE_FLOAT, &nxml);
+            addxmlmetaarray(&metaxml, &lheap, "int", (void*)yint, 1, UDA_TYPE_FLOAT, &nxml);
+            addxmlmetaarray(&metaxml, &lheap, "max", (void*)ymax, 1, UDA_TYPE_FLOAT, &nxml);
             addxmlmetastring(&metaxml, &lheap, "</axis>\n", &nxml);
         }
 
@@ -1406,9 +1406,9 @@ int readIdaItem(char* itemname, ida_file_ptr* ida_file, short* context, DATA_BLO
             long lysams = (long)ysams;
             sprintf(xml, "<axis id=\"z\" domaincount=\"%d\" units=\"%s\" label=\"%s\">\n", nz, zunits, zunits);
             addxmlmetastring(&metaxml, &lheap, xml, &nxml);
-            addxmlmetaarray(&metaxml, &lheap, "sams", (void*)&lysams, 1, TYPE_LONG, &nxml);
-            addxmlmetaarray(&metaxml, &lheap, "off", (void*)zval, (int)nz, TYPE_FLOAT, &nxml);
-            addxmlmetaarray(&metaxml, &lheap, "max", (void*)&lmaxs, 1, TYPE_FLOAT, &nxml);
+            addxmlmetaarray(&metaxml, &lheap, "sams", (void*)&lysams, 1, UDA_TYPE_LONG, &nxml);
+            addxmlmetaarray(&metaxml, &lheap, "off", (void*)zval, (int)nz, UDA_TYPE_FLOAT, &nxml);
+            addxmlmetaarray(&metaxml, &lheap, "max", (void*)&lmaxs, 1, UDA_TYPE_FLOAT, &nxml);
             addxmlmetastring(&metaxml, &lheap, "</axis>\n", &nxml);
         }
 
@@ -1416,13 +1416,13 @@ int readIdaItem(char* itemname, ida_file_ptr* ida_file, short* context, DATA_BLO
 // Identify IDAM Data Types and Allocate Heap for the Data
 
         if (data_block->client_block.get_datadble) {
-            data_block->data_type = TYPE_DOUBLE;            // Request Data as DOUBLEs
+            data_block->data_type = UDA_TYPE_DOUBLE;            // Request Data as DOUBLEs
             IDAM_LOG(UDA_LOG_DEBUG, "Changing Data type to DOUBLE\n");
         } else {
             data_block->data_type = itemType(datpck, typeno, getbytes, type);
         }
 
-        if (data_block->data_type == TYPE_UNKNOWN) {
+        if (data_block->data_type == UDA_TYPE_UNKNOWN) {
             if (tsams != NULL) free(tsams);
             if (tint != NULL) free(tint);
             if (toff != NULL) free(toff);
@@ -1498,50 +1498,50 @@ int readIdaItem(char* itemname, ida_file_ptr* ida_file, short* context, DATA_BLO
 
         //if(!getbytes){
         switch (data_block->data_type) {
-            case TYPE_FLOAT:
+            case UDA_TYPE_FLOAT:
                 if (!getbytes) {
                     err = ida_get_data(item, (void*)data, totsams * sizeof(float), IDA_REAL | IDA_D4);
                 } else {
                     err = ida_get_data(item, (void*)data, totsams * sizeof(float), IDA_VALU | IDA_REAL | IDA_D4);
                 }
                 break;
-            case TYPE_DOUBLE:
+            case UDA_TYPE_DOUBLE:
                 if (!getbytes) {
                     err = ida_get_data(item, (void*)data, totsams * sizeof(double), IDA_REAL | IDA_D8);
                 } else {
                     err = ida_get_data(item, (void*)data, totsams * sizeof(double), IDA_VALU | IDA_REAL | IDA_D8);
                 }
                 break;
-            case TYPE_CHAR:
+            case UDA_TYPE_CHAR:
                 err = ida_get_data(item, (void*)data, totsams * sizeof(char), IDA_VALU | IDA_CHAR | IDA_D1 | IDA_SGND);
                 break;
-            case TYPE_SHORT:
+            case UDA_TYPE_SHORT:
                 err = ida_get_data(item, (void*)data, totsams * sizeof(short),
                                    IDA_VALU | IDA_INTG | IDA_D2 | IDA_SGND);
                 break;
-            case TYPE_INT:
+            case UDA_TYPE_INT:
                 err = ida_get_data(item, (void*)data, totsams * sizeof(int), IDA_VALU | IDA_INTG | IDA_D4 | IDA_SGND);
                 break;
-            case TYPE_LONG:
+            case UDA_TYPE_LONG:
                 err = ida_get_data(item, (void*)data, totsams * sizeof(long), IDA_VALU | IDA_INTG | IDA_D4 | IDA_SGND);
                 break;
-            case TYPE_LONG64:
+            case UDA_TYPE_LONG64:
                 err = ida_get_data(item, (void*)data, totsams * sizeof(long long),
                                    IDA_VALU | IDA_INTG | IDA_D8 | IDA_SGND);
                 break;
-            case TYPE_UNSIGNED_CHAR:
+            case UDA_TYPE_UNSIGNED_CHAR:
                 err = ida_get_data(item, (void*)data, totsams * sizeof(unsigned char), IDA_VALU | IDA_CHAR | IDA_D1);
                 break;
-            case TYPE_UNSIGNED_SHORT:
+            case UDA_TYPE_UNSIGNED_SHORT:
                 err = ida_get_data(item, (void*)data, totsams * sizeof(unsigned short), IDA_VALU | IDA_INTG | IDA_D2);
                 break;
-            case TYPE_UNSIGNED:
+            case UDA_TYPE_UNSIGNED_INT:
                 err = ida_get_data(item, (void*)data, totsams * sizeof(unsigned int), IDA_VALU | IDA_INTG | IDA_D4);
                 break;
-            case TYPE_UNSIGNED_LONG:
+            case UDA_TYPE_UNSIGNED_LONG:
                 err = ida_get_data(item, (void*)data, totsams * sizeof(unsigned long), IDA_VALU | IDA_INTG | IDA_D4);
                 break;
-            case TYPE_UNSIGNED_LONG64:
+            case UDA_TYPE_UNSIGNED_LONG64:
                 err = ida_get_data(item, (void*)data, totsams * sizeof(unsigned long long),
                                    IDA_VALU | IDA_INTG | IDA_D8);
                 break;
@@ -1599,25 +1599,25 @@ int readIdaItem(char* itemname, ida_file_ptr* ida_file, short* context, DATA_BLO
 //------------------------------------------------------------------------
 // Errors Available with IDA Data
 
-        data_block->error_type = TYPE_UNKNOWN;        // Default
+        data_block->error_type = UDA_TYPE_UNKNOWN;        // Default
 
         if ((datpck & IDA_ERRB) == IDA_ERRB) {        // Do Error Data Exist?
 
 // Identify Data Types
 
             if (data_block->client_block.get_datadble) {
-                data_block->error_type = TYPE_DOUBLE;
+                data_block->error_type = UDA_TYPE_DOUBLE;
             } else {
                 data_block->error_type = errorType(datpck, typeno, getbytes, type);
             }
 
             //if(!getbytes){
-            error = itemData(data_block->error_type, totsams);        // Allocate Heap (NULL if TYPE_UNKNOWN)
+            error = itemData(data_block->error_type, totsams);        // Allocate Heap (NULL if UDA_TYPE_UNKNOWN)
             //} else {
             //   error = (char *)malloc(spaceused);
             //}
 
-            if (error == NULL && data_block->error_type != TYPE_UNKNOWN) {
+            if (error == NULL && data_block->error_type != UDA_TYPE_UNKNOWN) {
                 IDAM_LOGF(UDA_LOG_DEBUG, "Error Allocating Heap for Error Data, # = %d\n", (int)totsams);
                 IDAM_LOGF(UDA_LOG_DEBUG, "Type = %d\n", data_block->error_type);
                 addIdamError(CODEERRORTYPE, "readIdaItem", 998,
@@ -1638,7 +1638,7 @@ int readIdaItem(char* itemname, ida_file_ptr* ida_file, short* context, DATA_BLO
 // Get the Errors
 
             switch (data_block->error_type) {
-                case TYPE_FLOAT:
+                case UDA_TYPE_FLOAT:
                     if (!getbytes) {
                         err = ida_get_errors(item, (void*)error, totsams * sizeof(float),
                                              IDA_REAL | IDA_D4 | IDA_ERRB | IDA_E4);
@@ -1647,7 +1647,7 @@ int readIdaItem(char* itemname, ida_file_ptr* ida_file, short* context, DATA_BLO
                                              IDA_VALU | IDA_REAL | IDA_D4 | IDA_ERRB | IDA_E4);
                     }
                     break;
-                case TYPE_DOUBLE:
+                case UDA_TYPE_DOUBLE:
                     if (!getbytes) {
                         err = ida_get_errors(item, (void*)error, totsams * sizeof(double),
                                              IDA_REAL | IDA_D8 | IDA_ERRB | IDA_E8);
@@ -1656,43 +1656,43 @@ int readIdaItem(char* itemname, ida_file_ptr* ida_file, short* context, DATA_BLO
                                              IDA_VALU | IDA_REAL | IDA_D8 | IDA_ERRB | IDA_E8);
                     }
                     break;
-                case TYPE_CHAR:
+                case UDA_TYPE_CHAR:
                     err = ida_get_errors(item, (void*)error, totsams * sizeof(char),
                                          IDA_VALU | IDA_CHAR | IDA_D1 | IDA_ERRB | IDA_E1);
                     break;
-                case TYPE_SHORT:
+                case UDA_TYPE_SHORT:
                     err = ida_get_errors(item, (void*)error, totsams * sizeof(short),
                                          IDA_VALU | IDA_INTG | IDA_D2 | IDA_ERRB | IDA_E2);
                     break;
-                case TYPE_INT:
+                case UDA_TYPE_INT:
                     err = ida_get_errors(item, (void*)error, totsams * sizeof(int),
                                          IDA_VALU | IDA_INTG | IDA_D4 | IDA_ERRB | IDA_E4);
                     break;
-                case TYPE_LONG:
+                case UDA_TYPE_LONG:
                     err = ida_get_errors(item, (void*)error, totsams * sizeof(long),
                                          IDA_VALU | IDA_INTG | IDA_D4 | IDA_ERRB | IDA_E4);
                     break;
-                case TYPE_LONG64:
+                case UDA_TYPE_LONG64:
                     err = ida_get_errors(item, (void*)error, totsams * sizeof(long long),
                                          IDA_VALU | IDA_INTG | IDA_D8 | IDA_ERRB | IDA_E8);
                     break;
-                case TYPE_UNSIGNED_CHAR:
+                case UDA_TYPE_UNSIGNED_CHAR:
                     err = ida_get_errors(item, (void*)error, totsams * sizeof(unsigned char),
                                          IDA_VALU | IDA_CHAR | IDA_D1 | IDA_ERRB | IDA_E1);
                     break;
-                case TYPE_UNSIGNED_SHORT:
+                case UDA_TYPE_UNSIGNED_SHORT:
                     err = ida_get_errors(item, (void*)error, totsams * sizeof(unsigned short),
                                          IDA_VALU | IDA_INTG | IDA_D2 | IDA_ERRB | IDA_E2);
                     break;
-                case TYPE_UNSIGNED:
+                case UDA_TYPE_UNSIGNED_INT:
                     err = ida_get_errors(item, (void*)error, totsams * sizeof(unsigned int),
                                          IDA_VALU | IDA_INTG | IDA_D4 | IDA_ERRB | IDA_E4);
                     break;
-                case TYPE_UNSIGNED_LONG:
+                case UDA_TYPE_UNSIGNED_LONG:
                     err = ida_get_errors(item, (void*)error, totsams * sizeof(unsigned long),
                                          IDA_VALU | IDA_INTG | IDA_D4 | IDA_ERRB | IDA_E4);
                     break;
-                case TYPE_UNSIGNED_LONG64:
+                case UDA_TYPE_UNSIGNED_LONG64:
                     err = ida_get_errors(item, (void*)error, totsams * sizeof(unsigned long long),
                                          IDA_VALU | IDA_INTG | IDA_D8 | IDA_ERRB | IDA_E8);
                     break;
@@ -2737,7 +2737,7 @@ int readIdaItem(char* itemname, ida_file_ptr* ida_file, short* context, DATA_BLO
         for (i = 0; i < data_block->rank; i++) {
             if (data_block->client_block.get_dimdble ||
                 (data_block->client_block.get_timedble && i == data_block->order)) {
-                data_block->dims[i].data_type = TYPE_DOUBLE;
+                data_block->dims[i].data_type = UDA_TYPE_DOUBLE;
                 if ((foffs = (float*)data_block->dims[i].offs) != NULL) {
                     doffs = (double*)realloc((void*)doffs, data_block->dims[i].udoms * sizeof(double));
                     for (j = 0; j < data_block->dims[i].udoms; j++) doffs[j] = (double)foffs[j];
@@ -2771,7 +2771,7 @@ int readIdaItem(char* itemname, ida_file_ptr* ida_file, short* context, DATA_BLO
             if (metaxml != NULL) free((void*)metaxml);
             metaxml = NULL;
         } else {
-            data_block->opaque_type = OPAQUE_TYPE_XML_DOCUMENT;
+            data_block->opaque_type = UDA_OPAQUE_TYPE_XML_DOCUMENT;
             data_block->opaque_block = metaxml;
             data_block->opaque_count = nxml;
 

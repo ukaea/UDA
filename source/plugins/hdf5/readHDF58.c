@@ -294,7 +294,7 @@ int getHDF5(DATA_SOURCE* data_source, SIGNAL_DESC* signal_desc, DATA_BLOCK* data
             data_block->dims[i].dim_n = (int)shape[data_block->rank - i - 1];
             data_block->dims[i].dim0 = 0;
             data_block->dims[i].diff = 1;
-            data_block->dims[i].data_type = TYPE_INT;        // No Standard to enable identification of the dims
+            data_block->dims[i].data_type = UDA_TYPE_INT;        // No Standard to enable identification of the dims
             data_block->dims[i].dim = NULL;
             strcpy(data_block->dims[i].dim_label, "array index");
             data_block->dims[i].dim_units[0] = '\0';
@@ -309,41 +309,41 @@ int getHDF5(DATA_SOURCE* data_source, SIGNAL_DESC* signal_desc, DATA_BLOCK* data
             case H5T_INTEGER:
                 switch (precision) {
                     case 8:
-                        data_block->data_type = issigned ? TYPE_CHAR : TYPE_UNSIGNED_CHAR;
+                        data_block->data_type = issigned ? UDA_TYPE_CHAR : UDA_TYPE_UNSIGNED_CHAR;
                         break;
                     case 16:
-                        data_block->data_type = issigned ? TYPE_SHORT : TYPE_UNSIGNED_SHORT;
+                        data_block->data_type = issigned ? UDA_TYPE_SHORT : UDA_TYPE_UNSIGNED_SHORT;
                         break;
                     case 32:
-                        data_block->data_type = issigned ? TYPE_INT : TYPE_UNSIGNED;
+                        data_block->data_type = issigned ? UDA_TYPE_INT : UDA_TYPE_UNSIGNED_INT;
                         break;
                     case 64:
-                        data_block->data_type = issigned ? TYPE_LONG64 : TYPE_UNSIGNED_LONG64;
+                        data_block->data_type = issigned ? UDA_TYPE_LONG64 : UDA_TYPE_UNSIGNED_LONG64;
                         break;
                     default:
-                        data_block->data_type = TYPE_UNKNOWN;
+                        data_block->data_type = UDA_TYPE_UNKNOWN;
                         break;
                 }
                 break;
             case H5T_FLOAT:
                 switch (precision) {
                     case 32:
-                        data_block->data_type = TYPE_FLOAT;
+                        data_block->data_type = UDA_TYPE_FLOAT;
                         break;
                     case 64:
-                        data_block->data_type = TYPE_DOUBLE;
+                        data_block->data_type = UDA_TYPE_DOUBLE;
                         break;
                     default:
-                        data_block->data_type = TYPE_UNKNOWN;
+                        data_block->data_type = UDA_TYPE_UNKNOWN;
                         break;
                 }
                 break;
             default:
-                data_block->data_type = TYPE_UNKNOWN;
+                data_block->data_type = UDA_TYPE_UNKNOWN;
                 break;
         }
 
-        if (data_block->data_type == TYPE_UNKNOWN) {
+        if (data_block->data_type == UDA_TYPE_UNKNOWN) {
             err = HDF5_ERROR_UNKNOWN_TYPE;
             addIdamError(CODEERRORTYPE, "readHDF5", err, "Unknown Data Type for this data item");
             break;
@@ -397,34 +397,34 @@ int getHDF5(DATA_SOURCE* data_source, SIGNAL_DESC* signal_desc, DATA_BLOCK* data
             size = 1;
             for (i = 0; i < data_block->rank; i++)size = size * (int)shape[i];
             switch (data_block->data_type) {
-                case TYPE_FLOAT:
+                case UDA_TYPE_FLOAT:
                     size = size * sizeof(float);
                     break;
-                case TYPE_DOUBLE:
+                case UDA_TYPE_DOUBLE:
                     size = size * sizeof(double);
                     break;
-                case TYPE_UNSIGNED_CHAR:
+                case UDA_TYPE_UNSIGNED_CHAR:
                     size = size * sizeof(unsigned char);
                     break;
-                case TYPE_CHAR:
+                case UDA_TYPE_CHAR:
                     size = size * sizeof(char);
                     break;
-                case TYPE_UNSIGNED_SHORT:
+                case UDA_TYPE_UNSIGNED_SHORT:
                     size = size * sizeof(unsigned short);
                     break;
-                case TYPE_SHORT:
+                case UDA_TYPE_SHORT:
                     size = size * sizeof(short);
                     break;
-                case TYPE_UNSIGNED:
+                case UDA_TYPE_UNSIGNED_INT:
                     size = size * sizeof(unsigned int);
                     break;
-                case TYPE_INT:
+                case UDA_TYPE_INT:
                     size = size * sizeof(int);
                     break;
-                case TYPE_UNSIGNED_LONG64:
+                case UDA_TYPE_UNSIGNED_LONG64:
                     size = size * sizeof(unsigned long long);
                     break;
-                case TYPE_LONG64:
+                case UDA_TYPE_LONG64:
                     size = size * sizeof(long long);
                     break;
             }
@@ -434,70 +434,70 @@ int getHDF5(DATA_SOURCE* data_source, SIGNAL_DESC* signal_desc, DATA_BLOCK* data
 // Allocate Heap for the Data and Read the Data
 
         switch (data_block->data_type) {
-            case TYPE_FLOAT:
+            case UDA_TYPE_FLOAT:
                 ndata = size / sizeof(float);
                 data = (char*)malloc(size);
                 if (data != NULL) {
                     status = H5Dread(dataset_id, H5T_NATIVE_FLOAT, H5S_ALL, H5S_ALL, H5P_DEFAULT, (void*)data);
                 }
                 break;
-            case TYPE_DOUBLE:
+            case UDA_TYPE_DOUBLE:
                 ndata = size / sizeof(double);
                 data = (char*)malloc(size);
                 if (data != NULL) {
                     status = H5Dread(dataset_id, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, (void*)data);
                 }
                 break;
-            case TYPE_UNSIGNED_CHAR:
+            case UDA_TYPE_UNSIGNED_CHAR:
                 ndata = size / sizeof(unsigned char);
                 data = (char*)malloc(size);
                 if (data != NULL) {
                     status = H5Dread(dataset_id, H5T_NATIVE_UCHAR, H5S_ALL, H5S_ALL, H5P_DEFAULT, (void*)data);
                 }
                 break;
-            case TYPE_CHAR:
+            case UDA_TYPE_CHAR:
                 ndata = size / sizeof(char);
                 data = (char*)malloc(size);
                 if (data != NULL) {
                     status = H5Dread(dataset_id, H5T_NATIVE_CHAR, H5S_ALL, H5S_ALL, H5P_DEFAULT, (void*)data);
                 }
                 break;
-            case TYPE_UNSIGNED_SHORT:
+            case UDA_TYPE_UNSIGNED_SHORT:
                 ndata = size / sizeof(unsigned short);
                 data = (char*)malloc(size);
                 if (data != NULL) {
                     status = H5Dread(dataset_id, H5T_NATIVE_USHORT, H5S_ALL, H5S_ALL, H5P_DEFAULT, (void*)data);
                 }
                 break;
-            case TYPE_SHORT:
+            case UDA_TYPE_SHORT:
                 ndata = size / sizeof(short);
                 data = (char*)malloc(size);
                 if (data != NULL) {
                     status = H5Dread(dataset_id, H5T_NATIVE_SHORT, H5S_ALL, H5S_ALL, H5P_DEFAULT, (void*)data);
                 }
                 break;
-            case TYPE_UNSIGNED:
+            case UDA_TYPE_UNSIGNED_INT:
                 ndata = size / sizeof(unsigned int);
                 data = (char*)malloc(size);
                 if (data != NULL) {
                     status = H5Dread(dataset_id, H5T_NATIVE_UINT, H5S_ALL, H5S_ALL, H5P_DEFAULT, (void*)data);
                 }
                 break;
-            case TYPE_INT:
+            case UDA_TYPE_INT:
                 ndata = size / sizeof(int);
                 data = (char*)malloc(size);
                 if (data != NULL) {
                     status = H5Dread(dataset_id, H5T_NATIVE_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT, (void*)data);
                 }
                 break;
-            case TYPE_UNSIGNED_LONG64:
+            case UDA_TYPE_UNSIGNED_LONG64:
                 ndata = size / sizeof(unsigned long long int);
                 data = (char*)malloc(size);
                 if (data != NULL) {
                     status = H5Dread(dataset_id, H5T_NATIVE_ULLONG, H5S_ALL, H5S_ALL, H5P_DEFAULT, (void*)data);
                 }
                 break;
-            case TYPE_LONG64:
+            case UDA_TYPE_LONG64:
                 ndata = size / sizeof(long long int);
                 data = (char*)malloc(size);
                 if (data != NULL) {

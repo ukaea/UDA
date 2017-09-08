@@ -343,18 +343,18 @@ int readPPF(DATA_SOURCE data_source,
 // Observational Data
 
     if (ihdat[24] == 'F') {
-        data_block->data_type = TYPE_FLOAT;
+        data_block->data_type = UDA_TYPE_FLOAT;
     } else {
         if (ihdat[24] == 'I') {
-            data_block->data_type = TYPE_INT;
+            data_block->data_type = UDA_TYPE_INT;
         } else {
-            data_block->data_type = TYPE_UNKNOWN;
+            data_block->data_type = UDA_TYPE_UNKNOWN;
         }
     }
 
     //fprintf(stdout,"Data is of Type: %c\n",ihdat[24]);
 
-    data_block->error_type = TYPE_UNKNOWN;
+    data_block->error_type = UDA_TYPE_UNKNOWN;
 
     data_block->data = (char*) dvec;
     data_block->data_n = iwdat[4];
@@ -405,12 +405,12 @@ int readPPF(DATA_SOURCE data_source,
         strcpy(data_block->dims[order].dim_label, "Time");
 
         if (ihdat[32] == 'F') {
-            data_block->dims[order].data_type = TYPE_FLOAT;
+            data_block->dims[order].data_type = UDA_TYPE_FLOAT;
         } else {
             if (ihdat[32] == 'I') {
-                data_block->dims[order].data_type = TYPE_INT;
+                data_block->dims[order].data_type = UDA_TYPE_INT;
             } else {
-                data_block->dims[order].data_type = TYPE_UNKNOWN;
+                data_block->dims[order].data_type = UDA_TYPE_UNKNOWN;
             }
         }
     }
@@ -424,12 +424,12 @@ int readPPF(DATA_SOURCE data_source,
         data_block->dims[swap[order + 1]].dim_units[8] = '\0';
         strcpy(data_block->dims[swap[order + 1]].dim_label, "X");
         if (ihdat[28] == 'F') {
-            data_block->dims[swap[order + 1]].data_type = TYPE_FLOAT;
+            data_block->dims[swap[order + 1]].data_type = UDA_TYPE_FLOAT;
         } else {
             if (ihdat[28] == 'I') {
-                data_block->dims[swap[order + 1]].data_type = TYPE_INT;
+                data_block->dims[swap[order + 1]].data_type = UDA_TYPE_INT;
             } else {
-                data_block->dims[swap[order + 1]].data_type = TYPE_UNKNOWN;
+                data_block->dims[swap[order + 1]].data_type = UDA_TYPE_UNKNOWN;
             }
         }
     }

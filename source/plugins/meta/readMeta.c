@@ -548,7 +548,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             usertype.imagecount = 0;                // No Structure Image data
             usertype.image = NULL;
             usertype.size = sizeof(METAHELP);        // Structure size
-            usertype.idamclass = TYPE_COMPOUND;
+            usertype.idamclass = UDA_TYPE_COMPOUND;
 
             offset = 0;
 
@@ -569,7 +569,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             // Pass Data
 
-            data_block->data_type = TYPE_COMPOUND;
+            data_block->data_type = UDA_TYPE_COMPOUND;
             data_block->rank = 0;
             data_block->data_n = 1;
             data_block->data = (char*)data;
@@ -578,7 +578,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             strcpy(data_block->data_label, "");
             strcpy(data_block->data_units, "");
 
-            data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
+            data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
             data_block->opaque_count = 1;
             data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "METAHELP", 0);
 
@@ -661,7 +661,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             usertype.ref_id = 0;
             usertype.imagecount = 0;                // No Structure Image data
             usertype.image = NULL;
-            usertype.idamclass = TYPE_COMPOUND;
+            usertype.idamclass = UDA_TYPE_COMPOUND;
 
             offset = 0;
 
@@ -721,7 +721,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             // Pass Data
 
-            data_block->data_type = TYPE_COMPOUND;
+            data_block->data_type = UDA_TYPE_COMPOUND;
             data_block->rank = 0;
             data_block->data_n = 1;
             data_block->data = (char*)structData;
@@ -730,7 +730,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             strcpy(data_block->data_label, "");
             strcpy(data_block->data_units, "");
 
-            data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
+            data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
             data_block->opaque_count = 1;
             if (castTypeId == CASTROW) {
                 data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "METADEVICE_R", 0);
@@ -808,7 +808,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             usertype.ref_id = 0;
             usertype.imagecount = 0;                // No Structure Image data
             usertype.image = NULL;
-            usertype.idamclass = TYPE_COMPOUND;
+            usertype.idamclass = UDA_TYPE_COMPOUND;
 
             offset = 0;
 
@@ -932,7 +932,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Pass Data
 
-            data_block->data_type = TYPE_COMPOUND;
+            data_block->data_type = UDA_TYPE_COMPOUND;
             data_block->rank = 0;
             data_block->data_n = 1;
             data_block->data = (char*)structData;
@@ -941,7 +941,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             strcpy(data_block->data_label, "");
             strcpy(data_block->data_units, "");
 
-            data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
+            data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
             data_block->opaque_count = 1;
             if (castTypeId == CASTROW) {
                 data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "METALIST_R", 0);
@@ -1108,7 +1108,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             usertype.ref_id = 0;
             usertype.imagecount = 0;                // No Structure Image data
             usertype.image = NULL;
-            usertype.idamclass = TYPE_COMPOUND;
+            usertype.idamclass = UDA_TYPE_COMPOUND;
 
             offset = 0;
 
@@ -1550,7 +1550,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Pass Data
 
-            data_block->data_type = TYPE_COMPOUND;
+            data_block->data_type = UDA_TYPE_COMPOUND;
             data_block->rank = 0;
             data_block->data_n = 1;
             data_block->data = (char*)structData;
@@ -1559,7 +1559,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             strcpy(data_block->data_label, "");
             strcpy(data_block->data_units, "");
 
-            data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
+            data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
             data_block->opaque_count = 1;
             if (castTypeId == CASTROW) {
                 if (isStructure) {
@@ -1778,7 +1778,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             usertype.imagecount = 0;                // No Structure Image data
             usertype.image = NULL;
             usertype.size = sizeof(DATALASTSHOT);        // Structure size
-            usertype.idamclass = TYPE_COMPOUND;
+            usertype.idamclass = UDA_TYPE_COMPOUND;
 
             offset = 0;
             defineField(&field, "lastshot", "last shot number", &offset, SCALARUINT);
@@ -1799,7 +1799,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Pass Data
 
-            data_block->data_type = TYPE_COMPOUND;
+            data_block->data_type = UDA_TYPE_COMPOUND;
             data_block->rank = 0;
             data_block->data_n = 1;
             data_block->data = (char*)data;
@@ -1808,7 +1808,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             strcpy(data_block->data_label, "");
             strcpy(data_block->data_units, "");
 
-            data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
+            data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
             data_block->opaque_count = 1;
             data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "DATALASTSHOT", 0);
 
@@ -1866,7 +1866,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             usertype.imagecount = 0;                // No Structure Image data
             usertype.image = NULL;
             usertype.size = sizeof(DATALASTPASS);        // Structure size
-            usertype.idamclass = TYPE_COMPOUND;
+            usertype.idamclass = UDA_TYPE_COMPOUND;
 
             offset = 0;
             defineField(&field, "lastpass", "last pass number", &offset, SCALARUINT);
@@ -1885,7 +1885,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             // Pass Data
 
-            data_block->data_type = TYPE_COMPOUND;
+            data_block->data_type = UDA_TYPE_COMPOUND;
             data_block->rank = 0;
             data_block->data_n = 1;
             data_block->data = (char*)data;
@@ -1894,7 +1894,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             strcpy(data_block->data_label, "");
             strcpy(data_block->data_units, "");
 
-            data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
+            data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
             data_block->opaque_count = 1;
             data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "DATALASTPASS", 0);
 
@@ -1960,7 +1960,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             usertype.imagecount = 0;                // No Structure Image data
             usertype.image = NULL;
             usertype.size = sizeof(DATASHOTDATETIME);    // Structure size
-            usertype.idamclass = TYPE_COMPOUND;
+            usertype.idamclass = UDA_TYPE_COMPOUND;
 
             offset = 0;
 
@@ -2000,7 +2000,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Pass Data
 
-            data_block->data_type = TYPE_COMPOUND;
+            data_block->data_type = UDA_TYPE_COMPOUND;
             data_block->rank = 0;
             data_block->data_n = 1;
             data_block->data = (char*)data;
@@ -2009,7 +2009,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             strcpy(data_block->data_label, "");
             strcpy(data_block->data_units, "");
 
-            data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
+            data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
             data_block->opaque_count = 1;
             data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "DATASHOTDATETIME", 0);
 
@@ -2134,7 +2134,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             usertype.ref_id = 0;
             usertype.imagecount = 0;                // No Structure Image data
             usertype.image = NULL;
-            usertype.idamclass = TYPE_COMPOUND;
+            usertype.idamclass = UDA_TYPE_COMPOUND;
 
             offset = 0;
 
@@ -2150,22 +2150,22 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             defineField(&field, "signal_name", "signal name", &offset,
                         stringTypeId);    // Array or Single string, arbitrary length
 // **** NameSpace collision: remove from libidamr.so
-            field.atomictype = TYPE_STRING;
+            field.atomictype = UDA_TYPE_STRING;
             addCompoundField(&usertype, field);
             defineField(&field, "generic_name", "generic name", &offset, stringTypeId);
-            field.atomictype = TYPE_STRING;
+            field.atomictype = UDA_TYPE_STRING;
             addCompoundField(&usertype, field);
             defineField(&field, "source_alias", "source alias name", &offset, stringTypeId);
-            field.atomictype = TYPE_STRING;
+            field.atomictype = UDA_TYPE_STRING;
             addCompoundField(&usertype, field);
             defineField(&field, "type", "data type classification", &offset, stringTypeId);
-            field.atomictype = TYPE_STRING;
+            field.atomictype = UDA_TYPE_STRING;
             addCompoundField(&usertype, field);
             defineField(&field, "description", "data description", &offset, stringTypeId);
-            field.atomictype = TYPE_STRING;
+            field.atomictype = UDA_TYPE_STRING;
             addCompoundField(&usertype, field);
             defineField(&field, "signal_status", "signal status", &offset, intTypeId);
-            field.atomictype = TYPE_INT;
+            field.atomictype = UDA_TYPE_INT;
             addCompoundField(&usertype, field);
 
             addUserDefinedType(userdefinedtypelist, usertype);
@@ -2178,7 +2178,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 usertype.ref_id = 0;
                 usertype.imagecount = 0;                // No Structure Image data
                 usertype.image = NULL;
-                usertype.idamclass = TYPE_COMPOUND;
+                usertype.idamclass = UDA_TYPE_COMPOUND;
                 offset = 0;
                 defineField(&field, "count", "Array element count", &offset, SCALARUINT);
                 addCompoundField(&usertype, field);
@@ -2189,7 +2189,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
                 initCompoundField(&field);
                 strcpy(field.name, "datalistsignals");
-                field.atomictype = TYPE_UNKNOWN;
+                field.atomictype = UDA_TYPE_UNKNOWN;
                 strcpy(field.type, "DATALISTSIGNALS_R");
                 strcpy(field.desc, "[DATALISTSIGNALS_R *datalistsignals] Metadata records");
                 field.pointer = 1;
@@ -2360,7 +2360,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Pass Data
 
-            data_block->data_type = TYPE_COMPOUND;
+            data_block->data_type = UDA_TYPE_COMPOUND;
             data_block->rank = 0;
             data_block->data_n = 1;
             data_block->data = (char*)structData;
@@ -2369,7 +2369,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             strcpy(data_block->data_label, "");
             strcpy(data_block->data_units, "");
 
-            data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
+            data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
             data_block->opaque_count = 1;
             if (castTypeId == CASTROW) {
                 data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "DATALISTSIGNALS_RR", 0);
@@ -2464,7 +2464,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             usertype.ref_id = 0;
             usertype.imagecount = 0;                // No Structure Image data
             usertype.image = NULL;
-            usertype.idamclass = TYPE_COMPOUND;
+            usertype.idamclass = UDA_TYPE_COMPOUND;
 
             offset = 0;
 
@@ -2499,7 +2499,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 usertype.ref_id = 0;
                 usertype.imagecount = 0;                // No Structure Image data
                 usertype.image = NULL;
-                usertype.idamclass = TYPE_COMPOUND;
+                usertype.idamclass = UDA_TYPE_COMPOUND;
 
                 offset = 0;
                 defineField(&field, "count", "Array element count", &offset, SCALARUINT);
@@ -2509,7 +2509,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
                 initCompoundField(&field);
                 strcpy(field.name, "datalistsources");
-                field.atomictype = TYPE_UNKNOWN;
+                field.atomictype = UDA_TYPE_UNKNOWN;
                 strcpy(field.type, "DATALISTSOURCES_R");
                 strcpy(field.desc, "[DATALISTSOURCES_R *datalistsources] Metadata records");
                 field.pointer = 1;
@@ -2662,7 +2662,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Pass Data
 
-            data_block->data_type = TYPE_COMPOUND;
+            data_block->data_type = UDA_TYPE_COMPOUND;
             data_block->rank = 0;
             data_block->data_n = 1;
             data_block->data = (char*)structData;
@@ -2671,7 +2671,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             strcpy(data_block->data_label, "");
             strcpy(data_block->data_units, "");
 
-            data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
+            data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
             data_block->opaque_count = 1;
             if (castTypeId == CASTROW) {
                 data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "DATALISTSOURCES_RR", 0);
@@ -2740,7 +2740,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             usertype.ref_id = 0;
             usertype.imagecount = 0;                // No Structure Image data
             usertype.image = NULL;
-            usertype.idamclass = TYPE_COMPOUND;
+            usertype.idamclass = UDA_TYPE_COMPOUND;
 
             offset = 0;
 
@@ -2763,14 +2763,14 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 usertype.ref_id = 0;
                 usertype.imagecount = 0;                // No Structure Image data
                 usertype.image = NULL;
-                usertype.idamclass = TYPE_COMPOUND;
+                usertype.idamclass = UDA_TYPE_COMPOUND;
                 offset = 0;
                 defineField(&field, "count", "Array element count", &offset, SCALARUINT);
                 addCompoundField(&usertype, field);
 
                 initCompoundField(&field);
                 strcpy(field.name, "list");
-                field.atomictype = TYPE_UNKNOWN;
+                field.atomictype = UDA_TYPE_UNKNOWN;
                 strcpy(field.type, "CPFLIST_R");
                 strcpy(field.desc, "[CPFLIST_R *list] CPF Class list");
                 field.pointer = 1;
@@ -2841,7 +2841,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Pass Data
 
-            data_block->data_type = TYPE_COMPOUND;
+            data_block->data_type = UDA_TYPE_COMPOUND;
             data_block->rank = 0;
             data_block->data_n = 1;
             data_block->data = (char*)structData;
@@ -2850,7 +2850,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             strcpy(data_block->data_label, "");
             strcpy(data_block->data_units, "");
 
-            data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
+            data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
             data_block->opaque_count = 1;
             if (castTypeId == CASTROW) {
                 data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "CPFLIST_RR", 0);
@@ -2967,7 +2967,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             usertype.ref_id = 0;
             usertype.imagecount = 0;                // No Structure Image data
             usertype.image = NULL;
-            usertype.idamclass = TYPE_COMPOUND;
+            usertype.idamclass = UDA_TYPE_COMPOUND;
 
             offset = 0;
 
@@ -3001,7 +3001,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 usertype.ref_id = 0;
                 usertype.imagecount = 0;                // No Structure Image data
                 usertype.image = NULL;
-                usertype.idamclass = TYPE_COMPOUND;
+                usertype.idamclass = UDA_TYPE_COMPOUND;
 
                 offset = 0;
                 defineField(&field, "count", "Array element count", &offset, SCALARUINT);
@@ -3009,7 +3009,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
                 initCompoundField(&field);
                 strcpy(field.name, "list");
-                field.atomictype = TYPE_UNKNOWN;
+                field.atomictype = UDA_TYPE_UNKNOWN;
                 strcpy(field.type, "CPFLISTNAMES_R");
                 strcpy(field.desc, "[CPFLISTNAMES_R *list] Metadata records");
                 field.pointer = 1;
@@ -3164,7 +3164,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Pass Data
 
-            data_block->data_type = TYPE_COMPOUND;
+            data_block->data_type = UDA_TYPE_COMPOUND;
             data_block->rank = 0;
             data_block->data_n = 1;
             data_block->data = (char*)structData;
@@ -3173,7 +3173,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             strcpy(data_block->data_label, "");
             strcpy(data_block->data_units, "");
 
-            data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
+            data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
             data_block->opaque_count = 1;
             if (castTypeId == CASTROW) {
                 data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "CPFLISTNAMES_RR", 0);
@@ -3306,7 +3306,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             usertype.ref_id = 0;
             usertype.imagecount = 0;                // No Structure Image data
             usertype.image = NULL;
-            usertype.idamclass = TYPE_COMPOUND;
+            usertype.idamclass = UDA_TYPE_COMPOUND;
 
             offset = 0;
 
@@ -3330,7 +3330,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 usertype.ref_id = 0;
                 usertype.imagecount = 0;                // No Structure Image data
                 usertype.image = NULL;
-                usertype.idamclass = TYPE_COMPOUND;
+                usertype.idamclass = UDA_TYPE_COMPOUND;
 
                 offset = 0;
                 defineField(&field, "count", "Array element count", &offset, SCALARUINT);
@@ -3338,7 +3338,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
                 initCompoundField(&field);
                 strcpy(field.name, "list");
-                field.atomictype = TYPE_UNKNOWN;
+                field.atomictype = UDA_TYPE_UNKNOWN;
                 strcpy(field.type, "CPFDATA_R");
                 strcpy(field.desc, "[CPFDATA_R *list] Metadata records");
                 field.pointer = 1;
@@ -3422,7 +3422,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Pass Data
 
-            data_block->data_type = TYPE_COMPOUND;
+            data_block->data_type = UDA_TYPE_COMPOUND;
             data_block->rank = 0;
             data_block->data_n = 1;
             data_block->data = (char*)structData;
@@ -3431,7 +3431,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             strcpy(data_block->data_label, "");
             strcpy(data_block->data_units, "");
 
-            data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
+            data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
             data_block->opaque_count = 1;
             if (castTypeId == CASTROW) {
                 data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "CPFDATA_RR", 0);

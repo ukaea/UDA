@@ -65,35 +65,35 @@ int readMDSType(int type)
 {
     switch (type) {
         case DTYPE_NATIVE_FLOAT:
-            return TYPE_FLOAT;            // float
+            return UDA_TYPE_FLOAT;            // float
         case DTYPE_NATIVE_DOUBLE:
-            return TYPE_DOUBLE;            // double
+            return UDA_TYPE_DOUBLE;            // double
         case DTYPE_FLOAT:
-            return TYPE_FLOAT;            // float
+            return UDA_TYPE_FLOAT;            // float
         case DTYPE_DOUBLE:
-            return TYPE_DOUBLE;            // double
+            return UDA_TYPE_DOUBLE;            // double
         case DTYPE_G:
-            return TYPE_DOUBLE;            // 8 byte float
+            return UDA_TYPE_DOUBLE;            // 8 byte float
         case DTYPE_UCHAR:
-            return TYPE_UNSIGNED_CHAR;        // unsigned char
+            return UDA_TYPE_UNSIGNED_CHAR;        // unsigned char
         case DTYPE_CHAR:
-            return TYPE_CHAR;            // char
+            return UDA_TYPE_CHAR;            // char
         case DTYPE_USHORT:
-            return TYPE_UNSIGNED_SHORT;        // unsigned short
+            return UDA_TYPE_UNSIGNED_SHORT;        // unsigned short
         case DTYPE_SHORT:
-            return TYPE_SHORT;            // signed short
+            return UDA_TYPE_SHORT;            // signed short
         case DTYPE_ULONG:
-            return TYPE_UNSIGNED;            // unsigned integer
+            return UDA_TYPE_UNSIGNED_INT;            // unsigned integer
         case DTYPE_LONG:
-            return TYPE_INT;            // signed integer
+            return UDA_TYPE_INT;            // signed integer
         case DTYPE_ULONGLONG:
-            return TYPE_UNSIGNED_LONG64;        // unsigned long long integer
+            return UDA_TYPE_UNSIGNED_LONG64;        // unsigned long long integer
         case DTYPE_LONGLONG:
-            return TYPE_LONG64;            // signed long long byte word
+            return UDA_TYPE_LONG64;            // signed long long byte word
         default:
-            return TYPE_UNKNOWN;
+            return UDA_TYPE_UNKNOWN;
     }
-    return TYPE_UNKNOWN;
+    return UDA_TYPE_UNKNOWN;
 }
 
 int readMDS(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK* data_block, SOCKETLIST* socket_list)
@@ -450,7 +450,7 @@ int readMDS(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK* data_b
 //----------------------------------------------------------------------
 // Identify the Equivalent IDAM type
 
-        if ((data_block->data_type = readMDSType(type)) == TYPE_UNKNOWN) {
+        if ((data_block->data_type = readMDSType(type)) == UDA_TYPE_UNKNOWN) {
             err = 999;
             addIdamError(CODEERRORTYPE, "readMDS", err, "Unknown Data Type");
             break;
@@ -462,52 +462,52 @@ int readMDS(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK* data_b
         null = 0;
 
         switch (data_block->data_type) {
-            case TYPE_FLOAT: {
+            case UDA_TYPE_FLOAT: {
                 data = malloc(size * sizeof(float));                // allocate memory for the signal
                 desc = descr(&dtype_float, (float*)data, &size, &null);    // descriptor for this signal
                 break;
             }
-            case TYPE_DOUBLE: {
+            case UDA_TYPE_DOUBLE: {
                 data = malloc(size * sizeof(double));
                 desc = descr(&dtype_double, (double*)data, &size, &null);
                 break;
             }
-            case TYPE_UNSIGNED_CHAR: {
+            case UDA_TYPE_UNSIGNED_CHAR: {
                 data = malloc(size * sizeof(unsigned char));
                 desc = descr(&dtype_uchar, (unsigned char*)data, &size, &null);
                 break;
             }
-            case TYPE_CHAR: {
+            case UDA_TYPE_CHAR: {
                 data = malloc(size * sizeof(char));
                 desc = descr(&dtype_char, (char*)data, &size, &null);
                 break;
             }
-            case TYPE_UNSIGNED_SHORT: {
+            case UDA_TYPE_UNSIGNED_SHORT: {
                 data = malloc(size * sizeof(unsigned short));
                 desc = descr(&dtype_ushort, (unsigned short*)data, &size, &null);
                 break;
             }
-            case TYPE_SHORT: {
+            case UDA_TYPE_SHORT: {
                 data = malloc(size * sizeof(short));
                 desc = descr(&dtype_short, (short*)data, &size, &null);
                 break;
             }
-            case TYPE_UNSIGNED: {
+            case UDA_TYPE_UNSIGNED_INT: {
                 data = malloc(size * sizeof(unsigned int));
                 desc = descr(&dtype_uint, (unsigned int*)data, &size, &null);
                 break;
             }
-            case TYPE_INT: {
+            case UDA_TYPE_INT: {
                 data = malloc(size * sizeof(int));
                 desc = descr(&dtype_int, (int*)data, &size, &null);
                 break;
             }
-            case TYPE_UNSIGNED_LONG64: {
+            case UDA_TYPE_UNSIGNED_LONG64: {
                 data = malloc(size * sizeof(unsigned long long));
                 desc = descr(&dtype_ulong64, (unsigned long long*)data, &size, &null);
                 break;
             }
-            case TYPE_LONG64: {
+            case UDA_TYPE_LONG64: {
                 data = malloc(size * sizeof(long long));
                 desc = descr(&dtype_long64, (long long*)data, &size, &null);
                 break;

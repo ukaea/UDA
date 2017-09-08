@@ -43,7 +43,7 @@ void makeDataBlock(DATA_BLOCK* out, int dataCount)
     float* data = (float*)malloc(dataCount * sizeof(float));
     for (i = 0; i < dataCount; i++) data[i] = (float)i;
     out->data = (char*)data;
-    out->data_type = TYPE_FLOAT;
+    out->data_type = UDA_TYPE_FLOAT;
     out->rank = 1;
     out->order = 0;
     out->data_n = dataCount;
@@ -56,14 +56,14 @@ void makeDataBlock(DATA_BLOCK* out, int dataCount)
         errhi[i] = 0.1f * data[i];
     }
     out->errhi = (char*)errhi;
-    out->error_type = TYPE_FLOAT;
+    out->error_type = UDA_TYPE_FLOAT;
 
     out->dims = (DIMS*)malloc(sizeof(DIMS));
     initDimBlock(out->dims);
     double* coords = (double*)malloc(dataCount * sizeof(double));
     for (i = 0; i < dataCount; i++) coords[i] = (double)i;
     out->dims[0].dim = (char*)coords;
-    out->dims[0].data_type = TYPE_DOUBLE;
+    out->dims[0].data_type = UDA_TYPE_DOUBLE;
     out->dims[0].dim_n = dataCount;
     strcpy(out->dims[0].dim_units, "Test Units");
     strcpy(out->dims[0].dim_label, "Test Label");
@@ -79,7 +79,7 @@ void makeLegacyDataBlock(DATA_BLOCK* out)
     float* data = (float*)malloc(dataCount * sizeof(float));
     for (i = 0; i < dataCount; i++) data[i] = 0.0;
     out->data = (char*)data;
-    out->data_type = TYPE_FLOAT;
+    out->data_type = UDA_TYPE_FLOAT;
     out->rank = 1;
     out->order = 0;
     out->data_n = dataCount;
@@ -92,7 +92,7 @@ void makeLegacyDataBlock(DATA_BLOCK* out)
     double* coords = (double*)malloc(dataCount * sizeof(double));
     for (i = 0; i < dataCount; i++) coords[i] = (double)i;
     out->dims[0].dim = (char*)coords;
-    out->dims[0].data_type = TYPE_DOUBLE;
+    out->dims[0].data_type = UDA_TYPE_DOUBLE;
     out->dims[0].dim_n = dataCount;
     strcpy(out->dims[0].dim_units, "s");
     strcpy(out->dims[0].dim_label, "Time");
@@ -123,7 +123,7 @@ void copyANBDataBlock(DATA_BLOCK* out, DATA_BLOCK* in, int dataCount)
         memcpy((void*)out->dims[0].offs, (void*)in->dims[0].offs, (size_t)in->dims[0].udoms * sizeof(long));
         memcpy((void*)out->dims[0].ints, (void*)in->dims[0].ints, (size_t)in->dims[0].udoms * sizeof(long));
     }
-    if (out->dims[0].data_type == TYPE_FLOAT) {
+    if (out->dims[0].data_type == UDA_TYPE_FLOAT) {
         out->dims[0].dim = (char*)malloc(dataCount * sizeof(float));
         memcpy((void*)out->dims[0].dim, (void*)in->dims[0].dim, (size_t)dataCount * sizeof(float));
     } else {
@@ -253,12 +253,12 @@ extern int anbCorrections(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
             for (i = 0; i < data_block->rank; i++) initDimBlock(&data_block->dims[i]);
 
-            data_block->data_type = TYPE_STRING;
+            data_block->data_type = UDA_TYPE_STRING;
             strcpy(data_block->data_desc, "anbCorrections help = description of this plugin");
 
             data_block->data = p;
 
-            data_block->dims[0].data_type = TYPE_UNSIGNED;
+            data_block->dims[0].data_type = UDA_TYPE_UNSIGNED_INT;
             data_block->dims[0].dim_n = strlen(p) + 1;
             data_block->dims[0].compressed = 1;
             data_block->dims[0].dim0 = 0.0;
@@ -560,7 +560,7 @@ extern int anbCorrections(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Preserve legacy coordinate data types: all double
 
-                    dim_e->data_type = TYPE_DOUBLE;
+                    dim_e->data_type = UDA_TYPE_DOUBLE;
 
                     dim_e->dim_n = dataCountSW;
                     dim_e->compressed = getIdamDimBlock(h1, 0)->compressed;
@@ -601,7 +601,7 @@ extern int anbCorrections(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                         double* e3 = (double*)malloc(dataSize);
                         double* t = (double*)malloc(dataSize);
                         double* tt = (double*)malloc(dataSize);
-                        if (getIdamDimType(h1, 0) == TYPE_DOUBLE) {
+                        if (getIdamDimType(h1, 0) == UDA_TYPE_DOUBLE) {
                             memcpy((void*)e, (void*)offs, dataSize);
                             memcpy((void*)e2, (void*)offs, dataSize);
                             memcpy((void*)e3, (void*)offs, dataSize);
@@ -616,7 +616,7 @@ extern int anbCorrections(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                                 t[i] = (double)foffs[i];
                             }
                         }
-                        if (!noSSBeam && getIdamDimType(h3, 0) == TYPE_DOUBLE) {
+                        if (!noSSBeam && getIdamDimType(h3, 0) == UDA_TYPE_DOUBLE) {
                             memcpy((void*)tt, (void*)offs, dataSize);
                         } else {
                             int i;
@@ -638,7 +638,7 @@ extern int anbCorrections(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                         double* e3 = (double*)malloc(dataSize);
                         double* t = (double*)malloc(dataSize);
                         double* tt = (double*)malloc(dataSize);
-                        if (getIdamDimType(h1, 0) == TYPE_DOUBLE) {
+                        if (getIdamDimType(h1, 0) == UDA_TYPE_DOUBLE) {
                             memcpy((void*)e, (void*)ints, dataSize);
                             memcpy((void*)e2, (void*)ints, dataSize);
                             memcpy((void*)e3, (void*)ints, dataSize);
@@ -653,7 +653,7 @@ extern int anbCorrections(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                                 t[i] = (double)fints[i];
                             }
                         }
-                        if (!noSSBeam && getIdamDimType(h3, 0) == TYPE_DOUBLE) {
+                        if (!noSSBeam && getIdamDimType(h3, 0) == UDA_TYPE_DOUBLE) {
                             memcpy((void*)tt, (void*)ints, dataSize);
                         } else {
                             int i;
@@ -686,14 +686,14 @@ extern int anbCorrections(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                     } else
                         memcpy((void*)dim_tt->dim, (void*)dim_e->dim, dataSize);
 
-                    data_block_e.data_type = TYPE_FLOAT;
+                    data_block_e.data_type = UDA_TYPE_FLOAT;
                     data_block_e.data_n = dataCountSW;
                     data_block_e.rank = getIdamRank(h1);
                     data_block_e.order = getIdamOrder(h1);
 
 // Error Model should work but doesn't - compute and pass instead!
 
-                    data_block_e.error_type = TYPE_FLOAT;
+                    data_block_e.error_type = UDA_TYPE_FLOAT;
 
                     //data_block_e.error_param_n = 2;
                     //data_block_e.error_model   = ERROR_MODEL_DEFAULT;

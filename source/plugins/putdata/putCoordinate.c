@@ -221,7 +221,7 @@ int do_coordinate(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         }
 
         PUTDATA_BLOCK start_putdata = {
-            .data_type = TYPE_DOUBLE,
+            .data_type = UDA_TYPE_DOUBLE,
             .rank = 1,
             .count = (unsigned int)nstarts,
             .shape = NULL,
@@ -234,7 +234,7 @@ int do_coordinate(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         }
 
         PUTDATA_BLOCK increment_putdata = {
-            .data_type = TYPE_DOUBLE,
+            .data_type = UDA_TYPE_DOUBLE,
             .rank = 1,
             .count = (unsigned int)nincrements,
             .shape = NULL,
@@ -248,7 +248,7 @@ int do_coordinate(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
         if (counts != NULL) {
             PUTDATA_BLOCK count_putdata = {
-                .data_type = TYPE_UNSIGNED_INT,
+                .data_type = UDA_TYPE_UNSIGNED_INT,
                 .rank = 1,
                 .count = (unsigned int)ncounts,
                 .shape = NULL,
@@ -379,7 +379,7 @@ int writeCoordinateArray(PUTDATA_BLOCK* putdata, int grpid, const char* name, in
     //--------------------------------------------------------------------------
     // Check No structures or Strings have been passed
 
-    if (putdata->data_type == TYPE_OPAQUE || putdata->data_type == TYPE_STRING) {
+    if (putdata->data_type == UDA_TYPE_OPAQUE || putdata->data_type == UDA_TYPE_STRING) {
         RAISE_PLUGIN_ERROR("Neither Structured or String Data arrays can be passed for Coordinates");
     }
 
@@ -574,7 +574,7 @@ int writeCoordinateAttribute(PUTDATA_BLOCK* putdata, int grpid, char* attribute,
     //--------------------------------------------------------------------------
     // Check No structures or Strings have been passed
 
-    if (putdata->data_type == TYPE_OPAQUE || putdata->data_type == TYPE_STRING) {
+    if (putdata->data_type == UDA_TYPE_OPAQUE || putdata->data_type == UDA_TYPE_STRING) {
         RAISE_PLUGIN_ERROR("Neither Structures or String arrays can be passed for Coordinates Domain Attribute");
     }
 

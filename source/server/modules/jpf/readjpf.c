@@ -196,7 +196,7 @@ int readJPF( DATA_SOURCE data_source
     TrimString(desc);
     TrimString(units);
 
-    data_block->data_type = TYPE_FLOAT;
+    data_block->data_type = UDA_TYPE_FLOAT;
 
     data_block->data = (char *)dvec;
 
@@ -226,7 +226,7 @@ int readJPF( DATA_SOURCE data_source
 
         _strcpy(data_block->dims[0].dim_label, "Time");
 
-        data_block->dims[0].data_type = TYPE_DOUBLE;
+        data_block->dims[0].data_type = UDA_TYPE_DOUBLE;
 
     }
     else {

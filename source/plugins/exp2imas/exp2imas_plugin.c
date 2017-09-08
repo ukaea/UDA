@@ -266,22 +266,22 @@ int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     if (request_type == CONSTANT) {
         switch (dtype) {
-            case TYPE_SHORT:
+            case UDA_TYPE_SHORT:
                 setReturnDataShortScalar(data_block, (short)strtol((char*)xPath, NULL, 10), NULL);
                 break;
-            case TYPE_LONG:
+            case UDA_TYPE_LONG:
                 setReturnDataLongScalar(data_block, strtol((char*)xPath, NULL, 10), NULL);
                 break;
-            case TYPE_FLOAT:
+            case UDA_TYPE_FLOAT:
                 setReturnDataFloatScalar(data_block, strtof((char*)xPath, NULL), NULL);
                 break;
-            case TYPE_DOUBLE:
+            case UDA_TYPE_DOUBLE:
                 setReturnDataDoubleScalar(data_block, strtod((char*)xPath, NULL), NULL);
                 break;
-            case TYPE_INT:
+            case UDA_TYPE_INT:
                 setReturnDataIntScalar(data_block, (int)strtol((char*)xPath, NULL, 10), NULL);
                 break;
-            case TYPE_STRING:
+            case UDA_TYPE_STRING:
                 setReturnDataString(data_block, (char*)xPath, NULL);
                 break;
             default:
@@ -294,7 +294,7 @@ int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         char* data = NULL;
         int* dims = NULL;
         int rank = 0;
-        int data_type = TYPE_UNKNOWN;
+        int data_type = UDA_TYPE_UNKNOWN;
         int time_dim = 1;
         int* sizes = NULL;
         float* coefas = NULL;
@@ -317,27 +317,27 @@ int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             stride *= (i > 0) ? dims[i - 1] : 1;
         }
 
-        if (data_type == TYPE_DOUBLE) {
+        if (data_type == UDA_TYPE_DOUBLE) {
             double* ddata = (double*)data;
             setReturnDataDoubleScalar(data_block, ddata[data_idx], NULL);
             free(data);
-        } else if (data_type == TYPE_FLOAT) {
+        } else if (data_type == UDA_TYPE_FLOAT) {
             float* fdata = (float*)data;
             setReturnDataFloatScalar(data_block, fdata[data_idx], NULL);
             free(data);
-        } else if (data_type == TYPE_LONG) {
+        } else if (data_type == UDA_TYPE_LONG) {
             long* ldata = (long*)data;
             setReturnDataLongScalar(data_block, ldata[data_idx], NULL);
             free(data);
-        } else if (data_type == TYPE_INT) {
+        } else if (data_type == UDA_TYPE_INT) {
             int* idata = (int*)data;
             setReturnDataIntScalar(data_block, idata[data_idx], NULL);
             free(data);
-        } else if (data_type == TYPE_SHORT) {
+        } else if (data_type == UDA_TYPE_SHORT) {
             short* sdata = (short*)data;
             setReturnDataShortScalar(data_block, sdata[data_idx], NULL);
             free(data);
-        } else if (data_type == TYPE_STRING) {
+        } else if (data_type == UDA_TYPE_STRING) {
             char** sdata = (char**)data;
             setReturnDataString(data_block, deblank(sdata[data_idx]), NULL);
             FreeSplitStringTokens((char***)&data);
@@ -354,7 +354,7 @@ int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         char* data = NULL;
         int* dims = NULL;
         int rank = 0;
-        int data_type = TYPE_UNKNOWN;
+        int data_type = UDA_TYPE_UNKNOWN;
         int time_dim = 1;
         int* sizes = NULL;
         float* coefas = NULL;
@@ -366,7 +366,7 @@ int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             return status;
         }
 
-        if (data_type == TYPE_STRING) {
+        if (data_type == UDA_TYPE_STRING) {
 
             free(data_block->dims);
             data_block->dims = NULL;
@@ -423,7 +423,7 @@ int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             }
 
             data_block->rank = 1;
-            data_block->data_type = TYPE_FLOAT;
+            data_block->data_type = UDA_TYPE_FLOAT;
             data_block->data_n = data_n;
 
             if (indices[0] > 0) {
@@ -443,7 +443,7 @@ int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 initDimBlock(&data_block->dims[i]);
             }
 
-            data_block->dims[0].data_type = TYPE_FLOAT;
+            data_block->dims[0].data_type = UDA_TYPE_FLOAT;
             data_block->dims[0].dim_n = data_n;
             data_block->dims[0].compressed = 0;
             data_block->dims[0].dim = (char*)time;

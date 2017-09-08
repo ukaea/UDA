@@ -387,7 +387,7 @@ bson_append_utf8(&query, "$eq", strupr(objectName));
 bson_append_finish_object(&query); 
 bson_finish(&query);
 
-case insensitive search    {name:{'$regex' : '^string$', '$options' : 'i'}}      Does not use the index so very slow!
+case insensitive search    {name:{'$regex' : '^string$', '$options': 'i'}}      Does not use the index so very slow!
 
 sprintf(temp, "^%s$", objectClass);
 BCON_APPEND (query, "$and", "[",
@@ -672,7 +672,7 @@ Best Query time (micro secs) [load]
                 usertype.ref_id = 0;
                 usertype.imagecount = 0;                // No Structure Image data
                 usertype.image = NULL;
-                usertype.idamclass = TYPE_COMPOUND;
+                usertype.idamclass = UDA_TYPE_COMPOUND;
 
                 offset = 0;
 
@@ -781,7 +781,7 @@ Best Query time (micro secs) [load]
 
 // Return the Data	 
 
-                data_block->data_type = TYPE_COMPOUND;
+                data_block->data_type = UDA_TYPE_COMPOUND;
                 data_block->rank = 0;
                 data_block->data_n = 1;
                 data_block->data = (char*)data;
@@ -790,7 +790,7 @@ Best Query time (micro secs) [load]
                 strcpy(data_block->data_label, "");
                 strcpy(data_block->data_units, "");
 
-                data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
+                data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
                 data_block->opaque_count = 1;
                 data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "MONGO_R", 0);
 
@@ -832,12 +832,12 @@ Best Query time (micro secs) [load]
                 initDimBlock(&data_block->dims[i]);
             }
 
-            data_block->data_type = TYPE_STRING;
+            data_block->data_type = UDA_TYPE_STRING;
             strcpy(data_block->data_desc, "MongoDBPlugin: help = description of this plugin");
 
             data_block->data = strdup(help);
 
-            data_block->dims[0].data_type = TYPE_UNSIGNED_INT;
+            data_block->dims[0].data_type = UDA_TYPE_UNSIGNED_INT;
             data_block->dims[0].dim_n = strlen(help) + 1;
             data_block->dims[0].compressed = 1;
             data_block->dims[0].dim0 = 0.0;
@@ -857,7 +857,7 @@ Best Query time (micro secs) [load]
 
         if (STR_IEQUALS(request_block->function, "version")) {
             initDataBlock(data_block);
-            data_block->data_type = TYPE_INT;
+            data_block->data_type = UDA_TYPE_INT;
             data_block->rank = 0;
             data_block->data_n = 1;
             int* data = (int*)malloc(sizeof(int));
@@ -873,7 +873,7 @@ Best Query time (micro secs) [load]
 
         if (STR_IEQUALS(request_block->function, "builddate")) {
             initDataBlock(data_block);
-            data_block->data_type = TYPE_STRING;
+            data_block->data_type = UDA_TYPE_STRING;
             data_block->rank = 0;
             data_block->data_n = strlen(__DATE__) + 1;
             char* data = (char*)malloc(data_block->data_n * sizeof(char));
@@ -889,7 +889,7 @@ Best Query time (micro secs) [load]
 
         if (STR_IEQUALS(request_block->function, "defaultmethod")) {
             initDataBlock(data_block);
-            data_block->data_type = TYPE_STRING;
+            data_block->data_type = UDA_TYPE_STRING;
             data_block->rank = 0;
             data_block->data_n = strlen(THISPLUGIN_DEFAULT_METHOD) + 1;
             char* data = (char*)malloc(data_block->data_n * sizeof(char));
@@ -905,7 +905,7 @@ Best Query time (micro secs) [load]
 
         if (STR_IEQUALS(request_block->function, "maxinterfaceversion")) {
             initDataBlock(data_block);
-            data_block->data_type = TYPE_INT;
+            data_block->data_type = UDA_TYPE_INT;
             data_block->rank = 0;
             data_block->data_n = 1;
             int* data = (int*)malloc(sizeof(int));

@@ -27,14 +27,14 @@ tsparse (char *string, char *nomsig, int indices[], int *extr, int *occur)
          *pt2++ = *pt1++;
     *pt2 = '\0';
     switch(*pt1){
-       case SEP3 : pt1++;  /* Separateur occurrence # */
+       case SEP3: pt1++;  /* Separateur occurrence # */
                    if( *pt1 != '\0' && isdigit(*pt1) )  {
                      *occur = atol (pt1);	
                      pt1++;
                    }
                    break;
 
-       case SEP1 : pt1++; /* Separateur index groupe % */
+       case SEP1: pt1++; /* Separateur index groupe % */
                    if( *pt1 != '\0' && isdigit(*pt1) && nomsig[0]=='G' ) {
 	             indices[0] = atol (pt1);	
 	     	     *extr = 1;	

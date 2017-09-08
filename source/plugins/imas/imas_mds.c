@@ -1478,7 +1478,7 @@ static int do_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARGS plug
     int err = 0;
     int rc = 0;
     int* shape = NULL;
-    int type = TYPE_UNKNOWN;
+    int type = UDA_TYPE_UNKNOWN;
 
 /*
 idx	- reference to the open data file: file handle from an array of open files - hdf5Files[idx]
@@ -1619,7 +1619,7 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
                         shape[i] = data_block->dims[i].dim_n;
                     }
                     if (uda_type != data_block->data_type) {
-                        if (uda_type == TYPE_DOUBLE && data_block->data_type == TYPE_FLOAT) {
+                        if (uda_type == UDA_TYPE_DOUBLE && data_block->data_type == UDA_TYPE_FLOAT) {
                             imasData = malloc(data_block->data_n * sizeof(double));
                             for (i = 0; i < data_block->data_n; ++i) {
                                 ((double*)imasData)[i] = ((float*)data_block->data)[i];
@@ -1644,7 +1644,7 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
             THROW_ERROR(999, "No Interpolation Mode has been specified!");
         }
 
-        if (!plugin_args.isPutData || putDataBlock->data_type != TYPE_DOUBLE || putDataBlock->count != 3) {
+        if (!plugin_args.isPutData || putDataBlock->data_type != UDA_TYPE_DOUBLE || putDataBlock->count != 3) {
             IDAM_LOG(UDA_LOG_ERROR, "imas get: No Time Values have been specified!\n");
             THROW_ERROR(999, "No Time Values have been specified!");
         }
@@ -1671,7 +1671,7 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
     switch (dataOperation) {
         case GETDIMENSION_OPERATION: {
             data_block->rank = 1;
-            data_block->data_type = TYPE_INT;
+            data_block->data_type = UDA_TYPE_INT;
             data_block->data = (char*)shape;
             data_block->data_n = plugin_args.rank;
             break;
@@ -1680,7 +1680,7 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
             data_block->data_type = findIMASIDAMType(type);
             data_block->data = imasData;
 
-            if (data_block->data_type == TYPE_STRING && plugin_args.rank == 0) {
+            if (data_block->data_type == UDA_TYPE_STRING && plugin_args.rank == 0) {
                 data_block->rank = 1;
                 data_block->data_n = (int)strlen(imasData) + 1;
                 shape[0] = data_block->data_n;
@@ -1712,7 +1712,7 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
         for (i = 0; i < data_block->rank; i++) {
             initDimBlock(&data_block->dims[i]);
             data_block->dims[i].dim_n = shape[i];
-            data_block->dims[i].data_type = TYPE_UNSIGNED_INT;
+            data_block->dims[i].data_type = UDA_TYPE_UNSIGNED_INT;
             data_block->dims[i].compressed = 1;
             data_block->dims[i].dim0 = 0.0;
             data_block->dims[i].diff = 1.0;
@@ -1723,7 +1723,7 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
             data_block->order = plugin_args.rank;
             initDimBlock(&data_block->dims[plugin_args.rank]);
             data_block->dims[plugin_args.rank].dim_n = 1;
-            data_block->dims[plugin_args.rank].data_type = TYPE_DOUBLE;
+            data_block->dims[plugin_args.rank].data_type = UDA_TYPE_DOUBLE;
             data_block->dims[plugin_args.rank].compressed = 0;
             double* sliceTime = (double*)malloc(sizeof(double));
             *sliceTime = retTime;
@@ -1818,7 +1818,7 @@ time	- the time slice to be written - from a PUTDATA block (putSlice keyword)
         if (varDataIndex < 0 && plugin_args.isShapeString) {
             if ((dataRank = getIdamNameValuePairVarArray(plugin_args.shapeString, plugin_args.quote,
                                                          plugin_args.delimiter, (unsigned short)plugin_args.rank,
-                                                         TYPE_INT, (void**)&shape)) < 0) {
+                                                         UDA_TYPE_INT, (void**)&shape)) < 0) {
                 IDAM_LOG(UDA_LOG_ERROR, "imas put: Unable to convert the passed shape values!\n");
                 THROW_ERROR(-dataRank, "Unable to convert the passed shape value!");
             }
@@ -1838,7 +1838,7 @@ time	- the time slice to be written - from a PUTDATA block (putSlice keyword)
 
         if (varDataIndex < 0 && plugin_args.isDataString) {
 
-            if ((idamType = findIdamType(plugin_args.typeName)) == TYPE_UNDEFINED) {
+            if ((idamType = findIdamType(plugin_args.typeName)) == UDA_TYPE_UNDEFINED) {
                 IDAM_LOG(UDA_LOG_ERROR, "imas put: The data's Type name cannot be converted!\n");
                 THROW_ERROR(999, "The data's Type name cannot be converted!");
             }
@@ -1942,7 +1942,7 @@ time	- the time slice to be written - from a PUTDATA block (putSlice keyword)
         if (plugin_args.isShapeString) {
             if ((dataRank = getIdamNameValuePairVarArray(plugin_args.shapeString, plugin_args.quote,
                                                          plugin_args.delimiter, (unsigned short)plugin_args.rank,
-                                                         TYPE_INT, (void**)&shape)) < 0) {
+                                                         UDA_TYPE_INT, (void**)&shape)) < 0) {
                 IDAM_LOG(UDA_LOG_ERROR, "Unable to convert the passed shape values!\n");
                 THROW_ERROR(-dataRank, "Unable to convert the passed shape value!");
             }
@@ -1963,7 +1963,7 @@ time	- the time slice to be written - from a PUTDATA block (putSlice keyword)
 
         if (plugin_args.isDataString) {
 
-            if ((idamType = findIdamType(plugin_args.typeName)) == TYPE_UNDEFINED) {
+            if ((idamType = findIdamType(plugin_args.typeName)) == UDA_TYPE_UNDEFINED) {
                 IDAM_LOG(UDA_LOG_ERROR, "The data's Type name cannot be converted!\n");
                 THROW_ERROR(999, "The data's Type name cannot be converted!");
             }
@@ -2051,7 +2051,7 @@ time	- the time slice to be written - from a PUTDATA block (putSlice keyword)
                     IDAM_LOG(UDA_LOG_ERROR, "imas put: No Slice Time!\n");
                     THROW_ERROR(999, "No Slice Time!");
                 }
-                if (putTimeBlock->data_type != TYPE_DOUBLE || putTimeBlock->count != 1) {
+                if (putTimeBlock->data_type != UDA_TYPE_DOUBLE || putTimeBlock->count != 1) {
                     IDAM_LOG(UDA_LOG_ERROR, "imas put: Slice Time type and count are incorrect!\n");
                     THROW_ERROR(999, "Slice Time type and count are incorrect!");
                 }
@@ -2248,7 +2248,7 @@ static int do_createModel(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_A
 	 initDataBlock(data_block);
          data_block->rank = 0;
 	 data_block->dims = NULL;
-	 data_block->data_type = TYPE_INT;
+	 data_block->data_type = UDA_TYPE_INT;
 	 data_block->data = (char *)data;
 	 data_block->data_n = 1;
 
@@ -2545,7 +2545,7 @@ static int do_getObject(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARG
             for (i = 0; i < data_block->rank; i++) {
                 initDimBlock(&data_block->dims[i]);
                 data_block->dims[i].dim_n = shape[i];
-                data_block->dims[i].data_type = TYPE_UNSIGNED_INT;
+                data_block->dims[i].data_type = UDA_TYPE_UNSIGNED_INT;
                 data_block->dims[i].compressed = 1;
                 data_block->dims[i].dim0 = 0.0;
                 data_block->dims[i].diff = 1.0;
@@ -2589,14 +2589,14 @@ static int do_getObject(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARG
 
     initDataBlock(data_block);
     data_block->rank = 1;
-    data_block->data_type = TYPE_INT;
+    data_block->data_type = UDA_TYPE_INT;
     data_block->data = (char*)shape;
     data_block->data_n = numDims;
 
     data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
     initDimBlock(&data_block->dims[0]);
     data_block->dims[0].dim_n = numDims;
-    data_block->dims[0].data_type = TYPE_UNSIGNED_INT;
+    data_block->dims[0].data_type = UDA_TYPE_UNSIGNED_INT;
     data_block->dims[0].compressed = 1;
     data_block->dims[0].dim0 = 0.0;
     data_block->dims[0].diff = 1.0;
@@ -2698,7 +2698,7 @@ static int do_putObjectInObject(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PL
 
 // Any Data?
 
-    if (putDataBlock->data == NULL || putDataBlock->data_type != TYPE_INT) {
+    if (putDataBlock->data == NULL || putDataBlock->data_type != UDA_TYPE_INT) {
         IDAM_LOG(UDA_LOG_ERROR, "No data has been specified!\n");
         THROW_ERROR(999, "No data has been specified!");
     }
@@ -2767,7 +2767,7 @@ static int do_putObjectGroup(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGI
     initDataBlock(data_block);
     data_block->rank = 0;
     data_block->dims = NULL;
-    data_block->data_type = TYPE_INT;
+    data_block->data_type = UDA_TYPE_INT;
     data_block->data = (char*)data;
     data_block->data_n = 1;
 
@@ -3060,7 +3060,7 @@ static int do_beginIdsGetSlice(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLU
 
 // Time is passed in a single PUTDATA structure
 
-    if (putDataBlock->data_type != TYPE_DOUBLE || putDataBlock->count != 1) {
+    if (putDataBlock->data_type != UDA_TYPE_DOUBLE || putDataBlock->count != 1) {
         IDAM_LOG(UDA_LOG_ERROR, "imas beginIdsGetSlice: No Valid Time Value have been specified!\n");
         THROW_ERROR(999, "No Valid Time Value have been specified!");
     }
@@ -3204,7 +3204,7 @@ static int do_beginIdsPutTimed(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLU
 
 // Time is passed in a single PUTDATA structure
 
-    if (putDataBlock->data_type != TYPE_DOUBLE || putDataBlock->data == NULL) {
+    if (putDataBlock->data_type != UDA_TYPE_DOUBLE || putDataBlock->data == NULL) {
         IDAM_LOG(UDA_LOG_ERROR, "No Valid Time Value have been specified!\n");
         THROW_ERROR(999, "No Valid Time Value have been specified!");
     }

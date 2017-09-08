@@ -178,7 +178,7 @@ int execute(const char* mapfun, int shotNumber, DATA_BLOCK* data_block, int* nod
 
 		printNum("Parameters size : ", parametersSize);
 
-		data_block->data_type = TYPE_INT;
+		data_block->data_type = UDA_TYPE_INT;
 		data_block->data = malloc(sizeof(int));
 		*((int*)data_block->data) = parametersSize;
 
@@ -197,18 +197,18 @@ int execute(const char* mapfun, int shotNumber, DATA_BLOCK* data_block, int* nod
 		char* buffer = NULL;
 
 
-		if (data_type == TYPE_FLOAT) {
-			IDAM_LOG(UDA_LOG_DEBUG, "TYPE_FLOAT requested from WEST plugin\n");
+		if (data_type == UDA_TYPE_FLOAT) {
+			IDAM_LOG(UDA_LOG_DEBUG, "UDA_TYPE_FLOAT requested from WEST plugin\n");
 			buffer = malloc(sizeof(float));
 			float* f_buf = (float*)buffer;
 			*f_buf = atof(value);
-		} else if (data_type == TYPE_INT) {
-			IDAM_LOG(UDA_LOG_DEBUG, "TYPE_INT requested from WEST plugin\n");
+		} else if (data_type == UDA_TYPE_INT) {
+			IDAM_LOG(UDA_LOG_DEBUG, "UDA_TYPE_INT requested from WEST plugin\n");
 			buffer = malloc(sizeof(int));
 			int* i_buf = (int*)buffer;
 			*i_buf = atoi(value);
-		} else if (data_type == TYPE_STRING) {
-			IDAM_LOG(UDA_LOG_DEBUG, "TYPE_STRING requested from WEST plugin\n");
+		} else if (data_type == UDA_TYPE_STRING) {
+			IDAM_LOG(UDA_LOG_DEBUG, "UDA_TYPE_STRING requested from WEST plugin\n");
 			buffer = strdup(value);
 		} else {
 			int err = 999;
@@ -283,12 +283,12 @@ void execute_setchannels_validity(int* unvalid_channels_list, int unvalid_channe
 
 	if (isChannelValid(channel_number, unvalid_channels_list, unvalid_channels_size)) {
 		IDAM_LOGF(UDA_LOG_DEBUG, "valid channel number : %d\n", channel_number);
-		setStaticINTValue(TYPE_INT, data_block, 0, 1.0);
+		setStaticINTValue(UDA_TYPE_INT, data_block, 0, 1.0);
 	}
 	else
 	{
 		IDAM_LOGF(UDA_LOG_DEBUG, "unvalid channel number : %d\n", channel_number);
-		setStaticINTValue(TYPE_INT, data_block, -1, 1.0);
+		setStaticINTValue(UDA_TYPE_INT, data_block, -1, 1.0);
 	}
 }
 
@@ -332,23 +332,23 @@ void execute_setvalue_collect(const char* TOP_collections_parameters, char* attr
 
 	char* buffer = NULL;
 
-	if (data_type == TYPE_FLOAT) {
-		IDAM_LOG(UDA_LOG_DEBUG, "TYPE_FLOAT requested from WEST plugin\n");
+	if (data_type == UDA_TYPE_FLOAT) {
+		IDAM_LOG(UDA_LOG_DEBUG, "UDA_TYPE_FLOAT requested from WEST plugin\n");
 		buffer = malloc(sizeof(float));
 		float* f_buf = (float*)buffer;
 		*f_buf = atof(value);
-	} else if (data_type == TYPE_DOUBLE) {
-		IDAM_LOG(UDA_LOG_DEBUG, "TYPE_DOUBLE requested from WEST plugin\n");
+	} else if (data_type == UDA_TYPE_DOUBLE) {
+		IDAM_LOG(UDA_LOG_DEBUG, "UDA_TYPE_DOUBLE requested from WEST plugin\n");
 		buffer = malloc(sizeof(double));
 		double* f_buf = (double*)buffer;
 		*f_buf = atof(value);
-	} else if (data_type == TYPE_INT) {
-		IDAM_LOG(UDA_LOG_DEBUG, "TYPE_INT requested from WEST plugin\n");
+	} else if (data_type == UDA_TYPE_INT) {
+		IDAM_LOG(UDA_LOG_DEBUG, "UDA_TYPE_INT requested from WEST plugin\n");
 		buffer = malloc(sizeof(int));
 		int* i_buf = (int*)buffer;
 		*i_buf = atoi(value);
-	} else if (data_type == TYPE_STRING) {
-		IDAM_LOG(UDA_LOG_DEBUG, "TYPE_STRING requested from WEST plugin\n");
+	} else if (data_type == UDA_TYPE_STRING) {
+		IDAM_LOG(UDA_LOG_DEBUG, "UDA_TYPE_STRING requested from WEST plugin\n");
 		buffer = strdup(value);
 	} else {
 		int err = 999;
@@ -660,7 +660,7 @@ int GetDynamicData(int shotNumber, const char* mapfun, DATA_BLOCK* data_block, i
 	free(data_block->dims);
 
 	data_block->rank = 1;
-	data_block->data_type = TYPE_FLOAT;
+	data_block->data_type = UDA_TYPE_FLOAT;
 	data_block->data_n = len;
 
 	if (fun == 0) {
@@ -684,7 +684,7 @@ int GetDynamicData(int shotNumber, const char* mapfun, DATA_BLOCK* data_block, i
 	for (i = 0; i < data_block->rank; i++) {
 		initDimBlock(&data_block->dims[i]);
 	}
-	data_block->dims[0].data_type = TYPE_FLOAT;
+	data_block->dims[0].data_type = UDA_TYPE_FLOAT;
 	data_block->dims[0].dim_n = len;
 	data_block->dims[0].compressed = 0;
 	data_block->dims[0].dim = (char*)time;
@@ -741,7 +741,7 @@ void getShapeOf(const char* command, int shotNumber, int* nb_val)
 //Cast the results returned by tsmat according to the type of the data and set IDAM data
 void setStatic1DValue(int data_type, DATA_BLOCK* data_block, char* value, int val_nb, float normalizationFactor)
 {
-	if (data_type == TYPE_FLOAT) {
+	if (data_type == UDA_TYPE_FLOAT) {
 		IDAM_LOG(UDA_LOG_DEBUG, "handling float 1D in setStatic1DValue()\n");
 
 		char val_nb_str[10];
@@ -753,16 +753,16 @@ void setStatic1DValue(int data_type, DATA_BLOCK* data_block, char* value, int va
 			addIdamError(CODEERRORTYPE, __func__, err, "val_nb is equals to 0 !");
 		}
 
-		data_block->data_type = TYPE_FLOAT;
+		data_block->data_type = UDA_TYPE_FLOAT;
 		data_block->data = malloc(val_nb * sizeof(float));
 		float* pt_float = (float*)value;
 		multiplyFloat(pt_float, normalizationFactor, val_nb);
 		IDAM_LOG(UDA_LOG_DEBUG, "handling float 1D in setStatic1DValue21()\n");
 		*((float*)data_block->data) = *pt_float;
 		IDAM_LOG(UDA_LOG_DEBUG, "handling float 1D in setStatic1DValue22()\n");
-	} else if (data_type == TYPE_INT) {
+	} else if (data_type == UDA_TYPE_INT) {
 		IDAM_LOG(UDA_LOG_DEBUG, "handling int 1D in setStatic1DValue()\n");
-		data_block->data_type = TYPE_INT;
+		data_block->data_type = UDA_TYPE_INT;
 		data_block->data = malloc(val_nb * sizeof(int));
 		int* pt_int = (int*)value;
 		multiplyInt(pt_int, normalizationFactor, val_nb);
@@ -778,7 +778,7 @@ void setStatic1DValue(int data_type, DATA_BLOCK* data_block, char* value, int va
 void setStaticINTValue(int data_type, DATA_BLOCK* data_block, int value, float normalizationFactor)
 {
 	IDAM_LOGF(UDA_LOG_DEBUG, "handling in setStaticINTValue(): %d\n", value);
-	data_block->data_type = TYPE_INT;
+	data_block->data_type = UDA_TYPE_INT;
 	data_block->data = malloc(1 * sizeof(int));
 	((int*)data_block->data)[0] = value * (int) normalizationFactor;
 }
@@ -788,45 +788,45 @@ void setStaticValue(int data_type, DATA_BLOCK* data_block, char* value, int requ
 {
 	IDAM_LOG(UDA_LOG_DEBUG, "Entering setStaticValue()\n");
 	printNum("requested index : ", requestedIndex);
-	if (data_type == TYPE_DOUBLE) {
+	if (data_type == UDA_TYPE_DOUBLE) {
 		IDAM_LOG(UDA_LOG_DEBUG, "handling double in setStaticValue()\n");
-		data_block->data_type = TYPE_DOUBLE;
+		data_block->data_type = UDA_TYPE_DOUBLE;
 		data_block->data = malloc(1 * sizeof(double));
 		double* pt_double = (double*)value;
 		((double*)data_block->data)[0] = pt_double[requestedIndex] * (double) normalizationFactor;
 
-	} else if (data_type == TYPE_FLOAT) {
+	} else if (data_type == UDA_TYPE_FLOAT) {
 		IDAM_LOGF(UDA_LOG_DEBUG, "handling float in setStaticValue(): %d, %g\n", requestedIndex, normalizationFactor);
-		data_block->data_type = TYPE_FLOAT;
+		data_block->data_type = UDA_TYPE_FLOAT;
 		data_block->data = malloc(1 * sizeof(float));
 		float* pt_float = (float*)value;
 		((float*)data_block->data)[0] = pt_float[requestedIndex] * normalizationFactor;
 
-	} else if (data_type == TYPE_LONG) {
+	} else if (data_type == UDA_TYPE_LONG) {
 		IDAM_LOG(UDA_LOG_DEBUG, "handling long in setStaticValue()\n");
-		data_block->data_type = TYPE_LONG;
+		data_block->data_type = UDA_TYPE_LONG;
 		data_block->data = malloc(1 * sizeof(long));
 		long* pt_long = (long*)value;
 		((long*)data_block->data)[0] = pt_long[requestedIndex] * (long) normalizationFactor;
 
-	} else if (data_type == TYPE_INT) {
+	} else if (data_type == UDA_TYPE_INT) {
 		IDAM_LOG(UDA_LOG_DEBUG, "handling int in setStaticValue()\n");
-		data_block->data_type = TYPE_INT;
+		data_block->data_type = UDA_TYPE_INT;
 		data_block->data = malloc(1 * sizeof(int));
 		int* pt_int = (int*)value;
 		IDAM_LOGF(UDA_LOG_DEBUG, "handling in setStaticValue(): %d\n", *pt_int);
 		((int*)data_block->data)[0] = pt_int[requestedIndex] * (int) normalizationFactor;
 
-	} else if (data_type == TYPE_SHORT) {
+	} else if (data_type == UDA_TYPE_SHORT) {
 		IDAM_LOG(UDA_LOG_DEBUG, "handling short in setStaticValue()\n");
-		data_block->data_type = TYPE_SHORT;
+		data_block->data_type = UDA_TYPE_SHORT;
 		data_block->data = malloc(1 * sizeof(short));
 		int* pt_short = (int*)value;
 		((short*)data_block->data)[0] = pt_short[requestedIndex] * (short) normalizationFactor;
 
-	} else if (data_type == TYPE_STRING) {
+	} else if (data_type == UDA_TYPE_STRING) {
 		IDAM_LOG(UDA_LOG_DEBUG, "handling string in setStaticValue()\n");
-		data_block->data_type = TYPE_STRING;
+		data_block->data_type = UDA_TYPE_STRING;
 		IDAM_LOG(UDA_LOG_DEBUG, "setting value\n");
 		data_block->data = strdup(value);
 		IDAM_LOGF(UDA_LOG_DEBUG, "%s\n", data_block->data);
@@ -841,18 +841,18 @@ void setStaticValue(int data_type, DATA_BLOCK* data_block, char* value, int requ
 
 int convertToInt(char* value)
 {
-	int i = TYPE_UNKNOWN;
+	int i = UDA_TYPE_UNKNOWN;
 	int err = 0;
 
 	if (STR_EQUALS(value, "vecstring_type") || STR_EQUALS(value, "string") || STR_EQUALS(value, "STR_0D")) {
-		i = TYPE_STRING;
+		i = UDA_TYPE_STRING;
 	} else if (STR_EQUALS(value, "vecflt_type") || STR_EQUALS(value, "float") || STR_EQUALS(value, "FLT_0D")) {
-		i = TYPE_FLOAT;
+		i = UDA_TYPE_FLOAT;
 	} /*else if (STR_EQUALS(value, "double")) {
-		i = TYPE_DOUBLE;
+		i = UDA_TYPE_DOUBLE;
 	}*/else if (STR_EQUALS(value, "vecint_type") || STR_EQUALS(value, "integer") || STR_EQUALS(value, "int") ||
 			STR_EQUALS(value, "INT_0D")) {
-		i = TYPE_INT;
+		i = UDA_TYPE_INT;
 	} else {
 		err = 999;
 		addIdamError(CODEERRORTYPE, "west convertToInt() : Unsupported data type", err, "");

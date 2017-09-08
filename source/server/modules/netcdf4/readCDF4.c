@@ -646,7 +646,7 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
 
                 data_block->rank = 1;
                 data_block->order = -1;
-                data_block->data_type = TYPE_INT;
+                data_block->data_type = UDA_TYPE_INT;
 
                 // Subset operation?
 
@@ -693,7 +693,7 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
 
                 initDimBlock(&data_block->dims[0]);
                 data_block->dims[0].dim_n = data_block->data_n;
-                data_block->dims[0].data_type = TYPE_INT;
+                data_block->dims[0].data_type = UDA_TYPE_INT;
 
                 if ((data_block->dims[0].dim = (char*)malloc(data_block->data_n * sizeof(int))) == NULL) {
                     err = NETCDF_ERROR_ALLOCATING_HEAP_1;
@@ -723,13 +723,13 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
 
                 if (udt != NULL) {                // A User Defined Data Structure Type?
                     malloc_source = MALLOCSOURCENETCDF;
-                    data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
+                    data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
                     data_block->opaque_count = 1;
                     data_block->opaque_block = (void*)udt;
                 }
 
                 data_block->rank = 1;
-                if (data_block->data_type == TYPE_STRING && ndimatt[1] > 0) {
+                if (data_block->data_type == UDA_TYPE_STRING && ndimatt[1] > 0) {
                     data_block->rank = 2;
                 }    // Attributes are generally rank 1 except strings
 
@@ -744,7 +744,7 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
                     ii = data_block->rank - i - 1;        // Reverse the Indexing
                     initDimBlock(&data_block->dims[ii]);
                     data_block->dims[ii].dim_n = ndimatt[i];
-                    data_block->dims[ii].data_type = TYPE_INT;
+                    data_block->dims[ii].data_type = UDA_TYPE_INT;
                     if ((data_block->dims[ii].dim = (char*)malloc(data_block->dims[ii].dim_n * sizeof(int))) ==
                         NULL) {
                         err = NETCDF_ERROR_ALLOCATING_HEAP_1;
@@ -776,13 +776,13 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
 
                         if (udt != NULL) {                // A User Defined Data Structure Type?
                             malloc_source = MALLOCSOURCENETCDF;
-                            data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
+                            data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
                             data_block->opaque_count = 1;
                             data_block->opaque_block = (void*)udt;
                         }
 
                         data_block->rank = 1;
-                        if (data_block->data_type == TYPE_STRING && ndimatt[1] > 0) {
+                        if (data_block->data_type == UDA_TYPE_STRING && ndimatt[1] > 0) {
                             data_block->rank = 2;
                         }    // Attributes are generally rank 1 except strings
 
@@ -797,7 +797,7 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
                             ii = data_block->rank - i - 1;        // Reverse the Indexing
                             initDimBlock(&data_block->dims[ii]);
                             data_block->dims[ii].dim_n = ndimatt[i];
-                            data_block->dims[ii].data_type = TYPE_INT;
+                            data_block->dims[ii].data_type = UDA_TYPE_INT;
                             if ((data_block->dims[ii].dim = (char*)malloc(
                                     data_block->dims[ii].dim_n * sizeof(int))) == NULL) {
                                 err = NETCDF_ERROR_ALLOCATING_HEAP_1;
@@ -864,11 +864,11 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
 
                 if (err == NC_NOERR && hgroups.group[0].udt != NULL) {
                     malloc_source = MALLOCSOURCENETCDF;
-                    data_block->data_type = TYPE_COMPOUND;
+                    data_block->data_type = UDA_TYPE_COMPOUND;
                     data_block->data_n = 1;
                     data_block->rank = 0;
                     data_block->order = -1;
-                    data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
+                    data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
                     data_block->opaque_count = 1;
                     data_block->opaque_block = (void*)hgroups.group[0].udt;
                 }
@@ -1009,7 +1009,7 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
 
         if (udt != NULL) {
             malloc_source = MALLOCSOURCENETCDF;
-            data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
+            data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
             data_block->opaque_count = 1;
             data_block->opaque_block = (void*)udt;
         }
@@ -1088,7 +1088,7 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
 
         // If the type is STRING then extend the rank
 
-        if (data_block->rank == 1 && data_block->data_type == TYPE_STRING && extent[1] > 0) {
+        if (data_block->rank == 1 && data_block->data_type == UDA_TYPE_STRING && extent[1] > 0) {
             data_block->rank = 2;
             data_block->dims = (DIMS*)realloc((void*)data_block->dims, data_block->rank * sizeof(DIMS));
             for (i = 0; i < data_block->rank; i++) initDimBlock(&data_block->dims[i]);
@@ -1100,9 +1100,9 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
 
             // Return a Simple Index if the Data are not required
 
-            if (data_block->client_block.get_nodimdata || data_block->data_type == TYPE_STRING) {
+            if (data_block->client_block.get_nodimdata || data_block->data_type == UDA_TYPE_STRING) {
                 data_block->dims[ii].compressed = 1;
-                data_block->dims[ii].data_type = TYPE_UNSIGNED_INT;
+                data_block->dims[ii].data_type = UDA_TYPE_UNSIGNED_INT;
                 data_block->dims[ii].method = 0;
                 data_block->dims[ii].dim0 = 0.0;
                 data_block->dims[ii].diff = 1.0;
@@ -1131,7 +1131,7 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
 
             if (rc != NC_NOERR) {        // Coordinate Variable must be missing so use an index array
                 data_block->dims[ii].compressed = 1;
-                data_block->dims[ii].data_type = TYPE_INT;
+                data_block->dims[ii].data_type = UDA_TYPE_INT;
                 data_block->dims[ii].method = 0;
                 data_block->dims[ii].dim = NULL;
                 data_block->dims[ii].dim0 = 0.0;
@@ -1210,7 +1210,7 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
                     data_block->dims[ii].dim = (char*)realloc((void*)data_block->dims[ii].dim,
                                                               data_block->dims[ii].dim_n * sizeof(int));
                     readCDF4CreateIndex(data_block->dims[ii].dim_n, data_block->dims[ii].dim);
-                    data_block->dims[ii].data_type = TYPE_INT;
+                    data_block->dims[ii].data_type = UDA_TYPE_INT;
                     err = 0;
                     isIndex = 1;    // modify the label: Flag the coordinate as Multi-Dimensional
                 }
@@ -1328,7 +1328,7 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
                             if (ncount == nstart && nstart == nincrement) {
                                 data_block->dims[ii].compressed = 1;
                                 data_block->dims[ii].method = 1;
-                                data_block->dims[ii].data_type = TYPE_DOUBLE;       // Always type DOUBLE
+                                data_block->dims[ii].data_type = UDA_TYPE_DOUBLE;       // Always type DOUBLE
                                 data_block->dims[ii].offs = (char*)start;           // Domain Starting Values
                                 data_block->dims[ii].ints = (char*)increment;       // Domain Step Increments
                                 data_block->dims[ii].udoms = (unsigned int)ncount;  // Number of Domains
@@ -1479,7 +1479,7 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
 
             data_block->opaque_block = (void*)metaxml.xml;
             data_block->opaque_count = metaxml.nxml;
-            data_block->opaque_type = OPAQUE_TYPE_XML_DOCUMENT;
+            data_block->opaque_type = UDA_OPAQUE_TYPE_XML_DOCUMENT;
         }
 
         //----------------------------------------------------------------------
@@ -1494,7 +1494,7 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
         free((void*)metaxml.xml);
         data_block->opaque_block = NULL;
         data_block->opaque_count = 0;
-        data_block->opaque_type = OPAQUE_TYPE_UNKNOWN;
+        data_block->opaque_type = UDA_OPAQUE_TYPE_UNKNOWN;
     }
 
     if (closexml.xml != NULL) free((void*)closexml.xml);

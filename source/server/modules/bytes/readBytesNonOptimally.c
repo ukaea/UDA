@@ -157,7 +157,7 @@ int readBytes(DATA_SOURCE data_source,
 
         data_block->rank = 0;        // Scalar?
         data_block->order = -1;        // No Dimensions
-        data_block->data_type = TYPE_CHAR;
+        data_block->data_type = UDA_TYPE_CHAR;
 
     } while (0);
 

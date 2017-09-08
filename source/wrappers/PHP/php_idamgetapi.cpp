@@ -133,7 +133,7 @@ Php::Value getidamuuid(Php::Parameters & params)
     }
 
     if (h >= 0 && getIdamErrorCode(h) == 0) {
-        if (getIdamDataType(h) == TYPE_CHAR || getIdamDataType(h) == TYPE_STRING) {
+        if (getIdamDataType(h) == UDA_TYPE_CHAR || getIdamDataType(h) == UDA_TYPE_STRING) {
             return (char *)getIdamData(h);
         }
     } else {
@@ -166,7 +166,7 @@ Php::Value getidamuuidstatus(Php::Parameters & params)
     int h = idamGetAPI(work, "");
 
     if (h >= 0 && getIdamErrorCode(h) == 0) {
-        if (getIdamDataType(h) == TYPE_CHAR || getIdamDataType(h) == TYPE_STRING) {
+        if (getIdamDataType(h) == UDA_TYPE_CHAR || getIdamDataType(h) == UDA_TYPE_STRING) {
             return (char *)getIdamData(h);
         }
     } else {
@@ -201,7 +201,7 @@ Php::Value putidamuuidstatus(Php::Parameters & params)
     int h = idamGetAPI(work, "");
 
     if (h >= 0 && getIdamErrorCode(h) == 0) {
-        if (getIdamDataType(h) == TYPE_CHAR || getIdamDataType(h) == TYPE_STRING) {
+        if (getIdamDataType(h) == UDA_TYPE_CHAR || getIdamDataType(h) == UDA_TYPE_STRING) {
             return (char *)getIdamData(h);
         }
     } else {
@@ -237,7 +237,7 @@ Php::Value putidamprovenance(Php::Parameters & params)
     }
 
     if (h >= 0 && getIdamErrorCode(h) == 0) {
-        if (getIdamDataType(h) == TYPE_CHAR || getIdamDataType(h) == TYPE_STRING) {
+        if (getIdamDataType(h) == UDA_TYPE_CHAR || getIdamDataType(h) == UDA_TYPE_STRING) {
             return (char *)getIdamData(h);
         }
     } else {

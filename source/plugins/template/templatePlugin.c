@@ -183,12 +183,12 @@ int do_function(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         initDimBlock(&data_block->dims[i]);
     }
 
-    data_block->data_type = TYPE_STRING;
+    data_block->data_type = UDA_TYPE_STRING;
     strcpy(data_block->data_desc, "templatePlugin: 'Hello World' single string returned");
 
     data_block->data = (char*) p;
 
-    data_block->dims[0].data_type = TYPE_UNSIGNED_INT;
+    data_block->dims[0].data_type = UDA_TYPE_UNSIGNED_INT;
     data_block->dims[0].dim_n = strlen(p) + 1;
     data_block->dims[0].compressed = 1;
     data_block->dims[0].dim0 = 0.0;

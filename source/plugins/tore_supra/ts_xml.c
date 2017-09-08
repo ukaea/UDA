@@ -146,43 +146,43 @@ int execute_xpath_expression(const char* filename, const xmlChar* xpathExpr, DAT
 
     int data_type = convertToInt(type);
 
-    if (data_type == TYPE_DOUBLE) {
-        data_block->data_type = TYPE_DOUBLE;
+    if (data_type == UDA_TYPE_DOUBLE) {
+        data_block->data_type = UDA_TYPE_DOUBLE;
         data_block->data = malloc(dim * sizeof(double));
         char** data = getContent(cur, dim);
         for (i = 0; i < dim; i++) {
             ((double*)data_block->data)[i] = atof(data[i]);
         }
-    } else if (data_type == TYPE_FLOAT) {
-        data_block->data_type = TYPE_FLOAT;
+    } else if (data_type == UDA_TYPE_FLOAT) {
+        data_block->data_type = UDA_TYPE_FLOAT;
         data_block->data = malloc(dim * sizeof(float));
         char** data = getContent(cur, dim);
         for (i = 0; i < dim; i++) {
             ((float*)data_block->data)[i] = (float)atof(data[i]);
         }
-    } else if (data_type == TYPE_LONG) {
-        data_block->data_type = TYPE_LONG;
+    } else if (data_type == UDA_TYPE_LONG) {
+        data_block->data_type = UDA_TYPE_LONG;
         data_block->data = malloc(dim * sizeof(long));
         char** data = getContent(cur, dim);
         for (i = 0; i < dim; i++) {
             ((long*)data_block->data)[i] = atol(data[i]);
         }
-    } else if (data_type == TYPE_INT) {
-        data_block->data_type = TYPE_INT;
+    } else if (data_type == UDA_TYPE_INT) {
+        data_block->data_type = UDA_TYPE_INT;
         data_block->data = malloc(dim * sizeof(int));
         char** data = getContent(cur, dim);
         for (i = 0; i < dim; i++) {
             ((int*)data_block->data)[i] = atoi(data[i]);
         }
-    } else if (data_type == TYPE_SHORT) {
-        data_block->data_type = TYPE_SHORT;
+    } else if (data_type == UDA_TYPE_SHORT) {
+        data_block->data_type = UDA_TYPE_SHORT;
         data_block->data = malloc(dim * sizeof(short));
         char** data = getContent(cur, dim);
         for (i = 0; i < dim; i++) {
             ((short*)data_block->data)[i] = (short)atoi(data[i]);
         }
-    } else if (data_type == TYPE_STRING) {
-        data_block->data_type = TYPE_STRING;
+    } else if (data_type == UDA_TYPE_STRING) {
+        data_block->data_type = UDA_TYPE_STRING;
         data_block->data = strdup((char*)cur->children->content);
 
     } else {
@@ -190,7 +190,7 @@ int execute_xpath_expression(const char* filename, const xmlChar* xpathExpr, DAT
         addIdamError(CODEERRORTYPE, "tore_supra : Unsupported data type", err, "");
     }
 
-    data_block->dims[0].data_type = TYPE_UNSIGNED_INT;
+    data_block->dims[0].data_type = UDA_TYPE_UNSIGNED_INT;
     data_block->dims[0].dim_n = dim;
     data_block->dims[0].compressed = 1;
     data_block->dims[0].dim0 = 0.0;
@@ -245,15 +245,15 @@ char** getContent(xmlNode* node, int dim)
 
 int convertToInt(char* value)
 {
-    int i = TYPE_UNKNOWN;
+    int i = UDA_TYPE_UNKNOWN;
     int err = 0;
 
     if (STR_EQUALS(value, "vecstring_type") || STR_EQUALS(value, "xs:string") || STR_EQUALS(value, "STR_0D")) {
-        i = TYPE_STRING;
+        i = UDA_TYPE_STRING;
     } else if (STR_EQUALS(value, "vecflt_type") || STR_EQUALS(value, "xs:float") || STR_EQUALS(value, "FLT_0D")) {
-        i = TYPE_FLOAT;
+        i = UDA_TYPE_FLOAT;
     } else if (STR_EQUALS(value, "vecint_type") || STR_EQUALS(value, "xs:integer") || STR_EQUALS(value, "INT_0D")) {
-        i = TYPE_INT;
+        i = UDA_TYPE_INT;
     } else {
         err = 999;
         addIdamError(CODEERRORTYPE, "tore_supra convertToInt() : Unsupported data type", err, "");

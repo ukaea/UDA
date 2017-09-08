@@ -68,7 +68,7 @@ int readNothing(DATA_SOURCE data_source,
 
     data_block->rank = 1;
     data_block->order = 0;
-    data_block->data_type = TYPE_FLOAT;
+    data_block->data_type = UDA_TYPE_FLOAT;
     strcpy(data_block->data_label, "Data Label");
     strcpy(data_block->data_units, "Data Units");
     strcpy(data_block->data_desc, "Data Description");
@@ -92,7 +92,7 @@ int readNothing(DATA_SOURCE data_source,
     initDimBlock(&data_block->dims[0]);
 
     data_block->dims[0].dim_n = data_block->data_n;
-    data_block->dims[0].data_type = TYPE_FLOAT;
+    data_block->dims[0].data_type = UDA_TYPE_FLOAT;
     data_block->dims[0].compressed = 0;
 
     strcpy(data_block->dims[0].dim_label, "Dim Label");

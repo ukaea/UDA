@@ -291,7 +291,7 @@ void initCompoundField(COMPOUNDFIELD* str)
     str->offset = 0;
     str->offpad = 0;
     str->alignment = 0;
-    str->atomictype = TYPE_UNKNOWN;
+    str->atomictype = UDA_TYPE_UNKNOWN;
     str->pointer = 0;
     str->rank = 0;
     str->count = 0;
@@ -308,7 +308,7 @@ void initCompoundField(COMPOUNDFIELD* str)
 */
 void initUserDefinedType(USERDEFINEDTYPE* str)
 {
-    str->idamclass = TYPE_UNKNOWN;
+    str->idamclass = UDA_TYPE_UNKNOWN;
     str->ref_id = 0;
     memset(str->name, '\0', MAXELEMENTNAME);
     memset(str->source, '\0', MAXELEMENTNAME);
@@ -1302,36 +1302,36 @@ size_t getsizeof(USERDEFINEDTYPELIST* userdefinedtypelist, const char* type)
 */
 int gettypeof(const char* type)
 {     // **** const unsigned ....
-    if (type == NULL) return TYPE_UNKNOWN;
-    if (!strcasecmp(type, "FLOAT")) return TYPE_FLOAT;
-    if (!strcasecmp(type, "DOUBLE")) return TYPE_DOUBLE;
-    if (!strcasecmp(type, "CHAR")) return TYPE_CHAR;
-    if (!strcasecmp(type, "SHORT")) return TYPE_SHORT;
-    if (!strcasecmp(type, "INT")) return TYPE_INT;
-    if (!strcasecmp(type, "LONG")) return TYPE_LONG;
-    if (!strcasecmp(type, "LONG64")) return TYPE_LONG64;
-    if (!strcasecmp(type, "LONG LONG"))return TYPE_LONG64;
-    if (!strcasecmp(type, "COMPLEX")) return TYPE_COMPLEX;
-    if (!strcasecmp(type, "DCOMPLEX")) return TYPE_DCOMPLEX;
-    if (!strcasecmp(type, "STRING")) return TYPE_STRING;
-    if (!strcasecmp(type, "VOID")) return TYPE_VOID;
+    if (type == NULL) return UDA_TYPE_UNKNOWN;
+    if (!strcasecmp(type, "FLOAT")) return UDA_TYPE_FLOAT;
+    if (!strcasecmp(type, "DOUBLE")) return UDA_TYPE_DOUBLE;
+    if (!strcasecmp(type, "CHAR")) return UDA_TYPE_CHAR;
+    if (!strcasecmp(type, "SHORT")) return UDA_TYPE_SHORT;
+    if (!strcasecmp(type, "INT")) return UDA_TYPE_INT;
+    if (!strcasecmp(type, "LONG")) return UDA_TYPE_LONG;
+    if (!strcasecmp(type, "LONG64")) return UDA_TYPE_LONG64;
+    if (!strcasecmp(type, "LONG LONG"))return UDA_TYPE_LONG64;
+    if (!strcasecmp(type, "COMPLEX")) return UDA_TYPE_COMPLEX;
+    if (!strcasecmp(type, "DCOMPLEX")) return UDA_TYPE_DCOMPLEX;
+    if (!strcasecmp(type, "STRING")) return UDA_TYPE_STRING;
+    if (!strcasecmp(type, "VOID")) return UDA_TYPE_VOID;
 
-    if (!strcasecmp(type, "UCHAR")) return TYPE_UNSIGNED_CHAR;
-    if (!strcasecmp(type, "USHORT")) return TYPE_UNSIGNED_SHORT;
-    if (!strcasecmp(type, "UINT")) return TYPE_UNSIGNED_INT;
-    if (!strcasecmp(type, "ULONG")) return TYPE_UNSIGNED_LONG;
+    if (!strcasecmp(type, "UCHAR")) return UDA_TYPE_UNSIGNED_CHAR;
+    if (!strcasecmp(type, "USHORT")) return UDA_TYPE_UNSIGNED_SHORT;
+    if (!strcasecmp(type, "UINT")) return UDA_TYPE_UNSIGNED_INT;
+    if (!strcasecmp(type, "ULONG")) return UDA_TYPE_UNSIGNED_LONG;
 #ifndef __APPLE__
-    if (!strcasecmp(type, "ULONG64")) return TYPE_UNSIGNED_LONG64;
+    if (!strcasecmp(type, "ULONG64")) return UDA_TYPE_UNSIGNED_LONG64;
 #endif
-    if (!strcasecmp(type, "UNSIGNED CHAR")) return TYPE_UNSIGNED_CHAR;
-    if (!strcasecmp(type, "UNSIGNED SHORT")) return TYPE_UNSIGNED_SHORT;
-    if (!strcasecmp(type, "UNSIGNED INT")) return TYPE_UNSIGNED_INT;
-    if (!strcasecmp(type, "UNSIGNED LONG")) return TYPE_UNSIGNED_LONG;
+    if (!strcasecmp(type, "UNSIGNED CHAR")) return UDA_TYPE_UNSIGNED_CHAR;
+    if (!strcasecmp(type, "UNSIGNED SHORT")) return UDA_TYPE_UNSIGNED_SHORT;
+    if (!strcasecmp(type, "UNSIGNED INT")) return UDA_TYPE_UNSIGNED_INT;
+    if (!strcasecmp(type, "UNSIGNED LONG")) return UDA_TYPE_UNSIGNED_LONG;
 #ifndef __APPLE__
-    if (!strcasecmp(type, "UNSIGNED LONG64")) return TYPE_UNSIGNED_LONG64;
-    if (!strcasecmp(type, "UNSIGNED LONG LONG")) return TYPE_UNSIGNED_LONG64;
+    if (!strcasecmp(type, "UNSIGNED LONG64")) return UDA_TYPE_UNSIGNED_LONG64;
+    if (!strcasecmp(type, "UNSIGNED LONG LONG")) return UDA_TYPE_UNSIGNED_LONG64;
 #endif
-    return TYPE_UNKNOWN;  // Means Non Atomic => User defined structure type
+    return UDA_TYPE_UNKNOWN;  // Means Non Atomic => User defined structure type
 }
 
 /** Return structure element alignment byte boundary
@@ -1443,33 +1443,33 @@ size_t padding(size_t offset, char* type)
 char* idamNameType(int type)
 {
     switch (type) {
-        case TYPE_CHAR:
+        case UDA_TYPE_CHAR:
             return "char";
-        case TYPE_SHORT:
+        case UDA_TYPE_SHORT:
             return "short";
-        case TYPE_INT:
+        case UDA_TYPE_INT:
             return "int";
-        case TYPE_LONG:
+        case UDA_TYPE_LONG:
             return "int";
-        case TYPE_LONG64:
+        case UDA_TYPE_LONG64:
             return "long long";
-        case TYPE_FLOAT:
+        case UDA_TYPE_FLOAT:
             return "float";
-        case TYPE_DOUBLE:
+        case UDA_TYPE_DOUBLE:
             return "double";
-        case TYPE_UNSIGNED_CHAR:
+        case UDA_TYPE_UNSIGNED_CHAR:
             return "unsigned char";
-        case TYPE_UNSIGNED_SHORT:
+        case UDA_TYPE_UNSIGNED_SHORT:
             return "unsigned short";
-        case TYPE_UNSIGNED_INT:
+        case UDA_TYPE_UNSIGNED_INT:
             return "unsigned int";
-        case TYPE_UNSIGNED_LONG:
+        case UDA_TYPE_UNSIGNED_LONG:
             return "unsigned int";
 #ifndef __APPLE__
-        case TYPE_UNSIGNED_LONG64:
+        case UDA_TYPE_UNSIGNED_LONG64:
             return "unsigned long long";
 #endif
-        case TYPE_STRING:
+        case UDA_TYPE_STRING:
             return "char";
         default:
             return "unknown";
@@ -1588,16 +1588,16 @@ int xdrAtomicData(LOGMALLOCLIST* logmalloclist, XDR* xdrs, char* type, int count
     if (xdrs->x_op != XDR_DECODE) {
         int rc;
         switch(typeid) {
-        case(TYPE_FLOAT):
+        case(UDA_TYPE_FLOAT):
             for (rc=0; rc<count; rc++)fprintf(stdout,"%f ", *((float *)d + rc));
             break;
-        case(TYPE_DOUBLE):
+        case(UDA_TYPE_DOUBLE):
             for (rc=0; rc<count; rc++)fprintf(stdout,"%f ", *((double *)d + rc));
             break;
-        case(TYPE_COMPLEX):
+        case(UDA_TYPE_COMPLEX):
             for (rc=0; rc<2*count; rc++)fprintf(stdout,"%f ", *((float *)d + rc));
             break;
-        case(TYPE_INT):
+        case(UDA_TYPE_INT):
             for (rc=0; rc<count; rc++)fprintf(stdout,"%d ", *((int *)d + rc));
             break;
         }
@@ -1606,32 +1606,32 @@ int xdrAtomicData(LOGMALLOCLIST* logmalloclist, XDR* xdrs, char* type, int count
 #endif
 #ifndef DEBUG2
     switch (typeid) {
-        case TYPE_FLOAT:
+        case UDA_TYPE_FLOAT:
             return (xdr_vector(xdrs, d, count, sizeof(float), (xdrproc_t)xdr_float));
-        case TYPE_DOUBLE:
+        case UDA_TYPE_DOUBLE:
             return (xdr_vector(xdrs, d, count, sizeof(double), (xdrproc_t)xdr_double));
-        case TYPE_COMPLEX:
+        case UDA_TYPE_COMPLEX:
             return (xdr_vector(xdrs, d, 2 * count, sizeof(float), (xdrproc_t)xdr_float));
-        case TYPE_DCOMPLEX:
+        case UDA_TYPE_DCOMPLEX:
             return (xdr_vector(xdrs, d, 2 * count, sizeof(double), (xdrproc_t)xdr_double));
 
-        case TYPE_CHAR:
+        case UDA_TYPE_CHAR:
             return (xdr_vector(xdrs, d, count, sizeof(char), (xdrproc_t)xdr_char));
-        case TYPE_SHORT:
+        case UDA_TYPE_SHORT:
             return (xdr_vector(xdrs, d, count, sizeof(short), (xdrproc_t)xdr_short));
-        case TYPE_INT:
+        case UDA_TYPE_INT:
             return (xdr_vector(xdrs, d, count, sizeof(int), (xdrproc_t)xdr_int));
-        case TYPE_LONG64:
+        case UDA_TYPE_LONG64:
             return (xdr_vector(xdrs, d, count, sizeof(long long), (xdrproc_t)xdr_int64_t));
 
-        case TYPE_UNSIGNED_CHAR:
+        case UDA_TYPE_UNSIGNED_CHAR:
             return (xdr_vector(xdrs, d, count, sizeof(unsigned char), (xdrproc_t)xdr_u_char));
-        case TYPE_UNSIGNED_SHORT:
+        case UDA_TYPE_UNSIGNED_SHORT:
             return (xdr_vector(xdrs, d, count, sizeof(unsigned short), (xdrproc_t)xdr_u_short));
-        case TYPE_UNSIGNED_INT:
+        case UDA_TYPE_UNSIGNED_INT:
             return (xdr_vector(xdrs, d, count, sizeof(unsigned int), (xdrproc_t)xdr_u_int));
 #ifndef __APPLE__
-        case TYPE_UNSIGNED_LONG64:
+        case UDA_TYPE_UNSIGNED_LONG64:
             return (xdr_vector(xdrs, d, count, sizeof(unsigned long long), (xdrproc_t) xdr_uint64_t));
 #endif
     }
@@ -1639,16 +1639,16 @@ int xdrAtomicData(LOGMALLOCLIST* logmalloclist, XDR* xdrs, char* type, int count
     if (xdrs->x_op == XDR_DECODE) {
         int rc;
         switch(typeid) {
-        case(TYPE_FLOAT):
+        case(UDA_TYPE_FLOAT):
             for (rc=0; rc<count; rc++)fprintf(stdout,"%f ", *((float *)d + rc));
             break;
-        case(TYPE_DOUBLE):
+        case(UDA_TYPE_DOUBLE):
             for (rc=0; rc<count; rc++)fprintf(stdout,"%f ", *((double *)d + rc));
             break;
-        case(TYPE_COMPLEX):
+        case(UDA_TYPE_COMPLEX):
             for (rc=0; rc<2*count; rc++)fprintf(stdout,"%f ", *((float *)d + rc));
             break;
-        case(TYPE_INT):
+        case(UDA_TYPE_INT):
             for (rc=0; rc<count; rc++)fprintf(stdout,"%d ", *((int *)d + rc));
             break;
         }
@@ -2014,7 +2014,7 @@ void printAtomicData(void* data, int atomictype, int count, const char* label)
         return;
     }
     switch (atomictype) {
-        case TYPE_FLOAT: {
+        case UDA_TYPE_FLOAT: {
             float* d = (float*)data;
             if (count > 1) {
                 IDAM_LOGF(UDA_LOG_DEBUG, "%40s:\n", label);
@@ -2026,7 +2026,7 @@ void printAtomicData(void* data, int atomictype, int count, const char* label)
             }
             return;
         }
-        case TYPE_DOUBLE: {
+        case UDA_TYPE_DOUBLE: {
             double* d = (double*)data;
             if (count > 1) {
                 IDAM_LOGF(UDA_LOG_DEBUG, "%40s:\n", label);
@@ -2039,7 +2039,7 @@ void printAtomicData(void* data, int atomictype, int count, const char* label)
             return;
         }
 
-        case TYPE_SHORT: {
+        case UDA_TYPE_SHORT: {
             short* d = (short*)data;
             if (count > 1) {
                 IDAM_LOGF(UDA_LOG_DEBUG, "%40s:\n", label);
@@ -2051,8 +2051,8 @@ void printAtomicData(void* data, int atomictype, int count, const char* label)
             }
             return;
         }
-        case TYPE_INT:
-        case TYPE_LONG: {
+        case UDA_TYPE_INT:
+        case UDA_TYPE_LONG: {
             int* d = (int*)data;
             if (count > 1) {
                 IDAM_LOGF(UDA_LOG_DEBUG, "%40s:\n", label);
@@ -2064,7 +2064,7 @@ void printAtomicData(void* data, int atomictype, int count, const char* label)
             }
             return;
         }
-        case TYPE_LONG64: {
+        case UDA_TYPE_LONG64: {
             long long* d = (long long*)data;
             if (count > 1) {
                 IDAM_LOGF(UDA_LOG_DEBUG, "%40s:\n", label);
@@ -2077,7 +2077,7 @@ void printAtomicData(void* data, int atomictype, int count, const char* label)
             return;
         }
 
-        case TYPE_UNSIGNED_CHAR: {
+        case UDA_TYPE_UNSIGNED_CHAR: {
             unsigned char* d = (unsigned char*)data;
             if (count > 1) {
                 IDAM_LOGF(UDA_LOG_DEBUG, "%40s:\n", label);
@@ -2089,7 +2089,7 @@ void printAtomicData(void* data, int atomictype, int count, const char* label)
             }
             return;
         }
-        case TYPE_UNSIGNED_SHORT: {
+        case UDA_TYPE_UNSIGNED_SHORT: {
             unsigned short* d = (unsigned short*)data;
             if (count > 1) {
                 IDAM_LOGF(UDA_LOG_DEBUG, "%40s:\n", label);
@@ -2101,8 +2101,8 @@ void printAtomicData(void* data, int atomictype, int count, const char* label)
             }
             return;
         }
-        case TYPE_UNSIGNED_INT:
-        case TYPE_UNSIGNED_LONG: {
+        case UDA_TYPE_UNSIGNED_INT:
+        case UDA_TYPE_UNSIGNED_LONG: {
             unsigned int* d = (unsigned int*)data;
             if (count > 1) {
                 IDAM_LOGF(UDA_LOG_DEBUG, "%40s:\n", label);
@@ -2115,7 +2115,7 @@ void printAtomicData(void* data, int atomictype, int count, const char* label)
             return;
         }
 #ifndef __APPLE__
-        case TYPE_UNSIGNED_LONG64: {
+        case UDA_TYPE_UNSIGNED_LONG64: {
             unsigned long long* d = (unsigned long long*) data;
             if (count > 1) {
                 IDAM_LOGF(UDA_LOG_DEBUG, "%40s:\n", label);
@@ -2127,12 +2127,12 @@ void printAtomicData(void* data, int atomictype, int count, const char* label)
         }
 #endif
 
-        case TYPE_STRING: {
+        case UDA_TYPE_STRING: {
             char* d = (char*)data;
             IDAM_LOGF(UDA_LOG_DEBUG, "%40s: %s\n", label, d);
             return;
         }
-        case TYPE_CHAR: {
+        case UDA_TYPE_CHAR: {
             char* d = (char*)data;
             IDAM_LOGF(UDA_LOG_DEBUG, "%40s: %s\n", label, d);
             return;
@@ -2158,7 +2158,7 @@ void printAtomicType(LOGMALLOCLIST* logmalloclist, NTREE* tree, const char* targ
     int i, fieldcount = tree->userdefinedtype->fieldcount;
     for (i = 0; i < fieldcount; i++) {
         if (!strcmp(userdefinedtype->compoundfield[i].name, target)) {
-            if (userdefinedtype->compoundfield[i].atomictype != TYPE_UNKNOWN) {
+            if (userdefinedtype->compoundfield[i].atomictype != UDA_TYPE_UNKNOWN) {
                 p = (char*)tree->data;
                 if (userdefinedtype->compoundfield[i].pointer ||
                     !strcmp(userdefinedtype->compoundfield[i].type, "STRING *")) {  // Strings are an exception!
@@ -2600,7 +2600,7 @@ int getNodeStructureCount(NTREE* ntree)
         ntree = fullNTree;
     }
     for (i = 0; i < ntree->userdefinedtype->fieldcount; i++) {
-        if (ntree->userdefinedtype->compoundfield[i].atomictype == TYPE_UNKNOWN) {
+        if (ntree->userdefinedtype->compoundfield[i].atomictype == UDA_TYPE_UNKNOWN) {
             count++;
         }
     }
@@ -2618,7 +2618,7 @@ int getNodeAtomicCount(NTREE* ntree)
     int i, count = 0;
     if (ntree == NULL) ntree = fullNTree;
     for (i = 0; i < ntree->userdefinedtype->fieldcount; i++) {
-        if (ntree->userdefinedtype->compoundfield[i].atomictype != TYPE_UNKNOWN) {
+        if (ntree->userdefinedtype->compoundfield[i].atomictype != UDA_TYPE_UNKNOWN) {
             count++;
         }
     }
@@ -2645,7 +2645,7 @@ char** getNodeStructureNames(LOGMALLOCLIST* logmalloclist, NTREE* ntree)
     addMalloc(logmalloclist, (void*)names, count, sizeof(char*), "char *");
     count = 0;
     for (i = 0; i < ntree->userdefinedtype->fieldcount; i++) {
-        if (ntree->userdefinedtype->compoundfield[i].atomictype == TYPE_UNKNOWN) {
+        if (ntree->userdefinedtype->compoundfield[i].atomictype == UDA_TYPE_UNKNOWN) {
             names[count++] = ntree->userdefinedtype->compoundfield[i].name;
         }
     }
@@ -2673,7 +2673,7 @@ char** getNodeAtomicNames(LOGMALLOCLIST* logmalloclist, NTREE* ntree)
 
     count = 0;
     for (i = 0; i < ntree->userdefinedtype->fieldcount; i++) {
-        if (ntree->userdefinedtype->compoundfield[i].atomictype != TYPE_UNKNOWN) {
+        if (ntree->userdefinedtype->compoundfield[i].atomictype != UDA_TYPE_UNKNOWN) {
             names[count++] = ntree->userdefinedtype->compoundfield[i].name;
         }
     }
@@ -2700,7 +2700,7 @@ char** getNodeStructureTypes(LOGMALLOCLIST* logmalloclist, NTREE* ntree)
     addMalloc(logmalloclist, (void*)names, count, sizeof(char*), "char *");
     count = 0;
     for (i = 0; i < ntree->userdefinedtype->fieldcount; i++) {
-        if (ntree->userdefinedtype->compoundfield[i].atomictype == TYPE_UNKNOWN) {
+        if (ntree->userdefinedtype->compoundfield[i].atomictype == UDA_TYPE_UNKNOWN) {
             names[count++] = ntree->userdefinedtype->compoundfield[i].type;
         }
     }
@@ -2727,7 +2727,7 @@ char** getNodeAtomicTypes(LOGMALLOCLIST* logmalloclist, NTREE* ntree)
     addMalloc(logmalloclist, (void*)names, count, sizeof(char*), "char *");
     count = 0;
     for (i = 0; i < ntree->userdefinedtype->fieldcount; i++) {
-        if (ntree->userdefinedtype->compoundfield[i].atomictype != TYPE_UNKNOWN) {
+        if (ntree->userdefinedtype->compoundfield[i].atomictype != UDA_TYPE_UNKNOWN) {
             names[count++] = ntree->userdefinedtype->compoundfield[i].type;
         }
     }
@@ -2754,7 +2754,7 @@ int* getNodeStructurePointers(LOGMALLOCLIST* logmalloclist, NTREE* ntree)
     addMalloc(logmalloclist, (void*)pointers, count, sizeof(int), "int");
     count = 0;
     for (i = 0; i < ntree->userdefinedtype->fieldcount; i++) {
-        if (ntree->userdefinedtype->compoundfield[i].atomictype == TYPE_UNKNOWN) {
+        if (ntree->userdefinedtype->compoundfield[i].atomictype == UDA_TYPE_UNKNOWN) {
             pointers[count] = ntree->userdefinedtype->compoundfield[i].pointer;
             count++;
         }
@@ -2782,7 +2782,7 @@ int* getNodeAtomicPointers(LOGMALLOCLIST* logmalloclist, NTREE* ntree)
     addMalloc(logmalloclist, (void*)pointers, count, sizeof(int), "int");
     count = 0;
     for (i = 0; i < ntree->userdefinedtype->fieldcount; i++) {
-        if (ntree->userdefinedtype->compoundfield[i].atomictype != TYPE_UNKNOWN) {
+        if (ntree->userdefinedtype->compoundfield[i].atomictype != UDA_TYPE_UNKNOWN) {
             pointers[count] = ntree->userdefinedtype->compoundfield[i].pointer;
             // if (!strcmp(ntree->userdefinedtype->compoundfield[i].type, "STRING *")) pointers[count] = 1;
             count++;
@@ -2812,7 +2812,7 @@ int* getNodeStructureRank(LOGMALLOCLIST* logmalloclist, NTREE* ntree)
     addMalloc(logmalloclist, (void*)ranks, count, sizeof(int), "int");
     count = 0;
     for (i = 0; i < ntree->userdefinedtype->fieldcount; i++) {
-        if (ntree->userdefinedtype->compoundfield[i].atomictype == TYPE_UNKNOWN) {
+        if (ntree->userdefinedtype->compoundfield[i].atomictype == UDA_TYPE_UNKNOWN) {
             if (!ntree->userdefinedtype->compoundfield[i].pointer) {
                 ranks[count] = ntree->userdefinedtype->compoundfield[i].rank;
             } else {
@@ -2851,7 +2851,7 @@ int* getNodeAtomicRank(LOGMALLOCLIST* logmalloclist, NTREE* ntree)
     addMalloc(logmalloclist, (void*)ranks, count, sizeof(int), "int");
     count = 0;
     for (i = 0; i < ntree->userdefinedtype->fieldcount; i++)
-        if (ntree->userdefinedtype->compoundfield[i].atomictype != TYPE_UNKNOWN) {
+        if (ntree->userdefinedtype->compoundfield[i].atomictype != UDA_TYPE_UNKNOWN) {
             if (!ntree->userdefinedtype->compoundfield[i].pointer) {
                 ranks[count] = ntree->userdefinedtype->compoundfield[i].rank;
             } else {
@@ -2888,7 +2888,7 @@ int** getNodeStructureShape(LOGMALLOCLIST* logmalloclist, NTREE* ntree)
     addMalloc(logmalloclist, (void*)shapes, count, sizeof(int*), "int *");
     count = 0;
     for (i = 0; i < ntree->userdefinedtype->fieldcount; i++)
-        if (ntree->userdefinedtype->compoundfield[i].atomictype == TYPE_UNKNOWN) {
+        if (ntree->userdefinedtype->compoundfield[i].atomictype == UDA_TYPE_UNKNOWN) {
             if (!ntree->userdefinedtype->compoundfield[i].pointer) {
                 shapes[count] = ntree->userdefinedtype->compoundfield[i].shape;
             } else {
@@ -2923,7 +2923,7 @@ int** getNodeAtomicShape(LOGMALLOCLIST* logmalloclist, NTREE* ntree)
     addMalloc(logmalloclist, (void*)shapes, count, sizeof(int*), "int *");
     count = 0;
     for (i = 0; i < ntree->userdefinedtype->fieldcount; i++)
-        if (ntree->userdefinedtype->compoundfield[i].atomictype != TYPE_UNKNOWN) {
+        if (ntree->userdefinedtype->compoundfield[i].atomictype != UDA_TYPE_UNKNOWN) {
             if (!ntree->userdefinedtype->compoundfield[i].pointer) {
                 shapes[count] = ntree->userdefinedtype->compoundfield[i].shape;
                 if (shapes[count] == NULL &&
@@ -3272,7 +3272,9 @@ char* getNodeStructureComponentDataDataType(LOGMALLOCLIST* logmalloclist, NTREE*
     char* type = NULL, * data;
     if (ntree == NULL) ntree = fullNTree;
     ntree = findNTreeStructureComponent2(logmalloclist, ntree, target, &lastname); // Identify node and component name
-    if (ntree == NULL) return TYPE_UNKNOWN;
+    if (ntree == NULL) {
+        return "unknown";
+    }
     userdefinedtype = ntree->userdefinedtype;
     fieldcount = ntree->userdefinedtype->fieldcount;
     for (i = 0; i < fieldcount; i++) {
@@ -3305,10 +3307,13 @@ void* getNodeStructureComponentData(LOGMALLOCLIST* logmalloclist, NTREE* ntree, 
     void* data = NULL;
     if (ntree == NULL) ntree = fullNTree;
     ntree = findNTreeStructureComponent2(logmalloclist, ntree, target, &lastname); // Identify node and component name
-    if (ntree == NULL) return NULL;
+    if (ntree == NULL) {
+        return NULL;
+    }
 
-//dgm 05Aug2015   
-    if (!strcmp(ntree->name, lastname)) return ntree->data;
+    if (!strcmp(ntree->name, lastname)) {
+        return ntree->data;
+    }
 
     userdefinedtype = ntree->userdefinedtype;
     fieldcount = ntree->userdefinedtype->fieldcount;
@@ -3394,7 +3399,7 @@ void printNodeStructureComponentData(NTREE* ntree, LOGMALLOCLIST* logmalloclist,
                         data = (void*)&pp[offset];
                     }
                     if (data == NULL) continue;
-                    if (userdefinedtype->compoundfield[i].atomictype != TYPE_UNKNOWN) {
+                    if (userdefinedtype->compoundfield[i].atomictype != UDA_TYPE_UNKNOWN) {
                         printAtomicData(data, userdefinedtype->compoundfield[i].atomictype,
                                         userdefinedtype->compoundfield[i].count, lastname);
                     } else {

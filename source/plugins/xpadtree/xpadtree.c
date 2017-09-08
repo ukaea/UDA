@@ -44,13 +44,13 @@ int idamXpadTree(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
             initDimBlock(&data_block->dims[0]);
 
-            data_block->data_type = TYPE_STRING;
+            data_block->data_type = UDA_TYPE_STRING;
             strcpy(data_block->data_desc, "help = description of this plugin");
 
             data_block->data = (char*)malloc(sizeof(char) * (strlen(help) + 1));
             strcpy(data_block->data, help);
 
-            data_block->dims[0].data_type = TYPE_UNSIGNED_INT;
+            data_block->dims[0].data_type = UDA_TYPE_UNSIGNED_INT;
             data_block->dims[0].dim_n = (int)strlen(help) + 1;
             data_block->dims[0].compressed = 1;
             data_block->dims[0].dim0 = 0.0;
@@ -253,7 +253,7 @@ int idamXpadTree(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             //User defined type to describe data structure
             initUserDefinedType(&parentTree);
-            parentTree.idamclass = TYPE_COMPOUND;
+            parentTree.idamclass = UDA_TYPE_COMPOUND;
             strcpy(parentTree.name, "DATASTRUCT");
             strcpy(parentTree.source, "idam3");
             parentTree.ref_id = 0;
@@ -288,7 +288,7 @@ int idamXpadTree(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             // Put data struct into data block for return
             initDataBlock(data_block);
 
-            data_block->data_type = TYPE_COMPOUND;
+            data_block->data_type = UDA_TYPE_COMPOUND;
             data_block->rank = 0;            // Scalar structure (don't need a DIM array)
             data_block->data_n = 1;
             data_block->data = (char*)data;
@@ -297,7 +297,7 @@ int idamXpadTree(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             strcpy(data_block->data_label, "signals");
             strcpy(data_block->data_units, "");
 
-            data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
+            data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
             data_block->opaque_count = 1;
             data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "DATASTRUCT", 0);
 
@@ -452,7 +452,7 @@ int idamXpadTree(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             //User defined type to describe data structure
             initUserDefinedType(&parentTree);
-            parentTree.idamclass = TYPE_COMPOUND;
+            parentTree.idamclass = UDA_TYPE_COMPOUND;
             strcpy(parentTree.name, "DATASTRUCT");
             strcpy(parentTree.source, "idam3");
             parentTree.ref_id = 0;
@@ -478,7 +478,7 @@ int idamXpadTree(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             // Put data struct into data block for return
             initDataBlock(data_block);
 
-            data_block->data_type = TYPE_COMPOUND;
+            data_block->data_type = UDA_TYPE_COMPOUND;
             data_block->rank = 0;            // Scalar structure (don't need a DIM array)
             data_block->data_n = 1;
             data_block->data = (char*)data;
@@ -487,7 +487,7 @@ int idamXpadTree(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             strcpy(data_block->data_label, "signaltag_map");
             strcpy(data_block->data_units, "");
 
-            data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
+            data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
             data_block->opaque_count = 1;
             data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "DATASTRUCT", 0);
 
@@ -702,7 +702,7 @@ int idamXpadTree(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             //User defined type to describe data structure
             initUserDefinedType(&parentTree);
-            parentTree.idamclass = TYPE_COMPOUND;
+            parentTree.idamclass = UDA_TYPE_COMPOUND;
             strcpy(parentTree.name, "DATASTRUCT");
             strcpy(parentTree.source, "idam3");
             parentTree.ref_id = 0;
@@ -737,7 +737,7 @@ int idamXpadTree(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             // Put data struct into data block for return
             initDataBlock(data_block);
 
-            data_block->data_type = TYPE_COMPOUND;
+            data_block->data_type = UDA_TYPE_COMPOUND;
             data_block->rank = 0;            // Scalar structure (don't need a DIM array)
             data_block->data_n = 1;
             data_block->data = (char*)data;
@@ -746,7 +746,7 @@ int idamXpadTree(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             strcpy(data_block->data_label, "tags");
             strcpy(data_block->data_units, "");
 
-            data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
+            data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
             data_block->opaque_count = 1;
             data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "DATASTRUCT", 0);
 

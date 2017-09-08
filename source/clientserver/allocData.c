@@ -32,11 +32,11 @@ int allocArray(int data_type, size_t n_data, char** ap)
     size_t data_size = getSizeOf(data_type);
     if (data_size > 0) {
         *ap = (char*)realloc((void*)*ap, n_data * data_size);
-    } else if (data_type != TYPE_COMPOUND) {
+    } else if (data_type != UDA_TYPE_COMPOUND) {
         return UNKNOWN_DATA_TYPE;
     }
 
-    if (*ap == NULL && data_type != TYPE_COMPOUND) {
+    if (*ap == NULL && data_type != UDA_TYPE_COMPOUND) {
         return ERROR_ALLOCATING_HEAP;
     }
 
@@ -78,13 +78,13 @@ int allocData(DATA_BLOCK* data_block)
     size_t data_size = getSizeOf(data_block->data_type);
     if (data_size > 0) {
         db = (char*)malloc(ndata * data_size);
-        if (data_block->error_type == TYPE_UNKNOWN) {
+        if (data_block->error_type == UDA_TYPE_UNKNOWN) {
             ebh = (char*)malloc(ndata * data_size);
             if (data_block->errasymmetry) {
                 ebl = (char*)malloc(ndata * data_size);
             }
         }
-    } else if (data_block->data_type != TYPE_COMPOUND) {
+    } else if (data_block->data_type != UDA_TYPE_COMPOUND) {
         return UNKNOWN_DATA_TYPE;
     }
 
@@ -97,7 +97,7 @@ int allocData(DATA_BLOCK* data_block)
     IDAM_LOGF(UDA_LOG_DEBUG, "errhi != NULL: %d\n", ebh != NULL);
     IDAM_LOGF(UDA_LOG_DEBUG, "errlo != NULL: %d\n", ebl != NULL);
 
-    if (db == NULL && data_block->data_type != TYPE_COMPOUND) {
+    if (db == NULL && data_block->data_type != UDA_TYPE_COMPOUND) {
         IDAM_LOG(UDA_LOG_DEBUG, "allocData: Unable to Allocate Heap Memory for Data \n");
         return ERROR_ALLOCATING_HEAP;
     }
@@ -111,7 +111,7 @@ int allocData(DATA_BLOCK* data_block)
     }
 
     if ((ebh == NULL || (ebl == NULL && data_block->errasymmetry)) &&
-        (data_block->error_type != TYPE_COMPOUND && data_block->error_type != TYPE_UNKNOWN)) {
+        (data_block->error_type != UDA_TYPE_COMPOUND && data_block->error_type != UDA_TYPE_UNKNOWN)) {
         return ERROR_ALLOCATING_HEAP;
     }
 
@@ -146,7 +146,7 @@ int allocDim(DATA_BLOCK* data_block)
 
         db = (char*)malloc(ndata * data_size);
 
-        if (data_block->dims[i].error_type == TYPE_UNKNOWN) {
+        if (data_block->dims[i].error_type == UDA_TYPE_UNKNOWN) {
             ebh = (char*)malloc(ndata * data_size);
             if (data_block->dims[i].errasymmetry) {
                 ebl = (char*)malloc(ndata * data_size);
@@ -176,15 +176,15 @@ int allocDim(DATA_BLOCK* data_block)
             data_block->dims[i].ints = NULL;
 
             switch (data_block->dims[i].method) {
-                case 1 :
+                case 1:
                     data_block->dims[i].sams = (int*)malloc(data_block->dims[i].udoms * sizeof(int));
                     data_block->dims[i].offs = (char*)malloc(data_block->dims[i].udoms * data_size);
                     data_block->dims[i].ints = (char*)malloc(data_block->dims[i].udoms * data_size);
                     break;
-                case 2 :
+                case 2:
                     data_block->dims[i].offs = (char*)malloc(data_block->dims[i].udoms * data_size);
                     break;
-                case 3 :
+                case 3:
                     data_block->dims[i].offs = (char*)malloc(data_size);
                     data_block->dims[i].ints = (char*)malloc(data_size);
                     break;
@@ -223,7 +223,7 @@ int allocPutData(PUTDATA_BLOCK* putData)
     IDAM_LOGF(UDA_LOG_DEBUG, "data_type : %d\n", putData->data_type);
     IDAM_LOGF(UDA_LOG_DEBUG, "data  != NULL: %d\n", db != NULL);
 
-    if (db == NULL && putData->data_type != TYPE_COMPOUND) {
+    if (db == NULL && putData->data_type != UDA_TYPE_COMPOUND) {
         IDAM_LOG(UDA_LOG_DEBUG, "allocPutData: Unable to Allocate Heap Memory for Data \n");
         return (ERROR_ALLOCATING_HEAP);
     }

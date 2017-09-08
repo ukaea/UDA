@@ -682,7 +682,7 @@ int putSignal(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Return 
 
-        data_block->data_type = TYPE_INT;
+        data_block->data_type = UDA_TYPE_INT;
         data_block->rank = 0;
         data_block->data_n = 1;
         data_block->data = (char*) malloc(sizeof(int));

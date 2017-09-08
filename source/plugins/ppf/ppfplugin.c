@@ -102,12 +102,12 @@ static int help(IDAM_PLUGIN_INTERFACE * ipi)
     data_block->dims = (DIMS *) malloc(data_block->rank * sizeof(DIMS));
     for (i = 0; i < data_block->rank; i++) initDimBlock(&data_block->dims[i]);
 
-    data_block->data_type = TYPE_STRING;
+    data_block->data_type = UDA_TYPE_STRING;
     strcpy(data_block->data_desc, "dsa Plugin: help = description of this plugin");
 
     data_block->data = (char *) p;
 
-    data_block->dims[0].data_type = TYPE_UNSIGNED_INT;
+    data_block->dims[0].data_type = UDA_TYPE_UNSIGNED_INT;
     data_block->dims[0].dim_n = strlen(p) + 1;
     data_block->dims[0].compressed = 1;
     data_block->dims[0].dim0 = 0.0;
@@ -711,18 +711,18 @@ static int readppf(IDAM_PLUGIN_INTERFACE * idam_plugin_interface)
     // Observational Data
 
     if (ihdat[24] == 'F') {
-        data_block->data_type = TYPE_FLOAT;
+        data_block->data_type = UDA_TYPE_FLOAT;
     } else {
         if (ihdat[24] == 'I') {
-            data_block->data_type = TYPE_INT;
+            data_block->data_type = UDA_TYPE_INT;
         } else {
-            data_block->data_type = TYPE_UNKNOWN;
+            data_block->data_type = UDA_TYPE_UNKNOWN;
         }
     }
 
     //fprintf(stdout,"Data is of Type: %c\n",ihdat[24]);
 
-    data_block->error_type = TYPE_UNKNOWN;
+    data_block->error_type = UDA_TYPE_UNKNOWN;
 
     data_block->data = (char *) dvec;
     data_block->data_n = iwdat[4];
@@ -774,12 +774,12 @@ static int readppf(IDAM_PLUGIN_INTERFACE * idam_plugin_interface)
         strcpy(data_block->dims[order].dim_label, "Time");
 
         if ('F' == ihdat[32]) {
-            data_block->dims[order].data_type = TYPE_FLOAT;
+            data_block->dims[order].data_type = UDA_TYPE_FLOAT;
         } else {
             if ('I' == ihdat[32]) {
-                data_block->dims[order].data_type = TYPE_INT;
+                data_block->dims[order].data_type = UDA_TYPE_INT;
             } else {
-                data_block->dims[order].data_type = TYPE_UNKNOWN;
+                data_block->dims[order].data_type = UDA_TYPE_UNKNOWN;
             }
         }
     }
@@ -794,12 +794,12 @@ static int readppf(IDAM_PLUGIN_INTERFACE * idam_plugin_interface)
         data_block->dims[swap[order + 1]].dim_units[8] = '\0';
         strcpy(data_block->dims[swap[order + 1]].dim_label, "X");
         if ('F' == ihdat[28]) {
-            data_block->dims[swap[order + 1]].data_type = TYPE_FLOAT;
+            data_block->dims[swap[order + 1]].data_type = UDA_TYPE_FLOAT;
         } else {
             if ('I' == ihdat[28]) {
-                data_block->dims[swap[order + 1]].data_type = TYPE_INT;
+                data_block->dims[swap[order + 1]].data_type = UDA_TYPE_INT;
             } else {
-                data_block->dims[swap[order + 1]].data_type = TYPE_UNKNOWN;
+                data_block->dims[swap[order + 1]].data_type = UDA_TYPE_UNKNOWN;
             }
         }
     }

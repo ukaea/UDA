@@ -49,7 +49,7 @@ int setReturnDataDoubleScalar(DATA_BLOCK* data_block, double value, const char* 
 
     initDataBlock(data_block);
     data_block->rank = 0;
-    data_block->data_type = TYPE_DOUBLE;
+    data_block->data_type = UDA_TYPE_DOUBLE;
     data_block->data = (char*)data;
     data_block->data_n = 1;
 
@@ -70,7 +70,7 @@ int setReturnDataFloatScalar(DATA_BLOCK* data_block, float value, const char* de
 
     initDataBlock(data_block);
     data_block->rank = 0;
-    data_block->data_type = TYPE_FLOAT;
+    data_block->data_type = UDA_TYPE_FLOAT;
     data_block->data = (char*)data;
     data_block->data_n = 1;
 
@@ -91,7 +91,7 @@ int setReturnDataIntScalar(DATA_BLOCK* data_block, int value, const char* descri
 
     initDataBlock(data_block);
     data_block->rank = 0;
-    data_block->data_type = TYPE_INT;
+    data_block->data_type = UDA_TYPE_INT;
     data_block->data = (char*)data;
     data_block->data_n = 1;
 
@@ -112,7 +112,7 @@ int setReturnDataLongScalar(DATA_BLOCK* data_block, long value, const char* desc
 
     initDataBlock(data_block);
     data_block->rank = 0;
-    data_block->data_type = TYPE_LONG;
+    data_block->data_type = UDA_TYPE_LONG;
     data_block->data = (char*)data;
     data_block->data_n = 1;
 
@@ -133,7 +133,7 @@ int setReturnDataShortScalar(DATA_BLOCK* data_block, short value, const char* de
 
     initDataBlock(data_block);
     data_block->rank = 0;
-    data_block->data_type = TYPE_SHORT;
+    data_block->data_type = UDA_TYPE_SHORT;
     data_block->data = (char*)data;
     data_block->data_n = 1;
 
@@ -144,7 +144,7 @@ int setReturnDataString(DATA_BLOCK* data_block, const char* value, const char* d
 {
     initDataBlock(data_block);
 
-    data_block->data_type = TYPE_STRING;
+    data_block->data_type = UDA_TYPE_STRING;
     data_block->data = strdup(value);
 
     data_block->rank = 1;
@@ -160,7 +160,7 @@ int setReturnDataString(DATA_BLOCK* data_block, const char* value, const char* d
         data_block->data_desc[STRING_LENGTH-1] = '\0';
     }
 
-    data_block->dims[0].data_type = TYPE_UNSIGNED_INT;
+    data_block->dims[0].data_type = UDA_TYPE_UNSIGNED_INT;
     data_block->dims[0].dim_n = (int)strlen(value) + 1;
     data_block->dims[0].compressed = 1;
     data_block->dims[0].dim0 = 0.0;
@@ -1276,7 +1276,7 @@ int idamServerPlugin(REQUEST_BLOCK* request_block, DATA_SOURCE* data_source, SIG
 
         switch (request_block->request) {
 
-            case REQUEST_READ_MDS :
+            case REQUEST_READ_MDS:
 
                 if (strlen(signal_desc->signal_name) == MAXNAME - 1) {
                     copyString(TrimString(request_block->signal), signal_desc->xml, MAXMETA);    // Pass via XML member
@@ -1284,7 +1284,7 @@ int idamServerPlugin(REQUEST_BLOCK* request_block, DATA_SOURCE* data_source, SIG
                 }
                 break;
 
-            case REQUEST_READ_NOTHING :
+            case REQUEST_READ_NOTHING:
 
                 if (data_source->exp_number == 0 && data_source->pass == -1) {    // May be passed in Path String
                     strcpy(work, request_block->path);
@@ -1493,7 +1493,7 @@ int idamProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_BLOCK* original_req
     freeNameValueList(&request_block.nameValueList);
 
     IDAM_LOG(UDA_LOG_DEBUG, "testing for bug!!!\n");
-    if (data_block.opaque_type != OPAQUE_TYPE_UNKNOWN ||
+    if (data_block.opaque_type != UDA_OPAQUE_TYPE_UNKNOWN ||
         data_block.opaque_count != 0 ||
         data_block.opaque_block != NULL) {
         IDAM_LOG(UDA_LOG_DEBUG, "bug detected: mitigation!!!\n");

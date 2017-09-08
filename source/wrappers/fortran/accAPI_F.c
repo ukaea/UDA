@@ -686,46 +686,46 @@ extern void getidamsyntheticdatablock_(int* handle, void* data)
     void* synth = (void*) getIdamSyntheticData(*handle);
     size_t ndata = (size_t) getIdamDataNum(*handle);
     switch (getIdamDataType(*handle)) {
-        case TYPE_FLOAT:
+        case UDA_TYPE_FLOAT:
             memcpy(data, synth, ndata * sizeof(float));
             break;
-        case TYPE_DOUBLE:
+        case UDA_TYPE_DOUBLE:
             memcpy(data, synth, ndata * sizeof(double));
             break;
-        case TYPE_INT:
+        case UDA_TYPE_INT:
             memcpy(data, synth, ndata * sizeof(int));
             break;
-        case TYPE_UNSIGNED_INT:
+        case UDA_TYPE_UNSIGNED_INT:
             memcpy(data, synth, ndata * sizeof(unsigned int));
             break;
-        case TYPE_LONG:
+        case UDA_TYPE_LONG:
             memcpy(data, synth, ndata * sizeof(long));
             break;
-        case TYPE_UNSIGNED_LONG:
+        case UDA_TYPE_UNSIGNED_LONG:
             memcpy(data, synth, ndata * sizeof(unsigned long));
             break;
-        case TYPE_LONG64:
+        case UDA_TYPE_LONG64:
             memcpy(data, synth, ndata * sizeof(long long int));
             break;
-        case TYPE_UNSIGNED_LONG64:
+        case UDA_TYPE_UNSIGNED_LONG64:
             memcpy(data, synth, ndata * sizeof(unsigned long long int));
             break;
-        case TYPE_SHORT:
+        case UDA_TYPE_SHORT:
             memcpy(data, synth, ndata * sizeof(short));
             break;
-        case TYPE_UNSIGNED_SHORT:
+        case UDA_TYPE_UNSIGNED_SHORT:
             memcpy(data, synth, ndata * sizeof(unsigned short));
             break;
-        case TYPE_CHAR:
+        case UDA_TYPE_CHAR:
             memcpy(data, synth, ndata * sizeof(char));
             break;
-        case TYPE_UNSIGNED_CHAR:
+        case UDA_TYPE_UNSIGNED_CHAR:
             memcpy(data, synth, ndata * sizeof(unsigned char));
             break;
-        case TYPE_DCOMPLEX:
+        case UDA_TYPE_DCOMPLEX:
             memcpy(data, synth, ndata * sizeof(DCOMPLEX));
             break;
-        case TYPE_COMPLEX:
+        case UDA_TYPE_COMPLEX:
             memcpy(data, synth, ndata * sizeof(COMPLEX));
             break;
     }
@@ -751,46 +751,46 @@ extern void getidamerrorblock_(int* handle, void* errdata)
     void* errb = (void*) getIdamError(*handle);
     size_t ndata = (size_t) getIdamDataNum(*handle);
     switch (getIdamErrorType(*handle)) {
-        case TYPE_FLOAT:
+        case UDA_TYPE_FLOAT:
             memcpy(errdata, errb, ndata * sizeof(float));
             break;
-        case TYPE_DOUBLE:
+        case UDA_TYPE_DOUBLE:
             memcpy(errdata, errb, ndata * sizeof(double));
             break;
-        case TYPE_INT:
+        case UDA_TYPE_INT:
             memcpy(errdata, errb, ndata * sizeof(int));
             break;
-        case TYPE_LONG:
+        case UDA_TYPE_LONG:
             memcpy(errdata, errb, ndata * sizeof(long));
             break;
-        case TYPE_LONG64:
+        case UDA_TYPE_LONG64:
             memcpy(errdata, errb, ndata * sizeof(long long int));
             break;
-        case TYPE_SHORT:
+        case UDA_TYPE_SHORT:
             memcpy(errdata, errb, ndata * sizeof(short));
             break;
-        case TYPE_CHAR:
+        case UDA_TYPE_CHAR:
             memcpy(errdata, errb, ndata * sizeof(char));
             break;
-        case TYPE_UNSIGNED_INT:
+        case UDA_TYPE_UNSIGNED_INT:
             memcpy(errdata, errb, ndata * sizeof(unsigned int));
             break;
-        case TYPE_UNSIGNED_LONG:
+        case UDA_TYPE_UNSIGNED_LONG:
             memcpy(errdata, errb, ndata * sizeof(unsigned long));
             break;
-        case TYPE_UNSIGNED_LONG64:
+        case UDA_TYPE_UNSIGNED_LONG64:
             memcpy(errdata, errb, ndata * sizeof(unsigned long long int));
             break;
-        case TYPE_UNSIGNED_SHORT:
+        case UDA_TYPE_UNSIGNED_SHORT:
             memcpy(errdata, errb, ndata * sizeof(unsigned short));
             break;
-        case TYPE_UNSIGNED_CHAR:
+        case UDA_TYPE_UNSIGNED_CHAR:
             memcpy(errdata, errb, ndata * sizeof(unsigned char));
             break;
-        case TYPE_DCOMPLEX:
+        case UDA_TYPE_DCOMPLEX:
             memcpy(errdata, errb, ndata * sizeof(DCOMPLEX));
             break;
-        case TYPE_COMPLEX:
+        case UDA_TYPE_COMPLEX:
             memcpy(errdata, errb, ndata * sizeof(COMPLEX));
             break;
     }
@@ -807,46 +807,46 @@ extern void getidamasymmetricerrorblock_(int* handle, int* above, void* errdata)
     void* errb = (void*) getIdamAsymmetricError(*handle, *above);
     size_t ndata = (size_t) getIdamDataNum(*handle);
     switch ((int) getIdamErrorType(*handle)) {
-        case TYPE_FLOAT:
+        case UDA_TYPE_FLOAT:
             memcpy(errdata, errb, ndata * sizeof(float));
             break;
-        case TYPE_DOUBLE:
+        case UDA_TYPE_DOUBLE:
             memcpy(errdata, errb, ndata * sizeof(double));
             break;
-        case TYPE_INT:
+        case UDA_TYPE_INT:
             memcpy(errdata, errb, ndata * sizeof(int));
             break;
-        case TYPE_LONG:
+        case UDA_TYPE_LONG:
             memcpy(errdata, errb, ndata * sizeof(long));
             break;
-        case TYPE_LONG64:
+        case UDA_TYPE_LONG64:
             memcpy(errdata, errb, ndata * sizeof(long long int));
             break;
-        case TYPE_SHORT:
+        case UDA_TYPE_SHORT:
             memcpy(errdata, errb, ndata * sizeof(short));
             break;
-        case TYPE_CHAR:
+        case UDA_TYPE_CHAR:
             memcpy(errdata, errb, ndata * sizeof(char));
             break;
-        case TYPE_UNSIGNED_INT:
+        case UDA_TYPE_UNSIGNED_INT:
             memcpy(errdata, errb, ndata * sizeof(unsigned int));
             break;
-        case TYPE_UNSIGNED_LONG:
+        case UDA_TYPE_UNSIGNED_LONG:
             memcpy(errdata, errb, ndata * sizeof(unsigned long));
             break;
-        case TYPE_UNSIGNED_LONG64:
+        case UDA_TYPE_UNSIGNED_LONG64:
             memcpy(errdata, errb, ndata * sizeof(unsigned long long int));
             break;
-        case TYPE_UNSIGNED_SHORT:
+        case UDA_TYPE_UNSIGNED_SHORT:
             memcpy(errdata, errb, ndata * sizeof(unsigned short));
             break;
-        case TYPE_UNSIGNED_CHAR:
+        case UDA_TYPE_UNSIGNED_CHAR:
             memcpy(errdata, errb, ndata * sizeof(unsigned char));
             break;
-        case TYPE_DCOMPLEX:
+        case UDA_TYPE_DCOMPLEX:
             memcpy(errdata, errb, ndata * sizeof(DCOMPLEX));
             break;
-        case TYPE_COMPLEX:
+        case UDA_TYPE_COMPLEX:
             memcpy(errdata, errb, ndata * sizeof(COMPLEX));
             break;
     }
@@ -941,46 +941,46 @@ extern void getidamsyntheticdimdatablock_(int* handle, int* ndim, void* data)
     void* synth = (void*) getIdamSyntheticDimData(*handle, *ndim);
     size_t ndata = (size_t) getIdamDimNum(*handle, *ndim);
     switch (getIdamDimType(*handle, *ndim)) {
-        case TYPE_FLOAT:
+        case UDA_TYPE_FLOAT:
             memcpy(data, synth, ndata * sizeof(float));
             break;
-        case TYPE_DOUBLE:
+        case UDA_TYPE_DOUBLE:
             memcpy(data, synth, ndata * sizeof(double));
             break;
-        case TYPE_INT:
+        case UDA_TYPE_INT:
             memcpy(data, synth, ndata * sizeof(int));
             break;
-        case TYPE_LONG:
+        case UDA_TYPE_LONG:
             memcpy(data, synth, ndata * sizeof(long));
             break;
-        case TYPE_LONG64:
+        case UDA_TYPE_LONG64:
             memcpy(data, synth, ndata * sizeof(long long int));
             break;
-        case TYPE_SHORT:
+        case UDA_TYPE_SHORT:
             memcpy(data, synth, ndata * sizeof(short));
             break;
-        case TYPE_CHAR:
+        case UDA_TYPE_CHAR:
             memcpy(data, synth, ndata * sizeof(char));
             break;
-        case TYPE_UNSIGNED_INT:
+        case UDA_TYPE_UNSIGNED_INT:
             memcpy(data, synth, ndata * sizeof(unsigned int));
             break;
-        case TYPE_UNSIGNED_LONG:
+        case UDA_TYPE_UNSIGNED_LONG:
             memcpy(data, synth, ndata * sizeof(unsigned long));
             break;
-        case TYPE_UNSIGNED_LONG64:
+        case UDA_TYPE_UNSIGNED_LONG64:
             memcpy(data, synth, ndata * sizeof(unsigned long long int));
             break;
-        case TYPE_UNSIGNED_SHORT:
+        case UDA_TYPE_UNSIGNED_SHORT:
             memcpy(data, synth, ndata * sizeof(unsigned short));
             break;
-        case TYPE_UNSIGNED_CHAR:
+        case UDA_TYPE_UNSIGNED_CHAR:
             memcpy(data, synth, ndata * sizeof(unsigned char));
             break;
-        case TYPE_DCOMPLEX:
+        case UDA_TYPE_DCOMPLEX:
             memcpy(data, synth, ndata * sizeof(DCOMPLEX));
             break;
-        case TYPE_COMPLEX:
+        case UDA_TYPE_COMPLEX:
             memcpy(data, synth, ndata * sizeof(COMPLEX));
             break;
     }
@@ -1011,46 +1011,46 @@ extern void getidamdimasymmetricerrorblock_(int* handle, int* ndim, int* above, 
     void* errb = (void*) getIdamDimAsymmetricError(*handle, *ndim, *above);
     size_t ndata = (size_t) getIdamDimNum(*handle, *ndim);
     switch (getIdamDimErrorType(*handle, *ndim)) {
-        case TYPE_FLOAT:
+        case UDA_TYPE_FLOAT:
             memcpy(data, errb, ndata * sizeof(float));
             break;
-        case TYPE_DOUBLE:
+        case UDA_TYPE_DOUBLE:
             memcpy(data, errb, ndata * sizeof(double));
             break;
-        case TYPE_INT:
+        case UDA_TYPE_INT:
             memcpy(data, errb, ndata * sizeof(int));
             break;
-        case TYPE_LONG:
+        case UDA_TYPE_LONG:
             memcpy(data, errb, ndata * sizeof(long));
             break;
-        case TYPE_LONG64:
+        case UDA_TYPE_LONG64:
             memcpy(data, errb, ndata * sizeof(long long int));
             break;
-        case TYPE_SHORT:
+        case UDA_TYPE_SHORT:
             memcpy(data, errb, ndata * sizeof(short));
             break;
-        case TYPE_CHAR:
+        case UDA_TYPE_CHAR:
             memcpy(data, errb, ndata * sizeof(char));
             break;
-        case TYPE_UNSIGNED_INT:
+        case UDA_TYPE_UNSIGNED_INT:
             memcpy(data, errb, ndata * sizeof(unsigned int));
             break;
-        case TYPE_UNSIGNED_LONG:
+        case UDA_TYPE_UNSIGNED_LONG:
             memcpy(data, errb, ndata * sizeof(unsigned long));
             break;
-        case TYPE_UNSIGNED_LONG64:
+        case UDA_TYPE_UNSIGNED_LONG64:
             memcpy(data, errb, ndata * sizeof(unsigned long long int));
             break;
-        case TYPE_UNSIGNED_SHORT:
+        case UDA_TYPE_UNSIGNED_SHORT:
             memcpy(data, errb, ndata * sizeof(unsigned short));
             break;
-        case TYPE_UNSIGNED_CHAR:
+        case UDA_TYPE_UNSIGNED_CHAR:
             memcpy(data, errb, ndata * sizeof(unsigned char));
             break;
-        case TYPE_DCOMPLEX:
+        case UDA_TYPE_DCOMPLEX:
             memcpy(data, errb, ndata * sizeof(DCOMPLEX));
             break;
-        case TYPE_COMPLEX:
+        case UDA_TYPE_COMPLEX:
             memcpy(data, errb, ndata * sizeof(COMPLEX));
             break;
     }
@@ -1061,46 +1061,46 @@ extern void getidamdimerrorblock_(int* handle, int* ndim, void* data)
     void* errb = (void*) getIdamDimError(*handle, *ndim);
     size_t ndata = (size_t) getIdamDimNum(*handle, *ndim);
     switch (getIdamDimErrorType(*handle, *ndim)) {
-        case TYPE_FLOAT:
+        case UDA_TYPE_FLOAT:
             memcpy(data, errb, ndata * sizeof(float));
             break;
-        case TYPE_DOUBLE:
+        case UDA_TYPE_DOUBLE:
             memcpy(data, errb, ndata * sizeof(double));
             break;
-        case TYPE_INT:
+        case UDA_TYPE_INT:
             memcpy(data, errb, ndata * sizeof(int));
             break;
-        case TYPE_LONG:
+        case UDA_TYPE_LONG:
             memcpy(data, errb, ndata * sizeof(long));
             break;
-        case TYPE_LONG64:
+        case UDA_TYPE_LONG64:
             memcpy(data, errb, ndata * sizeof(long long int));
             break;
-        case TYPE_SHORT:
+        case UDA_TYPE_SHORT:
             memcpy(data, errb, ndata * sizeof(short));
             break;
-        case TYPE_CHAR:
+        case UDA_TYPE_CHAR:
             memcpy(data, errb, ndata * sizeof(char));
             break;
-        case TYPE_UNSIGNED_INT:
+        case UDA_TYPE_UNSIGNED_INT:
             memcpy(data, errb, ndata * sizeof(unsigned int));
             break;
-        case TYPE_UNSIGNED_LONG:
+        case UDA_TYPE_UNSIGNED_LONG:
             memcpy(data, errb, ndata * sizeof(unsigned long));
             break;
-        case TYPE_UNSIGNED_LONG64:
+        case UDA_TYPE_UNSIGNED_LONG64:
             memcpy(data, errb, ndata * sizeof(unsigned long long int));
             break;
-        case TYPE_UNSIGNED_SHORT:
+        case UDA_TYPE_UNSIGNED_SHORT:
             memcpy(data, errb, ndata * sizeof(unsigned short));
             break;
-        case TYPE_UNSIGNED_CHAR:
+        case UDA_TYPE_UNSIGNED_CHAR:
             memcpy(data, errb, ndata * sizeof(unsigned char));
             break;
-        case TYPE_DCOMPLEX:
+        case UDA_TYPE_DCOMPLEX:
             memcpy(data, errb, ndata * sizeof(DCOMPLEX));
             break;
-        case TYPE_COMPLEX:
+        case UDA_TYPE_COMPLEX:
             memcpy(data, errb, ndata * sizeof(COMPLEX));
             break;
     }

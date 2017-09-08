@@ -3,38 +3,38 @@
 
 #include "udaStructs.h"
 
-size_t getSizeOf(int data_type)
+size_t getSizeOf(UDA_TYPE data_type)
 {
     switch (data_type) {
-        case TYPE_FLOAT:
+        case UDA_TYPE_FLOAT:
             return sizeof(float);
-        case TYPE_DOUBLE:
+        case UDA_TYPE_DOUBLE:
             return sizeof(double);
-        case TYPE_CHAR:
+        case UDA_TYPE_CHAR:
             return sizeof(char);
-        case TYPE_SHORT:
+        case UDA_TYPE_SHORT:
             return sizeof(short);
-        case TYPE_INT:
+        case UDA_TYPE_INT:
             return sizeof(int);
-        case TYPE_LONG:
+        case UDA_TYPE_LONG:
             return sizeof(long);
-        case TYPE_LONG64:
+        case UDA_TYPE_LONG64:
             return sizeof(long long);
-        case TYPE_UNSIGNED_CHAR:
+        case UDA_TYPE_UNSIGNED_CHAR:
             return sizeof(unsigned char);
-        case TYPE_UNSIGNED_SHORT:
+        case UDA_TYPE_UNSIGNED_SHORT:
             return sizeof(unsigned short);
-        case TYPE_UNSIGNED_INT:
+        case UDA_TYPE_UNSIGNED_INT:
             return sizeof(unsigned int);
-        case TYPE_UNSIGNED_LONG:
+        case UDA_TYPE_UNSIGNED_LONG:
             return sizeof(unsigned long);
-        case TYPE_UNSIGNED_LONG64:
+        case UDA_TYPE_UNSIGNED_LONG64:
             return sizeof(unsigned long long);
-        case TYPE_STRING :
+        case UDA_TYPE_STRING:
             return sizeof(char);
-        case TYPE_COMPLEX:
+        case UDA_TYPE_COMPLEX:
             return sizeof(COMPLEX);
-        case TYPE_DCOMPLEX:
+        case UDA_TYPE_DCOMPLEX:
             return sizeof(DCOMPLEX);
         default:
             return 0;

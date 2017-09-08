@@ -195,7 +195,7 @@ int listSignals(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         usertype.ref_id = 0;
         usertype.imagecount = 0;                // No Structure Image data
         usertype.image = NULL;
-        usertype.idamclass = TYPE_COMPOUND;
+        usertype.idamclass = UDA_TYPE_COMPOUND;
 
         offset = 0;
 
@@ -235,7 +235,7 @@ int listSignals(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         usertype.ref_id = 0;
         usertype.imagecount = 0;                // No Structure Image data
         usertype.image = NULL;
-        usertype.idamclass = TYPE_COMPOUND;
+        usertype.idamclass = UDA_TYPE_COMPOUND;
 
         offset = 0;
 
@@ -250,7 +250,7 @@ int listSignals(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
         initCompoundField(&field);
         strcpy(field.name, "list");
-        field.atomictype = TYPE_UNKNOWN;
+        field.atomictype = UDA_TYPE_UNKNOWN;
         strcpy(field.type, "PROVENANCESIGNAL");
         strcpy(field.desc, "List of Signals");
         field.pointer = 1;
@@ -270,7 +270,7 @@ int listSignals(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Pass the Data back	 
 
-        data_block->data_type = TYPE_COMPOUND;
+        data_block->data_type = UDA_TYPE_COMPOUND;
         data_block->rank = 0;
         data_block->data_n = 1;
         data_block->data = (char*)list;
@@ -279,7 +279,7 @@ int listSignals(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         strcpy(data_block->data_label, "");
         strcpy(data_block->data_units, "");
 
-        data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
+        data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
         data_block->opaque_count = 1;
         data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "PROVENANCESIGNALLIST", 0);
 

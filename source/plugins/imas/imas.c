@@ -211,14 +211,14 @@ int findIMASType(const char* typeName)
 int findIMASIDAMType(int type)
 {
     switch (type) {
-        case INT:           return TYPE_INT;
-        case FLOAT:         return TYPE_FLOAT;
-        case DOUBLE:        return TYPE_DOUBLE;
-        case STRING:        return TYPE_STRING;
-        case STRING_VECTOR: return TYPE_STRING;
-        default:            return TYPE_UNKNOWN;
+        case INT:           return UDA_TYPE_INT;
+        case FLOAT:         return UDA_TYPE_FLOAT;
+        case DOUBLE:        return UDA_TYPE_DOUBLE;
+        case STRING:        return UDA_TYPE_STRING;
+        case STRING_VECTOR: return UDA_TYPE_STRING;
+        default:            return UDA_TYPE_UNKNOWN;
     }
-    return TYPE_UNKNOWN;
+    return UDA_TYPE_UNKNOWN;
 }
 
 extern int imas(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
@@ -406,7 +406,7 @@ static int do_putIdsVersion(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     initDataBlock(data_block);
     data_block->rank = 0;
     data_block->dims = NULL;
-    data_block->data_type = TYPE_INT;
+    data_block->data_type = UDA_TYPE_INT;
     data_block->data = (char*)data;
     data_block->data_n = 1;
 
@@ -505,7 +505,7 @@ static int do_delete(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, int* idx)
 
     initDataBlock(data_block);
     data_block->rank = 0;
-    data_block->data_type = TYPE_INT;
+    data_block->data_type = UDA_TYPE_INT;
     data_block->data = (char*)data;
     data_block->data_n = 1;
 
@@ -601,7 +601,7 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
     const char* typeName;
     bool isTypeName = FIND_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, typeName);
 
-    int type = TYPE_UNKNOWN;
+    int type = UDA_TYPE_UNKNOWN;
 
     if (!isGetDimension) {
         if (!isTypeName && !isPutData) {
@@ -687,7 +687,7 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
                                       ? &idam_plugin_interface->request_block->putDataBlockList.putDataBlock[0]
                                       : NULL;
 
-        if (!isPutData || putDataBlock->data_type != TYPE_DOUBLE || putDataBlock->count != 3) {
+        if (!isPutData || putDataBlock->data_type != UDA_TYPE_DOUBLE || putDataBlock->count != 3) {
             IDAM_LOG(UDA_LOG_ERROR, "imas get: No Time Values have been specified!\n");
             THROW_ERROR(999, "No Time Values have been specified!");
         }
@@ -921,7 +921,7 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
     switch (dataOperation) {
         case GETDIMENSION_OPERATION: {
             data_block->rank = 1;
-            data_block->data_type = TYPE_INT;
+            data_block->data_type = UDA_TYPE_INT;
             data_block->data = (char*)shape;
             data_block->data_n = rank;
             break;
@@ -930,7 +930,7 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
             data_block->rank = (unsigned int)rank;
             data_block->data_type = findIMASIDAMType(type);
             data_block->data = imasData;
-            if (data_block->data_type == TYPE_STRING && rank <= 1) {
+            if (data_block->data_type == UDA_TYPE_STRING && rank <= 1) {
                 data_block->data_n = (int)strlen(imasData) + 1;
                 shape[0] = data_block->data_n;
             } else {
@@ -963,7 +963,7 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
         for (i = 0; i < data_block->rank; i++) {
             initDimBlock(&data_block->dims[i]);
             data_block->dims[i].dim_n = shape[i];
-            data_block->dims[i].data_type = TYPE_UNSIGNED_INT;
+            data_block->dims[i].data_type = UDA_TYPE_UNSIGNED_INT;
             data_block->dims[i].compressed = 1;
             data_block->dims[i].dim0 = 0.0;
             data_block->dims[i].diff = 1.0;
@@ -974,7 +974,7 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
             data_block->order = rank;
             initDimBlock(&data_block->dims[rank]);
             data_block->dims[rank].dim_n = 1;
-            data_block->dims[rank].data_type = TYPE_DOUBLE;
+            data_block->dims[rank].data_type = UDA_TYPE_DOUBLE;
             data_block->dims[rank].compressed = 0;
             double* sliceTime = (double*)malloc(sizeof(double));
             *sliceTime = retTime;
@@ -1222,7 +1222,7 @@ time	- the time slice to be written - from a PUTDATA block (putSlice keyword)
 
         if (isShapeString) {
             if ((dataRank = getIdamNameValuePairVarArray(shapeString, quote, delimiter, (unsigned short)rank,
-                                                         TYPE_INT, (void**)&shape)) < 0) {
+                                                         UDA_TYPE_INT, (void**)&shape)) < 0) {
                 IDAM_LOG(UDA_LOG_ERROR, "Unable to convert the passed shape values!\n");
                 THROW_ERROR(-dataRank, "Unable to convert the passed shape value!");
             }
@@ -1246,7 +1246,7 @@ time	- the time slice to be written - from a PUTDATA block (putSlice keyword)
             const char* typeName;
             FIND_REQUIRED_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, typeName);
 
-            if ((idamType = findIdamType(typeName)) == TYPE_UNDEFINED) {
+            if ((idamType = findIdamType(typeName)) == UDA_TYPE_UNDEFINED) {
                 IDAM_LOG(UDA_LOG_ERROR, "The data's Type name cannot be converted!\n");
                 THROW_ERROR(999, "The data's Type name cannot be converted!");
             }
@@ -1340,7 +1340,7 @@ time	- the time slice to be written - from a PUTDATA block (putSlice keyword)
                     IDAM_LOG(UDA_LOG_ERROR, "No Slice Time!\n");
                     THROW_ERROR(999, "No Slice Time!");
                 }
-                if (putTimeBlock->data_type != TYPE_DOUBLE || putTimeBlock->count != 1) {
+                if (putTimeBlock->data_type != UDA_TYPE_DOUBLE || putTimeBlock->count != 1) {
                     IDAM_LOG(UDA_LOG_ERROR, "Slice Time type and count are incorrect!\n");
                     THROW_ERROR(999, "Slice Time type and count are incorrect!");
                 }
@@ -1372,7 +1372,7 @@ time	- the time slice to be written - from a PUTDATA block (putSlice keyword)
         data[0] = 1;
         initDataBlock(data_block);
         data_block->rank = 0;
-        data_block->data_type = TYPE_INT;
+        data_block->data_type = UDA_TYPE_INT;
         data_block->data = (char*)data;
         data_block->data_n = 1;
     }
@@ -1421,7 +1421,7 @@ retIdx	- returned data file index number
     initDataBlock(data_block);
     data_block->rank = 0;
     data_block->dims = NULL;
-    data_block->data_type = TYPE_INT;
+    data_block->data_type = UDA_TYPE_INT;
     data_block->data = (char*)data;
     data_block->data_n = 1;
 
@@ -1486,7 +1486,7 @@ retIdx	- returned data file index number
     initDataBlock(data_block);
     data_block->rank = 0;
     data_block->dims = NULL;
-    data_block->data_type = TYPE_INT;
+    data_block->data_type = UDA_TYPE_INT;
     data_block->data = (char*)data;
     data_block->data_n = 1;
 
@@ -1522,7 +1522,7 @@ static int do_close(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     initDataBlock(data_block);
     data_block->rank = 0;
     data_block->dims = NULL;
-    data_block->data_type = TYPE_INT;
+    data_block->data_type = UDA_TYPE_INT;
     data_block->data = (char*)data;
     data_block->data_n = 1;
 
@@ -1552,7 +1552,7 @@ static int do_createModel(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     initDataBlock(data_block);
     data_block->rank = 0;
     data_block->dims = NULL;
-    data_block->data_type = TYPE_INT;
+    data_block->data_type = UDA_TYPE_INT;
     data_block->data = (char*)data;
     data_block->data_n = 1;
 
@@ -1584,7 +1584,7 @@ static int do_releaseObject(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     initDataBlock(data_block);
     data_block->rank = 0;
     data_block->data_n = 1;
-    data_block->data_type = TYPE_INT;
+    data_block->data_type = UDA_TYPE_INT;
     data_block->data = (char*)malloc(sizeof(int));
     *((int*)data_block->data) = 1;
 
@@ -1638,7 +1638,7 @@ static int do_getObjectObject(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     initDataBlock(data_block);
     data_block->rank = 0;
-    data_block->data_type = TYPE_INT;
+    data_block->data_type = UDA_TYPE_INT;
     data_block->data = (char*)refId;
     data_block->data_n = 1;
 
@@ -1696,7 +1696,7 @@ static int do_getObjectSlice(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     initDataBlock(data_block);
     data_block->rank = 0;
-    data_block->data_type = TYPE_INT;
+    data_block->data_type = UDA_TYPE_INT;
     data_block->data = (char*)refId;
     data_block->data_n = 1;
 
@@ -1745,7 +1745,7 @@ static int do_getObjectGroup(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     initDataBlock(data_block);
     data_block->rank = 0;
-    data_block->data_type = TYPE_INT;
+    data_block->data_type = UDA_TYPE_INT;
     data_block->data = (char*)refId;
     data_block->data_n = 1;
 
@@ -1787,7 +1787,7 @@ static int do_getObjectDim(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     initDataBlock(data_block);
     data_block->rank = 0;
-    data_block->data_type = TYPE_INT;
+    data_block->data_type = UDA_TYPE_INT;
     data_block->data = (char*)dim;
     data_block->data_n = 1;
 
@@ -1857,7 +1857,7 @@ static int do_beginObject(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     initDataBlock(data_block);
     data_block->rank = 0;
-    data_block->data_type = TYPE_INT;
+    data_block->data_type = UDA_TYPE_INT;
     data_block->data = (char*)refId;
     data_block->data_n = 1;
 
@@ -1926,7 +1926,7 @@ static int do_getObject(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         for (i = 0; i < data_block->rank; i++) {
             initDimBlock(&data_block->dims[i]);
             data_block->dims[i].dim_n = dims[i];
-            data_block->dims[i].data_type = TYPE_UNSIGNED_INT;
+            data_block->dims[i].data_type = UDA_TYPE_UNSIGNED_INT;
             data_block->dims[i].compressed = 1;
             data_block->dims[i].dim0 = 0.0;
             data_block->dims[i].diff = 1.0;
@@ -2019,7 +2019,7 @@ static int do_putObject(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     initDataBlock(data_block);
     data_block->rank = 0;
     data_block->dims = NULL;
-    data_block->data_type = TYPE_INT;
+    data_block->data_type = UDA_TYPE_INT;
     data_block->data = (char*)data;
     data_block->data_n = 1;
 
@@ -2046,7 +2046,7 @@ static int do_putObjectInObject(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     initDataBlock(data_block);
     data_block->rank = 0;
     data_block->dims = NULL;
-    data_block->data_type = TYPE_INT;
+    data_block->data_type = UDA_TYPE_INT;
     data_block->data = (char*)data;
     data_block->data_n = 1;
 
@@ -2288,7 +2288,7 @@ static int do_source(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, int* time_cou
         // Ignore the coordinate data.
 
         if (data_block->order != 0 || data_block->rank != 1 ||
-            !(data_block->data_type == TYPE_FLOAT || data_block->data_type == TYPE_DOUBLE)) {
+            !(data_block->data_type == UDA_TYPE_FLOAT || data_block->data_type == UDA_TYPE_DOUBLE)) {
             // Data are not Cacheable
             IDAM_LOG(UDA_LOG_ERROR, "Data Access is not available for this data request!\n");
             THROW_ERROR(999, "Data Access is not available for this data request!");
@@ -2308,7 +2308,7 @@ static int do_source(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, int* time_cou
             strcpy(time_units_cache, data_block->dims[0].dim_units);
             strcpy(time_label_cache, data_block->dims[0].dim_label);
 
-            if (data_block->dims[0].data_type == TYPE_DOUBLE) {
+            if (data_block->dims[0].data_type == UDA_TYPE_DOUBLE) {
                 time_cache = (char*)malloc(*time_count_cache * sizeof(double));
                 if (isTimeScaling) {
                     double* dimdata = (double*)data_block->dims[0].dim;
@@ -2347,12 +2347,12 @@ static int do_source(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, int* time_cou
         }
 
         if (data_block->rank == 1 &&
-            (data_block->data_type == TYPE_FLOAT || data_block->data_type == TYPE_DOUBLE)) {
+            (data_block->data_type == UDA_TYPE_FLOAT || data_block->data_type == UDA_TYPE_DOUBLE)) {
 
             data_block->rank = 0;        // No coordinate data to be returned
             data_block->order = -1;
 
-            if (data_block->data_type == TYPE_FLOAT) {
+            if (data_block->data_type == UDA_TYPE_FLOAT) {
                 float* data = (float*)data_block->data;
                 double* dimdata = (double*)malloc(data_block->data_n * sizeof(double));
                 if (isDataScaling) {
@@ -2368,7 +2368,7 @@ static int do_source(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, int* time_cou
                 }
                 free((void*)data_block->data);
                 data_block->data = (char*)dimdata;
-                data_block->data_type = TYPE_DOUBLE;
+                data_block->data_type = UDA_TYPE_DOUBLE;
             } else {
                 if (isDataScaling) {
                     double* data = (double*)data_block->data;
@@ -2402,12 +2402,12 @@ static int do_source(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, int* time_cou
             data_block->data = (char*)malloc(*time_count_cache * sizeof(double));
             memcpy(data_block->data, time_cache, *time_count_cache * sizeof(double));
             data_block->data_n = *time_count_cache;
-            data_block->data_type = TYPE_DOUBLE;
+            data_block->data_type = UDA_TYPE_DOUBLE;
             data_block->dims = NULL;
             strcpy(data_block->data_units, time_units_cache);
             strcpy(data_block->data_label, time_label_cache);
         } else if (data_block->rank == 1 && data_block->order == 0 &&
-                   (data_block->data_type == TYPE_FLOAT || data_block->data_type == TYPE_DOUBLE)) {
+                   (data_block->data_type == UDA_TYPE_FLOAT || data_block->data_type == UDA_TYPE_DOUBLE)) {
 
             if (data_block->dims[0].compressed) {
                 uncompressDim(&data_block->dims[0]);
@@ -2418,7 +2418,7 @@ static int do_source(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, int* time_cou
                 free((void*)data_block->data);
             }
 
-            if (data_block->dims[0].data_type == TYPE_DOUBLE) {
+            if (data_block->dims[0].data_type == UDA_TYPE_DOUBLE) {
                 data_block->data = data_block->dims[0].dim;
                 if (isTimeScaling) {
                     double* dimdata = (double*)data_block->data;
@@ -2445,7 +2445,7 @@ static int do_source(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, int* time_cou
                 free((void*)data_block->dims[0].dim);
             }
             data_block->data_n = data_block->dims[0].dim_n;
-            data_block->data_type = TYPE_DOUBLE;
+            data_block->data_type = UDA_TYPE_DOUBLE;
             data_block->dims[0].dim = NULL;        // prevent a double free
             data_block->dims[0].dim_n = 0;
             strcpy(data_block->data_units, data_block->dims[0].dim_units);
@@ -2470,7 +2470,7 @@ static int do_beginIdsPut(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     data[0] = 1;
 
     initDataBlock(data_block);
-    data_block->data_type = TYPE_INT;
+    data_block->data_type = UDA_TYPE_INT;
     data_block->data = (char*)data;
     data_block->data_n = 1;
 
@@ -2488,7 +2488,7 @@ static int do_endIdsPut(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     data[0] = 1;
 
     initDataBlock(data_block);
-    data_block->data_type = TYPE_INT;
+    data_block->data_type = UDA_TYPE_INT;
     data_block->data = (char*)data;
     data_block->data_n = 1;
 
@@ -2514,12 +2514,12 @@ static int do_help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         initDimBlock(&data_block->dims[i]);
     }
 
-    data_block->data_type = TYPE_STRING;
+    data_block->data_type = UDA_TYPE_STRING;
     strcpy(data_block->data_desc, "imas: help = description of this plugin");
 
     data_block->data = p;
 
-    data_block->dims[0].data_type = TYPE_UNSIGNED_INT;
+    data_block->dims[0].data_type = UDA_TYPE_UNSIGNED_INT;
     data_block->dims[0].dim_n = (int)strlen(p) + 1;
     data_block->dims[0].compressed = 1;
     data_block->dims[0].dim0 = 0.0;
@@ -2540,7 +2540,7 @@ static int do_version(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     DATA_BLOCK* data_block = idam_plugin_interface->data_block;
 
     initDataBlock(data_block);
-    data_block->data_type = TYPE_INT;
+    data_block->data_type = UDA_TYPE_INT;
     data_block->rank = 0;
     data_block->data_n = 1;
     int* data = (int*)malloc(sizeof(int));
@@ -2559,7 +2559,7 @@ static int do_builddate(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     DATA_BLOCK* data_block = idam_plugin_interface->data_block;
 
     initDataBlock(data_block);
-    data_block->data_type = TYPE_STRING;
+    data_block->data_type = UDA_TYPE_STRING;
     data_block->rank = 0;
     data_block->data_n = (int)strlen(__DATE__) + 1;
     char* data = (char*)malloc(data_block->data_n * sizeof(char));
@@ -2578,7 +2578,7 @@ static int do_defaultmethod(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     DATA_BLOCK* data_block = idam_plugin_interface->data_block;
 
     initDataBlock(data_block);
-    data_block->data_type = TYPE_STRING;
+    data_block->data_type = UDA_TYPE_STRING;
     data_block->rank = 0;
     data_block->data_n = (int)strlen(THISPLUGIN_DEFAULT_METHOD) + 1;
     char* data = (char*)malloc(data_block->data_n * sizeof(char));
@@ -2597,7 +2597,7 @@ static int do_maxinterfaceversion(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     DATA_BLOCK* data_block = idam_plugin_interface->data_block;
 
     initDataBlock(data_block);
-    data_block->data_type = TYPE_INT;
+    data_block->data_type = UDA_TYPE_INT;
     data_block->rank = 0;
     data_block->data_n = 1;
     int* data = (int*)malloc(sizeof(int));

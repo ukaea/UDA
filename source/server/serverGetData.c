@@ -1372,7 +1372,7 @@ int idamserverReadData(PGconn* DBConnect, REQUEST_BLOCK request_block, CLIENT_BL
 
                 if (data_block->opaque_block == NULL) {
 
-                    if (data_block->opaque_type == OPAQUE_TYPE_STRUCTURES && data_block->opaque_count > 0) {
+                    if (data_block->opaque_type == UDA_OPAQUE_TYPE_STRUCTURES && data_block->opaque_count > 0) {
                         THROW_ERROR(999, "Opaque Data Block is Null Pointer");
                     }
 
@@ -1510,21 +1510,21 @@ int idamserverReadData(PGconn* DBConnect, REQUEST_BLOCK request_block, CLIENT_BL
     }
 
     switch (plugin_id) {
-        case REQUEST_READ_IDA :
+        case REQUEST_READ_IDA:
             IDAM_LOG(UDA_LOG_DEBUG, "Requested Data Access Routine = readIDA2 \n");
             if ((err = readIDA2(*data_source, *signal_desc, data_block)) != 0) {
                 addIdamError(CODEERRORTYPE, "idamserverReadData", err, "Error Accessing IDA Data");
             }
             break;
 
-        case REQUEST_READ_MDS :
+        case REQUEST_READ_MDS:
             IDAM_LOG(UDA_LOG_DEBUG, "Requested Data Access Routine = readMDS \n");
             if ((err = readMDS(*data_source, *signal_desc, data_block, socket_list)) != 0) {
                 addIdamError(CODEERRORTYPE, "idamserverReadData", err, "Error Accessing MDS+ Data");
             }
             break;
 
-        case REQUEST_READ_IDAM :
+        case REQUEST_READ_IDAM:
             if ((err = readIdam(*data_source, *signal_desc, request_block, data_block)) != 0) {
                 addIdamError(CODEERRORTYPE, "idamserverReadData", err, "Error Accessing IDAM Data");
             }
@@ -1532,7 +1532,7 @@ int idamserverReadData(PGconn* DBConnect, REQUEST_BLOCK request_block, CLIENT_BL
                       data_block->errcode);
             break;
 
-        case REQUEST_READ_CDF :
+        case REQUEST_READ_CDF:
             IDAM_LOG(UDA_LOG_DEBUG, "Requested Data Access Routine = readCDF \n");
             if ((err = readCDF(*data_source, *signal_desc, request_block, data_block, logmalloclist, userdefinedtypelist)) != 0) {
                 addIdamError(CODEERRORTYPE, "idamserverReadData", err, "Error Accessing netCDF Data");
@@ -1540,35 +1540,35 @@ int idamserverReadData(PGconn* DBConnect, REQUEST_BLOCK request_block, CLIENT_BL
             IDAM_LOG(UDA_LOG_DEBUG, "Returned from readCDF \n");
             break;
 
-        case REQUEST_READ_HDF5 :
+        case REQUEST_READ_HDF5:
             IDAM_LOG(UDA_LOG_DEBUG, "Requested Data Access Routine = readHDF5 \n");
             if ((err = readHDF5(*data_source, *signal_desc, data_block)) != 0) {
                 addIdamError(CODEERRORTYPE, "idamserverReadData", err, "Error Accessing HDF5 Data");
             }
             break;
 
-        case REQUEST_READ_UFILE :
+        case REQUEST_READ_UFILE:
             IDAM_LOG(UDA_LOG_DEBUG, "Requested Data Access Routine = readUFile \n");
             if ((err = readUFile(*data_source, *signal_desc, data_block)) != 0) {
                 addIdamError(CODEERRORTYPE, "idamserverReadData", err, "Error Accessing UFile Data");
             }
             break;
 
-        case REQUEST_READ_PPF :
+        case REQUEST_READ_PPF:
             IDAM_LOG(UDA_LOG_DEBUG, "Requested Data Access Routine = readPPF \n");
             if ((err = readPPF(*data_source, *signal_desc, data_block)) != 0) {
                 addIdamError(CODEERRORTYPE, "idamserverReadData", err, "Error Accessing PPF Data");
             }
             break;
 
-        case REQUEST_READ_JPF :
+        case REQUEST_READ_JPF:
             IDAM_LOG(UDA_LOG_DEBUG, "Requested Data Access Routine = readJPF \n");
             if ((err = readJPF(*data_source, *signal_desc, data_block)) != 0) {
                 addIdamError(CODEERRORTYPE, "idamserverReadData", err, "Error Accessing JPF Data");
             }
             break;
 
-        case REQUEST_READ_FILE :
+        case REQUEST_READ_FILE:
             IDAM_LOG(UDA_LOG_DEBUG, "Requested Data Access Routine = readBytes \n");
             if ((err = readBytes(*data_source, *signal_desc, data_block)) != 0) {
                 addIdamError(CODEERRORTYPE, "idamserverReadData", err,
@@ -1576,7 +1576,7 @@ int idamserverReadData(PGconn* DBConnect, REQUEST_BLOCK request_block, CLIENT_BL
             }
             break;
 
-        case REQUEST_READ_NOTHING :
+        case REQUEST_READ_NOTHING:
             IDAM_LOG(UDA_LOG_DEBUG, "Requested No Data Access Routine\n");
             if ((err = readNothing(*data_source, *signal_desc, data_block)) != 0) {
                 addIdamError(CODEERRORTYPE, "idamserverReadData", err,
@@ -1584,7 +1584,7 @@ int idamserverReadData(PGconn* DBConnect, REQUEST_BLOCK request_block, CLIENT_BL
             }
             break;
 
-        case REQUEST_READ_SQL :
+        case REQUEST_READ_SQL:
             IDAM_LOG(UDA_LOG_DEBUG, "Requested SQL Plugin \n");
             if ((err = readSQL(DBConnect, request_block, *data_source, data_block, userdefinedtypelist)) != 0) {
                 addIdamError(CODEERRORTYPE, "idamserverReadData", err, "Error Reading SQL Data");

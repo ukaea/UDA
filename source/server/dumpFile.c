@@ -122,7 +122,7 @@ int dumpFile(REQUEST_BLOCK request_block, DATA_BLOCK* data_block)
 // Create the output file using the appropriate dump utility program
 
         switch (request_block.request) {
-            case REQUEST_READ_IDA :
+            case REQUEST_READ_IDA:
                 if ((env = getenv("UDA_DUMP_IDA")) != NULL) {
                     strcpy(cmd, env);
                     strcat(cmd, " ");
@@ -130,7 +130,7 @@ int dumpFile(REQUEST_BLOCK request_block, DATA_BLOCK* data_block)
                     strcpy(cmd, "idadump ");
                 }
                 break;
-            case REQUEST_READ_CDF :
+            case REQUEST_READ_CDF:
                 if ((env = getenv("UDA_DUMP_NETCDF")) != NULL) {
                     strcpy(cmd, env);
                     strcat(cmd, " -h ");
@@ -138,7 +138,7 @@ int dumpFile(REQUEST_BLOCK request_block, DATA_BLOCK* data_block)
                     strcpy(cmd, "ncdump -h ");
                 }
                 break;
-            case REQUEST_READ_HDF5 :
+            case REQUEST_READ_HDF5:
                 if ((env = getenv("UDA_DUMP_HDF5")) != NULL) {
                     strcpy(cmd, env);
                     strcat(cmd, " -n ");
@@ -146,7 +146,7 @@ int dumpFile(REQUEST_BLOCK request_block, DATA_BLOCK* data_block)
                     strcpy(cmd, "h5dump -n ");
                 }
                 break;
-            case REQUEST_READ_MDS : {
+            case REQUEST_READ_MDS: {
 
 // Java example: http://www.mdsplus.org/mdsplus/cvsweb.cgi/mdsplus/javatraverser/DecompileTree.java
 
@@ -261,7 +261,7 @@ int dumpFile(REQUEST_BLOCK request_block, DATA_BLOCK* data_block)
         data_block->rank = 0;        // Scalar Array of Bytes
         data_block->order = -1;        // No Time Dimension
 
-        data_block->data_type = TYPE_STRING;
+        data_block->data_type = UDA_TYPE_STRING;
 
 //----------------------------------------------------------------------
 // End of Error Trap Loop

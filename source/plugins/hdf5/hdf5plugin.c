@@ -108,12 +108,12 @@ extern int idamHDF5(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             int i;
             for (i = 0; i < data_block->rank; i++) initDimBlock(&data_block->dims[i]);
 
-            data_block->data_type = TYPE_STRING;
+            data_block->data_type = UDA_TYPE_STRING;
             strcpy(data_block->data_desc, "newHDF5: help = description of this plugin");
 
             data_block->data = p;
 
-            data_block->dims[0].data_type = TYPE_UNSIGNED_INT;
+            data_block->dims[0].data_type = UDA_TYPE_UNSIGNED_INT;
             data_block->dims[0].dim_n = strlen(p) + 1;
             data_block->dims[0].compressed = 1;
             data_block->dims[0].dim0 = 0.0;
@@ -132,7 +132,7 @@ extern int idamHDF5(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             // Standard methods: version, builddate, defaultmethod, maxinterfaceversion
 
             initDataBlock(data_block);
-            data_block->data_type = TYPE_INT;
+            data_block->data_type = UDA_TYPE_INT;
             data_block->rank = 0;
             data_block->data_n = 1;
             int* data = (int*) malloc(sizeof(int));
@@ -147,7 +147,7 @@ extern int idamHDF5(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             // Plugin Build Date
 
             initDataBlock(data_block);
-            data_block->data_type = TYPE_STRING;
+            data_block->data_type = UDA_TYPE_STRING;
             data_block->rank = 0;
             data_block->data_n = strlen(__DATE__) + 1;
             char* data = (char*) malloc(data_block->data_n * sizeof(char));
@@ -162,7 +162,7 @@ extern int idamHDF5(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             // Plugin Default Method
 
             initDataBlock(data_block);
-            data_block->data_type = TYPE_STRING;
+            data_block->data_type = UDA_TYPE_STRING;
             data_block->rank = 0;
             data_block->data_n = strlen(THISPLUGIN_DEFAULT_METHOD) + 1;
             char* data = (char*) malloc(data_block->data_n * sizeof(char));
@@ -177,7 +177,7 @@ extern int idamHDF5(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             // Plugin Maximum Interface Version
 
             initDataBlock(data_block);
-            data_block->data_type = TYPE_INT;
+            data_block->data_type = UDA_TYPE_INT;
             data_block->rank = 0;
             data_block->data_n = 1;
             int* data = (int*) malloc(sizeof(int));

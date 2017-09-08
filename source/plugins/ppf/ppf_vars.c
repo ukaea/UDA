@@ -123,7 +123,7 @@ int PPFGO_DATABLOCK(const VAR_PPFGO * var, DATA_BLOCK * db)
 
     db->data_n = 1;
 
-    db->data_type = TYPE_INT;
+    db->data_type = UDA_TYPE_INT;
     db->data = (char *) pData;
 
     return err;
@@ -199,7 +199,7 @@ int PDMSEQ_DATABLOCK(const VAR_PDMSEQ * var, DATA_BLOCK * db)
 
     db->data_n = 2;
 
-    db->data_type = TYPE_INT;
+    db->data_type = UDA_TYPE_INT;
     db->data = (char *) pData;
 
     return err;
@@ -263,7 +263,7 @@ int PPFUID_DATABLOCK(const VAR_PPFUID * var, DATA_BLOCK * db)
 
     db->data_n = 1;
 
-    db->data_type = TYPE_INT;
+    db->data_type = UDA_TYPE_INT;
     db->data = (char *) pData;
     return err;
 }
@@ -335,7 +335,7 @@ int PPFCLO_DATABLOCK(const VAR_PPFCLO * var, DATA_BLOCK * db)
 
     db->data_n = 2;
 
-    db->data_type = TYPE_INT;
+    db->data_type = UDA_TYPE_INT;
     db->data = (char *) pData;
     return err;
 }
@@ -398,7 +398,7 @@ int PPFERR_DATABLOCK(const VAR_PPFERR * var, DATA_BLOCK * db)
 
     strcpy(pszData, var->msg);
 
-    db->data_type = TYPE_STRING;
+    db->data_type = UDA_TYPE_STRING;
     db->data = pszData;
     db->data_n = l + 1;
 
@@ -463,7 +463,7 @@ int PPFSQI_DATABLOCK(const VAR_PPFSQI * var, DATA_BLOCK * db)
 
     pData[0] = var->err;
 
-    db->data_type = TYPE_INT;
+    db->data_type = UDA_TYPE_INT;
     db->data = (char *) pData;
     db->data_n = 1;
 
@@ -527,7 +527,7 @@ int PPFGQI_DATABLOCK(const VAR_PPFGQI * var, DATA_BLOCK * db)
     pData[0] = var->err;
     pData[1] = var->pqi;
 
-    db->data_type = TYPE_INT;
+    db->data_type = UDA_TYPE_INT;
     db->data = (char *) pData;
     db->data_n = 2;
 
@@ -585,7 +585,7 @@ int PPFGID_DATABLOCK(const VAR_PPFGID * var, DATA_BLOCK * db)
 
     initDataBlock(db);
 
-    db->data_type = TYPE_STRING;
+    db->data_type = UDA_TYPE_STRING;
     db->data = pData;
     db->data_n = l + 1;
 
@@ -639,7 +639,7 @@ int PPFPOK_DATABLOCK(const VAR_PPFPOK * var, DATA_BLOCK * db)
     pData[0] = var->err;
     //pData[1] = var->pqi;
 
-    db->data_type = TYPE_INT;
+    db->data_type = UDA_TYPE_INT;
     db->data = (char *) pData;
     db->data_n = 1;
 
@@ -701,7 +701,7 @@ int PDAINF_DATABLOCK(const VAR_PDAINF * var, DATA_BLOCK * db)
 
     initDataBlock(db);
 
-    db->data_type = TYPE_INT;
+    db->data_type = UDA_TYPE_INT;
     db->data = (char *) pErrData;
     db->data_n = 1;
 
@@ -784,7 +784,7 @@ int PPFSEQ_DATABLOCK(const VAR_PPFSEQ * var, DATA_BLOCK * db)
     pData[0] = var->err;
 
     db->data_n = 1;
-    db->data_type = TYPE_INT;
+    db->data_type = UDA_TYPE_INT;
     db->data = (char *) pData;
 
     db->rank = 2;
@@ -838,7 +838,7 @@ int PPFSEQ_DATABLOCK(const VAR_PPFSEQ * var, DATA_BLOCK * db)
       strcpy( pDimData, the_psz );
       pDimData[ l ]= 0;
 
-      //db->dims[i].data_type = TYPE_STRING;
+      //db->dims[i].data_type = UDA_TYPE_STRING;
       db->dims[i].dim = pDimData;
       db->dims[i].dim_n = l+1;
       }
@@ -970,7 +970,7 @@ int PPFINF_DATABLOCK(const VAR_PPFINF * v, DATA_BLOCK * db)
     int * pData = (int *) malloc(1 * sizeof(int));
     pData[0] = v->err;
 
-    db->data_type = TYPE_INT;
+    db->data_type = UDA_TYPE_INT;
     db->data_n = 1;
     db->data = (char *) pData;
 
@@ -1156,7 +1156,7 @@ int DDAINF_DATABLOCK(const VAR_DDAINF * v, DATA_BLOCK * db)
 
 
     db->data_n = 1;
-    db->data_type = TYPE_INT;
+    db->data_type = UDA_TYPE_INT;
     db->data = malloc(1 * sizeof(int));
     *(int *) (db->data) = v->err;
 
@@ -1235,7 +1235,7 @@ int PPFDEL_DATABLOCK(const VAR_PPFDEL * v, DATA_BLOCK * db)
     initDataBlock(db);
 
     db->data_n = 1;
-    db->data_type = TYPE_INT;
+    db->data_type = UDA_TYPE_INT;
     db->data = malloc(sizeof(int));
     *(int *) (db->data) = v->err;
 
@@ -1411,7 +1411,7 @@ int PDLPPF_DATABLOCK(const VAR_PDLPPF * v, DATA_BLOCK * db)
     initDataBlock(db);
 
     db->data_n = 2;
-    db->data_type = TYPE_INT;
+    db->data_type = UDA_TYPE_INT;
     db->data = malloc(sizeof(int));
     *(int *) (db->data) = v->err;
 
@@ -1506,7 +1506,7 @@ int PDLUSR_DATABLOCK(const VAR_PDLUSR * v, DATA_BLOCK * db)
     initDataBlock(db);
 
     db->data_n = 1;
-    db->data_type = TYPE_INT;
+    db->data_type = UDA_TYPE_INT;
     db->data = malloc(1 * sizeof(int));//(char*)pData;
     *(int *) (db->data) = v->err;
 
@@ -1592,7 +1592,7 @@ int PDMSDT_DATABLOCK(const VAR_PDMSDT * v, DATA_BLOCK * db)
     initDataBlock(db);
 
     db->data_n = 1;
-    db->data_type = TYPE_INT;
+    db->data_type = UDA_TYPE_INT;
     db->data = malloc(sizeof(int));
     *(int *) (db->data) = v->err;
 
@@ -1632,7 +1632,7 @@ int PDMSHT_DATABLOCK(const VAR_PDMSHT * v, DATA_BLOCK * db)
     initDataBlock(db);
 
     db->data_n = 1;
-    db->data_type = TYPE_INT;
+    db->data_type = UDA_TYPE_INT;
     db->data = malloc(sizeof(int));
     *(int *) (db->data) = v->err;
 
@@ -1701,7 +1701,7 @@ int PDSTAT_DATABLOCK(const VAR_PDSTAT * v, DATA_BLOCK * db)
     initDataBlock(db);
 
     db->data_n = 1;
-    db->data_type = TYPE_INT;
+    db->data_type = UDA_TYPE_INT;
     db->data = malloc(sizeof(int));
     *(int *) (db->data) = v->err;
 
@@ -1781,7 +1781,7 @@ int PDSTD_DATABLOCK(const VAR_PDSTD * v, DATA_BLOCK * db)
     initDataBlock(db);
 
     db->data_n = 1;
-    db->data_type = TYPE_INT;
+    db->data_type = UDA_TYPE_INT;
     db->data = malloc(sizeof(int));
     *(int *) (db->data) = v->err;
 
@@ -1866,7 +1866,7 @@ int PDSRCH_DATABLOCK(const VAR_PDSRCH * v, DATA_BLOCK * db)
     initDataBlock(db);
 
     db->data_n = 1;
-    db->data_type = TYPE_INT;
+    db->data_type = UDA_TYPE_INT;
     db->data = malloc(sizeof(int));
     *(int *) (db->data) = v->err;
 
@@ -1999,7 +1999,7 @@ int PDTINF_DATABLOCK(const VAR_PDTINF * v, DATA_BLOCK * db)
     initDataBlock(db);
 
     db->data_n = 1;
-    db->data_type = TYPE_INT;
+    db->data_type = UDA_TYPE_INT;
     db->data = malloc(sizeof(int));
     *(int *) (db->data) = v->err;
 
@@ -2129,7 +2129,7 @@ int PPFDAT_DATABLOCK(const VAR_PPFDAT * v, DATA_BLOCK * db)
     initDataBlock(db);
 
     db->data_n = 1;
-    db->data_type = TYPE_INT;
+    db->data_type = UDA_TYPE_INT;
     db->data = malloc(sizeof(int));
     *(int *) (db->data) = v->err;
 
@@ -2233,7 +2233,7 @@ int PPFDTI_DATABLOCK(const VAR_PPFDTI * v, DATA_BLOCK * db)
     initDataBlock(db);
 
     db->data_n = 1;
-    db->data_type = TYPE_INT;
+    db->data_type = UDA_TYPE_INT;
     db->data = malloc(sizeof(int));
     *(int *) (db->data) = v->err;
 
@@ -2349,7 +2349,7 @@ int PPFDDA_DATABLOCK(const VAR_PPFDDA * v, DATA_BLOCK * db)
     initDataBlock(db);
 
     db->data_n = 1;
-    db->data_type = TYPE_INT;
+    db->data_type = UDA_TYPE_INT;
     db->data = malloc(sizeof(int));
     *(int *) (db->data) = v->err;
 
@@ -2490,7 +2490,7 @@ int PPFGET_DATABLOCK(const VAR_PPFGET * v, DATA_BLOCK * db)
     initDataBlock(db);
 
     db->data_n = 1;
-    db->data_type = TYPE_INT;
+    db->data_type = UDA_TYPE_INT;
     db->data = malloc(sizeof(int));
     *(int *) (db->data) = v->err;
 
@@ -2603,7 +2603,7 @@ int PPFGSF_DATABLOCK(const VAR_PPFGSF * v, DATA_BLOCK * db)
     initDataBlock(db);
 
     db->data_n = 1;
-    db->data_type = TYPE_INT;
+    db->data_type = UDA_TYPE_INT;
     db->data = malloc(sizeof(int));
     *(int *) (db->data) = v->err;
 
@@ -2710,7 +2710,7 @@ int PPFGTS_DATABLOCK(const VAR_PPFGTS * v, DATA_BLOCK * db)
     initDataBlock(db);
 
     db->data_n = 1;
-    db->data_type = TYPE_INT;
+    db->data_type = UDA_TYPE_INT;
     db->data = malloc(sizeof(int));
     *(int *) (db->data) = v->err;
 
@@ -2842,7 +2842,7 @@ int PPFMOD_DATABLOCK(const VAR_PPFMOD * v, DATA_BLOCK * db)
     initDataBlock(db);
 
     db->data_n = 1;
-    db->data_type = TYPE_INT;
+    db->data_type = UDA_TYPE_INT;
     db->data = malloc(sizeof(int));
     *(int *) (db->data) = v->err;
 
@@ -2944,7 +2944,7 @@ int PPFONDISK_DATABLOCK(const VAR_PPFONDISK * v, DATA_BLOCK * db)
     initDataBlock(db);
 
     db->data_n = 1;
-    db->data_type = TYPE_INT;
+    db->data_type = UDA_TYPE_INT;
     db->data = malloc(sizeof(int));
     *(int *) (db->data) = v->err;
 
@@ -3040,7 +3040,7 @@ int PPFOWNERINFO_DATABLOCK(const VAR_PPFOWNERINFO * v, DATA_BLOCK * db)
     initDataBlock(db);
 
     db->data_n = 1;
-    db->data_type = TYPE_INT;
+    db->data_type = UDA_TYPE_INT;
     db->data = malloc(sizeof(int));
     *(int *) (db->data) = v->err;
 
@@ -3125,7 +3125,7 @@ int PPFSETDEVICE_DATABLOCK(const VAR_PPFSETDEVICE * v, DATA_BLOCK * db)
     initDataBlock(db);
 
     db->data_n = 1;
-    db->data_type = TYPE_INT;
+    db->data_type = UDA_TYPE_INT;
     db->data = malloc(sizeof(int));
     *(int *) (db->data) = v->err;
 
@@ -3213,7 +3213,7 @@ int PPFSIZ_DATABLOCK(const VAR_PPFSIZ * v, DATA_BLOCK * db)
     initDataBlock(db);
 
     db->data_n = 1;
-    db->data_type = TYPE_INT;
+    db->data_type = UDA_TYPE_INT;
     db->data = malloc(sizeof(int));
     *(int *) (db->data) = v->err;
 

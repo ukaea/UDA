@@ -37,14 +37,14 @@ void freeDataBlock(DATA_BLOCK* data_block)
         IDAM_LOG(UDA_LOG_DEBUG, "Opaque Data\n");
 
         switch (data_block->opaque_type) {
-            case OPAQUE_TYPE_XML_DOCUMENT: {
+            case UDA_OPAQUE_TYPE_XML_DOCUMENT: {
                 if (data_block->opaque_block != NULL) free(data_block->opaque_block);
                 data_block->opaque_count = 0;
                 data_block->opaque_block = NULL;
                 break;
             }
 
-            case OPAQUE_TYPE_STRUCTURES: {
+            case UDA_OPAQUE_TYPE_STRUCTURES: {
                 if (data_block->opaque_block != NULL) {
 //                    if (logmalloclist != NULL) {
 //                        freeMallocLogList(logmalloclist);
@@ -54,34 +54,34 @@ void freeDataBlock(DATA_BLOCK* data_block)
 
                     data_block->opaque_count = 0;
                     data_block->opaque_block = NULL;
-                    data_block->data_type = TYPE_UNKNOWN;
-                    data_block->opaque_type = OPAQUE_TYPE_UNKNOWN;
+                    data_block->data_type = UDA_TYPE_UNKNOWN;
+                    data_block->opaque_type = UDA_OPAQUE_TYPE_UNKNOWN;
 
                     data_block->data = NULL;        // Added to Malloc Log List for freeing
                 }
                 break;
             }
 
-            case OPAQUE_TYPE_XDRFILE: {
+            case UDA_OPAQUE_TYPE_XDRFILE: {
                 if (data_block->opaque_block != NULL) {
                     free(data_block->opaque_block);
                 }
                 data_block->opaque_count = 0;
                 data_block->opaque_block = NULL;
-                data_block->data_type = TYPE_UNKNOWN;
-                data_block->opaque_type = OPAQUE_TYPE_UNKNOWN;
+                data_block->data_type = UDA_TYPE_UNKNOWN;
+                data_block->opaque_type = UDA_OPAQUE_TYPE_UNKNOWN;
                 data_block->data = NULL;
                 break;
             }
 
-            case OPAQUE_TYPE_XDROBJECT: {
+            case UDA_OPAQUE_TYPE_XDROBJECT: {
                 if (data_block->opaque_block != NULL) {
                     free(data_block->opaque_block);
                 }
                 data_block->opaque_count = 0;
                 data_block->opaque_block = NULL;
-                data_block->data_type = TYPE_UNKNOWN;
-                data_block->opaque_type = OPAQUE_TYPE_UNKNOWN;
+                data_block->data_type = UDA_TYPE_UNKNOWN;
+                data_block->opaque_type = UDA_OPAQUE_TYPE_UNKNOWN;
                 data_block->data = NULL;
                 break;
             }
@@ -152,8 +152,8 @@ void freeDataBlock(DATA_BLOCK* data_block)
         data_block->errcode = 0;
         data_block->rank = 0;
         data_block->order = 0;
-        data_block->data_type = TYPE_UNKNOWN;
-        data_block->error_type = TYPE_UNKNOWN;
+        data_block->data_type = UDA_TYPE_UNKNOWN;
+        data_block->error_type = UDA_TYPE_UNKNOWN;
         data_block->data_n = 0;
         data_block->error_param_n = 0;
 
@@ -167,7 +167,7 @@ void freeReducedDataBlock(DATA_BLOCK* data_block)
 {
 #ifdef FATCLIENT
     if(data_block == NULL) return;
-    if(data_block->opaque_type != OPAQUE_TYPE_STRUCTURES) return;
+    if(data_block->opaque_type != UDA_OPAQUE_TYPE_STRUCTURES) return;
     if(data_block->opaque_block == NULL) return;
 
 //    if(logmalloclist != NULL) {
@@ -178,8 +178,8 @@ void freeReducedDataBlock(DATA_BLOCK* data_block)
 
     data_block->opaque_count = 0;
     data_block->opaque_block = NULL;
-    data_block->data_type    = TYPE_UNKNOWN;
-    data_block->opaque_type  = OPAQUE_TYPE_UNKNOWN;
+    data_block->data_type    = UDA_TYPE_UNKNOWN;
+    data_block->opaque_type  = UDA_OPAQUE_TYPE_UNKNOWN;
 
     data_block->data         = NULL;		// Added to Malloc Log List for freeing
     return;

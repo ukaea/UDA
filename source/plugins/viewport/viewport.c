@@ -244,12 +244,12 @@ extern int viewport(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             data_block->dims = (DIMS*) malloc(data_block->rank * sizeof(DIMS));
             for (i = 0; i < data_block->rank; i++) initDimBlock(&data_block->dims[i]);
 
-            data_block->data_type = TYPE_STRING;
+            data_block->data_type = UDA_TYPE_STRING;
             strcpy(data_block->data_desc, "viewport: help = description of this plugin");
 
             data_block->data = (char*) p;
 
-            data_block->dims[0].data_type = TYPE_UNSIGNED_INT;
+            data_block->dims[0].data_type = UDA_TYPE_UNSIGNED_INT;
             data_block->dims[0].dim_n = strlen(p) + 1;
             data_block->dims[0].compressed = 1;
             data_block->dims[0].dim0 = 0.0;
@@ -269,7 +269,7 @@ extern int viewport(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
         if (STR_IEQUALS(request_block->function, "version")) {
             initDataBlock(data_block);
-            data_block->data_type = TYPE_INT;
+            data_block->data_type = UDA_TYPE_INT;
             data_block->rank = 0;
             data_block->data_n = 1;
             int* data = (int*) malloc(sizeof(int));
@@ -285,7 +285,7 @@ extern int viewport(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
         if (STR_IEQUALS(request_block->function, "builddate")) {
             initDataBlock(data_block);
-            data_block->data_type = TYPE_STRING;
+            data_block->data_type = UDA_TYPE_STRING;
             data_block->rank = 0;
             data_block->data_n = strlen(__DATE__) + 1;
             char* data = (char*) malloc(data_block->data_n * sizeof(char));
@@ -301,7 +301,7 @@ extern int viewport(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
         if (STR_IEQUALS(request_block->function, "defaultmethod")) {
             initDataBlock(data_block);
-            data_block->data_type = TYPE_STRING;
+            data_block->data_type = UDA_TYPE_STRING;
             data_block->rank = 0;
             data_block->data_n = strlen(THISPLUGIN_DEFAULT_METHOD) + 1;
             char* data = (char*) malloc(data_block->data_n * sizeof(char));
@@ -317,7 +317,7 @@ extern int viewport(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
         if (STR_IEQUALS(request_block->function, "maxinterfaceversion")) {
             initDataBlock(data_block);
-            data_block->data_type = TYPE_INT;
+            data_block->data_type = UDA_TYPE_INT;
             data_block->rank = 0;
             data_block->data_n = 1;
             int* data = (int*) malloc(sizeof(int));
@@ -799,14 +799,14 @@ extern int viewport(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 for (i = 0; i < data_block->rank; i++) initDimBlock(&data_block->dims[i]);
 
                 data_block->data_n = pixelWidth2;
-                data_block->data_type = TYPE_FLOAT;
+                data_block->data_type = UDA_TYPE_FLOAT;
                 strcpy(data_block->data_desc, getIdamDataDesc(handle));
                 strcpy(data_block->data_label, getIdamDataLabel(handle));
                 strcpy(data_block->data_units, getIdamDataUnits(handle));
 
                 data_block->dims[0].dim = (char*) horizontalPixelValues;
 
-                data_block->dims[0].data_type = TYPE_FLOAT;
+                data_block->dims[0].data_type = UDA_TYPE_FLOAT;
                 data_block->dims[0].dim_n = pixelWidth2;
                 data_block->dims[0].compressed = 0;
                 strcpy(data_block->dims[0].dim_label, getIdamDimLabel(handle, 0));
@@ -821,7 +821,7 @@ extern int viewport(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                     } else
                         free((void*) errlo);
                     data_block->errhi = (char*) errhi;
-                    data_block->error_type = TYPE_FLOAT;
+                    data_block->error_type = UDA_TYPE_FLOAT;
                 }
 
                 data_block->order = order;

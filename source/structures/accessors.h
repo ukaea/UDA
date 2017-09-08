@@ -111,7 +111,7 @@ NTREE *findNTreeStructureComponentDefinition(NTREE *tree, const char * target);
 * This is a public function with the whole sub-tree in scope.
 *
 * @param tree A pointer to a parent tree node. If NULL the root node is assumed.  
-* @param class The Structure Class, e.g., TYPE_VLEN.
+* @param class The Structure Class, e.g., UDA_TYPE_VLEN.
 * @return A pointer to the First tree node found with the targeted structure class.
 */
 NTREE *idam_findNTreeStructureClass(NTREE *tree, int class_);
