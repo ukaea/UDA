@@ -33,7 +33,7 @@ int readPPF(DATA_SOURCE data_source,
             SIGNAL_DESC signal_desc,
             DATA_BLOCK *data_block) {
     int err = 999;
-    addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF", err, "PPF PLUGIN NOT ENABLED");
+    addIdamError(CODEERRORTYPE, "readCDF", err, "PPF PLUGIN NOT ENABLED");
     return err;
 }
 
@@ -93,13 +93,13 @@ int readPPF(DATA_SOURCE data_source,
             p1[0] = '\0';
             if ((xsubset = atoi(&p1[1])) == 0) {
                 err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readPPF", err,
+                addIdamError(CODEERRORTYPE, "readPPF", err,
                              "Subsetting the X-Dimension begins at slice 1 not 0!");
                 return err;
             }
         } else {
             err = 999;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readPPF", err, "Non-Standard PPF Signal Name Syntax Error!");
+            addIdamError(CODEERRORTYPE, "readPPF", err, "Non-Standard PPF Signal Name Syntax Error!");
             return err;
         }
         strcpy(dtype, signal_desc.signal_name);
@@ -188,9 +188,9 @@ int readPPF(DATA_SOURCE data_source,
         msg[80] = '\0';
         TrimString(msg);
         if (err2 != 0)
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readPPF", err, "PPFGO Error");
+            addIdamError(CODEERRORTYPE, "readPPF", err, "PPFGO Error");
         else
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readPPF", err, msg);
+            addIdamError(CODEERRORTYPE, "readPPF", err, msg);
         PPFUID("JETPPF", "R", 7, 1);            // Reset to reading Public PPF's Only
         return err;
     }
@@ -209,9 +209,9 @@ int readPPF(DATA_SOURCE data_source,
         msg[80] = '\0';
         TrimString(msg);
         if (err2 != 0)
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readPPF", err, "DDAINF Error");
+            addIdamError(CODEERRORTYPE, "readPPF", err, "DDAINF Error");
         else
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readPPF", err, msg);
+            addIdamError(CODEERRORTYPE, "readPPF", err, msg);
         PPFUID("JETPPF", "R", 7, 1);            // Reset to reading Public PPF's Only
         return err;
     }
@@ -252,7 +252,7 @@ int readPPF(DATA_SOURCE data_source,
         }
     } else {
         err = 999;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "readPPF", err,
+        addIdamError(CODEERRORTYPE, "readPPF", err,
                      "Unable to Identify the PPF DDA Data-Type Requested");
         PPFUID("JETPPF", "R", 7, 1);
         return err;
@@ -262,7 +262,7 @@ int readPPF(DATA_SOURCE data_source,
 // Subsetting indicies begin with value 1
     if (xsubset > 0 && xsubset > nx) {
         err = 995;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "readPPF", err,
+        addIdamError(CODEERRORTYPE, "readPPF", err,
                      "The Requested X-Dimension Subset Exceeds the Valid X-Dimensions");
         PPFUID("JETPPF", "R", 7, 1);
         return err;
@@ -277,7 +277,7 @@ int readPPF(DATA_SOURCE data_source,
 
     if ((dvec = (float*) malloc(ndmax * sizeof(float))) == NULL) {
         err = 998;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "readPPF", err, "Data Heap Memory Allocation Failed");
+        addIdamError(CODEERRORTYPE, "readPPF", err, "Data Heap Memory Allocation Failed");
         PPFUID("JETPPF", "R", 7, 1);
         return err;
     }
@@ -285,7 +285,7 @@ int readPPF(DATA_SOURCE data_source,
     if (nt > 0) {
         if ((tvec = (float*) malloc(nt * sizeof(float))) == NULL) {
             err = 997;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readPPF", err, "Tvec Heap Memory Allocation Failed");
+            addIdamError(CODEERRORTYPE, "readPPF", err, "Tvec Heap Memory Allocation Failed");
             PPFUID("JETPPF", "R", 7, 1);
             return err;
         }
@@ -294,7 +294,7 @@ int readPPF(DATA_SOURCE data_source,
     if (nx > 0) {
         if ((xvec = (float*) malloc(nx * sizeof(float))) == NULL) {
             err = 996;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readPPF", err, "Xvec Heap Memory Allocation Failed");
+            addIdamError(CODEERRORTYPE, "readPPF", err, "Xvec Heap Memory Allocation Failed");
             PPFUID("JETPPF", "R", 7, 1);
             return err;
         }
@@ -327,9 +327,9 @@ int readPPF(DATA_SOURCE data_source,
         msg[80] = '\0';
         TrimString(msg);
         if (err2 != 0)
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readPPF", err, "PPFGET Error");
+            addIdamError(CODEERRORTYPE, "readPPF", err, "PPFGET Error");
         else
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readPPF", err, msg);
+            addIdamError(CODEERRORTYPE, "readPPF", err, msg);
         if (dvec != NULL)free((void*) dvec);
         if (tvec != NULL)free((void*) tvec);
         if (xvec != NULL)free((void*) xvec);
@@ -441,7 +441,7 @@ int readPPF(DATA_SOURCE data_source,
 
         if ((sdvec = (float*) malloc(nt * sizeof(float))) == NULL) {
             err = 998;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readPPF", err, "Xvec Subset Heap Memory Allocation Failed");
+            addIdamError(CODEERRORTYPE, "readPPF", err, "Xvec Subset Heap Memory Allocation Failed");
             PPFUID("JETPPF", "R", 7, 1);
             return err;
         }

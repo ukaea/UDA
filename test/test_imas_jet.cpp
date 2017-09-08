@@ -40,7 +40,7 @@ TEST_CASE( "Test bpol_probe count", "[IMAS][JET][BPOL]" )
     const uda::Result& result = client.get("imas::get(idx=0, group='magnetics', variable='bpol_probe/Shape_of', expName='JET', type=int, rank=0, shot=" SHOT_NUM ", )", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.errorMessage() == "" );
+    REQUIRE( result.errorMessage().empty() );
 
     uda::Data* data = result.data();
 
@@ -74,7 +74,7 @@ TEST_CASE( "Test bpol_probe name", "[IMAS][JET][BPOL]" )
     const uda::Result& result = client.get("imas::get(idx=0, group='magnetics', variable='bpol_probe/1/name', expName='JET', type=string, rank=0, shot=" SHOT_NUM ", )", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.errorMessage() == "" );
+    REQUIRE( result.errorMessage().empty() );
 
     uda::Data* data = result.data();
 
@@ -107,7 +107,7 @@ TEST_CASE( "Test bpol_probe identifier", "[IMAS][JET][BPOL]" )
     const uda::Result& result = client.get("imas::get(idx=0, group='magnetics', variable='bpol_probe/1/identifier', expName='JET', type=int, rank=0, shot=" SHOT_NUM ", )", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.errorMessage() == "" );
+    REQUIRE( result.errorMessage().empty() );
 
     uda::Data* data = result.data();
 
@@ -143,7 +143,7 @@ TEST_CASE( "Test bpol_probe toroidal_angle", "[IMAS][JET][BPOL]" )
 	const uda::Result& result = client.get("imas::get(idx=0, group='magnetics', variable='bpol_probe/1/toroidal_angle', expName='JET', type=double, rank=0, shot=" SHOT_NUM ", )", "");
 
 	REQUIRE( result.errorCode() == 0 );
-	REQUIRE( result.errorMessage() == "" );
+	REQUIRE( result.errorMessage().empty() );
 
 	uda::Data* data = result.data();
 
@@ -180,7 +180,7 @@ TEST_CASE( "Test bpol_probe poloidal_angle", "[IMAS][JET][BPOL]" )
 	const uda::Result& result = client.get("imas::get(idx=0, group='magnetics', variable='bpol_probe/1/poloidal_angle', expName='JET', type=double, rank=0, shot=" SHOT_NUM ", )", "");
 
 	REQUIRE( result.errorCode() == 0 );
-	REQUIRE( result.errorMessage() == "" );
+	REQUIRE( result.errorMessage().empty() );
 
 	uda::Data* data = result.data();
 
@@ -217,7 +217,7 @@ TEST_CASE( "Test bpol_probe area", "[IMAS][JET][BPOL]" )
     const uda::Result& result = client.get("imas::get(idx=0, group='magnetics', variable='bpol_probe/1/area', expName='JET', type=double, rank=0, shot=" SHOT_NUM ", )", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.errorMessage() == "" );
+    REQUIRE( result.errorMessage().empty() );
 
     uda::Data* data = result.data();
 
@@ -254,7 +254,7 @@ TEST_CASE( "Test bpol_probe position r", "[IMAS][JET][BPOL]" )
     const uda::Result& result = client.get("imas::get(idx=0, group='magnetics', variable='bpol_probe/1/position/r', expName='JET', type=double, rank=0, shot=" SHOT_NUM ", )", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.errorMessage() == "" );
+    REQUIRE( result.errorMessage().empty() );
 
     uda::Data* data = result.data();
 
@@ -291,7 +291,7 @@ TEST_CASE( "Test bpol_probe position z", "[IMAS][JET][BPOL]" )
     const uda::Result& result = client.get("imas::get(idx=0, group='magnetics', variable='bpol_probe/1/position/z', expName='JET', type=double, rank=0, shot=" SHOT_NUM ", )", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.errorMessage() == "" );
+    REQUIRE( result.errorMessage().empty() );
 
     uda::Data* data = result.data();
 
@@ -328,7 +328,7 @@ TEST_CASE( "Test bpol_probe position phi", "[IMAS][JET][BPOL]" )
     const uda::Result& result = client.get("imas::get(idx=0, group='magnetics', variable='bpol_probe/1/position/phi', expName='JET', type=double, rank=0, shot=" SHOT_NUM ", )", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.errorMessage() == "" );
+    REQUIRE( result.errorMessage().empty() );
 
     uda::Data* data = result.data();
 
@@ -365,7 +365,7 @@ TEST_CASE( "Test bpol_probe length", "[IMAS][JET][BPOL]" )
     const uda::Result& result = client.get("imas::get(idx=0, group='magnetics', variable='bpol_probe/1/length', expName='JET', type=double, rank=0, shot=" SHOT_NUM ", )", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.errorMessage() == "" );
+    REQUIRE( result.errorMessage().empty() );
 
     uda::Data* data = result.data();
 
@@ -399,7 +399,7 @@ TEST_CASE( "Test bpol_probe turns", "[IMAS][JET][BPOL]" )
     const uda::Result& result = client.get("imas::get(idx=0, group='magnetics', variable='bpol_probe/1/turns', expName='JET', type=int, rank=0, shot=" SHOT_NUM ", )", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.errorMessage() == "" );
+    REQUIRE( result.errorMessage().empty() );
 
     uda::Data* data = result.data();
 
@@ -436,7 +436,7 @@ TEST_CASE( "Test bpol_probe field", "[IMAS][JET][BPOL]" )
     const uda::Result& result = client.get("imas::get(idx=0, group='magnetics', variable='bpol_probe/1/field/data', expName='JET', type=double, rank=1, shot=" SHOT_NUM ", )", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.errorMessage() == "" );
+    REQUIRE( result.errorMessage().empty() );
 
     uda::Data* data = result.data();
 
@@ -471,7 +471,7 @@ TEST_CASE( "Test bpol_probe time", "[IMAS][JET][BPOL]" )
     const uda::Result& result = client.get("imas::get(idx=0, group='magnetics', variable='bpol_probe/1/field/time', expName='JET', type=double, rank=1, shot=" SHOT_NUM ", )", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.errorMessage() == "" );
+    REQUIRE( result.errorMessage().empty() );
 
     uda::Data* data = result.data();
 
@@ -515,7 +515,7 @@ TEST_CASE( "Test flux_loop count", "[IMAS][JET][FLUX]" )
     const uda::Result& result = client.get("imas::get(idx=0, group='magnetics', variable='flux_loop/Shape_of', expName='JET', type=int, rank=0, shot=" SHOT_NUM ", )", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.errorMessage() == "" );
+    REQUIRE( result.errorMessage().empty() );
 
     uda::Data* data = result.data();
 
@@ -546,7 +546,7 @@ TEST_CASE( "Test flux_loop name", "[IMAS][JET][FLUX]" )
     const uda::Result& result = client.get("imas::get(idx=0, group='magnetics', variable='flux_loop/1/name', expName='JET', type=string, rank=0, shot=" SHOT_NUM ", )", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.errorMessage() == "" );
+    REQUIRE( result.errorMessage().empty() );
 
     uda::Data* data = result.data();
 
@@ -559,7 +559,7 @@ TEST_CASE( "Test flux_loop name", "[IMAS][JET][FLUX]" )
     REQUIRE( str != nullptr );
     REQUIRE( !str->isNull() );
 
-    REQUIRE( str->str() == "" );
+    REQUIRE( str->str().empty() );
 }
 
 TEST_CASE( "Test flux_loop identifier", "[IMAS][JET][FLUX]" )
@@ -576,7 +576,7 @@ TEST_CASE( "Test flux_loop identifier", "[IMAS][JET][FLUX]" )
     const uda::Result& result = client.get("imas::get(idx=0, group='magnetics', variable='flux_loop/1/identifier', expName='JET', type=int, rank=0, shot=" SHOT_NUM ", )", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.errorMessage() == "" );
+    REQUIRE( result.errorMessage().empty() );
 
     uda::Data* data = result.data();
 
@@ -607,7 +607,7 @@ TEST_CASE( "Test flux_loop position count", "[IMAS][JET][FLUX]" )
     const uda::Result& result = client.get("imas::get(idx=0, group='magnetics', variable='flux_loop/1/position/Shape_of', expName='JET', type=int, rank=0, shot=" SHOT_NUM ", )", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.errorMessage() == "" );
+    REQUIRE( result.errorMessage().empty() );
 
     uda::Data* data = result.data();
 
@@ -638,7 +638,7 @@ TEST_CASE( "Test flux_loop position r", "[IMAS][JET][FLUX]" )
     const uda::Result& result_x = client.get("imas::get(idx=0, group='magnetics', variable='flux_loop/1/position/1/r', expName='JET', type=float, rank=0, shot=" SHOT_NUM ", )", "");
 
     REQUIRE( result_x.errorCode() == 0 );
-    REQUIRE( result_x.errorMessage() == "" );
+    REQUIRE( result_x.errorMessage().empty() );
 
     uda::Data* data = result_x.data();
 
@@ -657,7 +657,7 @@ TEST_CASE( "Test flux_loop position r", "[IMAS][JET][FLUX]" )
     const uda::Result& result_y = client.get("imas::get(idx=0, group='magnetics', variable='flux_loop/1/position/2/r', expName='JET', type=float, rank=0, shot=" SHOT_NUM ", )", "");
 
     REQUIRE( result_y.errorCode() == 0 );
-    REQUIRE( result_y.errorMessage() == "" );
+    REQUIRE( result_y.errorMessage().empty() );
 
     data = result_y.data();
 
@@ -688,7 +688,7 @@ TEST_CASE( "Test flux_loop position z", "[IMAS][JET][FLUX]" )
     const uda::Result& result_x = client.get("imas::get(idx=0, group='magnetics', variable='flux_loop/1/position/1/z', expName='JET', type=float, rank=0, shot=" SHOT_NUM ", )", "");
 
     REQUIRE( result_x.errorCode() == 0 );
-    REQUIRE( result_x.errorMessage() == "" );
+    REQUIRE( result_x.errorMessage().empty() );
 
     uda::Data* data = result_x.data();
 
@@ -707,7 +707,7 @@ TEST_CASE( "Test flux_loop position z", "[IMAS][JET][FLUX]" )
     const uda::Result& result_y = client.get("imas::get(idx=0, group='magnetics', variable='flux_loop/1/position/2/z', expName='JET', type=float, rank=0, shot=" SHOT_NUM ", )", "");
 
     REQUIRE( result_y.errorCode() == 0 );
-    REQUIRE( result_y.errorMessage() == "" );
+    REQUIRE( result_y.errorMessage().empty() );
 
     data = result_y.data();
 
@@ -738,7 +738,7 @@ TEST_CASE( "Test flux_loop position phi", "[IMAS][JET][FLUX]" )
     const uda::Result& result_x = client.get("imas::get(idx=0, group='magnetics', variable='flux_loop/1/position/1/phi', expName='JET', type=float, rank=0, shot=" SHOT_NUM ", )", "");
 
     REQUIRE( result_x.errorCode() == 0 );
-    REQUIRE( result_x.errorMessage() == "" );
+    REQUIRE( result_x.errorMessage().empty() );
 
     uda::Data* data = result_x.data();
 
@@ -757,7 +757,7 @@ TEST_CASE( "Test flux_loop position phi", "[IMAS][JET][FLUX]" )
     const uda::Result& result_y = client.get("imas::get(idx=0, group='magnetics', variable='flux_loop/1/position/2/phi', expName='JET', type=float, rank=0, shot=" SHOT_NUM ", )", "");
 
     REQUIRE( result_y.errorCode() == 0 );
-    REQUIRE( result_y.errorMessage() == "" );
+    REQUIRE( result_y.errorMessage().empty() );
 
     data = result_y.data();
 
@@ -788,7 +788,7 @@ TEST_CASE( "Test flux_loop flux", "[IMAS][JET][FLUX]" )
     const uda::Result& result_1 = client.get("imas::get(idx=0, group='magnetics', variable='flux_loop/1/flux/data', expName='JET', type=float, rank=1, shot=" SHOT_NUM ", )", "");
 
     REQUIRE( result_1.errorCode() == 0 );
-    REQUIRE( result_1.errorMessage() == "" );
+    REQUIRE( result_1.errorMessage().empty() );
 
     uda::Data* data = result_1.data();
 
@@ -808,7 +808,7 @@ TEST_CASE( "Test flux_loop flux", "[IMAS][JET][FLUX]" )
     const uda::Result& result_36 = client.get("imas::get(idx=0, group='magnetics', variable='flux_loop/36/flux/data', expName='JET', type=float, rank=1, shot=" SHOT_NUM ", )", "");
 
     REQUIRE( result_36.errorCode() == 0 );
-    REQUIRE( result_36.errorMessage() == "" );
+    REQUIRE( result_36.errorMessage().empty() );
 
     data = result_36.data();
 
@@ -826,6 +826,57 @@ TEST_CASE( "Test flux_loop flux", "[IMAS][JET][FLUX]" )
     REQUIRE( arr->as<float>()[0] == Approx(0.2953f) );
 }
 
+//TEST_CASE( "Test flux_loop flux errors", "[IMAS][JET][BPOL]" )
+//{
+//#ifdef FATCLIENT
+//#  include "setupEnvironment.inc"
+//#endif
+//
+//    setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", "/Users/jhollocombe/Projects/uda/source/plugins/exp2imas/mappings", 1);
+//    setenv("UDA_EXP2IMAS_MAPPING_FILE", "/Users/jhollocombe/Projects/uda/source/plugins/exp2imas/mappings/JET_Mapping.xml", 1);
+//
+//    uda::Client client;
+//
+////    const uda::Result& error_index = client.get("imas::get(idx=0, group='magnetics', variable='flux_loop/1/flux/data_error_index', expName='JET', type=int, rank=0, shot=" SHOT_NUM ", )", "");
+////
+////    REQUIRE( error_index.errorCode() == 0 );
+////    REQUIRE( error_index.errorMessage().empty() );
+////
+////    uda::Data* data = error_index.data();
+////
+////    REQUIRE( data != nullptr );
+////    REQUIRE( !data->isNull() );
+////    REQUIRE( data->type().name() == typeid(int).name() );
+////
+////    auto val = dynamic_cast<uda::Scalar*>(data);
+////
+////    REQUIRE( val != nullptr );
+////    REQUIRE( !val->isNull() );
+////
+////    REQUIRE( val->type().name() == typeid(int).name() );
+////    REQUIRE( val->as<int>() == 0 );
+//
+//    const uda::Result& error_upper = client.get("imas::get(idx=0, group='magnetics', variable='flux_loop/1/flux/data_error_upper', expName='JET', type=double, rank=0, shot=" SHOT_NUM ", )", "");
+//
+//    REQUIRE( error_upper.errorCode() == 0 );
+//    REQUIRE( error_upper.errorMessage().empty() );
+//
+//    uda::Data* data = error_upper.data();
+//
+//    REQUIRE( data != nullptr );
+//    REQUIRE( !data->isNull() );
+//    REQUIRE( data->type().name() == typeid(double).name() );
+//
+//    auto arr = dynamic_cast<uda::Array*>(data);
+//
+//    REQUIRE( arr != nullptr );
+//    REQUIRE( !arr->isNull() );
+//
+//    REQUIRE( arr->size() == 1024 );
+//    REQUIRE( arr->type().name() == typeid(double).name() );
+//    REQUIRE( arr->as<float>()[0] == Approx(0.2953f) );
+//}
+
 TEST_CASE( "Test flux_loop time", "[IMAS][JET][FLUX]" )
 {
 #ifdef FATCLIENT
@@ -840,7 +891,7 @@ TEST_CASE( "Test flux_loop time", "[IMAS][JET][FLUX]" )
     const uda::Result& result_1 = client.get("imas::get(idx=0, group='magnetics', variable='flux_loop/1/flux/time', expName='JET', type=float, rank=1, shot=" SHOT_NUM ", )", "");
 
     REQUIRE( result_1.errorCode() == 0 );
-    REQUIRE( result_1.errorMessage() == "" );
+    REQUIRE( result_1.errorMessage().empty() );
 
     uda::Data* data = result_1.data();
 
@@ -861,7 +912,7 @@ TEST_CASE( "Test flux_loop time", "[IMAS][JET][FLUX]" )
     const uda::Result& result_36 = client.get("imas::get(idx=0, group='magnetics', variable='flux_loop/36/flux/time', expName='JET', type=float, rank=1, shot=" SHOT_NUM ", )", "");
 
     REQUIRE( result_36.errorCode() == 0 );
-    REQUIRE( result_36.errorMessage() == "" );
+    REQUIRE( result_36.errorMessage().empty() );
 
     data = result_36.data();
 

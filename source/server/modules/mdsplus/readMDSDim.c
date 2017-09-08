@@ -53,29 +53,29 @@ int readMDSDim(char* node, int ndim, DIMS* ddim)
     IDAM_LOGF(UDA_LOG_DEBUG, "Node      =  %s \n", node);
     IDAM_LOGF(UDA_LOG_DEBUG, "Dimension =  %d \n", ndim);
 
-// Check Constraint on Maximum Number of Dimensions
+    // Check Constraint on Maximum Number of Dimensions
 
     if (ndim > 99) {
         err = MDS_ERROR_DIM_DIMENSION_NUMBER_EXCEEDED;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "readMDSDim", err, "Maximum Number of Node Dimensions Exceeded");
+        addIdamError(CODEERRORTYPE, "readMDSDim", err, "Maximum Number of Node Dimensions Exceeded");
         return (err);
     }
 
-//----------------------------------------------------------------------
-// Error Management Loop
+    //----------------------------------------------------------------------
+    // Error Management Loop
 
     err = 0;
     do {
 
-//----------------------------------------------------------------------
-// Length of Dimension Data
+        //----------------------------------------------------------------------
+        // Length of Dimension Data
 
         null = 0;
         sdim = (char*)malloc((18 + strlen(node)) * sizeof(char));
 
         if (!sdim) {
             err = MDS_ERROR_DIM_ALLOCATING_HEAP_TDI_SIZE;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readMDSDim", err,
+            addIdamError(CODEERRORTYPE, "readMDSDim", err,
                          "Unable to Allocate Heap for MdsValue Dim Size Enquiry");
             break;
         }
@@ -89,14 +89,14 @@ int readMDSDim(char* node, int ndim, DIMS* ddim)
 
         if (!status_ok(status) || size < 1) {
             err = MDS_ERROR_DIM_MDSVALUE_SIZE;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readMDSDim", err, "Unable to Retrieve the Dim Size");
+            addIdamError(CODEERRORTYPE, "readMDSDim", err, "Unable to Retrieve the Dim Size");
             break;
         }
 
         IDAM_LOGF(UDA_LOG_DEBUG, "Length of Dimension (%d) = %d\n", ndim, size);
 
-//----------------------------------------------------------------------
-// Data Type
+        //----------------------------------------------------------------------
+        // Data Type
 
         null = 0;
         sdim = (char*)realloc((void*)sdim, (size_t)(24 + strlen(node)) * sizeof(char));
@@ -108,21 +108,21 @@ int readMDSDim(char* node, int ndim, DIMS* ddim)
 
         if (!status_ok(status) || size < 1) {
             err = MDS_ERROR_MDSVALUE_TYPE;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readMDSDim", err, "Unable to Retrieve the Dim Type");
+            addIdamError(CODEERRORTYPE, "readMDSDim", err, "Unable to Retrieve the Dim Type");
             break;
         }
 
-//----------------------------------------------------------------------
-// Identify IDAM type
+        //----------------------------------------------------------------------
+        // Identify IDAM type
 
         if ((ddim->data_type = readMDSType(type)) == TYPE_UNKNOWN) {
             err = 999;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readMDSDim", err, "Unknown Data Type");
+            addIdamError(CODEERRORTYPE, "readMDSDim", err, "Unknown Data Type");
             break;
         }
 
-//----------------------------------------------------------------------
-// Allocate Heap for Data, and define descriptor
+        //----------------------------------------------------------------------
+        // Allocate Heap for Data, and define descriptor
 
         null = 0;
 
@@ -181,20 +181,18 @@ int readMDSDim(char* node, int ndim, DIMS* ddim)
 
         if (data == NULL) {
             err = MDS_ERROR_DIM_ALLOCATING_HEAP_DATA_BLOCK;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readMDSDim", err,
-                         "Unable to Allocate Heap for the Dimensional Data");
+            addIdamError(CODEERRORTYPE, "readMDSDim", err, "Unable to Allocate Heap for the Dimensional Data");
             break;
         }
 
-
-//----------------------------------------------------------------------
-// Dimension Vector data
+        //----------------------------------------------------------------------
+        // Dimension Vector data
 
         sdim = (char*)realloc((void*)sdim, (size_t)(12 + strlen(node)) * sizeof(char));
 
         if (sdim == NULL) {
             err = MDS_ERROR_DIM_ALLOCATING_HEAP_TDI_DIM_OF;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readMDSDim", err, "Unable to Allocate Heap for the Dim Data");
+            addIdamError(CODEERRORTYPE, "readMDSDim", err, "Unable to Allocate Heap for the Dim Data");
             break;
         }
 
@@ -206,7 +204,7 @@ int readMDSDim(char* node, int ndim, DIMS* ddim)
 
         if (!status_ok(status)) {
             err = MDS_ERROR_DIM_MDSVALUE_DATA;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readMDSDim", err, "Unable to Retrieve the Dim Data");
+            addIdamError(CODEERRORTYPE, "readMDSDim", err, "Unable to Retrieve the Dim Data");
             break;
         }
 
@@ -220,15 +218,15 @@ int readMDSDim(char* node, int ndim, DIMS* ddim)
             IDAM_LOGF(UDA_LOG_DEBUG, " Dim Data Sum = %f\n", tot);
         }
 
-//----------------------------------------------------------------------
-// length of Data Units String
+        //----------------------------------------------------------------------
+        // length of Data Units String
 
         null = 0;
         sdim = (char*)realloc((void*)sdim, (size_t)(27 + strlen(node)) * sizeof(char));
 
         if (!sdim) {
             err = MDS_ERROR_DIM_ALLOCATING_HEAP_TDI_LEN_UNITS;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readMDSDim", err,
+            addIdamError(CODEERRORTYPE, "readMDSDim", err,
                          "Unable to Allocate Heap for MdsValue Dim Units Length Enquiry");
             break;
         }
@@ -239,9 +237,6 @@ int readMDSDim(char* node, int ndim, DIMS* ddim)
         status = MdsValue(sdim, &desc, &null, 0);
 
         if (!status_ok(status) || lunits < 1) {
-            //err = MDS_ERROR_DIM_MDSVALUE_LEN_UNITS;
-            //addIdamError(&idamerrorstack, CODEERRORTYPE, "readMDSDim", err, "Unable to Retrieve the Dim Units Length");
-            //break;
             lunits = 0;
         }
 
@@ -249,8 +244,8 @@ int readMDSDim(char* node, int ndim, DIMS* ddim)
 
         IDAM_LOGF(UDA_LOG_DEBUG, "Length of Units String %d\n", lunits);
 
-//----------------------------------------------------------------------
-// Dimension Units
+        //----------------------------------------------------------------------
+        // Dimension Units
 
         if (lunits > 1) {
             null = 0;
@@ -258,7 +253,7 @@ int readMDSDim(char* node, int ndim, DIMS* ddim)
 
             if (!sdim) {
                 err = MDS_ERROR_DIM_ALLOCATING_HEAP_TDI_UNITS;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readMDSDim", err,
+                addIdamError(CODEERRORTYPE, "readMDSDim", err,
                              "Unable to Allocate Heap for MdsValue Dim Units Enquiry");
                 break;
             }
@@ -271,7 +266,7 @@ int readMDSDim(char* node, int ndim, DIMS* ddim)
 
             if (!units) {
                 err = MDS_ERROR_DIM_ALLOCATING_HEAP_DIM_UNITS;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readMDSDim", err,
+                addIdamError(CODEERRORTYPE, "readMDSDim", err,
                              "Unable to Allocate Heap for the Dim Units");
                 break;
             }
@@ -281,7 +276,7 @@ int readMDSDim(char* node, int ndim, DIMS* ddim)
 
             if (!status_ok(status)) {
                 err = MDS_ERROR_DIM_MDSVALUE_UNITS;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readMDSDim", err, "Unable to Retrieve the Dim Units");
+                addIdamError(CODEERRORTYPE, "readMDSDim", err, "Unable to Retrieve the Dim Units");
                 break;
             }
 
@@ -297,13 +292,13 @@ int readMDSDim(char* node, int ndim, DIMS* ddim)
 
     } while (0);    // Always exit the Error Management Loop
 
-//----------------------------------------------------------------------
-// Error Status
+    //----------------------------------------------------------------------
+    // Error Status
 
     IDAM_LOGF(UDA_LOG_DEBUG, "Final Error Status = %d\n", err);
 
-//----------------------------------------------------------------------
-// Free Local Heap Memory
+    //----------------------------------------------------------------------
+    // Free Local Heap Memory
 
     if (err != 0) {
         if (data != NULL) free((void*)data);

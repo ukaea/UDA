@@ -80,8 +80,10 @@ int getHDF5(DATA_SOURCE* data_source, SIGNAL_DESC* signal_desc, DATA_BLOCK* data
             file_id = H5Fopen(data_source->path, H5F_ACC_RDONLY, H5P_DEFAULT);
             if ((int)file_id < 0 || errno != 0) {
                 err = HDF5_ERROR_OPENING_FILE;
-                if (errno != 0) addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "readHDF5", errno, "");
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readHDF5", err, "Error Opening HDF5 File");
+                if (errno != 0) {
+                    addIdamError(SYSTEMERRORTYPE, "readHDF5", errno, "");
+                }
+                addIdamError(CODEERRORTYPE, "readHDF5", err, "Error Opening HDF5 File");
                 break;
             }
             addIdamPluginFileLong(&pluginFileList, data_source->path, file_id);        // Register the File Handle
@@ -149,7 +151,7 @@ int getHDF5(DATA_SOURCE* data_source, SIGNAL_DESC* signal_desc, DATA_BLOCK* data
 // Must be an error!	 
 
             err = HDF5_ERROR_OPENING_DATASET;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readHDF5", err, "Error Opening the Signal Dataset");
+            addIdamError(CODEERRORTYPE, "readHDF5", err, "Error Opening the Signal Dataset");
             break;
         }
 
@@ -158,7 +160,7 @@ int getHDF5(DATA_SOURCE* data_source, SIGNAL_DESC* signal_desc, DATA_BLOCK* data
 
         if ((status = H5Oget_info(dataset_id, &dataset_info)) < 0) {
             err = HDF5_ERROR_IDENTIFYING_DATA_ITEM;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readHDF5", err, "Error Accessing Signal Dataset Information");
+            addIdamError(CODEERRORTYPE, "readHDF5", err, "Error Accessing Signal Dataset Information");
             break;
         }
 
@@ -170,7 +172,7 @@ int getHDF5(DATA_SOURCE* data_source, SIGNAL_DESC* signal_desc, DATA_BLOCK* data
         if (dataset_type == H5O_TYPE_DATASET) {                    // Dataset Object
             if ((space_id = H5Dget_space(dataset_id)) < 0) {
                 err = HDF5_ERROR_OPENING_DATASPACE;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readHDF5", err,
+                addIdamError(CODEERRORTYPE, "readHDF5", err,
                              "Error Opening the Dataspace for the Dataset");
                 break;
             }
@@ -186,7 +188,7 @@ int getHDF5(DATA_SOURCE* data_source, SIGNAL_DESC* signal_desc, DATA_BLOCK* data
         } else {                                // Assume an Attribute Object
             if ((space_id = H5Aget_space(dataset_id)) < 0) {
                 err = HDF5_ERROR_OPENING_DATASPACE;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readHDF5", err,
+                addIdamError(CODEERRORTYPE, "readHDF5", err,
                              "Error Opening the Dataspace for the Attribute");
                 break;
             }
@@ -246,25 +248,25 @@ int getHDF5(DATA_SOURCE* data_source, SIGNAL_DESC* signal_desc, DATA_BLOCK* data
                 err = 0;
                 switch (space_status) {
                     case H5D_SPACE_STATUS_NOT_ALLOCATED:
-                        //addIdamError(&idamerrorstack, CODEERRORTYPE, "readHDF5", err, "No Storage Allocated within the File for this data item");
+                        //addIdamError(CODEERRORTYPE, "readHDF5", err, "No Storage Allocated within the File for this data item");
                         break;
                     case H5D_SPACE_STATUS_PART_ALLOCATED:
-                        //addIdamError(&idamerrorstack, CODEERRORTYPE, "readHDF5", err, "Incomplete Storage Allocated within the File for this data item");
+                        //addIdamError(CODEERRORTYPE, "readHDF5", err, "Incomplete Storage Allocated within the File for this data item");
                         break;
                     case H5D_SPACE_STATUS_ALLOCATED:
                         err = HDF5_ERROR_NO_STORAGE_SIZE;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "readHDF5", err,
+                        addIdamError(CODEERRORTYPE, "readHDF5", err,
                                      "Storage Allocated within the File for "
                                              "this data item but Zero Storage Size returned!");
                         break;
                     default:
                         err = HDF5_ERROR_NO_STORAGE_SIZE;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "readHDF5", err,
+                        addIdamError(CODEERRORTYPE, "readHDF5", err,
                                      "No Storage Size returned for this data item");
                         break;
                 }
             } else {
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readHDF5", err,
+                addIdamError(CODEERRORTYPE, "readHDF5", err,
                              "No Storage Size returned for this data item");
             }
             if (err != 0) break;
@@ -276,7 +278,7 @@ int getHDF5(DATA_SOURCE* data_source, SIGNAL_DESC* signal_desc, DATA_BLOCK* data
         if (data_block->rank > 0) {
             if ((data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS))) == NULL) {
                 err = HDF5_ERROR_ALLOCATING_DIM_HEAP;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readHDF5", err,
+                addIdamError(CODEERRORTYPE, "readHDF5", err,
                              "Problem Allocating Dimension Heap Memory");
                 break;
             }
@@ -343,7 +345,7 @@ int getHDF5(DATA_SOURCE* data_source, SIGNAL_DESC* signal_desc, DATA_BLOCK* data
 
         if (data_block->data_type == TYPE_UNKNOWN) {
             err = HDF5_ERROR_UNKNOWN_TYPE;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readHDF5", err, "Unknown Data Type for this data item");
+            addIdamError(CODEERRORTYPE, "readHDF5", err, "Unknown Data Type for this data item");
             break;
 
         }
@@ -361,7 +363,7 @@ int getHDF5(DATA_SOURCE* data_source, SIGNAL_DESC* signal_desc, DATA_BLOCK* data
             hid_t att_id = -1;
             if ((att_id = H5Aopen_idx(dataset_id, (unsigned int)i)) < 0) {
                 err = HDF5_ERROR_OPENING_ATTRIBUTE;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readHDF5", err,
+                addIdamError(CODEERRORTYPE, "readHDF5", err,
                              "Problem Allocating Dimension Heap Memory");
                 break;
             }
@@ -508,13 +510,13 @@ int getHDF5(DATA_SOURCE* data_source, SIGNAL_DESC* signal_desc, DATA_BLOCK* data
 
         if (data == NULL) {
             err = HDF5_ERROR_ALLOCATING_DATA_HEAP;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readHDF5", err, "Problem Allocating Data Heap Memory");
+            addIdamError(CODEERRORTYPE, "readHDF5", err, "Problem Allocating Data Heap Memory");
             break;
         }
 
         if (status < 0) {
             err = HDF5_ERROR_READING_DATA;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readHDF5", err, "Problem Reading Data from the File");
+            addIdamError(CODEERRORTYPE, "readHDF5", err, "Problem Reading Data from the File");
             break;
         }
 

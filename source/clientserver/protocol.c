@@ -771,7 +771,7 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                         break;
                     }
 
-                    closeIdamError(&server_block->idamerrorstack);    // Free Heap associated with Previous Data Access
+                    closeIdamError();    // Free Heap associated with Previous Data Access
 
                     if (!xdr_server1(xdrs, server_block)) {
                         err = PROTOCOL_ERROR_22;
@@ -782,7 +782,7 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
 
                         server_block->idamerrorstack.idamerror = (IDAMERROR*) malloc(
                                 server_block->idamerrorstack.nerrors * sizeof(IDAMERROR));
-                        initIdamErrorRecords(&server_block->idamerrorstack);
+                        initIdamErrorRecords();
 
                         if (!xdr_server2(xdrs, server_block)) {
                             err = PROTOCOL_ERROR_22;

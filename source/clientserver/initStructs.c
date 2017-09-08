@@ -80,8 +80,8 @@ void initServerBlock(SERVER_BLOCK* str, int version)
     str->error = 0;
     str->msg[0] = '\0';
     str->pid = (int)getpid();
-    initIdamErrorStack(&(str->idamerrorstack));
-
+    str->idamerrorstack.nerrors = 0;
+    str->idamerrorstack.idamerror = NULL;
     str->OSName[0] = '\0';    // Operating System Name
     str->DOI[0] = '\0';    // Digital Object Identifier (server configuration)
 

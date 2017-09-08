@@ -77,7 +77,7 @@ int idamServerLegacyPlugin(REQUEST_BLOCK* request_block, DATA_SOURCE* data_sourc
                     }
                 } else {
                     err = 999;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "idamServer", err,
+                    addIdamError(CODEERRORTYPE, "idamServer", err,
                                  "Unmatched count of Target and Substitute File Paths.");
                     break;
 
@@ -344,7 +344,7 @@ int idamServerLegacyPlugin(REQUEST_BLOCK* request_block, DATA_SOURCE* data_sourc
             default:
                 IDAM_LOGF(UDA_LOG_DEBUG, "Unknown Requested Data Access Routine (%d) \n", request_block->request);
                 err = 9999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "idamServer", err,
+                addIdamError(CODEERRORTYPE, "idamServer", err,
                              "Unknown Requested Data Access Routine");
                 break;
         }

@@ -445,7 +445,7 @@ bool_t xdr_serialise_object(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINED
 
         if (udt == NULL || u == NULL) {
             err = 999;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "protocolDataObject", err,
+            addIdamError(CODEERRORTYPE, "protocolDataObject", err,
                          "NULL User defined data Structure Definition");
             return 0;
         }
@@ -470,7 +470,7 @@ bool_t xdr_serialise_object(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINED
 
         if (!rc) {
             err = 999;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "protocolDataObject", err,
+            addIdamError(CODEERRORTYPE, "protocolDataObject", err,
                          "Bad Return Code passing data structures");
             return 0;
         }
@@ -481,7 +481,7 @@ bool_t xdr_serialise_object(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINED
 
         if (packageType != PACKAGE_XDROBJECT) {
             err = 999;
-            addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "protocolDataObject", err, "Incorrect package Type option");
+            addIdamError(SYSTEMERRORTYPE, "protocolDataObject", err, "Incorrect package Type option");
             return 0;
         }
 
@@ -499,7 +499,7 @@ bool_t xdr_serialise_object(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINED
 
         if (!rc) {
             err = 999;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "protocolDataObject", err,
+            addIdamError(CODEERRORTYPE, "protocolDataObject", err,
                          "Failure receiving Structure Definitions");
             return 0;
         }
@@ -513,7 +513,7 @@ bool_t xdr_serialise_object(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINED
 
         if (!rc) {
             err = 999;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "protocolDataObject", err,
+            addIdamError(CODEERRORTYPE, "protocolDataObject", err,
                          "Failure receiving Data and it's Structure Definition");
             return 0;
         }
@@ -527,7 +527,7 @@ bool_t xdr_serialise_object(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINED
             SARRAY* s = (SARRAY*)data;
             if (s->count != str->data_n) {                // check for consistency
                 err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "protocolDataObject", err, "Inconsistent S Array Counts");
+                addIdamError(CODEERRORTYPE, "protocolDataObject", err, "Inconsistent S Array Counts");
                 return 0;
             }
             str->data = (char*)fullNTree;        // Global Root Node with the Carrier Structure containing data
@@ -539,7 +539,7 @@ bool_t xdr_serialise_object(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINED
 
         } else {
             err = 999;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "protocolDataObject", err,
+            addIdamError(CODEERRORTYPE, "protocolDataObject", err,
                          "Name of Received Data Structure Incorrect");
             return 0;
         }

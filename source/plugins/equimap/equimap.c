@@ -2061,19 +2061,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             break;
         }
 
-// catch all?
-// Experimental Data? Copy the IDAM data structure
-// No ... double free unless data and coordinate data are copied.
-
-        //if((handle = whichHandle(request_block->function)) >= 0){
-        // *data_block = *getIdamDataBlock(handle);
-        // break;
-        //}
-
-
-        err = 999;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "equimap", err, "Unknown function requested!");
-        return err;
+        RAISE_PLUGIN_ERROR("Unknown function requested!");
 
     } while (0);
 

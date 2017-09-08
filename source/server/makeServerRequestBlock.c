@@ -81,21 +81,21 @@ int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList)
 
     ENVIRONMENT* environment = getIdamServerEnvironment();
 
-//------------------------------------------------------------------------------
-// Always use the client's delimiting string if provided, otherwise use the default delimiter
+    //------------------------------------------------------------------------------
+    // Always use the client's delimiting string if provided, otherwise use the default delimiter
 
     if ((ldelim = (int) strlen(request_block->api_delim)) == 0) {
         strcpy(request_block->api_delim, environment->api_delim);
         ldelim = (int) strlen(request_block->api_delim);
     }
 
-//------------------------------------------------------------------------------
-// Start with ignorance about which plugin to use
+    //------------------------------------------------------------------------------
+    // Start with ignorance about which plugin to use
 
     request_block->request = REQUEST_READ_UNKNOWN;
 
-//------------------------------------------------------------------------------
-// Check there is something to work with!
+    //------------------------------------------------------------------------------
+    // Check there is something to work with!
 
     sprintf(work, "%s%s", environment->api_archive, environment->api_delim);    // default archive
     sprintf(work2, "%s%s", environment->api_device, environment->api_delim);    // default device
@@ -106,13 +106,13 @@ int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList)
 
     if ((request_block->signal[0] == '\0' || STR_IEQUALS(request_block->signal, work)) && noSource) {
         err = 999;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "makeServerRequestBlock", err,
+        addIdamError(CODEERRORTYPE, "makeServerRequestBlock", err,
                      "Neither Data Object nor Source specified!");
         return err;
     }
 
-//------------------------------------------------------------------------------
-// Strip default device from the source if present and leading
+    //------------------------------------------------------------------------------
+    // Strip default device from the source if present and leading
 
     lstr = (int) strlen(work2);
     if (!noSource && !strncasecmp(request_block->source, work2, lstr)) {
@@ -120,9 +120,9 @@ int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList)
         LeftTrimString(request_block->source);
     }
 
-//------------------------------------------------------------------------------
-// Is this server acting as an IDAM Proxy? If all access requests are being re-directed then do nothing to the arguments.
-// They are just passed onwards without interpretation.
+    //------------------------------------------------------------------------------
+    // Is this server acting as an IDAM Proxy? If all access requests are being re-directed then do nothing to the arguments.
+    // They are just passed onwards without interpretation.
 
     isProxy = environment->server_proxy[0] != '\0';
 
@@ -229,7 +229,7 @@ int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList)
 
                 if ((p0 != NULL || p1 != NULL) && (p != NULL || p2 != NULL)) {
                     err = 999;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "makeServerRequestBlock", err,
+                    addIdamError(CODEERRORTYPE, "makeServerRequestBlock", err,
                                  "Source syntax: path with parenthesis () is incorrect!");
                     return err;
                 }
@@ -263,7 +263,7 @@ int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList)
                     IDAM_LOG(UDA_LOG_DEBUG, "File Format NOT identified from name extension!\n");
                     //if(rc < 0) return -rc;
                     err = 999;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "makeServerRequestBlock", err,
+                    addIdamError(CODEERRORTYPE, "makeServerRequestBlock", err,
                                  "No File Format identifed: Please specify.");
                     return err;
                 }
@@ -294,7 +294,7 @@ int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList)
 
                     if ((rc = nameValuePairs(work2, &request_block->nameValueList, strip)) == -1) {
                         err = 999;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "makeServerRequestBlock", err,
+                        addIdamError(CODEERRORTYPE, "makeServerRequestBlock", err,
                                      "Name Value pair syntax is incorrect!");
                         return err;
                     }
@@ -317,7 +317,7 @@ int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList)
                 } else {
 
                     err = 999;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "makeServerRequestBlock", err,
+                    addIdamError(CODEERRORTYPE, "makeServerRequestBlock", err,
                                  "No Data Access Plugin Identified!");
                     return err;
                 }
@@ -382,7 +382,7 @@ int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList)
                             strcpy(request_block->source, work);
                             if (depth++ > MAXREQDEPTH) {
                                 err = 999;
-                                addIdamError(&idamerrorstack, CODEERRORTYPE, "makeServerRequestBlock", err,
+                                addIdamError(CODEERRORTYPE, "makeServerRequestBlock", err,
                                              "Too many chained Device Name to Server Protocol Host subtitutions!");
                             }
                             err = makeServerRequestBlock(request_block, pluginList);
@@ -461,7 +461,7 @@ int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList)
             if (p == NULL || p2 == NULL || (p != NULL && p2 == NULL) || (p == NULL && p2 != NULL) ||
                 (p0 != NULL && p != NULL && p0 < p) || (p1 != NULL && p2 != NULL && p1 > p2)) {
                 err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "makeServerRequestBlock", err,
+                addIdamError(CODEERRORTYPE, "makeServerRequestBlock", err,
                              "Not a function when one is expected! - A Library plugin has been specified.");
                 return err;
             }
@@ -481,7 +481,7 @@ int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList)
 
                 if ((rc = nameValuePairs(work, &request_block->nameValueList, strip)) == -1) {
                     err = 999;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "makeServerRequestBlock", err,
+                    addIdamError(CODEERRORTYPE, "makeServerRequestBlock", err,
                                  "Name Value pair syntax is incorrect!");
                     return err;
                 }
@@ -490,7 +490,7 @@ int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList)
 
             } else {
                 err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "makeServerRequestBlock", err,
+                addIdamError(CODEERRORTYPE, "makeServerRequestBlock", err,
                              "Function syntax error - please correct");
                 return err;
             }
@@ -534,7 +534,7 @@ int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList)
 
     if ((rc = extractSubset(request_block)) == -1) {
         err = 999;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "makeServerRequestBlock", err, "Subset operation is incorrect!");
+        addIdamError(CODEERRORTYPE, "makeServerRequestBlock", err, "Subset operation is incorrect!");
         return err;
     }
 
@@ -581,7 +581,7 @@ int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList)
             isFunction = 1;
             if ((rc = nameValuePairs(work, &request_block->nameValueList, strip)) == -1) {
                 err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "makeServerRequestBlock", err,
+                addIdamError(CODEERRORTYPE, "makeServerRequestBlock", err,
                              "Name Value pair syntax is incorrect!");
                 return err;
             }
@@ -756,7 +756,7 @@ int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList)
 
         if (err != 0) {
             err = NO_SERVER_SPECIFIED;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "makeServerRequestBlock", err,
+            addIdamError(CODEERRORTYPE, "makeServerRequestBlock", err,
                          "The MDSPlus Data Source does not comply with the naming models: server/tree/number or server/path/to/data/tree/number");
             return err;
         }
@@ -773,7 +773,7 @@ int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList)
             strcpy(request_block->file, token + 1);        // Extract the Source URL Argument
         } else {
             err = NO_SERVER_SPECIFIED;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "makeServerRequestBlock", err,
+            addIdamError(CODEERRORTYPE, "makeServerRequestBlock", err,
                          "The Remote Server Data Source specified does not comply with the naming model: serverHost:port/sourceURL");
             return err;
         }
@@ -844,8 +844,8 @@ int sourceFileFormatTest(const char* source, REQUEST_BLOCK* request_block, PLUGI
         sprintf(cmd, "head -c10 %s 2>/dev/null", source);
         errno = 0;
         if ((ph = popen(cmd, "r")) == NULL) {
-            if (errno != 0) addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "sourceFileFormatTest", errno, "");
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "sourceFileFormatTest", 999,
+            if (errno != 0) addIdamError(SYSTEMERRORTYPE, "sourceFileFormatTest", errno, "");
+            addIdamError(CODEERRORTYPE, "sourceFileFormatTest", 999,
                          "Unable to Identify the File's Format");
             free((void*) cmd);
             return -999;
@@ -870,8 +870,8 @@ int sourceFileFormatTest(const char* source, REQUEST_BLOCK* request_block, PLUGI
                     errno = 0;
                     if ((ph = popen(cmd, "r")) == NULL) {
                         if (errno != 0)
-                            addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "sourceFileFormatTest", errno, "");
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "sourceFileFormatTest", 999,
+                            addIdamError(SYSTEMERRORTYPE, "sourceFileFormatTest", errno, "");
+                        addIdamError(CODEERRORTYPE, "sourceFileFormatTest", 999,
                                      "Unable to Identify the File's Format");
                         free((void*) cmd);
                         return -999;
@@ -897,8 +897,8 @@ int sourceFileFormatTest(const char* source, REQUEST_BLOCK* request_block, PLUGI
                     errno = 0;
                     if ((ph = popen(cmd, "r")) == NULL) {
                         if (errno != 0)
-                            addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "sourceFileFormatTest", errno, "");
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "sourceFileFormatTest", 999,
+                            addIdamError(SYSTEMERRORTYPE, "sourceFileFormatTest", errno, "");
+                        addIdamError(CODEERRORTYPE, "sourceFileFormatTest", 999,
                                      "Unable to Identify the File's Format");
                         free((void*) cmd);
                         return -999;
@@ -990,7 +990,7 @@ int sourceFileFormatTest(const char* source, REQUEST_BLOCK* request_block, PLUGI
         return -1;        // No format identified
         /*
               rc = 999;
-              addIdamError(&idamerrorstack, CODEERRORTYPE, "sourceFileFormatTest", rc,
+              addIdamError(CODEERRORTYPE, "sourceFileFormatTest", rc,
                  "Unable to Identify the File's Format: Please specifiy the file's format");
               return -999;
         */
@@ -1100,7 +1100,7 @@ int extractArchive(REQUEST_BLOCK* request_block, int reduceSignal)
 
             if (test - request_block->signal >= STRING_LENGTH - 1 || strlen(test + ldelim) >= MAXMETA - 1) {
                 err = ARCHIVE_NAME_TOO_LONG;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "extractArchive", err, "The ARCHIVE Name is too long!");
+                addIdamError(CODEERRORTYPE, "extractArchive", err, "The ARCHIVE Name is too long!");
                 return err;
             }
             strncpy(request_block->archive, request_block->signal, test - request_block->signal);
@@ -1391,7 +1391,7 @@ int extractSubset(REQUEST_BLOCK* request_block)
                         }
                         if (request_block->datasubset.start[i] < 0) {
                             err = 999;
-                            addIdamError(&idamerrorstack, CODEERRORTYPE, "extractSubset", err,
+                            addIdamError(CODEERRORTYPE, "extractSubset", err,
                                          "Invalid Start Index in subset operation");
                             rc = -1;
                             break;
@@ -1416,7 +1416,7 @@ int extractSubset(REQUEST_BLOCK* request_block)
                         }
                         if (request_block->datasubset.stop[i] < 0) {
                             err = 999;
-                            addIdamError(&idamerrorstack, CODEERRORTYPE, "extractSubset", err,
+                            addIdamError(CODEERRORTYPE, "extractSubset", err,
                                          "Invalid sample End Index in subset operation");
                             rc = -1;
                             break;
@@ -1427,7 +1427,7 @@ int extractSubset(REQUEST_BLOCK* request_block)
 
                         if (request_block->datasubset.stop[i] < request_block->datasubset.start[i]) {
                             err = 999;
-                            addIdamError(&idamerrorstack, CODEERRORTYPE, "extractSubset", err,
+                            addIdamError(CODEERRORTYPE, "extractSubset", err,
                                          "Invalid Stop Index in subset operation");
                             rc = -1;
                             break;
@@ -1453,7 +1453,7 @@ int extractSubset(REQUEST_BLOCK* request_block)
                             }
                             if (request_block->datasubset.stride[i] <= 0) {
                                 err = 999;
-                                addIdamError(&idamerrorstack, CODEERRORTYPE, "extractSubset", err,
+                                addIdamError(CODEERRORTYPE, "extractSubset", err,
                                              "Invalid sample stride length in subset operation");
                                 rc = -1;
                                 break;
@@ -1491,7 +1491,7 @@ int extractSubset(REQUEST_BLOCK* request_block)
                             }
                             if (request_block->datasubset.start[i] < 0) {
                                 err = 999;
-                                addIdamError(&idamerrorstack, CODEERRORTYPE, "extractSubset", err,
+                                addIdamError(CODEERRORTYPE, "extractSubset", err,
                                              "Invalid start index in subset operation");
                                 rc = -1;
                                 break;

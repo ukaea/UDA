@@ -93,7 +93,7 @@ int parseIncludeFile(USERDEFINEDTYPELIST* userdefinedtypelist, const char* heade
     if (fh == NULL || ferror(fh) || errno != 0) {
         err = 999;
         if (errno != 0) {
-            addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "parseIncludeFile", errno,
+            addIdamError(SYSTEMERRORTYPE, "parseIncludeFile", errno,
                          "Unable to Open Structure Definition Header file for Read Access!");
         }
         if (fh != NULL) fclose(fh);
@@ -222,7 +222,7 @@ int parseIncludeFile(USERDEFINEDTYPELIST* userdefinedtypelist, const char* heade
                     name1[0] = '\0';
                     name2[0] = '\0';
                 } else {
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "parseIncludeFile", 999,
+                    addIdamError(CODEERRORTYPE, "parseIncludeFile", 999,
                                  "typedef statement does not conform to syntax model!");
                 }
                 buffer[0] = '\0';
@@ -249,7 +249,7 @@ int parseIncludeFile(USERDEFINEDTYPELIST* userdefinedtypelist, const char* heade
                     name1[0] = '\0';
                     name2[0] = '\0';
                 } else {
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "parseIncludeFile", 999,
+                    addIdamError(CODEERRORTYPE, "parseIncludeFile", 999,
                                  "typedef statement does not conform to syntax model!");
                 }
                 buffer[0] = '\0';
@@ -401,7 +401,7 @@ int parseIncludeFile(USERDEFINEDTYPELIST* userdefinedtypelist, const char* heade
                             } else {
                                 //fprintf(stdout,"Names do Not Match: %s, %s, %s\n", name, name1, name2);
                                 err = 999;
-                                addIdamError(&idamerrorstack, CODEERRORTYPE, "parseIncludeFile", 999,
+                                addIdamError(CODEERRORTYPE, "parseIncludeFile", 999,
                                              "typedef statement does not conform to syntax model!");
                                 return err;
                             }

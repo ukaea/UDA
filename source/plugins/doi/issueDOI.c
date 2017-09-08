@@ -50,13 +50,13 @@ static PGconn* startSQL_DOI()
     // Connect to the Database Server
 
     if ((dbConn = PQsetdbLogin(dbhost, dbport, pgoptions, pgtty, dbname, dbuser, pswrd)) == NULL) {
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "startSQL", 1, "SQL Server Connect Error");
+        addIdamError(CODEERRORTYPE, "startSQL", 1, "SQL Server Connect Error");
         PQfinish(dbConn);
         return NULL;
     }
 
     if (PQstatus(dbConn) == CONNECTION_BAD) {
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "startSQL", 1, "Bad SQL Server Connect Status");
+        addIdamError(CODEERRORTYPE, "startSQL", 1, "Bad SQL Server Connect Status");
         PQfinish(dbConn);
         return NULL;
     }
@@ -978,10 +978,10 @@ static int do_put(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PGconn* dbConn)
 //            err = 999;
 //            if (dbQuery == NULL) {
 //                IDAM_LOG(UDA_LOG_ERROR, "ERROR issueDOI add: Database Query Failed!\n");
-//                addIdamError(&idamerrorstack, CODEERRORTYPE, "issueDOI add", err, "Database Query Failed!");
+//                addIdamError(CODEERRORTYPE, "issueDOI add", err, "Database Query Failed!");
 //            } else if (PQresultStatus(dbQuery) != PGRES_COMMAND_OK) {
 //                IDAM_LOGF(UDA_LOG_ERROR, "ERROR issueDOI add: %s\n", PQresultErrorMessage(dbQuery));
-//                addIdamError(&idamerrorstack, CODEERRORTYPE, "issueDOI add", err,
+//                addIdamError(CODEERRORTYPE, "issueDOI add", err,
 //                             PQresultErrorMessage(dbQuery));
 //            }
 //        }

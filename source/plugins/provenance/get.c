@@ -57,12 +57,7 @@ int get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         DBConnect = (PGconn*) idam_plugin_interface->sqlConnection;
 
     } else {
-        err = 999;
-        IDAM_LOG(UDA_LOG_ERROR, "ERROR Plugin Interface Version Unknown\n");
-
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "Provenance", err,
-                     "Plugin Interface Version is Not Known: Unable to execute the request!");
-        return err;
+        RAISE_PLUGIN_ERROR("Plugin Interface Version is Not Known: Unable to execute the request!");
     }
 
     IDAM_LOG(UDA_LOG_DEBUG, "Plugin Interface transferred\n");
@@ -127,7 +122,7 @@ int get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         if (!ownerOK) {
             err = 999;
             IDAM_LOG(UDA_LOG_ERROR, "Insufficient Meta Data not passed - need an owner!\n");
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "Provenance new", err,
+            addIdamError(CODEERRORTYPE, "Provenance new", err,
                          "Insufficient Meta Data not passed - need an owner!");
             break;
         }
@@ -177,7 +172,7 @@ int get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
         if ((DBQuery = PQexec(DBConnect, sql)) == NULL || PQresultStatus(DBQuery) != PGRES_TUPLES_OK) {
             err = 999;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "Provenance", err, "SQL Execution Failed!");
+            addIdamError(CODEERRORTYPE, "Provenance", err, "SQL Execution Failed!");
             IDAM_LOG(UDA_LOG_ERROR, "SQL Execution Failed\n");
             PQclear(DBQuery);
             break;
@@ -190,7 +185,7 @@ int get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         if (nrows != 1) {
             IDAM_LOG(UDA_LOG_ERROR, "New UUID not available!\n");
             err = 999;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "Provenance new", err, "New UUID not available!");
+            addIdamError(CODEERRORTYPE, "Provenance new", err, "New UUID not available!");
             PQclear(DBQuery);
             break;
         }
@@ -223,7 +218,7 @@ int get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
         if ((DBQuery = PQexec(DBConnect, sql)) == NULL || PQresultStatus(DBQuery) != PGRES_COMMAND_OK) {
             err = 999;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "Provenance", err, "SQL Execution Failed!");
+            addIdamError(CODEERRORTYPE, "Provenance", err, "SQL Execution Failed!");
             IDAM_LOG(UDA_LOG_ERROR, "SQL Execution Failed\n");
             PQclear(DBQuery);
             break;
@@ -249,7 +244,7 @@ int get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
         if ((DBQuery = PQexec(DBConnect, sql)) == NULL || PQresultStatus(DBQuery) != PGRES_TUPLES_OK) {
             err = 999;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "Provenance", err, "SQL Execution Failed!");
+            addIdamError(CODEERRORTYPE, "Provenance", err, "SQL Execution Failed!");
             IDAM_LOG(UDA_LOG_ERROR, "SQL Execution Failed\n");
             PQclear(DBQuery);
             break;
@@ -262,7 +257,7 @@ int get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         if (nrows != 1) {
             IDAM_LOG(UDA_LOG_ERROR, "New UUID not available!\n");
             err = 999;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "Provenance new", err, "New UUID not available!");
+            addIdamError(CODEERRORTYPE, "Provenance new", err, "New UUID not available!");
             PQclear(DBQuery);
             break;
         }

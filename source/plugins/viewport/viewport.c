@@ -58,13 +58,7 @@ extern int viewport(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     unsigned short housekeeping;
 
     if (idam_plugin_interface->interfaceVersion > THISPLUGIN_MAX_INTERFACE_VERSION) {
-        err = 999;
-        IDAM_LOG(UDA_LOG_ERROR,
-                "ERROR viewport: Plugin Interface Version Unknown to this plugin: Unable to execute the request!\n");
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "viewport", err,
-                     "Plugin Interface Version Unknown to this plugin: Unable to execute the request!");
-        concatIdamError(idamerrorstack, idamErrorStack);
-        return err;
+        RAISE_PLUGIN_ERROR("Plugin Interface Version Unknown to this plugin: Unable to execute the request!");
     }
 
     idam_plugin_interface->pluginVersion = THISPLUGIN_VERSION;
@@ -355,7 +349,7 @@ extern int viewport(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
                 if ((handle = idamGetAPI(signal, source)) < 0 || getIdamErrorCode(handle) != 0) {
                     err = 999;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "viewPort", err, (char*) getIdamErrorMsg(handle));
+                    addIdamError(CODEERRORTYPE, "viewPort", err, (char*) getIdamErrorMsg(handle));
                     break;
                 }
 
@@ -835,7 +829,7 @@ extern int viewport(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             } else {
                 err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "viewPort", err,
+                addIdamError(CODEERRORTYPE, "viewPort", err,
                              "A viewport for rank > 1 data has not been implemented!");
                 break;
             }
@@ -848,20 +842,11 @@ extern int viewport(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 // Error ...
 
             err = 999;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "viewport", err, "Unknown function requested!");
+            addIdamError(CODEERRORTYPE, "viewport", err, "Unknown function requested!");
             break;
         }
 
     } while (0);
-
-//--------------------------------------------------------------------------------------
-// Housekeeping
-
-    concatIdamError(idamerrorstack, idamErrorStack);    // Combine local errors with the Server's error stack
-
-#ifndef USE_PLUGIN_DIRECTLY
-    closeIdamError(&idamerrorstack);            // Free local plugin error stack
-#endif
 
     return err;
 }

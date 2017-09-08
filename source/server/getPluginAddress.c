@@ -41,8 +41,8 @@ int getPluginAddress(void** pluginHandle, const char* library, const char* symbo
             err = 999;
             const char* errmsg = dlerror();
             IDAM_LOGF(UDA_LOG_ERROR, "Cannot open the target shared library %s: %s", library, errmsg);
-            addIdamError(&idamerrorstack, SYSTEMERRORTYPE, __func__, err, "Cannot open the target shared library");
-            addIdamError(&idamerrorstack, SYSTEMERRORTYPE, __func__, err, errmsg);
+            addIdamError(SYSTEMERRORTYPE, __func__, err, "Cannot open the target shared library");
+            addIdamError(SYSTEMERRORTYPE, __func__, err, errmsg);
             return err;
         }
     }
@@ -61,7 +61,7 @@ int getPluginAddress(void** pluginHandle, const char* library, const char* symbo
         *idamPlugin = (PLUGINFUNP)fptr;
     } else {
         err = 999;
-        addIdamError(&idamerrorstack, CODEERRORTYPE,
+        addIdamError(CODEERRORTYPE,
                      "getPluginAddress: Cannot locate the data reader with the target shared library", err, errstr);
         dlclose(pluginHandle);
         *pluginHandle = NULL;

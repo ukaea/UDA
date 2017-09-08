@@ -187,7 +187,7 @@ int execute_xpath_expression(const char* filename, const xmlChar* xpathExpr, DAT
 
     } else {
         err = 999;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "tore_supra : Unsupported data type", err, "");
+        addIdamError(CODEERRORTYPE, "tore_supra : Unsupported data type", err, "");
     }
 
     data_block->dims[0].data_type = TYPE_UNSIGNED_INT;
@@ -256,7 +256,7 @@ int convertToInt(char* value)
         i = TYPE_INT;
     } else {
         err = 999;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "tore_supra convertToInt() : Unsupported data type", err, "");
+        addIdamError(CODEERRORTYPE, "tore_supra convertToInt() : Unsupported data type", err, "");
     }
     return i;
 }

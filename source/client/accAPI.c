@@ -224,7 +224,7 @@ int acc_growIdamDataBlocks()
 
     if (!Data_Block) {
         int err = ERROR_ALLOCATING_DATA_BOCK_HEAP;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "idamClient", err, "Error Allocating Heap for Data Block");
+        addIdamError(CODEERRORTYPE, "idamClient", err, "Error Allocating Heap for Data Block");
         return err;
     }
 
@@ -289,7 +289,7 @@ int acc_getIdamNewDataHandle()
 
             if (!Data_Block) {
                 int err = ERROR_ALLOCATING_DATA_BOCK_HEAP;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "acc_getIdamNewDataHandle", err,
+                addIdamError(CODEERRORTYPE, "acc_getIdamNewDataHandle", err,
                              "Error Allocating Heap for Data Block");
                 return -err;
             }
@@ -762,7 +762,7 @@ int getIdamErrorCode(int handle)
     if (handle < 0 || handle >= Data_Block_Count) {
         return getIdamServerErrorStackRecordCode(0);
     } else {
-        return (int)Data_Block[handle].errcode;
+        return Data_Block[handle].errcode;
     }
 }
 
@@ -772,7 +772,8 @@ int getIdamErrorCode(int handle)
 \return   the error message.
 */
 char* getIdamErrorMsg(int handle)
-{             // Error Message returned from server
+{
+    // Error Message returned from server
     if (handle < 0 || handle >= Data_Block_Count) {
         return getIdamServerErrorStackRecordMsg(0);
     } else {

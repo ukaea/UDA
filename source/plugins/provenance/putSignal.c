@@ -78,12 +78,7 @@ int putSignal(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         DBConnect = (PGconn*) idam_plugin_interface->sqlConnection;
 
     } else {
-        err = 999;
-        IDAM_LOG(UDA_LOG_ERROR, "ERROR Provenance: Plugin Interface Version Unknown\n");
-
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "Provenance", err,
-                     "Plugin Interface Version is Not Known: Unable to execute the request!");
-        return err;
+        RAISE_PLUGIN_ERROR("Plugin Interface Version is Not Known: Unable to execute the request!");
     }
 
     IDAM_LOG(UDA_LOG_DEBUG, "Provenance: Plugin Interface transferred\n");
@@ -190,7 +185,7 @@ int putSignal(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         if (!uuidOK || strlen(uuid) == 0) {
             err = 999;
             IDAM_LOG(UDA_LOG_ERROR, "ERROR Provenance add: The client provenance UUID must be specified!\n");
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "Provenance add", err,
+            addIdamError(CODEERRORTYPE, "Provenance add", err,
                          "The client provenance UUID must be specified!");
             break;
         }
@@ -198,7 +193,7 @@ int putSignal(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         if (!statusOK) {
             err = 999;
             IDAM_LOG(UDA_LOG_ERROR, "ERROR Provenance add: The record status must be specified!\n");
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "Provenance add", err,
+            addIdamError(CODEERRORTYPE, "Provenance add", err,
                          "The record status must be specified!");
             break;
         }
@@ -274,8 +269,8 @@ int putSignal(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                         if (ph == NULL || errno != 0) {
                             execMethodOK = 0;        // Disable exec method
                             err = 999;
-                            if (errno != 0) addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "Provenance", errno, "");
-                            addIdamError(&idamerrorstack, CODEERRORTYPE, "Provenance", err,
+                            if (errno != 0) addIdamError(SYSTEMERRORTYPE, "Provenance", errno, "");
+                            addIdamError(CODEERRORTYPE, "Provenance", err,
                                          "Cannot execute background SQL command");
                             break;
                         }
@@ -311,10 +306,10 @@ int putSignal(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                             execMethodOK = 0;        // Disable SQL collection
                             err = 999;
                             if (errno != 0) err = errno;
-                            addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "Provenance", err,
+                            addIdamError(SYSTEMERRORTYPE, "Provenance", err,
                                          "Unable to Obtain a Temporary File Name");
                             IDAM_LOG(UDA_LOG_ERROR, "ERROR Provenance: Unable to Obtain a Temporary File Name\n");
-                            addIdamError(&idamerrorstack, CODEERRORTYPE, "Provenance", err, tmpdir);
+                            addIdamError(CODEERRORTYPE, "Provenance", err, tmpdir);
                             break;
                         }
 
@@ -322,10 +317,10 @@ int putSignal(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                             execMethodOK = 0;        // Disable collection
                             err = 999;
                             if (errno != 0) err = errno;
-                            addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "Provenance", err,
+                            addIdamError(SYSTEMERRORTYPE, "Provenance", err,
                                          "Unable to Open a Temporary File");
                             IDAM_LOG(UDA_LOG_ERROR, "ERROR Provenance: Unable to Open a Temporary File\n");
-                            addIdamError(&idamerrorstack, CODEERRORTYPE, "Provenance", err, tmpfile);
+                            addIdamError(CODEERRORTYPE, "Provenance", err, tmpfile);
                             break;
                         }
 
@@ -364,7 +359,7 @@ int putSignal(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                     } else {
                         err = 999;
                         IDAM_LOG(UDA_LOG_ERROR, "ERROR Provenance add: Incorrect execMethod argument {1|2|3}\n");
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "Provenance add", err,
+                        addIdamError(CODEERRORTYPE, "Provenance add", err,
                                      "Incorrect execMethod argument {1|2|3}");
                         break;
                     }
@@ -405,7 +400,7 @@ int putSignal(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                     if (nrows != 1) {
                         IDAM_LOG(UDA_LOG_ERROR, "ERROR Provenance new: New signals_log record not found!\n");
                         err = 999;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "Provenance new", err,
+                        addIdamError(CODEERRORTYPE, "Provenance new", err,
                                      "New signals_log record not found!");
                         break;
                     }
@@ -442,7 +437,7 @@ int putSignal(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 if (!logRecordOK) {
                     err = 999;
                     IDAM_LOG(UDA_LOG_ERROR, "ERROR Provenance add: No Log record!\n");
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "Provenance add", err, "No Log record!");
+                    addIdamError(CODEERRORTYPE, "Provenance add", err, "No Log record!");
                     break;
                 }
 
@@ -469,8 +464,8 @@ int putSignal(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                         if (ph == NULL || errno != 0) {
                             execMethodOK = 0;        // Disable exec method
                             err = 999;
-                            if (errno != 0) addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "Provenance", errno, "");
-                            addIdamError(&idamerrorstack, CODEERRORTYPE, "Provenance", err,
+                            if (errno != 0) addIdamError(SYSTEMERRORTYPE, "Provenance", errno, "");
+                            addIdamError(CODEERRORTYPE, "Provenance", err,
                                          "Cannot execute background SQL command");
                             break;
                         }
@@ -531,8 +526,8 @@ int putSignal(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                         if (ph == NULL || errno != 0) {
                             execMethodOK = 0;        // Disable exec method
                             err = 999;
-                            if (errno != 0) addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "Provenance", errno, "");
-                            addIdamError(&idamerrorstack, CODEERRORTYPE, "Provenance", err,
+                            if (errno != 0) addIdamError(SYSTEMERRORTYPE, "Provenance", errno, "");
+                            addIdamError(CODEERRORTYPE, "Provenance", err,
                                          "Cannot execute background SQL command");
                             break;
                         }
@@ -581,8 +576,8 @@ int putSignal(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                         if (ph == NULL || errno != 0) {
                             execMethodOK = 0;        // Disable exec method
                             err = 999;
-                            if (errno != 0) addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "Provenance", errno, "");
-                            addIdamError(&idamerrorstack, CODEERRORTYPE, "Provenance", err,
+                            if (errno != 0) addIdamError(SYSTEMERRORTYPE, "Provenance", errno, "");
+                            addIdamError(CODEERRORTYPE, "Provenance", err,
                                          "Cannot execute background SQL command");
                             break;
                         }
@@ -611,7 +606,7 @@ int putSignal(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                         PQclear(DBQuery);
                         IDAM_LOG(UDA_LOG_ERROR, "ERROR Provenance add: signals_log table update failed!\n");
                         err = 999;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "Provenance new", err,
+                        addIdamError(CODEERRORTYPE, "Provenance new", err,
                                      "signals_log table update failed!");
                         break;
                     }
@@ -633,7 +628,7 @@ int putSignal(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                     PQclear(DBQuery);
                     IDAM_LOG(UDA_LOG_ERROR, "ERROR Provenance add: signals_log status update failed!\n");
                     err = 999;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "Provenance new", err,
+                    addIdamError(CODEERRORTYPE, "Provenance new", err,
                                  "signals_log status update failed!");
                     break;
                 }
@@ -653,7 +648,7 @@ int putSignal(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                     PQclear(DBQuery);
                     IDAM_LOG(UDA_LOG_ERROR, "ERROR Provenance add: signals_log deletion failed!\n");
                     err = 999;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "Provenance new", err, "signals_log deletion failed!");
+                    addIdamError(CODEERRORTYPE, "Provenance new", err, "signals_log deletion failed!");
                     break;
                 }
             }
@@ -667,10 +662,10 @@ int putSignal(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 err = 999;
                 if (DBQuery == NULL) {
                     IDAM_LOG(UDA_LOG_ERROR, "ERROR Provenance add: Database Query Failed!\n");
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "Provenance add", err, "Database Query Failed!");
+                    addIdamError(CODEERRORTYPE, "Provenance add", err, "Database Query Failed!");
                 } else if (PQresultStatus(DBQuery) != PGRES_COMMAND_OK) {
                     IDAM_LOGF(UDA_LOG_ERROR, "ERROR Provenance add: %s\n", PQresultErrorMessage(DBQuery));
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "Provenance add", err, PQresultErrorMessage(DBQuery));
+                    addIdamError(CODEERRORTYPE, "Provenance add", err, PQresultErrorMessage(DBQuery));
                 }
             }
 

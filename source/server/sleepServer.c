@@ -30,8 +30,7 @@ int sleepServer(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedty
         IDAM_LOGF(UDA_LOG_DEBUG, "IdamServer: Protocol 3 Error Listening for Wake-up %d\n", err);
 
         if (server_tot_block_time <= 1000 * server_timeout) {
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "sleepServer", err,
-                         "Protocol 3 Error: Listening for Server Wake-up");
+            addIdamError(CODEERRORTYPE, "sleepServer", err, "Protocol 3 Error: Listening for Server Wake-up");
         }
         return 0;
     }
@@ -43,11 +42,9 @@ int sleepServer(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedty
     IDAM_LOGF(UDA_LOG_DEBUG, "IdamServer: XDR #G xdrrec_eof ? %d\n", rc);
 
 #ifndef NOCHAT
-
-// Echo Next Protocol straight back to Client
-
+    // Echo Next Protocol straight back to Client
     if ((err = protocol(serverOutput, protocol_id, XDR_SEND, &next_protocol, logmalloclist, userdefinedtypelist, NULL)) != 0) {
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "sleepServer", err, "Protocol 3 Error Echoing Next Protocol ID");
+        addIdamError(CODEERRORTYPE, "sleepServer", err, "Protocol 3 Error Echoing Next Protocol ID");
         return 0;
     }
 #endif
@@ -59,7 +56,7 @@ int sleepServer(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedty
 
     if (next_protocol != PROTOCOL_WAKE_UP) {
         IDAM_LOG(UDA_LOG_DEBUG, "IdamServer: Unknown Wakeup Request -> Server Shutting down\n");
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "sleepServer", next_protocol,
+        addIdamError(CODEERRORTYPE, "sleepServer", next_protocol,
                      "Unknown Wakeup Request -> Server Shutdown");
         return 0;
     }

@@ -1464,13 +1464,13 @@ retIdx	- returned data file index number
 
     if (isCreateFromModel) {
         if (imas_hdf5_EuitmCreate(filename, shotNumber, runNumber, refShotNumber, refRunNumber, idx) < 0) {
-            addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, 999, getImasErrorMsg());
+            addIdamError(CODEERRORTYPE, __func__, 999, getImasErrorMsg());
             THROW_ERROR(999, "File Create method from Model failed!");
         }
     } else {
         if (imas_hdf5_IMASCreate(filename, shotNumber, runNumber, refShotNumber, refRunNumber, idx) < 0) {
             idamLogWithFunc(UDA_LOG_DEBUG, (logFunc)H5Eprint1);
-            addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, 999, getImasErrorMsg());
+            addIdamError(CODEERRORTYPE, __func__, 999, getImasErrorMsg());
             THROW_ERROR(999, "File Create method failed!");
         }
     }
@@ -1540,7 +1540,7 @@ static int do_createModel(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     FIND_REQUIRED_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, filename);
 
     if (imas_hdf5_IdsModelCreate(filename, version) < 0) {
-        addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, 999, getImasErrorMsg());
+        addIdamError(CODEERRORTYPE, __func__, 999, getImasErrorMsg());
         THROW_ERROR(999, "File Model Create method failed!");
     }
 

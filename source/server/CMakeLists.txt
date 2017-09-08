@@ -18,13 +18,10 @@ add_subdirectory( modules )
 set( SRC_FILES
   serverGetData.c
   freeIdamPut.c
-  udaLegacyServer.c
   serverPlugin.c
   serverLegacyPlugin.c
   makeServerRequestBlock.c
-  sleepServer.c
   writer.c
-  createXDRStream.c
   mastArchiveFilePath.c
   closeServerSockets.c
   dumpFile.c
@@ -82,6 +79,9 @@ link_directories( ${PostgreSQL_LIBRARY_DIRS} )
 
 add_library( server-objects OBJECT
   udaServer.c
+  udaLegacyServer.c
+  createXDRStream.c
+  sleepServer.c
   ${SRC_FILES}
   ${HEADER_FILES}
 )

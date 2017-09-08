@@ -2,6 +2,7 @@
 #define IDAM_CLIENTSERVER_IDAMSTRUCTS_H
 
 #include <sys/time.h>
+
 #include "udaDefines.h"
 
 //--------------------------------------------------------

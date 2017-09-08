@@ -36,37 +36,37 @@ int readHData(PGconn *DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_s
     EFIT *efit = NULL;
     char *xml  = NULL;
 
-//----------------------------------------------------------------------
-// Identify the Data Structure Requested
+    //----------------------------------------------------------------------
+    // Identify the Data Structure Requested
 
     if(strcasecmp(request_block.signal,"EFIT") != 0) {
         err = 998;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "readHData", err, "Requested Hierarchical Data Structure is Not Recognised");
+        addIdamError(CODEERRORTYPE, "readHData", err, "Requested Hierarchical Data Structure is Not Recognised");
         return err;
     }
 
-//----------------------------------------------------------------------
-// User specified file or SQL Database record?
+    //----------------------------------------------------------------------
+    // User specified file or SQL Database record?
 
     if(data_source.exp_number != 0 && strlen(data_source.path) == 0) {
         if((rc = sqlHData(DBConnect, request_block.device_name, xml)) != 0) {
             err = 998;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readHData", err, "No Hierarchical EFIT Data Structure XML Record Found");
+            addIdamError(CODEERRORTYPE, "readHData", err, "No Hierarchical EFIT Data Structure XML Record Found");
             return err;
         }
         if(strlen(xml) == 0) {
             err = 998;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readHData", err, "Hierarchical EFIT Data Structure XML Record is Empty");
+            addIdamError(CODEERRORTYPE, "readHData", err, "Hierarchical EFIT Data Structure XML Record is Empty");
             return err;
         }
     }
 
-//----------------------------------------------------------------------
-// Allocate the Hierarchical Data Structure
+    //----------------------------------------------------------------------
+    // Allocate the Hierarchical Data Structure
 
     if((efit = (EFIT *)malloc(sizeof(EFIT))) == NULL) {
         err = 998;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "readHData", err, "Problem allocating Heap Memory for Hierarchical EFIT Data Structure");
+        addIdamError(CODEERRORTYPE, "readHData", err, "Problem allocating Heap Memory for Hierarchical EFIT Data Structure");
         free((void *) xml);
         return err;
     }
@@ -74,19 +74,19 @@ int readHData(PGconn *DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_s
     initEfit(efit);
     data_block->opaque_type = OPAQUE_TYPE_UNKNOWN;
 
-//----------------------------------------------------------------------
-// parse XML
+    //----------------------------------------------------------------------
+    // parse XML
 
     if((rc = parseHData(data_source.path, xml, efit)) != 0) {
         err = 998;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "readHData", err, "Hierarchical EFIT Data Structure Record could Not be Parsed");
+        addIdamError(CODEERRORTYPE, "readHData", err, "Hierarchical EFIT Data Structure Record could Not be Parsed");
         free((void *) xml);
         free((void *) efit);
         return err;
     }
 
-//----------------------------------------------------------------------
-// Assign meta data to the Data Block return structure
+    //----------------------------------------------------------------------
+    // Assign meta data to the Data Block return structure
 
     data_block->opaque_type  = OPAQUE_TYPE_EFIT;
     data_block->opaque_block = (void *) efit;
@@ -101,7 +101,7 @@ int readHData(PGconn *DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_s
 int readHData(PGconn *DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_source,
               DATA_BLOCK *data_block) {
     int err = 999;
-    addIdamError(&idamerrorstack, CODEERRORTYPE, "readHData", err, "Not Configured to Read Hierarchical Data");
+    addIdamError(CODEERRORTYPE, "readHData", err, "Not Configured to Read Hierarchical Data");
     return err;
 }
 

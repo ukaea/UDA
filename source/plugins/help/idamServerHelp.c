@@ -48,12 +48,7 @@ int idamServerHelp(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     REQUEST_BLOCK* request_block;
 
     if (idam_plugin_interface->interfaceVersion > THISPLUGIN_MAX_INTERFACE_VERSION) {
-        err = 999;
-        IDAM_LOG(UDA_LOG_ERROR,
-                 "ERROR Help: Plugin Interface Version Unknown to this plugin: Unable to execute the request!\n");
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "Help", err,
-                     "Plugin Interface Version Unknown to this plugin: Unable to execute the request!");
-        return err;
+        RAISE_PLUGIN_ERROR("Plugin Interface Version Unknown to this plugin: Unable to execute the request!");
     }
 
     idam_plugin_interface->pluginVersion = THISPLUGIN_VERSION;

@@ -168,11 +168,7 @@ extern int imas_mds(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 // Standard v1 Plugin Interface
 
     if (idam_plugin_interface->interfaceVersion > THISPLUGIN_MAX_INTERFACE_VERSION) {
-        err = 999;
-        IDAM_LOG(UDA_LOG_ERROR, "Plugin Interface Version Unknown to this plugin: Unable to execute the request!\n");
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "imas", err,
-                     "Plugin Interface Version Unknown to this plugin: Unable to execute the request!");
-        return err;
+        RAISE_PLUGIN_ERROR("Plugin Interface Version Unknown to this plugin: Unable to execute the request!");
     }
 
     idam_plugin_interface->pluginVersion = THISPLUGIN_VERSION;
@@ -320,7 +316,7 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
         err = do_maxinterfaceversion(idam_plugin_interface, plugin_args);
     } else {
         err = 999;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "imas", err, "Unknown function requested!");
+        addIdamError(CODEERRORTYPE, "imas", err, "Unknown function requested!");
     }
 
 //--------------------------------------------------------------------------------------
@@ -331,7 +327,7 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
         TrimString(p);
         if (strlen(p) > 0) {
             err = 999;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "imas", err, p);
+            addIdamError(CODEERRORTYPE, "imas", err, p);
         }
         imas_reset_errmsg();
     }
@@ -1262,11 +1258,7 @@ static int do_source(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARGS p
     int err = 0;
 
     if (!plugin_args.isSignal) {
-        err = 999;
-        IDAM_LOG(UDA_LOG_ERROR, "imas source: No data object name (signal) has been specified!\n");
-        addIdamError(&idamerrorstack, CODEERRORTYPE,
-                     "imas source: No data object name (signal) has been specified!", err, "");
-        return err;
+        RAISE_PLUGIN_ERROR("No data object name (signal) has been specified!");
     }
 
 // Prepare common code
@@ -1277,11 +1269,7 @@ static int do_source(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARGS p
     const PLUGINLIST* plugin_list = idam_plugin_interface->pluginList;    // List of all data reader plugins (internal and external shared libraries)
 
     if (plugin_list == NULL) {
-        err = 999;
-        IDAM_LOG(UDA_LOG_ERROR, "imas source: the specified format is not recognised!\n");
-        addIdamError(&idamerrorstack, CODEERRORTYPE,
-                     "imas source: No plugins are available for this data request", err, "");
-        return err;
+        RAISE_PLUGIN_ERROR("No plugins are available for this data request!");
     }
 
     IDAM_PLUGIN_INTERFACE next_plugin_interface = *idam_plugin_interface;        // New plugin interface
@@ -1302,11 +1290,7 @@ static int do_source(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARGS p
     if (plugin_args.isFormat && STR_IEQUALS(plugin_args.format, "ppf")) {            // JET PPF source naming pattern
 
         if (!plugin_args.isSource) {
-            err = 999;
-            IDAM_LOG(UDA_LOG_ERROR, "imas source: No data source has been specified!\n");
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "imas source: No data source has been specified!", err,
-                         "");
-            return err;
+            RAISE_PLUGIN_ERROR("No data source has been specified!");
         }
 
         env = getenv("UDA_JET_DEVICE_ALIAS");
@@ -1369,11 +1353,7 @@ static int do_source(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARGS p
                 STR_IEQUALS(plugin_args.format, "mds+"))) {    // MDS+ source naming pattern
 
         if (!plugin_args.isServer) {
-            err = 999;
-            IDAM_LOG(UDA_LOG_ERROR, "imas source: No data server has been specified!\n");
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "imas source: No data server has been specified!", err,
-                         "");
-            return err;
+            RAISE_PLUGIN_ERROR("No data server has been specified!");
         }
 
         env = getenv("UDA_MDSPLUS_ALIAS");
@@ -1399,11 +1379,7 @@ static int do_source(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARGS p
             }
         }
     } else {
-        err = 999;
-        IDAM_LOG(UDA_LOG_ERROR, "imas source: the specified format is not recognised!\n");
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "imas delete", err,
-                     "the specified format is not recognised!");
-        return err;
+        RAISE_PLUGIN_ERROR("the specified format is not recognised!");
     }
 
 // Create the Request data structure
@@ -1432,23 +1408,16 @@ static int do_source(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARGS p
     }
 
     if (next_request_block.request < 0) {
-        err = 999;
-        IDAM_LOG(UDA_LOG_ERROR, "imas source: No IDAM server plugin found!\n");
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "imas delete", err, "No IDAM server plugin found!");
-        return err;
+        RAISE_PLUGIN_ERROR("No UDA server plugin found!");
     }
 
-// Locate and Execute the IDAM plugin
+// Locate and Execute the UDA plugin
 
     int id = findPluginIdByRequest(next_request_block.request, plugin_list);
     if (id >= 0 && plugin_list->plugin[id].idamPlugin != NULL) {
         err = plugin_list->plugin[id].idamPlugin(&next_plugin_interface);        // Call the data reader
     } else {
-        err = 999;
-        IDAM_LOG(UDA_LOG_ERROR, "imas source: Data Access is not available for this data request!\n");
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "Data Access is not available for this data request!", err,
-                     "");
-        return err;
+        RAISE_PLUGIN_ERROR("Data Access is not available for this data request!");
     }
 
     freeNameValueList(&next_request_block.nameValueList);
@@ -2260,14 +2229,14 @@ static int do_createModel(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_A
          if(!isFileName){
             err = 999;
             IDAM_LOG(UDA_LOG_ERROR, "imas createModel: A Filename is required!\n");
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "imas", err, "A Filename is required!");
+            addIdamError(CODEERRORTYPE, "imas", err, "A Filename is required!");
 	    break;
 	 }
 
 	 if((rc = imas_hdf5IdsModelCreate(filename, version)) < 0){
             err = 999;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "imas", err, getImasErrorMsg());
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "imas", err, "File Model Create method failed!");
+            addIdamError(CODEERRORTYPE, "imas", err, getImasErrorMsg());
+            addIdamError(CODEERRORTYPE, "imas", err, "File Model Create method failed!");
             break;
 	 }
 

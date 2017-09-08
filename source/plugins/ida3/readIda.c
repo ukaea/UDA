@@ -120,7 +120,7 @@ int readIda3(DATA_BLOCK* data_block, int exp_number, int pass, const char* sourc
         strcpy(ida_file, filename);
     } else {
         err = IDA_CLIENT_FILE_NAME_TOO_LONG;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, err, "IDA Filename Length is too Long");
+        addIdamError(CODEERRORTYPE, __func__, err, "IDA Filename Length is too Long");
         return err;
     }
 
@@ -130,7 +130,7 @@ int readIda3(DATA_BLOCK* data_block, int exp_number, int pass, const char* sourc
         strcpy(ida_signal, signal_name);
     } else {
         err = IDA_CLIENT_SIGNAL_NAME_TOO_LONG;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, err, "IDA Signalname Length is too Long");
+        addIdamError(CODEERRORTYPE, __func__, err, "IDA Signalname Length is too Long");
         return err;
     }
 
@@ -147,10 +147,10 @@ int readIda3(DATA_BLOCK* data_block, int exp_number, int pass, const char* sourc
     if (ida_file_id == NULL || errno != 0) {
         err = IDA_ERROR_OPENING_FILE;
         if (serrno != 0) {
-            addIdamError(&idamerrorstack, SYSTEMERRORTYPE, __func__, serrno, "");
+            addIdamError(SYSTEMERRORTYPE, __func__, serrno, "");
         }
         ida_error_mess(ida_error(ida_file_id), ida_errmsg);
-        addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, err, ida_errmsg);
+        addIdamError(CODEERRORTYPE, __func__, err, ida_errmsg);
         return err;
     }
 
@@ -163,7 +163,7 @@ int readIda3(DATA_BLOCK* data_block, int exp_number, int pass, const char* sourc
 
     if ((err = readIdaItem(ida_signal, ida_file_id, &context, data_block)) != 0) {
         err = IDA_ERROR_READING_DATA;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, err, "Unable to Read IDA Data Item");
+        addIdamError(CODEERRORTYPE, __func__, err, "Unable to Read IDA Data Item");
         return err;
     }
 
@@ -180,8 +180,8 @@ int readIda3(DATA_BLOCK* data_block, int exp_number, int pass, const char* sourc
 
     if (rc != 0) {
         ida_error_mess(ida_error(ida_file_id), ida_errmsg);
-        addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, 1, "Problem Closing IDA File");
-        addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, 1, ida_errmsg);
+        addIdamError(CODEERRORTYPE, __func__, 1, "Problem Closing IDA File");
+        addIdamError(CODEERRORTYPE, __func__, 1, ida_errmsg);
     }
 
     return err;

@@ -106,7 +106,7 @@ int dumpFile(REQUEST_BLOCK request_block, DATA_BLOCK* data_block)
 
     if (!IsLegalFilePath(path)) {
         err = 999;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "dumpFile", err, "The directory path has incorrect syntax");
+        addIdamError(CODEERRORTYPE, "dumpFile", err, "The directory path has incorrect syntax");
     }
 
 //----------------------------------------------------------------------
@@ -164,7 +164,7 @@ int dumpFile(REQUEST_BLOCK request_block, DATA_BLOCK* data_block)
                         lpath = (int) strlen(path);
                         if (!IsLegalFilePath(path)) {                    // Check the file path is regular
                             err = 999;
-                            addIdamError(&idamerrorstack, CODEERRORTYPE, "dumpFile", err,
+                            addIdamError(CODEERRORTYPE, "dumpFile", err,
                                          "Unacceptable Path to MDS+ Data Tree");
                             IDAM_LOGF(UDA_LOG_DEBUG,
                                     "Syntax error in the directory path to the MDS+ Data Tree %s\n", path);
@@ -175,7 +175,7 @@ int dumpFile(REQUEST_BLOCK request_block, DATA_BLOCK* data_block)
                                 path[i] = '/';        // Change from URL Notation to Path Tree Notation
                     } else {
                         err = 999;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "dumpFile", err,
+                        addIdamError(CODEERRORTYPE, "dumpFile", err,
                                      "Unable to Set Trees Paths for Remote MDSPlus Servers");
                         IDAM_LOGF(UDA_LOG_DEBUG, "Unable to Set Trees Paths for Remote MDSPlus Servers - %s\n",
                                 path);
@@ -208,7 +208,7 @@ int dumpFile(REQUEST_BLOCK request_block, DATA_BLOCK* data_block)
             }
             default:
                 err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "dumpFile", err,
+                addIdamError(CODEERRORTYPE, "dumpFile", err,
                              "No DUMP Utility Program for this File Format");
                 break;
         }
@@ -228,8 +228,8 @@ int dumpFile(REQUEST_BLOCK request_block, DATA_BLOCK* data_block)
 
         if (ph == NULL || serrno != 0) {
             err = 999;
-            if (serrno != 0) addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "dumpFile", serrno, "");
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "dumpFile", err, "Problem Running the DUMP utility program");
+            if (serrno != 0) addIdamError(SYSTEMERRORTYPE, "dumpFile", serrno, "");
+            addIdamError(CODEERRORTYPE, "dumpFile", err, "Problem Running the DUMP utility program");
             break;
         }
 
@@ -241,7 +241,7 @@ int dumpFile(REQUEST_BLOCK request_block, DATA_BLOCK* data_block)
         while (!feof(ph)) {
             if ((bp = (char*) realloc(bp, data_block->data_n)) == NULL) {
                 err = 9998;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "dumpFile", err,
+                addIdamError(CODEERRORTYPE, "dumpFile", err,
                              "Unable to Allocate Heap Memory for the File DUMP");
                 break;
             }

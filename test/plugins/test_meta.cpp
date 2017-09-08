@@ -14,7 +14,7 @@ TEST_CASE( "Test META::help() function", "[META][plugins]" )
     const uda::Result& result = client.get("META::help()", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.errorMessage() == "" );
+    REQUIRE( result.errorMessage().empty() );
     REQUIRE( result.isTree()  );
 
     uda::TreeNode tree = result.tree();

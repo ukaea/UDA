@@ -64,13 +64,13 @@ int readCDFTypes(int grpid, USERDEFINEDTYPELIST* userdefinedtypelist)
             if ((rc = nc_inq_user_type(grpid, (nc_type) typeids[i], name, &size, &base, &fieldcount, &class)) !=
                 NC_NOERR) {
                 err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, __FILE__, err, (char*) nc_strerror(rc));
+                addIdamError(CODEERRORTYPE, __FILE__, err, (char*) nc_strerror(rc));
                 break;
             }
 
             strcpy(usertype.name, name);
             strcpy(usertype.source, "netcdf");
-            usertype.ref_id = (int) typeids[i];        // Defined within this group only (Scope?)
+            usertype.ref_id = typeids[i];        // Defined within this group only (Scope?)
             usertype.imagecount = 0;                // No Structure Image data
             usertype.image = NULL;
             usertype.size = (int) size;            // Structure size
@@ -129,7 +129,7 @@ int readCDFTypes(int grpid, USERDEFINEDTYPELIST* userdefinedtypelist)
                                     }
                                 } else {
                                     err = 999;
-                                    addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDFTypes", err,
+                                    addIdamError(CODEERRORTYPE, "readCDFTypes", err,
                                                  "User defined type not registered!");
                                     break;
                                 }
@@ -155,7 +155,7 @@ int readCDFTypes(int grpid, USERDEFINEDTYPELIST* userdefinedtypelist)
 
                                 if (rank > 1) {
                                     err = 999;
-                                    addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDFTypes", err,
+                                    addIdamError(CODEERRORTYPE, "readCDFTypes", err,
                                                  "String Arrays with Rank > 1 have not been implemented");
                                     break;
                                 }
@@ -218,7 +218,7 @@ int readCDFTypes(int grpid, USERDEFINEDTYPELIST* userdefinedtypelist)
                             USERDEFINEDTYPE* udt = findUserDefinedType(userdefinedtypelist, "", (int) base);        // Identify via type id
                             if (udt == NULL) {
                                 err = 999;
-                                addIdamError(&idamerrorstack, CODEERRORTYPE, __FILE__, err, "User defined type not registered!");
+                                addIdamError(CODEERRORTYPE, __FILE__, err, "User defined type not registered!");
                                 break;
                             }
                             strcpy(field.type, udt->name);
@@ -246,7 +246,7 @@ int readCDFTypes(int grpid, USERDEFINEDTYPELIST* userdefinedtypelist)
                 case NC_OPAQUE: {                                // Opaque Types
 
                     err = 999;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, __FILE__, err, "Not configured for OPAQUE Types!");
+                    addIdamError(CODEERRORTYPE, __FILE__, err, "Not configured for OPAQUE Types!");
                     break;
 
                     usertype.idamclass = TYPE_OPAQUE;
@@ -300,8 +300,8 @@ int readCDFTypes(int grpid, USERDEFINEDTYPELIST* userdefinedtypelist)
     if (typeids != NULL) free((void*) typeids);
 
     if (err != NC_NOERR) {
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF", err, "Unable to Query User Defined Types");
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF", err, (char*) nc_strerror(rc));
+        addIdamError(CODEERRORTYPE, "readCDF", err, "Unable to Query User Defined Types");
+        addIdamError(CODEERRORTYPE, "readCDF", err, (char*) nc_strerror(rc));
         err = 999;
         return err;
     }

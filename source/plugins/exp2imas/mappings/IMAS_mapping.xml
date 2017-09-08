@@ -346,22 +346,46 @@
   <mapping key="interfero_polarimeter/channel/#/wavelength_interferometry/Shape_of" value="//interfero_polarimeter/channel[#]/wavelength_interferometry/@dim" type="static"/>
   <mapping key="iron_core/segment/Shape_of" value="//iron_core/segment/@dim" type="static"/>
 
+  <mapping key="magnetics/ids_properties/comment" value="JET data mapped using UDA IMAS_mapping version 3.7.4" type="constant"/>
+  <mapping key="magnetics/ids_properties/homogeneous_time" value="0" type="constant"/>
+
   <mapping key="magnetics/flux_loop/Shape_of" value="//magdiag/flux_loops/setup_floops/position/r/@dim" type="static" index="1"/>
   <mapping key="magnetics/flux_loop/#/name" value="" type="constant"/>
   <mapping key="magnetics/flux_loop/#/identifier" value="#" type="constant"/>
   <mapping key="magnetics/flux_loop/#/position/Shape_of" value="//magdiag/flux_loops/setup_floops/position/r/@dim" type="static" index="2"/>
   <mapping key="magnetics/flux_loop/#/position/#/r" value="//magdiag/flux_loops/setup_floops/position/r" type="static"/>
+  <mapping key="magnetics/flux_loop/#/position/#/r_error_index" value="0" type="constant"/>
+  <mapping key="magnetics/flux_loop/#/position/#/r_error_upper" value="0" type="constant"/>
+  <mapping key="magnetics/flux_loop/#/position/#/r_error_lower" value="0" type="constant"/>
   <mapping key="magnetics/flux_loop/#/position/#/z" value="//magdiag/flux_loops/setup_floops/position/z" type="static"/>
+  <mapping key="magnetics/flux_loop/#/position/#/z_error_index" value="0" type="constant"/>
+  <mapping key="magnetics/flux_loop/#/position/#/z_error_upper" value="0" type="constant"/>
+  <mapping key="magnetics/flux_loop/#/position/#/z_error_lower" value="0" type="constant"/>
   <mapping key="magnetics/flux_loop/#/position/#/phi" value="//magdiag/flux_loops/setup_floops/position/phi" type="static"/>
+  <mapping key="magnetics/flux_loop/#/position/#/phi_error_index" value="0" type="constant"/>
+  <mapping key="magnetics/flux_loop/#/position/#/phi_error_upper" value="0" type="constant"/>
+  <mapping key="magnetics/flux_loop/#/position/#/phi_error_lower" value="0" type="constant"/>
   <mapping key="magnetics/flux_loop/#/flux/data" value="//magdiag/flux_loops/measure/value/name" type="dynamic"/>
+  <mapping key="magnetics/flux_loop/#/flux/data_error_index" value="0" type="constant"/>
+  <!--<mapping key="magnetics/flux_loop/#/flux/data_error_upper" value="//magdiag/flux_loops/measure/*[substring(name(), string-length(name())-4) = 'error']/name" type="static"/>-->
+  <!--<mapping key="magnetics/flux_loop/#/flux/data_error_lower" value="//magdiag/flux_loops/measure/*[substring(name(), string-length(name())-4) = 'error']/name" type="static"/>-->
   <mapping key="magnetics/flux_loop/#/flux/time" value="//magdiag/flux_loops/measure/value/name" type="dynamic"/>
 
   <mapping key="magnetics/bpol_probe/Shape_of" value="//magdiag/bpol_probes/setup_bprobe/name/@dim" type="static"/>
   <mapping key="magnetics/bpol_probe/#/name" value="//magdiag/bpol_probes/setup_bprobe/name" type="static"/>
   <mapping key="magnetics/bpol_probe/#/identifier" value="#" type="constant"/>
   <mapping key="magnetics/bpol_probe/#/position/r" value="//magdiag/bpol_probes/setup_bprobe/position/r" type="static"/>
+  <mapping key="magnetics/bpol_probe/#/position/r_error_index" value="0" type="constant"/>
+  <mapping key="magnetics/bpol_probe/#/position/r_error_upper" value="0" type="constant"/>
+  <mapping key="magnetics/bpol_probe/#/position/r_error_lower" value="0" type="constant"/>
   <mapping key="magnetics/bpol_probe/#/position/z" value="//magdiag/bpol_probes/setup_bprobe/position/z" type="static"/>
+  <mapping key="magnetics/bpol_probe/#/position/z_error_index" value="0" type="constant"/>
+  <mapping key="magnetics/bpol_probe/#/position/z_error_upper" value="0" type="constant"/>
+  <mapping key="magnetics/bpol_probe/#/position/z_error_lower" value="0" type="constant"/>
   <mapping key="magnetics/bpol_probe/#/position/phi" value="0" type="constant"/>
+  <mapping key="magnetics/bpol_probe/#/position/phi_error_index" value="0" type="constant"/>
+  <mapping key="magnetics/bpol_probe/#/position/phi_error_upper" value="0" type="constant"/>
+  <mapping key="magnetics/bpol_probe/#/position/phi_error_lower" value="0" type="constant"/>
   <mapping key="magnetics/bpol_probe/#/poloidal_angle" value="//magdiag/bpol_probes/setup_bprobe/polangle" type="static"/>
   <mapping key="magnetics/bpol_probe/#/toroidal_angle" value="//magdiag/bpol_probes/setup_bprobe/torangle" type="static"/>
   <mapping key="magnetics/bpol_probe/#/area" value="//magdiag/bpol_probes/setup_bprobe/area" type="static"/>

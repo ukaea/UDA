@@ -115,11 +115,7 @@ extern int testplugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         request_block = idam_plugin_interface->request_block;
         housekeeping = idam_plugin_interface->housekeeping;
     } else {
-        err = 999;
-        IDAM_LOG(UDA_LOG_ERROR, "Plugin Interface Version Unknown\n");
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "testplugin", err,
-                     "Plugin Interface Version is Not Known: Unable to execute the request!");
-        return err;
+        RAISE_PLUGIN_ERROR("Plugin Interface Version is Not Known: Unable to execute the request!");
     }
 
     IDAM_LOG(UDA_LOG_DEBUG, "Interface exchanged on entry\n");
@@ -263,7 +259,7 @@ extern int testplugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 #endif
     } else {
         err = 999;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "testplugin", err, "Unknown function requested!");
+        addIdamError(CODEERRORTYPE, "testplugin", err, "Unknown function requested!");
     }
 
     return err;
@@ -273,14 +269,14 @@ void testError1()
 {
 // Test of Error Management within Plugins
     int err = 9991;
-    addIdamError(&idamerrorstack, CODEERRORTYPE, "testplugin", err, "Test #1 of Error State Management");
+    addIdamError(CODEERRORTYPE, "testplugin", err, "Test #1 of Error State Management");
 }
 
 void testError2()
 {
 // Test of Error Management within Plugins
     int err = 9992;
-    addIdamError(&idamerrorstack, CODEERRORTYPE, "testplugin", err, "Test #2 of Error State Management");
+    addIdamError(CODEERRORTYPE, "testplugin", err, "Test #2 of Error State Management");
 }
 
 // Help: A Description of library functionality
@@ -3010,7 +3006,7 @@ static int do_test40(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     if (request_block->putDataBlockList.blockCount == 0) {
         err = 999;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "testplugin", err, "No Put Data Blocks to process!");
+        addIdamError(CODEERRORTYPE, "testplugin", err, "No Put Data Blocks to process!");
         return err;
     }
 
@@ -3167,8 +3163,7 @@ static int do_plugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                     err = pluginList->plugin[i].idamPlugin(&next_plugin_interface); // Call the data reader
                 } else {
                     err = 999;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE,
-                                 "No Data Access plugin available for this data request", err, "");
+                    addIdamError(CODEERRORTYPE, "No Data Access plugin available for this data request", err, "");
                 }
                 break;
             }
@@ -3200,26 +3195,26 @@ static int do_errortest(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     FIND_REQUIRED_INT_VALUE(request_block->nameValueList, test);
 
-    if (test == 1) {
-        testError1();
-        return err;
-    } else if (test == 2) {
-        testError2();
-        return err;
-    } else if (test == 3) {
-        char* p = "crash!";        // force a server crash! (write to read-only memory)
-        *p = '*';
+    switch (test) {
+        case 1:
+            testError1();
+            return err;
+        case 2:
+            testError2();
+            return err;
+        case 3: {
+            char* p = "crash!";        // force a server crash! (write to read-only memory)
+            *p = '*';
 
-        p = NULL;
-        free(p);
+            p = NULL;
+            free(p);
 
-        int* p2 = NULL;
-        *p2 = 1;
+            int* p2 = NULL;
+            *p2 = 1;
+        }
     }
 
-    err = 9990 + test;
-    addIdamError(&idamerrorstack, CODEERRORTYPE, "testplugin", err, "Test of Error State Management");
-    return err;
+    THROW_ERROR(9990 + test, "Test of Error State Management");
 }
 
 static int do_scalartest(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
@@ -3262,9 +3257,9 @@ int createUDTSocket(int* usock, int port, int rendezvous)
 
     if (0 != getaddrinfo(NULL, service, &hints, &res)) {
         int err = 9991;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "testplugin:createUDTSocket", err,
+        addIdamError(CODEERRORTYPE, "testplugin:createUDTSocket", err,
                      "Illegal port number or port is busy");
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "testplugin:createUDTSocket", err,
+        addIdamError(CODEERRORTYPE, "testplugin:createUDTSocket", err,
                      (char*) udt_getlasterror_desc());
         return -1;
     }
@@ -3327,9 +3322,9 @@ int createTCPSocket(SYSSOCKET* ssock, int port, bool rendezvous)
 
     if (0 != getaddrinfo(NULL, service, &hints, &res)) {
         int err = 999;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "testplugin:createTCPSocket", err,
+        addIdamError(CODEERRORTYPE, "testplugin:createTCPSocket", err,
                      "Illegal port number or port is busy");
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "testplugin:createTCPSocket", err,
+        addIdamError(CODEERRORTYPE, "testplugin:createTCPSocket", err,
                      (char*) udt_getlasterror_desc());
         return -1;
     }
@@ -3338,8 +3333,8 @@ int createTCPSocket(SYSSOCKET* ssock, int port, bool rendezvous)
 
     if (bind(*ssock, res->ai_addr, res->ai_addrlen) != 0) {
         int err = 999;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "testplugin:createTCPSocket", err, "Socket Bind error");
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "testplugin:createTCPSocket", err,
+        addIdamError(CODEERRORTYPE, "testplugin:createTCPSocket", err, "Socket Bind error");
+        addIdamError(CODEERRORTYPE, "testplugin:createTCPSocket", err,
                      (char*) udt_getlasterror_desc());
         return -1;
     }
@@ -3362,8 +3357,8 @@ int c_connect(UDTSOCKET* usock, int port)
 
     if (0 != getaddrinfo(g_Localhost, buffer, &hints, &peer)) {
         int err = 999;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "testplugin:c_connect", err, "Socket Connect error");
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "testplugin:c_connect", err, (char*) udt_getlasterror_desc());
+        addIdamError(CODEERRORTYPE, "testplugin:c_connect", err, "Socket Connect error");
+        addIdamError(CODEERRORTYPE, "testplugin:c_connect", err, (char*) udt_getlasterror_desc());
         return -1;
     }
 
@@ -3386,8 +3381,8 @@ int tcp_connect(SYSSOCKET* ssock, int port)
 
     if (0 != getaddrinfo(g_Localhost, buffer, &hints, &peer)) {
         int err = 999;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "testplugin:tcp_connect", err, "Socket Connect error");
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "testplugin:tcp_connect", err, (char*) udt_getlasterror_desc());
+        addIdamError(CODEERRORTYPE, "testplugin:tcp_connect", err, "Socket Connect error");
+        addIdamError(CODEERRORTYPE, "testplugin:tcp_connect", err, (char*) udt_getlasterror_desc());
         return -1;
     }
 
@@ -3418,7 +3413,7 @@ static int do_testudt(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     if (createUDTSocket(&client, 0, false) < 0) { ;
         err = 9990;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "testplugin:udt", err, "Unable to create a UDT Socket");
+        addIdamError(CODEERRORTYPE, "testplugin:udt", err, "Unable to create a UDT Socket");
         return err;
     }
 
@@ -3452,8 +3447,8 @@ static int do_testudt(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         int sent = udt_send(client, (char*) buffer + g_TotalNum * sizeof(int32_t) - tosend, tosend, 0);
         if (sent < 0) {
             err = 9990;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "testplugin:udt", err, "Unable to Send Data");
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "testplugin:udt", err, (char*) udt_getlasterror_desc());
+            addIdamError(CODEERRORTYPE, "testplugin:udt", err, "Unable to Send Data");
+            addIdamError(CODEERRORTYPE, "testplugin:udt", err, (char*) udt_getlasterror_desc());
             break;
         }
         tosend -= sent;

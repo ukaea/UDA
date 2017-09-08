@@ -150,7 +150,7 @@ int getIdamNameValuePairVarArray(const char* values, char quote, char delimiter,
         err = 999;
         IDAM_LOG(UDA_LOG_ERROR,
                 "getNameValuePairVarArray: The number of values passed by argument is inconsistent with the specified Size value!\n");
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "getNameValuePairVarArray", err,
+        addIdamError(CODEERRORTYPE, "getNameValuePairVarArray", err,
                      "The number of values passed by argument is inconsistent with the specified Size value!");
         freeIdamNameValuePairItemList(&dataList, dataCount);
         return -err;
@@ -177,7 +177,7 @@ int getIdamNameValuePairVarArray(const char* values, char quote, char delimiter,
             unsigned char* d = (unsigned char*) malloc(dataCount * sizeof(unsigned char));
             unsigned int* id = (unsigned int*) malloc(dataCount * sizeof(unsigned int));
             for (i = 0; i < dataCount; i++) {
-                id[i] = (int) atoi(dataList[i]);
+                id[i] = atoi(dataList[i]);
                 d[i] = (unsigned char) id[i];
             }
             data = (void*) d;
@@ -252,7 +252,7 @@ int getIdamNameValuePairVarArray(const char* values, char quote, char delimiter,
             err = 999;
             IDAM_LOG(UDA_LOG_ERROR,
                     "getNameValuePairVarArray: The data type of the values passed by argument is not recognised!\n");
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "getNameValuePairVarArray", err,
+            addIdamError(CODEERRORTYPE, "getNameValuePairVarArray", err,
                          "The data type of the values passed by argument is not recognised!");
             break;
     }
@@ -263,7 +263,7 @@ int getIdamNameValuePairVarArray(const char* values, char quote, char delimiter,
         err = 999;
         IDAM_LOG(UDA_LOG_ERROR,
                 "getNameValuePairVarArray: Processing of the specified type of data passed by argument has not been implemented!\n");
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "getNameValuePairVarArray", err,
+        addIdamError(CODEERRORTYPE, "getNameValuePairVarArray", err,
                      "Processing of the specified type of data passed by argument has not been implemented!");
         return -err;
     }

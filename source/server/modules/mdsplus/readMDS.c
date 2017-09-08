@@ -36,7 +36,7 @@ int readMDS(DATA_SOURCE data_source,
             SIGNAL_DESC signal_desc,
             DATA_BLOCK *data_block) {
     int err = 999;
-    addIdamError(&idamerrorstack, CODEERRORTYPE, "readMDS", err, "MDSPLUS PLUGIN NOT ENABLED");
+    addIdamError(CODEERRORTYPE, "readMDS", err, "MDSPLUS PLUGIN NOT ENABLED");
     return err;
 }
 
@@ -182,7 +182,7 @@ int readMDS(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK* data_b
                 if (getIdamServerEnvironment()->external_user) {
 #endif
                     err = 999;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "readMDS", err,
+                    addIdamError(CODEERRORTYPE, "readMDS", err,
                                  "Disabled: Creation of the MDS+ TREE Environment Variable");
                     IDAM_LOGF(UDA_LOG_DEBUG, "Disabled: Creation of the Environment Variable to %s\n", path);
                     break;
@@ -201,7 +201,7 @@ int readMDS(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK* data_b
                         if ((rc = setenv(env, path, 1)) !=
                             0) {                // Set an Environment Variable for MDS+ to locate the tree
                             err = 999;
-                            addIdamError(&idamerrorstack, CODEERRORTYPE, "readMDS", err,
+                            addIdamError(CODEERRORTYPE, "readMDS", err,
                                          "Unable to Create TREE Environment Variable");
                             IDAM_LOGF(UDA_LOG_DEBUG, "Error Creating Environment Variable %s [%d][%d]\n", env, rc,
                                       errno);
@@ -217,7 +217,7 @@ int readMDS(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK* data_b
 
                     } else {
                         err = 999;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "readMDS", err,
+                        addIdamError(CODEERRORTYPE, "readMDS", err,
                                      "Syntax Error in Path to Data Tree");
                         IDAM_LOGF(UDA_LOG_DEBUG, "Syntax Error in Path to Data Tree %s\n", path);
                         break;
@@ -225,7 +225,7 @@ int readMDS(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK* data_b
                 }
             } else {
                 err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readMDS", err,
+                addIdamError(CODEERRORTYPE, "readMDS", err,
                              "Unable to Set Tree Paths for Remote MDSPlus Servers");
                 IDAM_LOGF(UDA_LOG_DEBUG, "Unable to Set Tree Paths for Remote MDSPlus Servers - %s\n", path);
                 break;
@@ -264,7 +264,7 @@ int readMDS(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK* data_b
 
             if (socket == -1 || !status) {
                 err = MDS_ERROR_CONNECTING_TO_SERVER;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readMDS", err, "Unable to Connect to MDSPlus Server");
+                addIdamError(CODEERRORTYPE, "readMDS", err, "Unable to Connect to MDSPlus Server");
                 break;
             } else {
                 addSocket(socket_list, type, status, server, mdsport, socket);
@@ -286,7 +286,7 @@ int readMDS(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK* data_b
                     IDAM_LOG(UDA_LOG_DEBUG,"MDSPlus Security Sand-Box Disabled because of Bad Pre-Load\n");
 
                     err = 999;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "readMDS", err, "localhost MDS+ disabled on this host");
+                    addIdamError(CODEERRORTYPE, "readMDS", err, "localhost MDS+ disabled on this host");
                     IDAM_LOG(UDA_LOG_DEBUG, "localhost MDS+ disabled on this host\n");
                     break;
                 }
@@ -319,7 +319,7 @@ int readMDS(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK* data_b
 
             if (!status_ok(status)) {
                 err = MDS_ERROR_OPENING_TREE;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readMDS", err, "Unable to Open the MDSPlus Tree");
+                addIdamError(CODEERRORTYPE, "readMDS", err, "Unable to Open the MDSPlus Tree");
                 IDAM_LOG(UDA_LOG_DEBUG, "Error Opening MDS+ Tree \n");
                 break;
             }
@@ -346,7 +346,7 @@ int readMDS(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK* data_b
 
             if (!status_ok(status)) {
                 err = MDS_ERROR_MDSVALUE_DATA;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readMDS", err,
+                addIdamError(CODEERRORTYPE, "readMDS", err,
                              "Unable to Access Data via the TDI Function");
 
 // Any MDS+ messages?
@@ -378,7 +378,7 @@ int readMDS(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK* data_b
 
         if (sdim == NULL) {
             err = MDS_ERROR_ALLOCATING_HEAP_TDI_RANK;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readMDS", err,
+            addIdamError(CODEERRORTYPE, "readMDS", err,
                          "Unable to Allocate Heap for MdsValue Rank Enquiry");
             break;
         }
@@ -390,7 +390,7 @@ int readMDS(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK* data_b
 
         if (!status_ok(status)) {
             err = MDS_ERROR_MDSVALUE_RANK;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readMDS", err, "Unable to Retrieve the Data Rank");
+            addIdamError(CODEERRORTYPE, "readMDS", err, "Unable to Retrieve the Data Rank");
             break;
         }
 
@@ -406,7 +406,7 @@ int readMDS(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK* data_b
 
         if (sdim == NULL) {
             err = MDS_ERROR_ALLOCATING_HEAP_TDI_SIZE;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readMDS", err,
+            addIdamError(CODEERRORTYPE, "readMDS", err,
                          "Unable to Allocate Heap for MdsValue Size Enquiry");
             break;
         }
@@ -418,7 +418,7 @@ int readMDS(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK* data_b
 
         if (!status_ok(status) || size < 1) {
             err = MDS_ERROR_MDSVALUE_SIZE;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readMDS", err, "Unable to Retrieve the Data Size");
+            addIdamError(CODEERRORTYPE, "readMDS", err, "Unable to Retrieve the Data Size");
             IDAM_LOG(UDA_LOG_DEBUG, "Unable to Retrieve the Data Size\n");
             break;
         }
@@ -440,7 +440,7 @@ int readMDS(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK* data_b
 
         if (!status_ok(status) || size < 1) {
             err = MDS_ERROR_MDSVALUE_TYPE;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readMDS", err, "Unable to Retrieve the Data Type");
+            addIdamError(CODEERRORTYPE, "readMDS", err, "Unable to Retrieve the Data Type");
             break;
         }
 
@@ -452,7 +452,7 @@ int readMDS(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK* data_b
 
         if ((data_block->data_type = readMDSType(type)) == TYPE_UNKNOWN) {
             err = 999;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readMDS", err, "Unknown Data Type");
+            addIdamError(CODEERRORTYPE, "readMDS", err, "Unknown Data Type");
             break;
         }
 
@@ -516,7 +516,7 @@ int readMDS(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK* data_b
 
         if (data == NULL) {
             err = MDS_ERROR_ALLOCATING_HEAP_DATA_BLOCK;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readMDS", err, "Unable to Allocate Heap for the Data");
+            addIdamError(CODEERRORTYPE, "readMDS", err, "Unable to Allocate Heap for the Data");
             break;
         }
 
@@ -527,7 +527,7 @@ int readMDS(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK* data_b
 
         if (!status_ok(status)) {
             err = MDS_ERROR_MDSVALUE_DATA;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readMDS", err, "Unable to Retrieve the Data");
+            addIdamError(CODEERRORTYPE, "readMDS", err, "Unable to Retrieve the Data");
             break;
         }
 
@@ -541,7 +541,7 @@ int readMDS(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK* data_b
 
         if (sdim == NULL) {
             err = MDS_ERROR_ALLOCATING_HEAP_TDI_LEN_UNITS;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readMDS", err,
+            addIdamError(CODEERRORTYPE, "readMDS", err,
                          "Unable to Allocate Heap for MdsValue Units Length Enquiry");
             break;
         }
@@ -567,7 +567,7 @@ int readMDS(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK* data_b
 
             if (sdim == NULL) {
                 err = MDS_ERROR_ALLOCATING_HEAP_TDI_UNITS;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readMDS", err,
+                addIdamError(CODEERRORTYPE, "readMDS", err,
                              "Unable to Allocate Heap for MdsValue Units Enquiry");
                 break;
             }
@@ -578,7 +578,7 @@ int readMDS(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK* data_b
 
             if (units == NULL) {
                 err = MDS_ERROR_ALLOCATING_HEAP_UNITS;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readMDS", err,
+                addIdamError(CODEERRORTYPE, "readMDS", err,
                              "Unable to Allocate Heap for the Data Units");
                 break;
             }
@@ -588,7 +588,7 @@ int readMDS(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK* data_b
 
             if (!status_ok(status)) {
                 err = MDS_ERROR_MDSVALUE_UNITS;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readMDS", err, "Unable to Retrieve the Data Units");
+                addIdamError(CODEERRORTYPE, "readMDS", err, "Unable to Retrieve the Data Units");
                 break;
             }
 
@@ -613,7 +613,7 @@ int readMDS(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK* data_b
 
         if (ddim == NULL) {
             err = MDS_ERROR_ALLOCATING_HEAP_DATA_BLOCK;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readMDS", err,
+            addIdamError(CODEERRORTYPE, "readMDS", err,
                          "Unable to Allocate Heap for the Data Dimensions");
             break;
         }
@@ -624,7 +624,7 @@ int readMDS(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK* data_b
                 IDAM_LOGF(UDA_LOG_DEBUG, "Dimension %d, Size %d, Units %s \n", i, ddim[i].dim_n,
                           ddim[i].dim_units);
             } else {
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readMDS", err, "Unable to Retrieve the Dimensional Data");
+                addIdamError(CODEERRORTYPE, "readMDS", err, "Unable to Retrieve the Dimensional Data");
                 break;
             }
         }

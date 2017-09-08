@@ -35,12 +35,7 @@ int help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         data_block = idam_plugin_interface->data_block;
 
     } else {
-        err = 999;
-        IDAM_LOG(UDA_LOG_ERROR, "ERROR Provenance: Plugin Interface Version Unknown\n");
-
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "Provenance", err,
-                     "Plugin Interface Version is Not Known: Unable to execute the request!");
-        return err;
+        RAISE_PLUGIN_ERROR("Plugin Interface Version is Not Known: Unable to execute the request!");
     }
 
     IDAM_LOG(UDA_LOG_DEBUG, "Provenance: Plugin Interface transferred\n");

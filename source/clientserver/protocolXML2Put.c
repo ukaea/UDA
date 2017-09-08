@@ -58,7 +58,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTY
     // If the recursive depth is too large then perhaps an infinite loop is in play!
 
     if (recursiveDepthPut++ > MAXRECURSIVEDEPTH) {
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "xdrUserDefinedData", 999, "Maximum Recursive Depth reached!");
+        addIdamError(CODEERRORTYPE, "xdrUserDefinedData", 999, "Maximum Recursive Depth reached!");
         return 0;
     }
 
@@ -114,7 +114,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTY
     for (j = 0; j < userdefinedtype->fieldcount; j++) {
 
         if (j >= userdefinedtype->fieldcount) {
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "xdrUserDefinedData", 999, "Fieldcount Exceeded!");
+            addIdamError(CODEERRORTYPE, "xdrUserDefinedData", 999, "Fieldcount Exceeded!");
             break;
         }
 
@@ -192,7 +192,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTY
                                     count = totalsize / size;            // array element count
 
                                     if (rcount != 0) {    // there should be no remainder
-                                        addIdamError(&idamerrorstack, CODEERRORTYPE, "xdrUserDefinedData", 999,
+                                        addIdamError(CODEERRORTYPE, "xdrUserDefinedData", 999,
                                                      "Specified malloc total size not integer multiple!");
                                         count = 0;
                                     }
@@ -203,7 +203,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTY
                         rc = rc && xdr_int(xdrs, &count);
 
                         if ((count == 0 || size == 0) && *p != 0) {
-                            addIdamError(&idamerrorstack, CODEERRORTYPE, "xdrUserDefinedData", 999,
+                            addIdamError(CODEERRORTYPE, "xdrUserDefinedData", 999,
                                          "Type Float Data Heap Allocation not found in log!");
                             break;
                         }
@@ -273,7 +273,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTY
                                     count = totalsize / size;
 
                                     if (rcount != 0) {
-                                        addIdamError(&idamerrorstack, CODEERRORTYPE, "xdrUserDefinedData", 999,
+                                        addIdamError(CODEERRORTYPE, "xdrUserDefinedData", 999,
                                                      "Specified malloc total size not integer multiple!");
                                         count = 0;
                                     }
@@ -284,7 +284,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTY
                         rc = rc && xdr_int(xdrs, &count);
 
                         if ((count == 0 || size == 0) && *p != 0) {
-                            addIdamError(&idamerrorstack, CODEERRORTYPE, "xdrUserDefinedData", 999,
+                            addIdamError(CODEERRORTYPE, "xdrUserDefinedData", 999,
                                          "Type Double Data Heap Allocation not found in log!");
                             break;
                         }
@@ -353,7 +353,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTY
                                     count = totalsize / size;
 
                                     if (rcount != 0) {
-                                        addIdamError(&idamerrorstack, CODEERRORTYPE, "xdrUserDefinedData", 999,
+                                        addIdamError(CODEERRORTYPE, "xdrUserDefinedData", 999,
                                                      "Specified short malloc total size not integer multiple!");
                                         count = 0;
                                     }
@@ -364,7 +364,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTY
                         rc = rc && xdr_int(xdrs, &count);
 
                         if ((count == 0 || size == 0) && *p != 0) {
-                            addIdamError(&idamerrorstack, CODEERRORTYPE, "xdrUserDefinedData", 999,
+                            addIdamError(CODEERRORTYPE, "xdrUserDefinedData", 999,
                                          "Short Data Heap Allocation not found in log!");
                             break;
                         }
@@ -434,7 +434,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTY
                                     count = totalsize / size;
 
                                     if (rcount != 0) {
-                                        addIdamError(&idamerrorstack, CODEERRORTYPE, "xdrUserDefinedData", 999,
+                                        addIdamError(CODEERRORTYPE, "xdrUserDefinedData", 999,
                                                      "Specified unsigned short malloc total size not integer multiple!");
                                         count = 0;
                                     }
@@ -445,7 +445,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTY
                         rc = rc && xdr_int(xdrs, &count);
 
                         if ((count == 0 || size == 0) && *p != 0) {
-                            addIdamError(&idamerrorstack, CODEERRORTYPE, "xdrUserDefinedData", 999,
+                            addIdamError(CODEERRORTYPE, "xdrUserDefinedData", 999,
                                          "Unsigned Short Data Heap Allocation not found in log!");
                             break;
                         }
@@ -514,7 +514,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTY
                                     count = totalsize / size;
 
                                     if (rcount != 0) {
-                                        addIdamError(&idamerrorstack, CODEERRORTYPE, "xdrUserDefinedData", 999,
+                                        addIdamError(CODEERRORTYPE, "xdrUserDefinedData", 999,
                                                      "Specified malloc total size not integer multiple!");
                                         count = 0;
                                     }
@@ -525,7 +525,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTY
                         rc = rc && xdr_int(xdrs, &count);
 
                         if ((count == 0 || size == 0) && *p != 0) {
-                            addIdamError(&idamerrorstack, CODEERRORTYPE, "xdrUserDefinedData", 999,
+                            addIdamError(CODEERRORTYPE, "xdrUserDefinedData", 999,
                                          "Integer Data Heap Allocation not found in log!");
                             break;
                         }
@@ -592,7 +592,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTY
                                     count = totalsize / size;
 
                                     if (rcount != 0) {
-                                        addIdamError(&idamerrorstack, CODEERRORTYPE, "xdrUserDefinedData", 999,
+                                        addIdamError(CODEERRORTYPE, "xdrUserDefinedData", 999,
                                                      "Specified malloc total size not integer multiple!");
                                         count = 0;
                                     }
@@ -602,7 +602,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTY
 
                         rc = rc && xdr_int(xdrs, &count);
                         if ((count == 0 || size == 0) && *p != 0) {
-                            addIdamError(&idamerrorstack, CODEERRORTYPE, "xdrUserDefinedData", 999,
+                            addIdamError(CODEERRORTYPE, "xdrUserDefinedData", 999,
                                          "Unsigned Integer Data Heap Allocation not found in log!");
                             break;
                         }
@@ -669,7 +669,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTY
                                     count = totalsize / size;
 
                                     if (rcount != 0) {
-                                        addIdamError(&idamerrorstack, CODEERRORTYPE, "xdrUserDefinedData", 999,
+                                        addIdamError(CODEERRORTYPE, "xdrUserDefinedData", 999,
                                                      "Specified malloc total size not integer multiple!");
                                         count = 0;
                                     }
@@ -679,7 +679,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTY
 
                         rc = rc && xdr_int(xdrs, &count);
                         if ((count == 0 || size == 0) && *p != 0) {
-                            addIdamError(&idamerrorstack, CODEERRORTYPE, "xdrUserDefinedData", 999,
+                            addIdamError(CODEERRORTYPE, "xdrUserDefinedData", 999,
                                          "Long Long Data Heap Allocation not found in log!");
                             break;
                         }
@@ -754,7 +754,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTY
                                     count = totalsize / size;
 
                                     if (rcount != 0) {
-                                        addIdamError(&idamerrorstack, CODEERRORTYPE, "xdrUserDefinedData", 999,
+                                        addIdamError(CODEERRORTYPE, "xdrUserDefinedData", 999,
                                                      "Specified malloc total size not integer multiple!");
                                         count = 0;
                                     }
@@ -764,7 +764,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTY
 
                         rc = rc && xdr_int(xdrs, &count);
                         if ((count == 0 || size == 0) && *p != 0) {
-                            addIdamError(&idamerrorstack, CODEERRORTYPE, "xdrUserDefinedData", 999,
+                            addIdamError(CODEERRORTYPE, "xdrUserDefinedData", 999,
                                          "Unsigned Long Long Data Heap Allocation not found in log!");
                             break;
                         }
@@ -836,7 +836,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTY
                                     count = totalsize / size;
 
                                     if (rcount != 0) {
-                                        addIdamError(&idamerrorstack, CODEERRORTYPE, "xdrUserDefinedData", 999,
+                                        addIdamError(CODEERRORTYPE, "xdrUserDefinedData", 999,
                                                      "Specified malloc total size not integer multiple!");
                                         count = 0;
                                     }
@@ -863,7 +863,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTY
                         if (!rc)break;
 
                         if ((count == 0 || size == 0) && *p != 0) {
-                            addIdamError(&idamerrorstack, CODEERRORTYPE, "xdrUserDefinedData", 999,
+                            addIdamError(CODEERRORTYPE, "xdrUserDefinedData", 999,
                                          "Char Data Heap Allocation not found in log!");
                             break;
                         }
@@ -949,7 +949,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTY
                         rc = rc && xdr_int(xdrs, &count);
 
                         if ((count == 0 || size == 0) && *p != 0) {
-                            addIdamError(&idamerrorstack, CODEERRORTYPE, "xdrUserDefinedData", 999,
+                            addIdamError(CODEERRORTYPE, "xdrUserDefinedData", 999,
                                          "String Data Heap Allocation not found in log!");
                             break;
                         }
@@ -1070,7 +1070,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTY
                         rc = rc && xdr_int(xdrs, &nstr);            // This many strings to send
 
                         if ((nstr == 0 || size == 0) && *p != 0) {
-                            addIdamError(&idamerrorstack, CODEERRORTYPE, "xdrUserDefinedData", 999,
+                            addIdamError(CODEERRORTYPE, "xdrUserDefinedData", 999,
                                          "String Array Data Heap Allocation not found in log!");
                             break;
                         }
@@ -1161,7 +1161,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTY
                             }
                             rc = rc && xdr_int(xdrs, &count);
                             if ((count == 0 || size == 0) && *p != 0) {
-                                addIdamError(&idamerrorstack, CODEERRORTYPE, "xdrUserDefinedData", 999,
+                                addIdamError(CODEERRORTYPE, "xdrUserDefinedData", 999,
                                              "String Data Heap Allocation not found in log!");
                                 break;
                             }
@@ -1216,7 +1216,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTY
                                         size = ssize;
                                         count = totalsize / size;
                                     } else {
-                                        addIdamError(&idamerrorstack, CODEERRORTYPE, "xdrUserDefinedData", 999,
+                                        addIdamError(CODEERRORTYPE, "xdrUserDefinedData", 999,
                                                      "Specified malloc total size not integer multiple!");
                                         count = 0;
                                     }
@@ -1225,7 +1225,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTY
                         }
 
                         if ((count == 0 || size == 0) && *p != 0) {
-                            addIdamError(&idamerrorstack, CODEERRORTYPE, "xdrUserDefinedData", 999,
+                            addIdamError(CODEERRORTYPE, "xdrUserDefinedData", 999,
                                          "Data Heap Allocation not found in log!");
                             break;
                         }
@@ -1364,20 +1364,20 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTY
                         *p = (VOIDTYPE)z;
                         break;
                     } else {
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "xdrUserDefinedData", 999,
+                        addIdamError(CODEERRORTYPE, "xdrUserDefinedData", 999,
                                      "User Defined Type not known!");
                         break;
                     }
                 }
 
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "xdrUserDefinedData", 999, "Type not known!");
+                addIdamError(CODEERRORTYPE, "xdrUserDefinedData", 999, "Type not known!");
                 break;
 
             }
         }
 
         if (!rc) {
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "xdrUserDefinedData", 999,
+            addIdamError(CODEERRORTYPE, "xdrUserDefinedData", 999,
                          "XDR Return Code False => Bad send/receive!");
             recursiveDepthPut--;
             return rc;
@@ -1414,7 +1414,7 @@ int xdrUserDefinedTypeDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFIN
     } else {
 
         if (userdefinedtype == NULL) {
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "xdrUserDefinedTypeData", 999,
+            addIdamError(CODEERRORTYPE, "xdrUserDefinedTypeData", 999,
                          "No User Defined Type passed - cannot send!");
             return 0;
         }
@@ -1494,7 +1494,7 @@ int protocolXML2Put(XDR* xdrs, int protocol_id, int direction, int* token, LOGMA
                         err = 999;
                         IDAM_LOG(UDA_LOG_DEBUG, "NULL SARRAY User defined data Structure Definition\n");
                         printUserDefinedTypeListTable(*userdefinedtypelist);
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "protocolXML2Put", err,
+                        addIdamError(CODEERRORTYPE, "protocolXML2Put", err,
                                      "NULL User defined data Structure Definition");
                         break;
                     }
@@ -1529,7 +1529,7 @@ int protocolXML2Put(XDR* xdrs, int protocol_id, int direction, int* token, LOGMA
 
                     if (!rc) {
                         err = 999;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "protocolXML2Put", err,
+                        addIdamError(CODEERRORTYPE, "protocolXML2Put", err,
                                      "Bad Return Code passing data structures");
                         break;
                     }
@@ -1553,7 +1553,7 @@ int protocolXML2Put(XDR* xdrs, int protocol_id, int direction, int* token, LOGMA
 
                     if (option == 4) {
                         err = 999;
-                        addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "protocolXML2Put", err,
+                        addIdamError(SYSTEMERRORTYPE, "protocolXML2Put", err,
                                      "Unknown package Type control option");
                         break;
                     }
@@ -1578,7 +1578,7 @@ int protocolXML2Put(XDR* xdrs, int protocol_id, int direction, int* token, LOGMA
 
                         if (!rc) {
                             err = 999;
-                            addIdamError(&idamerrorstack, CODEERRORTYPE, "protocolXML2Put", err,
+                            addIdamError(CODEERRORTYPE, "protocolXML2Put", err,
                                          "Failure receiving Structure Definitions");
                             break;
                         }
@@ -1592,7 +1592,7 @@ int protocolXML2Put(XDR* xdrs, int protocol_id, int direction, int* token, LOGMA
 
                         if (!rc) {
                             err = 999;
-                            addIdamError(&idamerrorstack, CODEERRORTYPE, "protocolXML2Put", err,
+                            addIdamError(CODEERRORTYPE, "protocolXML2Put", err,
                                          "Failure receiving Data and Structure Definition");
                             break;
                         }
@@ -1604,7 +1604,7 @@ int protocolXML2Put(XDR* xdrs, int protocol_id, int direction, int* token, LOGMA
                             SARRAY* s = (SARRAY*)data;
                             if (s->count != data_block->data_n) {                // check for consistency
                                 err = 999;
-                                addIdamError(&idamerrorstack, CODEERRORTYPE, "protocolXML2Put", err,
+                                addIdamError(CODEERRORTYPE, "protocolXML2Put", err,
                                              "Inconsistent S Array Counts");
                                 break;
                             }
@@ -1620,7 +1620,7 @@ int protocolXML2Put(XDR* xdrs, int protocol_id, int direction, int* token, LOGMA
 
                         } else {
                             err = 999;
-                            addIdamError(&idamerrorstack, CODEERRORTYPE, "protocolXML2Put", err,
+                            addIdamError(CODEERRORTYPE, "protocolXML2Put", err,
                                          "Name of Received Data Structure Incorrect");
                             break;
                         }

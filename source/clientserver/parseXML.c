@@ -1169,12 +1169,12 @@ int parseDoc(char* docname, ACTIONS* actions)
     if ((doc = xmlParseDoc((xmlChar*) docname)) == NULL) {
         xmlFreeDoc(doc);
         xmlCleanupParser();
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "parseDoc", 1, "XML Not Parsed");
+        addIdamError(CODEERRORTYPE, "parseDoc", 1, "XML Not Parsed");
         return 1;
     }
 
     if ((cur = xmlDocGetRootElement(doc)) == NULL) {
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "parseDoc", 1, "Empty XML Document");
+        addIdamError(CODEERRORTYPE, "parseDoc", 1, "Empty XML Document");
         xmlFreeDoc(doc);
         xmlCleanupParser();
         return 1;

@@ -14,7 +14,7 @@ TEST_CASE( "Test HELP::help() function", "[HELP][plugins]" ) {
     const uda::Result& result = client.get("HELP::help()", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.errorMessage() == "" );
+    REQUIRE( result.errorMessage().empty() );
 
     uda::Data* data = result.data();
 
@@ -22,7 +22,7 @@ TEST_CASE( "Test HELP::help() function", "[HELP][plugins]" ) {
     REQUIRE( !data->isNull() );
     REQUIRE( data->type().name() == typeid(char*).name() );
 
-    uda::String* str = dynamic_cast<uda::String*>(data);
+    auto str = dynamic_cast<uda::String*>(data);
 
     REQUIRE( str != NULL );
 
@@ -47,7 +47,7 @@ TEST_CASE( "Test HELP::services() function", "[HELP][plugins]" ) {
     const uda::Result& result = client.get("HELP::services()", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.errorMessage() == "" );
+    REQUIRE( result.errorMessage().empty() );
 
     uda::Data* data = result.data();
 
@@ -55,7 +55,7 @@ TEST_CASE( "Test HELP::services() function", "[HELP][plugins]" ) {
     REQUIRE( !data->isNull() );
     REQUIRE( data->type().name() == typeid(char*).name() );
 
-    uda::String* str = dynamic_cast<uda::String*>(data);
+    auto str = dynamic_cast<uda::String*>(data);
 
     REQUIRE( str != NULL );
 

@@ -7,7 +7,7 @@
 #define QUOTE(X) QUOTE_(X)
 #define SHOT_NUM "84600"
 
-TEST_CASE( "Test bpol_probe count", "[IMAS][JET][BPOL]" )
+TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
 {
 #ifdef FATCLIENT
 #  include "setupEnvironment.inc"
@@ -15,8 +15,8 @@ TEST_CASE( "Test bpol_probe count", "[IMAS][JET][BPOL]" )
 
     std::vector<std::string> tests;
 
-//    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='ids_properties/comment', type=string, rank=0, shot=84600, )");
-//    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='ids_properties/homogeneous_time', type=int, rank=0, shot=84600, )");
+    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='ids_properties/comment', type=string, rank=0, shot=84600, )");
+    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='ids_properties/homogeneous_time', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/Shape_of', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/1/name', type=string, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/1/identifier', type=string, rank=0, shot=84600, )");
@@ -3748,11 +3748,10 @@ TEST_CASE( "Test bpol_probe count", "[IMAS][JET][BPOL]" )
 
         test.find("");
 
-        REQUIRE( handle >= 0 );
-
         bool is_error = test.find("error") != std::string::npos;
 
         if (!is_error) {
+            REQUIRE( handle >= 0 );
             REQUIRE( getIdamErrorCode(handle) == 0 );
         }
     }

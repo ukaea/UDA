@@ -43,12 +43,7 @@ int listSignals(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         DBConnect = (PGconn*)idam_plugin_interface->sqlConnection;
 
     } else {
-        err = 999;
-        IDAM_LOG(UDA_LOG_ERROR, "Plugin Interface Version Unknown\n");
-
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "Provenance", err,
-                     "Plugin Interface Version is Not Known: Unable to execute the request!");
-        return err;
+        RAISE_PLUGIN_ERROR("Plugin Interface Version is Not Known: Unable to execute the request!");
     }
 
     IDAM_LOG(UDA_LOG_DEBUG, "Plugin Interface transferred\n");
@@ -89,7 +84,7 @@ int listSignals(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         if (!uuidOK) {
             err = 999;
             IDAM_LOG(UDA_LOG_ERROR, "ERROR Provenance list: The client provenance UUID must be specified!\n");
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "Provenance add", err,
+            addIdamError(CODEERRORTYPE, "Provenance add", err,
                          "The client provenance UUID must be specified!");
             break;
         }
@@ -104,7 +99,7 @@ int listSignals(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         if ((DBQuery = PQexec(DBConnect, sql)) == NULL || PQresultStatus(DBQuery) != PGRES_TUPLES_OK) {
             err = 999;
             IDAM_LOG(UDA_LOG_ERROR, "ERROR Provenance list: SQL Failed\n");
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "Provenance list", err, "SQL Failed!");
+            addIdamError(CODEERRORTYPE, "Provenance list", err, "SQL Failed!");
             break;
         }
 
@@ -113,7 +108,7 @@ int listSignals(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         if (nrows == 0) {
             IDAM_LOG(UDA_LOG_ERROR, "ERROR Provenance list: No signals_log records found!\n");
             err = 999;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "Provenance new", err, "No signals_log records found");
+            addIdamError(CODEERRORTYPE, "Provenance new", err, "No signals_log records found");
             break;
         }
 
@@ -292,7 +287,7 @@ int listSignals(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
         if (data_block->opaque_block == NULL) {
             err = 999;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "Provenance::list()", err,
+            addIdamError(CODEERRORTYPE, "Provenance::list()", err,
                          "failed to locate PROVENANCESIGNALLIST structure!");
             break;
         }

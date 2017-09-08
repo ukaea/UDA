@@ -80,7 +80,7 @@ void printServerBlock(SERVER_BLOCK str)
     IDAM_LOGF(UDA_LOG_DEBUG, "Server PID       : %d\n", str.pid);
     IDAM_LOGF(UDA_LOG_DEBUG, "OS Name          : %s\n", str.OSName);
     IDAM_LOGF(UDA_LOG_DEBUG, "Configuration DOI: %s\n", str.DOI);
-    printIdamErrorStack(str.idamerrorstack);
+    printIdamErrorStack();
 }
 
 

@@ -45,9 +45,13 @@ int sendXDRFile(XDR* xdrs, char* xdrfile)
 
     if (fh == NULL || errno != 0 || ferror(fh)) {
         err = 999;
-        if (errno != 0) addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "sendXDRFile", errno, "");
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "sendXDRFile", err, "Unable to Open the XDR File for Read Access");
-        if (fh != NULL) fclose(fh);
+        if (errno != 0) {
+            addIdamError(SYSTEMERRORTYPE, "sendXDRFile", errno, "");
+        }
+        addIdamError(CODEERRORTYPE, "sendXDRFile", err, "Unable to Open the XDR File for Read Access");
+        if (fh != NULL) {
+            fclose(fh);
+        }
         return err;
     }
 
@@ -68,7 +72,7 @@ int sendXDRFile(XDR* xdrs, char* xdrfile)
 
         if ((bp = (char*) malloc(bufsize * sizeof(char))) == NULL) {
             err = 999;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "sendXDRFile", err,
+            addIdamError(CODEERRORTYPE, "sendXDRFile", err,
                          "Unable to Allocate Heap Memory for the XDR File");
             bufsize = 0;
             rc = xdr_int(xdrs, &bufsize);
@@ -131,8 +135,8 @@ int receiveXDRFile(XDR* xdrs, char* xdrfile)
 
     if (fh == NULL || errno != 0 || ferror(fh)) {
         err = 999;
-        if (errno != 0) addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "receiveXDRFile", errno, "");
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "receiveXDRFile", err,
+        if (errno != 0) addIdamError(SYSTEMERRORTYPE, "receiveXDRFile", errno, "");
+        addIdamError(CODEERRORTYPE, "receiveXDRFile", err,
                      "Unable to Open the XDR File for Write Access");
         if (fh != NULL) fclose(fh);
         return err;
@@ -157,13 +161,13 @@ int receiveXDRFile(XDR* xdrs, char* xdrfile)
 
         if (bufsize <= 0 || bufsize > 100 * 1024) {
             err = 999;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "receiveXDRFile", err, "Zero buffer size: Server failure");
+            addIdamError(CODEERRORTYPE, "receiveXDRFile", err, "Zero buffer size: Server failure");
             break;
         }
 
         if ((bp = (char*) malloc(bufsize * sizeof(char))) == NULL) {
             err = 999;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "receiveXDRFile", err,
+            addIdamError(CODEERRORTYPE, "receiveXDRFile", err,
                          "Unable to Allocate Heap Memory for the XDR File");
             break;
         }
@@ -181,7 +185,7 @@ int receiveXDRFile(XDR* xdrs, char* xdrfile)
 
             if (nchar > bufsize) {
                 err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "receiveXDRFile", err,
+                addIdamError(CODEERRORTYPE, "receiveXDRFile", err,
                              "File block size inconsistent with buffer size");
                 break;
             }
@@ -194,7 +198,7 @@ int receiveXDRFile(XDR* xdrs, char* xdrfile)
 
         if (doLoopLimit >= MAXDOLOOPLIMIT) {
             err = 999;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "receiveXDRFile", err,
+            addIdamError(CODEERRORTYPE, "receiveXDRFile", err,
                          "Maximum XDR file size reached: ~50MBytes");
             break;
         }
@@ -206,7 +210,7 @@ int receiveXDRFile(XDR* xdrs, char* xdrfile)
 
         if (errno != 0) {
             err = 999;
-            addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "receiveXDRFile", errno, "Problem receiving XDR File");
+            addIdamError(SYSTEMERRORTYPE, "receiveXDRFile", errno, "Problem receiving XDR File");
             break;
         }
 

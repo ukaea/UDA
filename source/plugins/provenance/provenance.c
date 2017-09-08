@@ -61,13 +61,13 @@ PGconn* startSQL_Provenance()
 // Connect to the Database Server
 
     if ((DBConnect = PQsetdbLogin(pghost, pgport, pgoptions, pgtty, dbname, user, pswrd)) == NULL) {
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "startSQL_Provenance", 1, "SQL Server Connect Error");
+        addIdamError(CODEERRORTYPE, "startSQL_Provenance", 1, "SQL Server Connect Error");
         PQfinish(DBConnect);
         return NULL;
     }
 
     if (PQstatus(DBConnect) == CONNECTION_BAD) {
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "startSQL_Provenance", 1, "Bad SQL Server Connect Status");
+        addIdamError(CODEERRORTYPE, "startSQL_Provenance", 1, "Bad SQL Server Connect Status");
         PQfinish(DBConnect);
         return NULL;
     }

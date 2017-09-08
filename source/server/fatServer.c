@@ -37,7 +37,7 @@ static LOGMALLOCLIST* logmalloclist = NULL;
 PGconn* DBConnect = NULL;
 PGconn* gDBConnect = NULL;
 
-unsigned int XDRstdioFlag = 0;
+unsigned int XDRstdioFlag = 1;
 int altRank = 0;
 unsigned int clientFlags = 0;
 NTREE* fullNTree = NULL;
@@ -48,12 +48,6 @@ unsigned int privateFlags = 0;
 
 int serverVersion = 7;
 int protocolVersion = 7;
-
-static XDR serverXDRInput;
-static XDR serverXDROutput;
-
-XDR* serverInput = &serverXDRInput;
-XDR* serverOutput = &serverXDROutput;
 
 SOCKETLIST socket_list;
 
@@ -80,20 +74,19 @@ void setLogMallocList(LOGMALLOCLIST* logmalloclist_in)
 static int startupFatServer(SERVER_BLOCK* server_block);
 
 static int doFatServerClosedown(SERVER_BLOCK* server_block, DATA_BLOCK* data_block, ACTIONS* actions_desc,
-                                ACTIONS* actions_sig, SERVER_BLOCK* server_block0, DATA_BLOCK* data_block0);
+                                ACTIONS* actions_sig, DATA_BLOCK* data_block0);
 
 static int handleRequestFat(REQUEST_BLOCK* request_block, REQUEST_BLOCK* request_block0, CLIENT_BLOCK* client_block,
-                     SERVER_BLOCK* server_block, METADATA_BLOCK* metadata_block, DATA_BLOCK* data_block,
-                     ACTIONS* actions_desc, ACTIONS* actions_sig);
+                            SERVER_BLOCK* server_block, METADATA_BLOCK* metadata_block, DATA_BLOCK* data_block,
+                            ACTIONS* actions_desc, ACTIONS* actions_sig);
 
 static int fatClientReturn(SERVER_BLOCK* server_block, DATA_BLOCK* data_block, DATA_BLOCK* data_block0,
-                           REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, int trap1Err, METADATA_BLOCK* metadata_block);
+                           REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, METADATA_BLOCK* metadata_block);
 
 //--------------------------------------------------------------------------------------
 // Server Entry point
 
-int fatServer(CLIENT_BLOCK client_block, REQUEST_BLOCK* request_block0, SERVER_BLOCK* server_block0,
-               DATA_BLOCK* data_block0)
+int fatServer(CLIENT_BLOCK client_block, SERVER_BLOCK* server_block, REQUEST_BLOCK* request_block0, DATA_BLOCK* data_block0)
 {
     assert(data_block0 != NULL);
 
@@ -102,7 +95,6 @@ int fatServer(CLIENT_BLOCK client_block, REQUEST_BLOCK* request_block0, SERVER_B
 
     DATA_BLOCK data_block;
     REQUEST_BLOCK request_block;
-    SERVER_BLOCK server_block;
 
     ACTIONS actions_desc;
     ACTIONS actions_sig;
@@ -111,7 +103,7 @@ int fatServer(CLIENT_BLOCK client_block, REQUEST_BLOCK* request_block0, SERVER_B
     // Initialise the Error Stack & the Server Status Structure
     // Reinitialised after each logging action
 
-    initServerBlock(&server_block, serverVersion);
+    initServerBlock(server_block, serverVersion);
     initDataBlock(&data_block);
     initActions(&actions_desc);        // There may be a Sequence of Actions to Apply
     initActions(&actions_sig);
@@ -119,25 +111,31 @@ int fatServer(CLIENT_BLOCK client_block, REQUEST_BLOCK* request_block0, SERVER_B
     logmalloclist = (LOGMALLOCLIST*)malloc(sizeof(LOGMALLOCLIST));
     initLogMallocList(logmalloclist);
 
-    int err = startupFatServer(&server_block);
+    int err = startupFatServer(server_block);
     if (err != 0) {
         return err;
     }
 
-    err = handleRequestFat(&request_block, request_block0, &client_block, &server_block, &metadata_block, &data_block,
+    copyUserDefinedTypeList(&userdefinedtypelist);
+
+    err = handleRequestFat(&request_block, request_block0, &client_block, server_block, &metadata_block, &data_block,
                            &actions_desc, &actions_sig);
     if (err != 0) {
         return err;
     }
 
-    err = fatClientReturn(&server_block, &data_block, data_block0, &request_block, &client_block, err, &metadata_block);
+    err = fatClientReturn(server_block, &data_block, data_block0, &request_block, &client_block, &metadata_block);
     if (err != 0) {
         return err;
     }
 
-    idamAccessLog(FALSE, client_block, request_block, server_block, &pluginList);
+    idamAccessLog(FALSE, client_block, request_block, *server_block, &pluginList);
 
-    err = doFatServerClosedown(&server_block, &data_block, &actions_desc, &actions_sig, server_block0, data_block0);
+    err = doFatServerClosedown(server_block, &data_block, &actions_desc, &actions_sig, data_block0);
+
+    freeUserDefinedTypeList(userdefinedtypelist);
+    free(userdefinedtypelist);
+    userdefinedtypelist = NULL;
 
     //freeMallocLogList(logmalloclist);
     //free(logmalloclist);
@@ -146,25 +144,20 @@ int fatServer(CLIENT_BLOCK client_block, REQUEST_BLOCK* request_block0, SERVER_B
 }
 
 int fatClientReturn(SERVER_BLOCK* server_block, DATA_BLOCK* data_block, DATA_BLOCK* data_block0, REQUEST_BLOCK* request_block,
-                   CLIENT_BLOCK* client_block, int trap1Err, METADATA_BLOCK* metadata_block)
+                   CLIENT_BLOCK* client_block, METADATA_BLOCK* metadata_block)
 {
     //----------------------------------------------------------------------------
     // Gather Server Error State
 
     // Update Server State with Error Stack
-    concatIdamError(idamerrorstack, &server_block->idamerrorstack);
-    closeIdamError(&idamerrorstack);
+    concatIdamError(&server_block->idamerrorstack);
+    closeIdamError();
 
     int err = 0;
 
     if (server_block->idamerrorstack.nerrors > 0) {
         err = server_block->idamerrorstack.idamerror[0].code;
-    } else {
-        err = trap1Err;
-    }
-
-    if (err != 0) {
-        THROW_ERROR(err, "Error Forces Exiting of Server Error Trap #2 Loop");
+        return err;
     }
 
     //------------------------------------------------------------------------------
@@ -182,7 +175,7 @@ int fatClientReturn(SERVER_BLOCK* server_block, DATA_BLOCK* data_block, DATA_BLO
     // Client deletes stale files automatically on startup.
     //----------------------------------------------------------------------------------
 
-    if (false && data_block->opaque_type == OPAQUE_TYPE_STRUCTURES) {
+    if (data_block->opaque_type == OPAQUE_TYPE_STRUCTURES) {
 
         // Create an output XDR stream
 
@@ -199,30 +192,23 @@ int fatClientReturn(SERVER_BLOCK* server_block, DATA_BLOCK* data_block, DATA_BLO
 
         errno = 0;
         if (mkstemp(tempFile) < 0 || errno != 0) {
-            err = 995;
-            if (errno != 0) err = errno;
-            addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "idamServer", err, " Unable to Obtain a Temporary File Name");
-            err = 995;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "idamServer", err, tempFile);
-            return err;
+            THROW_ERROR(995, "Unable to Obtain a Temporary File Name");
         }
-        if ((xdrfile = fopen(tempFile, "w")) == NULL) {
-            err = 999;
-            if (errno != 0) err = errno;
-            addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "idamServer", err, " Unable to Open a Temporary XDR File for Writing");
-            return err;
+        if ((xdrfile = fopen(tempFile, "wb")) == NULL) {
+            THROW_ERROR(999, "Unable to Open a Temporary XDR File for Writing");
         }
 
-        xdrstdio_create(serverOutput, xdrfile, XDR_ENCODE);
+        XDR xdrServerOutput;
+        xdrstdio_create(&xdrServerOutput, xdrfile, XDR_ENCODE);
 
         // Write data to the temporary file
 
         int protocol_id = PROTOCOL_STRUCTURES;
-        err = protocolXML(serverOutput, protocol_id, XDR_SEND, NULL, logmalloclist, userdefinedtypelist, data_block);
+        protocolXML(&xdrServerOutput, protocol_id, XDR_SEND, NULL, logmalloclist, userdefinedtypelist, data_block);
 
         // Close the stream and file
 
-        fflush(xdrfile);
+        xdr_destroy(&xdrServerOutput);
         fclose(xdrfile);
 
         // Free Heap
@@ -232,19 +218,21 @@ int fatClientReturn(SERVER_BLOCK* server_block, DATA_BLOCK* data_block, DATA_BLO
 
         // Create an input XDR stream
 
-        if ((xdrfile = fopen(tempFile, "r")) == NULL) {
+        if ((xdrfile = fopen(tempFile, "rb")) == NULL) {
             THROW_ERROR(999, "Unable to Open a Temporary XDR File for Reading");
         }
 
-        xdrstdio_create(serverInput, xdrfile, XDR_DECODE);
+        XDR xdrServerInput;
+        xdrstdio_create(&xdrServerInput, xdrfile, XDR_DECODE);
 
         // Read data from the temporary file
 
         protocol_id = PROTOCOL_STRUCTURES;
-        err = protocolXML(serverInput, protocol_id, XDR_RECEIVE, NULL, logmalloclist, userdefinedtypelist, &data_block);
+        err = protocolXML(&xdrServerInput, protocol_id, XDR_RECEIVE, NULL, logmalloclist, userdefinedtypelist, data_block);
 
         // Close the stream and file
 
+        xdr_destroy(&xdrServerInput);
         fclose(xdrfile);
 
         // Remove the Temporary File
@@ -285,8 +273,8 @@ int fatClientReturn(SERVER_BLOCK* server_block, DATA_BLOCK* data_block, DATA_BLO
 }
 
 int handleRequestFat(REQUEST_BLOCK* request_block, REQUEST_BLOCK* request_block0, CLIENT_BLOCK* client_block,
-                  SERVER_BLOCK* server_block, METADATA_BLOCK* metadata_block, DATA_BLOCK* data_block,
-                  ACTIONS* actions_desc, ACTIONS* actions_sig)
+                     SERVER_BLOCK* server_block, METADATA_BLOCK* metadata_block, DATA_BLOCK* data_block,
+                     ACTIONS* actions_desc, ACTIONS* actions_sig)
 {
     IDAM_LOG(UDA_LOG_DEBUG, "IdamServer: Start of Server Error Trap #1 Loop\n");
 
@@ -336,7 +324,9 @@ int handleRequestFat(REQUEST_BLOCK* request_block, REQUEST_BLOCK* request_block0
     if (request_block->request == REQUEST_READ_GENERIC || (client_block->clientFlags & CLIENTFLAG_ALTDATA)) {
         if (DBConnect == NULL) {
             if (!(DBConnect = startSQL())) {
-                if (DBConnect != NULL) PQfinish(DBConnect);
+                if (DBConnect != NULL) {
+                    PQfinish(DBConnect);
+                }
                 THROW_ERROR(777, "Unable to Connect to the SQL Database Server");
             }
         }
@@ -381,7 +371,7 @@ int handleRequestFat(REQUEST_BLOCK* request_block, REQUEST_BLOCK* request_block0
     printSignal(metadata_block->signal_rec);
     printSignalDesc(*signal_desc);
     printDataBlock(*data_block);
-    printIdamErrorStack(idamerrorstack);
+    printIdamErrorStack();
     IDAM_LOG(UDA_LOG_DEBUG,
              "======================== ******************** ==========================================\n");
 
@@ -399,7 +389,6 @@ int handleRequestFat(REQUEST_BLOCK* request_block, REQUEST_BLOCK* request_block0
 
 #ifndef NOTGENERICENABLED
     if (client_block->get_meta && request_block->request == REQUEST_READ_GENERIC) {
-
         if (sqlSystemConfig(DBConnect, data_source->config_id, &metadata_block->system_config) != 1) {
             THROW_ERROR(780, "Error Retrieving System Configuration Data");
         }
@@ -422,8 +411,8 @@ int handleRequestFat(REQUEST_BLOCK* request_block, REQUEST_BLOCK* request_block0
     return err;
 }
 
-int doFatServerClosedown(SERVER_BLOCK* server_block, DATA_BLOCK* data_block, ACTIONS* actions_desc, ACTIONS* actions_sig,
-                         SERVER_BLOCK* server_block0, DATA_BLOCK* data_block0)
+int doFatServerClosedown(SERVER_BLOCK* server_block, DATA_BLOCK* data_block, ACTIONS* actions_desc,
+                         ACTIONS* actions_sig, DATA_BLOCK* data_block0)
 {
     //----------------------------------------------------------------------------
     // Free Plugin List and Close all open library entries
@@ -438,10 +427,9 @@ int doFatServerClosedown(SERVER_BLOCK* server_block, DATA_BLOCK* data_block, ACT
 
     //----------------------------------------------------------------------------
 
-    concatIdamError(idamerrorstack, &server_block->idamerrorstack); // Update Server State with Global Error Stack
-    closeIdamError(&idamerrorstack);
+    concatIdamError(&server_block->idamerrorstack); // Update Server State with Global Error Stack
+    closeIdamError();
 
-    *server_block0 = *server_block;
     *data_block0 = *data_block;
 
     printDataBlock(*data_block0);
@@ -472,7 +460,7 @@ int startupFatServer(SERVER_BLOCK* server_block)
     if (!fileParsed) {
         fileParsed = 1;
         initUserDefinedTypeList(&parseduserdefinedtypelist);
-        userdefinedtypelist = &parseduserdefinedtypelist;           // Switch before Parsing input file
+        userdefinedtypelist = &parseduserdefinedtypelist; // Switch before Parsing input file
 
         char* token = NULL;
         if ((token = getenv("UDA_SARRAY_CONFIG")) == NULL) {
@@ -484,8 +472,6 @@ int startupFatServer(SERVER_BLOCK* server_block)
         parseduserdefinedtypelist = *userdefinedtypelist; // Switch back
         printUserDefinedTypeList(parseduserdefinedtypelist);
     }
-
-    //userdefinedtypelist = NULL;                                     // Startup State
 
     //----------------------------------------------------------------------
     // Initialise the Data Reader Plugin list

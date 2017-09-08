@@ -8,6 +8,7 @@
 #include <string>
 #include <vector>
 #include <exception>
+
 #include "UDA.hpp"
 
 namespace uda {
@@ -15,15 +16,37 @@ namespace uda {
 class UDAException : public std::exception
 {
 public:
-    explicit UDAException(std::string what) throw() : what_(std::move(what)) {}
+    explicit UDAException(std::string what, std::vector<std::string> backtrace)
+            : what_(std::move(what))
+            , backtrace_(std::move(backtrace))
+    {};
+
+    explicit UDAException(std::string what) throw()
+            : what_(std::move(what))
+    {}
+
     UDAException(const UDAException& ex) noexcept : what_(ex.what_) {}
     UDAException(UDAException&& ex) noexcept : what_(std::move(ex.what_)) {}
     UDAException& operator=(const UDAException& ex) noexcept { what_ = ex.what_; return *this; }
     UDAException& operator=(UDAException&& ex) noexcept { what_ = ex.what_; ex.what_.clear(); return *this; }
     ~UDAException() noexcept override = default;
-    const char* what() const noexcept override { return what_.c_str(); }
+
+    const char* what() const noexcept override
+    {
+        return what_.c_str();
+    }
+
+    std::string backtrace() const
+    {
+        std::string result;
+        for (const auto& str : backtrace_) {
+            result += str + "\n";
+        }
+        return result;
+    }
 private:
     std::string what_;
+    std::vector<std::string> backtrace_;
 };
 
 enum Property

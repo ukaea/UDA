@@ -105,12 +105,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     PGresult* DBQuery = NULL;
 
     if (idam_plugin_interface->interfaceVersion > THISPLUGIN_MAX_INTERFACE_VERSION) {
-        err = 999;
-        IDAM_LOG(UDA_LOG_ERROR,
-                 "ERROR Meta: Plugin Interface Version Unknown to this plugin: Unable to execute the request!\n");
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "Meta", err,
-                     "Plugin Interface Version Unknown to this plugin: Unable to execute the request!");
-        return err;
+        RAISE_PLUGIN_ERROR("Plugin Interface Version Unknown to this plugin: Unable to execute the request!");
     }
 
     idam_plugin_interface->pluginVersion = 1;
@@ -239,10 +234,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             putIdamServerEnvironment(&oldenviron);    // Return the original
         }
         if (DBConnect == NULL) {        // No connection!
-            IDAM_LOG(UDA_LOG_ERROR, "ERROR Meta: SQL Database Server Connect Error\n");
-            err = 777;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readMeta", err, "SQL Database Server Connect Error");
-            return err;
+            RAISE_PLUGIN_ERROR("SQL Database Server Connect Error");
         }
 
         init = 1;
@@ -461,9 +453,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     // Test Result for malicious SQL Injection
 
     if (err == 888) {
-        IDAM_LOG(UDA_LOG_ERROR, "ERROR Meta: Invalid Keyword Content!\n");
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "readMeta", err, "Invalid Keyword Content!");
-        return err;
+        RAISE_PLUGIN_ERROR("Invalid Keyword Content!");
     }
 
     //----------------------------------------------------------------------------------------
@@ -634,14 +624,14 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             if ((DBQuery = PQexec(DBConnect, sql)) == NULL) {
                 err = 999;
                 IDAM_LOG(UDA_LOG_ERROR, "ERROR Meta listDevices: Database Query Failed!\n");
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readMeta listDevices", err, "Database Query Failed!");
+                addIdamError(CODEERRORTYPE, "readMeta listDevices", err, "Database Query Failed!");
                 break;
             }
 
             if (PQresultStatus(DBQuery) != PGRES_TUPLES_OK && PQresultStatus(DBQuery) != PGRES_COMMAND_OK) {
                 IDAM_LOGF(UDA_LOG_ERROR, "ERROR Meta listDevices: %s\n", PQresultErrorMessage(DBQuery));
                 err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readMeta listDevices", err,
+                addIdamError(CODEERRORTYPE, "readMeta listDevices", err,
                              PQresultErrorMessage(DBQuery));
                 break;
             }
@@ -651,7 +641,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             if (nrows == 0) {
                 IDAM_LOG(UDA_LOG_ERROR, "ERROR Meta listDevices: No Meta Data available!\n");
                 err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readMeta listDevices", err, "No Meta Data available!");
+                addIdamError(CODEERRORTYPE, "readMeta listDevices", err, "No Meta Data available!");
                 break;
             }
 
@@ -779,7 +769,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             if ((DBQuery = PQexec(DBConnect, sql)) == NULL) {
                 err = 999;
                 IDAM_LOG(UDA_LOG_ERROR, "ERROR Meta listClasses: Database Query Failed!\n");
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readMeta list/listClasses", err,
+                addIdamError(CODEERRORTYPE, "readMeta list/listClasses", err,
                              "Database Query Failed!");
                 break;
             }
@@ -787,7 +777,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             if (PQresultStatus(DBQuery) != PGRES_TUPLES_OK && PQresultStatus(DBQuery) != PGRES_COMMAND_OK) {
                 IDAM_LOGF(UDA_LOG_ERROR, "ERROR Meta listClasses: %s\n", PQresultErrorMessage(DBQuery));
                 err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readMeta list/listClasses", err,
+                addIdamError(CODEERRORTYPE, "readMeta list/listClasses", err,
                              PQresultErrorMessage(DBQuery));
                 break;
             }
@@ -797,7 +787,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             if (nrows == 0) {
                 IDAM_LOG(UDA_LOG_ERROR, "ERROR Meta listClasses: No Meta Data available!\n");
                 err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readMeta list/listClasses", err,
+                addIdamError(CODEERRORTYPE, "readMeta list/listClasses", err,
                              "No Meta Data available!");
                 break;
             }
@@ -827,8 +817,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 addCompoundField(&usertype, field);
             }
 
-            defineField(&field, "class", "metadata class", &offset,
-                        stringTypeId);    // Array or Single string, arbitrary length
+            defineField(&field, "class", "metadata class", &offset, stringTypeId);
             addCompoundField(&usertype, field);
             defineField(&field, "system", "system component", &offset, stringTypeId);
             addCompoundField(&usertype, field);
@@ -841,7 +830,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             addUserDefinedType(userdefinedtypelist, usertype);
 
-// Create Data
+            // Create Data
 
             if (castTypeId == CASTROW) {                // Row oriented
 
@@ -1073,14 +1062,14 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             if ((DBQuery = PQexec(DBConnect, sql)) == NULL) {
                 IDAM_LOG(UDA_LOG_ERROR, "ERROR Meta: Database Query Failed!\n");
                 err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readMeta", err, "Database Query Failed!");
+                addIdamError(CODEERRORTYPE, "readMeta", err, "Database Query Failed!");
                 break;
             }
 
             if (PQresultStatus(DBQuery) != PGRES_TUPLES_OK && PQresultStatus(DBQuery) != PGRES_COMMAND_OK) {
                 IDAM_LOGF(UDA_LOG_ERROR, "ERROR Meta: %s\n", PQresultErrorMessage(DBQuery));
                 err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readMeta", err, PQresultErrorMessage(DBQuery));
+                addIdamError(CODEERRORTYPE, "readMeta", err, PQresultErrorMessage(DBQuery));
                 break;
             }
 
@@ -1089,7 +1078,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             if (nrows == 0) {
                 IDAM_LOG(UDA_LOG_ERROR, "ERROR Meta: No Meta Data available!\n");
                 err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readMeta", err, "No Meta Data available!");
+                addIdamError(CODEERRORTYPE, "readMeta", err, "No Meta Data available!");
                 break;
             }
 
@@ -1128,8 +1117,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 addCompoundField(&usertype, field);
             }
 
-            defineField(&field, "class", "metadata class", &offset,
-                        stringTypeId);    // Array or Single string, arbitrary length
+            defineField(&field, "class", "metadata class", &offset, stringTypeId);
             addCompoundField(&usertype, field);
             defineField(&field, "system", "system component", &offset, stringTypeId);
             addCompoundField(&usertype, field);
@@ -1692,14 +1680,14 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             if ((DBQuery = PQexec(DBConnect, sql)) == NULL) {
                 IDAM_LOG(UDA_LOG_ERROR, "ERROR Meta: Database Query Failed!\n");
                 err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readMeta", err, "Database Query Failed!");
+                addIdamError(CODEERRORTYPE, "readMeta", err, "Database Query Failed!");
                 break;
             }
 
             if (PQresultStatus(DBQuery) != PGRES_TUPLES_OK && PQresultStatus(DBQuery) != PGRES_COMMAND_OK) {
                 IDAM_LOGF(UDA_LOG_ERROR, "ERROR Meta: %s\n", PQresultErrorMessage(DBQuery));
                 err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readMeta", err, PQresultErrorMessage(DBQuery));
+                addIdamError(CODEERRORTYPE, "readMeta", err, PQresultErrorMessage(DBQuery));
                 break;
             }
 
@@ -1708,14 +1696,14 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             if (nrows == 0) {
                 IDAM_LOG(UDA_LOG_ERROR, "ERROR Meta: No Meta Data available!\n");
                 err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readMeta", err, "No Meta Data available!");
+                addIdamError(CODEERRORTYPE, "readMeta", err, "No Meta Data available!");
                 break;
             }
 
             if (nrows > 1) {
                 IDAM_LOG(UDA_LOG_ERROR, "ERROR Meta: Too many Meta Data files identified.!\n");
                 err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readMeta", err, "Too many Meta Data files identified. "
+                addIdamError(CODEERRORTYPE, "readMeta", err, "Too many Meta Data files identified. "
                         "Please refine your selection");
                 break;
             }
@@ -1760,14 +1748,14 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             if ((DBQuery = PQexec(DBConnect, sql)) == NULL) {
                 err = 999;
                 IDAM_LOG(UDA_LOG_ERROR, "ERROR Meta: Database Query Failed!\n");
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readMeta", err, "Database Query Failed!");
+                addIdamError(CODEERRORTYPE, "readMeta", err, "Database Query Failed!");
                 break;
             }
 
             if (PQresultStatus(DBQuery) != PGRES_TUPLES_OK && PQresultStatus(DBQuery) != PGRES_COMMAND_OK) {
                 IDAM_LOGF(UDA_LOG_ERROR, "ERROR Meta: %s\n", PQresultErrorMessage(DBQuery));
                 err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readMeta", err, PQresultErrorMessage(DBQuery));
+                addIdamError(CODEERRORTYPE, "readMeta", err, PQresultErrorMessage(DBQuery));
                 break;
             }
 
@@ -1776,7 +1764,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             if (nrows == 0) {
                 IDAM_LOG(UDA_LOG_ERROR, "ERROR Meta: No Meta Data available!\n");
                 err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readMeta", err, "No Meta Data available!");
+                addIdamError(CODEERRORTYPE, "readMeta", err, "No Meta Data available!");
                 break;
             }
 
@@ -1841,14 +1829,14 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             if ((DBQuery = PQexec(DBConnect, sql)) == NULL) {
                 err = 999;
                 IDAM_LOG(UDA_LOG_ERROR, "ERROR Meta: Database Query Failed!\n");
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readMeta", err, "Database Query Failed!");
+                addIdamError(CODEERRORTYPE, "readMeta", err, "Database Query Failed!");
                 break;
             }
 
             if (PQresultStatus(DBQuery) != PGRES_TUPLES_OK && PQresultStatus(DBQuery) != PGRES_COMMAND_OK) {
                 IDAM_LOGF(UDA_LOG_ERROR, "ERROR Meta: %s\n", PQresultErrorMessage(DBQuery));
                 err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readMeta", err, PQresultErrorMessage(DBQuery));
+                addIdamError(CODEERRORTYPE, "readMeta", err, PQresultErrorMessage(DBQuery));
                 break;
             }
 
@@ -1857,19 +1845,18 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             if (nrows == 0) {
                 IDAM_LOG(UDA_LOG_ERROR, "ERROR Meta: No Meta Data available!\n");
                 err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readMeta", err, "No Meta Data available!");
+                addIdamError(CODEERRORTYPE, "readMeta", err, "No Meta Data available!");
                 break;
             }
 
             if (nrows > 1) {
                 IDAM_LOG(UDA_LOG_ERROR, "ERROR Meta: Too many Meta Data records returned!\n");
                 err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readMeta", err, "Too many Meta Data records returned!");
+                addIdamError(CODEERRORTYPE, "readMeta", err, "Too many Meta Data records returned!");
                 break;
             }
 
-
-// Create the Returned Structure Definition
+            // Create the Returned Structure Definition
 
             initUserDefinedType(&usertype);            // New structure definition
 
@@ -1886,7 +1873,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             addCompoundField(&usertype, field);        // Single Structure element
             addUserDefinedType(userdefinedtypelist, usertype);
 
-// Create Data
+            // Create Data
 
             DATALASTPASS* data;
             data = (DATALASTPASS*)malloc(sizeof(DATALASTPASS));    // Structured Data Must be a heap variable
@@ -1896,7 +1883,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             PQclear(DBQuery);
 
-// Pass Data
+            // Pass Data
 
             data_block->data_type = TYPE_COMPOUND;
             data_block->rank = 0;
@@ -1915,10 +1902,9 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
         } else
 
-
-//--------------------------------------------------------------------------------------------------------------------------
-// Shot Date and Time (shot=shot)
-// e.g. meta::getData(context=data, shot=shot, /shotdatetime)
+        //--------------------------------------------------------------------------------------------------------------------------
+        // Shot Date and Time (shot=shot)
+        // e.g. meta::getData(context=data, shot=shot, /shotdatetime)
 
         if (context == CONTEXT_DATA && isShotDateTime &&
             (STR_IEQUALS(request_block->function, "getdata") || STR_IEQUALS(request_block->function, "get"))) {
@@ -1928,23 +1914,23 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             } else {
                 err = 999;
                 IDAM_LOG(UDA_LOG_ERROR, "ERROR Meta: No Shot Number passed!\n");
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readMeta", err, "No Shot Number passed!");
+                addIdamError(CODEERRORTYPE, "readMeta", err, "No Shot Number passed!");
                 break;
             }
 
-// Execute the SQL
+            // Execute the SQL
 
             if ((DBQuery = PQexec(DBConnect, sql)) == NULL) {
                 err = 999;
                 IDAM_LOG(UDA_LOG_ERROR, "ERROR Meta: Database Query Failed!\n");
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readMeta", err, "Database Query Failed!");
+                addIdamError(CODEERRORTYPE, "readMeta", err, "Database Query Failed!");
                 break;
             }
 
             if (PQresultStatus(DBQuery) != PGRES_TUPLES_OK && PQresultStatus(DBQuery) != PGRES_COMMAND_OK) {
                 IDAM_LOGF(UDA_LOG_ERROR, "ERROR Meta: %s\n", PQresultErrorMessage(DBQuery));
                 err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readMeta", err, PQresultErrorMessage(DBQuery));
+                addIdamError(CODEERRORTYPE, "readMeta", err, PQresultErrorMessage(DBQuery));
                 break;
             }
 
@@ -1953,18 +1939,18 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             if (nrows == 0) {
                 IDAM_LOG(UDA_LOG_ERROR, "ERROR Meta: No Meta Data available!\n");
                 err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readMeta", err, "No Meta Data available!");
+                addIdamError(CODEERRORTYPE, "readMeta", err, "No Meta Data available!");
                 break;
             }
 
             if (nrows > 1) {
                 IDAM_LOG(UDA_LOG_ERROR, "ERROR Meta: Too many Meta Data records returned!\n");
                 err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readMeta", err, "Too many Meta Data records returned!");
+                addIdamError(CODEERRORTYPE, "readMeta", err, "Too many Meta Data records returned!");
                 break;
             }
 
-// Create the Returned Structure Definition
+            // Create the Returned Structure Definition
 
             initUserDefinedType(&usertype);            // New structure definition
 
@@ -1987,7 +1973,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             addUserDefinedType(userdefinedtypelist, usertype);
 
-// Create Data
+            // Create Data
 
             DATASHOTDATETIME* data;
             data = (DATASHOTDATETIME*)malloc(sizeof(DATASHOTDATETIME));    // Structured Data Must be a heap variable
@@ -2033,19 +2019,19 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
         } else
 
-//--------------------------------------------------------------------------------------------------------------------------
-// List Data Signals (or dump if a private file has been specified)
-// e.g. meta::listData(context=data [,cast={row|column}][,source_alias=source_alias][,type={A|R|M|I}]
-//                     [,shot=shot][,pass=pass][file=file])
+        //--------------------------------------------------------------------------------------------------------------------------
+        // List Data Signals (or dump if a private file has been specified)
+        // e.g. meta::listData(context=data [,cast={row|column}][,source_alias=source_alias][,type={A|R|M|I}]
+        //                     [,shot=shot][,pass=pass][file=file])
 
-// Increase Rank of string arrays and reduce rank of passed structure for improved performance
+        // Increase Rank of string arrays and reduce rank of passed structure for improved performance
 
         if (context == CONTEXT_DATA && !isListClasses && !isListSources &&
             (STR_IEQUALS(request_block->function, "listdata") || STR_IEQUALS(request_block->function, "list"))) {
 
             if (0 && fileDependent >= 0) {        // difficult as need a new request_block
 
-// DUMP the contents of a private file
+                // DUMP the contents of a private file
 
                 strcpy(request_block->archive, "DUMP");
                 strcpy(request_block->path, request_block->nameValueList.nameValue[fileDependent].value);
@@ -2058,7 +2044,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 IDAM_LOGF(UDA_LOG_DEBUG, "path       : %s\n", data_source->path);
                 IDAM_LOGF(UDA_LOG_DEBUG, "file       : %s\n", data_source->filename);
 
-// Flag access is via a different server plugin
+                // Flag access is via a different server plugin
 
                 idam_plugin_interface->changePlugin = 1;
                 return 0;
@@ -2079,7 +2065,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             }
             strcpy(work, sql);
 
-// *** status ***
+            // *** status ***
 
             if (exp_number > 0) {
                 if (pass > -1) {
@@ -2112,14 +2098,14 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             if ((DBQuery = PQexec(DBConnect, sql)) == NULL) {
                 err = 999;
                 IDAM_LOG(UDA_LOG_ERROR, "ERROR DATA::listData: Database Query Failed!\n");
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readMeta", err, "Database Query Failed!");
+                addIdamError(CODEERRORTYPE, "readMeta", err, "Database Query Failed!");
                 break;
             }
 
             if (PQresultStatus(DBQuery) != PGRES_TUPLES_OK && PQresultStatus(DBQuery) != PGRES_COMMAND_OK) {
                 IDAM_LOGF(UDA_LOG_ERROR, "ERROR DATA::listData: %s\n", PQresultErrorMessage(DBQuery));
                 err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readMeta", err, PQresultErrorMessage(DBQuery));
+                addIdamError(CODEERRORTYPE, "readMeta", err, PQresultErrorMessage(DBQuery));
                 break;
             }
 
@@ -2128,7 +2114,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             if (nrows == 0) {
                 IDAM_LOG(UDA_LOG_ERROR, "ERROR META::listData: No Meta Data available!\n");
                 err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readMeta", err, "No Meta Data available!");
+                addIdamError(CODEERRORTYPE, "readMeta", err, "No Meta Data available!");
                 break;
             }
 
@@ -2397,9 +2383,9 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
         } else
 
-//--------------------------------------------------------------------------------------------------------------------------
-// Experimental and Modelled Data Signals and Sources
-// e.g. meta::listData(context=data, shot=shot, /listsources [,cast={row|column}][,source_alias=source_alias][,type=type][,pass=pass])
+        //--------------------------------------------------------------------------------------------------------------------------
+        // Experimental and Modelled Data Signals and Sources
+        // e.g. meta::listData(context=data, shot=shot, /listsources [,cast={row|column}][,source_alias=source_alias][,type=type][,pass=pass])
 
         if (context == CONTEXT_DATA && !isListClasses && isListSources &&
             (STR_IEQUALS(request_block->function, "listdata") || STR_IEQUALS(request_block->function, "list"))) {
@@ -2433,23 +2419,23 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             } else {
                 err = 999;
                 IDAM_LOG(UDA_LOG_ERROR, "ERROR Meta: No pulse number specified!\n");
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readMeta", err, "No pulse number specified!");
+                addIdamError(CODEERRORTYPE, "readMeta", err, "No pulse number specified!");
                 break;
             }
 
-// Execute the SQL
+            // Execute the SQL
 
             if ((DBQuery = PQexec(DBConnect, sql)) == NULL) {
                 err = 999;
                 IDAM_LOG(UDA_LOG_ERROR, "ERROR Meta: Database Query Failed!\n");
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readMeta", err, "Database Query Failed!");
+                addIdamError(CODEERRORTYPE, "readMeta", err, "Database Query Failed!");
                 break;
             }
 
             if (PQresultStatus(DBQuery) != PGRES_TUPLES_OK && PQresultStatus(DBQuery) != PGRES_COMMAND_OK) {
                 IDAM_LOGF(UDA_LOG_ERROR, "ERROR Meta: %s\n", PQresultErrorMessage(DBQuery));
                 err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readMeta", err, PQresultErrorMessage(DBQuery));
+                addIdamError(CODEERRORTYPE, "readMeta", err, PQresultErrorMessage(DBQuery));
                 break;
             }
 
@@ -2458,11 +2444,11 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             if (nrows == 0) {
                 IDAM_LOG(UDA_LOG_ERROR, "ERROR Meta: No Meta Data available!\n");
                 err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readMeta", err, "No Meta Data available!");
+                addIdamError(CODEERRORTYPE, "readMeta", err, "No Meta Data available!");
                 break;
             }
 
-// Create the Returned Structure Definition
+            // Create the Returned Structure Definition
 
             initUserDefinedType(&usertype);            // New structure definition
 
@@ -2545,7 +2531,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             IDAM_LOGF(UDA_LOG_DEBUG, "sizeof(DATALISTSOURCES_R) = %zu [%d]\n", sizeof(DATALISTSOURCES_R), size);
             printUserDefinedTypeListTable(*userdefinedtypelist);
 
-// Create Data
+            // Create Data
 
             IDAM_LOG(UDA_LOG_DEBUG, "listSources:\n");
             IDAM_LOGF(UDA_LOG_DEBUG, "Shot: %d\n", exp_number);
@@ -2698,13 +2684,12 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             break;
 
         } else
-
-
-//--------------------------------------------------------------------------------------------------------------------------
-// CPF Context
-//----------------------------------------------------------------------------------------
-// List all Classes of CPF Data
-// e.g. meta::listData(context=cpf, /listclasses [,cast={row|column}])
+            
+        //--------------------------------------------------------------------------------------------------------------------------
+        // CPF Context
+        //----------------------------------------------------------------------------------------
+        // List all Classes of CPF Data
+        // e.g. meta::listData(context=cpf, /listclasses [,cast={row|column}])
 
         if (context == CONTEXT_CPF && isListClasses &&
             (STR_IEQUALS(request_block->function, "listdata") || STR_IEQUALS(request_block->function, "list"))) {
@@ -2719,14 +2704,14 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             if ((DBQuery = PQexec(DBConnect, sql)) == NULL) {
                 err = 999;
                 IDAM_LOG(UDA_LOG_ERROR, "ERROR Meta listClasses: Database Query Failed!\n");
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readMeta", err, "Database Query Failed!");
+                addIdamError(CODEERRORTYPE, "readMeta", err, "Database Query Failed!");
                 break;
             }
 
             if (PQresultStatus(DBQuery) != PGRES_TUPLES_OK && PQresultStatus(DBQuery) != PGRES_COMMAND_OK) {
                 IDAM_LOGF(UDA_LOG_ERROR, "ERROR Meta listClasses: %s\n", PQresultErrorMessage(DBQuery));
                 err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readMeta", err, PQresultErrorMessage(DBQuery));
+                addIdamError(CODEERRORTYPE, "readMeta", err, PQresultErrorMessage(DBQuery));
                 break;
             }
 
@@ -2735,7 +2720,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             if (nrows == 0) {
                 IDAM_LOG(UDA_LOG_ERROR, "ERROR Meta listClasses: No Meta Data available!\n");
                 err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readMeta", err, "No Meta Data available!");
+                addIdamError(CODEERRORTYPE, "readMeta", err, "No Meta Data available!");
                 break;
             }
 
@@ -2940,7 +2925,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 err = 999;
                 IDAM_LOG(UDA_LOG_ERROR, "ERROR Meta:: Database Query Failed!\n");
                 IDAM_LOG(UDA_LOG_DEBUG, "ERROR Meta:: Database Query Failed!\n");
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readMeta", err, "Database Query Failed!");
+                addIdamError(CODEERRORTYPE, "readMeta", err, "Database Query Failed!");
                 break;
             }
 
@@ -2948,7 +2933,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 IDAM_LOGF(UDA_LOG_ERROR, "ERROR Meta: %s\n", PQresultErrorMessage(DBQuery));
                 IDAM_LOGF(UDA_LOG_DEBUG, "ERROR Meta: %s\n", PQresultErrorMessage(DBQuery));
                 err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readMeta", err, PQresultErrorMessage(DBQuery));
+                addIdamError(CODEERRORTYPE, "readMeta", err, PQresultErrorMessage(DBQuery));
                 break;
             }
 
@@ -2960,7 +2945,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 IDAM_LOG(UDA_LOG_ERROR, "ERROR Meta: No Meta Data available!\n");
                 IDAM_LOG(UDA_LOG_DEBUG, "ERROR Meta: No Meta Data available!\n");
                 err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readMeta", err, "No Meta Data available!");
+                addIdamError(CODEERRORTYPE, "readMeta", err, "No Meta Data available!");
                 break;
             }
 
@@ -3211,14 +3196,14 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             if (nameDependent < 0) {
                 err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readMeta", err,
+                addIdamError(CODEERRORTYPE, "readMeta", err,
                              "No CPF data item names have been specified!");
                 break;
             }
 
             if (tableDependent < 0) {
                 err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readMeta", err, "No CPF data table has been specified!");
+                addIdamError(CODEERRORTYPE, "readMeta", err, "No CPF data table has been specified!");
                 break;
             }
 
@@ -3236,7 +3221,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 break;
             }
             if (err != 0) {
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readMeta", err, "Syntax error in CPF Names list!");
+                addIdamError(CODEERRORTYPE, "readMeta", err, "Syntax error in CPF Names list!");
                 break;
             }
 
@@ -3254,7 +3239,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 break;
             }
             if (err != 0) {
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readMeta", err, "Syntax error in CPF table name!");
+                addIdamError(CODEERRORTYPE, "readMeta", err, "Syntax error in CPF table name!");
                 break;
             }
 
@@ -3278,7 +3263,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 err = 999;
                 IDAM_LOG(UDA_LOG_ERROR, "ERROR Meta:: Database Query Failed!\n");
                 IDAM_LOG(UDA_LOG_DEBUG, "ERROR Meta:: Database Query Failed!\n");
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readMeta", err, "Database Query Failed!");
+                addIdamError(CODEERRORTYPE, "readMeta", err, "Database Query Failed!");
                 break;
             }
 
@@ -3286,7 +3271,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 IDAM_LOGF(UDA_LOG_ERROR, "ERROR Meta: %s\n", PQresultErrorMessage(DBQuery));
                 IDAM_LOGF(UDA_LOG_DEBUG, "ERROR Meta: %s\n", PQresultErrorMessage(DBQuery));
                 err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readMeta", err, PQresultErrorMessage(DBQuery));
+                addIdamError(CODEERRORTYPE, "readMeta", err, PQresultErrorMessage(DBQuery));
                 break;
             }
 
@@ -3299,7 +3284,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 IDAM_LOG(UDA_LOG_ERROR, "ERROR Meta: No Meta Data available!\n");
                 IDAM_LOG(UDA_LOG_DEBUG, "ERROR Meta: No Meta Data available!\n");
                 err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readMeta", err, "No Meta Data available!");
+                addIdamError(CODEERRORTYPE, "readMeta", err, "No Meta Data available!");
                 break;
             }
 
@@ -3465,8 +3450,8 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             IDAM_LOGF(UDA_LOG_ERROR, "ERROR Meta: Function %s Not Known.!\n", request_block->function);
             err = 999;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readMeta", err, "Unknown Function requested");
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readMeta", err, request_block->function);
+            addIdamError(CODEERRORTYPE, "readMeta", err, "Unknown Function requested");
+            addIdamError(CODEERRORTYPE, "readMeta", err, request_block->function);
             break;
         }
 

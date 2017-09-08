@@ -67,7 +67,7 @@ int whichIndex(char* name)
 int selectTimes(EQUIMAPDATA* equimapdata)
 {        // *** check EFM_STATUS !!!
 
-    int err, i, handle, rank;
+    int i, handle, rank;
 
 // Pass 1: Equilibrium Data Rmag - Times have already been selected with non converging solutions discarded.
 
@@ -78,9 +78,7 @@ int selectTimes(EQUIMAPDATA* equimapdata)
     //if((handle = whichHandle("EFM_MAGNETIC_AXIS_R")) < 0) // complications when extracted from a data structure!
 
     if ((handle = whichHandle("EFM_R(PSI100)_IN")) < 0) {
-        err = 999;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "equimap", err, "No Equilibrium data times found when expected!");
-        return err;
+        RAISE_PLUGIN_ERROR("No Equilibrium data times found when expected!");
     }
 
     rank = getIdamRank(handle);
@@ -99,9 +97,7 @@ int selectTimes(EQUIMAPDATA* equimapdata)
 // Pass 2: YAG Data
 
     if ((handle = whichHandle("ayc_ne")) < 0) {
-        err = 999;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "equimap", err, "No YAG data times found when expected!");
-        return err;
+        RAISE_PLUGIN_ERROR("No YAG data times found when expected!");
     }
 
     int timeCount = 0;
@@ -159,15 +155,13 @@ int imputeData(char* signal)
 
 // Remove NaNs by imputing from good neighbouring points
 
-    int err, i, j, k, handle, dataCount, timeCount, rCount, order, offset, start, last, end;
+    int i, j, k, handle, dataCount, timeCount, rCount, order, offset, start, last, end;
     float* dataR, * dataT, * work, * smooth, * radii, * times;
     int* good;
     float gradient;
 
     if ((handle = whichHandle(signal)) < 0) {
-        err = 999;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "equimap imputeData", err, "No YAG data found when expected!");
-        return err;
+        RAISE_PLUGIN_ERROR("No YAG data found when expected!");
     }
 
     order = getIdamOrder(handle);
@@ -588,17 +582,11 @@ int importData(REQUEST_BLOCK* request_block, EQUIMAPDATA* equimapdata)
     if (isAltData) {
         int handle;
         if ((handle = whichHandle("EFM_R(PSI100)_IN")) < 0) {
-            err = 999;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "equimap", err,
-                         "No Equilibrium data times found when expected!");
-            return err;
+            RAISE_PLUGIN_ERROR("No Equilibrium data times found when expected!");
         }
         int timeCount = getIdamDimNum(handle, getIdamOrder(handle));
         if (timeCount < 1) {
-            err = 999;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "equimap", err,
-                         "No Equilibrium data times found when expected!");
-            return err;
+            RAISE_PLUGIN_ERROR("No Equilibrium data times found when expected!");
         }
 
         float* times = (float*)malloc(timeCount * sizeof(float));
@@ -655,10 +643,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
 // Read Inner Major Radius of LCFS Data
 
             if ((handle = whichHandle("EFM_R(PSI100)_IN")) < 0) {
-                err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "equimap extractData", err,
-                             "IDAM data handle not found when expected!");
-                return err;
+                RAISE_PLUGIN_ERROR("UDA data handle not found when expected!");
             }
 
             if ((err = xdatand("EFM_R(PSI100)_IN", shot_str, &handle, &rank, &order, &ndata, &shape, &data, &dim)) !=
@@ -687,10 +672,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
 // Read Outer Major Radius of LCFS Data
 
             if ((handle = whichHandle("EFM_R(PSI100)_OUT")) < 0) {
-                err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "equimap extractData", err,
-                             "IDAM data handle not found when expected!");
-                return err;
+                RAISE_PLUGIN_ERROR("UDA data handle not found when expected!");
             }
 
             if ((err = xdatand("EFM_R(PSI100)_OUT", shot_str, &handle, &rank, &order, &ndata, &shape, &data, &dim)) !=
@@ -719,10 +701,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
 // Magnetic Axis Position - 1D time dependent array
 
             if ((handle = whichHandle("EFM_MAGNETIC_AXIS_R")) < 0) {
-                err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "equimap extractData", err,
-                             "IDAM data handle not found when expected!");
-                return err;
+                RAISE_PLUGIN_ERROR("UDA data handle not found when expected!");
             }
 
             if ((err = xdatand("EFM_MAGNETIC_AXIS_R", shot_str, &handle, &rank, &order, &ndata, &shape, &data, &dim)) !=
@@ -751,10 +730,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
 // Magnetic Axis Height - 1D time dependent array
 
             if ((handle = whichHandle("EFM_MAGNETIC_AXIS_Z")) < 0) {
-                err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "equimap extractData", err,
-                             "IDAM data handle not found when expected!");
-                return err;
+                RAISE_PLUGIN_ERROR("UDA data handle not found when expected!");
             }
 
             if ((err = xdatand("EFM_MAGNETIC_AXIS_Z", shot_str, &handle, &rank, &order, &ndata, &shape, &data, &dim)) !=
@@ -783,10 +759,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
 // Toroidal Magnetic Field
 
             if ((handle = whichHandle("EFM_BPHI_RMAG")) < 0) {
-                err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "equimap extractData", err,
-                             "IDAM data handle not found when expected!");
-                return err;
+                RAISE_PLUGIN_ERROR("UDA data handle not found when expected!");
             }
 
             if ((err = xdatand("EFM_BPHI_RMAG", shot_str, &handle, &rank, &order, &ndata, &shape, &data, &dim)) !=
@@ -815,10 +788,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
 // Plasma Current
 
             if ((handle = whichHandle("EFM_PLASMA_CURR(C)")) < 0) {
-                err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "equimap extractData", err,
-                             "IDAM data handle not found when expected!");
-                return err;
+                RAISE_PLUGIN_ERROR("UDA data handle not found when expected!");
             }
 
             if ((err = xdatand("EFM_PLASMA_CURR(C)", shot_str, &handle, &rank, &order, &ndata, &shape, &data, &dim)) !=
@@ -847,10 +817,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
 // PSI at the Boundary - 1D time dependent array
 
             if ((handle = whichHandle("efm_psi_boundary")) < 0) {
-                err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "equimap extractData", err,
-                             "IDAM data handle not found when expected!");
-                return err;
+                RAISE_PLUGIN_ERROR("UDA data handle not found when expected!");
             }
 
             if ((err = xdatand("efm_psi_boundary", shot_str, &handle, &rank, &order, &ndata, &shape, &data, &dim)) !=
@@ -879,10 +846,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
 // PSI at the Magnetic Axis - 1D time dependent array
 
             if ((handle = whichHandle("efm_psi_axis")) < 0) {
-                err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "equimap extractData", err,
-                             "IDAM data handle not found when expected!");
-                return err;
+                RAISE_PLUGIN_ERROR("UDA data handle not found when expected!");
             }
 
             if ((err = xdatand("efm_psi_axis", shot_str, &handle, &rank, &order, &ndata, &shape, &data, &dim)) !=
@@ -913,10 +877,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
 // Cannot average over time so take the first value
 
             if ((handle = whichHandle("EFM_LCFS(N)_(C)")) < 0) {
-                err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "equimap extractData", err,
-                             "IDAM data handle not found when expected!");
-                return err;
+                RAISE_PLUGIN_ERROR("UDA data handle not found when expected!");
             }
 
             if ((err = xdatand("EFM_LCFS(N)_(C)", shot_str, &handle, &rank, &order, &ndata, &shape, &data, &dim)) !=
@@ -941,10 +902,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
 // Major Radii of the LCFS locus - 2D Time dependent:	Rlcfs[Nlcfs[t]][t]
 
             if ((handle = whichHandle("efm_lcfs(r)_(c)")) < 0) {
-                err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "equimap extractData", err,
-                             "IDAM data handle not found when expected!");
-                return err;
+                RAISE_PLUGIN_ERROR("UDA data handle not found when expected!");
             }
 
             if ((err = xdatand("efm_lcfs(r)_(c)", shot_str, &handle, &rank, &order, &ndata, &shape, &data, &dim)) !=
@@ -996,10 +954,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
 // Z-Coordinate of the LCFS locus - 2D Time dependent:	Zlcfs[Nlcfs[t]][t]
 
             if ((handle = whichHandle("efm_lcfs(z)_(c)")) < 0) {
-                err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "equimap extractData", err,
-                             "IDAM data handle not found when expected!");
-                return err;
+                RAISE_PLUGIN_ERROR("UDA data handle not found when expected!");
             }
 
             if ((err = xdatand("efm_lcfs(z)_(c)", shot_str, &handle, &rank, &order, &ndata, &shape, &data, &dim)) !=
@@ -1052,10 +1007,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
 // Major Radii of the Limiter - 1D Non-Time dependent:	Rlim[]
 
             if ((handle = whichHandle("efm_limiter(r)")) < 0) {
-                err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "equimap extractData", err,
-                             "IDAM data handle not found when expected!");
-                return err;
+                RAISE_PLUGIN_ERROR("UDA data handle not found when expected!");
             }
 
             if ((err = xdatand("efm_limiter(r)", shot_str, &handle, &rank, &order, &ndata, &shape, &data, &dim)) !=
@@ -1074,10 +1026,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
 // Z-Coordinate of the Limiter - 1D Non-Time dependent:	Zlim[]
 
             if ((handle = whichHandle("efm_limiter(z)")) < 0) {
-                err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "equimap extractData", err,
-                             "IDAM data handle not found when expected!");
-                return err;
+                RAISE_PLUGIN_ERROR("UDA data handle not found when expected!");
             }
 
             if ((err = xdatand("efm_limiter(z)", shot_str, &handle, &rank, &order, &ndata, &shape, &data, &dim)) !=
@@ -1096,10 +1045,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
 // Vacuum Toroidal magnetic Field at the Reference major radius
 
             if ((handle = whichHandle("EFM_BVAC_VAL")) < 0) {
-                err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "equimap extractData", err,
-                             "IDAM data handle not found when expected!");
-                return err;
+                RAISE_PLUGIN_ERROR("UDA data handle not found when expected!");
             }
 
             if ((err = xdatand("EFM_BVAC_VAL", shot_str, &handle, &rank, &order, &ndata, &shape, &data, &dim)) !=
@@ -1128,10 +1074,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
 // Vacuum Toroidal magnetic Field Reference major radius
 
             if ((handle = whichHandle("EFM_BVAC_R")) < 0) {
-                err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "equimap extractData", err,
-                             "IDAM data handle not found when expected!");
-                return err;
+                RAISE_PLUGIN_ERROR("UDA data handle not found when expected!");
             }
 
             if ((err = xdatand("EFM_BVAC_R", shot_str, &handle, &rank, &order, &ndata, &shape, &data, &dim)) != 0) {
@@ -1165,10 +1108,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
 // Geometrical Axis of boundary (R)
 
                 if ((handle = whichHandle("Rgeom")) < 0) {
-                    err = 999;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "equimap extractData", err,
-                                 "IDAM data handle not found when expected!");
-                    return err;
+                    RAISE_PLUGIN_ERROR("UDA data handle not found when expected!");
                 }
 
                 if ((err = xdatand(whichName("Rgeom"), shot_str, &handle, &rank, &order, &ndata, &shape, &data,
@@ -1195,10 +1135,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
 // Geometrical Axis of boundary (Z)
 
                 if ((handle = whichHandle("Zgeom")) < 0) {
-                    err = 999;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "equimap extractData", err,
-                                 "IDAM data handle not found when expected!");
-                    return err;
+                    RAISE_PLUGIN_ERROR("UDA data handle not found when expected!");
                 }
                 if ((err = xdatand(whichName("Zgeom"), shot_str, &handle, &rank, &order, &ndata, &shape, &data,
                                    &dim)) != 0) {
@@ -1214,10 +1151,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
 // Minor radius
 
                 if ((handle = whichHandle("Aminor")) < 0) {
-                    err = 999;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "equimap extractData", err,
-                                 "IDAM data handle not found when expected!");
-                    return err;
+                    RAISE_PLUGIN_ERROR("UDA data handle not found when expected!");
                 }
                 if ((err = xdatand(whichName("Aminor"), shot_str, &handle, &rank, &order, &ndata, &shape, &data,
                                    &dim)) != 0) {
@@ -1233,10 +1167,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
 // Lower Triagularity
 
                 if ((handle = whichHandle("TriangL")) < 0) {
-                    err = 999;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "equimap extractData", err,
-                                 "IDAM data handle not found when expected!");
-                    return err;
+                    RAISE_PLUGIN_ERROR("UDA data handle not found when expected!");
                 }
                 if ((err = xdatand(whichName("TriangL"), shot_str, &handle, &rank, &order, &ndata, &shape, &data,
                                    &dim)) != 0) {
@@ -1252,10 +1183,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
 // Upper Triagularity
 
                 if ((handle = whichHandle("TriangU")) < 0) {
-                    err = 999;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "equimap extractData", err,
-                                 "IDAM data handle not found when expected!");
-                    return err;
+                    RAISE_PLUGIN_ERROR("UDA data handle not found when expected!");
                 }
                 if ((err = xdatand(whichName("TriangU"), shot_str, &handle, &rank, &order, &ndata, &shape, &data,
                                    &dim)) != 0) {
@@ -1271,10 +1199,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
 // Elongation
 
                 if ((handle = whichHandle("Elong")) < 0) {
-                    err = 999;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "equimap extractData", err,
-                                 "IDAM data handle not found when expected!");
-                    return err;
+                    RAISE_PLUGIN_ERROR("UDA data handle not found when expected!");
                 }
                 if ((err = xdatand(whichName("Elong"), shot_str, &handle, &rank, &order, &ndata, &shape, &data,
                                    &dim)) != 0) {
@@ -1301,10 +1226,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
 // Q Profile	q[normalised poloidal flux][t]
 
             if ((handle = whichHandle("efm_q(psi)_(c)")) < 0) {
-                err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "equimap extractData", err,
-                             "IDAM data handle not found when expected!");
-                return err;
+                RAISE_PLUGIN_ERROR("UDA data handle not found when expected!");
             }
 
             if ((err = xdatand("efm_q(psi)_(c)", shot_str, &handle, &rank, &order, &ndata, &shape, &data, &dim)) !=
@@ -1357,10 +1279,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
 // P Profile	p[normalised poloidal flux][t]
 
                 if ((handle = whichHandle("P")) < 0) {
-                    err = 999;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "equimap extractData", err,
-                                 "IDAM data handle not found when expected!");
-                    return err;
+                    RAISE_PLUGIN_ERROR("UDA data handle not found when expected!");
                 }
 
                 if ((err = xdatand(whichName("P"), shot_str, &handle, &rank, &order, &ndata, &shape, &data, &dim)) !=
@@ -1406,10 +1325,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
 // F Profile	f[normalised poloidal flux][t]
 
                 if ((handle = whichHandle("F")) < 0) {
-                    err = 999;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "equimap extractData", err,
-                                 "IDAM data handle not found when expected!");
-                    return err;
+                    RAISE_PLUGIN_ERROR("UDA data handle not found when expected!");
                 }
 
                 if ((err = xdatand(whichName("F"), shot_str, &handle, &rank, &order, &ndata, &shape, &data, &dim)) !=
@@ -1450,10 +1366,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
 // P_Prime Profile	[normalised poloidal flux][t]
 
                 if ((handle = whichHandle("PPrime")) < 0) {
-                    err = 999;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "equimap extractData", err,
-                                 "IDAM data handle not found when expected!");
-                    return err;
+                    RAISE_PLUGIN_ERROR("UDA data handle not found when expected!");
                 }
 
                 if ((err = xdatand(whichName("PPrime"), shot_str, &handle, &rank, &order, &ndata, &shape, &data,
@@ -1494,10 +1407,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
 // FF_Prime		[normalised poloidal flux][t]
 
                 if ((handle = whichHandle("FFPrime")) < 0) {
-                    err = 999;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "equimap extractData", err,
-                                 "IDAM data handle not found when expected!");
-                    return err;
+                    RAISE_PLUGIN_ERROR("UDA data handle not found when expected!");
                 }
 
                 if ((err = xdatand(whichName("FFPrime"), shot_str, &handle, &rank, &order, &ndata, &shape, &data,
@@ -1538,10 +1448,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
 // Elongation		[normalised poloidal flux][t]
 
                 if ((handle = whichHandle("ElongPsi")) < 0) {
-                    err = 999;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "equimap extractData", err,
-                                 "IDAM data handle not found when expected!");
-                    return err;
+                    RAISE_PLUGIN_ERROR("UDA data handle not found when expected!");
                 }
 
                 if ((err = xdatand(whichName("ElongPsi"), shot_str, &handle, &rank, &order, &ndata, &shape, &data,
@@ -1582,10 +1489,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
 // Lower Triagularity		[normalised poloidal flux][t]
 
                 if ((handle = whichHandle("TriangLPsi")) < 0) {
-                    err = 999;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "equimap extractData", err,
-                                 "IDAM data handle not found when expected!");
-                    return err;
+                    RAISE_PLUGIN_ERROR("UDA data handle not found when expected!");
                 }
 
                 if ((err = xdatand(whichName("TriangLPsi"), shot_str, &handle, &rank, &order, &ndata, &shape, &data,
@@ -1626,10 +1530,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
 // Upper Triagularity		[normalised poloidal flux][t]
 
                 if ((handle = whichHandle("TriangUPsi")) < 0) {
-                    err = 999;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "equimap extractData", err,
-                                 "IDAM data handle not found when expected!");
-                    return err;
+                    RAISE_PLUGIN_ERROR("UDA data handle not found when expected!");
                 }
 
                 if ((err = xdatand(whichName("TriangUPsi"), shot_str, &handle, &rank, &order, &ndata, &shape, &data,
@@ -1670,10 +1571,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
 // Volume		[normalised poloidal flux][t]
 
                 if ((handle = whichHandle("VolPsi")) < 0) {
-                    err = 999;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "equimap extractData", err,
-                                 "IDAM data handle not found when expected!");
-                    return err;
+                    RAISE_PLUGIN_ERROR("UDA data handle not found when expected!");
                 }
 
                 if ((err = xdatand(whichName("VolPsi"), shot_str, &handle, &rank, &order, &ndata, &shape, &data,
@@ -1714,10 +1612,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
 // Area [normalised poloidal flux][t]
 
                 if ((handle = whichHandle("AreaPsi")) < 0) {
-                    err = 999;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "equimap extractData", err,
-                                 "IDAM data handle not found when expected!");
-                    return err;
+                    RAISE_PLUGIN_ERROR("UDA data handle not found when expected!");
                 }
 
                 if ((err = xdatand(whichName("AreaPsi"), shot_str, &handle, &rank, &order, &ndata, &shape, &data,
@@ -1760,10 +1655,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
 // Poloidal Flux Surface - 3D time dependent array 		psi[R][Z][t]
 
             if ((handle = whichHandle("efm_psi(r,z)")) < 0) {
-                err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "equimap extractData", err,
-                             "IDAM data handle not found when expected!");
-                return err;
+                RAISE_PLUGIN_ERROR("UDA data handle not found when expected!");
             }
 
             if ((err = xdatand("efm_psi(r,z)", shot_str, &handle, &rank, &order, &ndata, &shape, &data, &dim)) !=
@@ -1806,22 +1698,13 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
 
             if (isAltData) {
                 if (nt > 1) {
-                    err = 999;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "equimap extractData", err,
-                                 "Can only work with single time slices when ALT data selected! -- time dependent psi map coordinates");
-                    return err;
+                    THROW_ERROR(999, "Can only work with single time slices when ALT data selected! -- time dependent psi map coordinates");
                 }
                 if (nr != nz) {
-                    err = 999;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "equimap extractData", err,
-                                 "Not a Square profile grid!");
-                    return err;
+                    THROW_ERROR(999, "Not a Square profile grid!");
                 }
                 if ((altHandleR = whichHandle("profile-R")) < 0 || (altHandleZ = whichHandle("profile-Z")) < 0) {
-                    err = 999;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "equimap extractData", err,
-                                 "IDAM data handle not found when expected!");
-                    return err;
+                    THROW_ERROR(999, "UDA data handle not found when expected!");
                 }
                 getIdamFloatData(altHandleR, rgrid);
                 getIdamFloatData(altHandleZ, zgrid);
@@ -1992,16 +1875,14 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
 
             IDAM_LOGF(UDA_LOG_DEBUG, "[%d] Poloidal Flux Surface\n", handle);
             IDAM_LOGF(UDA_LOG_DEBUG, "Mid-Plane Poloidal Flux: Count = %d, Major Radius, Poloidal Flux\n", rz0Count);
-            for (i = 0; i < rz0Count; i++)
+            for (i = 0; i < rz0Count; i++) {
                 IDAM_LOGF(UDA_LOG_DEBUG, "[%d] %f   %f \n", i, efitdata->rz0[i], efitdata->psiz0[i]);
+            }
 
 // Toroidal current density - 3D time dependent array 		Jphi[R][Z][t]
 
             if ((handle = whichHandle("efm_plasma_curr(r,z)")) < 0) {
-                err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "equimap extractData", err,
-                             "IDAM data handle not found when expected!");
-                return err;
+                THROW_ERROR(999, "UDA data handle not found when expected!");
             }
 
             if ((err = xdatand("efm_plasma_curr(r,z)", shot_str, &handle, &rank, &order, &ndata, &shape, &data,
@@ -2086,10 +1967,11 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
             for (i = 1; i < efitdata->qCount; i++)
                 trho[i] = sqrt(phi[i] / phi[efitdata->qCount - 1]);    // TRANSP Flux Label
 
-            float rho_torb = sqrt(
-                    phi[efitdata->qCount - 1] / M_PI / fabsf(efitdata->bvac));            // ITM Flux Radius at boundary
-            for (i = 0; i < efitdata->qCount; i++)
-                rho_tor[i] = sqrt(phi[i] / M_PI / fabsf(efitdata->bvac)) / rho_torb;    // Normalised ITM Flux Label
+            float rho_torb = sqrt(phi[efitdata->qCount - 1] / M_PI / fabsf(efitdata->bvac)); // ITM Flux Radius at boundary
+            for (i = 0; i < efitdata->qCount; i++) {
+                // Normalised ITM Flux Label
+                rho_tor[i] = sqrt(phi[i] / M_PI / fabsf(efitdata->bvac)) / rho_torb;
+            }
 
             efitdata->rho = rho;
             efitdata->psi = psi;
@@ -2102,8 +1984,8 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
             for (i = 0; i < efitdata->qCount; i++)
                 IDAM_LOGF(UDA_LOG_DEBUG, "[%3d] %f   %f   %f   %f   %f\n", i, rho[i], psi[i], phi[i], trho[i], rho_tor[i]);
 
-//----------------------------------------------------------------------------------------------------------------
-// Magnetic field components: Bz = 1/R dpsi/dR, Br = -1/R dpsi/dZ, Bphi = F/R
+            //----------------------------------------------------------------------------------------------------------------
+            // Magnetic field components: Bz = 1/R dpsi/dR, Br = -1/R dpsi/dZ, Bphi = F/R
 
             if (equimapdata->readITMData) {
 
@@ -2121,7 +2003,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
                     dpsidz[i] = (float*)malloc(nr * sizeof(float));
                 }
 
-// Centred derivatives
+                // Centred derivatives
 
                 float g1, g2;
 
@@ -2143,7 +2025,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
                     }
                 }
 
-// R,Z Field Components
+                // R,Z Field Components
 
                 float** Br = (float**)malloc(nz * sizeof(float*));
                 float** Bz = (float**)malloc(nz * sizeof(float*));
@@ -2184,9 +2066,10 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
                 for (i = 0; i < nz; i++) {
                     for (j = 0; j < nr; j++) {
                         Dmag = sqrt(pow((efitdata->rmag - rgrid[j]), 2.0) + pow((efitdata->zmag - zgrid[i]), 2.0));
-                        for (k = 0; k < efitdata->nlcfs; k++)
+                        for (k = 0; k < efitdata->nlcfs; k++) {
                             dlcfs[k] = sqrt(pow((efitdata->rlcfs[k] - rgrid[j]), 2.0) +
                                             pow((efitdata->zlcfs[k] - zgrid[i]), 2.0));
+                        }
                         kmin = -1;
                         dmin = 1.0E20;
                         for (k = 0; k < efitdata->nlcfs; k++) {
@@ -2266,10 +2149,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
             }
 
             if (err1 != 0 || err2 != 0) {
-                err = 1;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "equimap extractData", err,
-                             "Unable to Map the Poloidal Flux!");
-                return err;
+                THROW_ERROR(err, "Unable to Map the Poloidal Flux!");
             }
 
             mappsiB[0] = efitdata->psi_mag;
@@ -2284,38 +2164,26 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
                 for (k = 0; k < equimapdata->rhoCount; k++) {
                     if ((efitdata->mappsi[k] - efitdata->psi_mag) < FLT_EPSILON ||
                         (efitdata->mappsi[k] - efitdata->psi_bnd) > FLT_EPSILON) {
-                        err = 999;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "equimap extractData", err,
-                                     "Poloidal Flux mapping error A!");
-                        return err;
+                        THROW_ERROR(999, "Poloidal Flux mapping error A!");
                     }
                 }
                 for (k = 1; k < equimapdata->rhoBCount - 1; k++) {
                     if ((efitdata->mappsiB[k] - efitdata->psi_mag) < FLT_EPSILON ||
                         (efitdata->mappsiB[k] - efitdata->psi_bnd) > FLT_EPSILON) {
-                        err = 999;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "equimap extractData", err,
-                                     "Poloidal Flux mapping error A!");
-                        return err;
+                        THROW_ERROR(999, "Poloidal Flux mapping error A!");
                     }
                 }
             } else {
                 for (k = 0; k < equimapdata->rhoCount; k++) {
                     if ((efitdata->mappsi[k] - efitdata->psi_mag) > FLT_EPSILON ||
                         (efitdata->mappsi[k] - efitdata->psi_bnd) < FLT_EPSILON) {
-                        err = 999;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "equimap extractData", err,
-                                     "Poloidal Flux mapping error B!");
-                        return err;
+                        THROW_ERROR(999, "Poloidal Flux mapping error B!");
                     }
                 }
                 for (k = 1; k < equimapdata->rhoBCount - 1; k++) {
                     if ((efitdata->mappsiB[k] - efitdata->psi_mag) > FLT_EPSILON ||
                         (efitdata->mappsiB[k] - efitdata->psi_bnd) < FLT_EPSILON) {
-                        err = 999;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "equimap extractData", err,
-                                     "Poloidal Flux mapping error B!");
-                        return err;
+                        THROW_ERROR(999, "Poloidal Flux mapping error B!");
                     }
                 }
             }
@@ -2360,10 +2228,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
             }
 
             if (err1 != 0 || err2 != 0) {
-                err = 1;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "equimap extractData", err,
-                             "Unable to Map the Q Profile!");
-                return err;
+                THROW_ERROR(err, "Unable to Map the Q Profile!");
             }
 
             mapqB[0] = efitdata->q[0];
@@ -2413,10 +2278,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
                 }
 
                 if (err1 != 0 || err2 != 0) {
-                    err = 1;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "equimap extractData", err,
-                                 "Unable to Map the P Profile!");
-                    return err;
+                    THROW_ERROR(err, "Unable to Map the P Profile!");
                 }
 
                 mappB[0] = efitdata->p[0];
@@ -2425,8 +2287,8 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
                 efitdata->mapp = mapp;
                 efitdata->mappB = mappB;
 
-//--------------------------------------------------------------------------------------------------------------
-// Map F Profile onto target fixed grid
+                //--------------------------------------------------------------------------------------------------------------
+                // Map F Profile onto target fixed grid
 
                 float* mapf = (float*)malloc(equimapdata->rhoCount * sizeof(float));
                 float* mapfB = (float*)malloc(equimapdata->rhoBCount * sizeof(float));
@@ -2464,10 +2326,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
                 }
 
                 if (err1 != 0 || err2 != 0) {
-                    err = 1;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "equimap extractData", err,
-                                 "Unable to Map the F Profile!");
-                    return err;
+                    THROW_ERROR(err, "Unable to Map the F Profile!");
                 }
 
                 mapfB[0] = efitdata->f[0];
@@ -2476,8 +2335,8 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
                 efitdata->mapf = mapf;
                 efitdata->mapfB = mapfB;
 
-//--------------------------------------------------------------------------------------------------------------
-// Map P_Prime Profile onto target fixed grid
+                //--------------------------------------------------------------------------------------------------------------
+                // Map P_Prime Profile onto target fixed grid
 
                 efitdata->mappprime = (float*)malloc(equimapdata->rhoCount * sizeof(float));
                 efitdata->mappprimeB = (float*)malloc(equimapdata->rhoBCount * sizeof(float));
@@ -2489,17 +2348,14 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
                 err2 = xdatamapw(volumePoints, equimapdata, efitdata, efitdata->pprime, 0.0, efitdata->mappprimeB);
 
                 if (err1 != 0 || err2 != 0) {
-                    err = 999;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "equimap extractData", err,
-                                 "Unable to Map the PPrime Profile!");
-                    return err;
+                    THROW_ERROR(999, "Unable to Map the PPrime Profile!");
                 }
 
                 efitdata->mappprimeB[0] = efitdata->pprime[0];
                 efitdata->mappprimeB[equimapdata->rhoBCount - 1] = efitdata->pprime[efitdata->qCount - 1];
 
-//--------------------------------------------------------------------------------------------------------------
-// Map FF_Prime Profile onto target fixed grid
+                //--------------------------------------------------------------------------------------------------------------
+                // Map FF_Prime Profile onto target fixed grid
 
                 efitdata->mapffprime = (float*)malloc(equimapdata->rhoCount * sizeof(float));
                 efitdata->mapffprimeB = (float*)malloc(equimapdata->rhoBCount * sizeof(float));
@@ -2511,10 +2367,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
                 err2 = xdatamapw(volumePoints, equimapdata, efitdata, efitdata->ffprime, 0.0, efitdata->mapffprimeB);
 
                 if (err1 != 0 || err2 != 0) {
-                    err = 999;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "equimap extractData", err,
-                                 "Unable to Map the FFPrime Profile!");
-                    return err;
+                    THROW_ERROR(999, "Unable to Map the FFPrime Profile!");
                 }
 
                 efitdata->mapffprimeB[0] = efitdata->ffprime[0];
@@ -2533,10 +2386,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
                 err2 = xdatamapw(volumePoints, equimapdata, efitdata, efitdata->elongp, 1.0, efitdata->mapelongpB);
 
                 if (err1 != 0 || err2 != 0) {
-                    err = 999;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "equimap extractData", err,
-                                 "Unable to Map the Elongation Profile!");
-                    return err;
+                    THROW_ERROR(999, "Unable to Map the Elongation Profile!");
                 }
 
                 efitdata->mapelongpB[0] = efitdata->elongp[0];
@@ -2555,10 +2405,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
                 err2 = xdatamapw(volumePoints, equimapdata, efitdata, efitdata->trianglp, 1.0, efitdata->maptrianglpB);
 
                 if (err1 != 0 || err2 != 0) {
-                    err = 999;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "equimap extractData", err,
-                                 "Unable to Map the Lower Triangularity Profile!");
-                    return err;
+                    THROW_ERROR(999, "Unable to Map the Lower Triangularity Profile!");
                 }
 
                 efitdata->maptrianglp[0] = efitdata->trianglp[0];
@@ -2577,10 +2424,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
                 err2 = xdatamapw(volumePoints, equimapdata, efitdata, efitdata->triangup, 1.0, efitdata->maptriangupB);
 
                 if (err1 != 0 || err2 != 0) {
-                    err = 999;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "equimap extractData", err,
-                                 "Unable to Map the Upper Triangularity Profile!");
-                    return err;
+                    RAISE_PLUGIN_ERROR("Unable to Map the Upper Triangularity Profile!");
                 }
 
                 efitdata->maptriangup[0] = efitdata->triangup[0];
@@ -2599,10 +2443,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
                 err2 = xdatamapw(volumePoints, equimapdata, efitdata, efitdata->volp, 1.0, efitdata->mapvolpB);
 
                 if (err1 != 0 || err2 != 0) {
-                    err = 999;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "equimap extractData", err,
-                                 "Unable to Map the Volume Profile!");
-                    return err;
+                    RAISE_PLUGIN_ERROR("Unable to Map the Volume Profile!");
                 }
 
                 efitdata->mapvolp[0] = efitdata->volp[0];
@@ -2621,10 +2462,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
                 err2 = xdatamapw(volumePoints, equimapdata, efitdata, efitdata->areap, 1.0, efitdata->mapareapB);
 
                 if (err1 != 0 || err2 != 0) {
-                    err = 999;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "equimap extractData", err,
-                                 "Unable to Map the Area Profile!");
-                    return err;
+                    RAISE_PLUGIN_ERROR("Unable to Map the Area Profile!");
                 }
 
                 efitdata->mapareap[0] = efitdata->areap[0];
@@ -2632,31 +2470,22 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
 
             }
 
-//--------------------------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------------------------
-// Nd/YAG Plasma Density and Temperature data
+            //--------------------------------------------------------------------------------------------------------------
+            //--------------------------------------------------------------------------------------------------------------
+            // Nd/YAG Plasma Density and Temperature data
 
             if ((handle = whichHandle("ayc_ne")) < 0) {
-                err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "equimap extractData", err,
-                             "IDAM data handle not found when expected!");
-                return err;
+                RAISE_PLUGIN_ERROR("UDA data handle not found when expected!");
             }
             if ((err = xdatand("ayc_ne", shot_str, &handle, &rank, &order, &ndata, &shape, &datan, &dim)) != 0) break;
 
             if ((handle = whichHandle("ayc_te")) < 0) {
-                err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "equimap extractData", err,
-                             "IDAM data handle not found when expected!");
-                return err;
+                RAISE_PLUGIN_ERROR("UDA data handle not found when expected!");
             }
             if ((err = xdatand("ayc_te", shot_str, &handle, &rank, &order, &ndata, NULL, &datat, NULL)) != 0) break;
 
             if ((handle = whichHandle("ayc_r")) < 0) {
-                err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "equimap extractData", err,
-                             "IDAM data handle not found when expected!");
-                return err;
+                RAISE_PLUGIN_ERROR("UDA data handle not found when expected!");
             }
             if (equimapdata->exp_number > ATMAYCSHOT) {
                 if ((err = xdatand("ayc_r", shot_str, &handle, &rank, &order, &ndata, NULL, &datar, NULL)) != 0) break;
@@ -2718,12 +2547,12 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
                 IDAM_LOGF(UDA_LOG_DEBUG, "[%3d]  %10.4e %10.4e %10.4e\n", i, efitdata->rne[i], efitdata->ne[i],
                           efitdata->te[i]);
 
-// Map data from Major Radius to Normalised Poloidal or Toroidal Flux within the Plasma
+            // Map data from Major Radius to Normalised Poloidal or Toroidal Flux within the Plasma
 
-// 1) ne(R) = ne(psi(R)) - Identify psi values at each measurement R location using psiz0 and rz0 data
-//    No Poloidal Flux data are available for points outside the rz0 array
-//    rz0 is an increasing valued array
-//    Measurements are assumed to be on the mid-plane only *** this needs correction !!!
+            // 1) ne(R) = ne(psi(R)) - Identify psi values at each measurement R location using psiz0 and rz0 data
+            //    No Poloidal Flux data are available for points outside the rz0 array
+            //    rz0 is an increasing valued array
+            //    Measurements are assumed to be on the mid-plane only *** this needs correction !!!
 
             float* yagpsi = (float*)malloc(
                     (efitdata->nne + 3) * sizeof(float));    // Measurement location psi values
@@ -2737,8 +2566,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
                 if (efitdata->rne[i] > efitdata->rz0[efitdata->rz0Count - 1]) yagpsi[i] = psiz0[efitdata->rz0Count - 1];
             }
 
-// 2) Interpolate psi(R) to phi(R) or trho(R) - Inner and Outer set of mappings
-
+            // 2) Interpolate psi(R) to phi(R) or trho(R) - Inner and Outer set of mappings
 
             float* yagphi = (float*)malloc((efitdata->nne + 3) * sizeof(float));
             for (i = 0; i < efitdata->nne; i++)yagphi[i] = 0.0;
@@ -2760,7 +2588,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
                 if (efitdata->rne[i] >= efitdata->Rmax) yagprho[i] = 1.0;
             }
 
-// 3) Interpolate ne(trho(R)) to required trho grid - Inner and Outer sets
+            // 3) Interpolate ne(trho(R)) to required trho grid - Inner and Outer sets
 
             float* yagtrho = (float*)malloc((efitdata->nne + 3) * sizeof(float));
             for (i = 0; i < efitdata->nne; i++)yagtrho[i] = 0.0;
@@ -2772,7 +2600,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
                 if (efitdata->rne[i] >= efitdata->Rmax) yagtrho[i] = 1.0;
             }
 
-// 4) Interpolate ne(rho_tor(R)) to required rho_tor grid - Inner and Outer sets
+            // 4) Interpolate ne(rho_tor(R)) to required rho_tor grid - Inner and Outer sets
 
             float* yagrhotor = (float*)malloc((efitdata->nne + 3) * sizeof(float));
             for (i = 0; i < efitdata->nne; i++)yagrhotor[i] = 0.0;
@@ -3288,10 +3116,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
 // Coordinates of First X-Point on Separatrix
 
             if ((handle = whichHandle("EFM_XPOINT1_R(C)")) < 0) {
-                err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "equimap extractData", err,
-                             "IDAM data handle not found when expected!");
-                return err;
+                RAISE_PLUGIN_ERROR("UDA data handle not found when expected!");
             }
 
             if ((err = xdatand("EFM_XPOINT1_R(C)", shot_str, &handle, &rank, &order, &ndata, &shape, &data, &dim)) !=
@@ -3316,10 +3141,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
             free((void*)dim);
 
             if ((handle = whichHandle("EFM_XPOINT1_Z(C)")) < 0) {
-                err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "equimap extractData", err,
-                             "IDAM data handle not found when expected!");
-                return err;
+                RAISE_PLUGIN_ERROR("UDA data handle not found when expected!");
             }
 
             if ((err = xdatand("EFM_XPOINT1_Z(C)", shot_str, &handle, &rank, &order, &ndata, &shape, &data, &dim)) !=
@@ -3346,10 +3168,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
 // Coordinates of Second X-Point on Separatrix
 
             if ((handle = whichHandle("EFM_XPOINT2_R(C)")) < 0) {
-                err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "equimap extractData", err,
-                             "IDAM data handle not found when expected!");
-                return err;
+                RAISE_PLUGIN_ERROR("UDA data handle not found when expected!");
             }
 
             if ((err = xdatand("EFM_XPOINT2_R(C)", shot_str, &handle, &rank, &order, &ndata, &shape, &data, &dim)) !=
@@ -3374,10 +3193,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
             free((void*)dim);
 
             if ((handle = whichHandle("EFM_XPOINT2_Z(C)")) < 0) {
-                err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "equimap extractData", err,
-                             "IDAM data handle not found when expected!");
-                return err;
+                RAISE_PLUGIN_ERROR("UDA data handle not found when expected!");
             }
 
             if ((err = xdatand("EFM_XPOINT2_Z(C)", shot_str, &handle, &rank, &order, &ndata, &shape, &data, &dim)) !=

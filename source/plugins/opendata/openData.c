@@ -277,8 +277,8 @@ extern int openData(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                     priorDir = 1;            // Exists
                 } else {
                     err = 999;
-                    if (errno != 0) addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "openData", errno, "");
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "openData", err,
+                    if (errno != 0) addIdamError(SYSTEMERRORTYPE, "openData", errno, "");
+                    addIdamError(CODEERRORTYPE, "openData", err,
                                  "Unable to create a Provenance Archive Directory!");
                     if (newDir != NULL) free(newDir);
                     break;
@@ -306,7 +306,7 @@ extern int openData(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                             (isExeBinaryFile && STR_IEQUALS(name, exeBinaryFileName)) ||
                             (isRunScriptFile && STR_IEQUALS(name, runScriptFileName))) {
                             err = 999;
-                            addIdamError(&idamerrorstack, CODEERRORTYPE, "openData", err,
+                            addIdamError(CODEERRORTYPE, "openData", err,
                                          "A previous file exists in the Provenance Archive!");
                             break;
                         }
@@ -315,7 +315,7 @@ extern int openData(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                     closedir(dp);
                 } else {
                     err = 999;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "openData", err,
+                    addIdamError(CODEERRORTYPE, "openData", err,
                                  "Unable to create a new directory in the Provenance Archive!");
                     if (newDir != NULL) free(newDir);
                     break;
@@ -357,7 +357,7 @@ extern int openData(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             // Error ...
 
             err = 999;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "openData", err, "Unknown function requested!");
+            addIdamError(CODEERRORTYPE, "openData", err, "Unknown function requested!");
             break;
         }
 
@@ -390,8 +390,8 @@ int copyProvenanceFile(char* oldFile, char* dir, char* newFileName)
         errno = 0;
         if (stat(oldFile, &attributes) != 0 || errno != 0) {
             err = 999;
-            if (errno != 0) addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "openData", errno, "");
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "openData", err, "Unknown function requested!");
+            if (errno != 0) addIdamError(SYSTEMERRORTYPE, "openData", errno, "");
+            addIdamError(CODEERRORTYPE, "openData", err, "Unknown function requested!");
             break;
         }
 
@@ -399,7 +399,7 @@ int copyProvenanceFile(char* oldFile, char* dir, char* newFileName)
 
         if (!S_ISREG(attributes.st_mode)) {
             err = 999;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "openData", err, "Not a Regular File!");
+            addIdamError(CODEERRORTYPE, "openData", err, "Not a Regular File!");
             break;
         }
 
@@ -407,32 +407,32 @@ int copyProvenanceFile(char* oldFile, char* dir, char* newFileName)
 
         if ((in = fopen(oldFile, "r")) == NULL || errno != 0) {
             err = 999;
-            if (errno != 0) addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "openData", errno, "");
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "openData", err, "Unable to Open the file for copying!");
+            if (errno != 0) addIdamError(SYSTEMERRORTYPE, "openData", errno, "");
+            addIdamError(CODEERRORTYPE, "openData", err, "Unable to Open the file for copying!");
             break;
         }
 
         if ((out = fopen(newFile, "w")) == NULL || errno != 0) {    // Replace if the file exists
             err = 999;
-            if (errno != 0) addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "openData", errno, "");
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "openData", err, "Unable to Open the file for writing!");
+            if (errno != 0) addIdamError(SYSTEMERRORTYPE, "openData", errno, "");
+            addIdamError(CODEERRORTYPE, "openData", err, "Unable to Open the file for writing!");
             break;
         }
 
         while ((count = fread(buffer, sizeof(char), BUFFERSIZE, in)) > 0 && errno == 0) {
             if ((n = fwrite(buffer, sizeof(char), count, out)) != count || errno != 0) {
                 err = 999;
-                if (errno != 0) addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "openData", errno, "");
+                if (errno != 0) addIdamError(SYSTEMERRORTYPE, "openData", errno, "");
                 if (n != count)
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "openData", err, "Inconsistent byte count");
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "openData", err, "Unable to Write the file!");
+                    addIdamError(CODEERRORTYPE, "openData", err, "Inconsistent byte count");
+                addIdamError(CODEERRORTYPE, "openData", err, "Unable to Write the file!");
                 break;
             }
         }
         if (errno != 0) {
             err = 999;
-            if (errno != 0) addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "openData", errno, "");
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "openData", err, "Unable to Read and Write the file!");
+            if (errno != 0) addIdamError(SYSTEMERRORTYPE, "openData", errno, "");
+            addIdamError(CODEERRORTYPE, "openData", err, "Unable to Read and Write the file!");
             break;
         }
 
@@ -455,8 +455,8 @@ int copyProvenanceFile(char* oldFile, char* dir, char* newFileName)
 
     if (utime(newFile, &mtime) != 0 || errno != 0) {
         err = 999;
-        if (errno != 0) addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "openData", errno, "");
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "openData", err, "Unable to Set the file copy's time stamp!");
+        if (errno != 0) addIdamError(SYSTEMERRORTYPE, "openData", errno, "");
+        addIdamError(CODEERRORTYPE, "openData", err, "Unable to Set the file copy's time stamp!");
     }
 
     if (newFile != NULL) free(newFile);

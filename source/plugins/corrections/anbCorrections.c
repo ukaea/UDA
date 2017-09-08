@@ -32,6 +32,7 @@
 #include <client/udaClient.h>
 #include <client/accAPI.h>
 #include <client/udaGetAPI.h>
+#include <plugins/udaPlugin.h>
 
 void makeDataBlock(DATA_BLOCK* out, int dataCount)
 {
@@ -165,11 +166,7 @@ extern int anbCorrections(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         housekeeping = idam_plugin_interface->housekeeping;
 
     } else {
-        err = 999;
-        idamLog(UDA_LOG_ERROR, "ERROR anbCorrections: Plugin Interface Version Unknown\n");
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "anbCorrections", err,
-                     "Plugin Interface Version is Not Known: Unable to execute the request!");
-        return err;
+        RAISE_PLUGIN_ERROR("Plugin Interface Version is Not Known: Unable to execute the request!");
     }
 
 //----------------------------------------------------------------------------------------
@@ -294,7 +291,7 @@ extern int anbCorrections(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 source = request_block->source;
             } else if (source == NULL) {
                 err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "anbCorrections", err, "Please specify a shot number");
+                addIdamError(CODEERRORTYPE, "anbCorrections", err, "Please specify a shot number");
                 break;
             }
 
@@ -302,7 +299,7 @@ extern int anbCorrections(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             if (!IsNumber(source)) {
                 err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "anbCorrections", err,
+                addIdamError(CODEERRORTYPE, "anbCorrections", err,
                              "The data source is Not a shot number!");
                 break;
             }
@@ -313,7 +310,7 @@ extern int anbCorrections(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 err = 999;
                 idamLog(UDA_LOG_ERROR, "ERROR anbCorrections: Invalid Shot number - outside range 28411-30473\n");
 
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "anbCorrections", err,
+                addIdamError(CODEERRORTYPE, "anbCorrections", err,
                              "Invalid Shot number - outside range 28411-30473");
                 break;
             }
@@ -436,14 +433,14 @@ extern int anbCorrections(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
                     if (getIdamDimType(h1, 0) != getIdamDimType(h2, 0)) {
                         err = 999;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "anbCorrections", err,
+                        addIdamError(CODEERRORTYPE, "anbCorrections", err,
                                      "Inconsistent SW beam current and voltage Data types");
                         break;
                     }
 
                     if (dataCountSW != getIdamDataNum(h2)) {
                         err = 999;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "anbCorrections", err,
+                        addIdamError(CODEERRORTYPE, "anbCorrections", err,
                                      "Inconsistent SW beam current and voltage Data Counts");
                         break;
                     }
@@ -458,7 +455,7 @@ extern int anbCorrections(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
                     if (rank != 1 || rank != getIdamRank(h2) || (!noSSBeam && rank != getIdamRank(h3))) {
                         err = 999;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "anbCorrections", err,
+                        addIdamError(CODEERRORTYPE, "anbCorrections", err,
                                      "Inconsistent SW beam current and voltage Data Rank");
                         break;
                     }
@@ -770,15 +767,8 @@ extern int anbCorrections(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
                 break;
             }
-
         } else {
-
-//======================================================================================
-// Error ...
-
-            err = 999;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "anbCorrections", err, "Unknown function requested!");
-            break;
+            RAISE_PLUGIN_ERROR("Unknown function requested!");
         }
 
     } while (0);

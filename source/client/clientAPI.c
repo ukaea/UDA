@@ -44,7 +44,7 @@ int idamClientAPI(const char* file, const char* signal, int pass, int exp_number
 // Build the Request Data Block (Version and API dependent)
 
     if (startup) {
-        initIdamErrorStack(&idamerrorstack);
+        initIdamErrorStack();
         startup = 0;
     }
 
@@ -62,10 +62,10 @@ int idamClientAPI(const char* file, const char* signal, int pass, int exp_number
     }
 
     if ((err = makeClientRequestBlock(signal, data_source, &request_block)) != 0) {
-        closeIdamError(&idamerrorstack);
-        if (idamerrorstack.nerrors == 0) {
+        closeIdamError();
+        if (udaNumErrors() == 0) {
             IDAM_LOGF(UDA_LOG_ERROR, "Error identifying the Data Source [%s]\n", data_source);
-            addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, 999, "Error identifying the Data Source");
+            addIdamError(CODEERRORTYPE, __func__, 999, "Error identifying the Data Source");
         }
         return -err;
     }
@@ -107,7 +107,7 @@ int idamClientFileAPI(const char* file, const char* signal, const char* format)
 // Build the Request Data Block (Version and API dependent)
 
     if (startup) {
-        initIdamErrorStack(&idamerrorstack);
+        initIdamErrorStack();
         startup = 0;
     }
 
@@ -121,10 +121,10 @@ int idamClientFileAPI(const char* file, const char* signal, const char* format)
         sprintf(data_source, "%s::%s", format, file);
 
     if ((err = makeClientRequestBlock(signal, data_source, &request_block)) != 0) {
-        closeIdamError(&idamerrorstack);
-        if (idamerrorstack.nerrors == 0) {
+        closeIdamError();
+        if (udaNumErrors() == 0) {
             IDAM_LOGF(UDA_LOG_ERROR, "Error identifying the Data Source [%s]\n", data_source);
-            addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, 999, "Error identifying the Data Source");
+            addIdamError(CODEERRORTYPE, __func__, 999, "Error identifying the Data Source");
         }
         return -err;
     }

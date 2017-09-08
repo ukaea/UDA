@@ -49,12 +49,7 @@ extern int idamHDF5(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     unsigned short housekeeping;
 
     if (idam_plugin_interface->interfaceVersion > THISPLUGIN_MAX_INTERFACE_VERSION) {
-        err = 999;
-        IDAM_LOG(UDA_LOG_ERROR,
-                "ERROR newHDF5: Plugin Interface Version Unknown to this plugin: Unable to execute the request!\n");
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "newHDF5", err,
-                     "Plugin Interface Version Unknown to this plugin: Unable to execute the request!");
-        return err;
+        RAISE_PLUGIN_ERROR("Plugin Interface Version Unknown to this plugin: Unable to execute the request!");
     }
 
     idam_plugin_interface->pluginVersion = THISPLUGIN_VERSION;
@@ -212,7 +207,7 @@ extern int idamHDF5(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             // Put data into a HDF5 File
 
             err = 999;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "newHDF5", err, "The PUT method has not yet been implemented");
+            addIdamError(CODEERRORTYPE, "newHDF5", err, "The PUT method has not yet been implemented");
             break;
 
         } else {
@@ -221,7 +216,7 @@ extern int idamHDF5(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             // Error ...
 
             err = 999;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "newHDF5", err, "Unknown function requested!");
+            addIdamError(CODEERRORTYPE, "newHDF5", err, "Unknown function requested!");
             break;
         }
 

@@ -35,7 +35,7 @@ int addTextMetaXML(int fd, int grpid, METAXML* str, char* tag)
     if ((err = nc_inq_attlen(fd, grpid, tag, &attlen)) == NC_NOERR) {
         cp = (char*) malloc((attlen + 1) * sizeof(char));
         if ((err = nc_get_att_text(fd, grpid, tag, cp)) != NC_NOERR) {
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF", err, (char*) nc_strerror(err));
+            addIdamError(CODEERRORTYPE, "readCDF", err, (char*) nc_strerror(err));
             free((void*) cp);
             return err;
         }

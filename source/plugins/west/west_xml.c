@@ -76,7 +76,7 @@ int GetStaticData(int shotNumber, const char* mapfun, DATA_BLOCK* data_block, in
 	int status = execute(mapfun, shotNumber, data_block, nodeIndices);
 
 	if (status != 0) {
-		addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, -900, "error while getting static data");
+		addIdamError(CODEERRORTYPE, __func__, -900, "error while getting static data");
 	}
 
 	free(data_block->dims);
@@ -213,7 +213,7 @@ int execute(const char* mapfun, int shotNumber, DATA_BLOCK* data_block, int* nod
 		} else {
 			int err = 999;
 			IDAM_LOG(UDA_LOG_DEBUG, "Unsupported data type\n");
-			addIdamError(&idamerrorstack, CODEERRORTYPE, "Unsupported data type", err, "");
+			addIdamError(CODEERRORTYPE, "Unsupported data type", err, "");
 		}
 
 		IDAM_LOG(UDA_LOG_DEBUG, "Calling setStaticValue()\n");
@@ -353,7 +353,7 @@ void execute_setvalue_collect(const char* TOP_collections_parameters, char* attr
 	} else {
 		int err = 999;
 		IDAM_LOG(UDA_LOG_DEBUG, "Unsupported data type in execute_setvalue_collect\n");
-		addIdamError(&idamerrorstack, CODEERRORTYPE, "Unsupported data type", err, "");
+		addIdamError(CODEERRORTYPE, "Unsupported data type", err, "");
 	}
 
 	IDAM_LOGF(UDA_LOG_DEBUG, "Found value: %s\n", value);
@@ -416,7 +416,7 @@ void execute_tsmat_collect(const char* TOP_collections_parameters, char* attribu
 	int status = readStaticParameters(&value, &nb_val, shotNumber, prod_name, object_name, param_name, val_nb);
 	if (status != 0) {
 		int err = 901;
-		addIdamError(&idamerrorstack, CODEERRORTYPE, "Unable to read static data from WEST", err, "");
+		addIdamError(CODEERRORTYPE, "Unable to read static data from WEST", err, "");
 	}
 
 	float normalizationFactor = 1;
@@ -457,7 +457,7 @@ void execute_tsmat_without_idam_index(const char* TOP_collections_parameters, ch
 	int status = readStaticParameters(&value, &nb_val, shotNumber, prod_name, object_name, param_name, val_nb);
 	if (status != 0) {
 		int err = 901;
-		addIdamError(&idamerrorstack, CODEERRORTYPE, "Unable to read static data from WEST", err, "");
+		addIdamError(CODEERRORTYPE, "Unable to read static data from WEST", err, "");
 	}
 
 	int rank;
@@ -474,7 +474,7 @@ void execute_tsmat_without_idam_index(const char* TOP_collections_parameters, ch
 	} else {
 		int err = 999;
 		IDAM_LOG(UDA_LOG_DEBUG, "Unsupported rank from execute_tsmat_without_idam_index()\n");
-		addIdamError(&idamerrorstack, CODEERRORTYPE, "Unsupported data type", err, "");
+		addIdamError(CODEERRORTYPE, "Unsupported data type", err, "");
 	}
 
 	free(command);
@@ -603,7 +603,7 @@ int GetDynamicData(int shotNumber, const char* mapfun, DATA_BLOCK* data_block, i
 	if (status != 0) {
 		int err = 901;
 		IDAM_LOG(UDA_LOG_DEBUG, "Unable to get command\n");
-		addIdamError(&idamerrorstack, CODEERRORTYPE, "Unable to get command", err, "");
+		addIdamError(CODEERRORTYPE, "Unable to get command", err, "");
 	}
 
 	IDAM_LOGF(UDA_LOG_DEBUG, "command: %s\n", command);
@@ -645,7 +645,7 @@ int GetDynamicData(int shotNumber, const char* mapfun, DATA_BLOCK* data_block, i
 
 	/*if (status != 0) {
             int err = 901;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "Unable to read dynamic data from WEST !", err, "");
+            addIdamError(CODEERRORTYPE, "Unable to read dynamic data from WEST !", err, "");
         }*/
 
 	//IDAM_LOG(UDA_LOG_DEBUG, "After error handling\n");
@@ -730,7 +730,7 @@ void getShapeOf(const char* command, int shotNumber, int* nb_val)
 	if (status != 0) {
 		IDAM_LOG(UDA_LOG_DEBUG, "Error calling readStaticParameters\n");
 		int err = 901;
-		addIdamError(&idamerrorstack, CODEERRORTYPE, "Unable to get shape of static data from WEST", err, "");
+		addIdamError(CODEERRORTYPE, "Unable to get shape of static data from WEST", err, "");
 	}
 
 	free(prod_name);
@@ -750,7 +750,7 @@ void setStatic1DValue(int data_type, DATA_BLOCK* data_block, char* value, int va
 
 		if (val_nb == 0) {
 			int err = 901;
-			addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, err, "val_nb is equals to 0 !");
+			addIdamError(CODEERRORTYPE, __func__, err, "val_nb is equals to 0 !");
 		}
 
 		data_block->data_type = TYPE_FLOAT;
@@ -771,7 +771,7 @@ void setStatic1DValue(int data_type, DATA_BLOCK* data_block, char* value, int va
 	} else {
 		int err = 999;
 		IDAM_LOG(UDA_LOG_DEBUG, "Unsupported data type from setStatic1DValue()\n");
-		addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, err, "Unsupported data type");
+		addIdamError(CODEERRORTYPE, __func__, err, "Unsupported data type");
 	}
 }
 
@@ -834,7 +834,7 @@ void setStaticValue(int data_type, DATA_BLOCK* data_block, char* value, int requ
 	} else {
 		int err = 999;
 		IDAM_LOG(UDA_LOG_DEBUG, "Unsupported data type from setStaticValue()\n");
-		addIdamError(&idamerrorstack, CODEERRORTYPE, "Unsupported data type", err, "");
+		addIdamError(CODEERRORTYPE, "Unsupported data type", err, "");
 	}
 }
 
@@ -855,7 +855,7 @@ int convertToInt(char* value)
 		i = TYPE_INT;
 	} else {
 		err = 999;
-		addIdamError(&idamerrorstack, CODEERRORTYPE, "west convertToInt() : Unsupported data type", err, "");
+		addIdamError(CODEERRORTYPE, "west convertToInt() : Unsupported data type", err, "");
 	}
 	return i;
 }
@@ -1039,14 +1039,14 @@ void getNormalizationFactor(float* normalizationFactor, char* normalizationAttri
 			} else {
 				int err = 999;
 				IDAM_LOG(UDA_LOG_DEBUG, "Unsupported operand for 'multiply' operation\n");
-				addIdamError(&idamerrorstack, CODEERRORTYPE, "Unsupported operand for 'multiply' operation", err,
+				addIdamError(CODEERRORTYPE, "Unsupported operand for 'multiply' operation", err,
 						"");
 			}
 
 		} else {
 			int err = 999;
 			IDAM_LOG(UDA_LOG_DEBUG, "Unsupported operation to apply\n");
-			addIdamError(&idamerrorstack, CODEERRORTYPE, "Unsupported operation to apply", err, "");
+			addIdamError(CODEERRORTYPE, "Unsupported operation to apply", err, "");
 		}
 	} else {
 		IDAM_LOG(UDA_LOG_DEBUG, "no normalization attributes found\n");

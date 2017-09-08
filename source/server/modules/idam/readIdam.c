@@ -35,7 +35,7 @@ int readIdam(DATA_SOURCE data_source,
              REQUEST_BLOCK request_block,
              DATA_BLOCK *data_block) {
     int err = 999;
-    addIdamError(&idamerrorstack, CODEERRORTYPE, "readIdam", err, "Not Configured to Access the IDAM server Plugin.");
+    addIdamError(CODEERRORTYPE, "readIdam", err, "Not Configured to Access the IDAM server Plugin.");
     return err;
 }
 
@@ -57,7 +57,7 @@ int readIdam(DATA_SOURCE data_source,
              REQUEST_BLOCK request_block,
              DATA_BLOCK *data_block) {
     int err = 999;
-    addIdamError(&idamerrorstack, CODEERRORTYPE, "readIdam", err, "Not Configured to Access the IDAM server Plugin.");
+    addIdamError(CODEERRORTYPE, "readIdam", err, "Not Configured to Access the IDAM server Plugin.");
     return err;
 }
 
@@ -111,7 +111,7 @@ int readIdam(DATA_SOURCE data_source,
                     if (newport != oldport) putIdamServerPort(atoi(&p[1]));
                 } else {
                     err = 999;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "readIdam", err,
+                    addIdamError(CODEERRORTYPE, "readIdam", err,
                                  "The Server Port must be an Integer Number passed "
                                          "using the formats 'server:port' or 'server port'");
                     return err;
@@ -121,7 +121,7 @@ int readIdam(DATA_SOURCE data_source,
             }
         } else {
             err = 999;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readIdam", err, "No Server has been specified!");
+            addIdamError(CODEERRORTYPE, "readIdam", err, "No Server has been specified!");
             return err;
         }
     } else {
@@ -137,7 +137,7 @@ int readIdam(DATA_SOURCE data_source,
                     if (newport != oldport) putIdamServerPort(atoi(&p[1]));
                 } else {
                     err = 999;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "readIdam", err,
+                    addIdamError(CODEERRORTYPE, "readIdam", err,
                                  "The Server Port must be an Integer Number passed "
                                          "using the format 'server:port'  or 'server port'");
                     return err;
@@ -147,7 +147,7 @@ int readIdam(DATA_SOURCE data_source,
             }
         } else {
             err = 999;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readIdam", err, "No Server has been specified!");
+            addIdamError(CODEERRORTYPE, "readIdam", err, "No Server has been specified!");
             return err;
         }
     }
@@ -235,26 +235,21 @@ int readIdam(DATA_SOURCE data_source,
     IDAM_LOGF(UDA_LOG_DEBUG, "Returned from idamGetAPI API: handle = %d, error code = %d\n", handle,
             getIdamErrorCode(handle));
 
-//------------------------------------------------------------------------------
-// Concatenate IDAM Client Error Message Stack
-
-    concatIdamError(*getIdamServerErrorStack(), &idamerrorstack);
-
-//----------------------------------------------------------------------
-// Test for Errors: Close Socket and Free heap
+    //----------------------------------------------------------------------
+    // Test for Errors: Close Socket and Free heap
 
     if (handle < 0) {
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "readIdam", handle, "");
+        addIdamError(CODEERRORTYPE, "readIdam", handle, "");
         return (abs(handle));
     } else {
         if ((err = getIdamErrorCode(handle)) != 0) {
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readIdam", err, (char*) getIdamErrorMsg(handle));
+            addIdamError(CODEERRORTYPE, "readIdam", err, (char*) getIdamErrorMsg(handle));
             return err;
         }
     }
 
-//----------------------------------------------------------------------
-// Copy the Data Block
+    //----------------------------------------------------------------------
+    // Copy the Data Block
 
     *data_block = *getIdamDataBlock(handle);
 

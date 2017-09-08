@@ -1090,7 +1090,7 @@ int readIdaItem(char* itemname, ida_file_ptr* ida_file, short* context, DATA_BLO
         if (CDAS_ERROR(err)) {
             ida_error_mess(err, msg);
             strcat(msg0, msg);
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readIdaItem", 5, msg0);
+            addIdamError(CODEERRORTYPE, "readIdaItem", 5, msg0);
             rerr = -5;
             break;
         }
@@ -1099,7 +1099,7 @@ int readIdaItem(char* itemname, ida_file_ptr* ida_file, short* context, DATA_BLO
 
         if (CDAS_ERROR(err)) {
             ida_error_mess(err, msg);
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readIdaItem", 5, msg);
+            addIdamError(CODEERRORTYPE, "readIdaItem", 5, msg);
             rerr = -5;
             break;
         }
@@ -1140,13 +1140,13 @@ int readIdaItem(char* itemname, ida_file_ptr* ida_file, short* context, DATA_BLO
 
         if (CDAS_ERROR(err)) {
             ida_error_mess(err, msg);
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readIdaItem", 6, msg);
+            addIdamError(CODEERRORTYPE, "readIdaItem", 6, msg);
             rerr = -6;
             break;
         }
 
         if (nodoms < 1) {
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readIdaItem", 6, "IDA3 file Corrupted (NODOMS < 1)");
+            addIdamError(CODEERRORTYPE, "readIdaItem", 6, "IDA3 file Corrupted (NODOMS < 1)");
             rerr = -6;
             break;
         }
@@ -1177,7 +1177,7 @@ int readIdaItem(char* itemname, ida_file_ptr* ida_file, short* context, DATA_BLO
 
         if (CDAS_ERROR(err)) {
             ida_error_mess(err, msg);
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readIdaItem", 7, msg);
+            addIdamError(CODEERRORTYPE, "readIdaItem", 7, msg);
             rerr = -7;
             break;
         }
@@ -1194,7 +1194,7 @@ int readIdaItem(char* itemname, ida_file_ptr* ida_file, short* context, DATA_BLO
 
         if (CDAS_ERROR(err)) {
             ida_error_mess(err, msg);
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readIdaItem", 8, msg);
+            addIdamError(CODEERRORTYPE, "readIdaItem", 8, msg);
             rerr = -8;
             break;
         }
@@ -1372,13 +1372,13 @@ int readIdaItem(char* itemname, ida_file_ptr* ida_file, short* context, DATA_BLO
 
             if (CDAS_ERROR(err)) {
                 ida_error_mess(err, msg);
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readIdaItem", 12, msg);
+                addIdamError(CODEERRORTYPE, "readIdaItem", 12, msg);
                 rerr = -12;
                 break;
             }
 
             if (nz == 0) {
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readIdaItem", 12, "The Number of Z Samples is Zero!");
+                addIdamError(CODEERRORTYPE, "readIdaItem", 12, "The Number of Z Samples is Zero!");
                 rerr = -12;
                 break;
             }
@@ -1389,7 +1389,7 @@ int readIdaItem(char* itemname, ida_file_ptr* ida_file, short* context, DATA_BLO
 
             if (CDAS_ERROR(err)) {
                 ida_error_mess(err, msg);
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readIdaItem", 12, msg);
+                addIdamError(CODEERRORTYPE, "readIdaItem", 12, msg);
                 rerr = -12;
                 break;
             }
@@ -1442,7 +1442,7 @@ int readIdaItem(char* itemname, ida_file_ptr* ida_file, short* context, DATA_BLO
             if (yint != NULL) free(yint);
             if (yoff != NULL) free(yoff);
             if (zval != NULL) free(zval);
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readIdaItem", 999, "The Data Type is Unknown");
+            addIdamError(CODEERRORTYPE, "readIdaItem", 999, "The Data Type is Unknown");
             rerr = -999;
             break;
         }
@@ -1463,7 +1463,7 @@ int readIdaItem(char* itemname, ida_file_ptr* ida_file, short* context, DATA_BLO
             if (yint != NULL) free(yint);
             if (yoff != NULL) free(yoff);
             if (zval != NULL) free(zval);
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readIdaItem", 999, "Unable to Allocate Heap for the Data");
+            addIdamError(CODEERRORTYPE, "readIdaItem", 999, "Unable to Allocate Heap for the Data");
             rerr = -999;
             break;
         }
@@ -1571,7 +1571,7 @@ int readIdaItem(char* itemname, ida_file_ptr* ida_file, short* context, DATA_BLO
 
         if (CDAS_ERROR(err)) {
             ida_error_mess(err, msg);
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readIdaItem", 13, msg);
+            addIdamError(CODEERRORTYPE, "readIdaItem", 13, msg);
             if (tsams != NULL) free(tsams);
             if (tint != NULL) free(tint);
             if (toff != NULL) free(toff);
@@ -1593,7 +1593,7 @@ int readIdaItem(char* itemname, ida_file_ptr* ida_file, short* context, DATA_BLO
 
         if (CDAS_ERROR(err)) {
             ida_error_mess(err, msg);
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readIdaItem", 14, msg);
+            addIdamError(CODEERRORTYPE, "readIdaItem", 14, msg);
             rerr = -14;
             break;
         }
@@ -1636,7 +1636,7 @@ int readIdaItem(char* itemname, ida_file_ptr* ida_file, short* context, DATA_BLO
             if (error == NULL && data_block->error_type != TYPE_UNKNOWN) {
                 IDAM_LOGF(UDA_LOG_DEBUG, "Error Allocating Heap for Error Data, # = %d\n", (int)totsams);
                 IDAM_LOGF(UDA_LOG_DEBUG, "Type = %d\n", data_block->error_type);
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readIdaItem", 998,
+                addIdamError(CODEERRORTYPE, "readIdaItem", 998,
                              "Unable to Allocate Heap for Error Data");
                 if (tsams != NULL) free(tsams);
                 if (tint != NULL) free(tint);
@@ -1718,7 +1718,7 @@ int readIdaItem(char* itemname, ida_file_ptr* ida_file, short* context, DATA_BLO
 
             if (CDAS_ERROR(err)) {
                 ida_error_mess(err, msg);
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readIdaItem", 15, msg);
+                addIdamError(CODEERRORTYPE, "readIdaItem", 15, msg);
                 if (tsams != NULL) free(tsams);
                 if (tint != NULL) free(tint);
                 if (toff != NULL) free(toff);

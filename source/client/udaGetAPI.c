@@ -139,23 +139,22 @@ Legacy exception: treat PPF and JPF formats as server protocols => no file path 
 */
 int idamGetAPI(const char* data_object, const char* data_source)
 {
-
-// Lock the thread
+    // Lock the thread
     lockIdamThread();
 
     int err = 0;
     REQUEST_BLOCK request_block;
     static short startup = 1;
 
-//-------------------------------------------------------------------------
-// Memory Debugger
+    //-------------------------------------------------------------------------
+    // Memory Debugger
 
 #ifdef MEMDEBUG
     mtrace();
 #endif
 
-//-------------------------------------------------------------------------
-// Open the Logs
+    //-------------------------------------------------------------------------
+    // Open the Logs
 
     IDAM_LOG(UDA_LOG_DEBUG, "Calling idamStartup\n");
 
@@ -166,8 +165,8 @@ int idamGetAPI(const char* data_object, const char* data_source)
 
     IDAM_LOG(UDA_LOG_DEBUG, "Returned from idamStartup\n");
 
-//-------------------------------------------------------------------------
-// Log all Arguments passed from Application
+    //-------------------------------------------------------------------------
+    // Log all Arguments passed from Application
 
 #ifdef ARGSTACK
     if(argstack == NULL) {
@@ -182,23 +181,23 @@ int idamGetAPI(const char* data_object, const char* data_source)
     }
 #endif
 
-//-------------------------------------------------------------------------
-// Initialise the Client Data Request Structure
+    //-------------------------------------------------------------------------
+    // Initialise the Client Data Request Structure
 
     initRequestBlock(&request_block);
 
-//------------------------------------------------------------------------------
-// Build the Request Data Block (Version and API dependent)
+    //------------------------------------------------------------------------------
+    // Build the Request Data Block (Version and API dependent)
 
     if (startup) {
-        initIdamErrorStack(&idamerrorstack);
+        initIdamErrorStack();
         startup = 0;
     }
 
     if ((err = makeClientRequestBlock(data_object, data_source, &request_block)) != 0) {
-        if (idamerrorstack.nerrors == 0) {
+        if (udaNumErrors() == 0) {
             IDAM_LOGF(UDA_LOG_ERROR, "Error identifying the Data Source [%s]\n", data_source);
-            addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, 999, "Error identifying the Data Source");
+            addIdamError(CODEERRORTYPE, __func__, 999, "Error identifying the Data Source");
         }
         unlockIdamThread();
         return -err;
@@ -207,8 +206,8 @@ int idamGetAPI(const char* data_object, const char* data_source)
     IDAM_LOG(UDA_LOG_DEBUG, "Routine: idamGetAPI\n");
     printRequestBlock(request_block);
 
-//-------------------------------------------------------------------------
-// Fetch Data
+    //-------------------------------------------------------------------------
+    // Fetch Data
 
 #ifdef TESTSERVERCLIENT
     unlockIdamThread();    
@@ -217,14 +216,14 @@ int idamGetAPI(const char* data_object, const char* data_source)
 
     err = idamClient(&request_block);
 
-//-------------------------------------------------------------------------
-// Memory Debugger Exit
+    //-------------------------------------------------------------------------
+    // Memory Debugger Exit
 
 #ifdef MEMDEBUG
     muntrace();
 #endif
 
-// Unlock the thread
+    // Unlock the thread
     unlockIdamThread();
     return err;
 }

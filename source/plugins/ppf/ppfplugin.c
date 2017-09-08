@@ -313,7 +313,7 @@ static int api_call(IDAM_PLUGIN_INTERFACE * ipi)
             if (err) {
                 const char * pszError = getErrorString(err);
 
-                addIdamError(&idamerrorstack, CODEERRORTYPE, PLUGIN_NAME, err, pszError);
+                addIdamError(CODEERRORTYPE, PLUGIN_NAME, err, pszError);
             }
         }
     }
@@ -331,7 +331,7 @@ int plugin_entry(IDAM_PLUGIN_INTERFACE * idam_plugin_interface)
     REQUEST_BLOCK * request_block = NULL;
     unsigned short housekeeping = 0;
 
-    initIdamErrorStack(&idamerrorstack);
+    initIdamErrorStack();
 
     if (idam_plugin_interface->interfaceVersion >= 1) {
 
@@ -344,7 +344,7 @@ int plugin_entry(IDAM_PLUGIN_INTERFACE * idam_plugin_interface)
         err = 999;
         IDAM_LOG(UDA_LOG_ERROR, "ERROR templatePlugin: Plugin Interface Version Unknown\n");
 
-        addIdamError(&idamerrorstack, CODEERRORTYPE, PLUGIN_NAME, err,
+        addIdamError(CODEERRORTYPE, PLUGIN_NAME, err,
                      "Plugin Interface Version is Not Known: Unable to execute the request!");
         return err;
     }
@@ -398,7 +398,7 @@ int plugin_entry(IDAM_PLUGIN_INTERFACE * idam_plugin_interface)
     }
     else {
         err = 999;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, PLUGIN_NAME, err, "Unknown function requested!");
+        addIdamError(CODEERRORTYPE, PLUGIN_NAME, err, "Unknown function requested!");
     }
 
 
@@ -459,12 +459,12 @@ static int readppf(IDAM_PLUGIN_INTERFACE * idam_plugin_interface)
            p1[0] = '\0';
            if((xsubset = atoi(&p1[1])) == 0){
 	      err = 999;
-              addIdamError(&idamerrorstack, CODEERRORTYPE, "readPPF", err, "Subsetting the X-Dimension begins at slice 1 not 0!");
+              addIdamError(CODEERRORTYPE, "readPPF", err, "Subsetting the X-Dimension begins at slice 1 not 0!");
               return err;
            }
 	} else {
 	    err = 999;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, PLUGIN_NAME, err, "Non-Standard PPF Signal Name Syntax Error!");
+            addIdamError(CODEERRORTYPE, PLUGIN_NAME, err, "Non-Standard PPF Signal Name Syntax Error!");
             return err;
         }
         strcpy(dtype, signal_desc->signal_name);
@@ -552,9 +552,9 @@ static int readppf(IDAM_PLUGIN_INTERFACE * idam_plugin_interface)
         msg[80] = '\0';
         TrimString(msg);
         if (err2 != 0)
-            addIdamError(&idamerrorstack, CODEERRORTYPE, PLUGIN_NAME, err, "PPFGO Error");
+            addIdamError(CODEERRORTYPE, PLUGIN_NAME, err, "PPFGO Error");
         else
-            addIdamError(&idamerrorstack, CODEERRORTYPE, PLUGIN_NAME, err, msg);
+            addIdamError(CODEERRORTYPE, PLUGIN_NAME, err, msg);
         PPFUID("JETPPF", "R", 7, 1);            // Reset to reading Public PPF's Only
         return err;
     }
@@ -577,9 +577,9 @@ static int readppf(IDAM_PLUGIN_INTERFACE * idam_plugin_interface)
         msg[80] = '\0';
         TrimString(msg);
         if (err2 != 0)
-            addIdamError(&idamerrorstack, CODEERRORTYPE, PLUGIN_NAME, err, "DDAINF Error");
+            addIdamError(CODEERRORTYPE, PLUGIN_NAME, err, "DDAINF Error");
         else
-            addIdamError(&idamerrorstack, CODEERRORTYPE, PLUGIN_NAME, err, msg);
+            addIdamError(CODEERRORTYPE, PLUGIN_NAME, err, msg);
         PPFUID("JETPPF", "R", 7, 1);            // Reset to reading Public PPF's Only
         return err;
     }
@@ -620,7 +620,7 @@ static int readppf(IDAM_PLUGIN_INTERFACE * idam_plugin_interface)
         }
     } else {
         err = 999;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, PLUGIN_NAME, err,
+        addIdamError(CODEERRORTYPE, PLUGIN_NAME, err,
                      "Unable to Identify the PPF DDA Data-Type Requested");
         PPFUID("JETPPF", "R", 7, 1);
         return err;
@@ -630,7 +630,7 @@ static int readppf(IDAM_PLUGIN_INTERFACE * idam_plugin_interface)
     // Subsetting indicies begin with value 1
     if (xsubset > 0 && xsubset > nx) {
         err = 995;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, PLUGIN_NAME, err,
+        addIdamError(CODEERRORTYPE, PLUGIN_NAME, err,
                      "The Requested X-Dimension Subset Exceeds the Valid X-Dimensions");
         PPFUID("JETPPF", "R", 7, 1);
         return err;
@@ -645,7 +645,7 @@ static int readppf(IDAM_PLUGIN_INTERFACE * idam_plugin_interface)
 
     if ((dvec = (float *) malloc(ndmax * sizeof(float))) == NULL) {
         err = 998;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, PLUGIN_NAME, err, "Data Heap Memory Allocation Failed");
+        addIdamError(CODEERRORTYPE, PLUGIN_NAME, err, "Data Heap Memory Allocation Failed");
         PPFUID("JETPPF", "R", 7, 1);
         return err;
     }
@@ -653,7 +653,7 @@ static int readppf(IDAM_PLUGIN_INTERFACE * idam_plugin_interface)
     if (nt > 0) {
         if ((tvec = (float *) malloc(nt * sizeof(float))) == NULL) {
             err = 997;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, PLUGIN_NAME, err, "Tvec Heap Memory Allocation Failed");
+            addIdamError(CODEERRORTYPE, PLUGIN_NAME, err, "Tvec Heap Memory Allocation Failed");
             PPFUID("JETPPF", "R", 7, 1);
             return err;
         }
@@ -662,7 +662,7 @@ static int readppf(IDAM_PLUGIN_INTERFACE * idam_plugin_interface)
     if (nx > 0) {
         if ((xvec = (float *) malloc(nx * sizeof(float))) == NULL) {
             err = 996;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, PLUGIN_NAME, err, "Xvec Heap Memory Allocation Failed");
+            addIdamError(CODEERRORTYPE, PLUGIN_NAME, err, "Xvec Heap Memory Allocation Failed");
             PPFUID("JETPPF", "R", 7, 1);
             return err;
         }
@@ -695,9 +695,9 @@ static int readppf(IDAM_PLUGIN_INTERFACE * idam_plugin_interface)
         msg[80] = '\0';
         TrimString(msg);
         if (err2 != 0)
-            addIdamError(&idamerrorstack, CODEERRORTYPE, PLUGIN_NAME, err, "PPFGET Error");
+            addIdamError(CODEERRORTYPE, PLUGIN_NAME, err, "PPFGET Error");
         else
-            addIdamError(&idamerrorstack, CODEERRORTYPE, PLUGIN_NAME, err, msg);
+            addIdamError(CODEERRORTYPE, PLUGIN_NAME, err, msg);
         if (dvec != NULL)free((void *) dvec);
         if (tvec != NULL)free((void *) tvec);
         if (xvec != NULL)free((void *) xvec);
@@ -811,7 +811,7 @@ static int readppf(IDAM_PLUGIN_INTERFACE * idam_plugin_interface)
 
         if ((sdvec = (float *) malloc(nt * sizeof(float))) == NULL) {
             err = 998;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, PLUGIN_NAME, err, "Xvec Subset Heap Memory Allocation Failed");
+            addIdamError(CODEERRORTYPE, PLUGIN_NAME, err, "Xvec Subset Heap Memory Allocation Failed");
             PPFUID("JETPPF", "R", 7, 1);
             return err;
         }
@@ -927,7 +927,7 @@ int call_ppfuid(IDAM_PLUGIN_INTERFACE * ipi)
     /*
      if( err )
       {
-      addIdamError(&idamerrorstack, CODEERRORTYPE, PLUGIN_NAME
+      addIdamError(CODEERRORTYPE, PLUGIN_NAME
     	 , err, "PPFUID ERROR");
       }
     */
@@ -952,7 +952,7 @@ int call_ppfgo(IDAM_PLUGIN_INTERFACE * ipi)
         PPFGO_DATABLOCK(&var, data_block);
 
     if (err) {
-        addIdamError(&idamerrorstack, CODEERRORTYPE, PLUGIN_NAME, err, "PPFGO ERROR");
+        addIdamError(CODEERRORTYPE, PLUGIN_NAME, err, "PPFGO ERROR");
     }
     return err;
 }
@@ -978,7 +978,7 @@ int call_ppfclo(IDAM_PLUGIN_INTERFACE * ipi)
 
      if( err )
       {
-      addIdamError(&idamerrorstack, CODEERRORTYPE, PLUGIN_NAME
+      addIdamError(CODEERRORTYPE, PLUGIN_NAME
     	 , err, "PPFCLO ERROR");
       }
     */
@@ -1003,7 +1003,7 @@ int call_ppferr(IDAM_PLUGIN_INTERFACE * ipi)
 
 
     if (err) {
-        addIdamError(&idamerrorstack, CODEERRORTYPE, PLUGIN_NAME, err, "PPFERR ERROR");
+        addIdamError(CODEERRORTYPE, PLUGIN_NAME, err, "PPFERR ERROR");
     }
 
     return err;
@@ -1031,7 +1031,7 @@ int call_ppfsqi(IDAM_PLUGIN_INTERFACE * ipi)
 
     if( err )
       {
-      addIdamError(&idamerrorstack, CODEERRORTYPE, PLUGIN_NAME
+      addIdamError(CODEERRORTYPE, PLUGIN_NAME
     	 , err, "PPFSQI ERROR");
       }
 
@@ -1057,7 +1057,7 @@ int call_ppfgqi(IDAM_PLUGIN_INTERFACE * ipi)
         PPFGQI_DATABLOCK(&var, data_block);
 
     if (err) {
-        addIdamError(&idamerrorstack, CODEERRORTYPE, PLUGIN_NAME, err, "PPFGQI ERROR");
+        addIdamError(CODEERRORTYPE, PLUGIN_NAME, err, "PPFGQI ERROR");
     }
 
     return err;
@@ -1080,7 +1080,7 @@ int call_ppfok(IDAM_PLUGIN_INTERFACE * ipi)
         PPFPOK_DATABLOCK(&var, data_block);
 
     if (err) {
-        addIdamError(&idamerrorstack, CODEERRORTYPE, PLUGIN_NAME, err, "PPFOK ERROR");
+        addIdamError(CODEERRORTYPE, PLUGIN_NAME, err, "PPFOK ERROR");
     }
     return err;
 }
@@ -1102,7 +1102,7 @@ int call_ppfgid(IDAM_PLUGIN_INTERFACE * ipi)
         PPFGID_DATABLOCK(&var, data_block);
 
     if (err) {
-        addIdamError(&idamerrorstack, CODEERRORTYPE, PLUGIN_NAME, err, "PPFGID ERROR");
+        addIdamError(CODEERRORTYPE, PLUGIN_NAME, err, "PPFGID ERROR");
     }
 
     return err;
@@ -1124,7 +1124,7 @@ int call_pdainf(IDAM_PLUGIN_INTERFACE * ipi)
         PDAINF_DATABLOCK(&var, data_block);
 
     if (err) {
-        addIdamError(&idamerrorstack, CODEERRORTYPE, PLUGIN_NAME, err, "PDAINF ERROR");
+        addIdamError(CODEERRORTYPE, PLUGIN_NAME, err, "PDAINF ERROR");
     }
 
     return err;
@@ -1172,7 +1172,7 @@ int call_ppfseq(IDAM_PLUGIN_INTERFACE * ipi)
         err = PPFSEQ_free(&var);
 
     if (err) {
-        addIdamError(&idamerrorstack, CODEERRORTYPE, PLUGIN_NAME, err, "PPFSEQ ERROR");
+        addIdamError(CODEERRORTYPE, PLUGIN_NAME, err, "PPFSEQ ERROR");
     }
 
 
@@ -1194,7 +1194,7 @@ int call_ppfinf(IDAM_PLUGIN_INTERFACE * ipi)
         err = PPFINF_DATABLOCK(&v, ipi->data_block);
 
     if (err) {
-        addIdamError(&idamerrorstack, CODEERRORTYPE, PLUGIN_NAME, err, "PPFINF ERROR");
+        addIdamError(CODEERRORTYPE, PLUGIN_NAME, err, "PPFINF ERROR");
     }
 
     return err;

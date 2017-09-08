@@ -1089,8 +1089,9 @@ void copyUserDefinedType(USERDEFINEDTYPE* old, USERDEFINEDTYPE* anew)
         udt.compoundfield[i] = old->compoundfield[i];
         if (old->compoundfield[i].rank > 0) {
             udt.compoundfield[i].shape = (int*)malloc(old->compoundfield[i].rank * sizeof(int));
-            for (j = 0; j < old->compoundfield[i].rank; j++)
+            for (j = 0; j < old->compoundfield[i].rank; j++) {
                 udt.compoundfield[i].shape[j] = old->compoundfield[i].shape[j];
+            }
         }
     }
     *anew = udt;
@@ -1101,12 +1102,12 @@ void copyUserDefinedType(USERDEFINEDTYPE* old, USERDEFINEDTYPE* anew)
 * @param anew The copy of the type definition list.
 * @return void.
 */
-void copyUserDefinedTypeList(USERDEFINEDTYPELIST **anew) {
+void copyUserDefinedTypeList(USERDEFINEDTYPELIST** anew) {
 #if defined(SERVERBUILD)
-    USERDEFINEDTYPELIST *list = (USERDEFINEDTYPELIST *) malloc(sizeof(USERDEFINEDTYPELIST));
+    USERDEFINEDTYPELIST* list = (USERDEFINEDTYPELIST*)malloc(sizeof(USERDEFINEDTYPELIST));
     initUserDefinedTypeList(list);
     list->listCount = parseduserdefinedtypelist.listCount; // Copy the standard set of structure definitions
-    list->userdefinedtype = (USERDEFINEDTYPE *)malloc(parseduserdefinedtypelist.listCount*sizeof(USERDEFINEDTYPE));
+    list->userdefinedtype = (USERDEFINEDTYPE*)malloc(parseduserdefinedtypelist.listCount * sizeof(USERDEFINEDTYPE));
 
     int i;
     for (i=0; i< list->listCount; i++) {
@@ -1114,17 +1115,17 @@ void copyUserDefinedTypeList(USERDEFINEDTYPELIST **anew) {
         USERDEFINEDTYPE usertypeNew;
         initUserDefinedType(&usertypeNew);
         usertypeNew = usertypeOld;
-        usertypeNew.image = (char *)malloc(usertypeOld.imagecount*sizeof(char));     // Copy pointer type (prevents double free)
+        usertypeNew.image = (char*)malloc(usertypeOld.imagecount * sizeof(char));     // Copy pointer type (prevents double free)
         memcpy (usertypeNew.image, usertypeOld.image, usertypeOld.imagecount);
 
-        usertypeNew.compoundfield = (COMPOUNDFIELD *)malloc(usertypeOld.fieldcount*sizeof(COMPOUNDFIELD));
+        usertypeNew.compoundfield = (COMPOUNDFIELD*)malloc(usertypeOld.fieldcount * sizeof(COMPOUNDFIELD));
 
         int j;
         for (j=0; j<usertypeOld.fieldcount; j++) {
             initCompoundField(&usertypeNew.compoundfield[j]);
             usertypeNew.compoundfield[j] = usertypeOld.compoundfield[j];
             if (usertypeOld.compoundfield[j].rank > 0) {
-                usertypeNew.compoundfield[j].shape = (int *)malloc(usertypeOld.compoundfield[j].rank*sizeof(int));
+                usertypeNew.compoundfield[j].shape = (int*)malloc(usertypeOld.compoundfield[j].rank * sizeof(int));
 
                 int k;
                 for (k=0; k<usertypeOld.compoundfield[j].rank; k++) {
@@ -1685,7 +1686,7 @@ int xdrUserDefinedTypeData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDT
     } else {
 
         if (userdefinedtype == NULL) {
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "xdrUserDefinedTypeData", 999,
+            addIdamError(CODEERRORTYPE, "xdrUserDefinedTypeData", 999,
                          "No User Defined Type passed - cannot send!");
             return 0;
         }
@@ -1983,7 +1984,9 @@ bool_t xdr_userdefinedtypelist(XDR* xdrs, USERDEFINEDTYPELIST* str)
     }
 
     if (!XDRstdioFlag) {
-        if (xdrs->x_op == XDR_ENCODE) rc = rc && xdrrec_endofrecord(xdrs, 1);
+        if (xdrs->x_op == XDR_ENCODE) {
+            rc = rc && xdrrec_endofrecord(xdrs, 1);
+        }
     }
 
     return rc;
@@ -2423,12 +2426,12 @@ void* getNodeStructureArrayData(LOGMALLOCLIST* logmalloclist, NTREE* ntree, int 
 {
     char* p;
     if (index < 0) {
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "getNodeStructureArrayData", 999, "The Tree Node array index < 0");
+        addIdamError(CODEERRORTYPE, "getNodeStructureArrayData", 999, "The Tree Node array index < 0");
         return NULL;
     }
     if (ntree == NULL) ntree = fullNTree;
     if (getNodeStructureDataCount(logmalloclist, ntree) < (index + 1)) {
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "getNodeStructureArrayData", 999,
+        addIdamError(CODEERRORTYPE, "getNodeStructureArrayData", 999,
                      "The Tree Node array index > allocated array dimension");
         return NULL;
     }
@@ -2449,11 +2452,11 @@ void* getNodeStructureComponentArrayData(LOGMALLOCLIST* logmalloclist, NTREE* nt
     int i, offset, count, size;
     char* p, * pp, * type;
     if (structureindex < 0) {
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "getNodeStructureComponentArrayData", 999,
+        addIdamError(CODEERRORTYPE, "getNodeStructureComponentArrayData", 999,
                      "The Tree Node Structure array index < 0");
     }
     if (componentindex < 0) {
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "getNodeStructureComponentArrayData", 999,
+        addIdamError(CODEERRORTYPE, "getNodeStructureComponentArrayData", 999,
                      "The Tree Node Structure Component array index < 0");
         return NULL;
     }
@@ -2474,14 +2477,14 @@ void* getNodeStructureComponentArrayData(LOGMALLOCLIST* logmalloclist, NTREE* nt
             }
             if (size == 0) return NULL;
             if (count <= componentindex) {
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "getNodeStructureComponentArrayData", 999,
+                addIdamError(CODEERRORTYPE, "getNodeStructureComponentArrayData", 999,
                              "The Tree Node Structure Component array index > allocated array dimension");
                 return NULL;
             }
             return (void*)&p[componentindex * size];
         }
     }
-    addIdamError(&idamerrorstack, CODEERRORTYPE, "getNodeStructureComponentArrayData", 999,
+    addIdamError(CODEERRORTYPE, "getNodeStructureComponentArrayData", 999,
                  "The named Tree Node Structure Component array is not a member of the Data structure");
     return NULL;
 }
@@ -3465,7 +3468,7 @@ void printNodeStructure(LOGMALLOCLIST* logmalloclist, NTREE* ntree)
                 }
             }
             if (node == NULL) {
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "printNodeStructure", 999,
+                addIdamError(CODEERRORTYPE, "printNodeStructure", 999,
                              "Structure Array element Node not Found!");
                 return;
             }

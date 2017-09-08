@@ -81,12 +81,7 @@ int put(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         request_block = idam_plugin_interface->request_block;
 
     } else {
-        err = 999;
-        IDAM_LOG(UDA_LOG_ERROR, "ERROR Provenance: Plugin Interface Version Unknown\n");
-
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "Provenance", err,
-                     "Plugin Interface Version is Not Known: Unable to execute the request!");
-        return err;
+        RAISE_PLUGIN_ERROR("Plugin Interface Version is Not Known: Unable to execute the request!");
     }
 
     IDAM_LOG(UDA_LOG_DEBUG, "Provenance: Plugin Interface transferred\n");
@@ -102,10 +97,7 @@ int put(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             TrimString(root);
             IDAM_LOGF(UDA_LOG_DEBUG, "Provenance: Archive root directory [%s]\n", root);
         } else {
-            err = 999;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "Provenance", err,
-                         "No Provenance Data Archive Root specified!");
-            return err;
+            RAISE_PLUGIN_ERROR("No Provenance Data Archive Root specified!");
         }
     }
 
@@ -231,9 +223,7 @@ int put(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     }
 
     if (!isUID) {
-        err = 999;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "Provenance", err, "No unique identifier passed!");
-        return err;
+        RAISE_PLUGIN_ERROR("No unique identifier passed!");
     }
 
 //----------------------------------------------------------------------------------------
@@ -266,7 +256,7 @@ int put(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Open a log file to record all activities and errors
 
-        char* logName = (char*) malloc((strlen(newDir) + strlen(UID) + strlen(LOGEXT) + 3) * sizeof(char));
+        char* logName = (char*)malloc((strlen(newDir) + strlen(UID) + strlen(LOGEXT) + 3) * sizeof(char));
         sprintf(logName, "%s/%s.%s", newDir, UID, LOGEXT);
 
         unsigned short newDirLength = strlen(newDir) + 1;
@@ -274,21 +264,22 @@ int put(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         for (i = newDirLength; i < newDirLength + uidLength; i++)
             if (logName[i] == '/') logName[i] = '-';
 
-        if (isReplace)
+        if (isReplace) {
             log = fopen(logName, "w");    // Rewrite the log
-        else
-            log = fopen(logName, "a");    // Append all entries to the log
+        } else {
+            log = fopen(logName, "a");
+        }    // Append all entries to the log
 
 
         if (log == NULL || errno != 0) {
             err = 999;
-            if (errno != 0) addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "Provenance", errno, "");
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "Provenance", err, "Unable to Open the Provenance Log file!");
+            if (errno != 0) addIdamError(SYSTEMERRORTYPE, "Provenance", errno, "");
+            addIdamError(CODEERRORTYPE, "Provenance", err, "Unable to Open the Provenance Log file!");
             IDAM_LOGF(UDA_LOG_DEBUG, "Provenance Error: Unable to Open the Provenance Log file! [%s]\n", logName);
-            free((void*) logName);
+            free((void*)logName);
             break;
         }
-        if (logName != NULL) free((void*) logName);
+        if (logName != NULL) free((void*)logName);
 
 //----------------------------------------------------------------------------------------
 // Copy all files to the provenance archive
@@ -342,7 +333,7 @@ int put(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             strcpy(data_block->data_desc, "path to provenance records");
         } else {
             if (newDir != NULL) free(newDir);
-            data_block->data = (char*) malloc(sizeof(char));
+            data_block->data = (char*)malloc(sizeof(char));
             data_block->data[0] = '\0';
             data_block->data_type = TYPE_CHAR;
             data_block->rank = 0;
@@ -366,7 +357,7 @@ int makeProvenanceDir(char** newDir, char* root, char* UID, unsigned short* prio
 // directory = Provenance Archive Root + UID
 
     *priorDir = 0;
-    *newDir = (char*) malloc((strlen(root) + strlen(UID) + 2) * sizeof(char));
+    *newDir = (char*)malloc((strlen(root) + strlen(UID) + 2) * sizeof(char));
     sprintf(*newDir, "%s/%s", root, UID);
 
     char* p = *newDir;        // root must already exist!
@@ -404,8 +395,8 @@ int makeProvenanceDir(char** newDir, char* root, char* UID, unsigned short* prio
 
     if (rc != 0 || errno != 0) {
         err = 999;
-        if (errno != 0) addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "Provenance", errno, "");
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "Provenance", err,
+        if (errno != 0) addIdamError(SYSTEMERRORTYPE, "Provenance", errno, "");
+        addIdamError(CODEERRORTYPE, "Provenance", err,
                      "Unable to create a Provenance Archive Directory!");
         if (*newDir != NULL) free(*newDir);
         *newDir = NULL;
@@ -441,8 +432,8 @@ void getFileList(char* list, char*** fileList, char*** fileNames, unsigned short
 
 // Allocate array
 
-    *fileList = (char**) malloc(count * sizeof(char*));
-    *fileNames = (char**) malloc(count * sizeof(char*));
+    *fileList = (char**)malloc(count * sizeof(char*));
+    *fileNames = (char**)malloc(count * sizeof(char*));
 
 // Deconstruct the list, checking for a full path - adding if missing 
 
@@ -454,22 +445,22 @@ void getFileList(char* list, char*** fileList, char*** fileNames, unsigned short
 
         if (p0[0] == '/' && (p1 = strrchr(p0, '/')) != p0) {
             pathLength = p1 - p0;
-            if (path != NULL) free((void*) path);
-            path = (char*) malloc((pathLength + 1) * sizeof(char));
+            if (path != NULL) free((void*)path);
+            path = (char*)malloc((pathLength + 1) * sizeof(char));
             strncpy(path, p0, pathLength);                        // Reset the latest path
             path[pathLength] = '\0';
         }
 
         if ((p1 = strrchr(p0, '/')) != NULL || path == NULL) {            // contains the path
-            (*fileList)[i] = (char*) malloc((strlen(p0) + 1) * sizeof(char));
+            (*fileList)[i] = (char*)malloc((strlen(p0) + 1) * sizeof(char));
             strcpy((*fileList)[i], p0);
-            (*fileNames)[i] = (char*) malloc(
+            (*fileNames)[i] = (char*)malloc(
                     (strlen(&p1[1]) + 1) * sizeof(char));        // The file's name (needed for dup test)
             strcpy((*fileNames)[i], &p1[1]);
         } else {                                    // Add the previous path
-            (*fileList)[i] = (char*) malloc((strlen(p0) + pathLength + 2) * sizeof(char));
+            (*fileList)[i] = (char*)malloc((strlen(p0) + pathLength + 2) * sizeof(char));
             sprintf((*fileList)[i], "%s/%s", path, p0);
-            (*fileNames)[i] = (char*) malloc((strlen(p0) + 1) * sizeof(char));
+            (*fileNames)[i] = (char*)malloc((strlen(p0) + 1) * sizeof(char));
             strcpy((*fileNames)[i], p0);
         }
         p0 = &p[1];
@@ -477,18 +468,18 @@ void getFileList(char* list, char*** fileList, char*** fileNames, unsigned short
     }
 
     if ((p1 = strrchr(p0, '/')) != NULL || path == NULL) {
-        (*fileList)[i] = (char*) malloc((strlen(p0) + 1) * sizeof(char));
+        (*fileList)[i] = (char*)malloc((strlen(p0) + 1) * sizeof(char));
         strcpy((*fileList)[i], p0);
-        (*fileNames)[i] = (char*) malloc((strlen(&p1[1]) + 1) * sizeof(char));
+        (*fileNames)[i] = (char*)malloc((strlen(&p1[1]) + 1) * sizeof(char));
         strcpy((*fileNames)[i], &p1[1]);
     } else {
-        (*fileList)[i] = (char*) malloc((strlen(p0) + pathLength + 2) * sizeof(char));
+        (*fileList)[i] = (char*)malloc((strlen(p0) + pathLength + 2) * sizeof(char));
         sprintf((*fileList)[i], "%s/%s", path, p0);
-        (*fileNames)[i] = (char*) malloc((strlen(p0) + 1) * sizeof(char));
+        (*fileNames)[i] = (char*)malloc((strlen(p0) + 1) * sizeof(char));
         strcpy((*fileNames)[i], p0);
     }
     *fileListCount = i + 1;
-    if (path != NULL) free((void*) path);
+    if (path != NULL) free((void*)path);
 
     return;
 }
@@ -498,8 +489,8 @@ void getFileList(char* list, char*** fileList, char*** fileNames, unsigned short
 void freeFileNameList(char*** list, unsigned short fileCount)
 {
     unsigned int i;
-    for (i = 0; i < fileCount; i++) if ((*list)[i] != NULL) free((void*) (*list)[i]);
-    free((void*) *list);
+    for (i = 0; i < fileCount; i++) if ((*list)[i] != NULL) free((void*)(*list)[i]);
+    free((void*)*list);
     *list = NULL;
 }
 
@@ -510,7 +501,7 @@ int fileSHA1(char* file, unsigned char* out)
     FILE* f = fopen(file, "rb");
     if (f == NULL) return -1;
     SHA1_Init(&sc);
-    for (; ;) {
+    for (;;) {
         size_t len;
         len = fread(buf, 1, sizeof buf, f);
         if (len == 0) break;
@@ -587,16 +578,18 @@ int copyProvenanceWebFile(char* oldFile, char* dir, char* newFileName, FILE* log
             unsigned int lstr = strlen(webURL);
             p = &oldFile[lstr];
             if (p[0] == '/') p = &oldFile[lstr + 1];        // drop leading '/' character
-            copyFile = (char*) malloc((strlen(webDir) + strlen(p) + 2) * sizeof(char));
+            copyFile = (char*)malloc((strlen(webDir) + strlen(p) + 2) * sizeof(char));
             sprintf(copyFile, "%s/%s", webDir, p);
-        } else
+        } else {
             copyFile = oldFile;
+        }
 
-        newFile = (char*) malloc((strlen(dir) + strlen(newFileName) + 2) * sizeof(char));
+        newFile = (char*)malloc((strlen(dir) + strlen(newFileName) + 2) * sizeof(char));
         sprintf(newFile, "%s/%s", dir, newFileName);
 
         gettimeofday(&tv_start, NULL);
-        IDAM_LOGF(UDA_LOG_DEBUG, "\nProvenance Put\nTarget file to copy - %s\nCopy location - %s\n\n", copyFile, newFile);
+        IDAM_LOGF(UDA_LOG_DEBUG, "\nProvenance Put\nTarget file to copy - %s\nCopy location - %s\n\n", copyFile,
+                  newFile);
 
         if (log != NULL) fprintf(log, "Snapshot copy of [%s] to [%s]\n", copyFile, newFile);
 
@@ -612,16 +605,16 @@ int copyProvenanceWebFile(char* oldFile, char* dir, char* newFileName, FILE* log
 
         if (ph == NULL || errno != 0) {
             err = 999;
-            if (errno != 0) addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "Provenance", errno, "");
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "Provenance", err, "Cannot copy file to data archive");
+            if (errno != 0) addIdamError(SYSTEMERRORTYPE, "Provenance", errno, "");
+            addIdamError(CODEERRORTYPE, "Provenance", err, "Cannot copy file to data archive");
             IDAM_LOGF(UDA_LOG_DEBUG, "Error: Unable to copy the file! [%s]\n", copyFile);
             if (log != NULL) fprintf(log, "Error: Unable to copy the file!\n");
             break;
         }
 
         gettimeofday(&tv_stop, NULL);
-        msecs = (int) (tv_stop.tv_sec - tv_start.tv_sec) * 1000 + (int) (tv_stop.tv_usec - tv_start.tv_usec) / 1000;
-        usecs = (int) (tv_stop.tv_sec - tv_start.tv_sec) * 1000000 + (int) (tv_stop.tv_usec - tv_start.tv_usec);
+        msecs = (int)(tv_stop.tv_sec - tv_start.tv_sec) * 1000 + (int)(tv_stop.tv_usec - tv_start.tv_usec) / 1000;
+        usecs = (int)(tv_stop.tv_sec - tv_start.tv_sec) * 1000000 + (int)(tv_stop.tv_usec - tv_start.tv_usec);
         IDAM_LOGF(UDA_LOG_DEBUG, "Provenance: scp Cost %d (ms), %d (microsecs)\n", msecs, usecs);
         tv_start = tv_stop;
         if (log != NULL) fprintf(log, "Copy cost %d (ms), %d (microsecs)\n", msecs, usecs);
@@ -677,24 +670,27 @@ int copyProvenanceFile(char* oldFile, char* dir, char* newFileName)
             unsigned int lstr = strlen(webURL);
             p = &oldFile[lstr];
             if (p[0] == '/') p = &oldFile[lstr + 1];        // drop leading '/' character
-            copyFile = (char*) malloc((strlen(webDir) + strlen(p) + 2) * sizeof(char));
+            copyFile = (char*)malloc((strlen(webDir) + strlen(p) + 2) * sizeof(char));
             sprintf(copyFile, "%s/%s", webDir, p);
-        } else
+        } else {
             copyFile = oldFile;
+        }
 
-        newFile = (char*) malloc((strlen(dir) + strlen(newFileName) + 2) * sizeof(char));
+        newFile = (char*)malloc((strlen(dir) + strlen(newFileName) + 2) * sizeof(char));
         sprintf(newFile, "%s/%s", dir, newFileName);
 
-        IDAM_LOGF(UDA_LOG_DEBUG, "\nProvenance Put\nTarget file to copy - %s\nCopy location - %s\n\n", copyFile, newFile);
+        IDAM_LOGF(UDA_LOG_DEBUG, "\nProvenance Put\nTarget file to copy - %s\nCopy location - %s\n\n", copyFile,
+                  newFile);
 
 // Read file attributes
 
         errno = 0;
         if ((rc = stat(copyFile, &attributes)) != 0 || errno != 0) {
             err = 999;
-            if (errno != 0) addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "Provenance", errno, "");
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "Provenance", err, "Unable to read the file's attributes!");
-            IDAM_LOGF(UDA_LOG_DEBUG, "Error: Unable to read the file's attributes! [%s] %s\n", copyFile, strerror(errno));
+            if (errno != 0) addIdamError(SYSTEMERRORTYPE, "Provenance", errno, "");
+            addIdamError(CODEERRORTYPE, "Provenance", err, "Unable to read the file's attributes!");
+            IDAM_LOGF(UDA_LOG_DEBUG, "Error: Unable to read the file's attributes! [%s] %s\n", copyFile,
+                      strerror(errno));
             break;
         }
 
@@ -702,7 +698,7 @@ int copyProvenanceFile(char* oldFile, char* dir, char* newFileName)
 
         if (!S_ISREG(attributes.st_mode)) {
             err = 999;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "Provenance", err, "Not a Regular File!");
+            addIdamError(CODEERRORTYPE, "Provenance", err, "Not a Regular File!");
             IDAM_LOGF(UDA_LOG_DEBUG, "Error: Not a Regular File! [%s]\n", copyFile);
             break;
         }
@@ -711,16 +707,16 @@ int copyProvenanceFile(char* oldFile, char* dir, char* newFileName)
 
         if ((in = fopen(copyFile, "rb")) == NULL || errno != 0) {
             err = 999;
-            if (errno != 0) addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "Provenance", errno, "");
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "Provenance", err, "Unable to Open the file for copying!");
+            if (errno != 0) addIdamError(SYSTEMERRORTYPE, "Provenance", errno, "");
+            addIdamError(CODEERRORTYPE, "Provenance", err, "Unable to Open the file for copying!");
             IDAM_LOGF(UDA_LOG_DEBUG, "Error: Unable to Open the file for copying! [%s]\n", copyFile);
             break;
         }
 
         if ((out = fopen(newFile, "w")) == NULL || errno != 0) {    // Replace if the file exists
             err = 999;
-            if (errno != 0) addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "Provenance", errno, "");
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "Provenance", err, "Unable to Open the file for writing!");
+            if (errno != 0) addIdamError(SYSTEMERRORTYPE, "Provenance", errno, "");
+            addIdamError(CODEERRORTYPE, "Provenance", err, "Unable to Open the file for writing!");
             IDAM_LOGF(UDA_LOG_DEBUG, "Error: Unable to Open the file for writing! [%s]\n", newFile);
             break;
         }
@@ -728,18 +724,19 @@ int copyProvenanceFile(char* oldFile, char* dir, char* newFileName)
         while ((count = fread(buffer, sizeof(char), BUFFERSIZE, in)) > 0 && errno == 0) {
             if ((n = fwrite(buffer, sizeof(char), count, out)) != count || errno != 0) {
                 err = 999;
-                if (errno != 0) addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "Provenance", errno, "");
-                if (n != count)
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "Provenance", err, "Inconsistent byte count");
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "Provenance", err, "Unable to Write the file!");
+                if (errno != 0) addIdamError(SYSTEMERRORTYPE, "Provenance", errno, "");
+                if (n != count) {
+                    addIdamError(CODEERRORTYPE, "Provenance", err, "Inconsistent byte count");
+                }
+                addIdamError(CODEERRORTYPE, "Provenance", err, "Unable to Write the file!");
                 IDAM_LOGF(UDA_LOG_DEBUG, "Error: Unable to Write the file! [%s]\n", newFile);
                 break;
             }
         }
         if (errno != 0) {
             err = 999;
-            if (errno != 0) addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "Provenance", errno, "");
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "Provenance", err, "Unable to Read and Write the file!");
+            if (errno != 0) addIdamError(SYSTEMERRORTYPE, "Provenance", errno, "");
+            addIdamError(CODEERRORTYPE, "Provenance", err, "Unable to Read and Write the file!");
             IDAM_LOGF(UDA_LOG_DEBUG, "Error: Unable to Read and Write the file! [%s, %s]\n", copyFile, newFile);
             break;
         }
@@ -758,8 +755,8 @@ int copyProvenanceFile(char* oldFile, char* dir, char* newFileName)
 
         if ((rc = utime(newFile, &mtime)) != 0 || errno != 0) {
             err = 999;
-            if (errno != 0) addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "Provenance", errno, "");
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "Provenance", err,
+            if (errno != 0) addIdamError(SYSTEMERRORTYPE, "Provenance", errno, "");
+            addIdamError(CODEERRORTYPE, "Provenance", err,
                          "Unable to Set the file copy's time stamp!");
             IDAM_LOGF(UDA_LOG_DEBUG, "Error: Unable to Set the file copy's time stamp! [%s]\n", newFile);
             break;
@@ -769,15 +766,15 @@ int copyProvenanceFile(char* oldFile, char* dir, char* newFileName)
 
         if ((rc = fileSHA1(copyFile, oldHash)) != 0) {
             err = 999;
-            if (errno != 0) addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "Provenance", errno, "");
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "Provenance", err, "Unable to hash the original file!");
+            if (errno != 0) addIdamError(SYSTEMERRORTYPE, "Provenance", errno, "");
+            addIdamError(CODEERRORTYPE, "Provenance", err, "Unable to hash the original file!");
             IDAM_LOGF(UDA_LOG_DEBUG, "Error: Unable to hash the original file! [%s]\n", copyFile);
             break;
         }
         if ((rc = fileSHA1(newFile, newHash)) != 0) {
             err = 999;
-            if (errno != 0) addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "Provenance", errno, "");
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "Provenance", err, "Unable to hash the file copy!");
+            if (errno != 0) addIdamError(SYSTEMERRORTYPE, "Provenance", errno, "");
+            addIdamError(CODEERRORTYPE, "Provenance", err, "Unable to hash the file copy!");
             IDAM_LOGF(UDA_LOG_DEBUG, "Error: Unable to hash the file copy! [%s]\n", newFile);
             break;
         }
@@ -786,8 +783,8 @@ int copyProvenanceFile(char* oldFile, char* dir, char* newFileName)
         for (i = 0; i < HASHLENGTH; i++) rc += oldHash[i] != newHash[i];
         if (rc != 0) {
             err = 999;
-            if (errno != 0) addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "Provenance", errno, "");
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "Provenance", err,
+            if (errno != 0) addIdamError(SYSTEMERRORTYPE, "Provenance", errno, "");
+            addIdamError(CODEERRORTYPE, "Provenance", err,
                          "The original file and the file copy have different hash sums!");
             IDAM_LOG(UDA_LOG_DEBUG, "Error: The original file and the file copy have different hash sums!\n");
             break;

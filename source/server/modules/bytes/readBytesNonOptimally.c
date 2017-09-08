@@ -39,7 +39,7 @@ int readBytes(DATA_SOURCE data_source,
               SIGNAL_DESC signal_desc,
               DATA_BLOCK *data_block) {
     int err = 999;
-    addIdamError(&idamerrorstack, CODEERRORTYPE, "readBytes", err, "PLUGIN NOT ENABLED");
+    addIdamError(CODEERRORTYPE, "readBytes", err, "PLUGIN NOT ENABLED");
     return err;
 }
 
@@ -66,7 +66,7 @@ int readBytes(DATA_SOURCE data_source,
 
     if (environment->external_user) {
         err = 999;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "readBytes", err, "This Service is Disabled");
+        addIdamError(CODEERRORTYPE, "readBytes", err, "This Service is Disabled");
         IDAM_LOGF(UDA_LOG_DEBUG, "Disabled Service - Requested File: %s \n", data_source.path);
         return err;
     }
@@ -76,7 +76,7 @@ int readBytes(DATA_SOURCE data_source,
 
     if (!IsLegalFilePath(data_source.path)) {
         err = 999;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "readBytes", err, "The directory path has incorrect syntax");
+        addIdamError(CODEERRORTYPE, "readBytes", err, "The directory path has incorrect syntax");
         IDAM_LOGF(UDA_LOG_DEBUG, "The directory path has incorrect syntax [%s] \n", data_source.path);
         return err;
     }
@@ -103,8 +103,8 @@ int readBytes(DATA_SOURCE data_source,
 
     if (fh == NULL || ferror(fh) || serrno != 0) {
         err = BYTEFILEOPENERROR;
-        if (serrno != 0) addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "readBytes", serrno, "");
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "readBytes", err, "Unable to Open the File for Read Access");
+        if (serrno != 0) addIdamError(SYSTEMERRORTYPE, "readBytes", serrno, "");
+        addIdamError(CODEERRORTYPE, "readBytes", err, "Unable to Open the File for Read Access");
         if (fh != NULL) fclose(fh);
         return err;
     }
@@ -124,7 +124,7 @@ int readBytes(DATA_SOURCE data_source,
         while (!feof(fh)) {
             if ((bp = (char*) realloc(bp, data_block->data_n)) == NULL) {
                 err = BYTEFILEHEAPERROR;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readBytes", err,
+                addIdamError(CODEERRORTYPE, "readBytes", err,
                              "Unable to Allocate Heap Memory for the File");
                 break;
             }

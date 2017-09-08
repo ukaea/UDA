@@ -104,16 +104,6 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
     FILE* xdrfile = NULL;
 #endif
 
-    char tempFile[MAXPATH] = "/tmp/idamXDRXXXXXX";
-    char* env = NULL;
-
-    if ((privateFlags & PRIVATEFLAG_XDRFILE) && protocolVersion >= 5) {
-        if((env = getenv("UDA_WORK_DIR")) != NULL) {
-            // File to record XDR encoded data
-            sprintf(tempFile, "%s/idamXDRXXXXXX", env);
-        }
-    }
-
     //----------------------------------------------------------------------------
     // Check Versions
 
@@ -123,11 +113,10 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
     // xdrs->x_op == XDR_ENCODE && protocolVersion == 3 Means Server sending data to a Version 3 Client
 
 #ifndef FATCLIENT
-
     if ((xdrs->x_op == XDR_DECODE && protocolVersion < 3) || (xdrs->x_op == XDR_ENCODE && protocolVersion < 3))
         return 0;
-
 #endif
+
     //----------------------------------------------------------------------------
     // Error Management Loop
 
@@ -142,7 +131,6 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
             data_block = (DATA_BLOCK*)str;
 
             if (data_block->opaque_type == OPAQUE_TYPE_STRUCTURES) {
-                int packageType = 0;
 
                 IDAM_LOG(UDA_LOG_DEBUG, "protocolXML: Compound Data Structure\n");
                 IDAM_LOGF(UDA_LOG_DEBUG, "direction  : %d [%d][%d]\n", (int) xdrs->x_op, XDR_ENCODE, XDR_DECODE);
@@ -161,7 +149,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                         err = 999;
                         IDAM_LOG(UDA_LOG_DEBUG, "protocolXML: NULL SARRAY User defined data Structure Definition\n");
                         printUserDefinedTypeListTable(*userdefinedtypelist);
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "protocolXML", err,
+                        addIdamError(CODEERRORTYPE, "protocolXML", err,
                                      "NULL User defined data Structure Definition");
                         break;
                     }
@@ -182,17 +170,24 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                     rc = 1;
 
 #ifndef FATCLIENT
+                    char tempFile[MAXPATH] = "/tmp/idamXDRXXXXXX";
 
-                    // If access is server to server then avoid multiple write/reads of structure components over xdr by creating a
-                    // temporary xdr file and passing the file. Structures need only be created in the originating client, not the
-                    // intermediate server clients. Control using a global properties flag: privateFlags - passed from the originating client
-                    // to all servers along the chain
+                    // If access is server to server then avoid multiple write/reads of structure components over xdr
+                    // by creating a temporary xdr file and passing the file. Structures need only be created in the
+                    // originating client, not the intermediate server clients. Control using a global properties flag:
+                    // privateFlags - passed from the originating client to all servers along the chain
 
                     IDAM_LOGF(UDA_LOG_DEBUG, "protocolXML: privateFlags   : %d \n", privateFlags);
                     IDAM_LOGF(UDA_LOG_DEBUG, "protocolXML: protocolVersion: %d \n", protocolVersion);
 
-                    if ((privateFlags & PRIVATEFLAG_XDRFILE) &&
-                        protocolVersion >= 5) {        // Server calling another server
+                    if ((privateFlags & PRIVATEFLAG_XDRFILE) && protocolVersion >= 5) {
+                        char* env;
+                        if((env = getenv("UDA_WORK_DIR")) != NULL) {
+                            // File to record XDR encoded data
+                            sprintf(tempFile, "%s/idamXDRXXXXXX", env);
+                        }
+
+                        // Server calling another server
 
                         // Create a temporary or cached XDR file
 
@@ -202,18 +197,18 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                         if (mkstemp(tempFile) < 0 || errno != 0) {
                             err = 999;
                             if (errno != 0) err = errno;
-                            addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "protocolXML", err,
-                                         " Unable to Obtain a Temporary/Cache File Name");
+                            addIdamError(SYSTEMERRORTYPE, "protocolXML", err,
+                                         "Unable to Obtain a Temporary/Cache File Name");
                             break;
                         }
                         if ((xdrfile = fopen(tempFile, "wb")) == NULL) {
                             err = 999;
-                            addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "protocolXML", err,
-                                         " Unable to Open a Temporary/Cache XDR File for Writing");
+                            addIdamError(SYSTEMERRORTYPE, "protocolXML", err,
+                                         "Unable to Open a Temporary/Cache XDR File for Writing");
                             break;
                         }
 
-                        packageType = PACKAGE_XDRFILE;          // The package is a file
+                        int packageType = PACKAGE_XDRFILE;          // The package is a file
                         rc = xdr_int(xdrs, &packageType);       // Send data package type
                         rc = rc && xdrrec_endofrecord(xdrs, 1);
 
@@ -226,7 +221,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                         IDAM_LOGF(UDA_LOG_DEBUG, "protocolXML: stdio XDR file: %s\n", tempFile);
 
                     } else {
-                        packageType = PACKAGE_STRUCTDATA;        // The package is regular XDR
+                        int packageType = PACKAGE_STRUCTDATA;        // The package is regular XDR
 
                         IDAM_LOGF(UDA_LOG_DEBUG, "protocolXML: Sending Package Type: %d\n", packageType);
 
@@ -246,7 +241,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
 
                     if (!rc) {
                         err = 999;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "protocolXML", err,
+                        addIdamError(CODEERRORTYPE, "protocolXML", err,
                                      "Bad Return Code passing data structures");
                         break;
                     }
@@ -299,6 +294,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                     // Option 3 does not include intermediate file caching - option 2 only
 
                     int option = 4;
+                    int packageType = 0;
 
 #ifndef FATCLIENT
                     IDAM_LOG(UDA_LOG_DEBUG, "protocolXML: Receiving Package Type\n");
@@ -308,19 +304,20 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
 #else
                     rc = 1;
 
-                    if (privateFlags & PRIVATEFLAG_XDRFILE)
+                    if (privateFlags & PRIVATEFLAG_XDRFILE) {
                         packageType = PACKAGE_XDRFILE;
-                    else
+                    } else {
                         packageType = PACKAGE_STRUCTDATA;
+                    }
 #endif
 
-                    if ((privateFlags & PRIVATEFLAG_XDRFILE) == 0 && packageType == PACKAGE_STRUCTDATA) option = 1;
-                    if ((privateFlags & PRIVATEFLAG_XDRFILE) == 0 && packageType == PACKAGE_XDRFILE &&
-                        protocolVersion >= 5)
+                    if ((privateFlags & PRIVATEFLAG_XDRFILE) == 0 && packageType == PACKAGE_STRUCTDATA) {
+                        option = 1;
+                    } else if ((privateFlags & PRIVATEFLAG_XDRFILE) == 0 && packageType == PACKAGE_XDRFILE && protocolVersion >= 5) {
                         option = 2;
-                    if ((privateFlags & PRIVATEFLAG_XDRFILE) == 1 && packageType == PACKAGE_XDRFILE &&
-                        protocolVersion >= 5)
+                    } if ((privateFlags & PRIVATEFLAG_XDRFILE) == 1 && packageType == PACKAGE_XDRFILE && protocolVersion >= 5) {
                         option = 3;
+                    }
 
                     IDAM_LOGF(UDA_LOG_DEBUG, "protocolXML: %d  %d\n", privateFlags & PRIVATEFLAG_XDRFILE,
                             packageType == PACKAGE_STRUCTDATA);
@@ -329,12 +326,13 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
 
                     if (option == 4) {
                         err = 999;
-                        addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "protocolXML", err,
-                                     "Unknown package Type control option");
+                        addIdamError(SYSTEMERRORTYPE, "protocolXML", err, "Unknown package Type control option");
                         break;
                     }
 
                     // Read xdr file without unpacking the structures
+
+                    char tempFile[MAXPATH] = "/tmp/idamXDRXXXXXX";
 
                     if (option == 3) {
 
@@ -344,10 +342,10 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                         if (mkstemp(tempFile) < 0 || errno != 0) {
                             err = 998;
                             if (errno != 0) err = errno;
-                            addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "protocolXML", err,
+                            addIdamError(SYSTEMERRORTYPE, "protocolXML", err,
                                          "Unable to Obtain a Temporary File Name [3]");
                             err = 998;
-                            addIdamError(&idamerrorstack, CODEERRORTYPE, "protocolXML", err, tempFile);
+                            addIdamError(CODEERRORTYPE, "protocolXML", err, tempFile);
                             IDAM_LOGF(UDA_LOG_DEBUG, "Unable to Obtain a Temporary File Name [3], tempFile=[%s]\n",
                                     tempFile);
                             break;
@@ -390,10 +388,10 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                             if (mkstemp(tempFile) < 0 || errno != 0) {
                                 err = 997;
                                 if (errno != 0) err = errno;
-                                addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "protocolXML", err,
+                                addIdamError(SYSTEMERRORTYPE, "protocolXML", err,
                                              " Unable to Obtain a Temporary File Name [2]");
                                 err = 997;
-                                addIdamError(&idamerrorstack, CODEERRORTYPE, "protocolXML", err, tempFile);
+                                addIdamError(CODEERRORTYPE, "protocolXML", err, tempFile);
                                 IDAM_LOGF(UDA_LOG_DEBUG, "Unable to Obtain a Temporary File Name [2], tempFile=[%s]\n",
                                         tempFile);
                                 break;
@@ -405,7 +403,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
 
                             if ((xdrfile = fopen(tempFile, "rb")) == NULL) {    // Read temporary file
                                 err = 999;
-                                addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "protocolXML", err,
+                                addIdamError(SYSTEMERRORTYPE, "protocolXML", err,
                                              " Unable to Open a Temporary XDR File for Writing");
                                 break;
                             }
@@ -425,7 +423,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
 
                         if (!rc) {
                             err = 999;
-                            addIdamError(&idamerrorstack, CODEERRORTYPE, "protocolXML", err,
+                            addIdamError(CODEERRORTYPE, "protocolXML", err,
                                          "Failure receiving Structure Definitions");
                             break;
                         }
@@ -437,7 +435,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                         IDAM_LOG(UDA_LOG_DEBUG, "protocolXML: xdrUserDefinedTypeData #B\n");
                         if (!rc) {
                             err = 999;
-                            addIdamError(&idamerrorstack, CODEERRORTYPE, "protocolXML", err,
+                            addIdamError(CODEERRORTYPE, "protocolXML", err,
                                          "Failure receiving Data and Structure Definition");
                             break;
                         }
@@ -475,7 +473,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                             SARRAY* s = (SARRAY*) data;
                             if (s->count != data_block->data_n) {                // check for consistency
                                 err = 999;
-                                addIdamError(&idamerrorstack, CODEERRORTYPE, "protocolXML", err,
+                                addIdamError(CODEERRORTYPE, "protocolXML", err,
                                              "Inconsistent S Array Counts");
                                 break;
                             }
@@ -488,7 +486,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
 
                         } else {
                             err = 999;
-                            addIdamError(&idamerrorstack, CODEERRORTYPE, "protocolXML", err,
+                            addIdamError(CODEERRORTYPE, "protocolXML", err,
                                          "Name of Received Data Structure Incorrect");
                             break;
                         }
@@ -499,7 +497,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
 
                 } else {
                     err = 999;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "protocolXML", err, "Unknown Opaque type");
+                    addIdamError(CODEERRORTYPE, "protocolXML", err, "Unknown Opaque type");
                     break;
                 }
             }
@@ -521,14 +519,16 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
 
                         // Create a temporary XDR file, receive and write data to the file
 
+                        char tempFile[MAXPATH] = "/tmp/idamXDRXXXXXX";
+
                         errno = 0;
                         if (mkstemp(tempFile) < 0 || errno != 0) {
                             err = 996;
                             if (errno != 0) err = errno;
-                            addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "protocolXML", err,
+                            addIdamError(SYSTEMERRORTYPE, "protocolXML", err,
                                          " Unable to Obtain a Temporary File Name");
                             err = 996;
-                            addIdamError(&idamerrorstack, CODEERRORTYPE, "protocolXML", err, tempFile);
+                            addIdamError(CODEERRORTYPE, "protocolXML", err, tempFile);
                             IDAM_LOGF(UDA_LOG_DEBUG, "Unable to Obtain a Temporary File Name, tempFile=[%s]\n", tempFile);
                             break;
                         }
@@ -563,7 +563,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
 
                             if ((xdrfile = fopen(tempFile, "rb")) == NULL) {    // Read temporary file
                                 err = 999;
-                                addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "protocolXML", err,
+                                addIdamError(SYSTEMERRORTYPE, "protocolXML", err,
                                              " Unable to Open a Temporary XDR File for Writing");
                                 break;
                             }
@@ -578,7 +578,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
 
                             if (!rc) {
                                 err = 999;
-                                addIdamError(&idamerrorstack, CODEERRORTYPE, "protocolXML", err,
+                                addIdamError(CODEERRORTYPE, "protocolXML", err,
                                              "Failure receiving Structure Definitions");
                                 break;
                             }
@@ -589,7 +589,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
 
                             if (!rc) {
                                 err = 999;
-                                addIdamError(&idamerrorstack, CODEERRORTYPE, "protocolXML", err,
+                                addIdamError(CODEERRORTYPE, "protocolXML", err,
                                              "Failure receiving Data and Structure Definition");
                                 break;
                             }
@@ -618,7 +618,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                                 SARRAY* s = (SARRAY*) data;
                                 if (s->count != data_block->data_n) {                // check for consistency
                                     err = 999;
-                                    addIdamError(&idamerrorstack, CODEERRORTYPE, "protocolXML", err,
+                                    addIdamError(CODEERRORTYPE, "protocolXML", err,
                                                  "Inconsistent S Array Counts");
                                     break;
                                 }
@@ -632,7 +632,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
 
                             } else {
                                 err = 999;
-                                addIdamError(&idamerrorstack, CODEERRORTYPE, "protocolXML", err,
+                                addIdamError(CODEERRORTYPE, "protocolXML", err,
                                              "Name of Received Data Structure Incorrect");
                                 break;
                             }
@@ -640,7 +640,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                     }
                 } else {
                     err = 999;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "protocolXML", err, "Unknown Opaque type");
+                    addIdamError(CODEERRORTYPE, "protocolXML", err, "Unknown Opaque type");
                     break;
                 }
             }

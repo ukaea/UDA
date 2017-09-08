@@ -153,27 +153,27 @@ int readCDF4Var(GROUPLIST grouplist, int varid, int isCoordinate, int rank, int*
 
             if ((rc = nc_inq_att(grpid, varid, "extent", &atttype, &attlen)) != NC_NOERR) {
                 err = NETCDF_ERROR_INQUIRING_DIM_3;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDFVar", err, (char*)nc_strerror(rc));
+                addIdamError(CODEERRORTYPE, "readCDFVar", err, (char*)nc_strerror(rc));
                 return err;
             }
 
             if (atttype != NC_UINT) {
                 err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDFVar", err,
+                addIdamError(CODEERRORTYPE, "readCDFVar", err,
                              "Extent attribute of Variable is Not an Unsigned Integer");
                 return err;
             }
 
             if (attlen != rank && rank > 0) {
                 err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDFVar", err,
+                addIdamError(CODEERRORTYPE, "readCDFVar", err,
                              "Extent attribute of Variable has an Inconsistent Rank");
                 return err;
             }
 
             if ((rc = nc_get_att_uint(grpid, varid, "extent", extent)) != NC_NOERR) {
                 err = NETCDF_ERROR_INQUIRING_DIM_3;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDFVar", err, (char*)nc_strerror(rc));
+                addIdamError(CODEERRORTYPE, "readCDFVar", err, (char*)nc_strerror(rc));
                 free((void*)extent);
                 return err;
             }
@@ -209,13 +209,13 @@ int readCDF4Var(GROUPLIST grouplist, int varid, int isCoordinate, int rank, int*
 
             if (isCoordinate && rank > 1 && cdfsubset.subsetCount > 0) {
                 err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDFVar", err, "Unable to Subset a Coordinate Variable with a Rank >= 2!");
+                addIdamError(CODEERRORTYPE, "readCDFVar", err, "Unable to Subset a Coordinate Variable with a Rank >= 2!");
                 break;
             }
 
             if (start == NULL || count == NULL || dnums == NULL) {
                 err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDFVar", err, "Unable to Allocate Heap for Shape Arrays");
+                addIdamError(CODEERRORTYPE, "readCDFVar", err, "Unable to Allocate Heap for Shape Arrays");
                 break;
             }
 
@@ -226,7 +226,7 @@ int readCDF4Var(GROUPLIST grouplist, int varid, int isCoordinate, int rank, int*
                 } else {
                     if ((rc = nc_inq_dim(grpid, dimids[i], dimname, (size_t*)&dnums[i])) != NC_NOERR) {
                         err = NETCDF_ERROR_INQUIRING_DIM_3;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDFVar", err, (char*)nc_strerror(rc));
+                        addIdamError(CODEERRORTYPE, "readCDFVar", err, (char*)nc_strerror(rc));
                         break;
                     }
 
@@ -256,7 +256,7 @@ int readCDF4Var(GROUPLIST grouplist, int varid, int isCoordinate, int rank, int*
                             } else {
                                 if (cdfsubset.stop[i] > (size_t)(dnums[i] - 1)) {
                                     err = 999;
-                                    addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDFVar", err,
+                                    addIdamError(CODEERRORTYPE, "readCDFVar", err,
                                                  "Invalid Stop Index in subset operation");
                                     break;
                                 }
@@ -283,7 +283,7 @@ int readCDF4Var(GROUPLIST grouplist, int varid, int isCoordinate, int rank, int*
                                 } else {
                                     if (cdfsubset.stop[j] > (size_t)(dnums[0] - 1)) {
                                         err = 999;
-                                        addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDFVar", err, "Invalid Stop Index in subset operation");
+                                        addIdamError(CODEERRORTYPE, "readCDFVar", err, "Invalid Stop Index in subset operation");
                                         break;
                                     }
                                 }
@@ -334,7 +334,7 @@ int readCDF4Var(GROUPLIST grouplist, int varid, int isCoordinate, int rank, int*
 
         if ((rc = nc_inq_vartype(grpid, varid, &vartype)) != NC_NOERR) {
             err = NETCDF_ERROR_INQUIRING_VARIABLE_3;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDFVar", err, (char*)nc_strerror(rc));
+            addIdamError(CODEERRORTYPE, "readCDFVar", err, (char*)nc_strerror(rc));
             break;
         }
 
@@ -456,7 +456,7 @@ int readCDF4Var(GROUPLIST grouplist, int varid, int isCoordinate, int rank, int*
 
                         if (*udt == NULL) {
                             err = 999;
-                            addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDFVar", err,
+                            addIdamError(CODEERRORTYPE, "readCDFVar", err,
                                          "User Defined Type definition Not within Scope!");
                             break;
                         }
@@ -490,7 +490,7 @@ int readCDF4Var(GROUPLIST grouplist, int varid, int isCoordinate, int rank, int*
         } else {
             if (dvec == NULL && vartype != NC_STRING) {
                 err = NETCDF_ERROR_ALLOCATING_HEAP_6;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDFVar", err, "Unable to Allocate Heap Memory for the Data");
+                addIdamError(CODEERRORTYPE, "readCDFVar", err, "Unable to Allocate Heap Memory for the Data");
                 break;
             }
         }
@@ -504,7 +504,7 @@ int readCDF4Var(GROUPLIST grouplist, int varid, int isCoordinate, int rank, int*
                         if (vartype == NC_STRING) {
                             if (rank > 1) {
                                 err = 999;
-                                addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDFVar", err, "String Array rank is too large - must be 1");
+                                addIdamError(CODEERRORTYPE, "readCDFVar", err, "String Array rank is too large - must be 1");
                                 break;
                             }
 
@@ -525,7 +525,7 @@ int readCDF4Var(GROUPLIST grouplist, int varid, int isCoordinate, int rank, int*
                     } else {
                         if (vartype == NC_STRING) {
                             err = 999;
-                            addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDFVar", err,
+                            addIdamError(CODEERRORTYPE, "readCDFVar", err,
                                          "Subsetting of String array is Not implemented!");
                             break;
                         }
@@ -554,7 +554,7 @@ int readCDF4Var(GROUPLIST grouplist, int varid, int isCoordinate, int rank, int*
 
                 if (rc != NC_NOERR) {
                     err = NETCDF_ERROR_INQUIRING_VARIABLE_10;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDFVar", err, (char*)nc_strerror(rc));
+                    addIdamError(CODEERRORTYPE, "readCDFVar", err, (char*)nc_strerror(rc));
                     break;
                 }
 
@@ -574,13 +574,13 @@ int readCDF4Var(GROUPLIST grouplist, int varid, int isCoordinate, int rank, int*
 
                         if ((rc = nc_inq_enum(grpid, vartype, name, &base, &size, &members)) != NC_NOERR) {
                             err = 999;
-                            addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDFVar", err, (char*)nc_strerror(rc));
+                            addIdamError(CODEERRORTYPE, "readCDFVar", err, (char*)nc_strerror(rc));
                             break;
                         }
 
                         if (members == 0) {
                             err = 999;
-                            addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDFVar", err,
+                            addIdamError(CODEERRORTYPE, "readCDFVar", err,
                                          "Enumerated Type has Zero Membership?");
                             break;
                         }
@@ -701,7 +701,7 @@ int readCDF4AVar(GROUPLIST grouplist, int grpid, int varid, nc_type atttype, cha
 
         if ((rc = nc_inq_attlen(grpid, varid, name, &attlen)) != NC_NOERR) {
             err = 999;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDFAVar", err, (char*)nc_strerror(rc));
+            addIdamError(CODEERRORTYPE, "readCDFAVar", err, (char*)nc_strerror(rc));
             break;
         }
 
@@ -826,7 +826,7 @@ int readCDF4AVar(GROUPLIST grouplist, int grpid, int varid, nc_type atttype, cha
 
                         if (*udt == NULL) {
                             err = 999;
-                            addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDFAVar", err,
+                            addIdamError(CODEERRORTYPE, "readCDFAVar", err,
                                          "Unknown Data Type: User Defined Type definition Not within Scope!");
                             break;
                         }
@@ -854,7 +854,7 @@ int readCDF4AVar(GROUPLIST grouplist, int grpid, int varid, nc_type atttype, cha
 
         if (dvec == NULL && atttype != NC_STRING) {
             err = NETCDF_ERROR_ALLOCATING_HEAP_6;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDFAVar", err,
+            addIdamError(CODEERRORTYPE, "readCDFAVar", err,
                          "Unable to Allocate Heap Memory for the Data");
             break;
         }
@@ -886,13 +886,13 @@ int readCDF4AVar(GROUPLIST grouplist, int grpid, int varid, nc_type atttype, cha
 
                 if ((rc = nc_inq_enum(grpid, atttype, name, &base, &size, &members)) != NC_NOERR) {
                     err = 999;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDFAVar", err, (char*)nc_strerror(rc));
+                    addIdamError(CODEERRORTYPE, "readCDFAVar", err, (char*)nc_strerror(rc));
                     break;
                 }
 
                 if (members == 0) {
                     err = 999;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDFAVar", err,
+                    addIdamError(CODEERRORTYPE, "readCDFAVar", err,
                                  "Enumerated Type has Zero Membership?");
                     break;
                 }
@@ -956,7 +956,7 @@ int readCDF4AVar(GROUPLIST grouplist, int grpid, int varid, nc_type atttype, cha
 
         if (rc != NC_NOERR) {
             err = NETCDF_ERROR_INQUIRING_VARIABLE_10;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDFAVar", err, (char*)nc_strerror(rc));
+            addIdamError(CODEERRORTYPE, "readCDFAVar", err, (char*)nc_strerror(rc));
             break;
         }
 
@@ -1006,7 +1006,7 @@ int readCDF4Err(int grpid, int varid, int isCoordinate, int class, int rank, int
 
     if ((rc = nc_inq_att(grpid, varid, "errors", &atttype, &attlen)) != NC_NOERR) {
         err = NETCDF_ERROR_INQUIRING_DIM_3;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF4Err", err, (char*)nc_strerror(rc));
+        addIdamError(CODEERRORTYPE, "readCDF4Err", err, (char*)nc_strerror(rc));
         return err;
     }
 
@@ -1025,14 +1025,14 @@ int readCDF4Err(int grpid, int varid, int isCoordinate, int class, int rank, int
         if (atttype == NC_CHAR) {
             if ((errors = (char*)malloc((attlen + 1) * sizeof(char))) == NULL) {
                 err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF4Err", err,
+                addIdamError(CODEERRORTYPE, "readCDF4Err", err,
                              "Unable to Allocate Heap for Errors Variable Name");
                 return err;
             }
 
             if ((rc = nc_get_att_text(grpid, varid, "errors", errors)) != NC_NOERR) {
                 err = NETCDF_ERROR_INQUIRING_DIM_3;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF4Err", err, (char*)nc_strerror(rc));
+                addIdamError(CODEERRORTYPE, "readCDF4Err", err, (char*)nc_strerror(rc));
                 free((void*)errors);
                 return err;
             }
@@ -1041,7 +1041,7 @@ int readCDF4Err(int grpid, int varid, int isCoordinate, int class, int rank, int
             char** errs = (char**)malloc(attlen * sizeof(char*));
             if ((rc = nc_get_att_string(grpid, NC_GLOBAL, "errors", errs)) != NC_NOERR) {
                 err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF", err, (char*)nc_strerror(rc));
+                addIdamError(CODEERRORTYPE, "readCDF", err, (char*)nc_strerror(rc));
                 return err;
             }
             attlen = (int)strlen(errs[0]) + 1;
@@ -1055,7 +1055,7 @@ int readCDF4Err(int grpid, int varid, int isCoordinate, int class, int rank, int
 
         if ((rc = nc_inq_varid(grpid, errors, &errid)) != NC_NOERR) {
             err = NETCDF_ERROR_INQUIRING_VARIABLE_1;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF4Err", err, (char*)nc_strerror(rc));
+            addIdamError(CODEERRORTYPE, "readCDF4Err", err, (char*)nc_strerror(rc));
             free((void*)errors);
             return err;
         }
@@ -1064,14 +1064,14 @@ int readCDF4Err(int grpid, int varid, int isCoordinate, int class, int rank, int
 
         if ((extent = (unsigned int*)malloc((rank + 1) * sizeof(unsigned int))) == NULL) {
             err = 999;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF4Err", err,
+            addIdamError(CODEERRORTYPE, "readCDF4Err", err,
                          "Unable to Allocate Heap for Extent Array");
             return err;
         }
         for (i = 0; i < rank; i++) extent[i] = 0;
         if ((err = readCDF4Var(grouplist, errid, isCoordinate, rank, dimids, extent, nevec, error_type, &isIndex, edata,
                                logmalloclist, userdefinedtypelist, &udt)) != 0) {
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF4Err", err, "Unable to Read Error Values");
+            addIdamError(CODEERRORTYPE, "readCDF4Err", err, "Unable to Read Error Values");
             free((void*)extent);
             return err;
         }
@@ -1083,7 +1083,7 @@ int readCDF4Err(int grpid, int varid, int isCoordinate, int class, int rank, int
         if (class == RAW_DATA && (!isCoordinate || rank == 1)) {
             if ((rc = applyCDFCalibration(grpid, errid, *nevec, error_type, edata)) != NC_NOERR) {
                 err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "read4Err", err, (char*)nc_strerror(rc));
+                addIdamError(CODEERRORTYPE, "read4Err", err, (char*)nc_strerror(rc));
                 return err;
             }
         }
@@ -1096,7 +1096,7 @@ int readCDF4Err(int grpid, int varid, int isCoordinate, int class, int rank, int
         if ((err = readCDF4AVar(grouplist, grpid, errid, atttype, "errors", nevec, ndimatt, error_type, edata,
                                 logmalloclist, userdefinedtypelist, &udt)) !=
             0) {
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF4Err", err, "Unable to Read Error Values");
+            addIdamError(CODEERRORTYPE, "readCDF4Err", err, "Unable to Read Error Values");
             return err;
         }
 
@@ -1124,7 +1124,7 @@ int applyCDFCalibration(int grpid, int varid, int ndata, int* type, char** data)
     if ((rc = nc_inq_att(grpid, varid, "scale", &xtypep, &lenp)) == NC_NOERR) {        // Scale Exists
         if (lenp != 1) {
             err = 999;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF", err, "Scale Factor Attribute is not a Scalar");
+            addIdamError(CODEERRORTYPE, "readCDF", err, "Scale Factor Attribute is not a Scalar");
             return err;
         }
         if (xtypep == NC_FLOAT) {
@@ -1139,14 +1139,14 @@ int applyCDFCalibration(int grpid, int varid, int ndata, int* type, char** data)
                 }
             } else {
                 err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF", err,
+                addIdamError(CODEERRORTYPE, "readCDF", err,
                              "Scale Factor Type is neither Float nor Double");
                 return err;
             }
         }
         if (rc != NC_NOERR) {
             err = 999;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF", err, (char*)nc_strerror(rc));
+            addIdamError(CODEERRORTYPE, "readCDF", err, (char*)nc_strerror(rc));
             return rc;
         }
     }
@@ -1154,7 +1154,7 @@ int applyCDFCalibration(int grpid, int varid, int ndata, int* type, char** data)
     if ((rc = nc_inq_att(grpid, varid, "offset", &xtypep, &lenp)) == NC_NOERR) {        // Offset Exists
         if (lenp != 1) {
             err = 999;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF", err, "Offset Factor Attribute is not a Scalar");
+            addIdamError(CODEERRORTYPE, "readCDF", err, "Offset Factor Attribute is not a Scalar");
             return err;
         }
         if (xtypep == NC_FLOAT) {
@@ -1169,14 +1169,14 @@ int applyCDFCalibration(int grpid, int varid, int ndata, int* type, char** data)
                 }
             } else {
                 err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF", err,
+                addIdamError(CODEERRORTYPE, "readCDF", err,
                              "Offset Factor Type is neither Float nor Double");
                 return err;
             }
         }
         if (rc != NC_NOERR) {
             err = 999;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF", err, (char*)nc_strerror(rc));
+            addIdamError(CODEERRORTYPE, "readCDF", err, (char*)nc_strerror(rc));
             return rc;
         }
     }
@@ -1432,14 +1432,14 @@ int readCDFCheckCoordinate(int grpid, int varid, int rank, int ncoords, char* co
 
         if ((dimids = (int*)malloc(rank * sizeof(int))) == NULL) {
             err = NETCDF_ERROR_ALLOCATING_HEAP_1;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF", err,
+            addIdamError(CODEERRORTYPE, "readCDF", err,
                          "Problem Allocating Heap Memory for dimids array");
             break;
         }
 
         if ((rc = nc_inq_vardimid(grpid, varid, dimids)) != NC_NOERR) {
             err = NETCDF_ERROR_INQUIRING_DIM_2;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDFCheckCoordinate", err, (char*)nc_strerror(rc));
+            addIdamError(CODEERRORTYPE, "readCDFCheckCoordinate", err, (char*)nc_strerror(rc));
             break;
         }
 
@@ -1448,7 +1448,7 @@ int readCDFCheckCoordinate(int grpid, int varid, int rank, int ncoords, char* co
 
         if ((extent = (unsigned int*)malloc((rank + 1) * sizeof(unsigned int))) == NULL) {
             err = NETCDF_ERROR_ALLOCATING_HEAP_1;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDFCheckCoordinate", err,
+            addIdamError(CODEERRORTYPE, "readCDFCheckCoordinate", err,
                          "Problem Allocating Heap Memory for extent array");
             break;
         }
@@ -1464,7 +1464,7 @@ int readCDFCheckCoordinate(int grpid, int varid, int rank, int ncoords, char* co
                           logmalloclist, userdefinedtypelist, &udt);
 
         if (err != 0) {
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDFCheckCoordinate", err, "Unable to Read Data Values");
+            addIdamError(CODEERRORTYPE, "readCDFCheckCoordinate", err, "Unable to Read Data Values");
             break;
         }
 
@@ -1473,7 +1473,7 @@ int readCDFCheckCoordinate(int grpid, int varid, int rank, int ncoords, char* co
 
         if (extent[1] != ncoords) {
             err = 999;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDFCheckCoordinate", err,
+            addIdamError(CODEERRORTYPE, "readCDFCheckCoordinate", err,
                          "Inconsistent Array Lengths found: Cannot Check Multi-Dimensional Coordinate is Constant");
             break;
         }
@@ -1674,7 +1674,7 @@ int readCDFCheckCoordinate(int grpid, int varid, int rank, int ncoords, char* co
                         break;
                     } else {
                         err = NETCDF_ERROR_ALLOCATING_HEAP_6;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDFVar", err, "Unknown Data Type");
+                        addIdamError(CODEERRORTYPE, "readCDFVar", err, "Unknown Data Type");
                         return err;
                     }
                 }
@@ -1896,7 +1896,7 @@ int readCDF4ParseSubset(char* op, CDFSUBSET* cdfsubset)
                         }
                         if ((int)cdfsubset->start[i] < 0) {
                             err = 999;
-                            addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF", err,
+                            addIdamError(CODEERRORTYPE, "readCDF", err,
                                          "Invalid Start Index in subset operation");
                             rc = -1;
                             break;
@@ -1921,7 +1921,7 @@ int readCDF4ParseSubset(char* op, CDFSUBSET* cdfsubset)
                         }
                         if ((int)cdfsubset->stop[i] < 0) {
                             err = 999;
-                            addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF", err,
+                            addIdamError(CODEERRORTYPE, "readCDF", err,
                                          "Invalid sample End Index in subset operation");
                             rc = -1;
                             break;
@@ -1931,7 +1931,7 @@ int readCDF4ParseSubset(char* op, CDFSUBSET* cdfsubset)
 
                         if ((int)cdfsubset->count[i] < 1) {
                             err = 999;
-                            addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF", err,
+                            addIdamError(CODEERRORTYPE, "readCDF", err,
                                          "Invalid Stop Index in subset operation");
                             rc = -1;
                             break;
@@ -1957,7 +1957,7 @@ int readCDF4ParseSubset(char* op, CDFSUBSET* cdfsubset)
                             }
                             if ((int)cdfsubset->stride[i] <= 0) {
                                 err = 999;
-                                addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF", err,
+                                addIdamError(CODEERRORTYPE, "readCDF", err,
                                              "Invalid sample stride length in subset operation");
                                 rc = -1;
                                 break;
@@ -1995,7 +1995,7 @@ int readCDF4ParseSubset(char* op, CDFSUBSET* cdfsubset)
                             }
                             if ((int)cdfsubset->start[i] < 0) {
                                 err = 999;
-                                addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF", err,
+                                addIdamError(CODEERRORTYPE, "readCDF", err,
                                              "Invalid start index in subset operation");
                                 rc = -1;
                                 break;

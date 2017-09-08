@@ -35,7 +35,7 @@ int readNothing(DATA_SOURCE data_source,
                 SIGNAL_DESC signal_desc,
                 DATA_BLOCK *data_block) {
     int err = 999;
-    addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF", err, "PLUGIN NOT ENABLED");
+    addIdamError(CODEERRORTYPE, "readCDF", err, "PLUGIN NOT ENABLED");
     return err;
 }
 
@@ -60,7 +60,7 @@ int readNothing(DATA_SOURCE data_source,
 
     if ((fp = (float*)malloc(data_block->data_n * sizeof(float))) == NULL) {
         err = HEAPERROR;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "readNothing", err, "Unable to Allocate Heap Memory for the Test");
+        addIdamError(CODEERRORTYPE, "readNothing", err, "Unable to Allocate Heap Memory for the Test");
         return err;
     }
 
@@ -75,7 +75,7 @@ int readNothing(DATA_SOURCE data_source,
 
     if ((data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS))) == NULL) {
         err = HEAPERROR;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "readNothing", err,
+        addIdamError(CODEERRORTYPE, "readNothing", err,
                      "Problem Allocating Dimension Heap Memory #1 for Test");
         freeDataBlock(data_block);
         return err;
@@ -83,7 +83,7 @@ int readNothing(DATA_SOURCE data_source,
 
     if ((fdp = (float*)malloc(data_block->data_n * sizeof(float))) == NULL) {
         err = HEAPERROR;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "readNothing", err,
+        addIdamError(CODEERRORTYPE, "readNothing", err,
                      "Problem Allocating Dimension Heap Memory #2 for Test");
         freeDataBlock(data_block);
         return err;

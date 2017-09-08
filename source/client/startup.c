@@ -90,7 +90,7 @@ int idamStartup(int reset)
     idamSetLogFile(UDA_LOG_INFO, file);
 
     if (errno != 0) {
-        addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "idamStartup", errno, "failed to open debug log");
+        addIdamError(SYSTEMERRORTYPE, "idamStartup", errno, "failed to open debug log");
         idamCloseLogging();
         return -1;
     }
@@ -103,7 +103,7 @@ int idamStartup(int reset)
     }
 
     if (errno != 0) {
-        addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "idamStartup", errno, "failed to open error log");
+        addIdamError(SYSTEMERRORTYPE, "idamStartup", errno, "failed to open error log");
         idamCloseLogging();
         return -1;
     }

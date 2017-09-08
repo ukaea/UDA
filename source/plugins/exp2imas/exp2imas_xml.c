@@ -8,6 +8,7 @@
 #include <clientserver/errorLog.h>
 #include <logging/logging.h>
 #include <clientserver/stringUtils.h>
+#include <plugins/udaPlugin.h>
 
 static int convertToInt(char* value);
 static char** getContent(xmlNode* node, size_t data_n);
@@ -382,7 +383,8 @@ int execute_xpath_expression(const char* filename, const xmlChar* xpathExpr, cha
 
         *data = (char*)strings;
     } else {
-        addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, 999, "Unsupported data type");
+        xmlXPathFreeObject(xpathObj);
+        RAISE_PLUGIN_ERROR("Unsupported data type");
     }
 
     /* Cleanup */
@@ -491,7 +493,7 @@ int convertToInt(char* value)
         i = TYPE_INT;
     } else {
         err = 999;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, err, "Unsupported data type");
+        addIdamError(CODEERRORTYPE, __func__, err, "Unsupported data type");
     }
     return i;
 }

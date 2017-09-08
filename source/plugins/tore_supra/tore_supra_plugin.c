@@ -63,15 +63,8 @@ int tsPlugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     unsigned short housekeeping;
 
-    if (idam_plugin_interface->interfaceVersion >
-        THISPLUGIN_MAX_INTERFACE_VERSION) {
-        err = 999;
-        IDAM_LOG(UDA_LOG_ERROR,
-                 "ERROR templatePlugin: Plugin Interface Version Unknown to this plugin: Unable to execute the request!\n");
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "templatePlugin",
-                     err,
-                     "Plugin Interface Version Unknown to this plugin: Unable to execute the request!");
-        return err;
+    if (idam_plugin_interface->interfaceVersion > THISPLUGIN_MAX_INTERFACE_VERSION) {
+        RAISE_PLUGIN_ERROR("Plugin Interface Version Unknown to this plugin: Unable to execute the request!");
     }
 
     idam_plugin_interface->pluginVersion = THISPLUGIN_VERSION;
@@ -158,15 +151,8 @@ int tsPlugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     } else if (STR_IEQUALS(request_block->function, "read")) {
         err = do_read(idam_plugin_interface);
     } else {
-        // ======================================================================================
-        // Error ...
-        err = 999;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "templatePlugin",
-                     err, "Unknown function requested!");
+        RAISE_PLUGIN_ERROR("Unknown function requested!");
     }
-
-    // --------------------------------------------------------------------------------------
-    // Housekeeping
 
     return err;
 }
@@ -315,9 +301,7 @@ int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             free(data);
         } else {
             err = 999;
-            addIdamError(&idamerrorstack, CODEERRORTYPE,
-                         "tore_supra : Unsupported data type", err,
-                         "");
+            addIdamError(CODEERRORTYPE,  __func__, err, "Unsupported data type");
         }
 
         free(data_block->dims);
@@ -383,9 +367,7 @@ int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             strcpy(data_block->data_desc, "");
         } else {
             err = 999;
-            addIdamError(&idamerrorstack, CODEERRORTYPE,
-                         "tore_supra : Unsupported data type", err,
-                         "");
+            addIdamError(CODEERRORTYPE, __func__, err, "Unsupported data type");
         }
     }
 
@@ -406,9 +388,8 @@ char* getTSToIDSMappingFileName(const char* IDSRequest, int shot)
         mappingVersion = 1;
     } else {
         int err = -100;
-        addIdamError(&idamerrorstack, CODEERRORTYPE,
-                     "tore_supra : no TS/IDS mapping file available for the requested shot number",
-                     err, "");
+        addIdamError(CODEERRORTYPE, __func__, err,
+                     "no TS/IDS mapping file available for the requested shot number");
     }
 
     char* dir = getenv("UDA_TS_MAPPING_FILE_DIRECTORY");
@@ -482,8 +463,7 @@ char* getMappingValue(const char* mappingFileName, const char* IDSRequest,
         value = strdup((char*)cur->content);
     } else {
         err = 998;
-        addIdamError(&idamerrorstack, CODEERRORTYPE,
-                     "tore_supra plugin", err,
+        addIdamError(CODEERRORTYPE, __func__, err,
                      "no result on XPath request, no key attribute defined?");
     }
 
@@ -514,9 +494,8 @@ char* getMappingValue(const char* mappingFileName, const char* IDSRequest,
         typeStr = strdup((char*)cur->content);
     } else {
         err = 998;
-        addIdamError(&idamerrorstack, CODEERRORTYPE,
-                     "tore_supra plugin : no result on XPath request, no key attribute defined ?",
-                     err, "");
+        addIdamError(CODEERRORTYPE, __func__, err,
+                     "no result on XPath request, no key attribute defined?");
     }
 
     if (typeStr == NULL) {

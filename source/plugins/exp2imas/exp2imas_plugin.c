@@ -213,8 +213,6 @@ xmlChar* insertNodeIndices(const xmlChar* xpathExpr, int** indices, size_t* n_in
 // Add functionality here ....
 int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
-    int err = 0;
-
     DATA_BLOCK* data_block = idam_plugin_interface->data_block;
 
     initDataBlock(data_block);
@@ -344,8 +342,7 @@ int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             setReturnDataString(data_block, deblank(sdata[data_idx]), NULL);
             FreeSplitStringTokens((char***)&data);
         } else {
-            err = 999;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, err, "Unsupported data type");
+            RAISE_PLUGIN_ERROR("Unsupported data type");
         }
 
         return 0;
@@ -455,8 +452,7 @@ int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             strcpy(data_block->data_units, "");
             strcpy(data_block->data_desc, "");
         } else {
-            err = 999;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, err, "Unsupported data type");
+            RAISE_PLUGIN_ERROR("Unsupported data type");
         }
     }
 
@@ -493,7 +489,7 @@ xmlChar* getMappingValue(const char* mapping_file_name, const char* request, MAP
          */
         doc = xmlParseFile(mapping_file_name);
         if (doc == NULL) {
-            addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, 999, "unable to parse file");
+            addIdamError(CODEERRORTYPE, __func__, 999, "unable to parse file");
             IDAM_LOGF(UDA_LOG_ERROR, "unable to parse file \"%s\"\n", mapping_file_name);
             return NULL;
         }
@@ -507,7 +503,7 @@ xmlChar* getMappingValue(const char* mapping_file_name, const char* request, MAP
          */
         xpath_ctx = xmlXPathNewContext(doc);
         if (xpath_ctx == NULL) {
-            addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, 999, "unable to create new XPath context");
+            addIdamError(CODEERRORTYPE, __func__, 999, "unable to create new XPath context");
             IDAM_LOGF(UDA_LOG_ERROR, "unable to create new XPath context\n", mapping_file_name);
 //            xmlFreeDoc(doc);
             return NULL;
@@ -526,7 +522,7 @@ xmlChar* getMappingValue(const char* mapping_file_name, const char* request, MAP
      */
     xmlXPathObjectPtr xpath_obj = xmlXPathEvalExpression(xpath_expr, xpath_ctx);
     if (xpath_obj == NULL) {
-        addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, 999, "unable to evaluate xpath expression");
+        addIdamError(CODEERRORTYPE, __func__, 999, "unable to evaluate xpath expression");
         IDAM_LOGF(UDA_LOG_ERROR, "unable to evaluate xpath expression \"%s\"\n", xpath_expr);
         free(xpath_expr);
 //        xmlXPathFreeContext(xpath_ctx);
@@ -546,7 +542,7 @@ xmlChar* getMappingValue(const char* mapping_file_name, const char* request, MAP
         value = xmlStrdup(current_node->content);
     } else {
         err = 998;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, err, "no result on XPath request, no key attribute defined?");
+        addIdamError(CODEERRORTYPE, __func__, err, "no result on XPath request, no key attribute defined?");
     }
 
     fmt = "//mapping[@key='%s']/@type";
@@ -561,7 +557,7 @@ xmlChar* getMappingValue(const char* mapping_file_name, const char* request, MAP
     xmlXPathFreeObject(xpath_obj);
     xpath_obj = xmlXPathEvalExpression(xpath_expr, xpath_ctx);
     if (xpath_obj == NULL) {
-        addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, 999, "unable to evaluate xpath expression");
+        addIdamError(CODEERRORTYPE, __func__, 999, "unable to evaluate xpath expression");
         IDAM_LOGF(UDA_LOG_ERROR, "unable to evaluate xpath expression \"%s\"\n", xpath_expr);
         free(xpath_expr);
 //        xmlXPathFreeContext(xpath_ctx);
@@ -578,7 +574,8 @@ xmlChar* getMappingValue(const char* mapping_file_name, const char* request, MAP
         type_str = strdup((char*)current_node->content);
     } else {
         err = 998;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, err, "no result on XPath request, no key attribute defined?");
+        addIdamError(CODEERRORTYPE, __func__, err, "no result on XPath request, no key attribute defined?");
+        return NULL;
     }
 
     if (type_str == NULL) {
@@ -590,7 +587,7 @@ xmlChar* getMappingValue(const char* mapping_file_name, const char* request, MAP
     } else if (STR_IEQUALS(type_str, "static")) {
         *request_type = STATIC;
     } else {
-        addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, 999, "unknown mapping type");
+        addIdamError(CODEERRORTYPE, __func__, 999, "unknown mapping type");
         IDAM_LOGF(UDA_LOG_ERROR, "unknown mapping type \"%s\"\n", type_str);
         value = NULL;
     }
@@ -607,7 +604,7 @@ xmlChar* getMappingValue(const char* mapping_file_name, const char* request, MAP
     xmlXPathFreeObject(xpath_obj);
     xpath_obj = xmlXPathEvalExpression(xpath_expr, xpath_ctx);
     if (xpath_obj == NULL) {
-        addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, 999, "unable to evaluate xpath expression");
+        addIdamError(CODEERRORTYPE, __func__, 999, "unable to evaluate xpath expression");
         IDAM_LOGF(UDA_LOG_ERROR, "unable to evaluate xpath expression \"%s\"\n", xpath_expr);
         free(xpath_expr);
 //        xmlXPathFreeContext(xpath_ctx);

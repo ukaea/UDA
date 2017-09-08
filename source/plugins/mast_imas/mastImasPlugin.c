@@ -57,12 +57,7 @@ int mastImasPlugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     unsigned short housekeeping;
 
     if (idam_plugin_interface->interfaceVersion > THISPLUGIN_MAX_INTERFACE_VERSION) {
-        err = 999;
-        IDAM_LOG(UDA_LOG_ERROR,
-                "Plugin Interface Version Unknown to this plugin: Unable to execute the request!\n");
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "templatePlugin", err,
-                     "Plugin Interface Version Unknown to this plugin: Unable to execute the request!");
-        return err;
+        RAISE_PLUGIN_ERROR("Plugin Interface Version Unknown to this plugin: Unable to execute the request!");
     }
 
     idam_plugin_interface->pluginVersion = THISPLUGIN_VERSION;
@@ -134,14 +129,8 @@ int mastImasPlugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     } else if (STR_IEQUALS(request_block->function, "read")) {
         err = do_read(idam_plugin_interface);
     } else {
-        //======================================================================================
-        // Error ...
-        err = 999;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "templatePlugin", err, "Unknown function requested!");
+        RAISE_PLUGIN_ERROR("Unknown function requested!");
     }
-
-    //--------------------------------------------------------------------------------------
-    // Housekeeping
 
     return err;
 }
@@ -277,13 +266,13 @@ static char** get_names(PGconn* db, const char* name, int shot, int* size)
 
     if ((result = PQexec(db, str)) == NULL) {
         IDAM_LOG(UDA_LOG_ERROR, "Database Query Failed!\n");
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "MAST IMAS plugin", 999, "Database Query Failed!");
+        addIdamError(CODEERRORTYPE, "MAST IMAS plugin", 999, "Database Query Failed!");
         return NULL;
     }
 
     if (PQresultStatus(result) != PGRES_TUPLES_OK && PQresultStatus(result) != PGRES_COMMAND_OK) {
         IDAM_LOGF(UDA_LOG_ERROR, "%s\n", PQresultErrorMessage(result));
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "MAST IMAS plugin", 999, PQresultErrorMessage(result));
+        addIdamError(CODEERRORTYPE, "MAST IMAS plugin", 999, PQresultErrorMessage(result));
         return NULL;
     }
 
@@ -291,7 +280,7 @@ static char** get_names(PGconn* db, const char* name, int shot, int* size)
 
     if (*size == 0) {
         IDAM_LOG(UDA_LOG_ERROR, "No data available!\n");
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "MAST IMAS plugin", 999, "No Meta Data available!");
+        addIdamError(CODEERRORTYPE, "MAST IMAS plugin", 999, "No Meta Data available!");
         return NULL;
     }
 
@@ -324,7 +313,7 @@ static int get_signal(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, const char* 
 
     if (plugin_list == NULL) {
         IDAM_LOG(UDA_LOG_ERROR, "the specified format is not recognised!\n");
-        addIdamError(&idamerrorstack, CODEERRORTYPE,
+        addIdamError(CODEERRORTYPE,
                      "get_signal", 999, "imas source: No plugins are available for this data request");
         return 999;
     }
@@ -364,7 +353,7 @@ static int get_signal(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, const char* 
 
     if (next_request_block.request < 0) {
         IDAM_LOG(UDA_LOG_ERROR, "No IDAM server plugin found!\n");
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "get_signal", 999, "No IDAM server plugin found!");
+        addIdamError(CODEERRORTYPE, "get_signal", 999, "No IDAM server plugin found!");
         return 999;
     }
 
@@ -377,7 +366,7 @@ static int get_signal(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, const char* 
         err = plugin->idamPlugin(&next_plugin_interface);        // Call the data reader
     } else {
         IDAM_LOG(UDA_LOG_ERROR, "Data Access is not available for this data request!\n");
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "get_signal", 999, "Data Access is not available for this data request!");
+        addIdamError(CODEERRORTYPE, "get_signal", 999, "Data Access is not available for this data request!");
         return 999;
     }
 
@@ -484,7 +473,7 @@ int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         int err = do_read_magnetics(idam_plugin_interface);
         if (err) return err;
     } else {
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "do_read", 999, "element type not handled");
+        addIdamError(CODEERRORTYPE, "do_read", 999, "element type not handled");
         return -1;
     }
 

@@ -104,7 +104,7 @@ int idamXpadTree(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             if (DBConnect == NULL) {
                 IDAM_LOG(UDA_LOG_DEBUG, "Connection to idam1 database failed. %s\n");
                 err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "xpadtree", err, "Error connecting to idam3 db!");
+                addIdamError(CODEERRORTYPE, "xpadtree", err, "Error connecting to idam3 db!");
                 break;
             }
 
@@ -125,7 +125,7 @@ int idamXpadTree(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             if (err != 0) {
                 err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "xpadtree", err, "Could not escape string");
+                addIdamError(CODEERRORTYPE, "xpadtree", err, "Could not escape string");
                 PQfinish(DBConnect);
                 break;
             }
@@ -136,7 +136,7 @@ int idamXpadTree(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 PQfinish(DBConnect);
                 err = 999;
                 IDAM_LOGF(UDA_LOG_DEBUG, "SELECT failed. %s\n", query);
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "xpadtree", err, "SELECT failed. \n");
+                addIdamError(CODEERRORTYPE, "xpadtree", err, "SELECT failed. \n");
                 break;
             }
 
@@ -145,7 +145,7 @@ int idamXpadTree(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 PQfinish(DBConnect);
                 IDAM_LOG(UDA_LOG_DEBUG, "Database query failed.\n");
                 err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "xpadtree", err, "Database Query Failed!");
+                addIdamError(CODEERRORTYPE, "xpadtree", err, "Database Query Failed!");
                 break;
             }
 
@@ -157,7 +157,7 @@ int idamXpadTree(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             if (nRows == 0) {
                 err = 999;
                 IDAM_LOGF(UDA_LOG_DEBUG, "No signals with type: %s were found\n", signalType);
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "xpadtree", err, "No signals were found\n");
+                addIdamError(CODEERRORTYPE, "xpadtree", err, "No signals were found\n");
                 PQclear(DBQuery);
                 PQfinish(DBConnect);
                 break;
@@ -330,7 +330,7 @@ int idamXpadTree(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             if (foundTreename != 1) {
                 err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "xpadtree", err, "Treename must be provided.");
+                addIdamError(CODEERRORTYPE, "xpadtree", err, "Treename must be provided.");
                 break;
             }
 
@@ -345,7 +345,7 @@ int idamXpadTree(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             if (DBConnect == NULL) {
                 IDAM_LOG(UDA_LOG_DEBUG, "Connection to xpad database failed.");
                 err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "xpadtree", err, "Error connecting to xpad db!");
+                addIdamError(CODEERRORTYPE, "xpadtree", err, "Error connecting to xpad db!");
                 break;
             }
 
@@ -363,7 +363,7 @@ int idamXpadTree(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             if (err != 0) {
                 err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "xpadtree", err, "Could not escape string");
+                addIdamError(CODEERRORTYPE, "xpadtree", err, "Could not escape string");
                 PQfinish(DBConnect);
                 break;
             }
@@ -374,7 +374,7 @@ int idamXpadTree(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 PQfinish(DBConnect);
                 err = 999;
                 IDAM_LOGF(UDA_LOG_DEBUG, "SELECT failed. %s\n", query);
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "xpadtree", err, "SELECT failed. \n");
+                addIdamError(CODEERRORTYPE, "xpadtree", err, "SELECT failed. \n");
                 break;
             }
 
@@ -383,7 +383,7 @@ int idamXpadTree(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 PQfinish(DBConnect);
                 IDAM_LOG(UDA_LOG_DEBUG, "Database query failed.\n");
                 err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "xpadtree", err, "Database Query Failed!");
+                addIdamError(CODEERRORTYPE, "xpadtree", err, "Database Query Failed!");
                 break;
             }
 
@@ -395,7 +395,7 @@ int idamXpadTree(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             if (nRows == 0) {
                 err = 999;
                 IDAM_LOGF(UDA_LOG_DEBUG, "No tags for tree: %s were found\n", treename);
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "xpadtree", err, "No signals were found\n");
+                addIdamError(CODEERRORTYPE, "xpadtree", err, "No signals were found\n");
                 PQclear(DBQuery);
                 PQfinish(DBConnect);
                 break;
@@ -524,7 +524,7 @@ int idamXpadTree(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             if (foundTreename != 1) {
                 err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "xpadtree", err, "Treename must be provided.");
+                addIdamError(CODEERRORTYPE, "xpadtree", err, "Treename must be provided.");
                 break;
             }
 
@@ -539,7 +539,7 @@ int idamXpadTree(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             if (DBConnect == NULL) {
                 IDAM_LOG(UDA_LOG_DEBUG, "Connection to xpad database failed.");
                 err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "xpadtree", err, "Error connecting to xpad db!");
+                addIdamError(CODEERRORTYPE, "xpadtree", err, "Error connecting to xpad db!");
                 break;
             }
 
@@ -552,7 +552,7 @@ int idamXpadTree(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 PQfinish(DBConnect);
                 err = 999;
                 IDAM_LOGF(UDA_LOG_DEBUG, "SELECT failed. %s\n", query_max);
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "xpadtree", err, "SELECT failed. \n");
+                addIdamError(CODEERRORTYPE, "xpadtree", err, "SELECT failed. \n");
                 break;
             }
 
@@ -561,7 +561,7 @@ int idamXpadTree(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 PQfinish(DBConnect);
                 IDAM_LOG(UDA_LOG_DEBUG, "Database query failed.\n");
                 err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "xpadtree", err, "Database Query Failed!");
+                addIdamError(CODEERRORTYPE, "xpadtree", err, "Database Query Failed!");
                 break;
             }
 
@@ -572,7 +572,7 @@ int idamXpadTree(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 PQclear(DBQuery);
                 IDAM_LOG(UDA_LOG_DEBUG, "Database query failed to get max id.\n");
                 err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "xpadtree", err, "Database Query Failed to get max id!");
+                addIdamError(CODEERRORTYPE, "xpadtree", err, "Database Query Failed to get max id!");
                 break;
             }
 
@@ -600,7 +600,7 @@ int idamXpadTree(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             if (err != 0) {
                 err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "xpadtree", err, "Could not escape string");
+                addIdamError(CODEERRORTYPE, "xpadtree", err, "Could not escape string");
                 PQfinish(DBConnect);
                 break;
             }
@@ -611,7 +611,7 @@ int idamXpadTree(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 PQfinish(DBConnect);
                 err = 999;
                 IDAM_LOGF(UDA_LOG_DEBUG, "SELECT failed. %s\n", query);
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "xpadtree", err, "SELECT failed. \n");
+                addIdamError(CODEERRORTYPE, "xpadtree", err, "SELECT failed. \n");
                 break;
             }
 
@@ -620,7 +620,7 @@ int idamXpadTree(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 PQfinish(DBConnect);
                 IDAM_LOG(UDA_LOG_DEBUG, "Database query failed.\n");
                 err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "xpadtree", err, "Database Query Failed!");
+                addIdamError(CODEERRORTYPE, "xpadtree", err, "Database Query Failed!");
                 break;
             }
 
@@ -632,7 +632,7 @@ int idamXpadTree(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             if (nRows == 0) {
                 err = 999;
                 IDAM_LOGF(UDA_LOG_DEBUG, "No tags for tree: %s were found\n", treename);
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "xpadtree", err, "No signals were found\n");
+                addIdamError(CODEERRORTYPE, "xpadtree", err, "No signals were found\n");
                 PQclear(DBQuery);
                 PQfinish(DBConnect);
                 break;
@@ -759,7 +759,7 @@ int idamXpadTree(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             // Error ...
 
             err = 999;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "xpadtree", err, "Unknown function requested!");
+            addIdamError(CODEERRORTYPE, "xpadtree", err, "Unknown function requested!");
             break;
         }
 

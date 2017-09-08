@@ -54,40 +54,39 @@ int readCDF4Atts(int grpid, int varid, char* units, char* title, char* class, ch
 
     if ((rc = nc_inq_varnatts(grpid, varid, &numatts)) != NC_NOERR) {
         err = NETCDF_ERROR_INQUIRING_ATT_2;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDFAtts", err, (char*) nc_strerror(rc));
+        addIdamError(CODEERRORTYPE, "readCDFAtts", err, (char*) nc_strerror(rc));
         return err;
     }
 
     for (i = 0; i < numatts; i++) {
-
         if ((rc = nc_inq_attname(grpid, varid, i, attname)) != NC_NOERR) {
             err = NETCDF_ERROR_INQUIRING_ATT_7;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDFAtts", err, (char*) nc_strerror(rc));
+            addIdamError(CODEERRORTYPE, "readCDFAtts", err, (char*) nc_strerror(rc));
             return err;
         }
 
         if ((rc = nc_inq_atttype(grpid, varid, attname, &atttype)) != NC_NOERR) {
             err = NETCDF_ERROR_INQUIRING_ATT_8;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDFAtts", err, (char*) nc_strerror(rc));
+            addIdamError(CODEERRORTYPE, "readCDFAtts", err, (char*) nc_strerror(rc));
             return err;
         }
 
         if ((rc = nc_inq_attlen(grpid, varid, attname, (size_t*) &attlength)) != NC_NOERR) {
             err = NETCDF_ERROR_INQUIRING_ATT_9;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDFAtts", err, (char*) nc_strerror(rc));
+            addIdamError(CODEERRORTYPE, "readCDFAtts", err, (char*) nc_strerror(rc));
             return err;
         }
 
         if (atttype == NC_CHAR) {
             if ((txt = (char*) malloc((size_t) (attlength * sizeof(char) + 1))) == NULL) {
                 err = NETCDF_ERROR_ALLOCATING_HEAP_9;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDFAtts", err,
+                addIdamError(CODEERRORTYPE, "readCDFAtts", err,
                              "Unable to Allocate Heap for Attribute Data");
                 return err;
             }
             if ((rc = nc_get_att_text(grpid, varid, attname, txt)) != NC_NOERR) {
                 err = NETCDF_ERROR_INQUIRING_ATT_10;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDFAtts", err, (char*) nc_strerror(rc));
+                addIdamError(CODEERRORTYPE, "readCDFAtts", err, (char*) nc_strerror(rc));
                 free((void*) txt);
                 return err;
             }
@@ -110,7 +109,7 @@ int readCDF4Atts(int grpid, int varid, char* units, char* title, char* class, ch
             char** sarr = (char**) malloc(attlength * sizeof(char*));
             if ((rc = nc_get_att_string(grpid, varid, attname, sarr)) != NC_NOERR) {
                 err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF", err, (char*) nc_strerror(rc));
+                addIdamError(CODEERRORTYPE, "readCDF", err, (char*) nc_strerror(rc));
                 free((void*) sarr);
                 return err;
             }
