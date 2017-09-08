@@ -243,10 +243,14 @@ int do_open(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     }
 
     const char* title = NULL;
-    FIND_REQUIRED_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, title);
+    FIND_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, title);
 
-    if (nc_put_att_text(fileid, NC_GLOBAL, "title", strlen(title), title) != NC_NOERR) {
+    if (title != NULL) {
+      if (nc_put_att_text(fileid, NC_GLOBAL, "title", strlen(title), title) != NC_NOERR) {
         RAISE_PLUGIN_ERROR("Unable to Write the Title Root Group Attribute");
+      }
+    } else if (create) {
+      RAISE_PLUGIN_ERROR("No Title attribute was given.");
     }
 
     time_t timer;

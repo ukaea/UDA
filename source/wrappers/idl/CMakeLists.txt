@@ -28,11 +28,11 @@ else()
   message( WARNING "PostgreSQL or LibXml2 not found - IDL roidam library not building" )
 endif()
 
-if( NetCDF_FOUND )
-   add_subdirectory( putdata )
-else()
-  message( WARNING "NetCDF not found - IDL putdata library not building")
-endif()
+#if( NetCDF_FOUND )
+#   add_subdirectory( putdata )
+#else()
+#  message( WARNING "NetCDF not found - IDL putdata library not building")
+#endif()
 
 target_link_libraries( ${LIB_NAME} LINK_PRIVATE client-static ${IDL_LIBRARIES} )
 
@@ -67,6 +67,7 @@ set( INSTALL_FILES
   geometry/pickupmanipulation.pro
   geometry/strnumber.pro
   putdata/putdata.pro
+  putdata/putdata__define.pro
 )
 
 install( FILES ${INSTALL_FILES}

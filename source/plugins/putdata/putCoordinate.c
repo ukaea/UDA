@@ -114,25 +114,20 @@ int do_coordinate(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     double* starts = NULL;
     size_t nstarts = 0;
-    IDAM_LOG(UDA_LOG_DEBUG, "Retrieve starts \n");    
     FIND_DOUBLE_ARRAY(idam_plugin_interface->request_block->nameValueList, starts);
     IDAM_LOGF(UDA_LOG_DEBUG, "nstarts %d \n", nstarts);
 
     double* increments = NULL;
     size_t nincrements = 0;
-    IDAM_LOG(UDA_LOG_DEBUG, "Retrieve increments \n");    
     FIND_DOUBLE_ARRAY(idam_plugin_interface->request_block->nameValueList, increments);
     IDAM_LOGF(UDA_LOG_DEBUG, "nincrements %d \n", nincrements);
 
     int* counts = NULL;
     size_t ncounts = 0;
-    IDAM_LOG(UDA_LOG_DEBUG, "Retrieve counts\n");    
     FIND_INT_ARRAY(idam_plugin_interface->request_block->nameValueList, counts);
     IDAM_LOGF(UDA_LOG_DEBUG, "ncounts %d \n", ncounts);
 
     PUTDATA_BLOCK putdata;
-
-    IDAM_LOG(UDA_LOG_DEBUG, "Check for putdata block\n");
 
     if (idam_plugin_interface->request_block->putDataBlockList.blockCount == 0 && (starts == NULL || increments == NULL)) {
         RAISE_PLUGIN_ERROR("No Coordinate Data have been passed");
@@ -473,6 +468,8 @@ int writeCoordinateArray(PUTDATA_BLOCK* putdata, int grpid, const char* name, in
 
     int err = NC_NOERR;
 
+    IDAM_LOGF(UDA_LOG_DEBUG, "NC TYPE %d\n", nctype);
+
     switch (nctype) {
         case NC_FLOAT:
             if (isUnlimited) {
@@ -543,6 +540,14 @@ int writeCoordinateArray(PUTDATA_BLOCK* putdata, int grpid, const char* name, in
                 err = nc_put_vara_schar(grpid, *varid, start, count, (signed char*) putdata->data);
             } else {
                 err = nc_put_var_schar(grpid, *varid, (signed char*) putdata->data);
+            }
+            break;
+
+        case NC_UBYTE:
+            if (isUnlimited) {
+                err = nc_put_vara_ubyte(grpid, *varid, start, count, (unsigned char*) putdata->data);
+            } else {
+                err = nc_put_var_ubyte(grpid, *varid, (unsigned char*) putdata->data);
             }
             break;
 

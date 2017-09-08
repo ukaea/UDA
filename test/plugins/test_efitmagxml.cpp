@@ -5,9 +5,7 @@
 
 TEST_CASE( "Test EFITMAGXML::help() function", "[EFITMAGXML][plugins]" )
 {
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+#include "setup.inc"
 
     uda::Client client;
 

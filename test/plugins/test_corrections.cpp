@@ -3,11 +3,9 @@
 
 #include <c++/UDA.hpp>
 
-TEST_CASE( "Test ANBCORRECTIONS::help() function", "[ANBCORRECTIONS][plugins]" ) {
-
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+TEST_CASE( "Test ANBCORRECTIONS::help() function", "[ANBCORRECTIONS][plugins]" )
+{
+#include "setup.inc"
 
     uda::Client client;
 

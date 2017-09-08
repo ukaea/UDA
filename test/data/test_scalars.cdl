@@ -1,0 +1,21 @@
+netcdf test_scalars {
+// Global attributes
+
+group: testGroup {
+
+variables:
+    byte simpleByte;
+    short simpleShort;
+    int simpleInt;
+    float simpleFloat;
+    double simpleDouble;
+
+data:
+   
+   simpleByte = 1;
+   simpleShort = 2;
+   simpleInt = 3;	
+   simpleFloat = 4.5;
+   simpleDouble = 4.5;
+}
+}

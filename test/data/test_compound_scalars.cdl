@@ -1,0 +1,42 @@
+netcdf test_compound_scalars {
+// Global attributes
+
+group: testGroup {
+
+types:
+  compound testCompoundByte {
+    byte simpleByte;
+  }
+
+  compound testCompoundShort {
+    int simpleShort;
+  }
+
+  compound testCompoundInt {
+    int simpleInt;
+  }
+
+  compound testCompoundFloat {
+    float simpleFloat;
+  }
+
+  compound testCompoundDouble {
+    double simpleDouble;
+  }
+
+variables:
+  testCompoundByte simpleByte;
+  testCompoundByte simpleShort;
+  testCompoundInt simpleInt;
+  testCompoundFloat simpleFloat;
+  testCompoundDouble simpleDouble;
+
+data:
+   
+   simpleByte = {1};
+   simpleShort = {1};
+   simpleInt = {1};	
+   simpleFloat = {4.5};
+   simpleDouble = {4.5};
+}
+}
