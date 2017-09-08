@@ -28,6 +28,12 @@ else()
   message( WARNING "PostgreSQL or LibXml2 not found - IDL roidam library not building" )
 endif()
 
+if( NetCDF_FOUND )
+   add_subdirectory( putdata )
+else()
+  message( WARNING "NetCDF not found - IDL putdata library not building")
+endif()
+
 target_link_libraries( ${LIB_NAME} LINK_PRIVATE client-static ${IDL_LIBRARIES} )
 
 set_target_properties( ${LIB_NAME}

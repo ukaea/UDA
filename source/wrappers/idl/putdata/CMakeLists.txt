@@ -17,6 +17,7 @@ set( LIB_NAME putdata )
 
 set( SRC_FILES
   putdata.c
+  ${CMAKE_SOURCE_DIR}/source/clientserver/stringUtils.c
 )
 
 include_directories(
@@ -30,12 +31,10 @@ include_directories(
 add_library( ${LIB_NAME} SHARED ${SRC_FILES} )
 
 target_link_libraries( ${LIB_NAME} LINK_PRIVATE
-  ${IDC_LIB_NAME}
   ${IDL_LIBRARIES}
   ${LIBXML2_LIBRARIES} 
   ${NETCDF_LIBRARIES}
   ${UDUNITS_LIBRARIES} 
-  client-static
 )
 
 set_target_properties( ${LIB_NAME}

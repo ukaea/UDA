@@ -187,7 +187,8 @@ int do_geom_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         if (isConfig == 1) {
             // configuration files
             sprintf(query,
-                    "SELECT cds.file_name, ggm.geomsignal_alias, cds.version, cds.revision, ggm.geomsignal_shortname"
+                    "SELECT cds.file_name, ggm.geomsignal_alias, cds.version, cds.revision, "
+                            "       ggm.geomsignal_shortname, cds.geomgroup"
                             " FROM config_data_source cds, geomgroup_geomsignal_map ggm"
                             " WHERE cds.config_data_source_id=ggm.config_data_source_id"
                             "   AND (lower(ggm.geomsignal_alias) LIKE lower('%s/%%')"
@@ -212,7 +213,8 @@ int do_geom_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         } else {
             // calibration files
             sprintf(query,
-                    "SELECT cds.file_name, ggm.geomsignal_alias, cds.version, cds.revision, ggm.geomsignal_shortname"
+                    "SELECT cds.file_name, ggm.geomsignal_alias, cds.version, cds.revision, "
+                                    "ggm.geomsignal_shortname, cds.geomgroup"
                             " FROM cal_data_source cds"
                             " INNER JOIN config_data_source cods"
                             "   ON cods.config_data_source_id=cds.config_data_source_id"
@@ -286,6 +288,24 @@ int do_geom_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         int s_file = PQfnumber(DBQuery, "file_name");
         int s_alias = PQfnumber(DBQuery, "geomsignal_alias");
         int s_short = PQfnumber(DBQuery, "geomsignal_shortname");
+	int s_ver = PQfnumber(DBQuery, "version");
+	int s_rev = PQfnumber(DBQuery, "revision");
+	int s_group = PQfnumber(DBQuery, "geomgroup");
+
+	int ver_found = -1;
+	if (!PQgetisnull(DBQuery, 0, s_ver)) {
+	  ver_found = atoi(PQgetvalue(DBQuery, 0, s_ver));
+	}
+
+	int rev_found = -1;
+	if (!PQgetisnull(DBQuery, 0, s_rev)) {
+	  rev_found = atoi(PQgetvalue(DBQuery, 0, s_rev));
+	}
+
+	char* geomgroup;
+	if (!PQgetisnull(DBQuery, 0, s_group)){	  
+	  geomgroup = PQgetvalue(DBQuery, 0, s_group);
+	}	
 
         char* file_db;
         if (!PQgetisnull(DBQuery, 0, s_file)) {
@@ -310,6 +330,7 @@ int do_geom_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             IDAM_LOGF(UDA_LOG_DEBUG, "file_path %s\n", file);
         }
+
 
         int use_alias = 0;
 
@@ -358,10 +379,76 @@ int do_geom_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             }
         }
 
-        IDAM_LOG(UDA_LOG_DEBUG, "Close connection\n");
+        IDAM_LOG(UDA_LOG_DEBUG, "Clear db query\n");
 
         //Close db connection
         PQclear(DBQuery);
+
+	/////////////////////////////
+	// If the version and revision numbers were not given by the user
+	// check that we are retrieving the latest version of the file.
+	// This prevents someone retrieving signals from old versions without directly 
+	// requesting the old version
+	PGresult* DBQuery_ver = NULL;
+	if (ver < 0) {	  
+	  char query_ver[MAXSQL];
+	  sprintf(query_ver, 
+		  "SELECT max(version + 0.1*revision) "
+		  "FROM config_data_source "
+		  "WHERE geomgroup='%s' "
+		  " AND start_shot <= %d "
+		  " AND end_shot > %d;", geomgroup, shot, shot);
+
+	  IDAM_LOGF(UDA_LOG_DEBUG, "Version query %s\n", query_ver);
+	  
+	  if ((DBQuery_ver = PQexec(DBConnect, query_ver)) == NULL) {
+            RAISE_PLUGIN_ERROR("Database query for version number failed.\n");
+	  }
+
+	  if (PQresultStatus(DBQuery_ver) != PGRES_TUPLES_OK && PQresultStatus(DBQuery_ver) != PGRES_COMMAND_OK) {
+            PQclear(DBQuery_ver);
+            PQfinish(DBConnect);
+            RAISE_PLUGIN_ERROR("Database query for version failed.\n");
+	  }
+
+	  // Retrieve number of rows found in query
+	  int nRows = PQntuples(DBQuery_ver);
+
+	  /////////////////////////////
+	  // No rows found?
+	  if (nRows == 0) {
+            IDAM_LOG(UDA_LOG_DEBUG, "no rows for version query\n");
+	    
+            PQclear(DBQuery_ver);
+            PQfinish(DBConnect);
+            RAISE_PLUGIN_ERROR("No rows were found in database matching version query\n");
+	  }
+	  
+	  int s_max_version = PQfnumber(DBQuery_ver, "max");
+	  if (!PQgetisnull(DBQuery_ver, 0, s_max_version)){
+	    float max_version = atof(PQgetvalue(DBQuery_ver, 0, s_max_version));
+	    float this_version = ver_found + 0.1 * rev_found;
+	    
+	    // Allow for some floating point error, versions will be in 0.1 increments
+	    if ( this_version < (max_version - 0.05) ) {
+	      IDAM_LOG(UDA_LOG_DEBUG, "The user did not specify a particular version, and for this signal only old legacy versions are available.\n");
+
+	      PQclear(DBQuery_ver);
+	      PQfinish(DBConnect);
+	      RAISE_PLUGIN_ERROR("Only legacy signals are available for the requested signal. To retrieve legacy signals the version must be explicitly given\n");
+	    }				     
+	  } else {
+            IDAM_LOG(UDA_LOG_DEBUG, "no max field for version query\n");
+	    
+            PQclear(DBQuery_ver);
+            PQfinish(DBConnect);
+            RAISE_PLUGIN_ERROR("No max field version query\n");
+	  }
+	}       
+
+	// Close db connection
+	IDAM_LOG(UDA_LOG_DEBUG, "Close db connection\n");
+	PQclear(DBQuery_ver);
         PQfinish(DBConnect);
         free(signal_for_query);
     } else {

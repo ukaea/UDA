@@ -34,7 +34,6 @@ int opennetcdf(int nparams, IDL_VPTR argv[], KW_RESULT* kw) {
     err = 0;    // NC Error
 
     do {
-
 //-------------------------------------------------------------------------	      
 // Check File Format Specified 
 
@@ -50,7 +49,6 @@ int opennetcdf(int nparams, IDL_VPTR argv[], KW_RESULT* kw) {
 
 //--------------------------------------------------------------------------      
 // Open the File: Create or Update
-
         if (nparams == 1 && argv[0]->type == IDL_TYP_STRING) {
             filename = IDL_STRING_STR(&(argv[0]->value.str));
         } else {
@@ -214,8 +212,8 @@ int opennetcdf(int nparams, IDL_VPTR argv[], KW_RESULT* kw) {
 
         if (kw->is_class) {
             class = IDL_STRING_STR(&kw->class);
-            if (!(STR_IEQUALS(class, "Raw Data") || STR_IEQUALS(class, "Analysed data") ||
-                  STR_IEQUALS(class, "Modelled Data"))) {
+            if (!(STR_IEQUALS(class, "Raw") || STR_IEQUALS(class, "Analysed") ||
+                  STR_IEQUALS(class, "Modelled"))) {
                 lerr = -1;
                 if (kw->verbose)
                     fprintf(stderr,
@@ -286,7 +284,7 @@ int opennetcdf(int nparams, IDL_VPTR argv[], KW_RESULT* kw) {
             }
             compliance = compliance | CREATE_SHOT;
         } else {
-            if (kw->create && (STR_IEQUALS(class, "Raw Data") || STR_IEQUALS(class, "Analysed Data"))) {
+            if (kw->create && (STR_IEQUALS(class, "Raw") || STR_IEQUALS(class, "Analysed"))) {
                 lerr = -1;
                 if (kw->verbose)
                     fprintf(stderr, "A Shot or Experiment Number must be specified for New Raw or "
@@ -304,7 +302,7 @@ int opennetcdf(int nparams, IDL_VPTR argv[], KW_RESULT* kw) {
             }
             compliance = compliance | CREATE_PASS;
         } else {
-            if (kw->create && STR_IEQUALS(class, "Analysed Data")) {
+            if (kw->create && STR_IEQUALS(class, "Analysed")) {
                 lerr = -1;
                 if (kw->verbose)
                     fprintf(stderr, "A Pass Number must be specified for New Analysed Data Files - please rectify.\n");
@@ -322,7 +320,7 @@ int opennetcdf(int nparams, IDL_VPTR argv[], KW_RESULT* kw) {
             }
             compliance = compliance | CREATE_STATUS;
         } else {
-            if (kw->create && STR_IEQUALS(class, "Analysed Data")) {
+            if (kw->create && STR_IEQUALS(class, "Analysed")) {
                 lerr = -1;
                 if (kw->verbose)
                     fprintf(stderr,
