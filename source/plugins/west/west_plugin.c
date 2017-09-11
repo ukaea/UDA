@@ -40,7 +40,7 @@ int westPlugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         THISPLUGIN_MAX_INTERFACE_VERSION) {
         err = 999;
         IDAM_LOG(UDA_LOG_ERROR, "Plugin Interface Version Unknown to this plugin: Unable to execute the request!\n");
-        addIdamError(&idamerrorstack, CODEERRORTYPE, __func__,
+        addIdamError(CODEERRORTYPE, __func__,
                      err, "Plugin Interface Version Unknown to this plugin: Unable to execute the request!");
         return err;
     }
@@ -100,7 +100,7 @@ int westPlugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         // ======================================================================================
         // Error ...
         err = 999;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, err, "Unknown function requested!");
+        addIdamError(CODEERRORTYPE, __func__, err, "Unknown function requested!");
     }
 
     // --------------------------------------------------------------------------------------
@@ -297,7 +297,7 @@ int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             data_type != UDA_TYPE_INT &&
             data_type != UDA_TYPE_SHORT) {
             err = 999;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, err, "west : Unsupported data type");
+            addIdamError(CODEERRORTYPE, __func__, err, "west : Unsupported data type");
         }
 
         free(data_block->dims);
@@ -400,9 +400,9 @@ char* getMappingValue(const char* mappingFileName, const char* IDAM_MappingKey,
     } else {
         IDAM_LOG(UDA_LOG_DEBUG, "Error : size equals 0\n");
         err = 998;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, err, "no result on XPath request");
+        addIdamError(CODEERRORTYPE, __func__, err, "no result on XPath request");
     }
-    const xmlChar* key_type= "//mapping[@key='%s']/@type";
+    const xmlChar* key_type = "//mapping[@key='%s']/@type";
     xmlStrPrintf(xPathExpr, len, key_type,
                  IDAM_MappingKey);
 
@@ -411,7 +411,8 @@ char* getMappingValue(const char* mappingFileName, const char* IDAM_MappingKey,
      */
     xpathObj = xmlXPathEvalExpression(xPathExpr, xpathCtx);
     if (xpathObj == NULL) {
-        IDAM_LOG(UDA_LOG_DEBUG, "Error: unable to evaluate xpath expression for getting the type (static or dynamic)\n");
+        IDAM_LOG(UDA_LOG_DEBUG,
+                 "Error: unable to evaluate xpath expression for getting the type (static or dynamic)\n");
         fprintf(stderr,
                 "Error: unable to evaluate xpath expression \"%s\"\n",
                 xPathExpr);
@@ -432,7 +433,7 @@ char* getMappingValue(const char* mappingFileName, const char* IDAM_MappingKey,
         typeStr = strdup((char*)cur->content);
     } else {
         err = 998;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, err, "no result on XPath request");
+        addIdamError(CODEERRORTYPE, __func__, err, "no result on XPath request");
     }
 
     IDAM_LOG(UDA_LOG_DEBUG, "Setting IDS_DataType\n");

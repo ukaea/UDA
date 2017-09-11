@@ -13,182 +13,179 @@
 #include "ts_rqparam.h"
 #include "west_utilities.h"
 
-void SetDynData(DATA_BLOCK* data_block, int len, float *time, float *data, int setTime);
+void SetDynData(DATA_BLOCK* data_block, int len, float* time, float* data, int setTime);
 
 int SetNormalizedDynData(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices,
-		char* TOP_collections_parameters, char* attributes, char* normalizationAttributes, int setTime);
-
+                         char* TOP_collections_parameters, char* attributes, char* normalizationAttributes,
+                         int setTime);
 
 
 int SetNormalizedDynamicData(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices,
-		char* TOP_collections_parameters, char* attributes, char* normalizationAttributes)
+                             char* TOP_collections_parameters, char* attributes, char* normalizationAttributes)
 {
-	return SetNormalizedDynData(shotNumber, data_block, nodeIndices,
-		TOP_collections_parameters, attributes, normalizationAttributes, 0);
+    return SetNormalizedDynData(shotNumber, data_block, nodeIndices,
+                                TOP_collections_parameters, attributes, normalizationAttributes, 0);
 }
 
 int SetNormalizedDynamicDataTime(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices,
-		char* TOP_collections_parameters, char* attributes, char* normalizationAttributes)
+                                 char* TOP_collections_parameters, char* attributes, char* normalizationAttributes)
 {
-	return SetNormalizedDynData(shotNumber, data_block, nodeIndices,
-		TOP_collections_parameters, attributes, normalizationAttributes, 1);
+    return SetNormalizedDynData(shotNumber, data_block, nodeIndices,
+                                TOP_collections_parameters, attributes, normalizationAttributes, 1);
 }
 
 int SetNormalizedDynData(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices,
-		char* TOP_collections_parameters, char* attributes, char* normalizationAttributes, int setTime)
+                         char* TOP_collections_parameters, char* attributes, char* normalizationAttributes, int setTime)
 {
-	int len;
-	float* time;
-	float* data;
+    int len;
+    float* time;
+    float* data;
 
-	int status = GetDynData(shotNumber, &time, &data, &len, nodeIndices,
-			TOP_collections_parameters, attributes);
+    int status = GetDynData(shotNumber, &time, &data, &len, nodeIndices,
+                            TOP_collections_parameters, attributes);
 
-	if (status != 0) {
-		int err = 901;
-		addIdamError(&idamerrorstack, CODEERRORTYPE, "Unable to get dynamic data", err, "");
-		free(time);
-		free(data);
-	}
-	else {
-		IDAM_LOG(UDA_LOG_DEBUG, "Getting normalization factor, if any\n");
-		float normalizationFactor = 1;
-		getNormalizationFactor(&normalizationFactor, normalizationAttributes);
-		IDAM_LOG(UDA_LOG_DEBUG, "Starting data normalization\n");
-		multiplyFloat(data, normalizationFactor, len);
-		IDAM_LOG(UDA_LOG_DEBUG, "end of data normalization, if any\n");
+    if (status != 0) {
+        int err = 901;
+        addIdamError(CODEERRORTYPE, "Unable to get dynamic data", err, "");
+        free(time);
+        free(data);
+    } else {
+        IDAM_LOG(UDA_LOG_DEBUG, "Getting normalization factor, if any\n");
+        float normalizationFactor = 1;
+        getNormalizationFactor(&normalizationFactor, normalizationAttributes);
+        IDAM_LOG(UDA_LOG_DEBUG, "Starting data normalization\n");
+        multiplyFloat(data, normalizationFactor, len);
+        IDAM_LOG(UDA_LOG_DEBUG, "end of data normalization, if any\n");
 
-		SetDynData(data_block, len, time, data, setTime);
-	}
-	return status;
+        SetDynData(data_block, len, time, data, setTime);
+    }
+    return status;
 }
 
 int GetNormalizedDynamicData(int shotNumber, float** time, float** data, int* len, int* nodeIndices,
-		char* TOP_collections_parameters, char* attributes, char* normalizationAttributes)
+                             char* TOP_collections_parameters, char* attributes, char* normalizationAttributes)
 {
-	int status = GetDynData(shotNumber, time, data, len, nodeIndices,
-			TOP_collections_parameters, attributes);
+    int status = GetDynData(shotNumber, time, data, len, nodeIndices,
+                            TOP_collections_parameters, attributes);
 
-	if (status != 0) {
-		int err = 901;
-		addIdamError(&idamerrorstack, CODEERRORTYPE, "Unable to get dynamic data", err, "");
-	}
-	else {
+    if (status != 0) {
+        int err = 901;
+        addIdamError(CODEERRORTYPE, "Unable to get dynamic data", err, "");
+    } else {
 
-		IDAM_LOG(UDA_LOG_DEBUG, "Getting normalization factor, if any\n");
-		float normalizationFactor = 1;
-		getNormalizationFactor(&normalizationFactor, normalizationAttributes);
-		IDAM_LOG(UDA_LOG_DEBUG, "Starting data normalization\n");
-		multiplyFloat(*data, normalizationFactor, *len);
-		IDAM_LOG(UDA_LOG_DEBUG, "end of data normalization, if any\n");
-	}
+        IDAM_LOG(UDA_LOG_DEBUG, "Getting normalization factor, if any\n");
+        float normalizationFactor = 1;
+        getNormalizationFactor(&normalizationFactor, normalizationAttributes);
+        IDAM_LOG(UDA_LOG_DEBUG, "Starting data normalization\n");
+        multiplyFloat(*data, normalizationFactor, *len);
+        IDAM_LOG(UDA_LOG_DEBUG, "end of data normalization, if any\n");
+    }
 
-	return status;
+    return status;
 }
 
 int GetDynData(int shotNumber, float** time, float** data, int* len, int* nodeIndices,
-		char* TOP_collections_parameters, char* attributes)
+               char* TOP_collections_parameters, char* attributes)
 {
-	IDAM_LOG(UDA_LOG_DEBUG, "now searching for signals\n");
-	int collectionsCount;
-	getTopCollectionsCount(TOP_collections_parameters, &collectionsCount);
+    IDAM_LOG(UDA_LOG_DEBUG, "now searching for signals\n");
+    int collectionsCount;
+    getTopCollectionsCount(TOP_collections_parameters, &collectionsCount);
 
-	int* extractionsCount;
-	extractionsCount = (int*)calloc(collectionsCount, sizeof(int));
+    int* extractionsCount;
+    extractionsCount = (int*)calloc(collectionsCount, sizeof(int));
 
-	int signalType = 0;
-	int i;
-	char* command = NULL;
-	int totalExtractions = 0;
+    int signalType = 0;
+    int i;
+    char* command = NULL;
+    int totalExtractions = 0;
 
-	for (i = 0; i < collectionsCount; i++) {
+    for (i = 0; i < collectionsCount; i++) {
 
-		IDAM_LOGF(UDA_LOG_DEBUG, "In GetDynData, i: %d\n", i);
+        IDAM_LOGF(UDA_LOG_DEBUG, "In GetDynData, i: %d\n", i);
 
-		getCommand(i, &command, TOP_collections_parameters);
+        getCommand(i, &command, TOP_collections_parameters);
 
-		IDAM_LOGF(UDA_LOG_DEBUG, "In GetDynData, command: %s\n", command);
+        IDAM_LOGF(UDA_LOG_DEBUG, "In GetDynData, command: %s\n", command);
 
-		char* objectName = NULL;
-		getObjectName(&objectName, command);
+        char* objectName = NULL;
+        getObjectName(&objectName, command);
 
-		int nb_extractions = 0;
-		int occ = 0;
+        int nb_extractions = 0;
+        int occ = 0;
 
-		IDAM_LOG(UDA_LOG_DEBUG, "Group of signals ?\n");
-		getSignalType(objectName, shotNumber, &signalType);
+        IDAM_LOG(UDA_LOG_DEBUG, "Group of signals ?\n");
+        getSignalType(objectName, shotNumber, &signalType);
 
-		if (signalType == 2) {
-			getExtractionsCount(objectName, shotNumber, occ, &nb_extractions);
-		}
+        if (signalType == 2) {
+            getExtractionsCount(objectName, shotNumber, occ, &nb_extractions);
+        }
 
-		printNum("Number of extractions : ", nb_extractions);
+        printNum("Number of extractions : ", nb_extractions);
 
-		extractionsCount[i] = nb_extractions;
-		totalExtractions +=extractionsCount[i];
-		command = NULL;
-	}
+        extractionsCount[i] = nb_extractions;
+        totalExtractions += extractionsCount[i];
+        command = NULL;
+    }
 
+    IDAM_LOG(UDA_LOG_DEBUG, "searching for IDAM index\n");
+    IDAM_LOGF(UDA_LOG_DEBUG, "attributes : %s\n", attributes);
 
-	IDAM_LOG(UDA_LOG_DEBUG, "searching for IDAM index\n");
-	IDAM_LOGF(UDA_LOG_DEBUG, "attributes : %s\n", attributes);
+    int requestedIndex = getNumIDAMIndex(attributes, nodeIndices);
 
-	int requestedIndex = getNumIDAMIndex(attributes, nodeIndices);
+    printNum("Requested index (from IDAM call) : ", requestedIndex);
 
-	printNum("Requested index (from IDAM call) : ", requestedIndex);
+    IDAM_LOG(UDA_LOG_DEBUG, "searching for the array according to the UDA index\n");
+    int searchedArray;
+    int searchedArrayIndex;
+    searchIndices(requestedIndex, extractionsCount, &searchedArray, &searchedArrayIndex);
 
-	IDAM_LOG(UDA_LOG_DEBUG, "searching for the array according to the UDA index\n");
-	int searchedArray;
-	int searchedArrayIndex;
-	searchIndices(requestedIndex, extractionsCount, &searchedArray, &searchedArrayIndex);
+    char* objectName = NULL;
 
-	char* objectName = NULL;
+    printNum("searchedArrayIndex : ", searchedArrayIndex);
+    printNum("searchedArray : ", searchedArray);
 
-	printNum("searchedArrayIndex : ", searchedArrayIndex);
-	printNum("searchedArray : ", searchedArray);
+    //This patch means that if the signal does not belong to a group, so it can not be aggregate as signals groups
+    //Example of an aggregate : tsbase_collect;DMAG:first_group, DMAG:second_group;float:#0
 
-	//This patch means that if the signal does not belong to a group, so it can not be aggregate as signals groups
-	//Example of an aggregate : tsbase_collect;DMAG:first_group, DMAG:second_group;float:#0
+    if (signalType != 2) {
+        searchedArray = 0;
+    }
 
-	if (signalType != 2) {
-		searchedArray = 0;
-	}
+    IDAM_LOG(UDA_LOG_DEBUG, "getting the command\n");
+    IDAM_LOGF(UDA_LOG_DEBUG, "TOP_collections_parameters: %s\n", TOP_collections_parameters);
 
-	IDAM_LOG(UDA_LOG_DEBUG, "getting the command\n");
-	IDAM_LOGF(UDA_LOG_DEBUG, "TOP_collections_parameters: %s\n", TOP_collections_parameters);
+    int status = getCommand(searchedArray, &command, TOP_collections_parameters);
 
-	int status = getCommand(searchedArray, &command, TOP_collections_parameters);
+    if (status != 0) {
+        int err = 901;
+        IDAM_LOG(UDA_LOG_DEBUG, "Unable to get command\n");
+        addIdamError(CODEERRORTYPE, "Unable to get command", err, "");
+    }
 
-	if (status != 0) {
-		int err = 901;
-		IDAM_LOG(UDA_LOG_DEBUG, "Unable to get command\n");
-		addIdamError(&idamerrorstack, CODEERRORTYPE, "Unable to get command", err, "");
-	}
+    IDAM_LOGF(UDA_LOG_DEBUG, "command: %s\n", command);
+    IDAM_LOG(UDA_LOG_DEBUG, "Getting object name\n");
+    getObjectName(&objectName, command);
 
-	IDAM_LOGF(UDA_LOG_DEBUG, "command: %s\n", command);
-	IDAM_LOG(UDA_LOG_DEBUG, "Getting object name\n");
-	getObjectName(&objectName, command);
+    IDAM_LOG(UDA_LOG_DEBUG, "Group of signals ?\n");
+    getSignalType(objectName, shotNumber, &signalType);
 
-	IDAM_LOG(UDA_LOG_DEBUG, "Group of signals ?\n");
-	getSignalType(objectName, shotNumber, &signalType);
+    if (signalType == 2) { //signal is a group of signals, so we append extraction chars to signal name
+        IDAM_LOG(UDA_LOG_DEBUG, "Signal belongs to a group of signals\n");
+        char result[50];
+        addExtractionChars(result, objectName,
+                           searchedArrayIndex +
+                           1); //Concatenate signalName avec %(searchedArrayIndex + 1), example: %1, %2, ...
+        objectName = strdup(result);
+    } else {
+        IDAM_LOG(UDA_LOG_DEBUG, "Signal does not belong to a group of signals\n");
+    }
 
-	if (signalType == 2) { //signal is a group of signals, so we append extraction chars to signal name
-		IDAM_LOG(UDA_LOG_DEBUG, "Signal belongs to a group of signals\n");
-		char result[50];
-		addExtractionChars(result, objectName,
-				searchedArrayIndex + 1); //Concatenate signalName avec %(searchedArrayIndex + 1), example: %1, %2, ...
-		objectName = strdup(result);
-	} else {
-		IDAM_LOG(UDA_LOG_DEBUG, "Signal does not belong to a group of signals\n");
-	}
+    IDAM_LOGF(UDA_LOG_DEBUG, "Object name: %s\n", objectName);
 
-	IDAM_LOGF(UDA_LOG_DEBUG, "Object name: %s\n", objectName);
+    int rang[2] = { 0, 0 };
+    status = readSignal(objectName, shotNumber, 0, rang, time, data, len);
 
-	int rang[2] = { 0, 0 };
-	status = readSignal(objectName, shotNumber, 0, rang, time, data, len);
-
-	IDAM_LOG(UDA_LOG_DEBUG, "End of reading signal\n");
-
+    IDAM_LOG(UDA_LOG_DEBUG, "End of reading signal\n");
 
 //	IDAM_LOGF(UDA_LOG_DEBUG, "%s\n", "First time values...");
 //	int j;
@@ -196,61 +193,60 @@ int GetDynData(int shotNumber, float** time, float** data, int* len, int* nodeIn
 //		IDAM_LOGF(UDA_LOG_DEBUG, "time : %f\n", *time[j]);
 //	}
 
+    if (len == 0) {
+        int err = 901;
+        addIdamError(CODEERRORTYPE, "Dynamic data empty from WEST !", err, "");
+        status = -1;
+    } else {
+        status = 0;
+    }
 
-	if (len == 0) {
-		int err = 901;
-		addIdamError(&idamerrorstack, CODEERRORTYPE, "Dynamic data empty from WEST !", err, "");
-		status = -1;
-	}
-	else {
-		status = 0;
-	}
+    free(command);
+    free(objectName);
+    free(extractionsCount);
 
-	free(command);
-	free(objectName);
-	free(extractionsCount);
-
-	return status;
+    return status;
 }
 
-void SetDynamicData(DATA_BLOCK* data_block, int len, float *time, float *data) {
-	SetDynData(data_block, len, time, data, 0);
+void SetDynamicData(DATA_BLOCK* data_block, int len, float* time, float* data)
+{
+    SetDynData(data_block, len, time, data, 0);
 }
 
-void SetDynamicDataTime(DATA_BLOCK* data_block, int len, float *time, float *data) {
-	SetDynData(data_block, len, time, data, 1);
+void SetDynamicDataTime(DATA_BLOCK* data_block, int len, float* time, float* data)
+{
+    SetDynData(data_block, len, time, data, 1);
 }
 
-void SetDynData(DATA_BLOCK* data_block, int len, float *time, float *data, int setTime) {
+void SetDynData(DATA_BLOCK* data_block, int len, float* time, float* data, int setTime)
+{
 
-	//IDAM data block initialization
-	initDataBlock(data_block);
-	int i;
-	data_block->rank      = 1;
-	data_block->data_type = TYPE_FLOAT;
-	data_block->data_n    = len;
+    //IDAM data block initialization
+    initDataBlock(data_block);
+    int i;
+    data_block->rank = 1;
+    data_block->data_type = UDA_TYPE_FLOAT;
+    data_block->data_n = len;
 
-	if (setTime == 0)
-	{
-		data_block->data      = (char*)data;
-	}
-	else {
-		data_block->data      = (char*)time;
-	}
+    if (setTime == 0) {
+        data_block->data = (char*)data;
+    } else {
+        data_block->data = (char*)time;
+    }
 
-	data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
+    data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
 
-	for (i = 0; i < data_block->rank; i++) {
-		initDimBlock(&data_block->dims[i]);
-	}
+    for (i = 0; i < data_block->rank; i++) {
+        initDimBlock(&data_block->dims[i]);
+    }
 
-	data_block->dims[0].data_type  = TYPE_FLOAT;
-	data_block->dims[0].dim_n      = len;
-	data_block->dims[0].compressed = 0;
-	data_block->dims[0].dim        = (char*)time;
+    data_block->dims[0].data_type = UDA_TYPE_FLOAT;
+    data_block->dims[0].dim_n = len;
+    data_block->dims[0].compressed = 0;
+    data_block->dims[0].dim = (char*)time;
 
-	strcpy(data_block->data_label, "");
-	strcpy(data_block->data_units, "");
-	strcpy(data_block->data_desc, "");
+    strcpy(data_block->data_label, "");
+    strcpy(data_block->data_units, "");
+    strcpy(data_block->data_desc, "");
 }
 

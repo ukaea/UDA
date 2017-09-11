@@ -257,7 +257,7 @@ lit_traite(char* nomsigp, int numchoc, int occ,
     /*****++++++++++++++++++++++++++++++++ MAJ Mars 2002 ****************/
     if ((extract > 3) && ((nom_gen[0] == 'g') || (nom_gen[0] == 'G')) &&
         (rgrp == 0)) {
-            extract = 1;
+        extract = 1;
     }
 
     if (generique)
@@ -360,10 +360,11 @@ lit_traite(char* nomsigp, int numchoc, int occ,
                 strcpy(nomsig_misc, nomsig);
 
             for (i = 0; i < TAILLE_NOM_DONNEE + 4; i++) {
-                if (i < strlen(nomsig_misc))
+                if (i < strlen(nomsig_misc)) {
                     *ptd++ = nomsig_misc[i];
-                else
+                } else {
                     *ptd++ = ' ';
+                }
             }
             *ptd = '\0';
             if (cooked_d)
@@ -373,8 +374,9 @@ lit_traite(char* nomsigp, int numchoc, int occ,
             /*****++++++++++++++++++++++++++++++++ MAJ Mars 2002 ****************/
             nb_certif = 1;
 
-            if (type == homoType)
+            if (type == homoType) {
                 nb_certif += nbcoord[1] * (nbcoord[2] > 0 ? nbcoord[2] : 1);
+            }
 #ifdef DEBUG
             printf ("Tsexist cr = %d misc num = %d \n", cr, j);
 #endif
@@ -435,10 +437,11 @@ lit_traite(char* nomsigp, int numchoc, int occ,
     }        /* extraction d'un signal demandee */
 
     if (!(ptDescDon->type_donnee >> SG_FTMPS & 1)) {                /* non fonction du temps */
-        if (ptDescDon->nb_coordonnees == 1)
+        if (ptDescDon->nb_coordonnees == 1) {
             rscalaire = 1;
-        else if (ptDescDon->nb_coordonnees > 1)
+        } else if (ptDescDon->nb_coordonnees > 1) {
             rscalaire = 2;
+        }
 
         /*      if (ptDescDon->ps_coord != NULL)
     {*/            /* format caractere ? */
@@ -465,8 +468,9 @@ lit_traite(char* nomsigp, int numchoc, int occ,
     /* Read the data */
 
     nbmax = nbcoord[0];
-    if (rang[0] == 0)
-        rang[0] = 1;        /** +++  **/
+    if (rang[0] == 0) {
+        rang[0] = 1;
+    }        /** +++  **/
 #if (client == PC)
     if (nbcoord[0] > MAXDATAPC)
     {
@@ -560,7 +564,7 @@ lit_traite(char* nomsigp, int numchoc, int occ,
             if ((Yc = (char*)calloc(nbmax, sizeof(char))) == NULL)
                 meser("Alloc10 - ", " ", 1001, FATAL);
 #ifdef DEBUG
-            printf ("avant TSRSIGRg rangs %d %d nbmax %d\n", rang[0], rang[1], nbmax);
+                printf ("avant TSRSIGRg rangs %d %d nbmax %d\n", rang[0], rang[1], nbmax);
 #endif
             IDAM_LOGF(UDA_LOG_DEBUG, "%s\n", "Calling TSRSigRg at line 565");
             cr = TSRSigRg(nomsig, ptEntree, rang, nbmax, extract, &ptUnite,
@@ -595,11 +599,11 @@ lit_traite(char* nomsigp, int numchoc, int occ,
                 printf ("avant TSRSIGRg rangs %d %d nbmax %d\n", rang[0], rang[1], nbmax);
 #endif
                 IDAM_LOGF(UDA_LOG_DEBUG, "%s\n", "Calling TSRSigRg at line 597");
-                IDAM_LOGF(UDA_LOG_DEBUG, "%s %d\n", "rang[0]: " , rang[0]);
-                IDAM_LOGF(UDA_LOG_DEBUG, "%s %d\n", "rang[1]: " , rang[1]);
-                IDAM_LOGF(UDA_LOG_DEBUG, "%s %d\n", "nbmax: " , nbmax);
-                IDAM_LOGF(UDA_LOG_DEBUG, "%s %d\n", "extract: " , extract);
-                IDAM_LOGF(UDA_LOG_DEBUG, "%s %d\n", "extract: " , extract);
+                IDAM_LOGF(UDA_LOG_DEBUG, "%s %d\n", "rang[0]: ", rang[0]);
+                IDAM_LOGF(UDA_LOG_DEBUG, "%s %d\n", "rang[1]: ", rang[1]);
+                IDAM_LOGF(UDA_LOG_DEBUG, "%s %d\n", "nbmax: ", nbmax);
+                IDAM_LOGF(UDA_LOG_DEBUG, "%s %d\n", "extract: ", extract);
+                IDAM_LOGF(UDA_LOG_DEBUG, "%s %d\n", "extract: ", extract);
 
                 cr = TSRSigRg(nomsig, ptEntree, rang, nbmax, extract, &ptUnite,
                               &numv, certif, date, heure, &nbmes, maxreel, (char*)*X,
