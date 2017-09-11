@@ -16,22 +16,25 @@ namespace uda {
 class String : public Data
 {
 public:
-    String(char * data)
-            : Data(false), data_(data), size_(strlen(data))
+    String(const char * data)
+            : Data(false), str_(data)
+    { }
+
+    String(const std::string& str)
+            : Data(false), str_(str)
     { }
 
     size_t size() const
-    { return size_; }
+    { return str_.size(); }
 
     const std::type_info& type() const
-    { return typeid(char *); }
+    { return typeid(char*); }
 
-    std::string str() const
-    { return std::string(data_, data_ + size_); }
+    const std::string& str() const
+    { return str_; }
 
 private:
-    char * data_;
-    size_t size_;
+    std::string str_;
 };
 
 }

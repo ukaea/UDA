@@ -25,11 +25,11 @@ class String(Data):
     def widget(self):
         raise NotImplementedError("widget function not implemented for String objects")
 
-    def jsonify(self):
+    def jsonify(self, indent=None):
         obj = {
             'data': {
                 '_type': 'string',
                 'value': self.str
             },
         }
-        return json.dumps(obj)
+        return json.dumps(obj, indent=indent)

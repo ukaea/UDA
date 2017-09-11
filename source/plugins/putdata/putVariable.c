@@ -347,6 +347,15 @@ int do_variable(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 }
                 break;
             }
+            case NC_UBYTE: {
+                unsigned char scalar = ((unsigned char*)data)[0];
+                if (unlimitedCount == 0) {
+                    err = nc_put_var_ubyte(grpid, varid, &scalar);
+                } else {
+                    err = nc_put_vara_ubyte(grpid, varid, start, count, &scalar);
+                }
+                break;
+            }
             case NC_UINT64: {
                 unsigned long long scalar = ((unsigned long long*)data)[0];
                 if (unlimitedCount == 0) {
@@ -440,6 +449,10 @@ int do_variable(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             case NC_BYTE:
                 IDAM_LOGF(UDA_LOG_DEBUG, "Data Variable %s is a byte Array\n", name);
                 err = nc_put_vara_schar(grpid, varid, start, extents, (signed char*) data);
+                break;
+            case NC_UBYTE:
+                IDAM_LOGF(UDA_LOG_DEBUG, "Data Variable %s is a ubyte Array\n", name);
+                err = nc_put_vara_ubyte(grpid, varid, start, extents, (unsigned char*) data);
                 break;
             case NC_UINT64:
                 IDAM_LOGF(UDA_LOG_DEBUG, "Data Variable %s is an unsigned long long Array\n", name);

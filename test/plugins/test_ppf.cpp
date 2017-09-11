@@ -3,11 +3,9 @@
 
 #include <c++/UDA.hpp>
 
-TEST_CASE( "Test PPF2::help() function", "[PPF2][plugins]" ) {
-
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+TEST_CASE( "Test PPF2::help() function", "[PPF2][plugins]" )
+{
+#include "setup.inc"
 
     uda::Client client;
 

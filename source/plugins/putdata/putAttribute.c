@@ -73,7 +73,6 @@ int do_attribute(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     // Scalar Attributes
     if (putdata.data_type != UDA_TYPE_STRING) {
-        IDAM_LOG(UDA_LOG_DEBUG, "Not a string\n");
         if (putdata.rank == 0 && putdata.count == 1) {
             IDAM_LOG(UDA_LOG_DEBUG, "Scalar Attribute to be added");
 

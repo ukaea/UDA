@@ -84,7 +84,7 @@ NTREE *findNTreeChildStructure(LOGMALLOCLIST* logmalloclist, NTREE *ntree, const
 * @param data The heap address of the data.
 * @return the Data Tree Node.
 */
-NTREE *findNTreeStructureMalloc(NTREE *ntree, void *data);
+NTREE* findNTreeStructureMalloc(NTREE* ntree, void* data);
 
 /** Locate a tree node with structured data having the specified Structure Definition name. 
 *
@@ -94,7 +94,7 @@ NTREE *findNTreeStructureMalloc(NTREE *ntree, void *data);
 * @param target The name of the Structure Definition.
 * @return A pointer to the First tree node found with the targeted structure definition.
 */
-NTREE *findNTreeStructureDefinition(NTREE *ntree, const char * target);
+NTREE* findNTreeStructureDefinition(NTREE* ntree, const char* target);
 
 /** Locate a tree node with structured data having the specified Structure Definition name. 
 *
@@ -104,7 +104,7 @@ NTREE *findNTreeStructureDefinition(NTREE *ntree, const char * target);
 * @param target The name of the Structure Definition.
 * @return A pointer to the First tree node found with the targeted structure definition.
 */
-NTREE *findNTreeStructureComponentDefinition(NTREE *tree, const char * target);
+NTREE* findNTreeStructureComponentDefinition(NTREE* tree, const char* target);
 
 /** Locate a tree node with structured data having a Specific Structure Class. 
 *
@@ -114,7 +114,7 @@ NTREE *findNTreeStructureComponentDefinition(NTREE *tree, const char * target);
 * @param class The Structure Class, e.g., UDA_TYPE_VLEN.
 * @return A pointer to the First tree node found with the targeted structure class.
 */
-NTREE *idam_findNTreeStructureClass(NTREE *tree, int class_);
+NTREE* idam_findNTreeStructureClass(NTREE* tree, int class_);
 
 /** Identify the largest count of a Variable Length Array with a given structure type. 
 *
@@ -125,7 +125,7 @@ NTREE *idam_findNTreeStructureClass(NTREE *tree, int class_);
 * @param reset Reset the counbter to zero.
 * @return An integer returning the maximum count value.
 */
-int idam_maxCountVlenStructureArray(NTREE *tree, const char * target, int reset);
+int idam_maxCountVlenStructureArray(NTREE* tree, const char* target, int reset);
 
 /** Regularise a specific VLEN structure. 
 *
@@ -203,7 +203,7 @@ char *getNodeStructureDataDataType(LOGMALLOCLIST* logmalloclist, NTREE *ntree);
 * @param ntree A pointer to a tree node. If NULL the root node is assumed. 
 * @return A void pointer to the data .
 */
-void *getNodeStructureData(NTREE *ntree);
+void* getNodeStructureData(NTREE* ntree);
 
 //----------------------------------------------------------------------------------------------------------
 // Sundry utility functions
@@ -218,7 +218,7 @@ void *getNodeStructureData(NTREE *ntree);
 * @param imagecount The number of bytes in the image text block.
 * @return Void
 */
-void printImage(char *image, int imagecount);
+void printImage(const char* image, int imagecount);
 
 //---------------------------------------------------------------------------------------------------------- 
 /**User defined structure field definition for common types  
@@ -232,7 +232,9 @@ void printImage(char *image, int imagecount);
 * @param TypeId Enumerated key indicating the type of data field, e.g. float array
 * @return Void
 */
-void defineField(COMPOUNDFIELD *field, char *name, char *desc, int *offset, unsigned short TypeId);
+void defineField(COMPOUNDFIELD* field, const char* name, const char* desc, int* offset, unsigned short TypeId);
+
+void defineCompoundField(COMPOUNDFIELD* field, const char* type, const char* name, char* desc, int offset, int size);
 
 #ifdef __cplusplus
 }

@@ -9,6 +9,7 @@
 #include <clientserver/udaTypes.h>
 #include <structures/struct.h>
 #include <structures/accessors.h>
+#include <stddef.h>
 
 static char* db_host = "idam3.mast.ccfe.ac.uk";
 static char* db_port = "60000";

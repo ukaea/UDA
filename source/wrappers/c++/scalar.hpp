@@ -16,7 +16,7 @@ class Scalar : public Data
 {
 public:
     template<typename T>
-    Scalar(T value) : Data(false), value_(value), type_(&typeid(T))
+    explicit Scalar(T value) : Data(false), value_(value), type_(&typeid(T))
     { }
 
     size_t size() const

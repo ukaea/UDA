@@ -150,8 +150,8 @@ class Signal(Data):
     def widget(self):
         raise NotImplementedError("widget function not implemented for Signal objects")
 
-    def jsonify(self):
-        return json.dumps(self, cls=SignalEncoder)
+    def jsonify(self, indent=None):
+        return json.dumps(self, cls=SignalEncoder, indent=indent)
 
     def __repr__(self):
         return "<Signal: {0}>".format(self.label) if self.label else "<Signal>"

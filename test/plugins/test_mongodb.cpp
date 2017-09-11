@@ -3,11 +3,9 @@
 
 #include <c++/UDA.hpp>
 
-TEST_CASE( "Test MONGO::help() function", "[MONGO][plugins]" ) {
-
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+TEST_CASE( "Test MONGO::help() function", "[MONGO][plugins]" )
+{
+#include "setup.inc"
 
     uda::Client client;
 

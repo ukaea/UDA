@@ -75,10 +75,10 @@ function putdata, arg1, arg2, arg3, arg4,    $
 
   if count_step eq 0 then begin
      print, '<< PUTDATA ERROR >> Step Id must be one of: '
-     print, '                    create, close, update, device, dimension, coordinate, variable, attribute'
+     print, '                    create, close, update, device, dimension, coordinate, variable, attribute, signals'
      return, -1
   endif
-
+  
   ; -----------------------------------------
   ; Construct the string to pass to the putdata plugin
   ; -----------------------------------------
@@ -90,7 +90,6 @@ function putdata, arg1, arg2, arg3, arg4,    $
   else if (step eq 'variable') then comm = 'PUTDATA::variable('            $
   else if (step eq 'attribute') then comm = 'PUTDATA::attribute('          $
   else if (step eq 'group') then comm = 'PUTDATA::group(' ; Was this part of the original putdata?
-
 
   ; -----------------------------------------
   ; Filename for create / update. File id otherwise
@@ -106,7 +105,7 @@ function putdata, arg1, arg2, arg3, arg4,    $
      if exists(fileid) then comm = comm+'fileid='+strtrim(fileid, 2) $
      else if exists(putfileid) then comm = comm+'fileid='+strtrim(putfileid[0], 2) $
      else begin
-        print, '<< PUTDATA ERROR >>: No file id was given, and no fileid is stored'
+        print, '<< PUTDATA ERROR >>: No file id was given, and no fileid is stored. Please open the file (either with stepid=create or stepid=update)'
         return, -1
      endelse
   endelse

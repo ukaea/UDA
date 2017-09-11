@@ -1,0 +1,19 @@
+#--------------------------------------------------------------
+#  Script to Convert a CDL file to a netCDF-4 file
+#--------------------------------------------------------------
+
+# Generate the netCDF-4 file
+
+rm $1.nc
+
+ncgen -lc -k3 -o $1.nc $1.cdl > gennc.c
+
+gcc -g $(pkg-config --cflags netcdf) gennc.c -o gennc $(pkg-config --libs netcdf)
+
+./gennc
+
+ncdump $1.nc 
+
+rm ./gennc
+
+exit

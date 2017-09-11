@@ -148,8 +148,8 @@ class StructuredData(Data):
         raise NotImplementedError("widget function not implemented for StructuredData objects")
 
     def _todict(self):
-        for child in self.children:
-            if child._name == 'data': return child._todict()
+        # for child in self.children:
+        #     if child._name == 'data': return child._todict()
         obj = {}
         for name in self._imported_attrs:
             obj[name] = getattr(self, name)
@@ -159,6 +159,6 @@ class StructuredData(Data):
                 obj['children'].append(child._todict())
         return obj
 
-    def jsonify(self):
+    def jsonify(self, indent=None):
         obj = self._todict()
-        return json.dumps(obj, cls=StructuredDataEncoder)
+        return json.dumps(obj, cls=StructuredDataEncoder, indent=indent)

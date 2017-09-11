@@ -3,11 +3,9 @@
 
 #include <c++/UDA.hpp>
 
-TEST_CASE( "Test NEWHDF5::help() function", "[NEWHDF5][plugins]" ) {
-
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+TEST_CASE( "Test NEWHDF5::help() function", "[NEWHDF5][plugins]" )
+{
+#include "setup.inc"
 
     uda::Client client;
 

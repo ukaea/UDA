@@ -416,11 +416,9 @@ uda::StructData uda::TreeNode::structData(const std::string& target)
     if (node == nullptr) return StructData::Null;
 
     int count = getNodeChildrenCount(node->parent);
-    //void ** data = static_cast<void **>(malloc(count * sizeof(void *)));
 
     uda::StructData data;
 
-    //addMalloc(data, count, sizeof(void *), (char *)"void *");
     for (int j = 0; j < count; j++) {
         void* ptr = getNodeData(node->parent->children[j]);
         std::string name(getNodeStructureType(node->parent->children[j]));

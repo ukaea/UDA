@@ -3,11 +3,12 @@
 
 #include <c++/UDA.hpp>
 
-TEST_CASE( "Test help function", "[plugins][PARAMSDB]" ) {
+#define ARR_LEN(NAME) sizeof(NAME) / sizeof(NAME[0])
+#define ARR2VEC(TYPE, NAME) std::vector<TYPE>(&NAME[0], &NAME[ARR_LEN(NAME)])
 
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+TEST_CASE( "Test help function", "[plugins][PARAMSDB]" )
+{
+#include "setup.inc"
 
     uda::Client client;
 
@@ -31,11 +32,9 @@ TEST_CASE( "Test help function", "[plugins][PARAMSDB]" ) {
     REQUIRE( str->str() == expected );
 }
 
-TEST_CASE( "Test getActiveLimit function with subtype and coil", "[plugins][PARAMSDB][getActiveLimit]" )
+TEST_CASE( "Test getActiveLimit function with system, subtype and coil", "[plugins][PARAMSDB][getActiveLimit]" )
 {
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+#include "setup.inc"
 
     uda::Client client;
 
@@ -49,58 +48,99 @@ TEST_CASE( "Test getActiveLimit function with subtype and coil", "[plugins][PARA
 
     REQUIRE( tree.numChildren() == 1 );
 
-    uda::TreeNode child = tree.child(0);
+    uda::TreeNode system = tree.child(0);
 
-    REQUIRE( child.name() == "data" );
-    REQUIRE( child.numChildren() == 0 );
-    REQUIRE( child.atomicCount() == 5 );
+    REQUIRE( system.name() == "data" );
+    REQUIRE( system.numChildren() == 1 );
+    REQUIRE( system.atomicCount() == 2 );
 
-    std::string exp_names[] = { "system", "subtype", "coils", "upper_lowers", "values" };
-    bool exp_pointers[] = { true, true, true, true, true };
-    std::string exp_types[] = { "STRING", "STRING", "STRING *", "STRING *", "double *" };
-    size_t exp_ranks[] = { 0, 0, 0, 0, 0 };
+    {
+        std::string exp_names[] = { "name", "num_subtypes" };
+        bool exp_pointers[] = { true, false };
+        std::string exp_types[] = { "STRING", "int" };
+        size_t exp_ranks[] = { 0, 0 };
 
-    REQUIRE( child.atomicNames() == std::vector<std::string>(&exp_names[0], &exp_names[5]) );
-    REQUIRE( child.atomicPointers() == std::vector<bool>(&exp_pointers[0], &exp_pointers[5]) );
-    REQUIRE( child.atomicTypes() == std::vector<std::string>(&exp_types[0], &exp_types[5]) );
-    REQUIRE( child.atomicRank() == std::vector<size_t>(&exp_ranks[0], &exp_ranks[5]) );
+        REQUIRE( system.atomicNames() == ARR2VEC( std::string, exp_names ) );
+        REQUIRE( system.atomicPointers() == ARR2VEC( bool, exp_pointers ) );
+        REQUIRE( system.atomicTypes() == ARR2VEC( std::string, exp_types ) );
+        REQUIRE( system.atomicRank() == ARR2VEC( size_t, exp_ranks ) );
 
-    uda::Scalar system = child.atomicScalar("system");
-    REQUIRE( !system.isNull() );
+        uda::Scalar name = system.atomicScalar("name");
+        REQUIRE( !name.isNull() );
+        REQUIRE( name.type().name() == typeid(char*).name() );
+        REQUIRE( std::string(name.as<char*>()) == "RTP" );
 
-    REQUIRE( system.type().name() == typeid(char*).name() );
-    REQUIRE( std::string(system.as<char*>()) == "RTP" );
+        uda::Scalar num_subtypes = system.atomicScalar("num_subtypes");
+        REQUIRE( !num_subtypes.isNull() );
+        REQUIRE( num_subtypes.type().name() == typeid(int).name() );
+        REQUIRE( num_subtypes.as<int>() == 1 );
+    }
 
-    uda::Scalar subtype = child.atomicScalar("subtype");
-    REQUIRE( !subtype.isNull() );
+    uda::TreeNode subtype = system.child(0);
 
-    REQUIRE( subtype.type().name() == typeid(char*).name() );
-    REQUIRE( std::string(subtype.as<char*>()) == "Current_Threshold_Trip" );
+    REQUIRE( subtype.name() == "subtypes" );
+    REQUIRE( subtype.numChildren() == 1 );
+    REQUIRE( subtype.atomicCount() == 2 );
 
-    uda::Vector coils = child.atomicVector("coils");
-    REQUIRE( !coils.isNull() );
+    {
+        std::string exp_names[] = { "name", "num_coils" };
+        bool exp_pointers[] = { true, false };
+        std::string exp_types[] = { "STRING", "int" };
+        size_t exp_ranks[] = { 0, 0 };
 
-    REQUIRE( coils.type().name() == typeid(char*).name() );
-    REQUIRE( std::string(coils.as<char*>().at(0)) == "TFP1" );
+        REQUIRE( subtype.atomicNames() == ARR2VEC( std::string, exp_names ) );
+        REQUIRE( subtype.atomicPointers() == ARR2VEC( bool, exp_pointers ) );
+        REQUIRE( subtype.atomicTypes() == ARR2VEC( std::string, exp_types ) );
+        REQUIRE( subtype.atomicRank() == ARR2VEC( size_t, exp_ranks ) );
 
-    uda::Vector upper_lowers = child.atomicVector("upper_lowers");
-    REQUIRE( !upper_lowers.isNull() );
+        uda::Scalar name = subtype.atomicScalar("name");
+        REQUIRE( !name.isNull() );
+        REQUIRE( name.type().name() == typeid(char*).name() );
+        REQUIRE( std::string(name.as<char*>()) == "Current_Threshold_Trip" );
 
-    REQUIRE( upper_lowers.type().name() == typeid(char*).name() );
-    REQUIRE( std::string(upper_lowers.as<char*>().at(0)) == "ONLY" );
+        uda::Scalar num_coils = subtype.atomicScalar("num_coils");
+        REQUIRE( !num_coils.isNull() );
+        REQUIRE( num_coils.type().name() == typeid(int).name() );
+        REQUIRE( num_coils.as<int>() == 1 );
+    }
 
-    uda::Vector values = child.atomicVector("values");
-    REQUIRE( !values.isNull() );
+    uda::TreeNode coil = subtype.child(0);
 
-    REQUIRE( values.type().name() == typeid(double).name() );
-    REQUIRE( values.as<double>().at(0) == Approx(1.23) );
+    REQUIRE( coil.name() == "coils" );
+    REQUIRE( coil.numChildren() == 0 );
+    REQUIRE( coil.atomicCount() == 3 );
+
+    {
+        std::string exp_names[] = { "name", "upper_lower", "value" };
+        bool exp_pointers[] = { true, true, false };
+        std::string exp_types[] = { "STRING", "STRING", "double" };
+        size_t exp_ranks[] = { 0, 0, 0 };
+
+        REQUIRE( coil.atomicNames() == ARR2VEC( std::string, exp_names ) );
+        REQUIRE( coil.atomicPointers() == ARR2VEC( bool, exp_pointers ) );
+        REQUIRE( coil.atomicTypes() == ARR2VEC( std::string, exp_types ) );
+        REQUIRE( coil.atomicRank() == ARR2VEC( size_t, exp_ranks ) );
+
+        uda::Scalar name = coil.atomicScalar("name");
+        REQUIRE( !name.isNull() );
+        REQUIRE( name.type().name() == typeid(char*).name() );
+        REQUIRE( std::string(name.as<char*>()) == "TFP1" );
+
+        uda::Scalar upper_lower = coil.atomicScalar("upper_lower");
+        REQUIRE( !upper_lower.isNull() );
+        REQUIRE( upper_lower.type().name() == typeid(char*).name() );
+        REQUIRE( std::string(upper_lower.as<char*>()) == "ONLY" );
+
+        uda::Scalar value = coil.atomicScalar("value");
+        REQUIRE( !value.isNull() );
+        REQUIRE( value.type().name() == typeid(double).name() );
+        REQUIRE( value.as<double>() == Approx(1.23) );
+    }
 }
 
-TEST_CASE( "Test getActiveLimit function with subtype", "[plugins][PARAMSDB][getActiveLimit]" ) {
-
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+TEST_CASE( "Test getActiveLimit function with system and subtype", "[plugins][PARAMSDB][getActiveLimit]" )
+{
+#include "setup.inc"
 
     uda::Client client;
 
@@ -114,57 +154,100 @@ TEST_CASE( "Test getActiveLimit function with subtype", "[plugins][PARAMSDB][get
 
     REQUIRE( tree.numChildren() == 1 );
 
-    uda::TreeNode child = tree.child(0);
+    uda::TreeNode system = tree.child(0);
 
-    REQUIRE( child.name() == "data" );
-    REQUIRE( child.numChildren() == 0 );
-    REQUIRE( child.atomicCount() == 5 );
+    REQUIRE( system.name() == "data" );
+    REQUIRE( system.numChildren() == 1 );
+    REQUIRE( system.atomicCount() == 2 );
 
-    std::string exp_names[] = { "system", "subtype", "coils", "upper_lowers", "values" };
-    bool exp_pointers[] = { true, true, true, true, true };
-    std::string exp_types[] = { "STRING", "STRING", "STRING *", "STRING *", "double *" };
-    size_t exp_ranks[] = { 0, 0, 0, 0, 0 };
+    {
+        std::string exp_names[] = { "name", "num_subtypes" };
+        bool exp_pointers[] = { true, false };
+        std::string exp_types[] = { "STRING", "int" };
+        size_t exp_ranks[] = { 0, 0 };
 
-    REQUIRE( child.atomicNames() == std::vector<std::string>(&exp_names[0], &exp_names[5]) );
-    REQUIRE( child.atomicPointers() == std::vector<bool>(&exp_pointers[0], &exp_pointers[5]) );
-    REQUIRE( child.atomicTypes() == std::vector<std::string>(&exp_types[0], &exp_types[5]) );
-    REQUIRE( child.atomicRank() == std::vector<size_t>(&exp_ranks[0], &exp_ranks[5]) );
+        REQUIRE( system.atomicNames() == ARR2VEC( std::string, exp_names ) );
+        REQUIRE( system.atomicPointers() == ARR2VEC( bool, exp_pointers ) );
+        REQUIRE( system.atomicTypes() == ARR2VEC( std::string, exp_types ) );
+        REQUIRE( system.atomicRank() == ARR2VEC( size_t, exp_ranks ) );
 
-    uda::Scalar system = child.atomicScalar("system");
-    REQUIRE( !system.isNull() );
+        uda::Scalar name = system.atomicScalar("name");
+        REQUIRE( !name.isNull() );
+        REQUIRE( name.type().name() == typeid(char*).name() );
+        REQUIRE( std::string(name.as<char*>()) == "RTP" );
 
-    REQUIRE( system.type().name() == typeid(char*).name() );
-    REQUIRE( std::string(system.as<char*>()) == "RTP" );
+        uda::Scalar num_subtypes = system.atomicScalar("num_subtypes");
+        REQUIRE( !num_subtypes.isNull() );
+        REQUIRE( num_subtypes.type().name() == typeid(int).name() );
+        REQUIRE( num_subtypes.as<int>() == 1 );
+    }
 
-    uda::Scalar subtype = child.atomicScalar("subtype");
-    REQUIRE( !subtype.isNull() );
+    uda::TreeNode subtype = system.child(0);
 
-    REQUIRE( subtype.type().name() == typeid(char*).name() );
-    REQUIRE( std::string(subtype.as<char*>()) == "Current_Threshold_Trip" );
+    REQUIRE( subtype.name() == "subtypes" );
+    REQUIRE( subtype.numChildren() == 2 );
+    REQUIRE( subtype.atomicCount() == 2 );
 
-    uda::Vector coils = child.atomicVector("coils");
-    REQUIRE( !coils.isNull() );
+    {
+        std::string exp_names[] = { "name", "num_coils" };
+        bool exp_pointers[] = { true, false };
+        std::string exp_types[] = { "STRING", "int" };
+        size_t exp_ranks[] = { 0, 0 };
 
-    REQUIRE( coils.size() == 2 );
-    REQUIRE( coils.type().name() == typeid(char*).name() );
-    REQUIRE( std::string(coils.as<char*>().at(0)) == "TFP1" );
-    REQUIRE( std::string(coils.as<char*>().at(1)) == "TF" );
+        REQUIRE( subtype.atomicNames() == ARR2VEC( std::string, exp_names ) );
+        REQUIRE( subtype.atomicPointers() == ARR2VEC( bool, exp_pointers ) );
+        REQUIRE( subtype.atomicTypes() == ARR2VEC( std::string, exp_types ) );
+        REQUIRE( subtype.atomicRank() == ARR2VEC( size_t, exp_ranks ) );
 
-    uda::Vector upper_lowers = child.atomicVector("upper_lowers");
-    REQUIRE( !upper_lowers.isNull() );
+        uda::Scalar name = subtype.atomicScalar("name");
+        REQUIRE( !name.isNull() );
+        REQUIRE( name.type().name() == typeid(char*).name() );
+        REQUIRE( std::string(name.as<char*>()) == "Current_Threshold_Trip" );
 
-    REQUIRE( upper_lowers.size() == 2 );
-    REQUIRE( upper_lowers.type().name() == typeid(char*).name() );
-    REQUIRE( std::string(upper_lowers.as<char*>().at(0)) == "ONLY" );
-    REQUIRE( std::string(upper_lowers.as<char*>().at(1)) == "ONLY" );
+        uda::Scalar num_coils = subtype.atomicScalar("num_coils");
+        REQUIRE( !num_coils.isNull() );
+        REQUIRE( num_coils.type().name() == typeid(int).name() );
+        REQUIRE( num_coils.as<int>() == 2 );
+    }
 
-    uda::Vector values = child.atomicVector("values");
-    REQUIRE( !values.isNull() );
+    std::string exp_coil_names[] = { "TFP1", "TF" };
+    std::string exp_coil_upper_lowers[] = { "ONLY", "ONLY" };
+    double exp_coil_values[] = { 1.23, 2.13 };
 
-    REQUIRE( values.size() == 2 );
-    REQUIRE( values.type().name() == typeid(double).name() );
-    REQUIRE( values.as<double>().at(0) == Approx(1.23) );
-    REQUIRE( values.as<double>().at(1) == Approx(2.13) );
+    for (int coil_idx = 0; coil_idx < 2; ++coil_idx) {
+        uda::TreeNode coil = subtype.child(coil_idx);
+
+        REQUIRE( coil.name() == "coils" );
+        REQUIRE( coil.numChildren() == 0 );
+        REQUIRE( coil.atomicCount() == 3 );
+
+        {
+            std::string exp_names[] = { "name", "upper_lower", "value" };
+            bool exp_pointers[] = { true, true, false };
+            std::string exp_types[] = { "STRING", "STRING", "double" };
+            size_t exp_ranks[] = { 0, 0, 0 };
+
+            REQUIRE( coil.atomicNames() == ARR2VEC( std::string, exp_names ) );
+            REQUIRE( coil.atomicPointers() == ARR2VEC( bool, exp_pointers ) );
+            REQUIRE( coil.atomicTypes() == ARR2VEC( std::string, exp_types ) );
+            REQUIRE( coil.atomicRank() == ARR2VEC( size_t, exp_ranks ) );
+
+            uda::Scalar name = coil.atomicScalar("name");
+            REQUIRE( !name.isNull() );
+            REQUIRE( name.type().name() == typeid(char*).name() );
+            REQUIRE( std::string(name.as<char*>()) == exp_coil_names[coil_idx] );
+
+            uda::Scalar upper_lower = coil.atomicScalar("upper_lower");
+            REQUIRE( !upper_lower.isNull() );
+            REQUIRE( upper_lower.type().name() == typeid(char*).name() );
+            REQUIRE( std::string(upper_lower.as<char*>()) == exp_coil_upper_lowers[coil_idx] );
+
+            uda::Scalar value = coil.atomicScalar("value");
+            REQUIRE( !value.isNull() );
+            REQUIRE( value.type().name() == typeid(double).name() );
+            REQUIRE( value.as<double>() == Approx(exp_coil_values[coil_idx]) );
+        }
+    }
 }
 
 //TEST_CASE( "Test getActiveLimit function with only system", "[plugins][PARAMSDB][getActiveLimit]" ) {

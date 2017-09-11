@@ -302,7 +302,7 @@ class GeometryData(Data):
             if len(signals_to_add) > 0:
                 self.data[geom_access].add_attr("signals", signals_to_add)
 
-    def plot(self, ax_2d=None, ax_3d=None):
+    def plot(self, ax_2d=None, ax_3d=None, show=True, color=None):
         """
         Plot components in 2D and 3D.
         :param ax_2d: Axis on which to plot location of components in R-Z (2D) plane.
@@ -321,9 +321,10 @@ class GeometryData(Data):
                 if manipulator is None:
                     continue
 
-                manipulator.plot(self.data.children[index], ax_2d=ax_2d, ax_3d=ax_3d, show=False)
+                manipulator.plot(self.data.children[index], ax_2d=ax_2d, ax_3d=ax_3d, show=False, color=color)
 
-            plt.show()
+            if show:
+                plt.show()
         else:
             if ax_2d is None and ax_3d is None:
                 plt.close()
@@ -331,7 +332,7 @@ class GeometryData(Data):
                 ax_2d = fig.add_subplot(121)
                 ax_3d = fig.add_subplot(122, projection='3d')
 
-            self._manip[0].plot(self.data, ax_2d=ax_2d, ax_3d=ax_3d)
+            self._manip[0].plot(self.data, ax_2d=ax_2d, ax_3d=ax_3d, show=show, color=color)
 
 
     def widget(self):

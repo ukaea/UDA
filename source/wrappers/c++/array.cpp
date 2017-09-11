@@ -15,8 +15,7 @@ const std::vector<size_t> uda::Array::shape() const
 {
     std::vector<size_t> shape(dims_.size());
 
-    size_t i;
-    for (i = 0; i < dims_.size(); ++i) {
+    for (size_t i = 0; i < dims_.size(); ++i) {
         shape[i] = dims_[i].size();
     }
 

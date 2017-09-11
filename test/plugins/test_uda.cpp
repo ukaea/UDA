@@ -3,11 +3,9 @@
 
 #include <c++/UDA.hpp>
 
-TEST_CASE( "Test UDA::help() function", "[UDA][plugins]" ) {
-
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+TEST_CASE( "Test UDA::help() function", "[UDA][plugins]" )
+{
+#include "setup.inc"
 
     uda::Client client;
 
@@ -31,11 +29,9 @@ TEST_CASE( "Test UDA::help() function", "[UDA][plugins]" ) {
     REQUIRE( str->str() == expected );
 }
 
-TEST_CASE( "Test UDA::get() function", "[UDA][plugins]" ) {
-
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+TEST_CASE( "Test UDA::get() function", "[UDA][plugins]" )
+{
+#include "setup.inc"
 
     uda::Client client;
 

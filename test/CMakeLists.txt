@@ -7,6 +7,8 @@ find_package( OpenSSL )
 find_package( LibXml2 )
 find_package( LibMemcached )
 
+set( FAT_TESTS OFF CACHE BOOL "Build tests using fat-client" )
+
 add_definitions( -D__USE_XOPEN2K8 )
 
 if( NOT Boost_FOUND OR NOT OPENSSL_FOUND OR NOT LIBXML2_FOUND )
@@ -24,8 +26,8 @@ include_directories(
 )
 
 configure_file(
-  "${CMAKE_CURRENT_SOURCE_DIR}/setupEnvironment.inc.in"
-  "${CMAKE_CURRENT_BINARY_DIR}/setupEnvironment.inc"
+  "${CMAKE_CURRENT_SOURCE_DIR}/setup.inc.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/setup.inc"
   @ONLY
 )
 
@@ -70,7 +72,11 @@ foreach( TEST ${TESTS} )
   target_compile_definitions( fat_${TEST} PRIVATE -DFATCLIENT )
   link_modules( fat_${TEST} )
 
-  add_test( ${TEST} ${TEST} )
+  if( FAT_TESTS )
+    add_test( ${TEST} fat_${TEST} )
+  else()
+    add_test( ${TEST} ${TEST} )
+  endif()
 endforeach()
 
 find_package( GCrypt )
