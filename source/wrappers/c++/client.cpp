@@ -142,7 +142,7 @@ const uda::Result& uda::Client::get(const std::string& signalName, const std::st
         std::string msg = errorstack->nerrors > 0 ? errorstack->idamerror[0].msg : "";
 
         backtrace.reserve(errorstack->nerrors);
-        for (int i = 0; i < errorstack->nerrors; ++i) {
+        for (unsigned int i = 0; i < errorstack->nerrors; ++i) {
             backtrace.push_back(std::string("[") + errorstack->idamerror[i].location + "]: " + errorstack->idamerror[i].msg);
         }
         delete data;

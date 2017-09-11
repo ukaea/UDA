@@ -971,7 +971,7 @@ void defineCompoundField(COMPOUNDFIELD* field, const char* type, const char* nam
     initCompoundField(field);
 
     strcpy(field->name, name);
-    field->atomictype = TYPE_UNKNOWN;
+    field->atomictype = UDA_TYPE_UNKNOWN;
     strcpy(field->type, type);
     strcpy(field->desc, desc);
 

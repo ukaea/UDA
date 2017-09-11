@@ -6,7 +6,7 @@
 TEST_CASE( "Test get anu_neutrons signal", "[MAST]" )
 {
 #ifdef FATCLIENT
-#  include "setupEnvironment.inc"
+#  include "setup.inc"
 #endif
 
     uda::Client client;

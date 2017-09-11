@@ -41,7 +41,7 @@ TEST_CASE( "Test NEWCDF4::read() with scalar data variable", "[NEWCDF4][plugins]
     const uda::Result& result = client.get("NEWCDF4::read(signal=/testGroup/simpleVar, file=" TEST_DATA_DIR "/test_scalar_data.nc)", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.error() == "" );
+    REQUIRE( result.errorMessage().empty() );
 
     uda::Data* data = result.data();
 
@@ -65,7 +65,7 @@ TEST_CASE( "Test NEWCDF4::read() with array data variable", "[NEWCDF4][plugins]"
     const uda::Result& result = client.get("NEWCDF4::read(signal=testvar, file=" TEST_DATA_DIR "/test_array_data.nc)", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.error() == "" );
+    REQUIRE( result.errorMessage().empty() );
     REQUIRE( result.isTree() );
 
     uda::TreeNode root = result.tree();
@@ -122,7 +122,7 @@ TEST_CASE( "Test NEWCDF4::read() with compound data types", "[NEWCDF4][plugins]"
     const uda::Result& result = client.get("NEWCDF4::read(signal=/magnetics/pfcoil/d1_upper, file=" TEST_DATA_DIR "/testfile.nc)", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.error() == "" );
+    REQUIRE( result.errorMessage().empty() );
     REQUIRE( result.isTree() );
 
     uda::TreeNode root = result.tree();

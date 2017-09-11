@@ -29,7 +29,7 @@
 TEST_CASE( "Test bpol_probe count", "[IMAS][JET][BPOL]" )
 {
 #ifdef FATCLIENT
-#  include "setupEnvironment.inc"
+#  include "setup.inc"
 #endif
 
     setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", "/Users/jhollocombe/Projects/uda/source/plugins/exp2imas/mappings", 1);
@@ -63,7 +63,7 @@ TEST_CASE( "Test bpol_probe count", "[IMAS][JET][BPOL]" )
 TEST_CASE( "Test bpol_probe name", "[IMAS][JET][BPOL]" )
 {
 #ifdef FATCLIENT
-#  include "setupEnvironment.inc"
+#  include "setup.inc"
 #endif
 
     setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", "/Users/jhollocombe/Projects/uda/source/plugins/exp2imas/mappings", 1);
@@ -96,7 +96,7 @@ TEST_CASE( "Test bpol_probe name", "[IMAS][JET][BPOL]" )
 TEST_CASE( "Test bpol_probe identifier", "[IMAS][JET][BPOL]" )
 {
 #ifdef FATCLIENT
-#  include "setupEnvironment.inc"
+#  include "setup.inc"
 #endif
 
     setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", "/Users/jhollocombe/Projects/uda/source/plugins/exp2imas/mappings", 1);
@@ -132,7 +132,7 @@ TEST_CASE( "Test bpol_probe identifier", "[IMAS][JET][BPOL]" )
 TEST_CASE( "Test bpol_probe toroidal_angle", "[IMAS][JET][BPOL]" )
 {
 #ifdef FATCLIENT
-#  include "setupEnvironment.inc"
+#  include "setup.inc"
 #endif
 
     setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", "/Users/jhollocombe/Projects/uda/source/plugins/exp2imas/mappings", 1);
@@ -169,7 +169,7 @@ TEST_CASE( "Test bpol_probe toroidal_angle", "[IMAS][JET][BPOL]" )
 TEST_CASE( "Test bpol_probe poloidal_angle", "[IMAS][JET][BPOL]" )
 {
 #ifdef FATCLIENT
-#  include "setupEnvironment.inc"
+#  include "setup.inc"
 #endif
 
 	setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", "/Users/jhollocombe/Projects/uda/source/plugins/exp2imas/mappings", 1);
@@ -206,7 +206,7 @@ TEST_CASE( "Test bpol_probe poloidal_angle", "[IMAS][JET][BPOL]" )
 TEST_CASE( "Test bpol_probe area", "[IMAS][JET][BPOL]" )
 {
 #ifdef FATCLIENT
-#  include "setupEnvironment.inc"
+#  include "setup.inc"
 #endif
 
     setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", "/Users/jhollocombe/Projects/uda/source/plugins/exp2imas/mappings", 1);
@@ -243,7 +243,7 @@ TEST_CASE( "Test bpol_probe area", "[IMAS][JET][BPOL]" )
 TEST_CASE( "Test bpol_probe position r", "[IMAS][JET][BPOL]" )
 {
 #ifdef FATCLIENT
-#  include "setupEnvironment.inc"
+#  include "setup.inc"
 #endif
 
     setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", "/Users/jhollocombe/Projects/uda/source/plugins/exp2imas/mappings", 1);
@@ -280,7 +280,7 @@ TEST_CASE( "Test bpol_probe position r", "[IMAS][JET][BPOL]" )
 TEST_CASE( "Test bpol_probe position z", "[IMAS][JET][BPOL]" )
 {
 #ifdef FATCLIENT
-#  include "setupEnvironment.inc"
+#  include "setup.inc"
 #endif
 
     setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", "/Users/jhollocombe/Projects/uda/source/plugins/exp2imas/mappings", 1);
@@ -317,7 +317,7 @@ TEST_CASE( "Test bpol_probe position z", "[IMAS][JET][BPOL]" )
 TEST_CASE( "Test bpol_probe position phi", "[IMAS][JET][BPOL]" )
 {
 #ifdef FATCLIENT
-#  include "setupEnvironment.inc"
+#  include "setup.inc"
 #endif
 
     setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", "/Users/jhollocombe/Projects/uda/source/plugins/exp2imas/mappings", 1);
@@ -354,7 +354,7 @@ TEST_CASE( "Test bpol_probe position phi", "[IMAS][JET][BPOL]" )
 TEST_CASE( "Test bpol_probe length", "[IMAS][JET][BPOL]" )
 {
 #ifdef FATCLIENT
-#  include "setupEnvironment.inc"
+#  include "setup.inc"
 #endif
 
     setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", "/Users/jhollocombe/Projects/uda/source/plugins/exp2imas/mappings", 1);
@@ -388,7 +388,7 @@ TEST_CASE( "Test bpol_probe length", "[IMAS][JET][BPOL]" )
 TEST_CASE( "Test bpol_probe turns", "[IMAS][JET][BPOL]" )
 {
 #ifdef FATCLIENT
-#  include "setupEnvironment.inc"
+#  include "setup.inc"
 #endif
 
     setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", "/Users/jhollocombe/Projects/uda/source/plugins/exp2imas/mappings", 1);
@@ -425,7 +425,7 @@ TEST_CASE( "Test bpol_probe turns", "[IMAS][JET][BPOL]" )
 TEST_CASE( "Test bpol_probe field", "[IMAS][JET][BPOL]" )
 {
 #ifdef FATCLIENT
-#  include "setupEnvironment.inc"
+#  include "setup.inc"
 #endif
 
     setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", "/Users/jhollocombe/Projects/uda/source/plugins/exp2imas/mappings", 1);
@@ -460,7 +460,7 @@ TEST_CASE( "Test bpol_probe field", "[IMAS][JET][BPOL]" )
 TEST_CASE( "Test bpol_probe time", "[IMAS][JET][BPOL]" )
 {
 #ifdef FATCLIENT
-#  include "setupEnvironment.inc"
+#  include "setup.inc"
 #endif
 
     setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", "/Users/jhollocombe/Projects/uda/source/plugins/exp2imas/mappings", 1);
@@ -504,7 +504,7 @@ TEST_CASE( "Test bpol_probe time", "[IMAS][JET][BPOL]" )
 TEST_CASE( "Test flux_loop count", "[IMAS][JET][FLUX]" )
 {
 #ifdef FATCLIENT
-#  include "setupEnvironment.inc"
+#  include "setup.inc"
 #endif
 
     setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", "/Users/jhollocombe/Projects/uda/source/plugins/exp2imas/mappings", 1);
@@ -535,7 +535,7 @@ TEST_CASE( "Test flux_loop count", "[IMAS][JET][FLUX]" )
 TEST_CASE( "Test flux_loop name", "[IMAS][JET][FLUX]" )
 {
 #ifdef FATCLIENT
-#  include "setupEnvironment.inc"
+#  include "setup.inc"
 #endif
 
     setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", "/Users/jhollocombe/Projects/uda/source/plugins/exp2imas/mappings", 1);
@@ -565,7 +565,7 @@ TEST_CASE( "Test flux_loop name", "[IMAS][JET][FLUX]" )
 TEST_CASE( "Test flux_loop identifier", "[IMAS][JET][FLUX]" )
 {
 #ifdef FATCLIENT
-#  include "setupEnvironment.inc"
+#  include "setup.inc"
 #endif
 
     setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", "/Users/jhollocombe/Projects/uda/source/plugins/exp2imas/mappings", 1);
@@ -596,7 +596,7 @@ TEST_CASE( "Test flux_loop identifier", "[IMAS][JET][FLUX]" )
 TEST_CASE( "Test flux_loop position count", "[IMAS][JET][FLUX]" )
 {
 #ifdef FATCLIENT
-#  include "setupEnvironment.inc"
+#  include "setup.inc"
 #endif
 
     setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", "/Users/jhollocombe/Projects/uda/source/plugins/exp2imas/mappings", 1);
@@ -627,7 +627,7 @@ TEST_CASE( "Test flux_loop position count", "[IMAS][JET][FLUX]" )
 TEST_CASE( "Test flux_loop position r", "[IMAS][JET][FLUX]" )
 {
 #ifdef FATCLIENT
-#  include "setupEnvironment.inc"
+#  include "setup.inc"
 #endif
 
     setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", "/Users/jhollocombe/Projects/uda/source/plugins/exp2imas/mappings", 1);
@@ -677,7 +677,7 @@ TEST_CASE( "Test flux_loop position r", "[IMAS][JET][FLUX]" )
 TEST_CASE( "Test flux_loop position z", "[IMAS][JET][FLUX]" )
 {
 #ifdef FATCLIENT
-#  include "setupEnvironment.inc"
+#  include "setup.inc"
 #endif
 
     setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", "/Users/jhollocombe/Projects/uda/source/plugins/exp2imas/mappings", 1);
@@ -727,7 +727,7 @@ TEST_CASE( "Test flux_loop position z", "[IMAS][JET][FLUX]" )
 TEST_CASE( "Test flux_loop position phi", "[IMAS][JET][FLUX]" )
 {
 #ifdef FATCLIENT
-#  include "setupEnvironment.inc"
+#  include "setup.inc"
 #endif
 
     setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", "/Users/jhollocombe/Projects/uda/source/plugins/exp2imas/mappings", 1);
@@ -777,7 +777,7 @@ TEST_CASE( "Test flux_loop position phi", "[IMAS][JET][FLUX]" )
 TEST_CASE( "Test flux_loop flux", "[IMAS][JET][FLUX]" )
 {
 #ifdef FATCLIENT
-#  include "setupEnvironment.inc"
+#  include "setup.inc"
 #endif
 
     setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", "/Users/jhollocombe/Projects/uda/source/plugins/exp2imas/mappings", 1);
@@ -829,7 +829,7 @@ TEST_CASE( "Test flux_loop flux", "[IMAS][JET][FLUX]" )
 //TEST_CASE( "Test flux_loop flux errors", "[IMAS][JET][BPOL]" )
 //{
 //#ifdef FATCLIENT
-//#  include "setupEnvironment.inc"
+//#  include "setup.inc"
 //#endif
 //
 //    setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", "/Users/jhollocombe/Projects/uda/source/plugins/exp2imas/mappings", 1);
@@ -880,7 +880,7 @@ TEST_CASE( "Test flux_loop flux", "[IMAS][JET][FLUX]" )
 TEST_CASE( "Test flux_loop time", "[IMAS][JET][FLUX]" )
 {
 #ifdef FATCLIENT
-#  include "setupEnvironment.inc"
+#  include "setup.inc"
 #endif
 
     setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", "/Users/jhollocombe/Projects/uda/source/plugins/exp2imas/mappings", 1);

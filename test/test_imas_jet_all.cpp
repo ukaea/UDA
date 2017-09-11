@@ -10,7 +10,7 @@
 TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
 {
 #ifdef FATCLIENT
-#  include "setupEnvironment.inc"
+#  include "setup.inc"
 #endif
 
     std::vector<std::string> tests;
