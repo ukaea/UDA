@@ -1,2 +1,3 @@
 export UDA_WEST_MAPPING_FILE=$HOME/iter/uda/source/plugins/west/WEST_mappings/IDAM_mapping.xml
 export UDA_WEST_MAPPING_FILE_DIRECTORY=$HOME/iter/uda/source/plugins/west/WEST_mappings
+export WEST_ECE_MODES_FILE=$HOME/iter/uda/source/plugins/west/WEST_mappings/ece_modes_file.txt

@@ -134,3 +134,4 @@ int help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     return err;
 }
+
