@@ -14,7 +14,7 @@ elseif( NOT LIBXML2_FOUND )
   return()
 elseif( NOT LIBTS_FOUND )
   message( WARNING "LibTS not found - skipping west plugin" )
-  #return()
+  return()
 endif()
 
 add_definitions( -Wno-error )
@@ -35,5 +35,5 @@ uda_plugin(
   EXTRA_LINK_LIBS
     ${LIBXML2_LIBRARIES}
     ${MDSPLUS_LIBRARIES}
-    #${LIBTS_LIBRARIES}
+    ${LIBTS_LIBRARIES}
 )
