@@ -36,7 +36,6 @@
 
 int readCDF4Atts(int grpid, int varid, char* units, char* title, char* class, char* comment)
 {
-
     int err, i, rc, numatts;
     size_t attlength;
     char attname[MAX_NC_NAME];    // attribute name
@@ -49,45 +48,44 @@ int readCDF4Atts(int grpid, int varid, char* units, char* title, char* class, ch
     class[0] = '\0';
     comment[0] = '\0';
 
-//---------------------------------------------------------------------------------------------
-// Number of Attributes associated with this variable
+    //---------------------------------------------------------------------------------------------
+    // Number of Attributes associated with this variable
 
     if ((rc = nc_inq_varnatts(grpid, varid, &numatts)) != NC_NOERR) {
         err = NETCDF_ERROR_INQUIRING_ATT_2;
-        addIdamError(CODEERRORTYPE, "readCDFAtts", err, (char*) nc_strerror(rc));
+        addIdamError(CODEERRORTYPE, "readCDFAtts", err, (char*)nc_strerror(rc));
         return err;
     }
 
     for (i = 0; i < numatts; i++) {
         if ((rc = nc_inq_attname(grpid, varid, i, attname)) != NC_NOERR) {
             err = NETCDF_ERROR_INQUIRING_ATT_7;
-            addIdamError(CODEERRORTYPE, "readCDFAtts", err, (char*) nc_strerror(rc));
+            addIdamError(CODEERRORTYPE, "readCDFAtts", err, (char*)nc_strerror(rc));
             return err;
         }
 
         if ((rc = nc_inq_atttype(grpid, varid, attname, &atttype)) != NC_NOERR) {
             err = NETCDF_ERROR_INQUIRING_ATT_8;
-            addIdamError(CODEERRORTYPE, "readCDFAtts", err, (char*) nc_strerror(rc));
+            addIdamError(CODEERRORTYPE, "readCDFAtts", err, (char*)nc_strerror(rc));
             return err;
         }
 
-        if ((rc = nc_inq_attlen(grpid, varid, attname, (size_t*) &attlength)) != NC_NOERR) {
+        if ((rc = nc_inq_attlen(grpid, varid, attname, &attlength)) != NC_NOERR) {
             err = NETCDF_ERROR_INQUIRING_ATT_9;
-            addIdamError(CODEERRORTYPE, "readCDFAtts", err, (char*) nc_strerror(rc));
+            addIdamError(CODEERRORTYPE, "readCDFAtts", err, (char*)nc_strerror(rc));
             return err;
         }
 
         if (atttype == NC_CHAR) {
-            if ((txt = (char*) malloc((size_t) (attlength * sizeof(char) + 1))) == NULL) {
+            if ((txt = (char*)malloc((size_t)(attlength * sizeof(char) + 1))) == NULL) {
                 err = NETCDF_ERROR_ALLOCATING_HEAP_9;
-                addIdamError(CODEERRORTYPE, "readCDFAtts", err,
-                             "Unable to Allocate Heap for Attribute Data");
+                addIdamError(CODEERRORTYPE, "readCDFAtts", err, "Unable to Allocate Heap for Attribute Data");
                 return err;
             }
             if ((rc = nc_get_att_text(grpid, varid, attname, txt)) != NC_NOERR) {
                 err = NETCDF_ERROR_INQUIRING_ATT_10;
-                addIdamError(CODEERRORTYPE, "readCDFAtts", err, (char*) nc_strerror(rc));
-                free((void*) txt);
+                addIdamError(CODEERRORTYPE, "readCDFAtts", err, (char*)nc_strerror(rc));
+                free((void*)txt);
                 return err;
             }
             txt[attlength * sizeof(char)] = '\0';        // Add the string Null terminator
@@ -96,26 +94,28 @@ int readCDF4Atts(int grpid, int varid, char* units, char* title, char* class, ch
 
             if (STR_EQUALS(attname, "units")) {
                 copyString(txt, units, STRING_LENGTH);
-            } else if (STR_EQUALS(attname, "title") || STR_EQUALS(attname, "label") || STR_EQUALS(attname, "long_name")) {
+            } else if (STR_EQUALS(attname, "title") || STR_EQUALS(attname, "label") ||
+                       STR_EQUALS(attname, "long_name")) {
                 copyString(txt, title, STRING_LENGTH);
             } else if (STR_EQUALS(attname, "comment")) {
                 copyString(txt, comment, STRING_LENGTH);
             } else if (STR_EQUALS(attname, "class")) {
                 copyString(txt, class, STRING_LENGTH);
             }
-            free((void*) txt);
+            free((void*)txt);
             txt = NULL;
         } else if (atttype == NC_STRING) {
-            char** sarr = (char**) malloc(attlength * sizeof(char*));
+            char** sarr = (char**)malloc(attlength * sizeof(char*));
             if ((rc = nc_get_att_string(grpid, varid, attname, sarr)) != NC_NOERR) {
                 err = 999;
-                addIdamError(CODEERRORTYPE, "readCDF", err, (char*) nc_strerror(rc));
-                free((void*) sarr);
+                addIdamError(CODEERRORTYPE, "readCDF", err, (char*)nc_strerror(rc));
+                free((void*)sarr);
                 return err;
             }
             if (STR_EQUALS(attname, "units")) {
                 copyString(sarr[0], units, STRING_LENGTH);
-            } else if (STR_EQUALS(attname, "title") || STR_EQUALS(attname, "label") || STR_EQUALS(attname, "long_name")) {
+            } else if (STR_EQUALS(attname, "title") || STR_EQUALS(attname, "label") ||
+                       STR_EQUALS(attname, "long_name")) {
                 copyString(sarr[0], title, STRING_LENGTH);
             } else if (STR_EQUALS(attname, "comment")) {
                 copyString(sarr[0], comment, STRING_LENGTH);
@@ -123,7 +123,7 @@ int readCDF4Atts(int grpid, int varid, char* units, char* title, char* class, ch
                 copyString(sarr[0], class, STRING_LENGTH);
             }
             nc_free_string(attlength, sarr);
-            free((void*) sarr);
+            free((void*)sarr);
         }
     }
 

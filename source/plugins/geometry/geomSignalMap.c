@@ -1,14 +1,9 @@
 #include "geomSignalMap.h"
 
-#include <stdlib.h>
-#include <strings.h>
-
-#include <structures/struct.h>
-#include <structures/accessors.h>
-#include <server/modules/netcdf4/readCDF4.h>
-#include <clientserver/stringUtils.h>
-#include <clientserver/udaTypes.h>
 #include <clientserver/initStructs.h>
+#include <server/modules/netcdf4/readCDF4.h>
+#include <structures/accessors.h>
+#include <structures/struct.h>
 
 /////////
 // Check which signal id s are available for this exp number,
@@ -104,7 +99,9 @@ int do_signal_file(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     char* db_host = getenv("GEOM_DB_HOST");
     char* db_port_str = getenv("GEOM_DB_PORT");
     int db_port = -1;
-    if (db_port_str != NULL) db_port = atoi(db_port_str);
+    if (db_port_str != NULL) {
+        db_port = (int)strtol(db_port_str, NULL, 10);
+    }
     char* db_name = getenv("GEOM_DB_NAME");
     char* db_user = getenv("GEOM_DB_USER");
 
@@ -212,7 +209,7 @@ int do_signal_file(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
         // sig ids
         if (!PQgetisnull(DBQuery, i, s_sig_id)) {
-            all_sig_id[i] = atoi(PQgetvalue(DBQuery, i, s_sig_id));
+            all_sig_id[i] = (int)strtol(PQgetvalue(DBQuery, i, s_sig_id), NULL, 10);
         } else {
             all_sig_id[i] = -1;
         }
@@ -265,7 +262,7 @@ int do_signal_file(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     REQUEST_BLOCK* request_block = idam_plugin_interface->request_block;
     USERDEFINEDTYPELIST* userdefinedtypelist = idam_plugin_interface->userdefinedtypelist;
     LOGMALLOCLIST* logmalloclist = idam_plugin_interface->logmalloclist;
-    err = readCDF(*data_source, *signal_desc, *request_block, &data_block_file, logmalloclist, userdefinedtypelist);
+    err = readCDF(*data_source, *signal_desc, *request_block, &data_block_file, &logmalloclist, &userdefinedtypelist);
 
     IDAM_LOGF(UDA_LOG_DEBUG, "Read in file signal %s\n", signal_desc->signal_name);
 
@@ -316,8 +313,8 @@ int do_signal_file(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     field.shape = NULL;            // Needed when rank >= 1
 
     field.size = field.count * sizeof(void*);
-    field.offset = newoffset(offset, field.type);
-    field.offpad = padding(offset, field.type);
+    field.offset = (int)newoffset((size_t)offset, field.type);
+    field.offpad = (int)padding((size_t)offset, field.type);
     field.alignment = getalignmentof(field.type);
     offset = field.offset + field.size;    // Next Offset
     addCompoundField(&parentTree, field);
@@ -437,7 +434,7 @@ int do_signal_filename(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     char* db_host = getenv("GEOM_DB_HOST");
     char* db_port_str = getenv("GEOM_DB_PORT");
     int db_port = -1;
-    if (db_port_str != NULL) db_port = atoi(db_port_str);
+    if (db_port_str != NULL) db_port = (int)strtol(db_port_str, NULL, 10);
     char* db_name = getenv("GEOM_DB_NAME");
     char* db_user = getenv("GEOM_DB_USER");
 
@@ -545,7 +542,7 @@ int do_signal_filename(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
         // Signal id
         if (!PQgetisnull(DBQuery, i, s_id)) {
-            data->signal_id[i] = atoi(PQgetvalue(DBQuery, i, s_id));
+            data->signal_id[i] = (int)strtol(PQgetvalue(DBQuery, i, s_id), NULL, 10);
         } else {
             data->signal_id[i] = -1;
         }

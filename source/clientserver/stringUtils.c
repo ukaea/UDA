@@ -101,6 +101,11 @@ char* LeftTrimString(char* str)
     return str;
 }
 
+void StringCopy(char* dest, const char* src, size_t len)
+{
+    strncpy(dest, src, len);
+    dest[len-1] = '\0';
+}
 
 // Convert all LowerCase Characters to Upper Case
 

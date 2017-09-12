@@ -7,7 +7,7 @@
 #include <structures/genStructs.h>
 
 int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK request_block, DATA_BLOCK* data_block,
-            LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist);
+            LOGMALLOCLIST** logmalloclist, USERDEFINEDTYPELIST** userdefinedtypelist);
 
 #ifndef NONETCDFPLUGIN
 #  include <netcdf.h>
@@ -193,6 +193,8 @@ int getCDF4SubTreeUserDefinedTypes(int grpid, GROUPLIST* grouplist, USERDEFINEDT
 void replaceStrings(char** svec, int* ndata, char** dvec, int* ndims);
 
 void replaceEmbeddedStrings(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist, USERDEFINEDTYPE* udt, int ndata, char* dvec);
+
+int scopedUserDefinedTypes(int grpid);
 
 unsigned int readCDF4Properties();
 

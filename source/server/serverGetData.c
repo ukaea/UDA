@@ -969,8 +969,6 @@ int idamserverReadData(PGconn* DBConnect, REQUEST_BLOCK request_block, CLIENT_BL
     // If err > 0 then an error occured
     // If err < 0 then unable to read signal because it is a derived type and details are in XML format
 
-    int plugin_id = -1;
-
     char mapping[MAXMETA] = "";
 
     printRequestBlock(request_block);
@@ -1137,7 +1135,7 @@ int idamserverReadData(PGconn* DBConnect, REQUEST_BLOCK request_block, CLIENT_BL
                             }
                         }
                         if (isdigit(transp_number[0]) && isdigit(transp_number[1])) {
-                            transp_pass = transp_pass + atoi(transp_number);
+                            transp_pass = transp_pass + (int)strtol(transp_number, NULL, 10);
                         } else {
                             THROW_ERROR(778, "Please Correct the TRANSP Run ID Number");
                         }
@@ -1301,6 +1299,8 @@ int idamserverReadData(PGconn* DBConnect, REQUEST_BLOCK request_block, CLIENT_BL
         idam_plugin_interface.userdefinedtypelist = userdefinedtypelist;
         idam_plugin_interface.logmalloclist = logmalloclist;
 
+        int plugin_id;
+
         if (request_block.request != REQUEST_READ_GENERIC && request_block.request != REQUEST_READ_UNKNOWN) {
             plugin_id = request_block.request;            // User has Specified a Plugin
             IDAM_LOGF(UDA_LOG_DEBUG, "Plugin Request ID %d\n", plugin_id);
@@ -1356,7 +1356,9 @@ int idamserverReadData(PGconn* DBConnect, REQUEST_BLOCK request_block, CLIENT_BL
                         addIdamError(CODEERRORTYPE, "idamserverReadData", rc,
                                      "Error Resetting Redirected Plugin Message Output");
                     }
-                    if (err != 0) return err;
+                    if (err != 0) {
+                        return err;
+                    }
                     return rc;
                 }
 
@@ -1384,14 +1386,17 @@ int idamserverReadData(PGconn* DBConnect, REQUEST_BLOCK request_block, CLIENT_BL
                     userdefinedtypelist = NULL;
                 }
 
-                if (!idam_plugin_interface.changePlugin) return 0;        // job done!
+                if (!idam_plugin_interface.changePlugin) {
+                    // job done!
+                    return 0;
+                }
 
                 request_block.request = REQUEST_READ_GENERIC;            // Use a different Plugin
             }
         }
     }
 
-    plugin_id = REQUEST_READ_UNKNOWN;
+    int plugin_id = REQUEST_READ_UNKNOWN;
 
     if (request_block.request != REQUEST_READ_GENERIC) {
         plugin_id = request_block.request;            // User API has Specified a Plugin
@@ -1534,7 +1539,7 @@ int idamserverReadData(PGconn* DBConnect, REQUEST_BLOCK request_block, CLIENT_BL
 
         case REQUEST_READ_CDF:
             IDAM_LOG(UDA_LOG_DEBUG, "Requested Data Access Routine = readCDF \n");
-            if ((err = readCDF(*data_source, *signal_desc, request_block, data_block, logmalloclist, userdefinedtypelist)) != 0) {
+            if ((err = readCDF(*data_source, *signal_desc, request_block, data_block, &logmalloclist, &userdefinedtypelist)) != 0) {
                 addIdamError(CODEERRORTYPE, "idamserverReadData", err, "Error Accessing netCDF Data");
             }
             IDAM_LOG(UDA_LOG_DEBUG, "Returned from readCDF \n");

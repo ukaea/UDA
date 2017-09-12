@@ -23,7 +23,7 @@
 #include <server/managePluginFiles.h>
 #include <clientserver/stringUtils.h>
 
-#include "readCDF4.h"
+#include <readCDF4.h>
 
 IDAMPLUGINFILELIST pluginFileList;    // Private list of open data file handles
 
@@ -164,18 +164,18 @@ int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     REQUEST_BLOCK* request_block = idam_plugin_interface->request_block;
     DATA_BLOCK* data_block = idam_plugin_interface->data_block;
 
-    const char* file_path = NULL;
-    FIND_REQUIRED_STRING_VALUE(request_block->nameValueList, file_path);
+    const char* file = NULL;
+    FIND_REQUIRED_STRING_VALUE(request_block->nameValueList, file);
 
-    const char* cdf_path = NULL;
-    FIND_REQUIRED_STRING_VALUE(request_block->nameValueList, cdf_path);
+    const char* signal = NULL;
+    FIND_REQUIRED_STRING_VALUE(request_block->nameValueList, signal);
 
-    strcpy(data_source->path, file_path);
-    strcpy(signal_desc->signal_name, cdf_path);
+    strcpy(data_source->path, file);
+    strcpy(signal_desc->signal_name, signal);
 
     // Legacy data reader!
     int err = readCDF(*data_source, *signal_desc, *request_block, data_block,
-                      idam_plugin_interface->logmalloclist, idam_plugin_interface->userdefinedtypelist);
+            &idam_plugin_interface->logmalloclist, &idam_plugin_interface->userdefinedtypelist);
 
     return err;
 }

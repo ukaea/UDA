@@ -1,27 +1,25 @@
 #include "geomConfig.h"
 
-#include <strings.h>
+#include <unistd.h>
 #include <tgmath.h>
 
-#include <structures/struct.h>
-#include <structures/accessors.h>
-#include <server/modules/netcdf4/readCDF4.h>
-#include <clientserver/stringUtils.h>
-#include <clientserver/udaTypes.h>
 #include <clientserver/initStructs.h>
+#include <server/modules/netcdf4/readCDF4.h>
+#include <structures/accessors.h>
+#include <structures/struct.h>
 
-////////////////////
-// Function to find which geomgroup (and therefore which file) a signal is in
-// and then to call a script to create the appropriate geometry file from the CAD.
-// This is a test function at the moment, the script called doesn't actually do anything!
-// To be integrated with Ivan's python script that extracts info from step files.
-//
-//   Arguments
-//    - signal : The signal for which the file that needs making needs identifying
-//    - tor_angle : The toroidal angle at which to extract the information. 
-//    - DBConnect : The connection to the geom database
-//    - DBQuery : The query for the geom database
-////////////////////
+/**
+ * Function to find which geomgroup (and therefore which file) a signal is in and then to call a script to create the
+ * appropriate geometry file from the CAD. This is a test function at the moment, the script called doesn't actually
+ * do anything!
+ * To be integrated with Ivan's python script that extracts info from step files.
+ *
+ * @param signal The signal for which the file that needs making needs identifying
+ * @param tor_angle The toroidal angle at which to extract the information.
+ * @param DBConnect The connection to the geom database
+ * @param DBQuery The query for the geom database
+ * @return
+ */
 int generateGeom(char* signal, float tor_angle, PGconn* DBConnect, PGresult* DBQuery)
 {
     char* pythonpath = getenv("PYTHONPATH");
@@ -63,16 +61,18 @@ int generateGeom(char* signal, float tor_angle, PGconn* DBConnect, PGresult* DBQ
         char* geom_group = PQgetvalue(DBQuery, 0, s_group);
 
         // Run python script to slice model for this component.
-        char system_call[MAXSQL];
-        sprintf(system_call, "run_make_file_from_cad.sh %s %f", geom_group, tor_angle);
 
-        IDAM_LOGF(UDA_LOG_DEBUG, "Run command %s\n", system_call);
+        const char* cmd = "run_make_file_from_cad.sh";
 
-        int ret = system(system_call);
+        IDAM_LOGF(UDA_LOG_DEBUG, "Run command %s %s %f\n", cmd, geom_group, tor_angle);
+
+        int ret = execl(cmd, geom_group, tor_angle);
 
         IDAM_LOGF(UDA_LOG_DEBUG, "Return code from geometry making code %d\n", ret);
 
-        if (ret != 0) RAISE_PLUGIN_ERROR("Calling generate geom script failed\n");
+        if (ret != 0) {
+            RAISE_PLUGIN_ERROR("Calling generate geom script failed\n");
+        }
     } else {
         RAISE_PLUGIN_ERROR("Null group\n");
     }
@@ -80,10 +80,8 @@ int generateGeom(char* signal, float tor_angle, PGconn* DBConnect, PGresult* DBQ
     return 0;
 }
 
-
 int do_geom_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
-
     ////////////////////////////
     // Get function to return data from configuration file or corresponding calibration file.
     //
@@ -118,8 +116,8 @@ int do_geom_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     int ver = -1;
     int rev = -1;
     if (version >= 0) {
-        ver = floor(version);
-        rev = floor(version * 10);
+        ver = (int)floor(version);
+        rev = (int)floor(version * 10);
         IDAM_LOGF(UDA_LOG_DEBUG, "Version %d, Revision %d", ver, rev);
     }
 
@@ -160,7 +158,9 @@ int do_geom_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         char* db_host = getenv("GEOM_DB_HOST");
         char* db_port_str = getenv("GEOM_DB_PORT");
         int db_port = -1;
-        if (db_port_str != NULL) db_port = atoi(db_port_str);
+        if (db_port_str != NULL) {
+            db_port = (int)strtol(db_port_str, NULL, 10);
+        }
         char* db_name = getenv("GEOM_DB_NAME");
         char* db_user = getenv("GEOM_DB_USER");
 
@@ -214,7 +214,7 @@ int do_geom_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             // calibration files
             sprintf(query,
                     "SELECT cds.file_name, ggm.geomsignal_alias, cds.version, cds.revision, "
-                                    "ggm.geomsignal_shortname, cds.geomgroup"
+                            "ggm.geomsignal_shortname, cds.geomgroup"
                             " FROM cal_data_source cds"
                             " INNER JOIN config_data_source cods"
                             "   ON cods.config_data_source_id=cds.config_data_source_id"
@@ -288,24 +288,25 @@ int do_geom_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         int s_file = PQfnumber(DBQuery, "file_name");
         int s_alias = PQfnumber(DBQuery, "geomsignal_alias");
         int s_short = PQfnumber(DBQuery, "geomsignal_shortname");
-	int s_ver = PQfnumber(DBQuery, "version");
-	int s_rev = PQfnumber(DBQuery, "revision");
-	int s_group = PQfnumber(DBQuery, "geomgroup");
+        int s_ver = PQfnumber(DBQuery, "version");
+        int s_rev = PQfnumber(DBQuery, "revision");
+        int s_group = PQfnumber(DBQuery, "geomgroup");
 
-	int ver_found = -1;
-	if (!PQgetisnull(DBQuery, 0, s_ver)) {
-	  ver_found = atoi(PQgetvalue(DBQuery, 0, s_ver));
-	}
+        int ver_found = -1;
+        if (!PQgetisnull(DBQuery, 0, s_ver)) {
+            ver_found = (int)strtol(PQgetvalue(DBQuery, 0, s_ver), NULL, 10);
+        }
 
-	int rev_found = -1;
-	if (!PQgetisnull(DBQuery, 0, s_rev)) {
-	  rev_found = atoi(PQgetvalue(DBQuery, 0, s_rev));
-	}
+        int rev_found = -1;
+        if (!PQgetisnull(DBQuery, 0, s_rev)) {
+            rev_found = (int)strtol(PQgetvalue(DBQuery, 0, s_rev), NULL, 10);
+        }
 
-	char* geomgroup;
-	if (!PQgetisnull(DBQuery, 0, s_group)){	  
-	  geomgroup = PQgetvalue(DBQuery, 0, s_group);
-	}	
+        char* geomgroup = NULL;
+
+        if (!PQgetisnull(DBQuery, 0, s_group)) {
+            geomgroup = PQgetvalue(DBQuery, 0, s_group);
+        }
 
         char* file_db;
         if (!PQgetisnull(DBQuery, 0, s_file)) {
@@ -330,7 +331,6 @@ int do_geom_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             IDAM_LOGF(UDA_LOG_DEBUG, "file_path %s\n", file);
         }
-
 
         int use_alias = 0;
 
@@ -384,76 +384,78 @@ int do_geom_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         //Close db connection
         PQclear(DBQuery);
 
-	/////////////////////////////
-	// If the version and revision numbers were not given by the user
-	// check that we are retrieving the latest version of the file.
-	// This prevents someone retrieving signals from old versions without directly 
-	// requesting the old version
-	PGresult* DBQuery_ver = NULL;
-	if (ver < 0) {	  
-	  char query_ver[MAXSQL];
-	  sprintf(query_ver, 
-		  "SELECT max(version + 0.1*revision) "
-		  "FROM config_data_source "
-		  "WHERE geomgroup='%s' "
-		  " AND start_shot <= %d "
-		  " AND end_shot > %d;", geomgroup, shot, shot);
+        /////////////////////////////
+        // If the version and revision numbers were not given by the user
+        // check that we are retrieving the latest version of the file.
+        // This prevents someone retrieving signals from old versions without directly
+        // requesting the old version
+        PGresult* DBQuery_ver = NULL;
+        if (ver < 0) {
+            char query_ver[MAXSQL];
+            sprintf(query_ver,
+                    "SELECT max(version + 0.1*revision) "
+                            "FROM config_data_source "
+                            "WHERE geomgroup='%s' "
+                            " AND start_shot <= %d "
+                            " AND end_shot > %d;", geomgroup, shot, shot);
 
-	  IDAM_LOGF(UDA_LOG_DEBUG, "Version query %s\n", query_ver);
-	  
-	  if ((DBQuery_ver = PQexec(DBConnect, query_ver)) == NULL) {
-            RAISE_PLUGIN_ERROR("Database query for version number failed.\n");
-	  }
+            IDAM_LOGF(UDA_LOG_DEBUG, "Version query %s\n", query_ver);
 
-	  if (PQresultStatus(DBQuery_ver) != PGRES_TUPLES_OK && PQresultStatus(DBQuery_ver) != PGRES_COMMAND_OK) {
-            PQclear(DBQuery_ver);
-            PQfinish(DBConnect);
-            RAISE_PLUGIN_ERROR("Database query for version failed.\n");
-	  }
+            if ((DBQuery_ver = PQexec(DBConnect, query_ver)) == NULL) {
+                RAISE_PLUGIN_ERROR("Database query for version number failed.\n");
+            }
 
-	  // Retrieve number of rows found in query
-	  int nRows = PQntuples(DBQuery_ver);
+            if (PQresultStatus(DBQuery_ver) != PGRES_TUPLES_OK && PQresultStatus(DBQuery_ver) != PGRES_COMMAND_OK) {
+                PQclear(DBQuery_ver);
+                PQfinish(DBConnect);
+                RAISE_PLUGIN_ERROR("Database query for version failed.\n");
+            }
 
-	  /////////////////////////////
-	  // No rows found?
-	  if (nRows == 0) {
-            IDAM_LOG(UDA_LOG_DEBUG, "no rows for version query\n");
-	    
-            PQclear(DBQuery_ver);
-            PQfinish(DBConnect);
-            RAISE_PLUGIN_ERROR("No rows were found in database matching version query\n");
-	  }
-	  
-	  int s_max_version = PQfnumber(DBQuery_ver, "max");
-	  if (!PQgetisnull(DBQuery_ver, 0, s_max_version)){
-	    float max_version = atof(PQgetvalue(DBQuery_ver, 0, s_max_version));
-	    float this_version = ver_found + 0.1 * rev_found;
-	    
-	    // Allow for some floating point error, versions will be in 0.1 increments
-	    if ( this_version < (max_version - 0.05) ) {
-	      IDAM_LOG(UDA_LOG_DEBUG, "The user did not specify a particular version, and for this signal only old legacy versions are available.\n");
+            // Retrieve number of rows found in query
+            nRows = PQntuples(DBQuery_ver);
 
-	      PQclear(DBQuery_ver);
-	      PQfinish(DBConnect);
-	      RAISE_PLUGIN_ERROR("Only legacy signals are available for the requested signal. To retrieve legacy signals the version must be explicitly given\n");
-	    }				     
-	  } else {
-            IDAM_LOG(UDA_LOG_DEBUG, "no max field for version query\n");
-	    
-            PQclear(DBQuery_ver);
-            PQfinish(DBConnect);
-            RAISE_PLUGIN_ERROR("No max field version query\n");
-	  }
-	}       
+            /////////////////////////////
+            // No rows found?
+            if (nRows == 0) {
+                IDAM_LOG(UDA_LOG_DEBUG, "no rows for version query\n");
 
-	// Close db connection
-	IDAM_LOG(UDA_LOG_DEBUG, "Close db connection\n");
-	PQclear(DBQuery_ver);
+                PQclear(DBQuery_ver);
+                PQfinish(DBConnect);
+                RAISE_PLUGIN_ERROR("No rows were found in database matching version query\n");
+            }
+
+            int s_max_version = PQfnumber(DBQuery_ver, "max");
+            if (!PQgetisnull(DBQuery_ver, 0, s_max_version)) {
+                float max_version = strtof(PQgetvalue(DBQuery_ver, 0, s_max_version), NULL);
+                float this_version = ver_found + 0.1f * rev_found;
+
+                // Allow for some floating point error, versions will be in 0.1 increments
+                if (this_version < (max_version - 0.05)) {
+                    IDAM_LOG(UDA_LOG_DEBUG,
+                             "The user did not specify a particular version, and for this signal only old legacy versions are available.\n");
+
+                    PQclear(DBQuery_ver);
+                    PQfinish(DBConnect);
+                    RAISE_PLUGIN_ERROR(
+                            "Only legacy signals are available for the requested signal. To retrieve legacy signals the version must be explicitly given\n");
+                }
+            } else {
+                IDAM_LOG(UDA_LOG_DEBUG, "no max field for version query\n");
+
+                PQclear(DBQuery_ver);
+                PQfinish(DBConnect);
+                RAISE_PLUGIN_ERROR("No max field version query\n");
+            }
+        }
+
+        // Close db connection
+        IDAM_LOG(UDA_LOG_DEBUG, "Close db connection\n");
+        PQclear(DBQuery_ver);
         PQfinish(DBConnect);
         free(signal_for_query);
     } else {
-        signal_type = (char*)malloc(sizeof(char*));
-        signal_type = "a";
+        signal_type = (char*)malloc(2 * sizeof(char));
+        strcpy(signal_type, "a");
         signal_for_file = (char*)malloc(sizeof(char) * (strlen(signal) + 1));
         strcpy(signal_for_file, signal);
     }
@@ -476,7 +478,8 @@ int do_geom_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     REQUEST_BLOCK* request_block = idam_plugin_interface->request_block;
     USERDEFINEDTYPELIST* userdefinedtypelist = idam_plugin_interface->userdefinedtypelist;
     LOGMALLOCLIST* logmalloclist = idam_plugin_interface->logmalloclist;
-    int errConfig = readCDF(*data_source, *signal_desc, *request_block, &data_block_file, logmalloclist, userdefinedtypelist);
+    int errConfig = readCDF(*data_source, *signal_desc, *request_block, &data_block_file, &logmalloclist,
+                            &userdefinedtypelist);
 
     IDAM_LOG(UDA_LOG_DEBUG, "Read in file\n");
 
@@ -526,8 +529,8 @@ int do_geom_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     field.shape = NULL;            // Needed when rank >= 1
 
     field.size = field.count * sizeof(void*);
-    field.offset = newoffset(offset, field.type);
-    field.offpad = padding(offset, field.type);
+    field.offset = (int)newoffset((size_t)offset, field.type);
+    field.offpad = (int)padding((size_t)offset, field.type);
     field.alignment = getalignmentof(field.type);
     offset = field.offset + field.size;    // Next Offset
     addCompoundField(&parentTree, field);
@@ -600,7 +603,9 @@ int do_config_filename(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     char* db_host = getenv("GEOM_DB_HOST");
     char* db_port_str = getenv("GEOM_DB_PORT");
     int db_port = -1;
-    if (db_port_str != NULL) db_port = atoi(db_port_str);
+    if (db_port_str != NULL) {
+        db_port = (int)strtol(db_port_str, NULL, 10);
+    }
     char* db_name = getenv("GEOM_DB_NAME");
     char* db_user = getenv("GEOM_DB_USER");
 
@@ -680,7 +685,7 @@ int do_config_filename(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     addMalloc(logmalloclist, (void*)data_out->geomgroups, nRows, sizeof(char*), "STRING *");
 
     int i = 0;
-    int stringLength;
+    size_t stringLength;
 
     for (i = 0; i < nRows; i++) {
         if (!PQgetisnull(DBQuery, i, s_file)) {
@@ -688,7 +693,7 @@ int do_config_filename(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             stringLength = strlen(file_name) + 1;
             data_out->filenames[i] = (char*)malloc(sizeof(char) * stringLength);
             strcpy(data_out->filenames[i], file_name);
-            addMalloc(logmalloclist, (void*)data_out->filenames[i], stringLength, sizeof(char), "char");
+            addMalloc(logmalloclist, (void*)data_out->filenames[i], (int)stringLength, sizeof(char), "char");
         }
 
         if (!PQgetisnull(DBQuery, i, s_group)) {
@@ -696,7 +701,7 @@ int do_config_filename(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             stringLength = strlen(group) + 1;
             data_out->geomgroups[i] = (char*)malloc(sizeof(char) * stringLength);
             strcpy(data_out->geomgroups[i], group);
-            addMalloc(logmalloclist, (void*)data_out->geomgroups[i], stringLength, sizeof(char), "char");
+            addMalloc(logmalloclist, (void*)data_out->geomgroups[i], (int)stringLength, sizeof(char), "char");
         }
     }
 

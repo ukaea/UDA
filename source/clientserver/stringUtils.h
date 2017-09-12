@@ -34,6 +34,8 @@ char* TrimString(char* szSource);
 // Trim Leading Space Characters from a String
 char* LeftTrimString(char* str);
 
+void StringCopy(char* dest, const char* src, size_t len);
+
 // Convert all LowerCase Characters to Upper Case
 char* strupr(char* a);
 

@@ -9,18 +9,55 @@
 #include <clientserver/errorLog.h>
 #include <logging/logging.h>
 #include <clientserver/stringUtils.h>
-#include <clientserver/udaErrors.h>
 
 #include "readCDF4.h"
 
 int idamAtomicType(nc_type type);
 
+int scopedUserDefinedTypes(int grpid)
+{
+    USERDEFINEDTYPELIST*userdefinedtypelist = (USERDEFINEDTYPELIST*)malloc(sizeof(USERDEFINEDTYPELIST));
+    initUserDefinedTypeList(userdefinedtypelist);
+
+    userdefinedtypelist->listCount = parseduserdefinedtypelist.listCount;    // Copy the standard set of structure definitions
+    userdefinedtypelist->userdefinedtype = (USERDEFINEDTYPE*)malloc(userdefinedtypelist->listCount * sizeof(USERDEFINEDTYPE));
+
+    int i;
+    for (i = 0; i < userdefinedtypelist->listCount; i++) {
+        USERDEFINEDTYPE usertypeOld = parseduserdefinedtypelist.userdefinedtype[i];
+        USERDEFINEDTYPE usertypeNew;
+        initUserDefinedType(&usertypeNew);
+        usertypeNew = usertypeOld;
+        // Copy pointer type (prevents double free)
+        usertypeNew.image = (char*)malloc(usertypeOld.imagecount * sizeof(char));
+        memcpy(usertypeNew.image, usertypeOld.image, usertypeOld.imagecount);
+
+        usertypeNew.compoundfield = (COMPOUNDFIELD*)malloc(usertypeOld.fieldcount * sizeof(COMPOUNDFIELD));
+
+        int j;
+        for (j = 0; j < usertypeOld.fieldcount; j++) {
+            initCompoundField(&usertypeNew.compoundfield[j]);
+            usertypeNew.compoundfield[j] = usertypeOld.compoundfield[j];
+            if (usertypeOld.compoundfield[j].rank > 0) {
+                usertypeNew.compoundfield[j].shape = (int*)malloc(usertypeOld.compoundfield[j].rank * sizeof(int));
+
+                int k;
+                for (k = 0; k < usertypeOld.compoundfield[j].rank; k++) {
+                    usertypeNew.compoundfield[j].shape[k] = usertypeOld.compoundfield[j].shape[k];
+                }
+            }
+        }
+        userdefinedtypelist->userdefinedtype[i] = usertypeNew;
+    }
+
+    return readCDFTypes(grpid, userdefinedtypelist);
+}
+
 void replaceStrings(char** svec, int* ndata, char** dvec, int* ndims)
 {
-
-// String heap is allocated within netcdf/hdf5
-// This needs to be replaced with locally allocated heap and freed
-// Returns a single block with fixed length allocations for individual strings
+    // String heap is allocated within netcdf/hdf5
+    // This needs to be replaced with locally allocated heap and freed
+    // Returns a single block with fixed length allocations for individual strings
 
     int i, lstr, sMax = 0;
     for (i = 0; i < *ndata; i++) if ((lstr = (int)strlen(svec[i])) > sMax) sMax = lstr + 1;
@@ -39,12 +76,11 @@ void replaceStrings(char** svec, int* ndata, char** dvec, int* ndims)
 void replaceEmbeddedStrings(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist,
                             USERDEFINEDTYPE* udt, int ndata, char* dvec)
 {
+    // If the data structure has a User Defined Type with a NC_STRING component,
+    // or contains other user defined types with string components,
+    // then intercept and replace with locally allocated strings.
 
-// If the data structure has a User Defined Type with a NC_STRING component,
-// or contains other user defined types with string components,
-// then intercept and replace with locally allocated strings.
-
-// VLEN types also need heap replacement
+    // VLEN types also need heap replacement
 
     int i, j, k, nstr;
 
@@ -61,10 +97,10 @@ void replaceEmbeddedStrings(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* u
             if (udt->idamclass == UDA_TYPE_VLEN) {
                 VLENTYPE* vlen = (VLENTYPE*)dvec;            // If the type is VLEN then read data array for the count
                 for (k = 0; k < ndata; k++) {
-                    replaceEmbeddedStrings(logmalloclist, userdefinedtypelist, child, vlen[k].len, (void*)vlen[k].data);
+                    replaceEmbeddedStrings(logmalloclist, userdefinedtypelist, child, vlen[k].len, vlen[k].data);
                 }
 
-// Intercept VLEN netcdf/hdf5 heap and allocate local heap;
+                // Intercept VLEN netcdf/hdf5 heap and allocate local heap;
 
                 void* vlendata;
                 for (k = 0; k < ndata; k++) {
@@ -86,7 +122,7 @@ void replaceEmbeddedStrings(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* u
 
         if (STR_EQUALS(udt->compoundfield[j].type, "STRING *")) {
 
-// String arrays within data structures are defined (readCDFTypes) as char *str[int] => rank=1, pointer=0 and type=STRING*
+            // String arrays within data structures are defined (readCDFTypes) as char *str[int] => rank=1, pointer=0 and type=STRING*
 
             int lstr;
             char** svec;
@@ -94,14 +130,14 @@ void replaceEmbeddedStrings(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* u
 
             nstr = udt->compoundfield[j].count;        // Number of strings
 
-// Allocate new local heap for each structure array element
-// new heap is freed via the malloc log
+            // Allocate new local heap for each structure array element
+            // new heap is freed via the malloc log
 
             ssvec = (char**)malloc((size_t)nstr * sizeof(char*));
 
             for (k = 0; k < ndata; k++) {                // Loop over each structure array element
 
-                svec = (char**)((char*)&dvec[k * udt->size] + udt->compoundfield[j].offset * sizeof(char));
+                svec = (char**)(&dvec[k * udt->size] + udt->compoundfield[j].offset * sizeof(char));
 
                 for (i = 0; i < nstr; i++) {
                     lstr = (int)strlen(svec[i]) + 1;
@@ -110,7 +146,9 @@ void replaceEmbeddedStrings(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* u
                     strcpy(ssvec[i], svec[i]);
                 }
                 nc_free_string(nstr, svec);            // Free netCDF/HDF5 heap
-                for (i = 0; i < nstr; i++)svec[i] = ssvec[i];    // Replace pointer within local heap pointer
+                for (i = 0; i < nstr; i++) {
+                    svec[i] = ssvec[i];
+                }
             }
             free((void*)ssvec);
             continue;
@@ -149,7 +187,7 @@ int readCDF4Var(GROUPLIST grouplist, int varid, int isCoordinate, int rank, int*
 
     if (!isCoordinate) {
 
-        if ((rc = nc_inq_attid(grpid, varid, "extent", &attid)) == NC_NOERR) {        // Test Attribute Extent Exists
+        if (nc_inq_attid(grpid, varid, "extent", &attid) == NC_NOERR) {        // Test Attribute Extent Exists
 
             if ((rc = nc_inq_att(grpid, varid, "extent", &atttype, &attlen)) != NC_NOERR) {
                 err = NETCDF_ERROR_INQUIRING_DIM_3;
@@ -209,7 +247,8 @@ int readCDF4Var(GROUPLIST grouplist, int varid, int isCoordinate, int rank, int*
 
             if (isCoordinate && rank > 1 && cdfsubset.subsetCount > 0) {
                 err = 999;
-                addIdamError(CODEERRORTYPE, "readCDFVar", err, "Unable to Subset a Coordinate Variable with a Rank >= 2!");
+                addIdamError(CODEERRORTYPE, "readCDFVar", err,
+                             "Unable to Subset a Coordinate Variable with a Rank >= 2!");
                 break;
             }
 
@@ -224,14 +263,14 @@ int readCDF4Var(GROUPLIST grouplist, int varid, int isCoordinate, int rank, int*
                 if (isextent) {
                     dnums[i] = (size_t)extent[i];                    // Number of Dimension Coordinates
                 } else {
-                    if ((rc = nc_inq_dim(grpid, dimids[i], dimname, (size_t*)&dnums[i])) != NC_NOERR) {
+                    if ((rc = nc_inq_dim(grpid, dimids[i], dimname, &dnums[i])) != NC_NOERR) {
                         err = NETCDF_ERROR_INQUIRING_DIM_3;
                         addIdamError(CODEERRORTYPE, "readCDFVar", err, (char*)nc_strerror(rc));
                         break;
                     }
 
                     if (isCoordinate && rank > 1 && cdfsubset.subsetCount == 0) {
-                        if ((unsigned int)dnums[0] != (unsigned int)extent[0]) {
+                        if ((unsigned int)dnums[0] != extent[0]) {
                             createIndex = 1;
                         }        // Expect this length
                         break;                        // nc_inq_dim will return an error if the next dimension is queried!
@@ -240,7 +279,7 @@ int readCDF4Var(GROUPLIST grouplist, int varid, int isCoordinate, int rank, int*
                     }
                 }
 
-// Adjust for native sub-setting
+                // Adjust for native sub-setting
 
                 if (cdfsubset.subsetCount > 0) {
                     if (!isCoordinate) {
@@ -263,11 +302,11 @@ int readCDF4Var(GROUPLIST grouplist, int varid, int isCoordinate, int rank, int*
                             }
                             if ((int)cdfsubset.count[i] == -1) {
                                 cdfsubset.count[i] = cdfsubset.stop[i] - cdfsubset.start[i] + 1;
-                                if ((int)cdfsubset.stride[i] > 1 && (int)cdfsubset.count[i] > 1) {
-                                    if (((int)cdfsubset.count[i] % (int)cdfsubset.stride[i]) > 0) {
-                                        cdfsubset.count[i] = 1 + (int)cdfsubset.count[i] / (int)cdfsubset.stride[i];
+                                if (cdfsubset.stride[i] > 1 && cdfsubset.count[i] > 1) {
+                                    if ((cdfsubset.count[i] % cdfsubset.stride[i]) > 0) {
+                                        cdfsubset.count[i] = 1 + cdfsubset.count[i] / cdfsubset.stride[i];
                                     } else {
-                                        cdfsubset.count[i] = (int)cdfsubset.count[i] / (int)cdfsubset.stride[i];
+                                        cdfsubset.count[i] = cdfsubset.count[i] / cdfsubset.stride[i];
                                     }
                                 }
                             }
@@ -283,17 +322,18 @@ int readCDF4Var(GROUPLIST grouplist, int varid, int isCoordinate, int rank, int*
                                 } else {
                                     if (cdfsubset.stop[j] > (size_t)(dnums[0] - 1)) {
                                         err = 999;
-                                        addIdamError(CODEERRORTYPE, "readCDFVar", err, "Invalid Stop Index in subset operation");
+                                        addIdamError(CODEERRORTYPE, "readCDFVar", err,
+                                                     "Invalid Stop Index in subset operation");
                                         break;
                                     }
                                 }
                                 if ((int)cdfsubset.count[j] == -1) {
                                     cdfsubset.count[j] = cdfsubset.stop[j] - cdfsubset.start[j] + 1;
-                                    if ((int)cdfsubset.stride[j] > 1 && (int)cdfsubset.count[j] > 1) {
-                                        if (((int)cdfsubset.count[j] % (int)cdfsubset.stride[j]) > 0) {
-                                            cdfsubset.count[j] = 1 + (int)cdfsubset.count[j] / (int)cdfsubset.stride[j];
+                                    if (cdfsubset.stride[j] > 1 && cdfsubset.count[j] > 1) {
+                                        if ((cdfsubset.count[j] % cdfsubset.stride[j]) > 0) {
+                                            cdfsubset.count[j] = 1 + cdfsubset.count[j] / cdfsubset.stride[j];
                                         } else {
-                                            cdfsubset.count[j] = (int)cdfsubset.count[j] / (int)cdfsubset.stride[j];
+                                            cdfsubset.count[j] = cdfsubset.count[j] / cdfsubset.stride[j];
                                         }
                                     }
                                 }
@@ -411,8 +451,8 @@ int readCDF4Var(GROUPLIST grouplist, int varid, int isCoordinate, int rank, int*
                 break;
             }
 
-            //----------------------------------------------------------------------
-            // Must be a user defined type: COMPLEX, OPAQUE, VLEN, COMPOUND and ENUMERATED
+                //----------------------------------------------------------------------
+                // Must be a user defined type: COMPLEX, OPAQUE, VLEN, COMPOUND and ENUMERATED
 
             default: {
                 if (isCoordinate) {    // User Defined type coordinates are Not Enabled: swap for a local index
@@ -469,7 +509,7 @@ int readCDF4Var(GROUPLIST grouplist, int varid, int isCoordinate, int rank, int*
                         if ((*udt)->idamclass == UDA_TYPE_ENUM) {
                             dvec = (char*)malloc(ndata * sizeof(long long)); // Sufficient space ignoring integer type
                         } else {
-                            dvec = (char*)malloc(ndata * (*udt)->size);        // Create heap for the data
+                            dvec = (char*)malloc(ndata * (size_t)(*udt)->size);        // Create heap for the data
                         }
 
                         break;
@@ -482,10 +522,12 @@ int readCDF4Var(GROUPLIST grouplist, int varid, int isCoordinate, int rank, int*
 
         }
 
-        if (err != 0) break;
+        if (err != 0) {
+            break;
+        }
 
         if (ndata == 0) {
-            if (dvec != NULL) free((void*)dvec);
+            free((void*)dvec);
             dvec = NULL;
         } else {
             if (dvec == NULL && vartype != NC_STRING) {
@@ -504,7 +546,8 @@ int readCDF4Var(GROUPLIST grouplist, int varid, int isCoordinate, int rank, int*
                         if (vartype == NC_STRING) {
                             if (rank > 1) {
                                 err = 999;
-                                addIdamError(CODEERRORTYPE, "readCDFVar", err, "String Array rank is too large - must be 1");
+                                addIdamError(CODEERRORTYPE, "readCDFVar", err,
+                                             "String Array rank is too large - must be 1");
                                 break;
                             }
 
@@ -561,7 +604,8 @@ int readCDF4Var(GROUPLIST grouplist, int varid, int isCoordinate, int rank, int*
                 if (*udt != NULL) {
 
                     if ((*udt)->idamclass == UDA_TYPE_COMPOUND) {            // Compound Types
-                        addMalloc(logmalloclist, dvec, ndata, (*udt)->size, (*udt)->name);    // Free Data via Malloc Log List
+                        addMalloc(logmalloclist, dvec, ndata, (size_t)(*udt)->size,
+                                  (*udt)->name);    // Free Data via Malloc Log List
                     }
 
                     if ((*udt)->idamclass == UDA_TYPE_ENUM) {        // Enumerated Types
@@ -591,7 +635,7 @@ int readCDF4Var(GROUPLIST grouplist, int varid, int isCoordinate, int rank, int*
                         enumlist->enummember = (ENUMMEMBER*)malloc(members * sizeof(ENUMMEMBER));
 
                         for (i = 0; i < members; i++) {
-                            rc = nc_inq_enum_member(grpid, vartype, i, enumlist->enummember[i].name, (void*)value);
+                            nc_inq_enum_member(grpid, vartype, i, enumlist->enummember[i].name, (void*)value);
                             switch (enumlist->type) {
                                 case UDA_TYPE_CHAR: {
                                     char* enumvalue = (char*)value;
@@ -637,8 +681,10 @@ int readCDF4Var(GROUPLIST grouplist, int varid, int isCoordinate, int rank, int*
                         // Add mallocs to list for freeing when data dispatch complete
 
                         addMalloc(logmalloclist, (void*)enumlist, 1, sizeof(ENUMLIST), "ENUMLIST");
-                        addMalloc(logmalloclist, (void*)enumlist->enummember, (int)members, sizeof(ENUMMEMBER), "ENUMMEMBER");
-                        addMalloc(logmalloclist, enumlist->data, ndata, (int)size, idamNameType(idamAtomicType(base)));            // Use true integer type
+                        addMalloc(logmalloclist, (void*)enumlist->enummember, (int)members, sizeof(ENUMMEMBER),
+                                  "ENUMMEMBER");
+                        addMalloc(logmalloclist, enumlist->data, ndata, (int)size,
+                                  idamNameType(idamAtomicType(base)));            // Use true integer type
 
                         // Add mallocs freed through a separate process
 
@@ -773,7 +819,6 @@ int readCDF4AVar(GROUPLIST grouplist, int grpid, int varid, nc_type atttype, cha
             }
 
             case NC_CHAR: {            // String Attribute
-                // *data_type = UDA_TYPE_CHAR;
                 *data_type = UDA_TYPE_STRING;
                 ndata = ndata + 1;
                 dvec = (char*)malloc((size_t)ndata * sizeof(char));
@@ -808,7 +853,8 @@ int readCDF4AVar(GROUPLIST grouplist, int grpid, int varid, nc_type atttype, cha
 
                         // Identify the required structure definition
 
-                        *udt = findUserDefinedType(userdefinedtypelist, "", (int)atttype);        // Identify via type id (assuming local to this group)
+                        *udt = findUserDefinedType(userdefinedtypelist, "",
+                                                   (int)atttype);        // Identify via type id (assuming local to this group)
 
                         if (*udt == NULL &&
                             grouplist.grpids != NULL) {        // Must be defined elsewhere within scope of this group
@@ -840,7 +886,7 @@ int readCDF4AVar(GROUPLIST grouplist, int grpid, int varid, nc_type atttype, cha
                             dvec = (char*)malloc(
                                     ndata * sizeof(long long));    // Sufficient space ignoring integer type
                         } else {
-                            dvec = (char*)malloc(ndata * (*udt)->size);        // Create heap for the data
+                            dvec = (char*)malloc(ndata * (size_t)(*udt)->size);        // Create heap for the data
                         }
 
                         break;
@@ -850,12 +896,13 @@ int readCDF4AVar(GROUPLIST grouplist, int grpid, int varid, nc_type atttype, cha
             }
         }
 
-        if (err != 0) break;
+        if (err != 0) {
+            break;
+        }
 
         if (dvec == NULL && atttype != NC_STRING) {
             err = NETCDF_ERROR_ALLOCATING_HEAP_6;
-            addIdamError(CODEERRORTYPE, "readCDFAVar", err,
-                         "Unable to Allocate Heap Memory for the Data");
+            addIdamError(CODEERRORTYPE, "readCDFAVar", err, "Unable to Allocate Heap Memory for the Data");
             break;
         }
 
@@ -875,7 +922,8 @@ int readCDF4AVar(GROUPLIST grouplist, int grpid, int varid, nc_type atttype, cha
             //if(*udt != NULL) addMalloc(dvec, ndata, (*udt)->size, (*udt)->name);	// Free Data via Malloc Log List
 
             if (*udt != NULL && (*udt)->idamclass != UDA_TYPE_ENUM) {
-                addMalloc(logmalloclist, dvec, ndata, (*udt)->size, (*udt)->name);    // Free Data via Malloc Log List
+                addMalloc(logmalloclist, dvec, ndata, (size_t)(*udt)->size,
+                          (*udt)->name);    // Free Data via Malloc Log List
             } else if (*udt != NULL) {
                 int i;
                 char value[8];
@@ -950,7 +998,8 @@ int readCDF4AVar(GROUPLIST grouplist, int grpid, int varid, nc_type atttype, cha
 
                 addMalloc(logmalloclist, (void*)enumlist, 1, sizeof(ENUMLIST), "ENUMLIST");
                 addMalloc(logmalloclist, (void*)enumlist->enummember, (int)members, sizeof(ENUMMEMBER), "ENUMMEMBER");
-                addMalloc(logmalloclist, enumlist->data, ndata, (int)size, idamNameType(idamAtomicType(base)));            // Use true integer type
+                addMalloc(logmalloclist, enumlist->data, ndata, (int)size,
+                          idamNameType(idamAtomicType(base)));            // Use true integer type
             }
         }
 
@@ -976,7 +1025,9 @@ int readCDF4AVar(GROUPLIST grouplist, int grpid, int varid, nc_type atttype, cha
     //----------------------------------------------------------------------
     // Housekeeping
 
-    if (err != 0 && dvec != NULL) free((void*)dvec);
+    if (err != 0) {
+        free((void*)dvec);
+    }
 
     return err;
 }
@@ -999,7 +1050,9 @@ int readCDF4Err(int grpid, int varid, int isCoordinate, int class, int rank, int
     //----------------------------------------------------------------------
     // Test Attribute 'errors' Exists
 
-    if ((rc = nc_inq_attid(grpid, varid, "errors", &attid)) != NC_NOERR) return 0;
+    if (nc_inq_attid(grpid, varid, "errors", &attid) != NC_NOERR) {
+        return 0;
+    }
 
     //----------------------------------------------------------------------
     // Length of variable Name
@@ -1094,8 +1147,7 @@ int readCDF4Err(int grpid, int varid, int isCoordinate, int class, int rank, int
     } else {
 
         if ((err = readCDF4AVar(grouplist, grpid, errid, atttype, "errors", nevec, ndimatt, error_type, edata,
-                                logmalloclist, userdefinedtypelist, &udt)) !=
-            0) {
+                                logmalloclist, userdefinedtypelist, &udt)) != 0) {
             addIdamError(CODEERRORTYPE, "readCDF4Err", err, "Unable to Read Error Values");
             return err;
         }
@@ -1118,10 +1170,10 @@ int applyCDFCalibration(int grpid, int varid, int ndata, int* type, char** data)
     nc_type xtypep;
     size_t lenp;
 
-//----------------------------------------------------------------------
-// Test for Scale and Offset
+    //----------------------------------------------------------------------
+    // Test for Scale and Offset
 
-    if ((rc = nc_inq_att(grpid, varid, "scale", &xtypep, &lenp)) == NC_NOERR) {        // Scale Exists
+    if (nc_inq_att(grpid, varid, "scale", &xtypep, &lenp) == NC_NOERR) {        // Scale Exists
         if (lenp != 1) {
             err = 999;
             addIdamError(CODEERRORTYPE, "readCDF", err, "Scale Factor Attribute is not a Scalar");
@@ -1151,7 +1203,7 @@ int applyCDFCalibration(int grpid, int varid, int ndata, int* type, char** data)
         }
     }
 
-    if ((rc = nc_inq_att(grpid, varid, "offset", &xtypep, &lenp)) == NC_NOERR) {        // Offset Exists
+    if (nc_inq_att(grpid, varid, "offset", &xtypep, &lenp) == NC_NOERR) {        // Offset Exists
         if (lenp != 1) {
             err = 999;
             addIdamError(CODEERRORTYPE, "readCDF", err, "Offset Factor Attribute is not a Scalar");
@@ -1181,15 +1233,17 @@ int applyCDFCalibration(int grpid, int varid, int ndata, int* type, char** data)
         }
     }
 
-    if (!isScale && !isOffset) return (NC_NOERR);
+    if (!isScale && !isOffset) {
+        return NC_NOERR;
+    }
 
     IDAM_LOGF(UDA_LOG_DEBUG, "*** Scale factor  %12.4e\n", scale);
     IDAM_LOGF(UDA_LOG_DEBUG, "*** Offset        %12.4e\n", offset);
 
-//----------------------------------------------------------------------
-// Apply and Convert Type to Preserve Precision
+    //----------------------------------------------------------------------
+    // Apply and Convert Type to Preserve Precision
 
-// 8 Byte numbers
+    // 8 Byte numbers
 
     if (*type == UDA_TYPE_DOUBLE || *type == UDA_TYPE_LONG64 || *type == UDA_TYPE_UNSIGNED_LONG64) {
         double* measure = (double*)malloc(ndata * sizeof(double));
@@ -1259,10 +1313,11 @@ int applyCDFCalibration(int grpid, int varid, int ndata, int* type, char** data)
 
     } else {
 
-// 4 bytes or less numbers
+        // 4 bytes or less numbers
 
         if (*type == UDA_TYPE_FLOAT || *type == UDA_TYPE_INT || *type == UDA_TYPE_UNSIGNED_INT ||
-            *type == UDA_TYPE_SHORT || *type == UDA_TYPE_UNSIGNED_SHORT || *type == UDA_TYPE_CHAR || *type == UDA_TYPE_UNSIGNED_CHAR) {
+            *type == UDA_TYPE_SHORT || *type == UDA_TYPE_UNSIGNED_SHORT || *type == UDA_TYPE_CHAR ||
+            *type == UDA_TYPE_UNSIGNED_CHAR) {
             float* measure = (float*)malloc(ndata * sizeof(float));
             switch (*type) {
 
@@ -1346,7 +1401,7 @@ int applyCDFCalibration(int grpid, int varid, int ndata, int* type, char** data)
                     break;
                 }
                 case UDA_TYPE_CHAR: {
-                    char* dvec = (char*)*data;
+                    char* dvec = *data;
                     if (isScale && isOffset) {
                         for (i = 0; i < ndata; i++) measure[i] = (float)scale * (float)dvec[i] + (float)offset;
                     } else {
@@ -1394,16 +1449,18 @@ int applyCDFCalibration(int grpid, int varid, int ndata, int* type, char** data)
         }
     }
 
-    return (NC_NOERR);
+    return NC_NOERR;
 }
 
 void readCDF4CreateIndex(int ndata, void* dvec)
 {
+    // Create a substitute index
+    int* dp = (int*)dvec;
 
-// Create a substitute index
-
-    int i, * dp = (int*)dvec;
-    for (i = 0; i < ndata; i++)dp[i] = i;
+    int i;
+    for (i = 0; i < ndata; i++) {
+        dp[i] = i;
+    }
 }
 
 //--------------------------------------------------------------------
@@ -1481,9 +1538,8 @@ int readCDFCheckCoordinate(int grpid, int varid, int rank, int ncoords, char* co
         switch (data_type) {
 
             case UDA_TYPE_DOUBLE: {
-                double* dvec, * dcoo;
-                dvec = (double*)data;
-                dcoo = (double*)coords;
+                double* dvec = (double*)data;
+                double* dcoo = (double*)coords;
                 for (i = 0; i < ncoords; i++) {
                     for (j = 0; j < extent[0]; j++) {
                         if (dvec[j * ncoords + i] != dcoo[i]) {
@@ -1497,9 +1553,8 @@ int readCDFCheckCoordinate(int grpid, int varid, int rank, int ncoords, char* co
             }
 
             case UDA_TYPE_FLOAT: {
-                float* dvec, * dcoo;
-                dvec = (float*)data;
-                dcoo = (float*)coords;
+                float* dvec = (float*)data;
+                float* dcoo = (float*)coords;
                 for (i = 0; i < ncoords; i++) {
                     for (j = 0; j < extent[0]; j++) {
                         if (dvec[j * ncoords + i] != dcoo[i]) {
@@ -1513,9 +1568,8 @@ int readCDFCheckCoordinate(int grpid, int varid, int rank, int ncoords, char* co
             }
 
             case UDA_TYPE_LONG64: {
-                long long int* dvec, * dcoo;
-                dvec = (long long int*)data;
-                dcoo = (long long int*)coords;
+                long long int* dvec = (long long int*)data;
+                long long int* dcoo = (long long int*)coords;
                 for (i = 0; i < ncoords; i++) {
                     for (j = 0; j < extent[0]; j++) {
                         if (dvec[j * ncoords + i] != dcoo[i]) {
@@ -1529,9 +1583,8 @@ int readCDFCheckCoordinate(int grpid, int varid, int rank, int ncoords, char* co
             }
 
             case UDA_TYPE_INT: {
-                int* dvec, * dcoo;
-                dvec = (int*)data;
-                dcoo = (int*)coords;
+                int* dvec = (int*)data;
+                int* dcoo = (int*)coords;
                 for (i = 0; i < ncoords; i++) {
                     for (j = 0; j < extent[0]; j++) {
                         if (dvec[j * ncoords + i] != dcoo[i]) {
@@ -1545,9 +1598,8 @@ int readCDFCheckCoordinate(int grpid, int varid, int rank, int ncoords, char* co
             }
 
             case UDA_TYPE_SHORT: {
-                short* dvec, * dcoo;
-                dvec = (short*)data;
-                dcoo = (short*)coords;
+                short* dvec = (short*)data;
+                short* dcoo = (short*)coords;
                 for (i = 0; i < ncoords; i++) {
                     for (j = 0; j < extent[0]; j++) {
                         if (dvec[j * ncoords + i] != dcoo[i]) {
@@ -1561,9 +1613,8 @@ int readCDFCheckCoordinate(int grpid, int varid, int rank, int ncoords, char* co
             }
 
             case UDA_TYPE_CHAR: {
-                char* dvec, * dcoo;
-                dvec = (char*)data;
-                dcoo = (char*)coords;
+                char* dvec = data;
+                char* dcoo = coords;
                 for (i = 0; i < ncoords; i++) {
                     for (j = 0; j < extent[0]; j++) {
                         if (dvec[j * ncoords + i] != dcoo[i]) {
@@ -1577,9 +1628,8 @@ int readCDFCheckCoordinate(int grpid, int varid, int rank, int ncoords, char* co
             }
 
             case UDA_TYPE_UNSIGNED_LONG64: {
-                unsigned long long int* dvec, * dcoo;
-                dvec = (unsigned long long int*)data;
-                dcoo = (unsigned long long int*)coords;
+                unsigned long long int* dvec = (unsigned long long int*)data;
+                unsigned long long int* dcoo = (unsigned long long int*)coords;
                 for (i = 0; i < ncoords; i++) {
                     for (j = 0; j < extent[0]; j++) {
                         if (dvec[j * ncoords + i] != dcoo[i]) {
@@ -1593,9 +1643,8 @@ int readCDFCheckCoordinate(int grpid, int varid, int rank, int ncoords, char* co
             }
 
             case UDA_TYPE_UNSIGNED_INT: {
-                unsigned int* dvec, * dcoo;
-                dvec = (unsigned int*)data;
-                dcoo = (unsigned int*)coords;
+                unsigned int* dvec = (unsigned int*)data;
+                unsigned int* dcoo = (unsigned int*)coords;
                 for (i = 0; i < ncoords; i++) {
                     for (j = 0; j < extent[0]; j++) {
                         if (dvec[j * ncoords + i] != dcoo[i]) {
@@ -1609,9 +1658,8 @@ int readCDFCheckCoordinate(int grpid, int varid, int rank, int ncoords, char* co
             }
 
             case UDA_TYPE_UNSIGNED_SHORT: {
-                unsigned short* dvec, * dcoo;
-                dvec = (unsigned short*)data;
-                dcoo = (unsigned short*)coords;
+                unsigned short* dvec = (unsigned short*)data;
+                unsigned short* dcoo = (unsigned short*)coords;
                 for (i = 0; i < ncoords; i++) {
                     for (j = 0; j < extent[0]; j++) {
                         if (dvec[j * ncoords + i] != dcoo[i]) {
@@ -1625,9 +1673,8 @@ int readCDFCheckCoordinate(int grpid, int varid, int rank, int ncoords, char* co
             }
 
             case UDA_TYPE_UNSIGNED_CHAR: {
-                unsigned char* dvec, * dcoo;
-                dvec = (unsigned char*)data;
-                dcoo = (unsigned char*)coords;
+                unsigned char* dvec = (unsigned char*)data;
+                unsigned char* dcoo = (unsigned char*)coords;
                 for (i = 0; i < ncoords; i++) {
                     for (j = 0; j < extent[0]; j++) {
                         if (dvec[j * ncoords + i] != dcoo[i]) {
@@ -1640,44 +1687,41 @@ int readCDFCheckCoordinate(int grpid, int varid, int rank, int ncoords, char* co
                 break;
             }
 
-            default:
-                if (data_type == UDA_TYPE_COMPLEX) {
-                    COMPLEX* dvec, * dcoo;
-                    dvec = (COMPLEX*)data;
-                    dcoo = (COMPLEX*)coords;
-                    for (i = 0; i < ncoords; i++) {
-                        for (j = 0; j < extent[0]; j++) {
-                            if (dvec[j * ncoords + i].real != dcoo[i].real &&
-                                dvec[j * ncoords + i].imaginary != dcoo[i].imaginary) {
-                                err = -1;
-                                break;
-                            }
+            case UDA_TYPE_COMPLEX: {
+                COMPLEX* dvec = (COMPLEX*)data;
+                COMPLEX* dcoo = (COMPLEX*)coords;
+                for (i = 0; i < ncoords; i++) {
+                    for (j = 0; j < extent[0]; j++) {
+                        if (dvec[j * ncoords + i].real != dcoo[i].real &&
+                            dvec[j * ncoords + i].imaginary != dcoo[i].imaginary) {
+                            err = -1;
+                            break;
                         }
-                        if (err != 0) break;
                     }
-                    break;
-                } else {
-                    if (data_type == UDA_TYPE_DCOMPLEX) {
-                        DCOMPLEX* dvec, * dcoo;
-                        dvec = (DCOMPLEX*)data;
-                        dcoo = (DCOMPLEX*)coords;
-                        for (i = 0; i < ncoords; i++) {
-                            for (j = 0; j < extent[0]; j++) {
-                                if (dvec[j * ncoords + i].real != dcoo[i].real &&
-                                    dvec[j * ncoords + i].imaginary != dcoo[i].imaginary) {
-                                    err = -1;
-                                    break;
-                                }
-                            }
-                            if (err != 0) break;
-                        }
-                        break;
-                    } else {
-                        err = NETCDF_ERROR_ALLOCATING_HEAP_6;
-                        addIdamError(CODEERRORTYPE, "readCDFVar", err, "Unknown Data Type");
-                        return err;
-                    }
+                    if (err != 0) break;
                 }
+                break;
+            }
+
+            case UDA_TYPE_DCOMPLEX: {
+                DCOMPLEX* dvec = (DCOMPLEX*)data;
+                DCOMPLEX* dcoo = (DCOMPLEX*)coords;
+                for (i = 0; i < ncoords; i++) {
+                    for (j = 0; j < extent[0]; j++) {
+                        if (dvec[j * ncoords + i].real != dcoo[i].real &&
+                            dvec[j * ncoords + i].imaginary != dcoo[i].imaginary) {
+                            err = -1;
+                            break;
+                        }
+                    }
+                    if (err != 0) break;
+                }
+                break;
+            }
+
+            default:
+                err = NETCDF_ERROR_ALLOCATING_HEAP_6;
+                addIdamError(CODEERRORTYPE, "readCDFVar", err, "Unknown Data Type");
                 break;
         }
 
@@ -1687,9 +1731,9 @@ int readCDFCheckCoordinate(int grpid, int varid, int rank, int ncoords, char* co
 
     } while (0);
 
-    if (extent != NULL) free((void*)extent);
-    if (data != NULL) free((void*)data);
-    if (dimids != NULL) free((void*)dimids);
+    free((void*)extent);
+    free((void*)data);
+    free((void*)dimids);
 
     return err;
 }
@@ -1757,6 +1801,8 @@ int idamAtomicType(nc_type type)
             return UDA_TYPE_UNSIGNED_CHAR;
         case NC_STRING:
             return UDA_TYPE_STRING;
+        default:
+            return UDA_TYPE_UNKNOWN;
     }
     return UDA_TYPE_UNKNOWN;
 }
@@ -1767,12 +1813,11 @@ int idamAtomicType(nc_type type)
 
 int readCDF4ParseSubset(char* op, CDFSUBSET* cdfsubset)
 {
-
-// Return codes:
-//
-//	1 => Valid subset
-//	0 => Not a subset operation - Not compliant with syntax
-//     -1 => Error
+    // Return codes:
+    //
+    //	1 => Valid subset
+    //	0 => Not a subset operation - Not compliant with syntax
+    //     -1 => Error
 
     int i, j, err, rc = 1, subsetCount = 1;        // Number of subsetting operations
     char* p, * token = NULL;
@@ -1788,22 +1833,21 @@ int readCDF4ParseSubset(char* op, CDFSUBSET* cdfsubset)
 
     lwork = lwork + 2;            // expand :: to 0:*:
 
-
-//----------------------------------------------------------------------------------------------------------------------------
-// Split instructions using syntax [a:b:c][d:e:f] or [a:b:c, d:e:f] where [startIndex:stopIndex:stride]
-//
-// Syntax	[a]		single items at index position a
-//		[*]		all items
-//		[]		all items
-//
-//		[:]		all items starting at 0
-//		[a:]		all items starting at a
-//		[a:*]		all items starting at a
-//		[a:b]		all items starting at a and ending at b
-//
-//		[a::c]		all items starting at a with stride c
-//		[a:*:c]		all items starting at a with stride c
-//		[a:b:c]		all items starting at a, ending at b with stride c
+    //----------------------------------------------------------------------------------------------------------------------------
+    // Split instructions using syntax [a:b:c][d:e:f] or [a:b:c, d:e:f] where [startIndex:stopIndex:stride]
+    //
+    // Syntax	[a]		single items at index position a
+    //		[*]		all items
+    //		[]		all items
+    //
+    //		[:]		all items starting at 0
+    //		[a:]		all items starting at a
+    //		[a:*]		all items starting at a
+    //		[a:b]		all items starting at a and ending at b
+    //
+    //		[a::c]		all items starting at a with stride c
+    //		[a:*:c]		all items starting at a with stride c
+    //		[a:b:c]		all items starting at a, ending at b with stride c
 
     while ((token = strstr(work, "][")) != NULL || (token = strstr(work, "}{")) != NULL) {    // Adopt a single syntax
         token[0] = ',';
@@ -1816,7 +1860,7 @@ int readCDF4ParseSubset(char* op, CDFSUBSET* cdfsubset)
     }
     if (subsetCount > NC_MAX_VAR_DIMS) subsetCount = NC_MAX_VAR_DIMS;
 
-// Array of subset instructions for each dimension
+    // Array of subset instructions for each dimension
 
     char** work2 = (char**)malloc(subsetCount * sizeof(char*));
     for (i = 0; i < subsetCount; i++) {
@@ -1824,7 +1868,7 @@ int readCDF4ParseSubset(char* op, CDFSUBSET* cdfsubset)
         work2[i][0] = '\0';
     }
 
-// 3 subset details
+    // 3 subset details
 
     char** work3 = (char**)malloc(3 * sizeof(char*));
     for (i = 0; i < 3; i++) {
@@ -1939,8 +1983,8 @@ int readCDF4ParseSubset(char* op, CDFSUBSET* cdfsubset)
 
                     } else {
                         if (strlen(work3[1]) == 0 || (strlen(work3[1]) == 1 && work3[1][0] == '*')) {    // [a:],[a:*]
-                            cdfsubset->stop[i] = -1;            // To end of dimension
-                            cdfsubset->count[i] = -1;
+                            cdfsubset->stop[i] = 0;            // To end of dimension
+                            cdfsubset->count[i] = 0;
                         } else {
                             rc = 0;
                             break;
@@ -1964,11 +2008,11 @@ int readCDF4ParseSubset(char* op, CDFSUBSET* cdfsubset)
                             }
                             if (cdfsubset->stride[i] > 1)cdfsubset->subset[i] = 1;
 
-                            if ((int)cdfsubset->stride[i] > 1 && (int)cdfsubset->count[i] > 1) {
-                                if (((int)cdfsubset->count[i] % (int)cdfsubset->stride[i]) > 0) {
-                                    cdfsubset->count[i] = 1 + (int)cdfsubset->count[i] / (int)cdfsubset->stride[i];
+                            if (cdfsubset->stride[i] > 1 && cdfsubset->count[i] > 1) {
+                                if ((cdfsubset->count[i] % cdfsubset->stride[i]) > 0) {
+                                    cdfsubset->count[i] = 1 + cdfsubset->count[i] / cdfsubset->stride[i];
                                 } else {
-                                    cdfsubset->count[i] = (int)cdfsubset->count[i] / (int)cdfsubset->stride[i];
+                                    cdfsubset->count[i] = cdfsubset->count[i] / cdfsubset->stride[i];
                                 }
                             }
 
@@ -1981,8 +2025,8 @@ int readCDF4ParseSubset(char* op, CDFSUBSET* cdfsubset)
                 } else {
                     if (work4[0] == '\0' || work4[0] == '*') {        // [], [*]
                         cdfsubset->start[i] = 0;
-                        cdfsubset->stop[i] = -1;
-                        cdfsubset->count[i] = -1;
+                        cdfsubset->stop[i] = 0;
+                        cdfsubset->count[i] = 0;
                         cdfsubset->stride[i] = 1;
                     } else {
                         if (IsNumber(work4)) {                // [a]
@@ -2019,9 +2063,13 @@ int readCDF4ParseSubset(char* op, CDFSUBSET* cdfsubset)
     }
 
     free(work);
-    for (i = 0; i < subsetCount; i++)free(work2[i]);
+    for (i = 0; i < subsetCount; i++) {
+        free(work2[i]);
+    }
     free(work2);
-    for (i = 0; i < 3; i++)free(work3[i]);
+    for (i = 0; i < 3; i++) {
+        free(work3[i]);
+    }
     free(work3);
     free(work4);
 

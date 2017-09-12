@@ -20,31 +20,30 @@
 *---------------------------------------------------------------------------------------------------------------*/
 #include "hdf5plugin.h"
 
-#include <stdlib.h>
-#include <strings.h>
-
 #include <server/managePluginFiles.h>
-#include <clientserver/initStructs.h>
-#include <clientserver/udaTypes.h>
 #include <clientserver/stringUtils.h>
-
-#include "readHDF58.h"
+#include <readHDF58.h>
 
 IDAMPLUGINFILELIST pluginFileList;    // Private list of open data file handles
 
-extern int idamHDF5(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
-{
-    int err = 0;
+static int do_help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
 
+static int do_version(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
+
+static int do_builddate(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
+
+static int do_defaultmethod(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
+
+static int do_maxinterfaceversion(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
+
+static int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
+
+extern int udaHDF5(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
+{
     static short init = 0;
 
-//----------------------------------------------------------------------------------------
-// Standard v1 Plugin Interface
-
-    DATA_BLOCK* data_block;
-    REQUEST_BLOCK* request_block;
-    DATA_SOURCE* data_source;
-    SIGNAL_DESC* signal_desc;
+    //----------------------------------------------------------------------------------------
+    // Standard v1 Plugin Interface
 
     unsigned short housekeeping;
 
@@ -54,10 +53,7 @@ extern int idamHDF5(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     idam_plugin_interface->pluginVersion = THISPLUGIN_VERSION;
 
-    data_block = idam_plugin_interface->data_block;
-    request_block = idam_plugin_interface->request_block;
-    data_source = idam_plugin_interface->data_source;
-    signal_desc = idam_plugin_interface->signal_desc;
+    REQUEST_BLOCK* request_block = idam_plugin_interface->request_block;
 
     housekeeping = idam_plugin_interface->housekeeping;
 
@@ -65,7 +61,7 @@ extern int idamHDF5(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
         if (!init) return 0;        // Not previously initialised: Nothing to do!
 
-// Free Heap & reset counters
+        // Free Heap & reset counters
 
         closeIdamPluginFiles(&pluginFileList);    // Close all open files
 
@@ -74,8 +70,8 @@ extern int idamHDF5(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         return 0;
     }
 
-//----------------------------------------------------------------------------------------
-// Initialise 
+    //----------------------------------------------------------------------------------------
+    // Initialise
 
     if (!init || STR_IEQUALS(request_block->function, "init")
         || STR_IEQUALS(request_block->function, "initialise")) {
@@ -87,144 +83,105 @@ extern int idamHDF5(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             return 0;
     }
 
+    //----------------------------------------------------------------------------------------
+    // Plugin Functions
+    //----------------------------------------------------------------------------------------
+
+    if (STR_IEQUALS(request_block->function, "help")) {
+        return do_help(idam_plugin_interface);
+    } else if (STR_IEQUALS(request_block->function, "version")) {
+        return do_version(idam_plugin_interface);
+    } else if (STR_IEQUALS(request_block->function, "builddate")) {
+        return do_builddate(idam_plugin_interface);
+    } else if (STR_IEQUALS(request_block->function, "defaultmethod")) {
+        return do_defaultmethod(idam_plugin_interface);
+    } else if (STR_IEQUALS(request_block->function, "maxinterfaceversion")) {
+        return do_maxinterfaceversion(idam_plugin_interface);
+    } else if (STR_IEQUALS(request_block->function, "read")) {
+        return do_read(idam_plugin_interface);
+    } else {
+        RAISE_PLUGIN_ERROR("Unknown function requested!");
+    }
+
+    return 0;
+}
+
+/**
+ * Help: A Description of library functionality
+ * @param idam_plugin_interface
+ * @return
+ */
+int do_help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
+{
+    const char* help = "\nnewHDF5: get - Read data from a HDF5 file\n\n";
+    const char* desc = "newHDF5: help = description of this plugin";
+
+    return setReturnDataString(idam_plugin_interface->data_block, help, desc);
+}
+
+/**
+ * Plugin version
+ * @param idam_plugin_interface
+ * @return
+ */
+int do_version(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
+{
+    return setReturnDataIntScalar(idam_plugin_interface->data_block, THISPLUGIN_VERSION, "Plugin version number");
+}
+
+/**
+ * Plugin Build Date
+ * @param idam_plugin_interface
+ * @return
+ */
+int do_builddate(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
+{
+    return setReturnDataString(idam_plugin_interface->data_block, __DATE__, "Plugin build date");
+}
+
+/**
+ * Plugin Default Method
+ * @param idam_plugin_interface
+ * @return
+ */
+int do_defaultmethod(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
+{
+    return setReturnDataString(idam_plugin_interface->data_block, THISPLUGIN_DEFAULT_METHOD, "Plugin default method");
+}
+
+/**
+ * Plugin Maximum Interface Version
+ * @param idam_plugin_interface
+ * @return
+ */
+int do_maxinterfaceversion(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
+{
+    return setReturnDataIntScalar(idam_plugin_interface->data_block, THISPLUGIN_MAX_INTERFACE_VERSION, "Maximum Interface Version");
+}
+
 //----------------------------------------------------------------------------------------
-// Plugin Functions 
-//----------------------------------------------------------------------------------------
+// Read data from a HDF5 File
 
-    do {
+// If the client has specified a specific file, the path will be found at request_block->path
+// otherwise the path is determined by a query against the metadata catalog
+int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
+{
+    DATA_SOURCE* data_source = idam_plugin_interface->data_source;
+    SIGNAL_DESC* signal_desc = idam_plugin_interface->signal_desc;
+    REQUEST_BLOCK* request_block = idam_plugin_interface->request_block;
+    DATA_BLOCK* data_block = idam_plugin_interface->data_block;
 
-// Help: A Description of library functionality
+    const char* file_path = NULL;
+    FIND_REQUIRED_STRING_VALUE(request_block->nameValueList, file_path);
 
-        if (STR_IEQUALS(request_block->function, "help")) {
+    const char* cdf_path = NULL;
+    FIND_REQUIRED_STRING_VALUE(request_block->nameValueList, cdf_path);
 
-            char* p = (char*) malloc(sizeof(char) * 2 * 1024);
+    strcpy(data_source->path, file_path);
+    strcpy(signal_desc->signal_name, cdf_path);
 
-            strcpy(p, "\nnewHDF5: get - Read data from a HDF5 file\n\n");
-
-            initDataBlock(data_block);
-
-            data_block->rank = 1;
-            data_block->dims = (DIMS*) malloc(data_block->rank * sizeof(DIMS));
-            int i;
-            for (i = 0; i < data_block->rank; i++) initDimBlock(&data_block->dims[i]);
-
-            data_block->data_type = UDA_TYPE_STRING;
-            strcpy(data_block->data_desc, "newHDF5: help = description of this plugin");
-
-            data_block->data = p;
-
-            data_block->dims[0].data_type = UDA_TYPE_UNSIGNED_INT;
-            data_block->dims[0].dim_n = strlen(p) + 1;
-            data_block->dims[0].compressed = 1;
-            data_block->dims[0].dim0 = 0.0;
-            data_block->dims[0].diff = 1.0;
-            data_block->dims[0].method = 0;
-
-            data_block->data_n = data_block->dims[0].dim_n;
-
-            strcpy(data_block->data_label, "");
-            strcpy(data_block->data_units, "");
-
-            break;
-        } else if (STR_IEQUALS(request_block->function, "version")) {
-
-            //----------------------------------------------------------------------------------------
-            // Standard methods: version, builddate, defaultmethod, maxinterfaceversion
-
-            initDataBlock(data_block);
-            data_block->data_type = UDA_TYPE_INT;
-            data_block->rank = 0;
-            data_block->data_n = 1;
-            int* data = (int*) malloc(sizeof(int));
-            data[0] = THISPLUGIN_VERSION;
-            data_block->data = (char*) data;
-            strcpy(data_block->data_desc, "Plugin version number");
-            strcpy(data_block->data_label, "version");
-            strcpy(data_block->data_units, "");
-            break;
-        } else if (STR_IEQUALS(request_block->function, "builddate")) {
-
-            // Plugin Build Date
-
-            initDataBlock(data_block);
-            data_block->data_type = UDA_TYPE_STRING;
-            data_block->rank = 0;
-            data_block->data_n = strlen(__DATE__) + 1;
-            char* data = (char*) malloc(data_block->data_n * sizeof(char));
-            strcpy(data, __DATE__);
-            data_block->data = data;
-            strcpy(data_block->data_desc, "Plugin build date");
-            strcpy(data_block->data_label, "date");
-            strcpy(data_block->data_units, "");
-            break;
-        } else if (STR_IEQUALS(request_block->function, "defaultmethod")) {
-
-            // Plugin Default Method
-
-            initDataBlock(data_block);
-            data_block->data_type = UDA_TYPE_STRING;
-            data_block->rank = 0;
-            data_block->data_n = strlen(THISPLUGIN_DEFAULT_METHOD) + 1;
-            char* data = (char*) malloc(data_block->data_n * sizeof(char));
-            strcpy(data, THISPLUGIN_DEFAULT_METHOD);
-            data_block->data = data;
-            strcpy(data_block->data_desc, "Plugin default method");
-            strcpy(data_block->data_label, "method");
-            strcpy(data_block->data_units, "");
-            break;
-        } else if (STR_IEQUALS(request_block->function, "maxinterfaceversion")) {
-
-            // Plugin Maximum Interface Version
-
-            initDataBlock(data_block);
-            data_block->data_type = UDA_TYPE_INT;
-            data_block->rank = 0;
-            data_block->data_n = 1;
-            int* data = (int*) malloc(sizeof(int));
-            data[0] = THISPLUGIN_MAX_INTERFACE_VERSION;
-            data_block->data = (char*) data;
-            strcpy(data_block->data_desc, "Maximum Interface Version");
-            strcpy(data_block->data_label, "version");
-            strcpy(data_block->data_units, "");
-            break;
-        } else if (STR_IEQUALS(request_block->function, "get")) {
-
-            //----------------------------------------------------------------------------------------
-            // Read data from a HDF5 File
-
-            // If the client has specified a specific file, the path will be found at request_block->path
-            // otherwise the path is determined by a query against the metadata catalog
-
-            if (data_source->path[0] == '\0') strcpy(data_source->path, request_block->path);
-            if (signal_desc->signal_name[0] == '\0') strcpy(signal_desc->signal_name, request_block->signal);
-
-            err = getHDF5(data_source, signal_desc, data_block);    // Legacy data reader!
-
-            break;
-        } else if (STR_IEQUALS(request_block->function, "put")) {
-
-            //----------------------------------------------------------------------------------------
-            // Put data into a HDF5 File
-
-            err = 999;
-            addIdamError(CODEERRORTYPE, "newHDF5", err, "The PUT method has not yet been implemented");
-            break;
-
-        } else {
-
-            //======================================================================================
-            // Error ...
-
-            err = 999;
-            addIdamError(CODEERRORTYPE, "newHDF5", err, "Unknown function requested!");
-            break;
-        }
-
-    } while (0);
-
-//--------------------------------------------------------------------------------------
-// Housekeeping
+    // Legacy data reader!
+    int err = readHDF5(*data_source, *signal_desc, data_block);
 
     return err;
 }
-
