@@ -8,5 +8,5 @@ Name: UDA
 Description: The Universal Data Access library
 URL: http://www.iter.org/UDA
 Version: @PROJECT_VERSION@
-Cflags: -I${includedir}
-Libs: -L${libdir} -ludafat_client
+Cflags: -DFATCLIENT -I${includedir}
+Libs: -L${libdir} -lfatuda_client

@@ -22,6 +22,12 @@
 #include "serverProcessing.h"
 #include "sqllib.h"
 
+#ifdef NONETCDFPLUGIN
+void ncclose(int fh) {
+    return;
+}
+#endif
+
 unsigned int totalDataBlockSize = 0;
 
 int server_tot_block_time = 0;
