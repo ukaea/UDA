@@ -175,26 +175,84 @@ TEST_CASE( "Test bpol_probe poloidal_angle", "[IMAS][JET][BPOL]" )
 	setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", "/Users/jhollocombe/Projects/uda/source/plugins/exp2imas/mappings", 1);
 	setenv("UDA_EXP2IMAS_MAPPING_FILE", "/Users/jhollocombe/Projects/uda/source/plugins/exp2imas/mappings/JET_Mapping.xml", 1);
 
-	uda::Client client;
+    uda::Client client;
 
-	const uda::Result& result = client.get("imas::get(idx=0, group='magnetics', variable='bpol_probe/1/poloidal_angle', expName='JET', type=double, rank=0, shot=" SHOT_NUM ", )", "");
+    double expected_vals[] = { -1.2933, -1.0559, -0.8203, -0.5847, -0.2304 };
 
-	REQUIRE( result.errorCode() == 0 );
-	REQUIRE( result.errorMessage().empty() );
+    int index = 0;
+    for (auto expected_val : expected_vals) {
 
-	uda::Data* data = result.data();
 
-	REQUIRE( data != nullptr );
-	REQUIRE( !data->isNull() );
-	REQUIRE( data->type().name() == typeid(double).name() );
+        const uda::Result& result = client.get(
+                "imas::get(idx=0, group='magnetics', variable='bpol_probe/1/poloidal_angle', expName='JET', type=double, rank=0, shot=" SHOT_NUM ", )",
+                "");
+        ++index;
 
-	auto val = dynamic_cast<uda::Scalar*>(data);
+        REQUIRE(result.errorCode() == 0);
+        REQUIRE(result.errorMessage().empty());
 
-	REQUIRE( val != nullptr );
-	REQUIRE( !val->isNull() );
+        uda::Data* data = result.data();
 
-	REQUIRE( val->type().name() == typeid(double).name() );
-	REQUIRE( val->as<double>() == Approx(-1.2933) );
+        REQUIRE(data != nullptr);
+        REQUIRE(!data->isNull());
+        REQUIRE(data->type().name() == typeid(double).name());
+
+        auto val = dynamic_cast<uda::Scalar*>(data);
+
+        REQUIRE(val != nullptr);
+        REQUIRE(!val->isNull());
+
+        REQUIRE(val->type().name() == typeid(double).name());
+        REQUIRE(val->as<double>() == Approx(expected_val));
+    }
+
+
+
+    {
+        const uda::Result& result = client.get(
+                "imas::get(idx=0, group='magnetics', variable='bpol_probe/1/poloidal_angle', expName='JET', type=double, rank=0, shot=" SHOT_NUM ", )",
+                "");
+
+        REQUIRE(result.errorCode() == 0);
+        REQUIRE(result.errorMessage().empty());
+
+        uda::Data* data = result.data();
+
+        REQUIRE(data != nullptr);
+        REQUIRE(!data->isNull());
+        REQUIRE(data->type().name() == typeid(double).name());
+
+        auto val = dynamic_cast<uda::Scalar*>(data);
+
+        REQUIRE(val != nullptr);
+        REQUIRE(!val->isNull());
+
+        REQUIRE(val->type().name() == typeid(double).name());
+        REQUIRE(val->as<double>() == Approx(-1.2933));
+    }
+
+    {
+        const uda::Result& result = client.get(
+                "imas::get(idx=0, group='magnetics', variable='bpol_probe/2/poloidal_angle', expName='JET', type=double, rank=0, shot=" SHOT_NUM ", )",
+                "");
+
+        REQUIRE(result.errorCode() == 0);
+        REQUIRE(result.errorMessage().empty());
+
+        uda::Data* data = result.data();
+
+        REQUIRE(data != nullptr);
+        REQUIRE(!data->isNull());
+        REQUIRE(data->type().name() == typeid(double).name());
+
+        auto val = dynamic_cast<uda::Scalar*>(data);
+
+        REQUIRE(val != nullptr);
+        REQUIRE(!val->isNull());
+
+        REQUIRE(val->type().name() == typeid(double).name());
+        REQUIRE(val->as<double>() == Approx(-1.0559));
+    }
 }
 
 /*

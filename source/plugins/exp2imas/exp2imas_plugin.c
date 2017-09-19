@@ -25,7 +25,7 @@ static int do_builddate(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
 static int do_defaultmethod(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
 static int do_maxinterfaceversion(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
 static int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
-static char* getMappingFileName(const char* IDSversion);
+static char* getMappingFileName(const char* IDSversion, const char* element);
 static char* getMachineMappingFileName(const char* element);
 static xmlChar* getMappingValue(const char* mapping_file_name, const char* request, MAPPING_TYPE* request_type, int* index);
 static char* deblank(char* token);
@@ -251,7 +251,7 @@ int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     // Search mapping value and request type (static or dynamic)
     char* experiment_mapping_file_name = getMachineMappingFileName(element);
-    char* mapping_file_name = getMappingFileName(IDS_version);
+    char* mapping_file_name = getMappingFileName(IDS_version, element);
 
     MAPPING_TYPE request_type = NONE;
     int index = -1;
@@ -312,7 +312,7 @@ int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
         int data_idx = 0;
         int stride = 1;
-        for (i = rank - 1; i > 0; --i) {
+        for (i = rank - 1; i >= 0; --i) {
             data_idx += (indices[i] - 1) * stride;
             stride *= (i > 0) ? dims[i - 1] : 1;
         }
@@ -394,9 +394,10 @@ int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                     return status;
                 }
 
-                data_n = len / sizes[signal_idx];
+                int size = sizes[signal_idx] == 0 ? 1 : sizes[signal_idx];
+                data_n = len / size;
 
-                for (i = 0; i < sizes[signal_idx]; ++i) {
+                for (i = 0; i < size; ++i) {
                     data_arrays = realloc(data_arrays, (n_arrays + 1) * sizeof(float*));
 
                     if (StringEndsWith(element, "/time")) {
@@ -426,7 +427,7 @@ int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             data_block->data_type = UDA_TYPE_FLOAT;
             data_block->data_n = data_n;
 
-            if (indices[0] > 0) {
+            if (nindices > 0 && indices[0] > 0) {
                 if (data_arrays != NULL) {
                     size_t sz = data_n * sizeof(data_block->data_type);
                     data_block->data = malloc(sz);
@@ -459,16 +460,30 @@ int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     return 0;
 }
 
-char* getMappingFileName(const char* IDSversion)
+char* getMappingFileName(const char* IDSversion, const char* element)
 {
-    char* dir = getenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY");
-    return FormatString("%s/IMAS_mapping.xml", dir);
-//    return FormatString("%s/IMAS_mapping_%s.xml", dir, IDSversion);
+    static char* dir = NULL;
+
+    if (dir == NULL) {
+        dir = getenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY");
+    }
+
+    char* slash = strchr(element, '/');
+    char* token = strndup(element, slash - element);
+
+    char* name = FormatString("%s/IMAS_mapping_%s.xml", dir, token);
+    free(token);
+
+    return name;
 }
 
 char* getMachineMappingFileName(const char* element)
 {
-    char* dir = getenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY");
+    static char* dir = NULL;
+
+    if (dir == NULL) {
+        dir = getenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY");
+    }
 
     char* slash = strchr(element, '/');
     char* token = strndup(element, slash - element);
