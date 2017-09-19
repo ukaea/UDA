@@ -11,7 +11,7 @@
 #include <plugins/udaPlugin.h>
 
 static int convertToInt(char* value);
-static char** getContent(xmlNode* node, size_t data_n);
+static double* getContent(xmlNode* node, size_t* n_vals);
 
 static char* get_type(const xmlChar* xpathExpr, xmlXPathContextPtr xpathCtx)
 {
@@ -290,7 +290,7 @@ int execute_xpath_expression(const char* filename, const xmlChar* xpathExpr, cha
         data_n = 1;
     }
 
-    char** content = NULL;
+    double* content = NULL;
     if (*data_type != UDA_TYPE_STRING) {
         xmlNodePtr cur = nodes->nodeTab[0];
 
@@ -301,56 +301,61 @@ int execute_xpath_expression(const char* filename, const xmlChar* xpathExpr, cha
             return -1;
         }
 
+        size_t n_vals = 0;
         if (*dims == NULL && index > 0) {
-            content = getContent(cur, 0);
+            content = getContent(cur, &n_vals);
         } else {
-            content = getContent(cur, data_n);
+            content = getContent(cur, &n_vals);
+            if (n_vals != data_n) {
+                IDAM_LOG(UDA_LOG_ERROR, "Error: incorrect number of points read from XML file\n");
+                return -1;
+            }
         }
     }
 
     if (*data_type == UDA_TYPE_DOUBLE) {
         *data = malloc(data_n * sizeof(double));
         if (*dims == NULL) {
-            ((double*)*data)[0] = strtod(content[index-1], NULL);
+            ((double*)*data)[0] = content[index-1];
         } else {
             for (i = 0; i < (*dims)[0]; i++) {
-                ((double*)*data)[i] = strtod(content[i], NULL);
+                ((double*)*data)[i] = content[i];
             }
         }
     } else if (*data_type == UDA_TYPE_FLOAT) {
         *data = malloc(data_n * sizeof(float));
         if (*dims == NULL) {
-            ((float*)*data)[0] = strtof(content[index-1], NULL);
+            ((float*)*data)[0] = (float)content[index-1];
         } else {
             for (i = 0; i < data_n; i++) {
-                ((float*)*data)[i] = strtof(content[i], NULL);
+                ((float*)*data)[i] = (float)content[i];
             }
         }
     } else if (*data_type == UDA_TYPE_LONG) {
         *data = malloc(data_n * sizeof(long));
         if (*dims == NULL) {
-            ((long*)*data)[0] = strtol(content[index-1], NULL, 10);
+            ((long*)*data)[0] = (long)content[index-1];
         } else {
             for (i = 0; i < data_n; i++) {
-                ((long*)*data)[i] = strtol(content[i], NULL, 10);
+                ((long*)*data)[i] = (long)content[i];
             }
         }
     } else if (*data_type == UDA_TYPE_INT) {
         *data = malloc(data_n * sizeof(int));
         if (*dims == NULL) {
-            ((int*)*data)[0] = (int)strtol(content[index-1], NULL, 10);
+            ((int*)*data)[0] = (int)content[index-1];
         } else {
             for (i = 0; i < data_n; i++) {
-                ((int*)*data)[i] = (int)strtol(content[i], NULL, 10);
+                ((int*)*data)[i] = (int)content[i];
             }
         }
     } else if (*data_type == UDA_TYPE_SHORT) {
         *data = malloc(data_n * sizeof(short));
         if (*dims == NULL) {
-            ((short*)*data)[0] = (short)strtol(content[index-1], NULL, 10);
+            ((short*)*data)[0] = (short)content[index-1];
         } else {
             for (i = 0; i < data_n; i++) {
-                ((short*)*data)[i] = (short)strtol(content[i], NULL, 10);
+                ((short*)*data)[i] = (short)content[i];
             }
         }
     } else if (*data_type == UDA_TYPE_STRING) {
@@ -395,85 +400,81 @@ int execute_xpath_expression(const char* filename, const xmlChar* xpathExpr, cha
     return 0;
 }
 
-char** getContent(xmlNode* node, size_t data_n)
+double* getContent(xmlNode* node, size_t* n_vals)
 {
     xmlChar* content = node->children->content;
 
-    const char* pattern = "\\(([0-9.]+), i=([0-9]+),([0-9]+)\\)";
-    regex_t preg;
+    const char* chr = (const char*)content;
+    *n_vals = 0;
 
-    int rc = regcomp(&preg, pattern, REG_EXTENDED);
-    if (rc != 0) {
-        IDAM_LOG(UDA_LOG_ERROR, "regcomp() failed\n");
-        return NULL;
-    }
+    double* vals = NULL;
 
-    const char* work = (const char*)content;
-    size_t nmatch = 4;
-    regmatch_t pmatch[4];
+    bool in_expand = false;
+    bool have_expand_val = false;
+    double expand_val = 0;
+    int expand_start = 0;
+    int expand_end = 0;
 
-    rc = regexec(&preg, work, nmatch, pmatch, 0);
-    if (rc == 0) {
-        char** data = malloc(data_n * sizeof(char*));
+    const char* num_start = chr;
 
-        while (rc == 0) {
-            double num = strtod(&work[pmatch[1].rm_so], NULL);
-            long start_index = strtol(&work[pmatch[2].rm_so], NULL, 10);
-            long end_index = strtol(&work[pmatch[3].rm_so], NULL, 10);
+    bool cont = true;
 
-            long i;
-            for (i = start_index; i <= end_index; ++i) {
-                assert(i <= data_n);
-                data[i-1] = FormatString("%g", num);
-            }
-
-            work = &work[pmatch[0].rm_eo];
-            rc = regexec(&preg, work, nmatch, pmatch, 0);
-        }
-
-        return data;
-    }
-
-    char** data = NULL;
-
-    if (data_n > 0) {
-        data = malloc(data_n * sizeof(char*));
-    }
-
-    char temp[128];
-    int i = 0;
-    int data_i = 0;
-    int n = 0;
-    for (;; ++i) {
-        char c = content[i];
-
-        if (c == ' ') {
-            continue;
-        }
-        if (c == ',' || c == '\0') {
-            temp[n] = '\0';
-            if (data_n > 0) {
-                assert(data_i < data_n);
-            } else {
-                data = realloc(data, (data_i + 1) * sizeof(char*));
-            }
-            data[data_i] = strdup(temp);
-            ++data_i;
-            n = 0;
-            if (c == '\0' || (data_n > 0 && data_i == data_n)) {
+    while (cont) {
+        switch (*chr) {
+            case ',':
+            case '\0':
+                if (in_expand) {
+                    if (have_expand_val) {
+                        expand_start = (int)strtol(num_start, NULL, 10);
+                        num_start = chr + 1;
+                    } else {
+                        expand_val = strtod(num_start, NULL);
+                        have_expand_val = true;
+                        num_start = chr + 1;
+                    }
+                } else if (*num_start != '\0') {
+                    vals = realloc(vals, (*n_vals + 1) * sizeof(double));
+                    vals[*n_vals] = strtod(num_start, NULL);
+                    ++(*n_vals);
+                    num_start = chr + 1;
+                }
+                if (*chr == '\0') {
+                    cont = false;
+                }
+                break;
+            case '=':
+                num_start = chr + 1;
+                break;
+            case '(':
+                in_expand = true;
+                num_start = chr + 1;
+                break;
+            case ')': {
+                expand_end = (int)strtol(num_start, NULL, 10);
+                int i = 0;
+                for (i = expand_start; i <= expand_end; ++i) {
+                    vals = realloc(vals, (*n_vals + 1) * sizeof(double));
+                    vals[*n_vals] = expand_val;
+                    ++(*n_vals);
+                }
+                if (*(chr + 1) == ',') {
+                    ++chr;
+                }
+                num_start = chr + 1;
+                in_expand = false;
+                have_expand_val = false;
+                expand_val = 0;
+                expand_start = 0;
+                expand_end = 0;
                 break;
             }
-            continue;
+            default:
+                break;
         }
-        assert(n < 128);
-        temp[n++] = c;
+        ++chr;
     }
 
-    if (data_n > 0) {
-        assert(data_i == data_n);
-    }
-
-    return data;
+    return vals;
 }
 
 
@@ -486,7 +487,8 @@ int convertToInt(char* value)
         || StringEquals(value, "xs:string") || StringEquals(value, "STR_0D")) {
         i = UDA_TYPE_STRING;
     } else if (StringEquals(value, "matflt_type") || StringEquals(value, "vecflt_type")
-               || StringEquals(value, "xs:float") || StringEquals(value, "FLT_0D")) {
+               || StringEquals(value, "array3dflt_type") || StringEquals(value, "xs:float")
+               || StringEquals(value, "FLT_0D")) {
         i = UDA_TYPE_FLOAT;
     } else if (StringEquals(value, "matint_type") || StringEquals(value, "vecint_type")
                || StringEquals(value, "xs:integer") || StringEquals(value, "INT_0D")) {

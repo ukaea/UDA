@@ -306,6 +306,12 @@ int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             return status;
         }
 
+        if (rank > 1 && index != -1) {
+            indices = realloc(indices, (nindices + 1) * sizeof(int));
+            indices[nindices] = index;
+            ++nindices;
+        }
+
         if ((rank != 0 || nindices != 1) && (rank != nindices)) {
             THROW_ERROR(999, "incorrect number of indices specified");
         }

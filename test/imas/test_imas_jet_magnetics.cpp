@@ -7,6 +7,8 @@
 #define QUOTE(X) QUOTE_(X)
 #define SHOT_NUM "84600"
 
+#define MAPPINGS_DIR "/Users/jhollocombe/Projects/uda/source/plugins/exp2imas/mappings"
+
 /*
   ✓ bpol_probe/Shape_of
   ✓ bpol_probe/#/name
@@ -32,8 +34,7 @@ TEST_CASE( "Test bpol_probe count", "[IMAS][JET][BPOL]" )
 #  include "setup.inc"
 #endif
 
-    setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", "/Users/jhollocombe/Projects/uda/source/plugins/exp2imas/mappings", 1);
-    setenv("UDA_EXP2IMAS_MAPPING_FILE", "/Users/jhollocombe/Projects/uda/source/plugins/exp2imas/mappings/JET_Mapping.xml", 1);
+    setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", MAPPINGS_DIR, 1);
 
     uda::Client client;
 
@@ -66,8 +67,7 @@ TEST_CASE( "Test bpol_probe name", "[IMAS][JET][BPOL]" )
 #  include "setup.inc"
 #endif
 
-    setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", "/Users/jhollocombe/Projects/uda/source/plugins/exp2imas/mappings", 1);
-    setenv("UDA_EXP2IMAS_MAPPING_FILE", "/Users/jhollocombe/Projects/uda/source/plugins/exp2imas/mappings/JET_Mapping.xml", 1);
+    setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", MAPPINGS_DIR, 1);
 
     uda::Client client;
 
@@ -99,8 +99,7 @@ TEST_CASE( "Test bpol_probe identifier", "[IMAS][JET][BPOL]" )
 #  include "setup.inc"
 #endif
 
-    setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", "/Users/jhollocombe/Projects/uda/source/plugins/exp2imas/mappings", 1);
-    setenv("UDA_EXP2IMAS_MAPPING_FILE", "/Users/jhollocombe/Projects/uda/source/plugins/exp2imas/mappings/JET_Mapping.xml", 1);
+    setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", MAPPINGS_DIR, 1);
 
     uda::Client client;
 
@@ -135,8 +134,7 @@ TEST_CASE( "Test bpol_probe toroidal_angle", "[IMAS][JET][BPOL]" )
 #  include "setup.inc"
 #endif
 
-    setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", "/Users/jhollocombe/Projects/uda/source/plugins/exp2imas/mappings", 1);
-    setenv("UDA_EXP2IMAS_MAPPING_FILE", "/Users/jhollocombe/Projects/uda/source/plugins/exp2imas/mappings/JET_Mapping.xml", 1);
+    setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", MAPPINGS_DIR, 1);
 
 	uda::Client client;
 
@@ -172,20 +170,21 @@ TEST_CASE( "Test bpol_probe poloidal_angle", "[IMAS][JET][BPOL]" )
 #  include "setup.inc"
 #endif
 
-	setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", "/Users/jhollocombe/Projects/uda/source/plugins/exp2imas/mappings", 1);
-	setenv("UDA_EXP2IMAS_MAPPING_FILE", "/Users/jhollocombe/Projects/uda/source/plugins/exp2imas/mappings/JET_Mapping.xml", 1);
+	setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", MAPPINGS_DIR, 1);
+	setenv("UDA_EXP2IMAS_MAPPING_FILE", MAPPINGS_DIR "/JET_Mapping.xml", 1);
 
     uda::Client client;
 
     double expected_vals[] = { -1.2933, -1.0559, -0.8203, -0.5847, -0.2304 };
 
-    int index = 0;
+    int index = 1;
     for (auto expected_val : expected_vals) {
 
+        std::string signal = "imas::get(idx=0, group='magnetics', variable='bpol_probe/"
+                             + std::to_string(index)
+                             + "/poloidal_angle', expName='JET', type=double, rank=0, shot=" + SHOT_NUM + ", )";
 
-        const uda::Result& result = client.get(
-                "imas::get(idx=0, group='magnetics', variable='bpol_probe/1/poloidal_angle', expName='JET', type=double, rank=0, shot=" SHOT_NUM ", )",
-                "");
+        const uda::Result& result = client.get(signal, "");
         ++index;
 
         REQUIRE(result.errorCode() == 0);
@@ -205,54 +204,6 @@ TEST_CASE( "Test bpol_probe poloidal_angle", "[IMAS][JET][BPOL]" )
         REQUIRE(val->type().name() == typeid(double).name());
         REQUIRE(val->as<double>() == Approx(expected_val));
     }
-
-
-
-    {
-        const uda::Result& result = client.get(
-                "imas::get(idx=0, group='magnetics', variable='bpol_probe/1/poloidal_angle', expName='JET', type=double, rank=0, shot=" SHOT_NUM ", )",
-                "");
-
-        REQUIRE(result.errorCode() == 0);
-        REQUIRE(result.errorMessage().empty());
-
-        uda::Data* data = result.data();
-
-        REQUIRE(data != nullptr);
-        REQUIRE(!data->isNull());
-        REQUIRE(data->type().name() == typeid(double).name());
-
-        auto val = dynamic_cast<uda::Scalar*>(data);
-
-        REQUIRE(val != nullptr);
-        REQUIRE(!val->isNull());
-
-        REQUIRE(val->type().name() == typeid(double).name());
-        REQUIRE(val->as<double>() == Approx(-1.2933));
-    }
-
-    {
-        const uda::Result& result = client.get(
-                "imas::get(idx=0, group='magnetics', variable='bpol_probe/2/poloidal_angle', expName='JET', type=double, rank=0, shot=" SHOT_NUM ", )",
-                "");
-
-        REQUIRE(result.errorCode() == 0);
-        REQUIRE(result.errorMessage().empty());
-
-        uda::Data* data = result.data();
-
-        REQUIRE(data != nullptr);
-        REQUIRE(!data->isNull());
-        REQUIRE(data->type().name() == typeid(double).name());
-
-        auto val = dynamic_cast<uda::Scalar*>(data);
-
-        REQUIRE(val != nullptr);
-        REQUIRE(!val->isNull());
-
-        REQUIRE(val->type().name() == typeid(double).name());
-        REQUIRE(val->as<double>() == Approx(-1.0559));
-    }
 }
 
 /*
@@ -267,8 +218,7 @@ TEST_CASE( "Test bpol_probe area", "[IMAS][JET][BPOL]" )
 #  include "setup.inc"
 #endif
 
-    setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", "/Users/jhollocombe/Projects/uda/source/plugins/exp2imas/mappings", 1);
-    setenv("UDA_EXP2IMAS_MAPPING_FILE", "/Users/jhollocombe/Projects/uda/source/plugins/exp2imas/mappings/JET_Mapping.xml", 1);
+    setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", MAPPINGS_DIR, 1);
 
     uda::Client client;
 
@@ -304,8 +254,7 @@ TEST_CASE( "Test bpol_probe position r", "[IMAS][JET][BPOL]" )
 #  include "setup.inc"
 #endif
 
-    setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", "/Users/jhollocombe/Projects/uda/source/plugins/exp2imas/mappings", 1);
-    setenv("UDA_EXP2IMAS_MAPPING_FILE", "/Users/jhollocombe/Projects/uda/source/plugins/exp2imas/mappings/JET_Mapping.xml", 1);
+    setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", MAPPINGS_DIR, 1);
 
     uda::Client client;
 
@@ -341,8 +290,7 @@ TEST_CASE( "Test bpol_probe position z", "[IMAS][JET][BPOL]" )
 #  include "setup.inc"
 #endif
 
-    setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", "/Users/jhollocombe/Projects/uda/source/plugins/exp2imas/mappings", 1);
-    setenv("UDA_EXP2IMAS_MAPPING_FILE", "/Users/jhollocombe/Projects/uda/source/plugins/exp2imas/mappings/JET_Mapping.xml", 1);
+    setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", MAPPINGS_DIR, 1);
 
     uda::Client client;
 
@@ -378,8 +326,7 @@ TEST_CASE( "Test bpol_probe position phi", "[IMAS][JET][BPOL]" )
 #  include "setup.inc"
 #endif
 
-    setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", "/Users/jhollocombe/Projects/uda/source/plugins/exp2imas/mappings", 1);
-    setenv("UDA_EXP2IMAS_MAPPING_FILE", "/Users/jhollocombe/Projects/uda/source/plugins/exp2imas/mappings/JET_Mapping.xml", 1);
+    setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", MAPPINGS_DIR, 1);
 
     uda::Client client;
 
@@ -415,8 +362,7 @@ TEST_CASE( "Test bpol_probe length", "[IMAS][JET][BPOL]" )
 #  include "setup.inc"
 #endif
 
-    setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", "/Users/jhollocombe/Projects/uda/source/plugins/exp2imas/mappings", 1);
-    setenv("UDA_EXP2IMAS_MAPPING_FILE", "/Users/jhollocombe/Projects/uda/source/plugins/exp2imas/mappings/JET_Mapping.xml", 1);
+    setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", MAPPINGS_DIR, 1);
 
     uda::Client client;
 
@@ -449,8 +395,7 @@ TEST_CASE( "Test bpol_probe turns", "[IMAS][JET][BPOL]" )
 #  include "setup.inc"
 #endif
 
-    setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", "/Users/jhollocombe/Projects/uda/source/plugins/exp2imas/mappings", 1);
-    setenv("UDA_EXP2IMAS_MAPPING_FILE", "/Users/jhollocombe/Projects/uda/source/plugins/exp2imas/mappings/JET_Mapping.xml", 1);
+    setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", MAPPINGS_DIR, 1);
 
     uda::Client client;
 
@@ -486,8 +431,7 @@ TEST_CASE( "Test bpol_probe field", "[IMAS][JET][BPOL]" )
 #  include "setup.inc"
 #endif
 
-    setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", "/Users/jhollocombe/Projects/uda/source/plugins/exp2imas/mappings", 1);
-    setenv("UDA_EXP2IMAS_MAPPING_FILE", "/Users/jhollocombe/Projects/uda/source/plugins/exp2imas/mappings/JET_Mapping.xml", 1);
+    setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", MAPPINGS_DIR, 1);
 
     uda::Client client;
 
@@ -521,8 +465,7 @@ TEST_CASE( "Test bpol_probe time", "[IMAS][JET][BPOL]" )
 #  include "setup.inc"
 #endif
 
-    setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", "/Users/jhollocombe/Projects/uda/source/plugins/exp2imas/mappings", 1);
-    setenv("UDA_EXP2IMAS_MAPPING_FILE", "/Users/jhollocombe/Projects/uda/source/plugins/exp2imas/mappings/JET_Mapping.xml", 1);
+    setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", MAPPINGS_DIR, 1);
 
     uda::Client client;
 
@@ -565,8 +508,7 @@ TEST_CASE( "Test flux_loop count", "[IMAS][JET][FLUX]" )
 #  include "setup.inc"
 #endif
 
-    setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", "/Users/jhollocombe/Projects/uda/source/plugins/exp2imas/mappings", 1);
-    setenv("UDA_EXP2IMAS_MAPPING_FILE", "/Users/jhollocombe/Projects/uda/source/plugins/exp2imas/mappings/JET_Mapping.xml", 1);
+    setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", MAPPINGS_DIR, 1);
 
     uda::Client client;
 
@@ -596,8 +538,7 @@ TEST_CASE( "Test flux_loop name", "[IMAS][JET][FLUX]" )
 #  include "setup.inc"
 #endif
 
-    setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", "/Users/jhollocombe/Projects/uda/source/plugins/exp2imas/mappings", 1);
-    setenv("UDA_EXP2IMAS_MAPPING_FILE", "/Users/jhollocombe/Projects/uda/source/plugins/exp2imas/mappings/JET_Mapping.xml", 1);
+    setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", MAPPINGS_DIR, 1);
 
     uda::Client client;
 
@@ -626,8 +567,7 @@ TEST_CASE( "Test flux_loop identifier", "[IMAS][JET][FLUX]" )
 #  include "setup.inc"
 #endif
 
-    setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", "/Users/jhollocombe/Projects/uda/source/plugins/exp2imas/mappings", 1);
-    setenv("UDA_EXP2IMAS_MAPPING_FILE", "/Users/jhollocombe/Projects/uda/source/plugins/exp2imas/mappings/JET_Mapping.xml", 1);
+    setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", MAPPINGS_DIR, 1);
 
     uda::Client client;
 
@@ -657,8 +597,7 @@ TEST_CASE( "Test flux_loop position count", "[IMAS][JET][FLUX]" )
 #  include "setup.inc"
 #endif
 
-    setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", "/Users/jhollocombe/Projects/uda/source/plugins/exp2imas/mappings", 1);
-    setenv("UDA_EXP2IMAS_MAPPING_FILE", "/Users/jhollocombe/Projects/uda/source/plugins/exp2imas/mappings/JET_Mapping.xml", 1);
+    setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", MAPPINGS_DIR, 1);
 
     uda::Client client;
 
@@ -688,8 +627,7 @@ TEST_CASE( "Test flux_loop position r", "[IMAS][JET][FLUX]" )
 #  include "setup.inc"
 #endif
 
-    setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", "/Users/jhollocombe/Projects/uda/source/plugins/exp2imas/mappings", 1);
-    setenv("UDA_EXP2IMAS_MAPPING_FILE", "/Users/jhollocombe/Projects/uda/source/plugins/exp2imas/mappings/JET_Mapping.xml", 1);
+    setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", MAPPINGS_DIR, 1);
 
     uda::Client client;
 
@@ -738,8 +676,7 @@ TEST_CASE( "Test flux_loop position z", "[IMAS][JET][FLUX]" )
 #  include "setup.inc"
 #endif
 
-    setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", "/Users/jhollocombe/Projects/uda/source/plugins/exp2imas/mappings", 1);
-    setenv("UDA_EXP2IMAS_MAPPING_FILE", "/Users/jhollocombe/Projects/uda/source/plugins/exp2imas/mappings/JET_Mapping.xml", 1);
+    setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", MAPPINGS_DIR, 1);
 
     uda::Client client;
 
@@ -788,8 +725,7 @@ TEST_CASE( "Test flux_loop position phi", "[IMAS][JET][FLUX]" )
 #  include "setup.inc"
 #endif
 
-    setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", "/Users/jhollocombe/Projects/uda/source/plugins/exp2imas/mappings", 1);
-    setenv("UDA_EXP2IMAS_MAPPING_FILE", "/Users/jhollocombe/Projects/uda/source/plugins/exp2imas/mappings/JET_Mapping.xml", 1);
+    setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", MAPPINGS_DIR, 1);
 
     uda::Client client;
 
@@ -838,8 +774,7 @@ TEST_CASE( "Test flux_loop flux", "[IMAS][JET][FLUX]" )
 #  include "setup.inc"
 #endif
 
-    setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", "/Users/jhollocombe/Projects/uda/source/plugins/exp2imas/mappings", 1);
-    setenv("UDA_EXP2IMAS_MAPPING_FILE", "/Users/jhollocombe/Projects/uda/source/plugins/exp2imas/mappings/JET_Mapping.xml", 1);
+    setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", MAPPINGS_DIR, 1);
 
     uda::Client client;
 
@@ -890,8 +825,8 @@ TEST_CASE( "Test flux_loop flux", "[IMAS][JET][FLUX]" )
 //#  include "setup.inc"
 //#endif
 //
-//    setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", "/Users/jhollocombe/Projects/uda/source/plugins/exp2imas/mappings", 1);
-//    setenv("UDA_EXP2IMAS_MAPPING_FILE", "/Users/jhollocombe/Projects/uda/source/plugins/exp2imas/mappings/JET_Mapping.xml", 1);
+//    setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", MAPPINGS_DIR, 1);
+//    setenv("UDA_EXP2IMAS_MAPPING_FILE", MAPPINGS_DIR "/JET_Mapping.xml", 1);
 //
 //    uda::Client client;
 //
@@ -941,8 +876,7 @@ TEST_CASE( "Test flux_loop time", "[IMAS][JET][FLUX]" )
 #  include "setup.inc"
 #endif
 
-    setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", "/Users/jhollocombe/Projects/uda/source/plugins/exp2imas/mappings", 1);
-    setenv("UDA_EXP2IMAS_MAPPING_FILE", "/Users/jhollocombe/Projects/uda/source/plugins/exp2imas/mappings/JET_Mapping.xml", 1);
+    setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", MAPPINGS_DIR, 1);
 
     uda::Client client;
 

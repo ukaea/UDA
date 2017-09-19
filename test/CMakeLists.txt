@@ -32,10 +32,8 @@ configure_file(
 )
 
 set( TESTS
-#  test_putcpp
+  #  test_putcpp
   test_mast
-  test_imas_jet
-  test_imas_jet_all
 )
 
 include( modules )
@@ -44,6 +42,7 @@ include_directories( SYSTEM ${Boost_INCLUDE_DIR} )
 include_directories( ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_LIST_DIR} )
 
 add_subdirectory( plugins )
+add_subdirectory( imas )
 
 add_definitions( -D__USE_XOPEN2K8 )
 
@@ -56,7 +55,7 @@ foreach( TEST ${TESTS} )
     ${OPENSSL_LIBRARIES}
     ${LIBXML2_LIBRARIES}
     ${CACHE_LIBRARIES}
-  )
+    )
   link_modules( ${TEST} )
 
   add_executable( fat_${TEST} ${TEST}.cpp )
@@ -68,7 +67,7 @@ foreach( TEST ${TESTS} )
     ${LIBXML2_LIBRARIES}
     ${CACHE_LIBRARIES}
     c m dl
-  )
+    )
   target_compile_definitions( fat_${TEST} PRIVATE -DFATCLIENT )
   link_modules( fat_${TEST} )
 
@@ -91,7 +90,7 @@ if( GCRYPT_FOUND AND KSBA_FOUND AND OPENSSL_FOUND AND LIBXML2_FOUND )
     ${KSBA_LIBRARIES}
     client-shared
     ${OPENSSL_LIBRARIES}
-    ${LIBXML2_LIBRARIES} 
+    ${LIBXML2_LIBRARIES}
     ${CACHE_LIBRARIES})
   add_test( testSecurity testSecurity )
 endif()
