@@ -1,9 +1,5 @@
-//
-// Created by jholloc on 08/03/16.
-//
-
-#ifndef IDAM_WRAPPERS_CPP_RESULT_H
-#define IDAM_WRAPPERS_CPP_RESULT_H
+#ifndef UDA_WRAPPERS_CPP_RESULT_H
+#define UDA_WRAPPERS_CPP_RESULT_H
 
 #include <typeinfo>
 #include <string>
@@ -86,5 +82,5 @@ private:
 
 }
 
-#endif //IDAM_WRAPPERS_CPP_RESULT_H
+#endif // UDA_WRAPPERS_CPP_RESULT_H
 

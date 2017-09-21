@@ -1,9 +1,5 @@
-//
-// Created by jholloc on 08/03/16.
-//
-
-#ifndef IDAM_WRAPPERS_CPP_STRING_H
-#define IDAM_WRAPPERS_CPP_STRING_H
+#ifndef UDA_WRAPPERS_CPP_STRING_H
+#define UDA_WRAPPERS_CPP_STRING_H
 
 #include <cstring>
 #include <typeinfo>
@@ -16,18 +12,18 @@ namespace uda {
 class String : public Data
 {
 public:
-    String(const char * data)
+    explicit String(const char * data)
             : Data(false), str_(data)
     { }
 
-    String(const std::string& str)
+    explicit String(const std::string& str)
             : Data(false), str_(str)
     { }
 
-    size_t size() const
+    size_t size() const override
     { return str_.size(); }
 
-    const std::type_info& type() const
+    const std::type_info& type() const override
     { return typeid(char*); }
 
     const std::string& str() const
@@ -39,4 +35,4 @@ private:
 
 }
 
-#endif //IDAM_WRAPPERS_CPP_STRING_H
+#endif // UDA_WRAPPERS_CPP_STRING_H

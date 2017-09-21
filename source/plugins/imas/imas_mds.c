@@ -1679,17 +1679,10 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
         case GET_OPERATION: {
             data_block->data_type = findIMASIDAMType(type);
             data_block->data = imasData;
-
-            if (data_block->data_type == UDA_TYPE_STRING && plugin_args.rank == 0) {
-                data_block->rank = 1;
-                data_block->data_n = (int)strlen(imasData) + 1;
-                shape[0] = data_block->data_n;
-            } else {
-                data_block->rank = (unsigned int)plugin_args.rank;
-                data_block->data_n = shape[0];
-                for (i = 1; i < plugin_args.rank; i++) {
-                    data_block->data_n *= shape[i];
-                }
+            data_block->rank = (unsigned int)plugin_args.rank;
+            data_block->data_n = shape[0];
+            for (i = 1; i < plugin_args.rank; i++) {
+                data_block->data_n *= shape[i];
             }
             break;
         }
@@ -1731,7 +1724,9 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
         }
     }
 
-    if (!plugin_args.isGetDimension && shape != NULL) free(shape);
+    if (!plugin_args.isGetDimension && shape != NULL) {
+        free(shape);
+    }
 
     return err;
 }

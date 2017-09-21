@@ -243,7 +243,7 @@ uda::Data* uda::Result::data() const
         case UDA_TYPE_UNSIGNED_LONG64:
             return getDataAs<unsigned long long>(handle_, DATA, dims);
         case UDA_TYPE_STRING:
-            if (rank == 1) {
+            if (rank == 1 || rank == 0) {
                 return getDataAsString(handle_);
             } else {
                 return getDataAsStringArray(handle_, dims);
