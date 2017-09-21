@@ -117,9 +117,9 @@
   -->
 
   <mapping key="tf/b_field_tor_vacuum_r/data" value="//toroidfield/bvac_r/value/name" type="dynamic"/>
-  <mapping key="tf/b_field_tor_vacuum_r/data_error_upper" value="0" type="constant"/>
-  <mapping key="tf/b_field_tor_vacuum_r/data_error_lower" value="0" type="constant"/>
-  <mapping key="tf/b_field_tor_vacuum_r/data_error_index" value="0" type="constant"/>
+  <mapping key="tf/b_field_tor_vacuum_r/data_error_upper" value="//toroidfield/bvac_r/value/name" type="error"/>
+  <mapping key="tf/b_field_tor_vacuum_r/data_error_lower" value="//toroidfield/bvac_r/value/name" type="error"/>
+  <mapping key="tf/b_field_tor_vacuum_r/data_error_index" value="//toroidfield/bvac_r/value/name" type="error"/>
   <mapping key="tf/b_field_tor_vacuum_r/time" value="//toroidfield/bvac_r/value/name" type="dynamic"/>
 
   <mapping key="tf/time" value="" type=""/>

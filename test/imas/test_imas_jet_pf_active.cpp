@@ -244,7 +244,7 @@ TEST_CASE( "Test pf_active coil element geometry type", "[IMAS][JET][PF_ACTIVE]"
     REQUIRE( !val->isNull() );
 
     REQUIRE( val->type().name() == typeid(int).name() );
-    REQUIRE( val->as<int>() == 1 );
+    REQUIRE( val->as<int>() == 2 );
 }
 
 TEST_CASE( "Test pf_active coil element geometry r", "[IMAS][JET][PF_ACTIVE]" )
@@ -257,7 +257,7 @@ TEST_CASE( "Test pf_active coil element geometry r", "[IMAS][JET][PF_ACTIVE]" )
 
     uda::Client client;
 
-    const uda::Result& result = client.get("imas::get(idx=0, group='pf_active', variable='coil/1/element/1/geometry/outline/r', expName='JET', type=double, rank=0, shot=" SHOT_NUM ", )", "");
+    const uda::Result& result = client.get("imas::get(idx=0, group='pf_active', variable='coil/1/element/1/geometry/rectangle/r', expName='JET', type=double, rank=0, shot=" SHOT_NUM ", )", "");
 
     REQUIRE( result.errorCode() == 0 );
     REQUIRE( result.errorMessage().empty() );
@@ -287,7 +287,7 @@ TEST_CASE( "Test pf_active coil element geometry z", "[IMAS][JET][PF_ACTIVE]" )
 
     uda::Client client;
 
-    const uda::Result& result = client.get("imas::get(idx=0, group='pf_active', variable='coil/1/element/1/geometry/outline/z', expName='JET', type=double, rank=0, shot=" SHOT_NUM ", )", "");
+    const uda::Result& result = client.get("imas::get(idx=0, group='pf_active', variable='coil/1/element/1/geometry/rectangle/z', expName='JET', type=double, rank=0, shot=" SHOT_NUM ", )", "");
 
     REQUIRE( result.errorCode() == 0 );
     REQUIRE( result.errorMessage().empty() );
@@ -305,6 +305,244 @@ TEST_CASE( "Test pf_active coil element geometry z", "[IMAS][JET][PF_ACTIVE]" )
 
     REQUIRE( val->type().name() == typeid(double).name() );
     REQUIRE( val->as<double>() == Approx(2.461) );
+}
+
+TEST_CASE( "Test pf_active coil element geometry width", "[IMAS][JET][PF_ACTIVE]" )
+{
+#ifdef FATCLIENT
+#  include "setup.inc"
+#endif
+
+    setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", MAPPINGS_DIR, 1);
+
+    uda::Client client;
+
+    {
+        const uda::Result& result = client.get(
+                "imas::get(idx=0, group='pf_active', variable='coil/1/element/1/geometry/rectangle/width', expName='JET', type=double, rank=0, shot=" SHOT_NUM ", )",
+                "");
+
+        REQUIRE(result.errorCode() == 0);
+        REQUIRE(result.errorMessage().empty());
+
+        uda::Data* data = result.data();
+
+        REQUIRE(data != nullptr);
+        REQUIRE(!data->isNull());
+        REQUIRE(data->type().name() == typeid(double).name());
+
+        auto val = dynamic_cast<uda::Scalar*>(data);
+
+        REQUIRE(val != nullptr);
+        REQUIRE(!val->isNull());
+
+        REQUIRE(val->type().name() == typeid(double).name());
+        REQUIRE(val->as<double>() == Approx(0.337));
+    }
+
+    {
+        const uda::Result& result = client.get(
+                "imas::get(idx=0, group='pf_active', variable='coil/9/element/1/geometry/rectangle/width', expName='JET', type=double, rank=0, shot=" SHOT_NUM ", )",
+                "");
+
+        REQUIRE(result.errorCode() == 0);
+        REQUIRE(result.errorMessage().empty());
+
+        uda::Data* data = result.data();
+
+        REQUIRE(data != nullptr);
+        REQUIRE(!data->isNull());
+        REQUIRE(data->type().name() == typeid(double).name());
+
+        auto val = dynamic_cast<uda::Scalar*>(data);
+
+        REQUIRE(val != nullptr);
+        REQUIRE(!val->isNull());
+
+        REQUIRE(val->type().name() == typeid(double).name());
+        REQUIRE(val->as<double>() == Approx(0.368));
+    }
+}
+
+TEST_CASE( "Test pf_active coil element geometry height", "[IMAS][JET][PF_ACTIVE]" )
+{
+#ifdef FATCLIENT
+#  include "setup.inc"
+#endif
+
+    setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", MAPPINGS_DIR, 1);
+
+    uda::Client client;
+
+    {
+        const uda::Result& result = client.get(
+                "imas::get(idx=0, group='pf_active', variable='coil/1/element/1/geometry/rectangle/height', expName='JET', type=double, rank=0, shot=" SHOT_NUM ", )",
+                "");
+
+        REQUIRE(result.errorCode() == 0);
+        REQUIRE(result.errorMessage().empty());
+
+        uda::Data* data = result.data();
+
+        REQUIRE(data != nullptr);
+        REQUIRE(!data->isNull());
+        REQUIRE(data->type().name() == typeid(double).name());
+
+        auto val = dynamic_cast<uda::Scalar*>(data);
+
+        REQUIRE(val != nullptr);
+        REQUIRE(!val->isNull());
+
+        REQUIRE(val->type().name() == typeid(double).name());
+        REQUIRE(val->as<double>() == Approx(0.505));
+    }
+
+    {
+        const uda::Result& result = client.get(
+                "imas::get(idx=0, group='pf_active', variable='coil/9/element/1/geometry/rectangle/height', expName='JET', type=double, rank=0, shot=" SHOT_NUM ", )",
+                "");
+
+        REQUIRE(result.errorCode() == 0);
+        REQUIRE(result.errorMessage().empty());
+
+        uda::Data* data = result.data();
+
+        REQUIRE(data != nullptr);
+        REQUIRE(!data->isNull());
+        REQUIRE(data->type().name() == typeid(double).name());
+
+        auto val = dynamic_cast<uda::Scalar*>(data);
+
+        REQUIRE(val != nullptr);
+        REQUIRE(!val->isNull());
+
+        REQUIRE(val->type().name() == typeid(double).name());
+        REQUIRE(val->as<double>() == Approx(0.282));
+    }
+}
+
+TEST_CASE( "Test pf_active coil current", "[IMAS][JET][PF_ACTIVE]" )
+{
+#ifdef FATCLIENT
+#  include "setup.inc"
+#endif
+
+    setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", MAPPINGS_DIR, 1);
+
+    uda::Client client;
+
+    const uda::Result& result = client.get("imas::get(idx=0, group='pf_active', variable='coil/1/current/data', expName='JET', type=double, rank=1, shot=" SHOT_NUM ", )", "");
+
+    REQUIRE( result.errorCode() == 0 );
+    REQUIRE( result.errorMessage().empty() );
+
+    uda::Data* data = result.data();
+
+    REQUIRE( data != nullptr );
+    REQUIRE( !data->isNull() );
+    REQUIRE( data->type().name() == typeid(double).name() );
+
+    auto arr = dynamic_cast<uda::Array*>(data);
+
+    REQUIRE( arr != nullptr );
+    REQUIRE( !arr->isNull() );
+
+    REQUIRE( arr->size() == 1024 );
+    REQUIRE( arr->type().name() == typeid(double).name() );
+    REQUIRE( arr->as<double>()[0] == Approx(-423.4526977539) );
+}
+
+TEST_CASE( "Test pf_active coil current error upper", "[IMAS][JET][PF_ACTIVE]" )
+{
+#ifdef FATCLIENT
+#  include "setup.inc"
+#endif
+
+    setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", MAPPINGS_DIR, 1);
+
+    uda::Client client;
+
+    const uda::Result& result = client.get("imas::get(idx=0, group='pf_active', variable='coil/1/current/data_error_upper', expName='JET', type=double, rank=1, shot=" SHOT_NUM ", )", "");
+
+    REQUIRE( result.errorCode() == 0 );
+    REQUIRE( result.errorMessage().empty() );
+
+    uda::Data* data = result.data();
+
+    REQUIRE( data != nullptr );
+    REQUIRE( !data->isNull() );
+    REQUIRE( data->type().name() == typeid(double).name() );
+
+    auto arr = dynamic_cast<uda::Array*>(data);
+
+    REQUIRE( arr != nullptr );
+    REQUIRE( !arr->isNull() );
+
+    REQUIRE( arr->size() == 1024 );
+    REQUIRE( arr->type().name() == typeid(double).name() );
+    REQUIRE( arr->as<double>()[0] == Approx(76.5473022461) );
+}
+
+TEST_CASE( "Test pf_active coil current error lower", "[IMAS][JET][PF_ACTIVE]" )
+{
+#ifdef FATCLIENT
+#  include "setup.inc"
+#endif
+
+    setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", MAPPINGS_DIR, 1);
+
+    uda::Client client;
+
+    const uda::Result& result = client.get("imas::get(idx=0, group='pf_active', variable='coil/1/current/data_error_lower', expName='JET', type=double, rank=1, shot=" SHOT_NUM ", )", "");
+
+    REQUIRE( result.errorCode() == 0 );
+    REQUIRE( result.errorMessage().empty() );
+
+    uda::Data* data = result.data();
+
+    REQUIRE( data != nullptr );
+    REQUIRE( !data->isNull() );
+    REQUIRE( data->type().name() == typeid(double).name() );
+
+    auto arr = dynamic_cast<uda::Array*>(data);
+
+    REQUIRE( arr != nullptr );
+    REQUIRE( !arr->isNull() );
+
+    REQUIRE( arr->size() == 1024 );
+    REQUIRE( arr->type().name() == typeid(double).name() );
+    REQUIRE( arr->as<double>()[0] == Approx(-923.4526977539) );
+}
+
+TEST_CASE( "Test pf_active coil current time", "[IMAS][JET][PF_ACTIVE]" )
+{
+#ifdef FATCLIENT
+#  include "setup.inc"
+#endif
+
+    setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", MAPPINGS_DIR, 1);
+
+    uda::Client client;
+
+    const uda::Result& result = client.get("imas::get(idx=0, group='pf_active', variable='coil/1/current/time', expName='JET', type=double, rank=1, shot=" SHOT_NUM ", )", "");
+
+    REQUIRE( result.errorCode() == 0 );
+    REQUIRE( result.errorMessage().empty() );
+
+    uda::Data* data = result.data();
+
+    REQUIRE( data != nullptr );
+    REQUIRE( !data->isNull() );
+    REQUIRE( data->type().name() == typeid(double).name() );
+
+    auto arr = dynamic_cast<uda::Array*>(data);
+
+    REQUIRE( arr != nullptr );
+    REQUIRE( !arr->isNull() );
+
+    REQUIRE( arr->size() == 1024 );
+    REQUIRE( arr->type().name() == typeid(double).name() );
+    REQUIRE( arr->as<double>()[0] == Approx(25.0161991119) );
 }
 
 TEST_CASE( "Test pf_active coil force count", "[IMAS][JET][PF_ACTIVE]" )

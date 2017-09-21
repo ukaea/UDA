@@ -456,6 +456,68 @@ TEST_CASE( "Test bpol_probe field", "[IMAS][JET][BPOL]" )
     REQUIRE( arr->as<double>()[0] == Approx(-0.0000273885871) );
 }
 
+TEST_CASE( "Test bpol_probe field error upper", "[IMAS][JET][BPOL]" )
+{
+#ifdef FATCLIENT
+#  include "setup.inc"
+#endif
+
+    setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", MAPPINGS_DIR, 1);
+
+    uda::Client client;
+
+    const uda::Result& result = client.get("imas::get(idx=0, group='magnetics', variable='bpol_probe/1/field/data_error_upper', expName='JET', type=double, rank=1, shot=" SHOT_NUM ", )", "");
+
+    REQUIRE( result.errorCode() == 0 );
+    REQUIRE( result.errorMessage().empty() );
+
+    uda::Data* data = result.data();
+
+    REQUIRE( data != nullptr );
+    REQUIRE( !data->isNull() );
+    REQUIRE( data->type().name() == typeid(double).name() );
+
+    auto arr = dynamic_cast<uda::Array*>(data);
+
+    REQUIRE( arr != nullptr );
+    REQUIRE( !arr->isNull() );
+
+    REQUIRE( arr->size() == 1024 );
+    REQUIRE( arr->type().name() == typeid(double).name() );
+    REQUIRE( arr->as<double>()[0] == Approx(0.0024726114) );
+}
+
+TEST_CASE( "Test bpol_probe field error lower", "[IMAS][JET][BPOL]" )
+{
+#ifdef FATCLIENT
+#  include "setup.inc"
+#endif
+
+    setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", MAPPINGS_DIR, 1);
+
+    uda::Client client;
+
+    const uda::Result& result = client.get("imas::get(idx=0, group='magnetics', variable='bpol_probe/1/field/data_error_lower', expName='JET', type=double, rank=1, shot=" SHOT_NUM ", )", "");
+
+    REQUIRE( result.errorCode() == 0 );
+    REQUIRE( result.errorMessage().empty() );
+
+    uda::Data* data = result.data();
+
+    REQUIRE( data != nullptr );
+    REQUIRE( !data->isNull() );
+    REQUIRE( data->type().name() == typeid(double).name() );
+
+    auto arr = dynamic_cast<uda::Array*>(data);
+
+    REQUIRE( arr != nullptr );
+    REQUIRE( !arr->isNull() );
+
+    REQUIRE( arr->size() == 1024 );
+    REQUIRE( arr->type().name() == typeid(double).name() );
+    REQUIRE( arr->as<double>()[0] == Approx(-0.0025273885) );
+}
+
 /*
  * imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/#/field/time', type=double, rank=1, shot=84600, )
  */
@@ -816,7 +878,109 @@ TEST_CASE( "Test flux_loop flux", "[IMAS][JET][FLUX]" )
 
     REQUIRE( arr->size() == 1024 );
     REQUIRE( arr->type().name() == typeid(float).name() );
-    REQUIRE( arr->as<float>()[0] == Approx(0.2953f) );
+    REQUIRE( arr->as<float>()[0] == Approx(0.00089f) );
+}
+
+TEST_CASE( "Test flux_loop flux error upper", "[IMAS][JET][FLUX]" )
+{
+#ifdef FATCLIENT
+#  include "setup.inc"
+#endif
+
+    setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", MAPPINGS_DIR, 1);
+
+    uda::Client client;
+
+    const uda::Result& result_1 = client.get("imas::get(idx=0, group='magnetics', variable='flux_loop/1/flux/data_error_upper', expName='JET', type=float, rank=1, shot=" SHOT_NUM ", )", "");
+
+    REQUIRE( result_1.errorCode() == 0 );
+    REQUIRE( result_1.errorMessage().empty() );
+
+    uda::Data* data = result_1.data();
+
+    REQUIRE( data != nullptr );
+    REQUIRE( !data->isNull() );
+    REQUIRE( data->type().name() == typeid(float).name() );
+
+    auto arr = dynamic_cast<uda::Array*>(data);
+
+    REQUIRE( arr != nullptr );
+    REQUIRE( !arr->isNull() );
+
+    REQUIRE( arr->size() == 1024 );
+    REQUIRE( arr->type().name() == typeid(float).name() );
+    REQUIRE( arr->as<float>()[0] == Approx(0.00079f) );
+
+    const uda::Result& result_36 = client.get("imas::get(idx=0, group='magnetics', variable='flux_loop/36/flux/data_error_upper', expName='JET', type=float, rank=1, shot=" SHOT_NUM ", )", "");
+
+    REQUIRE( result_36.errorCode() == 0 );
+    REQUIRE( result_36.errorMessage().empty() );
+
+    data = result_36.data();
+
+    REQUIRE( data != nullptr );
+    REQUIRE( !data->isNull() );
+    REQUIRE( data->type().name() == typeid(float).name() );
+
+    arr = dynamic_cast<uda::Array*>(data);
+
+    REQUIRE( arr != nullptr );
+    REQUIRE( !arr->isNull() );
+
+    REQUIRE( arr->size() == 1024 );
+    REQUIRE( arr->type().name() == typeid(float).name() );
+    REQUIRE( arr->as<float>()[0] == Approx(0.00509f) );
+}
+
+TEST_CASE( "Test flux_loop flux error lower", "[IMAS][JET][FLUX]" )
+{
+#ifdef FATCLIENT
+#  include "setup.inc"
+#endif
+
+    setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", MAPPINGS_DIR, 1);
+
+    uda::Client client;
+
+    const uda::Result& result_1 = client.get("imas::get(idx=0, group='magnetics', variable='flux_loop/1/flux/data_error_lower', expName='JET', type=float, rank=1, shot=" SHOT_NUM ", )", "");
+
+    REQUIRE( result_1.errorCode() == 0 );
+    REQUIRE( result_1.errorMessage().empty() );
+
+    uda::Data* data = result_1.data();
+
+    REQUIRE( data != nullptr );
+    REQUIRE( !data->isNull() );
+    REQUIRE( data->type().name() == typeid(float).name() );
+
+    auto arr = dynamic_cast<uda::Array*>(data);
+
+    REQUIRE( arr != nullptr );
+    REQUIRE( !arr->isNull() );
+
+    REQUIRE( arr->size() == 1024 );
+    REQUIRE( arr->type().name() == typeid(float).name() );
+    REQUIRE( arr->as<float>()[0] == Approx(-0.00021f) );
+
+    const uda::Result& result_36 = client.get("imas::get(idx=0, group='magnetics', variable='flux_loop/36/flux/data_error_lower', expName='JET', type=float, rank=1, shot=" SHOT_NUM ", )", "");
+
+    REQUIRE( result_36.errorCode() == 0 );
+    REQUIRE( result_36.errorMessage().empty() );
+
+    data = result_36.data();
+
+    REQUIRE( data != nullptr );
+    REQUIRE( !data->isNull() );
+    REQUIRE( data->type().name() == typeid(float).name() );
+
+    arr = dynamic_cast<uda::Array*>(data);
+
+    REQUIRE( arr != nullptr );
+    REQUIRE( !arr->isNull() );
+
+    REQUIRE( arr->size() == 1024 );
+    REQUIRE( arr->type().name() == typeid(float).name() );
+    REQUIRE( arr->as<float>()[0] == Approx(-0.00331f) );
 }
 
 //TEST_CASE( "Test flux_loop flux errors", "[IMAS][JET][BPOL]" )

@@ -70,7 +70,7 @@ TEST_CASE( "Test tf coil conductor count", "[IMAS][JET][TF]" )
     REQUIRE( val->as<int>() == 0 );
 }
 
-TEST_CASE( "Test tf coil conductor turns", "[IMAS][JET][TF]" )
+TEST_CASE( "Test tf coil turns", "[IMAS][JET][TF]" )
 {
 #ifdef FATCLIENT
 #  include "setup.inc"
@@ -127,6 +127,78 @@ TEST_CASE( "Test tf vacuum field", "[IMAS][JET][TF]" )
     REQUIRE( !arr->isNull() );
 
     std::vector<double> expected = { -0.0006830642, -0.0003118947, -0.0000411735, -0.0001789987, -0.000205223 };
+
+    REQUIRE( arr->type().name() == typeid(double).name() );
+
+    auto vals = arr->as<double>();
+    vals.resize(5);
+
+    REQUIRE( vals == ApproxVector(expected) );
+}
+
+TEST_CASE( "Test tf vacuum field error upper", "[IMAS][JET][TF]" )
+{
+#ifdef FATCLIENT
+#  include "setup.inc"
+#endif
+
+    setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", MAPPINGS_DIR, 1);
+
+    uda::Client client;
+
+    const uda::Result& result = client.get("imas::get(idx=0, group='tf', variable='b_field_tor_vacuum_r/data_error_upper', expName='JET', type=double, rank=1, shot=" SHOT_NUM ", )", "");
+
+    REQUIRE( result.errorCode() == 0 );
+    REQUIRE( result.errorMessage().empty() );
+
+    uda::Data* data = result.data();
+
+    REQUIRE( data != nullptr );
+    REQUIRE( !data->isNull() );
+    REQUIRE( data->type().name() == typeid(double).name() );
+
+    auto arr = dynamic_cast<uda::Array*>(data);
+
+    REQUIRE( arr != nullptr );
+    REQUIRE( !arr->isNull() );
+
+    std::vector<double> expected = { 0.0093169361, 0.0096881054, 0.009958826, 0.0098210014, 0.0097947773 };
+
+    REQUIRE( arr->type().name() == typeid(double).name() );
+
+    auto vals = arr->as<double>();
+    vals.resize(5);
+
+    REQUIRE( vals == ApproxVector(expected) );
+}
+
+TEST_CASE( "Test tf vacuum field error lower", "[IMAS][JET][TF]" )
+{
+#ifdef FATCLIENT
+#  include "setup.inc"
+#endif
+
+    setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", MAPPINGS_DIR, 1);
+
+    uda::Client client;
+
+    const uda::Result& result = client.get("imas::get(idx=0, group='tf', variable='b_field_tor_vacuum_r/data_error_lower', expName='JET', type=double, rank=1, shot=" SHOT_NUM ", )", "");
+
+    REQUIRE( result.errorCode() == 0 );
+    REQUIRE( result.errorMessage().empty() );
+
+    uda::Data* data = result.data();
+
+    REQUIRE( data != nullptr );
+    REQUIRE( !data->isNull() );
+    REQUIRE( data->type().name() == typeid(double).name() );
+
+    auto arr = dynamic_cast<uda::Array*>(data);
+
+    REQUIRE( arr != nullptr );
+    REQUIRE( !arr->isNull() );
+
+    std::vector<double> expected = { -0.0106830643, -0.0103118951, -0.0100411735, -0.010178999, -0.0102052232 };
 
     REQUIRE( arr->type().name() == typeid(double).name() );
 

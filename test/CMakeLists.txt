@@ -47,7 +47,7 @@ add_subdirectory( imas )
 add_definitions( -D__USE_XOPEN2K8 )
 
 foreach( TEST ${TESTS} )
-  add_executable( ${TEST} ${TEST}.cpp )
+  add_executable( ${TEST} test_helpers.h ${TEST}.cpp )
   target_link_libraries( ${TEST} PRIVATE
     ${Boost_LIBRARIES}
     ${PROJECT_NAME}_cpp
@@ -58,7 +58,7 @@ foreach( TEST ${TESTS} )
     )
   link_modules( ${TEST} )
 
-  add_executable( fat_${TEST} ${TEST}.cpp )
+  add_executable( fat_${TEST} test_helpers.h ${TEST}.cpp )
   target_link_libraries( fat_${TEST} PRIVATE
     ${Boost_LIBRARIES}
     fat${PROJECT_NAME}_cpp

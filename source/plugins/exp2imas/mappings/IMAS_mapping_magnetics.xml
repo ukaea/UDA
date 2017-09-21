@@ -21,8 +21,8 @@
   <mapping key="magnetics/flux_loop/#/position/#/phi_error_lower" value="0" type="constant"/>
   <mapping key="magnetics/flux_loop/#/flux/data" value="//magdiag/flux_loops/measure/value/name" type="dynamic"/>
   <mapping key="magnetics/flux_loop/#/flux/data_error_index" value="0" type="constant"/>
-  <!--<mapping key="magnetics/flux_loop/#/flux/data_error_upper" value="//magdiag/flux_loops/measure/*[substring(name(), string-length(name())-4) = 'error']/name" type="static"/>-->
-  <!--<mapping key="magnetics/flux_loop/#/flux/data_error_lower" value="//magdiag/flux_loops/measure/*[substring(name(), string-length(name())-4) = 'error']/name" type="static"/>-->
+  <mapping key="magnetics/flux_loop/#/flux/data_error_upper" value="//magdiag/flux_loops/measure/value/name" type="error"/>
+  <mapping key="magnetics/flux_loop/#/flux/data_error_lower" value="//magdiag/flux_loops/measure/value/name" type="error"/>
   <mapping key="magnetics/flux_loop/#/flux/time" value="//magdiag/flux_loops/measure/value/name" type="dynamic"/>
 
   <mapping key="magnetics/bpol_probe/Shape_of" value="//magdiag/bpol_probes/setup_bprobe/name/@dim" type="static"/>
@@ -46,6 +46,9 @@
   <mapping key="magnetics/bpol_probe/#/length" value="//magdiag/bpol_probes/setup_bprobe/length" type="static"/>
   <mapping key="magnetics/bpol_probe/#/turns" value="//magdiag/bpol_probes/setup_bprobe/turns" type="static"/>
   <mapping key="magnetics/bpol_probe/#/field/data" value="//magdiag/bpol_probes/measure/value/name" type="dynamic"/>
+  <mapping key="magnetics/bpol_probe/#/field/data_error_index" value="0" type="constant"/>
+  <mapping key="magnetics/bpol_probe/#/field/data_error_upper" value="//magdiag/bpol_probes/measure/value/name" type="error"/>
+  <mapping key="magnetics/bpol_probe/#/field/data_error_lower" value="//magdiag/bpol_probes/measure/value/name" type="error"/>
   <mapping key="magnetics/bpol_probe/#/field/time" value="//magdiag/bpol_probes/measure/value/name" type="dynamic"/>
 
   <mapping key="magnetics/method/Shape_of" value="//magdiag/method/@dim" type="static"/>
