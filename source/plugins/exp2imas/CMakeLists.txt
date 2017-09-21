@@ -28,11 +28,3 @@ uda_plugin(
     ${LIBXML2_LIBRARIES}
     ${MDSPLUS_LIBRARIES}
 )
-
-add_executable(
-  test
-  test.c
-  exp2imas_mds.c
-)
-
-target_link_libraries( test ${MDSPLUS_LIBRARIES} )
