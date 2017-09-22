@@ -24,8 +24,21 @@ public:
     const std::string errorMessage() const;
     int errorCode() const;
 
+    /**
+     * Return the recieved data object, this will be a subclass of Data, i.e. one of @code{String}, @code{Array},
+     * @code{Scalar}, etc.
+     *
+     * @return the data object
+     */
     Data* data() const;
 
+    /**
+     * Return whether the recieved data has associated error values.
+     *
+     * If true then @code{errors()} will return the error values.
+     *
+     * @return true if the data has associated errors
+     */
     bool hasErrors() const;
 
     Data* errors() const;
@@ -52,6 +65,10 @@ public:
     { return meta_; }
 
     Dim dim(dim_type ndim, DataType data_type) const;
+
+    bool hasTimeDim() const;
+
+    Dim timeDim(DataType data_type) const;
 
     bool isTree() const
     { return istree_; }

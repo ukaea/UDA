@@ -30,9 +30,6 @@ set( SRC_FILES
   userid.c
   xdrlib.c
   readXDRFile.c
-  xdrHData.c
-  allocXMLData.c
-  initXMLStructs.c
   expand_path.c
   stringUtils.c
   parseOperation.c
@@ -40,6 +37,12 @@ set( SRC_FILES
   copyStructs.c
   udaTypes.c
 #  utils.c
+)
+
+set( HIERARCHICAL_SRC_FILES
+  allocXMLData.c
+  xdrHData.c
+  initXMLStructs.c
 )
 
 set( HEADER_FILES

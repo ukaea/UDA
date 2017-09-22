@@ -26,7 +26,7 @@ public:
     size_t numChildren();
     std::vector<uda::TreeNode> children();
     uda::TreeNode child(int num);
-    void print();
+    void printNode();
     void printStructureNames();
     void printUserDefinedTypeTable();
     void printUserDefinedTypeTable(const std::string& name);

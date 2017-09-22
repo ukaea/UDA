@@ -104,16 +104,30 @@ static uda::Dim getDim(int handle, uda::dim_type num, uda::Result::DataType data
     if (data_type == uda::Result::DataType::DATA) {
         std::string label = getIdamDimLabel(handle, num);
         std::string units = getIdamDimUnits(handle, num);
-        int size = getIdamDimNum(handle, num);
-        T* data = reinterpret_cast<T*>(getIdamDimData(handle, num));
+        auto size = static_cast<size_t>(getIdamDimNum(handle, num));
+        auto data = reinterpret_cast<T*>(getIdamDimData(handle, num));
         return uda::Dim(num, data, size, label, units);
     }
 
     std::string label = getIdamDimLabel(handle, num);
     std::string units = getIdamDimUnits(handle, num);
-    int size = getIdamDimNum(handle, num);
-    T* data = reinterpret_cast<T*>(getIdamDimError(handle, num));
+    auto size = static_cast<size_t>(getIdamDimNum(handle, num));
+    auto data = reinterpret_cast<T*>(getIdamDimError(handle, num));
     return uda::Dim(num, data, size, label + " error", units);
+}
+
+bool uda::Result::hasTimeDim() const
+{
+    return getIdamOrder(handle_) >= 0;
+}
+
+uda::Dim uda::Result::timeDim(DataType data_type) const
+{
+    auto order = getIdamOrder(handle_);
+    if (order >= 0) {
+        return dim(static_cast<dim_type>(order), data_type);
+    }
+    return Dim::Null;
 }
 
 uda::Dim uda::Result::dim(uda::dim_type num, DataType data_type) const

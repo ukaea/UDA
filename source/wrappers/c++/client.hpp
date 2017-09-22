@@ -1,9 +1,5 @@
-//
-// Created by jholloc on 08/03/16.
-//
-
-#ifndef IDAM_CLIENT_H
-#define IDAM_CLIENT_H
+#ifndef UDA_WRAPPERS_CPP_CLIENT_H
+#define UDA_WRAPPERS_CPP_CLIENT_H
 
 #include <string>
 #include <vector>
@@ -26,9 +22,13 @@ public:
     {}
 
     UDAException(const UDAException& ex) noexcept : what_(ex.what_) {}
+
+#ifdef SWIG_VERSION
     UDAException(UDAException&& ex) noexcept : what_(std::move(ex.what_)) {}
     UDAException& operator=(const UDAException& ex) noexcept { what_ = ex.what_; return *this; }
     UDAException& operator=(UDAException&& ex) noexcept { what_ = ex.what_; ex.what_.clear(); return *this; }
+#endif
+
     ~UDAException() noexcept override = default;
 
     const char* what() const noexcept override
@@ -104,4 +104,4 @@ private:
 
 }
 
-#endif //IDAM_CLIENT_H
+#endif // UDA_WRAPPERS_CPP_CLIENT_H

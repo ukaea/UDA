@@ -35,7 +35,7 @@ uda::TreeNode uda::TreeNode::child(int num)
     return TreeNode(handle_, getNodeChild(node_, num));
 }
 
-void uda::TreeNode::print()
+void uda::TreeNode::printNode()
 {
     printNode(node_);
 }

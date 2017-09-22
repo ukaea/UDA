@@ -58,6 +58,7 @@ class Signal(Data):
         self._cresult = cresult
         self._data = None
         self._dims = None
+        self._time = None
         self._meta = None
         self._label = None
         self._units = None
@@ -121,6 +122,12 @@ class Signal(Data):
         return self._dims
 
     @property
+    def time(self):
+        if self._time is None and self._cresult is not None and self._cresult.hasTimeDim():
+            self._import_time()
+        return self._time
+
+    @property
     def meta(self):
         if self._meta is None and self._cresult is not None:
             self._meta = {}
@@ -136,6 +143,9 @@ class Signal(Data):
 
     def _import_dim(self, num):
         self._dims.append(Dim(self._cresult.dim(num, self._cresult.DATA)))
+
+    def _import_time(self):
+        self._time = Dim(self._cresult.timeDim(self._cresult.DATA))
 
     def plot(self):
         import matplotlib.pyplot as plt
