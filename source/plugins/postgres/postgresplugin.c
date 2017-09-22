@@ -693,7 +693,6 @@ Parameters passed to the plugin as name-value pairs (type, source_alias or sourc
                    "\tobjectClass: the name of the data's measurement class, e.g. magnetics\n"
                    "\tsourceClass: the name of the data's source class, e.g. imas\n"
                    "\ttype: the data type classsification, e.g. P for Plugin\n\n"
-
                    "\tobjectName is a mandatory argument. One or both of exp_number and ObjectSource is also mandatory unless passed via the client API's second argument.\n\n\n");
 				 
 	 initDataBlock(data_block);

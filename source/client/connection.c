@@ -6,6 +6,7 @@
 
 #include <netdb.h>
 #include <string.h>
+#include <strings.h>
 #include <stdlib.h>
 #include <errno.h>
 #include <netinet/tcp.h>
@@ -116,7 +117,7 @@ int createConnection()
     }
     
 #if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
-    putUdaSSLSocket(clientSocket);    
+    putUdaClientSSLSocket(clientSocket);    
 #endif
 
 #ifdef _WIN32                            // Initialise WINSOCK Once only
@@ -148,10 +149,23 @@ int createConnection()
     server.sin_family = AF_INET;
     hostname = environment->server_host;
 
+// Does the host name contain the SSL protocol prefix?
+
+    int hostname_offset = 0;
+    
+#if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)    
+    if(!strncasecmp(hostname, "SSL://", 6)){
+       hostname_offset = 6;
+       putUdaClientSSLProtocol(1); 
+    } else {
+       putUdaClientSSLProtocol(0);
+    }      
+#endif        
+
 // Resolve host
 
     errno = 0;
-    host = gethostbyname(hostname);
+    host = gethostbyname(&hostname[hostname_offset]);
     serrno = errno;
 
     if (host == NULL || serrno != 0) {
@@ -189,10 +203,10 @@ int createConnection()
         int i, ps;
         float delay;
         ps = getpid();
-        srand((unsigned int) ps);                        // Seed the random number generator with the process id
-        delay = MAX_SOCKET_DELAY * ((float) rand() / (float) RAND_MAX);        // random delay
-        sleep(delay);                            // wait period
-        for (i = 0; i < MAX_SOCKET_ATTEMPTS; i++) {                // try again
+        srand((unsigned int) ps);                        			// Seed the random number generator with the process id
+        delay = MAX_SOCKET_DELAY * ((float) rand() / (float) RAND_MAX);		// random delay
+        sleep(delay);                            				// wait period
+        for (i = 0; i < MAX_SOCKET_ATTEMPTS; i++) {                		// try again
             errno = 0;
             while ((rc = connect(clientSocket, (struct sockaddr*) &server, sizeof(server))) && errno == EINTR) {}
             serrno = errno;
@@ -203,11 +217,20 @@ int createConnection()
             sleep(delay);
         }
 
-        if (rc < 0 && strcmp(environment->server_host, environment->server_host2) !=
-                      0) {        // Abandon principal Host - attempt secondary host
+        if (rc < 0 && strcmp(environment->server_host, environment->server_host2) != 0) {        // Abandon principal Host - attempt secondary host
             hostname = environment->server_host2;
-            errno = 0;
-            host = gethostbyname(hostname);
+            
+#if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)    
+            if(!strncasecmp(hostname, "SSL://", 6)){
+               hostname_offset = 6;
+               putUdaClientSSLProtocol(1); 
+            } else {
+               putUdaClientSSLProtocol(0);
+            }      
+#endif  	    
+	    
+	    errno = 0;
+            host = gethostbyname(&hostname[hostname_offset]);
             if (host == NULL || errno != 0) {
                 if (errno != 0) {
                     addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "idamCreateConnection", errno, "");
@@ -292,7 +315,7 @@ int createConnection()
 // Write the socket number to the SSL functions
 	
 #if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
-    putUdaSSLSocket(clientSocket);    
+    putUdaClientSSLSocket(clientSocket);    
 #endif    
 
     return 0;

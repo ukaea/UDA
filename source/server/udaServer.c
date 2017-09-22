@@ -921,7 +921,7 @@ int doServerClosedown(CLIENT_BLOCK* client_block, REQUEST_BLOCK* request_block, 
     // Close the SSL binding and context
 
 #if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
-    closeUdaSSL();
+    closeUdaServerSSL();
 #endif    
 
     //----------------------------------------------------------------------------
@@ -1098,7 +1098,7 @@ int startupServer(SERVER_BLOCK* server_block)
     // Create the SSL binding (on socket #0), the SSL context, and verify the client certificate
     // Identify the authenticated user for service authorisation
 	
-    putUdaSSLSocket(0);
+    putUdaServerSSLSocket(0);
     
     if((err = startUdaServerSSL()) != 0) return err;	
 	

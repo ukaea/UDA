@@ -191,7 +191,8 @@ static int do_maxinterfaceversion(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // SOURCE::get(signal=signal, format=[ppf|jpf|mast|mds] [,source=source] [,shotNumber=shotNumber] [,pass=pass] [,owner=owner] 
 //             [,datascaling=datascaling] [,timescaling=timescaling]
-//             [,/data] [,/time] [,/NoCacheData] [,/NoCacheTime])
+//             [,/data] [,/time] [,/NoCacheData] [,/NoCacheTime]
+//             [,host=host] [,port=port])
 
 // keywords:	/data	return the data only
 //		/time	return the time only
@@ -221,10 +222,10 @@ static int do_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, int *timeCountCa
 	 char api_source[STRING_LENGTH];
 
          double dataScaling=1.0, timeScaling=1.0;
-	 int shotNumber=0, runNumber=-1;
-	 char *signal=NULL, *source=NULL, *owner=NULL, *format=NULL, *server=NULL;
+	 int shotNumber=0, runNumber=-1, port=0;
+	 char *signal=NULL, *source=NULL, *owner=NULL, *format=NULL, *host=NULL;
 	 	 
-	 bool isSignal=0, isShotNumber=0, isRunNumber=0, isSource=0, isFormat=0, isOwner=0, isServer=0, 
+	 bool isSignal=0, isShotNumber=0, isRunNumber=0, isSource=0, isFormat=0, isOwner=0, isHost=0, isPort, 
 	      isData=0, isTime=0, isNoCacheTime=0, isDataScaling=0, isTimeScaling=0;
 	 
 	 isData = findValue(&idam_plugin_interface->request_block->nameValueList, "data");   // Only return the data - ignore the coordinates (so do nothing as already in the DATA_BLOCK)
@@ -279,7 +280,19 @@ static int do_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, int *timeCountCa
 	       isTimeScaling = 1;
                timeScaling = atof(request_block->nameValueList.nameValue[i].value);
 	       continue;
-	    }  
+	    } 
+	    	    
+	    if(!strcasecmp(request_block->nameValueList.nameValue[i].name, "host")){
+	       isHost = 1;
+	       host = request_block->nameValueList.nameValue[i].value;	
+	       continue;
+	    }
+	    if(!strcasecmp(request_block->nameValueList.nameValue[i].name, "port")){
+	       isPort = 1;
+	       port = atoi(request_block->nameValueList.nameValue[i].value);	
+	       continue;
+	    }
+ 
 	 }
 	      
          if(!isSignal){
@@ -374,22 +387,22 @@ IDAM_LOGF(UDA_LOG_DEBUG, "SOURCE:source #MAST = %s\n", next_request_block.source
 	  
          if(isFormat && (!strcasecmp(format, "mds") || !strcasecmp(format, "mdsplus") || !strcasecmp(format, "mds+"))){	     // MDS+ source naming pattern
     	    
-	    if(!isServer){
-               THROW_ERROR(999, "source: No MDSPLUS data server has been specified!");
+	    if(!isHost){
+               THROW_ERROR(999, "source: No MDSPLUS data server hostname has been specified!");
             }
             
 	    env = getenv("UDA_MDSPLUS_ALIAS");
 	    
 	    if(isSource){	// TDI function or tree?
 	       if(env == NULL)
-	          sprintf(next_request_block.source, "MDSPLUS%s%s/%s/%d", request_block->api_delim, server, source, shotNumber);
+	          sprintf(next_request_block.source, "MDSPLUS%s%s/%s/%d", request_block->api_delim, host, source, shotNumber);
 	       else
-	          sprintf(next_request_block.source, "%s%s%s/%s/%d", env, request_block->api_delim, server, source, shotNumber);
+	          sprintf(next_request_block.source, "%s%s%s/%s/%d", env, request_block->api_delim, host, source, shotNumber);
             } else {	       
 	       if(env == NULL)
-	          sprintf(next_request_block.source, "MDSPLUS%s%s", request_block->api_delim, server);
+	          sprintf(next_request_block.source, "MDSPLUS%s%s", request_block->api_delim, host);
 	       else
-	          sprintf(next_request_block.source, "%s%s%s", env, request_block->api_delim, server);
+	          sprintf(next_request_block.source, "%s%s%s", env, request_block->api_delim, host);
 	       char *p=NULL;
 	       if((p=strstr(next_request_block.signal, "$pulseNumber")) != NULL){
 	          p[0] = '\0';
@@ -404,10 +417,31 @@ IDAM_LOGF(UDA_LOG_DEBUG, "SOURCE:source #MAST = %s\n", next_request_block.source
 
          env = getenv("UDA_UDA_PLUGIN");
 
-	 if(env != NULL)
-	    sprintf(work, "%s::get(host=%s, port=%d, signal=\"%s\", source=\"%s\")", env, getIdamServerHost(), getIdamServerPort(), next_request_block.signal, next_request_block.source);
-         else
-	    sprintf(work, "UDA::get(host=%s, port=%d, signal=\"%s\", source=\"%s\")", getIdamServerHost(), getIdamServerPort(), next_request_block.signal, next_request_block.source);
+	 if(env != NULL){
+	    if(isHost){
+	      if(isPort) 
+	         sprintf(work, "%s::get(host=%s, port=%d, signal=\"%s\", source=\"%s\")", env, host, port, next_request_block.signal, next_request_block.source);
+	      else
+	         sprintf(work, "%s::get(host=%s, port=%d, signal=\"%s\", source=\"%s\")", env, host, getIdamServerPort(), next_request_block.signal, next_request_block.source);
+	    } else {
+	      if(isPort)
+	         sprintf(work, "%s::get(host=%s, port=%d, signal=\"%s\", source=\"%s\")", env, getIdamServerHost(), port, next_request_block.signal, next_request_block.source); 
+	      else
+	         sprintf(work, "%s::get(host=%s, port=%d, signal=\"%s\", source=\"%s\")", env, getIdamServerHost(), getIdamServerPort(), next_request_block.signal, next_request_block.source);
+	    }  	      
+         } else{
+	    if(isHost){
+	      if(isPort) 
+	         sprintf(work, "UDA::get(host=%s, port=%d, signal=\"%s\", source=\"%s\")", host, port, next_request_block.signal, next_request_block.source);
+	      else
+	         sprintf(work, "UDA::get(host=%s, port=%d, signal=\"%s\", source=\"%s\")", host, getIdamServerPort(), next_request_block.signal, next_request_block.source);
+	    } else {
+	      if(isPort)
+	         sprintf(work, "UDA::get(host=%s, port=%d, signal=\"%s\", source=\"%s\")", getIdamServerHost(), port, next_request_block.signal, next_request_block.source); 
+	      else
+	         sprintf(work, "UDA::get(host=%s, port=%d, signal=\"%s\", source=\"%s\")", getIdamServerHost(), getIdamServerPort(), next_request_block.signal, next_request_block.source);
+	    }  	      
+ 	 }
 
 	 next_request_block.source[0] = '\0';
 	 strcpy(next_request_block.signal, work);  

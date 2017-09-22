@@ -16,31 +16,50 @@
 #define VERIFY_DEPTH	4
 #define X509STRINGSIZE	256
 
-void putUdaSSL(SSL *s);
-SSL *getUdaSSL();
-void putUdaSSLCTX(SSL_CTX *c);
-SSL_CTX *getUdaSSLCTX();
-void putUdaSSLSocket(int s);
-int getUdaSSLSocket();
-void getUdaSSLErrorCode(int rc);
-void initUdaSSL();
-void cleanupUdaSSL();
-void closeUdaSSL();
-
 #ifdef SERVERBUILD
+
+void putUdaServerSSL(SSL *s);
+SSL *getUdaServerSSL();
+void putUdaServerSSLCTX(SSL_CTX *c);
+SSL_CTX *getUdaServerSSLCTX();
+void putUdaServerSSLSocket(int s);
+int getUdaServerSSLSocket();
+void getUdaServerSSLErrorCode(int rc);
+void initUdaServerSSL();
+void closeUdaServerSSL();
+void putUdaServerSSLDisabled(int disabled);
+int getUdaServerSSLDisabled();
 SSL_CTX *createUdaServerSSLContext();
 int configureUdaServerSSLContext();
 X509_CRL *loadUdaServerSSLCrl(char *crlist);
-int addUdaSSLCrlsStore(X509_STORE *st, STACK_OF(X509_CRL) *crls);
+int addUdaServerSSLCrlsStore(X509_STORE *st, STACK_OF(X509_CRL) *crls);
 int startUdaServerSSL();
 int readUdaServerSSL(void* iohandle, char* buf, int count);
 int writeUdaServerSSL(void* iohandle, char* buf, int count);
+
 #else
+
+void putUdaClientSSL(SSL *s);
+SSL *getUdaClientSSL();
+void putUdaClientSSLCTX(SSL_CTX *c);
+SSL_CTX *getUdaClientSSLCTX();
+void putUdaClientSSLSocket(int s);
+int getUdaClientSSLSocket();
+void getUdaClientSSLErrorCode(int rc);
+void initUdaClientSSL();
+void closeUdaClientSSL();
+void putUdaClientSSLDisabled(int disabled);
+int getUdaClientSSLDisabled();
+void putUdaClientSSLOK(int ok);
+int getUdaClientSSLOK();
+void putUdaClientSSLProtocol(int specified);
+int getUdaClientSSLProtocol();
 SSL_CTX *createUdaClientSSLContext();
 int configureUdaClientSSLContext();
 int startUdaClientSSL();
 int readUdaClientSSL(void* iohandle, char* buf, int count);
 int writeUdaClientSSL(void* iohandle, char* buf, int count);
+
 #endif
 
 #endif // SSLAUTHENTICATION

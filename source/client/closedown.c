@@ -70,7 +70,7 @@ int idamClosedown(int type, SOCKETLIST* socket_list)
     // Close the SSL binding and context
 
 #if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
-    closeUdaSSL();
+    closeUdaClientSSL();
 #endif
 
     return rc;
