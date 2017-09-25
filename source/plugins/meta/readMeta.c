@@ -92,7 +92,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     void* structData = NULL;
 
     const char* signal_match = NULL;
-    const char* desc_match = NULL;
+    const char* description = NULL;
 
 //----------------------------------------------------------------------------------------
 // Standard v1 Plugin Interface
@@ -340,7 +340,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         }
         if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "description")) {
             descDependent = i;
-	    FIND_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, desc_match);
+	    FIND_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, description);
             continue;
         }
         if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "signal_match")) {
@@ -2098,7 +2098,6 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             strcpy(work, sql);
 
 	    // Signal match string
-	    IDAM_LOG(UDA_LOG_ERROR, "ERROR Meta: Escape signal_match!\n");
 	    char* signal_match_escaped = NULL;
 	    if (signalMatchDependent >= 0) {
 	      signal_match_escaped = (char*)malloc((2 * strlen(signal_match) + 1) * sizeof(char));
@@ -2109,13 +2108,12 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 	    // Desc match string
 	    char* desc_match_escaped = NULL;
 	    if (descDependent >= 0) {
-	      desc_match_escaped = (char*)malloc((2 * strlen(desc_match) + 1) * sizeof(char));
+	      desc_match_escaped = (char*)malloc((2 * strlen(description) + 1) * sizeof(char));
 	      int err_inj = 0;
-	      PQescapeStringConn(DBConnect, desc_match_escaped, desc_match, strlen(desc_match), &err_inj);
+	      PQescapeStringConn(DBConnect, desc_match_escaped, description, strlen(description), &err_inj);
 	    }
 
 // *** status ***
-
             if (exp_number > 0) {
                 if (pass > -1) {
                     sprintf(sql,
@@ -2193,7 +2191,6 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             }
 
 // Execute the SQL
-
             if ((DBQuery = PQexec(DBConnect, sql)) == NULL) {
                 err = 999;
                 IDAM_LOG(UDA_LOG_ERROR, "ERROR DATA::listData: Database Query Failed!\n");
@@ -2457,8 +2454,12 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             PQclear(DBQuery);
 
-	    free(signal_match_escaped);
-	    free(desc_match_escaped);
+	    if (signalMatchDependent >= 0) {
+	      free(signal_match_escaped);
+	    }
+	    if (descDependent >= 0) {
+	      free(desc_match_escaped);
+	    }
 
 // Pass Data
 
@@ -2977,9 +2978,9 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 	    // Desc match string
 	    char* desc_match_escaped = NULL;
 	    if (descDependent >= 0) {
-	      desc_match_escaped = (char*)malloc((2 * strlen(desc_match) + 1) * sizeof(char));
+	      desc_match_escaped = (char*)malloc((2 * strlen(description) + 1) * sizeof(char));
 	      int err_inj = 0;
-	      PQescapeStringConn(DBConnect, desc_match_escaped, desc_match, strlen(desc_match), &err_inj);
+	      PQescapeStringConn(DBConnect, desc_match_escaped, description, strlen(description), &err_inj);
 	    }
 
             work[0] = '\0';
