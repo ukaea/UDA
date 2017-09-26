@@ -1,6 +1,6 @@
 #if 0
 #!/bin/bash
-g++ test_pf_passive.cpp -g -O0 -gdwarf-3 -o test -DHOME=$HOME -I$HOME/iter/uda/source -I$HOME/iter/uda/source/wrappers \
+g++ test_pf_passive.cpp -g -std=c++11 -O0 -gdwarf-3 -o test -DHOME=$HOME -I$HOME/iter/uda/source -I$HOME/iter/uda/source/wrappers \
 -L$HOME/iter/uda/lib -Wl,-rpath,$HOME/iter/uda/lib  -luda_cpp -lssl -lcrypto -lxml2
 exit 0
 #endif
@@ -35,7 +35,7 @@ int main() {
 
 	uda::Client client;
 
-	const uda::Result& passive_name = client.get("imas::get(idx=0, group='pf_passive', variable='loop/1/name', expName='WEST', type=string, rank=1, shot=" SHOT_NUM ", )", "");
+	const uda::Result& passive_name = client.get("imas::get(idx=0, group='pf_passive', variable='loop/1/name', expName='WEST', type=string, rank=0, shot=" SHOT_NUM ", )", "");
 	const uda::Data * passive_name_data = passive_name.data();
 	const uda::String* s_passive_name_data = dynamic_cast<const uda::String*>(passive_name_data);
 
@@ -43,7 +43,7 @@ int main() {
 	std::cout << s_passive_name_data->str();
 	std::cout << std::endl;
 
-	const uda::Result& passive_name2 = client.get("imas::get(idx=0, group='pf_passive', variable='loop/2/name', expName='WEST', type=string, rank=1, shot=" SHOT_NUM ", )", "");
+	const uda::Result& passive_name2 = client.get("imas::get(idx=0, group='pf_passive', variable='loop/2/name', expName='WEST', type=string, rank=0, shot=" SHOT_NUM ", )", "");
 	const uda::Data * passive_name_data2 = passive_name2.data();
 	const uda::String* s_passive_name_data2 = dynamic_cast<const uda::String*>(passive_name_data2);
 
@@ -51,7 +51,7 @@ int main() {
 	std::cout << s_passive_name_data2->str();
 	std::cout << std::endl;
 
-	const uda::Result& passive_name11 = client.get("imas::get(idx=0, group='pf_passive', variable='loop/11/name', expName='WEST', type=string, rank=1, shot=" SHOT_NUM ", )", "");
+	const uda::Result& passive_name11 = client.get("imas::get(idx=0, group='pf_passive', variable='loop/11/name', expName='WEST', type=string, rank=0, shot=" SHOT_NUM ", )", "");
 	const uda::Data * passive_name_data11 = passive_name11.data();
 	const uda::String* s_passive_name_data11 = dynamic_cast<const uda::String*>(passive_name_data11);
 
@@ -59,7 +59,7 @@ int main() {
 	std::cout << s_passive_name_data11->str();
 	std::cout << std::endl;
 
-	const uda::Result& passive_name12 = client.get("imas::get(idx=0, group='pf_passive', variable='loop/12/name', expName='WEST', type=string, rank=1, shot=" SHOT_NUM ", )", "");
+	const uda::Result& passive_name12 = client.get("imas::get(idx=0, group='pf_passive', variable='loop/12/name', expName='WEST', type=string, rank=0, shot=" SHOT_NUM ", )", "");
 	const uda::Data * passive_name_data12 = passive_name12.data();
 	const uda::String* s_passive_name_data12 = dynamic_cast<const uda::String*>(passive_name_data12);
 

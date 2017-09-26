@@ -66,7 +66,7 @@ int generateGeom(char* signal, float tor_angle, PGconn* DBConnect, PGresult* DBQ
 
         IDAM_LOGF(UDA_LOG_DEBUG, "Run command %s %s %f\n", cmd, geom_group, tor_angle);
 
-        int ret = execl(cmd, geom_group, tor_angle);
+        int ret = execl(cmd, geom_group, tor_angle,NULL);
 
         IDAM_LOGF(UDA_LOG_DEBUG, "Return code from geometry making code %d\n", ret);
 

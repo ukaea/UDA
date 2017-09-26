@@ -1,6 +1,6 @@
 #if 0
 #!/bin/bash
-g++ test_develop2.cpp -g -O0 -gdwarf-3 -o test -DHOME=$HOME -I$HOME/iter/uda/source -I$HOME/iter/uda/source/wrappers \
+g++ test_develop2.cpp -g  -std=c++11 -O0 -gdwarf-3 -o test -DHOME=$HOME -I$HOME/iter/uda/source -I$HOME/iter/uda/source/wrappers \
 -L$HOME/iter/uda/lib -Wl,-rpath,$HOME/iter/uda/lib  -luda_cpp -lssl -lcrypto -lxml2
 exit 0
 #endif
@@ -34,8 +34,17 @@ int main() {
 	uda::Client::setServerPort(56565);
 
 	uda::Client client;
+	
+	const uda::Result& sigtime = client.get("imas::get(idx=0, group='magnetics', variable='flux_loop/1/flux/time', expName='WEST', type=double, rank=1, shot=" SHOT_NUM ", )", "");
+	const uda::Data * datatime = sigtime.data();
+	const uda::Array* arrtime = dynamic_cast<const uda::Array*>(datatime);
 
-/*
+	std::cout << "first values for flux_loop/1/flux/time : ";
+	for (int j = 0; j < 10; ++j) {
+		std::cout << arrtime->as<double>().at(j) << " ";
+	}
+	std::cout << "..." << std::endl;
+
 	const uda::Result& sigts = client.get("imas::get(idx=0, group='magnetics', variable='flux_loop/1/flux/data', expName='WEST', type=double, rank=1, shot=" SHOT_NUM ", )", "");
 	const uda::Data * datats = sigts.data();
 	const uda::Array* arrts = dynamic_cast<const uda::Array*>(datats);
@@ -46,16 +55,6 @@ int main() {
 	}
 	std::cout << "..." << std::endl;
 
-	const uda::Result& sigtime = client.get("imas::get(idx=0, group='magnetics', variable='flux_loop/1/flux/time', expName='WEST', type=double, rank=1, shot=" SHOT_NUM ", )", "");
-	const uda::Data * datatime = sigtime.data();
-	const uda::Array* arrtime = dynamic_cast<const uda::Array*>(datatime);
-
-	std::cout << "first values for flux_loop/1/flux/time : ";
-	for (int j = 0; j < 10; ++j) {
-		std::cout << arrtime->as<double>().at(j) << " ";
-	}
-	std::cout << "..." << std::endl;
-*/
 	/*const uda::Result& current = client.get("imas::get(idx=0, group='pf_passive', variable='loop/1/current', expName='WEST', type=double, rank=1, shot=" SHOT_NUM ", )", "");
 	const uda::Data * current_data = current.data();
 	const uda::Array* arr_current_data = dynamic_cast<const uda::Array*>(current_data);
@@ -66,25 +65,45 @@ int main() {
 	}
 	std::cout << "..." << std::endl;*/
 
-	/*const uda::Result& sigtime2 = client.get("imas::get(idx=0, group='magnetics', variable='flux_loop/1/flux/time', expName='WEST', type=double, rank=1, shot=" SHOT_NUM ", )", "");
+	const uda::Result& sigtime2 = client.get("imas::get(idx=0, group='magnetics', variable='flux_loop/2/flux/time', expName='WEST', type=double, rank=1, shot=" SHOT_NUM ", )", "");
 	const uda::Data * datatime2 = sigtime2.data();
 	const uda::Array* arrtime2 = dynamic_cast<const uda::Array*>(datatime2);
 
-	std::cout << "first values for flux_loop/1/flux/time : ";
+	std::cout << "first values for flux_loop/2/flux/time : ";
 	for (int j = 0; j < 10; ++j) {
 		std::cout << arrtime2->as<double>().at(j) << " ";
 	}
 	std::cout << "..." << std::endl;
+	
+	const uda::Result& sigts2 = client.get("imas::get(idx=0, group='magnetics', variable='flux_loop/2/flux/data', expName='WEST', type=double, rank=1, shot=" SHOT_NUM ", )", "");
+	const uda::Data * datats2 = sigts2.data();
+	const uda::Array* arrts2 = dynamic_cast<const uda::Array*>(datats2);
 
-	const uda::Result& sigtime3 = client.get("imas::get(idx=0, group='magnetics', variable='flux_loop/1/flux/time', expName='WEST', type=double, rank=1, shot=" SHOT_NUM ", )", "");
+	std::cout << "first values for flux_loop/2/flux/data : ";
+	for (int j = 0; j < 10; ++j) {
+		std::cout << arrts2->as<double>().at(j) << " ";
+	}
+	std::cout << "..." << std::endl;
+
+	const uda::Result& sigtime3 = client.get("imas::get(idx=0, group='magnetics', variable='flux_loop/3/flux/time', expName='WEST', type=double, rank=1, shot=" SHOT_NUM ", )", "");
 	const uda::Data * datatime3 = sigtime3.data();
 	const uda::Array* arrtime3 = dynamic_cast<const uda::Array*>(datatime3);
 
-	std::cout << "first values for flux_loop/1/flux/time : ";
+	std::cout << "first values for flux_loop/3/flux/time : ";
 	for (int j = 0; j < 10; ++j) {
 		std::cout << arrtime3->as<double>().at(j) << " ";
 	}
-	std::cout << "..." << std::endl;*/
+	std::cout << "..." << std::endl;
+	
+	const uda::Result& sigts3 = client.get("imas::get(idx=0, group='magnetics', variable='flux_loop/3/flux/data', expName='WEST', type=double, rank=1, shot=" SHOT_NUM ", )", "");
+	const uda::Data * datats3 = sigts3.data();
+	const uda::Array* arrts3 = dynamic_cast<const uda::Array*>(datats3);
+
+	std::cout << "first values for flux_loop/3/flux/data : ";
+	for (int j = 0; j < 10; ++j) {
+		std::cout << arrts3->as<double>().at(j) << " ";
+	}
+	std::cout << "..." << std::endl;
 
 	const uda::Result& tor_angle = client.get("imas::get(idx=0, group='magnetics', variable='bpol_probe/1/toroidal_angle', expName='WEST', type=float, rank=0, shot=" SHOT_NUM ", )", "");
 	const uda::Scalar* v_tor_angle = dynamic_cast<const uda::Scalar*>(tor_angle.data());
