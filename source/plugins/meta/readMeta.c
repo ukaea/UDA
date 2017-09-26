@@ -2138,9 +2138,10 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 } else {
                     sprintf(sql,
                             "SELECT signal_alias, generic_name, source_alias, type, description, signal_status FROM Signal_Desc as D, "
-                                    "(SELECT DISTINCT signal_desc_id, signal_status from Signal as A, (SELECT source_id FROM Data_Source WHERE "
-                                    "exp_number = %d %s) as B WHERE A.source_id = B.source_id) as C WHERE "
-			    "D.signal_desc_id = C.signal_desc_id ", exp_number, work);
+                                    "(SELECT DISTINCT signal_desc_id, signal_status from Signal as A, "
+			               " (SELECT source_id FROM Data_Source WHERE exp_number = %d %s) "
+                                      " as B WHERE A.source_id = B.source_id) as C "
+                             " WHERE D.signal_desc_id = C.signal_desc_id ", exp_number, work);
 
 		    if (signalMatchDependent >= 0) {
 		      strcat(sql, " AND D.signal_alias ILIKE '%");
@@ -2158,7 +2159,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 }
             } else {
                 if (work[0] == '\0') {
-		  sprintf(sql, "SELECT signal_alias, generic_name, source_alias, type, description FROM Signal_Desc ");
+		  sprintf(sql, "SELECT signal_alias, generic_name, source_alias, type, description FROM Signal_Desc");
 		  if (signalMatchDependent >= 0) {
 		    strcat(sql, " AND signal_alias ILIKE '%");
 		    strcat(sql, signal_match_escaped);
