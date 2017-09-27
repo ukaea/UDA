@@ -9,6 +9,8 @@
 #include <clientserver/errorLog.h>
 #include <clientserver/stringUtils.h>
 #include <clientserver/udaTypes.h>
+#include <plugins/udaPlugin.h>
+#include <structures/struct.h>
 
 #include "west_utilities.h"
 #include "west_dyn_data_utilities.h"
@@ -224,40 +226,25 @@ int I_case_lower_lfs(int shotNumber, float** time, float** data, int* len, float
 void passive_name(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 {
     int k = nodeIndices[0]; //starts from 1
-    char* value = NULL;
+    char s[100];
 
     if (k <= 10) {
-        char s[100];
         sprintf(s, "Upper stabilizing plate (loop %d)", k);
-        value = strdup(s);
     } else if (k > 10 && k <= 18) {
-        char s[100];
         sprintf(s, "Baffle support (loop %d)", k - 10);
-        value = strdup(s);
     } else if (k > 18 && k <= 21) {
-        char s[100];
         sprintf(s, "Upper divertor casing, high field side part (loop %d)", k - 18);
-        value = strdup(s);
     } else if (k > 21 && k <= 24) {
-        char s[100];
         sprintf(s, "Upper divertor casing, centre part (loop %d)", k - 21);
-        value = strdup(s);
     } else if (k > 24 && k <= 26) {
-        char s[100];
         sprintf(s, "Upper divertor casing, low field side part (loop %d)", k - 24);
-        value = strdup(s);
     } else if (k > 26 && k <= 29) {
-        char s[100];
         sprintf(s, "Upper divertor casing, high field side part (loop %d)", k - 26);
-        value = strdup(s);
     } else if (k > 29 && k <= 32) {
-        char s[100];
         sprintf(s, "Lower divertor casing, centre part (loop %d)", k - 29);
-        value = strdup(s);
     }
 
-    data_block->data_type = UDA_TYPE_STRING;
-    data_block->data = strdup(value);
+    setReturnDataString(data_block, s, NULL);
 }
 
 void passive_r(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
@@ -312,9 +299,7 @@ void passive_current_shapeOf(int shotNumber, DATA_BLOCK* data_block, int* nodeIn
 {
 
     int len = 34;
-    data_block->data_type = UDA_TYPE_INT;
-    data_block->data = malloc(sizeof(int));
-    *((int*)data_block->data) = len;
+    setReturnDataIntScalar(data_block, len, NULL);
 }
 
 int passive_current(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)

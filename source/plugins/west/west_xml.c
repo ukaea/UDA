@@ -9,6 +9,8 @@
 #include <clientserver/errorLog.h>
 #include <clientserver/stringUtils.h>
 #include <clientserver/udaTypes.h>
+#include <plugins/udaPlugin.h>
+#include <structures/struct.h>
 
 #include "ts_rqparam.h"
 #include "west_ece.h"
@@ -38,15 +40,6 @@ int GetStaticData(int shotNumber, const char* mapfun, DATA_BLOCK* data_block, in
 {
     IDAM_LOG(UDA_LOG_DEBUG, "Calling GetStaticData() from WEST plugin\n");
 
-    //IDAM data block initialization
-    initDataBlock(data_block);
-    data_block->rank = 1; //we return always a 1D array
-    data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
-    int i;
-    for (i = 0; i < data_block->rank; i++) {
-        initDimBlock(&data_block->dims[i]);
-    }
-
     assert(mapfun); //Mandatory function to get WEST data
 
     IDAM_LOG(UDA_LOG_DEBUG, "Calling execute() from WEST plugin\n");
@@ -55,17 +48,6 @@ int GetStaticData(int shotNumber, const char* mapfun, DATA_BLOCK* data_block, in
     if (status != 0) {
         addIdamError(CODEERRORTYPE, __func__, -900, "error while getting static data");
     }
-
-    free(data_block->dims);
-    data_block->dims = NULL;
-
-    // Scalar data
-    data_block->rank = 0;
-    data_block->data_n = 1;
-
-    strcpy(data_block->data_desc, "");
-    strcpy(data_block->data_label, "");
-    strcpy(data_block->data_units, "");
 
     return 0;
 }
@@ -389,11 +371,7 @@ void shape_of_tsmat_collect(int shotNumber, char* TOP_collections_parameters, DA
         parametersSize += nb_val;
     }
 
-    printNum("Parameters size : ", parametersSize);
-
-    data_block->data_type = UDA_TYPE_INT;
-    data_block->data = malloc(sizeof(int));
-    *((int*)data_block->data) = parametersSize;
+    setReturnDataIntScalar(data_block, parametersSize, NULL);
 }
 
 void getShapeOf(const char* command, int shotNumber, int* nb_val)
@@ -726,9 +704,7 @@ void setStatic1DValue(int data_type, DATA_BLOCK* data_block, char* value, int va
 void setStaticINTValue(int data_type, DATA_BLOCK* data_block, int value, float normalizationFactor)
 {
     IDAM_LOGF(UDA_LOG_DEBUG, "handling in setStaticINTValue(): %d\n", value);
-    data_block->data_type = UDA_TYPE_INT;
-    data_block->data = malloc(1 * sizeof(int));
-    ((int*)data_block->data)[0] = value * (int)normalizationFactor;
+    setReturnDataIntScalar(data_block, value * (int)normalizationFactor, NULL);
 }
 
 //Cast the results returned by tsmat according to the type of the data and set IDAM data
@@ -738,53 +714,37 @@ void setStaticValue(int data_type, DATA_BLOCK* data_block, char* value, int requ
     printNum("requested index : ", requestedIndex);
     if (data_type == UDA_TYPE_DOUBLE) {
         IDAM_LOG(UDA_LOG_DEBUG, "handling double in setStaticValue()\n");
-        data_block->data_type = UDA_TYPE_DOUBLE;
-        data_block->data = malloc(1 * sizeof(double));
         double* pt_double = (double*)value;
-        ((double*)data_block->data)[0] = pt_double[requestedIndex] * (double)normalizationFactor;
+        setReturnDataDoubleScalar(data_block, pt_double[requestedIndex] * (double)normalizationFactor, NULL);
 
     } else if (data_type == UDA_TYPE_FLOAT) {
         IDAM_LOGF(UDA_LOG_DEBUG, "handling float in setStaticValue(): %d, %g\n", requestedIndex, normalizationFactor);
-
-        data_block->data_type = UDA_TYPE_FLOAT;
-        data_block->data = malloc(1 * sizeof(float));
         float* pt_float = (float*)value;
-
         IDAM_LOGF(UDA_LOG_DEBUG, "in setStaticValue(), requestedIndex:  %d\n", requestedIndex);
         IDAM_LOGF(UDA_LOG_DEBUG, "in setStaticValue(), normalizationFactor:  %f\n", normalizationFactor);
         IDAM_LOGF(UDA_LOG_DEBUG, "in setStaticValue(), pt_float[requestedIndex]:  %f\n", pt_float[requestedIndex]);
-
         IDAM_LOGF(UDA_LOG_DEBUG, "Floating value set to  %f\n", pt_float[requestedIndex] * normalizationFactor);
-        ((float*)data_block->data)[0] = pt_float[requestedIndex] * normalizationFactor;
+        setReturnDataFloatScalar(data_block, pt_float[requestedIndex] * normalizationFactor, NULL);
 
     } else if (data_type == UDA_TYPE_LONG) {
         IDAM_LOG(UDA_LOG_DEBUG, "handling long in setStaticValue()\n");
-        data_block->data_type = UDA_TYPE_LONG;
-        data_block->data = malloc(1 * sizeof(long));
         long* pt_long = (long*)value;
-        ((long*)data_block->data)[0] = pt_long[requestedIndex] * (long)normalizationFactor;
+        setReturnDataLongScalar(data_block, pt_long[requestedIndex] * (long)normalizationFactor, NULL);
 
     } else if (data_type == UDA_TYPE_INT) {
         IDAM_LOG(UDA_LOG_DEBUG, "handling int in setStaticValue()\n");
-        data_block->data_type = UDA_TYPE_INT;
-        data_block->data = malloc(1 * sizeof(int));
         int* pt_int = (int*)value;
         IDAM_LOGF(UDA_LOG_DEBUG, "handling in setStaticValue(): %d\n", *pt_int);
-        ((int*)data_block->data)[0] = pt_int[requestedIndex] * (int)normalizationFactor;
+        setReturnDataIntScalar(data_block, pt_int[requestedIndex] * (int)normalizationFactor, NULL);
 
     } else if (data_type == UDA_TYPE_SHORT) {
         IDAM_LOG(UDA_LOG_DEBUG, "handling short in setStaticValue()\n");
-        data_block->data_type = UDA_TYPE_SHORT;
-        data_block->data = malloc(1 * sizeof(short));
         int* pt_short = (int*)value;
-        ((short*)data_block->data)[0] = pt_short[requestedIndex] * (short)normalizationFactor;
+        setReturnDataShortScalar(data_block, pt_short[requestedIndex] * (short)normalizationFactor, NULL);
 
     } else if (data_type == UDA_TYPE_STRING) {
         IDAM_LOG(UDA_LOG_DEBUG, "handling string in setStaticValue()\n");
-        data_block->data_type = UDA_TYPE_STRING;
-        IDAM_LOG(UDA_LOG_DEBUG, "setting value\n");
-        data_block->data = strdup(value);
-        IDAM_LOGF(UDA_LOG_DEBUG, "%s\n", data_block->data);
+        setReturnDataString(data_block, strdup(value), NULL);
 
     } else {
         int err = 999;

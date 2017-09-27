@@ -9,6 +9,8 @@
 #include <clientserver/errorLog.h>
 #include <clientserver/stringUtils.h>
 #include <clientserver/udaTypes.h>
+#include <plugins/udaPlugin.h>
+#include <structures/struct.h>
 
 #include "west_ece_mode.h"
 #include "west_utilities.h"
@@ -34,8 +36,8 @@ char* getTopParameters(int shotNumber);
 
 int test_fun(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 {
-    float* data = NULL;
-    float* time = NULL;
+    //float* data = NULL;
+    //float* time = NULL;
     //SetDynamicData(data_block, 0, time, data);
     return 0;
 }
@@ -300,12 +302,8 @@ int ece_frequencies(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 
 int ece_names(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 {
-
     IDAM_LOG(UDA_LOG_DEBUG, "Calling ece_names\n");
-    char* name = "";
-    data_block->data_type = UDA_TYPE_STRING;
-    data_block->data = strdup(name);
-
+    setReturnDataString(data_block, "", NULL);
     return 0;
 }
 
@@ -316,8 +314,7 @@ int ece_identifiers(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
     int channelNumber = nodeIndices[0]; //UDA request index
     char* identifier = malloc(sizeof(char));
     sprintf(identifier, "%d", channelNumber + 1); //starts the identifier to 1
-    data_block->data_type = UDA_TYPE_STRING;
-    data_block->data = identifier;
+    setReturnDataString(data_block, identifier, NULL);
     return 0;
 }
 

@@ -9,6 +9,8 @@
 #include <clientserver/errorLog.h>
 #include <clientserver/stringUtils.h>
 #include <clientserver/udaTypes.h>
+#include <plugins/udaPlugin.h>
+#include <structures/struct.h>
 
 #include "west_utilities.h"
 #include "west_dyn_data_utilities.h"
@@ -46,9 +48,7 @@ void pf_active(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices, int ind
 void pf_active_coil_name(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 {
     int index = nodeIndices[0] - 1; //starts from 0
-    const char* value = COILS_NAMES[index];
-    data_block->data_type = UDA_TYPE_STRING;
-    data_block->data = strdup(value);
+    setReturnDataString(data_block, COILS_NAMES[index], NULL);
 }
 
 void pf_active_coil_identifier(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
@@ -59,12 +59,14 @@ void pf_active_coil_identifier(int shotNumber, DATA_BLOCK* data_block, int* node
 void pf_active_element_name(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 {
     int element_number = nodeIndices[1]; //starts from 1
-    char* value = NULL;
+    //char* value = NULL;
     char s[100];
     sprintf(s, "%d", element_number);
-    value = strdup(s);
-    data_block->data_type = UDA_TYPE_STRING;
-    data_block->data = strdup(value);
+    //value = strdup(s);
+    //data_block->data_type = UDA_TYPE_STRING;
+    //data_block->data = strdup(value);
+
+    setReturnDataString(data_block, s, NULL);
 }
 
 void pf_active_element_identifier(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
@@ -75,17 +77,13 @@ void pf_active_element_identifier(int shotNumber, DATA_BLOCK* data_block, int* n
 void pf_active_elements_shapeOf(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 {
     int len = 1;
-    data_block->data_type = UDA_TYPE_INT;
-    data_block->data = malloc(sizeof(int));
-    *((int*)data_block->data) = len;
+    setReturnDataIntScalar(data_block, len, NULL);
 }
 
 void pf_active_coils_shapeOf(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 {
     int len = 17;
-    data_block->data_type = UDA_TYPE_INT;
-    data_block->data = malloc(sizeof(int));
-    *((int*)data_block->data) = len;
+    setReturnDataIntScalar(data_block, len, NULL);
 }
 
 void pf_active_R(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
