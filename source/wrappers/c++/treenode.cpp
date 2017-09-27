@@ -37,7 +37,7 @@ uda::TreeNode uda::TreeNode::child(int num)
 
 void uda::TreeNode::printNode()
 {
-    //printNode(node_);
+    ::printNode(node_);
 }
 
 std::string uda::TreeNode::name()
