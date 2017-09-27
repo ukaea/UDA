@@ -61,343 +61,463 @@ void somme2(float** s, float* data1, float* data2, float* data3, int len);
 float factUpper(int shotNumber);
 float factLower(int shotNumber);
 
+void passive_name(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
+void passive_r(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
+void passive_z(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
+void passive_current_shapeOf(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
+void passive_current(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
+void passive_time(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
 
-int getIFREEB(int shotNumber, int extractionIndex, float** time, float** data, int* len, float normalizationFactor)
+void pf_passive_current_data(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 {
-    char* nomsigp = "GMAG_IFREEB";
-    char nomsigp_to_extract[50];
-    addExtractionChars(nomsigp_to_extract, nomsigp,
-                       extractionIndex); //Concatenate nomsigp_to_extract avec !extractionIndex, example: !1, !2, ...
-    int rang[2] = { 0, 0 };
-    int status = readSignal(nomsigp_to_extract, shotNumber, 0, rang, time, data, len);
-    multiplyFloat(*data, normalizationFactor, *len);
-    return status;
+	passive_current(shotNumber, data_block, nodeIndices);
 }
 
-int getIDCOEF(int shotNumber, int extractionIndex, float** time, float** data, int* len, float normalizationFactor)
+void pf_passive_current_time(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 {
-    char* nomsigp = "GMAG_IDCOEF";
-    char nomsigp_to_extract[50];
-    addExtractionChars(nomsigp_to_extract, nomsigp,
-                       extractionIndex); //Concatenate nomsigp_to_extract avec !extractionIndex, example: !1, !2, ...
-    int rang[2] = { 0, 0 };
-    int status = readSignal(nomsigp_to_extract, shotNumber, 0, rang, time, data, len);
-    multiplyFloat(*data, normalizationFactor, *len);
-    return status;
+	passive_time(shotNumber, data_block, nodeIndices);
 }
 
-int I_case_upper(int shotNumber, float** time, float** data, int* len, float normalizationFactor)
+void pf_passive_coil_name(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 {
-    return getIFREEB(shotNumber, 4, time, data, len, normalizationFactor);
+	passive_name(shotNumber, data_block, nodeIndices);
 }
 
-int I_case_lower(int shotNumber, float** time, float** data, int* len, float normalizationFactor)
+void pf_passive_coil_identifier(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 {
-    return getIFREEB(shotNumber, 5, time, data, len, normalizationFactor);
+	pf_passive_coil_name(shotNumber, data_block, nodeIndices);
 }
 
-int I_baffle(int shotNumber, float** time, float** data, int* len, float normalizationFactor)
+void pf_passive_element_name(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 {
-    return getIFREEB(shotNumber, 3, time, data, len, normalizationFactor);
+	int element_number = nodeIndices[1]; //starts from 1
+	char s[100];
+	sprintf(s, "%d", element_number);
+	setReturnDataString(data_block, s, NULL);
 }
 
-int I_uper_stab(int shotNumber, float** time, float** data, int* len, float normalizationFactor)
+void pf_passive_element_identifier(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 {
-    return getIFREEB(shotNumber, 2, time, data, len, normalizationFactor);
+	pf_passive_element_name(shotNumber, data_block, nodeIndices);
 }
 
-int Ip_fw(int shotNumber, float** time, float** data, int* len, float normalizationFactor)
+void pf_passive_elements_shapeOf(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices) //TODO
 {
-    return getIFREEB(shotNumber, 1, time, data, len, normalizationFactor);
+	int len = 32;
+	setReturnDataIntScalar(data_block, len, NULL);
 }
 
-float factUpper(int shotNumber)
+void pf_passive_coils_shapeOf(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices) //TODO
 {
-
-    int I_case_upper_len;
-    float* I_case_upper_data = NULL;
-    float* I_case_upper_time = NULL;
-    int status = I_case_upper(shotNumber, &I_case_upper_time, &I_case_upper_data, &I_case_upper_len, 1.);
-    if (status != 0) return status;
-
-    int coeff_len;
-    float* coeff1_data = NULL;
-    float* coeff1_time = NULL;
-    status = getIDCOEF(shotNumber, 19, &coeff1_time, &coeff1_data, &coeff_len, 1.);
-    if (status != 0) return status;
-
-    float* coeff2_data = NULL;
-    float* coeff2_time = NULL;
-    status = getIDCOEF(shotNumber, 20, &coeff2_time, &coeff2_data, &coeff_len, 1.);
-    if (status != 0) return status;
-
-    float* coeff3_data = NULL;
-    float* coeff3_time = NULL;
-    status = getIDCOEF(shotNumber, 21, &coeff3_time, &coeff3_data, &coeff_len, 1.);
-    if (status != 0) return status;
-
-    float* s2 = NULL;
-    somme2(&s2, coeff1_data, coeff2_data, coeff3_data, coeff_len);
-
-    float factUpper = somme(I_case_upper_data, I_case_upper_len) / somme(s2, coeff_len);
-    return factUpper;
+	int len = 17;
+	setReturnDataIntScalar(data_block, len, NULL);
 }
 
-float factLower(int shotNumber)
+void pf_passive_R(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 {
-
-    int I_case_lower_len;
-    float* I_case_lower_data = NULL;
-    float* I_case_lower_time = NULL;
-    int status = I_case_lower(shotNumber, &I_case_lower_time, &I_case_lower_data, &I_case_lower_len, 1.);
-    if (status != 0) return status;
-
-    int coeff_len;
-    float* coeff1_data = NULL;
-    float* coeff1_time = NULL;
-    status = getIDCOEF(shotNumber, 22, &coeff1_time, &coeff1_data, &coeff_len, 1.);
-    if (status != 0) return status;
-
-    float* coeff2_data = NULL;
-    float* coeff2_time = NULL;
-    status = getIDCOEF(shotNumber, 23, &coeff2_time, &coeff2_data, &coeff_len, 1.);
-    if (status != 0) return status;
-
-    float* coeff3_data = NULL;
-    float* coeff3_time = NULL;
-    status = getIDCOEF(shotNumber, 24, &coeff3_time, &coeff3_data, &coeff_len, 1.);
-    if (status != 0) return status;
-
-    float* s2 = NULL;
-    somme2(&s2, coeff1_data, coeff2_data, coeff3_data, coeff_len);
-
-    float factLower = somme(I_case_lower_data, I_case_lower_len) / somme(s2, coeff_len);
-    return factLower;
+	//pf_active(shotNumber, data_block, nodeIndices, 0);
 }
 
-int I_case_upper_hfs(int shotNumber, float** time, float** data, int* len, float normalizationFactor)
+void pf_passive_Z(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 {
-    int status = getIDCOEF(shotNumber, 19, time, data, len, factUpper(shotNumber));
-    if (status != 0) return status;
-    multiplyFloat(*data, normalizationFactor, *len);
-    return status;
+	//pf_active(shotNumber, data_block, nodeIndices, 1);
 }
 
-int I_case_upper_c(int shotNumber, float** time, float** data, int* len, float normalizationFactor)
+void pf_passive_W(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 {
-    int status = getIDCOEF(shotNumber, 20, time, data, len, factUpper(shotNumber));
-    if (status != 0) return status;
-    multiplyFloat(*data, normalizationFactor, *len);
-    return status;
+	//pf_active(shotNumber, data_block, nodeIndices, 2);
 }
 
-int I_case_upper_lfs(int shotNumber, float** time, float** data, int* len, float normalizationFactor)
+void pf_passive_H(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 {
-    int status = getIDCOEF(shotNumber, 21, time, data, len, factUpper(shotNumber));
-    if (status != 0) return status;
-    multiplyFloat(*data, normalizationFactor, *len);
-    return status;
+	pf_active(shotNumber, data_block, nodeIndices, 3);
 }
 
-int I_case_lower_hfs(int shotNumber, float** time, float** data, int* len, float normalizationFactor)
+void pf_passive_turns(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 {
-    int status = getIDCOEF(shotNumber, 22, time, data, len, factLower(shotNumber));
-    if (status != 0) return status;
-    multiplyFloat(*data, normalizationFactor, *len);
-    return status;
+	/*int coil_number = nodeIndices[0]; //starts from 1
+	int r;
+	int index = 4;
+
+	if (coil_number == 1) {
+		r = (int)A[index];
+	} else if (coil_number == 2) {
+		r = (int)Bh[index];
+	} else if (coil_number == 3) {
+		r = (int)Dh[index];
+	} else if (coil_number == 4) {
+		r = (int)Eh[index];
+	} else if (coil_number == 5) {
+		r = (int)Fh[index];
+	} else if (coil_number == 6) {
+		r = (int)Fb[index];
+	} else if (coil_number == 7) {
+		r = (int)Eb[index];
+	} else if (coil_number == 8) {
+		r = (int)Db[index];
+	} else if (coil_number == 9) {
+		r = (int)Bb[index];
+	} else if (coil_number == 10) {
+		r = (int)Xu1[index];
+	} else if (coil_number == 11) {
+		r = (int)Xu2[index];
+	} else if (coil_number == 12) {
+		r = (int)Xu3[index];
+	} else if (coil_number == 13) {
+		r = (int)Xu4[index];
+	} else if (coil_number == 14) {
+		r = (int)Xl1[index];
+	} else if (coil_number == 15) {
+		r = (int)Xl2[index];
+	} else if (coil_number == 16) {
+		r = (int)Xl3[index];
+	} else if (coil_number == 17) {
+		r = (int)Xl4[index];
+	}
+	setReturnDataIntScalar(data_block, r, NULL);*/
 }
 
-int I_case_lower_c(int shotNumber, float** time, float** data, int* len, float normalizationFactor)
-{
-    int status = getIDCOEF(shotNumber, 23, time, data, len, factLower(shotNumber));
-    if (status != 0) return status;
-    multiplyFloat(*data, normalizationFactor, *len);
-    return status;
-}
 
-int I_case_lower_lfs(int shotNumber, float** time, float** data, int* len, float normalizationFactor)
-{
-    int status = getIDCOEF(shotNumber, 24, time, data, len, factLower(shotNumber));
-    if (status != 0) return status;
-    multiplyFloat(*data, normalizationFactor, *len);
-    return status;
-}
+
 
 void passive_name(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 {
-    int k = nodeIndices[0]; //starts from 1
-    char s[100];
+	int k = nodeIndices[0]; //starts from 1
+	char s[100];
 
-    if (k <= 10) {
-        sprintf(s, "Upper stabilizing plate (loop %d)", k);
-    } else if (k > 10 && k <= 18) {
-        sprintf(s, "Baffle support (loop %d)", k - 10);
-    } else if (k > 18 && k <= 21) {
-        sprintf(s, "Upper divertor casing, high field side part (loop %d)", k - 18);
-    } else if (k > 21 && k <= 24) {
-        sprintf(s, "Upper divertor casing, centre part (loop %d)", k - 21);
-    } else if (k > 24 && k <= 26) {
-        sprintf(s, "Upper divertor casing, low field side part (loop %d)", k - 24);
-    } else if (k > 26 && k <= 29) {
-        sprintf(s, "Upper divertor casing, high field side part (loop %d)", k - 26);
-    } else if (k > 29 && k <= 32) {
-        sprintf(s, "Lower divertor casing, centre part (loop %d)", k - 29);
-    }
+	if (k <= 10) {
+		sprintf(s, "Upper stabilizing plate (loop %d)", k);
+	} else if (k > 10 && k <= 18) {
+		sprintf(s, "Baffle support (loop %d)", k - 10);
+	} else if (k > 18 && k <= 21) {
+		sprintf(s, "Upper divertor casing, high field side part (loop %d)", k - 18);
+	} else if (k > 21 && k <= 24) {
+		sprintf(s, "Upper divertor casing, centre part (loop %d)", k - 21);
+	} else if (k > 24 && k <= 26) {
+		sprintf(s, "Upper divertor casing, low field side part (loop %d)", k - 24);
+	} else if (k > 26 && k <= 29) {
+		sprintf(s, "Upper divertor casing, high field side part (loop %d)", k - 26);
+	} else if (k > 29 && k <= 32) {
+		sprintf(s, "Lower divertor casing, centre part (loop %d)", k - 29);
+	}
 
-    setReturnDataString(data_block, s, NULL);
+	setReturnDataString(data_block, s, NULL);
 }
 
 void passive_r(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 {
-    int k = nodeIndices[0]; //starts from 1
-    float* r = NULL;
-    r = (float*)malloc(sizeof(float));
+	int k = nodeIndices[0]; //starts from 1
+	float* r = NULL;
+	r = (float*)malloc(sizeof(float));
 
-    if (k <= 10) {
-        r[0] = Rsup[k - 1];
-    } else if (k > 10 && k <= 18) {
-        r[0] = Rbaf[k - 11];
-    } else if (k > 18 && k <= 21) {
-        r[0] = Rsup1[k - 19];
-    } else if (k > 21 && k <= 24) {
-        r[0] = Rsup2[k - 22];
-    } else if (k > 24 && k <= 26) {
-        r[0] = Rsup3[k - 25];
-    } else if (k > 26 && k <= 29) {
-        r[0] = Rinf1[k - 27];
-    } else if (k > 29 && k <= 32) {
-        r[0] = Rinf2[k - 30];
-    }
-    SetStatic1DData(data_block, 1, r);
+	if (k <= 10) {
+		r[0] = Rsup[k - 1];
+	} else if (k > 10 && k <= 18) {
+		r[0] = Rbaf[k - 11];
+	} else if (k > 18 && k <= 21) {
+		r[0] = Rsup1[k - 19];
+	} else if (k > 21 && k <= 24) {
+		r[0] = Rsup2[k - 22];
+	} else if (k > 24 && k <= 26) {
+		r[0] = Rsup3[k - 25];
+	} else if (k > 26 && k <= 29) {
+		r[0] = Rinf1[k - 27];
+	} else if (k > 29 && k <= 32) {
+		r[0] = Rinf2[k - 30];
+	}
+	SetStatic1DData(data_block, 1, r);
 }
 
 void passive_z(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 {
-    int k = nodeIndices[0]; //starts from 1
-    float* z = NULL;
-    z = (float*)malloc(sizeof(float));
+	int k = nodeIndices[0]; //starts from 1
+	float* z = NULL;
+	z = (float*)malloc(sizeof(float));
 
-    if (k <= 10) {
-        z[0] = Zsup[k - 1];
-    } else if (k > 10 && k <= 18) {
-        z[0] = Zbaf[k - 11];
-    } else if (k > 18 && k <= 21) {
-        z[0] = Zsup1[k - 19];
-    } else if (k > 21 && k <= 24) {
-        z[0] = Zsup2[k - 22];
-    } else if (k > 24 && k <= 26) {
-        z[0] = Zsup3[k - 25];
-    } else if (k > 26 && k <= 29) {
-        z[0] = Zinf1[k - 27];
-    } else if (k > 29 && k <= 32) {
-        z[0] = Zinf2[k - 30];
-    }
-    SetStatic1DData(data_block, 1, z);
+	if (k <= 10) {
+		z[0] = Zsup[k - 1];
+	} else if (k > 10 && k <= 18) {
+		z[0] = Zbaf[k - 11];
+	} else if (k > 18 && k <= 21) {
+		z[0] = Zsup1[k - 19];
+	} else if (k > 21 && k <= 24) {
+		z[0] = Zsup2[k - 22];
+	} else if (k > 24 && k <= 26) {
+		z[0] = Zsup3[k - 25];
+	} else if (k > 26 && k <= 29) {
+		z[0] = Zinf1[k - 27];
+	} else if (k > 29 && k <= 32) {
+		z[0] = Zinf2[k - 30];
+	}
+	SetStatic1DData(data_block, 1, z);
 }
 
 void passive_current_shapeOf(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 {
 
-    int len = 34;
-    setReturnDataIntScalar(data_block, len, NULL);
+	int len = 34;
+	setReturnDataIntScalar(data_block, len, NULL);
 }
 
-int passive_current(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
+void passive_current(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 {
 
-    float* data = NULL;
-    float* time = NULL;
-    int len;
-    int status = getCurrent(shotNumber, data_block, nodeIndices, &data, &time, &len);
-    if (status != 0) return status;
-    SetDynamicData(data_block, len, time, data);
-    return 0;
+	float* data = NULL;
+	float* time = NULL;
+	int len;
+	int status = getCurrent(shotNumber, data_block, nodeIndices, &data, &time, &len);
+	if (status != 0) {
+		int err = 801;
+		addIdamError(CODEERRORTYPE, "Unable to get pf_passive current", err, "");
+	}
+	SetDynamicData(data_block, len, time, data);
 }
 
 int getCurrent(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices, float** data, float** time, int* len)
 {
 
-    IDAM_LOG(UDA_LOG_DEBUG, "in getCurrent...\n");
+	IDAM_LOG(UDA_LOG_DEBUG, "in getCurrent...\n");
 
-    int k = nodeIndices[0]; //starts from 1
-    int status = -1;
-    const int Rsup_length = (int)(sizeof(Rsup) / sizeof(Rsup[0]));
-    const int Rbaf_length = (int)(sizeof(Rbaf) / sizeof(Rbaf[0]));
-    const int Rsup1_length = (int)(sizeof(Rsup1) / sizeof(Rsup1[0]));
-    const int Rsup2_length = (int)(sizeof(Rsup2) / sizeof(Rsup2[0]));
-    const int Rsup3_length = (int)(sizeof(Rsup3) / sizeof(Rsup3[0]));
-    const int Rinf1_length = (int)(sizeof(Rinf1) / sizeof(Rinf1[0]));
-    const int Rinf2_length = (int)(sizeof(Rinf2) / sizeof(Rinf2[0]));
+	int k = nodeIndices[0]; //starts from 1
+	int status = -1;
+	const int Rsup_length = (int)(sizeof(Rsup) / sizeof(Rsup[0]));
+	const int Rbaf_length = (int)(sizeof(Rbaf) / sizeof(Rbaf[0]));
+	const int Rsup1_length = (int)(sizeof(Rsup1) / sizeof(Rsup1[0]));
+	const int Rsup2_length = (int)(sizeof(Rsup2) / sizeof(Rsup2[0]));
+	const int Rsup3_length = (int)(sizeof(Rsup3) / sizeof(Rsup3[0]));
+	const int Rinf1_length = (int)(sizeof(Rinf1) / sizeof(Rinf1[0]));
+	const int Rinf2_length = (int)(sizeof(Rinf2) / sizeof(Rinf2[0]));
 
-    if (k <= 10) {
-        status = I_uper_stab(shotNumber, time, data, len, 1. / Rsup_length);
-    } else if (k > 10 && k <= 18) {
-        status = I_baffle(shotNumber, time, data, len, 1. / Rbaf_length);
-    } else if (k > 18 && k <= 21) {
-        status = I_case_upper_hfs(shotNumber, time, data, len, 1. / Rsup1_length);
-    } else if (k > 21 && k <= 24) {
-        status = I_case_upper_c(shotNumber, time, data, len, 1. / Rsup2_length);
-    } else if (k > 24 && k <= 26) {
-        status = I_case_upper_lfs(shotNumber, time, data, len, 1. / Rsup3_length);
-    } else if (k > 26 && k <= 29) {
-        status = I_case_lower_hfs(shotNumber, time, data, len, 1. / Rinf1_length);
-    } else if (k > 29 && k <= 32) {
-        status = I_case_lower_c(shotNumber, time, data, len, 1. / Rinf2_length);
-    }
+	if (k <= 10) {
+		status = I_uper_stab(shotNumber, time, data, len, 1. / Rsup_length);
+	} else if (k > 10 && k <= 18) {
+		status = I_baffle(shotNumber, time, data, len, 1. / Rbaf_length);
+	} else if (k > 18 && k <= 21) {
+		status = I_case_upper_hfs(shotNumber, time, data, len, 1. / Rsup1_length);
+	} else if (k > 21 && k <= 24) {
+		status = I_case_upper_c(shotNumber, time, data, len, 1. / Rsup2_length);
+	} else if (k > 24 && k <= 26) {
+		status = I_case_upper_lfs(shotNumber, time, data, len, 1. / Rsup3_length);
+	} else if (k > 26 && k <= 29) {
+		status = I_case_lower_hfs(shotNumber, time, data, len, 1. / Rinf1_length);
+	} else if (k > 29 && k <= 32) {
+		status = I_case_lower_c(shotNumber, time, data, len, 1. / Rinf2_length);
+	}
 
-    return status;
+	return status;
 }
 
 
-int passive_time(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
+void passive_time(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 {
 
-    int k = nodeIndices[0]; //starts from 1
-    int len;
-    float* data = NULL;
-    float* time = NULL;
-    int status = -1;
+	int k = nodeIndices[0]; //starts from 1
+	int len;
+	float* data = NULL;
+	float* time = NULL;
+	int status = -1;
 
-    if (k <= 10) {
-        status = getIFREEB(shotNumber, 2, &time, &data, &len, 1.);
-    } else if (k > 10 && k <= 18) {
-        status = getIFREEB(shotNumber, 3, &time, &data, &len, 1.);
-    } else if (k > 18 && k <= 21) {
-        status = getIDCOEF(shotNumber, 19, &time, &data, &len, 1.);
-    } else if (k > 21 && k <= 24) {
-        status = getIDCOEF(shotNumber, 20, &time, &data, &len, 1.);
-    } else if (k > 24 && k <= 26) {
-        status = getIDCOEF(shotNumber, 21, &time, &data, &len, 1.);
-    } else if (k > 26 && k <= 29) {
-        status = getIDCOEF(shotNumber, 22, &time, &data, &len, 1.);
-    } else if (k > 29 && k <= 32) {
-        status = getIDCOEF(shotNumber, 23, &time, &data, &len, 1.);
-    }
+	if (k <= 10) {
+		status = getIFREEB(shotNumber, 2, &time, &data, &len, 1.);
+	} else if (k > 10 && k <= 18) {
+		status = getIFREEB(shotNumber, 3, &time, &data, &len, 1.);
+	} else if (k > 18 && k <= 21) {
+		status = getIDCOEF(shotNumber, 19, &time, &data, &len, 1.);
+	} else if (k > 21 && k <= 24) {
+		status = getIDCOEF(shotNumber, 20, &time, &data, &len, 1.);
+	} else if (k > 24 && k <= 26) {
+		status = getIDCOEF(shotNumber, 21, &time, &data, &len, 1.);
+	} else if (k > 26 && k <= 29) {
+		status = getIDCOEF(shotNumber, 22, &time, &data, &len, 1.);
+	} else if (k > 29 && k <= 32) {
+		status = getIDCOEF(shotNumber, 23, &time, &data, &len, 1.);
+	}
 
-    if (status != 0) return status;
-    SetDynamicDataTime(data_block, len, time, data);
+	if (status != 0) {
+		int err = 801;
+		addIdamError(CODEERRORTYPE, "Unable to get time for pf_passive current", err, "");
+	}
+	SetDynamicDataTime(data_block, len, time, data);
+}
 
-    //SetStatic1DData(data_block, len, time);
 
-    return 0;
+int getIFREEB(int shotNumber, int extractionIndex, float** time, float** data, int* len, float normalizationFactor)
+{
+	char* nomsigp = "GMAG_IFREEB";
+	char nomsigp_to_extract[50];
+	addExtractionChars(nomsigp_to_extract, nomsigp,
+			extractionIndex); //Concatenate nomsigp_to_extract avec !extractionIndex, example: !1, !2, ...
+	int rang[2] = { 0, 0 };
+	int status = readSignal(nomsigp_to_extract, shotNumber, 0, rang, time, data, len);
+	multiplyFloat(*data, normalizationFactor, *len);
+	return status;
+}
+
+int getIDCOEF(int shotNumber, int extractionIndex, float** time, float** data, int* len, float normalizationFactor)
+{
+	char* nomsigp = "GMAG_IDCOEF";
+	char nomsigp_to_extract[50];
+	addExtractionChars(nomsigp_to_extract, nomsigp,
+			extractionIndex); //Concatenate nomsigp_to_extract avec !extractionIndex, example: !1, !2, ...
+	int rang[2] = { 0, 0 };
+	int status = readSignal(nomsigp_to_extract, shotNumber, 0, rang, time, data, len);
+	multiplyFloat(*data, normalizationFactor, *len);
+	return status;
+}
+
+int I_case_upper(int shotNumber, float** time, float** data, int* len, float normalizationFactor)
+{
+	return getIFREEB(shotNumber, 4, time, data, len, normalizationFactor);
+}
+
+int I_case_lower(int shotNumber, float** time, float** data, int* len, float normalizationFactor)
+{
+	return getIFREEB(shotNumber, 5, time, data, len, normalizationFactor);
+}
+
+int I_baffle(int shotNumber, float** time, float** data, int* len, float normalizationFactor)
+{
+	return getIFREEB(shotNumber, 3, time, data, len, normalizationFactor);
+}
+
+int I_uper_stab(int shotNumber, float** time, float** data, int* len, float normalizationFactor)
+{
+	return getIFREEB(shotNumber, 2, time, data, len, normalizationFactor);
+}
+
+int Ip_fw(int shotNumber, float** time, float** data, int* len, float normalizationFactor)
+{
+	return getIFREEB(shotNumber, 1, time, data, len, normalizationFactor);
+}
+
+float factUpper(int shotNumber)
+{
+
+	int I_case_upper_len;
+	float* I_case_upper_data = NULL;
+	float* I_case_upper_time = NULL;
+	int status = I_case_upper(shotNumber, &I_case_upper_time, &I_case_upper_data, &I_case_upper_len, 1.);
+	if (status != 0) return status;
+
+	int coeff_len;
+	float* coeff1_data = NULL;
+	float* coeff1_time = NULL;
+	status = getIDCOEF(shotNumber, 19, &coeff1_time, &coeff1_data, &coeff_len, 1.);
+	if (status != 0) return status;
+
+	float* coeff2_data = NULL;
+	float* coeff2_time = NULL;
+	status = getIDCOEF(shotNumber, 20, &coeff2_time, &coeff2_data, &coeff_len, 1.);
+	if (status != 0) return status;
+
+	float* coeff3_data = NULL;
+	float* coeff3_time = NULL;
+	status = getIDCOEF(shotNumber, 21, &coeff3_time, &coeff3_data, &coeff_len, 1.);
+	if (status != 0) return status;
+
+	float* s2 = NULL;
+	somme2(&s2, coeff1_data, coeff2_data, coeff3_data, coeff_len);
+
+	float factUpper = somme(I_case_upper_data, I_case_upper_len) / somme(s2, coeff_len);
+	return factUpper;
+}
+
+float factLower(int shotNumber)
+{
+
+	int I_case_lower_len;
+	float* I_case_lower_data = NULL;
+	float* I_case_lower_time = NULL;
+	int status = I_case_lower(shotNumber, &I_case_lower_time, &I_case_lower_data, &I_case_lower_len, 1.);
+	if (status != 0) return status;
+
+	int coeff_len;
+	float* coeff1_data = NULL;
+	float* coeff1_time = NULL;
+	status = getIDCOEF(shotNumber, 22, &coeff1_time, &coeff1_data, &coeff_len, 1.);
+	if (status != 0) return status;
+
+	float* coeff2_data = NULL;
+	float* coeff2_time = NULL;
+	status = getIDCOEF(shotNumber, 23, &coeff2_time, &coeff2_data, &coeff_len, 1.);
+	if (status != 0) return status;
+
+	float* coeff3_data = NULL;
+	float* coeff3_time = NULL;
+	status = getIDCOEF(shotNumber, 24, &coeff3_time, &coeff3_data, &coeff_len, 1.);
+	if (status != 0) return status;
+
+	float* s2 = NULL;
+	somme2(&s2, coeff1_data, coeff2_data, coeff3_data, coeff_len);
+
+	float factLower = somme(I_case_lower_data, I_case_lower_len) / somme(s2, coeff_len);
+	return factLower;
+}
+
+int I_case_upper_hfs(int shotNumber, float** time, float** data, int* len, float normalizationFactor)
+{
+	int status = getIDCOEF(shotNumber, 19, time, data, len, factUpper(shotNumber));
+	if (status != 0) return status;
+	multiplyFloat(*data, normalizationFactor, *len);
+	return status;
+}
+
+int I_case_upper_c(int shotNumber, float** time, float** data, int* len, float normalizationFactor)
+{
+	int status = getIDCOEF(shotNumber, 20, time, data, len, factUpper(shotNumber));
+	if (status != 0) return status;
+	multiplyFloat(*data, normalizationFactor, *len);
+	return status;
+}
+
+int I_case_upper_lfs(int shotNumber, float** time, float** data, int* len, float normalizationFactor)
+{
+	int status = getIDCOEF(shotNumber, 21, time, data, len, factUpper(shotNumber));
+	if (status != 0) return status;
+	multiplyFloat(*data, normalizationFactor, *len);
+	return status;
+}
+
+int I_case_lower_hfs(int shotNumber, float** time, float** data, int* len, float normalizationFactor)
+{
+	int status = getIDCOEF(shotNumber, 22, time, data, len, factLower(shotNumber));
+	if (status != 0) return status;
+	multiplyFloat(*data, normalizationFactor, *len);
+	return status;
+}
+
+int I_case_lower_c(int shotNumber, float** time, float** data, int* len, float normalizationFactor)
+{
+	int status = getIDCOEF(shotNumber, 23, time, data, len, factLower(shotNumber));
+	if (status != 0) return status;
+	multiplyFloat(*data, normalizationFactor, *len);
+	return status;
+}
+
+int I_case_lower_lfs(int shotNumber, float** time, float** data, int* len, float normalizationFactor)
+{
+	int status = getIDCOEF(shotNumber, 24, time, data, len, factLower(shotNumber));
+	if (status != 0) return status;
+	multiplyFloat(*data, normalizationFactor, *len);
+	return status;
 }
 
 float somme(float* data, int len)
 {
-    int i;
-    float s = 0;
-    for (i = 0; i < len; i++) {
-        s += data[i];
-    }
-    return s;
+	int i;
+	float s = 0;
+	for (i = 0; i < len; i++) {
+		s += data[i];
+	}
+	return s;
 }
 
 void somme2(float** s, float* data1, float* data2, float* data3, int len)
 {
-    *s = (float*)calloc(len, sizeof(float));
-    int i;
-    for (i = 0; i < len; i++) {
-        *s[i] = data1[i] + data2[i] + data3[i];
-    }
+	*s = (float*)calloc(len, sizeof(float));
+	int i;
+	for (i = 0; i < len; i++) {
+		*s[i] = data1[i] + data2[i] + data3[i];
+	}
 }
 

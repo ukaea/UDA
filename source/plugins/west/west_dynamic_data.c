@@ -12,6 +12,7 @@
 
 #include "west_ece.h"
 #include "west_pf_passive.h"
+#include "west_pf_active.h"
 #include "west_utilities.h"
 #include "west_dyn_data_utilities.h"
 
@@ -75,10 +76,14 @@ int GetDynamicData(int shotNumber, const char* mapfun, DATA_BLOCK* data_block, i
         ece_frequencies(shotNumber, data_block, nodeIndices);
     } else if (strcmp(fun_name, "ece_frequencies_time") == 0) {
         ece_harmonic_time(shotNumber, data_block, nodeIndices); //TODO
-    } else if (strcmp(fun_name, "passive_current") == 0) {
-        passive_current(shotNumber, data_block, nodeIndices);
-    } else if (strcmp(fun_name, "passive_time") == 0) {
-        passive_time(shotNumber, data_block, nodeIndices);
+    } else if (strcmp(fun_name, "pf_passive_current_data") == 0) {
+    	pf_passive_current_data(shotNumber, data_block, nodeIndices);
+    } else if (strcmp(fun_name, "pf_passive_current_time") == 0) {
+    	pf_passive_current_time(shotNumber, data_block, nodeIndices);
+    } else if (strcmp(fun_name, "pf_active_current_data") == 0) {
+    	pf_active_current_data(shotNumber, data_block, nodeIndices);
+    } else if (strcmp(fun_name, "pf_active_current_time") == 0) {
+    	pf_active_current_time(shotNumber, data_block, nodeIndices);
     } else if (strcmp(fun_name, "test_fun") == 0) {
         test_fun(shotNumber, data_block, nodeIndices); //TODO
     }

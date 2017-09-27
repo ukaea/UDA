@@ -1,6 +1,6 @@
 #if 0
 #!/bin/bash
-g++ test_develop2.cpp -g  -std=c++11 -O0 -gdwarf-3 -o test -DHOME=$HOME -I$HOME/iter/uda/source -I$HOME/iter/uda/source/wrappers \
+g++ test_develop2.cpp -g -std=c++11 -O0 -gdwarf-3 -o test -DHOME=$HOME -I$HOME/iter/uda/source -I$HOME/iter/uda/source/wrappers \
 -L$HOME/iter/uda/lib -Wl,-rpath,$HOME/iter/uda/lib  -luda_cpp -lssl -lcrypto -lxml2
 exit 0
 #endif
@@ -34,7 +34,7 @@ int main() {
 	uda::Client::setServerPort(56565);
 
 	uda::Client client;
-	
+
 	const uda::Result& sigtime = client.get("imas::get(idx=0, group='magnetics', variable='flux_loop/1/flux/time', expName='WEST', type=double, rank=1, shot=" SHOT_NUM ", )", "");
 	const uda::Data * datatime = sigtime.data();
 	const uda::Array* arrtime = dynamic_cast<const uda::Array*>(datatime);
@@ -55,16 +55,6 @@ int main() {
 	}
 	std::cout << "..." << std::endl;
 
-	/*const uda::Result& current = client.get("imas::get(idx=0, group='pf_passive', variable='loop/1/current', expName='WEST', type=double, rank=1, shot=" SHOT_NUM ", )", "");
-	const uda::Data * current_data = current.data();
-	const uda::Array* arr_current_data = dynamic_cast<const uda::Array*>(current_data);
-
-	std::cout << "values for loop/1/current from 200 to 210: ";
-	for (int j = 199; j < 209; ++j) {
-		std::cout << arr_current_data->as<double>().at(j) << " ";
-	}
-	std::cout << "..." << std::endl;*/
-
 	const uda::Result& sigtime2 = client.get("imas::get(idx=0, group='magnetics', variable='flux_loop/2/flux/time', expName='WEST', type=double, rank=1, shot=" SHOT_NUM ", )", "");
 	const uda::Data * datatime2 = sigtime2.data();
 	const uda::Array* arrtime2 = dynamic_cast<const uda::Array*>(datatime2);
@@ -74,7 +64,7 @@ int main() {
 		std::cout << arrtime2->as<double>().at(j) << " ";
 	}
 	std::cout << "..." << std::endl;
-	
+
 	const uda::Result& sigts2 = client.get("imas::get(idx=0, group='magnetics', variable='flux_loop/2/flux/data', expName='WEST', type=double, rank=1, shot=" SHOT_NUM ", )", "");
 	const uda::Data * datats2 = sigts2.data();
 	const uda::Array* arrts2 = dynamic_cast<const uda::Array*>(datats2);
@@ -94,7 +84,7 @@ int main() {
 		std::cout << arrtime3->as<double>().at(j) << " ";
 	}
 	std::cout << "..." << std::endl;
-	
+
 	const uda::Result& sigts3 = client.get("imas::get(idx=0, group='magnetics', variable='flux_loop/3/flux/data', expName='WEST', type=double, rank=1, shot=" SHOT_NUM ", )", "");
 	const uda::Data * datats3 = sigts3.data();
 	const uda::Array* arrts3 = dynamic_cast<const uda::Array*>(datats3);
@@ -109,6 +99,69 @@ int main() {
 	const uda::Scalar* v_tor_angle = dynamic_cast<const uda::Scalar*>(tor_angle.data());
 	std::cout << "bpol_probe/1/toroidal_angle: " << v_tor_angle->as<float>() << std::endl;
 
+	const uda::Result& bpol_probe_posR = client.get("imas::get(idx=0, group='magnetics', variable='bpol_probe/20/position/r', expName='WEST', type=double, rank=0, shot=" SHOT_NUM ", )", "");
+	const uda::Scalar* scalar_bpol_probe_posR = dynamic_cast<const uda::Scalar*>(bpol_probe_posR.data());
+	std::cout << "bpol_probe/20/position/r: " << scalar_bpol_probe_posR->as<double>() << std::endl;
+
+	const uda::Result& mag = client.get("imas::get(idx=0, group='magnetics', variable='bpol_probe/1/field/data', expName='WEST', type=double, rank=1, shot=" SHOT_NUM ", )", "");
+	const uda::Data * data_mag = mag.data();
+	const uda::Array* arr_data_mag = dynamic_cast<const uda::Array*>(data_mag);
+
+	std::cout << "first values for bpol_probe/1/field : ";
+	for (int j = 0; j < 10; ++j) {
+		std::cout << arr_data_mag->as<double>().at(j) << " ";
+	}
+	std::cout << "..." << std::endl;
+
+	const uda::Result& mag2 = client.get("imas::get(idx=0, group='magnetics', variable='bpol_probe/2/field/data', expName='WEST', type=double, rank=1, shot=" SHOT_NUM ", )", "");
+	const uda::Data * data_mag2 = mag2.data();
+	const uda::Array* arr_data_mag2 = dynamic_cast<const uda::Array*>(data_mag2);
+
+	std::cout << "first values for bpol_probe/2/field : ";
+	for (int j = 0; j < 10; ++j) {
+		std::cout << arr_data_mag2->as<double>().at(j) << " ";
+	}
+	std::cout << "..." << std::endl;
+
+	const uda::Result& mag55 = client.get("imas::get(idx=0, group='magnetics', variable='bpol_probe/55/field/data', expName='WEST', type=double, rank=1, shot=" SHOT_NUM ", )", "");
+	const uda::Data * data_mag55 = mag55.data();
+	const uda::Array* arr_data_mag55 = dynamic_cast<const uda::Array*>(data_mag55);
+
+	std::cout << "first values for bpol_probe/55/field : ";
+	for (int j = 0; j < 10; ++j) {
+		std::cout << arr_data_mag55->as<double>().at(j) << " ";
+	}
+	std::cout << "..." << std::endl;
+
+	const uda::Result& mag56 = client.get("imas::get(idx=0, group='magnetics', variable='bpol_probe/56/field/data', expName='WEST', type=double, rank=1, shot=" SHOT_NUM ", )", "");
+	const uda::Data * data_mag56 = mag56.data();
+	const uda::Array* arr_data_mag56 = dynamic_cast<const uda::Array*>(data_mag56);
+
+	std::cout << "first values for bpol_probe/56/field : ";
+	for (int j = 0; j < 10; ++j) {
+		std::cout << arr_data_mag56->as<double>().at(j) << " ";
+	}
+	std::cout << "..." << std::endl;
+
+	const uda::Result& mag110 = client.get("imas::get(idx=0, group='magnetics', variable='bpol_probe/110/field/data', expName='WEST', type=double, rank=1, shot=" SHOT_NUM ", )", "");
+	const uda::Data * data_mag110 = mag110.data();
+	const uda::Array* arr_data_mag110 = dynamic_cast<const uda::Array*>(data_mag110);
+
+	std::cout << "first values for bpol_probe/110/field : ";
+	for (int j = 0; j < 10; ++j) {
+		std::cout << arr_data_mag110->as<double>().at(j) << " ";
+	}
+	std::cout << "..." << std::endl;
+
+	const uda::Result& mag111 = client.get("imas::get(idx=0, group='magnetics', variable='bpol_probe/111/field/data', expName='WEST', type=double, rank=1, shot=" SHOT_NUM ", )", "");
+	const uda::Data * data_mag111 = mag111.data();
+	const uda::Array* arr_data_mag111 = dynamic_cast<const uda::Array*>(data_mag111);
+
+	std::cout << "first values for bpol_probe/111/field : ";
+	for (int j = 0; j < 10; ++j) {
+		std::cout << arr_data_mag111->as<double>().at(j) << " ";
+	}
+	std::cout << "..." << std::endl;
 
 
 	return 0;

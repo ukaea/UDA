@@ -1,6 +1,6 @@
 #if 0
 #!/bin/bash
-g++ test_ece_develop.cpp -g -O0 -gdwarf-3 -o test -DHOME=$HOME -I$HOME/iter/uda/source -I$HOME/iter/uda/source/wrappers \
+g++ test_ece_develop.cpp -g -std=c++11 -O0 -gdwarf-3 -o test -DHOME=$HOME -I$HOME/iter/uda/source -I$HOME/iter/uda/source/wrappers \
 -L$HOME/iter/uda/lib -Wl,-rpath,$HOME/iter/uda/lib  -luda_cpp -lssl -lcrypto -lxml2
 exit 0
 #endif
@@ -59,42 +59,42 @@ int main() {
 
 	std::cout << "channel/10/name : " << s2->str() << "\n";
 
-	/*const uda::Result& sigfreq = client.get("imas::get(idx=0, group='ece', variable='channel/1/frequency', expName='WEST', type=double, rank=1, shot=" SHOT_NUM_33456 ", )", "");
-	const uda::Data *data = sigfreq.data();
-	const uda::Array* arrfreq = dynamic_cast<const uda::Array*>(data);
+	const uda::Result& sigfreq = client.get("imas::get(idx=0, group='ece', variable='channel/1/frequency/data', expName='WEST', type=double, rank=1, shot=" SHOT_NUM_33456 ", )", "");
+	const uda::Data *data3 = sigfreq.data();
+	const uda::Array* arrfreq3 = dynamic_cast<const uda::Array*>(data3);
 
-	std::cout << "first values for channel/1/frequency : ";
+	std::cout << "first values for channel/1/frequency/data : ";
 	for (int j = 0; j < 10; ++j) {
-		std::cout << arrfreq->as<double>().at(j) << " ";
+		std::cout << arrfreq3->as<double>().at(j) << " ";
 	}
 	std::cout << "..." << std::endl;
 
-	const uda::Result& sigfreq2 = client.get("imas::get(idx=0, group='ece', variable='channel/7/frequency', expName='WEST', type=double, rank=1, shot=" SHOT_NUM_33456 ", )", "");
-	data = sigfreq2.data();
-	const uda::Array* arrfreq2 = dynamic_cast<const uda::Array*>(data);
+	const uda::Result& sigfreq2 = client.get("imas::get(idx=0, group='ece', variable='channel/7/frequency/time', expName='WEST', type=double, rank=1, shot=" SHOT_NUM_33456 ", )", "");
+	const uda::Data * data5 = sigfreq2.data();
+	const uda::Array* arrfreq2 = dynamic_cast<const uda::Array*>(data5);
 
-	std::cout << "first values for channel/2/frequency : ";
+	std::cout << "first values for channel/2/frequency/time : ";
 	for (int j = 0; j < 10; ++j) {
 		std::cout << arrfreq2->as<double>().at(j) << " ";
 	}
-	std::cout << "..." << std::endl;*/
+	std::cout << "..." << std::endl;
 
 
-	const uda::Result& sigtime = client.get("imas::get(idx=0, group='ece', variable='channel/1/t_e/time', expName='WEST', type=double, rank=1, shot=" SHOT_NUM_33456 ", )", "");
+	const uda::Result& sigtime = client.get("imas::get(idx=0, group='ece', variable='channel/1/t_e_voltage/time', expName='WEST', type=double, rank=1, shot=" SHOT_NUM_33456 ", )", "");
 	const uda::Data *data = sigtime.data();
 	const uda::Array* arrtime = dynamic_cast<const uda::Array*>(data);
 
-	std::cout << "first values for channel/1/t_e/time : ";
+	std::cout << "first values for channel/1/t_e_voltage/time : ";
 	for (int j = 0; j < 10; ++j) {
 		std::cout << arrtime->as<double>().at(j) << " ";
 	}
 	std::cout << "..." << std::endl;
 
-	const uda::Result& sig2 = client.get("imas::get(idx=0, group='ece', variable='channel/1/t_e/data', expName='WEST', type=double, rank=1, shot=" SHOT_NUM_33456 ", )", "");
+	const uda::Result& sig2 = client.get("imas::get(idx=0, group='ece', variable='channel/1/t_e_voltage/data', expName='WEST', type=double, rank=1, shot=" SHOT_NUM_33456 ", )", "");
 	data = sig2.data();
 	const uda::Array* arr2 = dynamic_cast<const uda::Array*>(data);
 
-	std::cout << "first values for channel/1/t_e/data for shot 33456 : ";
+	std::cout << "first values for channel/1/t_e_voltage/data for shot 33456 : ";
 	for (int j = 0; j < 10; ++j) {
 		std::cout << arr2->as<double>().at(j) << " ";
 	}

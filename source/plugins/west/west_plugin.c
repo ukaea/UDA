@@ -300,16 +300,6 @@ int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             addIdamError(CODEERRORTYPE, __func__, err, "west : Unsupported data type");
         }
 
-        //free(data_block->dims);
-
-        // Scalar data
-        //data_block->rank = 0;
-        //data_block->data_n = 1;
-
-        //strcpy(data_block->data_label, "");
-        //strcpy(data_block->data_units, "");
-        //strcpy(data_block->data_desc, "");
-
         return 0;
 
     } else if (IDS_DataType == DYNAMIC) {

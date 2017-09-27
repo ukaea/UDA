@@ -110,6 +110,42 @@ int main() {
 	const uda::Result& pf_active_turns1 = client.get("imas::get(idx=0, group='pf_active', variable='coil/1/element/1/turns_with_sign', expName='WEST', type=int, rank=0, shot=" SHOT_NUM ", )", "");
 	const uda::Scalar* scalar_pf_active_turns1 = dynamic_cast<const uda::Scalar*>(pf_active_turns1.data());
 	std::cout << "coil/1/element/1/turns_with_sign: " << scalar_pf_active_turns1->as<int>() << std::endl;
+	
+	const uda::Result& pfactive = client.get("imas::get(idx=0, group='pf_active', variable='coil/1/current/data', expName='WEST', type=double, rank=1, shot=" SHOT_NUM ", )", "");
+	const uda::Data * data_pfactive = pfactive.data();
+	const uda::Array* arr_data_pfactive = dynamic_cast<const uda::Array*>(data_pfactive);
+	std::cout << "first values for pf_active/coil/1/current/data : ";
+	for (int j = 0; j < 10; ++j) {
+		std::cout << arr_data_pfactive->as<double>().at(j) << " ";
+	}
+	std::cout << "..." << std::endl;
+	
+	const uda::Result& pfactive_time1 = client.get("imas::get(idx=0, group='pf_active', variable='coil/1/current/time', expName='WEST', type=double, rank=1, shot=" SHOT_NUM ", )", "");
+	const uda::Data * data_pfactive_time1 = pfactive_time1.data();
+	const uda::Array* arr_data_pfactive_time1 = dynamic_cast<const uda::Array*>(data_pfactive_time1);
+	std::cout << "first values for pf_active/coil/1/current/time : ";
+	for (int j = 0; j < 10; ++j) {
+		std::cout << arr_data_pfactive_time1->as<double>().at(j) << " ";
+	}
+	std::cout << "..." << std::endl;
+
+	const uda::Result& pfactive2 = client.get("imas::get(idx=0, group='pf_active', variable='coil/2/current/data', expName='WEST', type=double, rank=1, shot=" SHOT_NUM ", )", "");
+	const uda::Data * data_pfactive2 = pfactive2.data();
+	const uda::Array* arr_data_pfactive2 = dynamic_cast<const uda::Array*>(data_pfactive2);
+	std::cout << "first values for pf_active/coil/2/current/data : ";
+	for (int j = 0; j < 10; ++j) {
+		std::cout << arr_data_pfactive2->as<double>().at(j) << " ";
+	}
+	std::cout << "..." << std::endl;
+	
+	const uda::Result& pfactive_time = client.get("imas::get(idx=0, group='pf_active', variable='coil/2/current/time', expName='WEST', type=double, rank=1, shot=" SHOT_NUM ", )", "");
+	const uda::Data * data_pfactive_time = pfactive_time.data();
+	const uda::Array* arr_data_pfactive_time = dynamic_cast<const uda::Array*>(data_pfactive_time);
+	std::cout << "first values for pf_active/coil/2/current/time : ";
+	for (int j = 0; j < 10; ++j) {
+		std::cout << arr_data_pfactive_time->as<double>().at(j) << " ";
+	}
+	std::cout << "..." << std::endl;
 
 	return 0;
 }

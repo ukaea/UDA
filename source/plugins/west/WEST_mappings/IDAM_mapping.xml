@@ -49,8 +49,8 @@
 <mapping key="pf_active/coil/#/element/#/geometry/rectangle/z" value="pf_active_Z" type="static"/>
 <mapping key="pf_active/coil/#/element/#/geometry/rectangle/height" value="pf_active_H" type="static"/>
 <mapping key="pf_active/coil/#/element/#/geometry/rectangle/width" value="pf_active_W" type="static"/>
-<mapping key="pf_active/coil/#/current/data" value="tsbase_collect;DPOLO:GPOLO_IMES;1:float:#0" type="dynamic"/>
-<mapping key="pf_active/coil/#/current/time" value="tsbase_time;DPOLO:GPOLO_IMES;1:float:#0" type="dynamic"/>
+<mapping key="pf_active/coil/#/current/data" value="pf_active_current_data" type="dynamic"/>
+<mapping key="pf_active/coil/#/current/time" value="pf_active_current_time" type="dynamic"/>
 
 <mapping key="interfero_polarimeter/ids_properties/homogeneous_time" value="set_value;0;0:int" type="static"/>
 <mapping key="interfero_polarimeter/channel/Shape_of" value="shape_of_tsmat_collect;DINTRPOL:GINTLIDRT:CALIB;0:float:#0" type="static"/>

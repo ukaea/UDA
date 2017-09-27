@@ -36,9 +36,6 @@ char* getTopParameters(int shotNumber);
 
 int test_fun(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 {
-    //float* data = NULL;
-    //float* time = NULL;
-    //SetDynamicData(data_block, 0, time, data);
     return 0;
 }
 
