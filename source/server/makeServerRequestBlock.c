@@ -308,7 +308,7 @@ int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList)
                         if (STR_IEQUALS(request_block->archive, pluginList.plugin[i].format)) {
                             request_block->request = pluginList.plugin[i].request;                // Found!
                             strcpy(request_block->format, pluginList.plugin[i].format);
-                            isFunction = pluginList.plugin[i].class == PLUGINFUNCTION;
+                            isFunction = pluginList.plugin[i].plugin_class == PLUGINFUNCTION;
                             break;
                         }
                     }
@@ -334,23 +334,23 @@ int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList)
 
             for (i = 0; i < pluginList.count; i++) {
                 if (STR_IEQUALS(work2, pluginList.plugin[i].format)) {
-                    if (pluginList.plugin[i].class != PLUGINDEVICE) {
+                    if (pluginList.plugin[i].plugin_class != PLUGINDEVICE) {
                         request_block->request = pluginList.plugin[i].request;        // Found
                         strcpy(request_block->format, pluginList.plugin[i].format);
-                        if (pluginList.plugin[i].class !=
+                        if (pluginList.plugin[i].plugin_class !=
                             PLUGINFILE) {            // The full file path fully resolved by the client
                             strcpy(request_block->path,
                                    test + ldelim);            // Complete String following :: delimiter
                             strcpy(request_block->file, "");                // Clean the filename
-                            if (pluginList.plugin[i].class == PLUGINFUNCTION) {
+                            if (pluginList.plugin[i].plugin_class == PLUGINFUNCTION) {
                                 isFunction = 1;
                                 extractFunctionName(work, request_block);
                             }
                         } else {
                             strcpy(request_block->file, (char*) basename(test + ldelim));    // Final token
                         }
-                        isFile = pluginList.plugin[i].class == PLUGINFILE;
-                        isServer = pluginList.plugin[i].class == PLUGINSERVER;
+                        isFile = pluginList.plugin[i].plugin_class == PLUGINFILE;
+                        isServer = pluginList.plugin[i].plugin_class == PLUGINSERVER;
                         break;
                     } else {
 
@@ -361,7 +361,7 @@ int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList)
                         int depth = 0;
                         //int id = findPluginRequestByFormat(pluginList.plugin[i].deviceProtocol, &pluginList);
                         int id = findPluginIdByFormat(pluginList.plugin[i].deviceProtocol, &pluginList);
-                        if (id >= 0 && pluginList.plugin[id].class == PLUGINSERVER) {
+                        if (id >= 0 && pluginList.plugin[id].plugin_class == PLUGINSERVER) {
 
                             sprintf(work, "%s%s%s", pluginList.plugin[i].deviceProtocol, request_block->api_delim,
                                     pluginList.plugin[i].deviceHost);
@@ -604,7 +604,7 @@ int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList)
                 if (STR_IEQUALS(request_block->archive, pluginList.plugin[i].format)) {
                     request_block->request = pluginList.plugin[i].request;            // Found
                     strcpy(request_block->format, pluginList.plugin[i].format);
-                    isFunction = (pluginList.plugin[i].class == PLUGINFUNCTION);        // Must be a known Library
+                    isFunction = (pluginList.plugin[i].plugin_class == PLUGINFUNCTION);        // Must be a known Library
                     break;
                 }
             }
@@ -647,7 +647,7 @@ int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList)
 
         if (isFunction && strcasecmp(request_block->archive, environment->api_archive) != 0) {
             int id = findPluginIdByFormat(request_block->archive, &pluginList);
-            if (id >= 0 && pluginList.plugin[id].class == PLUGINFUNCTION &&
+            if (id >= 0 && pluginList.plugin[id].plugin_class == PLUGINFUNCTION &&
                 strcasecmp(pluginList.plugin[id].symbol, "serverside") != 0) {
                 if (request_block->request == REQUEST_READ_GENERIC ||
                     request_block->request == REQUEST_READ_UNKNOWN) {
@@ -1004,7 +1004,7 @@ int sourceFileFormatTest(const char* source, REQUEST_BLOCK* request_block, PLUGI
             rc = 1;
             IDAM_LOGF(UDA_LOG_DEBUG, "Format identified, selecting specific plugin for %s\n", request_block->format);
             request_block->request = pluginList.plugin[i].request;            // Found
-            if (pluginList.plugin[i].class !=
+            if (pluginList.plugin[i].plugin_class !=
                 PLUGINFILE) {                // The full file path fully resolved by the client
                 strcpy(request_block->file, "");                        // Clean the filename
             } else {

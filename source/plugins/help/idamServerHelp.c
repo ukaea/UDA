@@ -202,8 +202,8 @@ static int do_services(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     count = 0;
     for (i = 0; i < pluginList->count; i++)
         if (pluginList->plugin[i].status == PLUGINOPERATIONAL &&
-            (pluginList->plugin[i].private == PLUGINPUBLIC ||
-             (pluginList->plugin[i].private == PLUGINPRIVATE && !environment->external_user))) {
+            (pluginList->plugin[i].is_private == PLUGINPUBLIC ||
+             (pluginList->plugin[i].is_private == PLUGINPRIVATE && !environment->external_user))) {
                  count++;
         }
 
@@ -218,10 +218,10 @@ static int do_services(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 target = PLUGINFILE;
 
                 for (i = 0; i < pluginList->count; i++)
-                    if (pluginList->plugin[i].class == target &&
+                    if (pluginList->plugin[i].plugin_class == target &&
                         pluginList->plugin[i].status == PLUGINOPERATIONAL &&
-                        (pluginList->plugin[i].private == PLUGINPUBLIC ||
-                         (pluginList->plugin[i].private == PLUGINPRIVATE && !environment->external_user)) &&
+                        (pluginList->plugin[i].is_private == PLUGINPUBLIC ||
+                         (pluginList->plugin[i].is_private == PLUGINPRIVATE && !environment->external_user)) &&
                         pluginList->plugin[i].format[0] != '\0' && pluginList->plugin[i].extension[0] != '\0') {
                             count++;
                     }
@@ -230,10 +230,10 @@ static int do_services(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 strcat(doc, rec);
 
                 for (i = 0; i < pluginList->count; i++)
-                    if (pluginList->plugin[i].class == target &&
+                    if (pluginList->plugin[i].plugin_class == target &&
                         pluginList->plugin[i].status == PLUGINOPERATIONAL &&
-                        (pluginList->plugin[i].private == PLUGINPUBLIC ||
-                         (pluginList->plugin[i].private == PLUGINPRIVATE && !environment->external_user)) &&
+                        (pluginList->plugin[i].is_private == PLUGINPUBLIC ||
+                         (pluginList->plugin[i].is_private == PLUGINPRIVATE && !environment->external_user)) &&
                         pluginList->plugin[i].format[0] != '\0' && pluginList->plugin[i].extension[0] != '\0') {
                         sprintf(rec, "File format:\t\t%s\n", pluginList->plugin[i].format);
                         strcat(doc, rec);
@@ -249,19 +249,19 @@ static int do_services(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             case 1: {
                 target = PLUGINFUNCTION;
                 for (i = 0; i < pluginList->count; i++)
-                    if (pluginList->plugin[i].class == target &&
+                    if (pluginList->plugin[i].plugin_class == target &&
                         pluginList->plugin[i].status == PLUGINOPERATIONAL &&
-                        (pluginList->plugin[i].private == PLUGINPUBLIC ||
-                         (pluginList->plugin[i].private == PLUGINPRIVATE && !environment->external_user))) {
+                        (pluginList->plugin[i].is_private == PLUGINPUBLIC ||
+                         (pluginList->plugin[i].is_private == PLUGINPRIVATE && !environment->external_user))) {
                              count++;
                     }
                 sprintf(rec, "\nNumber of plugins for Libraries: %d\n\n", count);
                 strcat(doc, rec);
                 for (i = 0; i < pluginList->count; i++)
-                    if (pluginList->plugin[i].class == target &&
+                    if (pluginList->plugin[i].plugin_class == target &&
                         pluginList->plugin[i].status == PLUGINOPERATIONAL &&
-                        (pluginList->plugin[i].private == PLUGINPUBLIC ||
-                         (pluginList->plugin[i].private == PLUGINPRIVATE && !environment->external_user))) {
+                        (pluginList->plugin[i].is_private == PLUGINPUBLIC ||
+                         (pluginList->plugin[i].is_private == PLUGINPRIVATE && !environment->external_user))) {
                         sprintf(rec, "Library name:\t\t%s\n", pluginList->plugin[i].format);
                         strcat(doc, rec);
                         sprintf(rec, "Description:\t\t%s\n", pluginList->plugin[i].desc);
@@ -274,19 +274,19 @@ static int do_services(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             case 2: {
                 target = PLUGINSERVER;
                 for (i = 0; i < pluginList->count; i++)
-                    if (pluginList->plugin[i].class == target &&
+                    if (pluginList->plugin[i].plugin_class == target &&
                         pluginList->plugin[i].status == PLUGINOPERATIONAL &&
-                        (pluginList->plugin[i].private == PLUGINPUBLIC ||
-                         (pluginList->plugin[i].private == PLUGINPRIVATE && !environment->external_user))) {
+                        (pluginList->plugin[i].is_private == PLUGINPUBLIC ||
+                         (pluginList->plugin[i].is_private == PLUGINPRIVATE && !environment->external_user))) {
                              count++;
                     }
                 sprintf(rec, "\nNumber of plugins for Data Servers: %d\n\n", count);
                 strcat(doc, rec);
                 for (i = 0; i < pluginList->count; i++)
-                    if (pluginList->plugin[i].class == target &&
+                    if (pluginList->plugin[i].plugin_class == target &&
                         pluginList->plugin[i].status == PLUGINOPERATIONAL &&
-                        (pluginList->plugin[i].private == PLUGINPUBLIC ||
-                         (pluginList->plugin[i].private == PLUGINPRIVATE && !environment->external_user))) {
+                        (pluginList->plugin[i].is_private == PLUGINPUBLIC ||
+                         (pluginList->plugin[i].is_private == PLUGINPRIVATE && !environment->external_user))) {
                         sprintf(rec, "Server name:\t\t%s\n", pluginList->plugin[i].format);
                         strcat(doc, rec);
                         sprintf(rec, "Description:\t\t%s\n", pluginList->plugin[i].desc);
@@ -299,19 +299,19 @@ static int do_services(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             case 3: {
                 target = PLUGINDEVICE;
                 for (i = 0; i < pluginList->count; i++)
-                    if (pluginList->plugin[i].class == target &&
+                    if (pluginList->plugin[i].plugin_class == target &&
                         pluginList->plugin[i].status == PLUGINOPERATIONAL &&
-                        (pluginList->plugin[i].private == PLUGINPUBLIC ||
-                         (pluginList->plugin[i].private == PLUGINPRIVATE && !environment->external_user))) {
+                        (pluginList->plugin[i].is_private == PLUGINPUBLIC ||
+                         (pluginList->plugin[i].is_private == PLUGINPRIVATE && !environment->external_user))) {
                              count++;
                     }
                 sprintf(rec, "\nNumber of plugins for External Devices: %d\n\n", count);
                 strcat(doc, rec);
                 for (i = 0; i < pluginList->count; i++)
-                    if (pluginList->plugin[i].class == target &&
+                    if (pluginList->plugin[i].plugin_class == target &&
                         pluginList->plugin[i].status == PLUGINOPERATIONAL &&
-                        (pluginList->plugin[i].private == PLUGINPUBLIC ||
-                         (pluginList->plugin[i].private == PLUGINPRIVATE && !environment->external_user))) {
+                        (pluginList->plugin[i].is_private == PLUGINPUBLIC ||
+                         (pluginList->plugin[i].is_private == PLUGINPRIVATE && !environment->external_user))) {
                         sprintf(rec, "External device name:\t%s\n", pluginList->plugin[i].format);
                         strcat(doc, rec);
                         sprintf(rec, "Description:\t\t%s\n", pluginList->plugin[i].desc);
@@ -324,19 +324,19 @@ static int do_services(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             case 4: {
                 target = PLUGINOTHER;
                 for (i = 0; i < pluginList->count; i++)
-                    if (pluginList->plugin[i].class == target &&
+                    if (pluginList->plugin[i].plugin_class == target &&
                         pluginList->plugin[i].status == PLUGINOPERATIONAL &&
-                        (pluginList->plugin[i].private == PLUGINPUBLIC ||
-                         (pluginList->plugin[i].private == PLUGINPRIVATE && !environment->external_user))) {
+                        (pluginList->plugin[i].is_private == PLUGINPUBLIC ||
+                         (pluginList->plugin[i].is_private == PLUGINPRIVATE && !environment->external_user))) {
                              count++;
                     }
                 sprintf(rec, "\nNumber of plugins for Other data services: %d\n\n", count);
                 strcat(doc, rec);
                 for (i = 0; i < pluginList->count; i++)
-                    if (pluginList->plugin[i].class == target &&
+                    if (pluginList->plugin[i].plugin_class == target &&
                         pluginList->plugin[i].status == PLUGINOPERATIONAL &&
-                        (pluginList->plugin[i].private == PLUGINPUBLIC ||
-                         (pluginList->plugin[i].private == PLUGINPRIVATE && !environment->external_user))) {
+                        (pluginList->plugin[i].is_private == PLUGINPUBLIC ||
+                         (pluginList->plugin[i].is_private == PLUGINPRIVATE && !environment->external_user))) {
                         sprintf(rec, "Data service name:\t%s\n", pluginList->plugin[i].format);
                         strcat(doc, rec);
                         sprintf(rec, "Description:\t\t%s\n", pluginList->plugin[i].desc);
