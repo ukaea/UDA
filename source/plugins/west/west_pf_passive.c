@@ -90,7 +90,7 @@ void pf_passive_coil_identifier(int shotNumber, DATA_BLOCK* data_block, int* nod
 
 void pf_passive_element_name(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 {
-	int element_number = nodeIndices[1]; //starts from 1
+	int element_number = 1;
 	char s[100];
 	sprintf(s, "%d", element_number);
 	setReturnDataString(data_block, s, NULL);
@@ -103,80 +103,30 @@ void pf_passive_element_identifier(int shotNumber, DATA_BLOCK* data_block, int* 
 
 void pf_passive_elements_shapeOf(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices) //TODO
 {
-	int len = 32;
+	int len = 1;
 	setReturnDataIntScalar(data_block, len, NULL);
 }
 
 void pf_passive_coils_shapeOf(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices) //TODO
 {
-	int len = 17;
+	int len = 34;
 	setReturnDataIntScalar(data_block, len, NULL);
 }
 
 void pf_passive_R(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 {
-	//pf_active(shotNumber, data_block, nodeIndices, 0);
+	passive_r(shotNumber, data_block, nodeIndices);
 }
 
 void pf_passive_Z(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 {
-	//pf_active(shotNumber, data_block, nodeIndices, 1);
-}
-
-void pf_passive_W(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
-{
-	//pf_active(shotNumber, data_block, nodeIndices, 2);
-}
-
-void pf_passive_H(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
-{
-	pf_active(shotNumber, data_block, nodeIndices, 3);
+	passive_z(shotNumber, data_block, nodeIndices);
 }
 
 void pf_passive_turns(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 {
-	/*int coil_number = nodeIndices[0]; //starts from 1
-	int r;
-	int index = 4;
-
-	if (coil_number == 1) {
-		r = (int)A[index];
-	} else if (coil_number == 2) {
-		r = (int)Bh[index];
-	} else if (coil_number == 3) {
-		r = (int)Dh[index];
-	} else if (coil_number == 4) {
-		r = (int)Eh[index];
-	} else if (coil_number == 5) {
-		r = (int)Fh[index];
-	} else if (coil_number == 6) {
-		r = (int)Fb[index];
-	} else if (coil_number == 7) {
-		r = (int)Eb[index];
-	} else if (coil_number == 8) {
-		r = (int)Db[index];
-	} else if (coil_number == 9) {
-		r = (int)Bb[index];
-	} else if (coil_number == 10) {
-		r = (int)Xu1[index];
-	} else if (coil_number == 11) {
-		r = (int)Xu2[index];
-	} else if (coil_number == 12) {
-		r = (int)Xu3[index];
-	} else if (coil_number == 13) {
-		r = (int)Xu4[index];
-	} else if (coil_number == 14) {
-		r = (int)Xl1[index];
-	} else if (coil_number == 15) {
-		r = (int)Xl2[index];
-	} else if (coil_number == 16) {
-		r = (int)Xl3[index];
-	} else if (coil_number == 17) {
-		r = (int)Xl4[index];
-	}
-	setReturnDataIntScalar(data_block, r, NULL);*/
+	setReturnDataIntScalar(data_block, 1, NULL);
 }
-
 
 
 
@@ -199,6 +149,8 @@ void passive_name(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 		sprintf(s, "Upper divertor casing, high field side part (loop %d)", k - 26);
 	} else if (k > 29 && k <= 32) {
 		sprintf(s, "Lower divertor casing, centre part (loop %d)", k - 29);
+	} else if (k > 32 && k <= 34) {
+		sprintf(s, "Lower divertor casing, low field side part (loop %d)", k - 32);
 	}
 
 	setReturnDataString(data_block, s, NULL);
@@ -224,6 +176,8 @@ void passive_r(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 		r[0] = Rinf1[k - 27];
 	} else if (k > 29 && k <= 32) {
 		r[0] = Rinf2[k - 30];
+	} else if (k > 32 && k <= 34) {
+		r[0] = Rinf3[k - 33];
 	}
 	SetStatic1DData(data_block, 1, r);
 }
@@ -248,6 +202,8 @@ void passive_z(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 		z[0] = Zinf1[k - 27];
 	} else if (k > 29 && k <= 32) {
 		z[0] = Zinf2[k - 30];
+	} else if (k > 32 && k <= 34) {
+		z[0] = Zinf3[k - 33];
 	}
 	SetStatic1DData(data_block, 1, z);
 }
@@ -287,6 +243,7 @@ int getCurrent(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices, float**
 	const int Rsup3_length = (int)(sizeof(Rsup3) / sizeof(Rsup3[0]));
 	const int Rinf1_length = (int)(sizeof(Rinf1) / sizeof(Rinf1[0]));
 	const int Rinf2_length = (int)(sizeof(Rinf2) / sizeof(Rinf2[0]));
+	const int Rinf3_length = (int)(sizeof(Rinf3) / sizeof(Rinf3[0]));
 
 	if (k <= 10) {
 		status = I_uper_stab(shotNumber, time, data, len, 1. / Rsup_length);
@@ -302,6 +259,8 @@ int getCurrent(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices, float**
 		status = I_case_lower_hfs(shotNumber, time, data, len, 1. / Rinf1_length);
 	} else if (k > 29 && k <= 32) {
 		status = I_case_lower_c(shotNumber, time, data, len, 1. / Rinf2_length);
+	} else if (k > 32 && k <= 34) {
+		status = I_case_lower_lfs(shotNumber, time, data, len, 1. / Rinf3_length);
 	}
 
 	return status;
@@ -331,6 +290,8 @@ void passive_time(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 		status = getIDCOEF(shotNumber, 22, &time, &data, &len, 1.);
 	} else if (k > 29 && k <= 32) {
 		status = getIDCOEF(shotNumber, 23, &time, &data, &len, 1.);
+	} else if (k > 32 && k <= 34) {
+		status = getIDCOEF(shotNumber, 24, &time, &data, &len, 1.);
 	}
 
 	if (status != 0) {

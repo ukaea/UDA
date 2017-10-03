@@ -13,10 +13,12 @@
 #include <structures/struct.h>
 
 #include "ts_rqparam.h"
+#include "west_utilities.h"
+
 #include "west_ece.h"
 #include "west_pf_passive.h"
 #include "west_pf_active.h"
-#include "west_utilities.h"
+#include "west_soft_x_rays.h"
 
 char* setBuffer(int data_type, char* value);
 void getShapeOf(const char* command, int shotNumber, int* nb_val);
@@ -130,6 +132,41 @@ int execute(const char* mapfun, int shotNumber, DATA_BLOCK* data_block, int* nod
 		fun = 149;
 	} else if (strcmp(fun_name, "pf_active_W") == 0) {
 		fun = 150;
+	}
+
+	//------------------soft_x_rays----------------------------------
+	else if (strcmp(fun_name, "soft_x_rays_idsproperties_comment") == 0) {
+		fun = 200;
+	}
+	else if (strcmp(fun_name, "soft_x_rays_channels_shapeof") == 0) {
+		fun = 201;
+	}
+	else if (strcmp(fun_name, "channel_line_of_sight_first_point_r") == 0) {
+		fun = 202;
+	}
+	else if (strcmp(fun_name, "channel_line_of_sight_first_point_z") == 0) {
+		fun = 203;
+	}
+	else if (strcmp(fun_name, "channel_line_of_sight_first_point_phi") == 0) {
+		fun = 204;
+	}
+	else if (strcmp(fun_name, "channel_line_of_sight_second_point_r") == 0) {
+		fun = 205;
+	}
+	else if (strcmp(fun_name, "channel_line_of_sight_second_point_z") == 0) {
+		fun = 206;
+	}
+	else if (strcmp(fun_name, "channel_line_of_sight_second_point_phi") == 0) {
+		fun = 207;
+	}
+	else if (strcmp(fun_name, "soft_x_rays_channels_energy_band_shapeof") == 0) {
+		fun = 208;
+	}
+	else if (strcmp(fun_name, "soft_x_rays_channels_energy_band_lower_bound") == 0) {
+		fun = 209;
+	}
+	else if (strcmp(fun_name, "soft_x_rays_channels_energy_band_upper_bound") == 0) {
+		fun = 210;
 	}
 
 	printNum("Case : ", fun);
@@ -334,6 +371,62 @@ int execute(const char* mapfun, int shotNumber, DATA_BLOCK* data_block, int* nod
 	case 150: {
 		IDAM_LOG(UDA_LOG_DEBUG, "Case of pf_active_W from WEST plugin\n");
 		pf_active_W(shotNumber, data_block, nodeIndices);
+		break;
+	}
+
+	case 200: {
+		IDAM_LOG(UDA_LOG_DEBUG, "Case of soft_x_rays_idsproperties_comment from WEST plugin\n");
+		soft_x_rays_idsproperties_comment(shotNumber, data_block, nodeIndices);
+		break;
+	}
+	case 201: {
+		IDAM_LOG(UDA_LOG_DEBUG, "Case of soft_x_rays_channels_shapeof from WEST plugin\n");
+		soft_x_rays_channels_shapeof(shotNumber, data_block, nodeIndices);
+		break;
+	}
+	case 202: {
+		IDAM_LOG(UDA_LOG_DEBUG, "Case of channel_line_of_sight_first_point_r from WEST plugin\n");
+		channel_line_of_sight_first_point_r(shotNumber, data_block, nodeIndices);
+		break;
+	}
+	case 203: {
+		IDAM_LOG(UDA_LOG_DEBUG, "Case of channel_line_of_sight_first_point_z from WEST plugin\n");
+		channel_line_of_sight_first_point_z(shotNumber, data_block, nodeIndices);
+		break;
+	}
+	case 204: {
+		IDAM_LOG(UDA_LOG_DEBUG, "Case of channel_line_of_sight_first_point_phi from WEST plugin\n");
+		channel_line_of_sight_first_point_phi(shotNumber, data_block, nodeIndices);
+		break;
+	}
+	case 205: {
+		IDAM_LOG(UDA_LOG_DEBUG, "Case of channel_line_of_sight_second_point_r from WEST plugin\n");
+		channel_line_of_sight_second_point_r(shotNumber, data_block, nodeIndices);
+		break;
+	}
+	case 206: {
+		IDAM_LOG(UDA_LOG_DEBUG, "Case of channel_line_of_sight_second_point_z from WEST plugin\n");
+		channel_line_of_sight_second_point_z(shotNumber, data_block, nodeIndices);
+		break;
+	}
+	case 207: {
+		IDAM_LOG(UDA_LOG_DEBUG, "Case of channel_line_of_sight_second_point_phi from WEST plugin\n");
+		channel_line_of_sight_second_point_phi(shotNumber, data_block, nodeIndices);
+		break;
+	}
+	case 208: {
+		IDAM_LOG(UDA_LOG_DEBUG, "Case of soft_x_rays_channels_energy_band_shapeof from WEST plugin\n");
+		soft_x_rays_channels_energy_band_shapeof(shotNumber, data_block, nodeIndices);
+		break;
+	}
+	case 209: {
+		IDAM_LOG(UDA_LOG_DEBUG, "Case of soft_x_rays_channels_energy_band_lower_bound from WEST plugin\n");
+		soft_x_rays_channels_energy_band_lower_bound(shotNumber, data_block, nodeIndices);
+		break;
+	}
+	case 210: {
+		IDAM_LOG(UDA_LOG_DEBUG, "Case of soft_x_rays_channels_energy_band_upper_bound from WEST plugin\n");
+		soft_x_rays_channels_energy_band_upper_bound(shotNumber, data_block, nodeIndices);
 		break;
 	}
 

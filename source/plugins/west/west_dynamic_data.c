@@ -10,11 +10,13 @@
 #include <clientserver/stringUtils.h>
 #include <clientserver/udaTypes.h>
 
+#include "west_utilities.h"
+#include "west_dyn_data_utilities.h"
+
 #include "west_ece.h"
 #include "west_pf_passive.h"
 #include "west_pf_active.h"
-#include "west_utilities.h"
-#include "west_dyn_data_utilities.h"
+#include "west_soft_x_rays.h"
 
 int GetDynamicData(int shotNumber, const char* mapfun, DATA_BLOCK* data_block, int* nodeIndices)
 {
@@ -84,6 +86,10 @@ int GetDynamicData(int shotNumber, const char* mapfun, DATA_BLOCK* data_block, i
     	pf_active_current_data(shotNumber, data_block, nodeIndices);
     } else if (strcmp(fun_name, "pf_active_current_time") == 0) {
     	pf_active_current_time(shotNumber, data_block, nodeIndices);
+    } else if (strcmp(fun_name, "soft_x_rays_channels_power_density_data") == 0) {
+    	soft_x_rays_channels_power_density_data(shotNumber, data_block, nodeIndices); //TODO
+    } else if (strcmp(fun_name, "soft_x_rays_channels_power_density_time") == 0) {
+    	soft_x_rays_channels_power_density_time(shotNumber, data_block, nodeIndices); //TODO
     } else if (strcmp(fun_name, "test_fun") == 0) {
         test_fun(shotNumber, data_block, nodeIndices); //TODO
     }
