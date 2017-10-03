@@ -55,7 +55,7 @@ int sendXDRFile(XDR* xdrs, char* xdrfile)
         return err;
     }
 
-    IDAM_LOGF(UDA_LOG_DEBUG, "reading temporary XDR file %s\n", xdrfile);
+    UDA_LOG(UDA_LOG_DEBUG, "reading temporary XDR file %s\n", xdrfile);
 
 //----------------------------------------------------------------------
 // Error Trap Loop
@@ -81,13 +81,13 @@ int sendXDRFile(XDR* xdrs, char* xdrfile)
 
         rc = xdr_int(xdrs, &bufsize);    // Send Server buffer size, e.g., 100k bytes
 
-        IDAM_LOGF(UDA_LOG_DEBUG, "Buffer size %d\n", bufsize);
+        UDA_LOG(UDA_LOG_DEBUG, "Buffer size %d\n", bufsize);
 
         while (!feof(fh)) {
             nchar = (int) fread(bp, sizeof(char), bufsize, fh);
             rc = rc && xdr_int(xdrs, &nchar);                // Number of Bytes to send
 
-            IDAM_LOGF(UDA_LOG_DEBUG, "File block size %d\n", nchar);
+            UDA_LOG(UDA_LOG_DEBUG, "File block size %d\n", nchar);
 
             if (nchar > 0) {        // Send the bytes
                 rc = rc && xdr_vector(xdrs, (char*) bp, nchar, sizeof(char), (xdrproc_t) xdr_char);
@@ -98,7 +98,7 @@ int sendXDRFile(XDR* xdrs, char* xdrfile)
             count = count + nchar;
         }
 
-        IDAM_LOGF(UDA_LOG_DEBUG, "Total File size %d\n", count);
+        UDA_LOG(UDA_LOG_DEBUG, "Total File size %d\n", count);
 
     } while (0);
 
@@ -142,7 +142,7 @@ int receiveXDRFile(XDR* xdrs, char* xdrfile)
         return err;
     }
 
-    IDAM_LOGF(UDA_LOG_DEBUG, "receiveXDRFile: writing temporary XDR file %s\n", xdrfile);
+    UDA_LOG(UDA_LOG_DEBUG, "receiveXDRFile: writing temporary XDR file %s\n", xdrfile);
 
 //----------------------------------------------------------------------
 // Error Trap Loop
@@ -157,7 +157,7 @@ int receiveXDRFile(XDR* xdrs, char* xdrfile)
         rc = xdrrec_skiprecord(xdrs);
         rc = xdr_int(xdrs, &bufsize);    // Server buffer size, e.g., 100k bytes
 
-        IDAM_LOGF(UDA_LOG_DEBUG, "receiveXDRFile: Buffer size %d\n", bufsize);
+        UDA_LOG(UDA_LOG_DEBUG, "receiveXDRFile: Buffer size %d\n", bufsize);
 
         if (bufsize <= 0 || bufsize > 100 * 1024) {
             err = 999;
@@ -181,7 +181,7 @@ int receiveXDRFile(XDR* xdrs, char* xdrfile)
 
             rc = rc && xdr_int(xdrs, &nchar);                // How many bytes to receive?
 
-            IDAM_LOGF(UDA_LOG_DEBUG, "receiveXDRFile: [%d] File block size %d\n", doLoopLimit, nchar);
+            UDA_LOG(UDA_LOG_DEBUG, "receiveXDRFile: [%d] File block size %d\n", doLoopLimit, nchar);
 
             if (nchar > bufsize) {
                 err = 999;
@@ -206,7 +206,7 @@ int receiveXDRFile(XDR* xdrs, char* xdrfile)
 // *** Read count from server to check all data received
 // *** Read hash sum from server to test data is accurate - another reason to use files and cache rather than a data stream
 
-        IDAM_LOGF(UDA_LOG_DEBUG, "receiveXDRFile: Total File size %d\n", count);
+        UDA_LOG(UDA_LOG_DEBUG, "receiveXDRFile: Total File size %d\n", count);
 
         if (errno != 0) {
             err = 999;

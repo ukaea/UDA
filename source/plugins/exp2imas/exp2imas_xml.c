@@ -350,7 +350,7 @@ int execute_xpath_expression(const char* filename, const xmlChar* xpathExpr, int
         /* Load XML document */
         doc = xmlParseFile(filename);
         if (doc == NULL) {
-            IDAM_LOGF(UDA_LOG_ERROR, "Error: unable to parse file \"%s\"\n", filename);
+            UDA_LOG(UDA_LOG_ERROR, "Error: unable to parse file \"%s\"\n", filename);
             return -1;
         }
     }
@@ -359,7 +359,7 @@ int execute_xpath_expression(const char* filename, const xmlChar* xpathExpr, int
         /* Create xpath evaluation context */
         xpathCtx = xmlXPathNewContext(doc);
         if (xpathCtx == NULL) {
-            IDAM_LOG(UDA_LOG_ERROR, "Error: unable to create new XPath context\n");
+            UDA_LOG(UDA_LOG_ERROR, "Error: unable to create new XPath context\n");
             return -1;
         }
     }
@@ -377,14 +377,14 @@ int execute_xpath_expression(const char* filename, const xmlChar* xpathExpr, int
     xmlXPathObjectPtr xpathObj = xmlXPathEvalExpression(xpathExpr, xpathCtx);
 
     if (xpathObj == NULL) {
-        IDAM_LOGF(UDA_LOG_ERROR, "Error: unable to evaluate xpath expression \"%s\"\n", xpathExpr);
+        UDA_LOG(UDA_LOG_ERROR, "Error: unable to evaluate xpath expression \"%s\"\n", xpathExpr);
         return -1;
     }
 
     xmlNodeSetPtr nodes = xpathObj->nodesetval;
 
     if (nodes == NULL || nodes->nodeNr == 0) {
-        IDAM_LOG(UDA_LOG_ERROR, "error in XPath request  \n");
+        UDA_LOG(UDA_LOG_ERROR, "error in XPath request  \n");
         return -1;
     }
 
@@ -409,7 +409,7 @@ int execute_xpath_expression(const char* filename, const xmlChar* xpathExpr, int
         xmlNodePtr cur = nodes->nodeTab[0];
 
         if (cur->name == NULL) {
-            IDAM_LOG(UDA_LOG_ERROR, "Error: null pointer (nodes->nodeTab[nodeindex]->name) \n");
+            UDA_LOG(UDA_LOG_ERROR, "Error: null pointer (nodes->nodeTab[nodeindex]->name) \n");
             return -1;
         }
 
@@ -419,7 +419,7 @@ int execute_xpath_expression(const char* filename, const xmlChar* xpathExpr, int
         } else {
             content = getContent(cur, &n_vals);
             if (n_vals != data_n) {
-                IDAM_LOG(UDA_LOG_ERROR, "Error: incorrect number of points read from XML file\n");
+                UDA_LOG(UDA_LOG_ERROR, "Error: incorrect number of points read from XML file\n");
                 return -1;
             }
         }

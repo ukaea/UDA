@@ -59,7 +59,7 @@ int readBytes(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK* data
     if (environment->external_user) {
         err = 999;
         addIdamError(CODEERRORTYPE, "readBytes", err, "This Service is Disabled");
-        IDAM_LOGF(UDA_LOG_DEBUG, "Disabled Service - Requested File: %s \n", data_source.path);
+        UDA_LOG(UDA_LOG_DEBUG, "Disabled Service - Requested File: %s \n", data_source.path);
         return err;
     }
 
@@ -69,7 +69,7 @@ int readBytes(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK* data
     if (!IsLegalFilePath(data_source.path)) {
         err = 999;
         addIdamError(CODEERRORTYPE, "readBytes", err, "The directory path has incorrect syntax");
-        IDAM_LOGF(UDA_LOG_DEBUG, "The directory path has incorrect syntax [%s] \n", data_source.path);
+        UDA_LOG(UDA_LOG_DEBUG, "The directory path has incorrect syntax [%s] \n", data_source.path);
         return err;
     }
 
@@ -78,7 +78,7 @@ int readBytes(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK* data
 
     err = 0;
 
-    IDAM_LOGF(UDA_LOG_DEBUG, "File Name  : %s \n", data_source.path);
+    UDA_LOG(UDA_LOG_DEBUG, "File Name  : %s \n", data_source.path);
 
     //----------------------------------------------------------------------
     // File Attributes
@@ -145,9 +145,9 @@ int readBytes(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK* data
 
         strcpy(data_block->data_desc, md5check);    // Pass back the Checksum to the Client
 
-        IDAM_LOGF(UDA_LOG_DEBUG, "File Size          : %d \n", nchar);
-        IDAM_LOGF(UDA_LOG_DEBUG, "File Checksum      : %s \n", md5file);
-        IDAM_LOGF(UDA_LOG_DEBUG, "Read Checksum      : %s \n", md5check);
+        UDA_LOG(UDA_LOG_DEBUG, "File Size          : %d \n", nchar);
+        UDA_LOG(UDA_LOG_DEBUG, "File Checksum      : %s \n", md5file);
+        UDA_LOG(UDA_LOG_DEBUG, "Read Checksum      : %s \n", md5check);
 
         // MD5 Difference?
 

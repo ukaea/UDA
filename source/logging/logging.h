@@ -1,12 +1,11 @@
-#ifndef IDAM_LOGGING_IDAMLOG_H
-#define IDAM_LOGGING_IDAMLOG_H
+#ifndef UDA_LOGGING_IDAMLOG_H
+#define UDA_LOGGING_IDAMLOG_H
 
 #include <stdio.h>
 #include <string.h>
 #include <libgen.h>
 
-#define IDAM_LOG(LEVEL, MSG) idamLog(LEVEL, "%s:%d >> " MSG, basename(__FILE__), __LINE__)
-#define IDAM_LOGF(LEVEL, FMT, ...) idamLog(LEVEL, "%s:%d >> " FMT, basename(__FILE__), __LINE__, __VA_ARGS__)
+#define UDA_LOG(LEVEL, FMT, ...) idamLog(LEVEL, "%s:%d >> " FMT, basename(__FILE__), __LINE__, ##__VA_ARGS__)
 
 extern int reopen_logs;         // Flags whether or Not Logs need to be Re-Opened
 
@@ -33,4 +32,4 @@ void idamLogWithFunc(LOG_LEVEL mode, logFunc func);
 
 void idamLog(LOG_LEVEL mode, const char* fmt, ...);
 
-#endif //IDAM_LOGGING_IDAMLOG_H
+#endif // UDA_LOGGING_IDAMLOG_H

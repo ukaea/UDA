@@ -27,7 +27,7 @@ int protocolVersionTypeTest(int protocolVersion, int type)
 
 // If this client/server version cannot pass/receive a specific type, then return TRUE
 
-    IDAM_LOGF(UDA_LOG_DEBUG, "protocolVersionTypeTest Version: %d, Type: %d\n", protocolVersion, type);
+    UDA_LOG(UDA_LOG_DEBUG, "protocolVersionTypeTest Version: %d, Type: %d\n", protocolVersion, type);
 
 #ifdef __APPLE__
     if (type == UDA_TYPE_UNSIGNED_LONG64) return 1;
@@ -219,7 +219,7 @@ bool_t xdr_client(XDR* xdrs, CLIENT_BLOCK* str)
 
     }
 
-    IDAM_LOGF(UDA_LOG_DEBUG, "protocolVersion %d\n", protocolVersion);
+    UDA_LOG(UDA_LOG_DEBUG, "protocolVersion %d\n", protocolVersion);
     printClientBlock(*str);
 
     return rc;
@@ -242,25 +242,25 @@ bool_t xdr_server1(XDR* xdrs, SERVER_BLOCK* str)
         } else if (serverVersion != str->version) {     // Usually different if the server has crashed
             rc = 0;                                     // Force an error
             str->version = serverVersion;               // Replace the erroneous version number
-            IDAM_LOGF(UDA_LOG_DEBUG, "Server #1 rc = %d\n", rc);
+            UDA_LOG(UDA_LOG_DEBUG, "Server #1 rc = %d\n", rc);
             return rc;
         }
     }
 
-    IDAM_LOGF(UDA_LOG_DEBUG, "Server #1 rc[1] = %d, version = %d\n", rc, str->version);
+    UDA_LOG(UDA_LOG_DEBUG, "Server #1 rc[1] = %d, version = %d\n", rc, str->version);
 
     rc = rc && xdr_int(xdrs, &str->error);
-    IDAM_LOGF(UDA_LOG_DEBUG, "Server #1 rc[2] = %d, error = %d\n", rc, str->error);
+    UDA_LOG(UDA_LOG_DEBUG, "Server #1 rc[2] = %d, error = %d\n", rc, str->error);
     rc = rc && xdr_u_int(xdrs, &str->idamerrorstack.nerrors);
-    IDAM_LOGF(UDA_LOG_DEBUG, "Server #1 rc[3] = %d, error = %d\n", rc, str->idamerrorstack.nerrors);
+    UDA_LOG(UDA_LOG_DEBUG, "Server #1 rc[3] = %d, error = %d\n", rc, str->idamerrorstack.nerrors);
 
     rc = rc && WrapXDRString(xdrs, (char*)str->msg, STRING_LENGTH);
 
-    IDAM_LOGF(UDA_LOG_DEBUG, "Server #1 rc[4] = %d, strlen = %zd\n", rc, strlen(str->msg));
-    IDAM_LOGF(UDA_LOG_DEBUG, "str->msg = %p\n", str->msg);
-    IDAM_LOGF(UDA_LOG_DEBUG, "str->msg[0] = %d\n", str->msg[0]);
-    IDAM_LOGF(UDA_LOG_DEBUG, "maxsize = %d\n", STRING_LENGTH);
-    IDAM_LOGF(UDA_LOG_DEBUG, "Server #1 protocolVersion %d [rc = %d]\n", protocolVersion, rc);
+    UDA_LOG(UDA_LOG_DEBUG, "Server #1 rc[4] = %d, strlen = %zd\n", rc, strlen(str->msg));
+    UDA_LOG(UDA_LOG_DEBUG, "str->msg = %p\n", str->msg);
+    UDA_LOG(UDA_LOG_DEBUG, "str->msg[0] = %d\n", str->msg[0]);
+    UDA_LOG(UDA_LOG_DEBUG, "maxsize = %d\n", STRING_LENGTH);
+    UDA_LOG(UDA_LOG_DEBUG, "Server #1 protocolVersion %d [rc = %d]\n", protocolVersion, rc);
 
     if ((xdrs->x_op == XDR_DECODE && protocolVersion >= 7) || (xdrs->x_op == XDR_ENCODE && protocolVersion >= 7)) {
         rc = rc && WrapXDRString(xdrs, (char*)str->OSName, STRING_LENGTH)
@@ -270,7 +270,7 @@ bool_t xdr_server1(XDR* xdrs, SERVER_BLOCK* str)
 #endif
     }
 
-    IDAM_LOGF(UDA_LOG_DEBUG, "Server #1 rc = %d\n", rc);
+    UDA_LOG(UDA_LOG_DEBUG, "Server #1 rc = %d\n", rc);
 
     return rc;
 }
@@ -285,10 +285,10 @@ bool_t xdr_server2(XDR* xdrs, SERVER_BLOCK* str)
              && WrapXDRString(xdrs, (char*)str->idamerrorstack.idamerror[i].location, STRING_LENGTH)
              && WrapXDRString(xdrs, (char*)str->idamerrorstack.idamerror[i].msg, STRING_LENGTH);
 
-        IDAM_LOGF(UDA_LOG_DEBUG, "xdr_server2 [%d] %s\n", i, str->idamerrorstack.idamerror[i].msg);
+        UDA_LOG(UDA_LOG_DEBUG, "xdr_server2 [%d] %s\n", i, str->idamerrorstack.idamerror[i].msg);
     }
 
-    IDAM_LOGF(UDA_LOG_DEBUG, "Server #2 rc = %d\n", rc);
+    UDA_LOG(UDA_LOG_DEBUG, "Server #2 rc = %d\n", rc);
 
     return rc;
 }

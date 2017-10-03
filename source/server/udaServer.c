@@ -178,13 +178,13 @@ int reportToClient(SERVER_BLOCK* server_block, DATA_BLOCK* data_block, CLIENT_BL
     int protocol_id = PROTOCOL_SERVER_BLOCK;
 
     if ((err = protocol2(serverOutput, protocol_id, XDR_SEND, NULL, logmalloclist, userdefinedtypelist, server_block)) != 0) {
-        IDAM_LOG(UDA_LOG_DEBUG, "Problem Sending Server Data Block #2\n");
+        UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Server Data Block #2\n");
         addIdamError(CODEERRORTYPE, "idamServer", err,
                      "Protocol 11 Error (Sending Server Block #2)");
         return err;
     }
 
-    IDAM_LOG(UDA_LOG_DEBUG, "Server Block Sent to Client without error\n");
+    UDA_LOG(UDA_LOG_DEBUG, "Server Block Sent to Client without error\n");
 
     if (server_block->idamerrorstack.nerrors > 0) {
         err = server_block->idamerrorstack.idamerror[0].code;
@@ -193,13 +193,13 @@ int reportToClient(SERVER_BLOCK* server_block, DATA_BLOCK* data_block, CLIENT_BL
     }
 
     if (err != 0) {
-        IDAM_LOG(UDA_LOG_DEBUG, "Error Forces Exiting of Server Error Trap #2 Loop\n");
+        UDA_LOG(UDA_LOG_DEBUG, "Error Forces Exiting of Server Error Trap #2 Loop\n");
 
         // Send the Server Block and byepass sending data (there are none!)
 
         if (!xdrrec_endofrecord(serverOutput, 1)) {
             err = PROTOCOL_ERROR_7;
-            IDAM_LOG(UDA_LOG_DEBUG, "Problem Sending Server Data Block #2\n");
+            UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Server Data Block #2\n");
             addIdamError(CODEERRORTYPE, "idamClient", err, "Protocol 7 Error (Server Block)");
             return err;
         }
@@ -219,7 +219,7 @@ int reportToClient(SERVER_BLOCK* server_block, DATA_BLOCK* data_block, CLIENT_BL
         protocol_id = PROTOCOL_DATA_SYSTEM;
 
         if ((err = protocol2(serverOutput, protocol_id, XDR_SEND, NULL, logmalloclist, userdefinedtypelist, &metadata_block->data_system)) != 0) {
-            IDAM_LOG(UDA_LOG_DEBUG, "Problem Sending Data System Structure\n");
+            UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Data System Structure\n");
             addIdamError(CODEERRORTYPE, "idamServer", err, "Protocol 4 Error");
             return err;
         }
@@ -230,7 +230,7 @@ int reportToClient(SERVER_BLOCK* server_block, DATA_BLOCK* data_block, CLIENT_BL
         protocol_id = PROTOCOL_SYSTEM_CONFIG;
 
         if ((err = protocol2(serverOutput, protocol_id, XDR_SEND, NULL, logmalloclist, userdefinedtypelist, &metadata_block->system_config)) != 0) {
-            IDAM_LOG(UDA_LOG_DEBUG, "Problem Sending System Configuration Structure\n");
+            UDA_LOG(UDA_LOG_DEBUG, "Problem Sending System Configuration Structure\n");
             addIdamError(CODEERRORTYPE, "idamServer", err, "Protocol 5 Error");
             return err;
         }
@@ -241,7 +241,7 @@ int reportToClient(SERVER_BLOCK* server_block, DATA_BLOCK* data_block, CLIENT_BL
         protocol_id = PROTOCOL_DATA_SOURCE;
 
         if ((err = protocol2(serverOutput, protocol_id, XDR_SEND, NULL, logmalloclist, userdefinedtypelist, &metadata_block->data_source)) != 0) {
-            IDAM_LOG(UDA_LOG_DEBUG, "Problem Sending Data Source Structure\n");
+            UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Data Source Structure\n");
             addIdamError(CODEERRORTYPE, "idamServer", err, "Protocol 6 Error");
             return err;
         }
@@ -252,7 +252,7 @@ int reportToClient(SERVER_BLOCK* server_block, DATA_BLOCK* data_block, CLIENT_BL
         protocol_id = PROTOCOL_SIGNAL;
 
         if ((err = protocol2(serverOutput, protocol_id, XDR_SEND, NULL, logmalloclist, userdefinedtypelist, &metadata_block->signal_rec)) != 0) {
-            IDAM_LOG(UDA_LOG_DEBUG, "Problem Sending Signal Structure\n");
+            UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Signal Structure\n");
             addIdamError(CODEERRORTYPE, "idamServer", err, "Protocol 7 Error");
             return err;
         }
@@ -263,7 +263,7 @@ int reportToClient(SERVER_BLOCK* server_block, DATA_BLOCK* data_block, CLIENT_BL
         protocol_id = PROTOCOL_SIGNAL_DESC;
 
         if ((err = protocol2(serverOutput, protocol_id, XDR_SEND, NULL, logmalloclist, userdefinedtypelist, &metadata_block->signal_desc)) != 0) {
-            IDAM_LOG(UDA_LOG_DEBUG, "Problem Sending Signal Description Structure\n");
+            UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Signal Description Structure\n");
             addIdamError(CODEERRORTYPE, "idamServer", err, "Protocol 8 Error");
             return err;
         }
@@ -274,17 +274,17 @@ int reportToClient(SERVER_BLOCK* server_block, DATA_BLOCK* data_block, CLIENT_BL
     // Send the Data
 
     printDataBlock(*data_block);
-    IDAM_LOG(UDA_LOG_DEBUG, "Sending Data Block Structure to Client\n");
+    UDA_LOG(UDA_LOG_DEBUG, "Sending Data Block Structure to Client\n");
 
     protocol_id = PROTOCOL_DATA_BLOCK;
 
     if ((err = protocol2(serverOutput, protocol_id, XDR_SEND, NULL, logmalloclist, userdefinedtypelist, data_block)) != 0) {
-        IDAM_LOG(UDA_LOG_DEBUG, "Problem Sending Data Structure\n");
+        UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Data Structure\n");
         addIdamError(CODEERRORTYPE, "idamServer", err, "Protocol 2 Error");
         return err;
     }
 
-    IDAM_LOG(UDA_LOG_DEBUG, "Data Block Sent to Client\n");
+    UDA_LOG(UDA_LOG_DEBUG, "Data Block Sent to Client\n");
 
     //----------------------------------------------------------------------------
     // Send the data in a single full TCP packet
@@ -312,7 +312,7 @@ int reportToClient(SERVER_BLOCK* server_block, DATA_BLOCK* data_block, CLIENT_BL
             }
         }
 
-        IDAM_LOG(UDA_LOG_DEBUG, "Sending Hierarchical Data Structure to Client\n");
+        UDA_LOG(UDA_LOG_DEBUG, "Sending Hierarchical Data Structure to Client\n");
 
         if ((err = protocol2(serverOutput, protocol_id, XDR_SEND, NULL, logmalloclist, userdefinedtypelist, data_block)) != 0) {
             addIdamError(CODEERRORTYPE, "idamServer", err,
@@ -320,7 +320,7 @@ int reportToClient(SERVER_BLOCK* server_block, DATA_BLOCK* data_block, CLIENT_BL
             return err;
         }
 
-        IDAM_LOG(UDA_LOG_DEBUG, "Hierarchical Data Structure sent to Client\n");
+        UDA_LOG(UDA_LOG_DEBUG, "Hierarchical Data Structure sent to Client\n");
     }
 
     return err;
@@ -330,7 +330,7 @@ int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block,
                   SERVER_BLOCK* server_block, METADATA_BLOCK* metadata_block, DATA_BLOCK* data_block,
                   ACTIONS* actions_desc, ACTIONS* actions_sig, int* fatal, int* server_closedown)
 {
-    IDAM_LOG(UDA_LOG_DEBUG, "IdamServer: Start of Server Error Trap #1 Loop\n");
+    UDA_LOG(UDA_LOG_DEBUG, "IdamServer: Start of Server Error Trap #1 Loop\n");
 
     //----------------------------------------------------------------------------
     // Client and Server States
@@ -342,7 +342,7 @@ int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block,
 
     initClientBlock(client_block, 0, "");
 
-    IDAM_LOG(UDA_LOG_DEBUG, "IdamServer: Waiting to receive Client Block\n");
+    UDA_LOG(UDA_LOG_DEBUG, "IdamServer: Waiting to receive Client Block\n");
 
     // Receive the Client Block, request block and putData block
 
@@ -359,7 +359,7 @@ int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block,
             THROW_ERROR(999, "Server Time Out");
         }
 
-        IDAM_LOG(UDA_LOG_DEBUG, "Problem Receiving Client Data Block\n");
+        UDA_LOG(UDA_LOG_DEBUG, "Problem Receiving Client Data Block\n");
 
         addIdamError(CODEERRORTYPE, __func__, err, "Protocol 10 Error (Receiving Client Block)");
         concatIdamError(&server_block->idamerrorstack); // Update Server State with Error Stack
@@ -390,11 +390,11 @@ int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block,
         environment.external_user = 1;
     }
 
-    IDAM_LOGF(UDA_LOG_DEBUG, "client protocolVersion %d\n", protocolVersion);
-    IDAM_LOGF(UDA_LOG_DEBUG, "privateFlags %d\n", privateFlags);
-    IDAM_LOGF(UDA_LOG_DEBUG, "clientFlags  %d\n", clientFlags);
-    IDAM_LOGF(UDA_LOG_DEBUG, "altRank      %d\n", altRank);
-    IDAM_LOGF(UDA_LOG_DEBUG, "external?    %d\n", environment.external_user);
+    UDA_LOG(UDA_LOG_DEBUG, "client protocolVersion %d\n", protocolVersion);
+    UDA_LOG(UDA_LOG_DEBUG, "privateFlags %d\n", privateFlags);
+    UDA_LOG(UDA_LOG_DEBUG, "clientFlags  %d\n", clientFlags);
+    UDA_LOG(UDA_LOG_DEBUG, "altRank      %d\n", altRank);
+    UDA_LOG(UDA_LOG_DEBUG, "external?    %d\n", environment.external_user);
 
     if (server_block->idamerrorstack.nerrors > 0) {
         server_block->error = server_block->idamerrorstack.idamerror[0].code;
@@ -434,7 +434,7 @@ int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block,
         THROW_ERROR(err, "Protocol 1 Error (Receiving Client Request)");
     }
 
-    IDAM_LOG(UDA_LOG_DEBUG, "Request Block Received\n");
+    UDA_LOG(UDA_LOG_DEBUG, "Request Block Received\n");
 
     printClientBlock(*client_block);
     printServerBlock(*server_block);
@@ -539,10 +539,10 @@ int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block,
             strcpy(request_block->source, work);
         }
 
-        IDAM_LOGF(UDA_LOG_DEBUG, "PROXY Redirection to %s avoiding %s\n", environment.server_proxy,
+        UDA_LOG(UDA_LOG_DEBUG, "PROXY Redirection to %s avoiding %s\n", environment.server_proxy,
                  environment.server_this);
-        IDAM_LOGF(UDA_LOG_DEBUG, "plugin: %s\n", proxyName);
-        IDAM_LOGF(UDA_LOG_DEBUG, "source: %s\n", request_block->source);
+        UDA_LOG(UDA_LOG_DEBUG, "plugin: %s\n", proxyName);
+        UDA_LOG(UDA_LOG_DEBUG, "source: %s\n", request_block->source);
     }
 
 # else
@@ -592,8 +592,8 @@ int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block,
 
         strcpy(request_block->source, work);
 
-        IDAM_LOGF(UDA_LOG_DEBUG, "PROXY Redirection to %s\n", environment.server_proxy);
-        IDAM_LOGF(UDA_LOG_DEBUG, "source: %s\n", request_block->source);
+        UDA_LOG(UDA_LOG_DEBUG, "PROXY Redirection to %s\n", environment.server_proxy);
+        UDA_LOG(UDA_LOG_DEBUG, "source: %s\n", request_block->source);
     }
 # endif
 
@@ -621,15 +621,15 @@ int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block,
             THROW_ERROR(err, "Protocol 1 Error (Receiving Client putDataBlockList)");
         }
 
-        IDAM_LOG(UDA_LOG_DEBUG, "putData Block List Received\n");
-        IDAM_LOGF(UDA_LOG_DEBUG, "Number of PutData Blocks: %d\n", request_block->putDataBlockList.blockCount);
+        UDA_LOG(UDA_LOG_DEBUG, "putData Block List Received\n");
+        UDA_LOG(UDA_LOG_DEBUG, "Number of PutData Blocks: %d\n", request_block->putDataBlockList.blockCount);
     }
 
 // Flush (mark as at EOF) the input socket buffer: no more data should be read from this point
 
     xdrrec_eof(serverInput);
 
-    IDAM_LOG(UDA_LOG_DEBUG, "idamServer: ****** Incoming tcp packet received without error. Accessing data.\n");
+    UDA_LOG(UDA_LOG_DEBUG, "idamServer: ****** Incoming tcp packet received without error. Accessing data.\n");
 
     //----------------------------------------------------------------------------------------------
     // Decode the API Arguments: determine appropriate data plug-in to use
@@ -657,7 +657,7 @@ int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block,
                 THROW_ERROR(777, "Unable to Connect to the SQL Database Server");
             }
         }
-        IDAM_LOG(UDA_LOG_DEBUG, "IdamServer Connected to SQL Database Server\n");
+        UDA_LOG(UDA_LOG_DEBUG, "IdamServer Connected to SQL Database Server\n");
     }
 #endif
 
@@ -679,23 +679,23 @@ int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block,
 
     DATA_SOURCE* data_source = &metadata_block->data_source;
     SIGNAL_DESC* signal_desc = &metadata_block->signal_desc;
-    IDAM_LOG(UDA_LOG_DEBUG,
+    UDA_LOG(UDA_LOG_DEBUG,
              "======================== ******************** ==========================================\n");
-    IDAM_LOGF(UDA_LOG_DEBUG, "Archive      : %s \n", data_source->archive);
-    IDAM_LOGF(UDA_LOG_DEBUG, "Device Name  : %s \n", data_source->device_name);
-    IDAM_LOGF(UDA_LOG_DEBUG, "Signal Name  : %s \n", signal_desc->signal_name);
-    IDAM_LOGF(UDA_LOG_DEBUG, "File Path    : %s \n", data_source->path);
-    IDAM_LOGF(UDA_LOG_DEBUG, "File Name    : %s \n", data_source->filename);
-    IDAM_LOGF(UDA_LOG_DEBUG, "Pulse Number : %d \n", data_source->exp_number);
-    IDAM_LOGF(UDA_LOG_DEBUG, "Pass Number  : %d \n", data_source->pass);
-    IDAM_LOGF(UDA_LOG_DEBUG, "Recursive #  : %d \n", depth);
+    UDA_LOG(UDA_LOG_DEBUG, "Archive      : %s \n", data_source->archive);
+    UDA_LOG(UDA_LOG_DEBUG, "Device Name  : %s \n", data_source->device_name);
+    UDA_LOG(UDA_LOG_DEBUG, "Signal Name  : %s \n", signal_desc->signal_name);
+    UDA_LOG(UDA_LOG_DEBUG, "File Path    : %s \n", data_source->path);
+    UDA_LOG(UDA_LOG_DEBUG, "File Name    : %s \n", data_source->filename);
+    UDA_LOG(UDA_LOG_DEBUG, "Pulse Number : %d \n", data_source->exp_number);
+    UDA_LOG(UDA_LOG_DEBUG, "Pass Number  : %d \n", data_source->pass);
+    UDA_LOG(UDA_LOG_DEBUG, "Recursive #  : %d \n", depth);
     printRequestBlock(*request_block);
     printDataSource(*data_source);
     printSignal(metadata_block->signal_rec);
     printSignalDesc(*signal_desc);
     printDataBlock(*data_block);
     printIdamErrorStack();
-    IDAM_LOG(UDA_LOG_DEBUG,
+    UDA_LOG(UDA_LOG_DEBUG,
              "======================== ******************** ==========================================\n");
 
     if (err != 0) return err;
@@ -768,7 +768,7 @@ int doServerLoop(REQUEST_BLOCK* request_block, DATA_BLOCK* data_block, CLIENT_BL
     int next_protocol = PROTOCOL_SLEEP;
 
     do {
-        IDAM_LOG(UDA_LOG_DEBUG, "IdamServer: Start of Server Wait Loop\n");
+        UDA_LOG(UDA_LOG_DEBUG, "IdamServer: Start of Server Wait Loop\n");
 
         // Create a new userdefinedtypelist for the request by copying the parseduserdefinedtypelist structure
         copyUserDefinedTypeList(&userdefinedtypelist);
@@ -784,33 +784,33 @@ int doServerLoop(REQUEST_BLOCK* request_block, DATA_BLOCK* data_block, CLIENT_BL
             break;
         }
 
-        IDAM_LOGF(UDA_LOG_DEBUG, "Handle Request Error: %d [%d]\n", err, *fatal);
+        UDA_LOG(UDA_LOG_DEBUG, "Handle Request Error: %d [%d]\n", err, *fatal);
 
         err = reportToClient(server_block, data_block, client_block, err, metadata_block);
 
-        IDAM_LOG(UDA_LOG_DEBUG, "Data structures sent to client\n");
-        IDAM_LOGF(UDA_LOG_DEBUG, "Report To Client Error: %d [%d]\n", err, *fatal);
+        UDA_LOG(UDA_LOG_DEBUG, "Data structures sent to client\n");
+        UDA_LOG(UDA_LOG_DEBUG, "Report To Client Error: %d [%d]\n", err, *fatal);
 
         idamAccessLog(FALSE, *client_block, *request_block, *server_block, &pluginList);
 
         err = 0;
         next_protocol = PROTOCOL_SLEEP;
-        IDAM_LOGF(UDA_LOG_DEBUG, "Next Protocol %d Received\n", next_protocol);
+        UDA_LOG(UDA_LOG_DEBUG, "Next Protocol %d Received\n", next_protocol);
 
         //----------------------------------------------------------------------------
         // Free Data Block Heap Memory
 
-        IDAM_LOG(UDA_LOG_DEBUG, "freeUserDefinedTypeList\n");
+        UDA_LOG(UDA_LOG_DEBUG, "freeUserDefinedTypeList\n");
         freeUserDefinedTypeList(userdefinedtypelist);
         userdefinedtypelist = NULL;
 
-        IDAM_LOG(UDA_LOG_DEBUG, "freeDataBlock\n");
+        UDA_LOG(UDA_LOG_DEBUG, "freeDataBlock\n");
         freeDataBlock(data_block);
 
-        IDAM_LOG(UDA_LOG_DEBUG, "freeActions\n");
+        UDA_LOG(UDA_LOG_DEBUG, "freeActions\n");
         freeActions(actions_desc);
 
-        IDAM_LOG(UDA_LOG_DEBUG, "freeActions\n");
+        UDA_LOG(UDA_LOG_DEBUG, "freeActions\n");
         freeActions(actions_sig);
 
         //----------------------------------------------------------------------------
@@ -826,22 +826,22 @@ int doServerLoop(REQUEST_BLOCK* request_block, DATA_BLOCK* data_block, CLIENT_BL
         //----------------------------------------------------------------------------
         // Write the Error Log Record & Free Error Stack Heap
 
-        IDAM_LOG(UDA_LOG_DEBUG, "concatIdamError\n");
+        UDA_LOG(UDA_LOG_DEBUG, "concatIdamError\n");
         concatIdamError(&server_block->idamerrorstack);        // Update Server State with Error Stack
 
-        IDAM_LOG(UDA_LOG_DEBUG, "closeIdamError\n");
+        UDA_LOG(UDA_LOG_DEBUG, "closeIdamError\n");
         closeIdamError();
 
-        IDAM_LOG(UDA_LOG_DEBUG, "idamErrorLog\n");
+        UDA_LOG(UDA_LOG_DEBUG, "idamErrorLog\n");
         idamErrorLog(*client_block, *request_block, &server_block->idamerrorstack);
 
-        IDAM_LOG(UDA_LOG_DEBUG, "closeIdamError\n");
+        UDA_LOG(UDA_LOG_DEBUG, "closeIdamError\n");
         closeIdamError();
 
-        IDAM_LOG(UDA_LOG_DEBUG, "initServerBlock\n");
+        UDA_LOG(UDA_LOG_DEBUG, "initServerBlock\n");
         initServerBlock(server_block, serverVersion);
 
-        IDAM_LOG(UDA_LOG_DEBUG, "At End of Error Trap\n");
+        UDA_LOG(UDA_LOG_DEBUG, "At End of Error Trap\n");
 
         //----------------------------------------------------------------------------
         // Server Wait Loop
@@ -856,9 +856,9 @@ int doServerClosedown(CLIENT_BLOCK* client_block, REQUEST_BLOCK* request_block, 
     //----------------------------------------------------------------------------
     // Server Destruct.....
 
-    IDAM_LOG(UDA_LOG_DEBUG, "Server Shuting Down\n");
+    UDA_LOG(UDA_LOG_DEBUG, "Server Shuting Down\n");
     if (server_tot_block_time > 1000 * server_timeout) {
-        IDAM_LOGF(UDA_LOG_DEBUG, "Server Timeout after %d secs\n", server_timeout);
+        UDA_LOG(UDA_LOG_DEBUG, "Server Timeout after %d secs\n", server_timeout);
     }
 
     //----------------------------------------------------------------------------
@@ -975,13 +975,13 @@ int handshakeClient(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block, REQU
 
     // Receive the client block, respecting earlier protocol versions
 
-    IDAM_LOG(UDA_LOG_DEBUG, "Waiting for Initial Client Block\n");
+    UDA_LOG(UDA_LOG_DEBUG, "Waiting for Initial Client Block\n");
 
     int err = 0;
 
     if (!xdrrec_skiprecord(serverInput)) {
         err = PROTOCOL_ERROR_5;
-        IDAM_LOG(UDA_LOG_DEBUG, "xdrrec_skiprecord error!\n");
+        UDA_LOG(UDA_LOG_DEBUG, "xdrrec_skiprecord error!\n");
         addIdamError(CODEERRORTYPE, "idamServer", err, "Protocol 5 Error (Client Block)");
     } else {
 
@@ -989,11 +989,11 @@ int handshakeClient(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block, REQU
 
         if ((err = protocol2(serverInput, protocol_id, XDR_RECEIVE, NULL, logmalloclist, userdefinedtypelist, client_block)) != 0) {
             addIdamError(CODEERRORTYPE, "idamServer", err, "Protocol 10 Error (Client Block)");
-            IDAM_LOG(UDA_LOG_DEBUG, "protocol error! Client Block not received!\n");
+            UDA_LOG(UDA_LOG_DEBUG, "protocol error! Client Block not received!\n");
         }
 
         if (err == 0) {
-            IDAM_LOG(UDA_LOG_DEBUG, "Initial Client Block received\n");
+            UDA_LOG(UDA_LOG_DEBUG, "Initial Client Block received\n");
             printClientBlock(*client_block);
         }
 
@@ -1020,7 +1020,7 @@ int handshakeClient(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block, REQU
 
     // Send the server block
 
-    IDAM_LOG(UDA_LOG_DEBUG, "Sending Initial Server Block \n");
+    UDA_LOG(UDA_LOG_DEBUG, "Sending Initial Server Block \n");
     printServerBlock(*server_block);
 
     int protocol_id = PROTOCOL_SERVER_BLOCK;        // Receive Server Block: Server Aknowledgement
@@ -1033,13 +1033,13 @@ int handshakeClient(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block, REQU
         THROW_ERROR(PROTOCOL_ERROR_7, "Protocol 7 Error (Server Block)");
     }
 
-    IDAM_LOG(UDA_LOG_DEBUG, "Initial Server Block sent without error\n");
+    UDA_LOG(UDA_LOG_DEBUG, "Initial Server Block sent without error\n");
 
     // If the protocol version is legacy (<=6), then divert full control to a legacy server
 
     if (client_block->version <= legacyServerVersion) {
-        IDAM_LOG(UDA_LOG_DEBUG, "Diverting to the Legacy Server\n");
-        IDAM_LOGF(UDA_LOG_DEBUG, "Client protocol %d\n", client_block->version);
+        UDA_LOG(UDA_LOG_DEBUG, "Diverting to the Legacy Server\n");
+        UDA_LOG(UDA_LOG_DEBUG, "Client protocol %d\n", client_block->version);
         return idamLegacyServer(*client_block, &pluginList, logmalloclist, userdefinedtypelist, &socket_list);
     }
 
@@ -1062,14 +1062,14 @@ int startupServer(SERVER_BLOCK* server_block)
         initIdamErrorStack();
     }
 
-    IDAM_LOG(UDA_LOG_DEBUG, "New Server Instance\n");
+    UDA_LOG(UDA_LOG_DEBUG, "New Server Instance\n");
 
     //-------------------------------------------------------------------------
     // Create the XDR Record Streams
 
     CreateXDRStream();
 
-    IDAM_LOG(UDA_LOG_DEBUG, "XDR Streams Created\n");
+    UDA_LOG(UDA_LOG_DEBUG, "XDR Streams Created\n");
 
     //-------------------------------------------------------------------------
     // Open and Initialise the Socket List (Once Only)
@@ -1095,7 +1095,7 @@ int startupServer(SERVER_BLOCK* server_block)
             THROW_ERROR(999, "No Environment variable UDA_SARRAY_CONFIG");
         }
 
-        IDAM_LOGF(UDA_LOG_DEBUG, "Parsing structure definition file: %s\n", token);
+        UDA_LOG(UDA_LOG_DEBUG, "Parsing structure definition file: %s\n", token);
         parseIncludeFile(userdefinedtypelist, token); // file containing the SARRAY structure definition
         parseduserdefinedtypelist = *userdefinedtypelist;       // Switch back
         printUserDefinedTypeList(parseduserdefinedtypelist);
@@ -1111,10 +1111,10 @@ int startupServer(SERVER_BLOCK* server_block)
         initPluginList(&pluginList);
         plugin_list_initialised = 1;
 
-        IDAM_LOG(UDA_LOG_INFO, "List of Plugins available\n");
+        UDA_LOG(UDA_LOG_INFO, "List of Plugins available\n");
         int i;
         for (i = 0; i < pluginList.count; i++) {
-            IDAM_LOGF(UDA_LOG_INFO, "[%d] %d %s\n", i, pluginList.plugin[i].request, pluginList.plugin[i].format);
+            UDA_LOG(UDA_LOG_INFO, "[%d] %d %s\n", i, pluginList.plugin[i].request, pluginList.plugin[i].format);
         }
     }
 

@@ -282,7 +282,7 @@ int handleRequestFat(REQUEST_BLOCK* request_block, REQUEST_BLOCK* request_block0
                      SERVER_BLOCK* server_block, METADATA_BLOCK* metadata_block, DATA_BLOCK* data_block,
                      ACTIONS* actions_desc, ACTIONS* actions_sig)
 {
-    IDAM_LOG(UDA_LOG_DEBUG, "IdamServer: Start of Server Error Trap #1 Loop\n");
+    UDA_LOG(UDA_LOG_DEBUG, "IdamServer: Start of Server Error Trap #1 Loop\n");
 
     copyRequestBlock(request_block, *request_block0);
 
@@ -336,7 +336,7 @@ int handleRequestFat(REQUEST_BLOCK* request_block, REQUEST_BLOCK* request_block0
                 THROW_ERROR(777, "Unable to Connect to the SQL Database Server");
             }
         }
-        IDAM_LOG(UDA_LOG_DEBUG, "Connected to SQL Database Server\n");
+        UDA_LOG(UDA_LOG_DEBUG, "Connected to SQL Database Server\n");
     }
 #endif
 
@@ -362,23 +362,23 @@ int handleRequestFat(REQUEST_BLOCK* request_block, REQUEST_BLOCK* request_block0
 
     DATA_SOURCE* data_source = &metadata_block->data_source;
     SIGNAL_DESC* signal_desc = &metadata_block->signal_desc;
-    IDAM_LOG(UDA_LOG_DEBUG,
+    UDA_LOG(UDA_LOG_DEBUG,
              "======================== ******************** ==========================================\n");
-    IDAM_LOGF(UDA_LOG_DEBUG, "Archive      : %s \n", data_source->archive);
-    IDAM_LOGF(UDA_LOG_DEBUG, "Device Name  : %s \n", data_source->device_name);
-    IDAM_LOGF(UDA_LOG_DEBUG, "Signal Name  : %s \n", signal_desc->signal_name);
-    IDAM_LOGF(UDA_LOG_DEBUG, "File Path    : %s \n", data_source->path);
-    IDAM_LOGF(UDA_LOG_DEBUG, "File Name    : %s \n", data_source->filename);
-    IDAM_LOGF(UDA_LOG_DEBUG, "Pulse Number : %d \n", data_source->exp_number);
-    IDAM_LOGF(UDA_LOG_DEBUG, "Pass Number  : %d \n", data_source->pass);
-    IDAM_LOGF(UDA_LOG_DEBUG, "Recursive #  : %d \n", depth);
+    UDA_LOG(UDA_LOG_DEBUG, "Archive      : %s \n", data_source->archive);
+    UDA_LOG(UDA_LOG_DEBUG, "Device Name  : %s \n", data_source->device_name);
+    UDA_LOG(UDA_LOG_DEBUG, "Signal Name  : %s \n", signal_desc->signal_name);
+    UDA_LOG(UDA_LOG_DEBUG, "File Path    : %s \n", data_source->path);
+    UDA_LOG(UDA_LOG_DEBUG, "File Name    : %s \n", data_source->filename);
+    UDA_LOG(UDA_LOG_DEBUG, "Pulse Number : %d \n", data_source->exp_number);
+    UDA_LOG(UDA_LOG_DEBUG, "Pass Number  : %d \n", data_source->pass);
+    UDA_LOG(UDA_LOG_DEBUG, "Recursive #  : %d \n", depth);
     printRequestBlock(*request_block);
     printDataSource(*data_source);
     printSignal(metadata_block->signal_rec);
     printSignalDesc(*signal_desc);
     printDataBlock(*data_block);
     printIdamErrorStack();
-    IDAM_LOG(UDA_LOG_DEBUG,
+    UDA_LOG(UDA_LOG_DEBUG,
              "======================== ******************** ==========================================\n");
 
     //------------------------------------------------------------------------------------------------
@@ -473,7 +473,7 @@ int startupFatServer(SERVER_BLOCK* server_block)
             THROW_ERROR(999, "No Environment variable UDA_SARRAY_CONFIG");
         }
 
-        IDAM_LOGF(UDA_LOG_DEBUG, "Parsing structure definition file: %s\n", token);
+        UDA_LOG(UDA_LOG_DEBUG, "Parsing structure definition file: %s\n", token);
         parseIncludeFile(userdefinedtypelist, token); // file containing the SARRAY structure definition
         parseduserdefinedtypelist = *userdefinedtypelist; // Switch back
         printUserDefinedTypeList(parseduserdefinedtypelist);
@@ -487,10 +487,10 @@ int startupFatServer(SERVER_BLOCK* server_block)
         initPluginList(&pluginList);
         plugin_list_initialised = 1;
 
-        IDAM_LOG(UDA_LOG_INFO, "List of Plugins available\n");
+        UDA_LOG(UDA_LOG_INFO, "List of Plugins available\n");
         int i;
         for (i = 0; i < pluginList.count; i++) {
-            IDAM_LOGF(UDA_LOG_INFO, "[%d] %d %s\n", i, pluginList.plugin[i].request, pluginList.plugin[i].format);
+            UDA_LOG(UDA_LOG_INFO, "[%d] %d %s\n", i, pluginList.plugin[i].request, pluginList.plugin[i].format);
         }
     }
 

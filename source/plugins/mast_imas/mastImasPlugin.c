@@ -265,13 +265,13 @@ static char** get_names(PGconn* db, const char* name, int shot, int* size)
     PGresult* result;
 
     if ((result = PQexec(db, str)) == NULL) {
-        IDAM_LOG(UDA_LOG_ERROR, "Database Query Failed!\n");
+        UDA_LOG(UDA_LOG_ERROR, "Database Query Failed!\n");
         addIdamError(CODEERRORTYPE, "MAST IMAS plugin", 999, "Database Query Failed!");
         return NULL;
     }
 
     if (PQresultStatus(result) != PGRES_TUPLES_OK && PQresultStatus(result) != PGRES_COMMAND_OK) {
-        IDAM_LOGF(UDA_LOG_ERROR, "%s\n", PQresultErrorMessage(result));
+        UDA_LOG(UDA_LOG_ERROR, "%s\n", PQresultErrorMessage(result));
         addIdamError(CODEERRORTYPE, "MAST IMAS plugin", 999, PQresultErrorMessage(result));
         return NULL;
     }
@@ -279,7 +279,7 @@ static char** get_names(PGconn* db, const char* name, int shot, int* size)
     *size = PQntuples(result);
 
     if (*size == 0) {
-        IDAM_LOG(UDA_LOG_ERROR, "No data available!\n");
+        UDA_LOG(UDA_LOG_ERROR, "No data available!\n");
         addIdamError(CODEERRORTYPE, "MAST IMAS plugin", 999, "No Meta Data available!");
         return NULL;
     }
@@ -312,7 +312,7 @@ static int get_signal(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, const char* 
     const PLUGINLIST* plugin_list = idam_plugin_interface->pluginList; // List of all data reader plugins (internal and external shared libraries)
 
     if (plugin_list == NULL) {
-        IDAM_LOG(UDA_LOG_ERROR, "the specified format is not recognised!\n");
+        UDA_LOG(UDA_LOG_ERROR, "the specified format is not recognised!\n");
         addIdamError(CODEERRORTYPE,
                      "get_signal", 999, "imas source: No plugins are available for this data request");
         return 999;
@@ -352,7 +352,7 @@ static int get_signal(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, const char* 
     }
 
     if (next_request_block.request < 0) {
-        IDAM_LOG(UDA_LOG_ERROR, "No IDAM server plugin found!\n");
+        UDA_LOG(UDA_LOG_ERROR, "No IDAM server plugin found!\n");
         addIdamError(CODEERRORTYPE, "get_signal", 999, "No IDAM server plugin found!");
         return 999;
     }
@@ -365,7 +365,7 @@ static int get_signal(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, const char* 
     if (id >= 0 && plugin->idamPlugin != NULL) {
         err = plugin->idamPlugin(&next_plugin_interface);        // Call the data reader
     } else {
-        IDAM_LOG(UDA_LOG_ERROR, "Data Access is not available for this data request!\n");
+        UDA_LOG(UDA_LOG_ERROR, "Data Access is not available for this data request!\n");
         addIdamError(CODEERRORTYPE, "get_signal", 999, "Data Access is not available for this data request!");
         return 999;
     }

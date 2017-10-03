@@ -65,10 +65,10 @@ int smoothPsi(EQUIMAPDATA* equimapdata, int invert, int limitPsi, float limitRMa
         }
     }
 
-    IDAM_LOG(UDA_LOG_DEBUG, "EQUIMAP: smoothPsi\n");
-    IDAM_LOGF(UDA_LOG_DEBUG, "limitRMaj = %f\n", limitRMaj);
-    IDAM_LOGF(UDA_LOG_DEBUG, "rmin = %f, rmax = %f\n", rrmin, rrmax);
-    IDAM_LOGF(UDA_LOG_DEBUG, "zmin = %f, zmax = %f\n", zzmin, zzmax);
+    UDA_LOG(UDA_LOG_DEBUG, "EQUIMAP: smoothPsi\n");
+    UDA_LOG(UDA_LOG_DEBUG, "limitRMaj = %f\n", limitRMaj);
+    UDA_LOG(UDA_LOG_DEBUG, "rmin = %f, rmax = %f\n", rrmin, rrmax);
+    UDA_LOG(UDA_LOG_DEBUG, "zmin = %f, zmax = %f\n", zzmin, zzmax);
 
     wrmin = -1;
     wrmax = -1;
@@ -117,8 +117,8 @@ int smoothPsi(EQUIMAPDATA* equimapdata, int invert, int limitPsi, float limitRMa
         wzmax = equimapdata->efitdata[0].psiCount[1] - 1;
     }
 
-    IDAM_LOGF(UDA_LOG_DEBUG, "wrmin = %d, wrmax = %d\n", wrmin, wrmax);
-    IDAM_LOGF(UDA_LOG_DEBUG, "wzmin = %d, wzmax = %d\n", wzmin, wzmax);
+    UDA_LOG(UDA_LOG_DEBUG, "wrmin = %d, wrmax = %d\n", wrmin, wrmax);
+    UDA_LOG(UDA_LOG_DEBUG, "wzmin = %d, wzmax = %d\n", wzmin, wzmax);
 
 // Reduce the Grid
 
@@ -163,23 +163,23 @@ int smoothPsi(EQUIMAPDATA* equimapdata, int invert, int limitPsi, float limitRMa
         free((void*)zgridSR);
     }
 
-    IDAM_LOGF(UDA_LOG_DEBUG, "nr = %d, nz = %d\n", nr, nz);
+    UDA_LOG(UDA_LOG_DEBUG, "nr = %d, nz = %d\n", nr, nz);
     if (limitRMaj < 0.0) {
-        IDAM_LOGF(UDA_LOG_DEBUG, "rgridSR[0] = %f, rgridSR[nr-1] = %f\n", equimapdata->efitdata[0].rgridSR[0],
+        UDA_LOG(UDA_LOG_DEBUG, "rgridSR[0] = %f, rgridSR[nr-1] = %f\n", equimapdata->efitdata[0].rgridSR[0],
                   equimapdata->efitdata[0].rgridSR[nr - 1]);
-        IDAM_LOGF(UDA_LOG_DEBUG, "zgridSR[0] = %f, zgridSR[nz-1] = %f\n", equimapdata->efitdata[0].zgridSR[0],
+        UDA_LOG(UDA_LOG_DEBUG, "zgridSR[0] = %f, zgridSR[nz-1] = %f\n", equimapdata->efitdata[0].zgridSR[0],
                   equimapdata->efitdata[0].zgridSR[nz - 1]);
     } else {
-        IDAM_LOGF(UDA_LOG_DEBUG, "rgridRZBox[0] = %f, rgridRZBox[nr-1] = %f\n", equimapdata->efitdata[0].rgridRZBox[0],
+        UDA_LOG(UDA_LOG_DEBUG, "rgridRZBox[0] = %f, rgridRZBox[nr-1] = %f\n", equimapdata->efitdata[0].rgridRZBox[0],
                   equimapdata->efitdata[0].rgridRZBox[nr - 1]);
-        IDAM_LOGF(UDA_LOG_DEBUG, "zgridRZBox[0] = %f, zgridRZBox[nz-1] = %f\n", equimapdata->efitdata[0].zgridRZBox[0],
+        UDA_LOG(UDA_LOG_DEBUG, "zgridRZBox[0] = %f, zgridRZBox[nz-1] = %f\n", equimapdata->efitdata[0].zgridRZBox[0],
                   equimapdata->efitdata[0].zgridRZBox[nz - 1]);
     }
 
 // Reduce the Psi Map
 
     if (nr != equimapdata->efitdata[0].psiCount[0] || nz != equimapdata->efitdata[0].psiCount[1]) {
-        IDAM_LOG(UDA_LOG_DEBUG, "Reducing the Psi Map\n");
+        UDA_LOG(UDA_LOG_DEBUG, "Reducing the Psi Map\n");
         for (i = 0; i < equimapdata->timeCount; i++) {
             psigSR = (float**)malloc(nz * sizeof(float*));        // nt * Psi[z][r]
             for (j = 0; j < nz; j++) psigSR[j] = (float*)malloc(nr * sizeof(float));
@@ -220,7 +220,7 @@ int smoothPsi(EQUIMAPDATA* equimapdata, int invert, int limitPsi, float limitRMa
         return 0;
     }
 
-    IDAM_LOG(UDA_LOG_DEBUG, "Limiting the Psi Map\n");
+    UDA_LOG(UDA_LOG_DEBUG, "Limiting the Psi Map\n");
 
     int** mark = (int**)malloc(nz * sizeof(int*));
     for (j = 0; j < nz; j++) mark[j] = (int*)malloc(nr * sizeof(int));

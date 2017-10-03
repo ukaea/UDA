@@ -1237,8 +1237,8 @@ int applyCDFCalibration(int grpid, int varid, int ndata, int* type, char** data)
         return NC_NOERR;
     }
 
-    IDAM_LOGF(UDA_LOG_DEBUG, "*** Scale factor  %12.4e\n", scale);
-    IDAM_LOGF(UDA_LOG_DEBUG, "*** Offset        %12.4e\n", offset);
+    UDA_LOG(UDA_LOG_DEBUG, "*** Scale factor  %12.4e\n", scale);
+    UDA_LOG(UDA_LOG_DEBUG, "*** Offset        %12.4e\n", offset);
 
     //----------------------------------------------------------------------
     // Apply and Convert Type to Preserve Precision
@@ -1829,7 +1829,7 @@ int readCDF4ParseSubset(char* op, CDFSUBSET* cdfsubset)
     work[0] = ' ';
     work[lwork - 2] = ' ';
 
-    IDAM_LOGF(UDA_LOG_DEBUG, "readCDF4ParseSubset: %s\n", op);
+    UDA_LOG(UDA_LOG_DEBUG, "readCDF4ParseSubset: %s\n", op);
 
     lwork = lwork + 2;            // expand :: to 0:*:
 

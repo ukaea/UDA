@@ -41,10 +41,10 @@ static PGconn* startSQL_DOI()
     //-------------------------------------------------------------
     // Debug Trace Queries
 
-    IDAM_LOGF(UDA_LOG_DEBUG, "SQL Connection: host %s\n", dbhost);
-    IDAM_LOGF(UDA_LOG_DEBUG, "                port %s\n", dbport);
-    IDAM_LOGF(UDA_LOG_DEBUG, "                db   %s\n", dbname);
-    IDAM_LOGF(UDA_LOG_DEBUG, "                user %s\n", dbuser);
+    UDA_LOG(UDA_LOG_DEBUG, "SQL Connection: host %s\n", dbhost);
+    UDA_LOG(UDA_LOG_DEBUG, "                port %s\n", dbport);
+    UDA_LOG(UDA_LOG_DEBUG, "                db   %s\n", dbname);
+    UDA_LOG(UDA_LOG_DEBUG, "                user %s\n", dbuser);
 
     //-------------------------------------------------------------
     // Connect to the Database Server
@@ -61,7 +61,7 @@ static PGconn* startSQL_DOI()
         return NULL;
     }
 
-    IDAM_LOGF(UDA_LOG_DEBUG, "SQL Connection Options: %s\n", PQoptions(dbConn));
+    UDA_LOG(UDA_LOG_DEBUG, "SQL Connection Options: %s\n", PQoptions(dbConn));
 
     return dbConn;
 }
@@ -112,7 +112,7 @@ extern int issueDOI(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         RAISE_PLUGIN_ERROR("Plugin Interface Version is Not Known: Unable to execute the request!")
     }
 
-    IDAM_LOG(UDA_LOG_DEBUG, "Plugin Interface transferred\n");
+    UDA_LOG(UDA_LOG_DEBUG, "Plugin Interface transferred\n");
 
     //----------------------------------------------------------------------------------------
     // Heap Housekeeping
@@ -123,12 +123,12 @@ extern int issueDOI(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     if (housekeeping || STR_IEQUALS(request_block->function, "reset")) {
 
-        IDAM_LOG(UDA_LOG_DEBUG, "reset function called.\n");
+        UDA_LOG(UDA_LOG_DEBUG, "reset function called.\n");
 
         if (!init) return 0;        // Not previously initialised: Nothing to do!
 
         if (dbConn != NULL && DBType == PLUGINSQLPOSTGRES && sqlPrivate) {
-            IDAM_LOG(UDA_LOG_DEBUG, "Closing SQL connection\n");
+            UDA_LOG(UDA_LOG_DEBUG, "Closing SQL connection\n");
             PQfinish(dbConn);
             sqlPrivate = 1;        // Remains Private
             dbConn = NULL;
@@ -136,7 +136,7 @@ extern int issueDOI(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         }
 
         init = false; // Ready to re-initialise
-        IDAM_LOG(UDA_LOG_DEBUG, "reset executed\n");
+        UDA_LOG(UDA_LOG_DEBUG, "reset executed\n");
         return 0;
     }
 
@@ -147,7 +147,7 @@ extern int issueDOI(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             (!init || STR_IEQUALS(request_block->function, "init")
              || STR_IEQUALS(request_block->function, "initialise"))) {
 
-        IDAM_LOG(UDA_LOG_DEBUG, "init function called.\n");
+        UDA_LOG(UDA_LOG_DEBUG, "init function called.\n");
 
         const ENVIRONMENT* environment = getIdamServerEnvironment();
 
@@ -179,7 +179,7 @@ extern int issueDOI(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             if (dbConn != NULL) {
                 DBType = PLUGINSQLPOSTGRES;
                 sqlPrivate = 1;
-                IDAM_LOG(UDA_LOG_DEBUG, "Private regular database connection made.\n");
+                UDA_LOG(UDA_LOG_DEBUG, "Private regular database connection made.\n");
             }
         }
 
@@ -189,7 +189,7 @@ extern int issueDOI(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
         init = true;
 
-        IDAM_LOG(UDA_LOG_DEBUG, "Plugin initialised and SQL connection made\n");
+        UDA_LOG(UDA_LOG_DEBUG, "Plugin initialised and SQL connection made\n");
 
         if (STR_IEQUALS(request_block->function, "init") || STR_IEQUALS(request_block->function, "initialise")) {
             return 0;
@@ -224,7 +224,7 @@ extern int issueDOI(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 static int do_help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
-    IDAM_LOG(UDA_LOG_DEBUG, "entering function help\n");
+    UDA_LOG(UDA_LOG_DEBUG, "entering function help\n");
 
     const char* help = "\nIssue a new DOI for a specific scientific study.\n\n"
             "get(owner=owner, icatRef=icatRef)\n\n"
@@ -236,7 +236,7 @@ static int do_help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             "trueSignal=trueSignal, trueSource=trueSource, trueSourceDOI=trueSourceDOI, \n"
             "logRecord=logRecord, created=created, status=[New|Update|Close|Delete])\n\n";
 
-    IDAM_LOGF(UDA_LOG_DEBUG, "issueDOI:\n%s\n", help);
+    UDA_LOG(UDA_LOG_DEBUG, "issueDOI:\n%s\n", help);
 
     // Create the Returned Structure Definition
 
@@ -288,9 +288,9 @@ static int do_help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     data_block->opaque_count = 1;
     data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "DOIHELP", 0);
 
-    IDAM_LOG(UDA_LOG_DEBUG, "exiting function help\n");
+    UDA_LOG(UDA_LOG_DEBUG, "exiting function help\n");
     if (data_block->opaque_block == NULL) {
-        IDAM_LOG(UDA_LOG_DEBUG, "DOIHELP type not found\n");
+        UDA_LOG(UDA_LOG_DEBUG, "DOIHELP type not found\n");
     }
 
     return 0;
@@ -307,7 +307,7 @@ static int do_help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 // status	DOI status [delete | firm | pending]
 static int do_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PGconn* dbConn)
 {
-    IDAM_LOG(UDA_LOG_DEBUG, "entering function new\n");
+    UDA_LOG(UDA_LOG_DEBUG, "entering function new\n");
 
     REQUEST_BLOCK* request_block = idam_plugin_interface->request_block;
 
@@ -361,11 +361,11 @@ static int do_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PGconn* dbConn)
     }
 
     gettimeofday(&tv_stop, NULL);
-    IDAM_LOGF(UDA_LOG_DEBUG, "new() Unique ID = '%s'\n", work);
+    UDA_LOG(UDA_LOG_DEBUG, "new() Unique ID = '%s'\n", work);
     msecs = (int)(tv_stop.tv_sec - tv_start.tv_sec) * 1000 +
             (int)(tv_stop.tv_usec - tv_start.tv_usec) / 1000;
     usecs = (int)(tv_stop.tv_sec - tv_start.tv_sec) * 1000000 + (int)(tv_stop.tv_usec - tv_start.tv_usec);
-    IDAM_LOGF(UDA_LOG_DEBUG, "new() Unique ID Cost = %d (ms), %d (microsecs)\n", msecs, usecs);
+    UDA_LOG(UDA_LOG_DEBUG, "new() Unique ID Cost = %d (ms), %d (microsecs)\n", msecs, usecs);
     tv_start = tv_stop;
 
     // Create Transaction Block SQL
@@ -374,7 +374,7 @@ static int do_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PGconn* dbConn)
     sprintf(sql, "BEGIN; INSERT INTO doi_table (doi, owner, icatref) VALUES ('%s', '%s','%s'); END;",
             work, owner, icatRef);
 
-    IDAM_LOGF(UDA_LOG_DEBUG, "%s\n", sql);
+    UDA_LOG(UDA_LOG_DEBUG, "%s\n", sql);
 
     // execute
 
@@ -390,7 +390,7 @@ static int do_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PGconn* dbConn)
     msecs = (int)(tv_stop.tv_sec - tv_start.tv_sec) * 1000 +
             (int)(tv_stop.tv_usec - tv_start.tv_usec) / 1000;
     usecs = (int)(tv_stop.tv_sec - tv_start.tv_sec) * 1000000 + (int)(tv_stop.tv_usec - tv_start.tv_usec);
-    IDAM_LOGF(UDA_LOG_DEBUG, "new() SQL Cost = %d (ms), %d (microsecs)\n", msecs, usecs);
+    UDA_LOG(UDA_LOG_DEBUG, "new() SQL Cost = %d (ms), %d (microsecs)\n", msecs, usecs);
 
     // Write Return Structure
 
@@ -413,10 +413,10 @@ static int do_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PGconn* dbConn)
 
     data->status = ' ';
 
-    IDAM_LOGF(UDA_LOG_DEBUG, "issueDOI doi: %s\n", data->doi);
-    IDAM_LOGF(UDA_LOG_DEBUG, "owner       : %s\n", data->owner);
-    IDAM_LOGF(UDA_LOG_DEBUG, "icatRefId   : %s\n", data->icatRef);
-    IDAM_LOGF(UDA_LOG_DEBUG, "Status      : %c\n", data->status);
+    UDA_LOG(UDA_LOG_DEBUG, "issueDOI doi: %s\n", data->doi);
+    UDA_LOG(UDA_LOG_DEBUG, "owner       : %s\n", data->owner);
+    UDA_LOG(UDA_LOG_DEBUG, "icatRefId   : %s\n", data->icatRef);
+    UDA_LOG(UDA_LOG_DEBUG, "Status      : %c\n", data->status);
 
     // the Returned Structure Definition
 
@@ -475,7 +475,7 @@ static int do_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PGconn* dbConn)
     data_block->opaque_count = 1;
     data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "ISSUEDOI", 0);
 
-    IDAM_LOG(UDA_LOG_DEBUG, "exiting function new\n");
+    UDA_LOG(UDA_LOG_DEBUG, "exiting function new\n");
 
     return 0;
 }
@@ -523,7 +523,7 @@ static int do_put(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PGconn* dbConn)
     static struct timeval tv_start, tv_stop;    // Performance
     int msecs, usecs;
 
-    IDAM_LOG(UDA_LOG_DEBUG, "entering function record\n");
+    UDA_LOG(UDA_LOG_DEBUG, "entering function record\n");
 
     REQUEST_BLOCK* request_block = idam_plugin_interface->request_block;
 
@@ -574,16 +574,16 @@ static int do_put(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PGconn* dbConn)
     if (!preventSQLInjection(dbConn, (char**)&logRecord, false))
         RAISE_PLUGIN_ERROR("argument logRecord incorrectly formattted");
 
-    IDAM_LOG(UDA_LOG_DEBUG, "passed parameters\n");
-    IDAM_LOGF(UDA_LOG_DEBUG, "DOI = %s\n", doi);
-    IDAM_LOGF(UDA_LOG_DEBUG, "requestedSignal = %s\n", requestedSignal);
-    IDAM_LOGF(UDA_LOG_DEBUG, "requestedSource = %s\n", requestedSource);
-    IDAM_LOGF(UDA_LOG_DEBUG, "trueSignal = %s\n", trueSignal);
-    IDAM_LOGF(UDA_LOG_DEBUG, "trueSource = %s\n", trueSource);
-    IDAM_LOGF(UDA_LOG_DEBUG, "trueSourceDOI = %s\n", trueSourceDOI);
-    IDAM_LOGF(UDA_LOG_DEBUG, "logRecord = %s\n", logRecord);
-    IDAM_LOGF(UDA_LOG_DEBUG, "Status = %c\n", status);
-    IDAM_LOGF(UDA_LOG_DEBUG, "execMethod = %d\n", execMethod);
+    UDA_LOG(UDA_LOG_DEBUG, "passed parameters\n");
+    UDA_LOG(UDA_LOG_DEBUG, "DOI = %s\n", doi);
+    UDA_LOG(UDA_LOG_DEBUG, "requestedSignal = %s\n", requestedSignal);
+    UDA_LOG(UDA_LOG_DEBUG, "requestedSource = %s\n", requestedSource);
+    UDA_LOG(UDA_LOG_DEBUG, "trueSignal = %s\n", trueSignal);
+    UDA_LOG(UDA_LOG_DEBUG, "trueSource = %s\n", trueSource);
+    UDA_LOG(UDA_LOG_DEBUG, "trueSourceDOI = %s\n", trueSourceDOI);
+    UDA_LOG(UDA_LOG_DEBUG, "logRecord = %s\n", logRecord);
+    UDA_LOG(UDA_LOG_DEBUG, "Status = %c\n", status);
+    UDA_LOG(UDA_LOG_DEBUG, "execMethod = %d\n", execMethod);
 
     // 1> Create a new record if status == new
     // 2> add log data to an existing record if status == update
@@ -595,7 +595,7 @@ static int do_put(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PGconn* dbConn)
     static unsigned short keySeq = 0;
 
     if (status == 'n') {    // Create a new record and reset the current primary key in scope
-        IDAM_LOG(UDA_LOG_DEBUG, "record() Create a new record\n");
+        UDA_LOG(UDA_LOG_DEBUG, "record() Create a new record\n");
 
         if (key != NULL) {    // Always renewed for each new record
             free((void*)key);
@@ -633,7 +633,7 @@ static int do_put(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PGconn* dbConn)
                         doi, requestedSignal, requestedSource, trueSignal, trueSource,
                         trueSourceDOI, key);
 
-                IDAM_LOGF(UDA_LOG_DEBUG, "record() SQL\n%s\n", cmd);
+                UDA_LOG(UDA_LOG_DEBUG, "record() SQL\n%s\n", cmd);
 
                 gettimeofday(&tv_start, NULL);
 
@@ -649,7 +649,7 @@ static int do_put(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PGconn* dbConn)
                         (int)(tv_stop.tv_usec - tv_start.tv_usec) / 1000;
                 usecs = (int)(tv_stop.tv_sec - tv_start.tv_sec) * 1000000 +
                         (int)(tv_stop.tv_usec - tv_start.tv_usec);
-                IDAM_LOGF(UDA_LOG_DEBUG, "update() execMethod 1 Cost A = %d (ms), %d (microsecs)\n",
+                UDA_LOG(UDA_LOG_DEBUG, "update() execMethod 1 Cost A = %d (ms), %d (microsecs)\n",
                           msecs, usecs);
                 tv_start = tv_stop;
             } else if (execMethod == 2) {
@@ -690,7 +690,7 @@ static int do_put(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PGconn* dbConn)
                         (int)(tv_stop.tv_usec - tv_start.tv_usec) / 1000;
                 usecs = (int)(tv_stop.tv_sec - tv_start.tv_sec) * 1000000 +
                         (int)(tv_stop.tv_usec - tv_start.tv_usec);
-                IDAM_LOGF(UDA_LOG_DEBUG, "update() execMethod 2 Cost A = %d (ms), %d (microsecs)\n",
+                UDA_LOG(UDA_LOG_DEBUG, "update() execMethod 2 Cost A = %d (ms), %d (microsecs)\n",
                           msecs, usecs);
                 tv_start = tv_stop;
             } else if (execMethod == 3) {
@@ -709,7 +709,7 @@ static int do_put(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PGconn* dbConn)
                         (int)(tv_stop.tv_usec - tv_start.tv_usec) / 1000;
                 usecs = (int)(tv_stop.tv_sec - tv_start.tv_sec) * 1000000 +
                         (int)(tv_stop.tv_usec - tv_start.tv_usec);
-                IDAM_LOGF(UDA_LOG_DEBUG, "update() execMethod 3 Cost A = %d (ms), %d (microsecs)\n",
+                UDA_LOG(UDA_LOG_DEBUG, "update() execMethod 3 Cost A = %d (ms), %d (microsecs)\n",
                           msecs, usecs);
                 tv_start = tv_stop;
             } else {
@@ -725,7 +725,7 @@ static int do_put(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PGconn* dbConn)
                     "VALUES ('%s','%s','%s','%s','%s','%s');",
                     doi, requestedSignal, requestedSource, trueSignal, trueSource, trueSourceDOI);
 
-            IDAM_LOGF(UDA_LOG_DEBUG, "record() SQL\n%s\n", sql);
+            UDA_LOG(UDA_LOG_DEBUG, "record() SQL\n%s\n", sql);
             // Execute the SQL
 
             PGresult* dbQuery;
@@ -740,7 +740,7 @@ static int do_put(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PGconn* dbConn)
             strcpy(sql, "SELECT doi_log_id FROM doi_log WHERE "
                     "doi_log_id=currval('doi_log_id_seq');");
 
-            IDAM_LOGF(UDA_LOG_DEBUG, "%s\n", sql);
+            UDA_LOG(UDA_LOG_DEBUG, "%s\n", sql);
 
             if ((dbQuery = PQexec(dbConn, sql)) == NULL || PQresultStatus(dbQuery) != PGRES_TUPLES_OK) {
                 RAISE_PLUGIN_ERROR("database query failed");
@@ -750,7 +750,7 @@ static int do_put(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PGconn* dbConn)
 
             if (nrows != 1) {
                 RAISE_PLUGIN_ERROR("New doi_log record not found!");
-                IDAM_LOG(UDA_LOG_ERROR, "ERROR issueDOI new: New doi_log record not found!\n");
+                UDA_LOG(UDA_LOG_ERROR, "ERROR issueDOI new: New doi_log record not found!\n");
             }
 
             // Extract the SQL data
@@ -760,7 +760,7 @@ static int do_put(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PGconn* dbConn)
             strcpy(key, PQgetvalue(dbQuery, 0, 0));
             PQclear(dbQuery);
 
-            IDAM_LOGF(UDA_LOG_DEBUG, "issueDOI key: %s\n", key);
+            UDA_LOG(UDA_LOG_DEBUG, "issueDOI key: %s\n", key);
 
             // Complete the transaction
 
@@ -778,7 +778,7 @@ static int do_put(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PGconn* dbConn)
 
     } else if (status == 'u') {
         // update an existing record using the key from the ADD step
-        IDAM_LOG(UDA_LOG_DEBUG, "record() update an existing record with the Server Log record\n");
+        UDA_LOG(UDA_LOG_DEBUG, "record() update an existing record with the Server Log record\n");
 
         if (!isLogRecord) {
             RAISE_PLUGIN_ERROR("No Log record!");
@@ -799,7 +799,7 @@ static int do_put(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PGconn* dbConn)
                                 "UPDATE doi_log SET logRecord = '%s' WHERE tmpKey = '%s';\" > /dev/null 2>&1 &",
                         dbname, dbuser, dbhost, dbport, logRecord, key);
 
-                IDAM_LOGF(UDA_LOG_DEBUG, "update() SQL\n%s\n", cmd);
+                UDA_LOG(UDA_LOG_DEBUG, "update() SQL\n%s\n", cmd);
 
                 gettimeofday(&tv_start, NULL);
 
@@ -815,7 +815,7 @@ static int do_put(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PGconn* dbConn)
                         (int)(tv_stop.tv_usec - tv_start.tv_usec) / 1000;
                 usecs = (int)(tv_stop.tv_sec - tv_start.tv_sec) * 1000000 +
                         (int)(tv_stop.tv_usec - tv_start.tv_usec);
-                IDAM_LOGF(UDA_LOG_DEBUG, "update() execMethod 1 Cost B = %d (ms), %d (microsecs)\n",
+                UDA_LOG(UDA_LOG_DEBUG, "update() execMethod 1 Cost B = %d (ms), %d (microsecs)\n",
                           msecs, usecs);
                 tv_start = tv_stop;
             } else if (execMethod == 2) {
@@ -830,7 +830,7 @@ static int do_put(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PGconn* dbConn)
                         (int)(tv_stop.tv_usec - tv_start.tv_usec) / 1000;
                 usecs = (int)(tv_stop.tv_sec - tv_start.tv_sec) * 1000000 +
                         (int)(tv_stop.tv_usec - tv_start.tv_usec);
-                IDAM_LOGF(UDA_LOG_DEBUG, "update() execMethod 2 Cost B = %d (ms), %d (microsecs)\n",
+                UDA_LOG(UDA_LOG_DEBUG, "update() execMethod 2 Cost B = %d (ms), %d (microsecs)\n",
                           msecs, usecs);
                 tv_start = tv_stop;
 
@@ -846,7 +846,7 @@ static int do_put(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PGconn* dbConn)
                         "%s -d %s -U %s -h %s -p %s -f %s > /dev/null 2>&1 &",
                         work, dbname, dbuser, dbhost, dbport, tmpfile);
 
-                IDAM_LOGF(UDA_LOG_DEBUG, "update() SQL\n%s\n", cmd);
+                UDA_LOG(UDA_LOG_DEBUG, "update() SQL\n%s\n", cmd);
 
                 gettimeofday(&tv_start, NULL);
 
@@ -862,7 +862,7 @@ static int do_put(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PGconn* dbConn)
                         (int)(tv_stop.tv_usec - tv_start.tv_usec) / 1000;
                 usecs = (int)(tv_stop.tv_sec - tv_start.tv_sec) * 1000000 +
                         (int)(tv_stop.tv_usec - tv_start.tv_usec);
-                IDAM_LOGF(UDA_LOG_DEBUG, "update() execMethod 2 Cost C = %d (ms), %d (microsecs)\n",
+                UDA_LOG(UDA_LOG_DEBUG, "update() execMethod 2 Cost C = %d (ms), %d (microsecs)\n",
                           msecs, usecs);
                 tv_start = tv_stop;
             } else if (execMethod == 3) {
@@ -882,14 +882,14 @@ static int do_put(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PGconn* dbConn)
                         "\"%s '%s'); END;\" > /dev/null 2>&1 &",
                         sqlBuffer, logRecord);
 
-                IDAM_LOGF(UDA_LOG_DEBUG, "update() SQL\n%s\n", cmd);
+                UDA_LOG(UDA_LOG_DEBUG, "update() SQL\n%s\n", cmd);
 
                 gettimeofday(&tv_stop, NULL);
                 msecs = (int)(tv_stop.tv_sec - tv_start.tv_sec) * 1000 +
                         (int)(tv_stop.tv_usec - tv_start.tv_usec) / 1000;
                 usecs = (int)(tv_stop.tv_sec - tv_start.tv_sec) * 1000000 +
                         (int)(tv_stop.tv_usec - tv_start.tv_usec);
-                IDAM_LOGF(UDA_LOG_DEBUG, "update() execMethod 3 Cost B = %d (ms), %d (microsecs)\n",
+                UDA_LOG(UDA_LOG_DEBUG, "update() execMethod 3 Cost B = %d (ms), %d (microsecs)\n",
                           msecs, usecs);
                 tv_start = tv_stop;
 
@@ -905,7 +905,7 @@ static int do_put(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PGconn* dbConn)
                         (int)(tv_stop.tv_usec - tv_start.tv_usec) / 1000;
                 usecs = (int)(tv_stop.tv_sec - tv_start.tv_sec) * 1000000 +
                         (int)(tv_stop.tv_usec - tv_start.tv_usec);
-                IDAM_LOGF(UDA_LOG_DEBUG, "update() execMethod 3 Cost C = %d (ms), %d (microsecs)\n",
+                UDA_LOG(UDA_LOG_DEBUG, "update() execMethod 3 Cost C = %d (ms), %d (microsecs)\n",
                           msecs, usecs);
                 tv_start = tv_stop;
             }
@@ -916,7 +916,7 @@ static int do_put(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PGconn* dbConn)
                     "UPDATE doi_log SET logRecord = '%s' WHERE doi_log_id = %s;"
                     "END;", logRecord, key);
 
-            IDAM_LOGF(UDA_LOG_DEBUG, "record() SQL\n%s\n", sql);
+            UDA_LOG(UDA_LOG_DEBUG, "record() SQL\n%s\n", sql);
 
             // Execute the SQL
 
@@ -931,14 +931,14 @@ static int do_put(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PGconn* dbConn)
 
     } else if (status == 'c') {
         // close all records for future deletion and execute collected SQL statements
-        IDAM_LOG(UDA_LOG_DEBUG, "record() Close all records\n");
+        UDA_LOG(UDA_LOG_DEBUG, "record() Close all records\n");
 
         char sql[MAXSQL];
         sprintf(sql, "BEGIN; "
                 "UPDATE doi_log SET status = 1 WHERE doi = '%s';"
                 "END;", doi);
 
-        IDAM_LOGF(UDA_LOG_DEBUG, "record() SQL\n%s\n", sql);
+        UDA_LOG(UDA_LOG_DEBUG, "record() SQL\n%s\n", sql);
 
         // Execute the SQL
 
@@ -952,14 +952,14 @@ static int do_put(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PGconn* dbConn)
 
     } else if (status == 'd') {
         // Delete closed records (Protection against malicious intent? user field?)
-        IDAM_LOG(UDA_LOG_DEBUG, "record() Delete closed records\n");
+        UDA_LOG(UDA_LOG_DEBUG, "record() Delete closed records\n");
 
         char sql[MAXSQL];
         sprintf(sql, "BEGIN; "
                 "DELETE FROM doi_log WHERE status = 1 AND doi = '%s';" // and user='%s'
                 "END;", doi);
 
-        IDAM_LOGF(UDA_LOG_DEBUG, "record() SQL\n%s\n", sql);
+        UDA_LOG(UDA_LOG_DEBUG, "record() SQL\n%s\n", sql);
 
         // Execute the SQL
 
@@ -977,10 +977,10 @@ static int do_put(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PGconn* dbConn)
 //        if (err == 1) {
 //            err = 999;
 //            if (dbQuery == NULL) {
-//                IDAM_LOG(UDA_LOG_ERROR, "ERROR issueDOI add: Database Query Failed!\n");
+//                UDA_LOG(UDA_LOG_ERROR, "ERROR issueDOI add: Database Query Failed!\n");
 //                addIdamError(CODEERRORTYPE, "issueDOI add", err, "Database Query Failed!");
 //            } else if (PQresultStatus(dbQuery) != PGRES_COMMAND_OK) {
-//                IDAM_LOGF(UDA_LOG_ERROR, "ERROR issueDOI add: %s\n", PQresultErrorMessage(dbQuery));
+//                UDA_LOG(UDA_LOG_ERROR, "ERROR issueDOI add: %s\n", PQresultErrorMessage(dbQuery));
 //                addIdamError(CODEERRORTYPE, "issueDOI add", err,
 //                             PQresultErrorMessage(dbQuery));
 //            }
@@ -989,7 +989,7 @@ static int do_put(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PGconn* dbConn)
 //        PQclear(dbQuery);
 //
 //        sprintf(sql, "ROLLBACK; END;");
-//        IDAM_LOGF(UDA_LOG_DEBUG, "%s\n", sql);
+//        UDA_LOG(UDA_LOG_DEBUG, "%s\n", sql);
 //
 //        dbQuery = PQexec(dbConn, sql);
 //        PQclear(dbQuery);
@@ -1010,7 +1010,7 @@ static int do_put(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PGconn* dbConn)
     strcpy(data_block->data_label, "");
     strcpy(data_block->data_units, "");
 
-    IDAM_LOG(UDA_LOG_DEBUG, "exiting function record\n");
+    UDA_LOG(UDA_LOG_DEBUG, "exiting function record\n");
 
     return 0;
 }
@@ -1019,7 +1019,7 @@ static int do_put(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PGconn* dbConn)
 // LIST all data access records from the DOI_Log table
 static int do_list(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PGconn* dbConn)
 {
-    IDAM_LOG(UDA_LOG_DEBUG, "entering function list\n");
+    UDA_LOG(UDA_LOG_DEBUG, "entering function list\n");
 
     REQUEST_BLOCK* request_block = idam_plugin_interface->request_block;
 
@@ -1034,7 +1034,7 @@ static int do_list(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PGconn* dbConn)
     sprintf(sql, "SELECT doi, requestedSignal, requestedSource, trueSignal, trueSource, trueSourceDOI, "
             "logRecord, creation FROM doi_log WHERE doi='%s';", doi);
 
-    IDAM_LOGF(UDA_LOG_DEBUG, "list() SQL\n%s\n", sql);
+    UDA_LOG(UDA_LOG_DEBUG, "list() SQL\n%s\n", sql);
 
     // Execute the SQL
 
@@ -1112,14 +1112,14 @@ static int do_list(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PGconn* dbConn)
         strcpy(data[i].creation, PQgetvalue(dbQuery, i, 7));
         addMalloc(logmalloclist, (void*)data[i].creation, 1, stringLength * sizeof(char), "char");
 
-        IDAM_LOGF(UDA_LOG_DEBUG, "doi            : %s\n\n", data[i].doi);
-        IDAM_LOGF(UDA_LOG_DEBUG, "requestedSignal: %s\n", data[i].requestedSignal);
-        IDAM_LOGF(UDA_LOG_DEBUG, "requestedSource: %s\n", data[i].requestedSource);
-        IDAM_LOGF(UDA_LOG_DEBUG, "trueSignal     : %s\n", data[i].trueSignal);
-        IDAM_LOGF(UDA_LOG_DEBUG, "trueSource     : %s\n", data[i].trueSource);
-        IDAM_LOGF(UDA_LOG_DEBUG, "trueSourceDOI  : %s\n", data[i].trueSourceDOI);
-        IDAM_LOGF(UDA_LOG_DEBUG, "logRecord      : %s\n", data[i].logRecord);
-        IDAM_LOGF(UDA_LOG_DEBUG, "creation date  : %s\n", data[i].creation);
+        UDA_LOG(UDA_LOG_DEBUG, "doi            : %s\n\n", data[i].doi);
+        UDA_LOG(UDA_LOG_DEBUG, "requestedSignal: %s\n", data[i].requestedSignal);
+        UDA_LOG(UDA_LOG_DEBUG, "requestedSource: %s\n", data[i].requestedSource);
+        UDA_LOG(UDA_LOG_DEBUG, "trueSignal     : %s\n", data[i].trueSignal);
+        UDA_LOG(UDA_LOG_DEBUG, "trueSource     : %s\n", data[i].trueSource);
+        UDA_LOG(UDA_LOG_DEBUG, "trueSourceDOI  : %s\n", data[i].trueSourceDOI);
+        UDA_LOG(UDA_LOG_DEBUG, "logRecord      : %s\n", data[i].logRecord);
+        UDA_LOG(UDA_LOG_DEBUG, "creation date  : %s\n", data[i].creation);
     }
     PQclear(dbQuery);
 
@@ -1224,7 +1224,7 @@ static int do_list(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PGconn* dbConn)
     data_block->opaque_count = 1;
     data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "LISTDOI", 0);
 
-    IDAM_LOG(UDA_LOG_DEBUG, "Function list called\n");
+    UDA_LOG(UDA_LOG_DEBUG, "Function list called\n");
 
     if (data_block->opaque_block == NULL) {
         RAISE_PLUGIN_ERROR("failed to locate LISTDOI structure!");

@@ -284,10 +284,10 @@ void replaceSubTreeEmbeddedStrings(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPE
 
     int j;
     for (j = 0; j < udt->fieldcount; j++) {
-        IDAM_LOGF(UDA_LOG_DEBUG, "\nfieldcount %d\n", udt->fieldcount);
+        UDA_LOG(UDA_LOG_DEBUG, "\nfieldcount %d\n", udt->fieldcount);
 
         if (udt->compoundfield[j].atomictype == UDA_TYPE_UNKNOWN) {    // Child User Defined type?
-            IDAM_LOG(UDA_LOG_DEBUG, "\nUDT\n");
+            UDA_LOG(UDA_LOG_DEBUG, "\nUDT\n");
 
             char* data;
             USERDEFINEDTYPE* child = findUserDefinedType(userdefinedtypelist, udt->compoundfield[j].type, 0);
@@ -323,7 +323,7 @@ void replaceSubTreeEmbeddedStrings(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPE
         }
 
         if (STR_EQUALS(udt->compoundfield[j].type, "STRING *")) {
-            IDAM_LOGF(UDA_LOG_DEBUG, "\nSTRING *, ndata %d\n", ndata);
+            UDA_LOG(UDA_LOG_DEBUG, "\nSTRING *, ndata %d\n", ndata);
 
             // String arrays within data structures are defined (readCDFTypes) as char *str[int] => rank=1, pointer=0 and type=STRING*
 
@@ -350,7 +350,7 @@ void replaceSubTreeEmbeddedStrings(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPE
                     addMalloc(logmalloclist, (void*)ssvec[i], lstr, sizeof(char), "char");
                     strcpy(ssvec[i], svec[i]);
                 }
-                IDAM_LOGF(UDA_LOG_DEBUG, "\nstring count %d\n", nstr);
+                UDA_LOG(UDA_LOG_DEBUG, "\nstring count %d\n", nstr);
 
                 // *** BUG ? when calling for the same sub-tree from the same file twice !!!
 
@@ -366,7 +366,7 @@ void replaceSubTreeEmbeddedStrings(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPE
         }
     }
 
-    IDAM_LOG(UDA_LOG_DEBUG, "\nexiting\n");
+    UDA_LOG(UDA_LOG_DEBUG, "\nexiting\n");
 }
 
 
@@ -405,18 +405,18 @@ int getCDF4SubTreeVarMeta(int grpid, int varid, VARIABLE* variable, USERDEFINEDT
 
     unsigned short regularVarData = (noVarAttributeData || noAttributeData) && noDimensionData;
 
-    IDAM_LOG(UDA_LOG_DEBUG, "getCDF4SubTreeVarMeta: Properties \n");
-    IDAM_LOGF(UDA_LOG_DEBUG, "readCDF4Properties: %d\n", (int)readCDF4Properties());
-    IDAM_LOGF(UDA_LOG_DEBUG, "ignoreHiddenAtts  : %d\n", (int)ignoreHiddenAtts);
-    IDAM_LOGF(UDA_LOG_DEBUG, "ignoreHiddenVars  : %d\n", (int)ignoreHiddenVars);
-    IDAM_LOGF(UDA_LOG_DEBUG, "ignoreHiddenGroups: %d\n", (int)ignoreHiddenGroups);
-    IDAM_LOGF(UDA_LOG_DEBUG, "ignoreHiddenDims  : %d\n", (int)ignoreHiddenDims);
-    IDAM_LOGF(UDA_LOG_DEBUG, "notPointerType    : %d\n", (int)notPointerType);
-    IDAM_LOGF(UDA_LOG_DEBUG, "noDimensionData   : %d\n", (int)noDimensionData);
-    IDAM_LOGF(UDA_LOG_DEBUG, "noAttributeData   : %d\n", (int)noAttributeData);
-    IDAM_LOGF(UDA_LOG_DEBUG, "noVarAttributeData: %d\n", (int)noVarAttributeData);
-    IDAM_LOGF(UDA_LOG_DEBUG, "noGrpAttributeData: %d\n", (int)noGrpAttributeData);
-    IDAM_LOGF(UDA_LOG_DEBUG, "regularVarData    : %d\n", (int)regularVarData);
+    UDA_LOG(UDA_LOG_DEBUG, "getCDF4SubTreeVarMeta: Properties \n");
+    UDA_LOG(UDA_LOG_DEBUG, "readCDF4Properties: %d\n", (int)readCDF4Properties());
+    UDA_LOG(UDA_LOG_DEBUG, "ignoreHiddenAtts  : %d\n", (int)ignoreHiddenAtts);
+    UDA_LOG(UDA_LOG_DEBUG, "ignoreHiddenVars  : %d\n", (int)ignoreHiddenVars);
+    UDA_LOG(UDA_LOG_DEBUG, "ignoreHiddenGroups: %d\n", (int)ignoreHiddenGroups);
+    UDA_LOG(UDA_LOG_DEBUG, "ignoreHiddenDims  : %d\n", (int)ignoreHiddenDims);
+    UDA_LOG(UDA_LOG_DEBUG, "notPointerType    : %d\n", (int)notPointerType);
+    UDA_LOG(UDA_LOG_DEBUG, "noDimensionData   : %d\n", (int)noDimensionData);
+    UDA_LOG(UDA_LOG_DEBUG, "noAttributeData   : %d\n", (int)noAttributeData);
+    UDA_LOG(UDA_LOG_DEBUG, "noVarAttributeData: %d\n", (int)noVarAttributeData);
+    UDA_LOG(UDA_LOG_DEBUG, "noGrpAttributeData: %d\n", (int)noGrpAttributeData);
+    UDA_LOG(UDA_LOG_DEBUG, "regularVarData    : %d\n", (int)regularVarData);
 
     //----------------------------------------------------------------------
     // Initialise
@@ -742,9 +742,9 @@ int getCDF4SubTreeVar2Meta(int grpid, int varid, VARIABLE* variable, int* offset
     unsigned short ignoreHiddenVars = readCDF4Properties() & NC_IGNOREHIDDENVARS;
     unsigned short notPointerType = readCDF4Properties() & NC_NOTPOINTERTYPE;
 
-    IDAM_LOG(UDA_LOG_DEBUG, "getCDF4SubTreeVar2Meta: Properties \n");
-    IDAM_LOGF(UDA_LOG_DEBUG, "ignoreHiddenVars  : %d\n", (int)ignoreHiddenVars);
-    IDAM_LOGF(UDA_LOG_DEBUG, "notPointerType    : %d\n", (int)notPointerType);
+    UDA_LOG(UDA_LOG_DEBUG, "getCDF4SubTreeVar2Meta: Properties \n");
+    UDA_LOG(UDA_LOG_DEBUG, "ignoreHiddenVars  : %d\n", (int)ignoreHiddenVars);
+    UDA_LOG(UDA_LOG_DEBUG, "notPointerType    : %d\n", (int)notPointerType);
 
     //----------------------------------------------------------------------
     // Initialise
@@ -945,10 +945,10 @@ int getCDF4SubTreeMeta(int grpid, int parent, USERDEFINEDTYPE* udt, LOGMALLOCLIS
                 numgrps = grpCount;
             }
 
-            IDAM_LOG(UDA_LOG_DEBUG, "getCDF4SubTreeMeta: Group List\n");
+            UDA_LOG(UDA_LOG_DEBUG, "getCDF4SubTreeMeta: Group List\n");
             for (i = 0; i < numgrps; i++) {
                 if ((err = nc_inq_grpname(grpids[i], name)) != NC_NOERR)
-                    IDAM_LOGF(UDA_LOG_DEBUG, "[%d]: %s\n", i, name);
+                    UDA_LOG(UDA_LOG_DEBUG, "[%d]: %s\n", i, name);
             }
             err = 0;
         }

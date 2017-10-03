@@ -31,7 +31,7 @@ int makeClientRequestBlock(const char* data_object, const char* data_source, REQ
 
     if (strlen(data_object) >= MAXMETA) {
         err = SIGNAL_ARG_TOO_LONG;
-        IDAM_LOG(UDA_LOG_ERROR, "The Signal/Data Object Argument string is too long!\n");
+        UDA_LOG(UDA_LOG_ERROR, "The Signal/Data Object Argument string is too long!\n");
         addIdamError(CODEERRORTYPE, "makeClientRequestBlock", err,
                      "The Signal/Data Object Argument string is too long!");
         return err;
@@ -41,7 +41,7 @@ int makeClientRequestBlock(const char* data_object, const char* data_source, REQ
 
     if (strlen(data_source) >= STRING_LENGTH) {
         err = SOURCE_ARG_TOO_LONG;
-        IDAM_LOG(UDA_LOG_ERROR, "The Data Source Argument string is too long!\n");
+        UDA_LOG(UDA_LOG_ERROR, "The Data Source Argument string is too long!\n");
         addIdamError(CODEERRORTYPE, "makeClientRequestBlock", err,
                      "The Data Source Argument string is too long!");
         return err;
@@ -74,7 +74,7 @@ int makeClientRequestBlock(const char* data_object, const char* data_source, REQ
                (int)strlen(request_block->api_delim);
         if (lstr >= STRING_LENGTH) {
             err = SOURCE_ARG_TOO_LONG;
-            IDAM_LOG(UDA_LOG_ERROR,
+            UDA_LOG(UDA_LOG_ERROR,
                      "The Data Source Argument, prefixed with the Device Name, is too long!\n");
             addIdamError(CODEERRORTYPE, "makeClientRequestBlock", err,
                          "The Data Source Argument, prefixed with the Device Name, is too long!");
@@ -92,7 +92,7 @@ int makeClientRequestBlock(const char* data_object, const char* data_source, REQ
                (int)strlen(request_block->api_delim);
         if (lstr >= STRING_LENGTH) {
             err = SIGNAL_ARG_TOO_LONG;
-            IDAM_LOG(UDA_LOG_ERROR,
+            UDA_LOG(UDA_LOG_ERROR,
                      "The Signal/Data Object Argument, prefixed with the Archive Name, is too long!\n");
             addIdamError(CODEERRORTYPE, "makeClientRequestBlock", err,
                          "The Signal/Data Object Argument, prefixed with the Archive Name, is too long!");

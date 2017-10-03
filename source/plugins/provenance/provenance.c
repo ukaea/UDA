@@ -52,10 +52,10 @@ PGconn* startSQL_Provenance()
 // Debug Trace Queries
 
 //        PQtrace(DBConnect, dbgout);
-        IDAM_LOGF(UDA_LOG_DEBUG, "Provenance SQL Connection: host %s\n", pghost);
-        IDAM_LOGF(UDA_LOG_DEBUG, "                           port %s\n", pgport);
-        IDAM_LOGF(UDA_LOG_DEBUG, "                           db   %s\n", dbname);
-        IDAM_LOGF(UDA_LOG_DEBUG, "                           user %s\n", user);
+        UDA_LOG(UDA_LOG_DEBUG, "Provenance SQL Connection: host %s\n", pghost);
+        UDA_LOG(UDA_LOG_DEBUG, "                           port %s\n", pgport);
+        UDA_LOG(UDA_LOG_DEBUG, "                           db   %s\n", dbname);
+        UDA_LOG(UDA_LOG_DEBUG, "                           user %s\n", user);
 
 //-------------------------------------------------------------
 // Connect to the Database Server
@@ -72,7 +72,7 @@ PGconn* startSQL_Provenance()
         return NULL;
     }
 
-        IDAM_LOGF(UDA_LOG_DEBUG, "Provenance SQL Connection Options: %s\n", PQoptions(DBConnect));
+        UDA_LOG(UDA_LOG_DEBUG, "Provenance SQL Connection Options: %s\n", PQoptions(DBConnect));
 
     return (DBConnect);
 }
@@ -121,26 +121,26 @@ int admin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         RAISE_PLUGIN_ERROR("Plugin Interface Version is Not Known");
     }
 
-    IDAM_LOG(UDA_LOG_DEBUG, "Provenance: Plugin Interface transferred\n");
+    UDA_LOG(UDA_LOG_DEBUG, "Provenance: Plugin Interface transferred\n");
 
     //----------------------------------------------------------------------------------------
     // Heap Housekeeping
 
     if (housekeeping || STR_IEQUALS(request_block->function, "reset")) {
 
-        IDAM_LOG(UDA_LOG_DEBUG, "Provenance: reset function called.\n");
+        UDA_LOG(UDA_LOG_DEBUG, "Provenance: reset function called.\n");
 
         if (!init) return 0;        // Not previously initialised: Nothing to do!
 
         if (DBConnect != NULL && DBType == PLUGINSQLPOSTGRES && sqlPrivate) {
-            IDAM_LOG(UDA_LOG_DEBUG, "Provenance: Closing SQL connection\n");
+            UDA_LOG(UDA_LOG_DEBUG, "Provenance: Closing SQL connection\n");
             PQfinish(DBConnect);
             sqlPrivate = 1;        // Remains Private
             DBConnect = NULL;
             DBType = PLUGINSQLNOTKNOWN;
         }
         init = 0;        // Ready to re-initialise
-        IDAM_LOG(UDA_LOG_DEBUG, "Provenance: reset executed\n");
+        UDA_LOG(UDA_LOG_DEBUG, "Provenance: reset executed\n");
         return 0;
     }
 
@@ -150,7 +150,7 @@ int admin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     if (!STR_IEQUALS(request_block->function, "help") && (!init || STR_IEQUALS(request_block->function, "init")
                                                           || STR_IEQUALS(request_block->function, "initialise"))) {
 
-        IDAM_LOG(UDA_LOG_DEBUG, "Provenance: init function called.\n");
+        UDA_LOG(UDA_LOG_DEBUG, "Provenance: init function called.\n");
 
 // Is there an Open SQL Connection? If not then open a private connection
 
@@ -159,7 +159,7 @@ int admin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             if (DBConnect != NULL) {
                 DBType = PLUGINSQLPOSTGRES;
                 sqlPrivate = 1;
-                IDAM_LOG(UDA_LOG_DEBUG, "Provenance: Private regular database connection made.\n");
+                UDA_LOG(UDA_LOG_DEBUG, "Provenance: Private regular database connection made.\n");
             }
         }
 
@@ -172,7 +172,7 @@ int admin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         initTime = (int)time(NULL);
         init = 1;
 
-        IDAM_LOG(UDA_LOG_DEBUG, "Provenance: Plugin initialised and SQL connection made\n");
+        UDA_LOG(UDA_LOG_DEBUG, "Provenance: Plugin initialised and SQL connection made\n");
 
         if (STR_IEQUALS(request_block->function, "init") || STR_IEQUALS(request_block->function, "initialise")) {
             return 0;

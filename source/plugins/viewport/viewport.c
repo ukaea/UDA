@@ -374,7 +374,7 @@ extern int viewport(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 getIdamFloatDimData(handle, 0, coords);
 
                 if (isTest) {
-                    IDAM_LOGF(UDA_LOG_DEBUG, "Running Viewport Test %d\n", test);
+                    UDA_LOG(UDA_LOG_DEBUG, "Running Viewport Test %d\n", test);
 
                     switch (test) {
                         case 1: {                // Do nothing
@@ -542,7 +542,7 @@ extern int viewport(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 if (isPixelWidth && isPixelHeight) {
                     // Map to pixels if the device coordinate viewport is defined
 
-                    IDAM_LOGF(UDA_LOG_DEBUG,
+                    UDA_LOG(UDA_LOG_DEBUG,
                             "Viewport: Mapping data to device pixel coordinate range (width, height) = %d, %d\n",
                             pixelWidth, pixelHeight);
 
@@ -589,8 +589,8 @@ extern int viewport(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
                     int colCount = 0;
                     for (i = 0; i < pixelWidth; i++)colCount = colCount + fctot[i];
-                    IDAM_LOGF(UDA_LOG_DEBUG, "Column Totals: %d\n", colCount);
-                    for (i = 0; i < pixelWidth; i++) IDAM_LOGF(UDA_LOG_DEBUG, "[%d] %d\n", i, fctot[i]);
+                    UDA_LOG(UDA_LOG_DEBUG, "Column Totals: %d\n", colCount);
+                    for (i = 0; i < pixelWidth; i++) UDA_LOG(UDA_LOG_DEBUG, "[%d] %d\n", i, fctot[i]);
 
 // Which pixel row bin do each un-ordered data point fall into?
 
@@ -612,8 +612,8 @@ extern int viewport(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
                     int rowCount = 0;
                     for (i = 0; i < pixelHeight; i++)rowCount = rowCount + frtot[i];
-                    IDAM_LOGF(UDA_LOG_DEBUG, "Row Totals: %d\n", rowCount);
-                    for (i = 0; i < pixelHeight; i++) IDAM_LOGF(UDA_LOG_DEBUG, "[%d] %d\n", i, frtot[i]);
+                    UDA_LOG(UDA_LOG_DEBUG, "Row Totals: %d\n", rowCount);
+                    for (i = 0; i < pixelHeight; i++) UDA_LOG(UDA_LOG_DEBUG, "[%d] %d\n", i, frtot[i]);
 
                     free((void*) column);
                     free((void*) row);
@@ -640,7 +640,7 @@ extern int viewport(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                         int meanCount = 0;
 
                         if (!isRange && isMean) {
-                            if (i == 0) IDAM_LOG(UDA_LOG_DEBUG, "Mean returned\n");
+                            if (i == 0) UDA_LOG(UDA_LOG_DEBUG, "Mean returned\n");
                             for (j = 0; j < pixelHeight; j++) {
                                 if (freq[i][j] > 0) {
                                     data[i] = data[i] + (float) freq[i][j] * verticalPixelValues[j];
@@ -654,7 +654,7 @@ extern int viewport(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                             }
 
                         } else if (!isRange && isMode) {
-                            IDAM_LOG(UDA_LOG_DEBUG, "Mode returned\n");
+                            UDA_LOG(UDA_LOG_DEBUG, "Mode returned\n");
                             int fmax = 0, fmaxID = -1;
                             for (j = 0; j < pixelHeight; j++) {
                                 if (freq[i][j] > fmax) {        // First mode found if multi-modal
@@ -668,7 +668,7 @@ extern int viewport(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                                 goodCount++;
                             }
                         } else if (!isRange && isMedian) {
-                            if (i == 0) IDAM_LOG(UDA_LOG_DEBUG, "Median returned\n");
+                            if (i == 0) UDA_LOG(UDA_LOG_DEBUG, "Median returned\n");
                             integral[0] = freq[i][0];
 //printf("\n\n");
                             for (j = 1; j < pixelHeight; j++)integral[j] = integral[j - 1] + freq[i][j];
@@ -720,7 +720,7 @@ extern int viewport(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                         }
 
                         if (isRange) {
-                            if (i == 0) IDAM_LOG(UDA_LOG_DEBUG, "Range returned\n");
+                            if (i == 0) UDA_LOG(UDA_LOG_DEBUG, "Range returned\n");
                             data[i] = 0.5 * (errlo[i] + errhi[i]);
                             goodCount++;
                         }
@@ -728,17 +728,17 @@ extern int viewport(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
                         free((void*) freq[i]);
 
-                        if (i == 0) IDAM_LOGF(UDA_LOG_DEBUG, "&data = %p\n", data);
-                        IDAM_LOGF(UDA_LOG_DEBUG, "[%d]   %f   %f   %f   %f\n", i, data[i], errlo[i], errhi[i],
+                        if (i == 0) UDA_LOG(UDA_LOG_DEBUG, "&data = %p\n", data);
+                        UDA_LOG(UDA_LOG_DEBUG, "[%d]   %f   %f   %f   %f\n", i, data[i], errlo[i], errhi[i],
                                 horizontalPixelValues[i]);
 
                     }   // end of loop over pixelWidth
 
-                    IDAM_LOGF(UDA_LOG_DEBUG, "goodCount  = %d\n", goodCount);
-                    IDAM_LOGF(UDA_LOG_DEBUG, "pixelWidth = %d\n", pixelWidth);
-                    IDAM_LOGF(UDA_LOG_DEBUG, "&data = %p\n", data);
+                    UDA_LOG(UDA_LOG_DEBUG, "goodCount  = %d\n", goodCount);
+                    UDA_LOG(UDA_LOG_DEBUG, "pixelWidth = %d\n", pixelWidth);
+                    UDA_LOG(UDA_LOG_DEBUG, "&data = %p\n", data);
                     for (i = 0; i < pixelWidth2; i++) {
-                        IDAM_LOGF(UDA_LOG_DEBUG, "[%d]   %f   %f   %f   %f\n", i, data[i], errlo[i], errhi[i],
+                        UDA_LOG(UDA_LOG_DEBUG, "[%d]   %f   %f   %f   %f\n", i, data[i], errlo[i], errhi[i],
                                   horizontalPixelValues[i]);
                     }
 // Free allocated heap
@@ -756,7 +756,7 @@ extern int viewport(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 // Remove pixel columns without data
 
                     if (goodCount < pixelWidth) {
-                        IDAM_LOGF(UDA_LOG_DEBUG, "Removing pixel columns without data [%d, %d]\n", goodCount, pixelWidth);
+                        UDA_LOG(UDA_LOG_DEBUG, "Removing pixel columns without data [%d, %d]\n", goodCount, pixelWidth);
                         float* newData = (float*) malloc(goodCount * sizeof(float));
                         float* newErrhi = (float*) malloc(goodCount * sizeof(float));
                         float* newErrlo = (float*) malloc(goodCount * sizeof(float));

@@ -13,7 +13,7 @@
 int checkAvailableSignals(int shot, int n_all, int** signal_ids, int** is_available)
 {
 
-    IDAM_LOG(UDA_LOG_DEBUG, "Checking for signal ids in IDAM\n");
+    UDA_LOG(UDA_LOG_DEBUG, "Checking for signal ids in IDAM\n");
 
     int n_signals_available = 0;
 
@@ -21,7 +21,7 @@ int checkAvailableSignals(int shot, int n_all, int** signal_ids, int** is_availa
     PGresult* DBQuery_IDAM = NULL;
 
     if (DBConnect == NULL) {
-        IDAM_LOG(UDA_LOG_ERROR, "Connection to IDAM database failed.\n");
+        UDA_LOG(UDA_LOG_ERROR, "Connection to IDAM database failed.\n");
         return 0;
     }
 
@@ -38,13 +38,13 @@ int checkAvailableSignals(int shot, int n_all, int** signal_ids, int** is_availa
                 shot, (*signal_ids)[i]);
 
         if ((DBQuery_IDAM = PQexec(DBConnect, query_idam)) == NULL) {
-            IDAM_LOG(UDA_LOG_ERROR, "IDAM database query failed.\n");
+            UDA_LOG(UDA_LOG_ERROR, "IDAM database query failed.\n");
             continue;
         }
 
         if (PQresultStatus(DBQuery_IDAM) != PGRES_TUPLES_OK && PQresultStatus(DBQuery_IDAM) != PGRES_COMMAND_OK) {
             PQclear(DBQuery_IDAM);
-            IDAM_LOG(UDA_LOG_ERROR, "Database query failed.\n");
+            UDA_LOG(UDA_LOG_ERROR, "Database query failed.\n");
             continue;
         }
 
@@ -64,7 +64,7 @@ int checkAvailableSignals(int shot, int n_all, int** signal_ids, int** is_availa
     PQfinish(DBConnect);
 
     if (n_signals_available == 0) {
-        IDAM_LOG(UDA_LOG_DEBUG, "None of the signals for this geometry component are available for this shot\n");
+        UDA_LOG(UDA_LOG_DEBUG, "None of the signals for this geometry component are available for this shot\n");
     }
 
     return n_signals_available;
@@ -79,7 +79,7 @@ int do_signal_file(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     const char* signal = NULL;
     FIND_REQUIRED_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, signal);
 
-    IDAM_LOGF(UDA_LOG_DEBUG, "Using signal name: %s\n", signal);
+    UDA_LOG(UDA_LOG_DEBUG, "Using signal name: %s\n", signal);
 
     const char* file = NULL;
     FIND_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, file);
@@ -94,7 +94,7 @@ int do_signal_file(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     // Open the connection
     // CURRENTLY HARDCODED IN WHILE I'M TESTING
     // .... Once this is actually in the new MAST-U db, will need to use idam functions as in readMeta to open connection.
-    IDAM_LOG(UDA_LOG_DEBUG, "trying to get connection\n");
+    UDA_LOG(UDA_LOG_DEBUG, "trying to get connection\n");
 
     char* db_host = getenv("GEOM_DB_HOST");
     char* db_port_str = getenv("GEOM_DB_PORT");
@@ -122,7 +122,7 @@ int do_signal_file(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     int err = 0;
     PQescapeStringConn(DBConnect, signal_for_query, signal, strlen(signal), &err);
 
-    IDAM_LOGF(UDA_LOG_DEBUG, "signal_for_query %s\n", signal_for_query);
+    UDA_LOG(UDA_LOG_DEBUG, "signal_for_query %s\n", signal_for_query);
 
     /////////////////////
     // Query to find filename containing the data signal asked for
@@ -157,7 +157,7 @@ int do_signal_file(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 signal_for_query, signal_for_query, shot, shot, version);
     }
 
-    IDAM_LOGF(UDA_LOG_DEBUG, "query is %s\n", query);
+    UDA_LOG(UDA_LOG_DEBUG, "query is %s\n", query);
 
     if ((DBQuery = PQexec(DBConnect, query)) == NULL) {
         RAISE_PLUGIN_ERROR("Database query failed.\n");
@@ -170,7 +170,7 @@ int do_signal_file(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     }
 
     int nRows = PQntuples(DBQuery);
-    IDAM_LOGF(UDA_LOG_DEBUG, "nRows returned from db : %d\n", nRows);
+    UDA_LOG(UDA_LOG_DEBUG, "nRows returned from db : %d\n", nRows);
 
     if (nRows == 0) {
         PQclear(DBQuery);
@@ -243,7 +243,7 @@ int do_signal_file(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     // Check which signal aliases are actually available for this shot, in the IDAM db
     int n_signals_available = checkAvailableSignals(shot, nRows, &all_sig_id, &is_available);
 
-    IDAM_LOGF(UDA_LOG_DEBUG, "n sig available %d\n", n_signals_available);
+    UDA_LOG(UDA_LOG_DEBUG, "n sig available %d\n", n_signals_available);
 
     if (n_signals_available == 0 && keep_all == 0) {
         RAISE_PLUGIN_ERROR("None of the signals in this file are available for this shot.\n");
@@ -264,7 +264,7 @@ int do_signal_file(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     LOGMALLOCLIST* logmalloclist = idam_plugin_interface->logmalloclist;
     err = readCDF(*data_source, *signal_desc, *request_block, &data_block_file, &logmalloclist, &userdefinedtypelist);
 
-    IDAM_LOGF(UDA_LOG_DEBUG, "Read in file signal %s\n", signal_desc->signal_name);
+    UDA_LOG(UDA_LOG_DEBUG, "Read in file signal %s\n", signal_desc->signal_name);
 
     if (err != 0) {
         RAISE_PLUGIN_ERROR("Error reading geometry data!\n");
@@ -430,7 +430,7 @@ int do_signal_filename(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     ////////////////////
     // Query to find data signals and filename associated with given geom group
-    IDAM_LOG(UDA_LOG_DEBUG, "trying to get connection\n");
+    UDA_LOG(UDA_LOG_DEBUG, "trying to get connection\n");
     char* db_host = getenv("GEOM_DB_HOST");
     char* db_port_str = getenv("GEOM_DB_PORT");
     int db_port = -1;
@@ -454,7 +454,7 @@ int do_signal_filename(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     int err = 0;
     PQescapeStringConn(DBConnect, signal_for_query, geomsignal, strlen(geomsignal), &err);
 
-    IDAM_LOGF(UDA_LOG_DEBUG, "signal_for_query %s\n", signal_for_query);
+    UDA_LOG(UDA_LOG_DEBUG, "signal_for_query %s\n", signal_for_query);
 
     char query[MAXSQL];
 
@@ -501,7 +501,7 @@ int do_signal_filename(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     }
     strcat(query, ";");
 
-    IDAM_LOGF(UDA_LOG_DEBUG, "query is %s\n", query);
+    UDA_LOG(UDA_LOG_DEBUG, "query is %s\n", query);
 
     if ((DBQuery = PQexec(DBConnect, query)) == NULL) {
         RAISE_PLUGIN_ERROR("Database query failed.\n");

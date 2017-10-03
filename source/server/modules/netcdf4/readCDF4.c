@@ -176,7 +176,7 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
             break;
         }
 
-        IDAM_LOGF(UDA_LOG_DEBUG, "netCDF filename %s\n", data_source.path);
+        UDA_LOG(UDA_LOG_DEBUG, "netCDF filename %s\n", data_source.path);
 
         //----------------------------------------------------------------------
         // Test the Library Version Number
@@ -201,7 +201,7 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
             hierarchical = (format == NC_FORMAT_NETCDF4) || (format == NC_FORMAT_NETCDF4_CLASSIC);
         }
 
-        IDAM_LOGF(UDA_LOG_DEBUG, "netCDF hierarchical organisation ? %d\n", hierarchical);
+        UDA_LOG(UDA_LOG_DEBUG, "netCDF hierarchical organisation ? %d\n", hierarchical);
 
         //----------------------------------------------------------------------
         // FUDGE for netcdf-3 TRANSP data (This won't work if the source alias is unknown, e.g. when private file)
@@ -272,7 +272,7 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
                     }
                     conventions[attlen] = '\0';        // Ensure Null terminated
                 }
-                IDAM_LOGF(UDA_LOG_DEBUG, "netCDF file Conventions?  %s\n", conventions);
+                UDA_LOG(UDA_LOG_DEBUG, "netCDF file Conventions?  %s\n", conventions);
 
                 if (conventions[0] != '\0') {
 
@@ -306,7 +306,7 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
 
             //if(!compliance && STR_EQUALS(signal_desc.source_alias, "efit")) compliance = 1;
 
-            IDAM_LOGF(UDA_LOG_DEBUG, "netCDF file compliance?  %d\n", compliance);
+            UDA_LOG(UDA_LOG_DEBUG, "netCDF file compliance?  %d\n", compliance);
 
             if (compliance) {
                 attlen = 0;
@@ -374,7 +374,7 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
             }
         }
 
-        IDAM_LOGF(UDA_LOG_DEBUG, "netCDF file class?  %d\n", class);
+        UDA_LOG(UDA_LOG_DEBUG, "netCDF file class?  %d\n", class);
 
         //----------------------------------------------------------------------
         // Complex Data Types (Done once per file if the Conventions are for FUSION and MAST)
@@ -438,14 +438,14 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
             if (STR_EQUALS(&signal_desc.signal_name[4], "/devices/")) {        //   /xyc/devices/...
                 strncpy(variable, &signal_desc.signal_name[1], 3);
                 variable[3] = '\0';
-                IDAM_LOG(UDA_LOG_DEBUG, "devices signal requested\n");
-                IDAM_LOGF(UDA_LOG_DEBUG, "source alias: [%s]\n", variable);
-                IDAM_LOGF(UDA_LOG_DEBUG, "source alias: [%s]\n", signal_desc.signal_alias);
+                UDA_LOG(UDA_LOG_DEBUG, "devices signal requested\n");
+                UDA_LOG(UDA_LOG_DEBUG, "source alias: [%s]\n", variable);
+                UDA_LOG(UDA_LOG_DEBUG, "source alias: [%s]\n", signal_desc.signal_alias);
                 if (STR_EQUALS(signal_desc.signal_alias, variable)) {
                     strcpy(variable, &signal_desc.signal_name[4]);
                     strcpy(signal_desc.signal_name, variable);
-                    IDAM_LOG(UDA_LOG_DEBUG, "Not recorded in Database: Removing source alias prefix\n");
-                    IDAM_LOGF(UDA_LOG_DEBUG, "Target signal: %s\n", signal_desc.signal_name);
+                    UDA_LOG(UDA_LOG_DEBUG, "Not recorded in Database: Removing source alias prefix\n");
+                    UDA_LOG(UDA_LOG_DEBUG, "Target signal: %s\n", signal_desc.signal_name);
                 }
             }
         }
@@ -462,7 +462,7 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
 
         strcpy(variable, signal_desc.signal_name);
 
-        IDAM_LOGF(UDA_LOG_DEBUG, "netCDF signal name?  %s\n", variable);
+        UDA_LOG(UDA_LOG_DEBUG, "netCDF signal name?  %s\n", variable);
 
         int grpid = 0;
 
@@ -626,7 +626,7 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
             nc_type atttype;
             char* attname = NULL;
 
-            IDAM_LOG(UDA_LOG_DEBUG, "variable not found ... trying other options ...\n");
+            UDA_LOG(UDA_LOG_DEBUG, "variable not found ... trying other options ...\n");
 
             // Check it's not an unwritten Coordinate dataset (with the same name as the variable). If so then create an index array
 
@@ -639,7 +639,7 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
                     break;
                 }
                 data_block->data_n = (int)data_n;
-                IDAM_LOG(UDA_LOG_DEBUG, "unwritten Coordinate dataset found.\n");
+                UDA_LOG(UDA_LOG_DEBUG, "unwritten Coordinate dataset found.\n");
 
                 data_block->rank = 1;
                 data_block->order = -1;
@@ -717,7 +717,7 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
                     addIdamError(CODEERRORTYPE, "readCDF", err, "Unable to read Group Level Attribute data");
                     break;
                 }
-                IDAM_LOG(UDA_LOG_DEBUG, "attribute attached to a group found.\n");
+                UDA_LOG(UDA_LOG_DEBUG, "attribute attached to a group found.\n");
 
                 if (udt != NULL) {                // A User Defined Data Structure Type?
                     malloc_source = MALLOCSOURCENETCDF;
@@ -768,7 +768,7 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
                             addIdamError(CODEERRORTYPE, "readCDF", err, "Unable to read Group Level Attribute data");
                             break;
                         }
-                        IDAM_LOG(UDA_LOG_DEBUG, "attribute attached to a variable found.\n");
+                        UDA_LOG(UDA_LOG_DEBUG, "attribute attached to a variable found.\n");
 
                         if (udt != NULL) {                // A User Defined Data Structure Type?
                             malloc_source = MALLOCSOURCENETCDF;
@@ -823,7 +823,7 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
 //                copyUserDefinedTypeList(userdefinedtypelist); // Allocate and Copy the Master User Defined Type List
                 initHGroup(&hgroups);
 
-                IDAM_LOG(UDA_LOG_DEBUG, "Tree or sub-tree found.\n");
+                UDA_LOG(UDA_LOG_DEBUG, "Tree or sub-tree found.\n");
 
                 // Target all User Defined types within the scope of this sub-tree Root node (unless root node is also sub-tree node: Prevents duplicate definitions)
 
@@ -843,16 +843,16 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
                     break;
                 }
 
-                IDAM_LOG(UDA_LOG_DEBUG, "updating User Defined Type table\n");
+                UDA_LOG(UDA_LOG_DEBUG, "updating User Defined Type table\n");
 
                 updateUdt(&hgroups, *userdefinedtypelist);        // Locate udt pointers using list array index values
 
-                IDAM_LOG(UDA_LOG_DEBUG, "printing User Defined Type table\n");
+                UDA_LOG(UDA_LOG_DEBUG, "printing User Defined Type table\n");
                 printUserDefinedTypeListTable(**userdefinedtypelist);
 
                 // Read all Data and Create the Sub-Tree structure
 
-                IDAM_LOG(UDA_LOG_DEBUG, "Creating sub-tree data structure\n");
+                UDA_LOG(UDA_LOG_DEBUG, "Creating sub-tree data structure\n");
 
                 err = getCDF4SubTreeData(*logmalloclist, *userdefinedtypelist, (void**)&data_block->data, &hgroups.group[0], &hgroups);
 
@@ -867,7 +867,7 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
                     data_block->opaque_block = (void*)hgroups.group[0].udt;
                 }
 
-                IDAM_LOG(UDA_LOG_DEBUG, "Freeing HGroups\n");
+                UDA_LOG(UDA_LOG_DEBUG, "Freeing HGroups\n");
                 //freeHGroups(&hgroups);
 
                 break;
@@ -1503,7 +1503,7 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
     if (extent != NULL) free((void*)extent);
     if (dextent != NULL) free((void*)dextent);
 
-    IDAM_LOG(UDA_LOG_DEBUG, "NC File Closed\n");
+    UDA_LOG(UDA_LOG_DEBUG, "NC File Closed\n");
     if (fd > 0) {
         ncclose(fd);
     }

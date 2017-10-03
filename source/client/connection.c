@@ -311,18 +311,18 @@ int clientWriteout(void* iohandle, char* buf, int count)
 
         if (errno == ECONNRESET || errno == ENETUNREACH || errno == ECONNREFUSED) {
             if (errno == ECONNRESET) {
-                IDAM_LOG(UDA_LOG_DEBUG, "idamClientWriteout: ECONNRESET error!\n");
+                UDA_LOG(UDA_LOG_DEBUG, "idamClientWriteout: ECONNRESET error!\n");
                 addIdamError(CODEERRORTYPE, "idamClientWriteout", -2,
                              "ECONNRESET: The server program has crashed or closed the socket unexpectedly");
                 return -2;
             } else {
                 if (errno == ENETUNREACH) {
-                    IDAM_LOG(UDA_LOG_DEBUG, "idamClientWriteout: ENETUNREACH error!\n");
+                    UDA_LOG(UDA_LOG_DEBUG, "idamClientWriteout: ENETUNREACH error!\n");
                     addIdamError(CODEERRORTYPE, "idamClientWriteout", -3,
                                  "Server Unavailable: ENETUNREACH");
                     return -3;
                 } else {
-                    IDAM_LOG(UDA_LOG_DEBUG, "idamClientWriteout: ECONNREFUSED error!\n");
+                    UDA_LOG(UDA_LOG_DEBUG, "idamClientWriteout: ECONNREFUSED error!\n");
                     addIdamError(CODEERRORTYPE, "idamClientWriteout", -4,
                                  "Server Unavailable: ECONNREFUSED");
                     return -4;

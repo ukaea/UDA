@@ -60,7 +60,7 @@ int get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         RAISE_PLUGIN_ERROR("Plugin Interface Version is Not Known: Unable to execute the request!");
     }
 
-    IDAM_LOG(UDA_LOG_DEBUG, "Plugin Interface transferred\n");
+    UDA_LOG(UDA_LOG_DEBUG, "Plugin Interface transferred\n");
 
 //----------------------------------------------------------------------------------------
 // Common Name Value pairs
@@ -74,7 +74,7 @@ int get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     do {
 
-        IDAM_LOG(UDA_LOG_DEBUG, "entering function 'new'\n");
+        UDA_LOG(UDA_LOG_DEBUG, "entering function 'new'\n");
 
         char emptyString[1] = "";
         char* owner = emptyString, * icatRef = emptyString, * class = emptyString, * title = emptyString,
@@ -84,7 +84,7 @@ int get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 // specific Name Value pairs (Keywords have higher priority)
 
         for (i = 0; i < request_block->nameValueList.pairCount; i++) {
-            IDAM_LOGF(UDA_LOG_DEBUG, "[%d] %s = %s\n", i, request_block->nameValueList.nameValue[i].name,
+            UDA_LOG(UDA_LOG_DEBUG, "[%d] %s = %s\n", i, request_block->nameValueList.nameValue[i].name,
                     request_block->nameValueList.nameValue[i].value);
 
             if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "owner")) {
@@ -121,7 +121,7 @@ int get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
         if (!ownerOK) {
             err = 999;
-            IDAM_LOG(UDA_LOG_ERROR, "Insufficient Meta Data not passed - need an owner!\n");
+            UDA_LOG(UDA_LOG_ERROR, "Insufficient Meta Data not passed - need an owner!\n");
             addIdamError(CODEERRORTYPE, "Provenance new", err,
                          "Insufficient Meta Data not passed - need an owner!");
             break;
@@ -166,14 +166,14 @@ int get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                         "(SELECT min(uuid_register_id) as minid FROM uuid_register where creation=current_date) as B;",
                 owner, class, title, description, icatRef);
 
-        IDAM_LOGF(UDA_LOG_DEBUG, "%s\n", sql);
+        UDA_LOG(UDA_LOG_DEBUG, "%s\n", sql);
 
 // execute
 
         if ((DBQuery = PQexec(DBConnect, sql)) == NULL || PQresultStatus(DBQuery) != PGRES_TUPLES_OK) {
             err = 999;
             addIdamError(CODEERRORTYPE, "Provenance", err, "SQL Execution Failed!");
-            IDAM_LOG(UDA_LOG_ERROR, "SQL Execution Failed\n");
+            UDA_LOG(UDA_LOG_ERROR, "SQL Execution Failed\n");
             PQclear(DBQuery);
             break;
         }
@@ -183,7 +183,7 @@ int get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         nrows = PQntuples(DBQuery);
 
         if (nrows != 1) {
-            IDAM_LOG(UDA_LOG_ERROR, "New UUID not available!\n");
+            UDA_LOG(UDA_LOG_ERROR, "New UUID not available!\n");
             err = 999;
             addIdamError(CODEERRORTYPE, "Provenance new", err, "New UUID not available!");
             PQclear(DBQuery);
@@ -194,9 +194,9 @@ int get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         int firstKey = atoi(PQgetvalue(DBQuery, 0, 1));
         int seq = newKey - firstKey + 1;
 
-        IDAM_LOGF(UDA_LOG_DEBUG, "               Key  : %d\n", newKey);
-        IDAM_LOGF(UDA_LOG_DEBUG, "           First Key: %d\n", firstKey);
-        IDAM_LOGF(UDA_LOG_DEBUG, "           Sequence : %d\n", seq);
+        UDA_LOG(UDA_LOG_DEBUG, "               Key  : %d\n", newKey);
+        UDA_LOG(UDA_LOG_DEBUG, "           First Key: %d\n", firstKey);
+        UDA_LOG(UDA_LOG_DEBUG, "           Sequence : %d\n", seq);
 
         PQclear(DBQuery);
 
@@ -212,14 +212,14 @@ int get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         sprintf(sql, "BEGIN; UPDATE uuid_register SET uuid = '%s' WHERE uuid_register_id = %d; END;",
                 work, newKey);
 
-        IDAM_LOGF(UDA_LOG_DEBUG, "%s\n", sql);
+        UDA_LOG(UDA_LOG_DEBUG, "%s\n", sql);
 
 // Execute
 
         if ((DBQuery = PQexec(DBConnect, sql)) == NULL || PQresultStatus(DBQuery) != PGRES_COMMAND_OK) {
             err = 999;
             addIdamError(CODEERRORTYPE, "Provenance", err, "SQL Execution Failed!");
-            IDAM_LOG(UDA_LOG_ERROR, "SQL Execution Failed\n");
+            UDA_LOG(UDA_LOG_ERROR, "SQL Execution Failed\n");
             PQclear(DBQuery);
             break;
         }
@@ -231,21 +231,21 @@ int get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         gettimeofday(&tv_stop, NULL);
         msecs = (int) (tv_stop.tv_sec - tv_start.tv_sec) * 1000 + (int) (tv_stop.tv_usec - tv_start.tv_usec) / 1000;
         usecs = (int) (tv_stop.tv_sec - tv_start.tv_sec) * 1000000 + (int) (tv_stop.tv_usec - tv_start.tv_usec);
-        IDAM_LOGF(UDA_LOG_DEBUG, "new() SQL Cost = %d (ms), %d (microsecs)\n", msecs, usecs);
+        UDA_LOG(UDA_LOG_DEBUG, "new() SQL Cost = %d (ms), %d (microsecs)\n", msecs, usecs);
 
 // Read the UUID_register table record
 
         sprintf(sql, "SELECT uuid, owner, class, title, description, icatref, status, creation "
                 "FROM uuid_register WHERE uuid_register_id = %d;", newKey);
 
-        IDAM_LOGF(UDA_LOG_DEBUG, "%s\n", sql);
+        UDA_LOG(UDA_LOG_DEBUG, "%s\n", sql);
 
 // Execute
 
         if ((DBQuery = PQexec(DBConnect, sql)) == NULL || PQresultStatus(DBQuery) != PGRES_TUPLES_OK) {
             err = 999;
             addIdamError(CODEERRORTYPE, "Provenance", err, "SQL Execution Failed!");
-            IDAM_LOG(UDA_LOG_ERROR, "SQL Execution Failed\n");
+            UDA_LOG(UDA_LOG_ERROR, "SQL Execution Failed\n");
             PQclear(DBQuery);
             break;
         }
@@ -255,7 +255,7 @@ int get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         nrows = PQntuples(DBQuery);
 
         if (nrows != 1) {
-            IDAM_LOG(UDA_LOG_ERROR, "New UUID not available!\n");
+            UDA_LOG(UDA_LOG_ERROR, "New UUID not available!\n");
             err = 999;
             addIdamError(CODEERRORTYPE, "Provenance new", err, "New UUID not available!");
             PQclear(DBQuery);
@@ -270,7 +270,7 @@ int get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             PQclear(DBQuery);
 
-            IDAM_LOGF(UDA_LOG_DEBUG, "uuid: %s\n", data_block->data);
+            UDA_LOG(UDA_LOG_DEBUG, "uuid: %s\n", data_block->data);
 
 // Pass the Data back	 
 
@@ -326,14 +326,14 @@ int get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             PQclear(DBQuery);
 
-            IDAM_LOGF(UDA_LOG_DEBUG, "uuid           : %s\n", data->uuid);
-            IDAM_LOGF(UDA_LOG_DEBUG, "owner          : %s\n", data->owner);
-            IDAM_LOGF(UDA_LOG_DEBUG, "class          : %s\n", data->class);
-            IDAM_LOGF(UDA_LOG_DEBUG, "title          : %s\n", data->title);
-            IDAM_LOGF(UDA_LOG_DEBUG, "description    : %s\n", data->description);
-            IDAM_LOGF(UDA_LOG_DEBUG, "icatRefId      : %s\n", data->icatRef);
-            IDAM_LOGF(UDA_LOG_DEBUG, "status         : %c\n", data->status);
-            IDAM_LOGF(UDA_LOG_DEBUG, "creation       : %s\n", data->creation);
+            UDA_LOG(UDA_LOG_DEBUG, "uuid           : %s\n", data->uuid);
+            UDA_LOG(UDA_LOG_DEBUG, "owner          : %s\n", data->owner);
+            UDA_LOG(UDA_LOG_DEBUG, "class          : %s\n", data->class);
+            UDA_LOG(UDA_LOG_DEBUG, "title          : %s\n", data->title);
+            UDA_LOG(UDA_LOG_DEBUG, "description    : %s\n", data->description);
+            UDA_LOG(UDA_LOG_DEBUG, "icatRefId      : %s\n", data->icatRef);
+            UDA_LOG(UDA_LOG_DEBUG, "status         : %c\n", data->status);
+            UDA_LOG(UDA_LOG_DEBUG, "creation       : %s\n", data->creation);
 
 // the Returned Structure Definition
 
@@ -395,7 +395,7 @@ int get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
         }
 
-        IDAM_LOG(UDA_LOG_DEBUG, "exiting function new\n");
+        UDA_LOG(UDA_LOG_DEBUG, "exiting function new\n");
 
     } while (0);
 

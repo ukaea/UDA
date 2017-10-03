@@ -88,17 +88,17 @@ int allocData(DATA_BLOCK* data_block)
         return UNKNOWN_DATA_TYPE;
     }
 
-    IDAM_LOG(UDA_LOG_DEBUG, "allocData :\n");
-    IDAM_LOGF(UDA_LOG_DEBUG, "rank      : %d\n", data_block->rank);
-    IDAM_LOGF(UDA_LOG_DEBUG, "count     : %d\n", data_block->data_n);
-    IDAM_LOGF(UDA_LOG_DEBUG, "data_type : %d\n", data_block->data_type);
-    IDAM_LOGF(UDA_LOG_DEBUG, "error_type: %d\n", data_block->error_type);
-    IDAM_LOGF(UDA_LOG_DEBUG, "data  != NULL: %d\n", db != NULL);
-    IDAM_LOGF(UDA_LOG_DEBUG, "errhi != NULL: %d\n", ebh != NULL);
-    IDAM_LOGF(UDA_LOG_DEBUG, "errlo != NULL: %d\n", ebl != NULL);
+    UDA_LOG(UDA_LOG_DEBUG, "allocData :\n");
+    UDA_LOG(UDA_LOG_DEBUG, "rank      : %d\n", data_block->rank);
+    UDA_LOG(UDA_LOG_DEBUG, "count     : %d\n", data_block->data_n);
+    UDA_LOG(UDA_LOG_DEBUG, "data_type : %d\n", data_block->data_type);
+    UDA_LOG(UDA_LOG_DEBUG, "error_type: %d\n", data_block->error_type);
+    UDA_LOG(UDA_LOG_DEBUG, "data  != NULL: %d\n", db != NULL);
+    UDA_LOG(UDA_LOG_DEBUG, "errhi != NULL: %d\n", ebh != NULL);
+    UDA_LOG(UDA_LOG_DEBUG, "errlo != NULL: %d\n", ebl != NULL);
 
     if (db == NULL && data_block->data_type != UDA_TYPE_COMPOUND) {
-        IDAM_LOG(UDA_LOG_DEBUG, "allocData: Unable to Allocate Heap Memory for Data \n");
+        UDA_LOG(UDA_LOG_DEBUG, "allocData: Unable to Allocate Heap Memory for Data \n");
         return ERROR_ALLOCATING_HEAP;
     }
 
@@ -217,14 +217,14 @@ int allocPutData(PUTDATA_BLOCK* putData)
         return UNKNOWN_DATA_TYPE;
     }
 
-    IDAM_LOG(UDA_LOG_DEBUG, "allocPutData :\n");
-    IDAM_LOGF(UDA_LOG_DEBUG, "rank      : %d\n", putData->rank);
-    IDAM_LOGF(UDA_LOG_DEBUG, "count     : %d\n", putData->count);
-    IDAM_LOGF(UDA_LOG_DEBUG, "data_type : %d\n", putData->data_type);
-    IDAM_LOGF(UDA_LOG_DEBUG, "data  != NULL: %d\n", db != NULL);
+    UDA_LOG(UDA_LOG_DEBUG, "allocPutData :\n");
+    UDA_LOG(UDA_LOG_DEBUG, "rank      : %d\n", putData->rank);
+    UDA_LOG(UDA_LOG_DEBUG, "count     : %d\n", putData->count);
+    UDA_LOG(UDA_LOG_DEBUG, "data_type : %d\n", putData->data_type);
+    UDA_LOG(UDA_LOG_DEBUG, "data  != NULL: %d\n", db != NULL);
 
     if (db == NULL && putData->data_type != UDA_TYPE_COMPOUND) {
-        IDAM_LOG(UDA_LOG_DEBUG, "allocPutData: Unable to Allocate Heap Memory for Data \n");
+        UDA_LOG(UDA_LOG_DEBUG, "allocPutData: Unable to Allocate Heap Memory for Data \n");
         return (ERROR_ALLOCATING_HEAP);
     }
 

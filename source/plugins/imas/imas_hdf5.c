@@ -1568,7 +1568,7 @@ int imas_hdf5_DeleteData(int expIdx, const char* cpoPath, const char* path)
 
 // Missing group from MODEL? Create commands for use to repair the Model
 
-        IDAM_LOGF(UDA_LOG_DEBUG, "createGroup(rootId, \"/%s\");\n", groupName);
+        UDA_LOG(UDA_LOG_DEBUG, "createGroup(rootId, \"/%s\");\n", groupName);
         sprintf(errmsg, "Error opening HDF5 Group %s", groupName);
         free(groupName);
         free(dataName);

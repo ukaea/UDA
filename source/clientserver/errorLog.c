@@ -78,11 +78,11 @@ void printIdamErrorStack()
 {
     unsigned int i;
     if (udaerrorstack.nerrors == 0) {
-        IDAM_LOG(UDA_LOG_DEBUG, "Empty Error Stack\n");
+        UDA_LOG(UDA_LOG_DEBUG, "Empty Error Stack\n");
         return;
     }
     for (i = 0; i < udaerrorstack.nerrors; i++) {
-        IDAM_LOGF(UDA_LOG_DEBUG, "%d %d %d %s %s\n", i, udaerrorstack.idamerror[i].type,
+        UDA_LOG(UDA_LOG_DEBUG, "%d %d %d %s %s\n", i, udaerrorstack.idamerror[i].type,
                   udaerrorstack.idamerror[i].code, udaerrorstack.idamerror[i].location, udaerrorstack.idamerror[i].msg);
     }
 }

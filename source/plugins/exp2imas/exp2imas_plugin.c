@@ -683,7 +683,7 @@ xmlChar* getMappingValue(const char* mapping_file_name, const char* request, MAP
         doc = xmlParseFile(mapping_file_name);
         if (doc == NULL) {
             addIdamError(CODEERRORTYPE, __func__, 999, "unable to parse file");
-            IDAM_LOGF(UDA_LOG_ERROR, "unable to parse file \"%s\"\n", mapping_file_name);
+            UDA_LOG(UDA_LOG_ERROR, "unable to parse file \"%s\"\n", mapping_file_name);
             return NULL;
         }
     }
@@ -695,7 +695,7 @@ xmlChar* getMappingValue(const char* mapping_file_name, const char* request, MAP
         xpath_ctx = xmlXPathNewContext(doc);
         if (xpath_ctx == NULL) {
             addIdamError(CODEERRORTYPE, __func__, 999, "unable to create new XPath context");
-            IDAM_LOGF(UDA_LOG_ERROR, "unable to create new XPath context\n", mapping_file_name);
+            UDA_LOG(UDA_LOG_ERROR, "unable to create new XPath context\n", mapping_file_name);
             return NULL;
         }
     }
@@ -712,7 +712,7 @@ xmlChar* getMappingValue(const char* mapping_file_name, const char* request, MAP
     xmlXPathObjectPtr xpath_obj = xmlXPathEvalExpression(xpath_expr, xpath_ctx);
     if (xpath_obj == NULL) {
         addIdamError(CODEERRORTYPE, __func__, 999, "unable to evaluate xpath expression");
-        IDAM_LOGF(UDA_LOG_ERROR, "unable to evaluate xpath expression \"%s\"\n", xpath_expr);
+        UDA_LOG(UDA_LOG_ERROR, "unable to evaluate xpath expression \"%s\"\n", xpath_expr);
         free(xpath_expr);
         return NULL;
     }
@@ -745,7 +745,7 @@ xmlChar* getMappingValue(const char* mapping_file_name, const char* request, MAP
     xpath_obj = xmlXPathEvalExpression(xpath_expr, xpath_ctx);
     if (xpath_obj == NULL) {
         addIdamError(CODEERRORTYPE, __func__, 999, "unable to evaluate xpath expression");
-        IDAM_LOGF(UDA_LOG_ERROR, "unable to evaluate xpath expression \"%s\"\n", xpath_expr);
+        UDA_LOG(UDA_LOG_ERROR, "unable to evaluate xpath expression \"%s\"\n", xpath_expr);
         free(xpath_expr);
         return NULL;
     }
@@ -775,7 +775,7 @@ xmlChar* getMappingValue(const char* mapping_file_name, const char* request, MAP
         *request_type = ERROR;
     } else {
         addIdamError(CODEERRORTYPE, __func__, 999, "unknown mapping type");
-        IDAM_LOGF(UDA_LOG_ERROR, "unknown mapping type \"%s\"\n", type_str);
+        UDA_LOG(UDA_LOG_ERROR, "unknown mapping type \"%s\"\n", type_str);
         value = NULL;
     }
 
@@ -789,7 +789,7 @@ xmlChar* getMappingValue(const char* mapping_file_name, const char* request, MAP
     xpath_obj = xmlXPathEvalExpression(xpath_expr, xpath_ctx);
     if (xpath_obj == NULL) {
         addIdamError(CODEERRORTYPE, __func__, 999, "unable to evaluate xpath expression");
-        IDAM_LOGF(UDA_LOG_ERROR, "unable to evaluate xpath expression \"%s\"\n", xpath_expr);
+        UDA_LOG(UDA_LOG_ERROR, "unable to evaluate xpath expression \"%s\"\n", xpath_expr);
         free(xpath_expr);
         return NULL;
     }

@@ -223,8 +223,8 @@ int pathReplacement(char* path, const ENVIRONMENT* environment)
     if (path[0] == '\0') return 0;                // No replacement
     if (environment->private_path_target[0] == '\0') return 0;    // No replacement
 
-    IDAM_LOG(UDA_LOG_DEBUG, "pathReplacement: Testing for File Path Replacement\n");
-    IDAM_LOGF(UDA_LOG_DEBUG, "%s\n", path);
+    UDA_LOG(UDA_LOG_DEBUG, "pathReplacement: Testing for File Path Replacement\n");
+    UDA_LOG(UDA_LOG_DEBUG, "%s\n", path);
 
 // Parse targets
 
@@ -379,8 +379,8 @@ int pathReplacement(char* path, const ENVIRONMENT* environment)
         return err;
     }
 
-    IDAM_LOGF(UDA_LOG_DEBUG, "%s\n", path);
-    IDAM_LOG(UDA_LOG_DEBUG, "pathReplacement: End\n");
+    UDA_LOG(UDA_LOG_DEBUG, "%s\n", path);
+    UDA_LOG(UDA_LOG_DEBUG, "pathReplacement: End\n");
 
     return err;
 }
@@ -725,7 +725,7 @@ int expandFilePath(char* path, const ENVIRONMENT* environment)
         if (chdir(path) != 0) {
             chdir(ocwd);            // Ensure the Original WD
             strcpy(path, opath);        // Return to the Original path name
-            IDAM_LOGF(UDA_LOG_DEBUG, "Unable to identify the Directory of the file: %s\n"
+            UDA_LOG(UDA_LOG_DEBUG, "Unable to identify the Directory of the file: %s\n"
                     "The server will know if a true error exists: Plugin & Environment dependent", path);
             return 0;
         }

@@ -64,7 +64,7 @@ int idamClientAPI(const char* file, const char* signal, int pass, int exp_number
     if ((err = makeClientRequestBlock(signal, data_source, &request_block)) != 0) {
         closeIdamError();
         if (udaNumErrors() == 0) {
-            IDAM_LOGF(UDA_LOG_ERROR, "Error identifying the Data Source [%s]\n", data_source);
+            UDA_LOG(UDA_LOG_ERROR, "Error identifying the Data Source [%s]\n", data_source);
             addIdamError(CODEERRORTYPE, __func__, 999, "Error identifying the Data Source");
         }
         return -err;
@@ -123,7 +123,7 @@ int idamClientFileAPI(const char* file, const char* signal, const char* format)
     if ((err = makeClientRequestBlock(signal, data_source, &request_block)) != 0) {
         closeIdamError();
         if (udaNumErrors() == 0) {
-            IDAM_LOGF(UDA_LOG_ERROR, "Error identifying the Data Source [%s]\n", data_source);
+            UDA_LOG(UDA_LOG_ERROR, "Error identifying the Data Source [%s]\n", data_source);
             addIdamError(CODEERRORTYPE, __func__, 999, "Error identifying the Data Source");
         }
         return -err;
@@ -131,11 +131,11 @@ int idamClientFileAPI(const char* file, const char* signal, const char* format)
 
 //-------------------------------------------------------------------------
 
-    IDAM_LOG(UDA_LOG_DEBUG, "Routine: ClientFileAPI\n");
-    IDAM_LOG(UDA_LOG_DEBUG, "Routine: ClientFileAPI\n");
-    IDAM_LOGF(UDA_LOG_DEBUG, "Request 		 %d\n", request_block.request);
-    IDAM_LOGF(UDA_LOG_DEBUG, "File            %s\n", request_block.path);
-    IDAM_LOGF(UDA_LOG_DEBUG, "Signal  		 %s\n", request_block.signal);
+    UDA_LOG(UDA_LOG_DEBUG, "Routine: ClientFileAPI\n");
+    UDA_LOG(UDA_LOG_DEBUG, "Routine: ClientFileAPI\n");
+    UDA_LOG(UDA_LOG_DEBUG, "Request 		 %d\n", request_block.request);
+    UDA_LOG(UDA_LOG_DEBUG, "File            %s\n", request_block.path);
+    UDA_LOG(UDA_LOG_DEBUG, "Signal  		 %s\n", request_block.signal);
 
 //-------------------------------------------------------------------------
 // Fetch Data
@@ -181,7 +181,7 @@ int idamClientFileAPI2(const char* file, const char* format, const char* owner,
     } else if (STR_IEQUALS(format, "jpf")) {
         request_block.request = REQUEST_READ_JPF;
     } else {
-        IDAM_LOGF(UDA_LOG_ERROR, "The Specifed File Format [%s] is Not Supported\n", format);
+        UDA_LOG(UDA_LOG_ERROR, "The Specifed File Format [%s] is Not Supported\n", format);
         return FILE_FORMAT_NOT_SUPPORTED;
     }
 
@@ -254,12 +254,12 @@ int idamClientTestAPI(const char* file, const char* signal, int pass, int exp_nu
     strcpy(request_block.file, file);
     strcpy(request_block.signal, signal);
 
-    IDAM_LOG(UDA_LOG_DEBUG, "Routine: ClientTestAPI\n");
-    IDAM_LOGF(UDA_LOG_DEBUG, "Request           %d\n", request_block.request);
-    IDAM_LOGF(UDA_LOG_DEBUG, "File              %s\n", request_block.file);
-    IDAM_LOGF(UDA_LOG_DEBUG, "Signal            %s\n", request_block.signal);
-    IDAM_LOGF(UDA_LOG_DEBUG, "Pass              %d\n", request_block.pass);
-    IDAM_LOGF(UDA_LOG_DEBUG, "Experiment Number %d\n", request_block.exp_number);
+    UDA_LOG(UDA_LOG_DEBUG, "Routine: ClientTestAPI\n");
+    UDA_LOG(UDA_LOG_DEBUG, "Request           %d\n", request_block.request);
+    UDA_LOG(UDA_LOG_DEBUG, "File              %s\n", request_block.file);
+    UDA_LOG(UDA_LOG_DEBUG, "Signal            %s\n", request_block.signal);
+    UDA_LOG(UDA_LOG_DEBUG, "Pass              %d\n", request_block.pass);
+    UDA_LOG(UDA_LOG_DEBUG, "Experiment Number %d\n", request_block.exp_number);
 
 //-------------------------------------------------------------------------
 // Fetch Data

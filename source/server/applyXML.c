@@ -43,7 +43,7 @@ int idamserverParseSignalXML(DATA_SOURCE data_source, SIGNAL signal, SIGNAL_DESC
 
     int i, ndesc, rc = 0;
 
-    IDAM_LOG(UDA_LOG_DEBUG, "Parsing XML\n");
+    UDA_LOG(UDA_LOG_DEBUG, "Parsing XML\n");
 
 //----------------------------------------------------------------------
 // Anything to Parse?
@@ -64,7 +64,7 @@ int idamserverParseSignalXML(DATA_SOURCE data_source, SIGNAL signal, SIGNAL_DESC
         if ((rc = parseDoc(signal.xml, actions_sig)) != 0) {
             return 1;
         }
-        IDAM_LOG(UDA_LOG_DEBUG, "XML from the Signal Record parsed\n");
+        UDA_LOG(UDA_LOG_DEBUG, "XML from the Signal Record parsed\n");
         printActions(*actions_sig);
     }
 
@@ -76,7 +76,7 @@ int idamserverParseSignalXML(DATA_SOURCE data_source, SIGNAL signal, SIGNAL_DESC
             return 1;
         }
 
-        IDAM_LOG(UDA_LOG_DEBUG, "XML from the Signal_Desc Record parsed\n");
+        UDA_LOG(UDA_LOG_DEBUG, "XML from the Signal_Desc Record parsed\n");
         printActions(*actions_desc);
     }
 
@@ -87,17 +87,17 @@ int idamserverParseSignalXML(DATA_SOURCE data_source, SIGNAL signal, SIGNAL_DESC
 
     ndesc = 0;
     for (i = 0; i < actions_desc->nactions; i++) {
-        IDAM_LOGF(UDA_LOG_DEBUG, "Range Test on Record %d\n", i);
+        UDA_LOG(UDA_LOG_DEBUG, "Range Test on Record %d\n", i);
 
-        IDAM_LOGF(UDA_LOG_DEBUG, "#1 %d\n", (actions_desc->action[i].exp_range[0] == 0 ||
+        UDA_LOG(UDA_LOG_DEBUG, "#1 %d\n", (actions_desc->action[i].exp_range[0] == 0 ||
                                        (actions_desc->action[i].exp_range[0] > 0 &&
                                         actions_desc->action[i].exp_range[0] <= data_source.exp_number)));
 
-        IDAM_LOGF(UDA_LOG_DEBUG, "#2 %d\n", (actions_desc->action[i].exp_range[1] == 0 ||
+        UDA_LOG(UDA_LOG_DEBUG, "#2 %d\n", (actions_desc->action[i].exp_range[1] == 0 ||
                                        (actions_desc->action[i].exp_range[1] > 0 &&
                                         actions_desc->action[i].exp_range[1] >= data_source.exp_number)));
 
-        IDAM_LOGF(UDA_LOG_DEBUG, "#3 %d\n", (data_source.pass = -1 ||
+        UDA_LOG(UDA_LOG_DEBUG, "#3 %d\n", (data_source.pass = -1 ||
                                                           ((actions_desc->action[i].pass_range[0] == -1 ||
                                                             (actions_desc->action[i].pass_range[0] > -1 &&
                                                              actions_desc->action[i].pass_range[0] <=
@@ -130,7 +130,7 @@ int idamserverParseSignalXML(DATA_SOURCE data_source, SIGNAL signal, SIGNAL_DESC
     printActions(*actions_desc);
 
     if (actions_sig->nactions == 0 && ndesc == 0) {        // No qualifying XML from either source
-        IDAM_LOG(UDA_LOG_DEBUG, "No Applicable Actionable XML Found\n");
+        UDA_LOG(UDA_LOG_DEBUG, "No Applicable Actionable XML Found\n");
         return -1;
     }
 
@@ -273,7 +273,7 @@ void idamserverApplySignalXML(CLIENT_BLOCK client_block, DATA_SOURCE* data_sourc
     unsigned int* up;
     unsigned long* ul;
 
-    IDAM_LOG(UDA_LOG_DEBUG, "Applying XML\n");
+    UDA_LOG(UDA_LOG_DEBUG, "Applying XML\n");
 
     if (client_block.get_asis) return;            // User specifies No Actions to be Applied
 
@@ -424,10 +424,10 @@ void idamserverApplySignalXML(CLIENT_BLOCK client_block, DATA_SOURCE* data_sourc
 
                     if (data_block->dims[data_block->order].compressed) {
 
-                        IDAM_LOG(UDA_LOG_DEBUG, "Time Dimension Compressed\n");
-                        IDAM_LOGF(UDA_LOG_DEBUG, "Order           = %d\n", data_block->order);
-                        IDAM_LOGF(UDA_LOG_DEBUG, "Timing Offset   = %f\n", (float) actions.action[i].timeoffset.offset);
-                        IDAM_LOGF(UDA_LOG_DEBUG, "Method          = %d\n", data_block->dims[data_block->order].method);
+                        UDA_LOG(UDA_LOG_DEBUG, "Time Dimension Compressed\n");
+                        UDA_LOG(UDA_LOG_DEBUG, "Order           = %d\n", data_block->order);
+                        UDA_LOG(UDA_LOG_DEBUG, "Timing Offset   = %f\n", (float) actions.action[i].timeoffset.offset);
+                        UDA_LOG(UDA_LOG_DEBUG, "Method          = %d\n", data_block->dims[data_block->order].method);
 
                         switch (data_block->dims[data_block->order].method) {
 
@@ -626,16 +626,16 @@ void idamserverApplySignalXML(CLIENT_BLOCK client_block, DATA_SOURCE* data_sourc
 
                         ndata = data_block->dims[data_block->order].dim_n;
 
-                        IDAM_LOG(UDA_LOG_DEBUG, "Dimension Not Compressed\n");
-                        IDAM_LOGF(UDA_LOG_DEBUG, "No. Time Points = %d\n", ndata);
-                        IDAM_LOGF(UDA_LOG_DEBUG, "Order           = %d\n", data_block->order);
-                        IDAM_LOGF(UDA_LOG_DEBUG, "Timing Offset   = %f\n", (float) actions.action[i].timeoffset.offset);
+                        UDA_LOG(UDA_LOG_DEBUG, "Dimension Not Compressed\n");
+                        UDA_LOG(UDA_LOG_DEBUG, "No. Time Points = %d\n", ndata);
+                        UDA_LOG(UDA_LOG_DEBUG, "Order           = %d\n", data_block->order);
+                        UDA_LOG(UDA_LOG_DEBUG, "Timing Offset   = %f\n", (float) actions.action[i].timeoffset.offset);
 
                         switch (data_block->dims[data_block->order].data_type) {
 
                             case UDA_TYPE_FLOAT:
-                                IDAM_LOG(UDA_LOG_DEBUG, "Correcting Time Dimension\n");
-                                IDAM_LOGF(UDA_LOG_DEBUG, "Offset ? : %f\n", (float) actions.action[i].timeoffset.offset);
+                                UDA_LOG(UDA_LOG_DEBUG, "Correcting Time Dimension\n");
+                                UDA_LOG(UDA_LOG_DEBUG, "Offset ? : %f\n", (float) actions.action[i].timeoffset.offset);
                                 fp = (float*) data_block->dims[data_block->order].dim;
                                 for (ii = 0; ii < ndata; ii++)
                                     fp[ii] = (float) actions.action[i].timeoffset.offset + fp[ii];
@@ -747,8 +747,8 @@ void idamserverApplySignalXML(CLIENT_BLOCK client_block, DATA_SOURCE* data_sourc
                                 if (STR_EQUALS("data", actions.action[i].calibration.target) ||
                                     STR_EQUALS("all", actions.action[i].calibration.target)) {
                                     if (data_block->dims[dimid].compressed) {
-                                        IDAM_LOGF(UDA_LOG_DEBUG, "Dimension %d Compressed\n", i);
-                                        IDAM_LOGF(UDA_LOG_DEBUG, "Method = %d\n", data_block->dims[dimid].method);
+                                        UDA_LOG(UDA_LOG_DEBUG, "Dimension %d Compressed\n", i);
+                                        UDA_LOG(UDA_LOG_DEBUG, "Method = %d\n", data_block->dims[dimid].method);
 
                                         if (data_block->dims[dimid].method == 0) {
                                             if (actions.action[i].calibration.dimensions[j].dimcalibration.factor !=
@@ -1235,13 +1235,13 @@ void idamserverApplySignalXML(CLIENT_BLOCK client_block, DATA_SOURCE* data_sourc
                                                          actions.action[i].calibration.dimensions[j].dimcalibration.invert,
                                                          data_block->dims[dimid].dim);
 
-                                        IDAM_LOGF(UDA_LOG_DEBUG, "Rescaling Dimension : %d\n", dimid);
-                                        IDAM_LOGF(UDA_LOG_DEBUG, "Time Dimension ?    : %d\n", data_block->order);
-                                        IDAM_LOGF(UDA_LOG_DEBUG, "Scale ?             : %f\n",
+                                        UDA_LOG(UDA_LOG_DEBUG, "Rescaling Dimension : %d\n", dimid);
+                                        UDA_LOG(UDA_LOG_DEBUG, "Time Dimension ?    : %d\n", data_block->order);
+                                        UDA_LOG(UDA_LOG_DEBUG, "Scale ?             : %f\n",
                                                 (float) actions.action[i].calibration.dimensions[j].dimcalibration.factor);
-                                        IDAM_LOGF(UDA_LOG_DEBUG, "Offset ?            : %f\n",
+                                        UDA_LOG(UDA_LOG_DEBUG, "Offset ?            : %f\n",
                                                 (float) actions.action[i].calibration.dimensions[j].dimcalibration.offset);
-                                        IDAM_LOGF(UDA_LOG_DEBUG, "Invert ?            : %d\n",
+                                        UDA_LOG(UDA_LOG_DEBUG, "Invert ?            : %d\n",
                                                 (int) actions.action[i].calibration.dimensions[j].dimcalibration.invert);
                                     }
                                 }
@@ -1286,7 +1286,7 @@ void idamserverDeselectSignalXML(ACTIONS* actions_desc, ACTIONS* actions_sig)
 
     int i, j, type;
 
-    IDAM_LOG(UDA_LOG_DEBUG, "Deselecting Conflicting XML\n");
+    UDA_LOG(UDA_LOG_DEBUG, "Deselecting Conflicting XML\n");
 
 //----------------------------------------------------------------------------------------------
 // Loop over all Signal actions

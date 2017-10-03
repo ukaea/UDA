@@ -332,7 +332,7 @@ int passive_current(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 int getCurrent(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices, float** data, float** time, int* len)
 {
 
-    IDAM_LOG(UDA_LOG_DEBUG, "in getCurrent...\n");
+    UDA_LOG(UDA_LOG_DEBUG, "in getCurrent...\n");
 
     int k = nodeIndices[0]; //starts from 1
     int status = -1;

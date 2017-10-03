@@ -1253,7 +1253,7 @@ char* getIdamAsymmetricError(int handle, int above)
 
             if (allocArray(Data_Block[handle].error_type, ndata, &errhi) != 0) {
                 // Allocate Heap for Regular Error Data
-                IDAM_LOG(UDA_LOG_ERROR, "Heap Allocation Problem with Data Errors\n");
+                UDA_LOG(UDA_LOG_ERROR, "Heap Allocation Problem with Data Errors\n");
                 Data_Block[handle].errhi = NULL;
             } else {
                 Data_Block[handle].errhi = errhi;
@@ -1261,8 +1261,8 @@ char* getIdamAsymmetricError(int handle, int above)
 
             if (Data_Block[handle].errasymmetry) {           // Allocate Heap for the Asymmetric Error Data
                 if (allocArray(Data_Block[handle].error_type, ndata, &errlo) != 0) {
-                    IDAM_LOG(UDA_LOG_ERROR, "Heap Allocation Problem with Asymmetric Errors\n");
-                    IDAM_LOG(UDA_LOG_ERROR, "Switching Asymmetry Off!\n");
+                    UDA_LOG(UDA_LOG_ERROR, "Heap Allocation Problem with Asymmetric Errors\n");
+                    UDA_LOG(UDA_LOG_ERROR, "Switching Asymmetry Off!\n");
                     Data_Block[handle].errlo = NULL;
                     Data_Block[handle].errasymmetry = 0;
                 } else {
@@ -2593,7 +2593,7 @@ char* getIdamDimAsymmetricError(int handle, int ndim, int above)
 
 
             if (allocArray(Data_Block[handle].dims[ndim].error_type, ndata, &errhi) != 0) {
-                IDAM_LOG(UDA_LOG_ERROR, "Heap Allocation Problem with Dimensional Data Errors\n");
+                UDA_LOG(UDA_LOG_ERROR, "Heap Allocation Problem with Dimensional Data Errors\n");
                 Data_Block[handle].dims[ndim].errhi = NULL;
             } else {
                 Data_Block[handle].dims[ndim].errhi = errhi;
@@ -2601,8 +2601,8 @@ char* getIdamDimAsymmetricError(int handle, int ndim, int above)
 
             if (Data_Block[handle].dims[ndim].errasymmetry) {               // Allocate Heap for the Asymmetric Error Data
                 if (allocArray(Data_Block[handle].dims[ndim].error_type, ndata, &errlo) != 0) {
-                    IDAM_LOG(UDA_LOG_ERROR, "Heap Allocation Problem with Dimensional Asymmetric Errors\n");
-                    IDAM_LOG(UDA_LOG_ERROR, "Switching Asymmetry Off!\n");
+                    UDA_LOG(UDA_LOG_ERROR, "Heap Allocation Problem with Dimensional Asymmetric Errors\n");
+                    UDA_LOG(UDA_LOG_ERROR, "Switching Asymmetry Off!\n");
                     Data_Block[handle].dims[ndim].errlo = errlo;
                     Data_Block[handle].dims[ndim].errasymmetry = 0;
                 } else {

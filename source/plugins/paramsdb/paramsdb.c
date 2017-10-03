@@ -26,7 +26,7 @@ static int do_maxinterfaceversion(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
 static void
 loggingNoticeProcessor(void* arg, const char* message)
 {
-    IDAM_LOGF(UDA_LOG_WARN, "%s", message);
+    UDA_LOG(UDA_LOG_WARN, "%s", message);
 }
 
 int paramsdb(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)

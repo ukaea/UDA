@@ -71,10 +71,10 @@ int readIda3(DATA_BLOCK* data_block, int exp_number, int pass, const char* sourc
             strlwr(file);
         }
 
-        IDAM_LOGF(UDA_LOG_DEBUG, "alias          : %s \n", alias);
-        IDAM_LOGF(UDA_LOG_DEBUG, "filename       : %s \n", file);
-        IDAM_LOGF(UDA_LOG_DEBUG, "length         : %d \n", strlen(alias));
-        IDAM_LOGF(UDA_LOG_DEBUG, "alias == file? : %d \n", strcasecmp(file, alias));
+        UDA_LOG(UDA_LOG_DEBUG, "alias          : %s \n", alias);
+        UDA_LOG(UDA_LOG_DEBUG, "filename       : %s \n", file);
+        UDA_LOG(UDA_LOG_DEBUG, "length         : %d \n", strlen(alias));
+        UDA_LOG(UDA_LOG_DEBUG, "alias == file? : %d \n", strcasecmp(file, alias));
 
         // Check whether or not the filename is the alias name
         // If is it then form the correct filename
@@ -99,18 +99,18 @@ int readIda3(DATA_BLOCK* data_block, int exp_number, int pass, const char* sourc
             ida_path[STRING_LENGTH - 1] = '\0';
         }
 
-        IDAM_LOGF(UDA_LOG_DEBUG, "Signal Name  : %s \n", signal_name);
-        IDAM_LOGF(UDA_LOG_DEBUG, "File Alias   : %s \n", source_alias);
-        IDAM_LOGF(UDA_LOG_DEBUG, "File Name    : %s \n", ida_file);
-        IDAM_LOGF(UDA_LOG_DEBUG, "File Path    : %s \n", ida_path);
-        IDAM_LOGF(UDA_LOG_DEBUG, "Pulse Number : %d \n", exp_number);
-        IDAM_LOGF(UDA_LOG_DEBUG, "Pass Number  : %d \n", pass);
+        UDA_LOG(UDA_LOG_DEBUG, "Signal Name  : %s \n", signal_name);
+        UDA_LOG(UDA_LOG_DEBUG, "File Alias   : %s \n", source_alias);
+        UDA_LOG(UDA_LOG_DEBUG, "File Name    : %s \n", ida_file);
+        UDA_LOG(UDA_LOG_DEBUG, "File Path    : %s \n", ida_path);
+        UDA_LOG(UDA_LOG_DEBUG, "Pulse Number : %d \n", exp_number);
+        UDA_LOG(UDA_LOG_DEBUG, "Pass Number  : %d \n", pass);
 
     } else {
         strcpy(ida_path, path);        //Fully Specified
 
-        IDAM_LOGF(UDA_LOG_DEBUG, "Signal Name  : %s \n", signal_name);
-        IDAM_LOGF(UDA_LOG_DEBUG, "File Name    : %s \n", ida_path);
+        UDA_LOG(UDA_LOG_DEBUG, "Signal Name  : %s \n", signal_name);
+        UDA_LOG(UDA_LOG_DEBUG, "File Name    : %s \n", ida_path);
     }
 
     //----------------------------------------------------------------------
@@ -137,7 +137,7 @@ int readIda3(DATA_BLOCK* data_block, int exp_number, int pass, const char* sourc
     //----------------------------------------------------------------------
     // Is the IDA File Already open for Reading? If Not then Open
 
-    IDAM_LOGF(UDA_LOG_DEBUG, "IDA file: (%s)\n", ida_path);
+    UDA_LOG(UDA_LOG_DEBUG, "IDA file: (%s)\n", ida_path);
 
     errno = 0;
     char ida_errmsg[256] = "";
@@ -157,7 +157,7 @@ int readIda3(DATA_BLOCK* data_block, int exp_number, int pass, const char* sourc
     //----------------------------------------------------------------------
     // Fetch the Data
 
-    IDAM_LOG(UDA_LOG_DEBUG, "Calling readIdaItem\n");
+    UDA_LOG(UDA_LOG_DEBUG, "Calling readIdaItem\n");
 
     short context = (short)0;
 
@@ -167,7 +167,7 @@ int readIda3(DATA_BLOCK* data_block, int exp_number, int pass, const char* sourc
         return err;
     }
 
-    IDAM_LOG(UDA_LOG_DEBUG, "Returned from readIdaItem\n");
+    UDA_LOG(UDA_LOG_DEBUG, "Returned from readIdaItem\n");
 
     printDataBlock(*data_block);
 

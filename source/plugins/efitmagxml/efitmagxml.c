@@ -92,7 +92,7 @@ int efitmagxml(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     unsigned short housekeeping;
 
     if (idam_plugin_interface->interfaceVersion > THISPLUGIN_MAX_INTERFACE_VERSION) {
-        IDAM_LOG(UDA_LOG_ERROR, "Plugin Interface Version Unknown to this plugin: Unable to execute the request!\n");
+        UDA_LOG(UDA_LOG_ERROR, "Plugin Interface Version Unknown to this plugin: Unable to execute the request!\n");
         THROW_ERROR(999, "Plugin Interface Version Unknown to this plugin: Unable to execute the request!");
     }
 
@@ -162,7 +162,7 @@ int efitmagxml(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             fullpath = FormatString("%s/%s", dir, xmlFile);
         }
 
-        IDAM_LOGF(UDA_LOG_DEBUG, "loading XML file %s\n", fullpath);
+        UDA_LOG(UDA_LOG_DEBUG, "loading XML file %s\n", fullpath);
 
         // Parse the XML if the file has been identified
 

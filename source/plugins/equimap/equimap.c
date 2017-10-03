@@ -233,7 +233,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
         if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "smoothPsi")) {
 
-            IDAM_LOG(UDA_LOG_DEBUG, "EQUIMAP: processing time domain option 'smoothPsi'\n");
+            UDA_LOG(UDA_LOG_DEBUG, "EQUIMAP: processing time domain option 'smoothPsi'\n");
 
             int invert = 0;
             int limitPsi = 0;
@@ -247,7 +247,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 }
             }
 
-            IDAM_LOGF(UDA_LOG_DEBUG, "EQUIMAP: smoothPsi(invert=%d, limitPsi=%d, limitRMaj=%f)\n", invert, limitPsi,
+            UDA_LOG(UDA_LOG_DEBUG, "EQUIMAP: smoothPsi(invert=%d, limitPsi=%d, limitRMaj=%f)\n", invert, limitPsi,
                       limitRMaj);
 
             if (!smoothedPsi) {
@@ -258,7 +258,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 smoothPsi(&equimapdata, invert, limitPsi, limitRMaj);        // Constrain by upper RMajor
                 priorLimitRMaj = limitRMaj;
             }
-            IDAM_LOGF(UDA_LOG_DEBUG, "EQUIMAP: psiRZBox nr=%d, nz=%d)\n", equimapdata.efitdata[0].psiCountRZBox[0],
+            UDA_LOG(UDA_LOG_DEBUG, "EQUIMAP: psiRZBox nr=%d, nz=%d)\n", equimapdata.efitdata[0].psiCountRZBox[0],
                       equimapdata.efitdata[0].psiCountRZBox[1]);
         }
     }
@@ -1166,9 +1166,9 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             data_block->data_n = data_block->dims[0].dim_n * data_block->dims[1].dim_n * data_block->dims[2].dim_n;
 
             if (data_block->data_n == 0) {
-                IDAM_LOGF(UDA_LOG_DEBUG, "dims[0].dim_n = %d\n", data_block->dims[0].dim_n);
-                IDAM_LOGF(UDA_LOG_DEBUG, "dims[1].dim_n = %d\n", data_block->dims[1].dim_n);
-                IDAM_LOGF(UDA_LOG_DEBUG, "dims[2].dim_n = %d\n", data_block->dims[2].dim_n);
+                UDA_LOG(UDA_LOG_DEBUG, "dims[0].dim_n = %d\n", data_block->dims[0].dim_n);
+                UDA_LOG(UDA_LOG_DEBUG, "dims[1].dim_n = %d\n", data_block->dims[1].dim_n);
+                UDA_LOG(UDA_LOG_DEBUG, "dims[2].dim_n = %d\n", data_block->dims[2].dim_n);
                 RAISE_PLUGIN_ERROR("No Data Values selected!");
             }
 

@@ -33,7 +33,7 @@ void parseFloat(xmlDocPtr doc, xmlNodePtr cur, const char* target, float* value)
             if (strlen((char*)key) > 0) {
                 *value = (float)atof((char*)key);
             }
-            IDAM_LOGF(UDA_LOG_DEBUG, "%s  %s\n", target, (char*)key);
+            UDA_LOG(UDA_LOG_DEBUG, "%s  %s\n", target, (char*)key);
             xmlFree(key);
             break;
         }
@@ -54,7 +54,7 @@ void parseInt(xmlDocPtr doc, xmlNodePtr cur, const char* target, int* value)
         if ((!xmlStrcmp(cur->name, (const xmlChar*)target))) {
             xmlChar* key = xmlNodeListGetString(doc, cur->xmlChildrenNode, 1);
             if (strlen((char*)key) > 0) *value = atoi((char*)key);
-            IDAM_LOGF(UDA_LOG_DEBUG, "%s  %s\n", target, (char*)key);
+            UDA_LOG(UDA_LOG_DEBUG, "%s  %s\n", target, (char*)key);
             xmlFree(key);
             break;
         }
@@ -77,19 +77,19 @@ int* parseIntArray(xmlDocPtr doc, xmlNodePtr cur, const char* target, int* n)
             xmlChar* key = xmlNodeListGetString(doc, cur->xmlChildrenNode, 1);
             convertNonPrintable((char*)key);
             if (strlen((char*)key) > 0) {
-                IDAM_LOGF(UDA_LOG_DEBUG, "%s %s \n", target, (char*)key);
+                UDA_LOG(UDA_LOG_DEBUG, "%s %s \n", target, (char*)key);
                 item = strtok((char*)key, delim);
                 if (item != NULL) {
                     nco++;
-                    IDAM_LOGF(UDA_LOG_DEBUG, " [%d] %s \n", nco, item);
+                    UDA_LOG(UDA_LOG_DEBUG, " [%d] %s \n", nco, item);
                     value = (int*)realloc((void*)value, nco * sizeof(int));
                     value[nco - 1] = atoi(item);
-                    IDAM_LOGF(UDA_LOG_DEBUG, " [%d] %s %d\n", nco, item, value[nco - 1]);
+                    UDA_LOG(UDA_LOG_DEBUG, " [%d] %s %d\n", nco, item, value[nco - 1]);
                     while ((item = strtok(NULL, delim)) != NULL && nco <= XMLMAXLOOP) {
                         nco++;
                         value = (int*)realloc((void*)value, nco * sizeof(int));
                         value[nco - 1] = atoi(item);
-                        IDAM_LOGF(UDA_LOG_DEBUG, " [%d] %s %d\n", nco, item, value[nco - 1]);
+                        UDA_LOG(UDA_LOG_DEBUG, " [%d] %s %d\n", nco, item, value[nco - 1]);
                     }
                 }
             }
@@ -121,19 +121,19 @@ float* parseFloatAngleArray(xmlDocPtr doc, xmlNodePtr cur, const char* target, i
             key = xmlNodeListGetString(doc, cur->xmlChildrenNode, 1);
             convertNonPrintable((char*)key);
             if (strlen((char*)key) > 0) {
-                IDAM_LOGF(UDA_LOG_DEBUG, "%s %s \n", target, (char*)key);
+                UDA_LOG(UDA_LOG_DEBUG, "%s %s \n", target, (char*)key);
                 item = strtok((char*)key, delim);
                 if (item != NULL) {
                     nco++;
-                    IDAM_LOGF(UDA_LOG_DEBUG, " [%d] %s \n", nco, item);
+                    UDA_LOG(UDA_LOG_DEBUG, " [%d] %s \n", nco, item);
                     value = (float*)realloc((void*)value, nco * sizeof(float));
                     value[nco - 1] = (float)atof(item);
-                    IDAM_LOGF(UDA_LOG_DEBUG, " [%d] %s %f\n", nco, item, value[nco - 1]);
+                    UDA_LOG(UDA_LOG_DEBUG, " [%d] %s %f\n", nco, item, value[nco - 1]);
                     while ((item = strtok(NULL, delim)) != NULL && nco <= XMLMAXLOOP) {
                         nco++;
                         value = (float*)realloc((void*)value, nco * sizeof(float));
                         value[nco - 1] = (float)atof(item);
-                        IDAM_LOGF(UDA_LOG_DEBUG, " [%d] %s %f\n", nco, item, value[nco - 1]);
+                        UDA_LOG(UDA_LOG_DEBUG, " [%d] %s %f\n", nco, item, value[nco - 1]);
                     }
                 }
             }
@@ -179,7 +179,7 @@ void parseFloatAngle(xmlDocPtr doc, xmlNodePtr cur, const char* target, float* v
             if (strlen((char*)key) > 0) {
                 *value = (float)atof((char*)key);
             }
-            IDAM_LOGF(UDA_LOG_DEBUG, "%s  %s\n", target, (char*)key);
+            UDA_LOG(UDA_LOG_DEBUG, "%s  %s\n", target, (char*)key);
             xmlFree(key);
 
             if ((att = xmlGetProp(cur, (xmlChar*)"units")) != NULL) {
@@ -217,14 +217,14 @@ void parseInstance(xmlNodePtr cur, INSTANCE* str)
         if (xmlStrlen(att) > 0) {
             strcpy(str->archive, (char*)att);
         }
-        IDAM_LOGF(UDA_LOG_DEBUG, "Archive: %s\n", str->archive);
+        UDA_LOG(UDA_LOG_DEBUG, "Archive: %s\n", str->archive);
         xmlFree(att);
     }
     if ((att = xmlGetProp(cur, (xmlChar*)"file")) != NULL) {
         if (xmlStrlen(att) > 0) {
             strcpy(str->file, (char*)att);
         }
-        IDAM_LOGF(UDA_LOG_DEBUG, "File: %s\n", str->file);
+        UDA_LOG(UDA_LOG_DEBUG, "File: %s\n", str->file);
         xmlFree(att);
     }
     if ((att = xmlGetProp(cur, (xmlChar*)"signal")) != NULL) {
@@ -232,21 +232,21 @@ void parseInstance(xmlNodePtr cur, INSTANCE* str)
             strcpy(str->signal, (char*)att);
             TrimString(str->signal);
         }
-        IDAM_LOGF(UDA_LOG_DEBUG, "Signal: %s\n", str->signal);
+        UDA_LOG(UDA_LOG_DEBUG, "Signal: %s\n", str->signal);
         xmlFree(att);
     }
     if ((att = xmlGetProp(cur, (xmlChar*)"owner")) != NULL) {
         if (xmlStrlen(att) > 0) {
             strcpy(str->owner, (char*)att);
         }
-        IDAM_LOGF(UDA_LOG_DEBUG, "Owner: %s\n", str->owner);
+        UDA_LOG(UDA_LOG_DEBUG, "Owner: %s\n", str->owner);
         xmlFree(att);
     }
     if ((att = xmlGetProp(cur, (xmlChar*)"format")) != NULL) {
         if (xmlStrlen(att) > 0) {
             strcpy(str->format, (char*)att);
         }
-        IDAM_LOGF(UDA_LOG_DEBUG, "Format: %s\n", str->format);
+        UDA_LOG(UDA_LOG_DEBUG, "Format: %s\n", str->format);
         xmlFree(att);
     }
 
@@ -254,21 +254,21 @@ void parseInstance(xmlNodePtr cur, INSTANCE* str)
         if (xmlStrlen(att) > 0) {
             str->seq = atoi((char*)att);
         }
-        IDAM_LOGF(UDA_LOG_DEBUG, "Seq: %d\n", str->seq);
+        UDA_LOG(UDA_LOG_DEBUG, "Seq: %d\n", str->seq);
         xmlFree(att);
     }
     if ((att = xmlGetProp(cur, (xmlChar*)"status")) != NULL) {
         if (xmlStrlen(att) > 0) {
             str->status = atoi((char*)att);
         }
-        IDAM_LOGF(UDA_LOG_DEBUG, "Status: %d\n", str->status);
+        UDA_LOG(UDA_LOG_DEBUG, "Status: %d\n", str->status);
         xmlFree(att);
     }
     if ((att = xmlGetProp(cur, (xmlChar*)"factor")) != NULL) {
         if (xmlStrlen(att) > 0) {
             str->factor = (float)atof((char*)att);
         }
-        IDAM_LOGF(UDA_LOG_DEBUG, "Factor: %f\n", str->factor);
+        UDA_LOG(UDA_LOG_DEBUG, "Factor: %f\n", str->factor);
         xmlFree(att);
     }
 
@@ -288,19 +288,19 @@ MAGPROBE* parseMagProbe(xmlDocPtr doc, xmlNodePtr cur, MAGPROBE* str, int* np)
     *np = 0;
     cur = cur->xmlChildrenNode;
     while (cur != NULL) {
-        IDAM_LOGF(UDA_LOG_DEBUG, "%s\n", (char*)cur->name);
+        UDA_LOG(UDA_LOG_DEBUG, "%s\n", (char*)cur->name);
         if ((!xmlStrcmp(cur->name, (const xmlChar*)"instance"))) {
             n++;
             str = (MAGPROBE*)realloc((void*)str, n * sizeof(MAGPROBE));
 
-            IDAM_LOGF(UDA_LOG_DEBUG, "%d: %p\n", n, str);
+            UDA_LOG(UDA_LOG_DEBUG, "%d: %p\n", n, str);
             initMagProbe(&str[n - 1]);
 
 // Instance Attributes 
 
             if ((att = xmlGetProp(cur, (xmlChar*)"id")) != NULL) {
                 if (xmlStrlen(att) > 0) strcpy(str[n - 1].id, (char*)att);
-                IDAM_LOGF(UDA_LOG_DEBUG, "Mag Probe ID: %s\n", str[n - 1].id);
+                UDA_LOG(UDA_LOG_DEBUG, "Mag Probe ID: %s\n", str[n - 1].id);
                 xmlFree(att);
             }
 
@@ -340,19 +340,19 @@ float* parseFloatArray(xmlDocPtr doc, xmlNodePtr cur, const char* target, int* n
             convertNonPrintable((char*)key);
             if (strlen((char*)key) > 0) {
                 int lkey = (int)strlen((char*)key);
-                IDAM_LOGF(UDA_LOG_DEBUG, "[%d] %s %s \n", lkey, target, key);
+                UDA_LOG(UDA_LOG_DEBUG, "[%d] %s %s \n", lkey, target, key);
                 item = strtok((char*)key, delim);
                 if (item != NULL) {
                     nco++;
-                    IDAM_LOGF(UDA_LOG_DEBUG, "[%d] %s \n", nco, item);
+                    UDA_LOG(UDA_LOG_DEBUG, "[%d] %s \n", nco, item);
                     value = (float*)realloc((void*)value, nco * sizeof(float));
                     value[nco - 1] = (float)atof(item);
-                    IDAM_LOGF(UDA_LOG_DEBUG, "[%d] %s %f\n", nco, item, value[nco - 1]);
+                    UDA_LOG(UDA_LOG_DEBUG, "[%d] %s %f\n", nco, item, value[nco - 1]);
                     while ((item = strtok(NULL, delim)) != NULL && nco <= XMLMAXLOOP) {
                         nco++;
                         value = (float*)realloc((void*)value, nco * sizeof(float));
                         value[nco - 1] = (float)atof(item);
-                        IDAM_LOGF(UDA_LOG_DEBUG, "[%d] %s %f\n", nco, item, value[nco - 1]);
+                        UDA_LOG(UDA_LOG_DEBUG, "[%d] %s %f\n", nco, item, value[nco - 1]);
                     }
                 }
             }
@@ -375,19 +375,19 @@ FLUXLOOP* parseFluxLoop(xmlDocPtr doc, xmlNodePtr cur, FLUXLOOP* str, int* np)
     *np = 0;
     cur = cur->xmlChildrenNode;
     while (cur != NULL) {
-        IDAM_LOGF(UDA_LOG_DEBUG, "%s\n", (char*)cur->name);
+        UDA_LOG(UDA_LOG_DEBUG, "%s\n", (char*)cur->name);
         if ((!xmlStrcmp(cur->name, (const xmlChar*)"instance"))) {
             n++;
             str = (FLUXLOOP*)realloc((void*)str, n * sizeof(FLUXLOOP));
 
-            IDAM_LOGF(UDA_LOG_DEBUG, "%d: %p\n", n, str);
+            UDA_LOG(UDA_LOG_DEBUG, "%d: %p\n", n, str);
             initFluxLoop(&str[n - 1]);
 
 // Attributes 
 
             if ((att = xmlGetProp(cur, (xmlChar*)"id")) != NULL) {
                 if (xmlStrlen(att) > 0) strcpy(str[n - 1].id, (char*)att);
-                IDAM_LOGF(UDA_LOG_DEBUG, "Flux Loop ID: %s\n", str[n - 1].id);
+                UDA_LOG(UDA_LOG_DEBUG, "Flux Loop ID: %s\n", str[n - 1].id);
                 xmlFree(att);
             }
 
@@ -424,19 +424,19 @@ PFCOILS* parsePfCoils(xmlDocPtr doc, xmlNodePtr cur, PFCOILS* str, int* np)
     *np = 0;
     cur = cur->xmlChildrenNode;
     while (cur != NULL) {
-        IDAM_LOGF(UDA_LOG_DEBUG, "%s\n", (char*)cur->name);
+        UDA_LOG(UDA_LOG_DEBUG, "%s\n", (char*)cur->name);
         if ((!xmlStrcmp(cur->name, (const xmlChar*)"instance"))) {
             n++;
             str = (PFCOILS*)realloc((void*)str, n * sizeof(PFCOILS));
 
-            IDAM_LOGF(UDA_LOG_DEBUG, "%d: %p\n", n, str);
+            UDA_LOG(UDA_LOG_DEBUG, "%d: %p\n", n, str);
             initPfCoils(&str[n - 1]);
 
 // Attributes
 
             if ((att = xmlGetProp(cur, (xmlChar*)"id")) != NULL) {
                 if (xmlStrlen(att) > 0) strcpy(str[n - 1].id, (char*)att);
-                IDAM_LOGF(UDA_LOG_DEBUG, "PF Coil ID: %s\n", str[n - 1].id);
+                UDA_LOG(UDA_LOG_DEBUG, "PF Coil ID: %s\n", str[n - 1].id);
                 xmlFree(att);
             }
 
@@ -483,19 +483,19 @@ PFPASSIVE* parsePfPassive(xmlDocPtr doc, xmlNodePtr cur, PFPASSIVE* str, int* np
     *np = 0;
     cur = cur->xmlChildrenNode;
     while (cur != NULL) {
-        IDAM_LOGF(UDA_LOG_DEBUG, "%s\n", (char*)cur->name);
+        UDA_LOG(UDA_LOG_DEBUG, "%s\n", (char*)cur->name);
         if ((!xmlStrcmp(cur->name, (const xmlChar*)"instance"))) {
             n++;
             str = (PFPASSIVE*)realloc((void*)str, n * sizeof(PFPASSIVE));
 
-            IDAM_LOGF(UDA_LOG_DEBUG, "%d: %p\n", n, str);
+            UDA_LOG(UDA_LOG_DEBUG, "%d: %p\n", n, str);
             initPfPassive(&str[n - 1]);
 
 // Attributes 
 
             if ((att = xmlGetProp(cur, (xmlChar*)"id")) != NULL) {
                 if (xmlStrlen(att) > 0) strcpy(str[n - 1].id, (char*)att);
-                IDAM_LOGF(UDA_LOG_DEBUG, "Pf Passive ID: %s\n", str[n - 1].id);
+                UDA_LOG(UDA_LOG_DEBUG, "Pf Passive ID: %s\n", str[n - 1].id);
                 xmlFree(att);
             }
 
@@ -543,19 +543,19 @@ PFSUPPLIES* parsePfSupplies(xmlDocPtr doc, xmlNodePtr cur, PFSUPPLIES* str, int*
     *np = 0;
     cur = cur->xmlChildrenNode;
     while (cur != NULL) {
-        IDAM_LOGF(UDA_LOG_DEBUG, "%s\n", (char*)cur->name);
+        UDA_LOG(UDA_LOG_DEBUG, "%s\n", (char*)cur->name);
         if ((!xmlStrcmp(cur->name, (const xmlChar*)"instance"))) {
             n++;
             str = (PFSUPPLIES*)realloc((void*)str, n * sizeof(PFSUPPLIES));
 
-            IDAM_LOGF(UDA_LOG_DEBUG, "%d: %p\n", n, str);
+            UDA_LOG(UDA_LOG_DEBUG, "%d: %p\n", n, str);
             initPfSupplies(&str[n - 1]);
 
 // Attributes 
 
             if ((att = xmlGetProp(cur, (xmlChar*)"id")) != NULL) {
                 if (xmlStrlen(att) > 0) strcpy(str[n - 1].id, (char*)att);
-                IDAM_LOGF(UDA_LOG_DEBUG, "Pf Supplies ID: %s\n", str[n - 1].id);
+                UDA_LOG(UDA_LOG_DEBUG, "Pf Supplies ID: %s\n", str[n - 1].id);
                 xmlFree(att);
             }
 
@@ -588,19 +588,19 @@ PFCIRCUIT* parsePfCircuits(xmlDocPtr doc, xmlNodePtr cur, PFCIRCUIT* str, int* n
     *np = 0;
     cur = cur->xmlChildrenNode;
     while (cur != NULL) {
-        IDAM_LOGF(UDA_LOG_DEBUG, "%s\n", (char*)cur->name);
+        UDA_LOG(UDA_LOG_DEBUG, "%s\n", (char*)cur->name);
         if ((!xmlStrcmp(cur->name, (const xmlChar*)"instance"))) {
             n++;
             str = (PFCIRCUIT*)realloc((void*)str, n * sizeof(PFCIRCUIT));
 
-            IDAM_LOGF(UDA_LOG_DEBUG, "%d: %p\n", n, str);
+            UDA_LOG(UDA_LOG_DEBUG, "%d: %p\n", n, str);
             initPfCircuits(&str[n - 1]);
 
 // Attributes 
 
             if ((att = xmlGetProp(cur, (xmlChar*)"id")) != NULL) {
                 if (xmlStrlen(att) > 0) strcpy(str[n - 1].id, (char*)att);
-                IDAM_LOGF(UDA_LOG_DEBUG, "Pf Circuits ID: %s\n", str[n - 1].id);
+                UDA_LOG(UDA_LOG_DEBUG, "Pf Circuits ID: %s\n", str[n - 1].id);
                 xmlFree(att);
             }
 
@@ -628,11 +628,11 @@ PLASMACURRENT* parsePlasmaCurrent(xmlDocPtr doc, xmlNodePtr cur, PLASMACURRENT* 
 {
     cur = cur->xmlChildrenNode;
     while (cur != NULL) {
-        IDAM_LOGF(UDA_LOG_DEBUG, "%s\n", (char*)cur->name);
+        UDA_LOG(UDA_LOG_DEBUG, "%s\n", (char*)cur->name);
         if ((!xmlStrcmp(cur->name, (const xmlChar*)"instance"))) {
             str = (PLASMACURRENT*)realloc((void*)str, sizeof(PLASMACURRENT));
 
-            IDAM_LOGF(UDA_LOG_DEBUG, "%p\n", str);
+            UDA_LOG(UDA_LOG_DEBUG, "%p\n", str);
             initPlasmaCurrent(str);
 
 // Attributes  
@@ -658,11 +658,11 @@ DIAMAGNETIC* parseDiaMagnetic(xmlDocPtr doc, xmlNodePtr cur, DIAMAGNETIC* str)
 {
     cur = cur->xmlChildrenNode;
     while (cur != NULL) {
-        IDAM_LOGF(UDA_LOG_DEBUG, "%s\n", (char*)cur->name);
+        UDA_LOG(UDA_LOG_DEBUG, "%s\n", (char*)cur->name);
         if ((!xmlStrcmp(cur->name, (const xmlChar*)"instance"))) {
             str = (DIAMAGNETIC*)realloc((void*)str, sizeof(DIAMAGNETIC));
 
-            IDAM_LOGF(UDA_LOG_DEBUG, "%p\n", str);
+            UDA_LOG(UDA_LOG_DEBUG, "%p\n", str);
             initDiaMagnetic(str);
 
 // Attributes  
@@ -688,11 +688,11 @@ TOROIDALFIELD* parseToroidalField(xmlDocPtr doc, xmlNodePtr cur, TOROIDALFIELD* 
 {
     cur = cur->xmlChildrenNode;
     while (cur != NULL) {
-        IDAM_LOGF(UDA_LOG_DEBUG, "%s\n", (char*)cur->name);
+        UDA_LOG(UDA_LOG_DEBUG, "%s\n", (char*)cur->name);
         if ((!xmlStrcmp(cur->name, (const xmlChar*)"instance"))) {
             str = (TOROIDALFIELD*)realloc((void*)str, sizeof(TOROIDALFIELD));
 
-            IDAM_LOGF(UDA_LOG_DEBUG, "%p\n", str);
+            UDA_LOG(UDA_LOG_DEBUG, "%p\n", str);
             initToroidalField(str);
 
             // Attributes
@@ -723,11 +723,11 @@ LIMITER* parseLimiter(xmlDocPtr doc, xmlNodePtr cur, LIMITER* str)
 
     cur = cur->xmlChildrenNode;
     while (cur != NULL) {
-        IDAM_LOGF(UDA_LOG_DEBUG, "%s\n", (char*)cur->name);
+        UDA_LOG(UDA_LOG_DEBUG, "%s\n", (char*)cur->name);
         if ((!xmlStrcmp(cur->name, (const xmlChar*)"instance"))) {
             str = (LIMITER*)realloc((void*)str, sizeof(LIMITER));
 
-            IDAM_LOGF(UDA_LOG_DEBUG, "%p\n", str);
+            UDA_LOG(UDA_LOG_DEBUG, "%p\n", str);
             initLimiter(str);
 
             // Attributes
@@ -736,7 +736,7 @@ LIMITER* parseLimiter(xmlDocPtr doc, xmlNodePtr cur, LIMITER* str)
                 if (xmlStrlen(att) > 0) {
                     str->factor = (float)atof((char*)att);
                 }
-                IDAM_LOGF(UDA_LOG_DEBUG, "Limiter Coordinates Factor: %f\n", str->factor);
+                UDA_LOG(UDA_LOG_DEBUG, "Limiter Coordinates Factor: %f\n", str->factor);
                 xmlFree(att);
             }
 
@@ -779,12 +779,12 @@ int parseEfitXML(const char* xmlfile, EFIT* efit)
         } else {
             if ((att = xmlGetProp(cur, (xmlChar*)"name")) != NULL) {
                 if (xmlStrlen(att) > 0) strcpy(efit->device, (char*)att);
-                IDAM_LOGF(UDA_LOG_DEBUG, "Device Name: %s\n", efit->device);
+                UDA_LOG(UDA_LOG_DEBUG, "Device Name: %s\n", efit->device);
                 xmlFree(att);
             }
             if ((att = xmlGetProp(cur, (xmlChar*)"pulse")) != NULL) {
                 if (xmlStrlen(att) > 0) efit->exp_number = atoi((char*)att);
-                IDAM_LOGF(UDA_LOG_DEBUG, "Pulse Number: %d\n", efit->exp_number);
+                UDA_LOG(UDA_LOG_DEBUG, "Pulse Number: %d\n", efit->exp_number);
                 xmlFree(att);
             }
         }
@@ -792,13 +792,13 @@ int parseEfitXML(const char* xmlfile, EFIT* efit)
 
     cur = cur->xmlChildrenNode;
     while (cur != NULL) {
-        IDAM_LOGF(UDA_LOG_DEBUG, "%s\n", (char*)cur->name);
+        UDA_LOG(UDA_LOG_DEBUG, "%s\n", (char*)cur->name);
 
         if ((!xmlStrcmp(cur->name, (const xmlChar*)"magprobes"))) {
 
             if ((att = xmlGetProp(cur, (xmlChar*)"number")) != NULL) {
                 if (xmlStrlen(att) > 0) efit->nmagprobes = atoi((char*)att);
-                IDAM_LOGF(UDA_LOG_DEBUG, "No. Mag Probes: %d\n", efit->nmagprobes);
+                UDA_LOG(UDA_LOG_DEBUG, "No. Mag Probes: %d\n", efit->nmagprobes);
                 xmlFree(att);
             }
 
@@ -815,7 +815,7 @@ int parseEfitXML(const char* xmlfile, EFIT* efit)
 
             if ((att = xmlGetProp(cur, (xmlChar*)"number")) != NULL) {
                 if (xmlStrlen(att) > 0) efit->nfluxloops = atoi((char*)att);
-                IDAM_LOGF(UDA_LOG_DEBUG, "No. Flux Loops: %d\n", efit->nfluxloops);
+                UDA_LOG(UDA_LOG_DEBUG, "No. Flux Loops: %d\n", efit->nfluxloops);
                 xmlFree(att);
             }
 
@@ -832,7 +832,7 @@ int parseEfitXML(const char* xmlfile, EFIT* efit)
 
             if ((att = xmlGetProp(cur, (xmlChar*)"number")) != NULL) {
                 if (xmlStrlen(att) > 0) efit->npfpassive = atoi((char*)att);
-                IDAM_LOGF(UDA_LOG_DEBUG, "No. PF Passive Elements: %d\n", efit->npfpassive);
+                UDA_LOG(UDA_LOG_DEBUG, "No. PF Passive Elements: %d\n", efit->npfpassive);
                 xmlFree(att);
             }
 
@@ -849,7 +849,7 @@ int parseEfitXML(const char* xmlfile, EFIT* efit)
 
             if ((att = xmlGetProp(cur, (xmlChar*)"number")) != NULL) {
                 if (xmlStrlen(att) > 0) efit->npfsupplies = atoi((char*)att);
-                IDAM_LOGF(UDA_LOG_DEBUG, "No. PF Supplies: %d\n", efit->npfsupplies);
+                UDA_LOG(UDA_LOG_DEBUG, "No. PF Supplies: %d\n", efit->npfsupplies);
                 xmlFree(att);
             }
 
@@ -866,7 +866,7 @@ int parseEfitXML(const char* xmlfile, EFIT* efit)
 
             if ((att = xmlGetProp(cur, (xmlChar*)"number")) != NULL) {
                 if (xmlStrlen(att) > 0) efit->npfcoils = atoi((char*)att);
-                IDAM_LOGF(UDA_LOG_DEBUG, "No. PF Coils: %d\n", efit->npfcoils);
+                UDA_LOG(UDA_LOG_DEBUG, "No. PF Coils: %d\n", efit->npfcoils);
                 xmlFree(att);
             }
 
@@ -898,7 +898,7 @@ int parseEfitXML(const char* xmlfile, EFIT* efit)
 
             if ((att = xmlGetProp(cur, (xmlChar*)"number")) != NULL) {
                 if (xmlStrlen(att) > 0) efit->npfcircuits = atoi((char*)att);
-                IDAM_LOGF(UDA_LOG_DEBUG, "No. PF Circuits: %d\n", efit->npfcircuits);
+                UDA_LOG(UDA_LOG_DEBUG, "No. PF Circuits: %d\n", efit->npfcircuits);
                 xmlFree(att);
             }
 

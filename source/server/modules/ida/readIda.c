@@ -97,10 +97,10 @@ int readIDA2(DATA_SOURCE data_source,
         strlwr(data_source.source_alias);
         strlwr(data_source.filename);
 
-        IDAM_LOGF(UDA_LOG_DEBUG, "alias          : %s \n", data_source.source_alias);
-        IDAM_LOGF(UDA_LOG_DEBUG, "filename       : %s \n", data_source.filename);
-        IDAM_LOGF(UDA_LOG_DEBUG, "length         : %d \n", strlen(data_source.source_alias));
-        IDAM_LOGF(UDA_LOG_DEBUG, "alias == file? : %d \n", strcasecmp(data_source.filename, data_source.source_alias));
+        UDA_LOG(UDA_LOG_DEBUG, "alias          : %s \n", data_source.source_alias);
+        UDA_LOG(UDA_LOG_DEBUG, "filename       : %s \n", data_source.filename);
+        UDA_LOG(UDA_LOG_DEBUG, "length         : %d \n", strlen(data_source.source_alias));
+        UDA_LOG(UDA_LOG_DEBUG, "alias == file? : %d \n", strcasecmp(data_source.filename, data_source.source_alias));
 
 // Check whether or not the filename is the alias name
 // If is it then form the correct filename
@@ -123,26 +123,26 @@ int readIDA2(DATA_SOURCE data_source,
             strcpy(ida_path, data_source.path);
         }
 
-        IDAM_LOGF(UDA_LOG_DEBUG, "Signal Name  : %s \n", signal_desc.signal_name);
-        IDAM_LOGF(UDA_LOG_DEBUG, "File Alias   : %s \n", data_source.source_alias);
-        IDAM_LOGF(UDA_LOG_DEBUG, "File Name    : %s \n", ida_file);
-        IDAM_LOGF(UDA_LOG_DEBUG, "File Path    : %s \n", ida_path);
-        IDAM_LOGF(UDA_LOG_DEBUG, "Pulse Number : %d \n", pulno);
-        IDAM_LOGF(UDA_LOG_DEBUG, "Pass Number  : %d \n", pass);
+        UDA_LOG(UDA_LOG_DEBUG, "Signal Name  : %s \n", signal_desc.signal_name);
+        UDA_LOG(UDA_LOG_DEBUG, "File Alias   : %s \n", data_source.source_alias);
+        UDA_LOG(UDA_LOG_DEBUG, "File Name    : %s \n", ida_file);
+        UDA_LOG(UDA_LOG_DEBUG, "File Path    : %s \n", ida_path);
+        UDA_LOG(UDA_LOG_DEBUG, "Pulse Number : %d \n", pulno);
+        UDA_LOG(UDA_LOG_DEBUG, "Pass Number  : %d \n", pass);
 
     } else {
         strcpy(ida_path, data_source.path);        //Fully Specified
 
-        IDAM_LOGF(UDA_LOG_DEBUG, "Signal Name  : %s \n", signal_desc.signal_name);
-        IDAM_LOGF(UDA_LOG_DEBUG, "File Name    : %s \n", ida_path);
+        UDA_LOG(UDA_LOG_DEBUG, "Signal Name  : %s \n", signal_desc.signal_name);
+        UDA_LOG(UDA_LOG_DEBUG, "File Name    : %s \n", ida_path);
     }
 
-    IDAM_LOGF(UDA_LOG_DEBUG, "Signal Name  : %s \n", signal_desc.signal_name);
-    IDAM_LOGF(UDA_LOG_DEBUG, "File Alias   : %s \n", data_source.source_alias);
-    IDAM_LOGF(UDA_LOG_DEBUG, "File Name    : %s \n", ida_file);
-    IDAM_LOGF(UDA_LOG_DEBUG, "File Path    : %s \n", ida_path);
-    IDAM_LOGF(UDA_LOG_DEBUG, "Pulse Number : %d \n", pulno);
-    IDAM_LOGF(UDA_LOG_DEBUG, "Pass Number  : %d \n", pass);
+    UDA_LOG(UDA_LOG_DEBUG, "Signal Name  : %s \n", signal_desc.signal_name);
+    UDA_LOG(UDA_LOG_DEBUG, "File Alias   : %s \n", data_source.source_alias);
+    UDA_LOG(UDA_LOG_DEBUG, "File Name    : %s \n", ida_file);
+    UDA_LOG(UDA_LOG_DEBUG, "File Path    : %s \n", ida_path);
+    UDA_LOG(UDA_LOG_DEBUG, "Pulse Number : %d \n", pulno);
+    UDA_LOG(UDA_LOG_DEBUG, "Pass Number  : %d \n", pass);
 
 //----------------------------------------------------------------------
 // Error Trap Loop
@@ -171,7 +171,7 @@ int readIDA2(DATA_SOURCE data_source,
 //----------------------------------------------------------------------
 // Is the IDA File Already open for Reading? If Not then Open
 
-        IDAM_LOGF(UDA_LOG_DEBUG, "IDA file: (%s)\n", ida_path);
+        UDA_LOG(UDA_LOG_DEBUG, "IDA file: (%s)\n", ida_path);
 
         errno = 0;
 
@@ -188,7 +188,7 @@ int readIDA2(DATA_SOURCE data_source,
 //----------------------------------------------------------------------
 // Fetch the Data
 
-        IDAM_LOG(UDA_LOG_DEBUG, "Calling readIdaItem\n");
+        UDA_LOG(UDA_LOG_DEBUG, "Calling readIdaItem\n");
 
         context = (short) 0;
 
@@ -198,14 +198,14 @@ int readIDA2(DATA_SOURCE data_source,
             break;
         }
 
-        IDAM_LOG(UDA_LOG_DEBUG, "Returned from readIdaItem\n");
+        UDA_LOG(UDA_LOG_DEBUG, "Returned from readIdaItem\n");
 
 //----------------------------------------------------------------------
 // End of Error Trap Loop
 
     } while (0);
 
-    IDAM_LOGF(UDA_LOG_DEBUG, "Final Error Status = %d\n", err);
+    UDA_LOG(UDA_LOG_DEBUG, "Final Error Status = %d\n", err);
     printDataBlock(*data_block);
 
 //----------------------------------------------------------------------
