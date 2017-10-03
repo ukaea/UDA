@@ -24,7 +24,7 @@ float second_point_z[45] =  {-654.80,-623.10,-591.70,-560.50,-529.60,-498.90,-46
 		560.50,591.70,623.10,654.80};
 
 int channels_power_density(int shotNumber, char* nomsigp, int extractionIndex, float** time, float** data, int* len);
-void setReturnData2DFloat (DATA_BLOCK* data_block, int len, float* data);
+void setReturnData2DFloat (DATA_BLOCK* data_block, int dim1_shape, int dim2_shape, float* data);
 
 
 void soft_x_rays_idsproperties_comment(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
@@ -86,7 +86,7 @@ void soft_x_rays_channels_energy_band_upper_bound(int shotNumber, DATA_BLOCK* da
 
 void soft_x_rays_channels_power_density_data(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 {
-	/*int index = nodeIndices[0]; //starts from 1
+	int index = nodeIndices[0]; //starts from 1
 
 	int len;
 	float *time;
@@ -109,20 +109,9 @@ void soft_x_rays_channels_power_density_data(int shotNumber, DATA_BLOCK* data_bl
 	if (status != 0) {
 		int err = 801;
 		addIdamError(CODEERRORTYPE, "Unable to get channels_power_density_data for west_soft_x_rays IDS", err, "");
-	}*/
-
-	/*float **arr = (float **)malloc(1 * sizeof(float *)); //first dimension has a length of 1
-	arr[0] = (float *)malloc(len * sizeof(float));
-	arr[0] = data;*/
-
-	int len = 50;
-	float *data;
-	data = (float *) malloc(50*sizeof(float));
-	int i;
-	for (i = 0; i < 50; i++) {
-		data[i] = (float) i;
 	}
-	setReturnData2DFloat(data_block, len, data);
+
+	setReturnData2DFloat(data_block, 1, len, data);
 }
 
 void soft_x_rays_channels_power_density_time(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
@@ -152,7 +141,7 @@ void soft_x_rays_channels_power_density_time(int shotNumber, DATA_BLOCK* data_bl
 		addIdamError(CODEERRORTYPE, "Unable to get channels_power_density_time for west_soft_x_rays IDS", err, "");
 	}
 
-	setReturnData2DFloat(data_block, len, time);
+	setReturnData2DFloat(data_block, 1, len, time);
 }
 
 int channels_power_density(int shotNumber, char* nomsigp, int extractionIndex, float** time, float** data, int* len)
@@ -164,28 +153,26 @@ int channels_power_density(int shotNumber, char* nomsigp, int extractionIndex, f
 	return status;
 }
 
-void setReturnData2DFloat (DATA_BLOCK* data_block, int len, float* data)
+void setReturnData2DFloat (DATA_BLOCK* data_block, int dim1_shape, int dim2_shape, float* data)
 {
 	//IDAM data block initialization
 	initDataBlock(data_block);
-	data_block->order = 1;
 	data_block->rank = 2;
-	data_block->data_type = UDA_TYPE_FLOAT;
-
 	data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
 
 	int i;
-
 	for (i = 0; i < data_block->rank; i++) {
 		initDimBlock(&data_block->dims[i]);
+		data_block->dims[i].data_type = UDA_TYPE_UNSIGNED_INT;
+		data_block->dims[i].compressed = 1;
+		data_block->dims[i].dim0 = 0.0;
+		data_block->dims[i].diff = 1.0;
+		data_block->dims[i].method = 0;
 	}
-
-	data_block->dims[0].dim_n = 1;
-	//data_block->dims[0].compressed = 0;
-	data_block->dims[1].dim_n = len;
-	//data_block->dims[1].compressed = 0;
-
-	data_block->data_n = len;
+	data_block->data_type = UDA_TYPE_FLOAT;
+	data_block->dims[0].dim_n = dim1_shape;
+	data_block->dims[1].dim_n = dim2_shape;
+	data_block->data_n = dim1_shape*dim2_shape;
 	data_block->data = (char*)data;
 }
 
