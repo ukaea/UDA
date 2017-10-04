@@ -1,0 +1,672 @@
+<mappings machine="JET">
+  <!-- dynamic -->
+  <wall documentation="General Wall representation. Time-dependent CPO." type="CPO">
+    <compositions documentation="" type="structure">
+      <nuclei documentation="Array of nuclei considered." type="struct_array" dim="Put dimension here" index="Put index here">
+        <zn documentation="Nuclear charge [units of elementary charge];" reminder="Enter in the structure below how to retrieve this variable from the experimental database. Replicate this element if more than one signal needs to be read in the local database" list="no" type="expSignal/exp0D" path="compositions/nuclei/zn">
+          <name documentation="Name of the signal in the local database" type="xs:string">Put value here</name>
+          <download documentation="Description of the method for calculating the signal. Fill the relevant elements below." type="structure">
+            <download documentation="Name of the download method, as listed in the top element mapping_info/download_method/name. In case of a constant value, put 'fixed' here and fill the 'fixed-value' element below." type="xs:string">Put value here</download>
+            <fixed_value documentation="Fixed value of the signal in case 'download' = 'fixed'. NB : this value will be repeated in all time slices of the ITM signal, except if 'interpolation' = 0. Optional." type="Vect1DDouble">Put value here</fixed_value>
+            <fixed_repeat documentation="Repeat factor for the fixed value given above; this tag contains the same number of values than fixed_value. Optional." type="Vect1DInt">Put value here</fixed_repeat>
+          </download>
+          <coefa documentation="After download, the signal can be transformed as coefa * signal + coefb. Optional." type="xs:float">Put value here</coefa>
+          <coefb documentation="After download, the signal can be transformed as coefa * signal + coefb. Optional." type="xs:float">Put value here</coefb>
+          <interpolation documentation="Interpolation method : 2 for previous sample, 3 for linear interpolation (as in the UAL), 0 if no interpolation required (also useful for a string or signal that does not depend on time in ITM format)." type="xs:integer">Put value here</interpolation>
+          <dimension documentation="Dimension of the local DB signal : 1 for vector, 2 for matrix, ... s for string, 0 if non-time dependent in the local DB (may need to be repeated at each time slice in ITM format, though)" type="xs:integer">Put value here</dimension>
+          <size documentation="Size of the local DB signal (number of columns in the data matrix) mandatory only for 2D signals" type="xs:integer">Put value here</size>
+          <time_dim documentation="Specifies which of the above dimension represents time (in the local DB)." type="xs:integer">Put value here</time_dim>
+        </zn>
+        <amn documentation="Mass of atom [amu]" reminder="Enter in the structure below how to retrieve this variable from the experimental database. Replicate this element if more than one signal needs to be read in the local database" list="no" type="expSignal/exp0D" path="compositions/nuclei/amn">
+          <name documentation="Name of the signal in the local database" type="xs:string">Put value here</name>
+          <download documentation="Description of the method for calculating the signal. Fill the relevant elements below." type="structure">
+            <download documentation="Name of the download method, as listed in the top element mapping_info/download_method/name. In case of a constant value, put 'fixed' here and fill the 'fixed-value' element below." type="xs:string">Put value here</download>
+            <fixed_value documentation="Fixed value of the signal in case 'download' = 'fixed'. NB : this value will be repeated in all time slices of the ITM signal, except if 'interpolation' = 0. Optional." type="Vect1DDouble">Put value here</fixed_value>
+            <fixed_repeat documentation="Repeat factor for the fixed value given above; this tag contains the same number of values than fixed_value. Optional." type="Vect1DInt">Put value here</fixed_repeat>
+          </download>
+          <coefa documentation="After download, the signal can be transformed as coefa * signal + coefb. Optional." type="xs:float">Put value here</coefa>
+          <coefb documentation="After download, the signal can be transformed as coefa * signal + coefb. Optional." type="xs:float">Put value here</coefb>
+          <interpolation documentation="Interpolation method : 2 for previous sample, 3 for linear interpolation (as in the UAL), 0 if no interpolation required (also useful for a string or signal that does not depend on time in ITM format)." type="xs:integer">Put value here</interpolation>
+          <dimension documentation="Dimension of the local DB signal : 1 for vector, 2 for matrix, ... s for string, 0 if non-time dependent in the local DB (may need to be repeated at each time slice in ITM format, though)" type="xs:integer">Put value here</dimension>
+          <size documentation="Size of the local DB signal (number of columns in the data matrix) mandatory only for 2D signals" type="xs:integer">Put value here</size>
+          <time_dim documentation="Specifies which of the above dimension represents time (in the local DB)." type="xs:integer">Put value here</time_dim>
+        </amn>
+      </nuclei>
+      <ions documentation="Array of main plasma ions." type="struct_array" dim="Put dimension here" index="Put index here">
+        <nucindex documentation="Index into list of nuclei; int" reminder="Enter in the structure below how to retrieve this variable from the experimental database. Replicate this element if more than one signal needs to be read in the local database" list="no" type="expSignal/exp0D" path="compositions/ions/nucindex">
+          <name documentation="Name of the signal in the local database" type="xs:string">Put value here</name>
+          <download documentation="Description of the method for calculating the signal. Fill the relevant elements below." type="structure">
+            <download documentation="Name of the download method, as listed in the top element mapping_info/download_method/name. In case of a constant value, put 'fixed' here and fill the 'fixed-value' element below." type="xs:string">Put value here</download>
+            <fixed_value documentation="Fixed value of the signal in case 'download' = 'fixed'. NB : this value will be repeated in all time slices of the ITM signal, except if 'interpolation' = 0. Optional." type="Vect1DDouble">Put value here</fixed_value>
+            <fixed_repeat documentation="Repeat factor for the fixed value given above; this tag contains the same number of values than fixed_value. Optional." type="Vect1DInt">Put value here</fixed_repeat>
+          </download>
+          <coefa documentation="After download, the signal can be transformed as coefa * signal + coefb. Optional." type="xs:float">Put value here</coefa>
+          <coefb documentation="After download, the signal can be transformed as coefa * signal + coefb. Optional." type="xs:float">Put value here</coefb>
+          <interpolation documentation="Interpolation method : 2 for previous sample, 3 for linear interpolation (as in the UAL), 0 if no interpolation required (also useful for a string or signal that does not depend on time in ITM format)." type="xs:integer">Put value here</interpolation>
+          <dimension documentation="Dimension of the local DB signal : 1 for vector, 2 for matrix, ... s for string, 0 if non-time dependent in the local DB (may need to be repeated at each time slice in ITM format, though)" type="xs:integer">Put value here</dimension>
+          <size documentation="Size of the local DB signal (number of columns in the data matrix) mandatory only for 2D signals" type="xs:integer">Put value here</size>
+          <time_dim documentation="Specifies which of the above dimension represents time (in the local DB)." type="xs:integer">Put value here</time_dim>
+        </nucindex>
+        <zion documentation="Ion charge (of the dominant ionisation state; lumped ions are allowed); Vector (nion)" reminder="Enter in the structure below how to retrieve this variable from the experimental database. Replicate this element if more than one signal needs to be read in the local database" list="no" type="expSignal/exp0D" path="compositions/ions/zion">
+          <name documentation="Name of the signal in the local database" type="xs:string">Put value here</name>
+          <download documentation="Description of the method for calculating the signal. Fill the relevant elements below." type="structure">
+            <download documentation="Name of the download method, as listed in the top element mapping_info/download_method/name. In case of a constant value, put 'fixed' here and fill the 'fixed-value' element below." type="xs:string">Put value here</download>
+            <fixed_value documentation="Fixed value of the signal in case 'download' = 'fixed'. NB : this value will be repeated in all time slices of the ITM signal, except if 'interpolation' = 0. Optional." type="Vect1DDouble">Put value here</fixed_value>
+            <fixed_repeat documentation="Repeat factor for the fixed value given above; this tag contains the same number of values than fixed_value. Optional." type="Vect1DInt">Put value here</fixed_repeat>
+          </download>
+          <coefa documentation="After download, the signal can be transformed as coefa * signal + coefb. Optional." type="xs:float">Put value here</coefa>
+          <coefb documentation="After download, the signal can be transformed as coefa * signal + coefb. Optional." type="xs:float">Put value here</coefb>
+          <interpolation documentation="Interpolation method : 2 for previous sample, 3 for linear interpolation (as in the UAL), 0 if no interpolation required (also useful for a string or signal that does not depend on time in ITM format)." type="xs:integer">Put value here</interpolation>
+          <dimension documentation="Dimension of the local DB signal : 1 for vector, 2 for matrix, ... s for string, 0 if non-time dependent in the local DB (may need to be repeated at each time slice in ITM format, though)" type="xs:integer">Put value here</dimension>
+          <size documentation="Size of the local DB signal (number of columns in the data matrix) mandatory only for 2D signals" type="xs:integer">Put value here</size>
+          <time_dim documentation="Specifies which of the above dimension represents time (in the local DB)." type="xs:integer">Put value here</time_dim>
+        </zion>
+        <imp_flag documentation="Multiple charge state calculation flag : 0-Only one charge state is considered; 1-Multiple charge state are considered and are described in impurity CPO; Vector (nion)" reminder="Enter in the structure below how to retrieve this variable from the experimental database. Replicate this element if more than one signal needs to be read in the local database" list="no" type="expSignal/exp0D" path="compositions/ions/imp_flag">
+          <name documentation="Name of the signal in the local database" type="xs:string">Put value here</name>
+          <download documentation="Description of the method for calculating the signal. Fill the relevant elements below." type="structure">
+            <download documentation="Name of the download method, as listed in the top element mapping_info/download_method/name. In case of a constant value, put 'fixed' here and fill the 'fixed-value' element below." type="xs:string">Put value here</download>
+            <fixed_value documentation="Fixed value of the signal in case 'download' = 'fixed'. NB : this value will be repeated in all time slices of the ITM signal, except if 'interpolation' = 0. Optional." type="Vect1DDouble">Put value here</fixed_value>
+            <fixed_repeat documentation="Repeat factor for the fixed value given above; this tag contains the same number of values than fixed_value. Optional." type="Vect1DInt">Put value here</fixed_repeat>
+          </download>
+          <coefa documentation="After download, the signal can be transformed as coefa * signal + coefb. Optional." type="xs:float">Put value here</coefa>
+          <coefb documentation="After download, the signal can be transformed as coefa * signal + coefb. Optional." type="xs:float">Put value here</coefb>
+          <interpolation documentation="Interpolation method : 2 for previous sample, 3 for linear interpolation (as in the UAL), 0 if no interpolation required (also useful for a string or signal that does not depend on time in ITM format)." type="xs:integer">Put value here</interpolation>
+          <dimension documentation="Dimension of the local DB signal : 1 for vector, 2 for matrix, ... s for string, 0 if non-time dependent in the local DB (may need to be repeated at each time slice in ITM format, though)" type="xs:integer">Put value here</dimension>
+          <size documentation="Size of the local DB signal (number of columns in the data matrix) mandatory only for 2D signals" type="xs:integer">Put value here</size>
+          <time_dim documentation="Specifies which of the above dimension represents time (in the local DB)." type="xs:integer">Put value here</time_dim>
+        </imp_flag>
+      </ions>
+      <impurities documentation="Array of impurities." type="struct_array" dim="Put dimension here" index="Put index here">
+        <nucindex documentation="Index into list of nuclei; int" reminder="Enter in the structure below how to retrieve this variable from the experimental database. Replicate this element if more than one signal needs to be read in the local database" list="no" type="expSignal/exp0D" path="compositions/impurities/nucindex">
+          <name documentation="Name of the signal in the local database" type="xs:string">Put value here</name>
+          <download documentation="Description of the method for calculating the signal. Fill the relevant elements below." type="structure">
+            <download documentation="Name of the download method, as listed in the top element mapping_info/download_method/name. In case of a constant value, put 'fixed' here and fill the 'fixed-value' element below." type="xs:string">Put value here</download>
+            <fixed_value documentation="Fixed value of the signal in case 'download' = 'fixed'. NB : this value will be repeated in all time slices of the ITM signal, except if 'interpolation' = 0. Optional." type="Vect1DDouble">Put value here</fixed_value>
+            <fixed_repeat documentation="Repeat factor for the fixed value given above; this tag contains the same number of values than fixed_value. Optional." type="Vect1DInt">Put value here</fixed_repeat>
+          </download>
+          <coefa documentation="After download, the signal can be transformed as coefa * signal + coefb. Optional." type="xs:float">Put value here</coefa>
+          <coefb documentation="After download, the signal can be transformed as coefa * signal + coefb. Optional." type="xs:float">Put value here</coefb>
+          <interpolation documentation="Interpolation method : 2 for previous sample, 3 for linear interpolation (as in the UAL), 0 if no interpolation required (also useful for a string or signal that does not depend on time in ITM format)." type="xs:integer">Put value here</interpolation>
+          <dimension documentation="Dimension of the local DB signal : 1 for vector, 2 for matrix, ... s for string, 0 if non-time dependent in the local DB (may need to be repeated at each time slice in ITM format, though)" type="xs:integer">Put value here</dimension>
+          <size documentation="Size of the local DB signal (number of columns in the data matrix) mandatory only for 2D signals" type="xs:integer">Put value here</size>
+          <time_dim documentation="Specifies which of the above dimension represents time (in the local DB)." type="xs:integer">Put value here</time_dim>
+        </nucindex>
+        <i_ion documentation="Index of the impurity species in the ions array of structures. Vector (nimp)" reminder="Enter in the structure below how to retrieve this variable from the experimental database. Replicate this element if more than one signal needs to be read in the local database" list="no" type="expSignal/exp0D" path="compositions/impurities/i_ion">
+          <name documentation="Name of the signal in the local database" type="xs:string">Put value here</name>
+          <download documentation="Description of the method for calculating the signal. Fill the relevant elements below." type="structure">
+            <download documentation="Name of the download method, as listed in the top element mapping_info/download_method/name. In case of a constant value, put 'fixed' here and fill the 'fixed-value' element below." type="xs:string">Put value here</download>
+            <fixed_value documentation="Fixed value of the signal in case 'download' = 'fixed'. NB : this value will be repeated in all time slices of the ITM signal, except if 'interpolation' = 0. Optional." type="Vect1DDouble">Put value here</fixed_value>
+            <fixed_repeat documentation="Repeat factor for the fixed value given above; this tag contains the same number of values than fixed_value. Optional." type="Vect1DInt">Put value here</fixed_repeat>
+          </download>
+          <coefa documentation="After download, the signal can be transformed as coefa * signal + coefb. Optional." type="xs:float">Put value here</coefa>
+          <coefb documentation="After download, the signal can be transformed as coefa * signal + coefb. Optional." type="xs:float">Put value here</coefb>
+          <interpolation documentation="Interpolation method : 2 for previous sample, 3 for linear interpolation (as in the UAL), 0 if no interpolation required (also useful for a string or signal that does not depend on time in ITM format)." type="xs:integer">Put value here</interpolation>
+          <dimension documentation="Dimension of the local DB signal : 1 for vector, 2 for matrix, ... s for string, 0 if non-time dependent in the local DB (may need to be repeated at each time slice in ITM format, though)" type="xs:integer">Put value here</dimension>
+          <size documentation="Size of the local DB signal (number of columns in the data matrix) mandatory only for 2D signals" type="xs:integer">Put value here</size>
+          <time_dim documentation="Specifies which of the above dimension represents time (in the local DB)." type="xs:integer">Put value here</time_dim>
+        </i_ion>
+        <nzimp documentation="Number of charge states (or bundles) considered for this impurity species." reminder="Enter in the structure below how to retrieve this variable from the experimental database. Replicate this element if more than one signal needs to be read in the local database" list="no" type="expSignal/exp0D" path="compositions/impurities/nzimp">
+          <name documentation="Name of the signal in the local database" type="xs:string">Put value here</name>
+          <download documentation="Description of the method for calculating the signal. Fill the relevant elements below." type="structure">
+            <download documentation="Name of the download method, as listed in the top element mapping_info/download_method/name. In case of a constant value, put 'fixed' here and fill the 'fixed-value' element below." type="xs:string">Put value here</download>
+            <fixed_value documentation="Fixed value of the signal in case 'download' = 'fixed'. NB : this value will be repeated in all time slices of the ITM signal, except if 'interpolation' = 0. Optional." type="Vect1DDouble">Put value here</fixed_value>
+            <fixed_repeat documentation="Repeat factor for the fixed value given above; this tag contains the same number of values than fixed_value. Optional." type="Vect1DInt">Put value here</fixed_repeat>
+          </download>
+          <coefa documentation="After download, the signal can be transformed as coefa * signal + coefb. Optional." type="xs:float">Put value here</coefa>
+          <coefb documentation="After download, the signal can be transformed as coefa * signal + coefb. Optional." type="xs:float">Put value here</coefb>
+          <interpolation documentation="Interpolation method : 2 for previous sample, 3 for linear interpolation (as in the UAL), 0 if no interpolation required (also useful for a string or signal that does not depend on time in ITM format)." type="xs:integer">Put value here</interpolation>
+          <dimension documentation="Dimension of the local DB signal : 1 for vector, 2 for matrix, ... s for string, 0 if non-time dependent in the local DB (may need to be repeated at each time slice in ITM format, though)" type="xs:integer">Put value here</dimension>
+          <size documentation="Size of the local DB signal (number of columns in the data matrix) mandatory only for 2D signals" type="xs:integer">Put value here</size>
+          <time_dim documentation="Specifies which of the above dimension represents time (in the local DB)." type="xs:integer">Put value here</time_dim>
+        </nzimp>
+        <zmin documentation="Minimum Z of impurity ionisation state bundle. Vector (nzimp)" reminder="Enter in the structure below how to retrieve this variable from the experimental database. Replicate this element if more than one signal needs to be read in the local database" list="yes" type="expSignal/exp1D" path="compositions/impurities/zmin">
+          <name documentation="Name of the signal in the local database" type="xs:string">Put value here</name>
+          <download documentation="Description of the method for calculating the signal. Fill the relevant elements below." type="structure">
+            <download documentation="Name of the download method, as listed in the top element mapping_info/download_method/name. In case of a constant value, put 'fixed' here and fill the 'fixed-value' element below." type="xs:string">Put value here</download>
+            <fixed_value documentation="Fixed value of the signal in case 'download' = 'fixed'. NB : this value will be repeated in all time slices of the ITM signal, except if 'interpolation' = 0. Optional." type="Vect1DDouble">Put value here</fixed_value>
+            <fixed_repeat documentation="Repeat factor for the fixed value given above; this tag contains the same number of values than fixed_value. Optional." type="Vect1DInt">Put value here</fixed_repeat>
+          </download>
+          <coefa documentation="After download, the signal can be transformed as coefa * signal + coefb. Optional." type="xs:float">Put value here</coefa>
+          <coefb documentation="After download, the signal can be transformed as coefa * signal + coefb. Optional." type="xs:float">Put value here</coefb>
+          <interpolation documentation="Interpolation method : 2 for previous sample, 3 for linear interpolation (as in the UAL), 0 if no interpolation required (also useful for a string or signal that does not depend on time in ITM format)." type="xs:integer">Put value here</interpolation>
+          <dimension documentation="Dimension of the local DB signal : 1 for vector, 2 for matrix, ... s for string, 0 if non-time dependent in the local DB (may need to be repeated at each time slice in ITM format, though)" type="xs:integer">Put value here</dimension>
+          <size documentation="Size of the local DB signal (number of columns in the data matrix) mandatory only for 2D signals" type="xs:integer">Put value here</size>
+          <time_dim documentation="Specifies which of the above dimension represents time (in the local DB)." type="xs:integer">Put value here</time_dim>
+        </zmin>
+        <zmax documentation="Maximum Z of impurity ionisation state bundle. If no bundle, zmax=zmin. Vector (nzimp)" reminder="Enter in the structure below how to retrieve this variable from the experimental database. Replicate this element if more than one signal needs to be read in the local database" list="yes" type="expSignal/exp1D" path="compositions/impurities/zmax">
+          <name documentation="Name of the signal in the local database" type="xs:string">Put value here</name>
+          <download documentation="Description of the method for calculating the signal. Fill the relevant elements below." type="structure">
+            <download documentation="Name of the download method, as listed in the top element mapping_info/download_method/name. In case of a constant value, put 'fixed' here and fill the 'fixed-value' element below." type="xs:string">Put value here</download>
+            <fixed_value documentation="Fixed value of the signal in case 'download' = 'fixed'. NB : this value will be repeated in all time slices of the ITM signal, except if 'interpolation' = 0. Optional." type="Vect1DDouble">Put value here</fixed_value>
+            <fixed_repeat documentation="Repeat factor for the fixed value given above; this tag contains the same number of values than fixed_value. Optional." type="Vect1DInt">Put value here</fixed_repeat>
+          </download>
+          <coefa documentation="After download, the signal can be transformed as coefa * signal + coefb. Optional." type="xs:float">Put value here</coefa>
+          <coefb documentation="After download, the signal can be transformed as coefa * signal + coefb. Optional." type="xs:float">Put value here</coefb>
+          <interpolation documentation="Interpolation method : 2 for previous sample, 3 for linear interpolation (as in the UAL), 0 if no interpolation required (also useful for a string or signal that does not depend on time in ITM format)." type="xs:integer">Put value here</interpolation>
+          <dimension documentation="Dimension of the local DB signal : 1 for vector, 2 for matrix, ... s for string, 0 if non-time dependent in the local DB (may need to be repeated at each time slice in ITM format, though)" type="xs:integer">Put value here</dimension>
+          <size documentation="Size of the local DB signal (number of columns in the data matrix) mandatory only for 2D signals" type="xs:integer">Put value here</size>
+          <time_dim documentation="Specifies which of the above dimension represents time (in the local DB)." type="xs:integer">Put value here</time_dim>
+        </zmax>
+      </impurities>
+      <neutralscomp documentation="Array of neutrals." type="struct_array" dim="Put dimension here" index="Put index here">
+        <neutcomp documentation="Array of components to the atom or molecule. Vector (ncomp)" type="struct_array" dim="Put dimension here" index="Put index here">
+          <nucindex documentation="Index into list of nuclei; int" reminder="Enter in the structure below how to retrieve this variable from the experimental database. Replicate this element if more than one signal needs to be read in the local database" list="no" type="expSignal/exp0D" path="compositions/neutralscomp/neutcomp/nucindex">
+            <name documentation="Name of the signal in the local database" type="xs:string">Put value here</name>
+            <download documentation="Description of the method for calculating the signal. Fill the relevant elements below." type="structure">
+              <download documentation="Name of the download method, as listed in the top element mapping_info/download_method/name. In case of a constant value, put 'fixed' here and fill the 'fixed-value' element below." type="xs:string">Put value here</download>
+              <fixed_value documentation="Fixed value of the signal in case 'download' = 'fixed'. NB : this value will be repeated in all time slices of the ITM signal, except if 'interpolation' = 0. Optional." type="Vect1DDouble">Put value here</fixed_value>
+              <fixed_repeat documentation="Repeat factor for the fixed value given above; this tag contains the same number of values than fixed_value. Optional." type="Vect1DInt">Put value here</fixed_repeat>
+            </download>
+            <coefa documentation="After download, the signal can be transformed as coefa * signal + coefb. Optional." type="xs:float">Put value here</coefa>
+            <coefb documentation="After download, the signal can be transformed as coefa * signal + coefb. Optional." type="xs:float">Put value here</coefb>
+            <interpolation documentation="Interpolation method : 2 for previous sample, 3 for linear interpolation (as in the UAL), 0 if no interpolation required (also useful for a string or signal that does not depend on time in ITM format)." type="xs:integer">Put value here</interpolation>
+            <dimension documentation="Dimension of the local DB signal : 1 for vector, 2 for matrix, ... s for string, 0 if non-time dependent in the local DB (may need to be repeated at each time slice in ITM format, though)" type="xs:integer">Put value here</dimension>
+            <size documentation="Size of the local DB signal (number of columns in the data matrix) mandatory only for 2D signals" type="xs:integer">Put value here</size>
+            <time_dim documentation="Specifies which of the above dimension represents time (in the local DB)." type="xs:integer">Put value here</time_dim>
+          </nucindex>
+          <multiplicity documentation="Multiplicity of the atom; int" reminder="Enter in the structure below how to retrieve this variable from the experimental database. Replicate this element if more than one signal needs to be read in the local database" list="no" type="expSignal/exp0D" path="compositions/neutralscomp/neutcomp/multiplicity">
+            <name documentation="Name of the signal in the local database" type="xs:string">Put value here</name>
+            <download documentation="Description of the method for calculating the signal. Fill the relevant elements below." type="structure">
+              <download documentation="Name of the download method, as listed in the top element mapping_info/download_method/name. In case of a constant value, put 'fixed' here and fill the 'fixed-value' element below." type="xs:string">Put value here</download>
+              <fixed_value documentation="Fixed value of the signal in case 'download' = 'fixed'. NB : this value will be repeated in all time slices of the ITM signal, except if 'interpolation' = 0. Optional." type="Vect1DDouble">Put value here</fixed_value>
+              <fixed_repeat documentation="Repeat factor for the fixed value given above; this tag contains the same number of values than fixed_value. Optional." type="Vect1DInt">Put value here</fixed_repeat>
+            </download>
+            <coefa documentation="After download, the signal can be transformed as coefa * signal + coefb. Optional." type="xs:float">Put value here</coefa>
+            <coefb documentation="After download, the signal can be transformed as coefa * signal + coefb. Optional." type="xs:float">Put value here</coefb>
+            <interpolation documentation="Interpolation method : 2 for previous sample, 3 for linear interpolation (as in the UAL), 0 if no interpolation required (also useful for a string or signal that does not depend on time in ITM format)." type="xs:integer">Put value here</interpolation>
+            <dimension documentation="Dimension of the local DB signal : 1 for vector, 2 for matrix, ... s for string, 0 if non-time dependent in the local DB (may need to be repeated at each time slice in ITM format, though)" type="xs:integer">Put value here</dimension>
+            <size documentation="Size of the local DB signal (number of columns in the data matrix) mandatory only for 2D signals" type="xs:integer">Put value here</size>
+            <time_dim documentation="Specifies which of the above dimension represents time (in the local DB)." type="xs:integer">Put value here</time_dim>
+          </multiplicity>
+        </neutcomp>
+      </neutralscomp>
+      <edgespecies documentation="Array of edge species." type="struct_array" dim="Put dimension here" index="Put index here">
+        <nucindex documentation="Index into list of nuclei; int" reminder="Enter in the structure below how to retrieve this variable from the experimental database. Replicate this element if more than one signal needs to be read in the local database" list="no" type="expSignal/exp0D" path="compositions/edgespecies/nucindex">
+          <name documentation="Name of the signal in the local database" type="xs:string">Put value here</name>
+          <download documentation="Description of the method for calculating the signal. Fill the relevant elements below." type="structure">
+            <download documentation="Name of the download method, as listed in the top element mapping_info/download_method/name. In case of a constant value, put 'fixed' here and fill the 'fixed-value' element below." type="xs:string">Put value here</download>
+            <fixed_value documentation="Fixed value of the signal in case 'download' = 'fixed'. NB : this value will be repeated in all time slices of the ITM signal, except if 'interpolation' = 0. Optional." type="Vect1DDouble">Put value here</fixed_value>
+            <fixed_repeat documentation="Repeat factor for the fixed value given above; this tag contains the same number of values than fixed_value. Optional." type="Vect1DInt">Put value here</fixed_repeat>
+          </download>
+          <coefa documentation="After download, the signal can be transformed as coefa * signal + coefb. Optional." type="xs:float">Put value here</coefa>
+          <coefb documentation="After download, the signal can be transformed as coefa * signal + coefb. Optional." type="xs:float">Put value here</coefb>
+          <interpolation documentation="Interpolation method : 2 for previous sample, 3 for linear interpolation (as in the UAL), 0 if no interpolation required (also useful for a string or signal that does not depend on time in ITM format)." type="xs:integer">Put value here</interpolation>
+          <dimension documentation="Dimension of the local DB signal : 1 for vector, 2 for matrix, ... s for string, 0 if non-time dependent in the local DB (may need to be repeated at each time slice in ITM format, though)" type="xs:integer">Put value here</dimension>
+          <size documentation="Size of the local DB signal (number of columns in the data matrix) mandatory only for 2D signals" type="xs:integer">Put value here</size>
+          <time_dim documentation="Specifies which of the above dimension represents time (in the local DB)." type="xs:integer">Put value here</time_dim>
+        </nucindex>
+        <zmin documentation="Minimum Z of species charge state bundle" reminder="Enter in the structure below how to retrieve this variable from the experimental database. Replicate this element if more than one signal needs to be read in the local database" list="no" type="expSignal/exp0D" path="compositions/edgespecies/zmin">
+          <name documentation="Name of the signal in the local database" type="xs:string">Put value here</name>
+          <download documentation="Description of the method for calculating the signal. Fill the relevant elements below." type="structure">
+            <download documentation="Name of the download method, as listed in the top element mapping_info/download_method/name. In case of a constant value, put 'fixed' here and fill the 'fixed-value' element below." type="xs:string">Put value here</download>
+            <fixed_value documentation="Fixed value of the signal in case 'download' = 'fixed'. NB : this value will be repeated in all time slices of the ITM signal, except if 'interpolation' = 0. Optional." type="Vect1DDouble">Put value here</fixed_value>
+            <fixed_repeat documentation="Repeat factor for the fixed value given above; this tag contains the same number of values than fixed_value. Optional." type="Vect1DInt">Put value here</fixed_repeat>
+          </download>
+          <coefa documentation="After download, the signal can be transformed as coefa * signal + coefb. Optional." type="xs:float">Put value here</coefa>
+          <coefb documentation="After download, the signal can be transformed as coefa * signal + coefb. Optional." type="xs:float">Put value here</coefb>
+          <interpolation documentation="Interpolation method : 2 for previous sample, 3 for linear interpolation (as in the UAL), 0 if no interpolation required (also useful for a string or signal that does not depend on time in ITM format)." type="xs:integer">Put value here</interpolation>
+          <dimension documentation="Dimension of the local DB signal : 1 for vector, 2 for matrix, ... s for string, 0 if non-time dependent in the local DB (may need to be repeated at each time slice in ITM format, though)" type="xs:integer">Put value here</dimension>
+          <size documentation="Size of the local DB signal (number of columns in the data matrix) mandatory only for 2D signals" type="xs:integer">Put value here</size>
+          <time_dim documentation="Specifies which of the above dimension represents time (in the local DB)." type="xs:integer">Put value here</time_dim>
+        </zmin>
+        <zmax documentation="Maximum Z of species charge state bundle" reminder="Enter in the structure below how to retrieve this variable from the experimental database. Replicate this element if more than one signal needs to be read in the local database" list="no" type="expSignal/exp0D" path="compositions/edgespecies/zmax">
+          <name documentation="Name of the signal in the local database" type="xs:string">Put value here</name>
+          <download documentation="Description of the method for calculating the signal. Fill the relevant elements below." type="structure">
+            <download documentation="Name of the download method, as listed in the top element mapping_info/download_method/name. In case of a constant value, put 'fixed' here and fill the 'fixed-value' element below." type="xs:string">Put value here</download>
+            <fixed_value documentation="Fixed value of the signal in case 'download' = 'fixed'. NB : this value will be repeated in all time slices of the ITM signal, except if 'interpolation' = 0. Optional." type="Vect1DDouble">Put value here</fixed_value>
+            <fixed_repeat documentation="Repeat factor for the fixed value given above; this tag contains the same number of values than fixed_value. Optional." type="Vect1DInt">Put value here</fixed_repeat>
+          </download>
+          <coefa documentation="After download, the signal can be transformed as coefa * signal + coefb. Optional." type="xs:float">Put value here</coefa>
+          <coefb documentation="After download, the signal can be transformed as coefa * signal + coefb. Optional." type="xs:float">Put value here</coefb>
+          <interpolation documentation="Interpolation method : 2 for previous sample, 3 for linear interpolation (as in the UAL), 0 if no interpolation required (also useful for a string or signal that does not depend on time in ITM format)." type="xs:integer">Put value here</interpolation>
+          <dimension documentation="Dimension of the local DB signal : 1 for vector, 2 for matrix, ... s for string, 0 if non-time dependent in the local DB (may need to be repeated at each time slice in ITM format, though)" type="xs:integer">Put value here</dimension>
+          <size documentation="Size of the local DB signal (number of columns in the data matrix) mandatory only for 2D signals" type="xs:integer">Put value here</size>
+          <time_dim documentation="Specifies which of the above dimension represents time (in the local DB)." type="xs:integer">Put value here</time_dim>
+        </zmax>
+      </edgespecies>
+    </compositions>
+    <time_base documentation="Declaration of the multiple time bases in the experimental database, used for calculating the common (CPO) one" type="structure">
+      <sampling_rate documentation="String 'min' or 'max' : Use the highest sampling rate (min) or the lowest sampling rate (max) of all experimental time bases to define the common time base" type="xs:string">Put value here</sampling_rate>
+      <time documentation="List of the experimental time bases used for this CPO (replicate this element if more than one must be used)" list="yes" type="structure">
+        <name documentation="Name of the time base in the experimental database" type="xs:string">Put value here</name>
+        <download documentation="Name of the download method, as listed in the top element mapping_info/download_method/name" type="xs:string">Put value here</download>
+      </time>
+    </time_base>
+  </wall>
+
+  <!-- static -->
+  <wall type="CPO" documentation="General Wall representation. Time-dependent CPO." occurrence="0">
+    <datainfo type="structure" documentation="Generic information on a data item">
+      <dataprovider type="xs:string" documentation="Name of the actual data provider (the person who filled the data)" path="datainfo/dataprovider"> Wolfgang Zwingmann - Vladimir Drozdov - Rui Coelho - Sergei Gerasimov</dataprovider>
+      <putdate type="xs:string" documentation="Date at which the data has been put in the DB" path="datainfo/putdate"> 08.02.2016</putdate>
+      <source type="xs:string" documentation="Exact reference of the data source (e.g. original reference in the native machine data base)" path="datainfo/source"> http://users.jet.efda.org/pages/mags/jet-model/model3d-index.html</source>
+      <comment type="xs:string" documentation="Any additional comment" path="datainfo/comment">ILW WALL; Third version: the limiter for ILW comes directly from PPCC (D. Valvarcel and G. Artaserse) ;Second version : the limiter contour for the ILW is obtained from SURF. The number of points differs from the 137 locus of first wall model points as shown in S.Gerasimov data (http://users.jet.efda.org/pages/mags/jet-model/model3d-index.html); it gathers the info from the limiter and vessel CPOs but the vessel part here is more detailed than the vessel CPO and should be used. There is also a block like description for the vessel elaborated by S.Gerasimov. The vessel resistivity is given at 204deg. Permeability taken from http://www.isolthermics.com.au/metals/pdfs/common-tech/Nicrofer%207216%20LC%20-%20alloy%20600L.pdf</comment>
+      <cocos type="xs:integer" documentation="COordinates COnventionS followed by this CPO" path="datainfo/cocos">13</cocos>
+      <id type="xs:integer" documentation="CPO id for checking its provenance in the workflow" path="datainfo/id">Put value here</id>
+    </datainfo>
+    <wall2d_mhd type="structure" documentation="Simplified wall that encloses necessary information for RWM codes.">
+      <res_wall type="struct_array" documentation="Resistive Wall(s)." path="wall2d_mhd/res_wall" dim="Put dimension here" index="Put index here">
+        <walltype type="structure" documentation="Tag the type of wall to be used, 0 (conformal) or 1 (free)">
+          <id type="xs:string" documentation="Short string identifier" path="wall2d_mhd/res_wall/walltype/id"> Put value here</id>
+          <flag type="xs:integer" documentation="Integer identifier" path="wall2d_mhd/res_wall/walltype/flag"> Put value here</flag>
+          <description type="xs:string" documentation="Verbose description of identifier" path="wall2d_mhd/res_wall/walltype/description"> Put value here</description>
+        </walltype>
+        <delta type="xs:float" documentation="Wall thickness [m]; Scalar" path="wall2d_mhd/res_wall/delta"> Put value here</delta>
+        <eta type="xs:float" documentation="Wall resistivity [ohm.m]; Scalar" path="wall2d_mhd/res_wall/eta"> Put value here</eta>
+        <npoloidal type="xs:integer" documentation="Number of poloidal coordinates for each wall (dimension of R and Z);" path="wall2d_mhd/res_wall/npoloidal"> Put value here</npoloidal>
+        <position type="structure" documentation="RZ description of the wall; wall coordinates are defined at a middle line (line passing through the middle of the real wall as defined by thickness parameter delta)">
+          <r type="vecflt_type" documentation="Major radius [m]" path="wall2d_mhd/res_wall/position/r" dim="Put dimension here"> Put value here</r>
+          <z type="vecflt_type" documentation="Altitude [m]" path="wall2d_mhd/res_wall/position/z" dim="Put dimension here"> Put value here</z>
+        </position>
+        <holes type="structure" documentation="Structure to describe the placing and properties of the holes">
+          <n_holes type="xs:integer" documentation="Number of holes on each wall;" path="wall2d_mhd/res_wall/holes/n_holes"> Put value here</n_holes>
+          <coordinates type="structure" documentation="Poloidal and Toroidal coordinates of the center of each hole;">
+            <theta type="vecflt_type" documentation="Theta coordinate of holes center; Vector (n_holes)" path="wall2d_mhd/res_wall/holes/coordinates/theta" dim="Put dimension here"> Put value here</theta>
+            <phi type="vecflt_type" documentation="Toroidal coordinate of holes center; Vector (n_holes)" path="wall2d_mhd/res_wall/holes/coordinates/phi" dim="Put dimension here"> Put value here</phi>
+          </coordinates>
+          <width type="structure" documentation="Angular width of each in the poloidal and toroidal direction;"/>
+          <eta type="vecflt_type" documentation="Resistivity  of each hole [ohm.m]; Vector (n_holes)" path="wall2d_mhd/res_wall/holes/eta" dim="Put dimension here"> Put value here</eta>
+        </holes>
+      </res_wall>
+      <ideal_wall type="structure" documentation="Ideal wall">
+        <walltype type="structure" documentation="Tag the type of wall to be used, 0 (conformal) or 1 (free)">
+          <id type="xs:string" documentation="Short string identifier" path="wall2d_mhd/ideal_wall/walltype/id"> Put value here</id>
+          <flag type="xs:integer" documentation="Integer identifier" path="wall2d_mhd/ideal_wall/walltype/flag"> Put value here</flag>
+          <description type="xs:string" documentation="Verbose description of identifier" path="wall2d_mhd/ideal_wall/walltype/description"> Put value here</description>
+        </walltype>
+        <position type="structure" documentation="RZ description of the wall;">
+          <r type="vecflt_type" documentation="Major radius [m]" path="wall2d_mhd/ideal_wall/position/r" dim="Put dimension here"> Put value here</r>
+          <z type="vecflt_type" documentation="Altitude [m]" path="wall2d_mhd/ideal_wall/position/z" dim="Put dimension here"> Put value here</z>
+        </position>
+      </ideal_wall>
+    </wall2d_mhd>
+    <wall2d type="struct_array" documentation="2D wall descriptions; Array of structures (number of wall descriptions). Replicate this element for each type of possible physics or engineering configurations necessary (gas tight vs wall with ports and holes, coarse vs fine representation, single contour limiter, disjoint gapped plasma facing components, ...). Time-dependent" path="wall2d" dim="1" index="1">
+      <limiter type="structure" documentation="Description of the immobile limiting surface(s) or plasma facing components for defining the Last Closed Flux Surface.">
+        <limiter_unit type="struct_array" documentation="Vector of limiting surfaces. Replicate this limiter_unit element ncomponents times. Each unit contains a plasma facing component that can have dedicated number of points. Array of structures (ncomponents)" path="wall2d/limiter/limiter_unit" dim="1" index="1">
+          <name type="xs:string" documentation="Name or description of the limiter_unit" path="wall2d/limiter/limiter_unit/name">contour</name>
+          <closed type="xs:string" documentation="Identify whether the contour is closed (y) or open (n)" path="wall2d/limiter/limiter_unit/closed">y</closed>
+          <position type="structure" documentation="Position (R,Z coordinates) of a limiting surface. No need to repeat first point for closed contours [m]; Vector(npoints)">
+            <r type="vecflt_type" documentation="Major radius [m]" path="wall2d/limiter/limiter_unit/position/r" dim="125">3.28315, 3.32014, 3.36284, 3.43528, 3.50557, 3.56982, 3.62915, 3.68080, 3.72864, 3.77203, 3.80670, 3.83648, 3.85929, 3.87677, 3.88680, 3.89095, 3.88851, 3.87962, 3.86452, 3.84270, 3.81509, 3.78134, 3.74114, 3.69522, 3.67115, 3.63730, 3.64211, 3.38176, 3.33154, 3.28182, 3.18634, 3.13665, 3.00098, 2.86066, 2.76662, 2.66891, 2.56922, 2.47303, 2.38133, 2.29280, 2.19539, 2.18241, 2.06756, 1.96130, 1.94246, 1.92612, 1.91105, 1.89707, 1.88438, 1.87173, 1.85942, 1.84902, 1.84139, 1.83714, 1.83617, 1.83847, 1.84408, 1.85296, 1.86502, 1.88041, 1.89901, 1.92082, 1.94570, 1.97056, 2.00911, 2.20149, 2.14463, 2.29362, 2.29362, 2.29544, 2.35993, 2.39619, 2.40915, 2.41225, 2.41293, 2.41293, 2.41224, 2.40762, 2.39801, 2.41921, 2.42117, 2.41880, 2.41628, 2.40573, 2.31498, 2.35349, 2.37428, 2.42744, 2.44623, 2.52369, 2.52459, 2.55911, 2.55296, 2.57391, 2.63299, 2.63369, 2.69380, 2.69434, 2.75443, 2.75517, 2.81471, 2.81467, 2.80425, 2.85703, 2.87846, 2.93644, 2.95732, 2.98698, 2.89768, 2.88199, 2.88163, 2.90045, 2.89049, 2.88786, 2.88591, 2.88591, 2.88946, 2.90082, 2.91335, 2.96348, 3.00975, 3.06005, 3.19404, 3.20225, 3.30634</r>
+            <z type="vecflt_type" documentation="Altitude [m]" path="wall2d/limiter/limiter_unit/position/z" dim="125"> -1.12439,  -1.07315,  -1.02794,  -0.94610,  -0.85735,  -0.76585,  -0.67035,  -0.57428,  -0.47128,  -0.36188,  -0.25689,  -0.14639,  -0.03751,   0.07869,   0.18627,   0.30192,   0.41715,   0.52975,   0.64099,   0.75310,   0.86189,   0.96912,   1.07530,   1.17853,   1.22759,   1.33388,   1.40768,   1.64453,   1.70412,   1.73872,   1.81753,   1.85212,   1.88341,   1.94241,   1.96996,   1.98344,   1.98201,   1.96596,   1.93599,   1.89157,   1.82284,   1.82372,   1.59819,   1.32058,   1.23457,   1.14816,   1.05033,   0.95108,   0.85152,   0.75232,   0.65348,   0.55536,   0.45663,   0.35785,   0.25926,   0.16033,   0.06101,  -0.03766,  -0.13519,  -0.23314,  -0.33022,  -0.42668,  -0.52195,  -0.60693,  -0.78399,  -1.24842,  -1.27494,  -1.31483,  -1.33144,  -1.33443,  -1.33443,  -1.37323,  -1.40030,  -1.42198,  -1.43148,  -1.46854,  -1.47678,  -1.50441,  -1.51641,  -1.59223,  -1.61022,  -1.64283,  -1.65610,  -1.68971,  -1.73870,  -1.73870,  -1.73504,  -1.71349,  -1.70983,  -1.70983,  -1.69997,  -1.65498,  -1.63799,  -1.60180,  -1.61714,  -1.61989,  -1.63550,  -1.63821,  -1.65481,  -1.65658,  -1.67203,  -1.70788,  -1.71158,  -1.71158,  -1.71602,  -1.74139,  -1.74595,  -1.74595,  -1.68233,  -1.62282,  -1.59160,  -1.51041,  -1.49841,  -1.48925,  -1.47397,  -1.43566,  -1.41714,  -1.39278,  -1.37624,  -1.33481,  -1.33481,  -1.29777,  -1.21404,  -1.20891,  -1.20891</z>
+          </position>
+          <eta type="xs:float" documentation="Wall resistivity [ohm.m]; Scalar" path="wall2d/limiter/limiter_unit/eta">Put value here</eta>
+          <delta type="xs:float" documentation="Wall thickness [m] (Optional if a closed facing component is given but useful for simpler closed contour limiter); Scalar" path="wall2d/limiter/limiter_unit/delta">Put value here</delta>
+          <permeability type="xs:float" documentation="Vessel relative permeability; Scalar" path="wall2d/limiter/limiter_unit/permeability">Put value here</permeability>
+        </limiter_unit>
+      </limiter>
+      <vessel type="structure" documentation="Mechanical structure of the vacuum vessel. Vessel assumed as set of nested layers with given physics properties; Two representations are admitted for each vessel unit : annular (two contours) or blocks. The vessel_id identifies the type of vessel_unit set one is using and code-specific representations derived from the official ones are also allowed if documented. Array of structures (nvessel_type)">
+        <vessel_id type="structure" documentation="Use this identifier to tag the type of vessel you are using. Use flag=0 for the official single/multiple annular vessel and 1 for the official block element representation for each vessel unit. Additional representations needed on a code-by-code basis follow same incremental pair tagging starting on flag=2">
+          <id type="xs:string" documentation="Short string identifier" path="wall2d/vessel/vessel_id/id">equilibrium</id>
+          <flag type="xs:integer" documentation="Integer identifier" path="wall2d/vessel/vessel_id/flag">1</flag>
+          <description type="xs:string" documentation="Verbose description of identifier" path="wall2d/vessel/vessel_id/description">Single limiter PFC and the vessel. The first and last points of elements are not coincident</description>
+        </vessel_id>
+        <vessel_unit type="struct_array" documentation="Array of vacuum vessel units. Replicate this vessel_unit element ncomponents times. Each unit contains a mechanical structure of the vessel with distinct physics properties. Array of structures (ncomponents)" path="wall2d/vessel/vessel_unit" dim="1" index="1">
+          <annular type="structure" documentation="Annular representation of a vessel layer by two free-hand contours.">
+            <name type="xs:string" documentation="Name or description of the vessel_unit" path="wall2d/vessel/vessel_unit/annular/name"> inner_vessel</name>
+            <inside type="structure" documentation="Inner Vessel wall outline (list of R,Z co-ordinates) [m]; Vector (npoints_inner)">
+              <r type="vecflt_type" documentation="Major radius [m]" path="wall2d/vessel/vessel_unit/annular/inside/r" dim="182"> 1.658,1.6592,1.6604,1.6617,1.6629,1.6641,1.6653,1.6669,1.669,1.6714,1.6738,1.6779,1.6828,1.6876,1.6941,1.7039,1.7136,1.7234,1.7396,1.7591,1.7786,1.8046,1.8435,1.861,1.8672,1.8735,1.8797,1.8859,1.8921,1.8984,1.9046,1.915,1.9274,1.9399,1.9523,1.969,1.9939,2.0188,2.0437,2.0686,2.1018,2.1516,2.2015,2.2513,2.3011,2.3509,2.4008,2.4672,2.5336,2.6167,2.6831,2.7661,2.8326,2.899,2.899,2.9079,2.9168,2.9287,2.9465,2.9643,2.9821,3.0118,3.0474,3.083,3.1186,3.1542,3.1899,3.2255,3.2848,3.3323,3.4036,3.4748,3.546,3.6173,3.6885,3.7597,3.831,3.9022,3.9734,4.0446,4.104,4.1634,4.199,4.2346,4.2702,4.3058,4.3236,4.3414,4.3563,4.3682,4.3771,4.383,4.3741,4.3652,4.3533,4.3355,4.3177,4.294,4.2583,4.2227,4.1871,4.1396,4.0921,4.0209,3.9497,3.8784,3.8072,3.736,3.6647,3.5935,3.5223,3.451,3.3798,3.3205,3.2611,3.2136,3.178,3.1424,3.1068,3.0711,3.0355,2.9999,2.9762,2.9584,2.9406,2.9257,2.9138,2.9049,2.899,2.8326,2.7661,2.6831,2.6167,2.5336,2.4672,2.4008,2.3509,2.3011,2.2513,2.2015,2.1516,2.1018,2.0686,2.0437,2.0188,1.9939,1.969,1.9523,1.9399,1.9274,1.915,1.9046,1.8984,1.8921,1.8859,1.8797,1.8735,1.8672,1.861,1.861,1.8176,1.7851,1.7656,1.7461,1.7299,1.7169,1.7071,1.6974,1.6893,1.6844,1.6795,1.6755,1.6722,1.6698,1.6673,1.6657,1.6645,1.6633,1.6621,1.6608,1.6596,1.6584</r>
+              <z type="vecflt_type" documentation="Altitude [m]" path="wall2d/vessel/vessel_unit/annular/inside/z" dim="182"> 0.,-0.1203,-0.1701,-0.2083,-0.2405,-0.2689,-0.2946,-0.3256,-0.3607,-0.3987,-0.4334,-0.4857,-0.5419,-0.5926,-0.6542,-0.7368,-0.811,-0.8788,-0.9812,-1.0912,-1.1908,-1.3114,-1.473,-1.5411,-1.5632,-1.5831,-1.6015,-1.6185,-1.6344,-1.6494,-1.6636,-1.6857,-1.7102,-1.7328,-1.7537,-1.7796,-1.8148,-1.8464,-1.8749,-1.901,-1.9323,-1.9732,-2.008,-2.0375,-2.0625,-2.0832,-2.1002,-2.1174,-2.1287,-2.1348,-2.1335,-2.124,-2.11,-2.0898,-2.0902,-2.0871,-2.0839,-2.0796,-2.073,-2.0662,-2.0593,-2.0473,-2.0323,-2.0165,-2.0,-1.9827,-1.9646,-1.9457,-1.9122,-1.8837,-1.8378,-1.7879,-1.7337,-1.6746,-1.6103,-1.5399,-1.4628,-1.3776,-1.2829,-1.1763,-1.0759,-0.9614,-0.8837,-0.7969,-0.6976,-0.5794,-0.5092,-0.4269,-0.3429,-0.2559,-0.162,0.0,0.1984,0.2802,0.3613,0.4561,0.5337,0.6216,0.7324,0.827,0.9105,1.0092,1.097,1.2134,1.3157,1.407,1.4893,1.5641,1.6323,1.6949,1.7523,1.805,1.8536,1.891,1.9259,1.9521,1.9707,1.9886,2.0056,2.0219,2.0374,2.0522,2.0616,2.0685,2.0752,2.0807,2.0849,2.0881,2.0898,2.11,2.124,2.1335,2.1348,2.1287,2.1174,2.1002,2.0832,2.0625,2.0375,2.008,1.9732,1.9323,1.901,1.8749,1.8464,1.8148,1.7796,1.7537,1.7328,1.7102,1.6857,1.6636,1.6494,1.6344,1.6185,1.6015,1.5831,1.5632,1.5411,1.5396,1.3675,1.2221,1.1254,1.0193,0.9212,0.8342,0.7624,0.6829,0.6086,0.5593,0.5051,0.4551,0.4106,0.3738,0.3329,0.3026,0.2777,0.2503,0.2196,0.1837,0.1389,0.0694</z>
+            </inside>
+            <outside type="structure" documentation="Outer Vessel wall outline (list of R,Z co-ordinates) [m]; Vector (npoints_outer)">
+              <r type="vecflt_type" documentation="Major radius [m]" path="wall2d/vessel/vessel_unit/annular/outside/r" dim="205"> 1.538,1.538,1.5383,1.5387,1.539,1.5394,1.5397,1.5401,1.5406,1.5411,1.5418,1.5425,1.5437,1.5451,1.5465,1.5483,1.5511,1.5539,1.5567,1.5613,1.5669,1.5725,1.5799,1.591,1.596,1.5967,1.5986,1.6015,1.6059,1.6118,1.6192,1.628,1.6368,1.6516,1.6692,1.688,1.688,1.6959,1.7039,1.7118,1.7198,1.7277,1.7357,1.7436,1.7568,1.7727,1.7886,1.8045,1.8257,1.8575,1.8892,1.921,1.9528,1.9952,2.0587,2.1223,2.1858,2.2494,2.3129,2.3765,2.44,2.5248,2.6095,2.7154,2.8002,2.8849,2.9484,3.012,3.012,3.0209,3.0299,3.0478,3.0657,3.0836,3.1134,3.1492,3.185,3.2207,3.2565,3.2923,3.3519,3.4116,3.4832,3.5547,3.6263,3.6979,3.7694,3.841,3.9126,3.9841,4.0557,4.1273,4.1988,4.2585,4.3062,4.342,4.3778,4.4135,4.4434,4.4613,4.4762,4.4881,4.497,4.503,4.4941,4.4851,4.4732,4.4553,4.4314,4.4016,4.3658,4.33,4.2943,4.2346,4.175,4.1034,4.0318,3.9603,3.8887,3.8171,3.7456,3.674,3.6024,3.5309,3.4593,3.3877,3.3281,3.2804,3.2446,3.2088,3.173,3.1372,3.1015,3.0776,3.0597,3.0418,3.0269,3.018,3.012,2.9484,2.8849,2.8002,2.7154,2.6095,2.5248,2.44,2.3765,2.3129,2.2494,2.1858,2.1223,2.0587,1.9952,1.9528,1.921,1.8892,1.8575,1.8257,1.8045,1.7886,1.7727,1.7568,1.7436,1.7357,1.7277,1.7198,1.7118,1.7039,1.6959,1.688,1.688,1.6692,1.6516,1.6368,1.628,1.6192,1.6118,1.6059,1.6015,1.5986,1.5967,1.596,1.596,1.5836,1.5743,1.5687,1.5632,1.5585,1.5548,1.552,1.5493,1.5469,1.5455,1.5441,1.543,1.5421,1.5414,1.5407,1.5402,1.5399,1.5395,1.5392,1.5388,1.5385,1.5381</r>
+              <z type="vecflt_type" documentation="Altitude [m]" path="wall2d/vessel/vessel_unit/annular/outside/z" dim="205"> 0.,-0.609,-0.6547,-0.6736,-0.6881,-0.7004,-0.7112,-0.7209,-0.7327,-0.746,-0.7605,-0.7737,-0.7936,-0.8149,-0.8342,-0.8577,-0.8891,-0.9174,-0.9432,-0.9823,-1.0243,-1.0623,-1.1085,-1.1705,-1.196,-1.1997,-1.2088,-1.2234,-1.2448,-1.2728,-1.307,-1.3467,-1.3853,-1.4472,-1.5179,-1.5894,-1.5909,-1.6186,-1.6437,-1.6667,-1.688,-1.7079,-1.7267,-1.7444,-1.772,-1.8026,-1.8307,-1.8569,-1.8891,-1.9328,-1.972,-2.0074,-2.0395,-2.0782,-2.1284,-2.1708,-2.2065,-2.2364,-2.2609,-2.2806,-2.2956,-2.3089,-2.3147,-2.3116,-2.3008,-2.2823,-2.2632,-2.2392,-2.2392,-2.2355,-2.2317,-2.224,-2.216,-2.208,-2.1941,-2.1768,-2.1588,-2.1401,-2.1205,-2.1002,-2.0645,-2.0265,-1.9774,-1.9245,-1.8673,-1.8055,-1.7386,-1.6659,-1.5866,-1.4998,-1.404,-1.2972,-1.1764,-1.0617,-0.9574,-0.8693,-0.7696,-0.6529,-0.5347,-0.4482,-0.3599,-0.2686,-0.17,0.0,0.2082,0.2942,0.3793,0.4789,0.585,0.6942,0.8044,0.8998,0.9847,1.1094,1.2184,1.3341,1.437,1.5297,1.6138,1.6908,1.7615,1.8267,1.8869,1.9426,1.9942,2.042,2.0791,2.1071,2.1271,2.1464,2.1649,2.1827,2.1997,2.2107,2.2187,2.2265,2.233,2.2367,2.2392,2.2632,2.2823,2.3008,2.3116,2.3147,2.3089,2.2956,2.2806,2.2609,2.2364,2.2065,2.1708,2.1284,2.0782,2.0395,2.0074,1.972,1.9328,1.8891,1.8569,1.8307,1.8026,1.772,1.7444,1.7267,1.7079,1.688,1.6667,1.6437,1.6186,1.5909,1.5894,1.5179,1.4472,1.3853,1.3467,1.307,1.2728,1.2448,1.2234,1.2088,1.1997,1.196,1.1961,1.13,1.0743,1.0374,0.9968,0.9594,0.9262,0.8989,0.8686,0.8403,0.8216,0.801,0.7819,0.765,0.751,0.7355,0.724,0.7145,0.7041,0.6924,0.6788,0.6618,0.6354</z>
+            </outside>
+            <eta type="xs:float" documentation="Vessel resistivity [ohm.m]; Scalar" path="wall2d/vessel/vessel_unit/annular/eta"> Put value here</eta>
+            <permeability type="xs:float" documentation="Vessel relative permeability; Scalar" path="wall2d/vessel/vessel_unit/annular/permeability">1.01</permeability>
+          </annular>
+          <blocks type="structure" documentation="Block element representation of vessel units. Each vessel unit is decomposed in elementary small units (blocks) caracyerized by a position, resistivity and relative permeability.">
+            <blocks_unit type="struct_array" documentation="Vector of blocks that build of the vessel layer. Replicate this element nblocks times. Each unit contains a building block of the vessel and can have dedicated number of points. Array of structures (nblocks)" path="wall2d/vessel/vessel_unit/blocks/blocks_unit" dim="38" index="1">
+              <name type="xs:string" documentation="Name or description of the blocks_unit" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/name">Put value here</name>
+              <position type="structure" documentation="Position (R,Z coordinates) of a vessel segment. No need to repeat first point for closed contours [m]; Vector(npoints)">
+                <r type="vecflt_type" documentation="Major radius [m]" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/position/r" dim="4">4.3480000,4.4980000,4.4825135,4.3334865</r>
+                <z type="vecflt_type" documentation="Altitude [m]" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/position/z" dim="4">0.0000000,0.0000000,0.27352861,0.25647139</z>
+              </position>
+              <eta type="xs:float" documentation="Resistivity of the vessel segment [ohm.m]; Scalar" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/eta">3.42000d-05</eta>
+              <permeability type="xs:float" documentation="Vessel relative permeability; Scalar" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/permeability">Put value here</permeability>
+            </blocks_unit>
+            <blocks_unit type="struct_array" documentation="Vector of blocks that build of the vessel layer. Replicate this element nblocks times. Each unit contains a building block of the vessel and can have dedicated number of points. Array of structures (nblocks)" path="wall2d/vessel/vessel_unit/blocks/blocks_unit" dim="38" index="2">
+              <name type="xs:string" documentation="Name or description of the blocks_unit" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/name">Put value here</name>
+              <position type="structure" documentation="Position (R,Z coordinates) of a vessel segment. No need to repeat first point for closed contours [m]; Vector(npoints)">
+                <r type="vecflt_type" documentation="Major radius [m]" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/position/r" dim="4">4.3334865,4.4825135,4.4360596,4.2899404</r>
+                <z type="vecflt_type" documentation="Altitude [m]" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/position/z" dim="4">0.25647139,0.27352861,0.54194974,0.50805026</z>
+              </position>
+              <eta type="xs:float" documentation="Resistivity of the vessel segment [ohm.m]; Scalar" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/eta">3.44000d-05</eta>
+              <permeability type="xs:float" documentation="Vessel relative permeability; Scalar" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/permeability">Put value here</permeability>
+            </blocks_unit>
+            <blocks_unit type="struct_array" documentation="Vector of blocks that build of the vessel layer. Replicate this element nblocks times. Each unit contains a building block of the vessel and can have dedicated number of points. Array of structures (nblocks)" path="wall2d/vessel/vessel_unit/blocks/blocks_unit" dim="38" index="3">
+              <name type="xs:string" documentation="Name or description of the blocks_unit" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/name">Put value here</name>
+              <position type="structure" documentation="Position (R,Z coordinates) of a vessel segment. No need to repeat first point for closed contours [m]; Vector(npoints)">
+                <r type="vecflt_type" documentation="Major radius [m]" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/position/r" dim="4">4.2899404,4.4360596,4.3596634,4.2183366</r>
+                <z type="vecflt_type" documentation="Altitude [m]" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/position/z" dim="4">0.50805026,0.54194974,0.80313328,0.75286672</z>
+              </position>
+              <eta type="xs:float" documentation="Resistivity of the vessel segment [ohm.m]; Scalar" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/eta">3.48000d-05</eta>
+              <permeability type="xs:float" documentation="Vessel relative permeability; Scalar" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/permeability">Put value here</permeability>
+            </blocks_unit>
+            <blocks_unit type="struct_array" documentation="Vector of blocks that build of the vessel layer. Replicate this element nblocks times. Each unit contains a building block of the vessel and can have dedicated number of points. Array of structures (nblocks)" path="wall2d/vessel/vessel_unit/blocks/blocks_unit" dim="38" index="4">
+              <name type="xs:string" documentation="Name or description of the blocks_unit" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/name">Put value here</name>
+              <position type="structure" documentation="Position (R,Z coordinates) of a vessel segment. No need to repeat first point for closed contours [m]; Vector(npoints)">
+                <r type="vecflt_type" documentation="Major radius [m]" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/position/r" dim="4">4.2183366,4.3596634,4.2538375,4.1201625</r>
+                <z type="vecflt_type" documentation="Altitude [m]" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/position/z" dim="4">0.75286672,0.80313328,1.0540257,0.98597428</z>
+              </position>
+              <eta type="xs:float" documentation="Resistivity of the vessel segment [ohm.m]; Scalar" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/eta">3.54000d-05</eta>
+              <permeability type="xs:float" documentation="Vessel relative permeability; Scalar" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/permeability">Put value here</permeability>
+            </blocks_unit>
+            <blocks_unit type="struct_array" documentation="Vector of blocks that build of the vessel layer. Replicate this element nblocks times. Each unit contains a building block of the vessel and can have dedicated number of points. Array of structures (nblocks)" path="wall2d/vessel/vessel_unit/blocks/blocks_unit" dim="38" index="5">
+              <name type="xs:string" documentation="Name or description of the blocks_unit" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/name">Put value here</name>
+              <position type="structure" documentation="Position (R,Z coordinates) of a vessel segment. No need to repeat first point for closed contours [m]; Vector(npoints)">
+                <r type="vecflt_type" documentation="Major radius [m]" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/position/r" dim="4">4.1201625,4.2538375,4.0314654,3.9105346</r>
+                <z type="vecflt_type" documentation="Altitude [m]" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/position/z" dim="4">0.98597428,1.0540257,1.4223727,1.3336273</z>
+              </position>
+              <eta type="xs:float" documentation="Resistivity of the vessel segment [ohm.m]; Scalar" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/eta">3.65000d-05</eta>
+              <permeability type="xs:float" documentation="Vessel relative permeability; Scalar" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/permeability">Put value here</permeability>
+            </blocks_unit>
+            <blocks_unit type="struct_array" documentation="Vector of blocks that build of the vessel layer. Replicate this element nblocks times. Each unit contains a building block of the vessel and can have dedicated number of points. Array of structures (nblocks)" path="wall2d/vessel/vessel_unit/blocks/blocks_unit" dim="38" index="6">
+              <name type="xs:string" documentation="Name or description of the blocks_unit" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/name">Put value here</name>
+              <position type="structure" documentation="Position (R,Z coordinates) of a vessel segment. No need to repeat first point for closed contours [m]; Vector(npoints)">
+                <r type="vecflt_type" documentation="Major radius [m]" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/position/r" dim="4">3.9105346,4.0314654,3.7434629,3.6405371</r>
+                <z type="vecflt_type" documentation="Altitude [m]" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/position/z" dim="4">1.3336273,1.4223727,1.7485580,1.6394420</z>
+              </position>
+              <eta type="xs:float" documentation="Resistivity of the vessel segment [ohm.m]; Scalar" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/eta">3.84000d-05</eta>
+              <permeability type="xs:float" documentation="Vessel relative permeability; Scalar" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/permeability">Put value here</permeability>
+            </blocks_unit>
+            <blocks_unit type="struct_array" documentation="Vector of blocks that build of the vessel layer. Replicate this element nblocks times. Each unit contains a building block of the vessel and can have dedicated number of points. Array of structures (nblocks)" path="wall2d/vessel/vessel_unit/blocks/blocks_unit" dim="38" index="7">
+              <name type="xs:string" documentation="Name or description of the blocks_unit" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/name">Put value here</name>
+              <position type="structure" documentation="Position (R,Z coordinates) of a vessel segment. No need to repeat first point for closed contours [m]; Vector(npoints)">
+                <r type="vecflt_type" documentation="Major radius [m]" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/position/r" dim="4">3.6405371,3.7434629,3.3944958,3.3135042</r>
+                <z type="vecflt_type" documentation="Altitude [m]" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/position/z" dim="4">1.6394420,1.7485580,2.0221276,1.8958724</z>
+              </position>
+              <eta type="xs:float" documentation="Resistivity of the vessel segment [ohm.m]; Scalar" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/eta">4.12000d-05</eta>
+              <permeability type="xs:float" documentation="Vessel relative permeability; Scalar" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/permeability">Put value here</permeability>
+            </blocks_unit>
+            <blocks_unit type="struct_array" documentation="Vector of blocks that build of the vessel layer. Replicate this element nblocks times. Each unit contains a building block of the vessel and can have dedicated number of points. Array of structures (nblocks)" path="wall2d/vessel/vessel_unit/blocks/blocks_unit" dim="38" index="8">
+              <name type="xs:string" documentation="Name or description of the blocks_unit" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/name">Put value here</name>
+              <position type="structure" documentation="Position (R,Z coordinates) of a vessel segment. No need to repeat first point for closed contours [m]; Vector(npoints)">
+                <r type="vecflt_type" documentation="Major radius [m]" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/position/r" dim="4">3.3135042,3.3944958,2.9853501,2.9386499</r>
+                <z type="vecflt_type" documentation="Altitude [m]" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/position/z" dim="4">1.8958724,2.0221276,2.2322725,2.0897275</z>
+              </position>
+              <eta type="xs:float" documentation="Resistivity of the vessel segment [ohm.m]; Scalar" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/eta">4.52000d-05</eta>
+              <permeability type="xs:float" documentation="Vessel relative permeability; Scalar" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/permeability">Put value here</permeability>
+            </blocks_unit>
+            <blocks_unit type="struct_array" documentation="Vector of blocks that build of the vessel layer. Replicate this element nblocks times. Each unit contains a building block of the vessel and can have dedicated number of points. Array of structures (nblocks)" path="wall2d/vessel/vessel_unit/blocks/blocks_unit" dim="38" index="9">
+              <name type="xs:string" documentation="Name or description of the blocks_unit" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/name">Put value here</name>
+              <position type="structure" documentation="Position (R,Z coordinates) of a vessel segment. No need to repeat first point for closed contours [m]; Vector(npoints)">
+                <r type="vecflt_type" documentation="Major radius [m]" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/position/r" dim="4">2.9386499,2.9853501,2.5600327,2.5699673</r>
+                <z type="vecflt_type" documentation="Altitude [m]" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/position/z" dim="4">2.0897275,2.2322725,2.2988353,2.1491647</z>
+              </position>
+              <eta type="xs:float" documentation="Resistivity of the vessel segment [ohm.m]; Scalar" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/eta">5.06000d-05</eta>
+              <permeability type="xs:float" documentation="Vessel relative permeability; Scalar" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/permeability">Put value here</permeability>
+            </blocks_unit>
+            <blocks_unit type="struct_array" documentation="Vector of blocks that build of the vessel layer. Replicate this element nblocks times. Each unit contains a building block of the vessel and can have dedicated number of points. Array of structures (nblocks)" path="wall2d/vessel/vessel_unit/blocks/blocks_unit" dim="38" index="10">
+              <name type="xs:string" documentation="Name or description of the blocks_unit" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/name">Put value here</name>
+              <position type="structure" documentation="Position (R,Z coordinates) of a vessel segment. No need to repeat first point for closed contours [m]; Vector(npoints)">
+                <r type="vecflt_type" documentation="Major radius [m]" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/position/r" dim="4">2.5699673,2.5600327,2.1670617,2.2389383</r>
+                <z type="vecflt_type" documentation="Altitude [m]" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/position/z" dim="4">2.1491647,2.2988353,2.1818289,2.0501711</z>
+              </position>
+              <eta type="xs:float" documentation="Resistivity of the vessel segment [ohm.m]; Scalar" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/eta">5.76000d-05</eta>
+              <permeability type="xs:float" documentation="Vessel relative permeability; Scalar" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/permeability">Put value here</permeability>
+            </blocks_unit>
+            <blocks_unit type="struct_array" documentation="Vector of blocks that build of the vessel layer. Replicate this element nblocks times. Each unit contains a building block of the vessel and can have dedicated number of points. Array of structures (nblocks)" path="wall2d/vessel/vessel_unit/blocks/blocks_unit" dim="38" index="11">
+              <name type="xs:string" documentation="Name or description of the blocks_unit" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/name">Put value here</name>
+              <position type="structure" documentation="Position (R,Z coordinates) of a vessel segment. No need to repeat first point for closed contours [m]; Vector(npoints)">
+                <r type="vecflt_type" documentation="Major radius [m]" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/position/r" dim="4">2.2389383,2.1670617,1.8601927,1.9798073</r>
+                <z type="vecflt_type" documentation="Altitude [m]" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/position/z" dim="4">2.0501711,2.1818289,1.9182558,1.8277442</z>
+              </position>
+              <eta type="xs:float" documentation="Resistivity of the vessel segment [ohm.m]; Scalar" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/eta">6.56000d-05</eta>
+              <permeability type="xs:float" documentation="Vessel relative permeability; Scalar" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/permeability">Put value here</permeability>
+            </blocks_unit>
+            <blocks_unit type="struct_array" documentation="Vector of blocks that build of the vessel layer. Replicate this element nblocks times. Each unit contains a building block of the vessel and can have dedicated number of points. Array of structures (nblocks)" path="wall2d/vessel/vessel_unit/blocks/blocks_unit" dim="38" index="12">
+              <name type="xs:string" documentation="Name or description of the blocks_unit" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/name">Put value here</name>
+              <position type="structure" documentation="Position (R,Z coordinates) of a vessel segment. No need to repeat first point for closed contours [m]; Vector(npoints)">
+                <r type="vecflt_type" documentation="Major radius [m]" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/position/r" dim="4">1.9798073,1.8601927,1.6886994,1.8313006</r>
+                <z type="vecflt_type" documentation="Altitude [m]" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/position/z" dim="4">1.8277442,1.9182558,1.5512644,1.5047356</z>
+              </position>
+              <eta type="xs:float" documentation="Resistivity of the vessel segment [ohm.m]; Scalar" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/eta">7.27000d-05</eta>
+              <permeability type="xs:float" documentation="Vessel relative permeability; Scalar" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/permeability">Put value here</permeability>
+            </blocks_unit>
+            <blocks_unit type="struct_array" documentation="Vector of blocks that build of the vessel layer. Replicate this element nblocks times. Each unit contains a building block of the vessel and can have dedicated number of points. Array of structures (nblocks)" path="wall2d/vessel/vessel_unit/blocks/blocks_unit" dim="38" index="13">
+              <name type="xs:string" documentation="Name or description of the blocks_unit" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/name">Put value here</name>
+              <position type="structure" documentation="Position (R,Z coordinates) of a vessel segment. No need to repeat first point for closed contours [m]; Vector(npoints)">
+                <r type="vecflt_type" documentation="Major radius [m]" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/position/r" dim="4">1.8313006,1.6886994,1.6412570,1.7887430</r>
+                <z type="vecflt_type" documentation="Altitude [m]" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/position/z" dim="4">1.5047356,1.5512644,1.3156739,1.2883261</z>
+              </position>
+              <eta type="xs:float" documentation="Resistivity of the vessel segment [ohm.m]; Scalar" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/eta">7.65000d-05</eta>
+              <permeability type="xs:float" documentation="Vessel relative permeability; Scalar" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/permeability">Put value here</permeability>
+            </blocks_unit>
+            <blocks_unit type="struct_array" documentation="Vector of blocks that build of the vessel layer. Replicate this element nblocks times. Each unit contains a building block of the vessel and can have dedicated number of points. Array of structures (nblocks)" path="wall2d/vessel/vessel_unit/blocks/blocks_unit" dim="38" index="14">
+              <name type="xs:string" documentation="Name or description of the blocks_unit" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/name">Put value here</name>
+              <position type="structure" documentation="Position (R,Z coordinates) of a vessel segment. No need to repeat first point for closed contours [m]; Vector(npoints)">
+                <r type="vecflt_type" documentation="Major radius [m]" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/position/r" dim="4">1.7887430,1.6412570,1.6018754,1.7501246</r>
+                <z type="vecflt_type" documentation="Altitude [m]" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/position/z" dim="4">1.2883261,1.3156739,1.0864254,1.0635746</z>
+              </position>
+              <eta type="xs:float" documentation="Resistivity of the vessel segment [ohm.m]; Scalar" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/eta">1.62000d-05</eta>
+              <permeability type="xs:float" documentation="Vessel relative permeability; Scalar" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/permeability">Put value here</permeability>
+            </blocks_unit>
+            <blocks_unit type="struct_array" documentation="Vector of blocks that build of the vessel layer. Replicate this element nblocks times. Each unit contains a building block of the vessel and can have dedicated number of points. Array of structures (nblocks)" path="wall2d/vessel/vessel_unit/blocks/blocks_unit" dim="38" index="15">
+              <name type="xs:string" documentation="Name or description of the blocks_unit" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/name">Put value here</name>
+              <position type="structure" documentation="Position (R,Z coordinates) of a vessel segment. No need to repeat first point for closed contours [m]; Vector(npoints)">
+                <r type="vecflt_type" documentation="Major radius [m]" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/position/r" dim="4">1.7501246,1.6018754,1.5705354,1.7194646</r>
+                <z type="vecflt_type" documentation="Altitude [m]" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/position/z" dim="4">1.0635746,1.0864254,0.85694594,0.83905406</z>
+              </position>
+              <eta type="xs:float" documentation="Resistivity of the vessel segment [ohm.m]; Scalar" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/eta">2.21000d-05</eta>
+              <permeability type="xs:float" documentation="Vessel relative permeability; Scalar" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/permeability">Put value here</permeability>
+            </blocks_unit>
+            <blocks_unit type="struct_array" documentation="Vector of blocks that build of the vessel layer. Replicate this element nblocks times. Each unit contains a building block of the vessel and can have dedicated number of points. Array of structures (nblocks)" path="wall2d/vessel/vessel_unit/blocks/blocks_unit" dim="38" index="16">
+              <name type="xs:string" documentation="Name or description of the blocks_unit" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/name">Put value here</name>
+              <position type="structure" documentation="Position (R,Z coordinates) of a vessel segment. No need to repeat first point for closed contours [m]; Vector(npoints)">
+                <r type="vecflt_type" documentation="Major radius [m]" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/position/r" dim="4">1.7194646,1.5705354,1.5483005,1.6976995</r>
+                <z type="vecflt_type" documentation="Altitude [m]" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/position/z" dim="4">0.83905406,0.85694594,0.64270683,0.62929317</z>
+              </position>
+              <eta type="xs:float" documentation="Resistivity of the vessel segment [ohm.m]; Scalar" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/eta">1.70000d-05</eta>
+              <permeability type="xs:float" documentation="Vessel relative permeability; Scalar" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/permeability">Put value here</permeability>
+            </blocks_unit>
+            <blocks_unit type="struct_array" documentation="Vector of blocks that build of the vessel layer. Replicate this element nblocks times. Each unit contains a building block of the vessel and can have dedicated number of points. Array of structures (nblocks)" path="wall2d/vessel/vessel_unit/blocks/blocks_unit" dim="38" index="17">
+              <name type="xs:string" documentation="Name or description of the blocks_unit" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/name">Put value here</name>
+              <position type="structure" documentation="Position (R,Z coordinates) of a vessel segment. No need to repeat first point for closed contours [m]; Vector(npoints)">
+                <r type="vecflt_type" documentation="Major radius [m]" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/position/r" dim="4">1.6976995,1.5483005,1.5321409,1.6818591</r>
+                <z type="vecflt_type" documentation="Altitude [m]" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/position/z" dim="4">0.62929317,0.64270683,0.42959456,0.42040544</z>
+              </position>
+              <eta type="xs:float" documentation="Resistivity of the vessel segment [ohm.m]; Scalar" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/eta">2.46000d-05</eta>
+              <permeability type="xs:float" documentation="Vessel relative permeability; Scalar" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/permeability">Put value here</permeability>
+            </blocks_unit>
+            <blocks_unit type="struct_array" documentation="Vector of blocks that build of the vessel layer. Replicate this element nblocks times. Each unit contains a building block of the vessel and can have dedicated number of points. Array of structures (nblocks)" path="wall2d/vessel/vessel_unit/blocks/blocks_unit" dim="38" index="18">
+              <name type="xs:string" documentation="Name or description of the blocks_unit" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/name">Put value here</name>
+              <position type="structure" documentation="Position (R,Z coordinates) of a vessel segment. No need to repeat first point for closed contours [m]; Vector(npoints)">
+                <r type="vecflt_type" documentation="Major radius [m]" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/position/r" dim="4">1.6818591,1.5321409,1.5220250,1.6719750</r>
+                <z type="vecflt_type" documentation="Altitude [m]" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/position/z" dim="4">0.42040544,0.42959456,0.21393594,0.21006406</z>
+              </position>
+              <eta type="xs:float" documentation="Resistivity of the vessel segment [ohm.m]; Scalar" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/eta">8.25000d-05</eta>
+              <permeability type="xs:float" documentation="Vessel relative permeability; Scalar" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/permeability">Put value here</permeability>
+            </blocks_unit>
+            <blocks_unit type="struct_array" documentation="Vector of blocks that build of the vessel layer. Replicate this element nblocks times. Each unit contains a building block of the vessel and can have dedicated number of points. Array of structures (nblocks)" path="wall2d/vessel/vessel_unit/blocks/blocks_unit" dim="38" index="19">
+              <name type="xs:string" documentation="Name or description of the blocks_unit" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/name">Put value here</name>
+              <position type="structure" documentation="Position (R,Z coordinates) of a vessel segment. No need to repeat first point for closed contours [m]; Vector(npoints)">
+                <r type="vecflt_type" documentation="Major radius [m]" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/position/r" dim="4">1.6719750,1.5220250,1.5210000,1.6710000</r>
+                <z type="vecflt_type" documentation="Altitude [m]" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/position/z" dim="4">0.21006406,0.21393594,0.0000000,0.0000000</z>
+              </position>
+              <eta type="xs:float" documentation="Resistivity of the vessel segment [ohm.m]; Scalar" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/eta">8.27000d-05</eta>
+              <permeability type="xs:float" documentation="Vessel relative permeability; Scalar" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/permeability">Put value here</permeability>
+            </blocks_unit>
+            <blocks_unit type="struct_array" documentation="Vector of blocks that build of the vessel layer. Replicate this element nblocks times. Each unit contains a building block of the vessel and can have dedicated number of points. Array of structures (nblocks)" path="wall2d/vessel/vessel_unit/blocks/blocks_unit" dim="38" index="20">
+              <name type="xs:string" documentation="Name or description of the blocks_unit" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/name">Put value here</name>
+              <position type="structure" documentation="Position (R,Z coordinates) of a vessel segment. No need to repeat first point for closed contours [m]; Vector(npoints)">
+                <r type="vecflt_type" documentation="Major radius [m]" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/position/r" dim="4">1.6710000,1.5210000,1.5220250,1.6719750</r>
+                <z type="vecflt_type" documentation="Altitude [m]" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/position/z" dim="4">0.0000000,0.0000000,-0.21393594,-0.21006406</z>
+              </position>
+              <eta type="xs:float" documentation="Resistivity of the vessel segment [ohm.m]; Scalar" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/eta">8.27000d-05</eta>
+              <permeability type="xs:float" documentation="Vessel relative permeability; Scalar" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/permeability">Put value here</permeability>
+            </blocks_unit>
+            <blocks_unit type="struct_array" documentation="Vector of blocks that build of the vessel layer. Replicate this element nblocks times. Each unit contains a building block of the vessel and can have dedicated number of points. Array of structures (nblocks)" path="wall2d/vessel/vessel_unit/blocks/blocks_unit" dim="38" index="21">
+              <name type="xs:string" documentation="Name or description of the blocks_unit" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/name">Put value here</name>
+              <position type="structure" documentation="Position (R,Z coordinates) of a vessel segment. No need to repeat first point for closed contours [m]; Vector(npoints)">
+                <r type="vecflt_type" documentation="Major radius [m]" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/position/r" dim="4">1.6719750,1.5220250,1.5321409,1.6818591</r>
+                <z type="vecflt_type" documentation="Altitude [m]" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/position/z" dim="4">-0.21006406,-0.21393594,-0.42959456,-0.42040544</z>
+              </position>
+              <eta type="xs:float" documentation="Resistivity of the vessel segment [ohm.m]; Scalar" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/eta">8.25000d-05</eta>
+              <permeability type="xs:float" documentation="Vessel relative permeability; Scalar" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/permeability">Put value here</permeability>
+            </blocks_unit>
+            <blocks_unit type="struct_array" documentation="Vector of blocks that build of the vessel layer. Replicate this element nblocks times. Each unit contains a building block of the vessel and can have dedicated number of points. Array of structures (nblocks)" path="wall2d/vessel/vessel_unit/blocks/blocks_unit" dim="38" index="22">
+              <name type="xs:string" documentation="Name or description of the blocks_unit" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/name">Put value here</name>
+              <position type="structure" documentation="Position (R,Z coordinates) of a vessel segment. No need to repeat first point for closed contours [m]; Vector(npoints)">
+                <r type="vecflt_type" documentation="Major radius [m]" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/position/r" dim="4">1.6818591,1.5321409,1.5483005,1.6976995</r>
+                <z type="vecflt_type" documentation="Altitude [m]" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/position/z" dim="4">-0.42040544,-0.42959456,-0.64270683,-0.62929317</z>
+              </position>
+              <eta type="xs:float" documentation="Resistivity of the vessel segment [ohm.m]; Scalar" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/eta">2.46000d-05</eta>
+              <permeability type="xs:float" documentation="Vessel relative permeability; Scalar" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/permeability">Put value here</permeability>
+            </blocks_unit>
+            <blocks_unit type="struct_array" documentation="Vector of blocks that build of the vessel layer. Replicate this element nblocks times. Each unit contains a building block of the vessel and can have dedicated number of points. Array of structures (nblocks)" path="wall2d/vessel/vessel_unit/blocks/blocks_unit" dim="38" index="23">
+              <name type="xs:string" documentation="Name or description of the blocks_unit" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/name">Put value here</name>
+              <position type="structure" documentation="Position (R,Z coordinates) of a vessel segment. No need to repeat first point for closed contours [m]; Vector(npoints)">
+                <r type="vecflt_type" documentation="Major radius [m]" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/position/r" dim="4">1.6976995,1.5483005,1.5705354,1.7194646</r>
+                <z type="vecflt_type" documentation="Altitude [m]" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/position/z" dim="4">-0.62929317,-0.64270683,-0.85694594,-0.83905406</z>
+              </position>
+              <eta type="xs:float" documentation="Resistivity of the vessel segment [ohm.m]; Scalar" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/eta">1.70000d-05</eta>
+              <permeability type="xs:float" documentation="Vessel relative permeability; Scalar" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/permeability">Put value here</permeability>
+            </blocks_unit>
+            <blocks_unit type="struct_array" documentation="Vector of blocks that build of the vessel layer. Replicate this element nblocks times. Each unit contains a building block of the vessel and can have dedicated number of points. Array of structures (nblocks)" path="wall2d/vessel/vessel_unit/blocks/blocks_unit" dim="38" index="24">
+              <name type="xs:string" documentation="Name or description of the blocks_unit" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/name">Put value here</name>
+              <position type="structure" documentation="Position (R,Z coordinates) of a vessel segment. No need to repeat first point for closed contours [m]; Vector(npoints)">
+                <r type="vecflt_type" documentation="Major radius [m]" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/position/r" dim="4">1.7194646,1.5705354,1.6018754,1.7501246</r>
+                <z type="vecflt_type" documentation="Altitude [m]" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/position/z" dim="4">-0.83905406,-0.85694594,-1.0864254,-1.0635746</z>
+              </position>
+              <eta type="xs:float" documentation="Resistivity of the vessel segment [ohm.m]; Scalar" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/eta">2.21000d-05</eta>
+              <permeability type="xs:float" documentation="Vessel relative permeability; Scalar" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/permeability">Put value here</permeability>
+            </blocks_unit>
+            <blocks_unit type="struct_array" documentation="Vector of blocks that build of the vessel layer. Replicate this element nblocks times. Each unit contains a building block of the vessel and can have dedicated number of points. Array of structures (nblocks)" path="wall2d/vessel/vessel_unit/blocks/blocks_unit" dim="38" index="25">
+              <name type="xs:string" documentation="Name or description of the blocks_unit" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/name">Put value here</name>
+              <position type="structure" documentation="Position (R,Z coordinates) of a vessel segment. No need to repeat first point for closed contours [m]; Vector(npoints)">
+                <r type="vecflt_type" documentation="Major radius [m]" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/position/r" dim="4">1.7501246,1.6018754,1.6412570,1.7887430</r>
+                <z type="vecflt_type" documentation="Altitude [m]" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/position/z" dim="4">-1.0635746,-1.0864254,-1.3156739,-1.2883261</z>
+              </position>
+              <eta type="xs:float" documentation="Resistivity of the vessel segment [ohm.m]; Scalar" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/eta">1.62000d-05</eta>
+              <permeability type="xs:float" documentation="Vessel relative permeability; Scalar" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/permeability">Put value here</permeability>
+            </blocks_unit>
+            <blocks_unit type="struct_array" documentation="Vector of blocks that build of the vessel layer. Replicate this element nblocks times. Each unit contains a building block of the vessel and can have dedicated number of points. Array of structures (nblocks)" path="wall2d/vessel/vessel_unit/blocks/blocks_unit" dim="38" index="26">
+              <name type="xs:string" documentation="Name or description of the blocks_unit" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/name">Put value here</name>
+              <position type="structure" documentation="Position (R,Z coordinates) of a vessel segment. No need to repeat first point for closed contours [m]; Vector(npoints)">
+                <r type="vecflt_type" documentation="Major radius [m]" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/position/r" dim="4">1.7887430,1.6412570,1.6886994,1.8313006</r>
+                <z type="vecflt_type" documentation="Altitude [m]" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/position/z" dim="4">-1.2883261,-1.3156739,-1.5512644,-1.5047356</z>
+              </position>
+              <eta type="xs:float" documentation="Resistivity of the vessel segment [ohm.m]; Scalar" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/eta">7.66000d-05</eta>
+              <permeability type="xs:float" documentation="Vessel relative permeability; Scalar" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/permeability">Put value here</permeability>
+            </blocks_unit>
+            <blocks_unit type="struct_array" documentation="Vector of blocks that build of the vessel layer. Replicate this element nblocks times. Each unit contains a building block of the vessel and can have dedicated number of points. Array of structures (nblocks)" path="wall2d/vessel/vessel_unit/blocks/blocks_unit" dim="38" index="27">
+              <name type="xs:string" documentation="Name or description of the blocks_unit" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/name">Put value here</name>
+              <position type="structure" documentation="Position (R,Z coordinates) of a vessel segment. No need to repeat first point for closed contours [m]; Vector(npoints)">
+                <r type="vecflt_type" documentation="Major radius [m]" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/position/r" dim="4">1.8313006,1.6886994,1.8601927,1.9798073</r>
+                <z type="vecflt_type" documentation="Altitude [m]" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/position/z" dim="4">-1.5047356,-1.5512644,-1.9182558,-1.8277442</z>
+              </position>
+              <eta type="xs:float" documentation="Resistivity of the vessel segment [ohm.m]; Scalar" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/eta">7.27000d-05</eta>
+              <permeability type="xs:float" documentation="Vessel relative permeability; Scalar" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/permeability">Put value here</permeability>
+            </blocks_unit>
+            <blocks_unit type="struct_array" documentation="Vector of blocks that build of the vessel layer. Replicate this element nblocks times. Each unit contains a building block of the vessel and can have dedicated number of points. Array of structures (nblocks)" path="wall2d/vessel/vessel_unit/blocks/blocks_unit" dim="38" index="28">
+              <name type="xs:string" documentation="Name or description of the blocks_unit" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/name">Put value here</name>
+              <position type="structure" documentation="Position (R,Z coordinates) of a vessel segment. No need to repeat first point for closed contours [m]; Vector(npoints)">
+                <r type="vecflt_type" documentation="Major radius [m]" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/position/r" dim="4">1.9798073,1.8601927,2.1670617,2.2389383</r>
+                <z type="vecflt_type" documentation="Altitude [m]" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/position/z" dim="4">-1.8277442,-1.9182558,-2.1818289,-2.0501711</z>
+              </position>
+              <eta type="xs:float" documentation="Resistivity of the vessel segment [ohm.m]; Scalar" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/eta">6.56000d-05</eta>
+              <permeability type="xs:float" documentation="Vessel relative permeability; Scalar" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/permeability">Put value here</permeability>
+            </blocks_unit>
+            <blocks_unit type="struct_array" documentation="Vector of blocks that build of the vessel layer. Replicate this element nblocks times. Each unit contains a building block of the vessel and can have dedicated number of points. Array of structures (nblocks)" path="wall2d/vessel/vessel_unit/blocks/blocks_unit" dim="38" index="29">
+              <name type="xs:string" documentation="Name or description of the blocks_unit" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/name">Put value here</name>
+              <position type="structure" documentation="Position (R,Z coordinates) of a vessel segment. No need to repeat first point for closed contours [m]; Vector(npoints)">
+                <r type="vecflt_type" documentation="Major radius [m]" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/position/r" dim="4">2.2389383,2.1670617,2.5600327,2.5699673</r>
+                <z type="vecflt_type" documentation="Altitude [m]" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/position/z" dim="4">-2.0501711,-2.1818289,-2.2988353,-2.1491647</z>
+              </position>
+              <eta type="xs:float" documentation="Resistivity of the vessel segment [ohm.m]; Scalar" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/eta">5.76000d-05</eta>
+              <permeability type="xs:float" documentation="Vessel relative permeability; Scalar" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/permeability">Put value here</permeability>
+            </blocks_unit>
+            <blocks_unit type="struct_array" documentation="Vector of blocks that build of the vessel layer. Replicate this element nblocks times. Each unit contains a building block of the vessel and can have dedicated number of points. Array of structures (nblocks)" path="wall2d/vessel/vessel_unit/blocks/blocks_unit" dim="38" index="30">
+              <name type="xs:string" documentation="Name or description of the blocks_unit" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/name">Put value here</name>
+              <position type="structure" documentation="Position (R,Z coordinates) of a vessel segment. No need to repeat first point for closed contours [m]; Vector(npoints)">
+                <r type="vecflt_type" documentation="Major radius [m]" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/position/r" dim="4">2.5699673,2.5600327,2.9853501,2.9386499</r>
+                <z type="vecflt_type" documentation="Altitude [m]" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/position/z" dim="4">-2.1491647,-2.2988353,-2.2322725,-2.0897275</z>
+              </position>
+              <eta type="xs:float" documentation="Resistivity of the vessel segment [ohm.m]; Scalar" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/eta">5.06000d-05</eta>
+              <permeability type="xs:float" documentation="Vessel relative permeability; Scalar" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/permeability">Put value here</permeability>
+            </blocks_unit>
+            <blocks_unit type="struct_array" documentation="Vector of blocks that build of the vessel layer. Replicate this element nblocks times. Each unit contains a building block of the vessel and can have dedicated number of points. Array of structures (nblocks)" path="wall2d/vessel/vessel_unit/blocks/blocks_unit" dim="38" index="31">
+              <name type="xs:string" documentation="Name or description of the blocks_unit" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/name">Put value here</name>
+              <position type="structure" documentation="Position (R,Z coordinates) of a vessel segment. No need to repeat first point for closed contours [m]; Vector(npoints)">
+                <r type="vecflt_type" documentation="Major radius [m]" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/position/r" dim="4">2.9386499,2.9853501,3.3944958,3.3135042</r>
+                <z type="vecflt_type" documentation="Altitude [m]" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/position/z" dim="4">-2.0897275,-2.2322725,-2.0221276,-1.8958724</z>
+              </position>
+              <eta type="xs:float" documentation="Resistivity of the vessel segment [ohm.m]; Scalar" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/eta">4.52000d-05</eta>
+              <permeability type="xs:float" documentation="Vessel relative permeability; Scalar" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/permeability">Put value here</permeability>
+            </blocks_unit>
+            <blocks_unit type="struct_array" documentation="Vector of blocks that build of the vessel layer. Replicate this element nblocks times. Each unit contains a building block of the vessel and can have dedicated number of points. Array of structures (nblocks)" path="wall2d/vessel/vessel_unit/blocks/blocks_unit" dim="38" index="32">
+              <name type="xs:string" documentation="Name or description of the blocks_unit" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/name">Put value here</name>
+              <position type="structure" documentation="Position (R,Z coordinates) of a vessel segment. No need to repeat first point for closed contours [m]; Vector(npoints)">
+                <r type="vecflt_type" documentation="Major radius [m]" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/position/r" dim="4">3.3135042,3.3944958,3.7434629,3.6405371</r>
+                <z type="vecflt_type" documentation="Altitude [m]" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/position/z" dim="4">-1.8958724,-2.0221276,-1.7485580,-1.6394420</z>
+              </position>
+              <eta type="xs:float" documentation="Resistivity of the vessel segment [ohm.m]; Scalar" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/eta">4.12000d-05</eta>
+              <permeability type="xs:float" documentation="Vessel relative permeability; Scalar" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/permeability">Put value here</permeability>
+            </blocks_unit>
+            <blocks_unit type="struct_array" documentation="Vector of blocks that build of the vessel layer. Replicate this element nblocks times. Each unit contains a building block of the vessel and can have dedicated number of points. Array of structures (nblocks)" path="wall2d/vessel/vessel_unit/blocks/blocks_unit" dim="38" index="33">
+              <name type="xs:string" documentation="Name or description of the blocks_unit" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/name">Put value here</name>
+              <position type="structure" documentation="Position (R,Z coordinates) of a vessel segment. No need to repeat first point for closed contours [m]; Vector(npoints)">
+                <r type="vecflt_type" documentation="Major radius [m]" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/position/r" dim="4">3.6405371,3.7434629,4.0314654,3.9105346</r>
+                <z type="vecflt_type" documentation="Altitude [m]" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/position/z" dim="4">-1.6394420,-1.7485580,-1.4223727,-1.3336273</z>
+              </position>
+              <eta type="xs:float" documentation="Resistivity of the vessel segment [ohm.m]; Scalar" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/eta">3.84000d-05</eta>
+              <permeability type="xs:float" documentation="Vessel relative permeability; Scalar" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/permeability">Put value here</permeability>
+            </blocks_unit>
+            <blocks_unit type="struct_array" documentation="Vector of blocks that build of the vessel layer. Replicate this element nblocks times. Each unit contains a building block of the vessel and can have dedicated number of points. Array of structures (nblocks)" path="wall2d/vessel/vessel_unit/blocks/blocks_unit" dim="38" index="34">
+              <name type="xs:string" documentation="Name or description of the blocks_unit" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/name">Put value here</name>
+              <position type="structure" documentation="Position (R,Z coordinates) of a vessel segment. No need to repeat first point for closed contours [m]; Vector(npoints)">
+                <r type="vecflt_type" documentation="Major radius [m]" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/position/r" dim="4">3.9105346,4.0314654,4.2538375,4.1201625</r>
+                <z type="vecflt_type" documentation="Altitude [m]" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/position/z" dim="4">-1.3336273,-1.4223727,-1.0540257,-0.98597428</z>
+              </position>
+              <eta type="xs:float" documentation="Resistivity of the vessel segment [ohm.m]; Scalar" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/eta">3.65000d-05</eta>
+              <permeability type="xs:float" documentation="Vessel relative permeability; Scalar" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/permeability">Put value here</permeability>
+            </blocks_unit>
+            <blocks_unit type="struct_array" documentation="Vector of blocks that build of the vessel layer. Replicate this element nblocks times. Each unit contains a building block of the vessel and can have dedicated number of points. Array of structures (nblocks)" path="wall2d/vessel/vessel_unit/blocks/blocks_unit" dim="38" index="35">
+              <name type="xs:string" documentation="Name or description of the blocks_unit" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/name">Put value here</name>
+              <position type="structure" documentation="Position (R,Z coordinates) of a vessel segment. No need to repeat first point for closed contours [m]; Vector(npoints)">
+                <r type="vecflt_type" documentation="Major radius [m]" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/position/r" dim="4">4.1201625,4.2538375,4.3596634,4.2183366</r>
+                <z type="vecflt_type" documentation="Altitude [m]" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/position/z" dim="4">-0.98597428,-1.0540257,-0.80313328,-0.75286672</z>
+              </position>
+              <eta type="xs:float" documentation="Resistivity of the vessel segment [ohm.m]; Scalar" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/eta">3.54000d-05</eta>
+              <permeability type="xs:float" documentation="Vessel relative permeability; Scalar" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/permeability">Put value here</permeability>
+            </blocks_unit>
+            <blocks_unit type="struct_array" documentation="Vector of blocks that build of the vessel layer. Replicate this element nblocks times. Each unit contains a building block of the vessel and can have dedicated number of points. Array of structures (nblocks)" path="wall2d/vessel/vessel_unit/blocks/blocks_unit" dim="38" index="36">
+              <name type="xs:string" documentation="Name or description of the blocks_unit" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/name">Put value here</name>
+              <position type="structure" documentation="Position (R,Z coordinates) of a vessel segment. No need to repeat first point for closed contours [m]; Vector(npoints)">
+                <r type="vecflt_type" documentation="Major radius [m]" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/position/r" dim="4">4.2183366,4.3596634,4.4360596,4.2899404</r>
+                <z type="vecflt_type" documentation="Altitude [m]" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/position/z" dim="4">-0.75286672,-0.80313328,-0.54194974,-0.50805026</z>
+              </position>
+              <eta type="xs:float" documentation="Resistivity of the vessel segment [ohm.m]; Scalar" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/eta">3.48000d-05</eta>
+              <permeability type="xs:float" documentation="Vessel relative permeability; Scalar" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/permeability">Put value here</permeability>
+            </blocks_unit>
+            <blocks_unit type="struct_array" documentation="Vector of blocks that build of the vessel layer. Replicate this element nblocks times. Each unit contains a building block of the vessel and can have dedicated number of points. Array of structures (nblocks)" path="wall2d/vessel/vessel_unit/blocks/blocks_unit" dim="38" index="37">
+              <name type="xs:string" documentation="Name or description of the blocks_unit" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/name">Put value here</name>
+              <position type="structure" documentation="Position (R,Z coordinates) of a vessel segment. No need to repeat first point for closed contours [m]; Vector(npoints)">
+                <r type="vecflt_type" documentation="Major radius [m]" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/position/r" dim="4">4.2899404,4.4360596,4.4825135,4.3334865</r>
+                <z type="vecflt_type" documentation="Altitude [m]" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/position/z" dim="4">-0.50805026,-0.54194974,-0.27352861,-0.25647139</z>
+              </position>
+              <eta type="xs:float" documentation="Resistivity of the vessel segment [ohm.m]; Scalar" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/eta">3.44000d-05</eta>
+              <permeability type="xs:float" documentation="Vessel relative permeability; Scalar" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/permeability">Put value here</permeability>
+            </blocks_unit>
+            <blocks_unit type="struct_array" documentation="Vector of blocks that build of the vessel layer. Replicate this element nblocks times. Each unit contains a building block of the vessel and can have dedicated number of points. Array of structures (nblocks)" path="wall2d/vessel/vessel_unit/blocks/blocks_unit" dim="38" index="38">
+              <name type="xs:string" documentation="Name or description of the blocks_unit" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/name">Put value here</name>
+              <position type="structure" documentation="Position (R,Z coordinates) of a vessel segment. No need to repeat first point for closed contours [m]; Vector(npoints)">
+                <r type="vecflt_type" documentation="Major radius [m]" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/position/r" dim="4">4.3334865,4.4825135,4.4980000,4.3480000</r>
+                <z type="vecflt_type" documentation="Altitude [m]" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/position/z" dim="4">-0.25647139,-0.27352861,0.0000000,0.0000000</z>
+              </position>
+              <eta type="xs:float" documentation="Resistivity of the vessel segment [ohm.m]; Scalar" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/eta">3.42000d-05</eta>
+              <permeability type="xs:float" documentation="Vessel relative permeability; Scalar" path="wall2d/vessel/vessel_unit/blocks/blocks_unit/permeability">Put value here</permeability>
+            </blocks_unit>
+          </blocks>
+        </vessel_unit>
+      </vessel>
+    </wall2d>
+    <wall3d type="struct_array" documentation="3D wall descriptions; Array of structures (number of wall descriptions). Replicate this element for each type of possible physics or engineering configurations necessary (gas tight vs wall with ports and holes, coarse vs fine representation, ...). Time-dependent" path="wall3d" dim="Put dimension here" index="Put index here">
+      <wall_id type="structure" documentation="Identify the type of wall - 0 for gas tight and 1 for a wall with holes/open ports">
+        <id type="xs:string" documentation="Short string identifier" path="wall3d/wall_id/id"> Put value here</id>
+        <flag type="xs:integer" documentation="Integer identifier" path="wall3d/wall_id/flag"> Put value here</flag>
+        <description type="xs:string" documentation="Verbose description of identifier" path="wall3d/wall_id/description"> Put value here</description>
+      </wall_id>
+    </wall3d>
+  </wall>
+</mappings>

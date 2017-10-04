@@ -59,6 +59,12 @@ typedef void (* ADDIDAMERRORFUNP)(IDAMERRORSTACK*, int, char*, int, char*);   //
 
 int initPlugin(const IDAM_PLUGIN_INTERFACE* plugin_interface);
 
+int setReturnDataFloatArray(DATA_BLOCK* data_block, float* values, size_t rank, const size_t* shape, const char* description);
+
+int setReturnDataDoubleArray(DATA_BLOCK* data_block, double* values, size_t rank, const size_t* shape, const char* description);
+
+int setReturnDataIntArray(DATA_BLOCK* data_block, int* values, size_t rank, const size_t* shape, const char* description);
+
 int setReturnDataDoubleScalar(DATA_BLOCK* data_block, double value, const char* description);
 
 int setReturnDataFloatScalar(DATA_BLOCK* data_block, float value, const char* description);

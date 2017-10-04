@@ -8,6 +8,7 @@ set( TESTS
   test_imas_jet_magnetics
   test_imas_jet_tf
   test_imas_jet_pf_active
+  test_imas_jet_wall
   test_imas_jet_all
 )
 

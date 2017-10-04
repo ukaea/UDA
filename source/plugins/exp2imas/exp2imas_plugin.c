@@ -258,43 +258,57 @@ static int handle_static(DATA_BLOCK* data_block, const char* experiment_mapping_
     }
 
     if ((xml_data.rank != 0 || nindices != 1) && (xml_data.rank != nindices)) {
-        THROW_ERROR(999, "incorrect number of indices specified");
-    }
+        if (xml_data.rank == 1 && nindices == 0) {
+            size_t shape[] = { (size_t)xml_data.dims[0] };
 
-    int data_idx = 0;
-    int stride = 1;
-    int i;
-    for (i = xml_data.rank - 1; i >= 0; --i) {
-        data_idx += (indices[i] - 1) * stride;
-        stride *= xml_data.dims[i];
-    }
-
-    if (xml_data.data_type == UDA_TYPE_DOUBLE) {
-        double* ddata = (double*)xml_data.data;
-        setReturnDataDoubleScalar(data_block, ddata[data_idx] + adjust, NULL);
-        free(xml_data.data);
-    } else if (xml_data.data_type == UDA_TYPE_FLOAT) {
-        float* fdata = (float*)xml_data.data;
-        setReturnDataFloatScalar(data_block, fdata[data_idx] + adjust, NULL);
-        free(xml_data.data);
-    } else if (xml_data.data_type == UDA_TYPE_LONG) {
-        long* ldata = (long*)xml_data.data;
-        setReturnDataLongScalar(data_block, ldata[data_idx] + adjust, NULL);
-        free(xml_data.data);
-    } else if (xml_data.data_type == UDA_TYPE_INT) {
-        int* idata = (int*)xml_data.data;
-        setReturnDataIntScalar(data_block, idata[data_idx] + adjust, NULL);
-        free(xml_data.data);
-    } else if (xml_data.data_type == UDA_TYPE_SHORT) {
-        short* sdata = (short*)xml_data.data;
-        setReturnDataShortScalar(data_block, sdata[data_idx] + (short)adjust, NULL);
-        free(xml_data.data);
-    } else if (xml_data.data_type == UDA_TYPE_STRING) {
-        char** sdata = (char**)xml_data.data;
-        setReturnDataString(data_block, deblank(sdata[data_idx]), NULL);
-        FreeSplitStringTokens((char***)&xml_data.data);
+            if (xml_data.data_type == UDA_TYPE_DOUBLE) {
+                setReturnDataDoubleArray(data_block, (double*)xml_data.data, 1, shape, NULL);
+            } else if (xml_data.data_type == UDA_TYPE_FLOAT) {
+                setReturnDataFloatArray(data_block, (float*)xml_data.data, 1, shape, NULL);
+            } else if (xml_data.data_type == UDA_TYPE_INT) {
+                setReturnDataIntArray(data_block, (int*)xml_data.data, 1, shape, NULL);
+            } else {
+                RAISE_PLUGIN_ERROR("Unsupported data type");
+            }
+        } else {
+            THROW_ERROR(999, "incorrect number of indices specified");
+        }
     } else {
-        RAISE_PLUGIN_ERROR("Unsupported data type");
+        int data_idx = 0;
+        int stride = 1;
+        int i;
+        for (i = xml_data.rank - 1; i >= 0; --i) {
+            data_idx += (indices[i] - 1) * stride;
+            stride *= xml_data.dims[i];
+        }
+
+        if (xml_data.data_type == UDA_TYPE_DOUBLE) {
+            double* ddata = (double*)xml_data.data;
+            setReturnDataDoubleScalar(data_block, ddata[data_idx] + adjust, NULL);
+            free(xml_data.data);
+        } else if (xml_data.data_type == UDA_TYPE_FLOAT) {
+            float* fdata = (float*)xml_data.data;
+            setReturnDataFloatScalar(data_block, fdata[data_idx] + adjust, NULL);
+            free(xml_data.data);
+        } else if (xml_data.data_type == UDA_TYPE_LONG) {
+            long* ldata = (long*)xml_data.data;
+            setReturnDataLongScalar(data_block, ldata[data_idx] + adjust, NULL);
+            free(xml_data.data);
+        } else if (xml_data.data_type == UDA_TYPE_INT) {
+            int* idata = (int*)xml_data.data;
+            setReturnDataIntScalar(data_block, idata[data_idx] + adjust, NULL);
+            free(xml_data.data);
+        } else if (xml_data.data_type == UDA_TYPE_SHORT) {
+            short* sdata = (short*)xml_data.data;
+            setReturnDataShortScalar(data_block, sdata[data_idx] + (short)adjust, NULL);
+            free(xml_data.data);
+        } else if (xml_data.data_type == UDA_TYPE_STRING) {
+            char** sdata = (char**)xml_data.data;
+            setReturnDataString(data_block, deblank(sdata[data_idx]), NULL);
+            FreeSplitStringTokens((char***)&xml_data.data);
+        } else {
+            RAISE_PLUGIN_ERROR("Unsupported data type");
+        }
     }
 
     return 0;

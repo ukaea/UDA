@@ -35,6 +35,120 @@ int initPlugin(const IDAM_PLUGIN_INTERFACE* plugin_interface)
     return 0;
 }
 
+int setReturnDataFloatArray(DATA_BLOCK* data_block, float* values, size_t rank, const size_t* shape, const char* description)
+{
+    initDataBlock(data_block);
+
+    if (description != NULL) {
+        strncpy(data_block->data_desc, description, STRING_LENGTH);
+        data_block->data_desc[STRING_LENGTH-1] = '\0';
+    }
+
+    data_block->rank = (int)rank;
+    data_block->dims = malloc(rank * sizeof(DIMS));
+
+    size_t len = 1;
+
+    size_t i;
+    for (i = 0; i < rank; ++i) {
+        initDimBlock(&data_block->dims[i]);
+
+        data_block->dims[0].data_type = UDA_TYPE_UNSIGNED_INT;
+        data_block->dims[0].dim_n = (int)shape[i];
+        data_block->dims[0].compressed = 1;
+        data_block->dims[0].dim0 = 0.0;
+        data_block->dims[0].diff = 1.0;
+        data_block->dims[0].method = 0;
+
+        len *= shape[i];
+    }
+
+    double* data = malloc(len * sizeof(float));
+    memcpy(data, values, len * sizeof(float));
+
+    data_block->data_type = UDA_TYPE_FLOAT;
+    data_block->data = (char*)data;
+    data_block->data_n = (int)len;
+
+    return 0;
+}
+
+int setReturnDataDoubleArray(DATA_BLOCK* data_block, double* values, size_t rank, const size_t* shape, const char* description)
+{
+    initDataBlock(data_block);
+
+    if (description != NULL) {
+        strncpy(data_block->data_desc, description, STRING_LENGTH);
+        data_block->data_desc[STRING_LENGTH-1] = '\0';
+    }
+
+    data_block->rank = (int)rank;
+    data_block->dims = malloc(rank * sizeof(DIMS));
+
+    size_t len = 1;
+
+    size_t i;
+    for (i = 0; i < rank; ++i) {
+        initDimBlock(&data_block->dims[i]);
+
+        data_block->dims[0].data_type = UDA_TYPE_UNSIGNED_INT;
+        data_block->dims[0].dim_n = (int)shape[i];
+        data_block->dims[0].compressed = 1;
+        data_block->dims[0].dim0 = 0.0;
+        data_block->dims[0].diff = 1.0;
+        data_block->dims[0].method = 0;
+
+        len *= shape[i];
+    }
+
+    double* data = malloc(len * sizeof(float));
+    memcpy(data, values, len * sizeof(float));
+
+    data_block->data_type = UDA_TYPE_DOUBLE;
+    data_block->data = (char*)data;
+    data_block->data_n = (int)len;
+
+    return 0;
+}
+
+int setReturnDataIntArray(DATA_BLOCK* data_block, int* values, size_t rank, const size_t* shape, const char* description)
+{
+    initDataBlock(data_block);
+
+    if (description != NULL) {
+        strncpy(data_block->data_desc, description, STRING_LENGTH);
+        data_block->data_desc[STRING_LENGTH-1] = '\0';
+    }
+
+    data_block->rank = (int)rank;
+    data_block->dims = malloc(rank * sizeof(DIMS));
+
+    size_t len = 1;
+
+    size_t i;
+    for (i = 0; i < rank; ++i) {
+        initDimBlock(&data_block->dims[i]);
+
+        data_block->dims[0].data_type = UDA_TYPE_UNSIGNED_INT;
+        data_block->dims[0].dim_n = (int)shape[i];
+        data_block->dims[0].compressed = 1;
+        data_block->dims[0].dim0 = 0.0;
+        data_block->dims[0].diff = 1.0;
+        data_block->dims[0].method = 0;
+
+        len *= shape[i];
+    }
+
+    double* data = malloc(len * sizeof(float));
+    memcpy(data, values, len * sizeof(float));
+
+    data_block->data_type = UDA_TYPE_INT;
+    data_block->data = (char*)data;
+    data_block->data_n = (int)len;
+
+    return 0;
+}
+
 int setReturnDataDoubleScalar(DATA_BLOCK* data_block, double value, const char* description)
 {
     initDataBlock(data_block);
@@ -47,7 +161,6 @@ int setReturnDataDoubleScalar(DATA_BLOCK* data_block, double value, const char* 
         data_block->data_desc[STRING_LENGTH-1] = '\0';
     }
 
-    initDataBlock(data_block);
     data_block->rank = 0;
     data_block->data_type = UDA_TYPE_DOUBLE;
     data_block->data = (char*)data;
@@ -68,7 +181,6 @@ int setReturnDataFloatScalar(DATA_BLOCK* data_block, float value, const char* de
         data_block->data_desc[STRING_LENGTH-1] = '\0';
     }
 
-    initDataBlock(data_block);
     data_block->rank = 0;
     data_block->data_type = UDA_TYPE_FLOAT;
     data_block->data = (char*)data;
@@ -89,7 +201,6 @@ int setReturnDataIntScalar(DATA_BLOCK* data_block, int value, const char* descri
         data_block->data_desc[STRING_LENGTH-1] = '\0';
     }
 
-    initDataBlock(data_block);
     data_block->rank = 0;
     data_block->data_type = UDA_TYPE_INT;
     data_block->data = (char*)data;
@@ -110,7 +221,6 @@ int setReturnDataLongScalar(DATA_BLOCK* data_block, long value, const char* desc
         data_block->data_desc[STRING_LENGTH-1] = '\0';
     }
 
-    initDataBlock(data_block);
     data_block->rank = 0;
     data_block->data_type = UDA_TYPE_LONG;
     data_block->data = (char*)data;
@@ -131,7 +241,6 @@ int setReturnDataShortScalar(DATA_BLOCK* data_block, short value, const char* de
         data_block->data_desc[STRING_LENGTH-1] = '\0';
     }
 
-    initDataBlock(data_block);
     data_block->rank = 0;
     data_block->data_type = UDA_TYPE_SHORT;
     data_block->data = (char*)data;
