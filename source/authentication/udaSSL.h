@@ -7,6 +7,8 @@
 // 3 UDA protocol modes: TCP without SSL/TLS, TCP and UDP both with SSL/TLS
 // This set of functions is concerned only with the SSL/TLS protocol (authentication and encryption) - not with establishing socket connections or non SSL TCP transport
 
+// Server host addressed beginng with SSL:// are assumed to be using SSL authentication. The SSL:// prefix is removed to make the connection.
+
 #include <openssl/ssl.h>
 #include <openssl/err.h>
 #include <openssl/crypto.h>
@@ -29,6 +31,8 @@ void initUdaServerSSL();
 void closeUdaServerSSL();
 void putUdaServerSSLDisabled(int disabled);
 int getUdaServerSSLDisabled();
+void putUdaServerSSLGlobalInit(int init);
+int getUdaServerSSLGlobalInit();
 SSL_CTX *createUdaServerSSLContext();
 int configureUdaServerSSLContext();
 X509_CRL *loadUdaServerSSLCrl(char *crlist);
@@ -50,6 +54,8 @@ void initUdaClientSSL();
 void closeUdaClientSSL();
 void putUdaClientSSLDisabled(int disabled);
 int getUdaClientSSLDisabled();
+void putUdaClientSSLGlobalInit(int init);
+int getUdaClientSSLGlobalInit();
 void putUdaClientSSLOK(int ok);
 int getUdaClientSSLOK();
 void putUdaClientSSLProtocol(int specified);

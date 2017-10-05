@@ -791,6 +791,7 @@ Parameters passed to the plugin as name-value pairs (type, source_alias or sourc
                    
          err = 999;      
          addIdamError(&idamerrorstack, CODEERRORTYPE, "postgresplugin", err, "Unknown plugin function requested!");
+	 IDAM_LOGF(UDA_LOG_DEBUG, "postgresplugin - Unknown plugin function requested: [%s]\n", request_block->function);
          break;
       }
         
