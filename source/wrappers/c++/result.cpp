@@ -98,6 +98,19 @@ uda::Result::~Result()
     idamFree(handle_);
 }
 
+const std::vector<size_t> uda::Result::shape() const
+{
+    size_t rank = static_cast<size_t>(getIdamRank(handle_));
+
+    std::vector<size_t> shape(rank);
+
+    for (size_t i = 0; i < rank; ++i) {
+        shape[i] = static_cast<size_t>(getIdamDimNum(handle_, static_cast<int>(i)));
+    }
+
+    return shape;
+}
+
 template<typename T>
 static uda::Dim getDim(int handle, uda::dim_type num, uda::Result::DataType data_type)
 {
@@ -172,7 +185,7 @@ uda::Dim uda::Result::dim(uda::dim_type num, DataType data_type) const
 }
 
 template<typename T>
-uda::Data* getDataAs(int handle, uda::Result::DataType data_type, std::vector<uda::Dim>& dims)
+uda::Data* getDataAs(int handle, uda::Result::DataType data_type, const uda::Result* result)
 {
     T* data = nullptr;
     if (data_type == uda::Result::DataType::DATA) {
@@ -187,7 +200,7 @@ uda::Data* getDataAs(int handle, uda::Result::DataType data_type, std::vector<ud
         }
         return new uda::Scalar(data[0]);
     } else {
-        return new uda::Array(data, dims);
+        return new uda::Array(data, result);
     }
 }
 
@@ -198,11 +211,11 @@ uda::Data* getDataAsString(int handle)
     return new uda::String(data);
 }
 
-uda::Data* getDataAsStringArray(int handle, std::vector<uda::Dim>& dims)
+uda::Data* getDataAsStringArray(int handle, const uda::Result* result)
 {
     char* data = getIdamData(handle);
 
-    size_t str_len = dims[0].size();
+    size_t str_len = static_cast<size_t>(getIdamDimNum(handle, 0));
     size_t arr_len = getIdamDataNum(handle) / str_len;
 
     auto strings = new std::vector<std::string>;
@@ -212,55 +225,49 @@ uda::Data* getDataAsStringArray(int handle, std::vector<uda::Dim>& dims)
         strings->push_back(std::string(str, strlen(str)));
     }
 
-    std::vector<uda::Dim> string_dims;
-
-    for (size_t i = 1; i < dims.size(); ++i) {
-        string_dims.push_back(dims[i]);
-    }
-
-    return new uda::Array(strings->data(), string_dims);
+    return new uda::Array(strings->data(), result);
 }
 
 uda::Data* uda::Result::data() const
 {
-    std::vector<Dim> dims;
+//    std::vector<Dim> dims;
     auto rank = static_cast<dim_type>(getIdamRank(handle_));
-    for (dim_type i = 0; i < rank; ++i) {
-        dims.push_back(dim(i, DATA));
-    }
+//    for (dim_type i = 0; i < rank; ++i) {
+//        dims.push_back(dim(i, DATA));
+//    }
 
     int type = getIdamDataType(handle_);
 
     switch (type) {
         case UDA_TYPE_CHAR:
-            return getDataAs<char>(handle_, DATA, dims);
+            return getDataAs<char>(handle_, DATA, this);
         case UDA_TYPE_SHORT:
-            return getDataAs<short>(handle_, DATA, dims);
+            return getDataAs<short>(handle_, DATA, this);
         case UDA_TYPE_INT:
-            return getDataAs<int>(handle_, DATA, dims);
+            return getDataAs<int>(handle_, DATA, this);
         case UDA_TYPE_UNSIGNED_INT:
-            return getDataAs<unsigned int>(handle_, DATA, dims);
+            return getDataAs<unsigned int>(handle_, DATA, this);
         case UDA_TYPE_LONG:
-            return getDataAs<long>(handle_, DATA, dims);
+            return getDataAs<long>(handle_, DATA, this);
         case UDA_TYPE_FLOAT:
-            return getDataAs<float>(handle_, DATA, dims);
+            return getDataAs<float>(handle_, DATA, this);
         case UDA_TYPE_DOUBLE:
-            return getDataAs<double>(handle_, DATA, dims);
+            return getDataAs<double>(handle_, DATA, this);
         case UDA_TYPE_UNSIGNED_CHAR:
-            return getDataAs<unsigned char>(handle_, DATA, dims);
+            return getDataAs<unsigned char>(handle_, DATA, this);
         case UDA_TYPE_UNSIGNED_SHORT:
-            return getDataAs<unsigned short>(handle_, DATA, dims);
+            return getDataAs<unsigned short>(handle_, DATA, this);
         case UDA_TYPE_UNSIGNED_LONG:
-            return getDataAs<unsigned long>(handle_, DATA, dims);
+            return getDataAs<unsigned long>(handle_, DATA, this);
         case UDA_TYPE_LONG64:
-            return getDataAs<long long>(handle_, DATA, dims);
+            return getDataAs<long long>(handle_, DATA, this);
         case UDA_TYPE_UNSIGNED_LONG64:
-            return getDataAs<unsigned long long>(handle_, DATA, dims);
+            return getDataAs<unsigned long long>(handle_, DATA, this);
         case UDA_TYPE_STRING:
             if (rank == 1 || rank == 0) {
                 return getDataAsString(handle_);
             } else {
-                return getDataAsStringArray(handle_, dims);
+                return getDataAsStringArray(handle_, this);
             }
         default:
             return &Array::Null;
@@ -290,34 +297,34 @@ uda::Data* uda::Result::errors() const
 
     switch (type) {
         case UDA_TYPE_CHAR:
-            return getDataAs<char>(handle_, ERRORS, dims);
+            return getDataAs<char>(handle_, ERRORS, this);
         case UDA_TYPE_SHORT:
-            return getDataAs<short>(handle_, ERRORS, dims);
+            return getDataAs<short>(handle_, ERRORS, this);
         case UDA_TYPE_INT:
-            return getDataAs<int>(handle_, ERRORS, dims);
+            return getDataAs<int>(handle_, ERRORS, this);
         case UDA_TYPE_UNSIGNED_INT:
-            return getDataAs<unsigned int>(handle_, ERRORS, dims);
+            return getDataAs<unsigned int>(handle_, ERRORS, this);
         case UDA_TYPE_LONG:
-            return getDataAs<long>(handle_, ERRORS, dims);
+            return getDataAs<long>(handle_, ERRORS, this);
         case UDA_TYPE_FLOAT:
-            return getDataAs<float>(handle_, ERRORS, dims);
+            return getDataAs<float>(handle_, ERRORS, this);
         case UDA_TYPE_DOUBLE:
-            return getDataAs<double>(handle_, ERRORS, dims);
+            return getDataAs<double>(handle_, ERRORS, this);
         case UDA_TYPE_UNSIGNED_CHAR:
-            return getDataAs<unsigned char>(handle_, ERRORS, dims);
+            return getDataAs<unsigned char>(handle_, ERRORS, this);
         case UDA_TYPE_UNSIGNED_SHORT:
-            return getDataAs<unsigned short>(handle_, ERRORS, dims);
+            return getDataAs<unsigned short>(handle_, ERRORS, this);
         case UDA_TYPE_UNSIGNED_LONG:
-            return getDataAs<unsigned long>(handle_, ERRORS, dims);
+            return getDataAs<unsigned long>(handle_, ERRORS, this);
         case UDA_TYPE_LONG64:
-            return getDataAs<long long>(handle_, ERRORS, dims);
+            return getDataAs<long long>(handle_, ERRORS, this);
         case UDA_TYPE_UNSIGNED_LONG64:
-            return getDataAs<unsigned long long>(handle_, ERRORS, dims);
+            return getDataAs<unsigned long long>(handle_, ERRORS, this);
         case UDA_TYPE_STRING:
             if (rank == 1) {
                 return getDataAsString(handle_);
             } else {
-                return getDataAsStringArray(handle_, dims);
+                return getDataAsStringArray(handle_, this);
             }
         default:
             return &Array::Null;

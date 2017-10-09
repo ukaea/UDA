@@ -15,7 +15,11 @@ public:
     explicit UDAException(std::string what, std::vector<std::string> backtrace)
             : what_(std::move(what))
             , backtrace_(std::move(backtrace))
-    {};
+    {
+        for (const auto& str : backtrace_) {
+            backtrace_msg_ += str + "\n";
+        }
+    };
 
     explicit UDAException(std::string what) throw()
             : what_(std::move(what))
@@ -23,7 +27,7 @@ public:
 
     UDAException(const UDAException& ex) noexcept : what_(ex.what_) {}
 
-#ifdef SWIG_VERSION
+#ifndef SWIG_VERSION
     UDAException(UDAException&& ex) noexcept : what_(std::move(ex.what_)) {}
     UDAException& operator=(const UDAException& ex) noexcept { what_ = ex.what_; return *this; }
     UDAException& operator=(UDAException&& ex) noexcept { what_ = ex.what_; ex.what_.clear(); return *this; }
@@ -33,20 +37,21 @@ public:
 
     const char* what() const noexcept override
     {
-        return what_.c_str();
+        if (!backtrace_.empty()) {
+            return backtrace_msg_.c_str();
+        } else {
+            return what_.c_str();
+        }
     }
 
-    std::string backtrace() const
+    const char* backtrace() const
     {
-        std::string result;
-        for (const auto& str : backtrace_) {
-            result += str + "\n";
-        }
-        return result;
+        return backtrace_msg_.c_str();
     }
 private:
     std::string what_;
     std::vector<std::string> backtrace_;
+    std::string backtrace_msg_;
 };
 
 enum Property

@@ -1,9 +1,5 @@
-//
-// Created by jholloc on 08/03/16.
-//
-
-#ifndef IDAM_WRAPPERS_CPP_STRUCTDATA_H
-#define IDAM_WRAPPERS_CPP_STRUCTDATA_H
+#ifndef UDA__WRAPPERS_CPP_STRUCTDATA_H
+#define UDA__WRAPPERS_CPP_STRUCTDATA_H
 
 #include <vector>
 #include <string>
@@ -13,7 +9,9 @@ namespace uda {
 
 class StructData {
 public:
-    StructData(bool isnull = false) : data_(), isnull_(isnull)
+    explicit StructData(bool isnull = false)
+            : data_()
+            , isnull_(isnull)
     {}
 
     template <typename T>
@@ -21,7 +19,7 @@ public:
     {
         int status;
         std::string tname = typeid(T).name();
-        std::string demangled_name(abi::__cxa_demangle(tname.c_str(), NULL, NULL, &status));
+        std::string demangled_name(abi::__cxa_demangle(tname.c_str(), nullptr, nullptr, &status));
 
         std::vector<T*> vec;
         for (size_t i = 0; i < data_.size(); ++i) {
@@ -34,16 +32,19 @@ public:
 
     void append(std::string name, size_t size, void* ptr)
     {
-        data_.push_back(_Struct(name, size, ptr));
+        data_.emplace_back(_Struct(std::move(name), size, ptr));
     }
 
     bool isNull() const
     { return isnull_; }
 
     static StructData Null;
+
 private:
     struct _Struct {
-        _Struct(std::string name, size_t size, void* ptr) : name_(name), size_(size), ptr_(ptr)
+        _Struct(std::string name, size_t size, void* ptr)
+                : name_(std::move(name))
+                , size_(size), ptr_(ptr)
         {}
 
         std::string name_;
@@ -57,4 +58,4 @@ private:
 
 }
 
-#endif //IDAM_WRAPPERS_CPP_STRUCTDATA_H
+#endif // UDA__WRAPPERS_CPP_STRUCTDATA_H

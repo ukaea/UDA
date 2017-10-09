@@ -9,7 +9,8 @@ namespace uda {
 class Data
 {
 public:
-    explicit Data(bool isnull) : isnull_(isnull)
+    explicit Data(bool isnull)
+            : isnull_(isnull)
     { }
 
     virtual ~Data() = default;

@@ -1,23 +1,29 @@
+#include <uda.h>
+
 #include "array.hpp"
+#include "result.hpp"
 
 uda::Array uda::Array::Null = uda::Array();
 
+const std::vector<uda::Dim>& uda::Array::dims() const
+{
+    if (!dims_loaded_) {
+        dims_.resize(result_->rank());
+
+        for (dim_type i = 0; i < result_->rank(); ++i) {
+            dims_.emplace_back(result_->dim(i, uda::Result::DataType::DATA));
+        }
+    }
+
+    return dims_;
+}
+
 std::size_t uda::Array::size() const
 {
-    std::size_t sz = 1u;
-    for (std::size_t i = 0u; i < dims_.size(); ++i) {
-        sz *= dims_[i].size();
-    }
-    return sz;
+    return result_->size();
 }
 
 const std::vector<size_t> uda::Array::shape() const
 {
-    std::vector<size_t> shape(dims_.size());
-
-    for (size_t i = 0; i < dims_.size(); ++i) {
-        shape[i] = dims_[i].size();
-    }
-
-    return shape;
+    return result_->shape();
 }

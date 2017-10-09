@@ -63,6 +63,7 @@ class Signal(Data):
         self._label = None
         self._units = None
         self._rank = None
+        self._shape = None
         self._errors = None
 
     def _import_data(self):
@@ -72,7 +73,7 @@ class Signal(Data):
                 self._data = cdata_scalar_to_value(data)
             else:
                 self._data = cdata_to_numpy_array(data)
-                shape = [d.data.size for d in self.dims]
+                shape = data.shape()
                 self._data = self._data.reshape(*shape)
 
     def _import_errors(self):
@@ -82,7 +83,7 @@ class Signal(Data):
                 self._errors = cdata_scalar_to_value(errors)
             else:
                 self._errors = cdata_to_numpy_array(errors)
-                shape = [d.data.size for d in self.dims]
+                shape = errors.shape()
                 self._errors = self._errors.reshape(*shape)
 
     @property

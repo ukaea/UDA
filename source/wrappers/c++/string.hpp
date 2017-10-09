@@ -13,7 +13,8 @@ class String : public Data
 {
 public:
     explicit String(const char * data)
-            : Data(false), str_(data)
+            : Data(false)
+            , str_(data)
     { }
 
     explicit String(const std::string& str)

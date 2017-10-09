@@ -64,6 +64,8 @@ public:
     const std::map<std::string, std::string>& meta()
     { return meta_; }
 
+    const std::vector<size_t> shape() const;
+
     Dim dim(dim_type ndim, DataType data_type) const;
 
     bool hasTimeDim() const;
@@ -92,7 +94,6 @@ private:
     boost::any data_;
     dim_type rank_;
     size_t size_;
-    const std::vector<dim_type> dims_;
     bool istree_;
     std::map<std::string, std::string> meta_;
 };

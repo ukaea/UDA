@@ -1,9 +1,5 @@
-//
-// Created by jholloc on 08/03/16.
-//
-
-#ifndef IDAM_WRAPPERS_CPP_TREENODE_H
-#define IDAM_WRAPPERS_CPP_TREENODE_H
+#ifndef UDA_WRAPPERS_CPP_TREENODE_H
+#define UDA_WRAPPERS_CPP_TREENODE_H
 
 #include <string>
 #include <vector>
@@ -52,6 +48,7 @@ public:
     void * data();
 
     NTREE* node() { return node_; }
+
 private:
     TreeNode(int handle, NTREE * node) : handle_(handle), node_(node) {}
     friend class Result;
@@ -62,4 +59,4 @@ private:
 
 }
 
-#endif //IDAM_WRAPPERS_CPP_TREENODE_H
+#endif // UDA_WRAPPERS_CPP_TREENODE_H
