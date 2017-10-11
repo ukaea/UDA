@@ -259,6 +259,29 @@ variable='description_2d/1/vessel/unit/1/element/Shape_of', type=int, rank=0
   <!--<mapping key="wall/description_2d/#/vessel/unit/#/annular/resistivity_error_index" value="" type="constant"/>-->
   <mapping key="wall/description_2d/#/vessel/unit/#/element/Shape_of" value="//wall/wall2d[#]/vessel/vessel_unit[#]/blocks/blocks_unit[1]/@dim" type="static"/>
 
+  <mapping key="wall/description_2d/#/vessel/unit/#/element/#/name" value="//wall/wall2d[#]/vessel/vessel_unit[#]/blocks/blocks_unit[#]/name" type="static"/>
+  <mapping key="wall/description_2d/#/vessel/unit/#/element/#/outline/r" value="//wall/wall2d[#]/vessel/vessel_unit[#]/blocks/blocks_unit[#]/position/r" type="static"/>
+  <!--<mapping key="wall/description_2d/#/vessel/unit/#/element/#/outline/r_error_upper" value="" type="static"/>-->
+  <!--<mapping key="wall/description_2d/#/vessel/unit/#/element/#/outline/r_error_lower" value="" type="static"/>-->
+  <!--<mapping key="wall/description_2d/#/vessel/unit/#/element/#/outline/r_error_index" value="" type="static"/>-->
+  <mapping key="wall/description_2d/#/vessel/unit/#/element/#/outline/z" value="//wall/wall2d[#]/vessel/vessel_unit[#]/blocks/blocks_unit[#]/position/z" type="static"/>
+  <!--<mapping key="wall/description_2d/#/vessel/unit/#/element/#/outline/z_error_upper" value="" type="static"/>-->
+  <!--<mapping key="wall/description_2d/#/vessel/unit/#/element/#/outline/z_error_lower" value="" type="static"/>-->
+  <!--<mapping key="wall/description_2d/#/vessel/unit/#/element/#/outline/z_error_index" value="" type="static"/>-->
+  <mapping key="wall/description_2d/#/vessel/unit/#/element/#/resistivity" value="//wall/wall2d[#]/vessel/vessel_unit[#]/blocks/blocks_unit[#]/eta" type="static"/>
+  <!--<mapping key="wall/description_2d/#/vessel/unit/#/element/#/resistivity_error_upper" value="" type="static"/>-->
+  <!--<mapping key="wall/description_2d/#/vessel/unit/#/element/#/resistivity_error_lower" value="" type="static"/>-->
+  <!--<mapping key="wall/description_2d/#/vessel/unit/#/element/#/resistivity_error_index" value="" type="static"/>-->
+  <!--<mapping key="wall/description_2d/#/vessel/unit/#/element/#/j_tor/data" value="" type="static"/>-->
+  <!--<mapping key="wall/description_2d/#/vessel/unit/#/element/#/j_tor/data_error_upper" value="" type="static"/>-->
+  <!--<mapping key="wall/description_2d/#/vessel/unit/#/element/#/j_tor/data_error_lower" value="" type="static"/>-->
+  <!--<mapping key="wall/description_2d/#/vessel/unit/#/element/#/j_tor/data_error_index" value="" type="static"/>-->
+  <!--<mapping key="wall/description_2d/#/vessel/unit/#/element/#/j_tor/time" value="" type="static"/>-->
+  <!--<mapping key="wall/description_2d/#/vessel/unit/#/element/#/resistance" value="" type="static"/>-->
+  <!--<mapping key="wall/description_2d/#/vessel/unit/#/element/#/resistance_error_upper" value="" type="static"/>-->
+  <!--<mapping key="wall/description_2d/#/vessel/unit/#/element/#/resistance_error_lower" value="" type="static"/>-->
+  <!--<mapping key="wall/description_2d/#/vessel/unit/#/element/#/resistance_error_index" value="" type="static"/>-->
+
   <!--
   <mapping key="wall/code/name" value="" type="static"/>
   <mapping key="wall/code/commit" value="" type="static"/>

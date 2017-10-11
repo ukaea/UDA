@@ -1680,7 +1680,11 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
             data_block->data_type = findIMASIDAMType(type);
             data_block->data = imasData;
             data_block->rank = (unsigned int)plugin_args.rank;
-            data_block->data_n = shape[0];
+            if (plugin_args.rank == 0 && type == STRING) {
+                data_block->data_n = (int)strlen(imasData) + 1;
+            } else {
+                data_block->data_n = shape[0];
+            }
             for (i = 1; i < plugin_args.rank; i++) {
                 data_block->data_n *= shape[i];
             }
