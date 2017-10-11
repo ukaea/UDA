@@ -6,8 +6,17 @@
 #include "accAPI.h"
 
 #include <math.h>
-#include <pthread.h>
-#include <strings.h>
+
+#include <sys/stat.h>
+#ifdef __GNUC__
+#  include <pthread.h>
+#  include <strings.h>
+#elif defined(_WIN32)
+#  include <string.h>
+#  define strcasecmp _stricmp
+#  define strncasecmp _strnicmp
+#  define strlwr _strlwr
+#endif
 
 #include <logging/logging.h>
 #include <clientserver/initStructs.h>
@@ -596,7 +605,7 @@ CLIENT_BLOCK* getIdamDataProperties(int handle)
 /** When the IDAM client is a server plugin, set the Client's Debug File handle to that of the Server.
 * @return void
 */
-#ifndef __APPLE__
+#if !defined(__APPLE__) && !defined(_WIN32)
 
 int getIdamMemoryFree()
 {

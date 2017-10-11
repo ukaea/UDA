@@ -4,16 +4,21 @@
 
 #include "connection.h"
 
-#include <netdb.h>
 #include <string.h>
-#include <strings.h>
 #include <stdlib.h>
 #include <errno.h>
-#include <netinet/tcp.h>
 
-#ifndef _WIN32
+
+#ifdef __GNUC__
 #  include <unistd.h>
+#  include <netdb.h>
+#  include <strings.h>
+#  include <netinet/tcp.h>
 #  include <signal.h>
+#elif defined(_WIN32)
+#  include <winsock.h>
+#  include <process.h>
+#  define strcasecmp _stricmp
 #endif
 
 #include <clientserver/errorLog.h>
@@ -214,7 +219,11 @@ int createConnection()
             if (rc == 0) break;
 
             delay = MAX_SOCKET_DELAY * ((float) rand() / (float) RAND_MAX);
-            sleep(delay);
+#ifdef __GNUC__
+            sleep(delay);                            // wait period
+#elif defined(_WIN32)
+            Sleep((DWORD)(delay * 1E3));
+#endif            
         }
 
         if (rc < 0 && strcmp(environment->server_host, environment->server_host2) != 0) {        // Abandon principal Host - attempt secondary host
@@ -237,7 +246,13 @@ int createConnection()
                 } else {
                     addIdamError(&idamerrorstack, CODEERRORTYPE, "idamCreateConnection", -1, "Unknown Server Host");
                 }
-                if (clientSocket != -1) close(clientSocket);
+                if (clientSocket != -1) {
+#ifdef __GNUC__
+                    close(clientSocket);
+#elif defined(_WIN32)
+                    closesocket(clientSocket);
+#endif
+                }				
                 clientSocket = -1;
                 return -1;
             }
@@ -261,7 +276,11 @@ int createConnection()
                     break;
                 }
                 delay = MAX_SOCKET_DELAY * ((float) rand() / (float) RAND_MAX);
-                sleep(delay);
+#ifdef __GNUC__
+               sleep(delay);                            // wait period
+#elif defined(_WIN32)
+               Sleep((DWORD)(delay * 1E3));
+#endif
             }
         }
 
@@ -272,7 +291,13 @@ int createConnection()
                 addIdamError(&idamerrorstack, CODEERRORTYPE, "idamCreateConnection", -1,
                              "Unable to Connect to Server Stream Socket");
             }
-            if (clientSocket != -1) close(clientSocket);
+            if (clientSocket != -1) {
+#ifdef __GNUC__
+                close(clientSocket);
+#elif defined(_WIN32)
+                closesocket(clientSocket);
+#endif
+            }				
             clientSocket = -1;
             return -1;
         }
@@ -291,14 +316,22 @@ int createConnection()
     on = 1;
     if (setsockopt(clientSocket, SOL_SOCKET, SO_KEEPALIVE, (char*) &on, sizeof(on)) < 0) {
         addIdamError(&idamerrorstack, CODEERRORTYPE, "idamCreateConnection", -1, "Error Setting KEEPALIVE on Socket");
+#ifdef __GNUC__
         close(clientSocket);
+#elif defined(_WIN32)
+        closesocket(clientSocket);
+#endif
         clientSocket = -1;
         return -1;
     }
     on = 1;
     if (setsockopt(clientSocket, IPPROTO_TCP, TCP_NODELAY, (char*) &on, sizeof(on)) < 0) {
         addIdamError(&idamerrorstack, CODEERRORTYPE, "idamCreateConnection", -1, "Error Setting NODELAY on Socket");
+#ifdef __GNUC__
         close(clientSocket);
+#elif defined(_WIN32)
+        closesocket(clientSocket);
+#endif
         clientSocket = -1;
         return -1;
     }

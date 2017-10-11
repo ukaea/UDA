@@ -8,7 +8,10 @@
 
 #include "udaClient.h"
 
-#include <unistd.h>
+#ifdef __GNUC__
+#  include <unistd.h>
+#endif
+
 #include <stdlib.h>
 
 #include <logging/logging.h>

@@ -26,6 +26,12 @@ char source[]
 
 #include "fileCache.h"
 
+#ifdef _WIN32
+int idamClientLockCache(FILE **db, short type) {
+    return 0;
+}
+#else
+
 #include <fcntl.h>
 #include <stdlib.h>
 #include <errno.h>
@@ -875,4 +881,4 @@ xcrc32(const unsigned char* buf, int len, unsigned int init)
     return crc;
 }
 
-
+#endif // _WIN32

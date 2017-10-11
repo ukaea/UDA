@@ -14,7 +14,11 @@ Interprets the API arguments and assembles a Request data structure.
 #include "getEnvironment.h"
 
 #include <stdlib.h>
-#include <strings.h>
+#ifdef __GNUC__
+#  include <strings.h>
+#elif defined(_WIN32)
+#  define strcasecmp _stricmp
+#endif
 
 #include <logging/logging.h>
 #include <clientserver/udaErrors.h>
