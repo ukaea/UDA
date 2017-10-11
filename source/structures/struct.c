@@ -1484,7 +1484,9 @@ char* idamNameType(int type)
 size_t getStructureSize(USERDEFINEDTYPELIST* userdefinedtypelist, USERDEFINEDTYPE* str)
 {
     size_t size;
-    if (str == NULL) return 0;
+    if (str == NULL) {
+        return 0;
+    }
 
     size_t byteCount = 0;
     size_t space0 = 0;

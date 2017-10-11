@@ -2424,7 +2424,6 @@ int getCDF4SubTreeData(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userde
     int fieldid, varid;
     int fieldcount = group->udt->fieldcount;
 
-    char* p0, * d;
     VOIDTYPE* p;
     GROUP* grp;
 
@@ -2436,7 +2435,7 @@ int getCDF4SubTreeData(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userde
 
     // Start address of the Structure
 
-    p0 = *((char**)data);
+    char* p0 = *((char**)data);
 
     // Locate the next field (udt compound field must be synchronised to the group elements)
 
@@ -2444,6 +2443,8 @@ int getCDF4SubTreeData(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userde
 
     //----------------------------------------------------------------------
     // Start Error Trap
+
+    char* d = NULL;
 
     do {
 
@@ -2704,8 +2705,7 @@ int getCDF4SubTreeData(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userde
 
                 if (fieldid > fieldcount) {
                     err = 999;
-                    addIdamError(CODEERRORTYPE, "readCDF4SubTree", err,
-                                 "Structure Field (group) Count Exceeded!");
+                    addIdamError(CODEERRORTYPE, "readCDF4SubTree", err, "Structure Field (group) Count Exceeded!");
                     break;
                 }
 

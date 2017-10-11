@@ -304,8 +304,6 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
 
             // FUDGE for efit++ data
 
-            //if(!compliance && STR_EQUALS(signal_desc.source_alias, "efit")) compliance = 1;
-
             UDA_LOG(UDA_LOG_DEBUG, "netCDF file compliance?  %d\n", compliance);
 
             if (compliance) {
@@ -818,9 +816,6 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
                     || (getGroupId(grpid, variable, &subtree)) == NC_NOERR)) {
 
                 USERDEFINEDTYPE usertype;
-//                *logmalloclist = (LOGMALLOCLIST*)malloc(sizeof(LOGMALLOCLIST));
-//                initLogMallocList(*logmalloclist);
-//                copyUserDefinedTypeList(userdefinedtypelist); // Allocate and Copy the Master User Defined Type List
                 initHGroup(&hgroups);
 
                 UDA_LOG(UDA_LOG_DEBUG, "Tree or sub-tree found.\n");

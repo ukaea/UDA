@@ -573,15 +573,18 @@ static int do_test2(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Maximum size of any individual string
 
-    int sLen = 0, sMax = 0;
+    int sMax = 0;
     for (i = 0; i < sCount; i++) {
-        if ((sLen = (int)strlen(sarr[1]) + 1) > sMax) sMax = sLen;
+        int sLen;
+        if ((sLen = (int)strlen(sarr[i]) + 1) > sMax) {
+            sMax = sLen;
+        }
     }
 
 // Create a block of contigous memory and assign all bytes to NULL character
 
-    char* p = (char*)malloc(sLen * sCount * sizeof(char));
-    memset(p, 0, sLen * sCount);
+    char* p = (char*)malloc(sMax * sCount * sizeof(char));
+    memset(p, '\0', sMax * sCount);
 
 // Copy string data into the block positioned at regular intervals
 
@@ -600,7 +603,9 @@ static int do_test2(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     data_block->rank = 2;
     data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
-    for (i = 0; i < data_block->rank; i++) initDimBlock(&data_block->dims[i]);
+    for (i = 0; i < data_block->rank; i++) {
+        initDimBlock(&data_block->dims[i]);
+    }
 
     if (STR_IEQUALS(request_block->function, "test2")) {
         data_block->data_type = UDA_TYPE_CHAR;

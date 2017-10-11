@@ -16,13 +16,13 @@ TEST_CASE( "Test help function", "[plugins][TESTPLUGIN]" )
 
     uda::Data* data = result.data();
 
-    REQUIRE( data != NULL );
+    REQUIRE( data != nullptr );
     REQUIRE( !data->isNull() );
     REQUIRE( data->type().name() == typeid(char*).name() );
 
     auto str = dynamic_cast<uda::String*>(data);
 
-    REQUIRE( str != NULL );
+    REQUIRE( str != nullptr );
 
     std::string expected = "\nTestplugin: Functions Names and Test Descriptions/n/n"
             "test0-test9: String passing tests\n"
@@ -85,13 +85,13 @@ TEST_CASE( "Run test0 - pass string as char array", "[plugins][TESTPLUGIN]" )
 
     uda::Data* data = result.data();
 
-    REQUIRE( data != NULL );
+    REQUIRE( data != nullptr );
     REQUIRE( !data->isNull() );
     REQUIRE( data->type().name() == typeid(char).name() );
 
-    uda::Array* array = dynamic_cast<uda::Array*>(data);
+    auto array = dynamic_cast<uda::Array*>(data);
 
-    REQUIRE( array != NULL );
+    REQUIRE( array != nullptr );
 
     std::string str = array->as<char>().data();
 
@@ -113,13 +113,13 @@ TEST_CASE( "Run test1 - pass string as string scalar", "[plugins][TESTPLUGIN]" )
 
     uda::Data* data = result.data();
 
-    REQUIRE( data != NULL );
+    REQUIRE( data != nullptr );
     REQUIRE( !data->isNull() );
     REQUIRE( data->type().name() == typeid(char*).name() );
 
     auto str = dynamic_cast<uda::String*>(data);
 
-    REQUIRE( str != NULL );
+    REQUIRE( str != nullptr );
 
     std::string expected = "Hello World!";
 
@@ -139,13 +139,13 @@ TEST_CASE( "Run test2 - pass string list as 2D char array", "[plugins][TESTPLUGI
 
     uda::Data* data = result.data();
 
-    REQUIRE( data != NULL );
+    REQUIRE( data != nullptr );
     REQUIRE( !data->isNull() );
     REQUIRE( data->type().name() == typeid(char).name() );
 
-    uda::Array* array = dynamic_cast<uda::Array*>(data);
+    auto array = dynamic_cast<uda::Array*>(data);
 
-    REQUIRE( array != NULL );
+    REQUIRE( array != nullptr );
 
     std::vector<uda::Dim> dims = array->dims();
 
@@ -182,13 +182,13 @@ TEST_CASE( "Run test3 - pass string list as array of strings", "[plugins][TESTPL
 
     uda::Data* data = result.data();
 
-    REQUIRE( data != NULL );
+    REQUIRE( data != nullptr );
     REQUIRE( !data->isNull() );
     REQUIRE( data->type().name() == typeid(std::string).name() );
 
-    uda::Array* array = dynamic_cast<uda::Array*>(data);
+    auto array = dynamic_cast<uda::Array*>(data);
 
-    REQUIRE(array != NULL );
+    REQUIRE(array != nullptr );
 
     std::vector<uda::Dim> dims = array->dims();
 
@@ -532,13 +532,13 @@ TEST_CASE( "Run test10 - pass single int", "[plugins][TESTPLUGIN]" )
 
     uda::Data* data = result.data();
 
-    REQUIRE( data != NULL );
+    REQUIRE( data != nullptr );
     REQUIRE( !data->isNull() );
     REQUIRE( data->type().name() == typeid(int).name() );
 
     uda::Scalar* value = dynamic_cast<uda::Scalar*>(data);
 
-    REQUIRE( value != NULL );
+    REQUIRE( value != nullptr );
 
     REQUIRE( value->as<int>() == 7 );
 }
@@ -908,13 +908,13 @@ TEST_CASE( "Run test20 - pass single short", "[plugins][TESTPLUGIN]" )
 
     uda::Data* data = result.data();
 
-    REQUIRE( data != NULL );
+    REQUIRE( data != nullptr );
     REQUIRE( !data->isNull() );
     REQUIRE( data->type().name() == typeid(short).name() );
 
     uda::Scalar* value = dynamic_cast<uda::Scalar*>(data);
 
-    REQUIRE( value != NULL );
+    REQUIRE( value != nullptr );
 
     REQUIRE( value->as<short>() == 7 );
 }
@@ -1498,13 +1498,13 @@ TEST_CASE( "Run plugin - call a plugin", "[plugins][TESTPLUGIN]" )
 
     uda::Data* data = result.data();
 
-    REQUIRE( data != NULL );
+    REQUIRE( data != nullptr );
     REQUIRE( !data->isNull() );
     REQUIRE( data->type().name() == typeid(char*).name() );
 
     auto str = dynamic_cast<uda::String*>(data);
 
-    REQUIRE( str != NULL );
+    REQUIRE( str != nullptr );
 
     std::string expected = "\n"
             "Help\tList of HELP plugin functions:\n"
@@ -1543,13 +1543,13 @@ TEST_CASE( "Run scalartest - return a simple scalar value", "[plugins][TESTPLUGI
 
     uda::Data* data = result.data();
 
-    REQUIRE( data != NULL );
+    REQUIRE( data != nullptr );
     REQUIRE( !data->isNull() );
     REQUIRE( data->type().name() == typeid(int).name() );
 
     uda::Scalar* value = dynamic_cast<uda::Scalar*>(data);
 
-    REQUIRE( value != NULL );
+    REQUIRE( value != nullptr );
 
     REQUIRE( value->as<int>() == 10 );
 }
@@ -1567,6 +1567,6 @@ TEST_CASE( "Run emptytest - return no data", "[plugins][TESTPLUGIN]" )
 
     uda::Data* data = result.data();
 
-    REQUIRE( data != NULL );
+    REQUIRE( data != nullptr );
     REQUIRE( data->isNull() );
 }
