@@ -3,8 +3,8 @@
 
 #include <c++/UDA.hpp>
 
-#define ARR_LEN(NAME) sizeof(NAME) / sizeof(NAME[0])
-#define ARR2VEC(TYPE, NAME) std::vector<TYPE>(&NAME[0], &NAME[ARR_LEN(NAME)])
+#define ARR_LEN(NAME) (sizeof(NAME) / sizeof(NAME[0]))
+#define ARR2VEC(TYPE, NAME) std::vector<TYPE>(&(NAME)[0], &NAME[ARR_LEN(NAME)])
 
 TEST_CASE( "Test NEWCDF4::help() function", "[NETCDF4][plugins]" )
 {
@@ -19,13 +19,13 @@ TEST_CASE( "Test NEWCDF4::help() function", "[NETCDF4][plugins]" )
 
     uda::Data* data = result.data();
 
-    REQUIRE( data != NULL );
+    REQUIRE( data != nullptr );
     REQUIRE( !data->isNull() );
     REQUIRE( data->type().name() == typeid(char*).name() );
 
     auto str = dynamic_cast<uda::String*>(data);
 
-    REQUIRE( str != NULL );
+    REQUIRE( str != nullptr );
 
     std::string expected = "\nnewCDF4: get - Read data from a netCDF4 file\n\n";
 
@@ -45,13 +45,13 @@ TEST_CASE( "Test NEWCDF4::read() with scalar data variable", "[NETCDF4][plugins]
 
     uda::Data* data = result.data();
 
-    REQUIRE( data != NULL );
+    REQUIRE( data != nullptr );
     REQUIRE( !data->isNull() );
     REQUIRE( data->type().name() == typeid(float).name() );
 
     auto val = dynamic_cast<uda::Scalar*>(data);
 
-    REQUIRE( val != NULL );
+    REQUIRE( val != nullptr );
 
     REQUIRE( val->as<float>() == Approx(4.5) );
 }

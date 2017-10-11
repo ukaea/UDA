@@ -215,17 +215,29 @@ uda::Data* getDataAsStringArray(int handle, const uda::Result* result)
 {
     char* data = getIdamData(handle);
 
-    size_t str_len = static_cast<size_t>(getIdamDimNum(handle, 0));
+    auto str_len = static_cast<size_t>(getIdamDimNum(handle, 0));
     size_t arr_len = getIdamDataNum(handle) / str_len;
 
     auto strings = new std::vector<std::string>;
+    std::vector<uda::Dim> dims;
+
+    auto rank = static_cast<uda::dim_type>(getIdamRank(handle));
+    for (uda::dim_type dim_n = 1; dim_n < rank; ++dim_n) {
+        auto dim_data = getIdamDimData(handle, dim_n);
+        auto dim_size = static_cast<size_t>(getIdamDimNum(handle, dim_n));
+        auto label = getIdamDimLabel(handle, dim_n);
+        auto units = getIdamDimUnits(handle, dim_n);
+        dims.emplace_back(uda::Dim(dim_n, dim_data, dim_size,
+                                   label != nullptr ? label : "",
+                                   units != nullptr ? units : ""));
+    }
 
     for (size_t i = 0; i < arr_len; ++i) {
         char* str = &data[i * str_len];
         strings->push_back(std::string(str, strlen(str)));
     }
 
-    return new uda::Array(strings->data(), result);
+    return new uda::Array(strings->data(), dims);
 }
 
 uda::Data* uda::Result::data() const

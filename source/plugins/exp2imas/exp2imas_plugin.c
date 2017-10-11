@@ -425,7 +425,9 @@ static int handle_dynamic(DATA_BLOCK* data_block, const char* experiment_mapping
     return 0;
 }
 
-#define MAX(x, y) (((x) > (y)) ? (x) : (y))
+#ifndef MAX
+#  define MAX(x, y) (((x) > (y)) ? (x) : (y))
+#endif
 
 static int handle_error(DATA_BLOCK* data_block, const char* experiment_mapping_file_name, const xmlChar* xPath,
                           const char* element, int index, int shot, const int* indices, size_t nindices)

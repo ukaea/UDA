@@ -1489,12 +1489,12 @@ size_t getStructureSize(USERDEFINEDTYPELIST* userdefinedtypelist, USERDEFINEDTYP
     size_t byteCount = 0;
     size_t space0 = 0;
     int maxAlign = 0;
+    size_t offset = 0;
 
     int i;
     for (i = 0; i < str->fieldcount; i++) {
 
         int alignment;
-        int offset = 0;
 
         if (str->compoundfield[i].pointer) {
             size = sizeof(void*);

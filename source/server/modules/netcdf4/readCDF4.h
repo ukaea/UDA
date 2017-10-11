@@ -70,32 +70,30 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
 #define NC_IGNOREHIDDENGROUPS       4
 #define NC_IGNOREHIDDENDIMS         8
 #define NC_NOTPOINTERTYPE           16
-#define NC_NODIMENSIONDATA          32        // Don't add dimension documentation to a structure
-#define NC_NOATTRIBUTEDATA          64        // Ignore all attribute data - group and variable
-#define NC_NOVARATTRIBUTEDATA       128        // Ignore all Variable attribute data
-#define NC_NOGROUPATTRIBUTEDATA     256        // Ignore all Group attribute data
-#define NC_HIDDENPREFIX             '_'        // Objects with names prefixed with this character are to be optionaly ignored
+#define NC_NODIMENSIONDATA          32          // Don't add dimension documentation to a structure
+#define NC_NOATTRIBUTEDATA          64          // Ignore all attribute data - group and variable
+#define NC_NOVARATTRIBUTEDATA       128         // Ignore all Variable attribute data
+#define NC_NOGROUPATTRIBUTEDATA     256         // Ignore all Group attribute data
+#define NC_HIDDENPREFIX             '_'         // Objects with names prefixed with this character are to be optionaly ignored
 
 #define NC_EMPTY_GROUP_VAR_NAME "ignore_this_variable"    // To prevent problems when groups are empty, add an empty 1 byte string
 
-struct GROUPLIST {                // Pass the list of groups within scope
+typedef struct GroupList {      // Pass the list of groups within scope
     int count;
     int grpid;
     int* grpids;
-};
-typedef struct GROUPLIST GROUPLIST;
+} GROUPLIST;
 
-struct ATTRIBUTE {
+typedef struct Attribute {
     int attid;
     char attname[NC_MAX_NAME + 1];
     nc_type atttype;
     int attlength;
     int udtIndex;
     USERDEFINEDTYPE* udt;
-};
-typedef struct ATTRIBUTE ATTRIBUTE;
+} ATTRIBUTE;
 
-struct VARIABLE {
+typedef struct Variable {
     int varid;
     int numatts;
     ATTRIBUTE* attribute;
@@ -103,13 +101,12 @@ struct VARIABLE {
     nc_type vartype;
     int rank;
     int dimids[NC_MAX_VAR_DIMS];
-    int* shape;                // Don't free
+    int* shape;                     // Don't free
     int udtIndex;
-    USERDEFINEDTYPE* udt;        // Don't free
-};
-typedef struct VARIABLE VARIABLE;
+    USERDEFINEDTYPE* udt;           // Don't free
+} VARIABLE;
 
-struct GROUP {
+typedef struct Group {
     int grpid;
     int parent;
     char grpname[NC_MAX_NAME + 1];
@@ -121,40 +118,24 @@ struct GROUP {
     USERDEFINEDTYPE* udt;
     ATTRIBUTE* attribute;
     VARIABLE* variable;
-};
-typedef struct GROUP GROUP;
+} GROUP;
 
-struct HGROUPS {
-    int numgrps;
-    GROUP* group;
-};
-typedef struct HGROUPS HGROUPS;
+typedef struct HGroups {
+    int grpcount;   // Number of elements malloc'ed in array
+    int numgrps;    // Number of groups
+    GROUP* groups;
+} HGROUPS;
 
-struct X1 {
-    char* title;
-};
-typedef struct X1 X1;
-
-struct X2 {
-    X1* A;
-    X1* B;
-    X1* C;
-    X1* D;
-    X1* E;
-};
-typedef struct X2 X2;
-
-struct CDFSUBSET {
-    int subsetCount;                // Number of defined dimensions to subset
-    int rank;                    // Data Rank (0 => dimids not known)
-    int subset[NC_MAX_VAR_DIMS];            // If 1 then subset to apply
-    int dimids[NC_MAX_VAR_DIMS];            // Dimension ID
-    size_t start[NC_MAX_VAR_DIMS];        // Starting Index of each dimension
-    size_t stop[NC_MAX_VAR_DIMS];        // Ending Index of each dimension
-    size_t count[NC_MAX_VAR_DIMS];        // The number of values (sub-samples) read from each dimension
-    ptrdiff_t stride[NC_MAX_VAR_DIMS];        // The step stride along each dimension
-};
-typedef struct CDFSUBSET CDFSUBSET;
+typedef struct CDFSubset {
+    int subsetCount;                    // Number of defined dimensions to subset
+    int rank;                           // Data Rank (0 => dimids not known)
+    int subset[NC_MAX_VAR_DIMS];        // If 1 then subset to apply
+    int dimids[NC_MAX_VAR_DIMS];        // Dimension ID
+    size_t start[NC_MAX_VAR_DIMS];      // Starting Index of each dimension
+    size_t stop[NC_MAX_VAR_DIMS];       // Ending Index of each dimension
+    size_t count[NC_MAX_VAR_DIMS];      // The number of values (sub-samples) read from each dimension
+    ptrdiff_t stride[NC_MAX_VAR_DIMS];  // The step stride along each dimension
+} CDFSUBSET;
 
 int readCDF4Err(int grpid, int varid, int isCoordinate, int class, int rank, int* dimids, int* nevec,
                 int* error_type, char** edata, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist);

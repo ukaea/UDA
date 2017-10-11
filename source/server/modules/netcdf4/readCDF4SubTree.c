@@ -68,20 +68,19 @@ void initGroup(GROUP* group)
 
 void initHGroup(HGROUPS* hgroups)
 {
+    hgroups->grpcount = 0;
     hgroups->numgrps = 0;
-    hgroups->group = NULL;
+    hgroups->groups = NULL;
 }
-
-static int listHGroupCount = 0;
 
 int addHGroup(HGROUPS* hgroups, GROUP group)
 {
     int udtIndex;
-    if (hgroups->numgrps + 1 >= listHGroupCount) {
-        listHGroupCount = listHGroupCount + GROWMALLOCLIST;
-        hgroups->group = (GROUP*)realloc((void*)hgroups->group, (listHGroupCount) * sizeof(GROUP));
+    if (hgroups->numgrps + 1 >= hgroups->grpcount) {
+        hgroups->grpcount += GROWMALLOCLIST;
+        hgroups->groups = (GROUP*)realloc((void*)hgroups->groups, (hgroups->grpcount) * sizeof(GROUP));
     }
-    hgroups->group[hgroups->numgrps] = group;
+    hgroups->groups[hgroups->numgrps] = group;
     udtIndex = hgroups->numgrps;
     hgroups->numgrps++;
     return (udtIndex);
@@ -91,7 +90,7 @@ GROUP* findHGroup(HGROUPS* hgroups, int grpid)
 {
     int i;
     for (i = 0; i < hgroups->numgrps; i++) {
-        if (hgroups->group[i].grpid == grpid) return (&hgroups->group[i]);
+        if (hgroups->groups[i].grpid == grpid) return (&hgroups->groups[i]);
     }
     return NULL;
 }
@@ -110,9 +109,10 @@ void freeGroup(GROUP* group)
 void freeHGroups(HGROUPS* hgroups)
 {
     int i;
-    for (i = 0; i < hgroups->numgrps; i++) freeGroup(&hgroups->group[i]);
-    free((void*)hgroups->group);
-    listHGroupCount = 0;
+    for (i = 0; i < hgroups->numgrps; i++) {
+        freeGroup(&hgroups->groups[i]);
+    }
+    free((void*)hgroups->groups);
     initHGroup(hgroups);
 }
 
@@ -157,24 +157,24 @@ void updateUdt(HGROUPS* hgroups, USERDEFINEDTYPELIST* userdefinedtypelist)
 {
     int i, j, k;
     for (i = 0; i < hgroups->numgrps; i++) {
-        if (hgroups->group[i].udtIndex >= 0) {
-            hgroups->group[i].udt = &userdefinedtypelist->userdefinedtype[hgroups->group[i].udtIndex];
+        if (hgroups->groups[i].udtIndex >= 0) {
+            hgroups->groups[i].udt = &userdefinedtypelist->userdefinedtype[hgroups->groups[i].udtIndex];
         }
-        for (j = 0; j < hgroups->group[i].numatts; j++) {
-            if (hgroups->group[i].attribute[j].udtIndex >= 0) {
-                hgroups->group[i].attribute[j].udt =
-                        &userdefinedtypelist->userdefinedtype[hgroups->group[i].attribute[j].udtIndex];
+        for (j = 0; j < hgroups->groups[i].numatts; j++) {
+            if (hgroups->groups[i].attribute[j].udtIndex >= 0) {
+                hgroups->groups[i].attribute[j].udt =
+                        &userdefinedtypelist->userdefinedtype[hgroups->groups[i].attribute[j].udtIndex];
             }
         }
-        for (j = 0; j < hgroups->group[i].numvars; j++) {
-            if (hgroups->group[i].variable[j].udtIndex >= 0) {
-                hgroups->group[i].variable[j].udt =
-                        &userdefinedtypelist->userdefinedtype[hgroups->group[i].variable[j].udtIndex];
+        for (j = 0; j < hgroups->groups[i].numvars; j++) {
+            if (hgroups->groups[i].variable[j].udtIndex >= 0) {
+                hgroups->groups[i].variable[j].udt =
+                        &userdefinedtypelist->userdefinedtype[hgroups->groups[i].variable[j].udtIndex];
             }
-            for (k = 0; k < hgroups->group[i].variable[j].numatts; k++) {
-                if (hgroups->group[i].variable[j].attribute[k].udtIndex >= 0) {
-                    hgroups->group[i].variable[j].attribute[k].udt =
-                            &userdefinedtypelist->userdefinedtype[hgroups->group[i].variable[j].attribute[k].udtIndex];
+            for (k = 0; k < hgroups->groups[i].variable[j].numatts; k++) {
+                if (hgroups->groups[i].variable[j].attribute[k].udtIndex >= 0) {
+                    hgroups->groups[i].variable[j].attribute[k].udt =
+                            &userdefinedtypelist->userdefinedtype[hgroups->groups[i].variable[j].attribute[k].udtIndex];
                 }
             }
         }
@@ -911,15 +911,14 @@ int getCDF4SubTreeMeta(int grpid, int parent, USERDEFINEDTYPE* udt, LOGMALLOCLIS
 
     // Ignore 'hidden' groups if requested
 
-    unsigned short ignoreHiddenAtts = readCDF4Properties() & NC_IGNOREHIDDENATTS;
-    unsigned short ignoreHiddenVars = readCDF4Properties() & NC_IGNOREHIDDENVARS;
-    unsigned short ignoreHiddenGroups = readCDF4Properties() & NC_IGNOREHIDDENGROUPS;
-    unsigned short notPointerType = readCDF4Properties() & NC_NOTPOINTERTYPE; // Return data as explicitly sized arrays
-    unsigned short noDimensionData = readCDF4Properties() & NC_NODIMENSIONDATA; // cf: getCDF4SubTreeVarData
-    unsigned short noAttributeData = readCDF4Properties() & NC_NOATTRIBUTEDATA;
-    unsigned short noVarAttributeData = readCDF4Properties() & NC_NOVARATTRIBUTEDATA;
-
-    unsigned short regularVarData = (noVarAttributeData || noAttributeData) && noDimensionData;    // Return variables as regular arrays not structures
+    unsigned short ignoreHiddenAtts     = readCDF4Properties() & NC_IGNOREHIDDENATTS;
+    unsigned short ignoreHiddenVars     = readCDF4Properties() & NC_IGNOREHIDDENVARS;
+    unsigned short ignoreHiddenGroups   = readCDF4Properties() & NC_IGNOREHIDDENGROUPS;
+    unsigned short notPointerType       = readCDF4Properties() & NC_NOTPOINTERTYPE; // Return data as explicitly sized arrays
+    unsigned short noDimensionData      = readCDF4Properties() & NC_NODIMENSIONDATA; // cf: getCDF4SubTreeVarData
+    unsigned short noAttributeData      = readCDF4Properties() & NC_NOATTRIBUTEDATA;
+    unsigned short noVarAttributeData   = readCDF4Properties() & NC_NOVARATTRIBUTEDATA;
+    unsigned short regularVarData       = (noVarAttributeData || noAttributeData) && noDimensionData;    // Return variables as regular arrays not structures
 
     int attCount = 0;
 
@@ -1335,7 +1334,7 @@ int getCDF4SubTreeMeta(int grpid, int parent, USERDEFINEDTYPE* udt, LOGMALLOCLIS
 
     addUserDefinedType(userdefinedtypelist, usertype);
 
-    hgroups->group[grp].udtIndex = userdefinedtypelist->listCount - 1;
+    hgroups->groups[grp].udtIndex = userdefinedtypelist->listCount - 1;
 
     //----------------------------------------------------------------------
 

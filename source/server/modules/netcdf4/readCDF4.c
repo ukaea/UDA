@@ -854,9 +854,9 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
 
                 UDA_LOG(UDA_LOG_DEBUG, "Creating sub-tree data structure\n");
 
-                err = getCDF4SubTreeData(*logmalloclist, *userdefinedtypelist, (void**)&data_block->data, &hgroups.group[0], &hgroups);
+                err = getCDF4SubTreeData(*logmalloclist, *userdefinedtypelist, (void**)&data_block->data, &hgroups.groups[0], &hgroups);
 
-                if (err == NC_NOERR && hgroups.group[0].udt != NULL) {
+                if (err == NC_NOERR && hgroups.groups[0].udt != NULL) {
                     malloc_source = MALLOCSOURCENETCDF;
                     data_block->data_type = UDA_TYPE_COMPOUND;
                     data_block->data_n = 1;
@@ -864,7 +864,7 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
                     data_block->order = -1;
                     data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
                     data_block->opaque_count = 1;
-                    data_block->opaque_block = (void*)hgroups.group[0].udt;
+                    data_block->opaque_block = (void*)hgroups.groups[0].udt;
                 }
 
                 UDA_LOG(UDA_LOG_DEBUG, "Freeing HGroups\n");

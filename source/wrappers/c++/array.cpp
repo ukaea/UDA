@@ -8,9 +8,10 @@ uda::Array uda::Array::Null = uda::Array();
 const std::vector<uda::Dim>& uda::Array::dims() const
 {
     if (!dims_loaded_) {
-        dims_.resize(result_->rank());
+        dim_type rank = result_->rank();
 
-        for (dim_type i = 0; i < result_->rank(); ++i) {
+        dims_.reserve(rank);
+        for (dim_type i = 0; i < rank; ++i) {
             dims_.emplace_back(result_->dim(i, uda::Result::DataType::DATA));
         }
     }
@@ -20,10 +21,26 @@ const std::vector<uda::Dim>& uda::Array::dims() const
 
 std::size_t uda::Array::size() const
 {
-    return result_->size();
+    if (result_ == nullptr) {
+        size_t sz = 1;
+        for (const auto& dim : dims()) {
+            sz *= dim.size();
+        }
+        return sz;
+    } else {
+        return result_->size();
+    }
 }
 
 const std::vector<size_t> uda::Array::shape() const
 {
-    return result_->shape();
+    if (result_ == nullptr) {
+        std::vector<size_t> shape;
+        for (const auto& dim : dims()) {
+            shape.push_back(dim.size());
+        }
+        return shape;
+    } else {
+        return result_->shape();
+    }
 }
