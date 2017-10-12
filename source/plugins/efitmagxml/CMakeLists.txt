@@ -23,6 +23,7 @@ uda_plugin(
     allocXMLData.c
     efitmagxmllib.c
     parseHData.c
+    getXPathValue.c
     efitmagxml.c
   EXTRA_INCLUDE_DIRS
     ${LIBXML2_INCLUDE_DIR}

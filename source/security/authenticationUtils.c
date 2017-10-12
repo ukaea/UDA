@@ -14,9 +14,9 @@ int testFilePermissions(const char* object)
     if (rc != 0 || errno != 0) {
         err = 999;
         if (errno != 0) {
-            addIdamError(SYSTEMERRORTYPE, "idamClientAuthentication", errno, "");
+            addIdamError(SYSTEMERRORTYPE, "testSecurityFilePermissions", errno, "");
         }
-        addIdamError(CODEERRORTYPE, "idamClientAuthentication", err,
+        addIdamError(CODEERRORTYPE, "clientAuthentication", err,
                      "Could not verify the user's private key directory's access permissions!");
         return err;
     }
@@ -27,7 +27,7 @@ int testFilePermissions(const char* object)
         buffer.st_mode & S_IWOTH ||
         buffer.st_mode & S_IXOTH) {
         err = 999;
-        addIdamError(CODEERRORTYPE, "idamClientAuthentication", err,
+        addIdamError(CODEERRORTYPE, "testSecurityFilePermissions", err,
                      "The user's private key directory is public: Your keys and certificate may be compromised!!!");
         return err;
     }

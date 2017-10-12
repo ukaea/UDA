@@ -1,9 +1,9 @@
 #------------------------------------------------------------------------------------------------------
-# Creates the Environment needed by the IDAM Server.
+# Creates the Environment needed by the UDA Server.
 #------------------------------------------------------------------------------------------------------
 
 #------------------------------------------------------------------------------------------------------
-# IDAM Logging mode
+# UDA Logging mode
 
 export UDA_LOG=@CMAKE_INSTALL_PREFIX@/etc
 export UDA_LOG_MODE=a
@@ -11,7 +11,7 @@ export UDA_LOG_LEVEL=DEBUG  # Options: INFO, DEBUG, WARN, ERROR, ACCESS
 export UDA_DEBUG_APPEND=a
 
 #------------------------------------------------------------------------------------------------------
-# IDAM DUMP Program Locations
+# UDA DUMP Program Locations
 
 export UDA_DUMP_MDSPLUS=`which idl 2>/dev/null`
 export UDA_DUMP_IDA=`which idadump 2>/dev/null`
@@ -19,16 +19,16 @@ export UDA_DUMP_NETCDF=`which /usr/bin/ncdump 2>/dev/null`
 export UDA_DUMP_HDF5=`which h5dump 2>/dev/null`
 
 #------------------------------------------------------------------------------------------------------
-# IDAM Server Host
+# UDA Server Host
 #------------------------------------------------------------------------------------------------------
 
 export UDA_HOST=`hostname`
 export UDA_PORT=56565
 
-export UDA_SQLHOST=idam1.mast.ccfe.ac.uk       # IDAM SQL Server Host
-export UDA_SQLPORT=56566       # IDAM SQL Server Port
-export UDA_SQLDBNAME=idam      # IDAM SQL Database Name
-export UDA_SQLUSER=readonly    # IDAM SQL Database User
+export UDA_SQLHOST=idam1.mast.ccfe.ac.uk	# UDA SQL Server Host
+export UDA_SQLPORT=56566			# SQL Server Port
+export UDA_SQLDBNAME=idam			# SQL Database Name
+export UDA_SQLUSER=readonly			# SQL Database User
 
 #------------------------------------------------------------------------------------------------------
 # Plugin Registration + Structure Passing configuration

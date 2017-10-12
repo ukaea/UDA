@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <strings.h>
 #include <rpc/rpc.h>
+#include <strings.h>
 
 #include <clientserver/udaErrors.h>
 #include <clientserver/initStructs.h>
@@ -29,6 +30,10 @@
 #  include <security/serverAuthentication.h>
 #endif
 
+#if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
+#include <authentication/udaSSL.h>
+#endif
+
 #ifdef NONETCDFPLUGIN
 void ncclose(int fh) {
     return;
@@ -51,11 +56,16 @@ int server_tot_block_time = 0;
 
 int serverVersion = 7;
 int protocolVersion = 7;
+
+//#if !defined(FATCLIENT)
 static int legacyServerVersion = 6;
+//#endif
 
 NTREELIST NTreeList;
 NTREE* fullNTree = NULL;
 LOGSTRUCTLIST logstructlist;
+
+char serverUsername[STRING_LENGTH] = "server";
 
 int server_timeout = TIMEOUT;        // user specified Server Lifetime
 
@@ -109,6 +119,7 @@ static int handshakeClient(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_bloc
 
 int udaServer(CLIENT_BLOCK client_block)
 {
+    int err = 0;
     METADATA_BLOCK metadata_block;
     memset(&metadata_block, '\0', sizeof(METADATA_BLOCK));
 
@@ -129,13 +140,13 @@ int udaServer(CLIENT_BLOCK client_block)
     initActions(&actions_desc);        // There may be a Sequence of Actions to Apply
     initActions(&actions_sig);
 
-    startupServer(&server_block);
+    if((err = startupServer(&server_block)) != 0) return err;
 
 #ifdef SECURITYENABLED
-    int err = authenticateClient(&client_block, &server_block);
+    err = authenticateClient(&client_block, &server_block);
 #else
     int server_closedown = 0;
-    int err = handshakeClient(&client_block, &server_block, &request_block, &server_closedown);
+    err = handshakeClient(&client_block, &server_block, &request_block, &server_closedown);
 #endif
 
     if (!err & !server_closedown) {
@@ -901,10 +912,17 @@ int doServerClosedown(CLIENT_BLOCK* client_block, REQUEST_BLOCK* request_block, 
     idamCloseLogging();
 
     //----------------------------------------------------------------------------
+    // Close the SSL binding and context
+
+#if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
+    closeUdaServerSSL();
+#endif    
+
+    //----------------------------------------------------------------------------
     // Close the Socket Connections to Other Data Servers
 
     closeServerSockets(&socket_list);
-
+    
     //----------------------------------------------------------------------------
     // Wait for client to receive returned server state
 
@@ -1048,6 +1066,7 @@ int handshakeClient(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block, REQU
 
 int startupServer(SERVER_BLOCK* server_block)
 {
+    int err = 0;
     static int socket_list_initialised = 0;
     static int plugin_list_initialised = 0;
     static int fileParsed = 0;
@@ -1064,6 +1083,20 @@ int startupServer(SERVER_BLOCK* server_block)
 
     UDA_LOG(UDA_LOG_DEBUG, "New Server Instance\n");
 
+    //-------------------------------------------------------------------------
+    // Connect to the client with SSL (X509) authentication
+	
+#if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
+
+    // Create the SSL binding (on socket #0), the SSL context, and verify the client certificate
+    // Identify the authenticated user for service authorisation
+	
+    putUdaServerSSLSocket(0);
+    
+    if((err = startUdaServerSSL()) != 0) return err;	
+	
+#endif
+	
     //-------------------------------------------------------------------------
     // Create the XDR Record Streams
 

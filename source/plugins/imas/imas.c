@@ -75,7 +75,7 @@ static int do_putIdsVersion(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
 static int do_putObject(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
 static int do_putObjectInObject(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
 static int do_releaseObject(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
-static int do_source(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, int* time_count_cache, char* time_cache, char* data_cache);
+static int do_source(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, int* time_count_cache, char** time_cache, char** data_cache);
 static int do_version(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
 
 #define MAXOBJECTCOUNT        10000
@@ -251,8 +251,11 @@ extern int imas(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     REQUEST_BLOCK* request_block = idam_plugin_interface->request_block;
 
     housekeeping = idam_plugin_interface->housekeeping;
+    
+    bool isReset = findValue(&idam_plugin_interface->request_block->nameValueList, "reset");	// Reset before initialisation
+    if(!isReset) isReset = findValue(&idam_plugin_interface->request_block->nameValueList, "initialise");
 
-    if (housekeeping || !strcasecmp(request_block->function, "reset")) {
+    if (isReset || housekeeping || !strcasecmp(request_block->function, "reset")) {
 
         if (!init) return 0;        // Not previously initialised: Nothing to do!
 
@@ -273,10 +276,10 @@ extern int imas(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         idx = 0;
         putImasIdsVersion("");
 
-        return 0;
+        if (!isReset) return 0;        // Step to Initialisation
     }
 
-    //----------------------------------------------------------------------------------------
+    //-----------------------------------------------------------------------------------------
     // Initialise
 
     if (!init || !strcasecmp(request_block->function, "init")
@@ -325,7 +328,7 @@ extern int imas(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     if (!strcasecmp(request_block->function, "putIdsVersion")) {
         err = do_putIdsVersion(idam_plugin_interface);
     } else if (!strcasecmp(request_block->function, "source")) {
-        err = do_source(idam_plugin_interface, &time_count_cache, time_cache, data_cache);
+        err = do_source(idam_plugin_interface, &time_count_cache, &time_cache, &data_cache);
     } else if (!strcasecmp(request_block->function, "delete")) {
         err = do_delete(idam_plugin_interface, &idx);
     } else if (!strcasecmp(request_block->function, "get")) {
@@ -2053,7 +2056,20 @@ static int do_putObjectInObject(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     return err;
 }
 
-static int do_source(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, int* time_count_cache, char* time_cache, char* data_cache)
+//----------------------------------------------------------------------------------------
+// Create the Data Source argument for the UDA API
+// Use Case: When there are no data_source records in the IDAM metadata catalogue, e.g. JET
+
+// SOURCE::get(signal=signal, format=[ppf|jpf|mast|mds] [,source=source] [,shotNumber=shotNumber] [,pass=pass] [,owner=owner] 
+//             [,datascaling=datascaling] [,timescaling=timescaling]
+//             [,/data] [,/time] [,/NoCacheData] [,/NoCacheTime])
+
+// keywords:	/data	return the data only
+//		/time	return the time only
+//		/NoCacheTime	Don't cache the time coordinate data after a request for the "data" using the /data keyword. Cacheing is the default with the cache cleared after time data are returned.
+//		/NoCacheData	Don't cache the measurement data after a request for the "data" using the /data keyword. Cacheing is the default.
+
+static int do_source(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, int *timeCountCache, char **timeCache, char **dataCache)
 {
     int err = 0;
     DATA_BLOCK* data_block = idam_plugin_interface->data_block;
@@ -2062,6 +2078,10 @@ static int do_source(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, int* time_cou
     static char time_label_cache[STRING_LENGTH];
     static char signal_cache[STRING_LENGTH];
     static char source_cache[STRING_LENGTH];
+    
+    int time_count_cache = *timeCountCache;
+    char *time_cache = *timeCache;
+    char *data_cache = *dataCache;
 
     char api_signal[STRING_LENGTH];
     char api_source[STRING_LENGTH];
@@ -2081,6 +2101,9 @@ static int do_source(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, int* time_cou
 
     const char* signal;
     FIND_REQUIRED_STRING_VALUE(request_block->nameValueList, signal);
+    
+    const char* source;
+    bool isSource = FIND_STRING_VALUE(request_block->nameValueList, source);
 
     // Prepare common code
 
@@ -2117,16 +2140,18 @@ static int do_source(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, int* time_cou
     bool isFormat = FIND_STRING_VALUE(request_block->nameValueList, format);
 
     if (isFormat && !strcasecmp(format, "ppf")) {            // JET PPF source naming pattern
-        int source;
-        FIND_REQUIRED_INT_VALUE(request_block->nameValueList, source);
+        
+        if(!isSource){
+            THROW_ERROR(999, "No PPF DDA data source has been specified!");
+        }
 
         char* env = getenv("UDA_JET_DEVICE_ALIAS");
-        host = getenv("UDA_JET_HOST");
-        port = atoi(getenv("UDA_JET_PORT"));
+	
+        //host = getenv("UDA_JET_HOST");
+        //port = atoi(getenv("UDA_JET_PORT"));
 
         if (env == NULL) {
-            sprintf(next_request_block.source, "JET%sPPF%s/%s/%d", request_block->api_delim,
-                    request_block->api_delim, source, shotNumber);
+            sprintf(next_request_block.source, "PPF%s/%s/%d", request_block->api_delim, source, shotNumber);
         } else {
             sprintf(next_request_block.source, "%s%sPPF%s/%s/%d", env, request_block->api_delim,
                     request_block->api_delim, source, shotNumber);
@@ -2151,12 +2176,11 @@ static int do_source(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, int* time_cou
     } else if (isFormat && !strcasecmp(format, "jpf")) {        // JET JPF source naming pattern
 
         char* env = getenv("UDA_JET_DEVICE_ALIAS");
-        host = getenv("UDA_JET_HOST");
-        port = atoi(getenv("UDA_JET_PORT"));
+        //host = getenv("UDA_JET_HOST");
+        //port = atoi(getenv("UDA_JET_PORT"));
 
         if (env == NULL) {
-            sprintf(next_request_block.source, "JET%sJPF%s%d", request_block->api_delim,
-                    request_block->api_delim, shotNumber);
+            sprintf(next_request_block.source, "JPF%s%d", request_block->api_delim, shotNumber);
         } else {
             sprintf(next_request_block.source, "%s%sJPF%s%d", env, request_block->api_delim,
                     request_block->api_delim, shotNumber);
@@ -2164,24 +2188,26 @@ static int do_source(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, int* time_cou
     } else if (isFormat && !strcasecmp(format, "MAST")) {        // MAST source naming pattern
 
         char* env = getenv("UDA_MAST_DEVICE_ALIAS");
-        host = getenv("UDA_MAST_HOST");
-        port = atoi(getenv("UDA_MAST_PORT"));
+        
+	//host = getenv("UDA_MAST_HOST");
+        //port = atoi(getenv("UDA_MAST_PORT"));
 
         int runNumber;
         bool isRunNumber = FIND_INT_VALUE(request_block->nameValueList, runNumber);
 
-        if (!isShotNumber && !isRunNumber) {
-            // Re-Use the original source argument
-            strcpy(next_request_block.source, request_block->source);
-        } else {
-            if (env == NULL) {
-                sprintf(next_request_block.source, "MAST%s%d", request_block->api_delim, shotNumber);
-            } else {
-                sprintf(next_request_block.source, "%s%s%d", env, request_block->api_delim, shotNumber);
-            }
-        }
-        if (isRunNumber) sprintf(next_request_block.source, "%s/%d", next_request_block.source, runNumber);
-
+        if(!isShotNumber && !isRunNumber)                   // Reuse the orignal source
+	    if(env == NULL)
+	       strcpy(next_request_block.source, request_block->source);
+	    else	  		
+	       sprintf(next_request_block.source, "%s%s%s", env, request_block->api_delim, request_block->source);       
+	 else {
+	    if(env == NULL)
+	       sprintf(next_request_block.source, "%d", shotNumber);
+	    else
+	       sprintf(next_request_block.source, "%s%s%d", env, request_block->api_delim, shotNumber);
+	    if(isRunNumber) sprintf(next_request_block.source, "%s/%d", next_request_block.source, runNumber);
+         }  	    	    
+	    
     } else if (isFormat && (!strcasecmp(format, "mds") || !strcasecmp(format, "mdsplus") ||
                             !strcasecmp(format, "mds+"))) {    // MDS+ source naming pattern
 
@@ -2192,8 +2218,8 @@ static int do_source(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, int* time_cou
         bool isSource = FIND_STRING_VALUE(request_block->nameValueList, source);
 
         char* env = getenv("UDA_MDSPLUS_ALIAS");
-        host = getenv("UDA_MDSPLUS_HOST");
-        port = atoi(getenv("UDA_MDSPLUS_PORT"));
+        //host = getenv("UDA_MDSPLUS_HOST");
+        //port = atoi(getenv("UDA_MDSPLUS_PORT"));
 
         if (isSource) {    // TDI function or tree?
             if (env == NULL) {
@@ -2226,10 +2252,10 @@ static int do_source(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, int* time_cou
     char* env = getenv("UDA_CLIENT_PLUGIN");
 
     if (env != NULL) {
-        sprintf(work, "%s::get(host=%s, port=%d, signal=\"%s\", source=\"%s\")", env, host, port,
+        sprintf(work, "%s::get(host=%s, port=%d, signal=\"%s\", source=\"%s\")", env, getIdamServerHost(), getIdamServerPort(),
                 next_request_block.signal, next_request_block.source);
     } else {
-        sprintf(work, "UDA::get(host=%s, port=%d, signal=\"%s\", source=\"%s\")", host, port,
+        sprintf(work, "UDA::get(host=%s, port=%d, signal=\"%s\", source=\"%s\")", getIdamServerHost(), getIdamServerPort(),
                 next_request_block.signal, next_request_block.source);
     }
 
@@ -2260,7 +2286,7 @@ static int do_source(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, int* time_cou
     // If data are cached then skip the plugin request for data - use the cached data
 
     int skipPlugin =
-            isTime && !isNoCacheTime && *time_count_cache > 0 && !strcasecmp(signal_cache, api_signal) &&
+            isTime && !isNoCacheTime && time_count_cache > 0 && !strcasecmp(signal_cache, api_signal) &&
             !strcasecmp(source_cache, api_source);
 
     // Locate and Execute the IDAM plugin
@@ -2298,22 +2324,22 @@ static int do_source(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, int* time_cou
             // Save the Time Coordinate data to local cache  (free currently cached data if different)
             free((void*)time_cache);
             time_cache = NULL;
-            *time_count_cache = 0;
+            time_count_cache = 0;
             strcpy(signal_cache, api_signal);
             strcpy(source_cache, api_source);
             if (data_block->dims[0].compressed) {
                 uncompressDim(&data_block->dims[0]);
             }
-            *time_count_cache = data_block->dims[0].dim_n;
+            time_count_cache = data_block->dims[0].dim_n;
             strcpy(time_units_cache, data_block->dims[0].dim_units);
             strcpy(time_label_cache, data_block->dims[0].dim_label);
 
             if (data_block->dims[0].data_type == UDA_TYPE_DOUBLE) {
-                time_cache = (char*)malloc(*time_count_cache * sizeof(double));
+                time_cache = (char*)malloc(time_count_cache * sizeof(double));
                 if (isTimeScaling) {
                     double* dimdata = (double*)data_block->dims[0].dim;
                     int i;
-                    for (i = 0; i < *time_count_cache; i++) {
+                    for (i = 0; i < time_count_cache; i++) {
                         dimdata[i] = timeScaling * dimdata[i];
                     }
                     data_block->dims[0].dim = (char*)dimdata;
@@ -2321,15 +2347,15 @@ static int do_source(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, int* time_cou
                 memcpy(time_cache, data_block->dims[0].dim, *time_count_cache * sizeof(double));
             } else {
                 float* data = (float*)data_block->dims[0].dim;
-                double* dimdata = (double*)malloc(*time_count_cache * sizeof(double));
+                double* dimdata = (double*)malloc(time_count_cache * sizeof(double));
                 if (isTimeScaling) {
                     int i;
-                    for (i = 0; i < *time_count_cache; i++) {
+                    for (i = 0; i < time_count_cache; i++) {
                         dimdata[i] = timeScaling * (double)data[i];
                     }
                 } else {
                     int i;
-                    for (i = 0; i < *time_count_cache; i++) {
+                    for (i = 0; i < time_count_cache; i++) {
                         dimdata[i] = (double)data[i];
                     }
                 }
@@ -2341,7 +2367,7 @@ static int do_source(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, int* time_cou
             free((void*)data_cache);
             time_cache = NULL;
             data_cache = NULL;
-            *time_count_cache = 0;
+            time_count_cache = 0;
             signal_cache[0] = '\0';
             source_cache[0] = '\0';
         }
@@ -2394,14 +2420,14 @@ static int do_source(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, int* time_cou
 
     if (isTime) {
         // The time data are in the coordinate array indicated by 'order' value. The data must be rank 1. Data may be compressed
-        if (!isNoCacheTime && *time_count_cache > 0 &&
+        if (!isNoCacheTime && time_count_cache > 0 &&
             !strcasecmp(signal_cache, api_signal) && !strcasecmp(source_cache, api_source)) {
             // Retrieve the Time Coordinate data from the local cache after verification of IDS names
             data_block->rank = 0;
             data_block->order = -1;
-            data_block->data = (char*)malloc(*time_count_cache * sizeof(double));
-            memcpy(data_block->data, time_cache, *time_count_cache * sizeof(double));
-            data_block->data_n = *time_count_cache;
+            data_block->data = (char*)malloc(time_count_cache * sizeof(double));
+            memcpy(data_block->data, time_cache, time_count_cache * sizeof(double));
+            data_block->data_n = time_count_cache;
             data_block->data_type = UDA_TYPE_DOUBLE;
             data_block->dims = NULL;
             strcpy(data_block->data_units, time_units_cache);
@@ -2455,6 +2481,10 @@ static int do_source(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, int* time_cou
             THROW_ERROR(999, "Data Access is not available for this data request!");
         }
     }
+	 
+    *timeCache = time_cache;
+    *dataCache = data_cache;
+    *timeCountCache = time_count_cache;  	
 
     return err;
 }

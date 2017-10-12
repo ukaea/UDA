@@ -1,3 +1,5 @@
+#if defined(SERVERBUILD) || defined(TESTIDAMSECURITY) 
+
 #include "serverAuthentication.h"
 
 #include <server/udaServer.h>
@@ -10,6 +12,7 @@
 #  include <clientserver/printStructs.h>
 #endif
 
+#include "security.h"
 #include "authenticationUtils.h"
 #include "x509Utils.h"
 
@@ -441,3 +444,5 @@ int serverAuthentication(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block,
 
     return err;
 }
+
+#endif  // SERVERBUILD || TESTIDAMSECURITY

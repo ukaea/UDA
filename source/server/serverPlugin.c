@@ -1642,8 +1642,11 @@ int idamServerMetaDataPluginId(const PLUGINLIST* plugin_list)
     static unsigned short noPluginRegistered = 0;
     static int plugin_id = -1;
 
-    if (plugin_id >= 0) return plugin_id;   // Plugin previously identified
-    if (noPluginRegistered) return -1;      // No Plugin for the MetaData Catalog to resolve Generic Name mappings
+    IDAM_LOGF(UDA_LOG_DEBUG, "Entered: noPluginRegistered state = %d\n", noPluginRegistered);
+    IDAM_LOGF(UDA_LOG_DEBUG, "Entered: plugin_id state = %d\n", plugin_id);
+
+    if (plugin_id >= 0) return plugin_id;     // Plugin previously identified
+    if (noPluginRegistered) return -1;        // No Plugin for the MetaData Catalog to resolve Generic Name mappings
 
     // Identify the MetaData Catalog plugin (must be a function library type plugin)
 
@@ -1659,7 +1662,22 @@ int idamServerMetaDataPluginId(const PLUGINLIST* plugin_list)
             plugin_list->plugin[id].idamPlugin != NULL) {
                 plugin_id = (short)id;
         }
-    }
+	
+	if (id >= 0 && plugin_list->plugin[id].private == PLUGINPRIVATE && getIdamServerEnvironment()->external_user) 
+           plugin_id = -1;		// Not available to external users
+
+	
+	IDAM_LOGF(UDA_LOG_DEBUG, "Generic Name Mapping Plugin Name: %s\n", env);
+	IDAM_LOGF(UDA_LOG_DEBUG, "PLUGINFUNCTION?: %d\n", plugin_list->plugin[id].class == PLUGINFUNCTION);
+	IDAM_LOGF(UDA_LOG_DEBUG, "PLUGINPRIVATE?: %d\n", plugin_list->plugin[id].private == PLUGINPRIVATE);
+	IDAM_LOGF(UDA_LOG_DEBUG, "External User?: %d\n", getIdamServerEnvironment()->external_user);
+	IDAM_LOGF(UDA_LOG_DEBUG, "Private?: %d\n", plugin_list->plugin[id].private == PLUGINPRIVATE && getIdamServerEnvironment()->external_user);
+	IDAM_LOGF(UDA_LOG_DEBUG, "PLUGINOPERATIONAL?: %d\n", plugin_list->plugin[id].status == PLUGINOPERATIONAL);
+	IDAM_LOGF(UDA_LOG_DEBUG, "Plugin OK?: %d\n", plugin_list->plugin[id].pluginHandle != NULL && plugin_list->plugin[id].idamPlugin != NULL);
+	IDAM_LOGF(UDA_LOG_DEBUG, "id: %d\n", id);
+	IDAM_LOGF(UDA_LOG_DEBUG, "id: %d\n", plugin_id);
+    } else
+        IDAM_LOG(UDA_LOG_DEBUG, "NO Generic Name Mapping Plugin identified\n");
 
     if (plugin_id < 0) noPluginRegistered = 1;        // No Plugin found (registered)
 

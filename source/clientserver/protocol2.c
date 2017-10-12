@@ -673,14 +673,14 @@ int protocol2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLI
             switch (direction) {
 
             case XDR_RECEIVE:
-                if(!(rc = xdr_securityBlock1(xdrs, security_block))) {
+                if(!xdr_securityBlock1(xdrs, security_block)) {
                     err = PROTOCOL_ERROR_23;
                     break;
                 }
                 break;
 
             case XDR_SEND:
-                if(!(rc = xdr_securityBlock1(xdrs, security_block))) {
+                if(!xdr_securityBlock1(xdrs, security_block)) {
                     err = PROTOCOL_ERROR_23;
                     break;
                 }
@@ -710,14 +710,14 @@ int protocol2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLI
             switch (direction) {
 
             case XDR_RECEIVE:
-                if(!(rc = xdr_securityBlock2(xdrs, security_block))) {
+                if(!xdr_securityBlock2(xdrs, security_block)) {
                     err = PROTOCOL_ERROR_24;
                     break;
                 }
                 break;
 
             case XDR_SEND:
-                if(!(rc = xdr_securityBlock2(xdrs, security_block))) {
+                if(!xdr_securityBlock2(xdrs, security_block)) {
                     err = PROTOCOL_ERROR_24;
                     break;
                 }

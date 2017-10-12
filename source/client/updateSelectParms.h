@@ -6,7 +6,11 @@
 #define UDA_CLIENT_UPDATESELECTPARMS_H
 
 #include <time.h>
-#include <sys/select.h>
+#ifdef __GNUC__
+#  include <sys/select.h>
+#elif defined(_WIN32)
+#  include <winsock.h>
+#endif
 
 void idamUpdateSelectParms(int fd, fd_set* rfds, struct timeval* tv);
 

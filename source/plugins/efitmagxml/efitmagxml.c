@@ -30,6 +30,7 @@
 
 #include "parseHData.h"
 #include "efitmagxmllib.h"
+#include "getXPathValue.h"
 
 static int do_help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
 
@@ -42,6 +43,8 @@ static int do_defaultmethod(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
 static int do_maxinterfaceversion(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
 
 static int do_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, EFIT* efit);
+
+static int do_put(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
 
 // NUMBER
 static int getnfluxloops(EFIT* efit);
@@ -115,6 +118,9 @@ int efitmagxml(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             break;
         }
     }
+    
+    bool isXPath = findValue(&idam_plugin_interface->request_block->nameValueList, "XPath");
+
 
 //----------------------------------------------------------------------------------------
 // Heap Housekeeping 
@@ -136,7 +142,10 @@ int efitmagxml(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Free Heap & reset counters
 
-        freeEfit(&efit);
+        if(isXPath)
+	   getXPathValue("", "", 1, &err);
+	else
+	   freeEfit(&efit);
 
         init = 0;
 
@@ -147,7 +156,8 @@ int efitmagxml(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     // Initialise
 
     if (!STR_IEQUALS(request_block->function, "help")  &&
-            (!init || STR_IEQUALS(request_block->function, "init") || STR_IEQUALS(request_block->function, "initialise"))) {
+        !STR_IEQUALS(request_block->function, "put")   &&
+        (!init || STR_IEQUALS(request_block->function, "init") || STR_IEQUALS(request_block->function, "initialise"))) {
 
         // EFIT Data Structures
 
@@ -155,7 +165,7 @@ int efitmagxml(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
         const char* xmlFile = NULL;
         FIND_REQUIRED_STRING_VALUE(request_block->nameValueList, xmlFile);
-
+	
         const char* dir = getenv("UDA_EFITMAGXML_XMLDIR");
         char* fullpath = strdup(xmlFile);
         if (dir != NULL) {
@@ -165,7 +175,13 @@ int efitmagxml(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         UDA_LOG(UDA_LOG_DEBUG, "loading XML file %s\n", fullpath);
 
         // Parse the XML if the file has been identified
-
+	
+	if(isXPath){
+	   getXPathValue(fullpath, "", 0, &err);		// Parse the XML and create the XPath context 
+	   if(err != 0){
+	      THROW_ERROR(err, "EFIT++ Magnetics XML could Not be Parsed");
+	   }
+	} else
         if (parseEfitXML(fullpath, &efit) != 0) {
             THROW_ERROR(999, "EFIT++ Magnetics XML could Not be Parsed");
         }
@@ -182,6 +198,8 @@ int efitmagxml(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     if (!strcasecmp(request_block->function, "get")) {
         err = do_get(idam_plugin_interface, &efit);
+    } else if (!strcasecmp(request_block->function, "put")) {
+        err = do_put(idam_plugin_interface);
     } else if (!strcasecmp(request_block->function, "help")) {
         do_help(idam_plugin_interface);
     } else if (!strcasecmp(request_block->function, "version")) {
@@ -235,48 +253,90 @@ static int do_maxinterfaceversion(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
  *
  * Example: Get(xmlFile=xmlFile, /UnitStartIndex])
  *
- * device					/Device
- *
- * flux_loop(:)				/FluxLoop, /Count
- * flux_loop(id)/signal			id=id, /FluxLoop, /Signal
- * flux_loop(id)/name			id=id, /FluxLoop, /Name
- * flux_loop(id)/identifier		id=id, /FluxLoop, /Identifier
- * flux_loop(id)/position(:)		id=id, /FluxLoop, /Position, Count
- * flux_loop(id)/position(index)/r		id=id, /FluxLoop, /Position, index=index, /r
- * flux_loop(id)/position(index)/z		id=id, /FluxLoop, /Position, index=index, /z
- * flux_loop(id)/position(index)/phi	id=id, /FluxLoop, /Position, index=index, /phi
- *
- * bpol_probe(:)				/MagProbe, /Count
- * bpol_probe(id)/name			id=id, /MagProbe, /Name
- * bpol_probe(id)/identifier		id=id, /MagProbe, /identifier
- * bpol_probe(id)/position/r		id=id, /MagProbe, /Position, /r
- * bpol_probe(id)/position/z		id=id, /MagProbe, /Position, /z
- * bpol_probe(id)/position/phi		id=id, /MagProbe, /Position, /phi
- *
- * Mapping from PF_ACTIVE IDS to XML objects
- *
- * pf_active.coil(:)						/PFActive, /Count
- * pf_active.coil(id).name						/PFActive, /Name
- * pf_active.coil(id).identifier					/PFActive, /Identifier
- * pf_active.coil(id).signal					/PFActive, /Signal
- * pf_active.coil(id).data_scaling					/PFActive, /DataScaling
- * pf_active.coil(id).time_scaling					/PFActive, /TimeScaling
- *
- * pf_active.coil(id).element(:)					id=id, /PFActive, /Element, /Count
- * pf_active.coil(id).element(index).geometry.rectangle.r		id=id, /PFActive, /Element, /Geometry, /Rectangle, index=index, /r
- * pf_active.coil(id).element(index).geometry.rectangle.z		id=id, /PFActive, /Element, /Geometry, /Rectangle, index=index, /z
- * pf_active.coil(id).element(index).geometry.rectangle.width	id=id, /PFActive, /Element, /Geometry, /Rectangle, index=index, /width
- * pf_active.coil(id).element(index).geometry.rectangle.height	id=id, /PFActive, /Element, /Geometry, /Rectangle, index=index, /height
- * pf_active.coil(id).element(index).turns_with_sign		id=id, /PFActive, /Element, /turns
- *
- * pf_active.coil(id).element(*).geometry.rectangle.r		id=id, /PFActive, /Geometry, /Rectangle, /r 		// Full array of element coordinate data
- * pf_active.coil(id).element(*).geometry.rectangle.z		id=id, /PFActive, /Geometry, /Rectangle, /z
- * pf_active.coil(id).element(*).geometry.rectangle.width		id=id, /PFActive, /Geometry, /Rectangle, /width
- * pf_active.coil(id).element(*).geometry.rectangle.height		id=id, /PFActive, /Geometry, /Rectangle, /height
- *
- * TODO:
- * 1> Reset when the file name changes
- * 2> Ignore data when the signal name is "noData"
+ device					/Device
+
+flux_loop(:)				/FluxLoop, /Count
+flux_loop(id)/signal			id=id, /FluxLoop, /Signal 
+flux_loop(id)/name			id=id, /FluxLoop, /Name 
+flux_loop(id)/identifier		id=id, /FluxLoop, /Identifier  
+flux_loop(id)/position(:)		id=id, /FluxLoop, /Position, Count  
+flux_loop(id)/position(index)/r		id=id, /FluxLoop, /Position, index=index, /r  
+flux_loop(id)/position(index)/z		id=id, /FluxLoop, /Position, index=index, /z  
+flux_loop(id)/position(index)/phi	id=id, /FluxLoop, /Position, index=index, /phi 
+
+flux_loop(id)/ ... /data_scaling	i=id, /FluxLoop, /DataScaling
+flux_loop(id)/ ... /time_scaling	i=id, /FluxLoop, /TimeScaling
+
+flux_loop/id/flux/data_error_upper	i=id, /FluxLoop, /AError
+flux_loop/id/flux/data_error_lower	i=id, /FluxLoop, /RError
+flux_loop/id/flux/data_error_absolute	i=id, /FluxLoop, /AError
+flux_loop/id/flux/data_error_relative	i=id, /FluxLoop, /RError
+
+
+bpol_probe(:)				/MagProbe, /Count
+bpol_probe(id)/name			id=id, /MagProbe, /Name
+bpol_probe(id)/identifier		id=id, /MagProbe, /identifier    
+bpol_probe(id)/position/r		id=id, /MagProbe, /Position, /r  
+bpol_probe(id)/position/z		id=id, /MagProbe, /Position, /z  
+bpol_probe(id)/position/phi		id=id, /MagProbe, /Position, /phi  
+
+bpol_probe/id/field/data_error_upper	id=id, /MagProbe, /AError
+bpol_probe/id/field/data_error_lower	id=id, /MagProbe, /RError
+bpol_probe/id/field/data_error_absolute	id=id, /MagProbe, /AError
+bpol_probe/id/field/data_error_relative	id=id, /MagProbe, /RError
+
+method/id/ip/data_error_upper		id=id, /PlasmaCurrent, /AError
+method/id/ip/data_error_lower		id=id, /PlasmaCurrent, /RError
+method/id/ip/data_error_absolute	id=id, /PlasmaCurrent, /AError
+method/id/ip/data_error_relative	id=id, /PlasmaCurrent, /RError
+
+method/id/diamagnetic_flux/data_error_upper	id=id, /Diamagnetic, /AError
+method/id/diamagnetic_flux/data_error_lower	id=id, /Diamagnetic, /RError
+method/id/diamagnetic_flux/data_error_absolute	id=id, /Diamagnetic, /AError
+method/id/diamagnetic_flux/data_error_relative	id=id, /Diamagnetic, /RError
+
+
+
+Mapping from PF_ACTIVE IDS to XML objects
+
+pf_active.coil(:)						/PFActive, /Count
+pf_active.coil(id).name						/PFActive, /Name
+pf_active.coil(id).identifier					/PFActive, /Identifier
+pf_active.coil(id).signal					/PFActive, /Signal
+pf_active.coil(id).data_scaling					/PFActive, /DataScaling
+pf_active.coil(id).time_scaling					/PFActive, /TimeScaling
+
+pf_active.coil(id).element(:)					id=id, /PFActive, /Element, /Count
+pf_active.coil(id).element(index).geometry.rectangle.r		id=id, /PFActive, /Element, /Geometry, /Rectangle, index=index, /r 	
+pf_active.coil(id).element(index).geometry.rectangle.z		id=id, /PFActive, /Element, /Geometry, /Rectangle, index=index, /z
+pf_active.coil(id).element(index).geometry.rectangle.width	id=id, /PFActive, /Element, /Geometry, /Rectangle, index=index, /width
+pf_active.coil(id).element(index).geometry.rectangle.height	id=id, /PFActive, /Element, /Geometry, /Rectangle, index=index, /height
+pf_active.coil(id).element(index).turns_with_sign		id=id, /PFActive, /Element, /turns
+
+pf_active.coil(id).element(*).geometry.rectangle.r		id=id, /PFActive, /Geometry, /Rectangle, /r 		// Full array of element coordinate data
+pf_active.coil(id).element(*).geometry.rectangle.z		id=id, /PFActive, /Geometry, /Rectangle, /z
+pf_active.coil(id).element(*).geometry.rectangle.width		id=id, /PFActive, /Geometry, /Rectangle, /width
+pf_active.coil(id).element(*).geometry.rectangle.height		id=id, /PFActive, /Geometry, /Rectangle, /height
+
+pf_active/coil/id/current/data_error_upper			id=id, /PFActive, /Current, /AError
+pf_active/coil/id/current/data_error_lower			id=id, /PFActive, /Current, /RError
+pf_active/coil/id/current/data_error_absolute			id=id, /PFActive, /Current, /AError
+pf_active/coil/id/current/data_error_relative			id=id, /PFActive, /Current, /RError
+
+
+
+Mapping from TF IDS to XML objects
+
+tf/b_field_tor_vacuum_r/data_error_upper			/ToroidalField, /BVR, /AError
+tf/b_field_tor_vacuum_r/data_error_lower			/ToroidalField, /BVR, /RError
+tf/b_field_tor_vacuum_r/data_error_absolute			/ToroidalField, /BVR, /AError
+tf/b_field_tor_vacuum_r/data_error_relative			/ToroidalField, /BVR, /RError
+
+
+ToDo:
+
+1> Reset when the file name changes
+2> Ignore data when the signal name is "noData"
  *
  * @param idam_plugin_interface
  * @param efit
@@ -288,7 +348,7 @@ static int do_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, EFIT* efit)
     initDataBlock(data_block);
 
     int count = 0;
-    bool isCount = FIND_INT_VALUE(idam_plugin_interface->request_block->nameValueList, count);
+    bool isCount = FIND_INT_VALUE(idam_plugin_interface->request_block->nameValueList, count);		// How Many?
 
     int objectId;
     bool isObjectId = FIND_INT_VALUE(idam_plugin_interface->request_block->nameValueList, objectId);
@@ -317,11 +377,130 @@ static int do_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, EFIT* efit)
     bool isRectangle = findValue(&idam_plugin_interface->request_block->nameValueList, "rectangle");
     bool isDevice = findValue(&idam_plugin_interface->request_block->nameValueList, "device");
 
-    if (isUnitStartIndex) {
-        // All C arrays begin with index 0
+    bool isAError = findValue(&idam_plugin_interface->request_block->nameValueList, "AError");
+    bool isRError = findValue(&idam_plugin_interface->request_block->nameValueList, "ARrror");
+    bool isToroidalField = findValue(&idam_plugin_interface->request_block->nameValueList, "ToroidalField");
+    bool isBVR = findValue(&idam_plugin_interface->request_block->nameValueList, "BVR");
+
+    bool isCurrent = findValue(&idam_plugin_interface->request_block->nameValueList, "Current");
+    bool isPlasmaCurrent = findValue(&idam_plugin_interface->request_block->nameValueList, "PlasmaCurrent");
+    bool isDiamagnetic = findValue(&idam_plugin_interface->request_block->nameValueList, "Diamagnetic");
+    bool isPFSupplies = findValue(&idam_plugin_interface->request_block->nameValueList, "PFSupplies");
+    bool isPFPassive = findValue(&idam_plugin_interface->request_block->nameValueList, "PFPassive");
+
+    bool isXPath = findValue(&idam_plugin_interface->request_block->nameValueList, "XPath");
+    
+
+    if (isUnitStartIndex) {   // All C arrays begin with index 0        
         if (isObjectId) objectId = objectId - 1;
         if (isIndex) index = index - 1;
     }
+
+    
+    if(isXPath){
+       int err = 0;
+       const char* xPath = NULL;
+       FIND_REQUIRED_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, xPath);
+   
+       char *value = getXPathValue("", xPath, 0, &err);
+       //if(xPath != NULL) free(xPath);
+       if(err != 0){
+          THROW_ERROR(err, "EFIT++ Magnetics XML could Not be Parsed");
+       }
+       IDAM_LOGF(UDA_LOG_DEBUG, "XPath %s\n", xPath);
+       IDAM_LOGF(UDA_LOG_DEBUG, "Value %s\n", value);
+       
+       bool isType = findValue(&idam_plugin_interface->request_block->nameValueList, "Type");
+
+       if(!isType && !isCount) 	// STRING by default      	  
+          return setReturnDataString(idam_plugin_interface->data_block, value, "efitmagxml: XPath value");
+
+       const char* type = NULL;
+       if(isType) FIND_REQUIRED_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, type);
+       
+       if(isCount || !strcasecmp(type, "float")){
+          float* dataArray = xPathFloatArray(value, &count);
+	  if(dataArray){
+	     if(value != NULL) free(value);
+	     if(isCount){
+	        free((void *)dataArray);		
+                strncpy(data_block->data_desc, "efitmagxml: count", STRING_LENGTH);
+                data_block->data_desc[STRING_LENGTH-1] = '\0';
+                data_block->rank = 0;
+                data_block->data_type = TYPE_INT;
+		int *dataArrayCount = (int *)malloc(sizeof(int));
+		dataArrayCount[0] = count;
+                data_block->data = (char*)dataArrayCount;
+                data_block->data_n = 1;
+                return 0;
+	     } else {
+                strncpy(data_block->data_desc, "efitmagxml: float value array", STRING_LENGTH);
+                data_block->data_desc[STRING_LENGTH-1] = '\0';
+                data_block->rank = 0;
+                data_block->data_type = TYPE_FLOAT;
+		if(isIndex){
+		   dataArray[0] = dataArray[index];		// Use the first element to return the requested data
+                   data_block->data = (char*)dataArray;
+                   data_block->data_n = 1;
+		} else {
+                   data_block->data = (char*)dataArray;
+                   data_block->data_n = count;
+                }
+		return 0;
+             }
+	  } else {
+	     err = 999;
+             THROW_ERROR(err, "EFIT++ Magnetics XML could Not be Parsed");
+          }	     
+       } else
+       if(!strcasecmp(type, "double")){
+          double* dataArray = xPathDoubleArray(value, &count);
+	  if(value != NULL) free(value);
+	  if(dataArray){
+             strncpy(data_block->data_desc, "efitmagxml: double value array", STRING_LENGTH);
+             data_block->data_desc[STRING_LENGTH-1] = '\0';
+             data_block->rank = 0;
+             data_block->data_type = TYPE_DOUBLE;
+	     if(isIndex){
+                dataArray[0] = dataArray[index];		// Use the first element to return the requested data
+		data_block->data = (char*)dataArray;
+                data_block->data_n = 1;
+	     } else {
+                data_block->data = (char*)dataArray;
+                data_block->data_n = count;
+             }
+             return 0;
+          } else {
+	     err = 999;
+             THROW_ERROR(err, "EFIT++ Magnetics XML could Not be Parsed");
+          }	     
+       } else
+       if(!strcasecmp(type, "int")){
+          int* dataArray = xPathIntArray(value, &count);
+	  if(dataArray){
+             strncpy(data_block->data_desc, "efitmagxml: int value array", STRING_LENGTH);
+             data_block->data_desc[STRING_LENGTH-1] = '\0';
+             data_block->rank = 0;
+             data_block->data_type = TYPE_INT;
+	     if(isIndex){
+                dataArray[0] = dataArray[index];		// Use the first element to return the requested data
+		data_block->data = (char*)dataArray;
+                data_block->data_n = 1;
+	     } else {
+                data_block->data = (char*)dataArray;
+                data_block->data_n = count;
+             }
+             return 0;
+          } else {
+	     err = 999;
+             THROW_ERROR(err, "EFIT++ Magnetics XML could Not be Parsed");
+          }	     
+       } else {
+          err = 999;
+          THROW_ERROR(err, "EFIT++ Magnetics XML could Not be Parsed");        
+       }
+    
+    } // isXPath
 
     if (isCount) {
         if (isFluxLoop) {
@@ -386,6 +565,60 @@ static int do_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, EFIT* efit)
             name = getnamepfcoils(efit, objectId);
         }
         return setReturnDataString(idam_plugin_interface->data_block, name, "efitmagxml: object name returned");
+    } else if (isAError) {
+	double error = 0;	    
+	if(isFluxLoop){
+           if(efit->fluxloop) error = (double)(efit->fluxloop[objectId].aerr);
+        } else
+	if(isMagProbe){
+	   if(efit->magprobe) error = (double)(efit->magprobe[objectId].aerr);
+        } else	       
+	if(isPFActive && isCurrent){
+           if(efit->pfcoils) error = (double)(efit->pfcoils[objectId].aerr);
+        }	     	       
+	if(isToroidalField && isBVR){
+           if(efit->toroidalfield) error = (double)(efit->toroidalfield[objectId].aerr);
+        } else
+	if(isPlasmaCurrent){
+	   if(efit->plasmacurrent) error = (double)(efit->plasmacurrent[objectId].aerr);
+        } else	       
+	if(isDiamagnetic){
+	   if(efit->diamagnetic) error = (double)(efit->diamagnetic[objectId].aerr);
+        }
+	if(isPFSupplies){
+	   if(efit->pfsupplies) error = (double)(efit->pfsupplies[objectId].aerr);
+        } else	       
+	if(isPFPassive){
+           if(efit->pfpassive) error = (double)(efit->pfpassive[objectId].aerr);
+        }
+        return setReturnDataDoubleScalar(idam_plugin_interface->data_block, error, "efitmagxml: Absolute Error"); 
+    } else if (isRError) {
+	double error = 0;	    
+	if(isFluxLoop){
+           if(efit->fluxloop) error = (double)(efit->fluxloop[objectId].rerr);
+        } else
+	if(isMagProbe){
+	   if(efit->magprobe) error = (double)(efit->magprobe[objectId].rerr);
+        } else
+	if(isPFActive && isCurrent){
+           if(efit->pfcoils)error = (double)(efit->pfcoils[objectId].rerr);
+        }	     	       
+	if(isToroidalField && isBVR){
+           if(efit->toroidalfield) error = (double)(efit->toroidalfield[objectId].rerr);
+        } else
+	if(isPlasmaCurrent){
+	   if(efit->plasmacurrent) error = (double)(efit->plasmacurrent[objectId].rerr);
+        } else	       
+	if(isDiamagnetic){
+           if(efit->diamagnetic) error = (double)(efit->diamagnetic[objectId].rerr);
+        }
+	if(isPFSupplies){
+	   if(efit->pfsupplies) error = (double)(efit->pfsupplies[objectId].rerr);
+        } else	       
+	if(isPFPassive){
+           if(efit->pfpassive) error = (double)(efit->pfpassive[objectId].rerr);
+        }
+        return setReturnDataDoubleScalar(idam_plugin_interface->data_block, error, "efitmagxml: Relative Error"); 
     } else if (isIdentifier) {
         char* id = NULL;
         if (isFluxLoop) {
@@ -479,7 +712,68 @@ static int do_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, EFIT* efit)
 
     return 0;
 }
+ 
+static int do_put(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
+{
+    int err=0;
+    DATA_BLOCK* data_block = idam_plugin_interface->data_block;
+    initDataBlock(data_block);
+    
+    bool isType  = findValue(&idam_plugin_interface->request_block->nameValueList, "Type");
+    bool isValue = findValue(&idam_plugin_interface->request_block->nameValueList, "Value");
 
+    if(!isType && !isValue){ 	    	  
+       err = 999;
+       THROW_ERROR(err, "EFIT++ Magnetics Value could not be PUT");
+    }
+
+    const char* type = NULL;
+    if(isType) FIND_REQUIRED_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, type);
+    const char* value = NULL;
+    if(isValue) FIND_REQUIRED_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, value);
+
+    strncpy(data_block->data_desc, "efitmagxml: object count returned", STRING_LENGTH);
+    data_block->data_desc[STRING_LENGTH-1] = '\0';
+    data_block->rank = 0;
+    if(!isType || !strcasecmp(type, "string")){
+         data_block->data_type = TYPE_STRING;
+	 char *data = strdup(value);
+         data_block->data = data;
+         data_block->data_n = strlen(value);
+         return 0;
+    } else
+    if(!strcasecmp(type, "int")){
+         data_block->data_type = TYPE_INT;
+         int *data = malloc(sizeof(int));
+         data[0] = atoi(value);
+         data_block->data = (char*)data;
+         data_block->data_n = 1;
+         return 0;
+    } else
+    if(!strcasecmp(type, "float")){
+         data_block->data_type = TYPE_FLOAT;
+         float *data = (float *)malloc(sizeof(float));
+         data[0] = (float) atof(value);
+         data_block->data = (char*)data;
+         data_block->data_n = 1;
+         return 0;
+    } else
+    if(!strcasecmp(type, "double")){
+         data_block->data_type = TYPE_DOUBLE;
+         double *data = (double *)malloc(sizeof(double));
+         data[0] = (double) atof(value);
+         data_block->data = (char*)data;
+         data_block->data_n = 1;
+         return 0;
+    } else {
+         err = 999;
+         THROW_ERROR(err, "EFIT++ Magnetics Value could not be PUT - Type not implemented");
+         return err;         
+    }	    
+    
+    return 0;
+}
+ 
 int getnfluxloops(EFIT* efit)
 {
     return efit->nfluxloops;

@@ -94,12 +94,13 @@ add_library( fatserver-objects OBJECT
 
 target_compile_definitions( fatserver-objects PRIVATE -DFATCLIENT )
 
+
 set( SERVER_OBJ
   $<TARGET_OBJECTS:server-objects>
   $<TARGET_OBJECTS:clientserver-server-objects>
   $<TARGET_OBJECTS:logging-server-objects>
   $<TARGET_OBJECTS:structures-server-objects>
-  #$<TARGET_OBJECTS:security-objects>
+  $<TARGET_OBJECTS:authentication-server-objects>
   $<TARGET_OBJECTS:modules-objects>
 )
 
