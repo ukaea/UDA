@@ -34,11 +34,13 @@ char* TrimString(char* szSource);
 // Trim Leading Space Characters from a String
 char* LeftTrimString(char* str);
 
+#ifdef __GNUC__
 // Convert all LowerCase Characters to Upper Case
 char* strupr(char* a);
 
 // Convert all UpperCase Characters to Lower Case
 char* strlwr(char* a);
+#endif
 
 // Trim Internal Space Characters from a String
 char* MidTrimString(char* str);

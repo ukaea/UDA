@@ -65,14 +65,22 @@ if( APPLE )
   set( CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -undefined dynamic_lookup" )
 endif( APPLE )
 
-set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC" )
-set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -std=c++11" )
+
+if( NOT WIN32 )
+  set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC" )
+  set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -std=c++11" )
+endif()
+
 
 add_definitions(
   -DOSTYPE=${CMAKE_SYSTEM_NAME}
 )
 
-if( NOT APPLE )
+if( WIN32 )
+  add_definitions( -D_CRT_SECURE_NO_WARNINGS )
+endif()
+
+if( NOT APPLE AND NOT WIN32 )
   add_definitions(
     -D_XOPEN_SOURCE=700
     -D_POSIX_C_SOURCE=200809L

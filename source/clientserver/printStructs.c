@@ -342,6 +342,7 @@ void printSignalDesc(SIGNAL_DESC str)
     IDAM_LOGF(UDA_LOG_DEBUG, "xml_creation  : %s\n", str.xml_creation);
 }
 
+#ifdef __GNUC__
 void printPerformance(PERFORMANCE str)
 {
     int i;
@@ -354,6 +355,7 @@ void printPerformance(PERFORMANCE str)
     }
     IDAM_LOG(UDA_LOG_DEBUG, "=========================================================\n\n");
 }
+#endif
 
 //-------------------------------------------------------------------------------------------------------------------
 

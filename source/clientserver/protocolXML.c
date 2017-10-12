@@ -60,6 +60,7 @@
 
 #include <logging/logging.h>
 #include <structures/struct.h>
+#include <clientserver/mkstemp.h>
 
 #include "readXDRFile.h"
 #include "errorLog.h"

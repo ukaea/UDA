@@ -1,7 +1,9 @@
 #ifndef IDAM_CLIENTSERVER_IDAMSTRUCTS_H
 #define IDAM_CLIENTSERVER_IDAMSTRUCTS_H
 
-#include <sys/time.h>
+#ifdef __GNUC__
+#  include <sys/time.h>
+#endif
 #include "udaDefines.h"
 
 //--------------------------------------------------------
@@ -344,6 +346,7 @@ typedef struct RequestBlock {
 
 } REQUEST_BLOCK;
 
+#ifdef __GNUC__
 //---------------------------------------------------------------------------------------------------
 // Performance Measures
 
@@ -353,6 +356,7 @@ typedef struct Performance {
     struct timeval tv_start[20];    // Start time at a Measurement Point
     struct timeval tv_end[20];      // Stop time
 } PERFORMANCE;
+#endif
 
 //---------------------------------------------------------------------------------------------------
 // System Environment Variables

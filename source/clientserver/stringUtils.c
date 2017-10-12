@@ -3,7 +3,13 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <stdio.h>
-#include <strings.h>
+
+#ifdef __GNUC__
+#  include <strings.h>
+#elif defined(_WIN32)
+#  include <string.h>
+#  define strncasecmp _strnicmp
+#endif
 
 #ifndef strcasestr
 char *strcasestr(const char *haystack, const char *needle)
@@ -101,6 +107,7 @@ char* LeftTrimString(char* str)
     return str;
 }
 
+#ifdef __GNUC__
 
 // Convert all LowerCase Characters to Upper Case
 
@@ -132,6 +139,8 @@ char* strlwr(char* a)
 
     return ret;
 }
+
+#endif
 
 // Trim Internal Space Characters from a String
 
@@ -239,7 +248,7 @@ int IsLegalFilePath(const char* str)
         }
 
 #ifdef _WIN32
-        if( *tst == ' ' || (pathName && *tst == '\\')) {
+	if (*tst == ' ' || *tst == '\\') {
             tst++;
             continue;
         }
@@ -280,6 +289,11 @@ int asprintf(char** strp, const char* fmt, ...)
  * @param delims
  * @return
  */
+#ifdef _WIN32
+#  define strtok_r strtok_s
+#  define strdup _strdup
+#endif 
+ 
 char** SplitString(const char* string, const char* delims)
 {
     char** names = NULL;
