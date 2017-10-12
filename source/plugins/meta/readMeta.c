@@ -81,7 +81,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     int exp_number = 0, pass = -1, shotDependent = -1, sourceDependent = -1, typeDependent = -1,
             versionDependent = -1, revisionDependent = -1, classDependent = -1, descDependent = -1, tableDependent = -1,
             systemDependent = -1, configDependent = -1, deviceDependent = -1, nameDependent = -1, whereDependent = -1,
-            limitDependent = -1, fileDependent = -1;
+      limitDependent = -1, fileDependent = -1, signalMatchDependent = -1;
     unsigned short isListDevices = 0, isListClasses = 0, isListSources = 0, isLastShot = 0, isShotDateTime = 0,
             isStructure = 0, isLatest = 0, isLastPass = 0;
 
@@ -90,6 +90,9 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     unsigned short intTypeId = SCALARINT;    // Integer type, default: scalar
     unsigned short uintTypeId = SCALARUINT;    // Unsigned Integer type, default: scalar
     void* structData = NULL;
+
+    const char* signal_match = NULL;
+    const char* description = NULL;
 
     //----------------------------------------------------------------------------------------
     // Standard v1 Plugin Interface
@@ -325,10 +328,12 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         }
         if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "description")) {
             descDependent = i;
-            if (preventSQLInjection(DBConnect, &request_block->nameValueList.nameValue[descDependent].value)) {
-                err = 888;
-                break;
-            }
+	    FIND_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, description);
+            continue;
+        }
+        if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "signal_match")) {
+            signalMatchDependent = i;
+	    FIND_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, signal_match);
             continue;
         }
         if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "table")) {
@@ -620,6 +625,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             UDA_LOG(UDA_LOG_DEBUG, "readMeta: listDevices SQL\n%s\n", sql);
 
             // Execute the SQL
+	    IDAM_LOGF(UDA_LOG_DEBUG, "Query (meta) : %s\n", sql);
 
             if ((DBQuery = PQexec(DBConnect, sql)) == NULL) {
                 err = 999;
@@ -637,7 +643,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             }
 
             nrows = PQntuples(DBQuery);
-
+	    
             if (nrows == 0) {
                 UDA_LOG(UDA_LOG_ERROR, "ERROR Meta listDevices: No Meta Data available!\n");
                 err = 999;
@@ -1059,6 +1065,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Execute the SQL
 
+	    IDAM_LOGF(UDA_LOG_DEBUG, "Query (meta) : %s\n", sql);
             if ((DBQuery = PQexec(DBConnect, sql)) == NULL) {
                 UDA_LOG(UDA_LOG_ERROR, "ERROR Meta: Database Query Failed!\n");
                 err = 999;
@@ -1677,6 +1684,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Execute the SQL
 
+	    IDAM_LOGF(UDA_LOG_DEBUG, "Query (meta) : %s\n", sql);
             if ((DBQuery = PQexec(DBConnect, sql)) == NULL) {
                 UDA_LOG(UDA_LOG_ERROR, "ERROR Meta: Database Query Failed!\n");
                 err = 999;
@@ -1745,6 +1753,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Execute the SQL
 
+	    IDAM_LOGF(UDA_LOG_DEBUG, "Query (lastshot) : %s\n", sql);
             if ((DBQuery = PQexec(DBConnect, sql)) == NULL) {
                 err = 999;
                 UDA_LOG(UDA_LOG_ERROR, "ERROR Meta: Database Query Failed!\n");
@@ -1920,6 +1929,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             // Execute the SQL
 
+	    IDAM_LOGF(UDA_LOG_DEBUG, "Query (isshotdatetime) %s\n", sql);
             if ((DBQuery = PQexec(DBConnect, sql)) == NULL) {
                 err = 999;
                 UDA_LOG(UDA_LOG_ERROR, "ERROR Meta: Database Query Failed!\n");
@@ -2065,36 +2075,101 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             }
             strcpy(work, sql);
 
-            // *** status ***
+	    // Signal match string
+	    char* signal_match_escaped = NULL;
+	    if (signalMatchDependent >= 0) {
+	      signal_match_escaped = (char*)malloc((2 * strlen(signal_match) + 1) * sizeof(char));
+	      int err_inj = 0;
+	      PQescapeStringConn(DBConnect, signal_match_escaped, signal_match, strlen(signal_match), &err_inj);
+	    }
 
+	    // Desc match string
+	    char* desc_match_escaped = NULL;
+	    if (descDependent >= 0) {
+	      desc_match_escaped = (char*)malloc((2 * strlen(description) + 1) * sizeof(char));
+	      int err_inj = 0;
+	      PQescapeStringConn(DBConnect, desc_match_escaped, description, strlen(description), &err_inj);
+	    }
+
+// *** status ***
             if (exp_number > 0) {
                 if (pass > -1) {
                     sprintf(sql,
                             "SELECT signal_alias, generic_name, source_alias, type, description, signal_status FROM Signal_Desc as D, "
                                     "(SELECT DISTINCT signal_desc_id, signal_status from Signal as A, (SELECT source_id FROM Data_Source WHERE "
                                     "exp_number = %d AND pass = %d %s) as B WHERE A.source_id = B.source_id) as C WHERE "
-                                    "D.signal_desc_id = C.signal_desc_id ORDER BY signal_alias ASC", exp_number, pass,
-                            work);
+			    "D.signal_desc_id = C.signal_desc_id ", exp_number, pass, work);
+
+		    if (signalMatchDependent >= 0) {
+		      strcat(sql, " AND D.signal_alias ILIKE '%");
+		      strcat(sql, signal_match_escaped);
+		      strcat(sql, "%'");
+		    }
+		    if (descDependent >= 0) {
+		      strcat(sql, " AND D.description ILIKE '%");
+		      strcat(sql, desc_match_escaped);
+		      strcat(sql, "%'");
+		    }
+
+		    strcat(sql, " ORDER BY signal_alias ASC");
+
                 } else {
                     sprintf(sql,
                             "SELECT signal_alias, generic_name, source_alias, type, description, signal_status FROM Signal_Desc as D, "
-                                    "(SELECT DISTINCT signal_desc_id, signal_status from Signal as A, (SELECT source_id FROM Data_Source WHERE "
-                                    "exp_number = %d %s) as B WHERE A.source_id = B.source_id) as C WHERE "
-                                    "D.signal_desc_id = C.signal_desc_id ORDER BY signal_alias ASC", exp_number, work);
+                                    "(SELECT DISTINCT signal_desc_id, signal_status from Signal as A, "
+			               " (SELECT source_id FROM Data_Source WHERE exp_number = %d %s) "
+                                      " as B WHERE A.source_id = B.source_id) as C "
+                             " WHERE D.signal_desc_id = C.signal_desc_id ", exp_number, work);
+
+		    if (signalMatchDependent >= 0) {
+		      strcat(sql, " AND D.signal_alias ILIKE '%");
+		      strcat(sql, signal_match_escaped);
+		      strcat(sql, "%'");
+		    }
+		    if (descDependent >= 0) {
+		      strcat(sql, " AND D.description ILIKE '%");
+		      strcat(sql, desc_match_escaped);
+		      strcat(sql, "%'");
+		    }
+
+		    strcat(sql, " ORDER BY signal_alias ASC");
+
                 }
             } else {
                 if (work[0] == '\0') {
-                    sprintf(sql, "SELECT signal_alias, generic_name, source_alias, type, description FROM Signal_Desc "
-                            "ORDER BY signal_alias ASC");
+		  sprintf(sql, "SELECT signal_alias, generic_name, source_alias, type, description FROM Signal_Desc");
+		  if (signalMatchDependent >= 0) {
+		    strcat(sql, " AND signal_alias ILIKE '%");
+		    strcat(sql, signal_match_escaped);
+		    strcat(sql, "%'");
+		  }
+		  if (descDependent >= 0) {
+		    strcat(sql, " AND description ILIKE '%");
+		    strcat(sql, desc_match_escaped);
+		    strcat(sql, "%'");
+		  }		  
+		  strcat(sql, " ORDER BY signal_alias ASC");
+
                 } else {
                     sprintf(sql,
                             "SELECT signal_alias, generic_name, source_alias, type, description FROM Signal_Desc WHERE "
-                                    "%s ORDER BY signal_alias ASC", &work[4]);  // skip the AND
+			    "%s", &work[4]);  // skip the AND
+		    if (signalMatchDependent >= 0) {
+		      strcat(sql, " AND signal_alias ILIKE '%");
+		      strcat(sql, signal_match_escaped);
+		      strcat(sql, "%'");
+		    }
+		    if (descDependent >= 0) {
+		      strcat(sql, " AND description ILIKE '%");
+		      strcat(sql, desc_match_escaped);
+		      strcat(sql, "%'");
+		    }		  
+		    strcat(sql, " ORDER BY signal_alias ASC");
+		    
                 }
             }
 
 // Execute the SQL
-
             if ((DBQuery = PQexec(DBConnect, sql)) == NULL) {
                 err = 999;
                 UDA_LOG(UDA_LOG_ERROR, "ERROR DATA::listData: Database Query Failed!\n");
@@ -2358,6 +2433,13 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             PQclear(DBQuery);
 
+	    if (signalMatchDependent >= 0) {
+	      free(signal_match_escaped);
+	    }
+	    if (descDependent >= 0) {
+	      free(desc_match_escaped);
+	    }
+
 // Pass Data
 
             data_block->data_type = UDA_TYPE_COMPOUND;
@@ -2424,7 +2506,6 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             }
 
             // Execute the SQL
-
             if ((DBQuery = PQexec(DBConnect, sql)) == NULL) {
                 err = 999;
                 UDA_LOG(UDA_LOG_ERROR, "ERROR Meta: Database Query Failed!\n");
@@ -2700,7 +2781,6 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 
 // Execute the SQL
-
             if ((DBQuery = PQexec(DBConnect, sql)) == NULL) {
                 err = 999;
                 UDA_LOG(UDA_LOG_ERROR, "ERROR Meta listClasses: Database Query Failed!\n");
@@ -2873,6 +2953,14 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             UDA_LOG(UDA_LOG_DEBUG, "Meta: listData function called with CPF context\n");
 
+	    // Desc match string
+	    char* desc_match_escaped = NULL;
+	    if (descDependent >= 0) {
+	      desc_match_escaped = (char*)malloc((2 * strlen(description) + 1) * sizeof(char));
+	      int err_inj = 0;
+	      PQescapeStringConn(DBConnect, desc_match_escaped, description, strlen(description), &err_inj);
+	    }
+
             work[0] = '\0';
             wCount = 0;
             if (classDependent >= 0) {
@@ -2886,10 +2974,10 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             if (descDependent >= 0) {
                 if (wCount == 0)
                     sprintf(work, " description ILIKE '%c%s%c'", '%',
-                            request_block->nameValueList.nameValue[descDependent].value, '%');
+                            desc_match_escaped, '%');
                 else
                     sprintf(work, " AND description ILIKE '%c%s%c'", '%',
-                            request_block->nameValueList.nameValue[descDependent].value, '%');
+                            desc_match_escaped, '%');
                 wCount++;
             }
             if (sourceDependent >= 0) {
@@ -3161,6 +3249,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             }
 
             PQclear(DBQuery);
+	    free(desc_match_escaped);
 
 // Pass Data
 
@@ -3259,6 +3348,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Execute the SQL
 
+	    IDAM_LOGF(UDA_LOG_DEBUG, "Query (cpf) : %s\n", sql);
             if ((DBQuery = PQexec(DBConnect, sql)) == NULL) {
                 err = 999;
                 UDA_LOG(UDA_LOG_ERROR, "ERROR Meta:: Database Query Failed!\n");
