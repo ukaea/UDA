@@ -3,18 +3,16 @@
 
 #include <c++/UDA.hpp>
 
-TEST_CASE( "Test VIEWPORT::help() function", "[VIEWPORT][plugins]" ) {
-
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+TEST_CASE( "Test VIEWPORT::help() function", "[VIEWPORT][plugins]" )
+{
+#include "setup.inc"
 
     uda::Client client;
 
     const uda::Result& result = client.get("VIEWPORT::help()", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.errorMessage() == "" );
+    REQUIRE( result.errorMessage().empty() );
 
     uda::Data* data = result.data();
 
@@ -22,7 +20,7 @@ TEST_CASE( "Test VIEWPORT::help() function", "[VIEWPORT][plugins]" ) {
     REQUIRE( !data->isNull() );
     REQUIRE( data->type().name() == typeid(char*).name() );
 
-    uda::String* str = dynamic_cast<uda::String*>(data);
+    auto str = dynamic_cast<uda::String*>(data);
 
     REQUIRE( str != NULL );
 

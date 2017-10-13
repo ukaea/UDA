@@ -23,7 +23,7 @@ static int get_signal_length(const char* signal)
     /* use MdsValue to get the signal length */
     status = MdsValue(buf, &idesc, &null, NULL);
     if (((status & 1) != 1)) {
-        IDAM_LOGF(UDA_LOG_ERROR, "Unable to get length of %s.\n", signal);
+        UDA_LOG(UDA_LOG_ERROR, "Unable to get length of %s.\n", signal);
         return -1;
     }
 
@@ -41,7 +41,7 @@ int mds_get(const char* signalName, int shot, float** time, float** data, int* l
         /* Connect to MDSplus */
         socket = MdsConnect("mdsplus.jet.efda.org:8000");
         if (socket == -1) {
-            IDAM_LOG(UDA_LOG_ERROR, "Error connecting to mdsplus.jet.efda.org.\n");
+            UDA_LOG(UDA_LOG_ERROR, "Error connecting to mdsplus.jet.efda.org.\n");
             return -1;
         }
     }
@@ -69,7 +69,7 @@ int mds_get(const char* signalName, int shot, float** time, float** data, int* l
     *len = get_signal_length(signal);
 
     if (*len < 0) {
-        IDAM_LOG(UDA_LOG_ERROR, "Unable to get signal length.\n");
+        UDA_LOG(UDA_LOG_ERROR, "Unable to get signal length.\n");
         return -1;
     }
 
@@ -89,7 +89,7 @@ int mds_get(const char* signalName, int shot, float** time, float** data, int* l
 
     status = MdsValue(buf, &fdesc, &null, &rlen, NULL);
     if (((status & 1) != 1)) {
-        IDAM_LOG(UDA_LOG_ERROR, "Unable to get signal.\n");
+        UDA_LOG(UDA_LOG_ERROR, "Unable to get signal.\n");
         return -1;
     }
 
@@ -100,7 +100,7 @@ int mds_get(const char* signalName, int shot, float** time, float** data, int* l
 
     status = MdsValue(buf, &fdesc, &null, &rlen, NULL);
     if (((status & 1) != 1)) {
-        IDAM_LOG(UDA_LOG_ERROR, "Unable to get signal.\n");
+        UDA_LOG(UDA_LOG_ERROR, "Unable to get signal.\n");
         return -1;
     }
 

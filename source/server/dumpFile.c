@@ -55,11 +55,11 @@ int dumpFile(REQUEST_BLOCK request_block, DATA_BLOCK* data_block)
 //----------------------------------------------------------------------
 // File Location
 
-    IDAM_LOGF(UDA_LOG_DEBUG, "Exp. Number  : %d \n", request_block.exp_number);
-    IDAM_LOGF(UDA_LOG_DEBUG, "Pass Number  : %d \n", request_block.pass);
-    IDAM_LOGF(UDA_LOG_DEBUG, "Signal       : %s \n", request_block.signal);
-    IDAM_LOGF(UDA_LOG_DEBUG, "File Name    : %s \n", request_block.file);
-    IDAM_LOGF(UDA_LOG_DEBUG, "File Path    : %s \n", request_block.path);
+    UDA_LOG(UDA_LOG_DEBUG, "Exp. Number  : %d \n", request_block.exp_number);
+    UDA_LOG(UDA_LOG_DEBUG, "Pass Number  : %d \n", request_block.pass);
+    UDA_LOG(UDA_LOG_DEBUG, "Signal       : %s \n", request_block.signal);
+    UDA_LOG(UDA_LOG_DEBUG, "File Name    : %s \n", request_block.file);
+    UDA_LOG(UDA_LOG_DEBUG, "File Path    : %s \n", request_block.path);
 
     err = 0;
 
@@ -97,16 +97,16 @@ int dumpFile(REQUEST_BLOCK request_block, DATA_BLOCK* data_block)
         strcpy(path, request_block.path);        //Fully Specified
     }
 
-    IDAM_LOGF(UDA_LOG_DEBUG, "File Alias   : %s \n", alias);
-    IDAM_LOGF(UDA_LOG_DEBUG, "File Name    : %s \n", file);
-    IDAM_LOGF(UDA_LOG_DEBUG, "File Path    : %s \n", path);
+    UDA_LOG(UDA_LOG_DEBUG, "File Alias   : %s \n", alias);
+    UDA_LOG(UDA_LOG_DEBUG, "File Name    : %s \n", file);
+    UDA_LOG(UDA_LOG_DEBUG, "File Path    : %s \n", path);
 
 //----------------------------------------------------------------------
 // Test for embedded semi-colons => embedded linux commands
 
     if (!IsLegalFilePath(path)) {
         err = 999;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "dumpFile", err, "The directory path has incorrect syntax");
+        addIdamError(CODEERRORTYPE, "dumpFile", err, "The directory path has incorrect syntax");
     }
 
 //----------------------------------------------------------------------
@@ -122,7 +122,7 @@ int dumpFile(REQUEST_BLOCK request_block, DATA_BLOCK* data_block)
 // Create the output file using the appropriate dump utility program
 
         switch (request_block.request) {
-            case REQUEST_READ_IDA :
+            case REQUEST_READ_IDA:
                 if ((env = getenv("UDA_DUMP_IDA")) != NULL) {
                     strcpy(cmd, env);
                     strcat(cmd, " ");
@@ -130,7 +130,7 @@ int dumpFile(REQUEST_BLOCK request_block, DATA_BLOCK* data_block)
                     strcpy(cmd, "idadump ");
                 }
                 break;
-            case REQUEST_READ_CDF :
+            case REQUEST_READ_CDF:
                 if ((env = getenv("UDA_DUMP_NETCDF")) != NULL) {
                     strcpy(cmd, env);
                     strcat(cmd, " -h ");
@@ -138,7 +138,7 @@ int dumpFile(REQUEST_BLOCK request_block, DATA_BLOCK* data_block)
                     strcpy(cmd, "ncdump -h ");
                 }
                 break;
-            case REQUEST_READ_HDF5 :
+            case REQUEST_READ_HDF5:
                 if ((env = getenv("UDA_DUMP_HDF5")) != NULL) {
                     strcpy(cmd, env);
                     strcat(cmd, " -n ");
@@ -146,7 +146,7 @@ int dumpFile(REQUEST_BLOCK request_block, DATA_BLOCK* data_block)
                     strcpy(cmd, "h5dump -n ");
                 }
                 break;
-            case REQUEST_READ_MDS : {
+            case REQUEST_READ_MDS: {
 
 // Java example: http://www.mdsplus.org/mdsplus/cvsweb.cgi/mdsplus/javatraverser/DecompileTree.java
 
@@ -164,9 +164,9 @@ int dumpFile(REQUEST_BLOCK request_block, DATA_BLOCK* data_block)
                         lpath = (int) strlen(path);
                         if (!IsLegalFilePath(path)) {                    // Check the file path is regular
                             err = 999;
-                            addIdamError(&idamerrorstack, CODEERRORTYPE, "dumpFile", err,
+                            addIdamError(CODEERRORTYPE, "dumpFile", err,
                                          "Unacceptable Path to MDS+ Data Tree");
-                            IDAM_LOGF(UDA_LOG_DEBUG,
+                            UDA_LOG(UDA_LOG_DEBUG,
                                     "Syntax error in the directory path to the MDS+ Data Tree %s\n", path);
                             break;
                         }
@@ -175,9 +175,9 @@ int dumpFile(REQUEST_BLOCK request_block, DATA_BLOCK* data_block)
                                 path[i] = '/';        // Change from URL Notation to Path Tree Notation
                     } else {
                         err = 999;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "dumpFile", err,
+                        addIdamError(CODEERRORTYPE, "dumpFile", err,
                                      "Unable to Set Trees Paths for Remote MDSPlus Servers");
-                        IDAM_LOGF(UDA_LOG_DEBUG, "Unable to Set Trees Paths for Remote MDSPlus Servers - %s\n",
+                        UDA_LOG(UDA_LOG_DEBUG, "Unable to Set Trees Paths for Remote MDSPlus Servers - %s\n",
                                 path);
                         break;
                     }
@@ -192,10 +192,10 @@ int dumpFile(REQUEST_BLOCK request_block, DATA_BLOCK* data_block)
                 setenv("IDAM_SERVER_TREESERVER", server, 1);
                 setenv("IDAM_SERVER_TREEPATH", path, 1);
 
-                IDAM_LOGF(UDA_LOG_DEBUG, "IDAM_SERVER_TREENAME:   %s\n", request_block.file);
-                IDAM_LOGF(UDA_LOG_DEBUG, "IDAM_SERVER_TREENUM:    %s\n", exp_number_str);
-                IDAM_LOGF(UDA_LOG_DEBUG, "IDAM_SERVER_TREESERVER: %s\n", server);
-                IDAM_LOGF(UDA_LOG_DEBUG, "IDAM_SERVER_TREEPATH:   %s\n", path);
+                UDA_LOG(UDA_LOG_DEBUG, "IDAM_SERVER_TREENAME:   %s\n", request_block.file);
+                UDA_LOG(UDA_LOG_DEBUG, "IDAM_SERVER_TREENUM:    %s\n", exp_number_str);
+                UDA_LOG(UDA_LOG_DEBUG, "IDAM_SERVER_TREESERVER: %s\n", server);
+                UDA_LOG(UDA_LOG_DEBUG, "IDAM_SERVER_TREEPATH:   %s\n", path);
 
                 if ((env = getenv("UDA_DUMP_MDSPLUS")) != NULL) {
                     strcpy(cmd, env);
@@ -208,7 +208,7 @@ int dumpFile(REQUEST_BLOCK request_block, DATA_BLOCK* data_block)
             }
             default:
                 err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "dumpFile", err,
+                addIdamError(CODEERRORTYPE, "dumpFile", err,
                              "No DUMP Utility Program for this File Format");
                 break;
         }
@@ -218,7 +218,7 @@ int dumpFile(REQUEST_BLOCK request_block, DATA_BLOCK* data_block)
         strcat(cmd, path);
         strcat(cmd, " 2>&1");
 
-        IDAM_LOGF(UDA_LOG_DEBUG, "DUMP: %s\n", cmd);
+        UDA_LOG(UDA_LOG_DEBUG, "DUMP: %s\n", cmd);
 
 // Execute the Command and Open a Pipe to the Output for Reading
 
@@ -228,8 +228,8 @@ int dumpFile(REQUEST_BLOCK request_block, DATA_BLOCK* data_block)
 
         if (ph == NULL || serrno != 0) {
             err = 999;
-            if (serrno != 0) addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "dumpFile", serrno, "");
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "dumpFile", err, "Problem Running the DUMP utility program");
+            if (serrno != 0) addIdamError(SYSTEMERRORTYPE, "dumpFile", serrno, "");
+            addIdamError(CODEERRORTYPE, "dumpFile", err, "Problem Running the DUMP utility program");
             break;
         }
 
@@ -241,7 +241,7 @@ int dumpFile(REQUEST_BLOCK request_block, DATA_BLOCK* data_block)
         while (!feof(ph)) {
             if ((bp = (char*) realloc(bp, data_block->data_n)) == NULL) {
                 err = 9998;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "dumpFile", err,
+                addIdamError(CODEERRORTYPE, "dumpFile", err,
                              "Unable to Allocate Heap Memory for the File DUMP");
                 break;
             }
@@ -253,7 +253,7 @@ int dumpFile(REQUEST_BLOCK request_block, DATA_BLOCK* data_block)
 
         if (err != 0) break;
 
-        IDAM_LOGF(UDA_LOG_DEBUG, "nchar %d\n", nchar);
+        UDA_LOG(UDA_LOG_DEBUG, "nchar %d\n", nchar);
 
         data_block->data_n = nchar;
         data_block->data = (char*) bp;
@@ -261,7 +261,7 @@ int dumpFile(REQUEST_BLOCK request_block, DATA_BLOCK* data_block)
         data_block->rank = 0;        // Scalar Array of Bytes
         data_block->order = -1;        // No Time Dimension
 
-        data_block->data_type = TYPE_STRING;
+        data_block->data_type = UDA_TYPE_STRING;
 
 //----------------------------------------------------------------------
 // End of Error Trap Loop
@@ -271,8 +271,8 @@ int dumpFile(REQUEST_BLOCK request_block, DATA_BLOCK* data_block)
 //----------------------------------------------------------------------
 // Housekeeping
 
-    IDAM_LOGF(UDA_LOG_DEBUG, "DUMP: err %d\n", err);
-    IDAM_LOGF(UDA_LOG_DEBUG, "errno     %d\n", errno);
+    UDA_LOG(UDA_LOG_DEBUG, "DUMP: err %d\n", err);
+    UDA_LOG(UDA_LOG_DEBUG, "errno     %d\n", errno);
     printDataBlock(*data_block);
 
     if (err != 0) freeDataBlock(data_block);

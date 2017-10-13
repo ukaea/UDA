@@ -6,7 +6,7 @@
 TEST_CASE( "Test get anu_neutrons signal", "[MAST]" )
 {
 #ifdef FATCLIENT
-#  include "setupEnvironment.inc"
+#  include "setup.inc"
 #endif
 
     uda::Client client;
@@ -14,7 +14,7 @@ TEST_CASE( "Test get anu_neutrons signal", "[MAST]" )
     const uda::Result& result = client.get("anu_neutrons", "29957");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.errorMessage() == "" );
+    REQUIRE( result.errorMessage().empty() );
 
     uda::Data* data = result.data();
 

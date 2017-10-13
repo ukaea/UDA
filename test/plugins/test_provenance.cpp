@@ -3,18 +3,16 @@
 
 #include <c++/UDA.hpp>
 
-TEST_CASE( "Test PROV::help() function", "[PROV][plugins]" ) {
-
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+TEST_CASE( "Test PROV::help() function", "[PROV][plugins]" )
+{
+#include "setup.inc"
 
     uda::Client client;
 
     const uda::Result& result = client.get("PROV::help()", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.errorMessage() == "" );
+    REQUIRE( result.errorMessage().empty() );
     REQUIRE( result.isTree()  );
 
     uda::TreeNode tree = result.tree();

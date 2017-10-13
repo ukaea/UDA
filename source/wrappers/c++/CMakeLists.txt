@@ -18,7 +18,7 @@ set( SRC_FILES
   treenode.cpp
   vector.cpp
   signal.cpp
-  )
+)
 
 include_directories(
   ${CMAKE_SOURCE_DIR}/source

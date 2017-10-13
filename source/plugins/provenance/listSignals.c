@@ -43,15 +43,10 @@ int listSignals(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         DBConnect = (PGconn*)idam_plugin_interface->sqlConnection;
 
     } else {
-        err = 999;
-        IDAM_LOG(UDA_LOG_ERROR, "Plugin Interface Version Unknown\n");
-
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "Provenance", err,
-                     "Plugin Interface Version is Not Known: Unable to execute the request!");
-        return err;
+        RAISE_PLUGIN_ERROR("Plugin Interface Version is Not Known: Unable to execute the request!");
     }
 
-    IDAM_LOG(UDA_LOG_DEBUG, "Plugin Interface transferred\n");
+    UDA_LOG(UDA_LOG_DEBUG, "Plugin Interface transferred\n");
 
 //----------------------------------------------------------------------------------------
 // Common Name Value pairs
@@ -65,7 +60,7 @@ int listSignals(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     do {
 
-        IDAM_LOG(UDA_LOG_DEBUG, "entering function list\n");
+        UDA_LOG(UDA_LOG_DEBUG, "entering function list\n");
 
         char* uuid;
         unsigned short uuidOK = 0;
@@ -73,7 +68,7 @@ int listSignals(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 // Name Value pairs (Keywords have higher priority) + Protect against SQL Injection
 
         for (i = 0; i < request_block->nameValueList.pairCount; i++) {
-            IDAM_LOGF(UDA_LOG_DEBUG, "[%d] %s = %s\n", i, request_block->nameValueList.nameValue[i].name,
+            UDA_LOG(UDA_LOG_DEBUG, "[%d] %s = %s\n", i, request_block->nameValueList.nameValue[i].name,
                       request_block->nameValueList.nameValue[i].value);
 
             if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "uuid") ||
@@ -88,8 +83,8 @@ int listSignals(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
         if (!uuidOK) {
             err = 999;
-            IDAM_LOG(UDA_LOG_ERROR, "ERROR Provenance list: The client provenance UUID must be specified!\n");
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "Provenance add", err,
+            UDA_LOG(UDA_LOG_ERROR, "ERROR Provenance list: The client provenance UUID must be specified!\n");
+            addIdamError(CODEERRORTYPE, "Provenance add", err,
                          "The client provenance UUID must be specified!");
             break;
         }
@@ -97,23 +92,23 @@ int listSignals(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         sprintf(sql, "SELECT uuid, requestedSignal, requestedSource, trueSignal, trueSource, trueSourceUUID, "
                 "logRecord, creation FROM signals_log WHERE uuid='%s';", uuid);
 
-        IDAM_LOGF(UDA_LOG_DEBUG, "list() SQL\n%s\n", sql);
+        UDA_LOG(UDA_LOG_DEBUG, "list() SQL\n%s\n", sql);
 
 // Execute the SQL
 
         if ((DBQuery = PQexec(DBConnect, sql)) == NULL || PQresultStatus(DBQuery) != PGRES_TUPLES_OK) {
             err = 999;
-            IDAM_LOG(UDA_LOG_ERROR, "ERROR Provenance list: SQL Failed\n");
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "Provenance list", err, "SQL Failed!");
+            UDA_LOG(UDA_LOG_ERROR, "ERROR Provenance list: SQL Failed\n");
+            addIdamError(CODEERRORTYPE, "Provenance list", err, "SQL Failed!");
             break;
         }
 
         nrows = PQntuples(DBQuery);
 
         if (nrows == 0) {
-            IDAM_LOG(UDA_LOG_ERROR, "ERROR Provenance list: No signals_log records found!\n");
+            UDA_LOG(UDA_LOG_ERROR, "ERROR Provenance list: No signals_log records found!\n");
             err = 999;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "Provenance new", err, "No signals_log records found");
+            addIdamError(CODEERRORTYPE, "Provenance new", err, "No signals_log records found");
             break;
         }
 
@@ -178,14 +173,14 @@ int listSignals(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             strcpy(data[i].creation, PQgetvalue(DBQuery, i, 7));
             addMalloc(idam_plugin_interface->logmalloclist, (void*)data[i].creation, 1, stringLength * sizeof(char), "char");
 
-            IDAM_LOGF(UDA_LOG_DEBUG, "uuid           : %s\n\n", data[i].uuid);
-            IDAM_LOGF(UDA_LOG_DEBUG, "requestedSignal: %s\n", data[i].requestedSignal);
-            IDAM_LOGF(UDA_LOG_DEBUG, "requestedSource: %s\n", data[i].requestedSource);
-            IDAM_LOGF(UDA_LOG_DEBUG, "trueSignal     : %s\n", data[i].trueSignal);
-            IDAM_LOGF(UDA_LOG_DEBUG, "trueSource     : %s\n", data[i].trueSource);
-            IDAM_LOGF(UDA_LOG_DEBUG, "trueSourceUUID : %s\n", data[i].trueSourceUUID);
-            IDAM_LOGF(UDA_LOG_DEBUG, "logRecord      : %s\n", data[i].logRecord);
-            IDAM_LOGF(UDA_LOG_DEBUG, "creation date  : %s\n", data[i].creation);
+            UDA_LOG(UDA_LOG_DEBUG, "uuid           : %s\n\n", data[i].uuid);
+            UDA_LOG(UDA_LOG_DEBUG, "requestedSignal: %s\n", data[i].requestedSignal);
+            UDA_LOG(UDA_LOG_DEBUG, "requestedSource: %s\n", data[i].requestedSource);
+            UDA_LOG(UDA_LOG_DEBUG, "trueSignal     : %s\n", data[i].trueSignal);
+            UDA_LOG(UDA_LOG_DEBUG, "trueSource     : %s\n", data[i].trueSource);
+            UDA_LOG(UDA_LOG_DEBUG, "trueSourceUUID : %s\n", data[i].trueSourceUUID);
+            UDA_LOG(UDA_LOG_DEBUG, "logRecord      : %s\n", data[i].logRecord);
+            UDA_LOG(UDA_LOG_DEBUG, "creation date  : %s\n", data[i].creation);
         }
         PQclear(DBQuery);
 
@@ -200,7 +195,7 @@ int listSignals(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         usertype.ref_id = 0;
         usertype.imagecount = 0;                // No Structure Image data
         usertype.image = NULL;
-        usertype.idamclass = TYPE_COMPOUND;
+        usertype.idamclass = UDA_TYPE_COMPOUND;
 
         offset = 0;
 
@@ -240,7 +235,7 @@ int listSignals(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         usertype.ref_id = 0;
         usertype.imagecount = 0;                // No Structure Image data
         usertype.image = NULL;
-        usertype.idamclass = TYPE_COMPOUND;
+        usertype.idamclass = UDA_TYPE_COMPOUND;
 
         offset = 0;
 
@@ -255,7 +250,7 @@ int listSignals(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
         initCompoundField(&field);
         strcpy(field.name, "list");
-        field.atomictype = TYPE_UNKNOWN;
+        field.atomictype = UDA_TYPE_UNKNOWN;
         strcpy(field.type, "PROVENANCESIGNAL");
         strcpy(field.desc, "List of Signals");
         field.pointer = 1;
@@ -275,7 +270,7 @@ int listSignals(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Pass the Data back	 
 
-        data_block->data_type = TYPE_COMPOUND;
+        data_block->data_type = UDA_TYPE_COMPOUND;
         data_block->rank = 0;
         data_block->data_n = 1;
         data_block->data = (char*)list;
@@ -284,15 +279,15 @@ int listSignals(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         strcpy(data_block->data_label, "");
         strcpy(data_block->data_units, "");
 
-        data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
+        data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
         data_block->opaque_count = 1;
         data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "PROVENANCESIGNALLIST", 0);
 
-        IDAM_LOG(UDA_LOG_DEBUG, "Function list called\n");
+        UDA_LOG(UDA_LOG_DEBUG, "Function list called\n");
 
         if (data_block->opaque_block == NULL) {
             err = 999;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "Provenance::list()", err,
+            addIdamError(CODEERRORTYPE, "Provenance::list()", err,
                          "failed to locate PROVENANCESIGNALLIST structure!");
             break;
         }

@@ -65,8 +65,8 @@ int getSourcePath(PGconn* DBConnect, int exp_number, int pass, char* alias, char
 
     if ((DBQuery = PQexec(DBConnect, sql)) == NULL) {
         if (verbose) {
-            IDAM_LOGF(UDA_LOG_ERROR, "ERROR - Failure to Execute SQL: %s\n", sql);
-            IDAM_LOGF(UDA_LOG_ERROR, "      - %s\n", PQresultErrorMessage(DBQuery));
+            UDA_LOG(UDA_LOG_ERROR, "ERROR - Failure to Execute SQL: %s\n", sql);
+            UDA_LOG(UDA_LOG_ERROR, "      - %s\n", PQresultErrorMessage(DBQuery));
         }
         PQclear(DBQuery);
         PQfinish(DBConnect);
@@ -77,8 +77,8 @@ int getSourcePath(PGconn* DBConnect, int exp_number, int pass, char* alias, char
 
     if (DBQueryStatus != PGRES_TUPLES_OK) {
         if (verbose) {
-            IDAM_LOGF(UDA_LOG_ERROR, "ERROR - Problem Identifying Database Record: %s\n", sql);
-            IDAM_LOGF(UDA_LOG_ERROR, "      - %s\n", PQresultErrorMessage(DBQuery));
+            UDA_LOG(UDA_LOG_ERROR, "ERROR - Problem Identifying Database Record: %s\n", sql);
+            UDA_LOG(UDA_LOG_ERROR, "      - %s\n", PQresultErrorMessage(DBQuery));
         }
         PQclear(DBQuery);
         PQfinish(DBConnect);

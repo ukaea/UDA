@@ -53,58 +53,58 @@ if (argc == 2 && argv[1]->flags & IDL_V_ARR && argv[1]->type != IDL_TYP_STRUCT)
 
     switch (type) {
     case (IDL_TYPE_BYTE):
-        putData.data_type = TYPE_UNSIGNED_CHAR;
+        putData.data_type = UDA_TYPE_UNSIGNED_CHAR;
         break;
 
     //case(IDL_TYPE_STRING):
-    //   putData.data_type = TYPE_CHAR;
+    //   putData.data_type = UDA_TYPE_CHAR;
     //   break;
     case (IDL_TYPE_UINT):
-        putData.data_type = TYPE_UNSIGNED_SHORT;
+        putData.data_type = UDA_TYPE_UNSIGNED_SHORT;
         break;
 
     case (IDL_TYPE_INT):
-        putData.data_type = TYPE_SHORT;
+        putData.data_type = UDA_TYPE_SHORT;
         break;
 
     case (IDL_TYPE_ULONG):
-        putData.data_type = TYPE_UNSIGNED_INT;
+        putData.data_type = UDA_TYPE_UNSIGNED_INT;
         break;
 
     case (IDL_TYPE_LONG):
-        putData.data_type = TYPE_INT;
+        putData.data_type = UDA_TYPE_INT;
         break;
 
     case (IDL_TYPE_ULONG64):
-        putData.data_type = TYPE_UNSIGNED_LONG64;
+        putData.data_type = UDA_TYPE_UNSIGNED_LONG64;
         break;
 
     case (IDL_TYPE_LONG64):
-        putData.data_type = TYPE_LONG64;
+        putData.data_type = UDA_TYPE_LONG64;
         break;
 
     case (IDL_TYPE_ULONG64):
-        putData.data_type = TYPE_UNSIGNED_LONG64;
+        putData.data_type = UDA_TYPE_UNSIGNED_LONG64;
         break;
 
     case (IDL_TYPE_LONG64):
-        putData.data_type = TYPE_LONG64;
+        putData.data_type = UDA_TYPE_LONG64;
         break;
 
     case (IDL_TYPE_FLOAT):
-        putData.data_type = TYPE_FLOAT;
+        putData.data_type = UDA_TYPE_FLOAT;
         break;
 
     case (IDL_TYPE_DOUBLE):
-        putData.data_type = TYPE_DOUBLE;
+        putData.data_type = UDA_TYPE_DOUBLE;
         break;
 
     case (IDL_TYPE_COMPLEX):
-        putData.data_type = TYPE_COMPLEX;
+        putData.data_type = UDA_TYPE_COMPLEX;
         break;
 
     case (IDL_TYPE_DCOMPLEX):
-        putData.data_type = TYPE_DCOMPLEX;
+        putData.data_type = UDA_TYPE_DCOMPLEX;
         break;
     }
 

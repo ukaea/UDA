@@ -60,10 +60,12 @@ void idamLogWithFunc(LOG_LEVEL mode, logFunc func)
 
 void idamLog(LOG_LEVEL mode, const char* fmt, ...)
 {
-    int priority = syslogPriority(log_level);
+    if (mode >= log_level) {
+        int priority = syslogPriority(mode);
 
-    va_list args;
-    va_start(args, fmt);
-    vsyslog(priority, fmt, args);
-    va_end(args);
+        va_list args;
+        va_start(args, fmt);
+        vsyslog(priority, fmt, args);
+        va_end(args);
+    }
 }

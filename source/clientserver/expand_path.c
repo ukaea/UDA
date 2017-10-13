@@ -93,8 +93,9 @@ char* hostid(char* host)
     }
 #endif
 
-    if (host[0] == '\0')
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "hostid", 999, "Unable to Identify the Host Name");
+    if (host[0] == '\0') {
+        addIdamError(CODEERRORTYPE, "hostid", 999, "Unable to Identify the Host Name");
+    }
     return host;
     
 #endif // _WIN32    
@@ -231,8 +232,8 @@ int pathReplacement(char* path, const ENVIRONMENT* environment)
     if (path[0] == '\0') return 0;                // No replacement
     if (environment->private_path_target[0] == '\0') return 0;    // No replacement
 
-    IDAM_LOG(UDA_LOG_DEBUG, "pathReplacement: Testing for File Path Replacement\n");
-    IDAM_LOGF(UDA_LOG_DEBUG, "%s\n", path);
+    UDA_LOG(UDA_LOG_DEBUG, "pathReplacement: Testing for File Path Replacement\n");
+    UDA_LOG(UDA_LOG_DEBUG, "%s\n", path);
 
 // Parse targets
 
@@ -243,7 +244,7 @@ int pathReplacement(char* path, const ENVIRONMENT* environment)
         strcpy(targets[tcount++], token);
     } else {
         err = 999;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "pathReplacement", err,
+        addIdamError(CODEERRORTYPE, "pathReplacement", err,
                      "The length of the path element targeted for replacement is too long. The internal limit is exceeded.");
         return err;
     }
@@ -253,7 +254,7 @@ int pathReplacement(char* path, const ENVIRONMENT* environment)
             strcpy(targets[tcount++], token);
         } else {
             err = 999;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "pathReplacement", err,
+            addIdamError(CODEERRORTYPE, "pathReplacement", err,
                          "The length of the path element targeted for replacement is too long. The internal limit is exceeded.");
             return err;
         }
@@ -268,7 +269,7 @@ int pathReplacement(char* path, const ENVIRONMENT* environment)
         strcpy(substitutes[scount++], token);
     } else {
         err = 999;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "pathReplacement", err,
+        addIdamError(CODEERRORTYPE, "pathReplacement", err,
                      "The length of the targeted path element replacement is too long. The internal limit is exceeded.");
         return err;
     }
@@ -278,7 +279,7 @@ int pathReplacement(char* path, const ENVIRONMENT* environment)
             strcpy(substitutes[scount++], token);
         } else {
             err = 999;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "pathReplacement", err,
+            addIdamError(CODEERRORTYPE, "pathReplacement", err,
                          "The length of the targeted path element replacement is too long. The internal limit is exceeded.");
             return err;
         }
@@ -309,7 +310,7 @@ int pathReplacement(char* path, const ENVIRONMENT* environment)
                     for (j = 0; j < targetCount; j++) if (targetList[j][0] == '*') targetWildCount++;
                     if (subWildCount != targetWildCount) {        // Un-matched Wildcards found
                         err = 999;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "pathReplacement", err,
+                        addIdamError(CODEERRORTYPE, "pathReplacement", err,
                                      "Un-matched wildcards found in the target and substitute paths");
                         freeTokenList(&targetList, &targetCount);
                         freeTokenList(&pathList, &pathCount);
@@ -358,7 +359,7 @@ int pathReplacement(char* path, const ENVIRONMENT* environment)
 
                 if (strchr(substitutes[i], '*') != NULL) {        // Wildcard found in substitute string!
                     err = 999;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "pathReplacement", err,
+                    addIdamError(CODEERRORTYPE, "pathReplacement", err,
                                  "No wildcards are permitted in the substitute path unless matched by one in the target path.");
                     freeTokenList(&targetList, &targetCount);
                     freeTokenList(&pathList, &pathCount);
@@ -382,13 +383,13 @@ int pathReplacement(char* path, const ENVIRONMENT* environment)
 
     } else {
         err = 999;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "pathReplacement", err,
+        addIdamError(CODEERRORTYPE, "pathReplacement", err,
                      "Number of Path Targets and Substitutes is inconsistent. Correct the Environment Variables.");
         return err;
     }
 
-    IDAM_LOGF(UDA_LOG_DEBUG, "%s\n", path);
-    IDAM_LOG(UDA_LOG_DEBUG, "pathReplacement: End\n");
+    UDA_LOG(UDA_LOG_DEBUG, "%s\n", path);
+    UDA_LOG(UDA_LOG_DEBUG, "pathReplacement: End\n");
 
     return err;
 }
@@ -423,9 +424,9 @@ int linkReplacement(char* path)
 
     errno = 0;
     if ((ph = popen(cmd, "r")) == NULL) {
-        if (errno != 0) addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "linkReplacement", errno, "");
+        if (errno != 0) addIdamError(SYSTEMERRORTYPE, "linkReplacement", errno, "");
         err = 1;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "linkReplacement", err, "Unable to Dereference Symbolic links");
+        addIdamError(CODEERRORTYPE, "linkReplacement", err, "Unable to Dereference Symbolic links");
         path[0] = '\0';
         return err;
     }
@@ -514,7 +515,7 @@ int expandFilePath(char* path, const ENVIRONMENT* environment)
 
     if (!IsLegalFilePath(path)) {
         err = 999;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "expandFilePath", err, "The Source contains a Syntax Error!");
+        addIdamError(CODEERRORTYPE, "expandFilePath", err, "The Source contains a Syntax Error!");
         return err;
     }
 
@@ -625,16 +626,14 @@ int expandFilePath(char* path, const ENVIRONMENT* environment)
 
         if (errno != 0) {
             err = 999;
-            addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "expand_path", errno,
-                         "Cannot resolve the Current Working Directory!");
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "expand_path", err,
-                         "Unable to resolve full file names.");
+            addIdamError(SYSTEMERRORTYPE, "expand_path", errno, "Cannot resolve the Current Working Directory!");
+            addIdamError(CODEERRORTYPE, "expand_path", err, "Unable to resolve full file names.");
             return err;
         }
 
         if (pcwd == NULL) {
             err = 999;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "expand_path", err,
+            addIdamError(CODEERRORTYPE, "expand_path", err,
                          "Cannot resolve the Current Working Directory! Unable to resolve full file names.");
             return err;
         }
@@ -717,7 +716,7 @@ int expandFilePath(char* path, const ENVIRONMENT* environment)
         if (chdir(path) != 0) {
             chdir(ocwd);            // Ensure the Original WD
             strcpy(path, opath);        // Return to the Original path name
-            IDAM_LOGF(UDA_LOG_DEBUG, "Unable to identify the Directory of the file: %s\n"
+            UDA_LOG(UDA_LOG_DEBUG, "Unable to identify the Directory of the file: %s\n"
                     "The server will know if a true error exists: Plugin & Environment dependent", path);
             return 0;
         }
@@ -730,16 +729,16 @@ int expandFilePath(char* path, const ENVIRONMENT* environment)
 
         if (errno != 0) {
             err = 998;
-            addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "expand_path", errno,
+            addIdamError(SYSTEMERRORTYPE, "expand_path", errno,
                          "Cannot resolve the Current Working Directory!");
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "expand_path", err,
+            addIdamError(CODEERRORTYPE, "expand_path", err,
                          "Unable to resolve full file names.");
             return err;
         }
 
         if (pcwd == NULL) {
             err = 998;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "expand_path", err,
+            addIdamError(CODEERRORTYPE, "expand_path", err,
                          "Cannot resolve the Current Working Directory! Unable to resolve full file names.");
             return err;
         }
@@ -750,9 +749,9 @@ int expandFilePath(char* path, const ENVIRONMENT* environment)
 
         if ((err = chdir(ocwd)) != 0) {
             err = 999;
-            addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "expand_path", errno,
+            addIdamError(SYSTEMERRORTYPE, "expand_path", errno,
                          "Unable to Return to the Working Directory!");
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "expand_path", err,
+            addIdamError(CODEERRORTYPE, "expand_path", err,
                          "Unable to resolve full file names.");
             return err;
         }
@@ -842,7 +841,7 @@ char* pathid(char* path)
 // basic check
 
     if (!IsLegalFilePath(path)) {
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "pathid", 999, "The directory path has incorrect syntax");
+        addIdamError(CODEERRORTYPE, "pathid", 999, "The directory path has incorrect syntax");
         path[0] = '\0';
         return path;
     }
@@ -859,11 +858,11 @@ char* pathid(char* path)
             }
         } else {
             if (errno == EACCES) {
-                addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "pathid", errno, "");
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "pathid", 999, "The directory path is not available");
+                addIdamError(SYSTEMERRORTYPE, "pathid", errno, "");
+                addIdamError(CODEERRORTYPE, "pathid", 999, "The directory path is not available");
             } else if (errno == ENOENT || errno == ENOTDIR) {
-                addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "pathid", errno, "");
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "pathid", 999, "The directory path does not exist");
+                addIdamError(SYSTEMERRORTYPE, "pathid", errno, "");
+                addIdamError(CODEERRORTYPE, "pathid", 999, "The directory path does not exist");
             }
         }
     }

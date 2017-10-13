@@ -31,9 +31,9 @@ macro( uda_plugin )
     ${CMAKE_SOURCE_DIR}/source
   )
 
-  if( CMAKE_COMPILER_IS_GNUCC )
-    set( CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,-z,defs" )
-  endif()
+  #if( CMAKE_COMPILER_IS_GNUCC )
+  #  set( CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,-z,defs" )
+  #endif()
 
   foreach( INCLUDE_DIR ${PLUGIN_EXTRA_INCLUDE_DIRS} )
     include_directories( SYSTEM ${INCLUDE_DIR} )
@@ -55,7 +55,8 @@ macro( uda_plugin )
     add_definitions( ${DEF} )
   endforeach()
 
-  target_link_libraries( ${PLUGIN_LIBNAME} LINK_PRIVATE dl server-shared client-shared )
+  #target_link_libraries( ${PLUGIN_LIBNAME} LINK_PRIVATE dl server-shared client-shared )
+  target_link_libraries( ${PLUGIN_LIBNAME} LINK_PRIVATE dl )
   
   filter_lib_list( "${PLUGIN_EXTRA_LINK_LIBS}" FILTERED_LINK_LIBS debug optimized ) 
 

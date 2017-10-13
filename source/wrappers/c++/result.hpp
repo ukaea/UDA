@@ -1,9 +1,5 @@
-//
-// Created by jholloc on 08/03/16.
-//
-
-#ifndef IDAM_WRAPPERS_CPP_RESULT_H
-#define IDAM_WRAPPERS_CPP_RESULT_H
+#ifndef UDA_WRAPPERS_CPP_RESULT_H
+#define UDA_WRAPPERS_CPP_RESULT_H
 
 #include <typeinfo>
 #include <string>
@@ -28,8 +24,21 @@ public:
     const std::string errorMessage() const;
     int errorCode() const;
 
+    /**
+     * Return the recieved data object, this will be a subclass of Data, i.e. one of @code{String}, @code{Array},
+     * @code{Scalar}, etc.
+     *
+     * @return the data object
+     */
     Data* data() const;
 
+    /**
+     * Return whether the recieved data has associated error values.
+     *
+     * If true then @code{errors()} will return the error values.
+     *
+     * @return true if the data has associated errors
+     */
     bool hasErrors() const;
 
     Data* errors() const;
@@ -55,7 +64,13 @@ public:
     const std::map<std::string, std::string>& meta()
     { return meta_; }
 
+    const std::vector<size_t> shape() const;
+
     Dim dim(dim_type ndim, DataType data_type) const;
+
+    bool hasTimeDim() const;
+
+    Dim timeDim(DataType data_type) const;
 
     bool isTree() const
     { return istree_; }
@@ -79,12 +94,11 @@ private:
     boost::any data_;
     dim_type rank_;
     size_t size_;
-    const std::vector<dim_type> dims_;
     bool istree_;
     std::map<std::string, std::string> meta_;
 };
 
 }
 
-#endif //IDAM_WRAPPERS_CPP_RESULT_H
+#endif // UDA_WRAPPERS_CPP_RESULT_H
 

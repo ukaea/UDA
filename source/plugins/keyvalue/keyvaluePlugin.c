@@ -154,12 +154,12 @@ int do_help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         initDimBlock(&data_block->dims[i]);
     }
 
-    data_block->data_type = TYPE_STRING;
+    data_block->data_type = UDA_TYPE_STRING;
     strcpy(data_block->data_desc, "templatePlugin: help = description of this plugin");
 
     data_block->data = (char*) p;
 
-    data_block->dims[0].data_type = TYPE_UNSIGNED_INT;
+    data_block->dims[0].data_type = UDA_TYPE_UNSIGNED_INT;
     data_block->dims[0].dim_n = strlen(p) + 1;
     data_block->dims[0].compressed = 1;
     data_block->dims[0].dim0 = 0.0;
@@ -179,7 +179,7 @@ int do_version(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     DATA_BLOCK* data_block = idam_plugin_interface->data_block;
 
     initDataBlock(data_block);
-    data_block->data_type = TYPE_INT;
+    data_block->data_type = UDA_TYPE_INT;
     data_block->rank = 0;
     data_block->data_n = 1;
     int* data = (int*) malloc(sizeof(int));
@@ -198,7 +198,7 @@ int do_builddate(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     DATA_BLOCK* data_block = idam_plugin_interface->data_block;
 
     initDataBlock(data_block);
-    data_block->data_type = TYPE_STRING;
+    data_block->data_type = UDA_TYPE_STRING;
     data_block->rank = 0;
     data_block->data_n = strlen(__DATE__) + 1;
     char* data = (char*) malloc(data_block->data_n * sizeof(char));
@@ -217,7 +217,7 @@ int do_defaultmethod(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     DATA_BLOCK* data_block = idam_plugin_interface->data_block;
 
     initDataBlock(data_block);
-    data_block->data_type = TYPE_STRING;
+    data_block->data_type = UDA_TYPE_STRING;
     data_block->rank = 0;
     data_block->data_n = strlen(THISPLUGIN_DEFAULT_METHOD) + 1;
     char* data = (char*) malloc(data_block->data_n * sizeof(char));
@@ -236,7 +236,7 @@ int do_maxinterfaceversion(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     DATA_BLOCK* data_block = idam_plugin_interface->data_block;
 
     initDataBlock(data_block);
-    data_block->data_type = TYPE_INT;
+    data_block->data_type = UDA_TYPE_INT;
     data_block->rank = 0;
     data_block->data_n = 1;
     int* data = (int*) malloc(sizeof(int));
@@ -263,7 +263,7 @@ int do_write(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, leveldb_t* db, leveld
     }
 
     if (STR_EQUALS(env, "LEVELDB")) {
-        IDAM_LOGF(UDA_LOG_DEBUG, "Writing key %s to LevelDB keystore", key);
+        UDA_LOG(UDA_LOG_DEBUG, "Writing key %s to LevelDB keystore", key);
     } else {
         RAISE_PLUGIN_ERROR("Unknown keyvalue store requested");
     }
@@ -290,7 +290,7 @@ int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, leveldb_t* db, leveldb
     }
 
     if (STR_EQUALS(env, "LEVELDB")) {
-        IDAM_LOGF(UDA_LOG_DEBUG, "Writing key %s to LevelDB keystore", key);
+        UDA_LOG(UDA_LOG_DEBUG, "Writing key %s to LevelDB keystore", key);
     } else {
         RAISE_PLUGIN_ERROR("Unknown keyvalue store requested");
     }
@@ -322,7 +322,7 @@ int do_delete(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, leveldb_t* db, level
     }
 
     if (STR_EQUALS(env, "LEVELDB")) {
-        IDAM_LOGF(UDA_LOG_DEBUG, "Writing key %s to LevelDB keystore", key);
+        UDA_LOG(UDA_LOG_DEBUG, "Writing key %s to LevelDB keystore", key);
     } else {
         RAISE_PLUGIN_ERROR("Unknown keyvalue store requested");
     }

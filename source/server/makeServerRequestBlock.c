@@ -77,25 +77,25 @@ int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList)
     char work2[MAXMETA];
     unsigned short strip = 1;        // Remove enclosing quotes from name value pairs
 
-    IDAM_LOG(UDA_LOG_DEBUG, "Source Argument\n");
+    UDA_LOG(UDA_LOG_DEBUG, "Source Argument\n");
 
     ENVIRONMENT* environment = getIdamServerEnvironment();
 
-//------------------------------------------------------------------------------
-// Always use the client's delimiting string if provided, otherwise use the default delimiter
+    //------------------------------------------------------------------------------
+    // Always use the client's delimiting string if provided, otherwise use the default delimiter
 
     if ((ldelim = (int) strlen(request_block->api_delim)) == 0) {
         strcpy(request_block->api_delim, environment->api_delim);
         ldelim = (int) strlen(request_block->api_delim);
     }
 
-//------------------------------------------------------------------------------
-// Start with ignorance about which plugin to use
+    //------------------------------------------------------------------------------
+    // Start with ignorance about which plugin to use
 
     request_block->request = REQUEST_READ_UNKNOWN;
 
-//------------------------------------------------------------------------------
-// Check there is something to work with!
+    //------------------------------------------------------------------------------
+    // Check there is something to work with!
 
     sprintf(work, "%s%s", environment->api_archive, environment->api_delim);    // default archive
     sprintf(work2, "%s%s", environment->api_device, environment->api_delim);    // default device
@@ -106,13 +106,13 @@ int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList)
 
     if ((request_block->signal[0] == '\0' || STR_IEQUALS(request_block->signal, work)) && noSource) {
         err = 999;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "makeServerRequestBlock", err,
+        addIdamError(CODEERRORTYPE, "makeServerRequestBlock", err,
                      "Neither Data Object nor Source specified!");
         return err;
     }
 
-//------------------------------------------------------------------------------
-// Strip default device from the source if present and leading
+    //------------------------------------------------------------------------------
+    // Strip default device from the source if present and leading
 
     lstr = (int) strlen(work2);
     if (!noSource && !strncasecmp(request_block->source, work2, lstr)) {
@@ -120,9 +120,9 @@ int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList)
         LeftTrimString(request_block->source);
     }
 
-//------------------------------------------------------------------------------
-// Is this server acting as an IDAM Proxy? If all access requests are being re-directed then do nothing to the arguments.
-// They are just passed onwards without interpretation.
+    //------------------------------------------------------------------------------
+    // Is this server acting as an IDAM Proxy? If all access requests are being re-directed then do nothing to the arguments.
+    // They are just passed onwards without interpretation.
 
     isProxy = environment->server_proxy[0] != '\0';
 
@@ -213,7 +213,7 @@ int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList)
 
         if (test == NULL || STR_IEQUALS(work2, environment->api_device)) {    // No delimiter present or default device?
 
-            IDAM_LOG(UDA_LOG_DEBUG, "No device name or format or protocol or library is present\n");
+            UDA_LOG(UDA_LOG_DEBUG, "No device name or format or protocol or library is present\n");
 
             strcpy(request_block->device_name, environment->api_device);            // Default Device Name
 
@@ -229,7 +229,7 @@ int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList)
 
                 if ((p0 != NULL || p1 != NULL) && (p != NULL || p2 != NULL)) {
                     err = 999;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "makeServerRequestBlock", err,
+                    addIdamError(CODEERRORTYPE, "makeServerRequestBlock", err,
                                  "Source syntax: path with parenthesis () is incorrect!");
                     return err;
                 }
@@ -240,7 +240,7 @@ int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList)
 
 // Request must be a private file format. It cannot be a local/remote server protocol.
 
-                IDAM_LOG(UDA_LOG_DEBUG, "No File Format has been specified. Selecting ....\n");
+                UDA_LOG(UDA_LOG_DEBUG, "No File Format has been specified. Selecting ....\n");
 
                 rc = sourceFileFormatTest(request_block->source, request_block, pluginList);
 
@@ -260,17 +260,17 @@ int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList)
 #endif
 
                 if (rc <= 0) {
-                    IDAM_LOG(UDA_LOG_DEBUG, "File Format NOT identified from name extension!\n");
+                    UDA_LOG(UDA_LOG_DEBUG, "File Format NOT identified from name extension!\n");
                     //if(rc < 0) return -rc;
                     err = 999;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "makeServerRequestBlock", err,
+                    addIdamError(CODEERRORTYPE, "makeServerRequestBlock", err,
                                  "No File Format identifed: Please specify.");
                     return err;
                 }
 
                 expandEnvironmentVariables(request_block);            // Resolve any Serverside environment variables
 
-                IDAM_LOG(UDA_LOG_DEBUG, "File Format identified from name extension!\n");
+                UDA_LOG(UDA_LOG_DEBUG, "File Format identified from name extension!\n");
                 break;
 
             } else {
@@ -288,13 +288,13 @@ int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList)
                     request_block->request = REQUEST_READ_SERVERSIDE;
                     extractFunctionName(work, request_block);
 
-                    IDAM_LOG(UDA_LOG_DEBUG, "**** Server Side Function ??? ****\n");
+                    UDA_LOG(UDA_LOG_DEBUG, "**** Server Side Function ??? ****\n");
 
 // Extract Name Value pairs
 
                     if ((rc = nameValuePairs(work2, &request_block->nameValueList, strip)) == -1) {
                         err = 999;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "makeServerRequestBlock", err,
+                        addIdamError(CODEERRORTYPE, "makeServerRequestBlock", err,
                                      "Name Value pair syntax is incorrect!");
                         return err;
                     }
@@ -308,7 +308,7 @@ int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList)
                         if (STR_IEQUALS(request_block->archive, pluginList.plugin[i].format)) {
                             request_block->request = pluginList.plugin[i].request;                // Found!
                             strcpy(request_block->format, pluginList.plugin[i].format);
-                            isFunction = pluginList.plugin[i].class == PLUGINFUNCTION;
+                            isFunction = pluginList.plugin[i].plugin_class == PLUGINFUNCTION;
                             break;
                         }
                     }
@@ -317,7 +317,7 @@ int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList)
                 } else {
 
                     err = 999;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "makeServerRequestBlock", err,
+                    addIdamError(CODEERRORTYPE, "makeServerRequestBlock", err,
                                  "No Data Access Plugin Identified!");
                     return err;
                 }
@@ -328,29 +328,29 @@ int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList)
 //---------------------------------------------------------------------------------------------------------------------
 // Scenario #2: A foreign device name or format or protocol or library is present
 
-            IDAM_LOG(UDA_LOG_DEBUG, "A device name or format or protocol or library is present.\n");
+            UDA_LOG(UDA_LOG_DEBUG, "A device name or format or protocol or library is present.\n");
 
 // Test for known File formats, Server protocols or Libraries or Devices
 
             for (i = 0; i < pluginList.count; i++) {
                 if (STR_IEQUALS(work2, pluginList.plugin[i].format)) {
-                    if (pluginList.plugin[i].class != PLUGINDEVICE) {
+                    if (pluginList.plugin[i].plugin_class != PLUGINDEVICE) {
                         request_block->request = pluginList.plugin[i].request;        // Found
                         strcpy(request_block->format, pluginList.plugin[i].format);
-                        if (pluginList.plugin[i].class !=
+                        if (pluginList.plugin[i].plugin_class !=
                             PLUGINFILE) {            // The full file path fully resolved by the client
                             strcpy(request_block->path,
                                    test + ldelim);            // Complete String following :: delimiter
                             strcpy(request_block->file, "");                // Clean the filename
-                            if (pluginList.plugin[i].class == PLUGINFUNCTION) {
+                            if (pluginList.plugin[i].plugin_class == PLUGINFUNCTION) {
                                 isFunction = 1;
                                 extractFunctionName(work, request_block);
                             }
                         } else {
                             strcpy(request_block->file, (char*) basename(test + ldelim));    // Final token
                         }
-                        isFile = pluginList.plugin[i].class == PLUGINFILE;
-                        isServer = pluginList.plugin[i].class == PLUGINSERVER;
+                        isFile = pluginList.plugin[i].plugin_class == PLUGINFILE;
+                        isServer = pluginList.plugin[i].plugin_class == PLUGINSERVER;
                         break;
                     } else {
 
@@ -361,7 +361,7 @@ int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList)
                         int depth = 0;
                         //int id = findPluginRequestByFormat(pluginList.plugin[i].deviceProtocol, &pluginList);
                         int id = findPluginIdByFormat(pluginList.plugin[i].deviceProtocol, &pluginList);
-                        if (id >= 0 && pluginList.plugin[id].class == PLUGINSERVER) {
+                        if (id >= 0 && pluginList.plugin[id].plugin_class == PLUGINSERVER) {
 
                             sprintf(work, "%s%s%s", pluginList.plugin[i].deviceProtocol, request_block->api_delim,
                                     pluginList.plugin[i].deviceHost);
@@ -382,7 +382,7 @@ int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList)
                             strcpy(request_block->source, work);
                             if (depth++ > MAXREQDEPTH) {
                                 err = 999;
-                                addIdamError(&idamerrorstack, CODEERRORTYPE, "makeServerRequestBlock", err,
+                                addIdamError(CODEERRORTYPE, "makeServerRequestBlock", err,
                                              "Too many chained Device Name to Server Protocol Host subtitutions!");
                             }
                             err = makeServerRequestBlock(request_block, pluginList);
@@ -398,7 +398,7 @@ int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList)
 // The external server providing access to the foreign device's data will interpret the arguments
 
             if (request_block->request == REQUEST_READ_UNKNOWN) {
-                IDAM_LOGF(UDA_LOG_DEBUG, "No plugin was identified for the format: %s\n", work2);
+                UDA_LOG(UDA_LOG_DEBUG, "No plugin was identified for the format: %s\n", work2);
                 isForeign = 1;
                 strcpy(request_block->device_name, work2);                // Copy the DEVICE prefix
                 request_block->request = REQUEST_READ_GENERIC;            // The database will identify the target
@@ -440,13 +440,13 @@ int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList)
             strcpy(request_block->device_name, environment->api_device);            // Default Device Name
 
             if (isFile) {                                    // Resolve any Serverside environment variables
-                IDAM_LOG(UDA_LOG_DEBUG, "File Format has been specified.\n");
+                UDA_LOG(UDA_LOG_DEBUG, "File Format has been specified.\n");
                 expandEnvironmentVariables(request_block);
                 break;
             }
 
             if (!isFile && !isFunction) {        // Server Protocol
-                IDAM_LOG(UDA_LOG_DEBUG, "Server Protocol\n");
+                UDA_LOG(UDA_LOG_DEBUG, "Server Protocol\n");
                 break;
             }
 
@@ -461,7 +461,7 @@ int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList)
             if (p == NULL || p2 == NULL || (p != NULL && p2 == NULL) || (p == NULL && p2 != NULL) ||
                 (p0 != NULL && p != NULL && p0 < p) || (p1 != NULL && p2 != NULL && p1 > p2)) {
                 err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "makeServerRequestBlock", err,
+                addIdamError(CODEERRORTYPE, "makeServerRequestBlock", err,
                              "Not a function when one is expected! - A Library plugin has been specified.");
                 return err;
             }
@@ -481,7 +481,7 @@ int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList)
 
                 if ((rc = nameValuePairs(work, &request_block->nameValueList, strip)) == -1) {
                     err = 999;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "makeServerRequestBlock", err,
+                    addIdamError(CODEERRORTYPE, "makeServerRequestBlock", err,
                                  "Name Value pair syntax is incorrect!");
                     return err;
                 }
@@ -490,7 +490,7 @@ int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList)
 
             } else {
                 err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "makeServerRequestBlock", err,
+                addIdamError(CODEERRORTYPE, "makeServerRequestBlock", err,
                              "Function syntax error - please correct");
                 return err;
             }
@@ -498,7 +498,7 @@ int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList)
 
     } while (0);
 
-    IDAM_LOG(UDA_LOG_DEBUG, "Signal Argument\n");
+    UDA_LOG(UDA_LOG_DEBUG, "Signal Argument\n");
 
 //==============================================================================
 // Check the data object (Signal) has one of these forms:
@@ -534,7 +534,7 @@ int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList)
 
     if ((rc = extractSubset(request_block)) == -1) {
         err = 999;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "makeServerRequestBlock", err, "Subset operation is incorrect!");
+        addIdamError(CODEERRORTYPE, "makeServerRequestBlock", err, "Subset operation is incorrect!");
         return err;
     }
 
@@ -581,7 +581,7 @@ int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList)
             isFunction = 1;
             if ((rc = nameValuePairs(work, &request_block->nameValueList, strip)) == -1) {
                 err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "makeServerRequestBlock", err,
+                addIdamError(CODEERRORTYPE, "makeServerRequestBlock", err,
                              "Name Value pair syntax is incorrect!");
                 return err;
             }
@@ -593,8 +593,8 @@ int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList)
 // If No Source was Specified: All requirements are contained in the signal string
 
     if (noSource) {
-        IDAM_LOG(UDA_LOG_DEBUG, "Signal Argument - No Source\n");
-        IDAM_LOGF(UDA_LOG_DEBUG, "request: %d\n", request_block->request);
+        UDA_LOG(UDA_LOG_DEBUG, "Signal Argument - No Source\n");
+        UDA_LOG(UDA_LOG_DEBUG, "request: %d\n", request_block->request);
 
 // If the signal could be a function call, check the archive name against the function library plugins
 
@@ -604,13 +604,13 @@ int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList)
                 if (STR_IEQUALS(request_block->archive, pluginList.plugin[i].format)) {
                     request_block->request = pluginList.plugin[i].request;            // Found
                     strcpy(request_block->format, pluginList.plugin[i].format);
-                    isFunction = (pluginList.plugin[i].class == PLUGINFUNCTION);        // Must be a known Library
+                    isFunction = (pluginList.plugin[i].plugin_class == PLUGINFUNCTION);        // Must be a known Library
                     break;
                 }
             }
 
-            IDAM_LOGF(UDA_LOG_DEBUG, "A request: %d\n", request_block->request);
-            IDAM_LOGF(UDA_LOG_DEBUG, "isFunction: %d\n", isFunction);
+            UDA_LOG(UDA_LOG_DEBUG, "A request: %d\n", request_block->request);
+            UDA_LOG(UDA_LOG_DEBUG, "isFunction: %d\n", isFunction);
 
             if (!isFunction) {                // Must be a default server-side function
 
@@ -626,7 +626,7 @@ int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList)
                 if (!isFunction) request_block->function[0] = '\0';
             }
 
-            IDAM_LOGF(UDA_LOG_DEBUG, "B request: %d\n", request_block->request);
+            UDA_LOG(UDA_LOG_DEBUG, "B request: %d\n", request_block->request);
 
         } else {
 
@@ -634,7 +634,7 @@ int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList)
 
             request_block->request = REQUEST_READ_GENERIC;
 
-            IDAM_LOGF(UDA_LOG_DEBUG, "C request: %d\n", request_block->request);
+            UDA_LOG(UDA_LOG_DEBUG, "C request: %d\n", request_block->request);
 
         }
 
@@ -647,24 +647,24 @@ int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList)
 
         if (isFunction && strcasecmp(request_block->archive, environment->api_archive) != 0) {
             int id = findPluginIdByFormat(request_block->archive, &pluginList);
-            if (id >= 0 && pluginList.plugin[id].class == PLUGINFUNCTION &&
+            if (id >= 0 && pluginList.plugin[id].plugin_class == PLUGINFUNCTION &&
                 strcasecmp(pluginList.plugin[id].symbol, "serverside") != 0) {
                 if (request_block->request == REQUEST_READ_GENERIC ||
                     request_block->request == REQUEST_READ_UNKNOWN) {
                     request_block->request = pluginList.plugin[id].request;    // Found
                     strcpy(request_block->format, pluginList.plugin[id].format);
-                    IDAM_LOGF(UDA_LOG_DEBUG, "D request: %d\n", request_block->request);
+                    UDA_LOG(UDA_LOG_DEBUG, "D request: %d\n", request_block->request);
 
                 } else {
                     if (request_block->request != pluginList.plugin[i].request) {    // Inconsistent
 // Let Source have priority over the Signal?
-                        IDAM_LOG(UDA_LOG_DEBUG, "Inconsistent Plugin Libraries: Source selected over Signal\n");
+                        UDA_LOG(UDA_LOG_DEBUG, "Inconsistent Plugin Libraries: Source selected over Signal\n");
                     }
                 }
             }
         }
     }
-    IDAM_LOGF(UDA_LOG_DEBUG, "E request: %d\n", request_block->request);
+    UDA_LOG(UDA_LOG_DEBUG, "E request: %d\n", request_block->request);
 
 //---------------------------------------------------------------------------------------------------------------------
 // Legacy Specials ...
@@ -756,7 +756,7 @@ int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList)
 
         if (err != 0) {
             err = NO_SERVER_SPECIFIED;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "makeServerRequestBlock", err,
+            addIdamError(CODEERRORTYPE, "makeServerRequestBlock", err,
                          "The MDSPlus Data Source does not comply with the naming models: server/tree/number or server/path/to/data/tree/number");
             return err;
         }
@@ -773,7 +773,7 @@ int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList)
             strcpy(request_block->file, token + 1);        // Extract the Source URL Argument
         } else {
             err = NO_SERVER_SPECIFIED;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "makeServerRequestBlock", err,
+            addIdamError(CODEERRORTYPE, "makeServerRequestBlock", err,
                          "The Remote Server Data Source specified does not comply with the naming model: serverHost:port/sourceURL");
             return err;
         }
@@ -844,8 +844,8 @@ int sourceFileFormatTest(const char* source, REQUEST_BLOCK* request_block, PLUGI
         sprintf(cmd, "head -c10 %s 2>/dev/null", source);
         errno = 0;
         if ((ph = popen(cmd, "r")) == NULL) {
-            if (errno != 0) addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "sourceFileFormatTest", errno, "");
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "sourceFileFormatTest", 999,
+            if (errno != 0) addIdamError(SYSTEMERRORTYPE, "sourceFileFormatTest", errno, "");
+            addIdamError(CODEERRORTYPE, "sourceFileFormatTest", 999,
                          "Unable to Identify the File's Format");
             free((void*) cmd);
             return -999;
@@ -870,8 +870,8 @@ int sourceFileFormatTest(const char* source, REQUEST_BLOCK* request_block, PLUGI
                     errno = 0;
                     if ((ph = popen(cmd, "r")) == NULL) {
                         if (errno != 0)
-                            addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "sourceFileFormatTest", errno, "");
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "sourceFileFormatTest", 999,
+                            addIdamError(SYSTEMERRORTYPE, "sourceFileFormatTest", errno, "");
+                        addIdamError(CODEERRORTYPE, "sourceFileFormatTest", 999,
                                      "Unable to Identify the File's Format");
                         free((void*) cmd);
                         return -999;
@@ -897,8 +897,8 @@ int sourceFileFormatTest(const char* source, REQUEST_BLOCK* request_block, PLUGI
                     errno = 0;
                     if ((ph = popen(cmd, "r")) == NULL) {
                         if (errno != 0)
-                            addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "sourceFileFormatTest", errno, "");
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "sourceFileFormatTest", 999,
+                            addIdamError(SYSTEMERRORTYPE, "sourceFileFormatTest", errno, "");
+                        addIdamError(CODEERRORTYPE, "sourceFileFormatTest", 999,
                                      "Unable to Identify the File's Format");
                         free((void*) cmd);
                         return -999;
@@ -990,7 +990,7 @@ int sourceFileFormatTest(const char* source, REQUEST_BLOCK* request_block, PLUGI
         return -1;        // No format identified
         /*
               rc = 999;
-              addIdamError(&idamerrorstack, CODEERRORTYPE, "sourceFileFormatTest", rc,
+              addIdamError(CODEERRORTYPE, "sourceFileFormatTest", rc,
                  "Unable to Identify the File's Format: Please specifiy the file's format");
               return -999;
         */
@@ -1002,9 +1002,9 @@ int sourceFileFormatTest(const char* source, REQUEST_BLOCK* request_block, PLUGI
     for (i = 0; i < pluginList.count; i++) {
         if (STR_IEQUALS(request_block->format, pluginList.plugin[i].format)) {
             rc = 1;
-            IDAM_LOGF(UDA_LOG_DEBUG, "Format identified, selecting specific plugin for %s\n", request_block->format);
+            UDA_LOG(UDA_LOG_DEBUG, "Format identified, selecting specific plugin for %s\n", request_block->format);
             request_block->request = pluginList.plugin[i].request;            // Found
-            if (pluginList.plugin[i].class !=
+            if (pluginList.plugin[i].plugin_class !=
                 PLUGINFILE) {                // The full file path fully resolved by the client
                 strcpy(request_block->file, "");                        // Clean the filename
             } else {
@@ -1047,7 +1047,7 @@ int genericRequestTest(const char* source, REQUEST_BLOCK* request_block, PLUGINL
         request_block->request = REQUEST_READ_GENERIC;
         strcpy(request_block->path, "");                    // Clean the path
         request_block->exp_number = atoi(source);                // Plasma Shot Number
-        IDAM_LOG(UDA_LOG_DEBUG, "exp number identified, selecting GENERIC plugin.\n");
+        UDA_LOG(UDA_LOG_DEBUG, "exp number identified, selecting GENERIC plugin.\n");
     } else {
         strcpy(work, source);
         if ((token = strtok(work, "/")) != NULL) {                // Tokenise the remaining string
@@ -1063,7 +1063,7 @@ int genericRequestTest(const char* source, REQUEST_BLOCK* request_block, PLUGINL
                         strcpy(request_block->tpass, token);            // capture anything else
                     }
                 }
-                IDAM_LOG(UDA_LOG_DEBUG, "exp number and pass id identified, selecting GENERIC plugin.\n");
+                UDA_LOG(UDA_LOG_DEBUG, "exp number and pass id identified, selecting GENERIC plugin.\n");
             }
         }
     }
@@ -1094,13 +1094,13 @@ int extractArchive(REQUEST_BLOCK* request_block, int reduceSignal)
 
     if (request_block->signal[0] != '\0' && getIdamServerEnvironment()->server_proxy[0] == '\0') {
 
-        IDAM_LOG(UDA_LOG_DEBUG, "Testing for ARCHIVE::Signal\n");
+        UDA_LOG(UDA_LOG_DEBUG, "Testing for ARCHIVE::Signal\n");
 
         if ((test = strstr(request_block->signal, request_block->api_delim)) != NULL) {
 
             if (test - request_block->signal >= STRING_LENGTH - 1 || strlen(test + ldelim) >= MAXMETA - 1) {
                 err = ARCHIVE_NAME_TOO_LONG;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "extractArchive", err, "The ARCHIVE Name is too long!");
+                addIdamError(CODEERRORTYPE, "extractArchive", err, "The ARCHIVE Name is too long!");
                 return err;
             }
             strncpy(request_block->archive, request_block->signal, test - request_block->signal);
@@ -1143,8 +1143,8 @@ int extractArchive(REQUEST_BLOCK* request_block, int reduceSignal)
                 request_block->archive[0] = '\0';            // Reset Archive
             }
 
-            IDAM_LOGF(UDA_LOG_DEBUG, "Archive %s\n", request_block->archive);
-            IDAM_LOGF(UDA_LOG_DEBUG, "Signal  %s\n", request_block->signal);
+            UDA_LOG(UDA_LOG_DEBUG, "Archive %s\n", request_block->archive);
+            UDA_LOG(UDA_LOG_DEBUG, "Signal  %s\n", request_block->signal);
         }
     }
     return err;
@@ -1166,26 +1166,26 @@ void expandEnvironmentVariables(REQUEST_BLOCK* request_block)
     char ocwd[STRING_LENGTH];
 
     if (strchr(request_block->path, '$') == NULL) {
-        IDAM_LOG(UDA_LOG_DEBUG, "No embedded environment variables detected\n");
+        UDA_LOG(UDA_LOG_DEBUG, "No embedded environment variables detected\n");
         return;
     }
 
     if ((pcwd = getcwd(ocwd, lcwd)) == NULL) {    // Current Working Directory
-        IDAM_LOG(UDA_LOG_DEBUG, "Unable to identify PWD!\n");
+        UDA_LOG(UDA_LOG_DEBUG, "Unable to identify PWD!\n");
         return;
     }
 
     if ((err = chdir(request_block->path)) == 0) {            // Change to path directory
         pcwd = getcwd(cwd, lcwd);                    // The Current Working Directory is now the resolved directory name
 
-        IDAM_LOG(UDA_LOG_DEBUG, "Expanding embedded environment variable:\n");
-        IDAM_LOGF(UDA_LOG_DEBUG, "from: %s\n", request_block->path);
-        IDAM_LOGF(UDA_LOG_DEBUG, "to: %s\n", cwd);
+        UDA_LOG(UDA_LOG_DEBUG, "Expanding embedded environment variable:\n");
+        UDA_LOG(UDA_LOG_DEBUG, "from: %s\n", request_block->path);
+        UDA_LOG(UDA_LOG_DEBUG, "to: %s\n", cwd);
 
         if (pcwd != NULL) strcpy(request_block->path, cwd);    // The expanded path
         chdir(ocwd);                        // Return to the Original WD
     } else {
-        IDAM_LOG(UDA_LOG_DEBUG, "expandEnvironmentvariables: Direct substitution! \n");
+        UDA_LOG(UDA_LOG_DEBUG, "expandEnvironmentvariables: Direct substitution! \n");
 
         char* fp = NULL, * env, * fp1;
         char work1[STRING_LENGTH];
@@ -1236,7 +1236,7 @@ void expandEnvironmentVariables(REQUEST_BLOCK* request_block)
             }
         }
 
-        IDAM_LOGF(UDA_LOG_DEBUG, "Expanding to: %s\n", request_block->path);
+        UDA_LOG(UDA_LOG_DEBUG, "Expanding to: %s\n", request_block->path);
     }
 
     return;
@@ -1391,7 +1391,7 @@ int extractSubset(REQUEST_BLOCK* request_block)
                         }
                         if (request_block->datasubset.start[i] < 0) {
                             err = 999;
-                            addIdamError(&idamerrorstack, CODEERRORTYPE, "extractSubset", err,
+                            addIdamError(CODEERRORTYPE, "extractSubset", err,
                                          "Invalid Start Index in subset operation");
                             rc = -1;
                             break;
@@ -1416,7 +1416,7 @@ int extractSubset(REQUEST_BLOCK* request_block)
                         }
                         if (request_block->datasubset.stop[i] < 0) {
                             err = 999;
-                            addIdamError(&idamerrorstack, CODEERRORTYPE, "extractSubset", err,
+                            addIdamError(CODEERRORTYPE, "extractSubset", err,
                                          "Invalid sample End Index in subset operation");
                             rc = -1;
                             break;
@@ -1427,7 +1427,7 @@ int extractSubset(REQUEST_BLOCK* request_block)
 
                         if (request_block->datasubset.stop[i] < request_block->datasubset.start[i]) {
                             err = 999;
-                            addIdamError(&idamerrorstack, CODEERRORTYPE, "extractSubset", err,
+                            addIdamError(CODEERRORTYPE, "extractSubset", err,
                                          "Invalid Stop Index in subset operation");
                             rc = -1;
                             break;
@@ -1453,7 +1453,7 @@ int extractSubset(REQUEST_BLOCK* request_block)
                             }
                             if (request_block->datasubset.stride[i] <= 0) {
                                 err = 999;
-                                addIdamError(&idamerrorstack, CODEERRORTYPE, "extractSubset", err,
+                                addIdamError(CODEERRORTYPE, "extractSubset", err,
                                              "Invalid sample stride length in subset operation");
                                 rc = -1;
                                 break;
@@ -1491,7 +1491,7 @@ int extractSubset(REQUEST_BLOCK* request_block)
                             }
                             if (request_block->datasubset.start[i] < 0) {
                                 err = 999;
-                                addIdamError(&idamerrorstack, CODEERRORTYPE, "extractSubset", err,
+                                addIdamError(CODEERRORTYPE, "extractSubset", err,
                                              "Invalid start index in subset operation");
                                 rc = -1;
                                 break;

@@ -148,9 +148,9 @@ int getIdamNameValuePairVarArray(const char* values, char quote, char delimiter,
 
     if (varSize > 0 && dataCount != varSize) {        // Check counts for consistency if known in advance
         err = 999;
-        IDAM_LOG(UDA_LOG_ERROR,
+        UDA_LOG(UDA_LOG_ERROR,
                 "getNameValuePairVarArray: The number of values passed by argument is inconsistent with the specified Size value!\n");
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "getNameValuePairVarArray", err,
+        addIdamError(CODEERRORTYPE, "getNameValuePairVarArray", err,
                      "The number of values passed by argument is inconsistent with the specified Size value!");
         freeIdamNameValuePairItemList(&dataList, dataCount);
         return -err;
@@ -173,11 +173,11 @@ int getIdamNameValuePairVarArray(const char* values, char quote, char delimiter,
 	 break;
       }
 */
-        case TYPE_UNSIGNED_CHAR: {
+        case UDA_TYPE_UNSIGNED_CHAR: {
             unsigned char* d = (unsigned char*) malloc(dataCount * sizeof(unsigned char));
             unsigned int* id = (unsigned int*) malloc(dataCount * sizeof(unsigned int));
             for (i = 0; i < dataCount; i++) {
-                id[i] = (int) atoi(dataList[i]);
+                id[i] = atoi(dataList[i]);
                 d[i] = (unsigned char) id[i];
             }
             data = (void*) d;
@@ -185,63 +185,63 @@ int getIdamNameValuePairVarArray(const char* values, char quote, char delimiter,
             break;
         }
 
-        case TYPE_CHAR: {
+        case UDA_TYPE_CHAR: {
             char* d = (char*) malloc(dataCount * sizeof(char));
             for (i = 0; i < dataCount; i++) d[i] = (char) (dataList[i])[0];
             data = (void*) d;
             break;
         }
 
-        case TYPE_SHORT: {
+        case UDA_TYPE_SHORT: {
             short* d = (short*) malloc(dataCount * sizeof(short));
             for (i = 0; i < dataCount; i++) d[i] = (short) atoi(dataList[i]);
             data = (void*) d;
             break;
         }
 
-        case TYPE_UNSIGNED_SHORT: {
+        case UDA_TYPE_UNSIGNED_SHORT: {
             unsigned short* d = (unsigned short*) malloc(dataCount * sizeof(unsigned short));
             for (i = 0; i < dataCount; i++) d[i] = (unsigned short) atoi(dataList[i]);
             data = (void*) d;
             break;
         }
 
-        case TYPE_INT: {
+        case UDA_TYPE_INT: {
             int* d = (int*) malloc(dataCount * sizeof(int));
             for (i = 0; i < dataCount; i++) d[i] = (int) atoi(dataList[i]);
             data = (void*) d;
             break;
         }
 
-        case TYPE_UNSIGNED_INT: {
+        case UDA_TYPE_UNSIGNED_INT: {
             unsigned int* d = (unsigned int*) malloc(dataCount * sizeof(int));
             for (i = 0; i < dataCount; i++) d[i] = (unsigned int) atoi(dataList[i]);
             data = (void*) d;
             break;
         }
 
-        case TYPE_LONG64: {
+        case UDA_TYPE_LONG64: {
             long long* d = (long long*) malloc(dataCount * sizeof(long long));
             for (i = 0; i < dataCount; i++) d[i] = (long long) atoi(dataList[i]);
             data = (void*) d;
             break;
         }
 
-        case TYPE_UNSIGNED_LONG64: {
+        case UDA_TYPE_UNSIGNED_LONG64: {
             unsigned long long* d = (unsigned long long*) malloc(dataCount * sizeof(unsigned long long));
             for (i = 0; i < dataCount; i++) d[i] = (unsigned long long) atoi(dataList[i]);
             data = (void*) d;
             break;
         }
 
-        case TYPE_FLOAT: {
+        case UDA_TYPE_FLOAT: {
             float* d = (float*) malloc(dataCount * sizeof(float));
             for (i = 0; i < dataCount; i++) d[i] = (float) atof(dataList[i]);
             data = (void*) d;
             break;
         }
 
-        case TYPE_DOUBLE: {
+        case UDA_TYPE_DOUBLE: {
             double* d = (double*) malloc(dataCount * sizeof(double));
             for (i = 0; i < dataCount; i++) d[i] = atof(dataList[i]);
             data = (void*) d;
@@ -250,9 +250,9 @@ int getIdamNameValuePairVarArray(const char* values, char quote, char delimiter,
 
         default:
             err = 999;
-            IDAM_LOG(UDA_LOG_ERROR,
+            UDA_LOG(UDA_LOG_ERROR,
                     "getNameValuePairVarArray: The data type of the values passed by argument is not recognised!\n");
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "getNameValuePairVarArray", err,
+            addIdamError(CODEERRORTYPE, "getNameValuePairVarArray", err,
                          "The data type of the values passed by argument is not recognised!");
             break;
     }
@@ -261,9 +261,9 @@ int getIdamNameValuePairVarArray(const char* values, char quote, char delimiter,
 
     if (err == 0 && data == NULL) {
         err = 999;
-        IDAM_LOG(UDA_LOG_ERROR,
+        UDA_LOG(UDA_LOG_ERROR,
                 "getNameValuePairVarArray: Processing of the specified type of data passed by argument has not been implemented!\n");
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "getNameValuePairVarArray", err,
+        addIdamError(CODEERRORTYPE, "getNameValuePairVarArray", err,
                      "Processing of the specified type of data passed by argument has not been implemented!");
         return -err;
     }
@@ -279,50 +279,50 @@ int getIdamNameValuePairVarArray(const char* values, char quote, char delimiter,
 }
 
 int findIdamType(const char* typeName) {
-    if (typeName == NULL) return (TYPE_UNDEFINED);
-    if (STR_IEQUALS(typeName, "byte")) return TYPE_CHAR;
-    if (STR_IEQUALS(typeName, "char")) return TYPE_CHAR;
-    if (STR_IEQUALS(typeName, "short")) return TYPE_SHORT;
-    if (STR_IEQUALS(typeName, "int")) return TYPE_INT;
-    if (STR_IEQUALS(typeName, "int64")) return TYPE_LONG64;
-    if (STR_IEQUALS(typeName, "float")) return TYPE_FLOAT;
-    if (STR_IEQUALS(typeName, "double")) return TYPE_DOUBLE;
-    if (STR_IEQUALS(typeName, "ubyte")) return TYPE_UNSIGNED_CHAR;
-    if (STR_IEQUALS(typeName, "ushort")) return TYPE_UNSIGNED_SHORT;
-    if (STR_IEQUALS(typeName, "uint")) return TYPE_UNSIGNED_INT;
-    if (STR_IEQUALS(typeName, "uint64")) return TYPE_UNSIGNED_LONG64;
-    if (STR_IEQUALS(typeName, "text")) return TYPE_STRING;
-    if (STR_IEQUALS(typeName, "string")) return TYPE_STRING;
-    if (STR_IEQUALS(typeName, "vlen")) return TYPE_VLEN;
-    if (STR_IEQUALS(typeName, "compound")) return TYPE_COMPOUND;
-    if (STR_IEQUALS(typeName, "opaque")) return TYPE_OPAQUE;
-    if (STR_IEQUALS(typeName, "enum")) return TYPE_ENUM;
-    return (TYPE_UNDEFINED);
+    if (typeName == NULL) return (UDA_TYPE_UNDEFINED);
+    if (STR_IEQUALS(typeName, "byte")) return UDA_TYPE_CHAR;
+    if (STR_IEQUALS(typeName, "char")) return UDA_TYPE_CHAR;
+    if (STR_IEQUALS(typeName, "short")) return UDA_TYPE_SHORT;
+    if (STR_IEQUALS(typeName, "int")) return UDA_TYPE_INT;
+    if (STR_IEQUALS(typeName, "int64")) return UDA_TYPE_LONG64;
+    if (STR_IEQUALS(typeName, "float")) return UDA_TYPE_FLOAT;
+    if (STR_IEQUALS(typeName, "double")) return UDA_TYPE_DOUBLE;
+    if (STR_IEQUALS(typeName, "ubyte")) return UDA_TYPE_UNSIGNED_CHAR;
+    if (STR_IEQUALS(typeName, "ushort")) return UDA_TYPE_UNSIGNED_SHORT;
+    if (STR_IEQUALS(typeName, "uint")) return UDA_TYPE_UNSIGNED_INT;
+    if (STR_IEQUALS(typeName, "uint64")) return UDA_TYPE_UNSIGNED_LONG64;
+    if (STR_IEQUALS(typeName, "text")) return UDA_TYPE_STRING;
+    if (STR_IEQUALS(typeName, "string")) return UDA_TYPE_STRING;
+    if (STR_IEQUALS(typeName, "vlen")) return UDA_TYPE_VLEN;
+    if (STR_IEQUALS(typeName, "compound")) return UDA_TYPE_COMPOUND;
+    if (STR_IEQUALS(typeName, "opaque")) return UDA_TYPE_OPAQUE;
+    if (STR_IEQUALS(typeName, "enum")) return UDA_TYPE_ENUM;
+    return (UDA_TYPE_UNDEFINED);
 }
 
 char* convertIdam2StringType(int type) {
     switch (type) {
-        case TYPE_CHAR:
+        case UDA_TYPE_CHAR:
             return "char";
-        case TYPE_SHORT:
+        case UDA_TYPE_SHORT:
             return "short";
-        case TYPE_INT:
+        case UDA_TYPE_INT:
             return "int";
-        case TYPE_LONG64:
+        case UDA_TYPE_LONG64:
             return "int64";
-        case TYPE_FLOAT:
+        case UDA_TYPE_FLOAT:
             return "float";
-        case TYPE_DOUBLE:
+        case UDA_TYPE_DOUBLE:
             return "double";
-        case TYPE_UNSIGNED_CHAR:
+        case UDA_TYPE_UNSIGNED_CHAR:
             return "ubyte";
-        case TYPE_UNSIGNED_SHORT:
+        case UDA_TYPE_UNSIGNED_SHORT:
             return "ushort";
-        case TYPE_UNSIGNED_INT:
+        case UDA_TYPE_UNSIGNED_INT:
             return "uint";
-        case TYPE_UNSIGNED_LONG64:
+        case UDA_TYPE_UNSIGNED_LONG64:
             return "ulong64";
-        case TYPE_STRING:
+        case UDA_TYPE_STRING:
             return "string";
         default:
             return "unknown";
@@ -358,31 +358,31 @@ int findHDF5Type(char* typeName) {
 int convertIdam2HDF5Type(int type)
 {
     switch (type) {
-        case TYPE_CHAR:
+        case UDA_TYPE_CHAR:
             return (H5T_NATIVE_CHAR);
-        case TYPE_SHORT:
+        case UDA_TYPE_SHORT:
             return (H5T_NATIVE_SHORT);
-        case TYPE_INT:
+        case UDA_TYPE_INT:
             return (H5T_NATIVE_INT);
-        case TYPE_LONG64:
+        case UDA_TYPE_LONG64:
             return (H5T_NATIVE_LLONG);
-        case TYPE_FLOAT:
+        case UDA_TYPE_FLOAT:
             return (H5T_NATIVE_FLOAT);
-        case TYPE_DOUBLE:
+        case UDA_TYPE_DOUBLE:
             return (H5T_NATIVE_DOUBLE);
-        case TYPE_UNSIGNED_CHAR:
+        case UDA_TYPE_UNSIGNED_CHAR:
             return (H5T_NATIVE_UCHAR);
-        case TYPE_UNSIGNED_SHORT:
+        case UDA_TYPE_UNSIGNED_SHORT:
             return (H5T_NATIVE_USHORT);
-        case TYPE_UNSIGNED_INT:
+        case UDA_TYPE_UNSIGNED_INT:
             return (H5T_NATIVE_UINT);
-        case TYPE_UNSIGNED_LONG64:
+        case UDA_TYPE_UNSIGNED_LONG64:
             return (H5T_NATIVE_ULLONG);
-            //case TYPE_VLEN:		return(NC_VLEN);
-            //case TYPE_COMPOUND:	return(NC_COMPOUND);
-            //case TYPE_OPAQUE:		return(NC_OPAQUE);
-            //case TYPE_ENUM:		return(NC_ENUM);
-        case TYPE_STRING:
+            //case UDA_TYPE_VLEN:		return(NC_VLEN);
+            //case UDA_TYPE_COMPOUND:	return(NC_COMPOUND);
+            //case UDA_TYPE_OPAQUE:		return(NC_OPAQUE);
+            //case UDA_TYPE_ENUM:		return(NC_ENUM);
+        case UDA_TYPE_STRING:
             return (H5T_C_S1);
         default:
             return 0;
@@ -395,25 +395,25 @@ int convertIdam2HDF5Type(int type)
 
 int sizeIdamType(int type) {
     switch (type) {
-        case TYPE_CHAR:
+        case UDA_TYPE_CHAR:
             return sizeof(char);
-        case TYPE_SHORT:
+        case UDA_TYPE_SHORT:
             return sizeof(short);
-        case TYPE_INT:
+        case UDA_TYPE_INT:
             return sizeof(int);
-        case TYPE_LONG64:
+        case UDA_TYPE_LONG64:
             return sizeof(long long);
-        case TYPE_FLOAT:
+        case UDA_TYPE_FLOAT:
             return sizeof(float);
-        case TYPE_DOUBLE:
+        case UDA_TYPE_DOUBLE:
             return sizeof(double);
-        case TYPE_UNSIGNED_CHAR:
+        case UDA_TYPE_UNSIGNED_CHAR:
             return sizeof(unsigned char);
-        case TYPE_UNSIGNED_SHORT:
+        case UDA_TYPE_UNSIGNED_SHORT:
             return sizeof(unsigned short);
-        case TYPE_UNSIGNED_INT:
+        case UDA_TYPE_UNSIGNED_INT:
             return sizeof(unsigned int);
-        case TYPE_UNSIGNED_LONG64:
+        case UDA_TYPE_UNSIGNED_LONG64:
             return sizeof(unsigned long long);
         default:
             return 0;

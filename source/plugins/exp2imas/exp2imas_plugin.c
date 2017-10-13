@@ -11,12 +11,17 @@
 #include <clientserver/errorLog.h>
 #include <clientserver/stringUtils.h>
 #include <plugins/udaPlugin.h>
+#include <structures/struct.h>
 
 #include "exp2imas_mds.h"
 #include "exp2imas_xml.h"
 
 typedef enum MappingType {
-    NONE, CONSTANT, STATIC, DYNAMIC
+    NONE,
+    CONSTANT,
+    STATIC,
+    DYNAMIC,
+    ERROR
 } MAPPING_TYPE;
 
 static int do_help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
@@ -25,9 +30,9 @@ static int do_builddate(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
 static int do_defaultmethod(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
 static int do_maxinterfaceversion(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
 static int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
-static char* getMappingFileName(const char* IDSversion);
+static char* getMappingFileName(const char* IDSversion, const char* element);
 static char* getMachineMappingFileName(const char* element);
-static xmlChar* getMappingValue(const char* mapping_file_name, const char* request, MAPPING_TYPE* request_type, int* index);
+static xmlChar* getMappingValue(const char* mapping_file_name, const char* request, MAPPING_TYPE* request_type, int* index, int* adjust);
 static char* deblank(char* token);
 static xmlChar* insertNodeIndices(const xmlChar* xpathExpr, int** indices, size_t* n_indices);
 
@@ -73,15 +78,13 @@ int exp2imasPlugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     // Heap Housekeeping
 
     if (idam_plugin_interface->housekeeping || STR_IEQUALS(request_block->function, "reset")) {
-
         if (!init) {
+            // Not previously initialised: Nothing to do!
             return 0;
-        }    // Not previously initialised: Nothing to do!
+        }
 
         // Free Heap & reset counters
-
         init = 0;
-
         return 0;
     }
 
@@ -209,12 +212,356 @@ xmlChar* insertNodeIndices(const xmlChar* xpathExpr, int** indices, size_t* n_in
     return indexedXpathExpr;
 }
 
+static int handle_constant(DATA_BLOCK* data_block, int dtype, const xmlChar* xPath)
+{
+    switch (dtype) {
+        case UDA_TYPE_SHORT:
+            setReturnDataShortScalar(data_block, (short)strtol((char*)xPath, NULL, 10), NULL);
+            break;
+        case UDA_TYPE_LONG:
+            setReturnDataLongScalar(data_block, strtol((char*)xPath, NULL, 10), NULL);
+            break;
+        case UDA_TYPE_FLOAT:
+            setReturnDataFloatScalar(data_block, strtof((char*)xPath, NULL), NULL);
+            break;
+        case UDA_TYPE_DOUBLE:
+            setReturnDataDoubleScalar(data_block, strtod((char*)xPath, NULL), NULL);
+            break;
+        case UDA_TYPE_INT:
+            setReturnDataIntScalar(data_block, (int)strtol((char*)xPath, NULL, 10), NULL);
+            break;
+        case UDA_TYPE_STRING:
+            setReturnDataString(data_block, (char*)xPath, NULL);
+            break;
+        default:
+            RAISE_PLUGIN_ERROR("unknown dtype given to plugin");
+    }
+    return 0;
+}
+
+static int handle_static(DATA_BLOCK* data_block, const char* experiment_mapping_file_name, const xmlChar* xPath,
+                         int index, int* indices, size_t nindices, int adjust)
+{
+    // Executing XPath
+
+    XML_DATA xml_data;
+
+    int status = execute_xpath_expression(experiment_mapping_file_name, xPath, index, &xml_data);
+    if (status != 0) {
+        return status;
+    }
+
+    if (xml_data.rank > 1 && index != -1) {
+        indices = realloc(indices, (nindices + 1) * sizeof(int));
+        indices[nindices] = index;
+        ++nindices;
+    }
+
+    if ((xml_data.rank != 0 || nindices != 1) && (xml_data.rank != nindices)) {
+        if (xml_data.rank == 1 && nindices == 0) {
+            size_t shape[] = { (size_t)xml_data.dims[0] };
+
+            if (xml_data.data_type == UDA_TYPE_DOUBLE) {
+                setReturnDataDoubleArray(data_block, (double*)xml_data.data, 1, shape, NULL);
+            } else if (xml_data.data_type == UDA_TYPE_FLOAT) {
+                setReturnDataFloatArray(data_block, (float*)xml_data.data, 1, shape, NULL);
+            } else if (xml_data.data_type == UDA_TYPE_INT) {
+                setReturnDataIntArray(data_block, (int*)xml_data.data, 1, shape, NULL);
+            } else {
+                RAISE_PLUGIN_ERROR("Unsupported data type");
+            }
+        } else {
+            THROW_ERROR(999, "incorrect number of indices specified");
+        }
+    } else {
+        int data_idx = 0;
+        int stride = 1;
+        int i;
+        for (i = xml_data.rank - 1; i >= 0; --i) {
+            data_idx += (indices[i] - 1) * stride;
+            stride *= xml_data.dims[i];
+        }
+
+        if (xml_data.data_type == UDA_TYPE_DOUBLE) {
+            double* ddata = (double*)xml_data.data;
+            setReturnDataDoubleScalar(data_block, ddata[data_idx] + adjust, NULL);
+            free(xml_data.data);
+        } else if (xml_data.data_type == UDA_TYPE_FLOAT) {
+            float* fdata = (float*)xml_data.data;
+            setReturnDataFloatScalar(data_block, fdata[data_idx] + adjust, NULL);
+            free(xml_data.data);
+        } else if (xml_data.data_type == UDA_TYPE_LONG) {
+            long* ldata = (long*)xml_data.data;
+            setReturnDataLongScalar(data_block, ldata[data_idx] + adjust, NULL);
+            free(xml_data.data);
+        } else if (xml_data.data_type == UDA_TYPE_INT) {
+            int* idata = (int*)xml_data.data;
+            setReturnDataIntScalar(data_block, idata[data_idx] + adjust, NULL);
+            free(xml_data.data);
+        } else if (xml_data.data_type == UDA_TYPE_SHORT) {
+            short* sdata = (short*)xml_data.data;
+            setReturnDataShortScalar(data_block, sdata[data_idx] + (short)adjust, NULL);
+            free(xml_data.data);
+        } else if (xml_data.data_type == UDA_TYPE_STRING) {
+            char** sdata = (char**)xml_data.data;
+            setReturnDataString(data_block, deblank(sdata[data_idx]), NULL);
+            FreeSplitStringTokens((char***)&xml_data.data);
+        } else {
+            RAISE_PLUGIN_ERROR("Unsupported data type");
+        }
+    }
+
+    return 0;
+}
+
+static int handle_dynamic(DATA_BLOCK* data_block, const char* experiment_mapping_file_name, const xmlChar* xPath,
+                          const char* element, int index, int shot, const int* indices, size_t nindices)
+{
+    // DYNAMIC case
+
+    XML_DATA xml_data;
+
+    int status = execute_xpath_expression(experiment_mapping_file_name, xPath, index, &xml_data);
+    if (status != 0) {
+        return status;
+    }
+
+    if (xml_data.data_type == UDA_TYPE_STRING) {
+
+        free(data_block->dims);
+        data_block->dims = NULL;
+
+        char** signalNames = (char**)xml_data.data;
+        size_t signal_idx = 0;
+
+        int data_n = 0;
+
+        float** data_arrays = NULL;
+        size_t n_arrays = 0;
+
+        while (signalNames[signal_idx] != NULL) {
+            char* signalName = signalNames[signal_idx];
+            float coefa = (xml_data.coefas != NULL) ? xml_data.coefas[signal_idx] : 1.0f;
+            float coefb = (xml_data.coefbs != NULL) ? xml_data.coefbs[signal_idx] : 0.0f;
+
+            float* time;
+            float* fdata;
+            int len;
+
+            status = mds_get(signalName, shot, &time, &fdata, &len, xml_data.time_dim);
+
+            if (status != 0) {
+                return status;
+            }
+
+            int size = xml_data.sizes[signal_idx] == 0 ? 1 : xml_data.sizes[signal_idx];
+            data_n = len / size;
+
+            int i;
+            for (i = 0; i < size; ++i) {
+                data_arrays = realloc(data_arrays, (n_arrays + 1) * sizeof(float*));
+
+                data_arrays[n_arrays] = malloc(data_n * sizeof(float));
+
+                if (StringEndsWith(element, "/time")) {
+                    memcpy(data_arrays[n_arrays], &time[0], data_n * sizeof(float));
+                } else {
+                    int j;
+                    for (j = 0; j < data_n; ++j) {
+                        data_arrays[n_arrays][j] = coefa * fdata[i + j * size] + coefb;
+                    }
+                }
+
+                ++n_arrays;
+            }
+
+            free(fdata);
+            free(time);
+            free(signalName);
+
+            ++signal_idx;
+        }
+
+        data_block->rank = 1;
+        data_block->data_type = UDA_TYPE_FLOAT;
+        data_block->data_n = data_n;
+
+        size_t sz = data_n * sizeof(float);
+        data_block->data = malloc(sz);
+
+        if (data_arrays != NULL) {
+            if (nindices > 0 && indices[0] > 0) {
+                memcpy(data_block->data, (char*)data_arrays[indices[0] - 1], sz);
+            } else {
+                memcpy(data_block->data, (char*)data_arrays[0], sz);
+            }
+
+            int i;
+            for (i = 0; i < n_arrays; ++i) {
+                free(data_arrays[i]);
+            }
+            free(data_arrays);
+        }
+
+        data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
+
+        int i;
+        for (i = 0; i < data_block->rank; i++) {
+            initDimBlock(&data_block->dims[i]);
+        }
+
+        data_block->dims[0].data_type = UDA_TYPE_FLOAT;
+        data_block->dims[0].dim_n = data_n;
+        data_block->dims[0].compressed = 0;
+        data_block->dims[0].dim = (char*)time;
+
+        strcpy(data_block->data_label, "");
+        strcpy(data_block->data_units, "");
+        strcpy(data_block->data_desc, "");
+    } else {
+        RAISE_PLUGIN_ERROR("Unsupported data type");
+    }
+
+    return 0;
+}
+
+#ifndef MAX
+#  define MAX(x, y) (((x) > (y)) ? (x) : (y))
+#endif
+
+static int handle_error(DATA_BLOCK* data_block, const char* experiment_mapping_file_name, const xmlChar* xPath,
+                          const char* element, int index, int shot, const int* indices, size_t nindices)
+{
+    // ERROR case
+
+    char* abserror = StringReplace((const char*)xPath, "/value/", "/abserror/");
+
+    XML_DATA xml_abserror;
+
+    int status = execute_xpath_expression(experiment_mapping_file_name, (const xmlChar*)abserror, index, &xml_abserror);
+    if (status != 0) {
+        return status;
+    }
+
+    char* relerror = StringReplace((const char*)xPath, "/value/", "/relerror/");
+
+    XML_DATA xml_relerror;
+
+    status = execute_xpath_expression(experiment_mapping_file_name, (const xmlChar*)relerror, index, &xml_relerror);
+    if (status != 0) {
+        return status;
+    }
+
+    XML_DATA xml_data;
+
+    status = execute_xpath_expression(experiment_mapping_file_name, xPath, index, &xml_data);
+    if (status != 0) {
+        return status;
+    }
+
+    if (xml_data.data_type != UDA_TYPE_STRING) {
+        RAISE_PLUGIN_ERROR("Unsupported data type");
+    }
+
+    free(data_block->dims);
+    data_block->dims = NULL;
+
+    char** signalNames = (char**)xml_data.data;
+    size_t signal_idx = 0;
+
+    int data_n = 0;
+
+    float** error_arrays = NULL;
+    size_t n_arrays = 0;
+
+    while (signalNames[signal_idx] != NULL) {
+        char* signalName = signalNames[signal_idx];
+        float coefa = (xml_data.coefas != NULL) ? xml_data.coefas[signal_idx] : 1.0f;
+        float coefb = (xml_data.coefbs != NULL) ? xml_data.coefbs[signal_idx] : 0.0f;
+
+        float* time;
+        float* fdata;
+        int len;
+
+        status = mds_get(signalName, shot, &time, &fdata, &len, xml_data.time_dim);
+        free(time);
+
+        if (status != 0) {
+            return status;
+        }
+
+        int size = xml_data.sizes[signal_idx] == 0 ? 1 : xml_data.sizes[signal_idx];
+        data_n = len / size;
+
+        int i;
+        for (i = 0; i < size; ++i) {
+            error_arrays = realloc(error_arrays, (n_arrays + 1) * sizeof(float*));
+
+            double abs = xml_abserror.values[i];
+            double rel = xml_relerror.values[i];
+
+            error_arrays[n_arrays] = malloc(data_n * sizeof(float));
+
+            int j;
+            for (j = 0; j < data_n; ++j) {
+                error_arrays[n_arrays][j] = coefa * fdata[i + j * size] + coefb;
+
+                double error = MAX(abs, rel * error_arrays[n_arrays][j]);
+                if (StringEndsWith(element, "lower")) {
+                    error_arrays[n_arrays][j] -= error / 2;
+                } else {
+                    error_arrays[n_arrays][j] += error / 2;
+                }
+            }
+
+            ++n_arrays;
+        }
+
+        free(fdata);
+        free(signalName);
+
+        ++signal_idx;
+    }
+
+    data_block->rank = 1;
+    data_block->data_type = UDA_TYPE_FLOAT;
+    data_block->data_n = data_n;
+
+    if (nindices > 0 && indices[0] > 0) {
+        if (error_arrays != NULL) {
+            size_t sz = data_n * sizeof(data_block->data_type);
+            data_block->data = malloc(sz);
+            memcpy(data_block->data, (char*)error_arrays[indices[0] - 1], sz);
+            free(error_arrays[0]);
+        }
+        free(error_arrays);
+    } else {
+        data_block->data = (error_arrays != NULL) ? (char*)error_arrays[0] : NULL;
+    }
+
+    data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
+
+    int i;
+    for (i = 0; i < data_block->rank; i++) {
+        initDimBlock(&data_block->dims[i]);
+    }
+
+    data_block->dims[0].data_type = UDA_TYPE_FLOAT;
+    data_block->dims[0].dim_n = data_n;
+    data_block->dims[0].compressed = 0;
+    data_block->dims[0].dim = (char*)time;
+
+    strcpy(data_block->data_label, "");
+    strcpy(data_block->data_units, "");
+    strcpy(data_block->data_desc, "");
+
+    return 0;
+}
+
 // ----------------------------------------------------------------------------------------
 // Add functionality here ....
 int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
-    int err = 0;
-
     DATA_BLOCK* data_block = idam_plugin_interface->data_block;
 
     initDataBlock(data_block);
@@ -253,12 +600,13 @@ int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     // Search mapping value and request type (static or dynamic)
     char* experiment_mapping_file_name = getMachineMappingFileName(element);
-    char* mapping_file_name = getMappingFileName(IDS_version);
+    char* mapping_file_name = getMappingFileName(IDS_version, element);
 
     MAPPING_TYPE request_type = NONE;
     int index = -1;
+    int adjust = 0;
 
-    const xmlChar* xPath = getMappingValue(mapping_file_name, element, &request_type, &index);
+    const xmlChar* xPath = getMappingValue(mapping_file_name, element, &request_type, &index, &adjust);
 
     xPath = insertNodeIndices(xPath, &indices, &nindices);
 
@@ -266,213 +614,52 @@ int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         return -1;
     }
 
-    if (request_type == CONSTANT) {
-        switch (dtype) {
-            case TYPE_SHORT:
-                setReturnDataShortScalar(data_block, (short)strtol((char*)xPath, NULL, 10), NULL);
-                break;
-            case TYPE_LONG:
-                setReturnDataLongScalar(data_block, strtol((char*)xPath, NULL, 10), NULL);
-                break;
-            case TYPE_FLOAT:
-                setReturnDataFloatScalar(data_block, strtof((char*)xPath, NULL), NULL);
-                break;
-            case TYPE_DOUBLE:
-                setReturnDataDoubleScalar(data_block, strtod((char*)xPath, NULL), NULL);
-                break;
-            case TYPE_INT:
-                setReturnDataIntScalar(data_block, (int)strtol((char*)xPath, NULL, 10), NULL);
-                break;
-            case TYPE_STRING:
-                setReturnDataString(data_block, (char*)xPath, NULL);
-                break;
-            default:
-                RAISE_PLUGIN_ERROR("unknown dtype given to plugin");
-        }
-    } else if (request_type == STATIC) {
+    int err = 0;
 
-        // Executing XPath
-
-        char* data = NULL;
-        int* dims = NULL;
-        int rank = 0;
-        int data_type = TYPE_UNKNOWN;
-        int time_dim = 1;
-        int* sizes = NULL;
-        float* coefas = NULL;
-        float* coefbs = NULL;
-
-        int status = execute_xpath_expression(experiment_mapping_file_name, xPath, &data, &data_type, &time_dim, &sizes,
-                                              &coefas, &coefbs, index, &dims, &rank);
-        if (status != 0) {
-            return status;
-        }
-
-        if ((rank != 0 || nindices != 1) && (rank != nindices)) {
-            THROW_ERROR(999, "incorrect number of indices specified");
-        }
-
-        int data_idx = 0;
-        int stride = 1;
-        for (i = rank - 1; i > 0; --i) {
-            data_idx += (indices[i] - 1) * stride;
-            stride *= (i > 0) ? dims[i - 1] : 1;
-        }
-
-        if (data_type == TYPE_DOUBLE) {
-            double* ddata = (double*)data;
-            setReturnDataDoubleScalar(data_block, ddata[data_idx], NULL);
-            free(data);
-        } else if (data_type == TYPE_FLOAT) {
-            float* fdata = (float*)data;
-            setReturnDataFloatScalar(data_block, fdata[data_idx], NULL);
-            free(data);
-        } else if (data_type == TYPE_LONG) {
-            long* ldata = (long*)data;
-            setReturnDataLongScalar(data_block, ldata[data_idx], NULL);
-            free(data);
-        } else if (data_type == TYPE_INT) {
-            int* idata = (int*)data;
-            setReturnDataIntScalar(data_block, idata[data_idx], NULL);
-            free(data);
-        } else if (data_type == TYPE_SHORT) {
-            short* sdata = (short*)data;
-            setReturnDataShortScalar(data_block, sdata[data_idx], NULL);
-            free(data);
-        } else if (data_type == TYPE_STRING) {
-            char** sdata = (char**)data;
-            setReturnDataString(data_block, deblank(sdata[data_idx]), NULL);
-            FreeSplitStringTokens((char***)&data);
-        } else {
-            err = 999;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, err, "Unsupported data type");
-        }
-
-        return 0;
-
-    } else {
-
-        // DYNAMIC case
-
-        char* data = NULL;
-        int* dims = NULL;
-        int rank = 0;
-        int data_type = TYPE_UNKNOWN;
-        int time_dim = 1;
-        int* sizes = NULL;
-        float* coefas = NULL;
-        float* coefbs = NULL;
-
-        int status = execute_xpath_expression(experiment_mapping_file_name, xPath, &data, &data_type, &time_dim, &sizes,
-                                              &coefas, &coefbs, index, &dims, &rank);
-        if (status != 0) {
-            return status;
-        }
-
-        if (data_type == TYPE_STRING) {
-
-            free(data_block->dims);
-            data_block->dims = NULL;
-
-            char** signalNames = (char**)data;
-            size_t signal_idx = 0;
-
-            int data_n = 0;
-
-            float** data_arrays = NULL;
-            size_t n_arrays = 0;
-
-            while (signalNames[signal_idx] != NULL) {
-                char* signalName = signalNames[signal_idx];
-                float coefa = (coefas != NULL) ? coefas[signal_idx] : 1.0f;
-                float coefb = (coefbs != NULL) ? coefbs[signal_idx] : 0.0f;
-
-                float* time;
-                float* fdata;
-                int len;
-
-                status = mds_get(signalName, shot, &time, &fdata, &len, time_dim);
-
-                if (status != 0) {
-                    return status;
-                }
-
-                data_n = len / sizes[signal_idx];
-
-                for (i = 0; i < sizes[signal_idx]; ++i) {
-                    data_arrays = realloc(data_arrays, (n_arrays + 1) * sizeof(float*));
-
-                    if (StringEndsWith(element, "/time")) {
-                        data_arrays[n_arrays] = &time[0];
-                    } else {
-                        data_arrays[n_arrays] = &fdata[i * data_n];
-                        int j;
-                        for (j = 0; j < data_n; ++j) {
-                            data_arrays[n_arrays][j] = coefa * data_arrays[n_arrays][j] + coefb;
-                        }
-                    }
-
-                    ++n_arrays;
-                }
-
-                if (StringEndsWith(element, "/time")) {
-                    free(fdata);
-                } else {
-                    free(time);
-                }
-                free(signalName);
-
-                ++signal_idx;
-            }
-
-            data_block->rank = 1;
-            data_block->data_type = TYPE_FLOAT;
-            data_block->data_n = data_n;
-
-            if (indices[0] > 0) {
-                if (data_arrays != NULL) {
-                    size_t sz = data_n * sizeof(data_block->data_type);
-                    data_block->data = malloc(sz);
-                    memcpy(data_block->data, (char*)data_arrays[indices[0] - 1], sz);
-                    free(data_arrays[0]);
-                }
-                free(data_arrays);
-            } else {
-                data_block->data = (data_arrays != NULL) ? (char*)data_arrays[0] : NULL;
-            }
-
-            data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
-            for (i = 0; i < data_block->rank; i++) {
-                initDimBlock(&data_block->dims[i]);
-            }
-
-            data_block->dims[0].data_type = TYPE_FLOAT;
-            data_block->dims[0].dim_n = data_n;
-            data_block->dims[0].compressed = 0;
-            data_block->dims[0].dim = (char*)time;
-
-            strcpy(data_block->data_label, "");
-            strcpy(data_block->data_units, "");
-            strcpy(data_block->data_desc, "");
-        } else {
-            err = 999;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, err, "Unsupported data type");
-        }
+    switch (request_type) {
+        case CONSTANT:
+            err = handle_constant(data_block, dtype, xPath);
+            break;
+        case STATIC:
+            err = handle_static(data_block, experiment_mapping_file_name, xPath, index, indices, nindices, adjust);
+            break;
+        case DYNAMIC:
+            err = handle_dynamic(data_block, experiment_mapping_file_name, xPath, element, index, shot, indices, nindices);
+            break;
+        case ERROR:
+            err = handle_error(data_block, experiment_mapping_file_name, xPath, element, index, shot, indices, nindices);
+            break;
+        default:
+            RAISE_PLUGIN_ERROR("unknown request type");
     }
 
-    return 0;
+    return err;
 }
 
-char* getMappingFileName(const char* IDSversion)
+char* getMappingFileName(const char* IDSversion, const char* element)
 {
-    char* dir = getenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY");
-    return FormatString("%s/IMAS_mapping.xml", dir);
-//    return FormatString("%s/IMAS_mapping_%s.xml", dir, IDSversion);
+    static char* dir = NULL;
+
+    if (dir == NULL) {
+        dir = getenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY");
+    }
+
+    char* slash = strchr(element, '/');
+    char* token = strndup(element, slash - element);
+
+    char* name = FormatString("%s/IMAS_mapping_%s.xml", dir, token);
+    free(token);
+
+    return name;
 }
 
 char* getMachineMappingFileName(const char* element)
 {
-    char* dir = getenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY");
+    static char* dir = NULL;
+
+    if (dir == NULL) {
+        dir = getenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY");
+    }
 
     char* slash = strchr(element, '/');
     char* token = strndup(element, slash - element);
@@ -483,9 +670,27 @@ char* getMachineMappingFileName(const char* element)
     return name;
 }
 
-xmlChar* getMappingValue(const char* mapping_file_name, const char* request, MAPPING_TYPE* request_type, int* index)
+xmlChar* getMappingValue(const char* mapping_file_name, const char* request, MAPPING_TYPE* request_type, int* index, int* adjust)
 {
+    static const char* file_name = NULL;
     static xmlDocPtr doc = NULL;
+    static xmlXPathContextPtr xpath_ctx = NULL;
+
+    if (file_name == NULL) {
+        // store the file name of the currently loaded XML file
+        file_name = mapping_file_name;
+    }
+
+    if (!StringEquals(file_name, mapping_file_name)) {
+        // clear the file so we reload
+        xmlXPathFreeContext(xpath_ctx);
+        xmlFreeDoc(doc);
+
+        doc = NULL;
+        xpath_ctx = NULL;
+
+        file_name = mapping_file_name;
+    }
 
     if (doc == NULL) {
         /*
@@ -493,13 +698,11 @@ xmlChar* getMappingValue(const char* mapping_file_name, const char* request, MAP
          */
         doc = xmlParseFile(mapping_file_name);
         if (doc == NULL) {
-            addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, 999, "unable to parse file");
-            IDAM_LOGF(UDA_LOG_ERROR, "unable to parse file \"%s\"\n", mapping_file_name);
+            addIdamError(CODEERRORTYPE, __func__, 999, "unable to parse file");
+            UDA_LOG(UDA_LOG_ERROR, "unable to parse file \"%s\"\n", mapping_file_name);
             return NULL;
         }
     }
-
-    static xmlXPathContextPtr xpath_ctx = NULL;
 
     if (xpath_ctx == NULL) {
         /*
@@ -507,15 +710,13 @@ xmlChar* getMappingValue(const char* mapping_file_name, const char* request, MAP
          */
         xpath_ctx = xmlXPathNewContext(doc);
         if (xpath_ctx == NULL) {
-            addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, 999, "unable to create new XPath context");
-            IDAM_LOGF(UDA_LOG_ERROR, "unable to create new XPath context\n", mapping_file_name);
-//            xmlFreeDoc(doc);
+            addIdamError(CODEERRORTYPE, __func__, 999, "unable to create new XPath context");
+            UDA_LOG(UDA_LOG_ERROR, "unable to create new XPath context\n", mapping_file_name);
             return NULL;
         }
     }
 
     // Creating the Xpath request
-
     XML_FMT_TYPE fmt = "//mapping[@key='%s']/@value";
     size_t len = strlen(request) + strlen(fmt) + 1;
     xmlChar* xpath_expr = malloc(len + sizeof(xmlChar));
@@ -526,11 +727,9 @@ xmlChar* getMappingValue(const char* mapping_file_name, const char* request, MAP
      */
     xmlXPathObjectPtr xpath_obj = xmlXPathEvalExpression(xpath_expr, xpath_ctx);
     if (xpath_obj == NULL) {
-        addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, 999, "unable to evaluate xpath expression");
-        IDAM_LOGF(UDA_LOG_ERROR, "unable to evaluate xpath expression \"%s\"\n", xpath_expr);
+        addIdamError(CODEERRORTYPE, __func__, 999, "unable to evaluate xpath expression");
+        UDA_LOG(UDA_LOG_ERROR, "unable to evaluate xpath expression \"%s\"\n", xpath_expr);
         free(xpath_expr);
-//        xmlXPathFreeContext(xpath_ctx);
-//        xmlFreeDoc(doc);
         return NULL;
     }
 
@@ -546,7 +745,7 @@ xmlChar* getMappingValue(const char* mapping_file_name, const char* request, MAP
         value = xmlStrdup(current_node->content);
     } else {
         err = 998;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, err, "no result on XPath request, no key attribute defined?");
+        addIdamError(CODEERRORTYPE, __func__, err, "no result on XPath request, no key attribute defined?");
     }
 
     fmt = "//mapping[@key='%s']/@type";
@@ -561,11 +760,9 @@ xmlChar* getMappingValue(const char* mapping_file_name, const char* request, MAP
     xmlXPathFreeObject(xpath_obj);
     xpath_obj = xmlXPathEvalExpression(xpath_expr, xpath_ctx);
     if (xpath_obj == NULL) {
-        addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, 999, "unable to evaluate xpath expression");
-        IDAM_LOGF(UDA_LOG_ERROR, "unable to evaluate xpath expression \"%s\"\n", xpath_expr);
+        addIdamError(CODEERRORTYPE, __func__, 999, "unable to evaluate xpath expression");
+        UDA_LOG(UDA_LOG_ERROR, "unable to evaluate xpath expression \"%s\"\n", xpath_expr);
         free(xpath_expr);
-//        xmlXPathFreeContext(xpath_ctx);
-//        xmlFreeDoc(doc);
         return NULL;
     }
 
@@ -578,7 +775,8 @@ xmlChar* getMappingValue(const char* mapping_file_name, const char* request, MAP
         type_str = strdup((char*)current_node->content);
     } else {
         err = 998;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, err, "no result on XPath request, no key attribute defined?");
+        addIdamError(CODEERRORTYPE, __func__, err, "no result on XPath request, no key attribute defined?");
+        return NULL;
     }
 
     if (type_str == NULL) {
@@ -589,9 +787,11 @@ xmlChar* getMappingValue(const char* mapping_file_name, const char* request, MAP
         *request_type = DYNAMIC;
     } else if (STR_IEQUALS(type_str, "static")) {
         *request_type = STATIC;
+    } else if (STR_IEQUALS(type_str, "error")) {
+        *request_type = ERROR;
     } else {
-        addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, 999, "unknown mapping type");
-        IDAM_LOGF(UDA_LOG_ERROR, "unknown mapping type \"%s\"\n", type_str);
+        addIdamError(CODEERRORTYPE, __func__, 999, "unknown mapping type");
+        UDA_LOG(UDA_LOG_ERROR, "unknown mapping type \"%s\"\n", type_str);
         value = NULL;
     }
 
@@ -601,17 +801,12 @@ xmlChar* getMappingValue(const char* mapping_file_name, const char* request, MAP
     xpath_expr = malloc(len + sizeof(xmlChar));
     xmlStrPrintf(xpath_expr, (int)len, fmt, request);
 
-    /*
-     * Evaluate xpath expression for the type
-     */
     xmlXPathFreeObject(xpath_obj);
     xpath_obj = xmlXPathEvalExpression(xpath_expr, xpath_ctx);
     if (xpath_obj == NULL) {
-        addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, 999, "unable to evaluate xpath expression");
-        IDAM_LOGF(UDA_LOG_ERROR, "unable to evaluate xpath expression \"%s\"\n", xpath_expr);
+        addIdamError(CODEERRORTYPE, __func__, 999, "unable to evaluate xpath expression");
+        UDA_LOG(UDA_LOG_ERROR, "unable to evaluate xpath expression \"%s\"\n", xpath_expr);
         free(xpath_expr);
-//        xmlXPathFreeContext(xpath_ctx);
-//        xmlFreeDoc(doc);
         return NULL;
     }
 
@@ -623,13 +818,26 @@ xmlChar* getMappingValue(const char* mapping_file_name, const char* request, MAP
         *index = (int)strtol((char*)current_node->content, NULL, 10);
     }
 
-    /*
-     * Cleanup
-     */
+    fmt = "//mapping[@key='%s']/@adjust";
+    len = strlen(request) + strlen(fmt) + 1;
+    free(xpath_expr);
+    xpath_expr = malloc(len + sizeof(xmlChar));
+    xmlStrPrintf(xpath_expr, (int)len, fmt, request);
+
+    xmlXPathFreeObject(xpath_obj);
+    xpath_obj = xmlXPathEvalExpression(xpath_expr, xpath_ctx);
+    if (xpath_obj != NULL) {
+        nodes = xpath_obj->nodesetval;
+
+        if (nodes != NULL && nodes->nodeNr > 0) {
+            current_node = nodes->nodeTab[0];
+            current_node = current_node->children;
+            *adjust = (int)strtol((char*)current_node->content, NULL, 10);
+        }
+    }
+
     free(xpath_expr);
     xmlXPathFreeObject(xpath_obj);
-//    xmlXPathFreeContext(xpath_ctx);
-//    xmlFreeDoc(doc);
 
     return value;
 }

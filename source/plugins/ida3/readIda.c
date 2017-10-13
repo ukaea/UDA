@@ -71,10 +71,10 @@ int readIda3(DATA_BLOCK* data_block, int exp_number, int pass, const char* sourc
             strlwr(file);
         }
 
-        IDAM_LOGF(UDA_LOG_DEBUG, "alias          : %s \n", alias);
-        IDAM_LOGF(UDA_LOG_DEBUG, "filename       : %s \n", file);
-        IDAM_LOGF(UDA_LOG_DEBUG, "length         : %d \n", strlen(alias));
-        IDAM_LOGF(UDA_LOG_DEBUG, "alias == file? : %d \n", strcasecmp(file, alias));
+        UDA_LOG(UDA_LOG_DEBUG, "alias          : %s \n", alias);
+        UDA_LOG(UDA_LOG_DEBUG, "filename       : %s \n", file);
+        UDA_LOG(UDA_LOG_DEBUG, "length         : %d \n", strlen(alias));
+        UDA_LOG(UDA_LOG_DEBUG, "alias == file? : %d \n", strcasecmp(file, alias));
 
         // Check whether or not the filename is the alias name
         // If is it then form the correct filename
@@ -99,18 +99,18 @@ int readIda3(DATA_BLOCK* data_block, int exp_number, int pass, const char* sourc
             ida_path[STRING_LENGTH - 1] = '\0';
         }
 
-        IDAM_LOGF(UDA_LOG_DEBUG, "Signal Name  : %s \n", signal_name);
-        IDAM_LOGF(UDA_LOG_DEBUG, "File Alias   : %s \n", source_alias);
-        IDAM_LOGF(UDA_LOG_DEBUG, "File Name    : %s \n", ida_file);
-        IDAM_LOGF(UDA_LOG_DEBUG, "File Path    : %s \n", ida_path);
-        IDAM_LOGF(UDA_LOG_DEBUG, "Pulse Number : %d \n", exp_number);
-        IDAM_LOGF(UDA_LOG_DEBUG, "Pass Number  : %d \n", pass);
+        UDA_LOG(UDA_LOG_DEBUG, "Signal Name  : %s \n", signal_name);
+        UDA_LOG(UDA_LOG_DEBUG, "File Alias   : %s \n", source_alias);
+        UDA_LOG(UDA_LOG_DEBUG, "File Name    : %s \n", ida_file);
+        UDA_LOG(UDA_LOG_DEBUG, "File Path    : %s \n", ida_path);
+        UDA_LOG(UDA_LOG_DEBUG, "Pulse Number : %d \n", exp_number);
+        UDA_LOG(UDA_LOG_DEBUG, "Pass Number  : %d \n", pass);
 
     } else {
         strcpy(ida_path, path);        //Fully Specified
 
-        IDAM_LOGF(UDA_LOG_DEBUG, "Signal Name  : %s \n", signal_name);
-        IDAM_LOGF(UDA_LOG_DEBUG, "File Name    : %s \n", ida_path);
+        UDA_LOG(UDA_LOG_DEBUG, "Signal Name  : %s \n", signal_name);
+        UDA_LOG(UDA_LOG_DEBUG, "File Name    : %s \n", ida_path);
     }
 
     //----------------------------------------------------------------------
@@ -120,7 +120,7 @@ int readIda3(DATA_BLOCK* data_block, int exp_number, int pass, const char* sourc
         strcpy(ida_file, filename);
     } else {
         err = IDA_CLIENT_FILE_NAME_TOO_LONG;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, err, "IDA Filename Length is too Long");
+        addIdamError(CODEERRORTYPE, __func__, err, "IDA Filename Length is too Long");
         return err;
     }
 
@@ -130,14 +130,14 @@ int readIda3(DATA_BLOCK* data_block, int exp_number, int pass, const char* sourc
         strcpy(ida_signal, signal_name);
     } else {
         err = IDA_CLIENT_SIGNAL_NAME_TOO_LONG;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, err, "IDA Signalname Length is too Long");
+        addIdamError(CODEERRORTYPE, __func__, err, "IDA Signalname Length is too Long");
         return err;
     }
 
     //----------------------------------------------------------------------
     // Is the IDA File Already open for Reading? If Not then Open
 
-    IDAM_LOGF(UDA_LOG_DEBUG, "IDA file: (%s)\n", ida_path);
+    UDA_LOG(UDA_LOG_DEBUG, "IDA file: (%s)\n", ida_path);
 
     errno = 0;
     char ida_errmsg[256] = "";
@@ -147,27 +147,27 @@ int readIda3(DATA_BLOCK* data_block, int exp_number, int pass, const char* sourc
     if (ida_file_id == NULL || errno != 0) {
         err = IDA_ERROR_OPENING_FILE;
         if (serrno != 0) {
-            addIdamError(&idamerrorstack, SYSTEMERRORTYPE, __func__, serrno, "");
+            addIdamError(SYSTEMERRORTYPE, __func__, serrno, "");
         }
         ida_error_mess(ida_error(ida_file_id), ida_errmsg);
-        addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, err, ida_errmsg);
+        addIdamError(CODEERRORTYPE, __func__, err, ida_errmsg);
         return err;
     }
 
     //----------------------------------------------------------------------
     // Fetch the Data
 
-    IDAM_LOG(UDA_LOG_DEBUG, "Calling readIdaItem\n");
+    UDA_LOG(UDA_LOG_DEBUG, "Calling readIdaItem\n");
 
     short context = (short)0;
 
     if ((err = readIdaItem(ida_signal, ida_file_id, &context, data_block)) != 0) {
         err = IDA_ERROR_READING_DATA;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, err, "Unable to Read IDA Data Item");
+        addIdamError(CODEERRORTYPE, __func__, err, "Unable to Read IDA Data Item");
         return err;
     }
 
-    IDAM_LOG(UDA_LOG_DEBUG, "Returned from readIdaItem\n");
+    UDA_LOG(UDA_LOG_DEBUG, "Returned from readIdaItem\n");
 
     printDataBlock(*data_block);
 
@@ -180,8 +180,8 @@ int readIda3(DATA_BLOCK* data_block, int exp_number, int pass, const char* sourc
 
     if (rc != 0) {
         ida_error_mess(ida_error(ida_file_id), ida_errmsg);
-        addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, 1, "Problem Closing IDA File");
-        addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, 1, ida_errmsg);
+        addIdamError(CODEERRORTYPE, __func__, 1, "Problem Closing IDA File");
+        addIdamError(CODEERRORTYPE, __func__, 1, ida_errmsg);
     }
 
     return err;

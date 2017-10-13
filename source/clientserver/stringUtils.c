@@ -108,6 +108,11 @@ char* LeftTrimString(char* str)
 }
 
 #ifdef __GNUC__
+void StringCopy(char* dest, const char* src, size_t len)
+{
+    strncpy(dest, src, len);
+    dest[len-1] = '\0';
+}
 
 // Convert all LowerCase Characters to Upper Case
 
@@ -315,6 +320,29 @@ char** SplitString(const char* string, const char* delims)
 
     free(temp);
     return names;
+}
+
+char* StringReplace(const char* string, const char* find, const char* replace)
+{
+    if (find == NULL || find[0] == '\0') {
+        return strdup(string);
+    }
+
+    char* idx = strstr(string, find);
+
+    if (idx != NULL) {
+        size_t diff = strlen(replace) - strlen(find);
+        size_t len = strlen(string) + diff + 1;
+        char* result = malloc(len);
+        size_t offset = idx - string;
+        strncpy(result, string, offset);
+        strcpy(result + offset, replace);
+        strcpy(result + offset + strlen(replace), idx + strlen(find));
+        result[len - 1] = '\0';
+        return result;
+    } else {
+        return strdup(string);
+    }
 }
 
 /**

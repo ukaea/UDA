@@ -68,7 +68,7 @@ static int readCMDSQL(PGconn* DBConnect, REQUEST_BLOCK request_block, DATA_SOURC
 
     if ((ltpass = strlen(request_block.tpass)) == 0) {
         err = 998;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "readSQL", err, "No Source to Parse for the SQL Data");
+        addIdamError(CODEERRORTYPE, "readSQL", err, "No Source to Parse for the SQL Data");
         return err;
     }
 
@@ -79,7 +79,7 @@ static int readCMDSQL(PGconn* DBConnect, REQUEST_BLOCK request_block, DATA_SOURC
         strcpy(dtime1, token);
     } else {
         err = 998;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "readSQL", err, "Unable to Parse Source for the SQL Data");
+        addIdamError(CODEERRORTYPE, "readSQL", err, "Unable to Parse Source for the SQL Data");
         return err;
     }
 
@@ -91,10 +91,10 @@ static int readCMDSQL(PGconn* DBConnect, REQUEST_BLOCK request_block, DATA_SOURC
 // Open SQL Connection
 
     if ((DBConnect = gDBConnect) == NULL) {        // No connection to IDAM SQL Database
-        if (!(DBConnect = (PGconn*)startSQL())) {
+        if (!(DBConnect = startSQL())) {
             if (DBConnect != NULL) PQfinish(DBConnect);
             err = 777;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readSQL", err, "SQL Database Server Connect Error");
+            addIdamError(CODEERRORTYPE, "readSQL", err, "SQL Database Server Connect Error");
             return err;
         }
         gDBConnect = DBConnect;                // Pass Connection Back
@@ -120,7 +120,7 @@ static int readCMDSQL(PGconn* DBConnect, REQUEST_BLOCK request_block, DATA_SOURC
 
     if ((DBQuery = PQexec(DBConnect, sql)) == NULL) {
         err = 999;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "readSQL", err, PQresultErrorMessage(DBQuery));
+        addIdamError(CODEERRORTYPE, "readSQL", err, PQresultErrorMessage(DBQuery));
         PQclear(DBQuery);
         return err;
     }
@@ -139,14 +139,14 @@ static int readCMDSQL(PGconn* DBConnect, REQUEST_BLOCK request_block, DATA_SOURC
         data_block->data_n = (int)PQntuples(DBQuery);        // Number of Rows
         data_block->rank = 1;
         data_block->order = 0;
-        data_block->data_type = TYPE_DOUBLE;
+        data_block->data_type = UDA_TYPE_DOUBLE;
         strcpy(data_block->data_desc, request_block.signal);
         strcpy(data_block->data_label, request_block.signal);
         strcpy(data_block->data_units, "");
 
         if ((dp = (double*)malloc(sizeof(double) * data_block->data_n)) == NULL) {
             err = 999;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readSQL", err,
+            addIdamError(CODEERRORTYPE, "readSQL", err,
                          "Unable to Allocate Heap Memory for the SQL Data");
             break;
         }
@@ -160,7 +160,7 @@ static int readCMDSQL(PGconn* DBConnect, REQUEST_BLOCK request_block, DATA_SOURC
 
         if ((data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS))) == NULL) {
             err = 999;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readSQL", err, "Problem Allocating Dimension Heap Memory");
+            addIdamError(CODEERRORTYPE, "readSQL", err, "Problem Allocating Dimension Heap Memory");
             break;
         }
 
@@ -169,13 +169,13 @@ static int readCMDSQL(PGconn* DBConnect, REQUEST_BLOCK request_block, DATA_SOURC
 // Dimension Labels and Units
 
         data_block->dims[0].dim_n = data_block->data_n;
-        data_block->dims[0].data_type = TYPE_DOUBLE;
+        data_block->dims[0].data_type = UDA_TYPE_DOUBLE;
         strcpy(data_block->dims[0].dim_label, "Epoch Time");
         strcpy(data_block->dims[0].dim_units, "sec");
 
         if ((data_block->dims[0].dim = (char*)malloc(sizeof(double) * data_block->dims[0].dim_n)) == NULL) {
             err = 999;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readSQL", err, "Problem Allocating Dimensional Heap Memory");
+            addIdamError(CODEERRORTYPE, "readSQL", err, "Problem Allocating Dimensional Heap Memory");
             break;
         }
 
@@ -554,7 +554,7 @@ int readSQL(PGconn* DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_sou
 
     if (queryType == SQLUNKNOWN) {
         err = 999;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "readSQL", err,
+        addIdamError(CODEERRORTYPE, "readSQL", err,
                      "Requested Query not known or a Syntax Error is present!");
         if (DBConnect2 != DBConnect) PQfinish(DBConnect2);
         return err;
@@ -569,7 +569,7 @@ int readSQL(PGconn* DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_sou
         if (!(DBConnect2 = (PGconn*)startSQL())) {
             if (DBConnect2 != NULL) PQfinish(DBConnect2);
             err = 777;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readSQL", err, "SQL Database Server Connect Error");
+            addIdamError(CODEERRORTYPE, "readSQL", err, "SQL Database Server Connect Error");
             return err;
         }
     }
@@ -582,7 +582,7 @@ int readSQL(PGconn* DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_sou
 
     if (strlen(sql) > 0 && (DBQuery = PQexec(DBConnect2, sql)) == NULL) {
         err = 999;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "readSQL", err, PQresultErrorMessage(DBQuery));
+        addIdamError(CODEERRORTYPE, "readSQL", err, PQresultErrorMessage(DBQuery));
         PQclear(DBQuery);
         if (DBConnect2 != DBConnect) PQfinish(DBConnect2);
         return err;
@@ -596,7 +596,7 @@ int readSQL(PGconn* DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_sou
 
     if (queryType == SQLLASTSHOT && PQntuples(DBQuery) == 1) {
         int* data = (int*)malloc(sizeof(int));
-        data_block->data_type = TYPE_INT;
+        data_block->data_type = UDA_TYPE_INT;
         data_block->rank = 0;
         data_block->data_n = 1;
         data[0] = atoi(PQgetvalue(DBQuery, 0, 0));
@@ -637,8 +637,8 @@ int readSQL(PGconn* DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_sou
 
         if (nrows == 0) {
             err = 999;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readSQL", err, "No Data Rows Returned from the Database");
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readSQL", err, sql);
+            addIdamError(CODEERRORTYPE, "readSQL", err, "No Data Rows Returned from the Database");
+            addIdamError(CODEERRORTYPE, "readSQL", err, sql);
             PQclear(DBQuery);
             if (DBConnect2 != DBConnect) PQfinish(DBConnect2);
             return err;
@@ -646,7 +646,7 @@ int readSQL(PGconn* DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_sou
 
         if (ncols == 0) {
             err = 999;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readSQL", err, "No Data Columns Returned from the Database");
+            addIdamError(CODEERRORTYPE, "readSQL", err, "No Data Columns Returned from the Database");
             PQclear(DBQuery);
             if (DBConnect2 != DBConnect) PQfinish(DBConnect2);
             return err;
@@ -683,7 +683,7 @@ int readSQL(PGconn* DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_sou
         usertype.imagecount = 0;                // No Structure Image data
         usertype.image = NULL;
         usertype.size = ncols * sizeof(char**);    // Structure size
-        usertype.idamclass = TYPE_COMPOUND;
+        usertype.idamclass = UDA_TYPE_COMPOUND;
 
         strcpy(work, &sql[7]);        // Step over 'SELECT '
 
@@ -693,7 +693,7 @@ int readSQL(PGconn* DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_sou
             if ((p = strchr(work, ',')) == NULL) {
                 if ((p = strstr(work, " FROM")) == NULL) {
                     err = 999;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "readSQL", err,
+                    addIdamError(CODEERRORTYPE, "readSQL", err,
                                  "Select Query: Column names incorrectly formatted!");
                     PQclear(DBQuery);
                     if (DBConnect2 != DBConnect) PQfinish(DBConnect2);
@@ -706,7 +706,7 @@ int readSQL(PGconn* DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_sou
             LeftTrimString(field.name);
             strcpy(sql, &p[1]);
             strcpy(work, sql);
-            field.atomictype = TYPE_STRING;
+            field.atomictype = UDA_TYPE_STRING;
 
             field.rank = 0;
             field.count = 1;
@@ -731,14 +731,14 @@ int readSQL(PGconn* DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_sou
 
         if ((udt = findUserDefinedType(userdefinedtypelist, udtname, 0)) == NULL) {
             err = 999;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readSQL", err,
+            addIdamError(CODEERRORTYPE, "readSQL", err,
                          "Unable to Locate the User Defined Structure Definition");
             PQclear(DBQuery);
             if (DBConnect2 != DBConnect) PQfinish(DBConnect2);
             return err;
         }
 
-        data_block->data_type = TYPE_COMPOUND;
+        data_block->data_type = UDA_TYPE_COMPOUND;
         data_block->rank = 0;
         data_block->data_n = 1;
         data_block->data = (char*)data;
@@ -746,7 +746,7 @@ int readSQL(PGconn* DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_sou
         strcpy(data_block->data_label, "Database Query Result Set");
         strcpy(data_block->data_units, "");
 
-        data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
+        data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
         data_block->opaque_count = 1;
         data_block->opaque_block = (void*)udt;
 
@@ -824,7 +824,7 @@ int readSQL(PGconn* DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_sou
 
         if(debugon) printUserDefinedTypeListTable(dbgout, *userdefinedtypelist);
 
-        data_block->data_type = TYPE_COMPOUND;
+        data_block->data_type = UDA_TYPE_COMPOUND;
         data_block->rank      = 0;
         data_block->data_n    = 1;
         data_block->data      = (char *)ef;
@@ -832,7 +832,7 @@ int readSQL(PGconn* DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_sou
         strcpy(data_block->data_label,"EFIT XML Data Test");
         strcpy(data_block->data_units,"");
 
-        data_block->opaque_type  = OPAQUE_TYPE_STRUCTURES;
+        data_block->opaque_type  = UDA_OPAQUE_TYPE_STRUCTURES;
         data_block->opaque_count = 1;
         data_block->opaque_block = (void *)findUserDefinedType("EFIT", 0);			// The EFIT structure definition
 
@@ -864,7 +864,7 @@ int readSQL(PGconn* DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_sou
 
         malloc_source = MALLOCSOURCESOAP;
 
-        data_block->data_type = TYPE_COMPOUND;
+        data_block->data_type = UDA_TYPE_COMPOUND;
         data_block->rank      = 0;
         data_block->data_n    = 1;
         data_block->data      = (char *)dev;
@@ -872,7 +872,7 @@ int readSQL(PGconn* DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_sou
         strcpy(data_block->data_label,"SOAP XML Data Test");
         strcpy(data_block->data_units,"");
 
-        data_block->opaque_type  = OPAQUE_TYPE_STRUCTURES;
+        data_block->opaque_type  = UDA_OPAQUE_TYPE_STRUCTURES;
         data_block->opaque_count = 1;
         data_block->opaque_block = (void *)findUserDefinedType("_ns1__device", 0);		// The SOAP structure definition
 
@@ -886,7 +886,7 @@ int readSQL(PGconn* DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_sou
 
 #else
     err = 999;
-    addIdamError(&idamerrorstack, CODEERRORTYPE, "readSQL", err, "No results returned by SQL Query!");
+    addIdamError(CODEERRORTYPE, "readSQL", err, "No results returned by SQL Query!");
     PQclear(DBQuery);
     if (DBConnect2 != DBConnect) PQfinish(DBConnect2);
     return err;
@@ -912,14 +912,14 @@ int enable_malloc_log = 1;
 
 int readSQL(PGconn *DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_source, DATA_BLOCK *data_block, USERDEFINEDTYPELIST* userdefinedtypelist) {
     int err = 999;
-    addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF", err, "SQL PLUGIN NOT ENABLED");
+    addIdamError(CODEERRORTYPE, "readCDF", err, "SQL PLUGIN NOT ENABLED");
     return err;
 }
 
 int readCMDSQL(PGconn *DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_source,
                DATA_BLOCK *data_block, USERDEFINEDTYPELIST* userdefinedtypelist) {
     int err = 999;
-    addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF", err, "CMD PLUGIN NOT ENABLED");
+    addIdamError(CODEERRORTYPE, "readCDF", err, "CMD PLUGIN NOT ENABLED");
     return err;
 }
 

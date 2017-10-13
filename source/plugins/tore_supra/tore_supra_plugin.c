@@ -63,15 +63,8 @@ int tsPlugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     unsigned short housekeeping;
 
-    if (idam_plugin_interface->interfaceVersion >
-        THISPLUGIN_MAX_INTERFACE_VERSION) {
-        err = 999;
-        IDAM_LOG(UDA_LOG_ERROR,
-                 "ERROR templatePlugin: Plugin Interface Version Unknown to this plugin: Unable to execute the request!\n");
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "templatePlugin",
-                     err,
-                     "Plugin Interface Version Unknown to this plugin: Unable to execute the request!");
-        return err;
+    if (idam_plugin_interface->interfaceVersion > THISPLUGIN_MAX_INTERFACE_VERSION) {
+        RAISE_PLUGIN_ERROR("Plugin Interface Version Unknown to this plugin: Unable to execute the request!");
     }
 
     idam_plugin_interface->pluginVersion = THISPLUGIN_VERSION;
@@ -158,15 +151,8 @@ int tsPlugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     } else if (STR_IEQUALS(request_block->function, "read")) {
         err = do_read(idam_plugin_interface);
     } else {
-        // ======================================================================================
-        // Error ...
-        err = 999;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "templatePlugin",
-                     err, "Unknown function requested!");
+        RAISE_PLUGIN_ERROR("Unknown function requested!");
     }
-
-    // --------------------------------------------------------------------------------------
-    // Housekeeping
 
     return err;
 }
@@ -268,7 +254,7 @@ int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
         int data_type = data_block->data_type;
 
-        if (data_type == TYPE_DOUBLE) {
+        if (data_type == UDA_TYPE_DOUBLE) {
             double* data = (double*)data_block->data;
             double temp = data[0];
             //if (indices[0] > 0)
@@ -276,7 +262,7 @@ int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             data_block->data = malloc(sizeof(double));
             *((double*)data_block->data) = temp;
             free(data);
-        } else if (data_type == TYPE_FLOAT) {
+        } else if (data_type == UDA_TYPE_FLOAT) {
             float* data = (float*)data_block->data;
             float temp = data[0];
             //if (indices[0] > 0)
@@ -284,7 +270,7 @@ int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             data_block->data = malloc(sizeof(float));
             *((float*)data_block->data) = temp;
             free(data);
-        } else if (data_type == TYPE_LONG) {
+        } else if (data_type == UDA_TYPE_LONG) {
             long* data = (long*)data_block->data;
             long temp = data[0];
             //if (indices[0] > 0)
@@ -292,7 +278,7 @@ int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             data_block->data = malloc(sizeof(long));
             *((long*)data_block->data) = temp;
             free(data);
-        } else if (data_type == TYPE_INT) {
+        } else if (data_type == UDA_TYPE_INT) {
             int* data = (int*)data_block->data;
             int temp = data[0];
             //if (indices[0] > 0)
@@ -300,7 +286,7 @@ int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             data_block->data = malloc(sizeof(int));
             *((int*)data_block->data) = temp;
             free(data);
-        } else if (data_type == TYPE_SHORT) {
+        } else if (data_type == UDA_TYPE_SHORT) {
             short* data = (short*)data_block->data;
             short temp = data[0];
             //if (indices[0] > 0)
@@ -308,16 +294,14 @@ int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             data_block->data = malloc(sizeof(short));
             *((short*)data_block->data) = temp;
             free(data);
-        } else if (data_type == TYPE_STRING) {
+        } else if (data_type == UDA_TYPE_STRING) {
             char* data = (char*)data_block->data;
             char* temp = deblank(strdup(data));
             data_block->data = temp;
             free(data);
         } else {
             err = 999;
-            addIdamError(&idamerrorstack, CODEERRORTYPE,
-                         "tore_supra : Unsupported data type", err,
-                         "");
+            addIdamError(CODEERRORTYPE,  __func__, err, "Unsupported data type");
         }
 
         free(data_block->dims);
@@ -345,7 +329,7 @@ int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
         int data_type = data_block->data_type;
 
-        if (data_type == TYPE_STRING) {
+        if (data_type == UDA_TYPE_STRING) {
             // data_block->data contains MDS+ signal name -- use to get
             // data from MDS+ server
             char* signalName = data_block->data;
@@ -363,7 +347,7 @@ int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             data_block->dims = NULL;
 
             data_block->rank = 1;
-            data_block->data_type = TYPE_FLOAT;
+            data_block->data_type = UDA_TYPE_FLOAT;
             data_block->data_n = len;
             data_block->data = (char*)data;
             data_block->dims =
@@ -373,7 +357,7 @@ int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 initDimBlock(&data_block->dims[i]);
             }
 
-            data_block->dims[0].data_type = TYPE_FLOAT;
+            data_block->dims[0].data_type = UDA_TYPE_FLOAT;
             data_block->dims[0].dim_n = len;
             data_block->dims[0].compressed = 0;
             data_block->dims[0].dim = (char*)time;
@@ -383,9 +367,7 @@ int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             strcpy(data_block->data_desc, "");
         } else {
             err = 999;
-            addIdamError(&idamerrorstack, CODEERRORTYPE,
-                         "tore_supra : Unsupported data type", err,
-                         "");
+            addIdamError(CODEERRORTYPE, __func__, err, "Unsupported data type");
         }
     }
 
@@ -406,9 +388,8 @@ char* getTSToIDSMappingFileName(const char* IDSRequest, int shot)
         mappingVersion = 1;
     } else {
         int err = -100;
-        addIdamError(&idamerrorstack, CODEERRORTYPE,
-                     "tore_supra : no TS/IDS mapping file available for the requested shot number",
-                     err, "");
+        addIdamError(CODEERRORTYPE, __func__, err,
+                     "no TS/IDS mapping file available for the requested shot number");
     }
 
     char* dir = getenv("UDA_TS_MAPPING_FILE_DIRECTORY");
@@ -482,8 +463,7 @@ char* getMappingValue(const char* mappingFileName, const char* IDSRequest,
         value = strdup((char*)cur->content);
     } else {
         err = 998;
-        addIdamError(&idamerrorstack, CODEERRORTYPE,
-                     "tore_supra plugin", err,
+        addIdamError(CODEERRORTYPE, __func__, err,
                      "no result on XPath request, no key attribute defined?");
     }
 
@@ -514,9 +494,8 @@ char* getMappingValue(const char* mappingFileName, const char* IDSRequest,
         typeStr = strdup((char*)cur->content);
     } else {
         err = 998;
-        addIdamError(&idamerrorstack, CODEERRORTYPE,
-                     "tore_supra plugin : no result on XPath request, no key attribute defined ?",
-                     err, "");
+        addIdamError(CODEERRORTYPE, __func__, err,
+                     "no result on XPath request, no key attribute defined?");
     }
 
     if (typeStr == NULL) {

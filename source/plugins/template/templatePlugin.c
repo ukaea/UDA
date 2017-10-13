@@ -169,33 +169,7 @@ int do_function(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
     DATA_BLOCK* data_block = idam_plugin_interface->data_block;
 
-    char* p = (char*) malloc(sizeof(char) * 30);
-
-    strcpy(p, "Hello World!");
-
-    initDataBlock(data_block);
-
-    data_block->rank = 1;
-    data_block->dims = (DIMS*) malloc(data_block->rank * sizeof(DIMS));
-
-    int i;
-    for (i = 0; i < data_block->rank; i++) {
-        initDimBlock(&data_block->dims[i]);
-    }
-
-    data_block->data_type = TYPE_STRING;
-    strcpy(data_block->data_desc, "templatePlugin: 'Hello World' single string returned");
-
-    data_block->data = (char*) p;
-
-    data_block->dims[0].data_type = TYPE_UNSIGNED_INT;
-    data_block->dims[0].dim_n = strlen(p) + 1;
-    data_block->dims[0].compressed = 1;
-    data_block->dims[0].dim0 = 0.0;
-    data_block->dims[0].diff = 1.0;
-    data_block->dims[0].method = 0;
-
-    data_block->data_n = data_block->dims[0].dim_n;
+    setReturnDataString(data_block, "Hello World!", "templatePlugin: 'Hello World' single string returned");
 
     strcpy(data_block->data_label, "");
     strcpy(data_block->data_units, "");

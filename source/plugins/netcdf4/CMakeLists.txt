@@ -20,11 +20,9 @@ uda_plugin(
   EXAMPLE "NEWCDF4::get()"
   LIBNAME netcdf4_plugin
   SOURCES
-    netCDF4.c
-    readCDF4.c
-    readCDFAtts.c
-    readCDF4SubTree.c
+    netCDF4.c netCDF4.h
   EXTRA_INCLUDE_DIRS
+    ${CMAKE_SOURCE_DIR}/source/server/modules/netcdf4
     ${LIBXML2_INCLUDE_DIR}
     ${NETCDF_INCLUDES}
   EXTRA_LINK_LIBS

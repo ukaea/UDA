@@ -23,8 +23,8 @@ int getLatestSourcePass(PGconn* DBConnect, int exp_number, char* source, int ver
 
     if ((DBQuery = PQexec(DBConnect, sql)) == NULL) {
         if (verbose) {
-            IDAM_LOGF(UDA_LOG_ERROR, "Failure to Execute SQL: %s\n", sql);
-            IDAM_LOGF(UDA_LOG_ERROR, "%s\n", PQresultErrorMessage(DBQuery));
+            UDA_LOG(UDA_LOG_ERROR, "Failure to Execute SQL: %s\n", sql);
+            UDA_LOG(UDA_LOG_ERROR, "%s\n", PQresultErrorMessage(DBQuery));
         }
         return (-1);
     }
@@ -33,8 +33,8 @@ int getLatestSourcePass(PGconn* DBConnect, int exp_number, char* source, int ver
 
     if (DBQueryStatus != PGRES_TUPLES_OK) {
         if (verbose) {
-            IDAM_LOGF(UDA_LOG_ERROR, "Problem Identifying Data System: %s\n", sql);
-            IDAM_LOGF(UDA_LOG_ERROR, "%s\n", PQresultErrorMessage(DBQuery));
+            UDA_LOG(UDA_LOG_ERROR, "Problem Identifying Data System: %s\n", sql);
+            UDA_LOG(UDA_LOG_ERROR, "%s\n", PQresultErrorMessage(DBQuery));
         }
         return (-1);
     }

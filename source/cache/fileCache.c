@@ -79,10 +79,13 @@ int idamClientLockCache(FILE** db, short type)
 
         if (fh == NULL || errno != 0) {
             err = 999;
-            if (errno != 0) addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "idamClientLockCache", errno, "");
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "idamClientLockCache", err,
-                         "Unable to Open the Cache Database");
-            if (fh != NULL) fclose(fh);
+            if (errno != 0) {
+                addIdamError(SYSTEMERRORTYPE, "idamClientLockCache", errno, "");
+            }
+            addIdamError(CODEERRORTYPE, "idamClientLockCache", err, "Unable to Open the Cache Database");
+            if (fh != NULL) {
+                fclose(fh);
+            }
             return err;
         }
 
@@ -110,7 +113,7 @@ int idamClientLockCache(FILE** db, short type)
 
     if (type == F_UNLCK) {
         err = 999;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "idamClientLockCache", err,
+        addIdamError(CODEERRORTYPE, "idamClientLockCache", err,
                      "Cache file lock not released indicating problem with cache");
         return err;
     }
@@ -128,7 +131,7 @@ int idamClientLockCache(FILE** db, short type)
 
     if (rc == -1 || count >= CACHE_MAXCOUNT) {
         err = 999;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "idamClientLockCache", err, "Unable to Lock the Cache Database");
+        addIdamError(CODEERRORTYPE, "idamClientLockCache", err, "Unable to Lock the Cache Database");
         *db = NULL;
         fclose(fh);
         return err;
@@ -352,8 +355,8 @@ int idamClientReadCache(REQUEST_BLOCK* request_block, DATA_BLOCK* data_block, ch
 
         if ((xdrfile = fopen(filename, "rb")) == NULL || errno != 0) {    // Read cached file
             err = 999;
-            if (errno != 0) addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "idamClientReadCache", errno, "");
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "idamClientReadCache", err,
+            if (errno != 0) addIdamError(SYSTEMERRORTYPE, "idamClientReadCache", errno, "");
+            addIdamError(CODEERRORTYPE, "idamClientReadCache", err,
                          "Unable to Open the Cached Data File");
             break;
         }
@@ -375,7 +378,7 @@ int idamClientReadCache(REQUEST_BLOCK* request_block, DATA_BLOCK* data_block, ch
 
         if (!rc) {
             err = 999;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "idamClientReadCache", err,
+            addIdamError(CODEERRORTYPE, "idamClientReadCache", err,
                          "Failure receiving Structure Definitions");
             break;
         }
@@ -386,7 +389,7 @@ int idamClientReadCache(REQUEST_BLOCK* request_block, DATA_BLOCK* data_block, ch
 
         if (!rc) {
             err = 999;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "idamClientReadCache", err,
+            addIdamError(CODEERRORTYPE, "idamClientReadCache", err,
                          "Failure receiving Data and Structure Definition");
             break;
         }
@@ -409,7 +412,7 @@ int idamClientReadCache(REQUEST_BLOCK* request_block, DATA_BLOCK* data_block, ch
             SARRAY* s = (SARRAY*)data;
             if (s->count != data_block->data_n) {                // check for consistency
                 err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "idamClientReadCache", err, "Inconsistent S Array Counts");
+                addIdamError(CODEERRORTYPE, "idamClientReadCache", err, "Inconsistent S Array Counts");
                 break;
             }
             data_block->data = (char*)fullNTree;        // Global Root Node with the Carrier Structure containing data
@@ -420,7 +423,7 @@ int idamClientReadCache(REQUEST_BLOCK* request_block, DATA_BLOCK* data_block, ch
             general_block->lastMallocIndex = 0;
         } else {
             err = 999;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "idamClientReadCache", err,
+            addIdamError(CODEERRORTYPE, "idamClientReadCache", err,
                          "Name of Received Data Structure Incorrect");
             break;
         }

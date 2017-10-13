@@ -94,7 +94,7 @@ static int initialiseKeys(CLIENT_BLOCK* client_block, gcry_sexp_t* publickey_out
 // get the server's Private key from a PEM file (for decryption) and convert to S-Expression
 
         if ((err = importPEMPrivateKey(serverPrivateKeyFile, &privatekey)) != 0) {
-            addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, err, "Failed to load Server's Private Key File");
+            addIdamError(CODEERRORTYPE, __func__, err, "Failed to load Server's Private Key File");
             break;
         }
 
@@ -109,7 +109,7 @@ static int initialiseKeys(CLIENT_BLOCK* client_block, gcry_sexp_t* publickey_out
 
         if (gcry_pk_testkey(privatekey) != 0) {
             err = 999;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "idamServerAuthentication", err,
+            addIdamError(CODEERRORTYPE, "idamServerAuthentication", err,
                          "The Server's Private Authentication Key is Invalid!");
             break;
         }
@@ -153,23 +153,23 @@ static int initialiseKeys(CLIENT_BLOCK* client_block, gcry_sexp_t* publickey_out
 static SECURITY_BLOCK* receiveSecurityBlock(CLIENT_BLOCK* client_block, LOGMALLOCLIST* logmalloclist,
                                             USERDEFINEDTYPELIST* userdefinedtypelist)
 {
-    IDAM_LOG(UDA_LOG_DEBUG, "Waiting for Initial Client Block\n");
+    UDA_LOG(UDA_LOG_DEBUG, "Waiting for Initial Client Block\n");
 
 #ifndef TESTIDAMSECURITY
     if (!xdrrec_skiprecord(serverInput)) {
-        IDAM_LOG(UDA_LOG_DEBUG, "xdrrec_skiprecord error!\n");
-        addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, PROTOCOL_ERROR_5, "Protocol 5 Error (Client Block #2)");
+        UDA_LOG(UDA_LOG_DEBUG, "xdrrec_skiprecord error!\n");
+        addIdamError(CODEERRORTYPE, __func__, PROTOCOL_ERROR_5, "Protocol 5 Error (Client Block #2)");
     } else {
         int protocol_id = PROTOCOL_CLIENT_BLOCK;        // Recieve Client Block
 
         int err = 0;
         if ((err = protocol2(serverInput, protocol_id, XDR_RECEIVE, NULL, logmalloclist, userdefinedtypelist, client_block)) != 0) {
-            addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, err, "Protocol 10 Error (Client Block #2)");
-            IDAM_LOG(UDA_LOG_DEBUG, "protocol error! Client Block not received!\n");
+            addIdamError(CODEERRORTYPE, __func__, err, "Protocol 10 Error (Client Block #2)");
+            UDA_LOG(UDA_LOG_DEBUG, "protocol error! Client Block not received!\n");
         }
 
         if (err == 0) {
-            IDAM_LOG(UDA_LOG_DEBUG, "Initial Client Block received\n");
+            UDA_LOG(UDA_LOG_DEBUG, "Initial Client Block received\n");
             printClientBlock(*client_block);
         }
     }
@@ -304,11 +304,11 @@ static int issueToken(SERVER_BLOCK* server_block, LOGMALLOCLIST* logmalloclist, 
     int protocol_id = PROTOCOL_SERVER_BLOCK;
 
     if ((err = protocol2(serverOutput, protocol_id, XDR_SEND, NULL, logmalloclist, userdefinedtypelist, server_block)) != 0) {
-        addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, err, "Protocol 10 Error (securityBlock #4)");
+        addIdamError(CODEERRORTYPE, __func__, err, "Protocol 10 Error (securityBlock #4)");
     }
 
     if (!xdrrec_endofrecord(serverOutput, 1)) {
-        addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, PROTOCOL_ERROR_7, "Protocol 7 Error (Server Block)");
+        addIdamError(CODEERRORTYPE, __func__, PROTOCOL_ERROR_7, "Protocol 7 Error (Server Block)");
     }
 #endif
 
@@ -331,7 +331,7 @@ static int verifyToken(SERVER_BLOCK* server_block, CLIENT_BLOCK* client_block, L
     int protocol_id = PROTOCOL_CLIENT_BLOCK;
 
     if (!xdrrec_skiprecord(serverInput)) {
-        IDAM_LOG(UDA_LOG_DEBUG, "xdrrec_skiprecord error!\n");
+        UDA_LOG(UDA_LOG_DEBUG, "xdrrec_skiprecord error!\n");
         THROW_ERROR(PROTOCOL_ERROR_5, "Protocol 5 Error (Client Block #7)");
     }
 

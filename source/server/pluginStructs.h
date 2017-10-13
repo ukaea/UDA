@@ -44,10 +44,10 @@ typedef struct PluginData {
     char desc[STRING_LENGTH];           // Description of the plugin
     char example[STRING_LENGTH];        // Examples of Use
     int request;                        // unique request ID
-    unsigned short class;               // the plugin class: File, Server, Function, Device
+    unsigned short plugin_class;        // the plugin class: File, Server, Function, Device
     unsigned short external;            // Flag the plugin is accessed via a separate shared library
     unsigned short status;              // Plugin operational: external library opened or internal
-    unsigned short private;             // The service is private and can NOT be used by external clients
+    unsigned short is_private;          // The service is private and can NOT be used by external clients
     unsigned short cachePermission;     // The server's internal state may be dependent on previous calls
     // so the returned data are not suitable for caching on the client.
     // This is used to inform the client how to manage the returned data

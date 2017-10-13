@@ -7,6 +7,8 @@ Also returns the appropriate manipulation classes for the signals requested.
 import numpy as np
 from ._geomPickup import GeomPickup
 from ._geomFluxloops import GeomFluxloops
+from ._geomEfitElements import GeomEfitElements
+from ._geomEfitLimiter import GeomEfitLimiter
 
 class GeometryFiles:
     def __init__(self):
@@ -26,7 +28,10 @@ class GeometryFiles:
         # Map from top-level groups in each file to the appropriate manipulator
         self._signal_manip_map = { '/magnetics/pickup': GeomPickup(),
                                    '/magnetics/mirnov': GeomPickup(),
-                                   '/magnetics/fluxloops': GeomFluxloops()}
+                                   '/magnetics/fluxloops': GeomFluxloops(),
+                                   '/magnetics/pfcoil': GeomEfitElements(),
+                                   '/passive/efit': GeomEfitElements(),
+                                   '/limiter/efit': GeomEfitLimiter()}
 
     # --------------------------
     def get_signals(self, signals):

@@ -5,6 +5,7 @@ bin
 include
 lib
 modulefiles
+etc
 /.cproject
 /.project
 /Debug.dbg

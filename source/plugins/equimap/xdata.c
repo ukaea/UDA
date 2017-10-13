@@ -104,7 +104,7 @@ int xdatamap(int rGridCount, float* rGrid, int ndata, float* rdata, float* data,
     }
 
     if (j0 == ndata - 1) {
-        IDAM_LOG(UDA_LOG_ERROR, "All data are either NaN or Infinite!\n");
+        UDA_LOG(UDA_LOG_ERROR, "All data are either NaN or Infinite!\n");
         return 1;
     }
 
@@ -119,7 +119,7 @@ int xdatamap(int rGridCount, float* rGrid, int ndata, float* rdata, float* data,
     }
 
     if (j0 == jn) {
-        IDAM_LOG(UDA_LOG_ERROR, "Only 1 good data point - No points to interpolate between!\n");
+        UDA_LOG(UDA_LOG_ERROR, "Only 1 good data point - No points to interpolate between!\n");
         return 2;
     }
 
@@ -188,7 +188,7 @@ int xdataintegrate(int ndata, float* rdata, float* data, float minvalue, int* na
     }
 
     if (j0 == ndata - 1) {
-        IDAM_LOG(UDA_LOG_ERROR, "All data are either NaN or Infinite!\n");
+        UDA_LOG(UDA_LOG_ERROR, "All data are either NaN or Infinite!\n");
         return 1;
     }
 
@@ -203,7 +203,7 @@ int xdataintegrate(int ndata, float* rdata, float* data, float minvalue, int* na
     }
 
     if (j0 == jn) {
-        IDAM_LOG(UDA_LOG_ERROR, "Only 1 good data point - No points to interpolate between!\n");
+        UDA_LOG(UDA_LOG_ERROR, "Only 1 good data point - No points to interpolate between!\n");
         return 2;
     }
 
@@ -242,7 +242,7 @@ int xdatainterval(int rank, int order, int ndata, int* shape, float* dim,
     float epsilon = 2.0 * FLT_EPSILON;
 
     if (order < 0) {
-        IDAM_LOG(UDA_LOG_ERROR, "Error: Unable to locate a time interval - there is no time vector for this data!\n");
+        UDA_LOG(UDA_LOG_ERROR, "Error: Unable to locate a time interval - there is no time vector for this data!\n");
         return 1;
     }
 
@@ -275,7 +275,7 @@ int xdatainterval(int rank, int order, int ndata, int* shape, float* dim,
     }
 
     if (*target1 == -1 || *target2 == -1) {
-        IDAM_LOGF(UDA_LOG_ERROR, "The requested Time %e could not be located in the coordinate data array!\n", tslice);
+        UDA_LOG(UDA_LOG_ERROR, "The requested Time %e could not be located in the coordinate data array!\n", tslice);
         return (2);
     }
 
@@ -299,7 +299,7 @@ int xdatand(char* signal, char* source, int* hand, int* rank, int* order, int* n
 
     if (*hand < 0) {
         if ((handle = idamGetAPI(signal, source)) < 0 || getIdamErrorCode(handle) != 0) {
-            IDAM_LOGF(UDA_LOG_ERROR, "Error: No %s Data from %s!\n %s\n", signal, source, (char*)getIdamErrorMsg(handle));
+            UDA_LOG(UDA_LOG_ERROR, "Error: No %s Data from %s!\n %s\n", signal, source, (char*)getIdamErrorMsg(handle));
             err = 1;
             return err;
         }
@@ -321,7 +321,7 @@ int xdatand(char* signal, char* source, int* hand, int* rank, int* order, int* n
     }
 
     if (*ndata != ndim) {
-        IDAM_LOGF(UDA_LOG_ERROR, "Error: %s Coordinate Data from %s has an Inconsistent Shape (%d) %d!\n",
+        UDA_LOG(UDA_LOG_ERROR, "Error: %s Coordinate Data from %s has an Inconsistent Shape (%d) %d!\n",
                   signal, source, ndim, *ndata);
         free((void*)sp);
         err = 3;
@@ -367,14 +367,14 @@ int xdata1d(char* signal, char* source, int* hand, int* ndata, float** data, flo
 
     if (*hand < 0) {
         if ((handle = idamGetAPI(signal, source)) < 0 || getIdamErrorCode(handle) != 0) {
-            IDAM_LOGF(UDA_LOG_ERROR, "Error: No %s Data from %s!\n %s\n", signal, source, (char*)getIdamErrorMsg(handle));
+            UDA_LOG(UDA_LOG_ERROR, "Error: No %s Data from %s!\n %s\n", signal, source, (char*)getIdamErrorMsg(handle));
             err = 1;
             return err;
         }
     } else { handle = *hand; }
 
     if (getIdamRank(handle) != 1) {
-        IDAM_LOGF(UDA_LOG_ERROR, "Error: %s Data from %s is not Rank 1 [%d]\n", signal, source, getIdamRank(handle));
+        UDA_LOG(UDA_LOG_ERROR, "Error: %s Data from %s is not Rank 1 [%d]\n", signal, source, getIdamRank(handle));
         err = 2;
         return err;
     }
@@ -382,7 +382,7 @@ int xdata1d(char* signal, char* source, int* hand, int* ndata, float** data, flo
     *ndata = getIdamDataNum(handle);
 
     if (*ndata != getIdamDimNum(handle, 0)) {
-        IDAM_LOGF(UDA_LOG_ERROR, "Error: %s Coordinate Data from %s has an Inconsistent Length (%d) %d!\n",
+        UDA_LOG(UDA_LOG_ERROR, "Error: %s Coordinate Data from %s has an Inconsistent Length (%d) %d!\n",
                   signal, source, getIdamDimNum(handle, 0), *ndata);
         err = 3;
         return err;

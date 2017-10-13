@@ -44,13 +44,13 @@ int idamXpadTree(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
             initDimBlock(&data_block->dims[0]);
 
-            data_block->data_type = TYPE_STRING;
+            data_block->data_type = UDA_TYPE_STRING;
             strcpy(data_block->data_desc, "help = description of this plugin");
 
             data_block->data = (char*)malloc(sizeof(char) * (strlen(help) + 1));
             strcpy(data_block->data, help);
 
-            data_block->dims[0].data_type = TYPE_UNSIGNED_INT;
+            data_block->dims[0].data_type = UDA_TYPE_UNSIGNED_INT;
             data_block->dims[0].dim_n = (int)strlen(help) + 1;
             data_block->dims[0].compressed = 1;
             data_block->dims[0].dim0 = 0.0;
@@ -88,7 +88,7 @@ int idamXpadTree(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             for (i_arg = 0; i_arg < n_args; i_arg++) {
                 if (STR_IEQUALS(request_block->nameValueList.nameValue[i_arg].name, "signaltype")) {
                     signalType = request_block->nameValueList.nameValue[i_arg].value;
-                    IDAM_LOGF(UDA_LOG_DEBUG, "Retrieving signals of type %s\n", signalType);
+                    UDA_LOG(UDA_LOG_DEBUG, "Retrieving signals of type %s\n", signalType);
                     foundType = 1;
                 }
             }
@@ -97,14 +97,14 @@ int idamXpadTree(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             // Open the connection
             // CURRENTLY HARDCODED, NOT SURE YET WHERE THE TAG TABLES WILL BE : WILL NEED REPLACING EVENTUALLY
             //////////////////////////////
-            IDAM_LOG(UDA_LOG_DEBUG, "trying to get connection\n");
+            UDA_LOG(UDA_LOG_DEBUG, "trying to get connection\n");
             PGconn* DBConnect = openDatabase("idam1.mast.ccfe.ac.uk", 56567, "idam", "readonly");
             PGresult* DBQuery = NULL;
 
             if (DBConnect == NULL) {
-                IDAM_LOG(UDA_LOG_DEBUG, "Connection to idam1 database failed. %s\n");
+                UDA_LOG(UDA_LOG_DEBUG, "Connection to idam1 database failed. %s\n");
                 err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "xpadtree", err, "Error connecting to idam3 db!");
+                addIdamError(CODEERRORTYPE, "xpadtree", err, "Error connecting to idam3 db!");
                 break;
             }
 
@@ -121,11 +121,11 @@ int idamXpadTree(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 sprintf(query, "SELECT signal_desc_id, signal_alias, description, category FROM signal_desc;");
             }
 
-            IDAM_LOGF(UDA_LOG_DEBUG, "escape query %s\n", query);
+            UDA_LOG(UDA_LOG_DEBUG, "escape query %s\n", query);
 
             if (err != 0) {
                 err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "xpadtree", err, "Could not escape string");
+                addIdamError(CODEERRORTYPE, "xpadtree", err, "Could not escape string");
                 PQfinish(DBConnect);
                 break;
             }
@@ -135,35 +135,35 @@ int idamXpadTree(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 PQclear(DBQuery);
                 PQfinish(DBConnect);
                 err = 999;
-                IDAM_LOGF(UDA_LOG_DEBUG, "SELECT failed. %s\n", query);
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "xpadtree", err, "SELECT failed. \n");
+                UDA_LOG(UDA_LOG_DEBUG, "SELECT failed. %s\n", query);
+                addIdamError(CODEERRORTYPE, "xpadtree", err, "SELECT failed. \n");
                 break;
             }
 
             if (PQresultStatus(DBQuery) != PGRES_TUPLES_OK && PQresultStatus(DBQuery) != PGRES_COMMAND_OK) {
                 PQclear(DBQuery);
                 PQfinish(DBConnect);
-                IDAM_LOG(UDA_LOG_DEBUG, "Database query failed.\n");
+                UDA_LOG(UDA_LOG_DEBUG, "Database query failed.\n");
                 err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "xpadtree", err, "Database Query Failed!");
+                addIdamError(CODEERRORTYPE, "xpadtree", err, "Database Query Failed!");
                 break;
             }
 
             //Get number of rows that were returned, and allocate memory to arrays
             int nRows = PQntuples(DBQuery);
 
-            IDAM_LOGF(UDA_LOG_DEBUG, "query returned %d\n", nRows);
+            UDA_LOG(UDA_LOG_DEBUG, "query returned %d\n", nRows);
 
             if (nRows == 0) {
                 err = 999;
-                IDAM_LOGF(UDA_LOG_DEBUG, "No signals with type: %s were found\n", signalType);
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "xpadtree", err, "No signals were found\n");
+                UDA_LOG(UDA_LOG_DEBUG, "No signals with type: %s were found\n", signalType);
+                addIdamError(CODEERRORTYPE, "xpadtree", err, "No signals were found\n");
                 PQclear(DBQuery);
                 PQfinish(DBConnect);
                 break;
             }
 
-            IDAM_LOG(UDA_LOG_DEBUG, "setup datastruct\n");
+            UDA_LOG(UDA_LOG_DEBUG, "setup datastruct\n");
 
             // Struct to store results in
             struct DATASTRUCT {
@@ -193,7 +193,7 @@ int idamXpadTree(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             int s_cat_fnum = PQfnumber(DBQuery, "category");
             int s_id_fnum = PQfnumber(DBQuery, "signal_desc_id");
 
-            IDAM_LOG(UDA_LOG_DEBUG, "retrieve results\n");
+            UDA_LOG(UDA_LOG_DEBUG, "retrieve results\n");
             int i;
             int stringLength;
             for (i = 0; i < nRows; i++) {
@@ -238,13 +238,13 @@ int idamXpadTree(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 }
             }
 
-            IDAM_LOG(UDA_LOG_DEBUG, "close connection\n");
+            UDA_LOG(UDA_LOG_DEBUG, "close connection\n");
 
             // Close db connection
             PQclear(DBQuery);
             PQfinish(DBConnect);
 
-            IDAM_LOG(UDA_LOG_DEBUG, "define structure for datablock\n");
+            UDA_LOG(UDA_LOG_DEBUG, "define structure for datablock\n");
 
             // Output data block
             USERDEFINEDTYPE parentTree;
@@ -253,7 +253,7 @@ int idamXpadTree(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             //User defined type to describe data structure
             initUserDefinedType(&parentTree);
-            parentTree.idamclass = TYPE_COMPOUND;
+            parentTree.idamclass = UDA_TYPE_COMPOUND;
             strcpy(parentTree.name, "DATASTRUCT");
             strcpy(parentTree.source, "idam3");
             parentTree.ref_id = 0;
@@ -288,7 +288,7 @@ int idamXpadTree(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             // Put data struct into data block for return
             initDataBlock(data_block);
 
-            data_block->data_type = TYPE_COMPOUND;
+            data_block->data_type = UDA_TYPE_COMPOUND;
             data_block->rank = 0;            // Scalar structure (don't need a DIM array)
             data_block->data_n = 1;
             data_block->data = (char*)data;
@@ -297,11 +297,11 @@ int idamXpadTree(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             strcpy(data_block->data_label, "signals");
             strcpy(data_block->data_units, "");
 
-            data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
+            data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
             data_block->opaque_count = 1;
             data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "DATASTRUCT", 0);
 
-            IDAM_LOG(UDA_LOG_DEBUG, "everything done\n");
+            UDA_LOG(UDA_LOG_DEBUG, "everything done\n");
 
             break;
         } else if (STR_EQUALS(request_block->function, "getsignaltags")) {
@@ -323,14 +323,14 @@ int idamXpadTree(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             for (i_arg = 0; i_arg < n_args; i_arg++) {
                 if (STR_IEQUALS(request_block->nameValueList.nameValue[i_arg].name, "treename")) {
                     treename = request_block->nameValueList.nameValue[i_arg].value;
-                    IDAM_LOGF(UDA_LOG_DEBUG, "xpadtree : retrieving tags for tree %s\n", treename);
+                    UDA_LOG(UDA_LOG_DEBUG, "xpadtree : retrieving tags for tree %s\n", treename);
                     foundTreename = 1;
                 }
             }
 
             if (foundTreename != 1) {
                 err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "xpadtree", err, "Treename must be provided.");
+                addIdamError(CODEERRORTYPE, "xpadtree", err, "Treename must be provided.");
                 break;
             }
 
@@ -338,14 +338,14 @@ int idamXpadTree(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             // Open the connection
             // CURRENTLY HARDCODED, NOT SURE YET WHERE THE TAG TABLES WILL BE : WILL NEED REPLACING EVENTUALLY
             //////////////////////////////
-            IDAM_LOG(UDA_LOG_DEBUG, "trying to get connection\n");
+            UDA_LOG(UDA_LOG_DEBUG, "trying to get connection\n");
             PGconn* DBConnect = openDatabase("idam1.mast.ccfe.ac.uk", 56567, "xpad", "xpadowner");
             PGresult* DBQuery = NULL;
 
             if (DBConnect == NULL) {
-                IDAM_LOG(UDA_LOG_DEBUG, "Connection to xpad database failed.");
+                UDA_LOG(UDA_LOG_DEBUG, "Connection to xpad database failed.");
                 err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "xpadtree", err, "Error connecting to xpad db!");
+                addIdamError(CODEERRORTYPE, "xpadtree", err, "Error connecting to xpad db!");
                 break;
             }
 
@@ -359,11 +359,11 @@ int idamXpadTree(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                     treename_for_query);
             free(treename_for_query);
 
-            IDAM_LOGF(UDA_LOG_DEBUG, "QUERY IS %s\n", query);
+            UDA_LOG(UDA_LOG_DEBUG, "QUERY IS %s\n", query);
 
             if (err != 0) {
                 err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "xpadtree", err, "Could not escape string");
+                addIdamError(CODEERRORTYPE, "xpadtree", err, "Could not escape string");
                 PQfinish(DBConnect);
                 break;
             }
@@ -373,35 +373,35 @@ int idamXpadTree(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 PQclear(DBQuery);
                 PQfinish(DBConnect);
                 err = 999;
-                IDAM_LOGF(UDA_LOG_DEBUG, "SELECT failed. %s\n", query);
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "xpadtree", err, "SELECT failed. \n");
+                UDA_LOG(UDA_LOG_DEBUG, "SELECT failed. %s\n", query);
+                addIdamError(CODEERRORTYPE, "xpadtree", err, "SELECT failed. \n");
                 break;
             }
 
             if (PQresultStatus(DBQuery) != PGRES_TUPLES_OK && PQresultStatus(DBQuery) != PGRES_COMMAND_OK) {
                 PQclear(DBQuery);
                 PQfinish(DBConnect);
-                IDAM_LOG(UDA_LOG_DEBUG, "Database query failed.\n");
+                UDA_LOG(UDA_LOG_DEBUG, "Database query failed.\n");
                 err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "xpadtree", err, "Database Query Failed!");
+                addIdamError(CODEERRORTYPE, "xpadtree", err, "Database Query Failed!");
                 break;
             }
 
             //Get number of rows that were returned, and allocate memory to arrays
             int nRows = PQntuples(DBQuery);
 
-            IDAM_LOGF(UDA_LOG_DEBUG, "query returned %d\n", nRows);
+            UDA_LOG(UDA_LOG_DEBUG, "query returned %d\n", nRows);
 
             if (nRows == 0) {
                 err = 999;
-                IDAM_LOGF(UDA_LOG_DEBUG, "No tags for tree: %s were found\n", treename);
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "xpadtree", err, "No signals were found\n");
+                UDA_LOG(UDA_LOG_DEBUG, "No tags for tree: %s were found\n", treename);
+                addIdamError(CODEERRORTYPE, "xpadtree", err, "No signals were found\n");
                 PQclear(DBQuery);
                 PQfinish(DBConnect);
                 break;
             }
 
-            IDAM_LOG(UDA_LOG_DEBUG, "setup datastruct\n");
+            UDA_LOG(UDA_LOG_DEBUG, "setup datastruct\n");
 
             // Struct to store results in
             struct DATASTRUCT {
@@ -423,7 +423,7 @@ int idamXpadTree(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             int s_tag_id_fnum = PQfnumber(DBQuery, "tag_id");
             int s_signal_id_fnum = PQfnumber(DBQuery, "signal_desc_id");
 
-            IDAM_LOG(UDA_LOG_DEBUG, "retrieve results\n");
+            UDA_LOG(UDA_LOG_DEBUG, "retrieve results\n");
             int i;
             for (i = 0; i < nRows; i++) {
                 if (!PQgetisnull(DBQuery, i, s_tag_id_fnum)) {
@@ -443,7 +443,7 @@ int idamXpadTree(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             PQclear(DBQuery);
             PQfinish(DBConnect);
 
-            IDAM_LOG(UDA_LOG_DEBUG, "define structure for datablock\n");
+            UDA_LOG(UDA_LOG_DEBUG, "define structure for datablock\n");
 
             // Output data block
             USERDEFINEDTYPE parentTree;
@@ -452,7 +452,7 @@ int idamXpadTree(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             //User defined type to describe data structure
             initUserDefinedType(&parentTree);
-            parentTree.idamclass = TYPE_COMPOUND;
+            parentTree.idamclass = UDA_TYPE_COMPOUND;
             strcpy(parentTree.name, "DATASTRUCT");
             strcpy(parentTree.source, "idam3");
             parentTree.ref_id = 0;
@@ -478,7 +478,7 @@ int idamXpadTree(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             // Put data struct into data block for return
             initDataBlock(data_block);
 
-            data_block->data_type = TYPE_COMPOUND;
+            data_block->data_type = UDA_TYPE_COMPOUND;
             data_block->rank = 0;            // Scalar structure (don't need a DIM array)
             data_block->data_n = 1;
             data_block->data = (char*)data;
@@ -487,11 +487,11 @@ int idamXpadTree(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             strcpy(data_block->data_label, "signaltag_map");
             strcpy(data_block->data_units, "");
 
-            data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
+            data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
             data_block->opaque_count = 1;
             data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "DATASTRUCT", 0);
 
-            IDAM_LOG(UDA_LOG_DEBUG, "everything done\n");
+            UDA_LOG(UDA_LOG_DEBUG, "everything done\n");
 
             break;
 
@@ -512,19 +512,19 @@ int idamXpadTree(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             int n_args = request_block->nameValueList.pairCount;
             int i_arg;
 
-            IDAM_LOG(UDA_LOG_DEBUG, "TEST SIGTREE");
+            UDA_LOG(UDA_LOG_DEBUG, "TEST SIGTREE");
 
             for (i_arg = 0; i_arg < n_args; i_arg++) {
                 if (STR_IEQUALS(request_block->nameValueList.nameValue[i_arg].name, "treename")) {
                     treename = request_block->nameValueList.nameValue[i_arg].value;
-                    IDAM_LOGF(UDA_LOG_DEBUG, "xpadtree : retrieving tags for tree %s\n", treename);
+                    UDA_LOG(UDA_LOG_DEBUG, "xpadtree : retrieving tags for tree %s\n", treename);
                     foundTreename = 1;
                 }
             }
 
             if (foundTreename != 1) {
                 err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "xpadtree", err, "Treename must be provided.");
+                addIdamError(CODEERRORTYPE, "xpadtree", err, "Treename must be provided.");
                 break;
             }
 
@@ -532,14 +532,14 @@ int idamXpadTree(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             // Open the connection
             // CURRENTLY HARDCODED, NOT SURE YET WHERE THE TAG TABLES WILL BE : WILL NEED REPLACING EVENTUALLY
             //////////////////////////////
-            IDAM_LOG(UDA_LOG_DEBUG, "trying to get connection\n");
+            UDA_LOG(UDA_LOG_DEBUG, "trying to get connection\n");
             PGconn* DBConnect = openDatabase("idam1.mast.ccfe.ac.uk", 56567, "xpad", "xpadowner");
             PGresult* DBQuery = NULL;
 
             if (DBConnect == NULL) {
-                IDAM_LOG(UDA_LOG_DEBUG, "Connection to xpad database failed.");
+                UDA_LOG(UDA_LOG_DEBUG, "Connection to xpad database failed.");
                 err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "xpadtree", err, "Error connecting to xpad db!");
+                addIdamError(CODEERRORTYPE, "xpadtree", err, "Error connecting to xpad db!");
                 break;
             }
 
@@ -551,17 +551,17 @@ int idamXpadTree(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 PQclear(DBQuery);
                 PQfinish(DBConnect);
                 err = 999;
-                IDAM_LOGF(UDA_LOG_DEBUG, "SELECT failed. %s\n", query_max);
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "xpadtree", err, "SELECT failed. \n");
+                UDA_LOG(UDA_LOG_DEBUG, "SELECT failed. %s\n", query_max);
+                addIdamError(CODEERRORTYPE, "xpadtree", err, "SELECT failed. \n");
                 break;
             }
 
             if (PQresultStatus(DBQuery) != PGRES_TUPLES_OK && PQresultStatus(DBQuery) != PGRES_COMMAND_OK) {
                 PQclear(DBQuery);
                 PQfinish(DBConnect);
-                IDAM_LOG(UDA_LOG_DEBUG, "Database query failed.\n");
+                UDA_LOG(UDA_LOG_DEBUG, "Database query failed.\n");
                 err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "xpadtree", err, "Database Query Failed!");
+                addIdamError(CODEERRORTYPE, "xpadtree", err, "Database Query Failed!");
                 break;
             }
 
@@ -570,9 +570,9 @@ int idamXpadTree(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             if (nRows_max == 0) {
                 PQclear(DBQuery);
-                IDAM_LOG(UDA_LOG_DEBUG, "Database query failed to get max id.\n");
+                UDA_LOG(UDA_LOG_DEBUG, "Database query failed to get max id.\n");
                 err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "xpadtree", err, "Database Query Failed to get max id!");
+                addIdamError(CODEERRORTYPE, "xpadtree", err, "Database Query Failed to get max id!");
                 break;
             }
 
@@ -600,7 +600,7 @@ int idamXpadTree(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             if (err != 0) {
                 err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "xpadtree", err, "Could not escape string");
+                addIdamError(CODEERRORTYPE, "xpadtree", err, "Could not escape string");
                 PQfinish(DBConnect);
                 break;
             }
@@ -610,35 +610,35 @@ int idamXpadTree(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 PQclear(DBQuery);
                 PQfinish(DBConnect);
                 err = 999;
-                IDAM_LOGF(UDA_LOG_DEBUG, "SELECT failed. %s\n", query);
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "xpadtree", err, "SELECT failed. \n");
+                UDA_LOG(UDA_LOG_DEBUG, "SELECT failed. %s\n", query);
+                addIdamError(CODEERRORTYPE, "xpadtree", err, "SELECT failed. \n");
                 break;
             }
 
             if (PQresultStatus(DBQuery) != PGRES_TUPLES_OK && PQresultStatus(DBQuery) != PGRES_COMMAND_OK) {
                 PQclear(DBQuery);
                 PQfinish(DBConnect);
-                IDAM_LOG(UDA_LOG_DEBUG, "Database query failed.\n");
+                UDA_LOG(UDA_LOG_DEBUG, "Database query failed.\n");
                 err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "xpadtree", err, "Database Query Failed!");
+                addIdamError(CODEERRORTYPE, "xpadtree", err, "Database Query Failed!");
                 break;
             }
 
             //Get number of rows that were returned, and allocate memory to arrays
             int nRows = PQntuples(DBQuery);
 
-            IDAM_LOGF(UDA_LOG_DEBUG, "query returned %d\n", nRows);
+            UDA_LOG(UDA_LOG_DEBUG, "query returned %d\n", nRows);
 
             if (nRows == 0) {
                 err = 999;
-                IDAM_LOGF(UDA_LOG_DEBUG, "No tags for tree: %s were found\n", treename);
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "xpadtree", err, "No signals were found\n");
+                UDA_LOG(UDA_LOG_DEBUG, "No tags for tree: %s were found\n", treename);
+                addIdamError(CODEERRORTYPE, "xpadtree", err, "No signals were found\n");
                 PQclear(DBQuery);
                 PQfinish(DBConnect);
                 break;
             }
 
-            IDAM_LOG(UDA_LOG_DEBUG, "setup datastruct\n");
+            UDA_LOG(UDA_LOG_DEBUG, "setup datastruct\n");
 
             // Struct to store results in
             struct DATASTRUCT {
@@ -675,7 +675,7 @@ int idamXpadTree(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                     data->tag_name[i] = (char*)malloc(stringLength * sizeof(char));
                     strcpy(data->tag_name[i], PQgetvalue(DBQuery, i, s_name_fnum));
                     addMalloc(idam_plugin_interface->logmalloclist, (void*)data->tag_name[i], stringLength, sizeof(char), "char");
-                    IDAM_LOGF(UDA_LOG_DEBUG, "%d tag %s\n", i, data->tag_name[i]);
+                    UDA_LOG(UDA_LOG_DEBUG, "%d tag %s\n", i, data->tag_name[i]);
                 }
                 if (!PQgetisnull(DBQuery, i, s_id_fnum)) {
                     data->tag_id[i] = atoi(PQgetvalue(DBQuery, i, s_id_fnum));
@@ -693,7 +693,7 @@ int idamXpadTree(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             PQclear(DBQuery);
             PQfinish(DBConnect);
 
-            IDAM_LOG(UDA_LOG_DEBUG, "define structure for datablock\n");
+            UDA_LOG(UDA_LOG_DEBUG, "define structure for datablock\n");
 
             // Output data block
             USERDEFINEDTYPE parentTree;
@@ -702,7 +702,7 @@ int idamXpadTree(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             //User defined type to describe data structure
             initUserDefinedType(&parentTree);
-            parentTree.idamclass = TYPE_COMPOUND;
+            parentTree.idamclass = UDA_TYPE_COMPOUND;
             strcpy(parentTree.name, "DATASTRUCT");
             strcpy(parentTree.source, "idam3");
             parentTree.ref_id = 0;
@@ -737,7 +737,7 @@ int idamXpadTree(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             // Put data struct into data block for return
             initDataBlock(data_block);
 
-            data_block->data_type = TYPE_COMPOUND;
+            data_block->data_type = UDA_TYPE_COMPOUND;
             data_block->rank = 0;            // Scalar structure (don't need a DIM array)
             data_block->data_n = 1;
             data_block->data = (char*)data;
@@ -746,11 +746,11 @@ int idamXpadTree(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             strcpy(data_block->data_label, "tags");
             strcpy(data_block->data_units, "");
 
-            data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
+            data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
             data_block->opaque_count = 1;
             data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "DATASTRUCT", 0);
 
-            IDAM_LOG(UDA_LOG_DEBUG, "everything done\n");
+            UDA_LOG(UDA_LOG_DEBUG, "everything done\n");
 
             break;
 
@@ -759,7 +759,7 @@ int idamXpadTree(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             // Error ...
 
             err = 999;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "xpadtree", err, "Unknown function requested!");
+            addIdamError(CODEERRORTYPE, "xpadtree", err, "Unknown function requested!");
             break;
         }
 

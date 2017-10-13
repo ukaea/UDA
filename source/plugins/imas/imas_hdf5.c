@@ -101,23 +101,23 @@ static unsigned short isCloseRegistered = 0;        // IDAM state variable - clo
 // http://linux.die.net/man/3/sha1_update
 
 // Hash a complete data block 
-void sha1Block(unsigned char* block, size_t blockSize, unsigned char* md)
-{
-    SHA1(block, blockSize, md);
-}
-
-// Hash a set of data blocks
-void sha1PartBlock(unsigned char* partBlock, size_t partBlockSize, unsigned char* md, unsigned int state)
-{
-    static SHA_CTX sc;
-    if (state == PARTBLOCKINIT) {
-        SHA1_Init(&sc);
-    } else if (state == PARTBLOCKUPDATE) {
-        SHA1_Update(&sc, partBlock, partBlockSize);
-    } else if (state == PARTBLOCKOUTPUT) {
-        SHA1_Final(md, &sc);
-    }
-}
+//void sha1Block(unsigned char* block, size_t blockSize, unsigned char* md)
+//{
+//    SHA1(block, blockSize, md);
+//}
+//
+//// Hash a set of data blocks
+//void sha1PartBlock(unsigned char* partBlock, size_t partBlockSize, unsigned char* md, unsigned int state)
+//{
+//    static SHA_CTX sc;
+//    if (state == PARTBLOCKINIT) {
+//        SHA1_Init(&sc);
+//    } else if (state == PARTBLOCKUPDATE) {
+//        SHA1_Update(&sc, partBlock, partBlockSize);
+//    } else if (state == PARTBLOCKOUTPUT) {
+//        SHA1_Final(md, &sc);
+//    }
+//}
 
 // Hash a file
 int sha1File(char* name, FILE* fh, unsigned char* md)
@@ -1568,7 +1568,7 @@ int imas_hdf5_DeleteData(int expIdx, const char* cpoPath, const char* path)
 
 // Missing group from MODEL? Create commands for use to repair the Model
 
-        IDAM_LOGF(UDA_LOG_DEBUG, "createGroup(rootId, \"/%s\");\n", groupName);
+        UDA_LOG(UDA_LOG_DEBUG, "createGroup(rootId, \"/%s\");\n", groupName);
         sprintf(errmsg, "Error opening HDF5 Group %s", groupName);
         free(groupName);
         free(dataName);

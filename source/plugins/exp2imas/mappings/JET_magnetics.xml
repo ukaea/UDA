@@ -1,5 +1,5 @@
 <mappings machine="JET">
-
+  <!-- dynamic -->
   <magdiag documentation="Magnetic diagnostics. Time-dependent CPO" type="CPO">
     <ip documentation="Plasma current [A]. Positive sign means anti-clockwise when viewed from above.  Time-dependent. Scalar" type="structure">
       <value documentation="Signal value; Time-dependent; Scalar" reminder="Enter in the structure below how to retrieve this variable from the experimental database. Replicate this element if more than one signal needs to be read in the local database, and indicate it by changing the 'list' attribute to 'yes'" list="no" type="exp0D" path="ip/value">
@@ -252,6 +252,7 @@
     </time_base>
   </magdiag>
 
+  <!-- static -->
   <magdiag type="CPO" documentation="Magnetic diagnostics. Time-dependent CPO" occurrence="0">
     <datainfo type="structure" documentation="Generic information on a data item">
       <dataprovider type="xs:string" documentation="Name of the actual data provider (the person who filled the data)" path="datainfo/dataprovider">Wolfgang Zwingmann - Vladimir Drozdov</dataprovider>
@@ -289,5 +290,4 @@
       </setup_bprobe>
     </bpol_probes>
   </magdiag>
-
 </mappings>

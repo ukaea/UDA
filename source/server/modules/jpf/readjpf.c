@@ -34,7 +34,7 @@
 
 int readJPF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK *data_block) {
     int err = 999;
-    addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF", err, "JPF PLUGIN NOT ENABLED");
+    addIdamError(CODEERRORTYPE, "readCDF", err, "JPF PLUGIN NOT ENABLED");
     return err;
 }
 
@@ -77,7 +77,7 @@ int readJPF( DATA_SOURCE data_source
 
     if(data_source.exp_number == 0) {
         err = 999;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "readJPF"
+        addIdamError(CODEERRORTYPE, "readJPF"
                      , err, "No Shot Number!");
         return err;
     }
@@ -85,7 +85,7 @@ int readJPF( DATA_SOURCE data_source
     if( ! (lstr = strlen(signal_desc.signal_name)))
     {
         err = 999;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "readJPF"
+        addIdamError(CODEERRORTYPE, "readJPF"
                      , err, "No Node Name!");
         return err;
     }
@@ -107,14 +107,14 @@ int readJPF( DATA_SOURCE data_source
 
     if(err != 0) {
         err = 998;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "readJPF"
+        addIdamError(CODEERRORTYPE, "readJPF"
                      , err, "Failed enquiry for JPF data array size");
         return err;
     }
 
     if(ndw <= 0) {
         err = 998;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "readJPF"
+        addIdamError(CODEERRORTYPE, "readJPF"
                      , err, "JPF data array size is Zero!");
         return err;
     }
@@ -126,14 +126,14 @@ int readJPF( DATA_SOURCE data_source
 
     if( ! (dvec = malloc(ndw*sizeof(float)))) {
         err = 998;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "readJPF"
+        addIdamError(CODEERRORTYPE, "readJPF"
                      , err, "Unable to Allocate Heap for Data");
         return err;
     }
 
     if( ! (tvec = malloc(ndw*sizeof(double)))) {
         err = 997;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "readJPF"
+        addIdamError(CODEERRORTYPE, "readJPF"
                      , err, "Unable to Allocate Heap for the Time Vector");
         free(dvec);
         return err;
@@ -169,7 +169,7 @@ int readJPF( DATA_SOURCE data_source
 
         free(tvec);
         if(err) {
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readJPF"
+            addIdamError(CODEERRORTYPE, "readJPF"
                          , err, "Unable to Obtain Scalar JPF Data");
             free(dvec);
             return err;
@@ -178,7 +178,7 @@ int readJPF( DATA_SOURCE data_source
     }
 
     if (err) {
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "readJPF"
+        addIdamError(CODEERRORTYPE, "readJPF"
                      , err, "Unable to Obtain JPF Data");
         free(dvec);
         free(tvec);
@@ -196,7 +196,7 @@ int readJPF( DATA_SOURCE data_source
     TrimString(desc);
     TrimString(units);
 
-    data_block->data_type = TYPE_FLOAT;
+    data_block->data_type = UDA_TYPE_FLOAT;
 
     data_block->data = (char *)dvec;
 
@@ -226,7 +226,7 @@ int readJPF( DATA_SOURCE data_source
 
         _strcpy(data_block->dims[0].dim_label, "Time");
 
-        data_block->dims[0].data_type = TYPE_DOUBLE;
+        data_block->dims[0].data_type = UDA_TYPE_DOUBLE;
 
     }
     else {

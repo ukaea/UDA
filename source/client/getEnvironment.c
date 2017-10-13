@@ -24,38 +24,38 @@ void putIdamClientEnvironment(const ENVIRONMENT* environment)
 
 void printIdamClientEnvironment(const ENVIRONMENT* environ)
 {
-    IDAM_LOG(UDA_LOG_INFO, "\nClient Environment Variable values\n\n");
-    IDAM_LOGF(UDA_LOG_INFO, "Log Location    : %s\n", environ->logdir);
-    IDAM_LOGF(UDA_LOG_INFO, "Log Write Mode  : %s\n", environ->logmode);
-    IDAM_LOGF(UDA_LOG_INFO, "Log Level       : %d\n", environ->loglevel);
-    IDAM_LOGF(UDA_LOG_INFO, "Client Flags    : %u\n", environ->clientFlags);
-    IDAM_LOGF(UDA_LOG_INFO, "Alt Rank        : %d\n", environ->altRank);
+    UDA_LOG(UDA_LOG_INFO, "\nClient Environment Variable values\n\n");
+    UDA_LOG(UDA_LOG_INFO, "Log Location    : %s\n", environ->logdir);
+    UDA_LOG(UDA_LOG_INFO, "Log Write Mode  : %s\n", environ->logmode);
+    UDA_LOG(UDA_LOG_INFO, "Log Level       : %d\n", environ->loglevel);
+    UDA_LOG(UDA_LOG_INFO, "Client Flags    : %u\n", environ->clientFlags);
+    UDA_LOG(UDA_LOG_INFO, "Alt Rank        : %d\n", environ->altRank);
 #ifdef FATCLIENT
-    IDAM_LOGF(UDA_LOG_INFO, "External User?  : %d\n", environ->external_user);
+    UDA_LOG(UDA_LOG_INFO, "External User?  : %d\n", environ->external_user);
 #  ifdef PROXYSERVER
-    IDAM_LOGF(UDA_LOG_INFO, "IDAM Proxy Host : %s\n", environ->server_proxy);
-    IDAM_LOGF(UDA_LOG_INFO, "IDAM This Host  : %s\n", environ->server_this);
+    UDA_LOG(UDA_LOG_INFO, "IDAM Proxy Host : %s\n", environ->server_proxy);
+    UDA_LOG(UDA_LOG_INFO, "IDAM This Host  : %s\n", environ->server_this);
 #  endif
 #endif
-    IDAM_LOGF(UDA_LOG_INFO, "IDAM Server Host: %s\n", environ->server_host);
-    IDAM_LOGF(UDA_LOG_INFO, "IDAM Server Port: %d\n", environ->server_port);
-    IDAM_LOGF(UDA_LOG_INFO, "IDAM Server Host2: %s\n", environ->server_host2);
-    IDAM_LOGF(UDA_LOG_INFO, "IDAM Server Port2: %d\n", environ->server_port2);
-    IDAM_LOGF(UDA_LOG_INFO, "Server Reconnect: %d\n", environ->server_reconnect);
-    IDAM_LOGF(UDA_LOG_INFO, "Server Change Socket: %d\n", environ->server_change_socket);
-    IDAM_LOGF(UDA_LOG_INFO, "Server Socket ID: %d\n", environ->server_socket);
-    IDAM_LOGF(UDA_LOG_INFO, "API Delimiter   : %s\n", environ->api_delim);
-    IDAM_LOGF(UDA_LOG_INFO, "Default Device  : %s\n", environ->api_device);
-    IDAM_LOGF(UDA_LOG_INFO, "Default Archive : %s\n", environ->api_archive);
-    IDAM_LOGF(UDA_LOG_INFO, "Default Format  : %s\n", environ->api_format);
-    IDAM_LOGF(UDA_LOG_INFO, "Private File Path Target    : %s\n", environ->private_path_target);
-    IDAM_LOGF(UDA_LOG_INFO, "Private File Path Substitute: %s\n", environ->private_path_substitute);
+    UDA_LOG(UDA_LOG_INFO, "IDAM Server Host: %s\n", environ->server_host);
+    UDA_LOG(UDA_LOG_INFO, "IDAM Server Port: %d\n", environ->server_port);
+    UDA_LOG(UDA_LOG_INFO, "IDAM Server Host2: %s\n", environ->server_host2);
+    UDA_LOG(UDA_LOG_INFO, "IDAM Server Port2: %d\n", environ->server_port2);
+    UDA_LOG(UDA_LOG_INFO, "Server Reconnect: %d\n", environ->server_reconnect);
+    UDA_LOG(UDA_LOG_INFO, "Server Change Socket: %d\n", environ->server_change_socket);
+    UDA_LOG(UDA_LOG_INFO, "Server Socket ID: %d\n", environ->server_socket);
+    UDA_LOG(UDA_LOG_INFO, "API Delimiter   : %s\n", environ->api_delim);
+    UDA_LOG(UDA_LOG_INFO, "Default Device  : %s\n", environ->api_device);
+    UDA_LOG(UDA_LOG_INFO, "Default Archive : %s\n", environ->api_archive);
+    UDA_LOG(UDA_LOG_INFO, "Default Format  : %s\n", environ->api_format);
+    UDA_LOG(UDA_LOG_INFO, "Private File Path Target    : %s\n", environ->private_path_target);
+    UDA_LOG(UDA_LOG_INFO, "Private File Path Substitute: %s\n", environ->private_path_substitute);
 
 #ifndef NOTGENERICENABLED
-    IDAM_LOGF(UDA_LOG_INFO, "IDAM SQL Server Host: %s\n", environ->sql_host);
-    IDAM_LOGF(UDA_LOG_INFO, "IDAM SQL Server Port: %d\n", environ->sql_port);
-    IDAM_LOGF(UDA_LOG_INFO, "IDAM SQL Database   : %s\n", environ->sql_dbname);
-    IDAM_LOGF(UDA_LOG_INFO, "IDAM SQL USer       : %s\n", environ->sql_user);
+    UDA_LOG(UDA_LOG_INFO, "IDAM SQL Server Host: %s\n", environ->sql_host);
+    UDA_LOG(UDA_LOG_INFO, "IDAM SQL Server Port: %d\n", environ->sql_port);
+    UDA_LOG(UDA_LOG_INFO, "IDAM SQL Database   : %s\n", environ->sql_dbname);
+    UDA_LOG(UDA_LOG_INFO, "IDAM SQL USer       : %s\n", environ->sql_user);
 #endif
 
 }

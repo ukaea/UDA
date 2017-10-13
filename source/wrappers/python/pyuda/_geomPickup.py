@@ -99,7 +99,7 @@ class GeomPickup():
         # loop over nodes and find pickup coil node to manipulate
         self._pickup_loop(data)
 
-    def plot(self, data, ax_2d=None, ax_3d=None, show=True):
+    def plot(self, data, ax_2d=None, ax_3d=None, show=True, color=None):
         """
         Plot the pickup coils.
         :param data: data tree (instance of StructuredWritable, with pickup coil tree structure)
@@ -118,11 +118,14 @@ class GeomPickup():
         markers = []
         self._get_all_coords(data, r_z_to_plot, x_y_z_to_plot, unit_r, unit_z, colours, markers)
 
+        if color is not None:
+            colours = [color]*len(colours)
+
         if len(r_z_to_plot) == 0 or len(x_y_z_to_plot) == 0:
             return
 
         # Create axes if necessary
-        if ax_2d is None or ax_3d is None:
+        if ax_2d is None and ax_3d is None:
             fig = plt.figure()
             if ax_2d is None:
                 ax_2d = fig.add_subplot(121)
@@ -134,7 +137,7 @@ class GeomPickup():
             all_R = r_z_to_plot[::2]
             all_Z = r_z_to_plot[1::2]
 
-            marker_size = np.zeros(len(colours)) + 60
+            marker_size = np.zeros(len(colours)) + 20
 
             markers_unique = set(markers)
 
@@ -144,10 +147,11 @@ class GeomPickup():
                 c_here = [colours[i] for i in range(len(colours)) if markers[i] == marker]
                 s_here = [marker_size[i] for i in range(len(marker_size)) if markers[i] == marker]
 
-                ax_2d.scatter(r_here, z_here, c=c_here, marker=marker, s=s_here)
+                ax_2d.scatter(r_here, z_here, c=c_here, marker=marker, s=s_here, edgecolors='face')
 
             ax_2d.set_xlabel('R [m]')
             ax_2d.set_ylabel('Z [m]')
+            ax_2d.set_aspect('equal', 'datalim')
 
             if len(unit_r) == len(r_z_to_plot[::2]):
                 for ur, uz, r, z in zip(unit_r, unit_z, r_z_to_plot[::2], r_z_to_plot[1::2]):

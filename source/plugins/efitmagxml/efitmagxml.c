@@ -95,7 +95,7 @@ int efitmagxml(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     unsigned short housekeeping;
 
     if (idam_plugin_interface->interfaceVersion > THISPLUGIN_MAX_INTERFACE_VERSION) {
-        IDAM_LOG(UDA_LOG_ERROR, "Plugin Interface Version Unknown to this plugin: Unable to execute the request!\n");
+        UDA_LOG(UDA_LOG_ERROR, "Plugin Interface Version Unknown to this plugin: Unable to execute the request!\n");
         THROW_ERROR(999, "Plugin Interface Version Unknown to this plugin: Unable to execute the request!");
     }
 
@@ -172,7 +172,7 @@ int efitmagxml(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             fullpath = FormatString("%s/%s", dir, xmlFile);
         }
 
-        IDAM_LOGF(UDA_LOG_DEBUG, "loading XML file %s\n", fullpath);
+        UDA_LOG(UDA_LOG_DEBUG, "loading XML file %s\n", fullpath);
 
         // Parse the XML if the file has been identified
 	
@@ -407,8 +407,8 @@ static int do_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, EFIT* efit)
        if(err != 0){
           THROW_ERROR(err, "EFIT++ Magnetics XML could Not be Parsed");
        }
-       IDAM_LOGF(UDA_LOG_DEBUG, "XPath %s\n", xPath);
-       IDAM_LOGF(UDA_LOG_DEBUG, "Value %s\n", value);
+       UDA_LOG(UDA_LOG_DEBUG, "XPath %s\n", xPath);
+       UDA_LOG(UDA_LOG_DEBUG, "Value %s\n", value);
        
        bool isType = findValue(&idam_plugin_interface->request_block->nameValueList, "Type");
 
@@ -700,7 +700,7 @@ static int do_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, EFIT* efit)
             }
             data_block->rank = 0;
             data_block->data_n = count;
-            data_block->data_type = TYPE_DOUBLE;
+            data_block->data_type = UDA_TYPE_DOUBLE;
             strcpy(data_block->data_desc, "efitmagxml: Element Geometry/Coordinate Array returned");
             data_block->data = (char*)data;
             return 0;

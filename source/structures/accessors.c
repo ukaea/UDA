@@ -85,7 +85,7 @@ NTREE* findNTreeStructureComponent1(NTREE* ntree, const char* target)
 
     for (i = 0; i < ntree->userdefinedtype->fieldcount; i++) {
         if (STR_EQUALS(ntree->userdefinedtype->compoundfield[i].name, target) &&
-            ntree->userdefinedtype->compoundfield[i].atomictype != TYPE_UNKNOWN) {
+            ntree->userdefinedtype->compoundfield[i].atomictype != UDA_TYPE_UNKNOWN) {
             return ntree;
         }
     }
@@ -171,7 +171,7 @@ NTREE* findNTreeStructureComponent2(LOGMALLOCLIST* logmalloclist, NTREE* ntree, 
 
         for (i = 0; i < child->userdefinedtype->fieldcount; i++) {
             if (STR_EQUALS(child->userdefinedtype->compoundfield[i].name, targetlist[ntargets - 1]) &&
-                child->userdefinedtype->compoundfield[i].atomictype != TYPE_UNKNOWN) {
+                child->userdefinedtype->compoundfield[i].atomictype != UDA_TYPE_UNKNOWN) {
                     return (child);
             }  // Atomic type found
         }
@@ -465,7 +465,7 @@ NTREE* findNTreeStructureComponentDefinition(NTREE* tree, const char* target)
     }
 
     for (i = 0; i < tree->userdefinedtype->fieldcount; i++) {
-        if (tree->userdefinedtype->compoundfield[i].atomictype == TYPE_UNKNOWN &&
+        if (tree->userdefinedtype->compoundfield[i].atomictype == UDA_TYPE_UNKNOWN &&
             STR_EQUALS(tree->userdefinedtype->compoundfield[i].type, target)) {
             return tree;
         }
@@ -485,7 +485,7 @@ NTREE* findNTreeStructureComponentDefinition(NTREE* tree, const char* target)
 * This is a public function with the whole sub-tree in scope.
 *
 * @param tree A pointer to a parent tree node. If NULL the root node is assumed.
-* @param class The Structure Class, e.g., TYPE_VLEN.
+* @param class The Structure Class, e.g., UDA_TYPE_VLEN.
 * @return A pointer to the First tree node found with the targeted structure class.
 */
 NTREE* idam_findNTreeStructureClass(NTREE* tree, int class)
@@ -534,7 +534,7 @@ int idam_maxCountVlenStructureArray(NTREE* tree, const char* target, int reset)
         tree = fullNTree;
     }
 
-    if (tree->userdefinedtype->idamclass == TYPE_VLEN && STR_EQUALS(tree->userdefinedtype->name, target)) {
+    if (tree->userdefinedtype->idamclass == UDA_TYPE_VLEN && STR_EQUALS(tree->userdefinedtype->name, target)) {
         VLENTYPE* vlen = (VLENTYPE*)tree->data;
         if (vlen->len > count) {
             count = vlen->len;
@@ -571,7 +571,7 @@ int idam_regulariseVlenStructures(LOGMALLOCLIST* logmalloclist, NTREE* tree, USE
         tree = fullNTree;
     }
 
-    if (tree->userdefinedtype->idamclass == TYPE_VLEN && STR_EQUALS(tree->userdefinedtype->name, target)) {
+    if (tree->userdefinedtype->idamclass == UDA_TYPE_VLEN && STR_EQUALS(tree->userdefinedtype->name, target)) {
         VLENTYPE* vlen = (VLENTYPE*)tree->data;
 
         // VLEN stuctures have only two fields: len and data
@@ -647,7 +647,7 @@ int idam_regulariseVlenData(LOGMALLOCLIST* logmalloclist, NTREE* tree, USERDEFIN
     if (tree == NULL) tree = fullNTree;
 
     do {
-        if ((nt = idam_findNTreeStructureClass(tree, TYPE_VLEN)) != NULL) {
+        if ((nt = idam_findNTreeStructureClass(tree, UDA_TYPE_VLEN)) != NULL) {
             count = idam_maxCountVlenStructureArray(tree, nt->userdefinedtype->name, 1);
             if (count > 0) {
                 rc = idam_regulariseVlenStructures(logmalloclist, tree, userdefinedtypelist, nt->userdefinedtype->name, count);
@@ -655,7 +655,7 @@ int idam_regulariseVlenData(LOGMALLOCLIST* logmalloclist, NTREE* tree, USERDEFIN
             if (rc != 0) {
                 return rc;
             }
-            nt->userdefinedtype->idamclass = TYPE_COMPOUND;   // Change the class to 'regular compound structure'
+            nt->userdefinedtype->idamclass = UDA_TYPE_COMPOUND;   // Change the class to 'regular compound structure'
         }
     } while (nt != NULL);
 
@@ -805,14 +805,14 @@ void* getNodeStructureData(NTREE* ntree)
 * @param imagecount The number of bytes in the image text block.
 * @return Void
 */
-void printImage(char* image, int imagecount)
+void printImage(const char* image, int imagecount)
 {
     int next = 0;
     if (image == NULL || imagecount == '\0') {
         return;
     }
     while (next < imagecount) {
-        IDAM_LOGF(UDA_LOG_DEBUG, "%s", &image[next]);
+        UDA_LOG(UDA_LOG_DEBUG, "%s", &image[next]);
         next = next + (int)strlen(&image[next]) + 1;
     }
 }
@@ -829,7 +829,7 @@ void printImage(char* image, int imagecount)
 * @param TypeId Enumerated key indicating the type of data field, e.g. float array
 * @return Void
 */
-void defineField(COMPOUNDFIELD* field, char* name, char* desc, int* offset, unsigned short TypeId)
+void defineField(COMPOUNDFIELD* field, const char* name, const char* desc, int* offset, unsigned short TypeId)
 {
     initCompoundField(field);
     strcpy(field->name, name);
@@ -838,106 +838,106 @@ void defineField(COMPOUNDFIELD* field, char* name, char* desc, int* offset, unsi
     field->count = 1;
 
     if (TypeId == SCALARDOUBLE) {  // Single scalar double
-        field->atomictype = TYPE_DOUBLE;
+        field->atomictype = UDA_TYPE_DOUBLE;
         strcpy(field->type, "double");
         sprintf(field->desc, "[double %s] %s", name, desc);
         field->size = field->count * sizeof(double);
     } else if (TypeId == ARRAYDOUBLE) {  // arbitrary number array of doubles
-        field->atomictype = TYPE_DOUBLE;
+        field->atomictype = UDA_TYPE_DOUBLE;
         strcpy(field->type, "double *");
         sprintf(field->desc, "[double *%s] %s", name, desc);
         field->pointer = 1;
         field->size = field->count * sizeof(double*);
     } else if (TypeId == SCALARFLOAT) {  // Single scalar float
-        field->atomictype = TYPE_FLOAT;
+        field->atomictype = UDA_TYPE_FLOAT;
         strcpy(field->type, "float");
         sprintf(field->desc, "[float %s] %s", name, desc);
         field->size = field->count * sizeof(float);
     } else if (TypeId == ARRAYFLOAT) {  // arbitrary number array of floats
-        field->atomictype = TYPE_FLOAT;
+        field->atomictype = UDA_TYPE_FLOAT;
         strcpy(field->type, "float *");
         sprintf(field->desc, "[float *%s] %s", name, desc);
         field->pointer = 1;
         field->size = field->count * sizeof(float*);
     } else if (TypeId == SCALARLONG64) {  // Single scalar 8 byte integer
-        field->atomictype = TYPE_LONG64;
+        field->atomictype = UDA_TYPE_LONG64;
         strcpy(field->type, "long long");
         sprintf(field->desc, "[long long %s] %s", name, desc);
         field->size = field->count * sizeof(long long);
     } else if (TypeId == ARRAYLONG64) {  // arbitrary number array of 8 byte integers
-        field->atomictype = TYPE_LONG64;
+        field->atomictype = UDA_TYPE_LONG64;
         strcpy(field->type, "long long *");
         sprintf(field->desc, "[long long *%s] %s", name, desc);
         field->pointer = 1;
         field->size = field->count * sizeof(long long*);
     } else if (TypeId == SCALARULONG64) {  // Single scalar unsigned 8 byteinteger
-        field->atomictype = TYPE_UNSIGNED_LONG64;
+        field->atomictype = UDA_TYPE_UNSIGNED_LONG64;
         strcpy(field->type, "unsigned long long");
         sprintf(field->desc, "[unsigned long long %s] %s", name, desc);
         field->size = field->count * sizeof(unsigned long long);
     } else if (TypeId == ARRAYULONG64) {  // arbitrary number array of unsigned 8 byteintegers
-        field->atomictype = TYPE_UNSIGNED_LONG64;
+        field->atomictype = UDA_TYPE_UNSIGNED_LONG64;
         strcpy(field->type, "unsigned long long *");
         sprintf(field->desc, "[unsigned long long *%s] %s", name, desc);
         field->pointer = 1;
         field->size = field->count * sizeof(unsigned long long*);
     } else if (TypeId == SCALARINT) {  // Single scalar integer
-        field->atomictype = TYPE_INT;
+        field->atomictype = UDA_TYPE_INT;
         strcpy(field->type, "int");
         sprintf(field->desc, "[int %s] %s", name, desc);
         field->size = field->count * sizeof(int);
     } else if (TypeId == ARRAYINT) {  // arbitrary number array of integers
-        field->atomictype = TYPE_INT;
+        field->atomictype = UDA_TYPE_INT;
         strcpy(field->type, "int *");
         sprintf(field->desc, "[int *%s] %s", name, desc);
         field->pointer = 1;
         field->size = field->count * sizeof(int*);
     } else if (TypeId == SCALARUINT) {  // Single scalar unsigned integer
-        field->atomictype = TYPE_UNSIGNED_INT;
+        field->atomictype = UDA_TYPE_UNSIGNED_INT;
         strcpy(field->type, "unsigned int");
         sprintf(field->desc, "[unsigned int %s] %s", name, desc);
         field->size = field->count * sizeof(unsigned int);
     } else if (TypeId == ARRAYUINT) {  // arbitrary number array of unsigned integers
-        field->atomictype = TYPE_UNSIGNED_INT;
+        field->atomictype = UDA_TYPE_UNSIGNED_INT;
         strcpy(field->type, "unsigned int *");
         sprintf(field->desc, "[unsigned int *%s] %s", name, desc);
         field->pointer = 1;
         field->size = field->count * sizeof(unsigned int*);
     } else if (TypeId == SCALARSHORT) {  // Single scalar short integer
-        field->atomictype = TYPE_SHORT;
+        field->atomictype = UDA_TYPE_SHORT;
         strcpy(field->type, "short");
         sprintf(field->desc, "[short %s] %s", name, desc);
         field->size = field->count * sizeof(short);
     } else if (TypeId == ARRAYSHORT) {  // arbitrary number array of short integers
-        field->atomictype = TYPE_SHORT;
+        field->atomictype = UDA_TYPE_SHORT;
         strcpy(field->type, "short *");
         sprintf(field->desc, "[short *%s] %s", name, desc);
         field->pointer = 1;
         field->size = field->count * sizeof(short*);
     } else if (TypeId == SCALARUSHORT) {  // Single scalar unsigned short integer
-        field->atomictype = TYPE_UNSIGNED_SHORT;
+        field->atomictype = UDA_TYPE_UNSIGNED_SHORT;
         strcpy(field->type, "unsigned short");
         sprintf(field->desc, "[unsigned short %s] %s", name, desc);
         field->size = field->count * sizeof(unsigned short);
     } else if (TypeId == ARRAYUSHORT) {  // arbitrary number array of unsigned short integers
-        field->atomictype = TYPE_UNSIGNED_SHORT;
+        field->atomictype = UDA_TYPE_UNSIGNED_SHORT;
         strcpy(field->type, "unsigned short *");
         sprintf(field->desc, "[unsigned short *%s] %s", name, desc);
         field->pointer = 1;
         field->size = field->count * sizeof(unsigned short*);
     } else if (TypeId == SCALARCHAR) {  // Single scalar byte integer
-        field->atomictype = TYPE_CHAR;
+        field->atomictype = UDA_TYPE_CHAR;
         strcpy(field->type, "char");
         sprintf(field->desc, "[char %s] %s", name, desc);
         field->size = field->count * sizeof(char);
     } else if (TypeId == ARRAYCHAR) {  // arbitrary number array of byte integers (Not a string!)
-        field->atomictype = TYPE_CHAR;
+        field->atomictype = UDA_TYPE_CHAR;
         strcpy(field->type, "char *");
         sprintf(field->desc, "[char *%s] %s", name, desc);
         field->pointer = 1;
         field->size = field->count * sizeof(char*);
     } else if (TypeId == SCALARSTRING) {  // Single scalar string of arbitrary length
-        field->atomictype = TYPE_STRING;
+        field->atomictype = UDA_TYPE_STRING;
         strcpy(field->type, "STRING");
         sprintf(field->desc, "[char *%s] %s", name, desc);
         field->pointer = 1;
@@ -947,7 +947,7 @@ void defineField(COMPOUNDFIELD* field, char* name, char* desc, int* offset, unsi
         field->alignment = getalignmentof("char *");
     } else if (TypeId == ARRAYSTRING) {  // arbitrary number array of strings of arbitrary length
         //Bug Fix dgm 07Jul2014: atomictype was missing!
-        field->atomictype = TYPE_STRING;
+        field->atomictype = UDA_TYPE_STRING;
         strcpy(field->type, "STRING *");
         sprintf(field->desc, "[char **%s] %s", name, desc);
         field->pointer = 1;
@@ -966,3 +966,22 @@ void defineField(COMPOUNDFIELD* field, char* name, char* desc, int* offset, unsi
     *offset = field->offset + field->size; // Next Offset
 }
 
+void defineCompoundField(COMPOUNDFIELD* field, const char* type, const char* name, char* desc, int offset, int size)
+{
+    initCompoundField(field);
+
+    strcpy(field->name, name);
+    field->atomictype = UDA_TYPE_UNKNOWN;
+    strcpy(field->type, type);
+    strcpy(field->desc, desc);
+
+    field->pointer = 1;
+    field->count = 1;
+    field->rank = 0;
+    field->shape = NULL;
+
+    field->size = field->count * size;
+    field->offset = offset;
+    field->offpad = padding(offset, field->type);
+    field->alignment = ALIGNMENT;
+}

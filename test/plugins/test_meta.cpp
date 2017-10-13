@@ -5,16 +5,14 @@
 
 TEST_CASE( "Test META::help() function", "[META][plugins]" )
 {
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+#include "setup.inc"
 
     uda::Client client;
 
     const uda::Result& result = client.get("META::help()", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.errorMessage() == "" );
+    REQUIRE( result.errorMessage().empty() );
     REQUIRE( result.isTree()  );
 
     uda::TreeNode tree = result.tree();

@@ -100,10 +100,7 @@ extern int query(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     unsigned short housekeeping;
 
     if (idam_plugin_interface->interfaceVersion > THISPLUGIN_MAX_INTERFACE_VERSION) {
-        err = 999;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "MongoDBPlugin", err,
-                     "Plugin Interface Version Unknown to this plugin: Unable to execute the request!");
-        return err;
+        RAISE_PLUGIN_ERROR("Plugin Interface Version Unknown to this plugin: Unable to execute the request!");
     }
 
     idam_plugin_interface->pluginVersion = THISPLUGIN_VERSION;
@@ -212,11 +209,7 @@ readwrite
                 sprintf(uri, "mongodb://%s:%s@%s:%d/%s", environment->sql_user, password, environment->sql_host,
                         environment->sql_port, environment->sql_dbname);
             else {
-                err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "MongoDBPlugin", err,
-                             "Insufficient Connection and Authentication details!");
-                IDAM_LOG(UDA_LOG_ERROR, "MongoDBPlugin: Insufficient Connection and Authentication details!");
-                return err;
+                RAISE_PLUGIN_ERROR("Insufficient Connection and Authentication details!");
             }
 
             mongoc_init();            // Initialize libmongoc's internals
@@ -228,26 +221,18 @@ readwrite
             if (DBConnect != NULL) {
                 DBType = PLUGINSQLMONGODB;
                 sqlPrivate = 1;            // the connection belongs to this plugin
-                IDAM_LOG(UDA_LOG_DEBUG, "mongodbplugin: Private regular database connection made.\n");
+                UDA_LOG(UDA_LOG_DEBUG, "mongodbplugin: Private regular database connection made.\n");
             }
         }
 
         if (!client) {
-            err = 999;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "MongoDBPlugin", err,
-                         "No connection to Database server made!");
-            IDAM_LOG(UDA_LOG_ERROR, "MongoDBPlugin: No connection to Database server made!");
-            return err;
+            RAISE_PLUGIN_ERROR("No connection to Database server made!");
         }
 
         database = mongoc_client_get_database(client, environment->sql_dbname);
 
         if (!database) {
-            err = 999;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "MongoDBPlugin", err,
-                         "No connection to Database cluster made!");
-            IDAM_LOG(UDA_LOG_ERROR, "MongoDBPlugin: No connection to Database cluster made!");
-            return err;
+            RAISE_PLUGIN_ERROR("No connection to Database cluster made!");
         }
 
         if ((env = getenv("UDA_SQLTABLE")) != NULL) {
@@ -258,11 +243,7 @@ readwrite
         }    // Get a handle on the database and collection
 
         if (!collection) {
-            err = 999;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "MongoDBPlugin", err,
-                         "No handle to Database collection made!");
-            IDAM_LOG(UDA_LOG_ERROR, "MongoDBPlugin: No handle to Database collection made!");
-            return err;
+            RAISE_PLUGIN_ERROR("No handle to Database collection made!");
         }
 
 // Reduce logging overhead
@@ -361,9 +342,9 @@ readwrite
 // Mandatory arguments
 
             if (!isObjectName) {
-                IDAM_LOG(UDA_LOG_ERROR, "MongoDBPlugin: No Data Object Name specified\n");
+                UDA_LOG(UDA_LOG_ERROR, "MongoDBPlugin: No Data Object Name specified\n");
                 err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "MongoDBPlugin", err, "No Data Object Name specified");
+                addIdamError(CODEERRORTYPE, "MongoDBPlugin", err, "No Data Object Name specified");
                 break;
             }
 
@@ -381,9 +362,9 @@ readwrite
                 }
 
                 if (!isExpNumber && !isObjectSource) {
-                    IDAM_LOG(UDA_LOG_ERROR, "MongoDBPlugin: No Experiment Number or data source specified\n");
+                    UDA_LOG(UDA_LOG_ERROR, "MongoDBPlugin: No Experiment Number or data source specified\n");
                     err = 999;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "MongoDBPlugin", err,
+                    addIdamError(CODEERRORTYPE, "MongoDBPlugin", err,
                                  "No Experiment Number or data source specified");
                     break;
                 }
@@ -406,7 +387,7 @@ bson_append_utf8(&query, "$eq", strupr(objectName));
 bson_append_finish_object(&query); 
 bson_finish(&query);
 
-case insensitive search    {name:{'$regex' : '^string$', '$options' : 'i'}}      Does not use the index so very slow!
+case insensitive search    {name:{'$regex' : '^string$', '$options': 'i'}}      Does not use the index so very slow!
 
 sprintf(temp, "^%s$", objectClass);
 BCON_APPEND (query, "$and", "[",
@@ -525,16 +506,16 @@ Best Query time (micro secs) [load]
             bson_t* opts = BCON_NEW("limit", BCON_INT64(limit));
 
             if (!(cursor = mongoc_collection_find_with_opts(collection, query, opts, NULL))) {
-                IDAM_LOG(UDA_LOG_ERROR, "MongoDBPlugin: Data Object not found!\n");
+                UDA_LOG(UDA_LOG_ERROR, "MongoDBPlugin: Data Object not found!\n");
                 err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "MongoDBPlugin", err, "Data Object not found!");
+                addIdamError(CODEERRORTYPE, "MongoDBPlugin", err, "Data Object not found!");
                 break;
             }
 #else
             if(!(cursor = mongoc_collection_find(collection, MONGOC_QUERY_NONE, 0, limit, 0, query, NULL, NULL))){
-                IDAM_LOG(UDA_LOG_ERROR, "MongoDBPlugin: Data Object not found!\n");
+                UDA_LOG(UDA_LOG_ERROR, "MongoDBPlugin: Data Object not found!\n");
                 err =  999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "MongoDBPlugin", err, "Data Object not found!");
+                addIdamError(CODEERRORTYPE, "MongoDBPlugin", err, "Data Object not found!");
                 break;
             }
 #endif
@@ -558,13 +539,13 @@ Best Query time (micro secs) [load]
                if(verbose) fprintf (errout, "MongoDBPlugin: No data object found!\n");
                if(debugon) fprintf (dbgout, "MongoDBPlugin: No data object found!\n");
                err =  999;
-               addIdamError(&idamerrorstack, CODEERRORTYPE, "MongoDBPlugin", err, "No data object found!");
+               addIdamError(CODEERRORTYPE, "MongoDBPlugin", err, "No data object found!");
                break;
             } 
             if(verbose) fprintf (errout, "MongoDBPlugin: Too many data objects found!\n");
             if(debugon) fprintf (dbgout, "MongoDBPlugin: Too many data objects found!\n");
             err =  999;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "MongoDBPlugin", err, "Too many data objects found!");
+            addIdamError(CODEERRORTYPE, "MongoDBPlugin", err, "Too many data objects found!");
             break;
          }
 */
@@ -584,9 +565,9 @@ Best Query time (micro secs) [load]
                 bson_iter_t value;
 
                 if (docCount++ > 0) {
-                    IDAM_LOG(UDA_LOG_ERROR, "MongoDBPlugin: Too many data objects found!\n");
+                    UDA_LOG(UDA_LOG_ERROR, "MongoDBPlugin: Too many data objects found!\n");
                     err = 999;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "MongoDBPlugin", err, "Too many data objects found!");
+                    addIdamError(CODEERRORTYPE, "MongoDBPlugin", err, "Too many data objects found!");
                     break;
                 }
 
@@ -668,9 +649,9 @@ Best Query time (micro secs) [load]
             mongoc_cursor_destroy(cursor);
 
             if (docCount == 0) {
-                IDAM_LOG(UDA_LOG_ERROR, "MongoDBPlugin: No data object found!\n");
+                UDA_LOG(UDA_LOG_ERROR, "MongoDBPlugin: No data object found!\n");
                 err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "MongoDBPlugin", err, "No data object found!");
+                addIdamError(CODEERRORTYPE, "MongoDBPlugin", err, "No data object found!");
                 break;
             }
 
@@ -691,7 +672,7 @@ Best Query time (micro secs) [load]
                 usertype.ref_id = 0;
                 usertype.imagecount = 0;                // No Structure Image data
                 usertype.image = NULL;
-                usertype.idamclass = TYPE_COMPOUND;
+                usertype.idamclass = UDA_TYPE_COMPOUND;
 
                 offset = 0;
 
@@ -800,7 +781,7 @@ Best Query time (micro secs) [load]
 
 // Return the Data	 
 
-                data_block->data_type = TYPE_COMPOUND;
+                data_block->data_type = UDA_TYPE_COMPOUND;
                 data_block->rank = 0;
                 data_block->data_n = 1;
                 data_block->data = (char*)data;
@@ -809,7 +790,7 @@ Best Query time (micro secs) [load]
                 strcpy(data_block->data_label, "");
                 strcpy(data_block->data_units, "");
 
-                data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
+                data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
                 data_block->opaque_count = 1;
                 data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "MONGO_R", 0);
 
@@ -851,12 +832,12 @@ Best Query time (micro secs) [load]
                 initDimBlock(&data_block->dims[i]);
             }
 
-            data_block->data_type = TYPE_STRING;
+            data_block->data_type = UDA_TYPE_STRING;
             strcpy(data_block->data_desc, "MongoDBPlugin: help = description of this plugin");
 
             data_block->data = strdup(help);
 
-            data_block->dims[0].data_type = TYPE_UNSIGNED_INT;
+            data_block->dims[0].data_type = UDA_TYPE_UNSIGNED_INT;
             data_block->dims[0].dim_n = strlen(help) + 1;
             data_block->dims[0].compressed = 1;
             data_block->dims[0].dim0 = 0.0;
@@ -876,7 +857,7 @@ Best Query time (micro secs) [load]
 
         if (STR_IEQUALS(request_block->function, "version")) {
             initDataBlock(data_block);
-            data_block->data_type = TYPE_INT;
+            data_block->data_type = UDA_TYPE_INT;
             data_block->rank = 0;
             data_block->data_n = 1;
             int* data = (int*)malloc(sizeof(int));
@@ -892,7 +873,7 @@ Best Query time (micro secs) [load]
 
         if (STR_IEQUALS(request_block->function, "builddate")) {
             initDataBlock(data_block);
-            data_block->data_type = TYPE_STRING;
+            data_block->data_type = UDA_TYPE_STRING;
             data_block->rank = 0;
             data_block->data_n = strlen(__DATE__) + 1;
             char* data = (char*)malloc(data_block->data_n * sizeof(char));
@@ -908,7 +889,7 @@ Best Query time (micro secs) [load]
 
         if (STR_IEQUALS(request_block->function, "defaultmethod")) {
             initDataBlock(data_block);
-            data_block->data_type = TYPE_STRING;
+            data_block->data_type = UDA_TYPE_STRING;
             data_block->rank = 0;
             data_block->data_n = strlen(THISPLUGIN_DEFAULT_METHOD) + 1;
             char* data = (char*)malloc(data_block->data_n * sizeof(char));
@@ -924,7 +905,7 @@ Best Query time (micro secs) [load]
 
         if (STR_IEQUALS(request_block->function, "maxinterfaceversion")) {
             initDataBlock(data_block);
-            data_block->data_type = TYPE_INT;
+            data_block->data_type = UDA_TYPE_INT;
             data_block->rank = 0;
             data_block->data_n = 1;
             int* data = (int*)malloc(sizeof(int));
@@ -940,7 +921,7 @@ Best Query time (micro secs) [load]
 // Error ...
 
             err = 999;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "MongoDBPlugin", err, "Unknown plugin function requested!");
+            addIdamError(CODEERRORTYPE, "MongoDBPlugin", err, "Unknown plugin function requested!");
             break;
         }
 

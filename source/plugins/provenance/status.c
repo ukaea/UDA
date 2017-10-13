@@ -57,15 +57,10 @@ int status(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         DBConnect = (PGconn*) idam_plugin_interface->sqlConnection;
 
     } else {
-        err = 999;
-        IDAM_LOG(UDA_LOG_ERROR, "ERROR Provenance: Plugin Interface Version Unknown\n");
-
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "Provenance", err,
-                     "Plugin Interface Version is Not Known: Unable to execute the request!");
-        return err;
+        RAISE_PLUGIN_ERROR("Plugin Interface Version is Not Known: Unable to execute the request!");
     }
 
-    IDAM_LOG(UDA_LOG_DEBUG, "Provenance: Plugin Interface transferred\n");
+    UDA_LOG(UDA_LOG_DEBUG, "Provenance: Plugin Interface transferred\n");
 
 //----------------------------------------------------------------------------------------
 // Common Name Value pairs
@@ -79,7 +74,7 @@ int status(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     do {
 
-        IDAM_LOG(UDA_LOG_DEBUG, "Provenance: entering function 'status'\n");
+        UDA_LOG(UDA_LOG_DEBUG, "Provenance: entering function 'status'\n");
 
 // specific Name Value pairs (Keywords have higher priority)
 
@@ -88,7 +83,7 @@ int status(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         char status;
 
         for (i = 0; i < request_block->nameValueList.pairCount; i++) {
-            IDAM_LOGF(UDA_LOG_DEBUG, "[%d] %s = %s\n", i, request_block->nameValueList.nameValue[i].name,
+            UDA_LOG(UDA_LOG_DEBUG, "[%d] %s = %s\n", i, request_block->nameValueList.nameValue[i].name,
                     request_block->nameValueList.nameValue[i].value);
 
             if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "uuid") ||
@@ -112,8 +107,8 @@ int status(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
         if (!isUUID) {
             err = 999;
-            IDAM_LOG(UDA_LOG_ERROR, "ERROR Provenance status: Requires a uuid!\n");
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "Provenance status", err,
+            UDA_LOG(UDA_LOG_ERROR, "ERROR Provenance status: Requires a uuid!\n");
+            addIdamError(CODEERRORTYPE, "Provenance status", err,
                          "Requires both the uuid and the Status!");
             break;
         }
@@ -127,21 +122,21 @@ int status(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                             "END; ",
                     status, uuid);
 
-            IDAM_LOGF(UDA_LOG_DEBUG, "%s\n", sql);
+            UDA_LOG(UDA_LOG_DEBUG, "%s\n", sql);
 
 // execute
 
             if ((DBQuery = PQexec(DBConnect, sql)) == NULL || PQresultStatus(DBQuery) != PGRES_COMMAND_OK) {
                 err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "Provenance", err, "SQL Execution Failed!");
-                IDAM_LOG(UDA_LOG_ERROR, "ERROR Provenance status: SQL Execution Failed\n");
+                addIdamError(CODEERRORTYPE, "Provenance", err, "SQL Execution Failed!");
+                UDA_LOG(UDA_LOG_ERROR, "ERROR Provenance status: SQL Execution Failed\n");
                 PQclear(DBQuery);
                 break;
             }
 
             PQclear(DBQuery);
 
-            IDAM_LOG(UDA_LOG_DEBUG, "Provenance: exiting function status\n");
+            UDA_LOG(UDA_LOG_DEBUG, "Provenance: exiting function status\n");
 
             initDataBlock(data_block);
 
@@ -150,7 +145,7 @@ int status(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Pass the Data back	 
 
-            data_block->data_type = TYPE_CHAR;
+            data_block->data_type = UDA_TYPE_CHAR;
             data_block->rank = 0;
             data_block->data_n = 1;
             strcpy(data_block->data_desc, "Nothing to return!");
@@ -164,14 +159,14 @@ int status(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             sprintf(sql, "SELECT uuid, owner, class, title, description, icatref, status, creation "
                     "FROM uuid_register WHERE uuid = '%s';", uuid);
 
-            IDAM_LOGF(UDA_LOG_DEBUG, "%s\n", sql);
+            UDA_LOG(UDA_LOG_DEBUG, "%s\n", sql);
 
 // Execute
 
             if ((DBQuery = PQexec(DBConnect, sql)) == NULL || PQresultStatus(DBQuery) != PGRES_TUPLES_OK) {
                 err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "Provenance", err, "SQL Execution Failed!");
-                IDAM_LOG(UDA_LOG_ERROR, "ERROR Provenance status: SQL Execution Failed\n");
+                addIdamError(CODEERRORTYPE, "Provenance", err, "SQL Execution Failed!");
+                UDA_LOG(UDA_LOG_ERROR, "ERROR Provenance status: SQL Execution Failed\n");
                 PQclear(DBQuery);
                 break;
             }
@@ -181,9 +176,9 @@ int status(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             int nrows = PQntuples(DBQuery);
 
             if (nrows != 1) {
-                IDAM_LOG(UDA_LOG_ERROR, "ERROR Provenance status: A UUID record could not be found!\n");
+                UDA_LOG(UDA_LOG_ERROR, "ERROR Provenance status: A UUID record could not be found!\n");
                 err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "Provenance status", err,
+                addIdamError(CODEERRORTYPE, "Provenance status", err,
                              "A UUID record could not be found!");
                 PQclear(DBQuery);
                 break;
@@ -199,13 +194,13 @@ int status(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Pass the Data back	 
 
-                data_block->data_type = TYPE_STRING;
+                data_block->data_type = UDA_TYPE_STRING;
                 data_block->rank = 0;
                 data_block->data_n = 2;
                 strcpy(data_block->data_desc, "UUID Status");
 
-                IDAM_LOGF(UDA_LOG_DEBUG, "Provenance uuid: %s\n", uuid);
-                IDAM_LOGF(UDA_LOG_DEBUG, "status         : %s\n", data_block->data);
+                UDA_LOG(UDA_LOG_DEBUG, "Provenance uuid: %s\n", uuid);
+                UDA_LOG(UDA_LOG_DEBUG, "status         : %s\n", data_block->data);
             } else {
 
 // Create the Data Structure to be returned	 
@@ -252,14 +247,14 @@ int status(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
                 PQclear(DBQuery);
 
-                IDAM_LOGF(UDA_LOG_DEBUG, "Provenance uuid: %s\n", data->uuid);
-                IDAM_LOGF(UDA_LOG_DEBUG, "owner          : %s\n", data->owner);
-                IDAM_LOGF(UDA_LOG_DEBUG, "class          : %s\n", data->class);
-                IDAM_LOGF(UDA_LOG_DEBUG, "title          : %s\n", data->title);
-                IDAM_LOGF(UDA_LOG_DEBUG, "description    : %s\n", data->description);
-                IDAM_LOGF(UDA_LOG_DEBUG, "icatRefId      : %s\n", data->icatRef);
-                IDAM_LOGF(UDA_LOG_DEBUG, "status         : %c\n", data->status);
-                IDAM_LOGF(UDA_LOG_DEBUG, "creation       : %s\n", data->creation);
+                UDA_LOG(UDA_LOG_DEBUG, "Provenance uuid: %s\n", data->uuid);
+                UDA_LOG(UDA_LOG_DEBUG, "owner          : %s\n", data->owner);
+                UDA_LOG(UDA_LOG_DEBUG, "class          : %s\n", data->class);
+                UDA_LOG(UDA_LOG_DEBUG, "title          : %s\n", data->title);
+                UDA_LOG(UDA_LOG_DEBUG, "description    : %s\n", data->description);
+                UDA_LOG(UDA_LOG_DEBUG, "icatRefId      : %s\n", data->icatRef);
+                UDA_LOG(UDA_LOG_DEBUG, "status         : %c\n", data->status);
+                UDA_LOG(UDA_LOG_DEBUG, "creation       : %s\n", data->creation);
 
 // the Returned Structure Definition
 
@@ -274,7 +269,7 @@ int status(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 usertype.ref_id = 0;
                 usertype.imagecount = 0;                // No Structure Image data
                 usertype.image = NULL;
-                usertype.idamclass = TYPE_COMPOUND;
+                usertype.idamclass = UDA_TYPE_COMPOUND;
 
                 offset = 0;
 
@@ -306,7 +301,7 @@ int status(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Pass the Data back	 
 
-                data_block->data_type = TYPE_COMPOUND;
+                data_block->data_type = UDA_TYPE_COMPOUND;
                 data_block->rank = 0;
                 data_block->data_n = 1;
                 data_block->data = (char*) data;
@@ -315,7 +310,7 @@ int status(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 strcpy(data_block->data_label, "");
                 strcpy(data_block->data_units, "");
 
-                data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
+                data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
                 data_block->opaque_count = 1;
                 data_block->opaque_block = (void*) findUserDefinedType(userdefinedtypelist, "PROVENANCEUUID", 0);
 

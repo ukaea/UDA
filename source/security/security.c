@@ -97,7 +97,7 @@ static void logToken(const char* msg, const gcry_mpi_t mpi_token)
     size_t tokenLength = 0;
 
     gcry_mpi_aprint(GCRYMPI_FMT_HEX, &token, &tokenLength, mpi_token);
-    IDAM_LOGF(UDA_LOG_DEBUG, "%s MPI [%d] %s\n", msg, tokenLength, token);
+    UDA_LOG(UDA_LOG_DEBUG, "%s MPI [%d] %s\n", msg, tokenLength, token);
     free((void*)token);
 }
 
@@ -193,8 +193,8 @@ static int createMPIToken(unsigned short tokenType, unsigned short tokenByteLeng
             gcry_mpi_release(timeData);
             gcry_mpi_release(randData);
 
-            IDAM_LOGF(UDA_LOG_DEBUG, "pid  = %u\n", pid);
-            IDAM_LOGF(UDA_LOG_DEBUG, "time = %u\n", t);
+            UDA_LOG(UDA_LOG_DEBUG, "pid  = %u\n", pid);
+            UDA_LOG(UDA_LOG_DEBUG, "time = %u\n", t);
 
             return 0;
         }
@@ -282,7 +282,7 @@ encryptToken(gcry_mpi_t* mpi_token, unsigned short encryptionMethod, gcry_sexp_t
             gcry_sexp_release(mpiTokenSexp);
             mpiTokenSexp = NULL;
         }
-        addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, 999, "Error Generating Token S-Exp");
+        addIdamError(CODEERRORTYPE, __func__, 999, "Error Generating Token S-Exp");
         THROW_ERROR(999, gpg_strerror(gerr));
     }
 
@@ -293,7 +293,7 @@ encryptToken(gcry_mpi_t* mpi_token, unsigned short encryptionMethod, gcry_sexp_t
             // Encrypt
             if ((gerr = gcry_pk_encrypt(&encr, mpiTokenSexp, key)) != 0) {
                 if (mpiTokenSexp != NULL) gcry_sexp_release(mpiTokenSexp);
-                addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, 999, "Encryption Error");
+                addIdamError(CODEERRORTYPE, __func__, 999, "Encryption Error");
                 THROW_ERROR(999, gpg_strerror(gerr));
             }
 
@@ -357,13 +357,13 @@ static int decryptToken(gcry_mpi_t* mpi_token, gcry_sexp_t key, unsigned char** 
     gcry_sexp_t decr = NULL; // Decrypted token
 
     if ((gerr = gcry_sexp_create(&encr, (void*)*ciphertext, *ciphertext_len, 1, NULL)) != 0) {
-        addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, 999, "Error Generating Token S-Exp");
+        addIdamError(CODEERRORTYPE, __func__, 999, "Error Generating Token S-Exp");
         THROW_ERROR(999, (char*)gpg_strerror(gerr));
     }
 
     if ((gerr = gcry_pk_decrypt(&decr, encr, key)) != 0) {
         gcry_sexp_release(encr);
-        addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, 999, "Decryption Error");
+        addIdamError(CODEERRORTYPE, __func__, 999, "Decryption Error");
         THROW_ERROR(999, (char*)gpg_strerror(gerr));
     }
 
@@ -430,7 +430,7 @@ int udaAuthentication(AUTHENTICATION_STEP authenticationStep, ENCRYPTION_METHOD 
     static gcry_mpi_t mpiTokenA = NULL;    // Token passed from the client to the server (preserve for comparison)
     static gcry_mpi_t mpiTokenB = NULL;    // Token passed from the server to the client (preserve for comparison)
 
-    IDAM_LOGF(UDA_LOG_DEBUG, "Step %d\n", authenticationStep);
+    UDA_LOG(UDA_LOG_DEBUG, "Step %d\n", authenticationStep);
 
     switch (authenticationStep) {
         case CLIENT_ISSUE_TOKEN: {        // Client issues a token (A), encrypts with the server's public key (EASP), passes to server

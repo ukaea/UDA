@@ -35,7 +35,7 @@ int readIdam(DATA_SOURCE data_source,
              REQUEST_BLOCK request_block,
              DATA_BLOCK *data_block) {
     int err = 999;
-    addIdamError(&idamerrorstack, CODEERRORTYPE, "readIdam", err, "Not Configured to Access the IDAM server Plugin.");
+    addIdamError(CODEERRORTYPE, "readIdam", err, "Not Configured to Access the IDAM server Plugin.");
     return err;
 }
 
@@ -57,7 +57,7 @@ int readIdam(DATA_SOURCE data_source,
              REQUEST_BLOCK request_block,
              DATA_BLOCK *data_block) {
     int err = 999;
-    addIdamError(&idamerrorstack, CODEERRORTYPE, "readIdam", err, "Not Configured to Access the IDAM server Plugin.");
+    addIdamError(CODEERRORTYPE, "readIdam", err, "Not Configured to Access the IDAM server Plugin.");
     return err;
 }
 
@@ -91,7 +91,7 @@ int readIdam(DATA_SOURCE data_source,
 
     resetIdamProperties();
 
-    IDAM_LOG(UDA_LOG_DEBUG, "Plugin Handing over Server File Handles to IDAM Client\n");
+    UDA_LOG(UDA_LOG_DEBUG, "Plugin Handing over Server File Handles to IDAM Client\n");
 //----------------------------------------------------------------------
 // Server Host and Port: Change if required
 
@@ -111,7 +111,7 @@ int readIdam(DATA_SOURCE data_source,
                     if (newport != oldport) putIdamServerPort(atoi(&p[1]));
                 } else {
                     err = 999;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "readIdam", err,
+                    addIdamError(CODEERRORTYPE, "readIdam", err,
                                  "The Server Port must be an Integer Number passed "
                                          "using the formats 'server:port' or 'server port'");
                     return err;
@@ -121,7 +121,7 @@ int readIdam(DATA_SOURCE data_source,
             }
         } else {
             err = 999;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readIdam", err, "No Server has been specified!");
+            addIdamError(CODEERRORTYPE, "readIdam", err, "No Server has been specified!");
             return err;
         }
     } else {
@@ -137,7 +137,7 @@ int readIdam(DATA_SOURCE data_source,
                     if (newport != oldport) putIdamServerPort(atoi(&p[1]));
                 } else {
                     err = 999;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "readIdam", err,
+                    addIdamError(CODEERRORTYPE, "readIdam", err,
                                  "The Server Port must be an Integer Number passed "
                                          "using the format 'server:port'  or 'server port'");
                     return err;
@@ -147,13 +147,13 @@ int readIdam(DATA_SOURCE data_source,
             }
         } else {
             err = 999;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readIdam", err, "No Server has been specified!");
+            addIdamError(CODEERRORTYPE, "readIdam", err, "No Server has been specified!");
             return err;
         }
     }
 
-    IDAM_LOGF(UDA_LOG_DEBUG, "Idam Server Host for Idam Plugin %s\n", getIdamServerHost());
-    IDAM_LOGF(UDA_LOG_DEBUG, "Idam Server Port for Idam Plugin %d\n", getIdamServerPort());
+    UDA_LOG(UDA_LOG_DEBUG, "Idam Server Host for Idam Plugin %s\n", getIdamServerHost());
+    UDA_LOG(UDA_LOG_DEBUG, "Idam Server Port for Idam Plugin %d\n", getIdamServerPort());
 
 //----------------------------------------------------------------------
 // Private Flags for the Server
@@ -204,17 +204,17 @@ int readIdam(DATA_SOURCE data_source,
 // Call for Data
 
     if (request_block.request != REQUEST_READ_IDAM) {
-        IDAM_LOG(UDA_LOG_DEBUG, "Calling idamGetAPI API (Database based Request)\n");
-        IDAM_LOGF(UDA_LOG_DEBUG, "readIdam Signal: %s\n", signal);
-        IDAM_LOGF(UDA_LOG_DEBUG, "readIdam Source: %s\n", source);
+        UDA_LOG(UDA_LOG_DEBUG, "Calling idamGetAPI API (Database based Request)\n");
+        UDA_LOG(UDA_LOG_DEBUG, "readIdam Signal: %s\n", signal);
+        UDA_LOG(UDA_LOG_DEBUG, "readIdam Source: %s\n", source);
 
         handle = idamGetAPI(signal, source);
 
     } else {
         printRequestBlock(request_block);
-        IDAM_LOG(UDA_LOG_DEBUG, "Calling idamGetAPI API (Client based Request)\n");
-        IDAM_LOGF(UDA_LOG_DEBUG, "readIdam Signal: %s\n", request_block.signal);
-        IDAM_LOGF(UDA_LOG_DEBUG, "readIdam Source: %s\n", request_block.file);
+        UDA_LOG(UDA_LOG_DEBUG, "Calling idamGetAPI API (Client based Request)\n");
+        UDA_LOG(UDA_LOG_DEBUG, "readIdam Signal: %s\n", request_block.signal);
+        UDA_LOG(UDA_LOG_DEBUG, "readIdam Source: %s\n", request_block.file);
 
 // Re-attach Archive name to signal	**** better if the client didn't tokenise the input when calling an IDAM server
 
@@ -232,35 +232,30 @@ int readIdam(DATA_SOURCE data_source,
 
     }
 
-    IDAM_LOGF(UDA_LOG_DEBUG, "Returned from idamGetAPI API: handle = %d, error code = %d\n", handle,
+    UDA_LOG(UDA_LOG_DEBUG, "Returned from idamGetAPI API: handle = %d, error code = %d\n", handle,
             getIdamErrorCode(handle));
 
-//------------------------------------------------------------------------------
-// Concatenate IDAM Client Error Message Stack
-
-    concatIdamError(*getIdamServerErrorStack(), &idamerrorstack);
-
-//----------------------------------------------------------------------
-// Test for Errors: Close Socket and Free heap
+    //----------------------------------------------------------------------
+    // Test for Errors: Close Socket and Free heap
 
     if (handle < 0) {
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "readIdam", handle, "");
+        addIdamError(CODEERRORTYPE, "readIdam", handle, "");
         return (abs(handle));
     } else {
         if ((err = getIdamErrorCode(handle)) != 0) {
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readIdam", err, (char*) getIdamErrorMsg(handle));
+            addIdamError(CODEERRORTYPE, "readIdam", err, (char*) getIdamErrorMsg(handle));
             return err;
         }
     }
 
-//----------------------------------------------------------------------
-// Copy the Data Block
+    //----------------------------------------------------------------------
+    // Copy the Data Block
 
     *data_block = *getIdamDataBlock(handle);
 
-    IDAM_LOG(UDA_LOG_DEBUG, "\n");
+    UDA_LOG(UDA_LOG_DEBUG, "\n");
     printDataBlock(*data_block);
-    IDAM_LOG(UDA_LOG_DEBUG, "plugin Exit\n");
+    UDA_LOG(UDA_LOG_DEBUG, "plugin Exit\n");
 
 //----------------------------------------------------------------------
 // If the Data are Hierarchical, then necessary to forward the xdr file

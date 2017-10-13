@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mappings>
+  <mapping key="pf_active/ids_properties/comment" value="JET data mapped using UDA and exp2itm mappings 4.10b" type="constant"/>
+  <mapping key="pf_active/ids_properties/homogeneous_time" value="0" type="constant"/>
+
+  <mapping key="pf_active/coil/Shape_of" value="//pfsystems/pfcoils/desc_pfcoils/name/@dim" type="static"/>
+  <mapping key="pf_active/coil/#/name" value="//pfsystems/pfcoils/desc_pfcoils/name" type="static"/>
+  <mapping key="pf_active/coil/#/identifier" value="#" type="constant"/>
+
+  <!-- no data
+  <mapping key="pf_active/coil/#/resistance" value="" type=""/>
+  <mapping key="pf_active/coil/#/resistance_error_upper" value="" type=""/>
+  <mapping key="pf_active/coil/#/resistance_error_lower" value="" type=""/>
+  <mapping key="pf_active/coil/#/resistance_error_index" value="" type=""/>
+  -->
+
+  <!-- no data
+  <mapping key="pf_active/coil/#/energy_limit_max" value="" type=""/>
+  <mapping key="pf_active/coil/#/energy_limit_max_error_upper" value="" type=""/>
+  <mapping key="pf_active/coil/#/energy_limit_max_error_lower" value="" type=""/>
+  <mapping key="pf_active/coil/#/energy_limit_max_error_index" value="" type=""/>
+  -->
+
+  <mapping key="pf_active/coil/#/element/Shape_of" value="//pfsystems/pfcoils/desc_pfcoils/nelement" type="static"/>
+  <mapping key="pf_active/coil/#/element/#/name" value="#" type="constant"/>
+  <mapping key="pf_active/coil/#/element/#/identifier" value="#" type="constant"/>
+  <mapping key="pf_active/coil/#/element/#/turns_with_sign" value="//pfsystems/pfcoils/desc_pfcoils/pfelement/turnsign" type="static"/>
+
+  <!-- no data
+  <mapping key="pf_active/coil/#/element/#/area" value="" type=""/>
+  <mapping key="pf_active/coil/#/element/#/area_error_upper" value="" type=""/>
+  <mapping key="pf_active/coil/#/element/#/area_error_lower" value="" type=""/>
+  <mapping key="pf_active/coil/#/element/#/area_error_index" value="" type=""/>
+  -->
+
+  <mapping key="pf_active/coil/#/element/#/geometry/geometry_type" value="//pfsystems/pfcoils/desc_pfcoils/pfelement/pfgeometry/type" type="static" adjust="1"/>
+
+  <!--
+  <mapping key="pf_active/coil/#/element/#/geometry/outline/r" value="" type=""/>
+  <mapping key="pf_active/coil/#/element/#/geometry/outline/r_error_upper" value="" type=""/>
+  <mapping key="pf_active/coil/#/element/#/geometry/outline/r_error_lower" value="" type=""/>
+  <mapping key="pf_active/coil/#/element/#/geometry/outline/r_error_index" value="" type=""/>
+
+  <mapping key="pf_active/coil/#/element/#/geometry/outline/z" value="" type=""/>
+  <mapping key="pf_active/coil/#/element/#/geometry/outline/z_error_upper" value="" type=""/>
+  <mapping key="pf_active/coil/#/element/#/geometry/outline/z_error_lower" value="" type=""/>
+  <mapping key="pf_active/coil/#/element/#/geometry/outline/z_error_index" value="" type=""/>
+  -->
+
+  <mapping key="pf_active/coil/#/element/#/geometry/rectangle/r" value="//pfsystems/pfcoils/desc_pfcoils/pfelement/pfgeometry/rzdrdz" type="static" index="1"/>
+  <mapping key="pf_active/coil/#/element/#/geometry/rectangle/r_error_upper" value="0" type="constant"/>
+  <mapping key="pf_active/coil/#/element/#/geometry/rectangle/r_error_lower" value="0" type="constant"/>
+  <mapping key="pf_active/coil/#/element/#/geometry/rectangle/r_error_index" value="0" type="constant"/>
+  <mapping key="pf_active/coil/#/element/#/geometry/rectangle/z" value="//pfsystems/pfcoils/desc_pfcoils/pfelement/pfgeometry/rzdrdz" type="static" index="2"/>
+  <mapping key="pf_active/coil/#/element/#/geometry/rectangle/z_error_upper" value="0" type="constant"/>
+  <mapping key="pf_active/coil/#/element/#/geometry/rectangle/z_error_lower" value="0" type="constant"/>
+  <mapping key="pf_active/coil/#/element/#/geometry/rectangle/z_error_index" value="0" type="constant"/>
+  <mapping key="pf_active/coil/#/element/#/geometry/rectangle/width" value="//pfsystems/pfcoils/desc_pfcoils/pfelement/pfgeometry/rzdrdz" type="static" index="3"/>
+  <mapping key="pf_active/coil/#/element/#/geometry/rectangle/width_error_upper" value="0" type="constant"/>
+  <mapping key="pf_active/coil/#/element/#/geometry/rectangle/width_error_lower" value="0" type="constant"/>
+  <mapping key="pf_active/coil/#/element/#/geometry/rectangle/width_error_index" value="0" type="constant"/>
+  <mapping key="pf_active/coil/#/element/#/geometry/rectangle/height" value="//pfsystems/pfcoils/desc_pfcoils/pfelement/pfgeometry/rzdrdz" type="static" index="4"/>
+  <mapping key="pf_active/coil/#/element/#/geometry/rectangle/height_error_upper" value="0" type="constant"/>
+  <mapping key="pf_active/coil/#/element/#/geometry/rectangle/height_error_lower" value="0" type="constant"/>
+  <mapping key="pf_active/coil/#/element/#/geometry/rectangle/height_error_index" value="0" type="constant"/>
+
+  <!--
+  <mapping key="pf_active/coil/#/element/#/geometry/oblique/r" value="" type=""/>
+  <mapping key="pf_active/coil/#/element/#/geometry/oblique/r_error_upper" value="" type=""/>
+  <mapping key="pf_active/coil/#/element/#/geometry/oblique/r_error_lower" value="" type=""/>
+  <mapping key="pf_active/coil/#/element/#/geometry/oblique/r_error_index" value="" type=""/>
+  <mapping key="pf_active/coil/#/element/#/geometry/oblique/z" value="" type=""/>
+  <mapping key="pf_active/coil/#/element/#/geometry/oblique/z_error_upper" value="" type=""/>
+  <mapping key="pf_active/coil/#/element/#/geometry/oblique/z_error_lower" value="" type=""/>
+  <mapping key="pf_active/coil/#/element/#/geometry/oblique/z_error_index" value="" type=""/>
+  <mapping key="pf_active/coil/#/element/#/geometry/oblique/length" value="" type=""/>
+  <mapping key="pf_active/coil/#/element/#/geometry/oblique/length_error_upper" value="" type=""/>
+  <mapping key="pf_active/coil/#/element/#/geometry/oblique/length_error_lower" value="" type=""/>
+  <mapping key="pf_active/coil/#/element/#/geometry/oblique/length_error_index" value="" type=""/>
+  <mapping key="pf_active/coil/#/element/#/geometry/oblique/thickness" value="" type=""/>
+  <mapping key="pf_active/coil/#/element/#/geometry/oblique/thickness_error_upper" value="" type=""/>
+  <mapping key="pf_active/coil/#/element/#/geometry/oblique/thickness_error_lower" value="" type=""/>
+  <mapping key="pf_active/coil/#/element/#/geometry/oblique/thickness_error_index" value="" type=""/>
+  <mapping key="pf_active/coil/#/element/#/geometry/oblique/alpha" value="" type=""/>
+  <mapping key="pf_active/coil/#/element/#/geometry/oblique/alpha_error_upper" value="" type=""/>
+  <mapping key="pf_active/coil/#/element/#/geometry/oblique/alpha_error_lower" value="" type=""/>
+  <mapping key="pf_active/coil/#/element/#/geometry/oblique/alpha_error_index" value="" type=""/>
+  <mapping key="pf_active/coil/#/element/#/geometry/oblique/beta" value="" type=""/>
+  <mapping key="pf_active/coil/#/element/#/geometry/oblique/beta_error_upper" value="" type=""/>
+  <mapping key="pf_active/coil/#/element/#/geometry/oblique/beta_error_lower" value="" type=""/>
+  <mapping key="pf_active/coil/#/element/#/geometry/oblique/beta_error_index" value="" type=""/>
+  -->
+
+  <mapping key="pf_active/coil/#/current/data" value="//pfsystems/pfcoils/coilcurrent/value/name" type="dynamic"/>
+  <mapping key="pf_active/coil/#/current/data_error_upper" value="//pfsystems/pfcoils/coilcurrent/value/name" type="error"/>
+  <mapping key="pf_active/coil/#/current/data_error_lower" value="//pfsystems/pfcoils/coilcurrent/value/name" type="error"/>
+  <mapping key="pf_active/coil/#/current/data_error_index" value="0" type="constant"/>
+  <mapping key="pf_active/coil/#/current/time" value="//pfsystems/pfcoils/coilcurrent/value/name" type="dynamic"/>
+
+  <!--
+  <mapping key="pf_active/coil/#/voltage/data" value="//pfsystems/pfcoils/coilvoltage/value/name" type="dynamic"/>
+  <mapping key="pf_active/coil/#/voltage/data_error_upper" value="0" type="constant"/>
+  <mapping key="pf_active/coil/#/voltage/data_error_lower" value="0" type="constant"/>
+  <mapping key="pf_active/coil/#/voltage/data_error_index" value="0" type="constant"/>
+  <mapping key="pf_active/coil/#/voltage/time" value="//pfsystems/pfcoils/coilvoltage/value/name" type="dynamic"/>
+  -->
+
+  <mapping key="pf_active/vertical_force/Shape_of" value="0" type="constant"/>
+  <!--
+  <mapping key="pf_active/vertical_force/#/name" value="" type=""/>
+  <mapping key="pf_active/vertical_force/#/combination" value="" type=""/>
+  <mapping key="pf_active/vertical_force/#/combination_error_upper" value="" type=""/>
+  <mapping key="pf_active/vertical_force/#/combination_error_lower" value="" type=""/>
+  <mapping key="pf_active/vertical_force/#/combination_error_index" value="" type=""/>
+  <mapping key="pf_active/vertical_force/#/limit_max" value="" type=""/>
+  <mapping key="pf_active/vertical_force/#/limit_max_error_upper" value="" type=""/>
+  <mapping key="pf_active/vertical_force/#/limit_max_error_lower" value="" type=""/>
+  <mapping key="pf_active/vertical_force/#/limit_max_error_index" value="" type=""/>
+  <mapping key="pf_active/vertical_force/#/limit_min" value="" type=""/>
+  <mapping key="pf_active/vertical_force/#/limit_min_error_upper" value="" type=""/>
+  <mapping key="pf_active/vertical_force/#/limit_min_error_lower" value="" type=""/>
+  <mapping key="pf_active/vertical_force/#/limit_min_error_index" value="" type=""/>
+  <mapping key="pf_active/vertical_force/#/force/data" value="" type=""/>
+  <mapping key="pf_active/vertical_force/#/force/data_error_upper" value="" type=""/>
+  <mapping key="pf_active/vertical_force/#/force/data_error_lower" value="" type=""/>
+  <mapping key="pf_active/vertical_force/#/force/data_error_index" value="" type=""/>
+  <mapping key="pf_active/vertical_force/#/force/time" value="" type=""/>
+  -->
+
+  <mapping key="pf_active/circuit/Shape_of" value="0" type="constant"/>
+  <!--
+  <mapping key="pf_active/circuit/#/name" value="" type=""/>
+  <mapping key="pf_active/circuit/#/identifier" value="" type=""/>
+  <mapping key="pf_active/circuit/#/type" value="" type=""/>
+  <mapping key="pf_active/circuit/#/connections" value="" type=""/>
+  <mapping key="pf_active/circuit/#/voltage/data" value="" type=""/>
+  <mapping key="pf_active/circuit/#/voltage/data_error_upper" value="" type=""/>
+  <mapping key="pf_active/circuit/#/voltage/data_error_lower" value="" type=""/>
+  <mapping key="pf_active/circuit/#/voltage/data_error_index" value="" type=""/>
+  <mapping key="pf_active/circuit/#/voltage/time" value="" type=""/>
+  <mapping key="pf_active/circuit/#/current/data" value="" type=""/>
+  <mapping key="pf_active/circuit/#/current/data_error_upper" value="" type=""/>
+  <mapping key="pf_active/circuit/#/current/data_error_lower" value="" type=""/>
+  <mapping key="pf_active/circuit/#/current/data_error_index" value="" type=""/>
+  <mapping key="pf_active/circuit/#/current/time" value="" type=""/>
+  -->
+
+  <mapping key="pf_active/supply/Shape_of" value="0" type="constant"/>
+  <!--
+  <mapping key="pf_active/supply/#/name" value="" type=""/>
+  <mapping key="pf_active/supply/#/identifier" value="" type=""/>
+  <mapping key="pf_active/supply/#/type" value="" type=""/>
+  <mapping key="pf_active/supply/#/resistance" value="" type=""/>
+  <mapping key="pf_active/supply/#/resistance_error_upper" value="" type=""/>
+  <mapping key="pf_active/supply/#/resistance_error_lower" value="" type=""/>
+  <mapping key="pf_active/supply/#/resistance_error_index" value="" type=""/>
+  <mapping key="pf_active/supply/#/delay" value="" type=""/>
+  <mapping key="pf_active/supply/#/delay_error_upper" value="" type=""/>
+  <mapping key="pf_active/supply/#/delay_error_lower" value="" type=""/>
+  <mapping key="pf_active/supply/#/delay_error_index" value="" type=""/>
+  <mapping key="pf_active/supply/#/filter_numerator" value="" type=""/>
+  <mapping key="pf_active/supply/#/filter_numerator_error_upper" value="" type=""/>
+  <mapping key="pf_active/supply/#/filter_numerator_error_lower" value="" type=""/>
+  <mapping key="pf_active/supply/#/filter_numerator_error_index" value="" type=""/>
+  <mapping key="pf_active/supply/#/filter_denominator" value="" type=""/>
+  <mapping key="pf_active/supply/#/filter_denominator_error_upper" value="" type=""/>
+  <mapping key="pf_active/supply/#/filter_denominator_error_lower" value="" type=""/>
+  <mapping key="pf_active/supply/#/filter_denominator_error_index" value="" type=""/>
+  <mapping key="pf_active/supply/#/current_limit_max" value="" type=""/>
+  <mapping key="pf_active/supply/#/current_limit_max_error_upper" value="" type=""/>
+  <mapping key="pf_active/supply/#/current_limit_max_error_lower" value="" type=""/>
+  <mapping key="pf_active/supply/#/current_limit_max_error_index" value="" type=""/>
+  <mapping key="pf_active/supply/#/current_limit_min" value="" type=""/>
+  <mapping key="pf_active/supply/#/current_limit_min_error_upper" value="" type=""/>
+  <mapping key="pf_active/supply/#/current_limit_min_error_lower" value="" type=""/>
+  <mapping key="pf_active/supply/#/current_limit_min_error_index" value="" type=""/>
+  <mapping key="pf_active/supply/#/voltage_limit_max" value="" type=""/>
+  <mapping key="pf_active/supply/#/voltage_limit_max_error_upper" value="" type=""/>
+  <mapping key="pf_active/supply/#/voltage_limit_max_error_lower" value="" type=""/>
+  <mapping key="pf_active/supply/#/voltage_limit_max_error_index" value="" type=""/>
+  <mapping key="pf_active/supply/#/voltage_limit_min" value="" type=""/>
+  <mapping key="pf_active/supply/#/voltage_limit_min_error_upper" value="" type=""/>
+  <mapping key="pf_active/supply/#/voltage_limit_min_error_lower" value="" type=""/>
+  <mapping key="pf_active/supply/#/voltage_limit_min_error_index" value="" type=""/>
+  <mapping key="pf_active/supply/#/current_limiter_gain" value="" type=""/>
+  <mapping key="pf_active/supply/#/current_limiter_gain_error_upper" value="" type=""/>
+  <mapping key="pf_active/supply/#/current_limiter_gain_error_lower" value="" type=""/>
+  <mapping key="pf_active/supply/#/current_limiter_gain_error_index" value="" type=""/>
+  <mapping key="pf_active/supply/#/energy_limit_max" value="" type=""/>
+  <mapping key="pf_active/supply/#/energy_limit_max_error_upper" value="" type=""/>
+  <mapping key="pf_active/supply/#/energy_limit_max_error_lower" value="" type=""/>
+  <mapping key="pf_active/supply/#/energy_limit_max_error_index" value="" type=""/>
+  <mapping key="pf_active/supply/#/nonlinear_model" value="" type=""/>
+  <mapping key="pf_active/supply/#/voltage/data" value="" type=""/>
+  <mapping key="pf_active/supply/#/voltage/data_error_upper" value="" type=""/>
+  <mapping key="pf_active/supply/#/voltage/data_error_lower" value="" type=""/>
+  <mapping key="pf_active/supply/#/voltage/data_error_index" value="" type=""/>
+  <mapping key="pf_active/supply/#/voltage/time" value="" type=""/>
+  <mapping key="pf_active/supply/#/current/data" value="" type=""/>
+  <mapping key="pf_active/supply/#/current/data_error_upper" value="" type=""/>
+  <mapping key="pf_active/supply/#/current/data_error_lower" value="" type=""/>
+  <mapping key="pf_active/supply/#/current/data_error_index" value="" type=""/>
+  <mapping key="pf_active/supply/#/current/time" value="" type=""/>
+  -->
+
+  <mapping key="pf_active/code/name" value="" type="constant"/>
+  <mapping key="pf_active/code/commit" value="" type="constant"/>
+  <mapping key="pf_active/code/version" value="" type="constant"/>
+  <mapping key="pf_active/code/repository" value="" type="constant"/>
+  <mapping key="pf_active/code/parameters" value="" type="constant"/>
+  <mapping key="pf_active/code/output_flag" value="" type="constant"/>
+
+  <!--<mapping key="pf_active/time" value="" type=""/>-->
+</mappings>

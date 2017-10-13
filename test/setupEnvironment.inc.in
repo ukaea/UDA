@@ -1,6 +1,0 @@
-setenv("UDA_LOG", "@CMAKE_BINARY_DIR@/test", 1);
-setenv("UDA_LOG_MODE", "a", 1);
-setenv("UDA_PLUGIN_CONFIG", "@CMAKE_INSTALL_PREFIX@/etc/plugins/udaPlugins.conf", 1);
-setenv("UDA_SARRAY_CONFIG", "@CMAKE_INSTALL_PREFIX@/etc/udagenstruct.conf", 1);
-setenv("UDA_LOG_LEVEL", "DEBUG", 1);
-setenv("UDA_PLUGIN_DIR", "@CMAKE_INSTALL_PREFIX@/lib/plugins", 1);

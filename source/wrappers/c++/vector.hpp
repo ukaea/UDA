@@ -1,5 +1,5 @@
-#ifndef IDAM_WRAPPERS_CPP_VECTOR_H
-#define IDAM_WRAPPERS_CPP_VECTOR_H
+#ifndef UDA_WRAPPERS_CPP_VECTOR_H
+#define UDA_WRAPPERS_CPP_VECTOR_H
 
 #include <string>
 #include <vector>
@@ -12,7 +12,10 @@ namespace uda {
 class Vector : public Data {
 public:
     template <typename T>
-    Vector(T* array, size_t size) : Data(false), vec_(array, array + size), type_(&typeid(T))
+    Vector(T* array, size_t size)
+            : Data(false)
+            , vec_(array, array + size)
+            , type_(&typeid(T))
     {}
 
     const std::type_info& type() const override
@@ -36,7 +39,10 @@ public:
     static Vector Null;
 
 protected:
-    Vector() noexcept : Data(true), vec_(), type_(&typeid(void))
+    Vector() noexcept
+            : Data(true)
+            , vec_()
+            , type_(&typeid(void))
     {}
 
 private:
@@ -54,4 +60,4 @@ private:
 
 }
 
-#endif //IDAM_WRAPPERS_CPP_VECTOR_H
+#endif // UDA_WRAPPERS_CPP_VECTOR_H

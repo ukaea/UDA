@@ -32,12 +32,11 @@
 
 #ifdef NOMDSPLUSPLUGIN
 
-int readMDS(DATA_SOURCE data_source,
-            SIGNAL_DESC signal_desc,
-            DATA_BLOCK *data_block,
-	    SOCKETLIST* socket_list) {
+
+int readMDS(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK* data_block, SOCKETLIST* socket_list)
+{
     int err = 999;
-    addIdamError(&idamerrorstack, CODEERRORTYPE, "readMDS", err, "MDSPLUS PLUGIN NOT ENABLED");
+    addIdamError(CODEERRORTYPE, "readMDS", err, "MDSPLUS PLUGIN NOT ENABLED");
     return err;
 }
 
@@ -51,8 +50,10 @@ int readMDS(DATA_SOURCE data_source,
 #include <clientserver/initStructs.h>
 #include <clientserver/udaTypes.h>
 #include <logging/logging.h>
-#include <server/udaServer.h>
-#include <server/getServerEnvironment.h>
+#ifndef FATCLIENT
+#  include <server/udaServer.h>
+#  include <server/getServerEnvironment.h>
+#endif
 
 #include "readMDSDim.h"
 
@@ -66,35 +67,35 @@ int readMDSType(int type)
 {
     switch (type) {
         case DTYPE_NATIVE_FLOAT:
-            return TYPE_FLOAT;            // float
+            return UDA_TYPE_FLOAT;              // float
         case DTYPE_NATIVE_DOUBLE:
-            return TYPE_DOUBLE;            // double
+            return UDA_TYPE_DOUBLE;             // double
         case DTYPE_FLOAT:
-            return TYPE_FLOAT;            // float
+            return UDA_TYPE_FLOAT;              // float
         case DTYPE_DOUBLE:
-            return TYPE_DOUBLE;            // double
+            return UDA_TYPE_DOUBLE;             // double
         case DTYPE_G:
-            return TYPE_DOUBLE;            // 8 byte float
+            return UDA_TYPE_DOUBLE;             // 8 byte float
         case DTYPE_UCHAR:
-            return TYPE_UNSIGNED_CHAR;        // unsigned char
+            return UDA_TYPE_UNSIGNED_CHAR;      // unsigned char
         case DTYPE_CHAR:
-            return TYPE_CHAR;            // char
+            return UDA_TYPE_CHAR;               // char
         case DTYPE_USHORT:
-            return TYPE_UNSIGNED_SHORT;        // unsigned short
+            return UDA_TYPE_UNSIGNED_SHORT;     // unsigned short
         case DTYPE_SHORT:
-            return TYPE_SHORT;            // signed short
+            return UDA_TYPE_SHORT;              // signed short
         case DTYPE_ULONG:
-            return TYPE_UNSIGNED;            // unsigned integer
+            return UDA_TYPE_UNSIGNED_INT;       // unsigned integer
         case DTYPE_LONG:
-            return TYPE_INT;            // signed integer
+            return UDA_TYPE_INT;                // signed integer
         case DTYPE_ULONGLONG:
-            return TYPE_UNSIGNED_LONG64;        // unsigned long long integer
+            return UDA_TYPE_UNSIGNED_LONG64;    // unsigned long long integer
         case DTYPE_LONGLONG:
-            return TYPE_LONG64;            // signed long long byte word
+            return UDA_TYPE_LONG64;             // signed long long byte word
         default:
-            return TYPE_UNKNOWN;
+            return UDA_TYPE_UNKNOWN;
     }
-    return TYPE_UNKNOWN;
+    return UDA_TYPE_UNKNOWN;
 }
 
 int readMDS(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK* data_block, SOCKETLIST* socket_list)
@@ -139,8 +140,9 @@ int readMDS(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK* data_b
     SOCKET mdssocket = -1;
 
     float* ptest;
-//----------------------------------------------------------------------
-// Client Identifies the MDS Server (Lower case) and Tree
+
+    //----------------------------------------------------------------------
+    // Client Identifies the MDS Server (Lower case) and Tree
 
     tree = data_source.filename;
     node = signal_desc.signal_name;
@@ -151,8 +153,8 @@ int readMDS(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK* data_b
     strncpy(server, data_source.server, MAXSERVER - 1);            // case is significant?
     server[MAXSERVER - 1] = '\0';
 
-//----------------------------------------------------------------------
-// Error Management Loop
+    //----------------------------------------------------------------------
+    // Error Management Loop
 
     err = 0;
     null = 0;
@@ -160,12 +162,12 @@ int readMDS(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK* data_b
 
     do {
 
-//----------------------------------------------------------------------
-// Create any Required environment variables for LOCALHOST Service (MDS+ Servers run in their own private environment)
-// Paths can take two forms: /a/b/c or .a.b.c (. changed to /)
-// If a mixture is used, / has precedence (. preserved)
-//
-// localhost path setting is NOT allowed for EXTERNAL clients because of security issues with MDS+
+        //----------------------------------------------------------------------
+        // Create any Required environment variables for LOCALHOST Service (MDS+ Servers run in their own private environment)
+        // Paths can take two forms: /a/b/c or .a.b.c (. changed to /)
+        // If a mixture is used, / has precedence (. preserved)
+        //
+        // localhost path setting is NOT allowed for EXTERNAL clients because of security issues with MDS+
 
         if (!strncasecmp(data_source.server, "localhost.", 10)) data_source.server[9] = '/';    // For Parsing
 
@@ -183,9 +185,9 @@ int readMDS(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK* data_b
                 if (getIdamServerEnvironment()->external_user) {
 #endif
                     err = 999;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "readMDS", err,
+                    addIdamError(CODEERRORTYPE, "readMDS", err,
                                  "Disabled: Creation of the MDS+ TREE Environment Variable");
-                    IDAM_LOGF(UDA_LOG_DEBUG, "Disabled: Creation of the Environment Variable to %s\n", path);
+                    UDA_LOG(UDA_LOG_DEBUG, "Disabled: Creation of the Environment Variable to %s\n", path);
                     break;
                 } else {
 
@@ -199,36 +201,35 @@ int readMDS(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK* data_b
                             }
                         }
                         sprintf(env, "%s_path", tree);
-                        if ((rc = setenv(env, path, 1)) !=
-                            0) {                // Set an Environment Variable for MDS+ to locate the tree
+                        if ((rc = setenv(env, path, 1)) != 0) {
+                            // Set an Environment Variable for MDS+ to locate the tree
                             err = 999;
-                            addIdamError(&idamerrorstack, CODEERRORTYPE, "readMDS", err,
+                            addIdamError(CODEERRORTYPE, "readMDS", err,
                                          "Unable to Create TREE Environment Variable");
-                            IDAM_LOGF(UDA_LOG_DEBUG, "Error Creating Environment Variable %s [%d][%d]\n", env, rc,
+                            UDA_LOG(UDA_LOG_DEBUG, "Error Creating Environment Variable %s [%d][%d]\n", env, rc,
                                       errno);
                             break;
                         }
 
-                        IDAM_LOGF(UDA_LOG_DEBUG, "Creating Environment Variable %s [%d]\n", env, rc);
+                        UDA_LOG(UDA_LOG_DEBUG, "Creating Environment Variable %s [%d]\n", env, rc);
                         if ((envtst = getenv(env)) != NULL) {
-                            IDAM_LOGF(UDA_LOG_DEBUG, "Testing Environment OK %s \n", envtst);
+                            UDA_LOG(UDA_LOG_DEBUG, "Testing Environment OK %s \n", envtst);
                         } else {
-                            IDAM_LOGF(UDA_LOG_DEBUG, "Environment Variable %s does not exist!\n", env);
+                            UDA_LOG(UDA_LOG_DEBUG, "Environment Variable %s does not exist!\n", env);
                         }
 
                     } else {
                         err = 999;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "readMDS", err,
-                                     "Syntax Error in Path to Data Tree");
-                        IDAM_LOGF(UDA_LOG_DEBUG, "Syntax Error in Path to Data Tree %s\n", path);
+                        addIdamError(CODEERRORTYPE, "readMDS", err, "Syntax Error in Path to Data Tree");
+                        UDA_LOG(UDA_LOG_DEBUG, "Syntax Error in Path to Data Tree %s\n", path);
                         break;
                     }
                 }
             } else {
                 err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readMDS", err,
+                addIdamError(CODEERRORTYPE, "readMDS", err,
                              "Unable to Set Tree Paths for Remote MDSPlus Servers");
-                IDAM_LOGF(UDA_LOG_DEBUG, "Unable to Set Tree Paths for Remote MDSPlus Servers - %s\n", path);
+                UDA_LOG(UDA_LOG_DEBUG, "Unable to Set Tree Paths for Remote MDSPlus Servers - %s\n", path);
                 break;
             }
         }
@@ -237,23 +238,26 @@ int readMDS(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK* data_b
             strcpy(server, LOCAL_MDSPLUS_SERVER);        // Need a Server!!! - Use the Default
 
             char* p = getenv("UDA_MDSPLUSHOST");
-            if (p != NULL) strcpy(server, p);        // Over-ruled by the server script
+            if (p != NULL) {
+                // Over-ruled by the server script
+                strcpy(server, p);
+            }
         }
 
-        IDAM_LOGF(UDA_LOG_DEBUG, "Server Name: %s \n", server);
-        IDAM_LOGF(UDA_LOG_DEBUG, "Tree Name  : %s \n", tree);
-        IDAM_LOGF(UDA_LOG_DEBUG, "Node Name  : %s \n", node);
-        IDAM_LOGF(UDA_LOG_DEBUG, "Tree Number: %d \n", treenum);
+        UDA_LOG(UDA_LOG_DEBUG, "Server Name: %s \n", server);
+        UDA_LOG(UDA_LOG_DEBUG, "Tree Name  : %s \n", tree);
+        UDA_LOG(UDA_LOG_DEBUG, "Node Name  : %s \n", node);
+        UDA_LOG(UDA_LOG_DEBUG, "Tree Number: %d \n", treenum);
 
-//----------------------------------------------------------------------
-// Connect to an MDS+ Server if Not Local (All local MDS+ servers are protected by the sandbox)
+        //----------------------------------------------------------------------
+        // Connect to an MDS+ Server if Not Local (All local MDS+ servers are protected by the sandbox)
 
         if (strcasecmp(server, "localhost") != 0) {
 
             type = TYPE_MDSPLUS_SERVER;
             status = 1;
-            if ((rc = getSocket(socket_list, type, &status, server, mdsport, &socket)) ==
-                1) {    // Check if the Server is Connected
+            if (getSocket(socket_list, type, &status, server, mdsport, &socket) == 1) {
+                // Check if the Server is Connected
                 mdssocket = -1;
                 MdsSetSocket(&mdssocket);    // Flags that a New Socket is to be opened without closing the previous one
                 socket = MdsConnect(server);    // Not Found or Not Open
@@ -265,17 +269,17 @@ int readMDS(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK* data_b
 
             if (socket == -1 || !status) {
                 err = MDS_ERROR_CONNECTING_TO_SERVER;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readMDS", err, "Unable to Connect to MDSPlus Server");
+                addIdamError(CODEERRORTYPE, "readMDS", err, "Unable to Connect to MDSPlus Server");
                 break;
             } else {
                 addSocket(socket_list, type, status, server, mdsport, socket);
             }
 
-            IDAM_LOGF(UDA_LOG_DEBUG, "Socket fd: %d \n", socket);
+            UDA_LOG(UDA_LOG_DEBUG, "Socket fd: %d \n", socket);
 
         } else {
 
-            IDAM_LOG(UDA_LOG_DEBUG, "LOCALHOST Service\n");
+            UDA_LOG(UDA_LOG_DEBUG, "LOCALHOST Service\n");
 
 #ifdef MDSSANDBOX
             if(!sand_box) {
@@ -284,16 +288,16 @@ int readMDS(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK* data_b
                     __mdscall_init();		// Ensure libmdscall sand-box is called before any MDS+ function
                     // The MDS+ server has its own private sand-box!
                 } else {
-                    IDAM_LOG(UDA_LOG_DEBUG,"MDSPlus Security Sand-Box Disabled because of Bad Pre-Load\n");
+                    UDA_LOG(UDA_LOG_DEBUG,"MDSPlus Security Sand-Box Disabled because of Bad Pre-Load\n");
 
                     err = 999;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "readMDS", err, "localhost MDS+ disabled on this host");
-                    IDAM_LOG(UDA_LOG_DEBUG, "localhost MDS+ disabled on this host\n");
+                    addIdamError(CODEERRORTYPE, "readMDS", err, "localhost MDS+ disabled on this host");
+                    UDA_LOG(UDA_LOG_DEBUG, "localhost MDS+ disabled on this host\n");
                     break;
                 }
                 sand_box = 1;
 
-                IDAM_LOG(UDA_LOG_DEBUG,"MDSPlus Security Sand-Box Initialisation called\n");
+                UDA_LOG(UDA_LOG_DEBUG,"MDSPlus Security Sand-Box Initialisation called\n");
             }
 #endif
 
@@ -302,55 +306,51 @@ int readMDS(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK* data_b
 
         }
 
-//----------------------------------------------------------------------
-// Open the MDS+ Tree (If Zero length then a TDI Function is being called)
-//
-//    d1 = descr( &dtype_long, &status, &null);
-//    d2 = descr( &dtype_cstring, &text, &null, &lentext);
-//    status = MdsValue("getmsg($)\0", &d1, &d2, &null, &len);
-//    printf("%s\n",text);
+        //----------------------------------------------------------------------
+        // Open the MDS+ Tree (If Zero length then a TDI Function is being called)
+        //
+        //    d1 = descr( &dtype_long, &status, &null);
+        //    d2 = descr( &dtype_cstring, &text, &null, &lentext);
+        //    status = MdsValue("getmsg($)\0", &d1, &d2, &null, &len);
+        //    printf("%s\n",text);
 
-//
-//  alternative: (char *)MdsGetMsg(status));
-
+        //
+        //  alternative: (char *)MdsGetMsg(status));
 
         if (strlen(tree) > 0) {
-
             status = MdsOpen(tree, &treenum);    // Open the Tree
 
             if (!status_ok(status)) {
                 err = MDS_ERROR_OPENING_TREE;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readMDS", err, "Unable to Open the MDSPlus Tree");
-                IDAM_LOG(UDA_LOG_DEBUG, "Error Opening MDS+ Tree \n");
+                addIdamError(CODEERRORTYPE, "readMDS", err, "Unable to Open the MDSPlus Tree");
+                UDA_LOG(UDA_LOG_DEBUG, "Error Opening MDS+ Tree \n");
                 break;
             }
 
-            IDAM_LOG(UDA_LOG_DEBUG, "Tree Opened OK \n");
-
+            UDA_LOG(UDA_LOG_DEBUG, "Tree Opened OK \n");
         } else {
 
             strcpy(signal, "_sig=");                // This name is private to the server
 
             if (signal_desc.signal_name[0] == '\0') {
-                strcat(signal,
-                       signal_desc.xml);        // The TDI Function to be called passed in the XML tag (temporary fix!)
+                // The TDI Function to be called passed in the XML tag (temporary fix!)
+                strcat(signal, signal_desc.xml);
             } else {
                 strcat(signal, signal_desc.signal_name);    // The TDI Function to be called
             }
 
             node = signal;
 
-            IDAM_LOGF(UDA_LOG_DEBUG, "Executing Server Side TDI Function: %s\n", node);
+            UDA_LOG(UDA_LOG_DEBUG, "Executing Server Side TDI Function: %s\n", node);
 
             desc = descr(&dtype_int, &lint, &null);
             status = MdsValue(node, &desc, &null, &len);
 
             if (!status_ok(status)) {
                 err = MDS_ERROR_MDSVALUE_DATA;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readMDS", err,
-                             "Unable to Access Data via the TDI Function");
+                addIdamError(CODEERRORTYPE, "readMDS", err, "Unable to Access Data via the TDI Function");
 
-// Any MDS+ messages?
+                // Any MDS+ messages?
 
                 {
                     int lentext = 256;
@@ -359,27 +359,26 @@ int readMDS(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK* data_b
                     int d1 = descr(&dtype_int, &status, &null);
                     int d2 = descr(&dtype_str, &text, &null, &lentext);
                     status = MdsValue("getmsg($)\0", &d1, &d2, &null, &len);
-                    IDAM_LOGF(UDA_LOG_DEBUG, "%s\n", text);
+                    UDA_LOG(UDA_LOG_DEBUG, "%s\n", text);
                 }
 
                 break;
             }
 
-            IDAM_LOGF(UDA_LOG_DEBUG, "Server Side TDI Function: %s Executed.\n", node);
+            UDA_LOG(UDA_LOG_DEBUG, "Server Side TDI Function: %s Executed.\n", node);
 
             strcpy(node, "_sig");        // Internal Reference to the Signal's Data from this point forward
         }
 
-
-//----------------------------------------------------------------------
-// Data Rank ?
+        //----------------------------------------------------------------------
+        // Data Rank ?
 
         null = 0;
         sdim = (char*)malloc((7 + strlen(node)) * sizeof(char));
 
         if (sdim == NULL) {
             err = MDS_ERROR_ALLOCATING_HEAP_TDI_RANK;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readMDS", err,
+            addIdamError(CODEERRORTYPE, "readMDS", err,
                          "Unable to Allocate Heap for MdsValue Rank Enquiry");
             break;
         }
@@ -391,23 +390,23 @@ int readMDS(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK* data_b
 
         if (!status_ok(status)) {
             err = MDS_ERROR_MDSVALUE_RANK;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readMDS", err, "Unable to Retrieve the Data Rank");
+            addIdamError(CODEERRORTYPE, "readMDS", err, "Unable to Retrieve the Data Rank");
             break;
         }
 
         data_block->rank = rank;
 
-        IDAM_LOGF(UDA_LOG_DEBUG, "Data Rank %d\n", rank);
+        UDA_LOG(UDA_LOG_DEBUG, "Data Rank %d\n", rank);
 
-//----------------------------------------------------------------------
-// Length of Data Array
+        //----------------------------------------------------------------------
+        // Length of Data Array
 
         null = 0;
         sdim = (char*)realloc((void*)sdim, (size_t)(7 + strlen(node)) * sizeof(char));
 
         if (sdim == NULL) {
             err = MDS_ERROR_ALLOCATING_HEAP_TDI_SIZE;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readMDS", err,
+            addIdamError(CODEERRORTYPE, "readMDS", err,
                          "Unable to Allocate Heap for MdsValue Size Enquiry");
             break;
         }
@@ -419,17 +418,17 @@ int readMDS(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK* data_b
 
         if (!status_ok(status) || size < 1) {
             err = MDS_ERROR_MDSVALUE_SIZE;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readMDS", err, "Unable to Retrieve the Data Size");
-            IDAM_LOG(UDA_LOG_DEBUG, "Unable to Retrieve the Data Size\n");
+            addIdamError(CODEERRORTYPE, "readMDS", err, "Unable to Retrieve the Data Size");
+            UDA_LOG(UDA_LOG_DEBUG, "Unable to Retrieve the Data Size\n");
             break;
         }
 
         data_block->data_n = size;
 
-        IDAM_LOGF(UDA_LOG_DEBUG, "Length of Data Array %d\n", size);
+        UDA_LOG(UDA_LOG_DEBUG, "Length of Data Array %d\n", size);
 
-//----------------------------------------------------------------------
-// Data Type
+        //----------------------------------------------------------------------
+        // Data Type
 
         null = 0;
         sdim = (char*)realloc((void*)sdim, (size_t)(13 + strlen(node)) * sizeof(char));
@@ -441,74 +440,73 @@ int readMDS(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK* data_b
 
         if (!status_ok(status) || size < 1) {
             err = MDS_ERROR_MDSVALUE_TYPE;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readMDS", err, "Unable to Retrieve the Data Type");
+            addIdamError(CODEERRORTYPE, "readMDS", err, "Unable to Retrieve the Data Type");
             break;
         }
 
-        IDAM_LOGF(UDA_LOG_DEBUG, "Type of Data %d [Float: %d]\n", type, DTYPE_NATIVE_FLOAT);
+        UDA_LOG(UDA_LOG_DEBUG, "Type of Data %d [Float: %d]\n", type, DTYPE_NATIVE_FLOAT);
 
+        //----------------------------------------------------------------------
+        // Identify the Equivalent IDAM type
 
-//----------------------------------------------------------------------
-// Identify the Equivalent IDAM type
-
-        if ((data_block->data_type = readMDSType(type)) == TYPE_UNKNOWN) {
+        if ((data_block->data_type = readMDSType(type)) == UDA_TYPE_UNKNOWN) {
             err = 999;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readMDS", err, "Unknown Data Type");
+            addIdamError(CODEERRORTYPE, "readMDS", err, "Unknown Data Type");
             break;
         }
 
-//----------------------------------------------------------------------
-// Allocate Heap for Data, and define descriptor
+        //----------------------------------------------------------------------
+        // Allocate Heap for Data, and define descriptor
 
         null = 0;
 
         switch (data_block->data_type) {
-            case TYPE_FLOAT: {
+            case UDA_TYPE_FLOAT: {
                 data = malloc(size * sizeof(float));                // allocate memory for the signal
                 desc = descr(&dtype_float, (float*)data, &size, &null);    // descriptor for this signal
                 break;
             }
-            case TYPE_DOUBLE: {
+            case UDA_TYPE_DOUBLE: {
                 data = malloc(size * sizeof(double));
                 desc = descr(&dtype_double, (double*)data, &size, &null);
                 break;
             }
-            case TYPE_UNSIGNED_CHAR: {
+            case UDA_TYPE_UNSIGNED_CHAR: {
                 data = malloc(size * sizeof(unsigned char));
                 desc = descr(&dtype_uchar, (unsigned char*)data, &size, &null);
                 break;
             }
-            case TYPE_CHAR: {
+            case UDA_TYPE_CHAR: {
                 data = malloc(size * sizeof(char));
                 desc = descr(&dtype_char, (char*)data, &size, &null);
                 break;
             }
-            case TYPE_UNSIGNED_SHORT: {
+            case UDA_TYPE_UNSIGNED_SHORT: {
                 data = malloc(size * sizeof(unsigned short));
                 desc = descr(&dtype_ushort, (unsigned short*)data, &size, &null);
                 break;
             }
-            case TYPE_SHORT: {
+            case UDA_TYPE_SHORT: {
                 data = malloc(size * sizeof(short));
                 desc = descr(&dtype_short, (short*)data, &size, &null);
                 break;
             }
-            case TYPE_UNSIGNED: {
+            case UDA_TYPE_UNSIGNED_INT: {
                 data = malloc(size * sizeof(unsigned int));
                 desc = descr(&dtype_uint, (unsigned int*)data, &size, &null);
                 break;
             }
-            case TYPE_INT: {
+            case UDA_TYPE_INT: {
                 data = malloc(size * sizeof(int));
                 desc = descr(&dtype_int, (int*)data, &size, &null);
                 break;
             }
-            case TYPE_UNSIGNED_LONG64: {
+            case UDA_TYPE_UNSIGNED_LONG64: {
                 data = malloc(size * sizeof(unsigned long long));
                 desc = descr(&dtype_ulong64, (unsigned long long*)data, &size, &null);
                 break;
             }
-            case TYPE_LONG64: {
+            case UDA_TYPE_LONG64: {
                 data = malloc(size * sizeof(long long));
                 desc = descr(&dtype_long64, (long long*)data, &size, &null);
                 break;
@@ -517,32 +515,32 @@ int readMDS(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK* data_b
 
         if (data == NULL) {
             err = MDS_ERROR_ALLOCATING_HEAP_DATA_BLOCK;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readMDS", err, "Unable to Allocate Heap for the Data");
+            addIdamError(CODEERRORTYPE, "readMDS", err, "Unable to Allocate Heap for the Data");
             break;
         }
 
-//----------------------------------------------------------------------
-// Read Data Array
+        //----------------------------------------------------------------------
+        // Read Data Array
 
         status = MdsValue(node, &desc, &null, 0);        // retrieve signal
 
         if (!status_ok(status)) {
             err = MDS_ERROR_MDSVALUE_DATA;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readMDS", err, "Unable to Retrieve the Data");
+            addIdamError(CODEERRORTYPE, "readMDS", err, "Unable to Retrieve the Data");
             break;
         }
 
         data_block->data = (char*)data;
 
-//----------------------------------------------------------------------
-// length of Data Units String
+        //----------------------------------------------------------------------
+        // length of Data Units String
 
         null = 0;
         sdim = (char*)realloc((void*)sdim, (size_t)(16 + strlen(node)) * sizeof(char));
 
         if (sdim == NULL) {
             err = MDS_ERROR_ALLOCATING_HEAP_TDI_LEN_UNITS;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readMDS", err,
+            addIdamError(CODEERRORTYPE, "readMDS", err,
                          "Unable to Allocate Heap for MdsValue Units Length Enquiry");
             break;
         }
@@ -556,10 +554,10 @@ int readMDS(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK* data_b
 
         lunits++;    // 1 Byte For Null Terminator
 
-        IDAM_LOGF(UDA_LOG_DEBUG, "Length of Units String %d\n", lunits);
+        UDA_LOG(UDA_LOG_DEBUG, "Length of Units String %d\n", lunits);
 
-//----------------------------------------------------------------------
-// Data Units
+        //----------------------------------------------------------------------
+        // Data Units
 
         if (lunits > 1) {
 
@@ -568,7 +566,7 @@ int readMDS(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK* data_b
 
             if (sdim == NULL) {
                 err = MDS_ERROR_ALLOCATING_HEAP_TDI_UNITS;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readMDS", err,
+                addIdamError(CODEERRORTYPE, "readMDS", err,
                              "Unable to Allocate Heap for MdsValue Units Enquiry");
                 break;
             }
@@ -579,7 +577,7 @@ int readMDS(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK* data_b
 
             if (units == NULL) {
                 err = MDS_ERROR_ALLOCATING_HEAP_UNITS;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readMDS", err,
+                addIdamError(CODEERRORTYPE, "readMDS", err,
                              "Unable to Allocate Heap for the Data Units");
                 break;
             }
@@ -589,7 +587,7 @@ int readMDS(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK* data_b
 
             if (!status_ok(status)) {
                 err = MDS_ERROR_MDSVALUE_UNITS;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readMDS", err, "Unable to Retrieve the Data Units");
+                addIdamError(CODEERRORTYPE, "readMDS", err, "Unable to Retrieve the Data Units");
                 break;
             }
 
@@ -604,17 +602,17 @@ int readMDS(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK* data_b
             strcpy(data_block->data_units, "");
         }
 
-        IDAM_LOGF(UDA_LOG_DEBUG, "Data Units of signal %s\n", data_block->data_units);
+        UDA_LOG(UDA_LOG_DEBUG, "Data Units of signal %s\n", data_block->data_units);
 
-//----------------------------------------------------------------------
-// Length of Dimensional Arrays (The Order of the Time Dimension is Unknown!)
+        //----------------------------------------------------------------------
+        // Length of Dimensional Arrays (The Order of the Time Dimension is Unknown!)
 
         ddim = (DIMS*)malloc(rank * sizeof(DIMS));
-        IDAM_LOGF(UDA_LOG_DEBUG, "ddim %p\n", ddim);
+        UDA_LOG(UDA_LOG_DEBUG, "ddim %p\n", ddim);
 
         if (ddim == NULL) {
             err = MDS_ERROR_ALLOCATING_HEAP_DATA_BLOCK;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readMDS", err,
+            addIdamError(CODEERRORTYPE, "readMDS", err,
                          "Unable to Allocate Heap for the Data Dimensions");
             break;
         }
@@ -622,10 +620,10 @@ int readMDS(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK* data_b
         for (i = 0; i < rank; i++) {
             initDimBlock(&ddim[i]);
             if ((err = readMDSDim(node, i, &ddim[i])) == 0) {
-                IDAM_LOGF(UDA_LOG_DEBUG, "Dimension %d, Size %d, Units %s \n", i, ddim[i].dim_n,
+                UDA_LOG(UDA_LOG_DEBUG, "Dimension %d, Size %d, Units %s \n", i, ddim[i].dim_n,
                           ddim[i].dim_units);
             } else {
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readMDS", err, "Unable to Retrieve the Dimensional Data");
+                addIdamError(CODEERRORTYPE, "readMDS", err, "Unable to Retrieve the Dimensional Data");
                 break;
             }
         }
@@ -635,28 +633,28 @@ int readMDS(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK* data_b
         if (rank > 0) {
             float tot = 0.0;
             size = data_block->dims[0].dim_n;
-            IDAM_LOGF(UDA_LOG_DEBUG, "%d\n", size);
-            IDAM_LOGF(UDA_LOG_DEBUG, "%p\n", data_block->dims);
+            UDA_LOG(UDA_LOG_DEBUG, "%d\n", size);
+            UDA_LOG(UDA_LOG_DEBUG, "%p\n", data_block->dims);
 
             ptest = (float*)data_block->dims[0].dim;
             if (size > 20) {
                 for (i = 0; i < 20; i++) {
-                    IDAM_LOGF(UDA_LOG_DEBUG, "dim[0] %d  %f\n", i, ptest[i]);
+                    UDA_LOG(UDA_LOG_DEBUG, "dim[0] %d  %f\n", i, ptest[i]);
                 }
             }
             tot = 0.0;
             for (i = 0; i < size; i++) tot = tot + ptest[i];
-            IDAM_LOGF(UDA_LOG_DEBUG, " Dim Data Sum = %f\n", tot);
+            UDA_LOG(UDA_LOG_DEBUG, " Dim Data Sum = %f\n", tot);
         }
 
     } while (0);    // Always exit the Error Management Loop
 
-//----------------------------------------------------------------------
-// Log Error Status
+    //----------------------------------------------------------------------
+    // Log Error Status
 
-    IDAM_LOGF(UDA_LOG_DEBUG, "Final Error Status = %d\n", err);
+    UDA_LOG(UDA_LOG_DEBUG, "Final Error Status = %d\n", err);
 
-//----------------------------------------------------------------------
+    //----------------------------------------------------------------------
 
     if (err != 0) {
         freeDataBlock(data_block);
@@ -667,18 +665,22 @@ int readMDS(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK* data_b
         data_block->data_desc[0] = '\0';
     }
 
-// Free Local Heap Memory
+    // Free Local Heap Memory
 
-    if (units != NULL) free((void*)units);
-    if (sdim != NULL) free((void*)sdim);
+    free((void*)units);
+    free((void*)sdim);
 
-// Clear any set Environment Variable
+    // Clear any set Environment Variable
 
-    if (env[0] != '\0') rc = unsetenv(env);
+    if (env[0] != '\0') {
+        unsetenv(env);
+    }
 
-// Close the Tree: MDS+ Server Management ... (List of Open Servers maintained for Re-use)
+    // Close the Tree: MDS+ Server Management ... (List of Open Servers maintained for Re-use)
 
-    if (strlen(tree) > 0) status = MdsClose(tree, &treenum);
+    if (strlen(tree) > 0) {
+        status = MdsClose(tree, &treenum);
+    }
 
     return err;
 }

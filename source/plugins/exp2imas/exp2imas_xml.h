@@ -11,7 +11,20 @@
 #  define XML_FMT_TYPE const xmlChar*
 #endif
 
-int execute_xpath_expression(const char* filename, const xmlChar* xpathExpr, char** data, int* data_type, int* time_dim,
-                             int** sizes, float** coefas, float** coefbs, int index, int** dims, int* rank);
+typedef struct XMLData {
+    char* data;
+    int data_type;
+    int time_dim;
+    int* sizes;
+    float* coefas;
+    float* coefbs;
+    int* dims;
+    int rank;
+    char* download;
+    double* values;
+    size_t n_values;
+} XML_DATA;
+
+int execute_xpath_expression(const char* filename, const xmlChar* xpathExpr, int index, XML_DATA* xml_data);
 
 #endif // UDA_PLUGIN_EXP2IMAS_EXP2IMAS_XML_H

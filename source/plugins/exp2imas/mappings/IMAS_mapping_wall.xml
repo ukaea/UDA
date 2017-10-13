@@ -1,0 +1,295 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mappings>
+  <mapping key="wall/ids_properties/comment" value="JET data mapped using UDA and exp2itm mappings 4.10b" type=""/>
+  <mapping key="wall/ids_properties/homogeneous_time" value="0" type="constant"/>
+
+  <!--
+  CPO
+  wall%wall2d[idx]
+  IDS
+  wall%description_2d[idx]
+
+  CPO
+  wall%wall2d[idx]%wall_id%id = ‘equilibrium'
+  wall%wall2d[idx]%wall_id%flag = 1
+  IDS
+  wall%description_2d[idx]%type%name = ‘equilibrium'
+  wall%description_2d[idx]%type%index = 1
+
+  CPO
+  wall%wall2d[idx]%limiter% limiter_id%id = ‘equilibrium'
+  wall%wall2d[idx]%limiter%limiter_id%flag = 1
+  IDS
+  wall%description_2d[idx]%limiter%type%name = ‘equilibrium'
+  wall%description_2d[idx]%limiter%type%index = 1%
+
+  CPO
+  wall%wall2d[idx]%vessel%vessel_id%id = ‘equilibrium'
+  wall%wall2d[idx]%vessel%vessel_id%flag = 1
+  IDS
+  wall%description_2d[idx]%vessel%type%name = ‘equilibrium'
+  wall%description_2d[idx]%vessel%type%index = 1
+
+  then, for the actual geometric data stored :
+
+  CPO
+  wall%wall2d[idx]%vessel%vessel_unit[idx_unit]%annular%inside%R,Z = wall%description_2d[idx]%vessel%unit[idx_unit]%annular%outline_inner%R,Z
+
+  wall%wall2d[idx]%vessel%vessel_unit[idx_unit]%annular%outside%R,Z = wall%description_2d[idx]%vessel%unit[idx_unit]%annular%outline_outer%R,Z
+
+  wall%wall2d[idx]%vessel%vessel_unit[idx_unit]%annular%eta = wall%description_2d[idx]%vessel%unit[idx_unit]%annular%resistivity
+
+  then there is a “blocks” structure side by side with “annular” in the CPOs. For the IDS it is replaced by and array of structures “element"
+
+  wall%wall2d[idx]%vessel%vessel_unit[idx_unit]%blocks%blocks_unit[idx_block] = wall%description_2d[idx]%vessel%unit[idx_unit]%element[idx_block]
+
+
+
+variable='ids_properties/comment', type=string, rank=0
+variable='ids_properties/homogeneous_time', type=int, rank=0
+variable='global_quantities/electrons/pumping_speed', type=double, rank=1
+variable='global_quantities/electrons/pumping_speed_error_upper', type=double, rank=1
+variable='global_quantities/electrons/pumping_speed_error_lower', type=double, rank=1
+variable='global_quantities/electrons/pumping_speed_error_index', type=int, rank=0
+variable='global_quantities/electrons/particle_flux_from_plasma', type=double, rank=1
+variable='global_quantities/electrons/particle_flux_from_plasma_error_upper', type=double, rank=1
+variable='global_quantities/electrons/particle_flux_from_plasma_error_lower', type=double, rank=1
+variable='global_quantities/electrons/particle_flux_from_plasma_error_index', type=int, rank=0
+variable='global_quantities/electrons/particle_flux_from_wall', type=double, rank=2
+variable='global_quantities/electrons/particle_flux_from_wall_error_upper', type=double, rank=2
+variable='global_quantities/electrons/particle_flux_from_wall_error_lower', type=double, rank=2
+variable='global_quantities/electrons/particle_flux_from_wall_error_index', type=int, rank=0
+variable='global_quantities/electrons/gas_puff', type=double, rank=1
+variable='global_quantities/electrons/gas_puff_error_upper', type=double, rank=1
+variable='global_quantities/electrons/gas_puff_error_lower', type=double, rank=1
+variable='global_quantities/electrons/gas_puff_error_index', type=int, rank=0
+variable='global_quantities/neutral/Shape_of', type=int, rank=0
+variable='global_quantities/temperature', type=double, rank=1
+variable='global_quantities/temperature_error_upper', type=double, rank=1
+variable='global_quantities/temperature_error_lower', type=double, rank=1
+variable='global_quantities/temperature_error_index', type=int, rank=0
+variable='global_quantities/power_from_plasma', type=double, rank=1
+variable='global_quantities/power_from_plasma_error_upper', type=double, rank=1
+variable='global_quantities/power_from_plasma_error_lower', type=double, rank=1
+variable='global_quantities/power_from_plasma_error_index', type=int, rank=0
+variable='global_quantities/power_to_cooling', type=double, rank=1
+variable='global_quantities/power_to_cooling_error_upper', type=double, rank=1
+variable='global_quantities/power_to_cooling_error_lower', type=double, rank=1
+variable='global_quantities/power_to_cooling_error_index', type=int, rank=0
+variable='description_2d/Shape_of', type=int, rank=0
+variable='description_2d/1/type/name', type=string, rank=0
+variable='description_2d/1/type/index', type=int, rank=0
+variable='description_2d/1/type/description', type=string, rank=0
+variable='description_2d/1/limiter/type/name', type=string, rank=0
+variable='description_2d/1/limiter/type/index', type=int, rank=0
+variable='description_2d/1/limiter/type/description', type=string, rank=0
+variable='description_2d/1/limiter/unit/Shape_of', type=int, rank=0
+variable='description_2d/1/vessel/type/name', type=string, rank=0
+variable='description_2d/1/vessel/type/index', type=int, rank=0
+variable='description_2d/1/vessel/type/description', type=string, rank=0
+variable='description_2d/1/vessel/unit/Shape_of', type=int, rank=0
+variable='code/name', type=string, rank=0
+variable='code/commit', type=string, rank=0
+variable='code/version', type=string, rank=0
+variable='code/repository', type=string, rank=0
+variable='code/parameters', type=string, rank=0
+variable='code/output_flag', type=int, rank=1
+variable='time', type=double, rank=1
+
+variable='description_2d/1/limiter/unit/1/name', type=string, rank=0
+variable='description_2d/1/limiter/unit/1/closed', type=int, rank=0
+variable='description_2d/1/limiter/unit/1/outline/r', type=double, rank=1
+variable='description_2d/1/limiter/unit/1/outline/r_error_upper', type=double, rank=1
+variable='description_2d/1/limiter/unit/1/outline/r_error_lower', type=double, rank=1
+variable='description_2d/1/limiter/unit/1/outline/r_error_index', type=int, rank=0
+variable='description_2d/1/limiter/unit/1/outline/z', type=double, rank=1
+variable='description_2d/1/limiter/unit/1/outline/z_error_upper', type=double, rank=1
+variable='description_2d/1/limiter/unit/1/outline/z_error_lower', type=double, rank=1
+variable='description_2d/1/limiter/unit/1/outline/z_error_index', type=int, rank=0
+variable='description_2d/1/limiter/unit/1/resistivity', type=double, rank=0
+variable='description_2d/1/limiter/unit/1/resistivity_error_upper', type=double, rank=0
+variable='description_2d/1/limiter/unit/1/resistivity_error_lower', type=double, rank=0
+variable='description_2d/1/limiter/unit/1/resistivity_error_index', type=int, rank=0
+
+variable='description_2d/1/vessel/unit/1/name', type=string, rank=0
+variable='description_2d/1/vessel/unit/1/annular/outline_inner/r', type=double, rank=1
+variable='description_2d/1/vessel/unit/1/annular/outline_inner/r_error_upper', type=double, rank=1
+variable='description_2d/1/vessel/unit/1/annular/outline_inner/r_error_lower', type=double, rank=1
+variable='description_2d/1/vessel/unit/1/annular/outline_inner/r_error_index', type=int, rank=0
+variable='description_2d/1/vessel/unit/1/annular/outline_inner/z', type=double, rank=1
+variable='description_2d/1/vessel/unit/1/annular/outline_inner/z_error_upper', type=double, rank=1
+variable='description_2d/1/vessel/unit/1/annular/outline_inner/z_error_lower', type=double, rank=1
+variable='description_2d/1/vessel/unit/1/annular/outline_inner/z_error_index', type=int, rank=0
+variable='description_2d/1/vessel/unit/1/annular/outline_outer/r', type=double, rank=1
+variable='description_2d/1/vessel/unit/1/annular/outline_outer/r_error_upper', type=double, rank=1
+variable='description_2d/1/vessel/unit/1/annular/outline_outer/r_error_lower', type=double, rank=1
+variable='description_2d/1/vessel/unit/1/annular/outline_outer/r_error_index', type=int, rank=0
+variable='description_2d/1/vessel/unit/1/annular/outline_outer/z', type=double, rank=1
+variable='description_2d/1/vessel/unit/1/annular/outline_outer/z_error_upper', type=double, rank=1
+variable='description_2d/1/vessel/unit/1/annular/outline_outer/z_error_lower', type=double, rank=1
+variable='description_2d/1/vessel/unit/1/annular/outline_outer/z_error_index', type=int, rank=0
+variable='description_2d/1/vessel/unit/1/annular/resistivity', type=double, rank=0
+variable='description_2d/1/vessel/unit/1/annular/resistivity_error_upper', type=double, rank=0
+variable='description_2d/1/vessel/unit/1/annular/resistivity_error_lower', type=double, rank=0
+variable='description_2d/1/vessel/unit/1/annular/resistivity_error_index', type=int, rank=0
+variable='description_2d/1/vessel/unit/1/element/Shape_of', type=int, rank=0
+  -->
+
+  <!--
+  <mapping key="wall/description_2d/Shape_of" value="//wall/wall2d/@dim" type="static"/>
+
+  <mapping key="wall/description_2d/#/type/name" value="//wall/wall2d/vessel/vessel_id/id" type="static"/>
+  <mapping key="wall/description_2d/#/type/index" value="//wall/wall2d/vessel/vessel_id/id" type="static"/>
+
+  <mapping key="wall/description_2d/#/vessel/type/name" value="//wall/wall2d/vessel/vessel_id/id" type="static"/>
+  <mapping key="wall/description_2d/#/vessel/type/index" value="//wall/wall2d/vessel/vessel_id/flag" type="static"/>
+
+  <mapping key="wall/description_2d/#/vessel/type/name" value="//wall/wall2d/vessel/vessel_id/id" type="static"/>
+  <mapping key="wall/description_2d/#/vessel/type/index" value="//wall/wall2d/vessel/vessel_id/flag" type="static"/>
+
+  <mapping key="wall/description_2d/#/vessel/unit/Shape_of" value="" type="static"/>
+  <mapping key="wall/description_2d/#/vessel/unit/#/annular/outline_inner/R" value="//wall/wall2d[#]/vessel/vessel_unit[#]/annular/inside/R" type="static"/>
+  <mapping key="wall/description_2d/#/vessel/unit/#/annular/outline_inner/Z" value="//wall/wall2d[#]/vessel/vessel_unit[#]/annular/inside/Z" type="static"/>
+  <mapping key="wall/description_2d/#/vessel/unit/#/annular/outline_outer/R" value="//wall/wall2d[#]/vessel/vessel_unit[#]/annular/outside/Z" type="static"/>
+  <mapping key="wall/description_2d/#/vessel/unit/#/annular/outline_outer/Z" value="//wall/wall2d[#]/vessel/vessel_unit[#]/annular/outside/Z" type="static"/>
+  <mapping key="wall/description_2d/#/vessel/unit/#/annular/resistivity" value="" type="static"/>
+  -->
+
+  <mapping key="wall/ids_properties/comment" value="JET data mapped using UDA and exp2itm mappings 4.10b" type="constant"/>
+  <mapping key="wall/ids_properties/homogeneous_time" value="1" type="constant"/>
+
+  <!--
+  <mapping key="wall/global_quantities/electrons/pumping_speed" value="" type="static"/>
+  <mapping key="wall/global_quantities/electrons/pumping_speed_error_upper" value="" type="static"/>
+  <mapping key="wall/global_quantities/electrons/pumping_speed_error_lower" value="" type="static"/>
+  <mapping key="wall/global_quantities/electrons/pumping_speed_error_index" value="" type="static"/>
+  <mapping key="wall/global_quantities/electrons/particle_flux_from_plasma" value="" type="static"/>
+  <mapping key="wall/global_quantities/electrons/particle_flux_from_plasma_error_upper" value="" type="static"/>
+  <mapping key="wall/global_quantities/electrons/particle_flux_from_plasma_error_lower" value="" type="static"/>
+  <mapping key="wall/global_quantities/electrons/particle_flux_from_plasma_error_index" value="" type="static"/>
+  <mapping key="wall/global_quantities/electrons/particle_flux_from_wall" value="" type="static"/>
+  <mapping key="wall/global_quantities/electrons/particle_flux_from_wall_error_upper" value="" type="static"/>
+  <mapping key="wall/global_quantities/electrons/particle_flux_from_wall_error_lower" value="" type="static"/>
+  <mapping key="wall/global_quantities/electrons/particle_flux_from_wall_error_index" value="" type="static"/>
+  <mapping key="wall/global_quantities/electrons/gas_puff" value="" type="static"/>
+  <mapping key="wall/global_quantities/electrons/gas_puff_error_upper" value="" type="static"/>
+  <mapping key="wall/global_quantities/electrons/gas_puff_error_lower" value="" type="static"/>
+  <mapping key="wall/global_quantities/electrons/gas_puff_error_index" value="" type="static"/>
+  <mapping key="wall/global_quantities/neutral/Shape_of" value="" type="static"/>
+  <mapping key="wall/global_quantities/temperature" value="" type="static"/>
+  <mapping key="wall/global_quantities/temperature_error_upper" value="" type="static"/>
+  <mapping key="wall/global_quantities/temperature_error_lower" value="" type="static"/>
+  <mapping key="wall/global_quantities/temperature_error_index" value="" type="static"/>
+  <mapping key="wall/global_quantities/power_from_plasma" value="" type="static"/>
+  <mapping key="wall/global_quantities/power_from_plasma_error_upper" value="" type="static"/>
+  <mapping key="wall/global_quantities/power_from_plasma_error_lower" value="" type="static"/>
+  <mapping key="wall/global_quantities/power_from_plasma_error_index" value="" type="static"/>
+  <mapping key="wall/global_quantities/power_to_cooling" value="" type="static"/>
+  <mapping key="wall/global_quantities/power_to_cooling_error_upper" value="" type="static"/>
+  <mapping key="wall/global_quantities/power_to_cooling_error_lower" value="" type="static"/>
+  <mapping key="wall/global_quantities/power_to_cooling_error_index" value="" type="static"/>
+  -->
+
+  <mapping key="wall/description_2d/Shape_of" value="//wall/wall2d/@dim" type="static"/>
+
+  <mapping key="wall/description_2d/#/type/name" value="equilibrium" type="constant"/>
+  <mapping key="wall/description_2d/#/type/index" value="1" type="constant"/>
+
+  <!--<mapping key="wall/description_2d/#/type/description" value="" type="static"/>-->
+
+  <mapping key="wall/description_2d/#/limiter/type/name" value="equilibrium" type="constant"/>
+  <mapping key="wall/description_2d/#/limiter/type/index" value="1" type="constant"/>
+
+  <!--<mapping key="wall/description_2d/#/limiter/type/description" value="" type="static"/>-->
+  <!--<mapping key="wall/description_2d/#/limiter/unit/Shape_of" value="//wall/wall2d/limiter/limiter_unit/@dim" type="static"/>-->
+
+  <!--<mapping key="wall/description_2d/#/limiter/unit/#/name" value="" type="constant"/>-->
+  <!--<mapping key="wall/description_2d/#/limiter/unit/#/closed" value="" type="constant"/>-->
+  <!--<mapping key="wall/description_2d/#/limiter/unit/#/outline/r" value="" type="constant"/>-->
+  <!--<mapping key="wall/description_2d/#/limiter/unit/#/outline/r_error_upper" value="" type="constant"/>-->
+  <!--<mapping key="wall/description_2d/#/limiter/unit/#/outline/r_error_lower" value="" type="constant"/>-->
+  <!--<mapping key="wall/description_2d/#/limiter/unit/#/outline/r_error_index" value="" type="constant"/>-->
+  <!--<mapping key="wall/description_2d/#/limiter/unit/#/outline/z" value="" type="constant"/>-->
+  <!--<mapping key="wall/description_2d/#/limiter/unit/#/outline/z_error_upper" value="" type="constant"/>-->
+  <!--<mapping key="wall/description_2d/#/limiter/unit/#/outline/z_error_lower" value="" type="constant"/>-->
+  <!--<mapping key="wall/description_2d/#/limiter/unit/#/outline/z_error_index" value="" type="constant"/>-->
+  <!--<mapping key="wall/description_2d/#/limiter/unit/#/resistivity" value="" type="constant"/>-->
+  <!--<mapping key="wall/description_2d/#/limiter/unit/#/resistivity_error_upper" value="" type="constant"/>-->
+  <!--<mapping key="wall/description_2d/#/limiter/unit/#/resistivity_error_lower" value="" type="constant"/>-->
+  <!--<mapping key="wall/description_2d/#/limiter/unit/#/resistivity_error_index" value="" type="constant"/>-->
+
+<!--
+  wall%wall2d[idx]%vessel%vessel_unit[idx_unit]%annular%inside%R,Z = wall%description_2d[idx]%vessel%unit[idx_unit]%annular%outline_inner%R,Z
+
+  wall%wall2d[idx]%vessel%vessel_unit[idx_unit]%annular%outside%R,Z = wall%description_2d[idx]%vessel%unit[idx_unit]%annular%outline_outer%R,Z
+
+  wall%wall2d[idx]%vessel%vessel_unit[idx_unit]%annular%eta = wall%description_2d[idx]%vessel%unit[idx_unit]%annular%resistivity
+
+  then there is a “blocks” structure side by side with “annular” in the CPOs. For the IDS it is replaced by and array of structures “element"
+
+  wall%wall2d[idx]%vessel%vessel_unit[idx_unit]%blocks%blocks_unit[idx_block] = wall%description_2d[idx]%vessel%unit[idx_unit]%element[idx_block]
+-->
+
+  <mapping key="wall/description_2d/#/vessel/type/name" value="equilibrium" type="constant"/>
+  <mapping key="wall/description_2d/#/vessel/type/index" value="1" type="constant"/>
+
+  <!--<mapping key="wall/description_2d/#/vessel/type/description'" value="" type="static"/>-->
+  <mapping key="wall/description_2d/#/vessel/unit/Shape_of" value="//wall/wall2d/vessel/vessel_unit/@dim" type="static"/>
+
+  <mapping key="wall/description_2d/#/vessel/unit/#/name" value="" type="constant"/>
+  <mapping key="wall/description_2d/#/vessel/unit/#/annular/outline_inner/r" value="//wall/wall2d[#]/vessel/vessel_unit[#]/annular/inside/r" type="static"/>
+  <!--<mapping key="wall/description_2d/#/vessel/unit/#/annular/outline_inner/r_error_upper" value="" type="constant"/>-->
+  <!--<mapping key="wall/description_2d/#/vessel/unit/#/annular/outline_inner/r_error_lower" value="" type="constant"/>-->
+  <!--<mapping key="wall/description_2d/#/vessel/unit/#/annular/outline_inner/r_error_index" value="" type="constant"/>-->
+  <mapping key="wall/description_2d/#/vessel/unit/#/annular/outline_inner/z" value="//wall/wall2d[#]/vessel/vessel_unit[#]/annular/inside/z" type="static"/>
+  <!--<mapping key="wall/description_2d/#/vessel/unit/#/annular/outline_inner/z_error_upper" value="" type="constant"/>-->
+  <!--<mapping key="wall/description_2d/#/vessel/unit/#/annular/outline_inner/z_error_lower" value="" type="constant"/>-->
+  <!--<mapping key="wall/description_2d/#/vessel/unit/#/annular/outline_inner/z_error_index" value="" type="constant"/>-->
+  <mapping key="wall/description_2d/#/vessel/unit/#/annular/outline_outer/r" value="//wall/wall2d[#]/vessel/vessel_unit[#]/annular/outside/r" type="static"/>
+  <!--<mapping key="wall/description_2d/#/vessel/unit/#/annular/outline_outer/r_error_upper" value="" type="constant"/>-->
+  <!--<mapping key="wall/description_2d/#/vessel/unit/#/annular/outline_outer/r_error_lower" value="" type="constant"/>-->
+  <!--<mapping key="wall/description_2d/#/vessel/unit/#/annular/outline_outer/r_error_index" value="" type="constant"/>-->
+  <mapping key="wall/description_2d/#/vessel/unit/#/annular/outline_outer/z" value="//wall/wall2d[#]/vessel/vessel_unit[#]/annular/outside/z" type="static"/>
+  <!--<mapping key="wall/description_2d/#/vessel/unit/#/annular/outline_outer/z_error_upper" value="" type="constant"/>-->
+  <!--<mapping key="wall/description_2d/#/vessel/unit/#/annular/outline_outer/z_error_lower" value="" type="constant"/>-->
+  <!--<mapping key="wall/description_2d/#/vessel/unit/#/annular/outline_outer/z_error_index" value="" type="constant"/>-->
+  <mapping key="wall/description_2d/#/vessel/unit/#/annular/resistivity" value="//wall/wall2d[#]/vessel/vessel_unit[#]/annular/eta" type="static"/>
+  <!--<mapping key="wall/description_2d/#/vessel/unit/#/annular/resistivity_error_upper" value="" type="constant"/>-->
+  <!--<mapping key="wall/description_2d/#/vessel/unit/#/annular/resistivity_error_lower" value="" type="constant"/>-->
+  <!--<mapping key="wall/description_2d/#/vessel/unit/#/annular/resistivity_error_index" value="" type="constant"/>-->
+  <mapping key="wall/description_2d/#/vessel/unit/#/element/Shape_of" value="//wall/wall2d[#]/vessel/vessel_unit[#]/blocks/blocks_unit[1]/@dim" type="static"/>
+
+  <mapping key="wall/description_2d/#/vessel/unit/#/element/#/name" value="//wall/wall2d[#]/vessel/vessel_unit[#]/blocks/blocks_unit[#]/name" type="static"/>
+  <mapping key="wall/description_2d/#/vessel/unit/#/element/#/outline/r" value="//wall/wall2d[#]/vessel/vessel_unit[#]/blocks/blocks_unit[#]/position/r" type="static"/>
+  <!--<mapping key="wall/description_2d/#/vessel/unit/#/element/#/outline/r_error_upper" value="" type="static"/>-->
+  <!--<mapping key="wall/description_2d/#/vessel/unit/#/element/#/outline/r_error_lower" value="" type="static"/>-->
+  <!--<mapping key="wall/description_2d/#/vessel/unit/#/element/#/outline/r_error_index" value="" type="static"/>-->
+  <mapping key="wall/description_2d/#/vessel/unit/#/element/#/outline/z" value="//wall/wall2d[#]/vessel/vessel_unit[#]/blocks/blocks_unit[#]/position/z" type="static"/>
+  <!--<mapping key="wall/description_2d/#/vessel/unit/#/element/#/outline/z_error_upper" value="" type="static"/>-->
+  <!--<mapping key="wall/description_2d/#/vessel/unit/#/element/#/outline/z_error_lower" value="" type="static"/>-->
+  <!--<mapping key="wall/description_2d/#/vessel/unit/#/element/#/outline/z_error_index" value="" type="static"/>-->
+  <mapping key="wall/description_2d/#/vessel/unit/#/element/#/resistivity" value="//wall/wall2d[#]/vessel/vessel_unit[#]/blocks/blocks_unit[#]/eta" type="static"/>
+  <!--<mapping key="wall/description_2d/#/vessel/unit/#/element/#/resistivity_error_upper" value="" type="static"/>-->
+  <!--<mapping key="wall/description_2d/#/vessel/unit/#/element/#/resistivity_error_lower" value="" type="static"/>-->
+  <!--<mapping key="wall/description_2d/#/vessel/unit/#/element/#/resistivity_error_index" value="" type="static"/>-->
+  <!--<mapping key="wall/description_2d/#/vessel/unit/#/element/#/j_tor/data" value="" type="static"/>-->
+  <!--<mapping key="wall/description_2d/#/vessel/unit/#/element/#/j_tor/data_error_upper" value="" type="static"/>-->
+  <!--<mapping key="wall/description_2d/#/vessel/unit/#/element/#/j_tor/data_error_lower" value="" type="static"/>-->
+  <!--<mapping key="wall/description_2d/#/vessel/unit/#/element/#/j_tor/data_error_index" value="" type="static"/>-->
+  <!--<mapping key="wall/description_2d/#/vessel/unit/#/element/#/j_tor/time" value="" type="static"/>-->
+  <!--<mapping key="wall/description_2d/#/vessel/unit/#/element/#/resistance" value="" type="static"/>-->
+  <!--<mapping key="wall/description_2d/#/vessel/unit/#/element/#/resistance_error_upper" value="" type="static"/>-->
+  <!--<mapping key="wall/description_2d/#/vessel/unit/#/element/#/resistance_error_lower" value="" type="static"/>-->
+  <!--<mapping key="wall/description_2d/#/vessel/unit/#/element/#/resistance_error_index" value="" type="static"/>-->
+
+  <!--
+  <mapping key="wall/code/name" value="" type="static"/>
+  <mapping key="wall/code/commit" value="" type="static"/>
+  <mapping key="wall/code/version" value="" type="static"/>
+  <mapping key="wall/code/repository" value="" type="static"/>
+  <mapping key="wall/code/parameters" value="" type="static"/>
+  <mapping key="wall/code/output_flag" value="" type="static"/>
+
+  <mapping key="wall/time" value="" type="static"/>
+  -->
+</mappings>

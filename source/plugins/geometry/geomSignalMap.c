@@ -1,14 +1,9 @@
 #include "geomSignalMap.h"
 
-#include <stdlib.h>
-#include <strings.h>
-
-#include <structures/struct.h>
-#include <structures/accessors.h>
-#include <server/modules/netcdf4/readCDF4.h>
-#include <clientserver/stringUtils.h>
-#include <clientserver/udaTypes.h>
 #include <clientserver/initStructs.h>
+#include <server/modules/netcdf4/readCDF4.h>
+#include <structures/accessors.h>
+#include <structures/struct.h>
 
 /////////
 // Check which signal id s are available for this exp number,
@@ -18,7 +13,7 @@
 int checkAvailableSignals(int shot, int n_all, int** signal_ids, int** is_available)
 {
 
-    IDAM_LOG(UDA_LOG_DEBUG, "Checking for signal ids in IDAM\n");
+    UDA_LOG(UDA_LOG_DEBUG, "Checking for signal ids in IDAM\n");
 
     int n_signals_available = 0;
 
@@ -26,7 +21,7 @@ int checkAvailableSignals(int shot, int n_all, int** signal_ids, int** is_availa
     PGresult* DBQuery_IDAM = NULL;
 
     if (DBConnect == NULL) {
-        IDAM_LOG(UDA_LOG_ERROR, "Connection to IDAM database failed.\n");
+        UDA_LOG(UDA_LOG_ERROR, "Connection to IDAM database failed.\n");
         return 0;
     }
 
@@ -43,13 +38,13 @@ int checkAvailableSignals(int shot, int n_all, int** signal_ids, int** is_availa
                 shot, (*signal_ids)[i]);
 
         if ((DBQuery_IDAM = PQexec(DBConnect, query_idam)) == NULL) {
-            IDAM_LOG(UDA_LOG_ERROR, "IDAM database query failed.\n");
+            UDA_LOG(UDA_LOG_ERROR, "IDAM database query failed.\n");
             continue;
         }
 
         if (PQresultStatus(DBQuery_IDAM) != PGRES_TUPLES_OK && PQresultStatus(DBQuery_IDAM) != PGRES_COMMAND_OK) {
             PQclear(DBQuery_IDAM);
-            IDAM_LOG(UDA_LOG_ERROR, "Database query failed.\n");
+            UDA_LOG(UDA_LOG_ERROR, "Database query failed.\n");
             continue;
         }
 
@@ -69,7 +64,7 @@ int checkAvailableSignals(int shot, int n_all, int** signal_ids, int** is_availa
     PQfinish(DBConnect);
 
     if (n_signals_available == 0) {
-        IDAM_LOG(UDA_LOG_DEBUG, "None of the signals for this geometry component are available for this shot\n");
+        UDA_LOG(UDA_LOG_DEBUG, "None of the signals for this geometry component are available for this shot\n");
     }
 
     return n_signals_available;
@@ -84,7 +79,7 @@ int do_signal_file(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     const char* signal = NULL;
     FIND_REQUIRED_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, signal);
 
-    IDAM_LOGF(UDA_LOG_DEBUG, "Using signal name: %s\n", signal);
+    UDA_LOG(UDA_LOG_DEBUG, "Using signal name: %s\n", signal);
 
     const char* file = NULL;
     FIND_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, file);
@@ -99,12 +94,14 @@ int do_signal_file(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     // Open the connection
     // CURRENTLY HARDCODED IN WHILE I'M TESTING
     // .... Once this is actually in the new MAST-U db, will need to use idam functions as in readMeta to open connection.
-    IDAM_LOG(UDA_LOG_DEBUG, "trying to get connection\n");
+    UDA_LOG(UDA_LOG_DEBUG, "trying to get connection\n");
 
     char* db_host = getenv("GEOM_DB_HOST");
     char* db_port_str = getenv("GEOM_DB_PORT");
     int db_port = -1;
-    if (db_port_str != NULL) db_port = atoi(db_port_str);
+    if (db_port_str != NULL) {
+        db_port = (int)strtol(db_port_str, NULL, 10);
+    }
     char* db_name = getenv("GEOM_DB_NAME");
     char* db_user = getenv("GEOM_DB_USER");
 
@@ -125,7 +122,7 @@ int do_signal_file(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     int err = 0;
     PQescapeStringConn(DBConnect, signal_for_query, signal, strlen(signal), &err);
 
-    IDAM_LOGF(UDA_LOG_DEBUG, "signal_for_query %s\n", signal_for_query);
+    UDA_LOG(UDA_LOG_DEBUG, "signal_for_query %s\n", signal_for_query);
 
     /////////////////////
     // Query to find filename containing the data signal asked for
@@ -160,7 +157,7 @@ int do_signal_file(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 signal_for_query, signal_for_query, shot, shot, version);
     }
 
-    IDAM_LOGF(UDA_LOG_DEBUG, "query is %s\n", query);
+    UDA_LOG(UDA_LOG_DEBUG, "query is %s\n", query);
 
     if ((DBQuery = PQexec(DBConnect, query)) == NULL) {
         RAISE_PLUGIN_ERROR("Database query failed.\n");
@@ -173,7 +170,7 @@ int do_signal_file(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     }
 
     int nRows = PQntuples(DBQuery);
-    IDAM_LOGF(UDA_LOG_DEBUG, "nRows returned from db : %d\n", nRows);
+    UDA_LOG(UDA_LOG_DEBUG, "nRows returned from db : %d\n", nRows);
 
     if (nRows == 0) {
         PQclear(DBQuery);
@@ -212,7 +209,7 @@ int do_signal_file(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
         // sig ids
         if (!PQgetisnull(DBQuery, i, s_sig_id)) {
-            all_sig_id[i] = atoi(PQgetvalue(DBQuery, i, s_sig_id));
+            all_sig_id[i] = (int)strtol(PQgetvalue(DBQuery, i, s_sig_id), NULL, 10);
         } else {
             all_sig_id[i] = -1;
         }
@@ -246,7 +243,7 @@ int do_signal_file(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     // Check which signal aliases are actually available for this shot, in the IDAM db
     int n_signals_available = checkAvailableSignals(shot, nRows, &all_sig_id, &is_available);
 
-    IDAM_LOGF(UDA_LOG_DEBUG, "n sig available %d\n", n_signals_available);
+    UDA_LOG(UDA_LOG_DEBUG, "n sig available %d\n", n_signals_available);
 
     if (n_signals_available == 0 && keep_all == 0) {
         RAISE_PLUGIN_ERROR("None of the signals in this file are available for this shot.\n");
@@ -265,15 +262,15 @@ int do_signal_file(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     REQUEST_BLOCK* request_block = idam_plugin_interface->request_block;
     USERDEFINEDTYPELIST* userdefinedtypelist = idam_plugin_interface->userdefinedtypelist;
     LOGMALLOCLIST* logmalloclist = idam_plugin_interface->logmalloclist;
-    err = readCDF(*data_source, *signal_desc, *request_block, &data_block_file, logmalloclist, userdefinedtypelist);
+    err = readCDF(*data_source, *signal_desc, *request_block, &data_block_file, &logmalloclist, &userdefinedtypelist);
 
-    IDAM_LOGF(UDA_LOG_DEBUG, "Read in file signal %s\n", signal_desc->signal_name);
+    UDA_LOG(UDA_LOG_DEBUG, "Read in file signal %s\n", signal_desc->signal_name);
 
     if (err != 0) {
         RAISE_PLUGIN_ERROR("Error reading geometry data!\n");
     }
 
-    if (data_block_file.data_type != TYPE_COMPOUND) {
+    if (data_block_file.data_type != UDA_TYPE_COMPOUND) {
         RAISE_PLUGIN_ERROR("Non-structured type returned from data reader!\n");
     }
 
@@ -295,7 +292,7 @@ int do_signal_file(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     //User defined type to describe data structure
     initUserDefinedType(&parentTree);
-    parentTree.idamclass = TYPE_COMPOUND;
+    parentTree.idamclass = UDA_TYPE_COMPOUND;
     strcpy(parentTree.name, "DATAPLUSTYPE");
     strcpy(parentTree.source, "netcdf");
     parentTree.ref_id = 0;
@@ -306,7 +303,7 @@ int do_signal_file(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     //Compound field for calibration file
     initCompoundField(&field);
     strcpy(field.name, "data");
-    field.atomictype = TYPE_UNKNOWN;
+    field.atomictype = UDA_TYPE_UNKNOWN;
     strcpy(field.type, udt->name);
     strcpy(field.desc, "data");
 
@@ -316,8 +313,8 @@ int do_signal_file(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     field.shape = NULL;            // Needed when rank >= 1
 
     field.size = field.count * sizeof(void*);
-    field.offset = newoffset(offset, field.type);
-    field.offpad = padding(offset, field.type);
+    field.offset = (int)newoffset((size_t)offset, field.type);
+    field.offpad = (int)padding((size_t)offset, field.type);
     field.alignment = getalignmentof(field.type);
     offset = field.offset + field.size;    // Next Offset
     addCompoundField(&parentTree, field);
@@ -374,7 +371,7 @@ int do_signal_file(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     initDataBlock(data_block);
 
-    data_block->data_type = TYPE_COMPOUND;
+    data_block->data_type = UDA_TYPE_COMPOUND;
     data_block->rank = 0;            // Scalar structure (don't need a DIM array)
     data_block->data_n = 1;
     data_block->data = (char*)data;
@@ -383,7 +380,7 @@ int do_signal_file(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     strcpy(data_block->data_label, "Data plus type");
     strcpy(data_block->data_units, "");
 
-    data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
+    data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
     data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "DATAPLUSTYPE", 0);
 
@@ -433,11 +430,11 @@ int do_signal_filename(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     ////////////////////
     // Query to find data signals and filename associated with given geom group
-    IDAM_LOG(UDA_LOG_DEBUG, "trying to get connection\n");
+    UDA_LOG(UDA_LOG_DEBUG, "trying to get connection\n");
     char* db_host = getenv("GEOM_DB_HOST");
     char* db_port_str = getenv("GEOM_DB_PORT");
     int db_port = -1;
-    if (db_port_str != NULL) db_port = atoi(db_port_str);
+    if (db_port_str != NULL) db_port = (int)strtol(db_port_str, NULL, 10);
     char* db_name = getenv("GEOM_DB_NAME");
     char* db_user = getenv("GEOM_DB_USER");
 
@@ -457,7 +454,7 @@ int do_signal_filename(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     int err = 0;
     PQescapeStringConn(DBConnect, signal_for_query, geomsignal, strlen(geomsignal), &err);
 
-    IDAM_LOGF(UDA_LOG_DEBUG, "signal_for_query %s\n", signal_for_query);
+    UDA_LOG(UDA_LOG_DEBUG, "signal_for_query %s\n", signal_for_query);
 
     char query[MAXSQL];
 
@@ -504,7 +501,7 @@ int do_signal_filename(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     }
     strcat(query, ";");
 
-    IDAM_LOGF(UDA_LOG_DEBUG, "query is %s\n", query);
+    UDA_LOG(UDA_LOG_DEBUG, "query is %s\n", query);
 
     if ((DBQuery = PQexec(DBConnect, query)) == NULL) {
         RAISE_PLUGIN_ERROR("Database query failed.\n");
@@ -545,7 +542,7 @@ int do_signal_filename(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
         // Signal id
         if (!PQgetisnull(DBQuery, i, s_id)) {
-            data->signal_id[i] = atoi(PQgetvalue(DBQuery, i, s_id));
+            data->signal_id[i] = (int)strtol(PQgetvalue(DBQuery, i, s_id), NULL, 10);
         } else {
             data->signal_id[i] = -1;
         }
@@ -664,7 +661,7 @@ int do_signal_filename(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     //////////////////
     //User defined type to describe data structure
     initUserDefinedType(&parentTree);
-    parentTree.idamclass = TYPE_COMPOUND;
+    parentTree.idamclass = UDA_TYPE_COMPOUND;
     strcpy(parentTree.name, "DATASTRUCT");
     strcpy(parentTree.source, "netcdf");
     parentTree.ref_id = 0;
@@ -701,7 +698,7 @@ int do_signal_filename(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     initDataBlock(data_block);
 
-    data_block->data_type = TYPE_COMPOUND;
+    data_block->data_type = UDA_TYPE_COMPOUND;
     data_block->rank = 0;            // Scalar structure (don't need a DIM array)
     data_block->data_n = 1;
     data_block->data = (char*)data_out;
@@ -710,7 +707,7 @@ int do_signal_filename(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     strcpy(data_block->data_label, "Filenames");
     strcpy(data_block->data_units, "");
 
-    data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
+    data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
     data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "DATASTRUCT", 0);
 

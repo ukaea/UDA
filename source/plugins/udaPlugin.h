@@ -59,6 +59,12 @@ typedef void (* ADDIDAMERRORFUNP)(IDAMERRORSTACK*, int, char*, int, char*);   //
 
 int initPlugin(const IDAM_PLUGIN_INTERFACE* plugin_interface);
 
+int setReturnDataFloatArray(DATA_BLOCK* data_block, float* values, size_t rank, const size_t* shape, const char* description);
+
+int setReturnDataDoubleArray(DATA_BLOCK* data_block, double* values, size_t rank, const size_t* shape, const char* description);
+
+int setReturnDataIntArray(DATA_BLOCK* data_block, int* values, size_t rank, const size_t* shape, const char* description);
+
 int setReturnDataDoubleScalar(DATA_BLOCK* data_block, double value, const char* description);
 
 int setReturnDataFloatScalar(DATA_BLOCK* data_block, float value, const char* description);
@@ -99,20 +105,20 @@ int callPlugin(const PLUGINLIST* pluginlist, const char* request, const IDAM_PLU
 
 #define RAISE_PLUGIN_ERROR(MSG) \
 { int UNIQUE_VAR(err) = 999; \
-IDAM_LOGF(UDA_LOG_ERROR, "%s\n", MSG); \
-addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, UNIQUE_VAR(err), MSG); \
+UDA_LOG(UDA_LOG_ERROR, "%s\n", MSG); \
+addIdamError(CODEERRORTYPE, __func__, UNIQUE_VAR(err), MSG); \
 return UNIQUE_VAR(err); }
 
 #define RAISE_PLUGIN_ERROR_F(MSG, FMT, ...) \
 { int UNIQUE_VAR(err) = 999; \
-IDAM_LOGF(UDA_LOG_ERROR, "%s\n", FMT, __VA_ARGS__); \
-addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, UNIQUE_VAR(err), MSG); \
+UDA_LOG(UDA_LOG_ERROR, "%s\n", FMT, __VA_ARGS__); \
+addIdamError(CODEERRORTYPE, __func__, UNIQUE_VAR(err), MSG); \
 return UNIQUE_VAR(err); }
 
 #define RAISE_PLUGIN_ERROR_EX(MSG, CODE) \
 int UNIQUE_VAR(err) = 999; \
-IDAM_LOGF(UDA_LOG_ERROR, "%s", MSG); \
-addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, UNIQUE_VAR(err), MSG); \
+UDA_LOG(UDA_LOG_ERROR, "%s", MSG); \
+addIdamError(CODEERRORTYPE, __func__, UNIQUE_VAR(err), MSG); \
 CODE; \
 return UNIQUE_VAR(err);
 

@@ -40,8 +40,10 @@ int startup(void)
         FILE* accout = fopen(idamFile, environment->logmode);
 
         if (errno != 0) {
-            addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "startup", errno, "Access Log: ");
-            if (accout != NULL) fclose(accout);
+            addIdamError(SYSTEMERRORTYPE, "startup", errno, "Access Log: ");
+            if (accout != NULL) {
+                fclose(accout);
+            }
         } else {
             idamSetLogFile(UDA_LOG_ACCESS, accout);
         }
@@ -54,8 +56,10 @@ int startup(void)
         FILE* errout = fopen(idamFile, environment->logmode);
 
         if (errno != 0) {
-            addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "startup", errno, "Error Log: ");
-            if (errout != NULL) fclose(errout);
+            addIdamError(SYSTEMERRORTYPE, "startup", errno, "Error Log: ");
+            if (errout != NULL) {
+                fclose(errout);
+            }
         } else {
             idamSetLogFile(UDA_LOG_ERROR, errout);
         }
@@ -68,8 +72,10 @@ int startup(void)
         FILE* dbgout = fopen(idamFile, environment->logmode);
 
         if (errno != 0) {
-            addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "startup", errno, "Debug Log: ");
-            if (dbgout != NULL) fclose(dbgout);
+            addIdamError(SYSTEMERRORTYPE, "startup", errno, "Debug Log: ");
+            if (dbgout != NULL) {
+                fclose(dbgout);
+            }
         } else {
             idamSetLogFile(UDA_LOG_WARN, dbgout);
             idamSetLogFile(UDA_LOG_DEBUG, dbgout);

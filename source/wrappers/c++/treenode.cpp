@@ -1,7 +1,3 @@
-//
-// Created by jholloc on 08/03/16.
-//
-
 #include "treenode.hpp"
 
 #include <structures/struct.h>
@@ -35,9 +31,9 @@ uda::TreeNode uda::TreeNode::child(int num)
     return TreeNode(handle_, getNodeChild(node_, num));
 }
 
-void uda::TreeNode::print()
+void uda::TreeNode::printNode()
 {
-    printNode(node_);
+    ::printNode(node_);
 }
 
 std::string uda::TreeNode::name()
@@ -360,7 +356,7 @@ uda::Vector uda::TreeNode::atomicVector(const std::string& target)
 template <typename T>
 static uda::Array getArray(LOGMALLOCLIST* logmalloclist, NTREE* node, const std::string& target, int* shape, int rank)
 {
-    T* data = reinterpret_cast<T*>(getNodeStructureComponentData(logmalloclist, node, (char*)target.c_str()));
+    auto data = reinterpret_cast<T*>(getNodeStructureComponentData(logmalloclist, node, (char*)target.c_str()));
 
     std::vector<uda::Dim> dims;
     for (int i = 0; i < rank; ++i) {
@@ -368,7 +364,7 @@ static uda::Array getArray(LOGMALLOCLIST* logmalloclist, NTREE* node, const std:
         for (int j = 0; j < shape[i]; ++j) {
             dim[j] = j;
         }
-        dims.push_back(uda::Dim((uda::dim_type)i, dim.data(), (size_t)shape[i], "", ""));
+        dims.emplace_back(uda::Dim((uda::dim_type)i, dim.data(), (size_t)shape[i], "", ""));
     }
 
     return uda::Array(data, dims);
@@ -416,11 +412,9 @@ uda::StructData uda::TreeNode::structData(const std::string& target)
     if (node == nullptr) return StructData::Null;
 
     int count = getNodeChildrenCount(node->parent);
-    //void ** data = static_cast<void **>(malloc(count * sizeof(void *)));
 
     uda::StructData data;
 
-    //addMalloc(data, count, sizeof(void *), (char *)"void *");
     for (int j = 0; j < count; j++) {
         void* ptr = getNodeData(node->parent->children[j]);
         std::string name(getNodeStructureType(node->parent->children[j]));

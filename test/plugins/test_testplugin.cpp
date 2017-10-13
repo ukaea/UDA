@@ -5,26 +5,24 @@
 
 TEST_CASE( "Test help function", "[plugins][TESTPLUGIN]" )
 {
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+#include "setup.inc"
 
     uda::Client client;
 
     const uda::Result& result = client.get("TESTPLUGIN::help()", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.errorMessage() == "" );
+    REQUIRE( result.errorMessage().empty() );
 
     uda::Data* data = result.data();
 
-    REQUIRE( data != NULL );
+    REQUIRE( data != nullptr );
     REQUIRE( !data->isNull() );
     REQUIRE( data->type().name() == typeid(char*).name() );
 
-    uda::String* str = dynamic_cast<uda::String*>(data);
+    auto str = dynamic_cast<uda::String*>(data);
 
-    REQUIRE( str != NULL );
+    REQUIRE( str != nullptr );
 
     std::string expected = "\nTestplugin: Functions Names and Test Descriptions/n/n"
             "test0-test9: String passing tests\n"
@@ -76,26 +74,24 @@ TEST_CASE( "Test help function", "[plugins][TESTPLUGIN]" )
 
 TEST_CASE( "Run test0 - pass string as char array", "[plugins][TESTPLUGIN]" )
 {
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+#include "setup.inc"
 
     uda::Client client;
 
     const uda::Result& result = client.get("TESTPLUGIN::test0()", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.errorMessage() == "" );
+    REQUIRE( result.errorMessage().empty() );
 
     uda::Data* data = result.data();
 
-    REQUIRE( data != NULL );
+    REQUIRE( data != nullptr );
     REQUIRE( !data->isNull() );
     REQUIRE( data->type().name() == typeid(char).name() );
 
-    uda::Array* array = dynamic_cast<uda::Array*>(data);
+    auto array = dynamic_cast<uda::Array*>(data);
 
-    REQUIRE( array != NULL );
+    REQUIRE( array != nullptr );
 
     std::string str = array->as<char>().data();
 
@@ -106,26 +102,24 @@ TEST_CASE( "Run test0 - pass string as char array", "[plugins][TESTPLUGIN]" )
 
 TEST_CASE( "Run test1 - pass string as string scalar", "[plugins][TESTPLUGIN]" )
 {
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+#include "setup.inc"
 
     uda::Client client;
 
     const uda::Result& result = client.get("TESTPLUGIN::test1()", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.errorMessage() == "" );
+    REQUIRE( result.errorMessage().empty() );
 
     uda::Data* data = result.data();
 
-    REQUIRE( data != NULL );
+    REQUIRE( data != nullptr );
     REQUIRE( !data->isNull() );
     REQUIRE( data->type().name() == typeid(char*).name() );
 
-    uda::String* str = dynamic_cast<uda::String*>(data);
+    auto str = dynamic_cast<uda::String*>(data);
 
-    REQUIRE( str != NULL );
+    REQUIRE( str != nullptr );
 
     std::string expected = "Hello World!";
 
@@ -134,26 +128,24 @@ TEST_CASE( "Run test1 - pass string as string scalar", "[plugins][TESTPLUGIN]" )
 
 TEST_CASE( "Run test2 - pass string list as 2D char array", "[plugins][TESTPLUGIN]" )
 {
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+#include "setup.inc"
 
     uda::Client client;
 
     const uda::Result& result = client.get("TESTPLUGIN::test2()", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.errorMessage() == "" );
+    REQUIRE( result.errorMessage().empty() );
 
     uda::Data* data = result.data();
 
-    REQUIRE( data != NULL );
+    REQUIRE( data != nullptr );
     REQUIRE( !data->isNull() );
     REQUIRE( data->type().name() == typeid(char).name() );
 
-    uda::Array* array = dynamic_cast<uda::Array*>(data);
+    auto array = dynamic_cast<uda::Array*>(data);
 
-    REQUIRE( array != NULL );
+    REQUIRE( array != nullptr );
 
     std::vector<uda::Dim> dims = array->dims();
 
@@ -179,27 +171,24 @@ TEST_CASE( "Run test2 - pass string list as 2D char array", "[plugins][TESTPLUGI
 
 TEST_CASE( "Run test3 - pass string list as array of strings", "[plugins][TESTPLUGIN]" )
 {
-#ifdef FATCLIENT
-
-#  include "setupEnvironment.inc"
-#endif
+#include "setup.inc"
 
     uda::Client client;
 
     const uda::Result& result = client.get("TESTPLUGIN::test3()", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.errorMessage() == "" );
+    REQUIRE( result.errorMessage().empty() );
 
     uda::Data* data = result.data();
 
-    REQUIRE( data != NULL );
+    REQUIRE( data != nullptr );
     REQUIRE( !data->isNull() );
     REQUIRE( data->type().name() == typeid(std::string).name() );
 
-    uda::Array* array = dynamic_cast<uda::Array*>(data);
+    auto array = dynamic_cast<uda::Array*>(data);
 
-    REQUIRE(array != NULL );
+    REQUIRE(array != nullptr );
 
     std::vector<uda::Dim> dims = array->dims();
 
@@ -219,16 +208,14 @@ TEST_CASE( "Run test3 - pass string list as array of strings", "[plugins][TESTPL
 
 TEST_CASE( "Run test4 - pass struct containing char array", "[plugins][TESTPLUGIN]" )
 {
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+#include "setup.inc"
 
     uda::Client client;
 
     const uda::Result& result = client.get("TESTPLUGIN::test4()", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.errorMessage() == "" );
+    REQUIRE( result.errorMessage().empty() );
     REQUIRE( result.isTree() );
 
     uda::TreeNode tree = result.tree();
@@ -255,16 +242,14 @@ TEST_CASE( "Run test4 - pass struct containing char array", "[plugins][TESTPLUGI
 
 TEST_CASE( "Run test5 - pass struct containing array of strings", "[plugins][TESTPLUGIN]" )
 {
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+#include "setup.inc"
 
     uda::Client client;
 
     const uda::Result& result = client.get("TESTPLUGIN::test5()", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.errorMessage() == "" );
+    REQUIRE( result.errorMessage().empty() );
     REQUIRE( result.isTree() );
 
     uda::TreeNode tree = result.tree();
@@ -300,16 +285,14 @@ TEST_CASE( "Run test5 - pass struct containing array of strings", "[plugins][TES
 
 TEST_CASE( "Run test6 - pass struct containing string", "[plugins][TESTPLUGIN]" )
 {
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+#include "setup.inc"
 
     uda::Client client;
 
     const uda::Result& result = client.get("TESTPLUGIN::test6()", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.errorMessage() == "" );
+    REQUIRE( result.errorMessage().empty() );
     REQUIRE( result.isTree() );
 
     uda::TreeNode tree = result.tree();
@@ -336,16 +319,14 @@ TEST_CASE( "Run test6 - pass struct containing string", "[plugins][TESTPLUGIN]" 
 
 TEST_CASE( "Run test7 - pass struct containing array of strings", "[plugins][TESTPLUGIN]" )
 {
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+#include "setup.inc"
 
     uda::Client client;
 
     const uda::Result& result = client.get("TESTPLUGIN::test7()", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.errorMessage() == "" );
+    REQUIRE( result.errorMessage().empty() );
     REQUIRE( result.isTree() );
 
     uda::TreeNode tree = result.tree();
@@ -380,16 +361,14 @@ TEST_CASE( "Run test7 - pass struct containing array of strings", "[plugins][TES
 
 TEST_CASE( "Run test8 - pass struct containing array of string pointers", "[plugins][TESTPLUGIN]" )
 {
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+#include "setup.inc"
 
     uda::Client client;
 
     const uda::Result& result = client.get("TESTPLUGIN::test8()", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.errorMessage() == "" );
+    REQUIRE( result.errorMessage().empty() );
     REQUIRE( result.isTree() );
 
     uda::TreeNode tree = result.tree();
@@ -421,16 +400,14 @@ TEST_CASE( "Run test8 - pass struct containing array of string pointers", "[plug
 
 TEST_CASE( "Run test9 - pass 4 structs containing multiple types of string arrays", "[plugins][TESTPLUGIN]" )
 {
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+#include "setup.inc"
 
     uda::Client client;
 
     const uda::Result& result = client.get("TESTPLUGIN::test9()", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.errorMessage() == "" );
+    REQUIRE( result.errorMessage().empty() );
     REQUIRE( result.isTree() );
 
     uda::TreeNode tree = result.tree();
@@ -544,42 +521,38 @@ TEST_CASE( "Run test9 - pass 4 structs containing multiple types of string array
 
 TEST_CASE( "Run test10 - pass single int", "[plugins][TESTPLUGIN]" )
 {
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+#include "setup.inc"
 
     uda::Client client;
 
     const uda::Result& result = client.get("TESTPLUGIN::test10()", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.errorMessage() == "" );
+    REQUIRE( result.errorMessage().empty() );
 
     uda::Data* data = result.data();
 
-    REQUIRE( data != NULL );
+    REQUIRE( data != nullptr );
     REQUIRE( !data->isNull() );
     REQUIRE( data->type().name() == typeid(int).name() );
 
     uda::Scalar* value = dynamic_cast<uda::Scalar*>(data);
 
-    REQUIRE( value != NULL );
+    REQUIRE( value != nullptr );
 
     REQUIRE( value->as<int>() == 7 );
 }
 
 TEST_CASE( "Run test11 - pass struct containing single int", "[plugins][TESTPLUGIN]" )
 {
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+#include "setup.inc"
 
     uda::Client client;
 
     const uda::Result& result = client.get("TESTPLUGIN::test11()", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.errorMessage() == "" );
+    REQUIRE( result.errorMessage().empty() );
     REQUIRE( result.isTree() );
 
     uda::TreeNode tree = result.tree();
@@ -607,16 +580,14 @@ TEST_CASE( "Run test11 - pass struct containing single int", "[plugins][TESTPLUG
 
 TEST_CASE( "Run test12 - pass struct containing 1D array of ints", "[plugins][TESTPLUGIN]" )
 {
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+#include "setup.inc"
 
     uda::Client client;
 
     const uda::Result& result = client.get("TESTPLUGIN::test12()", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.errorMessage() == "" );
+    REQUIRE( result.errorMessage().empty() );
     REQUIRE( result.isTree() );
 
     uda::TreeNode tree = result.tree();
@@ -652,16 +623,14 @@ TEST_CASE( "Run test12 - pass struct containing 1D array of ints", "[plugins][TE
 
 TEST_CASE( "Run test13 - pass struct containing 2D array of ints", "[plugins][TESTPLUGIN]" )
 {
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+#include "setup.inc"
 
     uda::Client client;
 
     const uda::Result& result = client.get("TESTPLUGIN::test13()", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.errorMessage() == "" );
+    REQUIRE( result.errorMessage().empty() );
     REQUIRE( result.isTree() );
 
     uda::TreeNode tree = result.tree();
@@ -705,16 +674,14 @@ TEST_CASE( "Run test13 - pass struct containing 2D array of ints", "[plugins][TE
 
 TEST_CASE( "Run test14 - pass struct containing single int passed as pointer", "[plugins][TESTPLUGIN]" )
 {
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+#include "setup.inc"
 
     uda::Client client;
 
     const uda::Result& result = client.get("TESTPLUGIN::test14()", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.errorMessage() == "" );
+    REQUIRE( result.errorMessage().empty() );
     REQUIRE( result.isTree() );
 
     uda::TreeNode tree = result.tree();
@@ -742,16 +709,14 @@ TEST_CASE( "Run test14 - pass struct containing single int passed as pointer", "
 
 TEST_CASE( "Run test15 - pass struct containing 1D array of ints passed as pointer", "[plugins][TESTPLUGIN]" )
 {
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+#include "setup.inc"
 
     uda::Client client;
 
     const uda::Result& result = client.get("TESTPLUGIN::test15()", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.errorMessage() == "" );
+    REQUIRE( result.errorMessage().empty() );
     REQUIRE( result.isTree() );
 
     uda::TreeNode tree = result.tree();
@@ -787,16 +752,14 @@ TEST_CASE( "Run test15 - pass struct containing 1D array of ints passed as point
 
 TEST_CASE( "Run test16 - pass struct containing 2D array of ints passed as pointer", "[plugins][TESTPLUGIN]" )
 {
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+#include "setup.inc"
 
     uda::Client client;
 
     const uda::Result& result = client.get("TESTPLUGIN::test16()", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.errorMessage() == "" );
+    REQUIRE( result.errorMessage().empty() );
     REQUIRE( result.isTree() );
 
     uda::TreeNode tree = result.tree();
@@ -840,16 +803,14 @@ TEST_CASE( "Run test16 - pass struct containing 2D array of ints passed as point
 
 TEST_CASE( "Run test18 - pass large number of structs containing single int", "[plugins][TESTPLUGIN]" )
 {
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+#include "setup.inc"
 
     uda::Client client;
 
     const uda::Result& result = client.get("TESTPLUGIN::test18()", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.errorMessage() == "" );
+    REQUIRE( result.errorMessage().empty() );
     REQUIRE( result.isTree() );
 
     uda::TreeNode tree = result.tree();
@@ -879,16 +840,14 @@ TEST_CASE( "Run test18 - pass large number of structs containing single int", "[
 
 TEST_CASE( "Run test19 - pass 3 structs containing array of structs", "[plugins][TESTPLUGIN]" )
 {
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+#include "setup.inc"
 
     uda::Client client;
 
     const uda::Result& result = client.get("TESTPLUGIN::test19()", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.errorMessage() == "" );
+    REQUIRE( result.errorMessage().empty() );
     REQUIRE( result.isTree() );
 
     uda::TreeNode tree = result.tree();
@@ -938,42 +897,38 @@ TEST_CASE( "Run test19 - pass 3 structs containing array of structs", "[plugins]
 
 TEST_CASE( "Run test20 - pass single short", "[plugins][TESTPLUGIN]" )
 {
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+#include "setup.inc"
 
     uda::Client client;
 
     const uda::Result& result = client.get("TESTPLUGIN::test20()", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.errorMessage() == "" );
+    REQUIRE( result.errorMessage().empty() );
 
     uda::Data* data = result.data();
 
-    REQUIRE( data != NULL );
+    REQUIRE( data != nullptr );
     REQUIRE( !data->isNull() );
     REQUIRE( data->type().name() == typeid(short).name() );
 
     uda::Scalar* value = dynamic_cast<uda::Scalar*>(data);
 
-    REQUIRE( value != NULL );
+    REQUIRE( value != nullptr );
 
     REQUIRE( value->as<short>() == 7 );
 }
 
 TEST_CASE( "Run test21 - pass struct containing single short", "[plugins][TESTPLUGIN]" )
 {
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+#include "setup.inc"
 
     uda::Client client;
 
     const uda::Result& result = client.get("TESTPLUGIN::test21()", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.errorMessage() == "" );
+    REQUIRE( result.errorMessage().empty() );
     REQUIRE( result.isTree() );
 
     uda::TreeNode tree = result.tree();
@@ -1001,16 +956,14 @@ TEST_CASE( "Run test21 - pass struct containing single short", "[plugins][TESTPL
 
 TEST_CASE( "Run test22 - pass struct containing 1D array of shorts", "[plugins][TESTPLUGIN]" )
 {
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+#include "setup.inc"
 
     uda::Client client;
 
     const uda::Result& result = client.get("TESTPLUGIN::test22()", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.errorMessage() == "" );
+    REQUIRE( result.errorMessage().empty() );
     REQUIRE( result.isTree() );
 
     uda::TreeNode tree = result.tree();
@@ -1046,16 +999,14 @@ TEST_CASE( "Run test22 - pass struct containing 1D array of shorts", "[plugins][
 
 TEST_CASE( "Run test23 - pass struct containing 2D array of shorts", "[plugins][TESTPLUGIN]" )
 {
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+#include "setup.inc"
 
     uda::Client client;
 
     const uda::Result& result = client.get("TESTPLUGIN::test23()", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.errorMessage() == "" );
+    REQUIRE( result.errorMessage().empty() );
     REQUIRE( result.isTree() );
 
     uda::TreeNode tree = result.tree();
@@ -1099,16 +1050,14 @@ TEST_CASE( "Run test23 - pass struct containing 2D array of shorts", "[plugins][
 
 TEST_CASE( "Run test24 - pass struct containing single short passed as pointer", "[plugins][TESTPLUGIN]" )
 {
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+#include "setup.inc"
 
     uda::Client client;
 
     const uda::Result& result = client.get("TESTPLUGIN::test24()", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.errorMessage() == "" );
+    REQUIRE( result.errorMessage().empty() );
     REQUIRE( result.isTree() );
 
     uda::TreeNode tree = result.tree();
@@ -1136,16 +1085,14 @@ TEST_CASE( "Run test24 - pass struct containing single short passed as pointer",
 
 TEST_CASE( "Run test25 - pass struct containing 1D array of shorts passed as pointer", "[plugins][TESTPLUGIN]" )
 {
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+#include "setup.inc"
 
     uda::Client client;
 
     const uda::Result& result = client.get("TESTPLUGIN::test25()", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.errorMessage() == "" );
+    REQUIRE( result.errorMessage().empty() );
     REQUIRE( result.isTree() );
 
     uda::TreeNode tree = result.tree();
@@ -1181,16 +1128,14 @@ TEST_CASE( "Run test25 - pass struct containing 1D array of shorts passed as poi
 
 TEST_CASE( "Run test26 - pass struct containing 2D array of shorts passed as pointer", "[plugins][TESTPLUGIN]" )
 {
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+#include "setup.inc"
 
     uda::Client client;
 
     const uda::Result& result = client.get("TESTPLUGIN::test26()", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.errorMessage() == "" );
+    REQUIRE( result.errorMessage().empty() );
     REQUIRE( result.isTree() );
 
     uda::TreeNode tree = result.tree();
@@ -1234,16 +1179,14 @@ TEST_CASE( "Run test26 - pass struct containing 2D array of shorts passed as poi
 
 TEST_CASE( "Run test27 - pass struct containing 3D array of shorts", "[plugins][TESTPLUGIN]" )
 {
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+#include "setup.inc"
 
     uda::Client client;
 
     const uda::Result& result = client.get("TESTPLUGIN::test27()", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.errorMessage() == "" );
+    REQUIRE( result.errorMessage().empty() );
     REQUIRE( result.isTree() );
 
     uda::TreeNode tree = result.tree();
@@ -1278,23 +1221,21 @@ TEST_CASE( "Run test27 - pass struct containing 3D array of shorts", "[plugins][
 
     short exp[] = { 0, 1, 2, 3, 10, 11, 12, 13, 20, 21, 22, 23, 100, 101, 102, 103, 110, 111,
                     112, 113, 120, 121, 122, 123 };
-    std::vector<short> expected(exp, exp + 24);
+    std::vector<short> expected(exp, exp + sizeof(exp)/sizeof(exp[0]));
 
     REQUIRE( value.as<short>() == expected );
 }
 
 TEST_CASE( "Run test28 - pass struct containing 3D array of shorts passed as pointer", "[plugins][TESTPLUGIN]" )
 {
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+#include "setup.inc"
 
     uda::Client client;
 
     const uda::Result& result = client.get("TESTPLUGIN::test28()", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.errorMessage() == "" );
+    REQUIRE( result.errorMessage().empty() );
     REQUIRE( result.isTree() );
 
     uda::TreeNode tree = result.tree();
@@ -1329,23 +1270,21 @@ TEST_CASE( "Run test28 - pass struct containing 3D array of shorts passed as poi
 
     short exp[] = { 0, 1, 2, 3, 10, 11, 12, 13, 20, 21, 22, 23, 100, 101, 102, 103, 110, 111,
                     112, 113, 120, 121, 122, 123 };
-    std::vector<short> expected(exp, exp + 24);
+    std::vector<short> expected(exp, exp + sizeof(exp)/sizeof(exp[0]));
 
     REQUIRE( value.as<short>() == expected );
 }
 
 TEST_CASE( "Run test30 - pass struct containing 2 doubles", "[plugins][TESTPLUGIN]" )
 {
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+#include "setup.inc"
 
     uda::Client client;
 
     const uda::Result& result = client.get("TESTPLUGIN::test30()", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.errorMessage() == "" );
+    REQUIRE( result.errorMessage().empty() );
     REQUIRE( result.isTree() );
 
     uda::TreeNode tree = result.tree();
@@ -1381,16 +1320,14 @@ TEST_CASE( "Run test30 - pass struct containing 2 doubles", "[plugins][TESTPLUGI
 
 TEST_CASE( "Run test31 - pass 100 structs containing 2 doubles", "[plugins][TESTPLUGIN]" )
 {
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+#include "setup.inc"
 
     uda::Client client;
 
     const uda::Result& result = client.get("TESTPLUGIN::test31()", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.errorMessage() == "" );
+    REQUIRE( result.errorMessage().empty() );
     REQUIRE( result.isTree() );
 
     uda::TreeNode tree = result.tree();
@@ -1428,16 +1365,14 @@ TEST_CASE( "Run test31 - pass 100 structs containing 2 doubles", "[plugins][TEST
 
 TEST_CASE( "Run test32 - pass struct containing array of 100 structs containing 2 doubles", "[plugins][TESTPLUGIN]" )
 {
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+#include "setup.inc"
 
     uda::Client client;
 
     const uda::Result& result = client.get("TESTPLUGIN::test32()", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.errorMessage() == "" );
+    REQUIRE( result.errorMessage().empty() );
     REQUIRE( result.isTree() );
 
     uda::TreeNode tree = result.tree();
@@ -1491,16 +1426,14 @@ TEST_CASE( "Run test32 - pass struct containing array of 100 structs containing 
 
 TEST_CASE( "Run test33 - pass struct containing array of 100 structs containing 2 doubles as pointer", "[plugins][TESTPLUGIN]" )
 {
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+#include "setup.inc"
 
     uda::Client client;
 
     const uda::Result& result = client.get("TESTPLUGIN::test33()", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.errorMessage() == "" );
+    REQUIRE( result.errorMessage().empty() );
     REQUIRE( result.isTree() );
 
     uda::TreeNode tree = result.tree();
@@ -1554,26 +1487,24 @@ TEST_CASE( "Run test33 - pass struct containing array of 100 structs containing 
 
 TEST_CASE( "Run plugin - call a plugin", "[plugins][TESTPLUGIN]" )
 {
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+#include "setup.inc"
 
     uda::Client client;
 
     const uda::Result& result = client.get("TESTPLUGIN::plugin(signal='HELP::HELP()', source='')", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.errorMessage() == "" );
+    REQUIRE( result.errorMessage().empty() );
 
     uda::Data* data = result.data();
 
-    REQUIRE( data != NULL );
+    REQUIRE( data != nullptr );
     REQUIRE( !data->isNull() );
     REQUIRE( data->type().name() == typeid(char*).name() );
 
-    uda::String* str = dynamic_cast<uda::String*>(data);
+    auto str = dynamic_cast<uda::String*>(data);
 
-    REQUIRE( str != NULL );
+    REQUIRE( str != nullptr );
 
     std::string expected = "\n"
             "Help\tList of HELP plugin functions:\n"
@@ -1587,58 +1518,55 @@ TEST_CASE( "Run plugin - call a plugin", "[plugins][TESTPLUGIN]" )
 
 TEST_CASE( "Run errortest - test error reporting", "[plugins][TESTPLUGIN]" )
 {
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+#include "setup.inc"
 
     uda::Client client;
 
-    REQUIRE_THROWS_WITH( client.get("TESTPLUGIN::errortest(test=1)", ""), "Test #1 of Error State Management" );
-    REQUIRE_THROWS_WITH( client.get("TESTPLUGIN::errortest(test=2)", ""), "Test #2 of Error State Management" );
+    REQUIRE_THROWS_WITH( client.get("TESTPLUGIN::errortest(test=1)", ""), "[testplugin]: Test #1 of Error State Management\n" );
+    REQUIRE_THROWS_WITH( client.get("TESTPLUGIN::errortest(test=2)", ""), "[testplugin]: Test #2 of Error State Management\n" );
+#ifndef FATCLIENT
+    // This test hard crashes the server code so can't be run in fat-client mode
     REQUIRE_THROWS_WITH( client.get("TESTPLUGIN::errortest(test=3)", ""), " Protocol 11 Error (Server Block #2)" );
+#endif
 }
 
 TEST_CASE( "Run scalartest - return a simple scalar value", "[plugins][TESTPLUGIN]" )
 {
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+#include "setup.inc"
 
     uda::Client client;
 
     const uda::Result& result = client.get("TESTPLUGIN::scalartest()", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.errorMessage() == "" );
+    REQUIRE( result.errorMessage().empty() );
 
     uda::Data* data = result.data();
 
-    REQUIRE( data != NULL );
+    REQUIRE( data != nullptr );
     REQUIRE( !data->isNull() );
     REQUIRE( data->type().name() == typeid(int).name() );
 
     uda::Scalar* value = dynamic_cast<uda::Scalar*>(data);
 
-    REQUIRE( value != NULL );
+    REQUIRE( value != nullptr );
 
     REQUIRE( value->as<int>() == 10 );
 }
 
 TEST_CASE( "Run emptytest - return no data", "[plugins][TESTPLUGIN]" )
 {
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+#include "setup.inc"
 
     uda::Client client;
 
     const uda::Result& result = client.get("TESTPLUGIN::emptytest()", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.errorMessage() == "" );
+    REQUIRE( result.errorMessage().empty() );
 
     uda::Data* data = result.data();
 
-    REQUIRE( data != NULL );
+    REQUIRE( data != nullptr );
     REQUIRE( data->isNull() );
 }

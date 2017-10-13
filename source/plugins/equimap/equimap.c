@@ -212,7 +212,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             const char* str = "Initialisation Completed";
             data_block->rank = 0;
             data_block->data_n = strlen(str) + 1;
-            data_block->data_type = TYPE_CHAR;
+            data_block->data_type = UDA_TYPE_CHAR;
             data_block->data = strdup(str);
             return 0;
         }
@@ -233,7 +233,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
         if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "smoothPsi")) {
 
-            IDAM_LOG(UDA_LOG_DEBUG, "EQUIMAP: processing time domain option 'smoothPsi'\n");
+            UDA_LOG(UDA_LOG_DEBUG, "EQUIMAP: processing time domain option 'smoothPsi'\n");
 
             int invert = 0;
             int limitPsi = 0;
@@ -247,7 +247,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 }
             }
 
-            IDAM_LOGF(UDA_LOG_DEBUG, "EQUIMAP: smoothPsi(invert=%d, limitPsi=%d, limitRMaj=%f)\n", invert, limitPsi,
+            UDA_LOG(UDA_LOG_DEBUG, "EQUIMAP: smoothPsi(invert=%d, limitPsi=%d, limitRMaj=%f)\n", invert, limitPsi,
                       limitRMaj);
 
             if (!smoothedPsi) {
@@ -258,7 +258,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 smoothPsi(&equimapdata, invert, limitPsi, limitRMaj);        // Constrain by upper RMajor
                 priorLimitRMaj = limitRMaj;
             }
-            IDAM_LOGF(UDA_LOG_DEBUG, "EQUIMAP: psiRZBox nr=%d, nz=%d)\n", equimapdata.efitdata[0].psiCountRZBox[0],
+            UDA_LOG(UDA_LOG_DEBUG, "EQUIMAP: psiRZBox nr=%d, nz=%d)\n", equimapdata.efitdata[0].psiCountRZBox[0],
                       equimapdata.efitdata[0].psiCountRZBox[1]);
         }
     }
@@ -299,7 +299,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             data_block->dims[0].dim_n = equimapdata.efitdata[0].nlim;
             data_block->dims[0].dim = NULL;
             data_block->dims[0].compressed = 1;
-            data_block->dims[0].data_type = TYPE_FLOAT;
+            data_block->dims[0].data_type = UDA_TYPE_FLOAT;
             data_block->dims[0].method = 0;
             data_block->dims[0].dim0 = 0.0;
             data_block->dims[0].diff = 1.0;
@@ -307,7 +307,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             data_block->dims[0].dim_label[0] = '\0';
 
             data_block->data_n = data_block->dims[0].dim_n;
-            data_block->data_type = TYPE_FLOAT;
+            data_block->data_type = UDA_TYPE_FLOAT;
             data_block->data = malloc(data_block->data_n * sizeof(float));
             float *arr = (float*)data_block->data;
 
@@ -368,7 +368,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 // Time Dimension
 
             data_block->dims[0].dim_n = equimapdata.timeCount;
-            data_block->dims[0].data_type = TYPE_FLOAT;
+            data_block->dims[0].data_type = UDA_TYPE_FLOAT;
             data_block->dims[0].dim = malloc(data_block->dims[0].dim_n * sizeof(float));
             memcpy(data_block->dims[0].dim, equimapdata.times, data_block->dims[0].dim_n * sizeof(float));
 
@@ -388,7 +388,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             data_block->data_n = data_block->dims[0].dim_n;
 
-            data_block->data_type = TYPE_FLOAT;
+            data_block->data_type = UDA_TYPE_FLOAT;
             data_block->data = malloc(data_block->data_n * sizeof(float));
             float* arr = (float*)data_block->data;
 
@@ -413,7 +413,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             } else if (STR_IEQUALS(request_block->function, "psiMag")) {
                 for (i = 0; i < equimapdata.timeCount; i++) arr[i] = equimapdata.efitdata[i].psi_mag;
             } else if (STR_IEQUALS(request_block->function, "Nlcfs")) {
-                data_block->data_type = TYPE_INT;
+                data_block->data_type = UDA_TYPE_INT;
                 int* iarr = (int*)data_block->data;
                 for (i = 0; i < equimapdata.timeCount; i++) iarr[i] = equimapdata.efitdata[i].nlcfs;
             } else if (STR_IEQUALS(request_block->function, "Npsiz0")) {
@@ -553,7 +553,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 // Time Dimension
 
             data_block->dims[1].dim_n = equimapdata.timeCount;
-            data_block->dims[1].data_type = TYPE_FLOAT;
+            data_block->dims[1].data_type = UDA_TYPE_FLOAT;
             data_block->dims[1].dim = malloc(data_block->dims[1].dim_n * sizeof(float));
             memcpy(data_block->dims[1].dim, equimapdata.times, data_block->dims[1].dim_n * sizeof(float));
 
@@ -607,7 +607,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             if (handle >= 0) {
                 if (!lcfsData) {
                     DIMS* xdim = getIdamDimBlock(handle, 0);
-                    data_block->dims[0].data_type = TYPE_FLOAT;
+                    data_block->dims[0].data_type = UDA_TYPE_FLOAT;
                     strcpy(data_block->dims[0].dim_units, xdim->dim_units);
                     strcpy(data_block->dims[0].dim_label, xdim->dim_label);
                     data_block->dims[0].dim_n = xdim->dim_n;
@@ -626,7 +626,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                     data_block->dims[0].dim_n = maxn;
                     data_block->dims[0].dim = NULL;
                     data_block->dims[0].compressed = 1;
-                    data_block->dims[0].data_type = TYPE_FLOAT;
+                    data_block->dims[0].data_type = UDA_TYPE_FLOAT;
                     data_block->dims[0].method = 0;
                     data_block->dims[0].dim0 = 0.0;
                     data_block->dims[0].diff = 1.0;
@@ -639,7 +639,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             data_block->data_n = data_block->dims[0].dim_n * data_block->dims[1].dim_n;
 
-            data_block->data_type = TYPE_FLOAT;
+            data_block->data_type = UDA_TYPE_FLOAT;
             data_block->data = malloc(data_block->data_n * sizeof(float));
 
             float* arr = (float*)data_block->data;
@@ -836,7 +836,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 // Time Dimension
 
             data_block->dims[1].dim_n = equimapdata.timeCount;
-            data_block->dims[1].data_type = TYPE_FLOAT;
+            data_block->dims[1].data_type = UDA_TYPE_FLOAT;
             data_block->dims[1].dim = malloc(data_block->dims[1].dim_n * sizeof(float));
             memcpy(data_block->dims[1].dim, equimapdata.times, data_block->dims[1].dim_n * sizeof(float));
 
@@ -859,7 +859,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             }
 
             data_block->dims[0].dim_n = rz0CountMax;
-            data_block->dims[0].data_type = TYPE_FLOAT;
+            data_block->dims[0].data_type = UDA_TYPE_FLOAT;
             data_block->dims[0].dim = malloc(rz0CountMax * sizeof(float));
 
             data_block->dims[0].compressed = 1;
@@ -873,7 +873,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             data_block->data_n = data_block->dims[0].dim_n * data_block->dims[1].dim_n;
 
-            data_block->data_type = TYPE_FLOAT;
+            data_block->data_type = UDA_TYPE_FLOAT;
             data_block->data = malloc(data_block->data_n * sizeof(float));
 
             float* arr = (float*)data_block->data;
@@ -947,7 +947,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 // Time Dimension
 
             data_block->dims[2].dim_n = equimapdata.timeCount;
-            data_block->dims[2].data_type = TYPE_FLOAT;
+            data_block->dims[2].data_type = UDA_TYPE_FLOAT;
             data_block->dims[2].dim = malloc(data_block->dims[2].dim_n * sizeof(float));
             memcpy(data_block->dims[2].dim, equimapdata.times, data_block->dims[2].dim_n * sizeof(float));
 
@@ -968,7 +968,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             if (handle >= 0) {
                 DIMS* xdim = getIdamDimBlock(handle, 0);
                 data_block->dims[0].dim_n = equimapdata.efitdata[0].psiCount[0];
-                data_block->dims[0].data_type = TYPE_FLOAT;
+                data_block->dims[0].data_type = UDA_TYPE_FLOAT;
                 data_block->dims[0].dim = malloc(data_block->dims[0].dim_n * sizeof(float));
                 memcpy(data_block->dims[0].dim, equimapdata.efitdata[0].rgrid,
                        data_block->dims[0].dim_n * sizeof(float));
@@ -978,7 +978,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
                 xdim = getIdamDimBlock(handle, 1);
                 data_block->dims[1].dim_n = equimapdata.efitdata[0].psiCount[1];
-                data_block->dims[1].data_type = TYPE_FLOAT;
+                data_block->dims[1].data_type = UDA_TYPE_FLOAT;
                 data_block->dims[1].dim = malloc(data_block->dims[1].dim_n * sizeof(float));
                 memcpy(data_block->dims[1].dim, equimapdata.efitdata[0].zgrid,
                        data_block->dims[1].dim_n * sizeof(float));
@@ -993,7 +993,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             data_block->data_n = data_block->dims[0].dim_n * data_block->dims[1].dim_n * data_block->dims[2].dim_n;
 
-            data_block->data_type = TYPE_FLOAT;
+            data_block->data_type = UDA_TYPE_FLOAT;
             data_block->data = malloc(data_block->data_n * sizeof(float));
 
             float* arr = (float*)data_block->data;
@@ -1101,7 +1101,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 // Time Dimension
 
             data_block->dims[2].dim_n = equimapdata.timeCount;
-            data_block->dims[2].data_type = TYPE_FLOAT;
+            data_block->dims[2].data_type = UDA_TYPE_FLOAT;
             data_block->dims[2].dim = malloc(data_block->dims[2].dim_n * sizeof(float));
             memcpy(data_block->dims[2].dim, equimapdata.times, data_block->dims[2].dim_n * sizeof(float));
 
@@ -1126,7 +1126,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 } else {
                     data_block->dims[0].dim_n = equimapdata.efitdata[0].psiCountRZBox[0];
                 }
-                data_block->dims[0].data_type = TYPE_FLOAT;
+                data_block->dims[0].data_type = UDA_TYPE_FLOAT;
                 data_block->dims[0].dim = malloc(data_block->dims[0].dim_n * sizeof(float));
                 if (STR_IEQUALS(request_block->function, "PsiSR")) {
                     memcpy(data_block->dims[0].dim, equimapdata.efitdata[0].rgridSR,
@@ -1145,7 +1145,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 } else {
                     data_block->dims[1].dim_n = equimapdata.efitdata[0].psiCountRZBox[1];
                 }
-                data_block->dims[1].data_type = TYPE_FLOAT;
+                data_block->dims[1].data_type = UDA_TYPE_FLOAT;
                 data_block->dims[1].dim = malloc(data_block->dims[1].dim_n * sizeof(float));
                 if (STR_IEQUALS(request_block->function, "PsiSR")) {
                     memcpy(data_block->dims[1].dim, equimapdata.efitdata[0].zgridSR,
@@ -1166,13 +1166,13 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             data_block->data_n = data_block->dims[0].dim_n * data_block->dims[1].dim_n * data_block->dims[2].dim_n;
 
             if (data_block->data_n == 0) {
-                IDAM_LOGF(UDA_LOG_DEBUG, "dims[0].dim_n = %d\n", data_block->dims[0].dim_n);
-                IDAM_LOGF(UDA_LOG_DEBUG, "dims[1].dim_n = %d\n", data_block->dims[1].dim_n);
-                IDAM_LOGF(UDA_LOG_DEBUG, "dims[2].dim_n = %d\n", data_block->dims[2].dim_n);
+                UDA_LOG(UDA_LOG_DEBUG, "dims[0].dim_n = %d\n", data_block->dims[0].dim_n);
+                UDA_LOG(UDA_LOG_DEBUG, "dims[1].dim_n = %d\n", data_block->dims[1].dim_n);
+                UDA_LOG(UDA_LOG_DEBUG, "dims[2].dim_n = %d\n", data_block->dims[2].dim_n);
                 RAISE_PLUGIN_ERROR("No Data Values selected!");
             }
 
-            data_block->data_type = TYPE_FLOAT;
+            data_block->data_type = UDA_TYPE_FLOAT;
             data_block->data = malloc(data_block->data_n * sizeof(float));
 
             float* arr = (float*)data_block->data;
@@ -1242,7 +1242,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 // Time Dimension
 
             data_block->dims[1].dim_n = equimapdata.timeCount;
-            data_block->dims[1].data_type = TYPE_FLOAT;
+            data_block->dims[1].data_type = UDA_TYPE_FLOAT;
             data_block->dims[1].dim = malloc(data_block->dims[1].dim_n * sizeof(float));
             memcpy(data_block->dims[1].dim, equimapdata.times, data_block->dims[1].dim_n * sizeof(float));
 
@@ -1259,7 +1259,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 // Flux Surface Label
 
             data_block->dims[0].dim_n = equimapdata.efitdata[0].nne;
-            data_block->dims[0].data_type = TYPE_FLOAT;
+            data_block->dims[0].data_type = UDA_TYPE_FLOAT;
 
             data_block->dims[0].dim = NULL;
 
@@ -1285,7 +1285,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             data_block->data_n = data_block->dims[0].dim_n * data_block->dims[1].dim_n;
 
-            data_block->data_type = TYPE_FLOAT;
+            data_block->data_type = UDA_TYPE_FLOAT;
             data_block->data = malloc(data_block->data_n * sizeof(float));
 
             for (i = 0; i < equimapdata.timeCount; i++) {
@@ -1413,7 +1413,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 // Time Dimension
 
             data_block->dims[1].dim_n = equimapdata.timeCount;
-            data_block->dims[1].data_type = TYPE_FLOAT;
+            data_block->dims[1].data_type = UDA_TYPE_FLOAT;
             data_block->dims[1].dim = malloc(data_block->dims[1].dim_n * sizeof(float));
             memcpy(data_block->dims[1].dim, equimapdata.times, data_block->dims[1].dim_n * sizeof(float));
 
@@ -1430,7 +1430,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 // Flux Surface Coordinate
 
             data_block->dims[0].dim_n = equimapdata.rhoCount;
-            data_block->dims[0].data_type = TYPE_FLOAT;
+            data_block->dims[0].data_type = UDA_TYPE_FLOAT;
 
             data_block->dims[0].dim = malloc(data_block->dims[0].dim_n * sizeof(float));
             memcpy(data_block->dims[0].dim, equimapdata.rho, data_block->dims[0].dim_n * sizeof(float));
@@ -1492,7 +1492,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             data_block->data_n = data_block->dims[0].dim_n * data_block->dims[1].dim_n;
 
-            data_block->data_type = TYPE_FLOAT;
+            data_block->data_type = UDA_TYPE_FLOAT;
             data_block->data = malloc(data_block->data_n * sizeof(float));
 
             float* arr = (float*)data_block->data;
@@ -1624,7 +1624,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 // Time Dimension
 
             data_block->dims[1].dim_n = equimapdata.timeCount;
-            data_block->dims[1].data_type = TYPE_FLOAT;
+            data_block->dims[1].data_type = UDA_TYPE_FLOAT;
             data_block->dims[1].dim = malloc(data_block->dims[1].dim_n * sizeof(float));
             memcpy(data_block->dims[1].dim, equimapdata.times, data_block->dims[1].dim_n * sizeof(float));
 
@@ -1641,7 +1641,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 // Normalised SQRT Toroidal Flux Dimension
 
             data_block->dims[0].dim_n = equimapdata.rhoBCount;
-            data_block->dims[0].data_type = TYPE_FLOAT;
+            data_block->dims[0].data_type = UDA_TYPE_FLOAT;
 
             data_block->dims[0].dim = malloc(data_block->dims[0].dim_n * sizeof(float));
             memcpy(data_block->dims[0].dim, equimapdata.rhoB, data_block->dims[0].dim_n * sizeof(float));
@@ -1689,7 +1689,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             data_block->data_n = data_block->dims[0].dim_n * data_block->dims[1].dim_n;
 
-            data_block->data_type = TYPE_FLOAT;
+            data_block->data_type = UDA_TYPE_FLOAT;
             data_block->data = malloc(data_block->data_n * sizeof(float));
 
             float* arr = (float*)data_block->data;
@@ -1799,7 +1799,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             } else {
                 data_block->dims[0].dim_n = equimapdata.rhoBCount;
             }
-            data_block->dims[0].data_type = TYPE_FLOAT;
+            data_block->dims[0].data_type = UDA_TYPE_FLOAT;
 
             data_block->dims[0].dim = NULL;
 
@@ -1813,7 +1813,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             data_block->data_n = data_block->dims[0].dim_n;
 
-            data_block->data_type = TYPE_FLOAT;
+            data_block->data_type = UDA_TYPE_FLOAT;
             data_block->data = malloc(data_block->data_n * sizeof(float));
             if (STR_IEQUALS(request_block->function, "FRho"))
                 memcpy((void*)data_block->data, (void*)equimapdata.rho, equimapdata.rhoCount * sizeof(float));
@@ -1865,7 +1865,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             int handle = whichHandle("EFM_MAGNETIC_AXIS_R");        // Provides Timing Labels only - not data
 
             data_block->dims[1].dim_n = equimapdata.timeCount;
-            data_block->dims[1].data_type = TYPE_FLOAT;
+            data_block->dims[1].data_type = UDA_TYPE_FLOAT;
             data_block->dims[1].dim = malloc(data_block->dims[1].dim_n * sizeof(float));
             memcpy(data_block->dims[1].dim, equimapdata.times, data_block->dims[1].dim_n * sizeof(float));
 
@@ -1886,7 +1886,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             } else {
                 data_block->dims[0].dim_n = equimapdata.rhoBCount;
             }
-            data_block->dims[0].data_type = TYPE_FLOAT;
+            data_block->dims[0].data_type = UDA_TYPE_FLOAT;
 
             data_block->dims[0].dim = NULL;
 
@@ -1902,7 +1902,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             data_block->data_n = data_block->dims[0].dim_n * data_block->dims[1].dim_n;
 
-            data_block->data_type = TYPE_FLOAT;
+            data_block->data_type = UDA_TYPE_FLOAT;
             data_block->data = malloc(data_block->data_n * sizeof(float));
             float* arr = (float*)data_block->data;
 
@@ -1975,7 +1975,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 // Time Dimension
 
             data_block->dims[1].dim_n = equimapdata.timeCount;
-            data_block->dims[1].data_type = TYPE_FLOAT;
+            data_block->dims[1].data_type = UDA_TYPE_FLOAT;
             data_block->dims[1].dim = malloc(data_block->dims[1].dim_n * sizeof(float));
             memcpy(data_block->dims[1].dim, equimapdata.times, data_block->dims[1].dim_n * sizeof(float));
 
@@ -1991,7 +1991,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Flux surface label
 
-            data_block->dims[0].data_type = TYPE_FLOAT;
+            data_block->dims[0].data_type = UDA_TYPE_FLOAT;
             strcpy(data_block->dims[0].dim_units, "");
             strcpy(data_block->dims[0].dim_label, "Rho");
             data_block->dims[0].dim_n = equimapdata.rhoCount;
@@ -2018,7 +2018,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             data_block->data_n = data_block->dims[0].dim_n * data_block->dims[1].dim_n;
 
-            data_block->data_type = TYPE_FLOAT;
+            data_block->data_type = UDA_TYPE_FLOAT;
             data_block->data = malloc(data_block->data_n * sizeof(float));
             float* arr = (float*)data_block->data;
 
@@ -2061,19 +2061,7 @@ extern int equiMap(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             break;
         }
 
-// catch all?
-// Experimental Data? Copy the IDAM data structure
-// No ... double free unless data and coordinate data are copied.
-
-        //if((handle = whichHandle(request_block->function)) >= 0){
-        // *data_block = *getIdamDataBlock(handle);
-        // break;
-        //}
-
-
-        err = 999;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "equimap", err, "Unknown function requested!");
-        return err;
+        RAISE_PLUGIN_ERROR("Unknown function requested!");
 
     } while (0);
 
@@ -2094,14 +2082,14 @@ static int do_ping(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     for (i = 0; i < data_block->rank; i++) {
         initDimBlock(&data_block->dims[i]);
     }
-    data_block->dims[0].data_type = TYPE_UNSIGNED_INT;
+    data_block->dims[0].data_type = UDA_TYPE_UNSIGNED_INT;
     data_block->dims[0].dim_n = strlen(str) + 1;
     data_block->dims[0].compressed = 1;
     data_block->dims[0].dim0 = 0.0;
     data_block->dims[0].diff = 1.0;
     data_block->dims[0].method = 0;
     data_block->data_n = strlen(str) + 1;
-    data_block->data_type = TYPE_STRING;
+    data_block->data_type = UDA_TYPE_STRING;
     data_block->data = strdup(str);
 
     return 0;
@@ -2121,14 +2109,14 @@ static int do_help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     for (i = 0; i < data_block->rank; i++) {
         initDimBlock(&data_block->dims[i]);
     }
-    data_block->dims[0].data_type = TYPE_UNSIGNED_INT;
+    data_block->dims[0].data_type = UDA_TYPE_UNSIGNED_INT;
     data_block->dims[0].dim_n = strlen(help) + 1;
     data_block->dims[0].compressed = 1;
     data_block->dims[0].dim0 = 0.0;
     data_block->dims[0].diff = 1.0;
     data_block->dims[0].method = 0;
     data_block->data_n = strlen(help) + 1;
-    data_block->data_type = TYPE_STRING;
+    data_block->data_type = UDA_TYPE_STRING;
     data_block->data = strdup(help);
 
     return 0;

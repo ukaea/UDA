@@ -43,7 +43,7 @@ int idamserverParseSignalXML(DATA_SOURCE data_source, SIGNAL signal, SIGNAL_DESC
 
     int i, ndesc, rc = 0;
 
-    IDAM_LOG(UDA_LOG_DEBUG, "Parsing XML\n");
+    UDA_LOG(UDA_LOG_DEBUG, "Parsing XML\n");
 
 //----------------------------------------------------------------------
 // Anything to Parse?
@@ -64,7 +64,7 @@ int idamserverParseSignalXML(DATA_SOURCE data_source, SIGNAL signal, SIGNAL_DESC
         if ((rc = parseDoc(signal.xml, actions_sig)) != 0) {
             return 1;
         }
-        IDAM_LOG(UDA_LOG_DEBUG, "XML from the Signal Record parsed\n");
+        UDA_LOG(UDA_LOG_DEBUG, "XML from the Signal Record parsed\n");
         printActions(*actions_sig);
     }
 
@@ -76,7 +76,7 @@ int idamserverParseSignalXML(DATA_SOURCE data_source, SIGNAL signal, SIGNAL_DESC
             return 1;
         }
 
-        IDAM_LOG(UDA_LOG_DEBUG, "XML from the Signal_Desc Record parsed\n");
+        UDA_LOG(UDA_LOG_DEBUG, "XML from the Signal_Desc Record parsed\n");
         printActions(*actions_desc);
     }
 
@@ -87,17 +87,17 @@ int idamserverParseSignalXML(DATA_SOURCE data_source, SIGNAL signal, SIGNAL_DESC
 
     ndesc = 0;
     for (i = 0; i < actions_desc->nactions; i++) {
-        IDAM_LOGF(UDA_LOG_DEBUG, "Range Test on Record %d\n", i);
+        UDA_LOG(UDA_LOG_DEBUG, "Range Test on Record %d\n", i);
 
-        IDAM_LOGF(UDA_LOG_DEBUG, "#1 %d\n", (actions_desc->action[i].exp_range[0] == 0 ||
+        UDA_LOG(UDA_LOG_DEBUG, "#1 %d\n", (actions_desc->action[i].exp_range[0] == 0 ||
                                        (actions_desc->action[i].exp_range[0] > 0 &&
                                         actions_desc->action[i].exp_range[0] <= data_source.exp_number)));
 
-        IDAM_LOGF(UDA_LOG_DEBUG, "#2 %d\n", (actions_desc->action[i].exp_range[1] == 0 ||
+        UDA_LOG(UDA_LOG_DEBUG, "#2 %d\n", (actions_desc->action[i].exp_range[1] == 0 ||
                                        (actions_desc->action[i].exp_range[1] > 0 &&
                                         actions_desc->action[i].exp_range[1] >= data_source.exp_number)));
 
-        IDAM_LOGF(UDA_LOG_DEBUG, "#3 %d\n", (data_source.pass = -1 ||
+        UDA_LOG(UDA_LOG_DEBUG, "#3 %d\n", (data_source.pass = -1 ||
                                                           ((actions_desc->action[i].pass_range[0] == -1 ||
                                                             (actions_desc->action[i].pass_range[0] > -1 &&
                                                              actions_desc->action[i].pass_range[0] <=
@@ -130,7 +130,7 @@ int idamserverParseSignalXML(DATA_SOURCE data_source, SIGNAL signal, SIGNAL_DESC
     printActions(*actions_desc);
 
     if (actions_sig->nactions == 0 && ndesc == 0) {        // No qualifying XML from either source
-        IDAM_LOG(UDA_LOG_DEBUG, "No Applicable Actionable XML Found\n");
+        UDA_LOG(UDA_LOG_DEBUG, "No Applicable Actionable XML Found\n");
         return -1;
     }
 
@@ -161,65 +161,63 @@ void applyCalibration(int type, int ndata, double factor, double offset, int inv
     if (factor != (double) 1.0E0 || offset != (double) 0.0E0) {
         switch (type) {
 
-            case TYPE_FLOAT :
+            case UDA_TYPE_FLOAT:
                 fp = (float*) array;
                 for (i = 0; i < ndata; i++) fp[i] = (float) factor * fp[i] + (float) offset;
                 break;
 
-            case TYPE_DOUBLE :
+            case UDA_TYPE_DOUBLE:
                 dp = (double*) array;
                 for (i = 0; i < ndata; i++) dp[i] = factor * dp[i] + offset;
                 break;
 
-            case TYPE_CHAR:
+            case UDA_TYPE_CHAR:
                 cp = (char*) array;
                 for (i = 0; i < ndata; i++) cp[i] = (char) factor * cp[i] + (char) offset;
                 break;
 
-            case TYPE_SHORT :
+            case UDA_TYPE_SHORT:
                 sp = (short*) array;
                 for (i = 0; i < ndata; i++) sp[i] = (short) factor * sp[i] + (short) offset;
                 break;
 
-            case TYPE_INT :
+            case UDA_TYPE_INT:
                 ip = (int*) array;
                 for (i = 0; i < ndata; i++) ip[i] = (int) factor * ip[i] + (int) offset;
                 break;
 
-            case TYPE_LONG :
+            case UDA_TYPE_LONG:
                 lp = (long*) array;
                 for (i = 0; i < ndata; i++) lp[i] = (long) factor * lp[i] + (long) offset;
                 break;
 
 // cause a bug: unresolved __fixunsdfdi  - need gcc_s library
-            case TYPE_LONG64 :
+            case UDA_TYPE_LONG64:
                 llp = (long long*) array;
                 for (i = 0; i < ndata; i++) llp[i] = (long long) factor * llp[i] + (long long) offset;
                 break;
 
-            case TYPE_UNSIGNED_CHAR:
+            case UDA_TYPE_UNSIGNED_CHAR:
                 uc = (unsigned char*) array;
                 for (i = 0; i < ndata; i++) uc[i] = (unsigned char) factor * uc[i] + (unsigned char) offset;
                 break;
 
-            case TYPE_UNSIGNED_SHORT:
+            case UDA_TYPE_UNSIGNED_SHORT:
                 us = (unsigned short*) array;
                 for (i = 0; i < ndata; i++) us[i] = (unsigned short) factor * us[i] + (unsigned short) offset;
                 break;
 
-            case TYPE_UNSIGNED :
+            case UDA_TYPE_UNSIGNED_INT:
                 up = (unsigned int*) array;
                 for (i = 0; i < ndata; i++) up[i] = (unsigned int) factor * up[i] + (unsigned int) offset;
                 break;
 
-            case TYPE_UNSIGNED_LONG :
+            case UDA_TYPE_UNSIGNED_LONG:
                 ul = (unsigned long*) array;
                 for (i = 0; i < ndata; i++) ul[i] = (unsigned long) factor * ul[i] + (unsigned long) offset;
                 break;
 
-// cause a bug: unresolved __fixunsdfdi  - need gcc_s library
-
-            case TYPE_UNSIGNED_LONG64 :
+            case UDA_TYPE_UNSIGNED_LONG64:
                 ull = (unsigned long long*) array;
                 for (i = 0; i < ndata; i++) ull[i] = (unsigned long long) factor * ull[i] + (unsigned long long) offset;
                 break;
@@ -229,19 +227,19 @@ void applyCalibration(int type, int ndata, double factor, double offset, int inv
         }
     }
 
-// Invert floating point number: Integers would all be zero!
+    // Invert floating point number: Integers would all be zero!
 
     if (invert) {
         switch (type) {
 
-            case TYPE_FLOAT :
+            case UDA_TYPE_FLOAT:
                 fp = (float*) array;
                 for (i = 0; i < ndata; i++)
                     if (fp[i] != 0.0) fp[i] = 1.0 / fp[i];
                     else fp[i] = NAN;
                 break;
 
-            case TYPE_DOUBLE :
+            case UDA_TYPE_DOUBLE:
                 dp = (double*) array;
                 for (i = 0; i < ndata; i++)
                     if (dp[i] != 0.0) dp[i] = 1.0 / dp[i];
@@ -275,7 +273,7 @@ void idamserverApplySignalXML(CLIENT_BLOCK client_block, DATA_SOURCE* data_sourc
     unsigned int* up;
     unsigned long* ul;
 
-    IDAM_LOG(UDA_LOG_DEBUG, "Applying XML\n");
+    UDA_LOG(UDA_LOG_DEBUG, "Applying XML\n");
 
     if (client_block.get_asis) return;            // User specifies No Actions to be Applied
 
@@ -291,7 +289,7 @@ void idamserverApplySignalXML(CLIENT_BLOCK client_block, DATA_SOURCE* data_sourc
 //----------------------------------------------------------------------------------------------
 // Documentation Changes: Label/Units Corrections
 
-            case DOCUMENTATIONTYPE :
+            case DOCUMENTATIONTYPE:
                 if (strlen(actions.action[i].documentation.label) > 0)
                     strcpy(data_block->data_label, actions.action[i].documentation.label);
 
@@ -319,7 +317,7 @@ void idamserverApplySignalXML(CLIENT_BLOCK client_block, DATA_SOURCE* data_sourc
 //----------------------------------------------------------------------------------------------
 // Error Models (Asymmetry is decided by the model's properties, not by the XML)
 
-            case ERRORMODELTYPE :
+            case ERRORMODELTYPE:
                 data_block->error_model = actions.action[i].errormodel.model;
                 data_block->error_param_n = actions.action[i].errormodel.param_n;
                 for (j = 0; j < data_block->error_param_n; j++)
@@ -350,7 +348,7 @@ void idamserverApplySignalXML(CLIENT_BLOCK client_block, DATA_SOURCE* data_sourc
 // timeoffset.method == 1 => Create a New Time Vector using both Offset and Interval values.
 // timeoffset.method == 2 => Create a New Time Vector using an interval value only. Use the Original Starting value if possible.
 
-            case TIMEOFFSETTYPE :
+            case TIMEOFFSETTYPE:
 
                 if (client_block.get_notoff || data_block->order < 0) break;
 
@@ -365,7 +363,7 @@ void idamserverApplySignalXML(CLIENT_BLOCK client_block, DATA_SOURCE* data_sourc
 
                         if (data_block->dims[data_block->order].method == 1 &&
                             data_block->dims[data_block->order].udoms == 1
-                            && data_block->dims[data_block->order].data_type == TYPE_FLOAT) {
+                            && data_block->dims[data_block->order].data_type == UDA_TYPE_FLOAT) {
                             float* offs = (float*) data_block->dims[data_block->order].offs;
                             data_block->dims[data_block->order].method = 0;
                             data_block->dims[data_block->order].dim0 = (double) *offs;
@@ -426,10 +424,10 @@ void idamserverApplySignalXML(CLIENT_BLOCK client_block, DATA_SOURCE* data_sourc
 
                     if (data_block->dims[data_block->order].compressed) {
 
-                        IDAM_LOG(UDA_LOG_DEBUG, "Time Dimension Compressed\n");
-                        IDAM_LOGF(UDA_LOG_DEBUG, "Order           = %d\n", data_block->order);
-                        IDAM_LOGF(UDA_LOG_DEBUG, "Timing Offset   = %f\n", (float) actions.action[i].timeoffset.offset);
-                        IDAM_LOGF(UDA_LOG_DEBUG, "Method          = %d\n", data_block->dims[data_block->order].method);
+                        UDA_LOG(UDA_LOG_DEBUG, "Time Dimension Compressed\n");
+                        UDA_LOG(UDA_LOG_DEBUG, "Order           = %d\n", data_block->order);
+                        UDA_LOG(UDA_LOG_DEBUG, "Timing Offset   = %f\n", (float) actions.action[i].timeoffset.offset);
+                        UDA_LOG(UDA_LOG_DEBUG, "Method          = %d\n", data_block->dims[data_block->order].method);
 
                         switch (data_block->dims[data_block->order].method) {
 
@@ -441,61 +439,61 @@ void idamserverApplySignalXML(CLIENT_BLOCK client_block, DATA_SOURCE* data_sourc
 
                             case 1:
                                 switch (data_block->dims[data_block->order].data_type) {
-                                    case TYPE_FLOAT :
+                                    case UDA_TYPE_FLOAT:
                                         fp = (float*) data_block->dims[data_block->order].offs;
                                         for (ii = 0; ii < data_block->dims[data_block->order].udoms; ii++) {
                                             fp[ii] = fp[ii] + (float) actions.action[i].timeoffset.offset;
                                         }
                                         break;
-                                    case TYPE_DOUBLE :
+                                    case UDA_TYPE_DOUBLE:
                                         dp = (double*) data_block->dims[data_block->order].offs;
                                         for (ii = 0; ii < data_block->dims[data_block->order].udoms; ii++) {
                                             dp[ii] = dp[ii] + actions.action[i].timeoffset.offset;
                                         }
                                         break;
-                                    case TYPE_CHAR :
+                                    case UDA_TYPE_CHAR:
                                         cp = (char*) data_block->dims[data_block->order].offs;
                                         for (ii = 0; ii < data_block->dims[data_block->order].udoms; ii++) {
                                             cp[ii] = cp[ii] + (char) actions.action[i].timeoffset.offset;
                                         }
                                         break;
-                                    case TYPE_SHORT :
+                                    case UDA_TYPE_SHORT:
                                         sp = (short*) data_block->dims[data_block->order].offs;
                                         for (ii = 0; ii < data_block->dims[data_block->order].udoms; ii++) {
                                             sp[ii] = sp[ii] + (short) actions.action[i].timeoffset.offset;
                                         }
                                         break;
-                                    case TYPE_INT :
+                                    case UDA_TYPE_INT:
                                         ip = (int*) data_block->dims[data_block->order].offs;
                                         for (ii = 0; ii < data_block->dims[data_block->order].udoms; ii++) {
                                             ip[ii] = ip[ii] + (int) actions.action[i].timeoffset.offset;
                                         }
                                         break;
-                                    case TYPE_LONG :
+                                    case UDA_TYPE_LONG:
                                         lp = (long*) data_block->dims[data_block->order].offs;
                                         for (ii = 0; ii < data_block->dims[data_block->order].udoms; ii++) {
                                             lp[ii] = lp[ii] + (long) actions.action[i].timeoffset.offset;
                                         }
                                         break;
-                                    case TYPE_UNSIGNED_CHAR :
+                                    case UDA_TYPE_UNSIGNED_CHAR:
                                         uc = (unsigned char*) data_block->dims[data_block->order].offs;
                                         for (ii = 0; ii < data_block->dims[data_block->order].udoms; ii++) {
                                             uc[ii] = uc[ii] + (unsigned char) actions.action[i].timeoffset.offset;
                                         }
                                         break;
-                                    case TYPE_UNSIGNED_SHORT :
+                                    case UDA_TYPE_UNSIGNED_SHORT:
                                         us = (unsigned short*) data_block->dims[data_block->order].offs;
                                         for (ii = 0; ii < data_block->dims[data_block->order].udoms; ii++) {
                                             us[ii] = us[ii] + (unsigned short) actions.action[i].timeoffset.offset;
                                         }
                                         break;
-                                    case TYPE_UNSIGNED :
+                                    case UDA_TYPE_UNSIGNED_INT:
                                         up = (unsigned int*) data_block->dims[data_block->order].offs;
                                         for (ii = 0; ii < data_block->dims[data_block->order].udoms; ii++) {
                                             up[ii] = up[ii] + (unsigned int) actions.action[i].timeoffset.offset;
                                         }
                                         break;
-                                    case TYPE_UNSIGNED_LONG :
+                                    case UDA_TYPE_UNSIGNED_LONG:
                                         ul = (unsigned long*) data_block->dims[data_block->order].offs;
                                         for (ii = 0; ii < data_block->dims[data_block->order].udoms; ii++) {
                                             ul[ii] = ul[ii] + (unsigned long) actions.action[i].timeoffset.offset;
@@ -508,61 +506,61 @@ void idamserverApplySignalXML(CLIENT_BLOCK client_block, DATA_SOURCE* data_sourc
 
                             case 2:
                                 switch (data_block->dims[data_block->order].data_type) {
-                                    case TYPE_FLOAT :
+                                    case UDA_TYPE_FLOAT:
                                         fp = (float*) data_block->dims[data_block->order].offs;
                                         for (ii = 0; ii < data_block->dims[data_block->order].udoms; ii++) {
                                             fp[ii] = fp[ii] + (float) actions.action[i].timeoffset.offset;
                                         }
                                         break;
-                                    case TYPE_DOUBLE :
+                                    case UDA_TYPE_DOUBLE:
                                         dp = (double*) data_block->dims[data_block->order].offs;
                                         for (ii = 0; ii < data_block->dims[data_block->order].udoms; ii++) {
                                             dp[ii] = dp[ii] + actions.action[i].timeoffset.offset;
                                         }
                                         break;
-                                    case TYPE_CHAR :
+                                    case UDA_TYPE_CHAR:
                                         cp = (char*) data_block->dims[data_block->order].offs;
                                         for (ii = 0; ii < data_block->dims[data_block->order].udoms; ii++) {
                                             cp[ii] = cp[ii] + (char) actions.action[i].timeoffset.offset;
                                         }
                                         break;
-                                    case TYPE_SHORT :
+                                    case UDA_TYPE_SHORT:
                                         sp = (short*) data_block->dims[data_block->order].offs;
                                         for (ii = 0; ii < data_block->dims[data_block->order].udoms; ii++) {
                                             sp[ii] = sp[ii] + (short) actions.action[i].timeoffset.offset;
                                         }
                                         break;
-                                    case TYPE_INT :
+                                    case UDA_TYPE_INT:
                                         ip = (int*) data_block->dims[data_block->order].offs;
                                         for (ii = 0; ii < data_block->dims[data_block->order].udoms; ii++) {
                                             ip[ii] = ip[ii] + (int) actions.action[i].timeoffset.offset;
                                         }
                                         break;
-                                    case TYPE_LONG :
+                                    case UDA_TYPE_LONG:
                                         lp = (long*) data_block->dims[data_block->order].offs;
                                         for (ii = 0; ii < data_block->dims[data_block->order].udoms; ii++) {
                                             lp[ii] = lp[ii] + (long) actions.action[i].timeoffset.offset;
                                         }
                                         break;
-                                    case TYPE_UNSIGNED_CHAR :
+                                    case UDA_TYPE_UNSIGNED_CHAR:
                                         uc = (unsigned char*) data_block->dims[data_block->order].offs;
                                         for (ii = 0; ii < data_block->dims[data_block->order].udoms; ii++) {
                                             uc[ii] = uc[ii] + (unsigned char) actions.action[i].timeoffset.offset;
                                         }
                                         break;
-                                    case TYPE_UNSIGNED_SHORT :
+                                    case UDA_TYPE_UNSIGNED_SHORT:
                                         us = (unsigned short*) data_block->dims[data_block->order].offs;
                                         for (ii = 0; ii < data_block->dims[data_block->order].udoms; ii++) {
                                             us[ii] = us[ii] + (unsigned short) actions.action[i].timeoffset.offset;
                                         }
                                         break;
-                                    case TYPE_UNSIGNED :
+                                    case UDA_TYPE_UNSIGNED_INT:
                                         up = (unsigned int*) data_block->dims[data_block->order].offs;
                                         for (ii = 0; ii < data_block->dims[data_block->order].udoms; ii++) {
                                             up[ii] = up[ii] + (unsigned int) actions.action[i].timeoffset.offset;
                                         }
                                         break;
-                                    case TYPE_UNSIGNED_LONG :
+                                    case UDA_TYPE_UNSIGNED_LONG:
                                         ul = (unsigned long*) data_block->dims[data_block->order].offs;
                                         for (ii = 0; ii < data_block->dims[data_block->order].udoms; ii++) {
                                             ul[ii] = ul[ii] + (unsigned long) actions.action[i].timeoffset.offset;
@@ -575,43 +573,43 @@ void idamserverApplySignalXML(CLIENT_BLOCK client_block, DATA_SOURCE* data_sourc
 
                             case 3:
                                 switch (data_block->dims[data_block->order].data_type) {
-                                    case TYPE_FLOAT :
+                                    case UDA_TYPE_FLOAT:
                                         fp = (float*) data_block->dims[data_block->order].offs;
                                         fp[0] = fp[0] + (float) actions.action[i].timeoffset.offset;
                                         break;
-                                    case TYPE_DOUBLE :
+                                    case UDA_TYPE_DOUBLE:
                                         dp = (double*) data_block->dims[data_block->order].offs;
                                         dp[0] = dp[0] + actions.action[i].timeoffset.offset;
                                         break;
-                                    case TYPE_CHAR :
+                                    case UDA_TYPE_CHAR:
                                         cp = (char*) data_block->dims[data_block->order].offs;
                                         cp[0] = cp[0] + (char) actions.action[i].timeoffset.offset;
                                         break;
-                                    case TYPE_SHORT :
+                                    case UDA_TYPE_SHORT:
                                         sp = (short*) data_block->dims[data_block->order].offs;
                                         sp[0] = sp[0] + (short) actions.action[i].timeoffset.offset;
                                         break;
-                                    case TYPE_INT :
+                                    case UDA_TYPE_INT:
                                         ip = (int*) data_block->dims[data_block->order].offs;
                                         ip[0] = ip[0] + (int) actions.action[i].timeoffset.offset;
                                         break;
-                                    case TYPE_LONG :
+                                    case UDA_TYPE_LONG:
                                         lp = (long*) data_block->dims[data_block->order].offs;
                                         lp[0] = lp[0] + (long) actions.action[i].timeoffset.offset;
                                         break;
-                                    case TYPE_UNSIGNED_CHAR :
+                                    case UDA_TYPE_UNSIGNED_CHAR:
                                         uc = (unsigned char*) data_block->dims[data_block->order].offs;
                                         uc[0] = uc[0] + (unsigned char) actions.action[i].timeoffset.offset;
                                         break;
-                                    case TYPE_UNSIGNED_SHORT :
+                                    case UDA_TYPE_UNSIGNED_SHORT:
                                         us = (unsigned short*) data_block->dims[data_block->order].offs;
                                         us[0] = us[0] + (unsigned short) actions.action[i].timeoffset.offset;
                                         break;
-                                    case TYPE_UNSIGNED :
+                                    case UDA_TYPE_UNSIGNED_INT:
                                         up = (unsigned int*) data_block->dims[data_block->order].offs;
                                         up[0] = up[0] + (unsigned int) actions.action[i].timeoffset.offset;
                                         break;
-                                    case TYPE_UNSIGNED_LONG :
+                                    case UDA_TYPE_UNSIGNED_LONG:
                                         ul = (unsigned long*) data_block->dims[data_block->order].offs;
                                         ul[0] = ul[0] + (unsigned long) actions.action[i].timeoffset.offset;
                                         break;
@@ -628,61 +626,61 @@ void idamserverApplySignalXML(CLIENT_BLOCK client_block, DATA_SOURCE* data_sourc
 
                         ndata = data_block->dims[data_block->order].dim_n;
 
-                        IDAM_LOG(UDA_LOG_DEBUG, "Dimension Not Compressed\n");
-                        IDAM_LOGF(UDA_LOG_DEBUG, "No. Time Points = %d\n", ndata);
-                        IDAM_LOGF(UDA_LOG_DEBUG, "Order           = %d\n", data_block->order);
-                        IDAM_LOGF(UDA_LOG_DEBUG, "Timing Offset   = %f\n", (float) actions.action[i].timeoffset.offset);
+                        UDA_LOG(UDA_LOG_DEBUG, "Dimension Not Compressed\n");
+                        UDA_LOG(UDA_LOG_DEBUG, "No. Time Points = %d\n", ndata);
+                        UDA_LOG(UDA_LOG_DEBUG, "Order           = %d\n", data_block->order);
+                        UDA_LOG(UDA_LOG_DEBUG, "Timing Offset   = %f\n", (float) actions.action[i].timeoffset.offset);
 
                         switch (data_block->dims[data_block->order].data_type) {
 
-                            case TYPE_FLOAT :
-                                IDAM_LOG(UDA_LOG_DEBUG, "Correcting Time Dimension\n");
-                                IDAM_LOGF(UDA_LOG_DEBUG, "Offset ? : %f\n", (float) actions.action[i].timeoffset.offset);
+                            case UDA_TYPE_FLOAT:
+                                UDA_LOG(UDA_LOG_DEBUG, "Correcting Time Dimension\n");
+                                UDA_LOG(UDA_LOG_DEBUG, "Offset ? : %f\n", (float) actions.action[i].timeoffset.offset);
                                 fp = (float*) data_block->dims[data_block->order].dim;
                                 for (ii = 0; ii < ndata; ii++)
                                     fp[ii] = (float) actions.action[i].timeoffset.offset + fp[ii];
                                 break;
-                            case TYPE_DOUBLE :
+                            case UDA_TYPE_DOUBLE:
                                 dp = (double*) data_block->dims[data_block->order].dim;
                                 for (ii = 0; ii < ndata; ii++)
                                     dp[ii] = actions.action[i].timeoffset.offset + dp[ii];
                                 break;
-                            case TYPE_CHAR :
+                            case UDA_TYPE_CHAR:
                                 cp = (char*) data_block->dims[data_block->order].dim;
                                 for (ii = 0; ii < ndata; ii++)
                                     cp[ii] = (char) actions.action[i].timeoffset.offset + cp[ii];
                                 break;
-                            case TYPE_SHORT :
+                            case UDA_TYPE_SHORT:
                                 sp = (short*) data_block->dims[data_block->order].dim;
                                 for (ii = 0; ii < ndata; ii++)
                                     sp[ii] = (short) actions.action[i].timeoffset.offset + sp[ii];
                                 break;
-                            case TYPE_INT :
+                            case UDA_TYPE_INT:
                                 ip = (int*) data_block->dims[data_block->order].dim;
                                 for (ii = 0; ii < ndata; ii++)
                                     ip[ii] = (int) actions.action[i].timeoffset.offset + ip[ii];
                                 break;
-                            case TYPE_LONG :
+                            case UDA_TYPE_LONG:
                                 lp = (long*) data_block->dims[data_block->order].dim;
                                 for (ii = 0; ii < ndata; ii++)
                                     lp[ii] = (long) actions.action[i].timeoffset.offset + lp[ii];
                                 break;
-                            case TYPE_UNSIGNED_CHAR :
+                            case UDA_TYPE_UNSIGNED_CHAR:
                                 uc = (unsigned char*) data_block->dims[data_block->order].dim;
                                 for (ii = 0; ii < ndata; ii++)
                                     uc[ii] = (unsigned char) actions.action[i].timeoffset.offset + uc[ii];
                                 break;
-                            case TYPE_UNSIGNED_SHORT :
+                            case UDA_TYPE_UNSIGNED_SHORT:
                                 us = (unsigned short*) data_block->dims[data_block->order].dim;
                                 for (ii = 0; ii < ndata; ii++)
                                     us[ii] = (unsigned short) actions.action[i].timeoffset.offset + us[ii];
                                 break;
-                            case TYPE_UNSIGNED :
+                            case UDA_TYPE_UNSIGNED_INT:
                                 up = (unsigned int*) data_block->dims[data_block->order].dim;
                                 for (ii = 0; ii < ndata; ii++)
                                     up[ii] = (unsigned int) actions.action[i].timeoffset.offset + up[ii];
                                 break;
-                            case TYPE_UNSIGNED_LONG :
+                            case UDA_TYPE_UNSIGNED_LONG:
                                 ul = (unsigned long*) data_block->dims[data_block->order].dim;
                                 for (ii = 0; ii < ndata; ii++)
                                     ul[ii] = (unsigned long) actions.action[i].timeoffset.offset + ul[ii];
@@ -698,7 +696,7 @@ void idamserverApplySignalXML(CLIENT_BLOCK client_block, DATA_SOURCE* data_sourc
 //----------------------------------------------------------------------------------------------
 // Calibration Corrections
 
-            case CALIBRATIONTYPE :
+            case CALIBRATIONTYPE:
 
                 if (!client_block.get_uncal) {
 
@@ -749,8 +747,8 @@ void idamserverApplySignalXML(CLIENT_BLOCK client_block, DATA_SOURCE* data_sourc
                                 if (STR_EQUALS("data", actions.action[i].calibration.target) ||
                                     STR_EQUALS("all", actions.action[i].calibration.target)) {
                                     if (data_block->dims[dimid].compressed) {
-                                        IDAM_LOGF(UDA_LOG_DEBUG, "Dimension %d Compressed\n", i);
-                                        IDAM_LOGF(UDA_LOG_DEBUG, "Method = %d\n", data_block->dims[dimid].method);
+                                        UDA_LOG(UDA_LOG_DEBUG, "Dimension %d Compressed\n", i);
+                                        UDA_LOG(UDA_LOG_DEBUG, "Method = %d\n", data_block->dims[dimid].method);
 
                                         if (data_block->dims[dimid].method == 0) {
                                             if (actions.action[i].calibration.dimensions[j].dimcalibration.factor !=
@@ -771,7 +769,7 @@ void idamserverApplySignalXML(CLIENT_BLOCK client_block, DATA_SOURCE* data_sourc
 
                                             switch (data_block->dims[dimid].data_type) {
 
-                                                case TYPE_FLOAT :
+                                                case UDA_TYPE_FLOAT:
                                                     switch (data_block->dims[dimid].method) {
                                                         case 1:
                                                             fp0 = (float*) data_block->dims[dimid].offs;
@@ -818,7 +816,7 @@ void idamserverApplySignalXML(CLIENT_BLOCK client_block, DATA_SOURCE* data_sourc
                                                     }
                                                     break;
 
-                                                case TYPE_DOUBLE : {
+                                                case UDA_TYPE_DOUBLE: {
                                                     double* ar0 = (double*) data_block->dims[dimid].offs;
                                                     double* ar = (double*) data_block->dims[dimid].ints;
                                                     switch (data_block->dims[dimid].method) {
@@ -863,7 +861,7 @@ void idamserverApplySignalXML(CLIENT_BLOCK client_block, DATA_SOURCE* data_sourc
                                                 }
                                                     break;
 
-                                                case TYPE_CHAR : {
+                                                case UDA_TYPE_CHAR: {
                                                     char* ar0 = (char*) data_block->dims[dimid].offs;
                                                     char* ar = (char*) data_block->dims[dimid].ints;
                                                     switch (data_block->dims[dimid].method) {
@@ -908,7 +906,7 @@ void idamserverApplySignalXML(CLIENT_BLOCK client_block, DATA_SOURCE* data_sourc
                                                 }
                                                     break;
 
-                                                case TYPE_SHORT : {
+                                                case UDA_TYPE_SHORT: {
                                                     short* ar = (short*) data_block->dims[dimid].ints;
                                                     short* ar0 = (short*) data_block->dims[dimid].offs;
                                                     switch (data_block->dims[dimid].method) {
@@ -953,7 +951,7 @@ void idamserverApplySignalXML(CLIENT_BLOCK client_block, DATA_SOURCE* data_sourc
                                                 }
                                                     break;
 
-                                                case TYPE_INT : {
+                                                case UDA_TYPE_INT: {
                                                     int* ar = (int*) data_block->dims[dimid].ints;
                                                     int* ar0 = (int*) data_block->dims[dimid].offs;
                                                     switch (data_block->dims[dimid].method) {
@@ -998,7 +996,7 @@ void idamserverApplySignalXML(CLIENT_BLOCK client_block, DATA_SOURCE* data_sourc
                                                 }
                                                     break;
 
-                                                case TYPE_LONG : {
+                                                case UDA_TYPE_LONG: {
                                                     long* ar = (long*) data_block->dims[dimid].ints;
                                                     long* ar0 = (long*) data_block->dims[dimid].offs;
                                                     switch (data_block->dims[dimid].method) {
@@ -1043,7 +1041,7 @@ void idamserverApplySignalXML(CLIENT_BLOCK client_block, DATA_SOURCE* data_sourc
                                                 }
                                                     break;
 
-                                                case TYPE_UNSIGNED_CHAR : {
+                                                case UDA_TYPE_UNSIGNED_CHAR: {
                                                     unsigned char* ar = (unsigned char*) data_block->dims[dimid].ints;
                                                     unsigned char* ar0 = (unsigned char*) data_block->dims[dimid].offs;
                                                     switch (data_block->dims[dimid].method) {
@@ -1088,7 +1086,7 @@ void idamserverApplySignalXML(CLIENT_BLOCK client_block, DATA_SOURCE* data_sourc
                                                 }
                                                     break;
 
-                                                case TYPE_UNSIGNED_SHORT : {
+                                                case UDA_TYPE_UNSIGNED_SHORT: {
                                                     unsigned short* ar = (unsigned short*) data_block->dims[dimid].ints;
                                                     unsigned short* ar0 = (unsigned short*) data_block->dims[dimid].offs;
                                                     switch (data_block->dims[dimid].method) {
@@ -1133,7 +1131,7 @@ void idamserverApplySignalXML(CLIENT_BLOCK client_block, DATA_SOURCE* data_sourc
                                                 }
                                                     break;
 
-                                                case TYPE_UNSIGNED : {
+                                                case UDA_TYPE_UNSIGNED_INT: {
                                                     unsigned int* ar = (unsigned int*) data_block->dims[dimid].ints;
                                                     unsigned int* ar0 = (unsigned int*) data_block->dims[dimid].offs;
                                                     switch (data_block->dims[dimid].method) {
@@ -1178,7 +1176,7 @@ void idamserverApplySignalXML(CLIENT_BLOCK client_block, DATA_SOURCE* data_sourc
                                                 }
                                                     break;
 
-                                                case TYPE_UNSIGNED_LONG : {
+                                                case UDA_TYPE_UNSIGNED_LONG: {
                                                     unsigned long* ar = (unsigned long*) data_block->dims[dimid].ints;
                                                     unsigned long* ar0 = (unsigned long*) data_block->dims[dimid].offs;
                                                     switch (data_block->dims[dimid].method) {
@@ -1237,13 +1235,13 @@ void idamserverApplySignalXML(CLIENT_BLOCK client_block, DATA_SOURCE* data_sourc
                                                          actions.action[i].calibration.dimensions[j].dimcalibration.invert,
                                                          data_block->dims[dimid].dim);
 
-                                        IDAM_LOGF(UDA_LOG_DEBUG, "Rescaling Dimension : %d\n", dimid);
-                                        IDAM_LOGF(UDA_LOG_DEBUG, "Time Dimension ?    : %d\n", data_block->order);
-                                        IDAM_LOGF(UDA_LOG_DEBUG, "Scale ?             : %f\n",
+                                        UDA_LOG(UDA_LOG_DEBUG, "Rescaling Dimension : %d\n", dimid);
+                                        UDA_LOG(UDA_LOG_DEBUG, "Time Dimension ?    : %d\n", data_block->order);
+                                        UDA_LOG(UDA_LOG_DEBUG, "Scale ?             : %f\n",
                                                 (float) actions.action[i].calibration.dimensions[j].dimcalibration.factor);
-                                        IDAM_LOGF(UDA_LOG_DEBUG, "Offset ?            : %f\n",
+                                        UDA_LOG(UDA_LOG_DEBUG, "Offset ?            : %f\n",
                                                 (float) actions.action[i].calibration.dimensions[j].dimcalibration.offset);
-                                        IDAM_LOGF(UDA_LOG_DEBUG, "Invert ?            : %d\n",
+                                        UDA_LOG(UDA_LOG_DEBUG, "Invert ?            : %d\n",
                                                 (int) actions.action[i].calibration.dimensions[j].dimcalibration.invert);
                                     }
                                 }
@@ -1288,7 +1286,7 @@ void idamserverDeselectSignalXML(ACTIONS* actions_desc, ACTIONS* actions_sig)
 
     int i, j, type;
 
-    IDAM_LOG(UDA_LOG_DEBUG, "Deselecting Conflicting XML\n");
+    UDA_LOG(UDA_LOG_DEBUG, "Deselecting Conflicting XML\n");
 
 //----------------------------------------------------------------------------------------------
 // Loop over all Signal actions

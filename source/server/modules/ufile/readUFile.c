@@ -41,7 +41,7 @@ int readUFile(DATA_SOURCE data_source,
               SIGNAL_DESC signal_desc,
               DATA_BLOCK *data_block) {
     int err = 999;
-    addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF", err, "UFILE PLUGIN NOT ENABLED");
+    addIdamError(CODEERRORTYPE, "readCDF", err, "UFILE PLUGIN NOT ENABLED");
     return err;
 }
 
@@ -85,9 +85,13 @@ int readUFile(DATA_SOURCE data_source,
         if (errno != 0 || ufile == NULL) {
             err = UFILE_ERROR_OPENING_FILE;
             serrno = errno;
-            if (serrno != 0) addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "readUFile", serrno, "");
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readUFile", err, "Error Opening U File");
-            if (ufile != NULL) fclose(ufile);
+            if (serrno != 0) {
+                addIdamError(SYSTEMERRORTYPE, "readUFile", serrno, "");
+            }
+            addIdamError(CODEERRORTYPE, "readUFile", err, "Error Opening U File");
+            if (ufile != NULL) {
+                fclose(ufile);
+            }
             break;
         }
 
@@ -139,7 +143,7 @@ int readUFile(DATA_SOURCE data_source,
         if (data_block->rank > 0) {
             if ((data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS))) == NULL) {
                 err = UFILE_ERROR_ALLOCATING_DIM_HEAP;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readUFile", err,
+                addIdamError(CODEERRORTYPE, "readUFile", err,
                              "Problem Allocating Dimension Heap Memory");
                 break;
             }
@@ -179,10 +183,10 @@ int readUFile(DATA_SOURCE data_source,
 // Dimension Sizes & Types: Allocate Dimensional Heap
 
         data_block->data_n = 0;
-        data_block->data_type = TYPE_FLOAT;
+        data_block->data_type = UDA_TYPE_FLOAT;
 
         for (i = 0; i < data_block->rank; i++) {
-            data_block->dims[i].data_type = TYPE_FLOAT;
+            data_block->dims[i].data_type = UDA_TYPE_FLOAT;
             data_block->dims[i].dim_n = atoi(fgets(buff, 12, ufile));  // Formated as (1x,i10)
             if (i == 0) {
                 data_block->data_n = data_block->dims[i].dim_n;
@@ -191,7 +195,7 @@ int readUFile(DATA_SOURCE data_source,
             }
             if ((data_block->dims[i].dim = (char*)malloc(sizeof(float) * data_block->dims[i].dim_n)) == NULL) {
                 err = UFILE_ERROR_ALLOCATING_DIM_HEAP;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readUFile", err,
+                addIdamError(CODEERRORTYPE, "readUFile", err,
                              "Problem Allocating Dimensional Heap Memory");
                 break;
             }
@@ -204,7 +208,7 @@ int readUFile(DATA_SOURCE data_source,
 
         if ((data_block->data = (char*)malloc(sizeof(float) * data_block->data_n)) == NULL) {
             err = UFILE_ERROR_ALLOCATING_DATA_HEAP;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readUFile", err, "Problem Allocating Data Heap Memory");
+            addIdamError(CODEERRORTYPE, "readUFile", err, "Problem Allocating Data Heap Memory");
             break;
         }
 

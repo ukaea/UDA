@@ -58,10 +58,12 @@ class Signal(Data):
         self._cresult = cresult
         self._data = None
         self._dims = None
+        self._time = None
         self._meta = None
         self._label = None
         self._units = None
         self._rank = None
+        self._shape = None
         self._errors = None
 
     def _import_data(self):
@@ -71,7 +73,7 @@ class Signal(Data):
                 self._data = cdata_scalar_to_value(data)
             else:
                 self._data = cdata_to_numpy_array(data)
-                shape = [d.data.size for d in self.dims]
+                shape = data.shape()
                 self._data = self._data.reshape(*shape)
 
     def _import_errors(self):
@@ -81,7 +83,7 @@ class Signal(Data):
                 self._errors = cdata_scalar_to_value(errors)
             else:
                 self._errors = cdata_to_numpy_array(errors)
-                shape = [d.data.size for d in self.dims]
+                shape = errors.shape()
                 self._errors = self._errors.reshape(*shape)
 
     @property
@@ -121,6 +123,12 @@ class Signal(Data):
         return self._dims
 
     @property
+    def time(self):
+        if self._time is None and self._cresult is not None and self._cresult.hasTimeDim():
+            self._import_time()
+        return self._time
+
+    @property
     def meta(self):
         if self._meta is None and self._cresult is not None:
             self._meta = {}
@@ -137,6 +145,9 @@ class Signal(Data):
     def _import_dim(self, num):
         self._dims.append(Dim(self._cresult.dim(num, self._cresult.DATA)))
 
+    def _import_time(self):
+        self._time = Dim(self._cresult.timeDim(self._cresult.DATA))
+
     def plot(self):
         import matplotlib.pyplot as plt
 
@@ -150,8 +161,8 @@ class Signal(Data):
     def widget(self):
         raise NotImplementedError("widget function not implemented for Signal objects")
 
-    def jsonify(self):
-        return json.dumps(self, cls=SignalEncoder)
+    def jsonify(self, indent=None):
+        return json.dumps(self, cls=SignalEncoder, indent=indent)
 
     def __repr__(self):
         return "<Signal: {0}>".format(self.label) if self.label else "<Signal>"

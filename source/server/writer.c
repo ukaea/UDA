@@ -68,7 +68,7 @@ int Readin(void* iohandle, char* buf, int count)
     while (select(serverSocket + 1, &rfds, NULL, NULL, &tvc) <= 0) {
         server_tot_block_time = server_tot_block_time + (int) tv.tv_usec / 1000;
         if (server_tot_block_time > 1000 * server_timeout) {
-            IDAM_LOGF(UDA_LOG_DEBUG, "Readin: Total Wait Time Exceeds Lifetime Limit = %d (ms)\n", server_timeout * 1000);
+            UDA_LOG(UDA_LOG_DEBUG, "Readin: Total Wait Time Exceeds Lifetime Limit = %d (ms)\n", server_timeout * 1000);
         }
 
         if (server_tot_block_time > 1000 * server_timeout) return -1;
@@ -108,7 +108,7 @@ int Writeout(void* iohandle, char* buf, int count)
     while (select(serverSocket + 1, NULL, &wfds, NULL, &tv) <= 0) {
         server_tot_block_time += tv.tv_usec / 1000;
         if (server_tot_block_time / 1000 > server_timeout) {
-            IDAM_LOGF(UDA_LOG_DEBUG, "Writeout: Total Blocking Time: %d (ms)\n", server_tot_block_time);
+            UDA_LOG(UDA_LOG_DEBUG, "Writeout: Total Blocking Time: %d (ms)\n", server_tot_block_time);
         }
         if (server_tot_block_time / 1000 > server_timeout) return -1;
         updateSelectParms(serverSocket, &wfds, &tv);

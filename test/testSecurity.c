@@ -36,7 +36,6 @@ IDAMERRORSTACK idamerrorstack;		// Local Error Stack
 
 int extractIdamX509SExpKey(ksba_cert_t cert, gcry_sexp_t* key_sexp)
 {
-
     gcry_error_t errCode;
     int err = 0;
 
@@ -45,7 +44,7 @@ int extractIdamX509SExpKey(ksba_cert_t cert, gcry_sexp_t* key_sexp)
 
     if ((p = ksba_cert_get_public_key(cert)) == NULL) {
         err = 999;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "extractIdamX509SExpKey", err, "Failure to get the Public key!");
+        addIdamError(CODEERRORTYPE, "extractIdamX509SExpKey", err, "Failure to get the Public key!");
         return err;
     }
 
@@ -53,7 +52,7 @@ int extractIdamX509SExpKey(ksba_cert_t cert, gcry_sexp_t* key_sexp)
 
     if ((n = gcry_sexp_canon_len(p, 0, NULL, NULL)) == 0) {
         err = 999;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "extractIdamX509SExpKey", err, "did not return a proper S-Exp!");
+        addIdamError(CODEERRORTYPE, "extractIdamX509SExpKey", err, "did not return a proper S-Exp!");
         ksba_free(p);
         return err;
     }
@@ -62,7 +61,7 @@ int extractIdamX509SExpKey(ksba_cert_t cert, gcry_sexp_t* key_sexp)
 
     if ((errCode = gcry_sexp_sscan(key_sexp, NULL, (char*)p, n)) != 0) {
         err = 999;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "extractIdamX509SExpKey", err, "S-Exp creation failed!");
+        addIdamError(CODEERRORTYPE, "extractIdamX509SExpKey", err, "S-Exp creation failed!");
         ksba_free(p);
         return err;
     }
@@ -105,7 +104,7 @@ int main()
     initSecurityBlock(&client_block.securityBlock);
     initSecurityBlock(&server_block.securityBlock);
 
-    initIdamErrorStack(&idamerrorstack);
+    initIdamErrorStack();
 
     do {        // Start of Error Trap
 
@@ -119,8 +118,7 @@ int main()
         AUTHENTICATION_STEP authenticationStep = CLIENT_ISSUE_TOKEN;   // Client Authentication
 
         if ((err = clientAuthentication(&client_block, &server_block, &logmalloclist, &userdefinedtypelist, authenticationStep)) != 0) {
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "idamClient", err,
-                         "Client or Server Authentication Failed #1");
+            addIdamError(CODEERRORTYPE, "idamClient", err, "Client or Server Authentication Failed #1");
             break;
         }
 
@@ -140,24 +138,21 @@ int main()
         authenticationStep = SERVER_DECRYPT_CLIENT_TOKEN;
 
         if ((err = serverAuthentication(&client_block, &server_block, &logmalloclist, &userdefinedtypelist, authenticationStep)) != 0) {
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "idamServer", err,
-                         "Client or Server Authentication Failed #2");
+            addIdamError(CODEERRORTYPE, "idamServer", err, "Client or Server Authentication Failed #2");
             break;
         }
 
         authenticationStep = SERVER_ENCRYPT_CLIENT_TOKEN;
 
         if ((err = serverAuthentication(&client_block, &server_block, &logmalloclist, &userdefinedtypelist, authenticationStep)) != 0) {
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "idamServer", err,
-                         "Client or Server Authentication Failed #3");
+            addIdamError(CODEERRORTYPE, "idamServer", err, "Client or Server Authentication Failed #3");
             break;
         }
 
         authenticationStep = SERVER_ISSUE_TOKEN;
 
         if ((err = serverAuthentication(&client_block, &server_block, &logmalloclist, &userdefinedtypelist, authenticationStep)) != 0) {
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "idamServer", err,
-                         "Client or Server Authentication Failed #4");
+            addIdamError(CODEERRORTYPE, "idamServer", err, "Client or Server Authentication Failed #4");
             break;
         }
 
@@ -169,8 +164,7 @@ int main()
         authenticationStep = CLIENT_DECRYPT_SERVER_TOKEN;    // Server Authentication Completed
 
         if ((err = clientAuthentication(&client_block, &server_block, &logmalloclist, &userdefinedtypelist, authenticationStep)) != 0) {
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "idamClient", err,
-                         "Client or Server Authentication Failed #5");
+            addIdamError(CODEERRORTYPE, "idamClient", err, "Client or Server Authentication Failed #5");
             break;
         }
 
@@ -183,8 +177,7 @@ int main()
         authenticationStep = CLIENT_ENCRYPT_SERVER_TOKEN;    // Client Authentication Completed
 
         if ((err = clientAuthentication(&client_block, &server_block, &logmalloclist, &userdefinedtypelist, authenticationStep)) != 0) {
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "idamClient", err,
-                         "Client or Server Authentication Failed #6");
+            addIdamError(CODEERRORTYPE, "idamClient", err, "Client or Server Authentication Failed #6");
             break;
         }
 
@@ -197,8 +190,7 @@ int main()
         authenticationStep = SERVER_VERIFY_TOKEN;
 
         if ((err = serverAuthentication(&client_block, &server_block, &logmalloclist, &userdefinedtypelist, authenticationStep)) != 0) {
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "idamServer", err,
-                         "Client or Server Authentication Failed #7");
+            addIdamError(CODEERRORTYPE, "idamServer", err, "Client or Server Authentication Failed #7");
             break;
         }
 
@@ -210,7 +202,7 @@ int main()
         //        authenticationStep = 8;            // Paired with Server step #7
         //
         //        if ((err = clientAuthentication(&client_block, &server_block, authenticationStep)) != 0) {
-        //            addIdamError(&idamerrorstack, CODEERRORTYPE, "idamClient", err,
+        //            addIdamError(CODEERRORTYPE, "idamClient", err,
         //                         "Client or Server Authentication Failed #8");
         //            break;
         //        }
@@ -223,7 +215,7 @@ int main()
 
     } while (0);        // End of Error trap
 
-    printIdamErrorStack(idamerrorstack);
+    printIdamErrorStack();
 
     return 0;
 }

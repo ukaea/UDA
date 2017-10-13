@@ -3,11 +3,9 @@
 
 #include <c++/UDA.hpp>
 
-TEST_CASE( "Test cpp putdata functionality", "[putdata]" ) {
-
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+TEST_CASE( "Test cpp putdata functionality", "[putdata]" )
+{
+#include "setup.inc"
 
     uda::Client client;
 
@@ -42,7 +40,7 @@ TEST_CASE( "Test cpp putdata functionality", "[putdata]" ) {
 //    const uda::Result& result = client.get("NEWHDF5::help()", "");
 //
 //    REQUIRE( result.errorCode() == 0 );
-//    REQUIRE( result.errorMessage() == "" );
+//    REQUIRE( result.errorMessage().empty() );
 //
 //    uda::Data* data = result.data();
 //
@@ -50,7 +48,7 @@ TEST_CASE( "Test cpp putdata functionality", "[putdata]" ) {
 //    REQUIRE( !data->isNull() );
 //    REQUIRE( data->type().name() == typeid(char*).name() );
 //
-//    uda::String* str = dynamic_cast<uda::String*>(data);
+//    auto str = dynamic_cast<uda::String*>(data);
 //
 //    REQUIRE( str != NULL );
 //

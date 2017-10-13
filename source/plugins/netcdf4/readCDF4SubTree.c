@@ -328,10 +328,10 @@ replaceSubTreeEmbeddedStrings(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST*
     }
 
     for (j = 0; j < udt->fieldcount; j++) {
-        IDAM_LOGF(UDA_LOG_DEBUG, "\nfieldcount %d\n", udt->fieldcount);
+        UDA_LOG(UDA_LOG_DEBUG, "\nfieldcount %d\n", udt->fieldcount);
 
         if (udt->compoundfield[j].atomictype == TYPE_UNKNOWN) { // Child User Defined type?
-            IDAM_LOG(UDA_LOG_DEBUG, "\nUDT\n");
+            UDA_LOG(UDA_LOG_DEBUG, "\nUDT\n");
 
             char* data;
             USERDEFINEDTYPE* child = findUserDefinedType(userdefinedtypelist, udt->compoundfield[j].type, 0);
@@ -365,7 +365,7 @@ replaceSubTreeEmbeddedStrings(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST*
         }
 
         if (STR_EQUALS(udt->compoundfield[j].type, "STRING *")) {
-            IDAM_LOGF(UDA_LOG_DEBUG, "\nSTRING *, ndata %d\n", ndata);
+            UDA_LOG(UDA_LOG_DEBUG, "\nSTRING *, ndata %d\n", ndata);
 
             // String arrays within data structures are defined (readCDFTypes) as char *str[int] => rank=1, pointer=0 and type=STRING*
             int lstr;
@@ -386,7 +386,7 @@ replaceSubTreeEmbeddedStrings(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST*
                     strcpy(ssvec[i], svec[i]);
                 }
 
-                IDAM_LOGF(UDA_LOG_DEBUG, "\nstring count %d\n", nstr);
+                UDA_LOG(UDA_LOG_DEBUG, "\nstring count %d\n", nstr);
 
                 // *** BUG ? when calling for the same sub-tree from the same file twice !!!
                 nc_free_string(nstr, svec);   // Free netCDF/HDF5 heap
@@ -401,7 +401,7 @@ replaceSubTreeEmbeddedStrings(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST*
         }
     }
 
-    IDAM_LOG(UDA_LOG_DEBUG, "\nexiting\n");
+    UDA_LOG(UDA_LOG_DEBUG, "\nexiting\n");
 }
 
 int getCDF4SubTreeVarMeta(int grpid, int varid, VARIABLE* variable, USERDEFINEDTYPE* udt,
@@ -432,18 +432,18 @@ int getCDF4SubTreeVarMeta(int grpid, int varid, VARIABLE* variable, USERDEFINEDT
     unsigned short noGrpAttributeData = readCDF4Properties() & NC_NOGROUPATTRIBUTEDATA;
     unsigned short regularVarData = (noVarAttributeData || noAttributeData) && noDimensionData;
 
-    IDAM_LOG(UDA_LOG_DEBUG, "getCDF4SubTreeVarMeta: Properties \n");
-    IDAM_LOGF(UDA_LOG_DEBUG, "readCDF4Properties: %d\n", (int)readCDF4Properties());
-    IDAM_LOGF(UDA_LOG_DEBUG, "ignoreHiddenAtts  : %d\n", (int)ignoreHiddenAtts);
-    IDAM_LOGF(UDA_LOG_DEBUG, "ignoreHiddenVars  : %d\n", (int)ignoreHiddenVars);
-    IDAM_LOGF(UDA_LOG_DEBUG, "ignoreHiddenGroups: %d\n", (int)ignoreHiddenGroups);
-    IDAM_LOGF(UDA_LOG_DEBUG, "ignoreHiddenDims  : %d\n", (int)ignoreHiddenDims);
-    IDAM_LOGF(UDA_LOG_DEBUG, "notPointerType    : %d\n", (int)notPointerType);
-    IDAM_LOGF(UDA_LOG_DEBUG, "noDimensionData   : %d\n", (int)noDimensionData);
-    IDAM_LOGF(UDA_LOG_DEBUG, "noAttributeData   : %d\n", (int)noAttributeData);
-    IDAM_LOGF(UDA_LOG_DEBUG, "noVarAttributeData: %d\n", (int)noVarAttributeData);
-    IDAM_LOGF(UDA_LOG_DEBUG, "noGrpAttributeData: %d\n", (int)noGrpAttributeData);
-    IDAM_LOGF(UDA_LOG_DEBUG, "regularVarData    : %d\n", (int)regularVarData);
+    UDA_LOG(UDA_LOG_DEBUG, "getCDF4SubTreeVarMeta: Properties \n");
+    UDA_LOG(UDA_LOG_DEBUG, "readCDF4Properties: %d\n", (int)readCDF4Properties());
+    UDA_LOG(UDA_LOG_DEBUG, "ignoreHiddenAtts  : %d\n", (int)ignoreHiddenAtts);
+    UDA_LOG(UDA_LOG_DEBUG, "ignoreHiddenVars  : %d\n", (int)ignoreHiddenVars);
+    UDA_LOG(UDA_LOG_DEBUG, "ignoreHiddenGroups: %d\n", (int)ignoreHiddenGroups);
+    UDA_LOG(UDA_LOG_DEBUG, "ignoreHiddenDims  : %d\n", (int)ignoreHiddenDims);
+    UDA_LOG(UDA_LOG_DEBUG, "notPointerType    : %d\n", (int)notPointerType);
+    UDA_LOG(UDA_LOG_DEBUG, "noDimensionData   : %d\n", (int)noDimensionData);
+    UDA_LOG(UDA_LOG_DEBUG, "noAttributeData   : %d\n", (int)noAttributeData);
+    UDA_LOG(UDA_LOG_DEBUG, "noVarAttributeData: %d\n", (int)noVarAttributeData);
+    UDA_LOG(UDA_LOG_DEBUG, "noGrpAttributeData: %d\n", (int)noGrpAttributeData);
+    UDA_LOG(UDA_LOG_DEBUG, "regularVarData    : %d\n", (int)regularVarData);
 
     //----------------------------------------------------------------------
     // Initialise
@@ -455,7 +455,7 @@ int getCDF4SubTreeVarMeta(int grpid, int varid, VARIABLE* variable, USERDEFINEDT
 
     if ((err = nc_inq_var(grpid, varid, name, &variable->vartype, &variable->rank, variable->dimids, &numatts)) !=
         NC_NOERR) {
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF", err, (char*)nc_strerror(err));
+        addIdamError(CODEERRORTYPE, "readCDF", err, (char*)nc_strerror(err));
         return err;
     }
 
@@ -502,7 +502,7 @@ int getCDF4SubTreeVarMeta(int grpid, int varid, VARIABLE* variable, USERDEFINEDT
             initAttribute(&attribute[i]);
 
             if ((err = nc_inq_attname(grpid, varid, i, name)) != NC_NOERR) {
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF", err, (char*)nc_strerror(err));
+                addIdamError(CODEERRORTYPE, "readCDF", err, (char*)nc_strerror(err));
                 free((void*)variable->attribute);
                 variable->attribute = NULL;
                 freeUserDefinedType(&usertype);
@@ -517,7 +517,7 @@ int getCDF4SubTreeVarMeta(int grpid, int varid, VARIABLE* variable, USERDEFINEDT
             strcpy(attribute[i].attname, name);
 
             if ((err = nc_inq_atttype(grpid, varid, name, &atttype)) != NC_NOERR) {
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF", err, (char*)nc_strerror(err));
+                addIdamError(CODEERRORTYPE, "readCDF", err, (char*)nc_strerror(err));
                 free((void*)variable->attribute);
                 variable->attribute = NULL;
                 freeUserDefinedType(&usertype);
@@ -527,7 +527,7 @@ int getCDF4SubTreeVarMeta(int grpid, int varid, VARIABLE* variable, USERDEFINEDT
             attribute[i].atttype = atttype;
 
             if ((err = nc_inq_attlen(grpid, varid, name, (size_t*)&attlength)) != NC_NOERR) {
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF", err, (char*)nc_strerror(err));
+                addIdamError(CODEERRORTYPE, "readCDF", err, (char*)nc_strerror(err));
                 free((void*)variable->attribute);
                 variable->attribute = NULL;
                 freeUserDefinedType(&usertype);
@@ -581,7 +581,7 @@ int getCDF4SubTreeVarMeta(int grpid, int varid, VARIABLE* variable, USERDEFINEDT
                         sprintf(msg,
                                 "Variable %s Attribute %s has a User Defined or Atomic Type definition that is either Not within Scope "
                                         "or Not Known or Not currently supported.", variable->varname, name);
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF4SubTree", err, msg);
+                        addIdamError(CODEERRORTYPE, "readCDF4SubTree", err, msg);
                         free((void*)msg);
                         free((void*)variable->attribute);
                         variable->attribute = NULL;
@@ -696,7 +696,7 @@ int getCDF4SubTreeVarMeta(int grpid, int varid, VARIABLE* variable, USERDEFINEDT
                 char* msg = malloc(sizeof(char) * 1024);
                 sprintf(msg, "Variable %s has a User Defined or Atomic Type definition that is either Not within Scope "
                         "or Not Known or Not currently supported.", variable->varname);
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF4SubTree", err, msg);
+                addIdamError(CODEERRORTYPE, "readCDF4SubTree", err, msg);
                 free((void*)msg);
                 free((void*)variable->attribute);
                 variable->attribute = NULL;
@@ -760,9 +760,9 @@ int getCDF4SubTreeVar2Meta(int grpid, int varid, VARIABLE* variable, int* offset
     unsigned short ignoreHiddenVars = readCDF4Properties() & NC_IGNOREHIDDENVARS;
     unsigned short notPointerType = readCDF4Properties() & NC_NOTPOINTERTYPE;
 
-    IDAM_LOG(UDA_LOG_DEBUG, "getCDF4SubTreeVar2Meta: Properties \n");
-    IDAM_LOGF(UDA_LOG_DEBUG, "ignoreHiddenVars  : %d\n", (int)ignoreHiddenVars);
-    IDAM_LOGF(UDA_LOG_DEBUG, "notPointerType    : %d\n", (int)notPointerType);
+    UDA_LOG(UDA_LOG_DEBUG, "getCDF4SubTreeVar2Meta: Properties \n");
+    UDA_LOG(UDA_LOG_DEBUG, "ignoreHiddenVars  : %d\n", (int)ignoreHiddenVars);
+    UDA_LOG(UDA_LOG_DEBUG, "notPointerType    : %d\n", (int)notPointerType);
 
     //----------------------------------------------------------------------
     // Initialise
@@ -773,7 +773,7 @@ int getCDF4SubTreeVar2Meta(int grpid, int varid, VARIABLE* variable, int* offset
 
     if ((err = nc_inq_var(grpid, varid, name, &variable->vartype, &variable->rank, variable->dimids, &numatts)) !=
         NC_NOERR) {
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "getCDF4SubTreeVar2Meta", err, (char*)nc_strerror(err));
+        addIdamError(CODEERRORTYPE, "getCDF4SubTreeVar2Meta", err, (char*)nc_strerror(err));
         return err;
     }
 
@@ -838,7 +838,7 @@ int getCDF4SubTreeVar2Meta(int grpid, int varid, VARIABLE* variable, int* offset
             char* msg = malloc(sizeof(char) * 1024);
             sprintf(msg, "Variable %s has a User Defined or Atomic Type definition that is either Not within Scope "
                     "or Not Known or Not currently supported.", variable->varname);
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "getCDF4SubTreeVar2Meta", err, msg);
+            addIdamError(CODEERRORTYPE, "getCDF4SubTreeVar2Meta", err, msg);
             free((void*)msg);
             return err;
         }
@@ -908,7 +908,7 @@ int getCDF4SubTreeMeta(int grpid, int parent, USERDEFINEDTYPE* udt, LOGMALLOCLIS
 
     if ((err = getCDF4SubTreeUserDefinedTypes(grpid, NULL, userdefinedtypelist)) != NC_NOERR) {
         err = 999;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF4SubTree", err, "User Defined Type definition Problem!!");
+        addIdamError(CODEERRORTYPE, "readCDF4SubTree", err, "User Defined Type definition Problem!!");
         return err;
     }
 
@@ -950,11 +950,11 @@ int getCDF4SubTreeMeta(int grpid, int parent, USERDEFINEDTYPE* udt, LOGMALLOCLIS
             }
 
             int i;
-            IDAM_LOG(UDA_LOG_DEBUG, "getCDF4SubTreeMeta: Group List\n");
+            UDA_LOG(UDA_LOG_DEBUG, "getCDF4SubTreeMeta: Group List\n");
 
             for (i = 0; i < numgrps; i++) {
                 if ((err = nc_inq_grpname(grpids[i], name)) != NC_NOERR) {
-                    IDAM_LOGF(UDA_LOG_DEBUG, "[%d]: %s\n", i, name);
+                    UDA_LOG(UDA_LOG_DEBUG, "[%d]: %s\n", i, name);
                 }
             }
 
@@ -962,7 +962,7 @@ int getCDF4SubTreeMeta(int grpid, int parent, USERDEFINEDTYPE* udt, LOGMALLOCLIS
         }
 
         if ((err = nc_inq_grpname(grpid, name)) != NC_NOERR) {
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF", err, (char*)nc_strerror(err));
+            addIdamError(CODEERRORTYPE, "readCDF", err, (char*)nc_strerror(err));
 
             if (numgrps > 0) {
                 free((void*)grpids);
@@ -1025,7 +1025,7 @@ int getCDF4SubTreeMeta(int grpid, int parent, USERDEFINEDTYPE* udt, LOGMALLOCLIS
             initAttribute(&group->attribute[i]);
 
             if ((err = nc_inq_attname(grpid, varid, i, name)) != NC_NOERR) {
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF", err, (char*)nc_strerror(err));
+                addIdamError(CODEERRORTYPE, "readCDF", err, (char*)nc_strerror(err));
 
                 if (numgrps > 0) {
                     free((void*)grpids);
@@ -1047,7 +1047,7 @@ int getCDF4SubTreeMeta(int grpid, int parent, USERDEFINEDTYPE* udt, LOGMALLOCLIS
             strcpy(group->attribute[i].attname, name);
 
             if ((err = nc_inq_atttype(grpid, varid, name, &atttype)) != NC_NOERR) {
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF", err, (char*)nc_strerror(err));
+                addIdamError(CODEERRORTYPE, "readCDF", err, (char*)nc_strerror(err));
 
                 if (numgrps > 0) {
                     free((void*)grpids);
@@ -1064,7 +1064,7 @@ int getCDF4SubTreeMeta(int grpid, int parent, USERDEFINEDTYPE* udt, LOGMALLOCLIS
             group->attribute[i].atttype = atttype;
 
             if ((err = nc_inq_attlen(grpid, varid, name, (size_t*)&attlength)) != NC_NOERR) {
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF", err, (char*)nc_strerror(err));
+                addIdamError(CODEERRORTYPE, "readCDF", err, (char*)nc_strerror(err));
 
                 if (numgrps > 0) {
                     free((void*)grpids);
@@ -1124,7 +1124,7 @@ int getCDF4SubTreeMeta(int grpid, int parent, USERDEFINEDTYPE* udt, LOGMALLOCLIS
                         sprintf(msg,
                                 "Group %s Attribute %s has a User Defined or Atomic Type definition that is either Not within Scope "
                                         "or Not Known or Not currently supported.", group->grpname, name);
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF4SubTree", err, msg);
+                        addIdamError(CODEERRORTYPE, "readCDF4SubTree", err, msg);
                         free((void*)msg);
 
                         if (numgrps > 0) {
@@ -1200,7 +1200,7 @@ int getCDF4SubTreeMeta(int grpid, int parent, USERDEFINEDTYPE* udt, LOGMALLOCLIS
             group->variable = variable;
 
             if ((err = nc_inq_varids(grpid, &numvars, varids)) != NC_NOERR) {
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF", err, (char*)nc_strerror(err));
+                addIdamError(CODEERRORTYPE, "readCDF", err, (char*)nc_strerror(err));
                 freeUserDefinedType(&usertype);
                 free((void*)variable);
                 free((void*)varids);
@@ -1211,7 +1211,7 @@ int getCDF4SubTreeMeta(int grpid, int parent, USERDEFINEDTYPE* udt, LOGMALLOCLIS
                 if (regularVarData) { // Just add the variable array ingoring attributes and the dimension doc string
                     if ((err = getCDF4SubTreeVar2Meta(grpid, varids[j], &variable[j], &offset, &field,
                                                       userdefinedtypelist)) != NC_NOERR) {
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF", err, "getCDF4SubTreeVar2Meta error");
+                        addIdamError(CODEERRORTYPE, "readCDF", err, "getCDF4SubTreeVar2Meta error");
                         freeUserDefinedType(&gusertype);
                         free((void*)variable);
                         free((void*)varids);
@@ -1227,7 +1227,7 @@ int getCDF4SubTreeMeta(int grpid, int parent, USERDEFINEDTYPE* udt, LOGMALLOCLIS
                 } else {
                     if ((err = getCDF4SubTreeVarMeta(grpid, varids[j], &variable[j], &gusertype,
                                                      logmalloclist, userdefinedtypelist)) != NC_NOERR) {
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF", err, "getCDF4SubTreeVarMeta error");
+                        addIdamError(CODEERRORTYPE, "readCDF", err, "getCDF4SubTreeVarMeta error");
                         freeUserDefinedType(&gusertype);
                         free((void*)variable);
                         free((void*)varids);
@@ -1418,13 +1418,13 @@ ENUMLIST* getCDF4EnumList(LOGMALLOCLIST* logmalloclist, int grpid, nc_type varty
 
     if ((rc = nc_inq_enum(grpid, vartype, name, &base, &size, &members)) != NC_NOERR) {
         err = 999;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "getCDF4EnumList", err, (char*)nc_strerror(rc));
+        addIdamError(CODEERRORTYPE, "getCDF4EnumList", err, (char*)nc_strerror(rc));
         return NULL;
     }
 
     if (members == 0) {
         err = 999;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "getCDF4EnumList", err, "Enumerated Type has Zero Membership?");
+        addIdamError(CODEERRORTYPE, "getCDF4EnumList", err, "Enumerated Type has Zero Membership?");
         return NULL;
     }
 
@@ -1436,7 +1436,7 @@ ENUMLIST* getCDF4EnumList(LOGMALLOCLIST* logmalloclist, int grpid, nc_type varty
     for (i = 0; i < members; i++) {
         if ((rc = nc_inq_enum_member(grpid, vartype, i, enumlist->enummember[i].name, (void*)value)) != NC_NOERR) {
             err = 999;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "getCDF4EnumList", err, (char*)nc_strerror(rc));
+            addIdamError(CODEERRORTYPE, "getCDF4EnumList", err, (char*)nc_strerror(rc));
             return NULL;
         }
 
@@ -1546,7 +1546,7 @@ int getCDF4SubTreeVarData(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* use
 
                         if ((err = nc_get_att_text(grpid, varid, variable->attribute[i].attname, d)) != NC_NOERR) {
                             err = 999;
-                            addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF4SubTree", err,
+                            addIdamError(CODEERRORTYPE, "readCDF4SubTree", err,
                                          "Problem Reading Legacy String Attribute");
                             break;
                         }
@@ -1560,7 +1560,7 @@ int getCDF4SubTreeVarData(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* use
                         if ((err = nc_get_att(grpid, varid, variable->attribute[i].attname, (void*)svec)) !=
                             NC_NOERR) {
                             err = 999;
-                            addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF4SubTree", err,
+                            addIdamError(CODEERRORTYPE, "readCDF4SubTree", err,
                                          "Problem Reading String Attribute");
                             break;
                         }
@@ -1590,7 +1590,7 @@ int getCDF4SubTreeVarData(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* use
 
                     if (idamType == TYPE_UNKNOWN) {
                         err = 999;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF4SubTree", err,
+                        addIdamError(CODEERRORTYPE, "readCDF4SubTree", err,
                                      "Variable Attribute has Unknown Atomic Type (Not a User Defined Type)!");
                         break;
                     }
@@ -1601,7 +1601,7 @@ int getCDF4SubTreeVarData(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* use
 
                     if ((err = nc_get_att(grpid, varid, variable->attribute[i].attname, (void*)d)) != NC_NOERR) {
                         err = 999;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF4SubTree", err,
+                        addIdamError(CODEERRORTYPE, "readCDF4SubTree", err,
                                      "Problem reading Variable Attribute Value!");
                         break;
                     }
@@ -1616,7 +1616,7 @@ int getCDF4SubTreeVarData(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* use
 
                     if ((err = nc_get_att(grpid, varid, variable->attribute[i].attname, (void*)d)) != NC_NOERR) {
                         err = 999;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF4SubTree", err,
+                        addIdamError(CODEERRORTYPE, "readCDF4SubTree", err,
                                      "Problem reading Variable Attribute Value!");
                         break;
                     }
@@ -1633,13 +1633,13 @@ int getCDF4SubTreeVarData(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* use
                     if ((rc = nc_inq_enum(grpid, variable->attribute[i].atttype, name, &base, &size, &members)) !=
                         NC_NOERR) {
                         err = 999;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF4SubTree", err, (char*)nc_strerror(rc));
+                        addIdamError(CODEERRORTYPE, "readCDF4SubTree", err, (char*)nc_strerror(rc));
                         break;
                     }
 
                     if (members == 0) {
                         err = 999;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF4SubTree", err,
+                        addIdamError(CODEERRORTYPE, "readCDF4SubTree", err,
                                      "Enumerated Type has Zero Membership!");
                         break;
                     }
@@ -1703,7 +1703,7 @@ int getCDF4SubTreeVarData(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* use
 
                     if ((err = nc_get_att(grpid, varid, variable->attribute[i].attname, (void*)d)) != NC_NOERR) {
                         err = 999;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF4SubTree", err,
+                        addIdamError(CODEERRORTYPE, "readCDF4SubTree", err,
                                      "Problem reading Variable Attribute Value!");
                         break;
                     }
@@ -1755,7 +1755,7 @@ int getCDF4SubTreeVarData(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* use
 
         if (size == 0) {
             err = 999;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF4SubTree", err, "Data Type has Zero Size!");
+            addIdamError(CODEERRORTYPE, "readCDF4SubTree", err, "Data Type has Zero Size!");
             break;
         }
 
@@ -1763,7 +1763,7 @@ int getCDF4SubTreeVarData(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* use
             if (variable->rank > 1) {
                 if (variable->shape == NULL) {
                     err = 999;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF4SubTree", err,
+                    addIdamError(CODEERRORTYPE, "readCDF4SubTree", err,
                                  "Unable to set Variable array shape!");
                     break;
                 }
@@ -1791,8 +1791,8 @@ int getCDF4SubTreeVarData(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* use
                 if ((rc = nc_get_vara(grpid, varid, (size_t*)&startIndex, (size_t*)&countIndex, (void*)d)) !=
                     NC_NOERR) {
                     err = 999;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF4SubTree", err, (char*)nc_strerror(rc));
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF4SubTree", err,
+                    addIdamError(CODEERRORTYPE, "readCDF4SubTree", err, (char*)nc_strerror(rc));
+                    addIdamError(CODEERRORTYPE, "readCDF4SubTree", err,
                                  "Unable to read Enumerated Array variable data!");
                     break;
                 }
@@ -1802,7 +1802,7 @@ int getCDF4SubTreeVarData(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* use
             } else if (variable->vartype == NC_STRING) {
                 if (variable->rank > 2) {
                     err = 999;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDFVar", err,
+                    addIdamError(CODEERRORTYPE, "readCDFVar", err,
                                  "String Array rank is too large - must be <= 2");
                     break;
                 }
@@ -1813,8 +1813,8 @@ int getCDF4SubTreeVarData(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* use
 
                 if ((rc = nc_get_var_string(grpid, varid, svec)) != NC_NOERR) {
                     err = 999;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF4SubTree", err, (char*)nc_strerror(rc));
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF4SubTree", err,
+                    addIdamError(CODEERRORTYPE, "readCDF4SubTree", err, (char*)nc_strerror(rc));
+                    addIdamError(CODEERRORTYPE, "readCDF4SubTree", err,
                                  "Unable to read String Array variable data!");
                     break;
                 }
@@ -1853,7 +1853,7 @@ int getCDF4SubTreeVarData(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* use
                 if (variable->vartype == NC_CHAR) { // Legacy Single String => Reduce rank
                     if (variable->rank != 1) {
                         err = 999;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF4SubTree", err,
+                        addIdamError(CODEERRORTYPE, "readCDF4SubTree", err,
                                      "Unable to read Array of Legacy Strings!");
                         break;
                     }
@@ -1868,8 +1868,8 @@ int getCDF4SubTreeVarData(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* use
                 if ((rc = nc_get_vara(grpid, varid, (size_t*)&startIndex, (size_t*)&countIndex, (void*)d)) !=
                     NC_NOERR) {
                     err = 999;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF4SubTree", err, (char*)nc_strerror(rc));
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF4SubTree", err,
+                    addIdamError(CODEERRORTYPE, "readCDF4SubTree", err, (char*)nc_strerror(rc));
+                    addIdamError(CODEERRORTYPE, "readCDF4SubTree", err,
                                  "Unable to read Regular Array variable data!");
                     break;
                 }
@@ -1929,7 +1929,7 @@ int getCDF4SubTreeVar2Data(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* us
 
         if (size == 0) {
             err = 999;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "getCDF4SubTreeVar2Data", err, "Data Type has Zero Size!");
+            addIdamError(CODEERRORTYPE, "getCDF4SubTreeVar2Data", err, "Data Type has Zero Size!");
             break;
         }
 
@@ -1943,7 +1943,7 @@ int getCDF4SubTreeVar2Data(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* us
             for (i = 0; i < variable->rank; i++) {
                 if ((rc = nc_inq_dim(grpid, variable->dimids[i], dimname, &dnum)) != NC_NOERR) {
                     err = NETCDF_ERROR_INQUIRING_DIM_3;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF4SubTreeVar2Data", err,
+                    addIdamError(CODEERRORTYPE, "readCDF4SubTreeVar2Data", err,
                                  (char*)nc_strerror(rc));
                     break;
                 }
@@ -1955,7 +1955,7 @@ int getCDF4SubTreeVar2Data(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* us
         if (variable->rank <= 1) {
             if ((rc = nc_inq_dim(grpid, variable->dimids[0], dimname, &dnum)) != NC_NOERR) {
                 err = NETCDF_ERROR_INQUIRING_DIM_3;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF4SubTreeVar2Data", err, (char*)nc_strerror(rc));
+                addIdamError(CODEERRORTYPE, "readCDF4SubTreeVar2Data", err, (char*)nc_strerror(rc));
                 break;
             }
 
@@ -1978,7 +1978,7 @@ int getCDF4SubTreeVar2Data(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* us
         if (variable->vartype == NC_STRING) {
             if (variable->rank > 2) {
                 err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "getCDF4SubTreeVar2Data", err,
+                addIdamError(CODEERRORTYPE, "getCDF4SubTreeVar2Data", err,
                              "String Array rank is too large - must be <= 2");
                 break;
             }
@@ -1989,8 +1989,8 @@ int getCDF4SubTreeVar2Data(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* us
 
             if ((rc = nc_get_var_string(grpid, variable->varid, svec)) != NC_NOERR) {
                 err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "getCDF4SubTreeVar2Data", err, (char*)nc_strerror(rc));
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "getCDF4SubTreeVar2Data", err,
+                addIdamError(CODEERRORTYPE, "getCDF4SubTreeVar2Data", err, (char*)nc_strerror(rc));
+                addIdamError(CODEERRORTYPE, "getCDF4SubTreeVar2Data", err,
                              "Unable to read String Array variable data!");
                 break;
             }
@@ -2024,7 +2024,7 @@ int getCDF4SubTreeVar2Data(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* us
             if (variable->vartype == NC_CHAR) {   // Legacy Single String => Reduce rank
                 if (variable->rank != 1) {
                     err = 999;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "getCDF4SubTreeVar2Data", err,
+                    addIdamError(CODEERRORTYPE, "getCDF4SubTreeVar2Data", err,
                                  "Unable to read Array of Legacy Strings!");
                     free((void*)d);
                     break;
@@ -2038,8 +2038,8 @@ int getCDF4SubTreeVar2Data(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* us
             if ((rc = nc_get_vara(grpid, variable->varid, (size_t*)&startIndex, (size_t*)&countIndex, (void*)d)) !=
                 NC_NOERR) {
                 err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "getCDF4SubTreeVar2Data", err, (char*)nc_strerror(rc));
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "getCDF4SubTreeVar2Data", err,
+                addIdamError(CODEERRORTYPE, "getCDF4SubTreeVar2Data", err, (char*)nc_strerror(rc));
+                addIdamError(CODEERRORTYPE, "getCDF4SubTreeVar2Data", err,
                              "Unable to read Regular Array variable data!");
                 break;
             }
@@ -2096,7 +2096,7 @@ int readCDF4SubTreeVar3Data(GROUPLIST grouplist, int varid, int rank, int* dimid
 
         if (start == NULL || count == NULL || dnums == NULL) {
             err = 999;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF4SubTreeVar3Data", err,
+            addIdamError(CODEERRORTYPE, "readCDF4SubTreeVar3Data", err,
                          "Unable to Allocate Heap for Shape Arrays");
             break;
         }
@@ -2104,7 +2104,7 @@ int readCDF4SubTreeVar3Data(GROUPLIST grouplist, int varid, int rank, int* dimid
         for (i = 0; i < rank; i++) {
             if ((rc = nc_inq_dim(grpid, dimids[i], dimname, (size_t*)&dnums[i])) != NC_NOERR) {
                 err = NETCDF_ERROR_INQUIRING_DIM_3;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF4SubTreeVar3Data", err, (char*)nc_strerror(rc));
+                addIdamError(CODEERRORTYPE, "readCDF4SubTreeVar3Data", err, (char*)nc_strerror(rc));
                 break;
             }
         }
@@ -2118,7 +2118,7 @@ int readCDF4SubTreeVar3Data(GROUPLIST grouplist, int varid, int rank, int* dimid
 
         if ((rc = nc_inq_vartype(grpid, varid, &vartype)) != NC_NOERR) {
             err = NETCDF_ERROR_INQUIRING_VARIABLE_3;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF4SubTreeVar3Data", err, (char*)nc_strerror(rc));
+            addIdamError(CODEERRORTYPE, "readCDF4SubTreeVar3Data", err, (char*)nc_strerror(rc));
             break;
         }
 
@@ -2243,7 +2243,7 @@ int readCDF4SubTreeVar3Data(GROUPLIST grouplist, int varid, int rank, int* dimid
 
                         if (*udt == NULL) {
                             err = 999;
-                            addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF4SubTreeVar3Data", err,
+                            addIdamError(CODEERRORTYPE, "readCDF4SubTreeVar3Data", err,
                                          "User Defined Type definition Not within Scope!");
                             break;
                         }
@@ -2278,7 +2278,7 @@ int readCDF4SubTreeVar3Data(GROUPLIST grouplist, int varid, int rank, int* dimid
         } else {
             if (dvec == NULL && vartype != NC_STRING) {
                 err = NETCDF_ERROR_ALLOCATING_HEAP_6;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF4SubTreeVar3Data", err,
+                addIdamError(CODEERRORTYPE, "readCDF4SubTreeVar3Data", err,
                              "Unable to Allocate Heap Memory for the Data");
                 break;
             }
@@ -2289,7 +2289,7 @@ int readCDF4SubTreeVar3Data(GROUPLIST grouplist, int varid, int rank, int* dimid
                 if (vartype == NC_STRING) {
                     if (rank > 1) {
                         err = 999;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF4SubTreeVar3Data", err,
+                        addIdamError(CODEERRORTYPE, "readCDF4SubTreeVar3Data", err,
                                      "String Array rank is too large - must be 1");
                         break;
                     }
@@ -2313,7 +2313,7 @@ int readCDF4SubTreeVar3Data(GROUPLIST grouplist, int varid, int rank, int* dimid
 
             if (rc != NC_NOERR) {
                 err = NETCDF_ERROR_INQUIRING_VARIABLE_10;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF4SubTreeVar3Data", err, (char*)nc_strerror(rc));
+                addIdamError(CODEERRORTYPE, "readCDF4SubTreeVar3Data", err, (char*)nc_strerror(rc));
                 break;
             }
 
@@ -2332,14 +2332,14 @@ int readCDF4SubTreeVar3Data(GROUPLIST grouplist, int varid, int rank, int* dimid
 
                     if ((rc = nc_inq_enum(grpid, vartype, name, &base, &size, &members)) != NC_NOERR) {
                         err = 999;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF4SubTreeVar3Data", err,
+                        addIdamError(CODEERRORTYPE, "readCDF4SubTreeVar3Data", err,
                                      (char*)nc_strerror(rc));
                         break;
                     }
 
                     if (members == 0) {
                         err = 999;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF4SubTreeVar3Data", err,
+                        addIdamError(CODEERRORTYPE, "readCDF4SubTreeVar3Data", err,
                                      "Enumerated Type has Zero Membership?");
                         break;
                     }
@@ -2480,7 +2480,7 @@ int getCDF4SubTreeData(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userde
             // Check field synchronisation is bounded
             if (fieldid > fieldcount) {
                 err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF4SubTree", err,
+                addIdamError(CODEERRORTYPE, "readCDF4SubTree", err,
                              "Structure Field (attribute) Count Exceeded!");
                 break;
             }
@@ -2505,7 +2505,7 @@ int getCDF4SubTreeData(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userde
 
                         if ((err = nc_get_att_text(group->grpid, varid, group->attribute[i].attname, d)) != NC_NOERR) {
                             err = 999;
-                            addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF4SubTree", err,
+                            addIdamError(CODEERRORTYPE, "readCDF4SubTree", err,
                                          "Problem Reading Legacy String Group Attribute");
                             break;
                         }
@@ -2519,7 +2519,7 @@ int getCDF4SubTreeData(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userde
                         if ((err = nc_get_att(group->grpid, varid, group->attribute[i].attname, (void*)svec)) !=
                             NC_NOERR) {
                             err = 999;
-                            addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF4SubTree", err,
+                            addIdamError(CODEERRORTYPE, "readCDF4SubTree", err,
                                          "Problem Reading String Group Attribute");
                             break;
                         }
@@ -2545,7 +2545,7 @@ int getCDF4SubTreeData(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userde
 
                     if (idamType == TYPE_UNKNOWN) {
                         err = 999;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF4SubTree", err,
+                        addIdamError(CODEERRORTYPE, "readCDF4SubTree", err,
                                      "Variable Attribute has Unknown Atomic Type or User Defined Type!");
                         break;
                     }
@@ -2556,7 +2556,7 @@ int getCDF4SubTreeData(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userde
 
                     if ((err = nc_get_att(group->grpid, varid, group->attribute[i].attname, (void*)d)) != NC_NOERR) {
                         err = 999;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF4SubTree", err,
+                        addIdamError(CODEERRORTYPE, "readCDF4SubTree", err,
                                      "Problem reading Variable Attribute Value!");
                         break;
                     }
@@ -2571,7 +2571,7 @@ int getCDF4SubTreeData(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userde
 
                     if ((err = nc_get_att(group->grpid, varid, group->attribute[i].attname, (void*)d)) != NC_NOERR) {
                         err = 999;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF4SubTree", err,
+                        addIdamError(CODEERRORTYPE, "readCDF4SubTree", err,
                                      "Problem reading Variable Attribute Value!");
                         break;
                     }
@@ -2588,13 +2588,13 @@ int getCDF4SubTreeData(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userde
                     if ((rc = nc_inq_enum(group->grpid, group->attribute[i].atttype, name, &base, &size, &members)) !=
                         NC_NOERR) {
                         err = 999;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF4SubTree", err, (char*)nc_strerror(rc));
+                        addIdamError(CODEERRORTYPE, "readCDF4SubTree", err, (char*)nc_strerror(rc));
                         break;
                     }
 
                     if (members == 0) {
                         err = 999;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF4SubTree", err,
+                        addIdamError(CODEERRORTYPE, "readCDF4SubTree", err,
                                      "Enumerated Type has Zero Membership!");
                         break;
                     }
@@ -2658,7 +2658,7 @@ int getCDF4SubTreeData(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userde
 
                     if ((rc = nc_get_att(group->grpid, varid, group->attribute[i].attname, (void*)d)) != NC_NOERR) {
                         err = 999;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF4SubTree", err,
+                        addIdamError(CODEERRORTYPE, "readCDF4SubTree", err,
                                      "Problem reading Variable Attribute Value!");
                         break;
                     }
@@ -2695,7 +2695,7 @@ int getCDF4SubTreeData(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userde
         for (i = 0; i < group->numvars; i++) {
             if (fieldid > fieldcount) {
                 err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF4SubTree", err,
+                addIdamError(CODEERRORTYPE, "readCDF4SubTree", err,
                              "Structure Field (variable) Count Exceeded!");
                 break;
             }
@@ -2723,7 +2723,7 @@ int getCDF4SubTreeData(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userde
             if ((grp = findHGroup(hgroups, group->grpids[i])) != NULL) {
                 if (fieldid > fieldcount) {
                     err = 999;
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF4SubTree", err,
+                    addIdamError(CODEERRORTYPE, "readCDF4SubTree", err,
                                  "Structure Field (group) Count Exceeded!");
                     break;
                 }
@@ -2738,7 +2738,7 @@ int getCDF4SubTreeData(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userde
                 *p = (VOIDTYPE)d;
             } else {
                 err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "readCDF4SubTree", err,
+                addIdamError(CODEERRORTYPE, "readCDF4SubTree", err,
                              "Problem locating Hierarchical Group Child!");
                 break;
             }

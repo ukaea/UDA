@@ -30,7 +30,7 @@ unsigned int countDataBlockSize(DATA_BLOCK* data_block, CLIENT_BLOCK* client_blo
 
     count += (unsigned int)(getSizeOf(data_block->data_type) * data_block->data_n);
 
-    if (data_block->error_type != TYPE_UNKNOWN) {
+    if (data_block->error_type != UDA_TYPE_UNKNOWN) {
         count += (unsigned int)(getSizeOf(data_block->error_type) * data_block->data_n);
     }
     if (data_block->errasymmetry) count += (unsigned int)(getSizeOf(data_block->error_type) * data_block->data_n);
@@ -44,7 +44,7 @@ unsigned int countDataBlockSize(DATA_BLOCK* data_block, CLIENT_BLOCK* client_blo
                 count += (unsigned int)(getSizeOf(dim.data_type) * dim.dim_n);
                 factor = 1;
                 if (dim.errasymmetry) factor = 2;
-                if (dim.error_type != TYPE_UNKNOWN) {
+                if (dim.error_type != UDA_TYPE_UNKNOWN) {
                     count += (unsigned int)(factor * getSizeOf(dim.error_type) * dim.dim_n);
                 }
             } else {

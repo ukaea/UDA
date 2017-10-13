@@ -35,6 +35,8 @@ char* TrimString(char* szSource);
 char* LeftTrimString(char* str);
 
 #ifdef __GNUC__
+void StringCopy(char* dest, const char* src, size_t len);
+
 // Convert all LowerCase Characters to Upper Case
 char* strupr(char* a);
 
@@ -44,6 +46,8 @@ char* strlwr(char* a);
 
 // Trim Internal Space Characters from a String
 char* MidTrimString(char* str);
+
+char* StringReplace(const char* string, const char* find, const char* replace);
 
 // Is the String an Integer Number? (Simple but not exhaustive Check)
 int IsNumber(char* a);

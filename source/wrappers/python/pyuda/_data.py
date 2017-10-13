@@ -16,5 +16,5 @@ class Data():
     def widget(self):
         pass
 
-    def jsonify(self):
+    def jsonify(self, indent=None):
         raise NotImplementedError("jsonify has not been implement for this data class")

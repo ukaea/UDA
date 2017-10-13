@@ -7,6 +7,8 @@ find_package( OpenSSL )
 find_package( LibXml2 )
 find_package( LibMemcached )
 
+set( FAT_TESTS OFF CACHE BOOL "Build tests using fat-client" )
+
 add_definitions( -D__USE_XOPEN2K8 )
 
 if( NOT Boost_FOUND OR NOT OPENSSL_FOUND OR NOT LIBXML2_FOUND )
@@ -24,16 +26,14 @@ include_directories(
 )
 
 configure_file(
-  "${CMAKE_CURRENT_SOURCE_DIR}/setupEnvironment.inc.in"
-  "${CMAKE_CURRENT_BINARY_DIR}/setupEnvironment.inc"
+  "${CMAKE_CURRENT_SOURCE_DIR}/setup.inc.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/setup.inc"
   @ONLY
 )
 
 set( TESTS
-#  test_putcpp
+  #  test_putcpp
   test_mast
-  test_imas_jet
-  test_imas_jet_all
 )
 
 include( modules )
@@ -42,11 +42,12 @@ include_directories( SYSTEM ${Boost_INCLUDE_DIR} )
 include_directories( ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_LIST_DIR} )
 
 add_subdirectory( plugins )
+add_subdirectory( imas )
 
 add_definitions( -D__USE_XOPEN2K8 )
 
 foreach( TEST ${TESTS} )
-  add_executable( ${TEST} ${TEST}.cpp )
+  add_executable( ${TEST} test_helpers.h ${TEST}.cpp )
   target_link_libraries( ${TEST} PRIVATE
     ${Boost_LIBRARIES}
     ${PROJECT_NAME}_cpp
@@ -54,10 +55,10 @@ foreach( TEST ${TESTS} )
     ${OPENSSL_LIBRARIES}
     ${LIBXML2_LIBRARIES}
     ${CACHE_LIBRARIES}
-  )
+    )
   link_modules( ${TEST} )
 
-  add_executable( fat_${TEST} ${TEST}.cpp )
+  add_executable( fat_${TEST} test_helpers.h ${TEST}.cpp )
   target_link_libraries( fat_${TEST} PRIVATE
     ${Boost_LIBRARIES}
     fat${PROJECT_NAME}_cpp
@@ -66,11 +67,15 @@ foreach( TEST ${TESTS} )
     ${LIBXML2_LIBRARIES}
     ${CACHE_LIBRARIES}
     c m dl
-  )
+    )
   target_compile_definitions( fat_${TEST} PRIVATE -DFATCLIENT )
   link_modules( fat_${TEST} )
 
-  add_test( ${TEST} ${TEST} )
+  if( FAT_TESTS )
+    add_test( ${TEST} fat_${TEST} )
+  else()
+    add_test( ${TEST} ${TEST} )
+  endif()
 endforeach()
 
 find_package( GCrypt )
@@ -78,14 +83,14 @@ find_package( KSBA )
 
 add_definitions( -g -O0 )
 
-#if( GCRYPT_FOUND AND KSBA_FOUND AND OPENSSL_FOUND AND LIBXML2_FOUND )
-#  add_executable( testSecurity testSecurity.c $<TARGET_OBJECTS:security-test-objects> )
-#  target_link_libraries( testSecurity PRIVATE
-#    ${GCRYPT_LIBRARIES}
-#    ${KSBA_LIBRARIES}
-#    client-shared
-#    ${OPENSSL_LIBRARIES}
-#    ${LIBXML2_LIBRARIES} 
-#    ${CACHE_LIBRARIES})
-#  add_test( testSecurity testSecurity )
-#endif()
+if( GCRYPT_FOUND AND KSBA_FOUND AND OPENSSL_FOUND AND LIBXML2_FOUND )
+  add_executable( testSecurity testSecurity.c $<TARGET_OBJECTS:security-test-objects> )
+  target_link_libraries( testSecurity PRIVATE
+    ${GCRYPT_LIBRARIES}
+    ${KSBA_LIBRARIES}
+    client-shared
+    ${OPENSSL_LIBRARIES}
+    ${LIBXML2_LIBRARIES}
+    ${CACHE_LIBRARIES})
+  add_test( testSecurity testSecurity )
+endif()

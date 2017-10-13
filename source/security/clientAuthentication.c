@@ -186,7 +186,8 @@ static int initialiseKeys(CLIENT_BLOCK* client_block, gcry_sexp_t* publickey_out
 
     if (gcry_pk_testkey(privatekey) != 0) {
         err = 999;
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "clientAuthentication", err,
+
+        addIdamError(CODEERRORTYPE, "idamClientAuthentication", err,
                      "The User's Private Authentication Key is Invalid!");
         return err;
     }
@@ -319,7 +320,7 @@ static int decryptServerToken(SERVER_BLOCK* server_block, CLIENT_BLOCK* client_b
     xdrrec_eof(clientInput);
 #endif
 
-    IDAM_LOG(UDA_LOG_DEBUG, "Server Block Received\n");
+    UDA_LOG(UDA_LOG_DEBUG, "Server Block Received\n");
     printServerBlock(*server_block);
 
     // Protocol Version: Lower of the client and server version numbers

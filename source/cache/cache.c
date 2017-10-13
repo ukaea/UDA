@@ -77,9 +77,9 @@ IDAM_CACHE* idamOpenCache()
     rc = memcached_server_push(&cache->memcache, servers);
 
     if (rc == MEMCACHED_SUCCESS) {
-        IDAM_LOGF(UDA_LOG_DEBUG, "%s\n", "Added server successfully");
+        UDA_LOG(UDA_LOG_DEBUG, "%s\n", "Added server successfully");
     } else {
-        IDAM_LOGF(UDA_LOG_DEBUG, "Couldn't add server: %s\n", memcached_strerror(&cache->memcache, rc));
+        UDA_LOG(UDA_LOG_DEBUG, "Couldn't add server: %s\n", memcached_strerror(&cache->memcache, rc));
         free(cache);
         return NULL;
     }
@@ -161,7 +161,7 @@ int idamCacheWrite(IDAM_CACHE* cache, REQUEST_BLOCK* request_block, DATA_BLOCK* 
 
 #endif
     char* key = idamCacheKey(request_block, environment);
-    IDAM_LOGF(UDA_LOG_DEBUG, "Caching value for key: %s\n", key);
+    UDA_LOG(UDA_LOG_DEBUG, "Caching value for key: %s\n", key);
 
     if (key == NULL) {
         return -1;
@@ -210,7 +210,7 @@ int idamCacheWrite(IDAM_CACHE* cache, REQUEST_BLOCK* request_block, DATA_BLOCK* 
     memcached_return_t rc = memcached_set(&cache->memcache, key, strlen(key), buffer, bufsize, life, (uint32_t)0);
 
     if (rc != MEMCACHED_SUCCESS) {
-        IDAM_LOGF(UDA_LOG_DEBUG, "Couldn't store key: %s\n", memcached_strerror(&cache->memcache, rc));
+        UDA_LOG(UDA_LOG_DEBUG, "Couldn't store key: %s\n", memcached_strerror(&cache->memcache, rc));
         free(key);
         return -1;
     }
@@ -218,7 +218,7 @@ int idamCacheWrite(IDAM_CACHE* cache, REQUEST_BLOCK* request_block, DATA_BLOCK* 
     rc = memcached_flush_buffers(&cache->memcache);
 
     if (rc != MEMCACHED_SUCCESS) {
-        IDAM_LOGF(UDA_LOG_DEBUG, "Couldn't flush buffers: %s\n", memcached_strerror(&cache->memcache, rc));
+        UDA_LOG(UDA_LOG_DEBUG, "Couldn't flush buffers: %s\n", memcached_strerror(&cache->memcache, rc));
         free(key);
         return -1;
     }
@@ -231,7 +231,7 @@ DATA_BLOCK* idamCacheRead(IDAM_CACHE* cache, REQUEST_BLOCK* request_block, LOGMA
                           USERDEFINEDTYPELIST* userdefinedtypelist, ENVIRONMENT environment)
 {
     char* key = idamCacheKey(request_block, environment);
-    IDAM_LOGF(UDA_LOG_DEBUG, "Retrieving value for key: %s\n", key);
+    UDA_LOG(UDA_LOG_DEBUG, "Retrieving value for key: %s\n", key);
 
     if (key == NULL) {
         return NULL;
@@ -244,7 +244,7 @@ DATA_BLOCK* idamCacheRead(IDAM_CACHE* cache, REQUEST_BLOCK* request_block, LOGMA
     value = (char*)memcached_get(&cache->memcache, key, strlen(key), &len, &flags, &rc);
 
     if (rc != MEMCACHED_SUCCESS) {
-        IDAM_LOGF(UDA_LOG_DEBUG, "Couldn't retrieve key: %s\n", memcached_strerror(&cache->memcache, rc));
+        UDA_LOG(UDA_LOG_DEBUG, "Couldn't retrieve key: %s\n", memcached_strerror(&cache->memcache, rc));
         free(key);
         return NULL;
     }

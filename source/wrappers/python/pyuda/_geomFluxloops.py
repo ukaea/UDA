@@ -32,7 +32,7 @@ class GeomFluxloops():
             for child in data.children:
                 self._get_all_coords(child, r_z_coord)
 
-    def plot(self, data, ax_2d=None, ax_3d=None, show=True):
+    def plot(self, data, ax_2d=None, ax_3d=None, show=True, color=None):
         """
         Plot the fluxloop positions
         :param data: data tree (instance of StructuredWritable, with pickup coil tree structure)
@@ -56,12 +56,18 @@ class GeomFluxloops():
 
         # Plot
         if ax_2d is not None:
-            # colours
             R_coords = r_z_to_plot[::2]
             Z_coords = r_z_to_plot[1::2]
 
+            # colours
+            if color is not None:
+                colours = [color]*len(R_coords)
+            else:
+                color = "blue"
+                colours = ["blue"]*len(R_coords)
+
             # plot
-            ax_2d.scatter(R_coords, Z_coords)
+            ax_2d.plot(R_coords, Z_coords, c=color, markersize=4, linewidth=0, marker="o", markeredgecolor=color)
             ax_2d.set_xlabel('R [m]')
             ax_2d.set_ylabel('Z [m]')
 

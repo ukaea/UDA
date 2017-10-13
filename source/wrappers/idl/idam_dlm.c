@@ -817,51 +817,51 @@ IDL_VPTR IDL_CDECL idamputapi(int argc, IDL_VPTR argv[], char* argk) {
 
       switch (type) {
       case IDL_TYP_BYTE:
-	putData.data_type = TYPE_CHAR;
+	putData.data_type = UDA_TYPE_CHAR;
 	break;
 	
       case IDL_TYP_STRING:
-	putData.data_type = TYPE_STRING;
+	putData.data_type = UDA_TYPE_STRING;
 	break;
 	
       case IDL_TYP_UINT:
-	putData.data_type = TYPE_UNSIGNED_SHORT;
+	putData.data_type = UDA_TYPE_UNSIGNED_SHORT;
 	break;
 	
       case IDL_TYP_INT:
-	putData.data_type = TYPE_SHORT;
+	putData.data_type = UDA_TYPE_SHORT;
 	break;
 	
       case IDL_TYP_ULONG:
-	putData.data_type = TYPE_UNSIGNED_INT;
+	putData.data_type = UDA_TYPE_UNSIGNED_INT;
 	break;
 	
       case IDL_TYP_LONG:
-	putData.data_type = TYPE_INT;
+	putData.data_type = UDA_TYPE_INT;
 	break;
 	
       case IDL_TYP_ULONG64:
-	putData.data_type = TYPE_UNSIGNED_LONG64;
+	putData.data_type = UDA_TYPE_UNSIGNED_LONG64;
 	break;
 	
       case IDL_TYP_LONG64:
-	putData.data_type = TYPE_LONG64;
+	putData.data_type = UDA_TYPE_LONG64;
 	break;
 	
       case IDL_TYP_FLOAT:
-	putData.data_type = TYPE_FLOAT;
+	putData.data_type = UDA_TYPE_FLOAT;
 	break;
 	
       case IDL_TYP_DOUBLE:
-	putData.data_type = TYPE_DOUBLE;
+	putData.data_type = UDA_TYPE_DOUBLE;
 	break;
 	
       case IDL_TYP_COMPLEX:
-	putData.data_type = TYPE_COMPLEX;
+	putData.data_type = UDA_TYPE_COMPLEX;
 	break;
 	
       case IDL_TYP_DCOMPLEX:
-	putData.data_type = TYPE_DCOMPLEX;
+	putData.data_type = UDA_TYPE_DCOMPLEX;
 	break;
       }
 
@@ -1014,76 +1014,76 @@ IDL_VPTR IDL_CDECL idamputapi(int argc, IDL_VPTR argv[], char* argk) {
 
       switch (type) {
       case IDL_TYP_BYTE:
-	putData.data_type = TYPE_CHAR;
+	putData.data_type = UDA_TYPE_CHAR;
         char value_char = (char) IDL_LongScalar(argv[1]);
 	putData.data = (char*) &value_char;
 	putData.count = 1;
 	break;
 	
       case IDL_TYP_STRING:
-	putData.data_type = TYPE_STRING;
+	putData.data_type = UDA_TYPE_STRING;
 	putData.data = IDL_VarGetString(argv[1]);
 	putData.count = strlen(putData.data)+1;
 	break;
 	
       case IDL_TYP_UINT:
-	putData.data_type = TYPE_UNSIGNED_SHORT;
+	putData.data_type = UDA_TYPE_UNSIGNED_SHORT;
 	unsigned short value_ushort = (unsigned short) IDL_ULongScalar(argv[1]);
 	putData.data = (char*) &value_ushort;
 	putData.count = 1;
 	break;
 	
       case IDL_TYP_INT:
-	putData.data_type = TYPE_SHORT;
+	putData.data_type = UDA_TYPE_SHORT;
 	short value_short = (short) IDL_LongScalar(argv[1]);
 	putData.data = (char*) &value_short;
 	putData.count = 1;
 	break;
 	
       case IDL_TYP_ULONG:
-	putData.data_type = TYPE_UNSIGNED_INT;
+	putData.data_type = UDA_TYPE_UNSIGNED_INT;
 	unsigned int value_uint = (unsigned int) IDL_ULongScalar(argv[1]);
 	putData.data = (char*) &value_uint;
 	putData.count = 1;
 	break;
 	
       case IDL_TYP_LONG:
-	putData.data_type = TYPE_INT;
+	putData.data_type = UDA_TYPE_INT;
 	int value_int = (int) IDL_LongScalar(argv[1]);
 	putData.data = (char*) &value_int;
 	putData.count = 1;
 	break;
 	
       case IDL_TYP_ULONG64:
-	putData.data_type = TYPE_UNSIGNED_LONG64;
+	putData.data_type = UDA_TYPE_UNSIGNED_LONG64;
 	unsigned long long value_ulonglong = (unsigned long long) IDL_ULong64Scalar(argv[1]);
 	putData.data = (char*) &value_ulonglong;
 	putData.count = 1;
 	break;
 	
       case IDL_TYP_LONG64:
-	putData.data_type = TYPE_LONG64;
+	putData.data_type = UDA_TYPE_LONG64;
 	long long value_longlong = (long long) IDL_Long64Scalar(argv[1]);
 	putData.data = (char*) &value_longlong;
 	putData.count = 1;
 	break;
 	
       case IDL_TYP_FLOAT:
-	putData.data_type = TYPE_FLOAT;
+	putData.data_type = UDA_TYPE_FLOAT;
 	float value_float = (float) IDL_DoubleScalar(argv[1]);
 	putData.data = (char*) &value_float;
 	putData.count = 1;
 	break;
 	
       case IDL_TYP_DOUBLE:
-	putData.data_type = TYPE_DOUBLE;
+	putData.data_type = UDA_TYPE_DOUBLE;
 	double value_double = (double) IDL_DoubleScalar(argv[1]);
 	putData.data = (char*) &value_double;
 	putData.count = 1;
 	break;
 	
       case IDL_TYP_COMPLEX:
-	putData.data_type = TYPE_COMPLEX;
+	putData.data_type = UDA_TYPE_COMPLEX;
 	IDL_COMPLEX data_idlcomp = argv[1]->value.cmp;
 	COMPLEX value_complex;
 	value_complex.real = data_idlcomp.r;
@@ -1093,7 +1093,7 @@ IDL_VPTR IDL_CDECL idamputapi(int argc, IDL_VPTR argv[], char* argk) {
 	break;
 	
       case IDL_TYP_DCOMPLEX:
-	putData.data_type = TYPE_DCOMPLEX;
+	putData.data_type = UDA_TYPE_DCOMPLEX;
 	IDL_DCOMPLEX data_idldcomp = argv[1]->value.dcmp;
 	DCOMPLEX value_dcomplex;
 	value_dcomplex.real = data_idldcomp.r;
@@ -2786,7 +2786,7 @@ IDL_VPTR IDL_CDECL getidamdata(int argc, IDL_VPTR argv[], char* argk) {
 
     switch (getIdamDataType(sin->handle)) {
 
-        case TYPE_FLOAT:
+        case UDA_TYPE_FLOAT:
 
             if (kw.debug) {
                 fprintf(stdout, "Data are of Type FLOAT\n");
@@ -2804,7 +2804,7 @@ IDL_VPTR IDL_CDECL getidamdata(int argc, IDL_VPTR argv[], char* argk) {
             psDef = IDL_MakeStruct(NULL, pTagsFloat);
             break;
 
-        case TYPE_DOUBLE:
+        case UDA_TYPE_DOUBLE:
             if (kw.debug) {
                 fprintf(stdout, "Data is of Type DOUBLE\n");
             }
@@ -2819,7 +2819,7 @@ IDL_VPTR IDL_CDECL getidamdata(int argc, IDL_VPTR argv[], char* argk) {
             psDef = IDL_MakeStruct(NULL, pTagsDouble);
             break;
 
-        case TYPE_SHORT:
+        case UDA_TYPE_SHORT:
             sout = (IDAM_DOUT*) malloc(sizeof(IDAM_DOUT) + sizeof(short) * ndata);
 
             if (sout == NULL) {
@@ -2830,7 +2830,7 @@ IDL_VPTR IDL_CDECL getidamdata(int argc, IDL_VPTR argv[], char* argk) {
             psDef = IDL_MakeStruct(NULL, pTagsShort);
             break;
 
-        case TYPE_INT:
+        case UDA_TYPE_INT:
             sout = (IDAM_DOUT*) malloc(sizeof(IDAM_DOUT) + sizeof(int) * ndata);
 
             if (sout == NULL) {
@@ -2841,7 +2841,7 @@ IDL_VPTR IDL_CDECL getidamdata(int argc, IDL_VPTR argv[], char* argk) {
             psDef = IDL_MakeStruct(NULL, pTagsInt);
             break;
 
-        case TYPE_LONG:
+        case UDA_TYPE_LONG:
             sout = (IDAM_DOUT*) malloc(sizeof(IDAM_DOUT) + sizeof(long) * ndata);
 
             if (sout == NULL) {
@@ -2852,7 +2852,7 @@ IDL_VPTR IDL_CDECL getidamdata(int argc, IDL_VPTR argv[], char* argk) {
             psDef = IDL_MakeStruct(NULL, pTagsLong);
             break;
 
-        case TYPE_UNSIGNED_SHORT:
+        case UDA_TYPE_UNSIGNED_SHORT:
             sout = (IDAM_DOUT*) malloc(sizeof(IDAM_DOUT) + sizeof(unsigned short) * ndata);
 
             if (sout == NULL) {
@@ -2864,7 +2864,7 @@ IDL_VPTR IDL_CDECL getidamdata(int argc, IDL_VPTR argv[], char* argk) {
             psDef = IDL_MakeStruct(NULL, pTagsUnsignedShort);
             break;
 
-        case TYPE_UNSIGNED:
+        case UDA_TYPE_UNSIGNED_INT:
             sout = (IDAM_DOUT*) malloc(sizeof(IDAM_DOUT) + sizeof(unsigned int) * ndata);
 
             if (sout == NULL) {
@@ -2876,7 +2876,7 @@ IDL_VPTR IDL_CDECL getidamdata(int argc, IDL_VPTR argv[], char* argk) {
             psDef = IDL_MakeStruct(NULL, pTagsUnsignedInt);
             break;
 
-        case TYPE_UNSIGNED_LONG:
+        case UDA_TYPE_UNSIGNED_LONG:
             sout = (IDAM_DOUT*) malloc(sizeof(IDAM_DOUT) + sizeof(unsigned long) * ndata);
 
             if (sout == NULL) {
@@ -2888,7 +2888,7 @@ IDL_VPTR IDL_CDECL getidamdata(int argc, IDL_VPTR argv[], char* argk) {
             psDef = IDL_MakeStruct(NULL, pTagsUnsignedLong);
             break;
 
-        case TYPE_CHAR:
+        case UDA_TYPE_CHAR:
             sout = (IDAM_DOUT*) malloc(sizeof(IDAM_DOUT) + sizeof(char) * ndata);
 
             if (sout == NULL) {
@@ -2899,7 +2899,7 @@ IDL_VPTR IDL_CDECL getidamdata(int argc, IDL_VPTR argv[], char* argk) {
             psDef = IDL_MakeStruct(NULL, pTagsChar);
             break;
 
-        case TYPE_UNSIGNED_CHAR:
+        case UDA_TYPE_UNSIGNED_CHAR:
             sout = (IDAM_DOUT*) malloc(sizeof(IDAM_DOUT) + sizeof(unsigned char) * ndata);
 
             if (sout == NULL) {
@@ -2911,7 +2911,7 @@ IDL_VPTR IDL_CDECL getidamdata(int argc, IDL_VPTR argv[], char* argk) {
             psDef = IDL_MakeStruct(NULL, pTagsUnsignedChar);
             break;
 
-        case TYPE_STRING:
+        case UDA_TYPE_STRING:
             sout = (IDAM_DOUT*) malloc(sizeof(IDAM_DOUT) + sizeof(char) * ndata);
 
             if (sout == NULL) {
@@ -3121,61 +3121,61 @@ IDL_VPTR IDL_CDECL getdataarray(int argc, IDL_VPTR argv[], char* argk) {
 
     switch (getIdamDataType(sin->handle)) {
 
-        case TYPE_FLOAT:
+        case UDA_TYPE_FLOAT:
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_FLOAT, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
             memcpy((void*) dvec, (void*) getIdamData(sin->handle), (size_t) ndata * sizeof(float));
             break;
 
-        case TYPE_DOUBLE:
+        case UDA_TYPE_DOUBLE:
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_DOUBLE, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
             memcpy((void*) dvec, (void*) getIdamData(sin->handle), (size_t) ndata * sizeof(double));
             break;
 
-        case TYPE_SHORT:
+        case UDA_TYPE_SHORT:
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_INT, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
             memcpy((void*) dvec, (void*) getIdamData(sin->handle), (size_t) ndata * sizeof(short));
             break;
 
-        case TYPE_INT:
+        case UDA_TYPE_INT:
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_LONG, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
             memcpy((void*) dvec, (void*) getIdamData(sin->handle), (size_t) ndata * sizeof(int));
             break;
 
-        case TYPE_LONG:
+        case UDA_TYPE_LONG:
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_LONG64, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
             memcpy((void*) dvec, (void*) getIdamData(sin->handle), (size_t) ndata * sizeof(long));
             break;
 
-        case TYPE_UNSIGNED_SHORT:
+        case UDA_TYPE_UNSIGNED_SHORT:
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_UINT, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
             memcpy((void*) dvec, (void*) getIdamData(sin->handle), (size_t) ndata * sizeof(unsigned short));
             break;
 
-        case TYPE_UNSIGNED:
+        case UDA_TYPE_UNSIGNED_INT:
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_ULONG, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
             memcpy((void*) dvec, (void*) getIdamData(sin->handle), (size_t) ndata * sizeof(unsigned int));
             break;
 
-        case TYPE_UNSIGNED_LONG:
+        case UDA_TYPE_UNSIGNED_LONG:
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_ULONG64, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
             memcpy((void*) dvec, (void*) getIdamData(sin->handle), (size_t) ndata * sizeof(unsigned long));
             break;
 
-        case TYPE_CHAR:
+        case UDA_TYPE_CHAR:
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_BYTE, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
             memcpy((void*) dvec, (void*) getIdamData(sin->handle), (size_t) ndata * sizeof(char));
             break;
 
-        case TYPE_UNSIGNED_CHAR:
+        case UDA_TYPE_UNSIGNED_CHAR:
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_BYTE, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
             memcpy((void*) dvec, (void*) getIdamData(sin->handle), (size_t) ndata * sizeof(unsigned char));
@@ -3346,61 +3346,61 @@ IDL_VPTR IDL_CDECL geterrorarray(int argc, IDL_VPTR argv[], char* argk) {
 
     switch (getIdamErrorType(sin->handle)) {
 
-        case TYPE_FLOAT:
+        case UDA_TYPE_FLOAT:
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_FLOAT, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
             memcpy((void*) dvec, (void*) ep, (size_t) ndata * sizeof(float));
             break;
 
-        case TYPE_DOUBLE:
+        case UDA_TYPE_DOUBLE:
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_DOUBLE, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
             memcpy((void*) dvec, (void*) ep, (size_t) ndata * sizeof(double));
             break;
 
-        case TYPE_SHORT:
+        case UDA_TYPE_SHORT:
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_INT, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
             memcpy((void*) dvec, (void*) ep, (size_t) ndata * sizeof(short));
             break;
 
-        case TYPE_INT:
+        case UDA_TYPE_INT:
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_LONG, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
             memcpy((void*) dvec, (void*) ep, (size_t) ndata * sizeof(int));
             break;
 
-        case TYPE_LONG:
+        case UDA_TYPE_LONG:
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_LONG64, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
             memcpy((void*) dvec, (void*) ep, (size_t) ndata * sizeof(long));
             break;
 
-        case TYPE_UNSIGNED_SHORT:
+        case UDA_TYPE_UNSIGNED_SHORT:
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_UINT, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
             memcpy((void*) dvec, (void*) ep, (size_t) ndata * sizeof(unsigned short));
             break;
 
-        case TYPE_UNSIGNED:
+        case UDA_TYPE_UNSIGNED_INT:
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_ULONG, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
             memcpy((void*) dvec, (void*) ep, (size_t) ndata * sizeof(unsigned int));
             break;
 
-        case TYPE_UNSIGNED_LONG:
+        case UDA_TYPE_UNSIGNED_LONG:
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_ULONG64, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
             memcpy((void*) dvec, (void*) ep, (size_t) ndata * sizeof(unsigned long));
             break;
 
-        case TYPE_CHAR:
+        case UDA_TYPE_CHAR:
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_BYTE, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
             memcpy((void*) dvec, (void*) ep, (size_t) ndata * sizeof(char));
             break;
 
-        case TYPE_UNSIGNED_CHAR:
+        case UDA_TYPE_UNSIGNED_CHAR:
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_BYTE, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
             memcpy((void*) dvec, (void*) ep, (size_t) ndata * sizeof(unsigned char));
@@ -3725,7 +3725,7 @@ IDL_VPTR IDL_CDECL getidamdimdata(int argc, IDL_VPTR argv[], char* argk) {
 
     switch (getIdamDimType(sin->handle, dimid)) {
 
-        case TYPE_FLOAT:
+        case UDA_TYPE_FLOAT:
             sout = (IDAM_DIMOUT*) malloc(sizeof(IDAM_DIMOUT) + sizeof(float) * ndata);
 
             if (sout == NULL) {
@@ -3737,7 +3737,7 @@ IDL_VPTR IDL_CDECL getidamdimdata(int argc, IDL_VPTR argv[], char* argk) {
             psDef = IDL_MakeStruct(NULL, pTagsFloat);
             break;
 
-        case TYPE_DOUBLE:
+        case UDA_TYPE_DOUBLE:
             sout = (IDAM_DIMOUT*) malloc(sizeof(IDAM_DIMOUT) + sizeof(double) * ndata);
 
             if (sout == NULL) {
@@ -3749,7 +3749,7 @@ IDL_VPTR IDL_CDECL getidamdimdata(int argc, IDL_VPTR argv[], char* argk) {
             psDef = IDL_MakeStruct(NULL, pTagsDouble);
             break;
 
-        case TYPE_SHORT:
+        case UDA_TYPE_SHORT:
             sout = (IDAM_DIMOUT*) malloc(sizeof(IDAM_DIMOUT) + sizeof(short) * ndata);
 
             if (sout == NULL) {
@@ -3761,7 +3761,7 @@ IDL_VPTR IDL_CDECL getidamdimdata(int argc, IDL_VPTR argv[], char* argk) {
             psDef = IDL_MakeStruct(NULL, pTagsShort);
             break;
 
-        case TYPE_INT:
+        case UDA_TYPE_INT:
             sout = (IDAM_DIMOUT*) malloc(sizeof(IDAM_DIMOUT) + sizeof(int) * ndata);
 
             if (sout == NULL) {
@@ -3773,7 +3773,7 @@ IDL_VPTR IDL_CDECL getidamdimdata(int argc, IDL_VPTR argv[], char* argk) {
             psDef = IDL_MakeStruct(NULL, pTagsInt);
             break;
 
-        case TYPE_LONG:
+        case UDA_TYPE_LONG:
             sout = (IDAM_DIMOUT*) malloc(sizeof(IDAM_DIMOUT) + sizeof(long) * ndata);
 
             if (sout == NULL) {
@@ -3785,7 +3785,7 @@ IDL_VPTR IDL_CDECL getidamdimdata(int argc, IDL_VPTR argv[], char* argk) {
             psDef = IDL_MakeStruct(NULL, pTagsLong);
             break;
 
-        case TYPE_UNSIGNED_SHORT:
+        case UDA_TYPE_UNSIGNED_SHORT:
             sout = (IDAM_DIMOUT*) malloc(sizeof(IDAM_DIMOUT) + sizeof(unsigned short) * ndata);
 
             if (sout == NULL) {
@@ -3797,7 +3797,7 @@ IDL_VPTR IDL_CDECL getidamdimdata(int argc, IDL_VPTR argv[], char* argk) {
             psDef = IDL_MakeStruct(NULL, pTagsUnsignedShort);
             break;
 
-        case TYPE_UNSIGNED:
+        case UDA_TYPE_UNSIGNED_INT:
             sout = (IDAM_DIMOUT*) malloc(sizeof(IDAM_DIMOUT) + sizeof(unsigned int) * ndata);
 
             if (sout == NULL) {
@@ -3809,7 +3809,7 @@ IDL_VPTR IDL_CDECL getidamdimdata(int argc, IDL_VPTR argv[], char* argk) {
             psDef = IDL_MakeStruct(NULL, pTagsUnsignedInt);
             break;
 
-        case TYPE_UNSIGNED_LONG:
+        case UDA_TYPE_UNSIGNED_LONG:
             sout = (IDAM_DIMOUT*) malloc(sizeof(IDAM_DIMOUT) + sizeof(unsigned long) * ndata);
 
             if (sout == NULL) {
@@ -3821,7 +3821,7 @@ IDL_VPTR IDL_CDECL getidamdimdata(int argc, IDL_VPTR argv[], char* argk) {
             psDef = IDL_MakeStruct(NULL, pTagsUnsignedLong);
             break;
 
-        case TYPE_CHAR:
+        case UDA_TYPE_CHAR:
             sout = (IDAM_DIMOUT*) malloc(sizeof(IDAM_DIMOUT) + sizeof(char) * ndata);
 
             if (sout == NULL) {
@@ -3833,7 +3833,7 @@ IDL_VPTR IDL_CDECL getidamdimdata(int argc, IDL_VPTR argv[], char* argk) {
             psDef = IDL_MakeStruct(NULL, pTagsChar);
             break;
 
-        case TYPE_UNSIGNED_CHAR:
+        case UDA_TYPE_UNSIGNED_CHAR:
             sout = (IDAM_DIMOUT*) malloc(sizeof(IDAM_DIMOUT) + sizeof(unsigned char) * ndata);
 
             if (sout == NULL) {
@@ -4044,42 +4044,42 @@ IDL_VPTR IDL_CDECL getdimdataarray(int argc, IDL_VPTR argv[], char* argk) {
 
     switch (getIdamDimType(sin->handle, dimid)) {
 
-        case TYPE_FLOAT:
+        case UDA_TYPE_FLOAT:
 
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_FLOAT, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
             memcpy((void*) dvec, (void*) getIdamDimData(sin->handle, dimid), (size_t) ndata * sizeof(float));
             break;
 
-        case TYPE_DOUBLE:
+        case UDA_TYPE_DOUBLE:
 
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_DOUBLE, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
             memcpy((void*) dvec, (void*) getIdamDimData(sin->handle, dimid), (size_t) ndata * sizeof(double));
             break;
 
-        case TYPE_SHORT:
+        case UDA_TYPE_SHORT:
 
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_INT, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
             memcpy((void*) dvec, (void*) getIdamDimData(sin->handle, dimid), (size_t) ndata * sizeof(short));
             break;
 
-        case TYPE_INT:
+        case UDA_TYPE_INT:
 
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_LONG, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
             memcpy((void*) dvec, (void*) getIdamDimData(sin->handle, dimid), (size_t) ndata * sizeof(int));
             break;
 
-        case TYPE_LONG:
+        case UDA_TYPE_LONG:
 
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_LONG64, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
             memcpy((void*) dvec, (void*) getIdamDimData(sin->handle, dimid), (size_t) ndata * sizeof(long));
             break;
 
-        case TYPE_UNSIGNED_SHORT:
+        case UDA_TYPE_UNSIGNED_SHORT:
 
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_UINT, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
@@ -4087,7 +4087,7 @@ IDL_VPTR IDL_CDECL getdimdataarray(int argc, IDL_VPTR argv[], char* argk) {
                    (size_t) ndata * sizeof(unsigned short));
             break;
 
-        case TYPE_UNSIGNED:
+        case UDA_TYPE_UNSIGNED_INT:
 
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_ULONG, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
@@ -4095,7 +4095,7 @@ IDL_VPTR IDL_CDECL getdimdataarray(int argc, IDL_VPTR argv[], char* argk) {
                    (size_t) ndata * sizeof(unsigned int));
             break;
 
-        case TYPE_UNSIGNED_LONG:
+        case UDA_TYPE_UNSIGNED_LONG:
 
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_ULONG64, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
@@ -4103,14 +4103,14 @@ IDL_VPTR IDL_CDECL getdimdataarray(int argc, IDL_VPTR argv[], char* argk) {
                    (size_t) ndata * sizeof(unsigned long));
             break;
 
-        case TYPE_CHAR:
+        case UDA_TYPE_CHAR:
 
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_BYTE, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
             memcpy((void*) dvec, (void*) getIdamDimData(sin->handle, dimid), (size_t) ndata * sizeof(char));
             break;
 
-        case TYPE_UNSIGNED_CHAR:
+        case UDA_TYPE_UNSIGNED_CHAR:
 
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_BYTE, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
@@ -4435,70 +4435,70 @@ IDL_VPTR IDL_CDECL getdatadata(int argc, IDL_VPTR argv[], char* argk) {
 
     switch (getIdamDataType(handle)) {
 
-        case TYPE_FLOAT:
+        case UDA_TYPE_FLOAT:
 
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_FLOAT, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
             memcpy((void*) dvec, (void*) getIdamData(handle), (size_t) ndata * sizeof(float));
             break;
 
-        case TYPE_DOUBLE:
+        case UDA_TYPE_DOUBLE:
 
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_DOUBLE, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
             memcpy((void*) dvec, (void*) getIdamData(handle), (size_t) ndata * sizeof(double));
             break;
 
-        case TYPE_SHORT:
+        case UDA_TYPE_SHORT:
 
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_INT, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
             memcpy((void*) dvec, (void*) getIdamData(handle), (size_t) ndata * sizeof(short));
             break;
 
-        case TYPE_INT:
+        case UDA_TYPE_INT:
 
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_LONG, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
             memcpy((void*) dvec, (void*) getIdamData(handle), (size_t) ndata * sizeof(int));
             break;
 
-        case TYPE_LONG:
+        case UDA_TYPE_LONG:
 
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_LONG64, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
             memcpy((void*) dvec, (void*) getIdamData(handle), (size_t) ndata * sizeof(long));
             break;
 
-        case TYPE_UNSIGNED_SHORT:
+        case UDA_TYPE_UNSIGNED_SHORT:
 
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_UINT, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
             memcpy((void*) dvec, (void*) getIdamData(handle), (size_t) ndata * sizeof(unsigned short));
             break;
 
-        case TYPE_UNSIGNED:
+        case UDA_TYPE_UNSIGNED_INT:
 
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_ULONG, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
             memcpy((void*) dvec, (void*) getIdamData(handle), (size_t) ndata * sizeof(unsigned int));
             break;
 
-        case TYPE_UNSIGNED_LONG:
+        case UDA_TYPE_UNSIGNED_LONG:
 
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_ULONG64, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
             memcpy((void*) dvec, (void*) getIdamData(handle), (size_t) ndata * sizeof(unsigned long));
             break;
 
-        case TYPE_CHAR:
+        case UDA_TYPE_CHAR:
 
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_BYTE, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
             memcpy((void*) dvec, (void*) getIdamData(handle), (size_t) ndata * sizeof(char));
             break;
 
-        case TYPE_UNSIGNED_CHAR:
+        case UDA_TYPE_UNSIGNED_CHAR:
 
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_BYTE, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
@@ -4536,63 +4536,63 @@ IDL_VPTR IDL_CDECL getsyntheticdata(int argc, IDL_VPTR argv[], char* argk) {
 
     switch (getIdamDataType(handle)) {
 
-        case TYPE_FLOAT:
+        case UDA_TYPE_FLOAT:
 
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_FLOAT, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
             memcpy((void*) dvec, (void*) getIdamSyntheticData(handle), (size_t) ndata * sizeof(float));
             break;
 
-        case TYPE_DOUBLE:
+        case UDA_TYPE_DOUBLE:
 
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_DOUBLE, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
             memcpy((void*) dvec, (void*) getIdamSyntheticData(handle), (size_t) ndata * sizeof(double));
             break;
 
-        case TYPE_SHORT:
+        case UDA_TYPE_SHORT:
 
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_INT, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
             memcpy((void*) dvec, (void*) getIdamSyntheticData(handle), (size_t) ndata * sizeof(short));
             break;
 
-        case TYPE_INT:
+        case UDA_TYPE_INT:
 
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_LONG, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
             memcpy((void*) dvec, (void*) getIdamSyntheticData(handle), (size_t) ndata * sizeof(int));
             break;
 
-        case TYPE_LONG:
+        case UDA_TYPE_LONG:
 
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_LONG64, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
             memcpy((void*) dvec, (void*) getIdamSyntheticData(handle), (size_t) ndata * sizeof(long));
             break;
 
-        case TYPE_UNSIGNED_SHORT:
+        case UDA_TYPE_UNSIGNED_SHORT:
 
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_UINT, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
             memcpy((void*) dvec, (void*) getIdamSyntheticData(handle), (size_t) ndata * sizeof(unsigned short));
             break;
 
-        case TYPE_UNSIGNED:
+        case UDA_TYPE_UNSIGNED_INT:
 
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_ULONG, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
             memcpy((void*) dvec, (void*) getIdamSyntheticData(handle), (size_t) ndata * sizeof(unsigned int));
             break;
 
-        case TYPE_UNSIGNED_LONG:
+        case UDA_TYPE_UNSIGNED_LONG:
 
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_ULONG64, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
             memcpy((void*) dvec, (void*) getIdamSyntheticData(handle), (size_t) ndata * sizeof(unsigned long));
             break;
 
-        case TYPE_CHAR:
+        case UDA_TYPE_CHAR:
 
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_BYTE, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
@@ -4600,7 +4600,7 @@ IDL_VPTR IDL_CDECL getsyntheticdata(int argc, IDL_VPTR argv[], char* argk) {
             break;
 
 
-        case TYPE_UNSIGNED_CHAR:
+        case UDA_TYPE_UNSIGNED_CHAR:
 
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_BYTE, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
@@ -4640,70 +4640,70 @@ IDL_VPTR IDL_CDECL getdataerror(int argc, IDL_VPTR argv[], char* argk) {
 
     switch (getIdamErrorType(handle)) {
 
-        case TYPE_FLOAT:
+        case UDA_TYPE_FLOAT:
 
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_FLOAT, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
             memcpy((void*) dvec, (void*) ep, (size_t) data_n * sizeof(float));
             break;
 
-        case TYPE_DOUBLE:
+        case UDA_TYPE_DOUBLE:
 
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_DOUBLE, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
             memcpy((void*) dvec, (void*) ep, (size_t) data_n * sizeof(double));
             break;
 
-        case TYPE_SHORT:
+        case UDA_TYPE_SHORT:
 
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_INT, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
             memcpy((void*) dvec, (void*) ep, (size_t) data_n * sizeof(short));
             break;
 
-        case TYPE_INT:
+        case UDA_TYPE_INT:
 
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_LONG, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
             memcpy((void*) dvec, (void*) ep, (size_t) data_n * sizeof(int));
             break;
 
-        case TYPE_LONG:
+        case UDA_TYPE_LONG:
 
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_LONG64, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
             memcpy((void*) dvec, (void*) ep, (size_t) data_n * sizeof(long));
             break;
 
-        case TYPE_UNSIGNED_SHORT:
+        case UDA_TYPE_UNSIGNED_SHORT:
 
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_UINT, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
             memcpy((void*) dvec, (void*) ep, (size_t) data_n * sizeof(unsigned short));
             break;
 
-        case TYPE_UNSIGNED:
+        case UDA_TYPE_UNSIGNED_INT:
 
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_ULONG, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
             memcpy((void*) dvec, (void*) ep, (size_t) data_n * sizeof(unsigned int));
             break;
 
-        case TYPE_UNSIGNED_LONG:
+        case UDA_TYPE_UNSIGNED_LONG:
 
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_ULONG64, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
             memcpy((void*) dvec, (void*) ep, (size_t) data_n * sizeof(unsigned long));
             break;
 
-        case TYPE_CHAR:
+        case UDA_TYPE_CHAR:
 
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_BYTE, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
             memcpy((void*) dvec, (void*) (void*) ep, (size_t) data_n * sizeof(char));
             break;
 
-        case TYPE_UNSIGNED_CHAR:
+        case UDA_TYPE_UNSIGNED_CHAR:
 
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_BYTE, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
@@ -4745,70 +4745,70 @@ IDL_VPTR IDL_CDECL getasymmetricdataerror(int argc, IDL_VPTR argv[], char* argk)
 
     switch (getIdamErrorType(handle)) {
 
-        case TYPE_FLOAT:
+        case UDA_TYPE_FLOAT:
 
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_FLOAT, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
             memcpy((void*) dvec, (void*) ep, (size_t) data_n * sizeof(float));
             break;
 
-        case TYPE_DOUBLE:
+        case UDA_TYPE_DOUBLE:
 
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_DOUBLE, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
             memcpy((void*) dvec, (void*) ep, (size_t) data_n * sizeof(double));
             break;
 
-        case TYPE_SHORT:
+        case UDA_TYPE_SHORT:
 
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_INT, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
             memcpy((void*) dvec, (void*) ep, (size_t) data_n * sizeof(short));
             break;
 
-        case TYPE_INT:
+        case UDA_TYPE_INT:
 
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_LONG, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
             memcpy((void*) dvec, (void*) ep, (size_t) data_n * sizeof(int));
             break;
 
-        case TYPE_LONG:
+        case UDA_TYPE_LONG:
 
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_LONG64, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
             memcpy((void*) dvec, (void*) ep, (size_t) data_n * sizeof(long));
             break;
 
-        case TYPE_UNSIGNED_SHORT:
+        case UDA_TYPE_UNSIGNED_SHORT:
 
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_UINT, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
             memcpy((void*) dvec, (void*) ep, (size_t) data_n * sizeof(unsigned short));
             break;
 
-        case TYPE_UNSIGNED:
+        case UDA_TYPE_UNSIGNED_INT:
 
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_ULONG, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
             memcpy((void*) dvec, (void*) ep, (size_t) data_n * sizeof(unsigned int));
             break;
 
-        case TYPE_UNSIGNED_LONG:
+        case UDA_TYPE_UNSIGNED_LONG:
 
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_ULONG64, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
             memcpy((void*) dvec, (void*) ep, (size_t) data_n * sizeof(unsigned long));
             break;
 
-        case TYPE_CHAR:
+        case UDA_TYPE_CHAR:
 
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_BYTE, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
             memcpy((void*) dvec, (void*) (void*) ep, (size_t) data_n * sizeof(char));
             break;
 
-        case TYPE_UNSIGNED_CHAR:
+        case UDA_TYPE_UNSIGNED_CHAR:
 
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_BYTE, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
@@ -4980,42 +4980,42 @@ IDL_VPTR IDL_CDECL getdimdata(int argc, IDL_VPTR argv[], char* argk) {
 
     switch (getIdamDimType(handle, dimid)) {
 
-        case TYPE_FLOAT:
+        case UDA_TYPE_FLOAT:
 
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_FLOAT, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
             memcpy((void*) dvec, (void*) getIdamDimData(handle, dimid), (size_t) ndata * sizeof(float));
             break;
 
-        case TYPE_DOUBLE:
+        case UDA_TYPE_DOUBLE:
 
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_DOUBLE, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
             memcpy((void*) dvec, (void*) getIdamDimData(handle, dimid), (size_t) ndata * sizeof(double));
             break;
 
-        case TYPE_SHORT:
+        case UDA_TYPE_SHORT:
 
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_INT, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
             memcpy((void*) dvec, (void*) getIdamDimData(handle, dimid), (size_t) ndata * sizeof(short));
             break;
 
-        case TYPE_INT:
+        case UDA_TYPE_INT:
 
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_LONG, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
             memcpy((void*) dvec, (void*) getIdamDimData(handle, dimid), (size_t) ndata * sizeof(int));
             break;
 
-        case TYPE_LONG:
+        case UDA_TYPE_LONG:
 
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_LONG64, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
             memcpy((void*) dvec, (void*) getIdamDimData(handle, dimid), (size_t) ndata * sizeof(long));
             break;
 
-        case TYPE_UNSIGNED_SHORT:
+        case UDA_TYPE_UNSIGNED_SHORT:
 
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_UINT, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
@@ -5023,28 +5023,28 @@ IDL_VPTR IDL_CDECL getdimdata(int argc, IDL_VPTR argv[], char* argk) {
                    (size_t) ndata * sizeof(unsigned short));
             break;
 
-        case TYPE_UNSIGNED:
+        case UDA_TYPE_UNSIGNED_INT:
 
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_ULONG, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
             memcpy((void*) dvec, (void*) getIdamDimData(handle, dimid), (size_t) ndata * sizeof(unsigned int));
             break;
 
-        case TYPE_UNSIGNED_LONG:
+        case UDA_TYPE_UNSIGNED_LONG:
 
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_ULONG64, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
             memcpy((void*) dvec, (void*) getIdamDimData(handle, dimid), (size_t) ndata * sizeof(unsigned long));
             break;
 
-        case TYPE_CHAR:
+        case UDA_TYPE_CHAR:
 
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_BYTE, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
             memcpy((void*) dvec, (void*) getIdamDimData(handle, dimid), (size_t) ndata * sizeof(char));
             break;
 
-        case TYPE_UNSIGNED_CHAR:
+        case UDA_TYPE_UNSIGNED_CHAR:
 
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_BYTE, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
@@ -5078,7 +5078,7 @@ IDL_VPTR IDL_CDECL getsyntheticdimdata(int argc, IDL_VPTR argv[], char* argk) {
 
     switch (getIdamDimType(handle, dimid)) {
 
-        case TYPE_FLOAT:
+        case UDA_TYPE_FLOAT:
 
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_FLOAT, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
@@ -5086,7 +5086,7 @@ IDL_VPTR IDL_CDECL getsyntheticdimdata(int argc, IDL_VPTR argv[], char* argk) {
                    (size_t) ndata * sizeof(float));
             break;
 
-        case TYPE_DOUBLE:
+        case UDA_TYPE_DOUBLE:
 
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_DOUBLE, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
@@ -5094,7 +5094,7 @@ IDL_VPTR IDL_CDECL getsyntheticdimdata(int argc, IDL_VPTR argv[], char* argk) {
                    (size_t) ndata * sizeof(double));
             break;
 
-        case TYPE_SHORT:
+        case UDA_TYPE_SHORT:
 
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_INT, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
@@ -5102,21 +5102,21 @@ IDL_VPTR IDL_CDECL getsyntheticdimdata(int argc, IDL_VPTR argv[], char* argk) {
                    (size_t) ndata * sizeof(short));
             break;
 
-        case TYPE_INT:
+        case UDA_TYPE_INT:
 
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_LONG, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
             memcpy((void*) dvec, (void*) getIdamSyntheticDimData(handle, dimid), (size_t) ndata * sizeof(int));
             break;
 
-        case TYPE_LONG:
+        case UDA_TYPE_LONG:
 
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_LONG64, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
             memcpy((void*) dvec, (void*) getIdamSyntheticDimData(handle, dimid), (size_t) ndata * sizeof(long));
             break;
 
-        case TYPE_UNSIGNED_SHORT:
+        case UDA_TYPE_UNSIGNED_SHORT:
 
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_UINT, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
@@ -5124,7 +5124,7 @@ IDL_VPTR IDL_CDECL getsyntheticdimdata(int argc, IDL_VPTR argv[], char* argk) {
                    (size_t) ndata * sizeof(unsigned short));
             break;
 
-        case TYPE_UNSIGNED:
+        case UDA_TYPE_UNSIGNED_INT:
 
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_ULONG, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
@@ -5132,7 +5132,7 @@ IDL_VPTR IDL_CDECL getsyntheticdimdata(int argc, IDL_VPTR argv[], char* argk) {
                    (size_t) ndata * sizeof(unsigned int));
             break;
 
-        case TYPE_UNSIGNED_LONG:
+        case UDA_TYPE_UNSIGNED_LONG:
 
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_ULONG64, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
@@ -5140,14 +5140,14 @@ IDL_VPTR IDL_CDECL getsyntheticdimdata(int argc, IDL_VPTR argv[], char* argk) {
                    (size_t) ndata * sizeof(unsigned long));
             break;
 
-        case TYPE_CHAR:
+        case UDA_TYPE_CHAR:
 
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_BYTE, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
             memcpy((void*) dvec, (void*) getIdamSyntheticDimData(handle, dimid), (size_t) ndata * sizeof(char));
             break;
 
-        case TYPE_UNSIGNED_CHAR:
+        case UDA_TYPE_UNSIGNED_CHAR:
 
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_BYTE, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
@@ -5185,70 +5185,70 @@ IDL_VPTR IDL_CDECL getdimerror(int argc, IDL_VPTR argv[], char* argk) {
 
     switch (getIdamDimErrorType(handle, dimid)) {
 
-        case TYPE_FLOAT:
+        case UDA_TYPE_FLOAT:
 
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_FLOAT, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
             memcpy((void*) dvec, (void*) ep, (size_t) ndata * sizeof(float));
             break;
 
-        case TYPE_DOUBLE:
+        case UDA_TYPE_DOUBLE:
 
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_DOUBLE, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
             memcpy((void*) dvec, (void*) ep, (size_t) ndata * sizeof(double));
             break;
 
-        case TYPE_SHORT:
+        case UDA_TYPE_SHORT:
 
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_INT, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
             memcpy((void*) dvec, (void*) ep, (size_t) ndata * sizeof(short));
             break;
 
-        case TYPE_INT:
+        case UDA_TYPE_INT:
 
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_LONG, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
             memcpy((void*) dvec, (void*) ep, (size_t) ndata * sizeof(int));
             break;
 
-        case TYPE_LONG:
+        case UDA_TYPE_LONG:
 
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_LONG64, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
             memcpy((void*) dvec, (void*) ep, (size_t) ndata * sizeof(long));
             break;
 
-        case TYPE_UNSIGNED_SHORT:
+        case UDA_TYPE_UNSIGNED_SHORT:
 
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_UINT, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
             memcpy((void*) dvec, (void*) ep, (size_t) ndata * sizeof(unsigned short));
             break;
 
-        case TYPE_UNSIGNED:
+        case UDA_TYPE_UNSIGNED_INT:
 
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_ULONG, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
             memcpy((void*) dvec, (void*) ep, (size_t) ndata * sizeof(unsigned int));
             break;
 
-        case TYPE_UNSIGNED_LONG:
+        case UDA_TYPE_UNSIGNED_LONG:
 
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_ULONG64, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
             memcpy((void*) dvec, (void*) ep, (size_t) ndata * sizeof(unsigned long));
             break;
 
-        case TYPE_CHAR:
+        case UDA_TYPE_CHAR:
 
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_BYTE, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
             memcpy((void*) dvec, (void*) ep, (size_t) ndata * sizeof(char));
             break;
 
-        case TYPE_UNSIGNED_CHAR:
+        case UDA_TYPE_UNSIGNED_CHAR:
 
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_BYTE, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
@@ -5286,70 +5286,70 @@ IDL_VPTR IDL_CDECL getasymmetricdimerror(int argc, IDL_VPTR argv[], char* argk) 
 
     switch (getIdamDimErrorType(handle, dimid)) {
 
-        case TYPE_FLOAT:
+        case UDA_TYPE_FLOAT:
 
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_FLOAT, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
             memcpy((void*) dvec, (void*) ep, (size_t) ndata * sizeof(float));
             break;
 
-        case TYPE_DOUBLE:
+        case UDA_TYPE_DOUBLE:
 
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_DOUBLE, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
             memcpy((void*) dvec, (void*) ep, (size_t) ndata * sizeof(double));
             break;
 
-        case TYPE_SHORT:
+        case UDA_TYPE_SHORT:
 
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_INT, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
             memcpy((void*) dvec, (void*) ep, (size_t) ndata * sizeof(short));
             break;
 
-        case TYPE_INT:
+        case UDA_TYPE_INT:
 
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_LONG, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
             memcpy((void*) dvec, (void*) ep, (size_t) ndata * sizeof(int));
             break;
 
-        case TYPE_LONG:
+        case UDA_TYPE_LONG:
 
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_LONG64, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
             memcpy((void*) dvec, (void*) ep, (size_t) ndata * sizeof(long));
             break;
 
-        case TYPE_UNSIGNED_SHORT:
+        case UDA_TYPE_UNSIGNED_SHORT:
 
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_UINT, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
             memcpy((void*) dvec, (void*) ep, (size_t) ndata * sizeof(unsigned short));
             break;
 
-        case TYPE_UNSIGNED:
+        case UDA_TYPE_UNSIGNED_INT:
 
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_ULONG, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
             memcpy((void*) dvec, (void*) ep, (size_t) ndata * sizeof(unsigned int));
             break;
 
-        case TYPE_UNSIGNED_LONG:
+        case UDA_TYPE_UNSIGNED_LONG:
 
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_ULONG64, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
             memcpy((void*) dvec, (void*) ep, (size_t) ndata * sizeof(unsigned long));
             break;
 
-        case TYPE_CHAR:
+        case UDA_TYPE_CHAR:
 
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_BYTE, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
             memcpy((void*) dvec, (void*) ep, (size_t) ndata * sizeof(char));
             break;
 
-        case TYPE_UNSIGNED_CHAR:
+        case UDA_TYPE_UNSIGNED_CHAR:
 
             dvec = (char*) IDL_MakeTempArray((int) IDL_TYP_BYTE, ndims, (IDL_MEMINT*) ilDims,
                                              IDL_ARR_INI_ZERO, &idlArray);
@@ -6332,7 +6332,7 @@ IDL_VPTR IDL_CDECL getxmldoc(int argc, IDL_VPTR argv[], char* argk) {
        if(data_block->opaque_block != NULL) fprintf(stdout,"Opaque block: %s\n",data_block->opaque_block);
        fflush(stdout);
     */
-    if (data_block->opaque_type == OPAQUE_TYPE_XML_DOCUMENT && data_block->opaque_count > 0 &&
+    if (data_block->opaque_type == UDA_OPAQUE_TYPE_XML_DOCUMENT && data_block->opaque_count > 0 &&
         data_block->opaque_block != NULL) {
         IDL_StrStore(&argv[1]->value.str, (char*) data_block->opaque_block);
     } else {
@@ -7069,7 +7069,7 @@ IDL_VPTR IDL_CDECL getdomains(int argc, IDL_VPTR argv[], char* argk) {
 
     switch (dim->data_type) {
 
-        case TYPE_FLOAT:
+        case UDA_TYPE_FLOAT:
 
             if (kw.debug) {
                 fprintf(stdout, "Domains are of Type FLOAT\n");
@@ -7126,7 +7126,7 @@ IDL_VPTR IDL_CDECL getdomains(int argc, IDL_VPTR argv[], char* argk) {
             psDef = IDL_MakeStruct(NULL, pTagsFloat);
             break;
 
-        case TYPE_DOUBLE:
+        case UDA_TYPE_DOUBLE:
 
             if (kw.debug) {
                 fprintf(stdout, "Domains are of Type DOUBLE\n");
@@ -7181,7 +7181,7 @@ IDL_VPTR IDL_CDECL getdomains(int argc, IDL_VPTR argv[], char* argk) {
             psDef = IDL_MakeStruct(NULL, pTagsDouble);
             break;
 
-        case TYPE_SHORT:
+        case UDA_TYPE_SHORT:
 
             if (kw.debug) {
                 fprintf(stdout, "Domains are of Type SHORT\n");
@@ -7237,7 +7237,7 @@ IDL_VPTR IDL_CDECL getdomains(int argc, IDL_VPTR argv[], char* argk) {
             psDef = IDL_MakeStruct(NULL, pTagsShort);
             break;
 
-        case TYPE_INT:
+        case UDA_TYPE_INT:
 
             if (kw.debug) {
                 fprintf(stdout, "Domains are of Type INT\n");
@@ -7292,7 +7292,7 @@ IDL_VPTR IDL_CDECL getdomains(int argc, IDL_VPTR argv[], char* argk) {
             psDef = IDL_MakeStruct(NULL, pTagsInt);
             break;
 
-        case TYPE_LONG:
+        case UDA_TYPE_LONG:
 
             if (kw.debug) {
                 fprintf(stdout, "Domains are of Type LONG\n");
@@ -7347,7 +7347,7 @@ IDL_VPTR IDL_CDECL getdomains(int argc, IDL_VPTR argv[], char* argk) {
             psDef = IDL_MakeStruct(NULL, pTagsLong);
             break;
 
-        case TYPE_UNSIGNED_SHORT: {
+        case UDA_TYPE_UNSIGNED_SHORT: {
             unsigned short* p1, * p2;
 
             if (kw.debug) {
@@ -7406,7 +7406,7 @@ IDL_VPTR IDL_CDECL getdomains(int argc, IDL_VPTR argv[], char* argk) {
             break;
         }
 
-        case TYPE_UNSIGNED:
+        case UDA_TYPE_UNSIGNED_INT:
 
             if (kw.debug) {
                 fprintf(stdout, "Domains are of Type UNSIGNED\n");
@@ -7461,7 +7461,7 @@ IDL_VPTR IDL_CDECL getdomains(int argc, IDL_VPTR argv[], char* argk) {
             psDef = IDL_MakeStruct(NULL, pTagsUnsignedInt);
             break;
 
-        case TYPE_UNSIGNED_LONG: {
+        case UDA_TYPE_UNSIGNED_LONG: {
             unsigned long* p1, * p2;
 
             if (kw.debug) {
@@ -7519,7 +7519,7 @@ IDL_VPTR IDL_CDECL getdomains(int argc, IDL_VPTR argv[], char* argk) {
             break;
         }
 
-        case TYPE_CHAR: {
+        case UDA_TYPE_CHAR: {
             char* p1, * p2;
 
             if (kw.debug) {
@@ -7576,7 +7576,7 @@ IDL_VPTR IDL_CDECL getdomains(int argc, IDL_VPTR argv[], char* argk) {
             break;
         }
 
-        case TYPE_UNSIGNED_CHAR: {
+        case UDA_TYPE_UNSIGNED_CHAR: {
             unsigned char* p1, * p2;
 
             if (kw.debug) {

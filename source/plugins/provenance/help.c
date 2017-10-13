@@ -35,15 +35,10 @@ int help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         data_block = idam_plugin_interface->data_block;
 
     } else {
-        err = 999;
-        IDAM_LOG(UDA_LOG_ERROR, "ERROR Provenance: Plugin Interface Version Unknown\n");
-
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "Provenance", err,
-                     "Plugin Interface Version is Not Known: Unable to execute the request!");
-        return err;
+        RAISE_PLUGIN_ERROR("Plugin Interface Version is Not Known: Unable to execute the request!");
     }
 
-    IDAM_LOG(UDA_LOG_DEBUG, "Provenance: Plugin Interface transferred\n");
+    UDA_LOG(UDA_LOG_DEBUG, "Provenance: Plugin Interface transferred\n");
 
 //----------------------------------------------------------------------------------------
 // Common Name Value pairs
@@ -57,7 +52,7 @@ int help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     do {
 
-        IDAM_LOG(UDA_LOG_DEBUG, "Provenance: entering function help\n");
+        UDA_LOG(UDA_LOG_DEBUG, "Provenance: entering function help\n");
 
         strcpy(work, "\nProvenance: Issue and register a new UUID for a specific scientific study.\n\n"
 
@@ -82,7 +77,7 @@ int help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 "\tlogRecord=logRecord, created=created, status=[New|Update|Close|Delete])\n\n"
         );
 
-        IDAM_LOGF(UDA_LOG_DEBUG, "Provenance:\n%s\n", work);
+        UDA_LOG(UDA_LOG_DEBUG, "Provenance:\n%s\n", work);
 
 // Create the Returned Structure Definition
 
@@ -94,7 +89,7 @@ int help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         usertype.imagecount = 0;                // No Structure Image data
         usertype.image = NULL;
         usertype.size = sizeof(PROVENANCEHELP);        // Structure size
-        usertype.idamclass = TYPE_COMPOUND;
+        usertype.idamclass = UDA_TYPE_COMPOUND;
 
         offset = 0;
 
@@ -117,7 +112,7 @@ int help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Pass Data	 
 
-        data_block->data_type = TYPE_COMPOUND;
+        data_block->data_type = UDA_TYPE_COMPOUND;
         data_block->rank = 0;
         data_block->data_n = 1;
         data_block->data = (char*)data;
@@ -126,12 +121,12 @@ int help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         strcpy(data_block->data_label, "");
         strcpy(data_block->data_units, "");
 
-        data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
+        data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
         data_block->opaque_count = 1;
         data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "PROVENANCEHELP", 0);
 
-        IDAM_LOG(UDA_LOG_DEBUG, "Provenance: exiting function help\n");
-        if (data_block->opaque_block == NULL) IDAM_LOG(UDA_LOG_DEBUG, "Provenance: PROVENANCEHELP type not found\n");
+        UDA_LOG(UDA_LOG_DEBUG, "Provenance: exiting function help\n");
+        if (data_block->opaque_block == NULL) UDA_LOG(UDA_LOG_DEBUG, "Provenance: PROVENANCEHELP type not found\n");
 
         break;
 
@@ -139,3 +134,4 @@ int help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     return err;
 }
+

@@ -5,16 +5,14 @@
 
 TEST_CASE( "Test EFITMAGXML::help() function", "[EFITMAGXML][plugins]" )
 {
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+#include "setup.inc"
 
     uda::Client client;
 
     const uda::Result& result = client.get("EFITMAGXML::help()", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.errorMessage() == "" );
+    REQUIRE( result.errorMessage().empty() );
 
     uda::Data* data = result.data();
 
@@ -22,7 +20,7 @@ TEST_CASE( "Test EFITMAGXML::help() function", "[EFITMAGXML][plugins]" )
     REQUIRE( !data->isNull() );
     REQUIRE( data->type().name() == typeid(char*).name() );
 
-    uda::String* str = dynamic_cast<uda::String*>(data);
+    auto str = dynamic_cast<uda::String*>(data);
 
     REQUIRE( str != NULL );
 

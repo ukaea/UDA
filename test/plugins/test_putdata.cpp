@@ -4,18 +4,16 @@
 #include <client/udaPutAPI.h>
 #include <c++/UDA.hpp>
 
-TEST_CASE( "Test PUTDATA::help() function", "[PUTDATA][plugins]" ) {
-
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+TEST_CASE( "Test PUTDATA::help() function", "[PUTDATA][plugins]" )
+{
+#include "setup.inc"
 
     uda::Client client;
 
     const uda::Result& result = client.get("PUTDATA::help()", "");
 
     REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.errorMessage() == "" );
+    REQUIRE( result.errorMessage().empty() );
 
     uda::Data* data = result.data();
 
@@ -23,7 +21,7 @@ TEST_CASE( "Test PUTDATA::help() function", "[PUTDATA][plugins]" ) {
     REQUIRE( !data->isNull() );
     REQUIRE( data->type().name() == typeid(char*).name() );
 
-    uda::String* str = dynamic_cast<uda::String*>(data);
+    auto str = dynamic_cast<uda::String*>(data);
 
     REQUIRE( str != NULL );
 
@@ -32,11 +30,9 @@ TEST_CASE( "Test PUTDATA::help() function", "[PUTDATA][plugins]" ) {
     REQUIRE( str->str() == expected );
 }
 
-TEST_CASE( "Test cpp PUTDATA functionality", "[PUTDATA][plugins]" ) {
-
-#ifdef FATCLIENT
-#  include "setupEnvironment.inc"
-#endif
+TEST_CASE( "Test cpp PUTDATA functionality", "[PUTDATA][plugins]" )
+{
+#include "setup.inc"
 
     std::stringstream ss;
     ss << "putdata::open(/create"

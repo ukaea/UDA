@@ -40,8 +40,8 @@ int idamPutListAPI(const char* putInstruction, PUTDATA_BLOCK_LIST* inPutDataBloc
     PUTDATA_BLOCK_LIST emptyPutDataBlockList;
     PUTDATA_BLOCK_LIST* putDataBlockList = NULL;
 
-//-------------------------------------------------------------------------
-// Pass an empty structure rather than NULL (Caller is responsible for freeing)
+    //-------------------------------------------------------------------------
+    // Pass an empty structure rather than NULL (Caller is responsible for freeing)
 
     if (inPutDataBlockList != NULL)
         putDataBlockList = inPutDataBlockList;
@@ -71,30 +71,30 @@ int idamPutListAPI(const char* putInstruction, PUTDATA_BLOCK_LIST* inPutDataBloc
 /*     } */
 /* #endif */
 
-//-------------------------------------------------------------------------
-// Initialise the Client Data Request Structure
+    //-------------------------------------------------------------------------
+    // Initialise the Client Data Request Structure
 
     initRequestBlock(&request_block);
 
-//------------------------------------------------------------------------------
-// Build the Request Data Block (Version and API dependent)
+    //------------------------------------------------------------------------------
+    // Build the Request Data Block (Version and API dependent)
 
     if ((err = makeClientRequestBlock(putInstruction, "", &request_block)) != 0) {
-        closeIdamError(&idamerrorstack);
-        if (idamerrorstack.nerrors == 0) {
-            IDAM_LOGF(UDA_LOG_ERROR, "Error processing the put instruction [%s]\n", putInstruction);
-            addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, 999, "Error processing the put instruction");
+        closeIdamError();
+        if (udaNumErrors() == 0) {
+            UDA_LOG(UDA_LOG_ERROR, "Error processing the put instruction [%s]\n", putInstruction);
+            addIdamError(CODEERRORTYPE, __func__, 999, "Error processing the put instruction");
         }
         return -err;
     }
 
     printRequestBlock(request_block);
 
-//-------------------------------------------------------------------------
-// Pass an empty structure rather than NULL
+    //-------------------------------------------------------------------------
+    // Pass an empty structure rather than NULL
 
-//-------------------------------------------------------------------------
-// Data to Put to the server
+    //-------------------------------------------------------------------------
+    // Data to Put to the server
 
     request_block.put = 1; // flags the direction of data (0 is default => get operation)
     request_block.putDataBlockList = *putDataBlockList;
@@ -115,8 +115,8 @@ int idamPutAPI(const char* putInstruction, PUTDATA_BLOCK* inPutData)
     PUTDATA_BLOCK emptyPutDataBlock;
     PUTDATA_BLOCK* putData = NULL;
 
-//-------------------------------------------------------------------------
-// Pass an empty structure rather than NULL (Caller is responsible for freeing)
+    //-------------------------------------------------------------------------
+    // Pass an empty structure rather than NULL (Caller is responsible for freeing)
 
     if (inPutData != NULL)
         putData = inPutData;
@@ -133,7 +133,7 @@ int idamPutAPI(const char* putInstruction, PUTDATA_BLOCK* inPutData)
 
 /* #ifndef FATCLIENT */
 /*     if (!idamGetAPICalledOnce) { */
-/*         IDAM_LOG(LOG_DEBUG, "!idamGetAPICalledOnce\n"); */
+/*         UDA_LOG(LOG_DEBUG, "!idamGetAPICalledOnce\n"); */
 /*         LOGMALLOCLIST* oldlogmalloclist = logmalloclist; */
 /*         USERDEFINEDTYPELIST* olduserdefinedtypelist = userdefinedtypelist; */
 /*         logmalloclist = NULL; */
@@ -147,35 +147,35 @@ int idamPutAPI(const char* putInstruction, PUTDATA_BLOCK* inPutData)
 /*     } */
 /* #endif */
 
-//-------------------------------------------------------------------------
-// Initialise the Client Data Request Structure
+    //-------------------------------------------------------------------------
+    // Initialise the Client Data Request Structure
 
     initRequestBlock(&request_block);
 
-//------------------------------------------------------------------------------
-// Build the Request Data Block (Version and API dependent)
+    //------------------------------------------------------------------------------
+    // Build the Request Data Block (Version and API dependent)
 
     if ((err = makeClientRequestBlock(putInstruction, "", &request_block)) != 0) {
-        closeIdamError(&idamerrorstack);
-        if (idamerrorstack.nerrors == 0) {
-            IDAM_LOGF(UDA_LOG_ERROR, "Error processing the put instruction [%s]\n", putInstruction);
-            addIdamError(&idamerrorstack, CODEERRORTYPE, __func__, 999, "Error processing the put instruction");
+        closeIdamError();
+        if (udaNumErrors() == 0) {
+            UDA_LOG(UDA_LOG_ERROR, "Error processing the put instruction [%s]\n", putInstruction);
+            addIdamError(CODEERRORTYPE, __func__, 999, "Error processing the put instruction");
         }
         return -err;
     }
 
     printRequestBlock(request_block);
 
-//-------------------------------------------------------------------------
-// Data to Put to the server
+    //-------------------------------------------------------------------------
+    // Data to Put to the server
 
     request_block.put = 1; // flags the direction of data (0 is default => get operation)
 
     addIdamPutDataBlockList(putData, &request_block.putDataBlockList);
     err = idamClient(&request_block);
 
-//-------------------------------------------------------------------------
-// Free Heap
+    //-------------------------------------------------------------------------
+    // Free Heap
 
     freeIdamClientPutDataBlockList(&request_block.putDataBlockList);
 

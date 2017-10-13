@@ -32,6 +32,7 @@
 #include <client/udaClient.h>
 #include <client/accAPI.h>
 #include <client/udaGetAPI.h>
+#include <plugins/udaPlugin.h>
 
 void makeDataBlock(DATA_BLOCK* out, int dataCount)
 {
@@ -42,7 +43,7 @@ void makeDataBlock(DATA_BLOCK* out, int dataCount)
     float* data = (float*)malloc(dataCount * sizeof(float));
     for (i = 0; i < dataCount; i++) data[i] = (float)i;
     out->data = (char*)data;
-    out->data_type = TYPE_FLOAT;
+    out->data_type = UDA_TYPE_FLOAT;
     out->rank = 1;
     out->order = 0;
     out->data_n = dataCount;
@@ -55,14 +56,14 @@ void makeDataBlock(DATA_BLOCK* out, int dataCount)
         errhi[i] = 0.1f * data[i];
     }
     out->errhi = (char*)errhi;
-    out->error_type = TYPE_FLOAT;
+    out->error_type = UDA_TYPE_FLOAT;
 
     out->dims = (DIMS*)malloc(sizeof(DIMS));
     initDimBlock(out->dims);
     double* coords = (double*)malloc(dataCount * sizeof(double));
     for (i = 0; i < dataCount; i++) coords[i] = (double)i;
     out->dims[0].dim = (char*)coords;
-    out->dims[0].data_type = TYPE_DOUBLE;
+    out->dims[0].data_type = UDA_TYPE_DOUBLE;
     out->dims[0].dim_n = dataCount;
     strcpy(out->dims[0].dim_units, "Test Units");
     strcpy(out->dims[0].dim_label, "Test Label");
@@ -78,7 +79,7 @@ void makeLegacyDataBlock(DATA_BLOCK* out)
     float* data = (float*)malloc(dataCount * sizeof(float));
     for (i = 0; i < dataCount; i++) data[i] = 0.0;
     out->data = (char*)data;
-    out->data_type = TYPE_FLOAT;
+    out->data_type = UDA_TYPE_FLOAT;
     out->rank = 1;
     out->order = 0;
     out->data_n = dataCount;
@@ -91,7 +92,7 @@ void makeLegacyDataBlock(DATA_BLOCK* out)
     double* coords = (double*)malloc(dataCount * sizeof(double));
     for (i = 0; i < dataCount; i++) coords[i] = (double)i;
     out->dims[0].dim = (char*)coords;
-    out->dims[0].data_type = TYPE_DOUBLE;
+    out->dims[0].data_type = UDA_TYPE_DOUBLE;
     out->dims[0].dim_n = dataCount;
     strcpy(out->dims[0].dim_units, "s");
     strcpy(out->dims[0].dim_label, "Time");
@@ -122,7 +123,7 @@ void copyANBDataBlock(DATA_BLOCK* out, DATA_BLOCK* in, int dataCount)
         memcpy((void*)out->dims[0].offs, (void*)in->dims[0].offs, (size_t)in->dims[0].udoms * sizeof(long));
         memcpy((void*)out->dims[0].ints, (void*)in->dims[0].ints, (size_t)in->dims[0].udoms * sizeof(long));
     }
-    if (out->dims[0].data_type == TYPE_FLOAT) {
+    if (out->dims[0].data_type == UDA_TYPE_FLOAT) {
         out->dims[0].dim = (char*)malloc(dataCount * sizeof(float));
         memcpy((void*)out->dims[0].dim, (void*)in->dims[0].dim, (size_t)dataCount * sizeof(float));
     } else {
@@ -165,11 +166,7 @@ extern int anbCorrections(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         housekeeping = idam_plugin_interface->housekeeping;
 
     } else {
-        err = 999;
-        idamLog(UDA_LOG_ERROR, "ERROR anbCorrections: Plugin Interface Version Unknown\n");
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "anbCorrections", err,
-                     "Plugin Interface Version is Not Known: Unable to execute the request!");
-        return err;
+        RAISE_PLUGIN_ERROR("Plugin Interface Version is Not Known: Unable to execute the request!");
     }
 
 //----------------------------------------------------------------------------------------
@@ -256,12 +253,12 @@ extern int anbCorrections(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
             for (i = 0; i < data_block->rank; i++) initDimBlock(&data_block->dims[i]);
 
-            data_block->data_type = TYPE_STRING;
+            data_block->data_type = UDA_TYPE_STRING;
             strcpy(data_block->data_desc, "anbCorrections help = description of this plugin");
 
             data_block->data = p;
 
-            data_block->dims[0].data_type = TYPE_UNSIGNED;
+            data_block->dims[0].data_type = UDA_TYPE_UNSIGNED_INT;
             data_block->dims[0].dim_n = strlen(p) + 1;
             data_block->dims[0].compressed = 1;
             data_block->dims[0].dim0 = 0.0;
@@ -294,7 +291,7 @@ extern int anbCorrections(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 source = request_block->source;
             } else if (source == NULL) {
                 err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "anbCorrections", err, "Please specify a shot number");
+                addIdamError(CODEERRORTYPE, "anbCorrections", err, "Please specify a shot number");
                 break;
             }
 
@@ -302,7 +299,7 @@ extern int anbCorrections(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             if (!IsNumber(source)) {
                 err = 999;
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "anbCorrections", err,
+                addIdamError(CODEERRORTYPE, "anbCorrections", err,
                              "The data source is Not a shot number!");
                 break;
             }
@@ -313,7 +310,7 @@ extern int anbCorrections(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 err = 999;
                 idamLog(UDA_LOG_ERROR, "ERROR anbCorrections: Invalid Shot number - outside range 28411-30473\n");
 
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "anbCorrections", err,
+                addIdamError(CODEERRORTYPE, "anbCorrections", err,
                              "Invalid Shot number - outside range 28411-30473");
                 break;
             }
@@ -436,14 +433,14 @@ extern int anbCorrections(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
                     if (getIdamDimType(h1, 0) != getIdamDimType(h2, 0)) {
                         err = 999;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "anbCorrections", err,
+                        addIdamError(CODEERRORTYPE, "anbCorrections", err,
                                      "Inconsistent SW beam current and voltage Data types");
                         break;
                     }
 
                     if (dataCountSW != getIdamDataNum(h2)) {
                         err = 999;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "anbCorrections", err,
+                        addIdamError(CODEERRORTYPE, "anbCorrections", err,
                                      "Inconsistent SW beam current and voltage Data Counts");
                         break;
                     }
@@ -458,7 +455,7 @@ extern int anbCorrections(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
                     if (rank != 1 || rank != getIdamRank(h2) || (!noSSBeam && rank != getIdamRank(h3))) {
                         err = 999;
-                        addIdamError(&idamerrorstack, CODEERRORTYPE, "anbCorrections", err,
+                        addIdamError(CODEERRORTYPE, "anbCorrections", err,
                                      "Inconsistent SW beam current and voltage Data Rank");
                         break;
                     }
@@ -563,7 +560,7 @@ extern int anbCorrections(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Preserve legacy coordinate data types: all double
 
-                    dim_e->data_type = TYPE_DOUBLE;
+                    dim_e->data_type = UDA_TYPE_DOUBLE;
 
                     dim_e->dim_n = dataCountSW;
                     dim_e->compressed = getIdamDimBlock(h1, 0)->compressed;
@@ -604,7 +601,7 @@ extern int anbCorrections(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                         double* e3 = (double*)malloc(dataSize);
                         double* t = (double*)malloc(dataSize);
                         double* tt = (double*)malloc(dataSize);
-                        if (getIdamDimType(h1, 0) == TYPE_DOUBLE) {
+                        if (getIdamDimType(h1, 0) == UDA_TYPE_DOUBLE) {
                             memcpy((void*)e, (void*)offs, dataSize);
                             memcpy((void*)e2, (void*)offs, dataSize);
                             memcpy((void*)e3, (void*)offs, dataSize);
@@ -619,7 +616,7 @@ extern int anbCorrections(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                                 t[i] = (double)foffs[i];
                             }
                         }
-                        if (!noSSBeam && getIdamDimType(h3, 0) == TYPE_DOUBLE) {
+                        if (!noSSBeam && getIdamDimType(h3, 0) == UDA_TYPE_DOUBLE) {
                             memcpy((void*)tt, (void*)offs, dataSize);
                         } else {
                             int i;
@@ -641,7 +638,7 @@ extern int anbCorrections(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                         double* e3 = (double*)malloc(dataSize);
                         double* t = (double*)malloc(dataSize);
                         double* tt = (double*)malloc(dataSize);
-                        if (getIdamDimType(h1, 0) == TYPE_DOUBLE) {
+                        if (getIdamDimType(h1, 0) == UDA_TYPE_DOUBLE) {
                             memcpy((void*)e, (void*)ints, dataSize);
                             memcpy((void*)e2, (void*)ints, dataSize);
                             memcpy((void*)e3, (void*)ints, dataSize);
@@ -656,7 +653,7 @@ extern int anbCorrections(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                                 t[i] = (double)fints[i];
                             }
                         }
-                        if (!noSSBeam && getIdamDimType(h3, 0) == TYPE_DOUBLE) {
+                        if (!noSSBeam && getIdamDimType(h3, 0) == UDA_TYPE_DOUBLE) {
                             memcpy((void*)tt, (void*)ints, dataSize);
                         } else {
                             int i;
@@ -689,14 +686,14 @@ extern int anbCorrections(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                     } else
                         memcpy((void*)dim_tt->dim, (void*)dim_e->dim, dataSize);
 
-                    data_block_e.data_type = TYPE_FLOAT;
+                    data_block_e.data_type = UDA_TYPE_FLOAT;
                     data_block_e.data_n = dataCountSW;
                     data_block_e.rank = getIdamRank(h1);
                     data_block_e.order = getIdamOrder(h1);
 
 // Error Model should work but doesn't - compute and pass instead!
 
-                    data_block_e.error_type = TYPE_FLOAT;
+                    data_block_e.error_type = UDA_TYPE_FLOAT;
 
                     //data_block_e.error_param_n = 2;
                     //data_block_e.error_model   = ERROR_MODEL_DEFAULT;
@@ -770,15 +767,8 @@ extern int anbCorrections(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
                 break;
             }
-
         } else {
-
-//======================================================================================
-// Error ...
-
-            err = 999;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "anbCorrections", err, "Unknown function requested!");
-            break;
+            RAISE_PLUGIN_ERROR("Unknown function requested!");
         }
 
     } while (0);

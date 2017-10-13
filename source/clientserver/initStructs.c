@@ -90,8 +90,8 @@ void initServerBlock(SERVER_BLOCK* str, int version)
     str->error = 0;
     str->msg[0] = '\0';
     str->pid = (int)getpid();
-    initIdamErrorStack(&(str->idamerrorstack));
-
+    str->idamerrorstack.nerrors = 0;
+    str->idamerrorstack.idamerror = NULL;
     str->OSName[0] = '\0';    // Operating System Name
     str->DOI[0] = '\0';    // Digital Object Identifier (server configuration)
 
@@ -109,12 +109,12 @@ void initDataBlock(DATA_BLOCK* str)
     str->rank = 0;
     str->order = -1;
     str->data_n = 0;
-    str->data_type = TYPE_UNKNOWN;
-    str->error_type = TYPE_UNKNOWN;
+    str->data_type = UDA_TYPE_UNKNOWN;
+    str->error_type = UDA_TYPE_UNKNOWN;
     str->error_model = 0;
     str->errasymmetry = 0;
     str->error_param_n = 0;
-    str->opaque_type = OPAQUE_TYPE_UNKNOWN;
+    str->opaque_type = UDA_OPAQUE_TYPE_UNKNOWN;
     str->opaque_count = 0;
     str->opaque_block = NULL;
     str->data = NULL;
@@ -141,8 +141,8 @@ void initDimBlock(DIMS* str)
     str->dim = NULL;
     str->synthetic = NULL;
     str->dim_n = 0;
-    str->data_type = TYPE_FLOAT;
-    str->error_type = TYPE_UNKNOWN;
+    str->data_type = UDA_TYPE_FLOAT;
+    str->error_type = UDA_TYPE_UNKNOWN;
     str->error_model = 0;
     str->errasymmetry = 0;
     str->error_param_n = 0;
@@ -266,12 +266,12 @@ void initSignalDesc(SIGNAL_DESC* str)
 
 void initIdamPutDataBlock(PUTDATA_BLOCK* str)
 {
-    str->data_type = TYPE_UNKNOWN;
+    str->data_type = UDA_TYPE_UNKNOWN;
     str->rank = 0;
     str->count = 0;
     str->shape = NULL;
     str->data = NULL;
-    str->opaque_type = OPAQUE_TYPE_UNKNOWN;
+    str->opaque_type = UDA_OPAQUE_TYPE_UNKNOWN;
     str->opaque_count = 0;
     str->opaque_block = NULL;
     str->blockNameLength = 0;

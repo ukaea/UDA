@@ -54,49 +54,49 @@ int compressDim(DIMS* ddim)
     if (ndata == 1) return 1;   // Insufficient Data to Compress!
 
     switch (ddim->data_type) {
-        case TYPE_CHAR :
+        case UDA_TYPE_CHAR:
             cp = ddim->dim;
             d0 = (double)cp[0];
             pddif = (double)cp[1] - d0;
             precision = FLT_EPSILON;
             mddif = ((double)cp[ndata - 1] - d0) / (double)(ndata - 1);
             break;
-        case TYPE_SHORT :
+        case UDA_TYPE_SHORT:
             sp = (short*)ddim->dim;
             d0 = (double)sp[0];
             pddif = (double)sp[1] - d0;
             precision = FLT_EPSILON;
             mddif = ((double)sp[ndata - 1] - d0) / (double)(ndata - 1);
             break;
-        case TYPE_INT :
+        case UDA_TYPE_INT:
             ip = (int*)ddim->dim;
             d0 = (double)ip[0];
             pddif = (double)ip[1] - d0;
             precision = FLT_EPSILON;
             mddif = ((double)ip[ndata - 1] - d0) / (double)(ndata - 1);
             break;
-        case TYPE_LONG :
+        case UDA_TYPE_LONG:
             lp = (long*)ddim->dim;
             d0 = (double)lp[0];
             pddif = (double)lp[1] - d0;
             precision = FLT_EPSILON;
             mddif = ((double)lp[ndata - 1] - d0) / (double)(ndata - 1);
             break;
-        case TYPE_LONG64 :
+        case UDA_TYPE_LONG64:
             llp = (long long int*)ddim->dim;
             d0 = (double)llp[0];
             pddif = (double)llp[1] - d0;
             precision = FLT_EPSILON;
             mddif = ((double)llp[ndata - 1] - d0) / (double)(ndata - 1);            // Use the System Precision MACRO
             break;
-        case TYPE_FLOAT :
+        case UDA_TYPE_FLOAT:
             fp = (float*)ddim->dim;
             d0 = (double)fp[0];
             pddif = (double)fp[1] - d0;
             precision = FLT_EPSILON;
             mddif = ((double)fp[ndata - 1] - d0) / (double)(ndata - 1);
             break;
-        case TYPE_DOUBLE :
+        case UDA_TYPE_DOUBLE:
             dp = (double*)ddim->dim;
             d0 = dp[0];
             pddif = dp[1] - d0;
@@ -104,28 +104,28 @@ int compressDim(DIMS* ddim)
             mddif = (dp[ndata - 1] - d0) / (double)(ndata - 1);
             break;
 
-        case TYPE_UNSIGNED_CHAR :
+        case UDA_TYPE_UNSIGNED_CHAR:
             ucp = (unsigned char*)ddim->dim;
             d0 = (double)ucp[0];
             pddif = (double)ucp[1] - d0;
             precision = FLT_EPSILON;
             mddif = ((double)ucp[ndata - 1] - d0) / (double)(ndata - 1);
             break;
-        case TYPE_UNSIGNED_SHORT :
+        case UDA_TYPE_UNSIGNED_SHORT:
             usp = (unsigned short*)ddim->dim;
             d0 = (double)usp[0];
             pddif = (double)usp[1] - d0;
             precision = FLT_EPSILON;
             mddif = ((double)usp[ndata - 1] - d0) / (double)(ndata - 1);
             break;
-        case TYPE_UNSIGNED_INT :
+        case UDA_TYPE_UNSIGNED_INT:
             uip = (unsigned int*)ddim->dim;
             d0 = (double)uip[0];
             pddif = (double)uip[1] - d0;
             precision = FLT_EPSILON;
             mddif = ((double)uip[ndata - 1] - d0) / (double)(ndata - 1);
             break;
-        case TYPE_UNSIGNED_LONG :
+        case UDA_TYPE_UNSIGNED_LONG:
             ulp = (unsigned long*)ddim->dim;
             d0 = (double)ulp[0];
             pddif = (double)ulp[1] - d0;
@@ -133,7 +133,7 @@ int compressDim(DIMS* ddim)
             mddif = ((double)ulp[ndata - 1] - d0) / (double)(ndata - 1);
             break;
 #ifndef __APPLE__
-        case TYPE_UNSIGNED_LONG64 :
+        case UDA_TYPE_UNSIGNED_LONG64:
             ullp = (unsigned long long int*) ddim->dim;
             d0 = (double) ullp[0];
             pddif = (double) ullp[1] - d0;
@@ -148,41 +148,41 @@ int compressDim(DIMS* ddim)
 
     for (i = 1; i < ndata; i++) {
         switch (ddim->data_type) {
-            case TYPE_CHAR :
+            case UDA_TYPE_CHAR:
                 ddif = (double)cp[i] - (double)cp[i - 1];
                 break;
-            case TYPE_SHORT :
+            case UDA_TYPE_SHORT:
                 ddif = (double)sp[i] - (double)sp[i - 1];
                 break;
-            case TYPE_INT :
+            case UDA_TYPE_INT:
                 ddif = (double)ip[i] - (double)ip[i - 1];
                 break;
-            case TYPE_LONG :
+            case UDA_TYPE_LONG:
                 ddif = (double)lp[i] - (double)lp[i - 1];
                 break;
-            case TYPE_LONG64 :
+            case UDA_TYPE_LONG64:
                 ddif = (double)llp[i] - (double)llp[i - 1];
                 break;
-            case TYPE_FLOAT :
+            case UDA_TYPE_FLOAT:
                 ddif = (double)fp[i] - (double)fp[i - 1];
                 break;
-            case TYPE_DOUBLE :
+            case UDA_TYPE_DOUBLE:
                 ddif = (double)dp[i] - (double)dp[i - 1];
                 break;
-            case TYPE_UNSIGNED_CHAR :
+            case UDA_TYPE_UNSIGNED_CHAR:
                 ddif = (double)ucp[i] - (double)ucp[i - 1];
                 break;
-            case TYPE_UNSIGNED_SHORT :
+            case UDA_TYPE_UNSIGNED_SHORT:
                 ddif = (double)usp[i] - (double)usp[i - 1];
                 break;
-            case TYPE_UNSIGNED_INT :
+            case UDA_TYPE_UNSIGNED_INT:
                 ddif = (double)uip[i] - (double)uip[i - 1];
                 break;
-            case TYPE_UNSIGNED_LONG :
+            case UDA_TYPE_UNSIGNED_LONG:
                 ddif = (double)ulp[i] - (double)ulp[i - 1];
                 break;
 #ifndef __APPLE__
-            case TYPE_UNSIGNED_LONG64 :
+            case UDA_TYPE_UNSIGNED_LONG64:
                 ddif = (double) ullp[i] - (double) ullp[i - 1];
                 break;
 #endif
@@ -249,7 +249,7 @@ int uncompressDim(DIMS* ddim)
 
     switch (ddim->data_type) {
 
-        case TYPE_CHAR :
+        case UDA_TYPE_CHAR:
             if (ddim->dim == NULL) {
                 if ((ddim->dim = (char*)malloc(ndata * sizeof(char))) == NULL) {
                     return UNCOMPRESS_ALLOCATING_HEAP;
@@ -281,7 +281,7 @@ int uncompressDim(DIMS* ddim)
             }
             break;
 
-        case TYPE_SHORT :
+        case UDA_TYPE_SHORT:
             if (ddim->dim == NULL) {
                 if ((ddim->dim = (char*)malloc(ndata * sizeof(short))) == NULL) {
                     return UNCOMPRESS_ALLOCATING_HEAP;
@@ -314,7 +314,7 @@ int uncompressDim(DIMS* ddim)
             }
             break;
 
-        case TYPE_INT :
+        case UDA_TYPE_INT:
             if (ddim->dim == NULL) {
                 if ((ddim->dim = (char*)malloc(ndata * sizeof(int))) == NULL) {
                     return UNCOMPRESS_ALLOCATING_HEAP;
@@ -346,7 +346,7 @@ int uncompressDim(DIMS* ddim)
             }
             break;
 
-        case TYPE_LONG :
+        case UDA_TYPE_LONG:
             if (ddim->dim == NULL) {
                 if ((ddim->dim = (char*)malloc(ndata * sizeof(long))) == NULL) {
                     return UNCOMPRESS_ALLOCATING_HEAP;
@@ -377,7 +377,7 @@ int uncompressDim(DIMS* ddim)
             }
             break;
 
-        case TYPE_LONG64 : {
+        case UDA_TYPE_LONG64: {
             long long int* lp;
             if (ddim->dim == NULL) {
                 if ((ddim->dim = (char*)malloc(ndata * sizeof(long long int))) == NULL) {
@@ -412,7 +412,7 @@ int uncompressDim(DIMS* ddim)
             break;
         }
 
-        case TYPE_FLOAT :
+        case UDA_TYPE_FLOAT:
             if ((ddim->dim = (char*)malloc(ndata * sizeof(float))) == NULL) {
                 return UNCOMPRESS_ALLOCATING_HEAP;
             }
@@ -443,7 +443,7 @@ int uncompressDim(DIMS* ddim)
             }
             break;
 
-        case TYPE_DOUBLE :
+        case UDA_TYPE_DOUBLE:
             if (ddim->dim == NULL) {
                 if ((ddim->dim = (char*)malloc(ndata * sizeof(double))) == NULL) {
                     return UNCOMPRESS_ALLOCATING_HEAP;
@@ -476,7 +476,7 @@ int uncompressDim(DIMS* ddim)
             }
             break;
 
-        case TYPE_UNSIGNED_CHAR :
+        case UDA_TYPE_UNSIGNED_CHAR:
             if (ddim->dim == NULL) {
                 if ((ddim->dim = (char*)malloc(ndata * sizeof(unsigned char))) == NULL) {
                     return UNCOMPRESS_ALLOCATING_HEAP;
@@ -510,7 +510,7 @@ int uncompressDim(DIMS* ddim)
             }
             break;
 
-        case TYPE_UNSIGNED_SHORT :
+        case UDA_TYPE_UNSIGNED_SHORT:
             if (ddim->dim == NULL) {
                 if ((ddim->dim = (char*)malloc(ndata * sizeof(unsigned short))) == NULL) {
                     return UNCOMPRESS_ALLOCATING_HEAP;
@@ -544,7 +544,7 @@ int uncompressDim(DIMS* ddim)
             }
             break;
 
-        case TYPE_UNSIGNED_INT :
+        case UDA_TYPE_UNSIGNED_INT:
             if (ddim->dim == NULL) {
                 if ((ddim->dim = (char*)malloc(ndata * sizeof(unsigned int))) == NULL) {
                     return UNCOMPRESS_ALLOCATING_HEAP;
@@ -578,7 +578,7 @@ int uncompressDim(DIMS* ddim)
             }
             break;
 
-        case TYPE_UNSIGNED_LONG :
+        case UDA_TYPE_UNSIGNED_LONG:
             if (ddim->dim == NULL) {
                 if ((ddim->dim = (char*)malloc(ndata * sizeof(unsigned long))) == NULL) {
                     return UNCOMPRESS_ALLOCATING_HEAP;
@@ -611,7 +611,7 @@ int uncompressDim(DIMS* ddim)
             }
             break;
 #ifndef __APPLE__
-        case TYPE_UNSIGNED_LONG64 : {
+        case UDA_TYPE_UNSIGNED_LONG64: {
             unsigned long long int* ulp;
             if (ddim->dim == NULL) {
                 if ((ddim->dim = (char*) malloc(ndata * sizeof(unsigned long long int))) == NULL) {

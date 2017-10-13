@@ -72,7 +72,7 @@ int reconnect(ENVIRONMENT* environment)
     if (environment->server_change_socket) {
         if ((socketId = getSocketRecordId(&client_socketlist, environment->server_socket)) < 0) {
             err = NO_SOCKET_CONNECTION;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "idamClient", err,
+            addIdamError(CODEERRORTYPE, "idamClient", err,
                          "The User Specified Socket Connection does not exist");
             return err;
         }
@@ -142,9 +142,9 @@ int createConnection()
 
     if (clientSocket < 0 || serrno != 0) {
         if (serrno != 0) {
-            addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "idamCreateConnection", serrno, "");
+            addIdamError(SYSTEMERRORTYPE, "idamCreateConnection", serrno, "");
         } else {
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "idamCreateConnection", -1, "Problem Opening Socket");
+            addIdamError(CODEERRORTYPE, "idamCreateConnection", -1, "Problem Opening Socket");
         }
         return -1;
     }
@@ -175,9 +175,9 @@ int createConnection()
 
     if (host == NULL || serrno != 0) {
         if (serrno != 0) {
-            addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "idamCreateConnection", serrno, "");
+            addIdamError(SYSTEMERRORTYPE, "idamCreateConnection", serrno, "");
         } else {
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "idamCreateConnection", -1, "Unknown Server Host");
+            addIdamError(CODEERRORTYPE, "idamCreateConnection", -1, "Unknown Server Host");
         }
 #ifndef _WIN32
         if (clientSocket != -1) close(clientSocket);
@@ -242,9 +242,9 @@ int createConnection()
             host = gethostbyname(&hostname[hostname_offset]);
             if (host == NULL || errno != 0) {
                 if (errno != 0) {
-                    addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "idamCreateConnection", errno, "");
+                    addIdamError(SYSTEMERRORTYPE, "idamCreateConnection", errno, "");
                 } else {
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "idamCreateConnection", -1, "Unknown Server Host");
+                    addIdamError(CODEERRORTYPE, "idamCreateConnection", -1, "Unknown Server Host");
                 }
                 if (clientSocket != -1) {
 #ifdef __GNUC__
@@ -286,9 +286,9 @@ int createConnection()
 
         if (rc < 0) {
             if (serrno != 0) {
-                addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "idamCreateConnection", serrno, "");
+                addIdamError(SYSTEMERRORTYPE, "idamCreateConnection", serrno, "");
             } else {
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "idamCreateConnection", -1,
+                addIdamError(CODEERRORTYPE, "idamCreateConnection", -1,
                              "Unable to Connect to Server Stream Socket");
             }
             if (clientSocket != -1) {
@@ -315,9 +315,9 @@ int createConnection()
 
     on = 1;
     if (setsockopt(clientSocket, SOL_SOCKET, SO_KEEPALIVE, (char*) &on, sizeof(on)) < 0) {
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "idamCreateConnection", -1, "Error Setting KEEPALIVE on Socket");
+       addIdamError(CODEERRORTYPE, "idamCreateConnection", -1, "Error Setting KEEPALIVE on Socket");
 #ifdef __GNUC__
-        close(clientSocket);
+         close(clientSocket);
 #elif defined(_WIN32)
         closesocket(clientSocket);
 #endif
@@ -326,7 +326,7 @@ int createConnection()
     }
     on = 1;
     if (setsockopt(clientSocket, IPPROTO_TCP, TCP_NODELAY, (char*) &on, sizeof(on)) < 0) {
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "idamCreateConnection", -1, "Error Setting NODELAY on Socket");
+       addIdamError(CODEERRORTYPE, "idamCreateConnection", -1, "Error Setting NODELAY on Socket");
 #ifdef __GNUC__
         close(clientSocket);
 #elif defined(_WIN32)
@@ -382,19 +382,19 @@ int clientWriteout(void* iohandle, char* buf, int count)
 
         if (errno == ECONNRESET || errno == ENETUNREACH || errno == ECONNREFUSED) {
             if (errno == ECONNRESET) {
-                IDAM_LOG(UDA_LOG_DEBUG, "idamClientWriteout: ECONNRESET error!\n");
-                addIdamError(&idamerrorstack, CODEERRORTYPE, "idamClientWriteout", -2,
+                UDA_LOG(UDA_LOG_DEBUG, "idamClientWriteout: ECONNRESET error!\n");
+                addIdamError(CODEERRORTYPE, "idamClientWriteout", -2,
                              "ECONNRESET: The server program has crashed or closed the socket unexpectedly");
                 return -2;
             } else {
                 if (errno == ENETUNREACH) {
-                    IDAM_LOG(UDA_LOG_DEBUG, "idamClientWriteout: ENETUNREACH error!\n");
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "idamClientWriteout", -3,
+                    UDA_LOG(UDA_LOG_DEBUG, "idamClientWriteout: ENETUNREACH error!\n");
+                    addIdamError(CODEERRORTYPE, "idamClientWriteout", -3,
                                  "Server Unavailable: ENETUNREACH");
                     return -3;
                 } else {
-                    IDAM_LOG(UDA_LOG_DEBUG, "idamClientWriteout: ECONNREFUSED error!\n");
-                    addIdamError(&idamerrorstack, CODEERRORTYPE, "idamClientWriteout", -4,
+                    UDA_LOG(UDA_LOG_DEBUG, "idamClientWriteout: ECONNREFUSED error!\n");
+                    addIdamError(CODEERRORTYPE, "idamClientWriteout", -4,
                                  "Server Unavailable: ECONNREFUSED");
                     return -4;
                 }
@@ -413,7 +413,7 @@ int clientWriteout(void* iohandle, char* buf, int count)
     */
 
     if ((OldSIGPIPEHandler = signal(SIGPIPE, SIG_IGN)) == SIG_ERR) {
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "idamClientWriteout", -1, "Error attempting to ignore SIG_PIPE");
+        addIdamError(CODEERRORTYPE, "idamClientWriteout", -1, "Error attempting to ignore SIG_PIPE");
         return -1;
     }
 
@@ -432,7 +432,7 @@ int clientWriteout(void* iohandle, char* buf, int count)
 // Restore the original SIGPIPE handler set by the application
 
     if (signal(SIGPIPE, OldSIGPIPEHandler) == SIG_ERR) {
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "idamClientWriteout", -1,
+        addIdamError(CODEERRORTYPE, "idamClientWriteout", -1,
                      "Error attempting to restore SIG_PIPE handler");
         return -1;
     }
@@ -476,8 +476,8 @@ int clientReadin(void* iohandle, char* buf, int count)
 
     if (!rc) {
         rc = -1;
-        if (serrno != 0 && serrno != EINTR) addIdamError(&idamerrorstack, SYSTEMERRORTYPE, "idamClientReadin", rc, "");
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "idamClientReadin", rc,
+        if (serrno != 0 && serrno != EINTR) addIdamError(SYSTEMERRORTYPE, "idamClientReadin", rc, "");
+        addIdamError(CODEERRORTYPE, "idamClientReadin", rc,
                      "No Data waiting at Socket when Data Expected!");
     }    
 

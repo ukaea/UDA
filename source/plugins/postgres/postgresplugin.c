@@ -93,10 +93,10 @@ static PGconn *postgresConnect(){
 //------------------------------------------------------------- 
 // Debug Trace Queries
 
-   IDAM_LOGF(UDA_LOG_DEBUG, "SQL Connection: host %s\n", pghost);
-   IDAM_LOGF(UDA_LOG_DEBUG, "                port %s\n", pgport);
-   IDAM_LOGF(UDA_LOG_DEBUG, "                db   %s\n", dbname);
-   IDAM_LOGF(UDA_LOG_DEBUG, "                user %s\n", user);
+   UDA_LOG(UDA_LOG_DEBUG, "SQL Connection: host %s\n", pghost);
+   UDA_LOG(UDA_LOG_DEBUG, "                port %s\n", pgport);
+   UDA_LOG(UDA_LOG_DEBUG, "                db   %s\n", dbname);
+   UDA_LOG(UDA_LOG_DEBUG, "                user %s\n", user);
 
 //-------------------------------------------------------------
 // Connect to the Database Server
@@ -104,13 +104,13 @@ static PGconn *postgresConnect(){
    if(strcmp(user, "readonly") != 0) pswrd[0] = '\0';	// No password - set in the server's .pgpass file
 
    if ((DBConnect = PQsetdbLogin(pghost, pgport, pgoptions, pgtty, dbname, user, pswrd)) == NULL){
-      addIdamError(&idamerrorstack, CODEERRORTYPE, "startSQL", 1, "SQL Server Connect Error");
+      addIdamError(CODEERRORTYPE, "startSQL", 1, "SQL Server Connect Error");
       PQfinish(DBConnect);     
       return(NULL);
    }
       
    if (PQstatus(DBConnect) == CONNECTION_BAD){
-      addIdamError(&idamerrorstack, CODEERRORTYPE, "startSQL", 1, "Bad SQL Server Connect Status");
+      addIdamError(CODEERRORTYPE, "startSQL", 1, "Bad SQL Server Connect Status");
       PQfinish(DBConnect);
       return(NULL);
    }    
@@ -149,9 +149,9 @@ extern int postgres_query(IDAM_PLUGIN_INTERFACE *idam_plugin_interface){
    
     if (idam_plugin_interface->interfaceVersion > THISPLUGIN_MAX_INTERFACE_VERSION) {
         err = 999;
-        IDAM_LOG(UDA_LOG_ERROR,
+        UDA_LOG(UDA_LOG_ERROR,
                 "ERROR postgres_plugin: Plugin Interface Version Unknown to this plugin: Unable to execute the request!\n");
-        addIdamError(&idamerrorstack, CODEERRORTYPE, "postgres_plugin", err,
+        addIdamError(CODEERRORTYPE, "postgres_plugin", err,
                      "Plugin Interface Version Unknown to this plugin: Unable to execute the request!");
         return err;
     }
@@ -230,7 +230,7 @@ extern int postgres_query(IDAM_PLUGIN_INTERFACE *idam_plugin_interface){
  	 
 	 DBType = PLUGINSQLPOSTGRES;
  	 sqlPrivate = 1;			// the connection belongs to this plugin
-	 IDAM_LOG(UDA_LOG_DEBUG, "postgresplugin: Private regular database connection made.\n");
+	 UDA_LOG(UDA_LOG_DEBUG, "postgresplugin: Private regular database connection made.\n");
       } 
             
       init = 1;
@@ -271,7 +271,7 @@ extern int postgres_query(IDAM_PLUGIN_INTERFACE *idam_plugin_interface){
     
    do {
    
-      IDAM_LOGF(UDA_LOG_DEBUG, "postgresplugin: function called: %s\n", request_block->function);
+      UDA_LOG(UDA_LOG_DEBUG, "postgresplugin: function called: %s\n", request_block->function);
 
       if(!strcasecmp(request_block->function, "query") || !strcasecmp(request_block->function, THISPLUGIN_DEFAULT_METHOD)){
 
@@ -340,9 +340,9 @@ extern int postgres_query(IDAM_PLUGIN_INTERFACE *idam_plugin_interface){
 // Mandatory arguments
 
          if(!isObjectName){
-            IDAM_LOG(UDA_LOG_DEBUG, "postgresplugin: No Data Object Name specified\n");
+            UDA_LOG(UDA_LOG_DEBUG, "postgresplugin: No Data Object Name specified\n");
             err =  999;
-            addIdamError(&idamerrorstack, CODEERRORTYPE, "postgresplugin", err, "No Data Object Name specified");
+            addIdamError(CODEERRORTYPE, "postgresplugin", err, "No Data Object Name specified");
             break;
          } 
 
@@ -359,9 +359,9 @@ extern int postgres_query(IDAM_PLUGIN_INTERFACE *idam_plugin_interface){
             } 
 
             if(!isExpNumber && !isObjectSource){
-               IDAM_LOG(UDA_LOG_DEBUG, "postgresplugin: No Experiment Number or data source specified\n");
+               UDA_LOG(UDA_LOG_DEBUG, "postgresplugin: No Experiment Number or data source specified\n");
                err =  999;
-               addIdamError(&idamerrorstack, CODEERRORTYPE, "postgresplugin", err, "No Experiment Number or data source specified");
+               addIdamError(CODEERRORTYPE, "postgresplugin", err, "No Experiment Number or data source specified");
                break;
             }
             
@@ -393,7 +393,7 @@ extern int postgres_query(IDAM_PLUGIN_INTERFACE *idam_plugin_interface){
    if(preventSQLInjection(DBConnect, &signal)){
       if(signal != NULL) free((void *)signal);
       int err = 999;
-      addIdamError(&idamerrorstack, CODEERRORTYPE, "sqlSignalDescMap", err, "Unable to Escape the signal name!");
+      addIdamError(CODEERRORTYPE, "sqlSignalDescMap", err, "Unable to Escape the signal name!");
       return(0); 
    }
    
@@ -404,7 +404,7 @@ extern int postgres_query(IDAM_PLUGIN_INTERFACE *idam_plugin_interface){
       if(signal != NULL) free((void *)signal);
       if(tpass != NULL)  free((void *)tpass);
       int err = 999;
-      addIdamError(&idamerrorstack, CODEERRORTYPE, "sqlSignalDescMap", err, "Unable to Escape the tpass string!");
+      addIdamError(CODEERRORTYPE, "sqlSignalDescMap", err, "Unable to Escape the tpass string!");
       return(0); 
    }	
    	
@@ -485,7 +485,7 @@ Parameters passed to the plugin as name-value pairs (type, source_alias or sourc
 //-------------------------------------------------------------
 // Test Performance
 
-   IDAM_LOGF(UDA_LOG_DEBUG, "%s\n",sql);
+   UDA_LOG(UDA_LOG_DEBUG, "%s\n",sql);
  
    cost = gettimeofday(&tv_start, NULL);	  		          
 
@@ -493,7 +493,7 @@ Parameters passed to the plugin as name-value pairs (type, source_alias or sourc
 // Execute SQL
 
    if ((DBQuery = PQexec(DBConnect, sql)) == NULL){
-      addIdamError(&idamerrorstack, CODEERRORTYPE, "sqlSignalDescMap", 1, PQresultErrorMessage(DBQuery));
+      addIdamError(CODEERRORTYPE, "sqlSignalDescMap", 1, PQresultErrorMessage(DBQuery));
       PQclear(DBQuery);
       return(rc); 
    }	
@@ -505,11 +505,11 @@ Parameters passed to the plugin as name-value pairs (type, source_alias or sourc
    cost = (int)(tv_end.tv_sec-tv_start.tv_sec)*1000 + (int)(tv_end.tv_usec - tv_start.tv_usec) / 1000;
    tv_start = tv_end; 
 
-   IDAM_LOG(UDA_LOG_DEBUG, "+++ POSTGRES Plugin +++\n");
-   IDAM_LOGF(UDA_LOG_DEBUG, "SQL Time: %d (ms)\n",cost);
-   IDAM_LOGF(UDA_LOG_DEBUG, "No. Rows: %d\n",nrows);
-   IDAM_LOGF(UDA_LOG_DEBUG, "No. Cols: %d\n",ncols);
-   IDAM_LOGF(UDA_LOG_DEBUG, "SQL Msg : %s\n",PQresultErrorMessage(DBQuery));  
+   UDA_LOG(UDA_LOG_DEBUG, "+++ POSTGRES Plugin +++\n");
+   UDA_LOG(UDA_LOG_DEBUG, "SQL Time: %d (ms)\n",cost);
+   UDA_LOG(UDA_LOG_DEBUG, "No. Rows: %d\n",nrows);
+   UDA_LOG(UDA_LOG_DEBUG, "No. Cols: %d\n",ncols);
+   UDA_LOG(UDA_LOG_DEBUG, "SQL Msg : %s\n",PQresultErrorMessage(DBQuery));  
    
    if(nrows == 0){		// Nothing matched!
       PQclear(DBQuery);
@@ -525,7 +525,7 @@ Parameters passed to the plugin as name-value pairs (type, source_alias or sourc
           
    if(nrows > 1){   
       err = 999;
-      addIdamError(&idamerrorstack, CODEERRORTYPE, "sqlSignalDescMap", err, "Ambiguous database entries found! "
+      addIdamError(CODEERRORTYPE, "sqlSignalDescMap", err, "Ambiguous database entries found! "
                    "Please advise the System Administrator.");
       PQclear(DBQuery);
       return(0); 
@@ -533,7 +533,7 @@ Parameters passed to the plugin as name-value pairs (type, source_alias or sourc
             
    if(nrows == 0){   
       err = 999;
-      addIdamError(&idamerrorstack, CODEERRORTYPE, "sqlSignalDescMap", err, "No generic signal found!");
+      addIdamError(CODEERRORTYPE, "sqlSignalDescMap", err, "No generic signal found!");
       PQclear(DBQuery);
       return(0); 
    }
@@ -790,8 +790,8 @@ Parameters passed to the plugin as name-value pairs (type, source_alias or sourc
 // Error ...
                    
          err = 999;      
-         addIdamError(&idamerrorstack, CODEERRORTYPE, "postgresplugin", err, "Unknown plugin function requested!");
-	 IDAM_LOGF(UDA_LOG_DEBUG, "postgresplugin - Unknown plugin function requested: [%s]\n", request_block->function);
+         addIdamError(CODEERRORTYPE, "postgresplugin", err, "Unknown plugin function requested!");
+	 UDA_LOG(UDA_LOG_DEBUG, "postgresplugin - Unknown plugin function requested: [%s]\n", request_block->function);
          break;
       }
         
@@ -800,7 +800,7 @@ Parameters passed to the plugin as name-value pairs (type, source_alias or sourc
 //--------------------------------------------------------------------------------------
 // Housekeeping
    
-   IDAM_LOG(UDA_LOG_DEBUG, "Exit\n");
+   UDA_LOG(UDA_LOG_DEBUG, "Exit\n");
     
    return err;   
 }

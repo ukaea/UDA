@@ -11,102 +11,102 @@
 void printRequestBlock(REQUEST_BLOCK str)
 {
     int i;
-    IDAM_LOG(UDA_LOG_DEBUG, "\nClient Request Block\n\n");
-    IDAM_LOGF(UDA_LOG_DEBUG, "request     : %d\n", str.request);
-    IDAM_LOGF(UDA_LOG_DEBUG, "exp_number  : %d\n", str.exp_number);
-    IDAM_LOGF(UDA_LOG_DEBUG, "pass        : %d\n", str.pass);
-    IDAM_LOGF(UDA_LOG_DEBUG, "tpass       : %s\n", str.tpass);
-    IDAM_LOGF(UDA_LOG_DEBUG, "path        : %s\n", str.path);
-    IDAM_LOGF(UDA_LOG_DEBUG, "file        : %s\n", str.file);
-    IDAM_LOGF(UDA_LOG_DEBUG, "format      : %s\n", str.format);
-    IDAM_LOGF(UDA_LOG_DEBUG, "archive     : %s\n", str.archive);
-    IDAM_LOGF(UDA_LOG_DEBUG, "device_name : %s\n", str.device_name);
-    IDAM_LOGF(UDA_LOG_DEBUG, "server      : %s\n", str.server);
-    IDAM_LOGF(UDA_LOG_DEBUG, "function    : %s\n", str.function);
-    IDAM_LOGF(UDA_LOG_DEBUG, "signal      : %s\n", str.signal);
-    IDAM_LOGF(UDA_LOG_DEBUG, "source      : %s\n", str.source);
-    IDAM_LOGF(UDA_LOG_DEBUG, "api_delim   : %s\n", str.api_delim);
-    IDAM_LOGF(UDA_LOG_DEBUG, "subset      : %s\n", str.subset);
-    IDAM_LOGF(UDA_LOG_DEBUG, "subsetCount : %d\n", str.datasubset.subsetCount);
+    UDA_LOG(UDA_LOG_DEBUG, "\nClient Request Block\n\n");
+    UDA_LOG(UDA_LOG_DEBUG, "request     : %d\n", str.request);
+    UDA_LOG(UDA_LOG_DEBUG, "exp_number  : %d\n", str.exp_number);
+    UDA_LOG(UDA_LOG_DEBUG, "pass        : %d\n", str.pass);
+    UDA_LOG(UDA_LOG_DEBUG, "tpass       : %s\n", str.tpass);
+    UDA_LOG(UDA_LOG_DEBUG, "path        : %s\n", str.path);
+    UDA_LOG(UDA_LOG_DEBUG, "file        : %s\n", str.file);
+    UDA_LOG(UDA_LOG_DEBUG, "format      : %s\n", str.format);
+    UDA_LOG(UDA_LOG_DEBUG, "archive     : %s\n", str.archive);
+    UDA_LOG(UDA_LOG_DEBUG, "device_name : %s\n", str.device_name);
+    UDA_LOG(UDA_LOG_DEBUG, "server      : %s\n", str.server);
+    UDA_LOG(UDA_LOG_DEBUG, "function    : %s\n", str.function);
+    UDA_LOG(UDA_LOG_DEBUG, "signal      : %s\n", str.signal);
+    UDA_LOG(UDA_LOG_DEBUG, "source      : %s\n", str.source);
+    UDA_LOG(UDA_LOG_DEBUG, "api_delim   : %s\n", str.api_delim);
+    UDA_LOG(UDA_LOG_DEBUG, "subset      : %s\n", str.subset);
+    UDA_LOG(UDA_LOG_DEBUG, "subsetCount : %d\n", str.datasubset.subsetCount);
     for (i = 0; i < str.datasubset.subsetCount; i++) {
-        IDAM_LOGF(UDA_LOG_DEBUG, "[%d] %d   %d   %d   %d   %d\n", i, str.datasubset.subset[i], str.datasubset.start[i],
+        UDA_LOG(UDA_LOG_DEBUG, "[%d] %d   %d   %d   %d   %d\n", i, str.datasubset.subset[i], str.datasubset.start[i],
                 str.datasubset.stop[i], str.datasubset.count[i], str.datasubset.stride[i]);
     }
-    IDAM_LOGF(UDA_LOG_DEBUG, "nameValueCount : %d\n", str.nameValueList.pairCount);
+    UDA_LOG(UDA_LOG_DEBUG, "nameValueCount : %d\n", str.nameValueList.pairCount);
     for (i = 0; i < str.nameValueList.pairCount; i++) {
-        IDAM_LOGF(UDA_LOG_DEBUG, "[%d] %s,   %s,   %s\n", i, str.nameValueList.nameValue[i].pair,
+        UDA_LOG(UDA_LOG_DEBUG, "[%d] %s,   %s,   %s\n", i, str.nameValueList.nameValue[i].pair,
                 str.nameValueList.nameValue[i].name, str.nameValueList.nameValue[i].value);
     }
 }
 
 void printClientBlock(CLIENT_BLOCK str)
 {
-    IDAM_LOG(UDA_LOG_DEBUG, "\nClient State Block\n\n");
-    IDAM_LOGF(UDA_LOG_DEBUG, "version      : %d\n", str.version);
-    IDAM_LOGF(UDA_LOG_DEBUG, "pid          : %d\n", str.pid);
-    IDAM_LOGF(UDA_LOG_DEBUG, "uid          : %s\n", str.uid);
+    UDA_LOG(UDA_LOG_DEBUG, "\nClient State Block\n\n");
+    UDA_LOG(UDA_LOG_DEBUG, "version      : %d\n", str.version);
+    UDA_LOG(UDA_LOG_DEBUG, "pid          : %d\n", str.pid);
+    UDA_LOG(UDA_LOG_DEBUG, "uid          : %s\n", str.uid);
 
-    IDAM_LOGF(UDA_LOG_DEBUG, "timeout      : %d\n", str.timeout);
-    IDAM_LOGF(UDA_LOG_DEBUG, "compressDim  : %d\n", str.compressDim);
+    UDA_LOG(UDA_LOG_DEBUG, "timeout      : %d\n", str.timeout);
+    UDA_LOG(UDA_LOG_DEBUG, "compressDim  : %d\n", str.compressDim);
 
-    IDAM_LOGF(UDA_LOG_DEBUG, "clientFlags  : %d\n", str.clientFlags);
-    IDAM_LOGF(UDA_LOG_DEBUG, "altRank      : %d\n", str.altRank);
+    UDA_LOG(UDA_LOG_DEBUG, "clientFlags  : %d\n", str.clientFlags);
+    UDA_LOG(UDA_LOG_DEBUG, "altRank      : %d\n", str.altRank);
 
-    IDAM_LOGF(UDA_LOG_DEBUG, "get_nodimdata: %d\n", str.get_nodimdata);
-    IDAM_LOGF(UDA_LOG_DEBUG, "get_datadble : %d\n", str.get_datadble);
-    IDAM_LOGF(UDA_LOG_DEBUG, "get_timedble : %d\n", str.get_timedble);
-    IDAM_LOGF(UDA_LOG_DEBUG, "get_dimdble  : %d\n", str.get_dimdble);
-    IDAM_LOGF(UDA_LOG_DEBUG, "get_bad      : %d\n", str.get_bad);
-    IDAM_LOGF(UDA_LOG_DEBUG, "get_meta     : %d\n", str.get_meta);
-    IDAM_LOGF(UDA_LOG_DEBUG, "get_asis     : %d\n", str.get_asis);
-    IDAM_LOGF(UDA_LOG_DEBUG, "get_uncal    : %d\n", str.get_uncal);
-    IDAM_LOGF(UDA_LOG_DEBUG, "get_notoff   : %d\n", str.get_notoff);
-    IDAM_LOGF(UDA_LOG_DEBUG, "get_scalar   : %d\n", str.get_scalar);
-    IDAM_LOGF(UDA_LOG_DEBUG, "get_bytes    : %d\n", str.get_bytes);
+    UDA_LOG(UDA_LOG_DEBUG, "get_nodimdata: %d\n", str.get_nodimdata);
+    UDA_LOG(UDA_LOG_DEBUG, "get_datadble : %d\n", str.get_datadble);
+    UDA_LOG(UDA_LOG_DEBUG, "get_timedble : %d\n", str.get_timedble);
+    UDA_LOG(UDA_LOG_DEBUG, "get_dimdble  : %d\n", str.get_dimdble);
+    UDA_LOG(UDA_LOG_DEBUG, "get_bad      : %d\n", str.get_bad);
+    UDA_LOG(UDA_LOG_DEBUG, "get_meta     : %d\n", str.get_meta);
+    UDA_LOG(UDA_LOG_DEBUG, "get_asis     : %d\n", str.get_asis);
+    UDA_LOG(UDA_LOG_DEBUG, "get_uncal    : %d\n", str.get_uncal);
+    UDA_LOG(UDA_LOG_DEBUG, "get_notoff   : %d\n", str.get_notoff);
+    UDA_LOG(UDA_LOG_DEBUG, "get_scalar   : %d\n", str.get_scalar);
+    UDA_LOG(UDA_LOG_DEBUG, "get_bytes    : %d\n", str.get_bytes);
 
-    IDAM_LOGF(UDA_LOG_DEBUG, "privateFlags : %d\n", str.privateFlags);
+    UDA_LOG(UDA_LOG_DEBUG, "privateFlags : %d\n", str.privateFlags);
 
-    IDAM_LOGF(UDA_LOG_DEBUG, "OS Name      : %s\n", str.OSName);
-    IDAM_LOGF(UDA_LOG_DEBUG, "Study DOI    : %s\n", str.DOI);
+    UDA_LOG(UDA_LOG_DEBUG, "OS Name      : %s\n", str.OSName);
+    UDA_LOG(UDA_LOG_DEBUG, "Study DOI    : %s\n", str.DOI);
 }
 
 
 void printServerBlock(SERVER_BLOCK str)
 {
-    IDAM_LOG(UDA_LOG_DEBUG, "\nServer State Block\n\n");
-    IDAM_LOGF(UDA_LOG_DEBUG, "version          : %d\n", str.version);
-    IDAM_LOGF(UDA_LOG_DEBUG, "error            : %d\n", str.error);
-    IDAM_LOGF(UDA_LOG_DEBUG, "msg              : %s\n", str.msg);
-    IDAM_LOGF(UDA_LOG_DEBUG, "Server PID       : %d\n", str.pid);
-    IDAM_LOGF(UDA_LOG_DEBUG, "OS Name          : %s\n", str.OSName);
-    IDAM_LOGF(UDA_LOG_DEBUG, "Configuration DOI: %s\n", str.DOI);
-    printIdamErrorStack(str.idamerrorstack);
+    UDA_LOG(UDA_LOG_DEBUG, "\nServer State Block\n\n");
+    UDA_LOG(UDA_LOG_DEBUG, "version          : %d\n", str.version);
+    UDA_LOG(UDA_LOG_DEBUG, "error            : %d\n", str.error);
+    UDA_LOG(UDA_LOG_DEBUG, "msg              : %s\n", str.msg);
+    UDA_LOG(UDA_LOG_DEBUG, "Server PID       : %d\n", str.pid);
+    UDA_LOG(UDA_LOG_DEBUG, "OS Name          : %s\n", str.OSName);
+    UDA_LOG(UDA_LOG_DEBUG, "Configuration DOI: %s\n", str.DOI);
+    printIdamErrorStack();
 }
 
 
 void printDataBlock(DATA_BLOCK str)
 {
     int i, j, k;
-    IDAM_LOG(UDA_LOG_DEBUG, "\nData Block Contents\n\n");
-    IDAM_LOGF(UDA_LOG_DEBUG, "handle       : %d\n", str.handle);
-    IDAM_LOGF(UDA_LOG_DEBUG, "error code   : %d\n", str.errcode);
-    IDAM_LOGF(UDA_LOG_DEBUG, "error msg    : %s\n", str.error_msg);
-    IDAM_LOGF(UDA_LOG_DEBUG, "source status: %d\n", str.source_status);
-    IDAM_LOGF(UDA_LOG_DEBUG, "signal status: %d\n", str.signal_status);
-    IDAM_LOGF(UDA_LOG_DEBUG, "data_number  : %d\n", str.data_n);
-    IDAM_LOGF(UDA_LOG_DEBUG, "rank         : %d\n", str.rank);
-    IDAM_LOGF(UDA_LOG_DEBUG, "order        : %d\n", str.order);
-    IDAM_LOGF(UDA_LOG_DEBUG, "data_type    : %d\n", str.data_type);
-    IDAM_LOGF(UDA_LOG_DEBUG, "error_type   : %d\n", str.error_type);
-    IDAM_LOGF(UDA_LOG_DEBUG, "errhi != NULL: %d\n", str.errhi != NULL);
-    IDAM_LOGF(UDA_LOG_DEBUG, "errlo != NULL: %d\n", str.errlo != NULL);
+    UDA_LOG(UDA_LOG_DEBUG, "\nData Block Contents\n\n");
+    UDA_LOG(UDA_LOG_DEBUG, "handle       : %d\n", str.handle);
+    UDA_LOG(UDA_LOG_DEBUG, "error code   : %d\n", str.errcode);
+    UDA_LOG(UDA_LOG_DEBUG, "error msg    : %s\n", str.error_msg);
+    UDA_LOG(UDA_LOG_DEBUG, "source status: %d\n", str.source_status);
+    UDA_LOG(UDA_LOG_DEBUG, "signal status: %d\n", str.signal_status);
+    UDA_LOG(UDA_LOG_DEBUG, "data_number  : %d\n", str.data_n);
+    UDA_LOG(UDA_LOG_DEBUG, "rank         : %d\n", str.rank);
+    UDA_LOG(UDA_LOG_DEBUG, "order        : %d\n", str.order);
+    UDA_LOG(UDA_LOG_DEBUG, "data_type    : %d\n", str.data_type);
+    UDA_LOG(UDA_LOG_DEBUG, "error_type   : %d\n", str.error_type);
+    UDA_LOG(UDA_LOG_DEBUG, "errhi != NULL: %d\n", str.errhi != NULL);
+    UDA_LOG(UDA_LOG_DEBUG, "errlo != NULL: %d\n", str.errlo != NULL);
 
-    IDAM_LOGF(UDA_LOG_DEBUG, "opaque_type : %d\n", str.opaque_type);
-    IDAM_LOGF(UDA_LOG_DEBUG, "opaque_count: %d\n", str.opaque_count);
+    UDA_LOG(UDA_LOG_DEBUG, "opaque_type : %d\n", str.opaque_type);
+    UDA_LOG(UDA_LOG_DEBUG, "opaque_count: %d\n", str.opaque_count);
 
     switch (str.opaque_type) {
-        case (OPAQUE_TYPE_XML_DOCUMENT):
-            if (str.opaque_block != NULL) IDAM_LOGF(UDA_LOG_DEBUG, "\nXML: %s\n\n", (char*) str.opaque_block);
+        case (UDA_OPAQUE_TYPE_XML_DOCUMENT):
+            if (str.opaque_block != NULL) UDA_LOG(UDA_LOG_DEBUG, "\nXML: %s\n\n", (char*) str.opaque_block);
             break;
         default:
             break;
@@ -115,231 +115,231 @@ void printDataBlock(DATA_BLOCK str)
     k = 10;
     if (str.data_n < 10) k = str.data_n;
 
-    if (str.data_type == TYPE_FLOAT) {
-        for (j = 0; j < k; j++)IDAM_LOGF(UDA_LOG_DEBUG, "data[%d]: %f\n", j, *((float*) str.data + j));
+    if (str.data_type == UDA_TYPE_FLOAT) {
+        for (j = 0; j < k; j++)UDA_LOG(UDA_LOG_DEBUG, "data[%d]: %f\n", j, *((float*) str.data + j));
     }
-    if (str.data_type == TYPE_DOUBLE) {
-        for (j = 0; j < k; j++)IDAM_LOGF(UDA_LOG_DEBUG, "data[%d]: %f\n", j, *((double*) str.data + j));
-    }
-
-    if (str.error_type == TYPE_FLOAT && str.errhi != NULL) {
-        for (j = 0; j < k; j++)IDAM_LOGF(UDA_LOG_DEBUG, "errhi[%d]: %f\n", j, *((float*) str.errhi + j));
+    if (str.data_type == UDA_TYPE_DOUBLE) {
+        for (j = 0; j < k; j++)UDA_LOG(UDA_LOG_DEBUG, "data[%d]: %f\n", j, *((double*) str.data + j));
     }
 
-    if (str.error_type == TYPE_FLOAT && str.errlo != NULL && str.errasymmetry) {
-        for (j = 0; j < k; j++)IDAM_LOGF(UDA_LOG_DEBUG, "errlo[%d]: %f\n", j, *((float*) str.errlo + j));
+    if (str.error_type == UDA_TYPE_FLOAT && str.errhi != NULL) {
+        for (j = 0; j < k; j++)UDA_LOG(UDA_LOG_DEBUG, "errhi[%d]: %f\n", j, *((float*) str.errhi + j));
     }
 
-    IDAM_LOGF(UDA_LOG_DEBUG, "error model : %d\n", str.error_model);
-    IDAM_LOGF(UDA_LOG_DEBUG, "asymmetry   : %d\n", str.errasymmetry);
-    IDAM_LOGF(UDA_LOG_DEBUG, "error model no. params : %d\n", str.error_param_n);
-    for (i = 0; i < str.error_param_n; i++)IDAM_LOGF(UDA_LOG_DEBUG, "param[%d] = %f \n", i, str.errparams[i]);
-    IDAM_LOGF(UDA_LOG_DEBUG, "data_units  : %s\n", str.data_units);
-    IDAM_LOGF(UDA_LOG_DEBUG, "data_label  : %s\n", str.data_label);
-    IDAM_LOGF(UDA_LOG_DEBUG, "data_desc   : %s\n", str.data_desc);
+    if (str.error_type == UDA_TYPE_FLOAT && str.errlo != NULL && str.errasymmetry) {
+        for (j = 0; j < k; j++)UDA_LOG(UDA_LOG_DEBUG, "errlo[%d]: %f\n", j, *((float*) str.errlo + j));
+    }
+
+    UDA_LOG(UDA_LOG_DEBUG, "error model : %d\n", str.error_model);
+    UDA_LOG(UDA_LOG_DEBUG, "asymmetry   : %d\n", str.errasymmetry);
+    UDA_LOG(UDA_LOG_DEBUG, "error model no. params : %d\n", str.error_param_n);
+    for (i = 0; i < str.error_param_n; i++)UDA_LOG(UDA_LOG_DEBUG, "param[%d] = %f \n", i, str.errparams[i]);
+    UDA_LOG(UDA_LOG_DEBUG, "data_units  : %s\n", str.data_units);
+    UDA_LOG(UDA_LOG_DEBUG, "data_label  : %s\n", str.data_label);
+    UDA_LOG(UDA_LOG_DEBUG, "data_desc   : %s\n", str.data_desc);
     for (i = 0; i < str.rank; i++) {
-        IDAM_LOGF(UDA_LOG_DEBUG, "\nDimension #%d Contents\n\n", i);
-        IDAM_LOGF(UDA_LOG_DEBUG, "data_type    : %d\n", str.dims[i].data_type);
-        IDAM_LOGF(UDA_LOG_DEBUG, "error_type   : %d\n", str.dims[i].error_type);
-        IDAM_LOGF(UDA_LOG_DEBUG, "errhi != NULL: %d\n", str.dims[i].errhi != NULL);
-        IDAM_LOGF(UDA_LOG_DEBUG, "errlo != NULL: %d\n", str.dims[i].errlo != NULL);
-        IDAM_LOGF(UDA_LOG_DEBUG, "error model  : %d\n", str.dims[i].error_model);
-        IDAM_LOGF(UDA_LOG_DEBUG, "asymmetry    : %d\n", str.dims[i].errasymmetry);
-        IDAM_LOGF(UDA_LOG_DEBUG, "error model no. params : %d\n", str.dims[i].error_param_n);
-        for (j = 0; j < str.dims[i].error_param_n; j++)IDAM_LOGF(UDA_LOG_DEBUG, "param[%d] = %f \n", j, str.dims[i].errparams[j]);
-        IDAM_LOGF(UDA_LOG_DEBUG, "data_number : %d\n", str.dims[i].dim_n);
-        IDAM_LOGF(UDA_LOG_DEBUG, "compressed? : %d\n", str.dims[i].compressed);
-        IDAM_LOGF(UDA_LOG_DEBUG, "method      : %d\n", str.dims[i].method);
+        UDA_LOG(UDA_LOG_DEBUG, "\nDimension #%d Contents\n\n", i);
+        UDA_LOG(UDA_LOG_DEBUG, "data_type    : %d\n", str.dims[i].data_type);
+        UDA_LOG(UDA_LOG_DEBUG, "error_type   : %d\n", str.dims[i].error_type);
+        UDA_LOG(UDA_LOG_DEBUG, "errhi != NULL: %d\n", str.dims[i].errhi != NULL);
+        UDA_LOG(UDA_LOG_DEBUG, "errlo != NULL: %d\n", str.dims[i].errlo != NULL);
+        UDA_LOG(UDA_LOG_DEBUG, "error model  : %d\n", str.dims[i].error_model);
+        UDA_LOG(UDA_LOG_DEBUG, "asymmetry    : %d\n", str.dims[i].errasymmetry);
+        UDA_LOG(UDA_LOG_DEBUG, "error model no. params : %d\n", str.dims[i].error_param_n);
+        for (j = 0; j < str.dims[i].error_param_n; j++)UDA_LOG(UDA_LOG_DEBUG, "param[%d] = %f \n", j, str.dims[i].errparams[j]);
+        UDA_LOG(UDA_LOG_DEBUG, "data_number : %d\n", str.dims[i].dim_n);
+        UDA_LOG(UDA_LOG_DEBUG, "compressed? : %d\n", str.dims[i].compressed);
+        UDA_LOG(UDA_LOG_DEBUG, "method      : %d\n", str.dims[i].method);
         if (str.dims[i].method == 0) {
             if (str.dims[i].compressed) {
-                IDAM_LOGF(UDA_LOG_DEBUG, "starting val: %f\n", str.dims[i].dim0);
-                IDAM_LOGF(UDA_LOG_DEBUG, "stepping val: %f\n", str.dims[i].diff);
+                UDA_LOG(UDA_LOG_DEBUG, "starting val: %f\n", str.dims[i].dim0);
+                UDA_LOG(UDA_LOG_DEBUG, "stepping val: %f\n", str.dims[i].diff);
             } else {
-                if (str.dims[i].data_type == TYPE_FLOAT) {
+                if (str.dims[i].data_type == UDA_TYPE_FLOAT) {
                     k = 10;
                     if (str.dims[i].dim_n < 10) k = str.dims[i].dim_n;
                     if (str.dims[i].dim != NULL)
                         for (j = 0; j < k; j++)
-                            IDAM_LOGF(UDA_LOG_DEBUG, "val[%d] = %f\n", j, *((float*) str.dims[i].dim + j));
+                            UDA_LOG(UDA_LOG_DEBUG, "val[%d] = %f\n", j, *((float*) str.dims[i].dim + j));
                 }
-                if (str.dims[i].data_type == TYPE_DOUBLE) {
+                if (str.dims[i].data_type == UDA_TYPE_DOUBLE) {
                     k = 10;
                     if (str.dims[i].dim_n < 10) k = str.dims[i].dim_n;
                     if (str.dims[i].dim != NULL)
                         for (j = 0; j < k; j++)
-                            IDAM_LOGF(UDA_LOG_DEBUG, "val[%d] = %f\n", j, *((double*) str.dims[i].dim + j));
+                            UDA_LOG(UDA_LOG_DEBUG, "val[%d] = %f\n", j, *((double*) str.dims[i].dim + j));
                 }
             }
         } else {
-            IDAM_LOGF(UDA_LOG_DEBUG, "udoms: %d\n", str.dims[i].udoms);
+            UDA_LOG(UDA_LOG_DEBUG, "udoms: %d\n", str.dims[i].udoms);
             switch (str.dims[i].method) {
                 case 1:
-                    if (str.dims[i].data_type == TYPE_FLOAT) {
+                    if (str.dims[i].data_type == UDA_TYPE_FLOAT) {
                         k = 10;
                         if (str.dims[i].udoms < 10) k = str.dims[i].udoms;
                         for (j = 0; j < k; j++) {
-                            IDAM_LOGF(UDA_LOG_DEBUG, "sams[%d]: %d\n", j, (int) *(str.dims[i].sams + j));
-                            IDAM_LOGF(UDA_LOG_DEBUG, "offs[%d]: %f\n", j, *((float*) str.dims[i].offs + j));
-                            IDAM_LOGF(UDA_LOG_DEBUG, "ints[%d]: %f\n", j, *((float*) str.dims[i].ints + j));
+                            UDA_LOG(UDA_LOG_DEBUG, "sams[%d]: %d\n", j, (int) *(str.dims[i].sams + j));
+                            UDA_LOG(UDA_LOG_DEBUG, "offs[%d]: %f\n", j, *((float*) str.dims[i].offs + j));
+                            UDA_LOG(UDA_LOG_DEBUG, "ints[%d]: %f\n", j, *((float*) str.dims[i].ints + j));
                         }
                     }
-                    if (str.dims[i].data_type == TYPE_DOUBLE) {
+                    if (str.dims[i].data_type == UDA_TYPE_DOUBLE) {
                         k = 10;
                         if (str.dims[i].udoms < 10) k = str.dims[i].udoms;
                         for (j = 0; j < k; j++) {
-                            IDAM_LOGF(UDA_LOG_DEBUG, "sams[%d]: %d\n", j, (int) *(str.dims[i].sams + j));
-                            IDAM_LOGF(UDA_LOG_DEBUG, "offs[%d]: %f\n", j, *((double*) str.dims[i].offs + j));
-                            IDAM_LOGF(UDA_LOG_DEBUG, "ints[%d]: %f\n", j, *((double*) str.dims[i].ints + j));
+                            UDA_LOG(UDA_LOG_DEBUG, "sams[%d]: %d\n", j, (int) *(str.dims[i].sams + j));
+                            UDA_LOG(UDA_LOG_DEBUG, "offs[%d]: %f\n", j, *((double*) str.dims[i].offs + j));
+                            UDA_LOG(UDA_LOG_DEBUG, "ints[%d]: %f\n", j, *((double*) str.dims[i].ints + j));
                         }
                     }
                     break;
                 case 2:
-                    if (str.dims[i].data_type == TYPE_FLOAT) {
+                    if (str.dims[i].data_type == UDA_TYPE_FLOAT) {
                         k = 10;
                         if (str.dims[i].udoms < 10) k = str.dims[i].udoms;
-                        for (j = 0; j < k; j++) IDAM_LOGF(UDA_LOG_DEBUG, "offs[%d]: %f\n", j, *((float*) str.dims[i].offs + j));
+                        for (j = 0; j < k; j++) UDA_LOG(UDA_LOG_DEBUG, "offs[%d]: %f\n", j, *((float*) str.dims[i].offs + j));
                     }
-                    if (str.dims[i].data_type == TYPE_DOUBLE) {
+                    if (str.dims[i].data_type == UDA_TYPE_DOUBLE) {
                         k = 10;
                         if (str.dims[i].udoms < 10) k = str.dims[i].udoms;
-                        for (j = 0; j < k; j++) IDAM_LOGF(UDA_LOG_DEBUG, "offs[%d]: %f\n", j, *((double*) str.dims[i].offs + j));
+                        for (j = 0; j < k; j++) UDA_LOG(UDA_LOG_DEBUG, "offs[%d]: %f\n", j, *((double*) str.dims[i].offs + j));
                     }
                     break;
                 case 3:
-                    if (str.dims[i].data_type == TYPE_FLOAT) {
-                        IDAM_LOGF(UDA_LOG_DEBUG, "offs[0] val: %f\n", *((float*) str.dims[i].offs));
-                        IDAM_LOGF(UDA_LOG_DEBUG, "ints[0] val: %f\n", *((float*) str.dims[i].ints));
+                    if (str.dims[i].data_type == UDA_TYPE_FLOAT) {
+                        UDA_LOG(UDA_LOG_DEBUG, "offs[0] val: %f\n", *((float*) str.dims[i].offs));
+                        UDA_LOG(UDA_LOG_DEBUG, "ints[0] val: %f\n", *((float*) str.dims[i].ints));
                     }
-                    if (str.dims[i].data_type == TYPE_DOUBLE) {
-                        IDAM_LOGF(UDA_LOG_DEBUG, "offs[0] val: %f\n", *((double*) str.dims[i].offs));
-                        IDAM_LOGF(UDA_LOG_DEBUG, "ints[0] val: %f\n", *((double*) str.dims[i].ints));
+                    if (str.dims[i].data_type == UDA_TYPE_DOUBLE) {
+                        UDA_LOG(UDA_LOG_DEBUG, "offs[0] val: %f\n", *((double*) str.dims[i].offs));
+                        UDA_LOG(UDA_LOG_DEBUG, "ints[0] val: %f\n", *((double*) str.dims[i].ints));
                     }
                     break;
                 default:
-                    IDAM_LOGF(UDA_LOG_WARN, "unknown method (%d) for dim (%d)", str.dims[i].method, i);
+                    UDA_LOG(UDA_LOG_WARN, "unknown method (%d) for dim (%d)", str.dims[i].method, i);
             }
         }
-        if (str.dims[i].error_type == TYPE_FLOAT) {
+        if (str.dims[i].error_type == UDA_TYPE_FLOAT) {
             k = 10;
             if (str.dims[i].dim_n < 10) k = str.dims[i].dim_n;
             if (str.dims[i].errhi != NULL)
                 for (j = 0; j < k; j++)
-                    IDAM_LOGF(UDA_LOG_DEBUG, "errhi[%d] = %f\n", j, *((float*) str.dims[i].errhi + j));
+                    UDA_LOG(UDA_LOG_DEBUG, "errhi[%d] = %f\n", j, *((float*) str.dims[i].errhi + j));
             if (str.dims[i].errlo != NULL && str.dims[i].errasymmetry)
                 for (j = 0; j < k; j++)
-                    IDAM_LOGF(UDA_LOG_DEBUG, "errlo[%d] = %f\n", j, *((float*) str.dims[i].errlo + j));
+                    UDA_LOG(UDA_LOG_DEBUG, "errlo[%d] = %f\n", j, *((float*) str.dims[i].errlo + j));
         }
-        IDAM_LOGF(UDA_LOG_DEBUG, "data_units  : %s\n", str.dims[i].dim_units);
-        IDAM_LOGF(UDA_LOG_DEBUG, "data_label  : %s\n", str.dims[i].dim_label);
+        UDA_LOG(UDA_LOG_DEBUG, "data_units  : %s\n", str.dims[i].dim_units);
+        UDA_LOG(UDA_LOG_DEBUG, "data_label  : %s\n", str.dims[i].dim_label);
     }
 }
 
 
 void printSystemConfig(SYSTEM_CONFIG str)
 {
-    IDAM_LOG(UDA_LOG_DEBUG, "\nSystem Configuration Record\n\n");
-    IDAM_LOGF(UDA_LOG_DEBUG, "config_id   : %d\n", str.config_id);
-    IDAM_LOGF(UDA_LOG_DEBUG, "system_id   : %d\n", str.system_id);
-    IDAM_LOGF(UDA_LOG_DEBUG, "config_name : %s\n", str.config_name);
-    IDAM_LOGF(UDA_LOG_DEBUG, "config_desc : %s\n", str.config_desc);
-    IDAM_LOGF(UDA_LOG_DEBUG, "creation    : %s\n", str.creation);
-    IDAM_LOGF(UDA_LOG_DEBUG, "meta_id     : %d\n", str.meta_id);
-    IDAM_LOGF(UDA_LOG_DEBUG, "xml         : %s\n", str.xml);
-    IDAM_LOGF(UDA_LOG_DEBUG, "xml_creation: %s\n", str.xml_creation);
+    UDA_LOG(UDA_LOG_DEBUG, "\nSystem Configuration Record\n\n");
+    UDA_LOG(UDA_LOG_DEBUG, "config_id   : %d\n", str.config_id);
+    UDA_LOG(UDA_LOG_DEBUG, "system_id   : %d\n", str.system_id);
+    UDA_LOG(UDA_LOG_DEBUG, "config_name : %s\n", str.config_name);
+    UDA_LOG(UDA_LOG_DEBUG, "config_desc : %s\n", str.config_desc);
+    UDA_LOG(UDA_LOG_DEBUG, "creation    : %s\n", str.creation);
+    UDA_LOG(UDA_LOG_DEBUG, "meta_id     : %d\n", str.meta_id);
+    UDA_LOG(UDA_LOG_DEBUG, "xml         : %s\n", str.xml);
+    UDA_LOG(UDA_LOG_DEBUG, "xml_creation: %s\n", str.xml_creation);
 }
 
 
 void printDataSystem(DATA_SYSTEM str)
 {
-    IDAM_LOG(UDA_LOG_DEBUG, "\nData System Record\n\n");
-    IDAM_LOGF(UDA_LOG_DEBUG, "system_id   : %d\n", str.system_id);
-    IDAM_LOGF(UDA_LOG_DEBUG, "version     : %d\n", str.version);
-    IDAM_LOGF(UDA_LOG_DEBUG, "type        : %c\n", str.type);
-    IDAM_LOGF(UDA_LOG_DEBUG, "device_name : %s\n", str.device_name);
-    IDAM_LOGF(UDA_LOG_DEBUG, "system_name : %s\n", str.system_name);
-    IDAM_LOGF(UDA_LOG_DEBUG, "system_desc : %s\n", str.system_desc);
-    IDAM_LOGF(UDA_LOG_DEBUG, "creation    : %s\n", str.creation);
-    IDAM_LOGF(UDA_LOG_DEBUG, "meta_id     : %d\n", str.meta_id);
-    IDAM_LOGF(UDA_LOG_DEBUG, "xml         : %s\n", str.xml);
-    IDAM_LOGF(UDA_LOG_DEBUG, "xml_creation: %s\n", str.xml_creation);
+    UDA_LOG(UDA_LOG_DEBUG, "\nData System Record\n\n");
+    UDA_LOG(UDA_LOG_DEBUG, "system_id   : %d\n", str.system_id);
+    UDA_LOG(UDA_LOG_DEBUG, "version     : %d\n", str.version);
+    UDA_LOG(UDA_LOG_DEBUG, "type        : %c\n", str.type);
+    UDA_LOG(UDA_LOG_DEBUG, "device_name : %s\n", str.device_name);
+    UDA_LOG(UDA_LOG_DEBUG, "system_name : %s\n", str.system_name);
+    UDA_LOG(UDA_LOG_DEBUG, "system_desc : %s\n", str.system_desc);
+    UDA_LOG(UDA_LOG_DEBUG, "creation    : %s\n", str.creation);
+    UDA_LOG(UDA_LOG_DEBUG, "meta_id     : %d\n", str.meta_id);
+    UDA_LOG(UDA_LOG_DEBUG, "xml         : %s\n", str.xml);
+    UDA_LOG(UDA_LOG_DEBUG, "xml_creation: %s\n", str.xml_creation);
 }
 
 void printDataSource(DATA_SOURCE str)
 {
-    IDAM_LOG(UDA_LOG_DEBUG, "\nData Source Record\n\n");
-    IDAM_LOGF(UDA_LOG_DEBUG, "source_id     : %d\n", str.source_id);
-    IDAM_LOGF(UDA_LOG_DEBUG, "config_id     : %d\n", str.config_id);
-    IDAM_LOGF(UDA_LOG_DEBUG, "reason_id     : %d\n", str.reason_id);
-    IDAM_LOGF(UDA_LOG_DEBUG, "run_id        : %d\n", str.run_id);
-    IDAM_LOGF(UDA_LOG_DEBUG, "status_desc_id: %d\n", str.status_desc_id);
-    IDAM_LOGF(UDA_LOG_DEBUG, "exp_number    : %d\n", str.exp_number);
-    IDAM_LOGF(UDA_LOG_DEBUG, "pass          : %d\n", str.pass);
-    IDAM_LOGF(UDA_LOG_DEBUG, "status        : %d\n", str.status);
-    IDAM_LOGF(UDA_LOG_DEBUG, "status_reason_code: %d\n", str.status_reason_code);
-    IDAM_LOGF(UDA_LOG_DEBUG, "status_impact_code: %d\n", str.status_impact_code);
-    IDAM_LOGF(UDA_LOG_DEBUG, "access        : %c\n", str.access);
-    IDAM_LOGF(UDA_LOG_DEBUG, "reprocess     : %c\n", str.reprocess);
-    IDAM_LOGF(UDA_LOG_DEBUG, "type          : %c\n", str.type);
-    IDAM_LOGF(UDA_LOG_DEBUG, "source_alias  : %s\n", str.source_alias);
-    IDAM_LOGF(UDA_LOG_DEBUG, "pass_date     : %s\n", str.pass_date);
-    IDAM_LOGF(UDA_LOG_DEBUG, "archive       : %s\n", str.archive);
-    IDAM_LOGF(UDA_LOG_DEBUG, "device_name   : %s\n", str.device_name);
-    IDAM_LOGF(UDA_LOG_DEBUG, "format        : %s\n", str.format);
-    IDAM_LOGF(UDA_LOG_DEBUG, "path          : %s\n", str.path);
-    IDAM_LOGF(UDA_LOG_DEBUG, "filename      : %s\n", str.filename);
-    IDAM_LOGF(UDA_LOG_DEBUG, "server        : %s\n", str.server);
-    IDAM_LOGF(UDA_LOG_DEBUG, "userid        : %s\n", str.userid);
-    IDAM_LOGF(UDA_LOG_DEBUG, "reason_desc   : %s\n", str.reason_desc);
-    IDAM_LOGF(UDA_LOG_DEBUG, "run_desc      : %s\n", str.run_desc);
-    IDAM_LOGF(UDA_LOG_DEBUG, "status_desc   : %s\n", str.status_desc);
-    IDAM_LOGF(UDA_LOG_DEBUG, "creation      : %s\n", str.creation);
-    IDAM_LOGF(UDA_LOG_DEBUG, "modified      : %s\n", str.modified);
-    IDAM_LOGF(UDA_LOG_DEBUG, "meta_id       : %d\n", str.meta_id);
-    IDAM_LOGF(UDA_LOG_DEBUG, "xml           : %s\n", str.xml);
-    IDAM_LOGF(UDA_LOG_DEBUG, "xml_creation  : %s\n", str.xml_creation);
+    UDA_LOG(UDA_LOG_DEBUG, "\nData Source Record\n\n");
+    UDA_LOG(UDA_LOG_DEBUG, "source_id     : %d\n", str.source_id);
+    UDA_LOG(UDA_LOG_DEBUG, "config_id     : %d\n", str.config_id);
+    UDA_LOG(UDA_LOG_DEBUG, "reason_id     : %d\n", str.reason_id);
+    UDA_LOG(UDA_LOG_DEBUG, "run_id        : %d\n", str.run_id);
+    UDA_LOG(UDA_LOG_DEBUG, "status_desc_id: %d\n", str.status_desc_id);
+    UDA_LOG(UDA_LOG_DEBUG, "exp_number    : %d\n", str.exp_number);
+    UDA_LOG(UDA_LOG_DEBUG, "pass          : %d\n", str.pass);
+    UDA_LOG(UDA_LOG_DEBUG, "status        : %d\n", str.status);
+    UDA_LOG(UDA_LOG_DEBUG, "status_reason_code: %d\n", str.status_reason_code);
+    UDA_LOG(UDA_LOG_DEBUG, "status_impact_code: %d\n", str.status_impact_code);
+    UDA_LOG(UDA_LOG_DEBUG, "access        : %c\n", str.access);
+    UDA_LOG(UDA_LOG_DEBUG, "reprocess     : %c\n", str.reprocess);
+    UDA_LOG(UDA_LOG_DEBUG, "type          : %c\n", str.type);
+    UDA_LOG(UDA_LOG_DEBUG, "source_alias  : %s\n", str.source_alias);
+    UDA_LOG(UDA_LOG_DEBUG, "pass_date     : %s\n", str.pass_date);
+    UDA_LOG(UDA_LOG_DEBUG, "archive       : %s\n", str.archive);
+    UDA_LOG(UDA_LOG_DEBUG, "device_name   : %s\n", str.device_name);
+    UDA_LOG(UDA_LOG_DEBUG, "format        : %s\n", str.format);
+    UDA_LOG(UDA_LOG_DEBUG, "path          : %s\n", str.path);
+    UDA_LOG(UDA_LOG_DEBUG, "filename      : %s\n", str.filename);
+    UDA_LOG(UDA_LOG_DEBUG, "server        : %s\n", str.server);
+    UDA_LOG(UDA_LOG_DEBUG, "userid        : %s\n", str.userid);
+    UDA_LOG(UDA_LOG_DEBUG, "reason_desc   : %s\n", str.reason_desc);
+    UDA_LOG(UDA_LOG_DEBUG, "run_desc      : %s\n", str.run_desc);
+    UDA_LOG(UDA_LOG_DEBUG, "status_desc   : %s\n", str.status_desc);
+    UDA_LOG(UDA_LOG_DEBUG, "creation      : %s\n", str.creation);
+    UDA_LOG(UDA_LOG_DEBUG, "modified      : %s\n", str.modified);
+    UDA_LOG(UDA_LOG_DEBUG, "meta_id       : %d\n", str.meta_id);
+    UDA_LOG(UDA_LOG_DEBUG, "xml           : %s\n", str.xml);
+    UDA_LOG(UDA_LOG_DEBUG, "xml_creation  : %s\n", str.xml_creation);
 }
 
 void printSignal(SIGNAL str)
 {
-    IDAM_LOG(UDA_LOG_DEBUG, "\nSignal Record\n\n");
-    IDAM_LOGF(UDA_LOG_DEBUG, "source_id         : %d\n", str.source_id);
-    IDAM_LOGF(UDA_LOG_DEBUG, "signal_desc_id    : %d\n", str.signal_desc_id);
-    IDAM_LOGF(UDA_LOG_DEBUG, "status_desc_id    : %d\n", str.status_desc_id);
-    IDAM_LOGF(UDA_LOG_DEBUG, "status            : %d\n", str.status);
-    IDAM_LOGF(UDA_LOG_DEBUG, "status_reason_code: %d\n", str.status_reason_code);
-    IDAM_LOGF(UDA_LOG_DEBUG, "status_impact_code: %d\n", str.status_impact_code);
-    IDAM_LOGF(UDA_LOG_DEBUG, "status_desc       : %s\n", str.status_desc);
-    IDAM_LOGF(UDA_LOG_DEBUG, "access            : %c\n", str.access);
-    IDAM_LOGF(UDA_LOG_DEBUG, "reprocess         : %c\n", str.reprocess);
-    IDAM_LOGF(UDA_LOG_DEBUG, "creation          : %s\n", str.creation);
-    IDAM_LOGF(UDA_LOG_DEBUG, "modified          : %s\n", str.modified);
-    IDAM_LOGF(UDA_LOG_DEBUG, "meta_id           : %d\n", str.meta_id);
-    IDAM_LOGF(UDA_LOG_DEBUG, "xml               : %s\n", str.xml);
-    IDAM_LOGF(UDA_LOG_DEBUG, "xml_creation      : %s\n", str.xml_creation);
+    UDA_LOG(UDA_LOG_DEBUG, "\nSignal Record\n\n");
+    UDA_LOG(UDA_LOG_DEBUG, "source_id         : %d\n", str.source_id);
+    UDA_LOG(UDA_LOG_DEBUG, "signal_desc_id    : %d\n", str.signal_desc_id);
+    UDA_LOG(UDA_LOG_DEBUG, "status_desc_id    : %d\n", str.status_desc_id);
+    UDA_LOG(UDA_LOG_DEBUG, "status            : %d\n", str.status);
+    UDA_LOG(UDA_LOG_DEBUG, "status_reason_code: %d\n", str.status_reason_code);
+    UDA_LOG(UDA_LOG_DEBUG, "status_impact_code: %d\n", str.status_impact_code);
+    UDA_LOG(UDA_LOG_DEBUG, "status_desc       : %s\n", str.status_desc);
+    UDA_LOG(UDA_LOG_DEBUG, "access            : %c\n", str.access);
+    UDA_LOG(UDA_LOG_DEBUG, "reprocess         : %c\n", str.reprocess);
+    UDA_LOG(UDA_LOG_DEBUG, "creation          : %s\n", str.creation);
+    UDA_LOG(UDA_LOG_DEBUG, "modified          : %s\n", str.modified);
+    UDA_LOG(UDA_LOG_DEBUG, "meta_id           : %d\n", str.meta_id);
+    UDA_LOG(UDA_LOG_DEBUG, "xml               : %s\n", str.xml);
+    UDA_LOG(UDA_LOG_DEBUG, "xml_creation      : %s\n", str.xml_creation);
 }
 
 void printSignalDesc(SIGNAL_DESC str)
 {
-    IDAM_LOG(UDA_LOG_DEBUG, "\nSignal Description Record\n\n");
-    IDAM_LOGF(UDA_LOG_DEBUG, "signal_desc_id: %d\n", str.signal_desc_id);
-    IDAM_LOGF(UDA_LOG_DEBUG, "signal_alias  : %s\n", str.signal_alias);
-    IDAM_LOGF(UDA_LOG_DEBUG, "signal_name   : %s\n", str.signal_name);
-    IDAM_LOGF(UDA_LOG_DEBUG, "generic_name  : %s\n", str.generic_name);
-    IDAM_LOGF(UDA_LOG_DEBUG, "rank          : %d\n", str.rank);
-    IDAM_LOGF(UDA_LOG_DEBUG, "range_start   : %d\n", str.range_start);
-    IDAM_LOGF(UDA_LOG_DEBUG, "range_stop    : %d\n", str.range_stop);
-    IDAM_LOGF(UDA_LOG_DEBUG, "signal_alias_type: %d\n", str.signal_alias_type);
-    IDAM_LOGF(UDA_LOG_DEBUG, "signal_map_id : %d\n", str.signal_map_id);
-    IDAM_LOGF(UDA_LOG_DEBUG, "type          : %c\n", str.type);
-    IDAM_LOGF(UDA_LOG_DEBUG, "source_alias  : %s\n", str.source_alias);
-    IDAM_LOGF(UDA_LOG_DEBUG, "description   : %s\n", str.description);
-    IDAM_LOGF(UDA_LOG_DEBUG, "signal_class  : %s\n", str.signal_class);
-    IDAM_LOGF(UDA_LOG_DEBUG, "signal_owner  : %s\n", str.signal_owner);
-    IDAM_LOGF(UDA_LOG_DEBUG, "modified      : %s\n", str.modified);
-    IDAM_LOGF(UDA_LOG_DEBUG, "creation      : %s\n", str.creation);
-    IDAM_LOGF(UDA_LOG_DEBUG, "meta_id       : %d\n", str.meta_id);
-    IDAM_LOGF(UDA_LOG_DEBUG, "xml           : %s\n", str.xml);
-    IDAM_LOGF(UDA_LOG_DEBUG, "xml_creation  : %s\n", str.xml_creation);
+    UDA_LOG(UDA_LOG_DEBUG, "\nSignal Description Record\n\n");
+    UDA_LOG(UDA_LOG_DEBUG, "signal_desc_id: %d\n", str.signal_desc_id);
+    UDA_LOG(UDA_LOG_DEBUG, "signal_alias  : %s\n", str.signal_alias);
+    UDA_LOG(UDA_LOG_DEBUG, "signal_name   : %s\n", str.signal_name);
+    UDA_LOG(UDA_LOG_DEBUG, "generic_name  : %s\n", str.generic_name);
+    UDA_LOG(UDA_LOG_DEBUG, "rank          : %d\n", str.rank);
+    UDA_LOG(UDA_LOG_DEBUG, "range_start   : %d\n", str.range_start);
+    UDA_LOG(UDA_LOG_DEBUG, "range_stop    : %d\n", str.range_stop);
+    UDA_LOG(UDA_LOG_DEBUG, "signal_alias_type: %d\n", str.signal_alias_type);
+    UDA_LOG(UDA_LOG_DEBUG, "signal_map_id : %d\n", str.signal_map_id);
+    UDA_LOG(UDA_LOG_DEBUG, "type          : %c\n", str.type);
+    UDA_LOG(UDA_LOG_DEBUG, "source_alias  : %s\n", str.source_alias);
+    UDA_LOG(UDA_LOG_DEBUG, "description   : %s\n", str.description);
+    UDA_LOG(UDA_LOG_DEBUG, "signal_class  : %s\n", str.signal_class);
+    UDA_LOG(UDA_LOG_DEBUG, "signal_owner  : %s\n", str.signal_owner);
+    UDA_LOG(UDA_LOG_DEBUG, "modified      : %s\n", str.modified);
+    UDA_LOG(UDA_LOG_DEBUG, "creation      : %s\n", str.creation);
+    UDA_LOG(UDA_LOG_DEBUG, "meta_id       : %d\n", str.meta_id);
+    UDA_LOG(UDA_LOG_DEBUG, "xml           : %s\n", str.xml);
+    UDA_LOG(UDA_LOG_DEBUG, "xml_creation  : %s\n", str.xml_creation);
 }
 
 #ifdef __GNUC__
@@ -347,13 +347,13 @@ void printPerformance(PERFORMANCE str)
 {
     int i;
     double testtime;
-    IDAM_LOG(UDA_LOG_DEBUG, "\n==================== Performance Report =================\n");
+    UDA_LOG(UDA_LOG_DEBUG, "\n==================== Performance Report =================\n");
     for (i = 0; i < str.npoints; i++) {
         testtime = (float) (str.tv_end[i].tv_sec - str.tv_start[i].tv_sec) * 1.0E6 +
                    (float) (str.tv_end[i].tv_usec - str.tv_start[i].tv_usec);
-        IDAM_LOGF(UDA_LOG_DEBUG, "%s %.2f (micro-secs)\n", str.label[i], (float) testtime);
+        UDA_LOG(UDA_LOG_DEBUG, "%s %.2f (micro-secs)\n", str.label[i], (float) testtime);
     }
-    IDAM_LOG(UDA_LOG_DEBUG, "=========================================================\n\n");
+    UDA_LOG(UDA_LOG_DEBUG, "=========================================================\n\n");
 }
 #endif
 

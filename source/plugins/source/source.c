@@ -56,7 +56,7 @@ int source_plugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     unsigned short housekeeping;
 
     if (idam_plugin_interface->interfaceVersion > THISPLUGIN_MAX_INTERFACE_VERSION) {
-        IDAM_LOG(UDA_LOG_ERROR, "Plugin Interface Version Unknown to this plugin: Unable to execute the request!\n");
+        UDA_LOG(UDA_LOG_ERROR, "Plugin Interface Version Unknown to this plugin: Unable to execute the request!\n");
         THROW_ERROR(999, "Plugin Interface Version Unknown to this plugin: Unable to execute the request!");
     }
 
@@ -357,8 +357,8 @@ static int do_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, int *timeCountCa
 	    else
 	       sprintf(next_request_block.source, "%s%sJPF%s%d", env, request_block->api_delim, request_block->api_delim, shotNumber);
          
-IDAM_LOGF(UDA_LOG_DEBUG, "SOURCE:signal #JPF = %s\n", next_request_block.signal);
-IDAM_LOGF(UDA_LOG_DEBUG, "SOURCE:source #JPF = %s\n", next_request_block.source);        
+UDA_LOG(UDA_LOG_DEBUG, "SOURCE:signal #JPF = %s\n", next_request_block.signal);
+UDA_LOG(UDA_LOG_DEBUG, "SOURCE:source #JPF = %s\n", next_request_block.source);        
 	 	 
 	 } else
 	  
@@ -380,8 +380,8 @@ IDAM_LOGF(UDA_LOG_DEBUG, "SOURCE:source #JPF = %s\n", next_request_block.source)
 	       if(isRunNumber) sprintf(next_request_block.source, "%s/%d", next_request_block.source, runNumber);
             }  	    	    
 
-IDAM_LOGF(UDA_LOG_DEBUG, "SOURCE:signal #MAST = %s\n", next_request_block.signal);
-IDAM_LOGF(UDA_LOG_DEBUG, "SOURCE:source #MAST = %s\n", next_request_block.source);        
+UDA_LOG(UDA_LOG_DEBUG, "SOURCE:signal #MAST = %s\n", next_request_block.signal);
+UDA_LOG(UDA_LOG_DEBUG, "SOURCE:source #MAST = %s\n", next_request_block.source);        
 	 	 
 	 } else  
 	  
@@ -446,8 +446,8 @@ IDAM_LOGF(UDA_LOG_DEBUG, "SOURCE:source #MAST = %s\n", next_request_block.source
 	 next_request_block.source[0] = '\0';
 	 strcpy(next_request_block.signal, work);  
 
-IDAM_LOGF(UDA_LOG_DEBUG, "SOURCE:signal #1 = %s\n", next_request_block.signal);	 
-IDAM_LOGF(UDA_LOG_DEBUG, "SOURCE:source #1 = %s\n", next_request_block.source);	  
+UDA_LOG(UDA_LOG_DEBUG, "SOURCE:signal #1 = %s\n", next_request_block.signal);	 
+UDA_LOG(UDA_LOG_DEBUG, "SOURCE:source #1 = %s\n", next_request_block.source);	  
 	 
 	 makeServerRequestBlock(&next_request_block, *pluginList); 
 	 
