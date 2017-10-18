@@ -1,6 +1,7 @@
 #ifndef UDA_WRAPPERS_CPP_SCALAR_H
 #define UDA_WRAPPERS_CPP_SCALAR_H
 
+#include <memory>
 #include <typeinfo>
 #include <boost/any.hpp>
 

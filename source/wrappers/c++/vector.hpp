@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include <memory>
 #include <boost/any.hpp>
 
 #include "data.hpp"
