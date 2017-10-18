@@ -48,7 +48,8 @@ PGconn *gDBConnect = NULL;
 
 // Continuously Measured Data
 
-static int readCMDSQL(PGconn* DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_source, DATA_BLOCK* data_block, USERDEFINEDTYPELIST* userdefinedtypelist)
+int readCMDSQL(PGconn* DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_source, DATA_BLOCK* data_block,
+               USERDEFINEDTYPELIST* userdefinedtypelist)
 {
 
     int i, ltpass, err = 0;
@@ -204,7 +205,8 @@ static int readCMDSQL(PGconn* DBConnect, REQUEST_BLOCK request_block, DATA_SOURC
 // For each archive:		list of data sources; list of data items.
 // External links:		list of known external devices and how to connect to them (web, idam, mds+).
 
-int readSQL(PGconn* DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_source, DATA_BLOCK* data_block, USERDEFINEDTYPELIST* userdefinedtypelist)
+int readSQL(PGconn* DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_source, DATA_BLOCK* data_block,
+            USERDEFINEDTYPELIST* userdefinedtypelist)
 {
     int err = 0;
 

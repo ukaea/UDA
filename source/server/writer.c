@@ -29,41 +29,6 @@ void updateSelectParms(int fd, fd_set* rfds, struct timeval* tv)
     }
 }
 
-int Writeout(void* iohandle, char* buf, int count)
-{
-
-// This routine is only called when there is something to write back to the Client
-
-    int rc;
-    int BytesSent = 0;
-
-    fd_set wfds;        // File Descriptor Set for Writing to the Socket
-    struct timeval tv;
-
-// Block IO until the Socket is ready to write to Client
-
-    setSelectParms(serverSocket, &wfds, &tv);
-
-    while (select(serverSocket + 1, NULL, &wfds, NULL, &tv) <= 0) {
-        server_tot_block_time += tv.tv_usec / 1000;
-        if (server_tot_block_time / 1000 > server_timeout) {
-            UDA_LOG(UDA_LOG_DEBUG, "Writeout: Total Blocking Time: %d (ms)\n", server_tot_block_time);
-        }
-        if (server_tot_block_time / 1000 > server_timeout) return -1;
-        updateSelectParms(serverSocket, &wfds, &tv);
-    }
-
-// Write to socket, checking for EINTR, as happens if called from IDL
-
-    while (BytesSent < count) {
-        while (((rc = (int) write(serverSocket, buf, count)) == -1) && (errno == EINTR)) {}
-        BytesSent += rc;
-        buf += rc;
-    }
-
-    return rc;
-}
-
 /*
 //-----------------------------------------------------------------------------------------
 // This routine is only called when the Server expects to Read something from the Client
@@ -124,7 +89,6 @@ int Readin(void* iohandle, char* buf, int count)
     return rc;
 }
 
-
 int Writeout(void* iohandle, char* buf, int count)
 {
 
@@ -143,7 +107,7 @@ int Writeout(void* iohandle, char* buf, int count)
     while (select(serverSocket + 1, NULL, &wfds, NULL, &tv) <= 0) {
         server_tot_block_time += tv.tv_usec / 1000;
         if (server_tot_block_time / 1000 > server_timeout) {
-            IDAM_LOGF(UDA_LOG_DEBUG, "Writeout: Total Blocking Time: %d (ms)\n", server_tot_block_time);
+            UDA_LOG(UDA_LOG_DEBUG, "Writeout: Total Blocking Time: %d (ms)\n", server_tot_block_time);
         }
         if (server_tot_block_time / 1000 > server_timeout) return -1;
         updateSelectParms(serverSocket, &wfds, &tv);
@@ -159,4 +123,3 @@ int Writeout(void* iohandle, char* buf, int count)
 
     return rc;
 }
-

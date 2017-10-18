@@ -16,7 +16,15 @@ public:
             : Data(false)
             , vec_(array, array + size)
             , type_(&typeid(T))
-    {}
+            , data_size_(size * sizeof(T))
+    {
+        auto copy = new T[size];
+        memcpy(copy, array, size * sizeof(T));
+        raw_data_ = std::shared_ptr<unsigned char>(reinterpret_cast<unsigned char*>(copy));
+    }
+
+    Vector(const Vector& other) = default;
+    Vector& operator=(const Vector& other) = default;
 
     const std::type_info& type() const override
     { return *type_; }
@@ -38,16 +46,30 @@ public:
 
     static Vector Null;
 
+    const unsigned char* byte_data() const override
+    {
+        return raw_data_.get();
+    }
+
+    size_t byte_length() const override
+    {
+        return data_size_;
+    }
+
 protected:
     Vector() noexcept
             : Data(true)
             , vec_()
             , type_(&typeid(void))
+            , raw_data_{}
+            , data_size_(0)
     {}
 
 private:
     std::vector<boost::any> vec_;
     const std::type_info* type_;
+    std::shared_ptr<unsigned char> raw_data_;
+    size_t data_size_;
 
     template <typename T>
     struct AnyCastTransform {

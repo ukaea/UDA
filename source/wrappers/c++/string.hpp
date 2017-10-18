@@ -30,6 +30,16 @@ public:
     const std::string& str() const
     { return str_; }
 
+    const unsigned char* byte_data() const override
+    {
+        return reinterpret_cast<const unsigned char*>(str_.data());
+    }
+
+    size_t byte_length() const override
+    {
+        return str_.size();
+    }
+
 private:
     std::string str_;
 };

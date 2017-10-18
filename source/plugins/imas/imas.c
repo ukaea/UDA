@@ -75,7 +75,8 @@ static int do_putIdsVersion(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
 static int do_putObject(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
 static int do_putObjectInObject(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
 static int do_releaseObject(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
-static int do_source(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, int* time_count_cache, char** time_cache, char** data_cache);
+static int
+do_source(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, int* time_count_cache, char** time_cache, char** data_cache);
 static int do_version(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
 
 #define MAXOBJECTCOUNT        10000
@@ -195,11 +196,11 @@ double getSliceTime2()
  */
 int findIMASType(const char* typeName)
 {
-    if (typeName == NULL)                   return UNKNOWN_TYPE;
-    if (StringIEquals(typeName, "int"))     return INT;
-    if (StringIEquals(typeName, "float"))   return FLOAT;
-    if (StringIEquals(typeName, "double"))  return DOUBLE;
-    if (StringIEquals(typeName, "string"))  return STRING;
+    if (typeName == NULL) return UNKNOWN_TYPE;
+    if (StringIEquals(typeName, "int")) return INT;
+    if (StringIEquals(typeName, "float")) return FLOAT;
+    if (StringIEquals(typeName, "double")) return DOUBLE;
+    if (StringIEquals(typeName, "string")) return STRING;
     return UNKNOWN_TYPE;
 }
 
@@ -211,12 +212,18 @@ int findIMASType(const char* typeName)
 int findIMASIDAMType(int type)
 {
     switch (type) {
-        case INT:           return UDA_TYPE_INT;
-        case FLOAT:         return UDA_TYPE_FLOAT;
-        case DOUBLE:        return UDA_TYPE_DOUBLE;
-        case STRING:        return UDA_TYPE_STRING;
-        case STRING_VECTOR: return UDA_TYPE_STRING;
-        default:            return UDA_TYPE_UNKNOWN;
+        case INT:
+            return UDA_TYPE_INT;
+        case FLOAT:
+            return UDA_TYPE_FLOAT;
+        case DOUBLE:
+            return UDA_TYPE_DOUBLE;
+        case STRING:
+            return UDA_TYPE_STRING;
+        case STRING_VECTOR:
+            return UDA_TYPE_STRING;
+        default:
+            return UDA_TYPE_UNKNOWN;
     }
     return UDA_TYPE_UNKNOWN;
 }
@@ -251,9 +258,10 @@ extern int imas(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     REQUEST_BLOCK* request_block = idam_plugin_interface->request_block;
 
     housekeeping = idam_plugin_interface->housekeeping;
-    
-    bool isReset = findValue(&idam_plugin_interface->request_block->nameValueList, "reset");	// Reset before initialisation
-    if(!isReset) isReset = findValue(&idam_plugin_interface->request_block->nameValueList, "initialise");
+
+    bool isReset = findValue(&idam_plugin_interface->request_block->nameValueList,
+                             "reset");    // Reset before initialisation
+    if (!isReset) isReset = findValue(&idam_plugin_interface->request_block->nameValueList, "initialise");
 
     if (isReset || housekeeping || !strcasecmp(request_block->function, "reset")) {
 
@@ -344,9 +352,9 @@ extern int imas(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     } else if (!strcasecmp(request_block->function, "createModel")) {
         err = do_createModel(idam_plugin_interface);
     } else if (!strcasecmp(request_block->function, "releaseObject") ||
-        !strcasecmp(request_block->function, "putObjectGroup") ||
-        !strcasecmp(request_block->function, "putObjectSlice") ||
-        !strcasecmp(request_block->function, "replaceLastObjectSlice")) {
+               !strcasecmp(request_block->function, "putObjectGroup") ||
+               !strcasecmp(request_block->function, "putObjectSlice") ||
+               !strcasecmp(request_block->function, "replaceLastObjectSlice")) {
         err = do_releaseObject(idam_plugin_interface);
     } else if (!strcasecmp(request_block->function, "getObjectObject")) {
         err = do_getObjectObject(idam_plugin_interface);
@@ -740,7 +748,7 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
                         retTime = sliceTime1;
                         break;
                     default:
-                        THROW_ERROR(999, "unknown interpolation type");
+                    THROW_ERROR(999, "unknown interpolation type");
                 }
                 if (rank == 0) {
                     switch (type) {
@@ -763,7 +771,7 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
                                     retData[0] = y1;
                                     break;
                                 default:
-                                    THROW_ERROR(999, "unknown interpolation type");
+                                THROW_ERROR(999, "unknown interpolation type");
                             }
                             imasData = (char*)retData;
                             break;
@@ -787,7 +795,7 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
                                     retData[0] = y1;
                                     break;
                                 default:
-                                    THROW_ERROR(999, "unknown interpolation type");
+                                THROW_ERROR(999, "unknown interpolation type");
                             }
                             imasData = (char*)retData;
                             break;
@@ -811,13 +819,13 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
                                     retData[0] = y1;
                                     break;
                                 default:
-                                    THROW_ERROR(999, "unknown interpolation type");
+                                THROW_ERROR(999, "unknown interpolation type");
                             }
                             imasData = (char*)retData;
                             break;
                         }
                         default:
-                            THROW_ERROR(999, "unknown data type");
+                        THROW_ERROR(999, "unknown data type");
                     }
                 } else if (rank >= 1) {
                     nItems = shape[0];
@@ -843,7 +851,7 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
                                         retData[i] = y1[2 * i];
                                         break;
                                     default:
-                                        THROW_ERROR(999, "unknown interpolation type");
+                                    THROW_ERROR(999, "unknown interpolation type");
                                 }
                             }
                             imasData = (char*)retData;
@@ -869,7 +877,7 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
                                         retData[i] = y1[2 * i];
                                         break;
                                     default:
-                                        THROW_ERROR(999, "unknown interpolation type");
+                                    THROW_ERROR(999, "unknown interpolation type");
                                 }
                             }
                             imasData = (char*)retData;
@@ -895,14 +903,14 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
                                         retData[i] = y1[2 * i];
                                         break;
                                     default:
-                                        THROW_ERROR(999, "unknown interpolation type");
+                                    THROW_ERROR(999, "unknown interpolation type");
                                 }
                             }
                             imasData = (char*)retData;
                             break;
                         }
                         default:
-                            THROW_ERROR(999, "unknown data type");
+                        THROW_ERROR(999, "unknown data type");
                     }
 
                 }    // rank >= 1
@@ -911,7 +919,7 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
 
     } else if (dataOperation == GETDIMENSION_OPERATION) {
         rc = imas_hdf5_GetDimension(clientIdx, CPOPath, path, &rank, &shape[0], &shape[1], &shape[2], &shape[3],
-                                   &shape[4], &shape[5], &shape[6]);
+                                    &shape[4], &shape[5], &shape[6]);
     }
 
     if (rc < 0 || (!isGetDimension && imasData == NULL)) {
@@ -956,7 +964,7 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
             break;
         }
         default:
-            THROW_ERROR(999, "unknown data operation");
+        THROW_ERROR(999, "unknown data operation");
     }
 
     // Return dimensions
@@ -1184,7 +1192,8 @@ time	- the time slice to be written - from a PUTDATA block (putSlice keyword)
 
 // Which Data Operation?
     bool isPutDataSlice = findValue(&idam_plugin_interface->request_block->nameValueList, "putDataSlice");
-    bool isReplaceLastDataSlice = findValue(&idam_plugin_interface->request_block->nameValueList, "replaceLastDataSlice");
+    bool isReplaceLastDataSlice = findValue(&idam_plugin_interface->request_block->nameValueList,
+                                            "replaceLastDataSlice");
 
     int dataOperation = PUT_OPERATION;
     if (isPutDataSlice) {
@@ -1327,7 +1336,7 @@ time	- the time slice to be written - from a PUTDATA block (putSlice keyword)
             bool isTimed = findValue(&idam_plugin_interface->request_block->nameValueList, "timed");
 
             rc = imas_hdf5_putData(clientIdx, CPOPath, path, type, putDataBlock->rank, putDataBlock->shape, isTimed,
-                              (void*)putDataBlock->data);
+                                   (void*)putDataBlock->data);
         } else {
             if (dataOperation == PUTSLICE_OPERATION) {
                 PUTDATA_BLOCK* putTimeBlock = NULL;
@@ -1348,7 +1357,7 @@ time	- the time slice to be written - from a PUTDATA block (putSlice keyword)
                     THROW_ERROR(999, "Slice Time type and count are incorrect!");
                 }
                 rc = imas_hdf5_putDataX(clientIdx, CPOPath, path, type, putDataBlock->rank, putDataBlock->shape,
-                                   dataOperation, (void*)putDataBlock->data, ((double*)putTimeBlock->data)[0]);
+                                        dataOperation, (void*)putDataBlock->data, ((double*)putTimeBlock->data)[0]);
             } else {
                 rc = imas_hdf5_putDataX(clientIdx, CPOPath, path, type, rank, shape, dataOperation, putdata, 0.0);
             }    // Replace Last Slice
@@ -1994,7 +2003,7 @@ static int do_putObject(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Create the shape array if the rank is 1 (not passed by IDAM)
 
-    int* shape = (int*) malloc(sizeof(int));
+    int* shape = (int*)malloc(sizeof(int));
     if (putDataBlockList->putDataBlock[1].rank == 1 && putDataBlockList->putDataBlock[1].shape == NULL) {
         putDataBlockList->putDataBlock[1].shape = shape;
         shape[0] = putDataBlockList->putDataBlock[1].count;
@@ -2069,7 +2078,8 @@ static int do_putObjectInObject(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 //		/NoCacheTime	Don't cache the time coordinate data after a request for the "data" using the /data keyword. Cacheing is the default with the cache cleared after time data are returned.
 //		/NoCacheData	Don't cache the measurement data after a request for the "data" using the /data keyword. Cacheing is the default.
 
-static int do_source(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, int *timeCountCache, char **timeCache, char **dataCache)
+static int
+do_source(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, int* timeCountCache, char** timeCache, char** dataCache)
 {
     int err = 0;
     DATA_BLOCK* data_block = idam_plugin_interface->data_block;
@@ -2078,10 +2088,10 @@ static int do_source(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, int *timeCoun
     static char time_label_cache[STRING_LENGTH];
     static char signal_cache[STRING_LENGTH];
     static char source_cache[STRING_LENGTH];
-    
+
     int time_count_cache = *timeCountCache;
-    char *time_cache = *timeCache;
-    char *data_cache = *dataCache;
+    char* time_cache = *timeCache;
+    char* data_cache = *dataCache;
 
     char api_signal[STRING_LENGTH];
     char api_source[STRING_LENGTH];
@@ -2101,7 +2111,7 @@ static int do_source(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, int *timeCoun
 
     const char* signal;
     FIND_REQUIRED_STRING_VALUE(request_block->nameValueList, signal);
-    
+
     const char* source;
     bool isSource = FIND_STRING_VALUE(request_block->nameValueList, source);
 
@@ -2140,13 +2150,13 @@ static int do_source(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, int *timeCoun
     bool isFormat = FIND_STRING_VALUE(request_block->nameValueList, format);
 
     if (isFormat && !strcasecmp(format, "ppf")) {            // JET PPF source naming pattern
-        
-        if(!isSource){
+
+        if (!isSource) {
             THROW_ERROR(999, "No PPF DDA data source has been specified!");
         }
 
         char* env = getenv("UDA_JET_DEVICE_ALIAS");
-	
+
         //host = getenv("UDA_JET_HOST");
         //port = atoi(getenv("UDA_JET_PORT"));
 
@@ -2188,26 +2198,26 @@ static int do_source(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, int *timeCoun
     } else if (isFormat && !strcasecmp(format, "MAST")) {        // MAST source naming pattern
 
         char* env = getenv("UDA_MAST_DEVICE_ALIAS");
-        
-	//host = getenv("UDA_MAST_HOST");
+
+        //host = getenv("UDA_MAST_HOST");
         //port = atoi(getenv("UDA_MAST_PORT"));
 
         int runNumber;
         bool isRunNumber = FIND_INT_VALUE(request_block->nameValueList, runNumber);
 
-        if(!isShotNumber && !isRunNumber)                   // Reuse the orignal source
-	    if(env == NULL)
-	       strcpy(next_request_block.source, request_block->source);
-	    else	  		
-	       sprintf(next_request_block.source, "%s%s%s", env, request_block->api_delim, request_block->source);       
-	 else {
-	    if(env == NULL)
-	       sprintf(next_request_block.source, "%d", shotNumber);
-	    else
-	       sprintf(next_request_block.source, "%s%s%d", env, request_block->api_delim, shotNumber);
-	    if(isRunNumber) sprintf(next_request_block.source, "%s/%d", next_request_block.source, runNumber);
-         }  	    	    
-	    
+        if (!isShotNumber && !isRunNumber) {                   // Reuse the orignal source
+            if (env == NULL)
+                strcpy(next_request_block.source, request_block->source);
+            else
+                sprintf(next_request_block.source, "%s%s%s", env, request_block->api_delim, request_block->source);
+        } else {
+            if (env == NULL)
+                sprintf(next_request_block.source, "%d", shotNumber);
+            else
+                sprintf(next_request_block.source, "%s%s%d", env, request_block->api_delim, shotNumber);
+            if (isRunNumber) sprintf(next_request_block.source, "%s/%d", next_request_block.source, runNumber);
+        }
+
     } else if (isFormat && (!strcasecmp(format, "mds") || !strcasecmp(format, "mdsplus") ||
                             !strcasecmp(format, "mds+"))) {    // MDS+ source naming pattern
 
@@ -2252,10 +2262,12 @@ static int do_source(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, int *timeCoun
     char* env = getenv("UDA_CLIENT_PLUGIN");
 
     if (env != NULL) {
-        sprintf(work, "%s::get(host=%s, port=%d, signal=\"%s\", source=\"%s\")", env, getIdamServerHost(), getIdamServerPort(),
+        sprintf(work, "%s::get(host=%s, port=%d, signal=\"%s\", source=\"%s\")", env, getIdamServerHost(),
+                getIdamServerPort(),
                 next_request_block.signal, next_request_block.source);
     } else {
-        sprintf(work, "UDA::get(host=%s, port=%d, signal=\"%s\", source=\"%s\")", getIdamServerHost(), getIdamServerPort(),
+        sprintf(work, "UDA::get(host=%s, port=%d, signal=\"%s\", source=\"%s\")", getIdamServerHost(),
+                getIdamServerPort(),
                 next_request_block.signal, next_request_block.source);
     }
 
@@ -2344,7 +2356,7 @@ static int do_source(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, int *timeCoun
                     }
                     data_block->dims[0].dim = (char*)dimdata;
                 }
-                memcpy(time_cache, data_block->dims[0].dim, *time_count_cache * sizeof(double));
+                memcpy(time_cache, data_block->dims[0].dim, time_count_cache * sizeof(double));
             } else {
                 float* data = (float*)data_block->dims[0].dim;
                 double* dimdata = (double*)malloc(time_count_cache * sizeof(double));
@@ -2481,10 +2493,10 @@ static int do_source(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, int *timeCoun
             THROW_ERROR(999, "Data Access is not available for this data request!");
         }
     }
-	 
+
     *timeCache = time_cache;
     *dataCache = data_cache;
-    *timeCountCache = time_count_cache;  	
+    *timeCountCache = time_count_cache;
 
     return err;
 }

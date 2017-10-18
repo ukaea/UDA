@@ -18,7 +18,7 @@ include_directories(
   ${OPENSSL_INCLUDE_DIR}
 )
 
-add_library( authentication-client-objects OBJECT ${SRC_FILES} )
-add_library( authentication-server-objects OBJECT ${SRC_FILES} )
+add_library( authentication-client-objects OBJECT ${SRC_FILES} ${HEADER_FILES} )
+add_library( authentication-server-objects OBJECT ${SRC_FILES} ${HEADER_FILES} )
 
 target_compile_definitions( authentication-server-objects PRIVATE -DSERVERBUILD )

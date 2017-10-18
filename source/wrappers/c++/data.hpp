@@ -24,6 +24,9 @@ public:
 
     virtual const std::type_info& type() const = 0;
 
+    virtual const unsigned char* byte_data() const = 0;
+    virtual size_t byte_length() const = 0;
+
 protected:
     bool isnull_;
 };

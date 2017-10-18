@@ -1066,7 +1066,6 @@ int handshakeClient(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block, REQU
 
 int startupServer(SERVER_BLOCK* server_block)
 {
-    int err = 0;
     static int socket_list_initialised = 0;
     static int plugin_list_initialised = 0;
     static int fileParsed = 0;

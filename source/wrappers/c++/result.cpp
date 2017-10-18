@@ -63,15 +63,6 @@ int uda::Result::errorCode() const
     return getIdamErrorCode(handle_);
 }
 
-namespace {
-//std::string to_string(int num)
-//{
-//    std::ostringstream ss;
-//    ss << num;
-//    return ss.str();
-//}
-}
-
 uda::Result::Result(int handle)
         : handle_(handle), label_(handle >= 0 ? getIdamDataLabel(handle) : ""),
           units_(handle >= 0 ? getIdamDataUnits(handle) : ""),
@@ -82,13 +73,17 @@ uda::Result::Result(int handle)
           size_(handle >= 0 ? static_cast<std::size_t>(getIdamDataNum(handle)) : 0)
 {
     if (handle >= 0 && (bool)getIdamProperties(handle)->get_meta) {
-//        DATA_SOURCE* source = getIdamDataSource(handle);
-//        meta_["path"] = source->path;
-//        meta_["filename"] = source->filename;
-//        meta_["format"] = source->format;
-//        meta_["exp_number"] = to_string(source->exp_number);
-//        meta_["pass"] = to_string(source->pass);
-//        meta_["pass_date"] = source->pass_date;
+        SIGNAL_DESC* signal_desc = getIdamSignalDesc(handle);
+        meta_["signal_name"] = signal_desc->signal_name;
+        meta_["signal_alias"] = signal_desc->signal_alias;
+
+        DATA_SOURCE* source = getIdamDataSource(handle);
+        meta_["path"] = source->path;
+        meta_["filename"] = source->filename;
+        meta_["format"] = source->format;
+        meta_["exp_number"] = std::to_string(source->exp_number);
+        meta_["pass"] = std::to_string(source->pass);
+        meta_["pass_date"] = source->pass_date;
     }
     istree_ = (setIdamDataTree(handle) != 0);
 }

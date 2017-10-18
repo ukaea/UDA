@@ -9,28 +9,16 @@
 extern "C" {
 #endif
 
-#define API_DEVICE "JET"            // Must be consistent with the Data Server
-
 #define THISPLUGIN_VERSION                  1
 #define THISPLUGIN_MAX_INTERFACE_VERSION    1
-#define THISPLUGIN_DEFAULT_METHOD        "help"
+#define THISPLUGIN_DEFAULT_METHOD           "help"
 
 #define CONTEXT_DATA        1        // Default
 #define CONTEXT_META        2
 #define CONTEXT_CPF         3
 
-#define CASTROW            1        // Default
+#define CASTROW             1        // Default
 #define CASTCOLUMN          2
-
-/*
-#define SCALARSTRING		1		// Default
-#define ARRAYSTRING		    2
-
-#define SCALARINT		    1		// Default
-#define ARRAYINT		    2
-#define SCALARUINT		    3
-#define ARRAYUINT		    4
-*/
 
 struct METAHELP
 {

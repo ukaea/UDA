@@ -2959,7 +2959,6 @@ void getIdamFloatDimAsymmetricError(int handle, int ndim, int above, float* fp)
             break;
         }
     }
-    return;
 }
 
 //!  Returns coordinate error data cast to single precision
@@ -2983,8 +2982,9 @@ void getIdamFloatDimError(int handle, int ndim, float* fp)
 DATA_SYSTEM* getIdamDataSystem(int handle)
 {
     if (handle < 0 || handle >= Data_Block_Count) return NULL;
-    return (DATA_SYSTEM*)Data_Block[handle].data_system;
+    return Data_Block[handle].data_system;
 }
+
 //!  Returns a pointer to the SYSTEM_CONFIG Meta Data structure
 /** A copy of the \b system_config database table record
 \param   handle   The data object handle
@@ -2993,8 +2993,9 @@ DATA_SYSTEM* getIdamDataSystem(int handle)
 SYSTEM_CONFIG* getIdamSystemConfig(int handle)
 {
     if (handle < 0 || handle >= Data_Block_Count) return NULL;
-    return (SYSTEM_CONFIG*)Data_Block[handle].system_config;
+    return Data_Block[handle].system_config;
 }
+
 //!  Returns a pointer to the DATA_SOURCE Meta Data structure
 /** A copy of the \b data_source database table record - the location of data
 \param   handle   The data object handle
@@ -3003,8 +3004,9 @@ SYSTEM_CONFIG* getIdamSystemConfig(int handle)
 DATA_SOURCE* getIdamDataSource(int handle)
 {
     if (handle < 0 || handle >= Data_Block_Count) return NULL;
-    return (DATA_SOURCE*)Data_Block[handle].data_source;
+    return Data_Block[handle].data_source;
 }
+
 //!  Returns a pointer to the SIGNAL Meta Data structure
 /** A copy of the \b signal database table record
 \param   handle   The data object handle
@@ -3013,8 +3015,9 @@ DATA_SOURCE* getIdamDataSource(int handle)
 SIGNAL* getIdamSignal(int handle)
 {
     if (handle < 0 || handle >= Data_Block_Count) return NULL;
-    return (SIGNAL*)Data_Block[handle].signal_rec;
+    return Data_Block[handle].signal_rec;
 }
+
 //!  Returns a pointer to the SIGNAL_DESC Meta Data structure
 /** A copy of the \b signal_desc database table record - a description of the data signal/object
 \param   handle   The data object handle
@@ -3023,7 +3026,7 @@ SIGNAL* getIdamSignal(int handle)
 SIGNAL_DESC* getIdamSignalDesc(int handle)
 {
     if (handle < 0 || handle >= Data_Block_Count) return NULL;
-    return (SIGNAL_DESC*)Data_Block[handle].signal_desc;
+    return Data_Block[handle].signal_desc;
 }
 
 //!  Returns a pointer to the File Format string returned in the DATA_SOURCE metadata record
@@ -3039,21 +3042,17 @@ char* getIdamFileFormat(int handle)
     return data_source->format;
 }
 
-
-
 //-----------------------------------------------------------------------------------------------------------
 // Various Utilities
 
 void initIdamDataBlock(DATA_BLOCK* str)
 {
     initDataBlock(str);
-    return;
 }
 
 void initIdamRequestBlock(REQUEST_BLOCK* str)
 {
     initRequestBlock(str);
-    return;
 }
 
 int idamDataCheckSum(void* data, int data_n, int type)
