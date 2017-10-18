@@ -71,7 +71,7 @@ int get_lastshot(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
   int nRows = PQntuples(DBQuery);
   
   if (nRows == 0) {
-    IDAM_LOG(UDA_LOG_DEBUG, "No rows found\n");
+    UDA_LOG(UDA_LOG_DEBUG, "No rows found\n");
     
     PQclear(DBQuery);
     PQfinish(DBConnect);
@@ -79,7 +79,7 @@ int get_lastshot(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
   }
 
   if (PQgetisnull(DBQuery, 0, 0)) {
-    IDAM_LOG(UDA_LOG_DEBUG, "exp_number not found in row returned by query\n");
+    UDA_LOG(UDA_LOG_DEBUG, "exp_number not found in row returned by query\n");
     
     PQclear(DBQuery);
     PQfinish(DBConnect);
@@ -98,21 +98,21 @@ int get_lastshot(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
   usertype.imagecount = 0;                // No Structure Image data
   usertype.image = NULL;
   usertype.size = sizeof(DATALASTSHOT);        // Structure size
-  usertype.idamclass = TYPE_COMPOUND;
+  usertype.idamclass = UDA_TYPE_COMPOUND;
 
   int offset = 0;
   defineField(&field, "lastshot", "last shot number", &offset, SCALARUINT);
   addCompoundField(&usertype, field);        // Single Structure element
-  addUserDefinedType(userdefinedtypelist, usertype);
+  addUserDefinedType(idam_plugin_interface->userdefinedtypelist, usertype);
 
   // Create Data
   DATALASTSHOT* data;
   data = (DATALASTSHOT*)malloc(sizeof(DATALASTSHOT));    // Structured Data Must be a heap variable
-  addMalloc((void*)data, 1, sizeof(DATALASTSHOT), "DATALASTSHOT");
+  addMalloc(idam_plugin_interface->logmalloclist, (void*)data, 1, sizeof(DATALASTSHOT), "DATALASTSHOT");
 
   data->lastshot = atoi(PQgetvalue(DBQuery, 0, 0));
 
-  IDAM_LOGF(UDA_LOG_DEBUG, "getLastShot: %d\n", data->lastshot);
+  UDA_LOG(UDA_LOG_DEBUG, "getLastShot: %d\n", data->lastshot);
 
   PQclear(DBQuery);
 
@@ -120,7 +120,7 @@ int get_lastshot(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
   DATA_BLOCK* data_block = idam_plugin_interface->data_block;
   initDataBlock(data_block);
 
-  data_block->data_type = TYPE_COMPOUND;
+  data_block->data_type = UDA_TYPE_COMPOUND;
   data_block->rank = 0;
   data_block->data_n = 1;
   data_block->data = (char*)data;
@@ -129,11 +129,11 @@ int get_lastshot(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
   strcpy(data_block->data_label, "");
   strcpy(data_block->data_units, "");
   
-  data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
+  data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
   data_block->opaque_count = 1;
-  data_block->opaque_block = (void*)findUserDefinedType("DATALASTSHOT", 0);
+  data_block->opaque_block = (void*)findUserDefinedType(idam_plugin_interface->userdefinedtypelist, "DATALASTSHOT", 0);
   
-  IDAM_LOG(UDA_LOG_DEBUG, "readMetaNew: Function getLastShot called\n");
+  UDA_LOG(UDA_LOG_DEBUG, "readMetaNew: Function getLastShot called\n");
 
   PQfinish(DBConnect);
 
@@ -164,7 +164,7 @@ int get_lastpass(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
   sprintf(query, "SELECT pass, type FROM data_source WHERE source_alias='%s' AND exp_number='%d' "
 	  "ORDER BY pass DESC LIMIT 1", source, shot);
 
-  IDAM_LOGF(UDA_LOG_DEBUG, "Query %s\n", query);
+  UDA_LOG(UDA_LOG_DEBUG, "Query %s\n", query);
 
   if ((DBQuery = PQexec(DBConnect, query)) == NULL) {
     RAISE_PLUGIN_ERROR("Database query failed.\n");
@@ -180,7 +180,7 @@ int get_lastpass(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
   int nRows = PQntuples(DBQuery);
   
   if (nRows == 0) {
-    IDAM_LOG(UDA_LOG_DEBUG, "no rows found\n");
+    UDA_LOG(UDA_LOG_DEBUG, "no rows found\n");
     
     PQclear(DBQuery);
     PQfinish(DBConnect);
@@ -188,7 +188,7 @@ int get_lastpass(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
   }
 
   if (PQgetisnull(DBQuery, 0, 0) || PQgetisnull(DBQuery, 0, 1)) {
-    IDAM_LOG(UDA_LOG_DEBUG, "exp_number not found in row returned by query\n");
+    UDA_LOG(UDA_LOG_DEBUG, "exp_number not found in row returned by query\n");
     
     PQclear(DBQuery);
     PQfinish(DBConnect);
@@ -213,23 +213,23 @@ int get_lastpass(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
   usertype.imagecount = 0;                // No Structure Image data
   usertype.image = NULL;
   usertype.size = sizeof(DATALASTPASS);        // Structure size
-  usertype.idamclass = TYPE_COMPOUND;
+  usertype.idamclass = UDA_TYPE_COMPOUND;
 
   int offset = 0;
   defineField(&field, "lastpass", "last pass", &offset, SCALARUINT);
   addCompoundField(&usertype, field);        // Single Structure element
-  addUserDefinedType(userdefinedtypelist, usertype);
+  addUserDefinedType(idam_plugin_interface->userdefinedtypelist, usertype);
 
   // Create Data
   DATALASTPASS* data;
   data = (DATALASTPASS*)malloc(sizeof(DATALASTPASS));    // Structured Data Must be a heap variable
-  addMalloc((void*)data, 1, sizeof(DATALASTPASS), "DATALASTPASS");
+  addMalloc(idam_plugin_interface->logmalloclist, (void*)data, 1, sizeof(DATALASTPASS), "DATALASTPASS");
 
-  IDAM_LOGF(UDA_LOG_DEBUG, "lastpass from query %s\n", PQgetvalue(DBQuery, 0, 0));
+  UDA_LOG(UDA_LOG_DEBUG, "lastpass from query %s\n", PQgetvalue(DBQuery, 0, 0));
 
   data->lastpass = atoi(PQgetvalue(DBQuery, 0, 0));
 
-  IDAM_LOGF(UDA_LOG_DEBUG, "get_lastpass: %d\n", data->lastpass);
+  UDA_LOG(UDA_LOG_DEBUG, "get_lastpass: %d\n", data->lastpass);
 
   PQclear(DBQuery);
 
@@ -237,7 +237,7 @@ int get_lastpass(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
   DATA_BLOCK* data_block = idam_plugin_interface->data_block;
   initDataBlock(data_block);
 
-  data_block->data_type = TYPE_COMPOUND;
+  data_block->data_type = UDA_TYPE_COMPOUND;
   data_block->rank = 0;
   data_block->data_n = 1;
   data_block->data = (char*)data;
@@ -246,11 +246,11 @@ int get_lastpass(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
   strcpy(data_block->data_label, "");
   strcpy(data_block->data_units, "");
   
-  data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
+  data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
   data_block->opaque_count = 1;
-  data_block->opaque_block = (void*)findUserDefinedType("DATALASTPASS", 0);
+  data_block->opaque_block = (void*)findUserDefinedType(idam_plugin_interface->userdefinedtypelist, "DATALASTPASS", 0);
   
-  IDAM_LOG(UDA_LOG_DEBUG, "readMetaNew: Function get_lastpass called\n");
+  UDA_LOG(UDA_LOG_DEBUG, "readMetaNew: Function get_lastpass called\n");
 
   PQfinish(DBConnect);
 
@@ -291,7 +291,7 @@ int get_shotdatetime(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
   int nRows = PQntuples(DBQuery);
   
   if (nRows == 0) {
-    IDAM_LOG(UDA_LOG_DEBUG, "no rows returned by query\n");
+    UDA_LOG(UDA_LOG_DEBUG, "no rows returned by query\n");
     
     PQclear(DBQuery);
     PQfinish(DBConnect);
@@ -302,7 +302,7 @@ int get_shotdatetime(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
   int s_exptime = PQfnumber(DBQuery, "exp_time");
 
   if (PQgetisnull(DBQuery, 0, s_expdate) || PQgetisnull(DBQuery, 0, s_exptime)) {
-    IDAM_LOG(UDA_LOG_DEBUG, "Date and time returned from query are null\n");
+    UDA_LOG(UDA_LOG_DEBUG, "Date and time returned from query are null\n");
     
     PQclear(DBQuery);
     PQfinish(DBConnect);
@@ -321,7 +321,7 @@ int get_shotdatetime(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
   usertype.imagecount = 0;                // No Structure Image data
   usertype.image = NULL;
   usertype.size = sizeof(DATASHOTDATETIME);    // Structure size
-  usertype.idamclass = TYPE_COMPOUND;
+  usertype.idamclass = UDA_TYPE_COMPOUND;
   
   int offset = 0;
   
@@ -332,30 +332,30 @@ int get_shotdatetime(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
   defineField(&field, "time", "shot time", &offset, SCALARSTRING);
   addCompoundField(&usertype, field);
   
-  addUserDefinedType(userdefinedtypelist, usertype);
+  addUserDefinedType(idam_plugin_interface->userdefinedtypelist, usertype);
   
   // Create Data
   
   DATASHOTDATETIME* data;
   data = (DATASHOTDATETIME*)malloc(sizeof(DATASHOTDATETIME));    // Structured Data Must be a heap variable
-  addMalloc((void*)data, 1, sizeof(DATASHOTDATETIME), "DATASHOTDATETIME");
+  addMalloc(idam_plugin_interface->logmalloclist, (void*)data, 1, sizeof(DATASHOTDATETIME), "DATASHOTDATETIME");
   
   data->shot = shot;
     
   int stringLength = strlen(PQgetvalue(DBQuery, 0, s_expdate)) + 1;
   data->date = (char*)malloc(stringLength * sizeof(char));
   strcpy(data->date, PQgetvalue(DBQuery, 0, s_expdate));
-  addMalloc((void*)data->date, 1, stringLength * sizeof(char), "char");
+  addMalloc(idam_plugin_interface->logmalloclist, (void*)data->date, 1, stringLength * sizeof(char), "char");
 
   stringLength = strlen(PQgetvalue(DBQuery, 0, s_exptime)) + 1;
   data->time = (char*)malloc(stringLength * sizeof(char));
   strcpy(data->time, PQgetvalue(DBQuery, 0, s_exptime));
-  addMalloc((void*)data->time, 1, stringLength * sizeof(char), "char");
+  addMalloc(idam_plugin_interface->logmalloclist, (void*)data->time, 1, stringLength * sizeof(char), "char");
 
-  IDAM_LOG(UDA_LOG_DEBUG, "getShotDateTime:\n");
-  IDAM_LOGF(UDA_LOG_DEBUG, "Shot: %d\n", data->shot);
-  IDAM_LOGF(UDA_LOG_DEBUG, "Date: %s\n", data->date);
-  IDAM_LOGF(UDA_LOG_DEBUG, "Time: %s\n", data->time);
+  UDA_LOG(UDA_LOG_DEBUG, "getShotDateTime:\n");
+  UDA_LOG(UDA_LOG_DEBUG, "Shot: %d\n", data->shot);
+  UDA_LOG(UDA_LOG_DEBUG, "Date: %s\n", data->date);
+  UDA_LOG(UDA_LOG_DEBUG, "Time: %s\n", data->time);
 
   PQclear(DBQuery);
 	    
@@ -363,7 +363,7 @@ int get_shotdatetime(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
   DATA_BLOCK* data_block = idam_plugin_interface->data_block;
   initDataBlock(data_block);
 
-  data_block->data_type = TYPE_COMPOUND;
+  data_block->data_type = UDA_TYPE_COMPOUND;
   data_block->rank = 0;
   data_block->data_n = 1;
   data_block->data = (char*)data;
@@ -372,11 +372,11 @@ int get_shotdatetime(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
   strcpy(data_block->data_label, "");
   strcpy(data_block->data_units, "");
   
-  data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
+  data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
   data_block->opaque_count = 1;
-  data_block->opaque_block = (void*)findUserDefinedType("DATASHOTDATETIME", 0);
+  data_block->opaque_block = (void*)findUserDefinedType(idam_plugin_interface->userdefinedtypelist, "DATASHOTDATETIME", 0);
   
-  IDAM_LOG(UDA_LOG_DEBUG, "readMeta: Function getShotDateTime called\n");
+  UDA_LOG(UDA_LOG_DEBUG, "readMeta: Function getShotDateTime called\n");
   
   PQfinish(DBConnect);
 
@@ -498,7 +498,7 @@ int get_listsignals(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 	    " ORDER BY signal_alias ASC");
   }
   
-  IDAM_LOGF(UDA_LOG_DEBUG, "Query %s\n", query);
+  UDA_LOG(UDA_LOG_DEBUG, "Query %s\n", query);
 
   // Query 
   if ((DBQuery = PQexec(DBConnect, query)) == NULL) {
@@ -507,7 +507,7 @@ int get_listsignals(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
   int nRows = PQntuples(DBQuery);
   if (nRows == 0) {
-    IDAM_LOG(UDA_LOG_DEBUG, "no rows found\n");
+    UDA_LOG(UDA_LOG_DEBUG, "no rows found\n");
     
     PQclear(DBQuery);
     PQfinish(DBConnect);
@@ -535,7 +535,7 @@ int get_listsignals(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     usertype.ref_id = 0;
     usertype.imagecount = 0;                // No Structure Image data
     usertype.image = NULL;
-    usertype.idamclass = TYPE_COMPOUND;
+    usertype.idamclass = UDA_TYPE_COMPOUND;
     
     int offset = 0;
 
@@ -550,48 +550,48 @@ int get_listsignals(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     defineField(&field, "signal_name", "signal name", &offset,
 		ARRAYSTRING);    // Array of strings, arbitrary length
     // **** NameSpace collision: remove from libidamr.so
-    field.atomictype = TYPE_STRING;
+    field.atomictype = UDA_TYPE_STRING;
     addCompoundField(&usertype, field);
     defineField(&field, "generic_name", "generic name", &offset, ARRAYSTRING);
-    field.atomictype = TYPE_STRING;
+    field.atomictype = UDA_TYPE_STRING;
     addCompoundField(&usertype, field);
     defineField(&field, "source_alias", "source alias name", &offset, ARRAYSTRING);
-    field.atomictype = TYPE_STRING;
+    field.atomictype = UDA_TYPE_STRING;
     addCompoundField(&usertype, field);
     defineField(&field, "type", "data type classification", &offset, ARRAYSTRING);
-    field.atomictype = TYPE_STRING;
+    field.atomictype = UDA_TYPE_STRING;
     addCompoundField(&usertype, field);
     defineField(&field, "description", "data description", &offset, ARRAYSTRING);
-    field.atomictype = TYPE_STRING;
+    field.atomictype = UDA_TYPE_STRING;
     addCompoundField(&usertype, field);
    
     // Make it so that you only get signal status if you've given an exp num.
     defineField(&field, "signal_status", "signal status", &offset, ARRAYINT);
-    field.atomictype = TYPE_INT;
+    field.atomictype = UDA_TYPE_INT;
     addCompoundField(&usertype, field);
 
-    addUserDefinedType(userdefinedtypelist, usertype);
+    addUserDefinedType(idam_plugin_interface->userdefinedtypelist, usertype);
 
-    IDAM_LOG(UDA_LOG_DEBUG, "listData:\n");
-    IDAM_LOGF(UDA_LOG_DEBUG, "Shot: %d\n", shot);
-    IDAM_LOGF(UDA_LOG_DEBUG, "Pass: %d\n", pass);
+    UDA_LOG(UDA_LOG_DEBUG, "listData:\n");
+    UDA_LOG(UDA_LOG_DEBUG, "Shot: %d\n", shot);
+    UDA_LOG(UDA_LOG_DEBUG, "Pass: %d\n", pass);
 
     DATALISTSIGNALS_C* data;
     data = (DATALISTSIGNALS_C*)malloc(sizeof(DATALISTSIGNALS_C));
-    addMalloc((void*)data, 1, sizeof(DATALISTSIGNALS_C), "DATALISTSIGNALS_C");
+    addMalloc(idam_plugin_interface->logmalloclist, (void*)data, 1, sizeof(DATALISTSIGNALS_C), "DATALISTSIGNALS_C");
     
     data->signal_name = (char**)malloc(nRows * sizeof(char*));
-    addMalloc((void*)data->signal_name, nRows, sizeof(char*), "STRING *");
+    addMalloc(idam_plugin_interface->logmalloclist, (void*)data->signal_name, nRows, sizeof(char*), "STRING *");
     data->generic_name = (char**)malloc(nRows * sizeof(char*));
-    addMalloc((void*)data->generic_name, nRows, sizeof(char*), "STRING *");
+    addMalloc(idam_plugin_interface->logmalloclist, (void*)data->generic_name, nRows, sizeof(char*), "STRING *");
     data->source_alias = (char**)malloc(nRows * sizeof(char*));
-    addMalloc((void*)data->source_alias, nRows, sizeof(char*), "STRING *");
+    addMalloc(idam_plugin_interface->logmalloclist, (void*)data->source_alias, nRows, sizeof(char*), "STRING *");
     data->type = (char**)malloc(nRows * sizeof(char*));
-    addMalloc((void*)data->type, nRows, sizeof(char*), "STRING *");
+    addMalloc(idam_plugin_interface->logmalloclist, (void*)data->type, nRows, sizeof(char*), "STRING *");
     data->description = (char**)malloc(nRows * sizeof(char*));
-    addMalloc((void*)data->description, nRows, sizeof(char*), "STRING *");
+    addMalloc(idam_plugin_interface->logmalloclist, (void*)data->description, nRows, sizeof(char*), "STRING *");
     data->signal_status = (int*)malloc(nRows * sizeof(int));
-    addMalloc((void*)data->signal_status, nRows, sizeof(int), "INT");
+    addMalloc(idam_plugin_interface->logmalloclist, (void*)data->signal_status, nRows, sizeof(int), "INT");
     
     if (shot > 0) {
       data->shot = shot;
@@ -607,17 +607,17 @@ int get_listsignals(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
       stringLength = strlen(PQgetvalue(DBQuery, i, s_signal_alias)) + 1;
       data->signal_name[i] = (char*)malloc(stringLength * sizeof(char));
       strcpy(data->signal_name[i], PQgetvalue(DBQuery, i, s_signal_alias));
-      addMalloc((void*)data->signal_name[i], stringLength, sizeof(char), "STRING");
+      addMalloc(idam_plugin_interface->logmalloclist, (void*)data->signal_name[i], stringLength, sizeof(char), "STRING");
       
       stringLength = strlen(PQgetvalue(DBQuery, i, s_generic_name)) + 1;
       data->generic_name[i] = (char*)malloc(stringLength * sizeof(char));
       strcpy(data->generic_name[i], PQgetvalue(DBQuery, i, s_generic_name));
-      addMalloc((void*)data->generic_name[i], stringLength, sizeof(char), "STRING");
+      addMalloc(idam_plugin_interface->logmalloclist, (void*)data->generic_name[i], stringLength, sizeof(char), "STRING");
       
       stringLength = strlen(PQgetvalue(DBQuery, i, s_source_alias)) + 1;
       data->source_alias[i] = (char*)malloc(stringLength * sizeof(char));
       strcpy(data->source_alias[i], PQgetvalue(DBQuery, i, s_source_alias));
-      addMalloc((void*)data->source_alias[i], stringLength, sizeof(char), "STRING");
+      addMalloc(idam_plugin_interface->logmalloclist, (void*)data->source_alias[i], stringLength, sizeof(char), "STRING");
       
       char work[MAXSQL];
       char* p = PQgetvalue(DBQuery, i, s_type);
@@ -635,12 +635,12 @@ int get_listsignals(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
       stringLength = strlen(work) + 1;
       data->type[i] = (char*)malloc(stringLength * sizeof(char));
       strcpy(data->type[i], work);
-      addMalloc((void*)data->type[i], stringLength, sizeof(char), "STRING");
+      addMalloc(idam_plugin_interface->logmalloclist, (void*)data->type[i], stringLength, sizeof(char), "STRING");
       
       stringLength = strlen(PQgetvalue(DBQuery, i, s_description)) + 1;
       data->description[i] = (char*)malloc(stringLength * sizeof(char));
       strcpy(data->description[i], PQgetvalue(DBQuery, i, s_description));
-      addMalloc((void*)data->description[i], stringLength, sizeof(char), "STRING");
+      addMalloc(idam_plugin_interface->logmalloclist, (void*)data->description[i], stringLength, sizeof(char), "STRING");
       
       if (PQgetisnull(DBQuery, 0, s_signal_status)) {
 	data->signal_status[i] = 1;      
@@ -653,7 +653,7 @@ int get_listsignals(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     DATA_BLOCK* data_block = idam_plugin_interface->data_block;
     initDataBlock(data_block);
     
-    data_block->data_type = TYPE_COMPOUND;
+    data_block->data_type = UDA_TYPE_COMPOUND;
     data_block->rank = 0;
     data_block->data_n = 1;
     data_block->data = (char*)data;
@@ -662,11 +662,11 @@ int get_listsignals(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     strcpy(data_block->data_label, "");
     strcpy(data_block->data_units, "");
     
-    data_block->opaque_type = OPAQUE_TYPE_STRUCTURES;
+    data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
-    data_block->opaque_block = (void*)findUserDefinedType("DATALISTSIGNALS_C", 0);
+    data_block->opaque_block = (void*)findUserDefinedType(idam_plugin_interface->userdefinedtypelist, "DATALISTSIGNALS_C", 0);
 
-    IDAM_LOG(UDA_LOG_DEBUG, "readMeta: Function listSignals called\n");
+    UDA_LOG(UDA_LOG_DEBUG, "readMeta: Function listSignals called\n");
     
     PQclear(DBQuery);
     PQfinish(DBConnect);

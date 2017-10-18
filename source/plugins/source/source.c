@@ -494,7 +494,7 @@ UDA_LOG(UDA_LOG_DEBUG, "SOURCE:source #1 = %s\n", next_request_block.source);
 
          if(isData){		// Ignore the coordinate data.
 
-             if(data_block->order != 0 || data_block->rank != 1 || !(data_block->data_type == TYPE_FLOAT || data_block->data_type == TYPE_DOUBLE)){
+             if(data_block->order != 0 || data_block->rank != 1 || !(data_block->data_type == UDA_TYPE_FLOAT || data_block->data_type == UDA_TYPE_DOUBLE)){
 	        THROW_ERROR(999, "Source: Data Access is not available for this data request!");
 	     }		// Data are not Cacheable           
 
@@ -510,7 +510,7 @@ UDA_LOG(UDA_LOG_DEBUG, "SOURCE:source #1 = %s\n", next_request_block.source);
                 strcpy(time_units_cache, data_block->dims[0].dim_units);
                 strcpy(time_label_cache, data_block->dims[0].dim_label);
 		   
-                if(data_block->dims[0].data_type == TYPE_DOUBLE){
+                if(data_block->dims[0].data_type == UDA_TYPE_DOUBLE){
 		   time_cache = (char *)malloc(time_count_cache*sizeof(double));
                    if(isTimeScaling){
                       double * work = (double *)data_block->dims[0].dim;
@@ -537,12 +537,12 @@ UDA_LOG(UDA_LOG_DEBUG, "SOURCE:source #1 = %s\n", next_request_block.source);
                 source_cache[0] = '\0';	     
 	     }   
 	     
-             if (data_block->rank == 1 && (data_block->data_type == TYPE_FLOAT || data_block->data_type == TYPE_DOUBLE)){
+             if (data_block->rank == 1 && (data_block->data_type == UDA_TYPE_FLOAT || data_block->data_type == UDA_TYPE_DOUBLE)){
  	        
 		data_block->rank  = 0;		// No coordinate data to be returned
 	        data_block->order = -1;	
 		
-		if(data_block->data_type == TYPE_FLOAT){		      
+		if(data_block->data_type == UDA_TYPE_FLOAT){		      
 		   float * data =  (float *) data_block->data;
 		   double * work = (double *)malloc(data_block->data_n*sizeof(double));
 		   if(isDataScaling)
@@ -551,7 +551,7 @@ UDA_LOG(UDA_LOG_DEBUG, "SOURCE:source #1 = %s\n", next_request_block.source);
 		      for(i=0;i<data_block->data_n;i++) work[i] = (double) data[i];  
 		   free((void *) data_block->data);
 		   data_block->data = (char *) work;
-		   data_block->data_type = TYPE_DOUBLE;
+		   data_block->data_type = UDA_TYPE_DOUBLE;
 		} else {
 		   if(isDataScaling){
 		      double * data =  (double *) data_block->data;
@@ -577,18 +577,18 @@ UDA_LOG(UDA_LOG_DEBUG, "SOURCE:source #1 = %s\n", next_request_block.source);
 		data_block->data  = (char *)malloc(time_count_cache*sizeof(double));
 		memcpy(data_block->data, time_cache, time_count_cache*sizeof(double));
 		data_block->data_n = time_count_cache;
-		data_block->data_type = TYPE_DOUBLE;
+		data_block->data_type = UDA_TYPE_DOUBLE;
 	        data_block->dims = NULL;		
 	        strcpy(data_block->data_units, time_units_cache);
 	        strcpy(data_block->data_label, time_label_cache); 
             } else
-            if (data_block->rank == 1 && data_block->order == 0  && (data_block->data_type == TYPE_FLOAT || data_block->data_type == TYPE_DOUBLE)){
+            if (data_block->rank == 1 && data_block->order == 0  && (data_block->data_type == UDA_TYPE_FLOAT || data_block->data_type == UDA_TYPE_DOUBLE)){
 	        if(data_block->dims[0].compressed) uncompressDim(&data_block->dims[0]);
  	        data_block->rank  = 0;
 	        data_block->order = -1;	 
 	        if(data_block->data != NULL) free((void *)data_block->data);
 		
-		if (data_block->dims[0].data_type == TYPE_DOUBLE){
+		if (data_block->dims[0].data_type == UDA_TYPE_DOUBLE){
 		   data_block->data = data_block->dims[0].dim;		   
 		   if(isTimeScaling){
 		      double * work = (double *)data_block->data;
@@ -605,7 +605,7 @@ UDA_LOG(UDA_LOG_DEBUG, "SOURCE:source #1 = %s\n", next_request_block.source);
 		   free((void *)data_block->dims[0].dim);
 		}
 		data_block->data_n = data_block->dims[0].dim_n;
-		data_block->data_type = TYPE_DOUBLE;
+		data_block->data_type = UDA_TYPE_DOUBLE;
 	        data_block->dims[0].dim = NULL;		// prevent a double free
  	        data_block->dims[0].dim_n = 0;
 	        strcpy(data_block->data_units, data_block->dims[0].dim_units);

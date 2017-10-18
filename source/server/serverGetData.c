@@ -1196,7 +1196,7 @@ int idamserverReadData(PGconn* DBConnect, REQUEST_BLOCK request_block, CLIENT_BL
 
         // Identify the required Plugin
 
-        plugin_id = idamServerMetaDataPluginId(pluginlist);
+        int plugin_id = idamServerMetaDataPluginId(pluginlist);
         if (plugin_id < 0) {
             // No plugin so not possible to identify the requested data item
             THROW_ERROR(778, "Unable to identify requested data item");
@@ -1210,7 +1210,7 @@ int idamserverReadData(PGconn* DBConnect, REQUEST_BLOCK request_block, CLIENT_BL
 
         // Execute the plugin to resolve the identity of the data requested
 
-        err = idamServerMetaDataPlugin(pluginlist, plugin_id, &request_block, signal_desc, data_source);
+        int err = idamServerMetaDataPlugin(pluginlist, plugin_id, &request_block, signal_desc, data_source, logmalloclist);
 
 
         if (err != 0) {
@@ -1224,7 +1224,7 @@ int idamserverReadData(PGconn* DBConnect, REQUEST_BLOCK request_block, CLIENT_BL
         if(signal_desc->type == 'P') {
             strcpy(request_block.signal,signal_desc->signal_name);
             strcpy(request_block.source,data_source->path);
-            makeServerRequestBlock(&request_block, pluginList);
+            makeServerRequestBlock(&request_block, *pluginlist);
         }
 #endif // NOTGENERICENABLED
 

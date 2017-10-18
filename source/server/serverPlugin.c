@@ -1667,10 +1667,10 @@ int idamServerMetaDataPluginId(const PLUGINLIST* plugin_list)
 
 	
 	UDA_LOG(UDA_LOG_DEBUG, "Generic Name Mapping Plugin Name: %s\n", env);
-	UDA_LOG(UDA_LOG_DEBUG, "PLUGINFUNCTION?: %d\n", plugin_list->plugin[id].class == PLUGINFUNCTION);
-	UDA_LOG(UDA_LOG_DEBUG, "PLUGINPRIVATE?: %d\n", plugin_list->plugin[id].private == PLUGINPRIVATE);
+	UDA_LOG(UDA_LOG_DEBUG, "PLUGINFUNCTION?: %d\n", plugin_list->plugin[id].plugin_class == PLUGINFUNCTION);
+	UDA_LOG(UDA_LOG_DEBUG, "PLUGINPRIVATE?: %d\n", plugin_list->plugin[id].is_private == PLUGINPRIVATE);
 	UDA_LOG(UDA_LOG_DEBUG, "External User?: %d\n", getIdamServerEnvironment()->external_user);
-	UDA_LOG(UDA_LOG_DEBUG, "Private?: %d\n", plugin_list->plugin[id].private == PLUGINPRIVATE && getIdamServerEnvironment()->external_user);
+	UDA_LOG(UDA_LOG_DEBUG, "Private?: %d\n", plugin_list->plugin[id].is_private == PLUGINPRIVATE && getIdamServerEnvironment()->external_user);
 	UDA_LOG(UDA_LOG_DEBUG, "PLUGINOPERATIONAL?: %d\n", plugin_list->plugin[id].status == PLUGINOPERATIONAL);
 	UDA_LOG(UDA_LOG_DEBUG, "Plugin OK?: %d\n", plugin_list->plugin[id].pluginHandle != NULL && plugin_list->plugin[id].idamPlugin != NULL);
 	UDA_LOG(UDA_LOG_DEBUG, "id: %d\n", id);

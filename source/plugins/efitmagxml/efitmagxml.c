@@ -427,7 +427,7 @@ static int do_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, EFIT* efit)
                 strncpy(data_block->data_desc, "efitmagxml: count", STRING_LENGTH);
                 data_block->data_desc[STRING_LENGTH-1] = '\0';
                 data_block->rank = 0;
-                data_block->data_type = TYPE_INT;
+                data_block->data_type = UDA_TYPE_INT;
 		int *dataArrayCount = (int *)malloc(sizeof(int));
 		dataArrayCount[0] = count;
                 data_block->data = (char*)dataArrayCount;
@@ -437,7 +437,7 @@ static int do_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, EFIT* efit)
                 strncpy(data_block->data_desc, "efitmagxml: float value array", STRING_LENGTH);
                 data_block->data_desc[STRING_LENGTH-1] = '\0';
                 data_block->rank = 0;
-                data_block->data_type = TYPE_FLOAT;
+                data_block->data_type = UDA_TYPE_FLOAT;
 		if(isIndex){
 		   dataArray[0] = dataArray[index];		// Use the first element to return the requested data
                    data_block->data = (char*)dataArray;
@@ -460,7 +460,7 @@ static int do_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, EFIT* efit)
              strncpy(data_block->data_desc, "efitmagxml: double value array", STRING_LENGTH);
              data_block->data_desc[STRING_LENGTH-1] = '\0';
              data_block->rank = 0;
-             data_block->data_type = TYPE_DOUBLE;
+             data_block->data_type = UDA_TYPE_DOUBLE;
 	     if(isIndex){
                 dataArray[0] = dataArray[index];		// Use the first element to return the requested data
 		data_block->data = (char*)dataArray;
@@ -481,7 +481,7 @@ static int do_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, EFIT* efit)
              strncpy(data_block->data_desc, "efitmagxml: int value array", STRING_LENGTH);
              data_block->data_desc[STRING_LENGTH-1] = '\0';
              data_block->rank = 0;
-             data_block->data_type = TYPE_INT;
+             data_block->data_type = UDA_TYPE_INT;
 	     if(isIndex){
                 dataArray[0] = dataArray[index];		// Use the first element to return the requested data
 		data_block->data = (char*)dataArray;
@@ -736,14 +736,14 @@ static int do_put(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     data_block->data_desc[STRING_LENGTH-1] = '\0';
     data_block->rank = 0;
     if(!isType || !strcasecmp(type, "string")){
-         data_block->data_type = TYPE_STRING;
+         data_block->data_type = UDA_TYPE_STRING;
 	 char *data = strdup(value);
          data_block->data = data;
          data_block->data_n = strlen(value);
          return 0;
     } else
     if(!strcasecmp(type, "int")){
-         data_block->data_type = TYPE_INT;
+         data_block->data_type = UDA_TYPE_INT;
          int *data = malloc(sizeof(int));
          data[0] = atoi(value);
          data_block->data = (char*)data;
@@ -751,7 +751,7 @@ static int do_put(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
          return 0;
     } else
     if(!strcasecmp(type, "float")){
-         data_block->data_type = TYPE_FLOAT;
+         data_block->data_type = UDA_TYPE_FLOAT;
          float *data = (float *)malloc(sizeof(float));
          data[0] = (float) atof(value);
          data_block->data = (char*)data;
@@ -759,7 +759,7 @@ static int do_put(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
          return 0;
     } else
     if(!strcasecmp(type, "double")){
-         data_block->data_type = TYPE_DOUBLE;
+         data_block->data_type = UDA_TYPE_DOUBLE;
          double *data = (double *)malloc(sizeof(double));
          data[0] = (double) atof(value);
          data_block->data = (char*)data;
