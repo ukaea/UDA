@@ -172,7 +172,7 @@ int ece_frequencies(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
                 }
             } else {
                 int err = 901;
-                addIdamError(CODEERRORTYPE, "Unexpected ECE mode from WEST", err, "");
+                addIdamError(CODEERRORTYPE, "WEST:ERROR: unexpected ECE mode", err, "");
                 free(data);
                 return -1;
             }
@@ -362,7 +362,7 @@ int getECEModeFromNPZFile(int shotNumber)
 
     if (shotNumber >= ARCADE_GECEMODE_EXISTS_FROM_SHOT) {
         int err = 901;
-        addIdamError(CODEERRORTYPE, "getECEModeFromNPZFile() should not be called for this shot number (from WEST)",
+        addIdamError(CODEERRORTYPE, "WEST:ERROR: getECEModeFromNPZFile() should not be called for this shot number",
                      err, "");
         return -1;
     }
@@ -382,7 +382,7 @@ int getECEModeFromNPZFile(int shotNumber)
 
     if (pFile == NULL) {
         int err = 901;
-        addIdamError(CODEERRORTYPE, "Unable to read ECE mode file from WEST", err, "");
+        addIdamError(CODEERRORTYPE, "WEST:ERROR: unable to read ECE mode file", err, "");
         IDAM_LOG(UDA_LOG_DEBUG, "Error opening ECE mode file\n");
         return -1;
     } else {
@@ -404,7 +404,7 @@ int getECEModeFromNPZFile(int shotNumber)
 
     if (s == NULL) {
         int err = 901;
-        addIdamError(CODEERRORTYPE, "Unable to found ECE mode from WEST", err, "");
+        addIdamError(CODEERRORTYPE, "WEST:ERROR: unable to found ECE mode", err, "");
         IDAM_LOGF(UDA_LOG_DEBUG, "ECE mode not found for shot: %d\n", shotNumber);
     } else {
         searchedMode = s->ECE_mode;
@@ -450,7 +450,7 @@ int getECEModeHarmonicTime(int shotNumber, int channel, float** time, int* len,
 
     if (status != 0) {
         int err = 901;
-        addIdamError(CODEERRORTYPE, "Unable to get time for O1 mode", err, "");
+        addIdamError(CODEERRORTYPE, "WEST:ERROR: unable to get time for O1 mode", err, "");
     }
 
     free(O_ModeData);
@@ -498,7 +498,7 @@ int getECEModeHarmonic(int shotNumber, int channel, float** time, float** data, 
     if (status != 0) {
         int err = 901;
         IDAM_LOG(UDA_LOG_DEBUG, "Unable to get signal\n");
-        addIdamError(CODEERRORTYPE, "Unable to get signal", err, "");
+        addIdamError(CODEERRORTYPE, "WEST:ERROR: unable to get signal", err, "");
         return status;
     }
 
@@ -518,7 +518,7 @@ int getECEModeHarmonic(int shotNumber, int channel, float** time, float** data, 
     if (status != 0) {
         int err = 901;
         IDAM_LOG(UDA_LOG_DEBUG, "Unable to get signal\n");
-        addIdamError(CODEERRORTYPE, "Unable to get signal", err, "");
+        addIdamError(CODEERRORTYPE, "WEST:ERROR: unable to get signal", err, "");
         return status;
     }
 
@@ -551,7 +551,7 @@ int getECEModeObject(char* TOP_collections_parameters, char** objectName, int GV
     if (status != 0) {
         int err = 901;
         IDAM_LOG(UDA_LOG_DEBUG, "Unable to get command\n");
-        addIdamError(CODEERRORTYPE, "Unable to get command", err, "");
+        addIdamError(CODEERRORTYPE, "WEST:ERROR: unable to get command", err, "");
         free(command);
         return status;
     }

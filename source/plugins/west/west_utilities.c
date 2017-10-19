@@ -196,7 +196,7 @@ void getNormalizationFactor(float* normalizationFactor, char* normalizationAttri
         } else {
             int err = 999;
             IDAM_LOG(UDA_LOG_DEBUG, "Unsupported operation to apply\n");
-            addIdamError(CODEERRORTYPE, "Unsupported operation to apply", err, "");
+            addIdamError(CODEERRORTYPE, "WEST:ERROR: unsupported operation to apply", err, "");
         }
     } else {
         IDAM_LOG(UDA_LOG_DEBUG, "no normalization attributes found\n");
@@ -289,7 +289,7 @@ void getReturnType(char* attributes, int* dataType)
         i = UDA_TYPE_INT;
     } else {
         err = 999;
-        addIdamError(CODEERRORTYPE, "west convertToInt() : Unsupported data type", err, "");
+        addIdamError(CODEERRORTYPE, "WEST:ERROR: convertToInt(): Unsupported data type", err, "");
     }
     *dataType = i;
     free(s_copy);

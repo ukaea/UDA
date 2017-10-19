@@ -46,7 +46,7 @@ int SetNormalizedDynData(int shotNumber, DATA_BLOCK* data_block, int* nodeIndice
 
     if (status != 0) {
         int err = 901;
-        addIdamError(CODEERRORTYPE, "Unable to get dynamic data", err, "");
+        addIdamError(CODEERRORTYPE, "WEST:ERROR: unable to get dynamic data", err, "");
         free(time);
         free(data);
     } else {
@@ -70,7 +70,7 @@ int GetNormalizedDynamicData(int shotNumber, float** time, float** data, int* le
 
     if (status != 0) {
         int err = 901;
-        addIdamError(CODEERRORTYPE, "Unable to get dynamic data", err, "");
+        addIdamError(CODEERRORTYPE, "WEST:ERROR: unable to get dynamic data", err, "");
     } else {
 
         IDAM_LOG(UDA_LOG_DEBUG, "Getting normalization factor, if any\n");
@@ -159,7 +159,7 @@ int GetDynData(int shotNumber, float** time, float** data, int* len, int* nodeIn
     if (status != 0) {
         int err = 901;
         IDAM_LOG(UDA_LOG_DEBUG, "Unable to get command\n");
-        addIdamError(CODEERRORTYPE, "Unable to get command", err, "");
+        addIdamError(CODEERRORTYPE, "WEST:ERROR: unable to get command", err, "");
     }
 
     IDAM_LOGF(UDA_LOG_DEBUG, "command: %s\n", command);
@@ -195,7 +195,7 @@ int GetDynData(int shotNumber, float** time, float** data, int* len, int* nodeIn
 
     if (len == 0) {
         int err = 901;
-        addIdamError(CODEERRORTYPE, "Dynamic data empty from WEST !", err, "");
+        addIdamError(CODEERRORTYPE, "WEST:ERROR: dynamic data empty !", err, "");
         status = -1;
     } else {
         status = 0;

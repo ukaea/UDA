@@ -47,7 +47,7 @@ int GetStaticData(int shotNumber, const char* mapfun, DATA_BLOCK* data_block, in
 	int status = execute(mapfun, shotNumber, data_block, nodeIndices);
 
 	if (status != 0) {
-		addIdamError(CODEERRORTYPE, __func__, -900, "error while getting static data");
+		addIdamError(CODEERRORTYPE, __func__, -900, "WEST:ERROR: error while getting static data");
 	}
 
 	return 0;
@@ -498,7 +498,7 @@ void getShapeOf(const char* command, int shotNumber, int* nb_val)
 	if (status != 0) {
 		IDAM_LOG(UDA_LOG_DEBUG, "Error calling readStaticParameters\n");
 		int err = 901;
-		addIdamError(CODEERRORTYPE, "Unable to get shape of static data from WEST", err, "");
+		addIdamError(CODEERRORTYPE, "WEST:ERROR: unable to get shape of static data", err, "");
 	}
 
 	free(prod_name);
@@ -539,7 +539,7 @@ void execute_setvalue_collect(const char* TOP_collections_parameters, char* attr
 		status = getCommand(i, &command, TOP_collections_parameters);
 		if (status == -1) {
 			int err = 801;
-			addIdamError(CODEERRORTYPE, "Unable to get the shapeof command", err, "");
+			addIdamError(CODEERRORTYPE, "WEST:ERROR: unable to get the shapeof command", err, "");
 		}
 
 		int nb_val = 0;
@@ -606,7 +606,7 @@ char* setBuffer(int data_type, char* value)
 	} else {
 		int err = 999;
 		IDAM_LOGF(UDA_LOG_DEBUG, "Unsupported data type in setBuffer(): %d\n", data_type);
-		addIdamError(CODEERRORTYPE, "Unsupported data type", err, "");
+		addIdamError(CODEERRORTYPE, "WEST:ERROR: unsupported data type", err, "");
 	}
 
 	return buffer;
@@ -628,7 +628,7 @@ void execute_tsmat_collect(const char* TOP_collections_parameters, char* attribu
 		status = getCommand(i, &command, TOP_collections_parameters);
 		if (status == -1) {
 			int err = 801;
-			addIdamError(CODEERRORTYPE, "Unable to get the shapeof command", err, "");
+			addIdamError(CODEERRORTYPE, "WEST:ERROR: unable to get the shapeof command", err, "");
 		}
 
 		int nb_val = 0;
@@ -691,7 +691,7 @@ void execute_tsmat_collect(const char* TOP_collections_parameters, char* attribu
 		status = readStaticParameters(&value, &nb_val, shotNumber, prod_name, object_name, param_name, val_nb);
 		if (status != 0) {
 			int err = 901;
-			addIdamError(CODEERRORTYPE, "Unable to read static data from WEST", err, "");
+			addIdamError(CODEERRORTYPE, "WEST:ERROR: unable to read static data", err, "");
 		}
 	}
 
@@ -734,7 +734,7 @@ void execute_tsmat_without_idam_index(const char* TOP_collections_parameters, ch
 	int status = readStaticParameters(&value, &nb_val, shotNumber, prod_name, object_name, param_name, val_nb);
 	if (status != 0) {
 		int err = 901;
-		addIdamError(CODEERRORTYPE, "Unable to read static data from WEST", err, "");
+		addIdamError(CODEERRORTYPE, "WEST:ERROR: Unable to read static data", err, "");
 	}
 
 	int rank;
@@ -751,7 +751,7 @@ void execute_tsmat_without_idam_index(const char* TOP_collections_parameters, ch
 	} else {
 		int err = 999;
 		IDAM_LOG(UDA_LOG_DEBUG, "Unsupported rank from execute_tsmat_without_idam_index()\n");
-		addIdamError(CODEERRORTYPE, "Unsupported data type", err, "");
+		addIdamError(CODEERRORTYPE, "WEST:ERROR: unsupported data type", err, "");
 	}
 
 	free(command);
@@ -773,7 +773,7 @@ void setStatic1DValue(int data_type, DATA_BLOCK* data_block, char* value, int va
 
 		if (val_nb == 0) {
 			int err = 901;
-			addIdamError(CODEERRORTYPE, __func__, err, "val_nb is equals to 0 !");
+			addIdamError(CODEERRORTYPE, __func__, err, "WEST:ERROR: val_nb is equals to 0 !");
 		}
 
 		data_block->data_type = UDA_TYPE_FLOAT;
@@ -794,7 +794,7 @@ void setStatic1DValue(int data_type, DATA_BLOCK* data_block, char* value, int va
 	} else {
 		int err = 999;
 		IDAM_LOG(UDA_LOG_DEBUG, "Unsupported data type from setStatic1DValue()\n");
-		addIdamError(CODEERRORTYPE, __func__, err, "Unsupported data type");
+		addIdamError(CODEERRORTYPE, __func__, err, "WEST:ERROR: unsupported data type");
 	}
 }
 
@@ -840,7 +840,7 @@ void setStaticValue(int data_type, DATA_BLOCK* data_block, char* value, int requ
 	} else {
 		int err = 999;
 		IDAM_LOG(UDA_LOG_DEBUG, "Unsupported data type from setStaticValue()\n");
-		addIdamError(CODEERRORTYPE, "Unsupported data type", err, "");
+		addIdamError(CODEERRORTYPE, "WEST:ERROR: unsupported data type", err, "");
 	}
 }
 

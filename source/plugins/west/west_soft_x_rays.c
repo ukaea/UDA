@@ -108,7 +108,7 @@ void soft_x_rays_channels_power_density_data(int shotNumber, DATA_BLOCK* data_bl
 
 	if (status != 0) {
 		int err = 801;
-		addIdamError(CODEERRORTYPE, "Unable to get channels_power_density_data for west_soft_x_rays IDS", err, "");
+		addIdamError(CODEERRORTYPE, "WEST:ERROR: unable to get channels_power_density_data for west_soft_x_rays IDS", err, "");
 	}
 
 	setReturnData2DFloat(data_block, 1, len, data);
@@ -138,7 +138,7 @@ void soft_x_rays_channels_power_density_time(int shotNumber, DATA_BLOCK* data_bl
 
 	if (status != 0) {
 		int err = 801;
-		addIdamError(CODEERRORTYPE, "Unable to get channels_power_density_time for west_soft_x_rays IDS", err, "");
+		addIdamError(CODEERRORTYPE, "WEST:ERROR: unable to get channels_power_density_time for west_soft_x_rays IDS", err, "");
 	}
 
 	setReturnData2DFloat(data_block, 1, len, time);

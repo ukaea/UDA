@@ -100,7 +100,7 @@ int westPlugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         // ======================================================================================
         // Error ...
         err = 999;
-        addIdamError(CODEERRORTYPE, __func__, err, "Unknown function requested!");
+        addIdamError(CODEERRORTYPE, __func__, err, "WEST:ERROR: unknown function requested!");
     }
 
     // --------------------------------------------------------------------------------------
@@ -297,7 +297,7 @@ int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             data_type != UDA_TYPE_INT &&
             data_type != UDA_TYPE_SHORT) {
             err = 999;
-            addIdamError(CODEERRORTYPE, __func__, err, "west : Unsupported data type");
+            addIdamError(CODEERRORTYPE, __func__, err, "WEST:ERROR: unsupported data type");
         }
 
         return 0;

@@ -224,15 +224,13 @@ void passive_current(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 	int status = getCurrent(shotNumber, data_block, nodeIndices, &data, &time, &len);
 	if (status != 0) {
 		int err = 801;
-		addIdamError(CODEERRORTYPE, "Unable to get pf_passive current", err, "");
+		addIdamError(CODEERRORTYPE, "WEST:ERROR: unable to get pf_passive current", err, "");
 	}
 	SetDynamicData(data_block, len, time, data);
 }
 
 int getCurrent(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices, float** data, float** time, int* len)
 {
-
-	IDAM_LOG(UDA_LOG_DEBUG, "in getCurrent...\n");
 
 	int k = nodeIndices[0]; //starts from 1
 	int status = -1;
@@ -296,7 +294,23 @@ void passive_time(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 
 	if (status != 0) {
 		int err = 801;
-		addIdamError(CODEERRORTYPE, "Unable to get time for pf_passive current", err, "");
+		addIdamError(CODEERRORTYPE, "WEST:ERROR: unable to get time for pf_passive current", err, "");
+	}
+
+	float* data_ref = NULL;
+	float* time_ref = NULL;
+
+	status = getIFREEB(shotNumber, 2, &time_ref, &data_ref, &len, 1.);
+
+	int i;
+	const float p = 1.e-9;
+	for (i = 0; i < len ; i++) {
+		float time_ref_i = time_ref[i];
+		float time_i = time[i];
+		if (abs(time_ref_i - time_i) > p)  {
+			int err = 801;
+			addIdamError(CODEERRORTYPE, "WEST:ERROR: time data for pf_passive currents differ !", err, "");
+		}
 	}
 	SetDynamicDataTime(data_block, len, time, data);
 }
