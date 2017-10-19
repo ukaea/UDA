@@ -1,3 +1,5 @@
+#ifndef _UAL_LOW_LEVEL_REMOTE_H
+#define _UAL_LOW_LEVEL_REMOTE_H
 
 char **getMdsCpoFields(int expIdx, char *path, int *numFields, int checkSegments);
 void refreshExpCtx(char *name, int shot, int run);
@@ -7,8 +9,8 @@ int getObjectRemote(int connId, int expIdx, char *cpoPath, char *path, void **ob
 int mdsbeginIdsGetRemote(int connId, int expIdx, char *path, int isTimed, int *retSamples);
 int mdsendIdsGetRemote(int connId, int expIdx, char *path);
 struct descriptor_xd* getCpoSlicedDataServer(int *expIdx, char *path, double *time);
-int getSlicedDataRemote(int connId, int expIdx, char *cpoPath, char *path, double time, struct descriptor_xd *retDataXd, 
-    struct descriptor_xd *retTimesXd);
+int getSlicedDataRemote(int connId, int expIdx, char *cpoPath, char *path, double time, struct descriptor_xd *retDataXd,
+                        struct descriptor_xd *retTimesXd);
 int getObjectSliceRemote(int connId, int expIdx, char *cpoPath, char *path, double time, void **obj);
 int mdsbeginIdsGetSliceRemote(int connId, int expIdx, char *path, double time);
 int mdsendIdsGetSliceRemote(int connId, int expIdx, char *path);
@@ -35,5 +37,7 @@ int mdsimasCreateEnvRemote(int connId, char *name, int shot, int run, int *retId
 int mdsimasCreateRemote(int connId, char *name, int shot, int run, int *retIdx);
 int mdsimasCloseRemote(int connId, int idx, char *name, int shot, int run);
 
-int replaceLastSliceRemote(int connId, int expIdx, char *cpoPath, char *path, struct descriptor *dataDsc);
-int mdsimasOpenRemote(int connId, char *name, int shot, int run, int *retIdx);
+int replaceLastSliceRemote(int connId, int expIdx, char* cpoPath, char* path, struct descriptor* dataDsc);
+int mdsimasOpenRemote(int connId, char* name, int shot, int run, int* retIdx);
+
+#endif

@@ -1,7 +1,6 @@
 #ifndef _UAL_LOW_LEVEL_H
 #define _UAL_LOW_LEVEL_H
 
-
 #define INTERPOLATION 3
 #define CLOSEST_SAMPLE 1
 #define PREVIOUS_SAMPLE 2
@@ -12,8 +11,9 @@
 typedef struct {
     double re;
     double im;
-}UalComplex;
+} UalComplex;
 
+const char* getExpName(int expIdx);
 
 //Low level function prototypes
 int putString(int expIdx, char *cpoPath, char *path, char *data, int strlen);
@@ -165,21 +165,23 @@ int beginIdsReplaceLastSlice(int expIdx, char *path);
 int endIdsReplaceLastSlice(int expIdx, char *path);
 
 char *imas_last_errmsg();
+
 int imas_create(char *name, int shot, int run, int refShot, int refRun, int *retIdx);
 int imas_open(char *name, int shot, int run, int *retIdx);
-int imas_close(int idx);
+int imas_create_env(char *name, int shot, int run, int refShot, int refRun, int *retIdx, char *user, char *tokamak, char *version);
+int imas_open_env(char *name, int shot, int run, int *retIdx, char *user, char *tokamak, char *version);
 int imas_create_hdf5(char *name, int shot, int run, int refShot, int refRun, int *retIdx);
 int imas_open_hdf5(char *name, int shot, int run, int *retIdx);
+int imas_create_public(char *name, int shot, int run, int refShot, int refRun, int *retIdx, const char* expName);
+int imas_open_public(char *name, int shot, int run, int *retIdx, const char* expName);
+int imas_close(int idx);
+
 void imas_enable_mem_cache(int expIdx);
 void imas_disable_mem_cache(int expIdx);
 void imas_discard_mem_cache(int expIdx);
 void imas_flush_mem_cache(int expIdx);
 void imas_discard_cpo_mem_cache(int expIdx, char *cpoPath);
 void imas_flush_cpo_mem_cache(int expIdx, char *cpoPath);
-
-
-int imas_open_env(char *name, int shot, int run, int *retIdx, char *user, char *tokamak, char *version);
-int imas_create_env(char *name, int shot, int run, int refShot, int refRun, int *retIdx, char *user, char *tokamak, char *version);
 
 int imas_connect(char *ip);
 int imas_disconnect();

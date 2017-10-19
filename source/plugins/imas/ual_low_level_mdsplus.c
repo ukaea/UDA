@@ -9,6 +9,7 @@
 #include <stdint.h>
 #include <usagedef.h>
 #include <ncidef.h>
+#include <tdishr.h>
 
 #include <xtreeshr.h>
 #include <cacheshr.h>
@@ -21,8 +22,6 @@
 #include "ual_low_level_mdsplus.h"
 #include "ual_low_level_remote.h"
 
-extern int TdiData();
-
 #define INTERPOLATION 3
 #define CLOSEST_SAMPLE 1
 #define PREVIOUS_SAMPLE 2
@@ -32,141 +31,102 @@ extern int TdiData();
 #ifndef WRITE_BACK
 #define WRITE_BACK MDS_WRITE_BACK
 #endif
-
 static int getDataLocal(int expIdx, char* cpoPath, char* path, struct descriptor_xd* retXd, int evaluate);
-
 static int mdsgetDataLocal(int expIdx, char* cpoPath, char* path, struct descriptor_xd* retXd, int evaluate);
-
 static int
 getDataLocalNoDescr(int expIdx, char* cpoPath, char* path, void** retData, int* retDims, int* retDimsCt, char* retType,
                     char* retClass, int* retLength, int64_t* retArsize, int evaluate);
-
 static int getSlicedDataLocal(int expIdx, char* cpoPath, char* path, double time, struct descriptor_xd* retDataXd,
                               struct descriptor_xd* retTimesXd, int expand);
-
 static int
 putSegmentLocal(int expIdx, char* cpoPath, char* path, char* timeBasePath, struct descriptor_a* dataD, double* times,
                 int nTimes);
-
 static int putDataLocal(int expIdx, char* cpoPath, char* path, struct descriptor* dataD);
-
 static int mdsputDataLocal(int expIdx, char* cpoPath, char* path, struct descriptor* dataD);
-
 static int
 putSliceLocal(int expIdx, char* cpoPath, char* path, char* timeBasePath, struct descriptor* dataD, double time);
-
 static int
 mdsputSliceLocal(int expIdx, char* cpoPath, char* path, char* timeBasePath, struct descriptor* dataD, double time);
-
 static int replaceLastSliceLocal(int expIdx, char* cpoPath, char* path, struct descriptor* dataD);
-
 static int getObjectSliceLocal(int expIdx, char* cpoPath, char* path, double time, void** obj, int expand);
 
 
 static int
 putTimedVect1DInt(int expIdx, char* cpoPath, char* path, char* timeBasePath, int* data, double* times, int nTimes);
-
 static int
 putTimedVect1DFloat(int expIdx, char* cpoPath, char* path, char* timeBasePath, float* data, double* times, int nTimes);
-
 static int putTimedVect1DDouble(int expIdx, char* cpoPath, char* path, char* timeBasePath, double* data, double* times,
                                 int nTimes);
-
 static int
 putTimedVect1DString(int expIdx, char* cpoPath, char* path, char* timeBasePath, char** data, double* times, int nTimes);
-
 static int
 putTimedVect2DInt(int expIdx, char* cpoPath, char* path, char* timeBasePath, int* data, double* times, int nTimes,
                   int dim1);
-
 static int
 putTimedVect2DFloat(int expIdx, char* cpoPath, char* path, char* timeBasePath, float* data, double* times, int nTimes,
                     int dim1);
-
 static int
 putTimedVect2DDouble(int expIdx, char* cpoPath, char* path, char* timeBasePath, double* data, double* times, int nTimes,
                      int dim1);
-
 static int
 putTimedVect3DInt(int expIdx, char* cpoPath, char* path, char* timeBasePath, int* data, double* times, int nTimes,
                   int dim1, int dim2);
-
 static int
 putTimedVect3DFloat(int expIdx, char* cpoPath, char* path, char* timeBasePath, float* data, double* times, int nTimes,
                     int dim1, int dim2);
-
 static int
 putTimedVect3DDouble(int expIdx, char* cpoPath, char* path, char* timeBasePath, double* data, double* times, int nTimes,
                      int dim1, int dim2);
-
 static int
 putTimedVect4DInt(int expIdx, char* cpoPath, char* path, char* timeBasePath, int* data, double* times, int nTimes,
                   int dim1, int dim2, int dim3);
-
 static int
 putTimedVect4DFloat(int expIdx, char* cpoPath, char* path, char* timeBasePath, float* data, double* times, int nTimes,
                     int dim1, int dim2, int dim3);
-
 static int
 putTimedVect4DDouble(int expIdx, char* cpoPath, char* path, char* timeBasePath, double* data, double* times, int nTimes,
                      int dim1, int dim2, int dim3);
-
 static int
 putTimedVect5DInt(int expIdx, char* cpoPath, char* path, char* timeBasePath, int* data, double* times, int nTimes,
                   int dim1, int dim2, int dim3, int dim4);
-
 static int
 putTimedVect5DFloat(int expIdx, char* cpoPath, char* path, char* timeBasePath, float* data, double* times, int nTimes,
                     int dim1, int dim2, int dim3, int dim4);
-
 static int
 putTimedVect5DDouble(int expIdx, char* cpoPath, char* path, char* timeBasePath, double* data, double* times, int nTimes,
                      int dim1, int dim2, int dim3, int dim4);
-
 static int
 putTimedVect6DInt(int expIdx, char* cpoPath, char* path, char* timeBasePath, int* data, double* times, int nTimes,
                   int dim1, int dim2, int dim3, int dim4, int dim5);
-
 static int
 putTimedVect6DFloat(int expIdx, char* cpoPath, char* path, char* timeBasePath, float* data, double* times, int nTimes,
                     int dim1, int dim2, int dim3, int dim4, int dim5);
-
 static int
 putTimedVect6DDouble(int expIdx, char* cpoPath, char* path, char* timeBasePath, double* data, double* times, int nTimes,
                      int dim1, int dim2, int dim3, int dim4, int dim5);
-
 static int
 putTimedVect7DInt(int expIdx, char* cpoPath, char* path, char* timeBasePath, int* data, double* times, int nTimes,
                   int dim1, int dim2,
                   int dim3, int dim4, int dim5, int dim6);
-
 static int
 putTimedVect7DFloat(int expIdx, char* cpoPath, char* path, char* timeBasePath, float* data, double* times, int nTimes,
                     int dim1,
                     int dim2, int dim3, int dim4, int dim5, int dim6);
-
 static int
 putTimedVect7DDouble(int expIdx, char* cpoPath, char* path, char* timeBasePath, double* data, double* times, int nTimes,
                      int dim1,
                      int dim2, int dim3, int dim4, int dim5, int dim6);
-
 static int
 getTimedDataNoDescr(int expIdx, char* cpoPath, char* path, double start, double end, void** retData, int* retDims,
                     int* retDimsCt, char* retType, char* retClass, int* retLength, int64_t* retArsize,
                     struct descriptor_xd* retTimesXd, int all);
 
 static int getNid(char* cpoPath, char* path);
-
 static int mdsgetNid(char* cpoPath, char* path);
-
 static int putObjectSegmentLocal(int expIdx, char* cpoPath, char* path, void* objSegment, int segIdx);
-
 static int putTimedObjectLocal(int expIdx, char* cpoPath, char* path, void** objSlices, int numSlices);
-
 static int getObjectLocal(int expIdx, char* cpoPath, char* path, void** obj, int isTimed, int expand);
-
 static void dumpObjElement(struct descriptor_a* apd, int numSpaces);
-
 static int mdsgetObjectLocal(int expIdx, char* cpoPath, char* path, void** obj, int isTimed, int expand);
 
 
@@ -175,11 +135,6 @@ static int mdsgetObjectLocal(int expIdx, char* cpoPath, char* path, void** obj, 
 //!= 0 error index. Routine imas_last_errmsg returns the error message associated with the last error.
 extern char* errmsg;
 static char currExpName[4096];
-
-char* imas_reset_errmsg()
-{
-    errmsg[0] = '\0';
-}
 
 //Time array used for resampled get and sliced get ONLY FOR STRINGS
 static double* stringTimes;
@@ -297,96 +252,64 @@ static int getExpRemoteIdx(int id)
 
 //Memory mappede flas
 static void getLeftItems(int nid, int* leftItems, int* leftRows);
-
 static int mdsStatus;
 
 ///////Local-remote stuff
 static int mdsbeginIdsPutSliceLocal(int expIdx, char* path);
 
 static int mdsendIdsPutSliceLocal(int expIdx, char* path);
-
 static int mdsbeginIdsReplaceLastSliceLocal(int expIdx, char* path);
-
 static int mdsendIdsReplaceLastSliceLocal(int expIdx, char* path);
-
 static int mdsbeginIdsPutLocal(int expIdx, char* path);
-
 static int mdsendIdsPutLocal(int expIdx, char* path);
-
 static int mdsbeginIdsPutTimedLocal(int expIdx, char* path, int samples, double* inTimes);
-
 static int mdsendIdsPutTimedLocal(int expIdx, char* path);
-
 static int mdsbeginIdsPutNonTimedLocal(int expIdx, char* path);
-
 static int mdsendIdsPutNonTimedLocal(int expIdx, char* path);
-
 static int mdsbeginIdsGetLocal(int expIdx, char* path, int isTimed, int* retSamples);
-
 static int mdsendIdsGetLocal(int expIdx, char* path);
-
 static int mdsbeginIdsGetSliceLocal(int expIdx, char* path, double time);
-
 static int mdsendIdsGetSliceLocal(int expIdx, char* path);
 
 ///////////////Memory Based Dimension/existence information////////////
 extern void putInfo(int expIdx, char* cpoPath, char* path, int exists, int nDims, int* dims);
-
 extern int getInfo(int expIdx, char* cpoPath, char* path, int* exists, int* nDims, int* dims);
-
 extern void invalidateCpoInfo(int expIdx, char* cpoPath);
-
 extern void invalidateAllCpoInfos(int expIdx);
-
 extern void invalidateCpoField(int expIdx, char* cpoPath, char* path);
-
 extern void
 putInfoWithData(int expIdx, char* cpoPath, char* path, int exists, int nDims, int* dims, int itemSize, char type,
                 int dataSize, char* data, int isObject);
-
 extern int
 getInfoWithData(int expIdx, char* cpoPath, char* path, int* exists, int* nDims, int* dims, int* itemSize, char* type,
                 int* dataSize, char** data);
-
 extern int
 getInfoWithDataNoLock(int expIdx, char* cpoPath, char* path, int* exists, int* nDims, int* dims, int* itemSize,
                       char* type, int* dataSize, char** data);
-
 extern void
 appendSlice(int expIdx, char* cpoPath, char* path, char* timeBasePath, int nDims, int* dims, int itemSize, char type,
             int sliceSize, char* slice);
-
 extern void
 appendSliceSet(int expIdx, char* cpoPath, char* path, char* timeBasePath, int nDims, int* dims, int itemSize, char type,
                int sliceSize, char* slice, int numSlices);
-
 extern void flushInfo(int expIdx);
-
 extern void flushCpoInfo(int expIdx, char* cpoPath);
-
 extern int getInfoNumSlices(int expIdx, char* cpoPath, char* path);
-
 extern void removeAllInfoObjectSlices(int expIdx, char* cpoPath, char* path);
-
 extern void appendInfoObjectSlice(int expIdx, char* cpoPath, char* path, char* buf, int size);
-
 extern int getInfoSlice(int expIdx, char* cpoPath, char* path, int sliceIdx, int* exists, char** data);
 
-
 static char* decompileDsc(void* ptr);
-
 static void setCacheLevel(int expIdx, int level);
-
 static int isEmpty(int nid);
-
 static int hasMembers(int nid);
-
 static int getCacheLevel(int expIdx);
 
 static void updateInfo(int expIdx, char* cpoPath, char* path, struct descriptor* dataD, int isObject)
 {
+    EMPTYXD(xd);
     ARRAY_COEFF(char, 16) * arrayDPtr;
-    int dims[16], nDims, i;
+    int dims[16], nDims, i, status;
     for (i = 0; i < 16; i++)
         dims[i] = 0;
 
@@ -455,6 +378,7 @@ static void updateInfoObjectSlice(int expIdx, char* cpoPath, char* path, void* o
     EMPTYXD(serializedXd);
     struct descriptor_a* arrD;
     int status;
+    int dims[16];
     struct descriptor_a* apd;
     int numSamples;
 
@@ -488,6 +412,7 @@ static void updateInfoTimedObject(int expIdx, char* cpoPath, char* path, int exi
     int status, numSlices;
     int dims[16], sliceIdx;
     struct descriptor_a* apd;
+    char* currSlice;
     struct descriptor** currPtr;
 
     fullPath = malloc(strlen(path) + 11);
@@ -528,10 +453,11 @@ static int
 getInfoData(int expIdx, char* cpoPath, char* path, int* exists, int* nDims, int* dims, struct descriptor_xd* retXd)
 {
     int infoExists;
-    int dataSize, status, i;
+    unsigned int dataSize;
+    int status, i;
     char* data;
     char dtype;
-    int itemSize;
+    unsigned int itemSize;
     struct descriptor dataD;
     DESCRIPTOR_A_COEFF(arrayD, 0, 0, 0, 0, 0);
 
@@ -602,12 +528,17 @@ static int getInfoObjectSlice(int expIdx, char* cpoPath, char* path, int sliceId
 }
 
 static int getInfoObject(int expIdx, char* cpoPath, char* path, int* exists, void** retObj, int isTimed)
+//Return 0 if info not fount, 1 otherwise
 {
     int infoExists;
-    int dataSize, status;
+    unsigned int dataSize;
+    int status, i;
     char* data;
     char dtype;
-    int itemSize, nDims, dims[16];
+    unsigned int itemSize;
+    int nDims, dims[16];
+    struct descriptor dataD;
+    DESCRIPTOR_A_COEFF(arrayD, 0, 0, 0, 0, 0);
     EMPTYXD(emptyXd);
     struct descriptor_xd* retXd;
     char* fullPath;
@@ -659,6 +590,12 @@ static int getInfoObject(int expIdx, char* cpoPath, char* path, int* exists, voi
             free(fullPath);
             return 0;
         }
+//Gabriele September 2016: if the AoS is not present no slices are retrieved
+        if (numSlices == 0) {
+            *exists = 0;
+            *retObj = 0;
+            return 1; //Info found - does not exists
+        }
         xds = (struct descriptor_xd*)malloc(sizeof(struct descriptor_xd) * numSlices);
         dscPtrs = (struct descriptor**)malloc(sizeof(struct descriptor*) * numSlices);
         for (sliceIdx = 0; sliceIdx < numSlices; sliceIdx++)
@@ -702,7 +639,8 @@ void internalFlush(int expIdx, char* cpoPath, char* path, char* timeBasePath, in
     struct descriptor dataD;
     DESCRIPTOR_A_COEFF(arrayD, 0, 0, 0, 0, 0);
     double* times;
-    int timeExists, timeNDims, timeDims[16], timeItemSize, timeDataSize, currSlice;
+    unsigned int timeItemSize, timeDataSize;
+    int timeExists, timeNDims, timeDims[16], currSlice;
     char timeType;
     EMPTYXD(emptyXd);
     struct descriptor_xd* retXd;
@@ -904,10 +842,17 @@ int getData(int expIdx, char* cpoPath, char* path, struct descriptor_xd* retXd, 
 /////////Memory Mapped existence info //////
     int nDims, dims[16], exists;
     int status;
+    static int counter;
     int cacheLevel = getCacheLevel(expIdx);
+    //printf("getData : call of getInfoData for %s %s returns %d \n",cpoPath, path, getInfoData(expIdx, cpoPath, path, &exists, &nDims, dims, retXd));
     if (cacheLevel > 0 && getInfoData(expIdx, cpoPath, path, &exists, &nDims, dims, retXd)) {
-        if (exists) { return 0; }
-        else { return -1; }
+//static int count;
+        //printf("DATA HIT %s %s\n", cpoPath, path);
+        if (exists) { //printf("getData : data exists according to getInfoData %s %s\n",cpoPath, path);// This part is correct but is not traversed by the time dependent quantities in this test
+            return 0;
+        } else { //printf("getData : data DOES NOT EXIST according to getInfoData %s %s\n",cpoPath, path); //; This part is correct but is not traversed by the time dependent quantities in this test
+            return -1;
+        }
     }
 //////////////////////////////////////////////////
 // printf("MISS %d %s %s\n", counter++, cpoPath, path);
@@ -938,12 +883,17 @@ int mdsgetData(int expIdx, char* cpoPath, char* path, struct descriptor_xd* retX
 /////////Memory Mapped existence info //////
     int nDims, dims[16], exists;
     int status;
+    static int counter;
     int cacheLevel = getCacheLevel(expIdx);
+    //printf("mdsgetData : call of getInfoData for %s %s returns %d \n",cpoPath, path, getInfoData(expIdx, cpoPath, path, &exists, &nDims, dims, retXd));
     if (cacheLevel > 0 && getInfoData(expIdx, cpoPath, path, &exists, &nDims, dims, retXd)) {
 //static int count;
         //printf("DATA HIT %s %s\n", cpoPath, path);
-        if (exists) { return 0; }
-        else { return -1; }
+        if (exists) { //printf("getData : data exists according to getInfoData %s %s\n",cpoPath, path);// This part is correct but is not traversed by the time dependent quantities in this test
+            return 0;
+        } else { //printf("getData : data DOES NOT EXIST according to getInfoData %s %s\n",cpoPath, path); //; This part is correct but is not traversed by the time dependent quantities in this test
+            return -1;
+        }
     }
 //////////////////////////////////////////////////
 // printf("MISS %d %s %s\n", counter++, cpoPath, path);
@@ -1064,7 +1014,7 @@ int putData(int expIdx, char* cpoPath, char* path, struct descriptor* dataD)
 int putSegment(int expIdx, char* cpoPath, char* path, char* timeBasePath, struct descriptor_a* dataD, double* times,
                int nTimes)
 {
-    int exists, nDims, dims[16];
+    int exists, nDims, dims[16], status;
     EMPTYXD(dataXd);
     EMPTYXD(timeXd);
     int cacheLevel = getCacheLevel(expIdx);
@@ -1093,7 +1043,7 @@ int putSegment(int expIdx, char* cpoPath, char* path, char* timeBasePath, struct
 
 int putSlice(int expIdx, char* cpoPath, char* path, char* timeBasePath, struct descriptor* dataD, double time)
 {
-    int exists, nDims, dims[16];
+    int exists, nDims, dims[16], status;
     EMPTYXD(dataXd);
     EMPTYXD(timeXd);
     int cacheLevel = getCacheLevel(expIdx);
@@ -1138,6 +1088,15 @@ getSlicedData(int expIdx, char* cpoPath, char* path, char* timeBasePath, double 
         status = getData(expIdx, cpoPath, timeBasePath, retTimesXd, 0);
     }
     return status;
+
+/*
+    if(isExpRemote(expIdx))
+        return getSlicedDataRemote(getExpConnectionId(expIdx), getExpRemoteIdx(expIdx), cpoPath, path, time, retDataXd,
+		retTimesXd);
+    else
+    	return getSlicedDataLocal(expIdx, cpoPath, path, time, retDataXd, retTimesXd, expandObject);
+
+*/
 }
 
 int mdsgetSlicedData(int expIdx, char* cpoPath, char* path, char* timeBasePath, double time,
@@ -1343,29 +1302,40 @@ int mdsendIdsGetSlice(int expIdx, char* path)
 
 //MERGE
 // paths before setting a new environment
-static char prevTreeBase0[1024];
-static char prevTreeBase1[1024];
-static char prevTreeBase2[1024];
-static char prevTreeBase3[1024];
-static char prevTreeBase4[1024];
-static char prevTreeBase5[1024];
-static char prevTreeBase6[1024];
-static char prevTreeBase7[1024];
-static char prevTreeBase8[1024];
-static char prevTreeBase9[1024];
+static char prevTreeBase0[1024] = { 0 };
+static char prevTreeBase1[1024] = { 0 };
+static char prevTreeBase2[1024] = { 0 };
+static char prevTreeBase3[1024] = { 0 };
+static char prevTreeBase4[1024] = { 0 };
+static char prevTreeBase5[1024] = { 0 };
+static char prevTreeBase6[1024] = { 0 };
+static char prevTreeBase7[1024] = { 0 };
+static char prevTreeBase8[1024] = { 0 };
+static char prevTreeBase9[1024] = { 0 };
 
 static void restoreDataEnv()
 {
-    setenv("MDSPLUS_TREE_BASE_0", prevTreeBase0, 1);
-    setenv("MDSPLUS_TREE_BASE_1", prevTreeBase1, 1);
-    setenv("MDSPLUS_TREE_BASE_2", prevTreeBase2, 1);
-    setenv("MDSPLUS_TREE_BASE_3", prevTreeBase3, 1);
-    setenv("MDSPLUS_TREE_BASE_4", prevTreeBase4, 1);
-    setenv("MDSPLUS_TREE_BASE_5", prevTreeBase5, 1);
-    setenv("MDSPLUS_TREE_BASE_6", prevTreeBase6, 1);
-    setenv("MDSPLUS_TREE_BASE_7", prevTreeBase7, 1);
-    setenv("MDSPLUS_TREE_BASE_8", prevTreeBase8, 1);
-    setenv("MDSPLUS_TREE_BASE_9", prevTreeBase9, 1);
+/*		setenv("MDSPLUS_TREE_BASE_0",prevTreeBase0,1);
+		setenv("MDSPLUS_TREE_BASE_1",prevTreeBase1,1);
+		setenv("MDSPLUS_TREE_BASE_2",prevTreeBase2,1);
+		setenv("MDSPLUS_TREE_BASE_3",prevTreeBase3,1);
+		setenv("MDSPLUS_TREE_BASE_4",prevTreeBase4,1);
+		setenv("MDSPLUS_TREE_BASE_5",prevTreeBase5,1);
+		setenv("MDSPLUS_TREE_BASE_6",prevTreeBase6,1);
+		setenv("MDSPLUS_TREE_BASE_7",prevTreeBase7,1);
+		setenv("MDSPLUS_TREE_BASE_8",prevTreeBase8,1);
+		setenv("MDSPLUS_TREE_BASE_9",prevTreeBase9,1); */
+    (prevTreeBase0[0] != 0) ? (setenv("MDSPLUS_TREE_BASE_0", prevTreeBase0, 1)) : (0);
+    (prevTreeBase1[0] != 0) ? (setenv("MDSPLUS_TREE_BASE_1", prevTreeBase1, 1)) : (0);
+    (prevTreeBase2[0] != 0) ? (setenv("MDSPLUS_TREE_BASE_2", prevTreeBase2, 1)) : (0);
+    (prevTreeBase3[0] != 0) ? (setenv("MDSPLUS_TREE_BASE_3", prevTreeBase3, 1)) : (0);
+    (prevTreeBase4[0] != 0) ? (setenv("MDSPLUS_TREE_BASE_4", prevTreeBase4, 1)) : (0);
+    (prevTreeBase5[0] != 0) ? (setenv("MDSPLUS_TREE_BASE_5", prevTreeBase5, 1)) : (0);
+    (prevTreeBase6[0] != 0) ? (setenv("MDSPLUS_TREE_BASE_6", prevTreeBase6, 1)) : (0);
+    (prevTreeBase7[0] != 0) ? (setenv("MDSPLUS_TREE_BASE_7", prevTreeBase7, 1)) : (0);
+    (prevTreeBase8[0] != 0) ? (setenv("MDSPLUS_TREE_BASE_8", prevTreeBase8, 1)) : (0);
+    (prevTreeBase9[0] != 0) ? (setenv("MDSPLUS_TREE_BASE_9", prevTreeBase9, 1)) : (0);
+
 }
 //MERGE
 
@@ -1373,16 +1343,32 @@ static void restoreDataEnv()
 static void setDataEnv(char* user, char* tokamak, char* version)
 {
     //MERGE
-    char treeBase0[1024];
-    char treeBase1[1024];
-    char treeBase2[1024];
-    char treeBase3[1024];
-    char treeBase4[1024];
-    char treeBase5[1024];
-    char treeBase6[1024];
-    char treeBase7[1024];
-    char treeBase8[1024];
-    char treeBase9[1024];
+    char treeBase0[1024] = { 0 };
+    char treeBase1[1024] = { 0 };
+    char treeBase2[1024] = { 0 };
+    char treeBase3[1024] = { 0 };
+    char treeBase4[1024] = { 0 };
+    char treeBase5[1024] = { 0 };
+    char treeBase6[1024] = { 0 };
+    char treeBase7[1024] = { 0 };
+    char treeBase8[1024] = { 0 };
+    char treeBase9[1024] = { 0 };
+    char* treeBase_ = 0;
+
+    /*
+    char *treeBase0 = malloc(1024);
+    char *treeBase1 = malloc(1024);
+    char *treeBase2 = malloc(1024);
+    char *treeBase3 = malloc(1024);
+    char *treeBase4 = malloc(1024);
+    char *treeBase5 = malloc(1024);
+    char *treeBase6 = malloc(1024);
+    char *treeBase7 = malloc(1024);
+    char *treeBase8 = malloc(1024);
+    char *treeBase9 = malloc(1024);
+    */
+    //MERGE
+    char first[2];
 
     if (!strcmp(user, "public")) {
         //MERGE
@@ -1416,6 +1402,19 @@ static void setDataEnv(char* user, char* tokamak, char* version)
         sprintf(treeBase9,
                 "/pfs/imasdb/imas_trees/public/%s/%s/mdsplus/9;/pfs/imasdb/imas_trees/public/models/%s/mdsplus",
                 tokamak, version, version);
+        /*
+    	sprintf(treeBase0, "MDSPLUS_TREE_BASE_0=/pfs/imasdb/imas_trees/public/%s/%s/mdsplus/0;/pfs/imasdb/imas_trees/public/models/%s/mdsplus", tokamak, version, version);
+    	sprintf(treeBase1, "MDSPLUS_TREE_BASE_1=/pfs/imasdb/imas_trees/public/%s/%s/mdsplus/1;/pfs/imasdb/imas_trees/public/models/%s/mdsplus", tokamak, version, version);
+    	sprintf(treeBase2, "MDSPLUS_TREE_BASE_2=/pfs/imasdb/imas_trees/public/%s/%s/mdsplus/2;/pfs/imasdb/imas_trees/public/models/%s/mdsplus", tokamak, version, version);
+    	sprintf(treeBase3, "MDSPLUS_TREE_BASE_3=/pfs/imasdb/imas_trees/public/%s/%s/mdsplus/3;/pfs/imasdb/imas_trees/public/models/%s/mdsplus", tokamak, version, version);
+    	sprintf(treeBase4, "MDSPLUS_TREE_BASE_4=/pfs/imasdb/imas_trees/public/%s/%s/mdsplus/4;/pfs/imasdb/imas_trees/public/models/%s/mdsplus", tokamak, version, version);
+    	sprintf(treeBase5, "MDSPLUS_TREE_BASE_5=/pfs/imasdb/imas_trees/public/%s/%s/mdsplus/5;/pfs/imasdb/imas_trees/public/models/%s/mdsplus", tokamak, version, version);
+    	sprintf(treeBase6, "MDSPLUS_TREE_BASE_6=/pfs/imasdb/imas_trees/public/%s/%s/mdsplus/6;/pfs/imasdb/imas_trees/public/models/%s/mdsplus", tokamak, version, version);
+    	sprintf(treeBase7, "MDSPLUS_TREE_BASE_7=/pfs/imasdb/imas_trees/public/%s/%s/mdsplus/7;/pfs/imasdb/imas_trees/public/models/%s/mdsplus", tokamak, version, version);
+    	sprintf(treeBase8, "MDSPLUS_TREE_BASE_8=/pfs/imasdb/imas_trees/public/%s/%s/mdsplus/8;/pfs/imasdb/imas_trees/public/models/%s/mdsplus", tokamak, version, version);
+    	sprintf(treeBase9, "MDSPLUS_TREE_BASE_9=/pfs/imasdb/imas_trees/public/%s/%s/mdsplus/9;/pfs/imasdb/imas_trees/public/models/%s/mdsplus", tokamak, version, version);
+	*/
+        //MERGE
     } else {
 // #define ASSUME_HOME_IN_AFS 1
         char homedir[1024];
@@ -1443,16 +1442,27 @@ static void setDataEnv(char* user, char* tokamak, char* version)
 
     //MERGE
     // Store old values of the paths
-    strcpy(prevTreeBase0, getenv("MDSPLUS_TREE_BASE_0"));
-    strcpy(prevTreeBase1, getenv("MDSPLUS_TREE_BASE_1"));
-    strcpy(prevTreeBase2, getenv("MDSPLUS_TREE_BASE_2"));
-    strcpy(prevTreeBase3, getenv("MDSPLUS_TREE_BASE_3"));
-    strcpy(prevTreeBase4, getenv("MDSPLUS_TREE_BASE_4"));
-    strcpy(prevTreeBase5, getenv("MDSPLUS_TREE_BASE_5"));
-    strcpy(prevTreeBase6, getenv("MDSPLUS_TREE_BASE_6"));
-    strcpy(prevTreeBase7, getenv("MDSPLUS_TREE_BASE_7"));
-    strcpy(prevTreeBase8, getenv("MDSPLUS_TREE_BASE_8"));
-    strcpy(prevTreeBase9, getenv("MDSPLUS_TREE_BASE_9"));
+/*    strcpy(prevTreeBase0,getenv("MDSPLUS_TREE_BASE_0"));
+    strcpy(prevTreeBase1,getenv("MDSPLUS_TREE_BASE_1"));
+    strcpy(prevTreeBase2,getenv("MDSPLUS_TREE_BASE_2"));
+    strcpy(prevTreeBase3,getenv("MDSPLUS_TREE_BASE_3"));
+    strcpy(prevTreeBase4,getenv("MDSPLUS_TREE_BASE_4"));
+    strcpy(prevTreeBase5,getenv("MDSPLUS_TREE_BASE_5"));
+    strcpy(prevTreeBase6,getenv("MDSPLUS_TREE_BASE_6"));
+    strcpy(prevTreeBase7,getenv("MDSPLUS_TREE_BASE_7"));
+    strcpy(prevTreeBase8,getenv("MDSPLUS_TREE_BASE_8"));
+    strcpy(prevTreeBase9,getenv("MDSPLUS_TREE_BASE_9")); */
+
+    ((treeBase_ = getenv("MDSPLUS_TREE_BASE_0")) != 0) ? (strcpy(prevTreeBase0, treeBase_)) : (0);
+    ((treeBase_ = getenv("MDSPLUS_TREE_BASE_1")) != 0) ? (strcpy(prevTreeBase1, treeBase_)) : (0);
+    ((treeBase_ = getenv("MDSPLUS_TREE_BASE_2")) != 0) ? (strcpy(prevTreeBase2, treeBase_)) : (0);
+    ((treeBase_ = getenv("MDSPLUS_TREE_BASE_3")) != 0) ? (strcpy(prevTreeBase3, treeBase_)) : (0);
+    ((treeBase_ = getenv("MDSPLUS_TREE_BASE_4")) != 0) ? (strcpy(prevTreeBase4, treeBase_)) : (0);
+    ((treeBase_ = getenv("MDSPLUS_TREE_BASE_5")) != 0) ? (strcpy(prevTreeBase5, treeBase_)) : (0);
+    ((treeBase_ = getenv("MDSPLUS_TREE_BASE_6")) != 0) ? (strcpy(prevTreeBase6, treeBase_)) : (0);
+    ((treeBase_ = getenv("MDSPLUS_TREE_BASE_7")) != 0) ? (strcpy(prevTreeBase7, treeBase_)) : (0);
+    ((treeBase_ = getenv("MDSPLUS_TREE_BASE_8")) != 0) ? (strcpy(prevTreeBase8, treeBase_)) : (0);
+    ((treeBase_ = getenv("MDSPLUS_TREE_BASE_9")) != 0) ? (strcpy(prevTreeBase9, treeBase_)) : (0);
 
     // Set new values of the paths
     setenv("MDSPLUS_TREE_BASE_0", treeBase0, 1);
@@ -1495,9 +1505,10 @@ static void restoreEnv(char* name)
 
 static int getMdsShot(char* name, int shot, int run, int translate)
 {
-    int runBunch = run / 10000, i;
+    static int translated = 0;
+    int status, runBunch = run / 10000, i;
     //MERGE
-    char logName[64], baseName[64], * translatedBase, * currTrans, * currPattern;
+    char* command, logName[64], baseName[64], * translatedBase, * currTrans, * currPattern, * tempBuf;
     int retShot, substrOfs, currLen;
     /*
 	char *command, logName[64], baseName[64], *translatedBase;
@@ -1511,6 +1522,7 @@ static int getMdsShot(char* name, int shot, int run, int translate)
         currName[i] = 0;
     if (name && translate) {
         char* command;
+        translated = 1;
         sprintf(logName, "%s_path", currName);
         sprintf(baseName, "MDSPLUS_TREE_BASE_%d", runBunch);
 
@@ -1524,8 +1536,8 @@ static int getMdsShot(char* name, int shot, int run, int translate)
             if (prevLog)                            // imas_path is already set?
             {
                 //MERGE
-                if ((currPattern = strstr(prevLog, currTrans = getenv(
-                        baseName)))) // imas_path already contains the correct path?
+                if (currPattern = strstr(prevLog, currTrans = getenv(
+                        baseName)))    // imas_path already contains the correct path?
                 {
                     //Yes, move it to the head of the list
                     substrOfs = currPattern - prevLog;
@@ -1536,7 +1548,16 @@ static int getMdsShot(char* name, int shot, int run, int translate)
                     command[currLen + substrOfs] = 0;
                     strcpy(&command[strlen(command)], &currPattern[strlen(currTrans)]);
                     //sprintf(command, "%s", prevLog);	// then it remains the same
-                } else                                    // otherwise add the new path
+                }
+                    /*
+				if (strstr(prevLog,getenv(baseName)))	// imas_path already contains the correct path?
+				{
+					command=malloc(strlen(prevLog)+4);
+					sprintf(command, "%s", prevLog);	// then it remains the same
+				}
+				*/
+                    //MERGE
+                else                                    // otherwise add the new path
                 {
                     command = malloc(strlen(getenv(baseName)) + strlen(prevLog) + 4);
                     sprintf(command, "%s;%s", getenv(baseName), prevLog);
@@ -1546,7 +1567,8 @@ static int getMdsShot(char* name, int shot, int run, int translate)
                 command = malloc(strlen(getenv(baseName)) + 4);
                 sprintf(command, "%s", getenv(baseName));
             }
-            setenv(logName, command, 1);
+            //printf("%s\n", command);
+            status = setenv(logName, command, 1);
             free(command);
         }
     }
@@ -1565,7 +1587,6 @@ int imas_get_cache_level(int expIdx)
 {
     return getCacheLevel(expIdx);
 }
-
 
 void imas_enable_mem_cache(int idx)
 {
@@ -1684,7 +1705,6 @@ static void* getExpIndex(int expIdx)
     return openExperimentInfo[expIdx].ctx;
 }
 
-
 static int getCacheLevel(int expIdx)
 {
     if (expIdx < 0 || expIdx >= MAX_EXPERIMENTS || openExperimentInfo[expIdx].name == 0) {
@@ -1788,8 +1808,9 @@ int mdsimasDisconnect()
 
 int mdsimasOpen(char* name, int shot, int run, int* retIdx)
 {
-    int status;
+    int status, i;
     void* ctx = 0;
+    void* oldCtx;
     int remoteIdx, currMdsShot;
 
 #ifdef MONITOR
@@ -1807,10 +1828,18 @@ int mdsimasOpen(char* name, int shot, int run, int* retIdx)
 
     }
 
-    {
+/*	ctx = getExpCtx(name, getMdsShot(name, shot, run, 0));
+	if(ctx)
+	{
+	    oldCtx = TreeSwitchDbid(ctx);
+	    printf("OPEN RETURNED CTX %X\n", oldCtx);
+	}
+	else REMOVED!! LET MDSPlus create a new context every tome it is open
+*/    {
+        //oldCtx = TreeSwitchDbid((void *)0);
         status = _TreeOpen(&ctx, name, getMdsShot(name, shot, run, 1), 0);
         if (!(status & 1)) {
-            sprintf(errmsg, "Error opening pulse file %s shot: %d, run: %d. %s", name, shot, run, MdsGetMsg(status));
+            sprintf(errmsg, "Error opening pulse file %s shot: %d, run: %d. %s", name, shot, run, MdsGetMsg(mdsStatus));
             printf("%s\n", errmsg);
             return -1;
         }
@@ -1851,11 +1880,12 @@ int mdsimasCreateEnv(char* name, int shot, int run, int refShot, int refRun, int
     return status;
 }
 
+
 int mdsimasCreate(char* name, int shot, int run, int refShot, int refRun, int* retIdx)
 {
     int status, remoteIdx;
-    int refNid, currMdsShot;
-    void* ctx = 0;
+    int nid, nid1, refNid, currMdsShot;
+    void* ctx = 0, * oldCtx;
 
     int refs[2];
     DESCRIPTOR_A(refD, sizeof(int), DTYPE_L, (char*)refs, 2 * sizeof(int));
@@ -1879,7 +1909,7 @@ int mdsimasCreate(char* name, int shot, int run, int refShot, int refRun, int* r
     refs[0] = refShot;
     refs[1] = refRun;
     getMdsShot(name, shot, run, 1); //Initial setting logical names
-    TreeSwitchDbid((void*)0);
+    oldCtx = TreeSwitchDbid((void*)0);
     status = TreeOpen(name, -1, 0);
     if (!(status & 1)) {
         sprintf(errmsg, "Error opening model for %s pulse file creation: %s", name, MdsGetMsg(status));
@@ -1892,43 +1922,52 @@ int mdsimasCreate(char* name, int shot, int run, int refShot, int refRun, int* r
     }
     TreeClose(name, -1);
 
-    TreeSwitchDbid((void*)0);
+    oldCtx = TreeSwitchDbid((void*)0);
     status = _TreeOpen(&ctx, name, getMdsShot(name, shot, run, 0), 0);
     if (!(status & 1)) {
         sprintf(errmsg, "Error opening created pulse file %s: %s", name, MdsGetMsg(status));
         return -1;
     }
-    mdsStatus = status = _TreeFindNode(ctx, "topinfo:ref_shot", &refNid);
-    if (!(status & 1)) {
-        //topinfo:ref_shot not found, try older ref_info
-        mdsStatus = status = _TreeFindNode(ctx, "ref_info", &refNid);
-        if (!(status & 1)) {
-            sprintf(errmsg, "Internal error: treference information not found: %s", MdsGetMsg(status));
-            return -1;
+/* Obsolete part writing the reference shot (never used) , commented out 01/08/2016 because it hangs on hpc-app1 (IMAS-396)
+        mdsStatus = status = _TreeFindNode(ctx, "topinfo:ref_shot", &refNid);
+	if(!(status & 1))
+	{
+            //topinfo:ref_shot not found, try older ref_info
+            mdsStatus = status = _TreeFindNode(ctx, "ref_info", &refNid);
+            if(!(status & 1))
+            {
+		sprintf(errmsg, "Internal error: treference information not found: %s", MdsGetMsg(status));
+		return -1;
+            }
+            status = _TreePutRecord(ctx, refNid, (struct descriptor *)&refD, 0);
+            if(!(status & 1))
+            {
+		sprintf(errmsg, "Error writing reference shot: %s", MdsGetMsg(status));
+                return -1;
+            }
         }
-        status = _TreePutRecord(ctx, refNid, (struct descriptor*)&refD, 0);
-        if (!(status & 1)) {
-            sprintf(errmsg, "Error writing reference shot: %s", MdsGetMsg(status));
-            return -1;
-        }
-    } else {
-        status = _TreePutRecord(ctx, refNid, (struct descriptor*)&refShotD, 0);
-        if (!(status & 1)) {
-            sprintf(errmsg, "Error writing reference shot: %s", MdsGetMsg(status));
-            return -1;
-        }
+        else
+        {
+            status = _TreePutRecord(ctx, refNid, (struct descriptor *)&refShotD, 0);
+            if(!(status & 1))
+            {
+		sprintf(errmsg, "Error writing reference shot: %s", MdsGetMsg(status));
+		return -1;
+            }
 
-        mdsStatus = status = _TreeFindNode(ctx, "topinfo:ref_entry", &refNid);
-        if (!(status & 1)) {
-            sprintf(errmsg, "Internal error: topinfo:ref_run not found: %s", MdsGetMsg(status));
-            return -1;
-        }
-        status = _TreePutRecord(ctx, refNid, (struct descriptor*)&refRunD, 0);
-        if (!(status & 1)) {
-            sprintf(errmsg, "Error writing reference run: %s", MdsGetMsg(status));
-            return -1;
-        }
-    }
+            mdsStatus = status = _TreeFindNode(ctx, "topinfo:ref_entry", &refNid);
+            if(!(status & 1))
+            {
+		sprintf(errmsg, "Internal error: topinfo:ref_run not found: %s", MdsGetMsg(status));
+		return -1;
+            }
+            status = _TreePutRecord(ctx, refNid, (struct descriptor *)&refRunD, 0);
+            if(!(status & 1))
+            {
+		sprintf(errmsg, "Error writing reference run: %s", MdsGetMsg(status));
+		return -1;
+            }
+         } */
 
     currMdsShot = getMdsShot(name, shot, run, 0);
     strcpy(currExpName, name);
@@ -2066,7 +2105,7 @@ static char* mdsconvertPath(char* inputpath)
 
 static int getNid(char* cpoPath, char* path)
 {
-    int len, status, nid;
+    int i, len, status, nid;
     char* mdsPath;
 
     //printf("ual_low_level_mdsplus: GetNid : %s, %s\n", cpoPath, path);
@@ -2132,15 +2171,19 @@ static int mdsgetNid(char* cpoPath, char* path)
 static int getDataLocal(int expIdx, char* cpoPath, char* path, struct descriptor_xd* retXd, int evaluate)
 {
     int status, numSegments = 0;
-    int nid, isObject;
+    int nid, refNid, * refData, refShot, isObject;
+    EMPTYXD(xd);
     EMPTYXD(startXd);
     EMPTYXD(endXd);
+    struct descriptor_a* refD;
     struct descriptor_xd* xdPtr;
 
     lock("getDataLocal");
     checkExpIndex(expIdx);
 
+//	printf("getDataLocal for %s %s\n",cpoPath, path);
     nid = getNid(cpoPath, path);
+    //printf("In getDataLocal: nid for %s %s = %d\n",cpoPath, path,nid);
     if (nid == -1) {
         unlock();
         return -1;
@@ -2148,6 +2191,7 @@ static int getDataLocal(int expIdx, char* cpoPath, char* path, struct descriptor
     status = TreeGetNumSegments(nid, &numSegments);
     if (!(status & 1)) {
         sprintf(errmsg, "Missing data for IDS: %s, field: %s - %s", cpoPath, path, MdsGetMsg(status));
+        //printf("ERROR %s\n", errmsg);
         unlock();
         return -1;
     }
@@ -2186,6 +2230,8 @@ static int getDataLocal(int expIdx, char* cpoPath, char* path, struct descriptor
     if (!(status & 1) || retXd->l_length == 0) //Empty value has been written into the tree
     {
         sprintf(errmsg, "Missing data for IDS: %s, field: %s - %s", cpoPath, path, MdsGetMsg(status));
+        //  printf("ERROR %s\n", errmsg);
+
         unlock();
         return -1;
     }
@@ -2197,15 +2243,18 @@ static int getDataLocal(int expIdx, char* cpoPath, char* path, struct descriptor
 static int mdsgetDataLocal(int expIdx, char* cpoPath, char* path, struct descriptor_xd* retXd, int evaluate)
 {
     int status, numSegments = 0;
-    int nid, isObject;
+    int nid, refNid, * refData, refShot, isObject;
+    EMPTYXD(xd);
     EMPTYXD(startXd);
     EMPTYXD(endXd);
+    struct descriptor_a* refD;
     struct descriptor_xd* xdPtr;
 
     lock("mdsgetDataLocal");
     checkExpIndex(expIdx);
 
     nid = mdsgetNid(cpoPath, path);
+    // printf("mdsgetNid. nid for %s %s = %d\n",cpoPath, path,nid);
     if (nid == -1) {
         unlock();
         return -1;
@@ -2269,14 +2318,16 @@ getDataLocalNoDescr(int expIdx, char* cpoPath, char* path, void** retData, int* 
                     char* retClass, int* retLength, int64_t* retArsize, int evaluate)
 {
     int status, numSegments = 0;
-    int nid, i;
+    int nid, refNid, * refData, refShot, i;
     EMPTYXD(xd);
+    struct descriptor_a* refD;
     ARRAY_COEFF(char, 16) * dataDPtr;
 
     lock("getDataLocalNoDescr");
     checkExpIndex(expIdx);
 
     nid = getNid(cpoPath, path);
+/*	printf("nid for %s %s = %d\n",cpoPath, path,nid); */
     if (nid == -1) {
         unlock();
         return -1;
@@ -2445,7 +2496,7 @@ getNonSegmentedTimedDataNoDescr(int expIdx, char* cpoPath, char* path, void** re
     struct descriptor_a* longTimesD;
     EMPTYXD(xd);
     int status, nTimes, i;
-    float currTime;
+    double currTime;
     DESCRIPTOR_A(timeD, sizeof(double), DTYPE_DOUBLE, 0, 0);
     double* times;
     uint64_t* longTimes;
@@ -2471,7 +2522,7 @@ getNonSegmentedTimedDataNoDescr(int expIdx, char* cpoPath, char* path, void** re
     times = malloc(sizeof(double) * nTimes);
     longTimes = (uint64_t*)longTimesD->pointer;
     for (i = 0; i < nTimes; i++) {
-        MdsTimeToDouble(longTimes[i], (void*)&currTime);
+        MdsTimeToDouble(longTimes[i], &currTime);
         times[i] = currTime;
     }
     timeD.arsize = nTimes * sizeof(double);
@@ -2513,6 +2564,7 @@ static double getDoubleTime(struct descriptor* timeD)
 int getTimedData(int expIdx, char* cpoPath, char* path, double start, double end, struct descriptor_xd* retDataXd,
                  struct descriptor_xd* retTimesXd, int all)
 {
+    struct descriptor_a* longTimesD;
     EMPTYXD(emptyXd);
     EMPTYXD(startXd);
     EMPTYXD(endXd);
@@ -2688,6 +2740,7 @@ int getTimedData(int expIdx, char* cpoPath, char* path, double start, double end
 int mdsgetTimedData(int expIdx, char* cpoPath, char* path, double start, double end, struct descriptor_xd* retDataXd,
                     struct descriptor_xd* retTimesXd, int all)
 {
+    struct descriptor_a* longTimesD;
     EMPTYXD(emptyXd);
     EMPTYXD(startXd);
     EMPTYXD(endXd);
@@ -2848,6 +2901,7 @@ getTimedDataNoDescr(int expIdx, char* cpoPath, char* path, double start, double 
                     int* retDimsCt, char* retType, char* retClass, int* retLength, int64_t* retArsize,
                     struct descriptor_xd* retTimesXd, int all)
 {
+    struct descriptor_a* longTimesD;
     EMPTYXD(emptyXd);
     EMPTYXD(startXd);
     EMPTYXD(endXd);
@@ -3030,7 +3084,7 @@ static int getSlicedDataLocal(int expIdx, char* cpoPath, char* path, double time
     int status, nTimes, i, leftItems, leftRows, oldLen;
     DESCRIPTOR_A(timesD, sizeof(double), DTYPE_DOUBLE, 0, 0);
     struct descriptor_a* dataD;
-    double* times, currStart, currEnd;
+    double* times, start, end, currStart, currEnd;
     uint64_t* longTimes;
 
     int nid, numSegments, currSegment, isObject;
@@ -3164,7 +3218,8 @@ getDataAndSliceIdxs(int expIdx, char* cpoPath, char* path, char* timeBasePath, s
     double* times;
     int nTimes;
     int status, startIdx;
-    int nItems, i, itemSize;
+    unsigned int itemSize;
+    int nItems, i;
 
 //Read Segment corresponding to time
     status = getSlicedData(expIdx, cpoPath, path, timeBasePath, time, xd, &timesXd, 1);
@@ -3314,7 +3369,8 @@ static void getLeftItems(int nid, int* leftItems, int* leftRows)
     char dtype;
     char dimct;
     int dims[64];
-    int nextRow, status, rowSize, i;
+    unsigned int rowSize;
+    int idx, nextRow, status, i;
 #ifdef OLD_MDS
     status = TreeGetSegmentInfo(nid, &dtype, &dimct, dims, &idx, &nextRow);
 #else
@@ -3652,8 +3708,8 @@ putSliceLocal(int expIdx, char* cpoPath, char* path, char* timeBasePath, struct 
         }
 
         status = TreeBeginSegment(nid,
-                                  &endD, &endD, (struct descriptor*)timeExprXd.pointer,
-                                  (struct descriptor_a*)&segDataD, -1);
+                                  &endD, &endD, (struct descriptor*)timeExprXd.pointer, (struct descriptor_a*)&segDataD,
+                                  -1);
         if (!(status & 1)) {
             sprintf(errmsg, "Cannot write data segment at path %s, IDS path %s: %s", path, cpoPath, MdsGetMsg(status));
             unlock();
@@ -3787,8 +3843,8 @@ mdsputSliceLocal(int expIdx, char* cpoPath, char* path, char* timeBasePath, stru
         }
 
         status = TreeBeginSegment(nid,
-                                  &endD, &endD, (struct descriptor*)timeExprXd.pointer,
-                                  (struct descriptor_a*)&segDataD, -1);
+                                  &endD, &endD, (struct descriptor*)timeExprXd.pointer, (struct descriptor_a*)&segDataD,
+                                  -1);
         if (!(status & 1)) {
             sprintf(errmsg, "Cannot write data segment at path %s, IDS path %s: %s", path, cpoPath, MdsGetMsg(status));
             unlock();
@@ -4046,8 +4102,8 @@ int mdsPutVect1DString(int expIdx, char* cpoPath, char* path, char* timeBasePath
     return status;
 }
 
-static int putTimedVect1DString(int expIdx, char* cpoPath, char* path, char* timeBasePath, char** data, double* times,
-                                int nTimes)
+static int
+putTimedVect1DString(int expIdx, char* cpoPath, char* path, char* timeBasePath, char** data, double* times, int nTimes)
 {
     EMPTYXD(emptyXd);
     DESCRIPTOR_A_COEFF(dataD, sizeof(char), DTYPE_BU, 0, 2, 0);
@@ -4096,8 +4152,8 @@ int mdsPutVect1DDouble(int expIdx, char* cpoPath, char* path, char* timeBasePath
     return status;
 }
 
-static int putTimedVect1DDouble(int expIdx, char* cpoPath, char* path, char* timeBasePath, double* data, double* times,
-                                int nTimes)
+static int
+putTimedVect1DDouble(int expIdx, char* cpoPath, char* path, char* timeBasePath, double* data, double* times, int nTimes)
 {
     EMPTYXD(emptyXd);
     DESCRIPTOR_A(dataD, sizeof(double), DTYPE_DOUBLE, 0, 0);
@@ -5081,8 +5137,7 @@ mdsPutVect1DDoubleSlice(int expIdx, char* cpoPath, char* path, char* timeBasePat
     return status;
 }
 
-int
-mdsPutVect1DFloatSlice(int expIdx, char* cpoPath, char* path, char* timeBasePath, float* data, int dim, double time)
+int mdsPutVect1DFloatSlice(int expIdx, char* cpoPath, char* path, char* timeBasePath, float* data, int dim, double time)
 {
     EMPTYXD(emptyXd);
     DESCRIPTOR_A(dataD, sizeof(float), DTYPE_FLOAT, 0, 0);
@@ -9449,7 +9504,8 @@ static int putTimedObjectLocal(int expIdx, char* cpoPath, char* path, void** obj
 {
     EMPTYXD(emptyXd);
     struct descriptor_xd* serializedXds;
-    int nid, status, i, sliceIdx, segmentSize, numSegmentSlices, totSize;
+    unsigned int segmentSize, totSize;
+    int nid, status, i, sliceIdx, numSegmentSlices;
     struct descriptor_a** apds, * arrD;
     int* sliceSizes, * segmentTimes;
     int startSegIdx, endSegIdx, currIdx;
@@ -10162,8 +10218,8 @@ mdsPutVect5DIntInObject(void* obj, char* path, int idx, int* data, int dim1, int
     return obj;
 }
 
-void* mdsPutVect5DFloatInObject(void* obj, char* path, int idx, float* data, int dim1, int dim2, int dim3, int dim4,
-                                int dim5)
+void*
+mdsPutVect5DFloatInObject(void* obj, char* path, int idx, float* data, int dim1, int dim2, int dim3, int dim4, int dim5)
 {
     putInObject(obj, path, idx,
                 allocateDescr(DTYPE_FLOAT, data, sizeof(float), dim1 * dim2 * dim3 * dim4 * dim5 * sizeof(float), 5,
@@ -10419,8 +10475,7 @@ static int getObjectLocal(int expIdx, char* cpoPath, char* path, void** obj, int
                 }
                 dscPtrs[sliceIdx] = xds[sliceIdx].pointer;
                 sliceIdx++;
-                currSlicePtr +=
-                        *(int*)currSlicePtr + sizeof(int); //advance pointer to next serialized slice in segment
+                currSlicePtr += *(int*)currSlicePtr + sizeof(int); //advance pointer to next serialized slice in segment
             }
             MdsFree1Dx(&xd, 0);
         }
@@ -10582,8 +10637,7 @@ static int mdsgetObjectLocal(int expIdx, char* cpoPath, char* path, void** obj, 
                 }
                 dscPtrs[sliceIdx] = xds[sliceIdx].pointer;
                 sliceIdx++;
-                currSlicePtr +=
-                        *(int*)currSlicePtr + sizeof(int); //advance pointer to next serialized slice in segment
+                currSlicePtr += *(int*)currSlicePtr + sizeof(int); //advance pointer to next serialized slice in segment
             }
             MdsFree1Dx(&xd, 0);
         }
@@ -10974,8 +11028,8 @@ mdsGetVect4DFloatFromObject(void* obj, char* path, int idx, float** data, int* d
     }
 }
 
-int mdsGetVect4DDoubleFromObject(void* obj, char* path, int idx, double** data, int* dim1, int* dim2, int* dim3,
-                                 int* dim4)
+int
+mdsGetVect4DDoubleFromObject(void* obj, char* path, int idx, double** data, int* dim1, int* dim2, int* dim3, int* dim4)
 {
     ARRAY_COEFF(char *, 7) * arrD = (void*)getDataFromObject(obj, path, idx);
 
@@ -11882,7 +11936,6 @@ int mdsCopyCpo(int fromIdx, int toIdx, char* inputcpoName, int fromCpoOccur, int
     return 0;
 }
 
-
 //Fake Routines still used by fortraninterface
 void ids_discard_mem()
 {}
@@ -11896,7 +11949,6 @@ void ids_flush()
 void ids_discard_old_mem()
 {}
 
-
 //MERGE
 #define MAX_COMMAND_ANSWER_LEN 10000
 
@@ -11905,28 +11957,29 @@ struct descriptor_xd* doShellCommand(char* cmd)
     static EMPTYXD(retXd);
     char* fullCommand = malloc(strlen(cmd) + 64);
     char* answer = malloc(MAX_COMMAND_ANSWER_LEN);
+    int retLen;
+    FILE* f;
     struct descriptor answerD = { 0, DTYPE_T, CLASS_S, answer };
+    char* tmpName;
 
-    char tmpName[] = "/tmp/ual_XXXXXX";
-    mkstemp(tmpName);
-
+    tmpName = tempnam("/tmp", "ual_");
     sprintf(fullCommand, "%s > %s", cmd, tmpName);
     system(fullCommand);
     free(fullCommand);
-    int retLen = 0;
-    FILE* f = fopen(tmpName, "r");
+    retLen = 0;
+    f = fopen(tmpName, "r");
     if (!f) {
+        free(tmpName);
         return NULL;
     }
     while (fread(&answer[retLen], 1, 1, f) > 0 && retLen < MAX_COMMAND_ANSWER_LEN)
         retLen++;
     fclose(f);
     remove(tmpName);
+    free(tmpName);
     answerD.length = retLen;
     MdsCopyDxXd(&answerD, &retXd);
     free(answer);
     return &retXd;
 }
 //MERGE
-
-
