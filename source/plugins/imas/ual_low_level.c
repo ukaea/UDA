@@ -172,3 +172,9 @@ char* imas_last_errmsg()
 {
     return errmsg;
 }
+
+char* imas_reset_errmsg()
+{
+    message[0] = '\0';
+    return errmsg;
+}
