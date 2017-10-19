@@ -168,6 +168,14 @@ char* getMajorImasVersion(char* imasVersion)
 static char message[10000];
 char* errmsg = message;
 
+static struct {
+    char expName[MAX_EXP_NAME];
+    int shot;
+    int run;
+    int idx;
+    int mode;
+} expInfo[MAX_OPEN_EXP];
+
 char* imas_last_errmsg()
 {
     return errmsg;
@@ -178,3 +186,10 @@ char* imas_reset_errmsg()
     message[0] = '\0';
     return errmsg;
 }
+
+static int getShot(int idx)
+{
+    return expInfo[idx].shot;
+}
+
+int ual_get_shot(int idx) { return getShot(idx); }
