@@ -191,6 +191,7 @@ function getgeomdata, namearg, sourcearg,     $
                       versignal=versignal,    $
                       torangle=torangle,      $
                       threed=threed,          $
+                      nocal=nocal,            $
                       debug=debug,            $
                       _extra=_extra 
 
@@ -293,36 +294,41 @@ function getgeomdata, namearg, sourcearg,     $
      signal_type = configstruct.data.signal_type
      combinedstruct = configstruct.data.data
 
-     ; Adjust call for retrieving calibration data
-     workname = 'GEOM::get(signal='+strtrim(allsignals[i])+', '
-     if exists(filecal) then workname = workname+'file='+strtrim(filecal[0],2)+', '
-     if exists(vercal) then workname = workname+'version='+strtrim(vercal[0], 2)+', '
-     if exists(torangle) then workname = workname+'tor_angle='+strtrim(torangle[0], 2)+', '
-     if keyword_set(threed) then workname = workname+'three_d=True, '
+     if ~keyword_set(nocal) then begin
+        ; Adjust call for retrieving calibration data
+        workname = 'GEOM::get(signal='+strtrim(allsignals[i])+', '
+        if exists(filecal) then workname = workname+'file='+strtrim(filecal[0],2)+', '
+        if exists(verconfig) then workname = workname+'version='+strtrim(verconfig[0], 2)+', '
+        if exists(vercal) then workname = workname+'version_cal='+strtrim(vercal[0], 2)+', '
+        if exists(torangle) then workname = workname+'tor_angle='+strtrim(torangle[0], 2)+', '
+        if keyword_set(threed) then workname = workname+'three_d=True, '
 
-     workname = workname+'cal=1)'
+        workname = workname+'cal=1)'
 
-     ; Retrieve calibration data
-     if exists(sourcearg) or exists(filecal) then begin
-        idamcalls = [idamcalls, workname]
-        idamhandles = [idamhandles, workname]
+        ; Retrieve calibration data
+        if exists(sourcearg) or exists(filecal) then begin
+           idamcalls = [idamcalls, workname]
+           idamhandles = [idamhandles, workname]
 
-        if keyword_set(debug) then print, 'getgeomdata : cal data call : ', workname
+           if keyword_set(debug) then print, 'getgeomdata : cal data call : ', workname
 
-        calstruct = getstruct(workname, worksource)
-        rc=freeidam(calstruct.handle)
+           calstruct = getstruct(workname, worksource)
+           rc=freeidam(calstruct.handle)
      
-        if calstruct.erc eq 0 then begin
-           if tag_exists(calstruct, 'data') then begin
-              ; Combine configuration and
-              ; calibration data
-              combinedstruct = combineconfigcal(configstruct.data.data, calstruct.data.data, allsignals[i], signal_type)
-           endif 
+           if calstruct.erc eq 0 then begin
+              if tag_exists(calstruct, 'data') then begin
+                 ; Combine configuration and
+                 ; calibration data
+                 combinedstruct = combineconfigcal(configstruct.data.data, calstruct.data.data, allsignals[i], signal_type)
+              endif
+           endif else begin
+              warning = warning+':: No calibration data was found for '+allsignals[i]
+           endelse
         endif else begin
-           warning = warning+':: No calibration data was found for '+allsignals[i]
+           warning = warning+':: No calibration data was requrested for '+allsignals[i]
         endelse
      endif else begin
-        warning = warning+':: No calibration data was requrested for '+allsignals[i]
+        warning = warning+':: nocal keyword was set so no calibration was applied'
      endelse
 
      ; Apply any transformations etc. that

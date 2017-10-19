@@ -1,4 +1,3 @@
-import re
 import logging
 
 from . import c_uda
@@ -9,7 +8,6 @@ from ._structuredWritable import StructuredWritable
 from ._geometryFiles import GeometryFiles
 from ._geometry import GeometryData
 from ._signalGeometry import SignalGeometryData
-
 
 class ClientMeta(type):
     """
@@ -175,7 +173,7 @@ class Client(metaclass = ClientMeta):
 
         return sig_struct
 
-    def geometry(self, signal, source, toroidal_angle=None, **kwargs):
+    def geometry(self, signal, source, toroidal_angle=None, no_cal=False, **kwargs):
         """
         Retrieve geometry data for a given geometry signal or group.
         If a calibration file is available, this will be retrieved & the geometry data will be calibrated.
@@ -185,6 +183,7 @@ class Client(metaclass = ClientMeta):
         :param source: Shot to retrieve info for
         :param toroidal_angle: Toroidal angle at which to retrieve info.
                                (If geometry component has no toroidal dependence this is not required.)
+        :param no_cal: Don't apply geometry calibration if set to True
         :param kwargs: Optional arguments.
         :return:
         """
@@ -203,7 +202,7 @@ class Client(metaclass = ClientMeta):
 
         signal_map = GeometryFiles()
         signal_groups = multiple_names["data"].geomgroups
-        signal_groups = list(set(signal_groups))        
+        signal_groups = list(set(signal_groups))
 
         manip = signal_map.get_signals(signal_groups)
 
@@ -239,7 +238,7 @@ class Client(metaclass = ClientMeta):
         if "version_config" in kwargs.keys():
             version_config = "version={0}".format(kwargs["version_config"])
         if "version_cal" in kwargs.keys():
-            version_cal = "version={0}".format(kwargs["version_cal"])
+            version_cal = "version_cal={0}, {1}".format(kwargs["version_cal"], version_config)
 
         # Loop files to be read in
         for signal_name in signal_names:
@@ -253,23 +252,26 @@ class Client(metaclass = ClientMeta):
             config_call = geom_call.format(signal_name, config_extra, version_config)
 
             self.logger.info("Call is {0}\n".format(config_call))
-            try:                
+            try:
                 config_struct = StructuredWritable((self._cclient.get(str(config_call), str(source_call))).tree())
             except c_uda.UDAException:
                 self.logger.error("ERROR: Could not retrieve geometry data for signal {0} and source {1}".format(signal,
                                                                                                          source))
                 return
 
-            # Get calibration data
-            cal_extra = "cal=1"
-            cal_call = geom_call.format(signal_name, cal_extra, version_cal)
-            self.logger.debug("Call is {0}\n".format(cal_call))
-            try:
-                cal_struct = StructuredWritable((self._cclient.get(str(cal_call), str(source_call))).tree())
-                self.logger.debug("Calibration data was found")
-            except c_uda.UDAException:
+            # Get calibration data unless asked not to calibrate
+            if not no_cal:
+                cal_extra = "cal=1"
+                cal_call = geom_call.format(signal_name, cal_extra, version_cal)
+                self.logger.debug("Call is {0}\n".format(cal_call))
+                try:
+                    cal_struct = StructuredWritable((self._cclient.get(str(cal_call), str(source_call))).tree())
+                    self.logger.debug("Calibration data was found")
+                except c_uda.UDAException:
+                    cal_struct = None
+                    self.logger.debug("No calibration data was found")
+            else:
                 cal_struct = None
-                self.logger.debug("No calibration data was found")
 
             results.append([config_struct, cal_struct])
 

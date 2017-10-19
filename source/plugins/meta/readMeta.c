@@ -625,7 +625,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             UDA_LOG(UDA_LOG_DEBUG, "readMeta: listDevices SQL\n%s\n", sql);
 
             // Execute the SQL
-	    IDAM_LOGF(UDA_LOG_DEBUG, "Query (meta) : %s\n", sql);
+	    UDA_LOG(UDA_LOG_DEBUG, "Query (meta) : %s\n", sql);
 
             if ((DBQuery = PQexec(DBConnect, sql)) == NULL) {
                 err = 999;
@@ -1065,7 +1065,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Execute the SQL
 
-	    IDAM_LOGF(UDA_LOG_DEBUG, "Query (meta) : %s\n", sql);
+	    UDA_LOG(UDA_LOG_DEBUG, "Query (meta) : %s\n", sql);
             if ((DBQuery = PQexec(DBConnect, sql)) == NULL) {
                 UDA_LOG(UDA_LOG_ERROR, "ERROR Meta: Database Query Failed!\n");
                 err = 999;
@@ -1682,9 +1682,8 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             UDA_LOG(UDA_LOG_DEBUG, "readMeta: SQL\n%s\n", sql);
 
-// Execute the SQL
-
-	    IDAM_LOGF(UDA_LOG_DEBUG, "Query (meta) : %s\n", sql);
+            // Execute the SQL
+	        UDA_LOG(UDA_LOG_DEBUG, "Query (meta) : %s\n", sql);
             if ((DBQuery = PQexec(DBConnect, sql)) == NULL) {
                 UDA_LOG(UDA_LOG_ERROR, "ERROR Meta: Database Query Failed!\n");
                 err = 999;
@@ -1753,7 +1752,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Execute the SQL
 
-	    IDAM_LOGF(UDA_LOG_DEBUG, "Query (lastshot) : %s\n", sql);
+	        UDA_LOG(UDA_LOG_DEBUG, "Query (lastshot) : %s\n", sql);
             if ((DBQuery = PQexec(DBConnect, sql)) == NULL) {
                 err = 999;
                 UDA_LOG(UDA_LOG_ERROR, "ERROR Meta: Database Query Failed!\n");
@@ -1929,7 +1928,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             // Execute the SQL
 
-	    IDAM_LOGF(UDA_LOG_DEBUG, "Query (isshotdatetime) %s\n", sql);
+            UDA_LOG(UDA_LOG_DEBUG, "Query (isshotdatetime) %s\n", sql);
             if ((DBQuery = PQexec(DBConnect, sql)) == NULL) {
                 err = 999;
                 UDA_LOG(UDA_LOG_ERROR, "ERROR Meta: Database Query Failed!\n");
@@ -3348,7 +3347,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Execute the SQL
 
-	    IDAM_LOGF(UDA_LOG_DEBUG, "Query (cpf) : %s\n", sql);
+	        UDA_LOG(UDA_LOG_DEBUG, "Query (cpf) : %s\n", sql);
             if ((DBQuery = PQexec(DBConnect, sql)) == NULL) {
                 err = 999;
                 UDA_LOG(UDA_LOG_ERROR, "ERROR Meta:: Database Query Failed!\n");
