@@ -96,11 +96,11 @@ void soft_x_rays_channels_power_density_data(int shotNumber, DATA_BLOCK* data_bl
 	int extractionIndex;
 
 	if (index <= 28) {
-		nomsigp = strdup("GTHMX1");
+		nomsigp = strdup("GTXMH1");
 		extractionIndex = index;
 	}
 	else {
-		nomsigp = strdup("GTHMX2");
+		nomsigp = strdup("GTXMH2");
 		extractionIndex = 30 - index;
 	}
 

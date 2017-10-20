@@ -163,8 +163,8 @@ int GetDynData(int shotNumber, float** time, float** data, int* len, int* nodeIn
     }
 
     IDAM_LOGF(UDA_LOG_DEBUG, "command: %s\n", command);
-    IDAM_LOG(UDA_LOG_DEBUG, "Getting object name\n");
     getObjectName(&objectName, command);
+    IDAM_LOGF(UDA_LOG_DEBUG, "Getting object name: %s\n", objectName);
 
     IDAM_LOG(UDA_LOG_DEBUG, "Group of signals ?\n");
     getSignalType(objectName, shotNumber, &signalType);
