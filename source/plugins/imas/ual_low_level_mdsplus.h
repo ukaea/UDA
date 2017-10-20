@@ -1,10 +1,13 @@
+#ifndef _UAL_LOW_LEVEL_MDSPLUS_H
+#define _UAL_LOW_LEVEL_MDSPLUS_H
+
 #include <mdsdescrip.h>
+
 #define INTERPOLATION 3
 #define CLOSEST_SAMPLE 1
 #define PREVIOUS_SAMPLE 2
 
 extern int mdsimasConnect(char *ip);
-int mdsimasDisconnect();
 extern char *spawnCommand(char *command, char *ipAddress);
 extern int mdsimasCreate(char *name, int shot, int run, int refShot, int refRun, int *retIdx);
 extern int mdsimasCreateEnv(char *name, int shot, int run, int refShot, int refRun, int *retIdx, char *user, char *tokamak, char *version);
@@ -162,8 +165,8 @@ extern int mdsbeginIdsReplaceLastSlice(int expIdx, char *path);
 extern int mdsendIdsReplaceLastSlice(int expIdx, char *path);
 
 int getData(int expIdx, char *cpoPath, char *path, struct descriptor_xd *retXd, int evaluate);
-int getSlicedData(int expIdx, char *cpoPath, char *path, char *timeBasePath, double time, struct descriptor_xd *retDataXd, 
-    struct descriptor_xd *retTimesXd, int expandObj);
+int getSlicedData(int expIdx, char *cpoPath, char *path, char *timeBasePath, double time, struct descriptor_xd *retDataXd,
+                  struct descriptor_xd *retTimesXd, int expandObj);
 int putSegment(int expIdx, char *cpoPath, char *path, char *timeBasePath, struct descriptor_a *dataD, double *times, int nTimes);
 int putData(int expIdx, char *cpoPath, char *path, struct descriptor *dataD);
 int putSlice(int expIdx, char *cpoPath, char *path, char *timeBasePath, struct descriptor *dataD, double time);
@@ -261,5 +264,4 @@ int mdsReplaceLastObjectSlice(int expIdx, char *cpoPath, char *mdsPath, void *ob
 //cpo copy
 int mdsCopyCpo(int fromIdx, int toIdx, char *cpoName, int fromCpoOccur, int toCpoOccur);
 
-int putObjectSegment(int expIdx, char* cpoPath, char* path, void* objSegment, int segIdx);
-
+#endif

@@ -18,7 +18,7 @@ extern "C" {
 
 extern IDAMPLUGINFILELIST pluginFileList;
 
-int idamHDF5(IDAM_PLUGIN_INTERFACE * idam_plugin_interface);
+int udaHDF5(IDAM_PLUGIN_INTERFACE * idam_plugin_interface);
 
 int readHDF5IdamType(H5T_class_t classtype, int precision, int issigned);
 

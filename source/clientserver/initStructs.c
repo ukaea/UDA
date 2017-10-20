@@ -5,7 +5,12 @@
 
 #include "initStructs.h"
 
-#include <unistd.h>
+#ifdef __GNUC__
+#  include <unistd.h>
+#elif defined(_WIN32)
+#  include <process.h>
+#endif
+
 #include <clientserver/udaTypes.h>
 #include <security/authenticationUtils.h>
 #include <string.h>
@@ -43,6 +48,10 @@ void initRequestBlock(REQUEST_BLOCK* str)
     initIdamPutDataBlockList(&str->putDataBlockList);
 
 }
+
+#ifdef _WIN32
+#  define getpid _getpid
+#endif
 
 void initClientBlock(CLIENT_BLOCK* str, int version, char* clientname)
 {

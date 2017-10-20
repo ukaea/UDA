@@ -3426,19 +3426,15 @@ PGconn* startSQL_CPF() {
 }
 
 void sqlReason(PGconn *DBConnect, char *reason_id, char *reason) {
-    return;
 }
 
 void sqlResult(PGconn *DBConnect, char *run_id, char *desc) {
-    return;
 }
 
 void sqlStatusDesc(PGconn *DBConnect, char *status_desc_id, char *desc) {
-    return;
 }
 
 void sqlMeta(PGconn *DBConnect, char * table, char *meta_id, char *xml, char *creation) {
-    return;
 }
 
 int sqlGeneric(PGconn *DBConnect, char *signal, int exp_number, int pass, char *tpass,
@@ -3485,7 +3481,7 @@ int sqlArchive(PGconn *DBConnect, char *archive, DATA_SOURCE *data_source_str) {
 }
 
 int sqlLatestPass(PGconn *DBConnect, char *source_alias, char type, int exp_number, char *maxpass) {
-    return(-1);
+    return -1;
 }
 
 int sqlAltData(PGconn *DBConnect, REQUEST_BLOCK request_block, int rank, SIGNAL_DESC *signal_desc,char *mapping) {

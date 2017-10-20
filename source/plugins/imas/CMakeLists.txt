@@ -24,10 +24,9 @@ add_definitions( -Wno-error -Wno-all )
 include( plugins )
 
 set( IMAS_SOURCES 
-  ual_low_level_f77.c
-  ual_low_level.c
   ual_low_level_mdsplus.c
   ual_low_level_remote.c
+  ual_low_level.c
   ual_low_level_meta.cpp
   ual_low_level_mdsobjects.cpp )
 

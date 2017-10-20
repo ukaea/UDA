@@ -2,7 +2,6 @@
 #include <pthread.h>
 #include <cstdio>
 #include <cstdlib>
-#include <clientserver/stringUtils.h>
 
 //Memory storage of metadata information: presence of data and dimensions
 
@@ -48,7 +47,7 @@ void startCacheMonitor(char *name);
 
 }
 
-static int getFirstSlashOccurrence(const char* path)
+static int getFirstSlashOccurrence(char* path)
 {
     int i;
     int len = strlen(path);
@@ -68,8 +67,8 @@ class PathLeaf;
 class PathNode;
 
 static PathLeaf*
-createPathLeaf(PathNode* parent, const char* name, bool exists, int nDims, int* dims, int itemSize, char type,
-               int dataSize, char* data);
+createPathLeaf(PathNode* parent, char* name, bool exists, int nDims, int* dims, int itemSize, char type, int dataSize,
+               char* data);
 
 #ifdef MONITOR
 static bool report(CacheMonitor *cm, char *cpoPath, char *path, bool exists, bool isSliced, bool isObject, int dataSize, int numSlices);
@@ -84,7 +83,7 @@ protected:
 public:
     char* name;
 
-    PathNode(PathNode* parent, const char* name)
+    PathNode(PathNode* parent, char* name)
     {
         this->name = new char[strlen(name) + 1];
         strcpy(this->name, name);
@@ -112,11 +111,11 @@ public:
     }
 #endif
 
-    PathNode* getLeaf(const char* path)
+    PathNode* getLeaf(char* path)
     {
         int idx, childIdx;
-        PathNode* retLeaf = NULL;
-        bool exists = true;
+        PathNode* retLeaf;
+        bool exists;
         int dims[16];
         if (numChildren == childrenSize - 1) {
             PathNode** newC = new PathNode* [2 * numChildren];
@@ -130,13 +129,13 @@ public:
         if (idx == -1) //this is the last part of the name and refers to a  leaf
         {
             for (childIdx = 0; childIdx < numChildren; childIdx++) {
-                if (STR_EQUALS(children[childIdx]->name, path)) {
+                if (!strcmp(children[childIdx]->name, path)) {
                     return children[childIdx];
                     break;
                 }
             }
             if (childIdx == numChildren) {
-                children[numChildren++] = retLeaf = (PathNode*)createPathLeaf(this, path, exists, 0, dims, 0, 0, 0, 0);
+                children[numChildren++] = retLeaf = (PathNode*)createPathLeaf(this, path, &exists, 0, dims, 0, 0, 0, 0);
                 return retLeaf;
             }
         } else {
@@ -144,7 +143,7 @@ public:
             memcpy(name1, path, idx);
             name1[idx] = 0;
             for (childIdx = 0; childIdx < numChildren; childIdx++) {
-                if (STR_EQUALS(children[childIdx]->name, name1)) {
+                if (!strcmp(children[childIdx]->name, name1)) {
                     retLeaf = children[childIdx]->getLeaf(&path[idx + 1]);
                     break;
                 }
@@ -157,13 +156,11 @@ public:
             delete[] name1;
             return retLeaf;
         }
-
-        return retLeaf;
     }
 
 
     virtual void
-    putInfo(const char* path, bool exists, int nDims, int* dims, int itemSize, char type, int dataSize, char* data,
+    putInfo(char* path, bool exists, int nDims, int* dims, int itemSize, char type, int dataSize, char* data,
             bool isObject)
     {
 //When deleting data (exists false) do not create new nodes
@@ -193,7 +190,7 @@ public:
             name1[idx] = 0;
         }
         for (int i = 0; i < numChildren; i++) {
-            if (STR_EQUALS(name1, children[i]->name)) {
+            if (!strcmp(name1, children[i]->name)) {
                 delete[]name1;
                 return children[i]->getInfo(&path[idx + 1], exists, nDims, dims, itemSize, type, dataSize, data);
             }
@@ -203,7 +200,7 @@ public:
     }
 
     virtual void
-    appendSliceSet(const char* path, char* timeBasePath, int nDims, int* dims, int itemSize, char type, int sliceSize,
+    appendSliceSet(char* path, char* timeBasePath, int nDims, int* dims, int itemSize, char type, int sliceSize,
                    char* slice, int numSlices)
     {
         PathNode* leaf = getLeaf(path);
@@ -211,28 +208,28 @@ public:
     }
 
     virtual void
-    appendSlice(const char* path, char* timeBasePath, int nDims, int* dims, int itemSize, char type, int sliceSize,
+    appendSlice(char* path, char* timeBasePath, int nDims, int* dims, int itemSize, char type, int sliceSize,
                 char* slice)
     {
         PathNode* leaf = getLeaf(path);
         leaf->appendSlice("", timeBasePath, nDims, dims, itemSize, type, sliceSize, slice);
     }
 
-    virtual void removeAllInfoObjectSlices(const char* path)
+    virtual void removeAllInfoObjectSlices(char* path)
     {
         PathNode* leaf = getLeaf(path);
         leaf->removeAllInfoObjectSlices("");
     }
 
 
-    virtual void appendInfoObjectSlice(const char* path, char* buf, int size)
+    virtual void appendInfoObjectSlice(char* path, char* buf, int size)
     {
         PathNode* leaf = getLeaf(path);
         leaf->appendInfoObjectSlice("", buf, size);
     }
 
 
-    virtual void invalidateField(const char* path)
+    virtual void invalidateField(char* path)
     {
         int idx;
         char* name1;
@@ -246,7 +243,7 @@ public:
             name1[idx] = 0;
         }
         for (int i = 0; i < numChildren; i++) {
-            if (STR_EQUALS(name1, children[i]->name)) {
+            if (!strcmp(name1, children[i]->name)) {
                 delete[]name1;
                 if (idx == -1) //Leaf child
                 {
@@ -278,7 +275,7 @@ public:
             name1[idx] = 0;
         }
         for (int i = 0; i < numChildren; i++) {
-            if (STR_EQUALS(name1, children[i]->name)) {
+            if (!strcmp(name1, children[i]->name)) {
                 delete[]name1;
                 return children[i]->getNumSlices(&path[idx + 1]);
             }
@@ -301,7 +298,7 @@ public:
             name1[idx] = 0;
         }
         for (int i = 0; i < numChildren; i++) {
-            if (STR_EQUALS(name1, children[i]->name)) {
+            if (!strcmp(name1, children[i]->name)) {
                 delete[]name1;
                 return children[i]->getInfoSlice(&path[idx + 1], sliceIdx, exists, data);
             }
@@ -357,8 +354,8 @@ public:
     bool exists;
     int nDims;
     int dims[16];
-    int dataSize;
-    int bufferSize;
+    unsigned int dataSize;
+    unsigned int bufferSize;
     char type;
     int itemSize;
     char* data;
@@ -371,7 +368,7 @@ public:
 //Added to keep track of the original path name for time information
     char* timeBasePath;
 
-    PathLeaf(PathNode* parent, const char* name, bool exists, int nDims, int* dims, int itemSize = 0, char type = 0,
+    PathLeaf(PathNode* parent, char* name, bool exists, int nDims, int* dims, int itemSize = 0, char type = 0,
              int dataSize = 0, char* data = 0) : PathNode(parent, name)
     {
         if (getFirstSlashOccurrence(name) != -1) {
@@ -574,7 +571,11 @@ public:
 	}
 */
 
-        if (!exists) {
+//Gabriele Oct 2016: appendSliceSet is called ONLY by putTimedXXX and therefore the content is NOT appended to cache content, but replaces it
+
+
+//	if(!exists) Gabriele Oct 2016 force always replacement of existing data
+        {
 //printf("APPEND SLICE SET FROM SCRATCH!!!!!!!\n");
             this->exists = true;
             this->nDims = nDims;
@@ -596,31 +597,38 @@ public:
             this->numSlices = numSlices;
 #endif
 
-        } else {
-            //Test consistency
-            int currSliceSize = itemSize;
-            for (int i = 0; i < this->nDims - 1; i++)
-                currSliceSize *= dims[i];
-            if (currSliceSize != sliceSize / numSlices) {
-                printf("FATAL ERROR IN METADATA MANAGEMENT: Wrong Slice size. Expected: %d, Actual: %d\n",
-                       currSliceSize, sliceSize);
-                exit(0);
-            }
-            if (bufferSize < dataSize + sliceSize) {//Make room for more STEP_SLICES slices
-                char* newBuf = new char[dataSize + STEP_SLICES * sliceSize];
-                memcpy(newBuf, data, dataSize);
-                delete[] data;
-                data = newBuf;
-                bufferSize = dataSize + STEP_SLICES * sliceSize;
-            }
-            memcpy(&data[dataSize], slice, sliceSize);
-            dataSize += sliceSize;
-            dims[this->nDims - 1] += numSlices;
+        }
+/* Gabriele Oct 2016 - removed
+
+	else
+	{
+	//Test consistency
+	    int currSliceSize = itemSize;
+	    for(int i = 0; i < this->nDims - 1; i++)
+	        currSliceSize *= dims[i];
+	    if(currSliceSize != sliceSize/numSlices)
+	    {
+	        printf("FATAL ERROR IN METADATA MANAGEMENT: Wrong Slice size. Expected: %d, Actual: %d\n", currSliceSize, sliceSize);
+	        exit(0);
+	    }
+	    if(bufferSize < dataSize + sliceSize)
+	    {//Make room for more STEP_SLICES slices
+	        char *newBuf = new char[dataSize + STEP_SLICES * sliceSize];
+	        memcpy(newBuf, data, dataSize);
+	        delete[] data;
+	        data = newBuf;
+	        bufferSize = dataSize + STEP_SLICES * sliceSize;
+	    }
+	    memcpy(&data[dataSize], slice, sliceSize);
+	    dataSize += sliceSize;
+	    dims[this->nDims - 1] += numSlices;
 
 #ifdef MONITOR
-            this->numSlices += numSlices;
+	    this->numSlices += numSlices;
 #endif
-        }
+	}
+*/
+
         isSliced = true;
 //Gabriele: added to record timeBasePath
         if (this->timeBasePath) {
@@ -734,8 +742,8 @@ public:
 };
 
 static PathLeaf*
-createPathLeaf(PathNode* parent, const char* name, bool exists, int nDims, int* dims, int itemSize, char type,
-               int dataSize, char* data)
+createPathLeaf(PathNode* parent, char* name, bool exists, int nDims, int* dims, int itemSize, char type, int dataSize,
+               char* data)
 {
     return new PathLeaf(parent, name, exists, nDims, dims, itemSize, type, dataSize, data);
 }
@@ -753,7 +761,7 @@ public:
     bool corresponds(int treeIdx, char* name)
     {
         if (name) {
-            return STR_EQUALS(this->name, name) && this->treeIdx == treeIdx;
+            return !strcmp(this->name, name) && this->treeIdx == treeIdx;
         } else {
             return this->treeIdx == treeIdx;
         }

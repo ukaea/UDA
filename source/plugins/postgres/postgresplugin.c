@@ -234,7 +234,7 @@ extern int postgres_query(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         return do_defaultmethod(idam_plugin_interface);
     } else if (STR_IEQUALS(request_block->function, "maxinterfaceversion")) {
         return do_maxinterfaceversion(idam_plugin_interface);
-    } else if (STR_IEQUALS(request_block->function, "query")
+    } else if (request_block->function[0] == '\0' || STR_IEQUALS(request_block->function, "query")
                || STR_IEQUALS(request_block->function, THISPLUGIN_DEFAULT_METHOD)) {
         return do_query(idam_plugin_interface, conn);
     } else {
@@ -319,7 +319,10 @@ int do_query(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PGconn* conn)
     // Mandatory arguments
 
     const char* objectName;
-    FIND_REQUIRED_STRING_VALUE(request_block->nameValueList, objectName);
+    bool isObjectName = FIND_STRING_VALUE(request_block->nameValueList, objectName);
+    if (!isObjectName) {
+        objectName = request_block->signal;
+    }
 
     int expNumber;
     bool isExpNumber = FIND_INT_VALUE(request_block->nameValueList, expNumber);

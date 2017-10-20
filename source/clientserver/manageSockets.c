@@ -3,14 +3,20 @@
 // Routines addSocket and getSocket return 0 if successfull otherwise return 1
 //
 //----------------------------------------------------------------------------------
+
+#ifdef __GNUC__
+#  include <unistd.h>
+#  include <strings.h>
+#else
+#  include <Windows.h>
+#  define strcasecmp _stricmp
+#  include <string.h>
+#endif
+
 #include "manageSockets.h"
 
-#ifndef _WIN32
-#  include <unistd.h>
-#endif
 #include <stdlib.h>
 #include <memory.h>
-#include <strings.h>
 
 #include "stringUtils.h"
 

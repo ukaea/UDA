@@ -79,8 +79,11 @@ set( HEADER_FILES
 )
 
 if( APPLE )
-  list( APPEND SRC_FILES
-    memstream.c )
+  list( APPEND SRC_FILES memstream.c )
+endif()
+
+if( WIN32 )
+  list( APPEND SRC_FILES mkstemp.c )
 endif()
 
 if( CLIENT_ONLY )

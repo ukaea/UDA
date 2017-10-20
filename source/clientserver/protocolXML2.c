@@ -59,6 +59,7 @@
 #include <structures/struct.h>
 #include <logging/logging.h>
 #include <clientserver/memstream.h>
+#include <clientserver/mkstemp.h>
 
 #include "readXDRFile.h"
 #include "errorLog.h"
