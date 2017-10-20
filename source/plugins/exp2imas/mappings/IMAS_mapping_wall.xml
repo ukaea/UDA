@@ -201,19 +201,19 @@ variable='description_2d/1/vessel/unit/1/element/Shape_of', type=int, rank=0
   <mapping key="wall/description_2d/#/limiter/type/index" value="1" type="constant"/>
 
   <!--<mapping key="wall/description_2d/#/limiter/type/description" value="" type="static"/>-->
-  <!--<mapping key="wall/description_2d/#/limiter/unit/Shape_of" value="//wall/wall2d/limiter/limiter_unit/@dim" type="static"/>-->
+  <mapping key="wall/description_2d/#/limiter/unit/Shape_of" value="//wall/wall2d[#]/limiter/limiter_unit[1]/@dim" type="static"/>
 
-  <!--<mapping key="wall/description_2d/#/limiter/unit/#/name" value="" type="constant"/>-->
-  <!--<mapping key="wall/description_2d/#/limiter/unit/#/closed" value="" type="constant"/>-->
-  <!--<mapping key="wall/description_2d/#/limiter/unit/#/outline/r" value="" type="constant"/>-->
+  <mapping key="wall/description_2d/#/limiter/unit/#/name" value="//wall/wall2d[#]/limiter/limiter_unit[#]/name" type="static"/>
+  <mapping key="wall/description_2d/#/limiter/unit/#/closed" value="//wall/wall2d[#]/limiter/limiter_unit[#]/closed" type="static"/>
+  <mapping key="wall/description_2d/#/limiter/unit/#/outline/r" value="//wall/wall2d[#]/limiter/limiter_unit[#]/position/r" type="static"/>
   <!--<mapping key="wall/description_2d/#/limiter/unit/#/outline/r_error_upper" value="" type="constant"/>-->
   <!--<mapping key="wall/description_2d/#/limiter/unit/#/outline/r_error_lower" value="" type="constant"/>-->
   <!--<mapping key="wall/description_2d/#/limiter/unit/#/outline/r_error_index" value="" type="constant"/>-->
-  <!--<mapping key="wall/description_2d/#/limiter/unit/#/outline/z" value="" type="constant"/>-->
+  <mapping key="wall/description_2d/#/limiter/unit/#/outline/z" value="//wall/wall2d[#]/limiter/limiter_unit[#]/position/z" type="static"/>
   <!--<mapping key="wall/description_2d/#/limiter/unit/#/outline/z_error_upper" value="" type="constant"/>-->
   <!--<mapping key="wall/description_2d/#/limiter/unit/#/outline/z_error_lower" value="" type="constant"/>-->
   <!--<mapping key="wall/description_2d/#/limiter/unit/#/outline/z_error_index" value="" type="constant"/>-->
-  <!--<mapping key="wall/description_2d/#/limiter/unit/#/resistivity" value="" type="constant"/>-->
+  <!--<mapping key="wall/description_2d/#/limiter/unit/#/resistivity" value="//wall/wall2d[#]/limiter/limiter_unit[#]/eta" type="static"/>-->
   <!--<mapping key="wall/description_2d/#/limiter/unit/#/resistivity_error_upper" value="" type="constant"/>-->
   <!--<mapping key="wall/description_2d/#/limiter/unit/#/resistivity_error_lower" value="" type="constant"/>-->
   <!--<mapping key="wall/description_2d/#/limiter/unit/#/resistivity_error_index" value="" type="constant"/>-->
@@ -234,7 +234,7 @@ variable='description_2d/1/vessel/unit/1/element/Shape_of', type=int, rank=0
   <mapping key="wall/description_2d/#/vessel/type/index" value="1" type="constant"/>
 
   <!--<mapping key="wall/description_2d/#/vessel/type/description'" value="" type="static"/>-->
-  <mapping key="wall/description_2d/#/vessel/unit/Shape_of" value="//wall/wall2d/vessel/vessel_unit/@dim" type="static"/>
+  <mapping key="wall/description_2d/#/vessel/unit/Shape_of" value="//wall/wall2d/vessel/vessel_unit[1]/@dim" type="static"/>
 
   <mapping key="wall/description_2d/#/vessel/unit/#/name" value="//wall/wall2d[#]/vessel/vessel_unit[#]/annular/name" type="static"/>
   <mapping key="wall/description_2d/#/vessel/unit/#/annular/outline_inner/r" value="//wall/wall2d[#]/vessel/vessel_unit[#]/annular/inside/r" type="static"/>

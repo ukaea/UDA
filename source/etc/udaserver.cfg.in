@@ -40,6 +40,7 @@ export UDA_SARRAY_CONFIG=@CMAKE_INSTALL_PREFIX@/etc/udagenstruct.conf
 # Setup required dynamic library paths
 
 export MAST_DATA=/mnt/data/MAST_Data/
+export UDA_METADATA_PLUGIN=POSTGRES
 
 export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:@CMAKE_INSTALL_PREFIX@/lib:@CMAKE_INSTALL_PREFIX@/lib/plugins"
 export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:@EXTRA_LD_LIBRARY_PATHS@"

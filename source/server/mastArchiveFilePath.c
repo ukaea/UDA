@@ -26,7 +26,7 @@ void mastArchiveFilePath(int pulno, int pass, char* file, char* path)
     char strint[56];
     char* env = NULL;
 
-// Path Root
+    // Path Root
 
     strcpy(path, DEFAULT_ARCHIVE_DIR);        // Default location
 
@@ -35,7 +35,7 @@ void mastArchiveFilePath(int pulno, int pass, char* file, char* path)
         if (path[strlen(path)] != '/') strcat(path, "/");
     }
 
-// Alternative Paths
+    // Alternative Paths
 
     if (getIdamServerEnvironment()->data_path_id == 0) {
         sprintf(strint, "%d", pulno);
@@ -48,7 +48,7 @@ void mastArchiveFilePath(int pulno, int pass, char* file, char* path)
         strcat(path, strint);
     }
 
-// Add the Pass element to the Path
+    // Add the Pass element to the Path
 
     if (pass == -1) {
         strcat(path, "/LATEST/");
@@ -60,6 +60,4 @@ void mastArchiveFilePath(int pulno, int pass, char* file, char* path)
     }
 
     strcat(path, file);        // Full filename path
-
-    return;
 }
