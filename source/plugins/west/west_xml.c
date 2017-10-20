@@ -99,14 +99,28 @@ int execute(const char* mapfun, int shotNumber, DATA_BLOCK* data_block, int* nod
 	}
 
 	//------------------pf_passive----------------------------------
-	else if (strcmp(fun_name, "pf_passive_elements_shapeOf") == 0) {
+	else if (strcmp(fun_name, "pf_passive_loop_name") == 0) {
 		fun = 100;
-	} else if (strcmp(fun_name, "pf_passive_R") == 0) {
+	} else if (strcmp(fun_name, "pf_passive_loop_identifier") == 0) {
 		fun = 101;
-	} else if (strcmp(fun_name, "pf_passive_Z") == 0) {
-		fun = 102;
 	} else if (strcmp(fun_name, "pf_passive_element_name") == 0) {
+		fun = 102;
+	} else if (strcmp(fun_name, "pf_passive_element_identifier") == 0) {
 		fun = 103;
+	} else if (strcmp(fun_name, "pf_passive_loops_shapeOf") == 0) {
+		fun = 104;
+	} else if (strcmp(fun_name, "pf_passive_turns") == 0) {
+		fun = 105;
+	} else if (strcmp(fun_name, "pf_passive_elements_shapeOf") == 0) {
+		fun = 106;
+	} else if (strcmp(fun_name, "pf_passive_R") == 0) {
+		fun = 107;
+	} else if (strcmp(fun_name, "pf_passive_Z") == 0) {
+		fun = 108;
+	} else if (strcmp(fun_name, "pf_passive_current_data") == 0) {
+		fun = 109;
+	} else if (strcmp(fun_name, "pf_passive_current_time") == 0) {
+		fun = 110;
 	}
 
 	//------------------pf_active----------------------------------
@@ -170,6 +184,10 @@ int execute(const char* mapfun, int shotNumber, DATA_BLOCK* data_block, int* nod
 	}
 
 	printNum("Case : ", fun);
+
+	if (fun == -1)
+		IDAM_LOGF(UDA_LOG_DEBUG, "WEST:ERROR no function mapped to %s\n", fun_name);
+
 
 	switch (fun) {
 	case 0: {
@@ -285,28 +303,72 @@ int execute(const char* mapfun, int shotNumber, DATA_BLOCK* data_block, int* nod
 	}
 
 	case 100: {
-		IDAM_LOG(UDA_LOG_DEBUG, "Case of passive_current_shapeOf from WEST plugin\n");
-		pf_passive_elements_shapeOf(shotNumber, data_block, nodeIndices);
+		IDAM_LOG(UDA_LOG_DEBUG, "Case of pf_passive_loop_name from WEST plugin\n");
+		pf_passive_loop_name(shotNumber, data_block, nodeIndices);
 		break;
 	}
 
 	case 101: {
-		IDAM_LOG(UDA_LOG_DEBUG, "Case of passive_r from WEST plugin\n");
-		pf_passive_R(shotNumber, data_block, nodeIndices);
+		IDAM_LOG(UDA_LOG_DEBUG, "Case of pf_passive_loop_identifier from WEST plugin\n");
+		pf_passive_loop_identifier(shotNumber, data_block, nodeIndices);
 		break;
 	}
 
 	case 102: {
-		IDAM_LOG(UDA_LOG_DEBUG, "Case of passive_z from WEST plugin\n");
-		pf_passive_Z(shotNumber, data_block, nodeIndices);
+		IDAM_LOG(UDA_LOG_DEBUG, "Case of pf_passive_element_name from WEST plugin\n");
+		pf_passive_element_name(shotNumber, data_block, nodeIndices);
 		break;
 	}
 
 	case 103: {
-		IDAM_LOG(UDA_LOG_DEBUG, "Case of passive_name from WEST plugin\n");
-		pf_passive_element_name(shotNumber, data_block, nodeIndices);
+		IDAM_LOG(UDA_LOG_DEBUG, "Case of pf_passive_element_identifier from WEST plugin\n");
+		pf_passive_element_identifier(shotNumber, data_block, nodeIndices);
 		break;
 	}
+
+	case 104: {
+		IDAM_LOG(UDA_LOG_DEBUG, "Case of pf_passive_loops_shapeOf from WEST plugin\n");
+		pf_passive_loops_shapeOf(shotNumber, data_block, nodeIndices);
+		break;
+	}
+
+	case 105: {
+		IDAM_LOG(UDA_LOG_DEBUG, "Case of pf_passive_turns from WEST plugin\n");
+		pf_passive_turns(shotNumber, data_block, nodeIndices);
+		break;
+	}
+
+	case 106: {
+		IDAM_LOG(UDA_LOG_DEBUG, "Case of pf_passive_elements_shapeOf from WEST plugin\n");
+		pf_passive_elements_shapeOf(shotNumber, data_block, nodeIndices);
+		break;
+	}
+
+	case 107: {
+		IDAM_LOG(UDA_LOG_DEBUG, "Case of pf_passive_R from WEST plugin\n");
+		pf_passive_R(shotNumber, data_block, nodeIndices);
+		break;
+	}
+
+	case 108: {
+		IDAM_LOG(UDA_LOG_DEBUG, "Case of pf_passive_Z from WEST plugin\n");
+		pf_passive_Z(shotNumber, data_block, nodeIndices);
+		break;
+	}
+
+	case 109: {
+		IDAM_LOG(UDA_LOG_DEBUG, "Case of pf_passive_current_data from WEST plugin\n");
+		pf_passive_current_data(shotNumber, data_block, nodeIndices);
+		break;
+	}
+
+	case 110: {
+		IDAM_LOG(UDA_LOG_DEBUG, "Case of pf_passive_current_time from WEST plugin\n");
+		pf_passive_current_time(shotNumber, data_block, nodeIndices);
+		break;
+	}
+
+
 
 	case 140: {
 		IDAM_LOG(UDA_LOG_DEBUG, "Case of pf_active_elements_shapeOf from WEST plugin\n");

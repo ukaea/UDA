@@ -78,14 +78,14 @@ void pf_passive_current_time(int shotNumber, DATA_BLOCK* data_block, int* nodeIn
 	passive_time(shotNumber, data_block, nodeIndices);
 }
 
-void pf_passive_coil_name(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
+void pf_passive_loop_name(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 {
 	passive_name(shotNumber, data_block, nodeIndices);
 }
 
-void pf_passive_coil_identifier(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
+void pf_passive_loop_identifier(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 {
-	pf_passive_coil_name(shotNumber, data_block, nodeIndices);
+	pf_passive_loop_name(shotNumber, data_block, nodeIndices);
 }
 
 void pf_passive_element_name(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
@@ -107,7 +107,7 @@ void pf_passive_elements_shapeOf(int shotNumber, DATA_BLOCK* data_block, int* no
 	setReturnDataIntScalar(data_block, len, NULL);
 }
 
-void pf_passive_coils_shapeOf(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices) //TODO
+void pf_passive_loops_shapeOf(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices) //TODO
 {
 	int len = 34;
 	setReturnDataIntScalar(data_block, len, NULL);

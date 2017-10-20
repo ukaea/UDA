@@ -37,16 +37,18 @@
 <mapping key="tf/b_field_tor_vacuum_r/time" value="tsbase_time;DMAG:GMAG_ITOR;1:float:2" type="dynamic"/>
 
 <mapping key="pf_passive/ids_properties/homogeneous_time" value="set_value;1;0:int" type="static"/>
-<mapping key="pf_passive/loop/#/name" value="pf_passive_coil_name" type="static"/>
-<mapping key="pf_passive/loop/#/identifier" value="pf_passive_coil_identifier" type="static"/>
+<mapping key="pf_passive/loop/#/name" value="pf_passive_loop_name" type="static"/>
+<mapping key="pf_passive/loop/#/identifier" value="pf_passive_loop_identifier" type="static"/>
 <mapping key="pf_passive/loop/#/element/#/name" value="pf_passive_element_name" type="static"/>
 <mapping key="pf_passive/loop/#/element/#/identifier" value="pf_passive_element_identifier" type="static"/>
-<mapping key="pf_passive/loop/Shape_of" value="pf_passive_coils_shapeOf" type="static"/>
+<mapping key="pf_passive/loop/Shape_of" value="pf_passive_loops_shapeOf" type="static"/>
 <mapping key="pf_passive/loop/#/element/#/turns_with_sign" value="pf_passive_turns" type="static"/>
 <mapping key="pf_passive/loop/#/element/Shape_of" value="pf_passive_elements_shapeOf" type="static"/>
 <mapping key="pf_passive/loop/#/element/#/geometry/geometry_type" value="set_value;1;0:int" type="static"/>
-<mapping key="pf_passive/loop/#/element/#/geometry/rectangle/r" value="pf_passive_R" type="static"/>
-<mapping key="pf_passive/loop/#/element/#/geometry/rectangle/z" value="pf_passive_Z" type="static"/>
+<mapping key="pf_passive/loop/#/element/#/geometry/outline/r" value="pf_passive_R" type="static"/>
+<mapping key="pf_passive/loop/#/element/#/geometry/outline/z" value="pf_passive_Z" type="static"/>
+<!-- mapping key="pf_passive/loop/#/element/#/geometry/rectangle/width" value="pf_passive_W" type="static"/ -->
+<!-- mapping key="pf_passive/loop/#/element/#/geometry/rectangle/height" value="pf_passive_H" type="static"/ -->
 <mapping key="pf_passive/loop/#/current" value="pf_passive_current_data" type="dynamic"/>
 <mapping key="pf_passive/time" value="pf_passive_current_time" type="dynamic"/>
 

@@ -71,14 +71,13 @@ int main() {
 	std::cout << "data50: " <<  data[50] << std::endl;
 	std::cout << "data99: " <<  data[99] << std::endl;
 
-	/*const uda::Result& soft_x_rays_time = client.get("imas::get(idx=0, group='soft_x_rays', variable='channel/1/power_density/time', expName='WEST', type=double, rank=2, shot=" SHOT_NUM ", )", "");
+	const uda::Result& soft_x_rays_time = client.get("imas::get(idx=0, group='soft_x_rays', variable='channel/1/power_density/time', expName='WEST', type=double, rank=1, shot=" SHOT_NUM ", )", "");
 	const uda::Data * soft_x_rays_data_time = soft_x_rays_time.data();
 	const uda::Array* soft_x_rays_time_arr = dynamic_cast<const uda::Array*>(soft_x_rays_data_time);
-	std::cout << "first values for soft_x_rays/channel/1/power_density/time: ";
-	for (int j = 0; j < 10; ++j) {
-		std::cout << soft_x_rays_time_arr->as<double>().at(j) << " ";
+	std::cout << "first values for soft_x_rays/channel/1/power_density/time: " << std::endl;
+	for (int i = 0; i < 10; ++i) {
+	     std::cout << "data [" << i << "] :"  <<  data[i] << std::endl;
 	}
-	std::cout << "..." << std::endl;*/
 
 	return 0;
 }

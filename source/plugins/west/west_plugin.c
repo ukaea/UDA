@@ -290,6 +290,8 @@ int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
         int data_type = data_block->data_type;
 
+        IDAM_LOGF(UDA_LOG_DEBUG, "requested data type %d\n", data_type);
+
         if (data_type != UDA_TYPE_STRING &&
             data_type != UDA_TYPE_DOUBLE &&
             data_type != UDA_TYPE_FLOAT &&
