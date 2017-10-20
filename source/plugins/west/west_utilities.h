@@ -4,7 +4,6 @@
 #include <libxml/xpath.h>
 #include <clientserver/udaStructs.h>
 
-void printNum(const char* label, int i);
 void RemoveSpaces(char* source);
 void getValueCollect(char* command, char** value, int* nodeIndices);
 void multiplyFloat(float* p, float factor, int val_nb);

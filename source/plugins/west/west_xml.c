@@ -47,6 +47,7 @@ int GetStaticData(int shotNumber, const char* mapfun, DATA_BLOCK* data_block, in
 	int status = execute(mapfun, shotNumber, data_block, nodeIndices);
 
 	if (status != 0) {
+		IDAM_LOG(UDA_LOG_ERROR, "WEST:ERROR: error while getting static data\n");
 		addIdamError(CODEERRORTYPE, __func__, -900, "WEST:ERROR: error while getting static data");
 	}
 
@@ -62,7 +63,7 @@ int execute(const char* mapfun, int shotNumber, DATA_BLOCK* data_block, int* nod
 	char* normalizationAttributes = NULL; //example : multiply:cste:3     (multiply value by constant factor equals to 3)
 
 	getFunName(mapfun, &fun_name);
-	IDAM_LOGF(UDA_LOG_DEBUG, "fun_name: %s\n", fun_name);
+	IDAM_LOGF(UDA_LOG_DEBUG, "C function name found in mapping file: %s\n", fun_name);
 
 	int fun = -1;
 
@@ -183,16 +184,18 @@ int execute(const char* mapfun, int shotNumber, DATA_BLOCK* data_block, int* nod
 		fun = 210;
 	}
 
-	printNum("Case : ", fun);
+	IDAM_LOGF(UDA_LOG_DEBUG, "Case: %d", fun);
 
-	if (fun == -1)
+	if (fun == -1) {
 		IDAM_LOGF(UDA_LOG_DEBUG, "WEST:ERROR no function mapped to %s\n", fun_name);
+		int err = 801;
+		addIdamError(CODEERRORTYPE, "WEST:ERROR: no C function mapped for %s!", err, fun_name);
+	}
 
 
 	switch (fun) {
 	case 0: {
 		IDAM_LOG(UDA_LOG_DEBUG, "Case of tsmat_collect from WEST plugin\n");
-		IDAM_LOG(UDA_LOG_DEBUG, "Calling tokenizeFunParameters() from WEST plugin\n");
 		tokenizeFunParameters(mapfun, &TOP_collections_parameters, &attributes, &normalizationAttributes);
 		execute_tsmat_collect(TOP_collections_parameters, attributes, shotNumber, data_block, nodeIndices,
 				normalizationAttributes);
@@ -203,8 +206,6 @@ int execute(const char* mapfun, int shotNumber, DATA_BLOCK* data_block, int* nod
 	case 1: {
 
 		IDAM_LOG(UDA_LOG_DEBUG, "Case of shape_of_tsmat_collect from WEST plugin\n");
-
-		IDAM_LOG(UDA_LOG_DEBUG, "Calling tokenizeFunParameters() from WEST plugin\n");
 		tokenizeFunParameters(mapfun, &TOP_collections_parameters, &attributes, &normalizationAttributes);
 		shape_of_tsmat_collect(shotNumber, TOP_collections_parameters, data_block);
 
@@ -213,8 +214,6 @@ int execute(const char* mapfun, int shotNumber, DATA_BLOCK* data_block, int* nod
 
 	case 2: {
 		IDAM_LOG(UDA_LOG_DEBUG, "Case of set_value from WEST plugin\n");
-
-		IDAM_LOG(UDA_LOG_DEBUG, "Calling tokenizeFunParameters() from WEST plugin\n");
 		char* value = NULL;
 		tokenizeFunParameters(mapfun, &value, &attributes, &normalizationAttributes);
 
@@ -235,7 +234,6 @@ int execute(const char* mapfun, int shotNumber, DATA_BLOCK* data_block, int* nod
 
 	case 3: {
 		IDAM_LOG(UDA_LOG_DEBUG, "Case of tsmat from WEST plugin\n");
-		IDAM_LOG(UDA_LOG_DEBUG, "Calling tokenizeFunParameters() from WEST plugin\n");
 		tokenizeFunParameters(mapfun, &TOP_collections_parameters, &attributes, &normalizationAttributes);
 		execute_tsmat_without_idam_index(TOP_collections_parameters, attributes, shotNumber, data_block,
 				normalizationAttributes);
@@ -244,7 +242,6 @@ int execute(const char* mapfun, int shotNumber, DATA_BLOCK* data_block, int* nod
 
 	case 4: {
 		IDAM_LOG(UDA_LOG_DEBUG, "Case of set_value_collect from WEST plugin\n");
-		IDAM_LOG(UDA_LOG_DEBUG, "Calling tokenizeFunParameters() from WEST plugin\n");
 		tokenizeFunParameters(mapfun, &TOP_collections_parameters, &attributes, &normalizationAttributes);
 		IDAM_LOGF(UDA_LOG_DEBUG, "attributes: %s\n", attributes);
 		execute_setvalue_collect(TOP_collections_parameters, attributes, shotNumber, data_block, nodeIndices,
@@ -510,7 +507,7 @@ void shape_of_tsmat_collect(int shotNumber, char* TOP_collections_parameters, DA
 	IDAM_LOG(UDA_LOG_DEBUG, "Calling getTopCollectionsCount() from WEST plugin for shape_of_tsmat_collect case\n");
 	getTopCollectionsCount(TOP_collections_parameters, &collectionsCount);
 
-	printNum("Collections count : ", collectionsCount);
+	IDAM_LOGF(UDA_LOG_DEBUG, "Collections count: %d", collectionsCount);
 
 	IDAM_LOG(UDA_LOG_DEBUG, "Calling tokenizeFunCollect() from WEST plugin\n");
 
@@ -525,7 +522,7 @@ void shape_of_tsmat_collect(int shotNumber, char* TOP_collections_parameters, DA
 		int nb_val = 0;
 		IDAM_LOG(UDA_LOG_DEBUG, "Calling getShapeOf() from WEST plugin for shape_of_tsmat_collect case\n");
 		getShapeOf(command, shotNumber, &nb_val);
-		//printNum("nb_val : ", nb_val);
+		IDAM_LOGF(UDA_LOG_DEBUG, "nb_val: %d", nb_val);
 		IDAM_LOG(UDA_LOG_DEBUG, "after getShapeOf\n");
 		parametersSize += nb_val;
 	}
@@ -864,7 +861,7 @@ void setStatic1DValue(int data_type, DATA_BLOCK* data_block, char* value, int va
 void setStaticValue(int data_type, DATA_BLOCK* data_block, char* value, int requestedIndex, float normalizationFactor)
 {
 	IDAM_LOG(UDA_LOG_DEBUG, "Entering setStaticValue()\n");
-	printNum("requested index : ", requestedIndex);
+	IDAM_LOGF(UDA_LOG_DEBUG, "requested index: %d", requestedIndex);
 	if (data_type == UDA_TYPE_DOUBLE) {
 		IDAM_LOG(UDA_LOG_DEBUG, "handling double in setStaticValue()\n");
 		double* pt_double = (double*)value;

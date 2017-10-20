@@ -90,11 +90,11 @@ void getUnvalidChannels(char* unvalid_channels, int* v)
     token = strdup(strtok(NULL, delim)); //return the number of unvalid channels
     int n = atoi(token);
 
-    IDAM_LOGF(UDA_LOG_DEBUG, "unvalid channels count : %d\n", n);
+    IDAM_LOGF(UDA_LOG_DEBUG, "unvalid channels count: %d\n", n);
 
     token = strdup(strtok(NULL, delim)); //return for example "1,2" if channels 1 and 2 are not valid
 
-    IDAM_LOGF(UDA_LOG_DEBUG, "unvalid channels list : %s\n", token);
+    IDAM_LOGF(UDA_LOG_DEBUG, "unvalid channels list: %s\n", token);
 
     const char delim2[] = ",";
     char* s_copy2 = strdup(token);
@@ -107,7 +107,7 @@ void getUnvalidChannels(char* unvalid_channels, int* v)
             token = strdup(strtok(NULL, delim2));
             v[i] = atoi(token);
         }
-        IDAM_LOGF(UDA_LOG_DEBUG, "unvalid channel : %d\n", v[i]);
+        IDAM_LOGF(UDA_LOG_DEBUG, "unvalid channel: %d\n", v[i]);
     }
     free(s_copy);
     free(s_copy2);
@@ -129,12 +129,12 @@ int isChannelValid(int channel_number, int* unvalid_channels_list, int unvalid_c
 
 int getCommand(int i, char** command, const char* TOP_collections_parameters)
 {
-    //IDAM_LOGF(UDA_LOG_DEBUG, "In getCommand, i: %d\n", i);
+    IDAM_LOGF(UDA_LOG_DEBUG, "In getCommand, i: %d\n", i);
     char* s_copy = strdup(TOP_collections_parameters);
     const char delim[] = ",";
     int j = 0;
     char* token = strdup(strtok(s_copy, delim));
-    //IDAM_LOGF(UDA_LOG_DEBUG, "In getCommand, token: %s\n", token);
+    IDAM_LOGF(UDA_LOG_DEBUG, "In getCommand, token: %s\n", token);
     if (token == NULL) {
         return -1;
     }
@@ -179,23 +179,23 @@ void getNormalizationFactor(float* normalizationFactor, char* normalizationAttri
         s_copy = strdup(normalizationAttributes);
         operation = strdup(strtok(s_copy, delim));
         if (STR_EQUALS("multiply", operation)) {
-            IDAM_LOG(UDA_LOG_DEBUG, "Multiply operation\n");
+            //IDAM_LOG(UDA_LOG_DEBUG, "Multiply operation\n");
             funname = strdup(strtok(NULL, delim));
             if (STR_EQUALS("cste", funname)) {
-                IDAM_LOG(UDA_LOG_DEBUG, "multiply data by constant value\n");
+                //IDAM_LOG(UDA_LOG_DEBUG, "multiply data by constant value\n");
                 csteStr = strdup(strtok(NULL, delim));
-                IDAM_LOGF(UDA_LOG_DEBUG, "%s\n", csteStr);
+                //IDAM_LOGF(UDA_LOG_DEBUG, "%s\n", csteStr);
                 *normalizationFactor = atof(csteStr);
             } else {
                 int err = 999;
-                IDAM_LOG(UDA_LOG_DEBUG, "Unsupported operand for 'multiply' operation\n");
+                IDAM_LOG(UDA_LOG_ERROR, "Unsupported operand for 'multiply' operation\n");
                 addIdamError(CODEERRORTYPE, "Unsupported operand for 'multiply' operation", err,
                              "");
             }
 
         } else {
             int err = 999;
-            IDAM_LOG(UDA_LOG_DEBUG, "Unsupported operation to apply\n");
+            IDAM_LOG(UDA_LOG_ERROR, "Unsupported operation to apply\n");
             addIdamError(CODEERRORTYPE, "WEST:ERROR: unsupported operation to apply", err, "");
         }
     } else {
@@ -209,9 +209,9 @@ void getNormalizationFactor(float* normalizationFactor, char* normalizationAttri
 
 void multiplyFloat(float* p, float factor, int val_nb)
 {
-    IDAM_LOG(UDA_LOG_DEBUG, "Entering multiplyFloat...\n");
-    IDAM_LOGF(UDA_LOG_DEBUG, "val_nb : %d\n", val_nb);
-    IDAM_LOGF(UDA_LOG_DEBUG, "factor : %f\n", factor);
+    //IDAM_LOG(UDA_LOG_DEBUG, "Entering multiplyFloat...\n");
+    //DAM_LOGF(UDA_LOG_DEBUG, "val_nb : %d\n", val_nb);
+    //IDAM_LOGF(UDA_LOG_DEBUG, "factor : %f\n", factor);
     if (factor != 1) {
         int i;
         for (i = 0; i < val_nb; i++) {
@@ -269,12 +269,12 @@ int getNumIDAMIndex2(char* s, int* nodeIndices)
 
 void getReturnType(char* attributes, int* dataType)
 {
-    IDAM_LOGF(UDA_LOG_DEBUG, "attributes3: %s\n", attributes);
+    //IDAM_LOGF(UDA_LOG_DEBUG, "attributes3: %s\n", attributes);
     char* s_copy = strdup(attributes);
     const char delim[] = ":";
     strtok(s_copy, delim); //the rank
     char* token = strtok(NULL, delim);
-    IDAM_LOGF(UDA_LOG_DEBUG, " token: %s\n", token);
+    //IDAM_LOGF(UDA_LOG_DEBUG, " token: %s\n", token);
 
     int i = UDA_TYPE_UNKNOWN;
 
@@ -328,13 +328,13 @@ void tokenizeCommand(const char* s, char** prod_name, char** obj_name, char** pa
 {
     char* s_copy = strdup(s);
     const char delim[] = ":";
-    IDAM_LOGF(UDA_LOG_DEBUG, "Tokenizing: %s\n", s);
+    //IDAM_LOGF(UDA_LOG_DEBUG, "Tokenizing: %s\n", s);
     *prod_name = strdup(strtok(s_copy, delim));
     RemoveSpaces(*prod_name);
-    IDAM_LOGF(UDA_LOG_DEBUG, "%s\n", *prod_name);
+    //IDAM_LOGF(UDA_LOG_DEBUG, "%s\n", *prod_name);
     *obj_name = strdup(strtok(NULL, delim));
     RemoveSpaces(*obj_name);
-    IDAM_LOGF(UDA_LOG_DEBUG, "%s\n", *obj_name);
+    //IDAM_LOGF(UDA_LOG_DEBUG, "%s\n", *obj_name);
     *param_name = strdup(strtok(NULL, delim));
     RemoveSpaces(*param_name);
     char* token = strtok(NULL, delim);
@@ -392,10 +392,6 @@ void searchIndices(int requestedIndex, int* l, int* searchedArray, int* searched
     }
 }
 
-void printNum(const char* label, int i)
-{
-    IDAM_LOGF(UDA_LOG_DEBUG, "%s -> %d\n", label, i);
-}
 
 void addExtractionChars(char* result, char* signalName, int extractionIndex)
 {

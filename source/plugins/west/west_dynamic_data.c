@@ -32,7 +32,7 @@ int GetDynamicData(int shotNumber, const char* mapfun, DATA_BLOCK* data_block, i
 
     getFunName(mapfun, &fun_name);
 
-    IDAM_LOGF(UDA_LOG_DEBUG, "request: %s\n", fun_name);
+    IDAM_LOGF(UDA_LOG_DEBUG, "UDA request: %s for shot: %d\n", fun_name, shotNumber);
 
     if (strcmp(fun_name, "tsbase_collect") == 0) {
         tokenizeFunParameters(mapfun, &TOP_collections_parameters, &attributes, &normalizationAttributes);

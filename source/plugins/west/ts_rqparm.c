@@ -155,9 +155,9 @@ int readStaticParameters(char** pt_char, int* nb_val, int num_choc, char* nom_pr
 {
     int format;
 
-    IDAM_LOGF(UDA_LOG_DEBUG, "nom_prod : %s\n", nom_prod);
-    IDAM_LOGF(UDA_LOG_DEBUG, "nom_objet : %s\n", nom_objet);
-    IDAM_LOGF(UDA_LOG_DEBUG, "nom_param : %s\n", nom_param);
+    IDAM_LOGF(UDA_LOG_DEBUG, "Producer: %s\n", nom_prod);
+    IDAM_LOGF(UDA_LOG_DEBUG, "Object: %s\n", nom_objet);
+    IDAM_LOGF(UDA_LOG_DEBUG, "Parameter: %s\n", nom_param);
 
     cr = TSRqParm(num_choc, nom_prod, nom_objet, nom_param, val_nb, pt_char, nb_val, &format);
     return cr;
@@ -166,7 +166,7 @@ int readStaticParameters(char** pt_char, int* nb_val, int num_choc, char* nom_pr
 int readSignal(char* nomsigp, int numchoc, int occ,
                int rang[], float** X, float** Y, int* len)
 {
-    IDAM_LOGF(UDA_LOG_DEBUG, "Reading signal : %s\n", nomsigp);
+    IDAM_LOGF(UDA_LOG_DEBUG, "Reading signal: %s\n", nomsigp);
 
     cr = lit_traite(nomsigp, numchoc, occ, rang, (float**)X, (float**)Y, (int*)len);
 
@@ -390,7 +390,7 @@ lit_traite(char* nomsigp, int numchoc, int occ,
                 pr[2 + nb_certif + i] = cmisc[i];*/
             /* Fin  Unites , date , heure , certifs ...   */
         }
-        IDAM_LOGF(UDA_LOG_DEBUG, "Signal name at line 389 : %s\n", nomsig);
+        IDAM_LOGF(UDA_LOG_DEBUG, "Signal name at line 393 : %s\n", nomsig);
 
         meser("TSExist - ", nomsig, ((cr != 0) ? cr : 9), NONFATAL);
         if (cr != 0) {
@@ -430,7 +430,7 @@ lit_traite(char* nomsigp, int numchoc, int occ,
         meser("Who are you ?", nomsig, 1002, FATAL);
     }
 
-    IDAM_LOGF(UDA_LOG_DEBUG, "%s %d\n", "Type of signal at line 431:", type);
+    IDAM_LOGF(UDA_LOG_DEBUG, "%s %d\n", "Type of signal at line 433:", type);
 
     if (rgrp) {
         type = extgType;
@@ -514,7 +514,7 @@ lit_traite(char* nomsigp, int numchoc, int occ,
             printf ("avant TSGrpRg rangs %d %d nbmax %d\n", rang[0], rang[1], nbmax);
             printf ("avant TSGrpRg nbcoord %d %d %d extract=%d \n", nbcoord[0], nbcoord[1], nbcoord[2],extract);
 #endif
-            IDAM_LOGF(UDA_LOG_DEBUG, "%s\n", "Calling TSGrpRg at line 513");
+            IDAM_LOGF(UDA_LOG_DEBUG, "%s\n", "Calling TSGrpRg...");
             cr = TSGrpRg(nomsig, ptEntree, rang, nbmax_sv, extract, &ptUnite,
                          &numv, certif, date, heure, nbmesgr, maxreel,
                          (char*)*X, (char*)*Y, (char*)Coord);
@@ -522,7 +522,7 @@ lit_traite(char* nomsigp, int numchoc, int occ,
 #ifdef DEBUG
             printf ("avant TSGrpX abs %g %g nbmax %d\n", xab[0], xab[1], nbmax);
 #endif
-            IDAM_LOGF(UDA_LOG_DEBUG, "%s\n", "Calling TSGrpX at line 521");
+            IDAM_LOGF(UDA_LOG_DEBUG, "%s\n", "Calling TSGrpX...");
             cr = TSGrpX(nomsig, ptEntree, xab[0], xab[1], nbmax_sv, extract, &ptUnite,
                         &numv, certif, date, heure, nbmesgr, maxreel, (char*)*X,
                         (char*)*Y, (char*)Coord);
@@ -566,7 +566,7 @@ lit_traite(char* nomsigp, int numchoc, int occ,
 #ifdef DEBUG
                 printf ("avant TSRSIGRg rangs %d %d nbmax %d\n", rang[0], rang[1], nbmax);
 #endif
-            IDAM_LOGF(UDA_LOG_DEBUG, "%s\n", "Calling TSRSigRg at line 565");
+            IDAM_LOGF(UDA_LOG_DEBUG, "%s\n", "Calling TSRSigRg...");
             cr = TSRSigRg(nomsig, ptEntree, rang, nbmax, extract, &ptUnite,
                           &numv, certif, date, heure, &nbmes, maxreel, Xc, Yc);
 #ifdef DEBUG
@@ -598,12 +598,12 @@ lit_traite(char* nomsigp, int numchoc, int occ,
 #ifdef DEBUG
                 printf ("avant TSRSIGRg rangs %d %d nbmax %d\n", rang[0], rang[1], nbmax);
 #endif
-                IDAM_LOGF(UDA_LOG_DEBUG, "%s\n", "Calling TSRSigRg at line 597");
+                IDAM_LOGF(UDA_LOG_DEBUG, "%s\n", "Calling TSRSigRg...");
                 IDAM_LOGF(UDA_LOG_DEBUG, "%s %d\n", "rang[0]: ", rang[0]);
                 IDAM_LOGF(UDA_LOG_DEBUG, "%s %d\n", "rang[1]: ", rang[1]);
                 IDAM_LOGF(UDA_LOG_DEBUG, "%s %d\n", "nbmax: ", nbmax);
                 IDAM_LOGF(UDA_LOG_DEBUG, "%s %d\n", "extract: ", extract);
-                IDAM_LOGF(UDA_LOG_DEBUG, "%s %d\n", "extract: ", extract);
+
 
                 cr = TSRSigRg(nomsig, ptEntree, rang, nbmax, extract, &ptUnite,
                               &numv, certif, date, heure, &nbmes, maxreel, (char*)*X,
@@ -616,7 +616,7 @@ lit_traite(char* nomsigp, int numchoc, int occ,
 #ifdef DEBUG
                 printf ("avant TSRSigX xab %g %g nbmax %d\n", xab[0], xab[1], nbmax);
 #endif
-                IDAM_LOGF(UDA_LOG_DEBUG, "%s\n", "Calling TSRSigX at line 609");
+                IDAM_LOGF(UDA_LOG_DEBUG, "%s\n", "Calling TSRSigX...");
                 cr = TSRSigX(nomsig, ptEntree, xab[0], xab[1], nbmax, extract,
                              &ptUnite, &numv, certif, date, heure, &nbmes, maxreel,
                              (char*)*X, (char*)*Y);
@@ -667,7 +667,7 @@ lit_traite(char* nomsigp, int numchoc, int occ,
 #ifdef DEBUG
             printf ("aavnt TSRXtrRg ind0 %d ind1 %d \n", indices[0], indices[1]);
 #endif
-            IDAM_LOGF(UDA_LOG_DEBUG, "%s\n", "Calling TSXtrRg at line 660");
+            IDAM_LOGF(UDA_LOG_DEBUG, "%s\n", "Calling TSXtrRg...");
             cr = TSXtrRg(nomsig, ptEntree, indices, rang, nbmax, extract, &ptUnite,
                          &numv, certif, date, heure, &nbmes, maxreel, (char*)*X,
                          (char*)*Y, (char*)Coord);
@@ -675,7 +675,7 @@ lit_traite(char* nomsigp, int numchoc, int occ,
 #ifdef DEBUG
             printf ("avant TSRXtrX ind0 %d ind1 %d \n", indices[0], indices[1]);
 #endif
-            IDAM_LOGF(UDA_LOG_DEBUG, "%s\n", "Calling TSXtrX at line 668");
+            IDAM_LOGF(UDA_LOG_DEBUG, "%s\n", "Calling TSXtrX...");
             cr = TSXtrX(nomsig, ptEntree, indices, xab[0], xab[1], nbmax, extract,
                         &ptUnite, &numv, certif, date, heure, &nbmes, maxreel,
                         (char*)*X, (char*)*Y, (char*)Coord);
