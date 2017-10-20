@@ -16,7 +16,13 @@
 #include "expand_path.h"
 
 #include <errno.h>
-#include <unistd.h>
+
+#ifdef __GNUC__
+#  include <unistd.h>
+#elif defined(_WIN32)
+#  include <Windows.h>
+#endif
+
 #include <stdlib.h>
 
 #include <logging/logging.h>
@@ -58,10 +64,10 @@ char* hostid(char* host)
 {
 
 #ifdef _WIN32
-    int l = STRING_LENGTH-1;
-    GetComputerName(host,&l);
+    DWORD size = STRING_LENGTH - 1;
+    GetComputerName(host, &size);
     return host;
-#endif
+#else
 
     host[0] = '\0';
 
@@ -91,6 +97,9 @@ char* hostid(char* host)
         addIdamError(CODEERRORTYPE, "hostid", 999, "Unable to Identify the Host Name");
     }
     return host;
+    
+#endif // _WIN32    
+
 }
 
 //------------------------------------------------------------------------------------------------------------------
@@ -396,14 +405,14 @@ int linkReplacement(char* path)
 // Is the path a symbolic link not seen by the server? If so make a substitution.
 //----------------------------------------------------------------------------------------------
 
+#  ifdef _WIN32
+    return path != NULL; // No check for windows
+#  else
+
     int err;
     FILE* ph = NULL;
     char* p;
     char cmd[STRING_LENGTH];
-
-#ifdef _WIN32
-    return path;		// No check for windows
-#endif
 
 //------------------------------------------------------------------------------------
 //! Dereference path links using a command pipe: Ignore any errors
@@ -438,6 +447,8 @@ int linkReplacement(char* path)
     }
 
     return 0;
+    
+#  endif // _WIN32    
 }
 
 #else
@@ -472,6 +483,10 @@ int linkReplacement(char *path) { // Links are resolved client side only
 int expandFilePath(char* path, const ENVIRONMENT* environment)
 {
 
+#ifdef _WIN32
+    return 0; // No expansion for windows
+#else
+
 //
 //----------------------------------------------------------------------------------------------
 
@@ -495,20 +510,14 @@ int expandFilePath(char* path, const ENVIRONMENT* environment)
     size_t lscratch;
     int t1, t2, t3, t4, t5, t6;
 
-#ifdef _WIN32
-    return 0;			// No expansion for windows
-#endif
-
 //------------------------------------------------------------------------------------------------------------------
 // Test for possible imbedded linux command
 
-#ifndef _WIN32
     if (!IsLegalFilePath(path)) {
         err = 999;
         addIdamError(CODEERRORTYPE, "expandFilePath", err, "The Source contains a Syntax Error!");
         return err;
     }
-#endif
 
 //------------------------------------------------------------------------------------------------------------------
     /*! Workstations have local hard drives that may also be mounted on the user's network. If this local disk is accessible
@@ -528,22 +537,12 @@ int expandFilePath(char* path, const ENVIRONMENT* environment)
     replacement function could be used to target other local directories.
     */
 
-#ifndef _WIN32
 #ifdef SCRATCHDIR
     sprintf(scratch, "/%s/", SCRATCHDIR);
     lscratch = (int)strlen(scratch);
 #else
     strcpy(scratch, "/scratch/");
     lscratch = 9;
-#endif
-#else
-#ifdef SCRATCHDIR
-    strcpy(scratch, SCRATCHDIR);
-    lscratch = (int)strlen(scratch);
-#else
-    scratch = '\0';
-    lscratch = 0;
-#endif
 #endif
 
 #ifdef NETPREFIX
@@ -555,11 +554,7 @@ int expandFilePath(char* path, const ENVIRONMENT* environment)
 // Override compiler options
 
     if ((env = getenv("UDA_SCRATCHNAME")) != NULL) {    // Check for Environment Variable
-#ifndef _WIN32
         sprintf(scratch, "/%s/", env);
-#else
-        strcpy(scratch, env);
-#endif
         lscratch = (int) strlen(scratch);
     }
 
@@ -577,7 +572,6 @@ int expandFilePath(char* path, const ENVIRONMENT* environment)
 
 // Test for necessary expansion
 
-#ifndef _WIN32
     t1 = strstr(path, "./") == NULL;            // relative path?
     t2 = strstr(path, "../") == NULL;            // relative path?
     t3 = strchr(path, '~') == NULL;            // home path?
@@ -586,9 +580,6 @@ int expandFilePath(char* path, const ENVIRONMENT* environment)
     t6 = strncmp(path, scratch, lscratch) != 0;        // Not the Scratch directory
 
     if (t1 && t2 && t3 && t4 && t5 && t6) return 0;    // No Relative path name elements found
-#else
-    return 0;
-#endif
 
 //------------------------------------------------------------------------------------------------------------------
     /*! The path argument has been stripped of any format or protocol prefix. If another prefix is within the path, this
@@ -823,6 +814,8 @@ int expandFilePath(char* path, const ENVIRONMENT* environment)
     err = pathReplacement(path, environment);
 
     return err;
+    
+#endif // _WIN32 
 }
 
 //----------------------------------------------------------------------------------------------
@@ -837,7 +830,7 @@ char* pathid(char* path)
 
 #ifdef _WIN32
     return path;		// No check for windows
-#endif
+#else
 
     char* p;
     char work[STRING_LENGTH];        // Are these consistent with the system MAX_PATH?
@@ -875,6 +868,7 @@ char* pathid(char* path)
     }
     path[0] = '\0';
     return path;
+#endif // _WIN32    
 }
 
 #endif

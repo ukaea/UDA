@@ -1660,7 +1660,6 @@ int idamServerMetaDataPluginId(const PLUGINLIST* plugin_list)
                                       plugin_list);        // Must be defined in the server plugin configuration file
         if (id >= 0 &&
             plugin_list->plugin[id].plugin_class == PLUGINFUNCTION &&
-            plugin_list->plugin[id].is_private == PLUGINPRIVATE && getIdamServerEnvironment()->external_user &&
             plugin_list->plugin[id].status == PLUGINOPERATIONAL &&
             plugin_list->plugin[id].pluginHandle != NULL &&
             plugin_list->plugin[id].idamPlugin != NULL) {

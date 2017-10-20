@@ -32,7 +32,7 @@ char* getXPathValue(const char* xmlfile, const char* path, unsigned short cleanu
         doc = xmlParseFile(xmlfile);
         if (doc == NULL) {
             *err = 999;
-            UDA_LOG(UDA_LOG_DEBUG, "getXPathValue Error: unable to parse the Machine Description XML file\n");
+            UDA_LOG(UDA_LOG_DEBUG, "unable to parse the Machine Description XML file\n");
             return NULL;
         }
 
@@ -42,20 +42,20 @@ char* getXPathValue(const char* xmlfile, const char* path, unsigned short cleanu
         xpathCtx = xmlXPathNewContext(doc);
         if (xpathCtx == NULL) {
             *err = 999;
-            UDA_LOG(UDA_LOG_DEBUG, "getXPathValue Error: unable to create new XPath context\n");
+            UDA_LOG(UDA_LOG_DEBUG, "unable to create new XPath context\n");
             xmlFreeDoc(doc);
             return NULL;
         }
 
         init = 1;
 
-        UDA_LOG(UDA_LOG_DEBUG, "getXPathValue: XML File Parsed\n");
+        UDA_LOG(UDA_LOG_DEBUG, "XML File Parsed\n");
 
         return NULL;
     }
 
     // Creating the Xpath request
-    UDA_LOG(UDA_LOG_DEBUG, "getXPathValue: Creating the Xpath request: %s\n", path);
+    UDA_LOG(UDA_LOG_DEBUG, "Creating the Xpath request: %s\n", path);
 
     xmlChar* xPathExpr = xmlCharStrdup(path);        // /Top/pfCoils/pfCoil[@id='9']/@name
 
@@ -68,7 +68,7 @@ char* getXPathValue(const char* xmlfile, const char* path, unsigned short cleanu
 
     if (xpathObj == NULL) {
         *err = 999;
-        UDA_LOG(UDA_LOG_DEBUG, "getXPathValue Error: unable to evaluate xpath expression\n");
+        UDA_LOG(UDA_LOG_DEBUG, "unable to evaluate xpath expression\n");
         return NULL;
     }
 
@@ -85,7 +85,7 @@ char* getXPathValue(const char* xmlfile, const char* path, unsigned short cleanu
         value = strdup((char*)cur->content);
     } else {
         *err = 998;
-        UDA_LOG(UDA_LOG_DEBUG, "getXPathValue Error : size equals 0\n");
+        UDA_LOG(UDA_LOG_DEBUG, "size equals 0\n");
         return NULL;
     }
 

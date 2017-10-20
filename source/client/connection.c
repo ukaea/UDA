@@ -315,7 +315,7 @@ int createConnection()
 
     on = 1;
     if (setsockopt(clientSocket, SOL_SOCKET, SO_KEEPALIVE, (char*) &on, sizeof(on)) < 0) {
-        addIdamError(CODEERRORTYPE, "idamCreateConnection", -1, "Error Setting KEEPALIVE on Socket");
+        addIdamError(CODEERRORTYPE, "createConnection", -1, "Error Setting KEEPALIVE on Socket");
 #ifdef __GNUC__
         close(clientSocket);
 #elif defined(_WIN32)
@@ -326,7 +326,7 @@ int createConnection()
     }
     on = 1;
     if (setsockopt(clientSocket, IPPROTO_TCP, TCP_NODELAY, (char*) &on, sizeof(on)) < 0) {
-        addIdamError(CODEERRORTYPE, "idamCreateConnection", -1, "Error Setting NODELAY on Socket");
+        addIdamError(CODEERRORTYPE, "createConnection", -1, "Error Setting NODELAY on Socket");
 #ifdef __GNUC__
         close(clientSocket);
 #elif defined(_WIN32)
