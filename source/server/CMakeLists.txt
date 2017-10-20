@@ -3,7 +3,6 @@ cmake_minimum_required( VERSION 2.8 )
 ########################################################################################################################
 # Dependencies
 
-find_package( PostgreSQL REQUIRED )
 find_package( LibXml2 REQUIRED )
 find_package( OpenSSL REQUIRED )
 
@@ -66,7 +65,6 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/source
   ${CMAKE_CURRENT_SOURCE_DIR}
   ${LIBXML2_INCLUDE_DIR}
-  ${PostgreSQL_INCLUDE_DIRS}
   ${OPENSSL_INCLUDE_DIR}
 )
 
@@ -74,8 +72,6 @@ add_definitions( -DSERVERBUILD )
 
 ########################################################################################################################
 # Targets
-
-link_directories( ${PostgreSQL_LIBRARY_DIRS} )
 
 add_library( server-objects OBJECT
   udaServer.c
@@ -94,12 +90,13 @@ add_library( fatserver-objects OBJECT
 
 target_compile_definitions( fatserver-objects PRIVATE -DFATCLIENT )
 
+
 set( SERVER_OBJ
   $<TARGET_OBJECTS:server-objects>
   $<TARGET_OBJECTS:clientserver-server-objects>
   $<TARGET_OBJECTS:logging-server-objects>
   $<TARGET_OBJECTS:structures-server-objects>
-  #$<TARGET_OBJECTS:security-objects>
+  $<TARGET_OBJECTS:authentication-server-objects>
   $<TARGET_OBJECTS:modules-objects>
 )
 
@@ -115,7 +112,6 @@ target_link_libraries( server-shared LINK_PRIVATE
   client-shared
   ${OPENSSL_LIBRARIES}
   ${LIBXML2_LIBRARIES}
-  ${PostgreSQL_LIBRARY}
   ${CACHE_LIBRARIES}
 )
 
@@ -125,7 +121,6 @@ target_link_libraries( server-static LINK_PRIVATE
   client-shared
   ${OPENSSL_LIBRARIES}
   ${LIBXML2_LIBRARIES}
-  ${PostgreSQL_LIBRARY}
   ${CACHE_LIBRARIES}
 )
 
@@ -137,7 +132,6 @@ target_link_libraries( server-exe LINK_PRIVATE
   server-shared
   ${OPENSSL_LIBRARIES}
   ${LIBXML2_LIBRARIES}
-  ${PostgreSQL_LIBRARY}
   ${CACHE_LIBRARIES}
   c
   m

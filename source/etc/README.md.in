@@ -1,15 +1,15 @@
-IDAM SERVER
+UDA SERVER
 ===========
 
-*	Runs private idamserver on port 3090 out of this directory.
+*	Runs private UDA server on port 56565 out of this directory.
 
 	Use
 
-		./rc.idam start
+		./rc.uda start
 
 	to get xinetd to use local config etc.
 
-		./rc.idam stop
+		./rc.uda stop
 
 	kills pid.
 

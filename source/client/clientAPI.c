@@ -11,7 +11,12 @@
 *--------------------------------------------------------------*/
 #include "clientAPI.h"
 
-#include <strings.h>
+#ifdef __GNUC__
+#  include <strings.h>
+#elif defined(_WIN32)
+#  include <string.h>
+#  define strcasecmp _stricmp
+#endif
 
 #include <logging/logging.h>
 #include <clientserver/initStructs.h>

@@ -77,7 +77,9 @@
 #define PRIVATEFLAG_EXTERNAL    (unsigned int)2     // 0010        The originating server is an External Facing server
 #define PRIVATEFLAG_CACHE       (unsigned int)4     // 0100        Cache all data
 
-#define PRIVATEFLAG_XDROBJECT   8   //  1000        Use an intermediate XDR data object rather than a data stream
+#define PRIVATEFLAG_XDROBJECT			8   // 1000        Use an intermediate XDR data object rather than a data stream
+
+//#define PRIVATEFLAG_SSLINITIALISED		16  // 10000       SSL Library initialised  - do not reinitialise
 
 extern unsigned int privateFlags;
 

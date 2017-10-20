@@ -23,6 +23,7 @@
 
 #include <clientserver/errorLog.h>
 #include <clientserver/udaErrors.h>
+#include <logging/logging.h>
 
 //---------------------------------------------------------------------------------------------------------------
 // Stub plugin if disabled
@@ -160,6 +161,13 @@ int readPPF(DATA_SOURCE data_source,
         fprintf(stdout, "Owner : %s\n", data_source.path);
     }
 
+   UDA_LOG(UDA_LOG_DEBUG,"Pulse : %d\n", pulno);
+   UDA_LOG(UDA_LOG_DEBUG,"Seq.  : %d\n", pass);
+   UDA_LOG(UDA_LOG_DEBUG,"DDA   : %s\n", dda);
+   UDA_LOG(UDA_LOG_DEBUG,"Signal: %s\n", dtype);
+   UDA_LOG(UDA_LOG_DEBUG,"Owner : %s\n", data_source.path);
+   UDA_LOG(UDA_LOG_DEBUG,"X Dimension Subset: %d\n", xsubset);
+
 //--------------------------------------------------------------------
 // Setup PPFUID call - specify the user name used for reading data
 
@@ -187,6 +195,7 @@ int readPPF(DATA_SOURCE data_source,
         PPFERR("PPFGO", &err, msg, &err2, 6, 81);
         msg[80] = '\0';
         TrimString(msg);
+        UDA_LOG(UDA_LOG_DEBUG,"PPFGO Error : %s\n", msg);
         if (err2 != 0)
             addIdamError(CODEERRORTYPE, "readPPF", err, "PPFGO Error");
         else
@@ -208,6 +217,7 @@ int readPPF(DATA_SOURCE data_source,
         PPFERR("DDAINF", &err, msg, &err2, 7, 81);
         msg[80] = '\0';
         TrimString(msg);
+        UDA_LOG(UDA_LOG_DEBUG,"DDAINF Error : %s\n", msg);
         if (err2 != 0)
             addIdamError(CODEERRORTYPE, "readPPF", err, "DDAINF Error");
         else
@@ -221,6 +231,11 @@ int readPPF(DATA_SOURCE data_source,
         fprintf(stdout, "No. Data Types: %d\n", ndt);
         fprintf(stdout, "Signal List   : %s\n", dtnams);
     }
+
+    UDA_LOG(UDA_LOG_DEBUG,"DDA Comment   : %s\n", ddacom);
+    UDA_LOG(UDA_LOG_DEBUG,"No. Data Types: %d\n", ndt);
+    UDA_LOG(UDA_LOG_DEBUG,"Signal List   : %s\n", dtnams);
+
 
 //--------------------------------------------------------------------
 // Extract Requested DataType Info

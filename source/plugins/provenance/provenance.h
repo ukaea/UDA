@@ -9,7 +9,7 @@
 extern "C" {
 #endif
 
-#define API_DEVICE "MAST"
+//#define API_DEVICE "MAST"
 
 #define UUIDPREFIXLENGTH    256
 #define MAXROOT            1024

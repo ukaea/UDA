@@ -13,6 +13,7 @@ void freeSOAP();
 #endif
 
 int readSQL(PGconn *DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_source, DATA_BLOCK *data_block, USERDEFINEDTYPELIST* userdefinedtypelist);
+int readCMDSQL(PGconn *DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_source, DATA_BLOCK *data_block, USERDEFINEDTYPELIST* userdefinedtypelist);
 
 #ifndef NOTGENERICENABLED
 

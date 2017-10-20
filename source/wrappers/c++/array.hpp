@@ -22,7 +22,8 @@ public:
             , dims_loaded_(false)
             , dims_()
             , type_(&typeid(T))
-            , raw_data_(reinterpret_cast<char*>(data))
+            , raw_data_(reinterpret_cast<unsigned char*>(data))
+            , data_size_(sizeof(T))
     {}
 
     template <typename T>
@@ -33,8 +34,12 @@ public:
             , dims_loaded_(true)
             , dims_(std::move(dims))
             , type_(&typeid(T))
-            , raw_data_(reinterpret_cast<char*>(data))
+            , raw_data_(reinterpret_cast<unsigned char*>(data))
+            , data_size_(sizeof(T))
     {}
+
+    Array(const Array& other) = default;
+    Array& operator=(const Array& other) = default;
 
     size_t size() const override;
 
@@ -56,6 +61,16 @@ public:
 
     static Array Null;
 
+    const unsigned char* byte_data() const override
+    {
+        return raw_data_;
+    }
+
+    size_t byte_length() const override
+    {
+        return data_size_ * size();
+    }
+
 private:
     friend class uda::Client;
 
@@ -66,6 +81,7 @@ private:
             , dims_loaded_(true)
             , type_(&typeid(void))
             , raw_data_{}
+            , data_size_(0)
     {}
 
     boost::any data_;
@@ -73,10 +89,8 @@ private:
     bool dims_loaded_;
     mutable std::vector<Dim> dims_;
     const std::type_info* type_;
-    const char* raw_data_;
-
-    const char* data() const
-    { return raw_data_; };
+    const unsigned char* raw_data_;
+    size_t data_size_;
 };
 
 }

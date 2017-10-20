@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #------------------------------------------------------------------------------------------------------
-# Load core IDAM configuration
+# Load core UDA configuration
 
 source @CMAKE_INSTALL_PREFIX@/etc/udaserver.cfg >>@CMAKE_INSTALL_PREFIX@/etc/startup.log 2>&1
 
@@ -18,6 +18,11 @@ fi
 if [ -z "$HOSTNAME" ]
 then
     HOSTNAME=$(dnsdomainname -a | cut -d'.' -f2-)
+fi
+
+if [ -n "$UDAHOSTNAME" ]	# prioritise this host name for the local machine configuration
+then
+    HOSTNAME=$UDAHOSTNAME
 fi
 
 if [ -e "@CMAKE_INSTALL_PREFIX@/etc/machine.d/$HOSTNAME.cfg" ]

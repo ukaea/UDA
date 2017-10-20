@@ -1,5 +1,5 @@
 ###############################################################################
-# xinetd setup to start idam server
+# xinetd setup to start UDA server
 ###############################################################################
 
 service @USER@uda
@@ -13,6 +13,7 @@ service @USER@uda
     wait            = no
     user            = @USER@
     server          = @CMAKE_INSTALL_PREFIX@/etc/udaserver.sh
+    #env             = UDAHOSTNAME=uda-external-jet
 
     instances       = 50
     per_source      = 10

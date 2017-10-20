@@ -4,15 +4,21 @@
 
 #include "connection.h"
 
-#include <netdb.h>
 #include <string.h>
 #include <stdlib.h>
 #include <errno.h>
-#include <netinet/tcp.h>
 
-#ifndef _WIN32
+
+#ifdef __GNUC__
 #  include <unistd.h>
+#  include <netdb.h>
+#  include <strings.h>
+#  include <netinet/tcp.h>
 #  include <signal.h>
+#elif defined(_WIN32)
+#  include <winsock.h>
+#  include <process.h>
+#  define strcasecmp _stricmp
 #endif
 
 #include <clientserver/errorLog.h>
@@ -22,6 +28,10 @@
 
 #include "updateSelectParms.h"
 #include "getEnvironment.h"
+
+#if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
+#  include <authentication/udaSSL.h>
+#endif
 
 static int clientSocket = -1;
 static SOCKETLIST client_socketlist;   // List of open sockets
@@ -110,6 +120,11 @@ int createConnection()
         return 0;                // Check Already Opened?
 
     }
+    
+#if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
+    putUdaClientSSLSocket(clientSocket);    
+#endif
+
 #ifdef _WIN32                            // Initialise WINSOCK Once only
         static unsigned int	initWinsock = 0;
         WORD sockVersion;
@@ -139,10 +154,23 @@ int createConnection()
     server.sin_family = AF_INET;
     hostname = environment->server_host;
 
+// Does the host name contain the SSL protocol prefix?
+
+    int hostname_offset = 0;
+    
+#if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)    
+    if(!strncasecmp(hostname, "SSL://", 6)){
+       hostname_offset = 6;
+       putUdaClientSSLProtocol(1); 
+    } else {
+       putUdaClientSSLProtocol(0);
+    }      
+#endif        
+
 // Resolve host
 
     errno = 0;
-    host = gethostbyname(hostname);
+    host = gethostbyname(&hostname[hostname_offset]);
     serrno = errno;
 
     if (host == NULL || serrno != 0) {
@@ -180,10 +208,10 @@ int createConnection()
         int i, ps;
         float delay;
         ps = getpid();
-        srand((unsigned int) ps);                        // Seed the random number generator with the process id
-        delay = MAX_SOCKET_DELAY * ((float) rand() / (float) RAND_MAX);        // random delay
-        sleep(delay);                            // wait period
-        for (i = 0; i < MAX_SOCKET_ATTEMPTS; i++) {                // try again
+        srand((unsigned int) ps);                        			// Seed the random number generator with the process id
+        delay = MAX_SOCKET_DELAY * ((float) rand() / (float) RAND_MAX);		// random delay
+        sleep(delay);                            				// wait period
+        for (i = 0; i < MAX_SOCKET_ATTEMPTS; i++) {                		// try again
             errno = 0;
             while ((rc = connect(clientSocket, (struct sockaddr*) &server, sizeof(server))) && errno == EINTR) {}
             serrno = errno;
@@ -191,21 +219,40 @@ int createConnection()
             if (rc == 0) break;
 
             delay = MAX_SOCKET_DELAY * ((float) rand() / (float) RAND_MAX);
-            sleep(delay);
+#ifdef __GNUC__
+            sleep(delay);                            // wait period
+#elif defined(_WIN32)
+            Sleep((DWORD)(delay * 1E3));
+#endif            
         }
 
-        if (rc < 0 && strcmp(environment->server_host, environment->server_host2) !=
-                      0) {        // Abandon principal Host - attempt secondary host
+        if (rc < 0 && strcmp(environment->server_host, environment->server_host2) != 0) {        // Abandon principal Host - attempt secondary host
             hostname = environment->server_host2;
-            errno = 0;
-            host = gethostbyname(hostname);
+            
+#if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)    
+            if(!strncasecmp(hostname, "SSL://", 6)){
+               hostname_offset = 6;
+               putUdaClientSSLProtocol(1); 
+            } else {
+               putUdaClientSSLProtocol(0);
+            }      
+#endif  	    
+	    
+	    errno = 0;
+            host = gethostbyname(&hostname[hostname_offset]);
             if (host == NULL || errno != 0) {
                 if (errno != 0) {
                     addIdamError(SYSTEMERRORTYPE, "idamCreateConnection", errno, "");
                 } else {
                     addIdamError(CODEERRORTYPE, "idamCreateConnection", -1, "Unknown Server Host");
                 }
-                if (clientSocket != -1) close(clientSocket);
+                if (clientSocket != -1) {
+#ifdef __GNUC__
+                    close(clientSocket);
+#elif defined(_WIN32)
+                    closesocket(clientSocket);
+#endif
+                }				
                 clientSocket = -1;
                 return -1;
             }
@@ -229,7 +276,11 @@ int createConnection()
                     break;
                 }
                 delay = MAX_SOCKET_DELAY * ((float) rand() / (float) RAND_MAX);
-                sleep(delay);
+#ifdef __GNUC__
+               sleep(delay);                            // wait period
+#elif defined(_WIN32)
+               Sleep((DWORD)(delay * 1E3));
+#endif
             }
         }
 
@@ -240,7 +291,13 @@ int createConnection()
                 addIdamError(CODEERRORTYPE, "idamCreateConnection", -1,
                              "Unable to Connect to Server Stream Socket");
             }
-            if (clientSocket != -1) close(clientSocket);
+            if (clientSocket != -1) {
+#ifdef __GNUC__
+                close(clientSocket);
+#elif defined(_WIN32)
+                closesocket(clientSocket);
+#endif
+            }				
             clientSocket = -1;
             return -1;
         }
@@ -259,14 +316,22 @@ int createConnection()
     on = 1;
     if (setsockopt(clientSocket, SOL_SOCKET, SO_KEEPALIVE, (char*) &on, sizeof(on)) < 0) {
         addIdamError(CODEERRORTYPE, "idamCreateConnection", -1, "Error Setting KEEPALIVE on Socket");
+#ifdef __GNUC__
         close(clientSocket);
+#elif defined(_WIN32)
+        closesocket(clientSocket);
+#endif
         clientSocket = -1;
         return -1;
     }
     on = 1;
     if (setsockopt(clientSocket, IPPROTO_TCP, TCP_NODELAY, (char*) &on, sizeof(on)) < 0) {
         addIdamError(CODEERRORTYPE, "idamCreateConnection", -1, "Error Setting NODELAY on Socket");
+#ifdef __GNUC__
         close(clientSocket);
+#elif defined(_WIN32)
+        closesocket(clientSocket);
+#endif
         clientSocket = -1;
         return -1;
     }
@@ -279,6 +344,12 @@ int createConnection()
     environment->server_reconnect = 0;
     environment->server_change_socket = 0;
     environment->server_socket = clientSocket;
+    
+// Write the socket number to the SSL functions
+	
+#if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
+    putUdaClientSSLSocket(clientSocket);    
+#endif    
 
     return 0;
 }
@@ -408,7 +479,7 @@ int clientReadin(void* iohandle, char* buf, int count)
         if (serrno != 0 && serrno != EINTR) addIdamError(SYSTEMERRORTYPE, "idamClientReadin", rc, "");
         addIdamError(CODEERRORTYPE, "idamClientReadin", rc,
                      "No Data waiting at Socket when Data Expected!");
-    }
+    }    
 
     return rc;
 }

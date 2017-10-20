@@ -35,13 +35,14 @@ int initPlugin(const IDAM_PLUGIN_INTERFACE* plugin_interface)
     return 0;
 }
 
-int setReturnDataFloatArray(DATA_BLOCK* data_block, float* values, size_t rank, const size_t* shape, const char* description)
+int setReturnDataFloatArray(DATA_BLOCK* data_block, float* values, size_t rank, const size_t* shape,
+                            const char* description)
 {
     initDataBlock(data_block);
 
     if (description != NULL) {
         strncpy(data_block->data_desc, description, STRING_LENGTH);
-        data_block->data_desc[STRING_LENGTH-1] = '\0';
+        data_block->data_desc[STRING_LENGTH - 1] = '\0';
     }
 
     data_block->rank = (int)rank;
@@ -73,13 +74,14 @@ int setReturnDataFloatArray(DATA_BLOCK* data_block, float* values, size_t rank, 
     return 0;
 }
 
-int setReturnDataDoubleArray(DATA_BLOCK* data_block, double* values, size_t rank, const size_t* shape, const char* description)
+int setReturnDataDoubleArray(DATA_BLOCK* data_block, double* values, size_t rank, const size_t* shape,
+                             const char* description)
 {
     initDataBlock(data_block);
 
     if (description != NULL) {
         strncpy(data_block->data_desc, description, STRING_LENGTH);
-        data_block->data_desc[STRING_LENGTH-1] = '\0';
+        data_block->data_desc[STRING_LENGTH - 1] = '\0';
     }
 
     data_block->rank = (int)rank;
@@ -111,13 +113,14 @@ int setReturnDataDoubleArray(DATA_BLOCK* data_block, double* values, size_t rank
     return 0;
 }
 
-int setReturnDataIntArray(DATA_BLOCK* data_block, int* values, size_t rank, const size_t* shape, const char* description)
+int
+setReturnDataIntArray(DATA_BLOCK* data_block, int* values, size_t rank, const size_t* shape, const char* description)
 {
     initDataBlock(data_block);
 
     if (description != NULL) {
         strncpy(data_block->data_desc, description, STRING_LENGTH);
-        data_block->data_desc[STRING_LENGTH-1] = '\0';
+        data_block->data_desc[STRING_LENGTH - 1] = '\0';
     }
 
     data_block->rank = (int)rank;
@@ -158,7 +161,7 @@ int setReturnDataDoubleScalar(DATA_BLOCK* data_block, double value, const char* 
 
     if (description != NULL) {
         strncpy(data_block->data_desc, description, STRING_LENGTH);
-        data_block->data_desc[STRING_LENGTH-1] = '\0';
+        data_block->data_desc[STRING_LENGTH - 1] = '\0';
     }
 
     data_block->rank = 0;
@@ -178,7 +181,7 @@ int setReturnDataFloatScalar(DATA_BLOCK* data_block, float value, const char* de
 
     if (description != NULL) {
         strncpy(data_block->data_desc, description, STRING_LENGTH);
-        data_block->data_desc[STRING_LENGTH-1] = '\0';
+        data_block->data_desc[STRING_LENGTH - 1] = '\0';
     }
 
     data_block->rank = 0;
@@ -198,7 +201,7 @@ int setReturnDataIntScalar(DATA_BLOCK* data_block, int value, const char* descri
 
     if (description != NULL) {
         strncpy(data_block->data_desc, description, STRING_LENGTH);
-        data_block->data_desc[STRING_LENGTH-1] = '\0';
+        data_block->data_desc[STRING_LENGTH - 1] = '\0';
     }
 
     data_block->rank = 0;
@@ -218,7 +221,7 @@ int setReturnDataLongScalar(DATA_BLOCK* data_block, long value, const char* desc
 
     if (description != NULL) {
         strncpy(data_block->data_desc, description, STRING_LENGTH);
-        data_block->data_desc[STRING_LENGTH-1] = '\0';
+        data_block->data_desc[STRING_LENGTH - 1] = '\0';
     }
 
     data_block->rank = 0;
@@ -238,7 +241,7 @@ int setReturnDataShortScalar(DATA_BLOCK* data_block, short value, const char* de
 
     if (description != NULL) {
         strncpy(data_block->data_desc, description, STRING_LENGTH);
-        data_block->data_desc[STRING_LENGTH-1] = '\0';
+        data_block->data_desc[STRING_LENGTH - 1] = '\0';
     }
 
     data_block->rank = 0;
@@ -266,7 +269,7 @@ int setReturnDataString(DATA_BLOCK* data_block, const char* value, const char* d
 
     if (description != NULL) {
         strncpy(data_block->data_desc, description, STRING_LENGTH);
-        data_block->data_desc[STRING_LENGTH-1] = '\0';
+        data_block->data_desc[STRING_LENGTH - 1] = '\0';
     }
 
     data_block->dims[0].data_type = UDA_TYPE_UNSIGNED_INT;
@@ -493,8 +496,9 @@ void initPluginList(PLUGINLIST* plugin_list)
         plugin_list->plugin[plugin_list->count].is_private = PLUGINPUBLIC;
     }        // Public service if running as a PROXY
 
-    if (!environment->external_user)
-        plugin_list->plugin[plugin_list->count].is_private = PLUGINPUBLIC;        // Public service for internal requests only
+    if (!environment->external_user) {
+        plugin_list->plugin[plugin_list->count].is_private = PLUGINPUBLIC;
+    }        // Public service for internal requests only
 
     strcpy(plugin_list->plugin[plugin_list->count].desc,
            "Data is accessed from an internal or external IDAM server. The server the client is connected to "
@@ -1479,14 +1483,14 @@ int idamProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_BLOCK* original_req
             UDA_LOG(UDA_LOG_DEBUG, "Plugin id: %d\n", id);
             if (id >= 0) {
                 UDA_LOG(UDA_LOG_DEBUG, "plugin_list->plugin[id].plugin_class == PLUGINFUNCTION = %d\n",
-                          plugin_list->plugin[id].plugin_class == PLUGINFUNCTION);
+                        plugin_list->plugin[id].plugin_class == PLUGINFUNCTION);
                 UDA_LOG(UDA_LOG_DEBUG, "!environment->external_user = %d\n", !environment->external_user);
                 UDA_LOG(UDA_LOG_DEBUG, "plugin_list->plugin[id].status == PLUGINOPERATIONAL = %d\n",
-                          plugin_list->plugin[id].status == PLUGINOPERATIONAL);
+                        plugin_list->plugin[id].status == PLUGINOPERATIONAL);
                 UDA_LOG(UDA_LOG_DEBUG, "plugin_list->plugin[id].pluginHandle != NULL = %d\n",
-                          plugin_list->plugin[id].pluginHandle != NULL);
+                        plugin_list->plugin[id].pluginHandle != NULL);
                 UDA_LOG(UDA_LOG_DEBUG, "plugin_list->plugin[id].idamPlugin   != NULL = %d\n",
-                          plugin_list->plugin[id].idamPlugin != NULL);
+                        plugin_list->plugin[id].idamPlugin != NULL);
             }
             if (id >= 0 &&
                 plugin_list->plugin[id].plugin_class == PLUGINFUNCTION &&
@@ -1520,7 +1524,7 @@ int idamProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_BLOCK* original_req
                 signal_desc->signal_name, data_source->path, "", execMethod);
     } else {
 
-    // need 2> record the server log record
+        // need 2> record the server log record
 
         sprintf(request_block.signal, "%s::putSignal(uuid='%s',logRecord='%s', execMethod=%d, status=update)",
                 plugin_list->plugin[plugin_id].format, client_block->DOI, logRecord, execMethod);
@@ -1642,8 +1646,11 @@ int idamServerMetaDataPluginId(const PLUGINLIST* plugin_list)
     static unsigned short noPluginRegistered = 0;
     static int plugin_id = -1;
 
-    if (plugin_id >= 0) return plugin_id;   // Plugin previously identified
-    if (noPluginRegistered) return -1;      // No Plugin for the MetaData Catalog to resolve Generic Name mappings
+    UDA_LOG(UDA_LOG_DEBUG, "Entered: noPluginRegistered state = %d\n", noPluginRegistered);
+    UDA_LOG(UDA_LOG_DEBUG, "Entered: plugin_id state = %d\n", plugin_id);
+
+    if (plugin_id >= 0) return plugin_id;     // Plugin previously identified
+    if (noPluginRegistered) return -1;        // No Plugin for the MetaData Catalog to resolve Generic Name mappings
 
     // Identify the MetaData Catalog plugin (must be a function library type plugin)
 
@@ -1657,8 +1664,28 @@ int idamServerMetaDataPluginId(const PLUGINLIST* plugin_list)
             plugin_list->plugin[id].status == PLUGINOPERATIONAL &&
             plugin_list->plugin[id].pluginHandle != NULL &&
             plugin_list->plugin[id].idamPlugin != NULL) {
-                plugin_id = (short)id;
+            plugin_id = (short)id;
         }
+
+        if (id >= 0 && plugin_list->plugin[id].is_private == PLUGINPRIVATE &&
+            getIdamServerEnvironment()->external_user) {
+                plugin_id = -1;
+        }        // Not available to external users
+
+
+        UDA_LOG(UDA_LOG_DEBUG, "Generic Name Mapping Plugin Name: %s\n", env);
+        UDA_LOG(UDA_LOG_DEBUG, "PLUGINFUNCTION?: %d\n", plugin_list->plugin[id].plugin_class == PLUGINFUNCTION);
+        UDA_LOG(UDA_LOG_DEBUG, "PLUGINPRIVATE?: %d\n", plugin_list->plugin[id].is_private == PLUGINPRIVATE);
+        UDA_LOG(UDA_LOG_DEBUG, "External User?: %d\n", getIdamServerEnvironment()->external_user);
+        UDA_LOG(UDA_LOG_DEBUG, "Private?: %d\n",
+                plugin_list->plugin[id].is_private == PLUGINPRIVATE && getIdamServerEnvironment()->external_user);
+        UDA_LOG(UDA_LOG_DEBUG, "PLUGINOPERATIONAL?: %d\n", plugin_list->plugin[id].status == PLUGINOPERATIONAL);
+        UDA_LOG(UDA_LOG_DEBUG, "Plugin OK?: %d\n",
+                plugin_list->plugin[id].pluginHandle != NULL && plugin_list->plugin[id].idamPlugin != NULL);
+        UDA_LOG(UDA_LOG_DEBUG, "id: %d\n", id);
+        UDA_LOG(UDA_LOG_DEBUG, "id: %d\n", plugin_id);
+    } else {
+        UDA_LOG(UDA_LOG_DEBUG, "NO Generic Name Mapping Plugin identified\n");
     }
 
     if (plugin_id < 0) noPluginRegistered = 1;        // No Plugin found (registered)

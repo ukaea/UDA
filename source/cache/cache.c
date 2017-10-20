@@ -150,8 +150,9 @@ char* idamCacheKey(REQUEST_BLOCK* request_block, ENVIRONMENT environment)
 // All data services should indicate whether or not the data returned is suitable for client side caching (all server plugin get methods must decide!)
 // The server should also set a recommmended expiration time (lifetime of the stored object) - overridden by the client if necessary
 
-int idamCacheWrite(IDAM_CACHE* cache, REQUEST_BLOCK* request_block, DATA_BLOCK* data_block, LOGMALLOCLIST* logmalloclist,
-                   USERDEFINEDTYPELIST* userdefinedtypelist, ENVIRONMENT environment)
+int
+idamCacheWrite(IDAM_CACHE* cache, REQUEST_BLOCK* request_block, DATA_BLOCK* data_block, LOGMALLOCLIST* logmalloclist,
+               USERDEFINEDTYPELIST* userdefinedtypelist, ENVIRONMENT environment)
 {
 #ifdef CACHEDEV
 

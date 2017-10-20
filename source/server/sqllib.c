@@ -3425,8 +3425,6 @@ PGconn* startSQL_CPF() {
     return NULL;
 }
 
-void PQfinish(PGconn *DBConnect) {}
-
 void sqlReason(PGconn *DBConnect, char *reason_id, char *reason) {
     return;
 }

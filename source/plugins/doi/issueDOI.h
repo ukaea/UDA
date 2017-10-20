@@ -7,7 +7,7 @@
 extern "C" {
 #endif
 
-#define API_DEVICE "MAST"
+//#define API_DEVICE "MAST"
 
 #define DOIPREFIXLENGTH    256
 

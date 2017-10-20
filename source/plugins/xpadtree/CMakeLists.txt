@@ -16,6 +16,7 @@ uda_plugin(
   EXAMPLE "XPADTREE::gettags()"
   LIBNAME xpadtree_plugin
   SOURCES xpadtree.c
+  CONFIG_FILE xpadtree.cfg
   EXTRA_INCLUDE_DIRS
     ${LIBXML2_INCLUDE_DIR}
     ${PostgreSQL_INCLUDE_DIRS}
