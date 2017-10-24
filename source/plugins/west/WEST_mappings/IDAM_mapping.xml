@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <mappings>
-<mapping key="magnetics/ids_properties/homogeneous_time" value="set_value;0;0:int" type="static"/>
+<mapping key="magnetics/ids_properties/homogeneous_time" value="set_value;1;0:int" type="static"/>
 <mapping key="magnetics/flux_loop/Shape_of" value="shape_of_tsmat_collect;DMAG:GMAG_FLXLOOP:PosR;0:float:#0" type="static"/>
 <mapping key="magnetics/flux_loop/#/name" value="set_value_collect;DMAG:GMAG_FLXLOOP:CALIB:Flux_loop;0:string:#0" type="static"/>
 <mapping key="magnetics/flux_loop/#/identifier" value="set_value;identifier not defined;0:string" type="static"/>
@@ -30,7 +30,7 @@
 <mapping key="magnetics/method/#/diamagnetic_flux/data" value="tsbase_collect;DMAG:GMAG_FDIAM;1:float:#0" type="dynamic"/>
 <mapping key="magnetics/method/#/diamagnetic_flux/time" value="tsbase_time;DMAG:GMAG_FDIAM;1:float:#0" type="dynamic"/>
 <!-- mapping key="magnetics/code/output_flag" value="set_value;0;0:int" type="dynamic"/ -->
-<!-- mapping key="magnetics/time" value="" type="dynamic"/ -->
+<mapping key="magnetics/time" value="tsbase_time;DMAG:GMAG_FLXLOOP;1:float:1" type="dynamic"/>
 
 <mapping key="tf/ids_properties/homogeneous_time" value="set_value;0;0:int" type="static"/>
 <mapping key="tf/b_field_tor_vacuum_r/data" value="tsbase_collect;DMAG:GMAG_ITOR;1:float:2;multiply:cste:0.0073008" type="dynamic"/>

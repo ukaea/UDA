@@ -372,23 +372,35 @@ float factUpper(int shotNumber)
 	float* I_case_upper_data = NULL;
 	float* I_case_upper_time = NULL;
 	int status = I_case_upper(shotNumber, &I_case_upper_time, &I_case_upper_data, &I_case_upper_len, 1.);
-	if (status != 0) return status;
+	if (status != 0) {
+		int err = 801;
+		addIdamError(CODEERRORTYPE, "WEST:ERROR: unable to get I_case_upper for pf_passive", err, "");
+	}
 
 	int coeff_len;
 	float* coeff1_data = NULL;
 	float* coeff1_time = NULL;
 	status = getIDCOEF(shotNumber, 19, &coeff1_time, &coeff1_data, &coeff_len, 1.);
-	if (status != 0) return status;
+	if (status != 0) {
+		int err = 801;
+		addIdamError(CODEERRORTYPE, "WEST:ERROR: unable to get getIDCOEF(19) for pf_passive", err, "");
+	}
 
 	float* coeff2_data = NULL;
 	float* coeff2_time = NULL;
 	status = getIDCOEF(shotNumber, 20, &coeff2_time, &coeff2_data, &coeff_len, 1.);
-	if (status != 0) return status;
+	if (status != 0) {
+		int err = 801;
+		addIdamError(CODEERRORTYPE, "WEST:ERROR: unable to get getIDCOEF(20) for pf_passive", err, "");
+	}
 
 	float* coeff3_data = NULL;
 	float* coeff3_time = NULL;
 	status = getIDCOEF(shotNumber, 21, &coeff3_time, &coeff3_data, &coeff_len, 1.);
-	if (status != 0) return status;
+	if (status != 0) {
+		int err = 801;
+		addIdamError(CODEERRORTYPE, "WEST:ERROR: unable to get getIDCOEF(21) for pf_passive", err, "");
+	}
 
 	float* s2 = NULL;
 	somme2(&s2, coeff1_data, coeff2_data, coeff3_data, coeff_len);
@@ -404,23 +416,35 @@ float factLower(int shotNumber)
 	float* I_case_lower_data = NULL;
 	float* I_case_lower_time = NULL;
 	int status = I_case_lower(shotNumber, &I_case_lower_time, &I_case_lower_data, &I_case_lower_len, 1.);
-	if (status != 0) return status;
+	if (status != 0) {
+		int err = 801;
+		addIdamError(CODEERRORTYPE, "WEST:ERROR: unable to get I_case_lower for pf_passive", err, "");
+	}
 
 	int coeff_len;
 	float* coeff1_data = NULL;
 	float* coeff1_time = NULL;
 	status = getIDCOEF(shotNumber, 22, &coeff1_time, &coeff1_data, &coeff_len, 1.);
-	if (status != 0) return status;
+	if (status != 0) {
+		int err = 801;
+		addIdamError(CODEERRORTYPE, "WEST:ERROR: unable to get getIDCOEF(22) for pf_passive", err, "");
+	}
 
 	float* coeff2_data = NULL;
 	float* coeff2_time = NULL;
 	status = getIDCOEF(shotNumber, 23, &coeff2_time, &coeff2_data, &coeff_len, 1.);
-	if (status != 0) return status;
+	if (status != 0) {
+		int err = 801;
+		addIdamError(CODEERRORTYPE, "WEST:ERROR: unable to get getIDCOEF(23) for pf_passive", err, "");
+	}
 
 	float* coeff3_data = NULL;
 	float* coeff3_time = NULL;
 	status = getIDCOEF(shotNumber, 24, &coeff3_time, &coeff3_data, &coeff_len, 1.);
-	if (status != 0) return status;
+	if (status != 0) {
+		int err = 801;
+		addIdamError(CODEERRORTYPE, "WEST:ERROR: unable to get getIDCOEF(24) for pf_passive", err, "");
+	}
 
 	float* s2 = NULL;
 	somme2(&s2, coeff1_data, coeff2_data, coeff3_data, coeff_len);
@@ -431,50 +455,32 @@ float factLower(int shotNumber)
 
 int I_case_upper_hfs(int shotNumber, float** time, float** data, int* len, float normalizationFactor)
 {
-	int status = getIDCOEF(shotNumber, 19, time, data, len, factUpper(shotNumber));
-	if (status != 0) return status;
-	multiplyFloat(*data, normalizationFactor, *len);
-	return status;
+	return getIDCOEF(shotNumber, 19, time, data, len, factUpper(shotNumber));
 }
 
 int I_case_upper_c(int shotNumber, float** time, float** data, int* len, float normalizationFactor)
 {
-	int status = getIDCOEF(shotNumber, 20, time, data, len, factUpper(shotNumber));
-	if (status != 0) return status;
-	multiplyFloat(*data, normalizationFactor, *len);
-	return status;
+	return getIDCOEF(shotNumber, 20, time, data, len, factUpper(shotNumber));
 }
 
 int I_case_upper_lfs(int shotNumber, float** time, float** data, int* len, float normalizationFactor)
 {
-	int status = getIDCOEF(shotNumber, 21, time, data, len, factUpper(shotNumber));
-	if (status != 0) return status;
-	multiplyFloat(*data, normalizationFactor, *len);
-	return status;
+	return getIDCOEF(shotNumber, 21, time, data, len, factUpper(shotNumber));
 }
 
 int I_case_lower_hfs(int shotNumber, float** time, float** data, int* len, float normalizationFactor)
 {
-	int status = getIDCOEF(shotNumber, 22, time, data, len, factLower(shotNumber));
-	if (status != 0) return status;
-	multiplyFloat(*data, normalizationFactor, *len);
-	return status;
+	return getIDCOEF(shotNumber, 22, time, data, len, factLower(shotNumber), normalizationFactor);
 }
 
 int I_case_lower_c(int shotNumber, float** time, float** data, int* len, float normalizationFactor)
 {
-	int status = getIDCOEF(shotNumber, 23, time, data, len, factLower(shotNumber));
-	if (status != 0) return status;
-	multiplyFloat(*data, normalizationFactor, *len);
-	return status;
+	return getIDCOEF(shotNumber, 23, time, data, len, factLower(shotNumber), normalizationFactor);
 }
 
 int I_case_lower_lfs(int shotNumber, float** time, float** data, int* len, float normalizationFactor)
 {
-	int status = getIDCOEF(shotNumber, 24, time, data, len, factLower(shotNumber));
-	if (status != 0) return status;
-	multiplyFloat(*data, normalizationFactor, *len);
-	return status;
+	return getIDCOEF(shotNumber, 24, time, data, len, factLower(shotNumber), normalizationFactor);
 }
 
 float somme(float* data, int len)
