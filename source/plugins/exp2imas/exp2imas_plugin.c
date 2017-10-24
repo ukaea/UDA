@@ -717,10 +717,10 @@ xmlChar* getMappingValue(const char* mapping_file_name, const char* request, MAP
     }
 
     // Creating the Xpath request
-    XML_FMT_TYPE fmt = "//mapping[@key='%s']/@value";
+    const char* fmt = "//mapping[@key='%s']/@value";
     size_t len = strlen(request) + strlen(fmt) + 1;
     xmlChar* xpath_expr = malloc(len + sizeof(xmlChar));
-    xmlStrPrintf(xpath_expr, (int)len, fmt, request);
+    xmlStrPrintf(xpath_expr, (int)len, (XML_FMT_TYPE)fmt, request);
 
     /*
      * Evaluate xpath expression for the type
@@ -752,7 +752,7 @@ xmlChar* getMappingValue(const char* mapping_file_name, const char* request, MAP
     len = strlen(request) + strlen(fmt) + 1;
     free(xpath_expr);
     xpath_expr = malloc(len + sizeof(xmlChar));
-    xmlStrPrintf(xpath_expr, (int)len, fmt, request);
+    xmlStrPrintf(xpath_expr, (int)len, (XML_FMT_TYPE)fmt, request);
 
     /*
      * Evaluate xpath expression for the type
@@ -799,7 +799,7 @@ xmlChar* getMappingValue(const char* mapping_file_name, const char* request, MAP
     len = strlen(request) + strlen(fmt) + 1;
     free(xpath_expr);
     xpath_expr = malloc(len + sizeof(xmlChar));
-    xmlStrPrintf(xpath_expr, (int)len, fmt, request);
+    xmlStrPrintf(xpath_expr, (int)len, (XML_FMT_TYPE)fmt, request);
 
     xmlXPathFreeObject(xpath_obj);
     xpath_obj = xmlXPathEvalExpression(xpath_expr, xpath_ctx);
@@ -822,7 +822,7 @@ xmlChar* getMappingValue(const char* mapping_file_name, const char* request, MAP
     len = strlen(request) + strlen(fmt) + 1;
     free(xpath_expr);
     xpath_expr = malloc(len + sizeof(xmlChar));
-    xmlStrPrintf(xpath_expr, (int)len, fmt, request);
+    xmlStrPrintf(xpath_expr, (int)len, (XML_FMT_TYPE)fmt, request);
 
     xmlXPathFreeObject(xpath_obj);
     xpath_obj = xmlXPathEvalExpression(xpath_expr, xpath_ctx);
