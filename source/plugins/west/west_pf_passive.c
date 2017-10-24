@@ -455,32 +455,32 @@ float factLower(int shotNumber)
 
 int I_case_upper_hfs(int shotNumber, float** time, float** data, int* len, float normalizationFactor)
 {
-	return getIDCOEF(shotNumber, 19, time, data, len, factUpper(shotNumber));
+	return getIDCOEF(shotNumber, 19, time, data, len, factUpper(shotNumber)*normalizationFactor);
 }
 
 int I_case_upper_c(int shotNumber, float** time, float** data, int* len, float normalizationFactor)
 {
-	return getIDCOEF(shotNumber, 20, time, data, len, factUpper(shotNumber));
+	return getIDCOEF(shotNumber, 20, time, data, len, factUpper(shotNumber)*normalizationFactor);
 }
 
 int I_case_upper_lfs(int shotNumber, float** time, float** data, int* len, float normalizationFactor)
 {
-	return getIDCOEF(shotNumber, 21, time, data, len, factUpper(shotNumber));
+	return getIDCOEF(shotNumber, 21, time, data, len, factUpper(shotNumber)*normalizationFactor);
 }
 
 int I_case_lower_hfs(int shotNumber, float** time, float** data, int* len, float normalizationFactor)
 {
-	return getIDCOEF(shotNumber, 22, time, data, len, factLower(shotNumber), normalizationFactor);
+	return getIDCOEF(shotNumber, 22, time, data, len, factLower(shotNumber)*normalizationFactor);
 }
 
 int I_case_lower_c(int shotNumber, float** time, float** data, int* len, float normalizationFactor)
 {
-	return getIDCOEF(shotNumber, 23, time, data, len, factLower(shotNumber), normalizationFactor);
+	return getIDCOEF(shotNumber, 23, time, data, len, factLower(shotNumber)*normalizationFactor);
 }
 
 int I_case_lower_lfs(int shotNumber, float** time, float** data, int* len, float normalizationFactor)
 {
-	return getIDCOEF(shotNumber, 24, time, data, len, factLower(shotNumber), normalizationFactor);
+	return getIDCOEF(shotNumber, 24, time, data, len, factLower(shotNumber)*normalizationFactor);
 }
 
 float somme(float* data, int len)
