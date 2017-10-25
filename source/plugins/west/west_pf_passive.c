@@ -248,9 +248,7 @@ int getCurrent(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices, float**
 	} else if (k > 10 && k <= 18) {
 		status = I_baffle(shotNumber, time, data, len, 1. / Rbaf_length);
 	} else if (k > 18 && k <= 21) {
-		IDAM_LOG(UDA_LOG_DEBUG, "test10\n");
 		status = I_case_upper_hfs(shotNumber, time, data, len, 1. / Rsup1_length);
-		IDAM_LOG(UDA_LOG_DEBUG, "test11\n");
 	} else if (k > 21 && k <= 24) {
 		status = I_case_upper_c(shotNumber, time, data, len, 1. / Rsup2_length);
 	} else if (k > 24 && k <= 26) {
@@ -281,13 +279,9 @@ void passive_time(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 	} else if (k > 10 && k <= 18) {
 		status = getIFREEB(shotNumber, 3, &time, &data, &len, 1.);
 	} else if (k > 18 && k <= 21) {
-		IDAM_LOG(UDA_LOG_DEBUG, "test3\n");
 		status = getIDCOEF(shotNumber, 19, &time, &data, &len, 1.);
-		IDAM_LOG(UDA_LOG_DEBUG, "test4\n");
 	} else if (k > 21 && k <= 24) {
-		IDAM_LOG(UDA_LOG_DEBUG, "test5\n");
 		status = getIDCOEF(shotNumber, 20, &time, &data, &len, 1.);
-		IDAM_LOG(UDA_LOG_DEBUG, "test6\n");
 	} else if (k > 24 && k <= 26) {
 		status = getIDCOEF(shotNumber, 21, &time, &data, &len, 1.);
 	} else if (k > 26 && k <= 29) {
@@ -386,13 +380,11 @@ float factUpper(int shotNumber)
 	int coeff_len;
 	float* coeff1_data = NULL;
 	float* coeff1_time = NULL;
-	IDAM_LOG(UDA_LOG_DEBUG, "test1\n");
 	status = getIDCOEF(shotNumber, 19, &coeff1_time, &coeff1_data, &coeff_len, 1.);
 	if (status != 0) {
 		int err = 801;
 		addIdamError(CODEERRORTYPE, "WEST:ERROR: unable to get getIDCOEF(19) for pf_passive", err, "");
 	}
-	IDAM_LOG(UDA_LOG_DEBUG, "test2\n");
 	float* coeff2_data = NULL;
 	float* coeff2_time = NULL;
 	status = getIDCOEF(shotNumber, 20, &coeff2_time, &coeff2_data, &coeff_len, 1.);
@@ -400,7 +392,6 @@ float factUpper(int shotNumber)
 		int err = 801;
 		addIdamError(CODEERRORTYPE, "WEST:ERROR: unable to get getIDCOEF(20) for pf_passive", err, "");
 	}
-	IDAM_LOG(UDA_LOG_DEBUG, "test21\n");
 	float* coeff3_data = NULL;
 	float* coeff3_time = NULL;
 	status = getIDCOEF(shotNumber, 21, &coeff3_time, &coeff3_data, &coeff_len, 1.);
@@ -410,12 +401,9 @@ float factUpper(int shotNumber)
 	}
 
 	float* s2 = NULL;
-	IDAM_LOGF(UDA_LOG_DEBUG, "test22, coeff_len: %d\n",coeff_len);
 	s2 = (float*)calloc(coeff_len, sizeof(float));
 	somme2(s2, coeff1_data, coeff2_data, coeff3_data, coeff_len);
-	IDAM_LOG(UDA_LOG_DEBUG, "test23\n");
 	float factUpper = somme(I_case_upper_data, I_case_upper_len) / somme(s2, coeff_len);
-	IDAM_LOG(UDA_LOG_DEBUG, "test24\n");
 	return factUpper;
 }
 
