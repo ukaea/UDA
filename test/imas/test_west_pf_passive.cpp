@@ -14,7 +14,7 @@ exit 0
 #define QUOTE_(X) #X
 #define QUOTE(X) QUOTE_(X)
 #define SHOT_NUM_TORE_SUPRA "43979" // WEST
-#define SHOT_NUM "51371" // WEST
+#define SHOT_NUM "51383" // WEST
 
 int main() {
 	setenv("UDA_PLUGIN_DIR", QUOTE(HOME) "/iter/uda/etc/plugins", 1);
@@ -85,6 +85,17 @@ int main() {
 	std::cout << "values for loop/12/current from 200 to 210: ";
 	for (int j = 199; j < 209; ++j) {
 		std::cout << arr_current_data12->as<double>().at(j) << " ";
+	}
+	std::cout << "..." << std::endl;
+	
+	
+	const uda::Result& current20 = client.get("imas::get(idx=0, group='pf_passive', variable='loop/20/current', expName='WEST', type=double, rank=1, shot=" SHOT_NUM ", )", "");
+	const uda::Data * current_data20 = current20.data();
+	const uda::Array* arr_current_data20 = dynamic_cast<const uda::Array*>(current_data20);
+
+	std::cout << "values for loop/20/current from 200 to 210: ";
+	for (int j = 199; j < 209; ++j) {
+		std::cout << arr_current_data20->as<double>().at(j) << " ";
 	}
 	std::cout << "..." << std::endl;
 
