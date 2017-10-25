@@ -506,16 +506,9 @@ float somme(float* data, int len)
 
 void somme2(float* s, float* data1, float* data2, float* data3, int len)
 {
-	IDAM_LOGF(UDA_LOG_DEBUG, "in somme2, len: %d\n", len);
-	IDAM_LOG(UDA_LOG_DEBUG, "in somme21\n");
 	int i;
 	for (i = 0; i < len; i++) {
-		IDAM_LOGF(UDA_LOG_DEBUG, "i = %d\n",i);
-		//IDAM_LOGF(UDA_LOG_DEBUG, "in data1[i] %f\n", data1[i]);
-		//IDAM_LOGF(UDA_LOG_DEBUG, "in data2[i] %f\n", data2[i]);
-		//IDAM_LOGF(UDA_LOG_DEBUG, "in data3[i] %f\n", data3[i]);
 		s[i] = data1[i] + data2[i] + data3[i];
-		IDAM_LOGF(UDA_LOG_DEBUG, "s[i] = %f\n",s[i]);
 	}
 }
 
