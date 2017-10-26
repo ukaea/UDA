@@ -176,9 +176,9 @@ int readSignal(char* nomsigp, int numchoc, int occ,
 //    		IDAM_LOGF(LOG_DEBUG, "value : %f\n", *(*X + j));
 //    }
 
-    //int i;
-    //for (i = 0; i < *len; i++)
-    //    *(*X + i) = *(*X + i) / CTPS; //TSLib gives the time in µs, so we do this conversion to put the time in seconds
+    int i;
+    for (i = 0; i < *len; i++)
+        *(*X + i) = *(*X + i) / CTPS; //TSLib gives the time in µs, so we do this conversion to put the time in seconds
     return cr;
 }
 
