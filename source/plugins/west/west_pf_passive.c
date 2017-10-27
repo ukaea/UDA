@@ -223,7 +223,7 @@ void passive_current(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 	int len;
 	int status = getCurrent(shotNumber, data_block, nodeIndices, &data, &time, &len);
 	if (status != 0) {
-		int err = 801;
+		int err = 901;
 		addIdamError(CODEERRORTYPE, "WEST:ERROR: unable to get pf_passive current", err, "");
 	}
 	SetDynamicData(data_block, len, time, data);
@@ -293,7 +293,7 @@ void passive_time(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 	}
 
 	if (status != 0) {
-		int err = 801;
+		int err = 901;
 		addIdamError(CODEERRORTYPE, "WEST:ERROR: unable to get time for pf_passive current", err, "");
 	}
 
@@ -308,7 +308,7 @@ void passive_time(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 		float time_ref_i = time_ref[i];
 		float time_i = time[i];
 		if (abs(time_ref_i - time_i) > p)  {
-			int err = 801;
+			int err = 901;
 			addIdamError(CODEERRORTYPE, "WEST:ERROR: time data for pf_passive currents differ !", err, "");
 		}
 	}
@@ -373,7 +373,7 @@ float factUpper(int shotNumber)
 	float* I_case_upper_time = NULL;
 	int status = I_case_upper(shotNumber, &I_case_upper_time, &I_case_upper_data, &I_case_upper_len, 1.);
 	if (status != 0) {
-		int err = 801;
+		int err = 901;
 		addIdamError(CODEERRORTYPE, "WEST:ERROR: unable to get I_case_upper for pf_passive", err, "");
 	}
 
@@ -382,21 +382,21 @@ float factUpper(int shotNumber)
 	float* coeff1_time = NULL;
 	status = getIDCOEF(shotNumber, 19, &coeff1_time, &coeff1_data, &coeff_len, 1.);
 	if (status != 0) {
-		int err = 801;
+		int err = 901;
 		addIdamError(CODEERRORTYPE, "WEST:ERROR: unable to get getIDCOEF(19) for pf_passive", err, "");
 	}
 	float* coeff2_data = NULL;
 	float* coeff2_time = NULL;
 	status = getIDCOEF(shotNumber, 20, &coeff2_time, &coeff2_data, &coeff_len, 1.);
 	if (status != 0) {
-		int err = 801;
+		int err = 901;
 		addIdamError(CODEERRORTYPE, "WEST:ERROR: unable to get getIDCOEF(20) for pf_passive", err, "");
 	}
 	float* coeff3_data = NULL;
 	float* coeff3_time = NULL;
 	status = getIDCOEF(shotNumber, 21, &coeff3_time, &coeff3_data, &coeff_len, 1.);
 	if (status != 0) {
-		int err = 801;
+		int err = 901;
 		addIdamError(CODEERRORTYPE, "WEST:ERROR: unable to get getIDCOEF(21) for pf_passive", err, "");
 	}
 
@@ -415,7 +415,7 @@ float factLower(int shotNumber)
 	float* I_case_lower_time = NULL;
 	int status = I_case_lower(shotNumber, &I_case_lower_time, &I_case_lower_data, &I_case_lower_len, 1.);
 	if (status != 0) {
-		int err = 801;
+		int err = 901;
 		addIdamError(CODEERRORTYPE, "WEST:ERROR: unable to get I_case_lower for pf_passive", err, "");
 	}
 
@@ -424,7 +424,7 @@ float factLower(int shotNumber)
 	float* coeff1_time = NULL;
 	status = getIDCOEF(shotNumber, 22, &coeff1_time, &coeff1_data, &coeff_len, 1.);
 	if (status != 0) {
-		int err = 801;
+		int err = 901;
 		addIdamError(CODEERRORTYPE, "WEST:ERROR: unable to get getIDCOEF(22) for pf_passive", err, "");
 	}
 
@@ -432,7 +432,7 @@ float factLower(int shotNumber)
 	float* coeff2_time = NULL;
 	status = getIDCOEF(shotNumber, 23, &coeff2_time, &coeff2_data, &coeff_len, 1.);
 	if (status != 0) {
-		int err = 801;
+		int err = 901;
 		addIdamError(CODEERRORTYPE, "WEST:ERROR: unable to get getIDCOEF(23) for pf_passive", err, "");
 	}
 
@@ -440,7 +440,7 @@ float factLower(int shotNumber)
 	float* coeff3_time = NULL;
 	status = getIDCOEF(shotNumber, 24, &coeff3_time, &coeff3_data, &coeff_len, 1.);
 	if (status != 0) {
-		int err = 801;
+		int err = 901;
 		addIdamError(CODEERRORTYPE, "WEST:ERROR: unable to get getIDCOEF(24) for pf_passive", err, "");
 	}
 

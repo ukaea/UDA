@@ -72,7 +72,7 @@ void pf_active_current_data(int shotNumber, DATA_BLOCK* data_block, int* nodeInd
 		status = get_pf_current(shotNumber, 13, &time, &data, &len, 1000.);
 	}
 	if (status != 0) {
-		int err = 801;
+		int err = 901;
 		addIdamError(CODEERRORTYPE, "WEST:ERROR: unable to get pf_active current", err, "");
 	}
 	SetDynamicData(data_block, len, time, data);
@@ -101,7 +101,7 @@ void pf_active_current_time(int shotNumber, DATA_BLOCK* data_block, int* nodeInd
 		status = get_pf_current(shotNumber, 13, &time, &data, &len, 1000.);
 	}
 	if (status != 0) {
-		int err = 801;
+		int err = 901;
 		addIdamError(CODEERRORTYPE, "WEST:ERROR: unable to get time for pf_active current", err, "");
 	}
 	SetDynamicDataTime(data_block, len, time, data);

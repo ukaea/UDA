@@ -187,14 +187,14 @@ void getNormalizationFactor(float* normalizationFactor, char* normalizationAttri
                 //IDAM_LOGF(UDA_LOG_DEBUG, "%s\n", csteStr);
                 *normalizationFactor = atof(csteStr);
             } else {
-                int err = 999;
+                int err = 901;
                 IDAM_LOG(UDA_LOG_ERROR, "Unsupported operand for 'multiply' operation\n");
-                addIdamError(CODEERRORTYPE, "Unsupported operand for 'multiply' operation", err,
+                addIdamError(CODEERRORTYPE, "WEST:ERROR: unsupported operand for 'multiply' operation", err,
                              "");
             }
 
         } else {
-            int err = 999;
+            int err = 901;
             IDAM_LOG(UDA_LOG_ERROR, "Unsupported operation to apply\n");
             addIdamError(CODEERRORTYPE, "WEST:ERROR: unsupported operation to apply", err, "");
         }
@@ -288,7 +288,7 @@ void getReturnType(char* attributes, int* dataType)
                STR_EQUALS(token, "INT_0D")) {
         i = UDA_TYPE_INT;
     } else {
-        err = 999;
+        err = 901;
         addIdamError(CODEERRORTYPE, "WEST:ERROR: convertToInt(): Unsupported data type", err, "");
     }
     *dataType = i;

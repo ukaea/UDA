@@ -275,8 +275,8 @@ int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     if (mapfun == NULL) {
         IDAM_LOG(UDA_LOG_ERROR, "The requested mapping function has not been found. Check the IDAM mapping file.\n");
         fprintf(stderr, "The requested mapping function has not been found. Check the IDAM mapping file.");
-        int err = 801;
-        addIdamError(CODEERRORTYPE, "WEST:ERROR: dynamic data empty !", err, "");
+        int err = 901;
+        addIdamError(CODEERRORTYPE, "dynamic data empty !", err, "");
         return -1;
     }
 
@@ -345,7 +345,7 @@ char* getMappingValue(const char* mappingFileName, const char* IDAM_MappingKey,
     doc = xmlParseFile(mappingFileName);
     if (doc == NULL) {
         IDAM_LOGF(UDA_LOG_ERROR, "WEST:ERROR: unable to parse IDAM mapping file %s\n", mappingFileName);
-        int err = 801;
+        int err = 901;
         addIdamError(CODEERRORTYPE, "WEST:ERROR: unable to parse IDAM mapping file !", err, "");
         return NULL;
     }
@@ -356,7 +356,7 @@ char* getMappingValue(const char* mappingFileName, const char* IDAM_MappingKey,
     xpathCtx = xmlXPathNewContext(doc);
     if (xpathCtx == NULL) {
         IDAM_LOG(UDA_LOG_ERROR, "WEST:ERROR: unable to create new XPath context\n");
-        int err = 801;
+        int err = 901;
         addIdamError(CODEERRORTYPE, "WEST:ERROR: unable to create new XPath context", err, "");
         xmlFreeDoc(doc);
         return NULL;
@@ -374,7 +374,7 @@ char* getMappingValue(const char* mappingFileName, const char* IDAM_MappingKey,
     xpathObj = xmlXPathEvalExpression(xPathExpr, xpathCtx);
     if (xpathObj == NULL) {
         IDAM_LOGF(UDA_LOG_ERROR, "WEST:ERROR: unable to evaluate xpath expression %s\n", c);
-        int err = 801;
+        int err = 901;
         addIdamError(CODEERRORTYPE, "WEST:ERROR: unable to evaluate xpath expression %s\n", err, c);
         xmlXPathFreeContext(xpathCtx);
         xmlFreeDoc(doc);
@@ -395,7 +395,7 @@ char* getMappingValue(const char* mappingFileName, const char* IDAM_MappingKey,
         value = strdup((char*)cur->content);
     } else {
         IDAM_LOG(UDA_LOG_DEBUG, "Error : size equals 0\n");
-        err = 998;
+        err = 902;
         addIdamError(CODEERRORTYPE, __func__, err, "no result on XPath request");
     }
     const char* key_type = "//mapping[@key='%s']/@type";
@@ -409,10 +409,7 @@ char* getMappingValue(const char* mappingFileName, const char* IDAM_MappingKey,
     if (xpathObj == NULL) {
         IDAM_LOGF(UDA_LOG_ERROR,
                  "WEST:ERROR: unable to evaluate xpath expression for getting the type (static or dynamic): %s\n", key_type);
-        /*fprintf(stderr,
-                "Error: unable to evaluate xpath expression \"%s\"\n",
-                xPathExpr);*/
-        err = 998;
+        err = 901;
         addIdamError(CODEERRORTYPE, "WEST:ERROR: unable to evaluate following xpath expression for getting the type (static or dynamic): %s\n", err, key_type);
         xmlXPathFreeContext(xpathCtx);
         xmlFreeDoc(doc);
@@ -430,8 +427,8 @@ char* getMappingValue(const char* mappingFileName, const char* IDAM_MappingKey,
         cur = cur->children;
         typeStr = strdup((char*)cur->content);
     } else {
-        err = 998;
-        IDAM_LOG(UDA_LOG_ERROR, "WEST:ERROR: no result on XPath request\n");
+        err = 902;
+        IDAM_LOG(UDA_LOG_ERROR, "no result on XPath request\n");
         addIdamError(CODEERRORTYPE, __func__, err, "no result on XPath request");
     }
 
