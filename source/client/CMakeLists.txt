@@ -29,6 +29,7 @@ set( SRC_FILES
   makeClientRequestBlock.c
   udaPutAPI.c
   udaClient.c
+  udaClientHostList.c
 )
 
 set( HEADER_FILES
@@ -46,6 +47,7 @@ set( HEADER_FILES
   udaGetAPI.h
   udaPutAPI.h
   updateSelectParms.h
+  udaClientHostList.h
 )
 
 include_directories(

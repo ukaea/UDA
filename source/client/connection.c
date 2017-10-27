@@ -24,6 +24,7 @@
 #include <clientserver/errorLog.h>
 #include <clientserver/manageSockets.h>
 #include <client/udaClient.h>
+#include <client/udaClientHostList.h>
 #include <logging/logging.h>
 
 #include "updateSelectParms.h"
@@ -154,6 +155,24 @@ int createConnection()
     server.sin_family = AF_INET;
     hostname = environment->server_host;
 
+// Check if the hostname is an alias for an IP address or domain name in the client configuration - replace if found
+
+   int hostId = udaClientFindHostByAlias(hostname);
+   if(hostId >= 0){
+      if((hostname = udaClientGetHostName(hostId)) == NULL){
+         addIdamError(CODEERRORTYPE, "idamCreateConnection", -1, "The hostname is not recognised for the host alias provided!");
+	 return -1;
+      }	  
+      if(strcasecmp(environment->server_host, hostname) != 0) strcpy(environment->server_host, hostname);	// Replace
+      int port = udaClientGetHostPort(hostId);
+      if(port > 0 && environment->server_port != port) environment->server_port = port;
+      udaClientPutHostNameId(hostId);
+   } else 
+   if((hostId = udaClientFindHostByName(hostname)) >= 0){	// No alias found, maybe the domain name or ip address is listed 
+      int port = udaClientGetHostPort(hostId);
+      if(port > 0 && environment->server_port != port) environment->server_port = port;				// Replace if found and different
+   }   
+
 // Does the host name contain the SSL protocol prefix?
 
     int hostname_offset = 0;
@@ -228,7 +247,25 @@ int createConnection()
 
         if (rc < 0 && strcmp(environment->server_host, environment->server_host2) != 0) {        // Abandon principal Host - attempt secondary host
             hostname = environment->server_host2;
-            
+	    
+	    // Check if the hostname is an alias for an IP address or name in the client configuration - replace if found
+
+	    int hostId = udaClientFindHostByAlias(hostname);
+	    if(hostId >= 0){
+		if((hostname = udaClientGetHostName(hostId)) == NULL){
+		    addIdamError(CODEERRORTYPE, "idamCreateConnection", -1, "The hostname2 is not recognised for the host alias provided!");
+		    return -1;
+		}	  
+		if(strcasecmp(environment->server_host2, hostname) != 0) strcpy(environment->server_host2, hostname);
+		int port = udaClientGetHostPort(hostId);
+		if(port > 0 && environment->server_port2 != port) environment->server_port2 = port;
+		udaClientPutHostNameId(hostId);
+	    } else 
+	    if((hostId = udaClientFindHostByName(hostname)) >= 0){	// No alias found
+		int port = udaClientGetHostPort(hostId);
+		if(port > 0 && environment->server_port2 != port) environment->server_port2 = port;
+	    }   
+           
 #if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)    
             if(!strncasecmp(hostname, "SSL://", 6)){
                hostname_offset = 6;

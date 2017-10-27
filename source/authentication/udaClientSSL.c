@@ -7,9 +7,10 @@
 #include <client/updateSelectParms.h>
 #include <clientserver/errorLog.h>
 #include <logging/logging.h>
+#include <client/udaClientHostList.h>
 
 static int sslDisabled = 1;         // Default state is not SSL authentication
-static int sslProtocol = 0;         // The default server host name has the SSL protocol name prefix
+static int sslProtocol = 0;         // The default server host name has the SSL protocol name prefix or 
 static int sslSocket = -1;
 static int sslOK = 0;               // SSL Authentication has been passed sucessfully: default is NOT Passed
 static int sslGlobalInit = 0;       // Global initialisation of SSL completed
@@ -211,20 +212,26 @@ int configureUdaClientSSLContext()
 
     //SSL_CTX_set_ecdh_auto(ctx, 1);
 
-    // Set the key and cert
+    // Set the key and cert - these take priority over entries in the host configuration file
 
     char* cert = getenv("UDA_CLIENT_SSL_CERT");
-    char* key = getenv("UDA_CLIENT_SSL_KEY");
-    char* ca = getenv("UDA_CLIENT_CA_SSL_CERT");
+    char* key  = getenv("UDA_CLIENT_SSL_KEY");
+    char* ca   = getenv("UDA_CLIENT_CA_SSL_CERT");
 
-    if (!cert || !key || !ca) {
-        err = 999;
-        if (!cert) addIdamError(CODEERRORTYPE, "udaClientSSL", err, "No client SSL certificate!");
-        if (!key) addIdamError(CODEERRORTYPE, "udaClientSSL", err, "No client SSL key!");
-        if (!ca) {
-            addIdamError(CODEERRORTYPE, "udaClientSSL", err, "No Certificate Authority certificate!");
-        }
-        return err;
+    if (!cert || !key || !ca) {		// Check the client hosts configuration file            
+        int hostId = -1;
+	if((hostId = udaClientGetHostNameId()) >= 0){	// Socket connection was opened with a host entry in the configuration file
+	   if(!cert) cert = udaClientGetHostCertificatePath(hostId);
+	   if(!key)  key  = udaClientGetHostKeyPath(hostId);
+	   if(!ca)   ca   = udaClientGetHostCAPath(hostId);
+        }    
+        if (!cert || !key || !ca || cert[0] == '\0' || key[0] == '\0' || ca[0] == '\0') {    
+           err = 999;
+           if (!cert || cert[0] == '\0') addIdamError(CODEERRORTYPE, "udaClientSSL", err, "No client SSL certificate!");
+           if (!key  || key[0]  == '\0') addIdamError(CODEERRORTYPE, "udaClientSSL", err, "No client SSL key!");
+           if (!ca   || ca[0]   == '\0') addIdamError(CODEERRORTYPE, "udaClientSSL", err, "No Certificate Authority certificate!");
+           return err;
+ 	}
     }
 
     if (SSL_CTX_use_certificate_file(ctx, cert, SSL_FILETYPE_PEM) <= 0) {
@@ -278,10 +285,22 @@ int startUdaClientSSL()
 
 // Has the user specified the SSL protocol on the host URL?           
 // Has the user directly specified SSL/TLS authentication?
+// Does the connection entry in the client host configuration file have the three SSL authentication files
 
     if (!getUdaClientSSLProtocol() && !getenv("UDA_CLIENT_SSL_AUTHENTICATE")) {
         putUdaClientSSLDisabled(1);
-        return 0;
+	
+	int hostId = -1;
+	if((hostId = udaClientGetHostNameId()) >= 0){	// Socket connection was opened with a host entry in the configuration file
+	   char* cert = udaClientGetHostCertificatePath(hostId);	// Check for 3 authentication files
+	   char* key  = udaClientGetHostKeyPath(hostId);
+	   char* ca   = udaClientGetHostCAPath(hostId);
+	   if(cert[0] == '\0' || key[0] == '\0' || ca[0] == '\0')	// 3 files are Not present
+	      return 0;
+	   else
+	      putUdaClientSSLDisabled(0);
+	} else
+	   return 0;
     } else {
         putUdaClientSSLDisabled(0);
     }

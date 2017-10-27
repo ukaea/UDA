@@ -1092,6 +1092,7 @@ int startupServer(SERVER_BLOCK* server_block)
 	
     putUdaServerSSLSocket(0);
     
+    int err = 0;
     if((err = startUdaServerSSL()) != 0) return err;	
 	
 #endif
