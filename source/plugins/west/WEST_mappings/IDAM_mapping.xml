@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <mappings>
-<mapping key="magnetics/ids_properties/homogeneous_time" value="set_value;0;0:int" type="static"/>
+<mapping key="magnetics/ids_properties/homogeneous_time" value="set_value;1;0:int" type="static"/>
 <mapping key="magnetics/flux_loop/Shape_of" value="shape_of_tsmat_collect;DMAG:GMAG_FLXLOOP:PosR;0:float:#0" type="static"/>
 <mapping key="magnetics/flux_loop/#/name" value="set_value_collect;DMAG:GMAG_FLXLOOP:CALIB:Flux_loop;0:string:#0" type="static"/>
 <mapping key="magnetics/flux_loop/#/identifier" value="set_value;identifier not defined;0:string" type="static"/>
@@ -9,7 +9,7 @@
 <mapping key="magnetics/flux_loop/#/position/#/z" value="tsmat_collect;DMAG:GMAG_FLXLOOP:PosZ;0:float:#0" type="static"/>
 <!-- mapping key="magnetics/flux_loop/#/position/#/phi" value="set_value;0.0;0:float" type="static"/ -->
 <mapping key="magnetics/flux_loop/#/flux/data" value="tsbase_collect;DMAG:GMAG_FLXLOOP;1:float:#0" type="dynamic"/>
-<mapping key="magnetics/flux_loop/#/flux/time" value="tsbase_time;DMAG:GMAG_FLXLOOP;1:float:#0" type="dynamic"/>
+<!-- mapping key="magnetics/flux_loop/#/flux/time" value="tsbase_time;DMAG:GMAG_FLXLOOP;1:float:#0" type="dynamic"/ -->
 <mapping key="magnetics/bpol_probe/Shape_of" value="shape_of_tsmat_collect;DMAG:GMAG_BNORM:CALIB, DMAG:GMAG_BTANG:CALIB, DMAG:GMAG_BTORO1:CALIB, DMAG:GMAG_BTORO2:CALIB;0:float:#0" type="static"/>
 <mapping key="magnetics/bpol_probe/#/name" value="set_value_collect;DMAG:GMAG_BNORM:CALIB:bpol_probe(BNORM),DMAG:GMAG_BTANG:CALIB:bpol_probe(BTANG),DMAG:GMAG_BTORO1:CALIB:bpol_probe(BTORO1),DMAG:GMAG_BTORO2:CALIB:bpol_probe(BTORO2);0:string:#0" type="static"/>
 <mapping key="magnetics/bpol_probe/#/identifier" value="set_value;identifier not defined;0:string" type="static"/>
@@ -22,7 +22,7 @@
 <!-- mapping key="magnetics/bpol_probe/#/length" value="set_value;0;0:int" type="static"/ -->
 <!-- mapping key="magnetics/bpol_probe/#/turns" value="set_value;0;0:int" type="static"/ -->
 <mapping key="magnetics/bpol_probe/#/field/data" value="tsbase_collect;DMAG:GMAG_BNORM,DMAG:GMAG_BTANG,DMAG:GMAG_BTORO1,DMAG:GMAG_BTORO2;1:float:#0" type="dynamic"/>
-<mapping key="magnetics/bpol_probe/#/field/time" value="tsbase_time;DMAG:GMAG_BNORM,DMAG:GMAG_BTANG,DMAG:GMAG_BTORO1,DMAG:GMAG_BTORO2;1:float:#0" type="dynamic"/>
+<!-- mapping key="magnetics/bpol_probe/#/field/time" value="tsbase_time;DMAG:GMAG_BNORM,DMAG:GMAG_BTANG,DMAG:GMAG_BTORO1,DMAG:GMAG_BTORO2;1:float:#0" type="dynamic"/ -->
 <mapping key="magnetics/method/Shape_of" value="set_value;1;0:int" type="static"/>
 <mapping key="magnetics/method/#/name" value="set_value;IP;0:string" type="static"/>
 <mapping key="magnetics/method/#/ip/data" value="tsbase_collect;DMAG:SMAG_IP;1:float:#0" type="dynamic"/>
@@ -30,7 +30,7 @@
 <mapping key="magnetics/method/#/diamagnetic_flux/data" value="tsbase_collect;DMAG:GMAG_FDIAM;1:float:#0" type="dynamic"/>
 <mapping key="magnetics/method/#/diamagnetic_flux/time" value="tsbase_time;DMAG:GMAG_FDIAM;1:float:#0" type="dynamic"/>
 <!-- mapping key="magnetics/code/output_flag" value="set_value;0;0:int" type="dynamic"/ -->
-<!-- mapping key="magnetics/time" value="tsbase_time;DMAG:GMAG_FLXLOOP;1:float:1" type="dynamic"/ -->
+<mapping key="magnetics/time" value="tsbase_time;DMAG:GMAG_FLXLOOP;1:float:1" type="dynamic"/>
 
 <mapping key="tf/ids_properties/homogeneous_time" value="set_value;0;0:int" type="static"/>
 <mapping key="tf/b_field_tor_vacuum_r/data" value="tsbase_collect;DMAG:GMAG_ITOR;1:float:2;multiply:cste:0.0073008" type="dynamic"/>
