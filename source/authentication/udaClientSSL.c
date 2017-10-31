@@ -215,23 +215,28 @@ int configureUdaClientSSLContext()
     // Set the key and cert - these take priority over entries in the host configuration file
 
     char* cert = getenv("UDA_CLIENT_SSL_CERT");
-    char* key  = getenv("UDA_CLIENT_SSL_KEY");
-    char* ca   = getenv("UDA_CLIENT_CA_SSL_CERT");
+    char* key = getenv("UDA_CLIENT_SSL_KEY");
+    char* ca = getenv("UDA_CLIENT_CA_SSL_CERT");
 
-    if (!cert || !key || !ca) {		// Check the client hosts configuration file            
+    if (!cert || !key || !ca) {        // Check the client hosts configuration file
         int hostId = -1;
-	if((hostId = udaClientGetHostNameId()) >= 0){	// Socket connection was opened with a host entry in the configuration file
-	   if(!cert) cert = udaClientGetHostCertificatePath(hostId);
-	   if(!key)  key  = udaClientGetHostKeyPath(hostId);
-	   if(!ca)   ca   = udaClientGetHostCAPath(hostId);
-        }    
-        if (!cert || !key || !ca || cert[0] == '\0' || key[0] == '\0' || ca[0] == '\0') {    
-           err = 999;
-           if (!cert || cert[0] == '\0') addIdamError(CODEERRORTYPE, "udaClientSSL", err, "No client SSL certificate!");
-           if (!key  || key[0]  == '\0') addIdamError(CODEERRORTYPE, "udaClientSSL", err, "No client SSL key!");
-           if (!ca   || ca[0]   == '\0') addIdamError(CODEERRORTYPE, "udaClientSSL", err, "No Certificate Authority certificate!");
-           return err;
- 	}
+        if ((hostId = udaClientGetHostNameId()) >=
+            0) {    // Socket connection was opened with a host entry in the configuration file
+            if (!cert) cert = udaClientGetHostCertificatePath(hostId);
+            if (!key) key = udaClientGetHostKeyPath(hostId);
+            if (!ca) ca = udaClientGetHostCAPath(hostId);
+        }
+        if (!cert || !key || !ca || cert[0] == '\0' || key[0] == '\0' || ca[0] == '\0') {
+            err = 999;
+            if (!cert || cert[0] == '\0') {
+                addIdamError(CODEERRORTYPE, "udaClientSSL", err, "No client SSL certificate!");
+            }
+            if (!key || key[0] == '\0') addIdamError(CODEERRORTYPE, "udaClientSSL", err, "No client SSL key!");
+            if (!ca || ca[0] == '\0') {
+                addIdamError(CODEERRORTYPE, "udaClientSSL", err, "No Certificate Authority certificate!");
+            }
+            return err;
+        }
     }
 
     if (SSL_CTX_use_certificate_file(ctx, cert, SSL_FILETYPE_PEM) <= 0) {
@@ -289,18 +294,21 @@ int startUdaClientSSL()
 
     if (!getUdaClientSSLProtocol() && !getenv("UDA_CLIENT_SSL_AUTHENTICATE")) {
         putUdaClientSSLDisabled(1);
-	
-	int hostId = -1;
-	if((hostId = udaClientGetHostNameId()) >= 0){	// Socket connection was opened with a host entry in the configuration file
-	   char* cert = udaClientGetHostCertificatePath(hostId);	// Check for 3 authentication files
-	   char* key  = udaClientGetHostKeyPath(hostId);
-	   char* ca   = udaClientGetHostCAPath(hostId);
-	   if(cert[0] == '\0' || key[0] == '\0' || ca[0] == '\0')	// 3 files are Not present
-	      return 0;
-	   else
-	      putUdaClientSSLDisabled(0);
-	} else
-	   return 0;
+
+        int hostId = -1;
+        if ((hostId = udaClientGetHostNameId()) >=
+            0) {    // Socket connection was opened with a host entry in the configuration file
+            char* cert = udaClientGetHostCertificatePath(hostId);    // Check for 3 authentication files
+            char* key = udaClientGetHostKeyPath(hostId);
+            char* ca = udaClientGetHostCAPath(hostId);
+            if (cert[0] == '\0' || key[0] == '\0' || ca[0] == '\0') {    // 3 files are Not present
+                return 0;
+            } else {
+                putUdaClientSSLDisabled(0);
+            }
+        } else {
+            return 0;
+        }
     } else {
         putUdaClientSSLDisabled(0);
     }
@@ -367,9 +375,9 @@ int startUdaClientSSL()
         char work[X509STRINGSIZE];
         UDA_LOG(UDA_LOG_DEBUG, "Server certificate verified");
         UDA_LOG(UDA_LOG_DEBUG, "X509 subject: %s\n",
-                  X509_NAME_oneline(X509_get_subject_name(peer), work, sizeof(work)));
+                X509_NAME_oneline(X509_get_subject_name(peer), work, sizeof(work)));
         UDA_LOG(UDA_LOG_DEBUG, "X509 issuer: %s\n",
-                  X509_NAME_oneline(X509_get_issuer_name(peer), work, sizeof(work)));
+                X509_NAME_oneline(X509_get_issuer_name(peer), work, sizeof(work)));
         UDA_LOG(UDA_LOG_DEBUG, "X509 not before: %d\n", X509_get_notBefore(peer));
         UDA_LOG(UDA_LOG_DEBUG, "X509 not after: %d\n", X509_get_notAfter(peer));
 /*      
@@ -465,7 +473,7 @@ int writeUdaClientSSL(void* iohandle, char* buf, int count)
             int fopts = 0;
             if ((rc = fcntl(getUdaClientSSLSocket(), F_GETFL, &fopts)) < 0 ||
                 errno == EBADF) {    // Is the socket closed? Check status flags
-                    UDA_LOG(UDA_LOG_DEBUG, "Socket is closed!\n");
+                UDA_LOG(UDA_LOG_DEBUG, "Socket is closed!\n");
             }
             return -1;
     }
@@ -504,7 +512,7 @@ int readUdaClientSSL(void* iohandle, char* buf, int count)
             addIdamError(CODEERRORTYPE, "readUdaClientSSL", err,
                          "Socket is Closed! Data request failed. Restarting connection.");
             UDA_LOG(UDA_LOG_DEBUG,
-                     "Socket is Closed! Data request failed. Restarting connection.\n");
+                    "Socket is Closed! Data request failed. Restarting connection.\n");
             return -1;
         }
         int fopts = 0;
@@ -563,7 +571,7 @@ int readUdaClientSSL(void* iohandle, char* buf, int count)
                 int fopts = 0;
                 if ((rc = fcntl(getUdaClientSSLSocket(), F_GETFL, &fopts)) < 0 ||
                     errno == EBADF) {    // Is the socket closed? Check status flags
-                        UDA_LOG(UDA_LOG_DEBUG, "Socket is closed!\n");
+                    UDA_LOG(UDA_LOG_DEBUG, "Socket is closed!\n");
                 }
                 return -1;
         }

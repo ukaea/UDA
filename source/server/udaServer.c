@@ -99,7 +99,8 @@ static int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_bloc
                          SERVER_BLOCK* server_block, METADATA_BLOCK* metadata_block, DATA_BLOCK* data_block,
                          ACTIONS* actions_desc, ACTIONS* actions_sig, int* fatal, int* server_closedown);
 
-static int doServerLoop(REQUEST_BLOCK* request_block, DATA_BLOCK* data_block, CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block,
+static int doServerLoop(REQUEST_BLOCK* request_block, DATA_BLOCK* data_block, CLIENT_BLOCK* client_block,
+                        SERVER_BLOCK* server_block,
                         METADATA_BLOCK* metadata_block, ACTIONS* actions_desc, ACTIONS* actions_sig,
                         int* fatal);
 
@@ -111,7 +112,8 @@ static int doServerClosedown(CLIENT_BLOCK* client_block, REQUEST_BLOCK* request_
 #ifdef SECURITYENABLED
 static int authenticateClient(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block);
 #else
-static int handshakeClient(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block, REQUEST_BLOCK* request_block, int* server_closedown);
+static int handshakeClient(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block, REQUEST_BLOCK* request_block,
+                           int* server_closedown);
 #endif
 
 //--------------------------------------------------------------------------------------
@@ -140,7 +142,7 @@ int udaServer(CLIENT_BLOCK client_block)
     initActions(&actions_desc);        // There may be a Sequence of Actions to Apply
     initActions(&actions_sig);
 
-    if((err = startupServer(&server_block)) != 0) return err;
+    if ((err = startupServer(&server_block)) != 0) return err;
 
 #ifdef SECURITYENABLED
     err = authenticateClient(&client_block, &server_block);
@@ -160,7 +162,8 @@ int udaServer(CLIENT_BLOCK client_block)
     return err;
 }
 
-int reportToClient(SERVER_BLOCK* server_block, DATA_BLOCK* data_block, CLIENT_BLOCK* client_block, int trap1Err, METADATA_BLOCK* metadata_block)
+int reportToClient(SERVER_BLOCK* server_block, DATA_BLOCK* data_block, CLIENT_BLOCK* client_block, int trap1Err,
+                   METADATA_BLOCK* metadata_block)
 {
     //----------------------------------------------------------------------------
     // Gather Server Error State
@@ -188,7 +191,8 @@ int reportToClient(SERVER_BLOCK* server_block, DATA_BLOCK* data_block, CLIENT_BL
 
     int protocol_id = PROTOCOL_SERVER_BLOCK;
 
-    if ((err = protocol2(serverOutput, protocol_id, XDR_SEND, NULL, logmalloclist, userdefinedtypelist, server_block)) != 0) {
+    if ((err = protocol2(serverOutput, protocol_id, XDR_SEND, NULL, logmalloclist, userdefinedtypelist,
+                         server_block)) != 0) {
         UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Server Data Block #2\n");
         addIdamError(CODEERRORTYPE, "idamServer", err,
                      "Protocol 11 Error (Sending Server Block #2)");
@@ -229,7 +233,8 @@ int reportToClient(SERVER_BLOCK* server_block, DATA_BLOCK* data_block, CLIENT_BL
 
         protocol_id = PROTOCOL_DATA_SYSTEM;
 
-        if ((err = protocol2(serverOutput, protocol_id, XDR_SEND, NULL, logmalloclist, userdefinedtypelist, &metadata_block->data_system)) != 0) {
+        if ((err = protocol2(serverOutput, protocol_id, XDR_SEND, NULL, logmalloclist, userdefinedtypelist,
+                             &metadata_block->data_system)) != 0) {
             UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Data System Structure\n");
             addIdamError(CODEERRORTYPE, "idamServer", err, "Protocol 4 Error");
             return err;
@@ -240,7 +245,8 @@ int reportToClient(SERVER_BLOCK* server_block, DATA_BLOCK* data_block, CLIENT_BL
 
         protocol_id = PROTOCOL_SYSTEM_CONFIG;
 
-        if ((err = protocol2(serverOutput, protocol_id, XDR_SEND, NULL, logmalloclist, userdefinedtypelist, &metadata_block->system_config)) != 0) {
+        if ((err = protocol2(serverOutput, protocol_id, XDR_SEND, NULL, logmalloclist, userdefinedtypelist,
+                             &metadata_block->system_config)) != 0) {
             UDA_LOG(UDA_LOG_DEBUG, "Problem Sending System Configuration Structure\n");
             addIdamError(CODEERRORTYPE, "idamServer", err, "Protocol 5 Error");
             return err;
@@ -251,7 +257,8 @@ int reportToClient(SERVER_BLOCK* server_block, DATA_BLOCK* data_block, CLIENT_BL
 
         protocol_id = PROTOCOL_DATA_SOURCE;
 
-        if ((err = protocol2(serverOutput, protocol_id, XDR_SEND, NULL, logmalloclist, userdefinedtypelist, &metadata_block->data_source)) != 0) {
+        if ((err = protocol2(serverOutput, protocol_id, XDR_SEND, NULL, logmalloclist, userdefinedtypelist,
+                             &metadata_block->data_source)) != 0) {
             UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Data Source Structure\n");
             addIdamError(CODEERRORTYPE, "idamServer", err, "Protocol 6 Error");
             return err;
@@ -262,7 +269,8 @@ int reportToClient(SERVER_BLOCK* server_block, DATA_BLOCK* data_block, CLIENT_BL
 
         protocol_id = PROTOCOL_SIGNAL;
 
-        if ((err = protocol2(serverOutput, protocol_id, XDR_SEND, NULL, logmalloclist, userdefinedtypelist, &metadata_block->signal_rec)) != 0) {
+        if ((err = protocol2(serverOutput, protocol_id, XDR_SEND, NULL, logmalloclist, userdefinedtypelist,
+                             &metadata_block->signal_rec)) != 0) {
             UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Signal Structure\n");
             addIdamError(CODEERRORTYPE, "idamServer", err, "Protocol 7 Error");
             return err;
@@ -273,7 +281,8 @@ int reportToClient(SERVER_BLOCK* server_block, DATA_BLOCK* data_block, CLIENT_BL
 
         protocol_id = PROTOCOL_SIGNAL_DESC;
 
-        if ((err = protocol2(serverOutput, protocol_id, XDR_SEND, NULL, logmalloclist, userdefinedtypelist, &metadata_block->signal_desc)) != 0) {
+        if ((err = protocol2(serverOutput, protocol_id, XDR_SEND, NULL, logmalloclist, userdefinedtypelist,
+                             &metadata_block->signal_desc)) != 0) {
             UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Signal Description Structure\n");
             addIdamError(CODEERRORTYPE, "idamServer", err, "Protocol 8 Error");
             return err;
@@ -289,7 +298,8 @@ int reportToClient(SERVER_BLOCK* server_block, DATA_BLOCK* data_block, CLIENT_BL
 
     protocol_id = PROTOCOL_DATA_BLOCK;
 
-    if ((err = protocol2(serverOutput, protocol_id, XDR_SEND, NULL, logmalloclist, userdefinedtypelist, data_block)) != 0) {
+    if ((err = protocol2(serverOutput, protocol_id, XDR_SEND, NULL, logmalloclist, userdefinedtypelist, data_block)) !=
+        0) {
         UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Data Structure\n");
         addIdamError(CODEERRORTYPE, "idamServer", err, "Protocol 2 Error");
         return err;
@@ -311,7 +321,8 @@ int reportToClient(SERVER_BLOCK* server_block, DATA_BLOCK* data_block, CLIENT_BL
     //------------------------------------------------------------------------------
     // Legacy Hierarchical Data Structures
 
-    if (protocolVersion < 8 && data_block->data_type == UDA_TYPE_COMPOUND && data_block->opaque_type != UDA_OPAQUE_TYPE_UNKNOWN) {
+    if (protocolVersion < 8 && data_block->data_type == UDA_TYPE_COMPOUND &&
+        data_block->opaque_type != UDA_OPAQUE_TYPE_UNKNOWN) {
         if (data_block->opaque_type == UDA_OPAQUE_TYPE_XML_DOCUMENT) {
             protocol_id = PROTOCOL_META;
         } else {
@@ -325,7 +336,8 @@ int reportToClient(SERVER_BLOCK* server_block, DATA_BLOCK* data_block, CLIENT_BL
 
         UDA_LOG(UDA_LOG_DEBUG, "Sending Hierarchical Data Structure to Client\n");
 
-        if ((err = protocol2(serverOutput, protocol_id, XDR_SEND, NULL, logmalloclist, userdefinedtypelist, data_block)) != 0) {
+        if ((err = protocol2(serverOutput, protocol_id, XDR_SEND, NULL, logmalloclist, userdefinedtypelist,
+                             data_block)) != 0) {
             addIdamError(CODEERRORTYPE, "idamServer", err,
                          "Server Side Protocol Error (Opaque Structure Type)");
             return err;
@@ -364,7 +376,8 @@ int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block,
 
     int protocol_id = PROTOCOL_CLIENT_BLOCK;
 
-    if ((err = protocol2(serverInput, protocol_id, XDR_RECEIVE, NULL, logmalloclist, userdefinedtypelist, client_block)) != 0) {
+    if ((err = protocol2(serverInput, protocol_id, XDR_RECEIVE, NULL, logmalloclist, userdefinedtypelist,
+                         client_block)) != 0) {
         if (server_tot_block_time >= 1000 * server_timeout) {
             *fatal = 1;
             THROW_ERROR(999, "Server Time Out");
@@ -441,7 +454,8 @@ int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block,
     //	   Pass Back and Await Client Instruction
     protocol_id = PROTOCOL_REQUEST_BLOCK;
 
-    if ((err = protocol2(serverInput, protocol_id, XDR_RECEIVE, NULL, logmalloclist, userdefinedtypelist, request_block)) != 0) {
+    if ((err = protocol2(serverInput, protocol_id, XDR_RECEIVE, NULL, logmalloclist, userdefinedtypelist,
+                         request_block)) != 0) {
         THROW_ERROR(err, "Protocol 1 Error (Receiving Client Request)");
     }
 
@@ -570,7 +584,8 @@ int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block,
         // Check the Server Version is Compatible with the Originating client version ?
 
         if (client_block->version < 6) {
-            THROW_ERROR(999, "PROXY redirection: Originating Client Version not compatible with the PROXY server interface.");
+            THROW_ERROR(999,
+                        "PROXY redirection: Originating Client Version not compatible with the PROXY server interface.");
         }
 
         // Test for Proxy calling itself indirectly => potential infinite loop
@@ -583,7 +598,8 @@ int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block,
         }
 
         if (strstr(request_block->source, work) != NULL) {
-            THROW_ERROR(999,  "PROXY redirection: The PROXY is calling itself - Recursive server calls are not advisable!");
+            THROW_ERROR(999,
+                        "PROXY redirection: The PROXY is calling itself - Recursive server calls are not advisable!");
         }
 
         // Check string length compatibility
@@ -628,7 +644,8 @@ int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block,
     if (request_block->put) {
         protocol_id = PROTOCOL_PUTDATA_BLOCK_LIST;
 
-        if ((err = protocol2(serverInput, protocol_id, XDR_RECEIVE, NULL, logmalloclist, userdefinedtypelist, &(request_block->putDataBlockList))) != 0) {
+        if ((err = protocol2(serverInput, protocol_id, XDR_RECEIVE, NULL, logmalloclist, userdefinedtypelist,
+                             &(request_block->putDataBlockList))) != 0) {
             THROW_ERROR(err, "Protocol 1 Error (Receiving Client putDataBlockList)");
         }
 
@@ -647,9 +664,15 @@ int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block,
     // Decide on Authentication procedure
 
     if (protocolVersion >= 6) {
-        if ((err = idamServerPlugin(request_block, &metadata_block->data_source, &metadata_block->signal_desc, &pluginList)) != 0) return err;
+        if ((err = idamServerPlugin(request_block, &metadata_block->data_source, &metadata_block->signal_desc,
+                                    &pluginList)) != 0) {
+                                        return err;
+        }
     } else {
-        if ((err = idamServerLegacyPlugin(request_block, &metadata_block->data_source, &metadata_block->signal_desc)) != 0) return err;
+        if ((err = idamServerLegacyPlugin(request_block, &metadata_block->data_source, &metadata_block->signal_desc)) !=
+            0) {
+                return err;
+        }
     }
 
     //------------------------------------------------------------------------------------------------
@@ -691,7 +714,7 @@ int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block,
     DATA_SOURCE* data_source = &metadata_block->data_source;
     SIGNAL_DESC* signal_desc = &metadata_block->signal_desc;
     UDA_LOG(UDA_LOG_DEBUG,
-             "======================== ******************** ==========================================\n");
+            "======================== ******************** ==========================================\n");
     UDA_LOG(UDA_LOG_DEBUG, "Archive      : %s \n", data_source->archive);
     UDA_LOG(UDA_LOG_DEBUG, "Device Name  : %s \n", data_source->device_name);
     UDA_LOG(UDA_LOG_DEBUG, "Signal Name  : %s \n", signal_desc->signal_name);
@@ -707,7 +730,7 @@ int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block,
     printDataBlock(*data_block);
     printIdamErrorStack();
     UDA_LOG(UDA_LOG_DEBUG,
-             "======================== ******************** ==========================================\n");
+            "======================== ******************** ==========================================\n");
 
     if (err != 0) return err;
 
@@ -748,8 +771,10 @@ int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block,
     }
 
     if (data_block->data_n > 0 &&
-        (protocolVersionTypeTest(protocolVersion, data_block->data_type) || protocolVersionTypeTest(protocolVersion, data_block->error_type))) {
-        THROW_ERROR(999, "The Data has a type that cannot be passed to the Client: A newer client library version is required.");
+        (protocolVersionTypeTest(protocolVersion, data_block->data_type) ||
+         protocolVersionTypeTest(protocolVersion, data_block->error_type))) {
+        THROW_ERROR(999,
+                    "The Data has a type that cannot be passed to the Client: A newer client library version is required.");
     }
 
     if (data_block->rank > 0) {
@@ -757,8 +782,10 @@ int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block,
         DIMS dim;
         for (i = 0; i < data_block->rank; i++) {
             dim = data_block->dims[i];
-            if (protocolVersionTypeTest(protocolVersion, dim.data_type) || protocolVersionTypeTest(protocolVersion, dim.error_type)) {
-                THROW_ERROR(999, "A Coordinate Data has a numerical type that cannot be passed to the Client: A newer client library version is required.");
+            if (protocolVersionTypeTest(protocolVersion, dim.data_type) ||
+                protocolVersionTypeTest(protocolVersion, dim.error_type)) {
+                THROW_ERROR(999,
+                            "A Coordinate Data has a numerical type that cannot be passed to the Client: A newer client library version is required.");
             }
         }
     }
@@ -771,7 +798,8 @@ int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block,
     return err;
 }
 
-int doServerLoop(REQUEST_BLOCK* request_block, DATA_BLOCK* data_block, CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block,
+int doServerLoop(REQUEST_BLOCK* request_block, DATA_BLOCK* data_block, CLIENT_BLOCK* client_block,
+                 SERVER_BLOCK* server_block,
                  METADATA_BLOCK* metadata_block, ACTIONS* actions_desc, ACTIONS* actions_sig, int* fatal)
 {
     int err = 0;
@@ -916,13 +944,13 @@ int doServerClosedown(CLIENT_BLOCK* client_block, REQUEST_BLOCK* request_block, 
 
 #if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
     closeUdaServerSSL();
-#endif    
+#endif
 
     //----------------------------------------------------------------------------
     // Close the Socket Connections to Other Data Servers
 
     closeServerSockets(&socket_list);
-    
+
     //----------------------------------------------------------------------------
     // Wait for client to receive returned server state
 
@@ -980,7 +1008,8 @@ int authenticateClient(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block)
 }
 #endif
 
-int handshakeClient(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block, REQUEST_BLOCK* request_block, int* server_closedown)
+int handshakeClient(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block, REQUEST_BLOCK* request_block,
+                    int* server_closedown)
 {
     // Exchange version details - once only
 
@@ -1005,7 +1034,8 @@ int handshakeClient(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block, REQU
 
         int protocol_id = PROTOCOL_CLIENT_BLOCK;        // Recieve Client Block
 
-        if ((err = protocol2(serverInput, protocol_id, XDR_RECEIVE, NULL, logmalloclist, userdefinedtypelist, client_block)) != 0) {
+        if ((err = protocol2(serverInput, protocol_id, XDR_RECEIVE, NULL, logmalloclist, userdefinedtypelist,
+                             client_block)) != 0) {
             addIdamError(CODEERRORTYPE, "idamServer", err, "Protocol 10 Error (Client Block)");
             UDA_LOG(UDA_LOG_DEBUG, "protocol error! Client Block not received!\n");
         }
@@ -1043,7 +1073,8 @@ int handshakeClient(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block, REQU
 
     int protocol_id = PROTOCOL_SERVER_BLOCK;        // Receive Server Block: Server Aknowledgement
 
-    if ((err = protocol2(serverOutput, protocol_id, XDR_SEND, NULL, logmalloclist, userdefinedtypelist, server_block)) != 0) {
+    if ((err = protocol2(serverOutput, protocol_id, XDR_SEND, NULL, logmalloclist, userdefinedtypelist,
+                         server_block)) != 0) {
         THROW_ERROR(err, "Protocol 11 Error (Server Block #1)");
     }
 
@@ -1084,19 +1115,19 @@ int startupServer(SERVER_BLOCK* server_block)
 
     //-------------------------------------------------------------------------
     // Connect to the client with SSL (X509) authentication
-	
+
 #if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
 
     // Create the SSL binding (on socket #0), the SSL context, and verify the client certificate
     // Identify the authenticated user for service authorisation
-	
+
     putUdaServerSSLSocket(0);
     
     int err = 0;
-    if((err = startUdaServerSSL()) != 0) return err;	
-	
+    if ((err = startUdaServerSSL()) != 0) return err;
+
 #endif
-	
+
     //-------------------------------------------------------------------------
     // Create the XDR Record Streams
 

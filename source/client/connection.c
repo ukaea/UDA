@@ -8,8 +8,8 @@
 #include <stdlib.h>
 #include <errno.h>
 
-
 #ifdef __GNUC__
+
 #  include <unistd.h>
 #  include <netdb.h>
 #  include <strings.h>
@@ -121,9 +121,9 @@ int createConnection()
         return 0;                // Check Already Opened?
 
     }
-    
+
 #if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
-    putUdaClientSSLSocket(clientSocket);    
+        putUdaClientSSLSocket(clientSocket);
 #endif
 
 #ifdef _WIN32                            // Initialise WINSOCK Once only
@@ -151,40 +151,44 @@ int createConnection()
     }
 
 // IDAM server host
-    
+
     server.sin_family = AF_INET;
     hostname = environment->server_host;
 
 // Check if the hostname is an alias for an IP address or domain name in the client configuration - replace if found
 
-   int hostId = udaClientFindHostByAlias(hostname);
-   if(hostId >= 0){
-      if((hostname = udaClientGetHostName(hostId)) == NULL){
-         addIdamError(CODEERRORTYPE, "idamCreateConnection", -1, "The hostname is not recognised for the host alias provided!");
-	 return -1;
-      }	  
-      if(strcasecmp(environment->server_host, hostname) != 0) strcpy(environment->server_host, hostname);	// Replace
-      int port = udaClientGetHostPort(hostId);
-      if(port > 0 && environment->server_port != port) environment->server_port = port;
-      udaClientPutHostNameId(hostId);
-   } else 
-   if((hostId = udaClientFindHostByName(hostname)) >= 0){	// No alias found, maybe the domain name or ip address is listed 
-      int port = udaClientGetHostPort(hostId);
-      if(port > 0 && environment->server_port != port) environment->server_port = port;				// Replace if found and different
-   }   
+    int hostId = udaClientFindHostByAlias(hostname);
+    if (hostId >= 0) {
+        if ((hostname = udaClientGetHostName(hostId)) == NULL) {
+            addIdamError(CODEERRORTYPE, "idamCreateConnection", -1,
+                         "The hostname is not recognised for the host alias provided!");
+            return -1;
+        }
+        if (strcasecmp(environment->server_host, hostname) != 0)
+            strcpy(environment->server_host, hostname);    // Replace
+        int port = udaClientGetHostPort(hostId);
+        if (port > 0 && environment->server_port != port) environment->server_port = port;
+        udaClientPutHostNameId(hostId);
+    } else if ((hostId = udaClientFindHostByName(hostname)) >=
+               0) {    // No alias found, maybe the domain name or ip address is listed
+        int port = udaClientGetHostPort(hostId);
+        if (port > 0 && environment->server_port != port) {
+            environment->server_port = port;
+        }                // Replace if found and different
+    }
 
 // Does the host name contain the SSL protocol prefix?
 
     int hostname_offset = 0;
-    
-#if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)    
+
+#if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
     if(!strncasecmp(hostname, "SSL://", 6)){
        hostname_offset = 6;
        putUdaClientSSLProtocol(1); 
     } else {
        putUdaClientSSLProtocol(0);
-    }      
-#endif        
+    }
+#endif
 
 // Resolve host
 
@@ -217,7 +221,7 @@ int createConnection()
 // Connect to server
 
     errno = 0;
-    while ((rc = connect(clientSocket, (struct sockaddr*) &server, sizeof(server))) && errno == EINTR) {}
+    while ((rc = connect(clientSocket, (struct sockaddr*)&server, sizeof(server))) && errno == EINTR) {}
     serrno = errno;
 
     if (rc < 0 || (serrno != 0 && serrno != EINTR)) {
@@ -227,55 +231,56 @@ int createConnection()
         int i, ps;
         float delay;
         ps = getpid();
-        srand((unsigned int) ps);                        			// Seed the random number generator with the process id
-        delay = MAX_SOCKET_DELAY * ((float) rand() / (float) RAND_MAX);		// random delay
-        sleep(delay);                            				// wait period
-        for (i = 0; i < MAX_SOCKET_ATTEMPTS; i++) {                		// try again
+        srand((unsigned int)ps);                                                // Seed the random number generator with the process id
+        delay = MAX_SOCKET_DELAY * ((float)rand() / (float)RAND_MAX);           // random delay
+        sleep(delay);                                                           // wait period
+        for (i = 0; i < MAX_SOCKET_ATTEMPTS; i++) {                             // try again
             errno = 0;
-            while ((rc = connect(clientSocket, (struct sockaddr*) &server, sizeof(server))) && errno == EINTR) {}
+            while ((rc = connect(clientSocket, (struct sockaddr*)&server, sizeof(server))) && errno == EINTR) {}
             serrno = errno;
 
             if (rc == 0) break;
 
-            delay = MAX_SOCKET_DELAY * ((float) rand() / (float) RAND_MAX);
+            delay = MAX_SOCKET_DELAY * ((float)rand() / (float)RAND_MAX);
 #ifdef __GNUC__
             sleep(delay);                            // wait period
 #elif defined(_WIN32)
             Sleep((DWORD)(delay * 1E3));
-#endif            
+#endif
         }
 
-        if (rc < 0 && strcmp(environment->server_host, environment->server_host2) != 0) {        // Abandon principal Host - attempt secondary host
+        if (rc < 0 && strcmp(environment->server_host, environment->server_host2) !=
+                      0) {        // Abandon principal Host - attempt secondary host
             hostname = environment->server_host2;
-	    
-	    // Check if the hostname is an alias for an IP address or name in the client configuration - replace if found
 
-	    int hostId = udaClientFindHostByAlias(hostname);
-	    if(hostId >= 0){
-		if((hostname = udaClientGetHostName(hostId)) == NULL){
-		    addIdamError(CODEERRORTYPE, "idamCreateConnection", -1, "The hostname2 is not recognised for the host alias provided!");
-		    return -1;
-		}	  
-		if(strcasecmp(environment->server_host2, hostname) != 0) strcpy(environment->server_host2, hostname);
-		int port = udaClientGetHostPort(hostId);
-		if(port > 0 && environment->server_port2 != port) environment->server_port2 = port;
-		udaClientPutHostNameId(hostId);
-	    } else 
-	    if((hostId = udaClientFindHostByName(hostname)) >= 0){	// No alias found
-		int port = udaClientGetHostPort(hostId);
-		if(port > 0 && environment->server_port2 != port) environment->server_port2 = port;
-	    }   
-           
-#if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)    
-            if(!strncasecmp(hostname, "SSL://", 6)){
-               hostname_offset = 6;
-               putUdaClientSSLProtocol(1); 
-            } else {
-               putUdaClientSSLProtocol(0);
-            }      
-#endif  	    
-	    
-	    errno = 0;
+            // Check if the hostname is an alias for an IP address or name in the client configuration - replace if found
+
+            int hostId = udaClientFindHostByAlias(hostname);
+            if (hostId >= 0) {
+                if ((hostname = udaClientGetHostName(hostId)) == NULL) {
+                    addIdamError(CODEERRORTYPE, "idamCreateConnection", -1,
+                                 "The hostname2 is not recognised for the host alias provided!");
+                    return -1;
+                }
+                if (strcasecmp(environment->server_host2, hostname) != 0) strcpy(environment->server_host2, hostname);
+                int port = udaClientGetHostPort(hostId);
+                if (port > 0 && environment->server_port2 != port) environment->server_port2 = port;
+                udaClientPutHostNameId(hostId);
+            } else if ((hostId = udaClientFindHostByName(hostname)) >= 0) {    // No alias found
+                int port = udaClientGetHostPort(hostId);
+                if (port > 0 && environment->server_port2 != port) environment->server_port2 = port;
+            }
+
+#if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
+                if(!strncasecmp(hostname, "SSL://", 6)){
+                   hostname_offset = 6;
+                   putUdaClientSSLProtocol(1);
+                } else {
+                   putUdaClientSSLProtocol(0);
+                }
+#endif
+
+            errno = 0;
             host = gethostbyname(&hostname[hostname_offset]);
             if (host == NULL || errno != 0) {
                 if (errno != 0) {
@@ -289,7 +294,7 @@ int createConnection()
 #elif defined(_WIN32)
                     closesocket(clientSocket);
 #endif
-                }				
+                }
                 clientSocket = -1;
                 return -1;
             }
@@ -297,7 +302,7 @@ int createConnection()
             server.sin_port = htons(environment->server_port2);
             for (i = 0; i < MAX_SOCKET_ATTEMPTS; i++) {
                 errno = 0;
-                while ((rc = connect(clientSocket, (struct sockaddr*) &server, sizeof(server))) && errno == EINTR) {}
+                while ((rc = connect(clientSocket, (struct sockaddr*)&server, sizeof(server))) && errno == EINTR) {}
                 serrno = errno;
                 if (rc == 0) {
                     char* name;
@@ -305,18 +310,18 @@ int createConnection()
                     port = environment->server_port2;                // Swap data so that accessor function reports correctly
                     environment->server_port2 = environment->server_port;
                     environment->server_port = port;
-                    name = (char*) malloc((strlen(environment->server_host) + 1) * sizeof(char));
+                    name = (char*)malloc((strlen(environment->server_host) + 1) * sizeof(char));
                     strcpy(name, environment->server_host2);
                     strcpy(environment->server_host2, environment->server_host);
                     strcpy(environment->server_host, name);
-                    free((void*) name);
+                    free((void*)name);
                     break;
                 }
-                delay = MAX_SOCKET_DELAY * ((float) rand() / (float) RAND_MAX);
+                delay = MAX_SOCKET_DELAY * ((float)rand() / (float)RAND_MAX);
 #ifdef __GNUC__
-               sleep(delay);                            // wait period
+                sleep(delay);                            // wait period
 #elif defined(_WIN32)
-               Sleep((DWORD)(delay * 1E3));
+                Sleep((DWORD)(delay * 1E3));
 #endif
             }
         }
@@ -334,7 +339,7 @@ int createConnection()
 #elif defined(_WIN32)
                 closesocket(clientSocket);
 #endif
-            }				
+            }
             clientSocket = -1;
             return -1;
         }
@@ -343,15 +348,15 @@ int createConnection()
 // Set the receive and send buffer sizes
 
     setsockopt(clientSocket, SOL_SOCKET, SO_SNDBUF,
-               (char*) &window_size, sizeof(window_size));
+               (char*)&window_size, sizeof(window_size));
 
     setsockopt(clientSocket, SOL_SOCKET, SO_RCVBUF,
-               (char*) &window_size, sizeof(window_size));
+               (char*)&window_size, sizeof(window_size));
 
 // Other Socket Options
 
     on = 1;
-    if (setsockopt(clientSocket, SOL_SOCKET, SO_KEEPALIVE, (char*) &on, sizeof(on)) < 0) {
+    if (setsockopt(clientSocket, SOL_SOCKET, SO_KEEPALIVE, (char*)&on, sizeof(on)) < 0) {
         addIdamError(CODEERRORTYPE, "createConnection", -1, "Error Setting KEEPALIVE on Socket");
 #ifdef __GNUC__
         close(clientSocket);
@@ -362,7 +367,7 @@ int createConnection()
         return -1;
     }
     on = 1;
-    if (setsockopt(clientSocket, IPPROTO_TCP, TCP_NODELAY, (char*) &on, sizeof(on)) < 0) {
+    if (setsockopt(clientSocket, IPPROTO_TCP, TCP_NODELAY, (char*)&on, sizeof(on)) < 0) {
         addIdamError(CODEERRORTYPE, "createConnection", -1, "Error Setting NODELAY on Socket");
 #ifdef __GNUC__
         close(clientSocket);
@@ -375,18 +380,19 @@ int createConnection()
 
 // Add New Socket to the Socket's List
 
-    addSocket(&client_socketlist, TYPE_IDAM_SERVER, 1, environment->server_host, environment->server_port, clientSocket);
+    addSocket(&client_socketlist, TYPE_IDAM_SERVER, 1, environment->server_host, environment->server_port,
+              clientSocket);
     client_socketlist.sockets[getSocketRecordId(&client_socketlist, clientSocket)].Input = clientInput;
     client_socketlist.sockets[getSocketRecordId(&client_socketlist, clientSocket)].Output = clientOutput;
     environment->server_reconnect = 0;
     environment->server_change_socket = 0;
     environment->server_socket = clientSocket;
-    
+
 // Write the socket number to the SSL functions
-	
+
 #if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
-    putUdaClientSSLSocket(clientSocket);    
-#endif    
+    putUdaClientSSLSocket(clientSocket);
+#endif
 
     return 0;
 }
@@ -458,7 +464,7 @@ int clientWriteout(void* iohandle, char* buf, int count)
 
     while (BytesSent < count) {
 #ifndef _WIN32
-        while (((rc = (int) write(clientSocket, buf, count)) == -1) && (errno == EINTR)) { }
+        while (((rc = (int)write(clientSocket, buf, count)) == -1) && (errno == EINTR)) {}
 #else
         while ( ( (rc=send( clientSocket, buf , count, 0 )) == SOCKET_ERROR) && (errno == EINTR) ) {}
 #endif
@@ -498,7 +504,7 @@ int clientReadin(void* iohandle, char* buf, int count)
 // Read from it, checking for EINTR, as happens if called from IDL
 
 #ifndef _WIN32
-    while (((rc = (int) read(clientSocket, buf, count)) == -1) && (errno == EINTR)) { }
+    while (((rc = (int)read(clientSocket, buf, count)) == -1) && (errno == EINTR)) {}
 #else
     while ((( rc=recv( clientSocket, buf, count, 0)) == SOCKET_ERROR ) && (errno == EINTR)) {}
 
@@ -516,7 +522,7 @@ int clientReadin(void* iohandle, char* buf, int count)
         if (serrno != 0 && serrno != EINTR) addIdamError(SYSTEMERRORTYPE, "idamClientReadin", rc, "");
         addIdamError(CODEERRORTYPE, "idamClientReadin", rc,
                      "No Data waiting at Socket when Data Expected!");
-    }    
+    }
 
     return rc;
 }
