@@ -16,7 +16,6 @@
 #include <semaphore.h>
 #include <fcntl.h>
 #include <ctype.h>
-#include <tdishr.h>
 
 #include "ual_low_level_mdsplus.h"
 #include "ual_low_level_remote.h"
