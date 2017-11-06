@@ -179,43 +179,43 @@ void pf_active_H(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 void pf_active_turns(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 {
 	int coil_number = nodeIndices[0]; //starts from 1
-	float r;
+	int r;
 	int index = 4;
 
 	if (coil_number == 1) {
-		r = (float)A[index];
+		r = (int)A[index];
 	} else if (coil_number == 2) {
-		r = (float)Bh[index];
+		r = (int)Bh[index];
 	} else if (coil_number == 3) {
-		r = (float)Dh[index];
+		r = (int)Dh[index];
 	} else if (coil_number == 4) {
-		r = (float)Eh[index];
+		r = (int)Eh[index];
 	} else if (coil_number == 5) {
-		r = (float)Fh[index];
+		r = (int)Fh[index];
 	} else if (coil_number == 6) {
-		r = (float)Fb[index];
+		r = (int)Fb[index];
 	} else if (coil_number == 7) {
-		r = (float)Eb[index];
+		r = (int)Eb[index];
 	} else if (coil_number == 8) {
-		r = (float)Db[index];
+		r = (int)Db[index];
 	} else if (coil_number == 9) {
-		r = (float)Bb[index];
+		r = (int)Bb[index];
 	} else if (coil_number == 10) {
-		r = (float)Xu1[index];
+		r = (int)Xu1[index];
 	} else if (coil_number == 11) {
-		r = (float)Xu2[index];
+		r = (int)Xu2[index];
 	} else if (coil_number == 12) {
-		r = (float)Xu3[index];
+		r = (int)Xu3[index];
 	} else if (coil_number == 13) {
-		r = (float)Xu4[index];
+		r = (int)Xu4[index];
 	} else if (coil_number == 14) {
-		r = (float)Xl1[index];
+		r = (int)Xl1[index];
 	} else if (coil_number == 15) {
-		r = (float)Xl2[index];
+		r = (int)Xl2[index];
 	} else if (coil_number == 16) {
-		r = (float)Xl3[index];
+		r = (int)Xl3[index];
 	} else if (coil_number == 17) {
-		r = (float)Xl4[index];
+		r = (int)Xl4[index];
 	}
 	setReturnDataIntScalar(data_block, r, NULL);
 }
