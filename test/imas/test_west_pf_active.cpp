@@ -14,7 +14,7 @@ exit 0
 #define QUOTE_(X) #X
 #define QUOTE(X) QUOTE_(X)
 #define SHOT_NUM_TORE_SUPRA "43979" // WEST
-#define SHOT_NUM "51371" // WEST
+#define SHOT_NUM "51460" // WEST
 
 int main() {
 	setenv("UDA_PLUGIN_DIR", QUOTE(HOME) "/iter/uda/etc/plugins", 1);
@@ -146,6 +146,14 @@ int main() {
 		std::cout << arr_data_pfactive_time->as<double>().at(j) << " ";
 	}
 	std::cout << "..." << std::endl;
+
+    const uda::Result& pf_active_elements_turns_with_sign = client.get("imas::get(idx=0, group='pf_active', variable='coil/1/element/1/turns_with_sign', expName='WEST', type=int, rank=0, shot=" SHOT_NUM ", )", "");
+	const uda::Scalar* scalar_pf_active_elements_turns_with_sign = dynamic_cast<const uda::Scalar*>(pf_active_elements_turns_with_sign.data());
+	std::cout << "coil/1/element/1/turns_with_sign: " << scalar_pf_active_elements_turns_with_sign->as<int>() << std::endl;
+
+    const uda::Result& pf_active_elements_turns_with_sign17 = client.get("imas::get(idx=0, group='pf_active', variable='coil/17/element/1/turns_with_sign', expName='WEST', type=int, rank=0, shot=" SHOT_NUM ", )", "");
+	const uda::Scalar* scalar_pf_active_elements_turns_with_sign17 = dynamic_cast<const uda::Scalar*>(pf_active_elements_turns_with_sign17.data());
+	std::cout << "coil/17/element/1/turns_with_sign: " << scalar_pf_active_elements_turns_with_sign17->as<int>() << std::endl;
 
 	return 0;
 }
