@@ -125,7 +125,7 @@ void pf_passive_Z(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 
 void pf_passive_turns(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 {
-	setReturnDataIntScalar(data_block, 1, NULL);
+	setReturnDataFloatScalar(data_block, 1, NULL);
 }
 
 
