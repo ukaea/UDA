@@ -1,9 +1,44 @@
 #include "geomSignalMap.h"
 
 #include <clientserver/initStructs.h>
-#include <server/modules/netcdf4/readCDF4.h>
 #include <structures/accessors.h>
 #include <structures/struct.h>
+
+static PGconn* geomOpenDatabase(const char* host, const char* port, const char* dbname, const char* user)
+{
+//    char pgport[56];
+//    sprintf(pgport, "%d", port);
+
+//-------------------------------------------------------------
+// Debug Trace Queries
+
+    UDA_LOG(UDA_LOG_DEBUG, "SQL Connection: host %s\n", host);
+    UDA_LOG(UDA_LOG_DEBUG, "                port %s\n", port);
+    UDA_LOG(UDA_LOG_DEBUG, "                db   %s\n", dbname);
+    UDA_LOG(UDA_LOG_DEBUG, "                user %s\n", user);
+
+//-------------------------------------------------------------
+// Connect to the Database Server
+
+    PGconn* DBConnect = NULL;
+
+    if ((DBConnect = PQsetdbLogin(host, port, NULL, NULL, dbname, user, NULL)) == NULL) {
+        UDA_LOG(UDA_LOG_DEBUG, "SQL Server Connect Error\n");
+        PQfinish(DBConnect);
+        return NULL;
+    }
+
+    if (PQstatus(DBConnect) == CONNECTION_BAD) {
+        UDA_LOG(UDA_LOG_DEBUG, "Bad SQL Server Connect Status\n");
+        PQfinish(DBConnect);
+        return NULL;
+    }
+
+    UDA_LOG(UDA_LOG_DEBUG, "SQL Connection Options: %s\n", PQoptions(DBConnect));
+
+    return DBConnect;
+
+}
 
 /////////
 // Check which signal id s are available for this exp number,
@@ -17,13 +52,21 @@ int checkAvailableSignals(int shot, int n_all, int** signal_ids, int** is_availa
 
     int n_signals_available = 0;
 
-    PGconn* DBConnect = startSQL();
-    PGresult* DBQuery_IDAM = NULL;
+    char* db_host = getenv("UDA_SQLHOST");
+    char* db_port_str = getenv("UDA_SQLPORT");
+//    int db_port = -1;
+//    if (db_port_str != NULL) {
+//        db_port = (int)strtol(db_port_str, NULL, 10);
+//    }
+    char* db_name = getenv("UDA_SQLDBNAME");
+    char* db_user = getenv("UDA_SQLUSER");
+    PGconn* DBConnect = geomOpenDatabase(db_host, db_port_str, db_name, db_user);
 
     if (DBConnect == NULL) {
-        UDA_LOG(UDA_LOG_ERROR, "Connection to IDAM database failed.\n");
-        return 0;
+        RAISE_PLUGIN_ERROR("Could not open database connection\n");
     }
+
+    PGresult* DBQuery_IDAM = NULL;
 
     int i;
     for (i = 0; i < n_all; i++) {
@@ -71,9 +114,8 @@ int checkAvailableSignals(int shot, int n_all, int** signal_ids, int** is_availa
 
 }
 
-int do_signal_file(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
+int do_signal_file(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PGconn* DBConnect)
 {
-
     ////////////////
     // Retrieve user inputs
     const char* signal = NULL;
@@ -90,31 +132,10 @@ int do_signal_file(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     int shot = idam_plugin_interface->request_block->exp_number;
     int keep_all = findValue(&idam_plugin_interface->request_block->nameValueList, "keep_all");
 
-    //////////////////////////////
-    // Open the connection
-    // CURRENTLY HARDCODED IN WHILE I'M TESTING
-    // .... Once this is actually in the new MAST-U db, will need to use idam functions as in readMeta to open connection.
-    UDA_LOG(UDA_LOG_DEBUG, "trying to get connection\n");
-
-    char* db_host = getenv("GEOM_DB_HOST");
-    char* db_port_str = getenv("GEOM_DB_PORT");
-    int db_port = -1;
-    if (db_port_str != NULL) {
-        db_port = (int)strtol(db_port_str, NULL, 10);
-    }
-    char* db_name = getenv("GEOM_DB_NAME");
-    char* db_user = getenv("GEOM_DB_USER");
-
-    if (db_host == NULL || db_port_str == NULL || db_name == NULL || db_user == NULL) {
-        RAISE_PLUGIN_ERROR("Geom db host, port, name and user env variables were not set.\n");
-    }
-
-    PGconn* DBConnect = openDatabase(db_host, db_port, db_name, db_user);
-
     PGresult* DBQuery = NULL;
 
     if (PQstatus(DBConnect) != CONNECTION_OK) {
-        PQfinish(DBConnect);
+
         RAISE_PLUGIN_ERROR("Connection to mastgeom database failed.\n");
     }
 
@@ -165,7 +186,7 @@ int do_signal_file(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     if (PQresultStatus(DBQuery) != PGRES_TUPLES_OK && PQresultStatus(DBQuery) != PGRES_COMMAND_OK) {
         PQclear(DBQuery);
-        PQfinish(DBConnect);
+
         RAISE_PLUGIN_ERROR("Database query failed.\n");
     }
 
@@ -174,7 +195,7 @@ int do_signal_file(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     if (nRows == 0) {
         PQclear(DBQuery);
-        PQfinish(DBConnect);
+
         RAISE_PLUGIN_ERROR("No rows were found in database matching query\n");
     }
 
@@ -236,7 +257,7 @@ int do_signal_file(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     //Close db connection
     PQclear(DBQuery);
-    PQfinish(DBConnect);
+
     free(signal_for_query);
 
     /////////////////////////////////
@@ -251,20 +272,19 @@ int do_signal_file(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     /////////////////////////////////
     // Read in the file
-    DATA_SOURCE* data_source = idam_plugin_interface->data_source;
-    SIGNAL_DESC* signal_desc = idam_plugin_interface->signal_desc;
-    strcpy(signal_desc->signal_name, signal);
-    strcpy(data_source->path, file);
-
+    IDAM_PLUGIN_INTERFACE new_plugin_interface = *idam_plugin_interface;
     DATA_BLOCK data_block_file;
     initDataBlock(&data_block_file);
+    new_plugin_interface.data_block = &data_block_file;
 
-    REQUEST_BLOCK* request_block = idam_plugin_interface->request_block;
+    char request_string[MAXSQL];
+    sprintf(request_string, "NEWCDF4::read(file=%s, signal=%s)", file, signal);
+    err = callPlugin(idam_plugin_interface->pluginList, request_string, &new_plugin_interface);
+
     USERDEFINEDTYPELIST* userdefinedtypelist = idam_plugin_interface->userdefinedtypelist;
     LOGMALLOCLIST* logmalloclist = idam_plugin_interface->logmalloclist;
-    err = readCDF(*data_source, *signal_desc, *request_block, &data_block_file, &logmalloclist, &userdefinedtypelist);
 
-    UDA_LOG(UDA_LOG_DEBUG, "Read in file signal %s\n", signal_desc->signal_name);
+    UDA_LOG(UDA_LOG_DEBUG, "Read in file signal %s\n", signal);
 
     if (err != 0) {
         RAISE_PLUGIN_ERROR("Error reading geometry data!\n");
@@ -392,7 +412,7 @@ int do_signal_file(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 }
 
 
-int do_signal_filename(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
+int do_signal_filename(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PGconn* DBConnect)
 {
 
     ///////////////////
@@ -428,25 +448,10 @@ int do_signal_filename(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     char* file_path = getenv("MAST_GEOM_DATA");
 
-    ////////////////////
-    // Query to find data signals and filename associated with given geom group
-    UDA_LOG(UDA_LOG_DEBUG, "trying to get connection\n");
-    char* db_host = getenv("GEOM_DB_HOST");
-    char* db_port_str = getenv("GEOM_DB_PORT");
-    int db_port = -1;
-    if (db_port_str != NULL) db_port = (int)strtol(db_port_str, NULL, 10);
-    char* db_name = getenv("GEOM_DB_NAME");
-    char* db_user = getenv("GEOM_DB_USER");
-
-    if (db_host == NULL || db_port_str == NULL || db_name == NULL || db_user == NULL) {
-        RAISE_PLUGIN_ERROR("Geom db host, port, name and user env variables were not set.\n");
-    }
-
-    PGconn* DBConnect = openDatabase(db_host, db_port, db_name, db_user);
     PGresult* DBQuery = NULL;
 
     if (PQstatus(DBConnect) != CONNECTION_OK) {
-        PQfinish(DBConnect);
+
         RAISE_PLUGIN_ERROR("Connection to mastgeom database failed.\n");
     }
 
@@ -509,7 +514,7 @@ int do_signal_filename(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     if (PQresultStatus(DBQuery) != PGRES_TUPLES_OK && PQresultStatus(DBQuery) != PGRES_COMMAND_OK) {
         PQclear(DBQuery);
-        PQfinish(DBConnect);
+
         RAISE_PLUGIN_ERROR("Database query failed.\n");
     }
 
@@ -517,7 +522,7 @@ int do_signal_filename(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     if (nRows == 0) {
         PQclear(DBQuery);
-        PQfinish(DBConnect);
+
         RAISE_PLUGIN_ERROR("No rows were found in database matching query\n");
     }
 
@@ -579,7 +584,7 @@ int do_signal_filename(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     //Close db connection
     PQclear(DBQuery);
-    PQfinish(DBConnect);
+
     free(signal_for_query);
 
     /////////

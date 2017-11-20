@@ -68,7 +68,7 @@ include_directories(
   ${OPENSSL_INCLUDE_DIR}
 )
 
-add_definitions( -DSERVERBUILD -DNOTGENERICENABLED )
+add_definitions( -DSERVERBUILD )
 
 ########################################################################################################################
 # Targets

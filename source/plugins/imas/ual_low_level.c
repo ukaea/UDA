@@ -186,10 +186,3 @@ char* imas_reset_errmsg()
     message[0] = '\0';
     return errmsg;
 }
-
-static int getShot(int idx)
-{
-    return expInfo[idx].shot;
-}
-
-int ual_get_shot(int idx) { return getShot(idx); }

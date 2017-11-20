@@ -12,8 +12,8 @@ PGconn* open_connection()
 {
     char* db_host = getenv("UDA_SQLHOST");
     char* db_port_str = getenv("UDA_SQLPORT");
-    int db_port = -1;
-    if (db_port_str != NULL) db_port = atoi(db_port_str);
+  //  int db_port = -1;
+   // if (db_port_str != NULL) db_port = atoi(db_port_str);
     char* db_name = getenv("UDA_SQLDBNAME");
     char* db_user = getenv("UDA_SQLUSER");
 
@@ -21,7 +21,30 @@ PGconn* open_connection()
         return NULL;
     }
 
-    PGconn* DBConnect = openDatabase(db_host, db_port, db_name, db_user);
+    //-------------------------------------------------------------
+// Debug Trace Queries
+
+    UDA_LOG(UDA_LOG_DEBUG, "SQL Connection: host %s\n", db_host);
+    UDA_LOG(UDA_LOG_DEBUG, "                port %s\n", db_port_str);
+    UDA_LOG(UDA_LOG_DEBUG, "                db   %s\n", db_name);
+    UDA_LOG(UDA_LOG_DEBUG, "                user %s\n", db_user);
+
+//-------------------------------------------------------------
+// Connect to the Database Server
+
+    PGconn* DBConnect = NULL;
+
+    if ((DBConnect = PQsetdbLogin(db_host, db_port_str, NULL, NULL, db_name, db_user, NULL)) == NULL) {
+        UDA_LOG(UDA_LOG_DEBUG, "SQL Server Connect Error\n");
+        PQfinish(DBConnect);
+        return NULL;
+    }
+
+    if (PQstatus(DBConnect) == CONNECTION_BAD) {
+        UDA_LOG(UDA_LOG_DEBUG, "Bad SQL Server Connect Status\n");
+        PQfinish(DBConnect);
+        return NULL;
+    }
 
     return DBConnect;
 }
@@ -29,7 +52,7 @@ PGconn* open_connection()
 char* get_escaped_string(PGconn* DBConnect, const char* instring)
 {
     // String length for PQescapeStringConn needs to be double the length
-    int new_length = 2 * strlen(instring) + 1;
+    size_t new_length = 2 * strlen(instring) + 1;
 
     char* new_string = NULL;
     new_string = (char*)malloc(new_length * sizeof(char));
@@ -342,7 +365,7 @@ int get_shotdatetime(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     data->shot = shot;
 
-    int stringLength = strlen(PQgetvalue(DBQuery, 0, s_expdate)) + 1;
+    size_t stringLength = strlen(PQgetvalue(DBQuery, 0, s_expdate)) + 1;
     data->date = (char*)malloc(stringLength * sizeof(char));
     strcpy(data->date, PQgetvalue(DBQuery, 0, s_expdate));
     addMalloc(idam_plugin_interface->logmalloclist, (void*)data->date, 1, stringLength * sizeof(char), "char");

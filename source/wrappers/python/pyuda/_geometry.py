@@ -18,6 +18,8 @@ import logging
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
+import numpy as np
+
 from ._data import Data
 
 class GeometryData(Data):
@@ -192,9 +194,14 @@ class GeometryData(Data):
         attr_names_config = [a[0] for a in attr_config]
 
         for attr in attr_cal:
+
             # If there is an attribute in the calibration,
             # but not in the configuration, add it to the configuration.
-            if attr[0] in attr_names_config and isinstance(attr[1], (int, float)):
+            is_numeric = isinstance(attr[1], (int, float, np.ndarray))
+            if isinstance(attr[1], (np.ndarray)):
+                is_numeric = np.issubdtype(attr[1].dtype, np.number)
+
+            if attr[0] in attr_names_config and is_numeric:
                 # Get Config data
                 if replace:
                     setattr(config_data, attr[0], attr[1])
@@ -209,6 +216,7 @@ class GeometryData(Data):
         children_names_config = [child.name for child in config_data.children]
 
         for child in cal_data.children:
+
             if child.name in children_names_config:
                 child_ind = children_names_config.index(child.name)
                 self._correct_loop(child, config_data.children[child_ind])
@@ -223,7 +231,6 @@ class GeometryData(Data):
         :return:
         """
         for child in data.children:
-            print("_add_struct: add child {}".format(child.name))
             self.data.add_child(child)
 
         self.data.count += len(data.children)

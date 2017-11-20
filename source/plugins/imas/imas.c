@@ -100,7 +100,6 @@ static void initLocalObj()
     localObjs[0] = NULL;    // Original IMAS objects may have NULL or (void *)-1 addresses
     localObjs[1] = NULL;
     lastObjectId = 2;
-    return;
 }
 
 static int putLocalObj(void* dataObj)

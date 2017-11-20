@@ -234,7 +234,7 @@ variable='description_2d/1/vessel/unit/1/element/Shape_of', type=int, rank=0
   <mapping key="wall/description_2d/#/vessel/type/index" value="1" type="constant"/>
 
   <!--<mapping key="wall/description_2d/#/vessel/type/description'" value="" type="static"/>-->
-  <mapping key="wall/description_2d/#/vessel/unit/Shape_of" value="//wall/wall2d/vessel/vessel_unit/@dim" type="static"/>
+  <mapping key="wall/description_2d/#/vessel/unit/Shape_of" value="//wall/wall2d/vessel/vessel_unit[1]/@dim" type="static"/>
 
   <mapping key="wall/description_2d/#/vessel/unit/#/name" value="//wall/wall2d[#]/vessel/vessel_unit[#]/annular/name" type="static"/>
   <mapping key="wall/description_2d/#/vessel/unit/#/annular/outline_inner/r" value="//wall/wall2d[#]/vessel/vessel_unit[#]/annular/inside/r" type="static"/>

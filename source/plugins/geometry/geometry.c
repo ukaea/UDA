@@ -49,6 +49,40 @@
 #include "geomSignalMap.h"
 #include "geomConfig.h"
 
+static PGconn* geomOpenDatabase(const char* host, const char* port, const char* dbname, const char* user)
+{
+
+//-------------------------------------------------------------
+// Debug Trace Queries
+
+    UDA_LOG(UDA_LOG_DEBUG, "SQL Connection: host %s\n", host);
+    UDA_LOG(UDA_LOG_DEBUG, "                port %s\n", port);
+    UDA_LOG(UDA_LOG_DEBUG, "                db   %s\n", dbname);
+    UDA_LOG(UDA_LOG_DEBUG, "                user %s\n", user);
+
+//-------------------------------------------------------------
+// Connect to the Database Server
+
+    PGconn* DBConnect = NULL;
+
+    if ((DBConnect = PQsetdbLogin(host, port, NULL, NULL, dbname, user, NULL)) == NULL) {
+        UDA_LOG(UDA_LOG_DEBUG, "SQL Server Connect Error\n");
+        PQfinish(DBConnect);
+        return NULL;
+    }
+
+    if (PQstatus(DBConnect) == CONNECTION_BAD) {
+        UDA_LOG(UDA_LOG_DEBUG, "Bad SQL Server Connect Status\n");
+        PQfinish(DBConnect);
+        return NULL;
+    }
+
+    UDA_LOG(UDA_LOG_DEBUG, "SQL Connection Options: %s\n", PQoptions(DBConnect));
+
+    return DBConnect;
+}
+
+
 int idamGeom(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
 
@@ -62,8 +96,14 @@ int idamGeom(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     REQUEST_BLOCK* request_block = idam_plugin_interface->request_block;
 
+    static PGconn *DBConnect = NULL;
+
     if (idam_plugin_interface->housekeeping || STR_IEQUALS(request_block->function, "reset")) {
         if (!init) return 0; // Not previously initialised: Nothing to do!
+
+        PQfinish(DBConnect);
+        DBConnect = NULL;
+
         // Free Heap & reset counters
         init = 0;
         return 0;
@@ -75,10 +115,31 @@ int idamGeom(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     if (!init || STR_IEQUALS(request_block->function, "init")
         || STR_IEQUALS(request_block->function, "initialise")) {
 
+        //////////////////////////////
+        // Open the connection
+        UDA_LOG(UDA_LOG_DEBUG, "trying to get connection\n");
+
+        char* db_host = getenv("GEOM_DB_HOST");
+        char* db_port_str = getenv("GEOM_DB_PORT");
+        char* db_name = getenv("GEOM_DB_NAME");
+        char* db_user = getenv("GEOM_DB_USER");
+
+        if (db_host == NULL || db_port_str == NULL || db_name == NULL || db_user == NULL) {
+            RAISE_PLUGIN_ERROR("Geom db host, port, name and user env variables were not set.\n");
+        }
+
+        DBConnect = geomOpenDatabase(db_host, db_port_str, db_name, db_user);
+
+        if (DBConnect == NULL) {
+            RAISE_PLUGIN_ERROR("Could not open database connection\n");
+        }
+
         init = 1;
+
         if (STR_IEQUALS(request_block->function, "init") || STR_IEQUALS(request_block->function, "initialise")) {
             return 0;
         }
+
     }
 
     //----------------------------------------------------------------------------------------
@@ -87,13 +148,13 @@ int idamGeom(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     if (STR_IEQUALS(request_block->function, "help")) {
         return do_help(idam_plugin_interface);
     } else if (STR_IEQUALS(request_block->function, "getSignalFile")) {
-        return do_signal_file(idam_plugin_interface);
+        return do_signal_file(idam_plugin_interface, DBConnect);
     } else if (STR_IEQUALS(request_block->function, "getSignalFilename")) {
-        return do_signal_filename(idam_plugin_interface);
+        return do_signal_filename(idam_plugin_interface, DBConnect);
     } else if (STR_IEQUALS(request_block->function, "getConfigFilenames")) {
-        return do_config_filename(idam_plugin_interface);
+        return do_config_filename(idam_plugin_interface, DBConnect);
     } else if (STR_IEQUALS(request_block->function, "get")) {
-        return do_geom_get(idam_plugin_interface);
+        return do_geom_get(idam_plugin_interface, DBConnect);
     } else {
         RAISE_PLUGIN_ERROR("Unknown function requested!");
     }

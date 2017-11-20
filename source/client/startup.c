@@ -3,12 +3,12 @@
 *
 * Argument: reset => if 1 then always reopen Files
 *
-* Checks for an Environment var (IDAM_LOG) for the directory of the log file
+* Checks for an Environment var (UDA_LOG) for the directory of the log file
 * otherwise it assumes the file is to be local to the PWD.
 *
 * The directory named must not have a trailing forward slash.
 *
-* It is assumed that the directory specified by IDAM_LOG already exits
+* It is assumed that the directory specified by UDA_LOG already exits
 *
 * Returns:
 *

@@ -3,7 +3,12 @@
 
 #include "userid.h"
 
-#include <unistd.h>
+#ifdef __GNUC__
+#  include <unistd.h>
+#elif defined(_WIN32)
+#  include <Windows.h>
+#endif
+
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -13,8 +18,8 @@
 void userid(char* uid)
 {
 #ifdef _WIN32
-    int l = STRING_LENGTH-1;
-    GetUserName(uid, &l);
+    DWORD size = STRING_LENGTH - 1;
+    GetUserName(uid, &size);
     return;
 #else
     const char* user;

@@ -1,0 +1,12 @@
+#------------------------------------------------------------------------------------------------------
+# Creates the Environment needed by the geometry plugin
+#------------------------------------------------------------------------------------------------------
+
+export XPADTREE_DB_HOST="idam1.mast.ccfe.ac.uk"
+export XPADTREE_DB_PORT=56567
+export XPADTREE_DB_NAME="xpad"
+export XPADTREE_DB_USER="xpadowner"
+export XPADTREE_IDAM_DB_HOST="idam1.mast.ccfe.ac.uk"
+export XPADTREE_IDAM_DB_PORT=56567
+export XPADTREE_IDAM_DB_NAME="idam"
+export XPADTREE_IDAM_DB_USER="readonly"

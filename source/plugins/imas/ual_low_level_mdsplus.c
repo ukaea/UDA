@@ -16,6 +16,7 @@
 #include <semaphore.h>
 #include <fcntl.h>
 #include <ctype.h>
+#include <tdishr.h>
 
 #include "ual_low_level_mdsplus.h"
 #include "ual_low_level_remote.h"
@@ -29,6 +30,10 @@
 #ifndef WRITE_BACK
 #define WRITE_BACK MDS_WRITE_BACK
 #endif
+
+extern int ConnectToMds(char *host);
+extern int DisconnectFromMds(int conid);
+
 static int getDataLocal(int expIdx, char* cpoPath, char* path, struct descriptor_xd* retXd, int evaluate);
 static int mdsgetDataLocal(int expIdx, char* cpoPath, char* path, struct descriptor_xd* retXd, int evaluate);
 static int
