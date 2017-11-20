@@ -3738,10 +3738,13 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
 //    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='code/output_flag', type=int, rank=1, shot=84600, )");
 //    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='time', type=double, rank=1, shot=84600, )");
 
-    setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", "/Users/jhollocombe/Projects/uda/source/plugins/exp2imas/mappings", 1);
-    setenv("UDA_EXP2IMAS_MAPPING_FILE", "/Users/jhollocombe/Projects/uda/source/plugins/exp2imas/mappings/JET_Mapping.xml", 1);
+    setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", "/afs/eufus.eu/user/g/g2jhollo/uda/source/plugins/exp2imas/mappings", 1);
+    setenv("UDA_EXP2IMAS_MAPPING_FILE", "/afs/eufus.eu/user/g/g2jhollo/uda/source/plugins/exp2imas/mappings/JET_Mapping.xml", 1);
+
+    int i = 1;
 
     for (const auto& test : tests) {
+        INFO( i );
         INFO( test );
 
         int handle = idamGetAPI(test.c_str(), "");
@@ -3754,5 +3757,7 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
             REQUIRE( handle >= 0 );
             REQUIRE( getIdamErrorCode(handle) == 0 );
         }
+
+        ++i;
     }
 }

@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mappings>
+  <mapping key="iron_core/ids_properties/comment" value="JET data mapped using UDA and exp2itm mappings 4.10b" type="constant"/>
+  <mapping key="iron_core/ids_properties/homogeneous_time" value="0" type="constant"/>
+
+  <mapping key="iron_core/segment/Shape_of" value="//ironmodel/desc_iron/geom_iron/npoints/@dim" type="static"/>
+
+  <mapping key="iron_core/segment/#/name" value="" type="constant"/>
+  <mapping key="iron_core/segment/#/identifier" value="" type="constant"/>
+
+  <mapping key="iron_core/segment/#/b_field" value="//ironmodel/desc_iron/permeability/b" type="static"/>
+  <!--<mapping key="iron_core/segment/#/b_field_error_upper" value="0" type="constant"/>-->
+  <!--<mapping key="iron_core/segment/#/b_field_error_lower" value="0" type="constant"/>-->
+  <!--<mapping key="iron_core/segment/#/b_field_error_index" value="0" type="constant"/>-->
+
+  <mapping key="iron_core/segment/#/permeability_relative" value="//ironmodel/desc_iron/permeability/mur" type="static"/>
+  <!--<mapping key="iron_core/segment/#/permeability_relative_error_upper" value="0" type="constant"/>-->
+  <!--<mapping key="iron_core/segment/#/permeability_relative_error_lower" value="0" type="constant"/>-->
+  <!--<mapping key="iron_core/segment/#/permeability_relative_error_index" value="0" type="constant"/>-->
+
+  <mapping key="iron_core/segment/#/geometry/geometry_type" value="1" type="constant"/>
+
+  <mapping key="iron_core/segment/#/geometry/outline/r" value="//ironmodel/desc_iron/geom_iron/rzcoordinate/r" type="static"/>
+  <!--<mapping key="iron_core/segment/#/geometry/outline/r_error_upper" value="0" type="constant"/>-->
+  <!--<mapping key="iron_core/segment/#/geometry/outline/r_error_lower" value="0" type="constant"/>-->
+  <!--<mapping key="iron_core/segment/#/geometry/outline/r_error_index" value="0" type="constant"/>-->
+
+  <mapping key="iron_core/segment/#/geometry/outline/z" value="//ironmodel/desc_iron/geom_iron/rzcoordinate/z" type="static"/>
+  <!--<mapping key="iron_core/segment/#/geometry/outline/z_error_upper" value="0" type="constant"/>-->
+  <!--<mapping key="iron_core/segment/#/geometry/outline/z_error_lower" value="0" type="constant"/>-->
+  <!--<mapping key="iron_core/segment/#/geometry/outline/z_error_index" value="0" type="constant"/>-->
+
+  <!--<mapping key="iron_core/segment/#/geometry/rectangle/r" value="0" type="constant"/>-->
+  <!--<mapping key="iron_core/segment/#/geometry/rectangle/r_error_upper" value="0" type="constant"/>-->
+  <!--<mapping key="iron_core/segment/#/geometry/rectangle/r_error_lower" value="0" type="constant"/>-->
+  <!--<mapping key="iron_core/segment/#/geometry/rectangle/r_error_index" value="0" type="constant"/>-->
+
+  <!--<mapping key="iron_core/segment/#/geometry/rectangle/z" value="0" type="constant"/>-->
+  <!--<mapping key="iron_core/segment/#/geometry/rectangle/z_error_upper" value="0" type="constant"/>-->
+  <!--<mapping key="iron_core/segment/#/geometry/rectangle/z_error_lower" value="0" type="constant"/>-->
+  <!--<mapping key="iron_core/segment/#/geometry/rectangle/z_error_index" value="0" type="constant"/>-->
+
+  <!--<mapping key="iron_core/segment/#/geometry/rectangle/width" value="0" type="constant"/>-->
+  <!--<mapping key="iron_core/segment/#/geometry/rectangle/width_error_upper" value="0" type="constant"/>-->
+  <!--<mapping key="iron_core/segment/#/geometry/rectangle/width_error_lower" value="0" type="constant"/>-->
+  <!--<mapping key="iron_core/segment/#/geometry/rectangle/width_error_index" value="0" type="constant"/>-->
+
+  <!--<mapping key="iron_core/segment/#/geometry/rectangle/height" value="0" type="constant"/>-->
+  <!--<mapping key="iron_core/segment/#/geometry/rectangle/height_error_upper" value="0" type="constant"/>-->
+  <!--<mapping key="iron_core/segment/#/geometry/rectangle/height_error_lower" value="0" type="constant"/>-->
+  <!--<mapping key="iron_core/segment/#/geometry/rectangle/height_error_index" value="0" type="constant"/>-->
+
+  <!--<mapping key="iron_core/segment/#/geometry/oblique/r" value="0" type="constant"/>-->
+  <!--<mapping key="iron_core/segment/#/geometry/oblique/r_error_upper" value="0" type="constant"/>-->
+  <!--<mapping key="iron_core/segment/#/geometry/oblique/r_error_lower" value="0" type="constant"/>-->
+  <!--<mapping key="iron_core/segment/#/geometry/oblique/r_error_index" value="0" type="constant"/>-->
+
+  <!--<mapping key="iron_core/segment/#/geometry/oblique/z" value="0" type="constant"/>-->
+  <!--<mapping key="iron_core/segment/#/geometry/oblique/z_error_upper" value="0" type="constant"/>-->
+  <!--<mapping key="iron_core/segment/#/geometry/oblique/z_error_lower" value="0" type="constant"/>-->
+  <!--<mapping key="iron_core/segment/#/geometry/oblique/z_error_index" value="0" type="constant"/>-->
+
+  <!--<mapping key="iron_core/segment/#/geometry/oblique/length" value="0" type="constant"/>-->
+  <!--<mapping key="iron_core/segment/#/geometry/oblique/length_error_upper" value="0" type="constant"/>-->
+  <!--<mapping key="iron_core/segment/#/geometry/oblique/length_error_lower" value="0" type="constant"/>-->
+  <!--<mapping key="iron_core/segment/#/geometry/oblique/length_error_index" value="0" type="constant"/>-->
+
+  <!--<mapping key="iron_core/segment/#/geometry/oblique/thickness" value="0" type="constant"/>-->
+  <!--<mapping key="iron_core/segment/#/geometry/oblique/thickness_error_upper" value="0" type="constant"/>-->
+  <!--<mapping key="iron_core/segment/#/geometry/oblique/thickness_error_lower" value="0" type="constant"/>-->
+  <!--<mapping key="iron_core/segment/#/geometry/oblique/thickness_error_index" value="0" type="constant"/>-->
+
+  <!--<mapping key="iron_core/segment/#/geometry/oblique/alpha" value="0" type="constant"/>-->
+  <!--<mapping key="iron_core/segment/#/geometry/oblique/alpha_error_upper" value="0" type="constant"/>-->
+  <!--<mapping key="iron_core/segment/#/geometry/oblique/alpha_error_lower" value="0" type="constant"/>-->
+  <!--<mapping key="iron_core/segment/#/geometry/oblique/alpha_error_index" value="0" type="constant"/>-->
+
+  <!--<mapping key="iron_core/segment/#/geometry/oblique/beta" value="0" type="constant"/>-->
+  <!--<mapping key="iron_core/segment/#/geometry/oblique/beta_error_upper" value="0" type="constant"/>-->
+  <!--<mapping key="iron_core/segment/#/geometry/oblique/beta_error_lower" value="0" type="constant"/>-->
+  <!--<mapping key="iron_core/segment/#/geometry/oblique/beta_error_index" value="0" type="constant"/>-->
+
+  <!--<mapping key="iron_core/segment/#/geometry/arcs_of_circle/r" value="0" type="constant"/>-->
+  <!--<mapping key="iron_core/segment/#/geometry/arcs_of_circle/r_error_upper" value="0" type="constant"/>-->
+  <!--<mapping key="iron_core/segment/#/geometry/arcs_of_circle/r_error_lower" value="0" type="constant"/>-->
+  <!--<mapping key="iron_core/segment/#/geometry/arcs_of_circle/r_error_index" value="0" type="constant"/>-->
+
+  <!--<mapping key="iron_core/segment/#/geometry/arcs_of_circle/z" value="0" type="constant"/>-->
+  <!--<mapping key="iron_core/segment/#/geometry/arcs_of_circle/z_error_upper" value="0" type="constant"/>-->
+  <!--<mapping key="iron_core/segment/#/geometry/arcs_of_circle/z_error_lower" value="0" type="constant"/>-->
+  <!--<mapping key="iron_core/segment/#/geometry/arcs_of_circle/z_error_index" value="0" type="constant"/>-->
+
+  <!--<mapping key="iron_core/segment/#/geometry/arcs_of_circle/curvature_radii" value="0" type="constant"/>-->
+  <!--<mapping key="iron_core/segment/#/geometry/arcs_of_circle/curvature_radii_error_upper" value="0" type="constant"/>-->
+  <!--<mapping key="iron_core/segment/#/geometry/arcs_of_circle/curvature_radii_error_lower" value="0" type="constant"/>-->
+  <!--<mapping key="iron_core/segment/#/geometry/arcs_of_circle/curvature_radii_error_index" value="0" type="constant"/>-->
+
+  <mapping key="iron_core/segment/#/magnetisation_r/data" value="0" type="constant"/>
+  <!--<mapping key="iron_core/segment/#/magnetisation_r/data_error_upper" value="0" type="constant"/>-->
+  <!--<mapping key="iron_core/segment/#/magnetisation_r/data_error_lower" value="0" type="constant"/>-->
+  <!--<mapping key="iron_core/segment/#/magnetisation_r/data_error_index" value="0" type="constant"/>-->
+
+  <!--<mapping key="iron_core/segment/#/magnetisation_r/time" value="0" type="constant"/>-->
+
+  <mapping key="iron_core/segment/#/magnetisation_z/data" value="0" type="constant"/>
+  <!--<mapping key="iron_core/segment/#/magnetisation_z/data_error_upper" value="0" type="constant"/>-->
+  <!--<mapping key="iron_core/segment/#/magnetisation_z/data_error_lower" value="0" type="constant"/>-->
+  <!--<mapping key="iron_core/segment/#/magnetisation_z/data_error_index" value="0" type="constant"/>-->
+
+  <!--<mapping key="iron_core/segment/#/magnetisation_z/time" value="0" type="constant"/>-->
+
+  <!--<mapping key="iron_core/code/name" value="" type="constant"/>-->
+  <!--<mapping key="iron_core/code/commit" value="" type="constant"/>-->
+  <!--<mapping key="iron_core/code/version" value="" type="constant"/>-->
+  <!--<mapping key="iron_core/code/repository" value="" type="constant"/>-->
+  <!--<mapping key="iron_core/code/parameters" value="" type="constant"/>-->
+  <!--<mapping key="iron_core/code/output_flag" value="" type="constant"/>-->
+</mappings>

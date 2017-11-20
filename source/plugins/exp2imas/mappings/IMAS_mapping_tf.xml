@@ -6,6 +6,11 @@
   <mapping key="tf/is_periodic" value="0" type="constant"/>
   <mapping key="tf/coils_n" value="0" type="constant"/>
 
+  <mapping key="tf/r0" value="//toroidfield/r0" type="static"/>
+  <!--<mapping key="tf/r0_error_index" value="" type="constant"/>-->
+  <!--<mapping key="tf/r0_error_lower" value="" type="constant"/>-->
+  <!--<mapping key="tf/r0_error_upper" value="" type="constant"/>-->
+
   <mapping key="tf/coil/Shape_of" value="//toroidfield/ncoils" type="static"/>
   <mapping key="tf/coil/#/conductor/Shape_of" value="0" type="constant"/>
 
@@ -88,10 +93,10 @@
   <mapping key="tf/coil/#/conductor/#/voltage/time" value="" type=""/>
   -->
 
-  <mapping key="tf/coil/#/turns" value="//toroidfield/nturns" type="static"/>
-  <mapping key="tf/coil/#/turns_error_upper" value="0" type="constant"/>
-  <mapping key="tf/coil/#/turns_error_lower" value="0" type="constant"/>
-  <mapping key="tf/coil/#/turns_error_index" value="0" type="constant"/>
+  <mapping key="tf/coil/#/turns" value="24" type="constant"/>
+  <!--<mapping key="tf/coil/#/turns_error_upper" value="0" type="constant"/>-->
+  <!--<mapping key="tf/coil/#/turns_error_lower" value="0" type="constant"/>-->
+  <!--<mapping key="tf/coil/#/turns_error_index" value="0" type="constant"/>-->
 
   <!-- no data
   <mapping key="tf/coil/#/resistance" value="" type=""/>

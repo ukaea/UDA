@@ -9,13 +9,11 @@
 #include <stdint.h>
 #include <usagedef.h>
 #include <ncidef.h>
-#include <tdishr.h>
 
 #include <xtreeshr.h>
 #include <cacheshr.h>
 #include <pthread.h>
 #include <semaphore.h>
-#include <ipdesc.h>
 #include <fcntl.h>
 #include <ctype.h>
 

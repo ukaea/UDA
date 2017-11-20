@@ -520,8 +520,9 @@ double* getContent(xmlNode* node, size_t* n_vals)
     double* vals = NULL;
 
     bool in_expand = false;
-    bool have_expand_val = false;
-    double expand_val = 0;
+    bool in_expand_range = false;
+    size_t num_expand_vals = 0;
+    double* expand_vals = NULL;
     int expand_start = 0;
     int expand_end = 0;
 
@@ -534,12 +535,13 @@ double* getContent(xmlNode* node, size_t* n_vals)
             case ',':
             case '\0':
                 if (in_expand) {
-                    if (have_expand_val) {
+                    if (in_expand_range) {
                         expand_start = (int)strtol(num_start, NULL, 10);
                         num_start = chr + 1;
                     } else {
-                        expand_val = strtod(num_start, NULL);
-                        have_expand_val = true;
+                        expand_vals = realloc(expand_vals, (num_expand_vals + 1) * sizeof(double));
+                        expand_vals[num_expand_vals] = strtod(num_start, NULL);
+                        ++num_expand_vals;
                         num_start = chr + 1;
                     }
                 } else if (*num_start != '\0') {
@@ -553,6 +555,7 @@ double* getContent(xmlNode* node, size_t* n_vals)
                 }
                 break;
             case '=':
+                in_expand_range = true;
                 num_start = chr + 1;
                 break;
             case '(':
@@ -563,17 +566,22 @@ double* getContent(xmlNode* node, size_t* n_vals)
                 expand_end = (int)strtol(num_start, NULL, 10);
                 int i = 0;
                 for (i = expand_start; i <= expand_end; ++i) {
-                    vals = realloc(vals, (*n_vals + 1) * sizeof(double));
-                    vals[*n_vals] = expand_val;
-                    ++(*n_vals);
+                    vals = realloc(vals, (*n_vals + num_expand_vals) * sizeof(double));
+                    int j;
+                    for (j = 0; j < num_expand_vals; ++j) {
+                        vals[*n_vals + j] = expand_vals[j];
+                    }
+                    *n_vals += num_expand_vals;
                 }
                 if (*(chr + 1) == ',') {
                     ++chr;
                 }
                 num_start = chr + 1;
                 in_expand = false;
-                have_expand_val = false;
-                expand_val = 0;
+                in_expand_range = false;
+                free(expand_vals);
+                expand_vals = NULL;
+                num_expand_vals = 0;
                 expand_start = 0;
                 expand_end = 0;
                 break;
@@ -608,3 +616,4 @@ int convertToInt(char* value)
     }
     return i;
 }
+

@@ -7,7 +7,7 @@
 #define QUOTE(X) QUOTE_(X)
 #define SHOT_NUM "84600"
 
-#define MAPPINGS_DIR "/Users/jhollocombe/Projects/uda/source/plugins/exp2imas/mappings"
+#define MAPPINGS_DIR "/afs/eufus.eu/user/g/g2jhollo/uda/source/plugins/exp2imas/mappings"
 
 /*
   ✓ bpol_probe/Shape_of
@@ -171,7 +171,6 @@ TEST_CASE( "Test bpol_probe poloidal_angle", "[IMAS][JET][BPOL]" )
 #endif
 
 	setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", MAPPINGS_DIR, 1);
-	setenv("UDA_EXP2IMAS_MAPPING_FILE", MAPPINGS_DIR "/JET_Mapping.xml", 1);
 
     uda::Client client;
 
@@ -990,7 +989,6 @@ TEST_CASE( "Test flux_loop flux error lower", "[IMAS][JET][FLUX]" )
 //#endif
 //
 //    setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", MAPPINGS_DIR, 1);
-//    setenv("UDA_EXP2IMAS_MAPPING_FILE", MAPPINGS_DIR "/JET_Mapping.xml", 1);
 //
 //    uda::Client client;
 //

@@ -7,7 +7,7 @@
 #define QUOTE(X) QUOTE_(X)
 #define SHOT_NUM "84600"
 
-#define MAPPINGS_DIR "/Users/jhollocombe/Projects/uda/source/plugins/exp2imas/mappings"
+#define MAPPINGS_DIR "/afs/eufus.eu/user/g/g2jhollo/uda/source/plugins/exp2imas/mappings"
 
 TEST_CASE( "Test pf_active coil count", "[IMAS][JET][PF_ACTIVE]" )
 {
