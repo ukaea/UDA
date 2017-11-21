@@ -189,7 +189,7 @@ static int do_maxinterfaceversion(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 // Create the Data Source argument for the UDA API
 // Use Case: When there are no data_source records in the IDAM metadata catalogue, e.g. JET
 
-// SOURCE::get(signal=signal, format=[ppf|jpf|mast|mds] [,source=source] [,shotNumber=shotNumber] [,pass=pass] [,owner=owner] 
+// SOURCE::get(signal=signal, format=[ppf|jpf|mast|mds|local] [,source=source] [,shotNumber=shotNumber] [,pass=pass] [,owner=owner] 
 //             [,datascaling=datascaling] [,timescaling=timescaling]
 //             [,/data] [,/time] [,/NoCacheData] [,/NoCacheTime]
 //             [,host=host] [,port=port])
@@ -390,6 +390,21 @@ static int do_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, int* timeCountCa
         UDA_LOG(UDA_LOG_DEBUG, "SOURCE:signal #MAST = %s\n", next_request_block.signal);
         UDA_LOG(UDA_LOG_DEBUG, "SOURCE:source #MAST = %s\n", next_request_block.source);
 
+    } else if (isFormat && !strcasecmp(format, "LOCAL")) {		// LOCAL source naming pattern
+
+        if (!isShotNumber && !isRunNumber) {                   		// name Value source given priority over second API argument 
+            if(isSource) 
+	       strcpy(next_request_block.source, source); 
+	    else if(request_block->source[0] != '\0') 
+	       strcpy(next_request_block.source, request_block->source);
+        } else {
+            sprintf(next_request_block.source, "%d", shotNumber);
+            if (isRunNumber) sprintf(next_request_block.source, "%s/%d", next_request_block.source, runNumber);
+        }
+
+        UDA_LOG(UDA_LOG_DEBUG, "SOURCE:signal #LOCAL = %s\n", next_request_block.signal);
+        UDA_LOG(UDA_LOG_DEBUG, "SOURCE:source #LOCAL = %s\n", next_request_block.source);
+
     } else if (isFormat && (!strcasecmp(format, "mds") || !strcasecmp(format, "mdsplus") ||
                             !strcasecmp(format, "mds+"))) {         // MDS+ source naming pattern
 
@@ -502,7 +517,7 @@ static int do_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, int* timeCountCa
         } else {
             THROW_ERROR(999, "Source: Data Access is not available for this data request!");
         }
-
+        UDA_LOG(UDA_LOG_DEBUG, "SOURCE:source UDA Plugin executed without error\n");
     }
 
     freeNameValueList(&next_request_block.nameValueList);
@@ -511,12 +526,20 @@ static int do_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, int* timeCountCa
 // IMAS data must be DOUBLE
 // Time Data are only cacheable if the data are rank 1 with time data! 
 
+    if(!isData && !isTime) return 0;
+    
     if (isData) {        // Ignore the coordinate data.
+
+	UDA_LOG(UDA_LOG_DEBUG, "SOURCE:source UDA returned data Order = %d, Rank = %d, Type = %d\n", data_block->order, data_block->rank, data_block->data_type);
 
         if (data_block->order != 0 || data_block->rank != 1 ||
             !(data_block->data_type == UDA_TYPE_FLOAT || data_block->data_type == UDA_TYPE_DOUBLE)) {
+	    
+	    UDA_LOG(UDA_LOG_DEBUG, "SOURCE:source Incorrect order, rank or type for Caching\n");
+	    
             THROW_ERROR(999, "Source: Data Access is not available for this data request!");
-        }        // Data are not Cacheable
+	    
+        } // Data are not Cacheable
 
         if (!isNoCacheTime) {        // Save the Time Coordinate data to local cache  (free currently cached data if different)
 

@@ -20,5 +20,7 @@ int extractSubset(REQUEST_BLOCK *request_block);
 void freeNameValueList(NAMEVALUELIST *nameValueList);
 void parseNameValue(char *pair, NAMEVALUE *nameValue,unsigned short strip);
 int nameValuePairs(char *pairList, NAMEVALUELIST *nameValueList, unsigned short strip);
+int nameValueSubstitution(NAMEVALUELIST* nameValueList, char *tpass);
+
 
 #endif // IDAM_SERVER_MAKESERVERREQUESTBLOCK_H
