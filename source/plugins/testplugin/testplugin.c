@@ -73,6 +73,8 @@ static int do_test33(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
 #ifdef PUTDATAENABLED
 static int do_test40(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
 #endif // PUTDATAENABLED
+static int do_test50(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
+
 static int do_plugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
 static int do_errortest(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
 static int do_scalartest(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
@@ -256,7 +258,9 @@ extern int testplugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 #ifdef TESTUDT
         } else if(STR_IEQUALS(request_block->function, "test40")) {
             err = do_testudt(idam_plugin_interface);
-#endif
+#endif 
+    } else if (STR_IEQUALS(request_block->function, "test50")) {
+        err = do_test50(idam_plugin_interface);
     } else {
         err = 999;
         addIdamError(CODEERRORTYPE, "testplugin", err, "Unknown function requested!");
@@ -326,6 +330,8 @@ static int do_help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             "\ttest30: pair of doubles (Coordinate)\n"
 
             "***test40-test40: put data block receiving tests\n"
+	    
+	    "\ttest50: Passing parameters into plugins via the source argument\n\n"
 
             "plugin: test calling other plugins\n"
 
@@ -3117,6 +3123,56 @@ static int do_test40(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     return 0;
 }
 #endif // PUTDATAENABLED
+
+//======================================================================================
+// Passing parameters into plugins using placeholders and substitution 
+// Shot number passed via request_block->exp_number
+// Placeholder values passed via request_block->tpass
+
+static int do_test50(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
+{
+    int i;
+    
+    //THROW_ERROR(999, "test50 forced error");
+
+    DATA_BLOCK* data_block = idam_plugin_interface->data_block;
+    REQUEST_BLOCK* request_block = idam_plugin_interface->request_block;
+    
+// Name substitution and additional name-value pairs
+
+    int err = nameValueSubstitution(&(request_block->nameValueList), request_block->tpass);
+    if(err != 0) return err;
+    
+// Return an array of strings with all passed parameters and substitutions
+
+    int count = 10*1024;
+    char *work = (char *)malloc(count*sizeof(char));
+    work[0] = '\0';
+
+    strcpy(work, "test50 passed parameters and substitutions\n");
+    sprintf(&work[strlen(work)], "Shot number:%d\n", request_block->exp_number);
+    sprintf(&work[strlen(work)], "substitution parameters:%s\n", request_block->tpass);	       
+    sprintf(&work[strlen(work)], "Number of name-value pairs: %d\n", request_block->nameValueList.pairCount);
+    for (i = 0; i < request_block->nameValueList.pairCount; i++)
+       sprintf(&work[strlen(work)], "name: %s, value: %s\n", request_block->nameValueList.nameValue[i].name,
+               request_block->nameValueList.nameValue[i].value);
+	       
+    UDA_LOG(UDA_LOG_DEBUG, "test50: %s\n", work);
+	       
+    initDataBlock(data_block);
+
+    data_block->rank = 0;
+    data_block->data_n = count;
+    data_block->data_type = UDA_TYPE_STRING;
+    strcpy(data_block->data_desc, "testplugins:test50 = passing placeholders and substitution values to plugins");
+
+    data_block->data = (char *)work;
+
+    strcpy(data_block->data_label, "");
+    strcpy(data_block->data_units, "");
+
+    return 0;
+}
 
 //======================================================================================
 // Test direct calling of plugins from this plugin

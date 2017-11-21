@@ -217,6 +217,10 @@ int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList)
 
             strcpy(request_block->device_name, environment->api_device);            // Default Device Name
 
+// Regular request: pulse or pulse/pass ==> Generic request
+
+            if (genericRequestTest(work, request_block, pluginList)) break;
+
 // Not a Server Side Function? 		Note: /a/b/fun(aaa) is a (bad!)file path and fun(a/b/c) is a function
 
             p0 = strchr(work, '/');        // Path separator mixed with parenthesis?
@@ -233,10 +237,6 @@ int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList)
                                  "Source syntax: path with parenthesis () is incorrect!");
                     return err;
                 }
-
-// Regular request: pulse or pulse/pass ==> Generic request
-
-                if (genericRequestTest(work, request_block, pluginList)) break;
 
 // Request must be a private file format. It cannot be a local/remote server protocol.
 

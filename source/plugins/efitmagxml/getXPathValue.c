@@ -12,9 +12,9 @@
 
 char* getXPathValue(const char* xmlfile, const char* path, unsigned short cleanup, int* err)
 {
-    static xmlDocPtr doc;
-    static xmlXPathContextPtr xpathCtx;
-    xmlXPathObjectPtr xpathObj;
+    static xmlDocPtr doc = NULL;
+    static xmlXPathContextPtr xpathCtx = NULL;
+    xmlXPathObjectPtr xpathObj = NULL;
 
     if (!cleanup) assert(path);
 
@@ -22,17 +22,36 @@ char* getXPathValue(const char* xmlfile, const char* path, unsigned short cleanu
 
     *err = 0;
 
+    // Cleanup
+    if (cleanup) {
+        if(xpathCtx != NULL) xmlXPathFreeContext(xpathCtx);
+        if(doc != NULL) xmlFreeDoc(doc);
+        init = 0;
+	xpathCtx = NULL;
+	doc = NULL;
+	return NULL;
+    } 	 
+
     if (!init) {
         /*
          * Load XML document
          */
+	 
+	if (xmlfile == NULL || xmlfile[0] == '\0') {
+            *err = 999;
+	    addIdamError(CODEERRORTYPE, __func__, *err, "No XML Document path provided!");
+            return NULL;
+        }
+
+	 
+	UDA_LOG(UDA_LOG_DEBUG, "Parsing XML File: %s\n", xmlfile);
 
         assert(xmlfile);
 
         doc = xmlParseFile(xmlfile);
         if (doc == NULL) {
             *err = 999;
-            UDA_LOG(UDA_LOG_DEBUG, "unable to parse the Machine Description XML file\n");
+	    addIdamError(CODEERRORTYPE, __func__, *err, "Unable to parse the Machine Description XML file!");
             return NULL;
         }
 
@@ -42,8 +61,8 @@ char* getXPathValue(const char* xmlfile, const char* path, unsigned short cleanu
         xpathCtx = xmlXPathNewContext(doc);
         if (xpathCtx == NULL) {
             *err = 999;
-            UDA_LOG(UDA_LOG_DEBUG, "unable to create new XPath context\n");
             xmlFreeDoc(doc);
+	    addIdamError(CODEERRORTYPE, __func__, *err, "Unable to create new XPath context!");
             return NULL;
         }
 
@@ -57,7 +76,7 @@ char* getXPathValue(const char* xmlfile, const char* path, unsigned short cleanu
     // Creating the Xpath request
     UDA_LOG(UDA_LOG_DEBUG, "Creating the Xpath request: %s\n", path);
 
-    xmlChar* xPathExpr = xmlCharStrdup(path);        // /Top/pfCoils/pfCoil[@id='9']/@name
+    xmlChar* xPathExpr = xmlCharStrdup(path);
 
     /*
      * Evaluate xpath expression for the type
@@ -69,7 +88,8 @@ char* getXPathValue(const char* xmlfile, const char* path, unsigned short cleanu
     if (xpathObj == NULL) {
         *err = 999;
         UDA_LOG(UDA_LOG_DEBUG, "unable to evaluate xpath expression\n");
-        return NULL;
+        addIdamError(CODEERRORTYPE, __func__, *err, "Unable to evaluate xpath expression!");
+	return NULL;
     }
 
     xmlNodeSetPtr nodes = xpathObj->nodesetval;
@@ -79,26 +99,20 @@ char* getXPathValue(const char* xmlfile, const char* path, unsigned short cleanu
     xmlNodePtr cur;
 
     if (size != 0) {
-        UDA_LOG(UDA_LOG_DEBUG, "size different of 0\n");
         cur = nodes->nodeTab[0];
         cur = cur->children;
         value = strdup((char*)cur->content);
     } else {
         *err = 998;
         UDA_LOG(UDA_LOG_DEBUG, "size equals 0\n");
-        return NULL;
+        addIdamError(CODEERRORTYPE, __func__, *err, "xmlNodeSetPtr size equals 0!");
+	return NULL;
     }
 
     /*
      * Cleanup
      */
     xmlXPathFreeObject(xpathObj);
-
-    if (cleanup) {
-        xmlXPathFreeContext(xpathCtx);
-        xmlFreeDoc(doc);
-        init = 0;
-    }
 
     return value;        // Consumer frees this heap
 }
@@ -114,6 +128,12 @@ float* xPathFloatArray(const char* value, int* n)
     if (!value || value[0] == '\0') return NULL;
 
     char* work = strdup(value);
+
+    // clean value string
+    if(work[0] == '[' || work[0] == '{' || work[0] == '(') work[0] = ' ';
+    int lstr = strlen(work) - 1;
+    if(lstr >= 0 && (work[lstr] == ']' || work[lstr] == '}' || work[lstr] == ')')) work[lstr] = ' ';
+    TrimString(work);
 
     item = strtok((char*)work, delim);
     if (item != NULL) {
@@ -144,6 +164,12 @@ double* xPathDoubleArray(const char* value, int* n)
     if (!value || value[0] == '\0') return NULL;
 
     char* work = strdup(value);
+    
+    // clean value string
+    if(work[0] == '[' || work[0] == '{' || work[0] == '(') work[0] = ' ';
+    int lstr = strlen(work) - 1;
+    if(lstr >= 0 && (work[lstr] == ']' || work[lstr] == '}' || work[lstr] == ')')) work[lstr] = ' ';
+    TrimString(work);
 
     item = strtok((char*)work, delim);
     if (item != NULL) {
@@ -174,6 +200,12 @@ int* xPathIntArray(const char* value, int* n)
     if (!value || value[0] == '\0') return NULL;
 
     char* work = strdup(value);
+
+    // clean value string
+    if(work[0] == '[' || work[0] == '{' || work[0] == '(') work[0] = ' ';
+    int lstr = strlen(work) - 1;
+    if(lstr >= 0 && (work[lstr] == ']' || work[lstr] == '}' || work[lstr] == ')')) work[lstr] = ' ';
+    TrimString(work);
 
     item = strtok((char*)work, delim);
     if (item != NULL) {
