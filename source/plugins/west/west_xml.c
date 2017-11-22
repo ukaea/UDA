@@ -14,11 +14,13 @@
 
 #include "ts_rqparam.h"
 #include "west_utilities.h"
+#include "west_static_data_utilities.h"
 
 #include "west_ece.h"
 #include "west_pf_passive.h"
 #include "west_pf_active.h"
 #include "west_soft_x_rays.h"
+#include "west_summary.h"
 
 char* setBuffer(int data_type, char* value);
 void getShapeOf(const char* command, int shotNumber, int* nb_val);
@@ -35,7 +37,7 @@ void execute_setvalue_collect(const char* TOP_collections_parameters, char* attr
 void execute_setchannels_validity(int* unvalid_channels_list, int unvalid_channels_size, char* attributes,
 		int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
 void setStatic1DValue(int data_type, DATA_BLOCK* data_block, char* value, int val_nb, float normalizationFactor);
-void setStaticValue(int data_type, DATA_BLOCK* data_block, char* value, int requestedIndex, float normalizationFactor);
+//void setStaticValue(int data_type, DATA_BLOCK* data_block, char* value, int requestedIndex, float normalizationFactor);
 
 int GetStaticData(int shotNumber, const char* mapfun, DATA_BLOCK* data_block, int* nodeIndices)
 {
@@ -182,6 +184,18 @@ int execute(const char* mapfun, int shotNumber, DATA_BLOCK* data_block, int* nod
 	}
 	else if (strcmp(fun_name, "soft_x_rays_channels_energy_band_upper_bound") == 0) {
 		fun = 210;
+	}
+	else if (strcmp(fun_name, "summary_flt1D") == 0) {
+		fun = 300;
+	}
+	else if (strcmp(fun_name, "summary_contrib_flt1D") == 0) {
+		fun = 301;
+	}
+	else if (strcmp(fun_name, "summary_global_quantities_tau_resistive_value") == 0) {
+		fun = 302;
+	}
+	else if (strcmp(fun_name, "summary_global_quantities_v_loop_value") == 0) {
+		fun = 303;
 	}
 
 	IDAM_LOGF(UDA_LOG_DEBUG, "Case: %d", fun);
@@ -488,6 +502,32 @@ int execute(const char* mapfun, int shotNumber, DATA_BLOCK* data_block, int* nod
 		soft_x_rays_channels_energy_band_upper_bound(shotNumber, data_block, nodeIndices);
 		break;
 	}
+	/*case 300: {
+		IDAM_LOG(UDA_LOG_DEBUG, "Case of summary_flt1D from WEST plugin\n");
+		summary_flt1D(mapfun, shotNumber, data_block, nodeIndices);
+		break;
+	}
+	case 301: {
+		IDAM_LOG(UDA_LOG_DEBUG, "Case of summary_contrib_flt1D from WEST plugin\n");
+		summary_contrib_flt1D(mapfun, shotNumber, data_block, nodeIndices);
+		break;
+	}
+	case 302: {
+		IDAM_LOG(UDA_LOG_DEBUG, "Case of summary_global_quantities_tau_resistive_value from WEST plugin\n");
+		summary_global_quantities_tau_resistive_value(shotNumber, data_block, nodeIndices);
+		break;
+	}
+	case 303: {
+		IDAM_LOG(UDA_LOG_DEBUG, "Case of summary_global_quantities_v_loop_value from WEST plugin\n");
+		summary_global_quantities_v_loop_value(shotNumber, data_block, nodeIndices);
+		break;
+	}*/
+	case 304: {
+		IDAM_LOG(UDA_LOG_DEBUG, "Case of summary_global_quantities_r0_value from WEST plugin\n");
+		summary_global_quantities_r0_value(shotNumber, data_block, nodeIndices);
+		break;
+	}
+
 
 	}
 
@@ -854,52 +894,6 @@ void setStatic1DValue(int data_type, DATA_BLOCK* data_block, char* value, int va
 		int err = 901;
 		IDAM_LOG(UDA_LOG_DEBUG, "Unsupported data type from setStatic1DValue()\n");
 		addIdamError(CODEERRORTYPE, __func__, err, "WEST:ERROR: unsupported data type");
-	}
-}
-
-//Cast the results returned by tsmat according to the type of the data and set IDAM data
-void setStaticValue(int data_type, DATA_BLOCK* data_block, char* value, int requestedIndex, float normalizationFactor)
-{
-	IDAM_LOG(UDA_LOG_DEBUG, "Entering setStaticValue()\n");
-	IDAM_LOGF(UDA_LOG_DEBUG, "requested index: %d", requestedIndex);
-	if (data_type == UDA_TYPE_DOUBLE) {
-		IDAM_LOG(UDA_LOG_DEBUG, "handling double in setStaticValue()\n");
-		double* pt_double = (double*)value;
-		setReturnDataDoubleScalar(data_block, pt_double[requestedIndex] * (double)normalizationFactor, NULL);
-
-	} else if (data_type == UDA_TYPE_FLOAT) {
-		IDAM_LOGF(UDA_LOG_DEBUG, "handling float in setStaticValue(): %d, %g\n", requestedIndex, normalizationFactor);
-		float* pt_float = (float*)value;
-		IDAM_LOGF(UDA_LOG_DEBUG, "in setStaticValue(), requestedIndex:  %d\n", requestedIndex);
-		IDAM_LOGF(UDA_LOG_DEBUG, "in setStaticValue(), normalizationFactor:  %f\n", normalizationFactor);
-		IDAM_LOGF(UDA_LOG_DEBUG, "in setStaticValue(), pt_float[requestedIndex]:  %f\n", pt_float[requestedIndex]);
-		IDAM_LOGF(UDA_LOG_DEBUG, "Floating value set to  %f\n", pt_float[requestedIndex] * normalizationFactor);
-		setReturnDataFloatScalar(data_block, pt_float[requestedIndex] * normalizationFactor, NULL);
-
-	} else if (data_type == UDA_TYPE_LONG) {
-		IDAM_LOG(UDA_LOG_DEBUG, "handling long in setStaticValue()\n");
-		long* pt_long = (long*)value;
-		setReturnDataLongScalar(data_block, pt_long[requestedIndex] * (long)normalizationFactor, NULL);
-
-	} else if (data_type == UDA_TYPE_INT) {
-		IDAM_LOG(UDA_LOG_DEBUG, "handling int in setStaticValue()\n");
-		int* pt_int = (int*)value;
-		IDAM_LOGF(UDA_LOG_DEBUG, "handling in setStaticValue(): %d\n", *pt_int);
-		setReturnDataIntScalar(data_block, pt_int[requestedIndex] * (int)normalizationFactor, NULL);
-
-	} else if (data_type == UDA_TYPE_SHORT) {
-		IDAM_LOG(UDA_LOG_DEBUG, "handling short in setStaticValue()\n");
-		int* pt_short = (int*)value;
-		setReturnDataShortScalar(data_block, pt_short[requestedIndex] * (short)normalizationFactor, NULL);
-
-	} else if (data_type == UDA_TYPE_STRING) {
-		IDAM_LOG(UDA_LOG_DEBUG, "handling string in setStaticValue()\n");
-		setReturnDataString(data_block, strdup(value), NULL);
-
-	} else {
-		int err = 901;
-		IDAM_LOG(UDA_LOG_DEBUG, "Unsupported data type from setStaticValue()\n");
-		addIdamError(CODEERRORTYPE, "WEST:ERROR: unsupported data type", err, "");
 	}
 }
 

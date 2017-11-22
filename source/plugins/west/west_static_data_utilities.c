@@ -11,6 +11,65 @@
 #include <clientserver/udaTypes.h>
 
 #include "west_utilities.h"
+#include "ts_rqparam.h"
+
+
+int setUDABlockFromArcadeScalarField(int data_type, char* prod_name, char* object_name, char* param_name, int index,
+		int shotNumber, DATA_BLOCK* data_block, int* nodeIndices, float normalizationFactor)
+{
+	int nb_val;
+	char* value = NULL;
+	int val_nb = 1;
+	int status = readStaticParameters(&value, &nb_val, shotNumber, prod_name, object_name, param_name, val_nb);
+	setStaticValue(data_type, data_block, value, index, normalizationFactor);
+	return status;
+}
+
+//Cast the results returned by tsmat according to the type of the data and set IDAM data
+void setStaticValue(int data_type, DATA_BLOCK* data_block, char* value, int requestedIndex, float normalizationFactor)
+{
+	IDAM_LOG(UDA_LOG_DEBUG, "Entering setStaticValue()\n");
+	IDAM_LOGF(UDA_LOG_DEBUG, "requested index: %d", requestedIndex);
+	if (data_type == UDA_TYPE_DOUBLE) {
+		IDAM_LOG(UDA_LOG_DEBUG, "handling double in setStaticValue()\n");
+		double* pt_double = (double*)value;
+		setReturnDataDoubleScalar(data_block, pt_double[requestedIndex] * (double)normalizationFactor, NULL);
+
+	} else if (data_type == UDA_TYPE_FLOAT) {
+		IDAM_LOGF(UDA_LOG_DEBUG, "handling float in setStaticValue(): %d, %g\n", requestedIndex, normalizationFactor);
+		float* pt_float = (float*)value;
+		IDAM_LOGF(UDA_LOG_DEBUG, "in setStaticValue(), requestedIndex:  %d\n", requestedIndex);
+		IDAM_LOGF(UDA_LOG_DEBUG, "in setStaticValue(), normalizationFactor:  %f\n", normalizationFactor);
+		IDAM_LOGF(UDA_LOG_DEBUG, "in setStaticValue(), pt_float[requestedIndex]:  %f\n", pt_float[requestedIndex]);
+		IDAM_LOGF(UDA_LOG_DEBUG, "Floating value set to  %f\n", pt_float[requestedIndex] * normalizationFactor);
+		setReturnDataFloatScalar(data_block, pt_float[requestedIndex] * normalizationFactor, NULL);
+
+	} else if (data_type == UDA_TYPE_LONG) {
+		IDAM_LOG(UDA_LOG_DEBUG, "handling long in setStaticValue()\n");
+		long* pt_long = (long*)value;
+		setReturnDataLongScalar(data_block, pt_long[requestedIndex] * (long)normalizationFactor, NULL);
+
+	} else if (data_type == UDA_TYPE_INT) {
+		IDAM_LOG(UDA_LOG_DEBUG, "handling int in setStaticValue()\n");
+		int* pt_int = (int*)value;
+		IDAM_LOGF(UDA_LOG_DEBUG, "handling in setStaticValue(): %d\n", *pt_int);
+		setReturnDataIntScalar(data_block, pt_int[requestedIndex] * (int)normalizationFactor, NULL);
+
+	} else if (data_type == UDA_TYPE_SHORT) {
+		IDAM_LOG(UDA_LOG_DEBUG, "handling short in setStaticValue()\n");
+		int* pt_short = (int*)value;
+		setReturnDataShortScalar(data_block, pt_short[requestedIndex] * (short)normalizationFactor, NULL);
+
+	} else if (data_type == UDA_TYPE_STRING) {
+		IDAM_LOG(UDA_LOG_DEBUG, "handling string in setStaticValue()\n");
+		setReturnDataString(data_block, strdup(value), NULL);
+
+	} else {
+		int err = 901;
+		IDAM_LOG(UDA_LOG_DEBUG, "Unsupported data type from setStaticValue()\n");
+		addIdamError(CODEERRORTYPE, "WEST:ERROR: unsupported data type", err, "");
+	}
+}
 
 void SetStatic1DData(DATA_BLOCK* data_block, int len, float* data)
 {

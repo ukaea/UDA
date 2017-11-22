@@ -17,89 +17,102 @@
 #include "west_pf_passive.h"
 #include "west_pf_active.h"
 #include "west_soft_x_rays.h"
+#include "west_summary.h"
 
 int GetDynamicData(int shotNumber, const char* mapfun, DATA_BLOCK* data_block, int* nodeIndices)
 {
 
-    IDAM_LOG(UDA_LOG_DEBUG, "Entering GetDynamicData() -- WEST plugin\n");
+	IDAM_LOG(UDA_LOG_DEBUG, "Entering GetDynamicData() -- WEST plugin\n");
 
-    assert(mapfun); //Mandatory function to get WEST data
+	assert(mapfun); //Mandatory function to get WEST data
 
-    char* fun_name = NULL; //Shape_of, tsmat_collect, tsbase
-    char* TOP_collections_parameters = NULL; //example : TOP_collections_parameters = DMAG:GMAG_BNORM:PosR, DMAG:GMAG_BTANG:PosR, ...
-    char* attributes = NULL; //example: attributes = 1:float:#1 (rank = 1, type = float, #1 = second IDAM index)
-    char* normalizationAttributes = NULL; //example : multiply:cste:3     (multiply value by constant factor equals to 3)
+	char* fun_name = NULL; //Shape_of, tsmat_collect, tsbase
+	char* TOP_collections_parameters = NULL; //example : TOP_collections_parameters = DMAG:GMAG_BNORM:PosR, DMAG:GMAG_BTANG:PosR, ...
+	char* attributes = NULL; //example: attributes = 1:float:#1 (rank = 1, type = float, #1 = second IDAM index)
+	char* normalizationAttributes = NULL; //example : multiply:cste:3     (multiply value by constant factor equals to 3)
 
-    getFunName(mapfun, &fun_name);
+	getFunName(mapfun, &fun_name);
 
-    IDAM_LOGF(UDA_LOG_DEBUG, "UDA request: %s for shot: %d\n", fun_name, shotNumber);
+	IDAM_LOGF(UDA_LOG_DEBUG, "UDA request: %s for shot: %d\n", fun_name, shotNumber);
 
-    if (strcmp(fun_name, "tsbase_collect") == 0) {
-        tokenizeFunParameters(mapfun, &TOP_collections_parameters, &attributes, &normalizationAttributes);
-        SetNormalizedDynamicData(shotNumber, data_block, nodeIndices, TOP_collections_parameters, attributes,
-                                 normalizationAttributes);
-    } else if (strcmp(fun_name, "tsbase_time") == 0) {
-        tokenizeFunParameters(mapfun, &TOP_collections_parameters, &attributes, &normalizationAttributes);
-        SetNormalizedDynamicDataTime(shotNumber, data_block, nodeIndices, TOP_collections_parameters, attributes,
-                                     normalizationAttributes);
-    } else if (strcmp(fun_name, "tsbase_collect_with_channels") == 0) {
-        char* unvalid_channels = NULL; //used for interfero_polarimeter IDS, example : invalid_channels:1,2
-        tokenizeFunParametersWithChannels(mapfun, &unvalid_channels, &TOP_collections_parameters, &attributes,
-                                          &normalizationAttributes);
-        SetNormalizedDynamicData(shotNumber, data_block, nodeIndices, TOP_collections_parameters, attributes,
-                                 normalizationAttributes);
-    } else if (strcmp(fun_name, "tsbase_time_with_channels") == 0) {
-        char* unvalid_channels = NULL; //used for interfero_polarimeter IDS, example : invalid_channels:1,2
-        tokenizeFunParametersWithChannels(mapfun, &unvalid_channels, &TOP_collections_parameters, &attributes,
-                                          &normalizationAttributes);
-        SetNormalizedDynamicDataTime(shotNumber, data_block, nodeIndices, TOP_collections_parameters, attributes,
-                                     normalizationAttributes);
-    } else if (strcmp(fun_name, "ece_t_e_data") == 0) {
-        char* ece_mapfun = NULL;
-        ece_t_e_data(shotNumber, &ece_mapfun);
-        tokenizeFunParameters(ece_mapfun, &TOP_collections_parameters, &attributes, &normalizationAttributes);
-        IDAM_LOGF(UDA_LOG_DEBUG, "TOP_collections_parameters : %s\n", TOP_collections_parameters);
-        SetNormalizedDynamicData(shotNumber, data_block, nodeIndices, TOP_collections_parameters, attributes,
-                                 normalizationAttributes);
-        free(ece_mapfun);
-    } else if (strcmp(fun_name, "ece_t_e_time") == 0) {
-        char* ece_mapfun = NULL;
-        ece_t_e_time(shotNumber, &ece_mapfun);
-        tokenizeFunParameters(ece_mapfun, &TOP_collections_parameters, &attributes, &normalizationAttributes);
-        IDAM_LOGF(UDA_LOG_DEBUG, "TOP_collections_parameters : %s\n", TOP_collections_parameters);
-        SetNormalizedDynamicDataTime(shotNumber, data_block, nodeIndices, TOP_collections_parameters, attributes,
-                                     normalizationAttributes);
-        free(ece_mapfun);
-    } else if (strcmp(fun_name, "ece_harmonic_data") == 0) {
-        ece_harmonic_data(shotNumber, data_block, nodeIndices);
-    } else if (strcmp(fun_name, "ece_harmonic_time") == 0) {
-        ece_harmonic_time(shotNumber, data_block, nodeIndices);
-    } else if (strcmp(fun_name, "ece_frequencies") == 0) {
-        ece_frequencies(shotNumber, data_block, nodeIndices);
-    } else if (strcmp(fun_name, "ece_frequencies_time") == 0) {
-        ece_harmonic_time(shotNumber, data_block, nodeIndices); //TODO
-    } else if (strcmp(fun_name, "pf_passive_current_data") == 0) {
-    	pf_passive_current_data(shotNumber, data_block, nodeIndices);
-    } else if (strcmp(fun_name, "pf_passive_current_time") == 0) {
-    	pf_passive_current_time(shotNumber, data_block, nodeIndices);
-    } else if (strcmp(fun_name, "pf_active_current_data") == 0) {
-    	pf_active_current_data(shotNumber, data_block, nodeIndices);
-    } else if (strcmp(fun_name, "pf_active_current_time") == 0) {
-    	pf_active_current_time(shotNumber, data_block, nodeIndices);
-    } else if (strcmp(fun_name, "soft_x_rays_channels_power_density_data") == 0) {
-    	soft_x_rays_channels_power_density_data(shotNumber, data_block, nodeIndices); //TODO
-    } else if (strcmp(fun_name, "soft_x_rays_channels_power_density_time") == 0) {
-    	soft_x_rays_channels_power_density_time(shotNumber, data_block, nodeIndices); //TODO
-    } else if (strcmp(fun_name, "test_fun") == 0) {
-        test_fun(shotNumber, data_block, nodeIndices); //TODO
-    }
+	if (strcmp(fun_name, "tsbase_collect") == 0) {
+		tokenizeFunParameters(mapfun, &TOP_collections_parameters, &attributes, &normalizationAttributes);
+		SetNormalizedDynamicData(shotNumber, data_block, nodeIndices, TOP_collections_parameters, attributes,
+				normalizationAttributes);
+	} else if (strcmp(fun_name, "tsbase_time") == 0) {
+		tokenizeFunParameters(mapfun, &TOP_collections_parameters, &attributes, &normalizationAttributes);
+		SetNormalizedDynamicDataTime(shotNumber, data_block, nodeIndices, TOP_collections_parameters, attributes,
+				normalizationAttributes);
+	} else if (strcmp(fun_name, "tsbase_collect_with_channels") == 0) {
+		char* unvalid_channels = NULL; //used for interfero_polarimeter IDS, example : invalid_channels:1,2
+		tokenizeFunParametersWithChannels(mapfun, &unvalid_channels, &TOP_collections_parameters, &attributes,
+				&normalizationAttributes);
+		SetNormalizedDynamicData(shotNumber, data_block, nodeIndices, TOP_collections_parameters, attributes,
+				normalizationAttributes);
+	} else if (strcmp(fun_name, "tsbase_time_with_channels") == 0) {
+		char* unvalid_channels = NULL; //used for interfero_polarimeter IDS, example : invalid_channels:1,2
+		tokenizeFunParametersWithChannels(mapfun, &unvalid_channels, &TOP_collections_parameters, &attributes,
+				&normalizationAttributes);
+		SetNormalizedDynamicDataTime(shotNumber, data_block, nodeIndices, TOP_collections_parameters, attributes,
+				normalizationAttributes);
+	} else if (strcmp(fun_name, "ece_t_e_data") == 0) {
+		char* ece_mapfun = NULL;
+		ece_t_e_data(shotNumber, &ece_mapfun);
+		tokenizeFunParameters(ece_mapfun, &TOP_collections_parameters, &attributes, &normalizationAttributes);
+		IDAM_LOGF(UDA_LOG_DEBUG, "TOP_collections_parameters : %s\n", TOP_collections_parameters);
+		SetNormalizedDynamicData(shotNumber, data_block, nodeIndices, TOP_collections_parameters, attributes,
+				normalizationAttributes);
+		free(ece_mapfun);
+	} else if (strcmp(fun_name, "ece_t_e_time") == 0) {
+		char* ece_mapfun = NULL;
+		ece_t_e_time(shotNumber, &ece_mapfun);
+		tokenizeFunParameters(ece_mapfun, &TOP_collections_parameters, &attributes, &normalizationAttributes);
+		IDAM_LOGF(UDA_LOG_DEBUG, "TOP_collections_parameters : %s\n", TOP_collections_parameters);
+		SetNormalizedDynamicDataTime(shotNumber, data_block, nodeIndices, TOP_collections_parameters, attributes,
+				normalizationAttributes);
+		free(ece_mapfun);
+	} else if (strcmp(fun_name, "ece_harmonic_data") == 0) {
+		ece_harmonic_data(shotNumber, data_block, nodeIndices);
+	} else if (strcmp(fun_name, "ece_harmonic_time") == 0) {
+		ece_harmonic_time(shotNumber, data_block, nodeIndices);
+	} else if (strcmp(fun_name, "ece_frequencies") == 0) {
+		ece_frequencies(shotNumber, data_block, nodeIndices);
+	} else if (strcmp(fun_name, "ece_frequencies_time") == 0) {
+		ece_harmonic_time(shotNumber, data_block, nodeIndices); //TODO
+	} else if (strcmp(fun_name, "pf_passive_current_data") == 0) {
+		pf_passive_current_data(shotNumber, data_block, nodeIndices);
+	} else if (strcmp(fun_name, "pf_passive_current_time") == 0) {
+		pf_passive_current_time(shotNumber, data_block, nodeIndices);
+	} else if (strcmp(fun_name, "pf_active_current_data") == 0) {
+		pf_active_current_data(shotNumber, data_block, nodeIndices);
+	} else if (strcmp(fun_name, "pf_active_current_time") == 0) {
+		pf_active_current_time(shotNumber, data_block, nodeIndices);
+	} else if (strcmp(fun_name, "soft_x_rays_channels_power_density_data") == 0) {
+		soft_x_rays_channels_power_density_data(shotNumber, data_block, nodeIndices); //TODO
+	} else if (strcmp(fun_name, "soft_x_rays_channels_power_density_time") == 0) {
+		soft_x_rays_channels_power_density_time(shotNumber, data_block, nodeIndices); //TODO
+	} else if (strcmp(fun_name, "summary_flt1D") == 0) {
+		summary_flt1D(mapfun, shotNumber, data_block, nodeIndices); //TODO
+	} else if (strcmp(fun_name, "summary_contrib_flt1D") == 0) {
+		summary_contrib_flt1D(mapfun, shotNumber, data_block, nodeIndices); //TODO
+	} else if (strcmp(fun_name, "summary_global_quantities_tau_resistance_value") == 0) {
+		summary_global_quantities_tau_resistance_value(shotNumber, data_block, nodeIndices); //TODO
+	} else if (strcmp(fun_name, "summary_global_quantities_v_loop_value") == 0) {
+		summary_global_quantities_v_loop_value(shotNumber, data_block, nodeIndices); //TODO
+	} else if (strcmp(fun_name, "summary_global_quantities_b0_value") == 0) {
+		summary_global_quantities_b0_value(shotNumber, data_block, nodeIndices); //TODO
+	} else if (strcmp(fun_name, "summary_global_quantities_beta_tor_value") == 0) {
+		summary_global_quantities_b0_value(shotNumber, data_block, nodeIndices); //TODO
+	} else if (strcmp(fun_name, "test_fun") == 0) {
+		test_fun(shotNumber, data_block, nodeIndices); //TODO
+	}
 
-    free(fun_name);
-    free(TOP_collections_parameters);
-    free(attributes);
-    free(normalizationAttributes);
+	free(fun_name);
+	free(TOP_collections_parameters);
+	free(attributes);
+	free(normalizationAttributes);
 
-    return 0;
+	return 0;
 
 }
 

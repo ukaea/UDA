@@ -4,6 +4,8 @@
 #include <libxml/xpath.h>
 #include <clientserver/udaStructs.h>
 
+void tokenize1DArcadeParameters(const char* s, char** diagnostic, char** object_name, int* extractionIndex);
+void tokenize1DArcadeParameters2(const char* s, char** diagnostic, char** object_name, int* extractionIndex, char** diagnostic2, char** object_name2, int* extractionIndex2);
 void RemoveSpaces(char* source);
 void getValueCollect(char* command, char** value, int* nodeIndices);
 void multiplyFloat(float* p, float factor, int val_nb);

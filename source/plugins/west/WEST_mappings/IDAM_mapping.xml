@@ -121,4 +121,23 @@
 <mapping key="soft_x_rays/channel/#/power_density/data" value="soft_x_rays_channels_power_density_data" type="dynamic"/>
 <mapping key="soft_x_rays/channel/#/power_density/time" value="soft_x_rays_channels_power_density_time" type="dynamic"/>
 
+
+<mapping key="summary/global_quantities/ip/value" value="summary_contrib_flt1D:DMAG:GMAG_IFREEB:1:DMAG:SMAG_IP:1" type="dynamic"/>
+<mapping key="summary/global_quantities/ohm/value" value="summary_flt1D:DMAG:GMAG_BILAN:1" type="dynamic"/>
+<mapping key="summary/global_quantities/v_loop/value" value="summary_global_quantities_v_loop_value" type="dynamic"/>
+<mapping key="summary/global_quantities/li/value" value="summary_flt1D:DMAG:GMAG_BELI:2" type="dynamic"/>
+<mapping key="summary/global_quantities/beta_pol/value" value="summary_flt1D:DMAG:GMAG_BELI:1" type="dynamic"/>
+<mapping key="summary/global_quantities/beta_tor/value" value="summary_global_quantities_beta_tor_value" type="dynamic"/>
+<mapping key="summary/global_quantities/energy_diamagnetic/value" value="summary_flt1D:DMAG:GMAG_BILAN:7" type="dynamic"/>
+<mapping key="summary/global_quantities/energy_total/value" value="summary_flt1D:DMAG:GMAG_BILAN:10" type="dynamic"/>
+<mapping key="summary/global_quantities/energy_b_field_pol/value" value="summary_flt1D:DMAG:GMAG_BILAN:9" type="dynamic"/>
+<mapping key="summary/global_quantities/volume/value" value="summary_flt1D:DMAG:GMAG_GEOM:13" type="dynamic"/>
+<mapping key="summary/global_quantities/r0/value" value="summary_global_quantities_r0_value" type="static"/>
+<mapping key="summary/global_quantities/b0/value" value="summary_global_quantities_b0_value" type="dynamic"/>
+<mapping key="summary/global_quantities/tau_energy/value" value="summary_flt1D:DMAG:GMAG_BILAN:8" type="dynamic"/>
+<mapping key="summary/global_quantities/tau_resistance/value" value="summary_global_quantities_tau_resistance_value" type="dynamic"/>
+<mapping key="summary/local/magnetic_axis/position/r/value" value="summary_contrib_flt1D:DMAG:GMAG_BARYFB:1:DMAG:GMAG_BARY:1" type="dynamic"/>
+<mapping key="summary/local/magnetic_axis/position/z/value" value="summary_contrib_flt1D:DMAG:GMAG_BARYFB:2:DMAG:GMAG_BARY:2" type="dynamic"/>
+
+
 </mappings>

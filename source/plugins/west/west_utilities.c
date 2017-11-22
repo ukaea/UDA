@@ -19,6 +19,42 @@ void getFunName(const char* s, char** fun_name)
     free(s_copy);
 }
 
+void tokenize1DArcadeParameters(const char* s, char** diagnostic, char** object_name, int* extractionIndex)
+{
+    const char delim[] = ";";
+    char* s_copy = strdup(s);
+    strdup(strtok(s_copy, delim)); //function name
+    *diagnostic = strdup(strtok(NULL, delim));
+    RemoveSpaces(*diagnostic);
+    *object_name = strdup(strtok(NULL, delim));
+    RemoveSpaces(*object_name);
+    char* token = strtok(NULL, delim);
+    *extractionIndex = atoi(token);
+    free(s_copy);
+}
+
+void tokenize1DArcadeParameters2(const char* s, char** diagnostic, char** object_name, int* extractionIndex, char** diagnostic2, char** object_name2, int* extractionIndex2)
+{
+    const char delim[] = ";";
+    char* s_copy = strdup(s);
+    strdup(strtok(s_copy, delim)); //function name
+    *diagnostic = strdup(strtok(NULL, delim));
+    RemoveSpaces(*diagnostic);
+    *object_name = strdup(strtok(NULL, delim));
+    RemoveSpaces(*object_name);
+    char* token = strtok(NULL, delim);
+    *extractionIndex = atoi(token);
+
+    *diagnostic2 = strdup(strtok(NULL, delim));
+    RemoveSpaces(*diagnostic2);
+    *object_name2 = strdup(strtok(NULL, delim));
+    RemoveSpaces(*object_name2);
+    token = strtok(NULL, delim);
+    *extractionIndex2 = atoi(token);
+
+    free(s_copy);
+}
+
 void tokenizeFunParameters(const char* s, char** TOP_collections_parameters, char** attributes,
                            char** normalizationAttributes)
 {
