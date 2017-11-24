@@ -9,6 +9,8 @@
 #include <clientserver/errorLog.h>
 #include <clientserver/stringUtils.h>
 #include <clientserver/udaTypes.h>
+#include <plugins/udaPlugin.h>
+#include <structures/struct.h>
 
 #include "west_utilities.h"
 #include "ts_rqparam.h"
