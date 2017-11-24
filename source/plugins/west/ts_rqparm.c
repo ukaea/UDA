@@ -196,10 +196,10 @@ lit_traite(char* nomsigp, int numchoc, int occ,
     /* int	rang[2], maxreel, cooked_d = 0, fcomment = 0;*/
     int cooked_d = 0, fcomment = 0;
 
-    int indices[2], rscalaire = 0, rscaltime = 0, scomment = 0;
+    int indices[2], rscalaire = 0, scomment = 0;
     int certif[MAX_CERTIF];
 
-    float Coord[10 * MAX_SIG], coeff_temps = 1.0;
+    float Coord[10 * MAX_SIG];
     char* Xc, * Yc;
     char date[TAILLE_DATE], heure[TAILLE_HEURE], cmisc[TAILLE_MISC] = { '\0' };
     char* ptd, nomsig[TAILLE_NOM_DONNEE], nom_gen[TAILLE_NOM_DONNEE];
@@ -696,7 +696,7 @@ lit_traite(char* nomsigp, int numchoc, int occ,
         lind[2] = 1L;
     }
     if ((ptUnite) && (rscalaire != 1)) {
-        rscaltime = 1;
+        //rscaltime = 1;
 #if (client == PC)        /* scalaire = valeur temporelle ? */
         if ((!Strncmp (ptUnite->nom, "mcs", 3)) ||
                 (!Strncmp (ptUnite->nom, "MCS", 3)))
@@ -711,12 +711,12 @@ lit_traite(char* nomsigp, int numchoc, int occ,
             coeff_temps = 1.0;
 
 #else
-        if (!strncasecmp(ptUnite->nom, "mcs", 3))
+        /*if (!strncasecmp(ptUnite->nom, "mcs", 3))
             coeff_temps = 1.0E6;
         if (!strncasecmp(ptUnite->nom, "ms", 2))
             coeff_temps = 1.0E3;
         if (!strncasecmp(ptUnite->nom, "s", 1))
-            coeff_temps = 1.0;
+            coeff_temps = 1.0;*/
 #endif
     }
     /* les valeurs  */
@@ -1018,7 +1018,6 @@ void getExtractionsCount(char* nomsigp, int numchoc, int occ, int* extractionCou
     int nbcoord[MAX_COORD];
     pS_Entree ptEntree;
     int occur = 0, indg = 0;
-    short generique = 1;
     char nomsig[TAILLE_NOM_DONNEE];
     char nom_gen[TAILLE_NOM_DONNEE];
     char date[TAILLE_DATE], heure[TAILLE_HEURE];
@@ -1031,7 +1030,6 @@ void getExtractionsCount(char* nomsigp, int numchoc, int occ, int* extractionCou
     /*****++++++++++++++++++++++++++++++++ MAJ Mars 2002 ****************/
     if (nomsigp[0] == '!') {
         strcpy(nomsigp, &nomsigp[1]);
-        generique = 0;
     }
     /*****++++++++++++++++++++++++++++++++ MAJ Mars 2002 ****************/
 

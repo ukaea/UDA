@@ -185,17 +185,11 @@ int execute(const char* mapfun, int shotNumber, DATA_BLOCK* data_block, int* nod
 	else if (strcmp(fun_name, "soft_x_rays_channels_energy_band_upper_bound") == 0) {
 		fun = 210;
 	}
-	else if (strcmp(fun_name, "summary_flt1D") == 0) {
+	else if (strcmp(fun_name, "summary_global_quantities_r0_value") == 0) {
 		fun = 300;
 	}
-	else if (strcmp(fun_name, "summary_contrib_flt1D") == 0) {
+	else if (strcmp(fun_name, "summary_heating_current_drive_ec_power_source") == 0) {
 		fun = 301;
-	}
-	else if (strcmp(fun_name, "summary_global_quantities_tau_resistive_value") == 0) {
-		fun = 302;
-	}
-	else if (strcmp(fun_name, "summary_global_quantities_v_loop_value") == 0) {
-		fun = 303;
 	}
 
 	IDAM_LOGF(UDA_LOG_DEBUG, "Case: %d", fun);
@@ -502,32 +496,16 @@ int execute(const char* mapfun, int shotNumber, DATA_BLOCK* data_block, int* nod
 		soft_x_rays_channels_energy_band_upper_bound(shotNumber, data_block, nodeIndices);
 		break;
 	}
-	/*case 300: {
-		IDAM_LOG(UDA_LOG_DEBUG, "Case of summary_flt1D from WEST plugin\n");
-		summary_flt1D(mapfun, shotNumber, data_block, nodeIndices);
-		break;
-	}
-	case 301: {
-		IDAM_LOG(UDA_LOG_DEBUG, "Case of summary_contrib_flt1D from WEST plugin\n");
-		summary_contrib_flt1D(mapfun, shotNumber, data_block, nodeIndices);
-		break;
-	}
-	case 302: {
-		IDAM_LOG(UDA_LOG_DEBUG, "Case of summary_global_quantities_tau_resistive_value from WEST plugin\n");
-		summary_global_quantities_tau_resistive_value(shotNumber, data_block, nodeIndices);
-		break;
-	}
-	case 303: {
-		IDAM_LOG(UDA_LOG_DEBUG, "Case of summary_global_quantities_v_loop_value from WEST plugin\n");
-		summary_global_quantities_v_loop_value(shotNumber, data_block, nodeIndices);
-		break;
-	}*/
-	case 304: {
+	case 300: {
 		IDAM_LOG(UDA_LOG_DEBUG, "Case of summary_global_quantities_r0_value from WEST plugin\n");
 		summary_global_quantities_r0_value(shotNumber, data_block, nodeIndices);
 		break;
 	}
-
+	case 301: {
+		IDAM_LOG(UDA_LOG_DEBUG, "Case of summary_heating_current_drive_ec_power_source from WEST plugin\n");
+		summary_heating_current_drive_ec_power_source(shotNumber, data_block, nodeIndices);
+		break;
+	}
 
 	}
 

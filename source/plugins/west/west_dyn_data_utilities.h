@@ -21,13 +21,17 @@ void SetDynamicDataTime(DATA_BLOCK* data_block, int len, float *time, float *dat
 
 int getArcadeSignal(char* nomsigp, int shotNumber, int extractionIndex, float** time, float** data, int* len, float normalizationFactor);
 
+void flt1D(const char* mappingValue, int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
+void flt1D_contrib(const char* mappingValue, int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
+
 int setUDABlockSignalFromArcade(char* sigName, int shotNumber, int extractionIndex, DATA_BLOCK* data_block, int* nodeIndices, float normalizationFactor);
 int setUDABlockSignalFromArcade2(int shotNumber, char* sigName, int extractionIndex, char* sigName2, int extractionIndex2, DATA_BLOCK* data_block, int* nodeIndices, float treshold);
-void merge2Signals_according_to_ip_treshold_setUDABlock(DATA_BLOCK* data_block, int len, float *time, float *data1, float *data2, float *ip, float treshold);
+void merge2Signals_according_to_ip_treshold(float **data, int len, float *data1, float *data2, float *ip, float treshold);
 void averageArcadeSignal(char* sigName, int shotNumber, int extractions[], int extractions_length, float** time, float** averaged_data, int* len);
 
 int signalsRatio(float **result_q_by_r, float *q, float *r, int lenq, int lenr);
 int signalsSquare(float **square_s, float *s, int len);
+int multiplySignals(float **result, float *p, float *q, int len);
 
 void sum(float* sum_data, float* data, int len);
 void normalize(float* sum_data, int len, int normalizationFactor);

@@ -62,10 +62,10 @@ int SetNormalizedDynData(int shotNumber, DATA_BLOCK* data_block, int* nodeIndice
 	return status;
 }
 
-int GetNormalizedDynamicData(int shotNumber, float** time, float** data, int* len, int* nodeIndices,
+int GetNormalizedDynamicData(int shotNumber, float** data_time, float** data, int* len, int* nodeIndices,
 		char* TOP_collections_parameters, char* attributes, char* normalizationAttributes)
 {
-	int status = GetDynData(shotNumber, time, data, len, nodeIndices,
+	int status = GetDynData(shotNumber, data_time, data, len, nodeIndices,
 			TOP_collections_parameters, attributes);
 
 	if (status != 0) {
@@ -84,7 +84,7 @@ int GetNormalizedDynamicData(int shotNumber, float** time, float** data, int* le
 	return status;
 }
 
-int GetDynData(int shotNumber, float** time, float** data, int* len, int* nodeIndices,
+int GetDynData(int shotNumber, float** data_time, float** data, int* len, int* nodeIndices,
 		char* TOP_collections_parameters, char* attributes)
 {
 	IDAM_LOG(UDA_LOG_DEBUG, "Entering in GetDynData()...\n");
@@ -132,7 +132,7 @@ int GetDynData(int shotNumber, float** time, float** data, int* len, int* nodeIn
 
 	int requestedIndex = getNumIDAMIndex(attributes, nodeIndices);
 
-	IDAM_LOGF(UDA_LOG_DEBUG, "Requested index (from UDA call): %d", requestedIndex);
+	IDAM_LOGF(UDA_LOG_DEBUG, "Requested index (from UDA call): %d\n", requestedIndex);
 
 	int searchedArray;
 	int searchedArrayIndex;
@@ -141,8 +141,8 @@ int GetDynData(int shotNumber, float** time, float** data, int* len, int* nodeIn
 
 	char* objectName = NULL;
 
-	IDAM_LOGF(UDA_LOG_DEBUG, "searchedArrayIndex: %d", searchedArrayIndex);
-	IDAM_LOGF(UDA_LOG_DEBUG, "searchedArray: %d", searchedArray);
+	IDAM_LOGF(UDA_LOG_DEBUG, "searchedArrayIndex: %d\n", searchedArrayIndex);
+	IDAM_LOGF(UDA_LOG_DEBUG, "searchedArray: %d\n", searchedArray);
 
 	//This patch means that if the signal does not belong to a group, so it can not be aggregate as signals groups
 	//Example of an aggregate : tsbase_collect;DMAG:first_group, DMAG:second_group;float:#0
@@ -180,10 +180,8 @@ int GetDynData(int shotNumber, float** time, float** data, int* len, int* nodeIn
 		IDAM_LOG(UDA_LOG_DEBUG, "Signal does not belong to a group of signals\n");
 	}
 
-
-
 	int rang[2] = { 0, 0 };
-	status = readSignal(objectName, shotNumber, 0, rang, time, data, len);
+	status = readSignal(objectName, shotNumber, 0, rang, data_time, data, len);
 
 	IDAM_LOG(UDA_LOG_DEBUG, "End of reading signal\n");
 
@@ -208,17 +206,17 @@ int GetDynData(int shotNumber, float** time, float** data, int* len, int* nodeIn
 	return status;
 }
 
-void SetDynamicData(DATA_BLOCK* data_block, int len, float* time, float* data)
+void SetDynamicData(DATA_BLOCK* data_block, int len, float* data_time, float* data)
 {
-	SetDynData(data_block, len, time, data, 0);
+	SetDynData(data_block, len, data_time, data, 0);
 }
 
-void SetDynamicDataTime(DATA_BLOCK* data_block, int len, float* time, float* data)
+void SetDynamicDataTime(DATA_BLOCK* data_block, int len, float* data_time, float* data)
 {
-	SetDynData(data_block, len, time, data, 1);
+	SetDynData(data_block, len, data_time, data, 1);
 }
 
-void SetDynData(DATA_BLOCK* data_block, int len, float* time, float* data, int setTime)
+void SetDynData(DATA_BLOCK* data_block, int len, float* data_time, float* data, int setTime)
 {
 
 	//IDAM data block initialization
@@ -231,7 +229,7 @@ void SetDynData(DATA_BLOCK* data_block, int len, float* time, float* data, int s
 	if (setTime == 0) {
 		data_block->data = (char*)data;
 	} else {
-		data_block->data = (char*)time;
+		data_block->data = (char*)data_time;
 	}
 
 	data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
@@ -243,38 +241,47 @@ void SetDynData(DATA_BLOCK* data_block, int len, float* time, float* data, int s
 	data_block->dims[0].data_type = UDA_TYPE_FLOAT;
 	data_block->dims[0].dim_n = len;
 	data_block->dims[0].compressed = 0;
-	data_block->dims[0].dim = (char*)time;
+	data_block->dims[0].dim = (char*)data_time;
 
 	strcpy(data_block->data_label, "");
 	strcpy(data_block->data_units, "");
 	strcpy(data_block->data_desc, "");
 }
 
-int getArcadeSignal(char* nomsigp, int shotNumber, int extractionIndex, float** time, float** data, int* len, float normalizationFactor)
+int getArcadeSignal(char* nomsigp, int shotNumber, int extractionIndex, float** data_time, float** data, int* len, float normalizationFactor)
 {
+	IDAM_LOG(UDA_LOG_DEBUG, "Group of signals ?\n");
 	char nomsigp_to_extract[50];
-	addExtractionChars(nomsigp_to_extract, nomsigp,
-			extractionIndex); //Concatenate nomsigp_to_extract avec !extractionIndex, example: !1, !2, ...
+
+	if (extractionIndex > 0) {
+		addExtractionChars(nomsigp_to_extract, nomsigp,
+				extractionIndex); //Concatenate nomsigp_to_extract avec !extractionIndex, example: !1, !2, ...
+	}
+	else {
+		strcpy(nomsigp_to_extract, nomsigp);
+		RemoveSpaces(nomsigp_to_extract);
+	}
+	IDAM_LOGF(UDA_LOG_DEBUG, "signal: %s\n", nomsigp_to_extract);
 	int rang[2] = { 0, 0 };
-	int status = readSignal(nomsigp_to_extract, shotNumber, 0, rang, time, data, len);
+	int status = readSignal(nomsigp_to_extract, shotNumber, 0, rang, data_time, data, len);
 	multiplyFloat(*data, normalizationFactor, *len);
 	return status;
 }
 
 int setUDABlockSignalFromArcade(char* sigName, int shotNumber, int extractionIndex, DATA_BLOCK* data_block, int* nodeIndices, float normalizationFactor)
 {
-	float **time = NULL;
-	float **data = NULL;
+	float *data_time = NULL;
+	float *data = NULL;
 	int len;
 
-	int status = getArcadeSignal(sigName, shotNumber, extractionIndex, time, data, &len, normalizationFactor);
+	int status = getArcadeSignal(sigName, shotNumber, extractionIndex, &data_time, &data, &len, normalizationFactor);
 
 	if (status != 0) {
 		int err = 901;
 		addIdamError(CODEERRORTYPE, "WEST:ERROR: unable to get arcade signal", err, "");
 	}
 	else {
-		SetDynamicData(data_block, len, *time, *data);
+		SetDynamicData(data_block, len, data_time, data);
 	}
 	return 0;
 }
@@ -282,61 +289,61 @@ int setUDABlockSignalFromArcade(char* sigName, int shotNumber, int extractionInd
 int setUDABlockSignalFromArcade2(int shotNumber, char* sigName, int extractionIndex, char* sigName2,
 		int extractionIndex2, DATA_BLOCK* data_block, int* nodeIndices, float treshold)
 {
-	float **time1 = NULL;
-	float **data1 = NULL;
+	float *time1 = NULL;
+	float *data1 = NULL;
 	int len1;
 
-	int status = getArcadeSignal(sigName, shotNumber, extractionIndex, time1, data1, &len1, 1.);
+	int status = getArcadeSignal(sigName, shotNumber, extractionIndex, &time1, &data1, &len1, 1.);
 
 	if (status != 0) {
 		int err = 901;
 		addIdamError(CODEERRORTYPE, "WEST:ERROR: unable to get arcade signal1", err, "");
 	}
 
-	float **time2 = NULL;
-	float **data2 = NULL;
+	float *time2 = NULL;
+	float *data2 = NULL;
 	int len2;
 
-	status = getArcadeSignal(sigName, shotNumber, extractionIndex, time2, data2, &len2, 1.);
+	status = getArcadeSignal(sigName, shotNumber, extractionIndex, &time2, &data2, &len2, 1.);
 
 	if (status != 0) {
 		int err = 901;
 		addIdamError(CODEERRORTYPE, "WEST:ERROR: unable to get arcade signal2", err, "");
 	}
 
-	float **ip_time = NULL;
-	float **ip_data = NULL;
+	float *ip_time = NULL;
+	float *ip_data = NULL;
 	int ip_len;
 
-	status = getArcadeSignal("SMAG_IP", shotNumber, 1, ip_time, ip_data, &ip_len, 1.);
+	IDAM_LOG(UDA_LOG_DEBUG, "test in setUDABlockSignalFromArcade2\n");
+
+	status = getArcadeSignal("SMAG_IP", shotNumber, 1, &ip_time, &ip_data, &ip_len, 1.);
 	if (status != 0) {
 		int err = 901;
 		addIdamError(CODEERRORTYPE, "WEST:ERROR: unable to get SMAG_IP signal", err, "");
 	}
 
-	merge2Signals_according_to_ip_treshold_setUDABlock(data_block, len1, *time1, *data1, *data2, *ip_data, treshold);
-
+	float *data = NULL;
+	merge2Signals_according_to_ip_treshold(&data, len1, data1, data2, ip_data, treshold);
+	SetDynamicData(data_block, len1, time1, data);
 	return 0;
 }
 
-void merge2Signals_according_to_ip_treshold_setUDABlock(DATA_BLOCK* data_block, int len, float *time, float *data1, float *data2, float *ip, float treshold) {
+void merge2Signals_according_to_ip_treshold(float **data, int len, float *data1, float *data2, float *ip, float treshold) {
 
 	int i;
-	float *data = NULL;
-	data = malloc(sizeof(float)*len);
+	*data = (float*) malloc(sizeof(float)*len);
 	for (i = 0; i < len; i++) {
 		if (ip[i] >= treshold) {
-			data[i] = data2[i];
+			*(*data + i) = data2[i];
 		}
 		else {
-			data[i] = data1[i];
+			*(*data + i) = data1[i];
 		}
 	}
-
-	SetDynamicData(data_block, len, time, data);
 }
 
-void averageArcadeSignal(char* sigName, int shotNumber, int extractions[], int extractions_length, float** time, float** averaged_data, int* len) {
+void averageArcadeSignal(char* sigName, int shotNumber, int extractions[], int extractions_length, float** data_time, float** averaged_data, int* len) {
 
 	int i;
 
@@ -344,12 +351,12 @@ void averageArcadeSignal(char* sigName, int shotNumber, int extractions[], int e
 
 		int status = -1;
 		if (i == 0) {
-			status = getArcadeSignal(sigName, shotNumber, extractions[i], time, averaged_data, len, 1.);
+			status = getArcadeSignal(sigName, shotNumber, extractions[i], data_time, averaged_data, len, 1.);
 		}
 		else {
-			float **data = NULL;
-			status = getArcadeSignal(sigName, shotNumber, extractions[i], time, data, len, 1.);
-			sum(*averaged_data, *data, *len);
+			float *data = NULL;
+			status = getArcadeSignal(sigName, shotNumber, extractions[i], data_time, &data, len, 1.);
+			sum(*averaged_data, data, *len);
 		}
 
 		if (status != 0) {
@@ -383,12 +390,15 @@ void multiply(float* data, int len, float factor) {
 }
 
 int signalsRatio(float **result_q_by_r, float *q, float *r, int lenq, int lenr) {
+	IDAM_LOGF(UDA_LOG_DEBUG, "length of q:%d\n", lenq);
+	IDAM_LOGF(UDA_LOG_DEBUG, "length of r:%d\n", lenr);
 	if (lenq != lenr)
 		return -1;
 	*result_q_by_r = (float*) malloc(sizeof(float)*lenq);
 	int i;
 	for (i = 0; i < lenq; i++) {
-		if (r[i] == 0)
+		IDAM_LOGF(UDA_LOG_DEBUG, "r[i]=%f\n", r[i]);
+		if (r[i] < 1e-100)
 			return -1;
 		*(*result_q_by_r + i) = q[i]/r[i];
 	}
@@ -400,6 +410,14 @@ int signalsSquare(float **square_s, float *s, int len) {
 	int i;
 	for (i = 0; i < len; i++)
 		*(*square_s + i) = s[i]*s[i];
+	return 0;
+}
+
+int multiplySignals(float **result, float *p, float *q, int len) {
+	*result = (float*) malloc(sizeof(float)*len);
+	int i;
+	for (i = 0; i < len; i++)
+		*(*result + i) = p[i]*q[i];
 	return 0;
 }
 

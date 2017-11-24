@@ -25,7 +25,7 @@
 <!-- mapping key="magnetics/bpol_probe/#/field/time" value="tsbase_time;DMAG:GMAG_BNORM,DMAG:GMAG_BTANG,DMAG:GMAG_BTORO1,DMAG:GMAG_BTORO2;1:float:#0" type="dynamic"/ -->
 <mapping key="magnetics/method/Shape_of" value="set_value;1;0:int" type="static"/>
 <mapping key="magnetics/method/#/name" value="set_value;IP;0:string" type="static"/>
-<mapping key="magnetics/method/#/ip/data" value="tsbase_collect;DMAG:SMAG_IP;1:float:#0" type="dynamic"/>
+<mapping key="magnetics/method/#/ip/data" value="flt1D_contrib;DMAG:GMAG_IFREEB:1:DMAG:SMAG_IP:0" type="dynamic"/>
 <mapping key="magnetics/method/#/ip/time" value="tsbase_time;DMAG:SMAG_IP;1:float:#0" type="dynamic"/>
 <mapping key="magnetics/method/#/diamagnetic_flux/data" value="tsbase_collect;DMAG:GMAG_FDIAM;1:float:#0" type="dynamic"/>
 <mapping key="magnetics/method/#/diamagnetic_flux/time" value="tsbase_time;DMAG:GMAG_FDIAM;1:float:#0" type="dynamic"/>
@@ -70,7 +70,7 @@
 
 <mapping key="interfero_polarimeter/ids_properties/homogeneous_time" value="set_value;0;0:int" type="static"/>
 <mapping key="interfero_polarimeter/channel/Shape_of" value="shape_of_tsmat_collect;DINTRPOL:GINTLIDRT:CALIB;0:float:#0" type="static"/>
-<mapping key="interfero_polarimeter/channel/#/n_e_line/data" value="tsbase_collect_with_channels;unvalid_channels:2:1,2;DINTRPOL:GINTLIDRT;1:float:#0;multiply:cste:1e19" type="dynamic"/>
+<mapping key="interfero_polarimeter/channel/#/n_e_line/data" value="tsbase_collect_with_channels;unvalid_channels:2:1,2;DINTRPOL:GINTLIDRT;1:float:#0;multiply:cste:2e19" type="dynamic"/>
 <mapping key="interfero_polarimeter/channel/#/n_e_line/time" value="tsbase_time_with_channels;unvalid_channels:2:1,2;DINTRPOL:GINTLIDRT;1:float:#0" type="dynamic"/>
 <mapping key="interfero_polarimeter/channel/#/validity" value="set_channels_validity;unvalid_channels:2:1,2;0:int:#0" type="static"/>
 <mapping key="interfero_polarimeter/channel/#/name" value="set_value_collect;DINTRPOL:LIDRT:CHANNEL:Channel:#0;0:string:#0" type="static"/>
@@ -121,23 +121,25 @@
 <mapping key="soft_x_rays/channel/#/power_density/data" value="soft_x_rays_channels_power_density_data" type="dynamic"/>
 <mapping key="soft_x_rays/channel/#/power_density/time" value="soft_x_rays_channels_power_density_time" type="dynamic"/>
 
-
-<mapping key="summary/global_quantities/ip/value" value="summary_contrib_flt1D:DMAG:GMAG_IFREEB:1:DMAG:SMAG_IP:1" type="dynamic"/>
-<mapping key="summary/global_quantities/ohm/value" value="summary_flt1D:DMAG:GMAG_BILAN:1" type="dynamic"/>
+<mapping key="summary/global_quantities/ip/value" value="flt1D_contrib;DMAG:GMAG_IFREEB:1:DMAG:SMAG_IP:0" type="dynamic"/>
+<mapping key="summary/global_quantities/ohm/value" value="flt1D;DMAG:GMAG_BILAN:1" type="dynamic"/>
 <mapping key="summary/global_quantities/v_loop/value" value="summary_global_quantities_v_loop_value" type="dynamic"/>
-<mapping key="summary/global_quantities/li/value" value="summary_flt1D:DMAG:GMAG_BELI:2" type="dynamic"/>
-<mapping key="summary/global_quantities/beta_pol/value" value="summary_flt1D:DMAG:GMAG_BELI:1" type="dynamic"/>
+<mapping key="summary/global_quantities/li/value" value="flt1D;DMAG:GMAG_BELI:2" type="dynamic"/>
+<mapping key="summary/global_quantities/beta_pol/value" value="flt1D;DMAG:GMAG_BELI:1" type="dynamic"/>
 <mapping key="summary/global_quantities/beta_tor/value" value="summary_global_quantities_beta_tor_value" type="dynamic"/>
-<mapping key="summary/global_quantities/energy_diamagnetic/value" value="summary_flt1D:DMAG:GMAG_BILAN:7" type="dynamic"/>
-<mapping key="summary/global_quantities/energy_total/value" value="summary_flt1D:DMAG:GMAG_BILAN:10" type="dynamic"/>
-<mapping key="summary/global_quantities/energy_b_field_pol/value" value="summary_flt1D:DMAG:GMAG_BILAN:9" type="dynamic"/>
-<mapping key="summary/global_quantities/volume/value" value="summary_flt1D:DMAG:GMAG_GEOM:13" type="dynamic"/>
+<mapping key="summary/global_quantities/energy_diamagnetic/value" value="flt1D;DMAG:GMAG_BILAN:7" type="dynamic"/>
+<mapping key="summary/global_quantities/energy_total/value" value="flt1D;DMAG:GMAG_BILAN:10" type="dynamic"/>
+<mapping key="summary/global_quantities/energy_b_field_pol/value" value="flt1D;DMAG:GMAG_BILAN:9" type="dynamic"/>
+<mapping key="summary/global_quantities/volume/value" value="flt1D;DMAG:GMAG_GEOM:13" type="dynamic"/>
 <mapping key="summary/global_quantities/r0/value" value="summary_global_quantities_r0_value" type="static"/>
 <mapping key="summary/global_quantities/b0/value" value="summary_global_quantities_b0_value" type="dynamic"/>
-<mapping key="summary/global_quantities/tau_energy/value" value="summary_flt1D:DMAG:GMAG_BILAN:8" type="dynamic"/>
+<mapping key="summary/global_quantities/tau_energy/value" value="flt1D;DMAG:GMAG_BILAN:8" type="dynamic"/>
 <mapping key="summary/global_quantities/tau_resistance/value" value="summary_global_quantities_tau_resistance_value" type="dynamic"/>
-<mapping key="summary/local/magnetic_axis/position/r/value" value="summary_contrib_flt1D:DMAG:GMAG_BARYFB:1:DMAG:GMAG_BARY:1" type="dynamic"/>
-<mapping key="summary/local/magnetic_axis/position/z/value" value="summary_contrib_flt1D:DMAG:GMAG_BARYFB:2:DMAG:GMAG_BARY:2" type="dynamic"/>
-
+<mapping key="summary/local/edge/q/value" value="flt1D;DMAG:GMAG_Q:1" type="dynamic"/>
+<mapping key="summary/volume_average/n_e/value" value="flt1D;DINTRPOL:SINTAVDENSRT:0" type="dynamic"/>
+<mapping key="summary/heating_current_drive/ec/#/power/value" value="summary_heating_current_drive_ec_power" type="dynamic"/>
+<mapping key="summary/heating_current_drive/ec/#/power/source" value="summary_heating_current_drive_ec_power_source" type="static"/>
+<mapping key="summary/local/magnetic_axis/position/r" value="flt1D_contrib;DMAG:GMAG_BARYFB:1:DMAG:GMAG_BARY:1" type="dynamic"/>
+<mapping key="summary/local/magnetic_axis/position/z" value="flt1D_contrib;DMAG:GMAG_BARYFB:2:DMAG:GMAG_BARY:2" type="dynamic"/>
 
 </mappings>

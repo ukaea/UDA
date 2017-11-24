@@ -91,10 +91,10 @@ int GetDynamicData(int shotNumber, const char* mapfun, DATA_BLOCK* data_block, i
 		soft_x_rays_channels_power_density_data(shotNumber, data_block, nodeIndices); //TODO
 	} else if (strcmp(fun_name, "soft_x_rays_channels_power_density_time") == 0) {
 		soft_x_rays_channels_power_density_time(shotNumber, data_block, nodeIndices); //TODO
-	} else if (strcmp(fun_name, "summary_flt1D") == 0) {
-		summary_flt1D(mapfun, shotNumber, data_block, nodeIndices); //TODO
-	} else if (strcmp(fun_name, "summary_contrib_flt1D") == 0) {
-		summary_contrib_flt1D(mapfun, shotNumber, data_block, nodeIndices); //TODO
+	} else if (strcmp(fun_name, "flt1D") == 0) {
+		flt1D(mapfun, shotNumber, data_block, nodeIndices); //TODO
+	} else if (strcmp(fun_name, "flt1D_contrib") == 0) {
+		flt1D_contrib(mapfun, shotNumber, data_block, nodeIndices); //TODO
 	} else if (strcmp(fun_name, "summary_global_quantities_tau_resistance_value") == 0) {
 		summary_global_quantities_tau_resistance_value(shotNumber, data_block, nodeIndices); //TODO
 	} else if (strcmp(fun_name, "summary_global_quantities_v_loop_value") == 0) {
@@ -102,10 +102,16 @@ int GetDynamicData(int shotNumber, const char* mapfun, DATA_BLOCK* data_block, i
 	} else if (strcmp(fun_name, "summary_global_quantities_b0_value") == 0) {
 		summary_global_quantities_b0_value(shotNumber, data_block, nodeIndices); //TODO
 	} else if (strcmp(fun_name, "summary_global_quantities_beta_tor_value") == 0) {
-		summary_global_quantities_b0_value(shotNumber, data_block, nodeIndices); //TODO
+		summary_global_quantities_beta_tor_value(shotNumber, data_block, nodeIndices); //TODO
+	} else if (strcmp(fun_name, "summary_heating_current_drive_ec_power") == 0) {
+		summary_heating_current_drive_ec_power(shotNumber, data_block, nodeIndices); //TODO
 	} else if (strcmp(fun_name, "test_fun") == 0) {
 		test_fun(shotNumber, data_block, nodeIndices); //TODO
 	}
+	else {
+		IDAM_LOG(UDA_LOG_DEBUG, "WEST:ERROR: mapped C function not found in west_dynamic_data.c !\n");
+	}
+
 
 	free(fun_name);
 	free(TOP_collections_parameters);
@@ -114,5 +120,48 @@ int GetDynamicData(int shotNumber, const char* mapfun, DATA_BLOCK* data_block, i
 
 	return 0;
 
+}
+
+void flt1D(const char* mappingValue, int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
+{
+	IDAM_LOG(UDA_LOG_DEBUG, "Calling flt1D\n");
+	char* diagnostic = NULL;
+	char* object_name = NULL;
+	int extractionIndex;
+	tokenize1DArcadeParameters(mappingValue, &diagnostic, &object_name, &extractionIndex);
+	int status = setUDABlockSignalFromArcade(object_name, shotNumber, extractionIndex, data_block, nodeIndices, 1);
+	if (status != 0) {
+		int err = 901;
+		char* errorMsg = "WEST:ERROR: unable to get object ";
+		strcat(errorMsg, object_name);
+		strcat(errorMsg, " in west_dynamic_data_data.c:flt1D method.");
+		addIdamError(CODEERRORTYPE, errorMsg, err, "");
+	}
+}
+
+void flt1D_contrib(const char* mappingValue, int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
+{
+	IDAM_LOG(UDA_LOG_DEBUG, "Calling flt1D_contrib\n");
+	char* diagnostic = NULL;
+	char* object_name = NULL;
+	int extractionIndex;
+
+	char* diagnostic2 = NULL;
+	char* object_name2 = NULL;
+	int extractionIndex2;
+
+	tokenize1DArcadeParameters2(mappingValue, &diagnostic, &object_name, &extractionIndex, &diagnostic2, &object_name2, &extractionIndex2);
+
+	IDAM_LOG(UDA_LOG_DEBUG, "setting UDA block in flt1D_contrib\n");
+
+	int status = setUDABlockSignalFromArcade2(shotNumber, object_name, extractionIndex, object_name2, extractionIndex2, data_block, nodeIndices, 1);
+	IDAM_LOG(UDA_LOG_DEBUG, "after setting UDA block in flt1D_contrib\n");
+	if (status != 0) {
+		int err = 901;
+		char* errorMsg = "WEST:ERROR: unable to get object ";
+		strcat(errorMsg, object_name);
+		strcat(errorMsg, " in west_dynamic_data_data.c:flt1D_contrib method.");
+		addIdamError(CODEERRORTYPE, errorMsg, err, "");
+	}
 }
 

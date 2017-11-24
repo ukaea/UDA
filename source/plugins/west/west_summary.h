@@ -5,29 +5,12 @@
 #include <clientserver/udaStructs.h>
 
 void summary_global_quantities_beta_tor_value(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
-void summary_flt1D(const char* mappingValue, int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
-void summary_contrib_flt1D(const char* mappingValue, int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
 void summary_global_quantities_tau_resistance_value(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
 void summary_global_quantities_v_loop_value(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
 void summary_global_quantities_r0_value(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
 void summary_global_quantities_b0_value(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
-
-/*
-void summary_global_quantities_ip_value(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
-void summary_global_quantities_ohm_value(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
-void summary_global_quantities_v_loop_value(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
-void summary_global_quantities_li_value(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
-void summary_global_quantities_beta_pol_value(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
-void summary_global_quantities_energy_diamagnetic_value(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
-void summary_global_quantities_energy_total_value(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
-void summary_global_quantities_energy_b_field_pol_value(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
-void summary_global_quantities_volume_value(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
-void summary_global_quantities_r0_value(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
-void summary_global_quantities_b0_value(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
-void summary_global_quantities_tau_energy_value(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
-void summary_global_quantities_tau_resistive_value(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
-*/
-
-
+void summary_heating_current_drive_ec_power_source(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
+void summary_heating_current_drive_ec_power(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
+void ip_value(float **ip_data, float *ip_time, int *ip_len, int shotNumber, DATA_BLOCK* data_block, const float treshold);
 
 #endif // IDAM_PLUGIN_WEST_SUMMARY_H

@@ -22,13 +22,14 @@ void getFunName(const char* s, char** fun_name)
 void tokenize1DArcadeParameters(const char* s, char** diagnostic, char** object_name, int* extractionIndex)
 {
     const char delim[] = ";";
+    const char delim2[] = ":";
     char* s_copy = strdup(s);
     strdup(strtok(s_copy, delim)); //function name
-    *diagnostic = strdup(strtok(NULL, delim));
+    *diagnostic = strdup(strtok(NULL, delim2));
     RemoveSpaces(*diagnostic);
-    *object_name = strdup(strtok(NULL, delim));
+    *object_name = strdup(strtok(NULL, delim2));
     RemoveSpaces(*object_name);
-    char* token = strtok(NULL, delim);
+    char* token = strtok(NULL, delim2);
     *extractionIndex = atoi(token);
     free(s_copy);
 }
@@ -36,22 +37,27 @@ void tokenize1DArcadeParameters(const char* s, char** diagnostic, char** object_
 void tokenize1DArcadeParameters2(const char* s, char** diagnostic, char** object_name, int* extractionIndex, char** diagnostic2, char** object_name2, int* extractionIndex2)
 {
     const char delim[] = ";";
+    const char delim2[] = ":";
     char* s_copy = strdup(s);
     strdup(strtok(s_copy, delim)); //function name
-    *diagnostic = strdup(strtok(NULL, delim));
+    *diagnostic = strdup(strtok(NULL, delim2));
+    IDAM_LOGF(UDA_LOG_DEBUG, "in tokenize1DArcadeParameters2, diagnostic=%s\n", *diagnostic);
     RemoveSpaces(*diagnostic);
-    *object_name = strdup(strtok(NULL, delim));
+    *object_name = strdup(strtok(NULL, delim2));
+    IDAM_LOGF(UDA_LOG_DEBUG, "in tokenize1DArcadeParameters2, object_name=%s\n", *object_name);
     RemoveSpaces(*object_name);
-    char* token = strtok(NULL, delim);
+    char* token = strtok(NULL, delim2);
     *extractionIndex = atoi(token);
-
-    *diagnostic2 = strdup(strtok(NULL, delim));
+    IDAM_LOGF(UDA_LOG_DEBUG, "in tokenize1DArcadeParameters2, extractionIndex1=%d\n", *extractionIndex);
+    *diagnostic2 = strdup(strtok(NULL, delim2));
+    IDAM_LOGF(UDA_LOG_DEBUG, "in tokenize1DArcadeParameters2, diagnostic2=%s\n", *diagnostic2);
     RemoveSpaces(*diagnostic2);
-    *object_name2 = strdup(strtok(NULL, delim));
+    *object_name2 = strdup(strtok(NULL, delim2));
+    IDAM_LOGF(UDA_LOG_DEBUG, "in tokenize1DArcadeParameters2, object_name2=%s\n", *object_name2);
     RemoveSpaces(*object_name2);
-    token = strtok(NULL, delim);
+    token = strtok(NULL, delim2);
     *extractionIndex2 = atoi(token);
-
+    IDAM_LOGF(UDA_LOG_DEBUG, "in tokenize1DArcadeParameters2, extractionIndex2=%d\n", *extractionIndex2);
     free(s_copy);
 }
 
