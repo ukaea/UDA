@@ -121,6 +121,7 @@
 <mapping key="soft_x_rays/channel/#/power_density/data" value="soft_x_rays_channels_power_density_data" type="dynamic"/>
 <mapping key="soft_x_rays/channel/#/power_density/time" value="soft_x_rays_channels_power_density_time" type="dynamic"/>
 
+<mapping key="summary/ids_properties/homogeneous_time" value="set_value;1;0:int" type="static"/>
 <mapping key="summary/global_quantities/ip/value" value="flt1D_contrib;DMAG:GMAG_IFREEB:1:DMAG:SMAG_IP:0" type="dynamic"/>
 <mapping key="summary/global_quantities/ohm/value" value="flt1D;DMAG:GMAG_BILAN:1" type="dynamic"/>
 <mapping key="summary/global_quantities/v_loop/value" value="summary_global_quantities_v_loop_value" type="dynamic"/>
