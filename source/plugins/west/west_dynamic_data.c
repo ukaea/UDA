@@ -105,7 +105,9 @@ int GetDynamicData(int shotNumber, const char* mapfun, DATA_BLOCK* data_block, i
 		summary_global_quantities_beta_tor_value(shotNumber, data_block, nodeIndices); //TODO
 	} else if (strcmp(fun_name, "summary_heating_current_drive_ec_power") == 0) {
 		summary_heating_current_drive_ec_power(shotNumber, data_block, nodeIndices); //TODO
-	} else if (strcmp(fun_name, "test_fun") == 0) {
+	} else if (strcmp(fun_name, "summary_time") == 0) {
+		summary_time(shotNumber, data_block, nodeIndices); //TODO
+	}else if (strcmp(fun_name, "test_fun") == 0) {
 		test_fun(shotNumber, data_block, nodeIndices); //TODO
 	}
 	else {

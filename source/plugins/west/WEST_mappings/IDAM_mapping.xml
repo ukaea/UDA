@@ -141,5 +141,6 @@
 <mapping key="summary/heating_current_drive/ec/#/power/source" value="summary_heating_current_drive_ec_power_source" type="static"/>
 <mapping key="summary/local/magnetic_axis/position/r" value="flt1D_contrib;DMAG:GMAG_BARYFB:1:DMAG:GMAG_BARY:1" type="dynamic"/>
 <mapping key="summary/local/magnetic_axis/position/z" value="flt1D_contrib;DMAG:GMAG_BARYFB:2:DMAG:GMAG_BARY:2" type="dynamic"/>
+<mapping key="summary/time" value="tsbase_time;DMAG:SMAG_IP;1:float:1" type="dynamic"/>
 
 </mappings>

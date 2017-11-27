@@ -13,7 +13,7 @@ exit 0
 
 #define QUOTE_(X) #X
 #define QUOTE(X) QUOTE_(X)
-#define SHOT_NUM "51460" // WEST
+#define SHOT_NUM "51827" // WEST
 
 int main() {
 	setenv("UDA_PLUGIN_DIR", QUOTE(HOME) "/iter/uda/etc/plugins", 1);
@@ -171,6 +171,16 @@ int main() {
 	std::cout << "values for magnetic_axis/position/r/value from 0 to 50: ";
 	for (int j = 0; j < 51; ++j) {
 		std::cout << arr_magnetic_axis_position_r_value_data->as<double>().at(j) << " ";
+	}
+	std::cout << "..." << std::endl;
+
+	const uda::Result& magnetics_time = client.get("imas::get(idx=0, group='summary', variable='time', expName='WEST', type=double, rank=1, shot=" SHOT_NUM ", )", "");
+	const uda::Data * magnetics_time_data = magnetics_time.data();
+	const uda::Array* arr_magnetics_time_data = dynamic_cast<const uda::Array*>(magnetics_time_data);
+
+	std::cout << "values for /time from 0 to 50: ";
+	for (int j = 0; j < 51; ++j) {
+		std::cout << arr_magnetics_time_data->as<double>().at(j) << " ";
 	}
 	std::cout << "..." << std::endl;
 

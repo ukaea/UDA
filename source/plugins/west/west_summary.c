@@ -361,6 +361,10 @@ void summary_heating_current_drive_ec_power(int shotNumber, DATA_BLOCK* data_blo
 	}
 }
 
+void summary_time(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices) {
+	//NOT IMPLEMENTED
+}
+
 void summary_heating_current_drive_ec_power_source(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices) {
 
 	int k = nodeIndices[0]; //starts from 1
