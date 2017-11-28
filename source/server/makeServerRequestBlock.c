@@ -99,7 +99,12 @@ int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList)
 
     sprintf(work, "%s%s", environment->api_archive, environment->api_delim);    // default archive
     sprintf(work2, "%s%s", environment->api_device, environment->api_delim);    // default device
-
+        
+    LeftTrimString(request_block->signal);
+    TrimString(request_block->signal);
+    LeftTrimString(request_block->source);
+    TrimString(request_block->source);
+    
     noSource = (request_block->source[0] == '\0' ||                // no source
                 STR_IEQUALS(request_block->source, environment->api_device) ||    // default device name
                 STR_IEQUALS(request_block->source, work2));            // default device name + delimiting string
@@ -1568,6 +1573,7 @@ void parseNameValue(char* pair, NAMEVALUE* nameValue, unsigned short strip)
     TrimString(copy);
     nameValue->pair = (char*) malloc(lstr * sizeof(char));
     strcpy(nameValue->pair, copy);
+    LeftTrimString(nameValue->pair);
     if ((p = strchr(copy, '=')) != NULL) {
         *p = '\0';
         lstr = (int) strlen(copy) + 1;
@@ -1576,43 +1582,55 @@ void parseNameValue(char* pair, NAMEVALUE* nameValue, unsigned short strip)
         lstr = (int) strlen(&p[1]) + 1;
         nameValue->value = (char*) malloc(lstr * sizeof(char));
         strcpy(nameValue->value, &p[1]);
-        LeftTrimString(nameValue->name);
-        LeftTrimString(nameValue->value);
-        TrimString(nameValue->name);
-        TrimString(nameValue->value);
-        if (strip) {            // remove encosing single or double quotes
-            lstr = (int) strlen(nameValue->value);
-            if ((nameValue->value[0] == '\'' && nameValue->value[lstr - 1] == '\'') ||
-                (nameValue->value[0] == '"' && nameValue->value[lstr - 1] == '"')) {
-                nameValue->value[0] = ' ';
-                nameValue->value[lstr - 1] = ' ';
-                LeftTrimString(nameValue->value);
-                TrimString(nameValue->value);
-            }
-        }
-    } else {
-        if (copy[0] == '/') {        // Mimic IDL keyword passing
-            lstr = (int) strlen(copy);
-            nameValue->name = (char*) malloc(lstr * sizeof(char));
-            strcpy(nameValue->name, &copy[1]);            // Ignore leader forward slash
-            lstr = 5;
-            nameValue->value = (char*) malloc(lstr * sizeof(char));
-            strcpy(nameValue->value, "true");
-            LeftTrimString(nameValue->name);
-            TrimString(nameValue->name);
+    } else {					// Mimic IDL keyword passing or stand alone values for placeholder substitution
+        UDA_LOG(UDA_LOG_DEBUG, "Keyword or placeholder value: %s\n", copy);
+        lstr = (int) strlen(copy)+1;
+        nameValue->name = (char*) malloc(lstr * sizeof(char));
+        if(copy[0] == '/'){
+           strcpy(nameValue->name, &copy[1]);            // Ignore leader forward slash
+           lstr = 5;
+           nameValue->value = (char*) malloc(lstr * sizeof(char));
+           strcpy(nameValue->value, "true");
+	   UDA_LOG(UDA_LOG_DEBUG, "Placeholder name: %s, value: %s\n", nameValue->name, nameValue->value);
         } else {
-            nameValue->name = NULL;
-            nameValue->value = NULL;
+           strcpy(nameValue->name, copy);
+	   nameValue->value = (char*) malloc(lstr * sizeof(char));
+	   strcpy(nameValue->value, copy);
+	   UDA_LOG(UDA_LOG_DEBUG, "Placeholder value: %s\n", nameValue->name);
         }
     }
+    LeftTrimString(nameValue->name);
+    LeftTrimString(nameValue->value);
+    TrimString(nameValue->name);
+    TrimString(nameValue->value);
+    if (strip) {            // remove encosing single or double quotes
+        lstr = (int) strlen(nameValue->name);
+        if ((nameValue->name[0] == '\'' && nameValue->name[lstr - 1] == '\'') ||
+             (nameValue->name[0] == '"' && nameValue->name[lstr - 1] == '"')) {
+            nameValue->name[0] = ' ';
+            nameValue->name[lstr - 1] = ' ';
+            LeftTrimString(nameValue->name);
+            TrimString(nameValue->name);
+        }
+	lstr = (int) strlen(nameValue->value);
+        if ((nameValue->value[0] == '\'' && nameValue->value[lstr - 1] == '\'') ||
+             (nameValue->value[0] == '"' && nameValue->value[lstr - 1] == '"')) {
+            nameValue->value[0] = ' ';
+            nameValue->value[lstr - 1] = ' ';
+            LeftTrimString(nameValue->value);
+            TrimString(nameValue->value);
+        }
+    }    
+    
     free((void*) copy);
 }
 
 int nameValuePairs(char* pairList, NAMEVALUELIST* nameValueList, unsigned short strip)
 {
 
-// Ignore delimter in anything enclosed in single or double quotes
+// Ignore delimiter in anything enclosed in single or double quotes
 // Recognise /name as name=TRUE
+// if strip then remove all enclosing quotes (single or double) 
 
     int i, lstr, pairCount = 0;
     char proposal, delimiter = ',', substitute = 1;
@@ -1620,17 +1638,22 @@ int nameValuePairs(char* pairList, NAMEVALUELIST* nameValueList, unsigned short 
     NAMEVALUE nameValue;
     lstr = (int) strlen(pairList);
 
-    if (lstr == 0) return pairCount;                // Nothing to Parse
-    if (strchr(pairList, '=') == NULL && pairList[0] != '/')
-        return pairCount;        // Not a Name Value list or Keyword
-    if (pairList[0] == '=') return -1;                // Syntax error
-    if (pairList[lstr - 1] == '=') return -1;            // Syntax error
+    if (lstr == 0) return pairCount;			// Nothing to Parse
+    
+    // Placeholder substitution is neither a name-value pair nor a keyword so bypass this test
+    //if (strchr(pairList, '=') == NULL && pairList[0] != '/')
+    //    return pairCount;        // Not a Name Value list or Keyword
+	
+    if (pairList[0] == '=') return -1;			// Syntax error
+    if (pairList[lstr - 1] == '=') return -1;		// Syntax error
 
     lstr = lstr + 1;
     buffer = (char*) malloc(lstr * sizeof(char));
     copy = (char*) malloc(lstr * sizeof(char));
 
     strcpy(copy, pairList);        // working copy
+
+    UDA_LOG(UDA_LOG_DEBUG, "Parsing name values from argument: %s\n", pairList); 
 
 // Locate the delimiter name value pair if present - use default character ',' if not
 
@@ -1644,21 +1667,21 @@ int nameValuePairs(char* pairList, NAMEVALUELIST* nameValueList, unsigned short 
                     (buffer[0] == '\'' && buffer[2] == '\'') || (buffer[0] == '"' && buffer[2] == '"'))) {
                 proposal = buffer[1];        // proposal delimiter
                 lstr = (int) (p - copy);
-                if (lstr == 0) {            // delimiter name value pair coincident with start of list
-                    delimiter = proposal;        // new delimiter
-                    p3 = strchr(&p[9], delimiter);    // change delimiter to avert incorrect parse
+                if (lstr == 0) {			// delimiter name value pair coincident with start of list
+                    delimiter = proposal;		// new delimiter
+                    p3 = strchr(&p[9], delimiter);	// change delimiter to avert incorrect parse
                     *p3 = '#';
                 } else {
                     strncpy(buffer, copy, lstr);    // check 'delimiter' is not part of another name value pair
                     buffer[lstr] = '\0';
                     TrimString(buffer);
                     lstr = (int) strlen(buffer);
-                    if (buffer[lstr - 1] == proposal) {    // must be an immediately preceeding delimiter character
-                        delimiter = proposal;        // new delimiter accepted
-                        p3 = strchr(&p[9], delimiter);    // change delimiter temporarily to avert incorrect parse
+                    if (buffer[lstr - 1] == proposal) {		// must be an immediately preceeding delimiter character
+                        delimiter = proposal;			// new delimiter accepted
+                        p3 = strchr(&p[9], delimiter);		// change delimiter temporarily to avert incorrect parse
                         *p3 = '#';
                     } else {
-                        TrimString(buffer);        // Check for non alpha-numeric character
+                        TrimString(buffer);			// Check for non alpha-numeric character
                         lstr = (int) strlen(buffer);
                         if (!isalpha(buffer[lstr - 1]) && !isdigit(buffer[lstr - 1])) {    // Probable syntax error!
                             free((void*) buffer);
@@ -1695,16 +1718,20 @@ int nameValuePairs(char* pairList, NAMEVALUELIST* nameValueList, unsigned short 
 
     p = copy;
     do {
-        if ((p2 = strchr(p, delimiter)) != NULL) {        // Test: subset=[<=3] or not pair just [<=3]
+        if ((p2 = strchr(p, delimiter)) != NULL) {
             strncpy(buffer, p, p2 - p);
             buffer[p2 - p] = '\0';
             p = p2 + 1;
         } else {
             strcpy(buffer, p);
         }
+	
+	UDA_LOG(UDA_LOG_DEBUG, "Parsing name value: %s\n", buffer);
         parseNameValue(buffer, &nameValue, strip);
+	UDA_LOG(UDA_LOG_DEBUG, "Name %s, Value: %s\n", nameValue.name, nameValue.value);
 
-        if (nameValue.name != NULL && nameValue.value != NULL) {
+        //if (nameValue.name != NULL && nameValue.value != NULL) {
+	if (nameValue.name != NULL) {		// Values may be NULL for use case where placeholder substitution is used
             pairCount++;
             if (pairCount > nameValueList->listSize) {
                 nameValueList->nameValue = (NAMEVALUE*) realloc((void*) nameValueList->nameValue,

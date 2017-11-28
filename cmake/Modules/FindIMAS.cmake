@@ -34,3 +34,4 @@ include( FindPackageHandleStandardArgs )
 find_package_handle_standard_args( IMAS DEFAULT_MSG IMAS_LIBRARY IMAS_INCLUDE_DIR )
 
 mark_as_advanced( IMAS_LIBRARIES IMAS_INCLUDE_DIRS )
+

@@ -1,0 +1,216 @@
+
+***** Library Globals and Locals *****
+***** use 'cut -b 9- <file>' to strip away the first column of output
+
+1) Public Code Symbols
+
+2) Private Code Symbols
+
+3) Uninitialised Public Data
+
+4) Uninitialised Private Data
+
+5) Initialised Public Data
+
+6) Initialised Private Data
+
+7) Undefined Symbols (from linked libraries)
+
+8) Demangled Public Symbols
+
+9) Dynamic Public Symbols
+0000000000008ae0 T gcry_ac_close
+00000000000089b0 T gcry_ac_data_clear
+0000000000008990 T gcry_ac_data_copy
+0000000000008b90 T gcry_ac_data_decode
+0000000000008bb0 T gcry_ac_data_decrypt
+0000000000008bf0 T gcry_ac_data_decrypt_scheme
+0000000000008980 T gcry_ac_data_destroy
+0000000000008b80 T gcry_ac_data_encode
+0000000000008ba0 T gcry_ac_data_encrypt
+0000000000008be0 T gcry_ac_data_encrypt_scheme
+0000000000008a00 T gcry_ac_data_from_sexp
+00000000000089e0 T gcry_ac_data_get_index
+00000000000089d0 T gcry_ac_data_get_name
+00000000000089a0 T gcry_ac_data_length
+0000000000008970 T gcry_ac_data_new
+00000000000089c0 T gcry_ac_data_set
+0000000000008bc0 T gcry_ac_data_sign
+0000000000008c00 T gcry_ac_data_sign_scheme
+00000000000089f0 T gcry_ac_data_to_sexp
+0000000000008bd0 T gcry_ac_data_verify
+0000000000008c10 T gcry_ac_data_verify_scheme
+0000000000008c20 T gcry_ac_id_to_name
+0000000000008a10 T gcry_ac_io_init
+0000000000008ac0 T gcry_ac_io_init_va
+0000000000008b20 T gcry_ac_key_data_get
+0000000000008b60 T gcry_ac_key_destroy
+0000000000008b50 T gcry_ac_key_get_grip
+0000000000008b40 T gcry_ac_key_get_nbits
+0000000000008af0 T gcry_ac_key_init
+0000000000008b70 T gcry_ac_key_pair_destroy
+0000000000008b10 T gcry_ac_key_pair_extract
+0000000000008b00 T gcry_ac_key_pair_generate
+0000000000008b30 T gcry_ac_key_test
+0000000000008c50 T gcry_ac_name_to_id
+0000000000008ad0 T gcry_ac_open
+0000000000009020 T gcry_calloc
+0000000000009040 T gcry_calloc_secure
+0000000000007a50 T gcry_check_version
+0000000000008160 T gcry_cipher_algo_info
+00000000000081b0 T gcry_cipher_algo_name
+0000000000008030 T gcry_cipher_close
+0000000000008100 T gcry_cipher_ctl
+0000000000008250 T gcry_cipher_decrypt
+00000000000081e0 T gcry_cipher_encrypt
+00000000000082b0 T gcry_cipher_get_algo_blklen
+00000000000082a0 T gcry_cipher_get_algo_keylen
+0000000000008150 T gcry_cipher_info
+00000000000082c0 T gcry_cipher_list
+00000000000081c0 T gcry_cipher_map_name
+00000000000081d0 T gcry_cipher_mode_from_oid
+0000000000007fd0 T gcry_cipher_open
+00000000000090f0 T gcry_cipher_register
+00000000000080c0 T gcry_cipher_setctr
+0000000000008080 T gcry_cipher_setiv
+0000000000008040 T gcry_cipher_setkey
+0000000000009100 T gcry_cipher_unregister
+0000000000007a60 T gcry_control
+0000000000008eb0 T gcry_create_nonce
+0000000000007a10 T gcry_err_code_from_errno
+0000000000007a20 T gcry_err_code_to_errno
+0000000000007a30 T gcry_err_make_from_errno
+0000000000007a40 T gcry_error_from_errno
+00000000000090d0 T gcry_free
+00000000000090e0 T gcry_is_secure
+0000000000008c80 T gcry_kdf_derive
+0000000000009010 T gcry_malloc
+0000000000009030 T gcry_malloc_secure
+00000000000088e0 T gcry_md_algo_info
+00000000000088f0 T gcry_md_algo_name
+0000000000008650 T gcry_md_close
+0000000000008690 T gcry_md_copy
+00000000000086f0 T gcry_md_ctl
+0000000000008950 T gcry_md_debug
+0000000000008660 T gcry_md_enable
+00000000000087f0 T gcry_md_get_algo
+0000000000008840 T gcry_md_get_algo_dlen
+0000000000008790 T gcry_md_hash_buffer
+0000000000008890 T gcry_md_info
+0000000000008850 T gcry_md_is_enabled
+0000000000008880 T gcry_md_is_secure
+0000000000008960 T gcry_md_list
+0000000000008900 T gcry_md_map_name
+0000000000008600 T gcry_md_open
+0000000000008780 T gcry_md_read
+0000000000009130 T gcry_md_register
+00000000000086e0 T gcry_md_reset
+0000000000008910 T gcry_md_setkey
+0000000000009140 T gcry_md_unregister
+0000000000008740 T gcry_md_write
+0000000000007e10 T gcry_mpi_add
+0000000000007e30 T gcry_mpi_addm
+0000000000007e20 T gcry_mpi_add_ui
+0000000000007df0 T gcry_mpi_aprint
+0000000000007f30 T gcry_mpi_clear_bit
+0000000000007fb0 T gcry_mpi_clear_flag
+0000000000007f50 T gcry_mpi_clear_highbit
+0000000000007db0 T gcry_mpi_cmp
+0000000000007dc0 T gcry_mpi_cmp_ui
+0000000000007d70 T gcry_mpi_copy
+0000000000007eb0 T gcry_mpi_div
+0000000000007e00 T gcry_mpi_dump
+0000000000007ee0 T gcry_mpi_gcd
+0000000000007fc0 T gcry_mpi_get_flag
+0000000000007f00 T gcry_mpi_get_nbits
+0000000000007f90 T gcry_mpi_get_opaque
+0000000000007ef0 T gcry_mpi_invm
+0000000000007f70 T gcry_mpi_lshift
+0000000000007ec0 T gcry_mpi_mod
+0000000000007e70 T gcry_mpi_mul
+0000000000007ea0 T gcry_mpi_mul_2exp
+0000000000007e90 T gcry_mpi_mulm
+0000000000007e80 T gcry_mpi_mul_ui
+0000000000007d40 T gcry_mpi_new
+0000000000007ed0 T gcry_mpi_powm
+0000000000007de0 T gcry_mpi_print
+0000000000008e60 T gcry_mpi_randomize
+0000000000007d60 T gcry_mpi_release
+0000000000007f60 T gcry_mpi_rshift
+0000000000007dd0 T gcry_mpi_scan
+0000000000007d80 T gcry_mpi_set
+0000000000007f20 T gcry_mpi_set_bit
+0000000000007fa0 T gcry_mpi_set_flag
+0000000000007f40 T gcry_mpi_set_highbit
+0000000000007f80 T gcry_mpi_set_opaque
+0000000000007d90 T gcry_mpi_set_ui
+0000000000007d50 T gcry_mpi_snew
+0000000000007e40 T gcry_mpi_sub
+0000000000007e60 T gcry_mpi_subm
+0000000000007e50 T gcry_mpi_sub_ui
+0000000000007da0 T gcry_mpi_swap
+0000000000007f10 T gcry_mpi_test_bit
+0000000000008490 T gcry_pk_algo_info
+00000000000084e0 T gcry_pk_algo_name
+0000000000008480 T gcry_pk_ctl
+0000000000008320 T gcry_pk_decrypt
+00000000000082d0 T gcry_pk_encrypt
+0000000000008430 T gcry_pk_genkey
+0000000000008570 T gcry_pk_get_curve
+0000000000008530 T gcry_pk_get_keygrip
+0000000000008500 T gcry_pk_get_nbits
+00000000000085b0 T gcry_pk_get_param
+00000000000085f0 T gcry_pk_list
+00000000000084f0 T gcry_pk_map_name
+0000000000009110 T gcry_pk_register
+0000000000008370 T gcry_pk_sign
+0000000000008400 T gcry_pk_testkey
+0000000000009120 T gcry_pk_unregister
+00000000000083c0 T gcry_pk_verify
+0000000000008fa0 T gcry_prime_check
+0000000000008f00 T gcry_prime_generate
+0000000000008f80 T gcry_prime_group_generator
+0000000000008f90 T gcry_prime_release_factors
+0000000000008d80 T gcry_random_add_bytes
+0000000000008dc0 T gcry_random_bytes
+0000000000008e10 T gcry_random_bytes_secure
+0000000000008d20 T gcry_randomize
+0000000000009050 T gcry_realloc
+0000000000008fc0 T gcry_set_allocation_handler
+0000000000008fe0 T gcry_set_fatalerror_handler
+0000000000009000 T gcry_set_gettext_handler
+0000000000008ff0 T gcry_set_log_handler
+0000000000008fd0 T gcry_set_outofcore_handler
+0000000000008fb0 T gcry_set_progress_handler
+0000000000007c60 T gcry_sexp_alist
+0000000000007c90 T gcry_sexp_append
+0000000000007b50 T gcry_sexp_build
+0000000000007c00 T gcry_sexp_build_array
+0000000000007d00 T gcry_sexp_cadr
+0000000000007c20 T gcry_sexp_canon_len
+0000000000007ce0 T gcry_sexp_car
+0000000000007cf0 T gcry_sexp_cdr
+0000000000007c50 T gcry_sexp_cons
+0000000000007b30 T gcry_sexp_create
+0000000000007c40 T gcry_sexp_dump
+0000000000007cb0 T gcry_sexp_find_token
+0000000000007cc0 T gcry_sexp_length
+0000000000007b20 T gcry_sexp_new
+0000000000007cd0 T gcry_sexp_nth
+0000000000007d10 T gcry_sexp_nth_data
+0000000000007d30 T gcry_sexp_nth_mpi
+0000000000007d20 T gcry_sexp_nth_string
+0000000000007ca0 T gcry_sexp_prepend
+0000000000007c10 T gcry_sexp_release
+0000000000007c30 T gcry_sexp_sprint
+0000000000007b40 T gcry_sexp_sscan
+0000000000007c70 T gcry_sexp_vlist
+0000000000009060 T gcry_strdup
+00000000000079f0 T gcry_strerror
+0000000000007a00 T gcry_strsource
+0000000000009080 T gcry_xcalloc
+00000000000090a0 T gcry_xcalloc_secure
+0000000000009070 T gcry_xmalloc
+0000000000009090 T gcry_xmalloc_secure
+00000000000090b0 T gcry_xrealloc
+00000000000090c0 T gcry_xstrdup
