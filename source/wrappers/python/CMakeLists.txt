@@ -20,7 +20,7 @@ include_directories(
 
 include_directories( SYSTEM "${Boost_INCLUDE_DIR}" )
 
-add_definitions( -D__USE_XOPEN2K8 )
+add_definitions( -D__USE_XOPEN2K8 -DSWIG )
 
 set_source_files_properties( UDA.i PROPERTIES CPLUSPLUS ON )
 if( CMAKE_SIZEOF_VOID_P EQUAL 8 )
