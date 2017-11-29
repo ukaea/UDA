@@ -401,12 +401,15 @@ int do_query(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PGconn* conn)
         RAISE_PLUGIN_ERROR("Unable to Escape the signal name");
     }
 
-    char* tpass = strdup(objectSource);
-    strupr(tpass);
-    if (preventSQLInjection(conn, &tpass)) {
-        free((void*)signal);
-        free((void*)tpass);
-        RAISE_PLUGIN_ERROR("Unable to Escape the tpass string");
+    char* tpass = NULL;
+    if(isObjectSource && objectSource != NULL){
+       tpass = strdup(objectSource);
+       strupr(tpass);
+       if (preventSQLInjection(conn, &tpass)) {
+           free((void*)signal);
+           free((void*)tpass);
+           RAISE_PLUGIN_ERROR("Unable to Escape the tpass string");
+       }
     }
 
     //-------------------------------------------------------------
@@ -485,8 +488,8 @@ int do_query(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PGconn* conn)
         free(upper);
     }
 
-    free((void*)signal);
-    free((void*)tpass);
+    if(signal != NULL) free((void*)signal);
+    if(tpass != NULL) free((void*)tpass);
 
     //-------------------------------------------------------------
     // Test Performance
