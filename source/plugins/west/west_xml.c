@@ -775,7 +775,11 @@ void execute_tsmat_collect(const char* TOP_collections_parameters, char* attribu
 	float normalizationFactor = 1;
 	getNormalizationFactor(&normalizationFactor, normalizationAttributes);
 	IDAM_LOGF(UDA_LOG_DEBUG, "In execute_tsmat_collect, setting static value... %s\n", "");
-	setStaticValue(data_type, data_block, value, searchedArrayIndex, normalizationFactor);
+
+	if (strncmp("GMAG_BTANG", object_name, 10) == 0) //TODO Temporary patch, will be removed soon
+		set_BTANG_StaticValue(data_type, data_block, value, searchedArrayIndex, normalizationFactor);
+	else
+		setStaticValue(data_type, data_block, value, searchedArrayIndex, normalizationFactor);
 
 	free(command);
 	free(prod_name);

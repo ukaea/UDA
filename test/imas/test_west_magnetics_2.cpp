@@ -14,7 +14,7 @@ exit 0
 #define QUOTE_(X) #X
 #define QUOTE(X) QUOTE_(X)
 #define SHOT_NUM_TORE_SUPRA "43979" // WEST
-#define SHOT_NUM "51371" // WEST
+#define SHOT_NUM "51827" // WEST
 
 int main() {
 	setenv("UDA_PLUGIN_DIR", QUOTE(HOME) "/iter/uda/etc/plugins", 1);
@@ -35,7 +35,7 @@ int main() {
 
 	uda::Client client;
 
-	const uda::Result& sigtime = client.get("imas::get(idx=0, group='magnetics', variable='flux_loop/1/flux/time', expName='WEST', type=double, rank=1, shot=" SHOT_NUM ", )", "");
+	/*const uda::Result& sigtime = client.get("imas::get(idx=0, group='magnetics', variable='flux_loop/1/flux/time', expName='WEST', type=double, rank=1, shot=" SHOT_NUM ", )", "");
 	const uda::Data * datatime = sigtime.data();
 	const uda::Array* arrtime = dynamic_cast<const uda::Array*>(datatime);
 
@@ -43,7 +43,7 @@ int main() {
 	for (int j = 0; j < 10; ++j) {
 		std::cout << arrtime->as<double>().at(j) << " ";
 	}
-	std::cout << "..." << std::endl;
+	std::cout << "..." << std::endl;*/
 
 	const uda::Result& sigts = client.get("imas::get(idx=0, group='magnetics', variable='flux_loop/1/flux/data', expName='WEST', type=double, rank=1, shot=" SHOT_NUM ", )", "");
 	const uda::Data * datats = sigts.data();
@@ -55,7 +55,7 @@ int main() {
 	}
 	std::cout << "..." << std::endl;
 
-	const uda::Result& sigtime2 = client.get("imas::get(idx=0, group='magnetics', variable='flux_loop/2/flux/time', expName='WEST', type=double, rank=1, shot=" SHOT_NUM ", )", "");
+	/*const uda::Result& sigtime2 = client.get("imas::get(idx=0, group='magnetics', variable='flux_loop/2/flux/time', expName='WEST', type=double, rank=1, shot=" SHOT_NUM ", )", "");
 	const uda::Data * datatime2 = sigtime2.data();
 	const uda::Array* arrtime2 = dynamic_cast<const uda::Array*>(datatime2);
 
@@ -63,7 +63,7 @@ int main() {
 	for (int j = 0; j < 10; ++j) {
 		std::cout << arrtime2->as<double>().at(j) << " ";
 	}
-	std::cout << "..." << std::endl;
+	std::cout << "..." << std::endl;*/
 
 	const uda::Result& sigts2 = client.get("imas::get(idx=0, group='magnetics', variable='flux_loop/2/flux/data', expName='WEST', type=double, rank=1, shot=" SHOT_NUM ", )", "");
 	const uda::Data * datats2 = sigts2.data();
@@ -75,7 +75,7 @@ int main() {
 	}
 	std::cout << "..." << std::endl;
 
-	const uda::Result& sigtime3 = client.get("imas::get(idx=0, group='magnetics', variable='flux_loop/3/flux/time', expName='WEST', type=double, rank=1, shot=" SHOT_NUM ", )", "");
+	/*const uda::Result& sigtime3 = client.get("imas::get(idx=0, group='magnetics', variable='flux_loop/3/flux/time', expName='WEST', type=double, rank=1, shot=" SHOT_NUM ", )", "");
 	const uda::Data * datatime3 = sigtime3.data();
 	const uda::Array* arrtime3 = dynamic_cast<const uda::Array*>(datatime3);
 
@@ -83,7 +83,7 @@ int main() {
 	for (int j = 0; j < 10; ++j) {
 		std::cout << arrtime3->as<double>().at(j) << " ";
 	}
-	std::cout << "..." << std::endl;
+	std::cout << "..." << std::endl;*/
 
 	const uda::Result& sigts3 = client.get("imas::get(idx=0, group='magnetics', variable='flux_loop/3/flux/data', expName='WEST', type=double, rank=1, shot=" SHOT_NUM ", )", "");
 	const uda::Data * datats3 = sigts3.data();
@@ -98,6 +98,23 @@ int main() {
 	const uda::Result& tor_angle = client.get("imas::get(idx=0, group='magnetics', variable='bpol_probe/1/toroidal_angle', expName='WEST', type=float, rank=0, shot=" SHOT_NUM ", )", "");
 	const uda::Scalar* v_tor_angle = dynamic_cast<const uda::Scalar*>(tor_angle.data());
 	std::cout << "bpol_probe/1/toroidal_angle: " << v_tor_angle->as<float>() << std::endl;
+
+	const uda::Result& tor_angle60 = client.get("imas::get(idx=0, group='magnetics', variable='bpol_probe/60/toroidal_angle', expName='WEST', type=float, rank=0, shot=" SHOT_NUM ", )", "");
+	const uda::Scalar* v_tor_angle60 = dynamic_cast<const uda::Scalar*>(tor_angle60.data());
+	std::cout << "bpol_probe/60/toroidal_angle: " << v_tor_angle60->as<float>() << std::endl;
+
+	const uda::Result& pol_angle60 = client.get("imas::get(idx=0, group='magnetics', variable='bpol_probe/60/poloidal_angle', expName='WEST', type=float, rank=0, shot=" SHOT_NUM ", )", "");
+	const uda::Scalar* v_pol_angle60 = dynamic_cast<const uda::Scalar*>(pol_angle60.data());
+	std::cout << "bpol_probe/60/poloidal_angle: " << v_pol_angle60->as<float>() << std::endl;
+
+	/*for (int i = 0; i < 110; i++) {
+		char* requestPart = "imas::get(idx=0, group='magnetics', variable='";
+		char* requestPart = "', expName='WEST', type=float, rank=0, shot=";
+		char* requestVaiable = strcat()
+		const uda::Result& tor_anglei = client.get("imas::get(idx=0, group='magnetics', variable='bpol_probe/60/toroidal_angle', expName='WEST', type=float, rank=0, shot=" SHOT_NUM ", )", "");
+		const uda::Scalar* v_tor_angle60 = dynamic_cast<const uda::Scalar*>(tor_angle60.data());
+		std::cout << "bpol_probe/60/toroidal_angle: " << v_tor_angle60->as<float>() << std::endl;
+	}*/
 
 	const uda::Result& bpol_probe_posR = client.get("imas::get(idx=0, group='magnetics', variable='bpol_probe/20/position/r', expName='WEST', type=double, rank=0, shot=" SHOT_NUM ", )", "");
 	const uda::Scalar* scalar_bpol_probe_posR = dynamic_cast<const uda::Scalar*>(bpol_probe_posR.data());

@@ -3,6 +3,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <assert.h>
+#include <math.h>
 
 #include <logging/logging.h>
 #include <clientserver/initStructs.h>
@@ -69,6 +70,28 @@ void setStaticValue(int data_type, DATA_BLOCK* data_block, char* value, int requ
 	} else {
 		int err = 901;
 		IDAM_LOG(UDA_LOG_DEBUG, "Unsupported data type from setStaticValue()\n");
+		addIdamError(CODEERRORTYPE, "WEST:ERROR: unsupported data type", err, "");
+	}
+}
+
+//TODO, this patch will be removed soon
+void set_BTANG_StaticValue(int data_type, DATA_BLOCK* data_block, char* value, int requestedIndex, float normalizationFactor)
+{
+	IDAM_LOG(UDA_LOG_DEBUG, "Entering set_BTANG_StaticValue()\n");
+	IDAM_LOGF(UDA_LOG_DEBUG, "requested index: %d", requestedIndex);
+	if (data_type == UDA_TYPE_FLOAT) {
+		IDAM_LOGF(UDA_LOG_DEBUG, "handling float in set_BTANG_StaticValue(): %d, %g\n", requestedIndex, normalizationFactor);
+		float* pt_float = (float*)value;
+
+		pt_float[requestedIndex] = pt_float[requestedIndex] + M_PI;
+		if (pt_float[requestedIndex] >= 2*M_PI)
+			pt_float[requestedIndex] = pt_float[requestedIndex] - M_PI;
+
+		setReturnDataFloatScalar(data_block, pt_float[requestedIndex] * normalizationFactor, NULL);
+
+	} else {
+		int err = 901;
+		IDAM_LOG(UDA_LOG_DEBUG, "Unsupported data type from set_BTANG_StaticValue()\n");
 		addIdamError(CODEERRORTYPE, "WEST:ERROR: unsupported data type", err, "");
 	}
 }

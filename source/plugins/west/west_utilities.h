@@ -36,4 +36,5 @@ void addExtractionChars(char* result, char* signalName, int extractionIndex);
 void getTopCollectionsCount(const char* TOP_collections_parameters, int* collectionsCount);
 void getObjectName(char** obj_name, char* command);
 
+
 #endif // IDAM_PLUGIN_WEST_UTILITIES_H
