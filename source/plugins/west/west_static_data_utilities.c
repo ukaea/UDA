@@ -83,9 +83,9 @@ void set_BTANG_StaticValue(int data_type, DATA_BLOCK* data_block, char* value, i
 		IDAM_LOGF(UDA_LOG_DEBUG, "handling float in set_BTANG_StaticValue(): %d, %g\n", requestedIndex, normalizationFactor);
 		float* pt_float = (float*)value;
 
-		pt_float[requestedIndex] = pt_float[requestedIndex] + M_PI;
-		if (pt_float[requestedIndex] >= 2*M_PI)
-			pt_float[requestedIndex] = pt_float[requestedIndex] - M_PI;
+		pt_float[requestedIndex] = pt_float[requestedIndex] + 180.;
+		if (pt_float[requestedIndex] >= 360.)
+			pt_float[requestedIndex] = pt_float[requestedIndex] - 180.;
 
 		setReturnDataFloatScalar(data_block, pt_float[requestedIndex] * normalizationFactor, NULL);
 
