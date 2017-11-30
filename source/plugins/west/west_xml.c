@@ -34,10 +34,13 @@ void execute_tsmat_without_idam_index(const char* command, char* attributes,
 		int shotNumber, DATA_BLOCK* data_block, char* normalizationAttributes);
 void execute_setvalue_collect(const char* TOP_collections_parameters, char* attributes,
 		int shotNumber, DATA_BLOCK* data_block, int* nodeIndices, char* normalizationAttributes);
+void execute_tsmat_collect_poloidal_angle(const char* TOP_collections_parameters, char* attributes,
+		int shotNumber, DATA_BLOCK* data_block, int* nodeIndices, char* normalizationAttributes);
 void execute_setchannels_validity(int* unvalid_channels_list, int unvalid_channels_size, char* attributes,
 		int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
 void setStatic1DValue(int data_type, DATA_BLOCK* data_block, char* value, int val_nb, float normalizationFactor);
 //void setStaticValue(int data_type, DATA_BLOCK* data_block, char* value, int requestedIndex, float normalizationFactor);
+void setPatchedStaticValue(DATA_BLOCK* data_block, char* object_name, int data_type, char* value, int searchedArrayIndex, float  normalizationFactor);
 
 int GetStaticData(int shotNumber, const char* mapfun, DATA_BLOCK* data_block, int* nodeIndices)
 {
@@ -88,6 +91,8 @@ int execute(const char* mapfun, int shotNumber, DATA_BLOCK* data_block, int* nod
 	} else if (strcmp(fun_name, "set_channels_validity") == 0) {
 		//returns a static value according to the position of the element in the collection (rank = 0)
 		fun = 5;
+	}  else if (strcmp(fun_name, "tsmat_collect_poloidal_angle") == 0) {
+		fun = 6;
 	}
 
 	//--------------------ece----------------------------------
@@ -277,13 +282,13 @@ int execute(const char* mapfun, int shotNumber, DATA_BLOCK* data_block, int* nod
 
 		break;
 	}
-
-	/*case 6: {
-                IDAM_LOG(LOG_DEBUG, "Case of ece_frequencies from WEST plugin\n");
-                ece_frequencies(shotNumber, data_block, nodeIndices);
-
-                break;
-            }*/
+	case 6: {
+		IDAM_LOG(UDA_LOG_DEBUG, "Case of tsmat_collect_poloidal_angle from WEST plugin\n");
+		tokenizeFunParameters(mapfun, &TOP_collections_parameters, &attributes, &normalizationAttributes);
+		execute_tsmat_collect_poloidal_angle(TOP_collections_parameters, attributes, shotNumber, data_block, nodeIndices,
+				normalizationAttributes);
+		break;
+	}
 
 	case 7: {
 		IDAM_LOG(UDA_LOG_DEBUG, "Case of ece_names from WEST plugin\n");
@@ -776,16 +781,117 @@ void execute_tsmat_collect(const char* TOP_collections_parameters, char* attribu
 	getNormalizationFactor(&normalizationFactor, normalizationAttributes);
 	IDAM_LOGF(UDA_LOG_DEBUG, "In execute_tsmat_collect, setting static value... %s\n", "");
 
-	if (strncmp("GMAG_BTANG", object_name, 10) == 0) //TODO Temporary patch, will be removed soon
-		set_BTANG_StaticValue(data_type, data_block, value, searchedArrayIndex, normalizationFactor);
-	else
-		setStaticValue(data_type, data_block, value, searchedArrayIndex, normalizationFactor);
+	setStaticValue(data_type, data_block, value, searchedArrayIndex, normalizationFactor);
 
 	free(command);
 	free(prod_name);
 	free(object_name);
 	free(param_name);
 	free(value);
+}
+
+void execute_tsmat_collect_poloidal_angle(const char* TOP_collections_parameters, char* attributes,
+		int shotNumber, DATA_BLOCK* data_block, int* nodeIndices, char* normalizationAttributes)
+{
+	int collectionsCount;
+	getTopCollectionsCount(TOP_collections_parameters, &collectionsCount);
+
+	int* l;
+	l = (int*)calloc(collectionsCount, sizeof(int));
+
+	int i;
+	int status = -1;
+	for (i = 0; i < collectionsCount; i++) {
+		char* command = NULL;
+		status = getCommand(i, &command, TOP_collections_parameters);
+		if (status == -1) {
+			int err = 901;
+			addIdamError(CODEERRORTYPE, "WEST:ERROR: unable to get the shapeof command", err, "");
+		}
+
+		int nb_val = 0;
+		getShapeOf(command, shotNumber, &nb_val);
+		l[i] = nb_val;
+	}
+
+	IDAM_LOGF(UDA_LOG_DEBUG, "In execute_tsmat_collect, searching requestedIndex... %s\n", "");
+	int requestedIndex = getNumIDAMIndex(attributes, nodeIndices);
+
+	IDAM_LOGF(UDA_LOG_DEBUG, "In execute_tsmat_collect, after searching requestedIndex --> %d\n", requestedIndex);
+
+	int searchedArray;
+	int searchedArrayIndex;
+
+	IDAM_LOGF(UDA_LOG_DEBUG, "In execute_tsmat_collect, searching index array for requested index: %d\n",
+			requestedIndex);
+	searchIndices(requestedIndex, l, &searchedArray, &searchedArrayIndex);
+	IDAM_LOGF(UDA_LOG_DEBUG, "In execute_tsmat_collect, searched array:%d\n", searchedArray);
+	IDAM_LOGF(UDA_LOG_DEBUG, "In execute_tsmat_collect, searched array index:%d\n", searchedArrayIndex);
+
+	char* command = NULL;
+
+	IDAM_LOGF(UDA_LOG_DEBUG, "In execute_tsmat_collect, getting command from TOP_collections_parameters: %s\n",
+			TOP_collections_parameters);
+	getCommand(searchedArray, &command, TOP_collections_parameters);
+
+	IDAM_LOG(UDA_LOG_DEBUG, "In execute_tsmat_collect, after getting command...\n");
+
+	char* prod_name = NULL;     //DMAG, ...
+	char* object_name = NULL;   //GMAG_BNORM, ...
+	char* param_name = NULL;    //PosR, ...
+	char* flag = NULL;          //'Null' or blank
+
+	int data_type;
+	getReturnType(attributes, &data_type);
+
+	//Tokenize mapfun string to get function parameters
+	IDAM_LOGF(UDA_LOG_DEBUG, "In execute_tsmat_collect, tokenizing command... %s\n", command);
+	tokenizeCommand(command, &prod_name, &object_name, &param_name, &flag);
+	IDAM_LOG(UDA_LOG_DEBUG, "In execute_tsmat_collect, afetr tokenizing command...\n");
+
+	char* value = NULL;
+	int val_nb = l[searchedArray];
+	int nb_val;
+
+	IDAM_LOGF(UDA_LOG_DEBUG, "In execute_tsmat_collect, flag: %s\n", flag);
+	IDAM_LOG(UDA_LOG_DEBUG, "In execute_tsmat_collect, checking if flag is Null...\n");
+
+	if (flag != NULL && strncmp("Null", flag, 4) == 0) {
+		IDAM_LOG(UDA_LOG_DEBUG, "In execute_tsmat_collect, setting value for Null flag...\n");
+		int data_type;
+		getReturnType(attributes, &data_type);
+		value = setBuffer(data_type, "0"); //we put zero for 'Null' flag
+		searchedArrayIndex = 0;
+	} else {
+		//Reading static parameters using TSLib
+		IDAM_LOGF(UDA_LOG_DEBUG, "In execute_tsmat_collect, reading static parameters for param. name: %s\n",
+				param_name);
+		status = readStaticParameters(&value, &nb_val, shotNumber, prod_name, object_name, param_name, val_nb);
+		if (status != 0) {
+			int err = 901;
+			addIdamError(CODEERRORTYPE, "WEST:ERROR: unable to read static data", err, "");
+		}
+	}
+
+	float normalizationFactor = 1;
+	getNormalizationFactor(&normalizationFactor, normalizationAttributes);
+	IDAM_LOGF(UDA_LOG_DEBUG, "In execute_tsmat_collect, setting static value... %s\n", "");
+
+	//setStaticValue(data_type, data_block, value, searchedArrayIndex, normalizationFactor);
+	setPatchedStaticValue(data_block, object_name, data_type, value, searchedArrayIndex, normalizationFactor); //TODO Temporary patch, will be removed soon
+
+	free(command);
+	free(prod_name);
+	free(object_name);
+	free(param_name);
+	free(value);
+}
+
+void setPatchedStaticValue(DATA_BLOCK* data_block, char* object_name, int data_type, char* value, int searchedArrayIndex, float  normalizationFactor) {
+	if (strncmp("GMAG_BTANG", object_name, 10) == 0) //TODO Temporary patch, will be removed soon
+		set_BTANG_StaticValue(data_type, data_block, value, searchedArrayIndex, normalizationFactor);
+	else
+		setStaticValue(data_type, data_block, value, searchedArrayIndex, normalizationFactor);
 }
 
 void execute_tsmat_without_idam_index(const char* TOP_collections_parameters, char* attributes,
