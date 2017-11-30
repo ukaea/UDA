@@ -85,7 +85,7 @@ void set_BTANG_StaticValue(int data_type, DATA_BLOCK* data_block, char* value, i
 
 		pt_float[requestedIndex] = pt_float[requestedIndex] + 180.;
 		if (pt_float[requestedIndex] >= 360.)
-			pt_float[requestedIndex] = pt_float[requestedIndex] - 180.;
+			pt_float[requestedIndex] = pt_float[requestedIndex] - 360.;
 
 		setReturnDataFloatScalar(data_block, pt_float[requestedIndex] * normalizationFactor, NULL);
 
