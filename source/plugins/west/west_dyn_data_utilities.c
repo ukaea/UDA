@@ -397,10 +397,11 @@ int signalsRatio(float **result_q_by_r, float *q, float *r, int lenq, int lenr) 
 	*result_q_by_r = (float*) malloc(sizeof(float)*lenq);
 	int i;
 	for (i = 0; i < lenq; i++) {
-		IDAM_LOGF(UDA_LOG_DEBUG, "r[i]=%f\n", r[i]);
-		if (r[i] < 1e-100)
-			return -1;
-		*(*result_q_by_r + i) = q[i]/r[i];
+		//IDAM_LOGF(UDA_LOG_DEBUG, "r[i]=%f\n", r[i]);
+		if (r[i] < 1e-30)
+			*(*result_q_by_r + i) = 0.;
+		else
+			*(*result_q_by_r + i) = q[i]/r[i];
 	}
 	return 0;
 }
