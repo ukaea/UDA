@@ -84,11 +84,12 @@ class Result;
 class IdamException;
 class Signal;
 
-class Client
-{
+class Client {
 public:
     ~Client();
-    Client() : data_() {}
+
+    Client() : data_()
+    {}
 
     static void setProperty(Property prop, bool value) throw(UDAException);
     static void setProperty(Property prop, int value) throw(UDAException);
@@ -96,12 +97,34 @@ public:
 
     static void setServerHostName(const std::string& hostName);
     static void setServerPort(int portNumber);
-    
+
     static std::string serverHostName();
     static int serverPort();
 
     const uda::Result& get(const std::string& signalName, const std::string& dataSource) throw(UDAException);
     void put(const uda::Signal& putdata);
+
+    void put(const std::string& instruction, int8_t data);
+    void put(const std::string& instruction, int16_t data);
+    void put(const std::string& instruction, int32_t data);
+    void put(const std::string& instruction, int64_t data);
+    void put(const std::string& instruction, uint8_t data);
+    void put(const std::string& instruction, uint16_t data);
+    void put(const std::string& instruction, uint32_t data);
+    void put(const std::string& instruction, uint64_t data);
+    void put(const std::string& instruction, float data);
+    void put(const std::string& instruction, double data);
+
+    void put(const std::string& instruction, const std::vector<int8_t>& data);
+    void put(const std::string& instruction, const std::vector<int16_t>& data);
+    void put(const std::string& instruction, const std::vector<int32_t>& data);
+    void put(const std::string& instruction, const std::vector<int64_t>& data);
+    void put(const std::string& instruction, const std::vector<uint8_t>& data);
+    void put(const std::string& instruction, const std::vector<uint16_t>& data);
+    void put(const std::string& instruction, const std::vector<uint32_t>& data);
+    void put(const std::string& instruction, const std::vector<uint64_t>& data);
+    void put(const std::string& instruction, const std::vector<float>& data);
+    void put(const std::string& instruction, const std::vector<double>& data);
 
 private:
     std::vector<Result *> data_;
