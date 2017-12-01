@@ -16,7 +16,7 @@
 <mapping key="magnetics/bpol_probe/#/position/r" value="tsmat_collect;DMAG:GMAG_BNORM:PosR,DMAG:GMAG_BTANG:PosR,DMAG:GMAG_BTORO1:PosR,DMAG:GMAG_BTORO2:PosR;0:float:#0" type="static"/>
 <mapping key="magnetics/bpol_probe/#/position/z" value="tsmat_collect;DMAG:GMAG_BNORM:PosZ,DMAG:GMAG_BTANG:PosZ,DMAG:GMAG_BTORO1:PosZ,DMAG:GMAG_BTORO2:PosZ;0:float:#0" type="static"/>
 <!-- mapping key="magnetics/bpol_probe/#/position/phi" value="set_value;0.0;0:float" type="static"/ -->
-<mapping key="magnetics/bpol_probe/#/poloidal_angle" value="tsmat_collect_poloidal_angle;DMAG:GMAG_BNORM:PolAngle,DMAG:GMAG_BTANG:PolAngle,DMAG:GMAG_BTORO1:CALIB:Null,DMAG:GMAG_BTORO2:CALIB:Null;0:float:#0;multiply:cste:0.017453292519943295" type="static"/>
+<mapping key="magnetics/bpol_probe/#/poloidal_angle" value="tsmat_collect;DMAG:GMAG_BNORM:PolAngle,DMAG:GMAG_BTANG:PolAngle,DMAG:GMAG_BTORO1:CALIB:Null,DMAG:GMAG_BTORO2:CALIB:Null;0:float:#0;multiply:cste:0.017453292519943295" type="static"/>
 <mapping key="magnetics/bpol_probe/#/toroidal_angle" value="set_value_collect;DMAG:GMAG_BNORM:CALIB:0.0,DMAG:GMAG_BTANG:CALIB:0.0,DMAG:GMAG_BTORO1:CALIB:1.5707963267948966,DMAG:GMAG_BTORO2:CALIB:1.5707963267948966;0:float:#0" type="static"/>
 <!-- mapping key="magnetics/bpol_probe/#/area" value="set_value;0.0;0:float" type="static"/ -->
 <!-- mapping key="magnetics/bpol_probe/#/length" value="set_value;0;0:int" type="static"/ -->
