@@ -482,7 +482,7 @@ static int do_query(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, void* conn)
     }
 
     const char* objectClass;
-    bool isObjectClass = FIND_STRING_VALUE(request_block->nameValueList, sourceClass);
+    bool isObjectClass = FIND_STRING_VALUE(request_block->nameValueList, objectClass);
 
     if (isObjectClass) {
         char* lower = strlwr(strdup(objectClass));
