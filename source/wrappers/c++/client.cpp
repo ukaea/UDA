@@ -252,6 +252,71 @@ void uda::Client::put(const uda::Signal& signal)
     idamPutAPI("", &pdblock);
 }
 
+template <typename T>
+void put_scalar(const std::string& instruction, T data)
+{
+    PUTDATA_BLOCK putdata_block{};
+    initIdamPutDataBlock(&putdata_block);
+
+    putdata_block.data_type = typeIDToUDAType(typeid(T));
+    putdata_block.rank = 0;
+    putdata_block.count = 1;
+    putdata_block.shape = nullptr;
+
+    auto dp = new T;
+    *dp = data;
+
+    putdata_block.data = reinterpret_cast<char*>(dp);
+
+    idamPutAPI(instruction.c_str(), &putdata_block);
+
+    delete dp;
+}
+
+void uda::Client::put(const std::string& instruction, int8_t data) { put_scalar(instruction, data); }
+void uda::Client::put(const std::string& instruction, int16_t data) { put_scalar(instruction, data); }
+void uda::Client::put(const std::string& instruction, int32_t data) { put_scalar(instruction, data); }
+void uda::Client::put(const std::string& instruction, int64_t data) { put_scalar(instruction, data); }
+void uda::Client::put(const std::string& instruction, uint8_t data) { put_scalar(instruction, data); }
+void uda::Client::put(const std::string& instruction, uint16_t data) { put_scalar(instruction, data); }
+void uda::Client::put(const std::string& instruction, uint32_t data) { put_scalar(instruction, data); }
+void uda::Client::put(const std::string& instruction, uint64_t data) { put_scalar(instruction, data); }
+void uda::Client::put(const std::string& instruction, float data) { put_scalar(instruction, data); }
+void uda::Client::put(const std::string& instruction, double data) { put_scalar(instruction, data); }
+
+template <typename T>
+void put_vector(const std::string& instruction, const std::vector<T>& data)
+{
+    PUTDATA_BLOCK putdata_block{};
+    initIdamPutDataBlock(&putdata_block);
+
+    putdata_block.data_type = typeIDToUDAType(typeid(T));
+    putdata_block.rank = 1;
+    putdata_block.count = 1;
+
+    auto shape = new int[1];
+    shape[0] = static_cast<int>(data.size());
+
+    putdata_block.shape = shape;
+
+    putdata_block.data = reinterpret_cast<char*>(const_cast<T*>(data.data()));
+
+    idamPutAPI(instruction.c_str(), &putdata_block);
+
+    delete[] shape;
+}
+
+void uda::Client::put(const std::string& instruction, const std::vector<int8_t>& data) { put_vector(instruction, data); }
+void uda::Client::put(const std::string& instruction, const std::vector<int16_t>& data) { put_vector(instruction, data); }
+void uda::Client::put(const std::string& instruction, const std::vector<int32_t>& data) { put_vector(instruction, data); }
+void uda::Client::put(const std::string& instruction, const std::vector<int64_t>& data) { put_vector(instruction, data); }
+void uda::Client::put(const std::string& instruction, const std::vector<uint8_t>& data) { put_vector(instruction, data); }
+void uda::Client::put(const std::string& instruction, const std::vector<uint16_t>& data) { put_vector(instruction, data); }
+void uda::Client::put(const std::string& instruction, const std::vector<uint32_t>& data) { put_vector(instruction, data); }
+void uda::Client::put(const std::string& instruction, const std::vector<uint64_t>& data) { put_vector(instruction, data); }
+void uda::Client::put(const std::string& instruction, const std::vector<float>& data) { put_vector(instruction, data); }
+void uda::Client::put(const std::string& instruction, const std::vector<double>& data) { put_vector(instruction, data); }
+
 uda::Client::~Client()
 {
     for (auto& data : data_) {

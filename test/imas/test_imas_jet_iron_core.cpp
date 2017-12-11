@@ -8,8 +8,6 @@
 #define QUOTE(X) QUOTE_(X)
 #define SHOT_NUM "84600"
 
-#define MAPPINGS_DIR "/Users/jhollocombe/Projects/uda/source/plugins/exp2imas/mappings"
-
 /*
   <mapping key="iron_core/ids_properties/comment" value="JET data mapped using UDA and exp2itm mappings 4.10b" type="constant"/>
   <mapping key="iron_core/ids_properties/homogeneous_time" value="0" type="constant"/>
@@ -30,8 +28,6 @@ TEST_CASE( "Test iron_core comment", "[IMAS][JET][IRON_CORE]" )
 #ifdef FATCLIENT
 #  include "setup.inc"
 #endif
-
-    setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", MAPPINGS_DIR, 1);
 
     uda::Client client;
 
@@ -60,8 +56,6 @@ TEST_CASE( "Test iron_core homogeneous_time", "[IMAS][JET][IRON_CORE]" )
 #  include "setup.inc"
 #endif
 
-    setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", MAPPINGS_DIR, 1);
-
     uda::Client client;
 
     const uda::Result& result = client.get("imas::get(idx=0, group='iron_core', variable='ids_properties/homogeneous_time', expName='JET', type=int, rank=0, shot=" SHOT_NUM ", )", "");
@@ -88,8 +82,6 @@ TEST_CASE( "Test iron_core number of segments", "[IMAS][JET][IRON_CORE]" )
 #ifdef FATCLIENT
 #  include "setup.inc"
 #endif
-
-    setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", MAPPINGS_DIR, 1);
 
     uda::Client client;
 
@@ -118,8 +110,6 @@ TEST_CASE( "Test iron_core segment name", "[IMAS][JET][IRON_CORE]" )
 #  include "setup.inc"
 #endif
 
-    setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", MAPPINGS_DIR, 1);
-
     uda::Client client;
 
     const uda::Result& result = client.get("imas::get(idx=0, group='iron_core', variable='segment/#/name', expName='JET', type=string, rank=0, shot=" SHOT_NUM ", )", "");
@@ -147,8 +137,6 @@ TEST_CASE( "Test iron_core segment identifier", "[IMAS][JET][IRON_CORE]" )
 #  include "setup.inc"
 #endif
 
-    setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", MAPPINGS_DIR, 1);
-
     uda::Client client;
 
     const uda::Result& result = client.get("imas::get(idx=0, group='iron_core', variable='segment/#/identifier', expName='JET', type=string, rank=0, shot=" SHOT_NUM ", )", "");
@@ -175,8 +163,6 @@ TEST_CASE( "Test iron_core segment b_field", "[IMAS][JET][IRON_CORE]" )
 #ifdef FATCLIENT
 #  include "setup.inc"
 #endif
-
-    setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", MAPPINGS_DIR, 1);
 
     uda::Client client;
 
@@ -209,8 +195,6 @@ TEST_CASE( "Test iron_core segment permeability_relative", "[IMAS][JET][IRON_COR
 #  include "setup.inc"
 #endif
 
-    setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", MAPPINGS_DIR, 1);
-
     uda::Client client;
 
     const uda::Result& result = client.get("imas::get(idx=0, group='iron_core', variable='segment/1/permeability_relative', expName='JET', type=double, rank=1, shot=" SHOT_NUM ", )", "");
@@ -242,8 +226,6 @@ TEST_CASE( "Test iron_core segment geometry type", "[IMAS][JET][IRON_CORE]" )
 #  include "setup.inc"
 #endif
 
-    setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", MAPPINGS_DIR, 1);
-
     uda::Client client;
 
     const uda::Result& result = client.get("imas::get(idx=0, group='iron_core', variable='segment/1/geometry/geometry_type', expName='JET', type=int, rank=0, shot=" SHOT_NUM ", )", "");
@@ -270,8 +252,6 @@ TEST_CASE( "Test iron_core segment geometry outline r", "[IMAS][JET][IRON_CORE]"
 #ifdef FATCLIENT
 #  include "setup.inc"
 #endif
-
-    setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", MAPPINGS_DIR, 1);
 
     uda::Client client;
 
@@ -304,8 +284,6 @@ TEST_CASE( "Test iron_core segment geometry outline z", "[IMAS][JET][IRON_CORE]"
 #ifdef FATCLIENT
 #  include "setup.inc"
 #endif
-
-    setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", MAPPINGS_DIR, 1);
 
     uda::Client client;
 

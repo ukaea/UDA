@@ -8,15 +8,11 @@
 #define QUOTE(X) QUOTE_(X)
 #define SHOT_NUM "84600"
 
-#define MAPPINGS_DIR "/afs/eufus.eu/user/g/g2jhollo/uda/source/plugins/exp2imas/mappings"
-
 TEST_CASE( "Test tf coil count", "[IMAS][JET][TF]" )
 {
 #ifdef FATCLIENT
 #  include "setup.inc"
 #endif
-
-    setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", MAPPINGS_DIR, 1);
 
     uda::Client client;
 
@@ -46,8 +42,6 @@ TEST_CASE( "Test tf coil conductor count", "[IMAS][JET][TF]" )
 #  include "setup.inc"
 #endif
 
-    setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", MAPPINGS_DIR, 1);
-
     uda::Client client;
 
     const uda::Result& result = client.get("imas::get(idx=0, group='tf', variable='coil/1/conductor/Shape_of', expName='JET', type=int, rank=0, shot=" SHOT_NUM ", )", "");
@@ -76,8 +70,6 @@ TEST_CASE( "Test tf coil turns", "[IMAS][JET][TF]" )
 #  include "setup.inc"
 #endif
 
-    setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", MAPPINGS_DIR, 1);
-
     uda::Client client;
 
     const uda::Result& result = client.get("imas::get(idx=0, group='tf', variable='coil/1/turns', expName='JET', type=int, rank=0, shot=" SHOT_NUM ", )", "");
@@ -105,8 +97,6 @@ TEST_CASE( "Test tf vacuum field", "[IMAS][JET][TF]" )
 #ifdef FATCLIENT
 #  include "setup.inc"
 #endif
-
-    setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", MAPPINGS_DIR, 1);
 
     uda::Client client;
 
@@ -142,8 +132,6 @@ TEST_CASE( "Test tf vacuum field error upper", "[IMAS][JET][TF]" )
 #  include "setup.inc"
 #endif
 
-    setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", MAPPINGS_DIR, 1);
-
     uda::Client client;
 
     const uda::Result& result = client.get("imas::get(idx=0, group='tf', variable='b_field_tor_vacuum_r/data_error_upper', expName='JET', type=double, rank=1, shot=" SHOT_NUM ", )", "");
@@ -178,8 +166,6 @@ TEST_CASE( "Test tf vacuum field error lower", "[IMAS][JET][TF]" )
 #  include "setup.inc"
 #endif
 
-    setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", MAPPINGS_DIR, 1);
-
     uda::Client client;
 
     const uda::Result& result = client.get("imas::get(idx=0, group='tf', variable='b_field_tor_vacuum_r/data_error_lower', expName='JET', type=double, rank=1, shot=" SHOT_NUM ", )", "");
@@ -213,8 +199,6 @@ TEST_CASE( "Test tf vacuum field time", "[IMAS][JET][TF]" )
 #ifdef FATCLIENT
 #  include "setup.inc"
 #endif
-
-    setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", MAPPINGS_DIR, 1);
 
     uda::Client client;
 

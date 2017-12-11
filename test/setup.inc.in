@@ -7,4 +7,6 @@ setenv("UDA_PLUGIN_CONFIG", "@CMAKE_INSTALL_PREFIX@/etc/plugins/udaPlugins.conf"
 setenv("UDA_SARRAY_CONFIG", "@CMAKE_INSTALL_PREFIX@/etc/udagenstruct.conf", 1);
 setenv("UDA_LOG_LEVEL", "DEBUG", 1);
 setenv("UDA_PLUGIN_DIR", "@CMAKE_INSTALL_PREFIX@/lib/plugins", 1);
+setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", "@CMAKE_SOURCE_DIR@/source/plugins/exp2imas/mappings", 1);
+setenv("UDA_IMAS_MACHINE_MAP", "@CMAKE_SOURCE_DIR@/source/plugins/imas/machines.txt", 1);
 #endif
