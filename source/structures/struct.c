@@ -1141,6 +1141,8 @@ void copyUserDefinedTypeList(USERDEFINEDTYPELIST** anew) {
         list->userdefinedtype[i] = usertypeNew;
     }
     *anew = list;
+#else
+   UDA_LOG(UDA_LOG_DEBUG, "Not SERVERBUILD - USERDEFINEDTYPELIST is not allocated\n");        
 #endif
 }
 

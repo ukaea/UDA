@@ -168,7 +168,6 @@ int createConnection()
             strcpy(environment->server_host, hostname);    // Replace
         int port = udaClientGetHostPort(hostId);
         if (port > 0 && environment->server_port != port) environment->server_port = port;
-        udaClientPutHostNameId(hostId);
     } else if ((hostId = udaClientFindHostByName(hostname)) >=
                0) {    // No alias found, maybe the domain name or ip address is listed
         int port = udaClientGetHostPort(hostId);
@@ -176,6 +175,7 @@ int createConnection()
             environment->server_port = port;
         }                // Replace if found and different
     }
+    udaClientPutHostNameId(hostId);
 
 // Does the host name contain the SSL protocol prefix?
 

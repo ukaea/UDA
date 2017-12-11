@@ -101,6 +101,11 @@ option( NO_WRAPPERS "Don't build any IDAM client wrappers" OFF )
 if( SSLAUTHENTICATION )
    message( "Including SSL/RTL X509 User Authentication" )
    add_definitions( -DSSLAUTHENTICATION )
+endif() 
+
+if( NOTGENERICENABLED )
+   message( "No Generic name mapping service using the internal legacy Postgres plugin" )
+   add_definitions( -DNOTGENERICENABLED )
 endif()   
 
 ########################################################################################################################

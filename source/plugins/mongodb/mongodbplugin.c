@@ -34,6 +34,7 @@
 #include "mongodbplugin.h"
 
 #include <bson.h>
+#include <bcon.h>
 #include <mongoc.h>
 
 #include <plugins/udaPlugin.h>
@@ -331,7 +332,7 @@ static int do_query(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, void* conn)
     // Mandatory arguments
 
     const char* objectName;
-    FIND_REQUIRED_STRING_VALUE(request_block->nameValueList, objectName);
+    bool isObjectName = FIND_STRING_VALUE(request_block->nameValueList, objectName);
 
     int expNumber;
     bool isExpNumber = FIND_INT_VALUE(request_block->nameValueList, expNumber);
@@ -357,6 +358,47 @@ static int do_query(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, void* conn)
         }
 
     }
+    
+    if(!isObjectName && request_block->signal[0] != '\0') {    
+        isObjectName = 1;
+        objectName = request_block->signal;   
+    }
+    if (!isObjectName) {
+        RAISE_PLUGIN_ERROR("No Data Object or Signal Name specified");
+    }
+
+//========================================================================================================================================================
+// CHEAT - test 
+
+    DATA_SOURCE* data_source = idam_plugin_interface->data_source;
+    SIGNAL_DESC* signal_desc = idam_plugin_interface->signal_desc;
+
+    initDataSource(data_source);
+    initSignalDesc(signal_desc);
+    
+    char *mapping1 = getenv("UDA_MONGO_MAPPING1");
+    char *mapping2 = getenv("UDA_MONGO_MAPPING2");
+
+    if(objectName[0] == 'f' || objectName[0] == 'F')
+       strcpy(signal_desc->signal_name, mapping1);
+    else    
+       strcpy(signal_desc->signal_name, mapping2);
+       
+    if(signal_desc->signal_name[0] == '\''){
+       signal_desc->signal_name[strlen(signal_desc->signal_name)-1] = ' ';
+       signal_desc->signal_name[0] = ' '; 
+       TrimString(signal_desc->signal_name);
+       LeftTrimString(signal_desc->signal_name); 
+    }   
+           
+    signal_desc->type = 'P';
+    sprintf(data_source->path, "%s", request_block->source);
+
+    return 0;
+}
+             
+//========================================================================================================================================================
+    
 
     // Query for a specific named data object valid for the shot number range
 
@@ -393,13 +435,24 @@ static int do_query(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, void* conn)
     5> and objectClass			192	[1.1 on 4 core host]
 
     */
-
+/*
     char* name = strupr(strdup(objectName));
-    bson_t* query = BCON_NEW("$or", "[",
-                     "{", "signal_alias", BCON_UTF8(name), "}",
-                     "{", "generic_name", BCON_UTF8(name), "}",
-                     "]");
-    free(name);
+    
+    //char *name = (char *)malloc((strlen(objectName)+1)*sizeof(char));
+    //strcpy(name, objectName);
+    //strupr(name);
+    
+    //bson_t* query = BCON_NEW( "signal_alias", BCON_UTF8(name) );
+    //free(name);
+     
+    bson_t* query = bson_new ();
+    
+    query = BCON_NEW("$or", "[",
+                                  "{", "signal_alias", BCON_UTF8(name), "}",
+                                  "{", "generic_name", BCON_UTF8(name), "}",
+                             "]");
+    //free(name);
+ 
 
     if (isExpNumber) {
         BCON_APPEND(query, "$and", "[",
@@ -506,11 +559,13 @@ static int do_query(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, void* conn)
     mongoc_collection_t* collection = NULL;
 
 #if MONGOC_CHECK_VERSION(1, 6, 0)
+
     bson_t* opts = BCON_NEW("limit", BCON_INT64(limit));
 
     if (!(cursor = mongoc_collection_find_with_opts(collection, query, opts, NULL))) {
         RAISE_PLUGIN_ERROR("Data Object not found!");
     }
+    
 #else
     if (!(cursor = mongoc_collection_find(collection, MONGOC_QUERY_NONE, 0, limit, 0, query, NULL, NULL))) {
         RAISE_PLUGIN_ERROR("Data Object not found!");
@@ -769,5 +824,6 @@ static int do_query(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, void* conn)
 
     }
 
-    return 0;
+    return 0;       
 }
+*/

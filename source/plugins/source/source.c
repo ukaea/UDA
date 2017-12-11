@@ -583,7 +583,7 @@ static int do_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, int* timeCountCa
 
         if (data_block->rank == 1 && (data_block->data_type == UDA_TYPE_FLOAT || data_block->data_type == UDA_TYPE_DOUBLE)) {
 
-            data_block->rank = 0;        // No coordinate data to be returned
+            data_block->rank = 1;        // No coordinate data to be returned - only an index array
             data_block->order = -1;
 
             if (data_block->data_type == UDA_TYPE_FLOAT) {
@@ -604,9 +604,15 @@ static int do_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, int* timeCountCa
                 }
             }
 
-            if (data_block->dims[0].dim != NULL) free((void*)data_block->dims[0].dim);
-            data_block->dims[0].dim = NULL;        // prevent a double free
-            data_block->dims[0].dim_n = 0;
+            data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
+            initDimBlock(&data_block->dims[0]);
+            data_block->dims[0].data_type = UDA_TYPE_INT;
+            data_block->dims[0].dim_n = data_block->data_n;
+            data_block->dims[0].compressed = 1;
+            data_block->dims[0].method = 0;
+            data_block->dims[0].dim0 = 0.0;
+            data_block->dims[0].diff = 1.0;
+
         } else {
             THROW_ERROR(999, "Source: Data Access is not available for this data request!");
         }
@@ -618,19 +624,28 @@ static int do_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, int* timeCountCa
         if (!isNoCacheTime && time_count_cache > 0 &&
             !strcasecmp(signal_cache, api_signal) && !strcasecmp(source_cache,
                                                                  api_source)) {        // Retrieve the Time Coordinate data from the local cache after verification of IDS names
-            data_block->rank = 0;
+            data_block->rank = 1;
             data_block->order = -1;
             data_block->data = (char*)malloc(time_count_cache * sizeof(double));
             memcpy(data_block->data, time_cache, time_count_cache * sizeof(double));
             data_block->data_n = time_count_cache;
             data_block->data_type = UDA_TYPE_DOUBLE;
-            data_block->dims = NULL;
             strcpy(data_block->data_units, time_units_cache);
             strcpy(data_block->data_label, time_label_cache);
+            
+            data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
+            initDimBlock(&data_block->dims[0]);
+            data_block->dims[0].data_type = UDA_TYPE_INT;
+            data_block->dims[0].dim_n = data_block->data_n;
+            data_block->dims[0].compressed = 1;
+            data_block->dims[0].method = 0;
+            data_block->dims[0].dim0 = 0.0;
+            data_block->dims[0].diff = 1.0;
+
         } else if (data_block->rank == 1 && data_block->order == 0 &&
                    (data_block->data_type == UDA_TYPE_FLOAT || data_block->data_type == UDA_TYPE_DOUBLE)) {
             if (data_block->dims[0].compressed) uncompressDim(&data_block->dims[0]);
-            data_block->rank = 0;
+            data_block->rank = 1;
             data_block->order = -1;
             if (data_block->data != NULL) free((void*)data_block->data);
 
@@ -653,10 +668,18 @@ static int do_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, int* timeCountCa
             }
             data_block->data_n = data_block->dims[0].dim_n;
             data_block->data_type = UDA_TYPE_DOUBLE;
-            data_block->dims[0].dim = NULL;        // prevent a double free
-            data_block->dims[0].dim_n = 0;
             strcpy(data_block->data_units, data_block->dims[0].dim_units);
             strcpy(data_block->data_label, data_block->dims[0].dim_label);
+
+            data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
+            initDimBlock(&data_block->dims[0]);
+            data_block->dims[0].data_type = UDA_TYPE_INT;
+            data_block->dims[0].dim_n = data_block->data_n;
+            data_block->dims[0].compressed = 1;
+            data_block->dims[0].method = 0;
+            data_block->dims[0].dim0 = 0.0;
+            data_block->dims[0].diff = 1.0;
+
         } else {
             THROW_ERROR(999, "Source: Data Access is not available for this data request!");
         }

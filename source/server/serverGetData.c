@@ -1341,7 +1341,7 @@ int idamserverReadData(PGconn* DBConnect, REQUEST_BLOCK request_block, CLIENT_BL
 
                 // Initialise general structure passing components
 
-                copyUserDefinedTypeList(&userdefinedtypelist); // Allocate and Copy the Master User Defined Type Lis
+// dgm - should already be copied!!!!!                copyUserDefinedTypeList(&userdefinedtypelist); // Allocate and Copy the Master User Defined Type Lis
 
                 // Call the plugin
 

@@ -179,17 +179,18 @@ void udaClientInitHostList()
     // Locate the hosts registration file
 
     if (config == NULL) {
-        lstr = (int)strlen(filename) + 9;
-        work = (char*)malloc(lstr * sizeof(char));
 #ifdef _WIN32
-        sprintf(work, "%s", filename);			// Local directory
-#else
-        sprintf(work, "~/.uda/%s", filename);        // the UDA hidden directory in the user's home directory
+        work = strdup(filename);			// Local directory
+#else 
+        char *home = getenv("HOME");
+        if (home == NULL)return;
+    
+        lstr = (int)strlen(filename) + (int)strlen(home) + 7;
+        work = (char*)malloc(lstr * sizeof(char));
+        sprintf(work, "%s/.uda/%s", home, filename);        // the UDA hidden directory in the user's home directory
 #endif
     } else {
-        lstr = (int)strlen(config) + 1;
-        work = (char*)malloc(lstr * sizeof(char));            // Alternative File Name and Path
-        strcpy(work, config);
+        work = strdup(config);
     }
 
     // Read the hosts file

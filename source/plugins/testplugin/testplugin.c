@@ -147,8 +147,15 @@ extern int testplugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             return 0;
         }
     }
+    
+    if(!STR_IEQUALS(request_block->function, "test50") &&
+       idam_plugin_interface->userdefinedtypelist == NULL) RAISE_PLUGIN_ERROR("Unable to define Data Structures - NULL list!");
+    
+    UDA_LOG(UDA_LOG_DEBUG, "entering init_structure_definitions\n");
 
     init_structure_definitions(idam_plugin_interface);
+    
+    UDA_LOG(UDA_LOG_DEBUG, "return from init_structure_definitions\n");
 
     //----------------------------------------------------------------------------------------
     // Plugin Functions
@@ -289,7 +296,8 @@ static int do_help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     DATA_BLOCK* data_block = idam_plugin_interface->data_block;
 
     UDA_LOG(UDA_LOG_DEBUG, "help function called\n");
-
+//fflush(NULL);    
+//return 0;
     const char* help = "\nTestplugin: Functions Names and Test Descriptions/n/n"
             "test0-test9: String passing tests\n"
             "\ttest0: single string as a char array\n"
@@ -372,6 +380,7 @@ static int do_help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 //----------------------------------------------------------------------------------------
 static void init_structure_definitions(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
+
     USERDEFINEDTYPE* old;
 
     USERDEFINEDTYPE usertype;
