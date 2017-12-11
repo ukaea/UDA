@@ -127,7 +127,7 @@ void lockIdamThread()
 
     if (id >= 0) {
         putIdamServerSocket(idamState[id].socket);
-        putIdamClientEnvironment(&idamState[id].environment);
+        //putIdamClientEnvironment(&idamState[id].environment);
         putIdamThreadClientBlock(&idamState[id].client_block);
         putIdamThreadServerBlock(&idamState[id].server_block);
         clientFlags = idamState[id].client_block.clientFlags;
@@ -144,7 +144,7 @@ void unlockIdamThread()
     int id = getThreadId(threadId);        // Must be registered
     if (id >= 0) {
         idamState[id].socket = getIdamServerSocket();
-        idamState[id].environment = *getIdamClientEnvironment();
+        //idamState[id].environment = *getIdamClientEnvironment();
         idamState[id].client_block = getIdamThreadClientBlock();
         idamState[id].server_block = getIdamThreadServerBlock();
         idamState[id].client_block.clientFlags = clientFlags;
