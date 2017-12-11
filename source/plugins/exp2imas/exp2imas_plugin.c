@@ -4,6 +4,7 @@
 #include <assert.h>
 #include <libxml/tree.h>
 #include <libxml/xpath.h>
+#include <float.h>
 
 #include <clientserver/initStructs.h>
 #include <clientserver/udaTypes.h>
@@ -31,7 +32,7 @@ static int do_defaultmethod(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
 static int do_maxinterfaceversion(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
 static int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
 static char* getMappingFileName(const char* IDSversion, const char* element);
-static char* getMachineMappingFileName(const char* element);
+static char* getMachineMappingFileName(const char* experiment, const char* element);
 static xmlChar* getMappingValue(const char* mapping_file_name, const char* request, MAPPING_TYPE* request_type, int* index, int* adjust);
 static char* deblank(char* token);
 static xmlChar* insertNodeIndices(const xmlChar* xpathExpr, int** indices, size_t* n_indices);
@@ -328,7 +329,8 @@ static int handle_static(DATA_BLOCK* data_block, const char* experiment_mapping_
 }
 
 static int handle_dynamic(DATA_BLOCK* data_block, const char* experiment_mapping_file_name, const xmlChar* xPath,
-                          const char* element, int index, int shot, const int* indices, size_t nindices)
+                          const char* experiment, const char* element, int index, int shot, const int* indices,
+                          size_t nindices)
 {
     // DYNAMIC case
 
@@ -361,7 +363,7 @@ static int handle_dynamic(DATA_BLOCK* data_block, const char* experiment_mapping
             float* fdata;
             int len;
 
-            status = mds_get(signalName, shot, &time, &fdata, &len, xml_data.time_dim);
+            status = mds_get(experiment, signalName, shot, &time, &fdata, &len, xml_data.time_dim);
 
             if (status != 0) {
                 return status;
@@ -443,7 +445,8 @@ static int handle_dynamic(DATA_BLOCK* data_block, const char* experiment_mapping
 #endif
 
 static int handle_error(DATA_BLOCK* data_block, const char* experiment_mapping_file_name, const xmlChar* xPath,
-                          const char* element, int index, int shot, const int* indices, size_t nindices)
+                        const char* experiment, const char* element, int index, int shot, const int* indices,
+                        size_t nindices)
 {
     // ERROR case
 
@@ -496,12 +499,13 @@ static int handle_error(DATA_BLOCK* data_block, const char* experiment_mapping_f
         float* fdata;
         int len;
 
-        status = mds_get(signalName, shot, &time, &fdata, &len, xml_data.time_dim);
-        free(time);
+        status = mds_get(experiment, signalName, shot, &time, &fdata, &len, xml_data.time_dim);
 
         if (status != 0) {
             return status;
         }
+
+        free(time);
 
         int size = xml_data.sizes[signal_idx] == 0 ? 1 : xml_data.sizes[signal_idx];
         data_n = len / size;
@@ -510,8 +514,8 @@ static int handle_error(DATA_BLOCK* data_block, const char* experiment_mapping_f
         for (i = 0; i < size; ++i) {
             error_arrays = realloc(error_arrays, (n_arrays + 1) * sizeof(float*));
 
-            double abs = xml_abserror.values[i];
-            double rel = xml_relerror.values[i];
+            double abs = xml_abserror.values != NULL ? xml_abserror.values[i] : 0.0;
+            double rel = xml_relerror.values != NULL ? xml_relerror.values[i] : 0.0;
 
             error_arrays[n_arrays] = malloc(data_n * sizeof(float));
 
@@ -519,7 +523,17 @@ static int handle_error(DATA_BLOCK* data_block, const char* experiment_mapping_f
             for (j = 0; j < data_n; ++j) {
                 error_arrays[n_arrays][j] = coefa * fdata[i + j * size] + coefb;
 
-                double error = MAX(abs, rel * error_arrays[n_arrays][j]);
+                double error;
+                if (xml_abserror.values != NULL && xml_relerror.values != NULL) {
+                    error = MAX(abs, rel * error_arrays[n_arrays][j]);
+                } else if (xml_abserror.values != NULL) {
+                    error = abs;
+                } else if (xml_relerror.values != NULL) {
+                    error = rel * error_arrays[n_arrays][j];
+                } else {
+                    return -1;
+                }
+
                 if (StringEndsWith(element, "lower")) {
                     error_arrays[n_arrays][j] -= error / 2;
                 } else {
@@ -611,8 +625,10 @@ int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     const char* IDS_version = NULL;
     FIND_REQUIRED_STRING_VALUE(request_block->nameValueList, IDS_version);
 
+    const char* experiment = request_block->archive;
+
     // Search mapping value and request type (static or dynamic)
-    char* experiment_mapping_file_name = getMachineMappingFileName(element);
+    char* experiment_mapping_file_name = getMachineMappingFileName(experiment, element);
     char* mapping_file_name = getMappingFileName(IDS_version, element);
 
     MAPPING_TYPE request_type = NONE;
@@ -637,10 +653,10 @@ int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             err = handle_static(data_block, experiment_mapping_file_name, xPath, index, indices, nindices, adjust);
             break;
         case DYNAMIC:
-            err = handle_dynamic(data_block, experiment_mapping_file_name, xPath, element, index, shot, indices, nindices);
+            err = handle_dynamic(data_block, experiment_mapping_file_name, xPath, experiment, element, index, shot, indices, nindices);
             break;
         case ERROR:
-            err = handle_error(data_block, experiment_mapping_file_name, xPath, element, index, shot, indices, nindices);
+            err = handle_error(data_block, experiment_mapping_file_name, xPath, experiment, element, index, shot, indices, nindices);
             break;
         default:
             RAISE_PLUGIN_ERROR("unknown request type");
@@ -666,7 +682,7 @@ char* getMappingFileName(const char* IDSversion, const char* element)
     return name;
 }
 
-char* getMachineMappingFileName(const char* element)
+char* getMachineMappingFileName(const char* experiment, const char* element)
 {
     static char* dir = NULL;
 
@@ -677,7 +693,7 @@ char* getMachineMappingFileName(const char* element)
     char* slash = strchr(element, '/');
     char* token = strndup(element, slash - element);
 
-    char* name = FormatString("%s/JET_%s.xml", dir, token);
+    char* name = FormatString("%s/%s_%s.xml", dir, experiment, token);
     free(token);
 
     return name;
@@ -869,4 +885,5 @@ char* deblank(char* input)
     output[j] = 0;
     return output;
 }
+
 
