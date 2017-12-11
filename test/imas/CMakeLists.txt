@@ -11,6 +11,7 @@ set( TESTS
   test_imas_jet_wall
   test_imas_jet_iron_core
   test_imas_jet_all
+  test_imas_tcv_magnetics
 )
 
 include( modules )

@@ -2,8 +2,11 @@
 
 #include <stdlib.h>
 #include <mdslib.h>
+#include <mdsshr.h>
+
 #include <logging/logging.h>
 #include <clientserver/stringUtils.h>
+
 
 #define status_ok(status) (((status) & 1) == 1)
 
@@ -32,16 +35,31 @@ static int get_signal_length(const char* signal)
 
 }
 
-int mds_get(const char* signalName, int shot, float** time, float** data, int* len, int time_dim)
+int mds_get(const char* experiment, const char* signalName, int shot, float** time, float** data, int* len, int time_dim)
 {
-    int status;
     static int socket = -1;
 
     if (socket == -1) {
+        const char* host = getenv("UDA_EXP2IMAS_MDSPLUS_HOST");
+
+        if (host == NULL || host[0] == '\0') {
+            host = "mdsplus.jet.efda.org:8000";
+        }
+
         /* Connect to MDSplus */
-        socket = MdsConnect("mdsplus.jet.efda.org:8000");
+        socket = MdsConnect((char*)host);
         if (socket == -1) {
-            UDA_LOG(UDA_LOG_ERROR, "Error connecting to mdsplus.jet.efda.org.\n");
+            UDA_LOG(UDA_LOG_ERROR, "Error connecting to %s.\n", host);
+            return -1;
+        }
+    }
+
+    if (StringIEquals(experiment, "TCV")) {
+        const char* tree = "tcv_shot";
+
+        int status = MdsOpen((char*)tree, &shot);
+        if (((status & 1) != 1)) {
+            UDA_LOG(UDA_LOG_ERROR, "Error opening tree for shot %d: %s.\n", shot, MdsGetMsg(status));
             return -1;
         }
     }
@@ -62,8 +80,10 @@ int mds_get(const char* signalName, int shot, float** time, float** data, int* l
         strcpy(signal + offset + l, shot_pos + 6);
     } else if (is_tdi) {
         sprintf(signal, "%s", signalName);
+    } else if (StringIEquals(experiment, "JET")) {
+        sprintf(signal, "_sig=jet(\"%s\",%d)", signalName, shot);
     } else {
-        sprintf(signal, "_sig=jet(\"%s\",%d);", signalName, shot);
+        sprintf(signal, "_sig=%s", signalName);
     }
 
     *len = get_signal_length(signal);
@@ -87,7 +107,7 @@ int mds_get(const char* signalName, int shot, float** time, float** data, int* l
     //Get time data
     sprintf(buf, "%s; dim_of(_sig, %d);", signal, time_dim - 1);
 
-    status = MdsValue(buf, &fdesc, &null, &rlen, NULL);
+    int status = MdsValue(buf, &fdesc, &null, &rlen, NULL);
     if (((status & 1) != 1)) {
         UDA_LOG(UDA_LOG_ERROR, "Unable to get signal.\n");
         return -1;
