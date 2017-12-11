@@ -1222,7 +1222,7 @@ int idamserverReadData(PGconn* DBConnect, REQUEST_BLOCK request_block, CLIENT_BL
         if(signal_desc->type == 'P') {
             strcpy(request_block.signal,signal_desc->signal_name);
             strcpy(request_block.source,data_source->path);
-            makeServerRequestBlock(&request_block, *pluginlist);
+            makeServerRequestBlock(&request_block, *pluginlist);	// Includes placeholder substitution
         }
 #endif // NOTGENERICENABLED
 
