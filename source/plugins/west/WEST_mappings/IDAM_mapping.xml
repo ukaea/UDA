@@ -33,8 +33,8 @@
 <mapping key="magnetics/time" value="tsbase_time;DMAG:GMAG_FLXLOOP;1:float:1" type="dynamic"/>
 
 <mapping key="tf/ids_properties/homogeneous_time" value="set_value;0;0:int" type="static"/>
-<mapping key="tf/b_field_tor_vacuum_r/data" value="tsbase_collect;DMAG:GMAG_ITOR;1:float:2;multiply:cste:0.0073008" type="dynamic"/>
-<mapping key="tf/b_field_tor_vacuum_r/time" value="tsbase_time;DMAG:GMAG_ITOR;1:float:2" type="dynamic"/>
+<mapping key="tf/b_field_tor_vacuum_r/data" value="tsbase_collect;DMAG:GMAG_ITOR;1:float:1;multiply:cste:0.0073008" type="dynamic"/>
+<mapping key="tf/b_field_tor_vacuum_r/time" value="tsbase_time;DMAG:GMAG_ITOR;1:float:1" type="dynamic"/>
 
 <mapping key="pf_passive/ids_properties/homogeneous_time" value="set_value;1;0:int" type="static"/>
 <mapping key="pf_passive/loop/#/name" value="pf_passive_loop_name" type="static"/>
