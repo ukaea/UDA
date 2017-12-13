@@ -107,7 +107,7 @@
 <mapping key="ece/channel/#/harmonic/time" value="ece_harmonic_time" type="dynamic"/>
 
 <mapping key="soft_x_rays/ids_properties/comment" value="soft_x_rays_idsproperties_comment" type="static"/>
-<mapping key="soft_x_rays/ids_properties/homogeneous_time" value="set_value;1;0:int" type="static"/>
+<mapping key="soft_x_rays/ids_properties/homogeneous_time" value="set_value;0;0:int" type="static"/>
 <mapping key="soft_x_rays/channel/Shape_of" value="soft_x_rays_channels_shapeof" type="static"/>
 <mapping key="soft_x_rays/channel/#/line_of_sight/first_point/r" value="channel_line_of_sight_first_point_r" type="static"/>
 <mapping key="soft_x_rays/channel/#/line_of_sight/first_point/z" value="channel_line_of_sight_first_point_z" type="static"/>
