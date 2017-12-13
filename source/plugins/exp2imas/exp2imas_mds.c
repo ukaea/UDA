@@ -7,6 +7,8 @@
 #include <logging/logging.h>
 #include <clientserver/stringUtils.h>
 
+#include "exp2imas_ssh.h"
+#include "exp2imas_ssh_server.h"
 
 #define status_ok(status) (((status) & 1) == 1)
 
@@ -35,16 +37,52 @@ static int get_signal_length(const char* signal)
 
 }
 
+static void* server_task(void* data)
+{
+    ssh_run_server();
+    return NULL;
+}
+
 int mds_get(const char* experiment, const char* signalName, int shot, float** time, float** data, int* len, int time_dim)
 {
     static int socket = -1;
 
     if (socket == -1) {
-        const char* host = getenv("UDA_EXP2IMAS_MDSPLUS_HOST");
 
-        if (host == NULL || host[0] == '\0') {
-            host = "mdsplus.jet.efda.org:8000";
+        char host[100];
+
+        if (StringIEquals(experiment, "TCV")) {
+            g_server_port = 0;
+            g_initialised = false;
+
+            pthread_cond_init(&g_initialised_cond, NULL);
+            pthread_mutex_init(&g_initialised_mutex, NULL);
+
+            pthread_t server_thread;
+
+            pthread_create(&server_thread, NULL, server_task, NULL);
+
+            pthread_mutex_lock(&g_initialised_mutex);
+            while (!g_initialised) {
+                pthread_cond_wait(&g_initialised_cond, &g_initialised_mutex);
+            }
+            pthread_mutex_unlock(&g_initialised_mutex);
+
+            struct timespec sleep_for;
+            sleep_for.tv_sec = 0;
+            sleep_for.tv_nsec = 100000000;
+            nanosleep(&sleep_for, NULL);
+
+            sprintf(host, "localhost:%d", g_server_port);
+        } else {
+            strcpy(host, "mdsplus.jet.efda.org:8000");
         }
+
+//        const char* host = getenv("UDA_EXP2IMAS_MDSPLUS_FORWARD_PORT");
+
+//        if (host == NULL || host[0] == '\0') {
+//
+//        }
 
         /* Connect to MDSplus */
         socket = MdsConnect((char*)host);

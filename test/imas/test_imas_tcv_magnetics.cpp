@@ -374,15 +374,7 @@ TEST_CASE( "Test bpol_probe turns", "[IMAS][TCV][BPOL]" )
 
     uda::Client client;
 
-    const uda::Result& result = client.get("imas::get(idx=0, group='magnetics', variable='bpol_probe/1/turns', expName='TCV', type=int, rank=0, shot=" SHOT_NUM ", )", "");
-
-    REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.errorMessage().empty() );
-
-    uda::Data* data = result.data();
-
-    REQUIRE( data != nullptr );
-    REQUIRE( data->isNull() );
+    REQUIRE_THROWS(client.get("imas::get(idx=0, group='magnetics', variable='bpol_probe/1/turns', expName='TCV', type=int, rank=0, shot=" SHOT_NUM ", )", ""));
 }
 
 /*
@@ -737,15 +729,7 @@ TEST_CASE( "Test flux_loop position phi", "[IMAS][TCV][FLUX]" )
 
     uda::Client client;
 
-    const uda::Result& result_x = client.get("imas::get(idx=0, group='magnetics', variable='flux_loop/1/position/1/phi', expName='TCV', type=float, rank=0, shot=" SHOT_NUM ", )", "");
-
-    REQUIRE( result_x.errorCode() == 0 );
-    REQUIRE( result_x.errorMessage().empty() );
-
-    uda::Data* data = result_x.data();
-
-    REQUIRE( data != nullptr );
-    REQUIRE( data->isNull() );
+    REQUIRE_THROWS(client.get("imas::get(idx=0, group='magnetics', variable='flux_loop/1/position/1/phi', expName='TCV', type=float, rank=0, shot=" SHOT_NUM ", )", ""));
 }
 
 TEST_CASE( "Test flux_loop flux", "[IMAS][TCV][FLUX]" )
