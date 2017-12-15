@@ -31,7 +31,10 @@ find_library( LIBS3_LIBRARY NAMES s3
     lib64 
 )
 
-include( FindPackageHandleStandardArgs )
-find_package_handle_standard_args( LIBS3 DEFAULT_MSG LIBS3_LIBRARY LIBS3_INCLUDE_DIR )
+set( LIBS3_LIBRARIES ${LIBS3_LIBRARY} )
+set( LIBS3_INCLUDE_DIRS ${LIBS3_INCLUDE_DIR} )
 
-mark_as_advanced( LIBS3_LIBRARY LIBS3_INCLUDE_DIR )
+include( FindPackageHandleStandardArgs )
+find_package_handle_standard_args( LIBS3 DEFAULT_MSG LIBS3_LIBRARIES LIBS3_INCLUDE_DIRS )
+
+mark_as_advanced( LIBS3_LIBRARIES LIBS3_INCLUDE_DIRS )

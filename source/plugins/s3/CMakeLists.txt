@@ -1,6 +1,7 @@
 cmake_minimum_required( VERSION 2.8 )
 
-find_package( LIBS3 QUIET )
+#find_package( LIBS3 QUIET )
+find_package( LIBS3 )
 
 if( NOT LIBS3_FOUND )
   message( WARNING "LIBS3 installation not found - skipping LIBS3 plugin" )

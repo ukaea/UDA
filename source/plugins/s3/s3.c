@@ -17,6 +17,9 @@
 *	init	Initialise the plugin: read all required data and process. Retain staticly for
 *		future reference.	
 *
+*
+* Sourced from the https://github.com/bji/libs3/blob/master/src/s3.c
+* License: LGPL v3
 *---------------------------------------------------------------------------------------------------------------*/
 #ifdef __cplusplus
 extern "C" {
@@ -54,7 +57,7 @@ static int do_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
 
 static int do_put(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
 
-static void S3_init(void);
+static int S3_init(void);
 static S3Status responsePropertiesCallback (const S3ResponseProperties *properties, void *callbackData);
 static void responseCompleteCallback(S3Status status, const S3ErrorDetails *error, void *callbackData);
 static S3Status getObjectDataCallback(int bufferSize, const char *buffer, void *callbackData);
@@ -133,6 +136,8 @@ int s3(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 	S3_deinitialize();
 	
         init = 0;
+	
+	UDA_LOG(UDA_LOG_ERROR, "S3::reset() executed!\n");
 
         if (!isReset) return 0;        // Step to Initialisation
     }
@@ -143,16 +148,22 @@ int s3(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     if (!STR_IEQUALS(request_block->function, "help") &&
         (!init || STR_IEQUALS(request_block->function, "init") || STR_IEQUALS(request_block->function, "initialise"))) {
 	
-	accessKeyIdG = getenv("S3_ACCESS_KEY_ID");
-        if (!accessKeyIdG) THROW_ERROR(999, "Missing: S3_ACCESS_KEY_ID!");
-	
+	accessKeyIdG = getenv("S3_ACCESS_KEY_ID");	
         secretAccessKeyG = getenv("S3_SECRET_ACCESS_KEY");
-        if (!secretAccessKeyG) THROW_ERROR(999, "Missing: S3_SECRET_ACCESS_KEY!");
-	
-        hostname = getenv("S3_HOSTNAME");
-	
-	S3_init();
 
+        if (secretAccessKeyG == NULL || accessKeyIdG == NULL){
+	   THROW_ERROR(999, "Missing: S3_SECRET_ACCESS_KEY or S3_ACCESS_KEY_ID!");
+        }
+	
+        hostname = getenv("S3_HOSTNAME");	// Default is AWS
+	
+	int err = S3_init();
+	if(err != 0){
+	   THROW_ERROR(999, "S3 Initialisation failed!");
+        }
+	
+	UDA_LOG(UDA_LOG_ERROR, "S3::init() executed!\n");
+	 
         init = 1;
         if (!strcasecmp(request_block->function, "init") || !strcasecmp(request_block->function, "initialise")) {
             return 0;
@@ -248,23 +259,18 @@ static int do_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     const char *ifMatch = 0, *ifNotMatch = 0;
     uint64_t startByte = 0, byteCount = 0;
    
-    const char *filename = 0;
-    FILE *outfile = 0;
     struct stat fileAttrib;
+    
+    // Create a temporary file name in directory /tmp
+    
+    char template[] = "/tmp/udas3XXXXXX";
+    char filename[] = "                ";
+    strcpy(filename, template);
+    int fh = mkstemp(filename);
+    FILE *fd = fdopen(fh, "w");
 
-    if (filename) {
-        // Stat the file, and if it doesn't exist, open it in w mode
-        if (stat(filename, &fileAttrib) == -1) {
-            outfile = fopen(filename, "w");
-        }
-        else {
-            // Open in r+ so that we don't truncate the file, just in case
-            // there is an error and we write no bytes, we leave the file
-            // unmodified
-            outfile = fopen(filename, "r+");
-        }
-        
-        if (!outfile) THROW_ERROR(999, "S3::get() Failed to open temp file buffer!");
+    if (fh < 1 || !fd){
+       THROW_ERROR(999, "S3::get() Failed to open temp file buffer!");
     }
     
     S3BucketContext bucketContext =
@@ -293,7 +299,7 @@ static int do_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     do {
         S3_get_object(&bucketContext, key, &getConditions, startByte,
-                      byteCount, 0, &getObjectHandler, outfile);
+                      byteCount, 0, &getObjectHandler, fd);
     } while (S3_status_is_retryable(statusG) && should_retry());
 
     if (statusG != S3StatusOK) {
@@ -301,15 +307,17 @@ static int do_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 	//printError();
     }
 
-    fclose(outfile);  
+    fclose(fd);  
     
     // stat intermediate file for byte count  
-    if (stat(filename, &fileAttrib) == -1) THROW_ERROR(999, "S3::get() Failed to query intermediate file!");
+    if (stat(filename, &fileAttrib) == -1){
+       THROW_ERROR(999, "S3::get() Failed to query intermediate file!");
+    }
         
     int count = (int)fileAttrib.st_size;
     char *buffer = (char *)malloc(count*sizeof(char));
        
-    FILE *fd = fopen(filename, "rb");	    	  
+    fd = fopen(filename, "rb");	    	  
     fread(buffer, count, sizeof(char), fd);
     fclose(fd);
     
@@ -333,22 +341,23 @@ static int do_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 static int do_put(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
-    UDA_LOG(UDA_LOG_ERROR, "S3:put() requested\n");
+    UDA_LOG(UDA_LOG_ERROR, "S3:put() requested - not implemented!\n");
 
     return 0;
 }
 
-static void S3_init(void)
+static int S3_init(void)
 {
+    int err = 0;
     S3Status status;
     const char *hostname = getenv("S3_HOSTNAME");
     
-    if ((status = S3_initialize("s3", S3_INIT_ALL, hostname))
-        != S3StatusOK) {
-        fprintf(stderr, "Failed to initialize libs3: %s\n", 
-                S3_get_status_name(status));
-        exit(-1);
+    if ((status = S3_initialize("s3", S3_INIT_ALL, hostname)) != S3StatusOK) {
+	UDA_LOG(UDA_LOG_ERROR, "Failed to initialize libs3: %s\n", S3_get_status_name(status));
+        return err;
     }
+    
+    return 0;
 }
 
 // response properties callback ----------------------------------------------
