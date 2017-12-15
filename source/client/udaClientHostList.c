@@ -1,5 +1,6 @@
 /*---------------------------------------------------------------
 * Identify the Server Host Attributes
+* Is user uthentication over SSL?
 *---------------------------------------------------------------------------------------------------------------------*/
 
 #include <stdio.h>
@@ -55,6 +56,7 @@ void udaClientInitHostData(HOSTDATA* host)
     host->certificate[0] = '\0';
     host->key[0] = '\0';
     host->ca_certificate[0] = '\0';
+    host->isSSL = 0;
 }
 
 int udaClientFindHostByAlias(const char* alias)
@@ -75,10 +77,13 @@ int udaClientFindHostByName(const char* name)
 {
     udaClientInitHostList();
 
+    const char *target = name;
+    if(strcasestr(name, "SSL://")) target = &name[6];	// Host name must be stripped of SSL:// prefix
+
     int i;
     HOSTLIST* list = udaClientGetHostList();
     for (i = 0; i < list->count; i++) {
-        if (STR_IEQUALS(list->hosts[i].hostname, name)) {
+        if (STR_IEQUALS(list->hosts[i].hostname, target)) {
             return i;
         }
     }
@@ -142,6 +147,16 @@ char* udaClientGetHostCAPath(int id)
         return list->hosts[id].ca_certificate;
     } else {
         return NULL;
+    }
+}
+
+int udaClientGetHostSSL(int id)
+{
+    HOSTLIST* list = udaClientGetHostList();
+    if (id >= 0 && id < list->count) {
+        return list->hosts[id].isSSL;
+    } else {
+        return 0;
     }
 }
 
@@ -209,6 +224,9 @@ void udaClientInitHostList()
     // hostAlias and other attributes are not required
     // ordering is not important
 
+    // if the host IP address or name is prefixed with SSL:// this is stripped off and the isSSL bool set true
+    // if the certificates and private key are defined, the isSSL bool set true
+
     int newHost = 0;
 
     while (fgets(buffer, HOST_STRING, conf) != NULL) {
@@ -270,6 +288,17 @@ void udaClientInitHostList()
 
     fclose(conf);
 
+    for (i = 0; i < list->count; i++) {
+            if( list->hosts[i].certificate[0] != '\0' && list->hosts[i].key[0] != '\0' && list->hosts[i].ca_certificate[0] != '\0') 
+                list->hosts[i].isSSL = 1;
+
+            char *p = strcasestr(list->hosts[i].hostname, "SSL://");
+            if(p && p == list->hosts[i].hostname && strlen(p) > 6){
+                list->hosts[i].isSSL = 1;
+                strcpy(list->hosts[i].hostname, &list->hosts[i].hostname[6]);		// Strip prefix
+            } 
+    }
+
     UDA_LOG(UDA_LOG_DEBUG, "idamClientHostList: Number of named hosts %d\n", list->count);
     for (i = 0; i < list->count; i++) {
         UDA_LOG(UDA_LOG_DEBUG, "idamClientHostList: [%d] Host Alias     : %s\n", i, list->hosts[i].hostalias);
@@ -278,5 +307,6 @@ void udaClientInitHostList()
         UDA_LOG(UDA_LOG_DEBUG, "idamClientHostList: [%d] Certificate    : %s\n", i, list->hosts[i].certificate);
         UDA_LOG(UDA_LOG_DEBUG, "idamClientHostList: [%d] Key            : %s\n", i, list->hosts[i].key);
         UDA_LOG(UDA_LOG_DEBUG, "idamClientHostList: [%d] CA Certificate : %s\n", i, list->hosts[i].ca_certificate);
+        UDA_LOG(UDA_LOG_DEBUG, "idamClientHostList: [%d] isSSL : %d\n", i, list->hosts[i].isSSL);
     }
 }

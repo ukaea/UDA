@@ -370,19 +370,25 @@ int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList)
 
                             sprintf(work, "%s%s%s", pluginList.plugin[i].deviceProtocol, request_block->api_delim,
                                     pluginList.plugin[i].deviceHost);
+UDA_LOG(UDA_LOG_DEBUG, "work#1: %s\n", work);
 
                             if (pluginList.plugin[i].devicePort[0] != '\0') {
                                 strcat(work, ":");
                                 strcat(work, pluginList.plugin[i].devicePort);
                             }
+UDA_LOG(UDA_LOG_DEBUG, "work#2: %s\n", work);
+UDA_LOG(UDA_LOG_DEBUG, "test: %s\n", test);
+UDA_LOG(UDA_LOG_DEBUG, "test+ldelim: %s\n", test+ldelim);
 
                             if ((test + ldelim)[0] != '/') {
                                 if ((test + ldelim)[0] != '\0') {
                                     strcat(work, "/");
                                     strcat(work, test + ldelim);
                                 }
+UDA_LOG(UDA_LOG_DEBUG, "work#3: %s\n", work);
                             } else
                                 strcat(work, test + ldelim);
+UDA_LOG(UDA_LOG_DEBUG, "work#4: %s\n", work);
 
                             strcpy(request_block->source, work);
                             if (depth++ > MAXREQDEPTH) {
@@ -772,15 +778,34 @@ int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList)
 
     if (request_block->request == REQUEST_READ_IDAM || request_block->request == REQUEST_READ_WEB) {
         strcpy(work, test + ldelim);                // Drop the delimiters
-        if ((token = strstr(work, "/")) != NULL) {        // Isolate the Server from the source IDAM::server:port/source
-            token[0] = '\0';                // Break the String (work)
-            strcpy(request_block->server, work);        // Extract the Server Name and Port
-            strcpy(request_block->file, token + 1);        // Extract the Source URL Argument
+
+// Isolate the Server from the source IDAM::server:port/source or SSL://server:port/source        
+
+        char *s = NULL;
+        if((s = strstr(work, "SSL://")) != NULL){
+            if((token = strstr(s+6, "/")) != NULL){
+               token[0] = '\0';                				// Break the String (work)
+               strcpy(request_block->server, s);		// Extract the Server Name and Port (with SSL:// prefix) 
+               strcpy(request_block->file, token + 1);	// Extract the Source URL Argument
+               UDA_LOG(UDA_LOG_DEBUG, "Server: %s\n", request_block->server);
+               UDA_LOG(UDA_LOG_DEBUG, "Source: %s\n", request_block->file);
+          }  else {
+               err = NO_SERVER_SPECIFIED;
+               addIdamError(CODEERRORTYPE, "makeServerRequestBlock", err,
+                                      "The Remote Server Data Source specified does not comply with the naming model: serverHost:port/sourceURL");
+               return err;
+            }    
         } else {
-            err = NO_SERVER_SPECIFIED;
-            addIdamError(CODEERRORTYPE, "makeServerRequestBlock", err,
-                         "The Remote Server Data Source specified does not comply with the naming model: serverHost:port/sourceURL");
-            return err;
+            if ((token = strstr(work, "/")) != NULL) {        
+               token[0] = '\0';                // Break the String (work)
+               strcpy(request_block->server, work);        // Extract the Server Name and Port
+               strcpy(request_block->file, token + 1);        // Extract the Source URL Argument
+           } else {
+               err = NO_SERVER_SPECIFIED;
+               addIdamError(CODEERRORTYPE, "makeServerRequestBlock", err,
+                                      "The Remote Server Data Source specified does not comply with the naming model: serverHost:port/sourceURL");
+               return err;
+            }        
         }
     }
 
