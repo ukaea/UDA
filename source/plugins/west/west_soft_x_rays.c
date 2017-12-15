@@ -103,15 +103,18 @@ void soft_x_rays_channels_power_density_data(int shotNumber, DATA_BLOCK* data_bl
 		nomsigp = strdup("GTXMH2");
 		extractionIndex = 30 - index;
 	}
-
+	IDAM_LOG(UDA_LOG_DEBUG, "reading channels_power_density...\n");
 	int status = channels_power_density(shotNumber, nomsigp, extractionIndex, &time, &data, &len);
 
 	if (status != 0) {
+		IDAM_LOG(UDA_LOG_DEBUG, "reading channels_power_density, error status...\n");
 		int err = 901;
 		addIdamError(CODEERRORTYPE, "WEST:ERROR: unable to get channels_power_density_data for west_soft_x_rays IDS", err, "");
 	}
-
-	setReturnData2DFloat(data_block, 1, len, data);
+	else {
+		IDAM_LOG(UDA_LOG_DEBUG, "setting channels_power_density...\n");
+		setReturnData2DFloat(data_block, 1, len, data);
+	}
 }
 
 void soft_x_rays_channels_power_density_time(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
@@ -140,8 +143,9 @@ void soft_x_rays_channels_power_density_time(int shotNumber, DATA_BLOCK* data_bl
 		int err = 901;
 		addIdamError(CODEERRORTYPE, "WEST:ERROR: unable to get channels_power_density_time for west_soft_x_rays IDS", err, "");
 	}
-
-	setReturnData2DFloat(data_block, 1, len, time);
+	else {
+		setReturnData2DFloat(data_block, 1, len, time);
+	}
 }
 
 int channels_power_density(int shotNumber, char* nomsigp, int extractionIndex, float** time, float** data, int* len)
@@ -150,6 +154,7 @@ int channels_power_density(int shotNumber, char* nomsigp, int extractionIndex, f
 	addExtractionChars(nomsigp_to_extract, nomsigp, extractionIndex); //Concatenate nomsigp_to_extract avec !extractionIndex, example: !1, !2, ...
 	int rang[2] = { 0, 0 };
 	int status = readSignal(nomsigp_to_extract, shotNumber, 0, rang, time, data, len);
+	IDAM_LOG(UDA_LOG_DEBUG, "end of reading channels_power_density signal...\n");
 	return status;
 }
 
