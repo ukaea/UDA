@@ -315,9 +315,7 @@ int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
         int status = GetDynamicData(shot, mapfun, data_block, indices);
 
-        if (status != 0) {
-            return status;
-        }
+        return status;
     }
 
     return 0;
