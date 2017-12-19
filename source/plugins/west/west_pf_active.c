@@ -49,7 +49,7 @@ int get_pf_current(int shotNumber, int extractionIndex, float** time, float** da
 void pf_active(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices, int index);
 
 
-void pf_active_current_data(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
+int pf_active_current_data(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 {
 	int index = nodeIndices[0]; //starts from 1
 	float *time;
@@ -74,11 +74,13 @@ void pf_active_current_data(int shotNumber, DATA_BLOCK* data_block, int* nodeInd
 	if (status != 0) {
 		int err = 901;
 		addIdamError(CODEERRORTYPE, "WEST:ERROR: unable to get pf_active current", err, "");
+		return status;
 	}
 	SetDynamicData(data_block, len, time, data);
+	return 0;
 }
 
-void pf_active_current_time(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
+int pf_active_current_time(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 {
 	int index = nodeIndices[0]; //starts from 1
 	float *time;
@@ -103,8 +105,10 @@ void pf_active_current_time(int shotNumber, DATA_BLOCK* data_block, int* nodeInd
 	if (status != 0) {
 		int err = 901;
 		addIdamError(CODEERRORTYPE, "WEST:ERROR: unable to get time for pf_active current", err, "");
+		return status;
 	}
 	SetDynamicDataTime(data_block, len, time, data);
+	return 0;
 }
 
 
@@ -120,10 +124,11 @@ int get_pf_current(int shotNumber, int extractionIndex, float** time, float** da
 }
 
 
-void pf_active_coil_name(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
+int pf_active_coil_name(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 {
 	int index = nodeIndices[0] - 1; //starts from 0
 	setReturnDataString(data_block, COILS_NAMES[index], NULL);
+	return 0;
 }
 
 void pf_active_coil_identifier(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)

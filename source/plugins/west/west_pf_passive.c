@@ -65,17 +65,17 @@ void passive_name(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
 void passive_r(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
 void passive_z(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
 void passive_current_shapeOf(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
-void passive_current(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
-void passive_time(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
+int passive_current(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
+int passive_time(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
 
-void pf_passive_current_data(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
+int pf_passive_current_data(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 {
-	passive_current(shotNumber, data_block, nodeIndices);
+	return passive_current(shotNumber, data_block, nodeIndices);
 }
 
-void pf_passive_current_time(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
+int pf_passive_current_time(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 {
-	passive_time(shotNumber, data_block, nodeIndices);
+	return passive_time(shotNumber, data_block, nodeIndices);
 }
 
 void pf_passive_loop_name(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
@@ -215,7 +215,7 @@ void passive_current_shapeOf(int shotNumber, DATA_BLOCK* data_block, int* nodeIn
 	setReturnDataIntScalar(data_block, len, NULL);
 }
 
-void passive_current(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
+int passive_current(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 {
 
 	float* data = NULL;
@@ -225,8 +225,10 @@ void passive_current(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 	if (status != 0) {
 		int err = 901;
 		addIdamError(CODEERRORTYPE, "WEST:ERROR: unable to get pf_passive current", err, "");
+		return status;
 	}
 	SetDynamicData(data_block, len, time, data);
+	return 0;
 }
 
 int getCurrent(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices, float** data, float** time, int* len)
@@ -265,7 +267,7 @@ int getCurrent(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices, float**
 }
 
 
-void passive_time(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
+int passive_time(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 {
 
 	int k = nodeIndices[0]; //starts from 1
@@ -295,6 +297,7 @@ void passive_time(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 	if (status != 0) {
 		int err = 901;
 		addIdamError(CODEERRORTYPE, "WEST:ERROR: unable to get time for pf_passive current", err, "");
+		return status;
 	}
 
 	float* data_ref = NULL;
@@ -310,9 +313,11 @@ void passive_time(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 		if (abs(time_ref_i - time_i) > p)  {
 			int err = 901;
 			addIdamError(CODEERRORTYPE, "WEST:ERROR: time data for pf_passive currents differ !", err, "");
+			return -1;
 		}
 	}
 	SetDynamicDataTime(data_block, len, time, data);
+	return 0;
 }
 
 

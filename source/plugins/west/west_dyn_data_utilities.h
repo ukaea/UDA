@@ -21,8 +21,8 @@ void SetDynamicDataTime(DATA_BLOCK* data_block, int len, float *time, float *dat
 
 int getArcadeSignal(char* nomsigp, int shotNumber, int extractionIndex, float** time, float** data, int* len, float normalizationFactor);
 
-void flt1D(const char* mappingValue, int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
-void flt1D_contrib(const char* mappingValue, int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
+int flt1D(const char* mappingValue, int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
+int flt1D_contrib(const char* mappingValue, int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
 
 int setUDABlockSignalFromArcade(char* sigName, int shotNumber, int extractionIndex, DATA_BLOCK* data_block, int* nodeIndices, float normalizationFactor);
 int setUDABlockSignalFromArcade2(int shotNumber, char* sigName, int extractionIndex, char* sigName2, int extractionIndex2, DATA_BLOCK* data_block, int* nodeIndices, float treshold);

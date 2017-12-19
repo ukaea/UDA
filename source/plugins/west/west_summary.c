@@ -18,7 +18,7 @@
 
 #include "west_static_data_utilities.h"
 
-void summary_global_quantities_v_loop_value(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
+int summary_global_quantities_v_loop_value(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 {
 	int extractions [4];
 	extractions[0] = 1;
@@ -42,6 +42,7 @@ void summary_global_quantities_v_loop_value(int shotNumber, DATA_BLOCK* data_blo
 		strcat(errorMsg, "GMAG_FV");
 		strcat(errorMsg, " in west_summary:summary_global_quantities_v_loop_value method.");
 		addIdamError(CODEERRORTYPE, errorMsg, err, "");
+		return status;
 	}
 
 	float *ip_time = NULL;
@@ -56,6 +57,7 @@ void summary_global_quantities_v_loop_value(int shotNumber, DATA_BLOCK* data_blo
 		strcat(errorMsg, "SMAG_IP");
 		strcat(errorMsg, " in west_summary:summary_global_quantities_v_loop_value method.");
 		addIdamError(CODEERRORTYPE, errorMsg, err, "");
+		return status;
 	}
 
 	float treshold = 10000;
@@ -64,14 +66,16 @@ void summary_global_quantities_v_loop_value(int shotNumber, DATA_BLOCK* data_blo
 	merge2Signals_according_to_ip_treshold(&mergedData, len, averaged_data, data2, ip_data, treshold);
 
 	SetDynamicData(data_block, len, averaged_data_time, mergedData);
+	return 0;
 }
 
-void summary_global_quantities_r0_value(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
+int summary_global_quantities_r0_value(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 {
 	setReturnDataFloatScalar(data_block, 2.42, NULL);
+	return 0;
 }
 
-void summary_global_quantities_beta_tor_value(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
+int summary_global_quantities_beta_tor_value(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 {
 	float *volume_time;
 	float *volume_data;
@@ -88,6 +92,7 @@ void summary_global_quantities_beta_tor_value(int shotNumber, DATA_BLOCK* data_b
 		strcat(errorMsg, volume_sigName);
 		strcat(errorMsg, " in west_summary:summary_global_quantities_beta_tor_value method.");
 		addIdamError(CODEERRORTYPE, errorMsg, err, "");
+		return status;
 	}
 
 	float *total_energy_time;
@@ -105,6 +110,7 @@ void summary_global_quantities_beta_tor_value(int shotNumber, DATA_BLOCK* data_b
 		strcat(errorMsg, total_energy_sigName);
 		strcat(errorMsg, " in west_summary:summary_global_quantities_beta_tor_value method.");
 		addIdamError(CODEERRORTYPE, errorMsg, err, "");
+		return status;
 	}
 
 	IDAM_LOG(UDA_LOG_DEBUG, "Getting ratio total_energy_data/volume_data...\n");
@@ -116,6 +122,7 @@ void summary_global_quantities_beta_tor_value(int shotNumber, DATA_BLOCK* data_b
 		char* errorMsg = "WEST:ERROR: unable to get ratio total_energy/volume";
 		strcat(errorMsg, " in west_summary:summary_global_quantities_beta_tor_value method.");
 		addIdamError(CODEERRORTYPE, errorMsg, err, "");
+		return status;
 	}
 
 	float *itor_time;
@@ -134,6 +141,7 @@ void summary_global_quantities_beta_tor_value(int shotNumber, DATA_BLOCK* data_b
 		strcat(errorMsg, itor_sigName);
 		strcat(errorMsg, " in west_summary:summary_global_quantities_beta_tor_value method.");
 		addIdamError(CODEERRORTYPE, errorMsg, err, "");
+		return status;
 	}
 
 	IDAM_LOG(UDA_LOG_DEBUG, "Getting square of itor_data...\n");
@@ -144,15 +152,18 @@ void summary_global_quantities_beta_tor_value(int shotNumber, DATA_BLOCK* data_b
 	float *energy_by_volume_by_b0_square = NULL;
 	status = signalsRatio(&energy_by_volume_by_b0_square, ratio, b0_square, total_energy_len, itor_len);
 
+	if (status != 0) return status;
+
 	float cste = (2./3.)*2*M_PI*1e-7;
 
 	IDAM_LOG(UDA_LOG_DEBUG, "Multiply result with constant ...\n");
 	multiply(energy_by_volume_by_b0_square, itor_len, cste);
 
 	SetDynamicData(data_block, itor_len, itor_time, energy_by_volume_by_b0_square);
+	return 0;
 }
 
-void summary_global_quantities_beta_tor_norm_value(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
+int summary_global_quantities_beta_tor_norm_value(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 {
 	//volume
 	//----------------------------------
@@ -171,6 +182,7 @@ void summary_global_quantities_beta_tor_norm_value(int shotNumber, DATA_BLOCK* d
 		strcat(errorMsg, volume_sigName);
 		strcat(errorMsg, " in west_summary:summary_global_quantities_beta_tor_norm_value method.");
 		addIdamError(CODEERRORTYPE, errorMsg, err, "");
+		return status;
 	}
 
 	//total energy
@@ -190,6 +202,7 @@ void summary_global_quantities_beta_tor_norm_value(int shotNumber, DATA_BLOCK* d
 		strcat(errorMsg, total_energy_sigName);
 		strcat(errorMsg, " in west_summary:summary_global_quantities_beta_tor_norm_value method.");
 		addIdamError(CODEERRORTYPE, errorMsg, err, "");
+		return status;
 	}
 
 	//b0_value
@@ -209,53 +222,15 @@ void summary_global_quantities_beta_tor_norm_value(int shotNumber, DATA_BLOCK* d
 		strcat(errorMsg, itor_sigName);
 		strcat(errorMsg, " in west_summary:summary_global_quantities_beta_tor_norm_value method.");
 		addIdamError(CODEERRORTYPE, errorMsg, err, "");
+		return status;
 	}
-
-	//ip value
-	//----------------------------------
-	/*float *ifreeb_time;
-	float *ifreeb_data;
-	int ifreeb_len;
-	char* ifreeb_sigName = "GMAG_IFREEB";
-	int ifreeb_extractionIndex = 1;
-
-	normalizationFactor = 1.0;
-	status = getArcadeSignal(ifreeb_sigName, shotNumber, ifreeb_extractionIndex, &ifreeb_time, &ifreeb_data, &ifreeb_len, normalizationFactor);
-
-	if (status != 0) {
-		int err = 901;
-		char* errorMsg = "WEST:ERROR: unable to get object ";
-		strcat(errorMsg, ifreeb_sigName);
-		strcat(errorMsg, " in west_summary:summary_global_quantities_beta_tor_norm_value method.");
-		addIdamError(CODEERRORTYPE, errorMsg, err, "");
-	}
-
-	float *smagip_time;
-	float *smagip_data;
-	int smagip_len;
-	char* smagip_sigName = "SMAG_IP";
-	int smagip_extractionIndex = 1;
-
-	normalizationFactor = 1.0;
-	status = getArcadeSignal(smagip_sigName, shotNumber, smagip_extractionIndex, &smagip_time, &smagip_data, &smagip_len, normalizationFactor);
-
-	if (status != 0) {
-		int err = 901;
-		char* errorMsg = "WEST:ERROR: unable to get object ";
-		strcat(errorMsg, smagip_sigName);
-		strcat(errorMsg, " in west_summary:summary_global_quantities_beta_tor_norm_value method.");
-		addIdamError(CODEERRORTYPE, errorMsg, err, "");
-	}
-
-	float treshold = 10000;
-	float *ip_data = NULL;
-	merge2Signals_according_to_ip_treshold(&ip_data, smagip_len, ifreeb_data, smagip_data, smagip_data, treshold);*/
 
 	const float treshold = 10000;
 	float *ip_data = NULL;
 	float *ip_time = NULL;
 	int ip_len;
-	ip_value(&ip_data, ip_time, &ip_len, shotNumber, data_block, treshold);
+	status = ip_value(&ip_data, ip_time, &ip_len, shotNumber, data_block, treshold);
+	if (status != 0) return status;
 
 	//minor radius
 	//----------------------------------
@@ -274,6 +249,7 @@ void summary_global_quantities_beta_tor_norm_value(int shotNumber, DATA_BLOCK* d
 		strcat(errorMsg, minor_radius_sigName);
 		strcat(errorMsg, " in west_summary:summary_global_quantities_beta_tor_norm_value method.");
 		addIdamError(CODEERRORTYPE, errorMsg, err, "");
+		return status;
 	}
 
 	//Total_energy x minor radius
@@ -291,6 +267,7 @@ void summary_global_quantities_beta_tor_norm_value(int shotNumber, DATA_BLOCK* d
 		int err = 901;
 		char* errorMsg = "WEST:ERROR: unable to compute ratio in in west_summary:summary_global_quantities_beta_tor_norm_value method.";
 		addIdamError(CODEERRORTYPE, errorMsg, err, "");
+		return status;
 	}
 
 	//(Total_energy x minor radius)/volume/b0
@@ -302,6 +279,7 @@ void summary_global_quantities_beta_tor_norm_value(int shotNumber, DATA_BLOCK* d
 		int err = 901;
 		char* errorMsg = "WEST:ERROR: unable to compute second ratio in in west_summary:summary_global_quantities_beta_tor_norm_value method.";
 		addIdamError(CODEERRORTYPE, errorMsg, err, "");
+		return status;
 	}
 
 	//(Total_energy x minor radius)/volume/b0/ip
@@ -313,6 +291,7 @@ void summary_global_quantities_beta_tor_norm_value(int shotNumber, DATA_BLOCK* d
 		int err = 901;
 		char* errorMsg = "WEST:ERROR: unable to compute third ratio in in west_summary:summary_global_quantities_beta_tor_norm_value method.";
 		addIdamError(CODEERRORTYPE, errorMsg, err, "");
+		return status;
 	}
 
 	float cste = 100*1.6*M_PI/3.;
@@ -320,9 +299,11 @@ void summary_global_quantities_beta_tor_norm_value(int shotNumber, DATA_BLOCK* d
 	multiply(total_enery_times_minor_radius_by_volume_by_b0_by_ip, ip_len, cste);
 
 	SetDynamicData(data_block, total_energy_len, ip_time, total_enery_times_minor_radius_by_volume_by_b0_by_ip);
+
+	return 0;
 }
 
-void summary_global_quantities_b0_value(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
+int summary_global_quantities_b0_value(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 {
 	float *itor_time;
 	float *itor_data;
@@ -339,12 +320,14 @@ void summary_global_quantities_b0_value(int shotNumber, DATA_BLOCK* data_block, 
 		strcat(errorMsg, itor_sigName);
 		strcat(errorMsg, " in west_summary:summary_global_quantities_b0_value method.");
 		addIdamError(CODEERRORTYPE, errorMsg, err, "");
+		return status;
 	}
 
 	SetDynamicData(data_block, itor_len, itor_time, itor_data);
+	return 0;
 }
 
-void summary_heating_current_drive_ec_power(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices) {
+int summary_heating_current_drive_ec_power(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices) {
 
 	int k = nodeIndices[0]; //starts from 1
 	if (k == 1) {
@@ -359,13 +342,15 @@ void summary_heating_current_drive_ec_power(int shotNumber, DATA_BLOCK* data_blo
 		char* mappingValue = "flt1D;DMAG:GMAG_BILAN:4";
 		flt1D(mappingValue, shotNumber, data_block, nodeIndices);
 	}
+	return 0;
 }
 
-void summary_time(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices) {
+int summary_time(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices) {
 	//NOT IMPLEMENTED
+	return 0;
 }
 
-void summary_heating_current_drive_ec_power_source(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices) {
+int summary_heating_current_drive_ec_power_source(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices) {
 
 	int k = nodeIndices[0]; //starts from 1
 	if (k == 1) {
@@ -377,10 +362,11 @@ void summary_heating_current_drive_ec_power_source(int shotNumber, DATA_BLOCK* d
 	else if (k == 3) {
 		setReturnDataString(data_block, "ECRH", NULL);
 	}
+	return 0;
 }
 
 
-void summary_global_quantities_tau_resistance_value(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
+int summary_global_quantities_tau_resistance_value(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 {
 	float *voltage_time;
 	float *voltage_data;
@@ -398,14 +384,7 @@ void summary_global_quantities_tau_resistance_value(int shotNumber, DATA_BLOCK* 
 	float *ip_time = NULL;
 	float *ip_data;
 	int ip_len;
-	/*char* current_sigName = "SMAG_IP";
-	int current_extractionIndex = 0; //simple signal
-	status = getArcadeSignal(current_sigName, shotNumber, current_extractionIndex, &current_time, &current_data, &current_len, 1);
 
-	if (status != 0) {
-		int err = 901;
-		addIdamError(CODEERRORTYPE, "WEST:ERROR: unable to get SMAG_IP (extraction index 1)", err, "");
-	}*/
 	const float treshold = 10000;
 	ip_value(&ip_data, ip_time, &ip_len, shotNumber, data_block, treshold);
 
@@ -414,12 +393,13 @@ void summary_global_quantities_tau_resistance_value(int shotNumber, DATA_BLOCK* 
 	if (status != 0) {
 		int err = 901;
 		addIdamError(CODEERRORTYPE, "WEST:ERROR: unable to compute the ratio for tau_resistive", err, "");
+		return status;
 	}
-
 	SetDynamicData(data_block, ip_len, ip_time, resistiveData);
+	return 0;
 }
 
-void ip_value(float **ip_data, float *ip_time, int *ip_len, int shotNumber, DATA_BLOCK* data_block, const float treshold) {
+int ip_value(float **ip_data, float *ip_time, int *ip_len, int shotNumber, DATA_BLOCK* data_block, const float treshold) {
 	//ip value
 	//----------------------------------
 	float *ifreeb_time;
@@ -437,6 +417,7 @@ void ip_value(float **ip_data, float *ip_time, int *ip_len, int shotNumber, DATA
 		strcat(errorMsg, ifreeb_sigName);
 		strcat(errorMsg, " in west_summary:summary_global_quantities_beta_tor_norm_value method.");
 		addIdamError(CODEERRORTYPE, errorMsg, err, "");
+		return status;
 	}
 
 	float *smagip_time;
@@ -454,8 +435,10 @@ void ip_value(float **ip_data, float *ip_time, int *ip_len, int shotNumber, DATA
 		strcat(errorMsg, smagip_sigName);
 		strcat(errorMsg, " in west_summary:summary_global_quantities_beta_tor_norm_value method.");
 		addIdamError(CODEERRORTYPE, errorMsg, err, "");
+		return status;
 	}
 	ip_time = ifreeb_time;
 	*ip_len = ifreeb_len;
 	merge2Signals_according_to_ip_treshold(ip_data, smagip_len, ifreeb_data, smagip_data, smagip_data, treshold);
+	return 0;
 }

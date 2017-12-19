@@ -44,11 +44,17 @@ int SetNormalizedDynData(int shotNumber, DATA_BLOCK* data_block, int* nodeIndice
 	int status = GetDynData(shotNumber, &time, &data, &len, nodeIndices,
 			TOP_collections_parameters, attributes);
 
+	IDAM_LOG(UDA_LOG_DEBUG, "after calling GetDynData\n");
+
 	if (status != 0) {
 		int err = 901;
+		IDAM_LOG(UDA_LOG_DEBUG, "after calling GetDynData1\n");
 		addIdamError(CODEERRORTYPE, "WEST:ERROR: unable to get dynamic data", err, "");
-		free(time);
-		free(data);
+		/*if (time !=NULL)
+			free(time);
+		if (data != NULL)
+			free(data);*/
+		IDAM_LOG(UDA_LOG_DEBUG, "after calling GetDynData2\n");
 	} else {
 		IDAM_LOG(UDA_LOG_DEBUG, "Getting normalization factor, if any\n");
 		float normalizationFactor = 1;
@@ -59,6 +65,7 @@ int SetNormalizedDynData(int shotNumber, DATA_BLOCK* data_block, int* nodeIndice
 
 		SetDynData(data_block, len, time, data, setTime);
 	}
+	IDAM_LOG(UDA_LOG_DEBUG, "End of function SetNormalizedDynData()\n");
 	return status;
 }
 
@@ -160,6 +167,7 @@ int GetDynData(int shotNumber, float** data_time, float** data, int* len, int* n
 		int err = 901;
 		IDAM_LOGF(UDA_LOG_DEBUG, "WEST:ERROR: unable to get command for TOP: %s\n", TOP_collections_parameters);
 		addIdamError(CODEERRORTYPE, "WEST:ERROR: unable to get command", err, "");
+		return status;
 	}
 
 	IDAM_LOGF(UDA_LOG_DEBUG, "Command: %s\n", command);
@@ -182,6 +190,20 @@ int GetDynData(int shotNumber, float** data_time, float** data, int* len, int* n
 
 	int rang[2] = { 0, 0 };
 	status = readSignal(objectName, shotNumber, 0, rang, data_time, data, len);
+
+	if (status != 0) {
+		int err = 901;
+		IDAM_LOGF(UDA_LOG_DEBUG, "WEST:ERROR: error reading signal\n", objectName);
+		addIdamError(CODEERRORTYPE, "WEST:ERROR: error reading signal", err, "");
+		if (command != NULL)
+			free(command);
+		if (objectName != NULL)
+			free(objectName);
+		if (extractionsCount != NULL)
+			free(extractionsCount);
+		IDAM_LOG(UDA_LOG_DEBUG, "Returning from GetDynData\n");
+		return status;
+	}
 
 	IDAM_LOG(UDA_LOG_DEBUG, "End of reading signal\n");
 
