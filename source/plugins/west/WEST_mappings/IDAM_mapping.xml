@@ -100,9 +100,7 @@
 <mapping key="ece/channel/#/name" value="ece_names" type="static"/>
 <mapping key="ece/channel/#/identifier" value="ece_identifiers" type="static"/>
 <mapping key="ece/channel/#/t_e_voltage/data" value="ece_t_e_data" type="dynamic"/>
-<!-- mapping key="ece/channel/#/t_e/data" value="ece_t_e_data" type="dynamic"/ -->
 <mapping key="ece/channel/#/t_e_voltage/time" value="ece_t_e_time" type="dynamic"/>
-<!-- mapping key="ece/channel/#/t_e/time" value="ece_t_e_time" type="dynamic"/ -->
 <mapping key="ece/channel/#/harmonic/data" value="ece_harmonic_data" type="dynamic"/>
 <mapping key="ece/channel/#/harmonic/time" value="ece_harmonic_time" type="dynamic"/>
 
