@@ -38,8 +38,8 @@ int SetNormalizedDynData(int shotNumber, DATA_BLOCK* data_block, int* nodeIndice
 		char* TOP_collections_parameters, char* attributes, char* normalizationAttributes, int setTime)
 {
 	int len;
-	float* time;
-	float* data;
+	float* time = NULL;
+	float* data = NULL;
 
 	int status = GetDynData(shotNumber, &time, &data, &len, nodeIndices,
 			TOP_collections_parameters, attributes);
@@ -50,10 +50,8 @@ int SetNormalizedDynData(int shotNumber, DATA_BLOCK* data_block, int* nodeIndice
 		int err = 901;
 		IDAM_LOG(UDA_LOG_DEBUG, "after calling GetDynData1\n");
 		addIdamError(CODEERRORTYPE, "WEST:ERROR: unable to get dynamic data", err, "");
-		/*if (time !=NULL)
-			free(time);
-		if (data != NULL)
-			free(data);*/
+		free(time);
+		free(data);
 		IDAM_LOG(UDA_LOG_DEBUG, "after calling GetDynData2\n");
 	} else {
 		IDAM_LOG(UDA_LOG_DEBUG, "Getting normalization factor, if any\n");
@@ -301,6 +299,8 @@ int setUDABlockSignalFromArcade(char* sigName, int shotNumber, int extractionInd
 	if (status != 0) {
 		int err = 901;
 		addIdamError(CODEERRORTYPE, "WEST:ERROR: unable to get arcade signal", err, "");
+		free(data_time);
+		free(data);
 	}
 	else {
 		SetDynamicData(data_block, len, data_time, data);
@@ -320,6 +320,8 @@ int setUDABlockSignalFromArcade2(int shotNumber, char* sigName, int extractionIn
 	if (status != 0) {
 		int err = 901;
 		addIdamError(CODEERRORTYPE, "WEST:ERROR: unable to get arcade signal1", err, "");
+		free(time1);
+		free(data1);
 	}
 
 	float *time2 = NULL;
@@ -331,6 +333,10 @@ int setUDABlockSignalFromArcade2(int shotNumber, char* sigName, int extractionIn
 	if (status != 0) {
 		int err = 901;
 		addIdamError(CODEERRORTYPE, "WEST:ERROR: unable to get arcade signal2", err, "");
+		free(time1);
+		free(data1);
+		free(time2);
+		free(data2);
 	}
 
 	float *ip_time = NULL;
@@ -343,6 +349,12 @@ int setUDABlockSignalFromArcade2(int shotNumber, char* sigName, int extractionIn
 	if (status != 0) {
 		int err = 901;
 		addIdamError(CODEERRORTYPE, "WEST:ERROR: unable to get SMAG_IP signal", err, "");
+		free(time1);
+		free(data1);
+		free(time2);
+		free(data2);
+		free(ip_time);
+		free(ip_data);
 	}
 
 	float *data = NULL;

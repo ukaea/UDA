@@ -286,8 +286,7 @@ int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         IDAM_LOG(UDA_LOG_DEBUG, "Fetching static data from WEST plugin\n");
 
         // Executing TSLib for getting static data
-        int status =
-                GetStaticData(shot, mapfun, data_block, indices);
+        int status = GetStaticData(shot, mapfun, data_block, indices);
         if (status != 0) {
             return status;
         }

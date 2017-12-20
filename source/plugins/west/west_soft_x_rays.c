@@ -89,8 +89,8 @@ int soft_x_rays_channels_power_density_data(int shotNumber, DATA_BLOCK* data_blo
 	int index = nodeIndices[0]; //starts from 1
 
 	int len;
-	float *time;
-	float *data;
+	float *time = NULL;
+	float *data = NULL;
 	char* nomsigp = NULL;
 
 	int extractionIndex;
@@ -111,7 +111,11 @@ int soft_x_rays_channels_power_density_data(int shotNumber, DATA_BLOCK* data_blo
 		IDAM_LOG(UDA_LOG_DEBUG, "reading channels_power_density, error status...\n");
 		int err = 901;
 		addIdamError(CODEERRORTYPE, "WEST:ERROR: unable to get channels_power_density_data for west_soft_x_rays IDS", err, "");
-	    return status;
+		if (time != NULL)
+			free(time);
+		if (data != NULL)
+			free(data);
+		return status;
 	}
 	else {
 		IDAM_LOG(UDA_LOG_DEBUG, "setting channels_power_density...\n");
@@ -125,8 +129,8 @@ int soft_x_rays_channels_power_density_time(int shotNumber, DATA_BLOCK* data_blo
 	int index = nodeIndices[0]; //starts from 1
 
 	int len;
-	float *time;
-	float *data;
+	float *time = NULL;
+	float *data = NULL;
 	char* nomsigp = NULL;
 
 	int extractionIndex;
@@ -145,7 +149,11 @@ int soft_x_rays_channels_power_density_time(int shotNumber, DATA_BLOCK* data_blo
 	if (status != 0) {
 		int err = 901;
 		addIdamError(CODEERRORTYPE, "WEST:ERROR: unable to get channels_power_density_time for west_soft_x_rays IDS", err, "");
-	    return status;
+		if (time != NULL)
+			free(time);
+		if (data != NULL)
+			free(data);
+		return status;
 	}
 	else {
 		setReturnData2DFloat(data_block, 1, len, time);

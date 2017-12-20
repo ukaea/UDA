@@ -77,8 +77,8 @@ int summary_global_quantities_r0_value(int shotNumber, DATA_BLOCK* data_block, i
 
 int summary_global_quantities_beta_tor_value(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 {
-	float *volume_time;
-	float *volume_data;
+	float *volume_time = NULL;
+	float *volume_data = NULL;
 	int volume_len;
 	char* volume_sigName = "GMAG_GEOM";
 	int volume_extractionIndex = 13;
@@ -92,11 +92,15 @@ int summary_global_quantities_beta_tor_value(int shotNumber, DATA_BLOCK* data_bl
 		strcat(errorMsg, volume_sigName);
 		strcat(errorMsg, " in west_summary:summary_global_quantities_beta_tor_value method.");
 		addIdamError(CODEERRORTYPE, errorMsg, err, "");
+		if (volume_time != NULL)
+			free(volume_time);
+		if (volume_data != NULL)
+			free(volume_data);
 		return status;
 	}
 
-	float *total_energy_time;
-	float *total_energy_data;
+	float *total_energy_time = NULL;
+	float *total_energy_data = NULL;
 	int total_energy_len;
 	char* total_energy_sigName = "GMAG_BILAN";
 	int total_energy_extractionIndex = 10;
@@ -110,6 +114,10 @@ int summary_global_quantities_beta_tor_value(int shotNumber, DATA_BLOCK* data_bl
 		strcat(errorMsg, total_energy_sigName);
 		strcat(errorMsg, " in west_summary:summary_global_quantities_beta_tor_value method.");
 		addIdamError(CODEERRORTYPE, errorMsg, err, "");
+		if (total_energy_time != NULL)
+			free(total_energy_time);
+		if (total_energy_data != NULL)
+			free(total_energy_data);
 		return status;
 	}
 
@@ -122,11 +130,13 @@ int summary_global_quantities_beta_tor_value(int shotNumber, DATA_BLOCK* data_bl
 		char* errorMsg = "WEST:ERROR: unable to get ratio total_energy/volume";
 		strcat(errorMsg, " in west_summary:summary_global_quantities_beta_tor_value method.");
 		addIdamError(CODEERRORTYPE, errorMsg, err, "");
+		if (ratio != NULL)
+			free(ratio);
 		return status;
 	}
 
-	float *itor_time;
-	float *itor_data;
+	float *itor_time = NULL;
+	float *itor_data = NULL;
 	int itor_len;
 	char* itor_sigName = "GMAG_ITOR";
 	int itor_extractionIndex = 1;
@@ -141,6 +151,10 @@ int summary_global_quantities_beta_tor_value(int shotNumber, DATA_BLOCK* data_bl
 		strcat(errorMsg, itor_sigName);
 		strcat(errorMsg, " in west_summary:summary_global_quantities_beta_tor_value method.");
 		addIdamError(CODEERRORTYPE, errorMsg, err, "");
+		if (itor_time != NULL)
+			free(itor_time);
+		if (itor_data != NULL)
+			free(itor_data);
 		return status;
 	}
 
@@ -167,8 +181,8 @@ int summary_global_quantities_beta_tor_norm_value(int shotNumber, DATA_BLOCK* da
 {
 	//volume
 	//----------------------------------
-	float *volume_time;
-	float *volume_data;
+	float *volume_time = NULL;
+	float *volume_data = NULL;
 	int volume_len;
 	char* volume_sigName = "GMAG_GEOM";
 	int volume_extractionIndex = 13;
@@ -182,13 +196,17 @@ int summary_global_quantities_beta_tor_norm_value(int shotNumber, DATA_BLOCK* da
 		strcat(errorMsg, volume_sigName);
 		strcat(errorMsg, " in west_summary:summary_global_quantities_beta_tor_norm_value method.");
 		addIdamError(CODEERRORTYPE, errorMsg, err, "");
+		if (volume_time != NULL)
+			free(volume_time);
+		if (volume_data != NULL)
+			free(volume_data);
 		return status;
 	}
 
 	//total energy
 	//----------------------------------
-	float *total_energy_time;
-	float *total_energy_data;
+	float *total_energy_time = NULL;
+	float *total_energy_data = NULL;
 	int total_energy_len;
 	char* total_energy_sigName = "GMAG_BILAN";
 	int total_energy_extractionIndex = 10;
@@ -202,13 +220,21 @@ int summary_global_quantities_beta_tor_norm_value(int shotNumber, DATA_BLOCK* da
 		strcat(errorMsg, total_energy_sigName);
 		strcat(errorMsg, " in west_summary:summary_global_quantities_beta_tor_norm_value method.");
 		addIdamError(CODEERRORTYPE, errorMsg, err, "");
+		if (volume_time != NULL)
+			free(volume_time);
+		if (volume_data != NULL)
+			free(volume_data);
+		if (total_energy_time != NULL)
+			free(total_energy_time);
+		if (total_energy_data != NULL)
+			free(total_energy_data);
 		return status;
 	}
 
 	//b0_value
 	//----------------------------------
-	float *itor_time;
-	float *itor_data;
+	float *itor_time = NULL;
+	float *itor_data = NULL;
 	int itor_len;
 	char* itor_sigName = "GMAG_ITOR";
 	int itor_extractionIndex = 1;
@@ -222,6 +248,18 @@ int summary_global_quantities_beta_tor_norm_value(int shotNumber, DATA_BLOCK* da
 		strcat(errorMsg, itor_sigName);
 		strcat(errorMsg, " in west_summary:summary_global_quantities_beta_tor_norm_value method.");
 		addIdamError(CODEERRORTYPE, errorMsg, err, "");
+		if (volume_time != NULL)
+			free(volume_time);
+		if (volume_data != NULL)
+			free(volume_data);
+		if (total_energy_time != NULL)
+			free(total_energy_time);
+		if (total_energy_data != NULL)
+			free(total_energy_data);
+		if (itor_time != NULL)
+			free(itor_time);
+		if (itor_data != NULL)
+			free(itor_data);
 		return status;
 	}
 
@@ -230,12 +268,30 @@ int summary_global_quantities_beta_tor_norm_value(int shotNumber, DATA_BLOCK* da
 	float *ip_time = NULL;
 	int ip_len;
 	status = ip_value(&ip_data, ip_time, &ip_len, shotNumber, data_block, treshold);
-	if (status != 0) return status;
+	if (status != 0) {
+		if (volume_time != NULL)
+			free(volume_time);
+		if (volume_data != NULL)
+			free(volume_data);
+		if (total_energy_time != NULL)
+			free(total_energy_time);
+		if (total_energy_data != NULL)
+			free(total_energy_data);
+		if (itor_time != NULL)
+			free(itor_time);
+		if (itor_data != NULL)
+			free(itor_data);
+		if (ip_data != NULL)
+			free(ip_data);
+		if (ip_time != NULL)
+			free(ip_time);
+		return status;
+	}
 
 	//minor radius
 	//----------------------------------
-	float *minor_radius_time;
-	float *minor_radius_data;
+	float *minor_radius_time = NULL;
+	float *minor_radius_data = NULL;
 	int minor_radius_len;
 	char* minor_radius_sigName = "GMAG_GEOM";
 	int minor_radius_extractionIndex = 3;
@@ -249,6 +305,26 @@ int summary_global_quantities_beta_tor_norm_value(int shotNumber, DATA_BLOCK* da
 		strcat(errorMsg, minor_radius_sigName);
 		strcat(errorMsg, " in west_summary:summary_global_quantities_beta_tor_norm_value method.");
 		addIdamError(CODEERRORTYPE, errorMsg, err, "");
+		if (volume_time != NULL)
+			free(volume_time);
+		if (volume_data != NULL)
+			free(volume_data);
+		if (total_energy_time != NULL)
+			free(total_energy_time);
+		if (total_energy_data != NULL)
+			free(total_energy_data);
+		if (itor_time != NULL)
+			free(itor_time);
+		if (itor_data != NULL)
+			free(itor_data);
+		if (ip_data != NULL)
+			free(ip_data);
+		if (ip_time != NULL)
+			free(ip_time);
+		if (minor_radius_time != NULL)
+			free(minor_radius_time);
+		if (minor_radius_data != NULL)
+			free(minor_radius_data);
 		return status;
 	}
 
@@ -267,6 +343,28 @@ int summary_global_quantities_beta_tor_norm_value(int shotNumber, DATA_BLOCK* da
 		int err = 901;
 		char* errorMsg = "WEST:ERROR: unable to compute ratio in in west_summary:summary_global_quantities_beta_tor_norm_value method.";
 		addIdamError(CODEERRORTYPE, errorMsg, err, "");
+		if (volume_time != NULL)
+			free(volume_time);
+		if (volume_data != NULL)
+			free(volume_data);
+		if (total_energy_time != NULL)
+			free(total_energy_time);
+		if (total_energy_data != NULL)
+			free(total_energy_data);
+		if (itor_time != NULL)
+			free(itor_time);
+		if (itor_data != NULL)
+			free(itor_data);
+		if (ip_data != NULL)
+			free(ip_data);
+		if (ip_time != NULL)
+			free(ip_time);
+		if (minor_radius_time != NULL)
+			free(minor_radius_time);
+		if (minor_radius_data != NULL)
+			free(minor_radius_data);
+		if (total_enery_times_minor_radius_by_volume != NULL)
+			free(total_enery_times_minor_radius_by_volume);
 		return status;
 	}
 
@@ -279,6 +377,30 @@ int summary_global_quantities_beta_tor_norm_value(int shotNumber, DATA_BLOCK* da
 		int err = 901;
 		char* errorMsg = "WEST:ERROR: unable to compute second ratio in in west_summary:summary_global_quantities_beta_tor_norm_value method.";
 		addIdamError(CODEERRORTYPE, errorMsg, err, "");
+		if (volume_time != NULL)
+			free(volume_time);
+		if (volume_data != NULL)
+			free(volume_data);
+		if (total_energy_time != NULL)
+			free(total_energy_time);
+		if (total_energy_data != NULL)
+			free(total_energy_data);
+		if (itor_time != NULL)
+			free(itor_time);
+		if (itor_data != NULL)
+			free(itor_data);
+		if (ip_data != NULL)
+			free(ip_data);
+		if (ip_time != NULL)
+			free(ip_time);
+		if (minor_radius_time != NULL)
+			free(minor_radius_time);
+		if (minor_radius_data != NULL)
+			free(minor_radius_data);
+		if (total_enery_times_minor_radius_by_volume != NULL)
+			free(total_enery_times_minor_radius_by_volume);
+		if (total_enery_times_minor_radius_by_volume_by_b0 != NULL)
+			free(total_enery_times_minor_radius_by_volume_by_b0);
 		return status;
 	}
 
@@ -291,6 +413,32 @@ int summary_global_quantities_beta_tor_norm_value(int shotNumber, DATA_BLOCK* da
 		int err = 901;
 		char* errorMsg = "WEST:ERROR: unable to compute third ratio in in west_summary:summary_global_quantities_beta_tor_norm_value method.";
 		addIdamError(CODEERRORTYPE, errorMsg, err, "");
+		if (volume_time != NULL)
+			free(volume_time);
+		if (volume_data != NULL)
+			free(volume_data);
+		if (total_energy_time != NULL)
+			free(total_energy_time);
+		if (total_energy_data != NULL)
+			free(total_energy_data);
+		if (itor_time != NULL)
+			free(itor_time);
+		if (itor_data != NULL)
+			free(itor_data);
+		if (ip_data != NULL)
+			free(ip_data);
+		if (ip_time != NULL)
+			free(ip_time);
+		if (minor_radius_time != NULL)
+			free(minor_radius_time);
+		if (minor_radius_data != NULL)
+			free(minor_radius_data);
+		if (total_enery_times_minor_radius_by_volume != NULL)
+			free(total_enery_times_minor_radius_by_volume);
+		if (total_enery_times_minor_radius_by_volume_by_b0 != NULL)
+			free(total_enery_times_minor_radius_by_volume_by_b0);
+		if (total_enery_times_minor_radius_by_volume_by_b0_by_ip != NULL)
+			free(total_enery_times_minor_radius_by_volume_by_b0_by_ip);
 		return status;
 	}
 
@@ -305,8 +453,8 @@ int summary_global_quantities_beta_tor_norm_value(int shotNumber, DATA_BLOCK* da
 
 int summary_global_quantities_b0_value(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 {
-	float *itor_time;
-	float *itor_data;
+	float *itor_time = NULL;
+	float *itor_data = NULL;
 	int itor_len;
 	char* itor_sigName = "GMAG_ITOR";
 	int itor_extractionIndex = 1;
@@ -320,6 +468,10 @@ int summary_global_quantities_b0_value(int shotNumber, DATA_BLOCK* data_block, i
 		strcat(errorMsg, itor_sigName);
 		strcat(errorMsg, " in west_summary:summary_global_quantities_b0_value method.");
 		addIdamError(CODEERRORTYPE, errorMsg, err, "");
+		if (itor_time != NULL)
+			free(itor_time);
+		if (itor_data != NULL)
+			free(itor_data);
 		return status;
 	}
 
@@ -368,8 +520,8 @@ int summary_heating_current_drive_ec_power_source(int shotNumber, DATA_BLOCK* da
 
 int summary_global_quantities_tau_resistance_value(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 {
-	float *voltage_time;
-	float *voltage_data;
+	float *voltage_time = NULL;
+	float *voltage_data = NULL;
 	int voltage_len;
 	char* voltage_sigName = "GMAG_FV";
 	int voltage_extractionIndex = 3;
@@ -379,20 +531,32 @@ int summary_global_quantities_tau_resistance_value(int shotNumber, DATA_BLOCK* d
 	if (status != 0) {
 		int err = 901;
 		addIdamError(CODEERRORTYPE, "WEST:ERROR: unable to get GMAG_FV%3", err, "");
+		if (voltage_time != NULL)
+			free(voltage_time);
+		if (voltage_data != NULL)
+			free(voltage_data);
+		return status;
 	}
 
 	float *ip_time = NULL;
-	float *ip_data;
+	float *ip_data = NULL;
 	int ip_len;
 
 	const float treshold = 10000;
 	ip_value(&ip_data, ip_time, &ip_len, shotNumber, data_block, treshold);
 
-	float *resistiveData;
+	float *resistiveData = NULL;
+
 	status = signalsRatio(&resistiveData, voltage_data, ip_data, voltage_len, ip_len);
 	if (status != 0) {
 		int err = 901;
 		addIdamError(CODEERRORTYPE, "WEST:ERROR: unable to compute the ratio for tau_resistive", err, "");
+		if (voltage_time != NULL)
+			free(voltage_time);
+		if (voltage_data != NULL)
+			free(voltage_data);
+		if (resistiveData != NULL)
+			free(resistiveData);
 		return status;
 	}
 	SetDynamicData(data_block, ip_len, ip_time, resistiveData);
@@ -402,8 +566,8 @@ int summary_global_quantities_tau_resistance_value(int shotNumber, DATA_BLOCK* d
 int ip_value(float **ip_data, float *ip_time, int *ip_len, int shotNumber, DATA_BLOCK* data_block, const float treshold) {
 	//ip value
 	//----------------------------------
-	float *ifreeb_time;
-	float *ifreeb_data;
+	float *ifreeb_time = NULL;
+	float *ifreeb_data = NULL;
 	int ifreeb_len;
 	char* ifreeb_sigName = "GMAG_IFREEB";
 	int ifreeb_extractionIndex = 1;
@@ -417,11 +581,15 @@ int ip_value(float **ip_data, float *ip_time, int *ip_len, int shotNumber, DATA_
 		strcat(errorMsg, ifreeb_sigName);
 		strcat(errorMsg, " in west_summary:summary_global_quantities_beta_tor_norm_value method.");
 		addIdamError(CODEERRORTYPE, errorMsg, err, "");
+		if (ifreeb_time != NULL)
+			free(ifreeb_time);
+		if (ifreeb_data != NULL)
+			free(ifreeb_data);
 		return status;
 	}
 
-	float *smagip_time;
-	float *smagip_data;
+	float *smagip_time = NULL;
+	float *smagip_data = NULL;
 	int smagip_len;
 	char* smagip_sigName = "SMAG_IP";
 	int smagip_extractionIndex = 1;
@@ -435,6 +603,14 @@ int ip_value(float **ip_data, float *ip_time, int *ip_len, int shotNumber, DATA_
 		strcat(errorMsg, smagip_sigName);
 		strcat(errorMsg, " in west_summary:summary_global_quantities_beta_tor_norm_value method.");
 		addIdamError(CODEERRORTYPE, errorMsg, err, "");
+		if (smagip_time != NULL)
+			free(smagip_time);
+		if (smagip_data != NULL)
+			free(smagip_data);
+		if (ifreeb_time != NULL)
+			free(ifreeb_time);
+		if (ifreeb_data != NULL)
+			free(ifreeb_data);
 		return status;
 	}
 	ip_time = ifreeb_time;

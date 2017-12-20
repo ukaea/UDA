@@ -145,6 +145,8 @@ int flt1D(const char* mappingValue, int shotNumber, DATA_BLOCK* data_block, int*
 		strcat(errorMsg, " in west_dynamic_data_data.c:flt1D method.");
 		addIdamError(CODEERRORTYPE, errorMsg, err, "");
 	}
+	free(diagnostic);
+	free(object_name);
 	return status;
 }
 
@@ -172,6 +174,10 @@ int flt1D_contrib(const char* mappingValue, int shotNumber, DATA_BLOCK* data_blo
 		strcat(errorMsg, " in west_dynamic_data_data.c:flt1D_contrib method.");
 		addIdamError(CODEERRORTYPE, errorMsg, err, "");
 	}
+	free(diagnostic);
+	free(object_name);
+	free(diagnostic2);
+	free(object_name2);
 	return status;
 }
 

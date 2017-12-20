@@ -24,22 +24,19 @@
 
 char* setBuffer(int data_type, char* value);
 void getShapeOf(const char* command, int shotNumber, int* nb_val);
-void shape_of_tsmat_collect(int shotNumber, char* TOP_collections_parameters, DATA_BLOCK* data_block);
+int shape_of_tsmat_collect(int shotNumber, char* TOP_collections_parameters, DATA_BLOCK* data_block);
 
 int execute(const char* mapfun, int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
-void execute_tsmat_collect(const char* TOP_collections_parameters, char* attributes,
+int execute_tsmat_collect(const char* TOP_collections_parameters, char* attributes,
 		int shotNumber, DATA_BLOCK* data_block, int* nodeIndices,
 		char* normalizationAttributes);
-void execute_tsmat_without_idam_index(const char* command, char* attributes,
+int execute_tsmat_without_idam_index(const char* command, char* attributes,
 		int shotNumber, DATA_BLOCK* data_block, char* normalizationAttributes);
-void execute_setvalue_collect(const char* TOP_collections_parameters, char* attributes,
-		int shotNumber, DATA_BLOCK* data_block, int* nodeIndices, char* normalizationAttributes);
-void execute_tsmat_collect_poloidal_angle(const char* TOP_collections_parameters, char* attributes,
+int execute_setvalue_collect(const char* TOP_collections_parameters, char* attributes,
 		int shotNumber, DATA_BLOCK* data_block, int* nodeIndices, char* normalizationAttributes);
 void execute_setchannels_validity(int* unvalid_channels_list, int unvalid_channels_size, char* attributes,
 		int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
 void setStatic1DValue(int data_type, DATA_BLOCK* data_block, char* value, int val_nb, float normalizationFactor);
-//void setStaticValue(int data_type, DATA_BLOCK* data_block, char* value, int requestedIndex, float normalizationFactor);
 void setPatchedStaticValue(DATA_BLOCK* data_block, char* object_name, int data_type, char* value, int searchedArrayIndex, float  normalizationFactor);
 
 int GetStaticData(int shotNumber, const char* mapfun, DATA_BLOCK* data_block, int* nodeIndices)
@@ -210,7 +207,7 @@ int execute(const char* mapfun, int shotNumber, DATA_BLOCK* data_block, int* nod
 	case 0: {
 		IDAM_LOG(UDA_LOG_DEBUG, "Case of tsmat_collect from WEST plugin\n");
 		tokenizeFunParameters(mapfun, &TOP_collections_parameters, &attributes, &normalizationAttributes);
-		execute_tsmat_collect(TOP_collections_parameters, attributes, shotNumber, data_block, nodeIndices,
+		return execute_tsmat_collect(TOP_collections_parameters, attributes, shotNumber, data_block, nodeIndices,
 				normalizationAttributes);
 
 		break;
@@ -220,7 +217,7 @@ int execute(const char* mapfun, int shotNumber, DATA_BLOCK* data_block, int* nod
 
 		IDAM_LOG(UDA_LOG_DEBUG, "Case of shape_of_tsmat_collect from WEST plugin\n");
 		tokenizeFunParameters(mapfun, &TOP_collections_parameters, &attributes, &normalizationAttributes);
-		shape_of_tsmat_collect(shotNumber, TOP_collections_parameters, data_block);
+		return shape_of_tsmat_collect(shotNumber, TOP_collections_parameters, data_block);
 
 		break;
 	}
@@ -242,13 +239,14 @@ int execute(const char* mapfun, int shotNumber, DATA_BLOCK* data_block, int* nod
 
 		free(value);
 		free(buffer);
+		return 0;
 		break;
 	}
 
 	case 3: {
 		IDAM_LOG(UDA_LOG_DEBUG, "Case of tsmat from WEST plugin\n");
 		tokenizeFunParameters(mapfun, &TOP_collections_parameters, &attributes, &normalizationAttributes);
-		execute_tsmat_without_idam_index(TOP_collections_parameters, attributes, shotNumber, data_block,
+		return execute_tsmat_without_idam_index(TOP_collections_parameters, attributes, shotNumber, data_block,
 				normalizationAttributes);
 		break;
 	}
@@ -257,7 +255,7 @@ int execute(const char* mapfun, int shotNumber, DATA_BLOCK* data_block, int* nod
 		IDAM_LOG(UDA_LOG_DEBUG, "Case of set_value_collect from WEST plugin\n");
 		tokenizeFunParameters(mapfun, &TOP_collections_parameters, &attributes, &normalizationAttributes);
 		IDAM_LOGF(UDA_LOG_DEBUG, "attributes: %s\n", attributes);
-		execute_setvalue_collect(TOP_collections_parameters, attributes, shotNumber, data_block, nodeIndices,
+		return execute_setvalue_collect(TOP_collections_parameters, attributes, shotNumber, data_block, nodeIndices,
 				normalizationAttributes);
 		break;
 	}
@@ -279,26 +277,26 @@ int execute(const char* mapfun, int shotNumber, DATA_BLOCK* data_block, int* nod
 
 		free(unvalid_channels_request);
 		free(unvalid_channels_list);
-
+		return 0;
 		break;
 	}
 	case 6: {
-		IDAM_LOG(UDA_LOG_DEBUG, "Case of tsmat_collect_poloidal_angle from WEST plugin\n");
+		/*IDAM_LOG(UDA_LOG_DEBUG, "Case of tsmat_collect_poloidal_angle from WEST plugin\n");
 		tokenizeFunParameters(mapfun, &TOP_collections_parameters, &attributes, &normalizationAttributes);
 		execute_tsmat_collect_poloidal_angle(TOP_collections_parameters, attributes, shotNumber, data_block, nodeIndices,
-				normalizationAttributes);
+				normalizationAttributes);*/
 		break;
 	}
 
 	case 7: {
 		IDAM_LOG(UDA_LOG_DEBUG, "Case of ece_names from WEST plugin\n");
-		ece_names(shotNumber, data_block, nodeIndices);
+		return ece_names(shotNumber, data_block, nodeIndices);
 		break;
 	}
 
 	case 8: {
 		IDAM_LOG(UDA_LOG_DEBUG, "Case of ece_identifiers from WEST plugin\n");
-		ece_identifiers(shotNumber, data_block, nodeIndices);
+		return ece_identifiers(shotNumber, data_block, nodeIndices);
 		break;
 	}
 
@@ -309,24 +307,29 @@ int execute(const char* mapfun, int shotNumber, DATA_BLOCK* data_block, int* nod
 		IDAM_LOG(UDA_LOG_DEBUG, "Calling tokenizeFunParameters() from WEST plugin\n");
 		tokenizeFunParameters(ece_mapfun, &TOP_collections_parameters, &attributes, &normalizationAttributes);
 		shape_of_tsmat_collect(shotNumber, TOP_collections_parameters, data_block);
+		free(ece_mapfun);
+		return 0;
 		break;
 	}
 
 	case 100: {
 		IDAM_LOG(UDA_LOG_DEBUG, "Case of pf_passive_loop_name from WEST plugin\n");
 		pf_passive_loop_name(shotNumber, data_block, nodeIndices);
+		return 0;
 		break;
 	}
 
 	case 101: {
 		IDAM_LOG(UDA_LOG_DEBUG, "Case of pf_passive_loop_identifier from WEST plugin\n");
 		pf_passive_loop_identifier(shotNumber, data_block, nodeIndices);
+		return 0;
 		break;
 	}
 
 	case 102: {
 		IDAM_LOG(UDA_LOG_DEBUG, "Case of pf_passive_element_name from WEST plugin\n");
 		pf_passive_element_name(shotNumber, data_block, nodeIndices);
+		return 0;
 		break;
 	}
 
@@ -339,18 +342,21 @@ int execute(const char* mapfun, int shotNumber, DATA_BLOCK* data_block, int* nod
 	case 104: {
 		IDAM_LOG(UDA_LOG_DEBUG, "Case of pf_passive_loops_shapeOf from WEST plugin\n");
 		pf_passive_loops_shapeOf(shotNumber, data_block, nodeIndices);
+		return 0;
 		break;
 	}
 
 	case 105: {
 		IDAM_LOG(UDA_LOG_DEBUG, "Case of pf_passive_turns from WEST plugin\n");
 		pf_passive_turns(shotNumber, data_block, nodeIndices);
+		return 0;
 		break;
 	}
 
 	case 106: {
 		IDAM_LOG(UDA_LOG_DEBUG, "Case of pf_passive_elements_shapeOf from WEST plugin\n");
 		pf_passive_elements_shapeOf(shotNumber, data_block, nodeIndices);
+		return 0;
 		break;
 	}
 
@@ -363,62 +369,67 @@ int execute(const char* mapfun, int shotNumber, DATA_BLOCK* data_block, int* nod
 	case 108: {
 		IDAM_LOG(UDA_LOG_DEBUG, "Case of pf_passive_Z from WEST plugin\n");
 		pf_passive_Z(shotNumber, data_block, nodeIndices);
+		return 0;
 		break;
 	}
 
 	case 109: {
 		IDAM_LOG(UDA_LOG_DEBUG, "Case of pf_passive_current_data from WEST plugin\n");
-		pf_passive_current_data(shotNumber, data_block, nodeIndices);
-		break;
+		return pf_passive_current_data(shotNumber, data_block, nodeIndices);
 	}
 
 	case 110: {
 		IDAM_LOG(UDA_LOG_DEBUG, "Case of pf_passive_current_time from WEST plugin\n");
-		pf_passive_current_time(shotNumber, data_block, nodeIndices);
-		break;
+		return pf_passive_current_time(shotNumber, data_block, nodeIndices);
 	}
-
 
 
 	case 140: {
 		IDAM_LOG(UDA_LOG_DEBUG, "Case of pf_active_elements_shapeOf from WEST plugin\n");
 		pf_active_elements_shapeOf(shotNumber, data_block, nodeIndices);
+		return 0;
 		break;
 	}
 
 	case 141: {
 		IDAM_LOG(UDA_LOG_DEBUG, "Case of pf_active_coils_shapeOf from WEST plugin\n");
 		pf_active_coils_shapeOf(shotNumber, data_block, nodeIndices);
+		return 0;
 		break;
 	}
 
 	case 142: {
 		IDAM_LOG(UDA_LOG_DEBUG, "Case of pf_active_R from WEST plugin\n");
 		pf_active_R(shotNumber, data_block, nodeIndices);
+		return 0;
 		break;
 	}
 
 	case 143: {
 		IDAM_LOG(UDA_LOG_DEBUG, "Case of pf_active_Z from WEST plugin\n");
 		pf_active_Z(shotNumber, data_block, nodeIndices);
+		return 0;
 		break;
 	}
 
 	case 144: {
 		IDAM_LOG(UDA_LOG_DEBUG, "Case of pf_active_element_identifier from WEST plugin\n");
 		pf_active_element_identifier(shotNumber, data_block, nodeIndices);
+		return 0;
 		break;
 	}
 
 	case 145: {
 		IDAM_LOG(UDA_LOG_DEBUG, "Case of pf_active_element_name from WEST plugin\n");
 		pf_active_element_name(shotNumber, data_block, nodeIndices);
+		return 0;
 		break;
 	}
 
 	case 146: {
 		IDAM_LOG(UDA_LOG_DEBUG, "Case of pf_active_coil_identifier from WEST plugin\n");
 		pf_active_coil_identifier(shotNumber, data_block, nodeIndices);
+		return 0;
 		break;
 	}
 
@@ -431,6 +442,7 @@ int execute(const char* mapfun, int shotNumber, DATA_BLOCK* data_block, int* nod
 	case 148: {
 		IDAM_LOG(UDA_LOG_DEBUG, "Case of pf_active_turns from WEST plugin\n");
 		pf_active_turns(shotNumber, data_block, nodeIndices);
+		return 0;
 		break;
 	}
 
@@ -443,72 +455,84 @@ int execute(const char* mapfun, int shotNumber, DATA_BLOCK* data_block, int* nod
 	case 150: {
 		IDAM_LOG(UDA_LOG_DEBUG, "Case of pf_active_W from WEST plugin\n");
 		pf_active_W(shotNumber, data_block, nodeIndices);
+		return 0;
 		break;
 	}
 
 	case 200: {
 		IDAM_LOG(UDA_LOG_DEBUG, "Case of soft_x_rays_idsproperties_comment from WEST plugin\n");
 		soft_x_rays_idsproperties_comment(shotNumber, data_block, nodeIndices);
+		return 0;
 		break;
 	}
 	case 201: {
 		IDAM_LOG(UDA_LOG_DEBUG, "Case of soft_x_rays_channels_shapeof from WEST plugin\n");
 		soft_x_rays_channels_shapeof(shotNumber, data_block, nodeIndices);
+		return 0;
 		break;
 	}
 	case 202: {
 		IDAM_LOG(UDA_LOG_DEBUG, "Case of channel_line_of_sight_first_point_r from WEST plugin\n");
 		channel_line_of_sight_first_point_r(shotNumber, data_block, nodeIndices);
+		return 0;
 		break;
 	}
 	case 203: {
 		IDAM_LOG(UDA_LOG_DEBUG, "Case of channel_line_of_sight_first_point_z from WEST plugin\n");
 		channel_line_of_sight_first_point_z(shotNumber, data_block, nodeIndices);
+		return 0;
 		break;
 	}
 	case 204: {
 		IDAM_LOG(UDA_LOG_DEBUG, "Case of channel_line_of_sight_first_point_phi from WEST plugin\n");
 		channel_line_of_sight_first_point_phi(shotNumber, data_block, nodeIndices);
+		return 0;
 		break;
 	}
 	case 205: {
 		IDAM_LOG(UDA_LOG_DEBUG, "Case of channel_line_of_sight_second_point_r from WEST plugin\n");
 		channel_line_of_sight_second_point_r(shotNumber, data_block, nodeIndices);
+		return 0;
 		break;
 	}
 	case 206: {
 		IDAM_LOG(UDA_LOG_DEBUG, "Case of channel_line_of_sight_second_point_z from WEST plugin\n");
 		channel_line_of_sight_second_point_z(shotNumber, data_block, nodeIndices);
+		return 0;
 		break;
 	}
 	case 207: {
 		IDAM_LOG(UDA_LOG_DEBUG, "Case of channel_line_of_sight_second_point_phi from WEST plugin\n");
 		channel_line_of_sight_second_point_phi(shotNumber, data_block, nodeIndices);
+		return 0;
 		break;
 	}
 	case 208: {
 		IDAM_LOG(UDA_LOG_DEBUG, "Case of soft_x_rays_channels_energy_band_shapeof from WEST plugin\n");
 		soft_x_rays_channels_energy_band_shapeof(shotNumber, data_block, nodeIndices);
+		return 0;
 		break;
 	}
 	case 209: {
 		IDAM_LOG(UDA_LOG_DEBUG, "Case of soft_x_rays_channels_energy_band_lower_bound from WEST plugin\n");
 		soft_x_rays_channels_energy_band_lower_bound(shotNumber, data_block, nodeIndices);
+		return 0;
 		break;
 	}
 	case 210: {
 		IDAM_LOG(UDA_LOG_DEBUG, "Case of soft_x_rays_channels_energy_band_upper_bound from WEST plugin\n");
 		soft_x_rays_channels_energy_band_upper_bound(shotNumber, data_block, nodeIndices);
+		return 0;
 		break;
 	}
 	case 300: {
 		IDAM_LOG(UDA_LOG_DEBUG, "Case of summary_global_quantities_r0_value from WEST plugin\n");
-		summary_global_quantities_r0_value(shotNumber, data_block, nodeIndices);
+		return summary_global_quantities_r0_value(shotNumber, data_block, nodeIndices);
 		break;
 	}
 	case 301: {
 		IDAM_LOG(UDA_LOG_DEBUG, "Case of summary_heating_current_drive_ec_power_source from WEST plugin\n");
-		summary_heating_current_drive_ec_power_source(shotNumber, data_block, nodeIndices);
+		return summary_heating_current_drive_ec_power_source(shotNumber, data_block, nodeIndices);
 		break;
 	}
 
@@ -522,7 +546,7 @@ int execute(const char* mapfun, int shotNumber, DATA_BLOCK* data_block, int* nod
 }
 
 
-void shape_of_tsmat_collect(int shotNumber, char* TOP_collections_parameters, DATA_BLOCK* data_block)
+int shape_of_tsmat_collect(int shotNumber, char* TOP_collections_parameters, DATA_BLOCK* data_block)
 {
 	//Get the number of parameters collections
 	int collectionsCount;
@@ -551,6 +575,7 @@ void shape_of_tsmat_collect(int shotNumber, char* TOP_collections_parameters, DA
 	}
 
 	setReturnDataIntScalar(data_block, parametersSize, NULL);
+	return 0;
 }
 
 void getShapeOf(const char* command, int shotNumber, int* nb_val)
@@ -604,7 +629,7 @@ void execute_setchannels_validity(int* unvalid_channels_list, int unvalid_channe
 	}
 }
 
-void execute_setvalue_collect(const char* TOP_collections_parameters, char* attributes,
+int execute_setvalue_collect(const char* TOP_collections_parameters, char* attributes,
 		int shotNumber, DATA_BLOCK* data_block, int* nodeIndices, char* normalizationAttributes)
 {
 
@@ -622,6 +647,8 @@ void execute_setvalue_collect(const char* TOP_collections_parameters, char* attr
 		if (status == -1) {
 			int err = 901;
 			addIdamError(CODEERRORTYPE, "WEST:ERROR: unable to get the shapeof command", err, "");
+			free(command);
+			return status;
 		}
 
 		int nb_val = 0;
@@ -659,6 +686,7 @@ void execute_setvalue_collect(const char* TOP_collections_parameters, char* attr
 	free(value);
 	free(command);
 	free(buffer);
+	return 0;
 }
 
 
@@ -694,7 +722,7 @@ char* setBuffer(int data_type, char* value)
 	return buffer;
 }
 
-void execute_tsmat_collect(const char* TOP_collections_parameters, char* attributes,
+int execute_tsmat_collect(const char* TOP_collections_parameters, char* attributes,
 		int shotNumber, DATA_BLOCK* data_block, int* nodeIndices, char* normalizationAttributes)
 {
 	int collectionsCount;
@@ -711,6 +739,8 @@ void execute_tsmat_collect(const char* TOP_collections_parameters, char* attribu
 		if (status == -1) {
 			int err = 901;
 			addIdamError(CODEERRORTYPE, "WEST:ERROR: unable to get the shapeof command", err, "");
+			free(l);
+			return status;
 		}
 
 		int nb_val = 0;
@@ -774,6 +804,11 @@ void execute_tsmat_collect(const char* TOP_collections_parameters, char* attribu
 		if (status != 0) {
 			int err = 901;
 			addIdamError(CODEERRORTYPE, "WEST:ERROR: unable to read static data", err, "");
+			free(command);
+			free(prod_name);
+			free(object_name);
+			free(param_name);
+			free(value);
 		}
 	}
 
@@ -788,103 +823,7 @@ void execute_tsmat_collect(const char* TOP_collections_parameters, char* attribu
 	free(object_name);
 	free(param_name);
 	free(value);
-}
-
-void execute_tsmat_collect_poloidal_angle(const char* TOP_collections_parameters, char* attributes,
-		int shotNumber, DATA_BLOCK* data_block, int* nodeIndices, char* normalizationAttributes)
-{
-	int collectionsCount;
-	getTopCollectionsCount(TOP_collections_parameters, &collectionsCount);
-
-	int* l;
-	l = (int*)calloc(collectionsCount, sizeof(int));
-
-	int i;
-	int status = -1;
-	for (i = 0; i < collectionsCount; i++) {
-		char* command = NULL;
-		status = getCommand(i, &command, TOP_collections_parameters);
-		if (status == -1) {
-			int err = 901;
-			addIdamError(CODEERRORTYPE, "WEST:ERROR: unable to get the shapeof command", err, "");
-		}
-
-		int nb_val = 0;
-		getShapeOf(command, shotNumber, &nb_val);
-		l[i] = nb_val;
-	}
-
-	IDAM_LOGF(UDA_LOG_DEBUG, "In execute_tsmat_collect, searching requestedIndex... %s\n", "");
-	int requestedIndex = getNumIDAMIndex(attributes, nodeIndices);
-
-	IDAM_LOGF(UDA_LOG_DEBUG, "In execute_tsmat_collect, after searching requestedIndex --> %d\n", requestedIndex);
-
-	int searchedArray;
-	int searchedArrayIndex;
-
-	IDAM_LOGF(UDA_LOG_DEBUG, "In execute_tsmat_collect, searching index array for requested index: %d\n",
-			requestedIndex);
-	searchIndices(requestedIndex, l, &searchedArray, &searchedArrayIndex);
-	IDAM_LOGF(UDA_LOG_DEBUG, "In execute_tsmat_collect, searched array:%d\n", searchedArray);
-	IDAM_LOGF(UDA_LOG_DEBUG, "In execute_tsmat_collect, searched array index:%d\n", searchedArrayIndex);
-
-	char* command = NULL;
-
-	IDAM_LOGF(UDA_LOG_DEBUG, "In execute_tsmat_collect, getting command from TOP_collections_parameters: %s\n",
-			TOP_collections_parameters);
-	getCommand(searchedArray, &command, TOP_collections_parameters);
-
-	IDAM_LOG(UDA_LOG_DEBUG, "In execute_tsmat_collect, after getting command...\n");
-
-	char* prod_name = NULL;     //DMAG, ...
-	char* object_name = NULL;   //GMAG_BNORM, ...
-	char* param_name = NULL;    //PosR, ...
-	char* flag = NULL;          //'Null' or blank
-
-	int data_type;
-	getReturnType(attributes, &data_type);
-
-	//Tokenize mapfun string to get function parameters
-	IDAM_LOGF(UDA_LOG_DEBUG, "In execute_tsmat_collect, tokenizing command... %s\n", command);
-	tokenizeCommand(command, &prod_name, &object_name, &param_name, &flag);
-	IDAM_LOG(UDA_LOG_DEBUG, "In execute_tsmat_collect, afetr tokenizing command...\n");
-
-	char* value = NULL;
-	int val_nb = l[searchedArray];
-	int nb_val;
-
-	IDAM_LOGF(UDA_LOG_DEBUG, "In execute_tsmat_collect, flag: %s\n", flag);
-	IDAM_LOG(UDA_LOG_DEBUG, "In execute_tsmat_collect, checking if flag is Null...\n");
-
-	if (flag != NULL && strncmp("Null", flag, 4) == 0) {
-		IDAM_LOG(UDA_LOG_DEBUG, "In execute_tsmat_collect, setting value for Null flag...\n");
-		int data_type;
-		getReturnType(attributes, &data_type);
-		value = setBuffer(data_type, "0"); //we put zero for 'Null' flag
-		searchedArrayIndex = 0;
-	} else {
-		//Reading static parameters using TSLib
-		IDAM_LOGF(UDA_LOG_DEBUG, "In execute_tsmat_collect, reading static parameters for param. name: %s\n",
-				param_name);
-		status = readStaticParameters(&value, &nb_val, shotNumber, prod_name, object_name, param_name, val_nb);
-		if (status != 0) {
-			int err = 901;
-			addIdamError(CODEERRORTYPE, "WEST:ERROR: unable to read static data", err, "");
-		}
-	}
-
-	float normalizationFactor = 1;
-	getNormalizationFactor(&normalizationFactor, normalizationAttributes);
-	IDAM_LOGF(UDA_LOG_DEBUG, "In execute_tsmat_collect, setting static value... %s\n", "");
-
-	//setStaticValue(data_type, data_block, value, searchedArrayIndex, normalizationFactor);
-	setPatchedStaticValue(data_block, object_name, data_type, value, searchedArrayIndex, normalizationFactor); //TODO Temporary patch, will be removed soon
-
-	free(command);
-	free(prod_name);
-	free(object_name);
-	free(param_name);
-	free(value);
+	return 0;
 }
 
 void setPatchedStaticValue(DATA_BLOCK* data_block, char* object_name, int data_type, char* value, int searchedArrayIndex, float  normalizationFactor) {
@@ -894,7 +833,7 @@ void setPatchedStaticValue(DATA_BLOCK* data_block, char* object_name, int data_t
 		setStaticValue(data_type, data_block, value, searchedArrayIndex, normalizationFactor);
 }
 
-void execute_tsmat_without_idam_index(const char* TOP_collections_parameters, char* attributes,
+int execute_tsmat_without_idam_index(const char* TOP_collections_parameters, char* attributes,
 		int shotNumber, DATA_BLOCK* data_block, char* normalizationAttributes)
 {
 	char* command;
@@ -922,6 +861,12 @@ void execute_tsmat_without_idam_index(const char* TOP_collections_parameters, ch
 	if (status != 0) {
 		int err = 901;
 		addIdamError(CODEERRORTYPE, "WEST:ERROR: Unable to read static data", err, "");
+		free(command);
+		free(prod_name);
+		free(object_name);
+		free(param_name);
+		free(value);
+		return status;
 	}
 
 	int rank;
@@ -939,6 +884,12 @@ void execute_tsmat_without_idam_index(const char* TOP_collections_parameters, ch
 		int err = 901;
 		IDAM_LOG(UDA_LOG_DEBUG, "Unsupported rank from execute_tsmat_without_idam_index()\n");
 		addIdamError(CODEERRORTYPE, "WEST:ERROR: unsupported data type", err, "");
+		free(command);
+		free(prod_name);
+		free(object_name);
+		free(param_name);
+		free(value);
+		return -1;
 	}
 
 	free(command);
@@ -946,6 +897,7 @@ void execute_tsmat_without_idam_index(const char* TOP_collections_parameters, ch
 	free(object_name);
 	free(param_name);
 	free(value);
+	return 0;
 }
 
 //Cast the results returned by tsmat according to the type of the data and set IDAM data
