@@ -53,10 +53,8 @@ int ece_harmonic_data(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 		int len;
 		int status = getECEModeHarmonic(shotNumber, channel, &time, &data, &len, TOP_collections_parameters);
 		if (status != 0) {
-			if (time != NULL)
-				free(time);
-			if (data != NULL)
-				free(data);
+			free(time);
+			free(data);
 			return status;
 		}
 		SetDynamicData(data_block, len, time, data);
@@ -518,7 +516,10 @@ int getECEModeHarmonic(int shotNumber, int channel, float** time, float** data, 
 
 	int mode = 1;
 
+	IDAM_LOG(UDA_LOG_DEBUG, "Calling getECEModeObject\n");
 	int status = getECEModeObject(TOP_collections_parameters, &O_ObjectName, GVSHArray, mode);
+
+	IDAM_LOGF(UDA_LOG_DEBUG, "object: %s\n", O_ObjectName);
 
 	if (status != 0) {
 		int err = 901;
@@ -561,10 +562,23 @@ int getECEModeHarmonic(int shotNumber, int channel, float** time, float** data, 
 		return status;
 	}
 
+	IDAM_LOG(UDA_LOG_DEBUG, "Calling readSignal...\n");
 	status = readSignal(X_ObjectName, shotNumber, 0, rang, &X_ModeTime, &X_ModeData, &X_Mode_Signal_len);
+	IDAM_LOG(UDA_LOG_DEBUG, "after readSignal...\n");
+
+	if (X_Mode_Signal_len != O_Mode_Signal_len)
+	{
+		free(O_ModeTime);
+		free(O_ModeData);
+		free(O_ObjectName);
+		free(X_ObjectName);
+		IDAM_LOG(UDA_LOG_ERROR, "WEST:ERROR: O_Mode_Signal_len not equals to X_Mode_Signal_len\n");
+		return -1;
+	}
 
 	if (status != 0) {
 		int err = 901;
+		IDAM_LOG(UDA_LOG_DEBUG, "after readSignal4...\n");
 		IDAM_LOG(UDA_LOG_ERROR, "WEST:ERROR: unable to get ECE harmonic mode 2 signal\n");
 		addIdamError(CODEERRORTYPE, "WEST:ERROR: unable to get signal", err, "");
 		free(O_ModeTime);
@@ -574,24 +588,54 @@ int getECEModeHarmonic(int shotNumber, int channel, float** time, float** data, 
 		free(X_ModeData);
 		free(X_ObjectName);
 		return status;
-		return status;
 	}
 
-	*time = O_ModeTime; //we set the time to the O mode time
+	IDAM_LOG(UDA_LOG_DEBUG, "after readSignal3...\n");
+
+	time = &O_ModeTime; //we set the time to the O mode time
 	*data = malloc(O_Mode_Signal_len * sizeof(float)); //we allocate the data array with the same length that the O1 mode signal
 	*len = O_Mode_Signal_len;
 
 	int i;
 
+	IDAM_LOGF(UDA_LOG_DEBUG, "O_Mode_Signal_len=%d\n", O_Mode_Signal_len);
+
+	int n = sizeof(O_ModeData)/sizeof(float);
+	int m = sizeof(X_ModeData)/sizeof(float);
+
+	IDAM_LOGF(UDA_LOG_DEBUG, "n=%d\n", n);
+
+	IDAM_LOGF(UDA_LOG_DEBUG, "m=%d\n", m);
+
+	if ( (n != m) || (n != O_Mode_Signal_len) ) {
+		int err = 901;
+		IDAM_LOG(UDA_LOG_ERROR, "WEST:ERROR: problem in array size\n");
+		addIdamError(CODEERRORTYPE, "WEST:ERROR: problem in array size", err, "");
+		free(O_ModeTime);
+		free(O_ModeData);
+		free(O_ObjectName);
+		free(X_ModeTime);
+		free(X_ModeData);
+		free(X_ObjectName);
+		return -1;
+	}
+
 	for (i = 0; i < O_Mode_Signal_len; i++) {
 		if (O_ModeData[i] == 1) {
 			*data[i] = O_ModeData[i];
+
 		} else {
 			*data[i] = X_ModeData[i];
 		}
 	}
+	IDAM_LOG(UDA_LOG_DEBUG, "returning from getECEModeHarmonic()...\n");
+	free(O_ModeTime);
+	free(O_ModeData);
+	free(O_ObjectName);
+	free(X_ModeTime);
+	free(X_ModeData);
+	free(X_ObjectName);
 	return 0;
-
 }
 
 
