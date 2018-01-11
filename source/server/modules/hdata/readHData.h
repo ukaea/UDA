@@ -1,7 +1,11 @@
 #ifndef IDAM_READHDATA_H
 #define IDAM_READHDATA_H
 
+#ifdef NOTGENERICENABLED
+typedef int PGconn;
+#else
 #include <libpq-fe.h>
+#endif
 
 #include <clientserver/udaStructs.h>
 

@@ -9,7 +9,11 @@ extern "C" {
 #  include <libpq-fe.h>	// SQL Library Header
 #endif
 
-#include <libpq-fe.h> // SQL Library Header
+#ifdef NOTGENERICENABLED
+typedef int PGconn;
+#else
+#include <libpq-fe.h>
+#endif
 
 #include <clientserver/udaStructs.h>
 

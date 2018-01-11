@@ -1,7 +1,11 @@
 #ifndef IDAM_SERVER_IDAMSERVERGETDATA2_H
 #define IDAM_SERVER_IDAMSERVERGETDATA2_H
 
+#ifdef NOTGENERICENABLED
+typedef int PGconn;
+#else
 #include <libpq-fe.h>
+#endif
 
 #include <clientserver/parseXML.h>
 

@@ -37,7 +37,7 @@ int getPluginAddress(void** pluginHandle, const char* library, const char* symbo
 // Open the named library
 
     if (*pluginHandle == NULL) {
-        if ((*pluginHandle = dlopen(full_path, RTLD_LOCAL | RTLD_NOW)) == NULL) {
+        if ((*pluginHandle = dlopen(full_path, RTLD_LOCAL | RTLD_LAZY)) == NULL) {
             err = 999;
             const char* errmsg = dlerror();
             UDA_LOG(UDA_LOG_ERROR, "Cannot open the target shared library %s: %s", library, errmsg);

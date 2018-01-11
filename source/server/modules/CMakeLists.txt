@@ -24,7 +24,7 @@ set( SRC_FILES
   ppf/readppf.c
   hdata/readHData.c
   mdsplus/readMDS.c
-  )
+)
 
 if( MDSplus_FOUND )
   list( APPEND SRC_FILES mdsplus/readMDSDim.c )
@@ -37,7 +37,7 @@ if( NETCDF_FOUND )
     netcdf4/readCDFMeta.c
     netcdf4/readCDFTypes.c
     netcdf4/readCDFVar.c
-    )
+  )
 endif()
 
 include_directories(
