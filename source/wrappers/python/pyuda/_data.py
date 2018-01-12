@@ -1,12 +1,12 @@
 import abc
+from six import add_metaclass
 
 
-class Data():
+@add_metaclass(abc.ABCMeta)
+class Data(object):
     """
     The base class of data that can be returned by the pyuda Client.
     """
-
-    __metaclass__ = abc.ABCMeta
 
     @abc.abstractmethod
     def plot(self):

@@ -1,5 +1,6 @@
 import logging
 
+from six import add_metaclass
 from . import c_uda
 from ._signal import Signal
 from ._string import String
@@ -8,6 +9,7 @@ from ._structuredWritable import StructuredWritable
 from ._geometryFiles import GeometryFiles
 from ._geometry import GeometryData
 from ._signalGeometry import SignalGeometryData
+
 
 class ClientMeta(type):
     """
@@ -34,7 +36,8 @@ class ClientMeta(type):
         cls.C_Client.setServerHostName(value)
 
 
-class Client(metaclass = ClientMeta):
+@add_metaclass(ClientMeta)
+class Client(object):
     """
     A class representing the IDAM client.
 
