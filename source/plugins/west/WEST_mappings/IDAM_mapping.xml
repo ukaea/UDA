@@ -26,9 +26,9 @@
 <mapping key="magnetics/method/Shape_of" value="set_value;1;0:int" type="static"/>
 <mapping key="magnetics/method/#/name" value="set_value;IP;0:string" type="static"/>
 <mapping key="magnetics/method/#/ip/data" value="flt1D_contrib;DMAG:GMAG_IFREEB:1:DMAG:SMAG_IP:0" type="dynamic"/>
-<mapping key="magnetics/method/#/ip/time" value="tsbase_time;DMAG:SMAG_IP;1:float:#0" type="dynamic"/>
+<!-- mapping key="magnetics/method/#/ip/time" value="tsbase_time;DMAG:SMAG_IP;1:float:#0" type="dynamic"/ -->
 <mapping key="magnetics/method/#/diamagnetic_flux/data" value="tsbase_collect;DMAG:GMAG_FDIAM;1:float:#0" type="dynamic"/>
-<mapping key="magnetics/method/#/diamagnetic_flux/time" value="tsbase_time;DMAG:GMAG_FDIAM;1:float:#0" type="dynamic"/>
+<!-- mapping key="magnetics/method/#/diamagnetic_flux/time" value="tsbase_time;DMAG:GMAG_FDIAM;1:float:#0" type="dynamic"/ -->
 <!-- mapping key="magnetics/code/output_flag" value="set_value;0;0:int" type="dynamic"/ -->
 <mapping key="magnetics/time" value="tsbase_time;DMAG:GMAG_FLXLOOP;1:float:1" type="dynamic"/>
 
@@ -68,26 +68,40 @@
 <mapping key="pf_active/coil/#/current/data" value="pf_active_current_data" type="dynamic"/>
 <mapping key="pf_active/coil/#/current/time" value="pf_active_current_time" type="dynamic"/>
 
-<mapping key="interfero_polarimeter/ids_properties/homogeneous_time" value="set_value;0;0:int" type="static"/>
-<mapping key="interfero_polarimeter/channel/Shape_of" value="shape_of_tsmat_collect;DINTRPOL:GINTLIDRT:CALIB;0:float:#0" type="static"/>
-<mapping key="interfero_polarimeter/channel/#/n_e_line/data" value="tsbase_collect_with_channels;unvalid_channels:2:1,2;DINTRPOL:GINTLIDRT;1:float:#0;multiply:cste:2e19" type="dynamic"/>
-<mapping key="interfero_polarimeter/channel/#/n_e_line/time" value="tsbase_time_with_channels;unvalid_channels:2:1,2;DINTRPOL:GINTLIDRT;1:float:#0" type="dynamic"/>
-<mapping key="interfero_polarimeter/channel/#/validity" value="set_channels_validity;unvalid_channels:2:1,2;0:int:#0" type="static"/>
-<mapping key="interfero_polarimeter/channel/#/name" value="set_value_collect;DINTRPOL:LIDRT:CHANNEL:Channel:#0;0:string:#0" type="static"/>
-<mapping key="interfero_polarimeter/channel/#/identifier" value="set_value_collect;DINTRPOL:LIDRT:CHANNEL:Id:#0;0:string:#0" type="static"/>
-<mapping key="interfero_polarimeter/channel/#/line_of_sight/first_point/r" value="tsmat_collect;DINTRPOL:LIDRT:RPOS1;0:float:#0" type="static"/>
-<mapping key="interfero_polarimeter/channel/#/line_of_sight/first_point/z" value="tsmat_collect;DINTRPOL:LIDRT:ZPOS1;0:float:#0" type="static"/>
-<mapping key="interfero_polarimeter/channel/#/line_of_sight/first_point/phi" value="tsmat_collect;DINTRPOL:LIDRT:TPOS1;0:float:#0" type="static"/>
-<mapping key="interfero_polarimeter/channel/#/line_of_sight/second_point/r" value="tsmat_collect;DINTRPOL:LIDRT:RPOS2;0:float:#0" type="static"/>
-<mapping key="interfero_polarimeter/channel/#/line_of_sight/second_point/z" value="tsmat_collect;DINTRPOL:LIDRT:ZPOS2;0:float:#0" type="static"/>
-<mapping key="interfero_polarimeter/channel/#/line_of_sight/second_point/phi" value="tsmat_collect;DINTRPOL:LIDRT:TPOS2;0:float:#0" type="static"/>
-<mapping key="interfero_polarimeter/channel/#/line_of_sight/third_point/r" value="tsmat_collect;DINTRPOL:LIDRT:RPOS1;0:float:#0" type="static"/>
-<mapping key="interfero_polarimeter/channel/#/line_of_sight/third_point/z" value="tsmat_collect;DINTRPOL:LIDRT:ZPOS1;0:float:#0" type="static"/>
-<mapping key="interfero_polarimeter/channel/#/line_of_sight/third_point/phi" value="tsmat_collect;DINTRPOL:LIDRT:TPOS1;0:float:#0" type="static"/>
-<mapping key="interfero_polarimeter/channel/#/faraday_angle/data" value="tsbase_collect;DINTRPOL:GINTFARART;1:float:#0" type="dynamic"/>
-<mapping key="interfero_polarimeter/channel/#/faraday_angle/time" value="tsbase_time;DINTRPOL:GINTFARART;1:float:#0" type="dynamic"/>
+<mapping key="interferometer/ids_properties/homogeneous_time" value="set_value;0;0:int" type="static"/>
+<mapping key="interferometer/channel/Shape_of" value="shape_of_tsmat_collect;DINTRPOL:GINTLIDRT:CALIB;0:float:#0" type="static"/>
+<mapping key="interferometer/channel/#/name" value="set_value_collect;DINTRPOL:LIDRT:CHANNEL:Channel:#0;0:string:#0" type="static"/>
+<mapping key="interferometer/channel/#/identifier" value="set_value_collect;DINTRPOL:LIDRT:CHANNEL:Id:#0;0:string:#0" type="static"/>
+<mapping key="interferometer/channel/#/line_of_sight/first_point/r" value="tsmat_collect;DINTRPOL:LIDRT:RPOS1;0:float:#0" type="static"/>
+<mapping key="interferometer/channel/#/line_of_sight/first_point/z" value="tsmat_collect;DINTRPOL:LIDRT:ZPOS1;0:float:#0" type="static"/>
+<mapping key="interferometer/channel/#/line_of_sight/first_point/phi" value="tsmat_collect;DINTRPOL:LIDRT:TPOS1;0:float:#0" type="static"/>
+<mapping key="interferometer/channel/#/line_of_sight/second_point/r" value="tsmat_collect;DINTRPOL:LIDRT:RPOS2;0:float:#0" type="static"/>
+<mapping key="interferometer/channel/#/line_of_sight/second_point/z" value="tsmat_collect;DINTRPOL:LIDRT:ZPOS2;0:float:#0" type="static"/>
+<mapping key="interferometer/channel/#/line_of_sight/second_point/phi" value="tsmat_collect;DINTRPOL:LIDRT:TPOS2;0:float:#0" type="static"/>
+<mapping key="interferometer/channel/#/line_of_sight/third_point/r" value="tsmat_collect;DINTRPOL:LIDRT:RPOS1;0:float:#0" type="static"/>
+<mapping key="interferometer/channel/#/line_of_sight/third_point/z" value="tsmat_collect;DINTRPOL:LIDRT:ZPOS1;0:float:#0" type="static"/>
+<mapping key="interferometer/channel/#/line_of_sight/third_point/phi" value="tsmat_collect;DINTRPOL:LIDRT:TPOS1;0:float:#0" type="static"/>
+<mapping key="interferometer/channel/#/n_e_line/data" value="tsbase_collect_with_channels;unvalid_channels:2:1,2;DINTRPOL:GINTLIDRT;1:float:#0;multiply:cste:2e19" type="dynamic"/>
+<mapping key="interferometer/channel/#/n_e_line/time" value="tsbase_time_with_channels;unvalid_channels:2:1,2;DINTRPOL:GINTLIDRT;1:float:#0" type="dynamic"/>
+<mapping key="interferometer/channel/#/n_e_line_validity" value="set_channels_validity;unvalid_channels:2:1,2;0:int:#0" type="static"/>
 
-<mapping key="ece/ids_properties/homogeneous_time" value="set_value;0;0:int" type="static"/>
+<mapping key="polarimeter/ids_properties/homogeneous_time" value="set_value;0;0:int" type="static"/>
+<mapping key="polarimeter/channel/Shape_of" value="shape_of_tsmat_collect;DINTRPOL:GINTLIDRT:CALIB;0:float:#0" type="static"/>
+<mapping key="polarimeter/channel/#/name" value="set_value_collect;DINTRPOL:LIDRT:CHANNEL:Channel:#0;0:string:#0" type="static"/>
+<mapping key="polarimeter/channel/#/identifier" value="set_value_collect;DINTRPOL:LIDRT:CHANNEL:Id:#0;0:string:#0" type="static"/>
+<mapping key="polarimeter/channel/#/line_of_sight/first_point/r" value="tsmat_collect;DINTRPOL:LIDRT:RPOS1;0:float:#0" type="static"/>
+<mapping key="polarimeter/channel/#/line_of_sight/first_point/z" value="tsmat_collect;DINTRPOL:LIDRT:ZPOS1;0:float:#0" type="static"/>
+<mapping key="polarimeter/channel/#/line_of_sight/first_point/phi" value="tsmat_collect;DINTRPOL:LIDRT:TPOS1;0:float:#0" type="static"/>
+<mapping key="polarimeter/channel/#/line_of_sight/second_point/r" value="tsmat_collect;DINTRPOL:LIDRT:RPOS2;0:float:#0" type="static"/>
+<mapping key="polarimeter/channel/#/line_of_sight/second_point/z" value="tsmat_collect;DINTRPOL:LIDRT:ZPOS2;0:float:#0" type="static"/>
+<mapping key="polarimeter/channel/#/line_of_sight/second_point/phi" value="tsmat_collect;DINTRPOL:LIDRT:TPOS2;0:float:#0" type="static"/>
+<mapping key="polarimeter/channel/#/line_of_sight/third_point/r" value="tsmat_collect;DINTRPOL:LIDRT:RPOS1;0:float:#0" type="static"/>
+<mapping key="polarimeter/channel/#/line_of_sight/third_point/z" value="tsmat_collect;DINTRPOL:LIDRT:ZPOS1;0:float:#0" type="static"/>
+<mapping key="polarimeter/channel/#/line_of_sight/third_point/phi" value="tsmat_collect;DINTRPOL:LIDRT:TPOS1;0:float:#0" type="static"/>
+<mapping key="polarimeter/channel/#/faraday_angle/data" value="tsbase_collect;DINTRPOL:GINTFARART;1:float:#0" type="dynamic"/>
+<mapping key="polarimeter/channel/#/faraday_angle/time" value="tsbase_time;DINTRPOL:GINTFARART;1:float:#0" type="dynamic"/>
+
+<mapping key="ece/ids_properties/homogeneous_time" value="set_value;1;0:int" type="static"/>
 <mapping key="ece/line_of_sight/first_point/r" value="set_value;4.264881;0:float" type="static"/>
 <mapping key="ece/line_of_sight/first_point/z" value="set_value;0.;0:float" type="static"/>
 <mapping key="ece/line_of_sight/first_point/phi" value="set_value;1.4573069;0:float" type="static"/>
@@ -96,13 +110,14 @@
 <mapping key="ece/line_of_sight/second_point/phi" value="set_value;1.4573069;0:float" type="static"/>
 <mapping key="ece/channel/Shape_of" value="ece_t_e_data_shape_of" type="static"/>
 <mapping key="ece/channel/#/frequency/data" value="ece_frequencies" type="dynamic"/>
-<mapping key="ece/channel/#/frequency/time" value="ece_harmonic_time" type="dynamic"/>
+<!-- mapping key="ece/channel/#/frequency/time" value="ece_harmonic_time" type="dynamic"/ -->
 <mapping key="ece/channel/#/name" value="ece_names" type="static"/>
 <mapping key="ece/channel/#/identifier" value="ece_identifiers" type="static"/>
 <mapping key="ece/channel/#/t_e_voltage/data" value="ece_t_e_data" type="dynamic"/>
-<mapping key="ece/channel/#/t_e_voltage/time" value="ece_t_e_time" type="dynamic"/>
+<!-- mapping key="ece/channel/#/t_e_voltage/time" value="ece_t_e_time" type="dynamic"/ -->
 <mapping key="ece/channel/#/harmonic/data" value="ece_harmonic_data" type="dynamic"/>
-<mapping key="ece/channel/#/harmonic/time" value="ece_harmonic_time" type="dynamic"/>
+<!-- mapping key="ece/channel/#/harmonic/time" value="ece_harmonic_time" type="dynamic"/ -->
+<mapping key="ece/time" value="ece_t_e_time" type="dynamic"/>
 
 <mapping key="soft_x_rays/ids_properties/comment" value="soft_x_rays_idsproperties_comment" type="static"/>
 <mapping key="soft_x_rays/ids_properties/homogeneous_time" value="set_value;0;0:int" type="static"/>
