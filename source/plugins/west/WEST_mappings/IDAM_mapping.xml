@@ -136,7 +136,7 @@
 
 <mapping key="summary/ids_properties/homogeneous_time" value="set_value;1;0:int" type="static"/>
 <mapping key="summary/global_quantities/ip/value" value="flt1D_contrib;DMAG:GMAG_IFREEB:1:DMAG:SMAG_IP:0" type="dynamic"/>
-<mapping key="summary/global_quantities/ohm/value" value="flt1D;DMAG:GMAG_BILAN:1" type="dynamic"/>
+<mapping key="summary/global_quantities/current_ohm/value" value="flt1D;DMAG:GMAG_BILAN:1" type="dynamic"/>
 <mapping key="summary/global_quantities/v_loop/value" value="summary_global_quantities_v_loop_value" type="dynamic"/>
 <mapping key="summary/global_quantities/li/value" value="flt1D;DMAG:GMAG_BELI:2" type="dynamic"/>
 <mapping key="summary/global_quantities/beta_pol/value" value="flt1D;DMAG:GMAG_BELI:1" type="dynamic"/>
