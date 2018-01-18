@@ -21,7 +21,7 @@ typedef struct {
 } KW_RESULT;
 
 
-IDL_VPTR IDL_CDECL setidamdatatree(int argc, IDL_VPTR argv[], char* argk) {
+IDL_VPTR IDL_CDECL idamsetdatatree(int argc, IDL_VPTR argv[], char* argk) {
     //
     // 1 Args: IDAM handle (long32 int)
 
@@ -52,7 +52,7 @@ IDL_VPTR IDL_CDECL setidamdatatree(int argc, IDL_VPTR argv[], char* argk) {
     IDL_KWProcessByOffset(argc, argv, argk, kw_pars, (IDL_VPTR*) 0, 1, &kw);
 
     if (kw.help) {
-        fprintf(stdout, "\n\nsetidamdatatree Help\n\n"
+        fprintf(stdout, "\n\nidamsetdatatree Help\n\n"
                 "Registers the Data Tree associated with the IDAM handle with the Tree Accessor Library.\n"
                 "If a zero (FALSE) is returned, there is No Data Tree associated with the IDAM handle.\n\n"
                 "Arguments:\n"
@@ -92,7 +92,7 @@ IDL_VPTR IDL_CDECL setidamdatatree(int argc, IDL_VPTR argv[], char* argk) {
 //===============================================================================================
 // Accessors with the whole (sub) tree in scope
 
-IDL_VPTR IDL_CDECL findidamtreestructurecomponent(int argc, IDL_VPTR argv[], char* argk) {
+IDL_VPTR IDL_CDECL idamfindtreestructurecomponent(int argc, IDL_VPTR argv[], char* argk) {
     //
     // 3 Args: IDAM handle (long32 int), Node address or null (0) (long64 int) and the
     // target structure component name (string)
@@ -212,7 +212,7 @@ IDL_VPTR IDL_CDECL findidamtreestructurecomponent(int argc, IDL_VPTR argv[], cha
 }
 
 
-IDL_VPTR IDL_CDECL findidamtreestructuredefinition(int argc, IDL_VPTR argv[], char* argk) {
+IDL_VPTR IDL_CDECL idamfindtreestructuredefinition(int argc, IDL_VPTR argv[], char* argk) {
     //
     // 3 Args: IDAM handle (long32 int), Node address or null (0) (long64 int) and the
     // target structure component definition name (string)
@@ -320,7 +320,7 @@ IDL_VPTR IDL_CDECL findidamtreestructuredefinition(int argc, IDL_VPTR argv[], ch
 }
 
 
-IDL_VPTR IDL_CDECL findidamtreestructure(int argc, IDL_VPTR argv[], char* argk) {
+IDL_VPTR IDL_CDECL idamfindtreestructure(int argc, IDL_VPTR argv[], char* argk) {
     //
     // 3 Args: IDAM handle (long32 int), Node address or null (0) (long64 int) and the
     // target structure component name (string)
@@ -442,7 +442,7 @@ IDL_VPTR IDL_CDECL findidamtreestructure(int argc, IDL_VPTR argv[], char* argk) 
 //===============================================================================================
 // Accessors with a single tree node in scope
 
-IDL_VPTR IDL_CDECL getidamnodestructurecount(int argc, IDL_VPTR argv[], char* argk) {
+IDL_VPTR IDL_CDECL idamgetnodestructurecount(int argc, IDL_VPTR argv[], char* argk) {
     //
     // 2 Args: IDAM handle (long32 int), Node address or null (0) (long64 int)
 
@@ -536,7 +536,7 @@ IDL_VPTR IDL_CDECL getidamnodestructurecount(int argc, IDL_VPTR argv[], char* ar
 }
 
 
-IDL_VPTR IDL_CDECL getidamnodestructurenames(int argc, IDL_VPTR argv[], char* argk) {
+IDL_VPTR IDL_CDECL idamgetnodestructurenames(int argc, IDL_VPTR argv[], char* argk) {
     //
     // 2 Args: IDAM handle (long32 int), Node address or null (0) (long64 int)
 
@@ -666,7 +666,7 @@ IDL_VPTR IDL_CDECL getidamnodestructurenames(int argc, IDL_VPTR argv[], char* ar
     return (vReturn);
 }
 
-IDL_VPTR IDL_CDECL getidamnodestructuretypes(int argc, IDL_VPTR argv[], char* argk) {
+IDL_VPTR IDL_CDECL idamgetnodestructuretypes(int argc, IDL_VPTR argv[], char* argk) {
     //
     // 2 Args: IDAM handle (long32 int), Node address or null (0) (long64 int)
 
@@ -794,7 +794,7 @@ IDL_VPTR IDL_CDECL getidamnodestructuretypes(int argc, IDL_VPTR argv[], char* ar
 }
 
 
-IDL_VPTR IDL_CDECL getidamnodestructurepointers(int argc, IDL_VPTR argv[], char* argk) {
+IDL_VPTR IDL_CDECL idamgetnodestructurepointers(int argc, IDL_VPTR argv[], char* argk) {
     //
     // 2 Args: IDAM handle (long32 int), Node address or null (0) (long64 int)
 
@@ -916,7 +916,7 @@ IDL_VPTR IDL_CDECL getidamnodestructurepointers(int argc, IDL_VPTR argv[], char*
     return (vReturn);
 }
 
-IDL_VPTR IDL_CDECL getidamnodestructurerank(int argc, IDL_VPTR argv[], char* argk) {
+IDL_VPTR IDL_CDECL idamgetnodestructurerank(int argc, IDL_VPTR argv[], char* argk) {
     //
     // 2 Args: IDAM handle (long32 int), Node address or null (0) (long64 int)
 
@@ -1038,7 +1038,7 @@ IDL_VPTR IDL_CDECL getidamnodestructurerank(int argc, IDL_VPTR argv[], char* arg
     return (vReturn);
 }
 
-IDL_VPTR IDL_CDECL getidamnodestructureshape(int argc, IDL_VPTR argv[], char* argk) {
+IDL_VPTR IDL_CDECL idamgetnodestructureshape(int argc, IDL_VPTR argv[], char* argk) {
     //
     // 2 Args: IDAM handle (long32 int), Node address or null (0) (long64 int)
 
@@ -1213,7 +1213,7 @@ IDL_VPTR IDL_CDECL getidamnodestructureshape(int argc, IDL_VPTR argv[], char* ar
 }
 
 
-IDL_VPTR IDL_CDECL getidamnodeatomiccount(int argc, IDL_VPTR argv[], char* argk) {
+IDL_VPTR IDL_CDECL idamgetnodeatomiccount(int argc, IDL_VPTR argv[], char* argk) {
     //
     // 2 Args: IDAM handle (long32 int), Node address or null (0) (long64 int)
 
@@ -1303,7 +1303,7 @@ IDL_VPTR IDL_CDECL getidamnodeatomiccount(int argc, IDL_VPTR argv[], char* argk)
 }
 
 
-IDL_VPTR IDL_CDECL getidamnodeatomicnames(int argc, IDL_VPTR argv[], char* argk) {
+IDL_VPTR IDL_CDECL idamgetnodeatomicnames(int argc, IDL_VPTR argv[], char* argk) {
     //
     // 2 Args: IDAM handle (long32 int), Node address or null (0) (long64 int)
 
@@ -1431,7 +1431,7 @@ IDL_VPTR IDL_CDECL getidamnodeatomicnames(int argc, IDL_VPTR argv[], char* argk)
 }
 
 
-IDL_VPTR IDL_CDECL getidamnodeatomictypes(int argc, IDL_VPTR argv[], char* argk) {
+IDL_VPTR IDL_CDECL idamgetnodeatomictypes(int argc, IDL_VPTR argv[], char* argk) {
     //
     // 2 Args: IDAM handle (long32 int), Node address or null (0) (long64 int)
 
@@ -1559,7 +1559,7 @@ IDL_VPTR IDL_CDECL getidamnodeatomictypes(int argc, IDL_VPTR argv[], char* argk)
 }
 
 
-IDL_VPTR IDL_CDECL getidamnodeatomicpointers(int argc, IDL_VPTR argv[], char* argk) {
+IDL_VPTR IDL_CDECL idamgetnodeatomicpointers(int argc, IDL_VPTR argv[], char* argk) {
     //
     // 2 Args: IDAM handle (long32 int), Node address or null (0) (long64 int)
 
@@ -1682,7 +1682,7 @@ IDL_VPTR IDL_CDECL getidamnodeatomicpointers(int argc, IDL_VPTR argv[], char* ar
 }
 
 
-IDL_VPTR IDL_CDECL getidamnodeatomicrank(int argc, IDL_VPTR argv[], char* argk) {
+IDL_VPTR IDL_CDECL idamgetnodeatomicrank(int argc, IDL_VPTR argv[], char* argk) {
     //
     // 2 Args: IDAM handle (long32 int), Node address or null (0) (long64 int)
 
@@ -1805,7 +1805,7 @@ IDL_VPTR IDL_CDECL getidamnodeatomicrank(int argc, IDL_VPTR argv[], char* argk) 
 }
 
 
-IDL_VPTR IDL_CDECL getidamnodeatomicshape(int argc, IDL_VPTR argv[], char* argk) {
+IDL_VPTR IDL_CDECL idamgetnodeatomicshape(int argc, IDL_VPTR argv[], char* argk) {
     //
     // 2 Args: IDAM handle (long32 int), Node address or null (0) (long64 int)
 
@@ -1980,7 +1980,7 @@ IDL_VPTR IDL_CDECL getidamnodeatomicshape(int argc, IDL_VPTR argv[], char* argk)
 }
 
 
-IDL_VPTR IDL_CDECL getidamnodeatomicdatacount(int argc, IDL_VPTR argv[], char* argk) {
+IDL_VPTR IDL_CDECL idamgetnodeatomicdatacount(int argc, IDL_VPTR argv[], char* argk) {
     //
     // Returns the number of array elements
     //
@@ -2077,7 +2077,7 @@ IDL_VPTR IDL_CDECL getidamnodeatomicdatacount(int argc, IDL_VPTR argv[], char* a
 }
 
 
-IDL_VPTR IDL_CDECL getidamnodeatomicdata(int argc, IDL_VPTR argv[], char* argk) {
+IDL_VPTR IDL_CDECL idamgetnodeatomicdata(int argc, IDL_VPTR argv[], char* argk) {
     //
     // 3 Args:  IDAM handle (long32 int), Node address or null (0) (long64 int),
     //      Component Name (IDL String)
@@ -2787,7 +2787,7 @@ IDL_VPTR IDL_CDECL getidamnodeatomicdata(int argc, IDL_VPTR argv[], char* argk) 
     return (IDL_GettmpLong(0));
 }
 
-IDL_VPTR IDL_CDECL getidamnodestructuredatacount(int argc, IDL_VPTR argv[], char* argk) {
+IDL_VPTR IDL_CDECL idamgetnodestructuredatacount(int argc, IDL_VPTR argv[], char* argk) {
     //
     // 2 Args: IDAM handle (long32 int), Node address or null (0) (long64 int)
 
@@ -2878,7 +2878,7 @@ IDL_VPTR IDL_CDECL getidamnodestructuredatacount(int argc, IDL_VPTR argv[], char
     return (IDL_GettmpLong(count));
 }
 
-IDL_VPTR IDL_CDECL getidamnodestructuredatarank(int argc, IDL_VPTR argv[], char* argk) {
+IDL_VPTR IDL_CDECL idamgetnodestructuredatarank(int argc, IDL_VPTR argv[], char* argk) {
     //
     // 2 Args: IDAM handle (long32 int), Node address or null (0) (long64 int)
 
@@ -2969,7 +2969,7 @@ IDL_VPTR IDL_CDECL getidamnodestructuredatarank(int argc, IDL_VPTR argv[], char*
     return (IDL_GettmpLong(rank));
 }
 
-IDL_VPTR IDL_CDECL getidamnodestructuredatashape(int argc, IDL_VPTR argv[], char* argk) {
+IDL_VPTR IDL_CDECL idamgetnodestructuredatashape(int argc, IDL_VPTR argv[], char* argk) {
     //
     // 2 Args: IDAM handle (long32 int), Node address or null (0) (long64 int)
 
@@ -3105,7 +3105,7 @@ IDL_VPTR IDL_CDECL getidamnodestructuredatashape(int argc, IDL_VPTR argv[], char
 }
 
 
-IDL_VPTR IDL_CDECL getidamnodeparent(int argc, IDL_VPTR argv[], char* argk) {
+IDL_VPTR IDL_CDECL idamgetnodeparent(int argc, IDL_VPTR argv[], char* argk) {
     //
     // 2 Args: IDAM handle (long32 int), Node address or null (0) (long64 int)
 
@@ -3203,7 +3203,7 @@ IDL_VPTR IDL_CDECL getidamnodeparent(int argc, IDL_VPTR argv[], char* argk) {
 }
 
 
-IDL_VPTR IDL_CDECL getidamnodechild(int argc, IDL_VPTR argv[], char* argk) {
+IDL_VPTR IDL_CDECL idamgetnodechild(int argc, IDL_VPTR argv[], char* argk) {
     //
     // 3 Args: IDAM handle (long32 int), Node address or null (0) (long64 int) and the
     // child branch number (long32 int)
@@ -3308,7 +3308,7 @@ IDL_VPTR IDL_CDECL getidamnodechild(int argc, IDL_VPTR argv[], char* argk) {
     return (IDL_GettmpMEMINT(ntreeFound));
 }
 
-IDL_VPTR IDL_CDECL getidamnodechildrencount(int argc, IDL_VPTR argv[], char* argk) {
+IDL_VPTR IDL_CDECL idamgetnodechildrencount(int argc, IDL_VPTR argv[], char* argk) {
     //
     // 2 Args: IDAM handle (long32 int), Node address or null (0) (long64 int)
 
@@ -3396,7 +3396,7 @@ IDL_VPTR IDL_CDECL getidamnodechildrencount(int argc, IDL_VPTR argv[], char* arg
 }
 
 
-IDL_VPTR IDL_CDECL getidamnodechildid(int argc, IDL_VPTR argv[], char* argk) {
+IDL_VPTR IDL_CDECL idamgetnodechildid(int argc, IDL_VPTR argv[], char* argk) {
     //
     // 3 Args: IDAM handle (long32 int), Parent Node address or null (0) (long64 int) and the
     // child Node address (long64 int)
@@ -3496,7 +3496,7 @@ IDL_VPTR IDL_CDECL getidamnodechildid(int argc, IDL_VPTR argv[], char* argk) {
 //===============================================================================================
 // Print
 
-IDL_VPTR IDL_CDECL printidamtree(int argc, IDL_VPTR argv[], char* argk) {
+IDL_VPTR IDL_CDECL idamprinttree(int argc, IDL_VPTR argv[], char* argk) {
     //
     // 2 Args: IDAM handle (long32 int), Node address or null (0) (long64 int)
 
@@ -3529,7 +3529,7 @@ IDL_VPTR IDL_CDECL printidamtree(int argc, IDL_VPTR argv[], char* argk) {
     IDL_KWProcessByOffset(argc, argv, argk, kw_pars, (IDL_VPTR*) 0, 1, &kw);
 
     if (kw.help) {
-        fprintf(stdout, "\n\nprintidamtree Help\n\n"
+        fprintf(stdout, "\n\nidamprinttree Help\n\n"
                 "\tPrints the contents of a Data Tree.\n\n"
                 "\tArguments:\n"
                 "\t\t(long)   handle - the IDAM data handle.\n"
@@ -3566,7 +3566,7 @@ IDL_VPTR IDL_CDECL printidamtree(int argc, IDL_VPTR argv[], char* argk) {
 
     if (kw.debug) {
         USERDEFINEDTYPE* udt = ntree->userdefinedtype;
-        fprintf(stdout, "+++ printidamtree +++\n");
+        fprintf(stdout, "+++ idamprinttree +++\n");
         fprintf(stdout, "Handle: %d\n", handle);
         fprintf(stdout, "Tree: %p\n", ntree);
         fprintf(stdout, "Node Name: %s\n", ntree->name);
@@ -3588,7 +3588,7 @@ IDL_VPTR IDL_CDECL printidamtree(int argc, IDL_VPTR argv[], char* argk) {
 }
 
 
-IDL_VPTR IDL_CDECL printidamtreestructurenames(int argc, IDL_VPTR argv[], char* argk) {
+IDL_VPTR IDL_CDECL idamprinttreestructurenames(int argc, IDL_VPTR argv[], char* argk) {
     //
     // 2 Args: IDAM handle (long32 int), Node address or null (0) (long64 int)
 
@@ -3678,7 +3678,7 @@ IDL_VPTR IDL_CDECL printidamtreestructurenames(int argc, IDL_VPTR argv[], char* 
 }
 
 
-IDL_VPTR IDL_CDECL printidamtreestructurecomponentnames(int argc, IDL_VPTR argv[], char* argk) {
+IDL_VPTR IDL_CDECL idamprinttreestructurecomponentnames(int argc, IDL_VPTR argv[], char* argk) {
     //
     // 2 Args: IDAM handle (long32 int), Node address or null (0) (long64 int)
 
@@ -3768,7 +3768,7 @@ IDL_VPTR IDL_CDECL printidamtreestructurecomponentnames(int argc, IDL_VPTR argv[
 }
 
 
-IDL_VPTR IDL_CDECL printidamnodestructure(int argc, IDL_VPTR argv[], char* argk) {
+IDL_VPTR IDL_CDECL idamprintnodestructure(int argc, IDL_VPTR argv[], char* argk) {
     //
     // 2 Args: IDAM handle (long32 int), Node address or null (0) (long64 int)
 
@@ -3858,7 +3858,7 @@ IDL_VPTR IDL_CDECL printidamnodestructure(int argc, IDL_VPTR argv[], char* argk)
 }
 
 
-IDL_VPTR IDL_CDECL regulariseidamvlenstructures(int argc, IDL_VPTR argv[], char* argk) {
+IDL_VPTR IDL_CDECL idamregularisevlenstructures(int argc, IDL_VPTR argv[], char* argk) {
     //
     // 2 Args: IDAM handle (long32 int), Node address or null (0) (long64 int)
 
@@ -3890,7 +3890,7 @@ IDL_VPTR IDL_CDECL regulariseidamvlenstructures(int argc, IDL_VPTR argv[], char*
     IDL_KWProcessByOffset(argc, argv, argk, kw_pars, (IDL_VPTR*) 0, 1, &kw);
 
     if (kw.help) {
-        fprintf(stdout, "\n\nregulariseidamvlenstructures Help\n\n"
+        fprintf(stdout, "\n\nidamregularisevlenstructures Help\n\n"
                 "\tRegularise the Shape of all VLEN structure array data.\n\n"
                 "\tArguments:\n"
                 "\t\t(long)   handle - the IDAM data handle.\n"
@@ -3949,7 +3949,7 @@ IDL_VPTR IDL_CDECL regulariseidamvlenstructures(int argc, IDL_VPTR argv[], char*
 //=============================================================================================
 //=============================================================================================
 
-IDL_VPTR IDL_CDECL makeidamstructure(int argc, IDL_VPTR argv[], char* argk) {
+IDL_VPTR IDL_CDECL idammakestructure(int argc, IDL_VPTR argv[], char* argk) {
     //
     // 2 Args: IDAM handle (long32 int), Node address or null (0) (long64 int)
 
@@ -4031,17 +4031,17 @@ IDL_VPTR IDL_CDECL makeidamstructure(int argc, IDL_VPTR argv[], char* argk) {
 }
 
 
-IDL_VPTR IDL_CDECL getidamstructuredatasize(int argc, IDL_VPTR argv[], char* argk) {
+IDL_VPTR IDL_CDECL idamgetstructuredatasize(int argc, IDL_VPTR argv[], char* argk) {
     //int getNodeStructureDataSize(NTREE *ntree)
     return (IDL_GettmpLong(0));
 }
 
-IDL_VPTR IDL_CDECL getidamstructuredatadatatype(int argc, IDL_VPTR argv[], char* argk) {
+IDL_VPTR IDL_CDECL idamgetstructuredatadatatype(int argc, IDL_VPTR argv[], char* argk) {
     //char *getNodeStructureDataDataType(NTREE *ntree)
     return (IDL_GettmpLong(0));
 }
 
-IDL_VPTR IDL_CDECL getidamstructuredata(int argc, IDL_VPTR argv[], char* argk) {
+IDL_VPTR IDL_CDECL idamgetstructuredata(int argc, IDL_VPTR argv[], char* argk) {
     //void *getNodeStructureData(NTREE *ntree)
     return (IDL_GettmpLong(0));
 }

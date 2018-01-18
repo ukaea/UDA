@@ -3,111 +3,111 @@ DESCRIPTION Universal Data Access (IDAM) toolset
 VERSION 4.1
 SOURCE David Muir (MAST)
 BUILD_DATE 19 Nov 2013
-FUNCTION  idamgetapi       2 2 KEYWORDS
-FUNCTION  idamputapi       2 2 KEYWORDS
+FUNCTION  idamgetapi                                    2 2 KEYWORDS
+FUNCTION  idamputapi                                    2 2 KEYWORDS
 
-FUNCTION  callidam         1 2 KEYWORDS
-FUNCTION  callidam2        2 2 KEYWORDS
-FUNCTION  getidamdata      1 1 KEYWORDS
-FUNCTION  getidamdimdata   2 2 KEYWORDS
-FUNCTION  getdataarray     1 1 KEYWORDS
-FUNCTION  geterrorarray    1 1 KEYWORDS
-FUNCTION  getdimdataarray  2 2 KEYWORDS
-FUNCTION  freeidam      1 1
-FUNCTION  freeidamall   0 0
-FUNCTION  geterrorcode  1 1
-FUNCTION  geterrormsg   2 2
-FUNCTION  printerrormsgstack   1 1
-FUNCTION  getsourcestatus 1 1
-FUNCTION  getsignalstatus 1 1
-FUNCTION  getdatastatus 1 1
-FUNCTION  getdatanum    1 1
-FUNCTION  getrank       1 1
-FUNCTION  getorder      1 1
-FUNCTION  getdatatype   1 1
-FUNCTION  geterrortype  1 1
-FUNCTION  getdatadata   1 1
-FUNCTION  getdataerror  1 1
-FUNCTION  getasymmetricdataerror  2 2
-FUNCTION  getfloatdata  1 1
-FUNCTION  getfloatdataerror  1 1
-FUNCTION  getfloatasymmetricdataerror  2 2
-FUNCTION  getsyntheticdata  1 1
-FUNCTION  getdatalabel  2 2
-FUNCTION  getdataunits  2 2
-FUNCTION  getdatadesc   2 2
-FUNCTION  getdimnum     2 2
-FUNCTION  getdimtype    2 2
-FUNCTION  getdimerrortype 2 2
-FUNCTION  getdimdata    2 2
-FUNCTION  getdimerror   2 2
-FUNCTION  getasymmetricdimerror   3 3
-FUNCTION  getfloatdimdata 2 2
-FUNCTION  getfloatdimerror 2 2
-FUNCTION  getfloatasymmetricdimerror 3 3
-FUNCTION  getsyntheticdimdata 2 2
-FUNCTION  getdimlabel   3 3
-FUNCTION  getdimunits   3 3
-FUNCTION  getdatasystemmeta   1 1 KEYWORDS
-FUNCTION  getsystemconfigmeta 1 1 KEYWORDS
-FUNCTION  getdatasourcemeta   1 1 KEYWORDS
-FUNCTION  getsignalmeta       1 1 KEYWORDS
-FUNCTION  getsignaldescmeta   1 1 KEYWORDS
-FUNCTION  getxmldoc           2 2 KEYWORDS
-FUNCTION  setproperty         1 1
-FUNCTION  resetproperty       1 1
-FUNCTION  resetproperties     0 0
-FUNCTION  setidamclientflag   1 1
-FUNCTION  resetidamclientflag 1 1
-FUNCTION  putidamserverhost   1 1
-FUNCTION  putidamserverport   1 1
-FUNCTION  getidamserverhost   1 1
-FUNCTION  getidamserverport   0 0
-FUNCTION  getidamclientversion	0 0
-FUNCTION  getidamserverversion	0 0
-FUNCTION  putidamserversocket	1 1
-FUNCTION  getidamserversocket	0 0
-FUNCTION  puterrormodel		3 3 
-FUNCTION  geterrormodel   		1 1 KEYWORDS
-FUNCTION  putdimerrormodel		4 4 
-FUNCTION  getdimerrormodel		2 2 KEYWORDS
-FUNCTION  getdatatypeid		1 1
-FUNCTION  geterrormodelid		1 1  
-FUNCTION  geterrorasymmetry	1 1  
-FUNCTION  getdimerrorasymmetry	2 2
-FUNCTION  getlasthandle		0 0
-FUNCTION  getdomains		2 2 KEYWORDS
-FUNCTION  setidamdatatree			1 1 KEYWORDS
-FUNCTION  findidamtreestructurecomponent	3 3 KEYWORDS
-FUNCTION  findidamtreestructuredefinition	3 3 KEYWORDS
-FUNCTION  findidamtreestructure			3 3 KEYWORDS
-FUNCTION  getidamnodeatomiccount		2 2 KEYWORDS
-FUNCTION  getidamnodeatomicrank			2 2 KEYWORDS
-FUNCTION  getidamnodeatomicshape		2 2 KEYWORDS
-FUNCTION  getidamnodeatomicnames		2 2 KEYWORDS
-FUNCTION  getidamnodeatomictypes		2 2 KEYWORDS
-FUNCTION  getidamnodeatomicpointers		2 2 KEYWORDS
-FUNCTION  getidamnodeatomicdatacount		3 3 KEYWORDS
-FUNCTION  getidamnodeatomicdata			3 3 KEYWORDS
+FUNCTION  callidam                                      1 2 KEYWORDS
+FUNCTION  callidam2                                     2 2 KEYWORDS
+FUNCTION  idamgetdata                                   1 1 KEYWORDS
+FUNCTION  idamgetdimdata                                2 2 KEYWORDS
+FUNCTION  idamgetdataarray                              1 1 KEYWORDS
+FUNCTION  idamgeterrorarray                             1 1 KEYWORDS
+FUNCTION  idamgetdimdataarray                           2 2 KEYWORDS
+FUNCTION  idamfree                                      1 1
+FUNCTION  idamfreeall                                   0 0
+FUNCTION  idamgeterrorcode                              1 1
+FUNCTION  idamgeterrormsg                               2 2
+FUNCTION  idamprinterrormsgstack                            1 1
+FUNCTION  idamgetsourcestatus                           1 1
+FUNCTION  idamgetsignalstatus                           1 1
+FUNCTION  idamgetdatastatus                             1 1
+FUNCTION  idamgetdatanum                                1 1
+FUNCTION  idamgetrank                                   1 1
+FUNCTION  idamgetorder                                  1 1
+FUNCTION  idamgetdatatype                               1 1
+FUNCTION  idamgeterrortype                              1 1
+FUNCTION  idamgetdatadata                               1 1
+FUNCTION  idamgetdataerror                              1 1
+FUNCTION  idamgetasymmetricdataerror                    2 2
+FUNCTION  idamgetfloatdata                              1 1
+FUNCTION  idamgetfloatdataerror                         1 1
+FUNCTION  idamgetfloatasymmetricdataerror               2 2
+FUNCTION  idamgetsyntheticdata                          1 1
+FUNCTION  idamgetdatalabel                              2 2
+FUNCTION  idamgetdataunits                              2 2
+FUNCTION  idamgetdatadesc                               2 2
+FUNCTION  idamgetdimnum                                 2 2
+FUNCTION  idamgetdimtype                                2 2
+FUNCTION  idamgetdimerrortype                           2 2
+FUNCTION  idamgetdimdata                                2 2
+FUNCTION  idamgetdimerror                               2 2
+FUNCTION  idamgetasymmetricdimerror                     3 3
+FUNCTION  idamgetfloatdimdata                           2 2
+FUNCTION  idamgetfloatdimerror                          2 2
+FUNCTION  idamgetfloatasymmetricdimerror                3 3
+FUNCTION  idamgetsyntheticdimdata                       2 2
+FUNCTION  idamgetdimlabel                               3 3
+FUNCTION  idamgetdimunits                               3 3
+FUNCTION  idamgetdatasystemmeta                         1 1 KEYWORDS
+FUNCTION  idamgetsystemconfigmeta                       1 1 KEYWORDS
+FUNCTION  idamgetdatasourcemeta                         1 1 KEYWORDS
+FUNCTION  idamgetsignalmeta                             1 1 KEYWORDS
+FUNCTION  idamgetsignaldescmeta                         1 1 KEYWORDS
+FUNCTION  idamgetxmldoc                                 2 2 KEYWORDS
+FUNCTION  idamsetproperty                                   1 1
+FUNCTION  idamresetproperty                                 1 1
+FUNCTION  idamresetproperties                               0 0
+FUNCTION  idamsetclientflag                             1 1
+FUNCTION  idamresetclientflag                           1 1
+FUNCTION  idamputserverhost                             1 1
+FUNCTION  idamputserverport                             1 1
+FUNCTION  idamgetserverhost                             1 1
+FUNCTION  idamgetserverport                             0 0
+FUNCTION  idamgetclientversion                          0 0
+FUNCTION  idamgetserverversion                          0 0
+FUNCTION  idamputserversocket                           1 1
+FUNCTION  idamgetserversocket                           0 0
+FUNCTION  idamputerrormodel                                 3 3
+FUNCTION  idamgeterrormodel                             1 1 KEYWORDS
+FUNCTION  idamputdimerrormodel                              4 4
+FUNCTION  idamgetdimerrormodel                          2 2 KEYWORDS
+FUNCTION  idamgetdatatypeid                             1 1
+FUNCTION  idamgeterrormodelid                           1 1
+FUNCTION  idamgeterrorasymmetry                         1 1
+FUNCTION  idamgetdimerrorasymmetry                      2 2
+FUNCTION  idamgetlasthandle                             0 0
+FUNCTION  idamgetdomains                                2 2 KEYWORDS
+FUNCTION  idamsetdatatree                               1 1 KEYWORDS
+FUNCTION  idamfindtreestructurecomponent                3 3 KEYWORDS
+FUNCTION  idamfindtreestructuredefinition               3 3 KEYWORDS
+FUNCTION  idamfindtreestructure                         3 3 KEYWORDS
+FUNCTION  idamgetnodeatomiccount                        2 2 KEYWORDS
+FUNCTION  idamgetnodeatomicrank                         2 2 KEYWORDS
+FUNCTION  idamgetnodeatomicshape                        2 2 KEYWORDS
+FUNCTION  idamgetnodeatomicnames                        2 2 KEYWORDS
+FUNCTION  idamgetnodeatomictypes                        2 2 KEYWORDS
+FUNCTION  idamgetnodeatomicpointers                     2 2 KEYWORDS
+FUNCTION  idamgetnodeatomicdatacount                    3 3 KEYWORDS
+FUNCTION  idamgetnodeatomicdata                         3 3 KEYWORDS
 
-FUNCTION  getidamnodestructurecount		2 2 KEYWORDS
-FUNCTION  getidamnodestructurenames		2 2 KEYWORDS
-FUNCTION  getidamnodestructurerank		2 2 KEYWORDS
-FUNCTION  getidamnodestructureshape		2 2 KEYWORDS
-FUNCTION  getidamnodestructuretypes		2 2 KEYWORDS
-FUNCTION  getidamnodestructurepointers		2 2 KEYWORDS
+FUNCTION  idamgetnodestructurecount                     2 2 KEYWORDS
+FUNCTION  idamgetnodestructurenames                     2 2 KEYWORDS
+FUNCTION  idamgetnodestructurerank                      2 2 KEYWORDS
+FUNCTION  idamgetnodestructureshape                     2 2 KEYWORDS
+FUNCTION  idamgetnodestructuretypes                     2 2 KEYWORDS
+FUNCTION  idamgetnodestructurepointers                  2 2 KEYWORDS
 
-FUNCTION  getidamnodestructuredatacount		2 2 KEYWORDS
-FUNCTION  getidamnodestructuredatarank		2 2 KEYWORDS
-FUNCTION  getidamnodestructuredatashape		2 2 KEYWORDS
+FUNCTION  idamgetnodestructuredatacount                 2 2 KEYWORDS
+FUNCTION  idamgetnodestructuredatarank                  2 2 KEYWORDS
+FUNCTION  idamgetnodestructuredatashape                 2 2 KEYWORDS
 
-FUNCTION  getidamnodeparent			2 2 KEYWORDS
-FUNCTION  getidamnodechild			3 3 KEYWORDS
-FUNCTION  getidamnodechildrencount		2 2 KEYWORDS
-FUNCTION  getidamnodechildid			3 3 KEYWORDS
-FUNCTION  printidamtree				2 2 KEYWORDS
-FUNCTION  printidamtreestructurenames		2 2 KEYWORDS
-FUNCTION  printidamtreestructurecomponentnames	2 2 KEYWORDS
-FUNCTION  printidamnodestructure		2 2 KEYWORDS
-FUNCTION  regulariseidamvlenstructures		2 2 KEYWORDS
+FUNCTION  idamgetnodeparent                             2 2 KEYWORDS
+FUNCTION  idamgetnodechild                              3 3 KEYWORDS
+FUNCTION  idamgetnodechildrencount                      2 2 KEYWORDS
+FUNCTION  idamgetnodechildid                            3 3 KEYWORDS
+FUNCTION  idamprinttree                                 2 2 KEYWORDS
+FUNCTION  idamprinttreestructurenames                   2 2 KEYWORDS
+FUNCTION  idamprinttreestructurecomponentnames          2 2 KEYWORDS
+FUNCTION  idamprintnodestructure                        2 2 KEYWORDS
+FUNCTION  idamregularisevlenstructures                  2 2 KEYWORDS
 

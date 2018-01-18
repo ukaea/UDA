@@ -33,334 +33,223 @@
 
 // Function Prototypes
 
-void userhelp(FILE* fh, char* name);
+void idamuserhelp(FILE* fh, char* name);
 
-extern void getdata_exit_handler(void);
+extern void idamgetdata_exit_handler(void);
 
-extern int getdata_Startup(void);
+extern int idamgetdata_Startup(void);
 
 extern IDL_VPTR IDL_CDECL idamgetapi(int argc, IDL_VPTR argv[], char* argk);
-
 extern IDL_VPTR IDL_CDECL idamputapi(int argc, IDL_VPTR argv[], char* argk);
-
 extern IDL_VPTR IDL_CDECL callidam(int argc, IDL_VPTR argv[], char* argk);
-
 extern IDL_VPTR IDL_CDECL callidam2(int argc, IDL_VPTR argv[], char* argk);
-
-extern IDL_VPTR IDL_CDECL getidamdata(int argc, IDL_VPTR argv[], char* argk);
-
-extern IDL_VPTR IDL_CDECL getidamdimdata(int argc, IDL_VPTR argv[], char* argk);
-
-extern IDL_VPTR IDL_CDECL getdataarray(int argc, IDL_VPTR argv[], char* argk);
-
-extern IDL_VPTR IDL_CDECL geterrorarray(int argc, IDL_VPTR argv[], char* argk);
-
-extern IDL_VPTR IDL_CDECL getdimdataarray(int argc, IDL_VPTR argv[], char* argk);
-
-extern IDL_VPTR IDL_CDECL freeidam(int argc, IDL_VPTR argv[], char* argk);
-
-extern IDL_VPTR IDL_CDECL freeidamall(int argc, IDL_VPTR argv[], char* argk);
-
-extern IDL_VPTR IDL_CDECL geterrorcode(int argc, IDL_VPTR argv[], char* argk);
-
-extern IDL_VPTR IDL_CDECL geterrormsg(int argc, IDL_VPTR argv[], char* argk);
-
-extern IDL_VPTR IDL_CDECL printerrormsgstack(int argc, IDL_VPTR argv[], char* argk);
-
-extern IDL_VPTR IDL_CDECL getsourcestatus(int argc, IDL_VPTR argv[], char* argk);
-
-extern IDL_VPTR IDL_CDECL getsignalstatus(int argc, IDL_VPTR argv[], char* argk);
-
-extern IDL_VPTR IDL_CDECL getdatastatus(int argc, IDL_VPTR argv[], char* argk);
-
-extern IDL_VPTR IDL_CDECL getdatanum(int argc, IDL_VPTR argv[], char* argk);
-
-extern IDL_VPTR IDL_CDECL getrank(int argc, IDL_VPTR argv[], char* argk);
-
-extern IDL_VPTR IDL_CDECL getorder(int argc, IDL_VPTR argv[], char* argk);
-
-extern IDL_VPTR IDL_CDECL getdatatype(int argc, IDL_VPTR argv[], char* argk);
-
-extern IDL_VPTR IDL_CDECL geterrortype(int argc, IDL_VPTR argv[], char* argk);
-
-extern IDL_VPTR IDL_CDECL geterrorasymmetry(int argc, IDL_VPTR argv[], char* argk);
-
-extern IDL_VPTR IDL_CDECL getdatadata(int argc, IDL_VPTR argv[], char* argk);
-
-extern IDL_VPTR IDL_CDECL getsyntheticdata(int argc, IDL_VPTR argv[], char* argk);
-
-extern IDL_VPTR IDL_CDECL getdataerror(int argc, IDL_VPTR argv[], char* argk);
-
-extern IDL_VPTR IDL_CDECL getfloatdataerror(int argc, IDL_VPTR argv[], char* argk);
-
-extern IDL_VPTR IDL_CDECL getfloatasymmetricdataerror(int argc, IDL_VPTR argv[], char* argk);
-
-extern IDL_VPTR IDL_CDECL getasymmetricdataerror(int argc, IDL_VPTR argv[], char* argk);
-
-extern IDL_VPTR IDL_CDECL getfloatdata(int argc, IDL_VPTR argv[], char* argk);
-
-extern IDL_VPTR IDL_CDECL getdatalabel(int argc, IDL_VPTR argv[], char* argk);
-
-extern IDL_VPTR IDL_CDECL getdataunits(int argc, IDL_VPTR argv[], char* argk);
-
-extern IDL_VPTR IDL_CDECL getdatadesc(int argc, IDL_VPTR argv[], char* argk);
-
-extern IDL_VPTR IDL_CDECL getdimnum(int argc, IDL_VPTR argv[], char* argk);
-
-extern IDL_VPTR IDL_CDECL getdimtype(int argc, IDL_VPTR argv[], char* argk);
-
-extern IDL_VPTR IDL_CDECL getdimerrortype(int argc, IDL_VPTR argv[], char* argk);
-
-extern IDL_VPTR IDL_CDECL getdimerrorasymmetry(int argc, IDL_VPTR argv[], char* argk);
-
-extern IDL_VPTR IDL_CDECL getdimdata(int argc, IDL_VPTR argv[], char* argk);
-
-extern IDL_VPTR IDL_CDECL getsyntheticdimdata(int argc, IDL_VPTR argv[], char* argk);
-
-extern IDL_VPTR IDL_CDECL getdimerror(int argc, IDL_VPTR argv[], char* argk);
-
-extern IDL_VPTR IDL_CDECL getasymmetricdimerror(int argc, IDL_VPTR argv[], char* argk);
-
-extern IDL_VPTR IDL_CDECL getfloatdimdata(int argc, IDL_VPTR argv[], char* argk);
-
-extern IDL_VPTR IDL_CDECL getfloatdimerror(int argc, IDL_VPTR argv[], char* argk);
-
-extern IDL_VPTR IDL_CDECL getfloatasymmetricdimerror(int argc, IDL_VPTR argv[], char* argk);
-
-extern IDL_VPTR IDL_CDECL getdimlabel(int argc, IDL_VPTR argv[], char* argk);
-
-extern IDL_VPTR IDL_CDECL getdimunits(int argc, IDL_VPTR argv[], char* argk);
-
-extern IDL_VPTR IDL_CDECL getdatasystemmeta(int argc, IDL_VPTR argv[], char* argk);
-
-extern IDL_VPTR IDL_CDECL getsystemconfigmeta(int argc, IDL_VPTR argv[], char* argk);
-
-extern IDL_VPTR IDL_CDECL getdatasourcemeta(int argc, IDL_VPTR argv[], char* argk);
-
-extern IDL_VPTR IDL_CDECL getsignalmeta(int argc, IDL_VPTR argv[], char* argk);
-
-extern IDL_VPTR IDL_CDECL getsignaldescmeta(int argc, IDL_VPTR argv[], char* argk);
-
-extern IDL_VPTR IDL_CDECL getxmldoc(int argc, IDL_VPTR argv[], char* argk);
-
-extern IDL_VPTR IDL_CDECL setproperty(int argc, IDL_VPTR argv[], char* argk);
-
-extern IDL_VPTR IDL_CDECL resetproperty(int argc, IDL_VPTR argv[], char* argk);
-
-extern IDL_VPTR IDL_CDECL resetproperties(int argc, IDL_VPTR argv[], char* argk);
-
-extern IDL_VPTR IDL_CDECL getdatatypeid(int argc, IDL_VPTR argv[], char* argk);
-
-extern IDL_VPTR IDL_CDECL geterrormodelid(int argc, IDL_VPTR argv[], char* argk);
-
-extern IDL_VPTR IDL_CDECL setidamclientflag(int argc, IDL_VPTR argv[], char* argk);
-
-extern IDL_VPTR IDL_CDECL resetidamclientflag(int argc, IDL_VPTR argv[], char* argk);
-
-extern IDL_VPTR IDL_CDECL putidamserverhost(int argc, IDL_VPTR argv[], char* argk);
-
-extern IDL_VPTR IDL_CDECL putidamserverport(int argc, IDL_VPTR argv[], char* argk);
-
-extern IDL_VPTR IDL_CDECL getidamserverhost(int argc, IDL_VPTR argv[], char* argk);
-
-extern IDL_VPTR IDL_CDECL getidamserverport(int argc, IDL_VPTR argv[], char* argk);
-
-extern IDL_VPTR IDL_CDECL getidamclientversion(int argc, IDL_VPTR argv[], char* argk);
-
-extern IDL_VPTR IDL_CDECL getidamserverversion(int argc, IDL_VPTR argv[], char* argk);
-
-extern IDL_VPTR IDL_CDECL getidamserversocket(int argc, IDL_VPTR argv[], char* argk);
-
-extern IDL_VPTR IDL_CDECL putidamserversocket(int argc, IDL_VPTR argv[], char* argk);
-
-extern IDL_VPTR IDL_CDECL puterrormodel(int argc, IDL_VPTR argv[], char* argk);
-
-extern IDL_VPTR IDL_CDECL geterrormodel(int argc, IDL_VPTR argv[], char* argk);
-
-extern IDL_VPTR IDL_CDECL putdimerrormodel(int argc, IDL_VPTR argv[], char* argk);
-
-extern IDL_VPTR IDL_CDECL getdimerrormodel(int argc, IDL_VPTR argv[], char* argk);
-
-extern IDL_VPTR IDL_CDECL getlasthandle(int argc, IDL_VPTR argv[], char* argk);
-
-extern IDL_VPTR IDL_CDECL getdomains(int argc, IDL_VPTR argv[], char* argk);
-
-extern IDL_VPTR IDL_CDECL setidamdatatree(int argc, IDL_VPTR argv[], char* argk);
-
-extern IDL_VPTR IDL_CDECL findidamtreestructurecomponent(int argc, IDL_VPTR argv[], char* argk);
-
-extern IDL_VPTR IDL_CDECL findidamtreestructuredefinition(int argc, IDL_VPTR argv[], char* argk);
-
-extern IDL_VPTR IDL_CDECL findidamtreestructure(int argc, IDL_VPTR argv[], char* argk);
-
-extern IDL_VPTR IDL_CDECL getidamnodeatomiccount(int argc, IDL_VPTR argv[], char* argk);
-
-extern IDL_VPTR IDL_CDECL getidamnodeatomicrank(int argc, IDL_VPTR argv[], char* argk);
-
-extern IDL_VPTR IDL_CDECL getidamnodeatomicshape(int argc, IDL_VPTR argv[], char* argk);
-
-extern IDL_VPTR IDL_CDECL getidamnodeatomicnames(int argc, IDL_VPTR argv[], char* argk);
-
-extern IDL_VPTR IDL_CDECL getidamnodeatomictypes(int argc, IDL_VPTR argv[], char* argk);
-
-extern IDL_VPTR IDL_CDECL getidamnodeatomicpointers(int argc, IDL_VPTR argv[], char* argk);
-
-extern IDL_VPTR IDL_CDECL getidamnodeatomicdatacount(int argc, IDL_VPTR argv[], char* argk);
-
-extern IDL_VPTR IDL_CDECL getidamnodeatomicdata(int argc, IDL_VPTR argv[], char* argk);
-
-extern IDL_VPTR IDL_CDECL getidamnodestructurecount(int argc, IDL_VPTR argv[], char* argk);
-
-extern IDL_VPTR IDL_CDECL getidamnodestructurerank(int argc, IDL_VPTR argv[], char* argk);
-
-extern IDL_VPTR IDL_CDECL getidamnodestructureshape(int argc, IDL_VPTR argv[], char* argk);
-
-extern IDL_VPTR IDL_CDECL getidamnodestructurenames(int argc, IDL_VPTR argv[], char* argk);
-
-extern IDL_VPTR IDL_CDECL getidamnodestructuretypes(int argc, IDL_VPTR argv[], char* argk);
-
-extern IDL_VPTR IDL_CDECL getidamnodestructurepointers(int argc, IDL_VPTR argv[], char* argk);
-
-extern IDL_VPTR IDL_CDECL getidamnodestructuredatacount(int argc, IDL_VPTR argv[], char* argk);
-
-extern IDL_VPTR IDL_CDECL getidamnodestructuredatarank(int argc, IDL_VPTR argv[], char* argk);
-
-extern IDL_VPTR IDL_CDECL getidamnodestructuredatashape(int argc, IDL_VPTR argv[], char* argk);
-
-extern IDL_VPTR IDL_CDECL getidamnodeparent(int argc, IDL_VPTR argv[], char* argk);
-
-extern IDL_VPTR IDL_CDECL getidamnodechild(int argc, IDL_VPTR argv[], char* argk);
-
-extern IDL_VPTR IDL_CDECL getidamnodechildrencount(int argc, IDL_VPTR argv[], char* argk);
-
-extern IDL_VPTR IDL_CDECL getidamnodechildid(int argc, IDL_VPTR argv[], char* argk);
-
-extern IDL_VPTR IDL_CDECL printidamtree(int argc, IDL_VPTR argv[], char* argk);
-
-extern IDL_VPTR IDL_CDECL printidamtreestructurenames(int argc, IDL_VPTR argv[], char* argk);
-
-extern IDL_VPTR IDL_CDECL printidamtreestructurecomponentnames(int argc, IDL_VPTR argv[], char* argk);
-
-extern IDL_VPTR IDL_CDECL printidamnodestructure(int argc, IDL_VPTR argv[], char* argk);
-
-extern IDL_VPTR IDL_CDECL regulariseidamvlenstructures(int argc, IDL_VPTR argv[], char* argk);
-
-static IDL_SYSFUN_DEF2 getdata_functions[] = {
-        {{(IDL_FUN_RET) idamgetapi},                           "IDAMGETAPI",                           2, 2, IDL_SYSFUN_DEF_F_KEYWORDS, 0},
-        {{(IDL_FUN_RET) idamputapi},                           "IDAMPUTAPI",                           2, 2, IDL_SYSFUN_DEF_F_KEYWORDS, 0},
-        {{(IDL_FUN_RET) callidam},                             "CALLIDAM",                             1, 2, IDL_SYSFUN_DEF_F_KEYWORDS, 0},
-        {{(IDL_FUN_RET) callidam2},                            "CALLIDAM2",                            2, 2, IDL_SYSFUN_DEF_F_KEYWORDS, 0},
-        {{(IDL_FUN_RET) getidamdata},                          "GETIDAMDATA",                          1, 1, IDL_SYSFUN_DEF_F_KEYWORDS, 0},
-        {{(IDL_FUN_RET) getidamdimdata},                       "GETIDAMDIMDATA",                       2, 2, IDL_SYSFUN_DEF_F_KEYWORDS, 0},
-        {{(IDL_FUN_RET) getdataarray},                         "GETDATAARRAY",                         1, 1, IDL_SYSFUN_DEF_F_KEYWORDS, 0},
-        {{(IDL_FUN_RET) geterrorarray},                        "GETERRORARRAY",                        1, 1, IDL_SYSFUN_DEF_F_KEYWORDS, 0},
-        {{(IDL_FUN_RET) getdimdataarray},                      "GETDIMDATAARRAY",                      2, 2, IDL_SYSFUN_DEF_F_KEYWORDS, 0},
-        {{(IDL_FUN_RET) freeidam},                             "FREEIDAM",                             1, 1, 0,                         0},
-        {{(IDL_FUN_RET) freeidamall},                          "FREEIDAMALL",                          0, 0, 0,                         0},
-        {{(IDL_FUN_RET) geterrorcode},                         "GETERRORCODE",                         1, 1, 0,                         0},
-        {{(IDL_FUN_RET) geterrormsg},                          "GETERRORMSG",                          2, 2, 0,                         0},
-        {{(IDL_FUN_RET) printerrormsgstack},                   "PRINTERRORMSGSTACK",                   1, 1, 0,                         0},
-        {{(IDL_FUN_RET) getsourcestatus},                      "GETSOURCESTATUS",                      1, 1, 0,                         0},
-        {{(IDL_FUN_RET) getsignalstatus},                      "GETSIGNALSTATUS",                      1, 1, 0,                         0},
-        {{(IDL_FUN_RET) getdatastatus},                        "GETDATASTATUS",                        1, 1, 0,                         0},
-        {{(IDL_FUN_RET) getdatanum},                           "GETDATANUM",                           1, 1, 0,                         0},
-        {{(IDL_FUN_RET) getrank},                              "GETRANK",                              1, 1, 0,                         0},
-        {{(IDL_FUN_RET) getorder},                             "GETORDER",                             1, 1, 0,                         0},
-        {{(IDL_FUN_RET) getdatatype},                          "GETDATATYPE",                          1, 1, 0,                         0},
-        {{(IDL_FUN_RET) geterrortype},                         "GETERRORTYPE",                         1, 1, 0,                         0},
-        {{(IDL_FUN_RET) geterrorasymmetry},                    "GETERRORASYMMETRY",                    1, 1, 0,                         0},
-        {{(IDL_FUN_RET) getdatadata},                          "GETDATADATA",                          1, 1, 0,                         0},
-        {{(IDL_FUN_RET) getdataerror},                         "GETDATAERROR",                         1, 1, 0,                         0},
-        {{(IDL_FUN_RET) getasymmetricdataerror},               "GETASYMMETRICDATAERROR",               2, 2, 0,                         0},
-        {{(IDL_FUN_RET) getfloatdata},                         "GETFLOATDATA",                         1, 1, 0,                         0},
-        {{(IDL_FUN_RET) getsyntheticdata},                     "GETSYNTHETICDATA",                     1, 1, 0,                         0},
-        {{(IDL_FUN_RET) getdatalabel},                         "GETDATALABEL",                         2, 2, 0,                         0},
-        {{(IDL_FUN_RET) getdataunits},                         "GETDATAUNITS",                         2, 2, 0,                         0},
-        {{(IDL_FUN_RET) getdatadesc},                          "GETDATADESC",                          2, 2, 0,                         0},
-        {{(IDL_FUN_RET) getdimnum},                            "GETDIMNUM",                            2, 2, 0,                         0},
-        {{(IDL_FUN_RET) getdimtype},                           "GETDIMTYPE",                           2, 2, 0,                         0},
-        {{(IDL_FUN_RET) getdimerrortype},                      "GETDIMERRORTYPE",                      2, 2, 0,                         0},
-        {{(IDL_FUN_RET) getdimerrorasymmetry},                 "GETDIMERRORASYMMETRY",                 2, 2, 0,                         0},
-        {{(IDL_FUN_RET) getdimerror},                          "GETDIMERROR",                          2, 2, 0,                         0},
-        {{(IDL_FUN_RET) getasymmetricdimerror},                "GETASYMMETRICDIMERROR",                3, 3, 0,                         0},
-        {{(IDL_FUN_RET) getdimdata},                           "GETDIMDATA",                           2, 2, 0,                         0},
-        {{(IDL_FUN_RET) getfloatdimdata},                      "GETFLOATDIMDATA",                      2, 2, 0,                         0},
-        {{(IDL_FUN_RET) getsyntheticdimdata},                  "GETSYNTHETICDIMDATA",                  2, 2, 0,                         0},
-        {{(IDL_FUN_RET) getdimlabel},                          "GETDIMLABEL",                          3, 3, 0,                         0},
-        {{(IDL_FUN_RET) getdimunits},                          "GETDIMUNITS",                          3, 3, 0,                         0},
-        {{(IDL_FUN_RET) getdatasystemmeta},                    "GETDATASYSTEMMETA",                    1, 1, IDL_SYSFUN_DEF_F_KEYWORDS, 0},
-        {{(IDL_FUN_RET) getsystemconfigmeta},                  "GETSYSTEMCONFIGMETA",                  1, 1, IDL_SYSFUN_DEF_F_KEYWORDS, 0},
-        {{(IDL_FUN_RET) getdatasourcemeta},                    "GETDATASOURCEMETA",                    1, 1, IDL_SYSFUN_DEF_F_KEYWORDS, 0},
-        {{(IDL_FUN_RET) getsignalmeta},                        "GETSIGNALMETA",                        1, 1, IDL_SYSFUN_DEF_F_KEYWORDS, 0},
-        {{(IDL_FUN_RET) getsignaldescmeta},                    "GETSIGNALDESCMETA",                    1, 1, IDL_SYSFUN_DEF_F_KEYWORDS, 0},
-        {{(IDL_FUN_RET) getxmldoc},                            "GETXMLDOC",                            2, 2, IDL_SYSFUN_DEF_F_KEYWORDS, 0},
-        {{(IDL_FUN_RET) setproperty},                          "SETPROPERTY",                          1, 1, 0,                         0},
-        {{(IDL_FUN_RET) resetproperty},                        "RESETPROPERTY",                        1, 1, 0,                         0},
-        {{(IDL_FUN_RET) resetproperties},                      "RESETPROPERTIES",                      0, 0, 0,                         0},
-        {{(IDL_FUN_RET) setidamclientflag},                    "SETIDAMCLIENTFLAG",                    1, 1, 0,                         0},
-        {{(IDL_FUN_RET) resetidamclientflag},                  "RESETIDAMCLIENTFLAG",                  1, 1, 0,                         0},
-        {{(IDL_FUN_RET) getdatatypeid},                        "GETDATATYPEID",                        1, 1, 0,                         0},
-        {{(IDL_FUN_RET) geterrormodelid},                      "GETERRORMODELID",                      1, 1, 0,                         0},
-        {{(IDL_FUN_RET) putidamserverhost},                    "PUTIDAMSERVERHOST",                    1, 1, 0,                         0},
-        {{(IDL_FUN_RET) putidamserverport},                    "PUTIDAMSERVERPORT",                    1, 1, 0,                         0},
-        {{(IDL_FUN_RET) getidamserverhost},                    "GETIDAMSERVERHOST",                    1, 1, 0,                         0},
-        {{(IDL_FUN_RET) getidamserverport},                    "GETIDAMSERVERPORT",                    0, 0, 0,                         0},
-        {{(IDL_FUN_RET) getidamclientversion},                 "GETIDAMCLIENTVERSION",                 0, 0, 0,                         0},
-        {{(IDL_FUN_RET) getidamserverversion},                 "GETIDAMSERVERVERSION",                 0, 0, 0,                         0},
-        {{(IDL_FUN_RET) getidamserversocket},                  "GETIDAMSERVERSOCKET",                  0, 0, 0,                         0},
-        {{(IDL_FUN_RET) putidamserversocket},                  "PUTIDAMSERVERSOCKET",                  1, 1, 0,                         0},
-        {{(IDL_FUN_RET) geterrormodel},                        "GETERRORMODEL",                        1, 1, IDL_SYSFUN_DEF_F_KEYWORDS, 0},
-        {{(IDL_FUN_RET) puterrormodel},                        "PUTERRORMODEL",                        3, 3, 0,                         0},
-        {{(IDL_FUN_RET) getdimerrormodel},                     "GETDIMERRORMODEL",                     2, 2, IDL_SYSFUN_DEF_F_KEYWORDS, 0},
-        {{(IDL_FUN_RET) putdimerrormodel},                     "PUTDIMERRORMODEL",                     4, 4, 0,                         0},
-        {{(IDL_FUN_RET) getfloatdataerror},                    "GETFLOATDATAERROR",                    1, 1, 0,                         0},
-        {{(IDL_FUN_RET) getfloatdimerror},                     "GETFLOATDIMERROR",                     2, 2, 0,                         0},
-        {{(IDL_FUN_RET) getfloatasymmetricdataerror},          "GETFLOATASYMMETRICDATAERROR",          2, 2, 0,                         0},
-        {{(IDL_FUN_RET) getfloatasymmetricdimerror},           "GETFLOATASYMMETRICDIMERROR",           3, 3, 0,                         0},
-        {{(IDL_FUN_RET) getlasthandle},                        "GETLASTHANDLE",                        0, 0, 0,                         0},
-        {{(IDL_FUN_RET) getdomains},                           "GETDOMAINS",                           2, 2, IDL_SYSFUN_DEF_F_KEYWORDS, 0},
-        {{(IDL_FUN_RET) setidamdatatree},                      "SETIDAMDATATREE",                      1, 1, IDL_SYSFUN_DEF_F_KEYWORDS, 0},
-        {{(IDL_FUN_RET) findidamtreestructurecomponent},       "FINDIDAMTREESTRUCTURECOMPONENT",       3, 3,
-                                                                                                            IDL_SYSFUN_DEF_F_KEYWORDS, 0},
-        {{(IDL_FUN_RET) findidamtreestructuredefinition},      "FINDIDAMTREESTRUCTUREDEFINITION",      3, 3,
-                                                                                                            IDL_SYSFUN_DEF_F_KEYWORDS, 0},
-        {{(IDL_FUN_RET) findidamtreestructure},                "FINDIDAMTREESTRUCTURE",                3, 3, IDL_SYSFUN_DEF_F_KEYWORDS, 0},
-        {{(IDL_FUN_RET) getidamnodeatomiccount},               "GETIDAMNODEATOMICCOUNT",               2, 2, IDL_SYSFUN_DEF_F_KEYWORDS, 0},
-        {{(IDL_FUN_RET) getidamnodeatomicrank},                "GETIDAMNODEATOMICRANK",                2, 2, IDL_SYSFUN_DEF_F_KEYWORDS, 0},
-        {{(IDL_FUN_RET) getidamnodeatomicshape},               "GETIDAMNODEATOMICSHAPE",               2, 2, IDL_SYSFUN_DEF_F_KEYWORDS, 0},
-       {{(IDL_FUN_RET) getidamnodeatomicnames},               "GETIDAMNODEATOMICNAMES",               2, 2, IDL_SYSFUN_DEF_F_KEYWORDS, 0},
-        {{(IDL_FUN_RET) getidamnodeatomictypes},               "GETIDAMNODEATOMICTYPES",               2, 2, IDL_SYSFUN_DEF_F_KEYWORDS, 0},
-        {{(IDL_FUN_RET) getidamnodeatomicpointers},            "GETIDAMNODEATOMICPOINTERS",            2, 2, IDL_SYSFUN_DEF_F_KEYWORDS, 0},
-        {{(IDL_FUN_RET) getidamnodeatomicdatacount},           "GETIDAMNODEATOMICDATACOUNT",           3, 3, IDL_SYSFUN_DEF_F_KEYWORDS, 0},
-        {{(IDL_FUN_RET) getidamnodeatomicdata},                "GETIDAMNODEATOMICDATA",                3, 3, IDL_SYSFUN_DEF_F_KEYWORDS, 0},
-        {{(IDL_FUN_RET) getidamnodestructurecount},            "GETIDAMNODESTRUCTURECOUNT",            2, 2, IDL_SYSFUN_DEF_F_KEYWORDS, 0},
-        {{(IDL_FUN_RET) getidamnodestructurerank},             "GETIDAMNODESTRUCTURERANK",             2, 2, IDL_SYSFUN_DEF_F_KEYWORDS, 0},
-        {{(IDL_FUN_RET) getidamnodestructureshape},            "GETIDAMNODESTRUCTURESHAPE",            2, 2, IDL_SYSFUN_DEF_F_KEYWORDS, 0},
-        {{(IDL_FUN_RET) getidamnodestructurenames},            "GETIDAMNODESTRUCTURENAMES",            2, 2, IDL_SYSFUN_DEF_F_KEYWORDS, 0},
-        {{(IDL_FUN_RET) getidamnodestructuretypes},            "GETIDAMNODESTRUCTURETYPES",            2, 2, IDL_SYSFUN_DEF_F_KEYWORDS, 0},
-        {{(IDL_FUN_RET) getidamnodestructurepointers},         "GETIDAMNODESTRUCTUREPOINTERS",         2, 2, IDL_SYSFUN_DEF_F_KEYWORDS,
-                                                                                                                                       0},
-        {{(IDL_FUN_RET) getidamnodestructuredatacount},        "GETIDAMNODESTRUCTUREDATACOUNT",        2, 2, IDL_SYSFUN_DEF_F_KEYWORDS,
-                                                                                                                                       0},
-        {{(IDL_FUN_RET) getidamnodestructuredatarank},         "GETIDAMNODESTRUCTUREDATARANK",         2, 2, IDL_SYSFUN_DEF_F_KEYWORDS,
-                                                                                                                                       0},
-        {{(IDL_FUN_RET) getidamnodestructuredatashape},        "GETIDAMNODESTRUCTUREDATASHAPE",        2, 2, IDL_SYSFUN_DEF_F_KEYWORDS,
-                                                                                                                                       0},
-        {{(IDL_FUN_RET) getidamnodeparent},                    "GETIDAMNODEPARENT",                    2, 2, IDL_SYSFUN_DEF_F_KEYWORDS, 0},
-        {{(IDL_FUN_RET) getidamnodechild},                     "GETIDAMNODECHILD",                     3, 3, IDL_SYSFUN_DEF_F_KEYWORDS, 0},
-        {{(IDL_FUN_RET) getidamnodechildid},                   "GETIDAMNODECHILDID",                   3, 3, IDL_SYSFUN_DEF_F_KEYWORDS, 0},
-        {{(IDL_FUN_RET) getidamnodechildrencount},             "GETIDAMNODECHILDRENCOUNT",             2, 2, IDL_SYSFUN_DEF_F_KEYWORDS, 0},
-        {{(IDL_FUN_RET) printidamtree},                        "PRINTIDAMTREE",                        2, 2, IDL_SYSFUN_DEF_F_KEYWORDS, 0},
-        {{(IDL_FUN_RET) printidamtreestructurenames},          "PRINTIDAMTREESTRUCTURENAMES",          2, 2, IDL_SYSFUN_DEF_F_KEYWORDS,
-                                                                                                                                       0},
-        {{(IDL_FUN_RET) printidamtreestructurecomponentnames}, "PRINTIDAMTREESTRUCTURECOMPONENTNAMES", 2, 2,
-                                                                                                            IDL_SYSFUN_DEF_F_KEYWORDS, 0},
-        {{(IDL_FUN_RET) printidamnodestructure},               "PRINTIDAMNODESTRUCTURE",               2, 2, IDL_SYSFUN_DEF_F_KEYWORDS, 0},
-        {{(IDL_FUN_RET) regulariseidamvlenstructures},         "REGULARISEIDAMVLENSTRUCTURES",         2, 2, IDL_SYSFUN_DEF_F_KEYWORDS,
-                                                                                                                                       0}
+extern IDL_VPTR IDL_CDECL idamgetdata(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL idamgetdimdata(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL idamgetdataarray(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL idamgeterrorarray(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL idamgetdimdataarray(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL idamfree(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL idamfreeall(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL idamgeterrorcode(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL idamgeterrormsg(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL idamprinterrormsgstack(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL idamgetsourcestatus(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL idamgetsignalstatus(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL idamgetdatastatus(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL idamgetdatanum(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL idamgetrank(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL idamgetorder(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL idamgetdatatype(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL idamgeterrortype(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL idamgeterrorasymmetry(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL idamgetdatadata(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL idamgetsyntheticdata(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL idamgetdataerror(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL idamgetfloatdataerror(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL idamgetfloatasymmetricdataerror(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL idamgetasymmetricdataerror(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL idamgetfloatdata(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL idamgetdatalabel(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL idamgetdataunits(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL idamgetdatadesc(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL idamgetdimnum(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL idamgetdimtype(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL idamgetdimerrortype(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL idamgetdimerrorasymmetry(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL idamgetdimdata(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL idamgetsyntheticdimdata(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL idamgetdimerror(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL idamgetasymmetricdimerror(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL idamgetfloatdimdata(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL idamgetfloatdimerror(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL idamgetfloatasymmetricdimerror(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL idamgetdimlabel(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL idamgetdimunits(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL idamgetdatasystemmeta(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL idamgetsystemconfigmeta(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL idamgetdatasourcemeta(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL idamgetsignalmeta(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL idamgetsignaldescmeta(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL idamgetxmldoc(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL idamsetproperty(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL idamresetproperty(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL idamresetproperties(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL idamgetdatatypeid(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL idamgeterrormodelid(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL idamsetclientflag(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL idamresetclientflag(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL idamputserverhost(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL idamputserverport(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL idamgetserverhost(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL idamgetserverport(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL idamgetclientversion(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL idamgetserverversion(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL idamgetserversocket(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL idamputserversocket(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL idamputerrormodel(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL idamgeterrormodel(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL idamputdimerrormodel(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL idamgetdimerrormodel(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL idamgetlasthandle(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL idamgetdomains(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL idamsetdatatree(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL idamfindtreestructurecomponent(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL idamfindtreestructuredefinition(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL idamfindtreestructure(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL idamgetnodeatomiccount(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL idamgetnodeatomicrank(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL idamgetnodeatomicshape(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL idamgetnodeatomicnames(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL idamgetnodeatomictypes(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL idamgetnodeatomicpointers(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL idamgetnodeatomicdatacount(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL idamgetnodeatomicdata(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL idamgetnodestructurecount(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL idamgetnodestructurerank(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL idamgetnodestructureshape(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL idamgetnodestructurenames(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL idamgetnodestructuretypes(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL idamgetnodestructurepointers(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL idamgetnodestructuredatacount(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL idamgetnodestructuredatarank(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL idamgetnodestructuredatashape(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL idamgetnodeparent(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL idamgetnodechild(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL idamgetnodechildrencount(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL idamgetnodechildid(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL idamprinttree(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL idamprinttreestructurenames(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL idamprinttreestructurecomponentnames(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL idamprintnodestructure(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL idamregularisevlenstructures(int argc, IDL_VPTR argv[], char* argk);
+
+static IDL_SYSFUN_DEF2 idamgetdata_functions[] = {
+        {{(IDL_FUN_RET)idamgetapi},                               LIB_NAME "GETAPI",                           2, 2, IDL_SYSFUN_DEF_F_KEYWORDS, 0},
+        {{(IDL_FUN_RET)idamputapi},                               LIB_NAME "PUTAPI",                           2, 2, IDL_SYSFUN_DEF_F_KEYWORDS, 0},
+        {{(IDL_FUN_RET)callidam},                                 "CALL" LIB_NAME,                             1, 2, IDL_SYSFUN_DEF_F_KEYWORDS, 0},
+        {{(IDL_FUN_RET)callidam2},                                "CALL" LIB_NAME "2",                            2, 2, IDL_SYSFUN_DEF_F_KEYWORDS, 0},
+        {{(IDL_FUN_RET)idamgetdata},                              LIB_NAME "GETDATA",                          1, 1, IDL_SYSFUN_DEF_F_KEYWORDS, 0},
+        {{(IDL_FUN_RET)idamgetdimdata},                           LIB_NAME "GETDIMDATA",                       2, 2, IDL_SYSFUN_DEF_F_KEYWORDS, 0},
+        {{(IDL_FUN_RET)idamgetdataarray},                         LIB_NAME "GETDATAARRAY",                         1, 1, IDL_SYSFUN_DEF_F_KEYWORDS, 0},
+        {{(IDL_FUN_RET)idamgeterrorarray},                        LIB_NAME "GETERRORARRAY",                        1, 1, IDL_SYSFUN_DEF_F_KEYWORDS, 0},
+        {{(IDL_FUN_RET)idamgetdimdataarray},                      LIB_NAME "GETDIMDATAARRAY",                      2, 2, IDL_SYSFUN_DEF_F_KEYWORDS, 0},
+        {{(IDL_FUN_RET)idamfree},                                 LIB_NAME "FREE",                             1, 1, 0,                         0},
+        {{(IDL_FUN_RET)idamfreeall},                              LIB_NAME "FREEALL",                          0, 0, 0,                         0},
+        {{(IDL_FUN_RET)idamgeterrorcode},                         LIB_NAME "GETERRORCODE",                         1, 1, 0,                         0},
+        {{(IDL_FUN_RET)idamgeterrormsg},                          LIB_NAME "GETERRORMSG",                          2, 2, 0,                         0},
+        {{(IDL_FUN_RET)idamprinterrormsgstack},                   LIB_NAME "PRINTERRORMSGSTACK",                   1, 1, 0,                         0},
+        {{(IDL_FUN_RET)idamgetsourcestatus},                      LIB_NAME "GETSOURCESTATUS",                      1, 1, 0,                         0},
+        {{(IDL_FUN_RET)idamgetsignalstatus},                      LIB_NAME "GETSIGNALSTATUS",                      1, 1, 0,                         0},
+        {{(IDL_FUN_RET)idamgetdatastatus},                        LIB_NAME "GETDATASTATUS",                        1, 1, 0,                         0},
+        {{(IDL_FUN_RET)idamgetdatanum},                           LIB_NAME "GETDATANUM",                           1, 1, 0,                         0},
+        {{(IDL_FUN_RET)idamgetrank},                              LIB_NAME "GETRANK",                              1, 1, 0,                         0},
+        {{(IDL_FUN_RET)idamgetorder},                             LIB_NAME "GETORDER",                             1, 1, 0,                         0},
+        {{(IDL_FUN_RET)idamgetdatatype},                          LIB_NAME "GETDATATYPE",                          1, 1, 0,                         0},
+        {{(IDL_FUN_RET)idamgeterrortype},                         LIB_NAME "GETERRORTYPE",                         1, 1, 0,                         0},
+        {{(IDL_FUN_RET)idamgeterrorasymmetry},                    LIB_NAME "GETERRORASYMMETRY",                    1, 1, 0,                         0},
+        {{(IDL_FUN_RET)idamgetdatadata},                          LIB_NAME "GETDATADATA",                          1, 1, 0,                         0},
+        {{(IDL_FUN_RET)idamgetdataerror},                         LIB_NAME "GETDATAERROR",                         1, 1, 0,                         0},
+        {{(IDL_FUN_RET)idamgetasymmetricdataerror},               LIB_NAME "GETASYMMETRICDATAERROR",               2, 2, 0,                         0},
+        {{(IDL_FUN_RET)idamgetfloatdata},                         LIB_NAME "GETFLOATDATA",                         1, 1, 0,                         0},
+        {{(IDL_FUN_RET)idamgetsyntheticdata},                     LIB_NAME "GETSYNTHETICDATA",                     1, 1, 0,                         0},
+        {{(IDL_FUN_RET)idamgetdatalabel},                         LIB_NAME "GETDATALABEL",                         2, 2, 0,                         0},
+        {{(IDL_FUN_RET)idamgetdataunits},                         LIB_NAME "GETDATAUNITS",                         2, 2, 0,                         0},
+        {{(IDL_FUN_RET)idamgetdatadesc},                          LIB_NAME "GETDATADESC",                          2, 2, 0,                         0},
+        {{(IDL_FUN_RET)idamgetdimnum},                            LIB_NAME "GETDIMNUM",                            2, 2, 0,                         0},
+        {{(IDL_FUN_RET)idamgetdimtype},                           LIB_NAME "GETDIMTYPE",                           2, 2, 0,                         0},
+        {{(IDL_FUN_RET)idamgetdimerrortype},                      LIB_NAME "GETDIMERRORTYPE",                      2, 2, 0,                         0},
+        {{(IDL_FUN_RET)idamgetdimerrorasymmetry},                 LIB_NAME "GETDIMERRORASYMMETRY",                 2, 2, 0,                         0},
+        {{(IDL_FUN_RET)idamgetdimerror},                          LIB_NAME "GETDIMERROR",                          2, 2, 0,                         0},
+        {{(IDL_FUN_RET)idamgetasymmetricdimerror},                LIB_NAME "GETASYMMETRICDIMERROR",                3, 3, 0,                         0},
+        {{(IDL_FUN_RET)idamgetdimdata},                           LIB_NAME "GETDIMDATA",                           2, 2, 0,                         0},
+        {{(IDL_FUN_RET)idamgetfloatdimdata},                      LIB_NAME "GETFLOATDIMDATA",                      2, 2, 0,                         0},
+        {{(IDL_FUN_RET)idamgetsyntheticdimdata},                  LIB_NAME "GETSYNTHETICDIMDATA",                  2, 2, 0,                         0},
+        {{(IDL_FUN_RET)idamgetdimlabel},                          LIB_NAME "GETDIMLABEL",                          3, 3, 0,                         0},
+        {{(IDL_FUN_RET)idamgetdimunits},                          LIB_NAME "GETDIMUNITS",                          3, 3, 0,                         0},
+        {{(IDL_FUN_RET)idamgetdatasystemmeta},                    LIB_NAME "GETDATASYSTEMMETA",                    1, 1, IDL_SYSFUN_DEF_F_KEYWORDS, 0},
+        {{(IDL_FUN_RET)idamgetsystemconfigmeta},                  LIB_NAME "GETSYSTEMCONFIGMETA",                  1, 1, IDL_SYSFUN_DEF_F_KEYWORDS, 0},
+        {{(IDL_FUN_RET)idamgetdatasourcemeta},                    LIB_NAME "GETDATASOURCEMETA",                    1, 1, IDL_SYSFUN_DEF_F_KEYWORDS, 0},
+        {{(IDL_FUN_RET)idamgetsignalmeta},                        LIB_NAME "GETSIGNALMETA",                        1, 1, IDL_SYSFUN_DEF_F_KEYWORDS, 0},
+        {{(IDL_FUN_RET)idamgetsignaldescmeta},                    LIB_NAME "GETSIGNALDESCMETA",                    1, 1, IDL_SYSFUN_DEF_F_KEYWORDS, 0},
+        {{(IDL_FUN_RET)idamgetxmldoc},                            LIB_NAME "GETXMLDOC",                            2, 2, IDL_SYSFUN_DEF_F_KEYWORDS, 0},
+        {{(IDL_FUN_RET)idamsetproperty},                          LIB_NAME "SETPROPERTY",                          1, 1, 0,                         0},
+        {{(IDL_FUN_RET)idamresetproperty},                        LIB_NAME "RESETPROPERTY",                        1, 1, 0,                         0},
+        {{(IDL_FUN_RET)idamresetproperties},                      LIB_NAME "RESETPROPERTIES",                      0, 0, 0,                         0},
+        {{(IDL_FUN_RET)idamsetclientflag},                        LIB_NAME "SETCLIENTFLAG",                    1, 1, 0,                         0},
+        {{(IDL_FUN_RET)idamresetclientflag},                      LIB_NAME "RESETCLIENTFLAG",                  1, 1, 0,                         0},
+        {{(IDL_FUN_RET)idamgetdatatypeid},                        LIB_NAME "GETDATATYPEID",                        1, 1, 0,                         0},
+        {{(IDL_FUN_RET)idamgeterrormodelid},                      LIB_NAME "GETERRORMODELID",                      1, 1, 0,                         0},
+        {{(IDL_FUN_RET)idamputserverhost},                        LIB_NAME "PUTSERVERHOST",                    1, 1, 0,                         0},
+        {{(IDL_FUN_RET)idamputserverport},                        LIB_NAME "PUTSERVERPORT",                    1, 1, 0,                         0},
+        {{(IDL_FUN_RET)idamgetserverhost},                        LIB_NAME "GETSERVERHOST",                    1, 1, 0,                         0},
+        {{(IDL_FUN_RET)idamgetserverport},                        LIB_NAME "GETSERVERPORT",                    0, 0, 0,                         0},
+        {{(IDL_FUN_RET)idamgetclientversion},                     LIB_NAME "GETCLIENTVERSION",                 0, 0, 0,                         0},
+        {{(IDL_FUN_RET)idamgetserverversion},                     LIB_NAME "GETSERVERVERSION",                 0, 0, 0,                         0},
+        {{(IDL_FUN_RET)idamgetserversocket},                      LIB_NAME "GETSERVERSOCKET",                  0, 0, 0,                         0},
+        {{(IDL_FUN_RET)idamputserversocket},                      LIB_NAME "PUTSERVERSOCKET",                  1, 1, 0,                         0},
+        {{(IDL_FUN_RET)idamgeterrormodel},                        LIB_NAME "GETERRORMODEL",                        1, 1, IDL_SYSFUN_DEF_F_KEYWORDS, 0},
+        {{(IDL_FUN_RET)idamputerrormodel},                        LIB_NAME "PUTERRORMODEL",                        3, 3, 0,                         0},
+        {{(IDL_FUN_RET)idamgetdimerrormodel},                     LIB_NAME "GETDIMERRORMODEL",                     2, 2, IDL_SYSFUN_DEF_F_KEYWORDS, 0},
+        {{(IDL_FUN_RET)idamputdimerrormodel},                     LIB_NAME "PUTDIMERRORMODEL",                     4, 4, 0,                         0},
+        {{(IDL_FUN_RET)idamgetfloatdataerror},                    LIB_NAME "GETFLOATDATAERROR",                    1, 1, 0,                         0},
+        {{(IDL_FUN_RET)idamgetfloatdimerror},                     LIB_NAME "GETFLOATDIMERROR",                     2, 2, 0,                         0},
+        {{(IDL_FUN_RET)idamgetfloatasymmetricdataerror},          LIB_NAME "GETFLOATASYMMETRICDATAERROR",          2, 2, 0,                         0},
+        {{(IDL_FUN_RET)idamgetfloatasymmetricdimerror},           LIB_NAME "GETFLOATASYMMETRICDIMERROR",           3, 3, 0,                         0},
+        {{(IDL_FUN_RET)idamgetlasthandle},                        LIB_NAME "GETLASTHANDLE",                        0, 0, 0,                         0},
+        {{(IDL_FUN_RET)idamgetdomains},                           LIB_NAME "GETDOMAINS",                           2, 2, IDL_SYSFUN_DEF_F_KEYWORDS, 0},
+        {{(IDL_FUN_RET)idamsetdatatree},                      LIB_NAME "SETDATATREE",                      1, 1, IDL_SYSFUN_DEF_F_KEYWORDS, 0},
+        {{(IDL_FUN_RET)idamfindtreestructurecomponent},       LIB_NAME "FINDTREESTRUCTURECOMPONENT",       3, 3, IDL_SYSFUN_DEF_F_KEYWORDS, 0},
+        {{(IDL_FUN_RET)idamfindtreestructuredefinition},      LIB_NAME "FINDTREESTRUCTUREDEFINITION",      3, 3, IDL_SYSFUN_DEF_F_KEYWORDS, 0},
+        {{(IDL_FUN_RET)idamfindtreestructure},                LIB_NAME "FINDTREESTRUCTURE",                3, 3, IDL_SYSFUN_DEF_F_KEYWORDS, 0},
+        {{(IDL_FUN_RET)idamgetnodeatomiccount},               LIB_NAME "GETNODEATOMICCOUNT",               2, 2, IDL_SYSFUN_DEF_F_KEYWORDS, 0},
+        {{(IDL_FUN_RET)idamgetnodeatomicrank},                LIB_NAME "GETNODEATOMICRANK",                2, 2, IDL_SYSFUN_DEF_F_KEYWORDS, 0},
+        {{(IDL_FUN_RET)idamgetnodeatomicshape},               LIB_NAME "GETNODEATOMICSHAPE",               2, 2, IDL_SYSFUN_DEF_F_KEYWORDS, 0},
+        {{(IDL_FUN_RET)idamgetnodeatomicnames},               LIB_NAME "GETNODEATOMICNAMES",               2, 2, IDL_SYSFUN_DEF_F_KEYWORDS, 0},
+        {{(IDL_FUN_RET)idamgetnodeatomictypes},               LIB_NAME "GETNODEATOMICTYPES",               2, 2, IDL_SYSFUN_DEF_F_KEYWORDS, 0},
+        {{(IDL_FUN_RET)idamgetnodeatomicpointers},            LIB_NAME "GETNODEATOMICPOINTERS",            2, 2, IDL_SYSFUN_DEF_F_KEYWORDS, 0},
+        {{(IDL_FUN_RET)idamgetnodeatomicdatacount},           LIB_NAME "GETNODEATOMICDATACOUNT",           3, 3, IDL_SYSFUN_DEF_F_KEYWORDS, 0},
+        {{(IDL_FUN_RET)idamgetnodeatomicdata},                LIB_NAME "GETNODEATOMICDATA",                3, 3, IDL_SYSFUN_DEF_F_KEYWORDS, 0},
+        {{(IDL_FUN_RET)idamgetnodestructurecount},            LIB_NAME "GETNODESTRUCTURECOUNT",            2, 2, IDL_SYSFUN_DEF_F_KEYWORDS, 0},
+        {{(IDL_FUN_RET)idamgetnodestructurerank},             LIB_NAME "GETNODESTRUCTURERANK",             2, 2, IDL_SYSFUN_DEF_F_KEYWORDS, 0},
+        {{(IDL_FUN_RET)idamgetnodestructureshape},            LIB_NAME "GETNODESTRUCTURESHAPE",            2, 2, IDL_SYSFUN_DEF_F_KEYWORDS, 0},
+        {{(IDL_FUN_RET)idamgetnodestructurenames},            LIB_NAME "GETNODESTRUCTURENAMES",            2, 2, IDL_SYSFUN_DEF_F_KEYWORDS, 0},
+        {{(IDL_FUN_RET)idamgetnodestructuretypes},            LIB_NAME "GETNODESTRUCTURETYPES",            2, 2, IDL_SYSFUN_DEF_F_KEYWORDS, 0},
+        {{(IDL_FUN_RET)idamgetnodestructurepointers},         LIB_NAME "GETNODESTRUCTUREPOINTERS",         2, 2, IDL_SYSFUN_DEF_F_KEYWORDS, 0},
+        {{(IDL_FUN_RET)idamgetnodestructuredatacount},        LIB_NAME "GETNODESTRUCTUREDATACOUNT",        2, 2, IDL_SYSFUN_DEF_F_KEYWORDS, 0},
+        {{(IDL_FUN_RET)idamgetnodestructuredatarank},         LIB_NAME "GETNODESTRUCTUREDATARANK",         2, 2, IDL_SYSFUN_DEF_F_KEYWORDS, 0},
+        {{(IDL_FUN_RET)idamgetnodestructuredatashape},        LIB_NAME "GETNODESTRUCTUREDATASHAPE",        2, 2, IDL_SYSFUN_DEF_F_KEYWORDS, 0},
+        {{(IDL_FUN_RET)idamgetnodeparent},                    LIB_NAME "GETNODEPARENT",                    2, 2, IDL_SYSFUN_DEF_F_KEYWORDS, 0},
+        {{(IDL_FUN_RET)idamgetnodechild},                     LIB_NAME "GETNODECHILD",                     3, 3, IDL_SYSFUN_DEF_F_KEYWORDS, 0},
+        {{(IDL_FUN_RET)idamgetnodechildid},                   LIB_NAME "GETNODECHILDID",                   3, 3, IDL_SYSFUN_DEF_F_KEYWORDS, 0},
+        {{(IDL_FUN_RET)idamgetnodechildrencount},             LIB_NAME "GETNODECHILDRENCOUNT",             2, 2, IDL_SYSFUN_DEF_F_KEYWORDS, 0},
+        {{(IDL_FUN_RET)idamprinttree},                        LIB_NAME "PRINTTREE",                        2, 2, IDL_SYSFUN_DEF_F_KEYWORDS, 0},
+        {{(IDL_FUN_RET)idamprinttreestructurenames},          LIB_NAME "PRINTTREESTRUCTURENAMES",          2, 2, IDL_SYSFUN_DEF_F_KEYWORDS, 0},
+        {{(IDL_FUN_RET)idamprinttreestructurecomponentnames}, LIB_NAME "PRINTTREESTRUCTURECOMPONENTNAMES", 2, 2, IDL_SYSFUN_DEF_F_KEYWORDS, 0},
+        {{(IDL_FUN_RET)idamprintnodestructure},               LIB_NAME "PRINTNODESTRUCTURE",               2, 2, IDL_SYSFUN_DEF_F_KEYWORDS, 0},
+        {{(IDL_FUN_RET)idamregularisevlenstructures},         LIB_NAME "REGULARISEVLENSTRUCTURES",         2, 2, IDL_SYSFUN_DEF_F_KEYWORDS, 0}
 };
 
-int getdata_startup(void) {
+int idamgetdata_startup(void) {
 
     // TRUE for Functions, FALSE for Procedures
 
@@ -385,7 +274,7 @@ int IDL_Load(void) {
 
 // Called when IDL is shutdown
 
-void getdata_exit_handler(void) {
+void idamgetdata_exit_handler(void) {
     // Nothing to do!
 }
 
@@ -1368,7 +1257,7 @@ IDL_VPTR IDL_CDECL callidam2(int argc, IDL_VPTR argv[], char* argk) {
     // Call for HELP?
 
     if (0 && kw.help) {
-        userhelp(stdout, "getidam");
+        idamuserhelp(stdout, "idamget");
         IDL_KW_FREE;
         return (IDL_GettmpLong(0));
     }
@@ -2250,7 +2139,7 @@ IDL_VPTR IDL_CDECL callidam(int argc, IDL_VPTR argv[], char* argk) {
     // Call for HELP?
 
     if (kw.help) {
-        userhelp(stdout, "getidam");
+        idamuserhelp(stdout, "idamget");
         IDL_KW_FREE;
         restoreIdamProperties(cblock);
         return (IDL_GettmpLong(0));
@@ -2462,7 +2351,7 @@ IDL_VPTR IDL_CDECL callidam(int argc, IDL_VPTR argv[], char* argk) {
 
 //#####################################################################################################
 
-IDL_VPTR IDL_CDECL getidamdata(int argc, IDL_VPTR argv[], char* argk) {
+IDL_VPTR IDL_CDECL idamgetdata(int argc, IDL_VPTR argv[], char* argk) {
 
     int i, data_n, rank, ndata, errtype;
 
@@ -2650,7 +2539,7 @@ IDL_VPTR IDL_CDECL getidamdata(int argc, IDL_VPTR argv[], char* argk) {
     // Call for HELP?
 
     if (kw.help) {
-        userhelp(stdout, "getdata");
+        idamuserhelp(stdout, "getdata");
         IDL_KW_FREE;
         return (IDL_GettmpLong(0));
     }
@@ -2984,7 +2873,7 @@ IDL_VPTR IDL_CDECL getidamdata(int argc, IDL_VPTR argv[], char* argk) {
 
 //#####################################################################################################
 
-IDL_VPTR IDL_CDECL getdataarray(int argc, IDL_VPTR argv[], char* argk) {
+IDL_VPTR IDL_CDECL idamgetdataarray(int argc, IDL_VPTR argv[], char* argk) {
     //
     // Return the Data as an Array - Not as a Structure
     //
@@ -3047,7 +2936,7 @@ IDL_VPTR IDL_CDECL getdataarray(int argc, IDL_VPTR argv[], char* argk) {
     // Call for HELP?
 
     if (kw.help) {
-        userhelp(stdout, "getdataarray");
+        idamuserhelp(stdout, "getdataarray");
         IDL_KW_FREE;
         return (IDL_GettmpLong(0));
     }
@@ -3205,7 +3094,7 @@ IDL_VPTR IDL_CDECL getdataarray(int argc, IDL_VPTR argv[], char* argk) {
 
 //#####################################################################################################
 
-IDL_VPTR IDL_CDECL geterrorarray(int argc, IDL_VPTR argv[], char* argk) {
+IDL_VPTR IDL_CDECL idamgeterrorarray(int argc, IDL_VPTR argv[], char* argk) {
     //
     // Return the Data Errors as an Array - Not as a Structure
     //
@@ -3269,7 +3158,7 @@ IDL_VPTR IDL_CDECL geterrorarray(int argc, IDL_VPTR argv[], char* argk) {
     // Call for HELP?
 
     if (kw.help) {
-        userhelp(stdout, "geterrorarray");
+        idamuserhelp(stdout, "geterrorarray");
         IDL_KW_FREE;
         return (IDL_GettmpLong(0));
     }
@@ -3430,7 +3319,7 @@ IDL_VPTR IDL_CDECL geterrorarray(int argc, IDL_VPTR argv[], char* argk) {
 
 //#####################################################################################################
 
-IDL_VPTR IDL_CDECL getidamdimdata(int argc, IDL_VPTR argv[], char* argk) {
+IDL_VPTR IDL_CDECL idamgetdimdata(int argc, IDL_VPTR argv[], char* argk) {
     //
     //
     // Change History:
@@ -3643,7 +3532,7 @@ IDL_VPTR IDL_CDECL getidamdimdata(int argc, IDL_VPTR argv[], char* argk) {
     // Call for HELP?
 
     if (kw.help) {
-        userhelp(stdout, "getdimdata");
+        idamuserhelp(stdout, "getdimdata");
         IDL_KW_FREE;
         return (IDL_GettmpLong(0));
     }
@@ -3890,7 +3779,7 @@ IDL_VPTR IDL_CDECL getidamdimdata(int argc, IDL_VPTR argv[], char* argk) {
 
 //#####################################################################################################
 
-IDL_VPTR IDL_CDECL getdimdataarray(int argc, IDL_VPTR argv[], char* argk) {
+IDL_VPTR IDL_CDECL idamgetdimdataarray(int argc, IDL_VPTR argv[], char* argk) {
     //
     // Must be called before getdimdata as getdimdata frees the underlying data block.
     //
@@ -3955,7 +3844,7 @@ IDL_VPTR IDL_CDECL getdimdataarray(int argc, IDL_VPTR argv[], char* argk) {
     // Call for HELP?
 
     if (kw.help) {
-        userhelp(stdout, "getdimdata");
+        idamuserhelp(stdout, "getdimdata");
         IDL_KW_FREE;
         return (IDL_GettmpLong(0));
     }
@@ -4143,7 +4032,7 @@ IDL_VPTR IDL_CDECL getdimdataarray(int argc, IDL_VPTR argv[], char* argk) {
 //#####################################################################################################
 //#####################################################################################################
 
-IDL_VPTR IDL_CDECL freeidam(int argc, IDL_VPTR argv[], char* argk) {
+IDL_VPTR IDL_CDECL idamfree(int argc, IDL_VPTR argv[], char* argk) {
     //
     // Free IDAM Heap Remaining Associated with a Particular Handle
     //-------------------------------------------------------------------------
@@ -4178,7 +4067,7 @@ IDL_VPTR IDL_CDECL freeidam(int argc, IDL_VPTR argv[], char* argk) {
 
 //#####################################################################################################
 
-IDL_VPTR IDL_CDECL freeidamall(int argc, IDL_VPTR argv[], char* argk) {
+IDL_VPTR IDL_CDECL idamfreeall(int argc, IDL_VPTR argv[], char* argk) {
 
     // Free All IDAM Heap + Close IDAM Server
 
@@ -4187,12 +4076,12 @@ IDL_VPTR IDL_CDECL freeidamall(int argc, IDL_VPTR argv[], char* argk) {
     return (IDL_GettmpLong(0));
 }
 
-void userhelp(FILE* fh, char* name) {
+void idamuserhelp(FILE* fh, char* name) {
     int i;
     int ngetidam = 51;
-    char* help_getidam[] = {"GETIDAM: Required first call for Data via IDAM. This routine",
+    char* help_getidam[] = {"IDAMGET: Required first call for Data via IDAM. This routine",
                             "passes the request to the backend Data Server which then accesses",
-                            "the data and returns it to the Client application. GETIDAM generally",
+                            "the data and returns it to the Client application. IDAMGET generally",
                             "returns a Structure unless a problem occured early in processing the",
                             "data request - in which case an Integer Error Code is returned.\n",
                             "Subsequent calls to IDAM functions use this returned structure.\n",
@@ -4208,7 +4097,7 @@ void userhelp(FILE* fh, char* name) {
                             "STATUS: The Status Value associated with the Signal Data.",
                             "RANK: The Rank of the Data array.",
                             "ORDER: Identifies which Dimension is the Time Dimension.\n",
-                            "GETIDAM USER REQUEST and KEYWORDS.....\n",
+                            "IDAMGET USER REQUEST and KEYWORDS.....\n",
                             "ARCHIVE - the Name of the Local or External Data Archive, e.g. PPF on JET",
                             "DEBUG - to help Debug this application.",
                             "DEVICE - the name of an external device, e.g, JET",
@@ -4242,16 +4131,16 @@ void userhelp(FILE* fh, char* name) {
                             "SN - the experiment pulse number",
                             "TPASS - not implemented yet!",
                             "VERBOSE - print error messages when they occur",
-                            "GETIDAM can be called in a variety of ways ... ",
-                            "sout = getidam(shotno, signal [,keywords]) ; so = Returned structure",
-                            "sout = getidam(signal, shotno [,keywords]) ",
-                            "newsout = getidam(sout,[,keywords])\n",
+                            "IDAMGET can be called in a variety of ways ... ",
+                            "sout = getdata(shotno, signal [,keywords]) ; so = Returned structure",
+                            "sout = getdata(signal, shotno [,keywords]) ",
+                            "newsout = getdata(sout,[,keywords])\n",
                             "NOTE: Keywords always take priority over passed arguments\n",
                             ""
     };
 
     int ngetdata = 16;
-    char* help_getdata[] = {"GETDATA: Return the Data accessed by the GETIDAM call.",
+    char* help_getdata[] = {"GETDATA: Return the Data accessed by the IDAMGET call.",
                             "Data are returned in a Structure containing:-",
                             "HANDLE: Identifies the IDAM Data Block.",
                             "DATA_TYPE: Identifies the Type of Data returned, e,g, DOUBLE Precision.",
@@ -4264,7 +4153,7 @@ void userhelp(FILE* fh, char* name) {
                             "DEBUG - to help Debug this application.",
                             "HELP - print information about an IDL IDAM Function",
                             "VERBOSE - print error messages when they occur\n",
-                            "GETDATA is called using the output structure from GETIDAM",
+                            "GETDATA is called using the output structure from IDAMGET",
                             "dout = getdata(so [,keywords]) ; dout = Returned Structure.\n",
                             ""
     };
@@ -4272,7 +4161,7 @@ void userhelp(FILE* fh, char* name) {
 
     int ngetdimdata = 18;
     char* help_getdimdata[] = {"GETDIMDATA: Return the Dimensional Data of the Data accessed by the",
-                               "GETIDAM call. Dimensional Data are returned Individually as requested",
+                               "IDAMGET call. Dimensional Data are returned Individually as requested",
                                "in a Structure containing:-",
                                "HANDLE   : Identifies the IDAM Data Block.",
                                "DIM_TYPE : Identifies the Type of Data returned, e,g, DOUBLE Precision.",
@@ -4284,7 +4173,7 @@ void userhelp(FILE* fh, char* name) {
                                "DEBUG - to help Debug this application.",
                                "HELP - print information about an IDL IDAM Function.",
                                "VERBOSE - print error messages when they occur.\n",
-                               "GETDIMDATA is called using the output structure from GETIDAM, so, and",
+                               "GETDIMDATA is called using the output structure from IDAMGET, so, and",
                                "a dimensional identifier, dimid (<= Rank of the Data Array = so.rank).",
                                "dimout = getdimdata(so, dimid [,keywords]) ; dimout = Returned Structure.",
                                "or for the time dimension: dimout = getdimdata(so, so.order [,keywords])\n",
@@ -4318,14 +4207,14 @@ void userhelp(FILE* fh, char* name) {
 //------ Accessor Functions ---------------------------------------------------
 
 
-IDL_VPTR IDL_CDECL geterrorcode(int argc, IDL_VPTR argv[], char* argk) {
+IDL_VPTR IDL_CDECL idamgeterrorcode(int argc, IDL_VPTR argv[], char* argk) {
     int handle;
     IDL_ENSURE_SCALAR(argv[0]);
     handle = IDL_LongScalar(argv[0]);
     return (IDL_GettmpLong(getIdamErrorCode(handle)));
 }
 
-IDL_VPTR IDL_CDECL geterrormsg(int argc, IDL_VPTR argv[], char* argk) {
+IDL_VPTR IDL_CDECL idamgeterrormsg(int argc, IDL_VPTR argv[], char* argk) {
     int handle;
     IDL_ENSURE_SCALAR(argv[0]);
     IDL_ENSURE_SCALAR(argv[1]);
@@ -4336,7 +4225,7 @@ IDL_VPTR IDL_CDECL geterrormsg(int argc, IDL_VPTR argv[], char* argk) {
     return (IDL_GettmpLong(getIdamErrorCode(handle)));
 }
 
-IDL_VPTR IDL_CDECL printerrormsgstack(int argc, IDL_VPTR argv[], char* argk) {
+IDL_VPTR IDL_CDECL idamprinterrormsgstack(int argc, IDL_VPTR argv[], char* argk) {
     int i, stackSize;
     IDL_ENSURE_SCALAR(argv[0]);
     stackSize = getIdamServerErrorStackSize();
@@ -4353,14 +4242,14 @@ IDL_VPTR IDL_CDECL printerrormsgstack(int argc, IDL_VPTR argv[], char* argk) {
     return (IDL_GettmpLong(0));
 }
 
-IDL_VPTR IDL_CDECL getsourcestatus(int argc, IDL_VPTR argv[], char* argk) {
+IDL_VPTR IDL_CDECL idamgetsourcestatus(int argc, IDL_VPTR argv[], char* argk) {
     int handle;
     IDL_ENSURE_SCALAR(argv[0]);
     handle = IDL_LongScalar(argv[0]);
     return (IDL_GettmpLong(getIdamSourceStatus(handle)));
 }
 
-IDL_VPTR IDL_CDECL getsignalstatus(int argc, IDL_VPTR argv[], char* argk) {
+IDL_VPTR IDL_CDECL idamgetsignalstatus(int argc, IDL_VPTR argv[], char* argk) {
     int handle;
     IDL_ENSURE_SCALAR(argv[0]);
     handle = IDL_LongScalar(argv[0]);
@@ -4368,7 +4257,7 @@ IDL_VPTR IDL_CDECL getsignalstatus(int argc, IDL_VPTR argv[], char* argk) {
 }
 
 
-IDL_VPTR IDL_CDECL getdatastatus(int argc, IDL_VPTR argv[], char* argk) {
+IDL_VPTR IDL_CDECL idamgetdatastatus(int argc, IDL_VPTR argv[], char* argk) {
     int handle;
     IDL_ENSURE_SCALAR(argv[0]);
     handle = IDL_LongScalar(argv[0]);
@@ -4376,35 +4265,35 @@ IDL_VPTR IDL_CDECL getdatastatus(int argc, IDL_VPTR argv[], char* argk) {
 }
 
 
-IDL_VPTR IDL_CDECL getdatanum(int argc, IDL_VPTR argv[], char* argk) {
+IDL_VPTR IDL_CDECL idamgetdatanum(int argc, IDL_VPTR argv[], char* argk) {
     int handle;
     IDL_ENSURE_SCALAR(argv[0]);
     handle = IDL_LongScalar(argv[0]);
     return (IDL_GettmpLong(getIdamDataNum(handle)));
 }
 
-IDL_VPTR IDL_CDECL getrank(int argc, IDL_VPTR argv[], char* argk) {
+IDL_VPTR IDL_CDECL idamgetrank(int argc, IDL_VPTR argv[], char* argk) {
     int handle;
     IDL_ENSURE_SCALAR(argv[0]);
     handle = IDL_LongScalar(argv[0]);
     return (IDL_GettmpLong(getIdamRank(handle)));
 }
 
-IDL_VPTR IDL_CDECL getorder(int argc, IDL_VPTR argv[], char* argk) {
+IDL_VPTR IDL_CDECL idamgetorder(int argc, IDL_VPTR argv[], char* argk) {
     int handle;
     IDL_ENSURE_SCALAR(argv[0]);
     handle = IDL_LongScalar(argv[0]);
     return (IDL_GettmpLong(getIdamOrder(handle)));
 }
 
-IDL_VPTR IDL_CDECL getdatatype(int argc, IDL_VPTR argv[], char* argk) {
+IDL_VPTR IDL_CDECL idamgetdatatype(int argc, IDL_VPTR argv[], char* argk) {
     int handle;
     IDL_ENSURE_SCALAR(argv[0]);
     handle = IDL_LongScalar(argv[0]);
     return (IDL_GettmpLong(getIdamDataType(handle)));
 }
 
-IDL_VPTR IDL_CDECL geterrortype(int argc, IDL_VPTR argv[], char* argk) {
+IDL_VPTR IDL_CDECL idamgeterrortype(int argc, IDL_VPTR argv[], char* argk) {
     int handle;
     IDL_ENSURE_SCALAR(argv[0]);
     handle = IDL_LongScalar(argv[0]);
@@ -4412,7 +4301,7 @@ IDL_VPTR IDL_CDECL geterrortype(int argc, IDL_VPTR argv[], char* argk) {
 }
 
 
-IDL_VPTR IDL_CDECL getdatadata(int argc, IDL_VPTR argv[], char* argk) {
+IDL_VPTR IDL_CDECL idamgetdatadata(int argc, IDL_VPTR argv[], char* argk) {
     int handle, ndims, ndata;
     IDL_MEMINT ilDims[1];
     char* dvec;
@@ -4513,7 +4402,7 @@ IDL_VPTR IDL_CDECL getdatadata(int argc, IDL_VPTR argv[], char* argk) {
 }
 
 
-IDL_VPTR IDL_CDECL getsyntheticdata(int argc, IDL_VPTR argv[], char* argk) {
+IDL_VPTR IDL_CDECL idamgetsyntheticdata(int argc, IDL_VPTR argv[], char* argk) {
     int handle, ndims, ndata;
     IDL_MEMINT ilDims[1];
     char* dvec;
@@ -4615,7 +4504,7 @@ IDL_VPTR IDL_CDECL getsyntheticdata(int argc, IDL_VPTR argv[], char* argk) {
 }
 
 
-IDL_VPTR IDL_CDECL getdataerror(int argc, IDL_VPTR argv[], char* argk) {
+IDL_VPTR IDL_CDECL idamgetdataerror(int argc, IDL_VPTR argv[], char* argk) {
     int handle, ndims, data_n;
     IDL_MEMINT ilDims[1];
     char* dvec, * ep = NULL;
@@ -4718,7 +4607,7 @@ IDL_VPTR IDL_CDECL getdataerror(int argc, IDL_VPTR argv[], char* argk) {
 }
 
 
-IDL_VPTR IDL_CDECL getasymmetricdataerror(int argc, IDL_VPTR argv[], char* argk) {
+IDL_VPTR IDL_CDECL idamgetasymmetricdataerror(int argc, IDL_VPTR argv[], char* argk) {
     int handle, above, ndims, data_n;
     IDL_MEMINT ilDims[1];
     char* dvec, * ep = NULL;
@@ -4823,7 +4712,7 @@ IDL_VPTR IDL_CDECL getasymmetricdataerror(int argc, IDL_VPTR argv[], char* argk)
 }
 
 
-IDL_VPTR IDL_CDECL getfloatdata(int argc, IDL_VPTR argv[], char* argk) {
+IDL_VPTR IDL_CDECL idamgetfloatdata(int argc, IDL_VPTR argv[], char* argk) {
     int handle, ndims;
     IDL_MEMINT ilDims[1];
     float* dvec;
@@ -4848,7 +4737,7 @@ IDL_VPTR IDL_CDECL getfloatdata(int argc, IDL_VPTR argv[], char* argk) {
 }
 
 
-IDL_VPTR IDL_CDECL getfloatdataerror(int argc, IDL_VPTR argv[], char* argk) {
+IDL_VPTR IDL_CDECL idamgetfloatdataerror(int argc, IDL_VPTR argv[], char* argk) {
     int handle, ndims;
     IDL_MEMINT ilDims[1];
     float* dvec;
@@ -4872,7 +4761,7 @@ IDL_VPTR IDL_CDECL getfloatdataerror(int argc, IDL_VPTR argv[], char* argk) {
     return (idlArray);
 }
 
-IDL_VPTR IDL_CDECL getfloatasymmetricdataerror(int argc, IDL_VPTR argv[], char* argk) {
+IDL_VPTR IDL_CDECL idamgetfloatasymmetricdataerror(int argc, IDL_VPTR argv[], char* argk) {
     int handle, above, ndims;
     IDL_MEMINT ilDims[1];
     float* dvec;
@@ -4899,7 +4788,7 @@ IDL_VPTR IDL_CDECL getfloatasymmetricdataerror(int argc, IDL_VPTR argv[], char* 
 }
 
 
-IDL_VPTR IDL_CDECL getdatalabel(int argc, IDL_VPTR argv[], char* argk) {
+IDL_VPTR IDL_CDECL idamgetdatalabel(int argc, IDL_VPTR argv[], char* argk) {
     int handle;
     IDL_ENSURE_SCALAR(argv[0]);
     IDL_ENSURE_SCALAR(argv[1]);
@@ -4910,7 +4799,7 @@ IDL_VPTR IDL_CDECL getdatalabel(int argc, IDL_VPTR argv[], char* argk) {
     return (IDL_GettmpLong(0));
 }
 
-IDL_VPTR IDL_CDECL getdataunits(int argc, IDL_VPTR argv[], char* argk) {
+IDL_VPTR IDL_CDECL idamgetdataunits(int argc, IDL_VPTR argv[], char* argk) {
     int handle;
     IDL_ENSURE_SCALAR(argv[0]);
     IDL_ENSURE_SCALAR(argv[1]);
@@ -4921,7 +4810,7 @@ IDL_VPTR IDL_CDECL getdataunits(int argc, IDL_VPTR argv[], char* argk) {
     return (IDL_GettmpLong(0));
 }
 
-IDL_VPTR IDL_CDECL getdatadesc(int argc, IDL_VPTR argv[], char* argk) {
+IDL_VPTR IDL_CDECL idamgetdatadesc(int argc, IDL_VPTR argv[], char* argk) {
     int handle;
     IDL_ENSURE_SCALAR(argv[0]);
     IDL_ENSURE_SCALAR(argv[1]);
@@ -4934,7 +4823,7 @@ IDL_VPTR IDL_CDECL getdatadesc(int argc, IDL_VPTR argv[], char* argk) {
 
 //##############################################################################################
 
-IDL_VPTR IDL_CDECL getdimnum(int argc, IDL_VPTR argv[], char* argk) {
+IDL_VPTR IDL_CDECL idamgetdimnum(int argc, IDL_VPTR argv[], char* argk) {
     int handle, dimid;
     IDL_ENSURE_SCALAR(argv[0]);
     IDL_ENSURE_SCALAR(argv[1]);
@@ -4943,7 +4832,7 @@ IDL_VPTR IDL_CDECL getdimnum(int argc, IDL_VPTR argv[], char* argk) {
     return (IDL_GettmpLong(getIdamDimNum(handle, dimid)));
 }
 
-IDL_VPTR IDL_CDECL getdimtype(int argc, IDL_VPTR argv[], char* argk) {
+IDL_VPTR IDL_CDECL idamgetdimtype(int argc, IDL_VPTR argv[], char* argk) {
     int handle, dimid;
     IDL_ENSURE_SCALAR(argv[0]);
     IDL_ENSURE_SCALAR(argv[1]);
@@ -4952,7 +4841,7 @@ IDL_VPTR IDL_CDECL getdimtype(int argc, IDL_VPTR argv[], char* argk) {
     return (IDL_GettmpLong(getIdamDimType(handle, dimid)));
 }
 
-IDL_VPTR IDL_CDECL getdimerrortype(int argc, IDL_VPTR argv[], char* argk) {
+IDL_VPTR IDL_CDECL idamgetdimerrortype(int argc, IDL_VPTR argv[], char* argk) {
     int handle, dimid;
     IDL_ENSURE_SCALAR(argv[0]);
     IDL_ENSURE_SCALAR(argv[1]);
@@ -4961,7 +4850,7 @@ IDL_VPTR IDL_CDECL getdimerrortype(int argc, IDL_VPTR argv[], char* argk) {
     return (IDL_GettmpLong(getIdamDimErrorType(handle, dimid)));
 }
 
-IDL_VPTR IDL_CDECL getdimdata(int argc, IDL_VPTR argv[], char* argk) {
+IDL_VPTR IDL_CDECL idamgetdimdata(int argc, IDL_VPTR argv[], char* argk) {
     int handle, dimid, ndims, ndata;
     IDL_MEMINT ilDims[1];
     char* dvec;
@@ -5059,7 +4948,7 @@ IDL_VPTR IDL_CDECL getdimdata(int argc, IDL_VPTR argv[], char* argk) {
     return (idlArray);
 }
 
-IDL_VPTR IDL_CDECL getsyntheticdimdata(int argc, IDL_VPTR argv[], char* argk) {
+IDL_VPTR IDL_CDECL idamgetsyntheticdimdata(int argc, IDL_VPTR argv[], char* argk) {
     int handle, dimid, ndims, ndata;
     IDL_MEMINT ilDims[1];
     char* dvec;
@@ -5164,7 +5053,7 @@ IDL_VPTR IDL_CDECL getsyntheticdimdata(int argc, IDL_VPTR argv[], char* argk) {
 }
 
 
-IDL_VPTR IDL_CDECL getdimerror(int argc, IDL_VPTR argv[], char* argk) {
+IDL_VPTR IDL_CDECL idamgetdimerror(int argc, IDL_VPTR argv[], char* argk) {
     int handle, dimid, ndims, ndata;
     IDL_MEMINT ilDims[1];
     char* dvec;
@@ -5263,7 +5152,7 @@ IDL_VPTR IDL_CDECL getdimerror(int argc, IDL_VPTR argv[], char* argk) {
     return (idlArray);
 }
 
-IDL_VPTR IDL_CDECL getasymmetricdimerror(int argc, IDL_VPTR argv[], char* argk) {
+IDL_VPTR IDL_CDECL idamgetasymmetricdimerror(int argc, IDL_VPTR argv[], char* argk) {
     int handle, dimid, above, ndims, ndata;
     IDL_MEMINT ilDims[1];
     char* dvec;
@@ -5365,7 +5254,7 @@ IDL_VPTR IDL_CDECL getasymmetricdimerror(int argc, IDL_VPTR argv[], char* argk) 
 }
 
 
-IDL_VPTR IDL_CDECL getfloatdimdata(int argc, IDL_VPTR argv[], char* argk) {
+IDL_VPTR IDL_CDECL idamgetfloatdimdata(int argc, IDL_VPTR argv[], char* argk) {
     int handle, dimid, ndims;
     IDL_MEMINT ilDims[1];
     float* dvec;
@@ -5386,7 +5275,7 @@ IDL_VPTR IDL_CDECL getfloatdimdata(int argc, IDL_VPTR argv[], char* argk) {
     return (idlArray);
 }
 
-IDL_VPTR IDL_CDECL getfloatdimerror(int argc, IDL_VPTR argv[], char* argk) {
+IDL_VPTR IDL_CDECL idamgetfloatdimerror(int argc, IDL_VPTR argv[], char* argk) {
     int handle, dimid, ndims;
     IDL_MEMINT ilDims[1];
     float* dvec;
@@ -5407,7 +5296,7 @@ IDL_VPTR IDL_CDECL getfloatdimerror(int argc, IDL_VPTR argv[], char* argk) {
     return (idlArray);
 }
 
-IDL_VPTR IDL_CDECL getfloatasymmetricdimerror(int argc, IDL_VPTR argv[], char* argk) {
+IDL_VPTR IDL_CDECL idamgetfloatasymmetricdimerror(int argc, IDL_VPTR argv[], char* argk) {
     int handle, dimid, above, ndims;
     IDL_MEMINT ilDims[1];
     float* dvec;
@@ -5431,7 +5320,7 @@ IDL_VPTR IDL_CDECL getfloatasymmetricdimerror(int argc, IDL_VPTR argv[], char* a
 }
 
 
-IDL_VPTR IDL_CDECL getdimlabel(int argc, IDL_VPTR argv[], char* argk) {
+IDL_VPTR IDL_CDECL idamgetdimlabel(int argc, IDL_VPTR argv[], char* argk) {
     int handle, dimid;
     IDL_ENSURE_SCALAR(argv[0]);
     IDL_ENSURE_SCALAR(argv[1]);
@@ -5447,7 +5336,7 @@ IDL_VPTR IDL_CDECL getdimlabel(int argc, IDL_VPTR argv[], char* argk) {
     return (IDL_GettmpLong(0));
 }
 
-IDL_VPTR IDL_CDECL getdimunits(int argc, IDL_VPTR argv[], char* argk) {
+IDL_VPTR IDL_CDECL idamgetdimunits(int argc, IDL_VPTR argv[], char* argk) {
     int handle, dimid;
     IDL_ENSURE_SCALAR(argv[0]);
     IDL_ENSURE_SCALAR(argv[1]);
@@ -5467,7 +5356,7 @@ IDL_VPTR IDL_CDECL getdimunits(int argc, IDL_VPTR argv[], char* argk) {
 //----------------------------------------------------------------------------
 //----------------------------------------------------------------------------
 
-IDL_VPTR IDL_CDECL getdatasystemmeta(int argc, IDL_VPTR argv[], char* argk) {
+IDL_VPTR IDL_CDECL idamgetdatasystemmeta(int argc, IDL_VPTR argv[], char* argk) {
     //
     // Returns a Structure containing the IDAM Database Data_System table Record
     //-------------------------------------------------------------------------
@@ -5560,7 +5449,7 @@ IDL_VPTR IDL_CDECL getdatasystemmeta(int argc, IDL_VPTR argv[], char* argk) {
     // Call for HELP?
 
     if (kw.help) {
-        userhelp(stdout, "getdatasystemmeta");
+        idamuserhelp(stdout, "getdatasystemmeta");
         IDL_KW_FREE;
         return (IDL_GettmpLong(0));
     }
@@ -5624,7 +5513,7 @@ IDL_VPTR IDL_CDECL getdatasystemmeta(int argc, IDL_VPTR argv[], char* argk) {
     return (ivReturn);
 }
 
-IDL_VPTR IDL_CDECL getsystemconfigmeta(int argc, IDL_VPTR argv[], char* argk) {
+IDL_VPTR IDL_CDECL idamgetsystemconfigmeta(int argc, IDL_VPTR argv[], char* argk) {
     //
     // Returns a Structure containing the IDAM Database System_Config table Record
     //-------------------------------------------------------------------------
@@ -5714,7 +5603,7 @@ IDL_VPTR IDL_CDECL getsystemconfigmeta(int argc, IDL_VPTR argv[], char* argk) {
     // Call for HELP?
 
     if (kw.help) {
-        userhelp(stdout, "getsystemconfigmeta");
+        idamuserhelp(stdout, "getsystemconfigmeta");
         IDL_KW_FREE;
         return (IDL_GettmpLong(0));
     }
@@ -5774,7 +5663,7 @@ IDL_VPTR IDL_CDECL getsystemconfigmeta(int argc, IDL_VPTR argv[], char* argk) {
     return (ivReturn);
 }
 
-IDL_VPTR IDL_CDECL getdatasourcemeta(int argc, IDL_VPTR argv[], char* argk) {
+IDL_VPTR IDL_CDECL idamgetdatasourcemeta(int argc, IDL_VPTR argv[], char* argk) {
     //
     // Returns a Structure containing the IDAM Database Data_System table Record
     //-------------------------------------------------------------------------
@@ -5886,7 +5775,7 @@ IDL_VPTR IDL_CDECL getdatasourcemeta(int argc, IDL_VPTR argv[], char* argk) {
     // Call for HELP?
 
     if (kw.help) {
-        userhelp(stdout, "getdatasourcemeta");
+        idamuserhelp(stdout, "getdatasourcemeta");
         IDL_KW_FREE;
         return (IDL_GettmpLong(0));
     }
@@ -5974,7 +5863,7 @@ IDL_VPTR IDL_CDECL getdatasourcemeta(int argc, IDL_VPTR argv[], char* argk) {
     return (ivReturn);
 }
 
-IDL_VPTR IDL_CDECL getsignalmeta(int argc, IDL_VPTR argv[], char* argk) {
+IDL_VPTR IDL_CDECL idamgetsignalmeta(int argc, IDL_VPTR argv[], char* argk) {
     //
     // Returns a Structure containing the IDAM Database Data_System table Record
     //-------------------------------------------------------------------------
@@ -6071,7 +5960,7 @@ IDL_VPTR IDL_CDECL getsignalmeta(int argc, IDL_VPTR argv[], char* argk) {
     // Call for HELP?
 
     if (kw.help) {
-        userhelp(stdout, "getsignalmeta");
+        idamuserhelp(stdout, "getsignalmeta");
         IDL_KW_FREE;
         return (IDL_GettmpLong(0));
     }
@@ -6142,7 +6031,7 @@ IDL_VPTR IDL_CDECL getsignalmeta(int argc, IDL_VPTR argv[], char* argk) {
     return (ivReturn);
 }
 
-IDL_VPTR IDL_CDECL getsignaldescmeta(int argc, IDL_VPTR argv[], char* argk) {
+IDL_VPTR IDL_CDECL idamgetsignaldescmeta(int argc, IDL_VPTR argv[], char* argk) {
     //
     // Returns a Structure containing the IDAM Database Data_System table Record
     //-------------------------------------------------------------------------
@@ -6238,7 +6127,7 @@ IDL_VPTR IDL_CDECL getsignaldescmeta(int argc, IDL_VPTR argv[], char* argk) {
     // Call for HELP?
 
     if (kw.help) {
-        userhelp(stdout, "getsignaldescmeta");
+        idamuserhelp(stdout, "getsignaldescmeta");
         IDL_KW_FREE;
         return (IDL_GettmpLong(0));
     }
@@ -6305,7 +6194,7 @@ IDL_VPTR IDL_CDECL getsignaldescmeta(int argc, IDL_VPTR argv[], char* argk) {
     return (ivReturn);
 }
 
-IDL_VPTR IDL_CDECL getxmldoc(int argc, IDL_VPTR argv[], char* argk) {
+IDL_VPTR IDL_CDECL idamgetxmldoc(int argc, IDL_VPTR argv[], char* argk) {
     //
     // Returns a Structure containing the IDAM Opaque XML Data Record
     //-------------------------------------------------------------------------
@@ -6345,99 +6234,99 @@ IDL_VPTR IDL_CDECL getxmldoc(int argc, IDL_VPTR argv[], char* argk) {
 //----------------------------------------------------------------------------
 //----------------------------------------------------------------------------
 
-IDL_VPTR IDL_CDECL setproperty(int argc, IDL_VPTR argv[], char* argk) {
+IDL_VPTR IDL_CDECL idamsetproperty(int argc, IDL_VPTR argv[], char* argk) {
     IDL_ENSURE_STRING(argv[0]);  // Single String
     IDL_ENSURE_SCALAR(argv[0]);
     setIdamProperty((char*) IDL_STRING_STR(&argv[0]->value.str));
     return (IDL_GettmpLong(0));
 }
 
-IDL_VPTR IDL_CDECL resetproperty(int argc, IDL_VPTR argv[], char* argk) {
+IDL_VPTR IDL_CDECL idamresetproperty(int argc, IDL_VPTR argv[], char* argk) {
     IDL_ENSURE_STRING(argv[0]);  // Single String
     IDL_ENSURE_SCALAR(argv[0]);
     resetIdamProperty((char*) IDL_STRING_STR(&argv[0]->value.str));
     return (IDL_GettmpLong(0));
 }
 
-IDL_VPTR IDL_CDECL resetproperties(int argc, IDL_VPTR argv[], char* argk) {
+IDL_VPTR IDL_CDECL idamresetproperties(int argc, IDL_VPTR argv[], char* argk) {
     resetIdamProperties();
     return (IDL_GettmpLong(0));
 }
 
-IDL_VPTR IDL_CDECL setidamclientflag(int argc, IDL_VPTR argv[], char* argk) {
+IDL_VPTR IDL_CDECL idamsetclientflag(int argc, IDL_VPTR argv[], char* argk) {
     IDL_ENSURE_SCALAR(argv[0]);
     setIdamClientFlag((unsigned int) IDL_ULongScalar(argv[0]));
     return (IDL_GettmpLong(0));
 }
 
-IDL_VPTR IDL_CDECL resetidamclientflag(int argc, IDL_VPTR argv[], char* argk) {
+IDL_VPTR IDL_CDECL idamresetclientflag(int argc, IDL_VPTR argv[], char* argk) {
     IDL_ENSURE_SCALAR(argv[0]);
     resetIdamClientFlag((unsigned int) IDL_ULongScalar(argv[0]));
     return (IDL_GettmpLong(0));
 }
 
-IDL_VPTR IDL_CDECL getdatatypeid(int argc, IDL_VPTR argv[], char* argk) {
+IDL_VPTR IDL_CDECL idamgetdatatypeid(int argc, IDL_VPTR argv[], char* argk) {
     IDL_ENSURE_STRING(argv[0]);  // Single String
     IDL_ENSURE_SCALAR(argv[0]);
     return (IDL_GettmpLong(getIdamDataTypeId((char*) IDL_STRING_STR(&argv[0]->value.str))));
 }
 
-IDL_VPTR IDL_CDECL geterrormodelid(int argc, IDL_VPTR argv[], char* argk) {
+IDL_VPTR IDL_CDECL idamgeterrormodelid(int argc, IDL_VPTR argv[], char* argk) {
     IDL_ENSURE_STRING(argv[0]);  // Single String
     IDL_ENSURE_SCALAR(argv[0]);
     return (IDL_GettmpLong(getIdamErrorModelId((char*) IDL_STRING_STR(&argv[0]->value.str))));
 }
 
-IDL_VPTR IDL_CDECL putidamserverhost(int argc, IDL_VPTR argv[], char* argk) {
+IDL_VPTR IDL_CDECL idamputserverhost(int argc, IDL_VPTR argv[], char* argk) {
     IDL_ENSURE_STRING(argv[0]);  // Single String
     IDL_ENSURE_SCALAR(argv[0]);
     putIdamServerHost((char*) IDL_STRING_STR(&argv[0]->value.str));
     return (IDL_GettmpLong(0));
 }
 
-IDL_VPTR IDL_CDECL putidamserverport(int argc, IDL_VPTR argv[], char* argk) {
+IDL_VPTR IDL_CDECL idamputserverport(int argc, IDL_VPTR argv[], char* argk) {
     IDL_ENSURE_SCALAR(argv[0]);
     putIdamServerPort((int) IDL_LongScalar(argv[0]));
     return (IDL_GettmpLong(0));
 }
 
-IDL_VPTR IDL_CDECL getidamserverhost(int argc, IDL_VPTR argv[], char* argk) {
+IDL_VPTR IDL_CDECL idamgetserverhost(int argc, IDL_VPTR argv[], char* argk) {
     IDL_ENSURE_SCALAR(argv[0]);
     IDL_StoreScalarZero(argv[0], IDL_TYP_STRING);
     IDL_StrStore(&argv[0]->value.str, (char*) getIdamServerHost());
     return (IDL_GettmpLong(0));
 }
 
-IDL_VPTR IDL_CDECL getidamserverport(int argc, IDL_VPTR argv[], char* argk) {
+IDL_VPTR IDL_CDECL idamgetserverport(int argc, IDL_VPTR argv[], char* argk) {
     return (IDL_GettmpLong(getIdamServerPort()));
 }
 
-IDL_VPTR IDL_CDECL getidamclientversion(int argc, IDL_VPTR argv[], char* argk) {
+IDL_VPTR IDL_CDECL idamgetclientversion(int argc, IDL_VPTR argv[], char* argk) {
     return (IDL_GettmpLong(getIdamClientVersion()));
 }
 
-IDL_VPTR IDL_CDECL getidamserverversion(int argc, IDL_VPTR argv[], char* argk) {
+IDL_VPTR IDL_CDECL idamgetserverversion(int argc, IDL_VPTR argv[], char* argk) {
     return (IDL_GettmpLong(getIdamServerVersion()));
 }
 
-IDL_VPTR IDL_CDECL getidamserversocket(int argc, IDL_VPTR argv[], char* argk) {
+IDL_VPTR IDL_CDECL idamgetserversocket(int argc, IDL_VPTR argv[], char* argk) {
     return (IDL_GettmpLong(getIdamServerSocket()));
 }
 
-IDL_VPTR IDL_CDECL putidamserversocket(int argc, IDL_VPTR argv[], char* argk) {
+IDL_VPTR IDL_CDECL idamputserversocket(int argc, IDL_VPTR argv[], char* argk) {
     IDL_ENSURE_SCALAR(argv[0]);
     putIdamServerSocket((int) IDL_LongScalar(argv[0]));
     return (IDL_GettmpLong(0));
 }
 
-IDL_VPTR IDL_CDECL geterrorasymmetry(int argc, IDL_VPTR argv[], char* argk) {
+IDL_VPTR IDL_CDECL idamgeterrorasymmetry(int argc, IDL_VPTR argv[], char* argk) {
     int handle;
     IDL_ENSURE_SCALAR(argv[0]);
     handle = (int) IDL_LongScalar(argv[0]);
     return (IDL_GettmpLong(getIdamErrorAsymmetry(handle)));
 }
 
-IDL_VPTR IDL_CDECL puterrormodel(int argc, IDL_VPTR argv[], char* argk) {
+IDL_VPTR IDL_CDECL idamputerrormodel(int argc, IDL_VPTR argv[], char* argk) {
     int handle, model, param_n;
     float* params;
     IDL_ENSURE_SCALAR(argv[0]);
@@ -6453,7 +6342,7 @@ IDL_VPTR IDL_CDECL puterrormodel(int argc, IDL_VPTR argv[], char* argk) {
     return (IDL_GettmpLong(0));
 }
 
-IDL_VPTR IDL_CDECL geterrormodel(int argc, IDL_VPTR argv[], char* argk) {
+IDL_VPTR IDL_CDECL idamgeterrormodel(int argc, IDL_VPTR argv[], char* argk) {
     //
     // Change History:
     //
@@ -6543,7 +6432,7 @@ IDL_VPTR IDL_CDECL geterrormodel(int argc, IDL_VPTR argv[], char* argk) {
     // Call for HELP?
 
     if (kw.help) {
-        userhelp(stdout, "geterrormodel");
+        idamuserhelp(stdout, "geterrormodel");
         IDL_KW_FREE;
         return (IDL_GettmpLong(0));
     }
@@ -6616,7 +6505,7 @@ IDL_VPTR IDL_CDECL geterrormodel(int argc, IDL_VPTR argv[], char* argk) {
 //================================================================================================
 //================================================================================================
 
-IDL_VPTR IDL_CDECL getdimerrorasymmetry(int argc, IDL_VPTR argv[], char* argk) {
+IDL_VPTR IDL_CDECL idamgetdimerrorasymmetry(int argc, IDL_VPTR argv[], char* argk) {
     int handle, dimid;
     IDL_ENSURE_SCALAR(argv[0]);
     IDL_ENSURE_SCALAR(argv[1]);
@@ -6625,7 +6514,7 @@ IDL_VPTR IDL_CDECL getdimerrorasymmetry(int argc, IDL_VPTR argv[], char* argk) {
     return (IDL_GettmpLong(getIdamDimErrorAsymmetry(handle, dimid)));
 }
 
-IDL_VPTR IDL_CDECL putdimerrormodel(int argc, IDL_VPTR argv[], char* argk) {
+IDL_VPTR IDL_CDECL idamputdimerrormodel(int argc, IDL_VPTR argv[], char* argk) {
     int handle, dimid, model, param_n;
     float* params;
     IDL_ENSURE_SCALAR(argv[0]);
@@ -6641,7 +6530,7 @@ IDL_VPTR IDL_CDECL putdimerrormodel(int argc, IDL_VPTR argv[], char* argk) {
     return (IDL_GettmpLong(0));
 }
 
-IDL_VPTR IDL_CDECL getdimerrormodel(int argc, IDL_VPTR argv[], char* argk) {
+IDL_VPTR IDL_CDECL idamgetdimerrormodel(int argc, IDL_VPTR argv[], char* argk) {
     //
     // Change History:
     //
@@ -6735,7 +6624,7 @@ IDL_VPTR IDL_CDECL getdimerrormodel(int argc, IDL_VPTR argv[], char* argk) {
     // Call for HELP?
 
     if (kw.help) {
-        userhelp(stdout, "getdimerrormodel");
+        idamuserhelp(stdout, "getdimerrormodel");
         IDL_KW_FREE;
         return (IDL_GettmpLong(0));
     }
@@ -6806,7 +6695,7 @@ IDL_VPTR IDL_CDECL getdimerrormodel(int argc, IDL_VPTR argv[], char* argk) {
     return (ivReturn);
 }
 
-IDL_VPTR IDL_CDECL getlasthandle(int argc, IDL_VPTR argv[], char* argk) {
+IDL_VPTR IDL_CDECL idamgetlasthandle(int argc, IDL_VPTR argv[], char* argk) {
     return (IDL_GettmpLong(getIdamLastHandle()));
 }
 
@@ -6815,7 +6704,7 @@ IDL_VPTR IDL_CDECL getlasthandle(int argc, IDL_VPTR argv[], char* argk) {
 
 //#####################################################################################################
 
-IDL_VPTR IDL_CDECL getdomains(int argc, IDL_VPTR argv[], char* argk) {
+IDL_VPTR IDL_CDECL idamgetdomains(int argc, IDL_VPTR argv[], char* argk) {
     //
     // Returns IDA File Domain details
     //
@@ -7024,7 +6913,7 @@ IDL_VPTR IDL_CDECL getdomains(int argc, IDL_VPTR argv[], char* argk) {
     // Call for HELP?
 
     if (kw.help) {
-        userhelp(stdout, "getdomains");
+        idamuserhelp(stdout, "getdomains");
         IDL_KW_FREE;
         return (IDL_GettmpLong(0));
     }

@@ -35,6 +35,9 @@ endif()
 #endif()
 
 target_link_libraries( ${LIB_NAME} LINK_PRIVATE client-static ${IDL_LIBRARIES} )
+target_link_libraries( fat${LIB_NAME} LINK_PRIVATE client-static ${IDL_LIBRARIES} )
+
+target_compile_definitions( fat${LIB_NAME} -DFATCLIENT )
 
 set_target_properties( ${LIB_NAME}
   PROPERTIES
@@ -44,7 +47,15 @@ set_target_properties( ${LIB_NAME}
     SOVERSION ${PROJECT_VERSION_MAJOR}
 )
 
-install( TARGETS ${LIB_NAME}
+set_target_properties( fat${LIB_NAME}
+  PROPERTIES
+    PREFIX ""
+    OUTPUT_NAME fat${PROJECT_NAME}
+    VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}
+    SOVERSION ${PROJECT_VERSION_MAJOR}
+)
+
+install( TARGETS ${LIB_NAME} fat${LIB_NAME}
   DESTINATION dlm
 )
 

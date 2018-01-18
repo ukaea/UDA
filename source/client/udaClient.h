@@ -10,11 +10,6 @@
 extern "C" {
 #endif
 
-#ifdef FATCLIENT
-#  define idamClient idamClientFat
-#  define idamFreeAll idamFreeAllFat
-#endif
-
 //--------------------------------------------------------------
 // Client Side API Error Codes
 
@@ -63,6 +58,31 @@ extern int get_synthetic;       // (Client Side) Return Synthetic Data if availa
 
 extern XDR * clientInput;           // XDR Input Stream handle
 extern XDR * clientOutput;          // XDR Output Stream handle
+
+#ifdef FATCLIENT
+#  define idamClient                                idamClientFat
+#  define updateClientBlock                         updateClientBlockFat
+#  define idamFree                                  idamFreeFat
+#  define idamFreeAll                               idamFreeAllFat
+#  define getIdamServerHost                         getIdamServerHostFat
+#  define getIdamServerPort                         getIdamServerPortFat
+#  define getIdamServerSocket                       getIdamServerSocketFat
+#  define getIdamClientDOI                          getIdamClientDOIFat
+#  define getIdamServerDOI                          getIdamServerDOIFat
+#  define getIdamClientOSName                       getIdamClientOSNameFat
+#  define getIdamServerOSName                       getIdamServerOSNameFat
+#  define getIdamClientVersion                      getIdamClientVersionFat
+#  define getIdamServerVersion                      getIdamServerVersionFat
+#  define getIdamServerErrorCode                    getIdamServerErrorCodeFat
+#  define getIdamServerErrorMsg                     getIdamServerErrorMsgFat
+#  define getIdamServerErrorStackSize               getIdamServerErrorStackSizeFat
+#  define getIdamServerErrorStackRecordType         getIdamServerErrorStackRecordTypeFat
+#  define getIdamServerErrorStackRecordCode         getIdamServerErrorStackRecordCodeFat
+#  define getIdamServerErrorStackRecordLocation     getIdamServerErrorStackRecordLocationFat
+#  define getIdamServerErrorStackRecordMsg          getIdamServerErrorStackRecordMsgFat
+#  define setUserDefinedTypeList                    setUserDefinedTypeListFat
+#  define setLogMallocList                          setLogMallocListFat
+#endif
 
 int idamClient(REQUEST_BLOCK * request_block);
 

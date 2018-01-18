@@ -17,11 +17,11 @@ ext = Extension(
         '@CMAKE_INSTALL_PREFIX@/include/uda/c++',
         '@Boost_INCLUDE_DIRS@',
     ],
-    libraries = ['@PROJECT_NAME@_cpp'],
-    library_dirs = [
+    libraries=['@PROJECT_NAME@_cpp'],
+    library_dirs=[
         '@CMAKE_INSTALL_PREFIX@/lib',
     ],
-    runtime_library_dirs = [
+    runtime_library_dirs=[
         '@CMAKE_INSTALL_PREFIX@/lib',
     ],
     extra_link_args=extra_link_args,
