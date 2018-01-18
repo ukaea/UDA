@@ -73,7 +73,7 @@ class Signal(Data):
                 self._data = cdata_scalar_to_value(data)
             else:
                 self._data = cdata_to_numpy_array(data)
-                shape = data.shape()
+                shape = data.shape()[::-1]
                 self._data = self._data.reshape(*shape)
 
     def _import_errors(self):
@@ -83,7 +83,7 @@ class Signal(Data):
                 self._errors = cdata_scalar_to_value(errors)
             else:
                 self._errors = cdata_to_numpy_array(errors)
-                shape = errors.shape()
+                shape = errors.shape()[::-1]
                 self._errors = self._errors.reshape(*shape)
 
     @property
