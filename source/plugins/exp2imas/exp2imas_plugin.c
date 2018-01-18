@@ -383,7 +383,11 @@ static int handle_dynamic(DATA_BLOCK* data_block, const char* experiment_mapping
                 } else {
                     int j;
                     for (j = 0; j < data_n; ++j) {
-                        data_arrays[n_arrays][j] = coefa * fdata[i + j * size] + coefb;
+                        if (xml_data.time_dim == 1) {
+                            data_arrays[n_arrays][j] = coefa * fdata[i * data_n + j] + coefb;
+                        } else {
+                            data_arrays[n_arrays][j] = coefa * fdata[i + j * size] + coefb;
+                        }
                     }
                 }
 

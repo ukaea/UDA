@@ -3,9 +3,11 @@
 
 #include <c++/UDA.hpp>
 
+#include "test_helpers.h"
+
 #define QUOTE_(X) #X
 #define QUOTE(X) QUOTE_(X)
-#define SHOT_NUM "40117"
+#define SHOT_NUM "51262"
 
 /*
   ✓ bpol_probe/Shape_of
@@ -407,9 +409,15 @@ TEST_CASE( "Test bpol_probe field", "[IMAS][TCV][BPOL]" )
     REQUIRE( arr != nullptr );
     REQUIRE( !arr->isNull() );
 
-    REQUIRE( arr->size() == 13361 );
+    std::vector<double> expected{ -9.2233e-05, -4.32263e-05, -1.58328e-05, -1.77596e-05, 3.31738e-05 };
+
+    REQUIRE( arr->size() == 49820 );
     REQUIRE( arr->type().name() == typeid(double).name() );
-    REQUIRE( arr->as<double>()[0] == Approx(0.0067359656) );
+
+    auto vals = arr->as<double>();
+    vals.resize(5);
+
+    REQUIRE( vals == ApproxVector(expected) );
 }
 
 TEST_CASE( "Test bpol_probe field error upper", "[IMAS][TCV][BPOL]" )
@@ -436,9 +444,15 @@ TEST_CASE( "Test bpol_probe field error upper", "[IMAS][TCV][BPOL]" )
     REQUIRE( arr != nullptr );
     REQUIRE( !arr->isNull() );
 
-    REQUIRE( arr->size() == 13361 );
+    std::vector<double> expected{ 0.0049077668, 0.0049704704, 0.0050860341, 0.0049997908, 0.0049978639 };
+
+    REQUIRE( arr->size() == 49820 );
     REQUIRE( arr->type().name() == typeid(double).name() );
-    REQUIRE( arr->as<double>()[0] == Approx(0.0117359655) );
+
+    auto vals = arr->as<double>();
+    vals.resize(5);
+
+    REQUIRE( vals == ApproxVector(expected) );
 }
 
 TEST_CASE( "Test bpol_probe field error lower", "[IMAS][TCV][BPOL]" )
@@ -465,9 +479,15 @@ TEST_CASE( "Test bpol_probe field error lower", "[IMAS][TCV][BPOL]" )
     REQUIRE( arr != nullptr );
     REQUIRE( !arr->isNull() );
 
-    REQUIRE( arr->size() == 13361 );
+    std::vector<double> expected{ -0.005092233, -0.0050295293, -0.0049139657, -0.0050002094, -0.0050021359 };
+
+    REQUIRE( arr->size() == 49820 );
     REQUIRE( arr->type().name() == typeid(double).name() );
-    REQUIRE( arr->as<double>()[0] == Approx(0.0017359657) );
+
+    auto vals = arr->as<double>();
+    vals.resize(5);
+
+    REQUIRE( vals == ApproxVector(expected) );
 }
 
 /*
@@ -497,9 +517,15 @@ TEST_CASE( "Test bpol_probe time", "[IMAS][TCV][BPOL]" )
     REQUIRE( arr != nullptr );
     REQUIRE( !arr->isNull() );
 
-    REQUIRE( arr->size() == 13361 );
+    std::vector<double> expected{ -1.358f, -1.3579f, -1.3578f, -1.3577f, -1.3576f };
+
+    REQUIRE( arr->size() == 49820 );
     REQUIRE( arr->type().name() == typeid(double).name() );
-    REQUIRE( arr->as<double>()[0] == Approx(-0.3179999888) );
+
+    auto vals = arr->as<double>();
+    vals.resize(5);
+
+    REQUIRE( vals == ApproxVector(expected) );
 }
 
 /*
@@ -756,9 +782,15 @@ TEST_CASE( "Test flux_loop flux", "[IMAS][TCV][FLUX]" )
     REQUIRE( arr != nullptr );
     REQUIRE( !arr->isNull() );
 
-    REQUIRE( arr->size() == 13361 );
+    std::vector<float> expected{ 0.00111f, 0.00123f, 0.00074f, 0.00049f, 0.00098f };
+
+    REQUIRE( arr->size() == 49820 );
     REQUIRE( arr->type().name() == typeid(float).name() );
-    REQUIRE( arr->as<float>()[0] == Approx(0.0) );
+
+    auto vals = arr->as<float>();
+    vals.resize(5);
+
+    REQUIRE( vals == ApproxVector(expected) );
 
     const uda::Result& result_36 = client.get("imas::get(idx=0, group='magnetics', variable='flux_loop/36/flux/data', expName='TCV', type=float, rank=1, shot=" SHOT_NUM ", )", "");
 
@@ -776,9 +808,15 @@ TEST_CASE( "Test flux_loop flux", "[IMAS][TCV][FLUX]" )
     REQUIRE( arr != nullptr );
     REQUIRE( !arr->isNull() );
 
-    REQUIRE( arr->size() == 13361 );
+    expected = std::vector<float>{ 0.00128f, 0.00142f, 0.00091f, 0.00054f, 0.00114f };
+
+    REQUIRE( arr->size() == 49820 );
     REQUIRE( arr->type().name() == typeid(float).name() );
-    REQUIRE( arr->as<float>()[0] == Approx(0.0) );
+
+    vals = arr->as<float>();
+    vals.resize(5);
+
+    REQUIRE( vals == ApproxVector(expected) );
 }
 
 TEST_CASE( "Test flux_loop flux error upper", "[IMAS][TCV][FLUX]" )
@@ -805,9 +843,15 @@ TEST_CASE( "Test flux_loop flux error upper", "[IMAS][TCV][FLUX]" )
     REQUIRE( arr != nullptr );
     REQUIRE( !arr->isNull() );
 
-    REQUIRE( arr->size() == 13361 );
+    std::vector<float> expected{ 0.00171f, 0.00183f, 0.00208f, 0.00195f, 0.00171f };
+
+    REQUIRE( arr->size() == 49820 );
     REQUIRE( arr->type().name() == typeid(float).name() );
-    REQUIRE( arr->as<float>()[0] == Approx(0.0006f) );
+
+    auto vals = arr->as<float>();
+    vals.resize(5);
+
+    REQUIRE( vals == ApproxVector(expected) );
 
     const uda::Result& result_36 = client.get("imas::get(idx=0, group='magnetics', variable='flux_loop/36/flux/data_error_upper', expName='TCV', type=float, rank=1, shot=" SHOT_NUM ", )", "");
 
@@ -825,9 +869,15 @@ TEST_CASE( "Test flux_loop flux error upper", "[IMAS][TCV][FLUX]" )
     REQUIRE( arr != nullptr );
     REQUIRE( !arr->isNull() );
 
-    REQUIRE( arr->size() == 13361 );
+    expected = std::vector<float>{ 0.00171f, 0.00122f, 0.00171f, 0.00134f, 0.00195f };
+
+    REQUIRE( arr->size() == 49820 );
     REQUIRE( arr->type().name() == typeid(float).name() );
-    REQUIRE( arr->as<float>()[0] == Approx(0.0006f) );
+
+    vals = arr->as<float>();
+    vals.resize(5);
+
+    REQUIRE( vals == ApproxVector(expected) );
 }
 
 TEST_CASE( "Test flux_loop flux error lower", "[IMAS][TCV][FLUX]" )
@@ -854,9 +904,15 @@ TEST_CASE( "Test flux_loop flux error lower", "[IMAS][TCV][FLUX]" )
     REQUIRE( arr != nullptr );
     REQUIRE( !arr->isNull() );
 
-    REQUIRE( arr->size() == 13361 );
+    std::vector<float> expected{ 0.00051f, 0.00063f, 0.00088f, 0.00075f, 0.00051f };
+
+    REQUIRE( arr->size() == 49820 );
     REQUIRE( arr->type().name() == typeid(float).name() );
-    REQUIRE( arr->as<float>()[0] == Approx(-0.0006f) );
+
+    auto vals = arr->as<float>();
+    vals.resize(5);
+
+    REQUIRE( vals == ApproxVector(expected) );
 
     const uda::Result& result_36 = client.get("imas::get(idx=0, group='magnetics', variable='flux_loop/36/flux/data_error_lower', expName='TCV', type=float, rank=1, shot=" SHOT_NUM ", )", "");
 
@@ -874,9 +930,15 @@ TEST_CASE( "Test flux_loop flux error lower", "[IMAS][TCV][FLUX]" )
     REQUIRE( arr != nullptr );
     REQUIRE( !arr->isNull() );
 
-    REQUIRE( arr->size() == 13361 );
+    expected = std::vector<float>{ 0.00051f, 0.00002f, 0.00051f, 0.00014f, 0.00075f };
+
+    REQUIRE( arr->size() == 49820 );
     REQUIRE( arr->type().name() == typeid(float).name() );
-    REQUIRE( arr->as<float>()[0] == Approx(-0.0006f) );
+
+    vals = arr->as<float>();
+    vals.resize(5);
+
+    REQUIRE( vals == ApproxVector(expected) );
 }
 
 //TEST_CASE( "Test flux_loop flux errors", "[IMAS][TCV][BPOL]" )
@@ -953,10 +1015,15 @@ TEST_CASE( "Test flux_loop time", "[IMAS][TCV][FLUX]" )
     REQUIRE( arr != nullptr );
     REQUIRE( !arr->isNull() );
 
-    REQUIRE( arr->size() == 13361 );
+    std::vector<float> expected{ -1.358f, -1.3579f, -1.3578f, -1.3577f, -1.3576f };
+
+    REQUIRE( arr->size() == 49820 );
     REQUIRE( arr->type().name() == typeid(float).name() );
-    REQUIRE( arr->as<float>()[0] == Approx(-0.318f) );
-    REQUIRE( arr->as<float>()[13360] == Approx(2.354f) );
+
+    auto vals = arr->as<float>();
+    vals.resize(5);
+
+    REQUIRE( vals == ApproxVector(expected) );
 
     const uda::Result& result_36 = client.get("imas::get(idx=0, group='magnetics', variable='flux_loop/36/flux/time', expName='TCV', type=float, rank=1, shot=" SHOT_NUM ", )", "");
 
@@ -974,10 +1041,15 @@ TEST_CASE( "Test flux_loop time", "[IMAS][TCV][FLUX]" )
     REQUIRE( arr != nullptr );
     REQUIRE( !arr->isNull() );
 
-    REQUIRE( arr->size() == 13361 );
+    expected = std::vector<float>{ -1.358f, -1.3579f, -1.3578f, -1.3577f, -1.3576f };
+
+    REQUIRE( arr->size() == 49820 );
     REQUIRE( arr->type().name() == typeid(float).name() );
-    REQUIRE( arr->as<float>()[0] == Approx(-0.318f) );
-    REQUIRE( arr->as<float>()[13360] == Approx(2.354f) );
+
+    vals = arr->as<float>();
+    vals.resize(5);
+
+    REQUIRE( vals == ApproxVector(expected) );
 }
 
 /*

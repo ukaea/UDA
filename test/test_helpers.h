@@ -10,6 +10,12 @@ public:
             : vector_(std::move(vector))
     {}
 
+    explicit ApproxVector(std::vector<float> vector)
+            : vector_()
+    {
+        std::copy(vector.begin(), vector.end(), std::back_inserter(vector_));
+    }
+
     ApproxVector(ApproxVector const& other)
             : vector_(other.vector_)
     {}

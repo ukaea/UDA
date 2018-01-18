@@ -850,8 +850,6 @@ int idamClient(REQUEST_BLOCK* request_block)
         //------------------------------------------------------------------------------
         // Assign Meta Data to Data Block
 
-//#ifndef NOTGENERICENABLED
-
         if (client_block.get_meta && allocMetaHeap) {
             data_block->data_system = data_system;
             data_block->system_config = system_config;
@@ -859,8 +857,6 @@ int idamClient(REQUEST_BLOCK* request_block)
             data_block->signal_rec = signal_rec;
             data_block->signal_desc = signal_desc;
         }
-
-//#endif
 
 #ifndef FATCLIENT   // <========================== Client Server Code Only
 
@@ -1097,6 +1093,11 @@ int idamClient(REQUEST_BLOCK* request_block)
                 data_block->errcode = DATA_STATUS_BAD;
                 strcpy(data_block->error_msg, "Data Status is BAD ... Data are Not Usable!");
             }
+        }
+
+        if (err != 0 && data_block->errcode == 0) {
+            addIdamError(CODEERRORTYPE, "idamClient", err, "Unknown Error");
+            data_block->errcode = err;
         }
 
         //------------------------------------------------------------------------------

@@ -271,9 +271,9 @@ int acc_getIdamNewDataHandle()
         if (clientFlags & CLIENTFLAG_FREEREUSELASTHANDLE) {
             idamFree(newHandleIndex);
         } else {
-            initDataBlock(
-                    &Data_Block[newHandleIndex]);
-        }        // Application has responsibility for freeing heap in the Data Block
+            // Application has responsibility for freeing heap in the Data Block
+            initDataBlock(&Data_Block[newHandleIndex]);
+        }
         Data_Block[newHandleIndex].handle = newHandleIndex;
         return newHandleIndex;
     }
@@ -282,7 +282,7 @@ int acc_getIdamNewDataHandle()
         char* env = NULL;
 
         if ((env = getenv("UDA_GROWHANDLELIST")) != NULL) {
-            growHandleList = atoi(env);
+            growHandleList = (unsigned int)strtol(env, NULL, 10);
         } else {
             growHandleList = GROWHANDLELIST;
         }
@@ -769,7 +769,8 @@ int getIdamServerSocket()
 \return   Return error code, if non-zero there was a problem: < 0 is client side, > 0 is server side.
 */
 int getIdamErrorCode(int handle)
-{              // Error Code Returned from Server
+{
+    // Error Code Returned from Server
     if (handle < 0 || handle >= Data_Block_Count) {
         return getIdamServerErrorStackRecordCode(0);
     } else {
