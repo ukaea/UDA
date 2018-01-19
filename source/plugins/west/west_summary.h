@@ -5,7 +5,7 @@
 #include <clientserver/udaStructs.h>
 
 int summary_global_quantities_beta_tor_value(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
-int summary_global_quantities_tau_resistance_value(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
+//int summary_global_quantities_tau_resistance_value(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
 int summary_global_quantities_v_loop_value(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
 int summary_global_quantities_r0_value(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
 int summary_global_quantities_b0_value(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);

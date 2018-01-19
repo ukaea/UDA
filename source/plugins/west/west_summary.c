@@ -518,7 +518,7 @@ int summary_heating_current_drive_ec_power_source(int shotNumber, DATA_BLOCK* da
 }
 
 
-int summary_global_quantities_tau_resistance_value(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
+/*int summary_global_quantities_tau_resistance_value(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 {
 	float *voltage_time = NULL;
 	float *voltage_data = NULL;
@@ -561,7 +561,7 @@ int summary_global_quantities_tau_resistance_value(int shotNumber, DATA_BLOCK* d
 	}
 	SetDynamicData(data_block, ip_len, ip_time, resistiveData);
 	return 0;
-}
+}*/
 
 int ip_value(float **ip_data, float *ip_time, int *ip_len, int shotNumber, DATA_BLOCK* data_block, const float treshold) {
 	//ip value
