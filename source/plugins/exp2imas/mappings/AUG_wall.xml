@@ -1,0 +1,263 @@
+<mappings machine="AUG">
+  <!-- dynamic -->
+  <wall documentation="General Wall representation. Time-dependent CPO." type="CPO">
+    <compositions documentation="" type="structure">
+      <nuclei documentation="Array of nuclei considered." type="struct_array" dim="Put dimension here" index="Put index here">
+        <zn documentation="Nuclear charge [units of elementary charge];" reminder="Enter in the structure below how to retrieve this variable from the experimental database. Replicate this element if more than one signal needs to be read in the local database" list="no" type="expSignal/exp0D" path="compositions/nuclei/zn">
+          <name documentation="Name of the signal in the local database" type="xs:string">Put value here</name>
+          <download documentation="Description of the method for calculating the signal. Fill the relevant elements below." type="structure">
+            <download documentation="Name of the download method, as listed in the top element mapping_info/download_method/name. In case of a constant value, put 'fixed' here and fill the 'fixed-value' element below." type="xs:string">Put value here</download>
+            <fixed_value documentation="Fixed value of the signal in case 'download' = 'fixed'. NB : this value will be repeated in all time slices of the ITM signal, except if 'interpolation' = 0. Optional." type="Vect1DDouble">Put value here</fixed_value>
+            <fixed_repeat documentation="Repeat factor for the fixed value given above; this tag contains the same number of values than fixed_value. Optional." type="Vect1DInt">Put value here</fixed_repeat>
+          </download>
+          <coefa documentation="After download, the signal can be transformed as coefa * signal + coefb. Optional." type="xs:float">Put value here</coefa>
+          <coefb documentation="After download, the signal can be transformed as coefa * signal + coefb. Optional." type="xs:float">Put value here</coefb>
+          <interpolation documentation="Interpolation method : 2 for previous sample, 3 for linear interpolation (as in the UAL), 0 if no interpolation required (also useful for a string or signal that does not depend on time in ITM format)." type="xs:integer">Put value here</interpolation>
+          <dimension documentation="Dimension of the local DB signal : 1 for vector, 2 for matrix, ... s for string, 0 if non-time dependent in the local DB (may need to be repeated at each time slice in ITM format, though)" type="xs:integer">Put value here</dimension>
+          <size documentation="Size of the local DB signal (number of columns in the data matrix) mandatory only for 2D signals" type="xs:integer">Put value here</size>
+          <time_dim documentation="Specifies which of the above dimension represents time (in the local DB)." type="xs:integer">Put value here</time_dim>
+        </zn>
+        <amn documentation="Mass of atom [amu]" reminder="Enter in the structure below how to retrieve this variable from the experimental database. Replicate this element if more than one signal needs to be read in the local database" list="no" type="expSignal/exp0D" path="compositions/nuclei/amn">
+          <name documentation="Name of the signal in the local database" type="xs:string">Put value here</name>
+          <download documentation="Description of the method for calculating the signal. Fill the relevant elements below." type="structure">
+            <download documentation="Name of the download method, as listed in the top element mapping_info/download_method/name. In case of a constant value, put 'fixed' here and fill the 'fixed-value' element below." type="xs:string">Put value here</download>
+            <fixed_value documentation="Fixed value of the signal in case 'download' = 'fixed'. NB : this value will be repeated in all time slices of the ITM signal, except if 'interpolation' = 0. Optional." type="Vect1DDouble">Put value here</fixed_value>
+            <fixed_repeat documentation="Repeat factor for the fixed value given above; this tag contains the same number of values than fixed_value. Optional." type="Vect1DInt">Put value here</fixed_repeat>
+          </download>
+          <coefa documentation="After download, the signal can be transformed as coefa * signal + coefb. Optional." type="xs:float">Put value here</coefa>
+          <coefb documentation="After download, the signal can be transformed as coefa * signal + coefb. Optional." type="xs:float">Put value here</coefb>
+          <interpolation documentation="Interpolation method : 2 for previous sample, 3 for linear interpolation (as in the UAL), 0 if no interpolation required (also useful for a string or signal that does not depend on time in ITM format)." type="xs:integer">Put value here</interpolation>
+          <dimension documentation="Dimension of the local DB signal : 1 for vector, 2 for matrix, ... s for string, 0 if non-time dependent in the local DB (may need to be repeated at each time slice in ITM format, though)" type="xs:integer">Put value here</dimension>
+          <size documentation="Size of the local DB signal (number of columns in the data matrix) mandatory only for 2D signals" type="xs:integer">Put value here</size>
+          <time_dim documentation="Specifies which of the above dimension represents time (in the local DB)." type="xs:integer">Put value here</time_dim>
+        </amn>
+      </nuclei>
+      <ions documentation="Array of main plasma ions." type="struct_array" dim="Put dimension here" index="Put index here">
+        <nucindex documentation="Index into list of nuclei; int" reminder="Enter in the structure below how to retrieve this variable from the experimental database. Replicate this element if more than one signal needs to be read in the local database" list="no" type="expSignal/exp0D" path="compositions/ions/nucindex">
+          <name documentation="Name of the signal in the local database" type="xs:string">Put value here</name>
+          <download documentation="Description of the method for calculating the signal. Fill the relevant elements below." type="structure">
+            <download documentation="Name of the download method, as listed in the top element mapping_info/download_method/name. In case of a constant value, put 'fixed' here and fill the 'fixed-value' element below." type="xs:string">Put value here</download>
+            <fixed_value documentation="Fixed value of the signal in case 'download' = 'fixed'. NB : this value will be repeated in all time slices of the ITM signal, except if 'interpolation' = 0. Optional." type="Vect1DDouble">Put value here</fixed_value>
+            <fixed_repeat documentation="Repeat factor for the fixed value given above; this tag contains the same number of values than fixed_value. Optional." type="Vect1DInt">Put value here</fixed_repeat>
+          </download>
+          <coefa documentation="After download, the signal can be transformed as coefa * signal + coefb. Optional." type="xs:float">Put value here</coefa>
+          <coefb documentation="After download, the signal can be transformed as coefa * signal + coefb. Optional." type="xs:float">Put value here</coefb>
+          <interpolation documentation="Interpolation method : 2 for previous sample, 3 for linear interpolation (as in the UAL), 0 if no interpolation required (also useful for a string or signal that does not depend on time in ITM format)." type="xs:integer">Put value here</interpolation>
+          <dimension documentation="Dimension of the local DB signal : 1 for vector, 2 for matrix, ... s for string, 0 if non-time dependent in the local DB (may need to be repeated at each time slice in ITM format, though)" type="xs:integer">Put value here</dimension>
+          <size documentation="Size of the local DB signal (number of columns in the data matrix) mandatory only for 2D signals" type="xs:integer">Put value here</size>
+          <time_dim documentation="Specifies which of the above dimension represents time (in the local DB)." type="xs:integer">Put value here</time_dim>
+        </nucindex>
+        <zion documentation="Ion charge (of the dominant ionisation state; lumped ions are allowed); Vector (nion)" reminder="Enter in the structure below how to retrieve this variable from the experimental database. Replicate this element if more than one signal needs to be read in the local database" list="no" type="expSignal/exp0D" path="compositions/ions/zion">
+          <name documentation="Name of the signal in the local database" type="xs:string">Put value here</name>
+          <download documentation="Description of the method for calculating the signal. Fill the relevant elements below." type="structure">
+            <download documentation="Name of the download method, as listed in the top element mapping_info/download_method/name. In case of a constant value, put 'fixed' here and fill the 'fixed-value' element below." type="xs:string">Put value here</download>
+            <fixed_value documentation="Fixed value of the signal in case 'download' = 'fixed'. NB : this value will be repeated in all time slices of the ITM signal, except if 'interpolation' = 0. Optional." type="Vect1DDouble">Put value here</fixed_value>
+            <fixed_repeat documentation="Repeat factor for the fixed value given above; this tag contains the same number of values than fixed_value. Optional." type="Vect1DInt">Put value here</fixed_repeat>
+          </download>
+          <coefa documentation="After download, the signal can be transformed as coefa * signal + coefb. Optional." type="xs:float">Put value here</coefa>
+          <coefb documentation="After download, the signal can be transformed as coefa * signal + coefb. Optional." type="xs:float">Put value here</coefb>
+          <interpolation documentation="Interpolation method : 2 for previous sample, 3 for linear interpolation (as in the UAL), 0 if no interpolation required (also useful for a string or signal that does not depend on time in ITM format)." type="xs:integer">Put value here</interpolation>
+          <dimension documentation="Dimension of the local DB signal : 1 for vector, 2 for matrix, ... s for string, 0 if non-time dependent in the local DB (may need to be repeated at each time slice in ITM format, though)" type="xs:integer">Put value here</dimension>
+          <size documentation="Size of the local DB signal (number of columns in the data matrix) mandatory only for 2D signals" type="xs:integer">Put value here</size>
+          <time_dim documentation="Specifies which of the above dimension represents time (in the local DB)." type="xs:integer">Put value here</time_dim>
+        </zion>
+        <imp_flag documentation="Multiple charge state calculation flag : 0-Only one charge state is considered; 1-Multiple charge state are considered and are described in impurity CPO; Vector (nion)" reminder="Enter in the structure below how to retrieve this variable from the experimental database. Replicate this element if more than one signal needs to be read in the local database" list="no" type="expSignal/exp0D" path="compositions/ions/imp_flag">
+          <name documentation="Name of the signal in the local database" type="xs:string">Put value here</name>
+          <download documentation="Description of the method for calculating the signal. Fill the relevant elements below." type="structure">
+            <download documentation="Name of the download method, as listed in the top element mapping_info/download_method/name. In case of a constant value, put 'fixed' here and fill the 'fixed-value' element below." type="xs:string">Put value here</download>
+            <fixed_value documentation="Fixed value of the signal in case 'download' = 'fixed'. NB : this value will be repeated in all time slices of the ITM signal, except if 'interpolation' = 0. Optional." type="Vect1DDouble">Put value here</fixed_value>
+            <fixed_repeat documentation="Repeat factor for the fixed value given above; this tag contains the same number of values than fixed_value. Optional." type="Vect1DInt">Put value here</fixed_repeat>
+          </download>
+          <coefa documentation="After download, the signal can be transformed as coefa * signal + coefb. Optional." type="xs:float">Put value here</coefa>
+          <coefb documentation="After download, the signal can be transformed as coefa * signal + coefb. Optional." type="xs:float">Put value here</coefb>
+          <interpolation documentation="Interpolation method : 2 for previous sample, 3 for linear interpolation (as in the UAL), 0 if no interpolation required (also useful for a string or signal that does not depend on time in ITM format)." type="xs:integer">Put value here</interpolation>
+          <dimension documentation="Dimension of the local DB signal : 1 for vector, 2 for matrix, ... s for string, 0 if non-time dependent in the local DB (may need to be repeated at each time slice in ITM format, though)" type="xs:integer">Put value here</dimension>
+          <size documentation="Size of the local DB signal (number of columns in the data matrix) mandatory only for 2D signals" type="xs:integer">Put value here</size>
+          <time_dim documentation="Specifies which of the above dimension represents time (in the local DB)." type="xs:integer">Put value here</time_dim>
+        </imp_flag>
+      </ions>
+      <impurities documentation="Array of impurities." type="struct_array" dim="Put dimension here" index="Put index here">
+        <nucindex documentation="Index into list of nuclei; int" reminder="Enter in the structure below how to retrieve this variable from the experimental database. Replicate this element if more than one signal needs to be read in the local database" list="no" type="expSignal/exp0D" path="compositions/impurities/nucindex">
+          <name documentation="Name of the signal in the local database" type="xs:string">Put value here</name>
+          <download documentation="Description of the method for calculating the signal. Fill the relevant elements below." type="structure">
+            <download documentation="Name of the download method, as listed in the top element mapping_info/download_method/name. In case of a constant value, put 'fixed' here and fill the 'fixed-value' element below." type="xs:string">Put value here</download>
+            <fixed_value documentation="Fixed value of the signal in case 'download' = 'fixed'. NB : this value will be repeated in all time slices of the ITM signal, except if 'interpolation' = 0. Optional." type="Vect1DDouble">Put value here</fixed_value>
+            <fixed_repeat documentation="Repeat factor for the fixed value given above; this tag contains the same number of values than fixed_value. Optional." type="Vect1DInt">Put value here</fixed_repeat>
+          </download>
+          <coefa documentation="After download, the signal can be transformed as coefa * signal + coefb. Optional." type="xs:float">Put value here</coefa>
+          <coefb documentation="After download, the signal can be transformed as coefa * signal + coefb. Optional." type="xs:float">Put value here</coefb>
+          <interpolation documentation="Interpolation method : 2 for previous sample, 3 for linear interpolation (as in the UAL), 0 if no interpolation required (also useful for a string or signal that does not depend on time in ITM format)." type="xs:integer">Put value here</interpolation>
+          <dimension documentation="Dimension of the local DB signal : 1 for vector, 2 for matrix, ... s for string, 0 if non-time dependent in the local DB (may need to be repeated at each time slice in ITM format, though)" type="xs:integer">Put value here</dimension>
+          <size documentation="Size of the local DB signal (number of columns in the data matrix) mandatory only for 2D signals" type="xs:integer">Put value here</size>
+          <time_dim documentation="Specifies which of the above dimension represents time (in the local DB)." type="xs:integer">Put value here</time_dim>
+        </nucindex>
+        <i_ion documentation="Index of the impurity species in the ions array of structures. Vector (nimp)" reminder="Enter in the structure below how to retrieve this variable from the experimental database. Replicate this element if more than one signal needs to be read in the local database" list="no" type="expSignal/exp0D" path="compositions/impurities/i_ion">
+          <name documentation="Name of the signal in the local database" type="xs:string">Put value here</name>
+          <download documentation="Description of the method for calculating the signal. Fill the relevant elements below." type="structure">
+            <download documentation="Name of the download method, as listed in the top element mapping_info/download_method/name. In case of a constant value, put 'fixed' here and fill the 'fixed-value' element below." type="xs:string">Put value here</download>
+            <fixed_value documentation="Fixed value of the signal in case 'download' = 'fixed'. NB : this value will be repeated in all time slices of the ITM signal, except if 'interpolation' = 0. Optional." type="Vect1DDouble">Put value here</fixed_value>
+            <fixed_repeat documentation="Repeat factor for the fixed value given above; this tag contains the same number of values than fixed_value. Optional." type="Vect1DInt">Put value here</fixed_repeat>
+          </download>
+          <coefa documentation="After download, the signal can be transformed as coefa * signal + coefb. Optional." type="xs:float">Put value here</coefa>
+          <coefb documentation="After download, the signal can be transformed as coefa * signal + coefb. Optional." type="xs:float">Put value here</coefb>
+          <interpolation documentation="Interpolation method : 2 for previous sample, 3 for linear interpolation (as in the UAL), 0 if no interpolation required (also useful for a string or signal that does not depend on time in ITM format)." type="xs:integer">Put value here</interpolation>
+          <dimension documentation="Dimension of the local DB signal : 1 for vector, 2 for matrix, ... s for string, 0 if non-time dependent in the local DB (may need to be repeated at each time slice in ITM format, though)" type="xs:integer">Put value here</dimension>
+          <size documentation="Size of the local DB signal (number of columns in the data matrix) mandatory only for 2D signals" type="xs:integer">Put value here</size>
+          <time_dim documentation="Specifies which of the above dimension represents time (in the local DB)." type="xs:integer">Put value here</time_dim>
+        </i_ion>
+        <nzimp documentation="Number of charge states (or bundles) considered for this impurity species." reminder="Enter in the structure below how to retrieve this variable from the experimental database. Replicate this element if more than one signal needs to be read in the local database" list="no" type="expSignal/exp0D" path="compositions/impurities/nzimp">
+          <name documentation="Name of the signal in the local database" type="xs:string">Put value here</name>
+          <download documentation="Description of the method for calculating the signal. Fill the relevant elements below." type="structure">
+            <download documentation="Name of the download method, as listed in the top element mapping_info/download_method/name. In case of a constant value, put 'fixed' here and fill the 'fixed-value' element below." type="xs:string">Put value here</download>
+            <fixed_value documentation="Fixed value of the signal in case 'download' = 'fixed'. NB : this value will be repeated in all time slices of the ITM signal, except if 'interpolation' = 0. Optional." type="Vect1DDouble">Put value here</fixed_value>
+            <fixed_repeat documentation="Repeat factor for the fixed value given above; this tag contains the same number of values than fixed_value. Optional." type="Vect1DInt">Put value here</fixed_repeat>
+          </download>
+          <coefa documentation="After download, the signal can be transformed as coefa * signal + coefb. Optional." type="xs:float">Put value here</coefa>
+          <coefb documentation="After download, the signal can be transformed as coefa * signal + coefb. Optional." type="xs:float">Put value here</coefb>
+          <interpolation documentation="Interpolation method : 2 for previous sample, 3 for linear interpolation (as in the UAL), 0 if no interpolation required (also useful for a string or signal that does not depend on time in ITM format)." type="xs:integer">Put value here</interpolation>
+          <dimension documentation="Dimension of the local DB signal : 1 for vector, 2 for matrix, ... s for string, 0 if non-time dependent in the local DB (may need to be repeated at each time slice in ITM format, though)" type="xs:integer">Put value here</dimension>
+          <size documentation="Size of the local DB signal (number of columns in the data matrix) mandatory only for 2D signals" type="xs:integer">Put value here</size>
+          <time_dim documentation="Specifies which of the above dimension represents time (in the local DB)." type="xs:integer">Put value here</time_dim>
+        </nzimp>
+        <zmin documentation="Minimum Z of impurity ionisation state bundle. Vector (nzimp)" reminder="Enter in the structure below how to retrieve this variable from the experimental database. Replicate this element if more than one signal needs to be read in the local database" list="yes" type="expSignal/exp1D" path="compositions/impurities/zmin">
+          <name documentation="Name of the signal in the local database" type="xs:string">Put value here</name>
+          <download documentation="Description of the method for calculating the signal. Fill the relevant elements below." type="structure">
+            <download documentation="Name of the download method, as listed in the top element mapping_info/download_method/name. In case of a constant value, put 'fixed' here and fill the 'fixed-value' element below." type="xs:string">Put value here</download>
+            <fixed_value documentation="Fixed value of the signal in case 'download' = 'fixed'. NB : this value will be repeated in all time slices of the ITM signal, except if 'interpolation' = 0. Optional." type="Vect1DDouble">Put value here</fixed_value>
+            <fixed_repeat documentation="Repeat factor for the fixed value given above; this tag contains the same number of values than fixed_value. Optional." type="Vect1DInt">Put value here</fixed_repeat>
+          </download>
+          <coefa documentation="After download, the signal can be transformed as coefa * signal + coefb. Optional." type="xs:float">Put value here</coefa>
+          <coefb documentation="After download, the signal can be transformed as coefa * signal + coefb. Optional." type="xs:float">Put value here</coefb>
+          <interpolation documentation="Interpolation method : 2 for previous sample, 3 for linear interpolation (as in the UAL), 0 if no interpolation required (also useful for a string or signal that does not depend on time in ITM format)." type="xs:integer">Put value here</interpolation>
+          <dimension documentation="Dimension of the local DB signal : 1 for vector, 2 for matrix, ... s for string, 0 if non-time dependent in the local DB (may need to be repeated at each time slice in ITM format, though)" type="xs:integer">Put value here</dimension>
+          <size documentation="Size of the local DB signal (number of columns in the data matrix) mandatory only for 2D signals" type="xs:integer">Put value here</size>
+          <time_dim documentation="Specifies which of the above dimension represents time (in the local DB)." type="xs:integer">Put value here</time_dim>
+        </zmin>
+        <zmax documentation="Maximum Z of impurity ionisation state bundle. If no bundle, zmax=zmin. Vector (nzimp)" reminder="Enter in the structure below how to retrieve this variable from the experimental database. Replicate this element if more than one signal needs to be read in the local database" list="yes" type="expSignal/exp1D" path="compositions/impurities/zmax">
+          <name documentation="Name of the signal in the local database" type="xs:string">Put value here</name>
+          <download documentation="Description of the method for calculating the signal. Fill the relevant elements below." type="structure">
+            <download documentation="Name of the download method, as listed in the top element mapping_info/download_method/name. In case of a constant value, put 'fixed' here and fill the 'fixed-value' element below." type="xs:string">Put value here</download>
+            <fixed_value documentation="Fixed value of the signal in case 'download' = 'fixed'. NB : this value will be repeated in all time slices of the ITM signal, except if 'interpolation' = 0. Optional." type="Vect1DDouble">Put value here</fixed_value>
+            <fixed_repeat documentation="Repeat factor for the fixed value given above; this tag contains the same number of values than fixed_value. Optional." type="Vect1DInt">Put value here</fixed_repeat>
+          </download>
+          <coefa documentation="After download, the signal can be transformed as coefa * signal + coefb. Optional." type="xs:float">Put value here</coefa>
+          <coefb documentation="After download, the signal can be transformed as coefa * signal + coefb. Optional." type="xs:float">Put value here</coefb>
+          <interpolation documentation="Interpolation method : 2 for previous sample, 3 for linear interpolation (as in the UAL), 0 if no interpolation required (also useful for a string or signal that does not depend on time in ITM format)." type="xs:integer">Put value here</interpolation>
+          <dimension documentation="Dimension of the local DB signal : 1 for vector, 2 for matrix, ... s for string, 0 if non-time dependent in the local DB (may need to be repeated at each time slice in ITM format, though)" type="xs:integer">Put value here</dimension>
+          <size documentation="Size of the local DB signal (number of columns in the data matrix) mandatory only for 2D signals" type="xs:integer">Put value here</size>
+          <time_dim documentation="Specifies which of the above dimension represents time (in the local DB)." type="xs:integer">Put value here</time_dim>
+        </zmax>
+      </impurities>
+      <neutralscomp documentation="Array of neutrals." type="struct_array" dim="Put dimension here" index="Put index here">
+        <neutcomp documentation="Array of components to the atom or molecule. Vector (ncomp)" type="struct_array" dim="Put dimension here" index="Put index here">
+          <nucindex documentation="Index into list of nuclei; int" reminder="Enter in the structure below how to retrieve this variable from the experimental database. Replicate this element if more than one signal needs to be read in the local database" list="no" type="expSignal/exp0D" path="compositions/neutralscomp/neutcomp/nucindex">
+            <name documentation="Name of the signal in the local database" type="xs:string">Put value here</name>
+            <download documentation="Description of the method for calculating the signal. Fill the relevant elements below." type="structure">
+              <download documentation="Name of the download method, as listed in the top element mapping_info/download_method/name. In case of a constant value, put 'fixed' here and fill the 'fixed-value' element below." type="xs:string">Put value here</download>
+              <fixed_value documentation="Fixed value of the signal in case 'download' = 'fixed'. NB : this value will be repeated in all time slices of the ITM signal, except if 'interpolation' = 0. Optional." type="Vect1DDouble">Put value here</fixed_value>
+              <fixed_repeat documentation="Repeat factor for the fixed value given above; this tag contains the same number of values than fixed_value. Optional." type="Vect1DInt">Put value here</fixed_repeat>
+            </download>
+            <coefa documentation="After download, the signal can be transformed as coefa * signal + coefb. Optional." type="xs:float">Put value here</coefa>
+            <coefb documentation="After download, the signal can be transformed as coefa * signal + coefb. Optional." type="xs:float">Put value here</coefb>
+            <interpolation documentation="Interpolation method : 2 for previous sample, 3 for linear interpolation (as in the UAL), 0 if no interpolation required (also useful for a string or signal that does not depend on time in ITM format)." type="xs:integer">Put value here</interpolation>
+            <dimension documentation="Dimension of the local DB signal : 1 for vector, 2 for matrix, ... s for string, 0 if non-time dependent in the local DB (may need to be repeated at each time slice in ITM format, though)" type="xs:integer">Put value here</dimension>
+            <size documentation="Size of the local DB signal (number of columns in the data matrix) mandatory only for 2D signals" type="xs:integer">Put value here</size>
+            <time_dim documentation="Specifies which of the above dimension represents time (in the local DB)." type="xs:integer">Put value here</time_dim>
+          </nucindex>
+          <multiplicity documentation="Multiplicity of the atom; int" reminder="Enter in the structure below how to retrieve this variable from the experimental database. Replicate this element if more than one signal needs to be read in the local database" list="no" type="expSignal/exp0D" path="compositions/neutralscomp/neutcomp/multiplicity">
+            <name documentation="Name of the signal in the local database" type="xs:string">Put value here</name>
+            <download documentation="Description of the method for calculating the signal. Fill the relevant elements below." type="structure">
+              <download documentation="Name of the download method, as listed in the top element mapping_info/download_method/name. In case of a constant value, put 'fixed' here and fill the 'fixed-value' element below." type="xs:string">Put value here</download>
+              <fixed_value documentation="Fixed value of the signal in case 'download' = 'fixed'. NB : this value will be repeated in all time slices of the ITM signal, except if 'interpolation' = 0. Optional." type="Vect1DDouble">Put value here</fixed_value>
+              <fixed_repeat documentation="Repeat factor for the fixed value given above; this tag contains the same number of values than fixed_value. Optional." type="Vect1DInt">Put value here</fixed_repeat>
+            </download>
+            <coefa documentation="After download, the signal can be transformed as coefa * signal + coefb. Optional." type="xs:float">Put value here</coefa>
+            <coefb documentation="After download, the signal can be transformed as coefa * signal + coefb. Optional." type="xs:float">Put value here</coefb>
+            <interpolation documentation="Interpolation method : 2 for previous sample, 3 for linear interpolation (as in the UAL), 0 if no interpolation required (also useful for a string or signal that does not depend on time in ITM format)." type="xs:integer">Put value here</interpolation>
+            <dimension documentation="Dimension of the local DB signal : 1 for vector, 2 for matrix, ... s for string, 0 if non-time dependent in the local DB (may need to be repeated at each time slice in ITM format, though)" type="xs:integer">Put value here</dimension>
+            <size documentation="Size of the local DB signal (number of columns in the data matrix) mandatory only for 2D signals" type="xs:integer">Put value here</size>
+            <time_dim documentation="Specifies which of the above dimension represents time (in the local DB)." type="xs:integer">Put value here</time_dim>
+          </multiplicity>
+        </neutcomp>
+      </neutralscomp>
+      <edgespecies documentation="Array of edge species." type="struct_array" dim="Put dimension here" index="Put index here">
+        <nucindex documentation="Index into list of nuclei; int" reminder="Enter in the structure below how to retrieve this variable from the experimental database. Replicate this element if more than one signal needs to be read in the local database" list="no" type="expSignal/exp0D" path="compositions/edgespecies/nucindex">
+          <name documentation="Name of the signal in the local database" type="xs:string">Put value here</name>
+          <download documentation="Description of the method for calculating the signal. Fill the relevant elements below." type="structure">
+            <download documentation="Name of the download method, as listed in the top element mapping_info/download_method/name. In case of a constant value, put 'fixed' here and fill the 'fixed-value' element below." type="xs:string">Put value here</download>
+            <fixed_value documentation="Fixed value of the signal in case 'download' = 'fixed'. NB : this value will be repeated in all time slices of the ITM signal, except if 'interpolation' = 0. Optional." type="Vect1DDouble">Put value here</fixed_value>
+            <fixed_repeat documentation="Repeat factor for the fixed value given above; this tag contains the same number of values than fixed_value. Optional." type="Vect1DInt">Put value here</fixed_repeat>
+          </download>
+          <coefa documentation="After download, the signal can be transformed as coefa * signal + coefb. Optional." type="xs:float">Put value here</coefa>
+          <coefb documentation="After download, the signal can be transformed as coefa * signal + coefb. Optional." type="xs:float">Put value here</coefb>
+          <interpolation documentation="Interpolation method : 2 for previous sample, 3 for linear interpolation (as in the UAL), 0 if no interpolation required (also useful for a string or signal that does not depend on time in ITM format)." type="xs:integer">Put value here</interpolation>
+          <dimension documentation="Dimension of the local DB signal : 1 for vector, 2 for matrix, ... s for string, 0 if non-time dependent in the local DB (may need to be repeated at each time slice in ITM format, though)" type="xs:integer">Put value here</dimension>
+          <size documentation="Size of the local DB signal (number of columns in the data matrix) mandatory only for 2D signals" type="xs:integer">Put value here</size>
+          <time_dim documentation="Specifies which of the above dimension represents time (in the local DB)." type="xs:integer">Put value here</time_dim>
+        </nucindex>
+        <zmin documentation="Minimum Z of species charge state bundle" reminder="Enter in the structure below how to retrieve this variable from the experimental database. Replicate this element if more than one signal needs to be read in the local database" list="no" type="expSignal/exp0D" path="compositions/edgespecies/zmin">
+          <name documentation="Name of the signal in the local database" type="xs:string">Put value here</name>
+          <download documentation="Description of the method for calculating the signal. Fill the relevant elements below." type="structure">
+            <download documentation="Name of the download method, as listed in the top element mapping_info/download_method/name. In case of a constant value, put 'fixed' here and fill the 'fixed-value' element below." type="xs:string">Put value here</download>
+            <fixed_value documentation="Fixed value of the signal in case 'download' = 'fixed'. NB : this value will be repeated in all time slices of the ITM signal, except if 'interpolation' = 0. Optional." type="Vect1DDouble">Put value here</fixed_value>
+            <fixed_repeat documentation="Repeat factor for the fixed value given above; this tag contains the same number of values than fixed_value. Optional." type="Vect1DInt">Put value here</fixed_repeat>
+          </download>
+          <coefa documentation="After download, the signal can be transformed as coefa * signal + coefb. Optional." type="xs:float">Put value here</coefa>
+          <coefb documentation="After download, the signal can be transformed as coefa * signal + coefb. Optional." type="xs:float">Put value here</coefb>
+          <interpolation documentation="Interpolation method : 2 for previous sample, 3 for linear interpolation (as in the UAL), 0 if no interpolation required (also useful for a string or signal that does not depend on time in ITM format)." type="xs:integer">Put value here</interpolation>
+          <dimension documentation="Dimension of the local DB signal : 1 for vector, 2 for matrix, ... s for string, 0 if non-time dependent in the local DB (may need to be repeated at each time slice in ITM format, though)" type="xs:integer">Put value here</dimension>
+          <size documentation="Size of the local DB signal (number of columns in the data matrix) mandatory only for 2D signals" type="xs:integer">Put value here</size>
+          <time_dim documentation="Specifies which of the above dimension represents time (in the local DB)." type="xs:integer">Put value here</time_dim>
+        </zmin>
+        <zmax documentation="Maximum Z of species charge state bundle" reminder="Enter in the structure below how to retrieve this variable from the experimental database. Replicate this element if more than one signal needs to be read in the local database" list="no" type="expSignal/exp0D" path="compositions/edgespecies/zmax">
+          <name documentation="Name of the signal in the local database" type="xs:string">Put value here</name>
+          <download documentation="Description of the method for calculating the signal. Fill the relevant elements below." type="structure">
+            <download documentation="Name of the download method, as listed in the top element mapping_info/download_method/name. In case of a constant value, put 'fixed' here and fill the 'fixed-value' element below." type="xs:string">Put value here</download>
+            <fixed_value documentation="Fixed value of the signal in case 'download' = 'fixed'. NB : this value will be repeated in all time slices of the ITM signal, except if 'interpolation' = 0. Optional." type="Vect1DDouble">Put value here</fixed_value>
+            <fixed_repeat documentation="Repeat factor for the fixed value given above; this tag contains the same number of values than fixed_value. Optional." type="Vect1DInt">Put value here</fixed_repeat>
+          </download>
+          <coefa documentation="After download, the signal can be transformed as coefa * signal + coefb. Optional." type="xs:float">Put value here</coefa>
+          <coefb documentation="After download, the signal can be transformed as coefa * signal + coefb. Optional." type="xs:float">Put value here</coefb>
+          <interpolation documentation="Interpolation method : 2 for previous sample, 3 for linear interpolation (as in the UAL), 0 if no interpolation required (also useful for a string or signal that does not depend on time in ITM format)." type="xs:integer">Put value here</interpolation>
+          <dimension documentation="Dimension of the local DB signal : 1 for vector, 2 for matrix, ... s for string, 0 if non-time dependent in the local DB (may need to be repeated at each time slice in ITM format, though)" type="xs:integer">Put value here</dimension>
+          <size documentation="Size of the local DB signal (number of columns in the data matrix) mandatory only for 2D signals" type="xs:integer">Put value here</size>
+          <time_dim documentation="Specifies which of the above dimension represents time (in the local DB)." type="xs:integer">Put value here</time_dim>
+        </zmax>
+      </edgespecies>
+    </compositions>
+    <time_base documentation="Declaration of the multiple time bases in the experimental database, used for calculating the common (CPO) one" type="structure">
+      <sampling_rate documentation="String 'min' or 'max' : Use the highest sampling rate (min) or the lowest sampling rate (max) of all experimental time bases to define the common time base" type="xs:string">Put value here</sampling_rate>
+      <time documentation="List of the experimental time bases used for this CPO (replicate this element if more than one must be used)" list="yes" type="structure">
+        <name documentation="Name of the time base in the experimental database" type="xs:string">Put value here</name>
+        <download documentation="Name of the download method, as listed in the top element mapping_info/download_method/name" type="xs:string">Put value here</download>
+      </time>
+    </time_base>
+  </wall>
+
+  <!-- static -->
+  <wall type="structure" documentation="Description of the wall components in the NBI system that limits the beam spatial width of the beam. The wall is here described a superposition of surface segments and collimating holes.">
+    <surface type="structure" documentation="A collimating solid surface described by a polygon; no particle can pass through this surface  ">
+      <triangle type="struct_array" documentation="Triangular wall surface described by its three corners: point1, point2, and point3. Vector(n_triangles)" path="nbi_unit/wall/surface/triangle" dim="Put dimension here" index="Put index here"/>
+      <rectangle type="struct_array" documentation="Rectangular wall surface described by its four corners. These form an ordered sequence: point00, point01, point11, point10. Here the first point should be calculated from the other three as point00=point01+poin10-point11. Vector(n_rectangles)" path="nbi_unit/wall/surface/rectangle" dim="Put dimension here" index="Put index here"/>
+    </surface>
+    <collimator type="struct_array" documentation="Vector of collimating holes (openings). Each hole has to be flat, i.e. it lies on a surface. Particles can only cross this surface by passing through the hole. To describe the hole we first construct a coordinate system on the surface by defining the original and two basis vectors in (x,y,z) space. The polyon is then represented as the origin, plus a linear combination of the two basis vectors using coord1 and coord2. As an example, a rectangle with two of the corners given by &#34;origin+basis1&#34; and &#34;origin+basis2&#34; can be described using coord1=[1,0,-1,0] and coord2=[0,1,0,-1]." path="nbi_unit/wall/collimator" dim="Put dimension here" index="Put index here">
+      <origin type="structure" documentation="Origin of the surface coordinate system.">
+        <x type="xs:float" documentation="Spatial coordinate x [m]" path="nbi_unit/wall/collimator/origin/x"> Put value here</x>
+        <y type="xs:float" documentation="Spatial coordinate y [m]" path="nbi_unit/wall/collimator/origin/y"> Put value here</y>
+        <z type="xs:float" documentation="Spatial coordinate z [m]" path="nbi_unit/wall/collimator/origin/z"> Put value here</z>
+      </origin>
+      <basis1 type="structure" documentation="First basis vector on the surface.">
+        <x type="xs:float" documentation="Spatial coordinate x [m]" path="nbi_unit/wall/collimator/basis1/x"> Put value here</x>
+        <y type="xs:float" documentation="Spatial coordinate y [m]" path="nbi_unit/wall/collimator/basis1/y"> Put value here</y>
+        <z type="xs:float" documentation="Spatial coordinate z [m]" path="nbi_unit/wall/collimator/basis1/z"> Put value here</z>
+      </basis1>
+      <basis2 type="structure" documentation="First basis vector on the surface.">
+        <x type="xs:float" documentation="Spatial coordinate x [m]" path="nbi_unit/wall/collimator/basis2/x"> Put value here</x>
+        <y type="xs:float" documentation="Spatial coordinate y [m]" path="nbi_unit/wall/collimator/basis2/y"> Put value here</y>
+        <z type="xs:float" documentation="Spatial coordinate z [m]" path="nbi_unit/wall/collimator/basis2/z"> Put value here</z>
+      </basis2>
+      <coord1 type="vecflt_type" documentation="First coordinate of the polygon points, conjugate to basis1." path="nbi_unit/wall/collimator/coord1" dim="Put dimension here"> Put value here</coord1>
+      <coord2 type="vecflt_type" documentation="Second coordinate of the polygon points, conjugate to basis2." path="nbi_unit/wall/collimator/coord2" dim="Put dimension here"> Put value here</coord2>
+    </collimator>
+  </wall>
+</mappings>
