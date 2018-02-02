@@ -206,6 +206,9 @@ int idamClient(REQUEST_BLOCK* request_block)
     protocolVersion = clientVersion;
 
     time_t protocol_time;            // Time a Conversation Occured
+    
+    if(system_startup && getenv("UDA_TIMEOUT")) user_timeout = atoi(getenv("UDA_TIMEOUT"));
+
 
     //------------------------------------------------------------------------------
     // Open the Socket if this is the First call for Data or the server is known to be dead
@@ -326,7 +329,7 @@ int idamClient(REQUEST_BLOCK* request_block)
 
         UDA_LOG(UDA_LOG_DEBUG, "Start: %ld    End: %ld\n", (long)tv_server_start, (long)tv_server_end);
         UDA_LOG(UDA_LOG_DEBUG, "Server Age: %ld\n", age);
-
+	
         //-------------------------------------------------------------------------
         // Server State: Is the Server Dead? (Age Dependent)
 
