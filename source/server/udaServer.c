@@ -842,6 +842,10 @@ int doServerLoop(REQUEST_BLOCK* request_block, DATA_BLOCK* data_block, CLIENT_BL
         UDA_LOG(UDA_LOG_DEBUG, "freeUserDefinedTypeList\n");
         freeUserDefinedTypeList(userdefinedtypelist);
         userdefinedtypelist = NULL;
+	
+        freeMallocLogList(logmalloclist);
+        free((void*)logmalloclist);
+        logmalloclist = NULL;
 
         UDA_LOG(UDA_LOG_DEBUG, "freeDataBlock\n");
         freeDataBlock(data_block);
@@ -1152,7 +1156,6 @@ int startupServer(SERVER_BLOCK* server_block)
     if (!fileParsed) {
         fileParsed = 1;
         initUserDefinedTypeList(&parseduserdefinedtypelist);
-        userdefinedtypelist = &parseduserdefinedtypelist;           // Switch before Parsing input file
 
         char* token = NULL;
         if ((token = getenv("UDA_SARRAY_CONFIG")) == NULL) {
@@ -1160,8 +1163,7 @@ int startupServer(SERVER_BLOCK* server_block)
         }
 
         UDA_LOG(UDA_LOG_DEBUG, "Parsing structure definition file: %s\n", token);
-        parseIncludeFile(userdefinedtypelist, token); // file containing the SARRAY structure definition
-        parseduserdefinedtypelist = *userdefinedtypelist;       // Switch back
+        parseIncludeFile(&parseduserdefinedtypelist, token); // file containing the SARRAY structure definition
         printUserDefinedTypeList(parseduserdefinedtypelist);
     }
 

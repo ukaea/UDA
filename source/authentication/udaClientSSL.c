@@ -2,7 +2,9 @@
 
 #include "udaSSL.h"
 
+#include <stdio.h>
 #include <fcntl.h>
+#include <time.h>
 
 #include <client/updateSelectParms.h>
 #include <clientserver/errorLog.h>
@@ -231,33 +233,45 @@ int configureUdaClientSSLContext()
 
     if (!cert || !key || !ca) {        // Check the client hosts configuration file
         int hostId = -1;
-        if ((hostId = udaClientGetHostNameId()) >=
-            0) {    // Socket connection was opened with a host entry in the configuration file
+        if ((hostId = udaClientGetHostNameId()) >= 0) {    // Socket connection was opened with a host entry in the configuration file
             if (!cert) cert = udaClientGetHostCertificatePath(hostId);
             if (!key) key = udaClientGetHostKeyPath(hostId);
             if (!ca) ca = udaClientGetHostCAPath(hostId);
+            UDA_LOG(UDA_LOG_DEBUG, "SSL certificates and private key obtained from the hosts configuration file. Host id = %d\n", hostId);
         }
         if (!cert || !key || !ca || cert[0] == '\0' || key[0] == '\0' || ca[0] == '\0') {
             err = 999;
             if (!cert || cert[0] == '\0') {
+                UDA_LOG(UDA_LOG_DEBUG, "No Client SSL certificate\n");
                 addIdamError(CODEERRORTYPE, "udaClientSSL", err, "No client SSL certificate!");
             }
-            if (!key || key[0] == '\0') addIdamError(CODEERRORTYPE, "udaClientSSL", err, "No client SSL key!");
-            if (!ca || ca[0] == '\0') {
-                addIdamError(CODEERRORTYPE, "udaClientSSL", err, "No Certificate Authority certificate!");
+            if (!key || key[0] == '\0'){
+                UDA_LOG(UDA_LOG_DEBUG, "No Client Private Key\n");
+                addIdamError(CODEERRORTYPE, "udaClientSSL", err, "No client SSL key!");
             }
+            if (!ca || ca[0] == '\0') {
+               UDA_LOG(UDA_LOG_DEBUG, "No CA SSL certificate\n");
+               addIdamError(CODEERRORTYPE, "udaClientSSL", err, "No Certificate Authority certificate!");
+            }
+            UDA_LOG(UDA_LOG_DEBUG, "Error: No SSL certificates and/or private key!\n");
             return err;
         }
     }
 
+    UDA_LOG(UDA_LOG_DEBUG, "Client SSL certificates: %s\n", cert);
+    UDA_LOG(UDA_LOG_DEBUG, "Client SSL key: %s\n", key);
+    UDA_LOG(UDA_LOG_DEBUG, "CA SSL certificates: %s\n", ca);
+ 
     if (SSL_CTX_use_certificate_file(ctx, cert, SSL_FILETYPE_PEM) <= 0) {
         err = 999;
+        UDA_LOG(UDA_LOG_DEBUG, "Error: Failed to set the client certificate!\n");
         addIdamError(CODEERRORTYPE, "udaClientSSL", err, "Failed to set the client certificate!");
         return err;
     }
 
     if (SSL_CTX_use_PrivateKey_file(ctx, key, SSL_FILETYPE_PEM) <= 0) {
         err = 999;
+        UDA_LOG(UDA_LOG_DEBUG, "Error: Failed to set the client key!\n");
         addIdamError(CODEERRORTYPE, "udaClientSSL", err, "Failed to set the client key!");
         return err;
     }
@@ -266,6 +280,7 @@ int configureUdaClientSSLContext()
 
     if (SSL_CTX_check_private_key(ctx) == 0) {
         err = 999;
+        UDA_LOG(UDA_LOG_DEBUG, "Error: Private key does not match the certificate public key!\n");
         addIdamError(CODEERRORTYPE, "udaClientSSL", err,
                      "Private key does not match the certificate public key!");
         return err;
@@ -275,6 +290,7 @@ int configureUdaClientSSLContext()
 
     if (SSL_CTX_load_verify_locations(ctx, ca, NULL) < 1) {
         err = 999;
+        UDA_LOG(UDA_LOG_DEBUG, "Error: Error setting the Cetificate Authority verify locations!\n");
         addIdamError(CODEERRORTYPE, "udaClientSSL", err,
                      "Error setting the Cetificate Authority verify locations!");
         return err;
@@ -286,6 +302,81 @@ int configureUdaClientSSLContext()
     SSL_CTX_set_verify_depth(ctx, VERIFY_DEPTH);
 
     UDA_LOG(UDA_LOG_DEBUG, "configureUdaClientSSLContext: SSL Context configured\n");
+
+    // validate the client's certificate
+
+    FILE *fd = fopen(cert, "r");
+
+    if (!fd) {
+        err = 999;
+	UDA_LOG(UDA_LOG_DEBUG, "Unable to open client certificate [%s] to verify certificate validity\n", cert);
+        addIdamError(CODEERRORTYPE, "udaClientSSL", err, "Unable to open client certificate to verify certificate validity!");	
+        return err;
+    }
+
+    X509 *clientCert = PEM_read_X509(fd, NULL, NULL, NULL);
+
+    fclose(fd);
+
+    if (!clientCert) {
+        X509_free(clientCert);
+        err = 999;
+	UDA_LOG(UDA_LOG_DEBUG, "Unable to parse client certificate [%s] to verify certificate validity\n", cert);
+        addIdamError(CODEERRORTYPE, "udaClientSSL", err, "Unable to parse client certificate [%s] to verify certificate validity");	
+        return err;
+    }
+
+    const ASN1_TIME *before = X509_get_notBefore(clientCert);
+    const ASN1_TIME *after = X509_get_notAfter(clientCert);
+
+    char work[X509STRINGSIZE];
+    UDA_LOG(UDA_LOG_DEBUG, "Client X509 subject: %s\n",
+                  X509_NAME_oneline(X509_get_subject_name(clientCert), work, sizeof(work)));
+    UDA_LOG(UDA_LOG_DEBUG, "Client X509 issuer: %s\n",
+                  X509_NAME_oneline(X509_get_issuer_name(clientCert), work, sizeof(work)));
+
+    time_t current_time = time(NULL);
+    char* c_time_string = ctime(&current_time);
+
+    int rc =0, count = 0;   
+    BIO *b = BIO_new(BIO_s_mem());
+    if (b &&  ASN1_TIME_print(b, before)){
+        count = BIO_read(b, work, X509STRINGSIZE-1);
+        BIO_free(b);
+    }
+    work[count]='\0';
+    UDA_LOG(UDA_LOG_DEBUG, "Client X509 not before: %s\n", work);
+    if((rc = X509_cmp_time(before, &current_time)) >= 0){		// Not Before is after Now!
+        X509_free(clientCert);
+        UDA_LOG(UDA_LOG_DEBUG, "Current Time               : %s\n", c_time_string);
+        UDA_LOG(UDA_LOG_DEBUG, "Client X509 not before date is before the current date!\n");
+        UDA_LOG(UDA_LOG_DEBUG, "The client SSL/x509 certificate is Not Valid - the Vaidity Date is in the future!\n");  
+        err = 999;
+        addIdamError(CODEERRORTYPE, "udaClientSSL", err, "The client SSL/x509 certificate is Not Valid - the Vaidity Date is in the future");
+        return err;
+    }   
+
+    count = 0;
+    b = BIO_new(BIO_s_mem());
+    if (b &&  ASN1_TIME_print(b, after)){
+        count = BIO_read(b, work, X509STRINGSIZE-1);
+        BIO_free(b);
+    }
+    work[count]='\0';
+    UDA_LOG(UDA_LOG_DEBUG, "Client X509 not after   : %s\n", work);
+    if((rc = X509_cmp_time(after, &current_time)) <= 0){		// Not After is before Now!
+        X509_free(clientCert);
+        UDA_LOG(UDA_LOG_DEBUG, "Current Time               : %s\n", c_time_string);
+        UDA_LOG(UDA_LOG_DEBUG, "Client X509 not after date is after the current date!\n");
+        UDA_LOG(UDA_LOG_DEBUG, "The client SSL/x509 certificate is Not Valid - the Date has Expired!\n");  
+        err = 999;
+        addIdamError(CODEERRORTYPE, "udaClientSSL", err, "The client SSL/x509 certificate is Not Valid - the Date has Expired!");
+        return err;
+    }
+    X509_free(clientCert);
+
+    UDA_LOG(UDA_LOG_DEBUG, "Current Time               : %s\n", c_time_string);
+    UDA_LOG(UDA_LOG_DEBUG, "Cient certificate date validity checked but not validated \n");
 
     return err;
 }
@@ -307,13 +398,9 @@ int startUdaClientSSL()
         putUdaClientSSLDisabled(1);
 
         int hostId = -1;
-        if ((hostId = udaClientGetHostNameId()) >=
-            0) {    // Socket connection was opened with a host entry in the configuration file
-            char* cert = udaClientGetHostCertificatePath(hostId);    // Check for 3 authentication files
-            char* key = udaClientGetHostKeyPath(hostId);
-            char* ca = udaClientGetHostCAPath(hostId);
-            if (cert[0] == '\0' || key[0] == '\0' || ca[0] == '\0') {    // 3 files are Not present
-                return 0;
+         if ((hostId = udaClientGetHostNameId()) >= 0) {	// Socket connection was opened with a host entry in the configuration file
+            if(!udaClientGetHostSSL(hostId)){			// 3 files are Not present or SSL:// not specified
+               return 0;
             } else {
                 putUdaClientSSLDisabled(0);
             }
@@ -384,13 +471,58 @@ int startUdaClientSSL()
 // Server's details - not required apart from logging
 
         char work[X509STRINGSIZE];
-        UDA_LOG(UDA_LOG_DEBUG, "Server certificate verified");
+        UDA_LOG(UDA_LOG_DEBUG, "Server certificate verified\n");
         UDA_LOG(UDA_LOG_DEBUG, "X509 subject: %s\n",
                 X509_NAME_oneline(X509_get_subject_name(peer), work, sizeof(work)));
         UDA_LOG(UDA_LOG_DEBUG, "X509 issuer: %s\n",
                 X509_NAME_oneline(X509_get_issuer_name(peer), work, sizeof(work)));
-        UDA_LOG(UDA_LOG_DEBUG, "X509 not before: %d\n", X509_get_notBefore(peer));
-        UDA_LOG(UDA_LOG_DEBUG, "X509 not after: %d\n", X509_get_notAfter(peer));
+ 
+// Verify Date validity
+
+        const ASN1_TIME *before = X509_get_notBefore(peer);
+        const ASN1_TIME *after = X509_get_notAfter(peer);
+
+        time_t current_time = time(NULL);
+        char* c_time_string = ctime(&current_time);
+
+        int count = 0;   
+        BIO *b = BIO_new(BIO_s_mem());
+        if (b &&  ASN1_TIME_print(b, before)){
+            count = BIO_read(b, work, X509STRINGSIZE-1);
+            BIO_free(b);
+        } 
+        work[count]='\0';
+        UDA_LOG(UDA_LOG_DEBUG, "Server X509 not before: %s\n", work);
+        if((rc = X509_cmp_time(before, &current_time)) >= 0){		// Not Before is after Now!
+            X509_free(peer);
+            UDA_LOG(UDA_LOG_DEBUG, "Current Time               : %s\n", c_time_string);
+            UDA_LOG(UDA_LOG_DEBUG, "Server X509 not before date is before the current date!\n");
+            UDA_LOG(UDA_LOG_DEBUG, "The Server's SSL/x509 certificate is Not Valid - the Vaidity Date is in the future!\n");  
+            err = 999;
+            addIdamError(CODEERRORTYPE, "udaClientSSL", err, "The Server's SSL/x509 certificate is Not Valid - the Vaidity Date is in the future");
+            return err;
+        }   
+
+        count = 0;
+        b = BIO_new(BIO_s_mem());
+        if (b &&  ASN1_TIME_print(b, after)){
+            count = BIO_read(b, work, X509STRINGSIZE-1);
+            BIO_free(b);
+        }
+        work[count]='\0';
+        UDA_LOG(UDA_LOG_DEBUG, "Server X509 not after   : %s\n", work);
+        if((rc = X509_cmp_time(after, &current_time)) <= 0){		// Not After is before Now!
+            X509_free(peer);
+            UDA_LOG(UDA_LOG_DEBUG, "Current Time               : %s\n", c_time_string);
+            UDA_LOG(UDA_LOG_DEBUG, "Server X509 not after date is after the current date!\n");
+            UDA_LOG(UDA_LOG_DEBUG, "The Server's SSL/x509 certificate is Not Valid - the Date has Expired!\n");  
+            err = 999;
+            addIdamError(CODEERRORTYPE, "udaClientSSL", err, "The Server's SSL/x509 certificate is Not Valid - the Date has Expired!");
+            return err;
+        }
+
+        UDA_LOG(UDA_LOG_DEBUG, "Current Time               : %s\n", c_time_string);
+ 
 /*      
       // Write the certificate to a tmp file
       char template[] = "/tmp/UDAServer-X509-XXXXXX";
@@ -402,6 +534,7 @@ int startUdaClientSSL()
       }
 */
         X509_free(peer);
+
     } else {
         err = 999;
         addIdamError(CODEERRORTYPE, "udaSSL", err,

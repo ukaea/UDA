@@ -33,6 +33,7 @@ set( SRC_FILES
   serverStartup.c
   getServerEnvironment.c
   getPluginAddress.c
+  nameValueSubstitution.c
 )
 
 set( HEADER_FILES

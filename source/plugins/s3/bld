@@ -1,0 +1,45 @@
+#!/bin/bash
+
+#------------------------------------------------------------------------------------------------
+#  Script to Build the set of AWS S3 example code
+#------------------------------------------------------------------------------------------------
+
+module purge
+module load use.own aws3
+
+rm ./libtestaws.so ./test
+CXXFLAGS="-g -std=c++11"
+CFLAGS="-g"
+
+g++ $CXXFLAGS -fPIC ./test.cpp -o test.cpp.o
+gcc $CFLAGS -fPIC ./test.c -o test.c.o
+
+LFLAGS="-lc -lm -laws-cpp-sdk-s3 -laws-cpp-sdk-core \
+        -L/usr/lib64 -lcurl -lssl -luuid -lz"
+
+#gcc -Wl, -v $CFLAGS ./test.c -o ./test $LFLAGS -L./ -ltestaws
+g++ $CXXFLAGS test.cpp.o test.c.o -o ./test $LFLAGS -L./ -ltestaws
+ls -ltr
+ldd ./test
+exit
+
+
+
+g++ $CFLAGS ./create_bucket.cpp	-o ./create_bucket $LFLAGS
+g++ $CFLAGS ./list_buckets.cpp	-o ./list_buckets $LFLAGS
+g++ $CFLAGS ./delete_bucket.cpp	-o ./delete_bucket $LFLAGS
+g++ $CFLAGS ./put_object.cpp	-o ./put_object $LFLAGS
+g++ $CFLAGS ./list_objects.cpp	-o ./list_objects $LFLAGS
+g++ $CFLAGS ./get_object.cpp	-o ./get_object $LFLAGS
+g++ $CFLAGS ./delete_object.cpp	-o ./delete_object $LFLAGS
+
+ldd ./create_bucket
+
+rm *.o
+exit
+
+#export LD_DEBUG=all
+#export LD_DEBUG_OUTPUT=/tmp/aws/debug
+
+
+

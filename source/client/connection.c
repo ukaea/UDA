@@ -173,7 +173,6 @@ int createConnection()
             strcpy(environment->server_host, hostname);    // Replace
         int port = udaClientGetHostPort(hostId);
         if (port > 0 && environment->server_port != port) environment->server_port = port;
-        udaClientPutHostNameId(hostId);
     } else if ((hostId = udaClientFindHostByName(hostname)) >=
                0) {    // No alias found, maybe the domain name or ip address is listed
         int port = udaClientGetHostPort(hostId);
@@ -181,24 +180,27 @@ int createConnection()
             environment->server_port = port;
         }                // Replace if found and different
     }
+    udaClientPutHostNameId(hostId);
 
-// Does the host name contain the SSL protocol prefix?
-
-    int hostname_offset = 0;
+// Does the host name contain the SSL protocol prefix? If so strip this off
 
 #if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
-    if(!strncasecmp(hostname, "SSL://", 6)){
-       hostname_offset = 6;
-       putUdaClientSSLProtocol(1); 
+    if(!strncasecmp(hostname, "SSL://", 6)){		// Should be stripped already if via the HOST client configuration file
+        strcpy(environment->server_host, &hostname[6]);    // Replace
+        putUdaClientSSLProtocol(1);
     } else {
-       putUdaClientSSLProtocol(0);
+        if(hostId >= 0 && udaClientGetHostSSL(hostId)){
+            putUdaClientSSLProtocol(1);
+        } else { 
+            putUdaClientSSLProtocol(0);
+        }   
     }
 #endif
 
 // Resolve host
 
     errno = 0;
-    host = gethostbyname(&hostname[hostname_offset]);
+    host = gethostbyname(hostname);
     serrno = errno;
 
     if (host == NULL || serrno != 0) {
@@ -272,17 +274,26 @@ int createConnection()
                 if (port > 0 && environment->server_port2 != port) environment->server_port2 = port;
             }
 
+            // Does the host name contain the SSL protocol prefix? If so strip this off
+
 #if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
-                if(!strncasecmp(hostname, "SSL://", 6)){
-                   hostname_offset = 6;
-                   putUdaClientSSLProtocol(1);
-                } else {
-                   putUdaClientSSLProtocol(0);
+            if(!strncasecmp(hostname, "SSL://", 6)){		// Should be stripped already if via the HOST client configuration file
+                strcpy(environment->server_host2, &hostname[6]);    // Replace
+                putUdaClientSSLProtocol(1);
+            } else {
+                if(hostId >= 0 && udaClientGetHostSSL(hostId)){
+                    putUdaClientSSLProtocol(1);
+                } else { 
+                    putUdaClientSSLProtocol(0);
                 }
+            }
 #endif
 
+// Resolve host
+
             errno = 0;
-            host = gethostbyname(&hostname[hostname_offset]);
+            host = gethostbyname(hostname);
+
             if (host == NULL || errno != 0) {
                 if (errno != 0) {
                     addIdamError(SYSTEMERRORTYPE, "idamCreateConnection", errno, "");

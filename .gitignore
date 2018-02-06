@@ -1,6 +1,5 @@
 cmake-build-*
-build
-build_*
+build*
 bin
 include
 lib
