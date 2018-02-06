@@ -1,4 +1,4 @@
-find_package( LibXml2 REQUIRED )
+find_package( LibXml2 QUIET )
 
 # Sometimes xmlStrPrintf from LibXml2 takes a "char *" as the format string argument
 # and sometimes it takes a "xmlChar *". This causes code to fail with -Wall and -Werror

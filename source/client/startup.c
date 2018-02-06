@@ -39,7 +39,7 @@ int idamStartup(int reset)
 
     const ENVIRONMENT* environment = NULL;
 
-    if (!start_status) {
+    if (!start_status || environment == NULL) {
         environment = getIdamClientEnvironment();
     }
 

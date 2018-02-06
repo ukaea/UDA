@@ -2,9 +2,12 @@
 #define IDAM_CLIENTSERVER_TRIMSTRING_H
 
 #include <string.h>
-#include <strings.h>
 #include <ctype.h>
 #include <stdbool.h>
+
+#ifndef _WIN32
+#  include <strings.h>
+#endif
 
 #ifdef __cplusplus
 extern "C" {

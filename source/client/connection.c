@@ -1,24 +1,30 @@
 // Create a Socket Connection to the IDAM server with a randomised time delay between connection attempts
 //
 //----------------------------------------------------------------
+#ifdef _WIN32
+#  include <winsock.h> // must be included before connection.h to avoid macro redefinition in rpc/types.h
+#endif
 
 #include "connection.h"
 
 #include <string.h>
 #include <stdlib.h>
 #include <errno.h>
+#include <signal.h>
 
 #ifdef __GNUC__
-
+#  ifndef _WIN32
+#    include <netdb.h>
+#    include <netinet/tcp.h>
+#  endif
 #  include <unistd.h>
-#  include <netdb.h>
 #  include <strings.h>
-#  include <netinet/tcp.h>
-#  include <signal.h>
-#elif defined(_WIN32)
-#  include <winsock.h>
+#else
 #  include <process.h>
 #  define strcasecmp _stricmp
+#  define sleep(DELAY) Sleep((DWORD)((DELAY)*1E3))
+#  define close(SOCK) closesocket(SOCK)
+#  pragma comment(lib, "Ws2_32.lib")
 #endif
 
 #include <clientserver/errorLog.h>
@@ -119,22 +125,21 @@ int createConnection()
 
     if (clientSocket >= 0) {
         return 0;                // Check Already Opened?
-
     }
 
 #if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
-        putUdaClientSSLSocket(clientSocket);
+	putUdaClientSSLSocket(clientSocket);
 #endif
 
 #ifdef _WIN32                            // Initialise WINSOCK Once only
-        static unsigned int	initWinsock = 0;
-        WORD sockVersion;
-        WSADATA wsaData;
-        if(!initWinsock) {
-            sockVersion = MAKEWORD(1, 1);				// Select Winsock version 1.1
-            WSAStartup(sockVersion, &wsaData);
-            initWinsock = 1;
-        }
+	static unsigned int	initWinsock = 0;
+	WORD sockVersion;
+	WSADATA wsaData;
+	if (!initWinsock) {
+		sockVersion = MAKEWORD(2, 2);				// Select Winsock version 2.2
+		WSAStartup(sockVersion, &wsaData);
+		initWinsock = 1;
+	}
 #endif
 
     errno = 0;
@@ -242,15 +247,11 @@ int createConnection()
             if (rc == 0) break;
 
             delay = MAX_SOCKET_DELAY * ((float)rand() / (float)RAND_MAX);
-#ifdef __GNUC__
             sleep(delay);                            // wait period
-#elif defined(_WIN32)
-            Sleep((DWORD)(delay * 1E3));
-#endif
         }
 
-        if (rc < 0 && strcmp(environment->server_host, environment->server_host2) !=
-                      0) {        // Abandon principal Host - attempt secondary host
+        if (rc < 0 && strcmp(environment->server_host, environment->server_host2) != 0) {
+            // Abandon principal Host - attempt secondary host
             hostname = environment->server_host2;
 
             // Check if the hostname is an alias for an IP address or name in the client configuration - replace if found
@@ -289,11 +290,7 @@ int createConnection()
                     addIdamError(CODEERRORTYPE, "idamCreateConnection", -1, "Unknown Server Host");
                 }
                 if (clientSocket != -1) {
-#ifdef __GNUC__
                     close(clientSocket);
-#elif defined(_WIN32)
-                    closesocket(clientSocket);
-#endif
                 }
                 clientSocket = -1;
                 return -1;
@@ -318,11 +315,7 @@ int createConnection()
                     break;
                 }
                 delay = MAX_SOCKET_DELAY * ((float)rand() / (float)RAND_MAX);
-#ifdef __GNUC__
                 sleep(delay);                            // wait period
-#elif defined(_WIN32)
-                Sleep((DWORD)(delay * 1E3));
-#endif
             }
         }
 
@@ -334,11 +327,7 @@ int createConnection()
                              "Unable to Connect to Server Stream Socket");
             }
             if (clientSocket != -1) {
-#ifdef __GNUC__
                 close(clientSocket);
-#elif defined(_WIN32)
-                closesocket(clientSocket);
-#endif
             }
             clientSocket = -1;
             return -1;
@@ -358,22 +347,14 @@ int createConnection()
     on = 1;
     if (setsockopt(clientSocket, SOL_SOCKET, SO_KEEPALIVE, (char*)&on, sizeof(on)) < 0) {
         addIdamError(CODEERRORTYPE, "createConnection", -1, "Error Setting KEEPALIVE on Socket");
-#ifdef __GNUC__
         close(clientSocket);
-#elif defined(_WIN32)
-        closesocket(clientSocket);
-#endif
         clientSocket = -1;
         return -1;
     }
     on = 1;
     if (setsockopt(clientSocket, IPPROTO_TCP, TCP_NODELAY, (char*)&on, sizeof(on)) < 0) {
         addIdamError(CODEERRORTYPE, "createConnection", -1, "Error Setting NODELAY on Socket");
-#ifdef __GNUC__
         close(clientSocket);
-#elif defined(_WIN32)
-        closesocket(clientSocket);
-#endif
         clientSocket = -1;
         return -1;
     }
@@ -410,7 +391,9 @@ void closeConnection(int type)
 
 int clientWriteout(void* iohandle, char* buf, int count)
 {
+#ifndef _WIN32
     void (* OldSIGPIPEHandler)();
+#endif
     int rc = 0;
     size_t BytesSent = 0;
 
@@ -455,10 +438,12 @@ int clientWriteout(void* iohandle, char* buf, int count)
      communicate with) will return with errno set to EPIPE
     */
 
+#ifndef _WIN32
     if ((OldSIGPIPEHandler = signal(SIGPIPE, SIG_IGN)) == SIG_ERR) {
         addIdamError(CODEERRORTYPE, "idamClientWriteout", -1, "Error attempting to ignore SIG_PIPE");
         return -1;
     }
+#endif
 
 // Write to socket, checking for EINTR, as happens if called from IDL
 
@@ -466,7 +451,7 @@ int clientWriteout(void* iohandle, char* buf, int count)
 #ifndef _WIN32
         while (((rc = (int)write(clientSocket, buf, count)) == -1) && (errno == EINTR)) {}
 #else
-        while ( ( (rc=send( clientSocket, buf , count, 0 )) == SOCKET_ERROR) && (errno == EINTR) ) {}
+        while (((rc = send(clientSocket, buf , count, 0)) == SOCKET_ERROR) && (errno == EINTR)) {}
 #endif
         BytesSent += rc;
         buf += rc;
@@ -474,11 +459,12 @@ int clientWriteout(void* iohandle, char* buf, int count)
 
 // Restore the original SIGPIPE handler set by the application
 
+#ifndef _WIN32
     if (signal(SIGPIPE, OldSIGPIPEHandler) == SIG_ERR) {
-        addIdamError(CODEERRORTYPE, "idamClientWriteout", -1,
-                     "Error attempting to restore SIG_PIPE handler");
+        addIdamError(CODEERRORTYPE, "idamClientWriteout", -1, "Error attempting to restore SIG_PIPE handler");
         return -1;
     }
+#endif
 
     return rc;
 }
@@ -507,9 +493,6 @@ int clientReadin(void* iohandle, char* buf, int count)
     while (((rc = (int)read(clientSocket, buf, count)) == -1) && (errno == EINTR)) {}
 #else
     while ((( rc=recv( clientSocket, buf, count, 0)) == SOCKET_ERROR ) && (errno == EINTR)) {}
-
-    // if rc == 0 then socket is closed => server fail?
-
 #endif
 
     serrno = errno;

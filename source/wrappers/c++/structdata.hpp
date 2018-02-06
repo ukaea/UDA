@@ -3,7 +3,11 @@
 
 #include <vector>
 #include <string>
-#include <cxxabi.h>
+#ifdef __GNUC__
+#  include <cxxabi.h>
+#else
+#  include <Windows.h>
+#endif
 
 namespace uda {
 
@@ -19,7 +23,13 @@ public:
     {
         int status;
         std::string tname = typeid(T).name();
+#ifdef __GNUC__
         std::string demangled_name(abi::__cxa_demangle(tname.c_str(), nullptr, nullptr, &status));
+#else
+        char demangled[1024];
+        UnDecorateSymbolName(tname, demangled, sizeof(demangled), UNDNAME_COMPLETE);
+        std::string demangled_name(demangle);
+#endif
 
         std::vector<T*> vec;
         for (size_t i = 0; i < data_.size(); ++i) {

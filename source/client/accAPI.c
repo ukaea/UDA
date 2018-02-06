@@ -11,7 +11,8 @@
 #ifdef __GNUC__
 #  include <pthread.h>
 #  include <strings.h>
-#elif defined(_WIN32)
+#else
+#  include <Windows.h>
 #  include <string.h>
 #  define strcasecmp _stricmp
 #  define strncasecmp _strnicmp
@@ -68,12 +69,22 @@ typedef struct {
     SERVER_BLOCK server_block;
 } IDAMSTATE;
 
+#ifdef __GNUC__
+typedef pthread_t thread_t;
+typedef pthread_mutex_t lock_t;
+
 static pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
+#else
+typedef HANDLE lock_t;
+typedef HANDLE thread_t;
+
+static HANDLE lock;
+#endif
 
 // STATE management
 
 static IDAMSTATE idamState[NUMIDAMCLIENTTHREADS];    // Threads are managed by the application, not IDAM
-static pthread_t threadList[NUMIDAMCLIENTTHREADS];
+static thread_t threadList[NUMIDAMCLIENTTHREADS];
 static int threadCount = 0;
 
 int getIdamMaxThreadCount()
@@ -81,23 +92,45 @@ int getIdamMaxThreadCount()
     return NUMIDAMCLIENTTHREADS;
 }
 
-int getThreadId(pthread_t id)
-{            // Search the set of registered threads for the State ID
+// Search the set of registered threads for the State ID
+int getThreadId(thread_t id)
+{
     int i;
-    for (i = 0; i < threadCount; i++) if (pthread_equal(id, threadList[i])) return i;
+    for (i = 0; i < threadCount; i++) {
+#ifdef __GNUC__
+        if (pthread_equal(id, threadList[i])) return i;
+#else
+        if (GetThreadId(id) == GetThreadId(threadList[i])) return i;
+#endif
+    }
     return -1;
 }
 
 // Lock the thread and set the previous STATE  
 void lockIdamThread()
 {
-    pthread_mutex_lock(&lock);            // Apply the lock first
-
     static unsigned int mutex_initialised = 0;
+
+    if (!mutex_initialised) {
+#ifndef __GNUC__
+        lock = CreateMutex(NULL, FALSE, NULL);
+#endif
+    }
+
+    // Apply the lock first
+#ifdef __GNUC__
+    pthread_mutex_lock(&lock);
+#else
+    WaitForSingleObject(lock, INFINITE);
+#endif
 
 // Identify the Current Thread   
 
-    pthread_t threadId = pthread_self();
+#ifdef __GNUC__
+    thread_t threadId = pthread_self();
+#else
+    thread_t threadId = GetCurrentThread();
+#endif
 
 // Initialise the thread's state
 
@@ -120,8 +153,9 @@ void lockIdamThread()
     int id = getThreadId(threadId);
 
     if (threadCount < NUMIDAMCLIENTTHREADS && id == -1) {
+        // Preserve the thread ID if not registered
         threadList[++threadCount - 1] = threadId;
-    }        // Preserve the thread ID if not registered
+    }
 
 // Assign State for the current thread if previously registered 
 
@@ -140,7 +174,11 @@ void lockIdamThread()
 // Unlock the thread and save the current STATE
 void unlockIdamThread()
 {
-    pthread_t threadId = pthread_self();
+#ifdef __GNUC__
+    thread_t threadId = pthread_self();
+#else
+    thread_t threadId = GetCurrentThread();
+#endif
     int id = getThreadId(threadId);        // Must be registered
     if (id >= 0) {
         idamState[id].socket = getIdamServerSocket();
@@ -150,14 +188,22 @@ void unlockIdamThread()
         idamState[id].client_block.clientFlags = clientFlags;
         idamState[id].lastHandle = getIdamThreadLastHandle();
     }
+#ifdef __GNUC__
     pthread_mutex_unlock(&lock);
+#else
+    ReleaseMutex(lock);
+#endif
 }
 
 // Free thread resources
 void freeIdamThread()
 {
     lockIdamThread();
-    pthread_t threadId = pthread_self();
+#ifdef __GNUC__
+    thread_t threadId = pthread_self();
+#else
+    thread_t threadId = GetCurrentThread();
+#endif
     int i, id = getThreadId(threadId);
     threadCount--;
     if (id >= 0) {
@@ -1285,7 +1331,7 @@ char* getIdamAsymmetricError(int handle, int above)
 
             switch (Data_Block[handle].data_type) {
                 case UDA_TYPE_FLOAT: {
-                    float* fh, * fl;
+                    float* fh, * fl = NULL;
                     fh = (float*)Data_Block[handle].errhi;
                     if (Data_Block[handle].errasymmetry) fl = (float*)Data_Block[handle].errlo;
                     for (i = 0; i < ndata; i++) {
@@ -1295,7 +1341,7 @@ char* getIdamAsymmetricError(int handle, int above)
                     break;
                 }
                 case UDA_TYPE_DOUBLE: {
-                    double* dh, * dl;
+                    double* dh, * dl = NULL;
                     dh = (double*)Data_Block[handle].errhi;
                     if (Data_Block[handle].errasymmetry) dl = (double*)Data_Block[handle].errlo;
                     for (i = 0; i < ndata; i++) {
@@ -1305,7 +1351,7 @@ char* getIdamAsymmetricError(int handle, int above)
                     break;
                 }
                 case UDA_TYPE_SHORT: {
-                    short* sh, * sl;
+                    short* sh, * sl = NULL;
                     sh = (short*)Data_Block[handle].errhi;
                     if (Data_Block[handle].errasymmetry) sl = (short*)Data_Block[handle].errlo;
                     for (i = 0; i < ndata; i++) {
@@ -1315,7 +1361,7 @@ char* getIdamAsymmetricError(int handle, int above)
                     break;
                 }
                 case UDA_TYPE_UNSIGNED_SHORT: {
-                    unsigned short* sh, * sl;
+                    unsigned short* sh, * sl = NULL;
                     sh = (unsigned short*)Data_Block[handle].errhi;
                     if (Data_Block[handle].errasymmetry) sl = (unsigned short*)Data_Block[handle].errlo;
                     for (i = 0; i < ndata; i++) {
@@ -1325,7 +1371,7 @@ char* getIdamAsymmetricError(int handle, int above)
                     break;
                 }
                 case UDA_TYPE_INT: {
-                    int* ih, * il;
+                    int* ih, * il = NULL;
                     ih = (int*)Data_Block[handle].errhi;
                     if (Data_Block[handle].errasymmetry) il = (int*)Data_Block[handle].errlo;
                     for (i = 0; i < ndata; i++) {
@@ -1335,7 +1381,7 @@ char* getIdamAsymmetricError(int handle, int above)
                     break;
                 }
                 case UDA_TYPE_UNSIGNED_INT: {
-                    unsigned int* uh, * ul;
+                    unsigned int* uh, * ul = NULL;
                     uh = (unsigned int*)Data_Block[handle].errhi;
                     if (Data_Block[handle].errasymmetry) ul = (unsigned int*)Data_Block[handle].errlo;
                     for (i = 0; i < ndata; i++) {
@@ -1345,7 +1391,7 @@ char* getIdamAsymmetricError(int handle, int above)
                     break;
                 }
                 case UDA_TYPE_LONG: {
-                    long* lh, * ll;
+                    long* lh, * ll = NULL;
                     lh = (long*)Data_Block[handle].errhi;
                     if (Data_Block[handle].errasymmetry) ll = (long*)Data_Block[handle].errlo;
                     for (i = 0; i < ndata; i++) {
@@ -1355,7 +1401,7 @@ char* getIdamAsymmetricError(int handle, int above)
                     break;
                 }
                 case UDA_TYPE_UNSIGNED_LONG: {
-                    unsigned long* lh, * ll;
+                    unsigned long* lh, * ll = NULL;
                     lh = (unsigned long*)Data_Block[handle].errhi;
                     if (Data_Block[handle].errasymmetry) ll = (unsigned long*)Data_Block[handle].errlo;
                     for (i = 0; i < ndata; i++) {
@@ -1365,7 +1411,7 @@ char* getIdamAsymmetricError(int handle, int above)
                     break;
                 }
                 case UDA_TYPE_LONG64: {
-                    long long int* lh, * ll;
+                    long long int* lh, * ll = NULL;
                     lh = (long long int*)Data_Block[handle].errhi;
                     if (Data_Block[handle].errasymmetry) ll = (long long int*)Data_Block[handle].errlo;
                     for (i = 0; i < ndata; i++) {
@@ -1376,7 +1422,7 @@ char* getIdamAsymmetricError(int handle, int above)
                 }
 #ifndef __APPLE__
                 case UDA_TYPE_UNSIGNED_LONG64: {
-                    unsigned long long int* lh, * ll;
+                    unsigned long long int* lh, * ll = NULL;
                     lh = (unsigned long long int*) Data_Block[handle].errhi;
                     if (Data_Block[handle].errasymmetry) ll = (unsigned long long int*) Data_Block[handle].errlo;
                     for (i = 0; i < ndata; i++) {
@@ -1387,7 +1433,7 @@ char* getIdamAsymmetricError(int handle, int above)
                 }
 #endif
                 case UDA_TYPE_CHAR: {
-                    char* ch, * cl;
+                    char* ch, * cl = NULL;
                     ch = Data_Block[handle].errhi;
                     if (Data_Block[handle].errasymmetry) cl = Data_Block[handle].errlo;
                     for (i = 0; i < ndata; i++) {
@@ -1397,7 +1443,7 @@ char* getIdamAsymmetricError(int handle, int above)
                     break;
                 }
                 case UDA_TYPE_UNSIGNED_CHAR: {
-                    unsigned char* ch, * cl;
+                    unsigned char* ch, * cl = NULL;
                     ch = (unsigned char*)Data_Block[handle].errhi;
                     if (Data_Block[handle].errasymmetry) cl = (unsigned char*)Data_Block[handle].errlo;
                     for (i = 0; i < ndata; i++) {
@@ -1407,7 +1453,7 @@ char* getIdamAsymmetricError(int handle, int above)
                     break;
                 }
                 case UDA_TYPE_DCOMPLEX: {
-                    DCOMPLEX* ch, * cl;
+                    DCOMPLEX* ch, * cl = NULL;
                     ch = (DCOMPLEX*)Data_Block[handle].errhi;
                     if (Data_Block[handle].errasymmetry) cl = (DCOMPLEX*)Data_Block[handle].errlo;
                     for (i = 0; i < ndata; i++) {
@@ -1421,7 +1467,7 @@ char* getIdamAsymmetricError(int handle, int above)
                     break;
                 }
                 case UDA_TYPE_COMPLEX: {
-                    COMPLEX* ch, * cl;
+                    COMPLEX* ch, * cl = NULL;
                     ch = (COMPLEX*)Data_Block[handle].errhi;
                     if (Data_Block[handle].errasymmetry) cl = (COMPLEX*)Data_Block[handle].errlo;
                     for (i = 0; i < ndata; i++) {
@@ -2623,7 +2669,7 @@ char* getIdamDimAsymmetricError(int handle, int ndim, int above)
 
             switch (Data_Block[handle].dims[ndim].data_type) {
                 case UDA_TYPE_FLOAT: {
-                    float* fh, * fl;
+                    float* fh, * fl = NULL;
                     fh = (float*)Data_Block[handle].dims[ndim].errhi;
                     if (Data_Block[handle].dims[ndim].errasymmetry) fl = (float*)Data_Block[handle].dims[ndim].errlo;
                     for (i = 0; i < ndata; i++) {
@@ -2633,7 +2679,7 @@ char* getIdamDimAsymmetricError(int handle, int ndim, int above)
                     break;
                 }
                 case UDA_TYPE_DOUBLE: {
-                    double* dh, * dl;
+                    double* dh, * dl = NULL;
                     dh = (double*)Data_Block[handle].dims[ndim].errhi;
                     if (Data_Block[handle].dims[ndim].errasymmetry) dl = (double*)Data_Block[handle].dims[ndim].errlo;
                     for (i = 0; i < ndata; i++) {
@@ -2643,7 +2689,7 @@ char* getIdamDimAsymmetricError(int handle, int ndim, int above)
                     break;
                 }
                 case UDA_TYPE_SHORT: {
-                    short* sh, * sl;
+                    short* sh, * sl = NULL;
                     sh = (short*)Data_Block[handle].dims[ndim].errhi;
                     if (Data_Block[handle].dims[ndim].errasymmetry) sl = (short*)Data_Block[handle].dims[ndim].errlo;
                     for (i = 0; i < ndata; i++) {
@@ -2653,7 +2699,7 @@ char* getIdamDimAsymmetricError(int handle, int ndim, int above)
                     break;
                 }
                 case UDA_TYPE_UNSIGNED_SHORT: {
-                    unsigned short* sh, * sl;
+                    unsigned short* sh, * sl = NULL;
                     sh = (unsigned short*)Data_Block[handle].dims[ndim].errhi;
                     if (Data_Block[handle].dims[ndim].errasymmetry) sl = (unsigned short*)Data_Block[handle].dims[ndim].errlo;
                     for (i = 0; i < ndata; i++) {
@@ -2663,7 +2709,7 @@ char* getIdamDimAsymmetricError(int handle, int ndim, int above)
                     break;
                 }
                 case UDA_TYPE_INT: {
-                    int* ih, * il;
+                    int* ih, * il = NULL;
                     ih = (int*)Data_Block[handle].dims[ndim].errhi;
                     if (Data_Block[handle].dims[ndim].errasymmetry) il = (int*)Data_Block[handle].dims[ndim].errlo;
                     for (i = 0; i < ndata; i++) {
@@ -2673,7 +2719,7 @@ char* getIdamDimAsymmetricError(int handle, int ndim, int above)
                     break;
                 }
                 case UDA_TYPE_UNSIGNED_INT: {
-                    unsigned int* uh, * ul;
+                    unsigned int* uh, * ul = NULL;
                     uh = (unsigned int*)Data_Block[handle].dims[ndim].errhi;
                     if (Data_Block[handle].dims[ndim].errasymmetry) ul = (unsigned int*)Data_Block[handle].dims[ndim].errlo;
                     for (i = 0; i < ndata; i++) {
@@ -2683,7 +2729,7 @@ char* getIdamDimAsymmetricError(int handle, int ndim, int above)
                     break;
                 }
                 case UDA_TYPE_LONG: {
-                    long* lh, * ll;
+                    long* lh, * ll = NULL;
                     lh = (long*)Data_Block[handle].dims[ndim].errhi;
                     if (Data_Block[handle].dims[ndim].errasymmetry) ll = (long*)Data_Block[handle].dims[ndim].errlo;
                     for (i = 0; i < ndata; i++) {
@@ -2693,7 +2739,7 @@ char* getIdamDimAsymmetricError(int handle, int ndim, int above)
                     break;
                 }
                 case UDA_TYPE_UNSIGNED_LONG: {
-                    unsigned long* lh, * ll;
+                    unsigned long* lh, * ll = NULL;
                     lh = (unsigned long*)Data_Block[handle].dims[ndim].errhi;
                     if (Data_Block[handle].dims[ndim].errasymmetry) ll = (unsigned long*)Data_Block[handle].dims[ndim].errlo;
                     for (i = 0; i < ndata; i++) {
@@ -2703,7 +2749,7 @@ char* getIdamDimAsymmetricError(int handle, int ndim, int above)
                     break;
                 }
                 case UDA_TYPE_LONG64: {
-                    long long int* lh, * ll;
+                    long long int* lh, * ll = NULL;
                     lh = (long long int*)Data_Block[handle].dims[ndim].errhi;
                     if (Data_Block[handle].dims[ndim].errasymmetry) ll = (long long int*)Data_Block[handle].dims[ndim].errlo;
                     for (i = 0; i < ndata; i++) {
@@ -2714,7 +2760,7 @@ char* getIdamDimAsymmetricError(int handle, int ndim, int above)
                 }
 #ifndef __APPLE__
                 case UDA_TYPE_UNSIGNED_LONG64: {
-                    unsigned long long int* lh, * ll;
+                    unsigned long long int* lh, * ll = NULL;
                     lh = (unsigned long long int*) Data_Block[handle].dims[ndim].errhi;
                     if (Data_Block[handle].dims[ndim].errasymmetry) ll = (unsigned long long int*) Data_Block[handle].dims[ndim].errlo;
                     for (i = 0; i < ndata; i++) {
@@ -2725,7 +2771,7 @@ char* getIdamDimAsymmetricError(int handle, int ndim, int above)
                 }
 #endif
                 case UDA_TYPE_CHAR: {
-                    char* ch, * cl;
+                    char* ch, * cl = NULL;
                     ch = Data_Block[handle].dims[ndim].errhi;
                     if (Data_Block[handle].dims[ndim].errasymmetry) cl = Data_Block[handle].dims[ndim].errlo;
                     for (i = 0; i < ndata; i++) {
@@ -2735,7 +2781,7 @@ char* getIdamDimAsymmetricError(int handle, int ndim, int above)
                     break;
                 }
                 case UDA_TYPE_UNSIGNED_CHAR: {
-                    unsigned char* ch, * cl;
+                    unsigned char* ch, * cl = NULL;
                     ch = (unsigned char*)Data_Block[handle].dims[ndim].errhi;
                     if (Data_Block[handle].dims[ndim].errasymmetry) cl = (unsigned char*)Data_Block[handle].dims[ndim].errlo;
                     for (i = 0; i < ndata; i++) {
@@ -2745,7 +2791,7 @@ char* getIdamDimAsymmetricError(int handle, int ndim, int above)
                     break;
                 }
                 case UDA_TYPE_DCOMPLEX: {
-                    DCOMPLEX* ch, * cl;
+                    DCOMPLEX* ch, * cl = NULL;
                     ch = (DCOMPLEX*)Data_Block[handle].dims[ndim].errhi;
                     if (Data_Block[handle].dims[ndim].errasymmetry) cl = (DCOMPLEX*)Data_Block[handle].dims[ndim].errlo;
                     for (i = 0; i < ndata; i++) {
@@ -2759,7 +2805,7 @@ char* getIdamDimAsymmetricError(int handle, int ndim, int above)
                     break;
                 }
                 case UDA_TYPE_COMPLEX: {
-                    COMPLEX* ch, * cl;
+                    COMPLEX* ch, * cl = NULL;
                     ch = (COMPLEX*)Data_Block[handle].dims[ndim].errhi;
                     if (Data_Block[handle].dims[ndim].errasymmetry) cl = (COMPLEX*)Data_Block[handle].dims[ndim].errlo;
                     for (i = 0; i < ndata; i++) {
@@ -3192,10 +3238,13 @@ TODO
 3> is keySize useful if the key is always a string!
 */
 
+#ifdef __GNUC__
     char* buffer;
     size_t bufsize = 0;
-
     FILE* memfile = open_memstream(&buffer, &bufsize);
+#else
+    FILE* memfile = tmpfile();
+#endif
 
     XDR xdrs;
     xdrstdio_create(&xdrs, memfile, XDR_ENCODE);
@@ -3205,6 +3254,17 @@ TODO
     USERDEFINEDTYPELIST* userdefinedtypelist = getIdamUserDefinedTypeList(handle);
     LOGMALLOCLIST* logmalloclist = getIdamLogMallocList(handle);
     protocol2(&xdrs, PROTOCOL_DATA_BLOCK, XDR_SEND, &token, logmalloclist, userdefinedtypelist, (void*)getIdamDataBlock(handle));
+
+#ifndef __GNUC__
+    fflush(memfile);
+    fseek(memfile, 0, SEEK_END);
+    long fsize = ftell(memfile);
+    rewind(memfile);
+
+    size_t bufsize = (size_t)fsize;
+    char* buffer = malloc(bufsize);
+    fread(buffer, bufsize, 1, memfile);
+#endif
 
     xdr_destroy(&xdrs);     // Destroy before the  file otherwise a segmentation error occurs
     fclose(memfile);

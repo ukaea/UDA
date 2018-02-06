@@ -2,14 +2,11 @@ cmake_minimum_required( VERSION 3.0 )
 
 include( LibXml2StrPrintfConfig )
 
-add_definitions(
-  -Wall
-  -Werror
-)
-
-if( DEBUGGER )
-   add_definitions( -g )
-endif()  
+if( WIN32 AND NOT MINGW )
+  add_definitions( /W2 /WX )
+else()
+  add_definitions( -Wall -Werror )
+endif()
 
 set( LOGGING_BACKEND "FILE" CACHE STRING "Choose logging backend [FILE;SYSLOG]" )
 

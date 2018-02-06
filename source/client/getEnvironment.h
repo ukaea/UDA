@@ -9,9 +9,9 @@
 #  define putIdamClientEnvironment putIdamClientEnvironmentFat
 #endif
 
-void printIdamClientEnvironment(const ENVIRONMENT* environ);
+void printIdamClientEnvironment(const ENVIRONMENT* environment);
 ENVIRONMENT* getIdamClientEnvironment();
-void putIdamClientEnvironment(const ENVIRONMENT* environ);
+void putIdamClientEnvironment(const ENVIRONMENT* environment);
 
 extern int env_host;            // Flags to Read Environment variable at startup time
 extern int env_port;

@@ -4,8 +4,8 @@
 # Dependencies
 
 find_package( OpenSSL REQUIRED )
-find_package( LibXml2 REQUIRED )
 if( NOT CLIENT_ONLY )
+  find_package( LibXml2 REQUIRED )
   find_package( PostgreSQL REQUIRED )
 endif()
 
@@ -86,7 +86,15 @@ set( FATCLIENT_OBJS
 add_library( client-shared SHARED ${CLIENT_OBJS} )
 add_library( client-static STATIC ${CLIENT_OBJS} )
 
-set( CLIENT_LINK_LIBS ${OPENSSL_LIBRARIES} ${LIBXML2_LIBRARIES} ${CACHE_LIBRARIES} )
+if( NOT CLIENT_ONLY )
+  set( CLIENT_LINK_LIBS ${OPENSSL_LIBRARIES} ${LIBXML2_LIBRARIES} ${CACHE_LIBRARIES} xdr )
+else()
+  set( CLIENT_LINK_LIBS ${OPENSSL_LIBRARIES} ${CACHE_LIBRARIES} xdr )
+endif()
+
+if( WIN32 )
+  set( CLIENT_LINK_LIBS ${CLIENT_LINK_LIBS} ws2_32 )
+endif()
 
 target_link_libraries( client-shared PRIVATE ${CLIENT_LINK_LIBS} )
 target_link_libraries( client-static PRIVATE ${CLIENT_LINK_LIBS} )
@@ -127,14 +135,14 @@ if( NOT CLIENT_ONLY )
     OUTPUT_NAME fat${PROJECT_NAME}_client
     VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}
     SOVERSION ${PROJECT_VERSION_MAJOR}
-    )
+  )
 
   set_target_properties( fatclient-static
     PROPERTIES
     OUTPUT_NAME fat${PROJECT_NAME}_client
-    )
+  )
 
   install( TARGETS fatclient-shared fatclient-static
     DESTINATION lib
-    )
+  )
 endif()

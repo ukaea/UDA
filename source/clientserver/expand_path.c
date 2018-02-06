@@ -17,9 +17,9 @@
 
 #include <errno.h>
 
-#ifdef __GNUC__
+#ifndef _WIN32
 #  include <unistd.h>
-#elif defined(_WIN32)
+#else
 #  include <Windows.h>
 #endif
 

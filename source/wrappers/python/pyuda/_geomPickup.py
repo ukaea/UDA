@@ -18,9 +18,6 @@ Pickup coils that measure only toroidally are coloured red.
 import math
 import numpy as np
 
-import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
-
 from ._geometryUtils import length_poloidal_projection
 from ._geometryUtils import vector_to_bR_bZ_bPhi
 from ._geometryUtils import unit_vector_to_poloidal_angle
@@ -109,6 +106,9 @@ class GeomPickup():
                       If None, then an axis will be created.
         :return:
         """
+        import matplotlib.pyplot as plt
+        from mpl_toolkits.mplot3d import Axes3D
+    
         # Get co-ordiantes
         r_z_to_plot = []
         x_y_z_to_plot = []

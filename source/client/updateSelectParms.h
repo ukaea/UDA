@@ -6,9 +6,9 @@
 #define UDA_CLIENT_UPDATESELECTPARMS_H
 
 #include <time.h>
-#ifdef __GNUC__
+#ifndef _WIN32
 #  include <sys/select.h>
-#elif defined(_WIN32)
+#else
 #  include <winsock.h>
 #endif
 

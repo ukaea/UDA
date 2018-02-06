@@ -5,7 +5,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
-#include <strings.h>
+#ifndef _WIN32
+#  include <strings.h>
+#endif
 
 #include <client/udaClientHostList.h>
 #include <clientserver/stringUtils.h>
@@ -222,7 +224,7 @@ void udaClientInitHostList()
             if (split != NULL) split[0] = '\0';            // Extract the attribute name
             LeftTrimString(TrimString(next));
 
-            if (!strcasecmp(next, "hostName")) {            // Trigger a new set of attributes
+            if (StringIEquals(next, "hostName")) {            // Trigger a new set of attributes
                 newHost = 0;
                 udaClientInitHostData(&list->hosts[list->count]);        // New block of attributes
                 next = &split[1];
@@ -232,31 +234,31 @@ void udaClientInitHostList()
                     strcpy(list->hosts[list->count++].hostname, next);
                     newHost = 1;
                 }
-            } else if (newHost && !strcasecmp(next, "hostAlias")) {
+            } else if (newHost && StringIEquals(next, "hostAlias")) {
                 next = &split[1];
                 LeftTrimString(TrimString(next));
                 if (next[0] != '\0' && strlen(next) < HOST_STRING) {
                     strcpy(list->hosts[list->count - 1].hostalias, next);
                 }
-            } else if (newHost && !strcasecmp(next, "port")) {
+            } else if (newHost && StringIEquals(next, "port")) {
                 next = &split[1];
                 LeftTrimString(TrimString(next));
                 if (next[0] != '\0' && strlen(next) < HOST_STRING) {
                     list->hosts[list->count - 1].port = atoi(next);
                 }
-            } else if (newHost && !strcasecmp(next, "certificate")) {
+            } else if (newHost && StringIEquals(next, "certificate")) {
                 next = &split[1];
                 LeftTrimString(TrimString(next));
                 if (next[0] != '\0' && strlen(next) < HOST_STRING) {
                     strcpy(list->hosts[list->count - 1].certificate, next);
                 }
-            } else if (newHost && !strcasecmp(next, "privateKey")) {
+            } else if (newHost && StringIEquals(next, "privateKey")) {
                 next = &split[1];
                 LeftTrimString(TrimString(next));
                 if (next[0] != '\0' && strlen(next) < HOST_STRING) {
                     strcpy(list->hosts[list->count - 1].key, next);
                 }
-            } else if (newHost && !strcasecmp(next, "CA-Certificate")) {
+            } else if (newHost && StringIEquals(next, "CA-Certificate")) {
                 next = &split[1];
                 LeftTrimString(TrimString(next));
                 if (next[0] != '\0' && strlen(next) < HOST_STRING) {

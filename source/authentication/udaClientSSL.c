@@ -79,6 +79,13 @@ void initUdaClientSSL()
     SSL_load_error_strings();
     OpenSSL_add_ssl_algorithms();
     setenv("UDA_SSL_INITIALISED", "1", 0);    // Ensure the library is not re-initialised by the UDA server
+#ifdef _WIN32
+    if (getenv("UDA_SSL_INITIALISED") == NULL) {
+        _putenv_s("UDA_SSL_INITIALISED", "1");
+    }
+#else
+    setenv("UDA_SSL_INITIALISED", "1", 0);
+#endif
     putUdaClientSSLGlobalInit(1);
     UDA_LOG(UDA_LOG_DEBUG, "SSL initialised\n");
 }
@@ -100,7 +107,11 @@ void closeUdaClientSSL()
     EVP_cleanup();
     putUdaClientSSL(NULL);
     putUdaClientSSLCTX(NULL);
+#ifdef _WIN32
+    _putenv_s("UDA_SSL_INITIALISED", NULL);
+#else
     unsetenv("UDA_SSL_INITIALISED");
+#endif
     putUdaClientSSLGlobalInit(0);
     UDA_LOG(UDA_LOG_DEBUG, "SSL closed\n");
 }
@@ -440,13 +451,15 @@ int writeUdaClientSSL(void* iohandle, char* buf, int count)
             return -1;
         }
 
+#ifndef _WIN32
         int fopts = 0;
-        if ((rc = fcntl(getUdaClientSSLSocket(), F_GETFL, &fopts)) < 0 ||
-            errno == EBADF) {    // Is the socket closed? Check status flags
+        if ((rc = fcntl(getUdaClientSSLSocket(), F_GETFL, &fopts)) < 0 || errno == EBADF) {
+            // Is the socket closed? Check status flags
             err = 999;
             UDA_LOG(UDA_LOG_DEBUG, "Socket is closed!\n");
             return -1;
         }
+#endif
 
         idamUpdateSelectParms(getUdaClientSSLSocket(), &wfds, &tv);
     }
@@ -470,11 +483,13 @@ int writeUdaClientSSL(void* iohandle, char* buf, int count)
             err = 999;
             UDA_LOG(UDA_LOG_DEBUG, "Write to socket failed!\n");
             addIdamError(CODEERRORTYPE, "writeUdaClientSSL", err, "Write to socket failed!");
+#ifndef _WIN32
             int fopts = 0;
             if ((rc = fcntl(getUdaClientSSLSocket(), F_GETFL, &fopts)) < 0 ||
                 errno == EBADF) {    // Is the socket closed? Check status flags
                 UDA_LOG(UDA_LOG_DEBUG, "Socket is closed!\n");
             }
+#endif
             return -1;
     }
 
@@ -515,6 +530,7 @@ int readUdaClientSSL(void* iohandle, char* buf, int count)
                     "Socket is Closed! Data request failed. Restarting connection.\n");
             return -1;
         }
+#ifndef _WIN32
         int fopts = 0;
         if ((rc = fcntl(getUdaClientSSLSocket(), F_GETFL, &fopts)) < 0 ||
             errno == EBADF) {    // Is the socket closed? Check status flags
@@ -522,6 +538,7 @@ int readUdaClientSSL(void* iohandle, char* buf, int count)
             UDA_LOG(UDA_LOG_DEBUG, "Socket is closed!\n");
             return -1;
         }
+#endif
 
         idamUpdateSelectParms(getUdaClientSSLSocket(), &rfds, &tv);        // Keep blocking and wait for data
     }
@@ -568,11 +585,13 @@ int readUdaClientSSL(void* iohandle, char* buf, int count)
                 err = 999;
                 UDA_LOG(UDA_LOG_DEBUG, "Read from socket failed!\n");
                 addIdamError(CODEERRORTYPE, "readUdaClientSSL", err, "Read from socket failed!");
+#ifndef _WIN32
                 int fopts = 0;
                 if ((rc = fcntl(getUdaClientSSLSocket(), F_GETFL, &fopts)) < 0 ||
                     errno == EBADF) {    // Is the socket closed? Check status flags
                     UDA_LOG(UDA_LOG_DEBUG, "Socket is closed!\n");
                 }
+#endif
                 return -1;
         }
 

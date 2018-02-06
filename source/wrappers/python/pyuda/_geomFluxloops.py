@@ -6,7 +6,6 @@ Plotting:
 Plot the positions of fluxloops
 """
 
-import matplotlib.pyplot as plt
 import numpy as np
 
 class GeomFluxloops():
@@ -39,6 +38,8 @@ class GeomFluxloops():
         :param ax_2d: Axis on which to plot location of pickup coils in R-Z (2D) plane.
                       If None, then an axis will be created.
         """
+        import matplotlib.pyplot as plt
+        
         # Get co-ordiantes
         r_z_to_plot = []
         r_z_centreR_to_plot = []

@@ -1,6 +1,7 @@
 #ifndef IDAM_CLIENT_IDAMCLIENT_H
 #define IDAM_CLIENT_IDAMCLIENT_H
 
+// TODO: remove this and the XDR globals
 #include <rpc/rpc.h>
 
 #include <clientserver/udaStructs.h>

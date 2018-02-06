@@ -8,7 +8,6 @@ Plot the positions of the elements
 
 import math
 
-import matplotlib.pyplot as plt
 import numpy as np
 
 class GeomEfitElements():
@@ -162,6 +161,7 @@ class GeomEfitElements():
         :param ax_2d: Axis on which to plot elements in R-Z (2D) plane.
                       If None, then an axis will be created.
         """
+        import matplotlib.pyplot as plt
 
         # Create axes if necessary
         if ax_2d is None:

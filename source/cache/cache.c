@@ -3,6 +3,7 @@
 #ifdef NOLIBMEMCACHED
 
 struct IdamCached {
+    int dummy_;
 };
 
 IDAM_CACHE* idamOpenCache()

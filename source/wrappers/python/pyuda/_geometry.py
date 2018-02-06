@@ -15,9 +15,6 @@ PROBLEMS:
 import inspect
 import logging
 
-import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
-
 import numpy as np
 
 from ._data import Data
@@ -318,6 +315,9 @@ class GeometryData(Data):
                       If None, then an axis will be created.
         :return:
         """
+        import matplotlib.pyplot as plt
+        from mpl_toolkits.mplot3d import Axes3D
+    
         self._manip
         if len(self._manip) > 1:
             fig = plt.figure()

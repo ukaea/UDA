@@ -23,7 +23,8 @@ include( GetGitRevisionDescription )
 git_describe( GIT_TAG --tags )
 
 if( "${GIT_TAG}" MATCHES "^.*NOTFOUND$" )
-  message( FATAL_ERROR "Failed to get git revision: ${GIT_TAG}" )
+  message( "Failed to get git revision: ${GIT_TAG}" )
+  set( GIT_TAG "0.0.0" )
 endif()
 
 # Strip off the SHA1 tag element if it exists
@@ -65,8 +66,7 @@ if( APPLE )
   set( CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -undefined dynamic_lookup" )
 endif( APPLE )
 
-
-if( NOT WIN32 )
+if( NOT WIN32 OR MINGW )
   set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC" )
   set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -std=c++11" )
   
@@ -83,9 +83,11 @@ add_definitions(
 
 if( WIN32 )
   add_definitions( -D_CRT_SECURE_NO_WARNINGS )
+  include_directories( ${CMAKE_SOURCE_DIR}/extlib/include/rpc )
+  link_directories( ${CMAKE_SOURCE_DIR}/extlib/lib )
 endif()
 
-if( NOT APPLE AND NOT WIN32 )
+if( ITER_CI )
   add_definitions(
     -D_XOPEN_SOURCE=700
     -D_POSIX_C_SOURCE=200809L
@@ -99,14 +101,13 @@ option( CLIENT_ONLY "Only build IDAM client" OFF )
 option( NO_WRAPPERS "Don't build any IDAM client wrappers" OFF )
 
 if( SSLAUTHENTICATION )
-   message( "Including SSL/RTL X509 User Authentication" )
-   add_definitions( -DSSLAUTHENTICATION )
+  message( "Including SSL/RTL X509 User Authentication" )
+  add_definitions( -DSSLAUTHENTICATION )
 endif()   
 
 ########################################################################################################################
 # Source directories
 
-#add_subdirectory( extlib )
 add_subdirectory( source )
 if( NOT CLIENT_ONLY )
   add_subdirectory( test )

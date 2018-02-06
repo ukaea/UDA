@@ -1,8 +1,12 @@
 mkdir lib
 mkdir include
 
-copy build\portablexdr-4.9.1\Debug\xdr.lib lib
-copy build\portablexdr-4.9.1\Debug\xdr.pdb lib
+del /Q lib\*
+copy build\portablexdr-4.9.1\libxdr.dll lib
 
+rmdir /S /Q include\rpc
 mkdir include\rpc
-copy portablexdr-4.9.1\rpc include\rpc\
+mkdir include\rpc\rpc
+
+copy portablexdr-4.9.1\rpc include\rpc\rpc
+copy build\config.h include\rpc

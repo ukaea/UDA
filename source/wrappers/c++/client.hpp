@@ -90,9 +90,9 @@ public:
     ~Client();
     Client() : data_() {}
 
-    static void setProperty(Property prop, bool value) throw(UDAException);
-    static void setProperty(Property prop, int value) throw(UDAException);
-    static int property(Property prop) throw(UDAException);
+    static void setProperty(Property prop, bool value);
+    static void setProperty(Property prop, int value);
+    static int property(Property prop);
 
     static void setServerHostName(const std::string& hostName);
     static void setServerPort(int portNumber);
@@ -100,7 +100,7 @@ public:
     static std::string serverHostName();
     static int serverPort();
 
-    const uda::Result& get(const std::string& signalName, const std::string& dataSource) throw(UDAException);
+    const uda::Result& get(const std::string& signalName, const std::string& dataSource);
     void put(const uda::Signal& putdata);
 
 private:

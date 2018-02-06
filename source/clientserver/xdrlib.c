@@ -277,9 +277,10 @@ bool_t xdr_server1(XDR* xdrs, SERVER_BLOCK* str)
 
 bool_t xdr_server2(XDR* xdrs, SERVER_BLOCK* str)
 {
-    int rc = 1, i;
-    for (i = 0; i < str->idamerrorstack.nerrors; i++) {
+    int rc = 1;
+    unsigned int i;
 
+    for (i = 0; i < str->idamerrorstack.nerrors; i++) {
         rc = rc && xdr_int(xdrs, &str->idamerrorstack.idamerror[i].type)
              && xdr_int(xdrs, &str->idamerrorstack.idamerror[i].code)
              && WrapXDRString(xdrs, (char*)str->idamerrorstack.idamerror[i].location, STRING_LENGTH)
@@ -731,7 +732,9 @@ bool_t xdr_data_block4(XDR* xdrs, DATA_BLOCK* str)
 
 bool_t xdr_data_dim1(XDR* xdrs, DATA_BLOCK* str)
 {
-    int rc = 1, i;
+    int rc = 1;
+    unsigned int i;
+
     for (i = 0; i < str->rank; i++) {
         rc = rc && xdr_int(xdrs, &str->dims[i].data_type)
              && xdr_int(xdrs, &str->dims[i].error_type)
@@ -747,12 +750,13 @@ bool_t xdr_data_dim1(XDR* xdrs, DATA_BLOCK* str)
              && WrapXDRString(xdrs, (char*)str->dims[i].dim_units, STRING_LENGTH)
              && WrapXDRString(xdrs, (char*)str->dims[i].dim_label, STRING_LENGTH);
     }
+
     return rc;
 }
 
 bool_t xdr_data_dim2(XDR* xdrs, DATA_BLOCK* str)
 {
-    int i;
+    unsigned int i;
 
     for (i = 0; i < str->rank; i++) {
         if (str->dims[i].compressed == 0) {
@@ -1201,7 +1205,9 @@ bool_t xdr_data_dim2(XDR* xdrs, DATA_BLOCK* str)
 
 bool_t xdr_data_dim3(XDR* xdrs, DATA_BLOCK* str)
 {
-    int i, rc, arc = 1;
+    int rc, arc = 1;
+    unsigned int i;
+
     for (i = 0; i < str->rank; i++) {
 
         if (str->dims[i].error_param_n > 0) {
@@ -1285,7 +1291,9 @@ bool_t xdr_data_dim3(XDR* xdrs, DATA_BLOCK* str)
 
 bool_t xdr_data_dim4(XDR* xdrs, DATA_BLOCK* str)
 {
-    int i, arc = 1, rc;
+    int arc = 1, rc;
+    unsigned int i;
+
     for (i = 0; i < str->rank; i++) {
         if (str->dims[i].errasymmetry) {
             switch (str->dims[i].error_type) {

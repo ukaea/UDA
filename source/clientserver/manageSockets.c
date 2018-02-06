@@ -4,7 +4,7 @@
 //
 //----------------------------------------------------------------------------------
 
-#ifdef __GNUC__
+#ifndef _WIN32
 #  include <unistd.h>
 #  include <strings.h>
 #else
@@ -17,6 +17,7 @@
 
 #include <stdlib.h>
 #include <memory.h>
+#include <stdio.h>
 
 #include "stringUtils.h"
 
