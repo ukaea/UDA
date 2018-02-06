@@ -186,7 +186,6 @@ void udaClientInitHostList()
     //----------------------------------------------------------------------------------------------------------------------
     // Read the host configuration file: No error if the file does not exist
 
-    int lstr;
     char buffer[HOST_STRING];
     char* config = getenv("UDA_CLIENT_HOSTS_CONFIG");    // Host configuration file
     FILE* conf = NULL;
