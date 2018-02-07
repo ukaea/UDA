@@ -1,6 +1,6 @@
 #if 0
 #!/bin/bash
-g++ test_imas2.cpp -g -O0 -gdwarf-3 -o test -DHOME=/Imas_public -I/Imas_public/uda/source -I/Imas_public/uda/source/wrappers \
+g++ test_west_imas2.cpp -g -std=c++11 -O0 -gdwarf-3 -o test -DHOME=/Imas_public -I/Imas_public/uda/source -I/Imas_public/uda/source/wrappers \
 -L/Imas_public/uda/lib -Wl,-rpath,/Imas_public/uda/lib  -luda_cpp -lssl -lcrypto -lxml2
 exit 0
 #endif

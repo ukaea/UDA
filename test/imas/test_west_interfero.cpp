@@ -1,6 +1,6 @@
 #if 0
 #!/bin/bash
-g++ test_interfero.cpp -g -O0 -gdwarf-3 -o test -DHOME=$HOME -I$HOME/iter/uda/source -I$HOME/iter/uda/source/wrappers \
+g++ test_west_interfero.cpp -g -std=c++11 -O0 -gdwarf-3 -o test -DHOME=$HOME -I$HOME/iter/uda/source -I$HOME/iter/uda/source/wrappers \
 -L$HOME/iter/uda/lib -Wl,-rpath,$HOME/iter/uda/lib  -luda_cpp -lssl -lcrypto -lxml2
 exit 0
 #endif
@@ -14,7 +14,7 @@ exit 0
 #define QUOTE_(X) #X
 #define QUOTE(X) QUOTE_(X)
 #define SHOT_NUM_TORE_SUPRA "43979" // WEST
-#define SHOT_NUM "50355" // WEST
+#define SHOT_NUM "52037" // WEST
 
 int main() {
 	setenv("UDA_PLUGIN_DIR", QUOTE(HOME) "/iter/uda/etc/plugins", 1);
@@ -34,7 +34,11 @@ int main() {
 	uda::Client::setServerPort(56565);
 
 	uda::Client client;
-	
+
+	const uda::Result& channels_shapeOf = client.get("imas::get(idx=0, group='interfero_polarimeter', variable='channel/Shape_of', expName='WEST', type=int, rank=0, shot=" SHOT_NUM ", )", "");
+	const uda::Scalar* scalar_channels_shapeOf = dynamic_cast<const uda::Scalar*>(channels_shapeOf.data());
+	std::cout << "channel/Shape_of: " << scalar_channels_shapeOf->as<int>() << std::endl;
+
 	const uda::Result& sig = client.get("imas::get(idx=0, group='interfero_polarimeter', variable='channel/1/n_e_line/data', expName='WEST', type=double, rank=1, shot=" SHOT_NUM ", )", "");
 	const uda::Data * data = sig.data();
 	const uda::Array* arr = dynamic_cast<const uda::Array*>(data);
@@ -44,7 +48,7 @@ int main() {
 		std::cout << arr->as<double>().at(j) << " ";
 	}
 	std::cout << "..." << std::endl;
-	
+
 	const uda::Result& sig3 = client.get("imas::get(idx=0, group='interfero_polarimeter', variable='channel/3/n_e_line/data', expName='WEST', type=double, rank=1, shot=" SHOT_NUM ", )", "");
 	const uda::Data * data3 = sig3.data();
 	const uda::Array* arr3 = dynamic_cast<const uda::Array*>(data3);
@@ -54,7 +58,7 @@ int main() {
 		std::cout << arr3->as<double>().at(j) << " ";
 	}
 	std::cout << "..." << std::endl;
-	
+
 	const uda::Result& sigtime = client.get("imas::get(idx=0, group='interfero_polarimeter', variable='channel/3/n_e_line/time', expName='WEST', type=double, rank=1, shot=" SHOT_NUM ", )", "");
 	const uda::Data * data_time = sigtime.data();
 	const uda::Array* arrtime = dynamic_cast<const uda::Array*>(data_time);
@@ -64,21 +68,21 @@ int main() {
 		std::cout << arrtime->as<double>().at(j) << " ";
 	}
 	std::cout << "..." << std::endl;
-	
-	
+
+
 	const uda::Result& validity = client.get("imas::get(idx=0, group='interfero_polarimeter', variable='channel/1/validity', expName='WEST', type=int, rank=0, shot=" SHOT_NUM ", )", "");
 	const uda::Scalar* v_validity = dynamic_cast<const uda::Scalar*>(validity.data());
 	std::cout << "channel/1/validity: " << v_validity->as<int>() << std::endl;
-	
+
 	const uda::Result& validity2 = client.get("imas::get(idx=0, group='interfero_polarimeter', variable='channel/2/validity', expName='WEST', type=int, rank=0, shot=" SHOT_NUM ", )", "");
 	const uda::Scalar* v_validity2 = dynamic_cast<const uda::Scalar*>(validity2.data());
 	std::cout << "channel/2/validity: " << v_validity2->as<int>() << std::endl;
-	
+
 	const uda::Result& validity3 = client.get("imas::get(idx=0, group='interfero_polarimeter', variable='channel/3/validity', expName='WEST', type=int, rank=0, shot=" SHOT_NUM ", )", "");
 	const uda::Scalar* v_validity3 = dynamic_cast<const uda::Scalar*>(validity3.data());
 	std::cout << "channel/3/validity: " << v_validity3->as<int>() << std::endl;
-	
-	
+
+
 
 
 	return 0;

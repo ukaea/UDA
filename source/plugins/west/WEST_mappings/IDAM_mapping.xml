@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <mappings>
-<mapping key="magnetics/ids_properties/homogeneous_time" value="set_value;0;0:int" type="static"/>
+<mapping key="magnetics/ids_properties/homogeneous_time" value="set_value;1;0:int" type="static"/>
 <mapping key="magnetics/flux_loop/Shape_of" value="shape_of_tsmat_collect;DMAG:GMAG_FLXLOOP:PosR;0:float:#0" type="static"/>
 <mapping key="magnetics/flux_loop/#/name" value="set_value_collect;DMAG:GMAG_FLXLOOP:CALIB:Flux_loop;0:string:#0" type="static"/>
 <mapping key="magnetics/flux_loop/#/identifier" value="set_value;identifier not defined;0:string" type="static"/>
@@ -9,38 +9,54 @@
 <mapping key="magnetics/flux_loop/#/position/#/z" value="tsmat_collect;DMAG:GMAG_FLXLOOP:PosZ;0:float:#0" type="static"/>
 <!-- mapping key="magnetics/flux_loop/#/position/#/phi" value="set_value;0.0;0:float" type="static"/ -->
 <mapping key="magnetics/flux_loop/#/flux/data" value="tsbase_collect;DMAG:GMAG_FLXLOOP;1:float:#0" type="dynamic"/>
-<mapping key="magnetics/flux_loop/#/flux/time" value="tsbase_time;DMAG:GMAG_FLXLOOP;1:float:#0" type="dynamic"/>
+<!-- mapping key="magnetics/flux_loop/#/flux/time" value="tsbase_time;DMAG:GMAG_FLXLOOP;1:float:#0" type="dynamic"/ -->
 <mapping key="magnetics/bpol_probe/Shape_of" value="shape_of_tsmat_collect;DMAG:GMAG_BNORM:CALIB, DMAG:GMAG_BTANG:CALIB, DMAG:GMAG_BTORO1:CALIB, DMAG:GMAG_BTORO2:CALIB;0:float:#0" type="static"/>
 <mapping key="magnetics/bpol_probe/#/name" value="set_value_collect;DMAG:GMAG_BNORM:CALIB:bpol_probe(BNORM),DMAG:GMAG_BTANG:CALIB:bpol_probe(BTANG),DMAG:GMAG_BTORO1:CALIB:bpol_probe(BTORO1),DMAG:GMAG_BTORO2:CALIB:bpol_probe(BTORO2);0:string:#0" type="static"/>
 <mapping key="magnetics/bpol_probe/#/identifier" value="set_value;identifier not defined;0:string" type="static"/>
 <mapping key="magnetics/bpol_probe/#/position/r" value="tsmat_collect;DMAG:GMAG_BNORM:PosR,DMAG:GMAG_BTANG:PosR,DMAG:GMAG_BTORO1:PosR,DMAG:GMAG_BTORO2:PosR;0:float:#0" type="static"/>
 <mapping key="magnetics/bpol_probe/#/position/z" value="tsmat_collect;DMAG:GMAG_BNORM:PosZ,DMAG:GMAG_BTANG:PosZ,DMAG:GMAG_BTORO1:PosZ,DMAG:GMAG_BTORO2:PosZ;0:float:#0" type="static"/>
 <!-- mapping key="magnetics/bpol_probe/#/position/phi" value="set_value;0.0;0:float" type="static"/ -->
-<mapping key="magnetics/bpol_probe/#/poloidal_angle" value="tsmat_collect;DMAG:GMAG_BNORM:PolAngle,DMAG:GMAG_BTANG:PolAngle,DMAG:GMAG_BTORO1:CALIB:Null,DMAG:GMAG_BTORO2:CALIB:Null;0:float:#0" type="static"/>
-<mapping key="magnetics/bpol_probe/#/toroidal_angle" value="set_value_collect;DMAG:GMAG_BNORM:CALIB:0.0,DMAG:GMAG_BTANG:CALIB:0.0,DMAG:GMAG_BTORO1:CALIB:1.57075,DMAG:GMAG_BTORO2:CALIB:1.57075;0:float:#0" type="static"/>
+<mapping key="magnetics/bpol_probe/#/poloidal_angle" value="tsmat_collect;DMAG:GMAG_BNORM:PolAngle,DMAG:GMAG_BTANG:PolAngle,DMAG:GMAG_BTORO1:CALIB:Null,DMAG:GMAG_BTORO2:CALIB:Null;0:float:#0;multiply:cste:0.017453292519943295" type="static"/>
+<mapping key="magnetics/bpol_probe/#/toroidal_angle" value="set_value_collect;DMAG:GMAG_BNORM:CALIB:0.0,DMAG:GMAG_BTANG:CALIB:0.0,DMAG:GMAG_BTORO1:CALIB:1.5707963267948966,DMAG:GMAG_BTORO2:CALIB:1.5707963267948966;0:float:#0" type="static"/>
 <!-- mapping key="magnetics/bpol_probe/#/area" value="set_value;0.0;0:float" type="static"/ -->
 <!-- mapping key="magnetics/bpol_probe/#/length" value="set_value;0;0:int" type="static"/ -->
 <!-- mapping key="magnetics/bpol_probe/#/turns" value="set_value;0;0:int" type="static"/ -->
 <mapping key="magnetics/bpol_probe/#/field/data" value="tsbase_collect;DMAG:GMAG_BNORM,DMAG:GMAG_BTANG,DMAG:GMAG_BTORO1,DMAG:GMAG_BTORO2;1:float:#0" type="dynamic"/>
-<mapping key="magnetics/bpol_probe/#/field/time" value="tsbase_time;DMAG:GMAG_BNORM,DMAG:GMAG_BTANG,DMAG:GMAG_BTORO1,DMAG:GMAG_BTORO2;1:float:#0" type="dynamic"/>
+<!-- mapping key="magnetics/bpol_probe/#/field/time" value="tsbase_time;DMAG:GMAG_BNORM,DMAG:GMAG_BTANG,DMAG:GMAG_BTORO1,DMAG:GMAG_BTORO2;1:float:#0" type="dynamic"/ -->
 <mapping key="magnetics/method/Shape_of" value="set_value;1;0:int" type="static"/>
 <mapping key="magnetics/method/#/name" value="set_value;IP;0:string" type="static"/>
-<mapping key="magnetics/method/#/ip/data" value="tsbase_collect;DMAG:SMAG_IP;1:float:#0" type="dynamic"/>
-<mapping key="magnetics/method/#/ip/time" value="tsbase_time;DMAG:SMAG_IP;1:float:#0" type="dynamic"/>
+<mapping key="magnetics/method/#/ip/data" value="flt1D_contrib;DMAG:GMAG_IFREEB:1:DMAG:SMAG_IP:0" type="dynamic"/>
+<!-- mapping key="magnetics/method/#/ip/time" value="tsbase_time;DMAG:SMAG_IP;1:float:#0" type="dynamic"/ -->
 <mapping key="magnetics/method/#/diamagnetic_flux/data" value="tsbase_collect;DMAG:GMAG_FDIAM;1:float:#0" type="dynamic"/>
-<mapping key="magnetics/method/#/diamagnetic_flux/time" value="tsbase_time;DMAG:GMAG_FDIAM;1:float:#0" type="dynamic"/>
+<!-- mapping key="magnetics/method/#/diamagnetic_flux/time" value="tsbase_time;DMAG:GMAG_FDIAM;1:float:#0" type="dynamic"/ -->
 <!-- mapping key="magnetics/code/output_flag" value="set_value;0;0:int" type="dynamic"/ -->
-<!-- mapping key="magnetics/time" value="" type="dynamic"/ -->
-<mapping key="tf/ids_properties/homogeneous_time" value="set_value;0;0:int" type="static"/>
-<mapping key="tf/b_field_tor_vacuum_r/data" value="tsbase_collect;DMAG:GMAG_ITOR;1:float:2;multiply:cste:0.0073008" type="dynamic"/>
-<mapping key="tf/b_field_tor_vacuum_r/time" value="tsbase_time;DMAG:GMAG_ITOR;1:float:2" type="dynamic"/>
-<mapping key="pf_active/ids_properties/homogeneous_time" value="set_value;0;0:int" type="static"/>
+<mapping key="magnetics/time" value="tsbase_time;DMAG:GMAG_FLXLOOP;1:float:1" type="dynamic"/>
 
+<mapping key="tf/ids_properties/homogeneous_time" value="set_value;0;0:int" type="static"/>
+<mapping key="tf/b_field_tor_vacuum_r/data" value="tsbase_collect;DMAG:GMAG_ITOR;1:float:1;multiply:cste:0.0073008" type="dynamic"/>
+<mapping key="tf/b_field_tor_vacuum_r/time" value="tsbase_time;DMAG:GMAG_ITOR;1:float:1" type="dynamic"/>
+
+<mapping key="pf_passive/ids_properties/homogeneous_time" value="set_value;1;0:int" type="static"/>
+<mapping key="pf_passive/loop/#/name" value="pf_passive_loop_name" type="static"/>
+<mapping key="pf_passive/loop/#/identifier" value="pf_passive_loop_identifier" type="static"/>
+<mapping key="pf_passive/loop/#/element/#/name" value="pf_passive_element_name" type="static"/>
+<mapping key="pf_passive/loop/#/element/#/identifier" value="pf_passive_element_identifier" type="static"/>
+<mapping key="pf_passive/loop/Shape_of" value="pf_passive_loops_shapeOf" type="static"/>
+<mapping key="pf_passive/loop/#/element/#/turns_with_sign" value="pf_passive_turns" type="static"/>
+<mapping key="pf_passive/loop/#/element/Shape_of" value="pf_passive_elements_shapeOf" type="static"/>
+<mapping key="pf_passive/loop/#/element/#/geometry/geometry_type" value="set_value;1;0:int" type="static"/>
+<mapping key="pf_passive/loop/#/element/#/geometry/outline/r" value="pf_passive_R" type="static"/>
+<mapping key="pf_passive/loop/#/element/#/geometry/outline/z" value="pf_passive_Z" type="static"/>
+<!-- mapping key="pf_passive/loop/#/element/#/geometry/rectangle/width" value="pf_passive_W" type="static"/ -->
+<!-- mapping key="pf_passive/loop/#/element/#/geometry/rectangle/height" value="pf_passive_H" type="static"/ -->
+<mapping key="pf_passive/loop/#/current" value="pf_passive_current_data" type="dynamic"/>
+<mapping key="pf_passive/time" value="pf_passive_current_time" type="dynamic"/>
+
+<mapping key="pf_active/ids_properties/homogeneous_time" value="set_value;0;0:int" type="static"/>
 <mapping key="pf_active/coil/#/name" value="pf_active_coil_name" type="static"/>
 <mapping key="pf_active/coil/#/identifier" value="pf_active_coil_identifier" type="static"/>
 <mapping key="pf_active/coil/#/element/#/name" value="pf_active_element_name" type="static"/>
 <mapping key="pf_active/coil/#/element/#/identifier" value="pf_active_element_identifier" type="static"/>
-<!-- mapping key="pf_active/coil/Shape_of" value="shape_of_tsmat_collect;DPOLO:GPOLO_IMES:CALIB;0:float:#0" type="static" CHECK IF WE NEED SPARE COILS --> 
 <mapping key="pf_active/coil/Shape_of" value="pf_active_coils_shapeOf" type="static"/>
 <mapping key="pf_active/coil/#/element/#/turns_with_sign" value="pf_active_turns" type="static"/>
 <mapping key="pf_active/coil/#/element/Shape_of" value="pf_active_elements_shapeOf" type="static"/>
@@ -49,29 +65,43 @@
 <mapping key="pf_active/coil/#/element/#/geometry/rectangle/z" value="pf_active_Z" type="static"/>
 <mapping key="pf_active/coil/#/element/#/geometry/rectangle/height" value="pf_active_H" type="static"/>
 <mapping key="pf_active/coil/#/element/#/geometry/rectangle/width" value="pf_active_W" type="static"/>
-<mapping key="pf_active/coil/#/current/data" value="tsbase_collect;DPOLO:GPOLO_IMES;1:float:#0" type="dynamic"/>
-<mapping key="pf_active/coil/#/current/time" value="tsbase_time;DPOLO:GPOLO_IMES;1:float:#0" type="dynamic"/>
+<mapping key="pf_active/coil/#/current/data" value="pf_active_current_data" type="dynamic"/>
+<mapping key="pf_active/coil/#/current/time" value="pf_active_current_time" type="dynamic"/>
 
-<mapping key="interfero_polarimeter/ids_properties/homogeneous_time" value="set_value;0;0:int" type="static"/>
-<mapping key="interfero_polarimeter/channel/Shape_of" value="shape_of_tsmat_collect;DINTRPOL:GINTLIDRT:CALIB;0:float:#0" type="static"/>
-<mapping key="interfero_polarimeter/channel/#/n_e_line/data" value="tsbase_collect_with_channels;unvalid_channels:2:1,2;DINTRPOL:GINTLIDRT;1:float:#0;multiply:cste:1e19" type="dynamic"/>
-<mapping key="interfero_polarimeter/channel/#/n_e_line/time" value="tsbase_time_with_channels;unvalid_channels:2:1,2;DINTRPOL:GINTLIDRT;1:float:#0" type="dynamic"/>
-<mapping key="interfero_polarimeter/channel/#/validity" value="set_channels_validity;unvalid_channels:2:1,2;0:int:#0" type="static"/>
-<mapping key="interfero_polarimeter/channel/#/name" value="set_value_collect;DINTRPOL:LIDRT:CHANNEL:Channel:#0;0:string:#0" type="static"/>
-<mapping key="interfero_polarimeter/channel/#/identifier" value="set_value_collect;DINTRPOL:LIDRT:CHANNEL:Id:#0;0:string:#0" type="static"/>
-<mapping key="interfero_polarimeter/channel/#/line_of_sight/first_point/r" value="tsmat_collect;DINTRPOL:LIDRT:RPOS1;0:float:#0" type="static"/>
-<mapping key="interfero_polarimeter/channel/#/line_of_sight/first_point/z" value="tsmat_collect;DINTRPOL:LIDRT:ZPOS1;0:float:#0" type="static"/>
-<mapping key="interfero_polarimeter/channel/#/line_of_sight/first_point/phi" value="tsmat_collect;DINTRPOL:LIDRT:TPOS1;0:float:#0" type="static"/>
-<mapping key="interfero_polarimeter/channel/#/line_of_sight/second_point/r" value="tsmat_collect;DINTRPOL:LIDRT:RPOS2;0:float:#0" type="static"/>
-<mapping key="interfero_polarimeter/channel/#/line_of_sight/second_point/z" value="tsmat_collect;DINTRPOL:LIDRT:ZPOS2;0:float:#0" type="static"/>
-<mapping key="interfero_polarimeter/channel/#/line_of_sight/second_point/phi" value="tsmat_collect;DINTRPOL:LIDRT:TPOS2;0:float:#0" type="static"/>
-<mapping key="interfero_polarimeter/channel/#/line_of_sight/third_point/r" value="tsmat_collect;DINTRPOL:LIDRT:RPOS1;0:float:#0" type="static"/>
-<mapping key="interfero_polarimeter/channel/#/line_of_sight/third_point/z" value="tsmat_collect;DINTRPOL:LIDRT:ZPOS1;0:float:#0" type="static"/>
-<mapping key="interfero_polarimeter/channel/#/line_of_sight/third_point/phi" value="tsmat_collect;DINTRPOL:LIDRT:TPOS1;0:float:#0" type="static"/>
-<mapping key="interfero_polarimeter/channel/#/faraday_angle/data" value="tsbase_collect;DINTRPOL:GINTFARART;1:float:#0" type="dynamic"/>
-<mapping key="interfero_polarimeter/channel/#/faraday_angle/time" value="tsbase_time;DINTRPOL:GINTFARART;1:float:#0" type="dynamic"/>
+<mapping key="interferometer/ids_properties/homogeneous_time" value="set_value;0;0:int" type="static"/>
+<mapping key="interferometer/channel/Shape_of" value="shape_of_tsmat_collect;DINTRPOL:GINTLIDRT:CALIB;0:float:#0" type="static"/>
+<mapping key="interferometer/channel/#/name" value="set_value_collect;DINTRPOL:LIDRT:CHANNEL:Channel:#0;0:string:#0" type="static"/>
+<mapping key="interferometer/channel/#/identifier" value="set_value_collect;DINTRPOL:LIDRT:CHANNEL:Id:#0;0:string:#0" type="static"/>
+<mapping key="interferometer/channel/#/line_of_sight/first_point/r" value="tsmat_collect;DINTRPOL:LIDRT:RPOS1;0:float:#0" type="static"/>
+<mapping key="interferometer/channel/#/line_of_sight/first_point/z" value="tsmat_collect;DINTRPOL:LIDRT:ZPOS1;0:float:#0" type="static"/>
+<mapping key="interferometer/channel/#/line_of_sight/first_point/phi" value="tsmat_collect;DINTRPOL:LIDRT:TPOS1;0:float:#0" type="static"/>
+<mapping key="interferometer/channel/#/line_of_sight/second_point/r" value="tsmat_collect;DINTRPOL:LIDRT:RPOS2;0:float:#0" type="static"/>
+<mapping key="interferometer/channel/#/line_of_sight/second_point/z" value="tsmat_collect;DINTRPOL:LIDRT:ZPOS2;0:float:#0" type="static"/>
+<mapping key="interferometer/channel/#/line_of_sight/second_point/phi" value="tsmat_collect;DINTRPOL:LIDRT:TPOS2;0:float:#0" type="static"/>
+<mapping key="interferometer/channel/#/line_of_sight/third_point/r" value="tsmat_collect;DINTRPOL:LIDRT:RPOS1;0:float:#0" type="static"/>
+<mapping key="interferometer/channel/#/line_of_sight/third_point/z" value="tsmat_collect;DINTRPOL:LIDRT:ZPOS1;0:float:#0" type="static"/>
+<mapping key="interferometer/channel/#/line_of_sight/third_point/phi" value="tsmat_collect;DINTRPOL:LIDRT:TPOS1;0:float:#0" type="static"/>
+<mapping key="interferometer/channel/#/n_e_line/data" value="tsbase_collect_with_channels;unvalid_channels:2:1,2;DINTRPOL:GINTLIDRT;1:float:#0;multiply:cste:2e19" type="dynamic"/>
+<mapping key="interferometer/channel/#/n_e_line/time" value="tsbase_time_with_channels;unvalid_channels:2:1,2;DINTRPOL:GINTLIDRT;1:float:#0" type="dynamic"/>
+<mapping key="interferometer/channel/#/n_e_line_validity" value="set_channels_validity;unvalid_channels:2:1,2;0:int:#0" type="static"/>
 
-<mapping key="ece/ids_properties/homogeneous_time" value="set_value;0;0:int" type="static"/>
+<mapping key="polarimeter/ids_properties/homogeneous_time" value="set_value;0;0:int" type="static"/>
+<mapping key="polarimeter/channel/Shape_of" value="shape_of_tsmat_collect;DINTRPOL:GINTLIDRT:CALIB;0:float:#0" type="static"/>
+<mapping key="polarimeter/channel/#/name" value="set_value_collect;DINTRPOL:LIDRT:CHANNEL:Channel:#0;0:string:#0" type="static"/>
+<mapping key="polarimeter/channel/#/identifier" value="set_value_collect;DINTRPOL:LIDRT:CHANNEL:Id:#0;0:string:#0" type="static"/>
+<mapping key="polarimeter/channel/#/line_of_sight/first_point/r" value="tsmat_collect;DINTRPOL:LIDRT:RPOS1;0:float:#0" type="static"/>
+<mapping key="polarimeter/channel/#/line_of_sight/first_point/z" value="tsmat_collect;DINTRPOL:LIDRT:ZPOS1;0:float:#0" type="static"/>
+<mapping key="polarimeter/channel/#/line_of_sight/first_point/phi" value="tsmat_collect;DINTRPOL:LIDRT:TPOS1;0:float:#0" type="static"/>
+<mapping key="polarimeter/channel/#/line_of_sight/second_point/r" value="tsmat_collect;DINTRPOL:LIDRT:RPOS2;0:float:#0" type="static"/>
+<mapping key="polarimeter/channel/#/line_of_sight/second_point/z" value="tsmat_collect;DINTRPOL:LIDRT:ZPOS2;0:float:#0" type="static"/>
+<mapping key="polarimeter/channel/#/line_of_sight/second_point/phi" value="tsmat_collect;DINTRPOL:LIDRT:TPOS2;0:float:#0" type="static"/>
+<mapping key="polarimeter/channel/#/line_of_sight/third_point/r" value="tsmat_collect;DINTRPOL:LIDRT:RPOS1;0:float:#0" type="static"/>
+<mapping key="polarimeter/channel/#/line_of_sight/third_point/z" value="tsmat_collect;DINTRPOL:LIDRT:ZPOS1;0:float:#0" type="static"/>
+<mapping key="polarimeter/channel/#/line_of_sight/third_point/phi" value="tsmat_collect;DINTRPOL:LIDRT:TPOS1;0:float:#0" type="static"/>
+<mapping key="polarimeter/channel/#/faraday_angle/data" value="tsbase_collect;DINTRPOL:GINTFARART;1:float:#0" type="dynamic"/>
+<mapping key="polarimeter/channel/#/faraday_angle/time" value="tsbase_time;DINTRPOL:GINTFARART;1:float:#0" type="dynamic"/>
+
+<mapping key="ece/ids_properties/homogeneous_time" value="set_value;1;0:int" type="static"/>
 <mapping key="ece/line_of_sight/first_point/r" value="set_value;4.264881;0:float" type="static"/>
 <mapping key="ece/line_of_sight/first_point/z" value="set_value;0.;0:float" type="static"/>
 <mapping key="ece/line_of_sight/first_point/phi" value="set_value;1.4573069;0:float" type="static"/>
@@ -79,25 +109,51 @@
 <mapping key="ece/line_of_sight/second_point/z" value="set_value;0.;0:float" type="static"/>
 <mapping key="ece/line_of_sight/second_point/phi" value="set_value;1.4573069;0:float" type="static"/>
 <mapping key="ece/channel/Shape_of" value="ece_t_e_data_shape_of" type="static"/>
-
 <mapping key="ece/channel/#/frequency/data" value="ece_frequencies" type="dynamic"/>
-<mapping key="ece/channel/#/frequency/time" value="ece_harmonic_time" type="dynamic"/>
+<!-- mapping key="ece/channel/#/frequency/time" value="ece_harmonic_time" type="dynamic"/ -->
 <mapping key="ece/channel/#/name" value="ece_names" type="static"/>
 <mapping key="ece/channel/#/identifier" value="ece_identifiers" type="static"/>
 <mapping key="ece/channel/#/t_e_voltage/data" value="ece_t_e_data" type="dynamic"/>
-<!-- mapping key="ece/channel/#/t_e/data" value="ece_t_e_data" type="dynamic"/ -->
-<mapping key="ece/channel/#/t_e_voltage/time" value="ece_t_e_time" type="dynamic"/>
-<!-- mapping key="ece/channel/#/t_e/time" value="ece_t_e_time" type="dynamic"/ -->
+<!-- mapping key="ece/channel/#/t_e_voltage/time" value="ece_t_e_time" type="dynamic"/ -->
 <mapping key="ece/channel/#/harmonic/data" value="ece_harmonic_data" type="dynamic"/>
-<mapping key="ece/channel/#/harmonic/time" value="ece_harmonic_time" type="dynamic"/>
+<!-- mapping key="ece/channel/#/harmonic/time" value="ece_harmonic_time" type="dynamic"/ -->
+<mapping key="ece/time" value="ece_t_e_time" type="dynamic"/>
 
-<mapping key="pf_passive/ids_properties/homogeneous_time" value="set_value;1;0:int" type="static"/>
-<mapping key="pf_passive/loop/#/name" value="passive_name" type="static"/>
-<mapping key="pf_passive/loop/#/geometry/geometry_type" value="set_value;1;0:int" type="static"/>
-<mapping key="pf_passive/loop/#/geometry/outline/r" value="passive_r" type="static"/>
-<mapping key="pf_passive/loop/#/geometry/outline/z" value="passive_z" type="static"/>
-<mapping key="pf_passive/loop/Shape_of" value="passive_current_shapeOf" type="static"/>
-<mapping key="pf_passive/loop/#/current" value="passive_current" type="dynamic"/>
-<mapping key="pf_passive/time" value="passive_time" type="dynamic"/>
+<mapping key="soft_x_rays/ids_properties/comment" value="soft_x_rays_idsproperties_comment" type="static"/>
+<mapping key="soft_x_rays/ids_properties/homogeneous_time" value="set_value;0;0:int" type="static"/>
+<mapping key="soft_x_rays/channel/Shape_of" value="soft_x_rays_channels_shapeof" type="static"/>
+<mapping key="soft_x_rays/channel/#/line_of_sight/first_point/r" value="channel_line_of_sight_first_point_r" type="static"/>
+<mapping key="soft_x_rays/channel/#/line_of_sight/first_point/z" value="channel_line_of_sight_first_point_z" type="static"/>
+<mapping key="soft_x_rays/channel/#/line_of_sight/first_point/phi" value="channel_line_of_sight_first_point_phi" type="static"/>
+<mapping key="soft_x_rays/channel/#/line_of_sight/second_point/r" value="channel_line_of_sight_second_point_r" type="static"/>
+<mapping key="soft_x_rays/channel/#/line_of_sight/second_point/z" value="channel_line_of_sight_second_point_z" type="static"/>
+<mapping key="soft_x_rays/channel/#/line_of_sight/second_point/phi" value="channel_line_of_sight_second_point_phi" type="static"/>
+<mapping key="soft_x_rays/channel/#/energy_band/Shape_of" value="soft_x_rays_channels_energy_band_shapeof" type="static"/>
+<mapping key="soft_x_rays/channel/#/energy_band/#/lower_bound" value="soft_x_rays_channels_energy_band_lower_bound" type="static"/>
+<mapping key="soft_x_rays/channel/#/energy_band/#/upper_bound" value="soft_x_rays_channels_energy_band_upper_bound" type="static"/>
+<mapping key="soft_x_rays/channel/#/power_density/data" value="soft_x_rays_channels_power_density_data" type="dynamic"/>
+<mapping key="soft_x_rays/channel/#/power_density/time" value="soft_x_rays_channels_power_density_time" type="dynamic"/>
+
+<mapping key="summary/ids_properties/homogeneous_time" value="set_value;1;0:int" type="static"/>
+<mapping key="summary/global_quantities/ip/value" value="flt1D_contrib;DMAG:GMAG_IFREEB:1:DMAG:SMAG_IP:0" type="dynamic"/>
+<mapping key="summary/global_quantities/current_ohm/value" value="flt1D;DMAG:GMAG_BILAN:1" type="dynamic"/>
+<mapping key="summary/global_quantities/v_loop/value" value="summary_global_quantities_v_loop_value" type="dynamic"/>
+<mapping key="summary/global_quantities/li/value" value="flt1D;DMAG:GMAG_BELI:2" type="dynamic"/>
+<mapping key="summary/global_quantities/beta_pol/value" value="flt1D;DMAG:GMAG_BELI:1" type="dynamic"/>
+<mapping key="summary/global_quantities/beta_tor/value" value="summary_global_quantities_beta_tor_value" type="dynamic"/>
+<mapping key="summary/global_quantities/energy_diamagnetic/value" value="flt1D;DMAG:GMAG_BILAN:7" type="dynamic"/>
+<mapping key="summary/global_quantities/energy_total/value" value="flt1D;DMAG:GMAG_BILAN:10" type="dynamic"/>
+<mapping key="summary/global_quantities/energy_b_field_pol/value" value="flt1D;DMAG:GMAG_BILAN:9" type="dynamic"/>
+<mapping key="summary/global_quantities/volume/value" value="flt1D;DMAG:GMAG_GEOM:13" type="dynamic"/>
+<mapping key="summary/global_quantities/r0/value" value="summary_global_quantities_r0_value" type="static"/>
+<mapping key="summary/global_quantities/b0/value" value="summary_global_quantities_b0_value" type="dynamic"/>
+<mapping key="summary/global_quantities/tau_energy/value" value="flt1D;DMAG:GMAG_BILAN:8" type="dynamic"/>
+<mapping key="summary/local/edge/q/value" value="flt1D;DMAG:GMAG_Q:1" type="dynamic"/>
+<mapping key="summary/volume_average/n_e/value" value="flt1D;DINTRPOL:SINTAVDENSRT:0" type="dynamic"/>
+<mapping key="summary/heating_current_drive/ec/#/power/value" value="summary_heating_current_drive_ec_power" type="dynamic"/>
+<mapping key="summary/heating_current_drive/ec/#/power/source" value="summary_heating_current_drive_ec_power_source" type="static"/>
+<mapping key="summary/local/magnetic_axis/position/r" value="flt1D_contrib;DMAG:GMAG_BARYFB:1:DMAG:GMAG_BARY:1" type="dynamic"/>
+<mapping key="summary/local/magnetic_axis/position/z" value="flt1D_contrib;DMAG:GMAG_BARYFB:2:DMAG:GMAG_BARY:2" type="dynamic"/>
+<mapping key="summary/time" value="tsbase_time;DMAG:SMAG_IP;1:float:1" type="dynamic"/>
 
 </mappings>

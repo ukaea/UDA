@@ -4,7 +4,7 @@ include( LibXml2StrPrintfConfig )
 
 add_definitions(
   -Wall
-  -Werror
+  -Wno-error
 )
 
 if( DEBUGGER )

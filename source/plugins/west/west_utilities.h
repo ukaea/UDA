@@ -4,7 +4,8 @@
 #include <libxml/xpath.h>
 #include <clientserver/udaStructs.h>
 
-void printNum(const char* label, int i);
+void tokenize1DArcadeParameters(const char* s, char** diagnostic, char** object_name, int* extractionIndex);
+void tokenize1DArcadeParameters2(const char* s, char** diagnostic, char** object_name, int* extractionIndex, char** diagnostic2, char** object_name2, int* extractionIndex2);
 void RemoveSpaces(char* source);
 void getValueCollect(char* command, char** value, int* nodeIndices);
 void multiplyFloat(float* p, float factor, int val_nb);
@@ -34,5 +35,6 @@ void searchIndices(int requestedIndex, int* l, int* searchedArray, int* searched
 void addExtractionChars(char* result, char* signalName, int extractionIndex);
 void getTopCollectionsCount(const char* TOP_collections_parameters, int* collectionsCount);
 void getObjectName(char** obj_name, char* command);
+
 
 #endif // IDAM_PLUGIN_WEST_UTILITIES_H
