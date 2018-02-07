@@ -201,7 +201,7 @@ void udaClientInitHostList()
         char *home = getenv("HOME");
         if (home == NULL)return;
     
-        lstr = (int)strlen(filename) + (int)strlen(home) + 7;
+        int lstr = (int)strlen(filename) + (int)strlen(home) + 7;
         work = (char*)malloc(lstr * sizeof(char));
         sprintf(work, "%s/.uda/%s", home, filename);        // the UDA hidden directory in the user's home directory
 #endif

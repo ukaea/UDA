@@ -255,7 +255,7 @@ protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                         object = NULL;    // the data object
                         objectSize = 0;    // the size of the data object
 
-                        xdrfile = open_memstream((char**)&object, &objectSize));
+                        xdrfile = open_memstream((char**)&object, &objectSize);
 #else
                         xdrfile = tmpfile();
 #endif
@@ -1418,7 +1418,7 @@ int packXDRDataBlockObject(unsigned char* object, size_t objectSize, DATA_BLOCK*
         errno = 0;
 
 #ifndef _WIN32
-        xdrfile = open_memstream((char**)&object, &objectSize)
+        xdrfile = open_memstream((char**)&object, &objectSize);
 #else
         xdrfile = tmpfile();
         fwrite(object, objectSize, 1, xdrfile);
