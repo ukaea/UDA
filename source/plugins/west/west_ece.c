@@ -57,7 +57,7 @@ int ece_harmonic_data(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 	{
 		data = malloc(sizeof(float) * len);
 		int mode = getECEModeFromNPZFile(shotNumber); //Get the ECE acquisition mode from NPZ file
-		IDAM_LOGF(UDA_LOG_DEBUG, "ECE mode: %d\n", mode);
+		UDA_LOG(UDA_LOG_DEBUG, "ECE mode: %d\n", mode);
 		if (mode == -1) { //ERROR
 			free(time);
 			free(data);
@@ -79,22 +79,22 @@ int ece_harmonic_time(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 	float* data = NULL;
 	float* time = NULL;
 	int len;
-	IDAM_LOG(UDA_LOG_DEBUG, "Calling getECEModeHarmonic() \n");
+	UDA_LOG(UDA_LOG_DEBUG, "Calling getECEModeHarmonic() \n");
 	int status = getECEModeHarmonic(shotNumber, &time, &data, &len);
 	if (status != 0) {
 		free(time);
 		free(data);
 		return status;
 	}
-	IDAM_LOGF(UDA_LOG_DEBUG, "ECE harmonic mode time array length: %d\n", len);
+	UDA_LOG(UDA_LOG_DEBUG, "ECE harmonic mode time array length: %d\n", len);
 
-	//	IDAM_LOGF(UDA_LOG_DEBUG, "%s\n", "First time values...");
+	//	UDA_LOG(UDA_LOG_DEBUG, "%s\n", "First time values...");
 	//	int j;
 	//	for (j=0; j <10; j++) {
-	//		IDAM_LOGF(UDA_LOG_DEBUG, "time : %f\n", time[j]);
+	//		UDA_LOG(UDA_LOG_DEBUG, "time : %f\n", time[j]);
 	//	}
 	SetDynamicDataTime(data_block, len, time, data);
-	IDAM_LOG(UDA_LOG_DEBUG, "reaching end of function of ece_harmonic_time()\n");
+	UDA_LOG(UDA_LOG_DEBUG, "reaching end of function of ece_harmonic_time()\n");
 	return 0;
 }
 
@@ -130,10 +130,10 @@ int ece_frequencies(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 		float* data = NULL;
 		int len;
 		//strcpy(TOP_collections_parameters, "DVECE:GVSH1,DVECE:GVSH2,DVECE:GVSH3,DVECE:GVSH4");
-		IDAM_LOG(UDA_LOG_DEBUG, "calling getECEModeHarmonic\n");
+		UDA_LOG(UDA_LOG_DEBUG, "calling getECEModeHarmonic\n");
 		int status = getECEModeHarmonic(shotNumber, &frequencies_time, &data, &len);
 
-		IDAM_LOG(UDA_LOG_DEBUG, "after calling getECEModeHarmonic2\n");
+		UDA_LOG(UDA_LOG_DEBUG, "after calling getECEModeHarmonic2\n");
 
 		if (status != 0) {
 			int err = 901;
@@ -286,7 +286,7 @@ int ece_frequencies(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 		}
 
 		int len;
-		IDAM_LOG(UDA_LOG_DEBUG, "Calling getECEModeHarmonic\n");
+		UDA_LOG(UDA_LOG_DEBUG, "Calling getECEModeHarmonic\n");
 		float* data = NULL;
 		//get time only
 		int status = getECEModeHarmonic(shotNumber, &frequencies_time, &data, &len);
@@ -298,15 +298,15 @@ int ece_frequencies(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 			free(data);
 			return status;
 		}
-		IDAM_LOG(UDA_LOG_DEBUG, "After calling getECEModeHarmonicTime\n");
+		UDA_LOG(UDA_LOG_DEBUG, "After calling getECEModeHarmonicTime\n");
 		frequencies_data = malloc(sizeof(float) * len);
 		for (i = 0; i < len; i++)
 			frequencies_data[i] = GSH[channel - 1] * 1e9; //result converted in Hertz
-		IDAM_LOG(UDA_LOG_DEBUG, "setting dynamic data\n");
+		UDA_LOG(UDA_LOG_DEBUG, "setting dynamic data\n");
 		SetDynamicData(data_block, len, frequencies_time, frequencies_data);
-		IDAM_LOG(UDA_LOG_DEBUG, "freeing GSH\n");
+		UDA_LOG(UDA_LOG_DEBUG, "freeing GSH\n");
 		free(GSH);
-		IDAM_LOG(UDA_LOG_DEBUG, "end of function\n");
+		UDA_LOG(UDA_LOG_DEBUG, "end of function\n");
 		return 0;
 	}
 	return -1;
@@ -314,7 +314,7 @@ int ece_frequencies(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 
 int ece_names(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 {
-	IDAM_LOG(UDA_LOG_DEBUG, "Calling ece_names\n");
+	UDA_LOG(UDA_LOG_DEBUG, "Calling ece_names\n");
 	setReturnDataString(data_block, "", NULL);
 	return 0;
 }
@@ -322,7 +322,7 @@ int ece_names(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 int ece_identifiers(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 {
 
-	IDAM_LOG(UDA_LOG_DEBUG, "Calling ece_identifiers\n");
+	UDA_LOG(UDA_LOG_DEBUG, "Calling ece_identifiers\n");
 	int channelNumber = nodeIndices[0]; //UDA request index
 	char* identifier = malloc(sizeof(char));
 	sprintf(identifier, "%d", channelNumber + 1); //starts the identifier to 1
@@ -398,7 +398,7 @@ int getECEModeFromNPZFile(int shotNumber)
 	if (pFile == NULL) {
 		int err = 901;
 		addIdamError(CODEERRORTYPE, "WEST:ERROR: unable to read ECE mode file", err, "");
-		IDAM_LOG(UDA_LOG_ERROR, "Error opening ECE mode file\n");
+		UDA_LOG(UDA_LOG_ERROR, "Error opening ECE mode file\n");
 		return -1;
 	} else {
 
@@ -420,7 +420,7 @@ int getECEModeFromNPZFile(int shotNumber)
 	if (s == NULL) {
 		int err = 901;
 		addIdamError(CODEERRORTYPE, "WEST:ERROR: unable to found ECE mode", err, "");
-		IDAM_LOGF(UDA_LOG_ERROR, "ECE mode not found for shot: %d\n", shotNumber);
+		UDA_LOG(UDA_LOG_ERROR, "ECE mode not found for shot: %d\n", shotNumber);
 	} else {
 		searchedMode = s->ECE_mode;
 	}
@@ -439,9 +439,9 @@ int getECEModeHarmonic(int shotNumber, float** time, float** data, int* len)
 	int status = readSignal(objectName, shotNumber, 0, rang, time, data, len);
 
 	if (status != 0) {
-		IDAM_LOG(UDA_LOG_ERROR, "An error has occurred !\n");
+		UDA_LOG(UDA_LOG_ERROR, "An error has occurred !\n");
 		int err = 901;
-		IDAM_LOG(UDA_LOG_ERROR, "WEST:ERROR: unable to get ECE mode\n");
+		UDA_LOG(UDA_LOG_ERROR, "WEST:ERROR: unable to get ECE mode\n");
 		addIdamError(CODEERRORTYPE, "WEST:ERROR: unable to get signal", err, "");
 		//free(time);
 		//free(data);
@@ -449,6 +449,6 @@ int getECEModeHarmonic(int shotNumber, float** time, float** data, int* len)
 		return status;
 	}
 
-	IDAM_LOG(UDA_LOG_DEBUG, "returning from getECEModeHarmonic()...\n");
+	UDA_LOG(UDA_LOG_DEBUG, "returning from getECEModeHarmonic()...\n");
 	return 0;
 }

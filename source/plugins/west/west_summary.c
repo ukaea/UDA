@@ -121,7 +121,7 @@ int summary_global_quantities_beta_tor_value(int shotNumber, DATA_BLOCK* data_bl
 		return status;
 	}
 
-	IDAM_LOG(UDA_LOG_DEBUG, "Getting ratio total_energy_data/volume_data...\n");
+	UDA_LOG(UDA_LOG_DEBUG, "Getting ratio total_energy_data/volume_data...\n");
 	float *ratio = NULL;
 	status = signalsRatio(&ratio, total_energy_data, volume_data, total_energy_len, volume_len);
 
@@ -142,7 +142,7 @@ int summary_global_quantities_beta_tor_value(int shotNumber, DATA_BLOCK* data_bl
 	int itor_extractionIndex = 1;
 
 	float normalizationFactor = 4.*M_PI*1.e-7*18.*2028./(2.*M_PI*2.42);
-	IDAM_LOG(UDA_LOG_DEBUG, "Getting GMAG_ITOR%1...\n");
+	UDA_LOG(UDA_LOG_DEBUG, "Getting GMAG_ITOR%1...\n");
 	status = getArcadeSignal(itor_sigName, shotNumber, itor_extractionIndex, &itor_time, &itor_data, &itor_len, normalizationFactor);
 
 	if (status != 0) {
@@ -158,11 +158,11 @@ int summary_global_quantities_beta_tor_value(int shotNumber, DATA_BLOCK* data_bl
 		return status;
 	}
 
-	IDAM_LOG(UDA_LOG_DEBUG, "Getting square of itor_data...\n");
+	UDA_LOG(UDA_LOG_DEBUG, "Getting square of itor_data...\n");
 	float *b0_square = NULL;
 	signalsSquare(&b0_square, itor_data, itor_len);
 
-	IDAM_LOG(UDA_LOG_DEBUG, "Getting ratio of energy_by_volume by b0_square ...\n");
+	UDA_LOG(UDA_LOG_DEBUG, "Getting ratio of energy_by_volume by b0_square ...\n");
 	float *energy_by_volume_by_b0_square = NULL;
 	status = signalsRatio(&energy_by_volume_by_b0_square, ratio, b0_square, total_energy_len, itor_len);
 
@@ -170,7 +170,7 @@ int summary_global_quantities_beta_tor_value(int shotNumber, DATA_BLOCK* data_bl
 
 	float cste = (2./3.)*2*M_PI*1e-7;
 
-	IDAM_LOG(UDA_LOG_DEBUG, "Multiply result with constant ...\n");
+	UDA_LOG(UDA_LOG_DEBUG, "Multiply result with constant ...\n");
 	multiply(energy_by_volume_by_b0_square, itor_len, cste);
 
 	SetDynamicData(data_block, itor_len, itor_time, energy_by_volume_by_b0_square);

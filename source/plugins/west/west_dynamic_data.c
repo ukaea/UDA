@@ -22,7 +22,7 @@
 int GetDynamicData(int shotNumber, const char* mapfun, DATA_BLOCK* data_block, int* nodeIndices)
 {
 
-	IDAM_LOG(UDA_LOG_DEBUG, "Entering GetDynamicData() -- WEST plugin\n");
+	UDA_LOG(UDA_LOG_DEBUG, "Entering GetDynamicData() -- WEST plugin\n");
 
 	assert(mapfun); //Mandatory function to get WEST data
 
@@ -33,7 +33,7 @@ int GetDynamicData(int shotNumber, const char* mapfun, DATA_BLOCK* data_block, i
 
 	getFunName(mapfun, &fun_name);
 
-	IDAM_LOGF(UDA_LOG_DEBUG, "UDA request: %s for shot: %d\n", fun_name, shotNumber);
+	UDA_LOG(UDA_LOG_DEBUG, "UDA request: %s for shot: %d\n", fun_name, shotNumber);
 
 	if (strcmp(fun_name, "tsbase_collect") == 0) {
 		tokenizeFunParameters(mapfun, &TOP_collections_parameters, &attributes, &normalizationAttributes);
@@ -59,20 +59,20 @@ int GetDynamicData(int shotNumber, const char* mapfun, DATA_BLOCK* data_block, i
 		char* ece_mapfun = NULL;
 		ece_t_e_data(shotNumber, &ece_mapfun);
 		tokenizeFunParameters(ece_mapfun, &TOP_collections_parameters, &attributes, &normalizationAttributes);
-		IDAM_LOGF(UDA_LOG_DEBUG, "TOP_collections_parameters : %s\n", TOP_collections_parameters);
+		UDA_LOG(UDA_LOG_DEBUG, "TOP_collections_parameters : %s\n", TOP_collections_parameters);
 
 		int status = SetNormalizedDynamicData(shotNumber, data_block, nodeIndices, TOP_collections_parameters, attributes,
 				normalizationAttributes);
-		IDAM_LOG(UDA_LOG_DEBUG, "Test1");
+		UDA_LOG(UDA_LOG_DEBUG, "Test1");
 		free(ece_mapfun);
-		IDAM_LOG(UDA_LOG_DEBUG, "Test2");
+		UDA_LOG(UDA_LOG_DEBUG, "Test2");
 		return status;
 
 	} else if (strcmp(fun_name, "ece_t_e_time") == 0) {
 		char* ece_mapfun = NULL;
 		ece_t_e_time(shotNumber, &ece_mapfun);
 		tokenizeFunParameters(ece_mapfun, &TOP_collections_parameters, &attributes, &normalizationAttributes);
-		IDAM_LOGF(UDA_LOG_DEBUG, "TOP_collections_parameters : %s\n", TOP_collections_parameters);
+		UDA_LOG(UDA_LOG_DEBUG, "TOP_collections_parameters : %s\n", TOP_collections_parameters);
 		int status = SetNormalizedDynamicDataTime(shotNumber, data_block, nodeIndices, TOP_collections_parameters, attributes,
 				normalizationAttributes);
 		free(ece_mapfun);
@@ -117,7 +117,7 @@ int GetDynamicData(int shotNumber, const char* mapfun, DATA_BLOCK* data_block, i
 		return test_fun(shotNumber, data_block, nodeIndices); //TODO
 	}
 	else {
-		IDAM_LOG(UDA_LOG_DEBUG, "WEST:ERROR: mapped C function not found in west_dynamic_data.c !\n");
+		UDA_LOG(UDA_LOG_DEBUG, "WEST:ERROR: mapped C function not found in west_dynamic_data.c !\n");
 	}
 
 
@@ -132,7 +132,7 @@ int GetDynamicData(int shotNumber, const char* mapfun, DATA_BLOCK* data_block, i
 
 int flt1D(const char* mappingValue, int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 {
-	IDAM_LOG(UDA_LOG_DEBUG, "Calling flt1D\n");
+	UDA_LOG(UDA_LOG_DEBUG, "Calling flt1D\n");
 	char* diagnostic = NULL;
 	char* object_name = NULL;
 	int extractionIndex;
@@ -152,7 +152,7 @@ int flt1D(const char* mappingValue, int shotNumber, DATA_BLOCK* data_block, int*
 
 int flt1D_contrib(const char* mappingValue, int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 {
-	IDAM_LOG(UDA_LOG_DEBUG, "Calling flt1D_contrib\n");
+	UDA_LOG(UDA_LOG_DEBUG, "Calling flt1D_contrib\n");
 	char* diagnostic = NULL;
 	char* object_name = NULL;
 	int extractionIndex;
@@ -163,10 +163,10 @@ int flt1D_contrib(const char* mappingValue, int shotNumber, DATA_BLOCK* data_blo
 
 	tokenize1DArcadeParameters2(mappingValue, &diagnostic, &object_name, &extractionIndex, &diagnostic2, &object_name2, &extractionIndex2);
 
-	IDAM_LOG(UDA_LOG_DEBUG, "setting UDA block in flt1D_contrib\n");
+	UDA_LOG(UDA_LOG_DEBUG, "setting UDA block in flt1D_contrib\n");
 
 	int status = setUDABlockSignalFromArcade2(shotNumber, object_name, extractionIndex, object_name2, extractionIndex2, data_block, nodeIndices, 1);
-	IDAM_LOG(UDA_LOG_DEBUG, "after setting UDA block in flt1D_contrib\n");
+	UDA_LOG(UDA_LOG_DEBUG, "after setting UDA block in flt1D_contrib\n");
 	if (status != 0) {
 		int err = 901;
 		char* errorMsg = "WEST:ERROR: unable to get object ";

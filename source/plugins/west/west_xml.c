@@ -41,15 +41,15 @@ void setPatchedStaticValue(DATA_BLOCK* data_block, char* object_name, int data_t
 
 int GetStaticData(int shotNumber, const char* mapfun, DATA_BLOCK* data_block, int* nodeIndices)
 {
-	IDAM_LOG(UDA_LOG_DEBUG, "Calling GetStaticData() from WEST plugin\n");
+	UDA_LOG(UDA_LOG_DEBUG, "Calling GetStaticData() from WEST plugin\n");
 
 	assert(mapfun); //Mandatory function to get WEST data
 
-	IDAM_LOG(UDA_LOG_DEBUG, "Calling execute() from WEST plugin\n");
+	UDA_LOG(UDA_LOG_DEBUG, "Calling execute() from WEST plugin\n");
 	int status = execute(mapfun, shotNumber, data_block, nodeIndices);
 
 	if (status != 0) {
-		IDAM_LOG(UDA_LOG_ERROR, "WEST:ERROR: error while getting static data\n");
+		UDA_LOG(UDA_LOG_ERROR, "WEST:ERROR: error while getting static data\n");
 		addIdamError(CODEERRORTYPE, __func__, -900, "WEST:ERROR: error while getting static data");
 	}
 
@@ -65,7 +65,7 @@ int execute(const char* mapfun, int shotNumber, DATA_BLOCK* data_block, int* nod
 	char* normalizationAttributes = NULL; //example : multiply:cste:3     (multiply value by constant factor equals to 3)
 
 	getFunName(mapfun, &fun_name);
-	IDAM_LOGF(UDA_LOG_DEBUG, "C function name found in mapping file: %s\n", fun_name);
+	UDA_LOG(UDA_LOG_DEBUG, "C function name found in mapping file: %s\n", fun_name);
 
 	int fun = -1;
 
@@ -194,10 +194,10 @@ int execute(const char* mapfun, int shotNumber, DATA_BLOCK* data_block, int* nod
 		fun = 301;
 	}
 
-	IDAM_LOGF(UDA_LOG_DEBUG, "Case: %d", fun);
+	UDA_LOG(UDA_LOG_DEBUG, "Case: %d", fun);
 
 	if (fun == -1) {
-		IDAM_LOGF(UDA_LOG_DEBUG, "WEST:ERROR no function mapped to %s\n", fun_name);
+		UDA_LOG(UDA_LOG_DEBUG, "WEST:ERROR no function mapped to %s\n", fun_name);
 		int err = 901;
 		addIdamError(CODEERRORTYPE, "WEST:ERROR: no C function mapped for %s!", err, fun_name);
 	}
@@ -205,7 +205,7 @@ int execute(const char* mapfun, int shotNumber, DATA_BLOCK* data_block, int* nod
 
 	switch (fun) {
 	case 0: {
-		IDAM_LOG(UDA_LOG_DEBUG, "Case of tsmat_collect from WEST plugin\n");
+		UDA_LOG(UDA_LOG_DEBUG, "Case of tsmat_collect from WEST plugin\n");
 		tokenizeFunParameters(mapfun, &TOP_collections_parameters, &attributes, &normalizationAttributes);
 		return execute_tsmat_collect(TOP_collections_parameters, attributes, shotNumber, data_block, nodeIndices,
 				normalizationAttributes);
@@ -215,7 +215,7 @@ int execute(const char* mapfun, int shotNumber, DATA_BLOCK* data_block, int* nod
 
 	case 1: {
 
-		IDAM_LOG(UDA_LOG_DEBUG, "Case of shape_of_tsmat_collect from WEST plugin\n");
+		UDA_LOG(UDA_LOG_DEBUG, "Case of shape_of_tsmat_collect from WEST plugin\n");
 		tokenizeFunParameters(mapfun, &TOP_collections_parameters, &attributes, &normalizationAttributes);
 		return shape_of_tsmat_collect(shotNumber, TOP_collections_parameters, data_block);
 
@@ -223,7 +223,7 @@ int execute(const char* mapfun, int shotNumber, DATA_BLOCK* data_block, int* nod
 	}
 
 	case 2: {
-		IDAM_LOG(UDA_LOG_DEBUG, "Case of set_value from WEST plugin\n");
+		UDA_LOG(UDA_LOG_DEBUG, "Case of set_value from WEST plugin\n");
 		char* value = NULL;
 		tokenizeFunParameters(mapfun, &value, &attributes, &normalizationAttributes);
 
@@ -231,11 +231,11 @@ int execute(const char* mapfun, int shotNumber, DATA_BLOCK* data_block, int* nod
 		getReturnType(attributes, &data_type);
 		char* buffer = setBuffer(data_type, value);
 
-		IDAM_LOG(UDA_LOG_DEBUG, "Calling setStaticValue()\n");
+		UDA_LOG(UDA_LOG_DEBUG, "Calling setStaticValue()\n");
 		float normalizationFactor = 1;
 		getNormalizationFactor(&normalizationFactor, normalizationAttributes);
 		setStaticValue(data_type, data_block, buffer, 0, normalizationFactor); //index is always 0 in this case
-		IDAM_LOG(UDA_LOG_DEBUG, "Returning from setStaticValue()\n");
+		UDA_LOG(UDA_LOG_DEBUG, "Returning from setStaticValue()\n");
 
 		free(value);
 		free(buffer);
@@ -244,7 +244,7 @@ int execute(const char* mapfun, int shotNumber, DATA_BLOCK* data_block, int* nod
 	}
 
 	case 3: {
-		IDAM_LOG(UDA_LOG_DEBUG, "Case of tsmat from WEST plugin\n");
+		UDA_LOG(UDA_LOG_DEBUG, "Case of tsmat from WEST plugin\n");
 		tokenizeFunParameters(mapfun, &TOP_collections_parameters, &attributes, &normalizationAttributes);
 		return execute_tsmat_without_idam_index(TOP_collections_parameters, attributes, shotNumber, data_block,
 				normalizationAttributes);
@@ -252,20 +252,20 @@ int execute(const char* mapfun, int shotNumber, DATA_BLOCK* data_block, int* nod
 	}
 
 	case 4: {
-		IDAM_LOG(UDA_LOG_DEBUG, "Case of set_value_collect from WEST plugin\n");
+		UDA_LOG(UDA_LOG_DEBUG, "Case of set_value_collect from WEST plugin\n");
 		tokenizeFunParameters(mapfun, &TOP_collections_parameters, &attributes, &normalizationAttributes);
-		IDAM_LOGF(UDA_LOG_DEBUG, "attributes: %s\n", attributes);
+		UDA_LOG(UDA_LOG_DEBUG, "attributes: %s\n", attributes);
 		return execute_setvalue_collect(TOP_collections_parameters, attributes, shotNumber, data_block, nodeIndices,
 				normalizationAttributes);
 		break;
 	}
 
 	case 5: {
-		IDAM_LOG(UDA_LOG_DEBUG, "Case of set_channels_validity from WEST plugin\n");
+		UDA_LOG(UDA_LOG_DEBUG, "Case of set_channels_validity from WEST plugin\n");
 		char* unvalid_channels_request = NULL; //used for interfero_polarimeter IDS, example : invalid_channels:2:1,2
 		int unvalid_channels_size;
 		int* unvalid_channels_list = NULL;
-		IDAM_LOG(UDA_LOG_DEBUG, "Calling tokenize_set_channels_validity() from WEST plugin\n");
+		UDA_LOG(UDA_LOG_DEBUG, "Calling tokenize_set_channels_validity() from WEST plugin\n");
 		tokenize_set_channels_validity(mapfun, &unvalid_channels_request, &attributes);
 
 		getUnvalidChannelsSize(unvalid_channels_request, &unvalid_channels_size);
@@ -281,7 +281,7 @@ int execute(const char* mapfun, int shotNumber, DATA_BLOCK* data_block, int* nod
 		break;
 	}
 	case 6: {
-		/*IDAM_LOG(UDA_LOG_DEBUG, "Case of tsmat_collect_poloidal_angle from WEST plugin\n");
+		/*UDA_LOG(UDA_LOG_DEBUG, "Case of tsmat_collect_poloidal_angle from WEST plugin\n");
 		tokenizeFunParameters(mapfun, &TOP_collections_parameters, &attributes, &normalizationAttributes);
 		execute_tsmat_collect_poloidal_angle(TOP_collections_parameters, attributes, shotNumber, data_block, nodeIndices,
 				normalizationAttributes);*/
@@ -289,22 +289,22 @@ int execute(const char* mapfun, int shotNumber, DATA_BLOCK* data_block, int* nod
 	}
 
 	case 7: {
-		IDAM_LOG(UDA_LOG_DEBUG, "Case of ece_names from WEST plugin\n");
+		UDA_LOG(UDA_LOG_DEBUG, "Case of ece_names from WEST plugin\n");
 		return ece_names(shotNumber, data_block, nodeIndices);
 		break;
 	}
 
 	case 8: {
-		IDAM_LOG(UDA_LOG_DEBUG, "Case of ece_identifiers from WEST plugin\n");
+		UDA_LOG(UDA_LOG_DEBUG, "Case of ece_identifiers from WEST plugin\n");
 		return ece_identifiers(shotNumber, data_block, nodeIndices);
 		break;
 	}
 
 	case 9: {
-		IDAM_LOG(UDA_LOG_DEBUG, "Case of ece_t_e_data_shape_of from WEST plugin\n");
+		UDA_LOG(UDA_LOG_DEBUG, "Case of ece_t_e_data_shape_of from WEST plugin\n");
 		char* ece_mapfun = NULL;
 		ece_t_e_data_shape_of(shotNumber, &ece_mapfun);
-		IDAM_LOG(UDA_LOG_DEBUG, "Calling tokenizeFunParameters() from WEST plugin\n");
+		UDA_LOG(UDA_LOG_DEBUG, "Calling tokenizeFunParameters() from WEST plugin\n");
 		tokenizeFunParameters(ece_mapfun, &TOP_collections_parameters, &attributes, &normalizationAttributes);
 		shape_of_tsmat_collect(shotNumber, TOP_collections_parameters, data_block);
 		free(ece_mapfun);
@@ -313,225 +313,225 @@ int execute(const char* mapfun, int shotNumber, DATA_BLOCK* data_block, int* nod
 	}
 
 	case 100: {
-		IDAM_LOG(UDA_LOG_DEBUG, "Case of pf_passive_loop_name from WEST plugin\n");
+		UDA_LOG(UDA_LOG_DEBUG, "Case of pf_passive_loop_name from WEST plugin\n");
 		pf_passive_loop_name(shotNumber, data_block, nodeIndices);
 		return 0;
 		break;
 	}
 
 	case 101: {
-		IDAM_LOG(UDA_LOG_DEBUG, "Case of pf_passive_loop_identifier from WEST plugin\n");
+		UDA_LOG(UDA_LOG_DEBUG, "Case of pf_passive_loop_identifier from WEST plugin\n");
 		pf_passive_loop_identifier(shotNumber, data_block, nodeIndices);
 		return 0;
 		break;
 	}
 
 	case 102: {
-		IDAM_LOG(UDA_LOG_DEBUG, "Case of pf_passive_element_name from WEST plugin\n");
+		UDA_LOG(UDA_LOG_DEBUG, "Case of pf_passive_element_name from WEST plugin\n");
 		pf_passive_element_name(shotNumber, data_block, nodeIndices);
 		return 0;
 		break;
 	}
 
 	case 103: {
-		IDAM_LOG(UDA_LOG_DEBUG, "Case of pf_passive_element_identifier from WEST plugin\n");
+		UDA_LOG(UDA_LOG_DEBUG, "Case of pf_passive_element_identifier from WEST plugin\n");
 		pf_passive_element_identifier(shotNumber, data_block, nodeIndices);
 		break;
 	}
 
 	case 104: {
-		IDAM_LOG(UDA_LOG_DEBUG, "Case of pf_passive_loops_shapeOf from WEST plugin\n");
+		UDA_LOG(UDA_LOG_DEBUG, "Case of pf_passive_loops_shapeOf from WEST plugin\n");
 		pf_passive_loops_shapeOf(shotNumber, data_block, nodeIndices);
 		return 0;
 		break;
 	}
 
 	case 105: {
-		IDAM_LOG(UDA_LOG_DEBUG, "Case of pf_passive_turns from WEST plugin\n");
+		UDA_LOG(UDA_LOG_DEBUG, "Case of pf_passive_turns from WEST plugin\n");
 		pf_passive_turns(shotNumber, data_block, nodeIndices);
 		return 0;
 		break;
 	}
 
 	case 106: {
-		IDAM_LOG(UDA_LOG_DEBUG, "Case of pf_passive_elements_shapeOf from WEST plugin\n");
+		UDA_LOG(UDA_LOG_DEBUG, "Case of pf_passive_elements_shapeOf from WEST plugin\n");
 		pf_passive_elements_shapeOf(shotNumber, data_block, nodeIndices);
 		return 0;
 		break;
 	}
 
 	case 107: {
-		IDAM_LOG(UDA_LOG_DEBUG, "Case of pf_passive_R from WEST plugin\n");
+		UDA_LOG(UDA_LOG_DEBUG, "Case of pf_passive_R from WEST plugin\n");
 		pf_passive_R(shotNumber, data_block, nodeIndices);
 		break;
 	}
 
 	case 108: {
-		IDAM_LOG(UDA_LOG_DEBUG, "Case of pf_passive_Z from WEST plugin\n");
+		UDA_LOG(UDA_LOG_DEBUG, "Case of pf_passive_Z from WEST plugin\n");
 		pf_passive_Z(shotNumber, data_block, nodeIndices);
 		return 0;
 		break;
 	}
 
 	case 109: {
-		IDAM_LOG(UDA_LOG_DEBUG, "Case of pf_passive_current_data from WEST plugin\n");
+		UDA_LOG(UDA_LOG_DEBUG, "Case of pf_passive_current_data from WEST plugin\n");
 		return pf_passive_current_data(shotNumber, data_block, nodeIndices);
 	}
 
 	case 110: {
-		IDAM_LOG(UDA_LOG_DEBUG, "Case of pf_passive_current_time from WEST plugin\n");
+		UDA_LOG(UDA_LOG_DEBUG, "Case of pf_passive_current_time from WEST plugin\n");
 		return pf_passive_current_time(shotNumber, data_block, nodeIndices);
 	}
 
 
 	case 140: {
-		IDAM_LOG(UDA_LOG_DEBUG, "Case of pf_active_elements_shapeOf from WEST plugin\n");
+		UDA_LOG(UDA_LOG_DEBUG, "Case of pf_active_elements_shapeOf from WEST plugin\n");
 		pf_active_elements_shapeOf(shotNumber, data_block, nodeIndices);
 		return 0;
 		break;
 	}
 
 	case 141: {
-		IDAM_LOG(UDA_LOG_DEBUG, "Case of pf_active_coils_shapeOf from WEST plugin\n");
+		UDA_LOG(UDA_LOG_DEBUG, "Case of pf_active_coils_shapeOf from WEST plugin\n");
 		pf_active_coils_shapeOf(shotNumber, data_block, nodeIndices);
 		return 0;
 		break;
 	}
 
 	case 142: {
-		IDAM_LOG(UDA_LOG_DEBUG, "Case of pf_active_R from WEST plugin\n");
+		UDA_LOG(UDA_LOG_DEBUG, "Case of pf_active_R from WEST plugin\n");
 		pf_active_R(shotNumber, data_block, nodeIndices);
 		return 0;
 		break;
 	}
 
 	case 143: {
-		IDAM_LOG(UDA_LOG_DEBUG, "Case of pf_active_Z from WEST plugin\n");
+		UDA_LOG(UDA_LOG_DEBUG, "Case of pf_active_Z from WEST plugin\n");
 		pf_active_Z(shotNumber, data_block, nodeIndices);
 		return 0;
 		break;
 	}
 
 	case 144: {
-		IDAM_LOG(UDA_LOG_DEBUG, "Case of pf_active_element_identifier from WEST plugin\n");
+		UDA_LOG(UDA_LOG_DEBUG, "Case of pf_active_element_identifier from WEST plugin\n");
 		pf_active_element_identifier(shotNumber, data_block, nodeIndices);
 		return 0;
 		break;
 	}
 
 	case 145: {
-		IDAM_LOG(UDA_LOG_DEBUG, "Case of pf_active_element_name from WEST plugin\n");
+		UDA_LOG(UDA_LOG_DEBUG, "Case of pf_active_element_name from WEST plugin\n");
 		pf_active_element_name(shotNumber, data_block, nodeIndices);
 		return 0;
 		break;
 	}
 
 	case 146: {
-		IDAM_LOG(UDA_LOG_DEBUG, "Case of pf_active_coil_identifier from WEST plugin\n");
+		UDA_LOG(UDA_LOG_DEBUG, "Case of pf_active_coil_identifier from WEST plugin\n");
 		pf_active_coil_identifier(shotNumber, data_block, nodeIndices);
 		return 0;
 		break;
 	}
 
 	case 147: {
-		IDAM_LOG(UDA_LOG_DEBUG, "Case of pf_active_coil_name from WEST plugin\n");
+		UDA_LOG(UDA_LOG_DEBUG, "Case of pf_active_coil_name from WEST plugin\n");
 		pf_active_coil_name(shotNumber, data_block, nodeIndices);
 		break;
 	}
 
 	case 148: {
-		IDAM_LOG(UDA_LOG_DEBUG, "Case of pf_active_turns from WEST plugin\n");
+		UDA_LOG(UDA_LOG_DEBUG, "Case of pf_active_turns from WEST plugin\n");
 		pf_active_turns(shotNumber, data_block, nodeIndices);
 		return 0;
 		break;
 	}
 
 	case 149: {
-		IDAM_LOG(UDA_LOG_DEBUG, "Case of pf_active_H from WEST plugin\n");
+		UDA_LOG(UDA_LOG_DEBUG, "Case of pf_active_H from WEST plugin\n");
 		pf_active_H(shotNumber, data_block, nodeIndices);
 		break;
 	}
 
 	case 150: {
-		IDAM_LOG(UDA_LOG_DEBUG, "Case of pf_active_W from WEST plugin\n");
+		UDA_LOG(UDA_LOG_DEBUG, "Case of pf_active_W from WEST plugin\n");
 		pf_active_W(shotNumber, data_block, nodeIndices);
 		return 0;
 		break;
 	}
 
 	case 200: {
-		IDAM_LOG(UDA_LOG_DEBUG, "Case of soft_x_rays_idsproperties_comment from WEST plugin\n");
+		UDA_LOG(UDA_LOG_DEBUG, "Case of soft_x_rays_idsproperties_comment from WEST plugin\n");
 		soft_x_rays_idsproperties_comment(shotNumber, data_block, nodeIndices);
 		return 0;
 		break;
 	}
 	case 201: {
-		IDAM_LOG(UDA_LOG_DEBUG, "Case of soft_x_rays_channels_shapeof from WEST plugin\n");
+		UDA_LOG(UDA_LOG_DEBUG, "Case of soft_x_rays_channels_shapeof from WEST plugin\n");
 		soft_x_rays_channels_shapeof(shotNumber, data_block, nodeIndices);
 		return 0;
 		break;
 	}
 	case 202: {
-		IDAM_LOG(UDA_LOG_DEBUG, "Case of channel_line_of_sight_first_point_r from WEST plugin\n");
+		UDA_LOG(UDA_LOG_DEBUG, "Case of channel_line_of_sight_first_point_r from WEST plugin\n");
 		channel_line_of_sight_first_point_r(shotNumber, data_block, nodeIndices);
 		return 0;
 		break;
 	}
 	case 203: {
-		IDAM_LOG(UDA_LOG_DEBUG, "Case of channel_line_of_sight_first_point_z from WEST plugin\n");
+		UDA_LOG(UDA_LOG_DEBUG, "Case of channel_line_of_sight_first_point_z from WEST plugin\n");
 		channel_line_of_sight_first_point_z(shotNumber, data_block, nodeIndices);
 		return 0;
 		break;
 	}
 	case 204: {
-		IDAM_LOG(UDA_LOG_DEBUG, "Case of channel_line_of_sight_first_point_phi from WEST plugin\n");
+		UDA_LOG(UDA_LOG_DEBUG, "Case of channel_line_of_sight_first_point_phi from WEST plugin\n");
 		channel_line_of_sight_first_point_phi(shotNumber, data_block, nodeIndices);
 		return 0;
 		break;
 	}
 	case 205: {
-		IDAM_LOG(UDA_LOG_DEBUG, "Case of channel_line_of_sight_second_point_r from WEST plugin\n");
+		UDA_LOG(UDA_LOG_DEBUG, "Case of channel_line_of_sight_second_point_r from WEST plugin\n");
 		channel_line_of_sight_second_point_r(shotNumber, data_block, nodeIndices);
 		return 0;
 		break;
 	}
 	case 206: {
-		IDAM_LOG(UDA_LOG_DEBUG, "Case of channel_line_of_sight_second_point_z from WEST plugin\n");
+		UDA_LOG(UDA_LOG_DEBUG, "Case of channel_line_of_sight_second_point_z from WEST plugin\n");
 		channel_line_of_sight_second_point_z(shotNumber, data_block, nodeIndices);
 		return 0;
 		break;
 	}
 	case 207: {
-		IDAM_LOG(UDA_LOG_DEBUG, "Case of channel_line_of_sight_second_point_phi from WEST plugin\n");
+		UDA_LOG(UDA_LOG_DEBUG, "Case of channel_line_of_sight_second_point_phi from WEST plugin\n");
 		channel_line_of_sight_second_point_phi(shotNumber, data_block, nodeIndices);
 		return 0;
 		break;
 	}
 	case 208: {
-		IDAM_LOG(UDA_LOG_DEBUG, "Case of soft_x_rays_channels_energy_band_shapeof from WEST plugin\n");
+		UDA_LOG(UDA_LOG_DEBUG, "Case of soft_x_rays_channels_energy_band_shapeof from WEST plugin\n");
 		soft_x_rays_channels_energy_band_shapeof(shotNumber, data_block, nodeIndices);
 		return 0;
 		break;
 	}
 	case 209: {
-		IDAM_LOG(UDA_LOG_DEBUG, "Case of soft_x_rays_channels_energy_band_lower_bound from WEST plugin\n");
+		UDA_LOG(UDA_LOG_DEBUG, "Case of soft_x_rays_channels_energy_band_lower_bound from WEST plugin\n");
 		soft_x_rays_channels_energy_band_lower_bound(shotNumber, data_block, nodeIndices);
 		return 0;
 		break;
 	}
 	case 210: {
-		IDAM_LOG(UDA_LOG_DEBUG, "Case of soft_x_rays_channels_energy_band_upper_bound from WEST plugin\n");
+		UDA_LOG(UDA_LOG_DEBUG, "Case of soft_x_rays_channels_energy_band_upper_bound from WEST plugin\n");
 		soft_x_rays_channels_energy_band_upper_bound(shotNumber, data_block, nodeIndices);
 		return 0;
 		break;
 	}
 	case 300: {
-		IDAM_LOG(UDA_LOG_DEBUG, "Case of summary_global_quantities_r0_value from WEST plugin\n");
+		UDA_LOG(UDA_LOG_DEBUG, "Case of summary_global_quantities_r0_value from WEST plugin\n");
 		return summary_global_quantities_r0_value(shotNumber, data_block, nodeIndices);
 		break;
 	}
 	case 301: {
-		IDAM_LOG(UDA_LOG_DEBUG, "Case of summary_heating_current_drive_ec_power_source from WEST plugin\n");
+		UDA_LOG(UDA_LOG_DEBUG, "Case of summary_heating_current_drive_ec_power_source from WEST plugin\n");
 		return summary_heating_current_drive_ec_power_source(shotNumber, data_block, nodeIndices);
 		break;
 	}
@@ -551,26 +551,26 @@ int shape_of_tsmat_collect(int shotNumber, char* TOP_collections_parameters, DAT
 	//Get the number of parameters collections
 	int collectionsCount;
 
-	IDAM_LOG(UDA_LOG_DEBUG, "Calling getTopCollectionsCount() from WEST plugin for shape_of_tsmat_collect case\n");
+	UDA_LOG(UDA_LOG_DEBUG, "Calling getTopCollectionsCount() from WEST plugin for shape_of_tsmat_collect case\n");
 	getTopCollectionsCount(TOP_collections_parameters, &collectionsCount);
 
-	IDAM_LOGF(UDA_LOG_DEBUG, "Collections count: %d", collectionsCount);
+	UDA_LOG(UDA_LOG_DEBUG, "Collections count: %d", collectionsCount);
 
-	IDAM_LOG(UDA_LOG_DEBUG, "Calling tokenizeFunCollect() from WEST plugin\n");
+	UDA_LOG(UDA_LOG_DEBUG, "Calling tokenizeFunCollect() from WEST plugin\n");
 
 	//Get the total size by adding all collections lengths
 	int i;
 	int parametersSize = 0;
 	for (i = 0; i < collectionsCount; i++) {
 		char* command = NULL;
-		IDAM_LOG(UDA_LOG_DEBUG, "Calling getCommand() from WEST plugin for shape_of_tsmat_collect case\n");
+		UDA_LOG(UDA_LOG_DEBUG, "Calling getCommand() from WEST plugin for shape_of_tsmat_collect case\n");
 		getCommand(i, &command, TOP_collections_parameters); //get one command
-		IDAM_LOGF(UDA_LOG_DEBUG, "Command : %s\n", command);
+		UDA_LOG(UDA_LOG_DEBUG, "Command : %s\n", command);
 		int nb_val = 0;
-		IDAM_LOG(UDA_LOG_DEBUG, "Calling getShapeOf() from WEST plugin for shape_of_tsmat_collect case\n");
+		UDA_LOG(UDA_LOG_DEBUG, "Calling getShapeOf() from WEST plugin for shape_of_tsmat_collect case\n");
 		getShapeOf(command, shotNumber, &nb_val);
-		IDAM_LOGF(UDA_LOG_DEBUG, "nb_val: %d", nb_val);
-		IDAM_LOG(UDA_LOG_DEBUG, "after getShapeOf\n");
+		UDA_LOG(UDA_LOG_DEBUG, "nb_val: %d", nb_val);
+		UDA_LOG(UDA_LOG_DEBUG, "after getShapeOf\n");
 		parametersSize += nb_val;
 	}
 
@@ -586,7 +586,7 @@ void getShapeOf(const char* command, int shotNumber, int* nb_val)
 	char* param_name = NULL;
 	char* flag = NULL;
 
-	IDAM_LOGF(UDA_LOG_DEBUG, "In getShapeOf, calling tokenizeCommand with command: %s\n", command);
+	UDA_LOG(UDA_LOG_DEBUG, "In getShapeOf, calling tokenizeCommand with command: %s\n", command);
 
 	//Tokenize mapfun string to get function parameters, return type and arguments (#1, #2,...) to use
 	tokenizeCommand(command, &prod_name, &object_name, &param_name, &flag);
@@ -594,16 +594,16 @@ void getShapeOf(const char* command, int shotNumber, int* nb_val)
 	char* value = NULL;
 	int val_nb = 1;
 	//get the size of available data
-	IDAM_LOGF(UDA_LOG_DEBUG, "DEBUG : prod_name: %s\n", prod_name);
-	IDAM_LOGF(UDA_LOG_DEBUG, "DEBUG : object: %s\n", object_name);
-	IDAM_LOGF(UDA_LOG_DEBUG, "DEBUG : param: %s\n", param_name);
+	UDA_LOG(UDA_LOG_DEBUG, "DEBUG : prod_name: %s\n", prod_name);
+	UDA_LOG(UDA_LOG_DEBUG, "DEBUG : object: %s\n", object_name);
+	UDA_LOG(UDA_LOG_DEBUG, "DEBUG : param: %s\n", param_name);
 
 	int status = readStaticParameters(&value, nb_val, shotNumber, prod_name, object_name, param_name, val_nb);
-	IDAM_LOGF(UDA_LOG_DEBUG, "readStaticParameters status: %d\n", status);
-	IDAM_LOGF(UDA_LOG_DEBUG, "readStaticParameters nb_val: %d\n", *nb_val);
+	UDA_LOG(UDA_LOG_DEBUG, "readStaticParameters status: %d\n", status);
+	UDA_LOG(UDA_LOG_DEBUG, "readStaticParameters nb_val: %d\n", *nb_val);
 
 	if (status != 0) {
-		IDAM_LOG(UDA_LOG_DEBUG, "Error calling readStaticParameters\n");
+		UDA_LOG(UDA_LOG_DEBUG, "Error calling readStaticParameters\n");
 		int err = 901;
 		addIdamError(CODEERRORTYPE, "WEST:ERROR: unable to get shape of static data", err, "");
 	}
@@ -618,13 +618,13 @@ void execute_setchannels_validity(int* unvalid_channels_list, int unvalid_channe
 {
 	int requestedIndex = getNumIDAMIndex(attributes, nodeIndices);
 	int channel_number = requestedIndex + 1; //TODO TO CHECK
-	IDAM_LOGF(UDA_LOG_DEBUG, "channel number : %d\n", channel_number);
+	UDA_LOG(UDA_LOG_DEBUG, "channel number : %d\n", channel_number);
 
 	if (isChannelValid(channel_number, unvalid_channels_list, unvalid_channels_size)) {
-		IDAM_LOGF(UDA_LOG_DEBUG, "valid channel number : %d\n", channel_number);
+		UDA_LOG(UDA_LOG_DEBUG, "valid channel number : %d\n", channel_number);
 		setReturnDataIntScalar(data_block, 0, NULL);
 	} else {
-		IDAM_LOGF(UDA_LOG_DEBUG, "unvalid channel number : %d\n", channel_number);
+		UDA_LOG(UDA_LOG_DEBUG, "unvalid channel number : %d\n", channel_number);
 		setReturnDataIntScalar(data_block, -1, NULL);
 	}
 }
@@ -662,22 +662,22 @@ int execute_setvalue_collect(const char* TOP_collections_parameters, char* attri
 	int searchedArrayIndex;
 
 	searchIndices(requestedIndex, l, &searchedArray, &searchedArrayIndex);
-	IDAM_LOGF(UDA_LOG_DEBUG, "searchedArray : %d\n", searchedArray);
-	IDAM_LOGF(UDA_LOG_DEBUG, "searchedArrayIndex : %d\n", searchedArrayIndex);
+	UDA_LOG(UDA_LOG_DEBUG, "searchedArray : %d\n", searchedArray);
+	UDA_LOG(UDA_LOG_DEBUG, "searchedArrayIndex : %d\n", searchedArrayIndex);
 
 	char* command = NULL;
 	getCommand(searchedArray, &command, TOP_collections_parameters);
 
 	char* value;
 	getValueCollect(command, &value, nodeIndices);
-	IDAM_LOGF(UDA_LOG_DEBUG, "Command : %s\n", command);
+	UDA_LOG(UDA_LOG_DEBUG, "Command : %s\n", command);
 
 	int data_type;
 	getReturnType(attributes, &data_type);
 
 	char* buffer = setBuffer(data_type, value);
 
-	IDAM_LOGF(UDA_LOG_DEBUG, "Found value: %s\n", value);
+	UDA_LOG(UDA_LOG_DEBUG, "Found value: %s\n", value);
 
 	float normalizationFactor = 1;
 	getNormalizationFactor(&normalizationFactor, normalizationAttributes);
@@ -695,27 +695,27 @@ char* setBuffer(int data_type, char* value)
 	char* buffer = NULL;
 
 	if (data_type == UDA_TYPE_FLOAT) {
-		IDAM_LOG(UDA_LOG_DEBUG, "UDA_TYPE_FLOAT requested from WEST plugin\n");
+		UDA_LOG(UDA_LOG_DEBUG, "UDA_TYPE_FLOAT requested from WEST plugin\n");
 		buffer = malloc(sizeof(float));
 		float* f_buf = (float*)buffer;
 		*f_buf = atof(value);
-		IDAM_LOGF(UDA_LOG_DEBUG, "Testing float value : %f\n", *f_buf);
+		UDA_LOG(UDA_LOG_DEBUG, "Testing float value : %f\n", *f_buf);
 	} else if (data_type == UDA_TYPE_DOUBLE) {
-		IDAM_LOG(UDA_LOG_DEBUG, "UDA_TYPE_DOUBLE requested from WEST plugin\n");
+		UDA_LOG(UDA_LOG_DEBUG, "UDA_TYPE_DOUBLE requested from WEST plugin\n");
 		buffer = malloc(sizeof(double));
 		double* f_buf = (double*)buffer;
 		*f_buf = atof(value);
 	} else if (data_type == UDA_TYPE_INT) {
-		IDAM_LOG(UDA_LOG_DEBUG, "UDA_TYPE_INT requested from WEST plugin\n");
+		UDA_LOG(UDA_LOG_DEBUG, "UDA_TYPE_INT requested from WEST plugin\n");
 		buffer = malloc(sizeof(int));
 		int* i_buf = (int*)buffer;
 		*i_buf = atoi(value);
 	} else if (data_type == UDA_TYPE_STRING) {
-		IDAM_LOG(UDA_LOG_DEBUG, "UDA_TYPE_STRING requested from WEST plugin\n");
+		UDA_LOG(UDA_LOG_DEBUG, "UDA_TYPE_STRING requested from WEST plugin\n");
 		buffer = strdup(value);
 	} else {
 		int err = 901;
-		IDAM_LOGF(UDA_LOG_DEBUG, "Unsupported data type in setBuffer(): %d\n", data_type);
+		UDA_LOG(UDA_LOG_DEBUG, "Unsupported data type in setBuffer(): %d\n", data_type);
 		addIdamError(CODEERRORTYPE, "WEST:ERROR: unsupported data type", err, "");
 	}
 
@@ -748,27 +748,27 @@ int execute_tsmat_collect(const char* TOP_collections_parameters, char* attribut
 		l[i] = nb_val;
 	}
 
-	IDAM_LOGF(UDA_LOG_DEBUG, "In execute_tsmat_collect, searching requestedIndex... %s\n", "");
+	UDA_LOG(UDA_LOG_DEBUG, "In execute_tsmat_collect, searching requestedIndex... %s\n", "");
 	int requestedIndex = getNumIDAMIndex(attributes, nodeIndices);
 
-	IDAM_LOGF(UDA_LOG_DEBUG, "In execute_tsmat_collect, after searching requestedIndex --> %d\n", requestedIndex);
+	UDA_LOG(UDA_LOG_DEBUG, "In execute_tsmat_collect, after searching requestedIndex --> %d\n", requestedIndex);
 
 	int searchedArray;
 	int searchedArrayIndex;
 
-	IDAM_LOGF(UDA_LOG_DEBUG, "In execute_tsmat_collect, searching index array for requested index: %d\n",
+	UDA_LOG(UDA_LOG_DEBUG, "In execute_tsmat_collect, searching index array for requested index: %d\n",
 			requestedIndex);
 	searchIndices(requestedIndex, l, &searchedArray, &searchedArrayIndex);
-	IDAM_LOGF(UDA_LOG_DEBUG, "In execute_tsmat_collect, searched array:%d\n", searchedArray);
-	IDAM_LOGF(UDA_LOG_DEBUG, "In execute_tsmat_collect, searched array index:%d\n", searchedArrayIndex);
+	UDA_LOG(UDA_LOG_DEBUG, "In execute_tsmat_collect, searched array:%d\n", searchedArray);
+	UDA_LOG(UDA_LOG_DEBUG, "In execute_tsmat_collect, searched array index:%d\n", searchedArrayIndex);
 
 	char* command = NULL;
 
-	IDAM_LOGF(UDA_LOG_DEBUG, "In execute_tsmat_collect, getting command from TOP_collections_parameters: %s\n",
+	UDA_LOG(UDA_LOG_DEBUG, "In execute_tsmat_collect, getting command from TOP_collections_parameters: %s\n",
 			TOP_collections_parameters);
 	getCommand(searchedArray, &command, TOP_collections_parameters);
 
-	IDAM_LOG(UDA_LOG_DEBUG, "In execute_tsmat_collect, after getting command...\n");
+	UDA_LOG(UDA_LOG_DEBUG, "In execute_tsmat_collect, after getting command...\n");
 
 	char* prod_name = NULL;     //DMAG, ...
 	char* object_name = NULL;   //GMAG_BNORM, ...
@@ -779,26 +779,26 @@ int execute_tsmat_collect(const char* TOP_collections_parameters, char* attribut
 	getReturnType(attributes, &data_type);
 
 	//Tokenize mapfun string to get function parameters
-	IDAM_LOGF(UDA_LOG_DEBUG, "In execute_tsmat_collect, tokenizing command... %s\n", command);
+	UDA_LOG(UDA_LOG_DEBUG, "In execute_tsmat_collect, tokenizing command... %s\n", command);
 	tokenizeCommand(command, &prod_name, &object_name, &param_name, &flag);
-	IDAM_LOG(UDA_LOG_DEBUG, "In execute_tsmat_collect, afetr tokenizing command...\n");
+	UDA_LOG(UDA_LOG_DEBUG, "In execute_tsmat_collect, afetr tokenizing command...\n");
 
 	char* value = NULL;
 	int val_nb = l[searchedArray];
 	int nb_val;
 
-	IDAM_LOGF(UDA_LOG_DEBUG, "In execute_tsmat_collect, flag: %s\n", flag);
-	IDAM_LOG(UDA_LOG_DEBUG, "In execute_tsmat_collect, checking if flag is Null...\n");
+	UDA_LOG(UDA_LOG_DEBUG, "In execute_tsmat_collect, flag: %s\n", flag);
+	UDA_LOG(UDA_LOG_DEBUG, "In execute_tsmat_collect, checking if flag is Null...\n");
 
 	if (flag != NULL && strncmp("Null", flag, 4) == 0) {
-		IDAM_LOG(UDA_LOG_DEBUG, "In execute_tsmat_collect, setting value for Null flag...\n");
+		UDA_LOG(UDA_LOG_DEBUG, "In execute_tsmat_collect, setting value for Null flag...\n");
 		int data_type;
 		getReturnType(attributes, &data_type);
 		value = setBuffer(data_type, "0"); //we put zero for 'Null' flag
 		searchedArrayIndex = 0;
 	} else {
 		//Reading static parameters using TSLib
-		IDAM_LOGF(UDA_LOG_DEBUG, "In execute_tsmat_collect, reading static parameters for param. name: %s\n",
+		UDA_LOG(UDA_LOG_DEBUG, "In execute_tsmat_collect, reading static parameters for param. name: %s\n",
 				param_name);
 		status = readStaticParameters(&value, &nb_val, shotNumber, prod_name, object_name, param_name, val_nb);
 		if (status != 0) {
@@ -814,7 +814,7 @@ int execute_tsmat_collect(const char* TOP_collections_parameters, char* attribut
 
 	float normalizationFactor = 1;
 	getNormalizationFactor(&normalizationFactor, normalizationAttributes);
-	IDAM_LOGF(UDA_LOG_DEBUG, "In execute_tsmat_collect, setting static value... %s\n", "");
+	UDA_LOG(UDA_LOG_DEBUG, "In execute_tsmat_collect, setting static value... %s\n", "");
 
 	setStaticValue(data_type, data_block, value, searchedArrayIndex, normalizationFactor);
 
@@ -882,7 +882,7 @@ int execute_tsmat_without_idam_index(const char* TOP_collections_parameters, cha
 		setStatic1DValue(data_type, data_block, value, val_nb, normalizationFactor);
 	} else {
 		int err = 901;
-		IDAM_LOG(UDA_LOG_DEBUG, "Unsupported rank from execute_tsmat_without_idam_index()\n");
+		UDA_LOG(UDA_LOG_DEBUG, "Unsupported rank from execute_tsmat_without_idam_index()\n");
 		addIdamError(CODEERRORTYPE, "WEST:ERROR: unsupported data type", err, "");
 		free(command);
 		free(prod_name);
@@ -904,11 +904,11 @@ int execute_tsmat_without_idam_index(const char* TOP_collections_parameters, cha
 void setStatic1DValue(int data_type, DATA_BLOCK* data_block, char* value, int val_nb, float normalizationFactor)
 {
 	if (data_type == UDA_TYPE_FLOAT) {
-		IDAM_LOG(UDA_LOG_DEBUG, "handling float 1D in setStatic1DValue()\n");
+		UDA_LOG(UDA_LOG_DEBUG, "handling float 1D in setStatic1DValue()\n");
 
 		char val_nb_str[10];
 		sprintf(val_nb_str, "%d", val_nb);
-		IDAM_LOGF(UDA_LOG_DEBUG, "val_nb : %s\n", val_nb_str);
+		UDA_LOG(UDA_LOG_DEBUG, "val_nb : %s\n", val_nb_str);
 
 		if (val_nb == 0) {
 			int err = 901;
@@ -919,20 +919,20 @@ void setStatic1DValue(int data_type, DATA_BLOCK* data_block, char* value, int va
 		data_block->data = malloc(val_nb * sizeof(float));
 		float* pt_float = (float*)value;
 		multiplyFloat(pt_float, normalizationFactor, val_nb);
-		IDAM_LOG(UDA_LOG_DEBUG, "handling float 1D in setStatic1DValue21()\n");
+		UDA_LOG(UDA_LOG_DEBUG, "handling float 1D in setStatic1DValue21()\n");
 		*((float*)data_block->data) = *pt_float;
-		IDAM_LOG(UDA_LOG_DEBUG, "handling float 1D in setStatic1DValue22()\n");
+		UDA_LOG(UDA_LOG_DEBUG, "handling float 1D in setStatic1DValue22()\n");
 	} else if (data_type == UDA_TYPE_INT) {
-		IDAM_LOG(UDA_LOG_DEBUG, "handling int 1D in setStatic1DValue()\n");
+		UDA_LOG(UDA_LOG_DEBUG, "handling int 1D in setStatic1DValue()\n");
 		data_block->data_type = UDA_TYPE_INT;
 		data_block->data = malloc(val_nb * sizeof(int));
 		int* pt_int = (int*)value;
 		multiplyInt(pt_int, normalizationFactor, val_nb);
 		*((int*)data_block->data) = *pt_int;
-		IDAM_LOG(UDA_LOG_DEBUG, "handling int 1D in setStatic1DValue2()\n");
+		UDA_LOG(UDA_LOG_DEBUG, "handling int 1D in setStatic1DValue2()\n");
 	} else {
 		int err = 901;
-		IDAM_LOG(UDA_LOG_DEBUG, "Unsupported data type from setStatic1DValue()\n");
+		UDA_LOG(UDA_LOG_DEBUG, "Unsupported data type from setStatic1DValue()\n");
 		addIdamError(CODEERRORTYPE, __func__, err, "WEST:ERROR: unsupported data type");
 	}
 }
