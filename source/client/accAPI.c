@@ -758,9 +758,9 @@ Select the server connection required.
 void putIdamServerSocket(int socket)
 {
     ENVIRONMENT* environment = getIdamClientEnvironment();
-    if(environment->server_socket != socket){			// Change to a different socket
-       environment->server_socket = socket;			// IDAM server service socket number (Must be Open)
-       environment->server_change_socket = 1;			// Connect to an Existing Server
+    if (environment->server_socket != socket){      // Change to a different socket
+       environment->server_socket = socket;         // IDAM server service socket number (Must be Open)
+       environment->server_change_socket = 1;       // Connect to an Existing Server
     }
 }
 

@@ -207,7 +207,9 @@ int idamClient(REQUEST_BLOCK* request_block)
 
     time_t protocol_time;            // Time a Conversation Occured
     
-    if(system_startup && getenv("UDA_TIMEOUT")) user_timeout = atoi(getenv("UDA_TIMEOUT"));
+    if (system_startup && getenv("UDA_TIMEOUT")) {
+        user_timeout = (int)strtol(getenv("UDA_TIMEOUT"), NULL, 10);
+    }
 
 
     //------------------------------------------------------------------------------
@@ -329,7 +331,7 @@ int idamClient(REQUEST_BLOCK* request_block)
 
         UDA_LOG(UDA_LOG_DEBUG, "Start: %ld    End: %ld\n", (long)tv_server_start, (long)tv_server_end);
         UDA_LOG(UDA_LOG_DEBUG, "Server Age: %ld\n", age);
-	
+
         //-------------------------------------------------------------------------
         // Server State: Is the Server Dead? (Age Dependent)
 
