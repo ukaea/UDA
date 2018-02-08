@@ -1,4 +1,5 @@
 import logging
+import itertools
 
 from six import add_metaclass
 from . import c_uda
@@ -63,6 +64,11 @@ class Client(object):
         """
         # Standard signal
         result = self._cclient.get(str(signal), str(source))
+
+        if 'raw' in kwargs and kwargs['raw']:
+            data = result.data()
+            byte_array = c_uda.ByteArray.frompointer(data.byte_data())
+            return bytes(itertools.islice(byte_array, data.byte_length()))
 
         if result.isTree():
             return StructuredData(result.tree())
