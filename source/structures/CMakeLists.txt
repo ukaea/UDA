@@ -6,7 +6,7 @@ set( SRC_FILES
   struct.c
   accessors.c
   xdrUserDefinedData.c
-  )
+)
 
 include_directories(
   ${CMAKE_SOURCE_DIR}/source

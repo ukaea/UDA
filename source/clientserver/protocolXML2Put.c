@@ -1197,7 +1197,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTY
                                            &userdefinedtype->compoundfield[j - 1].name[6])) {
 
                                 count = (int)*prev;        // the value of __size...
-                                size = getsizeof(userdefinedtypelist, userdefinedtype->compoundfield[j].type);
+                                size = (int)getsizeof(userdefinedtypelist, userdefinedtype->compoundfield[j].type);
                                 type = userdefinedtype->compoundfield[j].type;
                             } else {
                                 if (count > 0) {
@@ -1208,7 +1208,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTY
                                         ssize = sizeof(char);    // Assume xml void pointer type is to char
                                         type = chartype;
                                     } else {
-                                        ssize = getsizeof(userdefinedtypelist, userdefinedtype->compoundfield[j].type);
+                                        ssize = (int)getsizeof(userdefinedtypelist, userdefinedtype->compoundfield[j].type);
                                         type = userdefinedtype->compoundfield[j].type;
                                     }
 

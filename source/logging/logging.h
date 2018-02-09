@@ -3,9 +3,13 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <libgen.h>
-
-#define UDA_LOG(LEVEL, FMT, ...) idamLog(LEVEL, "%s:%d >> " FMT, basename(__FILE__), __LINE__, ##__VA_ARGS__)
+#ifdef _WIN32
+#  define FILENAME (strrchr(__FILE__, '\\') ? strrchr(__FILE__, '\\') + 1 : __FILE__)
+#  define UDA_LOG(LEVEL, FMT, ...) idamLog(LEVEL, "%s:%d >> " FMT, FILENAME, __LINE__, ##__VA_ARGS__)
+#else
+#  include <libgen.h>
+#  define UDA_LOG(LEVEL, FMT, ...) idamLog(LEVEL, "%s:%d >> " FMT, basename(__FILE__), __LINE__, ##__VA_ARGS__)
+#endif
 
 extern int reopen_logs;         // Flags whether or Not Logs need to be Re-Opened
 

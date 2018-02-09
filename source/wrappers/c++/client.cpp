@@ -18,7 +18,7 @@
 #include "result.hpp"
 #include "signal.hpp"
 
-void uda::Client::setProperty(Property prop, bool value) throw(UDAException)
+void uda::Client::setProperty(Property prop, bool value)
 {
     std::string name;
 
@@ -50,7 +50,7 @@ void uda::Client::setProperty(Property prop, bool value) throw(UDAException)
     value ? setIdamProperty(name.c_str()) : resetIdamProperty(name.c_str());
 }
 
-void uda::Client::setProperty(Property prop, int value) throw(UDAException)
+void uda::Client::setProperty(Property prop, int value)
 {
     std::string name;
 
@@ -86,7 +86,7 @@ void uda::Client::setProperty(Property prop, int value) throw(UDAException)
     }
 }
 
-int uda::Client::property(Property prop) throw(UDAException)
+int uda::Client::property(Property prop)
 {
     switch (prop) {
         case PROP_DATADBLE:  return getIdamProperty("get_datadble");
@@ -132,7 +132,7 @@ int uda::Client::serverPort()
     return getIdamServerPort();
 }
 
-const uda::Result& uda::Client::get(const std::string& signalName, const std::string& dataSource) throw(UDAException)
+const uda::Result& uda::Client::get(const std::string& signalName, const std::string& dataSource)
 {
     auto data = new Result(idamGetAPI(signalName.c_str(), dataSource.c_str()));
 

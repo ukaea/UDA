@@ -59,7 +59,7 @@ set( HEADER_FILES
   md5Sum.h
   memstream.h
   parseOperation.h
-  parseXML.h
+  #parseXML.h
   printStructs.h
   protocol.h
   protocolXML.h
@@ -83,7 +83,7 @@ if( APPLE )
 endif()
 
 if( WIN32 )
-  list( APPEND SRC_FILES mkstemp.c )
+  list( APPEND SRC_FILES memstream_win.c mkstemp.c )
 endif()
 
 if( CLIENT_ONLY )
@@ -93,8 +93,11 @@ endif()
 include_directories(
   ${SRC_DIR}
   ${OPENSSL_INCLUDE_DIR}
-  ${LIBXML2_INCLUDE_DIR}
 )
+
+if( NOT CLIENT_ONLY )
+  include_directories( ${LIBXML2_INCLUDE_DIR} )
+endif()
 
 add_library( clientserver-client-objects OBJECT ${SRC_FILES} ${HEADER_FILES} )
 

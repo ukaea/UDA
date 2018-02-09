@@ -1222,7 +1222,7 @@ int idamserverReadData(PGconn* DBConnect, REQUEST_BLOCK request_block, CLIENT_BL
         if(signal_desc->type == 'P') {
             strcpy(request_block.signal,signal_desc->signal_name);
             strcpy(request_block.source,data_source->path);
-            makeServerRequestBlock(&request_block, *pluginlist);
+            makeServerRequestBlock(&request_block, *pluginlist);	// Includes placeholder substitution
         }
 #endif // NOTGENERICENABLED
 
@@ -1339,10 +1339,6 @@ int idamserverReadData(PGconn* DBConnect, REQUEST_BLOCK request_block, CLIENT_BL
                     THROW_ERROR(err, "Error Redirecting Plugin Message Output");
                 }
 
-                // Initialise general structure passing components
-
-                copyUserDefinedTypeList(&userdefinedtypelist); // Allocate and Copy the Master User Defined Type Lis
-
                 // Call the plugin
 
                 err = pluginlist->plugin[id].idamPlugin(&idam_plugin_interface);
@@ -1378,12 +1374,13 @@ int idamserverReadData(PGconn* DBConnect, REQUEST_BLOCK request_block, CLIENT_BL
                         THROW_ERROR(999, "Opaque Data Block is Null Pointer");
                     }
 
-                    freeMallocLogList(logmalloclist);
-                    free((void*)logmalloclist);
-                    logmalloclist = NULL;
-                    freeUserDefinedTypeList(userdefinedtypelist);
-                    free((void*)userdefinedtypelist);
-                    userdefinedtypelist = NULL;
+                    //freeMallocLogList(logmalloclist);
+                    //free((void*)logmalloclist);
+                    //logmalloclist = NULL;
+		    
+                    //freeUserDefinedTypeList(userdefinedtypelist);
+                    //free((void*)userdefinedtypelist);
+                    //userdefinedtypelist = NULL;
                 }
 
                 if (!idam_plugin_interface.changePlugin) {

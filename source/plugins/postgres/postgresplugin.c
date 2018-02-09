@@ -4,36 +4,36 @@
 *                Only the first record identified that satisfies the selection criteria is returned - multiple records raises an error
 *                Records within the database must be unique 
 *
-* Input Arguments:	IDAM_PLUGIN_INTERFACE *idam_plugin_interface
+* Input Arguments:  IDAM_PLUGIN_INTERFACE *idam_plugin_interface
 *
-* Returns:		0 if the plugin functionality was successful
-*			otherwise a Error Code is returned 
+* Returns:      0 if the plugin functionality was successful
+*           otherwise a Error Code is returned 
 *
 * Public Functions:
 *
-*       query	return the database metadata record for a data object
+*       query   return the database metadata record for a data object
 *
 * Private Functions:
 *
-*       get	return the name mapping between an alias or generic name for a data object and its true name or
+*       get return the name mapping between an alias or generic name for a data object and its true name or
 *               method of data access.
 *      
 *       connection return the private database connection object for other plugins to reuse 
 * 
 * Standard functionality:
 *
-*	help	a description of what this plugin does together with a list of functions available
+*   help    a description of what this plugin does together with a list of functions available
 *
-*	reset	frees all previously allocated heap, closes file handles and resets all static parameters.
-*		This has the same functionality as setting the housekeeping directive in the plugin interface
-*		data structure to TRUE (1)
+*   reset   frees all previously allocated heap, closes file handles and resets all static parameters.
+*       This has the same functionality as setting the housekeeping directive in the plugin interface
+*       data structure to TRUE (1)
 *
-*	init	Initialise the plugin: read all required data and process. Retain staticly for
-*		future reference.	
+*   init    Initialise the plugin: read all required data and process. Retain staticly for
+*       future reference.   
 *
 * Change History
 *
-* 26May2017	D.G.Muir	Original Version
+* 26May2017 D.G.Muir    Original Version
 *---------------------------------------------------------------------------------------------------------------*/
 
 #include "postgresplugin.h"
@@ -220,7 +220,7 @@ extern int postgres_query(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
      query( [signal|objectName]=objectName, [shot|exp_number|pulse|pulno]=exp_number [,source|objectSource]=objectSource [,type=type] [,sourceClass=sourceClass] [,objectClass=objectClass])
 
-     get()	requires the shot number to be passed as the second argument
+     get()  requires the shot number to be passed as the second argument
 
     */
 
@@ -316,19 +316,56 @@ int do_query(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PGconn* conn)
 {
     REQUEST_BLOCK* request_block = idam_plugin_interface->request_block;
 
-    // Mandatory arguments
+    bool isObjectName;
+    const char* objectName = NULL;
 
-    const char* objectName;
-    bool isObjectName = FIND_STRING_VALUE(request_block->nameValueList, objectName);
-    if (!isObjectName) {
+    bool isObjectSource = false;
+    const char* objectSource = NULL;
+
+    bool isExpNumber = false;
+    int expNumber = NULL;
+
+    bool isType = false;
+    const char* type = NULL;
+
+    bool isSourceClass = false;
+    const char* sourceClass = NULL;
+
+    bool isObjectClass = false;
+    const char* objectClass = NULL;
+
+    if (!strcasecmp(request_block->function, "query")) {
+        // Name Value pairs => a regular returned DATA_BLOCK
+
+        isObjectName = findStringValue(&request_block->nameValueList, &objectName, "signal|objectName");
+        isObjectSource = findStringValue(&request_block->nameValueList, &objectSource, "source|objectSource");
+        isExpNumber = findIntValue(&request_block->nameValueList, &expNumber, "shot|exp_number|pulse|pulno");
+        isType = findStringValue(&request_block->nameValueList, &type, "type");
+        isSourceClass = findStringValue(&request_block->nameValueList, &sourceClass, "sourceClass");
+        isObjectClass = findStringValue(&request_block->nameValueList, &objectClass, "objectClass");
+
+    } else {
+        // Default Method: Names and shot or source passed via the standard legacy API arguments => returned SIGNAL_DESC and DATA_SOURCE
+
+        isObjectName = 1;
         objectName = request_block->signal;
+
+        if (request_block->exp_number > 0) {
+            isExpNumber = 1;
+            expNumber = request_block->exp_number;
+        }
+
+        if (request_block->tpass[0] != '\0') {
+            isObjectSource = 1;
+            objectSource = request_block->tpass;
+        }
     }
 
-    int expNumber;
-    bool isExpNumber = FIND_INT_VALUE(request_block->nameValueList, expNumber);
+    // Mandatory arguments
 
-    const char* objectSource;
-    bool isObjectSource = FIND_STRING_VALUE(request_block->nameValueList, objectSource);
+    if (!isObjectName) {
+        RAISE_PLUGIN_ERROR("No Data Object Name specified");
+    }
 
     if (!isExpNumber && !isObjectSource) {
 
@@ -346,7 +383,6 @@ int do_query(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PGconn* conn)
         if (!isExpNumber && !isObjectSource) {
             RAISE_PLUGIN_ERROR("No Experiment Number or data source specified");
         }
-
     }
 
     // Query for a specific named data object valid for the shot number range
@@ -365,12 +401,15 @@ int do_query(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PGconn* conn)
         RAISE_PLUGIN_ERROR("Unable to Escape the signal name");
     }
 
-    char* tpass = strdup(objectSource);
-    strupr(tpass);
-    if (preventSQLInjection(conn, &tpass)) {
-        free((void*)signal);
-        free((void*)tpass);
-        RAISE_PLUGIN_ERROR("Unable to Escape the tpass string");
+    char* tpass = NULL;
+    if(isObjectSource && objectSource != NULL){
+       tpass = strdup(objectSource);
+       strupr(tpass);
+       if (preventSQLInjection(conn, &tpass)) {
+           free((void*)signal);
+           free((void*)tpass);
+           RAISE_PLUGIN_ERROR("Unable to Escape the tpass string");
+       }
     }
 
     //-------------------------------------------------------------
@@ -422,9 +461,6 @@ int do_query(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PGconn* conn)
                 signal, signal);
     }
 
-    const char* type;
-    bool isType = FIND_STRING_VALUE(request_block->nameValueList, type);
-
     if (isType) {
         char* work = (char*)malloc((13 + strlen(type)) * sizeof(char));
         char* upper = strupr(strdup(type));
@@ -433,9 +469,6 @@ int do_query(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PGconn* conn)
         free(work);
         free(upper);
     }
-
-    const char* sourceClass = NULL;
-    bool isSourceClass = FIND_STRING_VALUE(request_block->nameValueList, type);
 
     if (isSourceClass) {
         char* work = (char*)malloc((21 + strlen(sourceClass)) * sizeof(char));
@@ -446,9 +479,6 @@ int do_query(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PGconn* conn)
         free(upper);
     }
 
-    const char* objectClass = NULL;
-    bool isObjectClass = FIND_STRING_VALUE(request_block->nameValueList, type);
-
     if (isObjectClass) {
         char* work = (char*)malloc((21 + strlen(objectClass)) * sizeof(char));
         char* upper = strupr(strdup(objectClass));
@@ -458,8 +488,8 @@ int do_query(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PGconn* conn)
         free(upper);
     }
 
-    free((void*)signal);
-    free((void*)tpass);
+    if(signal != NULL) free((void*)signal);
+    if(tpass != NULL) free((void*)tpass);
 
     //-------------------------------------------------------------
     // Test Performance

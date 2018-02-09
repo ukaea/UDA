@@ -44,6 +44,36 @@ UDA requires the following to avail in order to build:
 | netcdf | | netcdf plugin |
 | MDSplus | | MDS+ plugin |
 
+#### Windows
+
+Building extlibs (running in Powershell):
+
+    mkdir build
+    cd build
+    cmake.exe .. -G"MinGW Makefiles" -DBUILD_SHARED_LIBS=ON
+    mingw32-make.exe
+    cd ..
+    .\install.bat
+
+Tested and built on Windows 10 (built using MinGW 64-bit) using (running in Powershell):
+
+    mkdir build
+    cd build
+    ..\scripts\cmake-win.bat
+    mingw32-make.exe
+    mingw32-make.exe install
+
+Running Python client:
+    
+    $python_dir = (Get-Item (Get-Command python).Source).DirectoryName
+    rm $python_dir\Lib\site-packages\pyuda
+    copy -Recurse .\include\pyuda  $python_dir\Lib\site-packages\
+    cp .\extlib\lib\libxdr.dll $python_dir\Lib\site-packages\pyuda\
+    
+    Set-Item -Path env:UDA_HOST -Value "idam3.mast.ccfe.ac.uk"
+    Set-Item -Path env:UDA_HOST -Value "56565"
+    python
+
 #### CentOS
 
 Packages needed for CentOS

@@ -124,7 +124,10 @@ std::vector<bool> uda::TreeNode::atomicPointers()
     LOGMALLOCLIST* logmalloclist = getIdamLogMallocList(handle_);
     int* isptr = getNodeAtomicPointers(logmalloclist, node_);
     int size = getNodeAtomicCount(node_);
-    std::vector<bool> vec(isptr, isptr + size);
+    std::vector<bool> vec(size);
+    for (int i = 0; i < size; ++i) {
+        vec[i] = static_cast<bool>(isptr[i]);
+    }
     return vec;
 }
 

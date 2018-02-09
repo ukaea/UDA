@@ -31,14 +31,20 @@ include_directories( SYSTEM "${Boost_INCLUDE_DIR}" )
 
 add_library( cpp-objects OBJECT ${SRC_FILES} )
 
-add_library( ${LIB_NAME} SHARED $<TARGET_OBJECTS:cpp-objects> )
-target_link_libraries( ${LIB_NAME} LINK_PRIVATE client-shared ${Boost_LIBRARIES} )
+add_library( ${LIB_NAME} STATIC $<TARGET_OBJECTS:cpp-objects> )
+target_link_libraries( ${LIB_NAME} LINK_PRIVATE client-static ${Boost_LIBRARIES} )
+if( WIN32 )
+  target_link_libraries( ${LIB_NAME} LINK_PRIVATE xdr )
+endif()
 
 if( NOT CLIENT_ONLY )
   add_library( fatcpp-objects OBJECT ${SRC_FILES} )
   target_compile_definitions( fatcpp-objects PRIVATE -DFATCLIENT )
-  add_library( fat${LIB_NAME} SHARED $<TARGET_OBJECTS:fatcpp-objects> )
-  target_link_libraries( fat${LIB_NAME} LINK_PRIVATE fatclient-shared ${Boost_LIBRARIES} )
+  add_library( fat${LIB_NAME} STATIC $<TARGET_OBJECTS:fatcpp-objects> )
+  target_link_libraries( fat${LIB_NAME} LINK_PRIVATE fatclient-static ${Boost_LIBRARIES} )
+  if( WIN32 )
+    target_link_libraries( fat${LIB_NAME} LINK_PRIVATE xdr )
+  endif()
 endif()
 
 set_target_properties( ${LIB_NAME}
@@ -56,11 +62,11 @@ if( NOT CLIENT_ONLY )
     PROPERTIES
     VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}
     SOVERSION ${PROJECT_VERSION_MAJOR}
-    )
+  )
 
   install( TARGETS fat${LIB_NAME}
     DESTINATION lib
-    )
+  )
 endif()
 
 set( INSTALL_FILES

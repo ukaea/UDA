@@ -26,6 +26,7 @@
 #include <clientserver/freeDataBlock.h>
 #include <structures/struct.h>
 #include <client/connection.h>
+#include <client/getEnvironment.h>
 
 #include "closedown.h"
 #include "accAPI.h"
@@ -94,8 +95,8 @@ SERVER_BLOCK server_block;
 time_t tv_server_start = 0;
 time_t tv_server_end = 0;
 
-int initEnvironment = 1;        // Flag initilisation
-ENVIRONMENT environment;        // Holds local environment variable values
+//int initEnvironment = 1;        // Flag initilisation
+//ENVIRONMENT environment;        // Holds local environment variable values
 
 NTREELIST NTreeList;
 LOGSTRUCTLIST logstructlist;
@@ -205,6 +206,11 @@ int idamClient(REQUEST_BLOCK* request_block)
     protocolVersion = clientVersion;
 
     time_t protocol_time;            // Time a Conversation Occured
+    
+    if (system_startup && getenv("UDA_TIMEOUT")) {
+        user_timeout = (int)strtol(getenv("UDA_TIMEOUT"), NULL, 10);
+    }
+
 
     //------------------------------------------------------------------------------
     // Open the Socket if this is the First call for Data or the server is known to be dead
@@ -310,8 +316,10 @@ int idamClient(REQUEST_BLOCK* request_block)
         //
         // Instance a new server on the same Host/Port or on a different Host/port
 
-        if (environment.server_reconnect || environment.server_change_socket) {
-            err = reconnect(&environment);
+        ENVIRONMENT *environment = getIdamClientEnvironment();
+	
+	if (environment->server_reconnect || environment->server_change_socket) {
+            err = reconnect(environment);
             if (err) break;
         }
 

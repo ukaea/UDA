@@ -8,7 +8,6 @@ Plot the limiting surface (2D only atm)
 
 import math
 
-import matplotlib.pyplot as plt
 import numpy as np
 
 class GeomEfitLimiter():
@@ -35,6 +34,8 @@ class GeomEfitLimiter():
 
     def plot(self, data, ax_2d=None, ax_3d=None, show=True, color=None):
         # Create axes if necessary
+        import matplotlib.pyplot as plt
+        
         if ax_2d is None:
             fig = plt.figure()
             if ax_2d is None:

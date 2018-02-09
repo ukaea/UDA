@@ -37,7 +37,12 @@ void idamErrorLog(CLIENT_BLOCK client_block, REQUEST_BLOCK request, IDAMERRORSTA
     struct tm* broken = gmtime(&calendar);
 
     static char accessdate[DATELENGTH];     // The Calendar Time as a formatted String
+    
+#ifndef _WIN32
     asctime_r(broken, accessdate);
+#else
+    asctime_s(accessdate, DATELENGTH, broken);
+#endif
 
     convertNonPrintable2(accessdate);
     TrimString(accessdate);
@@ -47,7 +52,7 @@ void idamErrorLog(CLIENT_BLOCK client_block, REQUEST_BLOCK request, IDAMERRORSTA
             request.pass, request.tpass, request.path, request.file, request.format, request.archive,
             request.device_name, request.server);
 
-    int i;
+    unsigned int i;
     for (i = 0; i < errorstack->nerrors; i++) {
         idamLog(UDA_LOG_ERROR, "1 %s [%s] %d %d [%s] [%s]\n", client_block.uid, accessdate,
                 errorstack->idamerror[i].type,

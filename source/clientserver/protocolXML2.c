@@ -112,9 +112,6 @@ protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
 
     XDR* priorxdrs = xdrs;        // Preserve the current stream object
 
-    unsigned char* object = NULL;    // the data object
-    size_t objectSize = 0;        // the size of the data object
-
     char tempFile[MAXPATH] = "/tmp/idamXDRXXXXXX";
     char* env = NULL;
 
@@ -157,6 +154,9 @@ protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
 
             void* data = NULL;
             data_block = (DATA_BLOCK*)str;
+
+            unsigned char* object = NULL;
+            size_t objectSize = 0;
 
             if (data_block->opaque_type == UDA_OPAQUE_TYPE_STRUCTURES) {
                 // These can be transformed into different opaque types to simplify sending
@@ -251,10 +251,16 @@ protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                         // Write the serialised data into a data object using a stdio xdr stream
 
                         errno = 0;
+#ifndef _WIN32
                         object = NULL;    // the data object
                         objectSize = 0;    // the size of the data object
 
-                        if ((xdrfile = open_memstream((char**)&object, &objectSize)) == NULL || errno != 0) {
+                        xdrfile = open_memstream((char**)&object, &objectSize);
+#else
+                        xdrfile = tmpfile();
+#endif
+
+                        if (xdrfile == NULL || errno != 0) {
                             err = 999;
                             if (errno != 0) addIdamError(SYSTEMERRORTYPE, "protocolXML", errno, "");
                             addIdamError(CODEERRORTYPE, "protocolXML2", err,
@@ -275,6 +281,16 @@ protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                         xdrstdio_create(&XDROutput, xdrfile, XDR_ENCODE);
                         xdrs = &XDROutput;                      // Switch from TCP stream to memory based object
 
+#ifdef _WIN32
+                        fflush(xdrfile);
+                        fseek(xdrfile, 0, SEEK_END);
+                        long fsize = ftell(xdrfile);
+                        rewind(xdrfile);
+
+                        objectSize = (size_t)fsize;
+                        object = malloc(objectSize);
+                        fread(object, objectSize, 1, xdrfile);
+#endif
                     } else {
 
                         packageType = PACKAGE_STRUCTDATA;        // The package is regular XDR
@@ -552,7 +568,7 @@ protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
 
                         data_block->data = NULL;                // No Data - not unpacked
                         data_block->opaque_block = (void*)object;            // data object (needs to be freed when the Data_Block is sent)
-                        data_block->opaque_count = objectSize;
+                        data_block->opaque_count = (int)objectSize;
                         data_block->opaque_type = UDA_OPAQUE_TYPE_XDROBJECT;
 
                         //data_block->hash = md;
@@ -832,7 +848,7 @@ protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
 
                             data_block->data = NULL;            // No Data - not unpacked
                             data_block->opaque_block = (void*)object;    // data object (needs to be freed when the Data_Block is sent)
-                            data_block->opaque_count = objectSize;
+                            data_block->opaque_count = (int)objectSize;
                             data_block->opaque_type = UDA_OPAQUE_TYPE_XDROBJECT;
 
                             UDA_LOG(UDA_LOG_DEBUG, "protocolXML: Forwarding Received forwarded XDR Object\n");
@@ -1401,7 +1417,16 @@ int packXDRDataBlockObject(unsigned char* object, size_t objectSize, DATA_BLOCK*
 
         errno = 0;
 
-        if ((xdrfile = open_memstream((char**)&object, &objectSize)) == NULL || errno != 0) {
+#ifndef _WIN32
+        xdrfile = open_memstream((char**)&object, &objectSize);
+#else
+        xdrfile = tmpfile();
+        fwrite(object, objectSize, 1, xdrfile);
+        fflush(xdrfile);
+        rewind(xdrfile);
+#endif
+
+        if (xdrfile == NULL || errno != 0) {
             err = 999;
             if (errno != 0) {
                 addIdamError(SYSTEMERRORTYPE, "packXDRDataBlockObject", errno, "");
