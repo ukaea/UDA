@@ -21,3 +21,4 @@ etc
 /run_test.sh
 .idea/*.xml
 .DS_Store
+/python
