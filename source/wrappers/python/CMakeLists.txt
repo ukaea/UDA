@@ -1,6 +1,6 @@
 cmake_minimum_required( VERSION 2.8 )
 
-find_package( SWIG 3.0 REQUIRED EXACT )
+find_package( SWIG 3.0 REQUIRED )
 find_package( Boost REQUIRED )
 
 if( WIN32 )
