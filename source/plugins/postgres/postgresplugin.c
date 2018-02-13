@@ -323,7 +323,7 @@ int do_query(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PGconn* conn)
     const char* objectSource = NULL;
 
     bool isExpNumber = false;
-    int expNumber = NULL;
+    int expNumber = 0;
 
     bool isType = false;
     const char* type = NULL;
