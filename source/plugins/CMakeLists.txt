@@ -63,3 +63,30 @@ else()
   add_subdirectory( west )
   add_subdirectory( xpadtree )
 endif( DEFINED BUILD_PLUGINS )
+
+add_definitions( -DSERVERBUILD )
+
+include_directories(
+  ${CMAKE_SOURCE_DIR}/source
+)
+
+file( GLOB SOURCE_FILES "*.c" )
+file( GLOB HEADER_FILES "*.h" )
+
+add_library( plugins-shared SHARED ${SOURCE_FILES} ${HEADER_FILES} )
+
+set_target_properties( plugins-shared
+  PROPERTIES
+    OUTPUT_NAME ${PROJECT_NAME}_plugins
+    VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}
+    SOVERSION ${PROJECT_VERSION_MAJOR}
+)
+
+install( FILES ${HEADER_FILES}
+  DESTINATION include/uda/plugins
+)
+
+install(
+  TARGETS plugins-shared
+  DESTINATION lib
+)

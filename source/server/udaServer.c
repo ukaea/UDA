@@ -13,6 +13,7 @@
 #include <logging/accessLog.h>
 #include <clientserver/xdrlib.h>
 #include <clientserver/freeDataBlock.h>
+#include <plugins/serverPlugin.h>
 
 #include "serverStartup.h"
 #include "closeServerSockets.h"
@@ -20,7 +21,6 @@
 #include "serverGetData.h"
 #include "freeIdamPut.h"
 #include "udaLegacyServer.h"
-#include "serverPlugin.h"
 #include "serverLegacyPlugin.h"
 #include "makeServerRequestBlock.h"
 #include "sqllib.h"

@@ -27,7 +27,7 @@
 #include <clientserver/initStructs.h>
 #include <server/makeServerRequestBlock.h>
 #include <client/accAPI.h>
-#include <server/serverPlugin.h>
+#include <plugins/serverPlugin.h>
 #include <server/sqllib.h>
 #include <clientserver/stringUtils.h>
 #include <clientserver/udaTypes.h>

@@ -3417,78 +3417,96 @@ int sqlMatch(PGconn* DBConnect, int signal_desc_id, char* originalSourceAlias, c
 //==============================================================================================================
 #else
 
-PGconn* startSQL() {
+PGconn* startSQL()
+{
     return NULL;
 }
 
-PGconn* startSQL_CPF() {
+PGconn* startSQL_CPF()
+{
     return NULL;
 }
 
-void sqlReason(PGconn *DBConnect, char *reason_id, char *reason) {
+void sqlReason(PGconn* DBConnect, char* reason_id, char* reason)
+{
 }
 
-void sqlResult(PGconn *DBConnect, char *run_id, char *desc) {
+void sqlResult(PGconn* DBConnect, char* run_id, char* desc)
+{
 }
 
-void sqlStatusDesc(PGconn *DBConnect, char *status_desc_id, char *desc) {
+void sqlStatusDesc(PGconn* DBConnect, char* status_desc_id, char* desc)
+{
 }
 
-void sqlMeta(PGconn *DBConnect, char * table, char *meta_id, char *xml, char *creation) {
+void sqlMeta(PGconn* DBConnect, char* table, char* meta_id, char* xml, char* creation)
+{
 }
 
-int sqlGeneric(PGconn *DBConnect, char *signal, int exp_number, int pass, char *tpass,
-               SIGNAL *signal_str,  SIGNAL_DESC *signal_desc_str,
-               DATA_SOURCE *data_source_str) {
+int sqlGeneric(PGconn* DBConnect, char* signal, int exp_number, int pass, char* tpass,
+               SIGNAL* signal_str, SIGNAL_DESC* signal_desc_str,
+               DATA_SOURCE* data_source_str)
+{
     return 0;
 }
 
-int sqlNoIdamSignal(PGconn *DBConnect, char *signal, int exp_number, int pass, char *tpass,
-                    SIGNAL *signal_str,  SIGNAL_DESC *signal_desc_str,
-                    DATA_SOURCE *data_source_str) {
+int sqlNoIdamSignal(PGconn* DBConnect, char* signal, int exp_number, int pass, char* tpass,
+                    SIGNAL* signal_str, SIGNAL_DESC* signal_desc_str,
+                    DATA_SOURCE* data_source_str)
+{
     return 0;
 }
 
-int sqlComposite(PGconn *DBConnect, char *signal, int exp_number, SIGNAL_DESC *signal_desc_str) {
+int sqlComposite(PGconn* DBConnect, char* signal, int exp_number, SIGNAL_DESC* signal_desc_str)
+{
     return 0;
 }
 
-int sqlDocument(PGconn *DBConnect, char *signal, int exp_number, int pass,
-                SIGNAL_DESC *signal_desc_str, DATA_SOURCE *data_source_str) {
+int sqlDocument(PGconn* DBConnect, char* signal, int exp_number, int pass,
+                SIGNAL_DESC* signal_desc_str, DATA_SOURCE* data_source_str)
+{
     return 0;
 }
 
-int sqlExternalGeneric(PGconn *DBConnect, char *archive, char *device, char *signal, int exp_number, int pass,
-                       SIGNAL *signal_str, SIGNAL_DESC *signal_desc_str, DATA_SOURCE *data_source_str) {
+int sqlExternalGeneric(PGconn* DBConnect, char* archive, char* device, char* signal, int exp_number, int pass,
+                       SIGNAL* signal_str, SIGNAL_DESC* signal_desc_str, DATA_SOURCE* data_source_str)
+{
     return 0;
 }
 
-int sqlNoSignal(PGconn *DBConnect, char *archive, char *device, char *signal, int exp_number, int pass,
-                SIGNAL *signal_str, SIGNAL_DESC *signal_desc_str, DATA_SOURCE *data_source_str) {
+int sqlNoSignal(PGconn* DBConnect, char* archive, char* device, char* signal, int exp_number, int pass,
+                SIGNAL* signal_str, SIGNAL_DESC* signal_desc_str, DATA_SOURCE* data_source_str)
+{
     return 0;
 }
 
-int sqlDataSystem(PGconn *DBConnect, int pkey, DATA_SYSTEM *str) {
+int sqlDataSystem(PGconn* DBConnect, int pkey, DATA_SYSTEM* str)
+{
     return 0;
 }
 
-int sqlSystemConfig(PGconn *DBConnect, int pkey, SYSTEM_CONFIG *str) {
+int sqlSystemConfig(PGconn* DBConnect, int pkey, SYSTEM_CONFIG* str)
+{
     return 0;
 }
 
-int sqlArchive(PGconn *DBConnect, char *archive, DATA_SOURCE *data_source_str) {
+int sqlArchive(PGconn* DBConnect, char* archive, DATA_SOURCE* data_source_str)
+{
     return 0;
 }
 
-int sqlLatestPass(PGconn *DBConnect, char *source_alias, char type, int exp_number, char *maxpass) {
+int sqlLatestPass(PGconn* DBConnect, char* source_alias, char type, int exp_number, char* maxpass)
+{
     return -1;
 }
 
-int sqlAltData(PGconn *DBConnect, REQUEST_BLOCK request_block, int rank, SIGNAL_DESC *signal_desc,char *mapping) {
+int sqlAltData(PGconn* DBConnect, REQUEST_BLOCK request_block, int rank, SIGNAL_DESC* signal_desc, char* mapping)
+{
     return 0;
 }
 
-int sqlMapPrivateData(PGconn *DBConnect, REQUEST_BLOCK request_block, SIGNAL_DESC *signal_desc) {
+int sqlMapPrivateData(PGconn* DBConnect, REQUEST_BLOCK request_block, SIGNAL_DESC* signal_desc)
+{
     return 0;
 }
 

@@ -29,11 +29,11 @@
 #include <modules/readNothing/readNothing.h>
 #include <modules/readsql/readSQL.h>
 #include <modules/ufile/readUFile.h>
+#include <plugins/serverPlugin.h>
 
 #include "serverGetData.h"
 #include "dumpFile.h"
 #include "applyXML.h"
-#include "serverPlugin.h"
 #include "mastArchiveFilePath.h"
 #include "makeServerRequestBlock.h"
 #include "sqllib.h"

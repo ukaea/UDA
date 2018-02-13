@@ -5,29 +5,29 @@
 
 #include "udaLegacyServer.h"
 
-#include <logging/logging.h>
 #include <clientserver/errorLog.h>
-#include <clientserver/protocol.h>
+#include <clientserver/freeDataBlock.h>
 #include <clientserver/initStructs.h>
 #include <clientserver/printStructs.h>
-#include <logging/accessLog.h>
-#include <clientserver/xdrlib.h>
-#include <clientserver/freeDataBlock.h>
-#include <clientserver/udaTypes.h>
+#include <clientserver/protocol.h>
 #include <clientserver/udaErrors.h>
+#include <clientserver/udaTypes.h>
+#include <clientserver/xdrlib.h>
+#include <logging/accessLog.h>
+#include <logging/logging.h>
+#include <plugins/serverPlugin.h>
 #include <structures/struct.h>
 
-#include "udaServer.h"
+#include "closeServerSockets.h"
+#include "freeIdamPut.h"
+#include "getServerEnvironment.h"
+#include "makeServerRequestBlock.h"
 #include "serverGetData.h"
+#include "serverLegacyPlugin.h"
 #include "serverProcessing.h"
 #include "sleepServer.h"
-#include "serverPlugin.h"
-#include "closeServerSockets.h"
-#include "serverLegacyPlugin.h"
-#include "makeServerRequestBlock.h"
-#include "freeIdamPut.h"
 #include "sqllib.h"
-#include "getServerEnvironment.h"
+#include "udaServer.h"
 
 #ifdef LEGACYSERVER
 int idamLegacyServer(CLIENT_BLOCK client_block) {

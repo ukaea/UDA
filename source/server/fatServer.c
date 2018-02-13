@@ -14,17 +14,16 @@
 #include <logging/accessLog.h>
 #include <structures/parseIncludeFile.h>
 #include <structures/struct.h>
+#include <plugins/serverPlugin.h>
 
 #include "makeServerRequestBlock.h"
 #include "serverGetData.h"
 #include "serverLegacyPlugin.h"
-#include "serverPlugin.h"
 #include "serverProcessing.h"
 #include "sqllib.h"
 
 #ifdef NONETCDFPLUGIN
 void ncclose(int fh) {
-    return;
 }
 #endif
 

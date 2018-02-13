@@ -1,7 +1,7 @@
 #ifndef UDA_PLUGINS_MONGODB_MONGODBPLUGIN_H
 #define UDA_PLUGINS_MONGODB_MONGODBPLUGIN_H
 
-#include <server/pluginStructs.h>
+#include <plugins/pluginStructs.h>
 
 #ifdef __cplusplus
 extern "C" {

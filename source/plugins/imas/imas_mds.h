@@ -1,7 +1,7 @@
 #ifndef UDA_PLUGINS_IMAS_PLUGIN_IMAS_MDS_H
 #define UDA_PLUGINS_IMAS_PLUGIN_IMAS_MDS_H
 
-#include <server/pluginStructs.h>
+#include <plugins/pluginStructs.h>
 #include <stdbool.h>
 
 #ifdef __cplusplus

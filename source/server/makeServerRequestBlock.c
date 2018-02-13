@@ -18,8 +18,8 @@ returns An integer Error Code: If non zero, a problem occured.
 #include <clientserver/initStructs.h>
 #include <clientserver/protocol.h>
 #include <server/udaServer.h>
+#include <plugins/serverPlugin.h>
 
-#include "serverPlugin.h"
 #include "getServerEnvironment.h"
 
 #if defined(SERVERBUILD) || defined(FATCLIENT)

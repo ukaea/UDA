@@ -17,7 +17,7 @@
 #include <arpa/inet.h>
 
 #include <clientserver/stringUtils.h>
-#include <server/serverPlugin.h>
+#include <plugins/serverPlugin.h>
 #include <server/udaServer.h>
 #include <clientserver/udaTypes.h>
 

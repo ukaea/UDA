@@ -8,7 +8,7 @@
 
 #define XDEBUG          0   // Socket Streams
 
-#include <server/pluginStructs.h>
+#include <plugins/pluginStructs.h>
 #include <clientserver/socketStructs.h>
 #include <structures/genStructs.h>
 

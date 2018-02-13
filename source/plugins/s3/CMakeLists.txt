@@ -1,6 +1,3 @@
-cmake_minimum_required( VERSION 2.8 )
-
-#find_package( LIBS3 QUIET )
 find_package( LIBS3 )
 
 if( NOT LIBS3_FOUND )
@@ -8,7 +5,6 @@ if( NOT LIBS3_FOUND )
   return()
 endif()
 
-#message( "LIBS3 installation found" )
 message( ${LIBS3_LIBRARY} )
 
 include( plugins )

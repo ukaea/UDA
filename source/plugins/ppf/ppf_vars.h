@@ -2,7 +2,7 @@
 #define IDAM_PLUGINS_PPF_PPF_VARS_H
 
 #include <clientserver/udaStructs.h>
-#include <server/pluginStructs.h>
+#include <plugins/pluginStructs.h>
 
 #ifdef __cplusplus
 extern "C"

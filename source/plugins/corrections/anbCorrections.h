@@ -2,7 +2,7 @@
 #define IDAM_PLUGINS_CORRECTIONS_ANBCORRECTIONS_H
 
 #include <clientserver/udaStructs.h>
-#include <server/pluginStructs.h>
+#include <plugins/pluginStructs.h>
 
 void makeDataBlock(DATA_BLOCK *out, int dataCount);
 
