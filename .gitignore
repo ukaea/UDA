@@ -1,10 +1,10 @@
-cmake-build-*
-build*
-bin
-include
-lib
-modulefiles
-etc
+/cmake-build-*
+/build*
+/bin
+/include
+/lib
+/modulefiles
+/etc
 /.cproject
 /.project
 /Debug.dbg
@@ -19,6 +19,6 @@ etc
 /error_type
 /method
 /run_test.sh
-.idea/*.xml
-.DS_Store
+/.idea/*.xml
+/.DS_Store
 /python
