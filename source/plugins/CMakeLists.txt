@@ -73,7 +73,13 @@ include_directories(
 file( GLOB SOURCE_FILES "*.c" )
 file( GLOB HEADER_FILES "*.h" )
 
+add_library( plugins-static STATIC ${SOURCE_FILES} ${HEADER_FILES} )
 add_library( plugins-shared SHARED ${SOURCE_FILES} ${HEADER_FILES} )
+
+set_target_properties( plugins-static
+  PROPERTIES
+    OUTPUT_NAME ${PROJECT_NAME}_plugins
+)
 
 set_target_properties( plugins-shared
   PROPERTIES
@@ -87,6 +93,6 @@ install( FILES ${HEADER_FILES}
 )
 
 install(
-  TARGETS plugins-shared
+  TARGETS plugins-static plugins-shared
   DESTINATION lib
 )
