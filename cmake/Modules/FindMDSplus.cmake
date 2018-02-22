@@ -29,7 +29,7 @@ find_path( MDSPLUS_INCLUDES mdslib.h
 
 set( MDS_LIBS
   MdsLib
-  MdsObjectsCppShr
+  #MdsObjectsCppShr
   MdsShr
   MdsIpShr
   TreeShr

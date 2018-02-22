@@ -16,10 +16,10 @@ static void initialize_window(GtkWidget* window)
     gtk_window_set_position(GTK_WINDOW(window), GTK_WIN_POS_CENTER);
     gtk_window_set_default_size(GTK_WINDOW(window), 400, 200);
     g_signal_connect(window, "destroy", G_CALLBACK(destroy), NULL);
-
 }
 
 typedef struct Data {
+    GtkWidget* window;
     GtkWidget* user_entry;
     GtkWidget* pass_entry;
     const char* user_name;
@@ -33,6 +33,7 @@ static void ok_callback(GtkWidget *widget, gpointer *data)
     user_data->user_name = gtk_entry_get_text(GTK_ENTRY(user_data->user_entry));
     user_data->pass_word = gtk_entry_get_text(GTK_ENTRY(user_data->pass_entry));
 
+    gtk_widget_hide(user_data->window);
     gtk_main_quit();
 }
 
@@ -76,6 +77,7 @@ int ssh_open_dialog(char** username, char** password)
     gtk_grid_attach(GTK_GRID(grid), ok, 8, 2, 1, 1);
 
     USER_DATA user_data = {0};
+    user_data.window = window;
     user_data.user_entry = user;
     user_data.pass_entry = pass;
 

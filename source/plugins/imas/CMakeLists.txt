@@ -53,6 +53,7 @@ uda_plugin(
   EXTRA_LINK_LIBS
     ${LIBXML2_LIBRARIES}
     ${MDSPLUS_LIBRARIES}
+    MdsObjectsCppShr
     ${HDF5_LIBRARIES}
     ${HDF5_HL_LIBRARIES}
     ${OPENSSL_LIBRARIES}

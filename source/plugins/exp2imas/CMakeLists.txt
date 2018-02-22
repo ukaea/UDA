@@ -53,4 +53,6 @@ uda_plugin(
     ${MDSPLUS_LIBRARIES}
     ${LIBSSH_LIBRARIES}
     ${GTK3_LIBRARIES}
+    pthread
+    resolv
 )
