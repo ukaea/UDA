@@ -86,7 +86,7 @@ static int verify_knownhost(ssh_session session)
     return 0;
 }
 
-static ssh_session create_session()
+static ssh_session create_session(const char* ssh_host)
 {
     ssh_session session = ssh_new();
     if (session == NULL) {
@@ -94,11 +94,11 @@ static ssh_session create_session()
         return NULL;
     }
 
-    ssh_options_set(session, SSH_OPTIONS_HOST, "lac911.epfl.ch");
+    ssh_options_set(session, SSH_OPTIONS_HOST, ssh_host);
 
     int rc = ssh_connect(session);
     if (rc != SSH_OK) {
-        fprintf(stderr, "failed to connect to lac911.epfl.ch\n");
+        fprintf(stderr, "failed to connect to %s\n", ssh_host);
         ssh_free(session);
         return NULL;
     }
@@ -149,7 +149,7 @@ static ssh_session create_session()
     return session;
 }
 
-static ssh_channel create_forwarding_channel(ssh_session session, int32_t client_port)
+static ssh_channel create_forwarding_channel(ssh_session session, const char* remote_host, int32_t client_port)
 {
     ssh_channel forwarding_channel = ssh_channel_new(session);
     if (forwarding_channel == NULL) {
@@ -157,7 +157,7 @@ static ssh_channel create_forwarding_channel(ssh_session session, int32_t client
         return NULL;
     }
 
-    int rc = ssh_channel_open_forward(forwarding_channel, "tcvdata.epfl.ch", 8000, "localhost", client_port);
+    int rc = ssh_channel_open_forward(forwarding_channel, remote_host, 8000, "localhost", client_port);
     if (rc != SSH_OK) {
         fprintf(stderr, "failed to open SSH channel\n");
         ssh_channel_free(forwarding_channel);
@@ -230,7 +230,7 @@ static socket_t listen_for_client(int32_t* client_port)
     return client_sock;
 }
 
-int ssh_run_server()
+int ssh_run_server(const char* ssh_host, const char* remote_host)
 {
     int32_t client_port;
     socket_t client_sock = listen_for_client(&client_port);
@@ -240,12 +240,12 @@ int ssh_run_server()
 
     fcntl(client_sock, F_SETFL, O_NONBLOCK);
 
-    ssh_session session = create_session();
+    ssh_session session = create_session(ssh_host);
     if (session == NULL) {
         return -1;
     }
 
-    ssh_channel forwarding_channel = create_forwarding_channel(session, client_port);
+    ssh_channel forwarding_channel = create_forwarding_channel(session, remote_host, client_port);
     if (forwarding_channel == NULL) {
         return -1;
     }

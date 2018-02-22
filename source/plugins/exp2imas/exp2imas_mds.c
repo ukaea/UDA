@@ -37,9 +37,15 @@ static int get_signal_length(const char* signal)
 
 }
 
-static void* server_task(void* data)
+typedef struct ServerThreadData {
+    const char* ssh_host;
+    const char* mds_host;
+} SERVER_THREAD_DATA;
+
+static void* server_task(void* ptr)
 {
-    ssh_run_server();
+    SERVER_THREAD_DATA* data = (SERVER_THREAD_DATA*)ptr;
+    ssh_run_server(data->ssh_host, data->mds_host);
     return NULL;
 }
 
@@ -51,7 +57,7 @@ int mds_get(const char* experiment, const char* signalName, int shot, float** ti
 
         char host[100];
 
-        if (StringIEquals(experiment, "TCV")) {
+        if (StringIEquals(experiment, "TCV") || StringIEquals(experiment, "ASDEX")) {
             g_server_port = 0;
             g_initialised = false;
 
@@ -59,8 +65,17 @@ int mds_get(const char* experiment, const char* signalName, int shot, float** ti
             pthread_mutex_init(&g_initialised_mutex, NULL);
 
             pthread_t server_thread;
+            SERVER_THREAD_DATA thread_data = {};
 
-            pthread_create(&server_thread, NULL, server_task, NULL);
+            if (StringIEquals(experiment, "TCV")) {
+                thread_data.ssh_host = "lac911.epfl.ch";
+                thread_data.mds_host = "tcvdata.epfl.ch";
+            } else if (StringIEquals(experiment, "ASDEX")) {
+                thread_data.ssh_host = "gate1.aug.ipp.mpg.de";
+                thread_data.mds_host = "mdsplus.aug.ipp.mpg.de";
+            }
+
+            pthread_create(&server_thread, NULL, server_task, &thread_data);
 
             pthread_mutex_lock(&g_initialised_mutex);
             while (!g_initialised) {
