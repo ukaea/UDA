@@ -360,6 +360,13 @@ void copyUserDefinedType(USERDEFINEDTYPE* old, USERDEFINEDTYPE* anew);
 */
 void copyUserDefinedTypeList(USERDEFINEDTYPELIST **anew);
 
+/** Create the Initial User Defined Structure Definition List.
+* 
+* @param anew The initial type definition list.
+* @return void.
+*/
+void getInitialUserDefinedTypeList(USERDEFINEDTYPELIST** anew);
+
 /** Add a Compound Field type to a structure definition.  
 * 
 * @param str The structure definition.

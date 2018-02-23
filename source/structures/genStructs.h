@@ -41,6 +41,7 @@ extern "C" {
 #define ARRAYCHAR       18
 #define SCALARSTRING    19
 #define ARRAYSTRING     20
+#define ARRAYVOID       21
 
 #ifdef A64
 typedef long long           VOIDTYPE;       // Pointer arithmentic type for 64 bit architecture (8 byte pointer type)

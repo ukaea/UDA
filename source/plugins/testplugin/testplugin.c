@@ -1495,7 +1495,7 @@ static int do_test14(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     field.shape = NULL;            // Needed when rank >= 1
 
-    field.size = field.count * sizeof(int);
+    field.size = field.count * sizeof(int *);
     field.offset = newoffset(offset, field.type);
     field.offpad = padding(offset, field.type);
     field.alignment = getalignmentof(field.type);
@@ -1568,7 +1568,7 @@ static int do_test15(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     field.rank = 0;
     field.shape = NULL;
 
-    field.size = field.count * sizeof(int);
+    field.size = field.count * sizeof(int *);
     field.offset = newoffset(offset, field.type);
     field.offpad = padding(offset, field.type);
     field.alignment = getalignmentof(field.type);
@@ -1644,7 +1644,7 @@ static int do_test16(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     field.rank = 0;
     field.shape = NULL;
 
-    field.size = field.count * sizeof(int);
+    field.size = field.count * sizeof(int *);
     field.offset = newoffset(offset, field.type);
     field.offpad = padding(offset, field.type);
     field.alignment = getalignmentof(field.type);
@@ -2199,7 +2199,7 @@ static int do_test24(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     field.shape = NULL;                                         // Needed when rank >= 1
 
-    field.size = field.count * sizeof(short);
+    field.size = field.count * sizeof(short *);
     field.offset = newoffset(offset, field.type);
     field.offpad = padding(offset, field.type);
     field.alignment = getalignmentof(field.type);
@@ -2272,7 +2272,7 @@ static int do_test25(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     field.rank = 0;
     field.shape = NULL;
 
-    field.size = field.count * sizeof(short);
+    field.size = field.count * sizeof(short *);
     field.offset = newoffset(offset, field.type);
     field.offpad = padding(offset, field.type);
     field.alignment = getalignmentof(field.type);
@@ -2348,7 +2348,7 @@ static int do_test26(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     field.rank = 0;
     field.shape = NULL;
 
-    field.size = field.count * sizeof(short);
+    field.size = field.count * sizeof(short *);
     field.offset = newoffset(offset, field.type);
     field.offpad = padding(offset, field.type);
     field.alignment = getalignmentof(field.type);
@@ -2530,7 +2530,7 @@ static int do_test28(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     field.rank = 0;
     field.shape = NULL;
 
-    field.size = field.count * sizeof(short);
+    field.size = field.count * sizeof(short *);
     field.offset = newoffset(offset, field.type);
     field.offpad = padding(offset, field.type);
     field.alignment = getalignmentof(field.type);
@@ -2930,7 +2930,7 @@ static int do_test33(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     field.rank = 0;
     field.shape = NULL;
 
-    field.size = field.count * sizeof(TEST33A);
+    field.size = field.count * sizeof(TEST33A *);
     field.offset = offsetof(TEST33, coords);
     field.offpad = padding(offset, field.type);
     field.alignment = getalignmentof(field.type);

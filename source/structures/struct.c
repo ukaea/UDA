@@ -1146,6 +1146,168 @@ void copyUserDefinedTypeList(USERDEFINEDTYPELIST** anew) {
 #endif
 }
 
+/** Create the Initial User Defined Structure Definition List.
+* 
+* @param anew The initial type definition list.
+* @return void.
+*/
+void getInitialUserDefinedTypeList(USERDEFINEDTYPELIST** anew)
+{
+
+    USERDEFINEDTYPELIST* list = (USERDEFINEDTYPELIST*)malloc(sizeof(USERDEFINEDTYPELIST));
+    initUserDefinedTypeList(list);
+
+    USERDEFINEDTYPE usertype;
+    COMPOUNDFIELD field;
+    
+    int offset = 0;
+
+//----------------------------------------------------------------------------------------------------------------
+// SARRAY
+
+    initUserDefinedType(&usertype);		// New structure definition
+    initCompoundField(&field);
+
+    strcpy(usertype.name, "SARRAY");
+    strcpy(usertype.source, "getInitialUserDefinedTypeList");
+    usertype.ref_id = 0;
+    usertype.imagecount = 0;			// No Structure Image data
+    usertype.image = NULL;
+    usertype.size = sizeof(SARRAY);		// Structure size
+    usertype.idamclass = UDA_TYPE_COMPOUND;
+
+    offset = 0;
+    
+    defineField(&field, "count", "Number of data array elements", &offset, SCALARINT);
+    addCompoundField(&usertype, field);
+    defineField(&field, "rank", "Rank of the data array", &offset, SCALARINT);
+    addCompoundField(&usertype, field);
+    defineField(&field, "shape", "Shape of the data array", &offset, ARRAYINT);
+    addCompoundField(&usertype, field);
+    defineField(&field, "data", "Location of the Structure Array", &offset, ARRAYVOID);
+    addCompoundField(&usertype, field);
+
+    initCompoundField(&field);    
+    strcpy(field.name, "type");
+    field.atomictype = UDA_TYPE_CHAR;
+    strcpy(field.type, "char");  
+    strcpy(field.desc, "The Structure Array Element's type name (Must be Unique)");
+    field.pointer = 0;
+    field.count = MAXELEMENTNAME;
+    field.rank = 1;
+    field.shape = (int*)malloc(field.rank * sizeof(int));        // Needed when rank >= 1
+    field.shape[0] = field.count;
+    field.size = field.count * sizeof(char);
+    field.offset = newoffset(offset, field.type);
+    field.offpad = padding(offset, field.type);
+    field.alignment = getalignmentof(field.type);
+    offset = field.offset + field.size;  
+    addCompoundField(&usertype, field); 
+
+    addUserDefinedType(list, usertype);
+
+//----------------------------------------------------------------------------------------------------------------
+// ENUMMEMBER
+
+    initUserDefinedType(&usertype);		// New structure definition
+    initCompoundField(&field);
+
+    strcpy(usertype.name, "ENUMMEMBER");
+    strcpy(usertype.source, "getInitialUserDefinedTypeList");
+    usertype.ref_id = 0;
+    usertype.imagecount = 0;			// No Structure Image data
+    usertype.image = NULL;
+    usertype.size = sizeof(ENUMMEMBER);		// Structure size
+    usertype.idamclass = UDA_TYPE_COMPOUND;
+
+    offset = 0;
+    
+    initCompoundField(&field);    
+    strcpy(field.name, "name");
+    field.atomictype = UDA_TYPE_CHAR;
+    strcpy(field.type, "char");  
+    strcpy(field.desc, "The Enumeration member name");
+    field.pointer = 0;
+    field.count = MAXELEMENTNAME;
+    field.rank = 1;
+    field.shape = (int*)malloc(field.rank * sizeof(int));  
+    field.shape[0] = field.count;   
+    field.size = field.count * sizeof(char);
+    field.offset = newoffset(offset, field.type);
+    field.offpad = padding(offset, field.type);
+    field.alignment = getalignmentof(field.type);
+    offset = field.offset + field.size;  
+    addCompoundField(&usertype, field); 
+    
+    defineField(&field, "value", "The value of the member", &offset, SCALARLONG64);
+    addCompoundField(&usertype, field);
+
+    addUserDefinedType(list, usertype);
+
+//----------------------------------------------------------------------------------------------------------------
+// ENUMLIST
+
+    initUserDefinedType(&usertype);		// New structure definition
+    initCompoundField(&field);
+
+    strcpy(usertype.name, "ENUMLIST");
+    strcpy(usertype.source, "getInitialUserDefinedTypeList");
+    usertype.ref_id = 0;
+    usertype.imagecount = 0;			// No Structure Image data
+    usertype.image = NULL;
+    usertype.size = sizeof(ENUMLIST);		// Structure size
+    usertype.idamclass = UDA_TYPE_COMPOUND;
+
+    offset = 0;
+    
+    initCompoundField(&field);    
+    strcpy(field.name, "name");
+    field.atomictype = UDA_TYPE_CHAR;
+    strcpy(field.type, "char");  
+    strcpy(field.desc, "The Enumeration name");
+    field.pointer = 0;
+    field.count = MAXELEMENTNAME;
+    field.rank = 1;
+    field.shape = (int*)malloc(field.rank * sizeof(int));  
+    field.shape[0] = field.count;   
+    field.size = field.count * sizeof(char);
+    field.offset = newoffset(offset, field.type);
+    field.offpad = padding(offset, field.type);
+    field.alignment = getalignmentof(field.type);
+    offset = field.offset + field.size;  
+    addCompoundField(&usertype, field); 
+    
+    defineField(&field, "type", "The integer base type", &offset, SCALARINT);
+    addCompoundField(&usertype, field);
+    defineField(&field, "count", "The number of members of this enumeration class", &offset, SCALARINT);
+    addCompoundField(&usertype, field);
+
+    initCompoundField(&field);    
+    strcpy(field.name, "enummember");
+    field.atomictype = UDA_TYPE_UNKNOWN;
+    strcpy(field.type, "ENUMMEMBER");  
+    strcpy(field.desc, "Array of enum members");
+    field.pointer = 1;
+    field.count = 1;
+    field.rank = 0;
+    field.shape = NULL;  
+    field.size = field.count * sizeof(ENUMMEMBER *);
+    field.offset = newoffset(offset, field.type);
+    field.offpad = padding(offset, field.type);
+    field.alignment = getalignmentof(field.type);
+    offset = field.offset + field.size;  
+    addCompoundField(&usertype, field); 
+
+    defineField(&field, "data", "Data with this enumerated type (properties are held by regular DATA_BLOCK structure)", &offset, ARRAYVOID);
+    addCompoundField(&usertype, field);
+
+    addUserDefinedType(list, usertype);
+
+   *anew = list;
+   
+}
+
+
 /** Add a Compound Field type to a structure definition.
 *
 * @param str The structure definition.

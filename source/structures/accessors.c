@@ -954,6 +954,12 @@ void defineField(COMPOUNDFIELD* field, const char* name, const char* desc, int* 
         sprintf(field->desc, "[char **%s] %s", name, desc);
         field->pointer = 1;
         field->size = field->count * sizeof(char**);
+    } else if (TypeId == ARRAYVOID) {  // Opaque block of bytes
+        field->atomictype = UDA_TYPE_VOID;
+        strcpy(field->type, "void *");
+        sprintf(field->desc, "[void *%s] %s", name, desc);
+        field->pointer = 1;
+        field->size = field->count * sizeof(void*);
     }
 
     field->rank = 0;

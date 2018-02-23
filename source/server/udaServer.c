@@ -72,6 +72,7 @@ int server_timeout = TIMEOUT;        // user specified Server Lifetime
 static USERDEFINEDTYPELIST* userdefinedtypelist = NULL;            // User Defined Structure Types from Data Files & Plugins
 static LOGMALLOCLIST* logmalloclist = NULL;                        // List of all Heap Allocations for Data: Freed after data is dispatched
 int malloc_source = MALLOCSOURCENONE;
+
 USERDEFINEDTYPELIST parseduserdefinedtypelist;              // Initial set of User Defined Structure Types
 
 unsigned int totalDataBlockSize = 0;                        // Total amount sent for the last data request
@@ -810,7 +811,11 @@ int doServerLoop(REQUEST_BLOCK* request_block, DATA_BLOCK* data_block, CLIENT_BL
         UDA_LOG(UDA_LOG_DEBUG, "IdamServer: Start of Server Wait Loop\n");
 
         // Create a new userdefinedtypelist for the request by copying the parseduserdefinedtypelist structure
-        copyUserDefinedTypeList(&userdefinedtypelist);
+        //copyUserDefinedTypeList(&userdefinedtypelist);
+	
+	getInitialUserDefinedTypeList(&userdefinedtypelist);
+	parseduserdefinedtypelist = *userdefinedtypelist;
+	printUserDefinedTypeList(*userdefinedtypelist);
 
         logmalloclist = (LOGMALLOCLIST*)malloc(sizeof(logmalloclist));
         initLogMallocList(logmalloclist);
@@ -918,7 +923,7 @@ int doServerClosedown(CLIENT_BLOCK* client_block, REQUEST_BLOCK* request_block, 
     //----------------------------------------------------------------------------
     // Free Structure Definition List (don't free the structure as stack variable)
 
-    freeUserDefinedTypeList(&parseduserdefinedtypelist);
+    //freeUserDefinedTypeList(&parseduserdefinedtypelist);
 
     //----------------------------------------------------------------------------
     // Free Plugin List and Close all open library entries
@@ -1103,7 +1108,7 @@ int startupServer(SERVER_BLOCK* server_block)
 {
     static int socket_list_initialised = 0;
     static int plugin_list_initialised = 0;
-    static int fileParsed = 0;
+    //static int fileParsed = 0;
 
     //-------------------------------------------------------------------------
     // Create the Server Log Directory: Fatal Error if any Problem Opening a Log?
@@ -1153,6 +1158,7 @@ int startupServer(SERVER_BLOCK* server_block)
     // this step needs doing once only - the first time a generalised user defined structure is encountered.
     // For FAT clients use a static state variable to prevent multiple parsing
 
+/*
     if (!fileParsed) {
         fileParsed = 1;
         initUserDefinedTypeList(&parseduserdefinedtypelist);
@@ -1166,6 +1172,7 @@ int startupServer(SERVER_BLOCK* server_block)
         parseIncludeFile(&parseduserdefinedtypelist, token); // file containing the SARRAY structure definition
         printUserDefinedTypeList(parseduserdefinedtypelist);
     }
+*/
 
     userdefinedtypelist = NULL;                                     // Startup State
 
