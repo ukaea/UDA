@@ -17,9 +17,10 @@ ext = Extension(
         '@CMAKE_INSTALL_PREFIX@/include/uda/c++',
         '@Boost_INCLUDE_DIRS@',
     ],
-    libraries = ['@PROJECT_NAME@_cpp'],
+    libraries = ['@PROJECT_NAME@_cpp', 'ssl'],
     library_dirs = [
         '@CMAKE_INSTALL_PREFIX@/lib',
+        '@OPENSSL_LIB_DIR@',
     ],
     runtime_library_dirs = [
         '@CMAKE_INSTALL_PREFIX@/lib',
