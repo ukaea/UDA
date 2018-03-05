@@ -9192,7 +9192,7 @@ static int isAnotherInstance(char *path)
     return isNumeric;
 }
 
-
+/*
 static sem_t *wildSem;
 static void lockWild()
 {
@@ -9215,7 +9215,7 @@ static void unlockWild()
     sem_close(wildSem);
 
 }
-
+*/
 
 char **getMdsCpoFields(int expIdx, char *cpoPath, int *numFields, int checkSegments)
 {

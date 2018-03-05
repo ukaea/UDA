@@ -322,6 +322,21 @@ char** SplitString(const char* string, const char* delims)
     return names;
 }
 
+char* StringReplaceAll(const char* string, const char* find, const char* replace)
+{
+    char* prev_string = NULL;
+    char* new_string = strdup(string);
+
+    do {
+        free(prev_string);
+        prev_string = new_string;
+        new_string = StringReplace(prev_string, find, replace);
+    } while (!StringEquals(prev_string, new_string));
+
+    free(prev_string);
+    return new_string;
+}
+
 char* StringReplace(const char* string, const char* find, const char* replace)
 {
     if (find == NULL || find[0] == '\0') {
@@ -331,7 +346,7 @@ char* StringReplace(const char* string, const char* find, const char* replace)
     char* idx = strstr(string, find);
 
     if (idx != NULL) {
-        size_t diff = strlen(replace) - strlen(find);
+        int diff = strlen(replace) - strlen(find);
         size_t len = strlen(string) + diff + 1;
         char* result = malloc(len);
         size_t offset = idx - string;

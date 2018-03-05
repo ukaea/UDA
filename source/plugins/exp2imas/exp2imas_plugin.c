@@ -328,6 +328,42 @@ static int handle_static(DATA_BLOCK* data_block, const char* experiment_mapping_
     return 0;
 }
 
+static size_t get_signal_name_index(const XML_DATA* xml_data, const int* indices, size_t nindices)
+{
+    char** signal_names = (char**)xml_data->data;
+
+    size_t* name_indices = NULL;
+
+    size_t idx = 0;
+    size_t signal_names_idx = 0;
+
+    while (signal_names[signal_names_idx] != NULL) {
+        int size = (xml_data->sizes[signal_names_idx] == 0) ? 1 : xml_data->sizes[signal_names_idx];
+
+        name_indices = (size_t*)realloc(name_indices, (idx + size) * sizeof(size_t));
+
+        size_t i;
+        for (i = 0; i < size; ++i) {
+            name_indices[idx] = signal_names_idx;
+            ++idx;
+        }
+
+        ++signal_names_idx;
+    }
+
+    size_t name_index = 0;
+
+    if (nindices > 0 && indices[0] > 0) {
+        name_index = name_indices[indices[0] - 1];
+    } else {
+        name_index = 0;
+    }
+
+    free(name_indices);
+
+    return name_index;
+}
+
 static int handle_dynamic(DATA_BLOCK* data_block, const char* experiment_mapping_file_name, const xmlChar* xPath,
                           const char* experiment, const char* element, int index, int shot, const int* indices,
                           size_t nindices)
@@ -346,22 +382,28 @@ static int handle_dynamic(DATA_BLOCK* data_block, const char* experiment_mapping
         free(data_block->dims);
         data_block->dims = NULL;
 
-        char** signalNames = (char**)xml_data.data;
-        size_t signal_idx = 0;
+        char** signal_names = (char**)xml_data.data;
 
         int data_n = 0;
 
-        float** data_arrays = NULL;
-        size_t n_arrays = 0;
+        size_t name_index = get_signal_name_index(&xml_data, indices, nindices);
 
-        while (signalNames[signal_idx] != NULL) {
-            char* signalName = signalNames[signal_idx];
-            float coefa = (xml_data.coefas != NULL) ? xml_data.coefas[signal_idx] : 1.0f;
-            float coefb = (xml_data.coefbs != NULL) ? xml_data.coefbs[signal_idx] : 0.0f;
+        int name_offset = 0;
+        size_t i;
+        for (i = 0; i < name_index; ++i) {
+            int size = xml_data.sizes[i] == 0 ? 1 : xml_data.sizes[i];
+            name_offset += size;
+        }
+
+        {
+            float coefa = (xml_data.coefas != NULL) ? xml_data.coefas[name_index] : 1.0f;
+            float coefb = (xml_data.coefbs != NULL) ? xml_data.coefbs[name_index] : 0.0f;
 
             float* time;
             float* fdata;
             int len;
+
+            char* signalName = signal_names[name_index];
 
             status = mds_get(experiment, signalName, shot, &time, &fdata, &len, xml_data.time_dim);
 
@@ -369,10 +411,12 @@ static int handle_dynamic(DATA_BLOCK* data_block, const char* experiment_mapping
                 return status;
             }
 
-            int size = xml_data.sizes[signal_idx] == 0 ? 1 : xml_data.sizes[signal_idx];
+            int size = xml_data.sizes[name_index] == 0 ? 1 : xml_data.sizes[name_index];
             data_n = len / size;
 
-            int i;
+            float** data_arrays = NULL;
+            size_t n_arrays = 0;
+
             for (i = 0; i < size; ++i) {
                 data_arrays = realloc(data_arrays, (n_arrays + 1) * sizeof(float*));
 
@@ -398,33 +442,29 @@ static int handle_dynamic(DATA_BLOCK* data_block, const char* experiment_mapping
             free(time);
             free(signalName);
 
-            ++signal_idx;
-        }
+            data_block->rank = 1;
+            data_block->data_type = UDA_TYPE_FLOAT;
+            data_block->data_n = data_n;
 
-        data_block->rank = 1;
-        data_block->data_type = UDA_TYPE_FLOAT;
-        data_block->data_n = data_n;
+            size_t sz = data_n * sizeof(float);
+            data_block->data = malloc(sz);
 
-        size_t sz = data_n * sizeof(float);
-        data_block->data = malloc(sz);
+            if (data_arrays != NULL) {
+                if (nindices > 0 && indices[0] > 0) {
+                    memcpy(data_block->data, (char*)data_arrays[indices[0] - 1 - name_offset], sz);
+                } else {
+                    memcpy(data_block->data, (char*)data_arrays[0 - name_offset], sz);
+                }
 
-        if (data_arrays != NULL) {
-            if (nindices > 0 && indices[0] > 0) {
-                memcpy(data_block->data, (char*)data_arrays[indices[0] - 1], sz);
-            } else {
-                memcpy(data_block->data, (char*)data_arrays[0], sz);
+                for (i = 0; i < n_arrays; ++i) {
+                    free(data_arrays[i]);
+                }
+                free(data_arrays);
             }
-
-            int i;
-            for (i = 0; i < n_arrays; ++i) {
-                free(data_arrays[i]);
-            }
-            free(data_arrays);
         }
 
         data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
 
-        int i;
         for (i = 0; i < data_block->rank; i++) {
             initDimBlock(&data_block->dims[i]);
         }
@@ -486,22 +526,28 @@ static int handle_error(DATA_BLOCK* data_block, const char* experiment_mapping_f
     free(data_block->dims);
     data_block->dims = NULL;
 
-    char** signalNames = (char**)xml_data.data;
-    size_t signal_idx = 0;
+    char** signal_names = (char**)xml_data.data;
 
     int data_n = 0;
 
-    float** error_arrays = NULL;
-    size_t n_arrays = 0;
+    size_t name_index = get_signal_name_index(&xml_data, indices, nindices);
 
-    while (signalNames[signal_idx] != NULL) {
-        char* signalName = signalNames[signal_idx];
-        float coefa = (xml_data.coefas != NULL) ? xml_data.coefas[signal_idx] : 1.0f;
-        float coefb = (xml_data.coefbs != NULL) ? xml_data.coefbs[signal_idx] : 0.0f;
+    int name_offset = 0;
+    size_t i;
+    for (i = 0; i < name_index; ++i) {
+        int size = xml_data.sizes[i] == 0 ? 1 : xml_data.sizes[i];
+        name_offset += size;
+    }
+
+    {
+        float coefa = (xml_data.coefas != NULL) ? xml_data.coefas[name_index] : 1.0f;
+        float coefb = (xml_data.coefbs != NULL) ? xml_data.coefbs[name_index] : 0.0f;
 
         float* time;
         float* fdata;
         int len;
+
+        char* signalName = signal_names[name_index];
 
         status = mds_get(experiment, signalName, shot, &time, &fdata, &len, xml_data.time_dim);
 
@@ -509,12 +555,12 @@ static int handle_error(DATA_BLOCK* data_block, const char* experiment_mapping_f
             return status;
         }
 
-        free(time);
-
-        int size = xml_data.sizes[signal_idx] == 0 ? 1 : xml_data.sizes[signal_idx];
+        int size = xml_data.sizes[name_index] == 0 ? 1 : xml_data.sizes[name_index];
         data_n = len / size;
 
-        int i;
+        float** error_arrays = NULL;
+        size_t n_arrays = 0;
+
         for (i = 0; i < size; ++i) {
             error_arrays = realloc(error_arrays, (n_arrays + 1) * sizeof(float*));
 
@@ -549,30 +595,32 @@ static int handle_error(DATA_BLOCK* data_block, const char* experiment_mapping_f
         }
 
         free(fdata);
+        free(time);
         free(signalName);
 
-        ++signal_idx;
-    }
+        data_block->rank = 1;
+        data_block->data_type = UDA_TYPE_FLOAT;
+        data_block->data_n = data_n;
 
-    data_block->rank = 1;
-    data_block->data_type = UDA_TYPE_FLOAT;
-    data_block->data_n = data_n;
+        size_t sz = data_n * sizeof(float);
+        data_block->data = malloc(sz);
 
-    if (nindices > 0 && indices[0] > 0) {
         if (error_arrays != NULL) {
-            size_t sz = data_n * sizeof(data_block->data_type);
-            data_block->data = malloc(sz);
-            memcpy(data_block->data, (char*)error_arrays[indices[0] - 1], sz);
-            free(error_arrays[0]);
+            if (nindices > 0 && indices[0] > 0) {
+                memcpy(data_block->data, (char*)error_arrays[indices[0] - 1 - name_offset], sz);
+            } else {
+                memcpy(data_block->data, (char*)error_arrays[0 - name_offset], sz);
+            }
+
+            for (i = 0; i < n_arrays; ++i) {
+                free(error_arrays[i]);
+            }
+            free(error_arrays);
         }
-        free(error_arrays);
-    } else {
-        data_block->data = (error_arrays != NULL) ? (char*)error_arrays[0] : NULL;
     }
 
     data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
 
-    int i;
     for (i = 0; i < data_block->rank; i++) {
         initDimBlock(&data_block->dims[i]);
     }

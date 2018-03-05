@@ -144,6 +144,6 @@
     </datainfo>
     <nturns documentation="Number of total turns in the toroidal field coil" path="nturns" type="xs:integer">96</nturns>
     <ncoils documentation="Number of packets of coils" path="ncoils" type="xs:integer">16</ncoils>
-    <r0 documentation="Characteristic major radius of the device (used in publications, usually middle of the vessel at the equatorial midplane) [m]. Scalar. " path="r0" type="xs:float">8.800000D-01</r0>
+    <r0 documentation="Characteristic major radius of the device (used in publications, usually middle of the vessel at the equatorial midplane) [m]. Scalar. " path="r0" type="xs:float">8.800000E-01</r0>
   </toroidfield>
 </mappings>

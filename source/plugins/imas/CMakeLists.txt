@@ -37,7 +37,6 @@ uda_plugin(
   EXAMPLE "IMAS::put()"
   LIBNAME imas_plugin
   SOURCES
-    #imas.c
     imas_common.c
     imas_mds.c
     imas_hdf5.c
@@ -58,5 +57,4 @@ uda_plugin(
     ${HDF5_HL_LIBRARIES}
     ${OPENSSL_LIBRARIES}
     client-static
-    pthread
 )

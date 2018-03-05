@@ -22,18 +22,18 @@ typedef struct Data {
     GtkWidget* window;
     GtkWidget* user_entry;
     GtkWidget* pass_entry;
-    const char* user_name;
-    const char* pass_word;
+    char* user_name;
+    char* pass_word;
 } USER_DATA;
 
 static void ok_callback(GtkWidget *widget, gpointer *data)
 {
     USER_DATA* user_data = (USER_DATA*)data;
 
-    user_data->user_name = gtk_entry_get_text(GTK_ENTRY(user_data->user_entry));
-    user_data->pass_word = gtk_entry_get_text(GTK_ENTRY(user_data->pass_entry));
+    user_data->user_name = strdup(gtk_entry_get_text(GTK_ENTRY(user_data->user_entry)));
+    user_data->pass_word = strdup(gtk_entry_get_text(GTK_ENTRY(user_data->pass_entry)));
 
-    gtk_widget_hide(user_data->window);
+    gtk_widget_destroy(user_data->window);
     gtk_main_quit();
 }
 
@@ -94,12 +94,14 @@ int ssh_open_dialog(char** username, char** password)
 
     gtk_main();
 
+    //gtk_widget_destroy(window);
+
     if (user_data.user_name == NULL || user_data.pass_word == NULL) {
         return -1;
     }
 
-    *username = strdup(user_data.user_name);
-    *password = strdup(user_data.pass_word);
+    *username = user_data.user_name;
+    *password = user_data.pass_word;
 
     return 0;
 }

@@ -67,8 +67,8 @@ if( APPLE )
 endif( APPLE )
 
 if( NOT WIN32 OR MINGW )
-  set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC" )
-  set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -std=c++11" )
+  set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC -pthread" )
+  set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -std=c++11 -pthread" )
   
   if( GOPTION )
     message( "Compiling with g option to generate and embed debug information" )

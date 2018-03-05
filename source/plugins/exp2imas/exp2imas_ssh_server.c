@@ -250,6 +250,9 @@ int ssh_run_server(const char* ssh_host, const char* remote_host)
         return -1;
     }
 
+    fprintf(stderr, "channel created, listening\n");
+    fflush(stderr);
+
     while (!ssh_channel_is_eof(forwarding_channel)) {
         ssize_t size_recv;
         uint8_t data[4096];
@@ -265,7 +268,7 @@ int ssh_run_server(const char* ssh_host, const char* remote_host)
                 }
             }
         } else if (!size_recv) {
-            puts("Local client disconnected, SSH forwarding server exiting");
+            fprintf(stderr, "Local client disconnected, SSH forwarding server exiting\n");
             break;
         }
 

@@ -26,6 +26,7 @@ set( SOURCES
   exp2imas_xml.c
   exp2imas_ssh_server.c
   exp2imas_ssh.c
+  exp2imas_ramCache.c
 )
 
 if( GTK3_FOUND )

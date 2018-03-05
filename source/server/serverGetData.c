@@ -1273,7 +1273,7 @@ int idamserverReadData(PGconn* DBConnect, REQUEST_BLOCK request_block, CLIENT_BL
     // Test for known File formats and Server protocols
 
     {
-        int id, reset;
+        int id;
         IDAM_PLUGIN_INTERFACE idam_plugin_interface;
 
         UDA_LOG(UDA_LOG_DEBUG, "creating the plugin interface structure\n");
@@ -1333,11 +1333,13 @@ int idamserverReadData(PGconn* DBConnect, REQUEST_BLOCK request_block, CLIENT_BL
 
                 // Redirect Output to temporary file if no file handles passed
 
-                reset = 0;
                 int err;
+#ifndef FATCLIENT
+                int reset = 0;
                 if ((err = idamServerRedirectStdStreams(reset)) != 0) {
                     THROW_ERROR(err, "Error Redirecting Plugin Message Output");
                 }
+#endif
 
                 // Call the plugin
 
@@ -1345,6 +1347,7 @@ int idamserverReadData(PGconn* DBConnect, REQUEST_BLOCK request_block, CLIENT_BL
 
                 // Reset Redirected Output
 
+#ifndef FATCLIENT
                 reset = 1;
                 int rc;
                 if ((rc = idamServerRedirectStdStreams(reset)) != 0 || err != 0) {
@@ -1357,6 +1360,11 @@ int idamserverReadData(PGconn* DBConnect, REQUEST_BLOCK request_block, CLIENT_BL
                     }
                     return rc;
                 }
+#else
+                if (err != 0) {
+                    return err;
+                }
+#endif
 
                 UDA_LOG(UDA_LOG_DEBUG, "returned from plugin called\n");
 
