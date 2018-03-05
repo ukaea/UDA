@@ -11,6 +11,7 @@ find_package( Boost )
 find_package( OpenSSL )
 find_package( LibXml2 )
 find_package( LibMemcached )
+find_package( PostgreSQL )
 
 set( FAT_TESTS OFF CACHE BOOL "Build tests using fat-client" )
 
@@ -46,37 +47,44 @@ include( modules )
 include_directories( SYSTEM ${Boost_INCLUDE_DIR} )
 include_directories( ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_LIST_DIR} )
 
+file( GLOB HELPER_FILES "test_helpers.*" )
+
+macro( BUILD_TEST NAME SOURCE )
+  add_executable( ${NAME} ${HELPER_FILES} ${SOURCE} )
+  target_link_libraries( ${NAME} PRIVATE
+    ${Boost_LIBRARIES}
+    ${PROJECT_NAME}_cpp
+    ${OPENSSL_LIBRARIES}
+    ${LIBXML2_LIBRARIES}
+    ${CACHE_LIBRARIES}
+  )
+  link_modules( ${NAME} )
+
+  add_executable( fat_${NAME} ${HELPER_FILES} ${SOURCE} )
+  target_link_libraries( fat_${NAME} PRIVATE
+    ${Boost_LIBRARIES}
+    fat${PROJECT_NAME}_cpp
+    ${OPENSSL_LIBRARIES}
+    ${LIBXML2_LIBRARIES}
+    ${CACHE_LIBRARIES}
+    ${PostgreSQL_LIBRARY}
+    c m dl
+  )
+  target_compile_definitions( fat_${NAME} PRIVATE -DFATCLIENT )
+  link_modules( fat_${NAME} )
+
+  if( FAT_TESTS )
+    add_test( ${NAME} fat_${NAME} )
+  else()
+    add_test( ${NAME} ${NAME} )
+  endif()
+endmacro( BUILD_TEST )
+
 add_subdirectory( plugins )
 add_subdirectory( imas )
 
 add_definitions( -D__USE_XOPEN2K8 )
 
 foreach( TEST ${TESTS} )
-  add_executable( ${TEST} test_helpers.h ${TEST}.cpp )
-  target_link_libraries( ${TEST} PRIVATE
-    ${Boost_LIBRARIES}
-    ${PROJECT_NAME}_cpp
-    ${OPENSSL_LIBRARIES}
-    ${LIBXML2_LIBRARIES}
-    ${CACHE_LIBRARIES}
-    )
-  link_modules( ${TEST} )
-
-  add_executable( fat_${TEST} test_helpers.h ${TEST}.cpp )
-  target_link_libraries( fat_${TEST} PRIVATE
-    ${Boost_LIBRARIES}
-    fat${PROJECT_NAME}_cpp
-    ${OPENSSL_LIBRARIES}
-    ${LIBXML2_LIBRARIES}
-    ${CACHE_LIBRARIES}
-    c m dl
-    )
-  target_compile_definitions( fat_${TEST} PRIVATE -DFATCLIENT )
-  link_modules( fat_${TEST} )
-
-  if( FAT_TESTS )
-    add_test( ${TEST} fat_${TEST} )
-  else()
-    add_test( ${TEST} ${TEST} )
-  endif()
+  BUILD_TEST( ${TEST} ${TEST}.cpp )
 endforeach()

@@ -42,6 +42,7 @@ static int get_signal_length(const char* signal)
 }
 
 typedef struct ServerThreadData {
+    const char* experiment;
     const char* ssh_host;
     const char* mds_host;
 } SERVER_THREAD_DATA;
@@ -49,7 +50,7 @@ typedef struct ServerThreadData {
 static void* server_task(void* ptr)
 {
     SERVER_THREAD_DATA* data = (SERVER_THREAD_DATA*)ptr;
-    ssh_run_server(data->ssh_host, data->mds_host);
+    ssh_run_server(data->experiment, data->ssh_host, data->mds_host);
     return NULL;
 }
 
@@ -70,6 +71,7 @@ int mds_get(const char* experiment, const char* signalName, int shot, float** ti
 
             pthread_t server_thread;
             SERVER_THREAD_DATA thread_data = {};
+            thread_data.experiment = experiment;
 
             if (StringIEquals(experiment, "TCV")) {
                 thread_data.ssh_host = "lac911.epfl.ch";
@@ -117,7 +119,7 @@ int mds_get(const char* experiment, const char* signalName, int shot, float** ti
     char work[2048];
 
     regex_t re;
-    int r = regcomp(&re, "([A-Z]+)\\|(\\w+)", REG_EXTENDED);
+    int r = regcomp(&re, "([A-Z]+)\\|([A-Za-z0-9]+)", REG_EXTENDED);
     if (r) {
         fprintf(stderr, "regex failed to compile\n");
         RAISE_PLUGIN_ERROR("regex failed to compile");
@@ -139,13 +141,13 @@ int mds_get(const char* experiment, const char* signalName, int shot, float** ti
             char shot_str[20];
             sprintf(shot_str, "%d", shot);
             char* tmp = StringReplaceAll(signalName, "%SHOT%", shot_str);
-            sprintf(work, &tmp[5]);
+            sprintf(work, "%s", &tmp[5]);
         } else {
-            sprintf(work, &signalName[5]);
+            sprintf(work, "%s", &signalName[5]);
         }
         is_tdi = true;
     } else {
-        sprintf(work, signalName);
+        sprintf(work, "%s", signalName);
     }
 
     char signal[2048];

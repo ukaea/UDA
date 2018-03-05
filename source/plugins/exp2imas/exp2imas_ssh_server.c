@@ -7,6 +7,7 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <fcntl.h>
+#include <clientserver/stringUtils.h>
 
 #include "exp2imas_ssh_gui.h"
 #include "exp2imas_ssh.h"
@@ -86,7 +87,7 @@ static int verify_knownhost(ssh_session session)
     return 0;
 }
 
-static ssh_session create_session(const char* ssh_host)
+static ssh_session create_session(const char* experiment, const char* ssh_host)
 {
     ssh_session session = ssh_new();
     if (session == NULL) {
@@ -111,22 +112,44 @@ static ssh_session create_session(const char* ssh_host)
         return NULL;
     }
 
-#ifdef HAVE_GTK3
     char* username = NULL; // itmmds
     char* password = NULL;
-    rc = ssh_open_dialog(&username, &password);
-    if (rc < 0) {
-        fprintf(stderr, "Failed to get authentication details");
-        return NULL;
+
+    char* home = getenv("HOME");
+    if (home != NULL) {
+        char fname[1024];
+        sprintf(fname, "%s/.exp2imas", home);
+        if (access(fname, F_OK) != -1) {
+            FILE* fid = fopen(fname, "r");
+            char exp[1024];
+            char user[1024];
+            char pass[1024];
+            while (fscanf(fid, "%s %s %s", exp, user, pass) == 3) {
+                if (StringEquals(exp, experiment)) {
+                    username = strdup(user);
+                    password = strdup(pass);
+                    break;
+                }
+            }
+            fclose(fid);
+        }
+    }
+
+#ifdef HAVE_GTK3
+    if (username == NULL || password == NULL) {
+        rc = ssh_open_dialog(&username, &password);
+        if (rc < 0) {
+            fprintf(stderr, "Failed to get authentication details");
+            return NULL;
+        }
     }
 #else
     fprintf(stdout, "username: ");
-    char* username = NULL;
     size_t len = 0;
     getline(&username, &len, stdin);
     username = TrimString(username);
 
-    char* password = getpass("password: ");
+    password = getpass("password: ");
 #endif
 
     // Authenticate ourselves
@@ -230,7 +253,7 @@ static socket_t listen_for_client(int32_t* client_port)
     return client_sock;
 }
 
-int ssh_run_server(const char* ssh_host, const char* remote_host)
+int ssh_run_server(const char* experiment, const char* ssh_host, const char* remote_host)
 {
     int32_t client_port;
     socket_t client_sock = listen_for_client(&client_port);
@@ -240,7 +263,7 @@ int ssh_run_server(const char* ssh_host, const char* remote_host)
 
     fcntl(client_sock, F_SETFL, O_NONBLOCK);
 
-    ssh_session session = create_session(ssh_host);
+    ssh_session session = create_session(experiment, ssh_host);
     if (session == NULL) {
         return -1;
     }

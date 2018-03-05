@@ -1,6 +1,12 @@
 #ifndef UDA_TEST_HELPERS_H
 #define UDA_TEST_HELPERS_H
 
+#include <string>
+#include <vector>
+#include <sstream>
+
+#include "catch.hpp"
+
 namespace Catch {
 namespace Detail {
 
@@ -70,5 +76,11 @@ inline std::string toString<Detail::ApproxVector>( Detail::ApproxVector const& v
 }
 
 using Catch::Detail::ApproxVector;
+
+namespace uda {
+namespace test {
+std::string format(const char* fmt, ...);
+}
+}
 
 #endif //UDA_TEST_HELPERS_H

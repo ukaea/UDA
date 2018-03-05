@@ -567,23 +567,7 @@ TEST_CASE( "Test flux_loop name", "[IMAS][JET][FLUX]" )
 
     uda::Client client;
 
-    const uda::Result& result = client.get("imas::get(idx=0, group='magnetics', variable='flux_loop/1/name', expName='JET', type=string, rank=0, shot=" SHOT_NUM ", )", "");
-
-    REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.errorMessage().empty() );
-
-    uda::Data* data = result.data();
-
-    REQUIRE( data != nullptr );
-    REQUIRE( !data->isNull() );
-    REQUIRE( data->type().name() == typeid(char*).name() );
-
-    auto str = dynamic_cast<uda::String*>(data);
-
-    REQUIRE( str != nullptr );
-    REQUIRE( !str->isNull() );
-
-    REQUIRE( str->str().empty() );
+    REQUIRE_THROWS( client.get("imas::get(idx=0, group='magnetics', variable='flux_loop/1/name', expName='JET', type=string, rank=0, shot=" SHOT_NUM ", )", "") );
 }
 
 TEST_CASE( "Test flux_loop identifier", "[IMAS][JET][FLUX]" )

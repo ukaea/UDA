@@ -63,7 +63,8 @@ endif()
 
 if( APPLE )
   set( CMAKE_MACOSX_RPATH ON )
-  set( CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -undefined dynamic_lookup" )
+  set( CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Qunused-arguments -undefined dynamic_lookup" )
+  set( CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Qunused-arguments" )
 endif( APPLE )
 
 if( NOT WIN32 OR MINGW )

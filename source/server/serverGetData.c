@@ -1334,6 +1334,7 @@ int idamserverReadData(PGconn* DBConnect, REQUEST_BLOCK request_block, CLIENT_BL
                 // Redirect Output to temporary file if no file handles passed
 
                 int err;
+
 #ifndef FATCLIENT
                 int reset = 0;
                 if ((err = idamServerRedirectStdStreams(reset)) != 0) {

@@ -474,6 +474,11 @@ int execute_xpath_expression(const char* filename, const xmlChar* xpathExpr, int
         char** strings = NULL;
         size_t n_strings = 0;
 
+        if (nodes->nodeNr == 1 && StringIEquals((char*)nodes->nodeTab[0]->children->content, "Put value here")) {
+            xmlXPathFreeObject(xpathObj);
+            return -1;
+        }
+
         for (i = 0; i < nodes->nodeNr; ++i) {
             xmlNodePtr cur = nodes->nodeTab[i];
 

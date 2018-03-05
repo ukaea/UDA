@@ -1628,22 +1628,23 @@ static void *getExpIndex(int expIdx)
 
 static int getCacheLevel(int expIdx)
 {
-    if(expIdx < 0 || expIdx >= MAX_EXPERIMENTS || openExperimentInfo[expIdx].name == 0)
-    {
-	printf("INTERNAL ERROR: getExpIndex called for a non open experiment!!\n");
-	return 0;
-    }
-    return openExperimentInfo[expIdx].cacheLevel;
+    return 0;
+//    if(expIdx < 0 || expIdx >= MAX_EXPERIMENTS || openExperimentInfo[expIdx].name == 0)
+//    {
+//	printf("INTERNAL ERROR: getExpIndex called for a non open experiment!!\n");
+//	return 0;
+//    }
+//    return openExperimentInfo[expIdx].cacheLevel;
 }
 
 static void setCacheLevel(int expIdx, int level)
 {
-    if(expIdx < 0 || expIdx >= MAX_EXPERIMENTS || openExperimentInfo[expIdx].name == 0)
-    {
-	printf("INTERNAL ERROR: getExpIndex called for a non open experiment!!\n");
-	return;
-    }
-    openExperimentInfo[expIdx].cacheLevel = level;
+//    if(expIdx < 0 || expIdx >= MAX_EXPERIMENTS || openExperimentInfo[expIdx].name == 0)
+//    {
+//	printf("INTERNAL ERROR: getExpIndex called for a non open experiment!!\n");
+//	return;
+//    }
+//    openExperimentInfo[expIdx].cacheLevel = level;
 }
 
 static int deleteExpIndex(int idx, char *name, int shot, void **ctx)

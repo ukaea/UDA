@@ -500,7 +500,7 @@ static int handle_error(DATA_BLOCK* data_block, const char* experiment_mapping_f
 
     int status = execute_xpath_expression(experiment_mapping_file_name, (const xmlChar*)abserror, index, &xml_abserror);
     if (status != 0) {
-        return status;
+        xml_abserror.values = NULL;
     }
 
     char* relerror = StringReplace((const char*)xPath, "/value/", "/relerror/");
@@ -509,7 +509,7 @@ static int handle_error(DATA_BLOCK* data_block, const char* experiment_mapping_f
 
     status = execute_xpath_expression(experiment_mapping_file_name, (const xmlChar*)relerror, index, &xml_relerror);
     if (status != 0) {
-        return status;
+        xml_relerror.values = NULL;
     }
 
     XML_DATA xml_data;
