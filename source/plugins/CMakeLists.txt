@@ -73,8 +73,9 @@ include_directories(
 file( GLOB SOURCE_FILES "*.c" )
 file( GLOB HEADER_FILES "*.h" )
 
-add_library( plugins-static STATIC ${SOURCE_FILES} ${HEADER_FILES} )
-add_library( plugins-shared SHARED ${SOURCE_FILES} ${HEADER_FILES} )
+add_library( plugins-objects OBJECT ${SOURCE_FILES} ${HEADER_FILES} )
+add_library( plugins-static STATIC $<TARGET_OBJECTS:plugins-objects> )
+add_library( plugins-shared SHARED $<TARGET_OBJECTS:plugins-objects> )
 
 set_target_properties( plugins-static
   PROPERTIES

@@ -26,7 +26,6 @@ foreach( TEST ${TESTS} )
   target_link_libraries( ${TEST} PRIVATE
     ${Boost_LIBRARIES}
     ${PROJECT_NAME}_cpp
-    client-shared
     ${OPENSSL_LIBRARIES}
     ${LIBXML2_LIBRARIES}
     ${CACHE_LIBRARIES}
@@ -37,7 +36,6 @@ foreach( TEST ${TESTS} )
   target_link_libraries( fat_${TEST} PRIVATE
     ${Boost_LIBRARIES}
     fat${PROJECT_NAME}_cpp
-    fatclient-shared
     ${OPENSSL_LIBRARIES}
     ${LIBXML2_LIBRARIES}
     ${CACHE_LIBRARIES}
