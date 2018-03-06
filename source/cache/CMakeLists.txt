@@ -4,7 +4,6 @@ cmake_minimum_required( VERSION 2.8 )
 # Dependencies
 
 find_package( LibMemcached )
-find_package( OpenSSL REQUIRED )
 
 set( SRC_FILES
   cache.c
@@ -16,7 +15,7 @@ include_directories(
 )
 
 if( LIBMEMCACHED_FOUND )
-  include_directories( ${LIBMEMCACHED_INCLUDES} ${OPENSSL_INCLUDE_DIR} )
+  include_directories( ${LIBMEMCACHED_INCLUDES} )
   set( EXTRA_LD_LIBRARY_PATHS "${EXTRA_LD_LIBRARY_PATHS};${LIBMEMCACHED_LIB_DIR}" CACHE INTERNAL "" )
 else()
   add_definitions( -DNOLIBMEMCACHED )

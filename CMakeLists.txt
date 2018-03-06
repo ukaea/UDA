@@ -101,6 +101,7 @@ endif()
 option( CLIENT_ONLY "Only build UDA client" OFF )
 option( NO_WRAPPERS "Don't build any UDA client wrappers" OFF )
 option( NO_MODULES "Don't build any UDA server modules" OFF )
+option( FAT_IDL "Build IDL wrapper using fatclient" OFF )
 
 if( SSLAUTHENTICATION )
   message( "Including SSL/RTL X509 User Authentication" )
