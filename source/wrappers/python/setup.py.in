@@ -1,29 +1,32 @@
 #!/usr/bin/env python
 
+import os
 import sys
 from distutils.core import setup, Extension
 
 extra_link_args = []
 
+root = os.environ.get('UDA_DIR', '@CMAKE_INSTALL_PREFIX@')
+
 if sys.platform.lower() == 'darwin':
-    extra_link_args.append('-Wl,-rpath,@CMAKE_INSTALL_PREFIX@/lib')
+    # On Mac OS we have to force setting of rpath
+    extra_link_args.append('-Wl,-rpath,%s/lib' % root)
 
 ext = Extension(
     '_c_uda',
     ['@PY_WRAPPER_CODE@'],
     define_macros=[('SWIG', None),],
     include_dirs=[
-        '@CMAKE_INSTALL_PREFIX@/include/uda',
-        '@CMAKE_INSTALL_PREFIX@/include/uda/c++',
+        root + '/include/uda',
+        root + '/include/uda/c++',
         '@Boost_INCLUDE_DIRS@',
     ],
-    libraries = ['@PROJECT_NAME@_cpp', 'ssl'],
+    libraries = ['@PROJECT_NAME@_cpp'],
     library_dirs = [
-        '@CMAKE_INSTALL_PREFIX@/lib',
-        '@OPENSSL_LIB_DIR@',
+        root + '/lib',
     ],
     runtime_library_dirs = [
-        '@CMAKE_INSTALL_PREFIX@/lib',
+        root + '/lib',
     ],
     extra_link_args=extra_link_args,
     extra_compile_args=['-std=c++11']
@@ -39,3 +42,4 @@ setup(
     packages=['pyuda'],
     ext_modules=[ext]
 )
+

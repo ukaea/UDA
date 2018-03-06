@@ -1,7 +1,10 @@
 import logging
 import itertools
 from collections import namedtuple
-from enum import Enum
+try:
+    from enum import Enum
+except ImportError:
+    Enum = object
 
 from six import add_metaclass
 from . import c_uda
