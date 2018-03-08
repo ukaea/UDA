@@ -1,10 +1,16 @@
-from ._utils import cdata_scalar_to_value, cdata_vector_to_value
+from __future__ import (division, unicode_literals, print_function, absolute_import)
+
+from ._utils import (cdata_scalar_to_value, cdata_vector_to_value)
 from ._data import Data
 
 import json
 import itertools
 import numpy as np
 import base64
+
+from builtins import (super, int, chr, range)
+from future import standard_library
+standard_library.install_aliases()
 
 
 class StructuredDataEncoder(json.JSONEncoder):
@@ -23,7 +29,7 @@ class StructuredDataEncoder(json.JSONEncoder):
                 },
             }
             return obj
-        return super().default(obj)
+        return super(StructuredDataEncoder, self).default(obj)
 
 
 class StructuredData(Data):

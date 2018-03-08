@@ -96,5 +96,5 @@ set( INSTALL_FILES
 )
 
 install( FILES ${INSTALL_FILES}
-  DESTINATION idl )
-
+  DESTINATION idl
+)

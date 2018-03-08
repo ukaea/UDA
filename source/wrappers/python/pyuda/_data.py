@@ -1,5 +1,10 @@
+from __future__ import (division, unicode_literals, print_function, absolute_import)
+
 import abc
+
 from six import add_metaclass
+from future import standard_library
+standard_library.install_aliases()
 
 
 @add_metaclass(abc.ABCMeta)

@@ -1,3 +1,14 @@
+from __future__ import (division, unicode_literals, print_function, absolute_import)
+
+from . import c_uda
+from ._signal import Signal
+from ._string import String
+from ._structured import StructuredData
+from ._structuredWritable import StructuredWritable
+from ._geometryFiles import GeometryFiles
+from ._geometry import GeometryData
+from ._signalGeometry import SignalGeometryData
+
 import logging
 import itertools
 from collections import namedtuple
@@ -7,14 +18,9 @@ except ImportError:
     Enum = object
 
 from six import add_metaclass
-from . import c_uda
-from ._signal import Signal
-from ._string import String
-from ._structured import StructuredData
-from ._structuredWritable import StructuredWritable
-from ._geometryFiles import GeometryFiles
-from ._geometry import GeometryData
-from ._signalGeometry import SignalGeometryData
+from builtins import (range, int, bytes, str)
+from future import standard_library
+standard_library.install_aliases()
 
 
 class ClientMeta(type):

@@ -1,10 +1,16 @@
-from ._dim import Dim
-from ._utils import cdata_to_numpy_array, cdata_scalar_to_value
-from ._data import Data
+from __future__ import (division, unicode_literals, print_function, absolute_import)
 
 import json
 import base64
 import numpy as np
+
+from ._dim import Dim
+from ._utils import cdata_to_numpy_array, cdata_scalar_to_value
+from ._data import Data
+
+from builtins import (super, range)
+from future import standard_library
+standard_library.install_aliases()
 
 
 class DimEncoder(json.JSONEncoder):

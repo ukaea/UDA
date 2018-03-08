@@ -1,16 +1,22 @@
-"""
-Manipulation class for efit elements (ie. rectangles and parallelograms!).
-
-Plotting:
-
-Plot the positions of the elements
-"""
+from __future__ import (division, unicode_literals, print_function, absolute_import)
 
 import math
-
 import numpy as np
 
-class GeomEfitElements():
+from builtins import (zip, object)
+from future import standard_library
+standard_library.install_aliases()
+
+
+class GeomEfitElements(object):
+    """
+    Manipulation class for efit elements (ie. rectangles and parallelograms!).
+
+    Plotting:
+
+    Plot the positions of the elements
+    """
+
     def __init__(self):
         pass
 

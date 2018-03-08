@@ -1,3 +1,5 @@
+from __future__ import (division, unicode_literals, print_function, absolute_import)
+
 from logging import DEBUG, WARNING, INFO, ERROR
 
 from . import c_uda
@@ -6,6 +8,10 @@ from ._signal import Signal
 from ._dim import Dim
 from ._structured import StructuredData
 from ._json import SignalEncoder, SignalDecoder
+
+from builtins import dict
+from future import standard_library
+standard_library.install_aliases()
 
 
 UDAException = c_uda._c_uda.UDAException

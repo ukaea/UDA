@@ -1,3 +1,16 @@
+from __future__ import (division, unicode_literals, print_function, absolute_import)
+
+from ._data import Data
+
+import numpy as np
+import inspect
+import logging
+
+from builtins import zip
+from future import standard_library
+standard_library.install_aliases()
+
+
 """
 Class to import geometry data.
 1. Combines configuration and calibration data
@@ -11,13 +24,6 @@ PROBLEMS:
     will try to add them when calibrating... Perhaps should ditch the
     enums and use strings instead?
 """
-
-import inspect
-import logging
-
-import numpy as np
-
-from ._data import Data
 
 class GeometryData(Data):
     def __init__(self, structData, signal_config, manip, **kwargs):

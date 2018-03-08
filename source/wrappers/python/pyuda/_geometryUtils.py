@@ -1,9 +1,15 @@
-"""
-Utilities for geometry manipulations, that are useful across geometry manipulation classes.
-"""
+from __future__ import (division, unicode_literals, print_function, absolute_import)
 
 import math
 import numpy as np
+
+from future import standard_library
+standard_library.install_aliases()
+
+
+"""
+Utilities for geometry manipulations, that are useful across geometry manipulation classes.
+"""
 
 def unit_vector_to_poloidal_angle(R, Z, convention="anticlockwise"):
     """
