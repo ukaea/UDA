@@ -39,12 +39,6 @@ else()
   message( WARNING "PostgreSQL not found - IDL mastcpf library not building" )
 endif()
 
-if( PostgreSQL_FOUND AND LibXml2_FOUND )
-  add_subdirectory( roidam )
-else()
-  message( WARNING "PostgreSQL or LibXml2 not found - IDL roidam library not building" )
-endif()
-
 if( FAT_IDL )
   include( modules )
 
@@ -93,6 +87,12 @@ set( INSTALL_FILES
   geometry/strnumber.pro
   putdata/putdata.pro
   putdata/putdata__define.pro
+  list/listsignals.pro
+  list/listsources.pro
+  list/listallsources.pro
+  list/getidamlastshot.pro
+  list/getidamshotdatetime.pro
+  list/getidamlatestsourcepass.pro
 )
 
 install( FILES ${INSTALL_FILES}

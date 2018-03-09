@@ -160,6 +160,7 @@ struct DATALISTSIGNALS_R
     char * type;
     char * description;
     int signal_status;
+    char * mds_name;
 };
 typedef struct DATALISTSIGNALS_R DATALISTSIGNALS_R;
 
@@ -183,6 +184,7 @@ struct DATALISTSIGNALS_C
     char ** type;
     char ** description;
     int * signal_status;
+    char ** mds_name;
 };
 typedef struct DATALISTSIGNALS_C DATALISTSIGNALS_C;
 
@@ -194,6 +196,7 @@ struct DATALISTSOURCES_R
     char * format;
     char * filename;
     char * type;
+    int run_id;
 };
 typedef struct DATALISTSOURCES_R DATALISTSOURCES_R;
 
@@ -215,8 +218,31 @@ struct DATALISTSOURCES_C
     char ** format;
     char ** filename;
     char ** type;
+    int * run_id;
 };
 typedef struct DATALISTSOURCES_C DATALISTSOURCES_C;
+
+struct DATALISTALLSOURCES_R
+{
+    char * source_alias;
+    char * type;
+};
+typedef struct DATALISTALLSOURCES_R DATALISTALLSOURCES_R;
+
+struct DATALISTALLSOURCES_RR
+{
+    unsigned int count;
+    DATALISTALLSOURCES_R * list;
+};
+typedef struct DATALISTALLSOURCES_RR DATALISTALLSOURCES_RR;
+
+struct DATALISTALLSOURCES_C
+{
+    unsigned int count;
+    char ** source_alias;
+    char ** type;
+};
+typedef struct DATALISTALLSOURCES_C DATALISTALLSOURCES_C;
 
 struct CPFLIST_R
 {

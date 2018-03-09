@@ -2097,7 +2097,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             if (exp_number > 0) {
                 if (pass > -1) {
                     sprintf(sql,
-                            "SELECT signal_alias, generic_name, source_alias, type, description, signal_status FROM Signal_Desc as D, "
+                            "SELECT signal_alias, generic_name, source_alias, type, description, signal_status, mds_name FROM Signal_Desc as D, "
                                     "(SELECT DISTINCT signal_desc_id, signal_status from Signal as A, (SELECT source_id FROM Data_Source WHERE "
                                     "exp_number = %d AND pass = %d %s) as B WHERE A.source_id = B.source_id) as C WHERE "
                                     "D.signal_desc_id = C.signal_desc_id ", exp_number, pass, work);
@@ -2117,7 +2117,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
                 } else {
                     sprintf(sql,
-                            "SELECT signal_alias, generic_name, source_alias, type, description, signal_status FROM Signal_Desc as D, "
+                            "SELECT signal_alias, generic_name, source_alias, type, description, signal_status, mds_name FROM Signal_Desc as D, "
                                     "(SELECT DISTINCT signal_desc_id, signal_status from Signal as A, "
                                     " (SELECT source_id FROM Data_Source WHERE exp_number = %d %s) "
                                     " as B WHERE A.source_id = B.source_id) as C "
@@ -2139,7 +2139,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 }
             } else {
                 if (work[0] == '\0') {
-                    sprintf(sql, "SELECT signal_alias, generic_name, source_alias, type, description FROM Signal_Desc");
+                    sprintf(sql, "SELECT signal_alias, generic_name, source_alias, type, description, mds_name FROM Signal_Desc");
                     if (signalMatchDependent >= 0) {
                         strcat(sql, " AND signal_alias ILIKE '%");
                         strcat(sql, signal_match_escaped);
@@ -2154,7 +2154,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
                 } else {
                     sprintf(sql,
-                            "SELECT signal_alias, generic_name, source_alias, type, description FROM Signal_Desc WHERE "
+                            "SELECT signal_alias, generic_name, source_alias, type, description, mds_name FROM Signal_Desc WHERE "
                                     "%s", &work[4]);  // skip the AND
                     if (signalMatchDependent >= 0) {
                         strcat(sql, " AND signal_alias ILIKE '%");
@@ -2243,6 +2243,9 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             addCompoundField(&usertype, field);
             defineField(&field, "signal_status", "signal status", &offset, intTypeId);
             field.atomictype = UDA_TYPE_INT;
+            addCompoundField(&usertype, field);
+            defineField(&field, "mds_name", "MDSPLUS name", &offset, stringTypeId);
+            field.atomictype = UDA_TYPE_STRING;
             addCompoundField(&usertype, field);
 
             addUserDefinedType(userdefinedtypelist, usertype);
@@ -2344,11 +2347,26 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                     strcpy(data[i].description, PQgetvalue(DBQuery, i, 4));
                     addMalloc(logmalloclist, (void*)data[i].description, 1, stringLength * sizeof(char), "char");
 
+                    int next_num = 5;
                     if (exp_number > 0) {
                         data[i].signal_status = (int)atoi(PQgetvalue(DBQuery, i, 5));
+                        next_num = next_num + 1;
+
                     } else {
                         data[i].signal_status = 1;
                     }
+
+                    if (!PQgetisnull(DBQuery, i, next_num)) {
+                        stringLength = strlen(PQgetvalue(DBQuery, i, next_num)) + 1;
+                        data[i].mds_name = (char *) malloc(stringLength * sizeof(char));
+                        strcpy(data[i].mds_name, PQgetvalue(DBQuery, i, next_num));
+                        addMalloc(logmalloclist, (void *) data[i].mds_name, 1, stringLength * sizeof(char), "char");
+                    } else {
+                        data[i].mds_name = (char *) malloc(sizeof(char));
+                        strcpy(data[i].mds_name, "");
+                        addMalloc(logmalloclist, (void *) data[i].mds_name, 1, sizeof(char), "char");
+                    }
+
 
                     UDA_LOG(UDA_LOG_DEBUG, "signal_name : %s\n", data[i].signal_name);
                     UDA_LOG(UDA_LOG_DEBUG, "generic_name: %s\n", data[i].generic_name);
@@ -2376,6 +2394,8 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 addMalloc(logmalloclist, (void*)data->description, nrows, sizeof(char*), "STRING *");
                 data->signal_status = (int*)malloc(nrows * sizeof(int));
                 addMalloc(logmalloclist, (void*)data->signal_status, nrows, sizeof(int), "INT");
+                data->mds_name = (char**)malloc(nrows * sizeof(char*));
+                addMalloc(logmalloclist, (void*)data->mds_name, nrows, sizeof(char*), "STRING *");
 
                 data->shot = exp_number;
                 data->pass = pass;
@@ -2419,17 +2439,32 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                     strcpy(data->description[i], PQgetvalue(DBQuery, i, 4));
                     addMalloc(logmalloclist, (void*)data->description[i], stringLength, sizeof(char), "STRING");
 
+                    int next_num = 5;
                     if (exp_number > 0) {
                         data->signal_status[i] = (int)atoi(PQgetvalue(DBQuery, i, 5));
+
+                        next_num = next_num + 1;
                     } else {
                         data->signal_status[i] = 1;
                     }
 
-                    UDA_LOG(UDA_LOG_DEBUG, "signal_name : %s\n", data->signal_name[i]);
-                    UDA_LOG(UDA_LOG_DEBUG, "generic_name: %s\n", data->generic_name[i]);
-                    UDA_LOG(UDA_LOG_DEBUG, "source_alias: %s\n", data->source_alias[i]);
-                    UDA_LOG(UDA_LOG_DEBUG, "type        : %s\n", data->type[i]);
-                    UDA_LOG(UDA_LOG_DEBUG, "description : %s\n", data->description[i]);
+                    if (!PQgetisnull(DBQuery, i, next_num)) {
+                        stringLength = strlen(PQgetvalue(DBQuery, i, next_num)) + 1;
+                        data->mds_name[i] = (char*)malloc(stringLength * sizeof(char));
+                        strcpy(data->mds_name[i], PQgetvalue(DBQuery, i, next_num));
+                        addMalloc(logmalloclist, (void*)data->mds_name[i], stringLength, sizeof(char), "STRING");
+                    } else {
+                        data->mds_name[i] = (char*)malloc(sizeof(char));
+                        strcpy(data->mds_name[i], "");
+                        addMalloc(logmalloclist, (void*)data->mds_name[i], 1, sizeof(char), "STRING");
+                    }
+
+//                    UDA_LOG(UDA_LOG_DEBUG, "signal_name : %s\n", data->signal_name[i]);
+//                    UDA_LOG(UDA_LOG_DEBUG, "generic_name: %s\n", data->generic_name[i]);
+//                    UDA_LOG(UDA_LOG_DEBUG, "source_alias: %s\n", data->source_alias[i]);
+//                    UDA_LOG(UDA_LOG_DEBUG, "type        : %s\n", data->type[i]);
+//                    UDA_LOG(UDA_LOG_DEBUG, "description : %s\n", data->description[i]);
+//                    UDA_LOG(UDA_LOG_DEBUG, "mds_name : %s\n", data->mds_name[i]);
                 }
             }
 
@@ -2464,7 +2499,6 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             UDA_LOG(UDA_LOG_DEBUG, "readMeta: Function listData called\n");
 
             break;
-
         } else
 
             //--------------------------------------------------------------------------------------------------------------------------
@@ -2474,38 +2508,32 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         if (context == CONTEXT_DATA && !isListClasses && isListSources &&
             (STR_IEQUALS(request_block->function, "listdata") || STR_IEQUALS(request_block->function, "list"))) {
 
-            sql[0] = '\0';
-            if (sourceDependent >= 0) {
-                strcat(sql, "AND source_alias = '");
-                strcat(sql, strlwr(request_block->nameValueList.nameValue[sourceDependent].value));
-                strcat(sql, "' ");
-            }
-            if (typeDependent >= 0) {
-                work[0] = toupper(request_block->nameValueList.nameValue[typeDependent].value[0]);
-                work[1] = '\0';
-                strcat(sql, "AND type = '");
-                strcat(sql, work);
-                strcat(sql, "' ");
-            }
-            strcpy(work, sql);
-
             if (exp_number > 0) {
+                sql[0] = '\0';
+                if (sourceDependent >= 0) {
+                    strcat(sql, "AND source_alias = '");
+                    strcat(sql, strlwr(request_block->nameValueList.nameValue[sourceDependent].value));
+                    strcat(sql, "' ");
+                }
+                if (typeDependent >= 0) {
+                    work[0] = toupper(request_block->nameValueList.nameValue[typeDependent].value[0]);
+                    work[1] = '\0';
+                    strcat(sql, "AND type = '");
+                    strcat(sql, work);
+                    strcat(sql, "' ");
+                }
+                strcpy(work, sql);
+
                 if (pass > -1) {
                     sprintf(sql,
-                            "SELECT source_alias, pass, source_status, format, filename, type FROM Data_Source WHERE "
+                            "SELECT source_alias, pass, source_status, format, filename, type, run_id FROM Data_Source WHERE "
                                     "exp_number=%d AND pass=%d %s ORDER BY source_alias ASC, pass DESC", exp_number,
                             pass, work);
                 } else {
                     sprintf(sql,
-                            "SELECT source_alias, pass, source_status, format, filename, type FROM Data_Source WHERE "
+                            "SELECT source_alias, pass, source_status, format, filename, type, run_id FROM Data_Source WHERE "
                                     "exp_number=%d %s ORDER BY source_alias ASC, pass DESC", exp_number, work);
                 }
-            } else {
-                err = 999;
-                UDA_LOG(UDA_LOG_ERROR, "ERROR Meta: No pulse number specified!\n");
-                addIdamError(CODEERRORTYPE, "readMeta", err, "No pulse number specified!");
-                break;
-            }
 
             // Execute the SQL
             if ((DBQuery = PQexec(DBConnect, sql)) == NULL) {
@@ -2551,220 +2579,466 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             offset = 0;
 
-            if (castTypeId == CASTCOLUMN) {
-                defineField(&field, "count", "Array element count", &offset, SCALARUINT);
+                if (castTypeId == CASTCOLUMN) {
+                    defineField(&field, "count", "Array element count", &offset, SCALARUINT);
+                    addCompoundField(&usertype, field);
+                    defineField(&field, "shot", "shot number", &offset, SCALARUINT);
+                    addCompoundField(&usertype, field);
+                }
+
+                defineField(&field, "pass", "pass number", &offset, intTypeId);
                 addCompoundField(&usertype, field);
-                defineField(&field, "shot", "shot number", &offset, SCALARUINT);
+                defineField(&field, "status", "source status value", &offset, intTypeId);
                 addCompoundField(&usertype, field);
-            }
 
-            defineField(&field, "pass", "pass number", &offset, intTypeId);
-            addCompoundField(&usertype, field);
-            defineField(&field, "status", "source status value", &offset, intTypeId);
-            addCompoundField(&usertype, field);
+                defineField(&field, "source_alias", "data source alias name", &offset, stringTypeId);
+                addCompoundField(&usertype, field);
+                defineField(&field, "format", "data source file format", &offset, stringTypeId);
+                addCompoundField(&usertype, field);
+                defineField(&field, "filename", "data source filename", &offset, stringTypeId);
+                addCompoundField(&usertype, field);
+                defineField(&field, "type", "data type classification", &offset, stringTypeId);
+                addCompoundField(&usertype, field);
+                defineField(&field, "run_id", "run_id for eg. TRANSP", &offset, intTypeId);
+                addCompoundField(&usertype, field);
 
-            defineField(&field, "source_alias", "data source alias name", &offset, stringTypeId);
-            addCompoundField(&usertype, field);
-            defineField(&field, "format", "data source file format", &offset, stringTypeId);
-            addCompoundField(&usertype, field);
-            defineField(&field, "filename", "data source filename", &offset, stringTypeId);
-            addCompoundField(&usertype, field);
-            defineField(&field, "type", "data type classification", &offset, stringTypeId);
-            addCompoundField(&usertype, field);
+                addUserDefinedType(userdefinedtypelist, usertype);
 
-            addUserDefinedType(userdefinedtypelist, usertype);
+                if (castTypeId == CASTROW) {
+                    initUserDefinedType(&usertype);
+                    strcpy(usertype.name, "DATALISTSOURCES_RR");
+                    usertype.size = sizeof(DATALISTSOURCES_RR);
+                    strcpy(usertype.source, "listData");
+                    usertype.ref_id = 0;
+                    usertype.imagecount = 0;                // No Structure Image data
+                    usertype.image = NULL;
+                    usertype.idamclass = UDA_TYPE_COMPOUND;
 
-            if (castTypeId == CASTROW) {
-                initUserDefinedType(&usertype);
-                strcpy(usertype.name, "DATALISTSOURCES_RR");
-                usertype.size = sizeof(DATALISTSOURCES_RR);
-                strcpy(usertype.source, "listData");
+                    offset = 0;
+                    defineField(&field, "count", "Array element count", &offset, SCALARUINT);
+                    addCompoundField(&usertype, field);
+                    defineField(&field, "shot", "shot number", &offset, SCALARUINT);
+                    addCompoundField(&usertype, field);
+
+                    initCompoundField(&field);
+                    strcpy(field.name, "datalistsources");
+                    field.atomictype = UDA_TYPE_UNKNOWN;
+                    strcpy(field.type, "DATALISTSOURCES_R");
+                    strcpy(field.desc, "[DATALISTSOURCES_R *datalistsources] Metadata records");
+                    field.pointer = 1;
+                    field.count = 1;
+                    field.rank = 0;
+                    field.shape = NULL;
+                    field.size = field.count * sizeof(DATALISTSOURCES_R *);
+                    field.offset = newoffset(offset, field.type);
+                    field.offpad = padding(offset, field.type);
+                    field.alignment = getalignmentof(field.type);
+                    offset = field.offset + field.size;
+                    addCompoundField(&usertype, field);
+
+                    addUserDefinedType(userdefinedtypelist, usertype);
+                }
+
+                USERDEFINEDTYPE *udt = findUserDefinedType(userdefinedtypelist, "DATALISTSOURCES_R", 0);
+                int size = getStructureSize(userdefinedtypelist, udt);
+                UDA_LOG(UDA_LOG_DEBUG, "sizeof(DATALISTSOURCES_R) = %zu [%d]\n", sizeof(DATALISTSOURCES_R), size);
+                printUserDefinedTypeListTable(*userdefinedtypelist);
+
+                // Create Data
+
+                UDA_LOG(UDA_LOG_DEBUG, "listSources:\n");
+                UDA_LOG(UDA_LOG_DEBUG, "Shot: %d\n", exp_number);
+
+                if (castTypeId == CASTROW) {                // Row oriented
+
+                    DATALISTSOURCES_RR *dataR;
+                    dataR = (DATALISTSOURCES_RR *) malloc(sizeof(DATALISTSOURCES_RR));
+                    addMalloc(logmalloclist, (void *) dataR, 1, sizeof(DATALISTSOURCES_RR), "DATALISTSOURCES_RR");
+                    structData = (void *) dataR;
+
+                    DATALISTSOURCES_R *data;
+                    data = (DATALISTSOURCES_R *) malloc(nrows * sizeof(DATALISTSOURCES_R));
+                    addMalloc(logmalloclist, (void *) data, nrows, sizeof(DATALISTSOURCES_R), "DATALISTSOURCES_R");
+
+                    dataR->list = data;
+                    dataR->count = nrows;
+                    dataR->shot = exp_number;
+
+                    for (i = 0; i < nrows; i++) {
+
+                        stringLength = strlen(PQgetvalue(DBQuery, i, 0)) + 1;
+                        data[i].source_alias = (char *) malloc(stringLength * sizeof(char));
+                        strcpy(data[i].source_alias, PQgetvalue(DBQuery, i, 0));
+                        addMalloc(logmalloclist, (void *) data[i].source_alias, 1, stringLength * sizeof(char), "char");
+
+                        data[i].pass = (int) atoi(PQgetvalue(DBQuery, i, 1));
+                        data[i].status = (short) atoi(PQgetvalue(DBQuery, i, 2));
+
+                        stringLength = strlen(PQgetvalue(DBQuery, i, 3)) + 1;
+                        data[i].format = (char *) malloc(stringLength * sizeof(char));
+                        strcpy(data[i].format, PQgetvalue(DBQuery, i, 3));
+                        addMalloc(logmalloclist, (void *) data[i].format, 1, stringLength * sizeof(char), "char");
+
+                        stringLength = strlen(PQgetvalue(DBQuery, i, 4)) + 1;
+                        data[i].filename = (char *) malloc(stringLength * sizeof(char));
+                        strcpy(data[i].filename, PQgetvalue(DBQuery, i, 4));
+                        addMalloc(logmalloclist, (void *) data[i].filename, 1, stringLength * sizeof(char), "char");
+
+                        p = PQgetvalue(DBQuery, i, 5);
+                        if (p[0] == 'A') {
+                            strcpy(work, "Analysed");
+                        } else if (p[0] == 'R') {
+                            strcpy(work, "Raw");
+                        } else if (p[0] == 'I') {
+                            strcpy(work, "Image");
+                        } else if (p[0] == 'M') {
+                            strcpy(work, "Modelled");
+                        } else
+                            strcpy(work, p);
+
+                        stringLength = strlen(work) + 1;
+                        data[i].type = (char *) malloc(stringLength * sizeof(char));
+                        strcpy(data[i].type, work);
+                        addMalloc(logmalloclist, (void *) data[i].type, 1, stringLength * sizeof(char), "char");
+
+                        if (!PQgetisnull(DBQuery, i, 6)) {
+                            data[i].run_id = (int) atoi(PQgetvalue(DBQuery, i, 6));
+                        } else {
+                            data[i].run_id = -1;
+                        }
+
+                        UDA_LOG(UDA_LOG_DEBUG, "Pass        : %d\n", data[i].pass);
+                        UDA_LOG(UDA_LOG_DEBUG, "source_alias: %s\n", data[i].source_alias);
+                        UDA_LOG(UDA_LOG_DEBUG, "Status      : %d\n", data[i].status);
+                        UDA_LOG(UDA_LOG_DEBUG, "Format      : %s\n", data[i].format);
+                        UDA_LOG(UDA_LOG_DEBUG, "Filename    : %s\n", data[i].filename);
+                        UDA_LOG(UDA_LOG_DEBUG, "Type        : %s\n", data[i].type);
+                    }
+                } else if (castTypeId == CASTCOLUMN) {                // Column oriented
+
+                    UDA_LOG(UDA_LOG_DEBUG, "Cast as column\n");
+
+                    DATALISTSOURCES_C *data;
+                    data = (DATALISTSOURCES_C *) malloc(sizeof(DATALISTSOURCES_C));
+                    addMalloc(logmalloclist, (void *) data, 1, sizeof(DATALISTSOURCES_C), "DATALISTSOURCES_C");
+                    structData = (void *) data;
+
+                    data->pass = (int *) malloc(nrows * sizeof(int));
+                    addMalloc(logmalloclist, (void *) data->pass, nrows, sizeof(int), "int");
+                    data->status = (short *) malloc(nrows * sizeof(short));
+                    addMalloc(logmalloclist, (void *) data->status, nrows, sizeof(short), "short");
+
+                    data->source_alias = (char **) malloc(nrows * sizeof(char *));
+                    addMalloc(logmalloclist, (void *) data->source_alias, nrows, sizeof(char *), "STRING *");
+                    data->format = (char **) malloc(nrows * sizeof(char *));
+                    addMalloc(logmalloclist, (void *) data->format, nrows, sizeof(char *), "STRING *");
+                    data->filename = (char **) malloc(nrows * sizeof(char *));
+                    addMalloc(logmalloclist, (void *) data->filename, nrows, sizeof(char *), "STRING *");
+                    data->type = (char **) malloc(nrows * sizeof(char *));
+                    addMalloc(logmalloclist, (void *) data->type, nrows, sizeof(char *), "STRING *");
+
+                    data->run_id = (int *) malloc(nrows * sizeof(int));
+                    addMalloc(logmalloclist, (void *) data->run_id, nrows, sizeof(int), "int");
+
+                    data->count = nrows;
+                    data->shot = exp_number;
+
+                    for (i = 0; i < nrows; i++) {
+
+                        stringLength = strlen(PQgetvalue(DBQuery, i, 0)) + 1;
+                        data->source_alias[i] = (char *) malloc(stringLength * sizeof(char));
+                        strcpy(data->source_alias[i], PQgetvalue(DBQuery, i, 0));
+                        addMalloc(logmalloclist, (void *) data->source_alias[i], stringLength, sizeof(char), "char");
+
+                        data->pass[i] = (unsigned int) atoi(PQgetvalue(DBQuery, i, 1));
+                        data->status[i] = (short) atoi(PQgetvalue(DBQuery, i, 2));
+
+
+                        stringLength = strlen(PQgetvalue(DBQuery, i, 3)) + 1;
+                        data->format[i] = (char *) malloc(stringLength * sizeof(char));
+                        strcpy(data->format[i], PQgetvalue(DBQuery, i, 3));
+                        addMalloc(logmalloclist, (void *) data->format[i], stringLength, sizeof(char), "char");
+
+                        stringLength = strlen(PQgetvalue(DBQuery, i, 4)) + 1;
+                        data->filename[i] = (char *) malloc(stringLength * sizeof(char));
+                        strcpy(data->filename[i], PQgetvalue(DBQuery, i, 4));
+                        addMalloc(logmalloclist, (void *) data->filename[i], stringLength, sizeof(char), "char");
+
+                        p = PQgetvalue(DBQuery, i, 5);
+                        if (p[0] == 'A') {
+                            strcpy(work, "Analysed");
+                        } else if (p[0] == 'R') {
+                            strcpy(work, "Raw");
+                        } else if (p[0] == 'I') {
+                            strcpy(work, "Image");
+                        } else if (p[0] == 'M') {
+                            strcpy(work, "Modelled");
+                        } else {
+                            strcpy(work, "");
+                        }
+
+                        stringLength = strlen(work) + 1;
+                        data->type[i] = (char *) malloc(stringLength * sizeof(char));
+                        strcpy(data->type[i], work);
+                        addMalloc(logmalloclist, (void *) data->type[i], stringLength, sizeof(char), "char");
+
+                        if (!PQgetisnull(DBQuery, i, 6)) {
+                            data->run_id[i] = atoi(PQgetvalue(DBQuery, i, 6));
+                        } else {
+                            data->run_id[i] = -1;
+                        }
+                    }
+                }
+
+                PQclear(DBQuery);
+
+                // Pass Data
+
+                data_block->data_type = UDA_TYPE_COMPOUND;
+                data_block->rank = 0;
+                data_block->data_n = 1;
+                data_block->data = (char *) structData;
+
+                strcpy(data_block->data_desc, "listSources");
+                strcpy(data_block->data_label, "");
+                strcpy(data_block->data_units, "");
+
+                data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
+                data_block->opaque_count = 1;
+                if (castTypeId == CASTROW) {
+                    data_block->opaque_block = (void *) findUserDefinedType(userdefinedtypelist, "DATALISTSOURCES_RR",
+                                                                            0);
+                } else if (castTypeId == CASTCOLUMN) {
+                    data_block->opaque_block = (void *) findUserDefinedType(userdefinedtypelist, "DATALISTSOURCES_C",
+                                                                            0);
+                }
+
+                UDA_LOG(UDA_LOG_DEBUG, "readMeta: Function listSources called\n");
+
+                break;
+            } else {
+                sql[0] = '\0';
+                if (typeDependent >= 0) {
+                    work[0] = toupper(request_block->nameValueList.nameValue[typeDependent].value[0]);
+                    work[1] = '\0';
+                    strcat(sql, "WHERE type = '");
+                    strcat(sql, work);
+                    strcat(sql, "' ");
+                }
+                strcpy(work, sql);
+
+                sprintf(sql,
+                        "SELECT distinct(source_alias), type FROM Data_Source "
+                                "%s ORDER BY source_alias ASC", work);
+
+                // Execute the SQL
+                if ((DBQuery = PQexec(DBConnect, sql)) == NULL) {
+                    err = 999;
+                    UDA_LOG(UDA_LOG_ERROR, "ERROR Meta: Database Query Failed!\n");
+                    addIdamError(CODEERRORTYPE, "readMeta", err, "Database Query Failed!");
+                    break;
+                }
+
+                if (PQresultStatus(DBQuery) != PGRES_TUPLES_OK && PQresultStatus(DBQuery) != PGRES_COMMAND_OK) {
+                    UDA_LOG(UDA_LOG_ERROR, "ERROR Meta: %s\n", PQresultErrorMessage(DBQuery));
+                    err = 999;
+                    addIdamError(CODEERRORTYPE, "readMeta", err, PQresultErrorMessage(DBQuery));
+                    break;
+                }
+
+                nrows = PQntuples(DBQuery);
+
+                if (nrows == 0) {
+                    UDA_LOG(UDA_LOG_ERROR, "ERROR Meta: No Meta Data available!\n");
+                    err = 999;
+                    addIdamError(CODEERRORTYPE, "readMeta", err, "No Meta Data available!");
+                    break;
+                }
+
+                // Create the Returned Structure Definition
+
+                initUserDefinedType(&usertype);            // New structure definition
+
+                if (castTypeId == CASTROW) {
+                    strcpy(usertype.name, "DATALISTALLSOURCES_R");        // Default is Row Oriented
+                    usertype.size = sizeof(DATALISTALLSOURCES_R);
+                } else if (castTypeId == CASTCOLUMN) {
+                    strcpy(usertype.name, "DATALISTALLSOURCES_C");
+                    usertype.size = sizeof(DATALISTALLSOURCES_C);
+                }
+
+                strcpy(usertype.source, "readMeta");
                 usertype.ref_id = 0;
                 usertype.imagecount = 0;                // No Structure Image data
                 usertype.image = NULL;
                 usertype.idamclass = UDA_TYPE_COMPOUND;
 
                 offset = 0;
-                defineField(&field, "count", "Array element count", &offset, SCALARUINT);
-                addCompoundField(&usertype, field);
-                defineField(&field, "shot", "shot number", &offset, SCALARUINT);
-                addCompoundField(&usertype, field);
 
-                initCompoundField(&field);
-                strcpy(field.name, "datalistsources");
-                field.atomictype = UDA_TYPE_UNKNOWN;
-                strcpy(field.type, "DATALISTSOURCES_R");
-                strcpy(field.desc, "[DATALISTSOURCES_R *datalistsources] Metadata records");
-                field.pointer = 1;
-                field.count = 1;
-                field.rank = 0;
-                field.shape = NULL;
-                field.size = field.count * sizeof(DATALISTSOURCES_R*);
-                field.offset = newoffset(offset, field.type);
-                field.offpad = padding(offset, field.type);
-                field.alignment = getalignmentof(field.type);
-                offset = field.offset + field.size;
+                if (castTypeId == CASTCOLUMN) {
+                    defineField(&field, "count", "Array element count", &offset, SCALARUINT);
+                    addCompoundField(&usertype, field);
+                }
+
+                defineField(&field, "source_alias", "data source alias name", &offset, stringTypeId);
+                addCompoundField(&usertype, field);
+                defineField(&field, "type", "data type classification", &offset, stringTypeId);
                 addCompoundField(&usertype, field);
 
                 addUserDefinedType(userdefinedtypelist, usertype);
-            }
 
-            USERDEFINEDTYPE* udt = findUserDefinedType(userdefinedtypelist, "DATALISTSOURCES_R", 0);
-            int size = getStructureSize(userdefinedtypelist, udt);
-            UDA_LOG(UDA_LOG_DEBUG, "sizeof(DATALISTSOURCES_R) = %zu [%d]\n", sizeof(DATALISTSOURCES_R), size);
-            printUserDefinedTypeListTable(*userdefinedtypelist);
+                if (castTypeId == CASTROW) {
+                    initUserDefinedType(&usertype);
+                    strcpy(usertype.name, "DATALISTALLSOURCES_RR");
+                    usertype.size = sizeof(DATALISTALLSOURCES_RR);
+                    strcpy(usertype.source, "listData");
+                    usertype.ref_id = 0;
+                    usertype.imagecount = 0;                // No Structure Image data
+                    usertype.image = NULL;
+                    usertype.idamclass = UDA_TYPE_COMPOUND;
 
-            // Create Data
+                    offset = 0;
+                    defineField(&field, "count", "Array element count", &offset, SCALARUINT);
+                    addCompoundField(&usertype, field);
 
-            UDA_LOG(UDA_LOG_DEBUG, "listSources:\n");
-            UDA_LOG(UDA_LOG_DEBUG, "Shot: %d\n", exp_number);
+                    initCompoundField(&field);
+                    strcpy(field.name, "datalistallsources");
+                    field.atomictype = UDA_TYPE_UNKNOWN;
+                    strcpy(field.type, "DATALISTALLSOURCES_R");
+                    strcpy(field.desc, "[DATALISTALLSOURCES_R *datalistallsources] Metadata records");
+                    field.pointer = 1;
+                    field.count = 1;
+                    field.rank = 0;
+                    field.shape = NULL;
+                    field.size = field.count * sizeof(DATALISTALLSOURCES_R *);
+                    field.offset = newoffset(offset, field.type);
+                    field.offpad = padding(offset, field.type);
+                    field.alignment = getalignmentof(field.type);
+                    offset = field.offset + field.size;
+                    addCompoundField(&usertype, field);
 
-            if (castTypeId == CASTROW) {                // Row oriented
-
-                DATALISTSOURCES_RR* dataR;
-                dataR = (DATALISTSOURCES_RR*)malloc(sizeof(DATALISTSOURCES_RR));
-                addMalloc(logmalloclist, (void*)dataR, 1, sizeof(DATALISTSOURCES_RR), "DATALISTSOURCES_RR");
-                structData = (void*)dataR;
-
-                DATALISTSOURCES_R* data;
-                data = (DATALISTSOURCES_R*)malloc(nrows * sizeof(DATALISTSOURCES_R));
-                addMalloc(logmalloclist, (void*)data, nrows, sizeof(DATALISTSOURCES_R), "DATALISTSOURCES_R");
-
-                dataR->list = data;
-                dataR->count = nrows;
-                dataR->shot = exp_number;
-
-                for (i = 0; i < nrows; i++) {
-
-                    stringLength = strlen(PQgetvalue(DBQuery, i, 0)) + 1;
-                    data[i].source_alias = (char*)malloc(stringLength * sizeof(char));
-                    strcpy(data[i].source_alias, PQgetvalue(DBQuery, i, 0));
-                    addMalloc(logmalloclist, (void*)data[i].source_alias, 1, stringLength * sizeof(char), "char");
-
-                    data[i].pass = (int)atoi(PQgetvalue(DBQuery, i, 1));
-                    data[i].status = (short)atoi(PQgetvalue(DBQuery, i, 2));
-
-                    stringLength = strlen(PQgetvalue(DBQuery, i, 3)) + 1;
-                    data[i].format = (char*)malloc(stringLength * sizeof(char));
-                    strcpy(data[i].format, PQgetvalue(DBQuery, i, 3));
-                    addMalloc(logmalloclist, (void*)data[i].format, 1, stringLength * sizeof(char), "char");
-
-                    stringLength = strlen(PQgetvalue(DBQuery, i, 4)) + 1;
-                    data[i].filename = (char*)malloc(stringLength * sizeof(char));
-                    strcpy(data[i].filename, PQgetvalue(DBQuery, i, 4));
-                    addMalloc(logmalloclist, (void*)data[i].filename, 1, stringLength * sizeof(char), "char");
-
-                    p = PQgetvalue(DBQuery, i, 5);
-                    if (p[0] == 'A') {
-                        strcpy(work, "Analysed");
-                    } else if (p[0] == 'R') {
-                        strcpy(work, "Raw");
-                    } else if (p[0] == 'I') {
-                        strcpy(work, "Image");
-                    } else if (p[0] == 'M') {
-                        strcpy(work, "Modelled");
-                    } else
-                        strcpy(work, p);
-
-                    stringLength = strlen(work) + 1;
-                    data[i].type = (char*)malloc(stringLength * sizeof(char));
-                    strcpy(data[i].type, work);
-                    addMalloc(logmalloclist, (void*)data[i].type, 1, stringLength * sizeof(char), "char");
-
-                    UDA_LOG(UDA_LOG_DEBUG, "Pass        : %d\n", data[i].pass);
-                    UDA_LOG(UDA_LOG_DEBUG, "source_alias: %s\n", data[i].source_alias);
-                    UDA_LOG(UDA_LOG_DEBUG, "Status      : %d\n", data[i].status);
-                    UDA_LOG(UDA_LOG_DEBUG, "Format      : %s\n", data[i].format);
-                    UDA_LOG(UDA_LOG_DEBUG, "Filename    : %s\n", data[i].filename);
-                    UDA_LOG(UDA_LOG_DEBUG, "Type        : %s\n", data[i].type);
+                    addUserDefinedType(userdefinedtypelist, usertype);
                 }
-            } else if (castTypeId == CASTCOLUMN) {                // Column oriented
 
-                DATALISTSOURCES_C* data;
-                data = (DATALISTSOURCES_C*)malloc(sizeof(DATALISTSOURCES_C));
-                addMalloc(logmalloclist, (void*)data, 1, sizeof(DATALISTSOURCES_C), "DATALISTSOURCES_C");
-                structData = (void*)data;
+                USERDEFINEDTYPE *udt = findUserDefinedType(userdefinedtypelist, "DATALISTALLSOURCES_R", 0);
+                int size = getStructureSize(userdefinedtypelist, udt);
+                UDA_LOG(UDA_LOG_DEBUG, "sizeof(DATALISTALLSOURCES_R) = %zu [%d]\n", sizeof(DATALISTALLSOURCES_R), size);
+                printUserDefinedTypeListTable(*userdefinedtypelist);
 
-                data->pass = (int*)malloc(nrows * sizeof(int));
-                addMalloc(logmalloclist, (void*)data->pass, nrows, sizeof(int), "int");
-                data->status = (short*)malloc(nrows * sizeof(short));
-                addMalloc(logmalloclist, (void*)data->status, nrows, sizeof(short), "short");
+                // Create Data
 
-                data->source_alias = (char**)malloc(nrows * sizeof(char*));
-                addMalloc(logmalloclist, (void*)data->source_alias, nrows, sizeof(char*), "STRING *");
-                data->format = (char**)malloc(nrows * sizeof(char*));
-                addMalloc(logmalloclist, (void*)data->format, nrows, sizeof(char*), "STRING *");
-                data->filename = (char**)malloc(nrows * sizeof(char*));
-                addMalloc(logmalloclist, (void*)data->filename, nrows, sizeof(char*), "STRING *");
-                data->type = (char**)malloc(nrows * sizeof(char*));
-                addMalloc(logmalloclist, (void*)data->type, nrows, sizeof(char*), "STRING *");
+                UDA_LOG(UDA_LOG_DEBUG, "listAllSources:\n");
 
-                data->count = nrows;
-                data->shot = exp_number;
+                if (castTypeId == CASTROW) {                // Row oriented
 
-                for (i = 0; i < nrows; i++) {
+                    DATALISTALLSOURCES_RR *dataR;
+                    dataR = (DATALISTALLSOURCES_RR *) malloc(sizeof(DATALISTALLSOURCES_RR));
+                    addMalloc(logmalloclist, (void *) dataR, 1, sizeof(DATALISTALLSOURCES_RR), "DATALISTALLSOURCES_RR");
+                    structData = (void *) dataR;
 
-                    stringLength = strlen(PQgetvalue(DBQuery, i, 0)) + 1;
-                    data->source_alias[i] = (char*)malloc(stringLength * sizeof(char));
-                    strcpy(data->source_alias[i], PQgetvalue(DBQuery, i, 0));
-                    addMalloc(logmalloclist, (void*)data->source_alias[i], stringLength, sizeof(char), "char");
+                    DATALISTALLSOURCES_R *data;
+                    data = (DATALISTALLSOURCES_R *) malloc(nrows * sizeof(DATALISTALLSOURCES_R));
+                    addMalloc(logmalloclist, (void *) data, nrows, sizeof(DATALISTALLSOURCES_R), "DATALISTALLSOURCES_R");
 
-                    data->pass[i] = (unsigned int)atoi(PQgetvalue(DBQuery, i, 1));
-                    data->status[i] = (short)atoi(PQgetvalue(DBQuery, i, 2));
+                    dataR->list = data;
+                    dataR->count = nrows;
 
-                    stringLength = strlen(PQgetvalue(DBQuery, i, 3)) + 1;
-                    data->format[i] = (char*)malloc(stringLength * sizeof(char));
-                    strcpy(data->format[i], PQgetvalue(DBQuery, i, 3));
-                    addMalloc(logmalloclist, (void*)data->format[i], stringLength, sizeof(char), "char");
+                    for (i = 0; i < nrows; i++) {
 
-                    stringLength = strlen(PQgetvalue(DBQuery, i, 4)) + 1;
-                    data->filename[i] = (char*)malloc(stringLength * sizeof(char));
-                    strcpy(data->filename[i], PQgetvalue(DBQuery, i, 4));
-                    addMalloc(logmalloclist, (void*)data->filename[i], stringLength, sizeof(char), "char");
+                        stringLength = strlen(PQgetvalue(DBQuery, i, 0)) + 1;
+                        data[i].source_alias = (char *) malloc(stringLength * sizeof(char));
+                        strcpy(data[i].source_alias, PQgetvalue(DBQuery, i, 0));
+                        addMalloc(logmalloclist, (void *) data[i].source_alias, 1, stringLength * sizeof(char), "char");
 
-                    p = PQgetvalue(DBQuery, i, 5);
-                    if (p[0] == 'A') {
-                        strcpy(work, "Analysed");
-                    } else if (p[0] == 'R') {
-                        strcpy(work, "Raw");
-                    } else if (p[0] == 'I') {
-                        strcpy(work, "Image");
-                    } else if (p[0] == 'M') {
-                        strcpy(work, "Modelled");
-                    } else
-                        strcpy(work, p);
+                        p = PQgetvalue(DBQuery, i, 1);
+                        if (p[0] == 'A') {
+                            strcpy(work, "Analysed");
+                        } else if (p[0] == 'R') {
+                            strcpy(work, "Raw");
+                        } else if (p[0] == 'I') {
+                            strcpy(work, "Image");
+                        } else if (p[0] == 'M') {
+                            strcpy(work, "Modelled");
+                        } else
+                            strcpy(work, p);
 
-                    stringLength = strlen(work) + 1;
-                    data->type[i] = (char*)malloc(stringLength * sizeof(char));
-                    strcpy(data->type[i], work);
-                    addMalloc(logmalloclist, (void*)data->type[i], stringLength, sizeof(char), "char");
+                        stringLength = strlen(work) + 1;
+                        data[i].type = (char *) malloc(stringLength * sizeof(char));
+                        strcpy(data[i].type, work);
+                        addMalloc(logmalloclist, (void *) data[i].type, 1, stringLength * sizeof(char), "char");
+
+                    }
+                } else if (castTypeId == CASTCOLUMN) {                // Column oriented
+
+                    UDA_LOG(UDA_LOG_DEBUG, "Cast as column\n");
+
+                    DATALISTALLSOURCES_C *data;
+                    data = (DATALISTALLSOURCES_C *) malloc(sizeof(DATALISTALLSOURCES_C));
+                    addMalloc(logmalloclist, (void *) data, 1, sizeof(DATALISTALLSOURCES_C), "DATALISTALLSOURCES_C");
+                    structData = (void *) data;
+
+                    data->source_alias = (char **) malloc(nrows * sizeof(char *));
+                    addMalloc(logmalloclist, (void *) data->source_alias, nrows, sizeof(char *), "STRING *");
+
+                    data->type = (char **) malloc(nrows * sizeof(char *));
+                    addMalloc(logmalloclist, (void *) data->type, nrows, sizeof(char *), "STRING *");
+
+                    data->count = nrows;
+
+                    for (i = 0; i < nrows; i++) {
+
+                        stringLength = strlen(PQgetvalue(DBQuery, i, 0)) + 1;
+                        data->source_alias[i] = (char *) malloc(stringLength * sizeof(char));
+                        strcpy(data->source_alias[i], PQgetvalue(DBQuery, i, 0));
+                        addMalloc(logmalloclist, (void *) data->source_alias[i], stringLength, sizeof(char), "char");
+
+                        p = PQgetvalue(DBQuery, i, 1);
+                        if (p[0] == 'A') {
+                            strcpy(work, "Analysed");
+                        } else if (p[0] == 'R') {
+                            strcpy(work, "Raw");
+                        } else if (p[0] == 'I') {
+                            strcpy(work, "Image");
+                        } else if (p[0] == 'M') {
+                            strcpy(work, "Modelled");
+                        } else {
+                            strcpy(work, "");
+                        }
+
+                        stringLength = strlen(work) + 1;
+                        data->type[i] = (char *) malloc(stringLength * sizeof(char));
+                        strcpy(data->type[i], work);
+                        addMalloc(logmalloclist, (void *) data->type[i], stringLength, sizeof(char), "char");
+                    }
                 }
+
+                PQclear(DBQuery);
+
+                // Pass Data
+
+                data_block->data_type = UDA_TYPE_COMPOUND;
+                data_block->rank = 0;
+                data_block->data_n = 1;
+                data_block->data = (char *) structData;
+
+                strcpy(data_block->data_desc, "LISTALLSOURCES");
+                strcpy(data_block->data_label, "");
+                strcpy(data_block->data_units, "");
+
+                data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
+                data_block->opaque_count = 1;
+                if (castTypeId == CASTROW) {
+                    data_block->opaque_block = (void *) findUserDefinedType(userdefinedtypelist, "DATALISTALLSOURCES_RR",
+                                                                            0);
+                } else if (castTypeId == CASTCOLUMN) {
+                    data_block->opaque_block = (void *) findUserDefinedType(userdefinedtypelist, "DATALISTALLSOURCES_C",
+                                                                            0);
+                }
+
+                UDA_LOG(UDA_LOG_DEBUG, "readMeta: Function LISTALLSOURCES called\n");
+
+                break;
             }
-
-            PQclear(DBQuery);
-
-// Pass Data
-
-            data_block->data_type = UDA_TYPE_COMPOUND;
-            data_block->rank = 0;
-            data_block->data_n = 1;
-            data_block->data = (char*)structData;
-
-            strcpy(data_block->data_desc, "listSources");
-            strcpy(data_block->data_label, "");
-            strcpy(data_block->data_units, "");
-
-            data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
-            data_block->opaque_count = 1;
-            if (castTypeId == CASTROW) {
-                data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "DATALISTSOURCES_RR", 0);
-            } else if (castTypeId == CASTCOLUMN) {
-                data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "DATALISTSOURCES_C", 0);
-            }
-
-            UDA_LOG(UDA_LOG_DEBUG, "readMeta: Function listSources called\n");
-
-            break;
 
         } else
 
