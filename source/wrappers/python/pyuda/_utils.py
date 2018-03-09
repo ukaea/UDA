@@ -71,7 +71,7 @@ def cdata_vector_to_value(vector):
         return np.array(vector.uldata(), dtype=vector.type())
     elif vector.type() == 'string':
         vec = vector.string()
-        return [vec[i] for i in range(len(vec))] # converting SWIG vector<char*> to list of strings
+        return [vec[i] for i in range(len(vec))]  # converting SWIG vector<char*> to list of strings
     else:
         raise UDAException("Unknown data type " + vector.type())
 

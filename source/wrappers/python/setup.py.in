@@ -21,12 +21,14 @@ ext = Extension(
         root + '/include/uda/c++',
         '@Boost_INCLUDE_DIRS@',
     ],
-    libraries = ['@PROJECT_NAME@_cpp'],
+    libraries = ['@PROJECT_NAME@_cpp', 'ssl', 'crypto'],
     library_dirs = [
         root + '/lib',
+        '@OPENSSL_LIB_DIR@',
     ],
     runtime_library_dirs = [
         root + '/lib',
+        '@OPENSSL_LIB_DIR@',
     ],
     extra_link_args=extra_link_args,
     extra_compile_args=['-std=c++11']

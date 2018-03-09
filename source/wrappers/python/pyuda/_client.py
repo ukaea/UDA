@@ -17,9 +17,9 @@ try:
 except ImportError:
     Enum = object
 
-from six import add_metaclass
 from builtins import (range, int, bytes, str)
 from future import standard_library
+from future.utils import with_metaclass
 standard_library.install_aliases()
 
 
@@ -54,8 +54,7 @@ class ListType(Enum):
     SHOTS = 3
 
 
-@add_metaclass(ClientMeta)
-class Client(object):
+class Client(with_metaclass(ClientMeta, object)):
     """
     A class representing the IDAM client.
 
@@ -65,9 +64,7 @@ class Client(object):
 
     def __init__(self, debug_level=logging.ERROR):
         self._cclient = c_uda.Client()
-
-        logging.basicConfig(level = debug_level)
-
+        logging.basicConfig(level=debug_level)
         self.logger = logging.getLogger(__name__)
         
     def get(self, signal, source, **kwargs):

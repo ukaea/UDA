@@ -2,13 +2,12 @@ from __future__ import (division, unicode_literals, print_function, absolute_imp
 
 import abc
 
-from six import add_metaclass
 from future import standard_library
+from future.utils import with_metaclass
 standard_library.install_aliases()
 
 
-@add_metaclass(abc.ABCMeta)
-class Data(object):
+class Data(with_metaclass(abc.ABCMeta, object)):
     """
     The base class of data that can be returned by the pyuda Client.
     """
