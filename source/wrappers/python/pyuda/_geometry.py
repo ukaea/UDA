@@ -11,21 +11,21 @@ from future import standard_library
 standard_library.install_aliases()
 
 
-"""
-Class to import geometry data.
-1. Combines configuration and calibration data
-2. Applies any manipulations required for that file.
-   (a class must be passed in with methods do_manip to
-    do the manipulation and plot to plot the components)
-
-PROBLEMS:
- 1. Enums come back as longs... Not very useful for telling people
-    stuff. Also, bad since then they are treated as numbers and code
-    will try to add them when calibrating... Perhaps should ditch the
-    enums and use strings instead?
-"""
-
 class GeometryData(Data):
+    """
+    Class to import geometry data.
+    1. Combines configuration and calibration data
+    2. Applies any manipulations required for that file.
+       (a class must be passed in with methods do_manip to
+        do the manipulation and plot to plot the components)
+
+    PROBLEMS:
+     1. Enums come back as longs... Not very useful for telling people
+        stuff. Also, bad since then they are treated as numbers and code
+        will try to add them when calibrating... Perhaps should ditch the
+        enums and use strings instead?
+    """
+
     def __init__(self, structData, signal_config, manip, **kwargs):
         """
         Initialisation
@@ -346,7 +346,6 @@ class GeometryData(Data):
                 ax_3d = fig.add_subplot(122, projection='3d')
 
             self._manip[0].plot(self.data, ax_2d=ax_2d, ax_3d=ax_3d, show=show, color=color)
-
 
     def widget(self):
         raise NotImplementedError("widget function not implemented for GeometryData objects")
